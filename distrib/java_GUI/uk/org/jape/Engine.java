@@ -1,7 +1,7 @@
 /* 
     $Id$
 
-    Copyright © 2003 Richard Bornat & Bernard Sufrin
+    Copyright ï¿½ 2003 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -32,15 +32,18 @@ public class Engine implements DebugConstants {
     private static Process engine;
     private static Engine  self;
 
-    public Engine (String enginePath) {
+    public Engine (String[] cmd) {
         try {
-            engine = Runtime.getRuntime().exec(enginePath);
+            engine = Runtime.getRuntime().exec(cmd);
             self = this;
         } catch (Exception exn) {
-            /* StringWriter sw = new StringWriter();
-            System.getProperties().list(new PrintWriter(sw)); */
-            Alert.abort("can't start proof engine (exception "+exn+")\n"+
-                        "(.="+System.getProperties().getProperty("user.dir")+")");
+            String s = "can't start proof engine (exception "+exn+")\ncmd =[";
+            for (int i=0; i<cmd.length; i++) {
+                s = s+JapeUtils.enQuote(cmd[i]);
+                if (i+1<cmd.length)
+                    s = s+", ";
+            }
+            Alert.abort(s+"]");
             engine = null; // shut up compiler
         }
 
