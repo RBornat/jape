@@ -27,6 +27,7 @@
 
 interface DebugConstants {
     static final public boolean anchoredpane_tracing     = false,
+                                antialias_trace          = false,
                                 containerlayout_tracing  = false,
                                 menuaction_tracing       = false,
                                 menubar_tracing          = false,
