@@ -52,10 +52,17 @@ public abstract class SelectableProofItem extends TextSelectableItem
             public void clicked(byte eventKind, MouseEvent e) {
                 SelectableProofItem.this.clicked(eventKind, e);
             }
+            public void doubleclicked(byte eventKind, MouseEvent e) {
+                SelectableProofItem.this.doubleclicked(eventKind, e);
+            }
         });
     }
 
     protected abstract void clicked(byte eventKind, MouseEvent e);
+
+    protected void doubleclicked(byte eventKind, MouseEvent e) {
+        canvas.notifyHit(this);
+    }
     
     protected class SelectionRect extends RectItem {
         public byte selkind;
