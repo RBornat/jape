@@ -246,19 +246,30 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             
             for (int i=0; i<entryv.size(); i++)
                 addEntry((String)entryv.get(i));
-            
-            if (kind==ConjecturePanelKind) { 
-                // double-click means "prove this one"
-                MouseListener m = new MouseAdapter () {
-                    public void mouseClicked(MouseEvent e) {
-                        if (e.getClickCount()==2) {
-                            int index = list.locationToIndex(e.getPoint());
+
+            MouseListener m = new MouseAdapter () {
+                public void mouseClicked(MouseEvent e) {
+                    int index = list.locationToIndex(e.getPoint());
+                    if (e.getClickCount()==2) {
+                        if (kind==ConjecturePanelKind)
+                            // double-click means "prove this one"
                             Reply.sendCOMMAND("prove "+cmdv.get(index));
+                    }
+                    else
+                    if (japeserver.onLinux || japeserver.onSolaris) {
+                        // workaround for JList bug?
+                        // probably the test ought to be on the L&F, but this might work
+                        int oldsel = list.getSelectedIndex();
+                        if (oldsel==index)
+                            repaintCell(index);
+                        else {
+                            list.setSelectedIndex(index);
+                            repaintCell(oldsel); repaintCell(index);
                         }
                     }
-                };
-                list.addMouseListener(m);
-            }
+                }
+            };
+            list.addMouseListener(m);
     
             scrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                                                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -328,7 +339,10 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         }
 
         private void repaintSelection() {
-            int index = list.getSelectedIndex();
+            repaintCell(list.getSelectedIndex());
+        }
+
+        private void repaintCell(int index) {
             if (index!=-1) {
                 Point p = list.indexToLocation(index);
                 Dimension d = ((Entry)model.elementAt(index)).getPreferredSize();
