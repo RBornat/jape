@@ -301,6 +301,10 @@ exception Io of exn
 type 'a histrec = { now : 'a; pasts : 'a list; futures : 'a list }
 type 'a hist = Hist of 'a histrec
 
+let string_of_hist f (Hist h) =
+  "Hist{now=" ^ f (h.now) ^ "; pasts=" ^ bracketedliststring f ";" h.pasts ^
+  "; futures=" ^ bracketedliststring f ";" h.futures
+
 type winhistrec = 
       { changed : bool; proofhist : proofstate hist;
         disproofhist : disproofstate hist option }
@@ -932,6 +936,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       Japeserver.panelentry (namestring panel) (namestring name) (parseablenamestring name);
     name
   in
+  
   let rec printproof path state =
     let st = rewriteproofstate state in
     try
@@ -941,36 +946,31 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       Io exn ->
         showAlert ["Cannot write file "; path; " ("; Printexc.to_string exn; ")"]
   in
-  let rec writetonamedfile action filename =
+  
+  let writetonamedfile action filename =
     try
       let sfile = try open_out (disQuote filename) with exn -> raise (Io exn) in
       action sfile; close_out sfile; true
     with
-      Io exn ->
-        showAlert
-          ["Cannot write file "; filename; " ("; Printexc.to_string exn; ")"];
-        false
+      Io exn -> showAlert ["Cannot write file "; filename; " ("; Printexc.to_string exn; ")"]; false
   in
+  
   let rec saveproofs newfile =
     let rec doit sfile =
       let rec pf ps = (provisoactual <* (provisovisible <| ps)) in
       let rec f =
         fun (Pinf {title = t, _; hist = hist}) ->
-          let (Proofstate {cxt = cxt; tree = tree; givens = givens}) =
-            winhist_proofnow hist
-          in
+          let (Proofstate {cxt = cxt; tree = tree; givens = givens}) = winhist_proofnow hist in
           saveproof sfile t Proofstage.InProgress tree (pf (provisos cxt)) givens
             (disproofstate2model (winhist_disproofnow hist))
       in
       Proofstore.saveproofs sfile; List.map f pinfs
     in
     match newfile, !savefilename with
-      false, Some s -> let _ = (writetonamedfile doit s : bool) in ()
-    | _ ->
-        match
-          Japeserver.writeFileName "Save proofs as:"
-            Japeserver.prooffiletype
-        with
+      false, Some s -> 
+        let _ = (writetonamedfile doit s : bool) in ()
+    | _             ->
+        match Japeserver.writeFileName "Save proofs as:" Japeserver.prooffiletype with
           Some s -> if writetonamedfile doit s then savefilename := Some s
         | None -> ()
   in
@@ -1040,9 +1040,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     else begin reset (); true end
   in
   let rec doResettheory () =
-    List.iter
-      (fun (Pinf {proofnum = proofnum}) -> Japeserver.closeproof proofnum)
-      pinfs;
+    List.iter (fun (Pinf p) -> Japeserver.closeproof p.proofnum) pinfs;
     Japeserver.cancelmenusandpanels ();
     reset ();
     defaultenv (), [], DontShow, []
@@ -1856,65 +1854,46 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let disproofhist = winhist_disproofhist hist in
             let proofstate = hist_now proofhist in
             let disproof = try__ hist_now disproofhist in
-            let rec closed () = newfocus (env, mbs, DontShow, pinfs') in
+            let closed () = newfocus (env, mbs, DontShow, pinfs') in
+            let closeOK () = Japeserver.closeproof n; closed() in
             (* a proof can be finished in no steps.  But if it comes from store, we don't
                re-record it unless you've developed it.
              *)
             if finished proofstate disproof then
-              if (not fromstore ||
-                  not
-                    (null (hist_pasts proofhist) &&
-                     isproven proofstate)) ||
-                 (match disproofhist with
-                    Some d -> not (null (hist_pasts d))
-                  | None -> false) &&
-                 disproof_finished disproof
+              if  not fromstore ||
+                  (not (null (hist_pasts proofhist)) && isproven proofstate) ||
+		  (match disproofhist with 
+		     Some d -> not (null (hist_pasts d)) && disproof_finished disproof 
+		   | None   -> false) 
               then
                 Alert.askDangerously
                   ("The proof of " ^ namestring t ^ " is complete - do you want to record it?")
-                  ("Record", if endproof n t proofstate disproof 
-                             then closed else (fun () -> default))
-                  ("Don't record", (Japeserver.closeproof n; closed))
+                  ("Record", (fun () -> if endproof n t proofstate disproof 
+                                        then closed() else default))
+                  ("Don't record", closeOK)
                   (fun () -> default) 
                   ()
-              else (Japeserver.closeproof n; closed())
+              else closeOK()
             else 
               (* hist doesn't normally matter, since we don't store it ... if you are looking at an
                  undeveloped proof, we can just throw it away.
                *)
             if not fromstore &&
-              (not (isTip (proofstate_tree proofstate)) ||
-               not (disproof_minimal disproof))
-            then
-              (* there is something to save *)
-              if screenquery ["Abandon proof of "; namestring t; "?"]
-                   "Abandon" "Cancel" 1
-              then
-                begin Japeserver.closeproof n; closed () end
-              else default
-            else(* nothing to save *)
-             begin Japeserver.closeproof n;(*  consolereport ["closing proof ", string_of_int n, 
-                   " -- now ", string_of_int (List.length pinfs'), " proofs left"
-               ]; 
-             *)
-             closed () end
+              (not (isTip (proofstate_tree proofstate)) || not (disproof_minimal disproof))
+            then (* there is something to save *)
+              if screenquery ["Abandon proof of "; namestring t; "?"] "Abandon" "Cancel" 1
+              then closeOK() else default
+            else (* nothing to save *)
+             closeOK()
 
         | "createdbugfile", [] ->
-            begin match
-              Japeserver.writeFileName "Write diagnostic output to:"
-                Japeserver.dbugfiletype
-            with
-              Some s ->
-                let file = disQuote s in
-                begin try createdbugfile file with
-                  exn ->
-                    showAlert
-                      ["can't create file"; file; " ("; Printexc.to_string exn;
-                       ")"]
-                end;
-                default
-            | None -> default
-            end
+            (match Japeserver.writeFileName "Write diagnostic output to:" Japeserver.dbugfiletype with
+	       Some s -> let file = disQuote s in
+			 (try createdbugfile file with
+			   exn -> showAlert ["can't create file"; file; " ("; Printexc.to_string exn; ")"]);
+			 default
+	     | None  -> default
+            )
 
         | "closedbugfile", [] -> closedbugfile (); default
 
