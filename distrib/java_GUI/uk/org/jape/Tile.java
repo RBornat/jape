@@ -27,12 +27,10 @@
 
 import javax.swing.border.Border;
 import javax.swing.BorderFactory;
-import java.awt.Component;
+import java.awt.Graphics;
 import javax.swing.JLabel;
-import java.awt.event.MouseEvent;
-import javax.swing.event.MouseInputAdapter;
 
-public class Tile extends JLabel {
+public class Tile extends JLabel implements DebugConstants {
     final String text;
     
     static final int spacing = LocalSettings.TileSpacing;
@@ -42,26 +40,10 @@ public class Tile extends JLabel {
                         compoundbevel = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel),
                         border = BorderFactory.createCompoundBorder(compoundbevel, padding);
 
-    public Tile(final String text) {
+    public Tile(String text) {
         super(text); this.text = text;
-
         setFont(JapeFont.getFont(ProtocolConstants.termFontNum));
-
         setBorder(border);
-        MouseInteractionListener mil = new MouseInteractionAdapter() {
-            public void doubleclicked(byte eventKind, MouseEvent e) {
-                Reply.sendCOMMAND("tileact \""+JapeFont.toAscii(text)+"\"");
-            }
-            public void pressed(byte eventKind, MouseEvent e) {
-                System.err.println("mouse pressed "+e.getX()+","+e.getY()+" insets="+getInsets());
-                Component c = Tile.this;
-                while (c!=null) {
-                    System.err.println(c+"\n");
-                    c = c.getParent();
-                }
-            }
-        };
-        addMouseListener(mil);
-        addMouseMotionListener(mil);
+        setSize(getPreferredSize());
     }
 }
