@@ -102,12 +102,12 @@ TACTICPANEL "Definitions"
 	ENTRY	L
 	ENTRY	R
 
-	BUTTON          "Unfold *"      IS apply RepeatedlyUnfold
-	PREFIXBUTTON	"Unfold"        IS apply UnfoldObvious
-	PREFIXBUTTON	"Fold"		IS apply FoldObvious
-	PREFIXBUTTON	"Apply"		IS apply
-	BUTTON          "Flatten"       IS apply Flatten
-	BUTTON          "Find"          IS apply FindSelection
+	BUTTON	"Unfold *"	IS apply RepeatedlyUnfold
+	BUTTON	"Unfold"	IS apply UnfoldObvious COMMAND
+	BUTTON	"Fold"	IS apply FoldObvious COMMAND
+	BUTTON	"Apply"	IS apply COMMAND
+	BUTTON	"Flatten"	IS apply Flatten
+	BUTTON	"Find"	IS apply FindSelection
 END
 
 MENU Edit
@@ -194,12 +194,12 @@ CONJECTUREPANEL "Conjectures" IS
 		
 		
 
-	        BUTTON          "Unfold *"      IS apply RepeatedlyUnfold
-		PREFIXBUTTON	"Unfold"	IS apply UnfoldObvious
-		PREFIXBUTTON	"Fold"	        IS apply FoldObvious
-		PREFIXBUTTON	"Apply"         IS apply
-		BUTTON          "Flatten"       IS apply Flatten
-		BUTTON          "Find"          IS apply FindSelection
+	BUTTON          "Unfold *"      IS apply RepeatedlyUnfold
+	BUTTON	"Unfold"	IS apply UnfoldObvious COMMAND
+	BUTTON	"Fold"	        IS apply FoldObvious COMMAND
+	BUTTON	"Apply"         IS apply COMMAND
+	BUTTON          "Flatten"       IS apply Flatten
+	BUTTON          "Find"          IS apply FindSelection
 		
 END
 
