@@ -102,8 +102,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                             ProofWindow.greyen(toInt(cmd[1]), toInt(cmd[2]));
                         else
                         if (p.equals("HIGHLIGHT")&&len==4)
-                            ProofWindow.highlight(toInt(cmd[1]), toInt(cmd[2]),
-                                                  toByte(cmd[3]));
+                            ProofWindow.highlight(toInt(cmd[1]), toInt(cmd[2]), toByte(cmd[3]));
                         else
                         if (p.equals("UNHIGHLIGHT")&&len==3)
                             ProofWindow.unhighlight(toInt(cmd[1]), toInt(cmd[2]));
@@ -252,7 +251,10 @@ public class Dispatcher extends Thread implements DebugConstants {
 
                     // disproof
                         if (p.equals("SEQBOX")&&len==4)
-                            ProofWindow.setDisproofSequentBox(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]));
+                            ProofWindow.setSequentBox(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]));
+                        else
+                        if (p.equals("EMPHASISE")&&len==4)
+                            ProofWindow.emphasise(toInt(cmd[1]), toInt(cmd[2]), toBool(cmd[3]));
                         else
                         if (p.equals("TILESSTART")&&len==1)
                             list.removeAllElements();
@@ -263,7 +265,21 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("TILESEND")&&len==1)
                             ProofWindow.setDisproofTiles((String[])list.toArray(new String[list.size()]));
                         else
-                                         
+                        if (p.equals("WORLDSSTART")&&len==1)
+                            ProofWindow.worldsStart();
+                        else
+                        if (p.equals("WORLD")&&len==3)
+                            ProofWindow.addWorld(toInt(cmd[1]), toInt(cmd[2]));
+                        else
+                        if (p.equals("WORLDLABEL")&&len==4)
+                            ProofWindow.addWorldLabel(toInt(cmd[1]), toInt(cmd[2]), toUnicode(cmd[3]));
+                        else
+                        if (p.equals("WORLDCHILD")&&len==5)
+                            ProofWindow.addChildWorld(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]), toInt(cmd[4]));
+                        else
+                        if (p.equals("WORLDSELECT")&&len==3)
+                            ProofWindow.selectWorld(toInt(cmd[1]), toInt(cmd[2]), true);
+                        else
                             
                     // provisos and givens
                         if (p.equals("CLEARGIVENS")&&len==1)
