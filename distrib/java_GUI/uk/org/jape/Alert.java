@@ -55,7 +55,7 @@ public class Alert implements DebugConstants {
     }
     
     public static JLabel makeLabel(String s) {
-	JLabel l = new JLabel(s);
+	JLabel l = new JLabel(s.length()==0 ? " " : s);
 	JapeFont.setComponentFont(l, JapeFont.DIALOGLABEL);
 	return l;
     }
