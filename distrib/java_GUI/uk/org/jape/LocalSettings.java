@@ -71,4 +71,7 @@ public class LocalSettings implements SelectionConstants {
 
     // how to mark an entry in a conjecture panel
     public static final String tick = "\u2713", cross = "\u2717";
+
+    // window titling (this is for Linux only, I think)
+    public static final boolean UnicodeWindowTitles = false;
 }

@@ -78,6 +78,9 @@ public class LocalSettings implements MRJAboutHandler, MRJQuitHandler, MRJPrefsH
     // how to mark an entry in a conjecture panel
     public static final String tick = "\u221A", cross = "\u2022"; // actually square root, blob in Konstanz
 
+    // window titling (until we have proper Unicode operator coverage, esp. turnstile)
+    public static final boolean UnicodeWindowTitles = false;
+    
     /* ********************************************************************** */
 
     // MacOS specific bits
