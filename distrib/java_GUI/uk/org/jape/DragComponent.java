@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.Component;
 
 import java.util.Enumeration;

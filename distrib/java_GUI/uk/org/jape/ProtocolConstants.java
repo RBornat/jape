@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public interface ProtocolConstants {
     /*  from displayfont.ml:
         (* Useful translation for Japeserver marshalling.

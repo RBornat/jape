@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public class MenuHolder extends SurrogateWindow {
     public MenuHolder() {
         super("menu holder");

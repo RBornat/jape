@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.AlphaComposite;
 import java.awt.Component;
 import java.awt.Composite;

@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 // this class, which can be replaced by a platform-specific version to aid 
 // look-and-feel localisation (see for example jape/MacOSX/java_japeserver/LocalSettings.java)
 // or I don't know what else.

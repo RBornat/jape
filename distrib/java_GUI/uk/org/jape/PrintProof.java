@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;

@@ -28,6 +28,7 @@
  * redistribute the Software for such purposes.
  */
 
+package uk.org.jape;
 
 import java.io.File;
 import java.util.Hashtable;

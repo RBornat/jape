@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public interface LineTarget {
     public boolean dragEnter(WorldConnector l); // returns true if drag accepted
     public void dragExit(WorldConnector l);

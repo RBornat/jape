@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public class LineItem extends LineComponent {
 
     protected final JapeCanvas canvas;

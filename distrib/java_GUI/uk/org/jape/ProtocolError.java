@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public class ProtocolError extends Exception {
     ProtocolError(String s) { super(s); }
     ProtocolError() { super(); }

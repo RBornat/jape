@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Point;
@@ -152,11 +154,7 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
     protected void dragged(MouseEvent e) {
         if (firstDrag) {
             firstDrag = false;
-            try {
-                targetClass = Class.forName("LineTarget");
-            } catch (ClassNotFoundException exn) {
-                Alert.abort("can't make LineTarget a Class");
-            }
+			targetClass = LineTarget.class;
             over = null;
             Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), layeredPane);
             dragLine = new DragWorldLine(from, p.x, p.y, canvas.linethickness, false);

@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.Dimension;
 
 public class TextDimension extends Dimension {

@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public interface WorldTarget {
     public boolean dragEnter(byte dragKind, WorldItem w); // returns true if drag accepted
     public void dragExit(byte dragKind, WorldItem w);

@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 

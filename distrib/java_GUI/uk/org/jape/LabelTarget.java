@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public interface LabelTarget {
     public boolean dragEnter(WorldItem w, String label); // returns true if drag accepted
     public void dragExit(WorldItem w, String label);

@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public interface TileTarget {
     public boolean dragEnter(Tile t); // returns true if drag accepted
     public void dragExit(Tile t);

@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public interface MiscellaneousConstants {
     public static final float Transparent = (float)0.5;
 

@@ -27,6 +27,8 @@
     
 */
 
+package uk.org.jape;
+
 public class AboutBox {
     protected static String version = null;
     

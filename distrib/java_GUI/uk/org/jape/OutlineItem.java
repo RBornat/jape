@@ -24,6 +24,8 @@
     (or look at http://www.gnu.org).
     
 */
+
+package uk.org.jape;
 import java.awt.Component;
 
 public class OutlineItem extends Component {

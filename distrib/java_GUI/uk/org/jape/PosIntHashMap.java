@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public class PosIntHashMap {
     private int[] keys, values;
     private int size, load;

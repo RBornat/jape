@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;

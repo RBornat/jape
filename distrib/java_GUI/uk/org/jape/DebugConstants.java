@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 interface DebugConstants {
     static final public boolean anchoredpane_tracing     = false,
                                 antialias_tracing        = false,

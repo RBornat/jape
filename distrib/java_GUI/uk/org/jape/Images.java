@@ -25,26 +25,17 @@
     
 */
 
+package uk.org.jape;
 
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Component;
 import java.awt.Label;
 
-/**
-        This class provides a canonical way of acquiring the images
-        used in the GUI.
-
-        It's insufficient to use filenames to identify images,
-        for the image files may be tucked away inside a jar
-        (if our code came from a jar) or may be in the
-        filestore in the place whence our program was loaded
-        (if we're running a java class at the top level).
-
-        We provide a way of loading an image from the place
-        whence the class of a given object was loaded, and
-        a (simpler) way to load an image from the
-        place whence THIS class was loaded.
+/*
+	Because we now are a package, it's not a good idea to load our images
+	relative to a class. So we load them from the top level of the jar,
+	using ClassLoader.
 */
 
 public class Images
@@ -52,15 +43,14 @@ public class Images
   private static Images surrogate = new Images();
   
   /** Use the place that THIS code was loaded from */
-  public static Image getImage(String localname)
-  {
+  public static Image getImage(String localname) {
         return getImage(surrogate, localname);
   }
   
   /** Use the place that the host was loaded from */
   public static Image getImage(Object host, String localname)
   {  Toolkit tk = Toolkit.getDefaultToolkit();
-     return tk.getImage(host.getClass().getResource(localname));
+     return tk.getImage(java.lang.ClassLoader.getSystemClassLoader().getResource(localname));
   }
 }
 

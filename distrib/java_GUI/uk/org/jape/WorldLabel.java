@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -93,11 +95,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
     protected void dragged(MouseEvent e) {
         if (firstDrag) {
             firstDrag = false;
-            try {
-                targetClass = Class.forName("LabelTarget");
-            } catch (ClassNotFoundException exn) {
-                Alert.abort("can't make LabelTarget a Class");
-            }
+			targetClass = LabelTarget.class;
             over = null;
             if (labelImage==null)
                 labelImage = new LabelImage();

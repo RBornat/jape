@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.Graphics;
 
 public class CircleSelection extends CircleItem

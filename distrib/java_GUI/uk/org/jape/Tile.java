@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics;
@@ -114,11 +116,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
     protected void dragged(MouseEvent e) {
         if (firstDrag) {
             firstDrag = false;
-            try {
-                targetClass = Class.forName("TileTarget");
-            } catch (ClassNotFoundException exn) {
-                Alert.abort("can't make TileTarget a Class");
-            }
+			targetClass = TileTarget.class;
             over = null;
             if (tileImage==null)
                 tileImage = new TileImage();

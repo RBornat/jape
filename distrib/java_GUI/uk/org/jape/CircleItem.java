@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.BasicStroke;
 import java.awt.Component;
 import java.awt.geom.Ellipse2D;

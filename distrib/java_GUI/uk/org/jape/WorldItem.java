@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
@@ -339,11 +341,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     public void dragged(byte dragKind, MouseEvent e) {
         if (firstDrag) {
             firstDrag = false;
-            try {
-                targetClass = Class.forName("WorldTarget");
-            } catch (ClassNotFoundException exn) {
-                Alert.abort("can't make WorldTarget a Class");
-            }
+			targetClass = WorldTarget.class;
             over = null;
             worldImage = new WorldImage(dragKind);
             Point p = worldImage.getImageLocation();

@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.event.MouseEvent;
 import java.awt.Component;
 

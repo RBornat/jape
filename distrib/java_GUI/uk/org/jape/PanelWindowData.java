@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 /* We mustn't create panel windows -- which means things like calculating
    preferred size and such -- until we have all the data we need.
  */

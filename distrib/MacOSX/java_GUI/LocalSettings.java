@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 // the MacOSX version of LocalSettings.
 
 import com.apple.eawt.Application;

@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public interface SelectionConstants {
     // bits for mouse events
     public static final byte PureSelMask     = 1<<0,

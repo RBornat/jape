@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 import java.awt.event.MouseEvent;
 
 public class JapeMouseAdapter implements JapeMouseListener,

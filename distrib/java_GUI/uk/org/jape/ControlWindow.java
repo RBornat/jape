@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 public class ControlWindow extends SurrogateWindow {
     public ControlWindow() {
         super("Jape Control"); // let's give the user a clue when the window is closed

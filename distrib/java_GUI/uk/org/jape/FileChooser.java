@@ -25,6 +25,8 @@
     
 */
 
+package uk.org.jape;
+
 /* Apparently FileDialog looks better than JFileChooser in Aqua, and may look better in Windows. */
 
 import java.awt.FileDialog;
@@ -36,28 +38,12 @@ import javax.swing.JFileChooser;
 
 public class FileChooser /* implements FilenameFilter */ {
 
-    private static File lastOpen=null, lastSave=null; 
-
-    public static void setOpen(File path) { lastOpen = path; }
-
-    private static File nextOpen() {
-        return (lastOpen!=null ? lastOpen :
-                lastSave!=null ? lastSave :
-                                 new File(System.getProperties().getProperty("user.dir")));
-    }
-
-    private static File nextSave() {
-        return (lastSave!=null ? lastSave :
-                lastOpen!=null ? lastOpen :
-                                 new File(System.getProperties().getProperty("user.dir")));
-    }
-
     private static String doOpenDialog(JFileChooser chooser) {
         int returnVal = chooser.showOpenDialog(null);
         File selected = chooser.getSelectedFile();
         if (returnVal==JFileChooser.APPROVE_OPTION) {
             File dir = selected.getParentFile();
-            if (dir!=null) lastOpen = dir;
+            if (dir!=null) FilePrefs.setLastOpenedDir(dir);
             return selected.toString();
         } 
         else
@@ -69,7 +55,7 @@ public class FileChooser /* implements FilenameFilter */ {
         File selected  =  chooser.getSelectedFile();
         if (returnVal==JFileChooser.APPROVE_OPTION) {
             File dir = selected.getParentFile();
-            if (dir!=null) lastSave = dir;
+            if (dir!=null) FilePrefs.setLastSavedDir(dir);
             return selected.toString();
         } 
         else
@@ -85,7 +71,7 @@ public class FileChooser /* implements FilenameFilter */ {
             Logger.log.println("\".\" translates to "+(new File(".").getAbsolutePath())+"\n"+
                                   "and nextOpen().getAbsolutePath()="+nextOpen().getAbsolutePath());
         } */
-        JFileChooser chooser = new JFileChooser(nextOpen());
+        JFileChooser chooser = new JFileChooser(FilePrefs.nextOpen());
         ExampleFileFilter filter = new ExampleFileFilter();
         for (int i=0; i<extension.length; i++)
             filter.addExtension(extension[i]);
@@ -95,7 +81,7 @@ public class FileChooser /* implements FilenameFilter */ {
     }
 
     public static String newSaveDialog(String message, String [] extension) {
-        JFileChooser chooser = new JFileChooser(nextSave());
+        JFileChooser chooser = new JFileChooser(FilePrefs.nextSave());
         ExampleFileFilter filter = new ExampleFileFilter();
         for (int i=0; i<extension.length; i++)
             filter.addExtension(extension[i]);
@@ -131,7 +117,6 @@ public class FileChooser /* implements FilenameFilter */ {
     public static String newSaveDialog(String message, String ext1, String ext2, String ext3) {
         return newSaveDialog(message, new String[]{ext1, ext2, ext3});
     }
-
 }
 
 
