@@ -21,7 +21,7 @@ encoder.jar: encoder.java;  (rm -f MANIFEST;\
                                   jar cmf MANIFEST encoder.jar encoder.java encoder.class;\
                                  )
 
-clean:          ; rm -rf encoder.jar encoder.class
+clean:          ; rm -rf encoder.jar encoder.class META-INF
 
 
                

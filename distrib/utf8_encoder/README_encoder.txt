@@ -46,26 +46,26 @@ your java implementation supports).
 It's a command-line program (but you can get the source and hack it if
 you want to change that).
 
-	java encoder inputfile
+	java -jar encoderjar inputfile
 
 will translate inputfile from Konstanz and output it on the console in
 UTF-8.
 
-	java encoder -I Konstanz inputfile
+	java -jar encoderjar -I Konstanz inputfile
 
 will do precisely the same thing.
 
-	java encoder -I K inputfile -O U8 outputfile
+	java -jar encoderjar -I K inputfile -O U8 outputfile
 
 will do the same translation and put the result in outputfile.
 
-	java encoder -I L inputfile
+	java -jar encoderjar -I L inputfile
 
 will translate from Laura and put the UTF-8 result on the console.
 
 And so on:
 
-	java encoder -help
+	java -jar encoderjar -help
 
 will tell you all the things you can do, and list the encodings you can
 use.
@@ -94,7 +94,7 @@ otherwise ignores it.
 Other programs may be more tricky, so there's a switch "-nobom" which
 you can use with the encoder program.
 
-    java -jar encoder -nobom proofs.jp -O proofs.utf.jp
+    java -jar encoderjar -nobom proofs.jp -O proofs.utf.jp
 
 will translate proofs.jp from Konstanz and produce proofs.utf.jp without
 a BOM.
@@ -102,14 +102,14 @@ a BOM.
 On the other hand, you can use the encoder to put BOMs into files that
 are missing them, or take them out, or whatever.
 
-    java encoder -I U8 rhubarb.java -O U8 rhubarbnoBOM.java -nobom
+    java -jar encoderjar -I U8 rhubarb.java -O U8 rhubarbnoBOM.java -nobom
 
 will produce a UTF-8 file without a bom, which javac will happily deal
 with.
 
 In the other direction
 
-    java encoder -I U8 rhubarb.jp -O U8 rhubarb.bom.jp
+    java -jar encoderjar -I U8 rhubarb.jp -O U8 rhubarb.bom.jp
 
 will make a UTF-8 file with a BOM (whether or not rhubarb.jp had one;
 and of course it doesn't multiply BOMs!).
