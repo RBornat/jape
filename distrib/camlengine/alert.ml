@@ -47,14 +47,14 @@ module type T =
 
 module M : T =
   struct
-    open Japeserver.M
+    open Japeserver
     open Optionfuns.M
     open Sml.M
     open Miscellaneous.M
     open Listfuns.M
     
-    let askChoice = Japeserver.M.askChoice
-    let setComment = Japeserver.M.setComment
+    let askChoice = Japeserver.askChoice
+    let setComment = Japeserver.setComment
     
     type alertspec =
         Alert of (string * (string * alertspec option) list * int)

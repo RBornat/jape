@@ -82,7 +82,7 @@ module M : T with type term       = Term.Funs.term
 =
   struct
     open Box.M 
-    open Japeserver.M 
+    open Japeserver 
     open Mappingfuns.M 
     open Sml.M
     open Text.M
@@ -122,9 +122,9 @@ module M : T with type term       = Term.Funs.term
     and greyen = greyen
     and drawLine = drawLine
     
-    type class__ = int (* could be Japeserver.M.class__, if I played it right ... *)
+    type class__ = int (* could be Japeserver.class__, if I played it right ... *)
         
-    let rec drawinproofpane () = Japeserver.M.drawinpane proofpane
+    let rec drawinproofpane () = Japeserver.drawinpane proofpane
     
     type 'a plan = Formulaplan of (textlayout * textbox * 'a)
     
@@ -146,16 +146,16 @@ module M : T with type term       = Term.Funs.term
     let rec plantextsize p = tbSize (plantextbox p)
     let rec planlisttextsize ps =
       nj_fold ( +-+ ) (List.map plantextsize ps) nulltextsize
-    let viewBox = Japeserver.M.getProofPane
-    let rec clearView () = Japeserver.M.clearProofPane ()
-    let highlight = Japeserver.M.highlight
-    let drawBox = Japeserver.M.drawRect
+    let viewBox = Japeserver.getProofPane
+    let rec clearView () = Japeserver.clearProofPane ()
+    let highlight = Japeserver.highlight
+    let drawBox = Japeserver.drawRect
     let rec linethickness leading =
       (* width of the lines (box, selection) we draw *)
       let r = max ((leading + 2) / 3) (1) in(* consolereport["leading ", string_of_int leading, "; thickness ", string_of_int r]; *)
        r
-    let setproofparams = Japeserver.M.setproofparams
-    let rec measuretext ta t = Text.M.measuretext Japeserver.M.measurestring ta t
+    let setproofparams = Japeserver.setproofparams
+    let rec measuretext ta t = Text.M.measuretext Japeserver.measurestring ta t
     (* note fixed alignment, so don't use for folded/multiline texts *)
     let text2textinfo = measuretext FirstLine
     let rec mktextinfo f = text2textinfo <*> f
@@ -166,7 +166,7 @@ module M : T with type term       = Term.Funs.term
     let reason2textinfo = mktextinfo reason2text
     let rec procrustean_reason2textinfo w r =
       let (rf, rs) = reason2fontNstring r in
-      string2textinfo rf (Japeserver.M.procrustes w " ..." rf rs)
+      string2textinfo rf (Japeserver.procrustes w " ..." rf rs)
     let rec textinfo2plan (size, layout) info p =
       Formulaplan (layout, textbox (p, size), info)
     let rec string2plan font s info p =
@@ -264,7 +264,7 @@ module M : T with type term       = Term.Funs.term
         Formulaplan (layout, tbOffset box pos, thing)
     let rec drawplan f p =
       fun (Formulaplan (Textlayout tl, b, info)) ->
-        Japeserver.M.drawmeasuredtext (f info) tl (( +->+ ) (p, tbPos b))
+        Japeserver.drawmeasuredtext (f info) tl (( +->+ ) (p, tbPos b))
     let rec findfirstplanhit p =
       findfirst
         (fun pl -> if withintb (p, plantextbox pl) then Some pl else None)

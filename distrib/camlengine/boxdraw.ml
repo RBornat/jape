@@ -121,7 +121,7 @@
      and tree = Absprooftree.M.tree
 	
 	let hasrelevanttip el t = Prooftree.Tree.Vistree.hasTip t (* for now *)
-	let measurestring f s = Japeserver.M.measurestring(f,s)
+	let measurestring f s = Japeserver.measurestring(f,s)
 	
 	let consolereport = Miscellaneous.M.consolereport
 	let cuthidingdebug = Prooftree.Tree.cuthidingdebug

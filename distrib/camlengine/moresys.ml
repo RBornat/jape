@@ -22,8 +22,10 @@ let execute cmd args =
 	let outchan = Unix.out_channel_of_descr out_write in
 	prerr_string "execute 5\n";
 	let was = signal sigpipe Signal_ignore in
-	(* set_signal sigpipe
-		(Signal_handle (fun _ -> (* set_signal sigpipe was; *) raise (Execute_ "broken pipe"))); *)
+	set_signal sigpipe
+		(Signal_handle (fun _ -> prerr_string "caught sigpipe signal\n"; 
+		                         Pervasives.flush stderr; 
+		                         raise (Execute_ "broken pipe"))); 
 	prerr_string "execute 5a\n";
 	flush stderr;
 	let pid = (try Unix.create_process cmd (Array.of_list args) out_read in_write Unix.stderr 

@@ -52,7 +52,7 @@ module M : T with type name = Name.M.name =
 	type name = Name.M.name
 	
 	let deadServer = Interaction.M.deadServer
-	and runningServer = (fun() -> !Japeserver.M.running)
+	and runningServer = (fun() -> !Japeserver.running)
 	 
     type button =
         UndoProofbutton
@@ -96,7 +96,7 @@ module M : T with type name = Name.M.name =
                buttoncache := ( ++ ) (!buttoncache, ( |-> ) (b, ref state));
                true
         then
-          Japeserver.M.enablemenuitem (m, c, state)
+          Japeserver.enablemenuitem (m, c, state)
       in
       match button with
         UndoProofbutton -> doit MyUndoProof state
@@ -119,55 +119,55 @@ module M : T with type name = Name.M.name =
       if runningServer () then
         try
           (* was freshmenus... *)
-          Japeserver.M.sendOperators oplist;
+          Japeserver.sendOperators oplist;
           buttoncache := empty;
           menuiter
             (fun menu ->
                let menustring = namestring menu in
-               Japeserver.M.newmenu menustring;
+               Japeserver.newmenu menustring;
                menuitemiter menu
                  (fun (label, keyopt, cmd) ->
-                    Japeserver.M.menuentry
+                    Japeserver.menuentry
                       (menustring, namestring label, keyopt, cmd))
                  (fun (label, cmd) ->
                     (* checkbox *)
-                    Japeserver.M.menucheckbox
+                    Japeserver.menucheckbox
                       (menustring, namestring label, cmd))
                  (fun lcs ->
                     (* radio button *)
-                    Japeserver.M.menuradiobutton
+                    Japeserver.menuradiobutton
                       (menustring,
                        List.map (fun (label, cmd) -> namestring label, cmd) lcs))
-                 (fun _ -> Japeserver.M.menuseparator menustring));
+                 (fun _ -> Japeserver.menuseparator menustring));
           paneliter
             (fun (panel, kind) ->
                let panelstring = namestring panel in
-               Japeserver.M.newpanel (panelstring, kind);
+               Japeserver.newpanel (panelstring, kind);
                panelitemiter panel
                  (fun (label, entry) ->
-                    Japeserver.M.panelentry
+                    Japeserver.panelentry
                       (panelstring, namestring label, entry);
                     if kind = ConjecturePanelkind then
                       match markconjecture label with
                         Some mark ->
-                          Japeserver.M.markpanelentry panelstring
+                          Japeserver.markpanelentry panelstring
                             (namestring label) mark
                       | _ -> ())
                  (fun (name, cmd) ->
                     (* button *)
-                    Japeserver.M.panelbutton
+                    Japeserver.panelbutton
                       (panelstring, namestring name, cmd))
                  (fun (label, cmd) ->
                     (* checkbox *)
-                    Japeserver.M.panelcheckbox
+                    Japeserver.panelcheckbox
                       (panelstring, namestring label, cmd))
                  (fun lcs ->
                     (* radio button *)
-                    Japeserver.M.panelradiobutton
+                    Japeserver.panelradiobutton
                       (panelstring,
                        List.map (fun (n, v) -> namestring n, v) lcs)));
-          Japeserver.M.mapmenus true;
-          let _ = Japeserver.M.echo "" (* synchronise *) in ()
+          Japeserver.mapmenus true;
+          let _ = Japeserver.echo "" (* synchronise *) in ()
         with
           server_input_terminated -> deadServer ["WARNING: server broken"]
     let rec markproof proved cmd =
@@ -178,7 +178,7 @@ module M : T with type name = Name.M.name =
              panelitemiter panel
                (fun (label, entry) ->
                   if entry = cmd then
-                    Japeserver.M.markpanelentry (namestring panel)
+                    Japeserver.markpanelentry (namestring panel)
                       (namestring label) proved)
                (fun _ -> ()) (fun _ -> ()) (fun _ -> ())
          | panel, _ -> ())
@@ -203,7 +203,7 @@ module M : T with type name = Name.M.name =
       addmenudata (Name.M.Name "Edit") _EditEntries
     let rec initFonts () =
       match getfontstuff () with
-        Some stuff -> Japeserver.M.setFonts stuff
+        Some stuff -> Japeserver.setFonts stuff
       | None -> ()
   end
 

@@ -57,7 +57,7 @@ module M : T =
       Button.M.resetfontstuff ();
       Disproof.M.clearforcedefs ();
       Doubleclick.M.cleardoubleclicks ();
-      Japeserver.M.resetcache ();
+      Japeserver.resetcache ();
       Minwaste.resetminwcache ();
       Proofstore.M.clearproofs ();
       Proofstate.M.clearautorules ();
@@ -91,7 +91,7 @@ module M : T =
     let givenMenuTactic = Miscellaneous.M.givenMenuTactic
            
     let rec initGUI () =
-      (Japeserver.M.setinvischars 
+      (Japeserver.setinvischars 
          (String.make 1 Miscellaneous.M.onbra, String.make 1 Miscellaneous.M.onket)
          (String.make 1 Miscellaneous.M.offbra, String.make 1 Miscellaneous.M.offket)
          (String.make 1 Miscellaneous.M.outbra, String.make 1 Miscellaneous.M.outket)
@@ -750,7 +750,7 @@ module M : T =
               in
               consolereport ["here we go!"];
               startServer (server, server :: args);
-              Japeserver.M.sendVersion (_Title ^ _Version);
+              Japeserver.sendVersion (_Title ^ _Version);
               initGUI ();
               reloadmenusandpanels Proofstore.M.provedordisproved
                 (get_oplist ());
@@ -816,7 +816,7 @@ module M : T =
             let state_cxt = selfparentprovisos cxt in
             let facts = facts (provisos state_cxt) state_cxt in
             let disproof = model2disproofstate facts tree disproofopt in
-            Japeserver.M.openproof (heading, num);
+            Japeserver.openproof (heading, num);
             Pinf
               {title = name, index; proofnum = num; displayvarsvals = recorddisplayvars env;
                needsrefresh = false;
@@ -845,7 +845,7 @@ module M : T =
       Runproof.M.addproof showAlert uncurried_screenquery name proved st
         (disproofstate2model dis) &&
       begin
-        Japeserver.M.closeproof num;
+        Japeserver.closeproof num;
         markproof proved (parseablenamestring name);
         true
       end
@@ -894,7 +894,7 @@ module M : T =
         in
         let name = Paragraphfuns.M.conjecturename para in
         if namestring panel <> "" then
-          Japeserver.M.panelentry
+          Japeserver.panelentry
             (namestring panel, namestring name, parseablenamestring name);
         name
       in
@@ -934,8 +934,8 @@ module M : T =
           false, Some s -> let _ = (writetonamedfile doit s : bool) in ()
         | _ ->
             match
-              Japeserver.M.writeFileName "Save proofs as:"
-                Japeserver.M.prooffiletype
+              Japeserver.writeFileName "Save proofs as:"
+                Japeserver.prooffiletype
             with
               Some s -> if writetonamedfile doit s then savefilename := Some s
             | None -> ()
@@ -1007,9 +1007,9 @@ module M : T =
       in
       let rec doResettheory () =
         List.iter
-          (fun (Pinf {proofnum = proofnum}) -> Japeserver.M.closeproof proofnum)
+          (fun (Pinf {proofnum = proofnum}) -> Japeserver.closeproof proofnum)
           pinfs;
-        Japeserver.M.cancelmenusandpanels ();
+        Japeserver.cancelmenusandpanels ();
         reset ();
         defaultenv (), [], DontShow, []
       in
@@ -1268,7 +1268,7 @@ module M : T =
                     Some t -> termstring t
                   | None -> ""
                 in
-                Japeserver.M.showfile ((respace interfacecommand ^ " ") ^ str);
+                Japeserver.showfile ((respace interfacecommand ^ " ") ^ str);
                 (* This should be called -- "tellinterface" *)
                 (* It's the way that an interface can do something
                    with the value of a jape variable
@@ -1302,7 +1302,7 @@ module M : T =
                   in
                   let proofsfound = !proofsdone || not (null ps) in
                   if oldfontstuff <> getfontstuff () then initFonts ();
-                  Japeserver.M.emptymenusandpanels ();
+                  Japeserver.emptymenusandpanels ();
                   reloadmenusandpanels Proofstore.M.provedordisproved
                     (get_oplist ());
                   mbcache := empty;
@@ -1531,7 +1531,7 @@ module M : T =
                                    ) dNdm []
                             fun List.concat (ts:string list,rs) = (listsub op= ts rs)@rs
                         in
-                            Japeserver.M.dragtargets (nj_fold List.concat (targets <* dragees) []);
+                            Japeserver.dragtargets (nj_fold List.concat (targets <* dragees) []);
                             default
                         end
                   )                  
@@ -1650,7 +1650,7 @@ module M : T =
                 begin try
                   let panel = namefrom panel in
                   let name = addnewconjecture panel text in
-                  Japeserver.M.selectpanelentry
+                  Japeserver.selectpanelentry
                     (namestring panel, namestring name);
                   default
                 with
@@ -1677,8 +1677,8 @@ module M : T =
             | "reset;reload", [] ->
                 if askResettheory true then
                   match
-                    Japeserver.M.readFileName "Load new theory from:"
-                      Japeserver.M.toplevelfiletype
+                    Japeserver.readFileName "Load new theory from:"
+                      Japeserver.toplevelfiletype
                   with
                     Some s -> processcommand (doResettheory ()) ["use"; s]
                   | None -> default
@@ -1694,8 +1694,8 @@ module M : T =
             | "profile", ["reset"] -> profileReset (); default
             | "profile", ["report"] ->
                 begin match
-                  Japeserver.M.writeFileName "Profile output to:"
-                    Japeserver.M.dbugfiletype
+                  Japeserver.writeFileName "Profile output to:"
+                    Japeserver.dbugfiletype
                 with
                   Some s -> let _ = (writetonamedfile profileReport s : bool) in ()
                 | None -> ()
@@ -1705,17 +1705,17 @@ module M : T =
                 let _ = (writetonamedfile profileReport filename : bool) in default
             | "fonts_reset", [] ->
                 (* needs to do disproof as well *)
-                Japeserver.M.resetcache ();
+                Japeserver.resetcache ();
                 let pinfs =
                   match pinfs with
                     fg :: bgs ->
                       fg ::
-                        (if Japeserver.M.canbackgroundfocus then
+                        (if Japeserver.canbackgroundfocus then
                            let rec f pinf =
                              let hist = proofinfo_hist pinf in
                              let proof = winhist_proofnow hist in
                              let disproof = winhist_disproofnow hist in
-                             Japeserver.M.setbackgroundfocus
+                             Japeserver.setbackgroundfocus
                                (proofinfo_proofnum pinf);
                              withhist
                                (withdisplaystate
@@ -1724,7 +1724,7 @@ module M : T =
                                     setGivens (proofstate_givens proof); r))
                                 (reparentprovisos hist)
                            in
-                             (let r = f <* bgs in Japeserver.M.setforegroundfocus (); r)
+                             (let r = f <* bgs in Japeserver.setforegroundfocus (); r)
                          else
                              (fun pinf -> withneedsrefresh (pinf) (true)) <* bgs)
                   | _ -> pinfs
@@ -1732,7 +1732,7 @@ module M : T =
                 env, mbs, ShowBoth, pinfs
             | "showfile", [filename] ->
                 (* here cos I can't work out how to get round the NOSELCOMMAND trap. RB 14/ii/94 *)
-                Japeserver.M.showfile (unQuote filename); default
+                Japeserver.showfile (unQuote filename); default
             | "saveproofs", [w] ->
                 let newfile = w = "true" in
                 let pinfs' =
@@ -1749,10 +1749,10 @@ module M : T =
             | "quit", [] ->
                 if needssaving () then
                   askSave "quitting"
-                    (fun () -> Japeserver.M.quit (); raise QuitJape)
-                    (fun () -> Japeserver.M.quit (); raise QuitJape)
-                    (fun () -> Japeserver.M.dontquit (); default) ()
-                else begin Japeserver.M.quit (); raise QuitJape end
+                    (fun () -> Japeserver.quit (); raise QuitJape)
+                    (fun () -> Japeserver.quit (); raise QuitJape)
+                    (fun () -> Japeserver.dontquit (); default) ()
+                else begin Japeserver.quit (); raise QuitJape end
             | "setfocus", [nstring] ->
                 let
                   (Pinf
@@ -1813,7 +1813,7 @@ module M : T =
                             closed ()
                           else default))
                       ("Don't record",
-                       (fun () -> Japeserver.M.closeproof n; closed ()))
+                       (fun () -> Japeserver.closeproof n; closed ()))
                       (fun () -> default) ()
                   else default
                 else if
@@ -1828,18 +1828,18 @@ module M : T =
                   if screenquery ["Abandon proof of "; namestring t; "?"]
                        "Abandon" "Cancel" 1
                   then
-                    begin Japeserver.M.closeproof n; closed () end
+                    begin Japeserver.closeproof n; closed () end
                   else default
                 else(* nothing to save *)
-                 begin Japeserver.M.closeproof n;(*  consolereport ["closing proof ", string_of_int n, 
+                 begin Japeserver.closeproof n;(*  consolereport ["closing proof ", string_of_int n, 
                        " -- now ", string_of_int (List.length pinfs'), " proofs left"
                    ]; 
                  *)
                  closed () end
             | "createdbugfile", [] ->
                 begin match
-                  Japeserver.M.writeFileName "Write diagnostic output to:"
-                    Japeserver.M.dbugfiletype
+                  Japeserver.writeFileName "Write diagnostic output to:"
+                    Japeserver.dbugfiletype
                 with
                   Some s ->
                     let file = unQuote s in
@@ -1890,7 +1890,7 @@ module M : T =
         List.iter domb mbs;
         (* this is lazy -- see comment above *)
         begin try
-          Japeserver.M.settextselectionmode
+          Japeserver.settextselectionmode
             (termstring
                (_The (Japeenv.M.at (env, namefrom "textselectionmode"))))
         with
@@ -2087,24 +2087,23 @@ module M : T =
     (*
     and save file = _GCsave file
     and _GCsave file =
-      Japeserver.M.quit ();
+      Japeserver.quit ();
       Interaction.M.abandonServer ();
       cleanup ();
       initButtons ();
       exportFn (file, main (defaultenv (), [], []))
     and saverunning env mbs file =
-      Japeserver.M.quit ();
+      Japeserver.quit ();
       Interaction.M.abandonServer ();
       cleanup ();
       exportFn (file, main (env, [], mbs))
     *)
     and start () =
-      Japeserver.M.quit ();
+      (* Japeserver.quit ();
       Interaction.M.abandonServer ();
-      cleanup ();
+      cleanup (); *)
       initButtons ();
-      main (defaultenv (), [], []) ([""], []);
-      (* Bernard, perhaps you could tell me what to put here ... *)
+      main (defaultenv (), [], []) (Array.to_list Sys.argv, []); (* empty environment ... ?? *)
       ()
   end
 

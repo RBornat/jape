@@ -131,22 +131,22 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
             triplestring (fun _ -> "....") (hitstring pathstring)
               (selstring pathstring) "," hc
     let intliststring = bracketedliststring (string_of_int : int -> string) ","
-    let abandonServer = Japeserver.M.stopserver
-    let killServer = Japeserver.M.killserver
+    let abandonServer = Japeserver.stopserver
+    let killServer = Japeserver.killserver
     let setComment = setComment <*> implode
     let rec deadServer strings = consolereport strings; abandonServer ()
     let rec startServer (serverpath, args) =
       try
-        Japeserver.M.startserver serverpath args;
-        if Japeserver.M.idlsignature <> Japeserver.M.getSignature () then
+        Japeserver.startserver serverpath args;
+        if Japeserver.idlsignature <> Japeserver.getSignature () then
           begin
             consolereport ["Incompatible japeserver: "; serverpath];
-            Japeserver.M.killserver ()
+            Japeserver.killserver ()
           end
       with
         server_input_terminated ->
           deadServer ["Cannot find japeserver: "; serverpath]
-    let rec runningServer () = !(Japeserver.M.running)
+    let rec runningServer () = !(Japeserver.running)
     let treestyle = Displaystyle.Treestyle.style
     let boxstyle = Displaystyle.Boxstyle.style
     let currentstyle = ref treestyle
@@ -182,7 +182,7 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
           pp outstream tree target (if withgoal then goal else None)
     (* one way of telling that I have the interface and datatypes wrong is all these blasted Catastrophe_ exceptions ... *)
     let rec sortoutSelection state pathkind =
-      let (fsels, textsels, givensel) = Japeserver.M.getAllSelections () in
+      let (fsels, textsels, givensel) = Japeserver.getAllSelections () in
       (* remove invisbra/kets from any text selections we see *)
       let rec deinvis s =
         implode ((fun c -> not (invisible c)) <| explode s)
@@ -398,7 +398,7 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
     *)
       
     let rec getCommand displayopt =
-      let text = Japeserver.M.listen () in
+      let text = Japeserver.listen () in
       let rec getdisplay () =
         try _The displayopt with
           None_ ->
@@ -466,11 +466,11 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
                   DisplayReason ->
                     (function
                       _, DisplayReason -> true
-                    | pos, _ -> Japeserver.M.highlight pos None; false)
+                    | pos, _ -> Japeserver.highlight pos None; false)
                 | _ ->
                     (function
                       pos, DisplayReason ->
-                        Japeserver.M.highlight pos None; false
+                        Japeserver.highlight pos None; false
                     | _ -> true)) <|
                parseselections others
           in
@@ -512,10 +512,10 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
         ps
     let rec setProvisos cxt =
       let ps = sortprovisos (provisos cxt) in
-      Japeserver.M.setProvisos
+      Japeserver.setProvisos
         (ProvisoFont, List.map Proviso.M.visprovisostring (filterprovisos ps))
     let rec setGivens givens =
-      Japeserver.M.setGivens (numbered (List.map seqstring givens))
+      Japeserver.setGivens (numbered (List.map seqstring givens))
     let rec printProvisos outstream cxt =
       let ps = sortprovisos (provisos (rewritecxt cxt)) in
       match ps with

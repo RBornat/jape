@@ -86,7 +86,7 @@ module M : T with type element = Term.Funs.element
     open Box.M
     open Idclass.M
     open Forcedef.M
-    open Japeserver.M
+    open Japeserver
     open Listfuns.M
     open Mappingfuns.M
     open Optionfuns.M
