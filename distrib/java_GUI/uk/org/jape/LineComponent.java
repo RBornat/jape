@@ -37,24 +37,24 @@ public class LineComponent extends DragComponent implements DebugConstants {
         Alert.abort("dragging line without overriding movePosition");
     }
     
-    private int x1, y1, x2, y2, thickness;
+    protected int x0, y0, x1, y1, thickness;
 
-    public LineComponent(int x1, int y1, int x2, int y2, int thickness) {
+    public LineComponent(int x0, int y0, int x1, int y1, int thickness) {
         super();
-        resetLine(x1, y1, x2, y2, thickness);
+        resetLine(x0, y0, x1, y1, thickness);
         setForeground(Preferences.LineColour);
     }
 
-    public void resetLine(int x1, int y1, int x2, int y2, int thickness) {
-        setBounds(Math.min(x1,x2), Math.min(y1,y2),
-                  Math.max(thickness, Math.abs(x2-x1)),
-                  Math.max(thickness, Math.abs(y2-y1)));
-        this.x1 = x1-getX(); this.y1 = y1-getY(); this.x2 = x2-getX(); this.y2 = y2-getY();
+    public void resetLine(int x0, int y0, int x1, int y1, int thickness) {
+        setBounds(Math.min(x0,x1), Math.min(y0,y1),
+                  Math.max(thickness, Math.abs(x1-x0)),
+                  Math.max(thickness, Math.abs(y1-y0)));
+        this.x0 = x0-getX(); this.y0 = y0-getY(); this.x1 = x1-getX(); this.y1 = y1-getY();
         this.thickness = thickness;
     }
 
-    public void resetLine(int x1, int y1, int x2, int y2) {
-        resetLine(x1, y1, x2, y2, thickness);
+    public void resetLine(int x0, int y0, int x1, int y1) {
+        resetLine(x0, y0, x1, y1, thickness);
     }
 
     public int thickness() { return thickness; }
@@ -68,24 +68,24 @@ public class LineComponent extends DragComponent implements DebugConstants {
             BasicStroke stroke = new BasicStroke((float)thickness);
             int half = thickness/2;
             ((Graphics2D)g).setStroke(stroke);
-            if (y1==y2) { // horizontal
-                xfrom = x1; xto = x2;
-                yfrom = yto = y1+half;
+            if (y0==y1) { // horizontal
+                xfrom = x0; xto = x1;
+                yfrom = yto = y0+half;
             }
             else
-                if (x1==x2) { // vertical
-                    xfrom = xto = x1+half;
-                    yfrom = y1; yto = y2;
+                if (x0==x1) { // vertical
+                    xfrom = xto = x0+half;
+                    yfrom = y0; yto = y1;
                 }
             else {
-                xfrom = x1; xto = x2;
-                yfrom = y1; yto = y2;
+                xfrom = x0; xto = x1;
+                yfrom = y0; yto = y1;
             }
             stroked = true;
         }
         else {
-            xfrom = x1<x2 ? x1 : x1-1; xto = x2<x1 ? x2 : x2-1;
-            yfrom = y1<y2 ? y1 : y1-1; yto = y2<y1 ? y2 : y2-1;
+            xfrom = x0<x1 ? x0 : x0-1; xto = x1<x0 ? x1 : x1-1;
+            yfrom = y0<y1 ? y0 : y0-1; yto = y1<y0 ? y1 : y1-1;
             stroked = false;
         }
     }
