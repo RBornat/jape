@@ -42,7 +42,6 @@
  open Optionfuns
  open Sml
  open Termstring
- open Termtype
  open Text
  open UTF
  
@@ -57,11 +56,7 @@ let rec appflatten t ts =
    if !termfolddebug then
      consolereport ["appflatten tries ("; debugstring_of_term t; ") ";
                     bracketedstring_of_list string_of_term ";\n" ts];
-   match t with
-     App(_, f, a) ->
-       if isJuxtapos t then appflatten f (a::ts) |~~ (fun _ -> Some (f::a::ts))
-                       else None
-   | _            -> None 
+   isJuxtapos t &~~ (fun (f,a) -> appflatten f (a::ts) |~~ (fun _ -> Some (f::a::ts)))
  
  let measure font = fst_of_3 <.> Japeserver.measurestring font
  
@@ -149,18 +144,15 @@ let rec appflatten t ts =
      let (size, _ as r) = mkTextInfo folded in
      if Box.tsW size<=w then r else default()
    in
-   match t with
-     App _ ->
-       (match appflatten t [] with
-          Some ts -> 
-            if !termfolddebug then
-              consolereport ["termfold splits "; Stringfuns.enQuote (string_of_term t);
-                             " into "; 
-                             bracketedstring_of_list (Stringfuns.enQuote <.> string_of_term) 
-                                                     "\n" ts];
-            tryfold (List.map renderargs ts) tstring
-        | _       -> default ())
-   | _ -> default ()
+   match appflatten t [] with
+     Some ts -> 
+       if !termfolddebug then
+         consolereport ["termfold splits "; Stringfuns.enQuote (string_of_term t);
+                        " into "; 
+                        bracketedstring_of_list (Stringfuns.enQuote <.> string_of_term) 
+                                                "\n" ts];
+       tryfold (List.map renderargs ts) tstring
+   | _       -> default ()
    
    (*
         if tsW size <= w then
