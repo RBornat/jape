@@ -304,14 +304,15 @@ let rec variables t = isVariable <| termvars t
 
 let rec findoccs f os =
   match f with
-    ForcePrim _ -> os
-  | ForceBoth (f1, f2) -> findoccs f1 (findoccs f2 os)
+    ForcePrim _          -> os
+  | ForceBoth (f1, f2)   -> findoccs f1 (findoccs f2 os)
   | ForceEither (f1, f2) -> findoccs f1 (findoccs f2 os)
-  | ForceIf (f1, f2) -> findoccs f1 (findoccs f2 os)
-  | ForceEverywhere f -> findoccs f os
-  | ForceNowhere f -> findoccs f os
-  | ForceAll (t, vs, f) -> findoccs f (newocc t vs os)
+  | ForceIf (f1, f2)     -> findoccs f1 (findoccs f2 os)
+  | ForceEverywhere f    -> findoccs f os
+  | ForceNowhere f       -> findoccs f os
+  | ForceAll (t, vs, f)  -> findoccs f (newocc t vs os)
   | ForceSome (t, vs, f) -> findoccs f (newocc t vs os)
+
 (* translate predicates, avoid duplicates *)
 
 let rec addforcedef (t, fd) =
@@ -349,17 +350,13 @@ let rec hasforcedefs () = not (null !forcedefs)
 (* matching a formula against the definitions *)
 
 let rec semantics facts t =
-  match
-    findfirst
-      (fun (pat, vs, hassubst, fd) ->
-           (matchit pat vs t &~~ (fun env -> Some (env, hassubst, fd))))
-      !forcedefs
-  with
-    Some (env, hassubst, fd) ->
-      let fd' = mapforcedefterms (option_remapterm env) (uniquebinders t fd)
-      in
-      Some (if hassubst then mapforcedefterms (dosubst facts) fd' else fd')
-  | None -> None
+  findfirst
+    (fun (pat, vs, hassubst, fd) -> (matchit pat vs t &~~ (fun env -> Some (env, hassubst, fd))))
+    !forcedefs
+  &~~
+  (fun (env, hassubst, fd) ->
+     let fd' = mapforcedefterms (option_remapterm env) (uniquebinders t fd) in
+     Some (if hassubst then mapforcedefterms (dosubst facts) fd' else fd'))
   
 (* avoid variable capture in semantics function *)
 (* really this ought to look inside the forcedef, but one step at a time ... *)
@@ -416,6 +413,45 @@ let rec semanticfringe facts ts t =
   and pf ts (fd1, fd2) = ff (ff ts fd1) fd2 in
   tf ts t
 
+(* This, I think, instantiates a binding fd if i matches the 'individual' pattern oc *)
+let rec indiv_fd facts (oc, vs, fd) i =
+  (* fun remap env t = (* written with andthenr, ortryr, because I don't trust 0.93 with the functional version *)
+                         option_remapterm env t  &~~ 
+                         (fn t' => dosubst facts t' |~~ (fn () => Some t'))
+                        *)
+  let r =
+       matchit oc vs i &~~
+       (fun env ->
+          Some (mapforcedefterms (option_remapterm env &~ somef (dosubst facts)) fd))
+  in
+  if !disproofdebug then begin
+      consolereport
+        ["indiv_fd ";
+         triplestring termstring (bracketedliststring termstring ",")
+           forcedefstring "," (oc, vs, fd);
+         " "; termstring i; " => "; optionstring forcedefstring r];
+      consolereport
+        ["matchit oc vs i => ";
+         optionstring (mappingstring termstring termstring)
+           (matchit oc vs i)];
+      match matchit oc vs i with
+        None     -> ()
+      | Some env ->
+          consolereport
+            ["mapforcedefterms (option_remapterm env) fd => ";
+             forcedefstring
+               (mapforcedefterms (option_remapterm env) fd)];
+          consolereport
+            ["mapforcedefterms (option_remapterm env  &~ (somef (dosubst facts))) fd => ";
+             forcedefstring
+               (mapforcedefterms
+                  (
+                     (option_remapterm env &~ somef (dosubst facts)))
+                  fd)]
+  end;
+  r
+    
+
 (* is it forced? *)
 (* rewritten to be memoised, both for 'efficiency' and for de-emphasising irrelevant subformulae
    -- i.e. quantified subformulae. Should also be useful when it comes to highlighting worlds 
@@ -424,9 +460,9 @@ let rec semanticfringe facts ts t =
 
 let rec unfixedforced facts u =
   let rec ff f (c, t) =
-    let labels = List.map snd <.> labelsofworld <.> getworld u in
+    let labelterms = List.map snd <.> labelsofworld <.> getworld u in
     let children = childrenofworld <.> getworld u in
-    let rec lookup c t = member (t, labels c), true in
+    let rec lookup c t = member (t, labelterms c), true in
     (* result is (forced, locked) *)
     (* forced logic -- we force evaluation of subformulae because otherwise things go grey 
        which shouldn't.
@@ -453,44 +489,7 @@ let rec unfixedforced facts u =
     in 
     let rec logAll f = foldl logAnd (true, false) <.> List.map f in
     let rec logExists f = foldl logOr (false, false) <.> List.map f in
-    let rec indiv_fd (oc, vs, fd) i =
-      (* fun remap env t = (* written with andthenr, ortryr, because I don't trust 0.93 with the functional version *)
-                             option_remapterm env t  &~~ 
-                             (fn t' => dosubst facts t' |~~ (fn () => Some t'))
-                            *)
-      let r =
-           matchit oc vs i &~~
-           (fun env ->
-              Some (mapforcedefterms (option_remapterm env &~ somef (dosubst facts)) fd))
-      in
-      if !disproofdebug then
-        begin
-          consolereport
-            ["indiv_fd ";
-             triplestring termstring (bracketedliststring termstring ",")
-               forcedefstring "," (oc, vs, fd);
-             " "; termstring i; " => "; optionstring forcedefstring r];
-          consolereport
-            ["matchit oc vs i => ";
-             optionstring (mappingstring termstring termstring)
-               (matchit oc vs i)];
-          match matchit oc vs i with
-            None     -> ()
-          | Some env ->
-              consolereport
-                ["mapforcedefterms (option_remapterm env) fd => ";
-                 forcedefstring
-                   (mapforcedefterms (option_remapterm env) fd)];
-              consolereport
-                ["mapforcedefterms (option_remapterm env  &~ (somef (dosubst facts))) fd => ";
-                 forcedefstring
-                   (mapforcedefterms
-                      (
-                         (option_remapterm env &~ somef (dosubst facts)))
-                      fd)]
-        end;
-      r
-    in
+    
     let rec interp fd c =
       match fd with
         ForcePrim t'           -> f (c, t')
@@ -500,15 +499,15 @@ let rec unfixedforced facts u =
       | ForceEverywhere fd'    -> logAnd (interp fd' c) (logAll (interp fd) (children c))
       | ForceNowhere fd'       -> logAnd (logNot (interp fd' c)) (logAll (interp fd) (children c))
       | ForceAll tvsfd         -> logAll (fun lab ->
-                                            match indiv_fd tvsfd lab with
+                                            match indiv_fd facts tvsfd lab with
                                               Some fd' -> interp fd' c
                                             | None     -> true, false)
-                                         (labels c)
+                                         (labelterms c)
       | ForceSome tvsfd        -> logExists (fun lab ->
-                                               match indiv_fd tvsfd lab with
+                                               match indiv_fd facts tvsfd lab with
                                                  Some fd' -> interp fd' c
                                                | None     -> false, false)
-                                            (labels c)
+                                            (labelterms c)
     in
     let _ =
       if !disproofdebug then
@@ -700,11 +699,11 @@ let rec evaldisproofstate facts tree =
     let seqplan = makeseqplan (elementstring_invischoose ivb ivk) true origin seq in
     Disproofstate
       {seq = seq; selections = selections; seqplan = Some seqplan;
-       universe = tint_universe forced seqplan selections universe; 
+       universe = tint_universe facts forced seqplan selections universe; 
        tiles = tiles; selected = selected;
        forcemap = forcemap; conclusive = conclusive; countermodel = countermodel}
 
-and tint_universe forced (plan, _) (proofsels, textsels) =
+and tint_universe facts forced (plan, _) (proofsels, textsels) =
   let selections =
      foldr (fun p ts ->
               match findfirstplanhit p plan &~~ 
@@ -730,13 +729,45 @@ and tint_universe forced (plan, _) (proofsels, textsels) =
                   ) [] textsels)
            proofsels
   in
-  mkmap <.> List.map (fun (c,w) -> (c, tint_world forced selections c w)) <.> aslist
+  (* we need to recognise selections which are 'instantiable'; bindersels is supposed to
+     list them all in naked form. Well, ho hum ... it works for the only example I have
+     now, but obviously I can't like that.
+     But there is a rationale to it: if the definition either is, or directly involves,
+     a binding definition then take it. So EVERYWHERE (ALL ...) works, as it should, and
+     NOWHERE(PRIM (All x ...)) doesn't, as it shouldn't.
+     Hmmm.
+     RB
+   *)
+  let bindersels =
+    optionfilter (fun t -> let rec isbinder fd =
+                             match fd with
+                               ForcePrim _         -> None
+                             | ForceBoth _         -> None
+                             | ForceEither _       -> None
+                             | ForceIf _           -> None
+                             | ForceEverywhere fd' -> isbinder fd' (* this happens to work for I2L_disproof.j All x.P(x), which is what I want *)
+                             | ForceNowhere fd'    -> isbinder fd' (* this happens not to work for I2L_disproof.j not(Exists x.P(x)), which is what I want *)
+                             | ForceAll tvsfd      -> Some tvsfd
+                             | ForceSome tvsfd     -> Some tvsfd
+                           in 
+                           semantics facts t &~~ isbinder
+                 ) selections
+  in
+  let do_world = tint_world facts forced selections bindersels in
+  mkmap <.> List.map (fun (c,w) -> (c, do_world c w)) <.> aslist
 
-and tint_world forced selections c (e, ls, chs) = 
-  ((if _All1 (fun s -> fst (forced (c,s))) selections then Forced else Unforced),
-   List.map (tint_label forced selections c) ls, chs)
+and tint_world facts forced selections bindersels c (e, ls, chs) = 
+  let do_label = tint_label facts forced bindersels c in
+  ((if _All1 (fun t -> fst (forced (c,t))) selections then Forced else Unforced),
+   List.map do_label ls, chs)
 
-and tint_label forced selections c (_,t) = (Unforced,t) (* for now *)
+and tint_label facts forced bindersels c (_,t) = 
+  ((if _All1 (fun bsel -> match indiv_fd facts bsel t &~~ forcedef2term with
+                            Some t' -> fst (forced (c,t'))
+                          | None    -> false
+             ) bindersels 
+    then Forced else Unforced),
+   t) 
 
 exception Disproof_ of string list
 
