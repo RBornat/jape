@@ -2,6 +2,6 @@
 
 INITIALISE interpretpredicates true
 
-USE "BnE-Fprimepred_syntax.j"
-USE "BnE-Fprimepred_rules.j"
-USE "BnE-Fprimepred_menus.j"
+USE "BnE-Fprime_syntax.j"
+USE "BnE-Fprime_rules.j"
+USE "BnE-Fprime_menus.j"
