@@ -560,6 +560,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
       failwithreason
         ["The rule "; step_label how; " doesn't match the goal ";
          string_of_seq conjecture; " because the turnstiles are different"]
+
 let rec showstuff stuff =
   string_of_octuple enQuote
     (string_of_pair string_of_bool string_of_bool ",")
@@ -568,13 +569,10 @@ let rec showstuff stuff =
        (bracketedstring_of_list string_of_resnum ",") ",")
     (bracketedstring_of_list string_of_seq ",") string_of_seq
     (bracketedstring_of_list string_of_visproviso " AND ") ", " stuff
+
 let rec apply checker filter taker selhyps selconcs stuff reason cxt =
   fun (_C, _Cinf) ->
-    let
-      (kind, hiddencontexts, how, args, principals, antes, conseq, provs)
-      =
-      stuff
-    in
+    let (kind, hiddencontexts, how, args, principals, antes, conseq, provs) = stuff in
     let _ =
       if !applydebug > 0 then
         consolereport
