@@ -42,12 +42,12 @@ public class DisproofCanvas extends JapeCanvas {
 
     public String getSelections(String sep) {
         Alert.abort("DisproofCanvas.getSelections");
-        return ""; // shut up compiler
+        return null; // shut up compiler
     }
-    
+
     public String getTextSelections(String sep) {
         Alert.abort("DisproofCanvas.getTextSelections");
-        return ""; // shut up compiler
+        return null; // shut up compiler
     }
 
     public void setSequentBox(int width, int ascent, int descent) {
