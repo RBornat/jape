@@ -858,8 +858,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
               consolereport
                 ["folding ";
                  bracketedliststring
-                   (fun s ->
-                      pairstring string_of_int enQuote "," (measure s, s))
+                   (fun s -> pairstring string_of_int enQuote "," (measure s, s))
                    ", " estring]
           in
           let sss = minwaste measure w estring in
@@ -1087,19 +1086,12 @@ let rec linearise screenwidth procrustean_reasonW dp =
           in
           let hyplines =
             match wopt with
-              None -> [hypelis]
-            | Some bestW ->
-                (* first pass - just put them all on one line *)
-                (* We make a proper 'minimum waste' split of the assumption line *)
-                let rec measureplan (_, ((size, _), _)) =
-                  tsW size + commaW
-                in
-                (* more or less *)
-                let mybestW =
-                  max (2 * tsW (fst (fst words))) (bestW - 2 * posX innerpos)
-                in
+              None -> [hypelis] (* first pass - just put them all on one line *)
+            | Some bestW -> (* We make a proper 'minimum waste' split of the assumption line *)
+                let rec measureplan (_, ((size, _), _)) = tsW size + commaW (* more or less *) in
+                let mybestW = max (2 * tsW (fst (fst words))) (bestW - 2 * posX innerpos) in
                 minwaste measureplan mybestW
-                  ((fun (e, inf) -> e, foldformula mybestW inf) <* hypelis)
+                  ((fun (e, inf) -> e, if !foldformulae then foldformula mybestW inf else inf) <* hypelis)
           in
           let rec dohypline =
             fun
