@@ -29,18 +29,14 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
 		(JAPE (fail(please text-select one or more instances of a sub-formula to replace)))
 
 TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS
-	WHEN	(LETHYPSUBSTSEL
-				_P 
-				cut
-				 (LAYOUT () (1) ruleRL thm (WITHSUBSTSEL hyp))
-			)
-			(LETCONCSUBSTSEL _P (LAYOUT () (1) (WITHSUBSTSEL ruleLR) thm))
-			/* the next thing does some serious trickery to make it possible to influence the second argument
-			  * to a rewrite rule.  It would be superseded if there were a way to provide the second argument
-			  * directly.  I would like to write ruleRL _ _P.
-			  */
-			(LETHYP _P cut (LAYOUT () (1) ruleRL thm (LETGOAL (_P'[_x\_Q])  (WITHHYPSEL(hyp _Q)))))
-			(LETGOAL _P (LAYOUT () (1) (ruleLR _P) thm))
+	WHEN	
+		(LETHYPSUBSTSEL _P 
+				cut (LAYOUT () (1) ruleRL thm (WITHSUBSTSEL hyp))
+		)
+		(LETCONCSUBSTSEL _P (LAYOUT () (1) (WITHSUBSTSEL ruleLR) thm))
+		/* the "second argument" of the rewrite rules has to be B */
+		(LETHYP _P cut (LAYOUT () (1) (ruleRL[B\_P]) thm (WITHHYPSEL hyp)))
+		(LETGOAL _P (LAYOUT () (1) (ruleLR _P) thm))
 
 TACTIC "ä-I tac" IS WITHARGSEL "ä-I"
 TACTIC "ä!-I tac" IS WITHARGSEL "ä!-I"
