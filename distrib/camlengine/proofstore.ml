@@ -38,39 +38,43 @@ open Rewrite.Funs
 open Sml
 open Thing
 
-let
-  (freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
-   proof_children, addproof, saved, proofnames, provedthings, saveable,
-   proved, disproved, provedordisproved, inproofstore, saveproof,
-   saveproofs)
-  =
-  let proofs
-	:
-	(name,
-	 (bool * prooftree * name list * (seq * model) option))
-	 mapping ref =
+let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
+    proof_children, addproof, saved, proofnames, provedthings, saveable,
+    proved, disproved, provedordisproved, inproofstore, saveproof,
+    saveproofs =
+
+  let proofs : (name, (bool * prooftree * name list * bool * (seq * model) option)) mapping ref =
 	ref empty
+
   and allsaved = ref true
+
   and frozensaved = ref true in
+
   let rec freezesaved () = frozensaved := !allsaved
+
   and thawsaved () = allsaved := !frozensaved
+
   and clearproofs () = proofs := empty; allsaved := true
+
   and proofnamed name =
 	match thinginfo name, at (!proofs, name) with
-	  Some (Theorem (_, provisos, seq), _), Some (v, tree, _, disproof) ->
-		Some (v, tree, provisos, [], disproof)
+	  Some (Theorem (_, provisos, seq), _), Some (v, tree, _, disproved, disproof) ->
+		Some (v, tree, provisos, [], disproved, disproof)
 	| Some (Rule ((_, provisos, givens, seq), _), _),
-	  Some (v, tree, _, disproof) ->
-		Some (v, tree, provisos, givens, disproof)
+	  Some (v, tree, _, disproved, disproof) ->
+		Some (v, tree, provisos, givens, disproved, disproof)
 	| _ -> None
+
   and proof_depends name =
 	match at (!proofs, name) with
-	  Some (true, _, children, _) -> Some children
+	  Some (true, _, children, _, _) -> Some children
 	| _ -> None
+
   and proof_children name =
 	match proof_depends name with
 	  Some ns -> ns
 	| None -> []
+  
   (* when we prove something, we may prove a different sequent from the one that was 
    * proposed, and a different set of provisos.  We shall check, and update the 
    * statement of the theorem.  This has implications for conjectures that have 
@@ -82,7 +86,9 @@ let
    * Future step:  check when a proof changes the meaning of a theorem
    * RB 8/x/96 
    *)
-  and addproof alert query name proved proof givens cxt disproofopt =
+  (* and I REALLY REALLY MUST extend this to redefinition of Rules ... *)
+
+  and addproof alert query name proved proof givens cxt disproved disproofopt =
 	let cxt = rewritecxt cxt in
 	let seq = rewriteseq cxt (sequent proof) in
 	let provisos = provisos cxt in
@@ -94,7 +100,7 @@ let
 	  addthing (name, thing, place);
 	  proofs :=
 		( ++ )
-		  (!proofs, ( |-> ) (name, (proved, proof, ds, disproofopt)));
+		  (!proofs, ( |-> ) (name, (proved, proof, ds, disproved, disproofopt)));
 	  allsaved := false;
 	  true
 	in
@@ -136,28 +142,36 @@ let
 			   (fun bs -> liststring parseablenamestring " uses " bs)
 			   "; and " cycles];
 		  false
+
   and saved () = !allsaved
+
   and proofnames () = dom !proofs in
   (* dom now gives them in insertion order, I believe *)
 
   let provedthings = proofnames in
+
   let rec saveable () = not (isempty !proofs)
+
   and proved n =
 	match proofnamed n with
-	  Some (v, _, _, _, _) -> v
+	  Some (proved,_, _, _, _,_) -> proved
 	| _ -> false
+
   and disproved n =
 	match proofnamed n with
-	  Some (v, _, _, _, _) -> not v
+	  Some (_, _, _, _,disproved,_) -> disproved
 	| _ -> false
+
   and provedordisproved n =
 	match proofnamed n with
-	  Some (v, _, _, _, _) -> Some v
+	  Some (proved, _, _, _,disproved,_) -> Some (proved,disproved)
 	| _ -> None
   in
+
   let inproofstore = opt2bool <*> proofnamed in
 
   let menu2word _ = "MENU" in
+
   let panel2word p =
 	match getpanelkind p with
 	  Some TacticPanelkind     -> "TACTICPANEL"
@@ -167,6 +181,7 @@ let
 	| None -> 
 	   raise (Catastrophe_ ["proof in unknown panel "; namestring p])
   in
+
   let rec saveproof stream name stage tree provisos givens disproof =
 	let rec badthing () =
 	  raise
@@ -210,11 +225,12 @@ let
 		   panel2word p :: " " :: parseablenamestring p :: "\n" ::
 			 doit ["END\n"]
 	   | InLimbo -> doit [])
+
   and saveproofs stream =
 	let rec show n =
 	  match proofnamed n with
-		Some (v, tree, provisos, givens, disproof) ->
-		  saveproof stream n (if v then Proved else Disproved) tree
+		Some (proved, tree, provisos, givens, disproved, disproof) ->
+		  saveproof stream n (if proved then Proved else Disproved) tree (* WRONG!!! *)
 			((snd <* (fst <| provisos))) givens
 			disproof
 	  | _ -> ()
@@ -229,6 +245,7 @@ let
   proof_children, addproof, saved, proofnames, provedthings, saveable,
   proved, disproved, provedordisproved, inproofstore, saveproof,
   saveproofs
+
 let rec thingswithproofs triv =
 	 (fun n ->
 		match thingnamed n with
@@ -240,6 +257,7 @@ let rec thingswithproofs triv =
 	 thingnames ()
 (* why is this different from thingswithproofs??? *)
 
+
 let rec namedthingswithproofs triv ts =
 	(fun n ->
 		match thingnamed n with
@@ -249,12 +267,15 @@ let rec namedthingswithproofs triv ts =
 		| Some (Rule (_, ax), _) -> (ax || triv) || proved n
 		| Some (Theorem _, _) -> triv || proved n) <|
 	 ts
+
 let thmLacksProof = not <*> proved
+
 let rec needsProof a1 a2 =
   match a1, a2 with
 	name, Rule (_, ax) -> not ax || not (proved name)
   | name, Tactic _ -> false
   | name, Macro _ -> false
   | name, Theorem _ -> not (proved name)
+
 let rec lacksProof name =
   needsProof name (fst (_The (thingnamed name)))
