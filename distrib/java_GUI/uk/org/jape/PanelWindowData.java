@@ -158,6 +158,9 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         }
         abstract boolean needsSelection();
         abstract void doAction(String title, int listIndex);
+        public void font_reset() {
+            JapeFont.setComponentFont(this, JapeFont.PANELBUTTON);
+        }
     }
 
     class InsertButton extends PanelButton {
@@ -274,7 +277,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         private JScrollPane scrollPane;
         private ButtonPane buttonPane;
 
-        private final int prefixw;
+        private int prefixw; // not final because it changes when font changes
         private boolean active = true;
         
         public PanelWindow() {
@@ -308,11 +311,9 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             list = new JList(model);
             list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             list.setSelectedIndex(0);
-            JapeFont.setComponentFont(list, JapeFont.PANELENTRY);
+            setListFont();
             list.setCellRenderer(new Renderer());
 
-            prefixw = JapeFont.stringWidth(list, "YN ");
-            
             for (int i=0; i<entryv.size(); i++)
                 addEntry((String)entryv.get(i), (Mark)markv.get(i));
 
@@ -347,6 +348,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             buttonPane = new ButtonPane();
             for (int i=0; i<buttonv.size(); i++) {
                 PanelButton b = (PanelButton)buttonv.get(i);
+                b.font_reset();
                 addButton(b); // make sure it gets an ActionListener
             }
             contentPane.add(buttonPane);
@@ -369,42 +371,50 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             Container contentPane = getContentPane();
             contentPane.getLayout().layoutContainer(contentPane);
         }
+
+        private void setListFont() {
+            JapeFont.setComponentFont(list, JapeFont.PANELENTRY);
+            prefixw = JapeFont.stringWidth(list, "YN ");
+        }
+
+        public void font_reset() {
+            for (int i=0; i<buttonv.size(); i++)
+                ((PanelButton)buttonv.get(i)).font_reset();
+            buttonPane.doLayout();
+            setListFont();
+            for (int i=0; i<model.size(); i++) {
+                Object e = model.getElementAt(i);
+                if (e instanceof Entry)
+                    ((Entry)e).font_reset();
+            }
+            invalidate();
+            repaint();
+        }
         
         public boolean equals(Object o) {
             return o instanceof PanelWindow ? ((PanelWindow)o).title.equals(this.title) :
                                               super.equals(o);
         }
 
-        public class PanelWindowState {
-            public final boolean visible;
-            PanelWindowState() {
-                visible = isVisible();
-            }
-        }
-
-        public PanelWindowState getPanelWindowState() {
-            return new PanelWindowState();
-        }
-
-        public void setPanelWindowState(PanelWindowState state) {
-            setVisible(state.visible);
-        }
-        
         protected class Entry extends Component {
             private String s;
             public String prefix;
-            private final TextDimension td;
-            private final Dimension size;
+            private TextDimension td; // changes when fonts change
+            private Dimension size;   // ditto
             public boolean selected;
             public boolean marked;
             public Color innerBackground = Color.white;
             public Entry(String s) {
-                super(); this.s = s; prefix = null; this.td = JapeFont.measure(list, s);
-                this.size = new Dimension(prefixw+td.width, td.ascent+td.descent);
-                setFont(list.getFont());
+                super(); this.s = s; prefix = null;
+                font_reset();
             }
             public Dimension getPreferredSize() {
                 return new Dimension (size.width, size.height);
+            }
+            public void font_reset() {
+                setFont(list.getFont());
+                this.td = JapeFont.measure(list, s);
+                this.size = new Dimension(prefixw+td.width, td.ascent+td.descent);
             }
             public void paint(Graphics g) {
                 if (paint_tracing)
@@ -707,12 +717,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     public static void font_reset() {
         for (int i=0; i<panelv.size(); i++) {
             PanelWindowData panel = (PanelWindowData)panelv.get(i);
-            if (panel.window!=null) {
-                PanelWindow.PanelWindowState state = panel.window.getPanelWindowState();
-                panel.window.dispose();
-                panel.initWindow();
-                panel.window.setPanelWindowState(state);
-            }
+            if (panel.window!=null)
+                panel.window.font_reset();
         }
     }
 
