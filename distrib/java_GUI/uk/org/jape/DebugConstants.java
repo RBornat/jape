@@ -44,7 +44,7 @@ interface DebugConstants {
                                 panelempty_tracing       = false,
                                 panellayout_tracing      = false,
                                 panellist_tracing        = false,
-                                preference_tracing       = true,
+                                preference_tracing       = false,
                                 printlayout_tracing      = false,
                                 worldpaint_tracing       = false;
 
