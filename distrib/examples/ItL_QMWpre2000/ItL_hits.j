@@ -1,3 +1,5 @@
+/* $Id$ */
+
 HYPHIT	P     æ P	IS hyp       
 HYPHIT	P¦Q æ R	IS ALT(SEQ("¦-E(L)", hyp (P¦Q)), 
                                            SEQ("¦-E(R)", hyp (P¦Q)),
