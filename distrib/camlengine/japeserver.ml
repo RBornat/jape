@@ -314,6 +314,8 @@ let rec drawstring (font, class__, s, pos) =
   writef "DRAWSTRING % % % % %\n"
     [Int x; Int y; Int font; Int class__; Str s]
 
+let rec showAlert s = writef "SETALERT %\n" [Str s]
+
 let rec drawmeasuredtext class__ lines pos =
   (* : displayclass ->(pos*font*string) list -> pos -> unit *)
   let classn = displayclass2int class__ in
@@ -322,11 +324,10 @@ let rec drawmeasuredtext class__ lines pos =
       let fontn = displayfont2int font in
       drawstring (fontn, classn, string, Box.(+->+) pos pos')
   | [] -> ()
-  | _ ->
-      raise
-        (Catastrophe_
-           ["drawmeasuredtext sees list of texts of length ";
-            string_of_int (List.length lines)])
+  | l::ls ->
+      (showAlert (Sml.implode ["drawmeasuredtext sees list of texts of length ";
+                              string_of_int (List.length lines)]);
+       drawmeasuredtext class__ [l] pos)
 
 let rec procrustes width ellipsis font text =
   (* if stringwidth(text in font) < width then text else [text] cut to width - widthof ...*)
@@ -348,8 +349,6 @@ let commentSet = ref false
 let rec setComment s =
   if s = "" && not !commentSet then ()
   else begin commentSet := true; writef "SETCOMMENT %\n" [Str s] end
-
-let rec showAlert s = writef "SETALERT %\n" [Str s]
 
 let rec ask_unpatched severity message buttons default =
   writef "ASKSTART\n" [];
