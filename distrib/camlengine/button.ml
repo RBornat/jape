@@ -188,7 +188,7 @@ let rec initButtons () =
   in
   clearmenusandpanels ();
   addmenu true (name_of_string "Edit"); (* this isn't necessary ... *)
-  addmenudata (name_of_string "Edit") _EditEntries
+  addmenudata (name_of_string "Edit") (List.map (fun e -> MCdata e) _EditEntries)
 
 let rec initFonts () =
   match getfontstuff () with
