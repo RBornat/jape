@@ -153,7 +153,12 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     }
 
     public void emptyPanel() {
-        closeWindow();
+        window.setVisible(false);
+        window.model.removeAllElements();
+        Component[] cs = window.getContentPane().getComponents();
+        for (int i=0; i<cs.length; i++)
+            if (cs[i] instanceof PanelButton)
+                window.getContentPane().remove(cs[i]);
         entryv.removeAllElements(); cmdv.removeAllElements(); buttonv.removeAllElements();
     }
     
@@ -230,6 +235,11 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             pack(); // necessary??
         }
 
+        public void resetPanelLayout() {
+            Container contentPane = getContentPane();
+            contentPane.getLayout().layoutContainer(contentPane);
+        }
+        
         public boolean equals(Object o) {
             return o instanceof PanelWindow ? ((PanelWindow)o).title.equals(this.title) :
                                               super.equals(o);
@@ -569,6 +579,11 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             PanelWindowData panel = (PanelWindowData)panelv.get(i);
             if (panel.window==null)
                 panel.initWindow();
+            else {
+                // this isn't tested until we are able to add things to the panel ...
+                panel.window.resetPanelLayout();
+                // but don't reset the size or position ...
+            }
             panel.window.setVisible(true);
         }
     }
