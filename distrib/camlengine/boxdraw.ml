@@ -859,35 +859,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
             | ElementPunctPlan                ->
                 raise (Catastrophe_ ["foldformula ElementPunctPlan"])
           in
-          let estring = catelim_invisbracketedstring_of_element true e [] in
-          let measure = fst_of_3 <.> measurestring TermFont in
-          if !boxfolddebug then
-            consolereport
-              ["folding ";
-               bracketedstring_of_list
-                 (fun s -> string_of_pair string_of_int enQuote "," (measure s, s))
-                 ", " estring];
-          let sss = minwaste measure w estring in
-          if !boxfolddebug then
-            consolereport
-              ["width is "; string_of_int w; ";\nformula folded to ";
-               string_of_int (List.length sss); " lines: ";
-               bracketedstring_of_list (fun ss -> enQuote (implode ss)) ", "
-                 sss];
-          let sys = (fun ss -> Syllable (TermFont, implode ss)) <* sss
-          in
-          let text =
-            Text
-              (Linebreak textleading ::
-                 (interpolate (Linebreak termfontleading) sys @
-                    [Linebreak textleading]))
-          in
-          if !boxfolddebug then
-            consolereport ["text is "; string_of_text text];
-          let (size, _ as textinfo) = Draw.measuretext MidBlock text in
-          if !boxfolddebug then
-            consolereport ["textsize is "; string_of_textsize size];
-          textinfo, epi
+          Termfold.termfold TermFont textleading termfontleading textleading
+                            (fst_of_3 <.> measurestring TermFont) w (stripelement e), epi
   in
   (*************** the engine room ******************************: 
    * given a line number, a list of elements and reason information,
