@@ -4,7 +4,7 @@ type alertspec =
   | HowToFormulaSelect
   | HowToDrag
 
-and alertseverity = Info | Warning | Error | Question
+type alertseverity = Info | Warning | Error | Question
 
 val ask : alertseverity -> string -> (string * 'a) list -> int       -> 'a
                         (* message   buttons  actions      defaultindex  result   *)
