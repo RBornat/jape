@@ -24,17 +24,24 @@
     (or look at http://www.gnu.org).
   */
 
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.Component;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.Container;
 import java.awt.Dimension;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import java.awt.Point;
 import javax.swing.JScrollBar;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import javax.swing.ScrollPaneConstants;
 
 public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
     private Component view;
+    private Rectangle viewBounds;
     private JPanel viewport;
     private JScrollBar vsb,
                        hsb;
@@ -42,20 +49,144 @@ public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
     public JapeScrollPane() {
         super();
         hsb = new JScrollBar(JScrollBar.HORIZONTAL);
+        hsb.setUnitIncrement(10); hsb.setBlockIncrement(100); // for now
+        hsb.addAdjustmentListener(new H());
         vsb = new JScrollBar(JScrollBar.VERTICAL);
+        vsb.setUnitIncrement(10); vsb.setBlockIncrement(100); // for now
+        vsb.addAdjustmentListener(new V());
         viewport = new JPanel();
+        viewport.setLayout(null);
         view = null; // unnecessary, but it makes me feel better
         setLayout(new JapeScrollPaneLayout());
+        super.add(hsb); super.add(vsb); super.add(viewport);
     }
-    
+
+    private class H implements AdjustmentListener {
+        public void adjustmentValueChanged(AdjustmentEvent e) {
+            switch (e.getAdjustmentType()) {
+                case AdjustmentEvent.TRACK:
+                    Point p = view.getLocation();
+                    p.x -= hsb.getValue();
+                    view.setLocation(p);
+                    validate(); repaint();
+                    break;
+                default:
+                    System.err.println("H sees AdjustmentEvent "+e.getAdjustmentType());
+                    break;
+            }
+        }
+    }
+
+    private class V implements AdjustmentListener {
+        public void adjustmentValueChanged(AdjustmentEvent e) {
+            switch (e.getAdjustmentType()) {
+                case AdjustmentEvent.TRACK:
+                    Point p = view.getLocation();
+                    p.y -= vsb.getValue();
+                    view.setLocation(p);
+                    validate(); repaint();
+                    break;
+                default:
+                    System.err.println("V sees AdjustmentEvent "+e.getAdjustmentType());
+                    break;
+            }
+        }
+    }
+
+    public static final int ANCHOR_NORTH = 0;
+    public static final int ANCHOR_NORTHEAST = 1;
+    public static final int ANCHOR_EAST = 2;
+    public static final int ANCHOR_SOUTHEAST = 3;
+    public static final int ANCHOR_SOUTH = 4;
+    public static final int ANCHOR_SOUTHWEST = 5;
+    public static final int ANCHOR_WEST = 6;
+    public static final int ANCHOR_NORTHWEST = 7;
+
+    private int anchor = ANCHOR_NORTHWEST;
+
     public Component add(Component c) {
+        return add(c, ANCHOR_NORTHWEST);
+    }
+
+    public Component add(Component c, int anchor) {
+        Rectangle bounds = viewport.getBounds();
         if (view!=null)
             viewport.remove(view);
-        view=c;
+        view=c; viewBounds=view.getBounds();
         viewport.add(c);
+        c.addComponentListener(new ComponentAdapter() {
+            public void componentMoved(ComponentEvent e) {
+                validate();
+            }
+            public void componentResized(ComponentEvent e) {
+                validate();
+            }
+        });
+        setanchor(anchor);
         return c;
     }
 
+    public void setanchor(int anchor) {
+        /* we don't do anything with the anchor at this point: anchoring is a resizing action */
+        switch (anchor) {
+            case ANCHOR_NORTH:
+            case ANCHOR_NORTHEAST:
+            case ANCHOR_EAST:
+            case ANCHOR_SOUTHEAST:
+            case ANCHOR_SOUTH:
+            case ANCHOR_SOUTHWEST:
+            case ANCHOR_WEST:
+            case ANCHOR_NORTHWEST:
+                break;
+            default:
+                anchor = ANCHOR_NORTHWEST;
+        }
+        this.anchor = anchor;
+        
+    }
+    public void validate() {
+        Rectangle act = view.getBounds();
+        Rectangle vis = viewport.getBounds();
+        if (vis.x<=act.x && act.x+act.width<=vis.x+vis.width)
+            hsb.setValues(vis.x,0,vis.x,vis.x);
+        else
+            hsb.setValues(vis.x, vis.width, Math.min(vis.x,act.x), Math.max(vis.x+vis.width,act.x+act.width));
+        if (vis.y<=act.y && act.y+act.height<=vis.y+vis.height)
+            vsb.setValues(vis.y,0,vis.y,vis.y);
+        else
+            vsb.setValues(vis.y, vis.height, Math.min(vis.y,act.y), Math.max(vis.y+vis.height,act.y+act.height));
+    }
+
+    /* this is where the anchor policy bites */
+    public void setBounds(int x, int y, int w, int h) {
+        if (getWidth()!=0 && getHeight()!=0) { /* only for true resizing operations */
+            System.err.print("setBounds "+x+","+y+","+w+","+h+"; "+getBounds()+"; "+view.getLocation());
+            Point oldPos = view.getLocation();
+            switch (anchor) {
+                case ANCHOR_NORTH:
+                    oldPos.x += (w-getWidth())/2; break;
+                case ANCHOR_NORTHEAST:
+                    oldPos.x += w-getWidth(); break;
+                case ANCHOR_EAST:
+                    oldPos.x += w-getWidth(); oldPos.y += (h-getHeight())/2; break;
+                case ANCHOR_SOUTHEAST:
+                    oldPos.x += w-getWidth(); oldPos.y += h-getHeight(); break;
+                case ANCHOR_SOUTH:
+                    oldPos.x += (w-getWidth())/2; oldPos.y += h-getHeight(); break;
+                case ANCHOR_SOUTHWEST:
+                    oldPos.y += h-getHeight(); break;
+                case ANCHOR_WEST:
+                    oldPos.y += (h-getHeight())/2; break;
+                case ANCHOR_NORTHWEST:
+                default:
+                    break;
+            }
+            System.err.println(" => "+oldPos);
+            view.setLocation(oldPos);
+        }
+        super.setBounds(x,y,w,h);
+    }
+    
     private class JapeScrollPaneLayout implements LayoutManager {
 
         /* Called by the Container add methods. Layout managers that don't associate
@@ -81,21 +212,28 @@ public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
         }
 
         /* Called by the Container getMinimumSize method, which is itself called under
-        * a variety of circumstances. This method should calculate and return the minimum
-        * size of the container, assuming that the components it contains will be at or
-        * above their minimum sizes. This method must take into account the container's
-        * internal borders, which are returned by the getInsets method.
-        */
-        public Dimension minimumLayoutSize(Container c) { return preferredLayoutSize(c); }
+         * a variety of circumstances. This method should calculate and return the minimum
+         * size of the container, assuming that the components it contains will be at or
+         * above their minimum sizes. This method must take into account the container's
+         * internal borders, which are returned by the getInsets method.
+         */
+        private Dimension minSize;
+        public Dimension minimumLayoutSize(Container c) {
+            if (minSize==null) {
+                minSize = vsb.getMinimumSize();
+                minSize.width+=minSize.height; minSize.height=minSize.width;
+            }
+            return new Dimension(Math.max(40,minSize.width), Math.max(40,minSize.height));
+        }
 
         /* Called when the container is first displayed, and each time its size changes.
-        * A layout manager's layoutContainer method doesn't actually draw components.
-        * It simply invokes each component's resize, move, and reshape methods to set
-        * the component's size and position. This method must take into account the
-        * container's internal borders, which are returned by the getInsets method.
-        * You can't assume that the preferredLayoutSize or minimumLayoutSize method
-        * will be called before layoutContainer is called.
-        */
+         * A layout manager's layoutContainer method doesn't actually draw components.
+         * It simply invokes each component's resize, move, and reshape methods to set
+         * the component's size and position. This method must take into account the
+         * container's internal borders, which are returned by the getInsets method.
+         * You can't assume that the preferredLayoutSize or minimumLayoutSize method
+         * will be called before layoutContainer is called.
+         */
         public void layoutContainer(Container c) {
             Dimension size = getSize();
             int vsbWidth = vsb.getPreferredSize().width;
@@ -106,6 +244,7 @@ public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
             vsb.setBounds(sparewidth, 0, vsbWidth, spareheight);
             hsb.setBounds(0, spareheight, sparewidth, hsbHeight);
             viewport.setBounds(0, 0, sparewidth, spareheight);
+            validate();
         }
     }
 }
