@@ -5,7 +5,7 @@ SERVERSOURCE=../java_japeserver
 ENGINESOURCE=../../camlengine
 #
 
-all:         ; $(MAKE) engine GUI
+all:         ; $(MAKE) engine GUIclean GUI
 
 engine:      ; cd $(ENGINESOURCE); make jape
 
