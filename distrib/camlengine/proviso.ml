@@ -335,7 +335,10 @@ let expandProvisos ps =
 let compressProvisos ps =
   let ps = expandProvisos ps in
   (* filter out the variable NOTINs and try to put them into groups *)
-  (* I'm sure this is a standard algorithm -- is it paths? *)
+  (* This algorithm -- generate all the subsets, filter out the non-solutions --
+     suggested by Peter O'Hearn 2/vii/2004
+     Bernard Sufrin suggested filtering during construction, same date.
+   *)
   let xys, xts, others =
     foldl (fun (xys, xts, others) ->
              function (NotinProviso(v,t)) ->
@@ -347,26 +350,18 @@ let compressProvisos ps =
   (* remove duplication *)
   let xys = sortunique (earlierlist earliervar) (sort earliervar <* xys) in
   let names = foldl tmerge [] xys in
-  (* make all subsets *)
+  (* make all supported subsets *)
   let rec subsets =
     function 
       [] -> [[]]
     | x :: xs -> 
         let xss = subsets xs in
-        foldr (fun xs xss -> (x::xs)::xss) xss xss
+        foldr (fun ys yss -> if all (fun y -> List.mem [x;y] xys) ys
+                             then (x::ys)::yss
+                             else yss) 
+              xss xss
   in
-  let rec supported =
-    let rec ok x =
-      function 
-        []     -> true
-      | x'::xs -> List.mem [x;x'] xys && ok x xs
-    in
-    function
-      []    -> true
-    | [x]   -> true
-    | x::xs -> ok x xs && supported xs
-  in
-  let sets = (fun xs -> List.length xs>=2 && supported xs) <| subsets names in
+  let sets = (fun xs -> List.length xs>=2) <| subsets names in
   let sets = sort (fun xs ys -> List.length xs>List.length ys) sets in
   let rec comb =
     function 
