@@ -138,7 +138,7 @@ public class JapeMenu implements ActionListener {
         public void action () {
              String file = FileChooser.newOpenDialog("theories, logic files and proofs", "jt", "j", "jp");
              if (file.length()!=0)
-                Reply.sendCOMMAND("use "+file);
+                 Reply.sendCOMMAND("use \""+file+"\"");
         }
     
     }
