@@ -35,18 +35,26 @@ public class HypConcItem extends SelectableProofItem {
     }
 
     public void clicked(byte eventKind, MouseEvent e) {
-        byte selkind = e.getX()<getHeight()/2 ? ConcSel : HypSel;
+        byte newselkind = e.getX()<getHeight()/2 ? ConcSel : HypSel;
+        byte oldselkind = selectionRect.getSelkind();
         switch (eventKind) {
             case Selection:
-                canvas.killSelections((byte)(ReasonSel | selkind));
-                doClick(selkind);
+                if (oldselkind!=newselkind) {
+                    canvas.killSelections((byte)(ReasonSel | newselkind));
+                    doClick(newselkind);
+                }
                 break;
             case ExtendedSelection:
             case DisjointSelection:
             case ExtendedDisjointSelection:
-                canvas.killSelections((byte)(ReasonSel |
-                                             (selkind==HypSel ? NoSel : selkind)));
-                doClick(selkind);
+                if (oldselkind==newselkind) {
+                    selectionRect.setSelkind(NoSel);
+                    canvas.notifyDeselect();
+                }
+                else {
+                    canvas.killSelections((byte)(ReasonSel | (newselkind&~HypSel)));
+                    doClick(newselkind);
+                }
                 break;
             default:
                 Alert.abort("HypConcItem.clicked eventKind="+eventKind);
@@ -55,11 +63,12 @@ public class HypConcItem extends SelectableProofItem {
 
     private void doClick(byte selkind) {
         selectionRect.setSelkind((byte)(selkind | AmbigSel));
+        canvas.notifySelect(this);
     }
 
     public void select(byte selkind) {
         if (selkind==HypSel || selkind==ConcSel)
-            doClick(selkind);
+            selectionRect.setSelkind((byte)(selkind | AmbigSel));
         else
             Alert.abort("HypConcItem.select selkind="+selkind);
     }

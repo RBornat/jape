@@ -35,16 +35,25 @@ public class HypothesisItem extends SelectableProofItem {
     }
     
     public void clicked(byte eventKind, MouseEvent e) {
+        byte selkind = getSelkind();
         switch (eventKind) {
             case Selection:
-                canvas.killSelections((byte)(ReasonSel | HypSel));
-                doClick();
+                if (selkind==NoSel) {
+                    canvas.killSelections((byte)(ReasonSel | HypSel));
+                    doClick();
+                }
                 break;
             case ExtendedSelection:
             case DisjointSelection:
             case ExtendedDisjointSelection:
-                canvas.killSelections(ReasonSel);
-                doClick();
+                if (selkind==NoSel) {
+                    canvas.killSelections(ReasonSel);
+                    doClick();
+                }
+                else {
+                    selectionRect.setSelkind(NoSel);
+                    canvas.notifyDeselect();
+                }
                 break;
             default:
                 Alert.abort("HypothesisItem.clicked eventKind="+eventKind);
@@ -52,12 +61,13 @@ public class HypothesisItem extends SelectableProofItem {
     }
 
     private void doClick() {
-        selectionRect.setSelkind(HypSel);
+        select(HypSel);
+        canvas.notifySelect(this);
     }
 
     public void select(byte selkind) {
         if (selkind==HypSel)
-            doClick();
+            super.select(HypSel);
         else
             Alert.abort("HypothesisItem.select selkind="+selkind);
     }
