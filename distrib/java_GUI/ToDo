@@ -1,4 +1,6 @@
-Bugs:
+Bugs (engine): not keeping the picture steady on undo
+
+Bugs (interface): what's with the 'next selection on same line'?
 
 ----------------
 
@@ -22,17 +24,14 @@ PanelWindow needs to use minwaste to pack buttons
 
 Protocol in:
 
-CLEARCHOICES
 DROPBEGIN
 DROPEND
 HOWTO
 LOADFONT
-MAKECHOICE
 POINTSIZE
 PROCRUSTES
 READHIGHLIGHT
 SETALERT
-SETCHOICELINE
 SETCOMMENT
 SHOWFILE
 SHOWPROVISOLINE

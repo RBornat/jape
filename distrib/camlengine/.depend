@@ -222,14 +222,14 @@ interaction.cmo: alert.cmi answer.cmi box.cmi cxtfuns.cmi displayclass.cmi \
     displayfont.cmi displaystate.cmi displaystyle.cmo hit.cmi japeserver.cmi \
     listfuns.cmi miscellaneous.cmi optionfuns.cmi proofstate.cmi \
     prooftree.cmo proviso.cmi rewrite.cmi selection.cmi seqtype.cmo \
-    sequent.cmi sml.cmi stringfuns.cmi termfuns.cmi termparse.cmi \
-    termstring.cmi treeformat.cmo interaction.cmi 
+    sequent.cmi sml.cmi stringfuns.cmi termfuns.cmi termstring.cmi \
+    treeformat.cmo interaction.cmi 
 interaction.cmx: alert.cmx answer.cmx box.cmx cxtfuns.cmx displayclass.cmx \
     displayfont.cmx displaystate.cmx displaystyle.cmx hit.cmx japeserver.cmx \
     listfuns.cmx miscellaneous.cmx optionfuns.cmx proofstate.cmx \
     prooftree.cmx proviso.cmx rewrite.cmx selection.cmx seqtype.cmx \
-    sequent.cmx sml.cmx stringfuns.cmx termfuns.cmx termparse.cmx \
-    termstring.cmx treeformat.cmx interaction.cmi 
+    sequent.cmx sml.cmx stringfuns.cmx termfuns.cmx termstring.cmx \
+    treeformat.cmx interaction.cmi 
 japeenv.cmo: listfuns.cmi mappingfuns.cmi miscellaneous.cmi name.cmi \
     optionfuns.cmi sml.cmi stringfuns.cmi termparse.cmi termstring.cmi \
     termtype.cmi japeenv.cmi 
