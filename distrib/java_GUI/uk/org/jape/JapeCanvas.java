@@ -52,12 +52,7 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         });
     }
 
-    protected void claimFocus() {
-        if (this instanceof ProofCanvas || this instanceof ProvisoCanvas)
-            getProofWindow().claimProofFocus();
-        else
-            getProofWindow().claimDisproofFocus();
-    }
+    protected abstract void claimFocus();
                                      
     // DisplayItems (things that have an identity) get added at the front;
     // other items (lines, rects, etc.) at the back.

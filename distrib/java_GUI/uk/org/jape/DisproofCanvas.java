@@ -36,6 +36,10 @@ public class DisproofCanvas extends JapeCanvas {
         setlinethickness(linethickness);
     }
 
+    protected void claimFocus() {
+        getProofWindow().claimDisproofFocus();
+    }
+
     public String getSelections(String sep) {
         Alert.abort("DisproofCanvas.getSelections");
         return ""; // shut up compiler
