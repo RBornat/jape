@@ -13,7 +13,10 @@ END */
 
 /* Since triples are parsed as juxtapositions (sigh!) this works */
 
-RULE "Ntuple" IS  FROM A {B} AND {B} C {D} INFER A {B} C {D}
+RULES "Ntuple" ARE
+    FROM A {B} AND {B} C {D} INFER A {B} C {D}
+AND FROM {A}B{C} AND {C}D{E} INFER {A}(B{C}D){E}
+END
 
 RULE "choice" IS FROM (E→A)∧(¬E→B)∧(E computes) simplifiesto G 
                   AND {A} F1 {C} 
