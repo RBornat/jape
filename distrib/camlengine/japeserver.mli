@@ -76,15 +76,15 @@ val emptymenusandpanels : unit -> unit
 val newmenu : string -> unit
 val menuentry : string * string * string option * string -> unit
              (* menu,    label,   key equiv,      cmd *)
-val menucheckbox : string * string * string -> unit
-                (* menu,    label,   cmd *)
-val menuradiobutton : string * (string * string) list -> unit
-                   (* menu,    (label,   cmd) *)
+val menucheckbox : string -> string -> string -> unit
+                (* menu      label     cmd *)
+val menuradiobutton : string -> (string * string) list -> unit
+                   (* menu      (label,   cmd) *)
 val menuseparator : string -> unit
                  (* menu *)
 
-val enablemenuitem : string * string * bool -> unit (* applies to entries, checkboxes, radio buttons *)
-val tickmenuitem   : string * string * bool -> unit (* only for checkboxes, radio buttons *)
+val enablemenuitem : string -> string -> bool -> unit (* applies to entries, checkboxes, radio buttons *)
+val tickmenuitem   : string -> string -> bool -> unit (* only for checkboxes, radio buttons *)
 
 val mapmenus : bool -> unit (* false: menus under construction; true: menus constructed *)
  

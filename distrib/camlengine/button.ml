@@ -86,7 +86,7 @@ let rec enable (button, state) =
            buttoncache := ( ++ ) (!buttoncache, ( |-> ) (b, ref state));
            true
     then
-      Japeserver.enablemenuitem (m, c, state)
+      Japeserver.enablemenuitem m c state
   in
   match button with
     UndoProofbutton -> doit MyUndoProof state
@@ -121,13 +121,11 @@ let rec reloadmenusandpanels markconjecture oplist =
                   (menustring, namestring label, keyopt, cmd))
              (fun (label, cmd) ->
                 (* checkbox *)
-                Japeserver.menucheckbox
-                  (menustring, namestring label, cmd))
+                Japeserver.menucheckbox menustring (namestring label) cmd)
              (fun lcs ->
                 (* radio button *)
                 Japeserver.menuradiobutton
-                  (menustring,
-                   List.map (fun (label, cmd) -> namestring label, cmd) lcs))
+                   menustring (List.map (fun (label, cmd) -> namestring label, cmd) lcs))
              (fun _ -> Japeserver.menuseparator menustring));
       paneliter
         (fun (panel, kind) ->
