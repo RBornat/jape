@@ -3,6 +3,7 @@
 INITIALISE displaystyle     box
 INITIALISE autoAdditiveLeft true
 INITIALISE foldformulae     true
+INITIALISE hideuselesscuts  true
 
 USE "hoare_syntax.j"
 USE "hoare_rules.j"
