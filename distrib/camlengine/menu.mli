@@ -25,18 +25,18 @@ open Name
  
 val panelbuttoninsertstring : panelbuttoninsert -> string
 type menudata =
-	Mseparator
-  | Mentry of (name * string option * string)
-  | Mcheckbox of (name * name * (string * string) * string option)
+    Mseparator
+  | Mentry       of (name * string option * string)
+  | Mcheckbox    of (name * name * (string * string) * string option)
   | Mradiobutton of (name * (name * string) list * string option)
-(* variable  label  cmd            default cmd *)
+                (* variable  label  cmd            default cmd *)
 
 type paneldata =
-	Pentry of (name * string)
-  | Pbutton of (name * panelbuttoninsert list)
-  | Pcheckbox of (name * name * (string * string) * string option)
+    Pentry       of (name * string)
+  | Pbutton      of (name * panelbuttoninsert list)
+  | Pcheckbox    of (name * name * (string * string) * string option)
   | Pradiobutton of (name * (name * string) list * string option)
-(* variable  label  cmd            default cmd *)
+                (* variable  label  cmd            default cmd *)
 
 val addmenu : name -> unit
 val addmenudata : name -> menudata list -> unit
