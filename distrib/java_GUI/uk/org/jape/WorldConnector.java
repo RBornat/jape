@@ -28,7 +28,10 @@
 import javax.swing.JFrame;
 
 public class WorldConnector extends LineItem {
-    public WorldConnector(WorldCanvas canvas, JFrame window, WorldItem wfrom, WorldItem wto) {
-        super(canvas, wfrom.idX, -wfrom.idY, wto.idX, -wto.idY);
+    public final WorldItem from, to;
+    public WorldConnector(WorldCanvas canvas, JFrame window, WorldItem from, WorldItem to) {
+        super(canvas, from.idX, -from.idY, to.idX, -to.idY);
+        this.from = from; this.to = to;
+        from.registerFrom(this); to.registerTo(this);
     }
 }
