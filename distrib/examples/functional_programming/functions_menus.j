@@ -132,8 +132,8 @@ CONJECTUREPANEL "Conjectures" IS
                 ENTRY "Use any rule enabled by Searching" IS SearchTactic
 
 		THEOREMS	syntactic
-		ARE monoid (++) но
-		AND monoid rcat но
+		ARE monoid (++) []
+		AND monoid rcat []
 		END
 		
 		THEOREMS ListThms
@@ -260,7 +260,7 @@ INFER   X=Y ц P
 
 
 CONCHIT C      IS  UnfoldUsingSearch
-HYPHIT  H |- C IS  UnfoldHypWithOptionalSelection 
+HYPHIT  H ц C IS  UnfoldHypWithOptionalSelection 
 
 /*
         Two semi-intelligent tactics for use from panels. If
@@ -309,7 +309,7 @@ ALT (SEQ (FindSelection sel)
         USed from HYPHIT -- 
 */
 TACTIC UnfoldHypWithOptionalSelection IS
-WHEN (LETSUBSTSEL _X[_x\_XX] 
+WHEN (LETSUBSTSEL _X{_x\_XX} 
        (ALT (WITHHYPSEL (WITHSUBSTSEL "Fold with hypothesis")) 
             (FAIL (Couldn't Unfold selected term _XX))))
      "Unfold/Fold with hypothesis"
