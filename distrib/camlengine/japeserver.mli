@@ -68,25 +68,25 @@ val setdisprooftiles : string list -> unit
 val setdisproofworlds :
   (int * int) list ->
     ((int * int) * string list * (int * int) list) list -> unit
+
 (* the mad world of menus and panels *)
 val cancelmenusandpanels : unit -> unit
 val emptymenusandpanels : unit -> unit
+
 val newmenu : string -> unit
 val menuentry : string * string * string option * string -> unit
-(* menu, label, key equiv, cmd *)
+             (* menu,    label,   key equiv,      cmd *)
 val menucheckbox : string * string * string -> unit
-(* menu, label, cmd *)
+                (* menu,    label,   cmd *)
 val menuradiobutton : string * (string * string) list -> unit
-(* menu, (label, cmd) *)
+                   (* menu,    (label,   cmd) *)
 val menuseparator : string -> unit
-(* menu *)
-val enablemenuitem : string * string * bool -> unit
-(* applies to entries, checkboxes, radio buttons *)
-val tickmenuitem : string * string * bool -> unit
-(* only for checkboxes, radio buttons *)
+                 (* menu *)
 
-val mapmenus : bool -> unit
-(* false: menus under construction; true: menus constructed *)
+val enablemenuitem : string * string * bool -> unit (* applies to entries, checkboxes, radio buttons *)
+val tickmenuitem   : string * string * bool -> unit (* only for checkboxes, radio buttons *)
+
+val mapmenus : bool -> unit (* false: menus under construction; true: menus constructed *)
  
 val newpanel : string * panelkind -> unit
     (* A ConjecturePanel automatically includes buttons labelled NewÉ, Prove and Show Proof,
@@ -132,8 +132,8 @@ val setGivens : (int * string) list -> unit (* numbered givens *)
 val quit     : unit -> unit
 val dontquit : unit -> unit
 
-val getPaneGeometry   : Displayfont.pane -> box
-val clearPane         : Displayfont.pane -> unit
+val getPaneGeometry   : pane -> box
+val clearPane         : pane -> unit
 
 (* To make findSelection (interaction.sml) work properly, and to get consistent results from tactics that
  * interpret the answers, getAllSelections should return its answers in time-click order.
@@ -141,7 +141,7 @@ val clearPane         : Displayfont.pane -> unit
 val getAllSelections :
   unit ->
   (pos * displayclass) list * (pos * string list) list * string list
-(* selections               prooof text selections     givens text selections *)
+(* selections               prooof text selections     givens text selections -- just the selected bits *)
 
 val highlight : pos -> displayclass option -> unit (* NOW TAKES TEXTPOS, NOT BOXPOS!!! *)
 val emphasise : pos -> bool -> unit                (* also textpos; used in disproof *)
