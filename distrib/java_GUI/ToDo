@@ -4,8 +4,6 @@ Bugs:
 
 Cancel in choose file dialog after Save/Cancel/Don'tSave shouldn't mean Don'tSave
 
-Stack windows
-
 panel maximise button
 
 why does Konstanz have such descent measurement?
@@ -20,11 +18,9 @@ We can do writing in windows behind the front (if careful)
 
 Protocol in:
 
-CANCELMENUSANDPANELS
 CLEARCHOICES
 DROPBEGIN
 DROPEND
-EMPTYMENUSANDPANELS
 HOWTO
 LOADFONT
 MAKECHOICE
