@@ -1,0 +1,238 @@
+(* $Id$ *)
+
+module type Stringfuns =
+  sig
+    val isQuoted : string -> bool
+    val unQuote : string -> string
+    val enQuote : string -> string
+    val words : string -> string list
+    val respace : string list -> string
+    val lowercase : string -> string
+    val uppercase : string -> string
+    val pairstring :
+      ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
+    val triplestring :
+      ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
+        'a * 'b * 'c -> string
+    val quadruplestring :
+      ('a -> string) -> ('b -> string) -> ('c -> string) -> ('d -> string) ->
+        string -> 'a * 'b * 'c * 'd -> string
+    val quintuplestring :
+      ('a -> string) -> ('b -> string) -> ('c -> string) -> ('d -> string) ->
+        ('e -> string) -> string -> 'a * 'b * 'c * 'd * 'e -> string
+    val sextuplestring :
+      ('a -> string) -> ('b -> string) -> ('c -> string) -> ('d -> string) ->
+        ('e -> string) -> ('f -> string) -> string ->
+        'a * 'b * 'c * 'd * 'e * 'f -> string
+    val septuplestring :
+      ('a -> string) -> ('b -> string) -> ('c -> string) -> ('d -> string) ->
+        ('e -> string) -> ('f -> string) -> ('g -> string) -> string ->
+        'a * 'b * 'c * 'd * 'e * 'f * 'g -> string
+    val octuplestring :
+      ('a -> string) -> ('b -> string) -> ('c -> string) -> ('d -> string) ->
+        ('e -> string) -> ('f -> string) -> ('g -> string) ->
+        ('h -> string) -> string -> 'a * 'b * 'c * 'd * 'e * 'f * 'g * 'h ->
+        string
+    val catelim_pairstring :
+      ('a -> string list -> string list) ->
+        ('b -> string list -> string list) -> string -> 'a * 'b ->
+        string list -> string list
+    val catelim_triplestring :
+      ('a -> string list -> string list) ->
+        ('b -> string list -> string list) ->
+        ('c -> string list -> string list) -> string -> 'a * 'b * 'c ->
+        string list -> string list
+    val catelim_quadruplestring :
+      ('a -> string list -> string list) ->
+        ('b -> string list -> string list) ->
+        ('c -> string list -> string list) ->
+        ('d -> string list -> string list) -> string -> 'a * 'b * 'c * 'd ->
+        string list -> string list
+    val catelim_quintuplestring :
+      ('a -> string list -> string list) ->
+        ('b -> string list -> string list) ->
+        ('c -> string list -> string list) ->
+        ('d -> string list -> string list) ->
+        ('e -> string list -> string list) -> string ->
+        'a * 'b * 'c * 'd * 'e -> string list -> string list
+    val catelim_sextuplestring :
+      ('a -> string list -> string list) ->
+        ('b -> string list -> string list) ->
+        ('c -> string list -> string list) ->
+        ('d -> string list -> string list) ->
+        ('e -> string list -> string list) ->
+        ('f -> string list -> string list) -> string ->
+        'a * 'b * 'c * 'd * 'e * 'f -> string list -> string list
+    val catelim_septuplestring :
+      ('a -> string list -> string list) ->
+        ('b -> string list -> string list) ->
+        ('c -> string list -> string list) ->
+        ('d -> string list -> string list) ->
+        ('e -> string list -> string list) ->
+        ('f -> string list -> string list) ->
+        ('g -> string list -> string list) -> string ->
+        'a * 'b * 'c * 'd * 'e * 'f * 'g -> string list -> string list
+    val catelim_octuplestring :
+      ('a -> string list -> string list) ->
+        ('b -> string list -> string list) ->
+        ('c -> string list -> string list) ->
+        ('d -> string list -> string list) ->
+        ('e -> string list -> string list) ->
+        ('f -> string list -> string list) ->
+        ('g -> string list -> string list) ->
+        ('h -> string list -> string list) -> string ->
+        'a * 'b * 'c * 'd * 'e * 'f * 'g * 'h -> string list -> string list
+    val catelim_arraystring :
+      ('a -> string list -> string list) -> string -> 'a array ->
+        string list -> string list
+    val arraystring : ('a -> string) -> string -> 'a array -> string
+  end
+(* $Id$ *)
+
+module
+  Stringfuns
+  (AAA :
+    sig
+      val interpolate : 'a -> 'a list -> 'a list
+      val catelim2stringfn :
+        ('a -> string list -> string list) -> 'a -> string
+      val stringfn2catelim :
+        ('a -> string) -> 'a -> string list -> string list
+    end)
+  :
+  Stringfuns =
+  struct
+    open AAA
+    let rec isQuoted s =
+      substring (s, 0, 1) = "\"" && substring (s, String.length s - 1, 1) = "\""
+    let rec unQuote s =
+      try
+        let size = String.length s in
+        match substring (s, 0, 1) with
+          "\"" ->
+            begin match substring (s, size - 1, 1) with
+              "\"" -> substring (s, 1, size - 2)
+            | _ -> s
+            end
+        | _ -> s
+      with
+        _ -> s
+    let rec enQuote s = ("\"" ^ s) ^ "\""
+    let rec words =
+      function
+        "" -> []
+      | s ->
+          let rec wds =
+            function
+              [] -> [""]
+            | [" "] -> [""]
+            | " " :: " " :: cs -> wds (" " :: cs)
+            | " " :: cs -> "" :: wds cs
+            | "\"" :: cs -> let ws = qds cs in ("\"" ^ List.hd ws) :: List.tl ws
+            | c :: cs -> let ws = wds cs in (c ^ List.hd ws) :: List.tl ws
+          and qds =
+            function
+              [] -> [""]
+            | ["\""] -> ["\""]
+            | "\"" :: " " :: cs -> qds ("\"" :: cs)
+            | "\"" :: cs -> "\"" :: wds cs
+            | c :: cs -> let ws = qds cs in (c ^ List.hd ws) :: List.tl ws
+          in
+          wds (explode s)
+    let respace ooo = implode (interpolate " " ooo)
+    let rec lowercase s =
+      let rec lc c =
+        if 'A' <= c && c <= 'Z' then Char.chr (Char.code c - Char.code 'A' + Char.code 'a') else c
+      in
+      implode (map lc (explode s))
+    let rec uppercase s =
+      let rec uc c =
+        if 'a' <= c && c <= 'z' then Char.chr (Char.code c - Char.code 'a' + Char.code 'A') else c
+      in
+      implode (map uc (explode s))
+    let rec catelim_pairstring fa fb sep (a, b) tail =
+      "(" :: fa a (sep :: fb b (")" :: tail))
+    let rec catelim_triplestring fa fb fc sep (a, b, c) tail =
+      "(" :: fa a (sep :: fb b (sep :: fc c (")" :: tail)))
+    let rec catelim_quadruplestring fa fb fc fd sep (a, b, c, d) tail =
+      "(" :: fa a (sep :: fb b (sep :: fc c (sep :: fd d (")" :: tail))))
+    let rec catelim_quintuplestring fa fb fc fd fe sep (a, b, c, d, e) tail =
+      "(" ::
+        fa a
+           (sep ::
+              fb b (sep :: fc c (sep :: fd d (sep :: fe e (")" :: tail)))))
+    let rec catelim_sextuplestring
+      fa fb fc fd fe ff sep (a, b, c, d, e, f) tail =
+      "(" ::
+        fa a
+           (sep ::
+              fb b
+                 (sep ::
+                    fc c
+                       (sep ::
+                          fd d (sep :: fe e (sep :: ff f (")" :: tail))))))
+    let rec catelim_septuplestring
+      fa fb fc fd fe ff fg sep (a, b, c, d, e, f, g) tail =
+      "(" ::
+        fa a
+           (sep ::
+              fb b
+                 (sep ::
+                    fc c
+                       (sep ::
+                          fd d
+                             (sep ::
+                                fe e
+                                   (sep ::
+                                      ff f (sep :: fg g (")" :: tail)))))))
+    let rec catelim_octuplestring
+      fa fb fc fd fe ff fg fh sep (a, b, c, d, e, f, g, h) tail =
+      "(" ::
+        fa a
+           (sep ::
+              fb b
+                 (sep ::
+                    fc c
+                       (sep ::
+                          fd d
+                             (sep ::
+                                fe e
+                                   (sep ::
+                                      ff f
+                                         (sep ::
+                                            fg g
+                                               (sep ::
+                                                  fh h (")" :: tail))))))))
+    let s = stringfn2catelim
+    let rec pairstring fa fb sep =
+      catelim2stringfn (catelim_pairstring (s fa) (s fb) sep)
+    let rec triplestring fa fb fc sep =
+      catelim2stringfn (catelim_triplestring (s fa) (s fb) (s fc) sep)
+    let rec quadruplestring fa fb fc fd sep =
+      catelim2stringfn
+        (catelim_quadruplestring (s fa) (s fb) (s fc) (s fd) sep)
+    let rec quintuplestring fa fb fc fd fe sep =
+      catelim2stringfn
+        (catelim_quintuplestring (s fa) (s fb) (s fc) (s fd) (s fe) sep)
+    let rec sextuplestring fa fb fc fd fe ff sep =
+      catelim2stringfn
+        (catelim_sextuplestring (s fa) (s fb) (s fc) (s fd) (s fe) (s ff) sep)
+    let rec septuplestring fa fb fc fd fe ff fg sep =
+      catelim2stringfn
+        (catelim_septuplestring (s fa) (s fb) (s fc) (s fd) (s fe) (s ff)
+           (s fg) sep)
+    let rec octuplestring fa fb fc fd fe ff fg fh sep =
+      catelim2stringfn
+        (catelim_octuplestring (s fa) (s fb) (s fc) (s fd) (s fe) (s ff)
+           (s fg) (s fh) sep)
+    let rec catelim_arraystring f sep a ss =
+      let rec el i ss =
+        if i = Array.length a then ss
+        else
+          let rec doit ss = makestring i :: ": " :: f (Array.get a i) ss in
+          doit (if i = Array.length a - 1 then ss else sep :: el (i + 1) ss)
+      in
+      "Ç" :: el 0 ("È" :: ss)
+    let rec arraystring f sep =
+      catelim2stringfn (catelim_arraystring (s f) sep)
+  end
