@@ -1026,10 +1026,6 @@ let rec linearise screenwidth procrustean_reasonW dp =
             acc', Some (pi, rinf, List.rev cids')
       in
       (* plan a line: mkp does the content *)
-      (* there's a need to make the leading between multi-line formulae larger, 
-         to produce a visual grouping effect which is currently lacking.
-         But I don't know how to do it (sob!)
-       *)
       let rec doconcline mkp needsreason (acc, justinf) multi =
         let (Lacc {id = id; acclines = lines; elbox = elbox;
                    idW = idW; reasonW = reasonW; assW = assW; lastmulti=lastmulti}) = acc in
