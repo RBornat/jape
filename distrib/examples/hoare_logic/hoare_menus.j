@@ -181,8 +181,34 @@ TACTIC "∧ elim*"(P)  IS
         )
         SKIP
 
-TACTIC "∧ elim total"  IS
-    LETHYP _P  ("∧ elim*" _P)
+TACTIC obviouslytac IS
+  WHEN
+    (LETHYPS _A 
+      (LETLISTMATCH _A1 _B _A /* must work ... */
+        (WHEN   
+          (LETLISTMATCH _B1 _C _B 
+            (WHEN
+              (LETLISTMATCH _C1 _D _C 
+                (WHEN 
+                  (LETLISTMATCH _D1 _E _D 
+                    (WHEN
+                      (LETLISTMATCH _E1 _F _E 
+                        (ALERT 
+                            ("Unfortunately, Jape is set up to recognise only up to \
+                             \four ‘obvious’ links. You selected too many (%l).\n\n\
+                             \Please moderate your enthusiasm and try again."
+                             (_A, ", ", " and "))
+                             ("OK", STOP)))
+                        (LAYOUT "obviously, from" ALL 
+                            "obviously4" (WITHHYPSEL (hyp _A1)) (WITHHYPSEL (hyp _B1)) (WITHHYPSEL (hyp _C1)) 
+                            (WITHHYPSEL (hyp _D1)))))
+                  (LAYOUT "obviously, from" ALL 
+                      "obviously3" (WITHHYPSEL (hyp _A1)) (WITHHYPSEL (hyp _B1)) (WITHHYPSEL (hyp _C1)))))
+              (LAYOUT "obviously, from" ALL 
+                  "obviously2" (WITHHYPSEL (hyp _A1)) (WITHHYPSEL (hyp _B1)))))
+          (LAYOUT "obviously, from" ALL 
+              "obviously1" (WITHHYPSEL (hyp _A1))))))
+    (LAYOUT "obviously (by itself)" ALL "obviously0")
 
 MENU Forward IS
     ENTRY   "∧ elim"      
@@ -241,7 +267,7 @@ MENU Extras
     
     SEPARATOR
     
-    ENTRY "obviously"
+    ENTRY "obviously" IS obviouslytac
 END
 
 TACTICPANEL Comparison
