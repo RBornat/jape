@@ -25,7 +25,7 @@
 
 */
 
-USE "../explain_technology/explain_words.j"
+/* needs explain_words.j */
 
 /* ******************** backward-only steps -- no hypothesis selection ******************** */
 
