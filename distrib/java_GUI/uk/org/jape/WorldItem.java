@@ -35,10 +35,10 @@ public class WorldItem extends DisplayItem {
     public WorldItem(WorldCanvas canvas, int x, int y) {
         super(x, y);
         this.canvas = canvas;
-        int x0 = x, y0 = -y-2*canvas.getWorldRadius();
-        setBounds(x0-canvas.getWorldRadius(), y0-canvas.getWorldRadius(),
-                  2*canvas.getWorldRadius(), 2*canvas.getWorldRadius());
-        selectionRing = new SelectionRing(x0, y0, canvas.getWorldRadius()+2*canvas.linethickness);
+        int x0 = x, y0 = -y-2*canvas.worldRadius();
+        setBounds(x0-canvas.worldRadius(), y0-canvas.worldRadius(),
+                  2*canvas.worldRadius(), 2*canvas.worldRadius());
+        selectionRing = new SelectionRing(x0, y0, canvas.worldRadius()+2*canvas.linethickness);
         canvas.add(selectionRing);
     }
 

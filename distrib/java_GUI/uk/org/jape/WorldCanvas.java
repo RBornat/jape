@@ -45,7 +45,7 @@ public class WorldCanvas extends JapeCanvas {
         return ""; // shut up compiler
     }
 
-    public int getWorldRadius() {
+    public int worldRadius() {
         return 5*linethickness;
     }
     
