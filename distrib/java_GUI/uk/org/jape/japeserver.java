@@ -7,75 +7,39 @@
 //  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
-import java.awt.Color;
 import java.io.File;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import javax.swing.JFrame;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.util.Vector;
 
-public class japeserver extends JFrame
-{
-    static final String message = "Hello World!";
-    private Font font = new Font("serif", Font.ITALIC+Font.BOLD, 36);
-
-    protected static AboutBox aboutBox;
+public class japeserver {
+    public static JapeMenu menus;
     
-    private JapeMenu menus;
-
     private static boolean tracing = true;
 
-    private Vector operators;
+    private static String[] operators;
     
-    public void setoperators(Vector list) {
-        operators=list;
+    public static void setoperators(String[] _operators) {
+        operators=_operators;
     }
     
-    private char onbra, onket, offbra, offket, outbra, outket, lockbra, lockket;
+    private static char onbra, onket, offbra, offket, outbra, outket, lockbra, lockket;
     
-    public void setinvischars(char onbra, char onket, char offbra, char offket, 
-        char outbra, char outket, char lockbra, char lockket) {
-        this.onbra=onbra; this.onket=onket;
-        this.offbra=offbra; this.offket=offket;
-        this.outbra=outbra; this.outket=outket;
-        this.lockbra=lockbra; this.lockket=lockket;
+    public static void setinvischars(char _onbra, char _onket, char _offbra, char _offket, 
+                                    char _outbra, char _outket, char _lockbra, char _lockket) {
+        onbra=_onbra; onket=_onket;
+        offbra=_offbra; offket=_offket;
+        outbra=_outbra; outket=_outket;
+        lockbra=_lockbra; lockket=_lockket;
     }
     
-    public japeserver() {
-        super("japeserver");
-        this.getContentPane().setLayout(null);
-        menus = new JapeMenu();
-        menus.addStdMenus(this);
-
-        aboutBox = new AboutBox();
-        LocalSettings l = new LocalSettings();
-        
-        Toolkit.getDefaultToolkit();
-        setVisible(true);
-        
-        operators = new Vector();
-        new Dispatcher(this, aboutBox, menus).start();
-        
-        if (tracing)
-            System.err.println("japeserver initialised");
-    }
-
-    public void paint(Graphics g) {
-        super.paint(g);
-        g.setColor(Color.blue);
-        g.setFont (font);
-        g.drawString(message, 40, 80);
-    }
-
     public static void handleAbout() {
-        aboutBox.setResizable(false);
-        aboutBox.setVisible(true);
-        aboutBox.show();
+        AboutBox.showAboutBox();
     }
 
     private static boolean quitsent=false;
@@ -154,7 +118,18 @@ public class japeserver extends JFrame
         proofpath      = null;
         theory         = null;
         
-        new japeserver();
+        
+        Toolkit.getDefaultToolkit(); // what for?
+
+        menus = new JapeMenu();
+
+        LocalSettings l = new LocalSettings();
+        
+        new ProofWindow();
+        new Dispatcher().start();
+        
+        if (tracing)
+            System.err.println("japeserver initialised");
     }
 
 }

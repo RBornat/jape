@@ -13,16 +13,10 @@ public class Dispatcher extends Thread {
 
     protected BufferedReader in;
     boolean tracing = false;
-    AboutBox aboutbox;
-    japeserver boss;
-    JapeMenu menus;
     
-    public Dispatcher(japeserver boss, AboutBox aboutbox, JapeMenu menus) {
+    public Dispatcher() {
         super("Dispatcher");
         in = new BufferedReader(new InputStreamReader(System.in));
-        this.boss = boss;
-        this.aboutbox = aboutbox;
-        this.menus = menus;
         if (tracing)
             System.err.println("dispatcher initialised");
     }
@@ -35,7 +29,7 @@ public class Dispatcher extends Thread {
     }
     
     public void run() {
-        Vector list = new Vector(); // initialisation to shut up the compiler
+        Vector list = new Vector(); 
         try {
             while (true) {
                 String line = in.readLine();
@@ -58,13 +52,13 @@ public class Dispatcher extends Thread {
                     
                     // ASK is for alerts
                         if (p.equals("ASKSTART")&&len==1)
-                            list = new Vector();
+                            list.removeAllElements();
                         else
                         if (p.equals("ASKBUTTON")&&len==2)
                             list.add(command[1]);
                         else
                         if (p.equals("ASKNOW")&&len==4)
-                            Alert.newAlert(list, toInt(command[1]), command[2], toInt(command[3]));
+                            Alert.newAlert(((String[])list.toArray(new String[list.size()])), toInt(command[1]), command[2], toInt(command[3]));
                         else
                     
                     // file choosing
@@ -79,7 +73,7 @@ public class Dispatcher extends Thread {
                         
                     // INVISCHARS are the way we describe syntactic structure
                         if(p.equals("SETINVISCHARS")&&len==9)
-                            boss.setinvischars(
+                            japeserver.setinvischars(
                                 toChar(command[1]),toChar(command[2]),
                                 toChar(command[3]),toChar(command[4]),
                                 toChar(command[5]),toChar(command[6]),
@@ -88,29 +82,62 @@ public class Dispatcher extends Thread {
                     
                     // MENU commands
                         if (p.equals("NEWMENU")&&len==2)
-                            menus.newMenu(command[1]);
+                            japeserver.menus.newMenu(command[1]);
                         else
                         if (p.equals("MENUITEM")&&len==5)
-                            menus.newMenuItem(command[1], JapeFont.toUnicode(command[2]), command[3], command[4]);
+                            japeserver.menus.newMenuItem(command[1], JapeFont.toUnicode(command[2]), command[3], command[4]);
                         else
-                        if (p.equals("MAKEMENUSVISIBLE")&&len==1) {} // doesn't seem necessary
+                        if (p.equals("MAKEMENUSVISIBLE")&&len==1) {
+                            JapeMenu.makeMenusVisible();
+                            PanelWindow.makePanelsVisible();
+                        } 
                         else
                         if (p.equals("MENUSEP")&&len==2)
-                            menus.menusep(command[1]);
+                            japeserver.menus.menusep(command[1]);
                         else
                         if (p.equals("ENABLEMENUITEM")&&len==4)
-                            menus.enablemenuitem(command[1], command[2], toBool(command[3]));
+                            japeserver.menus.enablemenuitem(command[1], command[2], toBool(command[3]));
+                        else
+                    
+                    // PANEL commands
+                        if (p.equals("NEWPANEL")&&len==3)
+                            PanelWindow.spawn(JapeFont.toUnicodeAlways(command[1]), toInt(command[2]));
+                        else
+                        if (p.equals("PANELENTRY")&&len==4)
+                            PanelWindow.panelEntry(JapeFont.toUnicodeAlways(command[1]), JapeFont.toUnicode(command[2]), command[3]);
+                        else
+                        if (p.equals("PANELBUTTON")&&len==3) {
+                            list.removeAllElements();
+                            list.add(JapeFont.toUnicodeAlways(command[1]));
+                            list.add(JapeFont.toUnicode(command[2]));
+                        }
+                        else
+                        if (p.equals("PANELBUTTONINSERT")&&len==3) {
+                            switch (toInt(command[1])) {
+                              case 0: list.add(new PanelWindow.StringInsert(command[2])); break;
+                              case 1: list.add(new PanelWindow.LabelInsert()); break;
+                              case 2: list.add(new PanelWindow.CommandInsert()); break;
+                              default: throw new ProtocolError(line+" -- "+toInt(command[1])+" should be 0, 1 or 2");
+                            }
+                        }
+                        else
+                        if (p.equals("PANELBUTTONEND")&&len==1) {
+                            String panel = (String)list.remove(0);
+                            String entry = (String)list.remove(0);
+                            PanelWindow.panelButton(panel, entry, 
+                                ((PanelWindow.Insert[])list.toArray(new PanelWindow.Insert[list.size()])));
+                        }
                         else
                     
                     // OPERATOR .. deal with the keyboard in some dialogue boxes
                         if (p.equals("OPERATORSBEGIN")&&len==1)
-                            list=new Vector();
+                            list.removeAllElements();
                         else
                         if (p.equals("OPERATOR")&&len==2)
                             list.add(command[1]);
                         else
                         if (p.equals("OPERATORSEND")&&len==1)
-                            boss.setoperators(list);
+                            japeserver.setoperators((String[])list.toArray(new String[list.size()]));
                         else
                     
                     // miscellaneous
@@ -122,7 +149,7 @@ public class Dispatcher extends Thread {
                             { } // for now
                         else
                         if (p.equals("VERSION")&&len==2)
-                            aboutbox.setVersion(command[1]);
+                            AboutBox.setVersion(command[1]);
                         else
                             /*Alert.showErrorAlert*/System.err.println("dispatcher doesn't understand ("+len+") "+JapeFont.toUnicode(line));
                     } // if (command.length!=0)

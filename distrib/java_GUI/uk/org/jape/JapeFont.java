@@ -28,15 +28,19 @@ public class JapeFont {
         private Vector ws;
         
         private class W { 
-            int width; int start; int end;
-            W(int width, int start, int end) { 
-                this.width=width; this.start=start; this.end=end; 
+            int i; int j; int width; int spacing;
+            W(int i, int j, int width, int spacing) { 
+                this.i=i; this.j=j; this.width=width; this.spacing=spacing;
+            }
+            public String toString() {
+                return "W[i="+i+",j="+j+",width="+width+",spacing="+spacing+"]";
             }
         }
         
         private F fold;
+        int constraint;
         
-        Fold(FontMetrics m, String s) {
+        Fold(FontMetrics m, String s, int constraint) {
             this.s = s;
             cs = s.toCharArray();
             spacewidth = m.charWidth(' ');
@@ -45,8 +49,30 @@ public class JapeFont {
             for (int i=0; i<cs.length; ) {
                 int j;
                 for (j=i; j<cs.length && cs[j]!=' '; j++);
-                ws.add(new W(m.charsWidth(cs,i,j-i),i,j));
+                int w = m.charsWidth(cs,i,j-i);
+                if (w>constraint) {
+                    // look for places to split a long word
+                    for (int i1=i; i1<j; ) {
+                        int j1;
+                        for (j1=i1; j1<j && j1<i1+constraint && cs[j1]!=',' && cs[j1]!=';'; j1++);
+                        if (j1<j) {
+                            j1++;
+                            // System.err.print(ws.size()+": part-word \""+new String(cs,i1,j1-i1)+"\" ");
+                            ws.add(new W(i1, j1, m.charsWidth(cs,i1,j1-i1), 0));
+                            // System.err.println(ws.get(ws.size()-1));
+                        }
+                        else {
+                            w=m.charsWidth(cs,i1,j1-i1);
+                            i=i1; // add spacing to the last bit
+                        }
+                        i1=j1;
+                    }
+                }
+                int j0=j;
                 for ( ; j<cs.length && cs[j]==' '; j++);
+                // System.err.print(ws.size()+": word \""+new String(cs,i,j0-i)+"\" ");
+                ws.add(new W(i, j0, w, m.charsWidth(cs,j0,j-j0)));
+                // System.err.println(ws.get(ws.size()-1));
                 i=j;
             }
             fold = new F(0, ws.size(), null);
@@ -75,8 +101,9 @@ public class JapeFont {
             private F next;
             
             public String toString() {
-                return  "F[i="+i+",j="+j+",height="+height+",width="+width+",maxwidth="+maxwidth+",waste="+waste+",next="+next+"]";
+                return  super.toString()+": F[i="+i+",j="+j+",height="+height+",width="+width+",maxwidth="+maxwidth+",waste="+waste+",next="+next+"]";
             }
+            
             F(int i, int j, F next) { 
                 this.i=i; this.j=j; this.next=next;
                 measurewidth(); measurewaste(); smooth();
@@ -100,8 +127,12 @@ public class JapeFont {
             }
             
             private void measurewidth() {
-                width=(j-i-1)*spacewidth; 
-                for (int k=i; k<j; k++) width+=((W)ws.get(k)).width;
+                width=0;
+                for (int i1=i; i1<j; i1++) {
+                    width+=((W)ws.get(i1)).width;
+                    if (i1+1<j)
+                    	width+=((W)ws.get(i1)).spacing;
+                }
             }
             
             private void measurewaste() {
@@ -118,46 +149,61 @@ public class JapeFont {
             
             private void take() {
                 int ww = ((W)ws.get(j)).width;
-                next.i++; next.width -= ww+spacewidth; next.measurewaste(); next.smooth();
-                j++; width += ww+spacewidth; measurewaste();
+                next.i++; next.measurewidth(); next.measurewaste(); next.smooth();
+                j++; measurewidth(); measurewaste();
+                // System.err.println("after take "+this);
             }
             
             private void give() {
                 int ww = ((W)ws.get(j-1)).width;
-                next.i--; next.width += ww+spacewidth; next.measurewaste(); next.smooth();
-                j--; width -= ww+spacewidth; measurewaste();
+                next.i--; next.measurewidth(); next.measurewaste(); next.smooth();
+                j--; measurewidth(); measurewaste();
+                // System.err.println("after give "+this);
             }
             
+            // Oh I wish I could think of a fast undo ...
             private void smooth() {
-                while (width<maxwidth && next!=null && next.i+1<next.j) {
-                    int oldwaste = waste;
-                    take();
-                    if (waste>oldwaste) {
-                        give(); break;
-                    }
+                if (next!=null) {
+                    if (width<next.maxwidth)
+                        while (width<next.maxwidth && next!=null && next.i+1<next.j) {
+                            int oldwaste = waste;
+                            take();
+                            if (waste>oldwaste) {
+                                give(); break;
+                            }
+                        }
+                    else // sort of repeated -- sorry
+                        while (width>next.maxwidth && next!=null && i+1<j) {
+                            int oldwaste = waste;
+                            give();
+                            if (waste>oldwaste) {
+                                take(); break;
+                            }
+                        }
+                    // System.err.println("smooth done");
                 }
             }
             
             // the split algorithm puts some of the onus on the garbage collector ...
             public F split() {
-                F f = i+1<j	 ? new F(i,i+1,new F(i+1,j,clone(next))) :
-                      next!=null ? new F(i,j,next.split()) : 
-                                   this;
+                F f = i+1<j	  ? new F(i,i+1,new F(i+1,j,clone(next))) :
+                      next!=null  ? new F(i,j,next.split()) : 
+                                    this;
                 return f.maxwidth<maxwidth ? f : this;
             }
             
             public void reportSplit(Vector v) {
-                int start = ((W)ws.get(i)).start, len = ((W)ws.get(j-1)).end-start;
-                v.add(new String(cs,start,len));
+                int start = ((W)ws.get(i)).i, end = ((W)ws.get(j-1)).j;
+                // System.err.println(v.size()+": from "+i+"("+start+") to "+(j-1)+"("+end+")"+" width="+width+", maxwidth="+maxwidth+", waste="+waste);
+                v.add(new String(cs,start,end-start));
                 if (next!=null)
                     next.reportSplit(v);
             }
         }
-        
     }
 
     public static String[] minwaste(Component c, String s, int width) {
-        Fold f = new Fold (c.getFontMetrics(c.getFont()), s);
+        Fold f = new Fold (c.getFontMetrics(c.getFont()), s, width);
         while (f.width>width) {
             int oldwidth = f.width;
             f.split();
@@ -208,18 +254,33 @@ public class JapeFont {
     
     public static void setComponentFont(Component c) {
         if (substituteFont!=null) {
-            Font f = findsubstitute(c.getFont().getStyle(), c.getFont().getSize());
-            c.setFont(f);
+            Font f = c.getFont();
+            if (f==null) 
+                Alert.showErrorAlert("they ain't no font in "+c);
+            else {
+                Font f1 = findsubstitute(f.getStyle(), f.getSize());
+                c.setFont(f1);
+            }
         }
     }
     
     private static boolean codecDone = false;
     
     public static String toUnicode(String s) {
-        return tran(toUni, s);
+        return substituteFont==null ? tran(toUni, s) : s;
     }
     
     public static String toAscii(String s) {
+        return substituteFont==null ? tran(toAsc, s) : s;
+    }
+    
+    // we can't set the font of window titles, and I don't know what else ...
+    public static String toUnicodeAlways(String s) {
+        return tran(toUni, s);
+    }
+    
+    // we can't set the font of window titles, and I don't know what else ...
+    public static String toAsciiAlways(String s) {
         return tran(toAsc, s);
     }
     
@@ -252,7 +313,7 @@ public class JapeFont {
     private static void setKonstanzMap() {
         int minsize = 100; // about 50 chars to translate
         
-        System.err.println("setting up map Konstanz <-> Unicode");
+        // System.err.println("setting up map Konstanz <-> Unicode");
         
         toUni = new PosIntHashMap(minsize);
         toAsc = new PosIntHashMap(minsize);
@@ -322,11 +383,10 @@ public class JapeFont {
                 if (substituteFont==null)
                     throw (new ProtocolError("can't open Konstanz Plain 1.0"));
             }
-            else
-                setKonstanzMap();
+            setKonstanzMap();
         }
         else
-            System.err.println("SETFONTS doesn't understand encoding "+name);
+            Alert.showErrorAlert("SETFONTS doesn't understand encoding "+name);
     }
     
     public static void unsetfont() {

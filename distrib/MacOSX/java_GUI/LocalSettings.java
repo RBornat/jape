@@ -20,14 +20,17 @@ public class LocalSettings implements  MRJAboutHandler,
     public static final boolean prefsMenuItemNeeded = false;
     
     public void handleAbout() {
+        // System.err.println("in LocalSettings.handleAbout");
         japeserver.handleAbout();
     }
 
     public void handleQuit() {
+        // System.err.println("in LocalSettings.handleQuit");
         japeserver.handleQuit();
     }
     
     public void handlePrefs() {
+        // System.err.println("in LocalSettings.handlePrefs");
         japeserver.handlePrefs();
     }
     
