@@ -25,12 +25,15 @@
     
 */
 
+import java.awt.AlphaComposite;
 import java.awt.Component;
+import java.awt.Composite;
 import java.awt.Container;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 
-import java.awt.datatransfer.DataFlavor;
+/*import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
 import java.awt.dnd.DnDConstants;
@@ -40,7 +43,7 @@ import java.awt.dnd.DragSource;
 import java.awt.dnd.DragSourceDragEvent;
 import java.awt.dnd.DragSourceDropEvent;
 import java.awt.dnd.DragSourceEvent;
-import java.awt.dnd.DragSourceListener;
+import java.awt.dnd.DragSourceListener;*/
 
 import java.awt.event.MouseEvent;
 
@@ -53,12 +56,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.BorderFactory;
 
-public class Tile extends JLabel implements DebugConstants,
-                                            DragSourceListener, DragGestureListener {
+public class Tile extends JLabel implements DebugConstants/*,
+                                            DragSourceListener, DragGestureListener*/ {
     final String text;
     private Container layeredPane;
-    private DragSource dragSource;
-    public static DataFlavor tileFlavor;
+    /*private DragSource dragSource;
+    public static DataFlavor tileFlavor;*/
                                                 
     static final int spacing = LocalSettings.TileSpacing;
     
@@ -76,65 +79,105 @@ public class Tile extends JLabel implements DebugConstants,
         setBorder(border);
         setSize(getPreferredSize());
 
-        if (tileFlavor==null) {
+        /*if (tileFlavor==null) {
             try {
                 tileFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType+
                                             "; class="+this.getClass().getName());
             } catch (ClassNotFoundException e) {
                 Alert.abort("can't create tileFlavor");
             }
-        }
+        }*/
 
-        dragSource = new DragSource();
-        dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
+        /*dragSource = new DragSource();
+        dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);*/
 
         JapeMouseListener mil = new JapeMouseAdapter() {
             public void doubleclicked(MouseEvent e) {
                 Reply.sendCOMMAND("tileact \""+text+"\"");
+            }
+            public void pressed(MouseEvent e) {
+                Tile.this.pressed(e);
+            }
+            public void dragged(boolean wobbly, MouseEvent e) {
+                if (wobbly) Tile.this.dragged(e);
+            }
+            public void released(MouseEvent e) {
+                Tile.this.released(e);
             }
         };
         addMouseListener(mil);
         addMouseMotionListener(mil);
     }
 
+    protected class TileImage extends Component {
+        private BufferedImage image;
+        private AlphaComposite comp;
 
-    /*protected int startx, starty, lastx, lasty;
-    protected Tile draggedTile;
+        public TileImage() {
+            super();
+            setSize(Tile.this.getSize());
+            int width = getWidth(), height = getHeight();
+            image = (BufferedImage)Tile.this.createImage(width, height);
+            Graphics imageGraphics = image.createGraphics();
+            imageGraphics.setColor(Preferences.ProofBackgroundColour);
+            imageGraphics.fillRect(0, 0, width, height);
+            Tile.this.paint(imageGraphics);
+            imageGraphics.dispose();
+            comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Preferences.Translucent);
+        }
+
+        public void paint(Graphics g) {
+            if (g instanceof Graphics2D) {
+                Graphics2D g2D = (Graphics2D)g;
+                Composite oldcomp = g2D.getComposite();
+                g2D.setComposite(comp);
+                g.drawImage(image, 0,0, this);
+                g2D.setComposite(oldcomp);
+            }
+            else
+                Alert.abort("Tile.TileImage.paint can't enable transparent drawing");
+        }
+    }
+    
+    protected int startx, starty, lastx, lasty;
+    private TileImage tileImage;
 
     protected void pressed(MouseEvent e) { // doesn't matter what keys are pressed
         if (drag_tracing)
             System.err.print("mouse pressed on tile "+text+" at "+e.getX()+","+e.getY()+
                              " insets="+getInsets());
         startx = lastx = e.getX(); starty = lasty = e.getY();
-        layeredPane.add(draggedTile = new Tile(text), JLayeredPane.DRAG_LAYER);
-        draggedTile.setLocation(SwingUtilities.convertPoint(this, 0, 0, layeredPane));
+        if (tileImage==null)
+            tileImage = new TileImage();
+        layeredPane.add(tileImage, JLayeredPane.DRAG_LAYER);
+        tileImage.setLocation(SwingUtilities.convertPoint(this, 0, 0, layeredPane));
         if (drag_tracing)
-            System.err.println("; dragged tile at "+draggedTile.getX()+","+draggedTile.getY());
-        draggedTile.repaint();
+            System.err.println("; dragged tile at "+tileImage.getX()+","+tileImage.getY());
+        tileImage.repaint();
     }
 
     protected void dragged(MouseEvent e) {
         if (drag_tracing)
             System.err.print("mouse dragged to "+e.getX()+","+e.getY());
-        draggedTile.repaint();
-        draggedTile.setLocation(draggedTile.getX()+(e.getX()-lastx),
-                                draggedTile.getY()+(e.getY()-lasty));
+        tileImage.repaint();
+        tileImage.setLocation(tileImage.getX()+(e.getX()-lastx),
+                                tileImage.getY()+(e.getY()-lasty));
         lastx = e.getX(); lasty = e.getY();
         if (drag_tracing)
-            System.err.println("; dragged tile now at "+draggedTile.getX()+","+draggedTile.getY());
-        draggedTile.repaint();
+            System.err.println("; dragged tile now at "+tileImage.getX()+","+tileImage.getY());
+        tileImage.repaint();
     }
 
     protected void released(MouseEvent e) {
         if (drag_tracing)
             System.err.println("mouse released at "+e.getX()+","+e.getY()+
-                               "; dragged tile at "+draggedTile.getX()+","+draggedTile.getY());
-        layeredPane.remove(draggedTile);
+                               "; dragged tile at "+tileImage.getX()+","+tileImage.getY());
+        layeredPane.remove(tileImage);
         layeredPane.repaint();
-    } */
+    }
 
 
-    protected class TileTransferable implements Transferable {
+   /* protected class TileTransferable implements Transferable {
         public Object getTransferData(DataFlavor flavor) {
             return Tile.this;
         }
@@ -145,8 +188,6 @@ public class Tile extends JLabel implements DebugConstants,
             return flavor==tileFlavor;
         }
     }
-
-    private BufferedImage image;
 
     public void dragGestureRecognized(DragGestureEvent event) {
         if (dragimage_tracing)
@@ -184,5 +225,5 @@ public class Tile extends JLabel implements DebugConstants,
     public void dropActionChanged(DragSourceDragEvent event) { }
 
     public void dragDropEnd (DragSourceDropEvent event) {
-    }
+    }*/
 }
