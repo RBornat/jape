@@ -36,7 +36,7 @@ interface DebugConstants {
                                 encoding_tracing         = false,
                                 geometry_tracing         = false,
                                 image_tracing            = false,
-                                makeMessage_tracing      = true,
+                                makeMessage_tracing      = false,
                                 measure_debug            = false,
                                 menuaction_tracing       = false,
                                 menubar_tracing          = false,
@@ -48,6 +48,7 @@ interface DebugConstants {
                                 worldpaint_tracing       = false;
 
     static final public boolean notice_Linux             = true,
-                                notice_MacOSX            = true;
+                                notice_MacOSX            = true,
+                                notice_Solaris           = true;
 }
 
