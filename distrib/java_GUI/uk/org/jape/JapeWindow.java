@@ -50,7 +50,7 @@ public abstract class JapeWindow extends JFrame {
     public JapeWindow(final String title, int proofnum) {
         
         super((LocalSettings.UnicodeWindowTitles || proofnum<0) ?
-                     (Jape.onMacOS ? JapeCharEncoding.trueUnicode(title) : title) :
+                     JapeUtils.trueTitle(title) :
                      ("Proof #"+proofnum));
         this.title=title; // ignoring whatever else may happen outside, this is a uid
         addTowindowv();
