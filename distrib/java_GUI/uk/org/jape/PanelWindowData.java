@@ -72,12 +72,24 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
         if (kind==ConjecturePanelKind) { 
             // has default buttons
-            addButton("New...", new Insert[] { new StringInsert("New... button pressed") });
-            addButton("Prove", new Insert[] { new StringInsert("prove"), new CommandInsert() });
-            addButton("Show Proof", new Insert[] { new StringInsert("showproof"), new CommandInsert() });
+            addButton("New...", new Insert[] { new StringInsert("New... button pressed") }, true);
+            addButton("Prove", new Insert[] { new StringInsert("prove"), new CommandInsert() }, true);
+            addButton("Show Proof", new Insert[] { new StringInsert("showproof"), new CommandInsert() }, true);
         }
     }
 
+    public boolean defaultButton(PanelButton b) {
+        return defaultButton(b.label);
+    }
+
+    public boolean defaultButton(String text) {
+        if (kind==ConjecturePanelKind) {
+            return text.equals("New...") || text.equals("Prove") || text.equals("Show Proof");
+        }
+        else
+            return false;
+    }
+    
     protected void addEntry(String entry, String cmd) {
         int i = entryv.indexOf(entry);
         if (i==-1) {
@@ -128,12 +140,17 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         }
     }
     
-    protected void addButton(String label, Insert[] cmd) {
+    protected void addButton(String label, Insert[] cmd, boolean isDefault) {
+        if (defaultButton(label)!=isDefault)
+            Alert.abort("PanelWindowData.addButton \""+label+"\" isDefault="+isDefault+
+                        " defaultButton(...)="+defaultButton(label));
         // if there already is such a button, just change its cmd
         for (int i=0; i<buttonv.size(); i++) {
             PanelButton b = (PanelButton)buttonv.get(i);
-            if (b.label.equals(label))
+            if (b.label.equals(label)) {
                 b.cmd = cmd;
+                return;
+            }
         }
         // otherwise a new one
         PanelButton button = new PanelButton(label, cmd);
@@ -141,7 +158,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         if (window!=null) {
             if (panellayout_tracing)
                 System.err.println("late PanelButton "+label);
-            window.addButton(button); // I hope it never does ...
+            window.addButton(button); // this is ok after an emptyPanel
         }
     }
 
@@ -153,13 +170,23 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     }
 
     public void emptyPanel() {
+        if (panelempty_tracing)
+            System.err.println("emptying panel "+window.title);
         window.setVisible(false);
         window.model.removeAllElements();
         Component[] cs = window.getContentPane().getComponents();
         for (int i=0; i<cs.length; i++)
-            if (cs[i] instanceof PanelButton)
-                window.getContentPane().remove(cs[i]);
-        entryv.removeAllElements(); cmdv.removeAllElements(); buttonv.removeAllElements();
+            if (cs[i] instanceof PanelButton) {
+                PanelButton b = (PanelButton)cs[i];
+                if (!defaultButton(b)) {
+                    if (panelempty_tracing)
+                        System.err.println("deleting button "+b.label);
+                    window.getContentPane().remove(b);
+                    buttonv.remove(buttonv.indexOf(b));
+                }
+            }
+        entryv.removeAllElements();
+        cmdv.removeAllElements();
     }
     
     /* This is now basically functional, but things to do:
@@ -546,7 +573,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     private static Vector panelv = new Vector();
     
     public static PanelWindowData spawn (String title, int kind) throws ProtocolError {
-        PanelWindowData p = findPanel(title,false);
+        PanelWindowData p = findPanel(title, false);
         if (p!=null) {
             if (p.kind==kind)
                 return p;
@@ -580,7 +607,6 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             if (panel.window==null)
                 panel.initWindow();
             else {
-                // this isn't tested until we are able to add things to the panel ...
                 panel.window.resetPanelLayout();
                 // but don't reset the size or position ...
             }
@@ -597,7 +623,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
     public static void emptyPanels() {
         for (int i=0; i<panelv.size(); i++)
-            ((PanelWindowData)panelv.get(0)).emptyPanel();
+            ((PanelWindowData)panelv.get(i)).emptyPanel();
     }
 
     public static void addEntry(String panel, String entry, String cmd) throws ProtocolError {
@@ -605,7 +631,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     }
     
     public static void addButton(String panel, String button, Insert[] cmd) throws ProtocolError {
-        findPanel(panel,true).addButton(button,cmd);
+        findPanel(panel,true).addButton(button, cmd, false);
     }
 
     public static void markEntry(String panel, String cmd /* really */, boolean proved, boolean disproved)
