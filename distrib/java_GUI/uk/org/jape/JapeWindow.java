@@ -86,8 +86,8 @@ public class JapeWindow extends JFrame {
         if (index==-1)
             Alert.abort("JapeWindow.closeWindow can't find "+w);
         else {
+            w.setVisible(false); w.dispose();
             windowv.remove(index);
-            w.dispose();
             JapeMenu.windowRemoved(w.titleForMenu(), w);
         }
     }
