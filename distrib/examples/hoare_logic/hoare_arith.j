@@ -105,6 +105,81 @@ TACTIC simpl IS
           (SEQ (MATCH "arith_double") simpl simpl)
           (SEQ (MATCH "arith_div") simpl simpl equiv))
 
+RULE "arith_defin_var" IS INFER A∧(x defined) simplifiesto A
+RULE "arith_defin_const" IS INFER A∧(K defined) simplifiesto A
+
+RULES "arith_defin_single" ARE
+    FROM E∧(A defined) simplifiesto F
+    INFER E∧(¬A defined) simplifiesto F
+END
+
+RULES "arith_defin_double" ARE
+    FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A → B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A ↔ B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A ∨ B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A ∧ B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A < B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A > B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A ≤ B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A ≥ B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A ≠ B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A = B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A + B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A - B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A × B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A ↑ B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G
+    INFER E∧(A ÷ B defined) simplifiesto G
+AND FROM E∧(A defined) simplifiesto F AND 
+         F∧(B defined) simplifiesto G 
+    INFER E∧(A mod B defined) simplifiesto G
+END
+
+RULE "arith_defin_index" IS
+     FROM E∧(F defined) simplifiesto G AND 
+          G∧0≤F equivto H             AND
+          H∧F<length(a) equivto I
+    INFER E∧(a[F] defined) simplifiesto I
+
+TACTIC defin IS
+  SEQ (LAYOUT HIDEROOT)
+      (ALT (LETGOAL (_E∧(_x defined) simplifiesto _F)
+              (UNIFY _F _E) (MATCH "arith_defin_var"))
+           (LETGOAL (_E∧(_K defined) simplifiesto _F)
+              (UNIFY _F _E) (MATCH "arith_defin_const"))
+          (SEQ (MATCH "arith_defin_index") defin equiv equiv)
+          (SEQ (MATCH "arith_defin_single") defin)
+          (SEQ (MATCH "arith_defin_double") defin defin))
+
 TACTIC equiv IS 
   SEQ (LAYOUT HIDEROOT (ALT (SEQ "arith_dup" conjoinstac) SKIP))
       (LAYOUT HIDEROOT (ALT "true_equiv" "equiv_default"))
