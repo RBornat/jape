@@ -238,13 +238,9 @@ let rec parseNUM () =
         (ParseError_ ["Expecting a number, found "; smlsymbolstring s])
 
 let rec parseClassID () =
-  consolereport ["in parseClassID"];
   match currnovelsymb () with
-    ID (s, _) -> consolereport ["seen "; s]; scansymb (); s
-  | s ->
-      raise
-        (ParseError_
-           ["Expecting an identifier, found "; smlsymbolstring s])
+    ID (s, _) -> scansymb (); s
+  | s -> raise (ParseError_ ["Expecting an identifier, found "; smlsymbolstring s])
 
 let rec processKEYBOARD report query =
   let _ = ignore _ISWORD in
@@ -270,7 +266,6 @@ let rec processClassDecl report query class__ =
        (fun _ -> parseClassID ()))
 
 let rec processCLASS report query =
-  consolereport ["in processCLASS"];
   let class__ = parseidclass "after CLASS" in
   let rec doit s = List.iter (warn s) (declareIdPrefix class__ s)
   and warn s (s', class') = 
@@ -279,9 +274,7 @@ let rec processCLASS report query =
                             unparseidclass class'; " "; s'; " directive"]
   in
   List.iter doit
-    (parseUnsepList
-       (function ID _ -> consolereport ["starting"]; true | _ -> consolereport ["not starting"]; false)
-       (fun _ -> consolereport ["in arg to processCLASS"]; parseClassID ()))
+    (parseUnsepList (function ID _ -> true | _ -> false) (fun _ -> parseClassID ()))
 
 let rec processInfix =
   fun _SYMBCON ->
