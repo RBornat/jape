@@ -666,7 +666,7 @@ public class JapeMenu implements DebugConstants {
 
         filemenu.addSep();
 		
-        indexMenuItem(filemenu, "Text Command", new TextCommandAction());
+        indexMenuItem(filemenu, "Text Command...", new TextCommandAction());
 		
         // separator implicit before these ...
 		
