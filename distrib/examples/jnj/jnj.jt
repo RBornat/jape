@@ -10,6 +10,8 @@
         companion paper ``Using JnJ in Unix Jape''.
 
         $Id$
+
+        Edit in FONT{lauratt-*}
 */
         FONTS   "Laura"
         SEQUENT IS BAG ° FORMULA
@@ -19,11 +21,11 @@
         INFIX    100R ä
         INFIX    200L ç
         INFIX    300L Ö
-        JUXTFIX  4000
+        JUXTFIX  40000
         CLASS FORMULA  p q r s
         CLASS VARIABLE x y z
         CONSTANT false true
-        SUBSTFIX 5000 [ p / x ]
+        SUBSTFIX 50000 [ p / x ]
         RULE  "Ö-intro"  FROM p AND q INFER pÖq
         RULE  "Ö-elim1"  FROM pÖq INFER p
         RULE  "Ö-elim2"  FROM pÖq INFER q
@@ -38,8 +40,9 @@
         RULE  "∆-intro"  FROM p ° false INFER ∆ p
         RULE  "∆-elim"   FROM ∆p AND p INFER false
 
-        RULE  "false-elim" FROM ∆p ° false INFER  p
-        RULE  "true-intro" INFER  ° true
+        RULE  "false-intro" FROM ∆p AND p INFER false
+        RULE  "false-elim"  FROM ∆p ° false INFER  p
+        RULE  "true-intro"  INFER  ° true
 
         RULE  "ã-intro"  FROM p ä q AND   q ä p INFER p ã q
         RULE  "ã-elim1"  FROM p ã q INFER p ä q
@@ -51,12 +54,16 @@
         IDENTITY RULE hypothesis
         CUT      RULE cut
         WEAKEN   RULE thin
-    INFIX   1000R ñ
-    LEFTFIX 20    Ñ : §
-    LEFTFIX 20    å : §
-    CLASS FORMULA a b t
-    BIND x SCOPE p IN Ñ x:a § p
-    BIND x SCOPE p IN å x:a § p
+    INFIX   800R  ñ
+    LEFTFIX 10  Ñ : §
+    LEFTFIX 10  Ñ : | §
+    LEFTFIX 10  å : §
+    LEFTFIX 10  å : | §
+    CLASS FORMULA a b t u
+    BIND x SCOPE p   IN Ñ x:a § p
+    BIND x SCOPE p   IN å x:a § p
+    BIND x SCOPE p q IN Ñ x:a | p § q
+    BIND x SCOPE p q IN å x:a | p § q
     RULE    "Ñ-intro"(OBJECT y) WHERE FRESH y
     FROM    yña ° q[y/x]
     INFER   Ñ x:a § q
@@ -75,13 +82,8 @@
     FROM    å x:a § p
     AND     yña, p[y/x] ° r
     INFER   r
-    INFIX  10L |
-    BIND x SCOPE p q IN Ñ x:s | p § q
-    BIND x SCOPE p q IN å x:s | p § q
-    RULE "Ñ|§-intro" IS FROM Ñ x:a § p ä q INFER Ñ x:a|p§q
-    RULE "Ñ|§-elim"  IS FROM Ñ x:a | p § q INFER Ñ x:a§päq
-    RULE "å|§-intro" IS FROM å x:a § p Ö q INFER å x:a|p§q
-    RULE "å|§-elim"  IS FROM å x:a | p § q INFER å x:a§pÖq
+    RULE "Ñ|§" IS (Ñ x:a|p§q) ã (Ñ x:a § p ä q)
+    RULE "å|§" IS (å x:a|p§q) ã (å x:a § p Ö q)
     TACTIC ElimRule(rule)
     (WHEN
       (LETHYP _p
@@ -99,12 +101,10 @@
     TACTIC QuantIntroRule(rule)
     (ALT (WITHARGSEL rule)
          (FAIL ("%s is not applicable", rule)))
-    MENU    "Propositional Rules"
-
+MENU    "Propositional Rules"
     ENTRY   "hypothesis"
     SEPARATOR
     ENTRY    "false-elim"   IS (IntroRule "false-elim")
-    SEPARATOR
     SEPARATOR
     ENTRY    "Ö-intro"      IS (IntroRule "Ö-intro")
     TACTIC   "Ö-elim-1"     IS (ElimRule  "Ö-elim1")
@@ -119,29 +119,23 @@
     SEPARATOR
     ENTRY    "∆-intro"      IS (IntroRule "∆-intro")
     ENTRY    "∆-elim"       IS (ElimRule "∆-elim")
+    ENTRY    "false-intro"  IS (ElimRule "false-intro")
     ENTRY    "true-intro"   IS (IntroRule "true-intro")
     SEPARATOR
     ENTRY    "ã-intro"      IS (IntroRule "ã-intro")
     ENTRY    "ã-elim1"      IS (ElimRule "ã-elim1")
     ENTRY    "ã-elim2"      IS (ElimRule "ã-elim2")
 END
-
-MENU "Predicate Rules" IS
+MENU "Quantifier Rules" IS
     ENTRY "Ñ-intro"   IS QuantIntroRule "Ñ-intro"
-    ENTRY "Ñ-elim"    IS ElimRule "Ñ-elim"
+    ENTRY "Ñ-elim"    IS ElimRule       "Ñ-elim"
     ENTRY "å-intro"   IS QuantIntroRule "å-intro"
-    ENTRY "å-elim"    IS ElimRule "å-elim"
-    ENTRY "å|§-intro" IS QuantIntroRule "å|§-intro"
-    ENTRY "å|§-elim"  IS ElimRule "å|§-elim"
-    ENTRY "Ñ|§-intro" IS QuantIntroRule "Ñ|§-intro"
-    ENTRY "Ñ|§-elim"  IS ElimRule "Ñ|§-elim"
+    ENTRY "å-elim"    IS ElimRule       "å-elim"
 END
     AUTOMATCH hypothesis
     HYPHIT pçq ° r IS  (ALT (ElimRule "ç-elim")  "ç-elim")
     HYPHIT päq ° r IS  (ALT (ElimRule "ä-elim")  "ä-elim")
     HYPHIT ∆p  ° r IS  (ALT (ElimRule "∆-elim")  "∆-elim")
-    HYPHIT Ñx:a|p§q ° r IS ElimRule "Ñ|§-elim"
-    HYPHIT åx:a|p§q ° r IS ElimRule "å|§-elim"
     HYPHIT Ñx:a§q   ° r IS ElimRule "Ñ-elim"
     HYPHIT åx:a§q   ° r IS ElimRule "å-elim"
     HYPHIT pÖq ° r IS
@@ -159,8 +153,6 @@ END
                cut "ã-elim1" (hypothesis (pãq))
                cut "ã-elim2" (hypothesis (pãq))
          ))
-    CONCHIT Ñx:a|p§q IS QuantIntroRule "Ñ|§-intro"
-    CONCHIT åx:a|p§q IS QuantIntroRule "å|§-intro"
     CONCHIT Ñx:a§q   IS QuantIntroRule "Ñ-intro"
     CONCHIT åx:a§q   IS QuantIntroRule "å-intro"
     CONCHIT ∆p       IS "∆-intro"
@@ -184,21 +176,18 @@ END
              box
         END
 
-        RADIOBUTTON autoselect
-            "Manual goal selection"    IS false
-        AND "Automatic goal selection" IS true
-        END
+        CHECKBOX autoselect
+                "Automatic goal selection"
+        INITIALLY
+                true
 
-        RADIOBUTTON applyconjectures
-            "Only proven theorems may be used as rules" IS false
-        AND "Unproven theorems may be used as rules"    IS true
-        END
-
+        CHECKBOX applyconjectures
+                "Unproven theorems may be applied"
+        INITIALLY
+                false
         RADIOBUTTON ElimRuleBackward
-            "Forbid backward use of elimination rules" IS
-               ElimRuleBackwardNo
-        AND "Permit backward use of elimination rules" IS
-               ElimRuleBackwardYes
+            "Forbid backward use of elimination rules" IS ElimRuleBackwardNo
+        AND "Permit backward use of elimination rules" IS ElimRuleBackwardYes
         END
 
     END /* MENU Edit */
@@ -229,7 +218,7 @@ END
     END
         INFIX 1000L ë
 CONJECTUREPANEL "Conjectures" IS
-    THEOREMS Propositional ARE
+    THEOREMS Propositional(p,q,r,s) ARE
         ∆∆p ° p
     AND ∆(pçq) ° ∆p Ö ∆q
     AND ∆(pÖq) ° ∆p ç ∆q
@@ -245,6 +234,16 @@ CONJECTUREPANEL "Conjectures" IS
     AND (pÖq ä r) ä (p ä (q ä r))
     AND p ä q ° pÖq ã p
     AND	° p ä (q ä p)
+    AND	p ä q, q ä r , p ° r
+    AND	p ä q ° (q ä r) ä (p ä r)
+    AND	p ä (q ä r), p ä q, p ° r
+    AND	p ä q, q ä r ° p ä r
+    AND	p ä (q ä r) ° q ä (p ä r)
+    AND	p ä (q ä (r ä s)) ° r ä (q ä (p ä s ))
+    AND	p ä (q ä r) ° (p ä q) ä (p ä r)
+    AND	° (p ä (q ä r)) ä ((p ä q) ä (p ä r))
+    AND	(p Ö q) ä r ã  p ä (q ä r)
+    AND	q ä r ° (p ç q) ä (p ç r)
     AND true  ã ∆false
     AND ∆true  ã false
     AND pÖtrue ã p
@@ -270,24 +269,20 @@ CONJECTUREPANEL "Conjectures" IS
     AND (pãq) Ö (qãr) ä (pãr)
     AND	∆p Ö p ° false
     AND ∆(pãq)ã((pçq)Ö∆(pÖq))
-    AND Ñx:a § pÖq ° (Ñx:a § p) Ö (Ñx:a § q)
+    END
+    THEOREMS Predicate
+    ARE Ñx:a § pÖq ° (Ñx:a § p) Ö (Ñx:a § q)
     AND (Ñx:a § p) Ö (Ñx:a § q) ° Ñx:a § pÖq
     AND ∆(å x:a§q) ° (Ñ x:a§∆q)
     AND ∆(Ñ x:a§q) ° (å x:a§∆q)
     AND ∆(Ñ x:a|p§q) ° (å x:a|p§∆q)
     AND WHERE x NOTIN a,a',y AND y NOTIN a,a',x INFER
         åx:a § Ñy:a' § q ° Ñy:a' § åx:a § q
-    AND	p ä q, q ä r , p ° r
-    AND	p ä q ° (q ä r) ä (p ä r)
-    AND	p ä (q ä r), p ä q, p ° r
-    AND	p ä q, q ä r ° p ä r
-    AND	p ä (q ä r) ° q ä (p ä r)
-    AND	p ä (q ä (r ä s)) ° r ä (q ä (p ä s ))
-    AND	p ä (q ä r) ° (p ä q) ä (p ä r)
-    AND	° (p ä (q ä r)) ä ((p ä q) ä (p ä r))
-    AND	(p Ö q) ä r ã  p ä (q ä r)
-    AND	q ä r ° (p ç q) ä (p ç r)
     END
+    THEOREM "Ñ|§-intro" IS Ñ x:a § p ä q ° Ñ x:a | p § q
+    THEOREM "Ñ|§-elim"  IS Ñ x:a | p § q ° Ñ x:a § p ä q
+    THEOREM "å|§-intro" IS å x:a § p Ö q ° å x:a | p § q
+    THEOREM "å|§-elim"  IS å x:a | p § q ° å x:a § p Ö q
     THEOREM "?-åx:a§Ñy:a'§xëy°Ñy:a'§åx:a§xëy(no provisos)"
     IS å x:a § Ñy:a' § xëy ° Ñy:a' § åx:a § xëy
     THEOREM "?- (päq)äp" IS (päq)äp
@@ -300,53 +295,53 @@ CONJECTUREPANEL "Conjectures" IS
 END /* PANEL */
     TACTIC ThmForward(thm) IS (SEQ cut (WITHHYPSEL (WITHARGSEL thm)))
     TACTIC ThmBackward(thm) IS (WITHARGSEL(APPLYORRESOLVE thm))
-        RULE    "rewrite"(p, OBJECT x) WHERE FRESH x
+        RULE    rewrite(p, OBJECT x)
         FROM    p ã q
         AND     r[q/x]
         INFER   r[p/x]
 
-        RULE    "rewritebackwards"(p, OBJECT x) WHERE FRESH x
+        RULE    rewritebackwards(p, OBJECT x)
         FROM    q ã p
         AND     r[q/x]
         INFER   r[p/x]
 
-        RULE    "hyprewrite"(p, OBJECT x) WHERE FRESH x
+        RULE    hyprewrite(p, OBJECT x)
         FROM    p ã q
-        AND     r[p/x] ° s
-        INFER   r[q/x] ° s
+        AND     r[q/x] ° s
+        INFER   r[p/x] ° s
 
-        RULE    "hyprewritebackwards"(p, OBJECT x) WHERE FRESH x
+        RULE    hyprewritebackwards(p, OBJECT x)
         FROM    q ã p
-        AND     r[p/x] ° s
-        INFER   r[q/x] ° s
+        AND     r[q/x] ° s
+        INFER   r[p/x] ° s
     CONJECTUREPANEL Conjectures IS
      BUTTON "Rewrite â" IS
-      apply RewriteWith Unfolding hyprewrite rewrite COMMAND
+      apply RewriteWith hyprewrite rewrite COMMAND
      BUTTON "Rewrite Å" IS
-      apply RewriteWith Folding   hyprewritebackwards rewritebackwards COMMAND
+      apply RewriteWith hyprewritebackwards rewritebackwards COMMAND
     END
-    TACTIC  RewriteWith(foldunfold, hyprewriterule, rewriterule, thm) IS
-    (LAYOUT "rewrite %s" (1)
-      (ALT
+    TACTIC  RewriteWith(hyprewriterule, rewriterule, thm) IS
+    (ALT
+      (LAYOUT "rewrite %s" (1)
         (WHEN
           (LETHYPSUBSTSEL  _p (WITHSUBSTSEL hyprewriterule) thm)
-          (LETCONCSUBSTSEL _p (WITHSUBSTSEL rewriterule) thm))
-        (foldunfold thm)
-        (FAILSEL ("%s not applicable to text selection", thm)
-                 ("%s not applicable anywhere by foldunfold", thm))))
+          (LETCONCSUBSTSEL _p (WITHSUBSTSEL rewriterule) thm)
+          (LETHYP          _p (hyprewriterule _p) thm)
+          (LETCONC         _p (rewriterule _p) thm)))
+      (FAILSEL ("%s not applicable to text selection", thm)
+               ("%s not applicable to hypothesis or conclusion", thm)))
     TACTIC Unfolding(thm) IS (UNFOLD rewrite thm)
     TACTIC Folding(thm)   IS (FOLD   rewritebackwards thm)
-    MENU Rewriting
-    ENTRY    "Rewrite â"  IS
-                Rewrite rewrite hyprewrite
-    ENTRY    "Rewrite Å"  IS
-                Rewrite rewritebackwards hyprewritebackwards
+    TACTIC UnfoldWithIff(rule)
+    (RewriteWith  hyprewrite rewrite rule)
+
+    TACTIC FoldWithIff(rule)
+    (RewriteWith  hyprewritebackwards rewritebackwards rule)
+
+    MENU "Quantifier Rules" IS
+        SEPARATOR
+        ENTRY "å|§â"      IS UnfoldWithIff "å|§"
+        ENTRY "å|§Å"      IS FoldWithIff   "å|§"
+        ENTRY "Ñ|§â"      IS UnfoldWithIff "Ñ|§"
+        ENTRY "Ñ|§Å"      IS FoldWithIff   "Ñ|§"
     END
-
-    TACTIC  Rewrite(rule, hyprule) IS
-    (WHEN   (LETHYPSUBSTSEL  _p (WITHSUBSTSEL hyprule))
-            (LETCONCSUBSTSEL _p (WITHSUBSTSEL rule))
-            (FAIL (Please text-select a subexpression to rewrite)))
-
-
-
