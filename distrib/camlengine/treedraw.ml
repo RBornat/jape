@@ -62,10 +62,13 @@ type outline = (int * int) list
 (* L, R boundaries *)
        
 type treeplanrec =
-      { proofbox : box; proofoutline : outline;
-        seqplan : planclass plan list; seqbox : textbox;
-        reasonplan : planclass plan option; linebox : (bool * box) option;
-        subplans : (pos * treeplan) list; linethickness : int }
+      { proofbox     : box; 
+        proofoutline : outline;
+        seqplan      : planclass plan list; 
+        seqbox       : textbox;
+        reasonplan   : planclass plan option; 
+        linespec     : (bool * pos * pos) option;
+        subplans     : (pos * treeplan) list; linethickness : int }
 and treeplan = Treeplan of treeplanrec
 
 type layout = treeplan
@@ -220,10 +223,10 @@ let rec maketreeplan proof =
                                    textinfo2plan reasoninf ReasonClass
                                      (pos (reasonindent, supery + tsA reasonsize))
                                  in Some rplan);
-               linebox =
+               linespec =
                  if reasonw = 0 then None
-                 else Some (isMulti, box (pos (sublineleft, supery - vspace - linethickness),
-                                          size (sublineright - sublineleft, linethickness)));
+                 else Some (isMulti, pos (sublineleft, supery - vspace - linethickness),
+                                     pos (sublineright, supery - vspace - linethickness));
                subplans = subplans; linethickness = linethickness }
   in
   _TP proof
@@ -347,21 +350,23 @@ let rec draw goal pos proof =
         (Treeplan
            {seqplan = seqplan;
             reasonplan = reasonplan;
-            linebox = linebox;
+            linespec = linespec;
             subplans = subplans;
             seqbox = seqbox})
         p here ->
         seqdraw p seqbox seqplan;
         drawReason p reasonplan;
-        begin match linebox with
+        begin match linespec with
           None -> ()
-        | Some (isMulti, b) ->
+        | Some (isMulti, p1, p2) ->
+            let p1 = p1 +->+ p in
+            let p2 = p2 +->+ p in
             if isMulti then
               begin
-                drawLine (bOffset b (upby (p, 2 * linethickness)));
-                drawLine (bOffset b p)
+                drawLine (upby (p1, 2 * linethickness)) (upby (p2, 2*linethickness));
+                drawLine p1 p2
               end
-            else drawLine (bOffset b p)
+            else drawLine p1 p2
         end;
         begin match
           samepath (rgoal, here),
@@ -372,7 +377,7 @@ let rec draw goal pos proof =
         | _ -> ()
         end;
         _FORNUMBERED
-           (fun (n, (stp, st)) -> _D st (( +->+ ) (p, stp)) (n :: here))
+           (fun (n, (stp, st)) -> _D st (p +->+ stp) (n :: here))
            subplans
     in
     drawinproofpane (); _D plan pos []
@@ -383,7 +388,7 @@ let rec print str goal pos proof plan =
   let outesc = out <*> String.escaped in
   let rec outplan p = out "\""; outesc (plan2string p); out "\" " in
   let rec outsp n = if n = 0 then () else (out " "; outsp (n - 1)) in
-  let rec _D (Treeplan {seqplan = seqplan; reasonplan = reasonplan; linebox = linebox;
+  let rec _D (Treeplan {seqplan = seqplan; reasonplan = reasonplan; linespec = linespec;
                         subplans = subplans; seqbox = seqbox})
              p here =
       out "(BY ";
@@ -393,8 +398,17 @@ let rec print str goal pos proof plan =
       end;
       out "(PROVE "; List.iter outplan seqplan; out ") ";
       (*            
-      case linebox of None => () | Some b => drawLine (bOffset b p);
-      case (samepath(rgoal,here), elementofclass DisplayConc <| seqplan of
+      case linespec of None => () 
+      |                Some (isMulti, p1, p2) ->
+            let p1 = bOffset b p1 in
+            let p2 = bOffset b p2 in
+            if isMulti then
+              begin
+                drawLine (upby (p1, 2 * linethickness)) (upby (p2, 2*linethickness));
+                drawLine p1 p2
+              end
+            else drawLine p1 p2;
+      case (samepath(rgoal,here), elementofclass DisplayConc <| seqplan) of
         (true, [plan]) => 
            highlight (seqelementpos p seqbox plan) DisplayConc
       | _ => ();
@@ -417,7 +431,7 @@ let rec targetbox path plan =
         | _ ->
             try
               let (sp, s) = List.nth (subplans) (n) in
-              _P ns s (( +->+ ) (pos, sp))
+              _P ns s (pos +->+ sp)
             with
               Failure "nth" -> None
   in

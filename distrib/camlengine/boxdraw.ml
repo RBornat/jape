@@ -1079,7 +1079,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
               let hindent = linethickness + boxhspace in
               let vindent = linethickness + boxvspace in
               topleftpos, hindent, vindent,
-              ( +->+ ) (topleftpos, pos (hindent, vindent))
+              topleftpos +->+ pos (hindent, vindent)
             else
               let topleftpos = nextpos elbox textleading in
               topleftpos, 0, 0, topleftpos
@@ -1333,15 +1333,15 @@ let rec draw goalopt p proof =
            idplan = idplan;
            elementsplan = elementsplan;
            reasonplan = reasonplan} ->
-          let pdraw = ( +->+ ) (p, tbPos elementsbox) in
+          let pdraw = p +->+ tbPos elementsbox in
           let rec emp gpath plan =
             (* (Elementplan((el,siopt),_,class,elbox)) = *)
             let rec dohigh () =
-              highlight (( +->+ ) (tbPos (plantextbox plan), pdraw))
+              highlight (tbPos (plantextbox plan) +->+ pdraw)
                 (Some DisplayConc)
             in
             let rec dogrey () =
-              greyen (( +->+ ) (tbPos (plantextbox plan), pdraw))
+              greyen (tbPos (plantextbox plan) +->+ pdraw)
             in
             let rec doconc path =
               if gpath = path then dohigh () else dogrey ()
@@ -1549,11 +1549,11 @@ let rec notifyselect posclassopt posclasslist =
         match line with
           FitchLine
             {elementsbox = elementsbox; elementsplan = elementsplan} ->
-            let p' = ( +->+ ) (p, tbPos elementsbox) in
+            let p' = p +->+ tbPos elementsbox in
             List.iter
               (fun plan ->
                  if iselementkind (planinfo plan) then
-                   emp plan (( +->+ ) (p', tbPos (plantextbox plan))))
+                   emp plan (p' +->+ tbPos (plantextbox plan)))
               elementsplan
         | FitchBox {outerbox = outerbox; boxlines = lines} ->
             List.iter (reemphasise p) lines
