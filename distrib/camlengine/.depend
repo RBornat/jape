@@ -468,12 +468,12 @@ tacticfuns.cmx: alert.cmx applyrule.cmx cache.cmx cxtfuns.cmx cxtstring.cmx \
     thing.cmx treeformat.cmx uTF.cmx unify.cmx tacticfuns.cmi 
 tactictype.cmo: nametype.cmo seqtype.cmo termtype.cmi treelayout.cmi 
 tactictype.cmx: nametype.cmx seqtype.cmx termtype.cmx treelayout.cmx 
-termfold.cmo: box.cmi draw.cmi invisibles.cmi listfuns.cmi minwaste.cmi \
-    miscellaneous.cmi optionfuns.cmi sml.cmi stringfuns.cmi termstring.cmi \
-    termtype.cmi text.cmi uTF.cmi termfold.cmi 
-termfold.cmx: box.cmx draw.cmx invisibles.cmx listfuns.cmx minwaste.cmx \
-    miscellaneous.cmx optionfuns.cmx sml.cmx stringfuns.cmx termstring.cmx \
-    termtype.cmx text.cmx uTF.cmx termfold.cmi 
+termfold.cmo: box.cmi cache.cmi draw.cmi invisibles.cmi japeserver.cmi \
+    listfuns.cmi minwaste.cmi miscellaneous.cmi optionfuns.cmi sml.cmi \
+    stringfuns.cmi termstring.cmi termtype.cmi text.cmi uTF.cmi termfold.cmi 
+termfold.cmx: box.cmx cache.cmx draw.cmx invisibles.cmx japeserver.cmx \
+    listfuns.cmx minwaste.cmx miscellaneous.cmx optionfuns.cmx sml.cmx \
+    stringfuns.cmx termstring.cmx termtype.cmx text.cmx uTF.cmx termfold.cmi 
 termfuns.cmo: answer.cmi idclass.cmi idclassfuns.cmi listfuns.cmi \
     mappingfuns.cmi miscellaneous.cmi optionfuns.cmi sml.cmi stringfuns.cmi \
     symbol.cmi symboltype.cmo termstore.cmi termstring.cmi termtype.cmi \
