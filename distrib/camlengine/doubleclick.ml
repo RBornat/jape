@@ -1,6 +1,7 @@
 (* $Id$ *)
 
-T  sig
+module type T =
+  sig
     type seq and tactic and term
     type dclick = DClickHyp | DClickConc
     val adddoubleclick : dclick * tactic * seq -> unit
@@ -10,9 +11,20 @@ T  sig
   end
 (* $Id$ *)
 
-module M : T =
+module M : T with type seq = Sequent.Type.seq 
+              and type tactic = Tactic.Type.tactic 
+              and type term = Term.Type.term
+=
   struct
-    type seq = seq and tactic = tactic and term = term
+    open Sequent.Funs
+    open Listfuns.M
+    open Mappingfuns.M
+    open Tactic.Funs
+    open Optionfuns.M
+    
+    type seq = Sequent.Type.seq and tactic = Tactic.Type.tactic and term = Term.Type.term
+    
+    let seqmatch = seqmatch false
     
     type dclick = DClickHyp | DClickConc
     type doubleclickdef = dclick * tactic * seq

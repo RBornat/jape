@@ -12,6 +12,8 @@ module type T =
 
 module M : T =
   struct
+    open Miscellaneous.M
+    
     type displayclass =
       DisplayHyp | DisplayConc | DisplayAmbig | DisplayReason | DisplayPunct
     let rec displayclassstring =

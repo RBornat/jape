@@ -20,7 +20,7 @@ module type T =
     val askCancel :
       alertseverity -> string -> (string * 'a) list -> 'a -> int -> 'a
     (* message   buttons   actions  cancelaction  defaultindex  result   
-     *             set defaultindex = length buttons to choose Cancel
+     *             set defaultindex = List.length buttons to choose Cancel
      *)
 
 
@@ -47,7 +47,14 @@ module type T =
 
 module M : T =
   struct
-    open Japeserver
+    open Japeserver.M
+    open Optionfuns.M
+    open SML.M
+    open Miscellaneous.M
+    open Listfuns.M
+    
+    let askChoice = Japeserver.M.askChoice
+    let setComment = Japeserver.M.setComment
     
     type alertspec =
         Alert of (string * (string * alertspec option) list * int)
@@ -55,7 +62,7 @@ module M : T =
       | HowToFormulaSelect
       | HowToDrag
     type alertseverity = StopNow | Decide | ReadThis
-    let rec defaultseverity bs = if length bs <= 1 then StopNow else Decide
+    let rec defaultseverity bs = if List.length bs <= 1 then StopNow else Decide
     let defaultseverity_alert = StopNow
     let rec intseverity =
       function
@@ -86,7 +93,7 @@ module M : T =
       alertpatches := f !alertpatches
     let rec ask code m (bs : (string * 'a) list) def =
       if null bs then raise (Catastrophe_ ["ask no buttons \""; m; "\""])
-      else if def < 0 || def >= length bs then
+      else if def < 0 || def >= List.length bs then
         raise
           (Catastrophe_
              ["ask bad default \""; m; "\"";
@@ -105,7 +112,7 @@ module M : T =
     let rec askCancel code m (bs : (string * 'a) list) c def =
       if null bs then
         raise (Catastrophe_ ["askCancel no buttons \""; m; "\""])
-      else if def < 0 || def > length bs then
+      else if def < 0 || def > List.length bs then
         raise
           (Catastrophe_
              ["askCancel bad default \""; m; "\"";
@@ -138,7 +145,7 @@ module M : T =
         match aopt with
           None -> ()
         | Some (Alert (m, bs, def)) ->
-            let code' = if length bs > 1 then Decide else code in
+            let code' = if List.length bs > 1 then Decide else code in
             patch ReadThis (ask code' m bs def)
         | Some HowToTextSelect -> display ReadThis (howtoTextSelect ())
         | Some HowToFormulaSelect -> display ReadThis (howtoFormulaSelect ())

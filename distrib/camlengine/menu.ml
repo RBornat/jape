@@ -52,7 +52,10 @@ module type T =
 
 (* $Id$ *)
 
-module M : T =
+module M : T with type panelkind = Panelkind.M.panelkind
+			  and type panelbuttoninsert = Panelkind.M.panelbuttoninsert
+			  and type name = Name.M.name
+ =
   struct
     open Listfuns.M
     open Mappingfuns.M 
@@ -60,8 +63,13 @@ module M : T =
     open Name.M
     open Optionfuns.M 
     open Panelkind.M
+    open SML.M
     open Stringfuns.M
     
+    type panelkind = Panelkind.M.panelkind
+     and panelbuttoninsert = Panelkind.M.panelbuttoninsert
+     and name = Name.M.name
+     
     let systemmenus = ["File"; "Edit"] (* filth; introduced by RB *)
     
     exception Menuconfusion_ of string list
@@ -210,7 +218,7 @@ module M : T =
     let rec addpanel k p =
       match at (!panels, p) with
         None -> panels := ( ++ ) (!panels, ( |-> ) (p, ref (k, empty, [])))
-      | SOME_ -> ()
+      | Some _ -> ()
     let rec addtopanel e (k, em, bs as stuff) =
       let rec lf e =
         match e with
@@ -247,7 +255,7 @@ module M : T =
     let rec getpanels () =
        (fun (p, {contents = k, _, _}) -> p, k) <* aslist !panels
     let rec getpanelkind p =
-      ((at (!panels, p) &~~ fSome) <*> fst <*> (!)
+      at (!panels, p) &~~ (fSome <*> (fun (a,b,c) -> a) <*> (!))
     let rec getpaneldata p =
         (at (!panels, p) &~~
          (let applyname = namefrom "Apply" in
