@@ -14,4 +14,4 @@ MENU Edit
     BUTTON Disprove
 END
 
-KEYBOARD → ∧ ∨ ¬ ⊥ ∀ ∃ ⊢ ⊧
+KEYBOARD → ∧ ∨ ¬ ⊥ ⊤ ∀ ∃ ⊢ /* ⊧*/
