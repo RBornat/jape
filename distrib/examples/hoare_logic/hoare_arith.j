@@ -165,8 +165,7 @@ AND FROM E∧(A defined) simplifiesto F AND
 END
 
 RULE "arith_defin_index" IS
-     FROM E∧(F defined) simplifiesto G AND 
-          G∧0≤F equivto H             AND
+     FROM E∧0≤F equivto H             AND
           H∧F<length(a) equivto I
     INFER E∧(a[F] defined) simplifiesto I
 
@@ -176,7 +175,7 @@ TACTIC defin IS
               (UNIFY _F _E) (MATCH "arith_defin_var"))
            (LETGOAL (_E∧(_K defined) simplifiesto _F)
               (UNIFY _F _E) (MATCH "arith_defin_const"))
-          (SEQ (MATCH "arith_defin_index") defin equiv equiv)
+          (SEQ (MATCH "arith_defin_index") equiv equiv)
           (SEQ (MATCH "arith_defin_single") defin)
           (SEQ (MATCH "arith_defin_double") defin defin))
 
