@@ -40,7 +40,7 @@ if Sys.os_type="Win32" then (
 	String.index path ':'  < String.index path '\\'
   with
 	Not_found -> false)
-else (try String.sub path 0 1 = "/" with _ -> false)
+else (try path.[0]='/' with _ -> false)
 
 let makerelative s =
   if isabsolute s then s else
