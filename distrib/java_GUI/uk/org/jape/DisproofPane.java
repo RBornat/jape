@@ -38,15 +38,19 @@ import java.awt.LayoutManager;
 // if you use BorderLayout to give lots of space to the worldPane.
 // So I do it by steam (again; sigh!)
 
-public class DisproofPane extends Container {
+public class DisproofPane extends Container implements DebugConstants {
     AnchoredScrollPane worldPane;
     DisproofCanvas seqCanvas;
     WorldCanvas worldCanvas;
     Container seqView;
     Box tileCanvas;
 
-    public DisproofPane() {
+    Container layeredPane; // for the draggers and droppers
+    
+    public DisproofPane(Container layeredPane) {
         super();
+        this.layeredPane = layeredPane;
+        
         setLayout(new DisproofPaneLayout());
         setBackground(Color.white);
         worldPane = new AnchoredScrollPane();
@@ -89,7 +93,7 @@ public class DisproofPane extends Container {
         tileCanvas.removeAll();
         tileCanvas.add(Box.createGlue());
         for (int i=0; i<tiles.length; i++) {
-            tileCanvas.add(new Tile(tiles[i]));
+            tileCanvas.add(new StationaryTile(layeredPane, tiles[i]));
             if (i+1<tiles.length)
                 tileCanvas.add(Box.createVerticalStrut(LocalSettings.TileSpacing));
         }
@@ -108,6 +112,8 @@ public class DisproofPane extends Container {
     }
 
     public void paint(Graphics g) {
+        if (paint_tracing)
+            System.err.println("painting DisproofPane");
         g.setColor(getBackground());
         g.fillRect(0, 0, getWidth(), getHeight());
         super.paint(g);
