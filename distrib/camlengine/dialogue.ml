@@ -254,7 +254,7 @@ let rec defaultenv () =
   List.iter Japeenv.resetvar (List.map snd pairs);
   nj_revfold (uncurry2 Japeenv.(++))
     (List.map
-       (uncurry2 Japeenv.( ||-> ) <.> ((fun (s, v) -> Name.namefrom s, v)))
+       (uncurry2 Japeenv.( ||-> ) <.> (fun (s, v) -> Name.namefrom s, v))
        (nj_fold (fun ((s, f), ps) -> (s, f ()) :: ps) nonresetpairs pairs))
     Japeenv.empty
 in
@@ -1206,44 +1206,34 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                inside c
                  (fun displaystate ->
                     showproof <.> 
-                      ((fun hist ->
-                          evolve_proof displaystate env
-                            (nohitcommand displaystate env tselopt comm
-                               finishable)
-                            hist)
-                         ))
+                    evolve_proof displaystate env
+                      (nohitcommand displaystate env tselopt comm finishable)
+                 )
              in
-             begin match pinfs with
+             match pinfs with
                Pinf {displaystate = displaystate} :: _ ->
-                 begin match findSelection displaystate with
+                 (match findSelection displaystate with
                    Some (FormulaSel fsel) ->
                      inside c
                        (fun displaystate ->
                           showproof <.> 
-                            ((fun here ->
-                                evolve_proof displaystate env
-                                  (pointToSequent displaystate env comm
-                                     fsel)
-                                  here)
-                               ))
+                          (fun here -> evolve_proof displaystate env
+                                         (pointToSequent displaystate env comm fsel)
+                                         here))
                  | Some (TextSel t) -> nosels (Some t)
                  | Some (ReasonSel _) ->
-                     showAlert
-                       ["only reason selection (applying "; respace comm;
-                        ")"];
+                     showAlert ["only reason selection (applying "; respace comm; ")"];
                      default
                  | None -> nosels None
-                 end
+                )
              | _ ->
-                 showAlert
-                   ["no current proof (applying "; respace comm; ")"];
+                 showAlert ["no current proof (applying "; respace comm; ")"];
                  default
-             end)
+            )
 
         | "applygiven", args ->
             processcommand thisstate
-              ("apply" ::
-                 parseablenamestring (namefrom !givenMenuTactic) :: args)
+              ("apply" :: parseablenamestring (namefrom !givenMenuTactic) :: args)
 
         | "assign", name :: value ->
             (try
@@ -1253,19 +1243,16 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               default
             with
               Japeenv.OutOfRange_ s ->
-                showAlert
-                  ["error in "; respace c;
-                   " --  value assigned should be "; s];
+                showAlert ["error in "; respace c;
+                           " --  value assigned should be "; s];
                 default
             | Japeenv.NotJapeVar_ ->
-                showAlert
-                  ["error in "; respace c; " -- "; name;
-                   " is not a Jape variable"];
+                showAlert ["error in "; respace c; " -- "; name;
+                           " is not a Jape variable"];
                 default
             | Japeenv.ReadOnly_ ->
-                showAlert
-                  ["error in "; respace c; " -- "; "you can't assign to ";
-                   name; " at this point"];
+                showAlert ["error in "; respace c; " -- "; "you can't assign to ";
+                           name; " at this point"];
                 default
             | ParseError_ rs ->
                 showAlert (["can't parse "; respace value; " -- "] @ rs);
@@ -1275,15 +1262,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             inside c
               (fun _ ->
                  showdisproof <.> 
-                   ((fun hist ->
-                         (winhist_disproofhist hist &~~ redo_step &~~
-                          (fSome <.> 
-                             ((fun dh ->
-                                 withdisproofhist (hist) (Some dh))
-                                ))) |~~
-                          (fun _ ->
-                             showAlert ["nothing to redo!"]; None)))
-                      )
+                 (fun hist ->
+                      (winhist_disproofhist hist &~~ redo_step &~~
+                       (fSome <.> (fun dh -> withdisproofhist (hist) (Some dh)))) |~~
+                      (fun _ -> showAlert ["nothing to redo!"]; None)))
 
         | "redo_proof", [] ->
             inside c
@@ -1344,7 +1326,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  showproof <.> 
                  (fun hist ->
                     (undo_step (winhist_proofhist hist) &~~
-                     (fSome <.> ((fun ph -> withproofhist (hist) (ph))))) 
+                     (fSome <.> (fun ph -> withproofhist (hist) (ph)))) 
                     |~~
                     (fun _ -> showAlert ["no proof steps to undo!"]; None)))
 
@@ -1440,48 +1422,43 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             inside c
               (fun displaystate ->
                  showdisproof <.> 
-                   ((fun hist ->
-                       let proof = winhist_proofnow hist in
-                       let cxt_now = proofstate_cxt proof in
-                       let facts_now = facts (provisos cxt_now) cxt_now in
-                       let rec process_disproof disproof' =
-                         let doit () = Some (disproofmove hist disproof') in
-                         let seq' = disproofstate_seq disproof' in
-                         match winhist_disproofnow hist with
-                           None -> doit ()
-                         | Some state ->
-                             let seq = disproofstate_seq state in
-                             if eqseqs (seq, seq') then
-                               if issimplestuniverse (disproofstate_universe state)
-                               then
-                                 (showAlert ["You are already disproving "; seqstring seq];
-                                  None)
-                               else if
-                                 screenquery
-                                   ["You are already disproving "; seqstring seq; 
-                                    " - do you want to wipe clean the world(s) you have built?"]
-                                   "Wipe" "Cancel" 1
-                               then doit ()
-                               else None
-                             else if
-                               screenquery
-                                 ["You are disproving "; seqstring seq;
-                                  " - do you want to replace it with ";
-                                  seqstring seq'; "?"]
-                                 "Replace" "Cancel" 1
-                             then doit ()
-                             else None
-                       in
-                       match findSelection displaystate with
-                         Some (FormulaSel (path, _, hyps, _, _, _)) ->
-                           process_disproof
-                             (disproof_start facts_now
-                                (proofstate_tree proof) (Some path) hyps)
-                       | _ ->
-                           process_disproof
-                             (disproof_start facts_now
-                                (proofstate_tree proof) None []))
-                      ))
+                 (fun hist ->
+                    let proof = winhist_proofnow hist in
+                    let cxt_now = proofstate_cxt proof in
+                    let facts_now = facts (provisos cxt_now) cxt_now in
+                    let rec process_disproof disproof' =
+                      let doit () = Some (disproofmove hist disproof') in
+                      let seq' = disproofstate_seq disproof' in
+                      match winhist_disproofnow hist with
+                        None -> doit ()
+                      | Some state ->
+                          let seq = disproofstate_seq state in
+                          if eqseqs (seq, seq') then
+                            if issimplestuniverse (disproofstate_universe state)
+                            then
+                              (showAlert ["You are already disproving "; seqstring seq];
+                               None)
+                            else 
+                            if screenquery ["You are already disproving "; seqstring seq; 
+                                            " - do you want to wipe clean the world(s) you have built?"]
+                                           "Wipe" "Cancel" 1
+                            then doit ()
+                            else None
+                          else 
+                          if screenquery ["You are disproving "; seqstring seq;
+                                          " - do you want to replace it with ";
+                                          seqstring seq'; "?"]
+                                         "Replace" "Cancel" 1
+                          then doit ()
+                          else None
+                    in
+                    match findSelection displaystate with
+                      Some (FormulaSel (path, _, hyps, _, _, _)) ->
+                        process_disproof (disproof_start facts_now
+                                            (proofstate_tree proof) (Some path) hyps)
+                    | _ ->
+                        process_disproof (disproof_start facts_now
+                                            (proofstate_tree proof) None [])))
         
         (* ******************* proof stuff ************************)
             
@@ -1528,12 +1505,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                      end
                    else
                        showproof <.> 
-                         ((fun here ->
-                             evolve_proof_explain
-                               (fun () -> showAlert (explain ""))
-                               displaystate env
-                               (forceUnify (args @ selargs)) here)
-                           ))
+                       (fun here ->
+                           evolve_proof_explain
+                             (fun () -> showAlert (explain ""))
+                             displaystate env
+                             (forceUnify (args @ selargs)) here)
+                 )
             with
               Unify_ -> default
             end
@@ -1623,106 +1600,83 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             inside c
               (fun displaystate ->
                  showproof <.> 
-                   ((fun here ->
-                         (getLayoutPath displaystate BacktrackCommand
-                            PrunePath &~~
-                          (fun path ->
-                             try
-                               let there = ref here in
-                               let rec stillcomposite =
-                                 fun
-                                   (WinHist
-                                      {proofhist =
-                                         Hist
-                                           {now =
-                                              Proofstate
-                                                {tree = tree}}}) ->
-                                   try let _ = (findTip tree path : seq) in false with
-                                     FollowPath_ _ -> false
-                                   | FindTip_ -> true
-                               in
-                               let rec undo_proofstep =
-                                 fun
-                                   (WinHist {proofhist = proofhist} as
-                                      hist) ->
-                                     (undo_step proofhist &~~
-                                      (
-                                         fSome <.> 
-                                           ((fun ph ->
-                                               withproofhist (hist) (ph))
-                                              )))
-                               in
-                               while stillcomposite !there do
-                                 match undo_proofstep !there with
-                                   Some h -> there := h
-                                 | _ ->
-                                     showAlert
-                                       ["can't backtrack to that point"];
-                                     raise Matchinbacktrack_
-                               done;
-                               Some !there
-                             with
-                               Matchinbacktrack_ -> None)))
-                      ))
+                 (fun here ->
+                      (getLayoutPath displaystate BacktrackCommand
+                         PrunePath &~~
+                       (fun path ->
+                          try
+                            let there = ref here in
+                            let rec stillcomposite =
+                              fun
+                                (WinHist
+                                   {proofhist =
+                                      Hist
+                                        {now =
+                                           Proofstate
+                                             {tree = tree}}}) ->
+                                try let _ = (findTip tree path : seq) in false with
+                                  FollowPath_ _ -> false
+                                | FindTip_ -> true
+                            in
+                            let rec undo_proofstep =
+                              fun (WinHist {proofhist = proofhist} as hist) ->
+                                (undo_step proofhist &~~
+                                 (fSome <.> withproofhist hist))
+                            in
+                            while stillcomposite !there do
+                              match undo_proofstep !there with
+                                Some h -> there := h
+                              | _ ->
+                                  showAlert
+                                    ["can't backtrack to that point"];
+                                  raise Matchinbacktrack_
+                            done;
+                            Some !there
+                          with
+                            Matchinbacktrack_ -> None)))
+                      )
 
         | "prune", [] ->
             (* Prune *)
             inside c
               (fun displaystate ->
-                 showproof <.> 
-                   ((fun here ->
-                       tryLayout displaystate PruneCommand PrunePath here)
-                      ))
+                 showproof <.> tryLayout displaystate PruneCommand PrunePath 
+              )
 
         | "collapse", [] ->
             (* Hide/Show subproof *)
             inside c
               (fun displaystate ->
-                 showproof <.> 
-                   ((fun here ->
-                       tryLayout displaystate HideShowCommand PrunePath
-                         here)
-                      ))
+                 showproof <.>  tryLayout displaystate HideShowCommand PrunePath 
+              )
 
         | "hideroot", [] ->
             (* Hide conclusion *)
             inside c
               (fun displaystate ->
-                 showproof <.> 
-                   ((fun here ->
-                       tryLayout displaystate HideRootCommand HitPath
-                         here)
-                      ))
+                 showproof <.>  tryLayout displaystate HideRootCommand HitPath 
+              )
 
         | "exposeparent", [] ->
             (* Show parent conclusion *)
             inside c
               (fun displaystate ->
-                 showproof <.> 
-                   ((fun here ->
-                       tryLayout displaystate ExposeParentCommand HitPath
-                         here)
-                      ))
+                 showproof <.>  tryLayout displaystate ExposeParentCommand HitPath 
+              )
 
         | "hidecut", [] ->
             (* Hide cut hypothesis *)
             inside c
               (fun displaystate ->
-                 showproof <.> 
-                   ((fun here ->
-                       tryLayout displaystate HideCutCommand PrunePath
-                         here)
-                      ))
+                 showproof <.> tryLayout displaystate HideCutCommand PrunePath
+              )
 
         | "layout", _ ->
             (* Expand/Contract detail *)
             inside c
               (fun displaystate ->
-                 showproof <.> 
-                   ((fun here ->
-                       tryLayout displaystate ExpandContractCommand
-                         LayoutPath here)
-                     ))
+                 showproof <.> tryLayout displaystate ExpandContractCommand LayoutPath 
+              )
 
         | "addnewconjecture", panel :: text ->
             begin try
@@ -2073,27 +2027,20 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 inside c'
                   (fun displaystate ->
                      showproof <.> 
-                       ((fun here ->
-                           evolve_proof displaystate env
-                             (pointToSequent displaystate env c' fsel)
-                             here)
-                          ))
+                     evolve_proof displaystate env 
+                       (pointToSequent displaystate env c' fsel)
+                  )
             | None -> default
             end
 
         | _, ReasonSel _ ->
             inside []
               (fun displaystate ->
-                 showproof <.> 
-                   ((fun here ->
-                       tryLayout displaystate ExpandContractCommand
-                         LayoutPath here)
-                      ))
+                 showproof <.> tryLayout displaystate ExpandContractCommand LayoutPath 
+              )
 
         | _ ->
-            raise
-              (Catastrophe_
-                 ["funny hit (commands): "; commandstring command])
+            raise (Catastrophe_ ["funny hit (commands): "; commandstring command])
   in
   (* assignment to displayvars can force redisplay *)
   let nextargs =
