@@ -27,6 +27,8 @@
 
 package uk.org.jape;
 
+import java.awt.Point;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -40,7 +42,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 	    Logger.log.println("dispatcher initialised");
     }
 
-    private void showcommand(String m, String[] cmd) {
+    private void showSplitLine(String m, String[] cmd) {
 	Logger.log.print(m+" [");
 	for (int i=0; i<cmd.length; i++) {
 	    Logger.log.print(JapeUtils.enQuote(cmd[i]));
@@ -58,7 +60,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 		try {
 		    String[] cmd = japesplit(line);
 		    if (DebugVars.protocol_tracing) {
-			showcommand("dispatcher reads ("+cmd.length+") ", cmd);
+			showSplitLine("dispatcher reads ("+cmd.length+") ", cmd);
 		    }
 		
 		    if (cmd.length!=0) {
@@ -127,26 +129,31 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    ProofWindow.getFocussedWindow().unhighlight(toInt(cmd[1]), toInt(cmd[2]));
 			else
 			    
-		    // DRAGSOURCES/TARGETS needs prompt response, so put early
-			if (p=="DRAGSOURCES"&&len==1)
-			    list.removeAllElements();
+		    // DRAGINFO once at most in each proof step
+			if (p=="DRAGSOURCES"&&len==2) {
+			    int slen = toInt(cmd[1]);
+			    Point[][] ss = new Point[slen][];
+			    for (int i=0; i<slen; i++)
+				ss[i] = readPoints();
+			    SelectableProofItem.setDragSources(ss);
+			}
 			else
-			if (p=="DRAGSOURCE"&&len==2)
-			    list.add(cmd[1]);
+			if (p=="DRAGTARGETS"&&len==2) {
+			    int tlen = toInt(cmd[1]);
+			    Point[][] ts = new Point[tlen][];
+			    for (int i=0; i<tlen; i++)
+				ts[i] = readPoints();
+			    SelectableProofItem.setDragTargets(ts);
+			}
 			else
-			if (p=="ENDDRAGSOURCES"&&len==1)
-			    SelectableProofItem.setDragSources(
-				   ((String[])list.toArray(new String[list.size()])));
-			else
-			if (p=="DROPTARGETS"&&len==1)
-			    list.removeAllElements();
-			else
-			if (p=="DROPTARGET"&&len==2)
-			    list.add(cmd[1]);
-			else
-			if (p=="ENDDROPTARGETS"&&len==1)
-			    SelectableProofItem.setDropTargets(
-				   ((String[])list.toArray(new String[list.size()])));
+			if (p=="DRAGMAP"&&len==2) {
+			    int mlen = toInt(cmd[1]);
+			    int[][] map = new int[2*mlen][];
+			    for (int i=0; i<mlen; i++) {
+				map[2*i] = readInts(); map[2*i+1] = readInts();
+			    }
+			    SelectableProofItem.setDragMap(map);
+			}
 			else
 			    
 			// FONTINFO not very often
@@ -238,7 +245,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    JapeMenu.addSeparator(cmd[1], toInt(cmd[2]));
 			else
 			if (p=="ENABLEMENUITEM"&&len==5) {
-			    // showcommand("", cmd);
+			    // showSplitLine("", cmd);
 			    // see comment in japeserver.mli
 			    JapeMenu.enableItem(false, cmd[1], cmd[2], toInt(cmd[3]), 
 						toBool(cmd[4]));
@@ -259,7 +266,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    JapeMenu.addCheckBox(cmd[1], cmd[2], cmd[3], toInt(cmd[4]));
 			else
 			if (p=="TICKMENUITEM"&&len==5) {
-			// showcommand("",cmd);
+			// showSplitLine("",cmd);
 			// see comment in japeserver.mli
 			JapeMenu.tickItem(false, cmd[1], cmd[2], toInt(cmd[3]), toBool(cmd[4]));
 			}
@@ -564,6 +571,46 @@ public class Dispatcher extends Thread implements DebugConstants {
 	if (s.length()==1)
 	    return s.charAt(0);
 	throw new ProtocolError (JapeUtils.enQuote(s)+" is not a single char string");
+    }
+    
+    private Point[] readPoints() throws ProtocolError, IOException {
+	String line = Engine.fromEngine().readLine();
+	String[] ints = japesplit(line);
+	if (DebugVars.protocol_tracing) {
+	    showSplitLine("readPoints reads", ints);
+	}
+	int len;
+	if (ints.length>0 && (len=toInt(ints[0]))*2+1==ints.length) {
+	    Point[] ps = new Point[len];
+	    for (int i=0; i<len; i++) {
+		ps[i]=new Point(toInt(ints[2*i+1]),toInt(ints[2*i+2]));
+	    }
+	    return ps;
+	}
+	else  {
+	    Alert.showErrorAlert("readInts can't see point array in "+line);
+	    return new Point[0];
+	}
+    }
+
+    private int[] readInts() throws ProtocolError, IOException {
+	String line = Engine.fromEngine().readLine();
+	String[] ints = japesplit(line);
+	if (DebugVars.protocol_tracing) {
+	    showSplitLine("readInts reads", ints);
+	}
+	int len;
+	if (ints.length>0 && (len=toInt(ints[0]))+1==ints.length) {
+	    int[] ns = new int[len];
+	    for (int i=0; i<len; i++) {
+		ns[i]=toInt(ints[i+1]);
+	    }
+	    return ns;
+	}
+	else {
+	    Alert.showErrorAlert("readInts can't see int array in "+line);
+	    return new int[0];
+	}
     }
 }
 
