@@ -10,6 +10,7 @@ sig
     val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
     val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
     val null : 'a list -> bool
+    val ord : string -> int
     val thrd : ('a * 'b * 'c) -> 'c
     
     val (<*>) : ('b -> 'c) -> ('a -> 'b) -> 'a -> 'c (* compose -- can't do without it *)
@@ -47,6 +48,8 @@ module M : T =
     let thrd (a,b,c) = c
     
     let null xs = xs=[]
+    
+    let ord s = Char.code (String.get s 0)
     
     let fSome v = Some v
 end    
