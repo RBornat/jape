@@ -114,9 +114,9 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
             LabelTarget target = (LabelTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
             if (target!=over) {
                 if (over!=null) {
-                    over.dragExit(); over=null;
+                    over.dragExit(world, text); over=null;
                 }
-                if (target!=null && target.dragEnter(this))
+                if (target!=null && target.dragEnter(world, text))
                     over = target;
             }
         }
