@@ -404,9 +404,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     }
 
     public static String getGivenTextSelections() throws ProtocolError {
-        if (focussedProofWindow(true).provisoPane!=null)
-            Alert.abort("no support for Given Text Selections");
-        return "";
+        ProofWindow w = focussedProofWindow(true);
+        return w.provisoPane==null ? "" : w.provisoCanvas.getTextSelections(Reply.stringSep);
     }
 
     public static byte textselectionmode;
