@@ -296,7 +296,9 @@ public class Dispatcher extends Thread implements DebugConstants {
                             list.add(new MiscellaneousConstants.IntString(toInt(cmd[1]), cmd[2]));
                         else
                         if (p.equals("SETGIVENS")&&len==1)
-                            ProofWindow.setGivens((String[])list.toArray(new String[list.size()]));
+                            ProofWindow.setGivens(
+                                (MiscellaneousConstants.IntString[])
+                                    list.toArray(new  MiscellaneousConstants.IntString[list.size()]));
                         else
 
                     // selections of various kinds
