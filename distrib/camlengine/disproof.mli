@@ -42,6 +42,7 @@ val simplestuniverse : unit -> universe
 val issimplestuniverse : universe -> bool
 val addworldlabel : universe -> int * int -> term -> universe option
 val deleteworldlabel : universe -> int * int -> term -> universe option
+val moveworldlabel : universe -> int * int -> int * int -> term -> universe option
 
 (* semantics *)
 

@@ -260,6 +260,9 @@ let rec deleteworldlabel u c t =
         in
         Some (doparents u c)
 
+let moveworldlabel u w c t =
+  deleteworldlabel u w t &~~ (fun u' -> addworldlabel u' c t)
+  
 (* *********************** semantics *********************** *)
 
 type definition = term * term list * bool * forcedef

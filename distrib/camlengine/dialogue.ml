@@ -1406,6 +1406,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "addworldlabel", [cx; cy; s] ->
             worldlabelact (fun _ -> addworldlabel) disproofevolve cx cy s
 
+        | "moveworldlabel", [wx; wy; cx; cy; s] ->
+            worldlabelact (fun _ u -> moveworldlabel u (atoi wx, atoi wy)) disproofevolve cx cy s
+
         | "deleteworldlabel", [cx; cy; s] ->
             worldlabelact (fun _ -> deleteworldlabel) disproofevolve cx cy s
 
