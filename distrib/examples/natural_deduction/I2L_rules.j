@@ -14,21 +14,23 @@ RULE "→ elim"               IS FROM A→B AND A INFER B
 RULE "∧ elim(L)"            IS FROM A ∧ B INFER A
 RULE "∧ elim(R)"            IS FROM A ∧ B INFER B
 RULE "∨ elim"               IS FROM A ∨ B AND A ⊢ C AND B ⊢ C INFER C
-RULE "contra (classical)"       IS FROM ¬A ⊢ ⊥ INFER A
-RULE "contra (constructive)"    IS FROM ⊥ INFER B
 RULE "∀ elim"               IS FROM ∀x. P(x) AND actual i INFER P(i)
 RULE "∃ elim"(OBJECT i) WHERE FRESH i AND i NOTIN ∃x.P(x)
                         IS FROM ∃x.P(x) AND actual i, P(i) ⊢ C INFER C
 
 RULE "→ intro"              IS FROM A ⊢ B INFER A→B
 RULE "∧ intro"              IS FROM A AND B INFER A ∧ B
-RULE "∨ intro(L)"(B)            IS FROM A INFER A ∨ B
-RULE "∨ intro(R)"(B)            IS FROM A INFER B ∨ A
+RULE "∨ intro(L)"(B)        IS FROM A INFER A ∨ B
+RULE "∨ intro(R)"(B)        IS FROM A INFER B ∨ A
 RULE "¬ intro"              IS FROM A ⊢ ⊥ INFER ¬A
 RULE "¬ elim"(B)            IS FROM B AND ¬B INFER ⊥
 RULE "∀ intro"(OBJECT i) WHERE FRESH i
                     IS FROM actual i ⊢ P(i) INFER ∀x .P(x)
 RULE "∃ intro"          IS FROM P(i) AND actual i INFER ∃x.P(x)
+
+RULE "contra (classical)"    IS FROM ¬A ⊢ ⊥ INFER A
+RULE "contra (constructive)" IS FROM ⊥ INFER B
+RULE "truth"                 IS INFER  ⊤
 
 RULE hyp(A) IS INFER A ⊢ A
 AUTOMATCH hyp
