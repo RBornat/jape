@@ -140,11 +140,6 @@ let turnstiles = Sequent.Funs.syntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
 let _The = Optionfuns._The
 
-let boxlinewidth = 1
-let boxleading = 3
-let reasongap = 4
-let leftscreengap = 6
-
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 
 let element2textinfo = element2textinfo elementstring_invisbracketed
