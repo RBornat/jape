@@ -404,8 +404,8 @@ let rec emptymenusandpanels () =
   menus := [];
   menusVisible := false
 
-let rec cancelmenusandpanels () =
-  writef "CANCELMENUSANDPANELS\n" [];
+let rec resettheory () =
+  writef "RESETTHEORY\n" [];
   menus := [];
   menusVisible := false
 

@@ -1030,7 +1030,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       ("Save", (fun () -> saveproofs false; y))
       ("Don't save", (fun () -> n)) (fun () -> cancel) ()
   in
-  let rec askResettheory anyway =
+  
+  let askResettheory anyway =
     if resetable () then
       if needssaving () then
         askSave "erasing the current theory" true true false
@@ -1039,13 +1040,16 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         screenquery ["Erase the current theory?"] "Erase" "Cancel" 1
     else begin reset (); true end
   in
-  let rec doResettheory () =
+  
+  let doResettheory () =
     List.iter (fun (Pinf p) -> Japeserver.closeproof p.proofnum) pinfs;
-    Japeserver.cancelmenusandpanels ();
+    Japeserver.resettheory ();
     reset ();
     defaultenv (), [], DontShow, []
   in
+  
   let default = env, mbs, DontShow, pinfs in
+  
   let rec inside c f =
     match pinfs with
       [] ->
@@ -1062,6 +1066,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         in
         env, mbs, showit, withhist (pinf) (hist) :: pinfs
   in
+  
   let rec outside c f =
     match pinfs with
       [] -> f ()
@@ -1075,6 +1080,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
            respace c; "\" can be executed."];
         default
   in
+  
   (* this idea, which is an attempt to kickstart undo on disproofs, is ridiculously inelegant.
      I think I need to think ...
    *)
@@ -1925,13 +1931,15 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   (* for the time being, until there is effective proof/disproof focus, we have too many buttons *)
   let rec administer displayopt =
     List.iter Button.enable
-      [UndoProofbutton, proofundoable ();
-       RedoProofbutton, proofredoable ();
+      [UndoProofbutton   , proofundoable ();
+       RedoProofbutton   , proofredoable ();
        UndoDisproofbutton, disproofundoable ();
        RedoDisproofbutton, disproofredoable ();
-       Finishedbutton, finishable (); Resetbutton, resetable ();
-       Savebutton, needssaving (); SaveAsbutton, saveable ();
-       Disprovebutton, not (null pinfs) && hasforcedefs ()];
+       Finishedbutton    , finishable (); 
+       Resetbutton       , resetable ();
+       Savebutton        , needssaving (); 
+       SaveAsbutton      , saveable ();
+       Disprovebutton    , not (null pinfs) && hasforcedefs ()];
     List.iter domb mbs;
     (* this is lazy -- see comment above *)
     begin try

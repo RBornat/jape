@@ -76,7 +76,7 @@ val setworlds : (int * int) list -> ((int * int) * string list * (int * int) lis
 
 (* *************************************** menus and panels *************************************** *)
 
-val cancelmenusandpanels : unit -> unit
+val resettheory : unit -> unit
 val emptymenusandpanels  : unit -> unit
 
 (* *************************************** menus *************************************** *)
