@@ -735,7 +735,7 @@ module
             | exn ->
                 raise
                   (Catastrophe_
-                     ["Internal Error ("; System.exn_name exn;
+                     ["Internal Error ("; Printexc.to_string exn;
                       ") in argument of PROVE"])
           with
             Some (Proofstate {cxt = subcxt; tree = subproof}) ->
@@ -750,7 +750,7 @@ module
         | exn ->
             raise
               (Catastrophe_
-                 ["Internal Error ("; System.exn_name exn; ") in PROVE"])
+                 ["Internal Error ("; Printexc.to_string exn; ") in PROVE"])
     let rec parseints mess eval ints =
       try
         match debracket (eval ints) with

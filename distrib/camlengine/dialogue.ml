@@ -1084,7 +1084,7 @@ module
       | Catastrophe_ s -> deadServer ("exception Catastrophe_ " :: s)
       | exn ->
           deadServer
-            ["Unexpected exception ["; System.exn_name exn;
+            ["Unexpected exception ["; Printexc.to_string exn;
              "] - Jape quitting"]
     and startcommands env mbs proofs =
       (* there is an argument against checking duplication of proof titles
@@ -2473,7 +2473,7 @@ module
             env, mbs, DontShow, pinfs
         | exn ->
             showAlert
-              ["unexpected exception "; System.exn_name exn; " in commands"];
+              ["unexpected exception "; Printexc.to_string exn; " in commands"];
             env, mbs, DontShow, pinfs
       in
       commands nextargs

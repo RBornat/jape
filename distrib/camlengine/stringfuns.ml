@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Stringfuns =
+module type T =
   sig
     val isQuoted : string -> bool
     val unQuote : string -> string
@@ -89,8 +89,7 @@ module type Stringfuns =
   end
 (* $Id$ *)
 
-module
-  Stringfuns
+module M
   (AAA :
     sig
       val interpolate : 'a -> 'a list -> 'a list
@@ -101,8 +100,7 @@ module
       val stringfn2catelim :
         ('a -> string) -> 'a -> string list -> string list
     end)
-  :
-  Stringfuns =
+  : T =
   struct
     open AAA
     let rec isQuoted s =
