@@ -71,7 +71,8 @@ distribution::  ; make components ;\
                   rsync -v -t $(BUILDRESOURCES)/InstallerKit/japelogo.gif . ;\
                   make jarfile
 
-jarfile:        ; java bootstrap.install -splash japelogo.gif $(OS)jape.jar $(DEPLOYMENTKIT) $(DEPLOYEDENGINE) japeserver.jar examples 
+jarfile:        ; java bootstrap.install -onunix "sh installjape.sh" -splash japeslash.png $(OS)jape.jar $(DEPLOYMENTKIT) $(DEPLOYEDENGINE) japeserver.jar examples 
+
 
 
 

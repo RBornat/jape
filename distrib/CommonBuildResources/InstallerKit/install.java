@@ -42,7 +42,7 @@
                 -app        "the app name"  -- default is Jape 
                 -onunix     <script file>   -- specify the post-unpack command for Unixoid systems
                 -onwin      <script file>   -- specify the post-unpack command for Windoid systems
-                -class      <class name>    -- specify the post-unpack class to instantiate
+                # (not yet) -class      <class name>    -- specify the post-unpack class to instantiate
 
         It is fairly important that the name of this file is not
         changed, for if it is then the installation process is made a
@@ -442,6 +442,7 @@ public class install implements ActionListener
  General Public License for more details.
 
 */
+
 
 
 
