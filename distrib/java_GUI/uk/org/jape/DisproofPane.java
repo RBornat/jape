@@ -177,7 +177,8 @@ public class DisproofPane extends Container {
 
         public Dimension minimumLayoutSize(Container pane) {
             Dimension d = seqView.getSize();
-            d.height+=2*gap()+worldPane.scrollbarthickness+4*worldCanvas.worldRadius();
+            d.height+=2*gap()+worldPane.scrollbarthickness+6*worldCanvas.worldRadius();
+            /* bizarre as it seems, 6* is a good choice ... */
             return d;
         }
 
