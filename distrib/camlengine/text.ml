@@ -31,38 +31,44 @@ type font = Displayfont.displayfont
 let fontstring = displayfontstring
 
 type textalign = FirstLine | MidBlock | LastLine
+
 type syllable =
     Syllable of (font * string)
   | Gap of int
   | Linebreak of int
   | Block of (textalign * syllable list)
+
 type text = Text of syllable list
+
 type textlayout = Textlayout of (pos * font * string) list
+
 (* Oh, I hate having to write all this.  Why can't the compiler synthesise it
  * for me?
  *)
-let rec textalignstring =
-  function
-    FirstLine -> "FirstLine"
-  | MidBlock -> "MidBlock"
-  | LastLine -> "LastLine"
+let textalignstring =
+  function FirstLine -> "FirstLine"
+  |        MidBlock  -> "MidBlock"
+  |        LastLine  -> "LastLine"
+
 let rec syllablestring =
   function
-    Syllable (i, s) -> ((("Syllable(" ^ fontstring i) ^ ",") ^ s) ^ ")"
-  | Gap i -> "Gap " ^ string_of_int i
-  | Linebreak i -> "Linebreak " ^ string_of_int i
-  | Block (c, sys) ->
-      ((("Block(" ^ textalignstring c) ^ ",") ^
-         bracketedliststring syllablestring "," sys) ^
-        ")"
-let rec textstring =
+    Syllable (i, s) -> "Syllable(" ^ fontstring i ^ "," ^ enQuote s ^ ")"
+  | Gap i           -> "Gap " ^ string_of_int i
+  | Linebreak i     -> "Linebreak " ^ string_of_int i
+  | Block (c, sys)  -> "Block(" ^ textalignstring c ^ "," ^
+		                  bracketedliststring syllablestring "," sys ^ ")"
+
+let textstring =
   fun (Text sys) -> "Text" ^ bracketedliststring syllablestring "," sys
-let rec textlayoutstring =
+
+let textlayoutstring =
   fun (Textlayout t) ->
     "TextLayout" ^
       bracketedliststring
-        (triplestring posstring fontstring (fun s -> s) ",") ", " t
-let rec string2text font string = Text [Syllable (font, string)]
+        (triplestring posstring fontstring enQuote ",") ", " t
+
+let string2text font string = Text [Syllable (font, string)]
+
 (* This function doesn't try to do anything clever with leading or trailing Gaps or
  * Linebreaks.  So don't use them, if you don't want silly things to happen.
  *)
@@ -71,15 +77,13 @@ let rec textWAD measure c ss sys =
   let rec pushdown d ((x, y), fontstring) = (x, y + d), fontstring in
   let rec f a1 a2 a3 a4 a5 a6 =
     match a1, a2, a3, a4, a5, a6 with
-      w, a, d, x, ss, [] -> (w, a, d), ss
+      w, a, d, x, ss, []                      -> (w, a, d), ss
     | w, a, d, x, ss, Syllable (_, "") :: sys -> f w a d x ss sys
-    | w, a, d, x, ss, Syllable s :: sys ->
-        add3 w a d x (measure s) (((x, 0), s) :: ss) sys
-    | w, a, d, x, ss, Gap i :: sys -> f (w + i) a d (x + i) ss sys
+    | w, a, d, x, ss, Syllable s       :: sys -> add3 w a d x (measure s) (((x, 0), s) :: ss) sys
+    | w, a, d, x, ss, Gap i            :: sys -> f (w + i) a d (x + i) ss sys
     | w, a, d, x, ss, Block (c', sys') :: sys ->
-        let (wad, ss') = textWAD measure c' ss sys' in
-        add3 w a d x wad ss' sys
-    | w, a, d, x, ss, Linebreak i :: sys ->
+        let (wad, ss') = textWAD measure c' ss sys' in add3 w a d x wad ss' sys
+    | w, a, d, x, ss, Linebreak i      :: sys ->
         let ((w', a', d'), ss') = f 0 0 0 0 [] sys in
         let nw = max w w' in
         match c with
@@ -98,11 +102,11 @@ let rec textWAD measure c ss sys =
     f (w + w') (max a a') (max d d') (x + w')
   in
   f 0 0 0 0 ss sys
-let rec measuretext measure c =
-  fun (Text sys) ->
-    let (wad, ss) = textWAD measure c [] sys in
+
+let measuretext measure c (Text sys) =
+    let (wad, ss) = textWAD (uncurry2 measure) c [] sys in
     textsize wad,
     Textlayout (List.map (fun (xy, (f, s)) -> pos xy, f, s) (List.rev ss))
-let rec textlayoutOffset =
-  fun (Textlayout ts) pos ->
+
+let textlayoutOffset (Textlayout ts) pos =
     Textlayout (List.map (fun (p, f, s) -> pos +->+ p, f, s) ts)
