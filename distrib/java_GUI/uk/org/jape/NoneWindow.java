@@ -22,7 +22,6 @@ import javax.swing.*;
 
 public class NoneWindow extends JFrame implements ActionListener {
     boolean inAnApplet = true;
-    private boolean laidOut = false;
     private JButton b1, b2, b3;
     
     private class JScrollablePanel extends JPanel implements Scrollable {

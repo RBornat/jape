@@ -27,6 +27,7 @@
 
 import java.awt.*;
 import java.io.*;
+import javax.swing.JComponent;
 
 //*********************************************************************8<
 
@@ -35,13 +36,14 @@ import java.io.*;
         Base class for all canvas items.
 */
 
-abstract class CanvasItem {
+abstract class CanvasItem extends JComponent {
     public Point         position;       // Used as the key
     public TextDimension bounds;         // Bounding box size: computed lazily
     
     protected ProofCanvas canvas;        // The canvas that this is on        
     
-    public CanvasItem(ProofCanvas canvas, Point position) { 
+    public CanvasItem(ProofCanvas canvas, Point position) {
+        super();
         this.canvas   = canvas; this.position = position;
     }
     
@@ -91,7 +93,7 @@ abstract class CanvasItem {
         os.println(getClass().getName()+" ("+bounds+") @"+position);
     }
     
-    public  Dimension getBounds() { 
+    public  Dimension getItemBounds() { 
         if (bounds==null) computeBounds();
         return bounds;
     }

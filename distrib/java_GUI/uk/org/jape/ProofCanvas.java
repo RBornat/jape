@@ -45,7 +45,7 @@ import javax.swing.Scrollable;
 public class ProofCanvas extends JPanel implements Scrollable {
 
     public Dimension getPreferredScrollableViewportSize() {
-        return LocalSettings.proofPanelDefaultSize;
+        return getPreferredSize();
     }
 
     public int getScrollableUnitIncrement(Rectangle visibleRect,
@@ -216,7 +216,7 @@ public class ProofCanvas extends JPanel implements Scrollable {
     protected Hashtable items = new Hashtable();
 
     public void add(CanvasItem c) {
-        super.add((Component)c);
+        super.add(c);
         items.put(c.position, c);
     }
     
