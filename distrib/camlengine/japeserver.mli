@@ -65,17 +65,19 @@ val procrustes : int -> string -> font -> string -> string
 val drawmeasuredtext : displayclass ->(pos*font*string) list -> pos -> unit
 (* nowadays we can draw in the proof pane or the disproof pane *)
 val drawinpane : pane -> unit
-(* disproof has sequent and term-buttons and worlds; disproof sequent is drawn separately *)
-val setdisproofseqbox : textsize -> unit
-(* followed by some drawing *)
-val setdisprooftiles : string list -> unit
-val setdisproofworlds :
-  (int * int) list ->
-    ((int * int) * string list * (int * int) list) list -> unit
 
-(* the mad world of menus and panels *)
+(* *************************************** disproof *************************************** *)
+
+val setseqbox : textsize -> unit
+val emphasise : pos -> bool -> unit                (* it's a textpos *)
+
+val settiles  : string list -> unit
+val setworlds : (int * int) list -> ((int * int) * string list * (int * int) list) list -> unit
+
+(* *************************************** menus and panels *************************************** *)
+
 val cancelmenusandpanels : unit -> unit
-val emptymenusandpanels : unit -> unit
+val emptymenusandpanels  : unit -> unit
 
 (* *************************************** menus *************************************** *)
 
@@ -162,7 +164,6 @@ val getAllSelections :
 (* selections               prooof text selections     givens text selections -- just the selected bits *)
 
 val highlight : pos -> displayclass option -> unit (* NOW TAKES TEXTPOS, NOT BOXPOS!!! *)
-val emphasise : pos -> bool -> unit                (* also textpos; used in disproof *)
 
 val greyen  : pos -> unit
 val blacken : pos -> unit
