@@ -1100,7 +1100,12 @@ let rec term2int t =
   with
     _ -> raise (Catastrophe_ ["term2int "; smltermstring t])
 
-let rec enbracket t = registerFixapp (["("; ")"], [t])
+let enbracket t = registerFixapp (["("; ")"], [t])
+
+let comma_enbracket t = 
+  match t with
+    Tup(_, ",", (_::_::_)) -> enbracket t 
+  | _                      -> t
 
 let rec explodeCollection =
   function

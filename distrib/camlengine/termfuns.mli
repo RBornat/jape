@@ -70,6 +70,7 @@ val canonicalsubstmap : (term * term) list -> (term * term) list
 val bracketed : term -> bool
 val debracket : term -> term
 val enbracket : term -> term
+val comma_enbracket : term -> term
 val eqterms : term * term -> bool
 (* ignoring bracketing *)
 val eqalphaterms : term * term -> bool
