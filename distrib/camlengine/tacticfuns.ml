@@ -1084,28 +1084,24 @@ let rec forceUnify ts (Proofstate {cxt = cxt} as state) =
   | _ -> Some state
 
 
-let rec doDropUnify ts ss =
-  fun (Proofstate {cxt = cxt} as state) ->
-    let _ =
-      if !tactictracing then consolereport ["** start doDropUnify"]
-    in
+let rec doDropUnify target sources (Proofstate {cxt = cxt} as state) =
+    if !tactictracing then consolereport ["** start doDropUnify"];
     let rec bad reasons =
-      setReason
-        ("can't drop " :: bracketedstring_of_list string_of_element "," ss ::
-           " into " :: bracketedstring_of_list string_of_element "," ts ::
-           reasons);
+      setReason ("can't drop " :: bracketedstring_of_list string_of_element "," sources ::
+                 " into " :: string_of_element target ::
+                 reasons);
       None
     in
     try
-      match (option_foldr (fun t cxt -> dropunify (t, ss) cxt) cxt ts 
-             &~~ (_Some <.> verifyprovisos) &~~ simplifydeferred)
+      match dropunify (target, sources) cxt &~~ 
+            (_Some <.> verifyprovisos) &~~ 
+            simplifydeferred
       with
         Some cxt' -> Some (withcxt state cxt')
-      | None -> bad []
+      | None      -> bad []
     with
       Verifyproviso_ p ->
         bad [" because proviso "; string_of_proviso p; " is violated"]
-
 
 let _FINDdebug = ref false
 (* test if some Theorem/Rule defines an operator as associative *)

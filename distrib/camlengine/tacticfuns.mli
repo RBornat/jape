@@ -34,11 +34,10 @@ open Name
 open Termtype
 open Hit
 
-val forceUnify : term list -> proofstate -> proofstate option
-val doDropUnify :
-  element list -> element list -> proofstate -> proofstate option
-val autoStep : bool -> name list -> proofstate -> proofstate option
-val selections :
+val forceUnify  : term list -> proofstate -> proofstate option
+val doDropUnify : element -> element list -> proofstate -> proofstate option
+val autoStep    : bool -> name list -> proofstate -> proofstate option
+val selections  :
   (path * (element * side option) option * element list *
      ((element * side option) * string list) list *
      (element * string list) list * string list)
