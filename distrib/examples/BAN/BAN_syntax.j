@@ -1,4 +1,4 @@
-/* $Id$ */
+﻿/* $Id$ */
 
 CLASS VARIABLE x k
 CLASS FORMULA W X Y Z
