@@ -25,61 +25,12 @@
     
 */
 
-import java.awt.BasicStroke;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-
-public class LineItem extends Component implements DebugConstants {
+public class LineItem extends LineComponent {
 
     protected final JapeCanvas canvas;
-    private int x1, y1, x2, y2;
 
     public LineItem(JapeCanvas canvas, int x1, int y1, int x2, int y2) {
-        super();
+        super(x1, y1, x2, y2, canvas.linethickness);
         this.canvas = canvas;
-        setBounds(Math.min(x1,x2), Math.min(y1,y2),
-                  Math.max(canvas.linethickness, Math.abs(x2-x1)),
-                  Math.max(canvas.linethickness, Math.abs(y2-y1)));
-        this.x1 = x1-getX(); this.y1 = y1-getY(); this.x2 = x2-getX(); this.y2 = y2-getY();
-        setForeground(Preferences.LineColour);
-    }
-
-    protected boolean stroked;
-    protected int xfrom, yfrom, xto, yto;
-
-    protected void prepaint(Graphics g) {
-        g.setColor(getForeground());
-        if (g instanceof Graphics2D) {
-            BasicStroke stroke = new BasicStroke((float)canvas.linethickness);
-            int half = canvas.linethickness/2;
-            ((Graphics2D)g).setStroke(stroke);
-            if (y1==y2) { // horizontal
-                xfrom = x1; xto = x2;
-                yfrom = yto = y1+half;
-            }
-            else
-            if (x1==x2) { // vertical
-                xfrom = xto = x1+half;
-                yfrom = y1; yto = y2;
-            }
-            else {
-                xfrom = x1; xto = x2;
-                yfrom = y1; yto = y2;
-            }
-            stroked = true;
-        }
-        else {
-            xfrom = x1<x2 ? x1 : x1-1; xto = x2<x1 ? x2 : x2-1;
-            yfrom = y1<y2 ? y1 : y1-1; yto = y2<y1 ? y2 : y2-1;
-            stroked = false;
-        }
-    }
-
-    // default behaviour
-    public void paint(Graphics g) {
-        if (paint_tracing)
-            System.err.println("painting line from "+xfrom+","+yfrom+" to "+xto+","+yto);
-        prepaint(g); g.drawLine(xfrom, yfrom, xto, yto);
     }
 }
