@@ -165,11 +165,13 @@ displaystate.cmo: box.cmi displayclass.cmi hit.cmi prooftree.cmo \
 displaystate.cmx: box.cmx displayclass.cmx hit.cmx prooftree.cmx \
     displaystate.cmi 
 displaystyle.cmo: absprooftree.cmi box.cmi boxdraw.cmi displaystate.cmi \
-    hit.cmi miscellaneous.cmi optionfuns.cmi proofstore.cmi prooftree.cmo \
-    screendraw.cmo treedraw.cmi treeformat.cmo 
+    draw.cmi hit.cmi listfuns.cmi miscellaneous.cmi optionfuns.cmi \
+    proofstore.cmi prooftree.cmo screendraw.cmo stringfuns.cmi treedraw.cmi \
+    treeformat.cmo 
 displaystyle.cmx: absprooftree.cmx box.cmx boxdraw.cmx displaystate.cmx \
-    hit.cmx miscellaneous.cmx optionfuns.cmx proofstore.cmx prooftree.cmx \
-    screendraw.cmx treedraw.cmx treeformat.cmx 
+    draw.cmx hit.cmx listfuns.cmx miscellaneous.cmx optionfuns.cmx \
+    proofstore.cmx prooftree.cmx screendraw.cmx stringfuns.cmx treedraw.cmx \
+    treeformat.cmx 
 disproof.cmo: alert.cmi binding.cmi box.cmi displayfont.cmi draw.cmi fix.cmi \
     forcedef.cmi idclass.cmi invisibles.cmi japeserver.cmi listfuns.cmi \
     mappingfuns.cmi match.cmi miscellaneous.cmi optionfuns.cmi predicate.cmi \
@@ -223,16 +225,16 @@ idclassfuns.cmo: idclass.cmi listfuns.cmi miscellaneous.cmi symbol.cmi \
 idclassfuns.cmx: idclass.cmx listfuns.cmx miscellaneous.cmx symbol.cmx \
     symboltype.cmx idclassfuns.cmi 
 interaction.cmo: alert.cmi answer.cmi box.cmi cxtfuns.cmi displayclass.cmi \
-    displayfont.cmi displaystate.cmi displaystyle.cmo hit.cmi invisibles.cmi \
-    japeserver.cmi listfuns.cmi miscellaneous.cmi optionfuns.cmi \
-    proofstate.cmi prooftree.cmo proviso.cmi rewrite.cmi selection.cmi \
-    seqtype.cmo sequent.cmi sml.cmi stringfuns.cmi termfuns.cmi \
+    displayfont.cmi displaystate.cmi displaystyle.cmo draw.cmi hit.cmi \
+    invisibles.cmi japeserver.cmi listfuns.cmi miscellaneous.cmi \
+    optionfuns.cmi proofstate.cmi prooftree.cmo proviso.cmi rewrite.cmi \
+    selection.cmi seqtype.cmo sequent.cmi sml.cmi stringfuns.cmi termfuns.cmi \
     termstring.cmi treeformat.cmo uTF.cmi interaction.cmi 
 interaction.cmx: alert.cmx answer.cmx box.cmx cxtfuns.cmx displayclass.cmx \
-    displayfont.cmx displaystate.cmx displaystyle.cmx hit.cmx invisibles.cmx \
-    japeserver.cmx listfuns.cmx miscellaneous.cmx optionfuns.cmx \
-    proofstate.cmx prooftree.cmx proviso.cmx rewrite.cmx selection.cmx \
-    seqtype.cmx sequent.cmx sml.cmx stringfuns.cmx termfuns.cmx \
+    displayfont.cmx displaystate.cmx displaystyle.cmx draw.cmx hit.cmx \
+    invisibles.cmx japeserver.cmx listfuns.cmx miscellaneous.cmx \
+    optionfuns.cmx proofstate.cmx prooftree.cmx proviso.cmx rewrite.cmx \
+    selection.cmx seqtype.cmx sequent.cmx sml.cmx stringfuns.cmx termfuns.cmx \
     termstring.cmx treeformat.cmx uTF.cmx interaction.cmi 
 invisibles.cmo: sml.cmi uTF.cmi invisibles.cmi 
 invisibles.cmx: sml.cmx uTF.cmx invisibles.cmi 
