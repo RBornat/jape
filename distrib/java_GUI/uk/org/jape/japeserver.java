@@ -80,8 +80,9 @@ public class japeserver {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         GraphicsConfiguration[] gc = gd.getConfigurations();
-        if (gc.length==1)
+        if (gc.length==1) {
             screenBounds = gc[0].getBounds();
+        }
         else {
             System.err.println("don't know how to deal with multiple GraphicsConfiguration!");
             System.exit(2);

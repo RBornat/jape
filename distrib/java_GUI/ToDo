@@ -12,6 +12,8 @@ Localise file dialogs
 
 PanelWindow needs to use minwaste to pack buttons
 
+We can do writing in windows behind the front (if careful)
+
 Protocol in:
 
 CANCELMENUSANDPANELS
@@ -33,7 +35,6 @@ EMPTYMENUSANDPANELS
 HOWTO
 LOADFONT
 MAKECHOICE
-MARKPANELENTRY
 MENUITEMEQUIV
 PANELCHECKBOX
 PANELRADIOBUTTON

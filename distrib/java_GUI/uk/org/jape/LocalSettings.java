@@ -43,7 +43,8 @@ public class LocalSettings implements SelectionConstants {
 
     // size of windows
 
-    public static final Dimension proofPanelDefaultSize = new Dimension(200,200);
+    public static final Dimension DefaultProofWindowSize = new Dimension(625, 500);
+    public static final int PosIncr = 50;
 
     // size of fonts
 

@@ -211,8 +211,16 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             
             if (LocalSettings.panelWindowMenus)
                 setBar(); // by experiment, seems to be necessary before setVisible
+
+            setSize(getPreferredSize());
+            setLocation(nextPos());
             
             pack(); // necessary??
+        }
+
+        public boolean equals(Object o) {
+            return o instanceof PanelWindow ? ((PanelWindow)o).title.equals(this.title) :
+                                              super.equals(o);
         }
 
         protected class Entry extends Component {
@@ -304,6 +312,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 System.err.println("getMaximumSize called");
             return super.getMaximumSize();
         }
+        
         /**********************************************************************************************
     
             Layout
@@ -426,8 +435,10 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             public Dimension preferredLayoutSize(Container pane) {
                 preferredButtonPanelSize(pane);
                 JViewport port = scrollPane.getViewport();
-                Dimension preferredSize = new Dimension(Math.min(buttonpanelwidth, port.getX()+list.getWidth()),
-                                                        buttonpanelwidth+buttonpanelheight);
+                Dimension preferredSize =
+                    new Dimension(Math.max(buttonpanelwidth, Math.min(buttonpanelwidth*4/3,
+                                                                      port.getX()+list.getWidth())),
+                                  buttonpanelwidth+buttonpanelheight*2/3);
                 return preferredSize;
             }
     

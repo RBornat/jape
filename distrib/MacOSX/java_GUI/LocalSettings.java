@@ -48,7 +48,8 @@ public class LocalSettings implements MRJAboutHandler,
 
     // size of windows
 
-    public static final Dimension proofPanelDefaultSize = new Dimension(200,200);
+    public static final Dimension DefaultProofWindowSize = new Dimension(450, 350);
+    public static final int PosIncr = 35;
 
     // size of fonts
 

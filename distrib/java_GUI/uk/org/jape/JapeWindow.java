@@ -30,6 +30,7 @@ import java.awt.Font;
 import java.util.Iterator;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import java.awt.Point;
 import java.util.Vector;
 
 public class JapeWindow extends JFrame {
@@ -60,8 +61,9 @@ public class JapeWindow extends JFrame {
     protected void setBar() {
         if (this instanceof ProofWindow || 
             (this instanceof PanelWindowData.PanelWindow && LocalSettings.panelWindowMenus) ||
-            this instanceof SurrogateWindow) // the surrogate needs all the menus, till we implement PROOFMENU 
-            // even panel windows get a menu on MacOS X
+                // even panel windows get a menu on MacOS X
+            this instanceof SurrogateWindow)
+                // the surrogate needs all the menus, till we implement PROOFMENU 
             JapeMenu.setBar(this);
     }
     
@@ -71,5 +73,28 @@ public class JapeWindow extends JFrame {
             w.setBar();
         }
     }
-    
+
+    private static Point firstPos = new Point(0,0);
+    private static Point lastPos  = null;
+
+    protected Point nextPos() {
+        if (lastPos==null) {
+            lastPos = firstPos;
+        }
+        else {
+            lastPos.x += LocalSettings.PosIncr;
+            lastPos.y += LocalSettings.PosIncr;
+
+            if (lastPos.y+getHeight()>japeserver.screenBounds.height ||
+                lastPos.x+getWidth()>japeserver.screenBounds.width) {
+                lastPos.y = 0;
+                firstPos.x += LocalSettings.PosIncr;
+                if (firstPos.x+getWidth()>japeserver.screenBounds.width)
+                    firstPos.x = 0;
+                lastPos.x = firstPos.x;
+            }
+        }
+
+        return lastPos;
+    }
 }

@@ -274,14 +274,12 @@
 				F592908603728EA101A80117,
 			);
 			isa = PBXSourcesBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1601BCDEFEEE210811DB9C8B = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXJavaArchiveBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1601BCDFFEEE210811DB9C8B = {
 			buildActionMask = 2147483647;
@@ -289,14 +287,12 @@
 				010FB80D00814DD77F000001,
 			);
 			isa = PBXResourcesBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1601BCE2FEEE210811DB9C8B = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXFrameworksBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 //160
 //161
@@ -869,7 +865,6 @@
 				F592908803728EA101A80117,
 			);
 			isa = PBXSourcesBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F5AB83130339F3B701A80116 = {
 			buildActionMask = 2147483647;
@@ -877,21 +872,18 @@
 				F5AB83260339F40E01A80116,
 			);
 			isa = PBXResourcesBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F5AB83140339F3B701A80116 = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXJavaArchiveBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F5AB83150339F3B701A80116 = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXFrameworksBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F5AB83160339F3B701A80116 = {
 			buildPhases = (
