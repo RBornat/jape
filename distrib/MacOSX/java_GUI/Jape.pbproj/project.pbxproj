@@ -65,6 +65,7 @@
 				F52B56B7039D296801A80116,
 				F574B00903968EBA01A80116,
 				F50BD28C036EEC3A01A80116,
+				F526B567039E4A3A01A80116,
 				F515B6180331DA6801A80116,
 				F59F3D1C033773B101A80116,
 				F5E5E3DE035EE1AC01A80116,
@@ -323,6 +324,7 @@
 				F5E142E1039E1E4001A80116,
 				F5158C92039E2C6101A80116,
 				F5158C95039E321E01A80116,
+				F526B568039E4A3A01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -708,6 +710,24 @@
 		};
 		F51F6C830360266F01A80116 = {
 			fileRef = F516FFB3031F822901A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F526B567039E4A3A01A80116 = {
+			isa = PBXFileReference;
+			name = LineTarget.java;
+			path = ../../java_japeserver/LineTarget.java;
+			refType = 2;
+		};
+		F526B568039E4A3A01A80116 = {
+			fileRef = F526B567039E4A3A01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F526B569039E4A3A01A80116 = {
+			fileRef = F526B567039E4A3A01A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -1285,6 +1305,7 @@
 				F5E142E2039E1E4001A80116,
 				F5158C93039E2C6101A80116,
 				F5158C96039E321E01A80116,
+				F526B569039E4A3A01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
