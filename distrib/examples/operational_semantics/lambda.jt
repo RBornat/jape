@@ -48,6 +48,9 @@ SUBSTFIX 500000 [ S / s ]
     RULE "transitivity" IS FROM Ê AÁB AND Ê BÁC INFER Ê AÁC
     RULE "identity" IS INFER Ê AÁA
     
+    TRANSITIVE "transitivity"
+    REFLEXIVE "identity"
+
 /*      Part 2: Mechanisation */
 
 TACTIC NormalOrderStep(step) IS
