@@ -118,7 +118,7 @@ public class PrintProof {
 	    Logger.log.println("setPrintable done -- starting printDialog");
 	
 	/* apparently modal dialog(ue)s can cause a hang, it seems ... and don't I know it. 
-	   invokeLater may sort it out. RB 28.09.2004
+	   invokeLater may sort it out. RB 28.09.2004 (It did. RB iii.2005)
 	 */
 	SwingUtilities.invokeLater(
 	    new Runnable() {
