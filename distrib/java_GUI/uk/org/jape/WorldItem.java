@@ -25,14 +25,18 @@
     
 */
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
+import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+
 import java.awt.geom.Ellipse2D;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 public class WorldItem extends DisplayItem implements DebugConstants, DropTargetListener {
 
@@ -40,10 +44,13 @@ public class WorldItem extends DisplayItem implements DebugConstants, DropTarget
     protected SelectionRing selectionRing;
     protected Ellipse2D.Float outline;
 
+    private final int x0, y0, labelgap;
+    private int labelx;
+
     public WorldItem(WorldCanvas canvas, int x, int y) {
         super(x, y);
         this.canvas = canvas;
-        int x0 = x, y0 = -y-2*canvas.worldRadius();
+        x0 = x; y0 = -y-2*canvas.worldRadius();
         setBounds(x0-canvas.worldRadius(), y0-canvas.worldRadius(),
                   2*canvas.worldRadius(), 2*canvas.worldRadius());
         selectionRing = new SelectionRing(x0, y0, canvas.worldRadius()+2*canvas.linethickness);
@@ -51,8 +58,16 @@ public class WorldItem extends DisplayItem implements DebugConstants, DropTarget
         outline = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
         setEnabled(true); // I think
         setDropTarget(new DropTarget(this, this));
+        setForeground(Preferences.WorldColour);
+        labelx = selectionRing.getX()+selectionRing.getWidth()+canvas.linethickness;
+        labelgap = 4*canvas.linethickness;
     }
 
+    public void addlabel(String s) {
+        TextItem t = canvas.addLabelItem(labelx, y0, s);
+        labelx += t.getWidth()+labelgap;
+    }
+    
     public void select(boolean selected) {
         selectionRing.select(selected);
     }
@@ -60,7 +75,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, DropTarget
     public void paint(Graphics g) {
         if (paint_tracing)
             System.err.println("painting WorldItem at "+getX()+","+getY());
-        g.setColor(Preferences.WorldColour);
+        g.setColor(getForeground());
         if (g instanceof Graphics2D) {
             if (antialias_tracing) {
                 System.err.print("blob hints "+((Graphics2D)g).getRenderingHints());
@@ -93,29 +108,62 @@ public class WorldItem extends DisplayItem implements DebugConstants, DropTarget
     }
 
     // methods for when we are a drag target
+    private boolean draghighlight;
+    Color oldForeground;
+    
+    private void setdraghighlight(boolean state) {
+        if (state && !draghighlight) {
+            draghighlight = true;
+            oldForeground = getForeground();
+            setForeground(Preferences.SelectionColour);
+            repaint();
+        }
+        else
+        if (!state && draghighlight) {
+            draghighlight = false;
+            setForeground(oldForeground);
+            repaint();
+        }
+    }
 
     // Called when a drag operation has encountered the DropTarget.
     public void dragEnter(DropTargetDragEvent dtde) {
-        System.err.println("you're in!"); 
+        if (dtde.isDataFlavorSupported(Tile.tileFlavor) &&
+            // dtde.isLocalTransfer() && -- why can't we do this?
+            dtde.getDropAction()==DnDConstants.ACTION_COPY) {
+            dtde.acceptDrag(DnDConstants.ACTION_COPY);
+            setdraghighlight(true);
+        }
     }
 
     // The drag operation has departed the DropTarget without dropping.
     public void dragExit(DropTargetEvent dte) {
-        System.err.println("you left!");
+        setdraghighlight(false);
     }
 
     // Called when a drag operation is ongoing on the DropTarget.
     public void dragOver(DropTargetDragEvent dtde) {
-        System.err.println("still here!");
     }
 
     // The drag operation has terminated with a drop on this DropTarget.
     public void drop(DropTargetDropEvent dtde) {
-        System.err.println("you hit me!");
+        if (draghighlight) {
+            dtde.acceptDrop(DnDConstants.ACTION_COPY);
+            String label;
+            try {
+                label = ((Tile)dtde.getTransferable().
+                                    getTransferData(Tile.tileFlavor)).text;
+            } catch (Exception e) {
+                Alert.abort("drop onto world not tileFlavor");
+                label = ""; // shut up compiler
+            }
+            Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+JapeFont.toAscii(label)+"\"");
+            dtde.dropComplete(true);
+            setdraghighlight(false);
+        }
     }
 
     // Called if the user has modified the current drop gesture
     public void dropActionChanged(DropTargetDragEvent dtde) {
-        System.err.println("dropActionChanged ... what the heck does this mean?");
     }
 }
