@@ -15,7 +15,7 @@ RULE weaken(A) IS FROM B INFER A ⊢ B
 WEAKEN weaken
 
 RULE listinduction (B, OBJECT x, OBJECT xs, OBJECT ys, ABSTRACTION A)  WHERE FRESH x, xs, ys IS
-    FROM  A[] AND A[x] AND A xs, A ys ⊢ A(xs++ys) 
+    FROM  A([]) AND A([x]) AND A(xs), A(ys) ⊢ A(xs++ys) 
     INFER  A(B)
 
 THEORY  Function IS
@@ -108,3 +108,4 @@ THEORY  Reflect IS
     RULE    L       IS  L F                 = ref • F • ref
     RULE    R       IS  R F                 = F
 END
+

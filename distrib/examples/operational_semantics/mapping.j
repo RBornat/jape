@@ -11,11 +11,11 @@
         INFIX   5L ==
         INFIX   3L ⊕
         RULES Map WHERE  y NOTIN x
-        ARE   ⊢  ▪ x = ⊥
+        ARE   ⊢  ▪(x) = ⊥
         AND   ⊢  (x==V)  x = V
         AND   ⊢  (x==V)  y = ⊥
         END
-        RULES Select  WHERE W NOTIN ⊥
+        RULES Select  /*WHERE W NOTIN ⊥*/
         ARE INFER⊢ V ⊕ ⊥ = V
         AND INFER⊢ V ⊕ W = W
         END
@@ -55,3 +55,4 @@ CONJECTUREPANEL Environments
  END
 END
 */
+
