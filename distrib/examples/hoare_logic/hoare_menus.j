@@ -1,4 +1,10 @@
-﻿TACTIC perhapsconsequenceL (tac) IS
+﻿TACTIC GivenTac(i) IS
+    ALT (GIVEN i)
+        (CUTIN (GIVEN i))
+
+INITIALISE givenMenuTactic GivenTac
+
+TACTIC perhapsconsequenceL (tac) IS
     ALT    tac 
            (SEQ "consequence(L)" fstep (trueforward tac))
 
@@ -251,7 +257,7 @@ MENU Programs
                                     "choice"
                                     "{A} if E then C1 else C2 fi {B}"
     ENTRY "while"  IS BackwardOnlyA (QUOTE ({_A} while _E do _C od {_B}))
-                                    (perhapsconsequenceLR "array-element-assignment")
+                                    (perhapsconsequenceLR "while")
                                     "choice"
                                     "{A} while E do C od {B}"
     
@@ -275,6 +281,10 @@ MENU Extras
 END
 
 TACTICPANEL Comparison
+    RULE IS A=B ≜ B=A
+    RULE IS A=B ≜ ¬(A≠B)
+    RULE IS A≠B ≜ B≠A
+    RULE IS A≠B ≜ ¬(A=B)
     RULE IS A<B ≜ B>A
     RULE IS A≤B ≜ A<B ∨ A=B
     RULE IS A≤B ≜ B≥A
