@@ -1,0 +1,120 @@
+%
+%       Proof style for Jape Box proofs
+%
+%
+%
+\ProvidesPackage{box-proof}[1996/06/25 Bernard Sufrin's Box Proof Style]
+\RequirePackage{longtable}      % for long boxed proofs split across pages
+\RequirePackage{ifthen}         % for proof ranges
+
+%
+%       Parameters
+%
+\let\Boxproofsize=\small        % current size of text used in boxed proofs
+
+
+%
+%       Box-style proofs
+%
+\newenvironment{Boxproof}%
+{\Boxproofsize
+\begin{longtable}{rlr}
+    \global\let\Provisos = \box@provisos
+     \global\let\Proviso = \box@proviso
+      \gdef\curr@Line{0}
+}{\end{longtable}}
+
+
+%
+%       Putting provisos in the tables
+%
+\def\box@proviso#1{\ifthenelse{\boolean{@hideprovisos}}{}{\\\multicolumn{3}{c}{$\boxProviso{#1}$}}}
+\def\box@provisos{\ifthenelse{\boolean{@hideprovisos}}{}{\\\multicolumn{3}{c}{\bf{Provided~that}}}}
+\newboolean{@hideprovisos}
+
+\def\ifle#1#2#3{\ifthenelse{#1<#2}{#3}{\ifthenelse{#1=#2}{#3}{}}}
+\def\ifls#1#2#3{\ifthenelse{#1<#2}{#3}{}}
+\def\ifbetween#1#2#3#4{\ifle{#1}{#2}{\ifle{#2}{#3}{#4}}}
+\def\ifbetweenx#1#2#3#4{\ifle{#1}{#2}{\ifls{#2}{#3}{#4}}}
+\def\ifcurrent#1{\ifbetweenx{\start@Line}{\curr@Line}{\stop@Line}{#1}}
+\def\iflastline#1#2{\ifthenelse{\curr@Line=\stop@Line}{#1}{#2}}
+%
+%       Components of a Box-style presentation
+%
+\newcommand\Line[4]% {number} {formulae} {reasons} {indent}
+{\gdef\curr@Line{#1}\ifbetween{\start@Line}{#1}{\stop@Line}{#1 & \Ind{#4} \bgroup$\box@@form{#2}$\egroup  &  \bgroup$~~~\boxReason{#3}$\egroup\\}}
+\def\start@Line{1}
+\def\stop@Line{99999}
+
+\def\box@@form#1{\BOX@@FORM #1 .....}
+\def\BOX@@FORM#1 .....{\mathsf{#1}}
+\def\boxReason#1{\mathsf{#1}}
+\def\boxProviso#1{\mathsf{#1}}
+
+\newenvironment{HideProvisos}{\setboolean{@hideprovisos}{true}}{}
+
+\newenvironment{TransitiveDerivation}[2]
+{\def\@@arr{#1}\def\@@rea{#2}\def\@@der{#1}
+\def\BOX@@FORM##1#1##2.....{\iflastline{\[\mathsf{##1}\]}{\[\mathsf{##1}\@@rea\]}}
+}{}
+
+\newenvironment{RecodeDerivation}[2]
+{\def\@@arr{#1}\def\@@rea{#2}\def\@@der{#1}
+\def\BOX@@FORM##1#1##2.....{\[\mathsf{##1}\@@rea\]\mathsf{##2}}
+}{}
+
+
+\def\Ind#1{\makebox[#1em]{}}
+
+\def\Hole#1{\ifcurrent{& \Ind{#1} $\cdots$ &\\}}      % hole in the proof (...)
+\def\SepForm{~,~~}                      % separates formulae
+\def\SepReason{}                        % separates subtree line numbers
+
+
+
+%
+%       Symbols used by pjp2tex
+%
+\def\DoubleQuote{"}             
+\def\underscore{\_}
+\def\Space{~}
+
+%
+%       Output by pjp2tex, but not used here.
+%       You might want to use them to draw  boxes
+%       around the indented material. I don't quite
+%       know how to do it prettily.
+%
+\def\Bfitch{}                           % begin a Ffitch box
+\def\Efitch{}                           % end   a Ffitch box
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Rotated Box-style proofs (needs rotate.sty), and postscript
+%       Warning: untested under LaTeX2E
+%
+
+\newbox\@BoxProofBox
+%
+\newenvironment{RotBoxproof}%
+{\setbox\@BoxProofBox=\hbox\bgroup $\begin{array}{rlr}
+    \global\let\Provisos = \box@provisos
+     \global\let\Proviso = \box@proviso
+}{\end{array} $\egroup\@rotl\@BoxProofBox}
+
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
