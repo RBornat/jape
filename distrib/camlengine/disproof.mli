@@ -25,6 +25,7 @@
 
 *)
 
+open Box
 open Termtype
 open Facts
 open Prooftree.Tree.Fmttree
@@ -59,9 +60,10 @@ type disproofstate
 val catelim_disproofstatestring : disproofstate -> string list -> string list
 val disproofstatestring : disproofstate -> string
 
-val disproofstate_seq      : disproofstate -> seq
-val disproofstate_universe : disproofstate -> universe
-val disproofstate_selected : disproofstate -> (int * int) list
+val disproofstate_seq        : disproofstate -> seq
+val disproofstate_selections : disproofstate -> pos list * (pos * string list) list
+val disproofstate_universe   : disproofstate -> universe
+val disproofstate_selected   : disproofstate -> (int * int) list
 
 val disproofstate_conclusive   : disproofstate -> bool
 val disproofstate_countermodel : disproofstate -> bool
@@ -69,8 +71,10 @@ val disproofstate_countermodel : disproofstate -> bool
 (* because of the need for facts when evaluating, these functions don't evaluate.
  * So you should use evaldisproofstate once you've set it up
  *)
-val withdisproofuniverse : disproofstate -> universe -> disproofstate
-
+val withdisproofuniverse   : disproofstate -> universe -> disproofstate
+val withdisproofselections : disproofstate -> pos list * (pos * string list) list 
+                          -> disproofstate
+                          
 val addchild        : universe -> int * int -> int * int -> universe option
 val addchildtolink  : universe -> int * int -> int * int -> int * int -> int * int -> universe option
 val deletelink      : universe -> int * int -> int * int -> universe option
@@ -81,12 +85,10 @@ val newtile         : disproofstate -> term -> disproofstate option
 val splitlink       : universe -> int * int -> int * int -> int * int -> universe option
 val worldselect     : disproofstate -> (int * int) list -> disproofstate option
 
-val evaldisproofstate : facts -> prooftree -> term list -> disproofstate -> disproofstate
+val evaldisproofstate : facts -> prooftree -> disproofstate -> disproofstate
 
 val disproof_start : facts -> prooftree -> path option -> element list -> disproofstate
 val disproof_minimal : disproofstate option -> bool
-
-val tint_universe : facts -> term list -> disproofstate -> disproofstate
 
 (* models and disproofstates *)
 
