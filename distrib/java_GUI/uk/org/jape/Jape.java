@@ -41,12 +41,6 @@ import java.util.Vector;
 public class Jape implements DebugConstants {
 
     private static boolean tracing = false;
-
-    private static String[] operators;
-    
-    public static void setoperators(String[] _operators) {
-        operators=_operators;
-    }
     
     public static void handleAbout() {
         AboutBox.showAboutBox();
