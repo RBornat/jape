@@ -56,7 +56,7 @@ public class LocalSettings implements SelectionConstants {
     // spacing of tiles
     public static final int TileSpacing = 7;
 
-    // what a mouseDown means on a TextItem (this stands until people tell me better)
+    // what a mouseDown means on a TextItem (I took advice from Bernard, hence isControlDown)
     public static byte mouseDownTextItemMeans(MouseEvent e) {
         byte kind = e.isAltDown() ? TextSelMask : PureSelMask;
         if (e.isShiftDown())    kind |= ExtendedSelMask;
@@ -65,10 +65,14 @@ public class LocalSettings implements SelectionConstants {
     }
 
     // what a mouseDown means on a WorldItem (ditto)
-    public static byte mouseDownWorldItemMeans(MouseEvent e) {
+    public static byte mousePressWorldItemMeans(MouseEvent e) {
         return e.isAltDown() ? NewWorldDrag : MoveWorldDrag;
     }
 
+    public static byte mouseClickWorldItemMeans(MouseEvent e) {
+        return !e.isAltDown() && !e.isShiftDown() &&
+               !e.isMetaDown() && !e.isControlDown ? WorldClick : WorldNoClick;
+    }
     // how to mark an entry in a conjecture panel
     public static final String tick = "\u2713", cross = "\u2717";
 
