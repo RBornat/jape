@@ -46,7 +46,7 @@ CONJECTUREPANEL "Conjectures"
   AND Â(Pç(QëR)) 		æ (QëR)çP
   
   AND èx.ÂQ(x),  Pç(èx.Q(x))			æ ÂP
-  AND PëÂP, èx.PçQ(x), èx. ÂPçQ(x) 	æ èx.Q(x)		WHERE x NOTIN P END
+  AND WHERE x NOTIN P INFER PëÂP, èx.PçQ(x), èx. ÂPçQ(x) 	æ èx.Q(x)
   AND RëÂR, èx.RçS(x), èx. ÂRçS(x)	æ èx.S(x)
   AND èx.P(x)çQ(x), èx.Q(x)çR(x) 		æ èx.P(x)çR(x)
   AND èx.P(x)çR(x), èx.Q(x)ç ÂR(x)   	æ èx.(P(x)çÂQ(x)) ¦ (Q(x)çÂP(x))
@@ -64,7 +64,7 @@ CONJECTUREPANEL "Conjectures"
   
   AND ÂÂP 			æ P
   AND P 			æ ÂÂP
-  AND äx.èy.P 		æ èy.äx.P		WHERE x NOTIN y END
+  AND WHERE x NOTIN y INFER äx.èy.P 		æ èy.äx.P
   AND äx.èy.Q 		æ èy.äx.Q
   AND äx.èy.P(x,y) 	æ èy.äx.P(x,y)
   AND äx.èy.P(x,y) 	æ èv.äu.P(u,v)
