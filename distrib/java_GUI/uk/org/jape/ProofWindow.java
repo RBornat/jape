@@ -562,33 +562,25 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         proofCanvas.add(new LineItem(proofCanvas, x1, y1, x2, y2));
     }
 
-    public void emphasise(int x, int y, boolean state) throws ProtocolError {
-        EmphasisableItem ei = ensureDisproofPane().seqCanvas.findEmphasisable(x,y);
-        if (ei==null)
-            throw new ProtocolError("not emphasisable disproof item");
-        else
-            ei.emphasise(state);
-    }
-
     public String getProofSelections() {
         String s = proofCanvas.getSelections("\n");
         return s==null ? "" : s+"\n";
     }
 
     public String getProofTextSelections() throws ProtocolError {
-        String s = proofCanvas.getTextSelections("\n");
+        String s = proofCanvas.getPositionedContextualisedTextSelections("\n");
         return s==null ? "" : s+"\n";
     }
 
     public String getDisproofSelections() {
-        String s = disproofPane==null ? null : disproofPane.seqCanvas.getSelections(Reply.stringSep);
-        return s==null ? "" : s;
+        String s = disproofPane==null ? null : disproofPane.seqCanvas.getSelections("\n");
+        return s==null ? "" : s+"\n";
     }
 
     public String getDisproofTextSelections() throws ProtocolError {
         String s = disproofPane==null ? null :
-                                        disproofPane.seqCanvas.getTextSelections(Reply.stringSep);
-        return s==null ? "" : s;
+                        disproofPane.seqCanvas.getPositionedContextualisedTextSelections("\n");
+        return s==null ? "" : s+"\n";
     }
 
     public String getGivenTextSelections() throws ProtocolError {
@@ -609,8 +601,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         ensureDisproofPane().worldCanvas.worldsStart();
     }
 
-    public void addWorld(int x, int y) throws ProtocolError {
-        ensureDisproofPane().worldCanvas.addWorld(x, y);
+    public void addWorld(int x, int y, boolean forcedhere) throws ProtocolError {
+        ensureDisproofPane().worldCanvas.addWorld(x, y, forcedhere);
     }
 
     public void addWorldLabel(int x, int y, String label) throws ProtocolError {
@@ -623,6 +615,26 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
     public void selectWorld(int x, int y, boolean selected) throws ProtocolError {
        ensureDisproofPane().worldCanvas.selectWorld(x, y, selected);
+    }
+
+    private EmphasisableItem findDisproofEmphasisableXY(int x, int y) throws ProtocolError {
+        EmphasisableItem ei;
+        if (disproofPane!=null && (ei = disproofPane.seqCanvas.findEmphasisable(x,y))!=null)
+            return ei;
+        else
+            throw new ProtocolError("no such item");
+    }
+
+    public void emphasise(int x, int y, boolean state) throws ProtocolError {
+        findDisproofEmphasisableXY(x,y).emphasise(state);
+    }
+
+    public void forceDisproofSelect(int x, int y) throws ProtocolError {
+        findDisproofEmphasisableXY(x,y).setSelected(true);
+    }
+
+    public void forceDisproofTextSelection(int x, int y, String[] ss) throws ProtocolError {
+        findDisproofEmphasisableXY(x,y).setTextSels(ss);
     }
 
     // provisos and givens
@@ -677,10 +689,9 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
             default            :
                 throw new ProtocolError("selclass not ConcTextItem/HypTextItem/ReasonTextItem");
         }
-        DisplayItem i = findProofSelectableXY(x,y);
+        SelectableProofItem i = findProofSelectableXY(x,y);
         i.setSelected(true);
-        if (i instanceof SelectableProofItem)
-            ((SelectableProofItem)i).setSelectionKind(selkind);
+        i.setSelectionKind(selkind);
     }
 
     public void unhighlight(int x, int y) throws ProtocolError {
