@@ -169,12 +169,12 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
     
     public String getSelections(String sep) {
         Alert.abort("WorldCanvas.getSelections");
-        return ""; // shut up compiler
+        return null; // shut up compiler
     }
     
     public String getTextSelections(String sep) {
         Alert.abort("WorldCanvas.getTextSelections");
-        return ""; // shut up compiler
+        return null; // shut up compiler
     }
 
     public int worldRadius() {
@@ -223,7 +223,17 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
                 nw++;
         return nw;
     }
-    
+
+    public int worldSelectionCount() {
+        int nc = child.getComponentCount(), nwsel=0;
+        for (int i=0; i<nc; i++) {
+            Object c = child.getComponent(i);
+            if (c instanceof WorldItem && ((WorldItem)c).getSelected())
+                nwsel++;
+        }
+        return nwsel;
+    }
+
     public void addWorldLabel(int x, int y, String label) throws ProtocolError {
         findWorld(x,y,true).addlabel(label);
     }
@@ -234,7 +244,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
     }
 
     public void selectWorld(int x, int y, boolean selected) throws ProtocolError {
-        findWorld(x,y,true).select(selected);
+        findWorld(x,y,true).setSelected(selected);
     }
 
     /* ****************************** canvas as drag target ****************************** */
