@@ -19,6 +19,9 @@ import java.util.regex.*;
 import java.util.*;
 
 public class encoder {
+	
+	static boolean writeBOM = true;
+	
 	public static void main(String[] args) throws Exception { 
 		String inputEncoding  = "K";
 		String outputEncoding = "UTF-8";
@@ -59,6 +62,9 @@ public class encoder {
 					doHelp();
 				}
 			}
+			else
+			if ("-nobom".equals(arg) || "-noBOM".equals(arg)) 
+				writeBOM = false;
 			else
 			if ("-help".equals(arg))
 				doHelp();
@@ -152,7 +158,7 @@ public class encoder {
 			if (outputTranslation!=null)
 				line = translateLine(line, outputTranslation, false, linenum);
 			
-			if (first && outUTF)
+			if (first && writeBOM && outUTF)
 				out.print("\ufeff");
 			out.println(line);
 			first = false;
@@ -199,7 +205,7 @@ public class encoder {
 	}
 
 	static void doHelp() { 
-		System.err.println("Usage: java encoder [-I <inputenc> infile | -O <outputenc> outfile | infile]");
+		System.err.println("Usage: java encoder [-I <inputenc> infile | -O <outputenc> outfile | -nobom | infile]");
 		System.err.println("	  (default is Konstanz encoded input from stdin, UTF-8 encoded output to stdout)");
 		System.err.println("Examples:");
 		System.err.println("      java  encoder proofs.jp                                  output UTF-8 version of Konstanz file proofs.jp to console");
