@@ -35,7 +35,7 @@ public class HypConcItem extends SelectableProofItem {
     }
 
     public void clicked(byte eventKind, MouseEvent e) {
-        byte newselkind = e.getX()<getHeight()/2 ? ConcSel : HypSel;
+        byte newselkind = e.getY()<getHeight()/2 ? ConcSel : HypSel;
         byte oldselkind = selectionRect.getSelkind();
         switch (eventKind) {
             case Selection:
