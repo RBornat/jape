@@ -35,7 +35,7 @@ What to do
 ----------
 
 0. Decide where you want Jape's home to be on your system, and move
-   the $(OS)jape.jar file there
+   the $(OS)jape.jar file there. 
 
 1. Run the program $(OS)jape.jar by double clicking on it, or by
    whatever other means you normally use to start a java program
@@ -43,9 +43,16 @@ What to do
 
    This will start executing the interactive java installer.
 
-   The installer brings up a Splash Screen on which there are two
-   buttons and a log window. Press the button labelled "Install Jape
-   Now".
+   The installer brings up a Splash Screen on which there are
+   three buttons and a log window. 
+
+           If you have downloaded the jar file to your desktop you
+           are STRONGLY ADVISED to select a folder before pressing
+           the Install button.  You can do this by pressing the
+           "Choose Folder" button -- this brings up a folder
+           selection dialogue.
+
+2. Press the button labelled "Install".
 
    This unpacks the examples directory, and leaves the inference
    engine (jape.exe -- architecture dependent), the interface
@@ -56,8 +63,8 @@ What to do
    a shortcut (jape) that starts the jape program when it is 
    opened/clicked.
 
-   ONCE YOU ARE SURE THAT YOU CAN RUN JAPE, YOU MAY DELETE THE
-   DEBRIS LEFT BY THE INSTALLATION PROCESS. 
+3. ONCE YOU ARE SURE THAT YOU CAN RUN JAPE, YOU MAY DELETE THE
+   DEBRIS LEFT BY THE INSTALLATION PROCESS.
 
         del windowsjape.jar japeicon.ico installjape.class bootstrap meta-inf shortcut.exe installjape.cmd
   
@@ -83,14 +90,14 @@ What to do
    If you have trouble with the shortcut then try this as a last resort.
 
 
-2. Try running jape then pressing "File/Open New Theory" and
+4. Try running jape then pressing "File/Open New Theory" and
    selecting (for example) the theory file
 
         examples/sequent_calculus/SCS.jt
 
    [[Do not press File/Open]]
 
-3. Please let us know that you've succeeded (or failed) by sending a short
+5. Please let us know that you've succeeded (or failed) by sending a short
    message of triumph (or despair) to
 
         japeinstall@jape.org.uk
@@ -114,6 +121,7 @@ Jape is now beginning to conform to common user interface standards.
 Control-Z               -- undo one proof step
 Shift-Control-Z         -- redo last undone proof step
 Control-D               -- finish completed proof
+
 
 
 
