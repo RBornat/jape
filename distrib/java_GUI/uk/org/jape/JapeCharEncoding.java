@@ -264,7 +264,8 @@ public class JapeCharEncoding implements DebugConstants {
                         ignoreLF=false;
                         if (encoding==null) {
                             if (c>0x7F)
-                                throw new IOException("no encoding for char 0x"+Integer.toHexString(c));
+                                throw new IOException("no encoding for char 0x"+Integer.toHexString(c)+
+                                                      "(inbuf so far \""+inbuf.toString()+"\")");
                             else
                                 inbuf.append((char)c);
                         }
