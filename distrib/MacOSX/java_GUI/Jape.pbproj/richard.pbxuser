@@ -15,18 +15,18 @@
 			F5AB83180339F3B701A80116,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 62002630;
+			PBXPerProjectTemplateStateSaveDate = 62015520;
 			"PBXTemplateGeometry-F5314676015831810DCA290F" = {
-				ContentSize = "{639, 439}";
+				ContentSize = "{685, 434}";
 				LeftSlideOut = {
 					Collapsed = NO;
-					Frame = "{{0, 23}, {639, 416}}";
+					Frame = "{{0, 23}, {685, 411}}";
 					Split0 = {
 						ActiveTab = 2;
 						Collapsed = NO;
-						Frame = "{{0, 0}, {639, 416}}";
+						Frame = "{{0, 0}, {685, 411}}";
 						Split0 = {
-							Frame = "{{0, 221}, {639, 195}}";
+							Frame = "{{0, 221}, {685, 190}}";
 						};
 						SplitCount = 1;
 						Tab0 = {
@@ -72,9 +72,9 @@
 							};
 						};
 						Tab2 = {
-							BuildMessageFrame = "{{0, 0}, {641, 149}}";
-							BuildTranscriptFrame = "{{0, 158}, {641, 59}}";
-							Frame = "{{0, 0}, {639, 215}}";
+							BuildMessageFrame = "{{0, 0}, {687, 149}}";
+							BuildTranscriptFrame = "{{0, 158}, {687, 59}}";
+							Frame = "{{0, 0}, {685, 215}}";
 						};
 						Tab3 = {
 							Frame = "{{0, 0}, {612, 295}}";
@@ -136,7 +136,7 @@
 				StatusViewVisible = YES;
 				Template = F5314676015831810DCA290F;
 				ToolbarVisible = YES;
-				WindowLocation = "{7, 347}";
+				WindowLocation = "{7, 352}";
 			};
 			"PBXTemplateGeometry-F5CA7EC9015C08ED0DCA290F" = {
 				ContentSize = "{665, 594}";
@@ -258,7 +258,7 @@
 				StatusViewVisible = NO;
 				Template = F5CA7EC9015C08ED0DCA290F;
 				ToolbarVisible = NO;
-				WindowLocation = "{69, 232}";
+				WindowLocation = "{426, 72}";
 			};
 			"PBXTemplateGeometry-F5CA7ECB015C094F0DCA290F" = {
 				ContentSize = "{668, 621}";
@@ -379,7 +379,7 @@
 				StatusViewVisible = NO;
 				Template = F5CA7ECB015C094F0DCA290F;
 				ToolbarVisible = NO;
-				WindowLocation = "{94, 163}";
+				WindowLocation = "{48, 205}";
 			};
 			PBXWorkspaceContents = (
 				{
@@ -542,7 +542,7 @@
 					WindowLocation = "{361, 100}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 62002630;
+			PBXWorkspaceStateSaveDate = 62015520;
 		};
 		projectwideBuildSettings = {
 		};
