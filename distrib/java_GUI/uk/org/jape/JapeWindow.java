@@ -30,6 +30,7 @@ import java.awt.Point;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import java.util.Enumeration;
 import java.util.Vector;
@@ -55,14 +56,19 @@ public class JapeWindow extends JFrame {
         init(title, proofnum);
     }
 
+    protected WindowListener windowListener;
+
     private void init(final String title, int proofnum) {
         windowv.add(this);
-        if (LocalSettings.windowMenuItemsTicked)
-            addWindowListener(new WindowAdapter() {
-                public void windowActivated(WindowEvent e) {
-                        JapeMenu.windowActivated(titleForMenu(), JapeWindow.this);
-                }
-            });
+        windowListener = new WindowAdapter() {
+            public void windowActivated(WindowEvent e) {
+                if (windowListener!=null)
+                    JapeMenu.windowActivated(titleForMenu(), JapeWindow.this);
+                else
+                    System.err.println("JapeWindow.windowListener late windowActivated "+e);
+            }
+        };
+        addWindowListener(windowListener);
         JapeMenu.windowAdded(titleForMenu(proofnum), this);
     }
 
@@ -89,6 +95,8 @@ public class JapeWindow extends JFrame {
         if (index==-1)
             Alert.abort("JapeWindow.closeWindow can't find "+w);
         else {
+            // Linux gives us spurious events after the window has gone
+            w.removeWindowListener(w.windowListener); w.windowListener = null;
             w.setVisible(false); w.dispose();
             windowv.remove(index);
             JapeMenu.windowRemoved(w.titleForMenu(), w);

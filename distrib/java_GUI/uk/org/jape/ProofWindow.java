@@ -61,7 +61,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     
     protected JapeCanvas focussedCanvas;
 
-    protected final WindowListener windowListener;
+    protected WindowListener windowListener;
     
     public ProofWindow(String title, int proofnum) {
         super(title, proofnum);
@@ -79,18 +79,25 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         
         windowListener = new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                Reply.sendCOMMAND("closeproof "+ProofWindow.this.proofnum);
+                if (windowListener!=null)
+                    Reply.sendCOMMAND("closeproof "+ProofWindow.this.proofnum);
+                else
+                    System.err.println("ProofWindow.windowListener late windowClosing "+e);
             }
             public void windowActivated(WindowEvent e) {
-                int i = focusv.indexOf(ProofWindow.this);
-                if (i==-1)
-                    Alert.abort("unfocussable window "+ProofWindow.this.title+"; "+e);
+                if (windowListener!=null) {
+                    int i = focusv.indexOf(ProofWindow.this);
+                    if (i==-1)
+                        Alert.abort("unfocussable window "+ProofWindow.this.title);
+                    else
+                        if (i!=0) {
+                            focusv.remove(i);
+                            focusv.insertElementAt(ProofWindow.this,0);
+                            reportFocus();
+                        }
+                }
                 else
-                    if (i!=0) {
-                        focusv.remove(i);
-                        focusv.insertElementAt(ProofWindow.this,0);
-                        reportFocus();
-                    }
+                    System.err.println("ProofWindow.windowListener late windowActivated "+e);
             }
         };
         addWindowListener(windowListener);
@@ -140,6 +147,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     public static void closeproof(int proofnum) throws ProtocolError {
         ProofWindow proof = findProof(proofnum);
         proof.removeWindowListener(proof.windowListener); // Linux gives us spurious events otherwise
+        proof.windowListener = null;
         closeWindow(proof);
         focusv.remove(focusv.indexOf(proof));
         reportFocus();
