@@ -207,6 +207,10 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
         return null;
     }
 
+    protected FormulaTree findSubformula(FormulaTree f, TextSel t) {
+        return t==null ? null : findSubformula(f, t.start, t.end);
+    }
+
     public class TextSel {
         public int start, end, pxstart, pxend;
         
@@ -247,6 +251,10 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
             return t!=null && t!=this &&
                    (t.start<=this.start && this.start<=t.start ||
                     this.start<=t.start && t.start<=this.start);
+        }
+
+        public String toString() {
+            return "TextSel[start="+start+"; end="+end+"; pxstart="+pxstart+"; pxend="+pxend+"]";
         }
     }
 
@@ -331,6 +339,17 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
         canvas.getProofWindow().enableCopy();
     }
 
+    private int pixel2TextSelIndex(int x) {
+        ensureTextSelectionVars();
+        for (int i=0; i<textsels.size(); i++) {
+            TextSel t = getTextSel(i);
+            // Logger.log.println("enclosingTextSelIndex("+x+") looking at "+t);
+            if (t.pxstart<=x && x<t.pxend)
+                return i;
+        }
+        return -1;
+    }
+
     public void setTextSels(String[] sels) throws ProtocolError { // used in disproof sequent
         ensureTextSelectionVars();
         int i=0, start=0, end;
@@ -350,13 +369,33 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
         }
         repaint();
     }
-        
+
+    private boolean oldsel;
+    
     protected void textpressed(byte eventKind, MouseEvent e) {
+        // Logger.log.println("textpressed eventKind="+eventKind);
         switch (eventKind) {
             case TextSelection:
                 canvas.killTextSelections(null); // kill everybody's, including mine
-            case DisjointTextSelection: // don't kill any text selections?
                 newTextSel(e);
+                break;
+
+            case DisjointTextSelection: { // don't kill any text selections
+                    int x = internalX(e.getX());
+                    currenttextselindex = pixel2TextSelIndex(x);
+                    // Logger.log.println("textpressed DisjointTextSelection x="+x
+                    //                    +"; currenttextselindex="+currenttextselindex);
+                    if (currenttextselindex==-1) {
+                        newTextSel(e); oldsel=false;
+                    }
+                    else {
+                        TextSel t = getTextSel(currenttextselindex);
+                        anchor = findSubformula(formulae, t);
+                        current = enclosingSubformula(anchor, pixel2Subformula(formulae, x));
+                        t.reset(current);
+                        oldsel = true;
+                    }
+                }
                 break;
                 
             case ExtendedTextSelection:
@@ -377,9 +416,8 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
                     }
                     // we are nearest to textsel[i], if there is one
                     currenttextselindex = Math.min(i, textsels.size()-1);
-                    anchor = findSubformula(formulae, getTextSel(currenttextselindex).start,
-                                            getTextSel(currenttextselindex).end);
-                    current = enclosingSubformula(anchor, pixel2Subformula(formulae, px));
+                    anchor = findSubformula(formulae, getTextSel(currenttextselindex));
+                    current = enclosingSubformula(anchor, pixel2Subformula(formulae, internalX(px)));
                     getTextSel(currenttextselindex).reset(current);
                 }
                 break;
@@ -399,13 +437,19 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
     
     protected void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
         TextSel current = getTextSel(currenttextselindex);
-        for (int i=0; i<textsels.size(); ) {
-            TextSel t = getTextSel(i);
-            if (t.overlaps(current))
-                textsels.remove(i);
-            else
-                i++;
+        // Logger.log.println("textreleased isClick="+isClick+"; eventKind="+eventKind+"; oldsel="+oldsel);
+        if (isClick && eventKind==DisjointTextSelection && oldsel)
+            textsels.remove(currenttextselindex);
+        else {
+            for (int i=0; i<textsels.size(); ) {
+                TextSel t = getTextSel(i);
+                if (t.overlaps(current))
+                    textsels.remove(i);
+                else
+                    i++;
+            }
         }
+        repaint();
         currenttextselindex = -1;
         canvas.getProofWindow().enableCopy();
         canvas.notifyTextSelectionChange(this);
