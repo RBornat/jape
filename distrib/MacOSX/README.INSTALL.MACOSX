@@ -1,0 +1,18 @@
+1. Get the developer tools (from Apple or from a CD).
+
+2. Double-click MacOSX/java_GUI/Jape.pbproj (it's an Xcode project file)
+
+3. It will make a directory MacOSX/java_GUI/build, in which there will be a file Jape.app
+
+4. In a terminal window, cd to MacOSX/java_GUI/build, execute
+
+    ln -s ../../../camlengine/jape jape_engine
+    open Jape.app
+
+5. enjoy
+
+6. tell me how to do it from the command line, if you know.
+
+Richard Bornat
+richard@bornat.me.uk
+26th March 2004
