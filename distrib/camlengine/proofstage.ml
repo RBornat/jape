@@ -20,10 +20,10 @@
 
 *)
 
-type proofstage = Proved | Disproved | InProgress
+type proofstage  = Complete | InProgress
+type proofstatus = { proved: bool; disproved: bool } (* you can be both, in an unsound logic *)
 
 let rec proofstage2word =
   function
-    Proved     -> "PROOF"
-  | Disproved  -> "DISPROOF"
+    Complete   -> "PROOF"
   | InProgress -> "CURRENTPROOF"
