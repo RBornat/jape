@@ -2,7 +2,8 @@
 #       Linux/Solaris installation script for jape
 #       To be executed from the directory in which jape is unpacked
 #
-JAPEHOME=`pwd`
+JAPEHOME=$1
+cd $JAPEHOME
 if which java
 then
    JAVABIN=`which java`
@@ -18,6 +19,7 @@ ENDSCRIPT
 chmod +x jape jape_engine
 echo "Jape is now installed in $JAPEHOME"
 echo "You can make symbolic or other links to the executable $JAPEHOME/jape"
+
 
 
 

@@ -29,7 +29,7 @@ DEPLOYEDENGINE=jape_engine
 #       SPLASH               -- splash-image for the installer
 #
 #
-AFTERINSTALL=-cmdunix "sh installjape.sh"
+AFTERINSTALL=-cmdunix "sh %INSTALL%installjape.sh %INSTALL%"
 INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX $(BUILDRESOURCES)/installjape.sh
 SPLASH=$(BUILDRESOURCES)/InstallerKit/japesplash.png
 APP=jape
@@ -93,6 +93,7 @@ jarfile:        examples; \
                   -splash       $(SPLASH)               \
                   examples                              \
                   -sync $(INSTALLRESOURCES) $(DEPLOYEDENGINE) Jape.jar  
+
 
 
 
