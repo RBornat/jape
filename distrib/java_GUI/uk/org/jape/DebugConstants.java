@@ -29,6 +29,7 @@ interface DebugConstants {
     static final public boolean containerlayout_tracing  = false;
     static final public boolean menuaction_tracing       = false;
     static final public boolean panellayout_tracing      = false;
+    static final public boolean panellist_tracing        = false;
     static final public boolean protocol_tracing         = false;
 }
 
