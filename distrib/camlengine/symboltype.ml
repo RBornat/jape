@@ -26,6 +26,7 @@ module type T =
       | RIGHTFIX of (int * string)
       | STILE of string
       | SHYID of string
+    val vidstring : vid -> string
   end
 (* $Id$ *)
 
@@ -59,4 +60,6 @@ module M : T with type vid = string
       | RIGHTFIX of (int * string)
       | STILE of string
       | SHYID of string
+  
+    let vidstring vid = vid
   end

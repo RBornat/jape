@@ -35,15 +35,29 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T =
+module M : T with type answer = Answer.M.answer
+			  and type facts = Facts.M.facts
+			  and type term = Term.Type.term
+=
   struct
-    open Listfuns
-    open Mappingfuns
-    open Optionfuns
-    open Answer
-    open Term
-    open Proviso
-    open Facts
+    open Listfuns.M
+    open Mappingfuns.M
+    open Optionfuns.M
+    open Answer.M
+    open Term.Funs
+    open Proviso.M
+    open Facts.M
+    open SML.M
+    open Miscellaneous.M
+    open Term.Termstring
+    open Term.Type
+    open Term.Store
+    
+    type answer = Answer.M.answer
+     and facts = Facts.M.facts
+     and term = Term.Type.term
+     
+    let mkNotin v = Proviso.M.NotinProviso v
     
     let substdebug = ref false
     let rec substmapdom (vts : (term * term) list) = (fst <* vts)
@@ -77,13 +91,13 @@ module M : T =
     let rec vtminus facts vts1 vts2 =
       (not <*> vtmaps facts vts2) <| vts1
     let rec vtsplit facts vts bs =
-      let rec S ((v, t), (ys, ns, ms)) =
+      let rec _S ((v, t), (ys, ns, ms)) =
         let rs = (substeqvarsq facts v <* bs) in
         if List.exists qDEF rs then (v, t) :: ys, ns, ms
         else if List.exists qUNSURE rs then ys, ns, (v, t) :: ms
         else ys, (v, t) :: ns, ms
       in
-      nj_fold S vts ([], [], [])
+      nj_fold _S vts ([], [], [])
     exception Whoops_
     (* moved outside for OCaml *)
            
@@ -127,28 +141,28 @@ module M : T =
         else res (fun _ -> "failure cos of unsafeity (sic)") None
       else res (fun _ -> "failure cos of uncertainty") None
     and varoccursinq facts v =
-      fun P ->
-        let EF = exterioreqvarsq facts in
-        let rec EFv v' =
-          if canoccurfreein (idclass v, idclass v') then EF (v, v') else No
+      fun _P ->
+        let _EF = exterioreqvarsq facts in
+        let rec _EFv v' =
+          if canoccurfreein (idclass v, idclass v') then _EF v v' else No
         in
-        let OF = varoccursinq facts in
-        let OFv = OF v in
-        let BFv = varboundbyq facts v in
-        let MFv = varmappedbyq facts v in
+        let _OF = varoccursinq facts in
+        let _OFv = _OF v in
+        let _BFv = varboundbyq facts v in
+        let _MFv = varmappedbyq facts v in
         let rec res r =
-          fun P ->
+          fun _P ->
             if !substdebug then
               begin
                 consolereport
                   ["varoccursinq "; factsstring facts; " "; termstring v; " ";
-                   argstring P; " => "; answerstring r];
+                   argstring _P; " => "; answerstring r];
                 r
               end
             else r
         in
         let rec insidebinding bs ss =
-          match BFv bs with
+          match _BFv bs with
             Yes -> No
           | No -> existsq (varoccursinq facts v) ss
           | Maybe ->
@@ -159,91 +173,91 @@ module M : T =
         in
         (* search function to be folded across terms *)
         let rec search =
-          fun P ->
-            if knownNOTIN facts (v, P) then Some (res No P)
+          fun _P ->
+            if knownNOTIN facts (v, _P) then Some (res No _P)
             else
-              match P with
-                Id _ -> Some (res (EFv P) P)
-              | Unknown _ -> Some (res (EFv P) P)
-              | Literal _ -> Some (res No P)
-              | Subst (_, _, P, vts) ->
+              match _P with
+                Id _ -> Some (res (_EFv _P) _P)
+              | Unknown _ -> Some (res (_EFv _P) _P)
+              | Literal _ -> Some (res No _P)
+              | Subst (_, _, _P, vts) ->
                   Some
                     (res
                        (orelseq
                           (existsq
                              (fun (v', t') ->
-                                andalsoq (OFv t') (fun _ -> OF (v', P)))
+                                andalsoq (_OFv t') (fun _ -> _OF v' _P))
                              vts)
-                          (fun _ -> insidebinding (substmapdom vts) [P]))
-                       P)
+                          (fun _ -> insidebinding (substmapdom vts) [_P]))
+                       _P)
               | Binding (_, (bs, ss, us), _, _) ->
                   Some
                     (res
-                       (orelseq (existsq OFv us)
+                       (orelseq (existsq _OFv us)
                           (fun _ -> insidebinding bs ss))
-                       P)
+                       _P)
               | _ -> None
         in
         let rec foldsearch =
-          fun (P, sofar) ->
+          fun (_P, sofar) ->
             match sofar with
               Yes -> Some Yes
-            | No -> search P
+            | No -> search _P
             | Maybe ->
-                match search P with
+                match search _P with
                   None -> None
                 | Some v -> Some (orq (sofar, v))
         in
-        foldterm foldsearch No P
+        foldterm foldsearch No _P
     and simplifySubstAnyway facts vts =
-      fun P ->
-        match simplifySubst facts vts P with
+      fun _P ->
+        match simplifySubst facts vts _P with
           Some t -> t
-        | None -> registerSubst (true, P, vts)
+        | None -> registerSubst (true, _P, vts)
     (*
        simplifySubst and simplifysubstmap are partial functions.
        simplifySubst won't deliver a reducible substitution.
     *)
     and simpres vts =
-      fun P r ->
+      fun _P r ->
         consolereport
-          ["simplifySubst "; " "; termstring (Subst (None, true, P, vts));
+          ["simplifySubst "; " "; termstring (Subst (None, true, _P, vts));
            " => "; optionstring termstring r]
     and simplifySubst a1 a2 a3 =
       match a1, a2, a3 with
-        facts, [], (Subst (_, _, P', vts') as P) ->
-          let r = Some (simplifySubstAnyway facts vts' P') in
-          if !substdebug then simpres [] P r; r
-      | facts, [], P ->
-          let r = Some P in if !substdebug then simpres [] P r; r
-      | facts, vts, P ->
-          let rec res r = if !substdebug then simpres vts P r; r in
-          let S = simplifySubstAnyway facts in
-          let rec more vts' = fun P' -> Some (S (vts', P')) in
-          let rec Svar v =
+        facts, [], (Subst (_, _, _P', vts') as _P) ->
+          let r = Some (simplifySubstAnyway facts vts' _P') in
+          if !substdebug then simpres [] _P r; r
+      | facts, [], _P ->
+          let r = Some _P in if !substdebug then simpres [] _P r; r
+      | facts, vts, _P ->
+          let rec res r = if !substdebug then simpres vts _P r; r in
+          let _S = simplifySubstAnyway facts in
+          let rec more vts' = fun _P' -> Some (_S vts' _P') in
+          let rec _Svar v =
             match varmappedto facts v vts with
-              Some (Subst (_, _, P', vts')) -> res (more vts' P')
+              Some (Subst (_, _, _P', vts')) -> res (more vts' _P')
             | Some t -> res (Some t)
             | None -> fail v
           and fail =
-            fun P ->
-              match simplifysubstmap facts P vts with
-                Some vts' -> res (more vts' P)
+            fun _P ->
+              match simplifysubstmap facts _P vts with
+                Some vts' -> res (more vts' _P)
               | None -> res None
           in
-          match P with
-            Id _ -> Svar P
-          | Unknown _ -> Svar P
-          | App (_, f, a) -> res (Some (registerApp (S (vts, f), S (vts, a))))
+          match _P with
+            Id _ -> _Svar _P
+          | Unknown _ -> _Svar _P
+          | App (_, f, a) -> res (Some (registerApp (_S (vts) (f), _S (vts) (a))))
           | Tup (_, sep, ts) ->
-              res (Some (registerTup (sep, (S vts <* ts))))
-          | Literal k -> res (Some P)
+              res (Some (registerTup (sep, (_S vts <* ts))))
+          | Literal k -> res (Some _P)
           | Fixapp (_, ss, ts) ->
-              res (Some (registerFixapp (ss, (S vts <* ts))))
-          | Subst (_, _, P', vts') ->
+              res (Some (registerFixapp (ss, (_S vts <* ts))))
+          | Subst (_, _, _P', vts') ->
               begin match plussubstmap facts vts vts' with
-                Some vts'' -> res (more vts'' P')
-              | None -> fail P
+                Some vts'' -> res (more vts'' _P')
+              | None -> fail _P
               end
           | Binding (_, (bs, ss, us), env, pat) ->
               begin match restrictsubstmap facts vts bs ss with
@@ -251,54 +265,54 @@ module M : T =
                   res
                     (Some
                        (registerBinding
-                          ((bs, (S vts' <* ss), (S vts <* us)), env,
+                          ((bs, (_S vts' <* ss), (_S vts <* us)), env,
                            pat)))
-              | None -> fail P
+              | None -> fail _P
               end
           | Collection (_, k, es) ->
               let rec se =
                 function
-                  Element (_, _, t) -> registerElement (Nonum, S (vts, t))
+                  Element (_, _, t) -> registerElement (Nonum, _S vts t)
                 | _ -> raise Whoops_
               in
               res
                 (try Some (registerCollection (k, (se <* es))) with
                    Whoops_ -> None)
     and simplifysubstmap facts =
-      fun P vts ->
-        (* W detects substitutions in substitutions and takes them out if poss *)
-        (* V detects v slosh v and y slosh E where y NOTIN P *)
-        (* U takes out those elements in a very silly way *)
-        let rec W =
+      fun _P vts ->
+        (* _W detects substitutions in substitutions and takes them out if poss *)
+        (* _V detects v slosh v and y slosh E where y NOTIN _P *)
+        (* _U takes out those elements in a very silly way *)
+        let rec _W =
           function
-            v, Subst (_, r, P, m) ->
-              begin match simplifySubst facts m P with
+            v, Subst (_, r, _P, m) ->
+              begin match simplifySubst facts m _P with
                 Some t -> Some (v, t)
               | None -> None
               end
           | _ -> None
         in
-        let rec V (v, t) =
-          eqterms (v, t) || qDEFNOT (varoccursinq facts v P)
+        let rec _V (v, t) =
+          eqterms (v, t) || qDEFNOT (varoccursinq facts v _P)
         in
-        let rec U =
+        let rec _U =
           function
             [] -> None
           | vt :: vts ->
-              if V vt then Some (anyway U vts)
+              if _V vt then Some (anyway _U vts)
               else
-                match W vt with
-                  Some vt -> Some (anyway U (vt :: vts))
+                match _W vt with
+                  Some vt -> Some (anyway _U (vt :: vts))
                 | None ->
-                    match U vts with
+                    match _U vts with
                       Some vts -> Some (vt :: vts)
                     | None -> None
         in
-        let r = U vts in
+        let r = _U vts in
         if !substdebug then
           consolereport
             ["simplifysubstmap "; " ";
-             termstring (Subst (None, true, P, vts)); " => ";
+             termstring (Subst (None, true, _P, vts)); " => ";
              optionstring vtsstring r];
         r
   end

@@ -52,16 +52,18 @@ module type Rewrite =
 module M :
   sig include Rew include Rewrite end =
   struct
-    open Listfuns
-    open Mappingfuns
-    open Optionfuns
-    open Answer
-    open Term
-    open Sequent
-    open Proviso
-    open Context
-    open Rewinf
-    open Substmapfuns
+    open Listfuns.M
+    open Mappingfuns.M
+    open Optionfuns.M
+    open Answer.M
+    open Term.Type
+    open Sequent.Type
+    open Proviso.M
+    open Context.Cxt
+    open Rewinf.M
+    open Substmapfuns.M
+    
+    type cxt = Context.Cxt.cxt and term = Term.Type.term and seq = Sequent.Type.seq
     
     let rewritedebug = ref false
     (* the rewrite functions rewrite a term/sequent/proviso, 

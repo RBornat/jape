@@ -23,15 +23,23 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T =
+module M : T with type vid = Term.Type.vid 
+              and type term = Term.Type.term 
+=
   struct
-    type vid = vid and term = term and resnum = resnum
-    (* you'd think it would know ... *)
+    open Stringfuns.M
+    open Term.Termstring
+    open Listfuns.M
+    open Symboltype.M
+    open Optionfuns.M
+    open Term.Funs
+    
+    type vid = Term.Type.vid and term = Term.Type.term
        
        (* see rewrite.sml for an explanation of this data structure *)
     type rewinf = Rewinf of (term list * vid list * int list * int option)
     let nullrewinf = Rewinf ([], [], [], None)
-    let mkrewinf = Rewinf
+    let mkrewinf v = Rewinf v
     let rec rew2rawinf = fun (Rewinf r) -> r
     let rec rewinf_vars = fun (Rewinf (vars, _, _, _)) -> vars
     let rec rewinf_uVIDs = fun (Rewinf (_, uVIDs, _, _)) -> uVIDs
@@ -70,7 +78,7 @@ module M : T =
          Rewinf (allvars', uVIDs', badres', psig')) ->
         Rewinf
           (mergevars allvars allvars', mergeVIDs uVIDs uVIDs',
-           sortedmerge (fun (x, y) -> x < y) (badres, badres'),
+           sortedmerge (<) badres badres',
            (match psig, psig' with
               Some n, Some n' -> Some (min (n) (n'))
             | Some _, None -> psig

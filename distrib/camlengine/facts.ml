@@ -15,10 +15,34 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T =
+module M : T with type proviso = Proviso.M.proviso
+			  and type visproviso = Proviso.M.visproviso
+			  and type cxt = Context.ExteriorFuns.cxt
+			  and type term = Term.Type.term
+			  and type answer = Answer.M.answer
+=
   struct
-    open Answer open Term open Context open Proviso
+    open Answer.M 
+    open Term.Funs 
+    open Context.ExteriorFuns 
+    open Proviso.M
+    open Stringfuns.M
+    open Listfuns.M
+    open Context.Cxtstring
+    open Term.Type
+    open Context.Type
+    open Rewinf.M
+    open Miscellaneous.M
+    open Term.Termstring
+    open Symbol.M
+    open Mappingfuns.M
     
+    type proviso = Proviso.M.proviso
+     and visproviso = Proviso.M.visproviso
+     and cxt = Context.ExteriorFuns.cxt
+     and term = Term.Type.term
+     and answer = Answer.M.answer
+
     let factsdebug = ref false
     type facts = proviso list * exterior
     let factsstring =
@@ -49,8 +73,8 @@ module M : T =
         Id _, (_, Exterior (_, Some ri, _)) ->
           not (member (v, rewinf_vars ri)) &&
           _All
-            ((fun u -> knownNOTIN facts (v, u)),
-             isUnknown <| rewinf_vars ri)
+             (fun u -> knownNOTIN facts (v, u))
+             (isUnknown <| rewinf_vars ri)
       | _ -> false
     (* This function is deciding whether a variable v can be made equal to some term t
        by unification and/or instatiation of parameters.  It is used in simplifySubst.
@@ -139,10 +163,10 @@ module M : T =
       showvarsq facts v1 v2 "substeqvarsq" r
     let rec eqlistsq a1 a2 a3 =
       match a1, a2, a3 with
-        Q, [], [] -> Yes
-      | Q, t1 :: t1s, t2 :: t2s ->
-          andalsoq (Q (t1, t2)) (fun () -> eqlistsq Q t1s t2s)
-      | Q, _, _ -> No
+        _Q, [], [] -> Yes
+      | _Q, t1 :: t1s, t2 :: t2s ->
+          andalsoq (_Q t1 t2) (fun () -> eqlistsq _Q t1s t2s)
+      | _Q, _, _ -> No
     (* What this function is deciding is whether there is any substitution for metavariables
           which could make equal ground terms.  It is only used in abstraction (see unify.sml).
           So we can treat Paramids as Conids without fear, and no need for parameterisation any more.
@@ -189,10 +213,10 @@ module M : T =
                  andalsoq (unifyeqtlistsq facts ss ss')
                    (fun _ -> unifyeqtlistsq facts us us'))
           else No
-      | Subst (_, _, P1, m1), Subst (_, _, P2, m2) ->
+      | Subst (_, _, _P1, m1), Subst (_, _, _P2, m2) ->
           (* Substitutions are a bit dodgy. If they are the same, then they are the same.
              But if they are different, who knows?  There are lots of instances of the problem.
-             For example, P[_a\y], Q[_b\x] where P and Q are different terms are apparently different
+             For example, P[_a\y], _Q[_b\x] where P and _Q are different terms are apparently different
              - but perhaps they could be made the same.
              So a fully simplified substitution is at least Maybe the same as another substitution 
              or another term, always.
@@ -201,11 +225,11 @@ module M : T =
           if not (simterms (t1, t2)) then No
           else
             takeYes
-              (andalsoq (unifyeqtermsq facts P1 P2)
+              (andalsoq (unifyeqtermsq facts _P1 _P2)
                  (fun () ->
                     unifyeqmapsq facts (canonicalsubstmap m1)
                       (canonicalsubstmap m2)))
-      | Subst (_, _, P1, m1), _ ->
+      | Subst (_, _, _P1, m1), _ ->
           if not (simterms (t1, t2)) then No
           else if termoccursin t1 t2 then No
           else Maybe

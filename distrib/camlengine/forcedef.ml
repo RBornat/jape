@@ -31,12 +31,24 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T =
+module M : T with type seq = Sequent.Type.seq
+               and type term = Term.Type.term
+=
   struct
-    open Optionfuns open Symboltype
+    open Optionfuns.M 
+    open Symboltype.M
+    open Term.Termstring
+    open SML.M
+    open Term.Funs
+    open Symbol.M
+    open Termparse.M
+    open Miscellaneous.M
+    open Listfuns.M
+    open Sequent.Funs
+    open Stringfuns.M
     
+    type seq = Sequent.Type.seq and term = Term.Type.term
     
-    type seq = seq and term = term
     type forcedef =
         ForcePrim of term
       | ForceBracket of forcedef
@@ -47,7 +59,7 @@ module M : T =
       | ForceNowhere of forcedef
       | ForceAll of (term * term list * forcedef)
       | ForceSome of (term * term list * forcedef)
-    (* pat, vars, body: a binder *)
+                     (* pat, vars, body: a binder *)
 
     let rec catelim_forcedefstring f ss =
       match f with
@@ -78,23 +90,23 @@ module M : T =
       (* val _ = consolereport ["option_mapforcedefterms ", forcedefstring fd] *)
       let res =
         match fd with
-          ForcePrim t -> (omt t &~~ (fSome <*> ForcePrim))
+          ForcePrim t -> (omt t &~~ (fSome <*> (fun v->ForcePrim v)))
         | ForceBracket fd' ->
-            (omff fd' &~~ (fSome <*> ForceBracket))
+            (omff fd' &~~ (fSome <*> (fun v->ForceBracket v)))
         | ForceAnd pair ->
-            (ompair pair &~~ (fSome <*> ForceAnd))
+            (ompair pair &~~ (fSome <*> (fun v->ForceAnd v)))
         | ForceOr pair ->
-            (ompair pair &~~ (fSome <*> ForceOr))
+            (ompair pair &~~ (fSome <*> (fun v->ForceOr v)))
         | ForceImplies pair ->
-            (ompair pair &~~ (fSome <*> ForceImplies))
+            (ompair pair &~~ (fSome <*> (fun v->ForceImplies v)))
         | ForceEverywhere fd' ->
-            (omff fd' &~~ (fSome <*> ForceEverywhere))
+            (omff fd' &~~ (fSome <*> (fun v->ForceEverywhere v)))
         | ForceNowhere fd' ->
-            (omff fd' &~~ (fSome <*> ForceNowhere))
+            (omff fd' &~~ (fSome <*> (fun v->ForceNowhere v)))
         | ForceAll tvsfd ->
-            (omtvsfd tvsfd &~~ (fSome <*> ForceAll))
+            (omtvsfd tvsfd &~~ (fSome <*> (fun v->ForceAll v)))
         | ForceSome tvsfd ->
-            (omtvsfd tvsfd &~~ (fSome <*> ForceSome))
+            (omtvsfd tvsfd &~~ (fSome <*> (fun v->ForceSome v)))
       in
       (* consolereport ["option_mapforcedefterms ", forcedefstring fd, " => ", optionstring forcedefstring res]; *)
       res
@@ -121,17 +133,17 @@ module M : T =
       (* there is no operator priority in forcedefs ... *)
       let f =
         match currsymb () with
-          SHYID "FORCE" -> scansymb (); ForcePrim (parseTerm EOF)
+          SHYID "FORCE" -> let _ = scansymb () in ForcePrim (parseTerm EOF)
         | SHYID "EVERYWHERE" ->
-            scansymb (); ForceEverywhere (parseForceDef ())
-        | SHYID "NOWHERE" -> scansymb (); ForceNowhere (parseForceDef ())
-        | SHYID "ALL" -> scansymb (); ForceAll (parseForceDefBinder ())
-        | SHYID "Some" -> scansymb (); ForceSome (parseForceDefBinder ())
+            let _ = scansymb () in  ForceEverywhere (parseForceDef ())
+        | SHYID "NOWHERE" -> let _ = scansymb () in  ForceNowhere (parseForceDef ())
+        | SHYID "ALL" -> let _ = scansymb () in  ForceAll (parseForceDefBinder ())
+        | SHYID "Some" -> let _ = scansymb () in  ForceSome (parseForceDefBinder ())
         | BRA "(" ->
-            scansymb ();
+            let _ = scansymb () in 
             ForceBracket
               (let r = parseForceDef () in
-               (if currsymb () = KET ")" then scansymb ()
+               (if currsymb () = KET ")" then let _ = scansymb () in ()
                 else
                   raise
                     (ParseError_
@@ -144,9 +156,9 @@ module M : T =
                   "FORCE definition; found "; symbolstring sy])
       in
       match currsymb () with
-        SHYID "AND" -> scansymb (); ForceAnd (f, parseForceDef ())
-      | SHYID "OR" -> scansymb (); ForceOr (f, parseForceDef ())
-      | SHYID "IMPLIES" -> scansymb (); ForceImplies (f, parseForceDef ())
+        SHYID "AND" -> let _ = scansymb () in  ForceAnd (f, parseForceDef ())
+      | SHYID "OR" -> let _ = scansymb () in  ForceOr (f, parseForceDef ())
+      | SHYID "IMPLIES" -> let _ = scansymb () in  ForceImplies (f, parseForceDef ())
       | _ -> f
     and parseForceDefBinder () =
       let t = parseTerm EOF in
@@ -165,34 +177,34 @@ module M : T =
       let rec parseCoord () =
         match currsymb () with
           BRA "(" ->
-            scansymb ();
+            let _ = scansymb () in 
             let rec parseInt () =
               match currsymb () with
-                NUM n -> scansymb (); atoi n
+                NUM n -> let _ = scansymb () in  atoi n
               | sy ->
                   match symbolstring sy with
-                    "-" -> scansymb (); - parseUnsignedInt "-"
-                  | "~" -> scansymb (); - parseUnsignedInt "~"
+                    "-" -> let _ = scansymb () in  - parseUnsignedInt "-"
+                  | "~" -> let _ = scansymb () in  - parseUnsignedInt "~"
                   | s -> bang [s]
             and bang ss =
               raise
                 (ParseError_ ("number expected in coordinate; found " :: ss))
             and parseUnsignedInt s1 =
               match currsymb () with
-                NUM n -> scansymb (); atoi n
+                NUM n -> let _ = scansymb () in  atoi n
               | s2 -> bang [s1; " followed by "; symbolstring s2]
             in
             let x = parseInt () in
             let y =
               if currsymb () = commasymbol then
-                begin scansymb (); parseInt () end
+                begin let _ = scansymb () in  parseInt () end
               else
                 raise
                   (ParseError_
                      ["comma expected after x value in world coordinate"])
             in
             begin match currsymb () with
-              KET ")" -> scansymb (); Coord (x, y)
+              KET ")" -> let _ = scansymb () in  Coord (x, y)
             | sy ->
                 raise
                   (ParseError_
@@ -208,12 +220,12 @@ module M : T =
       let rec parseWorlds () =
         match currsymb () with
           SHYID "WORLD" ->
-            scansymb ();
+            let _ = scansymb () in 
             let c = parseCoord () in
             let chs =
               match currsymb () with
                 SHYID "CHILDREN" ->
-                  scansymb ();
+                  let _ = scansymb () in 
                   parseList
                     (function
                        BRA "(" -> true
@@ -224,7 +236,7 @@ module M : T =
             let ts =
               match currsymb () with
                 SHYID "LABELS" ->
-                  scansymb (); parseList canstartTerm parseTerm commasymbol
+                  let _ = scansymb () in  parseList canstartTerm parseTerm commasymbol
               | _ -> []
             in
             World (c, chs, ts) :: parseWorlds ()
@@ -232,7 +244,7 @@ module M : T =
       in
       match currsymb () with
         SHYID "SEMANTICS" ->
-          scansymb ();
+          let _ = scansymb () in 
           let seq = parseSeq () in
           begin match parseWorlds () with
             [] -> raise (ParseError_ ["empty disproof description"])
