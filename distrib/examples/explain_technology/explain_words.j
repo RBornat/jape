@@ -30,15 +30,15 @@
 TACTIC Explainantecedentandconclusionwords IS
     ExplainThenStop    
         "When you select an antecedent, you get a downward-pointing selection (a box round the \
-        \formula, open at the bottom). You work forward from an antecedent selection.\
-        \\n\nUnproved conclusion formulae are written with three dots above them. \
+        \formula, open at the bottom). You work forward from an antecedent selection.\n\n\
+        \Unproved conclusion formulae are written with three dots above them. \
         \When you select an unproved conclusion, you get \
         \an upward-pointing selection (a box round the formula, open at the top). You work \
-        \backwards from a conclusion selection, or it can be a target for a forward step.\
-        \\n\nSome formulae can be used as antecedent or as unproved conclusion. In those cases \
+        \backwards from a conclusion selection, or it can be a target for a forward step.\n\n\
+        \Some formulae can be used as antecedent or as unproved conclusion. In those cases \
         \the selection box has a dotted horizontal line. Click in the bottom half of the formula to make an \
-        \antecedent selection, in the top half for a conclusion selection. or antecedent.\
-        \\n\nAny formula can be used as an antecedent if there are relevant unproved conclusions below it \
+        \antecedent selection, in the top half for a conclusion selection.\n\n\
+        \Any formula can be used as an antecedent if there are relevant unproved conclusions below it \
         \in the proof."
 
 TACTIC Explainunprovedconclusionwords IS
@@ -46,8 +46,8 @@ TACTIC Explainunprovedconclusionwords IS
         "Lines of dots mark places where there is still work to be done. \
         \The formula just below a line of dots is an unproved conclusion. \
         \Your job is to show that each unproved conclusion follows \
-        \from the line(s) above it.\
-        \\nWhen there are no unproved conclusions left, the proof is finished."
+        \from the line(s) above it.\n\n\
+        \When there are no unproved conclusions left, the proof is finished."
 
 TACTIC ExplainDeadHyp (stepname, Ph) IS
     ALERT   ("When you select an antecedent, Jape shows the unproved conclusions that can make use of it \
