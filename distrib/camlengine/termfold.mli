@@ -30,8 +30,10 @@
  and textsize = Box.textsize
  and textlayout = Draw.textlayout
 
-val termfold : font -> int -> int -> int (* pre, inter, post leading *)
-            -> (string -> int) -> int    (* measure, width *)
-            -> term -> textsize * textlayout
+val termfold : font -> int -> int -> int (* font, pre, inter, post leading *)
+            -> int -> term               (* width, term *)
+            -> textsize * textlayout
 
 val termfolddebug : bool ref
+
+val resetcache : unit -> unit

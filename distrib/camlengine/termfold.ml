@@ -61,8 +61,11 @@ let rec appflatten t ts =
      App(_, f, a) ->
        if isInfixApp t then None else appflatten f (a::ts) |~~ (fun _ -> Some (f::a::ts))
    | _            -> None (* later we will think about other shapes *)
-         
- let termfold font preleading interleading postleading measure w t =
+ 
+ let measure font = fst_of_3 <.> Japeserver.measurestring font
+ 
+ let termfold (_, font, preleading, interleading, postleading, w, t) =
+   let measure = measure font in
    let render t = catelim_invisbracketedstring_of_term true t [] in
    let renderargs t = catelim_invisbracketedstring_of_termarg true t [] in
    let tstring = render t in
@@ -198,3 +201,14 @@ let rec appflatten t ts =
             consolereport ["textsize is "; string_of_textsize size];
           textinfo, epi
 *)
+
+module FoldCache = Cache.F(struct type dom = string * font * int * int * int * int * term
+                                  type ran = textsize * textlayout
+                                  let eval = termfold
+                                  let size = 251
+                           end)
+
+let termfold font preleading interleading postleading w t =
+  FoldCache.lookup (Japeserver.getfontname font, font, preleading, interleading, postleading, w, t)
+
+let resetcache = FoldCache.reset
