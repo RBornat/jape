@@ -43,10 +43,14 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
 
     protected RenderingHints renderingHints;
     protected JFrame window;
+    protected WasteBin wasteBin;
     
-    public WorldCanvas(Container viewport, JFrame window, boolean scrolled, int linethickness) {
+    public WorldCanvas(Container viewport, boolean scrolled,
+                       JFrame window, WasteBin wasteBin, int linethickness) {
         super(viewport, scrolled);
-        this.linethickness = linethickness; this.window = window;
+        this.window = window;
+        this.wasteBin = wasteBin;
+        this.linethickness = linethickness; 
         
         renderingHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
                                             RenderingHints.VALUE_ANTIALIAS_ON);
@@ -202,6 +206,14 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
         ensureWorld(x, y);
     }
 
+    public int worldCount() {
+        int nc = child.getComponentCount(), nw=0;
+        for (int i=0; i<nc; i++)
+            if (child.getComponent(i) instanceof WorldItem)
+                nw++;
+        return nw;
+    }
+    
     public void addWorldLabel(int x, int y, String label) throws ProtocolError {
         findWorld(x,y,true).addlabel(label);
     }
