@@ -43,7 +43,6 @@ DROP  (moribund)
 Unused commands (many are designed to be issued by hand from Text Command window, so no big deal):
 
 "apply", comm
-"applygiven", args
 "assign", name :: value
 "refreshdisplay", [] (ought to be dead)
 "steps", quota
