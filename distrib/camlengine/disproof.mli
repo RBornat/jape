@@ -66,12 +66,14 @@ val disproofstate_countermodel : disproofstate -> bool
  *)
 val withdisproofuniverse : disproofstate -> universe -> disproofstate
 
-val addchild    : universe -> int * int -> int * int -> universe option
-val deletelink  : universe -> int * int -> int * int -> universe option
-val deleteworld : disproofstate -> int * int -> disproofstate option
-val moveworld   : disproofstate -> int * int -> int * int -> disproofstate option
-val newtile     : disproofstate -> term -> disproofstate option
-val worldselect : disproofstate -> (int * int) list -> disproofstate option
+val addchild        : universe -> int * int -> int * int -> universe option
+val addchildtolink  : universe -> int * int -> int * int -> int * int -> int * int -> universe option
+val deletelink      : universe -> int * int -> int * int -> universe option
+val deleteworld     : disproofstate -> int * int -> disproofstate option
+val moveworld       : disproofstate -> int * int -> int * int -> disproofstate option
+val moveworldtolink : disproofstate -> int * int -> int * int -> int * int -> int * int -> disproofstate option
+val newtile         : disproofstate -> term -> disproofstate option
+val worldselect     : disproofstate -> (int * int) list -> disproofstate option
 
 val evaldisproofstate : facts -> prooftree -> disproofstate -> disproofstate
 

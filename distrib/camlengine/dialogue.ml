@@ -1378,6 +1378,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             disproofuniverseact
               (fun u -> Disproof.addchild u (atoi px, atoi py) (atoi cx, atoi cy))
 
+        | "addworldtolink", [px; py; cx; cy; lpx; lpy; lcx; lcy] ->
+            disproofuniverseact
+              (fun u -> Disproof.addchildtolink u (atoi px, atoi py) (atoi cx, atoi cy)
+                                                  (atoi lpx, atoi lpy) (atoi lcx, atoi lcy))
+
         | "deleteworldlink", [fromx; fromy; tox; toy] ->
             disproofuniverseact
               (fun u -> Disproof.deletelink u (atoi fromx, atoi fromy) (atoi tox, atoi toy))
@@ -1389,6 +1394,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             disproofstateact
               (fun d -> Disproof.moveworld d (atoi x, atoi y) (atoi x', atoi y'))
 
+        | "moveworldtolink", [x; y; x'; y'; px; py; cx; cy] ->
+            disproofstateact
+              (fun d -> Disproof.moveworldtolink d (atoi x, atoi y) (atoi x', atoi y')
+                                                   (atoi px, atoi py) (atoi cx, atoi cy))
+        
         | "worldselect", cs ->
             disproofstateact
               (fun d ->
@@ -2086,11 +2096,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                (reparentprovisos hist) ::
               rest
           in
-          let
-            (Proofstate {tree = tree; cxt = cxt; goal = goal} as
-               proofstate)
-            =
-            winhist_proofnow hist
+          let (Proofstate {tree = tree; cxt = cxt; goal = goal} as proofstate) =
+                      winhist_proofnow hist
           in
           let disproof = winhist_disproofnow hist in
           (* how does disproof fit into this?  I think it doesn't *)

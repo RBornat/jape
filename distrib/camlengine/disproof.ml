@@ -184,7 +184,7 @@ let rec getworld u c =
 let rec domono pts u c =
   let (ts, cs) = getworld u c in
   match listsub eqterms pts ts with
-    [] -> u
+    []  -> u
   | ts' -> foldl (domono ts') ((u ++ (c |-> (ts' @ ts, cs)))) cs
 
 let rec addworldlabel u c t =
@@ -930,7 +930,26 @@ let rec newtile =
          (fun tile ->
             Some (withdisprooftiles d (tilesort (tile :: tiles)))))
 
-let rec addchild u (_, py as pc) (_, cy as cc) =
+let rec addlink u from to__ =
+  let (ts, cs) = getworld u from in
+  if member (to__, cs) then u else (u ++ (from |-> (ts, to__ :: cs)))
+
+let rec addmonolink u from to__ =
+  let (ts, cs) = getworld u from in
+  if member (to__, cs) then u else domono ts (u ++ (from |-> (ts, to__ :: cs))) to__
+
+let rec deletelink u from to__ =
+  let (ts, cs) = getworld u from in
+  if member (to__, cs) then
+    (u ++ (from |-> (ts, listsub (fun (x, y) -> x = y) cs [to__])))
+  else u
+
+let spliceworldtolink u w lfrom lto__ =
+  let u = deletelink u lfrom lto__ in
+  let u = addmonolink u lfrom w in
+  addmonolink u w lto__
+
+let addchild u (_, py as pc) (_, cy as cc) =
   if py >= cy then None
   else
     match u <@> pc with
@@ -944,7 +963,10 @@ let rec addchild u (_, py as pc) (_, cy as cc) =
             None   -> Some ((u' ++ (cc |-> (pts, []))))
           | Some _ -> Some (domono pts u' cc)
 
-let rec deleteworld =
+let addchildtolink u parent child lfrom lto__ =
+  addchild u parent child &~~ (fun u -> Some (spliceworldtolink u child lfrom lto__))
+  
+let deleteworld =
   fun (Disproofstate {universe = universe; selected = selected} as state) c ->
     (* consolereport ["deleteworld "; universestring "" universe; " "; coordstring c]; *)
     match universe <@> c with
@@ -978,104 +1000,85 @@ let rec worldselect =
       None
     else Some (withdisproofselected d cs)
 
-let rec addlink u from to__ =
-  let (ts, cs) = getworld u from in
-  if member (to__, cs) then u
-  else (u ++ (from |-> (ts, to__ :: cs)))
-
-let rec deletelink u from to__ =
-  let (ts, cs) = getworld u from in
-  if member (to__, cs) then
-    (u ++ (from |-> (ts, listsub (fun (x, y) -> x = y) cs [to__])))
-  else u
-
 let rec children u c = snd (getworld u c)
 
 let rec parents u c = (fun p -> member (c, children u p)) <| dom u
 
-let rec moveworld =
-  fun (Disproofstate {universe = u; selected = sels} as d) from
-    (_, toy as to__) ->
-    if from = to__ then None
-    else
-      match (u <@> from) with
-        None ->
-          raise
-            (Catastrophe_
-               ["(moveworld) no world at "; coordstring from; " in ";
-                universestring "" u])
-      | Some (fromts, fromcs) ->
-          (* split all (c->from) contrary links to point parent->from and from->child *)
-          let rec splitlink fromcs u (_, cy as c) =
-            let rec linkparent u (_, py as p) =
-              if py < toy then addlink u p from
-              else foldl linkparent u (parents u p)
-            in
-            let rec linkchild u ch = addlink u from ch in
-            if cy >= toy && member (from, children u c) then
-              foldl linkchild
-                (deletelink (foldl linkparent u (parents u c)) c from)
-                fromcs
-            else u
+let moveworld (Disproofstate {universe = u; selected = sels} as d) from (_, toy as to__) =
+  if from = to__ then None
+  else
+    match (u <@> from) with
+      None -> raise (Catastrophe_ ["(moveworld) no world at "; coordstring from; " in ";
+                                   universestring "" u])
+    | Some (fromts, fromcs) ->
+        (* split all (c->from) contrary links to point parent->from and from->child *)
+        let rec splitlink fromcs u (_, cy as c) =
+          let rec linkparent u (_, py as p) =
+            if py < toy then addlink u p from
+            else foldl linkparent u (parents u p)
           in
-          let u =
-            foldl (splitlink fromcs) u
-              (listsub (fun (x, y) -> x = y) (dom u) [from])
-          in
-          (* all (from->c) contrary links split into parent->c and c->child *)
-          let rec splitlink2 fromps (u, cs) (_, cy as c) =
-            if c = to__ then u, cs
-            else if(* no self links, please *)  toy >= cy then
-              let rec linkparent u p = addlink u p c in
-              let rec linkchild u (_, chy as ch) =
-                if chy < toy then addlink u c ch
-                else foldl linkchild u (children u ch)
-              in
-              foldl linkchild (foldl linkparent u fromps) (children u c),
-              cs
-            else u, c :: cs
-          in
-          let (u, fromcs) =
-            foldl (splitlink2 (parents u from)) ((u -- [from]), [])
+          let rec linkchild u ch = addlink u from ch in
+          if cy >= toy && member (from, children u c) then
+            foldl linkchild
+              (deletelink (foldl linkparent u (parents u c)) c from)
               fromcs
-          in
-          let rec swing c = if c = from then to__ else c in
-          let ulist = (fun (c, _) -> c <> from) <| aslist u in
-          let u =
-            match (u <@> to__) with
-              None ->
-                (* it's a new position: swing links from->to *)
-                (mkmap
-                   (List.map (fun (c, (ts, cs)) -> c, (ts, List.map swing cs))
-                      ulist) ++
-                 (to__ |-> (fromts, fromcs)))
-            | Some (tots, tocs) ->
-                (* it's already there; delete unnecessary ->from links and unite the worlds *)
-                let u =
-                  mkmap
-                    (List.map
-                       (fun (c, (ts, cs)) ->
-                          c,
-                          (ts,
-                           (if member (to__, cs) then
-                              (fun c -> c <> from) <| cs
-                            else List.map swing cs)))
-                       ulist)
-                in
-                domono fromts
-                  ((u ++
-                      (to__ |->
-                         (tots,
-                          tocs @
-                            listsub (fun (x, y) -> x = y) fromcs tocs))))
-                  to__
-          in
-          let sels =
-            if member (to__, sels) then
-              listsub (fun (x, y) -> x = y) sels [from]
-            else List.map swing sels
-          in
-          Some (withdisproofselected (withdisproofuniverse d u) sels)
+          else u
+        in
+        let u =
+          foldl (splitlink fromcs) u
+            (listsub (fun (x, y) -> x = y) (dom u) [from])
+        in
+        (* all (from->c) contrary links split into parent->c and c->child *)
+        let rec splitlink2 fromps (u, cs) (_, cy as c) =
+          if c = to__ then u, cs
+          else if(* no self links, please *)  toy >= cy then
+            let rec linkparent u p = addlink u p c in
+            let rec linkchild u (_, chy as ch) =
+              if chy < toy then addlink u c ch
+              else foldl linkchild u (children u ch)
+            in
+            foldl linkchild (foldl linkparent u fromps) (children u c),
+            cs
+          else u, c :: cs
+        in
+        let (u, fromcs) =
+          foldl (splitlink2 (parents u from)) ((u -- [from]), [])
+            fromcs
+        in
+        let rec swing c = if c = from then to__ else c in
+        let ulist = (fun (c, _) -> c <> from) <| aslist u in
+        let u =
+          match (u <@> to__) with
+            None ->
+              (* it's a new position: swing links from->to *)
+              (mkmap
+                 (List.map (fun (c, (ts, cs)) -> c, (ts, List.map swing cs))
+                    ulist) ++
+               (to__ |-> (fromts, fromcs)))
+          | Some (tots, tocs) ->
+              (* it's already there; delete unnecessary ->from links and unite the worlds *)
+              let u =
+                mkmap
+                  (List.map
+                     (fun (c, (ts, cs)) ->
+                        c, (ts, (if member (to__, cs) then (fun c -> c <> from) <| cs else List.map swing cs)))
+                     ulist)
+              in
+              domono fromts
+                (u ++ (to__ |-> (tots, tocs @ listsub (fun (x, y) -> x = y) fromcs tocs)))
+                to__
+        in
+        let sels =
+          if member (to__, sels) then
+            listsub (fun (x, y) -> x = y) sels [from]
+          else List.map swing sels
+        in
+        Some (withdisproofselected (withdisproofuniverse d u) sels)
+
+let moveworldtolink d from to__ lfrom lto__ =
+  moveworld d from to__ &~~ 
+  (fun (Disproofstate {universe=u} as d) -> 
+     Some (withdisproofuniverse d (spliceworldtolink u to__ lfrom lto__)))
 
 let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = tiles;
                                      selected = selected; forcemap = forcemap}) =
@@ -1141,7 +1144,5 @@ let cleardisproof () = Japeserver.clearPane Displayfont.DisproofPane
 let rec deletelink u from to__ =
   let (ts, cs) = getworld u from in
   if member (to__, cs) then
-    Some
-      ((u ++
-          (from |-> (ts, listsub (fun (x, y) -> x = y) cs [to__]))))
+    Some (u ++ (from |-> (ts, listsub (fun (x, y) -> x = y) cs [to__])))
   else None
