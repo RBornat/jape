@@ -29,11 +29,12 @@ import java.awt.Insets;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -46,33 +47,26 @@ public class TextDialog {
         operators=_operators;
     }
 
+    private static String lastConjecture = "";
+    
     public static void runNewConjectureDialog(String panel) {
         final String message = "Type a new conjecture for the "+panel+" panel";
-        final JTextField textField = new JTextField();
+        final JTextField textField = new JTextField(lastConjecture);
         JapeFont.setComponentFont(textField, JapeFont.TEXTINPUT);
         class OperatorButtonListener implements ActionListener {
-            private final String buttontitle;
-            public OperatorButtonListener(String buttontitle) {
-                this.buttontitle = buttontitle;
-            }
             public void actionPerformed(ActionEvent newEvent) {
                 try {
                     textField.getDocument().insertString(textField.getCaretPosition(),
-                                                         buttontitle, null);
+                                                         newEvent.getActionCommand(), null);
                     textField.requestFocus();
                 } catch (Exception exn) {
-                    Alert.abort("Button "+buttontitle+" threw exception "+exn);
+                    Alert.abort("Button "+newEvent.getActionCommand()+" threw exception "+exn);
                 }
             }
         }
+        OperatorButtonListener buttonPaneListener = new OperatorButtonListener();
         JPanel display = new JPanel();
         display.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-        display.addComponentListener(new ComponentAdapter() {
-            public void componentShown(ComponentEvent e) {
-                Logger.log.println("display componentShown");
-                textField.requestFocus();
-            }
-        });
         GridLayout gridLayout = new GridLayout(operators==null?2:3, 1);
         display.setLayout(gridLayout);
         display.add(new JLabel(message));
@@ -81,7 +75,7 @@ public class TextDialog {
             ButtonPane buttonPane = new ButtonPane();
             for (int i=0; i<operators.length; i++) {
                 JButton button = new JButton(operators[i]);
-                button.addActionListener(new OperatorButtonListener(operators[i]));
+                button.addActionListener(buttonPaneListener);
                 JapeFont.setComponentFont(button, JapeFont.TEXTINPUT);
                 buttonPane.addButton(button);
             }
@@ -89,14 +83,36 @@ public class TextDialog {
             display.add(buttonPane);
         }
 
+        // in order to get the text focus in the text field when we start, it's
+        // necessary to run JOptionPane by hand.  Code based on the Sun 1.3.1 docs.
         String [] options = { "OK", "Cancel" };
-        textField.requestFocus();
-        int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), display,
-                                                 "New Conjecture", 0,
-                                                 JOptionPane.PLAIN_MESSAGE,
-                                                 null, options, options[0]);
-        if (reply==0 && textField.getText().length()!=0)
-            Reply.sendCOMMAND("addnewconjecture "+JapeUtils.enQuote(panel)+
-                              " "+textField.getText());
+        JOptionPane pane = new JOptionPane(display, JOptionPane.PLAIN_MESSAGE, 0,
+                                           null, options, options[0]);
+        // pane.set.Xxxx(...); // Configure
+        JDialog dialog = pane.createDialog(JapeWindow.getTopWindow(), "New Conjecture");
+        dialog.addWindowListener(new WindowAdapter() {
+            public void windowActivated(WindowEvent e) {
+                Logger.log.println("dialog windowActivated");
+                textField.requestFocus();
+            }
+        });
+        dialog.show();
+        
+        Object selectedValue = pane.getValue();
+        /* int reply = JOptionPane.CLOSED_OPTION;
+        if (selectedValue!=null)
+            for(int counter = 0, maxCounter = options.length;
+                counter < maxCounter; counter++) {
+                if(options[counter].equals(selectedValue)) {
+                    reply = counter; break;
+                }
+            } */
+                
+        if (selectedValue!=null && options[0].equals(selectedValue)) {
+            lastConjecture = textField.getText();
+            if (lastConjecture.length()!=0)
+                Reply.sendCOMMAND("addnewconjecture "+JapeUtils.enQuote(panel)+
+                                    " "+lastConjecture);
+        }
     }
 }
