@@ -33,6 +33,7 @@ import java.awt.Insets;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.LayoutManager;
+import java.awt.Point;
 import java.awt.Rectangle;
 import javax.swing.Scrollable;
 
@@ -68,7 +69,14 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 
     // the difference between the main panel's position and visualBounds is,
     // essentially, the origin!
-    public void setViewOrigin(int x, int y) {
+    
+    public Point getOrigin() {
+        Rectangle v = viewport.getBounds();
+        computeBounds();
+        return new Point(-child.getX()-getX(), -child.getY()-getY());
+    }
+    
+    public void setOrigin(int x, int y) {
         Rectangle v = viewport.getBounds();
         computeBounds();
         setLocation(-child.getX()-x, -child.getY()-y);
@@ -136,7 +144,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     }
 
     public void repaint(long tm, int x, int y, int width, int height) {
-        if (containerlayout_tracing)
+        if (containerrepaint_tracing)
             System.err.println("ContainerWithOrigin.repaint "+getWidth()+","+getHeight()+" ("+
                                tm+","+x+","+y+","+width+","+height+")");
         super.repaint(tm, x, y, width, height);
@@ -226,7 +234,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 
         // Because I know the way the Component repaint hierarchy works, I can intervene ...
         public void repaint(long tm, int x, int y, int width, int height) {
-            if (containerlayout_tracing)
+            if (containerrepaint_tracing)
                 System.err.println("ContainerWithOrigin.child.repaint ["+getX()+","+getY()+" "
                                    +getWidth()+","+getHeight()+"] ("+
                                    tm+","+x+","+y+","+width+","+height+")");
