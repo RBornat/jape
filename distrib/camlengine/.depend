@@ -134,28 +134,30 @@ cxtstring.cmx: cxttype.cmx listfuns.cmx mappingfuns.cmx optionfuns.cmx \
     termstring.cmx cxtstring.cmi 
 cxttype.cmo: mappingfuns.cmi proviso.cmi rewinf.cmi seqtype.cmo termtype.cmi 
 cxttype.cmx: mappingfuns.cmx proviso.cmx rewinf.cmx seqtype.cmx termtype.cmx 
-dialogue.cmo: alert.cmi answer.cmi applyrule.cmi binding.cmi boxdraw.cmi \
-    button.cmi cxtfuns.cmi displaystate.cmo disproof.cmi doubleclick.cmi \
-    facts.cmi hit.cmi interaction.cmi invisibles.cmi japeenv.cmi \
-    japeserver.cmi listfuns.cmi mappingfuns.cmi match.cmi menu.cmi \
-    minwaste.cmi miscellaneous.cmi moresys.cmi name.cmi optionfuns.cmi \
-    paragraph.cmi paragraphfuns.cmi predicate.cmi proofstage.cmo \
-    proofstate.cmi proofstore.cmi prooftree.cmo proviso.cmi provisofuns.cmi \
-    rewrite.cmi runproof.cmi seqtype.cmo sequent.cmi sml.cmi stringfuns.cmi \
-    substmapfuns.cmi symbol.cmi tactic.cmi tacticfuns.cmi termfold.cmi \
-    termfuns.cmi termparse.cmi termstore.cmi termstring.cmi thing.cmi \
-    treeformat.cmo uTF.cmi unify.cmi usefile.cmi version.cmi dialogue.cmi 
-dialogue.cmx: alert.cmx answer.cmx applyrule.cmx binding.cmx boxdraw.cmx \
-    button.cmx cxtfuns.cmx displaystate.cmx disproof.cmx doubleclick.cmx \
-    facts.cmx hit.cmx interaction.cmx invisibles.cmx japeenv.cmx \
-    japeserver.cmx listfuns.cmx mappingfuns.cmx match.cmx menu.cmx \
-    minwaste.cmx miscellaneous.cmx moresys.cmx name.cmx optionfuns.cmx \
-    paragraph.cmx paragraphfuns.cmx predicate.cmx proofstage.cmx \
-    proofstate.cmx proofstore.cmx prooftree.cmx proviso.cmx provisofuns.cmx \
-    rewrite.cmx runproof.cmx seqtype.cmx sequent.cmx sml.cmx stringfuns.cmx \
-    substmapfuns.cmx symbol.cmx tactic.cmx tacticfuns.cmx termfold.cmx \
-    termfuns.cmx termparse.cmx termstore.cmx termstring.cmx thing.cmx \
-    treeformat.cmx uTF.cmx unify.cmx usefile.cmx version.cmx dialogue.cmi 
+dialogue.cmo: alert.cmi answer.cmi applyrule.cmi binding.cmi box.cmi \
+    boxdraw.cmi button.cmi cxtfuns.cmi displaystate.cmo disproof.cmi \
+    doubleclick.cmi facts.cmi hit.cmi interaction.cmi invisibles.cmi \
+    japeenv.cmi japeserver.cmi listfuns.cmi mappingfuns.cmi match.cmi \
+    menu.cmi minwaste.cmi miscellaneous.cmi moresys.cmi name.cmi \
+    optionfuns.cmi paragraph.cmi paragraphfuns.cmi predicate.cmi \
+    proofstage.cmo proofstate.cmi proofstore.cmi prooftree.cmo proviso.cmi \
+    provisofuns.cmi rewrite.cmi runproof.cmi seqtype.cmo sequent.cmi sml.cmi \
+    stringfuns.cmi substmapfuns.cmi symbol.cmi tactic.cmi tacticfuns.cmi \
+    termfold.cmi termfuns.cmi termparse.cmi termstore.cmi termstring.cmi \
+    thing.cmi treeformat.cmo uTF.cmi unify.cmi usefile.cmi version.cmi \
+    dialogue.cmi 
+dialogue.cmx: alert.cmx answer.cmx applyrule.cmx binding.cmx box.cmx \
+    boxdraw.cmx button.cmx cxtfuns.cmx displaystate.cmx disproof.cmx \
+    doubleclick.cmx facts.cmx hit.cmx interaction.cmx invisibles.cmx \
+    japeenv.cmx japeserver.cmx listfuns.cmx mappingfuns.cmx match.cmx \
+    menu.cmx minwaste.cmx miscellaneous.cmx moresys.cmx name.cmx \
+    optionfuns.cmx paragraph.cmx paragraphfuns.cmx predicate.cmx \
+    proofstage.cmx proofstate.cmx proofstore.cmx prooftree.cmx proviso.cmx \
+    provisofuns.cmx rewrite.cmx runproof.cmx seqtype.cmx sequent.cmx sml.cmx \
+    stringfuns.cmx substmapfuns.cmx symbol.cmx tactic.cmx tacticfuns.cmx \
+    termfold.cmx termfuns.cmx termparse.cmx termstore.cmx termstring.cmx \
+    thing.cmx treeformat.cmx uTF.cmx unify.cmx usefile.cmx version.cmx \
+    dialogue.cmi 
 displayclass.cmo: miscellaneous.cmi displayclass.cmi 
 displayclass.cmx: miscellaneous.cmx displayclass.cmi 
 displayfont.cmo: miscellaneous.cmi displayfont.cmi 
