@@ -2,7 +2,7 @@
 
 INITIALISE interpretpredicates true
 
-UsefileINITIALISE displaystyle tree
+INITIALISE displaystyle tree
 
 CLASS BAG Γ ∆
 CLASS FORMULA A B C D P Q R S
