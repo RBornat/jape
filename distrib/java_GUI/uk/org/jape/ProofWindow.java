@@ -132,8 +132,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     public static void closeproof(int proofnum) throws ProtocolError {
         ProofWindow proof = findProof(proofnum);
         focusv.remove(focusv.indexOf(proof));
-        windowv.remove(windowv.indexOf(proof));
-        proof.dispose();
+        closeWindow(proof.title);
         reportFocus();
     }
 
