@@ -1,7 +1,7 @@
 ﻿/* $Id$ */
 
-USE "MCS.jt"
-USE "IMCS.j"
+USE "../sequent_calculus/MCS.jt"
+USE "../sequent_calculus/IMCS.j"
 
 CONSTANT ⊥
 PREFIX 50 ◊
