@@ -162,7 +162,7 @@ public class japeserver implements DebugConstants {
     }
 
     public static Component findTargetAt(Class target, Component c, int x, int y) {
-        if (c.contains(x,y)) {
+        if (c.isVisible() && c.contains(x,y)) {
             if (c instanceof Container) {
                 Container c1 = (Container) c;
                 int ncs = c1.getComponentCount();
