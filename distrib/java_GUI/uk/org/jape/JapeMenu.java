@@ -443,6 +443,14 @@ public class JapeMenu implements DebugConstants {
         newMenuBar();
     }
 
+    public static void cancelMenus() {
+        init(); // I hope
+    }
+
+    public static void emptyMenus() {
+        init(); // I hope
+    }
+
     public static void addSeparator(String menuname) throws ProtocolError {
         try {
             M menu = (M)menutable.get(menuname);
