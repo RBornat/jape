@@ -30,6 +30,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
+import java.util.Vector;
 
 public class SelectableTextItem extends TextItem {
     public Color selectionColour = Color.red;
@@ -55,10 +56,95 @@ public class SelectableTextItem extends TextItem {
         right = r.width-selectionthickness; bottom = r.height-selectionthickness;
 
         addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+            /*
+                void mouseClicked(MouseEvent e)
+                    Invoked when the mouse has been clicked on a component.
+                void mouseDragged(MouseEvent e)
+                    Invoked when a mouse button is pressed on a component and then dragged.
+                void mouseEntered(MouseEvent e)
+                    Invoked when the mouse enters a component.
+                void mouseExited(MouseEvent e)
+                    Invoked when the mouse exits a component.
+                void mouseMoved(MouseEvent e)
+                    Invoked when the mouse button has been moved on a component (with no buttons no down).
+                void mousePressed(MouseEvent e)
+                    Invoked when a mouse button has been pressed on a component.
+                void mouseReleased(MouseEvent e)
+                    Invoked when a mouse button has been released on a component.
+
+                All true, except that (experimentally) mouseClicked seems to mean mouseReleased
+                in the same place as mouseClicked ...
+             */
+             public void mouseClicked(MouseEvent e) {
                 click(e);
             }
         });
+    }
+
+    protected FormulaTree formulae;
+    
+    protected class FormulaTree {
+        public final int start, end; // start<=i<end -> i is in this subformula
+        public final int pxstart, pxend;
+        public FormulaTree parent;
+        public final FormulaTree[] children;
+
+        public FormulaTree(int start, int end, FormulaTree[] children) {
+            this.start = start; this.end = end;
+            this.pxstart = JapeFont.charsWidth(printchars, 0, start, fontnum);
+            this.pxend = JapeFont.charsWidth(printchars, 0, end, fontnum);
+            this.children = children;
+            for (int i=0; i<children.length; i++)
+                children[i].parent = this;
+        }
+
+        public String toString() {
+            String s = "FT["+start+","+end+" "+pxstart+","+pxend+" [";
+            for (int i=0; i<children.length; i++)
+                s = s+children[i]+(i==children.length-1 ? "" : ",");
+            return s+"]]";
+        }
+    }
+
+    // annoti, printi, annotlen are variables in TextItem
+    protected FormulaTree computeFormulaTree(char expectedket) {
+        int i0 = printi;
+        Vector cs = new Vector();
+        char c;
+        while (annoti<annotlen) {
+            c = annottext.charAt(annoti++);
+            if (invisbra(c))
+                cs.add(computeFormulaTree(bra2ket(c)));
+            else
+            if (invisket(c)) {
+                if (c==expectedket)
+                    return computeFormulaTreeResult(i0, cs);
+                else
+                    Alert.abort("computeFormulaTree saw "+(int)c+", expected "+(int)expectedket);
+            }
+            else
+                printi++;
+        }
+        
+        if (expectedket!=0)
+            Alert.abort(this+": computeFormulaTree exhausted text, "+
+                        ", expected "+(int)expectedket);
+
+        if (printi!=printchars.length)
+            Alert.abort(this+": text is "+printchars.length+
+                        " chars, but computeFormulaTree thinks it's "+printi);
+
+        return computeFormulaTreeResult(i0, cs);
+    }
+
+    protected FormulaTree computeFormulaTreeResult(int i0, Vector cs) {
+        if (cs.size()==1) {
+            FormulaTree child = (FormulaTree)cs.get(0);
+            if (child.start==i0 && child.end==printi)
+                return child;
+        }
+
+        return new FormulaTree(i0, printi, (FormulaTree[])cs.toArray(new FormulaTree[cs.size()]));
     }
 
     /*
@@ -95,19 +181,23 @@ public class SelectableTextItem extends TextItem {
      */
 
     /*
-        It would be nice if click meant select me (as it does), and press-and-drag
+        It might be nice if click meant select me (as it does), and press-and-drag
         meant text-select me (as it doesn't for us, but it does in every editor).
     
         The drawbacks, apart from incompatibility with Actually Existing Jape, would
         be (a) impossible to select a token with a single click; (b) a modifier key /
         alternative button needed for drag-n-drop, when I come to it.
     
-        Ho hum, decisions, decisions.  I'm going to try press-and-drag for text selection
-        till I find out how it feels.
+        I've thought about it.  Essentially normal click (select, move when it's implemented)
+        works on the whole object, text click (select ranges of text) works within the object.
+        They are two different things, and I shouldn't confuse them.  No doubt that was the
+        reason for the original design ...
      */
 
     // you get a click event if you press the mouse at a particular point, move it and then
     // move back to the same point!  Well blow me down: we're not having that.
+
+    protected boolean mousemotionseen = false;
     
     protected void click(MouseEvent e) {
         byte selected;
