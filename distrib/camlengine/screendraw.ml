@@ -50,5 +50,5 @@ module type T =
     val highlight : pos -> displayclass option -> unit
     val targetbox : pos -> int list option -> layout -> textbox option
     val samelayout : layout * layout -> bool
-    val alltargets : pos -> layout -> (int list * textbox) list
+    val allFormulaHits : pos -> layout -> (textbox * int list fhit) list
   end

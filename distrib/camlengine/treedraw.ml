@@ -39,6 +39,7 @@ open Sml
 let (&~~) = Optionfuns.(&~~)
 let (<*) = Listfuns.(<*)
 let (<|) = Listfuns.(<|)
+let _Some = Optionfuns._Some
 let consolereport = Miscellaneous.consolereport
 let string_of_element = Termstring.string_of_element
 let invisbracketedstring_of_element = Termstring.invisbracketedstring_of_element
@@ -75,16 +76,6 @@ type treeplanrec =
 and treeplan = Treeplan of treeplanrec
 
 type layout = treeplan
-
-let alltargets pos p =
-  let rec allroots revpath pos (Treeplan p) rs =
-    allchilds 0 revpath pos p.subplans ((List.rev revpath, tbOffset p.seqbox pos) :: rs)
-  and allchilds n revpath pos ps rs =
-    match ps with
-      [] -> rs
-    | (cpos, p)::ps -> allroots (n::revpath) (pos +<-+ cpos) p (allchilds (n+1) revpath pos ps rs)
-  in
-  allroots [] pos p []
 
 let rec shiftoutline indent (ys : outline) =
   ((fun (l, r) -> l + indent, r + indent) <* ys)
@@ -254,42 +245,56 @@ let rec _FIRSTOFN  _P xs =
 let rec elinfo plan =
   match planinfo plan with
     ElementClass info -> Some info
-  | _ -> None
+  | _                 -> None
 
-let rec hit_of_pos pos path =
-  fun
-    (Treeplan
-       {proofbox = proofbox;
-        seqplan = seqplan;
-        seqbox = seqbox;
-        reasonplan = reasonplan;
-        subplans = subplans}) ->
-    if within (pos, proofbox) then
-      if withintb (pos, seqbox) then
-        match findfirstplanhit ( (pos +<-+ tbPos seqbox)) seqplan &~~ elinfo with
-          Some (el, c) ->
-            if c = DisplayHyp then
-              Some (FormulaHit (HypHit (List.rev path, el)))
-            else if c = DisplayConc then
-              Some (FormulaHit (ConcHit (List.rev path, (el, None))))
-            else None
-        | _ -> None
-      else if
-        match
-          (reasonplan &~~ (fSome <.> plantextbox))
-        with
-          Some reasonbox -> withintb (pos, reasonbox)
-        | _ -> false
-      then
-        Some (ReasonHit (List.rev path))
-      else
-        _FIRSTOFN
-           (fun (n, (pos', plan)) -> hit_of_pos ( (pos +<-+ pos')) (n :: path) plan)
-           subplans
-    else None
+let rec hit_of_pos pos path
+                   (Treeplan {proofbox = proofbox; seqplan = seqplan; seqbox = seqbox; 
+                              reasonplan = reasonplan; subplans = subplans}) =
+  if within (pos, proofbox) then
+    if withintb (pos, seqbox) then
+      match findfirstplanhit ( (pos +<-+ tbPos seqbox)) seqplan &~~ elinfo with
+        Some (el, c) ->
+          if c = DisplayHyp then
+            Some (FormulaHit (HypHit (List.rev path, el)))
+          else if c = DisplayConc then
+            Some (FormulaHit (ConcHit (List.rev path, (el, None))))
+          else None
+      | _ -> None
+    else if
+      match
+        (reasonplan &~~ (_Some <.> plantextbox))
+      with
+        Some reasonbox -> withintb (pos, reasonbox)
+      | _              -> false
+    then
+      Some (ReasonHit (List.rev path))
+    else
+      _FIRSTOFN
+         (fun (n, (pos', plan)) -> hit_of_pos ( (pos +<-+ pos')) (n :: path) plan)
+         subplans
+  else None
 
 let rec locateHit pos _ _ (prooforigin, proof, plan) =
   hit_of_pos ( (pos +<-+ prooforigin)) [] plan
+
+let allFormulaHits prooforigin p =
+  let rec allroots revpath pos (Treeplan p) rs =
+    let path = List.rev revpath in
+    let oneel pos rs (Formulaplan (_, tbox, c)) =
+      let tbox = tbOffset tbox pos in
+      match c with
+        ElementClass(el,DisplayHyp)  -> (tbox, HypHit(path,el)) :: rs
+      | ElementClass(el,DisplayConc) -> (tbox, ConcHit(path,(el,None))) :: rs
+      | _                            -> rs 
+    in
+    allchilds 0 revpath pos p.subplans 
+                (List.fold_left (oneel (pos +->+ tbPos p.seqbox)) rs p.seqplan)
+  and allchilds n revpath pos ps rs =
+    match ps with
+      [] -> rs
+    | (cpos, p)::ps -> allroots (n::revpath) (pos +->+ cpos) p (allchilds (n+1) revpath pos ps rs)
+  in
+  allroots [] prooforigin p []
 
 let refineSelection = false
 
@@ -347,45 +352,39 @@ let rec elementofclass class__ plan =
     ElementClass (_, c) -> class__ = c
   | _ -> false
 
-let rec draw goal pos proof =
-  fun (Treeplan {linethickness = linethickness} as plan) ->
-    let rgoal = revgoal goal in
-    let rec _D =
-      fun
-        (Treeplan
-           {seqplan = seqplan;
-            reasonplan = reasonplan;
-            linespec = linespec;
-            subplans = subplans;
-            seqbox = seqbox})
-        p here ->
-        seqdraw p seqbox seqplan;
-        drawReason p reasonplan;
-        begin match linespec with
-          None -> ()
-        | Some (isMulti, p1, p2) ->
-            let p1 = p1 +->+ p in
-            let p2 = p2 +->+ p in
-            if isMulti then
-              begin
-                drawLine (upby (p1, 2 * linethickness)) (upby (p2, 2*linethickness));
-                drawLine p1 p2
-              end
-            else drawLine p1 p2
-        end;
-        begin match
-          samepath (rgoal, here),
-          elementofclass DisplayConc <| seqplan
-        with
-          true, [plan] ->
-            highlight (seqelementpos p seqbox plan) (Some DisplayConc)
-        | _ -> ()
-        end;
-        _FORNUMBERED
-           (fun (n, (stp, st)) -> _D st (p +->+ stp) (n :: here))
-           subplans
-    in
-    drawinproofpane (); _D plan pos []
+let rec draw goal pos proof (Treeplan {linethickness = linethickness} as plan) =
+  let rgoal = revgoal goal in
+  let rec _D (Treeplan
+                {seqplan = seqplan; reasonplan = reasonplan; linespec = linespec;
+                 subplans = subplans; seqbox = seqbox})
+             p here =
+    seqdraw p seqbox seqplan;
+    drawReason p reasonplan;
+    begin match linespec with
+      None -> ()
+    | Some (isMulti, p1, p2) ->
+        let p1 = p1 +->+ p in
+        let p2 = p2 +->+ p in
+        if isMulti then
+          begin
+            drawLine (upby (p1, 2 * linethickness)) (upby (p2, 2*linethickness));
+            drawLine p1 p2
+          end
+        else drawLine p1 p2
+    end;
+    begin match
+      samepath (rgoal, here),
+      elementofclass DisplayConc <| seqplan
+    with
+      true, [plan] ->
+        highlight (seqelementpos p seqbox plan) (Some DisplayConc)
+    | _ -> ()
+    end;
+    _FORNUMBERED
+       (fun (n, (stp, st)) -> _D st (p +->+ stp) (n :: here))
+       subplans
+  in
+  drawinproofpane (); _D plan pos []
 
 let rec print str goal pos proof plan =
   let rgoal = revgoal goal in
