@@ -20,7 +20,7 @@
 
 *)
 
-open Context.Cxt
+open Cxttype
 open Termtype
 open Seqtype
 open Rewinf

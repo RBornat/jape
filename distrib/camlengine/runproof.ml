@@ -20,8 +20,8 @@
 
 *)
 
-open Context.Cxt 
-open Context.ExteriorFuns
+open Cxtfuns 
+open Cxtexterior
 open Name 
 open Proofstage 
 open Proofstate
@@ -37,7 +37,7 @@ let applyconjectures = Miscellaneous.applyconjectures
 let applyTactic = Tacticfuns.applyTactic None
 
 let checkdisproof cxt =
-  Disproof.checkdisproof (Facts.facts (Context.Cxt.provisos cxt) cxt)
+  Disproof.checkdisproof (Facts.facts (Cxtfuns.provisos cxt) cxt)
 
 let compiletoprove = Thing.compiletoprove
 let consolereport = Miscellaneous.consolereport

@@ -23,7 +23,7 @@
 open Prooftree.Tree.Fmttree
 open Proofstate
 open Hit
-open Context.Type
+open Cxttype
 open Displaystate
 open Termtype
 open Seqtype

@@ -28,7 +28,7 @@
  *)
 open Answer
 open Button
-open Context.Cxt
+open Cxtfuns
 open Displaystate
 open Disproof
 open Doubleclick
@@ -94,7 +94,7 @@ let createdbugfile = Miscellaneous.create_reportfile
 
 (* fun draganddropmapping cxt = 
     Provisofuns.draganddropmapping 
-      (List.map Proviso.provisoactual (Context.Cxt.provisos cxt))
+      (List.map Proviso.provisoactual (Cxtfuns.provisos cxt))
 *)
 
 let elementstring = Termstring.elementstring

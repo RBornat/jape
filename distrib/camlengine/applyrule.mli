@@ -24,7 +24,7 @@ type term = Termtype.term
 and seq = Seqtype.seq
 and rewinf = Prooftree.Tree.rewinf
 and element = Termtype.element
-and cxt = Context.Cxt.cxt
+and cxt = Cxttype.cxt
 and prooftree = Prooftree.Tree.Fmttree.prooftree
 and possmatch
 and resnum = Termtype.resnum

@@ -1,20 +1,25 @@
 absprooftree.cmi: displayfont.cmi prooftree.cmo seqtype.cmo termtype.cmi \
     text.cmi thing.cmi 
-applyrule.cmi: context.cmo name.cmi prooftree.cmo proviso.cmi seqtype.cmo \
+applyrule.cmi: cxtfuns.cmi name.cmi prooftree.cmo proviso.cmi seqtype.cmo \
     termtype.cmi 
 binding.cmi: termtype.cmi 
 boxdraw.cmi: screendraw.cmo 
 button.cmi: name.cmi 
+cxtexterior.cmi: cxttype.cmo rewinf.cmi 
+cxtfuns.cmi: cxttype.cmo idclass.cmi mappingfuns.cmi proviso.cmi seqtype.cmo \
+    termtype.cmi 
+cxtprovisos.cmi: cxttype.cmo proviso.cmi rewinf.cmi 
+cxtstring.cmi: cxttype.cmo 
 displaystate.cmi: box.cmi displayclass.cmi hit.cmi prooftree.cmo 
 disproof.cmi: facts.cmi forcedef.cmi prooftree.cmo seqtype.cmo termtype.cmi 
 doubleclick.cmi: seqtype.cmo tactictype.cmo termtype.cmi 
 draw.cmi: absprooftree.cmi box.cmi displayclass.cmi japeserver.cmi \
     termtype.cmi text.cmi 
-facts.cmi: answer.cmi context.cmo proviso.cmi termtype.cmi 
+facts.cmi: answer.cmi cxttype.cmo proviso.cmi termtype.cmi 
 forcedef.cmi: seqtype.cmo termtype.cmi 
 hit.cmi: termtype.cmi 
 idclassfuns.cmi: idclass.cmi symboltype.cmo 
-interaction.cmi: context.cmo displaystate.cmi hit.cmi proofstate.cmi \
+interaction.cmi: cxttype.cmo displaystate.cmi hit.cmi proofstate.cmi \
     prooftree.cmo seqtype.cmo termtype.cmi 
 japeenv.cmi: name.cmi termtype.cmi 
 japeserver.cmi: box.cmi displayclass.cmi displayfont.cmi moresys.cmi \
@@ -22,7 +27,7 @@ japeserver.cmi: box.cmi displayclass.cmi displayfont.cmi moresys.cmi \
 match.cmi: mappingfuns.cmi termtype.cmi 
 menu.cmi: name.cmi panelkind.cmo 
 name.cmi: nametype.cmo termtype.cmi 
-oracle.cmi: context.cmo termtype.cmi 
+oracle.cmi: cxtfuns.cmi termtype.cmi 
 paragraph.cmi: doubleclick.cmi forcedef.cmi menu.cmi name.cmi panelkind.cmo \
     paraparam.cmi proofstage.cmo proviso.cmi seqtype.cmo tactictype.cmo \
     termtype.cmi 
@@ -31,18 +36,18 @@ paragraphfuns.cmi: forcedef.cmi japeenv.cmi name.cmi paragraph.cmi \
     thing.cmi 
 paraparam.cmi: idclass.cmi termtype.cmi 
 predicate.cmi: termtype.cmi 
-proofstate.cmi: context.cmo prooftree.cmo seqtype.cmo tactictype.cmo \
+proofstate.cmi: cxtfuns.cmi prooftree.cmo seqtype.cmo tactictype.cmo \
     termtype.cmi 
-proofstore.cmi: context.cmo forcedef.cmi name.cmi proofstage.cmo \
+proofstore.cmi: cxtfuns.cmi forcedef.cmi name.cmi proofstage.cmo \
     prooftree.cmo proviso.cmi seqtype.cmo thing.cmi 
 proviso.cmi: provisotype.cmo termtype.cmi 
-provisofuns.cmi: context.cmo mappingfuns.cmi proviso.cmi termtype.cmi 
-rew.cmi: context.cmo proviso.cmi rewinf.cmi seqtype.cmo termtype.cmi 
+provisofuns.cmi: cxtfuns.cmi mappingfuns.cmi proviso.cmi termtype.cmi 
+rew.cmi: cxtfuns.cmi proviso.cmi rewinf.cmi seqtype.cmo termtype.cmi 
 rewinf.cmi: termtype.cmi 
-rewrite.cmi: context.cmo seqtype.cmo termtype.cmi 
-runproof.cmi: context.cmo forcedef.cmi japeenv.cmi name.cmi proofstage.cmo \
+rewrite.cmi: cxtfuns.cmi seqtype.cmo termtype.cmi 
+runproof.cmi: cxtfuns.cmi forcedef.cmi japeenv.cmi name.cmi proofstage.cmo \
     proofstate.cmi proviso.cmi seqtype.cmo tactictype.cmo 
-selection.cmi: context.cmo termtype.cmi 
+selection.cmi: cxtfuns.cmi termtype.cmi 
 seqdraw.cmi: box.cmi displayclass.cmi draw.cmi seqtype.cmo termtype.cmi 
 sequent.cmi: idclass.cmi mappingfuns.cmi seqtype.cmo symboltype.cmo \
     termtype.cmi 
@@ -57,11 +62,11 @@ termstore.cmi: idclass.cmi termtype.cmi
 termstring.cmi: termtype.cmi 
 termtype.cmi: idclass.cmi 
 text.cmi: box.cmi displayfont.cmi 
-thing.cmi: context.cmo mappingfuns.cmi name.cmi paraparam.cmi proviso.cmi \
+thing.cmi: cxtfuns.cmi mappingfuns.cmi name.cmi paraparam.cmi proviso.cmi \
     seqtype.cmo tactictype.cmo termtype.cmi 
 treedraw.cmi: screendraw.cmo 
 treelayout.cmi: mappingfuns.cmi termtype.cmi 
-unify.cmi: context.cmo termtype.cmi 
+unify.cmi: cxtfuns.cmi termtype.cmi 
 absprooftree.cmo: displayfont.cmi proofstore.cmi prooftree.cmo seqtype.cmo \
     sequent.cmi sml.cmi symbol.cmi termfuns.cmi termtype.cmi text.cmi \
     thing.cmi treeformat.cmo absprooftree.cmi 
@@ -74,12 +79,12 @@ alert.cmx: japeserver.cmx listfuns.cmx miscellaneous.cmx optionfuns.cmx \
     sml.cmx alert.cmi 
 answer.cmo: sml.cmi answer.cmi 
 answer.cmx: sml.cmx answer.cmi 
-applyrule.cmo: alert.cmi context.cmo idclass.cmi listfuns.cmi mappingfuns.cmi \
+applyrule.cmo: alert.cmi cxtfuns.cmi idclass.cmi listfuns.cmi mappingfuns.cmi \
     miscellaneous.cmi name.cmi optionfuns.cmi prooftree.cmo proviso.cmi \
     provisofuns.cmi provisotype.cmo reason.cmi rewinf.cmi rewrite.cmi \
     seqtype.cmo sequent.cmi sml.cmi stringfuns.cmi termfuns.cmi termstore.cmi \
     termstring.cmi termtype.cmi treeformat.cmo unify.cmi applyrule.cmi 
-applyrule.cmx: alert.cmx context.cmx idclass.cmx listfuns.cmx mappingfuns.cmx \
+applyrule.cmx: alert.cmx cxtfuns.cmx idclass.cmx listfuns.cmx mappingfuns.cmx \
     miscellaneous.cmx name.cmx optionfuns.cmx prooftree.cmx proviso.cmx \
     provisofuns.cmx provisotype.cmx reason.cmx rewinf.cmx rewrite.cmx \
     seqtype.cmx sequent.cmx sml.cmx stringfuns.cmx termfuns.cmx termstore.cmx \
@@ -116,8 +121,24 @@ context.cmx: idclass.cmx listfuns.cmx mappingfuns.cmx miscellaneous.cmx \
     optionfuns.cmx proviso.cmx provisotype.cmx rewinf.cmx seqtype.cmx \
     sequent.cmx sml.cmx stringfuns.cmx termfuns.cmx termstore.cmx \
     termstring.cmx termtype.cmx 
+cxtexterior.cmo: cxttype.cmo cxtexterior.cmi 
+cxtexterior.cmx: cxttype.cmx cxtexterior.cmi 
+cxtfuns.cmo: cxttype.cmo listfuns.cmi mappingfuns.cmi proviso.cmi \
+    provisotype.cmo rewinf.cmi sml.cmi termfuns.cmi termstore.cmi cxtfuns.cmi 
+cxtfuns.cmx: cxttype.cmx listfuns.cmx mappingfuns.cmx proviso.cmx \
+    provisotype.cmx rewinf.cmx sml.cmx termfuns.cmx termstore.cmx cxtfuns.cmi 
+cxtprovisos.cmo: cxttype.cmo miscellaneous.cmi cxtprovisos.cmi 
+cxtprovisos.cmx: cxttype.cmx miscellaneous.cmx cxtprovisos.cmi 
+cxtstring.cmo: cxttype.cmo listfuns.cmi mappingfuns.cmi optionfuns.cmi \
+    proviso.cmi rewinf.cmi sequent.cmi sml.cmi stringfuns.cmi termfuns.cmi \
+    termstring.cmi cxtstring.cmi 
+cxtstring.cmx: cxttype.cmx listfuns.cmx mappingfuns.cmx optionfuns.cmx \
+    proviso.cmx rewinf.cmx sequent.cmx sml.cmx stringfuns.cmx termfuns.cmx \
+    termstring.cmx cxtstring.cmi 
+cxttype.cmo: mappingfuns.cmi proviso.cmi rewinf.cmi seqtype.cmo termtype.cmi 
+cxttype.cmx: mappingfuns.cmx proviso.cmx rewinf.cmx seqtype.cmx termtype.cmx 
 dialogue.cmo: alert.cmi answer.cmi applyrule.cmi binding.cmi boxdraw.cmi \
-    button.cmi context.cmo displaystate.cmi disproof.cmi doubleclick.cmi \
+    button.cmi cxtfuns.cmi displaystate.cmi disproof.cmi doubleclick.cmi \
     env.cmi facts.cmi hit.cmi interaction.cmi japeenv.cmi japeserver.cmi \
     listfuns.cmi mappingfuns.cmi match.cmi menu.cmi minwaste.cmi \
     miscellaneous.cmi moresys.cmi name.cmi optionfuns.cmi paragraph.cmi \
@@ -128,7 +149,7 @@ dialogue.cmo: alert.cmi answer.cmi applyrule.cmi binding.cmi boxdraw.cmi \
     termparse.cmi termstore.cmi termstring.cmi thing.cmi treeformat.cmo \
     unify.cmi version.cmi dialogue.cmi 
 dialogue.cmx: alert.cmx answer.cmx applyrule.cmx binding.cmx boxdraw.cmx \
-    button.cmx context.cmx displaystate.cmx disproof.cmx doubleclick.cmx \
+    button.cmx cxtfuns.cmx displaystate.cmx disproof.cmx doubleclick.cmx \
     env.cmx facts.cmx hit.cmx interaction.cmx japeenv.cmx japeserver.cmx \
     listfuns.cmx mappingfuns.cmx match.cmx menu.cmx minwaste.cmx \
     miscellaneous.cmx moresys.cmx name.cmx optionfuns.cmx paragraph.cmx \
@@ -178,12 +199,14 @@ draw.cmx: absprooftree.cmx box.cmx displayclass.cmx displayfont.cmx \
     text.cmx draw.cmi 
 env.cmo: sml.cmi env.cmi 
 env.cmx: sml.cmx env.cmi 
-facts.cmo: answer.cmi context.cmo listfuns.cmi mappingfuns.cmi \
-    miscellaneous.cmi proviso.cmi provisotype.cmo rewinf.cmi stringfuns.cmi \
-    symbol.cmi termfuns.cmi termstring.cmi termtype.cmi facts.cmi 
-facts.cmx: answer.cmx context.cmx listfuns.cmx mappingfuns.cmx \
-    miscellaneous.cmx proviso.cmx provisotype.cmx rewinf.cmx stringfuns.cmx \
-    symbol.cmx termfuns.cmx termstring.cmx termtype.cmx facts.cmi 
+facts.cmo: answer.cmi cxtexterior.cmi cxtstring.cmi cxttype.cmo listfuns.cmi \
+    mappingfuns.cmi miscellaneous.cmi proviso.cmi provisotype.cmo rewinf.cmi \
+    stringfuns.cmi symbol.cmi termfuns.cmi termstring.cmi termtype.cmi \
+    facts.cmi 
+facts.cmx: answer.cmx cxtexterior.cmx cxtstring.cmx cxttype.cmx listfuns.cmx \
+    mappingfuns.cmx miscellaneous.cmx proviso.cmx provisotype.cmx rewinf.cmx \
+    stringfuns.cmx symbol.cmx termfuns.cmx termstring.cmx termtype.cmx \
+    facts.cmi 
 fix.cmo: fix.cmi 
 fix.cmx: fix.cmi 
 forcedef.cmo: listfuns.cmi miscellaneous.cmi optionfuns.cmi sequent.cmi \
@@ -202,13 +225,13 @@ idclassfuns.cmo: idclass.cmi listfuns.cmi miscellaneous.cmi symbol.cmi \
     symboltype.cmo idclassfuns.cmi 
 idclassfuns.cmx: idclass.cmx listfuns.cmx miscellaneous.cmx symbol.cmx \
     symboltype.cmx idclassfuns.cmi 
-interaction.cmo: alert.cmi answer.cmi box.cmi context.cmo displayclass.cmi \
+interaction.cmo: alert.cmi answer.cmi box.cmi cxtfuns.cmi displayclass.cmi \
     displayfont.cmi displaystate.cmi displaystyle.cmo hit.cmi japeserver.cmi \
     listfuns.cmi miscellaneous.cmi optionfuns.cmi proofstate.cmi \
     prooftree.cmo proviso.cmi rewrite.cmi selection.cmi seqtype.cmo \
     sequent.cmi sml.cmi stringfuns.cmi termfuns.cmi termstring.cmi \
     treeformat.cmo interaction.cmi 
-interaction.cmx: alert.cmx answer.cmx box.cmx context.cmx displayclass.cmx \
+interaction.cmx: alert.cmx answer.cmx box.cmx cxtfuns.cmx displayclass.cmx \
     displayfont.cmx displaystate.cmx displaystyle.cmx hit.cmx japeserver.cmx \
     listfuns.cmx miscellaneous.cmx optionfuns.cmx proofstate.cmx \
     prooftree.cmx proviso.cmx rewrite.cmx selection.cmx seqtype.cmx \
@@ -254,10 +277,10 @@ name.cmx: miscellaneous.cmx nametype.cmx stringfuns.cmx symbol.cmx \
     symboltype.cmx termfuns.cmx termparse.cmx termtype.cmx name.cmi 
 optionfuns.cmo: sml.cmi optionfuns.cmi 
 optionfuns.cmx: sml.cmx optionfuns.cmi 
-oracle.cmo: button.cmi context.cmo env.cmi mappingfuns.cmi miscellaneous.cmi \
+oracle.cmo: button.cmi cxtfuns.cmi env.cmi mappingfuns.cmi miscellaneous.cmi \
     moresys.cmi reason.cmi sml.cmi stringfuns.cmi termfuns.cmi termstring.cmi \
     oracle.cmi 
-oracle.cmx: button.cmx context.cmx env.cmx mappingfuns.cmx miscellaneous.cmx \
+oracle.cmx: button.cmx cxtfuns.cmx env.cmx mappingfuns.cmx miscellaneous.cmx \
     moresys.cmx reason.cmx sml.cmx stringfuns.cmx termfuns.cmx termstring.cmx \
     oracle.cmi 
 paragraph.cmo: alert.cmi binding.cmi doubleclick.cmi forcedef.cmi idclass.cmi \
@@ -272,13 +295,13 @@ paragraph.cmx: alert.cmx binding.cmx doubleclick.cmx forcedef.cmx idclass.cmx \
     proofstage.cmx proviso.cmx sequent.cmx sml.cmx stringfuns.cmx symbol.cmx \
     symboltype.cmx tactic.cmx termfuns.cmx termparse.cmx termstring.cmx \
     usefile.cmx paragraph.cmi 
-paragraphfuns.cmo: button.cmi context.cmo disproof.cmi doubleclick.cmi \
+paragraphfuns.cmo: button.cmi cxtfuns.cmi disproof.cmi doubleclick.cmi \
     japeenv.cmi japeserver.cmi listfuns.cmi mappingfuns.cmi menu.cmi \
     miscellaneous.cmi name.cmi optionfuns.cmi paragraph.cmi paraparam.cmi \
     proofstage.cmo proofstate.cmi proofstore.cmi proviso.cmi runproof.cmi \
     sequent.cmi sml.cmi stringfuns.cmi tactic.cmi tactictype.cmo termfuns.cmi \
     termparse.cmi termstring.cmi thing.cmi paragraphfuns.cmi 
-paragraphfuns.cmx: button.cmx context.cmx disproof.cmx doubleclick.cmx \
+paragraphfuns.cmx: button.cmx cxtfuns.cmx disproof.cmx doubleclick.cmx \
     japeenv.cmx japeserver.cmx listfuns.cmx mappingfuns.cmx menu.cmx \
     miscellaneous.cmx name.cmx optionfuns.cmx paragraph.cmx paraparam.cmx \
     proofstage.cmx proofstate.cmx proofstore.cmx proviso.cmx runproof.cmx \
@@ -296,83 +319,91 @@ predicate.cmx: idclass.cmx listfuns.cmx miscellaneous.cmx optionfuns.cmx \
     termtype.cmx predicate.cmi 
 prestring.cmo: sml.cmi prestring.cmi 
 prestring.cmx: sml.cmx prestring.cmi 
-proofstate.cmo: context.cmo listfuns.cmi miscellaneous.cmi optionfuns.cmi \
-    prooftree.cmo proviso.cmi rewrite.cmi sequent.cmi sml.cmi stringfuns.cmi \
-    tactictype.cmo termfuns.cmi thing.cmi treeformat.cmo proofstate.cmi 
-proofstate.cmx: context.cmx listfuns.cmx miscellaneous.cmx optionfuns.cmx \
-    prooftree.cmx proviso.cmx rewrite.cmx sequent.cmx sml.cmx stringfuns.cmx \
-    tactictype.cmx termfuns.cmx thing.cmx treeformat.cmx proofstate.cmi 
-proofstore.cmo: context.cmo forcedef.cmi listfuns.cmi mappingfuns.cmi \
+proofstate.cmo: cxtfuns.cmi cxtstring.cmi listfuns.cmi miscellaneous.cmi \
+    optionfuns.cmi prooftree.cmo proviso.cmi rewrite.cmi sequent.cmi sml.cmi \
+    stringfuns.cmi tactictype.cmo termfuns.cmi thing.cmi treeformat.cmo \
+    proofstate.cmi 
+proofstate.cmx: cxtfuns.cmx cxtstring.cmx listfuns.cmx miscellaneous.cmx \
+    optionfuns.cmx prooftree.cmx proviso.cmx rewrite.cmx sequent.cmx sml.cmx \
+    stringfuns.cmx tactictype.cmx termfuns.cmx thing.cmx treeformat.cmx \
+    proofstate.cmi 
+proofstore.cmo: cxtfuns.cmi forcedef.cmi listfuns.cmi mappingfuns.cmi \
     menu.cmi miscellaneous.cmi name.cmi optionfuns.cmi panelkind.cmo \
     paraparam.cmi proofstage.cmo prooftree.cmo proviso.cmi rewrite.cmi \
     sml.cmi thing.cmi proofstore.cmi 
-proofstore.cmx: context.cmx forcedef.cmx listfuns.cmx mappingfuns.cmx \
+proofstore.cmx: cxtfuns.cmx forcedef.cmx listfuns.cmx mappingfuns.cmx \
     menu.cmx miscellaneous.cmx name.cmx optionfuns.cmx panelkind.cmx \
     paraparam.cmx proofstage.cmx prooftree.cmx proviso.cmx rewrite.cmx \
     sml.cmx thing.cmx proofstore.cmi 
-prooftree.cmo: context.cmo idclass.cmi listfuns.cmi mappingfuns.cmi \
-    miscellaneous.cmi name.cmi optionfuns.cmi proviso.cmi provisofuns.cmi \
-    rew.cmi rewinf.cmi rewrite.cmi seqtype.cmo sequent.cmi sml.cmi \
-    stringfuns.cmi tactic.cmi tactictype.cmo termfuns.cmi termstore.cmi \
-    termstring.cmi termtype.cmi thing.cmi treeformat.cmo treelayout.cmi 
-prooftree.cmx: context.cmx idclass.cmx listfuns.cmx mappingfuns.cmx \
-    miscellaneous.cmx name.cmx optionfuns.cmx proviso.cmx provisofuns.cmx \
-    rew.cmx rewinf.cmx rewrite.cmx seqtype.cmx sequent.cmx sml.cmx \
-    stringfuns.cmx tactic.cmx tactictype.cmx termfuns.cmx termstore.cmx \
-    termstring.cmx termtype.cmx thing.cmx treeformat.cmx treelayout.cmx 
+prooftree.cmo: cxtexterior.cmi cxtfuns.cmi cxtstring.cmi idclass.cmi \
+    listfuns.cmi mappingfuns.cmi miscellaneous.cmi name.cmi optionfuns.cmi \
+    proviso.cmi provisofuns.cmi rew.cmi rewinf.cmi rewrite.cmi seqtype.cmo \
+    sequent.cmi sml.cmi stringfuns.cmi tactic.cmi tactictype.cmo termfuns.cmi \
+    termstore.cmi termstring.cmi termtype.cmi thing.cmi treeformat.cmo \
+    treelayout.cmi 
+prooftree.cmx: cxtexterior.cmx cxtfuns.cmx cxtstring.cmx idclass.cmx \
+    listfuns.cmx mappingfuns.cmx miscellaneous.cmx name.cmx optionfuns.cmx \
+    proviso.cmx provisofuns.cmx rew.cmx rewinf.cmx rewrite.cmx seqtype.cmx \
+    sequent.cmx sml.cmx stringfuns.cmx tactic.cmx tactictype.cmx termfuns.cmx \
+    termstore.cmx termstring.cmx termtype.cmx thing.cmx treeformat.cmx \
+    treelayout.cmx 
 proviso.cmo: idclass.cmi listfuns.cmi miscellaneous.cmi provisotype.cmo \
     sml.cmi symbol.cmi symboltype.cmo termfuns.cmi termparse.cmi \
     termstore.cmi termstring.cmi termtype.cmi proviso.cmi 
 proviso.cmx: idclass.cmx listfuns.cmx miscellaneous.cmx provisotype.cmx \
     sml.cmx symbol.cmx symboltype.cmx termfuns.cmx termparse.cmx \
     termstore.cmx termstring.cmx termtype.cmx proviso.cmi 
-provisofuns.cmo: answer.cmi context.cmo facts.cmi idclass.cmi listfuns.cmi \
-    mappingfuns.cmi match.cmi miscellaneous.cmi optionfuns.cmi proviso.cmi \
-    provisotype.cmo rewrite.cmi seqtype.cmo sml.cmi stringfuns.cmi \
-    substmapfuns.cmi termfuns.cmi termstore.cmi termstring.cmi termtype.cmi \
-    provisofuns.cmi 
-provisofuns.cmx: answer.cmx context.cmx facts.cmx idclass.cmx listfuns.cmx \
-    mappingfuns.cmx match.cmx miscellaneous.cmx optionfuns.cmx proviso.cmx \
-    provisotype.cmx rewrite.cmx seqtype.cmx sml.cmx stringfuns.cmx \
-    substmapfuns.cmx termfuns.cmx termstore.cmx termstring.cmx termtype.cmx \
-    provisofuns.cmi 
+provisofuns.cmo: answer.cmi cxtexterior.cmi cxtfuns.cmi cxtstring.cmi \
+    cxttype.cmo facts.cmi idclass.cmi listfuns.cmi mappingfuns.cmi match.cmi \
+    miscellaneous.cmi optionfuns.cmi proviso.cmi provisotype.cmo rewrite.cmi \
+    seqtype.cmo sml.cmi stringfuns.cmi substmapfuns.cmi termfuns.cmi \
+    termstore.cmi termstring.cmi termtype.cmi provisofuns.cmi 
+provisofuns.cmx: answer.cmx cxtexterior.cmx cxtfuns.cmx cxtstring.cmx \
+    cxttype.cmx facts.cmx idclass.cmx listfuns.cmx mappingfuns.cmx match.cmx \
+    miscellaneous.cmx optionfuns.cmx proviso.cmx provisotype.cmx rewrite.cmx \
+    seqtype.cmx sml.cmx stringfuns.cmx substmapfuns.cmx termfuns.cmx \
+    termstore.cmx termstring.cmx termtype.cmx provisofuns.cmi 
 provisotype.cmo: termtype.cmi 
 provisotype.cmx: termtype.cmx 
 reason.cmo: reason.cmi 
 reason.cmx: reason.cmi 
-rew.cmo: answer.cmi context.cmo facts.cmi listfuns.cmi mappingfuns.cmi \
-    miscellaneous.cmi optionfuns.cmi proviso.cmi provisotype.cmo rewinf.cmi \
-    seqtype.cmo sequent.cmi sml.cmi substmapfuns.cmi termfuns.cmi \
-    termstore.cmi termstring.cmi termtype.cmi rew.cmi 
-rew.cmx: answer.cmx context.cmx facts.cmx listfuns.cmx mappingfuns.cmx \
-    miscellaneous.cmx optionfuns.cmx proviso.cmx provisotype.cmx rewinf.cmx \
-    seqtype.cmx sequent.cmx sml.cmx substmapfuns.cmx termfuns.cmx \
-    termstore.cmx termstring.cmx termtype.cmx rew.cmi 
+rew.cmo: answer.cmi cxtexterior.cmi cxtfuns.cmi cxtprovisos.cmi cxtstring.cmi \
+    cxttype.cmo facts.cmi listfuns.cmi mappingfuns.cmi miscellaneous.cmi \
+    optionfuns.cmi proviso.cmi provisotype.cmo rewinf.cmi seqtype.cmo \
+    sequent.cmi sml.cmi substmapfuns.cmi termfuns.cmi termstore.cmi \
+    termstring.cmi termtype.cmi rew.cmi 
+rew.cmx: answer.cmx cxtexterior.cmx cxtfuns.cmx cxtprovisos.cmx cxtstring.cmx \
+    cxttype.cmx facts.cmx listfuns.cmx mappingfuns.cmx miscellaneous.cmx \
+    optionfuns.cmx proviso.cmx provisotype.cmx rewinf.cmx seqtype.cmx \
+    sequent.cmx sml.cmx substmapfuns.cmx termfuns.cmx termstore.cmx \
+    termstring.cmx termtype.cmx rew.cmi 
 rewinf.cmo: listfuns.cmi optionfuns.cmi stringfuns.cmi termfuns.cmi \
     termstring.cmi termtype.cmi rewinf.cmi 
 rewinf.cmx: listfuns.cmx optionfuns.cmx stringfuns.cmx termfuns.cmx \
     termstring.cmx termtype.cmx rewinf.cmi 
 rewrite.cmo: optionfuns.cmi rew.cmi rewrite.cmi 
 rewrite.cmx: optionfuns.cmx rew.cmx rewrite.cmi 
-runproof.cmo: applyrule.cmi context.cmo disproof.cmi facts.cmi listfuns.cmi \
-    mappingfuns.cmi miscellaneous.cmi name.cmi optionfuns.cmi paragraph.cmi \
-    proofstage.cmo proofstate.cmi proofstore.cmi prooftree.cmo proviso.cmi \
-    reason.cmi rewrite.cmi sequent.cmi sml.cmi tactic.cmi tacticfuns.cmi \
-    tactictype.cmo thing.cmi treeformat.cmo runproof.cmi 
-runproof.cmx: applyrule.cmx context.cmx disproof.cmx facts.cmx listfuns.cmx \
-    mappingfuns.cmx miscellaneous.cmx name.cmx optionfuns.cmx paragraph.cmx \
-    proofstage.cmx proofstate.cmx proofstore.cmx prooftree.cmx proviso.cmx \
-    reason.cmx rewrite.cmx sequent.cmx sml.cmx tactic.cmx tacticfuns.cmx \
-    tactictype.cmx thing.cmx treeformat.cmx runproof.cmi 
+runproof.cmo: applyrule.cmi cxtexterior.cmi cxtfuns.cmi disproof.cmi \
+    facts.cmi listfuns.cmi mappingfuns.cmi miscellaneous.cmi name.cmi \
+    optionfuns.cmi paragraph.cmi proofstage.cmo proofstate.cmi proofstore.cmi \
+    prooftree.cmo proviso.cmi reason.cmi rewrite.cmi sequent.cmi sml.cmi \
+    tactic.cmi tacticfuns.cmi tactictype.cmo thing.cmi treeformat.cmo \
+    runproof.cmi 
+runproof.cmx: applyrule.cmx cxtexterior.cmx cxtfuns.cmx disproof.cmx \
+    facts.cmx listfuns.cmx mappingfuns.cmx miscellaneous.cmx name.cmx \
+    optionfuns.cmx paragraph.cmx proofstage.cmx proofstate.cmx proofstore.cmx \
+    prooftree.cmx proviso.cmx reason.cmx rewrite.cmx sequent.cmx sml.cmx \
+    tactic.cmx tacticfuns.cmx tactictype.cmx thing.cmx treeformat.cmx \
+    runproof.cmi 
 screendraw.cmo: absprooftree.cmi box.cmi displayclass.cmi hit.cmi 
 screendraw.cmx: absprooftree.cmx box.cmx displayclass.cmx hit.cmx 
 searchtree.cmo: listfuns.cmi miscellaneous.cmi sml.cmi searchtree.cmi 
 searchtree.cmx: listfuns.cmx miscellaneous.cmx sml.cmx searchtree.cmi 
-selection.cmo: answer.cmi context.cmo facts.cmi idclass.cmi listfuns.cmi \
+selection.cmo: answer.cmi cxtfuns.cmi facts.cmi idclass.cmi listfuns.cmi \
     miscellaneous.cmi provisotype.cmo rewrite.cmi sml.cmi stringfuns.cmi \
     substmapfuns.cmi symbol.cmi termfuns.cmi termparse.cmi termstore.cmi \
     termstring.cmi termtype.cmi selection.cmi 
-selection.cmx: answer.cmx context.cmx facts.cmx idclass.cmx listfuns.cmx \
+selection.cmx: answer.cmx cxtfuns.cmx facts.cmx idclass.cmx listfuns.cmx \
     miscellaneous.cmx provisotype.cmx rewrite.cmx sml.cmx stringfuns.cmx \
     substmapfuns.cmx symbol.cmx termfuns.cmx termparse.cmx termstore.cmx \
     termstring.cmx termtype.cmx selection.cmi 
@@ -416,7 +447,7 @@ tactic.cmx: idclass.cmx listfuns.cmx match.cmx miscellaneous.cmx name.cmx \
     nametype.cmx optionfuns.cmx sequent.cmx sml.cmx stringfuns.cmx \
     tactictype.cmx termfuns.cmx termstore.cmx termstring.cmx termtype.cmx \
     treelayout.cmx tactic.cmi 
-tacticfuns.cmo: alert.cmi applyrule.cmi cache.cmi context.cmo \
+tacticfuns.cmo: alert.cmi applyrule.cmi cache.cmi cxtfuns.cmi cxtstring.cmi \
     displaystate.cmi fix.cmi hit.cmi idclass.cmi interaction.cmi japeenv.cmi \
     japeserver.cmi listfuns.cmi mappingfuns.cmi match.cmi miscellaneous.cmi \
     name.cmi optionfuns.cmi oracle.cmi paraparam.cmi proofstate.cmi \
@@ -425,7 +456,7 @@ tacticfuns.cmo: alert.cmi applyrule.cmi cache.cmi context.cmo \
     symbol.cmi symboltype.cmo tactic.cmi tactictype.cmo termfuns.cmi \
     termparse.cmi termstore.cmi termstring.cmi termtype.cmi thing.cmi \
     treeformat.cmo unify.cmi tacticfuns.cmi 
-tacticfuns.cmx: alert.cmx applyrule.cmx cache.cmx context.cmx \
+tacticfuns.cmx: alert.cmx applyrule.cmx cache.cmx cxtfuns.cmx cxtstring.cmx \
     displaystate.cmx fix.cmx hit.cmx idclass.cmx interaction.cmx japeenv.cmx \
     japeserver.cmx listfuns.cmx mappingfuns.cmx match.cmx miscellaneous.cmx \
     name.cmx optionfuns.cmx oracle.cmx paraparam.cmx proofstate.cmx \
@@ -466,18 +497,18 @@ text.cmo: box.cmi displayfont.cmi listfuns.cmi miscellaneous.cmi \
     stringfuns.cmi text.cmi 
 text.cmx: box.cmx displayfont.cmx listfuns.cmx miscellaneous.cmx \
     stringfuns.cmx text.cmi 
-thing.cmo: context.cmo idclass.cmi listfuns.cmi mappingfuns.cmi match.cmi \
-    miscellaneous.cmi name.cmi optionfuns.cmi paraparam.cmi predicate.cmi \
-    proviso.cmi provisofuns.cmi provisotype.cmo rewrite.cmi seqtype.cmo \
-    sequent.cmi sml.cmi stringfuns.cmi symbol.cmi tactic.cmi tactictype.cmo \
-    termfuns.cmi termparse.cmi termstore.cmi termstring.cmi termtype.cmi \
-    thing.cmi 
-thing.cmx: context.cmx idclass.cmx listfuns.cmx mappingfuns.cmx match.cmx \
-    miscellaneous.cmx name.cmx optionfuns.cmx paraparam.cmx predicate.cmx \
-    proviso.cmx provisofuns.cmx provisotype.cmx rewrite.cmx seqtype.cmx \
-    sequent.cmx sml.cmx stringfuns.cmx symbol.cmx tactic.cmx tactictype.cmx \
-    termfuns.cmx termparse.cmx termstore.cmx termstring.cmx termtype.cmx \
-    thing.cmi 
+thing.cmo: cxtfuns.cmi cxtstring.cmi idclass.cmi listfuns.cmi mappingfuns.cmi \
+    match.cmi miscellaneous.cmi name.cmi optionfuns.cmi paraparam.cmi \
+    predicate.cmi proviso.cmi provisofuns.cmi provisotype.cmo rewrite.cmi \
+    seqtype.cmo sequent.cmi sml.cmi stringfuns.cmi symbol.cmi tactic.cmi \
+    tactictype.cmo termfuns.cmi termparse.cmi termstore.cmi termstring.cmi \
+    termtype.cmi thing.cmi 
+thing.cmx: cxtfuns.cmx cxtstring.cmx idclass.cmx listfuns.cmx mappingfuns.cmx \
+    match.cmx miscellaneous.cmx name.cmx optionfuns.cmx paraparam.cmx \
+    predicate.cmx proviso.cmx provisofuns.cmx provisotype.cmx rewrite.cmx \
+    seqtype.cmx sequent.cmx sml.cmx stringfuns.cmx symbol.cmx tactic.cmx \
+    tactictype.cmx termfuns.cmx termparse.cmx termstore.cmx termstring.cmx \
+    termtype.cmx thing.cmi 
 treedraw.cmo: absprooftree.cmi box.cmi displayclass.cmi displayfont.cmi \
     draw.cmi hit.cmi japeserver.cmi listfuns.cmi miscellaneous.cmi \
     optionfuns.cmi seqdraw.cmi sequent.cmi sml.cmi termstring.cmi \
@@ -494,13 +525,13 @@ treelayout.cmo: match.cmi optionfuns.cmi stringfuns.cmi termfuns.cmi \
     termstring.cmi termtype.cmi treelayout.cmi 
 treelayout.cmx: match.cmx optionfuns.cmx stringfuns.cmx termfuns.cmx \
     termstring.cmx termtype.cmx treelayout.cmi 
-unify.cmo: answer.cmi context.cmo facts.cmi idclass.cmi listfuns.cmi \
-    mappingfuns.cmi miscellaneous.cmi optionfuns.cmi proviso.cmi \
+unify.cmo: answer.cmi cxtfuns.cmi cxtstring.cmi facts.cmi idclass.cmi \
+    listfuns.cmi mappingfuns.cmi miscellaneous.cmi optionfuns.cmi proviso.cmi \
     provisofuns.cmi provisotype.cmo rewrite.cmi sml.cmi stringfuns.cmi \
     substmapfuns.cmi symbol.cmi termfuns.cmi termstore.cmi termstring.cmi \
     termtype.cmi unify.cmi 
-unify.cmx: answer.cmx context.cmx facts.cmx idclass.cmx listfuns.cmx \
-    mappingfuns.cmx miscellaneous.cmx optionfuns.cmx proviso.cmx \
+unify.cmx: answer.cmx cxtfuns.cmx cxtstring.cmx facts.cmx idclass.cmx \
+    listfuns.cmx mappingfuns.cmx miscellaneous.cmx optionfuns.cmx proviso.cmx \
     provisofuns.cmx provisotype.cmx rewrite.cmx sml.cmx stringfuns.cmx \
     substmapfuns.cmx symbol.cmx termfuns.cmx termstore.cmx termstring.cmx \
     termtype.cmx unify.cmi 

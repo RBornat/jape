@@ -21,11 +21,11 @@
 *)
 
 open Answer
-open Context.Cxt
-open Context.Cxtstring
-open Context.ExteriorFuns
-open Context.RewCxt
-open Context.Type
+open Cxtfuns
+open Cxtstring
+open Cxtexterior
+open Cxtprovisos
+open Cxttype
 open Facts
 open Listfuns
 open Mappingfuns

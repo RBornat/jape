@@ -21,7 +21,7 @@
 *)
 
 open Termtype
-open Context.Cxt
+open Cxttype
 
 val unifyterms : term * term -> cxt -> cxt option
 val unifytermsandcheckprovisos : term * term -> cxt -> cxt option

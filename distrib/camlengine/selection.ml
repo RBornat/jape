@@ -33,7 +33,7 @@ let enQuote = Stringfuns.enQuote
 let rec freshvar object__ cxt =
   let class__ = Idclass.VariableClass in
   let prefix = Symbol.autoID class__ "subst" in
-  let (cxt', vid) = Context.Cxt.freshVID cxt class__ (vid_of_string prefix) in
+  let (cxt', vid) = Cxtfuns.freshVID cxt class__ (vid_of_string prefix) in
   cxt',
   (if object__ then registerId else registerUnknown)
     (vid, class__)
@@ -41,13 +41,13 @@ let rec freshvar object__ cxt =
 let rec indistinct cxt =
  not <.> Answer.qDEFNOT <.>
  Miscellaneous.uncurry2
-      (Facts.substeqvarsq (Facts.facts (Context.Cxt.provisos cxt) cxt))
+      (Facts.substeqvarsq (Facts.facts (Cxtfuns.provisos cxt) cxt))
 
 let interpolate = Listfuns.interpolate
 let ( <* ) = Listfuns.( <* )
 let member = Listfuns.member
 let fNotinProviso v = Provisotype.NotinProviso v
-let plusvisibleprovisos = Context.Cxt.plusvisibleprovisos
+let plusvisibleprovisos = Cxtfuns.plusvisibleprovisos
 let rewrite = Rewrite.rewrite
 let simplifySubstAnyway = Substmapfuns.simplifySubstAnyway
 let sort = Listfuns.sortunique earliervar

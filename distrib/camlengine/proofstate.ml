@@ -20,8 +20,8 @@
 
 *)
 
-open Context.Cxt
-open Context.Cxtstring
+open Cxtfuns
+open Cxtstring
 open Listfuns
 open Miscellaneous
 open Optionfuns

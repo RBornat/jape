@@ -21,7 +21,7 @@
 *)
 
 open Proviso
-open Context.Type
+open Cxttype
 open Termtype
 open Answer
 

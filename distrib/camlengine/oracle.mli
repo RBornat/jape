@@ -21,7 +21,7 @@
 *)
 
 open Termtype
-open Context.Cxt
+open Cxttype
 
 val _Oracle : string -> cxt -> term -> term -> string -> string list -> cxt option
 val resetoracle : unit -> unit

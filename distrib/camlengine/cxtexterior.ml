@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -21,10 +21,11 @@
 *)
 
 open Cxttype
-open Termtype
+ 
+let setexterior (Context cxt) s = Context {cxt with outside = s}
 
-val selection2Subst : bool -> string list -> cxt -> cxt * term
-val subterm2subst :
-  (term * term -> cxt -> cxt option) -> cxt -> term -> term -> (cxt * term) option
+let getexterior = fun (Context {outside = outside}) -> outside
 
-exception Selection_ of string list
+let exteriorinf =
+  function (Context {outside=NoExterior})        -> None
+  |        (Context {outside=Exterior(_,inf,_)}) -> inf

@@ -21,9 +21,9 @@
 *)
 
 open Answer 
-open Context.Cxtstring
-open Context.ExteriorFuns 
-open Context.Type
+open Cxttype
+open Cxtstring
+open Cxtexterior 
 open Listfuns
 open Mappingfuns
 open Miscellaneous

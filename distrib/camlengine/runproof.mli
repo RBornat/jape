@@ -20,7 +20,7 @@
 
 *)
 
-open Context.Cxt
+open Cxttype
 open Forcedef
 open Japeenv
 open Name

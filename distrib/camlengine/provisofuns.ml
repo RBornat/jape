@@ -21,9 +21,9 @@
 *)
 
 open Answer
-open Context.Type
-open Context.ExteriorFuns
-open Context.Cxt
+open Cxttype
+open Cxtexterior
+open Cxtfuns
 open Facts
 open Idclass
 open Listfuns
@@ -270,7 +270,7 @@ let rec checker cxt (--) ps qs =
         else
           let verdict = _PROVISOq (facts qs' cxt) pp in
           if !provisodebug then
-            consolereport ["Provisofuns.checker "; Context.Cxtstring.cxtstring cxt;
+            consolereport ["Provisofuns.checker "; Cxtstring.cxtstring cxt;
                            " "; provisostring pp; 
                            " "; bracketedliststring (provisostring <.> provisoactual) " AND " qs'; 
                            " => "; answerstring verdict];

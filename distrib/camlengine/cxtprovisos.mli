@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -21,10 +21,10 @@
 *)
 
 open Cxttype
-open Termtype
+open Proviso
+open Rewinf
 
-val selection2Subst : bool -> string list -> cxt -> cxt * term
-val subterm2subst :
-  (term * term -> cxt -> cxt option) -> cxt -> term -> term -> (cxt * term) option
-
-exception Selection_ of string list
+val getprovisos : cxt -> visproviso list * rewinf option
+val setprovisos : cxt -> visproviso list * rewinf option -> cxt
+val getprovisosig : cxt -> int
+val incprovisosig : cxt -> cxt

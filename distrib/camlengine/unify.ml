@@ -52,8 +52,8 @@
  * RB May 95
  *)
 open Answer
-open Context.Cxt
-open Context.Cxtstring
+open Cxtfuns
+open Cxtstring
 open Facts
 open Idclass
 open Listfuns

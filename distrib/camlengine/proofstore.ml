@@ -20,7 +20,7 @@
 
 *)
 
-open Context.Cxt
+open Cxtfuns
 open Forcedef
 open Listfuns
 open Mappingfuns

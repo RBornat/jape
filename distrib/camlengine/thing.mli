@@ -26,7 +26,7 @@ open Paraparam
 open Proviso
 open Seqtype
 open Tactictype 
-open Context.Cxt
+open Cxttype
 open Mappingfuns
 
 type thing =

@@ -178,15 +178,15 @@ module Tree : Tree with type term = Termtype.term
                     and type fmtpath = Treeformat.Fmt.fmtpath
                     and type visformat = Treeformat.VisFmt.visformat
                     and type vispath = Treeformat.VisFmt.vispath
-                    and type cxt = Context.Cxt.cxt
+                    and type cxt = Cxttype.cxt
                     and type thing = Thing.thing
                     and type proviso = Proviso.proviso
                     and type rewinf = Rewinf.rewinf
 =
   struct
-    open Context.Cxt
-    open Context.Cxtstring
-    open Context.ExteriorFuns
+    open Cxtfuns
+    open Cxtstring
+    open Cxtexterior
     open Idclass
     open Listfuns
     open Mappingfuns
@@ -222,7 +222,7 @@ module Tree : Tree with type term = Termtype.term
      and fmtpath = Treeformat.Fmt.fmtpath
      and visformat = Treeformat.VisFmt.visformat
      and vispath = Treeformat.VisFmt.vispath
-     and cxt = Context.Cxt.cxt
+     and cxt = Cxttype.cxt
      and thing = Thing.thing
      and proviso = Proviso.proviso
      and rewinf = Rewinf.rewinf

@@ -49,7 +49,7 @@ let bracketedliststring = Listfuns.bracketedliststring
 
 let consolereport = Miscellaneous.consolereport
 
-let dont_rewrite_with_this = Context.Cxt.dont_rewrite_with_this
+let dont_rewrite_with_this = Cxtfuns.dont_rewrite_with_this
 
 let elementstring = Termstring.elementstring
 
@@ -69,7 +69,7 @@ let optionfilter = Optionfuns.optionfilter
 
 let optionstring = Optionfuns.optionstring
 
-let provisos = Context.Cxt.provisos
+let provisos = Cxtfuns.provisos
 
 let replaceelement = Termfuns.replaceelement
 

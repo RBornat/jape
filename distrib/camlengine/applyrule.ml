@@ -31,7 +31,7 @@
 (* Crudely adapted to multi-conclusion sequents, Nov 94. RB *)
 (* Mightily adapted to use Collections, July 96. RB *)
 
-open Context.Cxt
+open Cxtfuns
 open Idclass
 open Listfuns
 open Mappingfuns
@@ -59,7 +59,7 @@ type prooftree      = Prooftree.Tree.Fmttree.prooftree
  and name           = Name.name
  and visproviso     = Proviso.visproviso
  and resnum         = Termtype.resnum
- and cxt            = Context.Cxt.cxt
+ and cxt            = Cxttype.cxt
  and element        = Termtype.element
  and seq            = Seqtype.seq
  and term           = Termtype.term

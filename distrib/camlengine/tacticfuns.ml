@@ -33,8 +33,8 @@
   *)
 
 open Applyrule
-open Context.Cxt
-open Context.Cxtstring
+open Cxtfuns
+open Cxtstring
 open Displaystate
 open Hit
 open Japeenv
@@ -1324,7 +1324,7 @@ let rec _ARITHMETIC =
         None
 (**********************************************************************)
 
-let rec _DECIDE (turnstile : string) (cxt : Context.Cxt.cxt) =
+let rec _DECIDE (turnstile : string) (cxt : Cxttype.cxt) =
   fun (_HS : term) ->
     fun (_CS : term) (oracle : string) (args : string list) ->
       match _Oracle turnstile cxt _HS _CS oracle args with

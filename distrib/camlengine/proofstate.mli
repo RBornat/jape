@@ -22,7 +22,7 @@
 
 open Termtype
 open Seqtype
-open Context.Cxt
+open Cxttype
 open Tactictype
 open Prooftree.Tree.Fmttree
  

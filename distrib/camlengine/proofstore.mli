@@ -21,7 +21,7 @@
 *)
 
 
-open Context.Cxt
+open Cxttype
 open Forcedef 
 open Name
 open Proofstage

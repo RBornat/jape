@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -19,12 +19,9 @@
     (or look at http://www.gnu.org).
 
 *)
-
 open Cxttype
-open Termtype
+open Rewinf
 
-val selection2Subst : bool -> string list -> cxt -> cxt * term
-val subterm2subst :
-  (term * term -> cxt -> cxt option) -> cxt -> term -> term -> (cxt * term) option
-
-exception Selection_ of string list
+val setexterior : cxt -> exterior -> cxt
+val getexterior : cxt -> exterior
+val exteriorinf : cxt -> rewinf option

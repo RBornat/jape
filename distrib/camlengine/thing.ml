@@ -20,8 +20,8 @@
 
 *)
 
-open Context.Cxt
-open Context.Cxtstring
+open Cxtfuns
+open Cxtstring
 open Idclass
 open Listfuns
 open Mappingfuns
