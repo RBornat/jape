@@ -29,11 +29,11 @@ CLASS FORMULA A B C D E F G H I J L M N O P Q R S T U V W X Y Z
 CLASS CONSTANT K
 CLASS BAG FORMULA Γ
         
-CONSTANT true false mod
+CONSTANT true false mod length
 CONSTANT ⊥ /* to satisfy I2L syntax */
 
 INFIX   5L  ≜ /* equals def */
-INFIX   5L  simplifiesto equivto /* see hoare_arith.j */
+INFIX   5L  simplifiesto equivto conjoins /* see hoare_arith.j */
 
 PREFIX  10  actual integer /* actual not used, but we have to satisfy PUSHSYNTAX */
 POSTFIX 10  defined
@@ -52,6 +52,8 @@ LEFTFIX 180 ∀ .
 LEFTFIX 180 ∃ .
 
 INFIX   300L    <   >   ≤   ≥   ≠   =  
+
+INFIX   350L    :
 
 INFIX   400 L   + -
 INFIX   410 L   × ÷
