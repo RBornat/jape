@@ -30,18 +30,6 @@ import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Point;
 
-/*import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DragGestureEvent;
-import java.awt.dnd.DragGestureListener;
-import java.awt.dnd.DragSource;
-import java.awt.dnd.DragSourceDragEvent;
-import java.awt.dnd.DragSourceDropEvent;
-import java.awt.dnd.DragSourceEvent;
-import java.awt.dnd.DragSourceListener;*/
-
 import java.awt.event.MouseEvent;
 
 import javax.swing.JLabel;
@@ -52,13 +40,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.BorderFactory;
 
-public class Tile extends JLabel implements DebugConstants, MiscellaneousConstants /*,
-                                            DragSourceListener, DragGestureListener*/ {
+public class Tile extends JLabel implements DebugConstants, MiscellaneousConstants {
     final String text;
     private Container layeredPane;
     private Container contentPane;
-    /*private DragSource dragSource;
-    public static DataFlavor tileFlavor;*/
                                                 
     static final int spacing = LocalSettings.TileSpacing;
     
@@ -68,26 +53,16 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
                         compoundbevel = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel),
                         border = BorderFactory.createCompoundBorder(compoundbevel, padding);
 
-    public Tile(JFrame window, final String text) {
+    private final WasteBin wasteBin;
+    
+    public Tile(JFrame window, WasteBin wasteBin, final String text) {
         super(text);
         this.layeredPane = window.getLayeredPane(); this.contentPane = window.getContentPane();
-        this.text = text;
+        this.wasteBin = wasteBin; this.text = text;
 
         setFont(JapeFont.getFont(ProtocolConstants.TermFontNum));
         setBorder(border);
         setSize(getPreferredSize());
-
-        /*if (tileFlavor==null) {
-            try {
-                tileFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType+
-                                            "; class="+this.getClass().getName());
-            } catch (ClassNotFoundException e) {
-                Alert.abort("can't create tileFlavor");
-            }
-        }*/
-
-        /*dragSource = new DragSource();
-        dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);*/
 
         JapeMouseListener mil = new JapeMouseAdapter() {
             public void doubleclicked(MouseEvent e) {
@@ -144,6 +119,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
             if (drag_tracing)
                 System.err.println("; dragged tile at "+tileImage.getX()+","+tileImage.getY());
             tileImage.repaint();
+            wasteBin.setEnabled(false);
         }
         else {
             if (drag_tracing)
@@ -183,55 +159,6 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
     protected void finishDrag() {
         layeredPane.remove(tileImage);
         layeredPane.repaint();
+        wasteBin.setEnabled(true);
     }
-    
-   /* protected class TileTransferable implements Transferable {
-        public Object getTransferData(DataFlavor flavor) {
-            return Tile.this;
-        }
-        public DataFlavor[] getTransferDataFlavors() {
-            return new DataFlavor[]{ tileFlavor };
-        }
-        public boolean isDataFlavorSupported(DataFlavor flavor) {
-            return flavor==tileFlavor;
-        }
-    }
-
-    public void dragGestureRecognized(DragGestureEvent event) {
-        if (dragimage_tracing)
-            System.err.println("isdragImageSupported()="+DragSource.isDragImageSupported());
-        if (DragSource.isDragImageSupported()) {
-            if (dragimage_tracing)
-                System.err.println("dragging with drag Image support");
-            dragSource.startDrag (event, DragSource.DefaultCopyDrop, new TileTransferable(), this);
-        }
-        else {
-            Point origin = event.getDragOrigin();
-            if (dragimage_tracing)
-                System.err.println("dragging without drag Image support; dragOrigin="+origin);
-            if (image==null) {
-                int width = getWidth(), height = getHeight();
-                image = (BufferedImage)createImage(width, height);
-                Graphics imageGraphics = image.createGraphics();
-                imageGraphics.setColor(Preferences.ProofBackgroundColour);
-                imageGraphics.fillRect(0, 0, width, height);
-                paint(imageGraphics);
-                imageGraphics.dispose();
-            }
-            dragSource.startDrag(event, DragSource.DefaultCopyDrop, image,
-                                 new Point(-origin.x, -origin.y),
-                                 new TileTransferable(), this);
-        }
-    }
-
-    public void dragEnter(DragSourceDragEvent event) { }
-
-    public void dragExit(DragSourceEvent event) { }
-
-    public void dragOver(DragSourceDragEvent event) { }
-
-    public void dropActionChanged(DragSourceDragEvent event) { }
-
-    public void dragDropEnd (DragSourceDropEvent event) {
-    }*/
 }
