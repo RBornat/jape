@@ -37,8 +37,8 @@ type forcedef = Forcedef.forcedef
 val catelim_universestring : string -> universe -> string list -> string list
 val universestring : string -> universe -> string
 
-val emptyworld : unit -> universe
-val isemptyworld : universe -> bool
+val simplestuniverse : unit -> universe
+val issimplestuniverse : universe -> bool
 val addworldlabel : universe -> int * int -> term -> universe option
 val deleteworldlabel : universe -> int * int -> term -> universe option
 
@@ -81,10 +81,12 @@ val newtile         : disproofstate -> term -> disproofstate option
 val splitlink       : universe -> int * int -> int * int -> int * int -> universe option
 val worldselect     : disproofstate -> (int * int) list -> disproofstate option
 
-val evaldisproofstate : facts -> prooftree -> disproofstate -> disproofstate
+val evaldisproofstate : facts -> prooftree -> term list -> disproofstate -> disproofstate
 
 val disproof_start : facts -> prooftree -> path option -> element list -> disproofstate
 val disproof_minimal : disproofstate option -> bool
+
+val tint_universe : facts -> term list -> disproofstate -> disproofstate
 
 (* models and disproofstates *)
 
