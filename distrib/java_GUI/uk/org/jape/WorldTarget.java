@@ -26,5 +26,5 @@
 */
 
 public interface WorldTarget extends Target {
-    public void drop(byte dragKind, WorldItem w, int x, int y); // so that Canvases can receive drops too
+    public void drop(byte dragKind, WorldItem w, int x, int y); // Canvases can receive drops too
 }
