@@ -79,8 +79,8 @@ let rec enable (button, state) =
       | MyRedoDisproof -> "Edit", "Redo Disproof Step"
       | MyDone         -> "Edit", "Done"
       | MyClose        -> "File", "Close"
-      | MySave         -> "File", "Save"
-      | MySaveAs       -> "File", "Save As..."
+      | MySave         -> "File", "Save Proofs"
+      | MySaveAs       -> "File", "Save Proofs As..."
       | MyDisprove     -> "Edit", "Disprove"
     in
     if match (!buttoncache <:> b) with
