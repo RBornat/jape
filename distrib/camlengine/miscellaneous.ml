@@ -30,17 +30,6 @@ open Sml
 let rec iter f (l, h) =
   for i = l to h do f i done
 
-let charpred s =
-  let v = Hashtbl.create (String.length s * 2) in
-  String.iter (fun c -> Hashtbl.add v (String.make 1 c) true) s;
-  (fun c -> try Hashtbl.find v c with Not_found -> false),
-  (fun (c, b) -> Hashtbl.add v c b)
-
-let (islcletter, _) = charpred "abcdefghijklmnopqrstuvwxyz"
-let (isucletter, _) = charpred "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-let rec isletter c = islcletter c || isucletter c
-let (isdigit, _) = charpred "0123456789"
-
 exception AtoI_
 
 let atoi s = try Pervasives.int_of_string s with Failure _ -> raise AtoI_
@@ -71,34 +60,6 @@ let screenpositiondebug = ref true
 
 let tryresolution = ref true
 let resolvepossible = ref false
-
-(* this collection avoids low characters which might be useful *)
-(* 0 is NUL; can't appear in a C string, so don't use *)
-let onbra = '\001'  (* SOH *)
-let onket = '\002'  (* STX *)
-let offbra = '\003' (* ETX *)
-let offket = '\004' (* EOT *)
-let outbra = '\005' (* ENQ *)
-let outket = '\006' (* ACK *)
-   (* 7 is bell
-      8 is backspace
-      9 is tab
-      10 is lf
-      11 is vt
-      12 is ff
-      13 is cr
-    *)
-let lockbra = '\014' (* SO *)
-let lockket = '\015' (* SI *)
-   
-(* this function records a decision NEVER to put printable characters below space 
-   (ASCII decimal 32) in a font.
- *)
-let invisible_char c = (onbra <= c && c <= outket) || c = lockbra || c = lockket
-let invisible s =
-  let lim = String.length s in
-  let rec f i = i=lim || (invisible_char s.[i] && f (i+1)) in
-  f 0
 
 exception Catastrophe_ of string list
 exception ParseError_ of string list

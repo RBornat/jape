@@ -29,30 +29,12 @@ val atoi : string -> int
 exception AtoI_
 val sum : int list -> int
 
-val charpred   : string -> (string -> bool) * (string * bool -> unit)
-val isdigit    : string -> bool
-val islcletter : string -> bool
-val isletter   : string -> bool
-val isucletter : string -> bool
-
 val iter : (int -> 'a) -> int * int -> unit
 val curry2 : ('a * 'b -> 'c) -> 'a -> 'b -> 'c
 val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
 val refstring : ('a -> string) -> 'a ref -> string
 val earlierpair :
   ('a -> 'a -> bool) -> ('b -> 'b -> bool) -> ('a * 'b) -> ('a * 'b) -> bool
-val onbra : char
-val onket : char
-val offbra : char
-val offket : char
-val outbra : char
-val outket : char
-val lockbra : char
-val lockket : char
-
-val invisible      : string -> bool
-val invisible_char : char -> bool
-
 (* whether to add context automatically to rule definitions *)
 val autoAdditiveLeft  : bool ref
 val autoAdditiveRight : bool ref
