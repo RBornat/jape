@@ -267,7 +267,7 @@ let setFontNames fs =
 
 let rec getfontname n =
   try Array.get !fontnames n with
-  Invalid_argument "Array.get" -> (
+  Invalid_argument _ -> (
     if length !fontnames = 0 then (* we never initialised it *) (
       writef "FONTNAMES\n" [];
       let fs = strings_of_reply (readline "FONTNAMES") in 
