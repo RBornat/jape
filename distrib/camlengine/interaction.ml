@@ -125,7 +125,9 @@ let rec showFocussedProof goal cxt tree withgoal =
 
 let refreshProof (DisplayState d) = d.refreshProof ()
 
-let rec locateHit (DisplayState {locateHit = lh}) p class__ kind = (lh p class__ kind : path hit option)
+let locateHit (DisplayState {locateHit = lh}) p class__ kind = (lh p class__ kind : path hit option)
+
+let locateElement (DisplayState{locateElement=le}) = le
 
 let rec notifyselect (DisplayState {notifyselect = nsel}) bpcopt sels = (nsel bpcopt sels : unit)
 
@@ -327,23 +329,21 @@ let rec findLayoutSelection state pathkind =
   in
   getpath None fhits
 
-let rec els_of_formulahit where h =
+let els_of_formulahit where h =
   match h with
     Some (FormulaHit fh) ->
-      begin match fh with
-        ConcHit (_, (c, _)) -> [c]
-      | HypHit (_, h) -> [h]
-      | AmbigHit ((_, (c, _)), (_, h)) -> [c; h]
-      end
+      (match fh with
+         ConcHit (_, (c, _)) -> c
+       | HypHit  (_, h)      -> h
+       | AmbigHit _          -> 
+           raise (Catastrophe_ ["els_of_formulahit can't handle AmbigHit (only use in tree mode)"]))
   | _ ->
-      raise
-        (Catastrophe_
-           ["els_of_formulahit (in "; where; ") can't handle ";
-            string_of_option (string_of_hit string_of_path) h])
+      raise (Catastrophe_ ["els_of_formulahit (in "; where; ") can't handle ";
+                           string_of_option (string_of_hit string_of_path) h])
 
-let dropsource : element list ref = ref []
+let dropsource : element option ref = ref None
+let droptarget : element option ref = ref None
 
-let droptarget : element list ref = ref []
 (*
 fun gooddrag d = (* you can't drag from or to one side of a formula *)
   let fun good (_, (_, None))   = true
@@ -425,18 +425,19 @@ let rec getCommand displayopt =
       (* DESELECT sels means something has been taken away, and this is the selection now. *)
       notifyselect (getdisplay ()) None sels;
       getCommand displayopt
-  | "DRAGQ" :: x :: y :: _ ->
-      dropsource :=
-        els_of_formulahit "getCommand DRAGQ"
-          (locateHit (getdisplay ()) (mkpos x y) None HitPath);
-      TextCommand ["DRAGQUERY"]
+  (* | "DRAGQ" :: x :: y :: _ ->
+         dropsource :=
+           els_of_formulahit "getCommand DRAGQ"
+             (locateHit (getdisplay ()) (mkpos x y) None HitPath);
+         TextCommand ["DRAGQUERY"]
+   *)
   | "DROP" :: sx :: sy :: tx :: ty :: _ ->
       let rec decode x y =
         els_of_formulahit "getCommand DROP"
           (locateHit (getdisplay ()) (mkpos x y) None HitPath)
       in
-      dropsource := decode sx sy;
-      droptarget := decode tx ty;
+      dropsource := Some (decode sx sy);
+      droptarget := Some (decode tx ty);
       TextCommand ["DROPCOMMAND"]
   | "COMMAND" :: comm -> TextCommand comm
   | _ ->

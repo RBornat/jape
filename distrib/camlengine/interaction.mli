@@ -55,11 +55,12 @@ val findSelection : displaystate -> path sel option
 val findLayoutSelection : displaystate -> hitkind -> path option
 val findDisproofSelections: unit -> pos list * (pos * string list) list
 (* Drag n drop is moribund, as currently implemented.  Will be redone! *)
-val dropsource : element list ref
-val droptarget : element list ref
+val dropsource : element option ref
+val droptarget : element option ref
 val setComment : string list -> unit
 val showState : displaystate -> proofstate -> bool -> displaystate
 val printState : Pervasives.out_channel -> proofstate -> bool -> unit
 val alterTip : displaystate -> cxt -> path -> prooftree
             -> (prooftree * path) option -> (bool * path * element) * string list
             -> cxt * element * prooftree
+val locateElement : displaystate -> element -> pos list
