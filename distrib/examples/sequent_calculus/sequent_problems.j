@@ -1,4 +1,4 @@
-/*
+ï»¿/*
         Some problems, originally cribbed from MacLogic
 
        $Id$
@@ -16,58 +16,58 @@
  */
 
 CONJECTUREPANEL "Conjectures"
-  THEOREM INFER	Pç(QçR)				æ (PçQ)ç(PçR)
-  THEOREM INFER	Pç(QçR), Q 			æ PçR
-  THEOREM INFER	RçS						æ (PçR) ç (PçS)
-  THEOREM INFER	Pç(PçQ)				æ PçQ
-  THEOREM INFER	P							æ Qç(P ¦ Q)
-  THEOREM INFER	P¦(Q¦R)				æ (P¦Q)¦R
-  THEOREM INFER	PçQ,PçR				æ PçQ¦R
-  THEOREM INFER	Pç(QçR)				æ (P¦Q) ç R
-  THEOREM INFER	P¦(QëR)				æ (P¦Q) ë (P¦R)
-  THEOREM INFER	Pë(Q¦R)				æ (PëQ) ¦ (PëR)
-  THEOREM INFER	PçS,Qç ÂS			æ Â(P¦Q)
-  THEOREM INFER	PçQ, Qç ÂP			æ ÂP
-  THEOREM INFER	Pç ( Q¦R )				æ ( PçQ ) ¦ ( PçR )
-  THEOREM INFER	(PçQ) ¦ (QçR), ÂR	æ ÂP
-  THEOREM INFER	PçQ,ÂQ					æ (ÂÂÂP)ëQ
-  THEOREM INFER	P¦Q						æ Â(P é ÂQ)
-  THEOREM INFER	PéQ,Qé ÂR				æ R é ÂP
-  THEOREM INFER	PëQ,ÂP					æ Q
-  THEOREM INFER	Â(PëQ)					æ ÂP ¦ ÂQ
-  THEOREM INFER	ÂP ¦ ÂQ					æ Â(PëQ)
-  THEOREM INFER	Â(P¦Q)					æ ÂP ë ÂQ
-  THEOREM INFER	ÂP ë ÂQ					æ Â(P¦Q)
-  THEOREM INFER								æ Â(P ¦ ÂP)
-  THEOREM INFER								æ ((P ç Q) ç P) ç P
-  THEOREM INFER								æ (P ¦ ÂP) ç Q
-  THEOREM INFER	Pç Â(QçR)			æ (PçQ) ¦ (Pç ÂR)
-  THEOREM INFER	Â(Pç(QëR)) 			æ (QëR)çP
+  THEOREM INFER	Pâ†’(Qâ†’R)				âŠ¢ (Pâ†’Q)â†’(Pâ†’R)
+  THEOREM INFER	Pâ†’(Qâ†’R), Q 			âŠ¢ Pâ†’R
+  THEOREM INFER	Râ†’S						âŠ¢ (Pâ†’R) â†’ (Pâ†’S)
+  THEOREM INFER	Pâ†’(Pâ†’Q)				âŠ¢ Pâ†’Q
+  THEOREM INFER	P							âŠ¢ Qâ†’(P âˆ§ Q)
+  THEOREM INFER	Pâˆ§(Qâˆ§R)				âŠ¢ (Pâˆ§Q)âˆ§R
+  THEOREM INFER	Pâ†’Q,Pâ†’R				âŠ¢ Pâ†’Qâˆ§R
+  THEOREM INFER	Pâ†’(Qâ†’R)				âŠ¢ (Pâˆ§Q) â†’ R
+  THEOREM INFER	Pâˆ§(Qâˆ¨R)				âŠ¢ (Pâˆ§Q) âˆ¨ (Pâˆ§R)
+  THEOREM INFER	Pâˆ¨(Qâˆ§R)				âŠ¢ (Pâˆ¨Q) âˆ§ (Pâˆ¨R)
+  THEOREM INFER	Pâ†’S,Qâ†’ Â¬S			âŠ¢ Â¬(Pâˆ§Q)
+  THEOREM INFER	Pâ†’Q, Qâ†’ Â¬P			âŠ¢ Â¬P
+  THEOREM INFER	Pâ†’ ( Qâˆ§R )				âŠ¢ ( Pâ†’Q ) âˆ§ ( Pâ†’R )
+  THEOREM INFER	(Pâ†’Q) âˆ§ (Qâ†’R), Â¬R	âŠ¢ Â¬P
+  THEOREM INFER	Pâ†’Q,Â¬Q					âŠ¢ (Â¬Â¬Â¬P)âˆ¨Q
+  THEOREM INFER	Pâˆ§Q						âŠ¢ Â¬(P â‰¡ Â¬Q)
+  THEOREM INFER	Pâ‰¡Q,Qâ‰¡ Â¬R				âŠ¢ R â‰¡ Â¬P
+  THEOREM INFER	Pâˆ¨Q,Â¬P					âŠ¢ Q
+  THEOREM INFER	Â¬(Pâˆ¨Q)					âŠ¢ Â¬P âˆ§ Â¬Q
+  THEOREM INFER	Â¬P âˆ§ Â¬Q					âŠ¢ Â¬(Pâˆ¨Q)
+  THEOREM INFER	Â¬(Pâˆ§Q)					âŠ¢ Â¬P âˆ¨ Â¬Q
+  THEOREM INFER	Â¬P âˆ¨ Â¬Q					âŠ¢ Â¬(Pâˆ§Q)
+  THEOREM INFER								âŠ¢ Â¬(P âˆ§ Â¬P)
+  THEOREM INFER								âŠ¢ ((P â†’ Q) â†’ P) â†’ P
+  THEOREM INFER								âŠ¢ (P âˆ§ Â¬P) â†’ Q
+  THEOREM INFER	Pâ†’ Â¬(Qâ†’R)			âŠ¢ (Pâ†’Q) âˆ§ (Pâ†’ Â¬R)
+  THEOREM INFER	Â¬(Pâ†’(Qâˆ¨R)) 			âŠ¢ (Qâˆ¨R)â†’P
   
-  THEOREM INFER	èx.ÂQ(x),  Pç(èx.Q(x))	æ ÂP
-  THEOREM WHERE x NOTIN P INFER PëÂP, èx.PçQ(x), èx. ÂPçQ(x) 	æ èx.Q(x)
-  THEOREM INFER	RëÂR, èx.RçS(x), èx. ÂRçS(x)	æ èx.S(x)
-  THEOREM INFER	èx.P(x)çQ(x), èx.Q(x)çR(x) 		æ èx.P(x)çR(x)
-  THEOREM INFER	èx.P(x)çR(x), èx.Q(x)ç ÂR(x)   	æ èx.(P(x)çÂQ(x)) ¦ (Q(x)çÂP(x))
-  THEOREM INFER	S(m,n), èx.P(x) ç ÂS(x,n) 			æ ÂP(m)
-  THEOREM INFER	èx.P(x)çQ(x), èx.R(x)çÂQ(x)   	æ èx.R(x)çÂP(x)
-  THEOREM INFER	äx.P(x)¦Q(x)			  					æ äx.P(x)
-  THEOREM INFER	äx.P(x)¦Q(x)			  					æ äx.Q(x)¦P(x)  
-  THEOREM INFER	äx.P(x)¦ÂQ(x), èx.P(x)çR(x) 	 	æ äx.R(x)¦ÂQ(x)
-  THEOREM INFER	(èx.Q(x)) ç (èy.ÂQ(y)) 				æ Â(äz.Q(z))
-  THEOREM INFER	(èx.Q(x)) ç (èy.ÂQ(y)) 				æ äz.ÂQ(z)
-  THEOREM INFER	(äx.P(x)) ç (äy.ÂP(y)) 				æ Â(èz.P(z))
-  THEOREM INFER	äx.ÂP(x) 									æ Â(èx.P(x))
-  THEOREM INFER	èx.P(x)çQ 								æ (äx.P(x))çQ
-  THEOREM INFER	èx.S(x) ç ((ÂP(x)¦ÂQ(x)) ç R(x)) æ èx.(S(x)¦ÂR(x))ç(P(x)ëQ(x))
+  THEOREM INFER	âˆ€x.Â¬Q(x),  Pâ†’(âˆ€x.Q(x))	âŠ¢ Â¬P
+  THEOREM WHERE x NOTIN P INFER Pâˆ¨Â¬P, âˆ€x.Pâ†’Q(x), âˆ€x. Â¬Pâ†’Q(x) 	âŠ¢ âˆ€x.Q(x)
+  THEOREM INFER	Râˆ¨Â¬R, âˆ€x.Râ†’S(x), âˆ€x. Â¬Râ†’S(x)	âŠ¢ âˆ€x.S(x)
+  THEOREM INFER	âˆ€x.P(x)â†’Q(x), âˆ€x.Q(x)â†’R(x) 		âŠ¢ âˆ€x.P(x)â†’R(x)
+  THEOREM INFER	âˆ€x.P(x)â†’R(x), âˆ€x.Q(x)â†’ Â¬R(x)   	âŠ¢ âˆ€x.(P(x)â†’Â¬Q(x)) âˆ§ (Q(x)â†’Â¬P(x))
+  THEOREM INFER	S(m,n), âˆ€x.P(x) â†’ Â¬S(x,n) 			âŠ¢ Â¬P(m)
+  THEOREM INFER	âˆ€x.P(x)â†’Q(x), âˆ€x.R(x)â†’Â¬Q(x)   	âŠ¢ âˆ€x.R(x)â†’Â¬P(x)
+  THEOREM INFER	âˆƒx.P(x)âˆ§Q(x)			  					âŠ¢ âˆƒx.P(x)
+  THEOREM INFER	âˆƒx.P(x)âˆ§Q(x)			  					âŠ¢ âˆƒx.Q(x)âˆ§P(x)  
+  THEOREM INFER	âˆƒx.P(x)âˆ§Â¬Q(x), âˆ€x.P(x)â†’R(x) 	 	âŠ¢ âˆƒx.R(x)âˆ§Â¬Q(x)
+  THEOREM INFER	(âˆ€x.Q(x)) â†’ (âˆ€y.Â¬Q(y)) 				âŠ¢ Â¬(âˆƒz.Q(z))
+  THEOREM INFER	(âˆ€x.Q(x)) â†’ (âˆ€y.Â¬Q(y)) 				âŠ¢ âˆƒz.Â¬Q(z)
+  THEOREM INFER	(âˆƒx.P(x)) â†’ (âˆƒy.Â¬P(y)) 				âŠ¢ Â¬(âˆ€z.P(z))
+  THEOREM INFER	âˆƒx.Â¬P(x) 									âŠ¢ Â¬(âˆ€x.P(x))
+  THEOREM INFER	âˆ€x.P(x)â†’Q 								âŠ¢ (âˆƒx.P(x))â†’Q
+  THEOREM INFER	âˆ€x.S(x) â†’ ((Â¬P(x)âˆ§Â¬Q(x)) â†’ R(x)) âŠ¢ âˆ€x.(S(x)âˆ§Â¬R(x))â†’(P(x)âˆ¨Q(x))
   
-  THEOREM INFER	ÂÂP æ P
-  THEOREM INFER	P æ ÂÂP
-  THEOREM	WHERE x NOTIN y INFER äx.èy.P æ èy.äx.P
-  THEOREM INFER	äx.èy.Q 		æ èy.äx.Q
-  THEOREM INFER	äx.èy.P(x,y) 	æ èy.äx.P(x,y)
-  THEOREM INFER	äx.èy.P(x,y) 	æ èv.äu.P(u,v)
-  THEOREM INFER	èx.P(x)			æ èy.P(y) 
-  THEOREM INFER	äx.P(x) 			æ äy.P(y)
-  THEOREM INFER	äy.P(y) 			æ èx.P(x)
+  THEOREM INFER	Â¬Â¬P âŠ¢ P
+  THEOREM INFER	P âŠ¢ Â¬Â¬P
+  THEOREM	WHERE x NOTIN y INFER âˆƒx.âˆ€y.P âŠ¢ âˆ€y.âˆƒx.P
+  THEOREM INFER	âˆƒx.âˆ€y.Q 		âŠ¢ âˆ€y.âˆƒx.Q
+  THEOREM INFER	âˆƒx.âˆ€y.P(x,y) 	âŠ¢ âˆ€y.âˆƒx.P(x,y)
+  THEOREM INFER	âˆƒx.âˆ€y.P(x,y) 	âŠ¢ âˆ€v.âˆƒu.P(u,v)
+  THEOREM INFER	âˆ€x.P(x)			âŠ¢ âˆ€y.P(y) 
+  THEOREM INFER	âˆƒx.P(x) 			âŠ¢ âˆƒy.P(y)
+  THEOREM INFER	âˆƒy.P(y) 			âŠ¢ âˆ€x.P(x)
 END

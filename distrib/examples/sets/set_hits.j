@@ -1,11 +1,11 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 USE "../Barwise_n_Etchemendy/BnE-Fprime_hits.j"
 
-HYPHIT AÚ{y|P} æ B IS "abstraction-E tac"
-HYPHIT AÚ{<y,z>|P} æ B IS "abstraction-E tac"
-HYPHIT A§B æ C IS "§-E tac"
+HYPHIT Aâˆˆ{y|P} âŠ¢ B IS "abstraction-E tac"
+HYPHIT Aâˆˆ{<y,z>|P} âŠ¢ B IS "abstraction-E tac"
+HYPHIT AâŠ†B âŠ¢ C IS "âŠ†-E tac"
 
-CONCHIT AÚ{y|P} IS "abstraction-I tac"
-CONCHIT AÚ{<y,z>|P} IS "abstraction-I tac"
+CONCHIT Aâˆˆ{y|P} IS "abstraction-I tac"
+CONCHIT Aâˆˆ{<y,z>|P} IS "abstraction-I tac"
 CONCHIT A=B IS "=-I"

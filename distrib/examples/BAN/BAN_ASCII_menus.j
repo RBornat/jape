@@ -1,4 +1,4 @@
-/* $Id$ */
+ο»Ώ/* $Id$ */
 
 TACTIC Fail(x) IS (SEQ (ALERT x) FAIL)
 
@@ -35,78 +35,78 @@ TACTIC ForwardOrBackward (Forward, n, Rule) IS
 	           		)
 		)
    
-MENU "|ι"
+MENU "|β‰΅"
 	SEPARATOR
-	ENTRY "P|ιX,  P|ιY,  ... Ϋ P|ι(X,Y,...)"
-	ENTRY "P|ι(...,X,...) Ϋ P|ιX"				IS ForwardOrBackward ForwardCut 0 "P|ι(...,X,...) Ϋ P|ιX"
-	ENTRY "P|ιQ|ι(...,X,...) Ϋ P|ιQ|ιX"			IS ForwardOrBackward ForwardCut 0 "P|ιQ|ι(...,X,...) Ϋ P|ιQ|ιX"
+	ENTRY "P|β‰΅X,  P|β‰΅Y,  ... β‡’ P|β‰΅(X,Y,...)"
+	ENTRY "P|β‰΅(...,X,...) β‡’ P|β‰΅X"				IS ForwardOrBackward ForwardCut 0 "P|β‰΅(...,X,...) β‡’ P|β‰΅X"
+	ENTRY "P|β‰΅Q|β‰΅(...,X,...) β‡’ P|β‰΅Q|β‰΅X"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅Q|β‰΅(...,X,...) β‡’ P|β‰΅Q|β‰΅X"
 	SEPARATOR
-	ENTRY "P|ιθx.X(x) Ϋ P|ιX(Y)"			IS ForwardOrBackward ForwardCut 0 "P|ιθx.X(x) Ϋ P|ιX(Y)"
-	ENTRY "P|ιQ|~X, [P|ι#X] Ϋ P|ιQ|ιX"			IS ForwardOrBackward ForwardCut 1 "P|ι#X, P|ιQ|~X Ϋ P|ιQ|ιX"
-	ENTRY "P|ιQ|ιX, [P|ιQ|ΫX] Ϋ P|ιX"			IS ForwardOrBackward ForwardCut 1 "P|ιQ|ΫX, P|ιQ|ιX Ϋ P|ιX"
+	ENTRY "P|β‰΅β€x.X(x) β‡’ P|β‰΅X(Y)"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅β€x.X(x) β‡’ P|β‰΅X(Y)"
+	ENTRY "P|β‰΅Q|~X, [P|β‰΅#X] β‡’ P|β‰΅Q|β‰΅X"			IS ForwardOrBackward ForwardCut 1 "P|β‰΅#X, P|β‰΅Q|~X β‡’ P|β‰΅Q|β‰΅X"
+	ENTRY "P|β‰΅Q|β‰΅X, [P|β‰΅Q|β‡’X] β‡’ P|β‰΅X"			IS ForwardOrBackward ForwardCut 1 "P|β‰΅Q|β‡’X, P|β‰΅Q|β‰΅X β‡’ P|β‰΅X"
 	SEPARATOR
-	ENTRY "P|ι#X, [P|ιQ|~X] Ϋ P|ιQ|ιX"			IS ForwardOrBackward ForwardCut 0 "P|ι#X, P|ιQ|~X Ϋ P|ιQ|ιX"
-	ENTRY "P|ιQ|ΫX, [P|ιQ|ιX] Ϋ P|ιX"			IS ForwardOrBackward ForwardCut 0 "P|ιQ|ΫX, P|ιQ|ιX Ϋ P|ιX"
-	ENTRY "P|ι#X, [P|ιQ|~X] Ϋ P|ιQ|ιX"			IS ForwardOrBackward ForwardCut 0 "P|ι#X, P|ιQ|~X Ϋ P|ιQ|ιX"
-	ENTRY "P|ιQ|~X, [P|ι#X] Ϋ P|ιQ|ιX"			IS ForwardOrBackward ForwardCut 1 "P|ι#X, P|ιQ|~X Ϋ P|ιQ|ιX"
+	ENTRY "P|β‰΅#X, [P|β‰΅Q|~X] β‡’ P|β‰΅Q|β‰΅X"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅#X, P|β‰΅Q|~X β‡’ P|β‰΅Q|β‰΅X"
+	ENTRY "P|β‰΅Q|β‡’X, [P|β‰΅Q|β‰΅X] β‡’ P|β‰΅X"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅Q|β‡’X, P|β‰΅Q|β‰΅X β‡’ P|β‰΅X"
+	ENTRY "P|β‰΅#X, [P|β‰΅Q|~X] β‡’ P|β‰΅Q|β‰΅X"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅#X, P|β‰΅Q|~X β‡’ P|β‰΅Q|β‰΅X"
+	ENTRY "P|β‰΅Q|~X, [P|β‰΅#X] β‡’ P|β‰΅Q|β‰΅X"			IS ForwardOrBackward ForwardCut 1 "P|β‰΅#X, P|β‰΅Q|~X β‡’ P|β‰΅Q|β‰΅X"
 END
 
 MENU "<|"
-	ENTRY "P<|{X}K, [P|ι(Q,P)κK] Ϋ P|ιQ|~X"	IS ForwardOrBackward ForwardCut 1 "P|ι(Q,P)κK, P<|{X}K Ϋ P|ιQ|~X"
-	ENTRY "P<|{X}Kψ, [P|ιQΨK] Ϋ P|ιQ|~X"		IS ForwardOrBackward ForwardCut 1 "P|ιQΨK, P<|{X}Kψ Ϋ P|ιQ|~X"
-	ENTRY " P<|<X>Y, [P|ι(P,Q)Y] Ϋ P|ιQ|~X"	IS ForwardOrBackward ForwardCut 1 "P|ι(P,Q)Y, P<|<X>Y Ϋ P|ιQ|~X"
+	ENTRY "P<|{X}K, [P|β‰΅(Q,P)β†”K] β‡’ P|β‰΅Q|~X"	IS ForwardOrBackward ForwardCut 1 "P|β‰΅(Q,P)β†”K, P<|{X}K β‡’ P|β‰΅Q|~X"
+	ENTRY "P<|{X}Kβ« , [P|β‰΅Qβ†¦K] β‡’ P|β‰΅Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|β‰΅Qβ†¦K, P<|{X}Kβ«  β‡’ P|β‰΅Q|~X"
+	ENTRY " P<|<X>Y, [P|β‰΅(P,Q)β‡Y] β‡’ P|β‰΅Q|~X"	IS ForwardOrBackward ForwardCut 1 "P|β‰΅(P,Q)β‡Y, P<|<X>Y β‡’ P|β‰΅Q|~X"
 	SEPARATOR
-	ENTRY "P<|(...,X,...) Ϋ P<|X" 				IS ForwardOrBackward ForwardCut 0 "P<|(...,X,...) Ϋ P<|X"
-	ENTRY "P<|<X>Y Ϋ P<|X" 				IS ForwardOrBackward ForwardCut 0 "P<|<X>Y Ϋ P<|X"
-	ENTRY "P<|{X}K, [P|ι(P,Q)κK] Ϋ P<|X"		IS ForwardOrBackward ForwardCut 1 "P|ι(P,Q)κK, P<|{X}K Ϋ P<|X"
-	ENTRY "P<|{X}K, [P|ιPΨK] Ϋ P<|X"			IS ForwardOrBackward ForwardCut 1 "P|ιPΨK, P<|{X}K Ϋ P<|X"
-	ENTRY "P<|{X}Kψ, [P|ιQΨ K] Ϋ P<|X"		IS ForwardOrBackward ForwardCut 1 "P|ιQΨ K, P<|{X}Kψ Ϋ P<|X"
+	ENTRY "P<|(...,X,...) β‡’ P<|X" 				IS ForwardOrBackward ForwardCut 0 "P<|(...,X,...) β‡’ P<|X"
+	ENTRY "P<|<X>Y β‡’ P<|X" 				IS ForwardOrBackward ForwardCut 0 "P<|<X>Y β‡’ P<|X"
+	ENTRY "P<|{X}K, [P|β‰΅(P,Q)β†”K] β‡’ P<|X"		IS ForwardOrBackward ForwardCut 1 "P|β‰΅(P,Q)β†”K, P<|{X}K β‡’ P<|X"
+	ENTRY "P<|{X}K, [P|β‰΅Pβ†¦K] β‡’ P<|X"			IS ForwardOrBackward ForwardCut 1 "P|β‰΅Pβ†¦K, P<|{X}K β‡’ P<|X"
+	ENTRY "P<|{X}Kβ« , [P|β‰΅Qβ†¦ K] β‡’ P<|X"		IS ForwardOrBackward ForwardCut 1 "P|β‰΅Qβ†¦ K, P<|{X}Kβ«  β‡’ P<|X"
 	SEPARATOR
 END
 
 MENU "|~"
-	ENTRY "P|ιQ|~X, [P|ι#X] Ϋ P|ιQ|ιX"			IS ForwardOrBackward ForwardCut 1 "P|ι#X, P|ιQ|~X Ϋ P|ιQ|ιX"
+	ENTRY "P|β‰΅Q|~X, [P|β‰΅#X] β‡’ P|β‰΅Q|β‰΅X"			IS ForwardOrBackward ForwardCut 1 "P|β‰΅#X, P|β‰΅Q|~X β‡’ P|β‰΅Q|β‰΅X"
 	SEPARATOR
-	ENTRY "P|ιQ|~(...,X,...) Ϋ P|ιQ|~X"			IS ForwardOrBackward ForwardCut 0 "P|ιQ|~(...,X,...) Ϋ P|ιQ|~X"
+	ENTRY "P|β‰΅Q|~(...,X,...) β‡’ P|β‰΅Q|~X"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅Q|~(...,X,...) β‡’ P|β‰΅Q|~X"
 	SEPARATOR
-	ENTRY "P<|{X}K, [P|ι(Q,P)κK] Ϋ P|ιQ|~X"		IS ForwardOrBackward ForwardCut 1 "P|ι(Q,P)κK, P<|{X}K Ϋ P|ιQ|~X"
-	ENTRY "P<|{X}Kψ, [P|ιQΨK] Ϋ P|ιQ|~X"		IS ForwardOrBackward ForwardCut 1 "P|ιQΨK, P<|{X}Kψ Ϋ P|ιQ|~X"
-	ENTRY "P<|<X>Y, [P|ι(P,Q)Y] Ϋ P|ιQ|~X"		IS ForwardOrBackward ForwardCut 1 "P|ι(P,Q)Y, P<|<X>Y Ϋ P|ιQ|~X"
+	ENTRY "P<|{X}K, [P|β‰΅(Q,P)β†”K] β‡’ P|β‰΅Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|β‰΅(Q,P)β†”K, P<|{X}K β‡’ P|β‰΅Q|~X"
+	ENTRY "P<|{X}Kβ« , [P|β‰΅Qβ†¦K] β‡’ P|β‰΅Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|β‰΅Qβ†¦K, P<|{X}Kβ«  β‡’ P|β‰΅Q|~X"
+	ENTRY "P<|<X>Y, [P|β‰΅(P,Q)β‡Y] β‡’ P|β‰΅Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|β‰΅(P,Q)β‡Y, P<|<X>Y β‡’ P|β‰΅Q|~X"
 END
 
-MENU "|Ϋ"
-	ENTRY "P|ιQ|ΫX, [P|ιQ|ιX] Ϋ P|ιX"			IS ForwardOrBackward ForwardCut 0 "P|ιQ|ΫX, P|ιQ|ιX Ϋ P|ιX"
+MENU "|β‡’"
+	ENTRY "P|β‰΅Q|β‡’X, [P|β‰΅Q|β‰΅X] β‡’ P|β‰΅X"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅Q|β‡’X, P|β‰΅Q|β‰΅X β‡’ P|β‰΅X"
 END
 
-MENU ""
-	ENTRY "P|ι(P,Q)Y, [P<|<X>Y] Ϋ P|ιQ|~X"		IS ForwardOrBackward ForwardCut 0 "P|ι(P,Q)Y, P<|<X>Y Ϋ P|ιQ|~X"
+MENU "β‡"
+	ENTRY "P|β‰΅(P,Q)β‡Y, [P<|<X>Y] β‡’ P|β‰΅Q|~X"		IS ForwardOrBackward ForwardCut 0 "P|β‰΅(P,Q)β‡Y, P<|<X>Y β‡’ P|β‰΅Q|~X"
 	SEPARATOR
-	ENTRY "P|ι(R,R')K Ϋ P|ι(R',R)K"			IS ForwardOrBackward ForwardCut 0 "P|ι(R,R')K Ϋ P|ι(R',R)K"	
-	ENTRY "P|ιQ|ι(R,R')K Ϋ P|ιQ|ι(R',R)K"		IS ForwardOrBackward ForwardCut 0 "P|ιQ|ι(R,R')K Ϋ P|ιQ|ι(R',R)K"
+	ENTRY "P|β‰΅(R,R')β‡K β‡’ P|β‰΅(R',R)β‡K"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅(R,R')β‡K β‡’ P|β‰΅(R',R)β‡K"	
+	ENTRY "P|β‰΅Q|β‰΅(R,R')β‡K β‡’ P|β‰΅Q|β‰΅(R',R)β‡K"		IS ForwardOrBackward ForwardCut 0 "P|β‰΅Q|β‰΅(R,R')β‡K β‡’ P|β‰΅Q|β‰΅(R',R)β‡K"
 END
 
-MENU "Ψ"
-	ENTRY "P|ιQΨK, [P<|{X}Kψ] Ϋ P|ιQ|~X"		IS ForwardOrBackward ForwardCut  0 "P|ιQΨK, P<|{X}Kψ Ϋ P|ιQ|~X"
-	ENTRY "P|ιPΨK, [P<|{X}K] Ϋ P<|X"			IS ForwardOrBackward ForwardCut 0 "P|ιPΨK, P<|{X}K Ϋ P<|X"
-	ENTRY "P|ιQΨ K, [P<|{X}Kψ] Ϋ P<|X"			IS ForwardOrBackward ForwardCut 0 "P|ιQΨ K, P<|{X}Kψ Ϋ P<|X"
+MENU "β†¦"
+	ENTRY "P|β‰΅Qβ†¦K, [P<|{X}Kβ« ] β‡’ P|β‰΅Q|~X"		IS ForwardOrBackward ForwardCut  0 "P|β‰΅Qβ†¦K, P<|{X}Kβ«  β‡’ P|β‰΅Q|~X"
+	ENTRY "P|β‰΅Pβ†¦K, [P<|{X}K] β‡’ P<|X"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅Pβ†¦K, P<|{X}K β‡’ P<|X"
+	ENTRY "P|β‰΅Qβ†¦ K, [P<|{X}Kβ« ] β‡’ P<|X"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅Qβ†¦ K, P<|{X}Kβ«  β‡’ P<|X"
 END
 
-MENU "κ"
-	ENTRY "P|ι(Q,P)κK, [P<|{X}K] Ϋ P|ιQ|~X"		IS ForwardOrBackward ForwardCut 0 "P|ι(Q,P)κK, P<|{X}K Ϋ P|ιQ|~X"
-	ENTRY "P|ι(P,Q)κK, [P<|{X}K] Ϋ P<|X"		IS ForwardOrBackward ForwardCut 0 "P|ι(P,Q)κK, P<|{X}K Ϋ P<|X"
+MENU "β†”"
+	ENTRY "P|β‰΅(Q,P)β†”K, [P<|{X}K] β‡’ P|β‰΅Q|~X"		IS ForwardOrBackward ForwardCut 0 "P|β‰΅(Q,P)β†”K, P<|{X}K β‡’ P|β‰΅Q|~X"
+	ENTRY "P|β‰΅(P,Q)β†”K, [P<|{X}K] β‡’ P<|X"		IS ForwardOrBackward ForwardCut 0 "P|β‰΅(P,Q)β†”K, P<|{X}K β‡’ P<|X"
 	SEPARATOR
-	ENTRY "P|ι(R,R')κK Ϋ P|ι(R',R)κK"		IS ForwardOrBackward ForwardCut 0 "P|ι(R,R')κK Ϋ P|ι(R',R)κK"
-	ENTRY "P|ιQ|ι(R,R')κK Ϋ P|ιQ|ι(R',R)κK"	IS ForwardOrBackward ForwardCut 0 "P|ιQ|ι(R,R')κK Ϋ P|ιQ|ι(R',R)κK"
+	ENTRY "P|β‰΅(R,R')β†”K β‡’ P|β‰΅(R',R)β†”K"		IS ForwardOrBackward ForwardCut 0 "P|β‰΅(R,R')β†”K β‡’ P|β‰΅(R',R)β†”K"
+	ENTRY "P|β‰΅Q|β‰΅(R,R')β†”K β‡’ P|β‰΅Q|β‰΅(R',R)β†”K"	IS ForwardOrBackward ForwardCut 0 "P|β‰΅Q|β‰΅(R,R')β†”K β‡’ P|β‰΅Q|β‰΅(R',R)β†”K"
 END
 
 MENU "#"
-	ENTRY "P|ι#X, [P|ιQ|~X] Ϋ P|ιQ|ιX"			IS ForwardOrBackward ForwardCut 0 "P|ι#X, P|ιQ|~X Ϋ P|ιQ|ιX"
+	ENTRY "P|β‰΅#X, [P|β‰΅Q|~X] β‡’ P|β‰΅Q|β‰΅X"			IS ForwardOrBackward ForwardCut 0 "P|β‰΅#X, P|β‰΅Q|~X β‡’ P|β‰΅Q|β‰΅X"
 	SEPARATOR
-	ENTRY "P|ι#X Ϋ P|ι#(...,X,...)"				IS ForwardOrBackward ForwardCut 0 "P|ι#X Ϋ P|ι#(...,X,...)"
+	ENTRY "P|β‰΅#X β‡’ P|β‰΅#(...,X,...)"				IS ForwardOrBackward ForwardCut 0 "P|β‰΅#X β‡’ P|β‰΅#(...,X,...)"
 END
 
 MENU Logic 
-        ENTRY "P|ιθx.X(x) Ϋ P|ιX(Y)"				IS ForwardOrBackward ForwardCut 0 "P|ιθx.X(x) Ϋ P|ιX(Y)"
+        ENTRY "P|β‰΅β€x.X(x) β‡’ P|β‰΅X(Y)"				IS ForwardOrBackward ForwardCut 0 "P|β‰΅β€x.X(x) β‡’ P|β‰΅X(Y)"
         SEPARATOR
 	ENTRY hyp
 END

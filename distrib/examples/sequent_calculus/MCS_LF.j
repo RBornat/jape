@@ -1,21 +1,21 @@
-/* $Id$ */
+п»ї/* $Id$ */
 
 USE "sequent_scoping.j"
 
-RULE	"жи"(OBJECT m) WHERE FRESH m
-			FROM ‚, var m ж A(m),Ж				INFER ‚ ж иx.A(x),Ж
-RULE	"иж"(B)	FROM ‚, A(B) ж Ж AND ‚ ж B inscope		INFER ‚,иx.A(x) ж Ж
-RULE	"жд"(B)	FROM ‚ ж A(B),Ж AND ‚ ж B inscope		INFER ‚ ж дx.A(x),Ж
-RULE	"дж"(OBJECT m) WHERE FRESH m
-			FROM  ‚, var m, A(m) ж Ж				INFER ‚, дx.A(x) ж Ж
+RULE	"вЉўв€Ђ"(OBJECT m) WHERE FRESH m
+			FROM О“, var m вЉў A(m),в€†				INFER О“ вЉў в€Ђx.A(x),в€†
+RULE	"в€ЂвЉў"(B)	FROM О“, A(B) вЉў в€† AND О“ вЉў B inscope		INFER О“,в€Ђx.A(x) вЉў в€†
+RULE	"вЉўв€ѓ"(B)	FROM О“ вЉў A(B),в€† AND О“ вЉў B inscope		INFER О“ вЉў в€ѓx.A(x),в€†
+RULE	"в€ѓвЉў"(OBJECT m) WHERE FRESH m
+			FROM  О“, var m, A(m) вЉў в€†				INFER О“, в€ѓx.A(x) вЉў в€†
 
-TACTIC "иж with side condition hidden" IS LAYOUT "иж" (0) (WITHSELECTIONS "иж")
-TACTIC "жд with side condition hidden" IS LAYOUT "жд" (0) (WITHSELECTIONS "жд")
+TACTIC "в€ЂвЉў with side condition hidden" IS LAYOUT "в€ЂвЉў" (0) (WITHSELECTIONS "в€ЂвЉў")
+TACTIC "вЉўв€ѓ with side condition hidden" IS LAYOUT "вЉўв€ѓ" (0) (WITHSELECTIONS "вЉўв€ѓ")
 
 MENU Rules IS
-	ENTRY "иж" IS "иж with side condition hidden"
-	ENTRY "жд" IS "жд with side condition hidden"
+	ENTRY "в€ЂвЉў" IS "в€ЂвЉў with side condition hidden"
+	ENTRY "вЉўв€ѓ" IS "вЉўв€ѓ with side condition hidden"
 END
 
-HYPHIT	иx.A ж	IS "иж with side condition hidden"
-CONCHIT	ж дx.B	IS "жд with side condition hidden"
+HYPHIT	в€Ђx.A вЉў	IS "в€ЂвЉў with side condition hidden"
+CONCHIT	вЉў в€ѓx.B	IS "вЉўв€ѓ with side condition hidden"

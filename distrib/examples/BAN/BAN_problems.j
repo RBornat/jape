@@ -1,4 +1,4 @@
-/* $Id$ */ 
+ï»¿/* $Id$ */ 
  
 TACTIC TheoremForwardOrBackward(thm) IS
   WHEN (LETHYP _X cut (WITHSELECTIONS thm)) thm
@@ -6,101 +6,101 @@ TACTIC TheoremForwardOrBackward(thm) IS
 CONJECTUREPANEL Conjectures IS 
   BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 
-  THEOREM "Otway-Rees: S‘({Na,Nc}Kas,{Nb,Nc}Kbs) æ SŠA•(Na,Nc)" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-  		AŠèk.Sš(A,B)êk, BŠèk.Sš(A,B)êk, AŠèx.SšB•x, BŠèx.SšA•x, 
-  		AŠ#Na, BŠ#Nb, AŠ#Nc,
-  		S‘({Na,Nc}Kas,{Nb,Nc}Kbs)
-  		æ SŠA•(Na,Nc) 
-  THEOREM "Otway-Rees: S‘({Na,Nc}Kas,{Nb,Nc}Kbs) æ SŠB•(Nb,Nc)" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-  		AŠèk.Sš(A,B)êk, BŠèk.Sš(A,B)êk, AŠèx.SšB•x, BŠèx.SšA•x, 
-  		AŠ#Na, BŠ#Nb, AŠ#Nc,
- 		S‘({Na,Nc}Kas,{Nb,Nc}Kbs) 
- 		æ SŠB•(Nb,Nc) 
-  THEOREM "Otway-Rees: A‘{Na,(A,B)êKab,B•Nc}Kas æ AŠ(A,B)êKab" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-  		AŠèk.Sš(A,B)êk, BŠèk.Sš(A,B)êk, AŠèx.SšB•x, BŠèx.SšA•x, 
-  		AŠ#Na, BŠ#Nb, AŠ#Nc,
-  		A‘{Na,(A,B)êKab,B•Nc}Kas 
-  		æ AŠ(A,B)êKab
-  THEOREM "Otway-Rees: B‘({Na,(A,B)êKab,B•Nc}Kas , {Nb,(A,B)êKab,A•Nc}Kbs) æ BŠ(A,B)êKab" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-  		AŠèk.Sš(A,B)êk, BŠèk.Sš(A,B)êk, AŠèx.SšB•x, BŠèx.SšA•x, 
-  		AŠ#Na, BŠ#Nb, AŠ#Nc,
-  		B‘({Na,(A,B)êKab,B•Nc}Kas , {Nb,(A,B)êKab,A•Nc}Kbs) 
-  		æ BŠ(A,B)êKab 
-  THEOREM "Otway-Rees: A‘{Na,(A,B)êKab, B•Nc}Kas æ AŠBŠNc" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-  		AŠ(èk.Sš(A,B)êk), BŠ(èk.Sš(A,B)êk), AŠèx.SšB•x, BŠèx.SšA•x, 
-  		AŠ#Na, BŠ#Nb, AŠ#Nc,
-		A‘{Na,(A,B)êKab, B•Nc}Kas 
-		æ AŠBŠNc 
-  THEOREM "Otway-Rees: B‘({Na,(A,B)êKab,B•Nc}Kas , {Nb,(A,B)êKab,A•Nc}Kbs) æ BŠA•Nc" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-  		AŠ(èk.Sš(A,B)êk), BŠ(èk.Sš(A,B)êk), AŠèx.SšB•x, BŠèx.SšA•x, 
-  		AŠ#Na, BŠ#Nb, AŠ#Nc,
-		B‘({Na,(A,B)êKab,B•Nc}Kas , {Nb,(A,B)êKab,A•Nc}Kbs) 
-  		æ BŠA•Nc 
+  THEOREM "Otway-Rees: Sâ—({Na,Nc}Kas,{Nb,Nc}Kbs) âŠ¢ Sâ«¢Aâ‡(Na,Nc)" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+  		Aâ«¢âˆ€k.SÃ¶(A,B)â†”k, Bâ«¢âˆ€k.SÃ¶(A,B)â†”k, Aâ«¢âˆ€x.SÃ¶Bâ‡x, Bâ«¢âˆ€x.SÃ¶Aâ‡x, 
+  		Aâ«¢#Na, Bâ«¢#Nb, Aâ«¢#Nc,
+  		Sâ—({Na,Nc}Kas,{Nb,Nc}Kbs)
+  		âŠ¢ Sâ«¢Aâ‡(Na,Nc) 
+  THEOREM "Otway-Rees: Sâ—({Na,Nc}Kas,{Nb,Nc}Kbs) âŠ¢ Sâ«¢Bâ‡(Nb,Nc)" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+  		Aâ«¢âˆ€k.SÃ¶(A,B)â†”k, Bâ«¢âˆ€k.SÃ¶(A,B)â†”k, Aâ«¢âˆ€x.SÃ¶Bâ‡x, Bâ«¢âˆ€x.SÃ¶Aâ‡x, 
+  		Aâ«¢#Na, Bâ«¢#Nb, Aâ«¢#Nc,
+ 		Sâ—({Na,Nc}Kas,{Nb,Nc}Kbs) 
+ 		âŠ¢ Sâ«¢Bâ‡(Nb,Nc) 
+  THEOREM "Otway-Rees: Aâ—{Na,(A,B)â†”Kab,Bâ‡Nc}Kas âŠ¢ Aâ«¢(A,B)â†”Kab" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+  		Aâ«¢âˆ€k.SÃ¶(A,B)â†”k, Bâ«¢âˆ€k.SÃ¶(A,B)â†”k, Aâ«¢âˆ€x.SÃ¶Bâ‡x, Bâ«¢âˆ€x.SÃ¶Aâ‡x, 
+  		Aâ«¢#Na, Bâ«¢#Nb, Aâ«¢#Nc,
+  		Aâ—{Na,(A,B)â†”Kab,Bâ‡Nc}Kas 
+  		âŠ¢ Aâ«¢(A,B)â†”Kab
+  THEOREM "Otway-Rees: Bâ—({Na,(A,B)â†”Kab,Bâ‡Nc}Kas , {Nb,(A,B)â†”Kab,Aâ‡Nc}Kbs) âŠ¢ Bâ«¢(A,B)â†”Kab" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+  		Aâ«¢âˆ€k.SÃ¶(A,B)â†”k, Bâ«¢âˆ€k.SÃ¶(A,B)â†”k, Aâ«¢âˆ€x.SÃ¶Bâ‡x, Bâ«¢âˆ€x.SÃ¶Aâ‡x, 
+  		Aâ«¢#Na, Bâ«¢#Nb, Aâ«¢#Nc,
+  		Bâ—({Na,(A,B)â†”Kab,Bâ‡Nc}Kas , {Nb,(A,B)â†”Kab,Aâ‡Nc}Kbs) 
+  		âŠ¢ Bâ«¢(A,B)â†”Kab 
+  THEOREM "Otway-Rees: Aâ—{Na,(A,B)â†”Kab, Bâ‡Nc}Kas âŠ¢ Aâ«¢Bâ«¢Nc" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+  		Aâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Aâ«¢âˆ€x.SÃ¶Bâ‡x, Bâ«¢âˆ€x.SÃ¶Aâ‡x, 
+  		Aâ«¢#Na, Bâ«¢#Nb, Aâ«¢#Nc,
+		Aâ—{Na,(A,B)â†”Kab, Bâ‡Nc}Kas 
+		âŠ¢ Aâ«¢Bâ«¢Nc 
+  THEOREM "Otway-Rees: Bâ—({Na,(A,B)â†”Kab,Bâ‡Nc}Kas , {Nb,(A,B)â†”Kab,Aâ‡Nc}Kbs) âŠ¢ Bâ«¢Aâ‡Nc" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+  		Aâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Aâ«¢âˆ€x.SÃ¶Bâ‡x, Bâ«¢âˆ€x.SÃ¶Aâ‡x, 
+  		Aâ«¢#Na, Bâ«¢#Nb, Aâ«¢#Nc,
+		Bâ—({Na,(A,B)â†”Kab,Bâ‡Nc}Kas , {Nb,(A,B)â†”Kab,Aâ‡Nc}Kbs) 
+  		âŠ¢ Bâ«¢Aâ‡Nc 
  
-  THEOREM "Needham-Schroeder: A‘{Na,(A,B)êKab,#((A,B)êKab),{(A,B)êKab}Kbs}Kas æ AŠ#((A,B)êKab)" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-		AŠ(èk.Sš(A,B)êk), BŠ(èk.Sš(A,B)êk), AŠ(èk.Sš#((A,B)êk)), 
-		AŠ#Na, BŠ#Nb, SŠ#((A,B)êKab), BŠ(èk.#((A,B)êk)), 
-  		A‘{Na,(A,B)êKab,#((A,B)êKab),{(A,B)êKab}Kbs}Kas 
-  		æ AŠ#((A,B)êKab) 
-  THEOREM "Needham-Schroeder: A‘{Na,(A,B)êKab,#((A,B)êKab),{(A,B)êKab}Kbs}Kas æ AŠ(A,B)êKab" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-		AŠ(èk.Sš(A,B)êk), BŠ(èk.Sš(A,B)êk), AŠ(èk.Sš#((A,B)êk)), 
-		AŠ#Na, BŠ#Nb, SŠ#((A,B)êKab), BŠ(èk.#((A,B)êk)), 
-		A‘{Na,(A,B)êKab,#((A,B)êKab),{(A,B)êKab}Kbs}Kas 
-		æ AŠ(A,B)êKab 
-  THEOREM "Needham-Schroeder: B‘{(A,B)êKab}Kbs æ BŠ(A,B)êKab" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-		AŠ(èk.Sš(A,B)êk), BŠ(èk.Sš(A,B)êk), AŠ(èk.Sš#((A,B)êk)), 
-		AŠ#Na, BŠ#Nb, SŠ#((A,B)êKab), BŠ(èk.#((A,B)êk)), 
-		B‘{(A,B)êKab}Kbs 
-		æ BŠ(A,B)êKab 
-  THEOREM "Needham-Schroeder: A‘{Nb,(A,B)êKab}Kab æ AŠBŠ(A,B)êKab" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-		AŠ(èk.Sš(A,B)êk), BŠ(èk.Sš(A,B)êk), AŠ(èk.Sš#((A,B)êk)), 
-		AŠ#Na, BŠ#Nb, SŠ#((A,B)êKab), BŠ(èk.#((A,B)êk)), 
-  		A‘{Na,(A,B)êKab,#((A,B)êKab),{(A,B)êKab}Kbs}Kas, 
-		A‘{Nb,(A,B)êKab}Kab 
-		æ AŠBŠ(A,B)êKab 
-  THEOREM "Needham-Schroeder: B‘{Nb,(A,B)êKab}Kab æ BŠAŠ(A,B)êKab" IS 
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-		AŠ(èk.Sš(A,B)êk), BŠ(èk.Sš(A,B)êk), AŠ(èk.Sš#((A,B)êk)), 
-		AŠ#Na, BŠ#Nb, SŠ#((A,B)êKab), BŠ(èk.#((A,B)êk)), 
-		B‘{(A,B)êKab}Kbs, 
-		B‘{Nb,(A,B)êKab}Kab 
-		æ BŠAŠ(A,B)êKab 
+  THEOREM "Needham-Schroeder: Aâ—{Na,(A,B)â†”Kab,#((A,B)â†”Kab),{(A,B)â†”Kab}Kbs}Kas âŠ¢ Aâ«¢#((A,B)â†”Kab)" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+		Aâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Aâ«¢(âˆ€k.SÃ¶#((A,B)â†”k)), 
+		Aâ«¢#Na, Bâ«¢#Nb, Sâ«¢#((A,B)â†”Kab), Bâ«¢(âˆ€k.#((A,B)â†”k)), 
+  		Aâ—{Na,(A,B)â†”Kab,#((A,B)â†”Kab),{(A,B)â†”Kab}Kbs}Kas 
+  		âŠ¢ Aâ«¢#((A,B)â†”Kab) 
+  THEOREM "Needham-Schroeder: Aâ—{Na,(A,B)â†”Kab,#((A,B)â†”Kab),{(A,B)â†”Kab}Kbs}Kas âŠ¢ Aâ«¢(A,B)â†”Kab" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+		Aâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Aâ«¢(âˆ€k.SÃ¶#((A,B)â†”k)), 
+		Aâ«¢#Na, Bâ«¢#Nb, Sâ«¢#((A,B)â†”Kab), Bâ«¢(âˆ€k.#((A,B)â†”k)), 
+		Aâ—{Na,(A,B)â†”Kab,#((A,B)â†”Kab),{(A,B)â†”Kab}Kbs}Kas 
+		âŠ¢ Aâ«¢(A,B)â†”Kab 
+  THEOREM "Needham-Schroeder: Bâ—{(A,B)â†”Kab}Kbs âŠ¢ Bâ«¢(A,B)â†”Kab" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+		Aâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Aâ«¢(âˆ€k.SÃ¶#((A,B)â†”k)), 
+		Aâ«¢#Na, Bâ«¢#Nb, Sâ«¢#((A,B)â†”Kab), Bâ«¢(âˆ€k.#((A,B)â†”k)), 
+		Bâ—{(A,B)â†”Kab}Kbs 
+		âŠ¢ Bâ«¢(A,B)â†”Kab 
+  THEOREM "Needham-Schroeder: Aâ—{Nb,(A,B)â†”Kab}Kab âŠ¢ Aâ«¢Bâ«¢(A,B)â†”Kab" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+		Aâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Aâ«¢(âˆ€k.SÃ¶#((A,B)â†”k)), 
+		Aâ«¢#Na, Bâ«¢#Nb, Sâ«¢#((A,B)â†”Kab), Bâ«¢(âˆ€k.#((A,B)â†”k)), 
+  		Aâ—{Na,(A,B)â†”Kab,#((A,B)â†”Kab),{(A,B)â†”Kab}Kbs}Kas, 
+		Aâ—{Nb,(A,B)â†”Kab}Kab 
+		âŠ¢ Aâ«¢Bâ«¢(A,B)â†”Kab 
+  THEOREM "Needham-Schroeder: Bâ—{Nb,(A,B)â†”Kab}Kab âŠ¢ Bâ«¢Aâ«¢(A,B)â†”Kab" IS 
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+		Aâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Aâ«¢(âˆ€k.SÃ¶#((A,B)â†”k)), 
+		Aâ«¢#Na, Bâ«¢#Nb, Sâ«¢#((A,B)â†”Kab), Bâ«¢(âˆ€k.#((A,B)â†”k)), 
+		Bâ—{(A,B)â†”Kab}Kbs, 
+		Bâ—{Nb,(A,B)â†”Kab}Kab 
+		âŠ¢ Bâ«¢Aâ«¢(A,B)â†”Kab 
  
-  THEOREM "Kerberos: A‘{Ts,(A,B)êKab,{Ts,(A,B)êKab}Kbs}Kas æ AŠ(A,B)êKab" IS
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-  		AŠ(èk.Sš(A,B)êk), BŠ(èk.Sš(A,B)êk), AŠ#Ts, BŠ#Ts, AŠ#Ta, BŠ#Ta,
-  		A‘{Ts,(A,B)êKab,{Ts,(A,B)êKab}Kbs}Kas
-  		æ AŠ(A,B)êKab
-  THEOREM "Kerberos: B‘({Ts,(A,B)êKab}Kbs,{Ta,(A,B)êKab}Kab) æ BŠAŠ(A,B)êKab" IS
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-  		AŠ(èk.Sš(A,B)êk), BŠ(èk.Sš(A,B)êk), AŠ#Ts, BŠ#Ts, AŠ#Ta, BŠ#Ta,
-  		B‘({Ts,(A,B)êKab}Kbs,{Ta,(A,B)êKab}Kab)
-  		æ BŠAŠ(A,B)êKab
-  THEOREM "Kerberos: A‘{Ta,(A,B)êKab}Kab æ AŠBŠ(A,B)êKab" IS
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
-  		AŠ(èk.Sš(A,B)êk), BŠ(èk.Sš(A,B)êk), AŠ#Ts, BŠ#Ts, AŠ#Ta, BŠ#Ta,
-  		A‘{Ts,(A,B)êKab,{Ts,(A,B)êKab}Kbs}Kas,
-  		A‘{Ta,(A,B)êKab}Kab
-  		æ AŠBŠ(A,B)êKab
+  THEOREM "Kerberos: Aâ—{Ts,(A,B)â†”Kab,{Ts,(A,B)â†”Kab}Kbs}Kas âŠ¢ Aâ«¢(A,B)â†”Kab" IS
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+  		Aâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Aâ«¢#Ts, Bâ«¢#Ts, Aâ«¢#Ta, Bâ«¢#Ta,
+  		Aâ—{Ts,(A,B)â†”Kab,{Ts,(A,B)â†”Kab}Kbs}Kas
+  		âŠ¢ Aâ«¢(A,B)â†”Kab
+  THEOREM "Kerberos: Bâ—({Ts,(A,B)â†”Kab}Kbs,{Ta,(A,B)â†”Kab}Kab) âŠ¢ Bâ«¢Aâ«¢(A,B)â†”Kab" IS
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+  		Aâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Aâ«¢#Ts, Bâ«¢#Ts, Aâ«¢#Ta, Bâ«¢#Ta,
+  		Bâ—({Ts,(A,B)â†”Kab}Kbs,{Ta,(A,B)â†”Kab}Kab)
+  		âŠ¢ Bâ«¢Aâ«¢(A,B)â†”Kab
+  THEOREM "Kerberos: Aâ—{Ta,(A,B)â†”Kab}Kab âŠ¢ Aâ«¢Bâ«¢(A,B)â†”Kab" IS
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Sâ«¢(A,B)â†”Kab,
+  		Aâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(A,B)â†”k), Aâ«¢#Ts, Bâ«¢#Ts, Aâ«¢#Ta, Bâ«¢#Ta,
+  		Aâ—{Ts,(A,B)â†”Kab,{Ts,(A,B)â†”Kab}Kbs}Kas,
+  		Aâ—{Ta,(A,B)â†”Kab}Kab
+  		âŠ¢ Aâ«¢Bâ«¢(A,B)â†”Kab
 
-  THEOREM "Frog: S‘{Ta,(A,B)êKab}Kas æ SŠAŠ(A,B)êKab" IS
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, AŠ(A,B)êKab,
-  		BŠ(èk.Aš(A,B)êk), BŠ(èk.Sš(AŠ(A,B)êk)), SŠ#Ta, BŠ#Ts,
-  		S‘{Ta,(A,B)êKab}Kas
-  		æ SŠAŠ(A,B)êKab
-  THEOREM "Frog: B‘{Ts,AŠ(A,B)êKab}Kbs æ BŠ(A,B)êKab" IS
-  		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, AŠ(A,B)êKab,
-  		BŠ(èk.Aš(A,B)êk), BŠ(èk.Sš(AŠ(A,B)êk)), SŠ#Ta, BŠ#Ts,
-  		B‘{Ts,AŠ(A,B)êKab}Kbs 
-  		æ BŠ(A,B)êKab
+  THEOREM "Frog: Sâ—{Ta,(A,B)â†”Kab}Kas âŠ¢ Sâ«¢Aâ«¢(A,B)â†”Kab" IS
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Aâ«¢(A,B)â†”Kab,
+  		Bâ«¢(âˆ€k.AÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(Aâ«¢(A,B)â†”k)), Sâ«¢#Ta, Bâ«¢#Ts,
+  		Sâ—{Ta,(A,B)â†”Kab}Kas
+  		âŠ¢ Sâ«¢Aâ«¢(A,B)â†”Kab
+  THEOREM "Frog: Bâ—{Ts,Aâ«¢(A,B)â†”Kab}Kbs âŠ¢ Bâ«¢(A,B)â†”Kab" IS
+  		Aâ«¢(A,S)â†”Kas, Sâ«¢(A,S)â†”Kas, Bâ«¢(B,S)â†”Kbs, Sâ«¢(B,S)â†”Kbs, Aâ«¢(A,B)â†”Kab,
+  		Bâ«¢(âˆ€k.AÃ¶(A,B)â†”k), Bâ«¢(âˆ€k.SÃ¶(Aâ«¢(A,B)â†”k)), Sâ«¢#Ta, Bâ«¢#Ts,
+  		Bâ—{Ts,Aâ«¢(A,B)â†”Kab}Kbs 
+  		âŠ¢ Bâ«¢(A,B)â†”Kab
 END 

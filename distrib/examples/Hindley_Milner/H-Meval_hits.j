@@ -1,9 +1,9 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
-CONCHIT ûx.E:T IS "ûx.E : T1çT2"
+CONCHIT Î»x.E:T IS "Î»x.E : T1â†’T2"
 CONCHIT x:T IS "x:T"
 CONCHIT F G:T IS "F G : T"
-CONCHIT (E,F):T IS "(E,F) : T1ôT2"
+CONCHIT (E,F):T IS "(E,F) : T1Ã—T2"
 CONCHIT n:T IS "n:num"
 CONCHIT s:T IS "s:string"
 CONCHIT true:T IS "true:bool"
@@ -11,5 +11,5 @@ CONCHIT false:T IS "false:bool"
 CONCHIT letrec x=E in F end:T IS letrecrules
 CONCHIT let x=E in F end:T IS letrules
 CONCHIT if E then ET else EF fi:T  IS "if E then ET else EF fi : T"
-CONCHIT TÇS IS generalise
+CONCHIT TÂ«S IS generalise
 

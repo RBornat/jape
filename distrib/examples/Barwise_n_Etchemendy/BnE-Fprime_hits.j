@@ -1,32 +1,32 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
-HYPHIT AçB æ C IS "ç-E tac"
-HYPHIT A¦B æ C IS 
-	ALT	(SEQ "¦-E(L)" (WITHHYPSEL hyp))
-			(SEQ "¦-E(R)" (WITHHYPSEL hyp))
-			(SEQ (ForwardCut 0 "¦-E(L)") (ForwardCut 0 "¦-E(R)"))
-HYPHIT AëB  æ C IS "ë-E tac"
-HYPHIT èx.P æ C IS "è-E tac"
-HYPHIT è(x,y).P æ C IS "è-E tac"
-HYPHIT è(x,y,z).P æ C IS "è-E tac"
-HYPHIT è(w,x,y,z).P æ C IS "è-E tac"
-HYPHIT äx.P æ C IS "ä-E tac"
-HYPHIT ä(x,y).P æ C IS "ä-E tac"
-HYPHIT ä(x,y,z).P æ C IS "ä-E tac"
-HYPHIT ä(w,x,y,z).P æ C IS "ä-E tac"
+HYPHIT Aâ†’B âŠ¢ C IS "â†’-E tac"
+HYPHIT Aâˆ§B âŠ¢ C IS 
+	ALT	(SEQ "âˆ§-E(L)" (WITHHYPSEL hyp))
+			(SEQ "âˆ§-E(R)" (WITHHYPSEL hyp))
+			(SEQ (ForwardCut 0 "âˆ§-E(L)") (ForwardCut 0 "âˆ§-E(R)"))
+HYPHIT Aâˆ¨B  âŠ¢ C IS "âˆ¨-E tac"
+HYPHIT âˆ€x.P âŠ¢ C IS "âˆ€-E tac"
+HYPHIT âˆ€(x,y).P âŠ¢ C IS "âˆ€-E tac"
+HYPHIT âˆ€(x,y,z).P âŠ¢ C IS "âˆ€-E tac"
+HYPHIT âˆ€(w,x,y,z).P âŠ¢ C IS "âˆ€-E tac"
+HYPHIT âˆƒx.P âŠ¢ C IS "âˆƒ-E tac"
+HYPHIT âˆƒ(x,y).P âŠ¢ C IS "âˆƒ-E tac"
+HYPHIT âˆƒ(x,y,z).P âŠ¢ C IS "âˆƒ-E tac"
+HYPHIT âˆƒ(w,x,y,z).P âŠ¢ C IS "âˆƒ-E tac"
 
-CONCHIT AçB IS "ç-I"      
-CONCHIT AêB IS "ê-I"
-CONCHIT A¦B IS "¦-I"
-CONCHIT AëB IS ALT (SEQ "ë-I(L)" hyp) (SEQ "ë-I(R)" hyp)
-CONCHIT ÂA IS "Â-I"  
-CONCHIT Ù IS "Ù-I"     
-CONCHIT èx.P IS "è-I"  
-CONCHIT è(x,y).P IS "è-I"  
-CONCHIT è(x,y,z).P IS "è-I"  
-CONCHIT è(w,x,y,z).P IS "è-I"  
-CONCHIT äx.P IS "ä-I tac"  
-CONCHIT ä(x,y).P IS "ä-I tac"  
-CONCHIT ä(x,y,z).P IS "ä-I tac"  
-CONCHIT ä(w,x,y,z).P IS "ä-I tac"  
+CONCHIT Aâ†’B IS "â†’-I"      
+CONCHIT Aâ†”B IS "â†”-I"
+CONCHIT Aâˆ§B IS "âˆ§-I"
+CONCHIT Aâˆ¨B IS ALT (SEQ "âˆ¨-I(L)" hyp) (SEQ "âˆ¨-I(R)" hyp)
+CONCHIT Â¬A IS "Â¬-I"  
+CONCHIT âŠ¥ IS "âŠ¥-I"     
+CONCHIT âˆ€x.P IS "âˆ€-I"  
+CONCHIT âˆ€(x,y).P IS "âˆ€-I"  
+CONCHIT âˆ€(x,y,z).P IS "âˆ€-I"  
+CONCHIT âˆ€(w,x,y,z).P IS "âˆ€-I"  
+CONCHIT âˆƒx.P IS "âˆƒ-I tac"  
+CONCHIT âˆƒ(x,y).P IS "âˆƒ-I tac"  
+CONCHIT âˆƒ(x,y,z).P IS "âˆƒ-I tac"  
+CONCHIT âˆƒ(w,x,y,z).P IS "âˆƒ-I tac"  
 CONCHIT A=A IS "A=A"

@@ -1,4 +1,4 @@
-/*
+﻿/*
         $Id$
         
         Provides transitive reasoning style for the functional programming theories
@@ -121,7 +121,7 @@ RULE Singleton        IS FROM Y=Y' INFER [Y]=[Y']
        
 /*******************************************/
 
-HYPHIT  H � C IS  UnfoldHypWithOptionalSelectionLHS
+HYPHIT  H ⊢ C IS  UnfoldHypWithOptionalSelectionLHS
 
 TACTIC UnfoldHypWithOptionalSelectionLHS() IS
 (LETHYP (_A=_B)  /* Use selected hypothesis to rewrite everywhere */

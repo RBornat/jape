@@ -1,23 +1,23 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 USE "MCS.jt"
 USE "IMCS.j"
 
-CONSTANT Ù
-PREFIX 50 ×
+CONSTANT âŠ¥
+PREFIX 50 â—Š
 
 MENU "Rules"
-	RULE "×æ" FROM ‚,A æ ×B INFER ‚,×A æ ×B
-	RULE "æ×" FROM ‚æ A,Æ INFER ‚ æ ×A,Æ
+	RULE "â—ŠâŠ¢" FROM Î“,A âŠ¢ â—ŠB INFER Î“,â—ŠA âŠ¢ â—ŠB
+	RULE "âŠ¢â—Š" FROM Î“âŠ¢ A,âˆ† INFER Î“ âŠ¢ â—ŠA,âˆ†
 END
 
-HYPHIT ×A æ 	IS "×æ"
-HYPHIT ×A æ B	IS "×æ"
-CONCHIT æ ×A 	IS "æ×"
+HYPHIT â—ŠA âŠ¢ 	IS "â—ŠâŠ¢"
+HYPHIT â—ŠA âŠ¢ B	IS "â—ŠâŠ¢"
+CONCHIT âŠ¢ â—ŠA 	IS "âŠ¢â—Š"
 
 CONSTANT cheese wine port claret dessert brie stilton
 
 CONJECTUREPANEL "Conjectures"
-	THEOREM INFER èx.èy.cheese(x)¦wine(y) ç (×dessert(x,y)), 
-		×cheese(brie), ×cheese(stilton), ×wine(port), ×wine(claret) æ äu.äv.×dessert(u,v)
+	THEOREM INFER âˆ€x.âˆ€y.cheese(x)âˆ§wine(y) â†’ (â—Šdessert(x,y)), 
+		â—Šcheese(brie), â—Šcheese(stilton), â—Šwine(port), â—Šwine(claret) âŠ¢ âˆƒu.âˆƒv.â—Šdessert(u,v)
 END

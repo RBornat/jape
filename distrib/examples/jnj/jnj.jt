@@ -1,4 +1,4 @@
-/*
+Ôªø/*
         This jape theory file was generated from the
         latex source of the paper -- ``JnJ in Jape'' --
         which describes the way in which the logic of the
@@ -16,76 +16,76 @@
         Edit in FONT{lauratt-*}
 */
         FONTS   "Laura"
-        SEQUENT IS BAG ° FORMULA
+        SEQUENT IS BAG ‚ä¢ FORMULA
         INITIALISE autoAdditiveLeft true
-        PREFIX   350 ∆
-        INFIX    50R  ã
-        INFIX    100R ä
-        INFIX    200L ç
-        INFIX    300L Ö
+        PREFIX   350 ¬¨
+        INFIX    50R  ‚áî
+        INFIX    100R ‚áí
+        INFIX    200L ‚à®
+        INFIX    300L ‚àß
         JUXTFIX  40000
         CLASS FORMULA  p q r s
         CLASS VARIABLE x y z
         CONSTANT false true
         SUBSTFIX 50000 [ p / x ]
-        RULE  "Ö-intro"  FROM p AND q INFER pÖq
-        RULE  "Ö-elim1"  FROM pÖq INFER p
-        RULE  "Ö-elim2"  FROM pÖq INFER q
+        RULE  "‚àß-intro"  FROM p AND q INFER p‚àßq
+        RULE  "‚àß-elim1"  FROM p‚àßq INFER p
+        RULE  "‚àß-elim2"  FROM p‚àßq INFER q
 
-        RULE  "ç-intro1" FROM p INFER pçq
-        RULE  "ç-intro2" FROM q INFER pçq
-        RULE  "ç-elim"   FROM pçq AND p°r AND q°r INFER r
+        RULE  "‚à®-intro1" FROM p INFER p‚à®q
+        RULE  "‚à®-intro2" FROM q INFER p‚à®q
+        RULE  "‚à®-elim"   FROM p‚à®q AND p‚ä¢r AND q‚ä¢r INFER r
 
-        RULE  "ä-intro"  FROM p ° q INFER päq
-        RULE  "ä-elim"   FROM päq AND p INFER q
+        RULE  "‚áí-intro"  FROM p ‚ä¢ q INFER p‚áíq
+        RULE  "‚áí-elim"   FROM p‚áíq AND p INFER q
 
-        RULE  "∆-intro"  FROM p ° false INFER ∆ p
-        RULE  "∆-elim"   FROM ∆p AND p INFER false
+        RULE  "¬¨-intro"  FROM p ‚ä¢ false INFER ¬¨ p
+        RULE  "¬¨-elim"   FROM ¬¨p AND p INFER false
 
-        RULE  "false-intro" FROM ∆p AND p INFER false
-        RULE  "false-elim"  FROM ∆p ° false INFER  p
-        RULE  "true-intro"  INFER  ° true
+        RULE  "false-intro" FROM ¬¨p AND p INFER false
+        RULE  "false-elim"  FROM ¬¨p ‚ä¢ false INFER  p
+        RULE  "true-intro"  INFER  ‚ä¢ true
 
-        RULE  "ã-intro"  FROM p ä q AND   q ä p INFER p ã q
-        RULE  "ã-elim1"  FROM p ã q INFER p ä q
-        RULE  "ã-elim2"  FROM p ã q INFER q ä p
-        RULE hypothesis(p) INFER p ° p
-        RULE cut(p)        FROM  ° p AND   p ° q  INFER   ° q
-        RULE thin(p)       FROM  ° q              INFER p ° q
-        RULE dup(p)        FROM  p, p ° q         INFER p ° q
+        RULE  "‚áî-intro"  FROM p ‚áí q AND   q ‚áí p INFER p ‚áî q
+        RULE  "‚áî-elim1"  FROM p ‚áî q INFER p ‚áí q
+        RULE  "‚áî-elim2"  FROM p ‚áî q INFER q ‚áí p
+        RULE hypothesis(p) INFER p ‚ä¢ p
+        RULE cut(p)        FROM  ‚ä¢ p AND   p ‚ä¢ q  INFER   ‚ä¢ q
+        RULE thin(p)       FROM  ‚ä¢ q              INFER p ‚ä¢ q
+        RULE dup(p)        FROM  p, p ‚ä¢ q         INFER p ‚ä¢ q
         IDENTITY RULE hypothesis
         CUT      RULE cut
         WEAKEN   RULE thin
-    INFIX   800R  ñ
-    LEFTFIX 10  Ñ : §
-    LEFTFIX 10  Ñ : | §
-    LEFTFIX 10  å : §
-    LEFTFIX 10  å : | §
+    INFIX   800R  ‚àà
+    LEFTFIX 10  ‚àÄ : ‚àô
+    LEFTFIX 10  ‚àÄ : | ‚àô
+    LEFTFIX 10  ‚àÉ : ‚àô
+    LEFTFIX 10  ‚àÉ : | ‚àô
     CLASS FORMULA a b t u
-    BIND x SCOPE p   IN Ñ x:a § p
-    BIND x SCOPE p   IN å x:a § p
-    BIND x SCOPE p q IN Ñ x:a | p § q
-    BIND x SCOPE p q IN å x:a | p § q
-    RULE    "Ñ-intro"(OBJECT y) WHERE FRESH y
-    FROM    yña ° q[y/x]
-    INFER   Ñ x:a § q
-    RULE    "Ñ-elim"(t)
-    FROM    Ñ x:a § q
-    AND     tña
+    BIND x SCOPE p   IN ‚àÄ x:a ‚àô p
+    BIND x SCOPE p   IN ‚àÉ x:a ‚àô p
+    BIND x SCOPE p q IN ‚àÄ x:a | p ‚àô q
+    BIND x SCOPE p q IN ‚àÉ x:a | p ‚àô q
+    RULE    "‚àÄ-intro"(OBJECT y) WHERE FRESH y
+    FROM    y‚ààa ‚ä¢ q[y/x]
+    INFER   ‚àÄ x:a ‚àô q
+    RULE    "‚àÄ-elim"(t)
+    FROM    ‚àÄ x:a ‚àô q
+    AND     t‚ààa
     INFER   q[t/x]
-    RULE    "å-intro"(t)
-    FROM    tña
+    RULE    "‚àÉ-intro"(t)
+    FROM    t‚ààa
     AND     q[t/x]
-    INFER   å x:a § q
-    RULE    "å-elim"(OBJECT y)
+    INFER   ‚àÉ x:a ‚àô q
+    RULE    "‚àÉ-elim"(OBJECT y)
     WHERE   FRESH y
-    AND     y NOTIN å x:a § p
+    AND     y NOTIN ‚àÉ x:a ‚àô p
     AND     y NOTIN r
-    FROM    å x:a § p
-    AND     yña, p[y/x] ° r
+    FROM    ‚àÉ x:a ‚àô p
+    AND     y‚ààa, p[y/x] ‚ä¢ r
     INFER   r
-    RULE "Ñ|§" IS (Ñ x:a|p§q) ã (Ñ x:a § p ä q)
-    RULE "å|§" IS (å x:a|p§q) ã (å x:a § p Ö q)
+    RULE "‚àÄ|‚àô" IS (‚àÄ x:a|p‚àôq) ‚áî (‚àÄ x:a ‚àô p ‚áí q)
+    RULE "‚àÉ|‚àô" IS (‚àÉ x:a|p‚àôq) ‚áî (‚àÉ x:a ‚àô p ‚àß q)
     TACTIC ElimRule(rule)
     (WHEN
       (LETHYP _p
@@ -108,66 +108,66 @@ MENU    "Propositional Rules"
     SEPARATOR
     ENTRY    "false-elim"   IS (IntroRule "false-elim")
     SEPARATOR
-    ENTRY    "Ö-intro"      IS (IntroRule "Ö-intro")
-    TACTIC   "Ö-elim-1"     IS (ElimRule  "Ö-elim1")
-    ENTRY    "Ö-elim-2"     IS (ElimRule  "Ö-elim2")
+    ENTRY    "‚àß-intro"      IS (IntroRule "‚àß-intro")
+    TACTIC   "‚àß-elim-1"     IS (ElimRule  "‚àß-elim1")
+    ENTRY    "‚àß-elim-2"     IS (ElimRule  "‚àß-elim2")
     SEPARATOR
-    ENTRY    "ç-intro1"     IS (IntroRule "ç-intro1")
-    ENTRY    "ç-intro2"     IS (IntroRule "ç-intro2")
-    ENTRY    "ç-elim"       IS (ElimRule "ç-elim")
+    ENTRY    "‚à®-intro1"     IS (IntroRule "‚à®-intro1")
+    ENTRY    "‚à®-intro2"     IS (IntroRule "‚à®-intro2")
+    ENTRY    "‚à®-elim"       IS (ElimRule "‚à®-elim")
     SEPARATOR
-    ENTRY    "ä-intro"      IS (IntroRule "ä-intro")
-    ENTRY    "ä-elim"       IS (ElimRule  "ä-elim")
+    ENTRY    "‚áí-intro"      IS (IntroRule "‚áí-intro")
+    ENTRY    "‚áí-elim"       IS (ElimRule  "‚áí-elim")
     SEPARATOR
-    ENTRY    "∆-intro"      IS (IntroRule "∆-intro")
-    ENTRY    "∆-elim"       IS (ElimRule "∆-elim")
+    ENTRY    "¬¨-intro"      IS (IntroRule "¬¨-intro")
+    ENTRY    "¬¨-elim"       IS (ElimRule "¬¨-elim")
     ENTRY    "false-intro"  IS (ElimRule "false-intro")
     ENTRY    "true-intro"   IS (IntroRule "true-intro")
     SEPARATOR
-    ENTRY    "ã-intro"      IS (IntroRule "ã-intro")
-    ENTRY    "ã-elim1"      IS (ElimRule "ã-elim1")
-    ENTRY    "ã-elim2"      IS (ElimRule "ã-elim2")
+    ENTRY    "‚áî-intro"      IS (IntroRule "‚áî-intro")
+    ENTRY    "‚áî-elim1"      IS (ElimRule "‚áî-elim1")
+    ENTRY    "‚áî-elim2"      IS (ElimRule "‚áî-elim2")
 END
 MENU "Quantifier Rules" IS
-    ENTRY "Ñ-intro"   IS QuantIntroRule "Ñ-intro"
-    ENTRY "Ñ-elim"    IS ElimRule       "Ñ-elim"
-    ENTRY "å-intro"   IS QuantIntroRule "å-intro"
-    ENTRY "å-elim"    IS ElimRule       "å-elim"
+    ENTRY "‚àÄ-intro"   IS QuantIntroRule "‚àÄ-intro"
+    ENTRY "‚àÄ-elim"    IS ElimRule       "‚àÄ-elim"
+    ENTRY "‚àÉ-intro"   IS QuantIntroRule "‚àÉ-intro"
+    ENTRY "‚àÉ-elim"    IS ElimRule       "‚àÉ-elim"
 END
     AUTOMATCH hypothesis
-    HYPHIT pçq ° r IS  (ALT (ElimRule "ç-elim")  "ç-elim")
-    HYPHIT päq ° r IS  (ALT (ElimRule "ä-elim")  "ä-elim")
-    HYPHIT ∆p  ° r IS  (ALT (ElimRule "∆-elim")  "∆-elim")
-    HYPHIT Ñx:a§q   ° r IS ElimRule "Ñ-elim"
-    HYPHIT åx:a§q   ° r IS ElimRule "å-elim"
-    HYPHIT pÖq ° r IS
-    (ALT (SEQ  "Ö-elim1"  (hypothesis(pÖq)))
-         (SEQ  "Ö-elim2"  (hypothesis(pÖq)))
+    HYPHIT p‚à®q ‚ä¢ r IS  (ALT (ElimRule "‚à®-elim")  "‚à®-elim")
+    HYPHIT p‚áíq ‚ä¢ r IS  (ALT (ElimRule "‚áí-elim")  "‚áí-elim")
+    HYPHIT ¬¨p  ‚ä¢ r IS  (ALT (ElimRule "¬¨-elim")  "¬¨-elim")
+    HYPHIT ‚àÄx:a‚àôq   ‚ä¢ r IS ElimRule "‚àÄ-elim"
+    HYPHIT ‚àÉx:a‚àôq   ‚ä¢ r IS ElimRule "‚àÉ-elim"
+    HYPHIT p‚àßq ‚ä¢ r IS
+    (ALT (SEQ  "‚àß-elim1"  (hypothesis(p‚àßq)))
+         (SEQ  "‚àß-elim2"  (hypothesis(p‚àßq)))
          (SEQ
-               cut "Ö-elim1" (hypothesis (pÖq))
-               cut "Ö-elim2" (hypothesis (pÖq))
+               cut "‚àß-elim1" (hypothesis (p‚àßq))
+               cut "‚àß-elim2" (hypothesis (p‚àßq))
          ))
 
-    HYPHIT pãq ° r IS
-    (ALT (SEQ  "ã-elim1"  (hypothesis(pãq)))
-         (SEQ  "ã-elim2"  (hypothesis(pãq)))
+    HYPHIT p‚áîq ‚ä¢ r IS
+    (ALT (SEQ  "‚áî-elim1"  (hypothesis(p‚áîq)))
+         (SEQ  "‚áî-elim2"  (hypothesis(p‚áîq)))
          (SEQ
-               cut "ã-elim1" (hypothesis (pãq))
-               cut "ã-elim2" (hypothesis (pãq))
+               cut "‚áî-elim1" (hypothesis (p‚áîq))
+               cut "‚áî-elim2" (hypothesis (p‚áîq))
          ))
-    CONCHIT Ñx:a§q   IS QuantIntroRule "Ñ-intro"
-    CONCHIT åx:a§q   IS QuantIntroRule "å-intro"
-    CONCHIT ∆p       IS "∆-intro"
+    CONCHIT ‚àÄx:a‚àôq   IS QuantIntroRule "‚àÄ-intro"
+    CONCHIT ‚àÉx:a‚àôq   IS QuantIntroRule "‚àÉ-intro"
+    CONCHIT ¬¨p       IS "¬¨-intro"
     CONCHIT true     IS "true-intro"
-    CONCHIT päq      IS "ä-intro"
-    CONCHIT pãq      IS "ã-intro"
-    CONCHIT pÖq      IS "Ö-intro"
-    CONCHIT qçr      IS
-     (ALT  (SEQ "ç-intro1" hypothesis)
-           (SEQ "ç-intro2" hypothesis)
+    CONCHIT p‚áíq      IS "‚áí-intro"
+    CONCHIT p‚áîq      IS "‚áî-intro"
+    CONCHIT p‚àßq      IS "‚àß-intro"
+    CONCHIT q‚à®r      IS
+     (ALT  (SEQ "‚à®-intro1" hypothesis)
+           (SEQ "‚à®-intro2" hypothesis)
            (MESSAGE (Neither disjunct q nor disjunct r is available)))
 
-    CONCHIT  p ° p IS
+    CONCHIT  p ‚ä¢ p IS
     (WHEN (LETHYP _p (WITHHYPSEL hypothesis))
           (Fail ("Please select the hypothesis you want to use")))
     MENU Edit
@@ -212,108 +212,108 @@ END
 
     TACTIC SKIP(x)    IS (SEQ)
 
-        INFIX 1000L ë
+        INFIX 1000L ‚â§
 CONJECTUREPANEL "Conjectures" IS
     THEOREMS Propositional(p,q,r,s) ARE
-        ∆∆p ° p
-    AND ∆(pçq) ° ∆p Ö ∆q
-    AND ∆(pÖq) ° ∆p ç ∆q
-    AND ° p ç ∆p
-    AND	p , ∆p ° false
-    AND	p Ö ∆p ° false
-    AND p ° qäp
-    AND ° pãp
-    AND ∆ ∆ p ã p
-    AND (päq) ã (∆pçq)
-    AND (päq) ã (∆qä∆p)
-    AND ° (päq) ç (qäp)
-    AND (pÖq ä r) ä (p ä (q ä r))
-    AND p ä q ° pÖq ã p
-    AND	° p ä (q ä p)
-    AND	p ä q, q ä r , p ° r
-    AND	p ä q ° (q ä r) ä (p ä r)
-    AND	p ä (q ä r), p ä q, p ° r
-    AND	p ä q, q ä r ° p ä r
-    AND	p ä (q ä r) ° q ä (p ä r)
-    AND	p ä (q ä (r ä s)) ° r ä (q ä (p ä s ))
-    AND	p ä (q ä r) ° (p ä q) ä (p ä r)
-    AND	° (p ä (q ä r)) ä ((p ä q) ä (p ä r))
-    AND	(p Ö q) ä r ã  p ä (q ä r)
-    AND	q ä r ° (p ç q) ä (p ç r)
-    AND true  ã ∆false
-    AND ∆true  ã false
-    AND pÖtrue ã p
-    AND pçtrue ã true
-    AND pÖfalse ã false
-    AND pçfalse ã p
-    AND (päp) ã true
-    AND (pätrue) ã true
-    AND (trueäp) ã p
-    AND (päfalse) ã ∆p
-    AND (pÖp) ã p
-    AND (pÖq) ã (qÖp)
-    AND (pÖ(qÖr)) ã ((pÖq)Ör)
-    AND (pçp) ã p
-    AND (pçq) ã (qçp)
-    AND (pç(qçr)) ã ((pçq)çr)
-    AND	p ç (q ç r) ã (p ç q) ç r
-    AND	p Ö (q ç r) ã (p Ö q) ç (p Ö r)
-    AND	p ç (q Ö r) ã (p ç q) Ö (p ç r)
-    AND ∆(pçq) ã ∆p Ö ∆q
-    AND ∆(pÖq) ã ∆p ç ∆q
-    AND (päq) Ö (qär) ä (pär)
-    AND (pãq) Ö (qãr) ä (pãr)
-    AND	∆p Ö p ° false
-    AND ∆(pãq)ã((pçq)Ö∆(pÖq))
+        ¬¨¬¨p ‚ä¢ p
+    AND ¬¨(p‚à®q) ‚ä¢ ¬¨p ‚àß ¬¨q
+    AND ¬¨(p‚àßq) ‚ä¢ ¬¨p ‚à® ¬¨q
+    AND ‚ä¢ p ‚à® ¬¨p
+    AND	p , ¬¨p ‚ä¢ false
+    AND	p ‚àß ¬¨p ‚ä¢ false
+    AND p ‚ä¢ q‚áíp
+    AND ‚ä¢ p‚áîp
+    AND ¬¨ ¬¨ p ‚áî p
+    AND (p‚áíq) ‚áî (¬¨p‚à®q)
+    AND (p‚áíq) ‚áî (¬¨q‚áí¬¨p)
+    AND ‚ä¢ (p‚áíq) ‚à® (q‚áíp)
+    AND (p‚àßq ‚áí r) ‚áí (p ‚áí (q ‚áí r))
+    AND p ‚áí q ‚ä¢ p‚àßq ‚áî p
+    AND	‚ä¢ p ‚áí (q ‚áí p)
+    AND	p ‚áí q, q ‚áí r , p ‚ä¢ r
+    AND	p ‚áí q ‚ä¢ (q ‚áí r) ‚áí (p ‚áí r)
+    AND	p ‚áí (q ‚áí r), p ‚áí q, p ‚ä¢ r
+    AND	p ‚áí q, q ‚áí r ‚ä¢ p ‚áí r
+    AND	p ‚áí (q ‚áí r) ‚ä¢ q ‚áí (p ‚áí r)
+    AND	p ‚áí (q ‚áí (r ‚áí s)) ‚ä¢ r ‚áí (q ‚áí (p ‚áí s ))
+    AND	p ‚áí (q ‚áí r) ‚ä¢ (p ‚áí q) ‚áí (p ‚áí r)
+    AND	‚ä¢ (p ‚áí (q ‚áí r)) ‚áí ((p ‚áí q) ‚áí (p ‚áí r))
+    AND	(p ‚àß q) ‚áí r ‚áî  p ‚áí (q ‚áí r)
+    AND	q ‚áí r ‚ä¢ (p ‚à® q) ‚áí (p ‚à® r)
+    AND true  ‚áî ¬¨false
+    AND ¬¨true  ‚áî false
+    AND p‚àßtrue ‚áî p
+    AND p‚à®true ‚áî true
+    AND p‚àßfalse ‚áî false
+    AND p‚à®false ‚áî p
+    AND (p‚áíp) ‚áî true
+    AND (p‚áítrue) ‚áî true
+    AND (true‚áíp) ‚áî p
+    AND (p‚áífalse) ‚áî ¬¨p
+    AND (p‚àßp) ‚áî p
+    AND (p‚àßq) ‚áî (q‚àßp)
+    AND (p‚àß(q‚àßr)) ‚áî ((p‚àßq)‚àßr)
+    AND (p‚à®p) ‚áî p
+    AND (p‚à®q) ‚áî (q‚à®p)
+    AND (p‚à®(q‚à®r)) ‚áî ((p‚à®q)‚à®r)
+    AND	p ‚à® (q ‚à® r) ‚áî (p ‚à® q) ‚à® r
+    AND	p ‚àß (q ‚à® r) ‚áî (p ‚àß q) ‚à® (p ‚àß r)
+    AND	p ‚à® (q ‚àß r) ‚áî (p ‚à® q) ‚àß (p ‚à® r)
+    AND ¬¨(p‚à®q) ‚áî ¬¨p ‚àß ¬¨q
+    AND ¬¨(p‚àßq) ‚áî ¬¨p ‚à® ¬¨q
+    AND (p‚áíq) ‚àß (q‚áír) ‚áí (p‚áír)
+    AND (p‚áîq) ‚àß (q‚áîr) ‚áí (p‚áîr)
+    AND	¬¨p ‚àß p ‚ä¢ false
+    AND ¬¨(p‚áîq)‚áî((p‚à®q)‚àß¬¨(p‚àßq))
     END
     THEOREMS Predicate
-    ARE Ñx:a § pÖq ° (Ñx:a § p) Ö (Ñx:a § q)
-    AND (Ñx:a § p) Ö (Ñx:a § q) ° Ñx:a § pÖq
-    AND ∆(å x:a§q) ° (Ñ x:a§∆q)
-    AND ∆(Ñ x:a§q) ° (å x:a§∆q)
-    AND ∆(Ñ x:a|p§q) ° (å x:a|p§∆q)
+    ARE ‚àÄx:a ‚àô p‚àßq ‚ä¢ (‚àÄx:a ‚àô p) ‚àß (‚àÄx:a ‚àô q)
+    AND (‚àÄx:a ‚àô p) ‚àß (‚àÄx:a ‚àô q) ‚ä¢ ‚àÄx:a ‚àô p‚àßq
+    AND ¬¨(‚àÉ x:a‚àôq) ‚ä¢ (‚àÄ x:a‚àô¬¨q)
+    AND ¬¨(‚àÄ x:a‚àôq) ‚ä¢ (‚àÉ x:a‚àô¬¨q)
+    AND ¬¨(‚àÄ x:a|p‚àôq) ‚ä¢ (‚àÉ x:a|p‚àô¬¨q)
     AND WHERE x NOTIN a,a',y AND y NOTIN a,a',x INFER
-        åx:a § Ñy:a' § q ° Ñy:a' § åx:a § q
+        ‚àÉx:a ‚àô ‚àÄy:a' ‚àô q ‚ä¢ ‚àÄy:a' ‚àô ‚àÉx:a ‚àô q
     END
-    THEOREM "Ñ|§-intro" IS Ñ x:a § p ä q ° Ñ x:a | p § q
-    THEOREM "Ñ|§-elim"  IS Ñ x:a | p § q ° Ñ x:a § p ä q
-    THEOREM "å|§-intro" IS å x:a § p Ö q ° å x:a | p § q
-    THEOREM "å|§-elim"  IS å x:a | p § q ° å x:a § p Ö q
-    THEOREM "?-åx:a§Ñy:a'§xëy°Ñy:a'§åx:a§xëy(no provisos)"
-    IS å x:a § Ñy:a' § xëy ° Ñy:a' § åx:a § xëy
-    THEOREM "?- (päq)äp" IS (päq)äp
-    THEOREM "?- (pç∆p)ä∆p" IS (pç∆p)ä∆p
-    THEOREM "?- Ñy:a'§åx:a§q ° åx:a§Ñy:a'§q"
+    THEOREM "‚àÄ|‚àô-intro" IS ‚àÄ x:a ‚àô p ‚áí q ‚ä¢ ‚àÄ x:a | p ‚àô q
+    THEOREM "‚àÄ|‚àô-elim"  IS ‚àÄ x:a | p ‚àô q ‚ä¢ ‚àÄ x:a ‚àô p ‚áí q
+    THEOREM "‚àÉ|‚àô-intro" IS ‚àÉ x:a ‚àô p ‚àß q ‚ä¢ ‚àÉ x:a | p ‚àô q
+    THEOREM "‚àÉ|‚àô-elim"  IS ‚àÉ x:a | p ‚àô q ‚ä¢ ‚àÉ x:a ‚àô p ‚àß q
+    THEOREM "?-‚àÉx:a‚àô‚àÄy:a'‚àôx‚â§y‚ä¢‚àÄy:a'‚àô‚àÉx:a‚àôx‚â§y(no provisos)"
+    IS ‚àÉ x:a ‚àô ‚àÄy:a' ‚àô x‚â§y ‚ä¢ ‚àÄy:a' ‚àô ‚àÉx:a ‚àô x‚â§y
+    THEOREM "?- (p‚áíq)‚áíp" IS (p‚áíq)‚áíp
+    THEOREM "?- (p‚à®¬¨p)‚áí¬¨p" IS (p‚à®¬¨p)‚áí¬¨p
+    THEOREM "?- ‚àÄy:a'‚àô‚àÉx:a‚àôq ‚ä¢ ‚àÉx:a‚àô‚àÄy:a'‚àôq"
     WHERE x NOTIN a,a',y AND y NOTIN a,a',x
-    IS Ñy:a'§åx:a§q ° åx:a§Ñy:a'§q
+    IS ‚àÄy:a'‚àô‚àÉx:a‚àôq ‚ä¢ ‚àÉx:a‚àô‚àÄy:a'‚àôq
     BUTTON "Apply Forward"   IS apply ThmForward COMMAND
     BUTTON "Apply Backwards" IS apply ThmBackward COMMAND
 END /* PANEL */
     TACTIC ThmForward(thm) IS (SEQ cut (WITHHYPSEL (WITHARGSEL thm)))
     TACTIC ThmBackward(thm) IS (WITHARGSEL(APPLYORRESOLVE thm))
         RULE    rewrite(p, OBJECT x)
-        FROM    p ã q
+        FROM    p ‚áî q
         AND     r[q/x]
         INFER   r[p/x]
 
         RULE    rewritebackwards(p, OBJECT x)
-        FROM    q ã p
+        FROM    q ‚áî p
         AND     r[q/x]
         INFER   r[p/x]
 
         RULE    hyprewrite(p, OBJECT x)
-        FROM    p ã q
-        AND     r[q/x] ° s
-        INFER   r[p/x] ° s
+        FROM    p ‚áî q
+        AND     r[q/x] ‚ä¢ s
+        INFER   r[p/x] ‚ä¢ s
 
         RULE    hyprewritebackwards(p, OBJECT x)
-        FROM    q ã p
-        AND     r[q/x] ° s
-        INFER   r[p/x] ° s
+        FROM    q ‚áî p
+        AND     r[q/x] ‚ä¢ s
+        INFER   r[p/x] ‚ä¢ s
     CONJECTUREPANEL Conjectures IS
-     BUTTON "Rewrite â" IS
+     BUTTON "Rewrite ‚Üí" IS
       apply RewriteWith hyprewrite rewrite COMMAND
-     BUTTON "Rewrite Å" IS
+     BUTTON "Rewrite ‚Üê" IS
       apply RewriteWith hyprewritebackwards rewritebackwards COMMAND
     END
     TACTIC  RewriteWith(hyprewriterule, rewriterule, thm) IS
@@ -336,8 +336,8 @@ END /* PANEL */
 
     MENU "Quantifier Rules" IS
         SEPARATOR
-        ENTRY "å|§â"      IS UnfoldWithIff "å|§"
-        ENTRY "å|§Å"      IS FoldWithIff   "å|§"
-        ENTRY "Ñ|§â"      IS UnfoldWithIff "Ñ|§"
-        ENTRY "Ñ|§Å"      IS FoldWithIff   "Ñ|§"
+        ENTRY "‚àÉ|‚àô‚Üí"      IS UnfoldWithIff "‚àÉ|‚àô"
+        ENTRY "‚àÉ|‚àô‚Üê"      IS FoldWithIff   "‚àÉ|‚àô"
+        ENTRY "‚àÄ|‚àô‚Üí"      IS UnfoldWithIff "‚àÄ|‚àô"
+        ENTRY "‚àÄ|‚àô‚Üê"      IS FoldWithIff   "‚àÄ|‚àô"
     END

@@ -1,4 +1,4 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 INITIALISE applyconjectures false
 INITIALISE tryresolution false
@@ -16,8 +16,8 @@ USE "SCS_rules.j"
 AUTOMATCH hyp
 
 CONJECTUREPANEL "Conjectures"
-  THEOREM	modusponens	IS A, AçB æ B
-  THEOREM	contradiction	IS A, ÂA æ B
+  THEOREM	modusponens	IS A, Aâ†’B âŠ¢ B
+  THEOREM	contradiction	IS A, Â¬A âŠ¢ B
 END
 
 USE "sequent_problems.j"

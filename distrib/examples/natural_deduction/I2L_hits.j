@@ -1,18 +1,18 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
-HYPHIT	P     æ P	IS hyp       
-HYPHIT	P¦Q æ R	IS ALT	(SEQ "¦ elim(L)" (WITHHYPSEL hyp))
-                                           	(SEQ "¦ elim(R)" (WITHHYPSEL hyp))
-                                           	(SEQ (ForwardCut 0 "¦ elim(L)") (ForwardCut 0 "¦ elim(R)"))
-HYPHIT	PçQ  æ R	IS ForwardCut 0 "ç elim"
-HYPHIT	PëQ  æ R	IS ForwardUncut 0 "ë elim"
-HYPHIT	ÂÂP   æ Q	IS ForwardCut 0 "Â elim"
-HYPHIT	èx.P æ Q	IS ForwardCut 0 "è elim with side condition hidden"	
-HYPHIT	äx.P æ Q	IS ForwardUncut 0 "ä elim"
+HYPHIT	P     âŠ¢ P	IS hyp       
+HYPHIT	Pâˆ§Q âŠ¢ R	IS ALT	(SEQ "âˆ§ elim(L)" (WITHHYPSEL hyp))
+                                           	(SEQ "âˆ§ elim(R)" (WITHHYPSEL hyp))
+                                           	(SEQ (ForwardCut 0 "âˆ§ elim(L)") (ForwardCut 0 "âˆ§ elim(R)"))
+HYPHIT	Pâ†’Q  âŠ¢ R	IS ForwardCut 0 "â†’ elim"
+HYPHIT	Pâˆ¨Q  âŠ¢ R	IS ForwardUncut 0 "âˆ¨ elim"
+HYPHIT	Â¬Â¬P   âŠ¢ Q	IS ForwardCut 0 "Â¬ elim"
+HYPHIT	âˆ€x.P âŠ¢ Q	IS ForwardCut 0 "âˆ€ elim with side condition hidden"	
+HYPHIT	âˆƒx.P âŠ¢ Q	IS ForwardUncut 0 "âˆƒ elim"
 
-CONCHIT	Q¦R	IS "¦ intro"
-CONCHIT	QëR	IS ALT (SEQ "ë intro(L)" hyp) (SEQ "ë intro(R)" hyp)
-CONCHIT	QçR	IS "ç intro"      
-CONCHIT	ÂQ	IS "Â intro"       
-CONCHIT	èx.Q	IS "è intro"  
-CONCHIT	äx.Q	IS "ä intro with side condition hidden"
+CONCHIT	Qâˆ§R	IS "âˆ§ intro"
+CONCHIT	Qâˆ¨R	IS ALT (SEQ "âˆ¨ intro(L)" hyp) (SEQ "âˆ¨ intro(R)" hyp)
+CONCHIT	Qâ†’R	IS "â†’ intro"      
+CONCHIT	Â¬Q	IS "Â¬ intro"       
+CONCHIT	âˆ€x.Q	IS "âˆ€ intro"  
+CONCHIT	âˆƒx.Q	IS "âˆƒ intro with side condition hidden"

@@ -1,89 +1,89 @@
-/* $Id$ */
+я╗┐/* $Id$ */
 
-RULE "PК(Q,P)ъK, PС{X}K █ PКQХX" IS FROM PК(Q,P)ъK AND PС{X}K INFER PКQХX
-RULE "PКQ╪K, PС{X}K° █ PКQХX" IS FROM PКQ╪K AND PС{X}K° INFER PКQХX
-RULE "PК(P,Q)ЯY, PС<X>Y █ PКQХX" IS FROM PК(P,Q)ЯY AND PС<X>Y INFER PКQХX
-RULE "PК#X, PКQХX █ PКQКX" IS FROM PК#X AND PКQХX INFER PКQКX
-RULE "PКQЪX, PКQКX █ PКX" IS FROM PКQЪX AND PКQКX INFER PКX
-RULES "PКX,  PКY,  ... █ PК(X,Y,...)" ARE
-	FROM PКX AND PКY INFER PК(X,Y)
- AND	FROM PКX AND PКY AND PКZ INFER PК(X,Y,Z)
- AND	FROM PКW AND PКX AND PКY AND PКZ INFER PК(W,X,Y,Z)
+RULE "Pтлв(Q,P)тЖФK, PтЧБ{X}K тЗТ PтлвQтЗЭX" IS FROM Pтлв(Q,P)тЖФK AND PтЧБ{X}K INFER PтлвQтЗЭX
+RULE "PтлвQтЖжK, PтЧБ{X}Kтла тЗТ PтлвQтЗЭX" IS FROM PтлвQтЖжK AND PтЧБ{X}Kтла INFER PтлвQтЗЭX
+RULE "Pтлв(P,Q)тЗМY, PтЧБ<X>Y тЗТ PтлвQтЗЭX" IS FROM Pтлв(P,Q)тЗМY AND PтЧБ<X>Y INFER PтлвQтЗЭX
+RULE "Pтлв#X, PтлвQтЗЭX тЗТ PтлвQтлвX" IS FROM Pтлв#X AND PтлвQтЗЭX INFER PтлвQтлвX
+RULE "PтлвQ├╢X, PтлвQтлвX тЗТ PтлвX" IS FROM PтлвQ├╢X AND PтлвQтлвX INFER PтлвX
+RULES "PтлвX,  PтлвY,  ... тЗТ Pтлв(X,Y,...)" ARE
+	FROM PтлвX AND PтлвY INFER Pтлв(X,Y)
+ AND	FROM PтлвX AND PтлвY AND PтлвZ INFER Pтлв(X,Y,Z)
+ AND	FROM PтлвW AND PтлвX AND PтлвY AND PтлвZ INFER Pтлв(W,X,Y,Z)
 END
-RULES "PК(...,X,...) █ PКX"(X) ARE 
-	FROM PК(X,Y) INFER PКX
- AND	FROM PК(Y,X) INFER PКX
- AND	FROM PК(X,Y,Z) INFER PКX
- AND	FROM PК(Z,X,Y) INFER PКX
- AND	FROM PК(Y,Z,X) INFER PКX
- AND	FROM PК(X,Y,Z,W) INFER PКX
- AND	FROM PК(W,X,Y,Z) INFER PКX
- AND	FROM PК(Z,W,X,Y) INFER PКX
- AND	FROM PК(Y,Z,W,X) INFER PКX
+RULES "Pтлв(...,X,...) тЗТ PтлвX"(X) ARE 
+	FROM Pтлв(X,Y) INFER PтлвX
+ AND	FROM Pтлв(Y,X) INFER PтлвX
+ AND	FROM Pтлв(X,Y,Z) INFER PтлвX
+ AND	FROM Pтлв(Z,X,Y) INFER PтлвX
+ AND	FROM Pтлв(Y,Z,X) INFER PтлвX
+ AND	FROM Pтлв(X,Y,Z,W) INFER PтлвX
+ AND	FROM Pтлв(W,X,Y,Z) INFER PтлвX
+ AND	FROM Pтлв(Z,W,X,Y) INFER PтлвX
+ AND	FROM Pтлв(Y,Z,W,X) INFER PтлвX
 END
-RULES "PКQК(...,X,...) █ PКQКX"(X) ARE 
-	FROM PКQК(X,Y) INFER PКQКX
- AND	FROM PКQК(Y,X) INFER PКQКX
- AND	FROM PКQК(X,Y,Z) INFER PКQКX
- AND	FROM PКQК(Z,X,Y) INFER PКQКX
- AND	FROM PКQК(Y,Z,X) INFER PКQКX
- AND	FROM PКQК(X,Y,Z,W) INFER PКQКX
- AND	FROM PКQК(W,X,Y,Z) INFER PКQКX
- AND	FROM PКQК(Z,W,X,Y) INFER PКQКX
- AND	FROM PКQК(Y,Z,W,X) INFER PКQКX
+RULES "PтлвQтлв(...,X,...) тЗТ PтлвQтлвX"(X) ARE 
+	FROM PтлвQтлв(X,Y) INFER PтлвQтлвX
+ AND	FROM PтлвQтлв(Y,X) INFER PтлвQтлвX
+ AND	FROM PтлвQтлв(X,Y,Z) INFER PтлвQтлвX
+ AND	FROM PтлвQтлв(Z,X,Y) INFER PтлвQтлвX
+ AND	FROM PтлвQтлв(Y,Z,X) INFER PтлвQтлвX
+ AND	FROM PтлвQтлв(X,Y,Z,W) INFER PтлвQтлвX
+ AND	FROM PтлвQтлв(W,X,Y,Z) INFER PтлвQтлвX
+ AND	FROM PтлвQтлв(Z,W,X,Y) INFER PтлвQтлвX
+ AND	FROM PтлвQтлв(Y,Z,W,X) INFER PтлвQтлвX
 END
-RULES "PКQХ(...,X,...) █ PКQХX"(X) ARE
-	FROM PКQХ(X,Y) INFER PКQХX
- AND	FROM PКQХ(Y,X) INFER PКQХX
- AND	FROM PКQХ(X,Y,Z) INFER PКQХX
- AND	FROM PКQХ(Z,X,Y) INFER PКQХX
- AND	FROM PКQХ(Y,Z,X) INFER PКQХX
- AND	FROM PКQХ(X,Y,Z,W) INFER PКQХX
- AND	FROM PКQХ(W,X,Y,Z) INFER PКQХX
- AND	FROM PКQХ(Z,W,X,Y) INFER PКQХX
- AND	FROM PКQХ(Y,Z,W,X) INFER PКQХX
+RULES "PтлвQтЗЭ(...,X,...) тЗТ PтлвQтЗЭX"(X) ARE
+	FROM PтлвQтЗЭ(X,Y) INFER PтлвQтЗЭX
+ AND	FROM PтлвQтЗЭ(Y,X) INFER PтлвQтЗЭX
+ AND	FROM PтлвQтЗЭ(X,Y,Z) INFER PтлвQтЗЭX
+ AND	FROM PтлвQтЗЭ(Z,X,Y) INFER PтлвQтЗЭX
+ AND	FROM PтлвQтЗЭ(Y,Z,X) INFER PтлвQтЗЭX
+ AND	FROM PтлвQтЗЭ(X,Y,Z,W) INFER PтлвQтЗЭX
+ AND	FROM PтлвQтЗЭ(W,X,Y,Z) INFER PтлвQтЗЭX
+ AND	FROM PтлвQтЗЭ(Z,W,X,Y) INFER PтлвQтЗЭX
+ AND	FROM PтлвQтЗЭ(Y,Z,W,X) INFER PтлвQтЗЭX
 END
-RULES "PС(...,X,...) █ PСX"(X) ARE 
-	FROM PС(X,Y) INFER PСX
- AND	FROM PС(Y,X) INFER PСX
- AND	FROM PС(X,Y,Z) INFER PСX
- AND	FROM PС(Z,X,Y) INFER PСX
- AND	FROM PС(Y,Z,X) INFER PСX
- AND	FROM PС(X,Y,Z,W) INFER PСX
- AND	FROM PС(W,X,Y,Z) INFER PСX
- AND	FROM PС(Z,W,X,Y) INFER PСX
- AND	FROM PС(Y,Z,W,X) INFER PСX
+RULES "PтЧБ(...,X,...) тЗТ PтЧБX"(X) ARE 
+	FROM PтЧБ(X,Y) INFER PтЧБX
+ AND	FROM PтЧБ(Y,X) INFER PтЧБX
+ AND	FROM PтЧБ(X,Y,Z) INFER PтЧБX
+ AND	FROM PтЧБ(Z,X,Y) INFER PтЧБX
+ AND	FROM PтЧБ(Y,Z,X) INFER PтЧБX
+ AND	FROM PтЧБ(X,Y,Z,W) INFER PтЧБX
+ AND	FROM PтЧБ(W,X,Y,Z) INFER PтЧБX
+ AND	FROM PтЧБ(Z,W,X,Y) INFER PтЧБX
+ AND	FROM PтЧБ(Y,Z,W,X) INFER PтЧБX
 END
-RULE "PС<X>Y █ PСX" IS FROM PС<X>Y INFER PСX
-RULE "PК(P,Q)ъK, PС{X}K █ PСX" IS FROM PК(P,Q)ъK AND PС{X}K INFER PСX
-RULE "PКP╪K, PС{X}K █ PСX" IS FROM PКP╪K AND PС{X}K INFER PСX
-RULE "PКQ╪ K, PС{X}K° █ PСX" IS FROM PКQ╪ K AND PС{X}K° INFER PСX
-RULES "PК#X █ PК#(...,X,...)"(X) ARE
-	FROM PК#X INFER PК#(X,Y)
- AND	FROM PК#X INFER PК#(Y,X)
- AND	FROM PК#X INFER PК#(X,Y,Z)
- AND	FROM PК#X INFER PК#(Z,X,Y)
- AND	FROM PК#X INFER PК#(Y,Z,X)
- AND	FROM PК#X INFER PК#(X,Y,Z,W)
- AND	FROM PК#X INFER PК#(W,X,Y,Z)
- AND	FROM PК#X INFER PК#(Z,W,X,Y)
- AND	FROM PК#X INFER PК#(Y,ZW,X)
+RULE "PтЧБ<X>Y тЗТ PтЧБX" IS FROM PтЧБ<X>Y INFER PтЧБX
+RULE "Pтлв(P,Q)тЖФK, PтЧБ{X}K тЗТ PтЧБX" IS FROM Pтлв(P,Q)тЖФK AND PтЧБ{X}K INFER PтЧБX
+RULE "PтлвPтЖжK, PтЧБ{X}K тЗТ PтЧБX" IS FROM PтлвPтЖжK AND PтЧБ{X}K INFER PтЧБX
+RULE "PтлвQтЖж K, PтЧБ{X}Kтла тЗТ PтЧБX" IS FROM PтлвQтЖж K AND PтЧБ{X}Kтла INFER PтЧБX
+RULES "Pтлв#X тЗТ Pтлв#(...,X,...)"(X) ARE
+	FROM Pтлв#X INFER Pтлв#(X,Y)
+ AND	FROM Pтлв#X INFER Pтлв#(Y,X)
+ AND	FROM Pтлв#X INFER Pтлв#(X,Y,Z)
+ AND	FROM Pтлв#X INFER Pтлв#(Z,X,Y)
+ AND	FROM Pтлв#X INFER Pтлв#(Y,Z,X)
+ AND	FROM Pтлв#X INFER Pтлв#(X,Y,Z,W)
+ AND	FROM Pтлв#X INFER Pтлв#(W,X,Y,Z)
+ AND	FROM Pтлв#X INFER Pтлв#(Z,W,X,Y)
+ AND	FROM Pтлв#X INFER Pтлв#(Y,ZW,X)
 END
-RULE "PК(R,R')ъK █ PК(R',R)ъK" IS FROM PК(R,R')ъK INFER PК(R',R)ъK
-RULE "PКQК(R,R')ъK █ PКQК(R',R)ъK" IS FROM PКQК(R,R')ъK INFER PКQК(R',R)ъK
-RULE "PК(R,R')ЯK █ PК(R',R)ЯK" IS FROM PК(R,R')ЯK INFER PК(R',R)ЯK
-RULE "PКQК(R,R')ЯK █ PКQК(R',R)ЯK" IS FROM PКQК(R,R')ЯK INFER PКQК(R',R)ЯK	
+RULE "Pтлв(R,R')тЖФK тЗТ Pтлв(R',R)тЖФK" IS FROM Pтлв(R,R')тЖФK INFER Pтлв(R',R)тЖФK
+RULE "PтлвQтлв(R,R')тЖФK тЗТ PтлвQтлв(R',R)тЖФK" IS FROM PтлвQтлв(R,R')тЖФK INFER PтлвQтлв(R',R)тЖФK
+RULE "Pтлв(R,R')тЗМK тЗТ Pтлв(R',R)тЗМK" IS FROM Pтлв(R,R')тЗМK INFER Pтлв(R',R)тЗМK
+RULE "PтлвQтлв(R,R')тЗМK тЗТ PтлвQтлв(R',R)тЗМK" IS FROM PтлвQтлв(R,R')тЗМK INFER PтлвQтлв(R',R)тЗМK	
 
 /* I hope we can use hyp, else a sequent presentation is impossible; I' m sure that we can use cut */
-RULE hyp IS INFER X ц X
-RULE cut(X) IS FROM X AND X ц Y INFER Y
+RULE hyp IS INFER X тКв X
+RULE cut(X) IS FROM X AND X тКв Y INFER Y
     
 IDENTITY hyp
 CUT cut
 
 /* I think we have weakening.  I hope we do, because otherwise theorem application is difficult */
-RULE weaken(X) IS FROM Y INFER X ц Y
+RULE weaken(X) IS FROM Y INFER X тКв Y
 WEAKEN weaken
 
-RULE "PКшx.X(x) █ PКX(Y)"(Y,ABSTRACTION X) IS FROM PКшx.X(x) INFER PКX(Y)
+RULE "PтлвтИАx.X(x) тЗТ PтлвX(Y)"(Y,ABSTRACTION X) IS FROM PтлвтИАx.X(x) INFER PтлвX(Y)
 

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
        $Id$
        FONT{kontt-14}
 */
@@ -14,9 +14,9 @@ CLASS   FORMULA  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
 
 CLASS   CONSTANT con
 CLASS   NUMBER num
-LEFTFIX 20 û ¥
-INFIX 1T ç 
-BIND x SCOPE T IN û x ¥ T
+LEFTFIX 20 Î» â€¢
+INFIX 1T â†’ 
+BIND x SCOPE T IN Î» x â€¢ T
 LEFTFIX 10  let = in 
 BIND x SCOPE T IN let x=S in T 
 
@@ -24,29 +24,29 @@ BIND x SCOPE T IN let x=S in T
 
 /*      Part 1: Rules */
 
-SEQUENT IS LIST æ FORMULA       /* Always of the form æ term ç term */
+SEQUENT IS LIST âŠ¢ FORMULA       /* Always of the form âŠ¢ term â†’ term */
 SUBSTFIX 500000 [ S / s ]
 
-    RULE  "rator"  IS FROM æ SçS'  AND æ S' T  ç U INFER æ S T ç U 
-    RULE  "rand"   IS FROM æ TçT'  AND æ S  T' ç U INFER æ S T ç U
-    RULE  "beta"   IS FROM  æ S[T/x]         ç U INFER æ (û x ¥ S) T  ç U
-    RULE  "let"    IS FROM  æ (û x ¥T)(S)    ç U INFER æ let x=S in T ç U
+    RULE  "rator"  IS FROM âŠ¢ Sâ†’S'  AND âŠ¢ S' T  â†’ U INFER âŠ¢ S T â†’ U 
+    RULE  "rand"   IS FROM âŠ¢ Tâ†’T'  AND âŠ¢ S  T' â†’ U INFER âŠ¢ S T â†’ U
+    RULE  "beta"   IS FROM  âŠ¢ S[T/x]         â†’ U INFER âŠ¢ (Î» x â€¢ S) T  â†’ U
+    RULE  "let"    IS FROM  âŠ¢ (Î» x â€¢T)(S)    â†’ U INFER âŠ¢ let x=S in T â†’ U
     RULES NormalForm 
-    ARE   æ û x ¥ S ç û x ¥ S
-    AND   æ con       ç con
-    AND   æ x       ç x
+    ARE   âŠ¢ Î» x â€¢ S â†’ Î» x â€¢ S
+    AND   âŠ¢ con       â†’ con
+    AND   âŠ¢ x       â†’ x
     END
 
-    RULE "smallbeta" IS INFER æ (û x ¥ S) T  ç  S[T/x]
-    RULE "smalllet" IS INFER æ  let x=T in S ç  S[T/x]
-    RULE  "smallrator"  IS FROM æ SçS'  INFER æ S T ç   S' T 
-    RULE  "smallrand"   IS FROM æ TçT'  INFER æ S T ç  S  T'
-    RULE "smallletrand" IS FROM æ TçT'  INFER æ  let x=T in S ç   let x=T' in S
+    RULE "smallbeta" IS INFER âŠ¢ (Î» x â€¢ S) T  â†’  S[T/x]
+    RULE "smalllet" IS INFER âŠ¢  let x=T in S â†’  S[T/x]
+    RULE  "smallrator"  IS FROM âŠ¢ Sâ†’S'  INFER âŠ¢ S T â†’   S' T 
+    RULE  "smallrand"   IS FROM âŠ¢ Tâ†’T'  INFER âŠ¢ S T â†’  S  T'
+    RULE "smallletrand" IS FROM âŠ¢ Tâ†’T'  INFER âŠ¢  let x=T in S â†’   let x=T' in S
     
 /*      Part 1a: Transitivity */
     
-    RULE "transitivity" IS FROM æ AçB AND æ BçC INFER æ AçC
-    RULE "identity" IS INFER æ AçA
+    RULE "transitivity" IS FROM âŠ¢ Aâ†’B AND âŠ¢ Bâ†’C INFER âŠ¢ Aâ†’C
+    RULE "identity" IS INFER âŠ¢ Aâ†’A
     
     TRANSITIVE "transitivity"
     REFLEXIVE "identity"
@@ -54,15 +54,15 @@ SUBSTFIX 500000 [ S / s ]
 /*      Part 2: Mechanisation */
 
 TACTIC NormalOrderStep(step) IS
-(WHEN (LETGOAL ((û _x ¥ _S) _T    ç  _U) beta)
-      (LETGOAL (let _x = _S in _T ç  _U) "let")
-      (LETGOAL (_S _T             ç  _U) rator)
+(WHEN (LETGOAL ((Î» _x â€¢ _S) _T    â†’  _U) beta)
+      (LETGOAL (let _x = _S in _T â†’  _U) "let")
+      (LETGOAL (_S _T             â†’  _U) rator)
       NormalForm)
 
 TACTIC ApplOrderStep(step) IS
-(WHEN (LETGOAL ((û _x ¥ _S) _T    ç  _U) (WhenNormal _T beta  rand))
-      (LETGOAL (_S _T             ç  _U) (WhenNormal _T rator rand))
-      (LETGOAL (let _x = _S in _T ç  _U) "let")
+(WHEN (LETGOAL ((Î» _x â€¢ _S) _T    â†’  _U) (WhenNormal _T beta  rand))
+      (LETGOAL (_S _T             â†’  _U) (WhenNormal _T rator rand))
+      (LETGOAL (let _x = _S in _T â†’  _U) "let")
       NormalForm)
           
 TACTIC SmallNormOrderStep  IS
@@ -72,8 +72,8 @@ TACTIC SmallNormOrderStep  IS
 		(SEQ transitivity smallrand smallnormordersearch)
 		(SEQ transitivity smallletrand smallnormordersearch)
 		identity
-		(WHEN	(LETGOAL (_A ç _B) (Fail "can't show that"  _A "reduces to" _B))
-		 		(Fail "problem isn't of the form AçB")
+		(WHEN	(LETGOAL (_A â†’ _B) (Fail "can't show that"  _A "reduces to" _B))
+		 		(Fail "problem isn't of the form Aâ†’B")
 		 ) 
 
 TACTIC smallnormordersearch IS
@@ -90,8 +90,8 @@ TACTIC SmallApplOrderStep  IS
 		(SEQ transitivity smallbeta)
 		(SEQ transitivity smallrator smallapplordersearch)
 		identity
-		(WHEN	(LETGOAL (_A ç _B) (Fail "can't show that"  _A "reduces to" _B))
-		 		(Fail "problem isn't of the form AçB")
+		(WHEN	(LETGOAL (_A â†’ _B) (Fail "can't show that"  _A "reduces to" _B))
+		 		(Fail "problem isn't of the form Aâ†’B")
 		 ) 
 
 TACTIC smallapplordersearch IS
@@ -103,7 +103,7 @@ TACTIC smallapplordersearch IS
 		
 TACTIC WhenNormal(expr, tactic, othertactic)
 	(WHEN 
-		(LETMATCH (û _x ¥ _S) expr tactic)
+		(LETMATCH (Î» _x â€¢ _S) expr tactic)
 		(LETMATCH _con        expr tactic)
 		(LETMATCH _x          expr tactic)
 		othertactic
@@ -122,26 +122,26 @@ CONJECTUREPANEL "Reductions"
         BUTTON	"Small Applicative Step" IS apply SmallApplOrderStep
         
         THEOREMS Reductions(f, x, y) 
-        ARE INFER æ (û x ¥ x x)(û y ¥ y)(û y ¥ y) ç _T
-        AND WHERE fix NOTIN (_T, x, y, f) AND fix, f, x NOTIN F  INFER æ 
-            let fix = (û f ¥ ((û x¥F(x x))(û x¥F(x x)))) 
-            in  fix (û y ¥ y)  ç _T 
-        AND WHERE compose NOTIN (_T, x, f) AND id NOTIN (_T, x, f) INFER æ 
+        ARE INFER âŠ¢ (Î» x â€¢ x x)(Î» y â€¢ y)(Î» y â€¢ y) â†’ _T
+        AND WHERE fix NOTIN (_T, x, y, f) AND fix, f, x NOTIN F  INFER âŠ¢ 
+            let fix = (Î» f â€¢ ((Î» xâ€¢F(x x))(Î» xâ€¢F(x x)))) 
+            in  fix (Î» y â€¢ y)  â†’ _T 
+        AND WHERE compose NOTIN (_T, x, f) AND id NOTIN (_T, x, f) INFER âŠ¢ 
                 /**/
-                let compose = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                compose id id 1 ç _T
-        AND WHERE compose NOTIN (_T, x, f) AND id NOTIN (_T, x, f) INFER æ 
+                let compose = Î» f â€¢ Î» g â€¢ Î» x â€¢ f(g x) in
+                let id =   Î» x â€¢ x in
+                compose id id 1 â†’ _T
+        AND WHERE compose NOTIN (_T, x, f) AND id NOTIN (_T, x, f) INFER âŠ¢ 
                 /**/
-                let compose = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                id (compose id id 1) ç _T
+                let compose = Î» f â€¢ Î» g â€¢ Î» x â€¢ f(g x) in
+                let id =   Î» x â€¢ x in
+                id (compose id id 1) â†’ _T
         
-        AND INFER æ
+        AND INFER âŠ¢
                 /**/
-                let comp = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                comp id id 1 ç _T
+                let comp = Î» f â€¢ Î» g â€¢ Î» x â€¢ f(g x) in
+                let id =   Î» x â€¢ x in
+                comp id id 1 â†’ _T
         
         END
         
@@ -157,39 +157,39 @@ CLASS FORMULA env
 
 /*  Part 2: Evaluation rules 
 
-        env æ term ç value
+        env âŠ¢ term â†’ value
 
 */      
         RULE  Variable
-        FROM  env Š x ´ V
-        INFER env æ x ç V
+        FROM  env â«¢ x âŠ¸ V
+        INFER env âŠ¢ x â†’ V
         
         RULE  App 
-        FROM  env         æ R ç ((û x ¥ S), env')
-        AND   env         æ T ç V
-        AND   env' ¼ x´V  æ S ç U 
-        INFER env         æ R T ç U
+        FROM  env         âŠ¢ R â†’ ((Î» x â€¢ S), env')
+        AND   env         âŠ¢ T â†’ V
+        AND   env' âŠ• xâŠ¸V  âŠ¢ S â†’ U 
+        INFER env         âŠ¢ R T â†’ U
         
         RULE  Let 
-        FROM  env         æ T ç V
-        AND   env  ¼ x´V  æ S ç U 
-        INFER env         æ let x=T in S ç U
+        FROM  env         âŠ¢ T â†’ V
+        AND   env  âŠ• xâŠ¸V  âŠ¢ S â†’ U 
+        INFER env         âŠ¢ let x=T in S â†’ U
         
-        RULE  Abs  IS env æ (û x ¥ S) ç ((û x ¥ S), env)
+        RULE  Abs  IS env âŠ¢ (Î» x â€¢ S) â†’ ((Î» x â€¢ S), env)
         
-        RULE  Con  IS env æ con         ç con 
+        RULE  Con  IS env âŠ¢ con         â†’ con 
         
         
 /* Part 3: Mechanisation */        
 
 TACTIC Evaluate IS
-        (WHEN (LETGOAL ((_R _S)           ç _U) App)
-              (LETGOAL ((û _x ¥ _S)       ç _U) Abs)
-              (LETGOAL (_x                ç _U) Var)
-              (LETGOAL (_con              ç _U) Con)
-              (LETGOAL ((let _x=_S in _T) ç _U) Let))
+        (WHEN (LETGOAL ((_R _S)           â†’ _U) App)
+              (LETGOAL ((Î» _x â€¢ _S)       â†’ _U) Abs)
+              (LETGOAL (_x                â†’ _U) Var)
+              (LETGOAL (_con              â†’ _U) Con)
+              (LETGOAL ((let _x=_S in _T) â†’ _U) Let))
 
-CONCHIT env æ _S ç T IS Evaluate
+CONCHIT env âŠ¢ _S â†’ T IS Evaluate
 
 /*      Part 4: Problems        */
 
@@ -201,22 +201,22 @@ CONJECTUREPANEL Evaluations
         BUTTON          "One Step"          IS apply  Evaluate
         
         THEOREMS Reductions(f, x, y) 
-        ARE WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER â  æ 
+        ARE WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER â–ª  âŠ¢ 
                 /**/
-                let compose = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                compose id id 1 ç _T
-        AND WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER â  æ 
+                let compose = Î» f â€¢ Î» g â€¢ Î» x â€¢ f(g x) in
+                let id =   Î» x â€¢ x in
+                compose id id 1 â†’ _T
+        AND WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER â–ª  âŠ¢ 
                 /**/
-                let compose = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                id (compose id id 1) ç _T
+                let compose = Î» f â€¢ Î» g â€¢ Î» x â€¢ f(g x) in
+                let id =   Î» x â€¢ x in
+                id (compose id id 1) â†’ _T
         
-        AND INFER â  æ
+        AND INFER â–ª  âŠ¢
                 /**/
-                let comp = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                comp id id 1 ç _T
+                let comp = Î» f â€¢ Î» g â€¢ Î» x â€¢ f(g x) in
+                let id =   Î» x â€¢ x in
+                comp id id 1 â†’ _T
         END
 END
 

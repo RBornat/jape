@@ -1,4 +1,4 @@
-/* $Id$ */
+﻿/* $Id$ */
 
 TACTIC Fail(x) IS (SEQ (ALERT x) FAIL)
 
@@ -35,78 +35,78 @@ TACTIC ForwardOrBackward (Forward, n, Rule) IS
 	           		)
 		)
    
-MENU "�"
+MENU "⫢"
 	SEPARATOR
-	ENTRY "P�X,  P�Y,  ... � P�(X,Y,...)"
-	ENTRY "P�(...,X,...) � P�X"				IS ForwardOrBackward ForwardCut 0 "P�(...,X,...) � P�X"
-	ENTRY "P�Q�(...,X,...) � P�Q�X"			IS ForwardOrBackward ForwardCut 0 "P�Q�(...,X,...) � P�Q�X"
+	ENTRY "P⫢X,  P⫢Y,  ... ⇒ P⫢(X,Y,...)"
+	ENTRY "P⫢(...,X,...) ⇒ P⫢X"				IS ForwardOrBackward ForwardCut 0 "P⫢(...,X,...) ⇒ P⫢X"
+	ENTRY "P⫢Q⫢(...,X,...) ⇒ P⫢Q⫢X"			IS ForwardOrBackward ForwardCut 0 "P⫢Q⫢(...,X,...) ⇒ P⫢Q⫢X"
 	SEPARATOR
-	ENTRY "P��x.X(x) � P�X(Y)"			IS ForwardOrBackward ForwardCut 0 "P��x.X(x) � P�X(Y)"
-	ENTRY "P�Q�X, [P�#X] � P�Q�X"			IS ForwardOrBackward ForwardCut 1 "P�#X, P�Q�X � P�Q�X"
-	ENTRY "P�Q�X, [P�Q�X] � P�X"			IS ForwardOrBackward ForwardCut 1 "P�Q�X, P�Q�X � P�X"
+	ENTRY "P⫢∀x.X(x) ⇒ P⫢X(Y)"			IS ForwardOrBackward ForwardCut 0 "P⫢∀x.X(x) ⇒ P⫢X(Y)"
+	ENTRY "P⫢Q⇝X, [P⫢#X] ⇒ P⫢Q⫢X"			IS ForwardOrBackward ForwardCut 1 "P⫢#X, P⫢Q⇝X ⇒ P⫢Q⫢X"
+	ENTRY "P⫢Q⫢X, [P⫢QöX] ⇒ P⫢X"			IS ForwardOrBackward ForwardCut 1 "P⫢QöX, P⫢Q⫢X ⇒ P⫢X"
 	SEPARATOR
-	ENTRY "P�#X, [P�Q�X] � P�Q�X"			IS ForwardOrBackward ForwardCut 0 "P�#X, P�Q�X � P�Q�X"
-	ENTRY "P�Q�X, [P�Q�X] � P�X"			IS ForwardOrBackward ForwardCut 0 "P�Q�X, P�Q�X � P�X"
-	ENTRY "P�#X, [P�Q�X] � P�Q�X"			IS ForwardOrBackward ForwardCut 0 "P�#X, P�Q�X � P�Q�X"
-	ENTRY "P�Q�X, [P�#X] � P�Q�X"			IS ForwardOrBackward ForwardCut 1 "P�#X, P�Q�X � P�Q�X"
+	ENTRY "P⫢#X, [P⫢Q⇝X] ⇒ P⫢Q⫢X"			IS ForwardOrBackward ForwardCut 0 "P⫢#X, P⫢Q⇝X ⇒ P⫢Q⫢X"
+	ENTRY "P⫢QöX, [P⫢Q⫢X] ⇒ P⫢X"			IS ForwardOrBackward ForwardCut 0 "P⫢QöX, P⫢Q⫢X ⇒ P⫢X"
+	ENTRY "P⫢#X, [P⫢Q⇝X] ⇒ P⫢Q⫢X"			IS ForwardOrBackward ForwardCut 0 "P⫢#X, P⫢Q⇝X ⇒ P⫢Q⫢X"
+	ENTRY "P⫢Q⇝X, [P⫢#X] ⇒ P⫢Q⫢X"			IS ForwardOrBackward ForwardCut 1 "P⫢#X, P⫢Q⇝X ⇒ P⫢Q⫢X"
 END
 
-MENU "�"
-	ENTRY "P�{X}K, [P�(Q,P)�K] � P�Q�X"	IS ForwardOrBackward ForwardCut 1 "P�(Q,P)�K, P�{X}K � P�Q�X"
-	ENTRY "P�{X}K�, [P�Q�K] � P�Q�X"		IS ForwardOrBackward ForwardCut 1 "P�Q�K, P�{X}K� � P�Q�X"
-	ENTRY " P�<X>Y, [P�(P,Q)�Y] � P�Q�X"	IS ForwardOrBackward ForwardCut 1 "P�(P,Q)�Y, P�<X>Y � P�Q�X"
+MENU "◁"
+	ENTRY "P◁{X}K, [P⫢(Q,P)↔K] ⇒ P⫢Q⇝X"	IS ForwardOrBackward ForwardCut 1 "P⫢(Q,P)↔K, P◁{X}K ⇒ P⫢Q⇝X"
+	ENTRY "P◁{X}K⫠, [P⫢Q↦K] ⇒ P⫢Q⇝X"		IS ForwardOrBackward ForwardCut 1 "P⫢Q↦K, P◁{X}K⫠ ⇒ P⫢Q⇝X"
+	ENTRY " P◁<X>Y, [P⫢(P,Q)⇌Y] ⇒ P⫢Q⇝X"	IS ForwardOrBackward ForwardCut 1 "P⫢(P,Q)⇌Y, P◁<X>Y ⇒ P⫢Q⇝X"
 	SEPARATOR
-	ENTRY "P�(...,X,...) � P�X" 				IS ForwardOrBackward ForwardCut 0 "P�(...,X,...) � P�X"
-	ENTRY "P�<X>Y � P�X" 				IS ForwardOrBackward ForwardCut 0 "P�<X>Y � P�X"
-	ENTRY "P�{X}K, [P�(P,Q)�K] � P�X"		IS ForwardOrBackward ForwardCut 1 "P�(P,Q)�K, P�{X}K � P�X"
-	ENTRY "P�{X}K, [P�P�K] � P�X"			IS ForwardOrBackward ForwardCut 1 "P�P�K, P�{X}K � P�X"
-	ENTRY "P�{X}K�, [P�Q� K] � P�X"		IS ForwardOrBackward ForwardCut 1 "P�Q� K, P�{X}K� � P�X"
+	ENTRY "P◁(...,X,...) ⇒ P◁X" 				IS ForwardOrBackward ForwardCut 0 "P◁(...,X,...) ⇒ P◁X"
+	ENTRY "P◁<X>Y ⇒ P◁X" 				IS ForwardOrBackward ForwardCut 0 "P◁<X>Y ⇒ P◁X"
+	ENTRY "P◁{X}K, [P⫢(P,Q)↔K] ⇒ P◁X"		IS ForwardOrBackward ForwardCut 1 "P⫢(P,Q)↔K, P◁{X}K ⇒ P◁X"
+	ENTRY "P◁{X}K, [P⫢P↦K] ⇒ P◁X"			IS ForwardOrBackward ForwardCut 1 "P⫢P↦K, P◁{X}K ⇒ P◁X"
+	ENTRY "P◁{X}K⫠, [P⫢Q↦ K] ⇒ P◁X"		IS ForwardOrBackward ForwardCut 1 "P⫢Q↦ K, P◁{X}K⫠ ⇒ P◁X"
 	SEPARATOR
 END
 
-MENU "�"
-	ENTRY "P�Q�X, [P�#X] � P�Q�X"			IS ForwardOrBackward ForwardCut 1 "P�#X, P�Q�X � P�Q�X"
+MENU "⇝"
+	ENTRY "P⫢Q⇝X, [P⫢#X] ⇒ P⫢Q⫢X"			IS ForwardOrBackward ForwardCut 1 "P⫢#X, P⫢Q⇝X ⇒ P⫢Q⫢X"
 	SEPARATOR
-	ENTRY "P�Q�(...,X,...) � P�Q�X"			IS ForwardOrBackward ForwardCut 0 "P�Q�(...,X,...) � P�Q�X"
+	ENTRY "P⫢Q⇝(...,X,...) ⇒ P⫢Q⇝X"			IS ForwardOrBackward ForwardCut 0 "P⫢Q⇝(...,X,...) ⇒ P⫢Q⇝X"
 	SEPARATOR
-	ENTRY "P�{X}K, [P�(Q,P)�K] � P�Q�X"		IS ForwardOrBackward ForwardCut 1 "P�(Q,P)�K, P�{X}K � P�Q�X"
-	ENTRY "P�{X}K�, [P�Q�K] � P�Q�X"		IS ForwardOrBackward ForwardCut 1 "P�Q�K, P�{X}K� � P�Q�X"
-	ENTRY "P�<X>Y, [P�(P,Q)�Y] � P�Q�X"		IS ForwardOrBackward ForwardCut 1 "P�(P,Q)�Y, P�<X>Y � P�Q�X"
+	ENTRY "P◁{X}K, [P⫢(Q,P)↔K] ⇒ P⫢Q⇝X"		IS ForwardOrBackward ForwardCut 1 "P⫢(Q,P)↔K, P◁{X}K ⇒ P⫢Q⇝X"
+	ENTRY "P◁{X}K⫠, [P⫢Q↦K] ⇒ P⫢Q⇝X"		IS ForwardOrBackward ForwardCut 1 "P⫢Q↦K, P◁{X}K⫠ ⇒ P⫢Q⇝X"
+	ENTRY "P◁<X>Y, [P⫢(P,Q)⇌Y] ⇒ P⫢Q⇝X"		IS ForwardOrBackward ForwardCut 1 "P⫢(P,Q)⇌Y, P◁<X>Y ⇒ P⫢Q⇝X"
 END
 
-MENU "�"
-	ENTRY "P�Q�X, [P�Q�X] � P�X"			IS ForwardOrBackward ForwardCut 0 "P�Q�X, P�Q�X � P�X"
+MENU "ö"
+	ENTRY "P⫢QöX, [P⫢Q⫢X] ⇒ P⫢X"			IS ForwardOrBackward ForwardCut 0 "P⫢QöX, P⫢Q⫢X ⇒ P⫢X"
 END
 
-MENU "�"
-	ENTRY "P�(P,Q)�Y, [P�<X>Y] � P�Q�X"		IS ForwardOrBackward ForwardCut 0 "P�(P,Q)�Y, P�<X>Y � P�Q�X"
+MENU "⇌"
+	ENTRY "P⫢(P,Q)⇌Y, [P◁<X>Y] ⇒ P⫢Q⇝X"		IS ForwardOrBackward ForwardCut 0 "P⫢(P,Q)⇌Y, P◁<X>Y ⇒ P⫢Q⇝X"
 	SEPARATOR
-	ENTRY "P�(R,R')�K � P�(R',R)�K"			IS ForwardOrBackward ForwardCut 0 "P�(R,R')�K � P�(R',R)�K"	
-	ENTRY "P�Q�(R,R')�K � P�Q�(R',R)�K"		IS ForwardOrBackward ForwardCut 0 "P�Q�(R,R')�K � P�Q�(R',R)�K"
+	ENTRY "P⫢(R,R')⇌K ⇒ P⫢(R',R)⇌K"			IS ForwardOrBackward ForwardCut 0 "P⫢(R,R')⇌K ⇒ P⫢(R',R)⇌K"	
+	ENTRY "P⫢Q⫢(R,R')⇌K ⇒ P⫢Q⫢(R',R)⇌K"		IS ForwardOrBackward ForwardCut 0 "P⫢Q⫢(R,R')⇌K ⇒ P⫢Q⫢(R',R)⇌K"
 END
 
-MENU "�"
-	ENTRY "P�Q�K, [P�{X}K�] � P�Q�X"		IS ForwardOrBackward ForwardCut  0 "P�Q�K, P�{X}K� � P�Q�X"
-	ENTRY "P�P�K, [P�{X}K] � P�X"			IS ForwardOrBackward ForwardCut 0 "P�P�K, P�{X}K � P�X"
-	ENTRY "P�Q� K, [P�{X}K�] � P�X"			IS ForwardOrBackward ForwardCut 0 "P�Q� K, P�{X}K� � P�X"
+MENU "↦"
+	ENTRY "P⫢Q↦K, [P◁{X}K⫠] ⇒ P⫢Q⇝X"		IS ForwardOrBackward ForwardCut  0 "P⫢Q↦K, P◁{X}K⫠ ⇒ P⫢Q⇝X"
+	ENTRY "P⫢P↦K, [P◁{X}K] ⇒ P◁X"			IS ForwardOrBackward ForwardCut 0 "P⫢P↦K, P◁{X}K ⇒ P◁X"
+	ENTRY "P⫢Q↦ K, [P◁{X}K⫠] ⇒ P◁X"			IS ForwardOrBackward ForwardCut 0 "P⫢Q↦ K, P◁{X}K⫠ ⇒ P◁X"
 END
 
-MENU "�"
-	ENTRY "P�(Q,P)�K, [P�{X}K] � P�Q�X"		IS ForwardOrBackward ForwardCut 0 "P�(Q,P)�K, P�{X}K � P�Q�X"
-	ENTRY "P�(P,Q)�K, [P�{X}K] � P�X"		IS ForwardOrBackward ForwardCut 0 "P�(P,Q)�K, P�{X}K � P�X"
+MENU "↔"
+	ENTRY "P⫢(Q,P)↔K, [P◁{X}K] ⇒ P⫢Q⇝X"		IS ForwardOrBackward ForwardCut 0 "P⫢(Q,P)↔K, P◁{X}K ⇒ P⫢Q⇝X"
+	ENTRY "P⫢(P,Q)↔K, [P◁{X}K] ⇒ P◁X"		IS ForwardOrBackward ForwardCut 0 "P⫢(P,Q)↔K, P◁{X}K ⇒ P◁X"
 	SEPARATOR
-	ENTRY "P�(R,R')�K � P�(R',R)�K"		IS ForwardOrBackward ForwardCut 0 "P�(R,R')�K � P�(R',R)�K"
-	ENTRY "P�Q�(R,R')�K � P�Q�(R',R)�K"	IS ForwardOrBackward ForwardCut 0 "P�Q�(R,R')�K � P�Q�(R',R)�K"
+	ENTRY "P⫢(R,R')↔K ⇒ P⫢(R',R)↔K"		IS ForwardOrBackward ForwardCut 0 "P⫢(R,R')↔K ⇒ P⫢(R',R)↔K"
+	ENTRY "P⫢Q⫢(R,R')↔K ⇒ P⫢Q⫢(R',R)↔K"	IS ForwardOrBackward ForwardCut 0 "P⫢Q⫢(R,R')↔K ⇒ P⫢Q⫢(R',R)↔K"
 END
 
 MENU "#"
-	ENTRY "P�#X, [P�Q�X] � P�Q�X"			IS ForwardOrBackward ForwardCut 0 "P�#X, P�Q�X � P�Q�X"
+	ENTRY "P⫢#X, [P⫢Q⇝X] ⇒ P⫢Q⫢X"			IS ForwardOrBackward ForwardCut 0 "P⫢#X, P⫢Q⇝X ⇒ P⫢Q⫢X"
 	SEPARATOR
-	ENTRY "P�#X � P�#(...,X,...)"				IS ForwardOrBackward ForwardCut 0 "P�#X � P�#(...,X,...)"
+	ENTRY "P⫢#X ⇒ P⫢#(...,X,...)"				IS ForwardOrBackward ForwardCut 0 "P⫢#X ⇒ P⫢#(...,X,...)"
 END
 
 MENU Logic 
-        ENTRY "P��x.X(x) � P�X(Y)"				IS ForwardOrBackward ForwardCut 0 "P��x.X(x) � P�X(Y)"
+        ENTRY "P⫢∀x.X(x) ⇒ P⫢X(Y)"				IS ForwardOrBackward ForwardCut 0 "P⫢∀x.X(x) ⇒ P⫢X(Y)"
         SEPARATOR
 	ENTRY hyp
 END

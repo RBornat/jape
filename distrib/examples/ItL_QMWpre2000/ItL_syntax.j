@@ -1,27 +1,27 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 CLASS VARIABLE x y z c d
 CLASS FORMULA A B C P Q R S
-CLASS BAG FORMULA ‚
+CLASS BAG FORMULA Î“
 
 PREFIX	10		var
 POSTFIX	10		inscope
 
-INFIX		100R	ç
-INFIX		120L		ë
-INFIX		140L		¦
+INFIX		100R	â†’
+INFIX		120L		âˆ¨
+INFIX		140L		âˆ§
 
-LEFTFIX	180		è .
-LEFTFIX	180		ä .
+LEFTFIX	180		âˆ€ .
+LEFTFIX	180		âˆƒ .
 
-PREFIX	200		Â
+PREFIX	200		Â¬
 JUXTFIX	300
 SUBSTFIX	400 
 
-BIND x SCOPE P IN èx . P
-BIND x SCOPE P IN äx . P
+BIND x SCOPE P IN âˆ€x . P
+BIND x SCOPE P IN âˆƒx . P
 
-SEQUENT IS BAG æ FORMULA
+SEQUENT IS BAG âŠ¢ FORMULA
 
 INITIALISE autoAdditiveLeft	true /* allow rules to be stated without an explicit left context */
 INITIALISE interpretpredicates	true /* allow predicate syntax ... */

@@ -1,30 +1,30 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 CLASS VARIABLE x y z   i j k
 CLASS FORMULA A B C   E F G H  P  R S T
-CLASS BAG FORMULA ‚
+CLASS BAG FORMULA Î“
 
-CONSTANT Ù
+CONSTANT âŠ¥
 
 PREFIX	10	actual
 /* POSTFIX	10	inscope   no longer used. I don't think that proof files will crash without it */
 
-INFIX		100R		ç
-INFIX		120L		ë
-INFIX		140L		¦
+INFIX		100R		â†’
+INFIX		120L		âˆ¨
+INFIX		140L		âˆ§
 
-PREFIX	200	Â
+PREFIX	200	Â¬
 
-LEFTFIX	200	è .
-LEFTFIX	200	ä .
+LEFTFIX	200	âˆ€ .
+LEFTFIX	200	âˆƒ .
 
 JUXTFIX	300
 SUBSTFIX	400 
 
-BIND x SCOPE A IN èx . A
-BIND x SCOPE B IN äx . B
+BIND x SCOPE A IN âˆ€x . A
+BIND x SCOPE B IN âˆƒx . B
 
-SEQUENT IS BAG æ FORMULA
+SEQUENT IS BAG âŠ¢ FORMULA
 
 INITIALISE autoAdditiveLeft	true /* allow rules to be stated without an explicit left context */
 INITIALISE interpretpredicates	true /* allow predicate syntax ... */

@@ -1,24 +1,24 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 INITIALISE interpretpredicates true
 
 FONTS "Konstanz"
 INITIALISE displaystyle tree
 
-CLASS BAG ‚ Æ
+CLASS BAG Î“ âˆ†
 CLASS FORMULA A B C D P Q R S
 CLASS VARIABLE u v w x y z m n
 
-LEFTFIX	20		è .
-LEFTFIX	20		ä .
+LEFTFIX	20		âˆ€ .
+LEFTFIX	20		âˆƒ .
 
-INFIX		100L		é
-INFIX		110R		ç
-INFIX		150L		¦
-INFIX		160L		ë
-PREFIX	200		Â
+INFIX		100L		â‰¡
+INFIX		110R		â†’
+INFIX		150L		âˆ§
+INFIX		160L		âˆ¨
+PREFIX	200		Â¬
 JUXTFIX	300
 SUBSTFIX	400 
 
-BIND    x SCOPE P IN äx . P
-BIND    x SCOPE P IN èx . P
+BIND    x SCOPE P IN âˆƒx . P
+BIND    x SCOPE P IN âˆ€x . P

@@ -1,4 +1,4 @@
-/*
+Ôªø/*
         This is the theory of mappings described
         in the appendix to the note
         ``Animating Operational Semantics with Jape''
@@ -7,51 +7,51 @@
         $Id$
 */
         CLASS FORMULA  map
-        CONSTANT   ‚ Ÿ
+        CONSTANT   ‚ñ™ ‚ä•
         INFIX   5L ==
-        INFIX   3L º
+        INFIX   3L ‚äï
         RULES Map WHERE  y NOTIN x
-        ARE   Ê  ‚ x = Ÿ
-        AND   Ê  (x==V)  x = V
-        AND   Ê  (x==V)  y = Ÿ
+        ARE   ‚ä¢  ‚ñ™ x = ‚ä•
+        AND   ‚ä¢  (x==V)  x = V
+        AND   ‚ä¢  (x==V)  y = ‚ä•
         END
-        RULES Select  WHERE W NOTIN Ÿ
-        ARE INFERÊ V º Ÿ = V
-        AND INFERÊ V º W = W
+        RULES Select  WHERE W NOTIN ‚ä•
+        ARE INFER‚ä¢ V ‚äï ‚ä• = V
+        AND INFER‚ä¢ V ‚äï W = W
         END
-        RULE "º"
-        FROM  Ê  map' x = V
-        AND   Ê  map  x = W
-        AND   Ê  W º V  = X
-        INFER Ê (mapºmap') x = X
+        RULE "‚äï"
+        FROM  ‚ä¢  map' x = V
+        AND   ‚ä¢  map  x = W
+        AND   ‚ä¢  W ‚äï V  = X
+        INFER ‚ä¢ (map‚äïmap') x = X
     TACTIC Lookup IS
-    (ALT Map (SEQ "º" Lookup Lookup Select))
-    RULE  Update0  Ê (‚º(x==V)) = (‚º(x==V))
-    RULE  Update1  Ê (mapº(x==W)º(x==V)) = (mapº(x==V))
+    (ALT Map (SEQ "‚äï" Lookup Lookup Select))
+    RULE  Update0  ‚ä¢ (‚ñ™‚äï(x==V)) = (‚ñ™‚äï(x==V))
+    RULE  Update1  ‚ä¢ (map‚äï(x==W)‚äï(x==V)) = (map‚äï(x==V))
     RULE  Update2
-    FROM  Ê (mapº(x==V)) = map'
-    INFER Ê (mapº(y==W)º(x==V)) = (map'º(y==W))
+    FROM  ‚ä¢ (map‚äï(x==V)) = map'
+    INFER ‚ä¢ (map‚äï(y==W)‚äï(x==V)) = (map'‚äï(y==W))
 
     TACTIC Update IS (ALT  Update0 Update1 (SEQ Update2 (PROVE Update)))
 /*
 CONJECTUREPANEL Environments
  BUTTON "Lookup"  IS apply Lookup
- BUTTON "º" IS apply "º"
+ BUTTON "‚äï" IS apply "‚äï"
  BUTTON "Select"  IS apply Select
  BUTTON "Update"  IS apply Update
  THEOREMS environments ARE
-      Ê ‚  x = _T
- AND  Ê (x==3 º ‚)   x = _T
- AND  Ê (x==3 º y==4) x = _T
- AND  Ê (y==3 º x==4) x = _T
- AND  Ê ((y==3 º x==4) º (a==3 º b==4)) a = _T
- AND  Ê ((y==3 º x==4) º (a==3 º b==4)) b = _T
- AND  Ê ((y==3 º x==4) º (a==3 º b==4)) y = _T
- AND  Ê ((w==3 º x==4) º (a==3 º b==4) º (y==3 º x==4) º (a==3 º b==4)) w = _T
- AND  Ê (w==3 º x==4 º a==3 º b==4 º y==3 º x==4 º a==3 º b==4) w = _T
- AND  Ê (x==4 º  w==(3 Ÿ) º x==4 º a==3 º b==4 º y==3 º x==4 º a==3 º b==4) w = _T
- AND  Ê (‚ º (x==3) º (y==4) º (z==5) º (x==6)) = _T
- AND  Ê (‚ º (x==3) º (y==4) º (z==5) º (p==6)) = _T
+      ‚ä¢ ‚ñ™  x = _T
+ AND  ‚ä¢ (x==3 ‚äï ‚ñ™)   x = _T
+ AND  ‚ä¢ (x==3 ‚äï y==4) x = _T
+ AND  ‚ä¢ (y==3 ‚äï x==4) x = _T
+ AND  ‚ä¢ ((y==3 ‚äï x==4) ‚äï (a==3 ‚äï b==4)) a = _T
+ AND  ‚ä¢ ((y==3 ‚äï x==4) ‚äï (a==3 ‚äï b==4)) b = _T
+ AND  ‚ä¢ ((y==3 ‚äï x==4) ‚äï (a==3 ‚äï b==4)) y = _T
+ AND  ‚ä¢ ((w==3 ‚äï x==4) ‚äï (a==3 ‚äï b==4) ‚äï (y==3 ‚äï x==4) ‚äï (a==3 ‚äï b==4)) w = _T
+ AND  ‚ä¢ (w==3 ‚äï x==4 ‚äï a==3 ‚äï b==4 ‚äï y==3 ‚äï x==4 ‚äï a==3 ‚äï b==4) w = _T
+ AND  ‚ä¢ (x==4 ‚äï  w==(3 ‚ä•) ‚äï x==4 ‚äï a==3 ‚äï b==4 ‚äï y==3 ‚äï x==4 ‚äï a==3 ‚äï b==4) w = _T
+ AND  ‚ä¢ (‚ñ™ ‚äï (x==3) ‚äï (y==4) ‚äï (z==5) ‚äï (x==6)) = _T
+ AND  ‚ä¢ (‚ñ™ ‚äï (x==3) ‚äï (y==4) ‚äï (z==5) ‚äï (p==6)) = _T
  END
 END
 */

@@ -1,4 +1,4 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
 	WHEN
@@ -40,47 +40,47 @@ TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS
 		(LETHYP _P cut (LAYOUT thm (1) (ruleRL[B\_P]) thm (WITHHYPSEL hyp)))
 		(LETGOAL _P (LAYOUT thm (1) (ruleLR _P) thm))
 
-MENU "System F«" IS
-	ENTRY "ç-I"	
-	ENTRY "ê-I"
-	ENTRY "¦-I"	
-	ENTRY "ë-I(L)" IS FOB ForwardCut 0 "ë-I(L)"
-	ENTRY "ë-I(R)" IS FOB ForwardCut 0 "ë-I(R)"
-	ENTRY "Â-I"
-	ENTRY "Ù-I"
-	ENTRY "è-I"
-	ENTRY "ä-I" IS "ä-I tac"
-	ENTRY "ä!-I" IS "ä!-I tac"
+MENU "System FÂ´" IS
+	ENTRY "â†’-I"	
+	ENTRY "â†”-I"
+	ENTRY "âˆ§-I"	
+	ENTRY "âˆ¨-I(L)" IS FOB ForwardCut 0 "âˆ¨-I(L)"
+	ENTRY "âˆ¨-I(R)" IS FOB ForwardCut 0 "âˆ¨-I(R)"
+	ENTRY "Â¬-I"
+	ENTRY "âŠ¥-I"
+	ENTRY "âˆ€-I"
+	ENTRY "âˆƒ-I" IS "âˆƒ-I tac"
+	ENTRY "âˆƒ!-I" IS "âˆƒ!-I tac"
 	
 	SEPARATOR
 	
-	ENTRY "ç-E"		IS "ç-E tac" 
-	ENTRY "ê-E(L)"	IS FOB "ê-E(L) forward" 0 "ê-E(L)" 
-	ENTRY "ê-E(R)"	IS FOB "ê-E(R) forward" 0 "ê-E(R)" 
-	ENTRY "¦-E(L)"	IS FOB ForwardCut 0 "¦-E(L)"
-	ENTRY "¦-E(R)" 	IS FOB ForwardCut 0 "¦-E(R)"
-	ENTRY "ë-E"		IS "ë-E tac"	
-	ENTRY "Â-E"		IS FOB ForwardCut 0 "Â-E"	
-	ENTRY "Ù-E"		IS FOB ForwardCut 0 "Ù-E"	
-	ENTRY "è-E"		IS "è-E tac"	
-	ENTRY "ä-E"		IS "ä-E tac"
-	ENTRY "ä!-E(ä)"	IS FOB ForwardCut 0 "ä!-E(ä)"
-	ENTRY "ä!-E(èè)"	IS FOB ForwardCut 0 "ä!-E(èè)"
+	ENTRY "â†’-E"		IS "â†’-E tac" 
+	ENTRY "â†”-E(L)"	IS FOB "â†”-E(L) forward" 0 "â†”-E(L)" 
+	ENTRY "â†”-E(R)"	IS FOB "â†”-E(R) forward" 0 "â†”-E(R)" 
+	ENTRY "âˆ§-E(L)"	IS FOB ForwardCut 0 "âˆ§-E(L)"
+	ENTRY "âˆ§-E(R)" 	IS FOB ForwardCut 0 "âˆ§-E(R)"
+	ENTRY "âˆ¨-E"		IS "âˆ¨-E tac"	
+	ENTRY "Â¬-E"		IS FOB ForwardCut 0 "Â¬-E"	
+	ENTRY "âŠ¥-E"		IS FOB ForwardCut 0 "âŠ¥-E"	
+	ENTRY "âˆ€-E"		IS "âˆ€-E tac"	
+	ENTRY "âˆƒ-E"		IS "âˆƒ-E tac"
+	ENTRY "âˆƒ!-E(âˆƒ)"	IS FOB ForwardCut 0 "âˆƒ!-E(âˆƒ)"
+	ENTRY "âˆƒ!-E(âˆ€âˆ€)"	IS FOB ForwardCut 0 "âˆƒ!-E(âˆ€âˆ€)"
 	SEPARATOR
 	ENTRY "A=A"
 	ENTRY hyp		IS hyp
 END
 
 MENU "Substitution"
-	ENTRY "AêÉ"		IS ForwardSubst "rewrite ê Ç" "rewrite ê È" (ê)
-	ENTRY "ÉêB"		IS ForwardSubst "rewrite ê È" "rewrite ê Ç" (ê)
-	ENTRY "A=É"		IS ForwardSubst "rewrite = Ç" "rewrite = È" (=)
-	ENTRY "É=B"		IS ForwardSubst "rewrite = È" "rewrite = Ç" (=)
+	ENTRY "Aâ†”â€¦"		IS ForwardSubst "rewrite â†” Â«" "rewrite â†” Â»" (â†”)
+	ENTRY "â€¦â†”B"		IS ForwardSubst "rewrite â†” Â»" "rewrite â†” Â«" (â†”)
+	ENTRY "A=â€¦"		IS ForwardSubst "rewrite = Â«" "rewrite = Â»" (=)
+	ENTRY "â€¦=B"		IS ForwardSubst "rewrite = Â»" "rewrite = Â«" (=)
 END
 
 TACTICPANEL "Definitions" IS
-	RULE INFER A­B ÷ Â(A=B)
+	RULE INFER Aâ‰ B â‰œ Â¬(A=B)
 	
-	BUTTON "A÷É" IS apply ForwardSubstHiding "rewrite ÷ Ç" "rewrite ÷ È"  COMMAND
-	BUTTON "É÷B" IS apply ForwardSubstHiding "rewrite ÷ È" "rewrite ÷ Ç"  COMMAND
+	BUTTON "Aâ‰œâ€¦" IS apply ForwardSubstHiding "rewrite â‰œ Â«" "rewrite â‰œ Â»"  COMMAND
+	BUTTON "â€¦â‰œB" IS apply ForwardSubstHiding "rewrite â‰œ Â»" "rewrite â‰œ Â«"  COMMAND
 END

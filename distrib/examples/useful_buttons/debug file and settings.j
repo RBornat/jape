@@ -1,4 +1,4 @@
-/* $Id$ */
+﻿/* $Id$ */
 
 MENU File IS
 	SEPARATOR

@@ -1,13 +1,13 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 /* rules to use an explicit contradiction symbol */
  
-CONSTANT Ù
+CONSTANT âŠ¥
 
-RULE "Â-E"				IS FROM ÂÂA INFER A
-RULE "Â-I"				IS FROM A æ Ù INFER ÂA
-RULE "Ù-I"(B)		IS FROM B ¦ ÂB INFER Ù
+RULE "Â¬-E"				IS FROM Â¬Â¬A INFER A
+RULE "Â¬-I"				IS FROM A âŠ¢ âŠ¥ INFER Â¬A
+RULE "âŠ¥-I"(B)		IS FROM B âˆ§ Â¬B INFER âŠ¥
 
 MENU Rules IS 
-	ENTRY "Ù-I"
+	ENTRY "âŠ¥-I"
 END

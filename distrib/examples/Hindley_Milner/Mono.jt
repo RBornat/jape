@@ -1,4 +1,4 @@
-/*
+ï»¿/*
         $Id$ 
         
         A simple type-inference system for (monomorphic) PicoML.
@@ -18,18 +18,18 @@
         CONSTANT True False Num Bool Fst Snd Hd Tl Nil Null
         CLASS    CONSTANT c
         
-        INFIX   2T   ˜
+        INFIX   2T   Â˜
         
         SUBSTFIX 500000 [| x := T |]
         
         LEFTFIX 20   if then else
         OUTFIX       let    in end
         OUTFIX       letrec in end
-        OUTFIX       { Ã }              /* Function expressions */
+        OUTFIX       { âˆš }              /* Function expressions */
         OUTFIX       [ ]                /* List expressions */
         
         
-        INFIX   50R  ‰ 
+        INFIX   50R  Ã¢ 
         INFIX   50T  and
         INFIX   100T =
         INFIXC  150R ==
@@ -38,7 +38,7 @@
         PREFIX  1000 ~
         POSTFIX 1000 C
         
-        BIND x   SCOPE B IN { x Ã B }
+        BIND x   SCOPE B IN { x âˆš B }
         BIND x   SCOPE B IN let x=E         in B end
         BIND x y SCOPE B IN let x=E and y=F in B end
 
@@ -46,34 +46,34 @@
         BIND x y SCOPE B E F IN letrec x=E and y=F in B end
         
         
-        SEQUENT IS LIST ¡ FORMULA
+        SEQUENT IS LIST Â° FORMULA
         
         
         CONJECTUREPANEL "Type Inference Problems" IS
           THEOREMS "Type Derivations" ARE
-            Env ¡ Fst(3, True) == Snd((), 4) ˜ _T
+            Env Â° Fst(3, True) == Snd((), 4) Â˜ _T
            AND
-            Env ¡ Fst(3, True) == Fst(3, 4) ˜ _T
+            Env Â° Fst(3, True) == Fst(3, 4) Â˜ _T
            AND
-            Env ¡ Fst(3, True) ˜ _T
+            Env Â° Fst(3, True) Â˜ _T
            AND
-            Env ¡ Fst(Fst(3, ()), True) ˜ _T
+            Env Â° Fst(Fst(3, ()), True) Â˜ _T
            AND
-            Env, Fst˜(_T1, _T2)‰_T1 ¡ Fst(3, True) ˜ _T
+            Env, FstÂ˜(_T1, _T2)Ã¢_T1 Â° Fst(3, True) Â˜ _T
            AND
-            Env, Fst˜(_T1, _T2)‰_T1  ¡ Fst(Fst(3, ()), True) ˜ _T
+            Env, FstÂ˜(_T1, _T2)Ã¢_T1  Â° Fst(Fst(3, ()), True) Â˜ _T
            AND
-            Env ¡ { x Ã Fst(x, True) } ˜ _T
+            Env Â° { x âˆš Fst(x, True) } Â˜ _T
            AND
-            Env ¡ { x Ã Fst(x, True) } 3 ˜ _T
+            Env Â° { x âˆš Fst(x, True) } 3 Â˜ _T
            AND 
-            Env ¡ let (succ = { x Ã x+1 }) in succ 2 end˜ _T
+            Env Â° let (succ = { x âˆš x+1 }) in succ 2 endÂ˜ _T
            AND 
-            Env ¡ let f = { x Ã x } in (f 3, f 5) end˜ _T
+            Env Â° let f = { x âˆš x } in (f 3, f 5) endÂ˜ _T
            AND 
-            Env ¡ let f = { x Ã x } in (f 3, f ()) end˜ _T
+            Env Â° let f = { x âˆš x } in (f 3, f ()) endÂ˜ _T
            AND
-            Env ¡ letrec l = { xs Ã if Null xs then 0 else 1+l(Tl xs) } in l end ˜ _T
+            Env Â° letrec l = { xs âˆš if Null xs then 0 else 1+l(Tl xs) } in l end Â˜ _T
           END
           BUTTON "Theorem"   IS  apply COMMAND
           BUTTON Constant    IS  apply "Constant"
@@ -97,35 +97,35 @@
         
         
         RULES Constants ARE
-           Env ¡ num ˜ Num
+           Env Â° num Â˜ Num
         AND
-           Env ¡ True ˜ Bool
+           Env Â° True Â˜ Bool
         AND
-           Env ¡ False ˜ Bool
+           Env Â° False Â˜ Bool
         AND
-           Env ¡ () ˜ ()
+           Env Â° () Â˜ ()
         AND
-           Env ¡ Nil ˜ [T]
+           Env Â° Nil Â˜ [T]
         END
              
         RULES BuiltIn ARE
-           Env ¡ (==) ˜  T ‰ T ‰ Bool
+           Env Â° (==) Â˜  T Ã¢ T Ã¢ Bool
         AND
-           Env ¡ (+)  ˜  Num ‰ Num ‰ Num
+           Env Â° (+)  Â˜  Num Ã¢ Num Ã¢ Num
         AND
-           Env ¡ (/)  ˜  Num ‰ Num ‰ Num
+           Env Â° (/)  Â˜  Num Ã¢ Num Ã¢ Num
         AND
-           Env ¡ Fst  ˜  (T1, T2) ‰ T1
+           Env Â° Fst  Â˜  (T1, T2) Ã¢ T1
         AND
-           Env ¡ Snd  ˜  (T1, T2) ‰ T2
+           Env Â° Snd  Â˜  (T1, T2) Ã¢ T2
         AND
-           Env ¡ Hd   ˜  [T] ‰ T
+           Env Â° Hd   Â˜  [T] Ã¢ T
         AND
-           Env ¡ Tl   ˜  [T] ‰ [T]
+           Env Â° Tl   Â˜  [T] Ã¢ [T]
         AND
-           Env ¡ Nil  ˜  [T]
+           Env Â° Nil  Â˜  [T]
         AND
-           Env ¡ Null ˜  [T] ‰ Bool
+           Env Â° Null Â˜  [T] Ã¢ Bool
         END
         
         
@@ -135,61 +135,61 @@
             TACTIC "Built In"  IS (LAYOUT "Built In" () BuiltIn)
              
             RULE  Pair IS
-            FROM  Env ¡ E1 ˜ T1
-            AND   Env ¡ E2 ˜ T2
-            INFER Env ¡ (E1, E2) ˜ (T1, T2)
+            FROM  Env Â° E1 Â˜ T1
+            AND   Env Â° E2 Â˜ T2
+            INFER Env Â° (E1, E2) Â˜ (T1, T2)
              
             RULE  Apply IS
-            FROM  Env ¡ F ˜ Ta ‰ Tr
-            AND   Env ¡ A ˜ Ta
-            INFER Env ¡ F A ˜ Tr
+            FROM  Env Â° F Â˜ Ta Ã¢ Tr
+            AND   Env Â° A Â˜ Ta
+            INFER Env Â° F A Â˜ Tr
                      
             RULE  Fun IS
-            FROM  Env, x˜Ta ¡ Body˜Tr
-            INFER Env ¡ { x Ã Body } ˜ Ta‰Tr
+            FROM  Env, xÂ˜Ta Â° BodyÂ˜Tr
+            INFER Env Â° { x âˆš Body } Â˜ TaÃ¢Tr
                      
-            TACTIC Id IS (LAYOUT "Id" () (ALT "x˜T" "c˜T" ))
+            TACTIC Id IS (LAYOUT "Id" () (ALT "xÂ˜T" "cÂ˜T" ))
             
-            RULE "x˜T"  
-                  WHERE x IN x˜T' NOTONEOF Env' 
-                  Env, x˜T, Env' ¡ x˜T
+            RULE "xÂ˜T"  
+                  WHERE x IN xÂ˜T' NOTONEOF Env' 
+                  Env, xÂ˜T, Env' Â° xÂ˜T
                   
-            RULE "c˜T" 
-                  WHERE c IN c˜T' NOTONEOF Env' 
-                  Env, c˜T, Env' ¡ c˜T
+            RULE "cÂ˜T" 
+                  WHERE c IN cÂ˜T' NOTONEOF Env' 
+                  Env, cÂ˜T, Env' Â° cÂ˜T
             
             RULE "=="
-                 FROM Env ¡ E1˜T
-                 AND  Env ¡ E2˜T
-                 INFER Env ¡ E1 == E2 ˜ Bool
+                 FROM Env Â° E1Â˜T
+                 AND  Env Â° E2Â˜T
+                 INFER Env Â° E1 == E2 Â˜ Bool
                  
             RULE If 
-                 FROM  Env ¡ G˜  Bool
-                 AND   Env ¡ Et˜ T
-                 AND   Env ¡ Ef˜ T
-                 INFER Env ¡ if G then Et else Ef ˜ T
+                 FROM  Env Â° GÂ˜  Bool
+                 AND   Env Â° EtÂ˜ T
+                 AND   Env Â° EfÂ˜ T
+                 INFER Env Â° if G then Et else Ef Â˜ T
                  
                  
             RULES Let ARE
-                 FROM  Env ¡ E˜Te
-                 AND   Env, x˜Te ¡ B˜Tb
-                 INFER Env ¡ let x=E in B end ˜ Tb
+                 FROM  Env Â° EÂ˜Te
+                 AND   Env, xÂ˜Te Â° BÂ˜Tb
+                 INFER Env Â° let x=E in B end Â˜ Tb
                  AND   WHERE x NOTIN y 
-                 FROM  Env ¡ E˜Te
-                 AND   Env ¡ F˜Tf
-                 AND   Env, x˜Te, y˜Tf ¡ B˜Tb
-                 INFER Env ¡ let x=E and y=F in B end˜ Tb
+                 FROM  Env Â° EÂ˜Te
+                 AND   Env Â° FÂ˜Tf
+                 AND   Env, xÂ˜Te, yÂ˜Tf Â° BÂ˜Tb
+                 INFER Env Â° let x=E and y=F in B endÂ˜ Tb
             END
             
             RULES LetRec ARE
-                 FROM  Env, x˜Te ¡ E˜Te
-                 AND   Env, x˜Te ¡ B˜Tb
-                 INFER Env ¡ letrec x=E in B end ˜ Tb
+                 FROM  Env, xÂ˜Te Â° EÂ˜Te
+                 AND   Env, xÂ˜Te Â° BÂ˜Tb
+                 INFER Env Â° letrec x=E in B end Â˜ Tb
                  AND   WHERE x NOTIN y 
-                 FROM  Env, x˜Te, y˜Tf  ¡ E˜Te
-                 AND   Env, x˜Te, y˜Tf  ¡ F˜Tf
-                 AND   Env, x˜Te, y˜Tf ¡ B˜Tb
-                 INFER Env ¡ let x=E and y=F in B end˜ Tb
+                 FROM  Env, xÂ˜Te, yÂ˜Tf  Â° EÂ˜Te
+                 AND   Env, xÂ˜Te, yÂ˜Tf  Â° FÂ˜Tf
+                 AND   Env, xÂ˜Te, yÂ˜Tf Â° BÂ˜Tb
+                 INFER Env Â° let x=E and y=F in B endÂ˜ Tb
             END
                   
                                
@@ -216,9 +216,9 @@
         END
 
         
-        CONCHIT     ¡ E˜T IS OneStep
-        CONCHIT Env ¡ E˜T IS OneStep
-        HYPHIT  Env ¡ E˜T IS OneStep
+        CONCHIT     Â° EÂ˜T IS OneStep
+        CONCHIT Env Â° EÂ˜T IS OneStep
+        HYPHIT  Env Â° EÂ˜T IS OneStep
         INITIALISE outerassumptionword   Environment
         INITIALISE outerassumptionplural Environment
         INITIALISE innerassumptionword   Environment

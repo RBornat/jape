@@ -1,4 +1,4 @@
-/* $Id$ */
+Ôªø/* $Id$ */
 
 FONTS "Konstanz"
 
@@ -18,26 +18,26 @@ CONSTANT bool string num
 
 SUBSTFIX	500		{ E / x }
 JUXTFIX	400
-INFIX		150T 	Ù
-INFIX		100R 	Á
-LEFTFIX	75		Ë .
+INFIX		150T 	√ó
+INFIX		100R 	‚Üí
+LEFTFIX	75		‚àÄ .
 PREFIX	75		# /* now we have control over the priority of prefix operators ... */
-INFIX		55L 		• ë
-INFIX		50L   	:  € « »
+INFIX		55L 		‚Ä¢ ‚óÅ
+INFIX		50L   	:  ‚áí ¬´ ¬ª
 
 INFIXC	140L		+ -
-INFIXC	120R		‹
+INFIXC	120R		‚à¥
 INFIXC	100L		== /* we need to use this because we also have let f = ... */
-LEFTFIX	75		˚ .
+LEFTFIX	75		Œª .
 INFIX		50L		=
 
 
-BIND x  SCOPE E IN ˚ x . E
+BIND x  SCOPE E IN Œª x . E
 
-BIND t SCOPE T IN Ë t . T
-BIND t1 t2 SCOPE T IN Ë (t1, t2) . T
-BIND t1 t2 t3 SCOPE T IN Ë (t1, t2, t3 ). T
-BIND t1 t2 t3 t4 SCOPE T IN Ë (t1, t2, t3, t4) . T
+BIND t SCOPE T IN ‚àÄ t . T
+BIND t1 t2 SCOPE T IN ‚àÄ (t1, t2) . T
+BIND t1 t2 t3 SCOPE T IN ‚àÄ (t1, t2, t3 ). T
+BIND t1 t2 t3 t4 SCOPE T IN ‚àÄ (t1, t2, t3, t4) . T
 
 OUTFIX [ ]
 OUTFIX  letrec in end
@@ -55,94 +55,94 @@ BIND x1 x2 x3		SCOPE E1 E2  E3 F	IN letrec x1=E1 , x2=E2 , x3=E3 in F end
 BIND x1 x2 x3 x4	SCOPE E1 E2 E3 E4 F	IN letrec x1=E1 , x2=E2 , x3=E3 , x4=E4 in F end
 
 CLASS LIST C
-SEQUENT IS LIST Ê FORMULA
+SEQUENT IS LIST ‚ä¢ FORMULA
 
 RULES letrules ARE
-	FROM C Ê E : T1 
-	AND C Ê T1«S1 
-	AND C,x€S1 Ê F:T	
-	INFER C Ê let x=E in F end : T
-AND	FROM C Ê E1 : T1 AND C Ê E2 : T2 
-	AND C Ê T1«S1 AND C Ê T2«S2 
-	AND C,x1€S1,x2€S2 Ê F:T
-	INFER C Ê let x1=E1 , x2=E2 in F end : T
-AND	FROM C Ê E1 : T1 AND C Ê E2 : T2 AND C Ê E3 : T3
-	AND C Ê T1«S1 AND C Ê T2«S2 AND C Ê T3«S3 
-	AND C,x1€S1,x2€S2,x3€S3 Ê F:T
-	INFER C Ê let x1=E1 , x2=E2 , x3=E3 in F end : T
-AND	FROM C Ê E1 : T1 AND C Ê E2 : T2 AND C Ê E3 : T3 AND C Ê E4 : T4
-	AND C Ê T1«S1 AND C Ê T2«S2 AND C Ê T3«S3 AND C Ê T4«S4
-	AND C,x1€S1,x2€S2,x3€S3,x4€S4 Ê F:T
-	INFER C Ê let x1=E1 , x2=E2 , x3=E3 , x4=E4 in F end : T
+	FROM C ‚ä¢ E : T1 
+	AND C ‚ä¢ T1¬´S1 
+	AND C,x‚áíS1 ‚ä¢ F:T	
+	INFER C ‚ä¢ let x=E in F end : T
+AND	FROM C ‚ä¢ E1 : T1 AND C ‚ä¢ E2 : T2 
+	AND C ‚ä¢ T1¬´S1 AND C ‚ä¢ T2¬´S2 
+	AND C,x1‚áíS1,x2‚áíS2 ‚ä¢ F:T
+	INFER C ‚ä¢ let x1=E1 , x2=E2 in F end : T
+AND	FROM C ‚ä¢ E1 : T1 AND C ‚ä¢ E2 : T2 AND C ‚ä¢ E3 : T3
+	AND C ‚ä¢ T1¬´S1 AND C ‚ä¢ T2¬´S2 AND C ‚ä¢ T3¬´S3 
+	AND C,x1‚áíS1,x2‚áíS2,x3‚áíS3 ‚ä¢ F:T
+	INFER C ‚ä¢ let x1=E1 , x2=E2 , x3=E3 in F end : T
+AND	FROM C ‚ä¢ E1 : T1 AND C ‚ä¢ E2 : T2 AND C ‚ä¢ E3 : T3 AND C ‚ä¢ E4 : T4
+	AND C ‚ä¢ T1¬´S1 AND C ‚ä¢ T2¬´S2 AND C ‚ä¢ T3¬´S3 AND C ‚ä¢ T4¬´S4
+	AND C,x1‚áíS1,x2‚áíS2,x3‚áíS3,x4‚áíS4 ‚ä¢ F:T
+	INFER C ‚ä¢ let x1=E1 , x2=E2 , x3=E3 , x4=E4 in F end : T
 END
 
 RULES letrecrules ARE
-	FROM C,x€#T1 Ê E:T1 
-	AND C Ê T1«S1 
-	AND C,x€S1 Ê F:T	
-	INFER C Ê letrec x=E in F end : T
-AND	FROM C,x1€#T1,x2€#T2 Ê E1 : T1 AND C,x1€#T1,x2€#T2 Ê E2 : T2 
-	AND C Ê T1«S1 AND C Ê T2«S2 
-	AND C,x1€S1,x2€S2 Ê F:T	
-	INFER C Ê letrec x1=E1 , x2=E2 in F end : T
-AND	FROM C,x1€#T1,x2€#T2,x3€#T3 Ê E1 : T1 AND C,x1€#T1,x2€#T2,x3€#T3 Ê E2 : T2
-	AND C,x1€#T1,x2€#T2,x3€#T3 Ê E3 : T3
-	AND C Ê T1«S1 AND C Ê T2«S2 AND C Ê T3«S3 
-	AND C,x1€S1,x2€S2,x3€S3 Ê F:T
-	INFER C Ê letrec x1=E1 , x2=E2 , x3=E3 in F end : T
-AND	FROM C,x1€#T1,x2€#T2,x3€#T3,x4€#T4 Ê E1 : T1 
-	AND C,x1€#T1,x2€#T2,x3€#T3,x4€#T4 Ê E2 : T2
-	AND C,x1€#T1,x2€#T2,x3€#T3,x4€#T4 Ê E3 : T3 
-	AND C,x1€#T1,x2€#T2,x3€#T3,x4€#T4 Ê E4 : T4
-	AND C Ê T1«S1 AND C Ê T2«S2 AND C Ê T3«S3 AND C Ê T4«S4
-	AND C,x1€S1,x2€S2,x3€S3,x4€S4 Ê F:T
-	INFER C Ê letrec x1=E1 , x2=E2 , x3=E3 , x4=E4 in F end : T
+	FROM C,x‚áí#T1 ‚ä¢ E:T1 
+	AND C ‚ä¢ T1¬´S1 
+	AND C,x‚áíS1 ‚ä¢ F:T	
+	INFER C ‚ä¢ letrec x=E in F end : T
+AND	FROM C,x1‚áí#T1,x2‚áí#T2 ‚ä¢ E1 : T1 AND C,x1‚áí#T1,x2‚áí#T2 ‚ä¢ E2 : T2 
+	AND C ‚ä¢ T1¬´S1 AND C ‚ä¢ T2¬´S2 
+	AND C,x1‚áíS1,x2‚áíS2 ‚ä¢ F:T	
+	INFER C ‚ä¢ letrec x1=E1 , x2=E2 in F end : T
+AND	FROM C,x1‚áí#T1,x2‚áí#T2,x3‚áí#T3 ‚ä¢ E1 : T1 AND C,x1‚áí#T1,x2‚áí#T2,x3‚áí#T3 ‚ä¢ E2 : T2
+	AND C,x1‚áí#T1,x2‚áí#T2,x3‚áí#T3 ‚ä¢ E3 : T3
+	AND C ‚ä¢ T1¬´S1 AND C ‚ä¢ T2¬´S2 AND C ‚ä¢ T3¬´S3 
+	AND C,x1‚áíS1,x2‚áíS2,x3‚áíS3 ‚ä¢ F:T
+	INFER C ‚ä¢ letrec x1=E1 , x2=E2 , x3=E3 in F end : T
+AND	FROM C,x1‚áí#T1,x2‚áí#T2,x3‚áí#T3,x4‚áí#T4 ‚ä¢ E1 : T1 
+	AND C,x1‚áí#T1,x2‚áí#T2,x3‚áí#T3,x4‚áí#T4 ‚ä¢ E2 : T2
+	AND C,x1‚áí#T1,x2‚áí#T2,x3‚áí#T3,x4‚áí#T4 ‚ä¢ E3 : T3 
+	AND C,x1‚áí#T1,x2‚áí#T2,x3‚áí#T3,x4‚áí#T4 ‚ä¢ E4 : T4
+	AND C ‚ä¢ T1¬´S1 AND C ‚ä¢ T2¬´S2 AND C ‚ä¢ T3¬´S3 AND C ‚ä¢ T4¬´S4
+	AND C,x1‚áíS1,x2‚áíS2,x3‚áíS3,x4‚áíS4 ‚ä¢ F:T
+	INFER C ‚ä¢ letrec x1=E1 , x2=E2 , x3=E3 , x4=E4 in F end : T
 END
 
 RULES constants ARE
-	C Ê hd€Ëtt.[tt]Átt
-AND	C Ê tl€Ëtt.[tt]Á[tt]
-AND	C Ê (‹)€Ëtt.ttÁ[tt]Á[tt]
-AND	C Ê nil€Ëtt.[tt]
-AND	C Ê (+)€#numÁnumÁnum
-AND	C Ê (-)€#numÁnumÁnum
-AND C Ê (==)€Ëtt.ttÁttÁbool
+	C ‚ä¢ hd‚áí‚àÄtt.[tt]‚Üítt
+AND	C ‚ä¢ tl‚áí‚àÄtt.[tt]‚Üí[tt]
+AND	C ‚ä¢ (‚à¥)‚áí‚àÄtt.tt‚Üí[tt]‚Üí[tt]
+AND	C ‚ä¢ nil‚áí‚àÄtt.[tt]
+AND	C ‚ä¢ (+)‚áí#num‚Üínum‚Üínum
+AND	C ‚ä¢ (-)‚áí#num‚Üínum‚Üínum
+AND C ‚ä¢ (==)‚áí‚àÄtt.tt‚Üítt‚Üíbool
 END
 
-RULE "C Ê x€S" WHERE x IN x€S' NOTONEOF C' IS INFER C,x€S,C' Ê x€S
-RULE "C Ê c€S" WHERE c IN c€S' NOTONEOF C' IS INFER C,c€S,C' Ê c€S
+RULE "C ‚ä¢ x‚áíS" WHERE x IN x‚áíS' NOTONEOF C' IS INFER C,x‚áíS,C' ‚ä¢ x‚áíS
+RULE "C ‚ä¢ c‚áíS" WHERE c IN c‚áíS' NOTONEOF C' IS INFER C,c‚áíS,C' ‚ä¢ c‚áíS
 
-IDENTITY "C Ê x€S"
-IDENTITY "C Ê c€S"
+IDENTITY "C ‚ä¢ x‚áíS"
+IDENTITY "C ‚ä¢ c‚áíS"
 
-RULE "C Ê x:T" IS FROM CÊx€S AND S»T INFER CÊx:T
-RULE "C Ê c:T" IS FROM CÊc€S AND S»T INFER CÊc:T
+RULE "C ‚ä¢ x:T" IS FROM C‚ä¢x‚áíS AND S¬ªT INFER C‚ä¢x:T
+RULE "C ‚ä¢ c:T" IS FROM C‚ä¢c‚áíS AND S¬ªT INFER C‚ä¢c:T
 
-RULES "S»T" ARE
-	INFER #T » T
-AND	INFER Ëtt.TT » TT{T1/tt}
-AND	INFER Ë(tt1,tt2).TT » TT{T1,T2/tt1,tt2}
-AND	INFER Ë(tt1,tt2,tt3).TT » TT{T1,T2,T3/tt1,tt2,tt3}
-AND	INFER Ë(tt1,tt2,tt3,tt4).TT » TT{T1,T2,T3,T4/tt1,tt2,tt3,tt4}
+RULES "S¬ªT" ARE
+	INFER #T ¬ª T
+AND	INFER ‚àÄtt.TT ¬ª TT{T1/tt}
+AND	INFER ‚àÄ(tt1,tt2).TT ¬ª TT{T1,T2/tt1,tt2}
+AND	INFER ‚àÄ(tt1,tt2,tt3).TT ¬ª TT{T1,T2,T3/tt1,tt2,tt3}
+AND	INFER ‚àÄ(tt1,tt2,tt3,tt4).TT ¬ª TT{T1,T2,T3,T4/tt1,tt2,tt3,tt4}
 END
 
 /* a sort of weakening ... */
-RULE weaken WHERE y NOTIN E IS FROM C Ê E:T INFER C,y€S Ê E:T
+RULE weaken WHERE y NOTIN E IS FROM C ‚ä¢ E:T INFER C,y‚áíS ‚ä¢ E:T
 
 MENU Rules IS	
-	RULE "F G : T"			FROM C Ê F: T1ÁT2 AND C Ê G : T1 	INFER  C Ê F G : T2
-	RULE "˚x.E : T1ÁT2"		FROM C,x€#T1 Ê E:T2 			INFER C Ê ˚x.E : T1ÁT2
-	RULE "(E,F) : T1ÙT2"		FROM C Ê E: T1 AND C Ê F: T2		INFER C Ê (E,F) : T1ÙT2
+	RULE "F G : T"			FROM C ‚ä¢ F: T1‚ÜíT2 AND C ‚ä¢ G : T1 	INFER  C ‚ä¢ F G : T2
+	RULE "Œªx.E : T1‚ÜíT2"		FROM C,x‚áí#T1 ‚ä¢ E:T2 			INFER C ‚ä¢ Œªx.E : T1‚ÜíT2
+	RULE "(E,F) : T1√óT2"		FROM C ‚ä¢ E: T1 AND C ‚ä¢ F: T2		INFER C ‚ä¢ (E,F) : T1√óT2
 	RULE "if E then ET else EF fi : T"
-		FROM C Ê E : bool AND C Ê ET : T AND C Ê EF : T			INFER C Ê if E then ET else EF fi : T
+		FROM C ‚ä¢ E : bool AND C ‚ä¢ ET : T AND C ‚ä¢ EF : T			INFER C ‚ä¢ if E then ET else EF fi : T
 	ENTRY "let ... : T" IS letrules
 	ENTRY "letrec ... : T" IS letrecrules
 	
 	TACTIC "x:T" IS
 		SEQ
-			(ALT	(LAYOUT "C(x)€S; S»T" () "C Ê x:T" "C Ê x€S") 
-				(LAYOUT "C(c)€S; S»T" ()  "C Ê c:T" "C Ê c€S")
-				(LAYOUT "constant" () "C Ê c:T" constants)
+			(ALT	(LAYOUT "C(x)‚áíS; S¬ªT" () "C ‚ä¢ x:T" "C ‚ä¢ x‚áíS") 
+				(LAYOUT "C(c)‚áíS; S¬ªT" ()  "C ‚ä¢ c:T" "C ‚ä¢ c‚áíS")
+				(LAYOUT "constant" () "C ‚ä¢ c:T" constants)
 				(WHEN
 					(LETGOAL (_E:_T)
 						(Fail (x:T can only be applied to either variables or constants: you chose _E))
@@ -151,14 +151,14 @@ MENU Rules IS
 					)
 				)
 			) 
-			"S»T"
+			"S¬ªT"
 	
 	SEPARATOR
 	
-	RULE "n:num"				INFER C Ê n:num
-	RULE "s:string"				INFER C Ê s:string
-	RULE "true:bool"			INFER C Ê true:bool
-	RULE "false:bool"			INFER C Ê false:bool
+	RULE "n:num"				INFER C ‚ä¢ n:num
+	RULE "s:string"				INFER C ‚ä¢ s:string
+	RULE "true:bool"			INFER C ‚ä¢ true:bool
+	RULE "false:bool"			INFER C ‚ä¢ false:bool
 	
 	SEPARATOR
 	
@@ -176,35 +176,35 @@ MENU Rules IS
 	
 END
     
-RULE "T«S" IS		FROM C Ê T • #T ë S 	INFER C Ê T « S
+RULE "T¬´S" IS		FROM C ‚ä¢ T ‚Ä¢ #T ‚óÅ S 	INFER C ‚ä¢ T ¬´ S
 
-RULES "new t•..." (OBJECT t1) WHERE t1 NOTIN C ARE
-	CÊ t1 • #Të Ët1.T 
-AND	CÊ t1 • Ëtt1.T ë Ë(tt1,t1).T 
-AND	CÊ t1 • Ë(tt1,tt2).T ë Ë(tt1,tt2,t1).T 
-AND	CÊ t1 • Ë(tt1,tt2,tt3).T ë Ë(tt1,tt2,tt3,t1).T 
+RULES "new t‚Ä¢..." (OBJECT t1) WHERE t1 NOTIN C ARE
+	C‚ä¢ t1 ‚Ä¢ #T‚óÅ ‚àÄt1.T 
+AND	C‚ä¢ t1 ‚Ä¢ ‚àÄtt1.T ‚óÅ ‚àÄ(tt1,t1).T 
+AND	C‚ä¢ t1 ‚Ä¢ ‚àÄ(tt1,tt2).T ‚óÅ ‚àÄ(tt1,tt2,t1).T 
+AND	C‚ä¢ t1 ‚Ä¢ ‚àÄ(tt1,tt2,tt3).T ‚óÅ ‚àÄ(tt1,tt2,tt3,t1).T 
 END
 
-RULE "T1ÁT2•..."	FROM C Ê T1• Sin ë Smid AND C Ê T2 • Smid ë Sout	INFER C Ê T1ÁT2 • Sin ë Sout
-RULE "T1ÙT2•..."	FROM C Ê T1• Sin ë Smid AND C Ê T2 • Smid ë Sout	INFER C Ê T1ÙT2 • Sin ë Sout
-RULE "[T]•..."		FROM C Ê T • Sin ë Sout						INFER C Ê [T] • Sin ë Sout
-RULE "same T•..."											INFER C Ê T • S ë S
+RULE "T1‚ÜíT2‚Ä¢..."	FROM C ‚ä¢ T1‚Ä¢ Sin ‚óÅ Smid AND C ‚ä¢ T2 ‚Ä¢ Smid ‚óÅ Sout	INFER C ‚ä¢ T1‚ÜíT2 ‚Ä¢ Sin ‚óÅ Sout
+RULE "T1√óT2‚Ä¢..."	FROM C ‚ä¢ T1‚Ä¢ Sin ‚óÅ Smid AND C ‚ä¢ T2 ‚Ä¢ Smid ‚óÅ Sout	INFER C ‚ä¢ T1√óT2 ‚Ä¢ Sin ‚óÅ Sout
+RULE "[T]‚Ä¢..."		FROM C ‚ä¢ T ‚Ä¢ Sin ‚óÅ Sout						INFER C ‚ä¢ [T] ‚Ä¢ Sin ‚óÅ Sout
+RULE "same T‚Ä¢..."											INFER C ‚ä¢ T ‚Ä¢ S ‚óÅ S
 
 
 TACTIC geninduct IS 
-	ALT	(SEQ (MATCH (ALT "T1ÁT2•..." "T1ÙT2•...")) geninduct geninduct) 
-		(SEQ (MATCH "[T]•...") geninduct)
-		"new t•..."
-		"same T•..."
+	ALT	(SEQ (MATCH (ALT "T1‚ÜíT2‚Ä¢..." "T1√óT2‚Ä¢...")) geninduct geninduct) 
+		(SEQ (MATCH "[T]‚Ä¢...") geninduct)
+		"new t‚Ä¢..."
+		"same T‚Ä¢..."
 
-TACTIC generalise IS LAYOUT "generalise" ()  "T«S" geninduct
+TACTIC generalise IS LAYOUT "generalise" ()  "T¬´S" geninduct
 TACTIC genstep IS 
-	ALT "T«S" 
-		(MATCH "T1ÁT2•...") 
-		(MATCH "T1ÙT2•...") 
-		(MATCH "[T]•...") 
-		"new t•..."
-		"same T•..."
+	ALT "T¬´S" 
+		(MATCH "T1‚ÜíT2‚Ä¢...") 
+		(MATCH "T1√óT2‚Ä¢...") 
+		(MATCH "[T]‚Ä¢...") 
+		"new t‚Ä¢..."
+		"same T‚Ä¢..."
 
 TACTIC Auto IS
 	WHEN	(LETGOAL (_x:_T) "x:T")
@@ -214,8 +214,8 @@ TACTIC Auto IS
 				)
 			)
 			(LETGOAL (_F _G:_T) "F G : T" Auto Auto)
-			(LETGOAL ((_E,_F):_T) "(E,F) : T1ÙT2" Auto Auto)
-			(LETGOAL ((˚_x._E):_T) "˚x.E : T1ÁT2" Auto)
+			(LETGOAL ((_E,_F):_T) "(E,F) : T1√óT2" Auto Auto)
+			(LETGOAL ((Œª_x._E):_T) "Œªx.E : T1‚ÜíT2" Auto)
 			(LETGOAL (if _E then _ET else _EF fi:_T) "if E then ET else EF fi : T" Auto Auto Auto)
 			(LETGOAL (let _x=_E in _F end:_T) 
 				letrules Auto generalise Auto)
@@ -234,7 +234,7 @@ TACTIC Auto IS
 			(LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 , _x4=_E4 in _F end:_T) 
 				letrecrules Auto Auto Auto Auto generalise generalise generalise generalise Auto)
 			(LETGOAL (_E:_T) (Fail (_E is not a recognisable program formula (Auto))))
-			(LETGOAL (_T « _S) generalise)
+			(LETGOAL (_T ¬´ _S) generalise)
 			(LETGOAL _E (Fail (_E is not a recognisable judgement (Auto))))
 			
 TACTIC AutoStep IS
@@ -245,8 +245,8 @@ TACTIC AutoStep IS
 				)
 			)
 			(LETGOAL (_F _G:_T) "F G : T")
-			(LETGOAL ((_E,_F):_T) "(E,F) : T1ÙT2")
-			(LETGOAL ((˚_x._E):_T) "˚x.E : T1ÁT2")
+			(LETGOAL ((_E,_F):_T) "(E,F) : T1√óT2")
+			(LETGOAL ((Œª_x._E):_T) "Œªx.E : T1‚ÜíT2")
 			(LETGOAL (if _E then _ET else _EF fi:_T) "if E then ET else EF fi : T")
 			(LETGOAL (let _x=_E in _F end:_T) letrules)
 			(LETGOAL (let _x1=_E1 , _x2=_E2 in _F end:_T) letrules)
@@ -257,7 +257,7 @@ TACTIC AutoStep IS
 			(LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 in _F end:_T) letrecrules)
 			(LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 , _x4=_E4 in _F end:_T) letrecrules)
 			(LETGOAL (_E:_T) (Fail (_E is not a recognisable program formula (AutoStep))))
-			(LETGOAL (_T « _S) generalise)
+			(LETGOAL (_T ¬´ _S) generalise)
 			(LETGOAL _E (Fail (_E is not a recognisable judgement (AutoStep))))
 			
 AUTOUNIFY "n:num", "s:string", "true:bool", "false:bool"

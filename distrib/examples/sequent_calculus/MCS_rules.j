@@ -1,4 +1,4 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 /*
 	The multi-conclusion sequent calculus. Dyckhoffery removed.
@@ -6,76 +6,76 @@
 
 USE "sequent_syntax.j"
 
-SEQUENT IS BAG æ BAG
+SEQUENT IS BAG âŠ¢ BAG
 
-RULE	axiom(A)								INFER ‚,A æ A,Æ
-RULE	"æ¦"		FROM ‚ æ A,Æ AND ‚ æ B,Æ 		INFER ‚ æ A¦B,Æ
-RULE	"¦æ"		FROM ‚,A, B æ Æ 				INFER ‚,A¦B æ Æ
-RULE	"æë"		FROM ‚ æ A,B,Æ 				INFER ‚ æ AëB,Æ
-RULE	"ëæ"		FROM ‚,A æ Æ AND ‚,B æ Æ		INFER ‚,AëB æ Æ
-RULE	"æÂ"		FROM ‚,A æ Æ					INFER ‚ æ ÂA,Æ
-RULE	"Âæ"		FROM ‚ æ A,Æ 					INFER ‚,ÂA æ Æ
-RULE	"æç"		FROM ‚,A æ B,Æ 				INFER ‚ æ AçB,Æ
-RULE	"çæ"		FROM ‚ æ A,Æ AND ‚,B æ Æ		INFER ‚,AçB æ Æ
-RULE	"æé"		FROM ‚ æ AçB,Æ AND ‚ æ BçA,Æ	INFER ‚ æ AéB,Æ
-RULE	"éæ"		FROM ‚, AçB, BçA æ Æ			INFER ‚,AéB æ Æ
-RULE	"æè"(OBJECT m) WHERE FRESH m
-			FROM ‚ æ A(m),Æ				INFER ‚ æ èx.A(x),Æ
-RULE	"èæ"(B)	FROM ‚, A(B) æ Æ				INFER ‚,èx.A(x) æ Æ
-RULE	"æä"(B)	FROM ‚ æ A(B),Æ				INFER ‚ æ äx.A(x),Æ
-RULE	"äæ"(OBJECT m) WHERE FRESH m
-			FROM  ‚,A(m) æ Æ				INFER ‚, äx.A(x) æ Æ
-RULE	cut(A)	FROM ‚ æ A,Æ AND ‚,A æ Æ		INFER ‚ æ Æ
-RULE	"weakenæ"(A)	FROM ‚ æ Æ				INFER ‚,A æ Æ
-RULE	"æweaken"(A)	FROM ‚ æ Æ				INFER ‚ æ A,Æ
-RULE	"contractæ"(A)	FROM ‚, A, A æ Æ			INFER ‚, A æ Æ
-RULE	"æcontract"(A)	FROM ‚ æ A,A,Æ			INFER ‚ æ A,Æ
+RULE	axiom(A)								INFER Î“,A âŠ¢ A,âˆ†
+RULE	"âŠ¢âˆ§"		FROM Î“ âŠ¢ A,âˆ† AND Î“ âŠ¢ B,âˆ† 		INFER Î“ âŠ¢ Aâˆ§B,âˆ†
+RULE	"âˆ§âŠ¢"		FROM Î“,A, B âŠ¢ âˆ† 				INFER Î“,Aâˆ§B âŠ¢ âˆ†
+RULE	"âŠ¢âˆ¨"		FROM Î“ âŠ¢ A,B,âˆ† 				INFER Î“ âŠ¢ Aâˆ¨B,âˆ†
+RULE	"âˆ¨âŠ¢"		FROM Î“,A âŠ¢ âˆ† AND Î“,B âŠ¢ âˆ†		INFER Î“,Aâˆ¨B âŠ¢ âˆ†
+RULE	"âŠ¢Â¬"		FROM Î“,A âŠ¢ âˆ†					INFER Î“ âŠ¢ Â¬A,âˆ†
+RULE	"Â¬âŠ¢"		FROM Î“ âŠ¢ A,âˆ† 					INFER Î“,Â¬A âŠ¢ âˆ†
+RULE	"âŠ¢â†’"		FROM Î“,A âŠ¢ B,âˆ† 				INFER Î“ âŠ¢ Aâ†’B,âˆ†
+RULE	"â†’âŠ¢"		FROM Î“ âŠ¢ A,âˆ† AND Î“,B âŠ¢ âˆ†		INFER Î“,Aâ†’B âŠ¢ âˆ†
+RULE	"âŠ¢â‰¡"		FROM Î“ âŠ¢ Aâ†’B,âˆ† AND Î“ âŠ¢ Bâ†’A,âˆ†	INFER Î“ âŠ¢ Aâ‰¡B,âˆ†
+RULE	"â‰¡âŠ¢"		FROM Î“, Aâ†’B, Bâ†’A âŠ¢ âˆ†			INFER Î“,Aâ‰¡B âŠ¢ âˆ†
+RULE	"âŠ¢âˆ€"(OBJECT m) WHERE FRESH m
+			FROM Î“ âŠ¢ A(m),âˆ†				INFER Î“ âŠ¢ âˆ€x.A(x),âˆ†
+RULE	"âˆ€âŠ¢"(B)	FROM Î“, A(B) âŠ¢ âˆ†				INFER Î“,âˆ€x.A(x) âŠ¢ âˆ†
+RULE	"âŠ¢âˆƒ"(B)	FROM Î“ âŠ¢ A(B),âˆ†				INFER Î“ âŠ¢ âˆƒx.A(x),âˆ†
+RULE	"âˆƒâŠ¢"(OBJECT m) WHERE FRESH m
+			FROM  Î“,A(m) âŠ¢ âˆ†				INFER Î“, âˆƒx.A(x) âŠ¢ âˆ†
+RULE	cut(A)	FROM Î“ âŠ¢ A,âˆ† AND Î“,A âŠ¢ âˆ†		INFER Î“ âŠ¢ âˆ†
+RULE	"weakenâŠ¢"(A)	FROM Î“ âŠ¢ âˆ†				INFER Î“,A âŠ¢ âˆ†
+RULE	"âŠ¢weaken"(A)	FROM Î“ âŠ¢ âˆ†				INFER Î“ âŠ¢ A,âˆ†
+RULE	"contractâŠ¢"(A)	FROM Î“, A, A âŠ¢ âˆ†			INFER Î“, A âŠ¢ âˆ†
+RULE	"âŠ¢contract"(A)	FROM Î“ âŠ¢ A,A,âˆ†			INFER Î“ âŠ¢ A,âˆ†
                                 
 MENU Rules IS
 	ENTRY axiom
 	SEPARATOR
-	ENTRY "¦æ"
-	ENTRY "ëæ"
-	ENTRY "çæ"
-	ENTRY "Âæ"
-	ENTRY "éæ"
-	ENTRY "èæ"
-	ENTRY "äæ"
+	ENTRY "âˆ§âŠ¢"
+	ENTRY "âˆ¨âŠ¢"
+	ENTRY "â†’âŠ¢"
+	ENTRY "Â¬âŠ¢"
+	ENTRY "â‰¡âŠ¢"
+	ENTRY "âˆ€âŠ¢"
+	ENTRY "âˆƒâŠ¢"
 	SEPARATOR
-	ENTRY "æ¦"
-	ENTRY "æë"
-	ENTRY "æç"
-	ENTRY "æÂ"
-	ENTRY "æé"
-	ENTRY "æè"
-	ENTRY "æä"
+	ENTRY "âŠ¢âˆ§"
+	ENTRY "âŠ¢âˆ¨"
+	ENTRY "âŠ¢â†’"
+	ENTRY "âŠ¢Â¬"
+	ENTRY "âŠ¢â‰¡"
+	ENTRY "âŠ¢âˆ€"
+	ENTRY "âŠ¢âˆƒ"
 	SEPARATOR
 	ENTRY cut	
-	ENTRY "weakenæ"
-	ENTRY "æweaken"
-	ENTRY "contractæ"
-	ENTRY "æcontract"
+	ENTRY "weakenâŠ¢"
+	ENTRY "âŠ¢weaken"
+	ENTRY "contractâŠ¢"
+	ENTRY "âŠ¢contract"
 END
 
-HYPHIT	A æ A	IS axiom       
-HYPHIT	AçB æ	IS "çæ"        
-HYPHIT	AëB æ	IS "ëæ"
-HYPHIT	A¦B æ 	IS "¦æ"    
-HYPHIT	ÂA æ		IS "Âæ"    
-HYPHIT	AéB æ	IS "éæ"    
-HYPHIT	èx.A æ	IS "èæ"
-HYPHIT	äx.A æ	IS "äæ"
+HYPHIT	A âŠ¢ A	IS axiom       
+HYPHIT	Aâ†’B âŠ¢	IS "â†’âŠ¢"        
+HYPHIT	Aâˆ¨B âŠ¢	IS "âˆ¨âŠ¢"
+HYPHIT	Aâˆ§B âŠ¢ 	IS "âˆ§âŠ¢"    
+HYPHIT	Â¬A âŠ¢		IS "Â¬âŠ¢"    
+HYPHIT	Aâ‰¡B âŠ¢	IS "â‰¡âŠ¢"    
+HYPHIT	âˆ€x.A âŠ¢	IS "âˆ€âŠ¢"
+HYPHIT	âˆƒx.A âŠ¢	IS "âˆƒâŠ¢"
 
-CONCHIT	æ B¦C	IS "æ¦"
-CONCHIT	æ BëC	IS "æë"      
-CONCHIT	æ BçC	IS "æç"
-CONCHIT	æ ÂB		IS "æÂ"       
-CONCHIT	æ BéC	IS "æé"     
-CONCHIT	æ èx.B	IS "æè"  
-CONCHIT	æ äx.B	IS "æä"  
+CONCHIT	âŠ¢ Bâˆ§C	IS "âŠ¢âˆ§"
+CONCHIT	âŠ¢ Bâˆ¨C	IS "âŠ¢âˆ¨"      
+CONCHIT	âŠ¢ Bâ†’C	IS "âŠ¢â†’"
+CONCHIT	âŠ¢ Â¬B		IS "âŠ¢Â¬"       
+CONCHIT	âŠ¢ Bâ‰¡C	IS "âŠ¢â‰¡"     
+CONCHIT	âŠ¢ âˆ€x.B	IS "âŠ¢âˆ€"  
+CONCHIT	âŠ¢ âˆƒx.B	IS "âŠ¢âˆƒ"  
 
 AUTOMATCH axiom
 
 STRUCTURERULE CUT            		cut
-STRUCTURERULE LEFTWEAKEN     	"weakenæ"
-STRUCTURERULE RIGHTWEAKEN   	"æweaken"
+STRUCTURERULE LEFTWEAKEN     	"weakenâŠ¢"
+STRUCTURERULE RIGHTWEAKEN   	"âŠ¢weaken"

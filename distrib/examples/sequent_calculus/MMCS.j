@@ -1,9 +1,9 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 /*
 	The multi-conclusion sequent calculus, with multiplicative versions of the branching rules (gasp!).
 	This encoding is a testbed, so I have made it use the extreme form of axiom, it doesn't copy 
-	Dyckhoff-style in the çæ and èæ rules.  Because of multiplicativity (and sometimes because of
+	Dyckhoff-style in the â†’âŠ¢ and âˆ€âŠ¢ rules.  Because of multiplicativity (and sometimes because of
 	un-Dyckhoffry), you have to use contraction sometimes.
 	RB 14/viii/97
 	
@@ -11,11 +11,11 @@
 */
 
 /* the differences */
-RULE	axiom(A)									INFER A æ A
-RULE	"æ¦"		FROM ‚1 æ A,Æ1 AND ‚2 æ B,Æ2 		INFER ‚1,‚2 æ A¦B,Æ1,Æ2
-RULE	"ëæ"		FROM ‚1,A æ Æ1 AND ‚2,B æ Æ2		INFER ‚1,‚2,AëB æ Æ1,Æ2
-RULE	"çæ"		FROM ‚1 æ A,Æ1 AND ‚2,B æ Æ2		INFER ‚1,‚2,AçB æ Æ1,Æ2
-RULE	"æé"		FROM ‚1 æ AçB,Æ1 AND ‚2 æ BçA,Æ2	INFER ‚1,‚2 æ AéB,Æ1,Æ2
-RULE	cut(A)	FROM ‚1 æ A,Æ1 AND ‚2,A æ Æ2		INFER ‚1,‚2 æ Æ1,Æ2
+RULE	axiom(A)									INFER A âŠ¢ A
+RULE	"âŠ¢âˆ§"		FROM Î“1 âŠ¢ A,âˆ†1 AND Î“2 âŠ¢ B,âˆ†2 		INFER Î“1,Î“2 âŠ¢ Aâˆ§B,âˆ†1,âˆ†2
+RULE	"âˆ¨âŠ¢"		FROM Î“1,A âŠ¢ âˆ†1 AND Î“2,B âŠ¢ âˆ†2		INFER Î“1,Î“2,Aâˆ¨B âŠ¢ âˆ†1,âˆ†2
+RULE	"â†’âŠ¢"		FROM Î“1 âŠ¢ A,âˆ†1 AND Î“2,B âŠ¢ âˆ†2		INFER Î“1,Î“2,Aâ†’B âŠ¢ âˆ†1,âˆ†2
+RULE	"âŠ¢â‰¡"		FROM Î“1 âŠ¢ Aâ†’B,âˆ†1 AND Î“2 âŠ¢ Bâ†’A,âˆ†2	INFER Î“1,Î“2 âŠ¢ Aâ‰¡B,âˆ†1,âˆ†2
+RULE	cut(A)	FROM Î“1 âŠ¢ A,âˆ†1 AND Î“2,A âŠ¢ âˆ†2		INFER Î“1,Î“2 âŠ¢ âˆ†1,âˆ†2
 
 STRUCTURERULE CUT            		cut /* cos it's different now */

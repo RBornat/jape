@@ -1,23 +1,23 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 /* single-conclusion sequent calculus with LF-like treatment of variables */
 
 USE "sequent_scoping.j"
 
-RULE	"æè"(OBJECT m) WHERE FRESH m
-			FROM ‚ , var m æ P(m) 				INFER ‚ æ èx.P(x)
-RULE	"èæ"(B)	FROM ‚, P(B) æ C AND ‚ æ B inscope			INFER ‚, èx.P(x) æ C
-RULE	"æä"(B)	FROM ‚ æ P(B) AND ‚ æ B inscope			INFER ‚ æ äx.P(x)
-RULE	"äæ"(OBJECT m) WHERE FRESH m
-			FROM  ‚, var m, P(m) æ C 				INFER ‚, äx.P(x) æ C
+RULE	"âŠ¢âˆ€"(OBJECT m) WHERE FRESH m
+			FROM Î“ , var m âŠ¢ P(m) 				INFER Î“ âŠ¢ âˆ€x.P(x)
+RULE	"âˆ€âŠ¢"(B)	FROM Î“, P(B) âŠ¢ C AND Î“ âŠ¢ B inscope			INFER Î“, âˆ€x.P(x) âŠ¢ C
+RULE	"âŠ¢âˆƒ"(B)	FROM Î“ âŠ¢ P(B) AND Î“ âŠ¢ B inscope			INFER Î“ âŠ¢ âˆƒx.P(x)
+RULE	"âˆƒâŠ¢"(OBJECT m) WHERE FRESH m
+			FROM  Î“, var m, P(m) âŠ¢ C 				INFER Î“, âˆƒx.P(x) âŠ¢ C
 
-TACTIC "èæ with side condition hidden" IS LAYOUT "èæ" (0) (WITHSELECTIONS "èæ")
-TACTIC "æä with side condition hidden" IS LAYOUT "æä" (0) (WITHSELECTIONS "æä")
+TACTIC "âˆ€âŠ¢ with side condition hidden" IS LAYOUT "âˆ€âŠ¢" (0) (WITHSELECTIONS "âˆ€âŠ¢")
+TACTIC "âŠ¢âˆƒ with side condition hidden" IS LAYOUT "âŠ¢âˆƒ" (0) (WITHSELECTIONS "âŠ¢âˆƒ")
 
 MENU Rules IS
-	ENTRY "èæ" IS "èæ with side condition hidden"
-	ENTRY "æä" IS "æä with side condition hidden"
+	ENTRY "âˆ€âŠ¢" IS "âˆ€âŠ¢ with side condition hidden"
+	ENTRY "âŠ¢âˆƒ" IS "âŠ¢âˆƒ with side condition hidden"
 END
 
-HYPHIT	èx.A æ B	IS "èæ with side condition hidden"
-CONCHIT	äx.B		IS "æä with side condition hidden"
+HYPHIT	âˆ€x.A âŠ¢ B	IS "âˆ€âŠ¢ with side condition hidden"
+CONCHIT	âˆƒx.B		IS "âŠ¢âˆƒ with side condition hidden"

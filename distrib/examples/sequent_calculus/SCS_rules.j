@@ -1,4 +1,4 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 /*
 	An all-introduction variant of intuitionistic predicate calculus
@@ -8,32 +8,32 @@
 */
 
 USE "sequent_syntax.j"
-CONSTANT Ù
+CONSTANT âŠ¥
 
-SEQUENT IS BAG æ FORMULA
+SEQUENT IS BAG âŠ¢ FORMULA
 
-RULE	hyp(A)				INFER ‚,A æ A
-RULE	"æ¦"	FROM ‚ æ A AND ‚ æ B	INFER ‚ æ A¦B
-RULE	"¦æ"	FROM ‚, A, B æ C		INFER ‚, A¦B æ C
-RULE	"æë(L)"     FROM  ‚ æ A		INFER ‚ æ AëB
-RULE	"æë(R)"     FROM  ‚ æ B		INFER ‚ æ AëB
-RULE	"ëæ"	FROM ‚, A æ C AND ‚, B æ C	INFER ‚, AëB æ C
-RULE	"æÂ"	FROM ‚ æ Aç Ù		INFER ‚ æ ÂA
-RULE	"Âæ"	FROM ‚, Aç Ù æ B		INFER ‚, ÂA æ B
-RULE	"æç"	FROM ‚, A æ B		INFER ‚ æ AçB
-RULE	"çæ"	FROM ‚ æ A AND ‚, B æ C	INFER ‚, AçB æ C
-RULE	"æé"	FROM ‚ æ AçB AND ‚ æ BçA	INFER ‚ æ AéB
-RULE	"éæ"	FROM ‚, AçB,  BçA æ C	INFER ‚, AéB æ C
-RULE	"Ùæ"				INFER ‚, Ù æ A
-RULE	"æè"(OBJECT m) WHERE FRESH m
-		FROM ‚ æ P(m)		INFER ‚ æ èx.P(x)
-RULE	"èæ"(B)     FROM ‚, P(B) æ C		INFER ‚, èx.P(x) æ C
-RULE	"æä"(B)     FROM ‚ æ P(B)		INFER ‚ æ äx.P(x)
-RULE	"äæ"(OBJECT m) WHERE FRESH m
-		FROM  ‚, P(m) æ C		INFER ‚, äx.P(x) æ C
-RULE	cut(A)	FROM ‚ æ A AND ‚, A æ C	INFER ‚ æ C
-RULE	thin(A)     FROM ‚ æ B		INFER ‚, A æ B
-RULE	dup(A)	FROM ‚, A, A æ B		INFER ‚, A æ B
+RULE	hyp(A)				INFER Î“,A âŠ¢ A
+RULE	"âŠ¢âˆ§"	FROM Î“ âŠ¢ A AND Î“ âŠ¢ B	INFER Î“ âŠ¢ Aâˆ§B
+RULE	"âˆ§âŠ¢"	FROM Î“, A, B âŠ¢ C		INFER Î“, Aâˆ§B âŠ¢ C
+RULE	"âŠ¢âˆ¨(L)"     FROM  Î“ âŠ¢ A		INFER Î“ âŠ¢ Aâˆ¨B
+RULE	"âŠ¢âˆ¨(R)"     FROM  Î“ âŠ¢ B		INFER Î“ âŠ¢ Aâˆ¨B
+RULE	"âˆ¨âŠ¢"	FROM Î“, A âŠ¢ C AND Î“, B âŠ¢ C	INFER Î“, Aâˆ¨B âŠ¢ C
+RULE	"âŠ¢Â¬"	FROM Î“ âŠ¢ Aâ†’ âŠ¥		INFER Î“ âŠ¢ Â¬A
+RULE	"Â¬âŠ¢"	FROM Î“, Aâ†’ âŠ¥ âŠ¢ B		INFER Î“, Â¬A âŠ¢ B
+RULE	"âŠ¢â†’"	FROM Î“, A âŠ¢ B		INFER Î“ âŠ¢ Aâ†’B
+RULE	"â†’âŠ¢"	FROM Î“ âŠ¢ A AND Î“, B âŠ¢ C	INFER Î“, Aâ†’B âŠ¢ C
+RULE	"âŠ¢â‰¡"	FROM Î“ âŠ¢ Aâ†’B AND Î“ âŠ¢ Bâ†’A	INFER Î“ âŠ¢ Aâ‰¡B
+RULE	"â‰¡âŠ¢"	FROM Î“, Aâ†’B,  Bâ†’A âŠ¢ C	INFER Î“, Aâ‰¡B âŠ¢ C
+RULE	"âŠ¥âŠ¢"				INFER Î“, âŠ¥ âŠ¢ A
+RULE	"âŠ¢âˆ€"(OBJECT m) WHERE FRESH m
+		FROM Î“ âŠ¢ P(m)		INFER Î“ âŠ¢ âˆ€x.P(x)
+RULE	"âˆ€âŠ¢"(B)     FROM Î“, P(B) âŠ¢ C		INFER Î“, âˆ€x.P(x) âŠ¢ C
+RULE	"âŠ¢âˆƒ"(B)     FROM Î“ âŠ¢ P(B)		INFER Î“ âŠ¢ âˆƒx.P(x)
+RULE	"âˆƒâŠ¢"(OBJECT m) WHERE FRESH m
+		FROM  Î“, P(m) âŠ¢ C		INFER Î“, âˆƒx.P(x) âŠ¢ C
+RULE	cut(A)	FROM Î“ âŠ¢ A AND Î“, A âŠ¢ C	INFER Î“ âŠ¢ C
+RULE	thin(A)     FROM Î“ âŠ¢ B		INFER Î“, A âŠ¢ B
+RULE	dup(A)	FROM Î“, A, A âŠ¢ B		INFER Î“, A âŠ¢ B
 
 UMENU Tracing IS
      CHECKBOX tactictracing "Trace" 
@@ -43,62 +43,62 @@ MENU Rules IS
 	ENTRY hyp
 	ENTRY cut
 	SEPARATOR
-	ENTRY "¦æ"
-	ENTRY "ëæ"
-	ENTRY "çæ"
-	ENTRY "Âæ"
-	ENTRY "éæ"
-	ENTRY "Ùæ"
-	ENTRY "èæ"
-	ENTRY "äæ"
+	ENTRY "âˆ§âŠ¢"
+	ENTRY "âˆ¨âŠ¢"
+	ENTRY "â†’âŠ¢"
+	ENTRY "Â¬âŠ¢"
+	ENTRY "â‰¡âŠ¢"
+	ENTRY "âŠ¥âŠ¢"
+	ENTRY "âˆ€âŠ¢"
+	ENTRY "âˆƒâŠ¢"
 	SEPARATOR
-	ENTRY "æ¦"
-	ENTRY "æë(L)"
-	ENTRY "æë(R)"
-	ENTRY "æç"
-	ENTRY "æÂ"
-	ENTRY "æé"
-	ENTRY "æè"
-	ENTRY "æä"
+	ENTRY "âŠ¢âˆ§"
+	ENTRY "âŠ¢âˆ¨(L)"
+	ENTRY "âŠ¢âˆ¨(R)"
+	ENTRY "âŠ¢â†’"
+	ENTRY "âŠ¢Â¬"
+	ENTRY "âŠ¢â‰¡"
+	ENTRY "âŠ¢âˆ€"
+	ENTRY "âŠ¢âˆƒ"
 END
 
-TACTIC	"æë"	IS 
-	(ALT    (PROVE	"æë(L)"	 ( hyp))
-	        (PROVE  "æë(R)"  ( hyp))
-		(SEQ (EXPLAIN ("æë" does not lead to an immediate conclusion)) (FAIL)))
+TACTIC	"âŠ¢âˆ¨"	IS 
+	(ALT    (PROVE	"âŠ¢âˆ¨(L)"	 ( hyp))
+	        (PROVE  "âŠ¢âˆ¨(R)"  ( hyp))
+		(SEQ (EXPLAIN ("âŠ¢âˆ¨" does not lead to an immediate conclusion)) (FAIL)))
 MENU Auto
 	TACTIC "Prove this propositional goal"		IS (PROVE Propositional)
 	TACTIC "Prove remaining propositional goals"	IS Propositional
 	TACTIC Propositional IS
 		DO	(ALT	(PROVE hyp)
-				"æë"
-				"æç" "æÂ" "æ¦" "¦æ" "Âæ" 
-				"ëæ"
-				"çæ"
-				(SEQ "æë(L)" (PROVE Propositional) "æë(R)" (PROVE Propositional))
-				"æë(L)"
-				"æë(R)"
-				"Ùæ"
+				"âŠ¢âˆ¨"
+				"âŠ¢â†’" "âŠ¢Â¬" "âŠ¢âˆ§" "âˆ§âŠ¢" "Â¬âŠ¢" 
+				"âˆ¨âŠ¢"
+				"â†’âŠ¢"
+				(SEQ "âŠ¢âˆ¨(L)" (PROVE Propositional) "âŠ¢âˆ¨(R)" (PROVE Propositional))
+				"âŠ¢âˆ¨(L)"
+				"âŠ¢âˆ¨(R)"
+				"âŠ¥âŠ¢"
 			)
 END
 	
-HYPHIT	A æ A	IS hyp	     
-HYPHIT	A¦B æ C IS "¦æ"	   
-HYPHIT	AëB æ C IS "ëæ"	   
-HYPHIT	AçB æ C IS "çæ"	   
-HYPHIT	ÂA æ B	IS "Âæ"	    
-HYPHIT	AéB æ C IS "éæ"	  
-HYPHIT	Ù æ A	IS	"Ùæ" 
-HYPHIT	èx.A æ B	IS "èæ"
-HYPHIT	äx.A æ B	IS "äæ"
+HYPHIT	A âŠ¢ A	IS hyp	     
+HYPHIT	Aâˆ§B âŠ¢ C IS "âˆ§âŠ¢"	   
+HYPHIT	Aâˆ¨B âŠ¢ C IS "âˆ¨âŠ¢"	   
+HYPHIT	Aâ†’B âŠ¢ C IS "â†’âŠ¢"	   
+HYPHIT	Â¬A âŠ¢ B	IS "Â¬âŠ¢"	    
+HYPHIT	Aâ‰¡B âŠ¢ C IS "â‰¡âŠ¢"	  
+HYPHIT	âŠ¥ âŠ¢ A	IS	"âŠ¥âŠ¢" 
+HYPHIT	âˆ€x.A âŠ¢ B	IS "âˆ€âŠ¢"
+HYPHIT	âˆƒx.A âŠ¢ B	IS "âˆƒâŠ¢"
 
-CONCHIT B¦C	IS "æ¦"
-CONCHIT BëC	IS "æë"	     
-CONCHIT BçC	IS "æç"	     
-CONCHIT ÂB	IS "æÂ"	      
-CONCHIT BéC	IS "æé"	    
-CONCHIT èx.B	IS "æè"	 
-CONCHIT äx.B	IS "æä"	 
+CONCHIT Bâˆ§C	IS "âŠ¢âˆ§"
+CONCHIT Bâˆ¨C	IS "âŠ¢âˆ¨"	     
+CONCHIT Bâ†’C	IS "âŠ¢â†’"	     
+CONCHIT Â¬B	IS "âŠ¢Â¬"	      
+CONCHIT Bâ‰¡C	IS "âŠ¢â‰¡"	    
+CONCHIT âˆ€x.B	IS "âŠ¢âˆ€"	 
+CONCHIT âˆƒx.B	IS "âŠ¢âˆƒ"	 
 
 /*AUTOMATCH hyp*/
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
 
 	A game of functions and lists
 	Bernard Sufrin & Richard Bornat
@@ -10,7 +10,7 @@
 
 FONTS	"Konstanz"
 
-SEQUENT IS BAG � FORMULA
+SEQUENT IS BAG ⊢ FORMULA
 
 INITIALISE autoAdditiveLeft true
 

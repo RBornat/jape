@@ -1,4 +1,4 @@
-/*
+Ôªø/*
 	Equality
 		$Id$
 	
@@ -10,12 +10,12 @@ FONTS	"Konstanz"
 
 CLASS VARIABLE x y
 CLASS FORMULA A B C F G X Y Z
-CONSTANT Ÿ
+CONSTANT ‚ä•
  
 /* this to allow functions stuff to use square brackets for lists */
 SUBSTFIX	2000 { x \ A }
 JUXTFIX	1000
-INFIX		200L	= ≥ ≤ ≠ < >
+INFIX		200L	= ‚â• ‚â§ ‚â† < >
 INFIX		250L	+ -
 INFIX		260L	* /
 INFIX		270L	^
@@ -24,12 +24,12 @@ INFIX		270L	^
 
 /***************************** rules *****************************/
  
-RULE hyp IS A Ê A
+RULE hyp IS A ‚ä¢ A
 IDENTITY hyp
 
-RULE "= reflexive"			IS 										INFER X = X
-RULE "= transitive"(Y)		IS FROM X = Y AND Y = Z 		INFER X = Z
-RULE "= symmetric"		IS FROM X = Y 						INFER Y = X
+RULE "= reflexive"			IS 									INFER X = X
+RULE "= transitive"(Y)		IS FROM X = Y AND Y = Z 			INFER X = Z
+RULE "= symmetric"			IS FROM X = Y 						INFER Y = X
 RULE "(,)="					IS FROM X0=X1 AND Y0=Y1	INFER (X0, Y0) = (X1, Y1)
 
 /* The rules of extensionality incorporate a generalization step: hence the FRESH provisos. */
@@ -98,8 +98,8 @@ TACTIC withsubstrewrite(t)
 		(LETCONCSUBSTSEL _A (WITHSUBSTSEL t))
 		(Fail (please text-select a sub-formula, or sub-formulae, in a conclusion))
 		
-RULE "Fold with hypothesis" (X, ABSTRACTION AA)		IS FROM X=Y Ê AA(Y) INFER X=Y Ê AA(X)
-RULE "Unfold with hypothesis" (Y, ABSTRACTION AA)	IS FROM X=Y Ê AA(X) INFER X=Y Ê AA(Y)
+RULE "Fold with hypothesis" (X, ABSTRACTION AA)		IS FROM X=Y ‚ä¢ AA(Y) INFER X=Y ‚ä¢ AA(X)
+RULE "Unfold with hypothesis" (Y, ABSTRACTION AA)	IS FROM X=Y ‚ä¢ AA(X) INFER X=Y ‚ä¢ AA(Y)
 
 TACTIC HypFoldUnfold(t) IS 
 	WHEN 

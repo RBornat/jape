@@ -1,18 +1,18 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
-HYPHIT	P     æ P	IS hyp       
-HYPHIT	P¦Q æ R	IS ALT	(SEQ "¦-E(L)" (WITHHYPSEL hyp))
-                                           	(SEQ "¦-E(R)" (WITHHYPSEL hyp))
-                                           	(SEQ (ForwardCut 0 "¦-E(L)") (ForwardCut 0 "¦-E(R)"))
-HYPHIT	PçQ  æ R	IS ForwardCut 1 "ç-E"
-HYPHIT	PëQ  æ R	IS ForwardUncut 0 "ë-E"
-HYPHIT	ÂÂP   æ Q	IS ForwardCut 0 "Â-E"
-HYPHIT	èx.P æ Q	IS ForwardCut 0 "è-E with side condition hidden"	
-HYPHIT	äx.P æ Q	IS ForwardUncut 0 "ä-E"
+HYPHIT	P     âŠ¢ P	IS hyp       
+HYPHIT	Pâˆ§Q âŠ¢ R	IS ALT	(SEQ "âˆ§-E(L)" (WITHHYPSEL hyp))
+                                           	(SEQ "âˆ§-E(R)" (WITHHYPSEL hyp))
+                                           	(SEQ (ForwardCut 0 "âˆ§-E(L)") (ForwardCut 0 "âˆ§-E(R)"))
+HYPHIT	Pâ†’Q  âŠ¢ R	IS ForwardCut 1 "â†’-E"
+HYPHIT	Pâˆ¨Q  âŠ¢ R	IS ForwardUncut 0 "âˆ¨-E"
+HYPHIT	Â¬Â¬P   âŠ¢ Q	IS ForwardCut 0 "Â¬-E"
+HYPHIT	âˆ€x.P âŠ¢ Q	IS ForwardCut 0 "âˆ€-E with side condition hidden"	
+HYPHIT	âˆƒx.P âŠ¢ Q	IS ForwardUncut 0 "âˆƒ-E"
 
-CONCHIT	Q¦R	IS "¦-I"
-CONCHIT	QëR	IS ALT (SEQ "ë-I(L)" hyp) (SEQ "ë-I(R)" hyp)
-CONCHIT	QçR	IS "ç-I"      
-CONCHIT	ÂQ	IS "Â-I"       
-CONCHIT	èx.Q	IS "è-I"  
-CONCHIT	äx.Q	IS "ä-I with side condition hidden"
+CONCHIT	Qâˆ§R	IS "âˆ§-I"
+CONCHIT	Qâˆ¨R	IS ALT (SEQ "âˆ¨-I(L)" hyp) (SEQ "âˆ¨-I(R)" hyp)
+CONCHIT	Qâ†’R	IS "â†’-I"      
+CONCHIT	Â¬Q	IS "Â¬-I"       
+CONCHIT	âˆ€x.Q	IS "âˆ€-I"  
+CONCHIT	âˆƒx.Q	IS "âˆƒ-I with side condition hidden"

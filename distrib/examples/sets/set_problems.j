@@ -1,55 +1,55 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 TACTIC TheoremForwardOrBackward(X) IS
   WHEN (LETHYP _P cut (WITHSELECTIONS X)) X
   
 CONJECTUREPANEL "Set Conjectures" IS
 	THEOREMS "Set Conjectures" ARE
-		(äx.P(x) ¦ (èy. P(y) ç y=x)) ê (äu. P(u)) ¦ (è(v,w). P(v) ¦ P(w) ç v=w)
-	AND 	A§U
-	AND	A=B ê A§B ¦ B§A
-	AND	A§A
-	AND	A§B, B§C æ A§C
-	AND	¯§A
-	AND CÚAïBêCÚAëCÚB
-	AND CÚAßBêCÚA¦CÚB
-	AND CÚA-BêCÚA¦CÂÚB
-	AND	AïB=BïA
-	AND AßB=BßA
-	AND (AïB)ïC=Aï(BïC)
-	AND (AßB)ßC=Aß(BßC)
-	AND Aï(BßC)=(AïB)ß(AïC)
-	AND Aß(BïC)=(AßB)ï(AßC)
-	AND A-(BïC)=(A-B)ß(A-C)
-	AND A-(BßC)=(A-B)ï(A-C)
-	AND AïA=A
-	AND AßA=A
-	AND Aï¯=A
-	AND Aß¯=¯
-	AND A-¯=A
-	AND A-B§A
-	AND A§B, C§D æ (AïC)§(BïD)
-	AND A§B, C§D æ (AßC)§(BßD)
-	AND A§AïB
-	AND AßB§A
-	AND A§B æ AïB=B
-	AND A§B æ AßB=A
-	AND Aß(B-A)=¯
-	AND Aï(B-A)=AïB
-	AND AïAø=U
-	AND AßAø=¯
-	AND Aø=B ê (AïB=U)¦(AßB=¯)
-	AND Aøø=A
-	AND (AïB)ø=AøßBø
-	AND (AßB)ø=AøïBø
-	AND (OBJECT y) INFER <C,D>ÚA¥B ê (äy.<C,y>ÚA¦<y,D>ÚB)
-	AND (A¥B)¥C=A¥(B¥C)
+		(âˆƒx.P(x) âˆ§ (âˆ€y. P(y) â†’ y=x)) â†” (âˆƒu. P(u)) âˆ§ (âˆ€(v,w). P(v) âˆ§ P(w) â†’ v=w)
+	AND 	AâŠ†U
+	AND	A=B â†” AâŠ†B âˆ§ BâŠ†A
+	AND	AâŠ†A
+	AND	AâŠ†B, BâŠ†C âŠ¢ AâŠ†C
+	AND	Ã˜âŠ†A
+	AND CâˆˆAâˆªBâ†”CâˆˆAâˆ¨CâˆˆB
+	AND CâˆˆAâˆ©Bâ†”CâˆˆAâˆ§CâˆˆB
+	AND CâˆˆA-Bâ†”CâˆˆAâˆ§CÂ¬âˆˆB
+	AND	AâˆªB=BâˆªA
+	AND Aâˆ©B=Bâˆ©A
+	AND (AâˆªB)âˆªC=Aâˆª(BâˆªC)
+	AND (Aâˆ©B)âˆ©C=Aâˆ©(Bâˆ©C)
+	AND Aâˆª(Bâˆ©C)=(AâˆªB)âˆ©(AâˆªC)
+	AND Aâˆ©(BâˆªC)=(Aâˆ©B)âˆª(Aâˆ©C)
+	AND A-(BâˆªC)=(A-B)âˆ©(A-C)
+	AND A-(Bâˆ©C)=(A-B)âˆª(A-C)
+	AND AâˆªA=A
+	AND Aâˆ©A=A
+	AND AâˆªÃ˜=A
+	AND Aâˆ©Ã˜=Ã˜
+	AND A-Ã˜=A
+	AND A-BâŠ†A
+	AND AâŠ†B, CâŠ†D âŠ¢ (AâˆªC)âŠ†(BâˆªD)
+	AND AâŠ†B, CâŠ†D âŠ¢ (Aâˆ©C)âŠ†(Bâˆ©D)
+	AND AâŠ†AâˆªB
+	AND Aâˆ©BâŠ†A
+	AND AâŠ†B âŠ¢ AâˆªB=B
+	AND AâŠ†B âŠ¢ Aâˆ©B=A
+	AND Aâˆ©(B-A)=Ã˜
+	AND Aâˆª(B-A)=AâˆªB
+	AND AâˆªAâ« =U
+	AND Aâˆ©Aâ« =Ã˜
+	AND Aâ« =B â†” (AâˆªB=U)âˆ§(Aâˆ©B=Ã˜)
+	AND Aâ« â« =A
+	AND (AâˆªB)â« =Aâ« âˆ©Bâ« 
+	AND (Aâˆ©B)â« =Aâ« âˆªBâ« 
+	AND (OBJECT y) INFER <C,D>âˆˆAâ€¢B â†” (âˆƒy.<C,y>âˆˆAâˆ§<y,D>âˆˆB)
+	AND (Aâ€¢B)â€¢C=Aâ€¢(Bâ€¢C)
 
 	END
 
 	BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
-	BUTTON "AêÉ" IS apply ForwardSubstHiding "rewrite ê Ç" "rewrite ê È"  COMMAND
-	BUTTON "ÉêB" IS apply ForwardSubstHiding "rewrite ê È" "rewrite ê Ç"  COMMAND
-	BUTTON "A=É" IS apply ForwardSubstHiding "rewrite = Ç" "rewrite = È"  COMMAND
-	BUTTON "É=B" IS apply ForwardSubstHiding "rewrite = È" "rewrite = Ç"  COMMAND
+	BUTTON "Aâ†”â€¦" IS apply ForwardSubstHiding "rewrite â†” Â«" "rewrite â†” Â»"  COMMAND
+	BUTTON "â€¦â†”B" IS apply ForwardSubstHiding "rewrite â†” Â»" "rewrite â†” Â«"  COMMAND
+	BUTTON "A=â€¦" IS apply ForwardSubstHiding "rewrite = Â«" "rewrite = Â»"  COMMAND
+	BUTTON "â€¦=B" IS apply ForwardSubstHiding "rewrite = Â»" "rewrite = Â«"  COMMAND
 END

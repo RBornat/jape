@@ -1,4 +1,4 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 CLASS VARIABLE x k
 CLASS FORMULA W X Y Z
@@ -9,20 +9,20 @@ CONSTANT A B S
 SUBSTFIX	700
 JUXTFIX		600
 PREFIX 		500		#
-POSTFIX 	500		ø
-INFIX			300L		Ÿ  Ø ê
+POSTFIX 	500		â« 
+INFIX			300L		â‡Œ  â†¦ â†”
 INFIX			200R		|~
-INFIX			150R		|Û
-LEFTFIX 		110		è .
-INFIX			100R		|é
+INFIX			150R		|â‡’
+LEFTFIX 		110		âˆ€ .
+INFIX			100R		|â‰¡
 INFIX			50L		<|
 
 OUTFIX {  }
 OUTFIX <  >
 
 
-BIND x SCOPE P IN èx . P
+BIND x SCOPE P IN âˆ€x . P
 
-SEQUENT IS BAG æ FORMULA
+SEQUENT IS BAG âŠ¢ FORMULA
 
 INITIALISE autoAdditiveLeft true /* allow rules to be stated without an explicit left context */

@@ -1,4 +1,4 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 TACTIC TheoremForward (thm) IS CUTIN (ALT thm (RESOLVE thm))
 
@@ -17,8 +17,8 @@ TACTIC TheoremForwardOrBackward(thm) IS
         (LETOPENSUBGOAL G _A 
             (Fail ("Error in I2L Jape (open subgoal in TheoremForwardOrBackward). Tell Richard.")))
         (LETOPENSUBGOALS _As
-            (ALERT  ("There is more than one unproved conclusion in the proof. Please select one Ð \
-                        \or select an antecedent Ð to show \
+            (ALERT  ("There is more than one unproved conclusion in the proof. Please select one â€“ \
+                        \or select an antecedent â€“ to show \
                         \Jape where to apply the theorem.")
                     ("OK", STOP) 
                     ("Huh?", Explainantecedentandconclusionwords)))
@@ -26,7 +26,7 @@ TACTIC TheoremForwardOrBackward(thm) IS
                 ("OK", STOP) 
                 ("Huh?", Explainunprovedconclusionwords))
 
-/* These theorems are all stated without an explicit left context ‚. That is possible because, in I2L_rules.j,
+/* These theorems are all stated without an explicit left context Î“. That is possible because, in I2L_rules.j,
  * we declared a WEAKEN structure rule: Jape will automatically discard any unmatched left-context
  * formulae.
  */
@@ -36,127 +36,127 @@ TACTIC TheoremForwardOrBackward(thm) IS
  */
 
 CONJECTUREPANEL "Invalid conjectures"
-    THEOREM IS Eç(FçG) æ (EçF)çG
-    THEOREM IS (E¦F)çG æ (EçF)çG
-    THEOREM IS (EçF)çG æ E¦(FçG)
+    THEOREM IS Eâ†’(Fâ†’G) âŠ¢ (Eâ†’F)â†’G
+    THEOREM IS (Eâˆ§F)â†’G âŠ¢ (Eâ†’F)â†’G
+    THEOREM IS (Eâ†’F)â†’G âŠ¢ Eâˆ§(Fâ†’G)
 
-    THEOREM IS E æ E¦F
-    THEOREM IS EëF æ E¦F
+    THEOREM IS E âŠ¢ Eâˆ§F
+    THEOREM IS Eâˆ¨F âŠ¢ Eâˆ§F
 
-    THEOREM IS R(j), èx.(R(x)çS(x)) æ S(j)
-    THEOREM IS èx.R(x)çèy.S(y) æ èz.(R(z)çS(z))
-    THEOREM IS actual j, S(j) æ èx.(R(x)çS(x))
-    THEOREM IS äx.R(x)¦äy.S(y) æ äz.(R(z)¦S(z))
-    THEOREM IS èx.R(x) æ äy.R(y)
-    THEOREM IS äx.R(x) æ èy.R(y)
+    THEOREM IS R(j), âˆ€x.(R(x)â†’S(x)) âŠ¢ S(j)
+    THEOREM IS âˆ€x.R(x)â†’âˆ€y.S(y) âŠ¢ âˆ€z.(R(z)â†’S(z))
+    THEOREM IS actual j, S(j) âŠ¢ âˆ€x.(R(x)â†’S(x))
+    THEOREM IS âˆƒx.R(x)âˆ§âˆƒy.S(y) âŠ¢ âˆƒz.(R(z)âˆ§S(z))
+    THEOREM IS âˆ€x.R(x) âŠ¢ âˆƒy.R(y)
+    THEOREM IS âˆƒx.R(x) âŠ¢ âˆ€y.R(y)
 
-    THEOREM IS actual j, actual k, äx.R(x) æ R(j)
+    THEOREM IS actual j, actual k, âˆƒx.R(x) âŠ¢ R(j)
 
     BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 END
 
 CONJECTUREPANEL "Classical conjectures"
-    THEOREM IS  ÂÂE æ E
+    THEOREM IS  Â¬Â¬E âŠ¢ E
 
-    THEOREM IS  æ EëÂE
-    THEOREM IS  æ ((EçF)çE)çE
+    THEOREM IS  âŠ¢ Eâˆ¨Â¬E
+    THEOREM IS  âŠ¢ ((Eâ†’F)â†’E)â†’E
 
-    THEOREM IS  ÂFçÂE æ EçF
-    THEOREM IS  Â(ÂE¦ÂF) æ EëF
-    THEOREM IS  Â(ÂEëÂF) æ E¦F
-    THEOREM IS  Â(E¦F) æ ÂEëÂF
-    THEOREM IS  (EçF)ë(FçE)
+    THEOREM IS  Â¬Fâ†’Â¬E âŠ¢ Eâ†’F
+    THEOREM IS  Â¬(Â¬Eâˆ§Â¬F) âŠ¢ Eâˆ¨F
+    THEOREM IS  Â¬(Â¬Eâˆ¨Â¬F) âŠ¢ Eâˆ§F
+    THEOREM IS  Â¬(Eâˆ§F) âŠ¢ Â¬Eâˆ¨Â¬F
+    THEOREM IS  (Eâ†’F)âˆ¨(Fâ†’E)
 
-    THEOREM IS  Âäx.ÂR(x) æ èy.R(y)
-    THEOREM IS  Âèx.ÂR(x) æ äy.R(y)
-    THEOREM IS  Âèx.R(x) æ äy.ÂR(y)
+    THEOREM IS  Â¬âˆƒx.Â¬R(x) âŠ¢ âˆ€y.R(y)
+    THEOREM IS  Â¬âˆ€x.Â¬R(x) âŠ¢ âˆƒy.R(y)
+    THEOREM IS  Â¬âˆ€x.R(x) âŠ¢ âˆƒy.Â¬R(y)
 
-    THEOREM IS actual j, actual k æ äx.(R(x)çR(j)¦R(k))
+    THEOREM IS actual j, actual k âŠ¢ âˆƒx.(R(x)â†’R(j)âˆ§R(k))
 
-    THEOREM IS  actual i, èx.(R(x)ëÂR(x)), Âèy.ÂR(y) æ äz.R(z)
+    THEOREM IS  actual i, âˆ€x.(R(x)âˆ¨Â¬R(x)), Â¬âˆ€y.Â¬R(y) âŠ¢ âˆƒz.R(z)
 
     BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 END
   
 CONJECTUREPANEL Conjectures
-    THEOREM IS  E, EçF æ F
-    THEOREM IS  EçF, FçG, E æ G
-    THEOREM IS  Eç(FçG), EçF, E æ G
-    THEOREM IS  EçF, FçG æ EçG
-    THEOREM IS  Eç(FçG) æ Fç(EçG)
-    THEOREM IS  Eç(FçG) æ (EçF)ç(EçG)
-    THEOREM IS  E æ FçE
-    THEOREM IS  æ Eç(FçE)
-    THEOREM IS  EçF æ (FçG)ç(EçG)
-    THEOREM IS  Eç(Fç(GçH)) æ Gç(Fç(EçH))
-    THEOREM IS  æ (Eç(FçG))ç((EçF)ç(EçG))
-    THEOREM IS  (EçF)çG æ Eç(FçG)
+    THEOREM IS  E, Eâ†’F âŠ¢ F
+    THEOREM IS  Eâ†’F, Fâ†’G, E âŠ¢ G
+    THEOREM IS  Eâ†’(Fâ†’G), Eâ†’F, E âŠ¢ G
+    THEOREM IS  Eâ†’F, Fâ†’G âŠ¢ Eâ†’G
+    THEOREM IS  Eâ†’(Fâ†’G) âŠ¢ Fâ†’(Eâ†’G)
+    THEOREM IS  Eâ†’(Fâ†’G) âŠ¢ (Eâ†’F)â†’(Eâ†’G)
+    THEOREM IS  E âŠ¢ Fâ†’E
+    THEOREM IS  âŠ¢ Eâ†’(Fâ†’E)
+    THEOREM IS  Eâ†’F âŠ¢ (Fâ†’G)â†’(Eâ†’G)
+    THEOREM IS  Eâ†’(Fâ†’(Gâ†’H)) âŠ¢ Gâ†’(Fâ†’(Eâ†’H))
+    THEOREM IS  âŠ¢ (Eâ†’(Fâ†’G))â†’((Eâ†’F)â†’(Eâ†’G))
+    THEOREM IS  (Eâ†’F)â†’G âŠ¢ Eâ†’(Fâ†’G)
 
-    THEOREM IS  E, F æ E¦F
-    THEOREM IS  E¦F æ E
-    THEOREM IS  E¦F æ F
-    THEOREM IS  E¦(F¦G) æ (E¦F)¦G
-    THEOREM IS  (E¦F)¦G æ E¦(F¦G)
+    THEOREM IS  E, F âŠ¢ Eâˆ§F
+    THEOREM IS  Eâˆ§F âŠ¢ E
+    THEOREM IS  Eâˆ§F âŠ¢ F
+    THEOREM IS  Eâˆ§(Fâˆ§G) âŠ¢ (Eâˆ§F)âˆ§G
+    THEOREM IS  (Eâˆ§F)âˆ§G âŠ¢ Eâˆ§(Fâˆ§G)
 
-    THEOREM IS  E¦F æ EçF
-    THEOREM IS  (EçF)¦(EçG) æ Eç(F¦G)
-    THEOREM IS  Eç(F¦G) æ (EçF)¦(EçG)
-    THEOREM IS  Eç(FçG) æ (E¦F)çG
-    THEOREM IS  (E¦F)çG æ Eç(FçG)
-    THEOREM IS  (EçF)çG æ (E¦F)çG
-    THEOREM IS  E¦(FçG) æ (EçF)çG
+    THEOREM IS  Eâˆ§F âŠ¢ Eâ†’F
+    THEOREM IS  (Eâ†’F)âˆ§(Eâ†’G) âŠ¢ Eâ†’(Fâˆ§G)
+    THEOREM IS  Eâ†’(Fâˆ§G) âŠ¢ (Eâ†’F)âˆ§(Eâ†’G)
+    THEOREM IS  Eâ†’(Fâ†’G) âŠ¢ (Eâˆ§F)â†’G
+    THEOREM IS  (Eâˆ§F)â†’G âŠ¢ Eâ†’(Fâ†’G)
+    THEOREM IS  (Eâ†’F)â†’G âŠ¢ (Eâˆ§F)â†’G
+    THEOREM IS  Eâˆ§(Fâ†’G) âŠ¢ (Eâ†’F)â†’G
 
-    THEOREM IS  E æ EëF
-    THEOREM IS  F æ EëF
-    THEOREM IS  EëF æ FëE
+    THEOREM IS  E âŠ¢ Eâˆ¨F
+    THEOREM IS  F âŠ¢ Eâˆ¨F
+    THEOREM IS  Eâˆ¨F âŠ¢ Fâˆ¨E
 
-    THEOREM IS  FçG æ (EëF)ç(EëG)
-    THEOREM IS  EëE æ E
-    THEOREM IS  E æ EëE
-    THEOREM IS  Eë(FëG) æ (EëF)ëG
-    THEOREM IS  (EëF)ëG æ Eë(FëG)
+    THEOREM IS  Fâ†’G âŠ¢ (Eâˆ¨F)â†’(Eâˆ¨G)
+    THEOREM IS  Eâˆ¨E âŠ¢ E
+    THEOREM IS  E âŠ¢ Eâˆ¨E
+    THEOREM IS  Eâˆ¨(Fâˆ¨G) âŠ¢ (Eâˆ¨F)âˆ¨G
+    THEOREM IS  (Eâˆ¨F)âˆ¨G âŠ¢ Eâˆ¨(Fâˆ¨G)
 
-    THEOREM IS  E¦(FëG) æ (E¦F)ë(E¦G)
-    THEOREM IS  (E¦F)ë(E¦G) æ E¦(FëG)
-    THEOREM IS  Eë(F¦G) æ (EëF)¦(EëG)
-    THEOREM IS  (EëF)¦(EëG) æ Eë(F¦G)
+    THEOREM IS  Eâˆ§(Fâˆ¨G) âŠ¢ (Eâˆ§F)âˆ¨(Eâˆ§G)
+    THEOREM IS  (Eâˆ§F)âˆ¨(Eâˆ§G) âŠ¢ Eâˆ§(Fâˆ¨G)
+    THEOREM IS  Eâˆ¨(Fâˆ§G) âŠ¢ (Eâˆ¨F)âˆ§(Eâˆ¨G)
+    THEOREM IS  (Eâˆ¨F)âˆ§(Eâˆ¨G) âŠ¢ Eâˆ¨(Fâˆ§G)
 
-    THEOREM IS  (EçG)¦(FçG) æ (EëF)çG
-    THEOREM IS  (EëF)çG æ (EçG)¦(FçG)
+    THEOREM IS  (Eâ†’G)âˆ§(Fâ†’G) âŠ¢ (Eâˆ¨F)â†’G
+    THEOREM IS  (Eâˆ¨F)â†’G âŠ¢ (Eâ†’G)âˆ§(Fâ†’G)
 
-    THEOREM IS  E æ ÂÂE
-    THEOREM IS  ÂE æ EçF
-    THEOREM IS  EçF æ ÂFçÂE
+    THEOREM IS  E âŠ¢ Â¬Â¬E
+    THEOREM IS  Â¬E âŠ¢ Eâ†’F
+    THEOREM IS  Eâ†’F âŠ¢ Â¬Fâ†’Â¬E
 
-    THEOREM IS  EëF, ÂF æ E
-    THEOREM IS  EëF, ÂE æ F
+    THEOREM IS  Eâˆ¨F, Â¬F âŠ¢ E
+    THEOREM IS  Eâˆ¨F, Â¬E âŠ¢ F
 
-    THEOREM IS  EëF æ Â(ÂE¦ÂF)
-    THEOREM IS  E¦F æ Â(ÂEëÂF)
-    THEOREM IS  Â(EëF) æ ÂE¦ÂF
-    THEOREM IS  ÂE¦ÂF æ Â(EëF)
-    THEOREM IS  ÂEëÂF æ Â(E¦F)
-    THEOREM IS   æ Â(E¦ÂE)
+    THEOREM IS  Eâˆ¨F âŠ¢ Â¬(Â¬Eâˆ§Â¬F)
+    THEOREM IS  Eâˆ§F âŠ¢ Â¬(Â¬Eâˆ¨Â¬F)
+    THEOREM IS  Â¬(Eâˆ¨F) âŠ¢ Â¬Eâˆ§Â¬F
+    THEOREM IS  Â¬Eâˆ§Â¬F âŠ¢ Â¬(Eâˆ¨F)
+    THEOREM IS  Â¬Eâˆ¨Â¬F âŠ¢ Â¬(Eâˆ§F)
+    THEOREM IS   âŠ¢ Â¬(Eâˆ§Â¬E)
 
-    THEOREM IS  E¦ÂE æ F
+    THEOREM IS  Eâˆ§Â¬E âŠ¢ F
 
-    THEOREM IS  actual j, R(j), èx.(R(x)çS(x)) æ S(j)
-    THEOREM IS  èx.(R(x)çS(x)) æ èy.R(y)çèz.S(z)
-    THEOREM IS  èx.(R(x)çS(x)), èy.(S(y)çT(y)) æ èz.(R(z)çT(z))
-    THEOREM IS  èx.R(x)¦èy.S(y) æ èz.(R(z)¦S(z))
-    THEOREM IS  èx.(R(x)¦S(x)) æ èy.R(y)¦èz.S(z)
-    THEOREM IS  èx.(R(x)çS(x)), äy.R(y) æ äz.S(z)
-    THEOREM IS  äx.(R(x)¦S(x)) æ äy.R(y)¦äz.S(z)
-    THEOREM IS  äx.R(x)ëäy.S(y) æ äz.(R(z)ëS(z))
-    THEOREM IS  äx.(R(x)ëS(x)) æ äy.R(y)ëäz.S(z)
-    THEOREM IS  actual j, èx.R(x) æ äy.R(y)
-    THEOREM IS  èx.R(x) æ Âäy.ÂR(y)
-    THEOREM IS  äx.R(x) æ Âèy.ÂR(y)
-    THEOREM IS  äx.ÂR(x) æ Âèy.R(y)
-    THEOREM IS  èx.ÂR(x) æ Âäy.R(y)
-    THEOREM IS  Âäx.R(x) æ èy.ÂR(y)
+    THEOREM IS  actual j, R(j), âˆ€x.(R(x)â†’S(x)) âŠ¢ S(j)
+    THEOREM IS  âˆ€x.(R(x)â†’S(x)) âŠ¢ âˆ€y.R(y)â†’âˆ€z.S(z)
+    THEOREM IS  âˆ€x.(R(x)â†’S(x)), âˆ€y.(S(y)â†’T(y)) âŠ¢ âˆ€z.(R(z)â†’T(z))
+    THEOREM IS  âˆ€x.R(x)âˆ§âˆ€y.S(y) âŠ¢ âˆ€z.(R(z)âˆ§S(z))
+    THEOREM IS  âˆ€x.(R(x)âˆ§S(x)) âŠ¢ âˆ€y.R(y)âˆ§âˆ€z.S(z)
+    THEOREM IS  âˆ€x.(R(x)â†’S(x)), âˆƒy.R(y) âŠ¢ âˆƒz.S(z)
+    THEOREM IS  âˆƒx.(R(x)âˆ§S(x)) âŠ¢ âˆƒy.R(y)âˆ§âˆƒz.S(z)
+    THEOREM IS  âˆƒx.R(x)âˆ¨âˆƒy.S(y) âŠ¢ âˆƒz.(R(z)âˆ¨S(z))
+    THEOREM IS  âˆƒx.(R(x)âˆ¨S(x)) âŠ¢ âˆƒy.R(y)âˆ¨âˆƒz.S(z)
+    THEOREM IS  actual j, âˆ€x.R(x) âŠ¢ âˆƒy.R(y)
+    THEOREM IS  âˆ€x.R(x) âŠ¢ Â¬âˆƒy.Â¬R(y)
+    THEOREM IS  âˆƒx.R(x) âŠ¢ Â¬âˆ€y.Â¬R(y)
+    THEOREM IS  âˆƒx.Â¬R(x) âŠ¢ Â¬âˆ€y.R(y)
+    THEOREM IS  âˆ€x.Â¬R(x) âŠ¢ Â¬âˆƒy.R(y)
+    THEOREM IS  Â¬âˆƒx.R(x) âŠ¢ âˆ€y.Â¬R(y)
     
-    THEOREM IS actual j, actual k, äx.ÂR(x) æ äy.(R(y)çR(j)¦R(k))
+    THEOREM IS actual j, actual k, âˆƒx.Â¬R(x) âŠ¢ âˆƒy.(R(y)â†’R(j)âˆ§R(k))
 
     BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 END

@@ -1,4 +1,4 @@
-/*  $Id$ */
+ï»¿/*  $Id$ */
 
 TACTIC ForwardCutwithSubstSel(n,Rule) IS
     SEQ cut 
@@ -9,79 +9,79 @@ TACTIC ForwardCutwithSubstSel(n,Rule) IS
 TACTIC "abstraction-I tac" IS FSSOB ForwardCutwithSubstSel 0 "abstraction-I"
 
 TACTIC "abstraction-E tac" IS FOBSS ForwardCut 0 "abstraction-E"
-TACTIC "§-E tac" IS FOB ForwardCut 1 "§-E"
+TACTIC "âŠ†-E tac" IS FOB ForwardCut 1 "âŠ†-E"
 
 MENU SetOps IS
     ENTRY "abstraction-I" IS "abstraction-I tac"
     ENTRY "=-I"
-    ENTRY "§-I(c)"
-    ENTRY "§-I(<c,d>)"
-    ENTRY "ï-I(L)" IS FOB ForwardCut 0 "ï-I(L)"
-    ENTRY "ï-I(R)" IS FOB ForwardCut 0 "ï-I(R)"
-    ENTRY "ß-I"
+    ENTRY "âŠ†-I(c)"
+    ENTRY "âŠ†-I(<c,d>)"
+    ENTRY "âˆª-I(L)" IS FOB ForwardCut 0 "âˆª-I(L)"
+    ENTRY "âˆª-I(R)" IS FOB ForwardCut 0 "âˆª-I(R)"
+    ENTRY "âˆ©-I"
     ENTRY "(-)-I"
-    ENTRY "ø-I" IS FOB ForwardCut 0 "ø-I"
+    ENTRY "â« -I" IS FOB ForwardCut 0 "â« -I"
     
     SEPARATOR
     
     ENTRY "abstraction-E" IS "abstraction-E tac"
-    ENTRY "§-E" IS "§-E tac"
+    ENTRY "âŠ†-E" IS "âŠ†-E tac"
     ENTRY "=-E(L)" IS FOB ForwardCut 0 "=-E(L)"
     ENTRY "=-E(R)" IS FOB ForwardCut 0 "=-E(R)"
-    ENTRY "ï-E" IS FOB ForwardUncut 0 "ï-E"
-    ENTRY "ß-E(L)" IS FOB ForwardCut 0 "ß-E(L)"
-    ENTRY "ß-E(R)" IS FOB ForwardCut 0 "ß-E(R)"
+    ENTRY "âˆª-E" IS FOB ForwardUncut 0 "âˆª-E"
+    ENTRY "âˆ©-E(L)" IS FOB ForwardCut 0 "âˆ©-E(L)"
+    ENTRY "âˆ©-E(R)" IS FOB ForwardCut 0 "âˆ©-E(R)"
     ENTRY "(-)-E(L)" IS FOB ForwardCut 0 "(-)-E(L)"
     ENTRY "(-)-E(R)" IS FOB ForwardCut 0 "(-)-E(R)"
-    ENTRY "ø-E" IS FOB ForwardCut 0 "ø-E"
+    ENTRY "â« -E" IS FOB ForwardCut 0 "â« -E"
     
     SEPARATOR
     
-    ENTRY "¯-E" IS FOB ForwardCut 0 "¯-E"
-    ENTRY "AÚU"
+    ENTRY "Ã˜-E" IS FOB ForwardCut 0 "Ã˜-E"
+    ENTRY "AâˆˆU"
 END
 
 CONJECTUREPANEL "Derived Rules for Set Operators" IS
     ENTRY "=-I"
-    ENTRY "§-I(c)"
-    ENTRY "§-I(<c,d>)"
-    ENTRY "ï-I(L)"
-    ENTRY "ï-I(R)"
-    ENTRY "ß-I"
+    ENTRY "âŠ†-I(c)"
+    ENTRY "âŠ†-I(<c,d>)"
+    ENTRY "âˆª-I(L)"
+    ENTRY "âˆª-I(R)"
+    ENTRY "âˆ©-I"
     ENTRY "(-)-I"
-    ENTRY "ø-I"
+    ENTRY "â« -I"
     
-    ENTRY "§-E"
+    ENTRY "âŠ†-E"
     ENTRY "=-E(L)"
     ENTRY "=-E(R)"
-    ENTRY "ï-E"
-    ENTRY "ß-E(L)"
-    ENTRY "ß-E(R)"
+    ENTRY "âˆª-E"
+    ENTRY "âˆ©-E(L)"
+    ENTRY "âˆ©-E(R)"
     ENTRY "(-)-E(L)"
     ENTRY "(-)-E(R)"
-    ENTRY "ø-E"
+    ENTRY "â« -E"
         
-    ENTRY "¯-E"
-    ENTRY "AÚU"
+    ENTRY "Ã˜-E"
+    ENTRY "AâˆˆU"
 END
 
 TACTICPANEL "Definitions" IS
-    RULE IS AÂÚB ÷ Â(AÚB)
-    RULE IS ¯ ÷ {}
-    RULE (OBJECT x) IS EQ ÷ {x|x=x}
-    RULE (OBJECT x) IS {A} ÷ {x|x=A}
-    RULE (OBJECT x) IS {A,B} ÷ {x|x=Aëx=B}
-    RULE (OBJECT x) IS {A,B,C} ÷ {x|x=Aëx=Bëx=C}
-    RULE (OBJECT x) IS {A,B,C,D} ÷ {x|x=Aëx=Bëx=Cëx=D}
-    RULE (OBJECT y) IS A§B ÷ (èy.yÚAçyÚB)
-    RULE (OBJECT y) IS A=B ÷ (èy.yÚAêyÚB)
-    RULE (OBJECT y) IS AïB ÷ { y | yÚAëyÚB }
-    RULE (OBJECT y) IS AßB ÷ { y | yÚA¦yÚB }
-    RULE (OBJECT y) IS A-B ÷ { y | yÚA¦yÂÚB }
-    RULE (OBJECT y) IS Aø ÷ {y | yÂÚA}
-    RULE (OBJECT x, OBJECT y) IS ïï(C) ÷ { x | äy. xÚy¦yÚC }
-    RULE (OBJECT x, OBJECT y) IS ßß(C) ÷ { x | èy. yÚCçxÚy }
-    RULE (OBJECT x) IS Pow(A) ÷ { x | x§A }
-    RULE (OBJECT x, OBJECT y) IS AôB ÷ { <x,y>  | xÚA¦yÚB }
-    RULE (OBJECT x, OBJECT y, OBJECT z) IS A¥B ÷ { <x,z> | äy.<x,y>ÚA¦<y,z>ÚB }
+    RULE IS AÂ¬âˆˆB â‰œ Â¬(AâˆˆB)
+    RULE IS Ã˜ â‰œ {}
+    RULE (OBJECT x) IS EQ â‰œ {x|x=x}
+    RULE (OBJECT x) IS {A} â‰œ {x|x=A}
+    RULE (OBJECT x) IS {A,B} â‰œ {x|x=Aâˆ¨x=B}
+    RULE (OBJECT x) IS {A,B,C} â‰œ {x|x=Aâˆ¨x=Bâˆ¨x=C}
+    RULE (OBJECT x) IS {A,B,C,D} â‰œ {x|x=Aâˆ¨x=Bâˆ¨x=Câˆ¨x=D}
+    RULE (OBJECT y) IS AâŠ†B â‰œ (âˆ€y.yâˆˆAâ†’yâˆˆB)
+    RULE (OBJECT y) IS A=B â‰œ (âˆ€y.yâˆˆAâ†”yâˆˆB)
+    RULE (OBJECT y) IS AâˆªB â‰œ { y | yâˆˆAâˆ¨yâˆˆB }
+    RULE (OBJECT y) IS Aâˆ©B â‰œ { y | yâˆˆAâˆ§yâˆˆB }
+    RULE (OBJECT y) IS A-B â‰œ { y | yâˆˆAâˆ§yÂ¬âˆˆB }
+    RULE (OBJECT y) IS Aâ«  â‰œ {y | yÂ¬âˆˆA}
+    RULE (OBJECT x, OBJECT y) IS âˆªâˆª(C) â‰œ { x | âˆƒy. xâˆˆyâˆ§yâˆˆC }
+    RULE (OBJECT x, OBJECT y) IS âˆ©âˆ©(C) â‰œ { x | âˆ€y. yâˆˆCâ†’xâˆˆy }
+    RULE (OBJECT x) IS Pow(A) â‰œ { x | xâŠ†A }
+    RULE (OBJECT x, OBJECT y) IS AÃ—B â‰œ { <x,y>  | xâˆˆAâˆ§yâˆˆB }
+    RULE (OBJECT x, OBJECT y, OBJECT z) IS Aâ€¢B â‰œ { <x,z> | âˆƒy.<x,y>âˆˆAâˆ§<y,z>âˆˆB }
 END

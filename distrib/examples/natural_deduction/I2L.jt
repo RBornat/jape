@@ -1,6 +1,4 @@
-/* $Id$ */
-
-FONTS "Konstanz"
+ï»¿/* $Id$ */
 
 INITIALISE applyconjectures false
 INITIALISE tryresolution false
@@ -26,4 +24,4 @@ MENU Edit
 	BUTTON Disprove
 END
 
-KEYBOARD ç ¦ ë Â Ù è ä æ í
+KEYBOARD â†’ âˆ§ âˆ¨ Â¬ âŠ¥ âˆ€ âˆƒ âŠ¢ âŠ§

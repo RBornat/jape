@@ -1,4 +1,4 @@
-/*
+Ôªø/*
         $Id$
         FONT{kontt-14}
 
@@ -12,7 +12,7 @@ discursive account of the theory is given in that paper.
     FONTS "Konstanz"
     CLASS   VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
     CLASS   FORMULA  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-    SEQUENT IS LIST Ê FORMULA
+    SEQUENT IS LIST ‚ä¢ FORMULA
     SUBSTFIX 500000 [ S / s ]
 
     INITIALISE outerassumptionword "Environment"
@@ -30,20 +30,20 @@ discursive account of the theory is given in that paper.
 
     /************************************************************************/
     CLASS    CONSTANT k
-    CONSTANT √ .
+    CONSTANT ‚àö .
     INFIX    40R ;
     INFIX    50T :=
-    INFIX    60R ? : ª
+    INFIX    60R ? : ‚äó
     INFIX    100T =
     INFIX    200T + -
     PREFIX   1000 ~
     USE      "mapping.j"
-    INFIX   1T Á
-    LEFTFIX 2  › ﬁ
-     INFIX 1T Á*
-     RULE Step        FROM  Ê ›EﬁSÁ›E'ﬁS' INFER Ê ›EﬁSÁ*›E'ﬁS'
-     RULE Transitive  FROM  Ê ›EﬁSÁ*›E'ﬁS' AND Ê ›E'ﬁS'Á*›E''ﬁS'' INFER Ê›EﬁSÁ*›E''ﬁS''
-     RULE Identity    INFER Ê ›EﬁSÁ*›EﬁS
+    INFIX   1T ‚Üí
+    LEFTFIX 2  ‚ü¶ ‚üß
+     INFIX 1T ‚Üí*
+     RULE Step        FROM  ‚ä¢ ‚ü¶E‚üßS‚Üí‚ü¶E'‚üßS' INFER ‚ä¢ ‚ü¶E‚üßS‚Üí*‚ü¶E'‚üßS'
+     RULE Transitive  FROM  ‚ä¢ ‚ü¶E‚üßS‚Üí*‚ü¶E'‚üßS' AND ‚ä¢ ‚ü¶E'‚üßS'‚Üí*‚ü¶E''‚üßS'' INFER ‚ä¢‚ü¶E‚üßS‚Üí*‚ü¶E''‚üßS''
+     RULE Identity    INFER ‚ä¢ ‚ü¶E‚üßS‚Üí*‚ü¶E‚üßS
     TRANSITIVE RULE Transitive
     REFLEXIVE  RULE Identity
     MENU Edit
@@ -54,66 +54,66 @@ discursive account of the theory is given in that paper.
     MENU "Small-Step Rules"
       RULE  Var
       FROM  S x = V
-      INFER ›xﬁ S Á ›Vﬁ S
+      INFER ‚ü¶x‚üß S ‚Üí ‚ü¶V‚üß S
       RULE ":=0"
-      FROM    ›Eﬁ     S Á ›E'ﬁ    S'
-      INFER   ›x:=Eﬁ  S Á ›x:=E'ﬁ S'
+      FROM    ‚ü¶E‚üß     S ‚Üí ‚ü¶E'‚üß    S'
+      INFER   ‚ü¶x:=E‚üß  S ‚Üí ‚ü¶x:=E'‚üß S'
       RULES ":=1"
-      FROM  (Sº(x==k)) = S'
-      INFER ›x:=kﬁ    S Á ›√ﬁ S'
+      FROM  (S‚äï(x==k)) = S'
+      INFER ‚ü¶x:=k‚üß    S ‚Üí ‚ü¶‚àö‚üß S'
       AND
-      FROM  (Sº(x==(~k))) = S'
-      INFER ›x:=(~k)ﬁ S Á ›√ﬁ S'
+      FROM  (S‚äï(x==(~k))) = S'
+      INFER ‚ü¶x:=(~k)‚üß S ‚Üí ‚ü¶‚àö‚üß S'
       END
       RULE ";0"
-      FROM    ›Eﬁ   S Á ›E'ﬁ   S'
-      INFER   ›E;Fﬁ S Á ›E';Fﬁ S'
+      FROM    ‚ü¶E‚üß   S ‚Üí ‚ü¶E'‚üß   S'
+      INFER   ‚ü¶E;F‚üß S ‚Üí ‚ü¶E';F‚üß S'
 
       RULE ";1"
-      INFER   ›√;Fﬁ S Á ›Fﬁ S
+      INFER   ‚ü¶‚àö;F‚üß S ‚Üí ‚ü¶F‚üß S
 
-      RULE "ª"
-      INFER ›E1ªE2ﬁ S Á ›E1?(E2; E1ªE2):√ﬁ S
+      RULE "‚äó"
+      INFER ‚ü¶E1‚äóE2‚üß S ‚Üí ‚ü¶E1?(E2; E1‚äóE2):‚àö‚üß S
 
       RULE "?0"
-      FROM  ›E1ﬁ       S Á ›E1'ﬁ S'
-      INFER ›E1?E2:E3ﬁ S Á ›E1'?E2:E3ﬁ S'
+      FROM  ‚ü¶E1‚üß       S ‚Üí ‚ü¶E1'‚üß S'
+      INFER ‚ü¶E1?E2:E3‚üß S ‚Üí ‚ü¶E1'?E2:E3‚üß S'
 
       RULES "?1"
-      INFER ›0?E2:E3ﬁ  S Á ›E3ﬁ S
+      INFER ‚ü¶0?E2:E3‚üß  S ‚Üí ‚ü¶E3‚üß S
       AND
-      INFER ›k?E2:E3ﬁ  S Á ›E2ﬁ S
+      INFER ‚ü¶k?E2:E3‚üß  S ‚Üí ‚ü¶E2‚üß S
       AND
-      INFER ›~k?E2:E3ﬁ S Á ›E2ﬁ S
+      INFER ‚ü¶~k?E2:E3‚üß S ‚Üí ‚ü¶E2‚üß S
       END
       RULES  "+"
-      FROM  ›Fﬁ   S Á ›F'ﬁ   S'
-      INFER ›k+Fﬁ S Á ›k+F'ﬁ S'
+      FROM  ‚ü¶F‚üß   S ‚Üí ‚ü¶F'‚üß   S'
+      INFER ‚ü¶k+F‚üß S ‚Üí ‚ü¶k+F'‚üß S'
       AND
-      FROM  ›Fﬁ    S Á ›F'ﬁ    S'
-      INFER ›~k+Fﬁ S Á ›~k+F'ﬁ S'
+      FROM  ‚ü¶F‚üß    S ‚Üí ‚ü¶F'‚üß    S'
+      INFER ‚ü¶~k+F‚üß S ‚Üí ‚ü¶~k+F'‚üß S'
       AND
-      FROM  ›Eﬁ   S Á ›E'ﬁ   S'
-      INFER ›E+Fﬁ S Á ›E'+Fﬁ S'
+      FROM  ‚ü¶E‚üß   S ‚Üí ‚ü¶E'‚üß   S'
+      INFER ‚ü¶E+F‚üß S ‚Üí ‚ü¶E'+F‚üß S'
       END
 
       RULES  "-"
-      FROM  ›Fﬁ   S Á ›F'ﬁ   S'
-      INFER ›k-Fﬁ S Á ›k-F'ﬁ S'
+      FROM  ‚ü¶F‚üß   S ‚Üí ‚ü¶F'‚üß   S'
+      INFER ‚ü¶k-F‚üß S ‚Üí ‚ü¶k-F'‚üß S'
       AND
-      FROM  ›Fﬁ    S Á ›F'ﬁ    S'
-      INFER ›~k-Fﬁ S Á ›~k-F'ﬁ S'
+      FROM  ‚ü¶F‚üß    S ‚Üí ‚ü¶F'‚üß    S'
+      INFER ‚ü¶~k-F‚üß S ‚Üí ‚ü¶~k-F'‚üß S'
       AND
-      FROM  ›Eﬁ   S Á ›E'ﬁ   S'
-      INFER ›E-Fﬁ S Á ›E'-Fﬁ S'
+      FROM  ‚ü¶E‚üß   S ‚Üí ‚ü¶E'‚üß   S'
+      INFER ‚ü¶E-F‚üß S ‚Üí ‚ü¶E'-F‚üß S'
       END
       RULE  add
       FROM  "ADD"(N1, N2, K, (~))
-      INFER ›N1 + N2ﬁ S Á ›Kﬁ S
+      INFER ‚ü¶N1 + N2‚üß S ‚Üí ‚ü¶K‚üß S
 
       RULE  sub
       FROM  "ADD"(N1, ~N2, K, (~))
-      INFER ›N1 - N2ﬁ S Á ›Kﬁ S
+      INFER ‚ü¶N1 - N2‚üß S ‚Üí ‚ü¶K‚üß S
    END
     TACTIC SmallStep IS
     (ALT (LAYOUT "Var"  () Var Lookup)
@@ -123,32 +123,32 @@ discursive account of the theory is given in that paper.
          ";0"
          "?1"
          "?0"
-         "ª"
+         "‚äó"
          (ALT (LAYOUT "Add" () add EVALUATE) "+")
          (ALT (LAYOUT "Sub" () sub EVALUATE) "-")
          )
     TACTIC OneStep()
     (ALT
-         (WHEN (LETGOAL (›_E ﬁ_S Á  ›_E'ﬁ_S') SmallStep)
-               (LETGOAL (› _kﬁ_S Á* _T) Identity)
-               (LETGOAL (›~_kﬁ_S Á* _T) Identity)
-               (LETGOAL (›√  ﬁ_S Á* _T) Identity)
-               (LETGOAL (›_E ﬁ_S Á* ›_E'ﬁ_S') Transitive (LAYOUT "%s" () Step SmallStep))))
+         (WHEN (LETGOAL (‚ü¶_E ‚üß_S ‚Üí  ‚ü¶_E'‚üß_S') SmallStep)
+               (LETGOAL (‚ü¶ _k‚üß_S ‚Üí* _T) Identity)
+               (LETGOAL (‚ü¶~_k‚üß_S ‚Üí* _T) Identity)
+               (LETGOAL (‚ü¶‚àö  ‚üß_S ‚Üí* _T) Identity)
+               (LETGOAL (‚ü¶_E ‚üß_S ‚Üí* ‚ü¶_E'‚üß_S') Transitive (LAYOUT "%s" () Step SmallStep))))
     TACTIC Steps()
     (ALT
-         (WHEN (LETGOAL (› _kﬁ_S Á* _T) Identity)
-               (LETGOAL (›~_kﬁ_S Á* _T) Identity)
-               (LETGOAL (›√  ﬁ_S Á* _T) Identity)
+         (WHEN (LETGOAL (‚ü¶ _k‚üß_S ‚Üí* _T) Identity)
+               (LETGOAL (‚ü¶~_k‚üß_S ‚Üí* _T) Identity)
+               (LETGOAL (‚ü¶‚àö  ‚üß_S ‚Üí* _T) Identity)
                (SEQ OneStep Steps)))
     CONJECTUREPANEL "Small Step Execution"
       BUTTON "Step" IS apply OneStep
       BUTTON "Steps" IS apply Steps
       THEOREMS SmallStepTheorems
-      ARE ›x:=3ﬁ ‚                              Á* ›_Eﬁ _S
-      AND ›y:=3; x:=yﬁ ‚                        Á* ›_Eﬁ _S
-      AND ›y:=x+3; x:=yﬁ (‚º(x==4))             Á* ›_Eﬁ _S
-      AND ›y:=3; x:=y; z:=x+yﬁ ‚                Á* ›_Eﬁ _S
-      AND ›t:=x; x:=y; y:=tﬁ(‚º(x==k1)º(y==k2)) Á* ›_Eﬁ _S
-      AND ›x:=2; y:=4; xª(x:=x-1; y:=y+y)ﬁ ‚    Á* ›_Eﬁ _S
+      ARE ‚ü¶x:=3‚üß ‚ñ™                              ‚Üí* ‚ü¶_E‚üß _S
+      AND ‚ü¶y:=3; x:=y‚üß ‚ñ™                        ‚Üí* ‚ü¶_E‚üß _S
+      AND ‚ü¶y:=x+3; x:=y‚üß (‚ñ™‚äï(x==4))             ‚Üí* ‚ü¶_E‚üß _S
+      AND ‚ü¶y:=3; x:=y; z:=x+y‚üß ‚ñ™                ‚Üí* ‚ü¶_E‚üß _S
+      AND ‚ü¶t:=x; x:=y; y:=t‚üß(‚ñ™‚äï(x==k1)‚äï(y==k2)) ‚Üí* ‚ü¶_E‚üß _S
+      AND ‚ü¶x:=2; y:=4; x‚äó(x:=x-1; y:=y+y)‚üß ‚ñ™    ‚Üí* ‚ü¶_E‚üß _S
       END
     END

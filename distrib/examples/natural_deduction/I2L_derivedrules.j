@@ -1,5 +1,5 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 CONJECTUREPANEL "Derived Rules"
-	DERIVED RULE FROM ‚, ÂA æ B¦ÂB INFER ‚ æ  A
+	DERIVED RULE FROM Î“, Â¬A âŠ¢ Bâˆ§Â¬B INFER Î“ âŠ¢  A
 END

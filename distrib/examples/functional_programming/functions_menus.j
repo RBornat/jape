@@ -1,4 +1,4 @@
-/* $Id$ */
+Ôªø/* $Id$ */
 
 MENU	Rules IS
 	ENTRY	"Find" 	IS FindSelection
@@ -75,9 +75,9 @@ TACTIC  SearchTactic IS
 TACTICPANEL "Definitions" 
         TACTIC "Use any rule enabled by Searching" IS SearchTactic
 	ENTRY	":"
-	ENTRY	"•"	  
-	ENTRY	"Ù"	  
-	ENTRY	"ª"	  
+	ENTRY	"‚Ä¢"	  
+	ENTRY	"√ó"	  
+	ENTRY	"‚äó"	  
 	ENTRY	"++"
 	ENTRY	"cat"	
 	ENTRY	"del"
@@ -179,58 +179,58 @@ CONJECTUREPANEL "Conjectures" IS
 		END
 		
 		THEOREMS ListThms
-		ARE     rev • rev	= id
+		ARE     rev ‚Ä¢ rev	= id
 		AND     rev2	        = rev
-		AND	map F • map G	= map (F • G)
+		AND	map F ‚Ä¢ map G	= map (F ‚Ä¢ G)
 		AND     cat (XS++YS)    = cat XS ++ cat YS
-		AND	map F • cat	= cat • (map (map F))
-		AND	none • F	= none
-		AND	map F • none	= none
-		AND	map F • one	= one • F
-		AND	map F • rev	= rev • map F
+		AND	map F ‚Ä¢ cat	= cat ‚Ä¢ (map (map F))
+		AND	none ‚Ä¢ F	= none
+		AND	map F ‚Ä¢ none	= none
+		AND	map F ‚Ä¢ one	= one ‚Ä¢ F
+		AND	map F ‚Ä¢ rev	= rev ‚Ä¢ map F
 		AND	map id		= id
-		AND	length•map F	= length
-		AND	zip • (map F ª map G) = map (FªG)
-		AND	map F • if P (G,G')   = if P (map F • G, map F • G')
-		AND	filter P	= map fst • filter snd • zip • (id ª map P)
+		AND	length‚Ä¢map F	= length
+		AND	zip ‚Ä¢ (map F ‚äó map G) = map (F‚äóG)
+		AND	map F ‚Ä¢ if P (G,G')   = if P (map F ‚Ä¢ G, map F ‚Ä¢ G')
+		AND	filter P	= map fst ‚Ä¢ filter snd ‚Ä¢ zip ‚Ä¢ (id ‚äó map P)
 		END
 
 		THEOREMS FunctionThms
-		ARE	swap • swap	  = id
-		AND	swap • (FÙG) • swap		= GÙF
-		AND	(FÙG) • (HªJ)	= (F • H)ª(G • J)
-		AND	idÙid			= id
-		AND	(FÙG) • (HÙJ)	= (F • H)Ù (G • J)
-		AND	F  • id		  = F
-		AND     if P (F, G) • H = if (P•H) (F•H, G•H)
-		AND     H • if P (F,G) = if P (H•F, H•G)
-		AND     if P • (FªG) • H = if (P • H) • ((F•H) ª (G•H))
-		AND     fst • (FªG) = F
-		AND     snd • (FªG) = G
+		ARE	swap ‚Ä¢ swap	  = id
+		AND	swap ‚Ä¢ (F√óG) ‚Ä¢ swap		= G√óF
+		AND	(F√óG) ‚Ä¢ (H‚äóJ)	= (F ‚Ä¢ H)‚äó(G ‚Ä¢ J)
+		AND	id√óid			= id
+		AND	(F√óG) ‚Ä¢ (H√óJ)	= (F ‚Ä¢ H)√ó (G ‚Ä¢ J)
+		AND	F  ‚Ä¢ id		  = F
+		AND     if P (F, G) ‚Ä¢ H = if (P‚Ä¢H) (F‚Ä¢H, G‚Ä¢H)
+		AND     H ‚Ä¢ if P (F,G) = if P (H‚Ä¢F, H‚Ä¢G)
+		AND     if P ‚Ä¢ (F‚äóG) ‚Ä¢ H = if (P ‚Ä¢ H) ‚Ä¢ ((F‚Ä¢H) ‚äó (G‚Ä¢H))
+		AND     fst ‚Ä¢ (F‚äóG) = F
+		AND     snd ‚Ä¢ (F‚äóG) = G
 		/* This is last because it unfolds trivially */
-		AND     F = id • F
+		AND     F = id ‚Ä¢ F
 		END
 
 		THEOREMS Associativity
-		ARE	(F • G) • H = F • (G • H)
+		ARE	(F ‚Ä¢ G) ‚Ä¢ H = F ‚Ä¢ (G ‚Ä¢ H)
 		END
 
 
 		THEOREMS Composition(J,H,F,G)
 		ARE
-		 J • H = id,	 H • F = H • G Ê F=G
+		 J ‚Ä¢ H = id,	 H ‚Ä¢ F = H ‚Ä¢ G ‚ä¢ F=G
 		AND
-		 J • H = id,	 F • J = G • J Ê F=G
+		 J ‚Ä¢ H = id,	 F ‚Ä¢ J = G ‚Ä¢ J ‚ä¢ F=G
 		AND
-		 J • J = id, J • F • J = J • G • J Ê F=G
+		 J ‚Ä¢ J = id, J ‚Ä¢ F ‚Ä¢ J = J ‚Ä¢ G ‚Ä¢ J ‚ä¢ F=G
 		END
 
 		THEOREMS ReflectThms
-		ARE	ref • ref = id
-		AND	del • ins X = id
-		AND	R F • R G = R (F • G)
-		AND	L F • L G = L (F • G)
-		AND	G • L F = L G Ê L G • F = G
+		ARE	ref ‚Ä¢ ref = id
+		AND	del ‚Ä¢ ins X = id
+		AND	R F ‚Ä¢ R G = R (F ‚Ä¢ G)
+		AND	L F ‚Ä¢ L G = L (F ‚Ä¢ G)
+		AND	G ‚Ä¢ L F = L G ‚ä¢ L G ‚Ä¢ F = G
 		END
 		
 		
@@ -303,13 +303,13 @@ INFER   X=Y
 RULE    rewriteHypotheticalEquation(X, X', Y, Y') IS
 FROM    ASSOCEQ (X, X')
 AND     ASSOCEQ (Y, Y') 
-AND     X'=Y'Ê P
-INFER   X=Y Ê P
+AND     X'=Y'‚ä¢ P
+INFER   X=Y ‚ä¢ P
 
 
 CONCHIT monoid X Y IS monoid
 CONCHIT C      IS  (ALT UnfoldUsingSearch (Fail ("Search yields nothing to Unfold (check the Searching menu)")))
-HYPHIT  H Ê C IS  UnfoldHypWithOptionalSelection 
+HYPHIT  H ‚ä¢ C IS  UnfoldHypWithOptionalSelection 
 
 /*
         Two semi-intelligent tactics for use from panels. If

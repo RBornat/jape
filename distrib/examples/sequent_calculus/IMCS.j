@@ -1,11 +1,11 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
 /*
 	The _intuitionistic_ multiple-conclusion sequent calculus!! (add after MCS.jt)
 */
 
 /* the differences */
-RULE	"æÂ"		FROM ‚,A æ 					INFER ‚ æ ÂA,Æ
-RULE	"Âæ"		FROM ‚ æ A					INFER ‚,ÂA æ Æ
-RULE	"æç"		FROM ‚,A æ B	 				INFER ‚ æ AçB,Æ
-RULE	"çæ"		FROM ‚ æ A AND ‚,B æ Æ			INFER ‚,AçB æ Æ
+RULE	"âŠ¢Â¬"		FROM Î“,A âŠ¢ 					INFER Î“ âŠ¢ Â¬A,âˆ†
+RULE	"Â¬âŠ¢"		FROM Î“ âŠ¢ A					INFER Î“,Â¬A âŠ¢ âˆ†
+RULE	"âŠ¢â†’"		FROM Î“,A âŠ¢ B	 				INFER Î“ âŠ¢ Aâ†’B,âˆ†
+RULE	"â†’âŠ¢"		FROM Î“ âŠ¢ A AND Î“,B âŠ¢ âˆ†			INFER Î“,Aâ†’B âŠ¢ âˆ†

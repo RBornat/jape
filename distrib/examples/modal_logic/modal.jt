@@ -1,28 +1,28 @@
-FONTS "Konstanz"
+ï»¿FONTS "Konstanz"
 
-CLASS BAG ‚ Æ
+CLASS BAG Î“ âˆ†
 CLASS FORMULA A B C D P Q R S
 CLASS VARIABLE u v w x y z m n
 
-LEFTFIX	20		è .
-LEFTFIX	20		ä .
+LEFTFIX	20		âˆ€ .
+LEFTFIX	20		âˆƒ .
 
-INFIX		100L		é
-INFIX		110R		ç
-INFIX		150L		¦
-INFIX		160L		ë
-PREFIX	200		Â
+INFIX		100L		â‰¡
+INFIX		110R		â†’
+INFIX		150L		âˆ§
+INFIX		160L		âˆ¨
+PREFIX	200		Â¬
 JUXTFIX	300
 SUBSTFIX	400 
 
-PREFIX 50 ö
+PREFIX 50 â–¡
 
-SEQUENT IS BAG æ FORMULA
+SEQUENT IS BAG âŠ¢ FORMULA
 
 MENU Rules
-	RULE FROM ‚ æ  P INFER ö‚,Æ æ öP
+	RULE FROM Î“ âŠ¢  P INFER â–¡Î“,âˆ† âŠ¢ â–¡P
 END
 
 CONJECTUREPANEL Conjectures
-	THEOREM INFER öPçQ, öP, PçQ, Q æ öQ
+	THEOREM INFER â–¡Pâ†’Q, â–¡P, Pâ†’Q, Q âŠ¢ â–¡Q
 END

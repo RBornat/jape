@@ -1,4 +1,4 @@
-/* $Id$ */
+Ôªø/* $Id$ */
 
 CLASS VARIABLE v
 CLASS FORMULA C H J P
@@ -7,15 +7,15 @@ CONSTANT none one IF true false if sel pair fst  snd id cat rcat rev rev2 fold
 
 INFIXC	400R	:
 INFIXC	300L		++
-INFIXC	280L		•
-INFIXC	290L		ª Ù
+INFIXC	280L		‚Ä¢
+INFIXC	290L		‚äó √ó
 OUTFIX	[ ]
 
-RULE weaken(A) IS FROM B INFER A Ê B
+RULE weaken(A) IS FROM B INFER A ‚ä¢ B
 WEAKEN weaken
 
 RULE listinduction (B, OBJECT x, OBJECT xs, OBJECT ys, ABSTRACTION A)  WHERE FRESH x, xs, ys IS
-	FROM  A[] AND A[x] AND A xs, A ys Ê A(xs++ys) 
+	FROM  A[] AND A[x] AND A xs, A ys ‚ä¢ A(xs++ys) 
 	INFER  A(B)
 
 THEORY	Function IS
@@ -24,9 +24,9 @@ THEORY	Function IS
 	AND IF false X Y	= Y
 	END
 	RULE	if		IS	if P (F, G) X	= IF (P X) (F X) (G X)
-	RULE	"•"		IS	(F • G) X		= F(G X)
-	RULE	ª		IS	(FªG) X		= (F X, G X)
-	RULE	Ù		IS	(FÙG)(X,Y)	= (F X, G Y)
+	RULE	"‚Ä¢"		IS	(F ‚Ä¢ G) X		= F(G X)
+	RULE	‚äó		IS	(F‚äóG) X		= (F X, G X)
+	RULE	√ó		IS	(F√óG)(X,Y)	= (F X, G Y)
 	RULE	id		IS	id X			= X
 	RULE	fst		IS	fst(X,Y)		= X
 	RULE	snd		IS	snd(X,Y)		= Y
@@ -77,7 +77,7 @@ THEORY	List IS
 	AND map F (Xs++Ys)	= map F Xs ++ map F Ys
 	END
 
-	RULE filter IS filter P = cat • map (if P (one, none))
+	RULE filter IS filter P = cat ‚Ä¢ map (if P (one, none))
 
 	RULES zip
 	ARE zip([], [])			= []
@@ -93,7 +93,7 @@ THEORY	List IS
 		INFER fold F Z (Xs++Ys) = F (fold F Z Xs) (fold F Z Ys)
 	END
 
-	RULE rev2 IS rev2 = fold rcat [] • map one
+	RULE rev2 IS rev2 = fold rcat [] ‚Ä¢ map one
 	
 	RULE rcat IS rcat Xs Ys = Ys ++ Xs
 	
@@ -101,10 +101,10 @@ THEORY	List IS
 END
 
 THEORY	Reflect IS
-	RULE	ref		IS	ref					= (revÙrev) • swap
+	RULE	ref		IS	ref					= (rev√órev) ‚Ä¢ swap
 	RULE	ins		IS	ins X (Xs,Ys)			= (Xs ++ [X], Ys)
 	RULE	del		IS	del	 (Xs ++ [X], Ys)		= (Xs, Ys)
 	RULE	move	IS	move (Xs ++ [X], Ys)	= (Xs, [X] ++ Ys)
-	RULE	L		IS	L F					= ref • F • ref
+	RULE	L		IS	L F					= ref ‚Ä¢ F ‚Ä¢ ref
 	RULE	R		IS	R F					= F
 END

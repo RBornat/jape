@@ -1,40 +1,40 @@
-/* $Id$ */
+ï»¿/* $Id$ */
 
-/* these rules are stated without an explicit left-context ‚. This makes them more friendly
+/* these rules are stated without an explicit left-context Î“. This makes them more friendly
  * to the innocent natural-deductionist (:-)), or so we hope. The initialisation of autoAdditiveLeft
  * in ItL_syntax.j is what does the magic.
  */
  
 TACTIC Fail(x) IS (SEQ (ALERT x) FAIL)
 
-RULE cut(B) IS FROM B AND B æ C INFER C
-RULE thin(A) IS FROM C INFER A æ C
+RULE cut(B) IS FROM B AND B âŠ¢ C INFER C
+RULE thin(A) IS FROM C INFER A âŠ¢ C
 
-RULE "ç-E"(A)			IS FROM A AND AçB INFER B
-RULE "¦-E(L)"(B)		IS FROM A ¦ B INFER A
-RULE "¦-E(R)"(A)		IS FROM A ¦ B INFER B
-RULE "ë-E"(A,B)		IS FROM A ë B AND A æ C AND B æ C INFER C
-RULE "Â-E"			IS FROM ÂÂA INFER A
-RULE "è-E"(c)			IS FROM èx. A(x) AND c inscope INFER A(c)
-RULE "ä-E"(OBJECT c) WHERE FRESH c AND c NOTIN äx.A(x)
-					IS FROM äx.A(x) AND var c, A(c) æ C INFER C
+RULE "â†’-E"(A)			IS FROM A AND Aâ†’B INFER B
+RULE "âˆ§-E(L)"(B)		IS FROM A âˆ§ B INFER A
+RULE "âˆ§-E(R)"(A)		IS FROM A âˆ§ B INFER B
+RULE "âˆ¨-E"(A,B)		IS FROM A âˆ¨ B AND A âŠ¢ C AND B âŠ¢ C INFER C
+RULE "Â¬-E"			IS FROM Â¬Â¬A INFER A
+RULE "âˆ€-E"(c)			IS FROM âˆ€x. A(x) AND c inscope INFER A(c)
+RULE "âˆƒ-E"(OBJECT c) WHERE FRESH c AND c NOTIN âˆƒx.A(x)
+					IS FROM âˆƒx.A(x) AND var c, A(c) âŠ¢ C INFER C
 
-RULE "ç-I"				IS FROM A æ B INFER AçB
-RULE "¦-I"				IS FROM A AND B INFER A ¦ B
-RULE "ë-I(L)"(B)		IS FROM A INFER A ë B
-RULE "ë-I(R)"(A)		IS FROM B INFER A ë B
-RULE "Â-I"(B)			IS FROM A æ B ¦ ÂB INFER ÂA
-RULE "è-I"(OBJECT c) WHERE FRESH c
-					IS FROM var c æ A(c) INFER èx .A(x)
-RULE "ä-I"(c)			IS FROM A(c) AND c inscope INFER äx.A(x)
+RULE "â†’-I"				IS FROM A âŠ¢ B INFER Aâ†’B
+RULE "âˆ§-I"				IS FROM A AND B INFER A âˆ§ B
+RULE "âˆ¨-I(L)"(B)		IS FROM A INFER A âˆ¨ B
+RULE "âˆ¨-I(R)"(A)		IS FROM B INFER A âˆ¨ B
+RULE "Â¬-I"(B)			IS FROM A âŠ¢ B âˆ§ Â¬B INFER Â¬A
+RULE "âˆ€-I"(OBJECT c) WHERE FRESH c
+					IS FROM var c âŠ¢ A(c) INFER âˆ€x .A(x)
+RULE "âˆƒ-I"(c)			IS FROM A(c) AND c inscope INFER âˆƒx.A(x)
 
-RULE hyp(A) IS INFER A æ A
+RULE hyp(A) IS INFER A âŠ¢ A
 AUTOMATCH hyp
 
 STRUCTURERULE IDENTITY    hyp
 STRUCTURERULE CUT            cut
 STRUCTURERULE WEAKEN     thin
 
-RULE "inscope" IS INFER var x æ x inscope
+RULE "inscope" IS INFER var x âŠ¢ x inscope
 AUTOMATCH "inscope"
 
