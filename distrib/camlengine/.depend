@@ -231,10 +231,12 @@ interaction.cmx: alert.cmx answer.cmx box.cmx cxtfuns.cmx displayclass.cmx \
     prooftree.cmx proviso.cmx rewrite.cmx selection.cmx seqtype.cmx \
     sequent.cmx sml.cmx stringfuns.cmx termfuns.cmx termstring.cmx \
     treeformat.cmx interaction.cmi 
-japeenv.cmo: listfuns.cmi mappingfuns.cmi miscellaneous.cmi name.cmi sml.cmi \
-    stringfuns.cmi termparse.cmi termstring.cmi termtype.cmi japeenv.cmi 
-japeenv.cmx: listfuns.cmx mappingfuns.cmx miscellaneous.cmx name.cmx sml.cmx \
-    stringfuns.cmx termparse.cmx termstring.cmx termtype.cmx japeenv.cmi 
+japeenv.cmo: listfuns.cmi mappingfuns.cmi miscellaneous.cmi name.cmi \
+    optionfuns.cmi sml.cmi stringfuns.cmi termparse.cmi termstring.cmi \
+    termtype.cmi japeenv.cmi 
+japeenv.cmx: listfuns.cmx mappingfuns.cmx miscellaneous.cmx name.cmx \
+    optionfuns.cmx sml.cmx stringfuns.cmx termparse.cmx termstring.cmx \
+    termtype.cmx japeenv.cmi 
 japeserver.cmo: box.cmi displayclass.cmi displayfont.cmi listfuns.cmi \
     miscellaneous.cmi moresys.cmi panelkind.cmo sml.cmi stringfuns.cmi \
     japeserver.cmi 
@@ -529,9 +531,7 @@ unify.cmx: answer.cmx cxtfuns.cmx cxtstring.cmx facts.cmx idclass.cmx \
     provisofuns.cmx provisotype.cmx rewrite.cmx sml.cmx stringfuns.cmx \
     substmapfuns.cmx symbol.cmx termfuns.cmx termstore.cmx termstring.cmx \
     termtype.cmx unify.cmi 
-usefile.cmo: listfuns.cmi miscellaneous.cmi moresys.cmi sml.cmi \
-    stringfuns.cmi usefile.cmi 
-usefile.cmx: listfuns.cmx miscellaneous.cmx moresys.cmx sml.cmx \
-    stringfuns.cmx usefile.cmi 
+usefile.cmo: listfuns.cmi miscellaneous.cmi moresys.cmi sml.cmi usefile.cmi 
+usefile.cmx: listfuns.cmx miscellaneous.cmx moresys.cmx sml.cmx usefile.cmi 
 version.cmo: listfuns.cmi sml.cmi version.cmi 
 version.cmx: listfuns.cmx sml.cmx version.cmi 
