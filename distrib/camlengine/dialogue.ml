@@ -2116,13 +2116,32 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             if Interaction.getdisplaystyle () = "tree" then
               (let dNdmapping = draganddropmapping cxt in
                if List.length dNdmapping!=0 then
-                 (let get_es sel =
-                     Listfuns.remdups 
-                      (Listfuns.sort earlierresource 
-                        (List.concat (sel <* dNdmapping))) 
-                  in
+                 (let sortedconcat cmp = Listfuns.remdups <.> Listfuns.sort cmp <.> List.concat in
+                  let sortedconcat_es = sortedconcat earlierresource in
+                  let get_es sel = sortedconcat_es (sel <* dNdmapping) in
                   let elementmap es = (fun e -> e, Interaction.locateElement state e) <* es in
-                  Japeserver.draginfo (elementmap (get_es fst)) (elementmap (get_es snd)) dNdmapping));
+                  let s2pos = elementmap (get_es fst) in
+                  let t2pos = elementmap (get_es snd) in
+                  (* because this is a tree, we want to pick out in each source list the highest
+                     occurrence (min y) that is below the lowest target occurrence (max y) 
+                   *)
+                  let explodePos p = Box.posX p, Box.posY p in
+                  let sourcefilter (e, ps) = 
+                    let tes = sortedconcat_es (snd <* ((fun (ss,_) -> List.exists (fun s -> e=s) ss) <| dNdmapping)) in 
+                    let tpss = 
+                       ((fun tps -> explodePos <* tps) <.> _The) <* 
+                         (Mappingfuns.(<@>) (Mappingfuns.mkmap t2pos) <* tes) 
+                    in
+                    let tps = sortedconcat (fun (x,y) (x',y') -> y>y') tpss in
+                    let sps = Listfuns.sort (fun (x,y) (x',y') -> y>y') (explodePos <* ps) in
+                    (* now sps and tps are lowest-first order
+                     *)
+                    let targety = snd (List.hd tps) in
+                    let spslow = Listfuns.takewhile (fun (x,y) -> y>targety) sps in
+                    let sps = if null spslow then sps else [List.hd (List.rev spslow)] in
+                    (e, Box.pos <* sps)
+                  in
+                  Japeserver.draginfo (sourcefilter <* s2pos) t2pos dNdmapping));
             env, mbs, show,
             withhist
               (withdisplaystate
