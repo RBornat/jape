@@ -141,7 +141,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     private static void initInterfaceFonts() {
         if (interfaceFonts==null) {
             codecDone = true;
-            setInterfaceFonts(new Font("sanserif", Font.PLAIN, 1));
+            setInterfaceFonts(new Font(LocalSettings.fontStyle, Font.PLAIN, 1));
         }
     }
 
@@ -239,3 +239,4 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         interfaceMetrics = null;
     }
 }
+

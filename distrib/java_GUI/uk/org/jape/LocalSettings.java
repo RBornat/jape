@@ -36,21 +36,22 @@ import java.io.FileInputStream;
 
 public class LocalSettings implements SelectionConstants {
 
-    static boolean debug = true;
+    static boolean debug = null!=System.getProperty("debug.settings");
 
     private static Properties props = new Properties();
 
     static
-    {
+    {  String  config = System.getProperty("jape.settings");
+       if (config!=null)
        try
        { // generalize me!
-         props.load(new FileInputStream("jape.properties"));
+         props.load(new FileInputStream(config));
          if (debug) System.err.println("Using ./jape.properties as configuration");
          if (debug) props.list(System.err);
        }
        catch (Exception e)
        {
-         if (debug) System.err.println("Using default configuration");
+         System.err.println(e + "(while loading settings)\n[Falling back to default configuration]");
        }
         
     }
@@ -66,6 +67,13 @@ public class LocalSettings implements SelectionConstants {
       {  // should go to GUI, but we mayn't have one yet!
          System.err.println(e + " property name: " + name);
       }
+      if (debug) System.err.println(name + " = " + value);
+      return value;
+    }
+    
+    static private String getProp(String name, String defaultvalue)
+    { String val   = props.getProperty(name);
+      String value = val==null?defaultvalue:val;
       if (debug) System.err.println(name + " = " + value);
       return value;
     }
@@ -92,13 +100,14 @@ public class LocalSettings implements SelectionConstants {
 
     // size of fonts
     
-    public static final byte 	FormulaFontSize     = getProp("formulasize",     18),
-                                defaultOtherSize    = getProp("othersize",       14),
-                                ReasonFontSize      = getProp("reasonsize",      defaultOtherSize),
-                                ProvisoFontSize     = getProp("provisosize",     defaultOtherSize),
-                                PanelButtonFontSize = getProp("panelbuttonsize", defaultOtherSize),
-                                PanelEntryFontSize  = getProp("panelentrysize",  defaultOtherSize);
+    public static final byte 	FormulaFontSize     = getProp("font.formula.size",     18),
+                                defaultOtherSize    = getProp("font.other.size",       14),
+                                ReasonFontSize      = getProp("font.reason.size",      defaultOtherSize),
+                                ProvisoFontSize     = getProp("font.proviso.size",     defaultOtherSize),
+                                PanelButtonFontSize = getProp("font.panelbutton.size", defaultOtherSize),
+                                PanelEntryFontSize  = getProp("font.panelentry.size",  defaultOtherSize);
 
+    public static final String  fontStyle           = getProp("fonts.family", "sanserif");
     
     // spacing of tiles
     public static final int TileSpacing = 7;
@@ -132,9 +141,10 @@ public class LocalSettings implements SelectionConstants {
     public static final boolean UnicodeWindowTitles = false;
 
     public static void main(String[] arg)
-    { debug = true;
+    { 
       new LocalSettings();
     }
 }
+
 
 
