@@ -164,7 +164,7 @@ public class DisproofPane extends Container {
             Dimension worldSize = worldPane.getPreferredSize();
 
             return new Dimension(Math.max(seqSize.width,tileSize.width+worldSize.width)+2*gap(),
-                                 seqSize.height+2*gap()+Math.max(tileSize.height+worldPane.scrollbarthickness(),
+                                 seqSize.height+2*gap()+Math.max(tileSize.height+worldPane.scrollbarthickness,
                                                                  worldSize.height));
         }
 
@@ -176,7 +176,9 @@ public class DisproofPane extends Container {
         */
 
         public Dimension minimumLayoutSize(Container pane) {
-            return preferredLayoutSize(pane);
+            Dimension d = seqView.getSize();
+            d.height+=2*gap()+worldPane.scrollbarthickness+4*worldCanvas.worldRadius();
+            return d;
         }
 
         /* Called when the container is first displayed, and each time its size changes.
@@ -201,9 +203,9 @@ public class DisproofPane extends Container {
                 tileleft = right-tileSize.width;
             
             seqView.setLocation((paneSize.width-seqSize.width)/2, seqtop);
-            tileCanvas.setBounds(tileleft,
-                                 worldbottom-worldPane.scrollbarthickness()-tileSize.height,
-                                 tileSize.width, tileSize.height);
+            tileCanvas.setBounds
+                (tileleft, worldbottom-worldPane.scrollbarthickness-tileSize.height,
+                 tileSize.width, tileSize.height);
             worldPane.setBounds(0, 0, tileleft-gap(), worldbottom);
 
             pane.repaint();
