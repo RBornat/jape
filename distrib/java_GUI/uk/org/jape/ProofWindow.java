@@ -201,7 +201,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
 
         if (japeserver.onMacOS) // put the dot in the red button
             getRootPane(). putClientProperty("windowModified",
-                                            undoenable ? Boolean.TRUE : Boolean.FALSE);
+                            (proofhistory||disproofhistory) ? Boolean.TRUE : Boolean.FALSE);
     }
 
     
