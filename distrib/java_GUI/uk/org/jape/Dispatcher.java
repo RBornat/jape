@@ -142,7 +142,6 @@ public class Dispatcher extends Thread implements DebugConstants {
                     // font setting
                         if (p.equals("SETFONTS")&&len==2) {
                             JapeCharEncoding.setEncoding(cmd[1]);
-                            JapeFont.setSubstituteFont(cmd[1]);
                         }
                         else
                         
@@ -160,7 +159,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                             JapeMenu.newMenu(toBool(cmd[1]), cmd[2]);
                         else
                         if (p.equals("MENUITEM")&&len==5)
-                            JapeMenu.addItem(cmd[1], cmd[2],cmd[3], cmd[4]);
+                            JapeMenu.addItem(cmd[1], cmd[2], cmd[3], cmd[4]);
                         else
                         if (p.equals("MAKEMENUSVISIBLE")&&len==1) {
                             JapeMenu.makeMenusVisible();
@@ -330,7 +329,6 @@ public class Dispatcher extends Thread implements DebugConstants {
                             JapeMenu.cancelMenus();
                             PanelWindowData.cancelPanels();
                             JapeCharEncoding.resetEncoding();
-                            JapeFont.resetSubstituteFont();
                             JapeWindow.resetNextPos();
                         }
                         else
@@ -339,8 +337,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                             PanelWindowData.emptyPanels();
                         }
                         else
-                        if (p.equals("QUIT")&&len==1) { 
-                        System.exit(0);
+                        if (p.equals("QUIT")&&len==1) {
+                            System.exit(0);
                         }
                         else
                         if (p.equals("DONTQUIT")&&len==1)
@@ -359,8 +357,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                 }
             } // while
         } catch (IOException e) {
-            Logger.log.println("GUI crash: dispatcher fails with IOException "+e);
-            System.exit(2);
+            Logger.crash("GUI crash: dispatcher fails with IOException "+e, 2);
         }
     }
 
