@@ -834,7 +834,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             | ElementPunctPlan ->
                 raise (Catastrophe_ ["foldformula ElementPunctPlan"])
           in
-          let estring = catelim_elementstring e [] in
+          let estring = catelim_elementstring_invisbracketed e [] in
           let measure = fst_of_3 <*> measurestring TermFont in
           let _ =
             if !boxfolddebug then

@@ -129,6 +129,7 @@ module type Termstring =
 	  string -> term -> string list -> string list
 	val catelim_smltermstring : term -> string list -> string list
 	val catelim_elementstring : element -> string list -> string list
+	val catelim_elementstring_invisbracketed : element -> string list -> string list
 	val catelim_smlelementstring :
 	  (term -> string list -> string list) -> element -> string list ->
 		string list

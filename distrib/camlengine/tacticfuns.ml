@@ -79,7 +79,15 @@ let rec lookupassoc s =
   | Some (b, _                    ) -> Some (b, false)
   | None                            -> None
 
-let sameterms = unifyvarious (* for now *)
+(* sameterms is used by doREPLAY (i.e. ReplayTac).  We want identity, so
+why on earth won't identity do?  Well, the answer is that even when
+replaying we have to unify ResUnknowns.  But since we do want
+identity, we surely can insist that the term mapping comes back the same.
+*)
+(* we should be using unifyvariousEQ, but because of a fault in the recording of
+GIVEN steps, we have to use unifyvarious.
+*)
+let sameterms = unifyvarious
 (* fun sameterms (t1,t2) cxt = 
   if eqalphaterms 
        (rewrite cxt t1, rewrite cxt t2) 
@@ -755,9 +763,13 @@ let rec doANY
 let rec doRESOLVE
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, checker, resolve, filter, taker, selhyps, selconcs
+(* sameterms is identity (but see newjape.sml);
+   apply (no fancy resolution);
+   takefirst (because proof recording doesn't identify resources)
+*)
 let rec doREPLAY
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  matching, sameterms, ruler, filter, taker, selhyps, selconcs
+  matching, sameterms, apply, filter, takefirst, selhyps, selconcs
 (* semantics: keep applying a tactic till it fails, you run out of time, 
  * or there is nothing more to do in the state.  Catch exceptions and 
  * treat them as failure.

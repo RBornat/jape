@@ -1311,6 +1311,14 @@ let unifytermsandcheckprovisos pair =
   (doUnify pair &~ checkprovisos)
 let rec unifyvarious pair cxt =
   List.concat ((checkdeferred pair <* unifyv pair cxt))
+
+(* for unification which mustn't make a difference ... *)
+let unifyvariousEQ pair cxt = 
+(fun cxt' -> List.length (rawaslist (varmap cxt)) = List.length (rawaslist (varmap cxt')) ||
+	  ((*consolereport ["unifyvariousEQ fails "; cxtstring cxt'; " (was ", cxtstring cxt, ")"];*)
+	   false)
+) <| unifyvarious pair cxt
+    
 let rec dropunify (target, sources) cxt =
   let rec bad mess =
     raise

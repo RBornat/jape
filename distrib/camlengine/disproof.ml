@@ -243,10 +243,9 @@ let rec variables t = isVariable <| termvars t
 let rec findoccs f os =
   match f with
     ForcePrim _ -> os
-  | ForceBracket f -> findoccs f os
-  | ForceAnd (f1, f2) -> findoccs f1 (findoccs f2 os)
-  | ForceOr (f1, f2) -> findoccs f1 (findoccs f2 os)
-  | ForceImplies (f1, f2) -> findoccs f1 (findoccs f2 os)
+  | ForceBoth (f1, f2) -> findoccs f1 (findoccs f2 os)
+  | ForceEither (f1, f2) -> findoccs f1 (findoccs f2 os)
+  | ForceIf (f1, f2) -> findoccs f1 (findoccs f2 os)
   | ForceEverywhere f -> findoccs f os
   | ForceNowhere f -> findoccs f os
   | ForceAll (t, vs, f) -> findoccs f (newocc t vs os)
@@ -335,10 +334,9 @@ let rec semanticfringe facts ts t =
   and ff ts fd =
     match fd with
       ForcePrim t -> tf ts t
-    | ForceBracket fd -> ff ts fd
-    | ForceAnd pair -> pf ts pair
-    | ForceOr pair -> pf ts pair
-    | ForceImplies pair -> pf ts pair
+    | ForceBoth pair -> pf ts pair
+    | ForceEither pair -> pf ts pair
+    | ForceIf pair -> pf ts pair
     | ForceEverywhere fd -> ff ts fd
     | ForceNowhere fd -> ff ts fd
     | ForceAll (t, _, fd) -> ff (t :: ts) fd
@@ -422,10 +420,9 @@ let rec unfixedforced facts u =
     let rec interp fd c =
       match fd with
         ForcePrim t' -> f (c, t')
-      | ForceBracket fd' -> interp fd' c
-      | ForceAnd (fd1, fd2) -> logAnd (interp fd1 c) (interp fd2 c)
-      | ForceOr (fd1, fd2) -> logOr (interp fd1 c) (interp fd2 c)
-      | ForceImplies (fd1, fd2) -> logImp (interp fd1 c) (interp fd2 c)
+      | ForceBoth (fd1, fd2) -> logAnd (interp fd1 c) (interp fd2 c)
+      | ForceEither (fd1, fd2) -> logOr (interp fd1 c) (interp fd2 c)
+      | ForceIf (fd1, fd2) -> logImp (interp fd1 c) (interp fd2 c)
       | ForceEverywhere fd' ->
           logAnd (interp fd' c) (logAll (interp fd) (children c))
       | ForceNowhere fd' ->

@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -41,12 +41,12 @@ val setFonts : string -> unit
 val fontinfo : font -> int * int * int
 (* ascent, descent, leading *)
    
-   (* By default all drawing takes place in the front window. 
-	* When fonts change, background windows have to be refreshed.
-	* The following allow the engine temporarily to redirect
-	* drawing to a background window.  If canbackgroundfocus is false, 
-	* it won't do such a thing.
-	*)
+(* By default all drawing takes place in the front window. 
+* When fonts change, background windows have to be refreshed.
+* The following allow the engine temporarily to redirect
+* drawing to a background window.  If canbackgroundfocus is false, 
+* it won't do such a thing.
+*)
 val canbackgroundfocus : bool
 val setbackgroundfocus : int -> unit
 val setforegroundfocus : unit -> unit
@@ -55,11 +55,10 @@ val procrustes : int -> string -> font -> string -> string
 (* width   ...               string    what fits *)
 
 (* drawmeasuredtext takes a selection class (0 is non-selectable),
-			 an (offset*font*string) list and
-			 a position
+                          an (offset*font*string) list and
+                          a position
 *)
-val drawmeasuredtext :
-  displayclass -> (pos * font * string) list -> pos -> unit
+val drawmeasuredtext : displayclass ->(pos*font*string) list -> pos -> unit
 (* nowadays we can draw in the proof pane or the disproof pane *)
 val drawinpane : pane -> unit
 (* disproof has sequent and term-buttons and worlds; disproof sequent is drawn separately *)
@@ -68,7 +67,7 @@ val setdisproofseqbox : box -> unit
 val setdisprooftiles : string list -> unit
 val setdisproofworlds :
   (int * int) list ->
-	((int * int) * string list * (int * int) list) list -> unit
+    ((int * int) * string list * (int * int) list) list -> unit
 (* the mad world of menus and panels *)
 val cancelmenusandpanels : unit -> unit
 val emptymenusandpanels : unit -> unit
@@ -90,11 +89,11 @@ val mapmenus : bool -> unit
 (* false: menus under construction; true: menus constructed *)
  
 val newpanel : string * panelkind -> unit
-	(* A ConjecturePanel automatically includes buttons labelled NewÉ, Prove and Show Proof,
-	   which have to be supplied by the GUI (and the engine supplies a default Apply button 
-	   if the user defines no buttons at all). 
-	   Nothing else seems to have any default buttons.  Hmmm.
-	 *)
+    (* A ConjecturePanel automatically includes buttons labelled NewÉ, Prove and Show Proof,
+       which have to be supplied by the GUI (and the engine supplies a default Apply button 
+       if the user defines no buttons at all). 
+       Nothing else seems to have any default buttons.  Hmmm.
+     *)
 
 val panelentry : string * string * string -> unit
 val panelbutton : string * string * panelbuttoninsert list -> unit
@@ -109,8 +108,8 @@ val closedown : unit -> unit
 val killserver : unit -> unit
 val drawLine : box -> unit
 (* top right to bottom left, staying within the box, 
-								using linethickness from setproofparams
-							  *)
+                                using linethickness from setproofparams
+                              *)
 val drawRect : box -> unit
 (* just inside the box, using linethickness from setproofparams *)
 
@@ -141,7 +140,7 @@ val clearDisproofPane : unit -> unit
  *)
 val getAllSelections :
   unit ->
-	(pos * displayclass) list * (pos * string list) list * string list
+    (pos * displayclass) list * (pos * string list) list * string list
 (* selections               prooof text selections     givens text selections *)
 
 val highlight : pos -> displayclass option -> unit
@@ -162,10 +161,10 @@ val dbugfiletype : int
 (* whatever you like *)
    
    (* In the following calls, 
-	*   string is a message to put in the dialogue box,
-	*   int is a filetype
-	* Either argument may be safely ignored.
-	*)
+    *   string is a message to put in the dialogue box,
+    *   int is a filetype
+    * Either argument may be safely ignored.
+    *)
 val writeFileName : string -> int -> string option
 val readFileName : string -> int -> string option
 val resetcache : unit -> unit
@@ -174,7 +173,7 @@ val resetcache : unit -> unit
  (* how to draw things *)
 val setinvischars :
   string * string -> string * string -> string * string ->
-	string * string -> unit
+    string * string -> unit
 (*   onbra  ket         offbra ket         outbra ket         lockbra ket *)
 val setproofparams : string -> int -> unit
 (*    tree/box  linethickness *)

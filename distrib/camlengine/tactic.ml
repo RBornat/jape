@@ -756,7 +756,7 @@ and transLayout con fmt bopt ts =
 	match try__ (checkINTS nserr) bopt with
 	  Some (Id (_, v, _)) as r -> 
 		(match string_of_vid v with
-		   "ALLL" -> None
+		   "ALL" -> None
 		 | _     -> r)
 	| r -> r
   in

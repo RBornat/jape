@@ -48,12 +48,10 @@ let ( <* ) = Listfuns.( <* )
 let maxprovisoresnum = Proviso.maxprovisoresnum
 let maxtreeresnum = Prooftree.Tree.Fmttree.maxtreeresnum
 let mkReplayTac v = Tactictype.ReplayTac v
-let mkSimpleApplyTac v = Tactictype.SimpleApplyTac v
 
 let rec mkTip cxt seq =
   Prooftree.Tree.mkTip cxt seq Treeformat.Fmt.neutralformat
 
-let mkUniqueTac v = Tactictype.UniqueTac v
 let mkvisproviso = Proviso.mkvisproviso
 let proofstage2word = Proofstage.proofstage2word
 let proving = Tacticfuns.proving
@@ -123,7 +121,8 @@ exception NoProof_ of string list
 
 let rec doProof
   report query env name stage seq (givens, pros, tac) disproofopt =
-  let tac = mkReplayTac (mkUniqueTac (mkSimpleApplyTac tac)) in
+  (* ReplayTac now does all the work of setting up the parameters for a replay *)
+  let tac = mkReplayTac tac in
   let (pros', givens, seq) = compiletoprove (pros, givens, seq) in
   let cxt = withprovisos newcxt (mkvisproviso <* pros') in
   let oldapply = !applyconjectures in

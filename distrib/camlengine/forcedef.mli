@@ -24,10 +24,9 @@ open Sequent.Type
 open Term.Type
 
 type forcedef = ForcePrim of term
-              | ForceBracket of forcedef
-              | ForceAnd of (forcedef * forcedef)
-              | ForceOr of (forcedef * forcedef)
-              | ForceImplies of (forcedef * forcedef)
+              | ForceBoth of (forcedef * forcedef)
+              | ForceEither of (forcedef * forcedef)
+              | ForceIf of (forcedef * forcedef)
               | ForceEverywhere of forcedef
               | ForceNowhere of forcedef
               | ForceAll of (term * term list * forcedef)

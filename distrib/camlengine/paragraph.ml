@@ -623,7 +623,7 @@ let rec parseParagraph report query =
   | SHYID "DERIVED" -> scansymb (); Some (parseDerived report)
   | SHYID "DISPROOF" -> scansymb (); Some (parseProof report Disproved)
   | SHYID "FONTS" -> scansymb (); Some (parseFontSpec ())
-  | SHYID "FORCE" -> scansymb (); Some (parseForceDefSpec ())
+  | SHYID "FORCEDEF" -> scansymb (); Some (parseForceDefSpec ())
   | SHYID "FORMULA" ->
       raise (ParseError_ ["FORMULA without CLASS is meaningless"])
   | SHYID "GIVENPANEL" -> scansymb (); Some (parseGivenPanel report query)
@@ -1125,7 +1125,7 @@ and parseFontSpec () = FontSpec (currsymb_as_string ())
 
 and parseForceDefSpec () =
   let t = parseTerm EOF in
-  let _ = ignore (SHYID "IFF") in
+  let _ = ignore _ISWORD in
   let d = parseForceDef () in ForceDef (t, d)
 
 and parseStructureRule () =

@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -34,10 +34,9 @@ open Termparse
     
 type forcedef =
     ForcePrim of term
-  | ForceBracket of forcedef
-  | ForceAnd of (forcedef * forcedef)
-  | ForceOr of (forcedef * forcedef)
-  | ForceImplies of (forcedef * forcedef)
+  | ForceBoth of (forcedef * forcedef)
+  | ForceEither of (forcedef * forcedef)
+  | ForceIf of (forcedef * forcedef)
   | ForceEverywhere of forcedef
   | ForceNowhere of forcedef
   | ForceAll of (term * term list * forcedef)
@@ -46,21 +45,14 @@ type forcedef =
 
 let rec catelim_forcedefstring f ss =
   match f with
-    ForcePrim t -> "FORCE " :: catelim_termstring t ss
-  | ForceBracket f -> "(" :: catelim_forcedefstring f (")" :: ss)
-  | ForceAnd (f1, f2) ->
-      catelim_forcedefstring f1 (" AND " :: catelim_forcedefstring f2 ss)
-  | ForceOr (f1, f2) ->
-      catelim_forcedefstring f1 (" OR " :: catelim_forcedefstring f2 ss)
-  | ForceImplies (f1, f2) ->
-      catelim_forcedefstring f1
-        (" IMPLIES " :: catelim_forcedefstring f2 ss)
-  | ForceEverywhere f -> "EVERYWHERE " :: catelim_forcedefstring f ss
-  | ForceNowhere f -> "NOWHERE " :: catelim_forcedefstring f ss
-  | ForceAll (t, vs, f) ->
-      "ALL " :: catelim_termstring t (" " :: catelim_forcedefstring f ss)
-  | ForceSome (t, vs, f) ->
-      "SOME " :: catelim_termstring t (" " :: catelim_forcedefstring f ss)
+    ForcePrim t          -> "FORCE " :: catelim_argstring t ss
+  | ForceBoth (f1, f2)   -> "BOTH (" :: catelim_forcedefstring f1 (") (" :: catelim_forcedefstring f2 (")"::ss))
+  | ForceEither (f1, f2) -> "EITHER (" :: catelim_forcedefstring f1 (") (" :: catelim_forcedefstring f2 (")"::ss))
+  | ForceIf (f1, f2)     -> "IF (" :: catelim_forcedefstring f1 (") (" :: catelim_forcedefstring f2 (")"::ss))
+  | ForceEverywhere f    -> "EVERYWHERE " :: catelim_forcedefstring f ss
+  | ForceNowhere f       -> "NOWHERE " :: catelim_forcedefstring f ss
+  | ForceAll (t, vs, f)  -> "ALL " :: catelim_termstring t (" " :: catelim_forcedefstring f ss)
+  | ForceSome (t, vs, f) -> "SOME " :: catelim_termstring t (" " :: catelim_forcedefstring f ss)
 
 let rec forcedefstring f = implode (catelim_forcedefstring f [])
 
@@ -76,14 +68,12 @@ let rec option_mapforcedefterms f fd =
   let res =
     match fd with
       ForcePrim t -> (omt t &~~ (fSome <*> (fun v->ForcePrim v)))
-    | ForceBracket fd' ->
-        (omff fd' &~~ (fSome <*> (fun v->ForceBracket v)))
-    | ForceAnd pair ->
-        (ompair pair &~~ (fSome <*> (fun v->ForceAnd v)))
-    | ForceOr pair ->
-        (ompair pair &~~ (fSome <*> (fun v->ForceOr v)))
-    | ForceImplies pair ->
-        (ompair pair &~~ (fSome <*> (fun v->ForceImplies v)))
+    | ForceBoth pair ->
+        (ompair pair &~~ (fSome <*> (fun v->ForceBoth v)))
+    | ForceEither pair ->
+        (ompair pair &~~ (fSome <*> (fun v->ForceEither v)))
+    | ForceIf pair ->
+        (ompair pair &~~ (fSome <*> (fun v->ForceIf v)))
     | ForceEverywhere fd' ->
         (omff fd' &~~ (fSome <*> (fun v->ForceEverywhere v)))
     | ForceNowhere fd' ->
@@ -104,10 +94,9 @@ let rec findinforcedef f fd =
   in
   match fd with
     ForcePrim t -> findterm f t
-  | ForceBracket fd -> findinforcedef f fd
-  | ForceAnd pair -> findinpair pair
-  | ForceOr pair -> findinpair pair
-  | ForceImplies pair -> findinpair pair
+  | ForceBoth pair -> findinpair pair
+  | ForceEither pair -> findinpair pair
+  | ForceIf pair -> findinpair pair
   | ForceEverywhere fd -> findinforcedef f fd
   | ForceNowhere fd -> findinforcedef f fd
   | ForceAll (t, _, fd) ->
@@ -118,47 +107,56 @@ let rec findinforcedef f fd =
 let rec existsinforcedef f =
   opt2bool <*> findinforcedef (fun t -> if f t then Some true else None)
 
+(* this ran into trouble when it emerged that it was using ALL as a reserved word, which had
+   been previously used in LAYOUT tactics to mean 'display all subtrees'.  On the principle
+   that reserved words ought not to be easily confused, this was a problem.  Also, it conflicted
+   with the principle that we ought to be able to load old proofs.  
+   
+   First I tried to fix it by making LAYOUT use another word (ALLL instead of ALL) but ugh!.
+   
+   Second I tried to fix it by parsing it as a term and then analysing.  This worked up to a 
+   point, but it fell apart when it saw FORCE P(i), which parses as (but obviously doesn't mean)
+   (FORCE P) i.  
+   
+   But I stuck with it, demanding only that you bracket the argument of FORCE. 
+ *)
+(* I should have liked BOTH and EITHER to work as infix, but it makes life too 
+   complicated ... so Lisp-style FORCEDEFs rule.  Anyway, it avoids stupidities
+   about priorities!
+ *)
 let rec parseForceDef () =
   (* there is no operator priority in forcedefs ... *)
-  let f =
-    match currsymb () with
-      SHYID "FORCE" -> let _ = scansymb () in ForcePrim (parseTerm EOF)
-    | SHYID "EVERYWHERE" ->
-        let _ = scansymb () in  ForceEverywhere (parseForceDef ())
-    | SHYID "NOWHERE" -> let _ = scansymb () in  ForceNowhere (parseForceDef ())
-    | SHYID "ALL" -> let _ = scansymb () in  ForceAll (parseForceDefBinder ())
-    | SHYID "SOME" -> let _ = scansymb () in  ForceSome (parseForceDefBinder ())
-    | BRA "(" ->
-        let _ = scansymb () in 
-        ForceBracket
-          (let r = parseForceDef () in
-           (if currsymb () = KET ")" then let _ = scansymb () in ()
-            else
-              raise
-                (ParseError_
-                   ["closing bracket expected after FORCE definition; found ";
-                    symbolstring (currsymb ())])); r)
-    | sy ->
-        raise
-          (ParseError_
-             ["FORCE, EVERYWHERE, NOWHERE, ALL, SOME or bracket expected in ";
-              "FORCE definition; found "; symbolstring sy])
+  let decodeApp t =
+    match explodeApp false t with
+      (f, args) -> (termstring f, args)
   in
-  match currsymb () with
-    SHYID "AND" -> let _ = scansymb () in  ForceAnd (f, parseForceDef ())
-  | SHYID "OR" -> let _ = scansymb () in  ForceOr (f, parseForceDef ())
-  | SHYID "IMPLIES" -> let _ = scansymb () in  ForceImplies (f, parseForceDef ())
-  | _ -> f
-
-and parseForceDefBinder () =
-  let t = parseTerm EOF in
-  let vs = isVariable <| termvars t in
-  let f = parseForceDef () in
-  if List.exists (not <*> isextensibleId) vs then
-    raise
-      (ParseError_
-         ["ALL and SOME must use CLASS VARIABLE identifiers to describe individuals"])
-  else t, vs, f
+  let rec tranForceDef t =
+    match decodeApp t with
+      ("FORCE"       , [t]) -> ForcePrim (tranPrim t)
+    | ("EVERYWHERE"  , [f]) -> ForceEverywhere (tranForceDef f)
+    | ("NOWHERE"     , [f]) -> ForceNowhere (tranForceDef f)
+    | ("ALL"    , [pat; f]) -> ForceAll (tranForceDefBinder pat f)
+    | ("SOME"   , [pat; f]) -> ForceSome (tranForceDefBinder pat f)
+    | ("BOTH"   , [f1; f2]) -> ForceBoth(tranForceDef f1, tranForceDef f2)
+    | ("EITHER" , [f1; f2]) -> ForceEither(tranForceDef f1, tranForceDef f2)
+    | ("IF"     , [f1; f2]) -> ForceIf(tranForceDef f1, tranForceDef f2)
+    | _ -> raise (ParseError_ 
+           ["FORCE t, EVERYWHERE f, NOWHERE f, ALL pat f, SOME pat f, BOTH f f, EITHER f f "; 
+            "or IF f f expected in FORCEDEF; found "; termstring t
+           ])
+  
+  and tranPrim t =
+    try checkTacticTerm t; debracket t 
+    with Tacastrophe_ ss -> 
+           raise (ParseError_ ("FORCE " :: termstring t :: " contains " :: ss))
+  
+  and tranForceDefBinder pat f = 
+    let vs = isVariable <| termvars pat in
+    if List.exists (not <*> isextensibleId) vs then
+      raise (ParseError_ ["ALL and SOME must use CLASS VARIABLE identifiers to describe individuals"])
+    else (pat,vs,tranForceDef f)
+  in
+      tranForceDef (asTactic parseTerm EOF)
 
 (* now also includes the disproof universe bit of shared proofs *)
 

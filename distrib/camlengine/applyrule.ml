@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -246,6 +246,12 @@ let (sameprovisos : possmatch -> possmatch option) =
        r)
 (* discriminators *)
 
+let answerstring (Info {conjecture=Seq(st,chs,cgs)}, thinnedL, thinnedR, _, _) = 
+  quadruplestring idclassstring idclassstring 
+      (bracketedliststring (smlelementstring termstring) ",") 
+      (bracketedliststring (smlelementstring termstring) ",") "; " 
+      (snd_of_3(breakside chs),snd_of_3(breakside cgs),thinnedL,thinnedR)
+          
 let rec remdupposs ps =
   (* eliminate answers which _look_ the same, now that we've got through 
    * all the filters -- but only do it in bag matching
