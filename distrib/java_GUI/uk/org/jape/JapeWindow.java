@@ -65,7 +65,8 @@ public class JapeWindow extends JFrame {
                 if (windowListener!=null)
                     JapeMenu.windowActivated(titleForMenu(), JapeWindow.this);
                 else
-                    System.err.println("JapeWindow.windowListener late windowActivated "+e);
+                    System.err.println("JapeWindow.windowListener late windowActivated \""+
+                                       title +"\"; "+e);
             }
         };
         addWindowListener(windowListener);
