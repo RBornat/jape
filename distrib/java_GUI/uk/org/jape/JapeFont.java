@@ -44,8 +44,6 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
        ************************
      */
      
-    private static PosIntHashMap toUni=null, toAsc=null;
-    
     private static Font substituteFont=null;
     private static HashMap substitutes = new HashMap(50,(float)0.5);
     
@@ -111,127 +109,6 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         c.setFont(deriveFont(f, f.getStyle(), size));
     }
 
-    private static boolean codecDone = false;
-    
-    public static String toUnicode(String s) {
-        return substituteFont==null ? tran(toUni, s) : s;
-    }
-    
-    public static String toAscii(String s) {
-        return substituteFont==null ? tran(toAsc, s) : s;
-    }
-    
-    // we can't set the font of window titles, and I don't know what else ...
-    public static String toUnicodeTitle(String s) {
-        return tran(toUni, s);
-    }
-    
-    // we can't set the font of window titles, and I don't know what else ...
-    public static String toAsciiAlways(String s) {
-        return tran(toAsc, s);
-    }
-    
-    private static String tran(PosIntHashMap table, String s) {
-        codecDone = true;
-        if (table==null) 
-            return s;
-        else {
-            StringBuffer t = null;
-            int len = s.length();
-            for (int i=0; i<len; i++) {
-                int c = table.get((int)s.charAt(i));
-                if (c>=0) {
-                    if (t==null)
-                        t = new StringBuffer(s);
-                    t.setCharAt(i,(char)c);
-                }
-            }
-            return t==null ? s : t.toString();
-        }
-/* */
-    }
-    
-    private static void setmap(int asc, int uni) {
-        toUni.set(asc,uni); toAsc.set(uni,asc);
-    }
-    
-    private static void setKonstanzMap() {
-        int minsize = 100; // about 50 chars to translate
-        
-        // System.err.println("setting up map Konstanz <-> Unicode");
-        
-        toUni = new PosIntHashMap(minsize);
-        toAsc = new PosIntHashMap(minsize);
-        
-        // this list defined by looking at what MacOS X thinks Konstanz means.
-        // If it isn't universally accepted, we shall have to translate back into bytes,
-        // and then into Unicode again.  But I hope not.
-        
-        // note the ones for which I haven't found a perfect match (look for ***)
-        
-        setmap(0x00A4, 0x21d2); // double arrow right
-        setmap(0x00A5, 0x22b8); // lollipop
-        setmap(0x00AA, 0x2297); // circled times
-        setmap(0x00AF, 0x2AE0); // short up tack .. best I can find
-        setmap(0x00B6, 0x2227); // logical and
-        setmap(0x00B7, 0x297D); // right fishhook (RIGHT FISH TAIL), form of logical implication
-        setmap(0x00BA, 0x2295); // circled plus
-	setmap(0x00C1, 0x2192); // single arrow right
-        setmap(0x00C2, 0x27db); // left and right turnstile
-        setmap(0x00C4, 0x2ADF); // short down tack .. best I can find
-        setmap(0x00C7, 0x0393); // Gamma
-        setmap(0x00C8, 0x2261); // equivalent
-        setmap(0x00CA, 0x22A2); // turnstile
-        setmap(0x00CB, 0x2200); // for all
-        setmap(0x00CC, 0x22A7); // models
-        setmap(0x00CD, 0x2194); // left-right single arrow
-        setmap(0x00CE, 0x2228); // logical or
-        setmap(0x00CF, 0x039B); // Lambda
-        setmap(0x00D2, 0x223C); // tilde operator
-        setmap(0x00D3, 0x22A9); // forces
-        setmap(0x00D4, 0x222A); // union
-        setmap(0x00D9, 0x00D7); // multiplication (and it is D7, believe it or not ...)
-        setmap(0x00DA, 0x2135); // aleph (alef?)
-        setmap(0x00DC, 0x22C3); // n-ary union
-        setmap(0x00DF, 0x2286); // subset or equal
-        setmap(0x00E3, 0x27E8); // sequence bra
-        setmap(0x00E4, 0x2AE2); // triple-bar turnstile
-        setmap(0x00EB, 0x25C1); // white left-pointing triangle
-        setmap(0x00EF, 0x21DD); // rightwards squiggle arrow (*** should be turnstile with tilde as horizontal)
-        setmap(0x00F1, 0x27E9); // sequence ket
-        setmap(0x00F5, 0x21D0); // leftwards double arrow
-        setmap(0x00F6, 0x2907); // rightwards double arrow from bar
-        setmap(0x00FC, 0x21CC); // RIGHTWARDS HARPOON OVER LEFTWARDS HARPOON
-        setmap(0x00ff, 0x21a6); // rightwards single arrow from bar (maps to)
-        setmap(0x0131, 0x2292); // square greater or equal (*** should have a line above)
-        setmap(0x0178, 0x22a5); // bottom (as UP TACK)
-        setmap(0x02C6, 0x25a1); // white square (25ab is small white square, if more appropriate)
-        setmap(0x02D8, 0x25aa); // small black square (25a0 is black square, if more appropriate)
-        setmap(0x02d9, 0x2283); // superset
-        setmap(0x02da, 0x03bb); // lambda (more lambdas in the unicode 3 space, but let's not go there)
-        setmap(0x02dc, 0x225c); // equal by definition to (as DELTA EQUAL TO; 225d is nicer in print but not on screen)
-        setmap(0x2020, 0x03a4); // Tau (I think)
-        setmap(0x2021, 0x214b); // turned (upside-down) ampersand
-        setmap(0x2030, 0x2203); // exists
-        setmap(0x2039, 0x2234); // proportion (looks like double colon)
-        setmap(0x203a, 0x27e6); // white left square bracket (semantic bra) (301a may be preferable)
-        setmap(0x2044, 0x2208); // element of
-        setmap(0xf8ff, 0x27da); // left and right forces
-        setmap(0xfb01, 0x27e7); // white right square bracket (semantic ket) (301b may be preferable)
-        setmap(0xfb02, 0x2229); // intersection
-    }
-
-    /* from the jape code (displayfont.ml)
-       (* Useful translation for Japeserver marshalling.
-        * Current C/Java/Tk interfaces believe in these integers.
-        *
-        *  TermFont = 0
-        *  ReasonFont = 1
-        *  ProvisoFont = 2
-        *
-        *)
-     */
-
     public static byte[] interfaceFontSizes =
         new byte[]{ LocalSettings.FormulaFontSize, LocalSettings.ReasonFontSize, LocalSettings.ProvisoFontSize };
 
@@ -258,6 +135,8 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
             interfaceFonts[i] = deriveFont(base, Font.PLAIN, interfaceFontSizes[i]);
     }
 
+    private static boolean codecDone;
+    
     private static void initInterfaceFonts() {
         if (interfaceFonts==null) {
             codecDone = true;
@@ -352,10 +231,9 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
                 setInterfaceFonts(substituteFont);
                 Reply.sendCOMMAND("setfonts \""+getFontNames("\" \"")+"\"");
             }
-            setKonstanzMap();
         }
         else
-            Alert.showErrorAlert("SETFONTS doesn't understand encoding "+name);
+            throw new ProtocolError("japeserver doesn't understand encoding "+name);
     }
     
     public static void unsetfont() {
