@@ -97,7 +97,7 @@ let lockket = '\015' (* SI *)
 let invisible_char c = (onbra <= c && c <= outket) || c = lockbra || c = lockket
 let invisible s =
   let lim = String.length s in
-  let rec f i = i!=lim && invisible_char s.[i] && f (i+1) in
+  let rec f i = i=lim || (invisible_char s.[i] && f (i+1)) in
   f 0
 
 exception Catastrophe_ of string list

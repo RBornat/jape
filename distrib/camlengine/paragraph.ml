@@ -1141,19 +1141,19 @@ and parseStructure s =
 and file2paragraphs report query s =
   let s = makerelative s in
   let ic = 
-    try Moresys.open_input_file s 
+    try Usefile.open_input_file s 
     with Sys_error e ->
            showInputError report
-             ["Cannot read file: \""; Moresys.normalizePath s; "\""; " ("; e; ")"];
+             ["Cannot read file: \""; Usefile.normalizePath s; "\""; " ("; e; ")"];
            raise Use_
   in
   let st = pushlex s (UTF.utf8_of_utfchannel ic) in
   let _ = startusing s in
   let rec cleanup () =
-    poplex st; consolereport ["[CLOSING \""; Moresys.normalizePath s; "\"]"]; 
+    poplex st; consolereport ["[CLOSING \""; Usefile.normalizePath s; "\"]"]; 
     stopusing (); close_in ic
   in
-  consolereport ["[OPENING \""; Moresys.normalizePath s; "\"]"];
+  consolereport ["[OPENING \""; Usefile.normalizePath s; "\"]"];
   let r = 
     (try parseParaList report query with
        ParseError_ m -> showInputError report m; cleanup (); raise Use_

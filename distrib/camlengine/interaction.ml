@@ -172,7 +172,7 @@ let rec sortoutSelection state pathkind =
   let (proofsels, prooftextsels, givensel) = Japeserver.getAllProofSelections () in
   (* remove invisbra/kets from any text selections we see *)
   let rec deinvis s =
-    Sml.string_of_chars ((fun c -> not (Miscellaneous.invisible_char c)) <| Sml.chars_of_string s)
+    implode ((fun c -> not (Miscellaneous.invisible c)) <| UTF.utf8_explode s)
   in
   let prooftextsels = List.map (fun (p, ss) -> p, List.map deinvis ss) prooftextsels in
   let givensel = List.map deinvis givensel in
@@ -423,7 +423,7 @@ let rec getCommand displayopt =
           (Catastrophe_
              ["bad selection tail in getCommand (interaction): "; text])
   in
-  match words text with
+  match UTF.words text with
     "ACT" :: x :: y :: c :: _ ->
       begin match
         locateHit (getdisplay ()) (mkpos x y) (Some (mkclass c)) HitPath

@@ -494,7 +494,7 @@ let rec make_remark name args =
     | _ -> (termstring <* args)
   in
   match thingnamed name with
-    None -> respace ("EVALUATE" :: parseablenamestring name :: args)
+    None -> UTF.respace ("EVALUATE" :: parseablenamestring name :: args)
   | Some (Rule _, _) -> namestring name
   | Some (Tactic _, _) -> namestring name
   | Some (Macro _, _) -> namestring name
@@ -1753,7 +1753,7 @@ let rec listf a1 a2 a3 =
 and message term =
   match debracket term with
     Tup (_, ",", Literal (_, String format) :: ts) ->
-      implode (listf (explode format) ts [])
+      implode (listf (UTF.utf8_explode format) ts [])
   | Literal (_, String s) -> s
   | _ -> termstring term
 

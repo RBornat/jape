@@ -1479,8 +1479,8 @@ module Tree : Tree with type term = Termtype.term
                         | _, s , Some _  -> s, invisf
                         | _, s , None    -> s, default_reason
                       in
-                      rprintf (explode fmt) strf
-                 with Failure "nth" -> rprintf (explode !rawfmt) default_reason)
+                      rprintf (UTF.utf8_explode fmt) strf
+                 with Failure "nth" -> rprintf (UTF.utf8_explode !rawfmt) default_reason)
              | _ -> default_reason ()
            in
            f (join_fmt j))

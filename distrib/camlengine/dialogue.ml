@@ -410,7 +410,7 @@ let rec docommand displaystate env target comm =
          withroot
            (withtarget (withgoal (state) (Some target)) (Some target)) (None)
        in
-       applyLiteralTactic (Some displaystate) env (respace comm)
+       applyLiteralTactic (Some displaystate) env (UTF.respace comm)
          state)
     in apply_cleanup (); r
 
@@ -910,7 +910,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     | [] -> state
   in
   let rec addnewconjecture panel text =
-    let text = respace text in
+    let text = UTF.respace text in
     let getpara = string2paragraph showAlert uncurried_screenquery in
     let (text, para) =
       (* praps it's just a conjecture *)
@@ -945,7 +945,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   let rec printproof path state =
     let st = rewriteproofstate state in
     try
-      let s = try Moresys.open_output_file path with exn -> raise (Io exn) in
+      let s = try Usefile.open_output_file path with exn -> raise (Io exn) in
       Interaction.printState s st true; close_out s
     with
       Io exn ->
@@ -954,7 +954,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   
   let writetonamedfile action filename =
     try
-      let sfile = try Moresys.open_output_file (disQuote filename) with exn -> raise (Io exn) in
+      let sfile = try Usefile.open_output_file (disQuote filename) with exn -> raise (Io exn) in
       output_string sfile Miscellaneous.utf8BOM;
       action sfile; close_out sfile; true
     with
@@ -1061,7 +1061,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       [] ->
         showAlert
           ["There is no current proof, so you can't execute \"";
-           respace c; "\""];
+           UTF.respace c; "\""];
         default
     | (Pinf {displaystate = displaystate; hist = hist} as pinf) ::
       pinfs ->
@@ -1083,7 +1083,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
            else ("there are " ^ string_of_int (List.length pinfs)) ^ " proofs";
            " in progress. You must close ";
            if n = 1 then "it" else "them"; " before the command \"";
-           respace c; "\" can be executed."];
+           UTF.respace c; "\" can be executed."];
         default
   in
   
@@ -1224,14 +1224,14 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  | Some (TextSel t) -> nosels (Some t)
                  | Some (ReasonSel _) ->
                      showAlert
-                       ["only reason selection (applying "; respace comm;
+                       ["only reason selection (applying "; UTF.respace comm;
                         ")"];
                      default
                  | None -> nosels None
                  end
              | _ ->
                  showAlert
-                   ["no current proof (applying "; respace comm; ")"];
+                   ["no current proof (applying "; UTF.respace comm; ")"];
                  default
              end)
 
@@ -1242,28 +1242,28 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "assign", name :: value ->
             (try
-              let value = parseTactic (respace value) in
+              let value = parseTactic (UTF.respace value) in
               Japeenv.set (env, namefrom name, value);
               resetcaches ();
               default
             with
               Japeenv.OutOfRange_ s ->
                 showAlert
-                  ["error in "; respace c;
+                  ["error in "; UTF.respace c;
                    " --  value assigned should be "; s];
                 default
             | Japeenv.NotJapeVar_ ->
                 showAlert
-                  ["error in "; respace c; " -- "; name;
+                  ["error in "; UTF.respace c; " -- "; name;
                    " is not a Jape variable"];
                 default
             | Japeenv.ReadOnly_ ->
                 showAlert
-                  ["error in "; respace c; " -- "; "you can't assign to ";
+                  ["error in "; UTF.respace c; " -- "; "you can't assign to ";
                    name; " at this point"];
                 default
             | ParseError_ rs ->
-                showAlert (["can't parse "; respace value; " -- "] @ rs);
+                showAlert (["can't parse "; UTF.respace value; " -- "] @ rs);
                 default)
 
         | "redo_disproof", [] ->
@@ -1316,7 +1316,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 Some t -> termstring t
               | None -> ""
             in
-            Japeserver.showfile ((respace interfacecommand ^ " ") ^ str);
+            Japeserver.showfile ((UTF.respace interfacecommand ^ " ") ^ str);
             (* This should be called -- "tellinterface" *)
             (* It's the way that an interface can do something
                with the value of a jape variable
@@ -1504,9 +1504,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                    let args =
                      try (if null sels || null stuff then parseCurriedArgList
                                                      else (fun t -> [t]) <.> parseTerm)
-                         (respace stuff)
+                         (UTF.respace stuff)
                      with ParseError_ es ->
-                       showAlert ("cannot parse unify " :: respace stuff :: " -- " :: es);
+                       showAlert ("cannot parse unify " :: UTF.respace stuff :: " -- " :: es);
                        raise Unify_
                    in
                    let rec getit s =
@@ -1553,7 +1553,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             end
 
         | "showproof", stuff ->
-            let name = namefrom (respace stuff) in
+            let name = namefrom (UTF.respace stuff) in
             begin match proofnamed name with
               None ->
                 showAlert ["No stored proof of "; namestring name];
@@ -1730,7 +1730,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             end
 
         | "prove", comm ->
-            let name = namefrom (respace comm) in
+            let name = namefrom (UTF.respace comm) in
             if match proofnamed name with
                  Some (proved, tree, provisos, givens, disproved, disproofopt) ->
                    screenquery
@@ -1926,7 +1926,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
            
   and cannotprocesscommand command =
     showAlert
-      ["Dialogue.processcommand cannot process "; respace command]
+      ["Dialogue.processcommand cannot process "; UTF.respace command]
   in
   let rec domb (var, notify) =
     let setting =

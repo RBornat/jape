@@ -328,3 +328,31 @@ let utf8_presub s i =
         in
           f (i-1)
     with _ -> raise Malformed_
+
+(**********************************************)
+
+let rec words =
+  function
+    "" -> []
+  | s ->
+      let rec wds =
+        function
+          [] -> [[]]
+        | [" "] -> [[]]
+        | " " :: " " :: cs -> wds (" " :: cs)
+        | " " :: cs -> [] :: wds cs
+        | "\"" :: cs -> let ws = qds cs in ("\"" :: List.hd ws) :: List.tl ws
+        | c :: cs -> let ws = wds cs in (c :: List.hd ws) :: List.tl ws
+      and qds =
+        function
+          [] -> [[]]
+        | ["\""] -> [["\""]]
+        | "\"" :: " " :: cs -> qds ("\"" :: cs)
+        | "\"" :: cs -> ["\""] :: wds cs
+        | c :: cs -> let ws = qds cs in (c :: List.hd ws) :: List.tl ws
+      in
+      List.map implode (wds (utf8_explode s))
+
+let respace ws = String.concat " " ws
+
+

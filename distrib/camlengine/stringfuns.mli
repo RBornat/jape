@@ -29,8 +29,6 @@ val isQuoted : string -> bool
 val disQuote : string -> string
 val enQuote : string -> string
 val enCharQuote : string -> string
-val words : string -> string list
-val respace : string list -> string
 val lowercase : string -> string
 val uppercase : string -> string
 val pairstring :

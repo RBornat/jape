@@ -94,7 +94,7 @@ let out s =
 
 let write s = out s; out "\n"; flush s
 
-let rec visible s = implode (List.map vis (explode s))
+let rec visible s = implode (List.map vis (UTF.utf8_explode s))
 and vis c = if c < " " then "\\" ^ string_of_int (ord c) else c
     
 (* if the server has crashed, input_line may give an exception *)
@@ -129,18 +129,18 @@ let rec ints_of_reply line =
     | s, r, " " :: xs -> ff_ [] (nn_ s :: r) xs
     | s, r, x :: xs -> ff_ (x :: s) r xs
   in
-  ff_ [] [] (List.rev (explode line))
+  ff_ [] [] (List.rev (UTF.utf8_explode line))
 
-let rec atoi s = nn_ (explode s)
+let rec atoi s = nn_ (UTF.utf8_explode s)
 
 let rec strings_of_reply s =
   let rec ff_ a1 a2 a3 =
     match a1, a2, a3 with
-      w, r, []           -> implode w :: r
-    | w, r, "\001" :: cs -> ff_ [] (implode w :: r) cs
-    | w, r, c :: cs      -> ff_ (c :: w) r cs
+      w, r, []               -> implode w :: r
+    | w, r, "\xc2\x91" :: cs -> ff_ [] (implode w :: r) cs
+    | w, r, c :: cs          -> ff_ (c :: w) r cs
   in
-  ff_ [] [] (List.rev (explode s))
+  ff_ [] [] (List.rev (UTF.utf8_explode s))
 
 type _ITEM = Bool of bool | Int of int | Str of string
 
@@ -158,7 +158,7 @@ let rec writef s is =
     | "%" :: f, Str s :: is -> outs s; ww_ f is
     | c :: cs, is -> out c; ww_ cs is
   in
-  ww_ (explode s) is
+  ww_ (UTF.utf8_explode s) is
 
 and intstring i = if i < 0 then "-" ^ string_of_int (- i) else string_of_int i
 
@@ -170,7 +170,7 @@ and outs s =
      | "\"" -> out "\\\""
      | "\\" -> out "\\\\"
      | c -> if ord c < 32 then out8 c else out c)
-    (explode s)
+    (UTF.utf8_explode s)
 
 and out8 c =
   let i = ord c in
@@ -234,7 +234,7 @@ let rec getPointSize n =
 let invischars : string list ref = ref []
 
 let rec printable s =
-  implode ((fun c -> not (member (c, !invischars))) <| explode s)
+  implode ((fun c -> not (member (c, !invischars))) <| UTF.utf8_explode s)
 
 let fontnames : string array ref = ref (Array.make 0 "")
 

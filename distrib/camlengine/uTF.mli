@@ -47,4 +47,7 @@ val utf8_presub : string -> int -> string
 val utf8_peek : char Stream.t -> string option
 val utf8_junk : char Stream.t -> unit
 
+val words : string -> string list
+val respace : string list -> string
+
 val utf8_explode : string -> string list

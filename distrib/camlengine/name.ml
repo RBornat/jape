@@ -48,9 +48,9 @@ let rec parseablenamestring =
   fun (Name s) ->
     let rec parsename sy =
       match currsymb () with
-        ID _ -> scansymb ()
+        ID _     -> scansymb ()
       | STRING _ -> raise (Catastrophe_ ["double quoting in Name "; s])
-      | _ -> raise (ParseError_ [])
+      | _        -> raise (ParseError_ [])
     in
     try let _ = tryparse parsename s in s with
       ParseError_ _ -> enQuote s 

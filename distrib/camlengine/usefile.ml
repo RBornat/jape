@@ -35,6 +35,31 @@ let consolereport = Miscellaneous.consolereport
    and normalize filenames according to OS just before opening
 *)
 
+let normalizePath filename = 
+if Sys.os_type="Win32" 
+then 
+   let sloshify = function "/"->"\\" | c -> c
+   in Sml.implode (List.map sloshify (UTF.utf8_explode filename))
+else filename
+
+let pathStem path =
+  (* Remove the stern of a path 
+     Path separator is immaterial so we can mix unix/windows-style paths
+     in source files.
+  *)
+  let rec removestern =
+  function
+    | [] -> ["./"]
+    | "/"  :: xs -> "/"  :: xs
+    | "\\" :: xs -> "\\" :: xs  
+    | x :: xs -> removestern xs
+  in
+    Sml.implode (List.rev (removestern (List.rev (UTF.utf8_explode path))))
+ 
+let open_input_file  filename = open_in  (normalizePath filename)
+
+let open_output_file filename = open_out (normalizePath filename)
+
 (* It's not good enough ... we ought to parse the strings. RB 3/i/2002 *)
 
 let usestack = ref (if Sys.os_type="Win32" then [] else ["./"])
@@ -54,7 +79,7 @@ let makerelative s =
   | top::_ -> top ^ s
 
 let rec startusing path =
-  usestack := Moresys.pathStem path :: !usestack
+  usestack := pathStem path :: !usestack
 
 exception Matchinstopusing (* spurious *)
 
@@ -63,6 +88,4 @@ let rec stopusing () =
     [path] -> ()
   | path :: paths -> usestack := paths
   | _ -> raise Matchinstopusing
-
-
 

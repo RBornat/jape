@@ -40,6 +40,7 @@ let setReason              = Reason.setReason
 let termstring             = Termstring.termstring
 let termOrCollectionstring = Termstring.termOrCollectionstring
 
+(* probably this ought to use UTF.words *)
 let rec words s =
   let rec wd a1 a2 =
     match a1, a2 with
@@ -65,7 +66,7 @@ let rec words s =
         let (word, rest) = wd [] (unspace cs) in
         if null word then wds rest else implode word :: wds rest
   in
-  wds (explode s)
+  wds (UTF.utf8_explode s) 
 
 type term = Termtype.term
 
@@ -81,10 +82,10 @@ let rec _NoneBecause ss = setReason ss; None
 (* Should be in a module of its own *)
 let rec readmapping filename =
   let oracledir = getenv (getenv "." "JAPEHOME") "JAPEORACLE" in
-  let path = Moresys.normalizePath (oracledir^"/"^filename) in
+  let path = Usefile.normalizePath (oracledir^"/"^filename) in
   let _ = consolereport ["[OPENING "; path; "]\n"] in
   try
-    let in_mapping = Moresys.open_input_file ((oracledir ^ "/") ^ filename) in
+    let in_mapping = Usefile.open_input_file ((oracledir ^ "/") ^ filename) in
     let mapping = Hashtbl.create 31 in
     let table =
       Array.init 256 
@@ -99,11 +100,11 @@ let rec readmapping filename =
 		 | "ASCII" :: wd :: (wd2 :: _ as wds) ->
 			 let n = try Pervasives.int_of_string wd with Failure _ -> ordof wd 0 in
 			 mapped := true;
-			 if 1 <= n && n <= 255 then Array.set table n (respace wds)
+			 if 1 <= n && n <= 255 then Array.set table n (UTF.respace wds)
 		 | wd :: wds ->
 			 match String.get wd 0 with
 			   '#' -> ()
-			 | _ -> Hashtbl.add mapping wd (respace wds)
+			 | _ -> Hashtbl.add mapping wd (UTF.respace wds)
 	   done
 	 with End_of_file -> ()
 	);
@@ -120,7 +121,7 @@ let emptyCollection = isemptycollection
 
 let rec hypconcstring punct mapped table term =
   let rec translatewith table string =
-    implode (List.map (fun c -> Array.get table (ord c)) (explode string))
+    implode (List.map (fun c -> Array.get table (ord c)) (UTF.utf8_explode string)) 
   in
   let rec docollection term =
     ("(" ^ termOrCollectionstring ((")" ^ punct) ^ "(") term) ^ ")"
@@ -182,8 +183,8 @@ let rec createoracle oraclename (store, table, mapped) =
       match words (trans "" "pipes") with
         inpipe :: outpipe :: _ ->
           begin try
-            let ooo = Moresys.open_output_file outpipe in
-            let iii = Moresys.open_input_file inpipe in
+            let ooo = Usefile.open_output_file outpipe in
+            let iii = Usefile.open_input_file inpipe in
             (Some
                {translatehyps = transhyps; 
                 translateconcs = transconcs;

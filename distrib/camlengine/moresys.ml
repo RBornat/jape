@@ -45,32 +45,6 @@ if os_type="Win32" then
 else
    Sys.set_signal Sys.sigpipe Sys.Signal_ignore
 
-let normalizePath filename = 
-if os_type="Win32" 
-then 
-   let sloshify = function '/'->'\\' | c -> c
-   in Sml.string_of_chars(List.map sloshify (Sml.chars_of_string filename))
-else filename
-
-let pathStem path =
-  (* Remove the stern of a path 
-     Path separator is immaterial so we can mix unix/windows-style paths
-     in source files.
-  *)
-  let rec removestern =
-  function
-    | [] -> ["./"]
-    | "/"  :: xs -> "/"  :: xs
-    | "\\" :: xs -> "\\" :: xs  
-    | x :: xs -> removestern xs
-  in
-    Sml.implode (List.rev (removestern (List.rev (Sml.explode path))))
- 
-let open_input_file  filename = open_in  (normalizePath filename)
-
-let open_output_file filename = open_out (normalizePath filename)
-
-
 let rec onInterrupt f g =
 if os_type="Win32" then 
   let _ = g () in ()
