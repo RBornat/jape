@@ -36,7 +36,6 @@ public class CircleItem extends Component implements DebugConstants {
 
     JapeCanvas canvas;
     int radius;
-    protected RenderingHints renderingHints;
     protected Ellipse2D.Float outline;
     protected final int strokethickness;
     
@@ -46,29 +45,22 @@ public class CircleItem extends Component implements DebugConstants {
         int width = 2*(radius+strokethickness);
         setBounds(x-radius-strokethickness, y-radius-strokethickness, width, width);
         setForeground(Preferences.LineColour);
-        renderingHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-                                            RenderingHints.VALUE_ANTIALIAS_ON);
-        renderingHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         outline = new Ellipse2D.Float(strokethickness, strokethickness, 2*radius, 2*radius);
     }
 
     public void paint(Graphics g) {
         g.setColor(getForeground());
         if (g instanceof Graphics2D) {
-            BasicStroke stroke = new BasicStroke((float)strokethickness);
-            if (antialias_trace)
-                System.err.println("pre circle hints "+((Graphics2D)g).getRenderingHints());
-            ((Graphics2D)g).setStroke(stroke);
-            ((Graphics2D)g).addRenderingHints(renderingHints);
-            ((Graphics2D)g).draw(outline);
             if (antialias_trace) {
-                System.err.print("circle hints "+((Graphics2D)g).getRenderingHints()+
-                                   " bounds "+outline.getBounds2D());
+                System.err.print("circle hints "+((Graphics2D)g).getRenderingHints());
                 if (japeserver.onMacOS)
                     System.err.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
                 else
                     System.err.println();
             }
+            BasicStroke stroke = new BasicStroke((float)strokethickness);
+            ((Graphics2D)g).setStroke(stroke);
+            ((Graphics2D)g).draw(outline);
         }
         else
             g.drawOval(canvas.linethickness, canvas.linethickness, 2*radius, 2*radius);

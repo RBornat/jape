@@ -28,11 +28,19 @@
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
-public class WorldCanvas extends JapeCanvas {
+public class WorldCanvas extends JapeCanvas implements DebugConstants {
 
+    protected RenderingHints renderingHints;
+    
     public WorldCanvas(Container viewport, boolean scrolled) {
         super(viewport, scrolled);
+        renderingHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
+                                            RenderingHints.VALUE_ANTIALIAS_ON);
+        renderingHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     }
 
     public String getSelections(String sep) {
@@ -83,5 +91,25 @@ public class WorldCanvas extends JapeCanvas {
 
     public void selectWorld(int x, int y, boolean selected) throws ProtocolError {
         findWorld(x,y,true).select(selected);
+    }
+
+    public void paint(Graphics g) {
+        if (g instanceof Graphics2D) {
+            Graphics2D g2D = (Graphics2D)g.create();
+            if (antialias_trace)
+                System.err.println("pre worldcanvas hints "+g2D.getRenderingHints());
+            g2D.addRenderingHints(renderingHints);
+            if (antialias_trace) {
+                System.err.print("worldcanvas hints "+g2D.getRenderingHints());
+                if (japeserver.onMacOS)
+                    System.err.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
+                else
+                    System.err.println();
+            }
+            super.paint(g2D);
+            g2D.dispose();
+        }
+        else
+            super.paint(g);
     }
 }
