@@ -28,4 +28,5 @@
 open Cxttype
 
 val cxtstring : cxt -> string
+val varmapstring : cxt -> string
 val exteriorstring : exterior -> string

@@ -65,6 +65,8 @@ let pint = string_of_int
 
 let pid = Termfuns.string_of_vid
 
+let varmapstring = fun (Context {varmap=varmap}) -> mappingstring pid termstring varmap
+
 let cxtstring =
   fun
     (Context
