@@ -39,6 +39,7 @@ open Disproof
 open Doubleclick
 open Hit
 open Interaction
+open Invisibles
 open Japeenv
 open Listfuns
 open Mappingfuns
@@ -227,9 +228,10 @@ let defaultenv =
      "showallproofsteps"    , bj                         false        Prooftree.Tree.showallproofsteps;
      "showallprovisos"      , bj                         false        Interaction.showallprovisos;
      "substdebug"           , bj                         false        Substmapfuns.substdebug;
-     "symboldebug"          , bj                         false         Symbol.symboldebug;
+     "symboldebug"          , bj                         false        Symbol.symboldebug;
      "tactictracing"        , bj                         false        Tacticfuns.tactictracing;
-     "termparsedebug"       , bj                         false         Termparse.termparsedebug;
+     "termfolddebug"        , bj                         false        Termfold.termfolddebug;
+     "termparsedebug"       , bj                         false        Termparse.termparsedebug;
      "textselectionmode"    , sj ["subformula"; "token"] "subformula" Miscellaneous.textselectionmode;
      "thingdebug"           , bj                         false        Thing.thingdebug;
      "thingdebugheavy"      , bj                         false        Thing.thingdebugheavy;
