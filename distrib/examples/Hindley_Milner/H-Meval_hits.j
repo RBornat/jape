@@ -10,4 +10,6 @@ CONCHIT true:T IS "true:bool"
 CONCHIT false:T IS "false:bool"
 CONCHIT letrec x=E in F end:T IS letrecrules
 CONCHIT let x=E in F end:T IS letrules
+CONCHIT if E then ET else EF fi:T  IS "if E then ET else EF fi : T"
 CONCHIT TÇS IS generalise
+
