@@ -133,45 +133,97 @@ TACTIC ".. = B" IS
         (ALERT ("Please select a conclusion and an equality hypothesis")
                ("OK", STOP))
 
+/* At present I can't see how to write a general AssocBackwards tactic, cos the environments
+   keep getting muddled up. Passing (QUOTE (_A∧_B)) as an argument doesn't hack it: I'd need to
+   pass a function which had its own environment. And that's a bridge too far, this week.
+ */
+ 
+TACTIC "∧ intro*"  IS
+    WHEN    
+        (LETGOAL (_P∧_Q)  
+            (LAYOUT COMPRESS "∧ intro") 
+            "∧ intro" "∧ intro*" 
+            (LETMATCH _G tacticresult "∧ intro*" (ASSIGN tacticresult _G)) /* take leftmost GOALPATH */
+        )
+        (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
+
+TACTIC "sequence*"  IS
+    WHEN    
+        (LETGOAL ({_A} (_C1; _C2) {_B})  
+            (LAYOUT COMPRESS "sequence") 
+            "sequence" "sequence*" 
+            (LETMATCH _G tacticresult "sequence*" (ASSIGN tacticresult _G)) /* take leftmost GOALPATH */
+        )
+        (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
+
+MENU Backward IS
+    ENTRY "∧ intro" IS BackwardOnlyC (QUOTE (_A∧_B)) 
+                                     (Noarg "∧ intro*" "∧ intro") 
+                                     "∧ intro" "A∧B"
+END
+
+TACTIC "∧ elim* step"(P, rule, H) IS
+    WHEN    
+        (LETMATCH (_P∧_Q)  P  
+            (CUTIN
+                (LETGOALPATH G (GOALPATH (PARENT G)) (LAYOUT HIDECUT) (GOALPATH G)) 
+                rule
+                (LETGOAL _A (UNIFY _A H) hyp)))
+        (CUTIN (LAYOUT "∧ elim") rule (LETGOAL _A (UNIFY _A H) hyp))
+
+TACTIC "∧ elim*"(P)  IS
+    WHEN    
+        (LETMATCH (_P∧_Q)  P    
+            ("∧ elim* step" _P  "∧ elim(L)" P) 
+            ("∧ elim*" _P) 
+            ("∧ elim* step" _Q  "∧ elim(R)" P) 
+            ("∧ elim*" _Q) 
+        )
+        SKIP
+
+TACTIC "∧ elim total"  IS
+    LETHYP _P  ("∧ elim*" _P)
+
+MENU Forward IS
+    ENTRY   "∧ elim"      
+                    IS Forward (QUOTE (_A∧_B)) 
+                               (Noarg (LETHYP _P  (MATCH ("∧ elim*" _P))) "∧ elim")  
+                               "∧ elim" "∧ intro" "A∧B"
+END
+
 MENU Programs
-    ENTRY "skip"    IS BackwardOnly (QUOTE ({_A} skip {_B}))
+    ENTRY "skip"    IS BackwardOnlyA (QUOTE ({_A} skip {_B}))
                                     (perhapsconsequenceL "skip")
                                     "skip"
                                     "{A}skip{B}"
-                                    "only makes sense working backwards"
-    ENTRY "tilt"    IS BackwardOnly (QUOTE ({_A} tilt {_B}))
+    ENTRY "tilt"    IS BackwardOnlyA (QUOTE ({_A} tilt {_B}))
                                     (perhapsconsequenceL "tilt")
                                     "tilt"
                                     "{A}tilt{B}"
-                                    "only makes sense working backwards"
     ENTRY "sequence"    
-                    IS BackwardOnly (QUOTE ({_A} (_C1; _C2) {_B}))
-                                    (SEQ "sequence" fstep fstep)
+                    IS BackwardOnlyA (QUOTE ({_A} (_C1; _C2) {_B}))
+                                    (Noarg "sequence*" "sequence")
                                     "sequence"
                                     "{A}(C1;C2){B}"
-                                    "only makes sense working backwards"
     ENTRY "variable-assignment" 
-                    IS BackwardOnly (QUOTE ({_A} (_x := _E) {_B}))
-                                    (perhapsconsequenceL "variable-assignment")
+                    IS BackwardOnlyA (QUOTE ({_A} (_x := _E) {_B}))
+                                    (Noarg (perhapsconsequenceL "variable-assignment")) 
                                     "variable-assignment"
                                     "{A}(x:=E){B}"
-                                    "only makes sense working backwards"
-    ENTRY "array-element-assignment" IS assign "array-element-assignment"
-                    IS BackwardOnly (QUOTE ({_A} (_Ea[_Ei] := _E) {_B}))
+    ENTRY "array-element-assignment"
+                    IS BackwardOnlyA (QUOTE ({_A} (_Ea[_Ei] := _E) {_B}))
                                     (perhapsconsequenceL "array-element-assignment")
                                     "array-element-assignment"
                                     "{A}(Ea[Ei]:=E){B}"
                                     "only makes sense working backwards"
-    ENTRY "choice"  IS BackwardOnly (QUOTE ({_A} if _E then _C1 else _C2 fi {_B}))
+    ENTRY "choice"  IS BackwardOnlyA (QUOTE ({_A} if _E then _C1 else _C2 fi {_B}))
                                     (SEQ "choice" fstep fstep)
                                     "choice"
                                     "{A} if E then C1 else C2 fi {B}"
-                                    "only makes sense working backwards"
-    ENTRY "while"  IS BackwardOnly (QUOTE ({_A} while _E do _C od {_B}))
+    ENTRY "while"  IS BackwardOnlyA (QUOTE ({_A} while _E do _C od {_B}))
                                     (perhapsconsequenceLR "array-element-assignment")
                                     "choice"
                                     "{A} while E do C od {B}"
-                                    "only makes sense working backwards"
     
     SEPARATOR
     
