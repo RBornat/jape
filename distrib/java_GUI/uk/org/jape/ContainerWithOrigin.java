@@ -92,10 +92,6 @@ public class ContainerWithOrigin extends Container {
         super.repaint(tm, x+child.getX(), y+child.getY(), width, height);
     }
     
-    public void repaintFromChild(long tm, int x, int y, int width, int height) {
-        repaint(tm, x, y, width, height);
-    }
-
     protected class ContainerWithOriginLayout implements LayoutManager {
 
         /* Called by the Container add methods. Layout managers that don't associate
@@ -181,7 +177,7 @@ public class ContainerWithOrigin extends Container {
 
         // Because I know the way the Component repaint hierarchy works, I can intervene ...
         public void repaint(long tm, int x, int y, int width, int height) {
-            repaintFromChild(tm, x, y, width, height);
+            ContainerWithOrigin.this.repaint(tm, x, y, width, height);
         }
 
         protected class ChildLayout implements LayoutManager {
