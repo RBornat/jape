@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.util.Vector;
 
 public class Reply implements DebugConstants {
-    public static final String stringSep = "\u0001"; // what separates parts of multi-string replies
+    public static final String stringSep = "\u0091"; // what separates parts of multi-string replies
     
     private static Vector messages = new Vector();
     private static boolean enginelistening = false;
