@@ -524,20 +524,14 @@ let rec readHighlight class__ =
 
 let rec clearProvisoView () = writef "CLEARPROVISOVIEW\n" []
 
-let rec showProvisoLine (fontn, s) =
-  writef "SHOWPROVISOLINE % %\n" [Int fontn; Str s]
+let setGivens givens =
+  out "CLEARGIVENS\n";
+  List.iter (fun (n, g) -> writef "GIVEN % %\n" [Int n; Str g]) givens;
+  out "SETGIVENS\n"
 
-let (setGivens : (int * string) list -> unit) =
-  (* numbered givens *) fun givens ->
-    out "CLEARGIVENS\n";
-    List.iter (fun (n, g) -> writef "GIVEN % %\n" [Int n; Str g]) givens;
-    out "SETGIVENS\n"
-
-let (setProvisos : font * string list -> unit) =
-  (* font * provisos *) fun (fontn, ps) ->
-    let fnn = Int (displayfont2int fontn) in
-    clearProvisoView ();
-    List.iter (fun s -> writef "SHOWPROVISOLINE % %\n" [fnn; Str s]) ps
+let setProvisos ps =
+  clearProvisoView ();
+  List.iter (fun s -> writef "SHOWPROVISOLINE %\n" [Str s]) ps
 
 let rec showfile filename = writef "SHOWFILE %\n" [Str filename]
 

@@ -509,8 +509,7 @@ let rec sortprovisos ps =
 
 let rec setProvisos cxt =
   let ps = sortprovisos (provisos cxt) in
-  Japeserver.setProvisos
-    (ProvisoFont, List.map Proviso.visprovisostring (filterprovisos ps))
+  Japeserver.setProvisos (List.map Proviso.visprovisostring (filterprovisos ps))
 
 let rec setGivens givens =
   Japeserver.setGivens (numbered (List.map seqstring givens))
