@@ -10,7 +10,7 @@ README=/home/sufrin/JAPETREE-6/jape/CommonBuildResources/
 #
 #
 distdir=BUILDS/`date +%Y%m%d`
-message=$distdir/.message
+message=$distdir/README
 #
 #
 #
@@ -44,4 +44,5 @@ done
   echo Current distribution made on `date`      >  $message
   echo                                          >> $message
   cat MESSAGE                                   >> $message
+
 
