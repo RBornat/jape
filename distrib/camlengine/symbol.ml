@@ -437,7 +437,7 @@ let rec resetSymbols () =
      "CHECKBOX"; "CHILDREN"; "CLASS"; "COMMAND";
         "CONCFRESH"; "CONCHIT"; "CONJECTUREPANEL"; "CONSTANT";
         "CURRENTPROOF"; "CUT"; 
-     "DERIVED"; "DISPROOF"; (* keep this for a year or so. RB 15.xi.2002 *)
+     "DERIVED"; "DISTINCT"; "DISPROOF"; (* keep this for a year or so. RB 15.xi.2002 *)
      "END"; "ENTRY";
      "FONTS"; "FORCEDEF"; "FORMULA"; "FORMULAE"; "FRESH"; "FROM"; 
      "GIVENPANEL"; 
