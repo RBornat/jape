@@ -1860,8 +1860,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             newfocus (env, mbs, DontShow, fg :: bgs)
         
         | "setfonts", fontnames ->
-            let _ = consolereport ["font names now "; bracketedliststring (fun s -> s) "; " fontnames] in
-            Japeserver.setFontNames (List.map Stringfuns.disQuote fontnames); default
+            (* let _ = consolereport ["font names now "; bracketedliststring (fun s -> s) "; " fontnames] in *)
+            (Japeserver.setFontNames (List.map Stringfuns.disQuote fontnames); default)
             
         | "closeproof", [nstring] ->
             (* when closing proofs we must consider proof hist AND disproof hist *)
