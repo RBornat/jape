@@ -163,6 +163,7 @@ let defaultenv =
       ((fun v -> r := Name.namestring (Name.namefrom v)),
        (* is this too much work to avoid a few quotes? *)
        (fun () -> Name.namestring (Name.namefrom !r)))
+
 and ajd r = aj !r r in
 (* default settings for all variables accessible via Japeish *)
 let pairs =
@@ -229,6 +230,7 @@ let pairs =
    "varbindingsdebug"     , bj                         false        Term.Funs.varbindingsdebug]
 in
 let rec bjnr r () = bj !r r
+
 and ujnr r () = Japeenv.unboundedjaperefvar !r r in
 let nonresetpairs =
   ["termhashing", bjnr Term.Store.termhashing;
@@ -773,6 +775,7 @@ let rec main a1 a2 =
       end
   | _, _ -> raise Matchinmain_
 
+
 and rundialogue env mbs proofs =
   try
     let dialogue () = startcommands env mbs proofs in
@@ -787,6 +790,7 @@ and rundialogue env mbs proofs =
       deadServer
         ["Unexpected exception ["; Printexc.to_string exn;
          "] - Jape quitting"]
+
 and startcommands env mbs proofs =
   (* there is an argument against checking duplication of proof titles
    * at this point: normally we will be resuscitating proofs that
@@ -795,6 +799,7 @@ and startcommands env mbs proofs =
    *)
   setComment [];
   commands (env, mbs, DontShow, addproofs false env proofs [])
+
 and addproofs
   fromstore env (proofs : (name * proofstate * (seq * model) option) list)
     (pinfs : proofinfo list) =
@@ -846,12 +851,14 @@ and addproofs
            fromstore = fromstore} :: pinfs
   in
   nj_fold f proofs pinfs
+
 and biggestproofnum name pinfs =
   nj_fold
     (fun (Pinf {proofnum = proofnum; title = t, index}, (n, i)) ->
        max proofnum (n),
        (if t = name then max index (i) else i))
     pinfs (0, 0)
+
 and endproof num name proved st dis =
   Runproof.addproof showAlert uncurried_screenquery name proved st
     (disproofstate2model dis) &&
@@ -860,9 +867,8 @@ and endproof num name proved st dis =
     markproof proved (parseablenamestring name);
     true
   end
-and commands
-  (env, mbs, (showit : showstate), (pinfs : proofinfo list) as
-     thisstate) =
+
+and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisstate) =
   let rec findproof pinfs nstring =
     let n = atoi nstring in
     extract (fun (Pinf {proofnum = proofnum}) -> n = proofnum) pinfs
@@ -1199,10 +1205,12 @@ and commands
                   ["no current proof (applying "; respace comm; ")"];
                 default
             end
+
         | "applygiven", args ->
             processcommand thisstate
               ("apply" ::
                  parseablenamestring (namefrom !givenMenuTactic) :: args)
+
         | "assign", name :: value ->
             begin try
               let value = parseTactic (respace value) in
@@ -1229,6 +1237,7 @@ and commands
                 showAlert (["can't parse "; respace value; " -- "] @ rs);
                 default
             end
+
         | "redo_disproof", [] ->
             inside c
               (fun _ ->
@@ -1242,6 +1251,7 @@ and commands
                           (fun _ ->
                              showAlert ["nothing to redo!"]; None)))
                       )
+
         | "redo_proof", [] ->
             inside c
               (fun _ ->
@@ -1255,6 +1265,7 @@ and commands
                           (fun _ ->
                              showAlert ["nothing to redo!"]; None))
                       )
+
         | "refreshdisplay", [] ->
             begin match pinfs with
               Pinf
@@ -1267,11 +1278,14 @@ and commands
             | _ -> ()
             end;
             env, mbs, ShowBoth, pinfs
+
         | "steps", quota :: _ -> timestotry := atoi quota; default
+
         | "steps", [] ->
             (* this should be a variable in the environment *)
             showAlert ["Proof step quota is "; string_of_int !timestotry];
             default
+
         | "tellinterface", name :: interfacecommand ->
             (* Evaluate a variable name; construct a string for the interface *)
             let str =
@@ -1285,6 +1299,7 @@ and commands
                with the value of a jape variable
             *)
             default
+
         | "undo_disproof", [] ->
             inside c
               (fun _ ->
@@ -1294,6 +1309,7 @@ and commands
                       (fSome <*> (fun dh -> withdisproofhist (hist) (Some dh)))) 
                      |~~
                      (fun _ -> showAlert ["no disproof steps to undo!"]; None))))
+
         | "undo_proof", [] ->
             inside c
               (fun _ ->
@@ -1303,6 +1319,7 @@ and commands
                      (fSome <*> ((fun ph -> withproofhist (hist) (ph))))) 
                     |~~
                     (fun _ -> showAlert ["no proof steps to undo!"]; None)))
+
         | "use", (file :: _ as files) ->
             proofsdone := false;
             begin try
@@ -1322,34 +1339,43 @@ and commands
               ParseError_ rs -> showAlert rs; default
             | Use_ -> default
             end
+
         | "version", [] -> showAlert [_Title; _Version]; default
+
         | "addworldlabel", [cx; cy; s] ->
         
         (* ********************* the disproof commands ************************* *)
             
             worldlabelact addworldlabel cx cy s
+
         | "deleteworldlabel", [cx; cy; s] ->
             worldlabelact deleteworldlabel cx cy s
+
         | "tileact", [s] ->
             disproofstateact
               (fun d -> Disproof.newtile d (parseTerm (unQuote s)))
+
         | "addworld", [px; py; cx; cy] ->
             disproofuniverseact
               (fun u ->
                  Disproof.addchild u (atoi px, atoi py)
                    (atoi cx, atoi cy))
+
         | "deleteworldlink", [fromx; fromy; tox; toy] ->
             disproofuniverseact
               (fun u ->
                  Disproof.deletelink u (atoi fromx, atoi fromy)
                    (atoi tox, atoi toy))
+
         | "deleteworld", [cx; cy] ->
             disproofstateact
               (fun d -> Disproof.deleteworld d (atoi cx, atoi cy))
+
         | "moveworld", [x; y; x'; y'] ->
             disproofstateact
               (fun d ->
                  Disproof.moveworld d (atoi x, atoi y) (atoi x', atoi y'))
+
         | "worldselect", cs ->
             disproofstateact
               (fun d ->
@@ -1364,6 +1390,7 @@ and commands
                              bracketedliststring (fun s -> s) "," cs])
                  in
                  Disproof.worldselect d (pair cs))
+
         | "disprove", [] ->
             inside c
               (fun displaystate ->
@@ -1485,9 +1512,11 @@ and commands
             with
               Unify_ -> default
             end
+
         | "saveengine", name :: _ ->
             outside c
               (fun () -> (* saverunning env mbs (unQuote name); *) default)
+
         | "done", [] ->
             begin match pinfs with
               [] -> showAlert ["Not in a proof"]; default
@@ -1502,6 +1531,7 @@ and commands
                   else default
                 else begin showAlert ["Not finished yet!"]; default end
             end
+
         | "showproof", stuff ->
             let name = namefrom (respace stuff) in
             begin match proofnamed name with
@@ -1517,10 +1547,12 @@ and commands
                    addproofs true env [name, proofstate, disproofopt]
                      pinfs)
             end
+
         | "print", [path] ->
             inside c
               (fun _ hist ->
                  printproof path (winhist_proofnow hist); None)
+
         | "quitnow", [] ->(*
           |  ("cd", [path]) =>
              (System.Directory.cd path handle _ =>
@@ -1607,6 +1639,7 @@ and commands
                              with
                                Matchinbacktrack_ -> None)))
                       ))
+
         | "prune", [] ->
             (* Prune *)
             inside c
@@ -1615,6 +1648,7 @@ and commands
                    ((fun here ->
                        tryLayout displaystate PruneCommand PrunePath here)
                       ))
+
         | "collapse", [] ->
             (* Hide/Show subproof *)
             inside c
@@ -1624,6 +1658,7 @@ and commands
                        tryLayout displaystate HideShowCommand PrunePath
                          here)
                       ))
+
         | "hideroot", [] ->
             (* Hide conclusion *)
             inside c
@@ -1633,6 +1668,7 @@ and commands
                        tryLayout displaystate HideRootCommand HitPath
                          here)
                       ))
+
         | "exposeparent", [] ->
             (* Show parent conclusion *)
             inside c
@@ -1642,6 +1678,7 @@ and commands
                        tryLayout displaystate ExposeParentCommand HitPath
                          here)
                       ))
+
         | "hidecut", [] ->
             (* Hide cut hypothesis *)
             inside c
@@ -1651,6 +1688,7 @@ and commands
                        tryLayout displaystate HideCutCommand PrunePath
                          here)
                       ))
+
         | "layout", _ ->
             (* Expand/Contract detail *)
             inside c
@@ -1660,6 +1698,7 @@ and commands
                        tryLayout displaystate ExpandContractCommand
                          LayoutPath here)
                      ))
+
         | "addnewconjecture", panel :: text ->
             begin try
               let panel = namefrom panel in
@@ -1670,8 +1709,10 @@ and commands
             with
               AddConjecture_ -> default
             end
+
         | "lemma", panel :: text ->
             processcommand thisstate ("addnewconjecture" :: panel :: text)
+
         | "prove", comm ->
             let name = namefrom (respace comm) in
             if match proofnamed name with
@@ -1687,8 +1728,10 @@ and commands
               doproof env mbs name pinfs
             else default
 
+
         | "reset", [] ->
             if askResettheory false then doResettheory () else default
+
         | "reset;reload", [] ->
             if askResettheory true then
               match
@@ -1703,11 +1746,14 @@ and commands
             Japeenv.set (env, namefrom "profiling", parseTactic "true");
             (* achieves profileOn(), I hope *)
             default
+
         | "profile", ["off"] ->
             Japeenv.set (env, namefrom "profiling", parseTactic "false");
             (* achieves profileOff(), I hope *)
             default
+
         | "profile", ["reset"] -> profileReset (); default
+
         | "profile", ["report"] ->
             begin match
               Japeserver.writeFileName "Profile output to:"
@@ -1717,6 +1763,7 @@ and commands
             | None -> ()
             end;
             default
+
         | "profile", ["report"; filename] ->
             let _ = (writetonamedfile profileReport filename : bool) in default
 
@@ -1747,6 +1794,7 @@ and commands
               | _ -> pinfs
             in
             env, mbs, ShowBoth, pinfs
+
         | "showfile", [filename] ->
             (* here cos I can't work out how to get round the NOSELCOMMAND trap. RB 14/ii/94 *)
             Japeserver.showfile (unQuote filename); default
@@ -1764,6 +1812,7 @@ and commands
               saveproofs newfile
             else showAlert ["Nothing to save!"];
             env, mbs, DontShow, pinfs'
+
         | "quit", [] ->
             if needssaving () then
               askSave "quitting"
@@ -1771,6 +1820,7 @@ and commands
                 (fun () -> Japeserver.quit (); raise QuitJape)
                 (fun () -> Japeserver.dontquit (); default) ()
             else begin Japeserver.quit (); raise QuitJape end
+
         | "setfocus", [nstring] ->
             let
               (Pinf
@@ -1793,6 +1843,7 @@ and commands
             in
             let (fg, bgs) = findproof pinfs nstring in
             newfocus (env, mbs, DontShow, fg :: bgs)
+        
         | "closeproof", [nstring] ->
             (* when closing proofs we must consider proof hist AND disproof hist *)
             let n = atoi nstring in
@@ -1848,6 +1899,7 @@ and commands
                ]; 
              *)
              closed () end
+
         | "createdbugfile", [] ->
             begin match
               Japeserver.writeFileName "Write diagnostic output to:"
@@ -1864,6 +1916,7 @@ and commands
                 default
             | None -> default
             end
+
         | "closedbugfile", [] -> closedbugfile (); default
 
         | _ -> cannotprocesscommand c; default
@@ -2015,6 +2068,7 @@ and commands
                           ))
             | None -> default
             end
+
         | _, ReasonSel _ ->
             inside []
               (fun displaystate ->
@@ -2023,6 +2077,7 @@ and commands
                        tryLayout displaystate ExpandContractCommand
                          LayoutPath here)
                       ))
+
         | _ ->
             raise
               (Catastrophe_
@@ -2100,19 +2155,23 @@ and commands
   in
   commands nextargs
 (*
+
 and save file = _GCsave file
+
 and _GCsave file =
   Japeserver.quit ();
   Interaction.abandonServer ();
   cleanup ();
   initButtons ();
   exportFn (file, main (defaultenv (), [], []))
+
 and saverunning env mbs file =
   Japeserver.quit ();
   Interaction.abandonServer ();
   cleanup ();
   exportFn (file, main (env, [], mbs))
 *)
+
 and start () =
   (* Japeserver.quit ();
   Interaction.abandonServer ();
