@@ -41,5 +41,7 @@ class Debugging
     static final public boolean JapeMenu             = false;
 
     static final public boolean TextItem             = false;
+
+    static final public boolean containerlayout      = true;
 }
 
