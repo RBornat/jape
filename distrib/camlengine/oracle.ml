@@ -121,16 +121,12 @@ module M :T with type term = Term.Funs.term
           (if mapped then fun ooo -> translatewith table (docollection ooo)
            else docollection)
             term
-	let rec onInterrupt f g =
-	  (* does this catch two ctrl-Cs? RB *)
-	  let now = Sys.signal Sys.sigint (Sys.Signal_handle (fun i -> f ())) in
-	  g (); Sys.set_signal Sys.sigint now
-    
+
 	exception Interrupt
     let rec line_from s =
       let r = ref "" in
-      onInterrupt (fun () -> raise Interrupt)
-				  (fun () -> try r := input_line s with Interrupt -> r := "INTERRUPTED");
+      Moresys.onInterrupt (fun () -> raise Interrupt)
+				          (fun () -> try r := input_line s with Interrupt -> r := "INTERRUPTED");
       !r
     
     let rec flush s =

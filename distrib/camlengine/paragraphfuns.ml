@@ -2,15 +2,9 @@
 
 module type T =
   sig
-    type japeenv
-    and model
-    and name
-    and paragraph
-    and paraparam
-    and proofstate
-    and proviso
-    and seq
-    and thing
+    type japeenv and model and name and paragraph and paraparam and proofstate
+    and proviso and seq
+    
     val interpret :
       (string list -> unit) ->
         (string list * string * string * int -> bool) -> paraparam list ->
@@ -30,16 +24,75 @@ module type T =
           (name * (string * bool -> unit)) list
     val conjecturename : paragraph -> name
   end
-(* $Id$ *)
 
-module M : T =
+module M : T with type japeenv = Runproof.M.japeenv
+			  and type model = Runproof.M.model
+			  and type name = Runproof.M.name
+			  and type paragraph = Paragraph.M.paragraph 
+			  and type paraparam = Thing.M.paraparam
+			  and type proofstate = Runproof.M.proofstate
+			  and type proviso = Paragraph.M.proviso
+			  and type seq = Runproof.M.seq
+=
   struct
-    open Listfuns
-    open Paragraph
-    open Thing
-    open Menu
-    open Japeenv
-    open Runproof
+    open Japeenv.M
+    open Listfuns.M
+    open Menu.M
+    open Paragraph.M
+    open Runproof.M
+    open Sml.M
+    open Tactic.Type
+    open Thing.M
+    
+	type japeenv = Runproof.M.japeenv
+	 and model = Runproof.M.model
+	 and name = Runproof.M.name
+	 and paragraph = Paragraph.M.paragraph 
+	 and paraparam = Thing.M.paraparam
+	 and proofstate = Runproof.M.proofstate
+	 and proviso = Paragraph.M.proviso
+	 and seq = Runproof.M.seq
+	
+	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+	
+	let addautorule = Proofstate.M.addautorule
+	let adddoubleclick = Doubleclick.M.adddoubleclick
+	let addforcedef = Disproof.M.addforcedef
+	let atmapping = Mappingfuns.M.at
+	let cleanup x = x
+	let consolereport = Miscellaneous.M.consolereport
+	let empty = Mappingfuns.M.empty
+	let enQuote = Stringfuns.M.enQuote
+	let freezesaved = Proofstore.M.freezesaved
+	let isQuoted = Stringfuns.M.isQuoted
+	let mkmap = Mappingfuns.M.mkmap
+	let namestring = Name.M.namestring
+	let newcxt = Context.Cxt.newcxt
+	let optionfilter = Optionfuns.M.optionfilter
+	let paramvar = Paraparam.M.paramvar
+	let parseablenamestring = Name.M.parseablenamestring
+	let proofstage2word = Proofstage.M.proofstage2word
+	let provisostring = Proviso.M.provisostring
+	let provisovars =
+	  Proviso.M.provisovars Term.Funs.termvars Term.Funs.tmerge
+	let seqstring = Sequent.Funs.seqstring
+	let seqvars = Sequent.Funs.seqvars Term.Funs.termvars Term.Funs.tmerge
+	let setfontstuff = Button.M.setfontstuff
+	let setmenuentry = Japeserver.M.menuentry
+	let setpanelbutton = Japeserver.M.setpanelbutton
+	let tacticstring = Tactic.Funs.tacticstring
+	let termstring = Term.Termstring.termstring
+	let thawsaved = Proofstore.M.thawsaved
+	let tickmenuitem = Japeserver.M.tickmenuitem
+	let tmerge = Term.Funs.tmerge
+	let uncurry2 = Miscellaneous.M.uncurry2
+	let unQuote = Stringfuns.M.unQuote
+	let _VALFROM = Termparse.M.asTactic Termparse.M.string2term
+	
+	(* let profileOff = Profile.profileOff
+	   let profileOn = Profile.profileOn
+	   let profileReset = Profile.reset
+     *)
     
     let rec addstructurerule report query stype rule =
       let thingtype =
@@ -53,7 +106,7 @@ module M : T =
         | "REFLEXIVE" -> ReflexiveRule
         | _ -> raise (Catastrophe_ ["bad structure rule type "; stype])
       in
-      if thing.addstructurerule thingtype rule then ()
+      if Thing.M.addstructurerule thingtype rule then ()
       else
         report
           ["STRUCTURERULE "; stype; " "; parseablenamestring rule; " failed"]
@@ -95,12 +148,12 @@ module M : T =
     let rec interpret
       report query where params provisos enter
         (paragraph, (env, proofs, buttonfns as res)) =
-      let rec Par =
+      let rec _Par =
         function
           [] -> params
         | ps -> ps
       in
-      let rec Pro =
+      let rec _Pro =
         function
           [] -> provisos
         | ps -> ps
@@ -137,7 +190,7 @@ module M : T =
               ( ++ )
                 (env, ( ||-> ) (var, japerefvar settings defval' (ref "")))
         in
-        set (env', var, VALFROM defval'); env', defval'
+        Japeenv.M.set (env', var, _VALFROM defval'); env', defval'
       in
       let rec processCheckBox env (var, label, (vval1, vval2), defvalopt) =
         let (env, _) =
@@ -199,7 +252,7 @@ module M : T =
             report ("can't INITIALISE " :: parseablenamestring name :: ss);
             raise Use_
           in
-          begin try set (env, name, term) with
+          begin try Japeenv.M.set (env, name, term) with
             OutOfRange_ range ->
               lreport
                 [" to "; termstring term; " - variable can only be set to ";
@@ -249,8 +302,8 @@ module M : T =
           let (env, buttonfns, mes, mps) =
             nj_fold process mparas (env, buttonfns, [], [])
           in
-          menu.addmenu mlabel;
-          menu.addmenudata mlabel mes;
+          Menu.M.addmenu mlabel;
+          Menu.M.addmenudata mlabel mes;
           nj_revfold
             (interpret report query (InMenu mlabel) params provisos enter) mps
             (env, proofs, buttonfns)
@@ -282,8 +335,8 @@ module M : T =
           let (env, buttonfns, pes, pps) =
             nj_fold process pparas (env, buttonfns, [], [])
           in
-          menu.addpanel kind plabel;
-          menu.addpaneldata plabel pes;
+          Menu.M.addpanel kind plabel;
+          Menu.M.addpaneldata plabel pes;
           nj_revfold
             (interpret report query (InPanel plabel) params provisos enter)
             pps (env, proofs, buttonfns)
@@ -333,7 +386,7 @@ module M : T =
           in
           (* profileOff(); *) res
       | RuleDef (RuleHeading (name, params, provisos), top, bottom, axiom) ->
-          let rvs = nj_fold tmerge ((seqvars <* top)) (seqvars bottom) in
+          let rvs = nj_fold (uncurry2 tmerge) ((seqvars <* top)) (seqvars bottom) in
           let thing =
             Rule
               ((filterparams rvs params,
@@ -345,7 +398,7 @@ module M : T =
           addalttactic name paras params where;
           (* in the menu/panel *)
           nj_revfold
-            (interpret report query where (Par params) (Pro provisos) false)
+            (interpret report query where (_Par params) (_Pro provisos) false)
             paras res
       | TacticDef (TacticHeading (name, params), tac) ->
           addthing (name, Tactic (params, tac), where); res
@@ -353,7 +406,7 @@ module M : T =
           addalttactic name paras params InLimbo;
           (* not in a menu/panel *)
           nj_revfold
-            (interpret report query where (Par params) (Pro provisos) enter)
+            (interpret report query where (_Par params) (_Pro provisos) enter)
             paras res
     and addalttactic name paras params where =
       addthing
@@ -363,20 +416,20 @@ module M : T =
     and interpretParasFrom report query res filenames =
       freezesaved ();
       (* profileOff(); profileReset(); *) (* profileOn(); *)
-      (try
-         nj_revfold (interpret report query InLimbo [] [] true)
-           (nj_fold (fun (x, y) -> x @ y)
-                 ((file2paragraphs report query <*> unQuote) <*
-                  filenames)
-              [])
-           res
-       with
-         Catastrophe_ ss ->
-           (* profileOff(); *) report ("Catastrophic error: " :: ss); thawsaved (); raise Use_
-       | CompileThing_ ss ->(* profileOff(); *)  report ss; thawsaved (); raise Use_
-       | exn ->(* profileOff(); *)  thawsaved (); raise exn)
+      let r = (try
+				 nj_revfold (interpret report query InLimbo [] [] true)
+				   (nj_fold (fun (x, y) -> x @ y)
+						 ((file2paragraphs report query <*> unQuote) <*
+						  filenames)
+					  [])
+				   res
+			   with
+				 Catastrophe_ ss ->
+				   (* profileOff(); *) report ("Catastrophic error: " :: ss); thawsaved (); raise Use_
+			   | CompileThing_ ss ->(* profileOff(); *)  report ss; thawsaved (); raise Use_
+			   | exn ->(* profileOff(); *)  thawsaved (); raise exn)
         (* including Use_ *)
-        before(* profileOff(); *)  (thawsaved ())
+    in (* profileOff(); *)  (thawsaved ()); r
     let rec conjecturename =
       function
         Conjecture (RuleHeading (name, _, _), _) -> name

@@ -36,6 +36,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.4  2002/07/05 08:08:39  richard
+     more minor changes (will it never end?)
+
      Revision 1.3  2002/07/04 17:25:57  richard
      minor changes to capitalisation
 
@@ -234,7 +237,7 @@
    *)
    
   
-   let version = "release 5.0b7" 
-   let title = "Jape proof engine: "
+   let _Version = "release 5.0b7" 
+   let _Title = "Jape proof engine: "
 
 
