@@ -46,10 +46,12 @@ let serverresponded = ref false
 let stopserver () =
   match !serverpid with 
     Some pid -> 
+      let was = Sys.signal Sys.sigpipe (Sys.Signal_handle (fun _ -> ())) in
       serverpid := None;
-      (try close_in !infromserver with _ -> ());
-      (try close_out !outtoserver with _ -> ());
-      (try Unix.kill pid Sys.sigkill with _ -> ())
+      (try close_in !infromserver with exn -> consolereport ["can't close !infromserver "; Printexc.to_string exn]; ());
+      (try close_out !outtoserver with exn -> consolereport ["can't close !outfromserver "; Printexc.to_string exn]; ());
+      (try Unix.kill pid Sys.sigkill with _ -> ());
+      Sys.set_signal Sys.sigpipe was
   | None -> ()
 
 exception DeadServer_
