@@ -26,11 +26,12 @@
 */
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.MouseEvent;
 
 public class ProofCanvas extends JapeCanvas implements ProtocolConstants, SelectionConstants {
 
-    public ProofCanvas() { super(); }
+    public ProofCanvas(Container viewport, boolean scrolled) { super(viewport, scrolled); }
 
     // DisplayItems (things that have an identity) get added at the front;
     // other items (lines, rects) at the back.
