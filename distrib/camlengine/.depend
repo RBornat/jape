@@ -109,7 +109,7 @@ dialogue.cmo: alert.cmi answer.cmi applyrule.cmi binding.cmi boxdraw.cmi \
     proofstore.cmi prooftree.cmo proviso.cmi provisofuns.cmi rewrite.cmo \
     runproof.cmi sequent.cmo sml.cmi stringfuns.cmi substmapfuns.cmi \
     symbol.cmi tactic.cmi tacticfuns.cmi term.cmo termparse.cmi thing.cmi \
-    treeformat.cmo unify.cmi version.cmo dialogue.cmi 
+    treeformat.cmo unify.cmi version.cmi dialogue.cmi 
 dialogue.cmx: alert.cmx answer.cmx applyrule.cmx binding.cmx boxdraw.cmx \
     button.cmx context.cmx displaystate.cmx disproof.cmx doubleclick.cmx \
     env.cmx facts.cmx hit.cmx interaction.cmx japeenv.cmx japeserver.cmx \
@@ -428,3 +428,5 @@ unify.cmx: answer.cmx context.cmx facts.cmx idclass.cmx listfuns.cmx \
     substmapfuns.cmx symbol.cmx term.cmx unify.cmi 
 usefile.cmo: sml.cmi usefile.cmi 
 usefile.cmx: sml.cmx usefile.cmi 
+version.cmo: listfuns.cmi sml.cmi version.cmi 
+version.cmx: listfuns.cmx sml.cmx version.cmi 

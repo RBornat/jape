@@ -56,6 +56,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.9  2002/10/31 16:52:29  richard
+     I put $Name$ in the version string ...
+
      Revision 1.8  2002/10/29 15:14:38  richard
      I put $Tag$ in the version string ...
 
@@ -269,7 +272,15 @@
    *)
    
   
-   let _Version = "$Name$" 
+   let versionstring = "$Name$" 
+   let get_version s =
+     let cs = Sml.chars_of_string s in
+     let cs = Listfuns.dropwhile (function ' ' -> false | _ -> true) cs in
+     let cs = Listfuns.dropwhile (fun c -> 'a'<=c && c<='z' || 'A'<=c&&c<='z') (List.tl cs) in
+     let cs = Listfuns.takewhile (function ' ' -> false | _ -> true) cs in
+     Sml.string_of_chars (List.map (function '_' -> '.' | c -> c) cs)
+   let _Version = 
+     try get_version versionstring with _ -> get_version "$Date$"
    let _Title = "Jape proof engine "
 
 
