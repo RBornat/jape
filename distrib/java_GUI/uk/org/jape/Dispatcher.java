@@ -68,7 +68,23 @@ public class Dispatcher extends Thread {
                         if (p.equals("GET")&&len==1)
                             Reply.openchannel();
                         else
-                    
+
+                    // string passing happens a lot, so put it early
+                        if (p.equals("STRINGSIZE")&&len==3)
+                            Reply.reply(JapeFont.measure(JapeFont.toUnicode(command[2]), toInt(command[1])));
+                        else
+                        if (p.equals("DRAWSTRING")&&len==7)
+                            ProofWindow.drawstring(toInt(command[1]), toInt(command[2]), // x, y
+                                                   toInt(command[3]), toInt(command[4]), // font, kind
+                                                   JapeFont.toUnicode(command[5]),       // annottext
+                                                   JapeFont.toUnicode(command[6]));     // printtext
+                        else
+
+                    // FONTINFO not very often
+                        if (p.equals("FONTINFO")&&len==2)
+                            Reply.reply(JapeFont.fontinfo(toInt(command[1])));
+                        else
+
                     // ASK is for alerts
                         if (p.equals("ASKSTART")&&len==1)
                             list.removeAllElements();
@@ -77,7 +93,8 @@ public class Dispatcher extends Thread {
                             list.add(command[1]);
                         else
                         if (p.equals("ASKNOW")&&len==4)
-                            Alert.newAlert(((String[])list.toArray(new String[list.size()])), toInt(command[1]), command[2], toInt(command[3]));
+                            Alert.newAlert(((String[])list.toArray(new String[list.size()])), toInt(command[1]),
+                                           command[2], toInt(command[3]));
                         else
                     
                     // file choosing
@@ -104,7 +121,8 @@ public class Dispatcher extends Thread {
                             japeserver.menus.newMenu(command[1]);
                         else
                         if (p.equals("MENUITEM")&&len==5)
-                            japeserver.menus.newMenuItem(command[1], JapeFont.toUnicode(command[2]), command[3], command[4]);
+                            japeserver.menus.newMenuItem(command[1], JapeFont.toUnicode(command[2]), command[3],
+                                                         command[4]);
                         else
                         if (p.equals("MAKEMENUSVISIBLE")&&len==1) {
                             JapeMenu.makeMenusVisible();
@@ -123,7 +141,9 @@ public class Dispatcher extends Thread {
                             PanelWindow.spawn(JapeFont.toUnicodeTitle(command[1]), toInt(command[2]));
                         else
                         if (p.equals("PANELENTRY")&&len==4)
-                            PanelWindow.panelEntry(JapeFont.toUnicodeTitle(command[1]), JapeFont.toUnicode(command[2]), command[3]);
+                            PanelWindow.panelEntry(JapeFont.toUnicodeTitle(command[1]),
+                                                   JapeFont.toUnicode(command[2]),
+                                                   command[3]);
                         else
                         if (p.equals("PANELBUTTON")&&len==3) {
                             list.removeAllElements();
@@ -153,7 +173,32 @@ public class Dispatcher extends Thread {
                             ProofWindow.spawn(JapeFont.toUnicodeTitle(command[1]), toInt(command[2]));
                         else
                         if (p.equals("PROOFPANEGEOMETRY")&&len==1)
-                            ProofWindow.tellDimension();
+                            Reply.reply(ProofWindow.getViewportBounds());
+                        else
+                        if (p.equals("SETPROOFPARAMS")&&len==3)
+                            ProofWindow.setProofParams(JapeFont.toUnicode(command[1]), toInt(command[2]));
+                        else
+                        if (p.equals("CLEARPROOFPANE")&&len==1)
+                            ProofWindow.clearProofPane();
+                        else
+                        if (p.equals("DRAWINPANE")&&len==2)
+                            ProofWindow.drawInPane(JapeFont.toUnicode(command[1]));
+                        else
+                        if (p.equals("CLEARGIVENS")&&len==1)
+                            list.removeAllElements();
+                        else
+                        if (p.equals("GIVEN")&&len==3) {
+                            int i = toInt(command[1]);
+                            if (i!=list.size())
+                                throw (new ProtocolError("given "+i+" shouldabeen "+list.size()));
+                            list.add(JapeFont.toUnicode(command[2]));
+                        }
+                        else
+                        if (p.equals("SETGIVENS")&&len==1)
+                            ProofWindow.setGivens((String[])list.toArray(new String[list.size()]));
+                        else
+                        if (p.equals("CLEARPROVISOVIEW")&&len==1)
+                            ProofWindow.clearProvisoView();
                         else
                         
                     // OPERATOR .. deal with the keyboard in some dialogue boxes
@@ -178,7 +223,8 @@ public class Dispatcher extends Thread {
                         if (p.equals("VERSION")&&len==2)
                             AboutBox.setVersion(command[1]);
                         else
-                            /*Alert.showErrorAlert*/System.err.println("dispatcher doesn't understand ("+len+") "+JapeFont.toUnicode(line));
+                            /*Alert.showErrorAlert*/System.err.println("dispatcher doesn't understand ("+len+") "+
+                                                                       JapeFont.toUnicode(line));
                     } // if (command.length!=0)
                 } catch (ProtocolError e) {
                     Alert.showErrorAlert("protocol error in "+line+":: "+e.getMessage());
