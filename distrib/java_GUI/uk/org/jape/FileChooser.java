@@ -39,18 +39,6 @@ import javax.swing.JFileChooser;
 
 public class FileChooser /* implements FilenameFilter */ {
 
-    private static String doSaveDialog(JFileChooser chooser) {
-        int returnVal = chooser.showSaveDialog(null);
-        File selected  =  chooser.getSelectedFile();
-        if (returnVal==JFileChooser.APPROVE_OPTION) {
-            File dir = selected.getParentFile();
-            if (dir!=null) FilePrefs.setLastSavedDir(dir);
-            return selected.toString();
-        } 
-        else
-            return "";
-    }
-
     public static String newOpenDialog(String message) {
         return newOpenDialog(message, new String[]{});
     }
@@ -75,7 +63,7 @@ public class FileChooser /* implements FilenameFilter */ {
 			d.dispose();
 			if (file!=null && dir!=null) {
 				File fdir = new File(dir);
-				FilePrefs.setLastOpenedDir(dir);
+				FilePrefs.setLastOpenedDir(fdir);
 				return (new File(dir,file)).toString();
 			}
 			else
@@ -98,13 +86,39 @@ public class FileChooser /* implements FilenameFilter */ {
     }
 
     public static String newSaveDialog(String message, String [] extension) {
-        JFileChooser chooser = new JFileChooser(FilePrefs.nextSave());
         ExampleFileFilter filter = new ExampleFileFilter();
         for (int i=0; i<extension.length; i++)
             filter.addExtension(extension[i]);
         filter.setDescription(message);
-        chooser.setFileFilter(filter);
-        return doSaveDialog(chooser);
+        if (Jape.onMacOS) { // use AWT
+			FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.SAVE);
+			d.setDirectory(FilePrefs.nextOpen().toString());
+			d.setFilenameFilter(filter);
+			d.setVisible(true);
+			String file = d.getFile();
+			String dir = d.getDirectory();
+			d.dispose();
+			if (file!=null && dir!=null) {
+				File fdir = new File(dir);
+				FilePrefs.setLastSavedDir(fdir);
+				return (new File(dir,file)).toString();
+			}
+			else
+				return "";
+        } 
+		else { // use Swing
+			JFileChooser chooser = new JFileChooser(FilePrefs.nextSave());
+			chooser.setFileFilter(filter);
+			int returnVal = chooser.showSaveDialog(null);
+			File selected  =  chooser.getSelectedFile();
+			if (returnVal==JFileChooser.APPROVE_OPTION) {
+				File dir = selected.getParentFile();
+				if (dir!=null) FilePrefs.setLastSavedDir(dir);
+				return selected.toString();
+			} 
+			else
+				return "";
+		}
     }
 
     public static String newSaveDialog(String message) {
