@@ -16,6 +16,7 @@
 				0E20B662001FAFA711DB9C8B,
 				0E20B663001FAFA711DB9C8B,
 			);
+			hasScannedForEncodings = 1;
 			isa = PBXProject;
 			mainGroup = 01F12F4DFEC8CE2211DB9C8B;
 			productRefGroup = 01F12F4FFEC8CEF111DB9C8B;
@@ -262,7 +263,6 @@
 </dict>
 </plist>
 ";
-			shouldUseHeadermap = 0;
 		};
 		1601BCDCFEEE210811DB9C8B = {
 			buildActionMask = 2147483647;
@@ -378,6 +378,7 @@
 //F53
 //F54
 		F502FBE7035D88BC01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = AnchoredScrollPane.java;
 			path = ../../java_japeserver/AnchoredScrollPane.java;
@@ -396,6 +397,7 @@
 			};
 		};
 		F50BD28C036EEC3A01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = LineItem.java;
 			path = ../../java_japeserver/LineItem.java;
@@ -414,6 +416,7 @@
 			};
 		};
 		F515271D037BB83201A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = EmphasisableItem.java;
 			path = ../../java_japeserver/EmphasisableItem.java;
@@ -432,6 +435,7 @@
 			};
 		};
 		F5152720037BB90501A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = Preferences.java;
 			path = ../../java_japeserver/Preferences.java;
@@ -450,6 +454,7 @@
 			};
 		};
 		F5152723037BC71E01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = WorldCanvas.java;
 			path = ../../java_japeserver/WorldCanvas.java;
@@ -468,6 +473,7 @@
 			};
 		};
 		F5152726037BCC1A01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = WorldItem.java;
 			path = ../../java_japeserver/WorldItem.java;
@@ -486,6 +492,7 @@
 			};
 		};
 		F5152729037BD50101A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = CircleItem.java;
 			path = ../../java_japeserver/CircleItem.java;
@@ -504,6 +511,7 @@
 			};
 		};
 		F5158C91039E2C6101A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = DragWorldLine.java;
 			path = ../../java_japeserver/DragWorldLine.java;
@@ -522,6 +530,7 @@
 			};
 		};
 		F5158C94039E321E01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = DragLine.java;
 			path = ../../java_japeserver/DragLine.java;
@@ -540,42 +549,49 @@
 			};
 		};
 		F515B6050331D98801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = AboutBox.java;
 			path = ../../java_japeserver/AboutBox.java;
 			refType = 2;
 		};
 		F515B6060331D98801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = Alert.java;
 			path = ../../java_japeserver/Alert.java;
 			refType = 2;
 		};
 		F515B6080331D98801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = FileChooser.java;
 			path = ../../java_japeserver/FileChooser.java;
 			refType = 2;
 		};
 		F515B6090331D98801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = JapeFont.java;
 			path = ../../java_japeserver/JapeFont.java;
 			refType = 2;
 		};
 		F515B60B0331D98801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = PosIntHashMap.java;
 			path = ../../java_japeserver/PosIntHashMap.java;
 			refType = 2;
 		};
 		F515B60C0331D98801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ProtocolError.java;
 			path = ../../java_japeserver/ProtocolError.java;
 			refType = 2;
 		};
 		F515B60D0331D98801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = Reply.java;
 			path = ../../java_japeserver/Reply.java;
@@ -618,6 +634,7 @@
 			};
 		};
 		F515B6180331DA6801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = LocalSettings.java;
 			refType = 2;
@@ -629,6 +646,7 @@
 			};
 		};
 		F515B61A0332012801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ProofWindow.java;
 			path = ../../java_japeserver/ProofWindow.java;
@@ -641,12 +659,14 @@
 			};
 		};
 		F516FFB3031F822901A80117 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ProofCanvas.java;
 			path = ../../java_japeserver/ProofCanvas.java;
 			refType = 2;
 		};
 		F516FFB5031F823A01A80117 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = DebugConstants.java;
 			path = ../../java_japeserver/DebugConstants.java;
@@ -659,12 +679,14 @@
 			};
 		};
 		F516FFB9031F825B01A80117 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = TextItem.java;
 			path = ../../java_japeserver/TextItem.java;
 			refType = 2;
 		};
 		F516FFBB031F827D01A80117 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = TextDimension.java;
 			path = ../../java_japeserver/TextDimension.java;
@@ -677,6 +699,7 @@
 			};
 		};
 		F516FFD2031F87F501A80117 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = JapeMenu.java;
 			path = ../../java_japeserver/JapeMenu.java;
@@ -689,6 +712,7 @@
 			};
 		};
 		F51F6C7B0360086701A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = DisplayItem.java;
 			path = ../../java_japeserver/DisplayItem.java;
@@ -707,6 +731,7 @@
 			};
 		};
 		F51F6C7F036025C101A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = JapeCanvas.java;
 			path = ../../java_japeserver/JapeCanvas.java;
@@ -731,6 +756,7 @@
 			};
 		};
 		F526B567039E4A3A01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = LineTarget.java;
 			path = ../../java_japeserver/LineTarget.java;
@@ -756,6 +782,7 @@
 			refType = 2;
 		};
 		F528CB2B0307C5B501A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = japeserver.java;
 			path = ../../java_japeserver/japeserver.java;
@@ -774,6 +801,7 @@
 			};
 		};
 		F52B56B1039D210801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = WorldLabel.java;
 			path = ../../java_japeserver/WorldLabel.java;
@@ -792,6 +820,7 @@
 			};
 		};
 		F52B56B7039D296801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = LabelTarget.java;
 			path = ../../java_japeserver/LabelTarget.java;
@@ -810,6 +839,7 @@
 			};
 		};
 		F531A7B7033213F801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = JapeWindow.java;
 			path = ../../java_japeserver/JapeWindow.java;
@@ -822,6 +852,7 @@
 			};
 		};
 		F54C942A039D03FB01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = WasteBin.java;
 			path = ../../java_japeserver/WasteBin.java;
@@ -840,6 +871,7 @@
 			};
 		};
 		F556EA5E0366E4B801A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = SelectionConstants.java;
 			path = ../../java_japeserver/SelectionConstants.java;
@@ -858,6 +890,7 @@
 			};
 		};
 		F560AEE2036D797301A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ConclusionItem.java;
 			path = ../../java_japeserver/ConclusionItem.java;
@@ -876,36 +909,42 @@
 			};
 		};
 		F560AEE6036D799701A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = HypConcItem.java;
 			path = ../../java_japeserver/HypConcItem.java;
 			refType = 2;
 		};
 		F560AEE7036D799701A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = HypothesisItem.java;
 			path = ../../java_japeserver/HypothesisItem.java;
 			refType = 2;
 		};
 		F560AEE8036D799701A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = JapeMouseListener.java;
 			path = ../../java_japeserver/JapeMouseListener.java;
 			refType = 2;
 		};
 		F560AEE9036D799701A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ProtocolConstants.java;
 			path = ../../java_japeserver/ProtocolConstants.java;
 			refType = 2;
 		};
 		F560AEEA036D799701A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ReasonItem.java;
 			path = ../../java_japeserver/ReasonItem.java;
 			refType = 2;
 		};
 		F560AEEB036D799701A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = SelectableProofItem.java;
 			path = ../../java_japeserver/SelectableProofItem.java;
@@ -984,6 +1023,7 @@
 			};
 		};
 		F563B8B703372EA501A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = SurrogateWindow.java;
 			path = ../../java_japeserver/SurrogateWindow.java;
@@ -996,6 +1036,7 @@
 			};
 		};
 		F569E6B4039FC3DF01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = PrintProof.java;
 			path = ../../java_japeserver/PrintProof.java;
@@ -1014,6 +1055,7 @@
 			};
 		};
 		F574B00903968EBA01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = LineComponent.java;
 			path = ../../java_japeserver/LineComponent.java;
@@ -1032,6 +1074,7 @@
 			};
 		};
 		F57E549C038BB91A01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = JapeMouseTextAdapter.java;
 			path = ../../java_japeserver/JapeMouseTextAdapter.java;
@@ -1050,6 +1093,7 @@
 			};
 		};
 		F57E7E00037FBF5401A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = Tile.java;
 			path = ../../java_japeserver/Tile.java;
@@ -1068,6 +1112,7 @@
 			};
 		};
 		F57EF90F039503AE01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = WorldTarget.java;
 			path = ../../java_japeserver/WorldTarget.java;
@@ -1086,6 +1131,7 @@
 			};
 		};
 		F57EF912039507ED01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = DragComponent.java;
 			path = ../../java_japeserver/DragComponent.java;
@@ -1110,6 +1156,7 @@
 			};
 		};
 		F586B1630326408D01A80117 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ExampleFileFilter.java;
 			path = ../../java_japeserver/ExampleFileFilter.java;
@@ -1122,6 +1169,7 @@
 			};
 		};
 		F58AB2BF0377FD2D01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = DisproofCanvas.java;
 			path = ../../java_japeserver/DisproofCanvas.java;
@@ -1140,6 +1188,7 @@
 			};
 		};
 		F58AB2C203780C4001A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = DisproofHypItem.java;
 			path = ../../java_japeserver/DisproofHypItem.java;
@@ -1158,6 +1207,7 @@
 			};
 		};
 		F58AB2C503780DAC01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = DisproofConcItem.java;
 			path = ../../java_japeserver/DisproofConcItem.java;
@@ -1176,6 +1226,7 @@
 			};
 		};
 		F58AB2C80378188901A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = DisproofPane.java;
 			path = ../../java_japeserver/DisproofPane.java;
@@ -1194,6 +1245,7 @@
 			};
 		};
 		F592908503728EA101A80117 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = PanelWindowData.java;
 			path = ../../java_japeserver/PanelWindowData.java;
@@ -1212,6 +1264,7 @@
 			};
 		};
 		F59988FE036976E501A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = JapeMouseAdapter.java;
 			path = ../../java_japeserver/JapeMouseAdapter.java;
@@ -1230,6 +1283,7 @@
 			};
 		};
 		F59989060369844F01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = SelectableItem.java;
 			path = ../../java_japeserver/SelectableItem.java;
@@ -1248,6 +1302,7 @@
 			};
 		};
 		F59F3D1C033773B101A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = LocalSettings.java;
 			path = ../../java_japeserver/LocalSettings.java;
@@ -1428,7 +1483,6 @@
 </dict>
 </plist>
 ";
-			shouldUseHeadermap = 0;
 		};
 		F5AB83170339F3B701A80116 = {
 			isa = PBXApplicationReference;
@@ -1556,6 +1610,7 @@
 			};
 		};
 		F5B9B5BC038B969501A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = JapeCharEncoding.java;
 			path = ../../java_japeserver/JapeCharEncoding.java;
@@ -1574,6 +1629,7 @@
 			};
 		};
 		F5CC966D03438BFF01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ContainerWithOrigin.java;
 			path = ../../java_japeserver/ContainerWithOrigin.java;
@@ -1592,6 +1648,7 @@
 			};
 		};
 		F5D80C8B036F044901A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = RectItem.java;
 			path = ../../java_japeserver/RectItem.java;
@@ -1610,6 +1667,7 @@
 			};
 		};
 		F5DFE22903953DAD01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = WorldConnector.java;
 			path = ../../java_japeserver/WorldConnector.java;
@@ -1628,6 +1686,7 @@
 			};
 		};
 		F5E142E0039E1E4001A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = DragImage.java;
 			path = ../../java_japeserver/DragImage.java;
@@ -1646,6 +1705,7 @@
 			};
 		};
 		F5E2B59F03A7982901A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = Images.java;
 			path = ../../java_japeserver/Images.java;
@@ -1670,12 +1730,14 @@
 			};
 		};
 		F5E5E3BF035EE05E01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ToDo;
 			path = ../../java_japeserver/ToDo;
 			refType = 2;
 		};
 		F5E5E3DE035EE1AC01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = MinWaste.java;
 			path = ../../java_japeserver/MinWaste.java;
@@ -1694,6 +1756,7 @@
 			};
 		};
 		F5E5E3E2035F171101A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = TextSelectableItem.java;
 			path = ../../java_japeserver/TextSelectableItem.java;
@@ -1788,6 +1851,7 @@
 			};
 		};
 		F5E9EBF203B1E3FF01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ButtonPane.java;
 			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/ButtonPane.java;
@@ -1806,6 +1870,7 @@
 			};
 		};
 		F5EAC0DB036F473D01A80117 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = TextSelectableProofItem.java;
 			path = ../../java_japeserver/TextSelectableProofItem.java;
@@ -1824,6 +1889,7 @@
 			};
 		};
 		F5EC637A03A0B62D01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ProvisoCanvas.java;
 			path = ../../java_japeserver/ProvisoCanvas.java;
@@ -1842,6 +1908,7 @@
 			};
 		};
 		F5EC637D03A0BF7B01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = TextSelectableProvisoItem.java;
 			path = ../../java_japeserver/TextSelectableProvisoItem.java;
@@ -1860,6 +1927,7 @@
 			};
 		};
 		F5F50C860394DC6601A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = MiscellaneousConstants.java;
 			path = ../../java_japeserver/MiscellaneousConstants.java;
@@ -1878,6 +1946,7 @@
 			};
 		};
 		F5F50C890394DDCB01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = Flyback.java;
 			path = ../../java_japeserver/Flyback.java;
@@ -1896,6 +1965,7 @@
 			};
 		};
 		F5F50C8F0394EBCF01A80116 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = TileTarget.java;
 			path = ../../java_japeserver/TileTarget.java;
