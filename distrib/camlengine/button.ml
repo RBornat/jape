@@ -47,24 +47,24 @@ let deadServer = Interaction.deadServer
 and runningServer = (fun() -> Optionfuns.opt2bool !Japeserver.serverpid)
  
 type button = UndoProofbutton
-			| RedoProofbutton
-			| UndoDisproofbutton
-			| RedoDisproofbutton
-			| Finishedbutton
-			| Resetbutton
-			| Savebutton
-			| SaveAsbutton
-			| Disprovebutton
+	    | RedoProofbutton
+	    | UndoDisproofbutton
+	    | RedoDisproofbutton
+	    | Finishedbutton
+	    | Resetbutton
+	    | Savebutton
+	    | SaveAsbutton
+	    | Disprovebutton
 
 type mybutton = MyUndoProof
-			  | MyRedoProof
-			  | MyUndoDisproof
-			  | MyRedoDisproof
-			  | MyDone
-			  | MyClose
-			  | MySave
-			  | MySaveAs
-			  | MyDisprove
+	      | MyRedoProof
+	      | MyUndoDisproof
+	      | MyRedoDisproof
+	      | MyDone
+	      | MyReset
+	      | MySave
+	      | MySaveAs
+	      | MyDisprove
 
 
 let buttoncache : (mybutton, bool ref) mapping ref = ref empty
@@ -78,7 +78,7 @@ let rec enable (button, state) =
       | MyUndoDisproof -> "Edit", "Undo Disproof Step"
       | MyRedoDisproof -> "Edit", "Redo Disproof Step"
       | MyDone         -> "Edit", "Done"
-      | MyClose        -> "File", "Close"
+      | MyReset        -> "File", "Erase theory"
       | MySave         -> "File", "Save Proofs"
       | MySaveAs       -> "File", "Save Proofs As..."
       | MyDisprove     -> "Edit", "Disprove"
@@ -95,7 +95,7 @@ let rec enable (button, state) =
   | UndoDisproofbutton -> doit MyUndoDisproof state
   | RedoDisproofbutton -> doit MyRedoDisproof state
   | Finishedbutton     -> doit MyDone state
-  | Resetbutton        -> doit MyClose state
+  | Resetbutton        -> doit MyReset state
   | Savebutton         -> doit MySave state
   | SaveAsbutton       -> doit MySaveAs state
   | Disprovebutton     -> doit MyDisprove state
