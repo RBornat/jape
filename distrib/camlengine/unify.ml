@@ -64,7 +64,7 @@ module M : T =
     let rec freshalphavar cxt c v =
       try freshproofvar cxt c v with
         Catastrophe_ ss ->
-          try freshproofvar cxt c (autoVID c "alpha") with
+          try freshproofvar cxt c (autoID c "alpha") with
             Catastrophe_ _ -> raise (Catastrophe_ ss)
     let rec occurs cxt v t =
       match t with
@@ -149,7 +149,7 @@ module M : T =
                 | true, _ -> enbracket v
                 | _ -> v
             and defermatch () =
-              let prefix = autoVID FormulaClass "abst" in
+              let prefix = autoID FormulaClass "abst" in
               let (cxt', vid') = freshVID cxt FormulaClass prefix in
               let var' = registerUnknown (vid', FormulaClass) in
               let subst = registerSubst (true, var', map) in
@@ -769,7 +769,7 @@ module M : T =
               | p :: ps, (cxt, App (_, p', t)) ->
                   if p = p' then dm ps (debsimp cxt t) else None
               | ps, (cxt, t) ->
-                  let prefix = autoVID FormulaClass "demodeify" in
+                  let prefix = autoID FormulaClass "demodeify" in
                   let (cxt, u) = freshUnknown cxt FormulaClass prefix in
                   let rec mkApp =
                     function

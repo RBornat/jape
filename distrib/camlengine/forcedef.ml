@@ -31,23 +31,23 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type seq = Sequent.Type.seq
-               and type term = Term.Type.term
+module M : T with type seq = Sequent.Funs.seq
+               and type term = Term.Funs.term
 =
   struct
-    open Optionfuns.M 
-    open Symboltype.M
-    open Term.Termstring
-    open SML.M
-    open Term.Funs
-    open Symbol.M
-    open Termparse.M
-    open Miscellaneous.M
     open Listfuns.M
+    open Miscellaneous.M
+    open Optionfuns.M 
+    open SML.M
     open Sequent.Funs
     open Stringfuns.M
+    open Symbol.Funs
+    open Symbol.Type
+    open Term.Funs
+    open Term.Termstring
+    open Termparse.M
     
-    type seq = Sequent.Type.seq and term = Term.Type.term
+    type seq = Sequent.Funs.seq and term = Term.Funs.term
     
     type forcedef =
         ForcePrim of term

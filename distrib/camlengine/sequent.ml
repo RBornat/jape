@@ -14,9 +14,7 @@ end
 
 module type Funs =
   sig
-    open Type
-    
-    type symbol and element and vid and ('a, 'b) mapping and idclass
+    type seq and symbol and term and element and vid and ('a, 'b) mapping and idclass
     
     val describeSeqs : (idclass * string * idclass) list -> unit
     val getsemanticturnstile : string -> string option
@@ -51,9 +49,11 @@ module type Funs =
     val syntacticturnstiles : unit -> string list
 end
 
-module Funs:  Funs with type symbol = Symboltype.M.symbol
+module Funs:  Funs with type seq = Type.seq
+                    and type symbol = Symbol.Type.symbol
 					and type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-					and type vid = Symboltype.M.vid
+					and type vid = Term.Type.vid
+					and type term = Term.Type.term
 					and type element = Term.Type.element
 					and type idclass = Idclass.M.idclass
 =
@@ -68,17 +68,19 @@ module Funs:  Funs with type symbol = Symboltype.M.symbol
     open Miscellaneous.M
     open Optionfuns.M
     open SML.M
-    open Symbol.M
-    open Symboltype.M
+    open Symbol.Funs
+    open Symbol.Type
     open Term.Funs
     open Term.Store
     open Term.Termstring
     open Term.Type
     open Termparse.M    
     
-    type symbol = Symboltype.M.symbol
+    type seq = Type.seq
+     and symbol = Symbol.Type.symbol
      and ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-	 and vid = Symboltype.M.vid
+	 and vid = Term.Type.vid
+	 and term = Term.Type.term
 	 and element = Term.Type.element
 	 and idclass = Idclass.M.idclass
 

@@ -40,7 +40,7 @@ module type T =
 (* $Id$ *)
 
 module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-              and type term = Term.Type.term
+              and type term = Term.Funs.term
 =
   struct
     open Miscellaneous.M
@@ -55,7 +55,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
     open SML.M
     
     type ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
-    type term = Term.Type.term
+    type term = Term.Funs.term
     
     let matchdebug = ref false
     (* because of matching in provisos, we have to use a discrimination between 
@@ -238,7 +238,10 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
      *)
     let rec simplepat term =
       let idnum = ref 0 in
-      let rec mkid c = let r = registerId (string_of_int !idnum, c) in incr idnum; r in
+      let rec mkid c = 
+        let r = registerId (vid_of_string (string_of_int !idnum), c) in 
+        incr idnum; r 
+      in
       let rec _S t =
         match t with
           Id _ -> mkid FormulaClass

@@ -33,16 +33,16 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type element = Term.Type.element
+module M : T with type element = Term.Funs.element
               and type idclass = Idclass.M.idclass
               and type term = Term.Type.term
-              and type symbol = Symboltype.M.symbol
+              and type symbol = Symbol.Type.symbol
 =
   struct
     open Listfuns.M
     open Searchtree.M
-    open Symbol.M
-    open Symboltype.M
+    open Symbol.Funs
+    open Symbol.Type
     open Idclass.M
     open Idclassfuns.M
     open Term.Type
@@ -56,7 +56,7 @@ module M : T with type element = Term.Type.element
     type element = Term.Type.element
     type idclass = Idclass.M.idclass
     type term = Term.Type.term
-    type symbol = Symboltype.M.symbol
+    type symbol = Symbol.Type.symbol
     
     (* stuff to handle variable leftfix/outfix syntax *)
     let symbeq : symbol * symbol -> bool = fun (x, y) -> x = y
@@ -151,10 +151,10 @@ module M : T with type element = Term.Type.element
       let sy = currsymb () in
       let _ = scansymb () in
       match sy with
-        ID (s, Some c) -> checkclass ("identifier", registerId (s, c))
-      | ID (s, None) -> !undecl ("identifier", registerId (s, NoClass))
-      | UNKNOWN (s, Some c) -> checkclass ("unknown", registerUnknown (s, c))
-      | UNKNOWN (s, None) -> !undecl ("unknown", registerUnknown (s, NoClass))
+        ID (s, Some c) -> checkclass ("identifier", registerId (vid_of_string s, c))
+      | ID (s, None) -> !undecl ("identifier", registerId (vid_of_string s, NoClass))
+      | UNKNOWN (s, Some c) -> checkclass ("unknown", registerUnknown (vid_of_string s, c))
+      | UNKNOWN (s, None) -> !undecl ("unknown", registerUnknown (vid_of_string s, NoClass))
       | NUM s ->
           begin try registerLiteral (Number (atoi s)) with
             _ -> raise (Catastrophe_ ["parseAtom can't atoi "; s])
@@ -166,7 +166,7 @@ module M : T with type element = Term.Type.element
       | LEFTFIX (m, _) -> parseLeftfix m sy
       | PREFIX (m, s) ->
           checkAfterBra sy m;
-          registerApp (registerId (s, OperatorClass), parseExpr m true)
+          registerApp (registerId (vid_of_string s, OperatorClass), parseExpr m true)
       | s ->
           raise
             (ParseError_
@@ -263,7 +263,7 @@ module M : T with type element = Term.Type.element
       okv (parseAtom ())
     and parseBRA () =
       let rec defop s =
-        let r = registerId (s, OperatorClass) in
+        let r = registerId (vid_of_string s, OperatorClass) in
         let _ =  scansymb () in
         check (KET ")"); r
       in
@@ -310,18 +310,18 @@ module M : T with type element = Term.Type.element
             pq i
                (fun (s, t') ->
                   registerApp
-                    (registerId (s, OperatorClass),
+                    (registerId (vid_of_string s, OperatorClass),
                      registerTup (",", [t; t'])))
         | INFIXC i ->
             pq i
                (fun (s, t') ->
                   registerApp
-                    (registerApp (registerId (s, OperatorClass), t), t'))
+                    (registerApp (registerId (vid_of_string s, OperatorClass), t), t'))
         | POSTFIX (n', s) ->
             if ( >> ) (n', n) then
               (let _ = scansymb () in
                 checkAfterBra sy n';
-                pe (registerApp (registerId (s, OperatorClass), t))
+                pe (registerApp (registerId (vid_of_string s, OperatorClass), t))
               )
             else t
         | RIGHTFIX i -> pr i parseRightfix
@@ -398,11 +398,11 @@ module M : T with type element = Term.Type.element
             PREFIX (_, sp) as sy ->
               (let _ = scansymb () in
                match getSegvar () with
-				 Some (ps, v) -> Some (registerId (sp, OperatorClass) :: ps, v)
+				 Some (ps, v) -> Some (registerId (vid_of_string sp, OperatorClass) :: ps, v)
 			   | None -> putbacksymb sy; None
               )
-          | ID (s, Some k') -> id registerId s k'
-          | UNKNOWN (s, Some k') -> id registerUnknown s k'
+          | ID (s, Some k') -> id registerId (vid_of_string s) k'
+          | UNKNOWN (s, Some k') -> id registerUnknown (vid_of_string s) k'
           | _ -> None
         in
         match getSegvar () with

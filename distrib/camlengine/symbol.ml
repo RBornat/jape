@@ -2,12 +2,12 @@
 
 module type Type =
   sig
-    type vid and idclass
+    type idclass
     type associativity =
       LeftAssoc | RightAssoc | AssocAssoc | TupleAssoc | CommAssocAssoc
     type symbol =
-        ID of (vid * idclass option)
-      | UNKNOWN of (vid * idclass option)
+        ID of (string * idclass option)
+      | UNKNOWN of (string * idclass option)
       | NUM of string
       | STRING of string
       | BRA of string
@@ -26,23 +26,19 @@ module type Type =
       | RIGHTFIX of (int * string)
       | STILE of string
       | SHYID of string
-    
-    val string_of_vid : vid -> string
-    val vid_of_string : string -> vid
   end
 
 module Type : Type with type idclass = Idclass.M.idclass =
   struct
 
     type idclass = Idclass.M.idclass 
-     and vid = string (* but that's not exported *)
     
     type associativity =
       LeftAssoc | RightAssoc | AssocAssoc | TupleAssoc | CommAssocAssoc
     
     type symbol =
-        ID of (vid * idclass option)
-      | UNKNOWN of (vid * idclass option)
+        ID of (string * idclass option)
+      | UNKNOWN of (string * idclass option)
       | NUM of string
       | STRING of string
       | BRA of string
@@ -61,15 +57,11 @@ module Type : Type with type idclass = Idclass.M.idclass =
       | RIGHTFIX of (int * string)
       | STILE of string
       | SHYID of string
-  
-    let string_of_vid vid = vid
-    let vid_of_string s = s
   end
 
 module type Funs =
   sig
-    type vid and symbol
-     and associativity and idclass
+    type symbol and associativity and idclass
     
     val symboldebug : bool ref
     val enter : string * symbol -> unit
@@ -83,7 +75,7 @@ module type Funs =
     val symclass : string -> idclass
     exception Symclass_ of string
     val isnumber : string -> bool
-    val isextensible_vid : vid -> bool
+    val isextensibleID : string -> bool
     val symbolstring : symbol -> string
     val smlsymbolstring : symbol -> string
     (* aid for prettyprinters *)
@@ -116,7 +108,7 @@ module type Funs =
     val get_oplist : unit -> string list
     val set_oplist : string list -> unit
     (* aid for name inventors *)
-    val autoVID : idclass -> string -> vid
+    val autoID : idclass -> string -> string
   end
 
 (* I've made this a bit of a mess - all confused between the enter/lookup store and
@@ -129,14 +121,15 @@ module type Funs =
  * None in the idclass position, and I never enter UNKNOWNs at all.
  *)
  
-module Funs : Funs with type vid = Symbol.Type.vid 
-					and type symbol = Symbol.Type.symbol 
-					and type idclass = Idclass.M.idclass
+module Funs : Funs with type idclass = Idclass.M.idclass
+	                and type associativity = Type.associativity
+					and type symbol = Type.symbol 
 =
   struct
+    open Type
+
     open Idclass.M
     open Searchtree.M
-    open Symbol.Type
     open Prestring.M
     open Listfuns.M
     open Miscellaneous.M
@@ -144,11 +137,9 @@ module Funs : Funs with type vid = Symbol.Type.vid
     open Stringfuns.M
     open SML.M
     
-	type vid = Symbol.Type.vid
 	type idclass = Idclass.M.idclass
-
-	type associativity = Symbol.Type.associativity
-	type symbol = Symbol.Type.symbol
+	 and associativity = Type.associativity
+	 and symbol = Type.symbol
 	
 	(* smlnj 0.93 had no notion of char, only single-character strings.  In this first
 	   porting, I've used caml streams and converted all input to single-character strings.
@@ -281,8 +272,8 @@ module Funs : Funs with type vid = Symbol.Type.vid
       | None -> lookinIdtree idprefixtree (explode s)
     let rec reverselookup symbol =
       match symbol with
-        ID (s, _) -> string_of_vid s
-      | UNKNOWN (s, _) -> string_of_vid s
+        ID (s, _) -> s
+      | UNKNOWN (s, _) -> s
       | NUM s -> s
       | STRING s -> s
       | BRA s -> s
@@ -314,11 +305,11 @@ module Funs : Funs with type vid = Symbol.Type.vid
       match s with
         ID (s'1, class__) ->
           BQuote3
-            [BQuote1 "ID("; BQuote1 "\""; BQuote1 (string_of_vid s'1); BQuote1 "\""; pre__comma;
+            [BQuote1 "ID("; BQuote1 "\""; BQuote1 s'1; BQuote1 "\""; pre__comma;
              preclassopt class__; BQuote1 ")"]
       | UNKNOWN (s'1, class__) ->
           BQuote3
-            [BQuote1 "UNKNOWN("; BQuote1 "\""; BQuote1 (string_of_vid s'1); BQuote1 "\"";
+            [BQuote1 "UNKNOWN("; BQuote1 "\""; BQuote1 s'1; BQuote1 "\"";
              pre__comma; preclassopt class__; BQuote1 ")"]
       | NUM s'1 -> BQuote3 [BQuote1 "NUM "; pre_string s'1]
       | STRING s'1 -> BQuote3 [BQuote1 "STRING \""; BQuote1 s'1; BQuote1 "\""]
@@ -424,7 +415,7 @@ module Funs : Funs with type vid = Symbol.Type.vid
         Some (INFIXC (_, a, _)) -> Some (true, a)
       | Some (INFIX (_, a, _)) -> Some (false, a)
       | _ -> None
-    let rec badID s = ID (vid_of_string s, None)
+    let rec badID s = ID (s, None)
     let rec checkentry con s =
       let v = con s in
       match lookup s with
@@ -459,23 +450,22 @@ module Funs : Funs with type vid = Symbol.Type.vid
          | None   => []
       *)
       []
-    let rec autoVID class__ prefix =
+    let rec autoID class__ prefix =
       match Mappingfuns.M.at (!decVarPrefixes, class__) with
-        Some s -> vid_of_string s
+        Some s -> s
       | None ->
           (* we just add underscores to prefix till it isn't in the IdPrefix tree *)
           match fsmpos (rootfsm idprefixtree) (explode prefix) with
-            None   -> (let _ = declareIdPrefix class__ prefix in vid_of_string prefix)
-          | Some _ -> autoVID class__ (prefix ^ "_")
+            None   -> (let _ = declareIdPrefix class__ prefix in prefix)
+          | Some _ -> autoID class__ (prefix ^ "_")
     let rec declareIdClass class__ s =
       insertinIdtree "declareIdClass" false class__ idfixedtree s;
-      enter (s, ID (vid_of_string s, Some class__));
+      enter (s, ID (s, Some class__));
       (* no warnings about clashes any more *)
       None
     let rec isnumber s =
       not (List.exists (not <*> isdigit) (explode s))
-    let rec isextensible_vid v =
-      let s = string_of_vid v in
+    let rec isextensibleID s =
       lookup s = None && lookinIdtree idprefixtree (explode s) <> NoClass
     let commasymbol = INFIX (0, TupleAssoc, ",")
     (* comma is now an operator, and may we be lucky *)
@@ -604,8 +594,8 @@ module Funs : Funs with type vid = Symbol.Type.vid
     let rec checkidclass con takeit class__ s =
       match lookup s with
         Some (ID (v, class')) -> con (v, class')
-      | Some sy -> if takeit then sy else con (vid_of_string s, class__)
-      | None -> con (vid_of_string s, class__)
+      | Some sy -> if takeit then sy else con (s, class__)
+      | None -> con (s, class__)
     let rec scan () =
       match char () with
         "" -> scanreport EOF
@@ -634,16 +624,16 @@ module Funs : Funs with type vid = Symbol.Type.vid
       | c ->
           if c = metachar then
             let rec goodunknown class__ s =
-              if isextensible_vid (vid_of_string s) then 
-                checkidclass (fun vc->UNKNOWN vc) false class__ s
+              if isextensibleID s then 
+                checkidclass (fun sc->UNKNOWN sc) false class__ s
               else 
                 raise (ParseError_ ["non-CLASS unknown "; metachar; s])
             in
             next (); 
 			if isIDhead (char ()) then
-			  scanreport (scanid (checkidclass (fun vc->UNKNOWN vc) false))
+			  scanreport (scanid (checkidclass (fun sc->UNKNOWN sc) false))
 			else raise (ParseError_ ["ID expected following "; metachar])
-          else if isIDhead c then scanreport (scanid (checkidclass (fun vc->ID vc) true))
+          else if isIDhead c then scanreport (scanid (checkidclass (fun sc->ID sc) true))
           else if isdigit c then scanreport (scanwhile isdigit [] (fun s->NUM s))
           else if ispunct c then scanreport (scanop (rootfsm optree) [])
           else raise (Catastrophe_ ["scan can't see class of "; c])

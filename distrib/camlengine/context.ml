@@ -20,19 +20,19 @@ end
 
 module Type : Type with type seq = Sequent.Type.seq 
                     and type rewinf = Rewinf.M.rewinf
-                    and type term = Term.Type.term
+                    and type term = Term.Funs.term
                     and type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-					and type vid = Term.Type.vid
-					and type resnum = Term.Type.resnum
+					and type vid = Term.Funs.vid
+					and type resnum = Term.Funs.resnum
                     and type visproviso = Proviso.M.visproviso
 =
 struct 
     type seq = Sequent.Type.seq
      and rewinf = Rewinf.M.rewinf
-     and term = Term.Type.term
+     and term = Term.Funs.term
      and ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-     and vid = Term.Type.vid
-     and resnum = Term.Type.resnum
+     and vid = Term.Funs.vid
+     and resnum = Term.Funs.resnum
      and visproviso = Proviso.M.visproviso
     
     (* this information perhaps ought to be elsewhere in the proof state, but it's here
@@ -113,8 +113,8 @@ module Cxtstring : Cxtstring with type cxt = Type.cxt
                     (mappingstring termstring termliststring) termliststring
                     termliststring ","))
               ", " e
-    let pint : int -> string = string_of_int
-    let pid s = s
+    let pint = string_of_int
+    let pid = Term.Funs.string_of_vid
     let cxtstring =
       fun
         (Context
@@ -173,10 +173,10 @@ module type Cxt =
 
 module Cxt : Cxt with type cxt = Type.cxt
                   and type seq = Sequent.Type.seq
-                  and type term = Term.Type.term
+                  and type term = Term.Funs.term
                   and type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-                  and type vid = Term.Type.vid
-                  and type resnum = Term.Type.resnum
+                  and type vid = Term.Funs.vid
+                  and type resnum = Term.Funs.resnum
                   and type proviso = Proviso.M.proviso
                   and type visproviso = Proviso.M.visproviso
                   and type idclass = Idclass.M.idclass
@@ -186,10 +186,10 @@ module Cxt : Cxt with type cxt = Type.cxt
     
     type cxt = Type.cxt
      and seq = Sequent.Type.seq
-     and term = Term.Type.term
+     and term = Term.Funs.term
      and ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-     and vid = Term.Type.vid
-     and resnum = Term.Type.resnum
+     and vid = Term.Funs.vid
+     and resnum = Term.Funs.resnum
      and proviso = Proviso.M.proviso
      and visproviso = Proviso.M.visproviso
      and idclass = Idclass.M.idclass

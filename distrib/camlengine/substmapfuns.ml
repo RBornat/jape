@@ -37,7 +37,7 @@ module type T =
 
 module M : T with type answer = Answer.M.answer
 			  and type facts = Facts.M.facts
-			  and type term = Term.Type.term
+			  and type term = Term.Funs.term
 =
   struct
     open Listfuns.M
@@ -55,7 +55,7 @@ module M : T with type answer = Answer.M.answer
     
     type answer = Answer.M.answer
      and facts = Facts.M.facts
-     and term = Term.Type.term
+     and term = Term.Funs.term
      
     let mkNotin v = Proviso.M.NotinProviso v
     

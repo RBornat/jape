@@ -83,15 +83,15 @@ module type Type =
 end
 
 module Type : Type with type name = Name.M.name
-					and type term = Term.Type.term
+					and type term = Term.Funs.term
 					and type treelayout = Treelayout.M.treelayout
-					and type seq = Sequent.Type.seq
+					and type seq = Sequent.Funs.seq
 =
   struct
     type name = Name.M.name
-	 and term = Term.Type.term
+	 and term = Term.Funs.term
 	 and treelayout = Treelayout.M.treelayout
-	 and seq = Sequent.Type.seq
+	 and seq = Sequent.Funs.seq
 	 
     type tactic =
         SkipTac
@@ -174,8 +174,7 @@ end
 
 module type Funs =
   sig
-    open Type
-    type ('a, 'b) mapping
+    type tactic and ('a, 'b) mapping and term and name
     val tacname : term -> name
     (* or raise ParseError_ *)
     val transTactic : term -> tactic
@@ -201,7 +200,11 @@ module type Funs =
   [[Actually it's all crap, and we need a proper MLish tactic language. BS]]
  *)
 
-module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping =
+module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping 
+					and type name = Name.M.name
+					and type term = Term.Type.term
+					and type tactic = Type.tactic
+=
   struct
     open Type
     
@@ -221,6 +224,9 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping =
     open Treelayout.M    
     
     type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+     and name = Name.M.name
+     and term = Term.Type.term
+     and tactic = Type.tactic
      
     (*
         TACTIC TRANSLATION
@@ -365,7 +371,7 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping =
         | SubstTac (s, vts) ->
             catelim_termstring
               (Subst
-                 (None, true, Id (None, pnstr s, FormulaClass),
+                 (None, true, Id (None, vid_of_string (pnstr s), FormulaClass),
                   (match !showargasint with
                      Some lookup ->
                        let rec encodeterm t =
@@ -546,7 +552,7 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping =
     let rec mustbeSTR term =
       match debracket term with
         Literal (_, String s) -> s
-      | Id (_, i, _) -> i
+      | Id (_, v, _) -> string_of_vid v
       | _ -> raise (TacParseError_ [argstring term; " should be a string"])
     let rec maybeSTR term =
       try Some (mustbeSTR term) with
@@ -636,11 +642,14 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping =
     and transTactic tacterm =
       try
         match debracket tacterm with
-          Id (_, "SKIP", _) -> SkipTac
-        | Id (_, "FAIL", _) -> FailTac
-        | Id (_, "STOP", _) -> StopTac
-        | Id (_, "NEXTGOAL", _) -> NextgoalTac
-        | Id (_, "UNIFYARGS", _) -> UnifyArgsTac
+          Id (_, v, _) -> 
+            (match string_of_vid v with
+               "SKIP" -> SkipTac
+			 | "FAIL" -> FailTac
+			 | "STOP" -> StopTac
+			 | "NEXTGOAL" -> NextgoalTac
+			 | "UNIFYARGS" -> UnifyArgsTac
+			 | s -> raise (Catastrophe_ ["unrecognised tactic "; s]))
         | Subst (_, _, _P, vts) ->
             SubstTac
               (butnottacticform _P,
@@ -929,7 +938,10 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping =
       in
       let bopt =
         match try__ (checkINTS nserr) bopt with
-          Some (Id (_, "ALL", _)) -> None
+          Some (Id (_, v, _)) as r -> 
+            (match string_of_vid v with
+               "ALL" -> None
+             | _     -> r)
         | r -> r
       in
       LayoutTac (_SEQTAC ts, con (fmt, bopt))

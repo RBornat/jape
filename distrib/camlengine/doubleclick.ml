@@ -11,9 +11,9 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type seq = Sequent.Type.seq 
-              and type tactic = Tactic.Type.tactic 
-              and type term = Term.Type.term
+module M : T with type seq = Sequent.Funs.seq 
+              and type tactic = Tactic.Funs.tactic 
+              and type term = Sequent.Funs.term
 =
   struct
     open Sequent.Funs
@@ -22,7 +22,9 @@ module M : T with type seq = Sequent.Type.seq
     open Tactic.Funs
     open Optionfuns.M
     
-    type seq = Sequent.Type.seq and tactic = Tactic.Type.tactic and term = Term.Type.term
+    type seq = Sequent.Funs.seq 
+     and tactic = Tactic.Funs.tactic 
+     and term = Sequent.Funs.term
     
     let seqmatch = seqmatch false
     

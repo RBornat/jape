@@ -24,7 +24,10 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T =
+module M : T with type idclass = Idclass.M.idclass
+			  and type term = Term.Funs.term
+			  and type vid = Term.Funs.vid 
+=
   struct
     open Idclass.M 
     open Term.Type
@@ -38,8 +41,8 @@ module M : T =
     open SML.M
     
     type idclass = Idclass.M.idclass
-    type term = Term.Type.term
-    type vid = Symboltype.M.vid 
+    type term = Term.Funs.term
+    type vid = Term.Funs.vid 
     
     let interpretpredicates = ref false
     let predicatedebug = ref false

@@ -22,18 +22,18 @@ module type T = (* all the stuff that's fit to print *)
   end
   
 (* $Id$ *)
-module M : (* sig include Nametype include Name end *) T with type term = Term.Type.term 
+module M : (* sig include Nametype include Name end *) T with type term = Term.Funs.term 
 =
   struct
     open Miscellaneous.M
     open Stringfuns.M
-    open Symbol.M 
-    open Symboltype.M 
+    open Symbol.Funs 
+    open Symbol.Type 
     open Term.Funs
     open Term.Type 
     open Termparse.M
     
-    type term = Term.Type.term
+    type term = Term.Funs.term
     
     (* it is high time we had a datatype of names of things *)
     
@@ -55,8 +55,8 @@ module M : (* sig include Nametype include Name end *) T with type term = Term.T
           ParseError_ _ -> enQuote (String.escaped s)
     let rec term2name t =
       match t with
-        Id (_, s, _) -> Some (Name s)
-      | Unknown (_, s, _) -> Some (Name (metachar ^ s))
+        Id (_, v, _) -> Some (Name (string_of_vid v))
+      | Unknown (_, v, _) -> Some (Name (metachar ^ string_of_vid v))
       | Literal (_, Number s) -> Some (Name (string_of_int s))
       | Literal (_, String s) -> Some (Name s)
       | _ -> None

@@ -67,23 +67,23 @@ module type T =
   end
 (* $Id$ *)
 
-module M : Provisotype with type vid = Term.Type.vid
-                        and type term = Term.Type.term
+module M : Provisotype with type vid = Term.Funs.vid
+                        and type term = Term.Funs.term
  =
   struct
     open Listfuns.M 
     open Miscellaneous.M
     open SML.M
-    open Symbol.M
-    open Symboltype.M 
+    open Symbol.Funs
+    open Symbol.Type 
     open Term.Funs 
     open Term.Store
     open Term.Termstring
     open Term.Type
     open Termparse.M
     
-    type vid = Term.Type.vid
-     and term = Term.Type.term
+    type vid = Term.Funs.vid
+     and term = Term.Funs.term
      
 	let mkBag els = 
 	  registerCollection(Idclass.M.BagClass Idclass.M.FormulaClass,els)

@@ -63,7 +63,7 @@ module M :
     open Rewinf.M
     open Substmapfuns.M
     
-    type cxt = Context.Cxt.cxt and term = Term.Type.term and seq = Sequent.Type.seq
+    type cxt = Context.Cxt.cxt and term = Term.Funs.term and seq = Sequent.Type.seq
     
     let rewritedebug = ref false
     (* the rewrite functions rewrite a term/sequent/proviso, 

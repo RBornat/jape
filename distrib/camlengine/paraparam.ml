@@ -16,17 +16,19 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type vid = Term.Type.vid 
-              and type idclass = Idclass.M.idclass 
-              and type term = Term.Type.term 
+module M : T with type vid = Term.Funs.vid 
+              and type idclass = Term.Funs.idclass 
+              and type term = Term.Funs.term 
 =
   struct
     open Listfuns.M
-    open Symbol.M
+    open Symbol.Funs
     open Term.Funs
     open Term.Store
     
-    type vid = Term.Type.vid and idclass = Idclass.M.idclass and term = Term.Type.term
+    type vid = Term.Funs.vid 
+     and idclass = Term.Funs.idclass 
+     and term = Term.Funs.term
     
     type paraparam =
         Objectparam of (vid * idclass)
@@ -37,10 +39,10 @@ module M : T with type vid = Term.Type.vid
      
     let rec catelim_paraparamstring p tail =
       match p with
-        Objectparam (v, _) -> "OBJECT " :: v :: tail
-      | Ordinaryparam (v, _) -> v :: tail
-      | Unknownparam (v, _) -> metachar :: v :: tail
-      | Abstractionparam (v, _) -> "ABSTRACTION " :: v :: tail
+        Objectparam (v, _) -> "OBJECT " :: string_of_vid v :: tail
+      | Ordinaryparam (v, _) -> string_of_vid v :: tail
+      | Unknownparam (v, _) -> metachar :: string_of_vid v :: tail
+      | Abstractionparam (v, _) -> "ABSTRACTION " :: string_of_vid v :: tail
     let paraparamstring = catelim2stringfn catelim_paraparamstring
     let rec paramidbits p =
       match p with

@@ -10,16 +10,16 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type idclass = Idclass.M.idclass and type symbol = Symboltype.M.symbol =
+module M : T with type idclass = Idclass.M.idclass and type symbol = Symbol.Type.symbol =
   struct
-    open Symboltype.M 
-    open Symbol.M 
+    open Symbol.Type 
+    open Symbol.Funs 
     open Idclass.M
     open Miscellaneous.M
     open Listfuns.M
     
     type idclass = Idclass.M.idclass
-    type symbol = Symboltype.M.symbol
+    type symbol = Symbol.Type.symbol
     
     (* in future we shall have lots of kinds of Bags and Lists; for the moment 
      * it would be burdensome to force the world to say BAG FORMULA, so we don't.

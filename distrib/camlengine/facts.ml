@@ -18,29 +18,29 @@ module type T =
 module M : T with type proviso = Proviso.M.proviso
 			  and type visproviso = Proviso.M.visproviso
 			  and type cxt = Context.ExteriorFuns.cxt
-			  and type term = Term.Type.term
+			  and type term = Term.Funs.term
 			  and type answer = Answer.M.answer
 =
   struct
     open Answer.M 
-    open Term.Funs 
-    open Context.ExteriorFuns 
-    open Proviso.M
-    open Stringfuns.M
-    open Listfuns.M
     open Context.Cxtstring
-    open Term.Type
+    open Context.ExteriorFuns 
     open Context.Type
-    open Rewinf.M
-    open Miscellaneous.M
-    open Term.Termstring
-    open Symbol.M
+    open Listfuns.M
     open Mappingfuns.M
+    open Miscellaneous.M
+    open Proviso.M
+    open Rewinf.M
+    open Stringfuns.M
+    open Symbol.Funs
+    open Term.Funs 
+    open Term.Termstring
+    open Term.Type
     
     type proviso = Proviso.M.proviso
      and visproviso = Proviso.M.visproviso
      and cxt = Context.ExteriorFuns.cxt
-     and term = Term.Type.term
+     and term = Term.Funs.term
      and answer = Answer.M.answer
 
     let factsdebug = ref false
@@ -106,8 +106,9 @@ module M : T with type proviso = Proviso.M.proviso
         else
           match v1, v2 with
             Id (_, vid1, _), Id (_, vid2, _) ->
-              if not (isextensibleID vid1) && not (isextensibleID vid2) then
-                No
+              if not (isextensibleID (string_of_vid vid1)) && 
+                 not (isextensibleID (string_of_vid vid2)) 
+              then No
               else
                 begin match facts with
                   ps, Exterior (_, _, Some (_, fvs, vmap, bhfvs, bcfvs)) ->

@@ -23,18 +23,18 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type vid = Term.Type.vid 
-              and type term = Term.Type.term 
+module M : T with type vid = Term.Funs.vid 
+              and type term = Term.Funs.term 
 =
   struct
     open Stringfuns.M
     open Term.Termstring
     open Listfuns.M
-    open Symboltype.M
     open Optionfuns.M
     open Term.Funs
     
-    type vid = Term.Type.vid and term = Term.Type.term
+    type vid = Term.Funs.vid 
+     and term = Term.Funs.term
        
        (* see rewrite.sml for an explanation of this data structure *)
     type rewinf = Rewinf of (term list * vid list * int list * int option)
@@ -69,7 +69,7 @@ module M : T with type vid = Term.Type.vid
     let rec rewinfstring =
       fun (Rewinf r) ->
         "Rewinf" ^
-          quadruplestring termliststring (bracketedliststring vidstring ",")
+          quadruplestring termliststring (bracketedliststring string_of_vid ",")
             (bracketedliststring string_of_int ",") (optionstring string_of_int) ","
             r
     let rec rewinf_merge =

@@ -26,13 +26,16 @@ module type Type =
 	val bracketed : term -> bool
 	val debracket : term -> term
 	val resnum2int : resnum -> int
+
+    val string_of_vid : vid -> string
+    val vid_of_string : string -> vid
 end
 	
-module Type : Type with type vid = Symbol.Type.vid 
-                            and type idclass = Idclass.M.idclass
+module Type : Type with type idclass = Idclass.M.idclass
 =
   struct
-    type vid = Symbol.Type.vid and idclass = Idclass.M.idclass
+    type vid = string (* but nobody else knows *) 
+     and idclass = Idclass.M.idclass
     (* terms now contain hash information. RB 26/i/00 *)
     (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
 	type term =
@@ -70,6 +73,9 @@ module Type : Type with type vid = Symbol.Type.vid
       function
         Fixapp (_, ["("; ")"], [t]) -> true
       | t -> false
+
+    let vid_of_string s = s
+    let string_of_vid v = v
   end    	
 
 module type Termstring =
@@ -153,11 +159,11 @@ module Termstring  : Termstring with type term = Type.term
         Id (h, v, c) ->
           "Id(" ::
             catelim_optionstring (stringfn2catelim string_of_int) h
-              (",\"" :: v :: "\"," :: idclassstring c :: ")" :: tail)
+              (",\"" :: string_of_vid v :: "\"," :: idclassstring c :: ")" :: tail)
       | Unknown (h, v, c) ->
           "Unknown(" ::
             catelim_optionstring (stringfn2catelim string_of_int) h
-              (",\"" :: v :: "\"," :: idclassstring c :: ")" :: tail)
+              (",\"" :: string_of_vid v :: "\"," :: idclassstring c :: ")" :: tail)
       | App (h, f, a) ->
           "App(" ::
             catelim_optionstring (stringfn2catelim string_of_int) h
@@ -336,8 +342,8 @@ module Termstring  : Termstring with type term = Type.term
       | [] -> [" "]
     let rec opname f =
       match f, !debracketapplications, debracket f with
-        Id (_, name, _), _, _ -> Some name
-      | _, true, Id (_, name, _) -> Some name
+        Id (_, v, _), _, _ -> Some (string_of_vid v)
+      | _, true, Id (_, v, _) -> Some (string_of_vid v)
       | _ -> None
     (* this function will probably produce stupid results if the language includes
      * operators with identical priorities but differing associativity.
@@ -395,22 +401,22 @@ module Termstring  : Termstring with type term = Type.term
       in
       match t with
         Id (_, v, _) ->
-          begin match lookup v with
+          let sv = string_of_vid v in
+          (match lookup sv with
             INFIX _ ->
               ivb t ::
-                quadcolon "(" (quadcolon v (quadcolon ")" (ivk t :: s)))
+                quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
           | INFIXC _ ->
               ivb t ::
-                quadcolon "(" (quadcolon v (quadcolon ")" (ivk t :: s)))
+                quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
           | PREFIX _ ->
               ivb t ::
-                quadcolon "(" (quadcolon v (quadcolon ")" (ivk t :: s)))
+                quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
           | POSTFIX _ ->
               ivb t ::
-                quadcolon "(" (quadcolon v (quadcolon ")" (ivk t :: s)))
-          | _ -> ivb t :: quadcolon v (ivk t :: s)
-          end
-      | Unknown (_, v, _) -> ivb t :: quadcolon (metachar ^ v) (ivk t :: s)
+                quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
+          | _ -> ivb t :: quadcolon sv (ivk t :: s))
+      | Unknown (_, v, _) -> ivb t :: quadcolon (metachar ^ (string_of_vid v)) (ivk t :: s)
       | App (_, (App (_, f, arg1) as l), arg2) ->
           begin match
             (opname f &~~
@@ -621,7 +627,7 @@ module type Store =
 	val registerElement : resnum * term -> element
 	val registerSegvar : term list * term -> element
 	val resettermstore : unit -> unit
-	
+
 	val hashterm : term -> int option
 	val hashelement : element -> int option
 	val termhashing : bool ref
@@ -639,8 +645,8 @@ module Store : Store with type vid = Type.vid
     open Termstring
     
     open Stringfuns.M
-    open Simplecache.M
     open Optionfuns.M
+    open SML.M
     
 	type vid = Type.vid 
 	 and idclass = Type.idclass
@@ -671,62 +677,100 @@ module Store : Store with type vid = Type.vid
      *)
     (* and of course, you idiot, what you should _really_ do is to make resources shared ... *)
     
-    let rec hashterm =
-      function
-        Id (h, _, _) -> h
-      | Unknown (h, _, _) -> h
-      | App (h, _, _) -> h
-      | Tup (h, _, _) -> h
-      | Literal (h, _) -> h
-      | Fixapp (h, _, _) -> h
-      | Subst (h, _, _, _) -> h
-      | Binding (h, _, _, _) -> h
-      | Collection (h, _, _) -> h
-    let rec hashelement =
-      function
-        Segvar (h, _, _) -> h
-      | Element (h, _, _) -> h
-
     let termhashing = ref true
     let
-      (hashcombine, hash_tepair, hash_telist, registerId, registerUnknown,
+      (hashterm, hashelement, registerId, registerUnknown,
        registerApp, registerTup, registerLiteral, registerFixapp,
        registerSubst, registerBinding, registerCollection, registerElement,
        registerSegvar, resettermstore)
       =
-	   (let module Secret =
+	   (let module Local =
 		  struct
-			let (cacheterm, resettermstore) =
-			  simplecache "termstore"
-				(fun (t, h, (t' : term)) ->
-				   pairstring (string_of_int : int -> string) termstring ", " (h, t))
-				127 (* why not? It can only grow :-> *)
-				 (fun t -> t)
-			let (cacheelement, resetelementstore) =
-			  simplecache "elementstore"
-				(fun (e, h, (e' : element)) ->
-				   pairstring (string_of_int : int -> string) elementstring ", "
-					 (h, e))
-				127(* why not? It can only grow :-> *)
-				 (fun e -> e)
-		  end
-		in
-		let module Open =
-		  struct
-			open Secret 
-			let rec hashcombine a1 a2 =
-			  match a1, a2 with
-				Some h1, Some h2 -> Some ((h1 lsl 1) lxor h2)
-			  | _, _ -> None
-			let rec hash_tepair f (a, b) = hashcombine (f a) (f b)
-			let rec hash_telist f xs =
-			  let rec hash a1 a2 =
-				match a1, a2 with
-				  [], h -> Some h
-				| x :: xs, h -> (hashcombine (f x) (Some h) &~~ hash xs)
-			  in
-			  hash xs 0
+			let hash_list f = Hashtbl.hash <*> List.map f
+			let hash_2 fa fb (a,b) = Hashtbl.hash (fa a, fb b)
+			let hash_3 fa fb fc (a,b,c) = Hashtbl.hash (fa a, fb b, fc c)
 			
+			let rec hashterm t =
+			  match t with
+				Id (Some h, _, _) -> h
+			  | Id (None, v, c) -> hashId v c
+			  | Unknown (Some h, _, _) -> h
+			  | Unknown (None, v, c) -> hashUnknown v c
+			  | App (Some h, _, _) -> h
+			  | App (None, f, a) -> hashApp f a
+			  | Tup (Some h, _, _) -> h
+			  | Tup (None, s, ts) -> hashTup s ts
+			  | Literal (Some h, _) -> h
+			  | Literal (None, l) -> hashLiteral l
+			  | Fixapp (Some h, _, _) -> h
+			  | Fixapp (None, ss, ts) -> hashFixapp ss ts
+			  | Subst (Some h, _, _, _) -> h
+			  | Subst (None, r, _P, vts) -> hashSubst r _P vts
+			  | Binding (Some h, _, _, _) -> h
+			  | Binding (None, bindings, env, pat) -> hashBinding bindings env pat
+			  | Collection (Some h, _, _) -> h
+			  | Collection (None, c, es) -> hashCollection c es
+			
+			and hash_ts ts = hash_list hashterm ts
+			
+			and hashId v c = Hashtbl.hash (v, c)
+			and hashUnknown v c = Hashtbl.hash (v, c)
+			and hashApp f a = hash_ts [f; a]
+			and hashTup s ts = Hashtbl.hash (s, hash_ts ts)
+			and hashLiteral l = Hashtbl.hash l
+			and hashFixapp ss ts = Hashtbl.hash (ss, hash_ts ts)
+			and hashSubst r _P vts = 
+			      Hashtbl.hash (r, hashterm _P, hash_list (hash_2 hashterm hashterm) vts)
+			and hashBinding bindings env pat =
+			      hash_3 (hash_3 hash_ts hash_ts hash_ts)
+			             (hash_list (hash_2 hashterm Hashtbl.hash))
+			             hashterm
+			             (bindings, env, pat)
+            and hashCollection c es = Hashtbl.hash (c, hash_es es)
+            
+			and hashelement e =
+			  match e with
+				Segvar (Some h, _, _) -> h
+			  | Segvar (None, ts, t) -> hashSegvar ts t
+			  | Element (Some h, _, _) -> h
+			  | Element (None, r, t) -> hashElement r t
+			
+			and hash_es es = hash_list hashelement es
+			
+			and hashSegvar ts t = hash_ts (t::ts)
+			and hashElement r t = Hashtbl.hash (r, hashterm t)
+
+            module T = Hashtbl.Make (struct type t=term
+                                            let equal=(=)
+                                            let hash=hashterm
+                                     end)			
+            module E = Hashtbl.Make (struct type t=element
+                                            let equal=(=)
+                                            let hash=hashelement
+                                     end)			
+			let termtable = T.create 127 (* why not? It can only grow :-> *)
+			let cacheterm t =
+			  try T.find termtable t with Not_found -> T.add termtable t t; t
+			
+			let elementtable = E.create 127 (* why not? It can only grow :-> *)
+			let cacheelement e =
+			  try E.find elementtable e with Not_found -> E.add elementtable e e; e
+			
+			(* let (cacheterm, resettermstore) =
+				 simplecache "termstore"
+				   (fun (t, h, (t' : term)) ->
+					  pairstring (string_of_int : int -> string) termstring ", " (h, t))
+				   127 (* why not? It can only grow :-> *)
+					(fun t -> t)
+			   let (cacheelement, resetelementstore) =
+				 simplecache "elementstore"
+				   (fun (e, h, (e' : element)) ->
+					  pairstring (string_of_int : int -> string) elementstring ", "
+						(h, e))
+				   127(* why not? It can only grow :-> *)
+					(fun e -> e)
+			 *)
+
 			(* we only cache constant collections and elements. We may experiment, if this
 			 * is a success, with caching Ids, since they are small, frequent and not very 
 			 * diverse.
@@ -737,87 +781,62 @@ module Store : Store with type vid = Type.vid
 			 * I won't make it a fixture till I profile some proof steps and proof reloads.
 			 * RB 31/i/00
 			 *)
-			
-			let registerId (s, c) =
+			(* But it has been a fixture ever since. And now it's using Hashtbl. 
+			   RB 8/vii/2002
+			 *)
+			(* for efficiency's sake I don't make a term with None, hash it and then re-enter it. *)
+			let registerId (v, c) =
 			  if !termhashing then
-				let h = hashstring s in cacheterm h (Id (Some h, s, c))
-			  else Id (None, s, c)
-			and registerUnknown (s, c) = Unknown (None, s, c)
-			and registerApp (f, a as fa) =
-			  match if !termhashing then hash_tepair hashterm fa else None with
-				Some h as hash -> cacheterm h (App (hash, f, a))
-			  | None -> App (None, f, a)
-			and registerTup (s, ts) =
-			  match
-				if !termhashing then
-				  hashcombine (Some (hashstring s)) (hash_telist hashterm ts)
-				else None
-			  with
-				Some h as hash -> cacheterm h (Tup (hash, s, ts))
-			  | None -> Tup (None, s, ts)
-			and registerLiteral =
-			  function
-				String s as str ->
-				  if !termhashing then
-					let h = hashstring s in cacheterm h (Literal (Some h, str))
-				  else Literal (None, str)
-			  | Number n as num ->
-				  if !termhashing then cacheterm n (Literal (Some n, num))
-				  else Literal (None, num)
+				let h = hashId v c in cacheterm (Id (Some h, v, c))
+			  else Id (None, v, c)
+			and registerUnknown (v, c) = Unknown (None, v, c)
+			and registerApp (f, a) =
+			  if !termhashing then 
+			    let h = hashApp f a in cacheterm (App (Some h, f, a))
+			  else App (None, f, a)
+			and registerTup (s, ts as sts) =
+			  if !termhashing then
+				let h = hashTup s ts in cacheterm (Tup (Some h, s, ts))
+			  else Tup (None, s, ts)
+			and registerLiteral l =
+			  if !termhashing then
+				let h = hashLiteral l in cacheterm(Literal (Some h, l))
+			  else Literal (None, l)
 			and registerFixapp (ss, ts) =
-			  match
-				if !termhashing then
-				  hashcombine (Some (hashlist hashstring ss))
-					(hash_telist hashterm ts)
-				else None
-			  with
-				Some h as hash -> cacheterm h (Fixapp (hash, ss, ts))
-			  | None -> Fixapp (None, ss, ts)
+			  if !termhashing then
+				let h = hashFixapp ss ts in cacheterm (Fixapp (Some h, ss, ts))
+			  else Fixapp (None, ss, ts)
 			and registerSubst (r, t, vts) =
-			  match
-				if !termhashing then
-				  hashcombine (hashterm t) (hash_telist (hash_tepair hashterm) vts)
-				else None
-			  with
-				Some h as hash -> cacheterm h (Subst (hash, r, t, vts))
-			  | None -> Subst (None, r, t, vts)
-			and registerBinding ((bs, ss, us as inf), pat, body) =
-			  match
-				if !termhashing then
-				  hashcombine (hashterm body)
-					(hash_telist (hash_telist hashterm) [bs; ss; us])
-				else None
-			  with
-				Some h as hash -> cacheterm h (Binding (hash, inf, pat, body))
-			  | None -> Binding (None, inf, pat, body)
+			  if !termhashing then
+				let h = hashSubst r t vts in cacheterm (Subst (Some h, r, t, vts))
+			  else Subst (None, r, t, vts)
+			and registerBinding (bindings, pat, body) =
+			  if !termhashing then
+				let h = hashBinding bindings pat body in 
+				cacheterm (Binding (Some h, bindings, pat, body))
+			  else Binding (None, bindings, pat, body)
 			and registerCollection (c, els) =
-			  match if !termhashing then hash_telist hashelement els else None with
-				Some h as hash -> cacheterm h (Collection (hash, c, els))
-			  | None -> Collection (None, c, els)
+			  if !termhashing then 
+			    let h = hashCollection c els in cacheterm (Collection (Some h, c, els))
+			  else Collection (None, c, els)
 			and registerElement (r, t) =
-			  match
-				if !termhashing then
-				  match r with
-					ResUnknown _ -> None
-				  | _ -> hashcombine (Some (resnum2int r)) (hashterm t)
-				else None
-			  with
-				Some h as hash -> cacheelement h (Element (hash, r, t))
-			  | None -> Element (None, r, t)
+			  if !termhashing then
+				let h = hashElement r t in cacheelement (Element (Some h, r, t))
+			  else Element (None, r, t)
 			and registerSegvar (ms, v) =
-			  match
-				if !termhashing then hash_telist hashterm (v :: ms) else None
-			  with
-				Some h as hash -> cacheelement h (Segvar (hash, ms, v))
-			  | None -> Segvar (None, ms, v)
+			  if !termhashing then 
+			    let h = hashSegvar ms v in cacheelement (Segvar (Some h, ms, v))
+			  else Segvar (None, ms, v)
 			
-			let resettermstore () = resettermstore (); resetelementstore () (* don't reset termhashing, please *)
+			let resettermstore () = T.clear termtable; E.clear elementtable
+			let hashterm t = if !termhashing then Some (hashterm t) else None
+			let hashelement e = if !termhashing then Some (hashelement e) else None
 		  end
 		in
-		Open.hashcombine, Open.hash_tepair, Open.hash_telist, Open.registerId, Open.registerUnknown,
-		Open.registerApp, Open.registerTup, Open.registerLiteral, Open.registerFixapp,
-		Open.registerSubst, Open.registerBinding, Open.registerCollection, Open.registerElement,
-		Open.registerSegvar, Open.resettermstore
+		Local.hashterm, Local.hashelement, Local.registerId, Local.registerUnknown,
+		Local.registerApp, Local.registerTup, Local.registerLiteral, Local.registerFixapp,
+		Local.registerSubst, Local.registerBinding, Local.registerCollection, Local.registerElement,
+		Local.registerSegvar, Local.resettermstore
 	  )
   end
 
@@ -916,6 +935,10 @@ module type Funs =
 	val explodeApp : bool -> term -> term * term list
 	val implodeApp : bool -> term * term list -> term
 	val explodebinapp : term -> (term * string * term) option
+
+    (* passed on from Type for convenience *)
+    val string_of_vid : vid -> string
+    val vid_of_string : string -> vid
   end
   
 (* $Id$ *)
@@ -1262,21 +1285,23 @@ module Funs : Funs with type vid = Type.vid
             (Catastrophe_
                ["replaceelement ("; smltermstring c; ") (";
                 smlelementstring termstring el; ") ("; termstring t; ")"])
+    
     let rec uniqueVID class__ sortedVIDs extraVIDs vid =
-      let rec rootext vid =
-        let vid' = String.sub (vid) (0) (String.length vid - 1) in
-        let n = String.sub (vid) (String.length vid - 1) (1) in
-        if ((isdigit n && vid' <> "") && isextensible_vid vid') &&
-           symclass vid' = class__
+      let str = string_of_vid vid in
+      let rec stemNstern s =
+        let s' = String.sub s 0 (String.length s - 1) in
+        let n = String.sub s (String.length s - 1) 1 in
+        if isdigit n && s' <> "" && isextensibleID s' &&
+           symclass s' = class__
         then
-          let (vid'', n') = rootext vid' in vid'', n' ^ n
-        else vid, ""
+          let (s'', n') = stemNstern s' in s'', n' ^ n
+        else s, ""
       in
-      let (rootVID, extVID) = rootext vid in
-      let rec nextVID n = rootVID ^ string_of_int (n + 1) in
+      let (stem_str, stern_str) = stemNstern str in
+      let rec next_vid n = vid_of_string (stem_str ^ string_of_int (n + 1)) in
       let rec e_ vid n =
-        if member (vid, extraVIDs) || symclass vid <> class__ then
-          u_ (nextVID n) (n + 1) sortedVIDs
+        if member (vid, extraVIDs) || symclass (string_of_vid vid) <> class__ then
+          u_ (next_vid n) (n + 1) sortedVIDs
         else vid
       and u_ a1 a2 a3 =
         match a1, a2, a3 with
@@ -1284,22 +1309,24 @@ module Funs : Funs with type vid = Type.vid
         | vid, n, vid1 :: vids ->
             if vid < vid1 then e_ vid n
             else if vid = vid1 then
-              let vid' = nextVID n in
+              let vid' = next_vid n in
               if vid1 < vid' then u_ vid' (n + 1) vids
               else u_ vid' (n + 1) sortedVIDs
             else u_ vid n vids
       in
-      if isextensible_vid vid then
-        if symclass vid <> class__ then
+      if isextensibleID str then
+        if symclass str <> class__ then
           raise
             (Catastrophe_
-               ["uniqueVID "; idclassstring class__; " ... "; vid;
-                " (which is "; idclassstring (symclass vid); ")"])
-        else u_ vid (if extVID = "" then 0 else atoi extVID) sortedVIDs
+               ["uniqueVID "; idclassstring class__; " ... "; str;
+                " (which is "; idclassstring (symclass str); ")"])
+        else u_ vid (if stern_str = "" then 0 else atoi stern_str) sortedVIDs
       else
         raise
-          (Catastrophe_ ["uniqueVID "; idclassstring class__; " ... "; vid])
+          (Catastrophe_ ["uniqueVID "; idclassstring class__; " ... "; str])
+    
     let mergeVIDs = sortedmerge (<)
+    
     let rec earliervar t1 t2 =
       let rec ordinal =
         function
@@ -1356,7 +1383,7 @@ module Funs : Funs with type vid = Type.vid
        
        The implementation of Symbol distinguishes
        between CONSTANT foo and CLASS CONSTANT foo only by
-       making the former answer false to isextensible_vid whereas
+       making the former answer false to isextensibleID whereas
        the latter answers true. 
        
        BAS September 5th 1996 (slightly edited RB 10/ix/96).
@@ -1364,12 +1391,12 @@ module Funs : Funs with type vid = Type.vid
 
     let rec ismetav t =
       match debracket t with
-        Id (_, s, c) -> isextensible_vid s
+        Id (_, v, c) -> isextensibleID (string_of_vid v)
       | Unknown _ -> true
       | _ -> false
     let rec isextensibleId t =
       match debracket t with
-        Id (_, s, c) -> isextensible_vid s
+        Id (_, v, c) -> isextensibleID (string_of_vid v)
       | _ -> false
     let rec isId t =
       match debracket t with
@@ -1930,12 +1957,13 @@ module Funs : Funs with type vid = Type.vid
     (* find the various ways in which a term can be a binary operation (sigh) *)
     let rec explodebinapp t =
       match debracket t with
-        App (_, Id (_, s, OperatorClass), Tup (_, ",", [e; f])) ->
-          Some (e, s, f)
-      | App (_, App (_, Id (_, s, OperatorClass), e), f) -> Some (e, s, f)
+        App (_, Id (_, v, OperatorClass), Tup (_, ",", [e; f])) ->
+          Some (e, string_of_vid v, f)
+      | App (_, App (_, Id (_, v, OperatorClass), e), f) -> Some (e, string_of_vid v, f)
       | Tup (_, ",", _) -> None
       | Tup (_, s, [e; f]) -> Some (e, s, f)
       | _ -> None
+    
     (* ---------- for export ------------ *)
     
     let rec int2term (i : int) = registerLiteral (Number i)
@@ -1943,9 +1971,11 @@ module Funs : Funs with type vid = Type.vid
       try
         match debracket t with
           Literal (_, Number n) -> n
-        | App (_, Id (_, "~", NoClass), t') -> - term2int t'
+        | App (_, Id (_, v, NoClass), t') -> 
+            (match string_of_vid v with "~" -> -term2int t'
+             |                          _   -> raise (Catastrophe_ []))
         | _ ->(* can happen, and NoClass is important ... *)
-           raise (Catastrophe_ [])
+           raise (Catastrophe_ ["term2int"])
       with
         _ -> raise (Catastrophe_ ["term2int "; smltermstring t])
     let rec enbracket t = registerFixapp (["("; ")"], [t])
@@ -1970,4 +2000,7 @@ module Funs : Funs with type vid = Type.vid
       function
         Fixapp (_, ["("; ")"], [t]) -> Some t
       | _ -> None
+
+    let string_of_vid = string_of_vid
+    let vid_of_string = vid_of_string
   end

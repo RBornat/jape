@@ -17,7 +17,7 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type term = Term.Type.term 
+module M : T with type term = Term.Funs.term 
               and type ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
 =
   struct
@@ -27,7 +27,7 @@ module M : T with type term = Term.Type.term
     open Term.Funs
     open Term.Termstring
     
-    type term = Term.Type.term and ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
+    type term = Term.Funs.term and ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
     
     type treelayout =
         HideRootLayout

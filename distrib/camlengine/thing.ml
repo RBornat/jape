@@ -541,7 +541,7 @@ module M : T =
            | v1, v2 ->
                fst (paramidbits v1) = fst (paramidbits v2))
           allvs params
-    let rec extraBag () = autoVID (BagClass FormulaClass) "extraBag"
+    let rec extraBag () = autoID (BagClass FormulaClass) "extraBag"
     let rec leftcontextname () =
       if !autoAdditiveLeft then Some (extraBag ()) else None
     let rec newvar con class__ (vid, vars) =
@@ -678,7 +678,7 @@ module M : T =
                     let rec h (_, (vs, vars)) =
                       let (v, vars) =
                         newvar registerId VariableClass
-                          (autoVID VariableClass "predVar", vars)
+                          (autoID VariableClass "predVar", vars)
                       in
                       v :: vs, vars
                     in
