@@ -73,6 +73,8 @@ public class Jape implements DebugConstants {
     
     public static boolean onMacOS, onLinux, onSolaris, onWindows;
     public static Rectangle screenBounds;
+    public static String enginePath = "./jape_engine";
+    static String theoryPath = null;
     
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
@@ -109,13 +111,45 @@ public class Jape implements DebugConstants {
 
         LocalSettings l = new LocalSettings();
 
-        new Engine();
+        for (int i=0; i<args.length; i++)
+        {
+           if (args[i].equals("-engine"))
+           { i++;
+             if (i<args.length) 
+               enginePath = args[i];
+             else
+               Alert.abort("-engine switch needs path argument");
+           }
+           else 
+           theoryPath = args[i];
+        }
+
+        new Engine(enginePath);
 
         Logger.init();
         
         if (tracing)
             Logger.log.println("GUI initialised");
+
+        if (theoryPath!=null) 
+        { File f = new File(theoryPath);
+          if (f.isDirectory())
+          {
+             FileChooser.setOpen(f);
+             JapeMenu.doChooseTheory(); 
+          }          
+          else
+          if (f.exists())
+          {
+             FileChooser.setOpen(f);
+             JapeMenu.doOpenFile(theoryPath); 
+          }
+          else
+             Alert.showErrorAlert(theoryPath + " is neither a file nor a folder.");
+        }
+
     }
 }
+
 
 

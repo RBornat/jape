@@ -1,7 +1,7 @@
 /* 
     $Id$
 
-    Copyright Â© 2003 Richard Bornat & Bernard Sufrin
+    Copyright © 2003 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -31,9 +31,9 @@ import java.io.OutputStream;
 public class Engine implements DebugConstants {
     private static Process engine;
 
-    static {
+    public Engine (String enginePath) {
         try {
-            engine = Runtime.getRuntime().exec("./jape_engine");
+            engine = Runtime.getRuntime().exec(enginePath);
         } catch (Exception exn) {
             /* StringWriter sw = new StringWriter();
             System.getProperties().list(new PrintWriter(sw)); */
@@ -42,9 +42,9 @@ public class Engine implements DebugConstants {
             engine = null; // shut up compiler
         }
 
-        final InputStream fromEngine = engine.getInputStream();
+        final InputStream  fromEngine = engine.getInputStream();
         final OutputStream toEngine = engine.getOutputStream();
-        final InputStream logEngine = engine.getErrorStream();
+        final InputStream  logEngine = engine.getErrorStream();
 
         JapeCharEncoding.init(fromEngine, toEngine, logEngine);
 
@@ -64,3 +64,4 @@ public class Engine implements DebugConstants {
         new Dispatcher().start();
     }
 }
+

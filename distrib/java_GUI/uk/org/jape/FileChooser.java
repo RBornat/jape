@@ -38,6 +38,8 @@ public class FileChooser /* implements FilenameFilter */ {
 
     private static File lastOpen=null, lastSave=null; 
 
+    public static void setOpen(File path) { lastOpen = path; }
+
     private static File nextOpen() {
         return (lastOpen!=null ? lastOpen :
                 lastSave!=null ? lastSave :
@@ -131,4 +133,5 @@ public class FileChooser /* implements FilenameFilter */ {
     }
 
 }
+
 

@@ -21,13 +21,14 @@ JAVACOMPILE     = javac -verbose -d .
 #
 #
 
-all:            japeserver.jar; 
+all:            Jape.jar; 
 
-japeserver.jar: $(CLASS);\
+Jape.jar: $(CLASS);\
                 rm -f MANIFEST *.class;\
-                echo "Main-Class: japeserver" > MANIFEST;\
-                echo $(JAVACOMPILE) japeserver.java ;\
-                $(JAVACOMPILE) japeserver.java ;\
-                jar cmf MANIFEST japeserver.jar *.class $(RESOURCEFILES)
+                echo "Main-Class: Jape" > MANIFEST;\
+                echo $(JAVACOMPILE) Jape.java ;\
+                $(JAVACOMPILE) Jape.java ;\
+                jar cmf MANIFEST Jape.jar *.class $(RESOURCEFILES)
                 
+
 
