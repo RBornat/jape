@@ -549,9 +549,6 @@ let tryparse_dbug _R p s =
 
 (* hack to allow negative numerals in tactic strings *)
 let try_negnum s =
-  consolereport ["try_negnum ("; debugstring_of_symbol s; 
-                 ") {string_of_symbol s = "; Stringfuns.enQuote (string_of_symbol s);
-                 "; currsymb() = "; debugstring_of_symbol (currsymb()); "}"];
   if string_of_symbol s = "-" && 
        (match currsymb() with NUM s -> true | _ -> false) then
      registerApp(registerId(vid_of_string (string_of_symbol s), NoClass), parseAtom())
