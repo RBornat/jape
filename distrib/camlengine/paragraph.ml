@@ -327,15 +327,25 @@ let rec processInfix =
     let symbs =
       parseUnsepList canstartnovelsymb (fun _ -> parseFixitySYMB ())
     in
-    List.iter (fun s -> enter (s, _SYMBCON (l, a, s))) symbs
+    List.iter (fun s -> enter s (_SYMBCON (l, a, s))) symbs
 
 let rec processUnifix con =
   let n = parseNUM () in
   let symbs =
     parseUnsepList canstartnovelsymb (fun _ -> parseFixitySYMB ())
   in
-  List.iter (fun s -> enter (s, con (n, s))) symbs
+  List.iter (fun s -> enter s (con (n, s))) symbs
 
+let processPushSyntax () =
+  match currsymb () with
+    STRING s -> pushSyntax s; scansymb ();
+  | s ->
+      raise
+        (ParseError_ ["PUSHSYNTAX expects a string; found: "; smlsymbolstring s])
+
+let processPopSyntax () =
+  popSyntax()
+  
 let rec processSubstfix report query =
   substfix := parseNUM ();
   if canstartnovelsymb (currsymb ()) then
@@ -353,9 +363,9 @@ let rec processSubstfix report query =
       acceptpreviousnovelsymb (fun s -> s = SUBSTKET)
         "as closing substitution bracket"
     in
-    enter (bra, SUBSTBRA);
-    enter (sep, SUBSTSEP);
-    enter (ket, SUBSTKET);
+    enter bra SUBSTBRA;
+    enter sep SUBSTSEP;
+    enter ket SUBSTKET;
     match idclass t1, idclass t2 with
       VariableClass, FormulaClass -> substsense := true
     | FormulaClass, VariableClass -> substsense := false
@@ -380,8 +390,8 @@ let rec processLeftMidfix con =
   let n = parseNUM () in
   let bra = parseFixitySYMB () in
   let symbs = parseUntilSHYID parseFixitySYMB in
-  List.iter (fun sep -> enter (sep, SEP sep)) symbs;
-  enter (bra, con (n, bra));
+  List.iter (fun sep -> enter sep (SEP sep)) symbs;
+  enter bra (con (n, bra));
   declareLeftMidfix ((lookup <* bra :: symbs))
 
 let rec processOutRightfix name con =
@@ -390,9 +400,9 @@ let rec processOutRightfix name con =
   match List.rev ms with
     [] -> raise (ParseError_ [name; " "; bra; " has no closing bracket"])
   | ket :: ms' ->
-      List.iter (fun m -> enter (m, SEP m)) ms';
-      enter (bra, con bra);
-      enter (ket, KET ket);
+      List.iter (fun m -> enter m (SEP m)) ms';
+      enter bra (con bra);
+      enter ket (KET ket);
       declareOutRightfix ((lookup <* bra :: List.rev ms')) (lookup ket)
 
 let rec processRightfix () =
@@ -647,9 +657,11 @@ let rec parseParagraph report query =
   | SHYID "NUMBER"          -> scansymb (); processClassDecl report query NumberClass; more ()
   | SHYID "OUTFIX"          -> scansymb (); processOutfix (); more ()
   | SHYID "PATCHALERT"      -> scansymb (); processPatchAlert (); more ()
+  | SHYID "POPSYNTAX"       -> scansymb (); popSyntax (); more ()
   | SHYID "POSTFIX"         -> scansymb (); processUnifix (fun v->POSTFIX v); more ()
   | SHYID "PREFIX"          -> scansymb (); processUnifix (fun v->PREFIX v); more ()
   | SHYID "PROOF"           -> scansymb (); Some (parseProof report Complete)
+  | SHYID "PUSHSYNTAX"      -> scansymb (); processPushSyntax(); more ()
   | SHYID "REFLEXIVE"       -> scansymb (); Some (parseStructure "REFLEXIVE")
   | SHYID "RIGHTFIX"        -> scansymb (); processRightfix (); more ()
   | SHYID "RIGHTWEAKEN"     -> scansymb (); Some (parseStructure "RIGHTWEAKEN")
@@ -1154,14 +1166,16 @@ and file2paragraphs report query s =
     poplex st; consolereport ["[CLOSING \""; Usefile.normalizePath s; "\"]"]; 
     stopusing (); close_in ic
   in
+  let error_cleanup () = 
+    popAllSyntaxes(); cleanup()
+  in
   consolereport ["[OPENING \""; Usefile.normalizePath s; "\"]"];
   let r = 
     (try parseParaList report query with
-       ParseError_ m -> showInputError report m; cleanup (); raise Use_
+       ParseError_ m -> showInputError report m; error_cleanup (); raise Use_
      | Catastrophe_ ss ->
          showInputError report ("Catastrophic input error: " :: ss);
-         cleanup ();
-         raise Use_
+         error_cleanup (); raise Use_
      | MalformedUTF_ ss ->
         showInputError report ["Malformed UTF-8 input: "; liststring (fun s -> s) "" ss;
                                ".\n\n\
@@ -1172,9 +1186,8 @@ and file2paragraphs report query s =
                                 Jape, check that it isn't picking up an unconverted file by \
                                 default. It always goes back to the last file it opened \
                                 in the file dialogue.)"];
-        cleanup ();
-        raise Use_
-     | exn -> cleanup (); raise exn)
+        error_cleanup (); raise Use_
+     | exn -> error_cleanup (); raise exn)
     (* including Use_, at it happens *)
   in cleanup (); r
 
