@@ -58,6 +58,9 @@ import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 public class PanelWindowData implements DebugConstants, ProtocolConstants {
     protected String title;
     protected int kind;
@@ -65,7 +68,11 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     
     Vector entryv, cmdv; // matches the list line for line
     Vector buttonv;
-    
+
+    private static final String New       = "New...",
+                                Prove     = "Prove",
+                                ShowProof ="Show Proof";
+        
     public PanelWindowData(String title, int kind) {
         this.title = title; this.kind = kind;
         window = null;
@@ -76,9 +83,9 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
         if (kind==ConjecturePanelKind) { 
             // has default buttons
-            addButton("New...", new Insert[] { new StringInsert("New... button pressed") }, true);
-            addButton("Prove", new Insert[] { new StringInsert("prove"), new CommandInsert() }, true);
-            addButton("Show Proof", new Insert[] { new StringInsert("showproof"), new CommandInsert() }, true);
+            addButton(New, new Insert[] { new StringInsert("New... button pressed") }, true);
+            addButton(Prove, new Insert[] { new StringInsert("prove"), new CommandInsert() }, true);
+            addButton(ShowProof, new Insert[] { new StringInsert("showproof"), new CommandInsert() }, true);
         }
     }
 
@@ -142,6 +149,23 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             setActionCommand(label);
             JapeFont.setComponentFont(this, JapeFont.PANELBUTTON);
         }
+        boolean needsSelection() {
+            for (int i=0; i<cmd.length; i++) {
+                Insert ins = cmd[i];
+                if (ins instanceof CommandInsert || ins instanceof LabelInsert)
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    protected PanelButton findButton(String label) {
+        for (int i=0; i<buttonv.size(); i++) {
+            PanelButton b = (PanelButton)buttonv.get(i);
+            if (b.label.equals(label))
+                return b;
+        }
+        return null;
     }
     
     protected void addButton(String label, Insert[] cmd, boolean isDefault) {
@@ -149,15 +173,13 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             Alert.abort("PanelWindowData.addButton \""+label+"\" isDefault="+isDefault+
                         " defaultButton(...)="+defaultButton(label));
         // if there already is such a button, just change its cmd
-        for (int i=0; i<buttonv.size(); i++) {
-            PanelButton b = (PanelButton)buttonv.get(i);
-            if (b.label.equals(label)) {
-                b.cmd = cmd;
-                return;
-            }
+        PanelButton button = findButton(label);
+        if (button!=null) {
+            button.cmd = cmd;
+            return;
         }
         // otherwise a new one
-        PanelButton button = new PanelButton(label, cmd);
+        button = new PanelButton(label, cmd);
         buttonv.add(button);
         if (window!=null) {
             if (panellayout_tracing)
@@ -270,7 +292,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 }
             };
             list.addMouseListener(m);
-    
+
             scrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                                                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
             contentPane.add(scrollPane);
@@ -278,13 +300,18 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             for (int i=0; i<buttonv.size(); i++) {
                 addButton((PanelButton)buttonv.get(i));
             }
+
+            if (kind==ConjecturePanelKind) {
+                list.addListSelectionListener(new Show_ProofWatcher());
+            }
             
             if (LocalSettings.panelWindowMenus)
                 setBar(); // by experiment, seems to be necessary before setVisible
 
             setSize(getPreferredSize());
             setLocation(nextPos());
-            
+
+            enableButtons();
             pack(); // necessary??
         }
 
@@ -304,6 +331,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             private final TextDimension td;
             private final Dimension size;
             public boolean selected;
+            public boolean marked;
             public Color innerBackground = Color.white;
             public Entry(String s) {
                 super(); this.s = s; prefix = null; this.td = JapeFont.measure(list, s);
@@ -332,10 +360,12 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
         protected void markEntry(int i, boolean proved, boolean disproved) {
             Entry e = (Entry)model.elementAt(i);
+            e.marked = proved || disproved;
             e.prefix = proved ? LocalSettings.tick+(disproved ? LocalSettings.cross : "") :
                        disproved ? " "+LocalSettings.cross :
                        null;
-            list.repaint();
+            repaintCell(i);
+            enableButtons();
         }
 
         private void repaintSelection() {
@@ -394,7 +424,38 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 }
             }
         }
-    
+
+        protected class Show_ProofWatcher implements ListSelectionListener {
+            public void valueChanged(ListSelectionEvent e) {
+                enableButtons();
+            }
+        }
+
+        protected void enableButtons() {
+            int index = list.getSelectedIndex();
+            if (0<=index && index<model.size()) {
+                for (int i=0; i<buttonv.size(); i++) {
+                    PanelButton b = (PanelButton)buttonv.get(i);
+                    if (kind==ConjecturePanelKind && b.label.equals(ShowProof))
+                        b.setEnabled(((Entry)model.get(index)).marked);
+                    else
+                        b.setEnabled(true);
+                }
+            }
+            else {
+                for (int i=0; i<buttonv.size(); i++) {
+                    PanelButton b = (PanelButton)buttonv.get(i);
+                    b.setEnabled(!b.needsSelection());
+                }
+            }
+        }
+
+        protected void enableButton(String label, boolean state) {
+            PanelButton b = findButton(label);
+            if (b!=null)
+                b.setEnabled(state);
+        }
+
         // it seems that this method is never called, even when the window is maximised.
         
         public Dimension getMaximumSize() {
@@ -602,7 +663,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     private void initWindow() {
         window = new PanelWindow();
     }
-    
+
     /**********************************************************************************************
 
         Static interface for Dispatcher
