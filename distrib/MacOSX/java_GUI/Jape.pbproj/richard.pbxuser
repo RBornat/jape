@@ -15,7 +15,7 @@
 			F5AB83180339F3B701A80116,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 89138978;
+			PBXPerProjectTemplateStateSaveDate = 89932864;
 			"PBXTemplateGeometry-F5314676015831810DCA290F" = {
 				ContentSize = "{685, 434}";
 				LeftSlideOut = {
@@ -142,7 +142,7 @@
 				StatusViewVisible = YES;
 				Template = F5314676015831810DCA290F;
 				ToolbarVisible = YES;
-				WindowLocation = "{7, 502}";
+				WindowLocation = "{7, 250}";
 			};
 			"PBXTemplateGeometry-F5534CB2020F3F8A0DCA290F" = {
 				ContentSize = "{594, 303}";
@@ -155,7 +155,7 @@
 						Collapsed = YES;
 						Frame = "{{0, 0}, {594, 280}}";
 						Split0 = {
-							Frame = "{{1e+06, 1e+06}, {594, 0}}";
+							Frame = "{{1e+06, 1e+06}, {594, 27}}";
 						};
 						SplitCount = 1;
 						Tab0 = {
@@ -270,7 +270,7 @@
 				StatusViewVisible = YES;
 				Template = F5534CB2020F3F8A0DCA290F;
 				ToolbarVisible = YES;
-				WindowLocation = "{4, 633}";
+				WindowLocation = "{4, 381}";
 			};
 			"PBXTemplateGeometry-F5CA7ECB015C094F0DCA290F" = {
 				ContentSize = "{668, 621}";
@@ -396,7 +396,7 @@
 				StatusViewVisible = NO;
 				Template = F5CA7ECB015C094F0DCA290F;
 				ToolbarVisible = NO;
-				WindowLocation = "{48, 349}";
+				WindowLocation = "{48, 103}";
 			};
 			PBXWorkspaceContents = (
 				{
@@ -563,10 +563,10 @@
 					StatusViewVisible = YES;
 					Template = F5E465990156DFB90DCA290F;
 					ToolbarVisible = YES;
-					WindowLocation = "{563, 215}";
+					WindowLocation = "{563, 144}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 89138978;
+			PBXWorkspaceStateSaveDate = 89932864;
 		};
 		projectwideBuildSettings = {
 		};
