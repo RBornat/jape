@@ -1,14 +1,14 @@
 /* $Id$ */
 
 HYPHIT	P     æ P	IS hyp       
-HYPHIT	P¦Q æ R	IS ALT	(SEQ "¦-E(L)" (hyp (P¦Q)))
-                                           	(SEQ "¦-E(R)" (hyp (P¦Q)))
-                                           	(SEQ cut "¦-E(L)" (hyp (P¦Q)) cut "¦-E(R)" (hyp (P¦Q)))
-HYPHIT	PçQ  æ R	IS "ç-Eforward"  (PçQ)
-HYPHIT	PëQ  æ R	IS ForwardUncut "ë-E"  (PëQ)
-HYPHIT	ÂÂP   æ Q	IS ForwardCut "Â-E"   (ÂÂP)
-HYPHIT	èx.P æ Q	IS ForwardCut "è-E"  (èx.P)
-HYPHIT	äx.P æ Q	IS ForwardUncut "ä-E"  (äx.P)
+HYPHIT	P¦Q æ R	IS ALT	(SEQ "¦-E(L)" (WITHHYPSEL hyp))
+                                           	(SEQ "¦-E(R)" (WITHHYPSEL hyp))
+                                           	(SEQ (ForwardCut 0 "¦-E(L)") (ForwardCut 0 "¦-E(R)"))
+HYPHIT	PçQ  æ R	IS ForwardCut 1 "ç-E"
+HYPHIT	PëQ  æ R	IS ForwardUncut 0 "ë-E"
+HYPHIT	ÂÂP   æ Q	IS ForwardCut 0 "Â-E"
+HYPHIT	èx.P æ Q	IS ForwardCut 0 "è-E"
+HYPHIT	äx.P æ Q	IS ForwardUncut 0 "ä-E"
 
 CONCHIT	Q¦R	IS "¦-I"
 CONCHIT	QëR	IS ALT (SEQ "ë-I(L)" hyp) (SEQ "ë-I(R)" hyp)
