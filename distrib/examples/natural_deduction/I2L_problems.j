@@ -44,10 +44,11 @@ CONJECTUREPANEL "Invalid conjectures"
     THEOREM IS EëF æ E¦F
 
     THEOREM IS R(j), èx.(R(x)çS(x)) æ S(j)
-    THEOREM IS èx.R(x)çèx.S(x) æ èx.(R(x)çS(x))
+    THEOREM IS èx.R(x)çèy.S(y) æ èz.(R(z)çS(z))
     THEOREM IS actual j, S(j) æ èx.(R(x)çS(x))
-    THEOREM IS äx.R(x)¦äx.S(x) æ äx.(R(x)¦S(x))
-    THEOREM IS èx.R(x) æ äx.R(x)
+    THEOREM IS äx.R(x)¦äy.S(y) æ äz.(R(z)¦S(z))
+    THEOREM IS èx.R(x) æ äy.R(y)
+    THEOREM IS äx.R(x) æ èy.R(y)
 
     THEOREM IS actual j, actual k, äx.R(x) æ R(j)
 
@@ -66,9 +67,9 @@ CONJECTUREPANEL "Classical conjectures"
     THEOREM IS  Â(E¦F) æ ÂEëÂF
     THEOREM IS  (EçF)ë(FçE)
 
-    THEOREM IS  Âäx.ÂR(x) æ èx.R(x)
-    THEOREM IS  Âèx.ÂR(x) æ äx.R(x)
-    THEOREM IS  Âèx.R(x) æ äx.ÂR(x)
+    THEOREM IS  Âäx.ÂR(x) æ èy.R(y)
+    THEOREM IS  Âèx.ÂR(x) æ äy.R(y)
+    THEOREM IS  Âèx.R(x) æ äy.ÂR(y)
 
     THEOREM IS actual j, actual k æ äx.(R(x)çR(j)¦R(k))
 
@@ -140,20 +141,22 @@ CONJECTUREPANEL Conjectures
     THEOREM IS  E¦ÂE æ F
 
     THEOREM IS  actual j, R(j), èx.(R(x)çS(x)) æ S(j)
-    THEOREM IS  èx.(R(x)çS(x)) æ èx.R(x)çèx.S(x)
-    THEOREM IS  èx.(R(x)çS(x)), èx.(S(x)çT(x)) æ èx.(R(x)çT(x))
-    THEOREM IS  èx.R(x)¦èx.S(x) æ èx.(R(x)¦S(x))
-    THEOREM IS  èx.(R(x)¦S(x)) æ èx.R(x)¦èx.S(x)
-    THEOREM IS  èx.(R(x)çS(x)), äx.R(x) æ äx.S(x)
-    THEOREM IS  äx.(R(x)¦S(x)) æ äx.R(x)¦äx.S(x)
-    THEOREM IS  äx.R(x)ëäx.S(x) æ äx.(R(x)ëS(x))
-    THEOREM IS  äx.(R(x)ëS(x)) æ äx.R(x)ëäx.S(x)
-    THEOREM IS  actual j, èx.R(x) æ äx.R(x)
-    THEOREM IS  èx.R(x) æ Âäx.ÂR(x)
-    THEOREM IS  äx.R(x) æ Âèx.ÂR(x)
-    THEOREM IS  äx.ÂR(x) æ Âèx.R(x)
-    THEOREM IS  èx.ÂR(x) æ Âäx.R(x)
-    THEOREM IS  Âäx.R(x) æ èx.ÂR(x)
+    THEOREM IS  èx.(R(x)çS(x)) æ èy.R(y)çèz.S(z)
+    THEOREM IS  èx.(R(x)çS(x)), èy.(S(y)çT(y)) æ èz.(R(z)çT(z))
+    THEOREM IS  èx.R(x)¦èy.S(y) æ èz.(R(z)¦S(z))
+    THEOREM IS  èx.(R(x)¦S(x)) æ èy.R(y)¦èz.S(z)
+    THEOREM IS  èx.(R(x)çS(x)), äy.R(y) æ äz.S(z)
+    THEOREM IS  äx.(R(x)¦S(x)) æ äy.R(y)¦äz.S(z)
+    THEOREM IS  äx.R(x)ëäy.S(y) æ äz.(R(z)ëS(z))
+    THEOREM IS  äx.(R(x)ëS(x)) æ äy.R(y)ëäz.S(z)
+    THEOREM IS  actual j, èx.R(x) æ äy.R(y)
+    THEOREM IS  èx.R(x) æ Âäy.ÂR(y)
+    THEOREM IS  äx.R(x) æ Âèy.ÂR(y)
+    THEOREM IS  äx.ÂR(x) æ Âèy.R(y)
+    THEOREM IS  èx.ÂR(x) æ Âäy.R(y)
+    THEOREM IS  Âäx.R(x) æ èy.ÂR(y)
+    
+    THEOREM IS actual j, actual k, äx.ÂR(x) æ äy.(R(y)çR(j)¦R(k))
 
     BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 END
