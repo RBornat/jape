@@ -1158,7 +1158,7 @@ let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = til
     let seqsize = tbSize seqbox in
     (* let _ = consolereport["seqplan is "; bracketedliststring (Draw.planstring planclassstring) "; " seqplan; 
                           "; and seqbox is "; textboxstring seqbox] in *)
-    setdisproofseqbox seqsize;
+    setseqbox seqsize;
     drawindisproofpane ();
     seqdraw origin seqbox seqplan;
     (* put the emphasis in *)
@@ -1176,8 +1176,8 @@ let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = til
              emphasise (seqelementpos origin seqbox plan) emph
          | _ -> ())
       seqplan;
-    setdisprooftiles (List.map termstring tiles);
-    setdisproofworlds selected
+    settiles (List.map termstring tiles);
+    setworlds selected
       (List.map (fun (c, labels, ws) -> c, labelsort labels, ws)
          (universe2list universe))
 
