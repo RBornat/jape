@@ -35,14 +35,18 @@ public class TextComponent {
     public final String printtext;
     public final int printlen;
     public final Font font;
+    public final TextDimension dimension;
     public TextComponent(int x, int y, byte fontnum, String printtext) {
 	this.offX = x; this.offY = y; this.fontnum = fontnum;
 	this.printtext = printtext;
 	this.printlen = printtext.length();
 	this.font = JapeFont.getFont(fontnum);
+	this.dimension = JapeFont.measure(printtext, fontnum);
     }
+    
     public String toString() {
-	return  "TextComponent["+offX+","+offY+" "+fontnum+" "+
+	return  "TextComponent["+offX+","+offY+" "+dimension+
+	                       "fontnum="+fontnum+" "+
 	                       printlen+":"+JapeUtils.enQuote(printtext)+"]";
     }
 }
