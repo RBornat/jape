@@ -1280,13 +1280,6 @@ let rec linearise screenwidth procrustean_reasonW dp =
     let (_, (Lacc acc as secondlayout)) = _L (Some maxbestW) empty false dp startacc in
     let Layout a = answer secondlayout in
     let availableW = screenwidth - allbutreasonW a.lines acc.idW acc.elbox in
-    consolereport ["screenwidth="; string_of_int screenwidth;
-                   "; sidescreengap="; string_of_int sidescreengap;
-                   "; idW="; string_of_int acc.idW;
-                   "; colonsize="; string_of_textsize colonsize;
-                   "; elbox="; string_of_box acc.elbox;
-                   "; reasongap="; string_of_int (reasonspace a.lines);
-                   "; availableW="; string_of_int availableW];
     let rereason line =
       match line.reason with
         NoReason -> line
@@ -1294,7 +1287,6 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let reasonplan = line.reasonplan in
           let w = availableW - (tsW (textsize_of_planlist reasonplan) - tsW (fst why)) in
           let why' = textinfo_procrustes (max minreasonW w) origin why in
-          consolereport ["truncated reason is "; string_of_textinfo why'];
           {line with reasonplan = fst_of_3 (mkreasonplan (Some (pi, why', cids)) origin)}
       | ReasonWord why ->
           let why' = textinfo_procrustes (max minreasonW availableW) origin why in
