@@ -1,0 +1,154 @@
+/*
+        $Id$
+        FONT{kontt-14}
+
+This theory was derived automatically from the latex source text
+of part of the paper ``Animating Operational Semantics
+with Jape'' by Bernard Sufrin and Richard Bornat (April 1998). A
+discursive account of the theory is given in that paper.
+
+*/
+    /************* Explained in the Lambda section of the paper *************/
+    FONTS "Konstanz"
+    CLASS   VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
+    CLASS   FORMULA  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    SEQUENT IS LIST Ê FORMULA
+    SUBSTFIX 500000 [ S / s ]
+
+    INITIALISE outerassumptionword "Environment"
+    INITIALISE innerassumptionword "Environment"
+
+    MENU Edit
+     RADIOBUTTON displaystyle
+          "Sequent-Tree display style"  IS tree
+     AND  "Box display style"           IS box
+     INITIALLY box
+     END
+     CHECKBOX  autoselect      "Select goal automatically"  INITIALLY true
+     CHECKBOX  showallprovisos "Show all provisos"          INITIALLY true
+    END
+
+    /************************************************************************/
+    CLASS    CONSTANT k
+    CONSTANT √ .
+    INFIX    40R ;
+    INFIX    50T :=
+    INFIX    60R ? : ª
+    INFIX    100T =
+    INFIX    200T + -
+    PREFIX   1000 ~
+    USE      "mapping.j"
+    INFIX   1T Á
+    LEFTFIX 2  › ﬁ
+     INFIX 1T Á*
+     RULE Step        FROM  Ê ›EﬁSÁ›E'ﬁS' INFER Ê ›EﬁSÁ*›E'ﬁS'
+     RULE Transitive  FROM  Ê ›EﬁSÁ*›E'ﬁS' AND Ê ›E'ﬁS'Á*›E''ﬁS'' INFER Ê›EﬁSÁ*›E''ﬁS''
+     RULE Identity    INFER Ê ›EﬁSÁ*›EﬁS
+    TRANSITIVE RULE Transitive
+    REFLEXIVE  RULE Identity
+    MENU Edit
+    SEPARATOR
+      CHECKBOX   hidetransitivity "Transitive Rule Display" INITIALLY true
+      CHECKBOX   hidereflexivity  "Hide Identity Steps"     INITIALLY true
+    END
+    MENU "Small-Step Rules"
+      RULE  Var
+      FROM  S x = V
+      INFER ›xﬁ S Á ›Vﬁ S
+      RULE ":=0"
+      FROM    ›Eﬁ     S Á ›E'ﬁ    S'
+      INFER   ›x:=Eﬁ  S Á ›x:=E'ﬁ S'
+      RULES ":=1"
+      FROM  (Sº(x==k)) = S'
+      INFER ›x:=kﬁ    S Á ›√ﬁ S'
+      AND
+      FROM  (Sº(x==(~k))) = S'
+      INFER ›x:=(~k)ﬁ S Á ›√ﬁ S'
+      END
+      RULE ";0"
+      FROM    ›Eﬁ   S Á ›E'ﬁ   S'
+      INFER   ›E;Fﬁ S Á ›E';Fﬁ S'
+
+      RULE ";1"
+      INFER   ›√;Fﬁ S Á ›Fﬁ S
+
+      RULE "ª"
+      INFER ›E1ªE2ﬁ S Á ›E1?(E2; E1ªE2):√ﬁ S
+
+      RULE "?0"
+      FROM  ›E1ﬁ       S Á ›E1'ﬁ S'
+      INFER ›E1?E2:E3ﬁ S Á ›E1'?E2:E3ﬁ S'
+
+      RULES "?1"
+      INFER ›0?E2:E3ﬁ  S Á ›E3ﬁ S
+      AND
+      INFER ›k?E2:E3ﬁ  S Á ›E2ﬁ S
+      AND
+      INFER ›~k?E2:E3ﬁ S Á ›E2ﬁ S
+      END
+      RULES  "+"
+      FROM  ›Fﬁ   S Á ›F'ﬁ   S'
+      INFER ›k+Fﬁ S Á ›k+F'ﬁ S'
+      AND
+      FROM  ›Fﬁ    S Á ›F'ﬁ    S'
+      INFER ›~k+Fﬁ S Á ›~k+F'ﬁ S'
+      AND
+      FROM  ›Eﬁ   S Á ›E'ﬁ   S'
+      INFER ›E+Fﬁ S Á ›E'+Fﬁ S'
+      END
+
+      RULES  "-"
+      FROM  ›Fﬁ   S Á ›F'ﬁ   S'
+      INFER ›k-Fﬁ S Á ›k-F'ﬁ S'
+      AND
+      FROM  ›Fﬁ    S Á ›F'ﬁ    S'
+      INFER ›~k-Fﬁ S Á ›~k-F'ﬁ S'
+      AND
+      FROM  ›Eﬁ   S Á ›E'ﬁ   S'
+      INFER ›E-Fﬁ S Á ›E'-Fﬁ S'
+      END
+      RULE  add
+      FROM  "ADD"(N1, N2, K, (~))
+      INFER ›N1 + N2ﬁ S Á ›Kﬁ S
+
+      RULE  sub
+      FROM  "ADD"(N1, ~N2, K, (~))
+      INFER ›N1 - N2ﬁ S Á ›Kﬁ S
+   END
+    TACTIC SmallStep IS
+    (ALT (LAYOUT "Var"  () Var Lookup)
+         (LAYOUT ":=1" () ":=1" Update)
+         ":=0"
+         ";1"
+         ";0"
+         "?1"
+         "?0"
+         "ª"
+         (ALT (LAYOUT "Add" () add EVALUATE) "+")
+         (ALT (LAYOUT "Sub" () sub EVALUATE) "-")
+         )
+    TACTIC OneStep()
+    (ALT
+         (WHEN (LETGOAL (›_E ﬁ_S Á  ›_E'ﬁ_S') SmallStep)
+               (LETGOAL (› _kﬁ_S Á* _T) Identity)
+               (LETGOAL (›~_kﬁ_S Á* _T) Identity)
+               (LETGOAL (›√  ﬁ_S Á* _T) Identity)
+               (LETGOAL (›_E ﬁ_S Á* ›_E'ﬁ_S') Transitive (LAYOUT "%s" () Step SmallStep))))
+    TACTIC Steps()
+    (ALT
+         (WHEN (LETGOAL (› _kﬁ_S Á* _T) Identity)
+               (LETGOAL (›~_kﬁ_S Á* _T) Identity)
+               (LETGOAL (›√  ﬁ_S Á* _T) Identity)
+               (SEQ OneStep Steps)))
+    CONJECTUREPANEL "Small Step Execution"
+      BUTTON "Step" IS apply OneStep
+      BUTTON "Steps" IS apply Steps
+      THEOREMS SmallStepTheorems
+      ARE ›x:=3ﬁ ‚                              Á* ›_Eﬁ _S
+      AND ›y:=3; x:=yﬁ ‚                        Á* ›_Eﬁ _S
+      AND ›y:=x+3; x:=yﬁ (‚º(x==4))             Á* ›_Eﬁ _S
+      AND ›y:=3; x:=y; z:=x+yﬁ ‚                Á* ›_Eﬁ _S
+      AND ›t:=x; x:=y; y:=tﬁ(‚º(x==k1)º(y==k2)) Á* ›_Eﬁ _S
+      AND ›x:=2; y:=4; xª(x:=x-1; y:=y+y)ﬁ ‚    Á* ›_Eﬁ _S
+      END
+    END
