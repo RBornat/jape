@@ -149,7 +149,8 @@ public class japeserver implements DebugConstants {
             System.err.println("japeserver initialised");
     }
 
-    // for debugging
+    // service functions to do with containers
+    
     public static void showContainer(Container pane, String prefix) {
         for (int i=0; i<pane.getComponentCount(); i++) {
             Component c = pane.getComponent(i);
@@ -158,5 +159,24 @@ public class japeserver implements DebugConstants {
             if (c instanceof Container)
                 showContainer((Container)c, label);
         }
+    }
+
+    public static Component findTargetAt(Class target, Component c, int x, int y) {
+        if (c.contains(x,y)) {
+            if (c instanceof Container) {
+                Container c1 = (Container) c;
+                int ncs = c1.getComponentCount();
+                for (int i=0; i<ncs; i++) {
+                    Component c2 = c1.getComponent(i);
+                    if ((c2=findTargetAt(target, c2, x-c2.getX(), y-c2.getY()))!=null)
+                        return c2;
+                }
+            }
+            // no child fits: will we do?
+            if (target.isInstance(c))
+                return c;
+        }
+
+        return null; // all else has failed
     }
 }
