@@ -226,7 +226,8 @@ public class JapeFont {
      */
 
     public final static int termFontNum = 0,  reasonFontNum = 1,  provisoFontNum = 2;
-    public static byte[] interfaceFontSizes = new byte[]{ 14, 11, 11 };
+    public static byte[] interfaceFontSizes =
+        new byte[]{ LocalSettings.formulaSize, LocalSettings.reasonSize, LocalSettings.provisoSize };
     private static Font[] interfaceFonts;
 
     public static void checkInterfaceFontnum(int fontnum) throws ProtocolError {
