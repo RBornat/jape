@@ -18,5 +18,5 @@ RULE "consequence(L)" IS FROM A→C AND {C} F {B} INFER {A} F {B}
 
 RULE "consequence(R)" IS FROM {A} F {C} AND C→B INFER {A} F {B}
 
-RULE "obviously..." IS INFER A /* to help with arithmetic */
+RULE "obviously" IS INFER A /* to help with arithmetic */
 
