@@ -1,12 +1,9 @@
 ﻿/* $Id$ */
 
 MENU File IS
-	SEPARATOR
-	BUTTON "Debug output to ..." IS createdbugfile
-	BUTTON "Close debug file" IS closedbugfile
-END
-
-MENU Edit IS
+    SEPARATOR
+    BUTTON "Debug output to ..." IS createdbugfile
+    BUTTON "Close debug file" IS closedbugfile
     
     SEPARATOR
     
@@ -18,6 +15,7 @@ MENU Edit IS
     CHECKBOX provisodebug  "trace proviso simplification"
     CHECKBOX thingdebug    "trace rule/theorem/tactic store/retrieve"
     CHECKBOX symboldebug   "trace lexical analysis"
+    CHECKBOX termparsedebug   "trace syntax analysis"
     
     SEPARATOR
 	
