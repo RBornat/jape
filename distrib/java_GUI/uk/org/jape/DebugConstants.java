@@ -30,6 +30,7 @@ interface DebugConstants {
                                 antialias_tracing        = false,
                                 colourseg_tracing        = false,
                                 containerlayout_tracing  = false,
+                                disprooflayout_tracing   = false,
                                 drag_tracing             = false,
                                 menuaction_tracing       = false,
                                 menubar_tracing          = false,
