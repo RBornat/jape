@@ -83,8 +83,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         proofPane.add(proofCanvas);
         
         getContentPane().add(proofPane, BorderLayout.CENTER);
-        
-        focusv.insertElementAt(this, 0);
+
+        insertInfocusv();
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         
         windowListener = new WindowAdapter() {
@@ -97,15 +97,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
             }
             public void windowActivated(WindowEvent e) {
                 if (windowListener!=null) {
-                    int i = focusv.indexOf(ProofWindow.this);
-                    if (i==-1)
-                        Alert.abort("unfocussable window "+ProofWindow.this.title);
-                    else
-                        if (i!=0) {
-                            focusv.remove(i);
-                            focusv.insertElementAt(ProofWindow.this,0);
-                            reportFocus();
-                        }
+                    setTopInfocusv();
+                    reportFocus();
                 }
                 else
                     System.err.println("ProofWindow.windowListener late windowActivated \""+
@@ -121,17 +114,40 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         setVisible(true);
     }
 
-    public boolean equals(Object o) {
-        return o instanceof ProofWindow ? ((ProofWindow)o).title.equals(title) &&
-                                               ((ProofWindow)o).proofnum==proofnum :
-                                          super.equals(o);
-    }
-
     private static Vector focusv = new Vector();
 
     private static void reportFocus() {
         if (focusv.size()!=0)
             Reply.sendCOMMAND("setfocus "+((ProofWindow)focusv.get(0)).proofnum);
+    }
+
+    private synchronized void insertInfocusv() {
+        focusv.insertElementAt(this, 0);
+    }
+
+    private synchronized void setTopInfocusv() {
+        int i = focusv.indexOf(this);
+        if (i==-1)
+            Alert.abort("unfocussable proof "+this.title);
+        else
+            if (i!=0) {
+                focusv.remove(i);
+                focusv.insertElementAt(this,0);
+            }
+    }
+
+    private synchronized void removeFromfocusv() {
+        int i = focusv.indexOf(this);
+        if (i==-1)
+            Alert.abort("unremovable proof "+this.title);
+        else
+            focusv.remove(i);
+    }
+    
+    public boolean equals(Object o) {
+        return o instanceof ProofWindow ? ((ProofWindow)o).title.equals(title) &&
+                                               ((ProofWindow)o).proofnum==proofnum :
+                                          super.equals(o);
     }
 
     /**********************************************************************************************
@@ -278,7 +294,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         proof.removeWindowListener(proof.windowListener); // Linux gives us spurious events otherwise
         proof.windowListener = null;
         proof.closeWindow();
-        focusv.remove(focusv.indexOf(proof));
+        proof.removeFromfocusv();
         reportFocus();
     }
 
