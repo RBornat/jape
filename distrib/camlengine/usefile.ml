@@ -27,16 +27,28 @@ open Sml
    and normalize filenames according to OS just before opening
 *)
 
-let usestack = ref ["./"]
+let usestack = ref (if Sys.os_type="Win32" then [] else ["./"])
+
+let isAbsoluteWinPath path =
+Sys.os_type="Win32" &&
+try
+  String.index path ':'  < String.index path '\\'
+with
+  Not_found -> false
 
 let rec makerelative =
   function
-    "" -> ""
+  | "" -> ""
   | path ->
       match String.sub path 0 1 with
-        "." -> path
+      | "." -> path
       | "/" -> path
-      | _ -> List.hd !usestack ^ path
+      | _ -> if isAbsoluteWinPath path then 
+                path 
+             else 
+             match !usestack with
+             | []     -> path
+             | top::_ -> top ^ path
 
 let rec startusing path =
   usestack := Moresys.pathStem path :: !usestack
@@ -48,4 +60,5 @@ let rec stopusing () =
     [path] -> ()
   | path :: paths -> usestack := paths
   | _ -> raise Matchinstopusing
+
 

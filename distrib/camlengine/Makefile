@@ -47,7 +47,7 @@ jape.opt: $(CMX) main.cmx;   ocamlopt -o jape.opt unix.cmxa $(CMX) main.cmx
 #       This so we can do most of the work on a Unix machine with a single command
 #
 win32link.bat:  $(CMO) main.cmo ;\
-                echo ocamlc $(WIN32CMORELATIVE) $(CAMLDEBUG) -o win32jape unix.cma $(CMO) main.cmo > win32link.bat
+                echo ocamlc -custom $(WIN32CMORELATIVE) $(CAMLDEBUG) -o win32jape.exe unix.cma $(CMO) main.cmo > win32link.bat
 
 
 clean:;                 rm -f *.cmi *.cmo *.cmx *.o
@@ -74,4 +74,5 @@ include .depend
 %.tml : ../engine/%.sig.sml ;\
         camltran ../engine/$*.sig.sml >$*.testml ;\
         mv $*.testml $*.tml
+
 
