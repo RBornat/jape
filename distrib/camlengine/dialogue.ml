@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -1823,24 +1823,18 @@ and commands
                  disproof_finished disproof
               then
                 Alert.askDangerously
-                  (("The proof of " ^ namestring t) ^
-                     " is complete - do you want to record it?")
-                  ("Record",
-                   (fun () ->
-                      if endproof n t (isproven proofstate) proofstate
-                           disproof
-                      then
-                        closed ()
-                      else default))
-                  ("Don't record",
-                   (fun () -> Japeserver.closeproof n; closed ()))
-                  (fun () -> default) ()
-              else default
-            else if
+                  ("The proof of " ^ namestring t ^ " is complete - do you want to record it?")
+                  ("Record", if endproof n t (isproven proofstate) proofstate disproof 
+                             then closed else (fun () -> default))
+                  ("Don't record", (Japeserver.closeproof n; closed))
+                  (fun () -> default) 
+                  ()
+              else (Japeserver.closeproof n; closed())
+            else 
               (* hist doesn't normally matter, since we don't store it ... if you are looking at an
                  undeveloped proof, we can just throw it away.
                *)
-              not fromstore &&
+            if not fromstore &&
               (not (isTip (proofstate_tree proofstate)) ||
                not (disproof_minimal disproof))
             then
