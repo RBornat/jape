@@ -1,7 +1,7 @@
 /* 
     $Id$
 
-    Copyright © 2002 Richard Bornat & Bernard Sufrin
+    Copyright © 2003 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -102,7 +102,7 @@ public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
 
     // window titling (until we have proper Unicode operator coverage, esp. turnstile)
     
-    public static final boolean UnicodeWindowTitles = false;
+    public static final boolean UnicodeWindowTitles = true; // now that I have Lucida Sans Unicode
     
     /* ************************ MacOS specific bits ************************ */
 
