@@ -48,7 +48,6 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
     }
     
     // not efficient, not in time order
-    // always ends with a blank line
     public String getTextSelections(String sep) {
         String s = null;
         int nc = child.getComponentCount(); // oh dear ...
@@ -65,9 +64,9 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
                 }
             }
         }
-        return s==null ? "" : s;
+        return s;
     }
-    
+
     public Component add(Component c) {
         Alert.abort("ProvisoCanvas.add("+c+")");
         return c; // shut up compiler
@@ -132,10 +131,10 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
         super.add(new TextItem(this, inset, cursor, ProvisoFontNum, text));
     }
 
-    private TextSelectableProvisoItem insertLine(int cursor, String annottext) {
+    private TextSelectableItem insertLine(int cursor, String annottext) {
         shiftLines(cursor);
-        return (TextSelectableProvisoItem)
-               super.add(new TextSelectableProvisoItem(this, 3*inset, cursor, annottext));
+        return (TextSelectableItem)
+               super.add(new TextSelectableItem(this, 3*inset, cursor, ProtocolConstants.ProvisoFontNum, annottext));
     }
 
     private static String provisoHeader = "Provided:",
@@ -158,7 +157,7 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
         showGivens();
     }
 
-    private void mkGivenLine(TextSelectableProvisoItem tspi, final int giveni) {
+    private void mkGivenLine(TextSelectableItem tspi, final int giveni) {
         tspi.addJapeMouseListener( new JapeMouseAdapter() {
             public void doubleclicked(MouseEvent e) {
                 getProofWindow().claimProofFocus();
