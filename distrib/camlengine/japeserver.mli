@@ -88,20 +88,23 @@ val tickmenuitem   : string -> string -> bool -> unit (* only for checkboxes, ra
 
 val mapmenus : bool -> unit (* false: menus under construction; true: menus constructed *)
  
-val newpanel : string * panelkind -> unit
+(* *************************************** panels *************************************** *)
+
+val newpanel : string -> panelkind -> unit
     (* A ConjecturePanel automatically includes buttons labelled NewÉ, Prove and Show Proof,
        which have to be supplied by the GUI (and the engine supplies a default Apply button 
        if the user defines no buttons at all). 
        Nothing else seems to have any default buttons.  Hmmm.
      *)
 
-val panelentry : string * string * string -> unit
-val panelbutton : string * string * panelbuttoninsert list -> unit
-val panelcheckbox : string * string * string -> unit
-val panelradiobutton : string * (string * string) list -> unit
-val setpanelbutton : string * string * bool -> unit
-val selectpanelentry : string * string -> unit
-val markpanelentry : string -> string -> bool -> unit
+val panelentry       : string -> string -> string -> unit
+val panelbutton      : string -> string -> panelbuttoninsert list -> unit
+val panelcheckbox    : string -> string -> string -> unit
+val panelradiobutton : string -> (string * string) list -> unit
+val setpanelbutton   : string -> string -> bool -> unit
+val selectpanelentry : string -> string -> unit
+val markpanelentry   : string -> string -> (bool * bool) -> unit
+
 val listen : unit -> string
 val terminate : unit -> unit
 val closedown : unit -> unit

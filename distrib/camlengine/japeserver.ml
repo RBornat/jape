@@ -422,9 +422,11 @@ let rec mapmenus =
     true -> makemenusVisible ()
   | false -> ()
 
+(* *************************************** panels *************************************** *)
+
 open Panelkind
 
-let rec newpanel (name, panelkind) =
+let rec newpanel name panelkind =
   let kind =
     match panelkind with
       TacticPanelkind     -> "0"
@@ -433,7 +435,10 @@ let rec newpanel (name, panelkind) =
   in
   writef "NEWPANEL % %\n" [Str name; Str kind]
 
-let rec panelbutton (name, label, cmd) =
+let rec panelentry name label entry =
+  writef "PANELENTRY % % %\n" [Str name; Str label; Str entry]
+
+let rec panelbutton name label cmd =
   writef "PANELBUTTON % %\n" [Str name; Str label]; 
   List.iter (fun c -> writef "PANELBUTTONINSERT % %\n"
                 (match c with
@@ -444,14 +449,10 @@ let rec panelbutton (name, label, cmd) =
             ) cmd;
   writef "PANELBUTTONEND\n" []
 
-let rec panelcheckbox (name, label, prefix) =
+let rec panelcheckbox name label prefix =
   writef "PANELCHECKBOX % % % \n" [Str name; Str label; Str prefix]
 
-let rec setpanelbutton (name, label, value) =
-  writef "SETPANELBUTTON % % %\n"
-    [Str name; Str label; Bool value]
-
-let rec panelradiobutton (name, labelcomlist) =
+let rec panelradiobutton name labelcomlist =
   writef "PANELRADIOBUTTON\n" [];
   List.iter
     (fun (l, c) ->
@@ -459,15 +460,16 @@ let rec panelradiobutton (name, labelcomlist) =
     labelcomlist;
   writef "PANELRADIOBUTTONEND %\n" [Str name]
 
-let rec panelentry (name, label, entry) =
-  writef "PANELENTRY % % %\n" [Str name; Str label; Str entry]
+let rec setpanelbutton name label value =
+  writef "SETPANELBUTTON % % %\n"
+    [Str name; Str label; Bool value]
 
-let rec selectpanelentry (name, label) =
+let rec selectpanelentry name label =
   writef "SELECTPANELENTRY % %\n" [Str name; Str label]
 
-let rec markpanelentry name label mark =
-  writef "MARKPANELENTRY % % %\n"
-    [Str name; Str label; Bool mark]
+let rec markpanelentry name label (proved, disproved) =
+  writef "MARKPANELENTRY % % % %\n"
+    [Str name; Str label; Bool proved; Bool disproved]
 
 let rec greyen posn =
   let (x, y) = explodePos posn in writef "GREYEN % %\n" [Int x; Int y]
