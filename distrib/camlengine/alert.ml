@@ -100,18 +100,18 @@ module
         raise
           (Catastrophe_
              ["ask bad default \""; m; "\"";
-              bracketedliststring (fun(hash1,_)->hash1) "," bs; " "; makestring def])
+              bracketedliststring (fun(hash1,_)->hash1) "," bs; " "; string_of_int def])
       else
         let i =
           ask_unpatched (intseverity code) m (List.map (fun(hash1,_)->hash1) bs) def
         in
-        try (fun(_,hash2)->hash2) (nth (bs, i)) with
-          Nth ->
+        try (fun(_,hash2)->hash2) (List.nth bs i) with
+          Failure "nth" ->
             raise
               (Catastrophe_
                  ["ask bad result \""; m; "\"";
                   bracketedliststring (fun(hash1,_)->hash1) "," bs; " ";
-                  makestring def; " => "; makestring i])
+                  string_of_int def; " => "; string_of_int i])
     let rec askCancel code m (bs : (string * 'a) list) c def =
       if null bs then
         raise (Catastrophe_ ["askCancel no buttons \""; m; "\""])
@@ -119,20 +119,20 @@ module
         raise
           (Catastrophe_
              ["askCancel bad default \""; m; "\"";
-              bracketedliststring (fun(hash1,_)->hash1) "," bs; " "; makestring def])
+              bracketedliststring (fun(hash1,_)->hash1) "," bs; " "; string_of_int def])
       else
         match
           askCancel_unpatched (intseverity code) m (List.map (fun(hash1,_)->hash1) bs) def
         with
           Some i ->
             (fun(_,hash2)->hash2)
-              (try nth (bs, i) with
-                 Nth ->
+              (try List.nth bs i with
+                 Failure "nth" ->
                    raise
                      (Catastrophe_
                         ["ask bad result \""; m; "\"";
                          bracketedliststring (fun(hash1,_)->hash1) "," bs; " ";
-                         makestring def; " => "; makestring i]))
+                         string_of_int def; " => "; string_of_int i]))
         | None -> c
     let rec askDangerously m (dol, doa) (dontl, donta) cancela =
       match askDangerously_unpatched m dol dontl with
@@ -140,7 +140,7 @@ module
       | Some 1 -> donta
       | None -> cancela
       | Some i ->
-          raise (Catastrophe_ ["askDangerously_unpatched => "; makestring i])
+          raise (Catastrophe_ ["askDangerously_unpatched => "; string_of_int i])
     (* we allow the user to patch an alert *)
     let rec showAlert code s =
       let rec display code s = ask code s ["OK", ()] 0 in

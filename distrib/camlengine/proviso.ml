@@ -209,7 +209,7 @@ module
     let rec catelim_visprovisostringall =
       fun (VisProviso {visible = visible; parent = parent; actual = actual})
         tail ->
-        "{" :: makestring visible :: ", actual=" ::
+        "{" :: string_of_int visible :: ", actual=" ::
           catelim_provisostring actual
             (", parent=" :: catelim_provisostring parent ("}" :: tail))
     let visprovisostring = catelim2stringfn catelim_visprovisostring

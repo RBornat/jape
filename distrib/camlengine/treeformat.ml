@@ -110,9 +110,9 @@ module
      *)         
 
     let neutralformat = TreeFormat (SimpleFormat, DefaultFormat)
-    let intliststring = bracketedliststring (makestring : int -> string) ","
+    let intliststring = bracketedliststring (string_of_int : int -> string) ","
     let nf_string =
-      triplestring (makestring : bool -> string) enQuote
+      triplestring (string_of_int : bool -> string) enQuote
         (optionstring intliststring) ","
     let rec treeformatstring =
       fun (TreeFormat pair) ->
@@ -128,7 +128,7 @@ module
         DefaultFormat -> "DefaultFormat"
       | RotatingFormat stuff ->
           "RotatingFormat" ^
-            pairstring makestring (bracketedliststring nf_string ",") ","
+            pairstring string_of_int (bracketedliststring nf_string ",") ","
               stuff
     (* if tf1 is hidden, so is the merge *)
     let rec treeformatmerge =
@@ -196,7 +196,7 @@ module
        
     let rec visformatstring =
       fun (VisFormat f) ->
-        "VisFormat" ^ pairstring makestring makestring "," f
+        "VisFormat" ^ pairstring string_of_int string_of_int "," f
     (* -------------------------- paths -------------------------- *)
         
         (* because of the use of negative numbers in paths to navigate internal cuts, and the 
@@ -214,7 +214,7 @@ module
     
     type vispath = VisPath of int list
     let rec pathstring_ns (p : int list) =
-      bracketedliststring makestring "," p
+      bracketedliststring string_of_int "," p
     let rec fmtpathstring = fun (FmtPath p) -> "FmtPath " ^ pathstring_ns p
     let rec vispathstring = fun (VisPath p) -> "VisPath " ^ pathstring_ns p
   end

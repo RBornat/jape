@@ -146,8 +146,8 @@ module
                    (Predicate_
                       ["predicate "; termstring P;
                        " is used inconsistently: "; "sometimes with ";
-                       makestring (length ts); ", sometimes with ";
-                       makestring (length ts'); " arguments."])
+                       string_of_int (length ts); ", sometimes with ";
+                       string_of_int (length ts'); " arguments."])
                else ts = ts')
             (fun bs' -> sortedmerge (earlierlist earliervar) (bs, bs')) ts
       in
@@ -160,17 +160,17 @@ module
       match t with
         Binding (_, (newbs, ss, us), _, _) ->
           Some
-            (nj_fold (NJfoldterm (fp (addbinding newbs bs))) ss
-               (nj_fold (NJfoldterm (fp bs)) us pbs))
+            (nj_fold (nj_foldterm (fp (addbinding newbs bs))) ss
+               (nj_fold (nj_foldterm (fp bs)) us pbs))
       | Subst (_, r, P, vts) ->
           Some
             (foldterm (fp (addbinding (m_a_p ((fun(hash1,_)->hash1), vts)) bs))
-               (nj_fold (NJfoldterm (fp bs)) (m_a_p ((fun(_,hash2)->hash2), vts)) pbs) P)
+               (nj_fold (nj_foldterm (fp bs)) (m_a_p ((fun(_,hash2)->hash2), vts)) pbs) P)
       | _ ->
           match matchpredicate true isabstraction t with
             Some (P, ts) ->
               Some
-                (insertP (P, (ts, [bs])) (nj_fold (NJfoldterm (fp bs)) ts pbs))
+                (insertP (P, (ts, [bs])) (nj_fold (nj_foldterm (fp bs)) ts pbs))
           | _ -> None
     (* discard zero-arity 'predicates' -- only necessary for arity check *)
     let rec discardzeroarities pbs =

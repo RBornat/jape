@@ -283,7 +283,7 @@ module
       | Some (seq, Model worlds), ss ->
           let sep = "\n" in
           let rec catelim_intstring i ss =
-            (makestring : int -> string) i :: ss
+            (string_of_int : int -> string) i :: ss
           in
           let rec catelim_coordstring =
             fun (Coord c) ->

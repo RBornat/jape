@@ -507,14 +507,14 @@
               (optionstring textinfostring) reasoninfostring "," l
       | BoxDep d ->
           "BoxDep" ^
-            quadruplestring (makestring : bool -> string)
+            quadruplestring (string_of_int : bool -> string)
               (pairstring textinfostring textinfostring ",")
               (bracketedliststring elinfostring ",") dependencystring "," d
       | IdDep i -> "IdDep" ^ pairstring elementstring dependencystring "," i
       | CutDep c ->
           "CutDep" ^
             quadruplestring dependencystring elementstring dependencystring
-              (makestring : bool -> string) "," c
+              (string_of_int : bool -> string) "," c
       | TranDep t ->
           "TranDep" ^
             triplestring (optionstring textinfostring) elementplaninfostring
@@ -693,8 +693,8 @@
               r
             in
             (*  consolereport 
-                  ["tprocess ", elementstring c, "; ", "; subs ", makestring (opt2bool subs),
-                   "; d ", makestring d
+                  ["tprocess ", elementstring c, "; ", "; subs ", string_of_int (opt2bool subs),
+                   "; d ", string_of_int d
                   ]; 
              *)
             (if d then ordinary else deadabove),
@@ -730,13 +730,13 @@
        (* This function produces a single piece of text as its result, which makes it a bit
         * difficult to split it across lines.  Oh well, one day.
         *)
-    let IDr = (makestring : lineID -> string)
+    let IDr = (string_of_int : lineID -> string)
     let rec Cr =
       function
         LineID l -> IDr l
       | BoxID (s, f) -> (IDr s ^ "-") ^ IDr f
       | HypID (l, n) ->(* we never make a BoxID with s=f *)
-         (IDr l ^ ".") ^ makestring n
+         (IDr l ^ ".") ^ string_of_int n
       | NoID ->(* we never make a HypID with l=0 *)
          ""
     let rec IDstring cids =
@@ -902,15 +902,15 @@
                     ["folding ";
                      bracketedliststring
                        (fun s ->
-                          pairstring makestring enQuote "," (measure s, s))
+                          pairstring string_of_int enQuote "," (measure s, s))
                        ", " estring]
               in
               let sss = minwaste measure w estring in
               let _ =
                 if !boxfolddebug then
                   consolereport
-                    ["width is "; makestring w; ";\nformula folded to ";
-                     makestring (length sss); " lines: ";
+                    ["width is "; string_of_int w; ";\nformula folded to ";
+                     string_of_int (length sss); " lines: ";
                      bracketedliststring (fun ss -> enQuote (implode ss)) ", "
                        sss]
               in
@@ -1491,8 +1491,8 @@
         let _ =
           if !boxfolddebug then
             consolereport
-              ["trying again, width "; makestring maxbestW; "; screenwidth ";
-               makestring screenwidth]
+              ["trying again, width "; string_of_int maxbestW; "; screenwidth ";
+               string_of_int screenwidth]
         in
         answer ((fun(_,hash2)->hash2) (L (Some maxbestW, empty, false, dp, startacc)))
       else answer firstlayout
@@ -1501,7 +1501,7 @@
       case id of
        LineID l     => "LineID "^IDr l
      | BoxID(s,f)   => "BoxID("^IDr s^","^IDr f^")"
-     | HypID(id, n) => "HypID("^IDr id^","^makestring n^")"
+     | HypID(id, n) => "HypID("^IDr id^","^string_of_int n^")"
     ... end desperation *)
 
     let rec BoxLayout screenwidth t =
@@ -1910,7 +1910,7 @@
         (* leftby bodymargin not needed ... *)
         (*
         consolereport ["defaultpos: screen is ", boxstring screen, " proof is ", boxstring bodybox, 
-                       "\nbodymargin ", makestring bodymargin, " sidescreengap ", makestring sidescreengap];
+                       "\nbodymargin ", string_of_int bodymargin, " sidescreengap ", string_of_int sidescreengap];
         *)
         (* put the SW corner of the proof in the SW corner of the screen. Because of botleft this is
            1 pixel too high, but who cares?
@@ -1942,10 +1942,10 @@
         consolereport ["postoinclude: defpos ", posstring defpos, " screen ", boxstring screen, 
                               " prooforigin ", posstring prooforigin,
                        "\nbOffset box defpos ", boxstring (bOffset box defpos),
-                           " entirelywithin screen ", makestring (bOffset box defpos entirelywithin screen),
+                           " entirelywithin screen ", string_of_int (bOffset box defpos entirelywithin screen),
                        "\notherdefpos ", posstring otherdefpos, 
                            " bOffset box otherdefpos ", boxstring (bOffset box otherdefpos),
-                           " entirelywithin screen ", makestring (bOffset box otherdefpos entirelywithin screen)
+                           " entirelywithin screen ", string_of_int (bOffset box otherdefpos entirelywithin screen)
                       ];
         *)
         (* prefer SW corner alignment *)
@@ -1979,7 +1979,7 @@
                 if !screenpositiondebug then
                   consolereport
                     [elementplankindstring plankind; "; "; pathstring path;
-                     "; "; makestring (path = epath)];
+                     "; "; string_of_int (path = epath)];
                 path = epath
             | _ -> false
           in
@@ -2010,17 +2010,17 @@ let fun IDstring id =
       case id of
        LineID l     => "LineID "^IDr l
      | BoxID(s,f)   => "BoxID("^IDr s^","^IDr f^")"
-     | HypID(id, n) => "HypID("^IDr id^","^makestring n^")"
+     | HypID(id, n) => "HypID("^IDr id^","^string_of_int n^")"
 in
     consolereport
-    ["BL ", makestring lastline, 
+    ["BL ", string_of_int lastline, 
      " ", mappingstring elementstring IDstring hypmapin,
      " ", bracketedliststring elementstring "," hyps, 
      "; sequent=", seqstring (sequent t),
      "; hs=", bracketedliststring elementstring "," hs, 
      "; gs=", bracketedliststring elementstring "," gs, 
      "; reason=", optionstring reasonstring (reason t),
-     "; id=", makestring id,
+     "; id=", string_of_int id,
      "; cids=", bracketedliststring IDstring "," cids,
      "; rpath=", pathstring rpath,
      "; hypmap=", mappingstring elementstring IDstring hypmap,

@@ -211,7 +211,7 @@ module
         if !provisodebug then
           consolereport
             ["isot checking "; termstring t; " against ";
-             termliststring names; " => "; makestring r];
+             termliststring names; " => "; string_of_int r];
         r
       in
       let rec isop p =
@@ -225,7 +225,7 @@ module
         in
         if !provisodebug then
           consolereport
-            ["isop checking "; provisostring p; " => "; makestring r];
+            ["isop checking "; provisostring p; " => "; string_of_int r];
         r
       in
       let r =

@@ -69,9 +69,9 @@ module
             let bt = termliststring in
             let qt = quadruplestring bt bt bt termstring "," in
             consolereport
-              ["bindings type "; makestring k; " are now ";
+              ["bindings type "; string_of_int k; " are now ";
                bracketedliststring qt "; " (Array.get bindingdirectives k);
-               "; and bad bindings type "; makestring k; " are ";
+               "; and bad bindings type "; string_of_int k; " are ";
                bt (Array.get badbindings k)]
         end
     let rec clearbindingdirectives () =

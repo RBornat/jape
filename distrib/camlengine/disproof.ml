@@ -187,8 +187,8 @@ module
     
     
     
-    let rec catelim_intstring i ss = (makestring : int -> string) i :: ss
-    let rec catelim_boolstring b ss = (makestring : bool -> string) b :: ss
+    let rec catelim_intstring i ss = (string_of_int : int -> string) i :: ss
+    let rec catelim_boolstring b ss = (string_of_int : bool -> string) b :: ss
     let disproofdebug = ref false
     let sameelement = eqelements eqterms
     let rec dosubst facts =
@@ -581,7 +581,7 @@ module
         if !disproofdebug then
           consolereport
             ["forced ("; coordstring c; ", "; termstring t; ") => ";
-             pairstring makestring makestring "," result];
+             pairstring string_of_int string_of_int "," result];
         result
       in
       ff
@@ -1103,7 +1103,7 @@ module
           let stem = implode (take (length cs - length ds) cs) in
           let stern = if null ds then 1 else atoi (implode ds) + 1 in
           let rec freshtile stem stern =
-            let v' = parseTerm (stem ^ makestring stern) in
+            let v' = parseTerm (stem ^ string_of_int stern) in
             ortryr (newtile v v', (fun _ -> freshtile stem (stern + 1)))
           in
           freshtile stem stern
@@ -1177,9 +1177,9 @@ module
                             List.map (fun t -> [t])
                               (sort (fun (x, y) -> x < y)
                                  (List.map termstring possibles))),
-                         (fun i -> Some (nth (possibles, i))))
+                         (fun i -> Some (List.nth (possibles) (i))))
                     with
-                      Nth -> raise (Catastrophe_ ["(newtile) Nth ..."])),
+                      Failure "nth" -> raise (Catastrophe_ ["(newtile) Failure "nth" ..."])),
              (fun tile ->
                 Some (withdisprooftiles (d, tilesort (tile :: tiles)))))
     let rec addchild u (_, py as pc) (_, cy as cc) =
@@ -1365,7 +1365,7 @@ module
         in
         let rec ivk t =
           let t = realterm t in
-          (* consolereport ["ivk ", smltermstring t, " => ", makestring (forced facts universe root t)]; *)
+          (* consolereport ["ivk ", smltermstring t, " => ", string_of_int (forced facts universe root t)]; *)
           match at (forcemap, (root, t)) with
             Some (on, lock) ->
               (if lock then (fun(_,hash2)->hash2) lockbraket else "") ^

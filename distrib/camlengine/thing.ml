@@ -173,7 +173,7 @@ module
     let paramliststring = bracketedliststring paraparamstring ","
     let provisoliststring =
       bracketedliststring
-        (pairstring (makestring : bool -> string) provisostring ",") " AND "
+        (pairstring (string_of_int : bool -> string) provisostring ",") " AND "
     let rec antecedentliststring heavy =
       bracketedliststring (if heavy then smlseqstring else seqstring) " AND "
     let rec consequentstring heavy = if heavy then smlseqstring else seqstring
@@ -187,7 +187,7 @@ module
       function
         Rule r ->
           "Rule" ^
-            pairstring (ruledatastring false) (makestring : bool -> string)
+            pairstring (ruledatastring false) (string_of_int : bool -> string)
               "," r
       | Theorem t -> "Theorem" ^ thmdatastring false t
       | Tactic t -> "Tactic" ^ pairstring paramliststring tacticstring ", " t
@@ -201,7 +201,7 @@ module
           "CookedRule" ^
             triplestring (cookedstring (ruledatastring false))
               (cookedstring (ruledatastring false))
-              (makestring : bool -> string) "," r
+              (string_of_int : bool -> string) "," r
       | CookedTheorem t ->
           "CookedTheorem" ^
             doublestring (cookedstring (ruledatastring false)) t
@@ -385,12 +385,12 @@ module
       in
       let res = m + 1, rs, antes', conseq' in(* desperation ... 
       if !thingdebug then
-        consolereport ["numberforapplication ", makestring n, " ",
+        consolereport ["numberforapplication ", string_of_int n, " ",
           pairstring (antecedentliststring true) (consequentstring true) ", "
                      (antes,conseq),
           " => ", 
           quadruplestring 
-            makestring 
+            string_of_int 
             let val p = bracketedliststring resnumstring "," in 
                 pairstring p p ","
             end
@@ -775,7 +775,7 @@ module
                proofps;
              " and env is ";
              mappingstring termstring
-               (pairstring (makestring : bool -> string) termliststring ", ")
+               (pairstring (string_of_int : bool -> string) termliststring ", ")
                env;
              " and applyps is ";
              bracketedliststring (pairstring termstring termstring ",") ", "
@@ -909,7 +909,7 @@ module
       =
       let pst = pairstring storedthingstring thingplacestring ","
       and (lookup, update, delete, reset, sources, targets) =
-        simplestore "thingstore" (triplestring namestring makestring pst ",")
+        simplestore "thingstore" (triplestring namestring string_of_int pst ",")
           127
       (* why not? It can only grow :-) *)
       and hash ooo = hashstring (namestring ooo) in

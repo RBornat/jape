@@ -660,7 +660,7 @@ module
                               raise
                                 (Catastrophe_
                                    ["transTactic and readintasarg see ";
-                                    makestring i])
+                                    string_of_int i])
                           end
                       | Collection (_, c, es) ->
                           registerCollection (c, m_a_p (decodeelement, es))

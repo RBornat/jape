@@ -132,7 +132,7 @@ module
         | Collection (_, _, es) ->
             let rec g =
               function
-                Segvar (_, ms, t), z -> nj_fold (NJfoldterm f) (t :: ms) z
+                Segvar (_, ms, t), z -> nj_fold (nj_foldterm f) (t :: ms) z
               | Element (_, ResUnknown i, t), z ->
                   foldterm f (vars, uVIDs, i :: badres, psig) t
               | Element (_, _, t), z -> foldterm f z t
@@ -217,7 +217,7 @@ module
       let res = S t in
       if !rewritedebug then
         consolereport
-          ["rew_Term "; makestring subst; " cxt "; argstring t; " => ";
+          ["rew_Term "; string_of_int subst; " cxt "; argstring t; " => ";
            optionstring termstring res];
       res
     and rew_substmap subst cxt vts =

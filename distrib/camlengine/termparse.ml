@@ -191,9 +191,9 @@ module
         if m < n then
           raise
             (ParseError_
-               [smlsymbolstring sy; " (priority "; makestring m;
+               [smlsymbolstring sy; " (priority "; string_of_int m;
                 ") found after "; smlsymbolstring pre; " (priority ";
-                makestring n; ")"])
+                string_of_int n; ")"])
       in
       match sy with
         PREFIX (m, _) -> checkpre m
@@ -205,9 +205,9 @@ module
         if n < m then
           raise
             (ParseError_
-               [smlsymbolstring sy; " (priority "; makestring m;
+               [smlsymbolstring sy; " (priority "; string_of_int m;
                 ") found after "; smlsymbolstring pre; " (priority ";
-                makestring n; ")"])
+                string_of_int n; ")"])
       in
       match sy with
         INFIX (m, _, _) -> checkpre m

@@ -159,7 +159,7 @@ module
         try atoi t with
           AtoI_ -> raise (OutOfRange_ "an integer")
       in
-      let i2s : int -> string = makestring in
+      let i2s : int -> string = string_of_int in
       basejapevar None (i2s v)
         ((fun ooo -> set (s2i ooo)), (fun ooo -> i2s (get ooo)))
     let rec intjaperefvar v r =

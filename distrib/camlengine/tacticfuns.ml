@@ -416,7 +416,7 @@ module
     
     let rec currentlyProving n = !proving = n
     let rec nextLemmaName () =
-      makestring begin inc lemmacount; !lemmacount end
+      string_of_int begin inc lemmacount; !lemmacount end
     let noticetime = ref true
     let triesused_total = ref 0
     let timesbeingtried = ref 0
@@ -429,16 +429,16 @@ module
       (* perhaps things should be arranged so that we display the state of the proof at this point ... *)
       (let tried = !timesbeingtried in
        let bs =
-         (makestring tried, tried) :: (makestring (tried * 2), tried * 2) ::
+         (string_of_int tried, tried) :: (string_of_int (tried * 2), tried * 2) ::
            (if tried / 2 > 0 then
-              [makestring (tried / 2), tried / 2; "Stop", 0]
+              [string_of_int (tried / 2), tried / 2; "Stop", 0]
             else ["Stop", 0])
        in
        let n =
          askNb
            (implode
               ["Time ran out after ";
-               makestring (!triesused_total + !timesbeingtried);
+               string_of_int (!triesused_total + !timesbeingtried);
                " steps -- do you want to try more steps?"])
            bs
        in
@@ -932,7 +932,7 @@ module
                     raise
                       (Catastrophe_
                          ["resnums ";
-                          pairstring makestring makestring "," (nc, nh);
+                          pairstring string_of_int string_of_int "," (nc, nh);
                           " in doCUTIN"])
                   else nc, nh
             | _ -> bang ()
@@ -955,7 +955,7 @@ module
           FollowPath_ stuff ->
             showAlert
               ["FollowPath_ in doCUTIN: ";
-               pairstring (fun s -> s) (bracketedliststring makestring ",")
+               pairstring (fun s -> s) (bracketedliststring string_of_int ",")
                  ", " stuff];
             None
     (**********************************************************************
@@ -1023,7 +1023,7 @@ module
               with
                 None -> None
               | Some n ->
-                  let (name, (cxt, newtree)) = nth (cs, n) in
+                  let (name, (cxt, newtree)) = List.nth (cs) (n) in
                   proofstep cxt newtree state
     let rec forceUnify a1 a2 =
       match a1, a2 with
@@ -1222,8 +1222,8 @@ module
           in
           if !FINDdebug then
             consolereport
-              ["assocInfo ("; smltermstring f; ") = ("; makestring curried;
-               ", "; makestring lassoc; ")"];
+              ["assocInfo ("; smltermstring f; ") = ("; string_of_int curried;
+               ", "; string_of_int lassoc; ")"];
           curried,
           (if lassoc then LeftFold else RightFold) (MkApp (curried, f))
       | _ -> raise MatchinAssocInfo
@@ -1921,7 +1921,7 @@ module
             raise
               (Tacastrophe_
                  ["bad path in "; tacstr; ": "; s; "; ";
-                  bracketedliststring makestring "," ns])
+                  bracketedliststring string_of_int "," ns])
     let rec dispatchTactic display try__ env contn tactic =
       fun (Proofstate {cxt = cxt} as state) ->
         if !tactictracing then
@@ -2183,8 +2183,8 @@ module
             _ -> raise (Tacastrophe_ ["not an integer"])
         in
         let given =
-          try nth (givens, i) with
-            Nth ->
+          try List.nth (givens) (i) with
+            Failure "nth" ->
               raise
                 (Tacastrophe_
                    (if i < 0 then ["negative index"]
@@ -2192,7 +2192,7 @@ module
                       match length givens with
                         0 -> ["no givens available"]
                       | 1 -> ["one given available"]
-                      | n -> [makestring n; " givens available"]))
+                      | n -> [string_of_int n; " givens available"]))
         in
         let name = seqstring given in
         (* this is the problem! *)

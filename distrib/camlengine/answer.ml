@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Answer =
+module type T =
   sig
     type answer = Yes | Maybe | No
     val answerstring : answer -> string
@@ -26,7 +26,7 @@ module type Answer =
   end
 (* $Id$ *)
 
-module Answer : Answer =
+module M : T =
   struct
     type answer = Yes | Maybe | No
     (* Yes > Maybe > No *)

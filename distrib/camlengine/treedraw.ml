@@ -455,10 +455,10 @@ module
               [] -> None
             | _ ->
                 try
-                  let (sp, s) = nth (subplans, n) in
+                  let (sp, s) = List.nth (subplans) (n) in
                   P (ns, s, ( +->+ ) (pos, sp))
                 with
-                  Nth -> None
+                  Failure "nth" -> None
       in
       match path with
         Some route -> P (route, plan, origin)

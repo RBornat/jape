@@ -53,21 +53,20 @@ module type T =
     val interpolate : 'a -> 'a list -> 'a list
     val catelim_interpolate :
       ('a -> 'b list -> 'b list) -> 'b -> 'a list -> 'b list -> 'b list
-    val flatten : 'a list list -> 'a list
     val split : ('a -> bool) -> 'a list -> 'a list * 'a list (* yess, nos *)
     val sort : ('a -> 'a -> bool) -> 'a list -> 'a list (* given op<, sorts in < order *)
     val sortandcombine : ('a -> 'a -> bool) -> ('a * 'a -> 'a) -> 'a list -> 'a list
     val remdups : 'a list -> 'a list
-    val earlierlist : ('a -> 'a -> bool) -> 'a list * 'a list -> bool
+    val earlierlist : ('a -> 'a -> bool) -> 'a list -> 'a list -> bool
     val sortunique : ('a -> 'a -> bool) -> 'a list -> 'a list
     val sorteddiff : ('a -> 'a -> bool) -> 'a list -> 'a list -> 'a list
     val sortedsame : ('a -> 'a -> bool) -> 'a list -> 'a list -> 'a list
     val sortedmergeandcombine :
-      ('a -> 'a -> bool) -> ('a -> 'a -> 'a) -> 'a list * 'a list -> 'a list
-    val sortedmerge : ('a -> 'a -> bool) -> 'a list * 'a list -> 'a list
+      ('a -> 'a -> bool) -> ('a -> 'a -> 'a) -> 'a list -> 'a list -> 'a list
+    val sortedmerge : ('a -> 'a -> bool) -> 'a list -> 'a list -> 'a list
     val sortedlistsub : ('a * 'b -> bool) -> 'a list -> 'b list -> 'a list
     val matchbag : ('a -> 'b option) -> 'a list -> ('a * 'b * 'a list) list
-    val ( >< ) : 'a list * 'b list -> ('a * 'b) list
+    val ( >< ) : 'a list -> 'b list -> ('a * 'b) list
     val allpairs : 'a list -> ('a * 'a) list
     val listsub : ('a * 'b -> bool) -> 'a list -> 'b list -> 'a list
     val eqlists : ('a * 'a -> bool) -> 'a list * 'a list -> bool
@@ -253,7 +252,7 @@ module M
         [x] -> x
       | _ :: xs -> last xs
       | [] -> raise Last_
-    (* these things revised to Bird-Meertens standards - no Nth here! *)
+    (* these things revised to Bird-Meertens standards - no Failure "nth" here! *)
     let rec take a1 a2 =
       match a1, a2 with
         0, xs -> []
@@ -288,7 +287,6 @@ module M
         f, [] -> raise Extract_
       | f, x :: xs ->
           if f x then x, xs else let (y, ys) = extract f xs in y, x :: ys
-    let rec flatten xss = nj_fold (uncurry2 ( @ )) xss []
     let rec split a1 a2 =
       match a1, a2 with
         f, [] -> [], []
@@ -379,13 +377,13 @@ module M
           let rest = remdups (x2 :: xs) in
           if x1 = x2 then rest else x1 :: rest
     let rec sortunique ( < ) ooo = remdups (sort ( < ) ooo)
-    let rec earlierlist a1 a2 =
-      match a1, a2 with
-        ( < ), (x :: xs, y :: ys) ->
-          x < y || not (y < x) && earlierlist ( < ) (xs, ys)
-      | _, ([], []) -> false
-      | _, ([], _) -> true
-      | _, _ -> false
+    let rec earlierlist a1 a2 a3 =
+      match a1, a2, a3 with
+        ( < ), x :: xs, y :: ys ->
+          x < y || not (y < x) && earlierlist ( < ) xs ys
+      | _, [], [] -> false
+      | _, [], _  -> true
+      | _, _ , _  -> false
     (* lists sorted by < or <=; does set diff or bag diff accordingly *)
     let rec sorteddiff a1 a2 a3 =
       match a1, a2, a3 with
@@ -406,7 +404,7 @@ module M
           else if x1 < y1 then sortedsame ( < ) xs (y1 :: ys)
           else sortedsame ( < ) (x1 :: xs) ys
     (* given sorted by < -- no duplicates -- lists. designed to be folded ... *)
-    let rec sortedmergeandcombine ( < ) ( + ) (xs, ys) =
+    let rec sortedmergeandcombine ( < ) ( + ) xs ys =
       let rec s a1 a2 =
         match a1, a2 with
           [], ys -> ys
@@ -417,8 +415,8 @@ module M
             else x1 + y1 :: s xs ys
       in
       s xs ys
-    let rec sortedmerge ( < ) (xs, ys) =
-      sortedmergeandcombine ( < ) (fun x _ -> x) (xs, ys)
+    let rec sortedmerge ( < ) xs ys =
+      sortedmergeandcombine ( < ) (fun x _ -> x) xs ys
     (* this ignores elements of ys after the last one that actually occurs in xs *)
     let rec sortedlistsub eq xs ys =
       let rec g a1 a2 =
@@ -450,8 +448,9 @@ module M
       in
       match__ [] [] xs
     
-    let rec ( >< ) (xs, ys) =
-      flatten (m_a_p ((fun x -> m_a_p ((fun y -> x, y), ys)), xs))
+    let rec ( >< ) xs ys =
+      List.concat (List.map (fun x -> List.map (fun y -> x, y) ys) xs)
+    
     (* this function isn't xs><xs -- (xs,xs): 
      * it's the upper triangle (or the lower one) of the matrix xs><xs, without
      * the diagonal.  So it finds all distinct pairs, not pairing x with x and only
@@ -532,7 +531,7 @@ module M
            take j xs : drop j splits
 
      * for some j.  
-     * a_l_l we need to do is to increase j until we find the 'break point'.
+     * All we need to do is to increase j until we find the 'break point'.
      *)
     
     (* In this first attempt I've ignored the fact that this is an n^2 algorithm

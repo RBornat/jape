@@ -56,7 +56,7 @@ module
       match t with
         Id (_, s, _) -> Some (Name s)
       | Unknown (_, s, _) -> Some (Name (metachar ^ s))
-      | Literal (_, Number s) -> Some (Name (makestring s))
+      | Literal (_, Number s) -> Some (Name (string_of_int s))
       | Literal (_, String s) -> Some (Name s)
       | _ -> None
     (* this is better than unQuote, because it parses the string *)

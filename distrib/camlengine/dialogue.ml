@@ -154,7 +154,7 @@ module
           let res =
             disproofstate_countermodel state && disproofstate_conclusive state
           in
-          (* consolereport ["disproof_finished ", disproofstatestring state, " => ", makestring res]; *)
+          (* consolereport ["disproof_finished ", disproofstatestring state, " => ", string_of_int res]; *)
           res
       | None -> false
     type 'a hist = Hist of < now : 'a; pasts : 'a list; futures : 'a list >
@@ -1108,7 +1108,7 @@ module
              not
                (screenquery
                   [if n = 1 then "There is already a proof of "
-                   else ("There are already " ^ makestring n) ^ " proofs of ";
+                   else ("There are already " ^ string_of_int n) ^ " proofs of ";
                    namestring name;
                    " in progress - do you want to add another?"]
                   "Add" "Cancel" 1)
@@ -1120,7 +1120,7 @@ module
             let index = if n = 0 then 0 else index + 1 in
             let heading =
               if index = 0 then namestring name
-              else ((namestring name ^ " [") ^ makestring index) ^ "]"
+              else ((namestring name ^ " [") ^ string_of_int index) ^ "]"
             in
             let state_cxt = selfparentprovisos cxt in
             let facts = facts (provisos state_cxt) state_cxt in
@@ -1375,7 +1375,7 @@ module
             let n = length pinfs in
             showAlert
               [if n = 1 then "There is a proof "
-               else ("there are " ^ makestring (length pinfs)) ^ " proofs";
+               else ("there are " ^ string_of_int (length pinfs)) ^ " proofs";
                " in progress. You must close ";
                if n = 1 then "it" else "them"; " before the command \"";
                respace c; "\" can be executed."];
@@ -1605,7 +1605,7 @@ module
             | "steps", quota :: _ -> timestotry := atoi quota; default
             | "steps", [] ->
                 (* this should be a variable in the environment *)
-                showAlert ["Proof step quota is "; makestring !timestotry];
+                showAlert ["Proof step quota is "; string_of_int !timestotry];
                 default
             | "tellinterface", name :: interfacecommand ->
                 (* Evaluate a variable name; construct a string for the interface *)
@@ -2221,8 +2221,8 @@ module
                     begin japeserver.closeproof n; closed () end
                   else default
                 else(* nothing to save *)
-                 begin japeserver.closeproof n;(*  consolereport ["closing proof ", makestring n, 
-                       " -- now ", makestring (length pinfs'), " proofs left"
+                 begin japeserver.closeproof n;(*  consolereport ["closing proof ", string_of_int n, 
+                       " -- now ", string_of_int (length pinfs'), " proofs left"
                    ]; 
                  *)
                  closed () end
@@ -2291,7 +2291,7 @@ module
         let command = getCommand displayopt in
         setComment [];
         (* consolereport (("in administer; command is " :: commandstring command) @ [ "; pinfs are ",
-                bracketedliststring (makestring:int->string) ","
+                bracketedliststring (string_of_int:int->string) ","
                   ((fn Pinf{proofnum,...}=>proofnum) m_a_p pinfs)
            ]);
          *)

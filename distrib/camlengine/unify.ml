@@ -455,7 +455,7 @@ module
             if !unifydebug then
               consolereport
                 ["unify "; pp ((t1, t2) :: tts); " "; ppc dds; " ";
-                 makestring progress; " "; cxtstring cxt];
+                 string_of_int progress; " "; cxtstring cxt];
             match t1, t2 with
               Unknown (_, v1, c1), Unknown (_, v2, c2) ->
                 if v1 = v2 && c1 = c2 then success cxt
@@ -1263,7 +1263,7 @@ module
             say
               ((" " ^ s) ^
                  (match r with
-                    _ :: _ -> (" succeeds (" ^ makestring (length r)) ^ ")"
+                    _ :: _ -> (" succeeds (" ^ string_of_int (length r)) ^ ")"
                   | [] -> " fails "));
           r
         in

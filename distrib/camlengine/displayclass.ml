@@ -48,5 +48,5 @@ module Displayclass (AAA : sig exception Catastrophe_ of string list end) :
       | 2 -> DisplayHyp
       | 3 -> DisplayReason
       | 4 -> DisplayAmbig
-      | n -> raise (Catastrophe_ ["int2displayclass "; makestring n])
+      | n -> raise (Catastrophe_ ["int2displayclass "; string_of_int n])
   end

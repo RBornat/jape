@@ -80,7 +80,7 @@ module
       fun (Rewinf r) ->
         "Rewinf" ^
           quadruplestring termliststring (bracketedliststring vidstring ",")
-            (bracketedliststring makestring ",") (optionstring makestring) ","
+            (bracketedliststring string_of_int ",") (optionstring string_of_int) ","
             r
     let rec rewinf_merge =
       fun

@@ -440,8 +440,8 @@ module
           (* this is what makes the tip path work *)
           match path with
             n :: ns ->
-              begin try go n (nth (ts, n)) ns with
-                Nth -> raise (FollowPath_ ("out of range", path))
+              begin try go n (List.nth (ts) (n)) ns with
+                Failure "nth" -> raise (FollowPath_ ("out of range", path))
               end
           | [] -> stop ()
     let rec pathto t =
@@ -473,8 +473,8 @@ module
       | Join (_, _, _, _, _, _, _, (ts, _), _) ->
           match path with
             n :: ns ->
-              begin try Some (ns, nth (ts, n)) with
-                Nth -> raise (FollowPath_ ("onestep out of range", path))
+              begin try Some (ns, List.nth (ts) (n)) with
+                Failure "nth" -> raise (FollowPath_ ("onestep out of range", path))
               end
           | [] -> None
     let rec fakePath_ns rf t ns =
@@ -698,25 +698,25 @@ module
         Apply a ->
           "Apply" ^
             triplestring parseablenamestring termliststring
-              (makestring : bool -> string) "," a
+              (string_of_int : bool -> string) "," a
       | Given g ->
           "Given" ^
-            triplestring (fun s -> s) (makestring : int -> string)
-              (makestring : bool -> string) "," g
+            triplestring (fun s -> s) (string_of_int : int -> string)
+              (string_of_int : bool -> string) "," g
       | UnRule u ->
           "Unrule" ^
             pairstring (fun s -> s)
               (bracketedliststring parseablenamestring ",") "," u
-    let nsstring = bracketedliststring (makestring : int -> string) ","
+    let nsstring = bracketedliststring (string_of_int : int -> string) ","
     let rec join_string
       tlf subtreesf (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       implode
         ["Join("; "reason="; why; ", how="; prooftree_stepstring how;
          ", cutnav=";
-         optionstring (pairstring makestring makestring ",")
+         optionstring (pairstring string_of_int string_of_int ",")
            (cutnav : (int * int) option);
          ", args="; pairstring termliststring rewinfstring ", " args;
-         ", fmt="; tlf fmt; ", hastipval="; makestring (hastipval : bool);
+         ", fmt="; tlf fmt; ", hastipval="; string_of_int (hastipval : bool);
          ", seq="; pairstring elementseqstring rewinfstring ", " seq;
          ", subtrees="; pairstring subtreesf rewinfstring ", " trs; ", ress=";
          begin
@@ -810,7 +810,7 @@ module
           let rec intorder ((i, _), (j, _)) = i < j in
           let (lookup, reset) =
             simplecache "prooftree2tactic"
-              (triplestring termstring makestring makestring ",") 17
+              (triplestring termstring string_of_int string_of_int ",") 17
               (fun _ -> !(count before count) := !count + 1)
           in
           let hs =
@@ -830,7 +830,7 @@ module
               "\n" :: shyidforFORMULAE :: "\n" ::
                 catelim_liststring
                   (fun (i, t) tail ->
-                     makestring i :: " " :: catelim_termstring t tail)
+                     string_of_int i :: " " :: catelim_termstring t tail)
                   ",\n"
                   (sortunique intorder
                      (m_a_p ((fun (h, t) -> lookup h t, t), hs)))
@@ -997,7 +997,7 @@ module
           raise
             (Catastrophe_
                ["rewriteProoftree found ResUnknowns ";
-                bracketedliststring makestring ", " (rewinf_badres inf)])
+                bracketedliststring string_of_int ", " (rewinf_badres inf)])
       in
       (* don't forget the givens when considering grounded provisos *)
       let tvars =
@@ -1299,7 +1299,7 @@ module
                   else r
               | TreeFormat (_, RotatingFormat (i, nfs)) ->
                   if try
-                       match fmt, nth (nfs, i) with
+                       match fmt, List.nth (nfs) (i) with
                          Some (true, s, _), (true, s', _) -> s = s'
                        | _ -> false
                      with
@@ -1317,7 +1317,7 @@ module
           match join_fmt j with
             TreeFormat (_, RotatingFormat (i, nfs)) ->
               begin try
-                match nth (nfs, i) with
+                match List.nth (nfs) (i) with
                   _, _, Some which as fmt ->
                     let inouts =
                       nj_fold
@@ -1330,7 +1330,7 @@ module
                     hideroots (Some fmt) false inouts
                 | fmt -> hideroots (Some fmt) (isCutjoin j) (pts, [])
               with
-                Nth -> default ()
+                Failure "nth" -> default ()
               end
           | _ -> hideroots None (isCutjoin j) (pts, [])
       in
@@ -1345,7 +1345,7 @@ module
               ", "
           in
           consolereport
-            ["visibles "; makestring showall; " ";
+            ["visibles "; string_of_int showall; " ";
              join_string treeformatstring onelevel j; " => ";
              pairstring ptstring ptstring ", " res]
         end;
@@ -1394,9 +1394,9 @@ module
                 (visible_subtrees showall t,
                  (fun ts ->
                     try
-                      let (ns', t) = nth (ts, n) in P (ns, rev1 ns' rns, t)
+                      let (ns', t) = List.nth (ts) (n) in P (ns, rev1 ns' rns, t)
                     with
-                      Nth -> None))
+                      Failure "nth" -> None))
           | [], rns, t -> Some (FmtPath (rev1 rns (pathto t)))
         in
         P (ns, [], t)
@@ -1455,7 +1455,7 @@ module
                             invisiblereasons proved showall j)
                      in
                      let (fmt, strf) =
-                       match nth (nfs, i) with
+                       match List.nth (nfs) (i) with
                          _, "", Some [] -> !foldedfmt, invisf
                        | _, "", Some _ -> !filteredfmt, invisf
                        | _, "", None -> !unfilteredfmt, default_reason
@@ -1464,7 +1464,7 @@ module
                      in
                      rprintf (explode fmt) strf
                    with
-                     Nth -> rprintf (explode !rawfmt) default_reason
+                     Failure "nth" -> rprintf (explode !rawfmt) default_reason
                    end
                | _ -> default_reason ()
            in

@@ -288,7 +288,7 @@ module
                 " ("; seqstring conjecture; ") => (";
                 liststring visprovisostring " AND " (provisos cxt); " ... ";
                 liststring visprovisostring " AND " (provisos cxt'); ") => ";
-                makestring r];
+                string_of_int r];
            r)
     (* discriminators *)
     
@@ -340,7 +340,7 @@ module
         | 7 -> "seven"
         | 8 -> "eight"
         | 9 -> "nine"
-        | n -> makestring n
+        | n -> string_of_int n
       in
       match ps with
         [] -> None
@@ -356,7 +356,7 @@ module
                m_a_p (listposs, ps))
           with
             None -> failOffering (); None
-          | Some n -> succeedOffering (); Some (answer (nth (ps, n)))
+          | Some n -> succeedOffering (); Some (answer (List.nth (ps) (n)))
     (* this isn't really discriminatory, is it? *)
     
     let rec takethelot ps = m_a_p (answer, ps)
@@ -535,7 +535,7 @@ module
                                             " against ";
                                             bracketedliststring showel ","
                                               thRs;
-                                            " => "; makestring r];
+                                            " => "; string_of_int r];
                                        r),
                                     ooo)))),
                         (fun ooo ->
@@ -565,7 +565,7 @@ module
                                       bracketedliststring showel "," selhyps;
                                       " against ";
                                       bracketedliststring showel "," thLs;
-                                      " => "; makestring r];
+                                      " => "; string_of_int r];
                                  r),
                               ooo)))),
                   (fun poss ->
@@ -609,8 +609,8 @@ module
              seqstring conjecture; " because the turnstiles are different"]
     let rec showstuff stuff =
       octuplestring enQuote
-        (pairstring (makestring : bool -> string)
-           (makestring : bool -> string) ",")
+        (pairstring (string_of_int : bool -> string)
+           (string_of_int : bool -> string) ",")
         prooftree_stepstring showargs
         (pairstring (bracketedliststring resnumstring ",")
            (bracketedliststring resnumstring ",") ",")

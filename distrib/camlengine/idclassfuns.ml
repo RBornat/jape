@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Idclassfuns =
+module type T =
   sig
     type idclass and symbol
     val canstartidclass : symbol -> bool
@@ -10,8 +10,7 @@ module type Idclassfuns =
   end
 (* $Id$ *)
 
-module
-  Idclassfuns
+module M
   (AAA :
     sig
       module Idclass : Idclass.T
@@ -24,9 +23,7 @@ module
       val member : 'a * 'a list -> bool
       
       exception ParseError_ of string list      
-    end)
-  :
-  Idclassfuns =
+    end) : T =
   struct
     open AAA
     open Symboltype 

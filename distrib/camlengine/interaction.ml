@@ -143,7 +143,7 @@ module
           "HitCommand" ^
             triplestring (fun _ -> "....") (hitstring fmtpathstring)
               (selstring fmtpathstring) "," hc
-    let intliststring = bracketedliststring (makestring : int -> string) ","
+    let intliststring = bracketedliststring (string_of_int : int -> string) ","
     let abandonServer = japeserver.stopserver
     let killServer = japeserver.killserver
     let setComment ooo = setComment (implode ooo)

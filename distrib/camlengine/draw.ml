@@ -140,7 +140,7 @@ module
     let drawBox = japeserver.drawRect
     let rec linethickness leading =
       (* width of the lines (box, selection) we draw *)
-      let r = max ((leading + 2) / 3) (1) in(* consolereport["leading ", makestring leading, "; thickness ", makestring r]; *)
+      let r = max ((leading + 2) / 3) (1) in(* consolereport["leading ", string_of_int leading, "; thickness ", string_of_int r]; *)
        r
     let setproofparams = japeserver.setproofparams
     let rec measuretext ta t = text.measuretext japeserver.measurestring ta t

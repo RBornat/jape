@@ -161,7 +161,7 @@ module
                     (mappingstring termstring termliststring) termliststring
                     termliststring ","))
               ", " e
-    let pint : int -> string = makestring
+    let pint : int -> string = string_of_int
     let rec cxtstring =
       fun
         (Context
@@ -179,9 +179,9 @@ module
            ", "; "provisos=(";
            bracketedliststring visprovisostringall " AND " ps; ",";
            optionstring rewinfstring inf; "), "; "provisosig=";
-           makestring provisosig; ", "; "outside="; exteriorstring outside;
+           string_of_int provisosig; ", "; "outside="; exteriorstring outside;
            ", "; "usedVIDs="; bracketedliststring pid "," usedVIDs; ", ";
-           "nextresnum="; makestring nextresnum; "}"]
+           "nextresnum="; string_of_int nextresnum; "}"]
     
     let rec varmap = fun (Context {varmap = varmap}) -> varmap
     let rec resmap = fun (Context {resmap = resmap}) -> resmap

@@ -249,7 +249,7 @@ module
      *)
     let rec simplepat term =
       let idnum = ref 0 in
-      let rec mkid c = registerId (makestring !idnum, c) before inc idnum in
+      let rec mkid c = registerId (string_of_int !idnum, c) before inc idnum in
       let rec S t =
         match t with
           Id _ -> mkid FormulaClass
