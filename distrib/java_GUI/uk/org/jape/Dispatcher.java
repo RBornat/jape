@@ -76,10 +76,12 @@ public class Dispatcher extends Thread implements DebugConstants {
 
                     // string passing happens a lot, so put it early
                         if (p.equals("STRINGSIZE")&&len==3)
-                            Reply.reply(JapeFont.checkedMeasure(cmd[2], toByte(cmd[1])));
+                            Reply.reply(JapeFont.measure(cmd[2],
+                                            JapeFont.checkInterfaceFontnum(toByte(cmd[1]))));
                         else
                         if (p.equals("STRINGSIZE")&&len==2) // this can happen ... ask a stupid question
-                            Reply.reply(JapeFont.checkedMeasure("", toByte(cmd[1])));
+                            Reply.reply(JapeFont.measure("", 
+                                              JapeFont.checkInterfaceFontnum(toByte(cmd[1]))));
                         else
                         if (p.equals("DRAWSTRING")&&len==6)
                             ProofWindow.drawstring(toInt(cmd[1]), toInt(cmd[2]),    // x, y
@@ -109,7 +111,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                             
                     // FONTINFO not very often
                         if (p.equals("FONTINFO")&&len==2)
-                            Reply.reply(JapeFont.checkedFontMetrics(toByte(cmd[1])));
+                            Reply.reply(JapeFont.getFontMetrics(
+                                    JapeFont.checkInterfaceFontnum(toByte(cmd[1]))));
                         else
                         if (p.equals("FONTNAMES")&&len==1)
                             Reply.reply(JapeFont.getFontNames(Reply.stringSep));
@@ -280,6 +283,12 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
                             
                     // provisos and givens
+                        if (p.equals("CLEARPROVISOVIEW")&&len==1)
+                            ProofWindow.clearProvisoView();
+                        else
+                        if (p.equals("SHOWPROVISOLINE")&&len==2)
+                            ProofWindow.showProvisoLine(cmd[1]);
+                        else
                         if (p.equals("CLEARGIVENS")&&len==1)
                             list.removeAllElements();
                         else
@@ -288,9 +297,6 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
                         if (p.equals("SETGIVENS")&&len==1)
                             ProofWindow.setGivens((String[])list.toArray(new String[list.size()]));
-                        else
-                        if (p.equals("CLEARPROVISOVIEW")&&len==1)
-                            ProofWindow.clearProvisoView();
                         else
 
                     // selections of various kinds
