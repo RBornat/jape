@@ -240,7 +240,7 @@ public class JapeFont implements ProtocolConstants {
     public static String getFontNames(String sep) {
         initInterfaceFonts();
         String s = null;
-        for (int i=termFontNum; i<=provisoFontNum; i++) {
+        for (int i=TermFontNum; i<=ProvisoFontNum; i++) {
             Font f = interfaceFonts[i];
             s = (s==null ? "" : s+sep)+f.getFontName()+","+f.getStyle()+","+f.getSize();
         }
@@ -248,13 +248,13 @@ public class JapeFont implements ProtocolConstants {
     }
     
     public static void checkInterfaceFontnum(int fontnum) throws ProtocolError {
-        if (fontnum<termFontNum || fontnum>provisoFontNum)
+        if (fontnum<TermFontNum || fontnum>ProvisoFontNum)
             throw new ProtocolError("fontnum "+fontnum+" out of range");
     }
 
     private static void setInterfaceFonts(Font base) {
         interfaceFonts = new Font[3];
-        for (int i=termFontNum; i<=provisoFontNum; i++)
+        for (int i=TermFontNum; i<=ProvisoFontNum; i++)
             interfaceFonts[i] = deriveFont(base, Font.PLAIN, interfaceFontSizes[i]);
     }
 
@@ -272,7 +272,7 @@ public class JapeFont implements ProtocolConstants {
             initInterfaceFonts();
             interfaceMetrics = new FontMetrics[3];
             JLabel l = new JLabel();
-            for (int i=termFontNum; i<=provisoFontNum; i++) {
+            for (int i=TermFontNum; i<=ProvisoFontNum; i++) {
                 interfaceMetrics[i] = l.getFontMetrics(interfaceFonts[i]);
             }
         }
