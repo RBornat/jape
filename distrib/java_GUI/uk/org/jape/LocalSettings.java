@@ -30,10 +30,46 @@
 // or I don't know what else.
 
 import java.awt.Dimension;
-
 import java.awt.event.MouseEvent;
+import java.util.Properties;
+import java.io.FileInputStream;
 
 public class LocalSettings implements SelectionConstants {
+
+    static boolean debug = true;
+
+    private static Properties props = new Properties();
+
+    static
+    {
+       try
+       { // generalize me!
+         props.load(new FileInputStream("jape.properties"));
+         if (debug) System.err.println("Using ./jape.properties as configuration");
+         if (debug) props.list(System.err);
+       }
+       catch (Exception e)
+       {
+         if (debug) System.err.println("Using default configuration");
+       }
+        
+    }
+
+    static private byte getProp(String name, int defaultvalue)
+    { String val   = props.getProperty(name);
+      byte   value = (byte) defaultvalue;
+      if (val!=null) 
+      try
+      {   value = Byte.decode(val).byteValue();
+      }
+      catch (Exception e)
+      {  // should go to GUI, but we mayn't have one yet!
+         System.err.println(e + " property name: " + name);
+      }
+      if (debug) System.err.println(name + " = " + value);
+      return value;
+    }
+    
 
     // focus in panel windows
 
@@ -56,11 +92,12 @@ public class LocalSettings implements SelectionConstants {
 
     // size of fonts
     
-    public static final byte 	FormulaFontSize     = 18,
-                                ReasonFontSize      = 14,
-                                ProvisoFontSize     = 14,
-                                PanelButtonFontSize = 14,
-                                PanelEntryFontSize  = 14;
+    public static final byte 	FormulaFontSize     = getProp("formulasize",     18),
+                                defaultOtherSize    = getProp("othersize",       14),
+                                ReasonFontSize      = getProp("reasonsize",      defaultOtherSize),
+                                ProvisoFontSize     = getProp("provisosize",     defaultOtherSize),
+                                PanelButtonFontSize = getProp("panelbuttonsize", defaultOtherSize),
+                                PanelEntryFontSize  = getProp("panelentrysize",  defaultOtherSize);
 
     
     // spacing of tiles
@@ -93,4 +130,11 @@ public class LocalSettings implements SelectionConstants {
     // window titling
     
     public static final boolean UnicodeWindowTitles = false;
+
+    public static void main(String[] arg)
+    { debug = true;
+      new LocalSettings();
+    }
 }
+
+
