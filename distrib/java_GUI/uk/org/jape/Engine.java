@@ -58,7 +58,7 @@ public class Engine implements DebugConstants {
 		try {
 			fromEngine = new BufferedReader(new InputStreamReader(engine.getInputStream(), "UTF-8"));
 			toEngine = new BufferedWriter(new OutputStreamWriter(engine.getOutputStream(), "UTF-8"));
-			logEngine = new BufferedReader(new InputStreamReader(engine.getErrorStream(), "ISO-8859-1"));
+			logEngine = new BufferedReader(new InputStreamReader(engine.getErrorStream(), "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			Alert.abort("We don't support encoding "+JapeUtils.enQuote("UTF-8"));
 		}
