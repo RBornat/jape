@@ -3,6 +3,16 @@
 CONSTANT pass fail mod
 
 CONJECTUREPANEL "Programs"  IS
+  THEOREM IS 
+    {i=2} (i:=i+1) {i=3}
+  THEOREM WHERE i NOTIN j,t AND j NOTIN t IS 
+    {i=Ki∧j=Kj} (t:=i; i:=j; j:=t) {i=Kj∧j=Ki}
+  THEOREM WHERE i NOTIN j IS 
+    {i=Ki∧j=Kj} (i:=j; j:=i) {i=Kj∧j=Ki}
+  THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
+    {j=Kj∧k=Kk} if j>k then i:=j else i:= k fi {j=Kj∧k=Kk∧(j>k→i=Kj)∧(k≥j→i=Kk)}
+  THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
+    {j=Kj∧k=Kk} if j≥k then i:=j else i:= k fi {j=Kj∧k=Kk∧(j≥k→i=Kj)∧(k≥j→i=Kk)}
   THEOREM WHERE i NOTIN r IS 
     {i=Ki} if i≥40 then r:=pass else r:=fail fi {i=Ki∧(i<40→r=fail)∧(i≥40→r=pass)}
   THEOREM (OBJECT x) WHERE i NOTIN n IS
