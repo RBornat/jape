@@ -227,10 +227,11 @@ public class JapeMenu implements DebugConstants {
             return null;
         }
     }
+
+    private static final String RADIO_ICON_KEY = "RadioButtonMenuItem.checkIcon",
+                                CHECK_ICON_KEY = "CheckBoxMenuItem.checkIcon";
     
     protected static TitledMenuBar mkBar(boolean isProofBar) {
-        String RADIO_ICON_KEY = "RadioButtonMenuItem.checkIcon";
-        String CHECK_ICON_KEY = "CheckBoxMenuItem.checkIcon";
         Object radioIcon = UIManager.get(RADIO_ICON_KEY);
         Object checkIcon = UIManager.get(CHECK_ICON_KEY);
         TitledMenuBar bar = new TitledMenuBar();
@@ -238,7 +239,7 @@ public class JapeMenu implements DebugConstants {
             M m = (M)ebar.nextElement();
             if (!m.proofsonly || isProofBar) {
                 TitledMenu menu = new TitledMenu(m.title);
-                boolean isWindowMenu = m.title.equals("Window");
+                boolean isWindowMenu = LocalSettings.windowMenuItemsTicked && m.title.equals("Window");
                 ButtonGroup buttonGroup = isWindowMenu ? new ButtonGroup() : null;
                 if (isWindowMenu && radioIcon!=null && checkIcon!=null) {
                     // make RadioButtons which look like CheckBoxes
@@ -612,10 +613,12 @@ public class JapeMenu implements DebugConstants {
     }
 
     public static void windowActivated(String title, JapeWindow w) {
-        try {
-            tickItem(false, "Window", title, true);
-        } catch (ProtocolError e) {
-            Alert.abort("JapeMenu.windowActivated \""+title+"\"; windowmenu="+windowmenu);
+        if (LocalSettings.windowMenuItemsTicked) {
+            try {
+                tickItem(false, "Window", title, true);
+            } catch (ProtocolError e) {
+                Alert.abort("JapeMenu.windowActivated \""+title+"\"; windowmenu="+windowmenu);
+            }
         }
     }
         
