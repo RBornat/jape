@@ -34,11 +34,10 @@ module type T =
 
     type layout
     
-    val clearView : unit -> unit val viewBox : unit -> box
-    val layout : tree -> layout
-    val defaultpos : layout -> pos
-    val rootpos : layout -> pos
-    val postoinclude : box -> layout -> pos
+    val layout     : box -> tree -> layout
+    val defaultpos : box -> layout -> pos
+    val rootpos    : box -> layout -> pos
+    val postoinclude : box -> box -> layout -> pos (* viewport -> proof box -> layout -> pos *)
     val draw : int list option -> pos -> tree -> layout -> unit
     val print : out_channel -> int list option -> pos -> tree -> layout -> unit
     val locateHit :
@@ -49,6 +48,7 @@ module type T =
       (pos * displayclass) option -> (pos * displayclass) list ->
         pos * tree * layout -> unit
     val highlight : pos -> displayclass option -> unit
-    val targetbox : int list option -> layout -> textbox option
+    val targetbox : pos -> int list option -> layout -> textbox option
     val samelayout : layout * layout -> bool
+    val alltargets : pos -> layout -> (int list * textbox) list
   end
