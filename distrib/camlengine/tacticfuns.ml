@@ -67,6 +67,9 @@ open Thing
 open Treeformat.Fmt
 open Unify
 
+let tryresolution = Miscellaneous.tryresolution
+let resolvepossible = Miscellaneous.resolvepossible 
+
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception ParseError_  = Miscellaneous.ParseError_
 exception Selection_   = Selection.Selection_
@@ -532,10 +535,6 @@ let rec getSubtree parent goalopt =
 
 *)
 
-
-
-let tryresolution = ref true
-
 let rec getcxt = fun (Proofstate {cxt = cxt} as state) -> cxt
 
 let rec getconjecture =
@@ -682,29 +681,19 @@ let (apply, resolve, applyorresolve) =
     in
     check CutRule (Some [cst; cst; cst]) "cut"
       (fun _ -> check LeftWeakenRule (Some [cst; cst]) "left weaken" doit)
-  and applyorresolve
-    checker filter taker selhyps selconcs stuff reason cxt state =
-    (apply checker filter taker selhyps selconcs stuff reason cxt state |~~
-       (fun _ ->
-          let rec good =
-            fun (Seq (_, lhs, rhs)) ->
-              let elhs = explodeCollection lhs in
-              let erhs = explodeCollection rhs in
-              let hasstructure =
-                List.exists (not <.> isleafelement)
-              in
-              (not (null elhs) && not (null erhs)) &&
-              (hasstructure elhs || hasstructure erhs)
-          in
-          let
-            (kind, hiddens, how, env, principals, antes, conseq, provisos)
-            =
-            stuff
-          in
-          if null antes && good conseq then
-            resolve checker filter taker selhyps selconcs stuff reason cxt
-              state
-          else None))
+  and applyorresolve checker filter taker selhyps selconcs stuff reason cxt state =
+    (let good = fun (Seq (_, lhs, rhs)) ->
+                  let elhs = explodeCollection lhs in
+                  let erhs = explodeCollection rhs in
+                  let hasstructure = List.exists (not <.> isleafelement) in
+                  (not (null elhs) && not (null erhs)) && (hasstructure elhs || hasstructure erhs)
+     in
+     let (kind, hiddens, how, env, principals, antes, conseq, provisos) = stuff in
+     resolvepossible := null antes && good conseq;
+     apply checker filter taker selhyps selconcs stuff reason cxt state |~~
+       (fun _ -> (if !resolvepossible (* user can cancel this *) then
+                    resolve checker filter taker selhyps selconcs stuff reason cxt state
+                  else None)))
   in
   apply, resolve, applyorresolve
 
