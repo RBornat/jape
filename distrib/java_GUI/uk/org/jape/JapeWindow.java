@@ -57,9 +57,12 @@ public class JapeWindow extends JFrame {
 
     private void init(final String title, int proofnum) {
         windowv.add(this);
-        addWindowListener(new WindowAdapter() {
-            public void windowActivated(WindowEvent e) { JapeMenu.windowActivated(titleForMenu(), JapeWindow.this); }
-        });
+        if (LocalSettings.windowMenuItemsTicked)
+            addWindowListener(new WindowAdapter() {
+                public void windowActivated(WindowEvent e) {
+                        JapeMenu.windowActivated(titleForMenu(), JapeWindow.this);
+                }
+            });
         JapeMenu.windowAdded(titleForMenu(proofnum), this);
     }
 
