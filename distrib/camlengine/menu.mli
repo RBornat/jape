@@ -34,9 +34,13 @@ type menudata =
 type paneldata =
     Pentry       of (name * string)
   | Pbutton      of (name * panelbuttoninsert list)
-  | Pcheckbox    of (name * name * (string * string) * string option)
-  | Pradiobutton of (name * (name * string) list * string option)
-                (* variable  label  cmd            default cmd *)
+  (* these are not used any more: I don't know how they could be treated in the GUI;
+                                  they were never used, so far as I know.
+                                  RB 30/xi/2002
+     | Pcheckbox    of (name * name * (string * string) * string option)
+     | Pradiobutton of (name * (name * string) list * string option)
+                   (* variable  label  cmd            default cmd *)
+   *)
 
 val addmenu       : bool -> name -> unit
 val addmenudata   : name -> menudata list -> unit
@@ -64,7 +68,6 @@ val menuitemiter :
 	(name * string -> unit) -> ((name * string) list -> unit) ->
 	(unit -> unit) -> unit
 val panelitemiter :
-  name -> (name * string -> unit) ->
-	(name * panelbuttoninsert list -> unit) -> (name * string -> unit) ->
-	((name * string) list -> unit) -> unit
+  name -> (name * string -> unit) -> (name * panelbuttoninsert list -> unit) 
+    (* -> (name * string -> unit) -> ((name * string) list -> unit) *) -> unit
 

@@ -118,9 +118,10 @@ val newpanel : string -> panelkind -> unit
 
 val panelentry       : string -> string -> string -> unit
 val panelbutton      : string -> string -> panelbuttoninsert list -> unit
-val panelcheckbox    : string -> string -> string -> unit
-val panelradiobutton : string -> (string * string) list -> unit
-val setpanelbutton   : string -> string -> bool -> unit
+(* val panelcheckbox    : string -> string -> string -> unit
+   val panelradiobutton : string -> (string * string) list -> unit
+   val setpanelbutton   : string -> string -> bool -> unit
+ *)
 val selectpanelentry : string -> string -> unit
 val markpanelentry   : string -> string -> (bool * bool) -> unit
 

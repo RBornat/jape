@@ -143,11 +143,12 @@ let rec reloadmenusandpanels markconjecture oplist =
                   | _ -> ())
              (fun (name, cmd) -> (* button *)
                 Japeserver.panelbutton panelstring (namestring name) cmd)
-             (fun (label, cmd) -> (* checkbox *)
-                Japeserver.panelcheckbox panelstring (namestring label) cmd)
-             (fun lcs -> (* radio button *)
-                Japeserver.panelradiobutton panelstring
-                   (List.map (fun (n, v) -> namestring n, v) lcs)));
+             (* (fun (label, cmd) -> (* checkbox *)
+                   Japeserver.panelcheckbox panelstring (namestring label) cmd)
+                (fun lcs -> (* radio button *)
+                   Japeserver.panelradiobutton panelstring
+                      (List.map (fun (n, v) -> namestring n, v) lcs))
+              *));
       Japeserver.mapmenus true;
       let _ = Japeserver.echo "" (* synchronise *) in ()
     with
@@ -162,7 +163,7 @@ let rec markproof cmd proved =
            (fun (label, entry) ->
               if entry = cmd then
                 Japeserver.markpanelentry (namestring panel) entry proved)
-           (fun _ -> ()) (fun _ -> ()) (fun _ -> ())
+           (fun _ -> ()) (* (fun _ -> ()) (fun _ -> ()) *)
      | panel, _ -> ())
 
 let rec initButtons () =
@@ -180,8 +181,6 @@ let rec initButtons () =
      _E ("Prune", None, "prune"); 
      ( -------- );
      _E ("Unify selected terms", None, "unify"); 
-     ( -------- );
-     _E ("Refresh", None, "refreshdisplay"); 
      ( -------- );
      _E ("Hide/Show subproof", None, "collapse");
      _E ("Expand/Contract detail", None, "layout"); 

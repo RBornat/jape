@@ -49,9 +49,13 @@ type menudata =
 type paneldata =
     Pentry       of (name * string)
   | Pbutton      of (name * panelbuttoninsert list)
-  | Pcheckbox    of (name * name * (string * string) * string option)
-  | Pradiobutton of (name * (name * string) list * string option)
-                (* variable  label  cmd            default cmd *)
+  (* these are not used any more: I don't know how they could be treated in the GUI;
+                                  they were never used, so far as I know.
+                                  RB 30/xi/2002
+     | Pcheckbox    of (name * name * (string * string) * string option)
+     | Pradiobutton of (name * (name * string) list * string option)
+                   (* variable  label  cmd            default cmd *)
+   *)
 
 type pentry = string * string
 
@@ -86,8 +90,9 @@ let rec paneldatastring =
       "Pbutton " ^
         pairstring namestring
           (bracketedliststring panelbuttoninsertstring ",") "," pb
-  | Pcheckbox pc -> "Pcheckbox " ^ checkboxstring pc
-  | Pradiobutton pr -> "Pradiobutton " ^ radiobuttonstring pr
+  (* | Pcheckbox pc -> "Pcheckbox " ^ checkboxstring pc
+     | Pradiobutton pr -> "Pradiobutton " ^ radiobuttonstring pr
+   *)
 
 (* Order of insertion no longer exploits the details of mapping implementation.
  * There is a lot of silliness in what follows, which attempts to keep things
@@ -203,15 +208,17 @@ let rec addtopanel e (k, em, bs as stuff) =
     match e with
       Pentry (label, _) -> Some [label]
     | Pbutton (label, _) -> Some [label]
-    | Pcheckbox (label, _, _, _) -> Some [label]
-    | Pradiobutton (_, lcs, _) -> Some ((fst <* lcs))
+    (* | Pcheckbox (label, _, _, _) -> Some [label]
+       | Pradiobutton (_, lcs, _) -> Some ((fst <* lcs))
+     *)
   in
   let rec vf e =
     match e with
       Pentry (_, _) -> None
     | Pbutton (_, _) -> None
-    | Pcheckbox (_, var, _, _) -> Some var
-    | Pradiobutton (var, _, _) -> Some var
+    (* | Pcheckbox (_, var, _, _) -> Some var
+       | Pradiobutton (var, _, _) -> Some var
+     *)
   in
   match e with
     Pentry (label, cmd) ->
@@ -285,16 +292,17 @@ let rec menuitemiter m ef cbf rbf sf =
     Some (_, es) -> List.iter tran es
   | None -> ()
 
-let rec panelitemiter p ef bf cbf rbf =
+let rec panelitemiter p ef bf (* cbf rbf *) =
   let rec tran e =
     match e with
       Pentry pe -> ef pe
     | Pbutton be -> bf be
-    | Pcheckbox (var, label, (val1, val2), _) ->
-        cbf (label, assignvarval var val1)
-    | Pradiobutton (var, lcs, _) ->
-        rbf
-          ((fun (label, vval) -> label, assignvarval var vval) <* lcs)
+    (* | Pcheckbox (var, label, (val1, val2), _) ->
+           cbf (label, assignvarval var val1)
+       | Pradiobutton (var, lcs, _) ->
+           rbf
+             ((fun (label, vval) -> label, assignvarval var vval) <* lcs)
+     *)
   in
   match getpaneldata p with
     Some es -> List.iter tran es

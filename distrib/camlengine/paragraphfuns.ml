@@ -55,7 +55,7 @@ let seqstring = Sequent.Funs.seqstring
 let seqvars = Sequent.Funs.seqvars Term.Funs.termvars Term.Funs.tmerge
 let setfontstuff = Button.setfontstuff
 let setmenuentry = Japeserver.menuentry
-let setpanelbutton = Japeserver.setpanelbutton
+(* let setpanelbutton = Japeserver.setpanelbutton *)
 let tacticstring = Tactic.tacticstring
 let termstring = Term.Termstring.termstring
 let thawsaved = Proofstore.thawsaved
@@ -286,21 +286,23 @@ let rec interpret
 	  let rec process (pp, (env, buttonfns, pes, pps)) =
 		match pp with
 		  Panelstuff e ->
-			begin match e with
-			  Pcheckbox (var, label, _, _ as stuff) ->
-				let (env, basefn) = processCheckBox env stuff in
-				let rec tickfn tf =
-				  setpanelbutton (namestring plabel) (namestring label) tf
-				in
-				env, (var, basefn tickfn) :: buttonfns, e :: pes, pps
-			| Pradiobutton (var, _, _ as stuff) ->
-				let (env, basefn) = processRadioButton env stuff in
-				let rec tickfn (label, tf) =
-				  setpanelbutton (namestring plabel) (namestring label) tf
-				in
-				env, (var, basefn tickfn) :: buttonfns, e :: pes, pps
-			| _ -> env, buttonfns, e :: pes, pps
-			end
+		     (*
+               begin match e with
+                 Pcheckbox (var, label, _, _ as stuff) ->
+                   let (env, basefn) = processCheckBox env stuff in
+                   let rec tickfn tf =
+                     setpanelbutton (namestring plabel) (namestring label) tf
+                   in
+                   env, (var, basefn tickfn) :: buttonfns, e :: pes, pps
+               | Pradiobutton (var, _, _ as stuff) ->
+                   let (env, basefn) = processRadioButton env stuff in
+                   let rec tickfn (label, tf) =
+                     setpanelbutton (namestring plabel) (namestring label) tf
+                   in
+                   env, (var, basefn tickfn) :: buttonfns, e :: pes, pps
+               | _ -> env, buttonfns, e :: pes, pps
+               end
+              *) env, buttonfns, e :: pes, pps
 		| Panelpara p ->
 			env, buttonfns,
 			entrynames ["Panel "; namestring plabel] tacentry (p, pes),

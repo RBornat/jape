@@ -837,18 +837,18 @@ and parseTacticEntry report =
 
 and parseConjecturePanel report query =
   parsePanel report query ConjecturePanelkind
-    ["ENTRY"; "BUTTON"; "RADIOBUTTON"; "CHECKBOX"]
+    ["ENTRY"; "BUTTON" (*; "RADIOBUTTON"; "CHECKBOX"*)]
     ["THEOREM"; "THEOREMS"; "DERIVED"; "PROOF"; "CURRENTPROOF"]
 
 and parseTacticPanel report query =
   parsePanel report query TacticPanelkind
-    ["ENTRY"; "BUTTON"; "RADIOBUTTON"; "CHECKBOX"]
+    ["ENTRY"; "BUTTON" (*; "RADIOBUTTON"; "CHECKBOX"*)]
     ["THEORY"; "RULE"; "RULES"; "DERIVED"; "TACTIC"; "THEOREM";
      "THEOREMS"; "PROOF"; "CURRENTPROOF"]
 
 and parseGivenPanel report query =
   parsePanel report query GivenPanelkind
-    ["BUTTON"; "RADIOBUTTON"; "CHECKBOX"] []
+    ["BUTTON" (*; "RADIOBUTTON"; "CHECKBOX"*)] []
 
 and parsePanel report query panelkind entrystarters parastarters =
   let starters = entrystarters @ parastarters in
@@ -894,15 +894,13 @@ and parsePanel report query panelkind entrystarters parastarters =
             | cs -> cs
           in
           Panelstuff (Pbutton (itemname, itemcmd))
-      | SHYID "RADIOBUTTON" ->
-          scansymb ();
-          Panelstuff (parseRadioButton report query (fun v->Pradiobutton v))
-      | SHYID "CHECKBOX" ->
-          scansymb (); Panelstuff (parseCheckBox report query (fun v->Pcheckbox v))
-      | sy ->
-          raise
-            (Catastrophe_
-               ["internal error in parsePanel -- "; symbolstring sy])
+      (* | SHYID "RADIOBUTTON" ->
+             scansymb ();
+             Panelstuff (parseRadioButton report query (fun v->Pradiobutton v))
+         | SHYID "CHECKBOX" ->
+             scansymb (); Panelstuff (parseCheckBox report query (fun v->Pcheckbox v))
+       *)
+      | sy -> raise (Catastrophe_ ["internal error in parsePanel -- "; symbolstring sy])
   in
   let plabel = currsymb_as_name () in
   let _ = ignore _ISWORD in

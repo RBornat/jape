@@ -480,20 +480,22 @@ let rec panelbutton name label cmd =
             ) cmd;
   writef "PANELBUTTONEND\n" []
 
-let rec panelcheckbox name label prefix =
-  writef "PANELCHECKBOX % % % \n" [Str name; Str label; Str prefix]
-
-let rec panelradiobutton name labelcomlist =
-  writef "PANELRADIOBUTTON\n" [];
-  List.iter
-    (fun (l, c) ->
-       writef "PANELRADIOBUTTONPART % % %\n" [Str name; Str l; Str c])
-    labelcomlist;
-  writef "PANELRADIOBUTTONEND %\n" [Str name]
-
-let rec setpanelbutton name label value =
-  writef "SETPANELBUTTON % % %\n"
-    [Str name; Str label; Bool value]
+(*
+    let rec panelcheckbox name label prefix =
+      writef "PANELCHECKBOX % % % \n" [Str name; Str label; Str prefix]
+    
+    let rec panelradiobutton name labelcomlist =
+      writef "PANELRADIOBUTTON\n" [];
+      List.iter
+        (fun (l, c) ->
+           writef "PANELRADIOBUTTONPART % % %\n" [Str name; Str l; Str c])
+        labelcomlist;
+      writef "PANELRADIOBUTTONEND %\n" [Str name]
+    
+    let rec setpanelbutton name label value =
+      writef "SETPANELBUTTON % % %\n"
+        [Str name; Str label; Bool value]
+ *)
 
 let rec selectpanelentry name label =
   writef "SELECTPANELENTRY % %\n" [Str name; Str label]
@@ -655,9 +657,6 @@ let rec getAllSelections () =
   let textsel = getTextSelection () in
   let formsel = getFormulaSelection () in
   let givensel = getGivenSelection () in formsel, textsel, givensel
-
-let rec setOrigin p =
-  let (x, y) = explodePos p in writef "SETORIGIN % %\n" [Int x; Int y]
 
 let rec dragtargets (segvars : string list) =
   writef "DROPBEGIN\n" [];
