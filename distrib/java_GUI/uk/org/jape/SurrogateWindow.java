@@ -56,6 +56,6 @@ public class SurrogateWindow extends JapeWindow {
                     japeserver.screenBounds.height/2-getHeight()/2);
         setSize(getWidth()+60, getHeight()+60);
         setBar(); // by experiment, seems to be necessary before setVisible
-        setVisible(true);
+        // no setVisible here ...
     }
 }
