@@ -1094,10 +1094,10 @@
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			lineEnding = 0;
-			name = Preferences.java;
-			path = ../../java_GUI/uk/org/jape/Preferences.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
+			name = JapePrefs.java;
+			path = /Users/richard/cvsdownloads/jape/distrib/java_GUI/uk/org/jape/JapePrefs.java;
+			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		791C738E05DCEDE00086E5C6 = {
 			fileEncoding = 30;
