@@ -183,7 +183,7 @@ public class Dispatcher extends Thread {
                             ProofWindow.clearPane(toByte(command[1]));
                         else
                         if (p.equals("DRAWINPANE")&&len==2)
-                            ProofWindow.drawInPane(JapeFont.toUnicode(command[1]));
+                            ProofWindow.drawInPane(toByte(command[1]));
                         else
                         if (p.equals("CLEARGIVENS")&&len==1)
                             list.removeAllElements();
@@ -191,7 +191,7 @@ public class Dispatcher extends Thread {
                         if (p.equals("GIVEN")&&len==3) {
                             int i = toInt(command[1]);
                             if (i!=list.size())
-                                throw (new ProtocolError("given "+i+" shouldabeen "+list.size()));
+                                throw new ProtocolError("given "+i+" shouldabeen "+list.size());
                             list.add(JapeFont.toUnicode(command[2]));
                         }
                         else
@@ -200,6 +200,9 @@ public class Dispatcher extends Thread {
                         else
                         if (p.equals("CLEARPROVISOVIEW")&&len==1)
                             ProofWindow.clearProvisoView();
+                        else
+                        if (p.equals("GETTEXTSELECTIONS")&&len==1)
+                            ProofWindow.reportTextSelections();
                         else
                         
                     // OPERATOR .. deal with the keyboard in some dialogue boxes
@@ -334,7 +337,7 @@ kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
         try {
             return Integer.parseInt(s);
         } catch (Exception e) {
-            throw (new ProtocolError ("\""+s+"\" can't be read as an integer"));
+            throw new ProtocolError ("\""+s+"\" can't be read as an integer");
         }
     }
 
@@ -343,7 +346,7 @@ kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
         if (Short.MIN_VALUE<=i && i<=Short.MAX_VALUE)
             return (short)i;
         else
-            throw (new ProtocolError ("\""+s+"\" outside range of Java short"));
+            throw new ProtocolError ("\""+s+"\" outside range of Java short");
     }
 
     private byte toByte(String s) throws ProtocolError {
@@ -351,7 +354,7 @@ kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
         if (Byte.MIN_VALUE<=i && i<=Byte.MAX_VALUE)
             return (byte)i;
         else
-            throw (new ProtocolError ("\""+s+"\" outside range of Java byte"));
+            throw new ProtocolError ("\""+s+"\" outside range of Java byte");
     }
 
     private boolean toBool(String s) throws ProtocolError {
@@ -361,13 +364,13 @@ kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
         if (s.equals("F")) 
             return false; 
         else
-            throw (new ProtocolError ("\""+s+"\" can't be read as a boolean "+
-                                      "(it's neither \"T\" nor \"F\")"));
+            throw new ProtocolError ("\""+s+"\" can't be read as a boolean "+
+                                      "(it's neither \"T\" nor \"F\")");
     }
     
     private char toChar(String s) throws ProtocolError {
         if (s.length()==1)
             return s.charAt(0);
-        throw (new ProtocolError ("\""+s+"\" is not a single char string"));
+        throw new ProtocolError ("\""+s+"\" is not a single char string");
     }
 }
