@@ -1,10 +1,9 @@
 (* $Id$ *)
-
-module type Sidetype = sig type side = Left | Right end
    
-module type Hit =
+module type T =
   sig
-    type element and side
+    type element
+    
     (* Hits are what drawing packages (treedraw, boxdraw, and one day etc.) translate
      * clicks into.  They are also used to locate text selections.  Only conclusions are
      * treated with the transitivity transformation, so only conclusion clicks can be
@@ -23,6 +22,7 @@ module type Hit =
         ConcHit of ('a * (element * side option))
       | HypHit of ('a * element)
       | AmbigHit of (('a * (element * side option)) * ('a * element))
+    and side = Left | Right 
     (* In box display at least, a single displayed element may play more than one 
      * role. hitkind (should perhaps be hitpathkind) allows us to choose which we want.
      *)
@@ -59,10 +59,20 @@ module type Hit =
   end
 (* $Id$ *)
 
-module  :
-  sig include Sidetype include Hit end =
+module M : T with type element = Term.Funs.element =
   struct
-    type element = element
+    open SML.M
+	
+	type element = Term.Funs.element
+	
+	let bracketedliststring = Listfuns.M.bracketedliststring
+	let elementstring       = Term.Termstring.smlelementstring Term.Termstring.termstring
+	let optionmap           = Optionfuns.M.optionmap
+	let optionstring        = Optionfuns.M.optionstring
+	let pairstring          = Stringfuns.M.pairstring
+	let triplestring        = Stringfuns.M.triplestring
+	let sextuplestring      = Stringfuns.M.sextuplestring
+
     type side = Left | Right
     type 'a hit = FormulaHit of 'a fhit | ReasonHit of 'a
     and 'a fhit =
@@ -88,7 +98,7 @@ module  :
       | ReasonHit p -> Some p
     let rec selpath =
       function
-        FormulaSel f -> Some (fst f)
+        FormulaSel f -> Some (fst_of_6 f)
       | TextSel (ths, _) ->
           begin match
             optionmap (fhitpath <*> fst) ths

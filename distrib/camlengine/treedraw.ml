@@ -2,16 +2,54 @@
 
 (* draw a Gentzen tree *)
 
-module M : Screendraw.T =
+module M : Screendraw.T with type displayclass = Displayclass.M.displayclass
+                         and type pos = Draw.M.pos
+                         and type textbox = Draw.M.textbox
+                         and type 'a hit = 'a Hit.M.hit
+                         and type box = Draw.M.box
+                         and type hitkind = Hit.M.hitkind
+                         and type size = Draw.M.size
+                         and type tree = Absprooftree.M.tree
+=
   struct
-    open Box
-    open Draw
-    open Displayclass
-    open Displayfont
-    open Hit
-    open Seqdraw
-    open Tree
+    open Absprooftree.M
+    open Box.M
+    open Displayclass.M
+    open Displayfont.M
+    open Draw.M
+    open Hit.M
+    open Seqdraw.M
+    open SML.M
     
+    type 'a plan = 'a Draw.M.plan
+     and displayclass = Displayclass.M.displayclass
+     and pos = Draw.M.pos
+     and seq = Sequent.Funs.seq
+     and textbox = Draw.M.textbox
+     and 'a hit = 'a Hit.M.hit
+     and box = Draw.M.box
+     and element = Draw.M.element
+     and hitkind = Hit.M.hitkind
+     and size = Draw.M.size
+     and tree = Absprooftree.M.tree
+
+    let (&~~) = Optionfuns.M.(&~~)
+    let (<*) = Listfuns.M.(<*)
+    let (<|) = Listfuns.M.(<|)
+    let (|||) = Listfuns.M.(|||)
+    let clearView = Draw.M.clearView
+    let consolereport = Miscellaneous.M.consolereport
+    let elementstring = Term.Termstring.elementstring
+    let elementstring_invisbracketed = Term.Termstring.elementstring_invisbracketed
+    let highlight = Draw.M.highlight
+    let last = Listfuns.M.last
+    let liststring = Listfuns.M.liststring
+    let turnstiles = Sequent.Funs.syntacticturnstiles
+    let uncurry2 = Miscellaneous.M.uncurry2
+    let viewBox = Draw.M.viewBox
+           
+    exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+
     (* we have a new way of putting trees next to each other, so that they are as 
      * close as may be.  Essentially, we make sure that no formula is too close to the
      * formula to its left or right, even though this may mean that it is overhung by lines
@@ -25,12 +63,15 @@ module M : Screendraw.T =
     type outline = (int * int) list
     (* L, R boundaries *)
            
-    type treeplan =
-        Treeplan of
-          < proofbox : box; proofoutline : outline;
+    type treeplanrec =
+          { proofbox : box; proofoutline : outline;
             seqplan : planclass plan list; seqbox : textbox;
             reasonplan : planclass plan option; linebox : (bool * box) option;
-            subplans : (pos * treeplan) list; linethickness : int >
+            subplans : (pos * treeplan) list; linethickness : int }
+    and treeplan = Treeplan of treeplanrec
+    
+    type layout = treeplan
+    
     let rec shiftoutline indent (ys : outline) =
       ((fun (l, r) -> l + indent, r + indent) <* ys)
     let rec place subh gap =
@@ -47,14 +88,14 @@ module M : Screendraw.T =
         let rec m3 f xs =
           match xs with
             _ :: _ ->
-              let rec MAX ys zs = (f <* zip (ys, zs)) in
-              let m2 = MAX (xs, List.tl xs) in
-              MAX ((List.hd xs :: m2), (m2 @ [last xs]))
+              let rec _MAX ys zs = (f <* (ys|||zs)) in
+              let m2 = _MAX xs (List.tl xs) in
+              _MAX (List.hd xs :: m2) (m2 @ [last xs])
           | _ -> xs
         in
         let rs = m3 (uncurry2 max) ((snd <* alloutline)) in
         let ls = m3 (uncurry2 min) ((fst <* proofoutline)) in
-        let offset = nj_fold (uncurry2 max) ((fo <* zip (rs, ls))) 0 in
+        let offset = nj_fold (uncurry2 max) ((fo <* (rs|||ls))) 0 in
         (* doesn't take account of indentation; bound to be 0 if rs is null *)
         let newpos = pos (offset, subh - sH (bSize proofbox)) in
         let newbox = box (newpos, bSize proofbox) in
@@ -76,7 +117,7 @@ module M : Screendraw.T =
       let hspace = max (20) (10 * leading)
       (* was 30,15*leading, seemed a bit excessive *)
       and vspace = leading in
-      let linethickness = draw.linethickness leading in
+      let linethickness = Draw.M.linethickness leading in
       let _ = setproofparams "tree" linethickness in
       (* do this early, so GUIs are ready for anything *)
 
@@ -85,7 +126,7 @@ module M : Screendraw.T =
       let sequentplan =
         makeseqplan elementstring_invisbracketed showturnstiles
       in
-      let rec TP t =
+      let rec _TP t =
         let s = sequent t in
         let r = reason t in
         let isMulti = ismultistep t in
@@ -93,7 +134,7 @@ module M : Screendraw.T =
         let thickness =
           if isMulti then 3 * linethickness else linethickness
         in
-        let subps = List.map TP (subtrees t) in
+        let subps = List.map _TP (subtrees t) in
         let (seqplan, seqbox) = sequentplan origin s in
         let (reasonsize, _ as reasoninf) =
           match r with
@@ -164,69 +205,31 @@ module M : Screendraw.T =
           box (pos (superindent, supery), size (superw, superh))
         in
         let seqoutline = superindent, superindent + superw in
-        Treeplan
-          (let module M =
-             struct
-               class a =
-                 object
-                   val proofbox = ( +||+ ) (subbox, superbox)
-                   val seqplan = seqplan
-                   val seqbox =
-                     textbox
-                       (pos (seqindent, supery + superh - tsD seqsize),
-                        seqsize)
-                   val proofoutline =
-                     match r with
-                       None -> [seqoutline]
-                     | _ ->
-                         seqoutline :: (sublineleft, sublineright) ::
-                           suboutline
-                   val reasonplan =
-                     match r with
-                       None -> None
-                     | Some _ ->
-                         let rplan =
-                           textinfo2plan reasoninf ReasonClass
-                             (pos (reasonindent, supery + tsA reasonsize))
-                         in
-                         Some rplan
-                   val linebox =
+        Treeplan { proofbox = ( +||+ ) (subbox, superbox); seqplan = seqplan;
+                   seqbox = textbox (pos (seqindent, supery + superh - tsD seqsize), seqsize);
+                   proofoutline = (match r with
+									 None -> [seqoutline]
+								   | _ -> seqoutline :: (sublineleft, sublineright) :: suboutline);
+                   reasonplan = (match r with
+								   None -> None
+								 | Some _ ->
+									 let rplan =
+									   textinfo2plan reasoninf ReasonClass
+										 (pos (reasonindent, supery + tsA reasonsize))
+									 in Some rplan);
+                   linebox =
                      if reasonw = 0 then None
-                     else
-                       Some
-                         (isMulti,
-                          box
-                            (pos
-                               (sublineleft, supery - vspace - linethickness),
-                             size
-                               (sublineright - sublineleft, linethickness)))
-                   val subplans = subplans
-                   val linethickness = linethickness
-                   method proofbox = proofbox
-                   method seqplan = seqplan
-                   method seqbox = seqbox
-                   method proofoutline = proofoutline
-                   method reasonplan = reasonplan
-                   method linebox = linebox
-                   method subplans = subplans
-                   method linethickness = linethickness
-                 end
-             end
-           in
-           new M.a)
+                     else Some (isMulti, box (pos (sublineleft, supery - vspace - linethickness),
+                                              size (sublineright - sublineleft, linethickness)));
+                   subplans = subplans; linethickness = linethickness }
       in
-      TP proof
-    let rec FIRSTOFN =
-      fun P xs ->
-        let rec F a1 a2 =
-          match a1, a2 with
-            n, [] -> None
-          | n, x :: xs ->
-              match P (n, x) with
-                None -> F ((n + 1), xs)
-              | result -> result
-        in
-        F (0, xs)
+      _TP proof
+    let rec _FIRSTOFN  _P xs =
+      let rec _F a1 a2 =
+		match a1, a2 with n, []      -> None
+		|                 n, x :: xs -> match _P (n, x) with None   -> _F (n + 1) xs
+										|                    result -> result
+	  in _F 0 xs
     let rec elinfo plan =
       match planinfo plan with
         ElementClass info -> Some info
@@ -261,10 +264,9 @@ module M : Screendraw.T =
           then
             Some (ReasonHit (List.rev path))
           else
-            FIRSTOFN
-              ((fun (n, (pos', plan)) ->
-                  pos2hit (( +<-+ ) (pos, pos')) (n :: path) plan),
-               subplans)
+            _FIRSTOFN
+               (fun (n, (pos', plan)) -> pos2hit (( +<-+ ) (pos, pos')) (n :: path) plan)
+               subplans
         else None
     let rec locateHit pos _ _ (prooforigin, proof, plan) =
       pos2hit (( +<-+ ) (pos, prooforigin)) [] plan
@@ -309,17 +311,13 @@ module M : Screendraw.T =
      * If the new proof is the same as the old, nothing is drawn.
      *)
 
-    let rec FORNUMBERED f xs =
-      let rec F a1 a2 =
-        match a1, a2 with
-          n, [] -> ()
-        | n, x :: xs -> f (n, x); F ((n + 1), xs)
-      in
-      F (0, xs)
+    let rec _FORNUMBERED f xs =
+      let rec _F a1 a2 = match a1, a2 with  n, []      -> ()
+						 |                  n, x :: xs -> f (n, x); _F (n + 1) xs
+      in _F 0 xs	
     let rec samepath =
-      function
-        None, _ -> false
-      | Some p1, p2 -> p1 = p2
+      function None   , _  -> false
+      |        Some p1, p2 -> p1 = p2
     let rec revgoal =
       function
         None -> None
@@ -331,7 +329,7 @@ module M : Screendraw.T =
     let rec draw goal pos proof =
       fun (Treeplan {linethickness = linethickness} as plan) ->
         let rgoal = revgoal goal in
-        let rec D =
+        let rec _D =
           fun
             (Treeplan
                {seqplan = seqplan;
@@ -360,43 +358,27 @@ module M : Screendraw.T =
                 highlight (seqelementpos p seqbox plan) (Some DisplayConc)
             | _ -> ()
             end;
-            FORNUMBERED
-              ((fun (n, (stp, st)) -> D (st, ( +->+ ) (p, stp), (n :: here))),
-               subplans)
+            _FORNUMBERED
+               (fun (n, (stp, st)) -> _D st (( +->+ ) (p, stp)) (n :: here))
+               subplans
         in
-        drawinproofpane (); D (plan, pos, [])
+        drawinproofpane (); _D plan pos []
     let rec print str goal pos proof plan =
       let rgoal = revgoal goal in
-      let rec out s = output (str, s) in
+      let out = output_string str in
       let rec outplan p = out "\""; outesc (plan2string p); out "\" "
-      and outesc s = List.iter outch (String.explode s)
-      and outch c =
-        output
-          (str,
-           (match c with
-              "\"" -> "\\\""
-            | _ -> c))
-      in
-      let rec outsp n =
-        if n = 0 then () else begin out " "; outsp (n - 1) end
-      in
-      let rec D =
-        fun
-          (Treeplan
-             {seqplan = seqplan;
-              reasonplan = reasonplan;
-              linebox = linebox;
-              subplans = subplans;
-              seqbox = seqbox})
-          p here ->
+      and outesc s = List.iter outch (SML.M.explode s)
+      and outch c = out (match c with "\"" -> "\\\"" | _ -> c) in
+      let rec outsp n = if n = 0 then () else (out " "; outsp (n - 1)) in
+      let rec _D (Treeplan {seqplan = seqplan; reasonplan = reasonplan; linebox = linebox;
+							subplans = subplans; seqbox = seqbox})
+				 p here =
           out "(BY ";
           begin match reasonplan with
             Some p -> outplan p
           | None -> out "\"\" "
           end;
-          out "(PROVE ";
-          List.iter outplan seqplan;
-          out ") ";
+          out "(PROVE "; List.iter outplan seqplan; out ") ";
           (*            
           case linebox of None => () | Some b => drawLine (bOffset b p);
           case (samepath(rgoal,here), elementofclass DisplayConc <| seqplan of
@@ -404,18 +386,15 @@ module M : Screendraw.T =
                highlight (seqelementpos p seqbox plan) DisplayConc
           | _ => ();
           *)
-          out "\n";
-          outsp p;
-          out "(FROM ";
-          FORNUMBERED
-            ((fun (n, (stp, st)) ->
-                out "\n"; outsp p; D (st, (p + 2), (n :: here))),
-             subplans);
+          out "\n"; outsp p; out "(FROM ";
+          _FORNUMBERED
+             (fun (n, (stp, st)) -> out "\n"; outsp p; _D st (p + 2) (n :: here))
+             subplans;
           out "))\n"
       in
-      D (plan, 0, [])
+      _D plan 0 []
     let rec targetbox path plan =
-      let rec P a1 a2 a3 =
+      let rec _P a1 a2 a3 =
         match a1, a2, a3 with
           [], Treeplan {seqbox = seqbox}, pos -> Some (tbOffset seqbox pos)
         | n :: ns, Treeplan {subplans = subplans}, pos ->
@@ -424,12 +403,12 @@ module M : Screendraw.T =
             | _ ->
                 try
                   let (sp, s) = List.nth (subplans) (n) in
-                  P (ns, s, ( +->+ ) (pos, sp))
+                  _P ns s (( +->+ ) (pos, sp))
                 with
                   Failure "nth" -> None
       in
       match path with
-        Some route -> P (route, plan, origin)
+        Some route -> _P route plan origin
       | None -> None
     let rec defaultpos =
       fun (Treeplan {seqbox = seqbox}) ->
@@ -444,8 +423,9 @@ module M : Screendraw.T =
               sH screensize - tsD seqsize - 1),
            seqpos),
         screen
+    
     let layout = maketreeplan
-    type layout = treeplan
+
     let rec postoinclude box =
       fun (Treeplan {proofbox = proofbox} as layout) ->
         let (defpos, screen) = defaultpos layout in

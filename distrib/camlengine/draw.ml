@@ -2,20 +2,12 @@
 
 module type T =
   sig
-    type text
-    and textlayout
-    and textalign
-    and textsize
-    and pos
-    and size
-    and box
-    and textbox
-    and font
-    and displayclass
-    and element
-    and term
-    and reason
+    type text and textlayout and textalign and textsize
+    and pos and size and box and textbox
+    and font and displayclass and element and term and reason
+    
     type 'a plan = Formulaplan of (textlayout * textbox * 'a)
+    
     val measuretext : textalign -> text -> textsize * textlayout
     val drawinproofpane : unit -> unit
     val drawLine : box -> unit
@@ -74,18 +66,68 @@ module type T =
 
 *)
 
-module M : T =
+module M : T with type term       = Term.Funs.term
+			  and type element    = Term.Funs.element
+			  and type reason     = Absprooftree.M.reason
+	          and type textlayout = Text.M.textlayout
+			  and type text       = Text.M.text
+			  and type textalign  = Text.M.textalign
+			  and type textsize   = Box.M.textsize
+			  and type pos        = Box.M.pos
+			  and type size       = Box.M.size
+			  and type box        = Box.M.box
+			  and type textbox    = Box.M.textbox
+			  and type font       = Text.M.font
+			  and type displayclass = Displayclass.M.displayclass
+=
   struct
-    open Japeserver open Box open Mappingfuns open Text
+    open Box.M 
+    open Japeserver.M 
+    open Mappingfuns.M 
+    open SML.M
+    open Text.M
     
-    type element = element
-    and reason = reason
-    and term = term
-    and class__ = int
-    (* should be japeserver.class, if I played it right ... *)
+	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+ 
+	type term       = Term.Funs.term
+	 and element    = Term.Funs.element
+	 and reason     = Absprooftree.M.reason
+	 and textlayout = Text.M.textlayout
+	 and text       = Text.M.text
+	 and textalign  = Text.M.textalign
+	 and textsize   = Box.M.textsize
+	 and pos        = Box.M.pos
+	 and size       = Box.M.size
+	 and box        = Box.M.box
+	 and textbox    = Box.M.textbox
+	 and font       = Text.M.font
+	 and displayclass = Displayclass.M.displayclass
+	 
+	let consolereport = Miscellaneous.M.consolereport
+	let element2text  = Absprooftree.M.element2text
+	let elementstring = Term.Termstring.elementstring
+	let findfirst     = Optionfuns.M.findfirst
+	let interpolate   = Listfuns.M.interpolate
+	let optionstring  = Optionfuns.M.optionstring
+	let pairstring    = Stringfuns.M.pairstring
+	let proofpane     = Displayfont.M.ProofPane
+	let reason2text   = Absprooftree.M.reason2text
+	let reason2fontNstring = Absprooftree.M.reason2fontNstring
+	let term2text     = Absprooftree.M.term2text
+	let termstring    = Term.Termstring.termstring
+	let triplestring  = Stringfuns.M.triplestring
+
+    let fontinfo = fontinfo
+    and blacken = blacken
+    and greyen = greyen
+    and drawLine = drawLine
+    
+    type class__ = int (* could be Japeserver.M.class__, if I played it right ... *)
         
-    let rec drawinproofpane () = japeserver.drawinpane proofpane
+    let rec drawinproofpane () = Japeserver.M.drawinpane proofpane
+    
     type 'a plan = Formulaplan of (textlayout * textbox * 'a)
+    
     let rec planstring f =
       fun (Formulaplan plan) ->
         "Formulaplan" ^ triplestring textlayoutstring textboxstring f "," plan
@@ -103,17 +145,17 @@ module M : T =
     let rec planinfo = fun (Formulaplan (_, _, i)) -> i
     let rec plantextsize p = tbSize (plantextbox p)
     let rec planlisttextsize ps =
-      nj_fold (fun (x, y) -> ( +-+ ) x y) (List.map plantextsize ps) nulltextsize
-    let viewBox = japeserver.getProofPane
-    let rec clearView () = japeserver.clearProofPane ()
-    let highlight = japeserver.highlight
-    let drawBox = japeserver.drawRect
+      nj_fold ( +-+ ) (List.map plantextsize ps) nulltextsize
+    let viewBox = Japeserver.M.getProofPane
+    let rec clearView () = Japeserver.M.clearProofPane ()
+    let highlight = Japeserver.M.highlight
+    let drawBox = Japeserver.M.drawRect
     let rec linethickness leading =
       (* width of the lines (box, selection) we draw *)
       let r = max ((leading + 2) / 3) (1) in(* consolereport["leading ", string_of_int leading, "; thickness ", string_of_int r]; *)
        r
-    let setproofparams = japeserver.setproofparams
-    let rec measuretext ta t = text.measuretext japeserver.measurestring ta t
+    let setproofparams = Japeserver.M.setproofparams
+    let rec measuretext ta t = Text.M.measuretext Japeserver.M.measurestring ta t
     (* note fixed alignment, so don't use for folded/multiline texts *)
     let text2textinfo = measuretext FirstLine
     let rec mktextinfo f = text2textinfo <*> f
@@ -124,7 +166,7 @@ module M : T =
     let reason2textinfo = mktextinfo reason2text
     let rec procrustean_reason2textinfo w r =
       let (rf, rs) = reason2fontNstring r in
-      string2textinfo rf (japeserver.procrustes w " ..." rf rs)
+      string2textinfo rf (Japeserver.M.procrustes w " ..." rf rs)
     let rec textinfo2plan (size, layout) info p =
       Formulaplan (layout, textbox (p, size), info)
     let rec string2plan font s info p =
@@ -222,7 +264,7 @@ module M : T =
         Formulaplan (layout, tbOffset box pos, thing)
     let rec drawplan f p =
       fun (Formulaplan (Textlayout tl, b, info)) ->
-        japeserver.drawmeasuredtext (f info) tl (( +->+ ) (p, tbPos b))
+        Japeserver.M.drawmeasuredtext (f info) tl (( +->+ ) (p, tbPos b))
     let rec findfirstplanhit p =
       findfirst
         (fun pl -> if withintb (p, plantextbox pl) then Some pl else None)

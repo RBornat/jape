@@ -8,6 +8,8 @@ sig
     val (<*>) : ('b -> 'c) -> ('a -> 'b) -> 'a -> 'c (* compose -- can't do without it *)
 
     val explode : string -> string list
+    val fst_of_3 : ('a * 'b * 'c) -> 'a
+    val fst_of_6 : ('a * 'b * 'c * 'd * 'e * 'f) -> 'a
     val implode : string list -> string
     val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
     val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
@@ -47,9 +49,12 @@ module M : T =
       in
       (ii 0 cs; s) 
       
+    let fst_of_3 (a,b,c) = a
     let snd_of_3 (a,b,c) = b
     let thrd (a,b,c) = c
     
+    let fst_of_6 (a,b,c,d,e,f) = a
+
     let null xs = xs=[]
     
     let ord s = Char.code (String.get s 0)

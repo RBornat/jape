@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Y =
+module type T =
   sig
     type element and displayclass and 'a plan and pos and seq and textbox
     type planclass =
@@ -18,11 +18,30 @@ module type Y =
 (* $Id$ *)
 
 (* draw a sequent - used in treedraw and disproof *)
- M : T =
+module M : T with type element = Draw.M.element
+			  and type displayclass = Displayclass.M.displayclass
+			  and type 'a plan = 'a Draw.M.plan
+			  and type pos = Draw.M.pos
+			  and type seq = Sequent.Funs.seq
+			  and type textbox = Draw.M.textbox
+=
   struct
-    open Box open Draw open Displayclass
+    open Box.M 
+    open Draw.M 
+    open Displayclass.M
     
-    type seq = seq
+    type element = Draw.M.element
+	 and displayclass = Displayclass.M.displayclass
+	 and 'a plan = 'a Draw.M.plan
+	 and pos = Draw.M.pos
+	 and seq = Sequent.Funs.seq
+	 and textbox = Draw.M.textbox
+    
+    let comma = Absprooftree.M.comma
+    let elementstring = Term.Termstring.elementstring
+    let explode = Absprooftree.M.explode
+    let turnstile = Absprooftree.M.turnstile
+
     type planclass =
       ElementClass of (element * displayclass) | PunctClass | ReasonClass
     let rec planclassstring =
