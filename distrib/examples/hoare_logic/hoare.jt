@@ -21,3 +21,5 @@ PUSHSYNTAX "rewrite"
 POPSYNTAX
 
 USE "hoare_menus.j"
+
+USE "../forwardstep_technology/forwardstep.j"

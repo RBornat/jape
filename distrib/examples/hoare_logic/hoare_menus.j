@@ -1,12 +1,11 @@
 ﻿TACTIC assign(assigntac) IS
-     WHEN (LETGOAL ({_A} (_x := _E) {_B})
+    WHEN   
+	(LETGOAL ({_A} (_x := _E) {_B})
 	    (ALT    assigntac 
-		    (SEQ    "consequence(L)" fstep fstep
-			    NEXTGOAL NEXTGOAL
-			    assigntac)))
+		    (SEQ    "consequence(L)" fstep (trueforward assigntac))))
 	(LETGOAL _E (ALERT ("To make a variable-assignment step, you have to select a goal of the form \
 			\{A} (x:=E) {B}. You selected %t.", _E)
-		("OK", STOP)))
+			("OK", STOP)))
 
 MENU Instructions
     ENTRY "skip"
