@@ -64,7 +64,10 @@ public class DisproofPane extends Container implements DebugConstants {
         worldPane = new AnchoredScrollPane();
         add(worldPane);
 
-        worldCanvas = new WorldCanvas(worldPane.getViewport(), window, true, linethickness);
+        wasteBin = new WasteBin(this);
+        add(wasteBin);
+        
+        worldCanvas = new WorldCanvas(worldPane.getViewport(), true, window, wasteBin, linethickness);
         worldPane.add(worldCanvas);
         worldPane.setAnchor(AnchoredScrollPane.ANCHOR_SOUTH);
 
@@ -87,9 +90,6 @@ public class DisproofPane extends Container implements DebugConstants {
             public float getAlignmentX() { return CENTER_ALIGNMENT; }
         };
         seqView.add(seqCanvas);
-
-        wasteBin = new WasteBin(this);
-        add(wasteBin);
     }
 
     public void setSequentBox(int width, int ascent, int descent) {
