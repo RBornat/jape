@@ -30,17 +30,21 @@ import java.awt.Graphics;
 
 import java.util.Vector;
 
-public abstract class EmphasisableItem extends TextSelectableItem {
+public class EmphasisableItem extends TextSelectableItem {
 
     protected EmphasisLine emphasisLine;
 
     protected final DisproofCanvas canvas;
 
-    public EmphasisableItem(DisproofCanvas canvas, int x, int y, byte fontnum, String annottext) {
+    public EmphasisableItem(DisproofCanvas canvas, int x, int y, byte fontnum, String annottext,
+                            byte selectionKind) {
         super(canvas,x,y,fontnum,annottext);
         this.canvas = canvas;
-        emphasisLine = new EmphasisLine(false, getX(), getY()+getHeight()+canvas.getSurroundGap(), getWidth());
+        emphasisLine = new EmphasisLine(false, getX(),
+                            getY()+getHeight()+canvas.linethickness,
+                            getWidth());
         canvas.add(emphasisLine);
+        addSelectionIndicator(new RectSelection(this));
         
         annoti = printi = 0; 
         Vector cs = new Vector();
@@ -159,14 +163,17 @@ public abstract class EmphasisableItem extends TextSelectableItem {
     }
 
     public void paint(Graphics g) {
-        if (paint_tracing)
-            Logger.log.println("painting EmphasisableItem at "+getX()+","+getY());
-        paintTextSels(g);
-        g.setFont(font);
-        int len = coloursegs.length;
-        for (int i=0; i<len; i++)
-            coloursegs[i].paint(g);
-        
+        if (isEnabled()) {
+            if (paint_tracing)
+                Logger.log.println("painting EmphasisableItem at "+getX()+","+getY());
+            paintTextSels(g);
+            g.setFont(font);
+            int len = coloursegs.length;
+            for (int i=0; i<len; i++)
+                coloursegs[i].paint(g);
+        }
+        else
+            super.paint(g);
     }
 
     protected class EmphasisLine extends LineItem {
@@ -198,16 +205,6 @@ public abstract class EmphasisableItem extends TextSelectableItem {
 
     public void emphasise(boolean emphasised) {
         emphasisLine.emphasise(emphasised);
-    }
-
-    public String getTextSelections() {
-        Alert.abort("EmphasisableItem.getTextSelections");
-        return null; // shut up compiler
-    }
-
-    public String getSingleTextSelection() {
-        Alert.abort("EmphasisableItem.getSingleTextSelection");
-        return null; // shut up compiler
     }
 
     public String toString() {
