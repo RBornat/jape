@@ -28,21 +28,25 @@
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.util.Enumeration;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
+
+import java.util.Enumeration;
+import java.util.Vector;
+
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.Vector;
 
 public class ProofWindow extends JapeWindow implements DebugConstants, SelectionConstants,
                                                        ProtocolConstants {
@@ -57,6 +61,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     
     protected JapeCanvas focussedCanvas;
 
+    protected final WindowListener windowListener;
+    
     public ProofWindow(String title, int proofnum) {
         super(title, proofnum);
         this.proofnum = proofnum;
@@ -70,14 +76,15 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         
         focusv.insertElementAt(this, 0);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
+        
+        windowListener = new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 Reply.sendCOMMAND("closeproof "+ProofWindow.this.proofnum);
             }
             public void windowActivated(WindowEvent e) {
                 int i = focusv.indexOf(ProofWindow.this);
                 if (i==-1)
-                    Alert.abort("unfocussable window "+ProofWindow.this.title);
+                    Alert.abort("unfocussable window "+ProofWindow.this.title+"; "+e);
                 else
                     if (i!=0) {
                         focusv.remove(i);
@@ -85,7 +92,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
                         reportFocus();
                     }
             }
-        });
+        };
+        addWindowListener(windowListener);
 
         setBar();
         pack();
@@ -131,8 +139,9 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
 
     public static void closeproof(int proofnum) throws ProtocolError {
         ProofWindow proof = findProof(proofnum);
-        focusv.remove(focusv.indexOf(proof));
+        proof.removeWindowListener(proof.windowListener); // Linux gives us spurious events otherwise
         closeWindow(proof);
+        focusv.remove(focusv.indexOf(proof));
         reportFocus();
     }
 
