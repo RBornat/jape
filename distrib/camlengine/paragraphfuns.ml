@@ -91,34 +91,37 @@ let rec addstructurerule report query stype rule =
   else
 	report
 	  ["STRUCTURERULE "; stype; " "; parseablenamestring rule; " failed"]
-let rec rulename p =
+
+let rulename p =
   match p with
 	Conjecture (RuleHeading (name, _, _), _) -> Some name
-  | MacroDef (TacticHeading (name, _), _) -> Some name
-  | Proof (name, _, _, _, _) -> Some name
-  | RuleDef (RuleHeading (name, _, _), _, _, _) -> Some name
-  | RuleGroup (RuleHeading (name, _, _), _) -> Some name
-  | TacticDef (TacticHeading (name, _), _) -> Some name
-  | Theory (RuleHeading (name, _, _), _) -> Some name
+  | MacroDef   (TacticHeading (name, _), _) -> Some name
+  | Proof      (name, _, _, _, _) -> Some name
+  | RuleDef    (RuleHeading (name, _, _), _, _, _) -> Some name
+  | RuleGroup  (RuleHeading (name, _, _), _) -> Some name
+  | TacticDef  (TacticHeading (name, _), _) -> Some name
+  | Theory     (RuleHeading (name, _, _), _) -> Some name
   | _ -> None
-let rec paragraphid p =
+
+let paragraphid p =
   match p with
-	AutoRule _ -> "AutoRule"
-  | Conjecture _ -> "Conjecture"
-  | File _ -> "File"
-  | FontSpec _ -> "FontSpec"
-  | ForceDef _ -> "ForceDef"
-  | HitDef _ -> "HitDef"
-  | InitVar _ -> "InitVar"
-  | MacroDef _ -> "Macro"
-  | Menu _ -> "Menu"
-  | Panel _ -> "Panel"
-  | Proof _ -> "Proof"
-  | RuleDef _ -> "RuleDef"
-  | RuleGroup _ -> "RuleGroup"
+	AutoRule      _ -> "AutoRule"
+  | Conjecture    _ -> "Conjecture"
+  | File          _ -> "File"
+  | FontSpec      _ -> "FontSpec"
+  | ForceDef      _ -> "ForceDef"
+  | HitDef        _ -> "HitDef"
+  | InitVar       _ -> "InitVar"
+  | MacroDef      _ -> "Macro"
+  | Menu          _ -> "Menu"
+  | Panel         _ -> "Panel"
+  | Proof         _ -> "Proof"
+  | RuleDef       _ -> "RuleDef"
+  | RuleGroup     _ -> "RuleGroup"
   | StructureRule _ -> "StructureRule"
-  | TacticDef _ -> "TacticDef"
-  | Theory _ -> "Theory"
+  | TacticDef     _ -> "TacticDef"
+  | Theory        _ -> "Theory"
+
 let rec entrynames place con (p, es) =
   match p, rulename p with
 	Theory (_, tps), _ -> nj_fold (entrynames place con) tps es
@@ -205,8 +208,8 @@ let rec interpret
 		   provisos
 	| ps -> ps
   in
-  let rec visprovisos ps = (fun p -> true, p) <* ps in
-  let rec filterparams vars ps =
+  let visprovisos ps = (fun p -> true, p) <* ps in
+  let filterparams vars ps =
 	match ps with
 	  [] -> (fun p -> member (paramvar p, vars)) <| params
 	| ps -> ps
@@ -240,9 +243,7 @@ let rec interpret
 	  | NotJapeVar_ ->
 		  lreport [" - it isn't a variable in the environment"]
 	  | ReadOnly_ ->
-		  if Japeenv.(<@>) env name = Some term then ()
-		  else
-		    lreport [" - it can't be altered, given the state of other stored values"]
+		  lreport [" - it can't be altered, given the state of other stored values"]
 	  end;
 	  res
   | MacroDef (TacticHeading (name, params), macro) ->
