@@ -30,7 +30,10 @@ package uk.org.jape;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -126,7 +129,7 @@ public class LemmaDialog {
 	labelcount++;
 	addLabel(items, labelcount+
 		 ". Select a conjecture panel to hold the lemma, or type the name of a new panel "+
-		 "\n(the OK button is disabled until you've done this:");
+		 "\n(the OK button is disabled until you've done this):");
 	
 	String[] panelshow = new String[panels.length+1];
 	panelshow[0] = "";
@@ -156,7 +159,43 @@ public class LemmaDialog {
 	    addLabel(items, labelcount+
 		     ". Tick the provisos you want to inherit from the parent theorem:");
 	    
-	    JPanel provisoPanel = new JPanel(new GridLayout(0, 1));
+	    JPanel provisoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT){
+		public Dimension preferredLayoutSize(Container target) {
+		    synchronized (target.getTreeLock()) {
+			Dimension dim = new Dimension(0, 0);
+			int rowwidth=0, rowheight=0, rowlim=Jape.screenBounds.width*6/10;
+			int nmembers = target.getComponentCount();
+			int hgap = getHgap(), vgap = getVgap();
+			
+			for (int i = 0 ; i < nmembers ; i++) {
+			    Component m = target.getComponent(i);
+			    if (m.isVisible()) {
+				Dimension d = m.getPreferredSize();
+				if (rowwidth==0 || d.width+hgap+rowwidth<=rowlim) {
+				    rowheight = Math.max(rowheight, d.height);
+				    if (rowwidth!=0) rowwidth+=hgap;
+				    rowwidth += d.width;
+				}
+				else {
+				    if (dim.height!=0) dim.height+=vgap;
+				    dim.height+=rowheight;
+				    dim.width=Math.max(rowwidth,dim.width);
+				    rowwidth=d.width; rowheight=d.height;
+				}
+			    }
+			}
+
+			if (dim.height!=0) dim.height+=vgap;
+			dim.height+=rowheight;
+			dim.width=Math.max(rowwidth, dim.width);
+
+			Insets insets = target.getInsets();
+			dim.width += insets.left + insets.right + hgap*2;
+			dim.height += insets.top + insets.bottom + vgap*2;
+			return dim;
+		    }
+		}
+	    });
 	    
 	    int i;
 	    
@@ -165,6 +204,7 @@ public class LemmaDialog {
 		provisochecks[i] = box;
 		box.setSelected(true);
 		box.setActionCommand(provisos[i]);
+		// Logger.log.println(provisos[i]+" = "+box.getWidth()+","+box.getHeight());
 		provisoPanel.add(box);
 	    }
 	    
