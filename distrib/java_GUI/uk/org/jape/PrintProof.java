@@ -25,31 +25,42 @@
     
 */
 
-public class PrintProof {
-    /* we have to mangle panes and origins so that the printed result
-    is  set out like this (for example, with obvious modifications if
-                           disproof+tiles and/or provisos are empty):
-                               -------
-     ----------------------   |       |
-     |                      | |       |
-     |      disproof        | | tiles |
-     |                      | |       |
-     ----------------------   -------
-     ---------------------------
-     |                           |
-     |                           |
-     |      proof                |
-     |                           |
-     |                           |
-     ---------------------------
-     ---------------------
-     |                     |
-     |    provisos         |
-     |                     |
-     ---------------------
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterJob;
 
-     The origin we use is irrelevant; I hope that clipping is irrelevant;
-     so I've decided that the local coordinates of the left-hand top corner
-     of the proof rectangle is 0,0 and worked from that
-     */
+public class PrintProof {
+    static PageFormat defaultPage;
+
+    private static void ensureDefaultPage(PrinterJob job) {
+        if (defaultPage==null)
+            defaultPage = job.defaultPage();
+    }
+    
+    // run a Page Setup dialogue from the menu
+    static void pageSetup() {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        ensureDefaultPage(job);
+        defaultPage = job.pageDialog(defaultPage);
+    }
+
+    static void printProof() {
+        ProofWindow w;
+        try {
+            w = ProofWindow.getFocussedProofWindow(true);
+        } catch (ProtocolError e) {
+            Alert.abort("PrintProof.printProof no focussed window");
+            w = null; // shut up compiler
+        }
+        PrinterJob job = PrinterJob.getPrinterJob();
+        ensureDefaultPage(job);
+        job.setPrintable(w, defaultPage);
+        if (job.printDialog()) {
+            try {
+                job.print();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                Alert.abort("print job failed -- see console");
+            }
+        }
+    }
 }
