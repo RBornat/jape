@@ -61,8 +61,9 @@ public class Preferences {
                 }
             }
             catch (Exception e) {
-                Logger.log.println(e+" (while loading preferences from "+config.toString()+
-                                   ")\n[Falling back to default configuration]");
+                if (DebugConstants.preference_tracing)
+                    Logger.log.println(e+" (while loading preferences from "+config+
+                                       ")\n[Falling back to default configuration]");
             }
         }
         else {
