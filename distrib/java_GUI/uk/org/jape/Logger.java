@@ -48,7 +48,7 @@ import javax.swing.JTextArea;
 public class Logger {
     private static final boolean divertToWindow = true;
     
-    private static final JTextArea textArea = new JTextArea(50,80);
+    private static final JTextArea textArea = new JTextArea("", 24, 80);
 
     private static class ScreenWriter extends Writer {
         // for the moment, the minimum
@@ -281,7 +281,7 @@ public class Logger {
 
     public static class LogWindow extends JapeWindow {
         public LogWindow() {
-            super("console log");
+            super("Jape console log");
             getContentPane().add(new JScrollPane(textArea));
             setBar(); // why not?
 
@@ -295,7 +295,10 @@ public class Logger {
 
         public void setVisible(boolean state) {
             if (state)
-                JapeFont.setComponentFont(textArea, JapeFont.LOGWINDOW);
+                { JapeFont.setComponentFont(textArea, JapeFont.LOGWINDOW);
+                  // (Re)calculate size  (BS)
+                  pack();
+                }
             super.setVisible(state);
             if (state)
                 toFront();
@@ -313,11 +316,14 @@ public class Logger {
     public static void font_reset() {
         if (logWindow!=null) {
             boolean visible = logWindow.isVisible();
-            logWindow.dispose();
-            init();
+            //logWindow.dispose();
+            //init();
+            // Trust me, I'm a programmer (BS)
+            logWindow.setVisible(true);
             logWindow.setVisible(visible);
         }
     }
 }
+
 
 

@@ -27,7 +27,7 @@
 
 public class ControlWindow extends SurrogateWindow {
     public ControlWindow() {
-        super("control");
+        super("Jape Control"); // let's give the user a clue when the window is closed
         setLocation(Jape.screenBounds.width/2-getWidth()/2,
                     Jape.screenBounds.height/2-getHeight()/2);
     }
@@ -37,3 +37,4 @@ public class ControlWindow extends SurrogateWindow {
             Jape.handleQuit();
     }
 }
+

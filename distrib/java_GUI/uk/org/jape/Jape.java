@@ -107,7 +107,21 @@ public class Jape implements DebugConstants {
         Vector engineCmd = new Vector();
         engineCmd.add(onWindows ? defaultWindowsEnginePath : defaultUnixEnginePath);
 
+        // Arguments after -- (-toengine) are sent to the engine 
+        // all others are absorbed here, and treated as theories
+        // or theory files once the gui and engine are going.
+        // This ensures there are no silent deaths if
+        // a user drags/drops a non-jape file onto the jape
+        // application.
+        boolean toEngine = false;
+        
         for (int i=0; i<args.length; i++) {
+           if (toEngine)
+              engineCmd.add(args[i]);
+           else
+           if (args[i].equals("-toengine") || args[i].equals("--"))
+              toEngine = true;
+           else
            if (args[i].equals("-engine")) {
                i++;
                if (i<args.length)
@@ -116,29 +130,24 @@ public class Jape implements DebugConstants {
                    Alert.abort("-engine switch needs path argument");
             }
             else
-            if (args[i].equals("-theory")) {
-                i++;
-                if (i<args.length) {
+            {
                     File f = new File(args[i]);
                     if (f.isDirectory()) {
+                        // Choose a theory from this directory
                         FileChooser.setOpen(f);
                         engineCmd.add(JapeMenu.chooseTheory());
                     }
                     else
                     if (f.exists()) {
+                        // Choose this theory
                         FileChooser.setOpen(f);
                         engineCmd.add(args[i]);
                     }
                     else
-                        Alert.showErrorAlert("theory path "+args[i]+
+                        Alert.showErrorAlert("Theory path "+args[i]+
                                              " is neither a file nor a folder.");
-                }
-                else
-                    Alert.abort("-theory switch needs path argument");
             }
-            else
-                engineCmd.add(args[i]);
-        }
+       }
 
         new Engine((String[])engineCmd.toArray(new String[engineCmd.size()]));
 
@@ -148,6 +157,7 @@ public class Jape implements DebugConstants {
             Logger.log.println("GUI initialised");
     }
 }
+
 
 
 
