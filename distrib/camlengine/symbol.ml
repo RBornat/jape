@@ -71,15 +71,27 @@ let appfix = ref appfix_default
 let substfix = ref substfix_default
 let substsense = ref substsense_default
 
-type syn_fixes  = int * int * bool (* appfix, substfix, substsense *)
- and syn_tables = (string, symbol) Hashtbl.t * (symbol, string) Hashtbl.t     (* symboltable, reversemapping *)
-                * (symbol, int) Hashtbl.t * (symbol, associativity) Hashtbl.t (* priotable, assoctable *)
-                * ucode list * ucode list                                     (* decIDheads, decIDtails *)
-                * (ucode, idclass) searchtree * (ucode, idclass) searchtree   (* idprefixtree, idfixedtree *)
-                * (ucode, symbol) searchtree * string list option             (* optree, oplist *)
-                * (idclass, string) Mappingfuns.mapping                       (* decVarPrefixes *)
+type synfixrec = {
+   appF   : int;
+   substF : int;
+   substS : bool
+}
 
-let (syntaxes : (string * syn_fixes * syn_tables) list ref) = ref []
+type syntabrec = {
+   symT    : (string, symbol) Hashtbl.t;
+   revT    : (symbol, string) Hashtbl.t;
+   prioT   : (symbol, int) Hashtbl.t;
+   assocT  : (symbol, associativity) Hashtbl.t;
+   decIDhs : ucode list;
+   decIDts : ucode list;
+   idprefT : (ucode, idclass) searchtree;
+   idfixT  : (ucode, idclass) searchtree;
+   opT     : (ucode, symbol) searchtree;
+   ops     : string list option;
+   decVs   : (idclass, string) Mappingfuns.mapping
+}
+
+let (syntaxes : (string * synfixrec * syntabrec) list ref) = ref []
   
 (* to make test parses silent, parsing functions raise ParseError_,
  * which you can catch and translate into a call of showInputError 
@@ -452,20 +464,26 @@ let rec resetSymbols () =
  *)
 
 let get_syntax_tables () =
-  (Hashtbl.copy !symboltable, Hashtbl.copy !reversemapping,
-   Hashtbl.copy !priotable, Hashtbl.copy !assoctable,
-   !decIDheads, !decIDtails,
-   !idprefixtree, !idfixedtree,
-   !optree, !oplist,
-   !decVarPrefixes)
+  { symT    = Hashtbl.copy !symboltable;
+    revT    = Hashtbl.copy !reversemapping;
+    prioT   = Hashtbl.copy !priotable;
+    assocT  = Hashtbl.copy !assoctable;
+    decIDhs = !decIDheads; 
+    decIDts = !decIDtails;
+    idprefT = !idprefixtree;
+    idfixT  = !idfixedtree;
+    opT     = !optree; 
+    ops     = !oplist;
+    decVs   = !decVarPrefixes
+  }
 
-let set_syntax_tables (symT, revT, prioT, assocT, decIDhs, decIDts, idprefT, idfixT, opT, ops, decVs) =
-  symboltable := symT; reversemapping := revT;
-  priotable := prioT; assoctable := assocT;
-  decIDheads := decIDhs; decIDtails := decIDts;
-  idprefixtree := idprefT; idfixedtree := idfixT;
-  optree := opT; oplist := ops;
-  decVarPrefixes := decVs
+let set_syntax_tables syntabs =
+  symboltable := syntabs.symT; reversemapping := syntabs.revT;
+  priotable := syntabs.prioT; assoctable := syntabs.assocT;
+  decIDheads := syntabs.decIDhs; decIDtails := syntabs.decIDts;
+  idprefixtree := syntabs.idprefT; idfixedtree := syntabs.idfixT;
+  optree := syntabs.opT; oplist := syntabs.ops;
+  decVarPrefixes := syntabs.decVs
   
 (* function provided so that other functors don't need to know how operators are
  * represented
@@ -884,14 +902,21 @@ let _ = (try resetSymbols ()
         )
 
 let pushSyntax name =
-  syntaxes := (name, (!appfix, !substfix, !substsense), get_syntax_tables()) :: !syntaxes;
-  resetSymbols()
+  let fixes = { appF = !appfix; substF = !substfix; substS = !substsense } in
+  let tabs = get_syntax_tables() in
+  syntaxes := (name, fixes, tabs) :: !syntaxes;
+  resetSymbols();
+  (* we only want to use one symbol table though! *)
+  symboltable    := Hashtbl.copy tabs.symT;
+  reversemapping := Hashtbl.copy tabs.revT;
+  priotable      := Hashtbl.copy tabs.prioT;
+  assoctable     := Hashtbl.copy tabs.assocT
 
 let popSyntax () =
   match !syntaxes with 
-    (name, (appN, substN, substD), tbls) :: sys ->
+    (name, fixes, tbls) :: sys ->
       let internal_symT = !symboltable in
-      appfix:=appN; substfix:=substN; substsense:=substD;
+      appfix:=fixes.appF; substfix:=fixes.substF; substsense:=fixes.substS;
       set_syntax_tables tbls;
       syntaxes := sys;
       (* because FORMULA CLASS and so on can sneak under the carefullyEnter radar,
