@@ -4,7 +4,7 @@
 #
 # 
 #
-components::  ; (cd ../../CommonBuildResources/; make -f Makefile-java installjape.jar)
+components::  ; (cd ../../CommonBuildResources/; make -f Makefile-java installjape.class)
 #
 #
 #
@@ -22,16 +22,19 @@ DEPLOYEDENGINE=jape.exe
 README=README-WINDOWS 
 INSTALLME=installjape.class
 DEPLOYMENTKIT=$(README) japeicon.ico
+
                 
 
-jarfile:  ;\
-            ln -s ../../examples .;\
+jarfile:  ; rsync -v -t $(BUILDRESOURCES)/$(INSTALLME) .;\
             java bootstrap.install $(OS)jape.jar\
                    -classwindows installjape installjape.class \
                    -cmdwindows   'SHORTCUT.EXE -f -t jape.cmd -n Jape -d . -i japeicon.ico' \
                    -app          "Windows Jape" \
                    -splash       japesplash.png \
                    SHORTCUT.EXE  $(DEPLOYEDENGINE) japeserver.jar $(DEPLOYMENTKIT) examples
+
+
+
 
 
 

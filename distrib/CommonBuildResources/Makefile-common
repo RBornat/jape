@@ -59,6 +59,7 @@ components::    ; make engine GUI;\
                   rsync -v -t    $(COMPILEDIR)/$(BUILTENGINE) ./$(DEPLOYEDENGINE) ;\
                   rsync -v -t    $(BUILDRESOURCES)/$(README)    .                 ;\
                   rsync -v -t    $(BUILDRESOURCES)/$(INSTALLME) . ;\
+                  ln -f -s ../../examples .;\
                   chmod +x  $(INSTALLME) 
 
 install:        ; make components; sh installjape.sh
@@ -74,6 +75,7 @@ distribution::  ; make components ;\
                   make jarfile
 
 jarfile:        ; java bootstrap.install -cmdunix "sh installjape.sh" -splash japesplash.png $(OS)jape.jar $(DEPLOYMENTKIT) $(DEPLOYEDENGINE) japeserver.jar examples 
+
 
 
 
