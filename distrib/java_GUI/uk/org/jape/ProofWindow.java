@@ -235,12 +235,13 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 			    (proofhistory||disproofhistory) ? Boolean.TRUE : Boolean.FALSE);
     }
 
+    /* Export Proof always; Export and Export Disproof only when there's a disproof pane */
     public void enableExport() {
 	try {
-	    JapeMenu.enableItem(true, "File", JapeMenu.EXPORT_PROOF, JapeMenu.PROOFWINDOW_BAR, disproofPane!=null);
+	    JapeMenu.enableItem(true, "File", JapeMenu.EXPORT, JapeMenu.PROOFWINDOW_BAR, disproofPane!=null);
 	    JapeMenu.enableItem(true, "File", JapeMenu.EXPORT_DISPROOF, JapeMenu.PROOFWINDOW_BAR, disproofPane!=null);
 	} catch (ProtocolError e) {
-	    Alert.abort("ProofWindow.enableExport can't find File: Export Proof/Disproof");
+	    Alert.abort("ProofWindow.enableExport can't find File: Export/Export Disproof");
 	}
     }
     
