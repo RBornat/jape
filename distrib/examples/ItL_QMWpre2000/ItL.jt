@@ -6,7 +6,7 @@ INITIALISE applyconjectures false
 INITIALISE tryresolution false
 INITIALISE displaystyle box
 
-USE "ItLpred_syntax.j"
-USE "ItLpred_rules.j"
-USE "ItLpred_menus.j"
-USE "ItLpred_problems.j"
+USE "ItL_syntax.j"
+USE "ItL_rules.j"
+USE "ItL_menus.j"
+USE "ItL_problems.j"
