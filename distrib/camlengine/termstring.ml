@@ -249,20 +249,46 @@ let opname f =
   | _, true, Id (_, v, _) -> Some (string_of_vid v)
   | _                     -> None
 
-(* test if a formula will be printed as infix *)
-let isInfixApp t =
+(* test if a formula will be printed as a juxtaposition *)
+let isJuxtapos t =
   let opsymb = opname &~ (_Some <.> lookup) in
   match t with
     App (_, (App (_, f, _)), _) ->
       (match opsymb f with
-        Some (INFIXC _ ) -> true
-       | _               -> false)
+         Some (INFIXC  _) -> false
+       | _                -> true)
   | App (_, f, arg) ->
       (match opsymb f with
-         Some (INFIX _) -> true
-       | _              -> false)
+         Some (INFIX   _) -> 
+           (match arg, !debracketapplications, debracket arg with 
+              Tup (_, ",", [_; _]), _, _      -> false
+            | _, true, Tup (_, ",", [a1; a2]) -> false
+            | _, _, _                         -> true)
+       | Some (PREFIX  _) -> false
+       | Some (POSTFIX _) -> false
+       | _                -> true)
   | _ -> false
 
+(* test if a formula will be printed as infix *)
+let isInfixApp t =
+  let opsymb = opname &~ (fun name -> Some(name,lookup name)) in
+  match t with
+    App (_, (App (_, f, a1)), a2) ->
+      (match opsymb f with
+         Some (name, (INFIXC _ as sy)) -> Some (name, prio sy, assoc sy, a1, a2)
+       | _                             -> None)
+  | App (_, f, arg) ->
+      (match opsymb f with
+         Some (name, (INFIX _ as sy)) -> 
+           (match arg, !debracketapplications, debracket arg with 
+              Tup (_, ",", [a1; a2]), _, _ ->
+                Some(name, prio sy, assoc sy, a1, a2)
+            | _, true, Tup (_, ",", [a1; a2]) ->
+                Some(name, prio sy, assoc sy, a1, a2)
+            | _, _, _ -> None)
+       | _ -> None)
+  | _ -> None
+  
 (* this function will probably produce stupid results if the language includes
  * operators with identical priorities but differing associativity.
  *)
@@ -469,15 +495,19 @@ let noket   _ = ""
 let showbra _ = invisbra
 let showket _ = invisket
 
+let catelim_invisbracketedstring_of_prioterm b = 
+  if b then _T showbra showket else _T nobra noket
+ 
 let catelim_invisbracketedstring_of_term b = 
-  (if b then _T showbra showket else _T nobra noket) 0 false
+  catelim_invisbracketedstring_of_prioterm b 0 false
 let invisbracketedstring_of_term =
   stringfn_of_catelim <.> catelim_invisbracketedstring_of_term
 
 let catelim_string_of_term = catelim_invisbracketedstring_of_term false
 let string_of_term = stringfn_of_catelim catelim_string_of_term
 
-let rec catelim_chooseinvisbracketedstring_of_term ivb ivk = _T ivb ivk 0 false
+let rec catelim_chooseinvisbracketedstring_of_term ivb ivk = 
+  _T ivb ivk 0 false
 let rec chooseinvisbracketedstring_of_term ivb ivk =
   stringfn_of_catelim (catelim_chooseinvisbracketedstring_of_term ivb ivk)
 
@@ -487,8 +517,11 @@ let rec catelim_string_of_vts vts ss =
     (_TM nobra nobra vts (quadcolon (string_of_symbol SUBSTKET) ss))
 let string_of_vts = stringfn_of_catelim catelim_string_of_vts
 
+let catelim_invisbracketedstring_of_termfun b =
+  catelim_invisbracketedstring_of_prioterm b !appfix false (* see _TAP *)
+  
 let catelim_invisbracketedstring_of_termarg b =
-  (if b then _T showbra showket else _T nobra noket) !appfix true
+  catelim_invisbracketedstring_of_prioterm b !appfix true
 let invisbracketedstring_of_termarg =
   stringfn_of_catelim <.> catelim_invisbracketedstring_of_termarg
   

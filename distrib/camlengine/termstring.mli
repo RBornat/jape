@@ -36,11 +36,15 @@ val catelim_invisbracketedstring_of_term       : bool -> term -> string list -> 
 val catelim_chooseinvisbracketedstring_of_term : (term -> string) -> (term -> string) -> term
                                               -> string list -> string list
 
+val catelim_invisbracketedstring_of_prioterm : bool -> int -> bool (* invis, prio, mustbra *)
+                                            -> term -> string list -> string list
+
 val string_of_termarg               : term -> string
 val invisbracketedstring_of_termarg : bool -> term -> string
 
 val catelim_string_of_termarg               : term -> string list -> string list
 val catelim_invisbracketedstring_of_termarg : bool -> term -> string list -> string list
+val catelim_invisbracketedstring_of_termfun : bool -> term -> string list -> string list
 
 val debugstring_of_term         : term -> string
 val catelim_debugstring_of_term : term -> string list -> string list
@@ -79,7 +83,9 @@ val catelim_string_of_resnum : resnum -> string list -> string list
 val string_of_termlist         : term list -> string
 val catelim_string_of_termlist : term list -> string list -> string list
 
-val isInfixApp   : term -> bool
+val isInfixApp   : term -> (string * int * Symbol.associativity * term * term) option
+val isJuxtapos   : term -> bool
+
 val stripelement : element -> term (* before printing only *)
 
 val debracketapplications : bool ref
