@@ -37,7 +37,7 @@ import javax.swing.JScrollPane;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-public class ProofWindow extends JapeWindow implements ProtocolConstants {
+public class ProofWindow extends JapeWindow implements SelectionConstants, ProtocolConstants {
     int proofnum;
     protected static ProofWindow focussedProofWindow = null;
 
@@ -209,22 +209,36 @@ public class ProofWindow extends JapeWindow implements ProtocolConstants {
         focussedProofWindow.proofCanvas.add(new LineItem(focussedProofWindow.proofCanvas, x1, y1, x2, y2));
     }
 
-    public static void blacken(int x, int y) throws ProtocolError {
+    private static SelectableProofItem findSelectableXY(int x, int y) throws ProtocolError {
         checkFocussedProofWindow();
-        SelectableProofItem si = focussedProofWindow.proofCanvas.findXY(x,y);
+        SelectableProofItem si = focussedProofWindow.proofCanvas.findSelectableXY(x,y);
         if (si==null)
             throw new ProtocolError("no blackenable item at "+x+","+y);
         else
-            si.blacken();
+            return si;
+    }
+
+    public static void blacken(int x, int y) throws ProtocolError {
+        findSelectableXY(x,y).blacken();
     }
 
     public static void greyen(int x, int y) throws ProtocolError {
-        checkFocussedProofWindow();
-        SelectableProofItem si = focussedProofWindow.proofCanvas.findXY(x,y);
-        if (si==null)
-            throw new ProtocolError("no greyenable item at "+x+","+y);
-        else
-            si.greyen();
+        findSelectableXY(x,y).greyen();
+    }
+
+    public static void highlight(int x, int y, byte selclass) throws ProtocolError {
+        byte selkind;
+        switch (selclass) {
+            case ConcTextItem  : selkind = ConcSel; break;
+            case HypTextItem   : selkind = HypSel; break;
+            case ReasonTextItem: selkind = ReasonSel; break;
+            default            : throw new ProtocolError("ProofWindow.highlight selclass="+selclass);
+        }
+        findSelectableXY(x,y).select(selkind);
+    }
+
+    public static void unhighlight(int x, int y) throws ProtocolError {
+        findSelectableXY(x,y).deselect();
     }
 
     public static String getSelections() throws ProtocolError {
