@@ -268,7 +268,7 @@ let rec parseNUM () =
 let rec parseClassID () =
   match currnovelsymb () with
     ID (s, _) -> scansymb (); s
-  | s -> raise (ParseError_ ["Expecting an identifier, found "; debugstring_of_symbol s])
+  | s         -> raise (ParseError_ ["Expecting an identifier, found "; debugstring_of_symbol s])
 
 let rec processKEYBOARD report query =
   let _ = ignore _ISWORD in

@@ -830,15 +830,11 @@ let rec currnovelsymb () =
     *)
     match !peekedsymb with
       [] ->
-        symb :=
-          scanwhile (not <.> isreserved) (List.rev cs) checkbadID;
+        symb := scanwhile (not <.> isreserved) (List.rev cs) checkbadID;
         !symb
     | _ -> raise (Catastrophe_ ["peeksymb(); currnovelsymb()"])
   else
-    raise
-      (ParseError_
-         [string_of_symbol !symb;
-          " can't start a new identifier or operator"])
+    raise (ParseError_ [string_of_symbol !symb; " can't start a new identifier or operator"])
 
 type savedlex = ucode Stream.t * string * int * symbol * symbol list
 
