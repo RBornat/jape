@@ -31,6 +31,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JFrame;
@@ -57,5 +61,13 @@ public class SurrogateWindow extends JapeWindow {
         setSize(getWidth()+60, getHeight()+60);
         setBar(); // by experiment, seems to be necessary before setVisible
         // no setVisible here ...
+
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                if (Alert.askOKCancel(SurrogateWindow.this, "Quit Jape?")==Alert.OK)
+                    japeserver.handleQuit();
+            }
+        });
     }
 }
