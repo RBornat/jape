@@ -35,8 +35,8 @@ RULE "è-E"(B) IS FROM èx.A(x) INFER A(B)
 
 RULE "ä-E"(OBJECT c) WHERE FRESH c AND c NOTIN äx.A(x) IS FROM äx.A(x) AND A(c) æ C INFER C
 
-RULE "ä!-E(1)" IS FROM ä!x.A(x) INFER äx.A(x)
-RULE "ä!-E(2)"(OBJECT y) IS FROM ä!x.A(x) INFER èx.èy.A(x)¦A(y)çx=y
+RULE "ä!-E(ä)" IS FROM ä!x.A(x) INFER äx.A(x)
+RULE "ä!-E(èè)"(OBJECT y) IS FROM ä!x.A(x) INFER èx.èy.A(x)¦A(y)çx=y
 
 TACTIC ForwardCut(Rule) IS SEQ cut (WITHARGSEL Rule) (WITHHYPSEL hyp)
 
