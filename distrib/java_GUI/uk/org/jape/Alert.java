@@ -1,7 +1,7 @@
 /* 
     $Id$
 
-    Copyright © 2003 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -52,7 +52,7 @@ public class Alert implements DebugConstants {
         }
     }
     
-    private static JLabel makeLabel(String s) {
+    public static JLabel makeLabel(String s) {
         JLabel l = new JLabel(s);
         JapeFont.setComponentFont(l, JapeFont.DIALOGLABEL);
         return l;
