@@ -43,6 +43,8 @@ open Termstring
 open Termtype
 open Termparse    
 
+let error = Miscellaneous.error
+
 let bagkind = BagClass FormulaClass
 and listkind = ListClass FormulaClass
 and formulakind = FormulaClass

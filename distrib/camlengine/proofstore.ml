@@ -186,7 +186,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
        raise (Catastrophe_ ["proof in unknown panel "; namestring p])
   in
 
-  let rec saveproof stream name stage tree provisos givens disproof =
+  let rec saveproof chan name stage tree provisos givens disproof =
     let rec badthing () =
       raise (Catastrophe_ ["No stored conjecture/derived rule called ";
                            parseablenamestring name])
@@ -218,7 +218,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
              catelim_liststring catelim_paraparamstring ", " params
                (")" :: body))
     in
-    List.iter (output_string stream)
+    List.iter (output_string chan)
       (match place with
          InMenu m ->
            menu2word m :: " " :: parseablenamestring m :: "\n" ::
@@ -228,11 +228,11 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
              doit ["END\n"]
        | InLimbo -> doit [])
 
-  and saveproofs stream =
+  and saveproofs chan =
     let rec show n =
       match proofnamed n with
         Some (proved, tree, provisos, givens, disproved, disproof) ->
-          saveproof stream n Complete tree ((snd <* (fst <| provisos))) givens disproof
+          saveproof chan n Complete tree ((snd <* (fst <| provisos))) givens disproof
       | _ -> ()
     in
     let names = (opt2bool <.> proofnamed) <| thingnames () in

@@ -171,13 +171,13 @@ disproof.cmo: alert.cmi binding.cmi box.cmi displayfont.cmi draw.cmi fix.cmi \
     match.cmi miscellaneous.cmi optionfuns.cmi predicate.cmi prooftree.cmo \
     seqdraw.cmi seqtype.cmo sequent.cmi sml.cmi stringfuns.cmi \
     substmapfuns.cmi symbol.cmi termfuns.cmi termparse.cmi termstore.cmi \
-    termstring.cmi termtype.cmi disproof.cmi 
+    termstring.cmi termtype.cmi uTF.cmi disproof.cmi 
 disproof.cmx: alert.cmx binding.cmx box.cmx displayfont.cmx draw.cmx fix.cmx \
     forcedef.cmx idclass.cmx japeserver.cmx listfuns.cmx mappingfuns.cmx \
     match.cmx miscellaneous.cmx optionfuns.cmx predicate.cmx prooftree.cmx \
     seqdraw.cmx seqtype.cmx sequent.cmx sml.cmx stringfuns.cmx \
     substmapfuns.cmx symbol.cmx termfuns.cmx termparse.cmx termstore.cmx \
-    termstring.cmx termtype.cmx disproof.cmi 
+    termstring.cmx termtype.cmx uTF.cmx disproof.cmi 
 doubleclick.cmo: listfuns.cmi mappingfuns.cmi optionfuns.cmi seqtype.cmo \
     sequent.cmi tactic.cmi tactictype.cmo termtype.cmi doubleclick.cmi 
 doubleclick.cmx: listfuns.cmx mappingfuns.cmx optionfuns.cmx seqtype.cmx \
@@ -281,13 +281,13 @@ paragraph.cmo: alert.cmi binding.cmi doubleclick.cmi forcedef.cmi idclass.cmi \
     name.cmi nametype.cmo optionfuns.cmi panelkind.cmo paraparam.cmi \
     proofstage.cmo proviso.cmi sequent.cmi sml.cmi stringfuns.cmi symbol.cmi \
     symboltype.cmo tactic.cmi termfuns.cmi termparse.cmi termstring.cmi \
-    usefile.cmi paragraph.cmi 
+    uTF.cmi usefile.cmi paragraph.cmi 
 paragraph.cmx: alert.cmx binding.cmx doubleclick.cmx forcedef.cmx idclass.cmx \
     idclassfuns.cmx listfuns.cmx menu.cmx miscellaneous.cmx moresys.cmx \
     name.cmx nametype.cmx optionfuns.cmx panelkind.cmx paraparam.cmx \
     proofstage.cmx proviso.cmx sequent.cmx sml.cmx stringfuns.cmx symbol.cmx \
     symboltype.cmx tactic.cmx termfuns.cmx termparse.cmx termstring.cmx \
-    usefile.cmx paragraph.cmi 
+    uTF.cmx usefile.cmx paragraph.cmi 
 paragraphfuns.cmo: button.cmi cxtfuns.cmi disproof.cmi doubleclick.cmi \
     japeenv.cmi japeserver.cmi listfuns.cmi mappingfuns.cmi menu.cmi \
     miscellaneous.cmi name.cmi optionfuns.cmi paragraph.cmi paraparam.cmi \
@@ -426,10 +426,10 @@ substmapfuns.cmx: answer.cmx facts.cmx listfuns.cmx mappingfuns.cmx \
     termfuns.cmx termstore.cmx termstring.cmx termtype.cmx substmapfuns.cmi 
 symbol.cmo: idclass.cmi listfuns.cmi mappingfuns.cmi miscellaneous.cmi \
     optionfuns.cmi prestring.cmi searchtree.cmi sml.cmi stringfuns.cmi \
-    symboltype.cmo symbol.cmi 
+    symboltype.cmo uTF.cmi symbol.cmi 
 symbol.cmx: idclass.cmx listfuns.cmx mappingfuns.cmx miscellaneous.cmx \
     optionfuns.cmx prestring.cmx searchtree.cmx sml.cmx stringfuns.cmx \
-    symboltype.cmx symbol.cmi 
+    symboltype.cmx uTF.cmx symbol.cmi 
 symboltype.cmo: idclass.cmi 
 symboltype.cmx: idclass.cmx 
 tactic.cmo: idclass.cmi listfuns.cmi match.cmi miscellaneous.cmi name.cmi \
@@ -518,6 +518,8 @@ treelayout.cmo: match.cmi optionfuns.cmi stringfuns.cmi termfuns.cmi \
     termstring.cmi termtype.cmi treelayout.cmi 
 treelayout.cmx: match.cmx optionfuns.cmx stringfuns.cmx termfuns.cmx \
     termstring.cmx termtype.cmx treelayout.cmi 
+uTF.cmo: listfuns.cmi miscellaneous.cmi sml.cmi stringfuns.cmi uTF.cmi 
+uTF.cmx: listfuns.cmx miscellaneous.cmx sml.cmx stringfuns.cmx uTF.cmi 
 unify.cmo: answer.cmi cxtfuns.cmi cxtstring.cmi facts.cmi idclass.cmi \
     listfuns.cmi mappingfuns.cmi miscellaneous.cmi optionfuns.cmi proviso.cmi \
     provisofuns.cmi provisotype.cmo rewrite.cmi sml.cmi stringfuns.cmi \

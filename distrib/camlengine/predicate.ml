@@ -36,6 +36,8 @@ open Stringfuns
 open Optionfuns
 open Sml
 
+let consolereport = Miscellaneous.consolereport
+
 let interpretpredicates = ref false
 let predicatedebug = ref false
 exception Predicate_ of string list

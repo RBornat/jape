@@ -45,6 +45,7 @@ open Miscellaneous
 open Optionfuns
 open Stringfuns
 open Sml
+open UTF
 
 type idclass = Idclass.idclass
  and associativity = Symboltype.associativity
@@ -53,6 +54,9 @@ type idclass = Idclass.idclass
 (* smlnj 0.93 had no notion of char, only single-character strings.  In this first
    porting, I've used caml streams and converted all input to single-character strings.
    RB
+ *)
+(* and that's lucky, because it means I can deal in utf8 items -- strings representing a
+   unicode character.
  *)
 open Stream
 
@@ -69,6 +73,12 @@ let substsense = ref substsense_default
  * if you want to.  RB
  *)
 
+(* previously, charpred applied to a string got the first character out of the string and
+   tested it. Not any longer ... so we have to be careful about all the charpred functions 
+   -- isdigit, islcletter, isletter, isucletter, isIDhead, isIDtail, isreserved, reservedpunct
+   -- and the things that are derived from them (sigh) like ispunct
+ *)
+ 
 let (isIDhead, updateIDhead) = charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'"
 let (isIDtail, updateIDtail) = charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'0123456789"
 
@@ -79,19 +89,19 @@ let (isreserved, _) = charpred "\"_() \n\t" (* the chars we give special meaning
 (* we can't use a list of the chars we allow as PUNCT because that kills 8-bit fonts *)
 (* recently deleted from isreserved: "$,[]" *)
 
-let metachar = "_"
-(* not a punct *)
+let metachar = "_"   (* not a punct *)
 
+(* this could be quicker, could it not? *)
 let rec ispunct c =
-  not (((c = metachar || isdigit c) || isIDhead c) || isreserved c)
+  not (c = "" || c = metachar || isdigit c || isIDhead c || isreserved c)
 
 let (reservedpunct, _) = charpred "(),[]"
 
 (* for fast-ish lookup of declared operators and identifiers, and for some error reporting *)
 let rec mkalt cts def =
-  let aa = Array.make 256 def in
-  let rec lookup c = Array.get aa (ord c) in
-  List.iter (fun (c, t) -> Array.set aa (ord c) t) cts; lookup
+  let aa = Hashtbl.create (List.length cts * 2) in
+  let rec lookup c = try Hashtbl.find aa c with Not_found -> def in
+  List.iter (fun (c, t) -> Hashtbl.add aa c t) cts; lookup
 
 let optree : (string, symbol) searchtree ref = ref (emptysearchtree mkalt)
 let idprefixtree : (string, idclass) searchtree ref =
@@ -139,21 +149,27 @@ let rec lookinIdtree rt cs =
 let rec decIDhead c =
   isIDhead c ||
   not (isdigit c || isreserved c) &&
-  begin updateIDhead (c, true); decIDheads := c :: !decIDheads; true end
+  (if !symboldebug then
+     consolereport ["decIDhead "; enCharQuote (pre_Ascii c)];
+   updateIDhead (c, true); decIDheads := c :: !decIDheads; true)
 
 let rec decIDtail c =
   isIDtail c ||
   not (isreserved c) &&
-  begin updateIDtail (c, true); decIDtails := c :: !decIDtails; true end
+  (if !symboldebug then
+     consolereport ["decIDtail "; enCharQuote (pre_Ascii c)];
+   updateIDtail (c, true); decIDtails := c :: !decIDtails; true)
 
-let rec insertinIdtree what isprefix class__ tree s =
+(* when we explode a string, we must make it a sequence of utf8 items *)
+
+let insertinIdtree what isprefix class__ tree s =
   let rec bang () =
     raise
       (Catastrophe_
          ["attempt to "; what; " "; idclassstring class__; " \""; s;
           "\""])
   in
-  match explode s with
+  match utf8_explode s with
     [] -> bang ()
   | c :: cs ->
       if decIDhead c then () else bang ();
@@ -162,7 +178,7 @@ let rec insertinIdtree what isprefix class__ tree s =
       if !symboldebug then
         consolereport
           ["insertinIdtree "; idclassstring class__; " ";
-           string_of_bool isprefix; " "; s];
+           string_of_bool isprefix; " "; enQuote (pre_Ascii s)];
       tree :=
         addtotree (fun (x, y) -> x = y) !tree (c :: cs, class__, isprefix)
 
@@ -186,7 +202,7 @@ let rec symclass s =
   | Some (INFIX _) -> OperatorClass
   | Some (INFIXC _) -> OperatorClass
   | Some _ -> raise (Symclass_ s)
-  | None -> lookinIdtree idprefixtree (explode s)
+  | None -> lookinIdtree idprefixtree (utf8_explode s)
 
 let rec reverselookup symbol =
   match symbol with
@@ -214,10 +230,10 @@ let rec preclassopt =
   | None -> Prestrs ["None"]
 let rec pre_assoc a =
   match a with
-    LeftAssoc -> Prestr "LeftAssoc"
-  | RightAssoc -> Prestr "RightAssoc"
-  | AssocAssoc -> Prestr "AssocAssoc"
-  | TupleAssoc -> Prestr "TupleAssoc"
+    LeftAssoc      -> Prestr "LeftAssoc"
+  | RightAssoc     -> Prestr "RightAssoc"
+  | AssocAssoc     -> Prestr "AssocAssoc"
+  | TupleAssoc     -> Prestr "TupleAssoc"
   | CommAssocAssoc -> Prestr "CommAssocAssoc"
 
 let rec pre_SYMBOL s =
@@ -270,34 +286,31 @@ let rec pre_SYMBOL s =
   | STILE s'1 -> Prestrs ["STILE \""; s'1; "\""]
   | SHYID s'1 -> Prestrs ["RESERVED-WORD "; s'1]
 
-let smlsymbolstring = pre_implode <.> pre_SYMBOL
+let smlsymbolstring = pre_Ascii <.> pre_implode <.> pre_SYMBOL
 
 let symbolstring = reverselookup
 
 let rec register_op s sym =
-  let rec bang () =
-    raise (Catastrophe_ ["attempt to register_op \""; s; "\""])
+  let rec bang s =
+    raise (Catastrophe_ ["("; s; ") attempt to register_op \""; s; "\""])
   in
-  if s = "" then bang ()
-  else
-    let cs = explode s in
-    if List.exists (not <.> ispunct) cs then bang ()
-    else
-      begin
-        if !symboldebug then
-          consolereport
-            ["register_op "; enQuote s; " "; smlsymbolstring sym];
-        optree := addtotree (fun (x, y) -> x = y) !optree (cs, sym, false)
-      end
+  if s = "" then bang "is_EOF";
+  let cs = utf8_explode s in
+  if List.exists (not <.> ispunct) cs then 
+    bang ("notallpunct "^bracketedliststring (enQuote<.>pre_Ascii) ";" cs);
+  if !symboldebug then
+    consolereport
+      ["register_op "; enQuote (pre_Ascii s); " "; smlsymbolstring sym];
+  optree := addtotree (fun (x, y) -> x = y) !optree (cs, sym, false)
 
 let rec deregister_op s sym =
   if !symboldebug then
     consolereport ["deregister_op "; enQuote s; " "; smlsymbolstring sym];
-  optree := deletefromtree (fun (x, y) -> x = y) !optree (explode s, sym, false)
+  optree := deletefromtree (fun (x, y) -> x = y) !optree (utf8_explode s, sym, false)
 
 let rec enter (string, symbol) =
   let rec doit () =
-    let rec isop s = s <> "" && ispunct s in
+    let isop s = ispunct (utf8_sub s 0) in
     let hidden =
       match symbol with
         SUBSTBRA -> true
@@ -306,11 +319,11 @@ let rec enter (string, symbol) =
       | _ -> false
     in
     if !symboldebug then
-      consolereport ["enter("; enQuote string; ","; smlsymbolstring symbol; ")"];
+      consolereport ["enter("; enQuote (pre_Ascii string); ","; smlsymbolstring symbol; ")"];
     (try
        let oldstring = reverselookup symbol in
        if isop oldstring && 
-          (match searchfsm (rootfsm optree) (explode oldstring) with Found _ -> true | NotFound _ -> false)
+          (match searchfsm (rootfsm optree) (utf8_explode oldstring) with Found _ -> true | NotFound _ -> false)
        then 
          (try deregister_op oldstring symbol 
           with DeleteFromTree_ -> 
@@ -320,7 +333,7 @@ let rec enter (string, symbol) =
             consolereport 
               ["DeleteFromTree_\n\t"; 
                  pairstring (bracketedliststring string_of_csrb "; ") string_of_csrb "\n\t" 
-                    (summarisetree !optree, (explode oldstring, symbol, false))]
+                    (summarisetree !optree, (utf8_explode oldstring, symbol, false))]
          );
        if hidden then (* Store.delete (!symboltable, oldstring) *)
                       Hashtbl.remove symboltable oldstring
@@ -379,7 +392,7 @@ let rec declareIdPrefix class__ s =
   end;
   insertinIdtree "declareIdPrefix" true class__ idprefixtree s;
   (* no warnings about clashes any more
-     case fsmpos (rootfsm idfixedtree) (explode s) of
+     case fsmpos (rootfsm idfixedtree) (utf8_explode s) of
        Some t => List.map ((fn t => s^implode t) o #1) (summarisetree t)
      | None   => []
   *)
@@ -390,7 +403,7 @@ let rec autoID class__ prefix =
     Some s -> s
   | None ->
       (* we just add underscores to prefix till it isn't in the IdPrefix tree *)
-      match fsmpos (rootfsm idprefixtree) (explode prefix) with
+      match fsmpos (rootfsm idprefixtree) (utf8_explode prefix) with
         None   -> (let _ = declareIdPrefix class__ prefix in prefix)
       | Some _ -> autoID class__ (prefix ^ "_")
 
@@ -401,23 +414,25 @@ let rec declareIdClass class__ s =
   None
 
 let rec isnumber s =
-  not (List.exists (not <.> isdigit) (explode s))
+  not (List.exists (not <.> isdigit) (utf8_explode s))
 
 let rec isextensibleID s =
-  lookup s = None && lookinIdtree idprefixtree (explode s) <> NoClass
+  lookup s = None && lookinIdtree idprefixtree (utf8_explode s) <> NoClass
 
 let commasymbol = INFIX (0, TupleAssoc, ",") (* comma is now an operator, and may we be lucky *)
 
 let rec resetSymbols () =
-  let rec enterclass f s = enter (s, f s) in
+  let enterclass f s = enter (s, f s) in
   let debug = !symboldebug in
   symboldebug := false;
   (* symboltable := Store.new__ friendlyLargeishPrime *)
   Hashtbl.clear symboltable;
   (* reversemapping := Mappingfuns.empty *)
   Hashtbl.clear reversemapping;
+  if !symboldebug then consolereport ["about to make optree"];
   optree := emptysearchtree mkalt;
   oplist := None;
+  if !symboldebug then  consolereport ["clearing IDheads"];
   List.iter (fun c -> updateIDhead (c, false)) !decIDheads;
   decIDheads := [];
   List.iter (fun c -> updateIDtail (c, false)) !decIDtails;
@@ -425,7 +440,8 @@ let rec resetSymbols () =
   idprefixtree := emptysearchtree mkalt;
   idfixedtree := emptysearchtree mkalt;
   decVarPrefixes := Mappingfuns.empty;
-  List.iter (enterclass (fun s->SHYID s))
+  if !symboldebug then  consolereport ["defining SHYIDs"];
+  List.iter (enterclass (fun s -> SHYID s))
     ["ABSTRACTION"; "AND"; "ARE"; "AUTOMATCH"; "AUTOUNIFY"; 
      "BAG"; "BIND"; "BUTTON"; 
      "CHECKBOX"; "CHILDREN"; "CLASS"; "COMMAND";
@@ -453,13 +469,16 @@ let rec resetSymbols () =
      "UMENU"; "UNIFIESWITH"; "USE"; 
      "VARIABLE"; "VIEW"; 
      "WEAKEN"; "WHERE"; "WORLD"];
+  if !symboldebug then  consolereport ["defining BRA"];
   enter ("(", BRA "(");
   (* these two still need special treatment ... *)
+  if !symboldebug then  consolereport ["defining KET"];
   enter (")", KET ")");
   enter ("[", SUBSTBRA);
   enter ("\\", SUBSTSEP);
   enter ("]", SUBSTKET);
   enter ("", EOF);
+  if !symboldebug then  consolereport ["defining commasymbol"];
   enter (",", commasymbol);
   appfix := appfix_default;
   substfix := substfix_default;
@@ -497,7 +516,6 @@ let rec unescapechar c =
  *)
 let lexin = ref (of_channel stdin)
 let lexinfile = ref ""
-let errout = ref stderr
 let linenum = ref 0
 let symb = ref EOF
 let peekedsymb : symbol list ref = ref []
@@ -509,9 +527,12 @@ let rec showInputError f msg =
   in
   f (loc @ msg)
 
-let char () = match peek !lexin with Some c -> String.make 1 c | None -> "" 
+(* get utf8 items; translate 85, 2028 and 2029 into Unix newline *)
+let char () = match utf8_peek !lexin with 
+                  Some s -> if s="\xc2\x85" || s="\xe2\x80\xa8" || s="\xe2\x80\xa9" then "\n" else s
+                | None   -> "" 
 
-let next () = try let _ = next !lexin in () with _ -> ()
+let next () = utf8_junk !lexin
 
 let rec scanwhile =
   fun pp rcs con ->
@@ -522,12 +543,14 @@ let rec scanwhile =
 let rec scanwatch f =
   if !symboldebug then
     fun v ->
-      let c = f v in if !symboldebug then consolereport ["scanfsm "; c]; c
+      let c = f v in if !symboldebug then consolereport ["scanfsm '"; pre_Ascii c; "'"]; c
   else f
 
 let rec scannext () = next (); char ()
 
 let rec scanop fsm rcs =
+  if !symboldebug then 
+    consolereport ["scanop "; bracketedliststring (fun c -> enCharQuote (pre_Ascii c)) ";" rcs];
   match scanfsm (scanwatch scannext) fsm rcs (scanwatch char ()) with
     Found (sy, _) -> sy
   | NotFound rcs' ->
@@ -540,6 +563,8 @@ let rec scanid conf =
       (if rcs=[] then (let r = [char ()] in next (); r) else rcs)
       (conf classopt)
   in
+  if !symboldebug then 
+    consolereport ["scanid "];
   match
     scanfsm (scanwatch scannext) (rootfsm idprefixtree) [] (scanwatch char ())
   with
@@ -558,12 +583,12 @@ let rec checkidclass con takeit class__ s =
 
 let rec scan () =
   match char () with
-    "" -> scanreport EOF
-  | " " -> next (); scan ()
+    ""   -> scanreport EOF
+  | " "  -> next (); scan ()
   | "\t" -> next (); scan ()
   | "\n" -> incr linenum; next (); scan ()
-  | "(" -> next (); scanreport (BRA "(")
-  | ")" ->(* necessary ? - I think so *)
+  | "("  -> next (); scanreport (BRA "(")
+  | ")"  -> (* necessary ? - I think so *)
      next (); scanreport (KET ")")
   | "/" ->
       (* "/" must be a punct *)
@@ -597,6 +622,7 @@ let rec scan () =
       else if isdigit c then scanreport (scanwhile isdigit [] (fun s->NUM s))
       else if ispunct c then scanreport (scanop (rootfsm optree) [])
       else raise (Catastrophe_ ["scan can't see class of "; c])
+
 and scanComment (n, k) =
   match char () with
     "" ->
@@ -630,6 +656,7 @@ and scanComment (n, k) =
       | _ -> scanComment (n, k)
       end
   | _ -> next (); scanComment (n, k)
+
 and scanString k rcs =
   match (let r = char () in next (); r) with
     "" ->
@@ -665,6 +692,8 @@ and scanString k rcs =
 let showInputError = showInputError
 
 let rec scansymb () =
+  if !symboldebug then
+    consolereport ["scansymb -- peekedsymb is "; bracketedliststring smlsymbolstring ";" !peekedsymb];
   match !peekedsymb with
     [] -> symb := scan ()
   | sym :: more -> symb := sym; peekedsymb := more
@@ -681,18 +710,20 @@ let rec putbacksymb s = peekedsymb := !symb :: !peekedsymb; symb := s
 let rec canstartnovelsymb sy =
   match sy with
     UNKNOWN _ -> false
-  | NUM _ -> false
-  | STRING _ -> false
-  | EOF -> false
-  | SHYID _ -> false
-  | _ -> not (isreserved (reverselookup sy))
+  | NUM _     -> false
+  | STRING _  -> false
+  | EOF       -> false
+  | SHYID _   -> false
+  | _         -> not (isreserved (utf8_sub (reverselookup sy) 0))
 
 let rec currnovelsymb () =
+  if !symboldebug then
+    consolereport ["currnovelsymb "; smlsymbolstring !symb];
   if canstartnovelsymb !symb then
     let symstr = reverselookup !symb in
-    let cs = explode symstr in
+    let cs = utf8_explode symstr in
     (* used to be ...
-    if ispunct symstr then
+    if startspunct symstr then
        case !peekedsymb of
          [] => (symb := scanwhile ispunct (List.rev cs) checkbadID; 
                 !symb
@@ -711,6 +742,7 @@ let rec currnovelsymb () =
       (ParseError_
          [symbolstring !symb;
           " can't start a new identifier or operator"])
+
 type savedlex = char Stream.t * string * int * symbol * symbol list
 
 let rec pushlex name newstream =
@@ -731,41 +763,48 @@ let rec poplex (lxin, lxinf, lnum, sy, pksy) =
   peekedsymb := pksy
 
 (* some aid for pretty-printers *)
+
 type charclass = LETTER | PUNCT | RESERVEDPUNCT | SPACE | OTHER
 
 let rec charclass =
   function
     " " -> SPACE
-  | c ->
-      if isIDtail c then LETTER
-      else if ispunct c then PUNCT
+  | c   ->
+      if isIDtail           c then LETTER
+      else if ispunct       c then PUNCT
       else if reservedpunct c then RESERVEDPUNCT
-      else OTHER
+      else                         OTHER
 
 let rec mustseparate =
   function
-    "", _ -> false
-  | _, "" -> false
+    "", _  -> false
+  | _ , "" -> false
   | a1, a2 ->
+      let c1 = utf8_presub a1 (String.length a1) in
+      let c2 = utf8_sub a2 0 in
       let rec msp c =
-        opt2bool (fsmpos (rootfsm optree) (explode a1) &~~ (fun t -> fsmpos t [c]))
+        opt2bool (fsmpos (rootfsm optree) (utf8_explode a1) &~~ (fun t -> fsmpos t [c]))
       in
-      let rec ms =
+      let ms =
         function
-          SPACE, _ -> false
-        | _, SPACE -> false
-        | PUNCT, _ -> msp (String.sub (a2) (0) (1))
-        | _, PUNCT -> false
-        | RESERVEDPUNCT, _ -> false
-        | _, RESERVEDPUNCT -> false
-        | _, _ -> true
+          SPACE        , _             -> false
+        | _            , SPACE         -> false
+        | PUNCT        , _             -> msp c2
+        | _            , PUNCT         -> false
+        | RESERVEDPUNCT, _             -> false
+        | _            , RESERVEDPUNCT -> false
+        | _            , _             -> true
       in
-      ms (charclass (String.sub (a1) (String.length a1 - 1) (1)),
-          charclass (String.sub (a2) (0) (1)))
+      ms (charclass c1, charclass c2)
 
 let enter = carefullyEnter
 
 let lookup = checkbadID
 
-let _ = (try resetSymbols () with exn -> consolereport ["resetSymbols raised "; Printexc.to_string exn]; ())
+let _ = (try resetSymbols () 
+         with Catastrophe_ ss ->
+                consolereport ["resetSymbols raised Catastrophe_ \""; implode ss; "\""]
+         |    exn -> 
+                consolereport ["resetSymbols raised "; Printexc.to_string exn]
+        )
 

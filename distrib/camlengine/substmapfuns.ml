@@ -38,6 +38,7 @@ open Termstring
 open Termtype
 open Termstore
 
+let consolereport = Miscellaneous.consolereport
 let mkNotin v = Provisotype.NotinProviso v
 
 let substdebug = ref false

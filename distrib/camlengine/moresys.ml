@@ -27,7 +27,9 @@
 
 open Sys
 
-let _ = Printf.eprintf "Operating System %s\n" os_type
+let _ = output_string stderr "Operating System "
+let _ = output_string stderr Sys.os_type
+let _ = output_char stderr '\n'
 
 exception Interrupt (* in case you need it *)
 

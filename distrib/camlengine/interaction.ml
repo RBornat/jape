@@ -172,7 +172,7 @@ let rec sortoutSelection state pathkind =
   let (proofsels, prooftextsels, givensel) = Japeserver.getAllProofSelections () in
   (* remove invisbra/kets from any text selections we see *)
   let rec deinvis s =
-    implode ((fun c -> not (invisible c)) <| explode s)
+    Sml.string_of_chars ((fun c -> not (Miscellaneous.invisible_char c)) <| Sml.chars_of_string s)
   in
   let prooftextsels = List.map (fun (p, ss) -> p, List.map deinvis ss) prooftextsels in
   let givensel = List.map deinvis givensel in

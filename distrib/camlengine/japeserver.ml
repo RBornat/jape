@@ -52,6 +52,8 @@ type box = Box.box
  and size = Box.size
  and textsize = Box.textsize
 
+let consolereport = Miscellaneous.consolereport
+
 let version =
   "$Id$"
 
@@ -61,7 +63,7 @@ let rec explodePos pos = posX pos, posY pos
 let rec explodeSize s = sW s, sH s
 let rec explodeTextSize s = tsW s, tsA s, tsD s (* width, ascent, descent *)
 
-let infromGUI = stdin
+let infromGUI = stdin 
 let outtoGUI = stdout
 
 let _GUIresponded = ref false
@@ -76,7 +78,7 @@ let deadGUI () =
   
 (* if the server is dead, this will definitely cause a problem *)
 let flush s =
-  try Pervasives.flush outtoGUI 
+  try flush outtoGUI 
   with Sys_error("Broken pipe") -> deadGUI()
   |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.flush "; s];
               deadGUI()
@@ -94,7 +96,7 @@ let write s = out s; out "\n"; flush s
 
 let rec visible s = implode (List.map vis (explode s))
 and vis c = if c < " " then "\\" ^ string_of_int (ord c) else c
-
+    
 (* if the server has crashed, input_line may give an exception *)
 let rec readline s = 
   flush s; 
@@ -227,7 +229,7 @@ let rec getPointSize n =
   (* actually it's font height, and it isn't used *)
   match askf "POINTSIZE %\n" [Int n] with
     [n] -> n
-  | _ -> output_string stderr "[POINTSIZE FAILS]\n"; 0
+  | _   -> output_string stderr "[POINTSIZE FAILS]\n"; 0
 
 let invischars : string list ref = ref []
 

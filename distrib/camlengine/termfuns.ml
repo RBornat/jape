@@ -45,6 +45,7 @@ open Sml
 let bracketed = Termtype.bracketed
 let debracket = Termtype.debracket
 let resnum2int = Termtype.resnum2int
+let consolereport = Miscellaneous.consolereport
 
 (* --------------------- hack to help binding matches go faster --------------------- *)
 

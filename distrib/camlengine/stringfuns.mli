@@ -28,6 +28,7 @@
 val isQuoted : string -> bool
 val disQuote : string -> string
 val enQuote : string -> string
+val enCharQuote : string -> string
 val words : string -> string list
 val respace : string list -> string
 val lowercase : string -> string
@@ -111,3 +112,4 @@ val catelim_arraystring :
 val arraystring : ('a -> string) -> string -> 'a array -> string
 
 val quotedstring_of_char : char -> string
+val hexstring_of_int : int -> string

@@ -36,6 +36,8 @@ open Termstore
 open Idclass
 open Sml
 
+let consolereport = Miscellaneous.consolereport
+
 type ('a, 'b) mapping = ('a, 'b) Mappingfuns.mapping
 type term = Termtype.term
 

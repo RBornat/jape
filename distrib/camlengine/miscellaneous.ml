@@ -28,52 +28,22 @@
 open Sml
    
 let rec iter f (l, h) =
-  if l > h then () else begin f l; iter f (l + 1, h) end
-let rec charpred s =
-  let v = Array.make 256 false in
-  iter (fun i -> Array.set v (Char.code (String.get s i)) true) (0, String.length s - 1);
-  (fun c -> Array.get v (Char.code (String.get c 0))),
-  (fun (c, b) -> Array.set v (Char.code (String.get c 0)) b)
+  for i = l to h do f i done
+
+let charpred s =
+  let v = Hashtbl.create (String.length s * 2) in
+  String.iter (fun c -> Hashtbl.add v (String.make 1 c) true) s;
+  (fun c -> try Hashtbl.find v c with Not_found -> false),
+  (fun (c, b) -> Hashtbl.add v c b)
+
 let (islcletter, _) = charpred "abcdefghijklmnopqrstuvwxyz"
 let (isucletter, _) = charpred "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 let rec isletter c = islcletter c || isucletter c
 let (isdigit, _) = charpred "0123456789"
+
 exception AtoI_
+
 let atoi s = try Pervasives.int_of_string s with Failure _ -> raise AtoI_
-let errstream : out_channel ref = ref stderr
-let reporteropen = ref false
-let rec create_reportfile s =
-  if !reporteropen then close_out !errstream;
-  errstream := open_out s;
-  reporteropen := true
-let rec close_reportfile () =
-  if !reporteropen then close_out !errstream;
-  errstream := stderr;
-  reporteropen := false
-let rec consolereport strings =
-  let e = !errstream in
-  List.iter (output_string e) strings; output_string e "\n"; flush e
-let observe = consolereport
-let rec consolequery (message, yes, no, def) =
-  List.iter (output_string stdout) message;
-  output_string stdout "  ";
-  let rec q () =
-    List.iter (output_string stdout) [yes; "(y)/"; no; "(n)? "];
-    flush stdout;
-    match input_char stdin with
-      'Y' -> true
-    | 'y' -> true
-    | 'N' -> false
-    | 'n' -> false
-    | _ -> s ()
-  and s () =
-    match input_char stdin with
-      '\n' -> output_string stdout "Pardon? "; q ()
-    | _ -> s ()
-  in
-  q ()
-exception Error_
-let rec error strings = consolereport strings; raise Error_
 let rec sum ns = List.fold_left (+) 0 ns
 let rec curry2 f a b = f (a, b)
 let rec uncurry2 f (a, b) = f a b
@@ -126,9 +96,53 @@ let lockket = '\015' (* SI *)
  *)
 let invisible_char c = (onbra <= c && c <= outket) || c = lockbra || c = lockket
 let invisible s =
-  not (List.exists (not <.> invisible_char) (chars_of_string s))
+  let lim = String.length s in
+  let rec f i = i!=lim && invisible_char s.[i] && f (i+1) in
+  f 0
 
 exception Catastrophe_ of string list
 exception ParseError_ of string list
 exception Tacastrophe_ of string list
 
+let utf8BOM = "\xef\xbb\xbf"
+
+let errstream : out_channel ref = ref stderr
+
+let reporteropen = ref false
+
+let rec create_reportfile s =
+  if !reporteropen then close_out !errstream;
+  errstream := open_out s;
+  output_string !errstream utf8BOM;
+  reporteropen := true
+  
+let rec close_reportfile () =
+  if !reporteropen then close_out !errstream;
+  errstream := stderr;
+  reporteropen := false
+  
+let rec consolereport strings =
+  let e = !errstream in
+  List.iter (output_string e) strings; output_string e "\n"; flush e
+
+let rec consolequery (message, yes, no, def) =
+  List.iter (output_string stdout) message;
+  output_string stdout "  ";
+  let rec q () =
+    List.iter (output_string stdout) [yes; "(y)/"; no; "(n)? "];
+    flush stdout;
+    match input_char stdin with
+      'Y' -> true
+    | 'y' -> true
+    | 'N' -> false
+    | 'n' -> false
+    | _ -> s ()
+  and s () =
+    match input_char stdin with
+      '\n' -> output_string stdout "Pardon? "; q ()
+    | _ -> s ()
+  in
+  q ()
+  
+exception Error_
+let rec error strings = consolereport strings; raise Error_

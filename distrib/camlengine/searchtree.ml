@@ -47,34 +47,45 @@ type ('c, 'r) status =
   Unbuilt of ('c, 'r) mkalt | Built of (('c, 'r) mkalt * ('c, 'r) fsm)
 and ('c, 'r) mkalt =
   ('c * ('c, 'r) fsm) list -> ('c, 'r) fsm -> 'c -> ('c, 'r) fsm
+
 type ('c, 'r) searchtree =
   SearchTree of (('c list * 'r * bool) list * ('c, 'r) status)
-				(* chars  result isprefix         tree            *)
+				(* chars  result isprefix     tree            *)
 
-let rec emptysearchtree f = SearchTree ([], Unbuilt f)
-let rec mkalt =
+let emptysearchtree f = SearchTree ([], Unbuilt f)
+
+let mkalt =
   function
 	Built (f, _) -> f
-  | Unbuilt f -> f
-let rec same eqr (cs, r, isprefix) (cs', r', b) =
+  | Unbuilt f    -> f
+
+let same eqr (cs, r, isprefix) (cs', r', b) =
   (cs = cs' && eqr (r, r')) && isprefix = b
-let rec diff cs (cs', _, _) = cs <> cs'
+
+let diff cs (cs', _, _) = cs <> cs'
+
 (* given a tree, a list of cs and a result, make an augmented tree *)
 (* for heaven's sake, slow lookup doesn't matter here? *)
-let rec addtotree eqr =
-  fun (SearchTree (csrbs, status) as t) (cs, r, isprefix as info) ->
-	if List.exists (same eqr info) csrbs then t
-	else
-	  SearchTree (info :: (diff cs <| csrbs), Unbuilt (mkalt status))
+
+let addtotree eqr (SearchTree (csrbs, status) as t) (cs, r, isprefix as info) =
+  if List.exists (same eqr info) csrbs then t
+  else
+    SearchTree (info :: (diff cs <| csrbs), Unbuilt (mkalt status))
+
 (* delete stuff from trees; explode if it isn't there *)
+
 exception DeleteFromTree_
-let rec deletefromtree eqr =
+
+let deletefromtree eqr =
   fun (SearchTree (csrbs, status) as t) (cs, r, isprefix as info) ->
 	if List.exists (same eqr info) csrbs then
 	  SearchTree (diff cs <| csrbs, Unbuilt (mkalt status))
 	else raise DeleteFromTree_
+
 (* give list of items in tree and what they index *)
-let rec summarisetree = fun (SearchTree (csrbs, _) as t) -> csrbs
+
+let summarisetree (SearchTree (csrbs, _) as t) = csrbs
+
 let rec catelim_fsmstring cf rf t ss =
   match t with
 	Wrong -> "Wrong" :: ss
@@ -89,7 +100,8 @@ let rec catelim_fsmstring cf rf t ss =
 		   ("," ::
 			  catelim_fsmstring cf rf t1
 				("," :: catelim_fsmstring cf rf t2 (")" :: ss)))
-let rec rootfsm rt =
+
+let rootfsm rt =
   match !rt with
 	SearchTree (_, Built (_, t)) -> t
   | SearchTree (csrbs, Unbuilt mkalt) ->
@@ -119,10 +131,13 @@ let rec rootfsm rt =
 			  diffs def
 	  in
 	  let t = doit csrbs in rt := SearchTree (csrbs, Built (mkalt, t)); t
+
 type ('r, 's) searchresult = Found of ('r * 's) | NotFound of 's
+
 (* given a tree and a list of things, find the tree to which those things take you 
  * -- takes no notice at all of Prefix
  *)
+
 let rec fsmpos t cs =
   match t, cs with
 	_, [] -> Some t
@@ -132,28 +147,31 @@ let rec fsmpos t cs =
   | Eq (c', y, n), c :: cs' ->
 	  if c = c' then fsmpos y cs' else fsmpos n cs
   | _ -> None
+
 (* a scan function *)
 (* result includes reverse of ''cs scanned *)
-let rec scanfsm next t rcs c =
+
+let scanfsm next t rcs c =
   let rec scan t rcs c =
 	match t with
-	  Answer r -> Found (r, rcs)
-	| Wrong -> NotFound rcs
-	| Prefix (r, t') ->
-		begin match scan t' rcs c with
+	  Answer r       -> Found (r, rcs)
+	| Wrong          -> NotFound rcs
+	| Prefix (r, t') -> (
+		match scan t' rcs c with
 		  NotFound _ -> Found (r, rcs)
-		| res -> res
-		end
-	| Shift t' -> scan t' (c :: rcs) (next ())
-	| Alt f -> scan (f c) rcs c
+		| res        -> res)
+	| Shift t'      -> scan t' (c :: rcs) (next ())
+	| Alt f         -> scan (f c) rcs c
 	| Eq (c', y, n) ->
 		if c = c' then scan y (c :: rcs) (next ()) else scan n rcs c
   in
   scan t rcs c
+
 (* this is duplicated, but that's because the one above has to be fast *)
 (* no idea if the Prefix stuff is useful *)
 (* this result includes state *)
-let rec scanstatefsm curr move t state =
+
+let scanstatefsm curr move t state =
   let rec scan t state =
 	match t with
 	  Answer r -> Found (r, state)
@@ -169,8 +187,10 @@ let rec scanstatefsm curr move t state =
 		if curr state = c' then scan y (move state) else scan n state
   in
   scan t state
+
 (* a search function -- notices Prefix *)
-let rec searchfsm t cs =
+
+let searchfsm t cs =
   let rec search t rcs cs =
 	match t, cs with
 	  Answer r, [] -> Found (r, rcs)

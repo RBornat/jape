@@ -39,6 +39,8 @@ open Binding
 open Optionfuns
 open Miscellaneous
 
+let termparsedebug = ref false
+
 (* stuff to handle variable leftfix/outfix syntax *)
 
 let symbeq : symbol * symbol -> bool = fun (x, y) -> x = y
@@ -77,7 +79,10 @@ let rec check s =
 	  (ParseError_
 		 ["Expected "; smlsymbolstring s; ", found "; smlsymbolstring (currsymb ())])
 
-let rec ignore s = if currsymb () = s then scansymb () else ()
+let rec ignore s = 
+  if !termparsedebug then
+    consolereport ["ignore "; smlsymbolstring s; " (currsymb="; smlsymbolstring (currsymb()); ")"];
+  if currsymb () = s then scansymb () else ()
 
 let rec parseUnsepList start f =
   if start (currsymb ()) then 
@@ -371,6 +376,8 @@ and parseSubststuff () =
 		  " is unbalanced"])
 
 and parseterm fsy =
+  if !termparsedebug then
+    consolereport ["parseterm "; smlsymbolstring fsy; " (currsymb="; smlsymbolstring (currsymb()); ")"];
   if canstartCollectionidclass (currsymb ()) then
 	let c = parseidclass "" in
 	let (_, els) =
@@ -379,9 +386,9 @@ and parseterm fsy =
 	registerCollection (c, els)
   else
 	match fsy with
-	  INFIX (n, _, _) -> parseExpr n true
+	  INFIX (n, _, _)  -> parseExpr n true
 	| INFIXC (n, _, _) -> parseExpr n true
-	| _ -> parseExpr 0 false
+	| _                -> parseExpr 0 false
 
 and parseElementList starter parser__ sep k =
   let kind : idclass option ref = ref k in

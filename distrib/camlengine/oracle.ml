@@ -145,10 +145,10 @@ let rec line_from s =
 
 let rec flush s =
   try Pervasives.flush s with
-    _ -> output_string stderr "[Flush]"
+    _ -> consolereport ["[Flush]"]
 let rec string_to s t =
   try output_string s t with
-    _ -> output_string stderr "[String To]"
+    _ -> consolereport ["[String To]"]
 
 let rec createoracle oraclename (store, table, mapped) =
   let trans d s = try Hashtbl.find store s with Not_found -> d in

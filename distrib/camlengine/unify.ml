@@ -78,6 +78,8 @@ open Termstore
 open Termtype
 open Termstring
 
+let consolereport = Miscellaneous.consolereport
+
 let unifydebug = ref false
 let rec freshUnknown cxt c v =
   let (cxt, v) = freshVID cxt c v in cxt, registerUnknown (v, c)

@@ -1000,7 +1000,7 @@ let rec newtile =
          (fun t' -> if member (t', tiles) then None else Some t'))
     in
     let rec newoccurrence v =
-      let cs = explode (termstring v) in
+      let cs = UTF.utf8_explode (termstring v) in
       let ds = List.rev (takewhile isdigit (List.rev cs)) in
       let stem = implode (take (List.length cs - List.length ds) cs) in
       let stern = if null ds then 1 else atoi (implode ds) + 1 in

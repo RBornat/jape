@@ -48,8 +48,8 @@ open Termstore
 open Termstring
 open Termtype
 
+let consolereport = Miscellaneous.consolereport
 let rewinfstring = Rewinf.rewinfstring
-
 
 let rewritedebug = ref false
 (* the rewrite functions rewrite a term/sequent/proviso, 

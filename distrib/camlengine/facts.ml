@@ -41,6 +41,8 @@ open Termfuns
 open Termstring
 open Termtype
 
+let consolereport = Miscellaneous.consolereport
+
 let factsdebug = ref false
 
 type facts = proviso list * exterior

@@ -36,6 +36,8 @@ open Termstring
 
 type term = Termtype.term
 
+let consolereport = Miscellaneous.consolereport
+
 let bindingdebug = ref false
 type bindingdirective = term list * term list * term list * term
 let bindingdirectives =

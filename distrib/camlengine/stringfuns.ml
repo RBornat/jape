@@ -45,7 +45,8 @@ let rec disQuote s =
   with
     _ -> s
 
-let rec enQuote s = ("\"" ^ s) ^ "\""
+let enQuote s = "\"" ^ s ^ "\""
+let enCharQuote s = "'" ^ s ^ "'"
 
 let rec words =
   function
@@ -129,3 +130,11 @@ let rec arraystring f sep =
   catelim2stringfn (catelim_arraystring (s f) sep)
 
 let quotedstring_of_char c = "'" ^ (Char.escaped c) ^ "'"
+
+let hexdigs = "0123456789abcdef"
+
+let hexstring_of_int i = 
+  let rec h i = 
+    if i=0 then [] else hexdigs.[i land 0xf] :: h (i lsr 4)
+  in
+  Sml.string_of_chars ('0' :: 'x' :: if i=0 then ['0'] else List.rev (h i))

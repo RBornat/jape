@@ -48,6 +48,7 @@ open Termstore
 open Termstring
 open Termtype
 
+let consolereport = Miscellaneous.consolereport
 
 let baseseqsides cxt =
   match getexterior cxt with

@@ -27,7 +27,7 @@
 
 
 open Cxttype
-open Forcedef 
+open Forcedef
 open Name
 open Proofstage
 open Prooftree.Tree.Fmttree
@@ -35,12 +35,12 @@ open Proviso
 open Seqtype
 open Thing
 
-val saveable : unit -> bool
-val saved : unit -> bool
+val saveable    : unit -> bool
+val saved       : unit -> bool
 val freezesaved : unit -> unit
-val thawsaved : unit -> unit
+val thawsaved   : unit -> unit
 
-val saveproof : out_channel -> name -> proofstage -> prooftree 
+val saveproof  : out_channel -> name -> proofstage -> prooftree 
              -> proviso list -> seq list -> (seq * model) option -> unit
 val saveproofs : out_channel -> unit
 
@@ -56,12 +56,13 @@ val addproof : (string list -> unit) ->                          (* alert *)
                name -> bool -> prooftree -> seq list -> cxt ->   (* name proved proof givens cxt *)
                bool -> (seq * model) option -> bool              (* disproved disproof -> success *)
 
-val clearproofs : unit -> unit
-val proofnames : unit -> name list
-val thingswithproofs : bool -> name list
+val clearproofs      : unit -> unit
+val proofnames       : unit -> name list
+
+val thingswithproofs      : bool -> name list
 val namedthingswithproofs : bool -> name list -> name list
 
 (* bad naming here *)
-val needsProof : name -> thing -> bool
-val lacksProof : name -> bool
+val needsProof    : name -> thing -> bool
+val lacksProof    : name -> bool
 val thmLacksProof : name -> bool

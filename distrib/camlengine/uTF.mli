@@ -25,25 +25,26 @@
 
 *)
 
-type prestring =
-  Prestr of string | Prestrs of string list | Prepres of prestring list
+exception Malformed_
 
-val pre_List : ('a -> prestring) -> 'a list -> prestring
-val pre_Set : ('a -> prestring) -> 'a list -> prestring
-val pre_Tuple : ('a -> prestring) -> 'a list -> prestring
-val pre__comma : prestring
-val pre__nil : prestring
-val pre__space : prestring
-val pre_app : (string -> unit) -> prestring -> unit
-val pre_array : ('a -> prestring) -> 'a array -> prestring
-val pre_bool : bool -> prestring
-val pre_implode : prestring -> string
-val pre_int : int -> prestring
-val pre_list : ('a -> prestring) -> 'a list -> prestring
-val pre_option : ('a -> prestring) -> 'a option -> prestring
-val pre_real : float -> prestring
-val pre_string : string -> prestring
-val pre_unit : unit -> prestring
-val pre_vector : ('a -> prestring) -> 'a array -> prestring
+val next_utf8  : char Stream.t -> int
+val next_utf16 : bool (* bigendian *) -> char Stream.t -> int
+val next_utf32 : bool (* bigendian *) -> char Stream.t -> int
 
-val pre_Ascii : string -> string
+val utf8_of_int  : int -> char list
+val utf16_of_int : bool (* bigendian *) -> int -> char list
+val utf32_of_int : bool (* bigendian *) -> int -> char list
+
+val utf8_of_utfchannel  : in_channel -> char Stream.t                (* respects BOMs; utf8 default *)
+val utf8_of_utfNchannel : int -> bool -> in_channel -> char Stream.t (* skips BOM *)
+val open_out_utf8       : string -> out_channel                      (* writes utf8BOM *)
+
+val utf8width_from_header : char -> int
+
+val utf8_sub    : string -> int -> string
+val utf8_presub : string -> int -> string
+
+val utf8_peek : char Stream.t -> string option
+val utf8_junk : char Stream.t -> unit
+
+val utf8_explode : string -> string list

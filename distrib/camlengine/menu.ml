@@ -38,6 +38,7 @@ type panelkind = Panelkind.panelkind
  and panelbuttoninsert = Panelkind.panelbuttoninsert
  and name = Name.name
  
+let consolereport = Miscellaneous.consolereport
 
 let systemmenus = ["File"; "Edit"] (* filth; introduced by RB *)
 

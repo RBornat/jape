@@ -53,6 +53,8 @@ open Termparse
 
 type tactic = Tactictype.tactic
 
+let consolereport = Miscellaneous.consolereport
+
 let thingdebug = ref false
 
 let thingdebugheavy = ref false

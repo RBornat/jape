@@ -120,7 +120,6 @@ let rec initGUI () =
 
 let isCutStep = Prooftree.Tree.isCutStep
 let mkvisproviso = Proviso.mkvisproviso
-let observe = Miscellaneous.observe
 let optionstring = Optionfuns.optionstring
 let ( |~ ) = Optionfuns.( |~ )
 let ( |~~ ) = Optionfuns.( |~~ )
@@ -223,8 +222,9 @@ let pairs =
    "showallproofsteps"    , bj                         false        Prooftree.Tree.showallproofsteps;
    "showallprovisos"      , bj                         false        Interaction.showallprovisos;
    "substdebug"           , bj                         false        Substmapfuns.substdebug;
-   "symboldebug"          , bj                         false        Symbol.symboldebug;
+   "symboldebug"          , bj                         false         Symbol.symboldebug;
    "tactictracing"        , bj                         false        Tacticfuns.tactictracing;
+   "termparsedebug"       , bj                         false         Termparse.termparsedebug;
    "textselectionmode"    , sj ["subformula"; "token"] "subformula" Miscellaneous.textselectionmode;
    "thingdebug"           , bj                         false        Thing.thingdebug;
    "thingdebugheavy"      , bj                         false        Thing.thingdebugheavy;
@@ -806,7 +806,7 @@ and rundialogue env mbs proofs =
   try
     let dialogue () = startcommands env mbs proofs in
     (* open RUN OCaml no like *)
-    let _Int _ = observe ["[Interrupted]"]; interruptTactic () (* but don't crash *) in
+    let _Int _ = consolereport ["[Interrupted]"]; interruptTactic () (* but don't crash *) in
     Moresys.onInterrupt _Int dialogue; terminateGUI ()
   with
     Catastrophe_ s -> reportGUIdead ("exception Catastrophe_ " :: s)
@@ -955,6 +955,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   let writetonamedfile action filename =
     try
       let sfile = try Moresys.open_output_file (disQuote filename) with exn -> raise (Io exn) in
+      output_string sfile Miscellaneous.utf8BOM;
       action sfile; close_out sfile; true
     with
       Io exn -> showAlert ["Cannot write file "; filename; " ("; Printexc.to_string exn; ")"]; false

@@ -31,9 +31,9 @@ type prestring =
   Prestr of string | Prestrs of string list | Prepres of prestring list
 
 let pre_string s = Prestr s
-let pre__comma = Prestr ", "
-let pre__nil = Prepres []
-let pre__space = Prestr " "
+let pre__comma   = Prestr ", "
+let pre__nil     = Prepres []
+let pre__space   = Prestr " "
 
 (*  Primitive preprinters *)
 
@@ -43,11 +43,13 @@ let rec pre_unit () = Prestr "()"
 let rec pre_bool (b : bool) = Prestr (string_of_bool b)
 
 (*  Built-in constructors *)
-let rec pre_option a1 a2 =
+
+let pre_option a1 a2 =
   match a1, a2 with
-	f, None -> Prestr "None"
+	f, None   -> Prestr "None"
   | f, Some x -> Prepres [Prestr "Some("; f x; Prestr ")"]
-let rec pre_array f a =
+
+let pre_array f a =
   let s = Array.length a in
   let rec p n =
 	if n = s then []
@@ -56,7 +58,8 @@ let rec pre_array f a =
 		(if n + 1 = s then pre__nil else pre__space) :: p (n + 1)
   in
   Prepres (p 0)
-let rec pre_vector f a =
+
+let pre_vector f a =
   let s = Array.length a in
   let rec p n =
 	if n = s then []
@@ -65,8 +68,9 @@ let rec pre_vector f a =
 		(if n + 1 = s then pre__nil else pre__comma) :: p (n + 1)
   in
   Prepres [Prestr "["; Prepres (p 0); Prestr "]"]
-exception Matchinpre_Comma
-(* spurious *)
+
+exception Matchinpre_Comma (* spurious *)
+
 let rec pre_Comma a1 a2 =
   match a1, a2 with
 	f, [] -> Prepres []
@@ -75,15 +79,19 @@ let rec pre_Comma a1 a2 =
 	  match pre_Comma f xs with
 		Prepres ps -> Prepres (f x :: pre__comma :: ps)
 	  | _ -> raise Matchinpre_Comma
-let rec pre_Tuple f xs =
+
+let pre_Tuple f xs =
   Prepres [Prestr "("; pre_Comma f xs; Prestr ")"]
-let rec pre_Set f xs = Prepres [Prestr "{"; pre_Comma f xs; Prestr "}"]
-let rec pre_List f xs =
-  Prepres [Prestr "["; pre_Comma (f) (xs); Prestr "]"]
-let rec pre_list f xs =
+
+let pre_Set f xs = Prepres [Prestr "{"; pre_Comma f xs; Prestr "}"]
+
+let pre_List f xs =
   Prepres [Prestr "["; pre_Comma (f) (xs); Prestr "]"]
 
-let rec pre_implode p =
+let pre_list f xs =
+  Prepres [Prestr "["; pre_Comma (f) (xs); Prestr "]"]
+
+let pre_implode p =
   let rec _I (p,ss) =
 	match p with
 	  Prestr s -> s :: ss
@@ -94,6 +102,17 @@ let rec pre_implode p =
 
 let rec pre_app a1 a2 =
   match a1, a2 with
-	p, Prestr s -> p s
+	p, Prestr s   -> p s
   | p, Prestrs ss -> List.iter p ss
   | p, Prepres ps -> List.iter (pre_app p) ps
+
+let ascii_chars = "0123456789abcdef"
+
+let pre_Ascii s =
+  Sml.implode (List.map (fun c -> if Char.code c<=0x7f then String.make 1 c else 
+                                    let s = String.create 4 in
+                                    s.[0]<-'\\'; s.[1]<-'x';
+                                    s.[2]<-ascii_chars.[Char.code c lsr 4];
+                                    s.[3]<-ascii_chars.[Char.code c land 0xf];
+                                    s)
+                        (Sml.chars_of_string s))

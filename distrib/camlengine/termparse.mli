@@ -55,3 +55,5 @@ val tactic_of_string : string -> term
 val declareOutRightfix : symbol list -> symbol -> unit
 val declareLeftMidfix : symbol list -> unit
 val resettermparse : unit -> unit
+
+val termparsedebug : bool ref
