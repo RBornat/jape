@@ -1120,6 +1120,14 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
            * before we can check the provisos 
            *)
           let cxt' = verifyprovisos cxt in
+          (* remove menubuttons from the cache so they are set for sure as we want them to be *)
+          let rec uncache_mb ((var, _) as pair) =
+            mbcache := !mbcache -- [var];
+            match !mbcache <@> var with
+              Some _ -> uncache_mb pair
+            | None   -> ()
+          in
+          List.iter uncache_mb mbs;
           env, mbs, DontShow,
           addproofs false env [name, withgivens (withcxt state cxt') givens, None] pinfs
         with
@@ -1883,10 +1891,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     let setting =
       try _The (Japeenv.(<@>) env var) with
         None_ ->
-          raise
-            (Catastrophe_
-               ["domb error: variable "; string_of_name var;
-                " in mbs but not in env"])
+          raise (Catastrophe_ ["domb error: variable "; string_of_name var;
+                               " in mbs but not in env"])
     in
     match (!mbcache <@> var) with
       Some r ->
