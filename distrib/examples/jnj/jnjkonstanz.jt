@@ -13,76 +13,76 @@
 
         (Brought up to date for Jape 6 in January 2003)
 */
-        SEQUENT IS BAG π FORMULA
+        SEQUENT IS BAG ⊢ FORMULA
         INITIALISE autoAdditiveLeft true
-        PREFIX   350 ↛
-        INFIX    50R  υ
-        INFIX    100R ρ
-        INFIX    200L ϕ
-        INFIX    300L ∪
+        PREFIX   350 ¬
+        INFIX    50R  ↔
+        INFIX    100R →
+        INFIX    200L ∨
+        INFIX    300L ∧
         JUXTFIX  40000
         CLASS FORMULA  p q r s
         CLASS VARIABLE x y z
         CONSTANT false true
         SUBSTFIX 50000 [ p / x ]
-        RULE  "∪-intro"  FROM p AND q INFER p∪q
-        RULE  "∪-elim1"  FROM p∪q INFER p
-        RULE  "∪-elim2"  FROM p∪q INFER q
+        RULE  "∧-intro"  FROM p AND q INFER p∧q
+        RULE  "∧-elim1"  FROM p∧q INFER p
+        RULE  "∧-elim2"  FROM p∧q INFER q
 
-        RULE  "ϕ-intro1" FROM p INFER pϕq
-        RULE  "ϕ-intro2" FROM q INFER pϕq
-        RULE  "ϕ-elim"   FROM pϕq AND pπr AND qπr INFER r
+        RULE  "∨-intro1" FROM p INFER p∨q
+        RULE  "∨-intro2" FROM q INFER p∨q
+        RULE  "∨-elim"   FROM p∨q AND p⊢r AND q⊢r INFER r
 
-        RULE  "ρ-intro"  FROM p π q INFER pρq
-        RULE  "ρ-elim"   FROM pρq AND p INFER q
+        RULE  "→-intro"  FROM p ⊢ q INFER p→q
+        RULE  "→-elim"   FROM p→q AND p INFER q
 
-        RULE  "↛-intro"  FROM p π false INFER ↛ p
-        RULE  "↛-elim"   FROM ↛p AND p INFER false
+        RULE  "¬-intro"  FROM p ⊢ false INFER ¬ p
+        RULE  "¬-elim"   FROM ¬p AND p INFER false
 
-        RULE  "false-intro" FROM ↛p AND p INFER false
-        RULE  "false-elim"  FROM ↛p π false INFER  p
-        RULE  "true-intro"  INFER  π true
+        RULE  "false-intro" FROM ¬p AND p INFER false
+        RULE  "false-elim"  FROM ¬p ⊢ false INFER  p
+        RULE  "true-intro"  INFER  ⊢ true
 
-        RULE  "υ-intro"  FROM p ρ q AND   q ρ p INFER p υ q
-        RULE  "υ-elim1"  FROM p υ q INFER p ρ q
-        RULE  "υ-elim2"  FROM p υ q INFER q ρ p
-        RULE hypothesis(p) INFER p π p
-        RULE cut(p)        FROM  π p AND   p π q  INFER   π q
-        RULE thin(p)       FROM  π q              INFER p π q
-        RULE dup(p)        FROM  p, p π q         INFER p π q
+        RULE  "↔-intro"  FROM p → q AND   q → p INFER p ↔ q
+        RULE  "↔-elim1"  FROM p ↔ q INFER p → q
+        RULE  "↔-elim2"  FROM p ↔ q INFER q → p
+        RULE hypothesis(p) INFER p ⊢ p
+        RULE cut(p)        FROM  ⊢ p AND   p ⊢ q  INFER   ⊢ q
+        RULE thin(p)       FROM  ⊢ q              INFER p ⊢ q
+        RULE dup(p)        FROM  p, p ⊢ q         INFER p ⊢ q
         IDENTITY RULE hypothesis
         CUT      RULE cut
         WEAKEN   RULE thin
-    INFIX   800R  γ
-    LEFTFIX 10  σ : ⊔
-    LEFTFIX 10  σ : | ⊔
-    LEFTFIX 10  ν : ⊔
-    LEFTFIX 10  ν : | ⊔
+    INFIX   800R  ∈
+    LEFTFIX 10  ∀ : •
+    LEFTFIX 10  ∀ : | •
+    LEFTFIX 10  ∃ : •
+    LEFTFIX 10  ∃ : | •
     CLASS FORMULA a b t u
-    BIND x SCOPE p   IN σ x:a ⊔ p
-    BIND x SCOPE p   IN ν x:a ⊔ p
-    BIND x SCOPE p q IN σ x:a | p ⊔ q
-    BIND x SCOPE p q IN ν x:a | p ⊔ q
-    RULE    "σ-intro"(OBJECT y) WHERE FRESH y
-    FROM    yγa π q[y/x]
-    INFER   σ x:a ⊔ q
-    RULE    "σ-elim"(t)
-    FROM    σ x:a ⊔ q
-    AND     tγa
+    BIND x SCOPE p   IN ∀ x:a • p
+    BIND x SCOPE p   IN ∃ x:a • p
+    BIND x SCOPE p q IN ∀ x:a | p • q
+    BIND x SCOPE p q IN ∃ x:a | p • q
+    RULE    "∀-intro"(OBJECT y) WHERE FRESH y
+    FROM    y∈a ⊢ q[y/x]
+    INFER   ∀ x:a • q
+    RULE    "∀-elim"(t)
+    FROM    ∀ x:a • q
+    AND     t∈a
     INFER   q[t/x]
-    RULE    "ν-intro"(t)
-    FROM    tγa
+    RULE    "∃-intro"(t)
+    FROM    t∈a
     AND     q[t/x]
-    INFER   ν x:a ⊔ q
-    RULE    "ν-elim"(OBJECT y)
+    INFER   ∃ x:a • q
+    RULE    "∃-elim"(OBJECT y)
     WHERE   FRESH y
-    AND     y NOTIN ν x:a ⊔ p
+    AND     y NOTIN ∃ x:a • p
     AND     y NOTIN r
-    FROM    ν x:a ⊔ p
-    AND     yγa, p[y/x] π r
+    FROM    ∃ x:a • p
+    AND     y∈a, p[y/x] ⊢ r
     INFER   r
-    RULE "σ|⊔" IS (σ x:a|p⊔q) υ (σ x:a ⊔ p ρ q)
-    RULE "ν|⊔" IS (ν x:a|p⊔q) υ (ν x:a ⊔ p ∪ q)
+    RULE "∀|•" IS (∀ x:a|p•q) ↔ (∀ x:a • p → q)
+    RULE "∃|•" IS (∃ x:a|p•q) ↔ (∃ x:a • p ∧ q)
     TACTIC ElimRule(rule)
     (WHEN
       (LETHYP _p
@@ -105,66 +105,66 @@ MENU    "Propositional Rules"
     SEPARATOR
     ENTRY    "false-elim"   IS (IntroRule "false-elim")
     SEPARATOR
-    ENTRY    "∪-intro"      IS (IntroRule "∪-intro")
-    TACTIC   "∪-elim-1"     IS (ElimRule  "∪-elim1")
-    ENTRY    "∪-elim-2"     IS (ElimRule  "∪-elim2")
+    ENTRY    "∧-intro"      IS (IntroRule "∧-intro")
+    TACTIC   "∧-elim-1"     IS (ElimRule  "∧-elim1")
+    ENTRY    "∧-elim-2"     IS (ElimRule  "∧-elim2")
     SEPARATOR
-    ENTRY    "ϕ-intro1"     IS (IntroRule "ϕ-intro1")
-    ENTRY    "ϕ-intro2"     IS (IntroRule "ϕ-intro2")
-    ENTRY    "ϕ-elim"       IS (ElimRule "ϕ-elim")
+    ENTRY    "∨-intro1"     IS (IntroRule "∨-intro1")
+    ENTRY    "∨-intro2"     IS (IntroRule "∨-intro2")
+    ENTRY    "∨-elim"       IS (ElimRule "∨-elim")
     SEPARATOR
-    ENTRY    "ρ-intro"      IS (IntroRule "ρ-intro")
-    ENTRY    "ρ-elim"       IS (ElimRule  "ρ-elim")
+    ENTRY    "→-intro"      IS (IntroRule "→-intro")
+    ENTRY    "→-elim"       IS (ElimRule  "→-elim")
     SEPARATOR
-    ENTRY    "↛-intro"      IS (IntroRule "↛-intro")
-    ENTRY    "↛-elim"       IS (ElimRule "↛-elim")
+    ENTRY    "¬-intro"      IS (IntroRule "¬-intro")
+    ENTRY    "¬-elim"       IS (ElimRule "¬-elim")
     ENTRY    "false-intro"  IS (ElimRule "false-intro")
     ENTRY    "true-intro"   IS (IntroRule "true-intro")
     SEPARATOR
-    ENTRY    "υ-intro"      IS (IntroRule "υ-intro")
-    ENTRY    "υ-elim1"      IS (ElimRule "υ-elim1")
-    ENTRY    "υ-elim2"      IS (ElimRule "υ-elim2")
+    ENTRY    "↔-intro"      IS (IntroRule "↔-intro")
+    ENTRY    "↔-elim1"      IS (ElimRule "↔-elim1")
+    ENTRY    "↔-elim2"      IS (ElimRule "↔-elim2")
 END
 MENU "Quantifier Rules" IS
-    ENTRY "σ-intro"   IS QuantIntroRule "σ-intro"
-    ENTRY "σ-elim"    IS ElimRule       "σ-elim"
-    ENTRY "ν-intro"   IS QuantIntroRule "ν-intro"
-    ENTRY "ν-elim"    IS ElimRule       "ν-elim"
+    ENTRY "∀-intro"   IS QuantIntroRule "∀-intro"
+    ENTRY "∀-elim"    IS ElimRule       "∀-elim"
+    ENTRY "∃-intro"   IS QuantIntroRule "∃-intro"
+    ENTRY "∃-elim"    IS ElimRule       "∃-elim"
 END
     AUTOMATCH hypothesis
-    HYPHIT pϕq π r IS  (ALT (ElimRule "ϕ-elim")  "ϕ-elim")
-    HYPHIT pρq π r IS  (ALT (ElimRule "ρ-elim")  "ρ-elim")
-    HYPHIT ↛p  π r IS  (ALT (ElimRule "↛-elim")  "↛-elim")
-    HYPHIT σx:a⊔q   π r IS ElimRule "σ-elim"
-    HYPHIT νx:a⊔q   π r IS ElimRule "ν-elim"
-    HYPHIT p∪q π r IS
-    (ALT (SEQ  "∪-elim1"  (hypothesis(p∪q)))
-         (SEQ  "∪-elim2"  (hypothesis(p∪q)))
+    HYPHIT p∨q ⊢ r IS  (ALT (ElimRule "∨-elim")  "∨-elim")
+    HYPHIT p→q ⊢ r IS  (ALT (ElimRule "→-elim")  "→-elim")
+    HYPHIT ¬p  ⊢ r IS  (ALT (ElimRule "¬-elim")  "¬-elim")
+    HYPHIT ∀x:a•q   ⊢ r IS ElimRule "∀-elim"
+    HYPHIT ∃x:a•q   ⊢ r IS ElimRule "∃-elim"
+    HYPHIT p∧q ⊢ r IS
+    (ALT (SEQ  "∧-elim1"  (hypothesis(p∧q)))
+         (SEQ  "∧-elim2"  (hypothesis(p∧q)))
          (SEQ
-               cut "∪-elim1" (hypothesis (p∪q))
-               cut "∪-elim2" (hypothesis (p∪q))
+               cut "∧-elim1" (hypothesis (p∧q))
+               cut "∧-elim2" (hypothesis (p∧q))
          ))
 
-    HYPHIT pυq π r IS
-    (ALT (SEQ  "υ-elim1"  (hypothesis(pυq)))
-         (SEQ  "υ-elim2"  (hypothesis(pυq)))
+    HYPHIT p↔q ⊢ r IS
+    (ALT (SEQ  "↔-elim1"  (hypothesis(p↔q)))
+         (SEQ  "↔-elim2"  (hypothesis(p↔q)))
          (SEQ
-               cut "υ-elim1" (hypothesis (pυq))
-               cut "υ-elim2" (hypothesis (pυq))
+               cut "↔-elim1" (hypothesis (p↔q))
+               cut "↔-elim2" (hypothesis (p↔q))
          ))
-    CONCHIT σx:a⊔q   IS QuantIntroRule "σ-intro"
-    CONCHIT νx:a⊔q   IS QuantIntroRule "ν-intro"
-    CONCHIT ↛p       IS "↛-intro"
+    CONCHIT ∀x:a•q   IS QuantIntroRule "∀-intro"
+    CONCHIT ∃x:a•q   IS QuantIntroRule "∃-intro"
+    CONCHIT ¬p       IS "¬-intro"
     CONCHIT true     IS "true-intro"
-    CONCHIT pρq      IS "ρ-intro"
-    CONCHIT pυq      IS "υ-intro"
-    CONCHIT p∪q      IS "∪-intro"
-    CONCHIT qϕr      IS
-     (ALT  (SEQ "ϕ-intro1" hypothesis)
-           (SEQ "ϕ-intro2" hypothesis)
+    CONCHIT p→q      IS "→-intro"
+    CONCHIT p↔q      IS "↔-intro"
+    CONCHIT p∧q      IS "∧-intro"
+    CONCHIT q∨r      IS
+     (ALT  (SEQ "∨-intro1" hypothesis)
+           (SEQ "∨-intro2" hypothesis)
            (MESSAGE (Neither disjunct q nor disjunct r is available)))
 
-    CONCHIT  p π p IS
+    CONCHIT  p ⊢ p IS
     (WHEN (LETHYP _p (WITHHYPSEL hypothesis))
           (Fail ("Please select the hypothesis you want to use")))
     MENU Edit
@@ -209,108 +209,108 @@ END
 
     TACTIC SKIP(x)    IS (SEQ)
 
-        INFIX 1000L ≈
+        INFIX 1000L ≤
 CONJECTUREPANEL "Conjectures" IS
     THEOREMS Propositional(p,q,r,s) ARE
-        ↛↛p π p
-    AND ↛(pϕq) π ↛p ∪ ↛q
-    AND ↛(p∪q) π ↛p ϕ ↛q
-    AND π p ϕ ↛p
-    AND	p , ↛p π false
-    AND	p ∪ ↛p π false
-    AND p π qρp
-    AND π pυp
-    AND ↛ ↛ p υ p
-    AND (pρq) υ (↛pϕq)
-    AND (pρq) υ (↛qρ↛p)
-    AND π (pρq) ϕ (qρp)
-    AND (p∪q ρ r) ρ (p ρ (q ρ r))
-    AND p ρ q π p∪q υ p
-    AND	π p ρ (q ρ p)
-    AND	p ρ q, q ρ r , p π r
-    AND	p ρ q π (q ρ r) ρ (p ρ r)
-    AND	p ρ (q ρ r), p ρ q, p π r
-    AND	p ρ q, q ρ r π p ρ r
-    AND	p ρ (q ρ r) π q ρ (p ρ r)
-    AND	p ρ (q ρ (r ρ s)) π r ρ (q ρ (p ρ s ))
-    AND	p ρ (q ρ r) π (p ρ q) ρ (p ρ r)
-    AND	π (p ρ (q ρ r)) ρ ((p ρ q) ρ (p ρ r))
-    AND	(p ∪ q) ρ r υ  p ρ (q ρ r)
-    AND	q ρ r π (p ϕ q) ρ (p ϕ r)
-    AND true  υ ↛false
-    AND ↛true  υ false
-    AND p∪true υ p
-    AND pϕtrue υ true
-    AND p∪false υ false
-    AND pϕfalse υ p
-    AND (pρp) υ true
-    AND (pρtrue) υ true
-    AND (trueρp) υ p
-    AND (pρfalse) υ ↛p
-    AND (p∪p) υ p
-    AND (p∪q) υ (q∪p)
-    AND (p∪(q∪r)) υ ((p∪q)∪r)
-    AND (pϕp) υ p
-    AND (pϕq) υ (qϕp)
-    AND (pϕ(qϕr)) υ ((pϕq)ϕr)
-    AND	p ϕ (q ϕ r) υ (p ϕ q) ϕ r
-    AND	p ∪ (q ϕ r) υ (p ∪ q) ϕ (p ∪ r)
-    AND	p ϕ (q ∪ r) υ (p ϕ q) ∪ (p ϕ r)
-    AND ↛(pϕq) υ ↛p ∪ ↛q
-    AND ↛(p∪q) υ ↛p ϕ ↛q
-    AND (pρq) ∪ (qρr) ρ (pρr)
-    AND (pυq) ∪ (qυr) ρ (pυr)
-    AND	↛p ∪ p π false
-    AND ↛(pυq)υ((pϕq)∪↛(p∪q))
+        ¬¬p ⊢ p
+    AND ¬(p∨q) ⊢ ¬p ∧ ¬q
+    AND ¬(p∧q) ⊢ ¬p ∨ ¬q
+    AND ⊢ p ∨ ¬p
+    AND	p , ¬p ⊢ false
+    AND	p ∧ ¬p ⊢ false
+    AND p ⊢ q→p
+    AND ⊢ p↔p
+    AND ¬ ¬ p ↔ p
+    AND (p→q) ↔ (¬p∨q)
+    AND (p→q) ↔ (¬q→¬p)
+    AND ⊢ (p→q) ∨ (q→p)
+    AND (p∧q → r) → (p → (q → r))
+    AND p → q ⊢ p∧q ↔ p
+    AND	⊢ p → (q → p)
+    AND	p → q, q → r , p ⊢ r
+    AND	p → q ⊢ (q → r) → (p → r)
+    AND	p → (q → r), p → q, p ⊢ r
+    AND	p → q, q → r ⊢ p → r
+    AND	p → (q → r) ⊢ q → (p → r)
+    AND	p → (q → (r → s)) ⊢ r → (q → (p → s ))
+    AND	p → (q → r) ⊢ (p → q) → (p → r)
+    AND	⊢ (p → (q → r)) → ((p → q) → (p → r))
+    AND	(p ∧ q) → r ↔  p → (q → r)
+    AND	q → r ⊢ (p ∨ q) → (p ∨ r)
+    AND true  ↔ ¬false
+    AND ¬true  ↔ false
+    AND p∧true ↔ p
+    AND p∨true ↔ true
+    AND p∧false ↔ false
+    AND p∨false ↔ p
+    AND (p→p) ↔ true
+    AND (p→true) ↔ true
+    AND (true→p) ↔ p
+    AND (p→false) ↔ ¬p
+    AND (p∧p) ↔ p
+    AND (p∧q) ↔ (q∧p)
+    AND (p∧(q∧r)) ↔ ((p∧q)∧r)
+    AND (p∨p) ↔ p
+    AND (p∨q) ↔ (q∨p)
+    AND (p∨(q∨r)) ↔ ((p∨q)∨r)
+    AND	p ∨ (q ∨ r) ↔ (p ∨ q) ∨ r
+    AND	p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r)
+    AND	p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r)
+    AND ¬(p∨q) ↔ ¬p ∧ ¬q
+    AND ¬(p∧q) ↔ ¬p ∨ ¬q
+    AND (p→q) ∧ (q→r) → (p→r)
+    AND (p↔q) ∧ (q↔r) → (p↔r)
+    AND	¬p ∧ p ⊢ false
+    AND ¬(p↔q)↔((p∨q)∧¬(p∧q))
     END
     THEOREMS Predicate
-    ARE σx:a ⊔ p∪q π (σx:a ⊔ p) ∪ (σx:a ⊔ q)
-    AND (σx:a ⊔ p) ∪ (σx:a ⊔ q) π σx:a ⊔ p∪q
-    AND ↛(ν x:a⊔q) π (σ x:a⊔↛q)
-    AND ↛(σ x:a⊔q) π (ν x:a⊔↛q)
-    AND ↛(σ x:a|p⊔q) π (ν x:a|p⊔↛q)
+    ARE ∀x:a • p∧q ⊢ (∀x:a • p) ∧ (∀x:a • q)
+    AND (∀x:a • p) ∧ (∀x:a • q) ⊢ ∀x:a • p∧q
+    AND ¬(∃ x:a•q) ⊢ (∀ x:a•¬q)
+    AND ¬(∀ x:a•q) ⊢ (∃ x:a•¬q)
+    AND ¬(∀ x:a|p•q) ⊢ (∃ x:a|p•¬q)
     AND WHERE x NOTIN a,a',y AND y NOTIN a,a',x INFER
-        νx:a ⊔ σy:a' ⊔ q π σy:a' ⊔ νx:a ⊔ q
+        ∃x:a • ∀y:a' • q ⊢ ∀y:a' • ∃x:a • q
     END
-    THEOREM "σ|⊔-intro" IS σ x:a ⊔ p ρ q π σ x:a | p ⊔ q
-    THEOREM "σ|⊔-elim"  IS σ x:a | p ⊔ q π σ x:a ⊔ p ρ q
-    THEOREM "ν|⊔-intro" IS ν x:a ⊔ p ∪ q π ν x:a | p ⊔ q
-    THEOREM "ν|⊔-elim"  IS ν x:a | p ⊔ q π ν x:a ⊔ p ∪ q
-    THEOREM "?-νx:a⊔σy:a'⊔x≈yπσy:a'⊔νx:a⊔x≈y(no provisos)"
-    IS ν x:a ⊔ σy:a' ⊔ x≈y π σy:a' ⊔ νx:a ⊔ x≈y
-    THEOREM "?- (pρq)ρp" IS (pρq)ρp
-    THEOREM "?- (pϕ↛p)ρ↛p" IS (pϕ↛p)ρ↛p
-    THEOREM "?- σy:a'⊔νx:a⊔q π νx:a⊔σy:a'⊔q"
+    THEOREM "∀|•-intro" IS ∀ x:a • p → q ⊢ ∀ x:a | p • q
+    THEOREM "∀|•-elim"  IS ∀ x:a | p • q ⊢ ∀ x:a • p → q
+    THEOREM "∃|•-intro" IS ∃ x:a • p ∧ q ⊢ ∃ x:a | p • q
+    THEOREM "∃|•-elim"  IS ∃ x:a | p • q ⊢ ∃ x:a • p ∧ q
+    THEOREM "?-∃x:a•∀y:a'•x≤y⊢∀y:a'•∃x:a•x≤y(no provisos)"
+    IS ∃ x:a • ∀y:a' • x≤y ⊢ ∀y:a' • ∃x:a • x≤y
+    THEOREM "?- (p→q)→p" IS (p→q)→p
+    THEOREM "?- (p∨¬p)→¬p" IS (p∨¬p)→¬p
+    THEOREM "?- ∀y:a'•∃x:a•q ⊢ ∃x:a•∀y:a'•q"
     WHERE x NOTIN a,a',y AND y NOTIN a,a',x
-    IS σy:a'⊔νx:a⊔q π νx:a⊔σy:a'⊔q
+    IS ∀y:a'•∃x:a•q ⊢ ∃x:a•∀y:a'•q
     BUTTON "Apply Forward"   IS apply ThmForward COMMAND
     BUTTON "Apply Backwards" IS apply ThmBackward COMMAND
 END /* PANEL */
     TACTIC ThmForward(thm) IS (SEQ cut (WITHHYPSEL (WITHARGSEL thm)))
     TACTIC ThmBackward(thm) IS (WITHARGSEL(APPLYORRESOLVE thm))
         RULE    rewrite(p, OBJECT x)
-        FROM    p υ q
+        FROM    p ↔ q
         AND     r[q/x]
         INFER   r[p/x]
 
         RULE    rewritebackwards(p, OBJECT x)
-        FROM    q υ p
+        FROM    q ↔ p
         AND     r[q/x]
         INFER   r[p/x]
 
         RULE    hyprewrite(p, OBJECT x)
-        FROM    p υ q
-        AND     r[q/x] π s
-        INFER   r[p/x] π s
+        FROM    p ↔ q
+        AND     r[q/x] ⊢ s
+        INFER   r[p/x] ⊢ s
 
         RULE    hyprewritebackwards(p, OBJECT x)
-        FROM    q υ p
-        AND     r[q/x] π s
-        INFER   r[p/x] π s
+        FROM    q ↔ p
+        AND     r[q/x] ⊢ s
+        INFER   r[p/x] ⊢ s
     CONJECTUREPANEL Conjectures IS
-     BUTTON "Rewrite ρ" IS
+     BUTTON "Rewrite →" IS
       apply RewriteWith hyprewrite rewrite COMMAND
-     BUTTON "Rewrite ⊇" IS
+     BUTTON "Rewrite ⇐" IS
       apply RewriteWith hyprewritebackwards rewritebackwards COMMAND
     END
     TACTIC  RewriteWith(hyprewriterule, rewriterule, thm) IS
@@ -333,8 +333,8 @@ END /* PANEL */
 
     MENU "Quantifier Rules" IS
         SEPARATOR
-        ENTRY "ν|⊔ρ"      IS UnfoldWithIff "ν|⊔"
-        ENTRY "ν|⊔⊇"      IS FoldWithIff   "ν|⊔"
-        ENTRY "σ|⊔ρ"      IS UnfoldWithIff "σ|⊔"
-        ENTRY "σ|⊔⊇"      IS FoldWithIff   "σ|⊔"
+        ENTRY "∃|•→"      IS UnfoldWithIff "∃|•"
+        ENTRY "∃|•⇐"      IS FoldWithIff   "∃|•"
+        ENTRY "∀|•→"      IS UnfoldWithIff "∀|•"
+        ENTRY "∀|•⇐"      IS FoldWithIff   "∀|•"
     END
