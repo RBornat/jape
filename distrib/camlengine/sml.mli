@@ -29,7 +29,6 @@ val (<.>) : ('b -> 'c) -> ('a -> 'b) -> 'a -> 'c (* compose -- can't do without 
 
 val chars_of_string : string -> char list
 val explode : string -> string list
-val fSome : 'a ->'a option
 val fst_of_3 : ('a * 'b * 'c) -> 'a
 val fst_of_6 : ('a * 'b * 'c * 'd * 'e * 'f) -> 'a
 val fst_of_7 : ('a * 'b * 'c * 'd * 'e * 'f * 'g) -> 'a

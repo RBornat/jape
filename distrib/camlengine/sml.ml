@@ -70,5 +70,3 @@ let rec revapp f xs =
   match xs with
     []    -> ()
   | x::xs -> revapp f xs; f x
-
-let fSome v = Some v

@@ -113,7 +113,7 @@ let rec option_mapterm f t =
       | Unknown _ -> None
       | App (_, f, a) ->
             (option_rewrite2 mtff mtff (f, a) &~~
-             (fSome <.> registerApp))
+             (_Some <.> registerApp))
       | Tup (_, s, ts) ->
           (mtfl ts &~~ (fun ts' -> Some (registerTup (s, ts'))))
       | Literal _ -> None

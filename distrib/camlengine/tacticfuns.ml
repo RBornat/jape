@@ -1089,7 +1089,7 @@ let rec forceUnify a1 a2 =
       badproviso := None;
       begin try
         match
-            (unifyterms (t1, t2) &~ (fSome <.> verifyprovisos))
+            (unifyterms (t1, t2) &~ (_Some <.> verifyprovisos))
             (plususedVIDs (plususedVIDs cxt (termVIDs t1)) (termVIDs t2))
         with
           Some cxt' -> forceUnify (t2 :: ts) (withcxt state cxt')
@@ -1116,7 +1116,7 @@ let rec doDropUnify ts ss =
     in
     try
       match (option_foldr (fun t cxt -> dropunify (t, ss) cxt) cxt ts 
-             &~~ (fSome <.> verifyprovisos) &~~ simplifydeferred)
+             &~~ (_Some <.> verifyprovisos) &~~ simplifydeferred)
       with
         Some cxt' -> Some (withcxt state cxt')
       | None -> bad []
@@ -1371,7 +1371,7 @@ let rec _UnifyWithExplanation message (s, t) cxt =
       (
          (
             (unifyterms (s, t) cxt |~~ (fun _ -> unifyterms (t, s) cxt)) &~~
-          (fSome <.> verifyprovisos)))
+          (_Some <.> verifyprovisos)))
   with
     Verifyproviso_ p ->
       setReason

@@ -90,6 +90,7 @@ let resetallcachesandvariables () =
   Thing.clearstructurerules ()
          
 let ( &~~ ) = Optionfuns.( &~~ )
+let _Some = Optionfuns._Some
 let atoi = Miscellaneous.atoi
 let autoselect = Miscellaneous.autoselect
 let autoAdditiveLeft = Miscellaneous.autoAdditiveLeft
@@ -716,7 +717,7 @@ let disproofevolve a1 a2 =
  *)
 let tryForward f =
   fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
-    f proof &~~ (fSome <.> proofmove hist)
+    f proof &~~ (_Some <.> proofmove hist)
 
 let evolve_proof_explain explain displaystate env f =
   fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
@@ -1169,7 +1170,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                   let proof = winhist_proofnow hist in
                   let cxt_now = proofstate_cxt proof in
                   let facts_now = facts (provisos cxt_now) cxt_now in
-                  act facts_now cxt_now proof d &~~ (fSome <.> move hist)
+                  act facts_now cxt_now proof d &~~ (_Some <.> move hist)
               | _ -> raise (Catastrophe_ ["disproof action when no disproof state"])))
     in
     
@@ -1177,7 +1178,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       disproofact
         (fun facts_now cxt_now proof d ->
            act facts_now d &~~ 
-           (fSome <.> evaldisproofstate facts_now (proofstate_tree proof)))
+           (_Some <.> evaldisproofstate facts_now (proofstate_tree proof)))
     in
     
     let disproofuniverseact act =
@@ -1271,7 +1272,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  showdisproof <.> 
                  (fun hist ->
                       (winhist_disproofhist hist &~~ redo_step &~~
-                       (fSome <.> (fun dh -> withdisproofhist hist (Some dh)))) |~~
+                       (_Some <.> (fun dh -> withdisproofhist hist (Some dh)))) |~~
                       (fun _ -> showAlert ["nothing to redo!"]; None)))
 
         | "redo_proof", [] ->
@@ -1280,7 +1281,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  showproof <.> 
                  (fun hist ->
                     (redo_step (winhist_proofhist hist) &~~
-                     (fSome <.> (fun ph -> withproofhist hist ph))) |~~
+                     (_Some <.> (fun ph -> withproofhist hist ph))) |~~
                     (fun _ -> showAlert ["nothing to redo!"]; None)))
 
         | "refreshdisplay", [] ->
@@ -1318,7 +1319,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  showdisproof <.> 
                  (fun hist ->
                     ((winhist_disproofhist hist &~~ undo_step &~~
-                      (fSome <.> (fun dh -> withdisproofhist hist (Some dh)))) 
+                      (_Some <.> (fun dh -> withdisproofhist hist (Some dh)))) 
                      |~~
                      (fun _ -> showAlert ["no disproof steps to undo!"]; None))))
 
@@ -1328,7 +1329,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  showproof <.> 
                  (fun hist ->
                     (undo_step (winhist_proofhist hist) &~~
-                     (fSome <.> (fun ph -> withproofhist hist ph))) 
+                     (_Some <.> (fun ph -> withproofhist hist ph))) 
                     |~~
                     (fun _ -> showAlert ["no proof steps to undo!"]; None)))
 
@@ -1615,7 +1616,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                             in
                             let undo_proofstep =
                               fun (WinHist {proofhist = proofhist} as hist) ->
-                                (undo_step proofhist &~~ (fSome <.> withproofhist hist))
+                                (undo_step proofhist &~~ (_Some <.> withproofhist hist))
                             in
                             while stillcomposite !there do
                               match undo_proofstep !there with

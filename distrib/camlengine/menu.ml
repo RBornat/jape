@@ -267,12 +267,12 @@ let rec getpanels () =
    (fun (p, {contents = k, _, _}) -> p, k) <* aslist !panels
 
 let rec getpanelkind p =
-  (!panels <@> p) &~~ (fSome <.> (fun (a,b,c) -> a) <.> (!))
+  (!panels <@> p) &~~ (_Some <.> (fun (a,b,c) -> a) <.> (!))
 
 let rec getpaneldata p =
     ((!panels <@> p) &~~
      (let applyname = name_of_string "Apply" in
-        fSome <.> 
+        _Some <.> 
         (fun {contents = k, em, bs} ->
             nj_fold (fun ((l, {contents = c}), es) -> Pentry (l, c) :: es)
               (aslist em)

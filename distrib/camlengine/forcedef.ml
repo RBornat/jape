@@ -79,21 +79,21 @@ let rec option_mapforcedefterms f fd =
   (* val _ = consolereport ["option_mapforcedefterms ", string_of_forcedef fd] *)
   let res =
     match fd with
-      ForcePrim t -> (omt t &~~ (fSome <.> (fun v->ForcePrim v)))
+      ForcePrim t -> (omt t &~~ (_Some <.> (fun v->ForcePrim v)))
     | ForceBoth pair ->
-        (ompair pair &~~ (fSome <.> (fun v->ForceBoth v)))
+        (ompair pair &~~ (_Some <.> (fun v->ForceBoth v)))
     | ForceEither pair ->
-        (ompair pair &~~ (fSome <.> (fun v->ForceEither v)))
+        (ompair pair &~~ (_Some <.> (fun v->ForceEither v)))
     | ForceIf pair ->
-        (ompair pair &~~ (fSome <.> (fun v->ForceIf v)))
+        (ompair pair &~~ (_Some <.> (fun v->ForceIf v)))
     | ForceEverywhere fd' ->
-        (omff fd' &~~ (fSome <.> (fun v->ForceEverywhere v)))
+        (omff fd' &~~ (_Some <.> (fun v->ForceEverywhere v)))
     | ForceNowhere fd' ->
-        (omff fd' &~~ (fSome <.> (fun v->ForceNowhere v)))
+        (omff fd' &~~ (_Some <.> (fun v->ForceNowhere v)))
     | ForceAll tvsfd ->
-        (omtvsfd tvsfd &~~ (fSome <.> (fun v->ForceAll v)))
+        (omtvsfd tvsfd &~~ (_Some <.> (fun v->ForceAll v)))
     | ForceSome tvsfd ->
-        (omtvsfd tvsfd &~~ (fSome <.> (fun v->ForceSome v)))
+        (omtvsfd tvsfd &~~ (_Some <.> (fun v->ForceSome v)))
   in
   (* consolereport ["option_mapforcedefterms ", string_of_forcedef fd, " => ", string_of_option string_of_forcedef res]; *)
   res

@@ -353,7 +353,7 @@ let remaptactic env t =
     | AlertTac (m, ps, copt) ->
         AlertTac
           (_E m, ((fun (l, t) -> _E l, _T t) <* ps),
-           ((copt &~~ (fSome <.> _T))))
+           ((copt &~~ (_Some <.> _T))))
     | ExplainTac m -> ExplainTac (_E m)
     | CommentTac m -> CommentTac (_E m)
     | BadUnifyTac (n1, n2, t) -> BadUnifyTac (n1, n2, _T t)

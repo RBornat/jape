@@ -156,13 +156,13 @@ None -> Some t
 | some -> some
 
 let rec rew_2 f x g y yes =
-(option_rewrite2 f g &~ (fSome <.> yes)) (x, y)
+(option_rewrite2 f g &~ (_Some <.> yes)) (x, y)
 
 let rec rew_Pair = fun _R -> option_rewrite2 _R _R
 (* there must be a better way ... *)
 
 let rec rew_3 f x g y h z yes =
-(option_rewrite3 f g h &~ (fSome <.> yes)) (x, y, z)
+(option_rewrite3 f g h &~ (_Some <.> yes)) (x, y, z)
 
 let rec rew_binding outer inner (h, (bs, ss, us), env, pat) =
 rew_3 (option_rewritelist outer) bs (option_rewritelist inner) ss
