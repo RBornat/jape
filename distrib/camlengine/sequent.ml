@@ -301,7 +301,7 @@ let rec describeSeqs ds =
           begin
             (* consolereport ["accepting ", show syn]; *)
             sequent_descriptions := description :: !sequent_descriptions;
-            enter stile (STILE stile)
+            enter stile None None (STILE stile)
           end
         else
           error
@@ -344,7 +344,7 @@ let rec setsemanticturnstile syn sem =
   let newturnstiles =
     match (!semanticturnstiles <@> syn) with
       None ->
-        enter sem (STILE sem);
+        enter sem None None (STILE sem);
         (!semanticturnstiles ++ (syn |-> sem))
     | Some sem' ->
         if sem = sem' then !semanticturnstiles

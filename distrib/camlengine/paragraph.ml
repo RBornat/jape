@@ -98,19 +98,19 @@ exception Use_ (* so-called because it is normally raised by a bad USE "file" *)
 let rec namefromsymbol sy =
   let rec ok v = Some (Name v) in
   match sy with
-    ID (s, _) -> ok s
+    ID      (s, _) -> ok s
   | UNKNOWN (s, _) -> ok (metachar_as_string ^ s)
-  | PREFIX (_, s) -> ok s
-  | POSTFIX (_, s) -> ok s
-  | LEFTFIX (_, s) -> ok s
-  | BRA s -> ok s
-  | SEP s -> ok s
-  | KET s -> ok s
-  | INFIX (_, _, s) -> ok s
-  | INFIXC (_, _, s) -> ok s
-  | NUM s -> ok s
-  | STRING s -> ok s
-  | _ -> None
+  | PREFIX        s -> ok s
+  | POSTFIX       s -> ok s
+  | LEFTFIX       s -> ok s
+  | BRA           s -> ok s
+  | SEP           s -> ok s
+  | KET           s -> ok s
+  | INFIX         s -> ok s
+  | INFIXC        s -> ok s
+  | NUM           s -> ok s
+  | STRING        s -> ok s
+  | _               -> None
 
 let rec stringfromsymbol sy =
   match namefromsymbol sy with
@@ -237,21 +237,21 @@ let rec parsenovelsymb message =
       (ParseError_ [smlsymbolstring sy; " shouldn't appear "; message])
   in
   match sy with
-    ID (s, _)        -> scansymb (); s
-  | BRA "("          -> bang ()
-  | BRA bra          -> scansymb (); bra
-  | SEP s            -> scansymb (); s
-  | KET ")"          -> bang ()
-  | KET s            -> scansymb (); s
-  | INFIX (_, _, s)  -> (* |    INFIX(",",_,s)  => bang() *)
-                        scansymb (); s
-  | INFIXC (_, _, s) -> scansymb (); s
-  | LEFTFIX (_, bra) -> scansymb (); bra
-  | POSTFIX (_, s)   -> scansymb (); s
-  | MIDFIX (_, s)    -> scansymb (); s
-  | PREFIX (_, s)    -> scansymb (); s
-  | STRING s         -> scansymb (); s
-  | sy               -> bang ()
+    ID (s, _) -> scansymb (); s
+  | BRA   "(" -> bang ()
+  | BRA   bra -> scansymb (); bra
+  | SEP     s -> scansymb (); s
+  | KET   ")" -> bang ()
+  | KET     s -> scansymb (); s
+  | INFIX   s -> (* |    INFIX(",",_,s)  => bang() *)
+                 scansymb (); s
+  | INFIXC  s -> scansymb (); s
+  | LEFTFIX s -> scansymb (); s
+  | POSTFIX s -> scansymb (); s
+  | MIDFIX  s -> scansymb (); s
+  | PREFIX  s -> scansymb (); s
+  | STRING  s -> scansymb (); s
+  | sy        -> bang ()
 
 let rec parseFixitySYMB () = parsenovelsymb "in a Fixity directive"
 
@@ -306,35 +306,34 @@ let rec processCLASS report query =
   List.iter doit
     (parseUnsepList (function ID _ -> true | _ -> false) (fun _ -> parseClassID ()))
 
-let rec processInfix =
-  fun _SYMBCON ->
-    let l = parseNUM () in
-    let a =
-      match currsymb_as_string () with
-        "L" -> LeftAssoc
-      | "R" -> RightAssoc
-      | "T" -> TupleAssoc
-      | s ->
-          (* to be done ...
-          | "A" => AssocAssoc 
-          | "C" => CommAssoc
-          ... end of to be done
-          *)
-          raise
-            (ParseError_
-               [s; " found where associativity (L, R or T) expected"])
-    in
-    let symbs =
-      parseUnsepList canstartnovelsymb (fun _ -> parseFixitySYMB ())
-    in
-    List.iter (fun s -> enter s (_SYMBCON (l, a, s))) symbs
+let rec processInfix _SYMBCON =
+  let l = parseNUM () in
+  let a =
+    match currsymb_as_string () with
+      "L" -> LeftAssoc
+    | "R" -> RightAssoc
+    | "T" -> TupleAssoc
+    | s ->
+        (* to be done ...
+        | "A" => AssocAssoc 
+        | "C" => CommAssoc
+        ... end of to be done
+        *)
+        raise
+          (ParseError_
+             [s; " found where associativity (L, R or T) expected"])
+  in
+  let symbs =
+    parseUnsepList canstartnovelsymb (fun _ -> parseFixitySYMB ())
+  in
+  List.iter (fun s -> enter s (Some l) (Some a) (_SYMBCON s)) symbs
 
 let rec processUnifix con =
   let n = parseNUM () in
   let symbs =
     parseUnsepList canstartnovelsymb (fun _ -> parseFixitySYMB ())
   in
-  List.iter (fun s -> enter s (con (n, s))) symbs
+  List.iter (fun s -> enter s (Some n) None (con s)) symbs
 
 let processPushSyntax () =
   match currsymb () with
@@ -368,9 +367,9 @@ let rec processSubstfix report query =
       acceptpreviousnovelsymb (fun s -> s = SUBSTKET)
         "as closing substitution bracket"
     in
-    enter bra SUBSTBRA;
-    enter sep SUBSTSEP;
-    enter ket SUBSTKET;
+    enter bra None None SUBSTBRA;
+    enter sep None None SUBSTSEP;
+    enter ket None None SUBSTKET;
     match idclass t1, idclass t2 with
       VariableClass, FormulaClass -> substsense := true
     | FormulaClass, VariableClass -> substsense := false
@@ -395,26 +394,26 @@ let rec processLeftMidfix con =
   let n = parseNUM () in
   let bra = parseFixitySYMB () in
   let symbs = parseUntilSHYID parseFixitySYMB in
-  List.iter (fun sep -> enter sep (SEP sep)) symbs;
-  enter bra (con (n, bra));
+  List.iter (fun sep -> enter sep None None (SEP sep)) symbs;
+  enter bra (Some n) None (con bra);
   declareLeftMidfix ((lookup <* bra :: symbs))
 
-let rec processOutRightfix name con =
+let rec processOutRightfix name econ =
   let bra = parseFixitySYMB () in
   let ms = parseUntilSHYID parseFixitySYMB in
   match List.rev ms with
     [] -> raise (ParseError_ [name; " "; bra; " has no closing bracket"])
   | ket :: ms' ->
-      List.iter (fun m -> enter m (SEP m)) ms';
-      enter bra (con bra);
-      enter ket (KET ket);
+      List.iter (fun m -> enter m None None (SEP m)) ms';
+      econ bra;
+      enter ket None None (KET ket);
       declareOutRightfix ((lookup <* bra :: List.rev ms')) (lookup ket)
 
 let rec processRightfix () =
   let n = parseNUM () in
-  processOutRightfix "RIGHTFIX" (fun bra -> RIGHTFIX (n, bra))
+  processOutRightfix "RIGHTFIX" (fun bra -> enter bra (Some n) None (RIGHTFIX bra))
 
-let rec processOutfix () = processOutRightfix "OUTFIX" (fun v->BRA v)
+let rec processOutfix () = processOutRightfix "OUTFIX" (fun v->enter v None None (BRA v))
 
 let rec processBind () =
   let vars =
@@ -662,7 +661,7 @@ let rec parseParagraph report query =
   | SHYID "NUMBER"          -> scansymb (); processClassDecl report query NumberClass; more ()
   | SHYID "OUTFIX"          -> scansymb (); processOutfix (); more ()
   | SHYID "PATCHALERT"      -> scansymb (); processPatchAlert (); more ()
-  | SHYID "POPSYNTAX"       -> scansymb (); popSyntax (); more ()
+  | SHYID "POPSYNTAX"       -> scansymb (); processPopSyntax (); more ()
   | SHYID "POSTFIX"         -> scansymb (); processUnifix (fun v->POSTFIX v); more ()
   | SHYID "PREFIX"          -> scansymb (); processUnifix (fun v->PREFIX v); more ()
   | SHYID "PROOF"           -> scansymb (); Some (parseProof report Complete)

@@ -32,8 +32,10 @@ and associativity = Symboltype.associativity
 and idclass = Idclass.idclass
 
 val symboldebug : bool ref
-val enter : string -> symbol -> unit
-val lookup : string -> symbol (* default is ID *)
+val enter       : string -> int option -> associativity option -> symbol -> unit
+val lookup      : string -> symbol (* default is ID(s, None) *)
+val assoc       : symbol -> associativity
+val prio        : symbol -> int
 val lookupassoc : string -> (bool * associativity) option (* (curried, assoc) - when INFIX... *)
 
 val declareIdPrefix : idclass -> string -> (string * idclass) list

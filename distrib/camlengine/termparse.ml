@@ -106,12 +106,7 @@ let rec declareLeftMidfix syms =
        if not (mem syms lms) then
          raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
                              " attempt to define novel LEFTFIX/MIDFIX ";
-                             liststring smlsymbolstring " " syms;
-                             " "; bracketedliststring
-                                    (bracketedliststring smlsymbolstring " ")
-                                    ";" lms;
-                             " "; bracketedliststring string_of_bool ";"
-                                  (map (fun s -> syms = s) lms)])
+                             liststring symbolstring " " syms])
    | _ -> ());
   leftmidfixes := syms :: !leftmidfixes;
   leftmidfixtree :=
@@ -216,8 +211,9 @@ let rec parseAtom () =
   | STRING s -> registerLiteral (String s)
   | BRA "(" -> parseBRA ()
   | BRA _ -> (* special cos of (op) *) parseOutfix sy
-  | LEFTFIX (m, _) -> parseLeftfix m sy
-  | PREFIX (m, s) ->
+  | LEFTFIX _ -> parseLeftfix (prio sy) sy
+  | PREFIX s ->
+      let m = prio sy in
 	  checkAfterBra sy m;
 	  registerApp (registerId (vid_of_string s, OperatorClass), parseExpr m true)
   | s ->
@@ -236,8 +232,8 @@ and checkAfterBra pre n =
 			string_of_int n; ")"])
   in
   match sy with
-	PREFIX (m, _) -> checkpre m
-  | LEFTFIX (m, _) -> checkpre m
+	PREFIX  _ -> checkpre (prio sy)
+  | LEFTFIX _ -> checkpre (prio sy)
   | _ -> ()
 
 and checkAfterKet pre n =
@@ -251,8 +247,8 @@ and checkAfterKet pre n =
 			string_of_int n; ")"])
   in
   match sy with
-	INFIX (m, _, _) -> checkpre m
-  | INFIXC (m, _, _) -> checkpre m
+	INFIX  _ -> checkpre (prio sy)
+  | INFIXC _ -> checkpre (prio sy)
   | _ -> if canstartAtom sy then checkpre !appfix
 
 and parseOutfix bra =
@@ -340,21 +336,22 @@ and parseBRA () =
 	in check (KET ")"); r
   in
   match currsymb () with
-	INFIX (_, _, s)  -> defop s
-  | INFIXC (_, _, s) -> defop s
-  | POSTFIX (_, s)   -> defop s
-  | PREFIX (_, s)    -> if peeksymb () = KET ")" then defop s else defexpr ()
+	INFIX  s  -> defop s
+  | INFIXC s  -> defop s
+  | POSTFIX s -> defop s
+  | PREFIX s  -> if peeksymb () = KET ")" then defop s else defexpr ()
   | sy ->
 	  if sy = KET ")" then
 		(scansymb (); enbracket (registerTup (",", [])))
 	  else defexpr ()
 
 (* here a is not an associativity, it is 'left operator gets it' *)
+
 and parseExpr n a =
   let ( >> ) m n = m > n || m = n && not a in
   let rec pe t =
 	let sy = currsymb () in
-	let rec pq (n', a', s) down =
+	let rec pq n' a' s down =
 	  let rec nextt a = scansymb (); checkAfterBra sy n'; parseExpr n' a
 	  in
 	  let rec pts () =
@@ -367,30 +364,31 @@ and parseExpr n a =
 			else down (s, nextt (a' = LeftAssoc)))
 	  else t
 	in
-	let rec pr (n', _) down =
+	let rec pr n' down =
 	  if n' >> n then pe (down n' t) else t
 	in
 	match sy with
-	  INFIX i ->
-		pq i
+	  INFIX s ->
+		pq (prio sy) (assoc sy) s
 		   (fun (s, t') ->
 			  registerApp
 				(registerId (vid_of_string s, OperatorClass),
 				 registerTup (",", [t; t'])))
-	| INFIXC i ->
-		pq i
+	| INFIXC s ->
+		pq (prio sy) (assoc sy) s
 		   (fun (s, t') ->
 			  registerApp
 				(registerApp (registerId (vid_of_string s, OperatorClass), t), t'))
-	| POSTFIX (n', s) ->
+	| POSTFIX s ->
+	    let n' = prio sy in
 		if n' >> n then
 		  (let _ = scansymb () in
 			checkAfterBra sy n';
 			pe (registerApp (registerId (vid_of_string s, OperatorClass), t))
 		  )
 		else t
-	| RIGHTFIX i -> pr i parseRightfix
-	| MIDFIX i -> pr i parseMidfix
+	| RIGHTFIX _ -> pr (prio sy) parseRightfix
+	| MIDFIX   _ -> pr (prio sy) parseMidfix
 	| SUBSTBRA ->
         if !substfix >> n then
           let t = registerSubst (true, t, parseSubststuff ()) in
@@ -436,9 +434,9 @@ and parseterm fsy =
 	registerCollection (c, els)
   else
 	match fsy with
-	  INFIX (n, _, _)  -> parseExpr n true
-	| INFIXC (n, _, _) -> parseExpr n true
-	| _                -> parseExpr 0 false
+	  INFIX  _ -> parseExpr (prio fsy) true
+	| INFIXC _ -> parseExpr (prio fsy) true
+	| _        -> parseExpr 0 false
 
 and parseElementList starter parser__ sep k =
   let kind : idclass option ref = ref k in
@@ -465,7 +463,7 @@ and parseElementList starter parser__ sep k =
 			if iscoll k' then begin kind := Some k'; def k' end else None
 	  in
 	  match currsymb () with
-		PREFIX (_, sp) as sy ->
+		PREFIX sp as sy ->
 		  (scansymb ();
 		   match getSegvar () with
 			 Some (ps, v) -> Some (registerId (vid_of_string sp, OperatorClass) :: ps, v)

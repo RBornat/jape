@@ -276,12 +276,14 @@ let rec _T ivb ivk n a t s =
   in
   let rec _TFA sy f t s =
 	match sy with
-	  PREFIX (m, name) ->
+	  PREFIX name ->
+	    let m = prio sy in
 		quadcolon
 		  (_OBprefix m)
 		  (quadcolon
 			 name (_T ivb ivk m false t (quadcolon (_CBprefix m) s)))
-	| POSTFIX (m, name) ->
+	| POSTFIX name ->
+	    let m = prio sy in
 		quadcolon
 		  (_OB m)
 		  (_T ivb ivk m false t
@@ -320,9 +322,9 @@ let rec _T ivb ivk n a t s =
 		(opname f &~~
 		   (fun name ->
 			  match lookup name with
-				INFIXC (m, a, _) ->
+				INFIXC _ as sy' ->
 				  Some
-					(ivb t :: tip_ m a arg1 name arg2 (ivk t :: s))
+					(ivb t :: tip_ (prio sy') (assoc sy') arg1 name arg2 (ivk t :: s))
 			  | _ -> None))
 	  with
 		Some r -> r
@@ -333,7 +335,9 @@ let rec _T ivb ivk n a t s =
 		(opname f &~~
 		   (fun name ->
 			  match lookup name with
-				INFIX (m, a, _) ->
+				INFIX _ as sy' ->
+				  let m = prio sy' in
+				  let a = assoc sy' in 
 				  begin match
 					arg, !debracketapplications, debracket arg
 				  with
@@ -355,8 +359,8 @@ let rec _T ivb ivk n a t s =
   | Tup (_, sep, ts) ->
 	  let n' =
 		match lookup sep with
-		  INFIX (n', _, _) -> n'
-		| _ -> 0
+		  INFIX _ as sy' -> prio sy'
+		| _              -> 0
 	  in
 	  ivb t ::
 		quadcolon
@@ -371,7 +375,8 @@ let rec _T ivb ivk n a t s =
 		  ivb t ::
 			quadcolon
 			  (List.hd ss) (_TS1 ivb ivk 0 (List.tl ss) false ts (ivk t :: s))
-	  | LEFTFIX (m, _) ->
+	  | LEFTFIX _ as sy' ->
+	      let m = prio sy' in
 		  ivb t ::
 			quadcolon
 			  (_OBprefix m)
@@ -380,19 +385,21 @@ let rec _T ivb ivk n a t s =
 				  (_TS2
 					 ivb ivk m (List.tl ss) true ts
 					 (quadcolon (_CBprefix m) (ivk t :: s))))
-	  | MIDFIX (m, _) ->
+	  | MIDFIX _ as sy' ->
+	      let m = prio sy' in
 		  ivb t ::
 			quadcolon
 			  (_OB m)
 			  (_TS2 ivb ivk m ss true ts
 					(quadcolon (_CB m) (ivk t :: s)))
-	  | RIGHTFIX (m, _) ->
+	  | RIGHTFIX _ as sy' ->
+	      let m = prio sy' in
 		  ivb t ::
 			quadcolon
 			  (_OB m)
 			  (_TS1 ivb ivk m ss true ts
 					(quadcolon (_CB m) (ivk t :: s)))
-	  | _ -> raise Matchintermstring_
+	  | sy' -> raise (Catastrophe_ ["Matchintermstring_ "; smlsymbolstring sy'])
 	  end
   | Subst (_, _, t, m) ->
 	  ivb t ::
