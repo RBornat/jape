@@ -1399,68 +1399,98 @@ let rec print str goalopt p proof =
     in
     revapp (_D (rightby (p, bodymargin))) lines
 
-let rec hit_of_pos p 
-                   (Layout {lines = lines; bodymargin = bodymargin; reasonmargin = reasonmargin})
-                   hitkind =
-    if !boxseldebug then
-      consolereport
-        ["hit_of_pos "; " "; string_of_pos p; " ... "; string_of_hitkind hitkind];
-    let rec _H p =
-      function
-        FitchLine {elementsbox = elementsbox; elementsplan = elementsplan; reasonplan = reasonplan} ->
-          let couldbe path =
-            function
-              Some truepath -> truepath
-            | None          -> path
-          in
-          let answerpath hitkind {path = path; layoutpath = layoutpath; prunepath = prunepath} =
-            match hitkind with
-              LayoutPath -> couldbe path layoutpath
-            | PrunePath  -> couldbe path prunepath
-            | HitPath    -> path
-          in
-          let cp (pi, el, kind) =
-            match kind with
-              TranPlan side -> answerpath hitkind pi, (el, Some side)
-            | _             -> answerpath hitkind pi, (el, None)
-          in
-          let hp (pi, el, kind) = answerpath hitkind pi, el in
-          let rec decodeplan =
-            function
-              ElementPlan (pi, el, kind as pl) ->
-                begin match kind with
-                  HypPlan -> Some (FormulaHit (HypHit (hp pl)))
-                | _       -> Some (FormulaHit (ConcHit (cp pl)))
-                end
-            | AmbigElementPlan (up, dn) ->
-                Some (FormulaHit (AmbigHit (cp up, hp dn)))
-            | ElementPunctPlan -> None
-          in
-          if withintb (p, elementsbox) then
-            findfirstplanhit (p +<-+ tbPos elementsbox) elementsplan 
-            &~~ (fSome <.> planinfo) 
-            &~~ decodeplan
-          else
-            findfirst
-              (fun reason ->
-                 match planinfo reason with
-                   ReasonPlan pi ->
-                     if withintb
-                          (p +<-+ pos (reasonmargin - bodymargin, posY (tbPos elementsbox)),
-                           plantextbox reason)
-                     then
-                       Some (ReasonHit (answerpath hitkind pi))
-                     else None
-                 | _ -> None)
-              reasonplan
-      | FitchBox {outerbox = outerbox; boxlines = lines} ->
-          if withinY (p, outerbox) then findfirst (_H p) lines else None
-    in
-    findfirst (_H (rightby (p, -bodymargin))) lines
+let couldbe path = function
+                     Some truepath -> truepath
+                   | None          -> path
 
+let answerpath hitkind {path = path; layoutpath = layoutpath; prunepath = prunepath} =
+  match hitkind with
+    LayoutPath -> couldbe path layoutpath
+  | PrunePath  -> couldbe path prunepath
+  | HitPath    -> path
+
+let cp hitkind (pi, el, kind) =
+  match kind with
+    TranPlan side -> answerpath hitkind pi, (el, Some side)
+  | _             -> answerpath hitkind pi, (el, None)
+
+let hp hitkind (pi, el, kind) = answerpath hitkind pi, el
+
+let hit_of_pos p 
+               (Layout {lines = lines; bodymargin = bodymargin; reasonmargin = reasonmargin})
+               hitkind =
+  if !boxseldebug then
+    consolereport
+      ["hit_of_pos "; " "; string_of_pos p; " ... "; string_of_hitkind hitkind];
+  let cp = cp hitkind in
+  let hp = hp hitkind in
+  let rec _H p =
+    function
+      FitchLine {elementsbox = elementsbox; elementsplan = elementsplan; reasonplan = reasonplan} ->
+        let rec decodeplan =
+          function
+            ElementPlan (pi, el, kind as pl) ->
+              (match kind with
+                 HypPlan -> Some (FormulaHit (HypHit (hp pl)))
+               | _       -> Some (FormulaHit (ConcHit (cp pl))))
+          | AmbigElementPlan (up, dn) ->
+              Some (FormulaHit (AmbigHit (cp up, hp dn)))
+          | ElementPunctPlan -> None
+        in
+        if withintb (p, elementsbox) then
+          findfirstplanhit (p +<-+ tbPos elementsbox) elementsplan 
+          &~~ (_Some <.> planinfo) 
+          &~~ decodeplan
+        else
+          findfirst
+            (fun reason ->
+               match planinfo reason with
+                 ReasonPlan pi ->
+                   if withintb
+                        (p +<-+ pos (reasonmargin - bodymargin, posY (tbPos elementsbox)),
+                         plantextbox reason)
+                   then
+                     Some (ReasonHit (answerpath hitkind pi))
+                   else None
+               | _ -> None)
+            reasonplan
+    | FitchBox {outerbox = outerbox; boxlines = lines} ->
+        if withinY (p, outerbox) then findfirst (_H p) lines else None
+  in
+  findfirst (_H (rightby (p, -bodymargin))) lines
+
+let allFormulaHits pos (Layout {lines = lines; bodymargin = bodymargin}) =
+  let targetpath =
+    function
+      ElementPlan ({path = path}, _, ConcPlan) -> Some path
+    | _ -> None
+  in
+  let cp = cp HitPath in
+  let hp = hp HitPath in
+  let rec allts pos rs ls = 
+    List.fold_left (onet pos) rs ls (* efficient, but backwards -- don't think it matters *)
+  and onet pos rs l =
+    let oneel pos rs (Formulaplan (_, textbox, c)) =
+      let tbox = tbOffset textbox pos in
+      match c with 
+        ElementPlan (pi, el, kind as pl) ->
+         (tbox, match kind with
+                  HypPlan -> HypHit (hp pl)
+                | _       -> ConcHit (cp pl)) :: rs
+          | AmbigElementPlan (up, dn) ->
+              (tbox, AmbigHit (cp up, hp dn)) :: rs
+          | ElementPunctPlan -> rs
+    in
+    match l with
+      FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
+        List.fold_left (oneel (pos +->+ tbPos elementsbox)) rs elementsplan
+    | FitchBox {boxlines = boxlines} -> allts pos rs boxlines
+  in
+  allts (rightby (pos, bodymargin)) [] lines
+  
 let rec locateHit pos classopt hitkind (p, proof, layout) =
   hit_of_pos ((pos +<-+ p)) layout hitkind &~~
-  (fSome <.> 
+  (_Some <.> 
    (function
        FormulaHit (AmbigHit (up, dn)) as h ->
          begin match classopt with
@@ -1707,28 +1737,6 @@ let targetbox pos target layout =
       in
       findfirst (search (rightby (pos, bodymargin))) lines
 
-(* this function is used to discover all the stuff that's viewport-visible (see displaystyle.ml).
-   But because not every line is a conclusion, it won't always work. We need allformulahits, and that will
-   take a bit of work.
- *)
-let alltargets pos (Layout {lines = lines; bodymargin = bodymargin}) =
-  let targetpath =
-    function
-      ElementPlan ({path = path}, _, ConcPlan) -> Some path
-    | _ -> None
-  in
-  let rec allts pos rs ls = 
-    List.fold_left (onet pos) rs ls (* efficient, but backwards -- don't think it matters *)
-  and onet pos rs l =
-    match l with
-      FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
-        (match findfirst (targetpath <.> planinfo) elementsplan with
-           Some path -> (path, tbOffset elementsbox pos) :: rs
-         | None      -> rs)
-    | FitchBox {boxlines = boxlines} -> allts pos rs boxlines
-  in
-  allts (rightby (pos, bodymargin)) [] lines
-  
 let rec samelayout =
   fun (Layout {lines = lines}, Layout {lines = lines'}) -> lines = lines'
 
