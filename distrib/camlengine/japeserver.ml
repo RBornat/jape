@@ -30,7 +30,6 @@
 *)
 
 open Array
-
 open Box
 open Displayfont
 open Displayclass
@@ -140,7 +139,7 @@ and dd_ a1 a2 =
     r, [] -> r
   | r, d :: ds -> dd_ (r * 10 + ord d - ord "0") ds
 
-let rec ints line =
+let rec ints_of_reply line =
   let rec ff_ a1 a2 a3 =
     match a1, a2, a3 with
       s, r, [] -> nn_ s :: r
@@ -150,6 +149,15 @@ let rec ints line =
   ff_ [] [] (List.rev (explode line))
 
 let rec atoi s = nn_ (explode s)
+
+let rec strings_of_reply s =
+  let rec ff_ a1 a2 a3 =
+    match a1, a2, a3 with
+      w, r, []           -> implode w :: r
+    | w, r, "\001" :: cs -> ff_ [] (implode w :: r) cs
+    | w, r, c :: cs      -> ff_ (c :: w) r cs
+  in
+  ff_ [] [] (List.rev (explode s))
 
 type _ITEM = Bool of bool | Int of int | Str of string
 let fBool v = Bool v
@@ -196,7 +204,7 @@ and out8 c =
   (*consolereport ["mks8 ", string_of_int i, " => ", r];*)
   out r
 
-let rec askf s is = writef s is; ints (readline s)
+let rec askf s is = writef s is; ints_of_reply (readline s)
 let rec ask s = out s; out "\n"; readline s
 
 let rec listen () = writef "GET\n\n\n" []; readline "GET"
@@ -231,7 +239,7 @@ let rec sendOperators strings =
 (* fonts *)
 
 let rec setFonts stringfromtheory =
-  writef "SETFONTS \"%\"\n" [Str stringfromtheory]
+  writef "SETFONTS %\n" [Str stringfromtheory]
 
 exception Fontinfo_
 
@@ -250,17 +258,49 @@ let invischars : string list ref = ref []
 
 let rec printable s =
   implode ((fun c -> not (member (c, !invischars))) <| explode s)
-(* NEED TO CACHE THE RESULTS OF THIS *)
 
-exception Measurestring_
+let fontnames : string array ref = ref (Array.make 0 "")
 
-let rec measurestring (fontn, string) =
-  match askf "STRINGSIZE % %\n" [Int (displayfont2int fontn); Str (printable string)] with
-    [width; asc; desc] -> width, asc, desc
-  | _ -> raise Measurestring_
+let setFontNames fs =
+   if List.length fs = 0 then 
+	 raise (Catastrophe_ ["Japeserver.setFontNames: empty font name list"])
+   else 
+	 fontnames := Array.of_list fs
+
+let rec getfontname n =
+  try Array.get !fontnames n with
+  Invalid_argument "Array.get" -> (
+    if length !fontnames = 0 then (* we never initialised it *) (
+	  writef "FONTNAMES\n" [];
+	  let fs = strings_of_reply (readline "FONTNAMES") in 
+	  setFontNames fs; getfontname n )
+	else
+	  raise (Catastrophe_ ["Japeserver.getfontname can't decode fontnumber "; string_of_int n])
+  )
+  
+open Hashtbl
+
+let stringSizeCache : (string*string, int*int*int) Hashtbl.t = Hashtbl.create 251 (* usual comment *)
+
+exception Measurestring_ of int * string * int list
+
+let rec measurestring font string =
+  let fontnum = displayfont2int font in
+  let fontname = getfontname fontnum in
+  try Hashtbl.find stringSizeCache (fontname,string) with
+  Not_found -> (
+	let wad = 
+	  match askf "STRINGSIZE % %\n" [Int fontnum; Str (printable string)] with
+		[width; asc; desc] -> width, asc, desc
+	  | ns                 -> raise (Measurestring_ (fontnum, printable string, ns))
+	in
+	Hashtbl.add stringSizeCache (fontname,string) wad;
+	wad
+  )
 
 let rec loadFont (fontn, name) =
-  writef "LOADFONT % \"%\"\n" [Int fontn; Str name]
+  writef "LOADFONT % %\n" [Int fontn; Str name]
+
 (***************)
 
 let linethickness = ref 1
@@ -331,9 +371,9 @@ let commentSet = ref false
 
 let rec setComment s =
   if s = "" && not !commentSet then ()
-  else begin commentSet := true; writef "SETCOMMENT \"%\"\n" [Str s] end
+  else begin commentSet := true; writef "SETCOMMENT %\n" [Str s] end
 
-let rec showAlert s = writef "SETALERT   \"%\"\n" [Str s]
+let rec showAlert s = writef "SETALERT %\n" [Str s]
 
 let rec ask_unpatched severity message buttons default =
   writef "ASKSTART\n" [];
@@ -385,7 +425,7 @@ let rec newmenu proofsonly name =
   else writef "NEWMENU % %\n" [Bool proofsonly; Str name]
 
 let rec menuentry menu label keyopt entry =
-  writef "MENUITEM % % \"%\" %\n"
+  writef "MENUITEM % % % %\n"
     [Str menu; Str label; Str (match keyopt with Some s -> s | None -> " "); Str entry]
 
 let rec menucheckbox menu label cmd =
@@ -489,7 +529,7 @@ let rec readHighlight class__ =
 let rec clearProvisoView () = writef "CLEARPROVISOVIEW\n" []
 
 let rec showProvisoLine (fontn, s) =
-  writef "SHOWPROVISOLINE % \"%\"\n" [Int fontn; Str s]
+  writef "SHOWPROVISOLINE % %\n" [Int fontn; Str s]
 
 let (setGivens : (int * string) list -> unit) =
   (* numbered givens *) fun givens ->
@@ -501,16 +541,16 @@ let (setProvisos : font * string list -> unit) =
   (* font * provisos *) fun (fontn, ps) ->
     let fnn = Int (displayfont2int fontn) in
     clearProvisoView ();
-    List.iter (fun s -> writef "SHOWPROVISOLINE % \"%\"\n" [fnn; Str s]) ps
+    List.iter (fun s -> writef "SHOWPROVISOLINE % %\n" [fnn; Str s]) ps
 
-let rec showfile filename = writef "SHOWFILE \"%\"\n" [Str filename]
+let rec showfile filename = writef "SHOWFILE %\n" [Str filename]
 
 let rec resetcache () = 
     commentSet := false (* initialize cache *)  
     (* ; writef "RESETCACHE\n" [] -- doesn't seem to be necessary *)
 
 let rec makeChoice heading =
-  match askf "MAKECHOICE \"%\"\n" [Str heading] with
+  match askf "MAKECHOICE %\n" [Str heading] with
     [0] -> None
   | [n] -> Some (n - 1)
   | _ -> None
@@ -518,7 +558,7 @@ let rec makeChoice heading =
 let rec clearChoices () = writef "CLEARCHOICES\n" []
 
 let rec setChoice (show, reply) =
-  writef "SETCHOICE \"%\" \"%\"\n" [Str show; Str reply]
+  writef "SETCHOICE % %\n" [Str show; Str reply]
 
 let rec setChoiceLine () = writef "SETCHOICELINE\n" []
 
@@ -559,14 +599,14 @@ let rec filetypeToString =
   | n -> "jxx"
 
 let rec readFileName message filetype =
-  writef "READFILENAME \"%\" \"%\"\n"
+  writef "READFILENAME % %\n"
     [Str message; Str (filetypeToString filetype)];
   match readline "READFILENAME" with
     "" -> None
   | s -> Some s
 
 let rec writeFileName message filetype =
-  writef "WRITEFILENAME \"%\" \"%\"\n"
+  writef "WRITEFILENAME % %\n"
     [Str message; Str (filetypeToString filetype)];
   match readline "WRITEFILENAME" with
     "" -> None
@@ -574,21 +614,12 @@ let rec writeFileName message filetype =
 
 let rec setmenuequiv (menu, entry, command) = ()
 
-let rec explode_ s =
-  let rec ff_ a1 a2 a3 =
-    match a1, a2, a3 with
-      w, r, []           -> implode w :: r
-    | w, r, "\001" :: cs -> ff_ [] (implode w :: r) cs
-    | w, r, c :: cs      -> ff_ (c :: w) r cs
-  in
-  ff_ [] [] (List.rev (explode s))
-
 let rec getTextSelection () =
   let l : (pos * string list) list ref = ref [] in
   writef "GETTEXTSELECTIONS\n" [];
   while
     let line = readline "GETTEXTSELECTIONS" in
-    match explode_ line with
+    match strings_of_reply line with
       x :: y :: ss -> l := (pos (atoi x, atoi y), ss) :: !l; true
     | _            -> (* consolereport ["getTextSelection terminates on "; Stringfuns.enQuote line]; *)
                       false
@@ -603,7 +634,7 @@ let rec getFormulaSelection () =
   writef "GETSELECTIONS\n" [];
   while
     let line = readline "GETSELECTIONS" in
-    match ints line with
+    match ints_of_reply line with
       [x; y; classn] -> l := (pos (x, y), int2displayclass classn) :: !l; true
     | _ -> (* consolereport ["getFormulaSelection terminates on "; Stringfuns.enQuote line]; *) 
            false
@@ -614,7 +645,7 @@ let rec getFormulaSelection () =
 
 let rec getGivenSelection () =
   writef "GETGIVENTEXTSELECTIONS\n" [];
-  match explode_ (readline "GETGIVENTEXTSELECTIONS") with
+  match strings_of_reply (readline "GETGIVENTEXTSELECTIONS") with
     [""] -> (* consolereport ["getGivenSelection (saw a list with a single empty string) => []"]; *)
             []
   | xs   -> (* consolereport ["getGivenSelection => "; bracketedliststring Stringfuns.enQuote "," xs]; *)
@@ -644,33 +675,33 @@ let rec setdisproofseqbox box =
   let (pos, size) = explodeBox box in
   let (x, y) = explodePos pos in
   let (w, h) = explodeSize size in
-  writef "DISPROOFSEQBOX % % % %\n" (List.map fInt [x; y; x + w; y + h])
+  writef "SEQBOX % % % %\n" (List.map fInt [x; y; w; h])
 
 let rec setdisprooftiles ts =
-  writef "DISPROOFTILESSTART\n" [];
-  List.iter (fun t -> writef "DISPROOFTILE %\n" [Str t]) ts;
-  writef "DISPROOFTILESEND\n" []
+  writef "TILESSTART\n" [];
+  List.iter (fun t -> writef "TILE %\n" [Str t]) ts;
+  writef "TILESEND\n" []
 
 let rec setdisproofworlds selected worlds =
-  writef "DISPROOFWORLDSSTART\n" [];
-  List.iter
-    (fun (sx, sy) -> writef "DISPROOFWORLDSELECT % %\n" [Int sx; Int sy])
-    selected;
+  writef "WORLDSSTART\n" [];
   List.iter
     (fun ((cx, cy), labels, children) ->
-       writef "DISPROOFWORLD % %\n" [Int cx; Int cy];
+       writef "WORLD % %\n" [Int cx; Int cy];
        List.iter
          (fun label ->
-            writef "DISPROOFWORLDLABEL % % %\n"
+            writef "WORLDLABEL % % %\n"
               [Int cx; Int cy; Str label])
          labels;
        List.iter
          (fun (chx, chy) ->
-            writef "DISPROOFWORLDCHILD % % % %\n"
+            writef "WORLDCHILD % % % %\n"
               [Int cx; Int cy; Int chx; Int chy])
          children)
     worlds;
-  writef "DISPROOFWORLDSEND\n" []
+  List.iter
+    (fun (sx, sy) -> writef "WORLDSELECT % %\n" [Int sx; Int sy])
+    selected;
+  writef "WORLDSEND\n" []
 
 exception GetPaneGeometry_ of string
 

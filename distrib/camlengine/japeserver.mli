@@ -50,9 +50,13 @@ val fontinfo : font -> int * int * int
 val canbackgroundfocus : bool
 val setbackgroundfocus : int -> unit
 val setforegroundfocus : unit -> unit
-val measurestring : font * string -> int * int * int
+
+val setFontNames: string list -> unit
+
+val measurestring : font -> string -> int * int * int
+
 val procrustes : int -> string -> font -> string -> string
-(* width   ...               string    what fits *)
+              (* width  "..."             string    what fits *)
 
 (* drawmeasuredtext takes a selection class (0 is non-selectable),
                           an (offset*font*string) list and
