@@ -45,6 +45,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+import java.awt.geom.AffineTransform;
+
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -164,40 +166,88 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     private int gap() { return 5*proofCanvas.linethickness; }
 
     private int separatorThickness() { return 2*proofCanvas.linethickness; }
+
+    private void printSeparator(Graphics2D g2D, int y, int length) {
+        g2D.setColor(Preferences.SeparatorColour);
+        g2D.setStroke(new BasicStroke((float)separatorThickness()));
+        g2D.drawLine(0, y, length, y);
+    }
     
     public int print(Graphics g, PageFormat pf, int pi) throws PrinterException {
         if (pi >= 1) {
             return Printable.NO_SUCH_PAGE;
         }
+
+        if (!(g instanceof Graphics2D)) {
+            Alert.showAlert(this, Alert.Warning,
+                            "Can't print: this seems to be a very old version of Java");
+            return Printable.NO_SUCH_PAGE;
+        }
+
+        Graphics2D g2D = (Graphics2D) g;
         
         if (printlayout_tracing) {
-            System.err.println("ProofWindow.print("+g+")");
+            System.err.println("ProofWindow.print("+g2D+")");
             japeserver.showContainer(proofCanvas);
         }
         
-        g.translate((int)pf.getImageableX()+1, (int)pf.getImageableY()+1);
+        g2D.translate((int)pf.getImageableX()+1, (int)pf.getImageableY()+1);
+
+        int printHeight=0, printWidth=0;
+        Dimension disproofSize;
+
+        // compute size of picture
+        if (disproofPane!=null) {
+            disproofSize = disproofPane.printSize();
+            printWidth = disproofSize.width;
+            printHeight = disproofSize.height+gap()+separatorThickness()+gap();
+        }
+        else
+            disproofSize = null; // shut up compiler
+
+        printWidth = Math.max(printWidth, proofCanvas.getWidth());
+        printHeight += proofCanvas.getHeight();
+
+        if (provisoCanvas!=null) {
+            printWidth = Math.max(printWidth, provisoCanvas.getWidth());
+            printHeight += gap()+separatorThickness()+gap()+provisoCanvas.getHeight();
+        }
+
+        // scale if necessary
+        double scalex = (double)pf.getImageableWidth()/(double)printWidth,
+               scaley = (double)pf.getImageableHeight()/(double)printHeight,
+               scale = Math.min(scalex, scaley);
+        AffineTransform trans = g2D.getTransform();
+
+        if (scale<1.0) {
+            System.err.println("scaling printing to "+scale);
+            g2D.scale(scale, scale);
+        }
 
         if (disproofPane!=null) {
             disproofPane.print(g);
-            Dimension disproofSize = disproofPane.printSize();
-            g.setColor(Preferences.SeparatorColour);
-            ((Graphics2D)g).setStroke(new BasicStroke((float)separatorThickness()));
-            g.drawLine(0, disproofSize.height,
-                       Math.max(disproofSize.width, proofCanvas.getWidth()), disproofSize.height);
-            g.translate(0, disproofSize.height+separatorThickness()+gap());
+            int liney = disproofSize.height+gap();
+            printSeparator(g2D, liney, Math.max(disproofSize.width, proofCanvas.getWidth()));
+            g2D.translate(0, liney+separatorThickness()+gap());
         }
 
         proofCanvas.paint(g);
 
         if (provisoCanvas!=null) {
-            g.translate(0, proofCanvas.getHeight()+gap());
-            g.setColor(Preferences.SeparatorColour);
-            ((Graphics2D)g).setStroke(new BasicStroke((float)separatorThickness()));
-            g.drawLine(0, 0,
-                       Math.max(proofCanvas.getWidth(), provisoCanvas.getWidth()), 0);
-            g.translate(0, separatorThickness()+gap());
+            g2D.translate(0, proofCanvas.getHeight()+gap());
+            printSeparator(g2D, 0, Math.max(proofCanvas.getWidth(), provisoCanvas.getWidth()));
+            g2D.translate(0, separatorThickness()+gap());
             provisoCanvas.paint(g);
+            g2D.translate(0, -(proofCanvas.getHeight()+gap()+separatorThickness()+gap()));
         }
+
+        if (disproofPane!=null)
+            g2D.translate(0, -(disproofSize.height+gap()+separatorThickness()+gap()));
+
+        g2D.setTransform(trans);
+        
+        g2D.translate(-((int)pf.getImageableX()+1), -((int)pf.getImageableY()+1));
+        
         return Printable.PAGE_EXISTS;
     }
 
@@ -296,7 +346,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         proofPane.validate(); proofPane.repaint();
         focussedCanvas = proofCanvas; // really?
         proofCanvas.proofStyle = style;
-        proofCanvas.linethickness = linethickness;
+        proofCanvas.setlinethickness(linethickness);
     }
 
     private DisproofPane ensureDisproofPane() {
