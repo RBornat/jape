@@ -222,6 +222,10 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         return null;
     }
 
+    public void killAllTextSelections() {
+        killTextSelections(null);
+    }
+    
     protected void killTextSelections(TextSelectableItem leave) {
         Component[] cs = child.getComponents(); // oh dear ...
         for (int i=0; i<cs.length; i++)
