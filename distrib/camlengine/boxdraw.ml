@@ -772,6 +772,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let minreasonW = 5*commaW in
 
   let (dotssize, _ as dotsinf) = textinfo_of_string ReasonFont ". . ." in
+  
   (* In formatting a line, we recognise four elements: 
    *   line number N
    *   assertion   
@@ -819,18 +820,14 @@ let rec linearise screenwidth procrustean_reasonW dp =
           | _ -> raise (Catastrophe_ ("R not followed by A in " :: cs))
           end
       | post, [] -> [S (pf post DisplayPunct)]
-      | _ ->
-          raise (Catastrophe_ ("getelement (boxdraw) can't parse " :: cs))
+      | _ -> raise (Catastrophe_ ("getelement (boxdraw) can't parse " :: cs))
     in
     let fs = explode !boxlineformat in
     let rec notsep c = c <> "\n" in
     let (ls, rs) =
       takewhile notsep fs,
       (match dropwhile notsep fs with
-         [] ->
-           raise
-             (Catastrophe_
-                ["no separator in boxlineformat "; !boxlineformat])
+         [] -> raise (Catastrophe_ ["no separator in boxlineformat "; !boxlineformat])
        | _ :: rs -> rs)
     in
     let (ltokens, rtokens) = getelements ls, getelements rs in ()
@@ -857,32 +854,27 @@ let rec linearise screenwidth procrustean_reasonW dp =
         else
           let e =
             match epi with
-              ElementPlan (_, e, _) -> e
+              ElementPlan      (_, e, _)      -> e
             | AmbigElementPlan ((_, e, _), _) -> e
-            | ElementPunctPlan ->
+            | ElementPunctPlan                ->
                 raise (Catastrophe_ ["foldformula ElementPunctPlan"])
           in
           let estring = catelim_invisbracketedstring_of_element true e [] in
           let measure = fst_of_3 <.> measurestring TermFont in
-          let _ =
-            if !boxfolddebug then
-              consolereport
-                ["folding ";
-                 bracketedstring_of_list
-                   (fun s -> string_of_pair string_of_int enQuote "," (measure s, s))
-                   ", " estring]
-          in
+          if !boxfolddebug then
+            consolereport
+              ["folding ";
+               bracketedstring_of_list
+                 (fun s -> string_of_pair string_of_int enQuote "," (measure s, s))
+                 ", " estring];
           let sss = minwaste measure w estring in
-          let _ =
-            if !boxfolddebug then
-              consolereport
-                ["width is "; string_of_int w; ";\nformula folded to ";
-                 string_of_int (List.length sss); " lines: ";
-                 bracketedstring_of_list (fun ss -> enQuote (implode ss)) ", "
-                   sss]
-          in
-          let sys =
-            (fun ss -> Syllable (TermFont, implode ss)) <* sss
+          if !boxfolddebug then
+            consolereport
+              ["width is "; string_of_int w; ";\nformula folded to ";
+               string_of_int (List.length sss); " lines: ";
+               bracketedstring_of_list (fun ss -> enQuote (implode ss)) ", "
+                 sss];
+          let sys = (fun ss -> Syllable (TermFont, implode ss)) <* sss
           in
           let text =
             Text
@@ -890,15 +882,11 @@ let rec linearise screenwidth procrustean_reasonW dp =
                  (interpolate (Linebreak termfontleading) sys @
                     [Linebreak textleading]))
           in
-          let _ =
-            if !boxfolddebug then
-              consolereport ["text is "; string_of_text text]
-          in
+          if !boxfolddebug then
+            consolereport ["text is "; string_of_text text];
           let (size, _ as textinfo) = Draw.measuretext MidBlock text in
-          let _ =
-            if !boxfolddebug then
-              consolereport ["textsize is "; string_of_textsize size]
-          in
+          if !boxfolddebug then
+            consolereport ["textsize is "; string_of_textsize size];
           textinfo, epi
   in
   (*************** the engine room ******************************: 
@@ -997,24 +985,19 @@ let rec linearise screenwidth procrustean_reasonW dp =
           idW = 0; reasonW = 0; assW = 0; lastmulti = false}
   in
   let rec nextpos b leading lastmulti thismulti =
-    if isemptybox b then 
-      topleft b 
+    if isemptybox b then topleft b 
     else downby (botleft b, (if lastmulti || thismulti then 2*leading else leading + 1))
   in
   (* idok is what to do if you are an IdDep -- 
    *   true means disappear if you like;
    *   false means you are the last line of a box, so disappear iff you refer to the previous line.
    *)
-  let rec _L wopt hypmap idok dp =
-    fun (Lacc {id = id; acclines = lines; elbox = elbox; 
-               idW = idW; reasonW = reasonW; assW = assW; lastmulti = lastmulti} as acc) ->
+  let rec _L wopt hypmap idok dp (Lacc accrec as acc) =
       let rec getIdDep el =
         match mapped sameresource hypmap el with
           Some cid -> cid, acc
-        | None ->
-            raise
-              (Catastrophe_
-                 ["linearise can't find hypothesis "; string_of_element el])
+        | None     ->
+            raise (Catastrophe_ ["linearise can't find hypothesis "; string_of_element el])
       in
       let getcid = _L wopt hypmap true in
       (* convert reasoninfo -- reason and antecedent information -- 
@@ -1025,14 +1008,11 @@ let rec linearise screenwidth procrustean_reasonW dp =
           None -> acc, None
         | Some (pi, rinf, lprins, subdps) ->
             let lcids =
-                 (fun lp ->
-                    try _The (mapped sameresource hypmap lp) with
-                      _The_ ->
-                        raise
-                          (Catastrophe_
-                             ["linearise can't decode lprin ";
-                              string_of_element lp])) <*
-                 lprins
+              (fun lp ->
+                 try _The (mapped sameresource hypmap lp) with
+                   _The_ -> raise (Catastrophe_
+                                     ["linearise can't decode lprin "; string_of_element lp])) 
+              <* lprins
             in
             let rec dosub (dp, (cids, acc)) =
               let (cid, acc') = getcid dp acc in cid :: cids, acc'
@@ -1065,8 +1045,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
         IdDep (el, lindep) ->
           if idok ||
              (match mapped sameresource hypmap el with
-                Some (LineID id') -> id = _RR id'
-              | _ -> false)
+                Some (LineID id') -> accrec.id = _RR id'
+              | _                 -> false)
           then
             getIdDep el
           else _L wopt hypmap false lindep acc
@@ -1074,7 +1054,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let concels' =
             match !foldformulae, wopt with
               true, Some bestW ->
-                   foldformula (bestW - 2 * posX (topleft elbox) - commaW) <* concels
+                   foldformula (bestW - 2 * posX (topleft accrec.elbox) - commaW) <* concels
             | _ -> concels
           in
           let rec mkp p =
@@ -1089,13 +1069,13 @@ let rec linearise screenwidth procrustean_reasonW dp =
       | BoxDep (boxed, words, hypelis, dp) ->
           let (topleftpos, hindent, vindent, innerpos) =
             if boxed then
-              let topleftpos = nextpos elbox boxleading lastmulti false in
+              let topleftpos = nextpos accrec.elbox boxleading accrec.lastmulti false in
               let hindent = linethickness + boxhspace in
               let vindent = linethickness + boxvspace in
               topleftpos, hindent, vindent,
               topleftpos +->+ pos (hindent, vindent)
             else
-              let topleftpos = nextpos elbox textleading lastmulti false in
+              let topleftpos = nextpos accrec.elbox textleading accrec.lastmulti false in
               topleftpos, 0, 0, topleftpos
           in
           let hyplines =
@@ -1108,36 +1088,31 @@ let rec linearise screenwidth procrustean_reasonW dp =
                   ((fun (e, inf) -> e, if !foldformulae then foldformula mybestW inf 
                                                         else inf) <* hypelis)
           in
-          let rec dohypline =
-            fun
-              ((hypelis : elinfo list),
-               (hypmap, Lacc {id = id; acclines = lines; elbox = elbox;
-                              idW = idW; reasonW = reasonW; assW = assW})) ->
-              let (word, hypmap') =
-                match hypelis with
-                  [h] -> fst words, (hypmap ++ (fst h |-> LineID id))
-                | hs  -> snd words, (hypmap ++ mapn id hs 1)
-              in
-              let (line, linebox, lineidW, linereasonW) =
-                mkLine
-                  (plans_of_things
-                     (uncurry2 plan_of_textinfo <.> snd)
-                     commaf nullf hypelis)
-                  (showword word) id (nextpos elbox textleading false false)
-              in
-              let lineassW =
-                match hypelis with
-                  [_] -> 0
-                | _ -> sW (bSize linebox) + 2 * posX innerpos
-              in
-              hypmap',
-              Lacc {id = _RR id; acclines = line :: lines;
-                    elbox = if null lines then linebox else ( +||+ ) (elbox, linebox);
-                    idW = max idW lineidW; reasonW = max reasonW linereasonW;
-                    assW = max assW lineassW; lastmulti = false}
+          let dohypline (hypelis, (hypmap, Lacc haccrec)) =
+            let (word, hypmap') =
+              match hypelis with
+                [h] -> fst words, (hypmap ++ (fst h |-> LineID haccrec.id))
+              | hs  -> snd words, (hypmap ++ mapn haccrec.id hs 1)
+            in
+            let (line, linebox, lineidW, linereasonW) =
+              mkLine
+                (plans_of_things
+                   (uncurry2 plan_of_textinfo <.> snd) commaf nullf hypelis)
+                (showword word) haccrec.id (nextpos haccrec.elbox textleading false false)
+            in
+            let lineassW =
+              match hypelis with
+                [_] -> 0
+              | _   -> sW (bSize linebox) + 2 * posX innerpos
+            in
+            hypmap',
+            Lacc {id = _RR haccrec.id; acclines = line :: haccrec.acclines;
+                  elbox = if null haccrec.acclines then linebox else ( +||+ ) (haccrec.elbox, linebox);
+                  idW = max haccrec.idW lineidW; reasonW = max haccrec.reasonW linereasonW;
+                  assW = max haccrec.assW lineassW; lastmulti = false}
           in
           let (hypmap', (Lacc {id = id'} as acc')) =
-            nj_revfold dohypline hyplines (hypmap, startLacc id innerpos)
+            nj_revfold dohypline hyplines (hypmap, startLacc accrec.id innerpos)
           in
           let (cid, Lacc {id = id''; acclines = innerlines; elbox = innerbox;
                           idW = idW'; reasonW = reasonW'; assW = assW'})
@@ -1146,17 +1121,19 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let outerbox = bOutset innerbox (size (hindent, vindent)) in
           let cid' =
             match cid with
-              LineID jd     -> BoxID (id, jd)
-            | BoxID (_, jd) -> BoxID (id, jd)
-            | HypID _       -> if id = id' then LineID id else BoxID (id, id')
+              LineID jd     -> BoxID (accrec.id, jd)
+            | BoxID (_, jd) -> BoxID (accrec.id, jd)
+            | HypID _       -> if accrec.id = id' then LineID accrec.id else BoxID (accrec.id, id')
             | NoID          -> raise (Catastrophe_ ["NoID in BoxDep"])
           in
           cid',
           Lacc {id = id'';
                 acclines = 
-                  FitchBox {outerbox = outerbox; boxlines = innerlines; boxed = boxed} :: lines;
-                elbox = ( +||+ ) (elbox, outerbox); idW = max idW (idW');
-                reasonW = max reasonW (reasonW'); assW = max assW (assW'); lastmulti = false }
+                  FitchBox {outerbox = outerbox; boxlines = innerlines; boxed = boxed} 
+                    :: accrec.acclines;
+                elbox = ( +||+ ) (accrec.elbox, outerbox); idW = max accrec.idW idW';
+                reasonW = max accrec.reasonW (reasonW'); assW = max accrec.assW assW'; 
+                lastmulti = false }
       | CutDep (ldp, cutel, rdp, tobehidden) ->
           (* this is where we hide cut hypotheses completely, if asked.  If the lhs is a single 
            * line, with some antecedents, we replace references to the cut formula by reference 
