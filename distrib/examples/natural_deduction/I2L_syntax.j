@@ -2,7 +2,7 @@
 
 CLASS VARIABLE  x y z
                 i j k
-CLASS FORMULA   A B C   
+CLASS FORMULA   A B C D  
                 E F G H  
                 P  
                 R S T
