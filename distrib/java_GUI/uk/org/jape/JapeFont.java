@@ -217,11 +217,11 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
             if (codecDone)
                 throw new ProtocolError("too late!");
             else
-                if (name.equals("Konstanz")) {
+                if (name.equals("Konstanz") || name.equals("Laura")) {
                     if (japeserver.onMacOS) {
-                        substituteFont = new Font("Konstanz", Font.PLAIN, 1);
+                        substituteFont = new Font(name, Font.PLAIN, 1);
                         if (substituteFont==null)
-                            throw new ProtocolError("can't open Konstanz Plain 1.0");
+                            throw new ProtocolError("can't open "+name+" Plain 1.0");
                         setInterfaceFonts(substituteFont);
                         Reply.sendCOMMAND("setfonts \""+getFontNames("\" \"")+"\"");
                     }
