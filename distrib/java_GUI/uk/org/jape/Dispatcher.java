@@ -68,8 +68,9 @@ public class Dispatcher extends Thread implements DebugConstants {
                         
                     // GET means client is listening
                         if (p.equals("GET")&&len==1) {
-                            Reply.openchannel();
                             JapeWindow.ensureMenusAvailable();
+                            ProofWindow.makeReady();
+                            Reply.openchannel();
                         }
                         else
 
@@ -250,8 +251,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
 
                     // disproof
-                        if (p.equals("SEQBOX")&&len==5)
-                            ProofWindow.setDisproofSequentBox(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]), toInt(cmd[4]));
+                        if (p.equals("SEQBOX")&&len==4)
+                            ProofWindow.setDisproofSequentBox(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]));
                         else
                         if (p.equals("TILESSTART")&&len==1)
                             list.removeAllElements();
