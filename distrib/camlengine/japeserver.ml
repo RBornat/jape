@@ -402,12 +402,12 @@ let rec menuradiobutton menu lcs =
 let rec menuseparator (menu : string) =
   writef "MENUSEP %\n" [Str menu]
 
-let rec enablemenuitem focussedonly menu label state =
-  writef "ENABLEMENUITEM % % % %\n" [Bool focussedonly; Str menu; Str label; Bool state]
+let rec enablemenuitem menu label state =
+  writef "ENABLEMENUITEM % % %\n" [Str menu; Str label; Bool state]
 
-let rec tickmenuitem focussedonly menu label tick =
-  writef "TICKMENUITEM % % % %\n"
-    [Bool focussedonly; Str menu; Str label; Bool tick]
+let rec tickmenuitem menu label tick =
+  writef "TICKMENUITEM % % %\n"
+    [Str menu; Str label; Bool tick]
 
 let rec makemenusVisible () =
   (* if !menusVisible then () else *) writef "MAKEMENUSVISIBLE\n" []

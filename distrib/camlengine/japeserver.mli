@@ -86,10 +86,18 @@ val menuradiobutton : string -> (string * string) list -> unit
 val menuseparator   : string -> unit
                    (* menu *)
 
-val enablemenuitem : bool -> string -> string -> bool -> unit (* applies to entries, checkboxes, radio buttons *)
-                   (* true: only in focussed proof; false: in every menubar that has the entry *)
-val tickmenuitem   : bool -> string -> string -> bool -> unit (* only for checkboxes, radio buttons *)
-                   (* true: only in focussed proof; false: in every menubar that has the entry *)
+(* I toyed with the idea that enablemenuitem and tickmenuitem should have an argument which 
+   says that the change applies only to the focussed window, in order to cope with the fact 
+   that in the GUI there are now multiple menu bars -- one per window.  But in fact the 
+   single-menu model used in the engine works well enough: if there is a per-window change
+   then the engine applies it each time the window focus changes.
+   
+   The alternative actions are still implemented in the GUI, if it's necessary to revive
+   the focussedonly idea.
+   RB 5/xi/02
+ *)
+val enablemenuitem : string -> string -> bool -> unit (* applies to entries, checkboxes, radio buttons *)
+val tickmenuitem   : string -> string -> bool -> unit (* only for checkboxes, radio buttons *)
 
 val mapmenus : bool -> unit (* false: menus under construction; true: menus constructed *)
  
