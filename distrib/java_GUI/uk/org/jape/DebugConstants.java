@@ -46,7 +46,6 @@ interface DebugConstants {
                                 panellayout_tracing      = false,
                                 panellist_tracing        = false,
                                 printlayout_tracing      = false,
-                                protocol_tracing         = false,
                                 worldpaint_tracing       = false;
 
     static final public boolean notice_Linux             = true,

@@ -37,7 +37,7 @@ public class Dispatcher extends Thread implements DebugConstants {
     public Dispatcher() {
         super("Dispatcher");
         encoder = Reply.decoder;
-        if (protocol_tracing)
+        if (DebugVars.protocol_tracing)
             System.err.println("dispatcher initialised");
     }
 
@@ -58,7 +58,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                 String line = encoder.inputline();
                 try {
                     String[] cmd = japesplit(line);
-                    if (protocol_tracing) {
+                    if (DebugVars.protocol_tracing) {
                         showcommand("dispatcher reads ("+cmd.length+") ", cmd);
                     }
                 

@@ -49,7 +49,7 @@ public class Reply implements DebugConstants {
         try {
             if (clientlistening && messages.size()!=0) {
                 String s = (String)messages.remove(0);
-                if (protocol_tracing) System.err.println("GUI sends "+s);
+                if (DebugVars.protocol_tracing) System.err.println("GUI sends "+s);
                 decoder.outputln(s);
                 decoder.flush();
                 clientlistening=false;
@@ -60,7 +60,7 @@ public class Reply implements DebugConstants {
     }
 
     synchronized public static void send(String s) {
-        if (protocol_tracing) System.err.println("queuing "+s);
+        if (DebugVars.protocol_tracing) System.err.println("queuing "+s);
         messages.add(s);
         flushmessages();
     }
@@ -72,7 +72,7 @@ public class Reply implements DebugConstants {
     synchronized public static void reply(String s) throws ProtocolError {
         if (!clientlistening) {
             try {
-                if (protocol_tracing) System.err.println("GUI replies "+s);
+                if (DebugVars.protocol_tracing) System.err.println("GUI replies "+s);
                 decoder.outputln(s);
                 decoder.flush();
             } catch (IOException e) {
