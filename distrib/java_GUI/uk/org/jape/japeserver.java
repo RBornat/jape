@@ -24,7 +24,8 @@
     (or look at http://www.gnu.org).
 */
 
-import java.io.File;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
@@ -32,6 +33,9 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+
+import java.io.File;
+
 import java.util.Vector;
 
 public class japeserver {
@@ -147,4 +151,14 @@ public class japeserver {
             System.err.println("japeserver initialised");
     }
 
+    // for debugging
+    public static void showContainer(Container pane, String prefix) {
+        for (int i=0; i<pane.getComponentCount(); i++) {
+            Component c = pane.getComponent(i);
+            String label = prefix==null ? ""+i : prefix+"."+i;
+            System.err.println(label+": "+c);
+            if (c instanceof Container)
+                showContainer((Container)c, label);
+        }
+    }
 }
