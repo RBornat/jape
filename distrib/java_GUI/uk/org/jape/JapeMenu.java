@@ -53,44 +53,33 @@ public class JapeMenu implements DebugConstants {
     protected static Vector barv = new Vector(); // of Ms
     
     protected static class M {
-        final String title;
-        protected final Vector itemv; // of Is and Seps and RBGs and CBs
-        M(String title) { this.title=title; itemv=new Vector(); }
+        final boolean proofsonly; final String title;
+        protected final Vector itemv=new Vector(); // of Is and Seps and RBGs and CBs
+        M(boolean proofsonly, String title) { this.proofsonly=proofsonly; this.title=title; }
         public void add(I i) { itemv.add(i); }
         public void add(RBG rbg) { itemv.add(rbg); }
         public void addSep() { itemv.add(new Sep()); }
+        public I findI(String label) throws ProtocolError {
+            int vc = itemv.size();
+            for (int i=0; i<vc; i++) {
+                Object o = itemv.get(i);
+                if (o instanceof I && o.equals(label))
+                    return (I)o;
+                if (o instanceof RBG) {
+                    RBG g = (RBG)o;
+                    for (int j=0; j<g.items.length; j++)
+                        if (g.items[j].equals(label))
+                            return g.items[j];
+                }
+            }
+            throw new ProtocolError("no item \""+label+"\" in menu "+title);
+        }
         public boolean preSep(int i) {
             return 0<=i-1 && i-1<itemv.size() && !(itemv.get(i-1) instanceof Sep);
         }
         public boolean postSep(int i) {
             return 0<=i+1 && i+1<itemv.size() &&
                    !(itemv.get(i+1) instanceof Sep || itemv.get(i+1) instanceof RBG);
-        }
-        public int indexOf(String label) {
-            int j=0;
-            for (int i=0; i<itemv.size(); i++) {
-                Object o = itemv.get(i);
-                if (o instanceof I) {
-                    if (((I)o).label.equals(label))
-                        return j;
-                    else
-                        j++;
-                }
-                else
-                if (o instanceof RBG) {
-                    if (preSep(i)) j++;
-                    RBG rbg = (RBG)o;
-                    for (int k=0; k<rbg.items.length; k++)
-                        if (rbg.items[k].label.equals(label))
-                            return j;
-                        else
-                            j++;
-                    if (postSep(i)) j++;
-                }
-                else
-                    j++;
-            }
-            return -1;
         }
         public int size() { return itemv.size(); }
         public Object get(int i) { return itemv.get(i); }
@@ -175,55 +164,87 @@ public class JapeMenu implements DebugConstants {
             System.err.println("ActionListener on "+i);
         menu.add(item);
     }
+
+    protected static class TitledMenuBar extends JMenuBar {
+        public TitledMenuBar() { super(); }
+        public TitledMenu getMenu(String s) {
+            int mc = getMenuCount();
+            for (int i=0; i<mc; i++) {
+                TitledMenu m = (TitledMenu)getMenu(i);
+                if (m.getText().equals(s))
+                    return m;
+            }
+            return null;
+        }
+    }
+
+    protected static class TitledMenu extends JMenu {
+        public TitledMenu(String title) { super(title); }
+        public JMenuItem getItem(String s) {
+            int ic = getItemCount();
+            for (int i=0; i<ic; i++) {
+                JMenuItem ji = getItem(i); // could be a separator ...
+                if (ji!=null && ji.getText().equals(s))
+                    return ji;
+            }
+            return null;
+        }
+    }
     
-    protected static JMenuBar mkBar() {
-        JMenuBar bar = new JMenuBar();
+    protected static TitledMenuBar mkBar(boolean proofsonly) {
+        TitledMenuBar bar = new TitledMenuBar();
         for (Enumeration ebar = barv.elements(); ebar.hasMoreElements(); ) {
             M m = (M)ebar.nextElement();
-            JMenu menu = new JMenu(m.title);
-            JapeFont.setComponentFont(menu.getComponent(), JapeFont.MENUENTRY);
-            for (int i=0; i<m.size(); i++) {
-                Object o = m.get(i);
-                if (o instanceof RBG) {
-                    if (m.preSep(i))
-                        menu.addSeparator();
-                    RBG rbg = (RBG)o;
-                    ButtonGroup group = new ButtonGroup();
-                    for (int j=0; j<rbg.items.length; j++) {
-                        JRadioButtonMenuItem item = new JRadioButtonMenuItem(rbg.items[j].label, j==0);
-                        mkItem(menu, rbg.items[j], item);
-                        group.add(item);
+            if (!m.proofsonly || proofsonly) {
+                TitledMenu menu = new TitledMenu(m.title);
+                JapeFont.setComponentFont(menu.getComponent(), JapeFont.MENUENTRY);
+                for (int i=0; i<m.size(); i++) {
+                    Object o = m.get(i);
+                    if (o instanceof RBG) {
+                        if (m.preSep(i))
+                            menu.addSeparator();
+                        RBG rbg = (RBG)o;
+                        ButtonGroup group = new ButtonGroup();
+                        for (int j=0; j<rbg.items.length; j++) {
+                            JRadioButtonMenuItem item = new JRadioButtonMenuItem(rbg.items[j].label, j==0);
+                            mkItem(menu, rbg.items[j], item);
+                            group.add(item);
+                        }
+                        if (m.postSep(i))
+                            menu.addSeparator();
                     }
-                    if (m.postSep(i))
+                    else
+                    if (o instanceof CB) {
+                        CB cb = (CB)o;
+                        JCheckBoxMenuItem item = new JCheckBoxMenuItem(cb.label);
+                        mkItem(menu, cb, item);
+                    }
+                    else
+                    if (o instanceof I) {
+                        I ii = (I)o;
+                        JMenuItem item = new JMenuItem(ii.label);
+                        mkItem(menu, ii, item);
+                    }
+                    else
+                    if (o instanceof Sep)
                         menu.addSeparator();
+                    else
+                        Alert.abort("JapeMenu.mkBar sees "+o);
                 }
-                else
-                if (o instanceof CB) {
-                    CB cb = (CB)o;
-                    JCheckBoxMenuItem item = new JCheckBoxMenuItem(cb.label);
-                    mkItem(menu, cb, item);
-                }
-                else
-                if (o instanceof I) {
-                    I ii = (I)o;
-                    JMenuItem item = new JMenuItem(ii.label);
-                    mkItem(menu, ii, item);
-                }
-                else
-                if (o instanceof Sep)
-                    menu.addSeparator();
-                else
-                    Alert.abort("JapeMenu.mkBar sees "+o);
+                bar.add(menu);
             }
-            bar.add(menu);
         }
         return bar;
     }
-    
-    public static void setBar(JapeWindow w) {
-        w.setJMenuBar(mkBar());
+
+    private static void setBar(boolean proofsonly, JapeWindow w) {
+        w.setJMenuBar(mkBar(proofsonly));
         w.getJMenuBar().revalidate();
     }
+
+    public static void setProofWindowBar(JapeWindow w) { setBar(true, w); }
+
+    public static void setNonProofWindowBar(JapeWindow w) { setBar(false, w); }
     
     public static void makeMenusVisible() {
     	JapeWindow.updateMenuBars(); 
@@ -234,10 +255,10 @@ public class JapeMenu implements DebugConstants {
     
     private static Hashtable menutable, actiontable;
 
-    private static M ensureMenu(String id, String menuname) throws ProtocolError {
+    private static M ensureMenu(String menuname) throws ProtocolError {
         M menu = (M)menutable.get(menuname);
         if (menu==null)
-            throw new ProtocolError("JapeMenu."+id+" no menu named "+menuname);
+            throw new ProtocolError("no menu named "+menuname);
         return menu;
     }
     
@@ -268,10 +289,10 @@ public class JapeMenu implements DebugConstants {
     
     }
     
-    private static M indexMenu(String label) {
+    private static M indexMenu(boolean proofsonly, String label) {
         M menu = (M)menutable.get(label);
         if (menu==null) {
-            menu = new M(label);
+            menu = new M(proofsonly, label);
             menutable.put(label,menu);
             barv.add(menu);
         }
@@ -359,15 +380,15 @@ public class JapeMenu implements DebugConstants {
 	
     public static void newMenuBar() {
 	barv = new Vector();        
-        M filemenu = indexMenu("File"); 
-        M editmenu = indexMenu("Edit");
+        M filemenu = indexMenu(false, "File"); 
+        M editmenu = indexMenu(true, "Edit");
         
         addStdFileMenuItems(filemenu);
         addStdEditMenuItems(editmenu);
     }
     
-    public static void newMenu(String s) throws ProtocolError {
-        indexMenu(s);
+    public static void newMenu(boolean proofsonly, String s) throws ProtocolError {
+        indexMenu(proofsonly, s);
     }
     
     // ActionListener interface (for menus)
@@ -414,7 +435,7 @@ public class JapeMenu implements DebugConstants {
 
     public static void addItem(String menuname, String label, String code, String cmd)
         throws ProtocolError {
-        M menu = ensureMenu("addItem", menuname);
+        M menu = ensureMenu(menuname);
         I item = (I)actiontable.get(keyString(menuname, label));
         ItemAction action = new CmdAction(cmd);
         if (item==null)
@@ -424,29 +445,40 @@ public class JapeMenu implements DebugConstants {
             item.action = action;
     }
 
-    protected static I findI(String id, String menuname, String label) throws ProtocolError {
-        M menu = ensureMenu(id, menuname);
-        I item = (I)actiontable.get(keyString(menuname, label));
-        if (item==null)
-            throw new ProtocolError("JapeMenu."+id+" no item \""+label+"\" in menu "+menuname);
-        return item;
+    private static void doEnableItem(JapeWindow w, String menuname, String label, boolean enable) {
+        if (w!=null) {
+            TitledMenuBar bar = (TitledMenuBar)w.getJMenuBar();
+            if (bar!=null) {
+                TitledMenu tm = bar.getMenu(menuname);
+                if (tm!=null) {
+                    JMenuItem jmi = tm.getItem(label);
+                    if (jmi!=null)
+                        jmi.setEnabled(enable);
+                    else
+                    if (menuaction_tracing)
+                        System.err.println("no item "+label+" in menu "+menuname+" in window "+w);
+                }
+                else
+                if (menuaction_tracing)
+                    System.err.println("no menu "+menuname+" in window "+w);
+            }
+        }
     }
     
-    public static void enableItem(String menuname, String label, boolean enable) throws ProtocolError {
+    public static void enableItem(boolean focussedonly, String menuname, String label, boolean enable)
+        throws ProtocolError {
         try {
-            M menu = ensureMenu("enableItem", menuname);
-            int mi = barv.indexOf(menu);
-            I action = findI("enableItem", menuname, label);
-            int ii = menu.indexOf(label);
+            M menu = ensureMenu(menuname);
+            I action =menu.findI(label);
 
-            action.setEnabled(enable);
+            if (!focussedonly)
+                action.setEnabled(enable);
 
-            for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); ) {
-                JapeWindow w = (JapeWindow)e.nextElement();
-                JMenuBar bar = w.getJMenuBar();
-                if (bar!=null)
-                    bar.getMenu(mi).getItem(ii).setEnabled(enable);
-            }
+            if (focussedonly)
+                doEnableItem(ProofWindow.focussedProofWindow(false), menuname, label, enable);
+            else
+            for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); )
+                doEnableItem((JapeWindow)e.nextElement(), menuname, label, enable);
         } catch (ProtocolError e) {
             if (menuname.equals("Edit") && label.equals("Disprove"))
                 return;
@@ -456,7 +488,7 @@ public class JapeMenu implements DebugConstants {
     }
 
     public static void addRadioButtonGroup(String menuname, String[][] rbs) throws ProtocolError {
-        M menu = ensureMenu("addRadioButtonGroup", menuname);
+        M menu = ensureMenu(menuname);
         I[] rbg = new I[rbs.length];
         for (int i=0; i<rbs.length; i++)
             rbg[i] = makeI(menuname, rbs[i][0], new CmdAction(rbs[i][1]));
@@ -465,32 +497,42 @@ public class JapeMenu implements DebugConstants {
 
     public static void addCheckBox(String menuname, String label, String cmd)
         throws ProtocolError {
-        M menu = ensureMenu("addCheckBox", menuname);
+        M menu = ensureMenu(menuname);
         String key = keyString(menuname, label);
         CB cb = new CB(label, key, new CmdAction(cmd));
         actiontable.put(key,cb);
         menu.add(cb);
     }
 
-    public static void tickItem(String menuname, String label, boolean state) throws ProtocolError {
-        M menu = ensureMenu("tickItem", menuname);
-        int mi = barv.indexOf(menu);
-        int ii = menu.indexOf(label);
-
-        if (menuaction_tracing)
-            System.err.println("tickItem menu "+menu+" mi="+mi+" ii="+ii+" state="+state);
-
-        for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); ) {
-            JapeWindow w = (JapeWindow)e.nextElement();
-            JMenuBar bar = w.getJMenuBar();
+    private static void doTickItem(JapeWindow w, String menuname, String label, boolean state) {
+        if (w!=null) {
+            TitledMenuBar bar = (TitledMenuBar)w.getJMenuBar();
             if (bar!=null) {
-                JMenuItem jmi = bar.getMenu(mi).getItem(ii);
+                TitledMenu tm = bar.getMenu(menuname);
+                if (tm!=null) {
+                    JMenuItem jmi = tm.getItem(label);
+                    if (jmi!=null)
+                        jmi.setSelected(state);
+                    else
+                    if (menuaction_tracing)
+                        System.err.println("no item "+label+" in menu "+menuname+" in window "+w);
+                }
+                else
                 if (menuaction_tracing)
-                    System.err.print("window "+w+" selected="+jmi.isSelected());
-                jmi.setSelected(state);
-                if (menuaction_tracing)
-                    System.err.println(" => "+jmi.isSelected());
+                    System.err.println("no menu "+menuname+" in window "+w);
             }
         }
+    }
+    
+    public static void tickItem(boolean focussedonly, String menuname, String label, boolean state)
+        throws ProtocolError {
+        M menu = ensureMenu(menuname);
+        menu.findI(label);
+
+        if (focussedonly)
+            doTickItem(ProofWindow.focussedProofWindow(false), menuname, label, state);
+        else
+            for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); )
+                doTickItem((JapeWindow)e.nextElement(), menuname, label, state);
     }
 }

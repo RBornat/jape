@@ -65,8 +65,10 @@ public class Dispatcher extends Thread implements DebugConstants {
                         int len = cmd.length;
                         
                     // GET means client is listening
-                        if (p.equals("GET")&&len==1)
+                        if (p.equals("GET")&&len==1) {
                             Reply.openchannel();
+                            JapeWindow.ensureMenusAvailable();
+                        }
                         else
 
                     // string passing happens a lot, so put it early
@@ -149,8 +151,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
                     
                     // MENU commands
-                        if (p.equals("NEWMENU")&&len==2)
-                            JapeMenu.newMenu(toUnicode(cmd[1]));
+                        if (p.equals("NEWMENU")&&len==3)
+                            JapeMenu.newMenu(toBool(cmd[1]), toUnicode(cmd[2]));
                         else
                         if (p.equals("MENUITEM")&&len==5)
                             JapeMenu.addItem(toUnicode(cmd[1]), toUnicode(cmd[2]), toUnicode(cmd[3]), cmd[4]);
@@ -163,8 +165,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("MENUSEP")&&len==2)
                             JapeMenu.addSeparator(cmd[1]);
                         else
-                        if (p.equals("ENABLEMENUITEM")&&len==4)
-                            JapeMenu.enableItem(toUnicode(cmd[1]), toUnicode(cmd[2]), toBool(cmd[3]));
+                        if (p.equals("ENABLEMENUITEM")&&len==5)
+                            JapeMenu.enableItem(toBool(cmd[1]), toUnicode(cmd[2]), toUnicode(cmd[3]), toBool(cmd[4]));
                         else
                         if (p.equals("MENURADIOBUTTON")&&len==1)
                             list.removeAllElements();
@@ -179,8 +181,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("MENUCHECKBOX")&&len==4)
                             JapeMenu.addCheckBox(toUnicode(cmd[1]), toUnicode(cmd[2]), cmd[3]);
                         else
-                        if (p.equals("TICKMENUITEM")&&len==4)
-                            JapeMenu.tickItem(toUnicode(cmd[1]), toUnicode(cmd[2]), toBool(cmd[3]));
+                        if (p.equals("TICKMENUITEM")&&len==5)
+                            JapeMenu.tickItem(toBool(cmd[1]), toUnicode(cmd[2]), toUnicode(cmd[3]), toBool(cmd[4]));
                         else
                     
                     // PANEL commands
