@@ -1,5 +1,9 @@
 /* 
+<<<<<<< Alert.java
     $Id$
+=======
+    $Id$
+>>>>>>> 1.22.6.1
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      
@@ -126,7 +130,7 @@ public class Alert implements DebugConstants {
                                                  "GUI error", 0, Error,
                                                  null, buttons, quit);
         if (reply==0)
-            System.exit(2);
+            Logger.crash("GUI error: "+message, 2);
     }
 
     public static void abort(String message) {
@@ -134,7 +138,7 @@ public class Alert implements DebugConstants {
         int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), makeMessage(message),
                                                  "GUI disaster", 0, Error,
                                                  null, buttons, quit);
-        System.exit(2);
+        Logger.crash("GUI disaster: "+message, 2);
     }
 
     // this doesn't deal with fonts yet ... I think we have to make a Component (sigh)
