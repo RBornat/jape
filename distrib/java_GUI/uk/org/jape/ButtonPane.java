@@ -95,12 +95,10 @@ public class ButtonPane extends Container implements DebugConstants {
 
         public Dimension preferredLayoutSize(Container pane) {
             int buttonpanelheight=0, buttonpanelwidth=0;
-            int minacross = Jape.onMacOS ? 4 : 3;
             
             if (getComponentCount()==0) {
                 if (buttonlayout_tracing)
                     Logger.log.println("preferredButtonPanelSize no buttons");
-                buttonpanelheight = buttonpanelwidth = 0; // d.height+2*leading;
             }
             else {
                 if (buttonlayout_tracing)
