@@ -359,14 +359,14 @@ let rec newmenu name =
   else writef "NEWMENU %\n" [Str name]
 
 let rec menuentry (menu, label, keyopt, entry) =
-  writef "MENUENTRY % % \"%\" %\n"
+  writef "MENUITEM % % \"%\" %\n"
     [Str menu; Str label; Str (match keyopt with Some s -> s | None -> " "); Str entry]
 
 let rec menuseparator (menu : string) =
   writef "MENUSEP %\n" [Str menu]
 
 let rec setmenuentryequiv (menu, label, key) : unit =
-  writef "MENUENTRYEQUIV % \"%\" \"%\"\n" [Str menu; Str label; Str key]
+  writef "MENUITEMEQUIV % \"%\" \"%\"\n" [Str menu; Str label; Str key]
 
 let rec makemenusVisible () =(*if !menusVisible then () else *)  writef "MAKEMENUSVISIBLE\n" []
 
