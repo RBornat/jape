@@ -884,7 +884,7 @@ module Tree : Tree with type term = Termtype.term
               "\n" :: shyidforFORMULAE :: "\n" ::
                 catelim_liststring
                   (fun (i, t) tail ->
-                     string_of_int i :: " " :: catelim_termstring t tail)
+                     string_of_int i :: " " :: catelim_termstring (comma_enbracket t) tail)
                   ",\n"
                   (sortunique intorder ((fun t -> lookup t, t) <* hs))
                   body
