@@ -398,9 +398,11 @@ public class Dispatcher extends Thread implements DebugConstants {
         }
     }
 
-    private String[] japesplit(String line) throws ProtocolError {
-		if (line==null) 
-			Alert.abort("Dispatcher sees null line -- is jape_engine ok?");
+    private String[] japesplit(String line) throws ProtocolError, IOException {
+	if (line==null) {
+		Alert.showErrorAlert("Dispatcher sees null line -- is jape_engine ok?");
+		return japesplit(Engine.fromEngine().readLine());
+	}
         // split a line encoded in the obol form.
         Vector result = new Vector();
         StringBuffer buf = new StringBuffer();
