@@ -134,7 +134,7 @@ public class DisplayItem extends Component
                 case DisjointSelection:
                 case ExtendedDisjointSelection:
                     canvas.doDeselectAction(this);
-                    setSelected(false);
+                    doSelectAction(false);
                     break;
                 case Selection:
                     break;
