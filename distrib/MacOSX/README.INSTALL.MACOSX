@@ -2,19 +2,20 @@
 
 2. Get OCaml 3.06 or 3.07
 
-3. cd MacOSX/build
-
-4. make all 
+3. In the directory where you found this file (japesource/MacOSX):
+   
+   make all 
    -- builds the engine, the application (in MacOSX/java_GUI/build) and a symlink
       so that it can talk to the engine
 
-5. make run
-   -- to try it out. If it works, move it where you like, putting camlengine/jape in the 
-      same folder (called jape_engine -- don't ask!)
+   make run
+   -- to try it out. If it works, move it where you like, putting a copy of 
+      camlengine/jape_engine in the same folder (or, if you're a geek, you can symlink
+      -- but Finder aliases don't work, I think).
 
 6. There's an Xcode project file in MacOSX/java_GUI which you can double-click if you want to 
    try improving things..
    
 Richard Bornat
 richard@bornat.me.uk
-26th March 2004
+2nd April 2004
