@@ -15,6 +15,22 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
     boolean inAnApplet = true;
     private JButton bN, bE, bS, bW;
 
+    /*
+     * The layered mechanism of Java: a JScrollPane containing a JViewport containing a JPanel
+     * (or some JComponent) containing ... - makes it difficult to produce nice UI effects.
+     *
+     * The default behaviour of a JScrollPane+JViewport is to show as much of the viewed component
+     * as possible, and to put its top left corner top left of the viewport and (of course) not
+     * to let you scroll off the top of what you are looking at.  Bad for me when I want to
+     * display a proof which consists of a couple of lines, and anchor its bottom left corner
+     * to the bottom left of the viewport.
+     *
+     * This can only be fixed by setting the size of the viewed component so as to force it to
+     * appear where I want it to.  That means that the contained component has to know the
+     * size of the viewport, and know when it is resized.  I'm still unsure about the best
+     * way to do that ...
+     */
+
     private KPanel panel;
     private JScrollPane scrollPane;
     
