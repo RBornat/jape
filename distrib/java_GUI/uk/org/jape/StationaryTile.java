@@ -25,27 +25,43 @@
     
 */
 
+import java.awt.datatransfer.StringSelection;
+
 import java.awt.Component;
 import java.awt.Container;
-import javax.swing.JLayeredPane;
-import java.awt.event.MouseEvent;
-import javax.swing.event.MouseInputAdapter;
 import java.awt.Point;
+
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragSource;
+import java.awt.dnd.DragSourceDragEvent;
+import java.awt.dnd.DragSourceDropEvent;
+import java.awt.dnd.DragSourceEvent;
+import java.awt.dnd.DragSourceListener;
+
+import java.awt.event.MouseEvent;
+
+import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
 
-public class StationaryTile extends Tile {
+public class StationaryTile extends Tile implements DragSourceListener, DragGestureListener {
 
     Container layeredPane;
+    DragSource dragSource;
     
     public StationaryTile(Container layeredPane, final String text) {
         super(text);
         this.layeredPane = layeredPane;
+
+        dragSource = new DragSource();
+        dragSource.createDefaultDragGestureRecognizer( this, DnDConstants.ACTION_MOVE, this);
         
         MouseInteractionListener mil = new MouseInteractionAdapter() {
             public void doubleclicked(byte eventKind, MouseEvent e) {
                 Reply.sendCOMMAND("tileact \""+JapeFont.toAscii(text)+"\"");
             }
-            public void pressed(byte eventKind, MouseEvent e) {
+            /*public void pressed(byte eventKind, MouseEvent e) {
                 StationaryTile.this.pressed(e);
             }
             public void dragged(byte eventKind, MouseEvent e) {
@@ -56,13 +72,13 @@ public class StationaryTile extends Tile {
             }
             public void released(byte eventKind, MouseEvent e) {
                 StationaryTile.this.released(e);
-            }
+            }*/
         };
         addMouseListener(mil);
         addMouseMotionListener(mil);
     }
 
-    protected int startx, starty, lastx, lasty;
+    /*protected int startx, starty, lastx, lasty;
     protected Tile draggedTile;
     
     protected void pressed(MouseEvent e) { // doesn't matter what keys are pressed
@@ -95,5 +111,31 @@ public class StationaryTile extends Tile {
                                "; dragged tile at "+draggedTile.getX()+","+draggedTile.getY());
         layeredPane.remove(draggedTile);
         layeredPane.repaint();
+    } */
+
+    public void dragGestureRecognized( DragGestureEvent event) {
+        System.err.println("[dragSource] dragGestureRecognized");
+        StringSelection selection = new StringSelection(text);
+        dragSource.startDrag (event, DragSource.DefaultMoveDrop, selection, this);
+    }
+
+    public void dragEnter (DragSourceDragEvent event) {
+        System.err.println("[dragSource] dragEnter");
+    }
+
+    public void dragExit (DragSourceEvent event) {
+        System.err.println("[dragSource] dragExit");
+    }
+
+    public void dragOver (DragSourceDragEvent event) {
+        System.err.println("[dragSource] dragOver");
+    }
+
+    public void dropActionChanged ( DragSourceDragEvent event) {
+        System.err.println("[dragSource] dropActionChanged");
+    }
+
+    public void dragDropEnd (DragSourceDropEvent event) {
+        System.err.println("[dragSource] dragDropEnd "+event.getDropSuccess());
     }
 }
