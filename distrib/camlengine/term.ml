@@ -28,11 +28,11 @@ module type Type =
 	val resnum2int : resnum -> int
 end
 	
-module Type : Type with type vid = Symboltype.M.vid 
+module Type : Type with type vid = Symbol.Type.vid 
                             and type idclass = Idclass.M.idclass
 =
   struct
-    type vid = Symboltype.M.vid and idclass = Idclass.M.idclass
+    type vid = Symbol.Type.vid and idclass = Idclass.M.idclass
     (* terms now contain hash information. RB 26/i/00 *)
     (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
 	type term =
@@ -74,7 +74,7 @@ module Type : Type with type vid = Symboltype.M.vid
 
 module type Termstring =
   sig
-	open Type
+	type term and resnum and element
 	val termstring : term -> string
 	val termstring_invisbracketed : term -> string
 	val termstring_invischoose :
@@ -115,16 +115,21 @@ module type Termstring =
     (term * (int * int)) list * term -> 'a (* this is internals showing.  Sorry. RB *)
   end
 
-module Termstring  : Termstring=
-struct
-  open Type
+module Termstring  : Termstring with type term = Type.term 
+                                 and type resnum = Type.resnum 
+                                 and type element = Type.element
+=
+  struct
+	open Type
   
+	type term = Type.term and resnum = Type.resnum and element = Type.element
+    
     open Stringfuns.M
     open SML.M
     open Listfuns.M
     open Miscellaneous.M
-    open Symbol.M
-    open Symboltype.M
+    open Symbol.Funs
+    open Symbol.Type
     open Optionfuns.M
     open Idclass.M
     open Mappingfuns.M
@@ -600,7 +605,7 @@ end
 
 module type Store =
   sig
-	open Type
+	type vid and idclass and term and litcon and resnum and element
 	val registerId : vid * idclass -> term
 	val registerUnknown : vid * idclass -> term
 	val registerApp : term * term -> term
@@ -622,7 +627,13 @@ module type Store =
 	val termhashing : bool ref
   end
 	   
-module Store : Store =
+module Store : Store with type vid = Type.vid 
+					  and type idclass = Type.idclass
+					  and type term = Type.term
+					  and type litcon = Type.litcon
+					  and type resnum = Type.resnum
+					  and type element = Type.element
+=
   struct
     open Type
     open Termstring
@@ -631,6 +642,13 @@ module Store : Store =
     open Simplecache.M
     open Optionfuns.M
     
+	type vid = Type.vid 
+	 and idclass = Type.idclass
+	 and term = Type.term
+	 and litcon = Type.litcon
+	 and resnum = Type.resnum
+	 and element = Type.element
+
     let rec resnum2int =
       function
         Resnum n -> n
@@ -805,7 +823,7 @@ module Store : Store =
 
 module type Funs =
   sig
-	open Type
+	type vid and idclass and term and resnum and element
  	val isconstant : term -> bool
 	val isId : term -> bool
 	val isUnknown : term -> bool
@@ -902,26 +920,36 @@ module type Funs =
   
 (* $Id$ *)
 
-module Funs : Funs =
+module Funs : Funs with type vid = Type.vid 
+					and type idclass = Type.idclass
+					and type term = Type.term 
+					and type resnum = Type.resnum
+					and type element = Type.element
+=
   struct
+    open Type
+    open Store
+    open Termstring
+        
     open Miscellaneous.M
     open Stringfuns.M
     open Optionfuns.M
     open Listfuns.M
     open Mappingfuns.M
     open Optionfuns.M
-    open Symboltype.M
-    open Symbol.M
+    open Symbol.Type
+    open Symbol.Funs
     open Idclass.M
     open Idclassfuns.M
     open Answer.M
     open SML.M
     
-    
-    open Type
-    open Store
-    open Termstring
-        
+	type vid = Type.vid 
+	 and idclass = Type.idclass
+	 and term = Type.term 
+	 and resnum = Type.resnum
+	 and element = Type.element
+
 	let bracketed = Type.bracketed
 	let debracket = Type.debracket
 	let resnum2int = Type.resnum2int
@@ -1238,7 +1266,7 @@ module Funs : Funs =
       let rec rootext vid =
         let vid' = String.sub (vid) (0) (String.length vid - 1) in
         let n = String.sub (vid) (String.length vid - 1) (1) in
-        if ((isdigit n && vid' <> "") && isextensibleID vid') &&
+        if ((isdigit n && vid' <> "") && isextensible_vid vid') &&
            symclass vid' = class__
         then
           let (vid'', n') = rootext vid' in vid'', n' ^ n
@@ -1261,7 +1289,7 @@ module Funs : Funs =
               else u_ vid' (n + 1) sortedVIDs
             else u_ vid n vids
       in
-      if isextensibleID vid then
+      if isextensible_vid vid then
         if symclass vid <> class__ then
           raise
             (Catastrophe_
@@ -1328,7 +1356,7 @@ module Funs : Funs =
        
        The implementation of Symbol distinguishes
        between CONSTANT foo and CLASS CONSTANT foo only by
-       making the former answer false to isextensibleID whereas
+       making the former answer false to isextensible_vid whereas
        the latter answers true. 
        
        BAS September 5th 1996 (slightly edited RB 10/ix/96).
@@ -1336,12 +1364,12 @@ module Funs : Funs =
 
     let rec ismetav t =
       match debracket t with
-        Id (_, s, c) -> isextensibleID s
+        Id (_, s, c) -> isextensible_vid s
       | Unknown _ -> true
       | _ -> false
     let rec isextensibleId t =
       match debracket t with
-        Id (_, s, c) -> isextensibleID s
+        Id (_, s, c) -> isextensible_vid s
       | _ -> false
     let rec isId t =
       match debracket t with
