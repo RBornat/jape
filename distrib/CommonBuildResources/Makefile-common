@@ -20,8 +20,8 @@ SERVERSCRIPT=exec java -jar japeserver.jar
 #       DEPLOYEDENGINE -- name of the binary that gets deployed
 #                         (should not be "jape" if we want to use a "jape" script)
 #
-ENGINETARGET=jape
-BUILTENGINE=jape
+ENGINETARGET=jape_engine
+BUILTENGINE=jape_engine
 DEPLOYEDENGINE=jape_engine
 #
 #       AFTERINSTALL         -- what to do afterwards InstallerKit/install options
