@@ -50,6 +50,7 @@ public class ButtonPane extends Container implements DebugConstants {
     public void addButton(JButton button) {
         if (Jape.onMacOS)
             button.putClientProperty("JButton.buttonType", "toolbar");
+        JapeFont.setComponentFont(button, JapeFont.PANELBUTTON);
         add(button);
     }
 
