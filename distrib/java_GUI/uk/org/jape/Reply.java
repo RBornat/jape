@@ -79,23 +79,24 @@ public class Reply implements DebugConstants {
 	Engine.toEngine().write(s, 0, s.length()); 
 	Engine.toEngine().write('\n');
 	Engine.toEngine().flush();
-    } catch (IOException e) {
-	Alert.showAlert("Reply.outputln("+JapeUtils.enQuote(s)+") gets exception "+e);
+	} catch (IOException e) {
+	    Alert.showAlert("Reply.outputln("+JapeUtils.enQuote(s)+") gets exception "+e);
+	}
     }
-    }
+        
     synchronized public static void reply(int i) throws ProtocolError {
-    reply(""+i);
+	reply(""+i);
     }
 
     synchronized public static void reply(TextDimension td) throws ProtocolError {
-    reply(td.width+" "+td.ascent+" "+td.descent);
+	reply(td.width+" "+td.ascent+" "+td.descent);
     }
     
     synchronized public static void reply(FontMetrics fm) throws ProtocolError {
-    reply(fm.getMaxAscent()+" "+fm.getMaxDescent()+" "+fm.getLeading());
+	reply(fm.getMaxAscent()+" "+fm.getMaxDescent()+" "+fm.getLeading());
     }
 
     synchronized public static void reply(Rectangle r) throws ProtocolError {
-    reply(r.x+" "+r.y+" "+r.width+" "+r.height);
+	reply(r.x+" "+r.y+" "+r.width+" "+r.height);
     }
 }
