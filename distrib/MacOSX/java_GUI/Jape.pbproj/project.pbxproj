@@ -37,6 +37,7 @@
 				F515B6050331D98801A80116,
 				F515B6060331D98801A80116,
 				F502FBE7035D88BC01A80116,
+				F5E9EBF203B1E3FF01A80116,
 				F5152729037BD50101A80116,
 				F560AEE2036D797301A80116,
 				F5CC966D03438BFF01A80116,
@@ -335,6 +336,7 @@
 				F5EC637B03A0B62D01A80116,
 				F5EC637E03A0BF7B01A80116,
 				F5E2B5A003A7982901A80116,
+				F5E9EBF303B1E3FF01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1323,6 +1325,7 @@
 				F5EC637C03A0B62D01A80116,
 				F5EC637F03A0BF7B01A80116,
 				F5E2B5A103A7982901A80116,
+				F5E9EBF403B1E3FF01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1780,6 +1783,24 @@
 		};
 		F5E5E7CE03A79B5B01A80116 = {
 			fileRef = F5E5E7C803A79B5B01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E9EBF203B1E3FF01A80116 = {
+			isa = PBXFileReference;
+			name = ButtonPane.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/ButtonPane.java;
+			refType = 0;
+		};
+		F5E9EBF303B1E3FF01A80116 = {
+			fileRef = F5E9EBF203B1E3FF01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E9EBF403B1E3FF01A80116 = {
+			fileRef = F5E9EBF203B1E3FF01A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
