@@ -44,7 +44,6 @@ import java.awt.Point;
 import javax.swing.JScrollBar;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
-import javax.swing.ScrollPaneConstants;
 
 public class AnchoredScrollPane extends Container implements DebugConstants {
     private Component view;
