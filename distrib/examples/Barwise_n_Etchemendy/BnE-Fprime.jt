@@ -1,0 +1,7 @@
+/* $Id$ */
+
+INITIALISE interpretpredicates true
+
+USE "BnE-Fprimepred_syntax.j"
+USE "BnE-Fprimepred_rules.j"
+USE "BnE-Fprimepred_menus.j"
