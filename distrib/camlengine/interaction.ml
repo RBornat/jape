@@ -31,6 +31,7 @@ open Displayclass
 open Displayfont
 open Displaystate
 open Hit
+open Invisibles
 open Proofstate
 open Prooftree.Tree.Fmttree
 open Sequent
@@ -143,7 +144,7 @@ let rec sortoutSelection state pathkind =
   let (proofsels, prooftextsels, givensel) = Japeserver.getAllProofSelections () in
   (* remove invisbra/kets from any text selections we see *)
   let rec deinvis s =
-    utf8_implode ((fun c -> not (invisible_ucode c)) <| utf8_explode s)
+    utf8_implode ((fun c -> not (isInvisibleUcode c)) <| utf8_explode s)
   in
   let prooftextsels = List.map (fun (p, ss) -> p, List.map deinvis ss) prooftextsels in
   let givensel = List.map deinvis givensel in

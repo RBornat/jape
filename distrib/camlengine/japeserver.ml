@@ -38,6 +38,7 @@ open Array
 open Box
 open Displayfont
 open Displayclass
+open Invisibles
 open Listfuns
 open Miscellaneous
 open Sml
@@ -96,7 +97,7 @@ let out s =
 let write s = out s; out "\n"; flush s
 
 let rec visible s = implode (List.map vis (utf8_explode s))
-and vis c = if invisible_ucode c then "\\" ^ string_of_int c else utf8_of_ucode c
+and vis c = if isInvisibleUcode c then "\\" ^ string_of_int c else utf8_of_ucode c
     
 (* if the server has crashed, input_line may give an exception *)
 let rec readline s = 
@@ -234,7 +235,7 @@ let rec getPointSize n =
 let invischars : string list ref = ref []
 
 let rec printable s =
-  utf8_implode ((not <.> invisible_ucode) <| utf8_explode s)
+  utf8_implode ((not <.> isInvisibleUcode) <| utf8_explode s)
 
 let fontnames : string array ref = ref (Array.make 0 "")
 
