@@ -946,18 +946,13 @@ let spliceworldtolink u w lfrom lto__ =
   addlink u w lto__
 
 let addchild u (_, py as pc) (_, cy as cc) =
-  if py >= cy then None
+  let (pts, pcs) = getworld u pc in
+  if member (cc, pcs) then None (* already there *)
   else
-    match u <@> pc with
-      None ->
-        raise (Catastrophe_ ["(addchild) no parent world at "; coordstring pc])
-    | Some (pts, pcs) ->
-        if member (cc, pcs) then None (* already there *)
-        else
-          let u' = u ++ (pc |-> (pts, (if py < cy then cc :: pcs else pcs))) in
-          match u' <@> cc with
-            None   -> Some ((u' ++ (cc |-> (pts, []))))
-          | Some _ -> Some (domono pts u' cc)
+    let u = if py<cy then u ++ (pc |-> (pts, cc::pcs)) else u in
+    match u <@> cc with
+      None   -> Some (u ++ (cc |-> (pts, [])))
+    | Some _ -> Some (domono pts u cc)
 
 let addchildtolink u parent child lfrom lto__ =
   addchild u parent child &~~ (fun u -> Some (spliceworldtolink u child lfrom lto__))
