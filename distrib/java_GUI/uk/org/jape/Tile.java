@@ -147,17 +147,19 @@ public class Tile extends JLabel implements DebugConstants,
     }
 
     private BufferedImage image;
-    
+
     public void dragGestureRecognized(DragGestureEvent event) {
-        if (japeserver.onMacOS || !DragSource.isDragImageSupported()) {
-            if (dragimage_tracing && !japeserver.onMacOS)
-                System.err.println("dragging without dragImage support");
+        if (dragimage_tracing)
+            System.err.println("isdragImageSupported()="+DragSource.isDragImageSupported());
+        if (DragSource.isDragImageSupported()) {
+            if (dragimage_tracing)
+                System.err.println("dragging with drag Image support");
             dragSource.startDrag (event, DragSource.DefaultCopyDrop, new TileTransferable(), this);
         }
         else {
             Point origin = event.getDragOrigin();
             if (dragimage_tracing)
-                System.err.println("dragging with dragImage support; dragOrigin="+origin);
+                System.err.println("dragging without drag Image support; dragOrigin="+origin);
             if (image==null) {
                 int width = getWidth(), height = getHeight();
                 image = (BufferedImage)createImage(width, height);
