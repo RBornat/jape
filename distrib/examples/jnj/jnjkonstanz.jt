@@ -215,12 +215,8 @@ END
     TACTIC FAILSEL(x, y) IS
            (WHEN (LETARGSEL _p ((SEQ (ALERT x) FAIL))) ((SEQ (ALERT y) FAIL)))
     TACTIC MESSAGE(m) IS
-<<<<<<< jnjkonstanz.jt
     (SEQ (COMMENT m)
          (EXPLAIN m))
-=======
-      SEQ (COMMENT m) (EXPLAIN m)
->>>>>>> 1.2
 
     TACTIC SKIP(x)    IS (SEQ)
 
@@ -341,9 +337,9 @@ END /* PANEL */
     TACTIC Unfolding(thm) IS (UNFOLD rewrite thm)
     TACTIC Folding(thm)   IS (FOLD   rewritebackwards thm)
     MENU Rewriting
-    ENTRY    "Rewrite â"  IS
+    ENTRY    "Rewrite «"  IS
                 Rewrite rewrite hyprewrite
-    ENTRY    "Rewrite Å"  IS
+    ENTRY    "Rewrite »"  IS
                 Rewrite rewritebackwards hyprewritebackwards
     END
 
@@ -353,14 +349,17 @@ END /* PANEL */
             (Fail (Please text-select a subexpression to rewrite)))
 
 CONJECTUREPANEL "Derived rules"
-    DERIVED RULE /* WHERE FRESH z */ FROM z⁄aÊp[z/x]Íq[z/x] AND Ëx:a•p INFER Ëx:a•q
+    DERIVED RULE WHERE FRESH y  FROM y⁄aÊp[y/x]Íq[y/x] AND Ëx:a•p INFER Ëx:a•q
 END
     
 TACTIC GivenForward(i) IS SEQ cut (GIVEN i)
 TACTIC GivenBackward(i) IS GIVEN i
 
+/*
 GIVENPANEL Given IS
     BUTTON "Apply Forward"   IS apply GivenForward COMMAND
     BUTTON "Apply Backwards" IS apply GivenBackward COMMAND
 END /* GIVENPANEL */
+*/
+
 
