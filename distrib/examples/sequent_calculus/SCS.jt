@@ -1,0 +1,21 @@
+/* $Id$ */
+
+INITIALISE applyconjectures false
+INITIALISE tryresolution false
+
+MENU "Edit"
+	RADIOBUTTON displaystyle IS
+		"Box display" 	IS box
+	AND	"Tree display" 	IS tree
+	INITIALLY tree
+	END
+END
+
+USE "SCS_predrules.j"
+
+CONJECTUREPANEL "Conjectures"
+  THEOREM	modusponens(A,B)	IS A, AçB æ B
+  THEOREM	contradiction(A,B)	IS A, ÂA æ B
+END
+
+USE "MCS+SCS_predproblems.j"
