@@ -41,9 +41,12 @@ public class ProofWindow extends JapeWindow {
     int proofnum;
     protected static ProofWindow focussedproof = null;
 
+    protected AnchoredScrollPane proofPane;
     protected ProofCanvas proofCanvas;
+    protected AnchoredScrollPane disproofPane;
     protected JapeCanvas disproofCanvas;
-    protected AnchoredScrollPane proofpane;
+    protected AnchoredScrollPane provisoPane;
+    protected JapeCanvas provisoCanvas;
 
     protected JapeCanvas focussedCanvas;
     
@@ -52,9 +55,9 @@ public class ProofWindow extends JapeWindow {
         this.proofnum = proofnum;
 
         getContentPane().setLayout(new BorderLayout()); 
-        proofpane = new AnchoredScrollPane();
+        proofPane = new AnchoredScrollPane();
 
-        getContentPane().add(proofpane, BorderLayout.CENTER);
+        getContentPane().add(proofPane, BorderLayout.CENTER);
         setBar(); 
         pack();
         setVisible(true);
@@ -99,14 +102,14 @@ public class ProofWindow extends JapeWindow {
         *)
      */
 
-    public static final byte proofPane = 0, disproofPane = 1;
+    public static final byte proofPaneNum = 0, disproofPaneNum = 1;
 
     private static JapeCanvas byte2JapeCanvas(byte pane, String who) throws ProtocolError {
         switch (pane) {
-            case proofPane:
+            case proofPaneNum:
                 ensureFocussedProofCanvas();
                 return focussedproof.proofCanvas; 
-            case disproofPane:
+            case disproofPaneNum:
                 throw new ProtocolError(who+": no disproofCanvas support yet"); 
             default:
                 throw new ProtocolError(who+" pane="+pane);
@@ -143,16 +146,16 @@ public class ProofWindow extends JapeWindow {
 
     private void newProofCanvas() {
         proofCanvas = new ProofCanvas();
-        proofpane.add(proofCanvas);
+        proofPane.add(proofCanvas);
         switch(style) {
             case BoxStyle:
-                proofpane.setanchor(proofpane.ANCHOR_SOUTHWEST); break;
+                proofPane.setanchor(proofPane.ANCHOR_SOUTHWEST); break;
             case TreeStyle:
-                proofpane.setanchor(proofpane.ANCHOR_SOUTH); break;
+                proofPane.setanchor(proofPane.ANCHOR_SOUTH); break;
             default:
                 Alert.abort("ProofWindow.newProofCanvas style="+style);
         }
-        proofpane.validate(); proofpane.repaint();
+        proofPane.validate(); proofPane.repaint();
         focussedCanvas = proofCanvas;
     }
 
@@ -162,11 +165,11 @@ public class ProofWindow extends JapeWindow {
 
     public static void drawInPane(byte pane) throws ProtocolError {
         switch (pane) {
-            case proofPane:
+            case proofPaneNum:
                 ensureFocussedProofCanvas();
                 focussedproof.focussedCanvas = focussedproof.proofCanvas;
                 break;
-            case disproofPane:
+            case disproofPaneNum:
                 throw new ProtocolError("ProofWindow.drawInPane: no disproofCanvas support yet");
             default:
                 Alert.abort("ProofWindow.drawInPane: pane="+pane);
@@ -199,8 +202,20 @@ public class ProofWindow extends JapeWindow {
                                        focussedproof.style, focussedproof.linethickness));
     }
 
-    public static void reportTextSelections() throws ProtocolError {
+    public static String getSelections() throws ProtocolError {
         ensureFocussedProofCanvas();
-        focussedproof.proofCanvas.reportTextSelections();
+        return focussedproof.proofCanvas.getSelections();
+    }
+
+    public static String getTextSelections() throws ProtocolError {
+        ensureFocussedProofCanvas();
+        return focussedproof.proofCanvas.getTextSelections();
+    }
+
+    public static String getGivenTextSelections() throws ProtocolError {
+        checkFocussedProof();
+        if (focussedproof.provisoPane!=null)
+            Alert.abort("no support for Given Text Selections");
+        return "";
     }
 }
