@@ -44,10 +44,9 @@ public class WasteBin extends Component implements DebugConstants,
         super();
         this.disproofPane = disproofPane;
         if (enabled_image==null) {
-            Toolkit tk = Toolkit.getDefaultToolkit();
-            enabled_image = tk.createImage("wastebin_enabled.jpg");
-            selected_image = tk.createImage("wastebin_selected.jpg");
-            disabled_image = tk.createImage("wastebin_disabled.jpg");
+            enabled_image  = Images.getImage("wastebin_enabled.jpg");
+            selected_image = Images.getImage("wastebin_selected.jpg");
+            disabled_image = Images.getImage("wastebin_disabled.jpg");
             current_image = null;
             // trigger imageUpdate
             if (image_tracing)

@@ -182,7 +182,7 @@ public class JapeCharEncoding implements DebugConstants {
     }
 
     public void outputln(String s) throws IOException {
-        output(s); out.println(); // for now: this will be a CRLF when we use a socket
+        output(s); output("\n"); // do something about sockets some other time
     }
 
     public void flush() {
@@ -306,5 +306,6 @@ public class JapeCharEncoding implements DebugConstants {
     setmap(0xfb01, 0x27e7); // white right square bracket (semantic ket) (301b may be preferable)
     setmap(0xfb02, 0x2229); // intersection
 */
+
 
 

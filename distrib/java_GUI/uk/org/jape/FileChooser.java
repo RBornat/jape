@@ -26,82 +26,96 @@
 */
 
 import javax.swing.*;
+import java.io.File;
 
 public class FileChooser {
+
+    private static String 
+                lastOpen = ".",   // these are paths
+                lastSave = ".";
+    
+
     private static String doOpenDialog(JFileChooser chooser) {
-        int returnVal = chooser.showOpenDialog(null);
-        return (returnVal==JFileChooser.APPROVE_OPTION ? chooser.getSelectedFile().toString() : "");
+        int   returnVal = chooser.showOpenDialog(null);
+        File  selected  =  chooser.getSelectedFile();
+        if (returnVal==JFileChooser.APPROVE_OPTION)
+        { String dir = selected.getParent();
+          if (dir!=null) lastOpen = dir;
+          return selected.toString();
+        } 
+        else
+        {
+          return "";
+        }
     }
     
+    private static String doSaveDialog(JFileChooser chooser) {
+        int   returnVal = chooser.showSaveDialog(null);
+        File  selected  =  chooser.getSelectedFile();
+        if (returnVal==JFileChooser.APPROVE_OPTION)
+        { String dir = selected.getParent();
+          if (dir!=null) lastSave = dir;
+          return selected.toString();
+        } 
+        else
+        {
+          return "";
+        }
+    }
+
     // oh tedium .. why can't I have a list argument?
     public static String newOpenDialog(String message) {
-        return doOpenDialog(new JFileChooser());
+        return newOpenDialog(message, new String[]{});
+    }
+
+    // oh rtfm! You can  [HE'S BACK!]
+    public static String newOpenDialog(String message, String [] extension) {
+        JFileChooser chooser = new JFileChooser(lastOpen);
+        ExampleFileFilter filter = new ExampleFileFilter();
+        for (int i=0; i<extension.length; i++)
+            filter.addExtension(extension[i]);
+        filter.setDescription(message);
+        chooser.setFileFilter(filter);
+        return doOpenDialog(chooser);
+    }
+
+    public static String newSaveDialog(String message, String [] extension) {
+        JFileChooser chooser = new JFileChooser(lastSave);
+        ExampleFileFilter filter = new ExampleFileFilter();
+        for (int i=0; i<extension.length; i++)
+            filter.addExtension(extension[i]);
+        filter.setDescription(message);
+        chooser.setFileFilter(filter);
+        return doSaveDialog(chooser);
     }
 
     public static String newOpenDialog(String message, String extension) {
-        JFileChooser chooser = new JFileChooser();
-        ExampleFileFilter filter = new ExampleFileFilter();
-        filter.addExtension(extension);
-        filter.setDescription(message);
-        chooser.setFileFilter(filter);
-        return doOpenDialog(chooser);
+        return newOpenDialog(message, new String[]{extension});
     }
 
     public static String newOpenDialog(String message, String ext1, String ext2) {
-        JFileChooser chooser = new JFileChooser();
-        ExampleFileFilter filter = new ExampleFileFilter();
-        filter.addExtension(ext1);
-        filter.addExtension(ext2);
-        filter.setDescription(message);
-        chooser.setFileFilter(filter);
-        return doOpenDialog(chooser);
+        return newOpenDialog(message, new String[]{ext1, ext2});
     }
+    
     public static String newOpenDialog(String message, String ext1, String ext2, String ext3) {
-        JFileChooser chooser = new JFileChooser();
-        ExampleFileFilter filter = new ExampleFileFilter();
-        filter.addExtension(ext1);
-        filter.addExtension(ext2);
-        filter.addExtension(ext3);
-        filter.setDescription(message);
-        chooser.setFileFilter(filter);
-        return doOpenDialog(chooser);
-    }
-
-    private static String doSaveDialog(JFileChooser chooser) {
-        int returnVal = chooser.showSaveDialog(null);
-        return (returnVal==JFileChooser.APPROVE_OPTION ? chooser.getSelectedFile().toString() : "");
+        return newOpenDialog(message, new String[]{ext1, ext2, ext3});
     }
 
     public static String newSaveDialog(String message) {
-        return doSaveDialog(new JFileChooser());
+        return newSaveDialog(message, new String[]{});
     }
 
     public static String newSaveDialog(String message, String extension) {
-        JFileChooser chooser = new JFileChooser();
-        ExampleFileFilter filter = new ExampleFileFilter();
-        filter.addExtension(extension);
-        filter.setDescription(message);
-        chooser.setFileFilter(filter);
-        return doSaveDialog(chooser);
+        return newSaveDialog(message, new String[]{extension});
     }
 
     public static String newSaveDialog(String message, String ext1, String ext2) {
-        JFileChooser chooser = new JFileChooser();
-        ExampleFileFilter filter = new ExampleFileFilter();
-        filter.addExtension(ext1);
-        filter.addExtension(ext2);
-        filter.setDescription(message);
-        chooser.setFileFilter(filter);
-        return doSaveDialog(chooser);
+        return newSaveDialog(message, new String[]{ext1, ext2});
     }
+    
     public static String newSaveDialog(String message, String ext1, String ext2, String ext3) {
-        JFileChooser chooser = new JFileChooser();
-        ExampleFileFilter filter = new ExampleFileFilter();
-        filter.addExtension(ext1);
-        filter.addExtension(ext2);
-        filter.addExtension(ext3);
-        filter.setDescription(message);
-        chooser.setFileFilter(filter);
-        return doSaveDialog(chooser);
+        return newSaveDialog(message, new String[]{ext1, ext2, ext3});
     }
+
 }
+

@@ -215,7 +215,12 @@ END
     TACTIC FAILSEL(x, y) IS
            (WHEN (LETARGSEL _p ((SEQ (ALERT x) FAIL))) ((SEQ (ALERT y) FAIL)))
     TACTIC MESSAGE(m) IS
+<<<<<<< jnjkonstanz.jt
+    (SEQ (COMMENT m)
+         (EXPLAIN m))
+=======
       SEQ (COMMENT m) (EXPLAIN m)
+>>>>>>> 1.2
 
     TACTIC SKIP(x)    IS (SEQ)
 
@@ -358,3 +363,4 @@ GIVENPANEL Given IS
     BUTTON "Apply Forward"   IS apply GivenForward COMMAND
     BUTTON "Apply Backwards" IS apply GivenBackward COMMAND
 END /* GIVENPANEL */
+
