@@ -127,7 +127,7 @@ AND	INFER Ë(tt1,tt2,tt3,tt4).TT » TT{T1,T2,T3,T4/tt1,tt2,tt3,tt4}
 END
 
 /* a sort of weakening ... */
-RULE weaken WHERE x IN x€S' NOTONEOF C' IS FROM C Ê x:T INFER C,C' Ê x:T
+RULE weaken WHERE y NOTIN E IS FROM C Ê E:T INFER C,y€S Ê E:T
 
 MENU Rules IS	
 	RULE "F G : T"			FROM C Ê F: T1ÁT2 AND C Ê G : T1 	INFER  C Ê F G : T2
