@@ -7,20 +7,20 @@ CONSTANT false * true efq π1 π2 i1 i2 val i
 CLASS VARIABLE x y z c d u v
 CLASS FORMULA A B C P Q R S p q r s
 
-INFIX 	10R		:
-LEFTFIX	20		∀ .
-LEFTFIX	20		∃ .
-LEFTFIX	20		λ .
+INFIX	10R		:
+LEFTFIX 20		∀ .
+LEFTFIX 20		∃ .
+LEFTFIX 20		λ .
 OUTFIX case of end
 OUTFIX let be in end
 
-PREFIX	50 		◊
-INFIX 	80L		@
+PREFIX	50		◊
+INFIX	80L		@
 INFIX		100R	→
 INFIX		120L		∧
 INFIX		140L		∨
 PREFIX	200		¬
-JUXTFIX	300
+JUXTFIX 300
 SUBSTFIX	400 
 
 BIND x SCOPE P IN ∀x . P
@@ -40,21 +40,21 @@ TACTIC ForwardUncut (n,Rule)
 TACTIC ForwardOrBackward (Forward, n, Rule) IS 
 	WHEN	(LETHYP 
 				_P 
-                          	(ALT	(Forward n Rule)
+				(ALT	(Forward n Rule)
 					(WHEN	(LETARGSEL _Q 
-                                                              (Fail (Rule is not applicable to assumption ' _P ' with argument ' _Q '))
+							      (Fail (Rule is not applicable to assumption ' _P ' with argument ' _Q '))
 							)
 							(Fail (Rule is not applicable to assumption ' _P '))
 					)
-                                )
+				)
 			)
 			(ALT	(WITHSELECTIONS Rule)
-                   		(WHEN	(LETARGSEL _P
-                                                	(Fail (Rule is not applicable with argument ' _P '))
-                                              	)
+				(WHEN	(LETARGSEL _P
+							(Fail (Rule is not applicable with argument ' _P '))
+						)
 						(Fail (Rule is not applicable))
 				)
-           		)
+			)
    
 TACTIC "∀-E tac" IS ForwardOrBackward ForwardCut 0 "∀-E"
 TACTIC "∃-I tac" IS "∃-I" /* this because it can be overridden, and we refer to it in ItL_hits.j */
@@ -62,7 +62,7 @@ TACTIC "◊-Etac" IS ForwardOrBackward ForwardUncut 0 "◊-E"
 	
 MENU Rules IS
     ENTRY "→-I"
-    ENTRY "∧-I"	
+    ENTRY "∧-I" 
     ENTRY "∨-I(L)"	IS ForwardOrBackward ForwardCut 0 "∨-I(L)"
     ENTRY "∨-I(R)"	IS ForwardOrBackward ForwardCut 0 "∨-I(R)"
     ENTRY "¬-I"
@@ -72,9 +72,9 @@ MENU Rules IS
     SEPARATOR
     ENTRY "→-E"		IS ForwardOrBackward ForwardCut 1 "→-E" 
     ENTRY "∧-E(L)"	IS ForwardOrBackward ForwardCut 0 "∧-E(L)"
-    ENTRY "∧-E(R)" 	IS ForwardOrBackward ForwardCut 0 "∧-E(R)"
+    ENTRY "∧-E(R)"	IS ForwardOrBackward ForwardCut 0 "∧-E(R)"
     ENTRY "∨-E"		IS ForwardOrBackward ForwardUncut 0 "∨-E"	
-    ENTRY "¬-E"		IS ForwardOrBackward ForwardCut 0 "¬-E"	
+    ENTRY "¬-E"		IS ForwardOrBackward ForwardCut 0 "¬-E" 
     ENTRY "∀-E"		IS "∀-E tac"	
     ENTRY "∃-E"		IS ForwardOrBackward ForwardUncut 0 "∃-E"
 	ENTRY "◊-E" IS "◊-Etac"
@@ -112,34 +112,34 @@ RULE "∀-I"(OBJECT c) WHERE FRESH c AND x NOTIN Γ
 RULE "∃-I"(B)			IS FROM Γ ⊢ p:A(B) INFER Γ ⊢ i(B,p):∃x.A(x)
 RULE "◊-I"			IS FROM Γ ⊢ p:A INFER Γ ⊢ val(p):◊A
 
-RULE hyp(A) 			IS INFER Γ,p:A ⊢ p:A
-RULE "true-I" 			IS INFER Γ ⊢ *:true
-RULE "false-E" 			IS FROM Γ ⊢ p:false INFER Γ ⊢ efq(p):A
+RULE hyp(A)			IS INFER Γ,p:A ⊢ p:A
+RULE "true-I"			IS INFER Γ ⊢ *:true
+RULE "false-E"			IS FROM Γ ⊢ p:false INFER Γ ⊢ efq(p):A
 
 AUTOMATCH hyp
 
-STRUCTURERULE IDENTITY    hyp
-STRUCTURERULE CUT            cut
-STRUCTURERULE WEAKEN     thin
+STRUCTURERULE IDENTITY	  hyp
+STRUCTURERULE CUT	     cut
+STRUCTURERULE WEAKEN	 thin
 
-HYPHIT	p:P     ⊢ q:P	IS hyp       
+HYPHIT	p:P	⊢ q:P	IS hyp	     
 HYPHIT	p:P∧Q ⊢ q:R	IS ALT	(SEQ "∧-E(L)" (WITHHYPSEL hyp))
-                                           		(SEQ "∧-E(R)" (WITHHYPSEL hyp))
-                                           		(SEQ (ForwardCut 0 "∧-E(L)") (ForwardCut 0 "∧-E(R)"))
+							(SEQ "∧-E(R)" (WITHHYPSEL hyp))
+							(SEQ (ForwardCut 0 "∧-E(L)") (ForwardCut 0 "∧-E(R)"))
 HYPHIT	p:P→Q  ⊢ q:R	IS ForwardCut 1 "→-E"
 HYPHIT	p:P∨Q  ⊢ q:R	IS ForwardUncut 0 "∨-E"
-HYPHIT	p:¬¬P   ⊢ q:Q	IS ForwardCut 0 "¬-E"
+HYPHIT	p:¬¬P	⊢ q:Q	IS ForwardCut 0 "¬-E"
 HYPHIT	p:∀x.P ⊢ q:Q	IS "∀-E tac"
 HYPHIT	p:∃x.P ⊢ q:Q	IS ForwardUncut 0 "∃-E"
-HYPHIT 	P:◊A  ⊢ q:B	IS "◊-Etac"
+HYPHIT	P:◊A  ⊢ q:B	IS "◊-Etac"
 
-CONCHIT	p:Q∧R	IS "∧-I"
-CONCHIT	p:Q∨R	IS ALT (SEQ "∨-I(L)" hyp) (SEQ "∨-I(R)" hyp)
-CONCHIT	p:Q→R	IS "→-I"      
-CONCHIT	p:¬Q	IS "¬-I"       
-CONCHIT	p:∀x.Q	IS "∀-I"  
-CONCHIT	p:∃x.Q	IS "∃-I tac"  
-CONCHIT 	p:◊A 	IS "◊-I"
+CONCHIT p:Q∧R	IS "∧-I"
+CONCHIT p:Q∨R	IS ALT (SEQ "∨-I(L)" hyp) (SEQ "∨-I(R)" hyp)
+CONCHIT p:Q→R	IS "→-I"      
+CONCHIT p:¬Q	IS "¬-I"       
+CONCHIT p:∀x.Q	IS "∀-I"  
+CONCHIT p:∃x.Q	IS "∃-I tac"  
+CONCHIT		p:◊A	IS "◊-I"
 
 CONSTANT cheese wine port claret dessert brie stilton
 

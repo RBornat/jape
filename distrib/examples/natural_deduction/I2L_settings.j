@@ -10,8 +10,8 @@ INITIALISE innerassumptionplural assumptions
 INITIALISE seektipselection false
  
 MENU Edit
-	SEPARATOR
-	BUTTON Disprove
+    SEPARATOR
+    BUTTON Disprove
 END
 
 KEYBOARD → ∧ ∨ ¬ ⊥ ∀ ∃ ⊢ ⊧

@@ -1,4 +1,4 @@
-/* $Id$ */
+﻿/* $Id$ */
 
 /* syntax of very simple set theory, for QMW IDS course 1997 */
 
@@ -7,7 +7,7 @@ CONSTANT Ø ⊥ U EQ
 
 PREFIX	1000		Pow
 PREFIX	800		∪∪ ∩∩
-POSTFIX	800		⁻¹
+POSTFIX 800		⁻¹
 INFIX		700L		∪ ∩ -
 INFIX		720L		•
 INFIX		740L		×

@@ -8,16 +8,16 @@ USE "hoare_rules.j"
 USE "hoare_problems.j"
 
 PUSHSYNTAX "natural deduction"
-	USE "../natural_deduction/I2L_syntax.j"
-	USE "../natural_deduction/I2L_rules.j"
-	USE "../natural_deduction/I2L_menus.j"
-	USE "../natural_deduction/I2L_settings.j"
+    USE "../natural_deduction/I2L_syntax.j"
+    USE "../natural_deduction/I2L_rules.j"
+    USE "../natural_deduction/I2L_menus.j"
+    USE "../natural_deduction/I2L_settings.j"
 POPSYNTAX
 
 PUSHSYNTAX "rewrite"
-	USE "../rewrite_technology/rewrite_syntax.j"
-	SEQUENT IS BAG ⊢ FORMULA
-	USE "../rewrite_technology/rewrite_rules.j"
+    USE "../rewrite_technology/rewrite_syntax.j"
+    SEQUENT IS BAG ⊢ FORMULA
+    USE "../rewrite_technology/rewrite_rules.j"
 POPSYNTAX
 
 USE "hoare_menus.j"

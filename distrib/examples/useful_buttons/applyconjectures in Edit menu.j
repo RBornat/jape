@@ -1,5 +1,5 @@
 ﻿/* $Id$ */
 
 MENU Edit IS
-	CHECKBOX applyconjectures "Apply conjectures as theorems"
+    CHECKBOX applyconjectures "Apply conjectures as theorems"
 END

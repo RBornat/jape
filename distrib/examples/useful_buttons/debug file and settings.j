@@ -8,12 +8,12 @@ MENU File IS
     SEPARATOR
     
     CHECKBOX tactictracing "trace tactics"
-    CHECKBOX unifydebug    "trace unification"
+    CHECKBOX unifydebug	   "trace unification"
     CHECKBOX rewritedebug  "trace rewrites"
-    CHECKBOX substdebug    "trace substitution simplification"
-    CHECKBOX factsdebug    "trace substitution use of provisos etc."
+    CHECKBOX substdebug	   "trace substitution simplification"
+    CHECKBOX factsdebug	   "trace substitution use of provisos etc."
     CHECKBOX provisodebug  "trace proviso simplification"
-    CHECKBOX thingdebug    "trace rule/theorem/tactic store/retrieve"
+    CHECKBOX thingdebug	   "trace rule/theorem/tactic store/retrieve"
     CHECKBOX symboldebug   "trace lexical analysis"
     CHECKBOX termparsedebug   "trace syntax analysis"
     
@@ -30,7 +30,7 @@ MENU File IS
     
     CHECKBOX showallprovisos "show all provisos"
     CHECKBOX showallproofsteps	"show all proof steps"
-    CHECKBOX hidecut         "hide cuts"
-    CHECKBOX hidehyp         "hide identity lines"
+    CHECKBOX hidecut	     "hide cuts"
+    CHECKBOX hidehyp	     "hide identity lines"
 
 END

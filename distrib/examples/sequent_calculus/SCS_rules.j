@@ -15,24 +15,24 @@ SEQUENT IS BAG ⊢ FORMULA
 RULE	hyp(A)				INFER Γ,A ⊢ A
 RULE	"⊢∧"	FROM Γ ⊢ A AND Γ ⊢ B	INFER Γ ⊢ A∧B
 RULE	"∧⊢"	FROM Γ, A, B ⊢ C		INFER Γ, A∧B ⊢ C
-RULE	"⊢∨(L)"     FROM  Γ ⊢ A		INFER Γ ⊢ A∨B
-RULE	"⊢∨(R)"     FROM  Γ ⊢ B		INFER Γ ⊢ A∨B
+RULE	"⊢∨(L)"	    FROM  Γ ⊢ A		INFER Γ ⊢ A∨B
+RULE	"⊢∨(R)"	    FROM  Γ ⊢ B		INFER Γ ⊢ A∨B
 RULE	"∨⊢"	FROM Γ, A ⊢ C AND Γ, B ⊢ C	INFER Γ, A∨B ⊢ C
 RULE	"⊢¬"	FROM Γ ⊢ A→ ⊥		INFER Γ ⊢ ¬A
 RULE	"¬⊢"	FROM Γ, A→ ⊥ ⊢ B		INFER Γ, ¬A ⊢ B
 RULE	"⊢→"	FROM Γ, A ⊢ B		INFER Γ ⊢ A→B
-RULE	"→⊢"	FROM Γ ⊢ A AND Γ, B ⊢ C	INFER Γ, A→B ⊢ C
+RULE	"→⊢"	FROM Γ ⊢ A AND Γ, B ⊢ C INFER Γ, A→B ⊢ C
 RULE	"⊢≡"	FROM Γ ⊢ A→B AND Γ ⊢ B→A	INFER Γ ⊢ A≡B
 RULE	"≡⊢"	FROM Γ, A→B,  B→A ⊢ C	INFER Γ, A≡B ⊢ C
 RULE	"⊥⊢"				INFER Γ, ⊥ ⊢ A
 RULE	"⊢∀"(OBJECT m) WHERE FRESH m
 		FROM Γ ⊢ P(m)		INFER Γ ⊢ ∀x.P(x)
-RULE	"∀⊢"(B)     FROM Γ, P(B) ⊢ C		INFER Γ, ∀x.P(x) ⊢ C
-RULE	"⊢∃"(B)     FROM Γ ⊢ P(B)		INFER Γ ⊢ ∃x.P(x)
+RULE	"∀⊢"(B)	    FROM Γ, P(B) ⊢ C		INFER Γ, ∀x.P(x) ⊢ C
+RULE	"⊢∃"(B)	    FROM Γ ⊢ P(B)		INFER Γ ⊢ ∃x.P(x)
 RULE	"∃⊢"(OBJECT m) WHERE FRESH m
 		FROM  Γ, P(m) ⊢ C		INFER Γ, ∃x.P(x) ⊢ C
-RULE	cut(A)	FROM Γ ⊢ A AND Γ, A ⊢ C	INFER Γ ⊢ C
-RULE	thin(A)     FROM Γ ⊢ B		INFER Γ, A ⊢ B
+RULE	cut(A)	FROM Γ ⊢ A AND Γ, A ⊢ C INFER Γ ⊢ C
+RULE	thin(A)	    FROM Γ ⊢ B		INFER Γ, A ⊢ B
 RULE	dup(A)	FROM Γ, A, A ⊢ B		INFER Γ, A ⊢ B
 
 UMENU Tracing IS
@@ -63,8 +63,8 @@ MENU Rules IS
 END
 
 TACTIC	"⊢∨"	IS 
-	(ALT    (PROVE	"⊢∨(L)"	 ( hyp))
-	        (PROVE  "⊢∨(R)"  ( hyp))
+	(ALT	(PROVE	"⊢∨(L)"	 ( hyp))
+		(PROVE	"⊢∨(R)"	 ( hyp))
 		(SEQ (EXPLAIN ("⊢∨" does not lead to an immediate conclusion)) (FAIL)))
 MENU Auto
 	TACTIC "Prove this propositional goal"		IS (PROVE Propositional)

@@ -1,16 +1,16 @@
 ﻿/* $Id$ */
 
 MENU	Rules IS
-	ENTRY	"= reflexive (A=A)" 					IS "= reflexive"
+	ENTRY	"= reflexive (A=A)"					IS "= reflexive"
 	ENTRY	"= transitive (A=B AND B=C ⇒ A=C)"	IS "= transitive"
 	ENTRY	"= symmetric (A=B ⇒ B=A)"			IS "= symmetric"
 	ENTRY	"A=C AND B=D ⇒ (A,B)=(C,D)"			IS "(,)="
-	ENTRY	"F x = G x ⇒ F = G" 					IS ext
+	ENTRY	"F x = G x ⇒ F = G"					IS ext
 	ENTRY	"F (x,y) = G (x, y) ⇒ F = G"			IS ext2
 	
 	SEPARATOR
 	
-	ENTRY	rewrite 				IS withsubstrewrite rewrite
+	ENTRY	rewrite					IS withsubstrewrite rewrite
 	ENTRY	"rewrite backwards"	IS withsubstrewrite rewritebackwards
 	ENTRY	"Unfold/Fold with hypothesis"
 	ENTRY	"Unfold with hypothesis"	IS UnfoldHyp
@@ -18,8 +18,8 @@ MENU	Rules IS
 	
 	SEPARATOR
 	
-	ENTRY 	Find
-	ENTRY 	Flatten
+	ENTRY	Find
+	ENTRY	Flatten
 END
 
 CONJECTUREPANEL "Conjectures" IS

@@ -11,9 +11,9 @@ MENU "Rules"
 	RULE "⊢◊" FROM Γ⊢ A,∆ INFER Γ ⊢ ◊A,∆
 END
 
-HYPHIT ◊A ⊢ 	IS "◊⊢"
+HYPHIT ◊A ⊢	IS "◊⊢"
 HYPHIT ◊A ⊢ B	IS "◊⊢"
-CONCHIT ⊢ ◊A 	IS "⊢◊"
+CONCHIT ⊢ ◊A	IS "⊢◊"
 
 CONSTANT cheese wine port claret dessert brie stilton
 

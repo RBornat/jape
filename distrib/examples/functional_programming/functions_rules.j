@@ -2,7 +2,7 @@
 
 CLASS VARIABLE v
 CLASS FORMULA C H J P
-CONSTANT none one IF true false if sel pair fst  snd id cat rcat rev rev2 fold
+CONSTANT none one IF true false if sel pair fst	 snd id cat rcat rev rev2 fold
 	map  filter zip swap monoid length ref ins del move L R
 
 INFIXC	400R	:

@@ -1,227 +1,227 @@
 ﻿/*
-        $Id$ 
-        
-        A simple type-inference system for (monomorphic) PicoML.
-        
-        This system is designed to show why it's necessary 9in doing
-        polymorphic type inference) to generalize the type variables
-        that remain after a type inference is concluded and before
-        the type is installed in the environment.
+	$Id$ 
+	
+	A simple type-inference system for (monomorphic) PicoML.
+	
+	This system is designed to show why it's necessary 9in doing
+	polymorphic type inference) to generalize the type variables
+	that remain after a type inference is concluded and before
+	the type is installed in the environment.
        
 */
-        CLASS    VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
-        CLASS    FORMULA  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-        CLASS    NUMBER   num
-        CLASS    LIST     Env
-        CONSTANT True False Num Bool Fst Snd Hd Tl Nil Null
-        CLASS    CONSTANT c
-        
-        INFIX   2T   
-        
-        SUBSTFIX 500000 [| x := T |]
-        
-        LEFTFIX 20   if then else
-        OUTFIX       let    in end
-        OUTFIX       letrec in end
-        OUTFIX       { √ }              /* Function expressions */
-        OUTFIX       [ ]                /* List expressions */
-        
-        
-        INFIX   50R  â 
-        INFIX   50T  and
-        INFIX   100T =
-        INFIXC  150R ==
-        INFIXC  200R +
-        INFIXC  220L /
-        PREFIX  1000 ~
-        POSTFIX 1000 C
-        
-        BIND x   SCOPE B IN { x √ B }
-        BIND x   SCOPE B IN let x=E         in B end
-        BIND x y SCOPE B IN let x=E and y=F in B end
+	CLASS	 VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
+	CLASS	 FORMULA  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+	CLASS	 NUMBER	  num
+	CLASS	 LIST	  Env
+	CONSTANT True False Num Bool Fst Snd Hd Tl Nil Null
+	CLASS	 CONSTANT c
+	
+	INFIX	2T   
+	
+	SUBSTFIX 500000 [| x := T |]
+	
+	LEFTFIX 20   if then else
+	OUTFIX	     let    in end
+	OUTFIX	     letrec in end
+	OUTFIX	     { √ }		/* Function expressions */
+	OUTFIX	     [ ]		/* List expressions */
+	
+	
+	INFIX	50R  â 
+	INFIX	50T  and
+	INFIX	100T =
+	INFIXC	150R ==
+	INFIXC	200R +
+	INFIXC	220L /
+	PREFIX	1000 ~
+	POSTFIX 1000 C
+	
+	BIND x	 SCOPE B IN { x √ B }
+	BIND x	 SCOPE B IN let x=E	    in B end
+	BIND x y SCOPE B IN let x=E and y=F in B end
 
-        BIND x   SCOPE B E   IN letrec x=E         in B end
-        BIND x y SCOPE B E F IN letrec x=E and y=F in B end
-        
-        
-        SEQUENT IS LIST ° FORMULA
-        
-        
-        CONJECTUREPANEL "Type Inference Problems" IS
-          THEOREMS "Type Derivations" ARE
-            Env ° Fst(3, True) == Snd((), 4)  _T
-           AND
-            Env ° Fst(3, True) == Fst(3, 4)  _T
-           AND
-            Env ° Fst(3, True)  _T
-           AND
-            Env ° Fst(Fst(3, ()), True)  _T
-           AND
-            Env, Fst(_T1, _T2)â_T1 ° Fst(3, True)  _T
-           AND
-            Env, Fst(_T1, _T2)â_T1  ° Fst(Fst(3, ()), True)  _T
-           AND
-            Env ° { x √ Fst(x, True) }  _T
-           AND
-            Env ° { x √ Fst(x, True) } 3  _T
-           AND 
-            Env ° let (succ = { x √ x+1 }) in succ 2 end _T
-           AND 
-            Env ° let f = { x √ x } in (f 3, f 5) end _T
-           AND 
-            Env ° let f = { x √ x } in (f 3, f ()) end _T
-           AND
-            Env ° letrec l = { xs √ if Null xs then 0 else 1+l(Tl xs) } in l end  _T
-          END
-          BUTTON "Theorem"   IS  apply COMMAND
-          BUTTON Constant    IS  apply "Constant"
-          BUTTON "Built In"  IS  apply "Built In"
-          BUTTON "Pair"      IS  apply Pair
-          BUTTON "Apply"     IS  apply Apply
-          BUTTON "Fun"       IS  apply Fun
-          BUTTON "Id"        IS  apply Id
-          BUTTON "If"        IS  apply If
-          BUTTON "=="        IS  apply "=="
-          BUTTON "Step"      IS  apply OneStep
-          BUTTON "Step*"     IS  apply ManySteps
-        END
-        
-        TACTIC OneStep IS 
-        (ALT "==" Apply Pair Fun If Let LetRec Id "Built In" Constant  
-             (SEQ (EXPLAIN "No applicable rule") FAIL))
-        
-        TACTIC ManySteps IS 
-        (SEQ OneStep (IF ManySteps))
-        
-        
-        RULES Constants ARE
-           Env ° num  Num
-        AND
-           Env ° True  Bool
-        AND
-           Env ° False  Bool
-        AND
-           Env ° ()  ()
-        AND
-           Env ° Nil  [T]
-        END
-             
-        RULES BuiltIn ARE
-           Env ° (==)   T â T â Bool
-        AND
-           Env ° (+)    Num â Num â Num
-        AND
-           Env ° (/)    Num â Num â Num
-        AND
-           Env ° Fst    (T1, T2) â T1
-        AND
-           Env ° Snd    (T1, T2) â T2
-        AND
-           Env ° Hd     [T] â T
-        AND
-           Env ° Tl     [T] â [T]
-        AND
-           Env ° Nil    [T]
-        AND
-           Env ° Null   [T] â Bool
-        END
-        
-        
-        MENU Rules IS
-            
-            TACTIC "Constant"  IS (LAYOUT "Constant" () Constants)
-            TACTIC "Built In"  IS (LAYOUT "Built In" () BuiltIn)
-             
-            RULE  Pair IS
-            FROM  Env ° E1  T1
-            AND   Env ° E2  T2
-            INFER Env ° (E1, E2)  (T1, T2)
-             
-            RULE  Apply IS
-            FROM  Env ° F  Ta â Tr
-            AND   Env ° A  Ta
-            INFER Env ° F A  Tr
-                     
-            RULE  Fun IS
-            FROM  Env, xTa ° BodyTr
-            INFER Env ° { x √ Body }  TaâTr
-                     
-            TACTIC Id IS (LAYOUT "Id" () (ALT "xT" "cT" ))
-            
-            RULE "xT"  
-                  WHERE x IN xT' NOTONEOF Env' 
-                  Env, xT, Env' ° xT
-                  
-            RULE "cT" 
-                  WHERE c IN cT' NOTONEOF Env' 
-                  Env, cT, Env' ° cT
-            
-            RULE "=="
-                 FROM Env ° E1T
-                 AND  Env ° E2T
-                 INFER Env ° E1 == E2  Bool
-                 
-            RULE If 
-                 FROM  Env ° G  Bool
-                 AND   Env ° Et T
-                 AND   Env ° Ef T
-                 INFER Env ° if G then Et else Ef  T
-                 
-                 
-            RULES Let ARE
-                 FROM  Env ° ETe
-                 AND   Env, xTe ° BTb
-                 INFER Env ° let x=E in B end  Tb
-                 AND   WHERE x NOTIN y 
-                 FROM  Env ° ETe
-                 AND   Env ° FTf
-                 AND   Env, xTe, yTf ° BTb
-                 INFER Env ° let x=E and y=F in B end Tb
-            END
-            
-            RULES LetRec ARE
-                 FROM  Env, xTe ° ETe
-                 AND   Env, xTe ° BTb
-                 INFER Env ° letrec x=E in B end  Tb
-                 AND   WHERE x NOTIN y 
-                 FROM  Env, xTe, yTf  ° ETe
-                 AND   Env, xTe, yTf  ° FTf
-                 AND   Env, xTe, yTf ° BTb
-                 INFER Env ° let x=E and y=F in B end Tb
-            END
-                  
-                               
-        END
-        
-        MENU Edit
-          RADIOBUTTON displaystyle
-               "Sequent-Tree display style"  IS tree
-          AND  "Box display style"           IS box
-          INITIALLY box
-          END
-        
-          RADIOBUTTON autoselect IS
-                  "Automatic goal selection" IS true
-          AND     "Manual goal selection"    IS false
-          INITIALLY true
-          END
-          
-          RADIOBUTTON applyconjectures IS
-                   "Allow Conjectures as rules" IS true
-          AND      "Use only Theorems as rules" IS false
-          INITIALLY false
-          END
-        END
+	BIND x	 SCOPE B E   IN letrec x=E	   in B end
+	BIND x y SCOPE B E F IN letrec x=E and y=F in B end
+	
+	
+	SEQUENT IS LIST ° FORMULA
+	
+	
+	CONJECTUREPANEL "Type Inference Problems" IS
+	  THEOREMS "Type Derivations" ARE
+	    Env ° Fst(3, True) == Snd((), 4)  _T
+	   AND
+	    Env ° Fst(3, True) == Fst(3, 4)  _T
+	   AND
+	    Env ° Fst(3, True)  _T
+	   AND
+	    Env ° Fst(Fst(3, ()), True)  _T
+	   AND
+	    Env, Fst(_T1, _T2)â_T1 ° Fst(3, True)  _T
+	   AND
+	    Env, Fst(_T1, _T2)â_T1  ° Fst(Fst(3, ()), True)  _T
+	   AND
+	    Env ° { x √ Fst(x, True) }  _T
+	   AND
+	    Env ° { x √ Fst(x, True) } 3  _T
+	   AND 
+	    Env ° let (succ = { x √ x+1 }) in succ 2 end _T
+	   AND 
+	    Env ° let f = { x √ x } in (f 3, f 5) end _T
+	   AND 
+	    Env ° let f = { x √ x } in (f 3, f ()) end _T
+	   AND
+	    Env ° letrec l = { xs √ if Null xs then 0 else 1+l(Tl xs) } in l end  _T
+	  END
+	  BUTTON "Theorem"   IS	 apply COMMAND
+	  BUTTON Constant    IS	 apply "Constant"
+	  BUTTON "Built In"  IS	 apply "Built In"
+	  BUTTON "Pair"	     IS	 apply Pair
+	  BUTTON "Apply"     IS	 apply Apply
+	  BUTTON "Fun"	     IS	 apply Fun
+	  BUTTON "Id"	     IS	 apply Id
+	  BUTTON "If"	     IS	 apply If
+	  BUTTON "=="	     IS	 apply "=="
+	  BUTTON "Step"	     IS	 apply OneStep
+	  BUTTON "Step*"     IS	 apply ManySteps
+	END
+	
+	TACTIC OneStep IS 
+	(ALT "==" Apply Pair Fun If Let LetRec Id "Built In" Constant  
+	     (SEQ (EXPLAIN "No applicable rule") FAIL))
+	
+	TACTIC ManySteps IS 
+	(SEQ OneStep (IF ManySteps))
+	
+	
+	RULES Constants ARE
+	   Env ° num  Num
+	AND
+	   Env ° True  Bool
+	AND
+	   Env ° False  Bool
+	AND
+	   Env ° ()  ()
+	AND
+	   Env ° Nil  [T]
+	END
+	     
+	RULES BuiltIn ARE
+	   Env ° (==) 	 T â T â Bool
+	AND
+	   Env ° (+)  	 Num â Num â Num
+	AND
+	   Env ° (/)  	 Num â Num â Num
+	AND
+	   Env ° Fst  	 (T1, T2) â T1
+	AND
+	   Env ° Snd  	 (T1, T2) â T2
+	AND
+	   Env ° Hd   	 [T] â T
+	AND
+	   Env ° Tl   	 [T] â [T]
+	AND
+	   Env ° Nil  	 [T]
+	AND
+	   Env ° Null 	 [T] â Bool
+	END
+	
+	
+	MENU Rules IS
+	    
+	    TACTIC "Constant"  IS (LAYOUT "Constant" () Constants)
+	    TACTIC "Built In"  IS (LAYOUT "Built In" () BuiltIn)
+	     
+	    RULE  Pair IS
+	    FROM  Env ° E1  T1
+	    AND	  Env ° E2  T2
+	    INFER Env ° (E1, E2)  (T1, T2)
+	     
+	    RULE  Apply IS
+	    FROM  Env ° F  Ta â Tr
+	    AND	  Env ° A  Ta
+	    INFER Env ° F A  Tr
+		     
+	    RULE  Fun IS
+	    FROM  Env, xTa ° BodyTr
+	    INFER Env ° { x √ Body }  TaâTr
+		     
+	    TACTIC Id IS (LAYOUT "Id" () (ALT "xT" "cT" ))
+	    
+	    RULE "xT"	
+		  WHERE x IN xT' NOTONEOF Env' 
+		  Env, xT, Env' ° xT
+		  
+	    RULE "cT" 
+		  WHERE c IN cT' NOTONEOF Env' 
+		  Env, cT, Env' ° cT
+	    
+	    RULE "=="
+		 FROM Env ° E1T
+		 AND  Env ° E2T
+		 INFER Env ° E1 == E2  Bool
+		 
+	    RULE If 
+		 FROM  Env ° G	 Bool
+		 AND   Env ° Et T
+		 AND   Env ° Ef T
+		 INFER Env ° if G then Et else Ef  T
+		 
+		 
+	    RULES Let ARE
+		 FROM  Env ° ETe
+		 AND   Env, xTe ° BTb
+		 INFER Env ° let x=E in B end  Tb
+		 AND   WHERE x NOTIN y 
+		 FROM  Env ° ETe
+		 AND   Env ° FTf
+		 AND   Env, xTe, yTf ° BTb
+		 INFER Env ° let x=E and y=F in B end Tb
+	    END
+	    
+	    RULES LetRec ARE
+		 FROM  Env, xTe ° ETe
+		 AND   Env, xTe ° BTb
+		 INFER Env ° letrec x=E in B end  Tb
+		 AND   WHERE x NOTIN y 
+		 FROM  Env, xTe, yTf	° ETe
+		 AND   Env, xTe, yTf	° FTf
+		 AND   Env, xTe, yTf ° BTb
+		 INFER Env ° let x=E and y=F in B end Tb
+	    END
+		  
+			       
+	END
+	
+	MENU Edit
+	  RADIOBUTTON displaystyle
+	       "Sequent-Tree display style"  IS tree
+	  AND  "Box display style"	     IS box
+	  INITIALLY box
+	  END
+	
+	  RADIOBUTTON autoselect IS
+		  "Automatic goal selection" IS true
+	  AND	  "Manual goal selection"    IS false
+	  INITIALLY true
+	  END
+	  
+	  RADIOBUTTON applyconjectures IS
+		   "Allow Conjectures as rules" IS true
+	  AND	   "Use only Theorems as rules" IS false
+	  INITIALLY false
+	  END
+	END
 
-        
-        CONCHIT     ° ET IS OneStep
-        CONCHIT Env ° ET IS OneStep
-        HYPHIT  Env ° ET IS OneStep
-        INITIALISE outerassumptionword   Environment
-        INITIALISE outerassumptionplural Environment
-        INITIALISE innerassumptionword   Environment
-        INITIALISE innerassumptionword   Environment
-        
+	
+	CONCHIT	    ° ET IS OneStep
+	CONCHIT Env ° ET IS OneStep
+	HYPHIT	Env ° ET IS OneStep
+	INITIALISE outerassumptionword	 Environment
+	INITIALISE outerassumptionplural Environment
+	INITIALISE innerassumptionword	 Environment
+	INITIALISE innerassumptionword	 Environment
+	
 
 
 
