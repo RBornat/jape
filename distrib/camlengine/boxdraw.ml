@@ -1308,24 +1308,15 @@ let rec draw goalopt p proof =
     in
     let rec _D p line =
       match line with
-        FitchLine
-          {elementsplan = elementsplan;
-           elementsbox = elementsbox;
-           idplan = idplan;
-           reasonplan = reasonplan} ->
+        FitchLine {elementsplan = elementsplan; elementsbox = elementsbox; 
+                   idplan = idplan; reasonplan = reasonplan} ->
           let pdraw = p +->+ tbPos elementsbox in
           let rec emp gpath plan =
             (* (Elementplan((el,siopt),_,class,elbox)) = *)
-            let rec dohigh () =
-              highlight (tbPos (plantextbox plan) +->+ pdraw)
-                (Some DisplayConc)
-            in
-            let rec dogrey () =
-              greyen (tbPos (plantextbox plan) +->+ pdraw)
-            in
-            let rec doconc path =
-              if gpath = path then dohigh () else dogrey ()
-            in
+            let rec dohigh () = highlight (tbPos (plantextbox plan) +->+ pdraw) (Some DisplayConc) in
+            let rec dogrey () = greyen (tbPos (plantextbox plan) +->+ pdraw) in
+            let rec doconc path = if gpath = path then dohigh () else dogrey () in
+            
             match planinfo plan with
               ElementPlan ({path = path}, el, HypPlan) ->
                 if validhyp proof el gpath then () else dogrey ()
@@ -1354,10 +1345,7 @@ let rec draw goalopt p proof =
                 else if validhyp proof downel gpath then ()
                 else dogrey ()
             | ElementPunctPlan -> ()
-            | _ ->
-                raise
-                  (Catastrophe_
-                     ["emp in _D "; debugstring_of_plan string_of_elementplankind plan])
+            | _ -> raise (Catastrophe_ ["emp in _D "; debugstring_of_plan string_of_elementplankind plan])
           in
           let y = posY pdraw in
           let idpos = pos (idx, y) in
@@ -1411,48 +1399,38 @@ let rec print str goalopt p proof =
     in
     revapp (_D (rightby (p, bodymargin))) lines
 
-let rec hit_of_pos p =
-  fun (Layout {lines = lines; bodymargin = bodymargin; reasonmargin = reasonmargin})
-    hitkind ->
-    let _ =
-      if !boxseldebug then
-        consolereport
-          ["hit_of_pos "; " "; string_of_pos p; " ... "; string_of_hitkind hitkind]
-    in
-    let rec _H a1 a2 =
-      match a1, a2 with
-        p,
-        FitchLine
-          {elementsbox = elementsbox;
-           elementsplan = elementsplan;
-           reasonplan = reasonplan} ->
-          let rec couldbe a1 a2 =
-            match a1, a2 with
-              path, Some truepath -> truepath
-            | path, None -> path
+let rec hit_of_pos p 
+                   (Layout {lines = lines; bodymargin = bodymargin; reasonmargin = reasonmargin})
+                   hitkind =
+    if !boxseldebug then
+      consolereport
+        ["hit_of_pos "; " "; string_of_pos p; " ... "; string_of_hitkind hitkind];
+    let rec _H p =
+      function
+        FitchLine {elementsbox = elementsbox; elementsplan = elementsplan; reasonplan = reasonplan} ->
+          let couldbe path =
+            function
+              Some truepath -> truepath
+            | None          -> path
           in
-          let rec answerpath
-            hitkind
-              {path = path;
-               layoutpath = layoutpath;
-               prunepath = prunepath} =
+          let answerpath hitkind {path = path; layoutpath = layoutpath; prunepath = prunepath} =
             match hitkind with
               LayoutPath -> couldbe path layoutpath
-            | PrunePath -> couldbe path prunepath
-            | HitPath -> path
+            | PrunePath  -> couldbe path prunepath
+            | HitPath    -> path
           in
-          let rec cp (pi, el, kind) =
+          let cp (pi, el, kind) =
             match kind with
               TranPlan side -> answerpath hitkind pi, (el, Some side)
-            | _ -> answerpath hitkind pi, (el, None)
+            | _             -> answerpath hitkind pi, (el, None)
           in
-          let rec hp (pi, el, kind) = answerpath hitkind pi, el in
+          let hp (pi, el, kind) = answerpath hitkind pi, el in
           let rec decodeplan =
             function
               ElementPlan (pi, el, kind as pl) ->
                 begin match kind with
                   HypPlan -> Some (FormulaHit (HypHit (hp pl)))
-                | _ -> Some (FormulaHit (ConcHit (cp pl)))
+                | _       -> Some (FormulaHit (ConcHit (cp pl)))
                 end
             | AmbigElementPlan (up, dn) ->
                 Some (FormulaHit (AmbigHit (cp up, hp dn)))
@@ -1475,10 +1453,10 @@ let rec hit_of_pos p =
                      else None
                  | _ -> None)
               reasonplan
-      | p, FitchBox {outerbox = outerbox; boxlines = lines} ->
+      | FitchBox {outerbox = outerbox; boxlines = lines} ->
           if withinY (p, outerbox) then findfirst (_H p) lines else None
     in
-    findfirst (_H (rightby (p, - bodymargin))) lines
+    findfirst (_H (rightby (p, -bodymargin))) lines
 
 let rec locateHit pos classopt hitkind (p, proof, layout) =
   hit_of_pos ((pos +<-+ p)) layout hitkind &~~
@@ -1633,9 +1611,8 @@ let rec notifyselect posclassopt posclasslist =
 
 let refineSelection = true
 
-let defaultpos (Layout {bodybox = bodybox; bodymargin = bodymargin;
+let defaultpos screen (Layout {bodybox = bodybox; bodymargin = bodymargin;
                         sidescreengap = sidescreengap; linethickness = linethickness}) =
-    let screen = viewBox () in
     let prooforigin = bPos bodybox in
     (* leftby bodymargin not needed ... *)
     (*
@@ -1652,23 +1629,20 @@ let defaultpos (Layout {bodybox = bodybox; bodymargin = bodymargin;
     +<-+ prooforigin,
     screen, prooforigin
 
-let rec rootpos =
-  fun (Layout {lines = lines}) ->
+let rec rootpos viewport (Layout {lines = lines}) =
     (* position of last line in proof, first in lines *)
     let rec p =
       function
         FitchLine {elementsbox = elementsbox} -> Some (tbPos elementsbox)
-      | FitchBox {boxlines = lines} -> findfirst p lines
+      | FitchBox {boxlines = lines}           -> findfirst p lines
     in
     match findfirst p lines with
       Some p -> p
-    | _ -> origin
+    | _      -> origin
 
-let rec postoinclude box =
-  fun
-    (Layout {bodymargin = bodymargin; sidescreengap = sidescreengap} as
-       layout) ->
-    let (defpos, screen, prooforigin) = defaultpos layout in
+let rec postoinclude screen box 
+                     (Layout {bodymargin = bodymargin; sidescreengap = sidescreengap} as layout) =
+    let (defpos, screen, prooforigin) = defaultpos screen layout in
     let otherdefpos = rightby (topleft screen, sidescreengap) +<-+ prooforigin
     in
     (*
@@ -1697,52 +1671,70 @@ let rec postoinclude box =
             (sH (bSize screen) - sH (bSize box)) / 2)
          +<-+ bPos box)
 
-let rec layout proof = _BoxLayout (sW (bSize (viewBox ()))) proof
+let rec layout viewport proof = _BoxLayout (sW (bSize viewport)) proof
 
 (* This function is used in displaystyle.sml to position a proof.
  * I think it's best if the _conclusion_ box doesn't move.  Otherwise you get into all 
  * kinds of jumpy behaviour.
  *)
-
-let rec targetbox a1 a2 =
-  match a1, a2 with
-    None, _ -> None
-  | Some path, Layout {lines = lines} ->
-      let rec ok =
-        function
+  
+let targetbox pos target layout =
+  match target, layout with
+    None     , _                                               -> None
+  | Some path, Layout {lines = lines; bodymargin = bodymargin} ->
+      let ok =
+        function 
           ElementPlan ({path = epath}, _, ConcPlan) as plankind ->
             if !screenpositiondebug then
               consolereport
-                [string_of_elementplankind plankind; "; "; string_of_path path;
-                 "; "; string_of_bool (path = epath)];
+                ["Boxdraw.targetbox.ok "; string_of_path path; "; "; 
+                 string_of_elementplankind plankind; "; "; 
+                 string_of_bool (path = epath)];
             path = epath
         | _ -> false
       in
-      let rec search =
+      let rec search pos =
         function
-          FitchLine
-            {elementsplan = elementsplan; elementsbox = elementsbox} ->
+          FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
             if List.exists (ok <.> planinfo) elementsplan then
-              begin
-                if !screenpositiondebug then
+               (if !screenpositiondebug then
                   consolereport
-                    ["boxdraw targetbox gotcha ";
-                     string_of_textbox elementsbox];
-                Some elementsbox
-              end
+                    ["boxdraw targetbox gotcha "; string_of_textbox elementsbox];
+                Some (tbOffset elementsbox pos))
             else None
-        | FitchBox {boxlines = lines} -> findfirst search lines
+        | FitchBox {boxlines = lines} -> findfirst (search pos) lines 
+                                         (* oddly, no offset: see _D if you don't believe me *)
       in
-      findfirst search lines
+      findfirst (search (rightby (pos, bodymargin))) lines
 
+(* this function is used to discover all the stuff that's viewport-visible (see displaystyle.ml).
+   But because not every line is a conclusion, it won't always work. We need allformulahits, and that will
+   take a bit of work.
+ *)
+let alltargets pos (Layout {lines = lines; bodymargin = bodymargin}) =
+  let targetpath =
+    function
+      ElementPlan ({path = path}, _, ConcPlan) -> Some path
+    | _ -> None
+  in
+  let rec allts pos rs ls = 
+    List.fold_left (onet pos) rs ls (* efficient, but backwards -- don't think it matters *)
+  and onet pos rs l =
+    match l with
+      FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
+        (match findfirst (targetpath <.> planinfo) elementsplan with
+           Some path -> (path, tbOffset elementsbox pos) :: rs
+         | None      -> rs)
+    | FitchBox {boxlines = boxlines} -> allts pos rs boxlines
+  in
+  allts (rightby (pos, bodymargin)) [] lines
+  
 let rec samelayout =
   fun (Layout {lines = lines}, Layout {lines = lines'}) -> lines = lines'
 
-let defaultpos = fst_of_3 <.> defaultpos
+let defaultpos screen = fst_of_3 <.> defaultpos screen
 
 let highlight = highlight
-let viewBox = viewBox
-let clearView = clearView
 
 (* a bit of desperate debugging ...
 val _ =
