@@ -50,7 +50,7 @@ public abstract class SurrogateWindow extends JapeWindow {
         // one day the drawing stuff will be in a SplashScreen class
 
         getContentPane().setBackground(Color.white);
-        JLabel logo = new JLabel("© Richard Bornat and Bernard Sufrin 1991-2002", logoIcon, SwingConstants.CENTER);
+        JLabel logo = new JLabel("© Richard Bornat and Bernard Sufrin 1991-2003", logoIcon, SwingConstants.CENTER);
         logo.setVerticalTextPosition(SwingConstants.BOTTOM);
         logo.setHorizontalTextPosition(SwingConstants.CENTER);
         getContentPane().add(logo, BorderLayout.CENTER);
