@@ -212,8 +212,9 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
         }
     }
     
-    public void addWorld(int x, int y) {
-        ensureWorld(x, y);
+    public void addWorld(int x, int y, boolean forcedhere) {
+        WorldItem w = ensureWorld(x, y);
+        w.setForced(forcedhere);
     }
 
     public int worldCount() {
