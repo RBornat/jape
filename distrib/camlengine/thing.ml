@@ -1382,12 +1382,12 @@ let rec addstructurerule kind name =
           match
             (match mparams with
                 Some mparams ->
-                  optionfold (uncurry2 (uncurry2 match__))
+                  option_njfold (uncurry2 (uncurry2 match__))
                     (mparams ||| ((registerId <.> paramidbits) <* params))
                     empty
               | None -> Some empty)
             &~~
-            optionfold (uncurry2 (uncurry2 seqmatch)) ((mtops ||| tops))
+            option_njfold (uncurry2 (uncurry2 seqmatch)) ((mtops ||| tops))
             &~~
             seqmatch mbottom bottom
           with

@@ -201,18 +201,18 @@ let rec abstract orig map term ps cxt =
                 | Yes -> _Ares None
                 end
             | App (_, f, a) ->
-                  (optionfold (_Afold m) [f; a] (cxt, []) &~~
+                  (option_njfold (_Afold m) [f; a] (cxt, []) &~~
                    (function
                       cxt, [f; a] -> _Ares (Some (cxt, registerApp (f, a)))
                     | _ -> raise MatchinAbstract_))
             | Tup (_, sep, ts) ->
-                     (optionfold (_Afold m) ts (cxt, []) &~~
+                     (option_njfold (_Afold m) ts (cxt, []) &~~
                       (fun (cxt, ts') ->
                          _Ares (Some (cxt, registerTup (sep, ts'))))) |~~
                    (fun _ -> _Ares None)
             | Literal _ -> _Ares (Some (cxt, _P))
             | Fixapp (_, bras, ts) ->
-                     (optionfold (_Afold m) ts (cxt, []) &~~
+                     (option_njfold (_Afold m) ts (cxt, []) &~~
                       (fun (cxt, ts) ->
                          Some (cxt, registerFixapp (bras, ts)))) |~~
                    (fun _ -> _Ares None)
@@ -222,10 +222,10 @@ let rec abstract orig map term ps cxt =
                 with
                   Some m' ->
                       (
-                         (optionfold (_Afold m) us (cxt, []) &~~
+                         (option_njfold (_Afold m) us (cxt, []) &~~
                           (fun (cxt, us') ->
                                (
-                                  (optionfold (_Afold m') ss (cxt, []) &~~
+                                  (option_njfold (_Afold m') ss (cxt, []) &~~
                                    (fun (cxt, ss') ->
                                       Some
                                         (cxt,
@@ -241,7 +241,7 @@ let rec abstract orig map term ps cxt =
                 let fs = facts (ourprovisos ()) cxt in
                 begin match vtsplit fs m vs' with
                   ys, ns, [] ->
-                    (optionfold (_Afold m) ts' (cxt, []) 
+                    (option_njfold (_Afold m) ts' (cxt, []) 
                      &~~
                      (fun (cxt, ts'') ->
                           (_Abstract cxt
@@ -986,7 +986,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
             _, [] -> res (uf cxt e1s)
           | [], _ -> res (uf cxt s_of_e)
           | [Segvar (_, ps, Unknown (_, v, c))], _ ->
-              begin match optionfold (demodeifyall ps) s_of_e (cxt, []) with
+              begin match option_njfold (demodeifyall ps) s_of_e (cxt, []) with
                 Some (cxt, s_of_e) ->
                   res
                     [plusvarmap cxt ((v |-> registerCollection (c, s_of_e)))]
@@ -1014,7 +1014,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
                           let (cxt, u') = freshUnknown cxt c v in
                           let (us_of_e, ks_of_e) = split isuseg s_of_e in
                           begin match
-                            optionfold (demodeifyall ps) ks_of_e (cxt, [])
+                            option_njfold (demodeifyall ps) ks_of_e (cxt, [])
                           with
                             Some (cxt, ks_of_e') ->
                               res

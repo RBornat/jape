@@ -30,7 +30,8 @@ open Sml
 
 exception None_
 
-let rec _The = function Some x -> x | None -> raise None_
+let _The = function Some x -> x | None -> raise None_
+let _Some x = Some x
 
 let rec bool_of_opt = function Some _ -> true | None -> false
 
@@ -38,14 +39,17 @@ let rec try__ a1 a2 =
   match a1, a2 with
     f, Some x -> Some (f x)
   | f, None -> None
+
 let rec somef f x =
   match f x with
     None -> Some x
-  | v -> v
+  | v    -> v
+
 let rec anyway f x =
   match f x with
     Some v -> v
-  | None -> x
+  | None   -> x
+  
 let rec failpt f x =
   match f x with
     Some y -> failpt f y
@@ -77,6 +81,7 @@ let rec optionmap a1 a2 =
   match a1, a2 with
     p, [] -> Some []
   | p, x :: xs -> p x &~~ (fun x -> (optionmap p xs &~~ (fun xs -> Some (x::xs))))
+  
 let rec optionfilter a1 a2 =
   match a1, a2 with
     f, [] -> []
@@ -84,10 +89,22 @@ let rec optionfilter a1 a2 =
       match f x with
         Some x' -> x' :: optionfilter f xs
       | None -> optionfilter f xs
-let rec optionfold a1 a2 a3 =
-  match a1, a2, a3 with
-    f, [], z -> Some z
-  | f, x :: xs, z -> optionfold f xs z &~~ (fun xs' -> f (x, xs'))
+      
+let rec option_foldl f z =
+  function
+    []      -> Some z
+  | x :: xs -> f z x &~~ (fun z' -> option_foldl f z' xs) 
+  
+let rec option_foldr f z =
+  function
+    []      -> Some z
+  | x :: xs -> option_foldr f z xs &~~ f x
+  
+let rec option_njfold f =
+  function
+    []      -> _Some
+  | x :: xs -> option_njfold f xs &~ (Miscellaneous.curry2 f) x
+
 let rec findfirst a1 a2 =
   match a1, a2 with
     f, [] -> None

@@ -1079,7 +1079,7 @@ let rec doDropUnify ts ss =
       None
     in
     try
-      match (optionfold (fun (t, cxt) -> dropunify (t, ss) cxt) ts cxt 
+      match (option_foldr (fun t cxt -> dropunify (t, ss) cxt) cxt ts 
              &~~ (fSome <.> verifyprovisos) &~~ simplifydeferred)
       with
         Some cxt' -> Some (withcxt state cxt')
