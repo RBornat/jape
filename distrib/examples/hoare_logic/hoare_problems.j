@@ -19,6 +19,14 @@ CONJECTUREPANEL "Programs"  IS
     {n≥2} 
       (i:=2; while n mod i ≠ 0 do i:=i+1 od) 
     {2≤i∧i≤n∧∀x.(2≤x ∧ x<i → n mod x ≠0) ∧ n mod i = 0}
+  THEOREM WHERE i NOTIN prime,n AND prime NOTIN n IS
+    {2≤i∧i≤n∧∀x.(2≤x ∧ x<i → n mod x ≠0) ∧ n mod i = 0}
+      (prime := i=n)
+    {prime ↔¬(∃y.(2≤y∧y<n∧n mod y = 0))}
+  THEOREM WHERE i NOTIN prime,n AND prime NOTIN n IS
+    {2≤i∧i≤n∧∀x.(2≤x ∧ x<i → n mod x ≠0) ∧ n mod i = 0}
+      (prime := i=n)
+    {prime ↔∀y.(2≤y∧y<n → n mod y ≠ 0)}
 END
 
 CONJECTUREPANEL "Verification conditions" IS 
@@ -39,8 +47,8 @@ END
 CONJECTUREPANEL "Lemmas" IS
   THEOREM IS
     A→A
-  DERIVED RULE IS
-    FROM A≤B AND A≠B INFER A<B
-  DERIVED RULE WHERE x NOTIN A, B IS
-    FROM ∀x.(A≤x∧x<B→P(x)) AND P(B) INFER ∀x.(A≤x∧x<B+1→P(x))
+  THEOREM IS
+    A≤B, A≠B ⊢ A<B
+  THEOREM WHERE x NOTIN A, B IS
+    ∀x.(A≤x∧x<B→P(x)), P(B) ⊢ ∀x.(A≤x∧x<B+1→P(x))
 END
