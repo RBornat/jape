@@ -26,6 +26,7 @@
 */
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.util.Enumeration;
 import java.awt.event.FocusAdapter;
@@ -43,7 +44,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Vector;
 
-public class ProofWindow extends JapeWindow implements SelectionConstants, ProtocolConstants {
+public class ProofWindow extends JapeWindow implements DebugConstants, SelectionConstants,
+                                                       ProtocolConstants {
     public final int proofnum;
 
     protected AnchoredScrollPane proofPane;
@@ -54,7 +56,7 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
     protected JSplitPane mainSplitPane;
     
     protected JapeCanvas focussedCanvas;
-    
+
     public ProofWindow(String title, int proofnum) {
         super(title);
         this.proofnum = proofnum;
@@ -194,7 +196,7 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
 
     private DisproofPane ensureDisproofPane() {
         if (disproofPane==null) {
-            disproofPane = new DisproofPane();
+            disproofPane = new DisproofPane(getLayeredPane());
             disproofPane.setlinethickness(proofCanvas.linethickness);
             disproofPanePending = true;
         }
