@@ -29,13 +29,9 @@ package uk.org.jape;
 
 import java.awt.Color;
 
-import java.io.FileInputStream;
+import java.util.prefs.Preferences;
 
-import java.util.Properties;
-
-/* when I get round to it, this stuff will be in the standard preferences file */
-
-public class Preferences {
+public class JapePrefs {
     public static Color GreyTextColour		= Color.gray,
 			LineColour		= Color.black,
 			NoLineColour		= Color.lightGray,
@@ -52,11 +48,40 @@ public class Preferences {
 			ForcedSelectionColour = Color.green;
 
 
-    static byte getProp(String name, int defaultvalue) {
-	return (byte) defaultvalue;
+    static String getProp(String key, String defaultvalue) {
+	Preferences prefs = Preferences.userNodeForPackage(JapePrefs.class);
+	return prefs.get(key, defaultvalue);
     }
-
-    static String getProp(String name, String defaultvalue) {
-	return defaultvalue;
+    
+    static int getProp(String key, int defaultvalue) {
+	String v = getProp(key, null);
+	if (v==null) return defaultvalue;
+	else try {
+	    return Integer.parseInt(v);
+	} catch (NumberFormatException e) {
+	    Alert.showErrorAlert("GUI error: preference key "+JapeUtils.enQuote(key)+"\n"+
+				 "returns "+JapeUtils.enQuote(v)+",\n"+
+				 "which is not an integer-looking string.");
+	    return defaultvalue;
+	}
+    }
+    
+    static byte getProp(String key, byte defaultvalue) {
+	return (byte)getProp(key, (int)defaultvalue);
+    }
+    
+    static void putProp(String key, String value) {
+	Preferences prefs = Preferences.userNodeForPackage(JapePrefs.class);
+	if (value==null) prefs.remove(key);
+	else prefs.put(key, value);
+    }
+    
+    static void putProp(String key, int value) {
+	Preferences prefs = Preferences.userNodeForPackage(JapePrefs.class);
+	prefs.putInt(key, value);
+    }
+    
+    static void putProp(String key, byte value) {
+	putProp(key, (int)value);
     }
 }
