@@ -282,8 +282,7 @@ let rec locateHit pos _ _ (prooforigin, proof, plan) =
 
 let refineSelection = false
 
-let rec notifyselect
-  bposclassopt posclasslist (prooforigin, proof, plan) =
+let rec notifyselect bposclassopt posclasslist (prooforigin, proof, plan) =
   let rec cleanup test =
     List.iter
       (fun (oldpos, _) ->
@@ -291,14 +290,12 @@ let rec notifyselect
            Some oldhit ->
              if test (oldpos, oldhit) then highlight oldpos None
          | None ->
-             raise
-               (Catastrophe_
-                  ["notifyselect (treedraw) can't re-identify ";
-                   posstring oldpos]))
+             raise (Catastrophe_ ["notifyselect (treedraw) can't re-identify "; posstring oldpos]))
       posclasslist
   in
   match bposclassopt with
-    None -> cleanup (fun _ -> true)
+    None -> cleanup (fun _ -> false) 
+            (* this is what happens when you shift-click to deselect ... i.e. nothing. RB 30/x/02 *)
   | Some (hitpos, _) ->
       (* cancel anything lying around *)
       (* cancel hits in other sequents ... *)
@@ -310,10 +307,8 @@ let rec notifyselect
           (* clear selections in other sequents *)                    
           cleanup (fun (oldpos, oldhit) -> hitpath oldhit <> hitpath hit)
       | None ->
-          raise
-            (Catastrophe_
-               ["notifyselect (treedraw) can't identify ";
-                posstring hitpos])
+          raise (Catastrophe_ ["notifyselect (treedraw) can't identify "; posstring hitpos])
+
 (* There is a notion of a 'target' in the proof - the sequent selected for action -
  * which is identified by path, and the tree is always drawn so that the target
  * doesn't move.
