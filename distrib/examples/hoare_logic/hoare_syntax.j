@@ -36,7 +36,7 @@ INFIX   5L  ≜ /* equals def */
 INFIX   5L  simplifiesto equivto conjoins dependson /* see hoare_arith.j */
 
 PREFIX  10  actual integer /* actual not used, but we have to satisfy PUSHSYNTAX */
-POSTFIX 10  computes
+POSTFIX 10  computes defined
 
 INFIX 10 L ;
 INFIX 12 L :=
