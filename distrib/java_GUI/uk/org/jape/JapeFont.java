@@ -30,6 +30,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -44,45 +45,8 @@ import javax.swing.JPanel;
 
 public class JapeFont implements DebugConstants, ProtocolConstants {
 
-    /* ************************
-       Ascii -> Unicode translation, for fonts (such as Konstanz) which don't 
-       have a proper Unicode encoding.
-       
-       also font substitution technology, because at present MacOS X Java doesn't 
-       do proper glyph substitution.
-       ************************
-     */
-     
-    private static Font substituteFont=null;
-    private static HashMap substitutes = new HashMap(50,(float)0.5);
-    
-    private static class P {
-        private int style, size;
-        public int hashCode() {
-            return size*10+style;
-        }
-        public boolean equals(Object o) {
-            return o instanceof P && ((P)o).style==style && ((P)o).size==size;
-        }
-        public P(int style, int size) {
-            this.style=style; this.size=size;
-        }
-    }
-    
     private static Font deriveFont(Font f, int style, int size) {
-        if (substituteFont==null)
-            return f.deriveFont(style, (float)size);
-        else {
-            P p = new P(style,size);
-            Object o = (Font)substitutes.get(p);
-            if (o==null) {
-                Font f1 = substituteFont.deriveFont(style, (float)size);
-                substitutes.put(p,f1);
-                return f1;
-            }
-            else
-                return (Font)o;
-        }
+        return f.deriveFont(style, (float)size);
     }
 
     public static final int MENUENTRY   = 100,
@@ -104,8 +68,11 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         PanelEntryFontSize  = Preferences.getProp("font.panelentry.size",  NonFormulaFontSize),
         LogWindowFontSize   = Preferences.getProp("font.logwindow.size",   NonFormulaFontSize);
 
-    public static String
-        FontStyle           = Preferences.getProp("fonts.family", "sanserif");
+    public static final String
+        FontName =
+            Preferences.getProp("fonts.family", Jape.onMacOS ? "LucidaSansUnicode" : "SansSerif");
+
+    private static final Font baseFont = new Font(FontName, Font.PLAIN, 1);
 
     public static final int[] normalsizes = { 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 72 };
 
@@ -232,9 +199,23 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         mimicFont(c, c.getFont().getSize());
     }
 
+    private static Font mimics[] = new Font[0];
+        
     private static void mimicFont(Component c, int size) {
         Font f = c.getFont();
-        c.setFont(deriveFont(f, f.getStyle(), size));
+        if (!FontName.equals(f.getName()) || f.getSize()!=size) {
+            if (size>mimics.length) {
+                Font mimics1[] = new Font[size+1];
+                for (int i = 0; i<mimics.length; i++)
+                    mimics1[i] = mimics[i];
+                for (int i = mimics.length; i<mimics1.length; i++)
+                    mimics1[i] = null;
+                mimics = mimics1;
+            }
+            if (mimics[size]==null)
+                mimics[size] = deriveFont(baseFont, f.getStyle(), size);
+            c.setFont(mimics[size]);
+        }
     }
 
     public static byte[] interfaceFontSizes;
@@ -243,7 +224,27 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     private static void initInterfaceFonts() {
         if (interfaceFonts==null) {
             codecDone = true;
-            setInterfaceFonts(new Font(FontStyle, Font.PLAIN, 1));
+
+            if (fontDebug) {
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+                String ffns[] = ge.getAvailableFontFamilyNames();
+                Logger.log.println("Font names:");
+                for (int i=0; i<ffns.length; i++)
+                    Logger.log.println(ffns[i]);
+                Logger.log.println();
+
+                Font fs[] = ge.getAllFonts();
+                Logger.log.println("Fonts.getName");
+                for (int i=0; i<fs.length; i++)
+                    Logger.log.println(fs[i].getName());
+                Logger.log.println();
+            }
+
+            if (fontDebug)
+                Logger.log.println("base font "+baseFont);
+
+            setInterfaceFonts(baseFont);
         }
     }
     
@@ -259,7 +260,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         String s = null;
         for (int i=TermFontNum; i<=ProvisoFontNum; i++) {
             Font f = interfaceFonts[i];
-            s = (s==null ? "" : s+sep)+f.getFontName()+","+f.getStyle()+","+f.getSize();
+            s = (s==null ? "" : s+sep)+f.getName()+","+f.getStyle()+","+f.getSize();
         }
         return s;
     }
@@ -335,35 +336,6 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     public static Font getFont(byte fontnum) {
         initInterfaceFonts();
         return interfaceFonts[fontnum];
-    }
-
-    private static String encodingName;
-    
-    public static void setSubstituteFont(String name) throws ProtocolError {
-        if (encodingName==null || !encodingName.equals(name)) {
-            if (codecDone)
-                throw new ProtocolError("too late!");
-            else
-                if (name.equals("Konstanz") || name.equals("Laura")) {
-                    if (Jape.onMacOS) {
-                        substituteFont = new Font(name, Font.PLAIN, 1);
-                        if (substituteFont==null)
-                            throw new ProtocolError("can't open "+name+" Plain 1.0");
-                        setInterfaceFonts(substituteFont);
-                        Reply.sendCOMMAND("setfonts \""+getFontNames("\" \"")+"\"");
-                    }
-                }
-            else
-                throw new ProtocolError("GUI doesn't understand encoding "+name);
-            encodingName = name;
-        }
-    }
-    
-    public static void resetSubstituteFont() {
-        encodingName = null;
-        codecDone = false;
-        interfaceFonts = null;
-        interfaceMetrics = null;
     }
 }
 
