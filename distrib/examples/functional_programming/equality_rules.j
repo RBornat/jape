@@ -28,18 +28,22 @@ INFIX		270L	^
 RULE hyp IS A æ A
 IDENTITY hyp
 
-RULE "= reflexive"		IS 						INFER X = X
-RULE "= transitive"(Y)	IS FROM X = Y AND Y = Z 		INFER X = Z
-RULE "= symmetric"		IS FROM X = Y 				INFER Y = X
-RULE "(,)="			IS FROM X0=X1 AND Y0=Y1	INFER (X0, Y0) = (X1, Y1)
+RULE "= reflexive"			IS 										INFER X = X
+RULE "= transitive"(Y)		IS FROM X = Y AND Y = Z 		INFER X = Z
+RULE "= symmetric"		IS FROM X = Y 						INFER Y = X
+RULE "(,)="					IS FROM X0=X1 AND Y0=Y1	INFER (X0, Y0) = (X1, Y1)
 
 /* The rules of extensionality incorporate a generalization step: hence the FRESH provisos. */
-RULE ext (OBJECT x) WHERE FRESH x 			IS FROM  F x = G x			INFER F = G
-RULE ext2(OBJECT x, OBJECT y) WHERE FRESH x, y	IS FROM  F (x, y) = G (x,y)		INFER F = G
+RULE ext (OBJECT x) WHERE FRESH x 						IS FROM  F x = G x					INFER F = G
+RULE ext2(OBJECT x, OBJECT y) WHERE FRESH x, y		IS FROM  F (x, y) = G (x,y)		INFER F = G
 
  /* use of AA, rather than A, is to help some other rule somewhere, which uses OBJECT A */
 RULE   rewrite (X,ABSTRACTION AA)			IS FROM X=Y AND AA(Y) INFER AA(X)
 RULE   rewritebackwards (Y,ABSTRACTION AA)	IS FROM X=Y AND AA(X) INFER AA(Y)
+
+/* smallstep rewrite rules */
+RULE rewritesmallLR (OBJECT x)			IS FROM X=Y	INFER AA{x\X}=AA{x\Y}
+RULE rewritesmallRL (OBJECT x)			IS FROM X=Y	INFER AA{x\Y}=AA{x\X} /* derivable */
 
 /*
 	Infrastructure for rewriting in an equational theory
