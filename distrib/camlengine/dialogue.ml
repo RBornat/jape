@@ -1092,18 +1092,19 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   let rec showproof =
     function
       Some hist -> Some (ShowProof, hist)
-    | None -> None
+    | None      -> None
   in
   let rec showdisproof =
     function
       Some hist -> Some (ShowDisproof, hist)
-    | None -> None
+    | None      -> None
   in
   let rec showboth =
     function
       Some hist -> Some (ShowBoth, hist)
-    | None -> None
+    | None      -> None
   in
+  
   let rec processcommand
     (env, mbs, (showit : showstate), (pinfs : proofinfo list) as
        thisstate)
@@ -1159,8 +1160,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           default
     in
     
-    let rec disproofstateact act move =
-      inside c
+    let disproofact act move =
+      inside c 
         (fun displaystate ->
            showdisproof <.> 
              (function
@@ -1168,67 +1169,70 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                   let proof = winhist_proofnow hist in
                   let cxt_now = proofstate_cxt proof in
                   let facts_now = facts (provisos cxt_now) cxt_now in
-                  act d &~~
-                  (fun d' ->
-                     Some (move hist (evaldisproofstate facts_now (proofstate_tree proof) d')))
-              | _ ->
-                  raise (Catastrophe_ ["disproof action when no disproof state"])))
+                  act facts_now cxt_now proof d &~~ (fSome <.> move hist)
+              | _ -> raise (Catastrophe_ ["disproof action when no disproof state"])))
+    in
+    
+    let disproofacteval act =
+      disproofact
+        (fun facts_now cxt_now proof d ->
+           act facts_now d &~~ 
+           (fSome <.> evaldisproofstate facts_now (proofstate_tree proof) (Interaction.findDisproofSelections())))
     in
     
     let disproofuniverseact act =
-      disproofstateact
-        (fun d -> (act (disproofstate_universe d) &~~ (fun u -> Some (withdisproofuniverse d u))))
+      disproofacteval
+        (fun facts_now d -> (act facts_now (disproofstate_universe d) &~~ (fun u -> Some (withdisproofuniverse d u))))
     in
     
     let worldlabelact act move cx cy s =
       disproofuniverseact
-        (fun u -> act u (atoi cx, atoi cy) (parseTerm (disQuote s)))
+        (fun facts_now u -> act facts_now u (atoi cx, atoi cy) (parseTerm (disQuote s)))
         move
     in
     
     match c with
-      [] -> default
-      
+      []            -> default
     | word :: words ->
         match lowercase word, words with
           "apply", comm ->
-            let rec nosels tselopt =
-              inside c
-                (fun displaystate ->
-                   showproof <.> 
-                     ((fun hist ->
-                         evolve_proof displaystate env
-                           (nohitcommand displaystate env tselopt comm
-                              finishable)
-                           hist)
-                        ))
-            in
-            begin match pinfs with
-              Pinf {displaystate = displaystate} :: _ ->
-                begin match findSelection displaystate with
-                  Some (FormulaSel fsel) ->
-                    inside c
-                      (fun displaystate ->
-                         showproof <.> 
-                           ((fun here ->
-                               evolve_proof displaystate env
-                                 (pointToSequent displaystate env comm
-                                    fsel)
-                                 here)
-                              ))
-                | Some (TextSel t) -> nosels (Some t)
-                | Some (ReasonSel _) ->
-                    showAlert
-                      ["only reason selection (applying "; respace comm;
-                       ")"];
-                    default
-                | None -> nosels None
-                end
-            | _ ->
-                showAlert
-                  ["no current proof (applying "; respace comm; ")"];
-                default
-            end
+            (let rec nosels tselopt =
+               inside c
+                 (fun displaystate ->
+                    showproof <.> 
+                      ((fun hist ->
+                          evolve_proof displaystate env
+                            (nohitcommand displaystate env tselopt comm
+                               finishable)
+                            hist)
+                         ))
+             in
+             begin match pinfs with
+               Pinf {displaystate = displaystate} :: _ ->
+                 begin match findSelection displaystate with
+                   Some (FormulaSel fsel) ->
+                     inside c
+                       (fun displaystate ->
+                          showproof <.> 
+                            ((fun here ->
+                                evolve_proof displaystate env
+                                  (pointToSequent displaystate env comm
+                                     fsel)
+                                  here)
+                               ))
+                 | Some (TextSel t) -> nosels (Some t)
+                 | Some (ReasonSel _) ->
+                     showAlert
+                       ["only reason selection (applying "; respace comm;
+                        ")"];
+                     default
+                 | None -> nosels None
+                 end
+             | _ ->
+                 showAlert
+                   ["no current proof (applying "; respace comm; ")"];
+                 default
+             end)
 
         | "applygiven", args ->
             processcommand thisstate
@@ -1236,7 +1240,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  parseablenamestring (namefrom !givenMenuTactic) :: args)
 
         | "assign", name :: value ->
-            begin try
+            (try
               let value = parseTactic (respace value) in
               Japeenv.set (env, namefrom name, value);
               resetcaches ();
@@ -1259,8 +1263,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 default
             | ParseError_ rs ->
                 showAlert (["can't parse "; respace value; " -- "] @ rs);
-                default
-            end
+                default)
 
         | "redo_disproof", [] ->
             inside c
@@ -1363,52 +1366,52 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         (* ********************* the disproof commands ************************* *)
 
         | "addworldlabel", [cx; cy; s] ->
-            worldlabelact addworldlabel disproofevolve cx cy s
+            worldlabelact (fun _ -> addworldlabel) disproofevolve cx cy s
 
         | "deleteworldlabel", [cx; cy; s] ->
-            worldlabelact deleteworldlabel disproofevolve cx cy s
+            worldlabelact (fun _ -> deleteworldlabel) disproofevolve cx cy s
 
         | "tileact", [s] ->
-            disproofstateact (fun d -> Disproof.newtile d (parseTerm (disQuote s))) disproofmove
+            disproofacteval (fun _ d -> Disproof.newtile d (parseTerm (disQuote s))) disproofmove
 
         | "addworld", [px; py; cx; cy] ->
             disproofuniverseact
-              (fun u -> Disproof.addchild u (atoi px, atoi py) (atoi cx, atoi cy))
+              (fun _ u -> Disproof.addchild u (atoi px, atoi py) (atoi cx, atoi cy))
               disproofevolve
 
         | "addworldtolink", [px; py; cx; cy; lpx; lpy; lcx; lcy] ->
             disproofuniverseact
-              (fun u -> Disproof.addchildtolink u (atoi px, atoi py) (atoi cx, atoi cy)
+              (fun _ u -> Disproof.addchildtolink u (atoi px, atoi py) (atoi cx, atoi cy)
                                                   (atoi lpx, atoi lpy) (atoi lcx, atoi lcy))
               disproofevolve
 
         | "deleteworldlink", [fromx; fromy; tox; toy] ->
             disproofuniverseact
-              (fun u -> Disproof.deletelink u (atoi fromx, atoi fromy) (atoi tox, atoi toy))
+              (fun _ u -> Disproof.deletelink u (atoi fromx, atoi fromy) (atoi tox, atoi toy))
               disproofevolve
 
         | "deleteworld", [cx; cy] ->
-            disproofstateact (fun d -> Disproof.deleteworld d (atoi cx, atoi cy))
+            disproofacteval (fun _ d -> Disproof.deleteworld d (atoi cx, atoi cy))
             disproofevolve
 
         | "moveworld", [x; y; x'; y'] ->
-            disproofstateact
-              (fun d -> Disproof.moveworld d (atoi x, atoi y) (atoi x', atoi y'))
+            disproofacteval
+              (fun _ d -> Disproof.moveworld d (atoi x, atoi y) (atoi x', atoi y'))
               disproofmove
 
         | "moveworldtolink", [x; y; x'; y'; px; py; cx; cy] ->
-            disproofstateact
-              (fun d -> Disproof.moveworldtolink d (atoi x, atoi y) (atoi x', atoi y')
+            disproofacteval
+              (fun _ d -> Disproof.moveworldtolink d (atoi x, atoi y) (atoi x', atoi y')
                                                    (atoi px, atoi py) (atoi cx, atoi cy))
               disproofevolve
         | "splitworldlink", [fromx; fromy; tox; toy; newx; newy] ->
             disproofuniverseact
-              (fun u -> Disproof.splitlink u (atoi fromx, atoi fromy) (atoi tox, atoi toy) (atoi newx, atoi newy))
+              (fun _ u -> Disproof.splitlink u (atoi fromx, atoi fromy) (atoi tox, atoi toy) (atoi newx, atoi newy))
               disproofevolve
               
         | "worldselect", cs ->
-            disproofstateact
-              (fun d ->
+            disproofacteval
+              (fun _ d ->
                  let rec pair =
                    function
                      cx :: cy :: cs -> (atoi cx, atoi cy) :: pair cs
@@ -1420,6 +1423,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  Disproof.worldselect d (pair cs))
              disproofmove
 
+        | "disproof_selection_change", [] ->
+            disproofact
+              (fun facts _ _ d ->
+                 Some(Disproof.tint_universe facts (Interaction.findDisproofSelections()) d))
+              disproofmove (* for now *) 
+               
         | "disprove", [] ->
             inside c
               (fun displaystate ->
@@ -1436,7 +1445,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                          | Some state ->
                              let seq = disproofstate_seq state in
                              if eqseqs (seq, seq') then
-                               if isemptyworld (disproofstate_universe state)
+                               if issimplestuniverse (disproofstate_universe state)
                                then
                                  (showAlert ["You are already disproving "; seqstring seq];
                                   None)
