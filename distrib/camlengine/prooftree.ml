@@ -204,7 +204,7 @@ module Tree : Tree with type term = Termtype.term
     open Stringfuns
     open Tactictype
     open Tactic
-    open Term.Funs
+    open Termfuns
     open Termstore
     open Termstring
     open Termtype

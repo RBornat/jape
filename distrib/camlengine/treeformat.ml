@@ -65,18 +65,18 @@ module type Fmt =
   end
 
 module Fmt : Fmt with type treelayout = Treelayout.treelayout
-                  and type term = Term.Funs.term
+                  and type term = Termtype.term
 =
   struct
     open Listfuns
     open Optionfuns
     open Sml
     open Stringfuns
-    open Term.Funs
+    open Termfuns
     open Treelayout
     
     type treelayout = Treelayout.treelayout
-     and term = Term.Funs.term
+     and term = Termtype.term
     
     (* the complexity of this datatype, and the shenanigans relating to its translation, are all due to 
      * the need to have a simple interpretation of double-clicking on a reason.  Essentially, we have

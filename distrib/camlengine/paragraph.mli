@@ -20,11 +20,11 @@
 
 *)
 
-open Term.Funs
+open Termtype
 open Sequent.Funs
 open Proviso
 open Paraparam
-open Tactic
+open Tactictype
 open Menu
 open Panelkind
 open Doubleclick

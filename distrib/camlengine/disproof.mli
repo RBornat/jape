@@ -20,7 +20,7 @@
 
 *)
 
-open Term.Funs
+open Termtype
 open Facts
 open Prooftree.Tree.Fmttree
 open Sequent.Funs

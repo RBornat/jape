@@ -50,9 +50,9 @@ let parseablenamestring = Name.parseablenamestring
 let proofstage2word = Proofstage.proofstage2word
 let provisostring = Proviso.provisostring
 let provisovars =
-  Proviso.provisovars Term.Funs.termvars Term.Funs.tmerge
+  Proviso.provisovars Termfuns.termvars Termfuns.tmerge
 let seqstring = Sequent.Funs.seqstring
-let seqvars = Sequent.Funs.seqvars Term.Funs.termvars Term.Funs.tmerge
+let seqvars = Sequent.Funs.seqvars Termfuns.termvars Termfuns.tmerge
 let setfontstuff = Button.setfontstuff
 let setmenuentry = Japeserver.menuentry
 (* let setpanelbutton = Japeserver.setpanelbutton *)
@@ -60,7 +60,7 @@ let tacticstring = Tactic.tacticstring
 let termstring = Termstring.termstring
 let thawsaved = Proofstore.thawsaved
 let tickmenuitem = Japeserver.tickmenuitem
-let tmerge = Term.Funs.tmerge
+let tmerge = Termfuns.tmerge
 let uncurry2 = Miscellaneous.uncurry2
 let disQuote = Stringfuns.disQuote
 let _VALFROM = Termparse.asTactic Termparse.term_of_string

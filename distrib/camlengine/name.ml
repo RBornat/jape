@@ -26,12 +26,12 @@ open Miscellaneous
 open Stringfuns
 open Symbol 
 open Symboltype 
-open Term.Funs
+open Termfuns
 open Termtype 
 open Termparse
 
 type name = Nametype.name
- and term = Term.Funs.term
+ and term = Termtype.term
 
 let namestring (Name s) = s
 let nameorder (Name s1) (Name s2) = s1 < s2

@@ -20,8 +20,8 @@
 
 *)
 
-open Term.Funs
 open Symbol
+open Termtype
 
 val check : symbol -> unit
 val ignore : symbol -> unit

@@ -28,8 +28,8 @@ open Prooftree.Tree.Vistree
 open Sml
 
 let commasymbol       = Symbol.commasymbol
-let debracket         = Term.Funs.debracket
-let explodeCollection = Term.Funs.explodeCollection
+let debracket         = Termfuns.debracket
+let explodeCollection = Termfuns.explodeCollection
 let isstructurerule   = Thing.isstructurerule
 let proved            = Proofstore.proved
 let seqexplode        = Sequent.Funs.seqexplode
@@ -39,9 +39,9 @@ type structurerule = Thing.structurerule
  and tree          = Prooftree.Tree.Vistree.prooftree
  and sequent       = Sequent.Funs.seq
  and reason        = string
- and element       = Term.Funs.element
+ and element       = Termtype.element
  and text          = Text.text
- and term          = Term.Funs.term
+ and term          = Termtype.term
  and font          = Displayfont.displayfont
 
 let sequent = Vistree.sequent

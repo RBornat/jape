@@ -40,7 +40,7 @@ open Predicate
 open Seqdraw
 open Sequent.Funs
 open Sml
-open Term.Funs
+open Termfuns
 open Termstore
 open Termstring
 

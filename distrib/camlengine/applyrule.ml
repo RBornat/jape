@@ -44,7 +44,7 @@ open Sml
 open Sequent.Funs
 open Sequent.Type
 open Stringfuns
-open Term.Funs
+open Termfuns
 open Termstore
 open Termstring
 open Termtype

@@ -27,7 +27,7 @@ open Tactic
 open Optionfuns
 
 type seq = Sequent.Funs.seq 
- and tactic = Tactic.tactic 
+ and tactic = Tactictype.tactic 
  and term = Sequent.Funs.term
 
 let seqmatch = seqmatch false

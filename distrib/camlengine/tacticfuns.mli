@@ -22,11 +22,11 @@
 
 open Prooftree.Tree.Fmttree
 open Proofstate
-open Tactic
+open Tactictype
 open Japeenv
 open Displaystate
 open Name
-open Term.Funs
+open Termtype
 open Hit
 
 val forceUnify : term list -> proofstate -> proofstate option

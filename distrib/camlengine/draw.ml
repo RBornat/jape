@@ -30,8 +30,8 @@ open Text
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 
-type term       = Term.Funs.term
- and element    = Term.Funs.element
+type term       = Termtype.term
+ and element    = Termtype.element
  and reason     = Absprooftree.reason
  and textlayout = Text.textlayout
  and text       = Text.text

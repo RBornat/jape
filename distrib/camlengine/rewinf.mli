@@ -20,7 +20,7 @@
 
 *)
 
-open Term.Funs
+open Termtype
 
 type rewinf
 

@@ -23,8 +23,10 @@
 open Match
 open Optionfuns
 open Stringfuns
-open Term.Funs
+open Termfuns
 open Termstring
+
+type term = Termtype.term
 
 type treelayout =
     HideRootLayout

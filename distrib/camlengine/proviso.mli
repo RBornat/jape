@@ -20,7 +20,7 @@
 
 *)
 
-open Term.Funs
+open Termtype
 open Provisotype
 
 type proviso = Provisotype.proviso

@@ -20,7 +20,7 @@
 
 *)
 
-type term = Term.Funs.term
+type term = Termtype.term
 
 val bindingstructure :
   term -> ((term list * term list * term list) * (term * (int * int)) list * term) option

@@ -36,7 +36,7 @@ open Sequent.Funs
 open Sml
 open Symbol
 open Symboltype
-open Term.Funs
+open Termfuns
 open Termstring
 open Termparse
 open Usefile

@@ -25,7 +25,7 @@ open Listfuns
 open Mappingfuns
 open Optionfuns 
 open Termtype
-open Term.Funs
+open Termfuns
 open Termstring
 open Termstore 
 open Idclass

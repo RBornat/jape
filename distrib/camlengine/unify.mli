@@ -20,7 +20,7 @@
 
 *)
 
-open Term.Funs
+open Termtype
 open Context.Cxt
 
 val unifyterms : term * term -> cxt -> cxt option

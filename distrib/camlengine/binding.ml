@@ -26,10 +26,10 @@ open Match
 open Miscellaneous
 open Optionfuns
 open Stringfuns
-open Term.Funs
+open Termfuns
 open Termstring
 
-type term = Term.Funs.term
+type term = Termtype.term
 
 let bindingdebug = ref false
 type bindingdirective = term list * term list * term list * term

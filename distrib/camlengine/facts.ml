@@ -32,7 +32,7 @@ open Proviso
 open Rewinf
 open Stringfuns
 open Symbol
-open Term.Funs 
+open Termfuns 
 open Termstring
 open Termtype
 

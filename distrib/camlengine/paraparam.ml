@@ -22,12 +22,15 @@
 
 open Listfuns
 open Symbol
-open Term.Funs
+open Termfuns
 open Termstore
 
-type paraparam = Objectparam of (vid * idclass)
-               | Ordinaryparam of (vid * idclass)
-               | Unknownparam of (vid * idclass)
+type vid = Termtype.vid
+ and idclass = Idclass.idclass
+
+type paraparam = Objectparam      of (vid * idclass)
+               | Ordinaryparam    of (vid * idclass)
+               | Unknownparam     of (vid * idclass)
                | Abstractionparam of (vid * idclass)
 
 (* ABSTRACTION P *) (*huh?*)

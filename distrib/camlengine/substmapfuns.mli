@@ -22,7 +22,7 @@
 
 open Answer
 open Facts
-open Term.Funs
+open Termtype
  
 (* Oh at this point I wish for a type which distinguishes
    variables from terms.  Even though it might be a pain everywhere

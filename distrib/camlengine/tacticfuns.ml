@@ -54,7 +54,7 @@ open Sml
 open Stringfuns
 open Tactic
 open Tactictype
-open Term.Funs
+open Termfuns
 open Termstore
 open Termstring
 open Termtype

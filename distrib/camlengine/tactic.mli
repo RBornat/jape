@@ -20,12 +20,10 @@
 
 *)
 
-open Tactictype
 open Mappingfuns
 open Name
-open Term.Funs
-
-type tactic = Tactictype.tactic
+open Termtype
+open Tactictype
 
 val tacname : term -> name
 (* or raise ParseError_ *)

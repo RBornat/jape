@@ -38,7 +38,7 @@ open Sequent.Type
 open Sml
 open Stringfuns
 open Substmapfuns
-open Term.Funs
+open Termfuns
 open Termstore
 open Termstring
 open Termtype

@@ -27,7 +27,7 @@ open Miscellaneous
 open Sml
 open Symbol
 open Symboltype 
-open Term.Funs 
+open Termfuns 
 open Termstore
 open Termstring
 open Termtype

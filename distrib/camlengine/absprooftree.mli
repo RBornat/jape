@@ -26,8 +26,8 @@ and font = Displayfont.displayfont
 and sequent = Sequent.Funs.seq
 and reason
 and text = Text.text
-and term = Term.Funs.term
-and element = Term.Funs.element
+and term = Termtype.term
+and element = Termtype.element
 
 val allTipConcs : tree -> int list -> (int list * element list) list
 val comma : unit -> text

@@ -20,9 +20,9 @@
 
 *)
 
-type seq = Sequent.Funs.seq
-and tactic = Tactic.tactic
-and term = Sequent.Funs.term
+type seq   = Sequent.Type.seq
+and tactic = Tactictype.tactic
+and term   = Termtype.term
 
 type dclick = DClickHyp | DClickConc
 

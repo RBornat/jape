@@ -20,7 +20,7 @@
 
 *)
 
-open Term.Funs
+open Termtype
 open Context.Cxt
 
 val _Oracle : string -> cxt -> term -> term -> string -> string list -> cxt option

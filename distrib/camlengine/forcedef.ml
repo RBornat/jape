@@ -28,7 +28,7 @@ open Sequent.Funs
 open Stringfuns
 open Symbol
 open Symboltype
-open Term.Funs
+open Termfuns
 open Termstring
 open Termparse
     

@@ -20,7 +20,7 @@
 
 *)
 
-open Term.Funs 
+open Termtype
 
 val compilepredicate :
   (term -> bool) -> (term -> term list option) -> term -> term option

@@ -24,7 +24,7 @@ open Listfuns
 open Mappingfuns
 open Optionfuns
 open Answer
-open Term.Funs
+open Termfuns
 open Proviso
 open Facts
 open Sml

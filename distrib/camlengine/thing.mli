@@ -20,12 +20,12 @@
 
 *)
 
-open Term.Funs
+open Termtype
 open Name
 open Paraparam
 open Proviso
 open Sequent.Funs
-open Tactic 
+open Tactictype 
 open Context.Cxt
 open Mappingfuns
 

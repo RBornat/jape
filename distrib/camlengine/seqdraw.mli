@@ -24,7 +24,7 @@ open Box
 open Displayclass
 open Draw
 open Sequent.Funs
-open Term.Funs
+open Termtype
 
 type planclass =
   ElementClass of (element * displayclass) | PunctClass | ReasonClass

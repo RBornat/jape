@@ -80,7 +80,7 @@ module type Rew =
 *)
 
 module Rew : Rew with type cxt = Context.Cxt.cxt 
-                  and type term = Term.Funs.term 
+                  and type term = Termtype.term 
                   and type seq = Sequent.Type.seq
                   and type rewinf = Rewinf.rewinf
                   and type proviso = Proviso.proviso
@@ -107,13 +107,13 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
     open Sequent.Funs
     open Sml
     open Substmapfuns
-    open Term.Funs
+    open Termfuns
     open Termstore
     open Termstring
     open Termtype
     
     type cxt = Context.Cxt.cxt 
-     and term = Term.Funs.term 
+     and term = Termtype.term 
      and seq = Sequent.Type.seq
      and rewinf = Rewinf.rewinf
      and proviso = Proviso.proviso
@@ -430,18 +430,13 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
                       let rec sv1 (s, stuff) =
                         bmerge (seqvars varbindings bmerge s) stuff
                       in
-                      let stuff =
-                        nj_fold sv1 ss (bmerge hbindings cbindings)
+                      let stuff = nj_fold sv1 ss (bmerge hbindings cbindings) in
+                      let ps = optionfilter
+                                 ((function NotinProviso p -> Some p
+                                   | _                     -> None) <.> provisoactual)
+                                 (provisos cxt)
                       in
-                      let ps =
-                        optionfilter
-                          (
-                             (function
-                                NotinProviso p -> Some p
-                              | _ -> None) <.> provisoactual)
-                          (provisos cxt)
-                      in
-                      let (fvs, m) = freevarsfrombindings stuff ps in
+                      let (fvs, m)   = freevarsfrombindings stuff ps in
                       let (bhfvs, _) = freevarsfrombindings hbindings ps in
                       let (bcfvs, _) = freevarsfrombindings cbindings ps in
                       Some {avs=avs; fvs=fvs; vmap=mkmap m; bhfvs=bhfvs; bcfvs=bcfvs}

@@ -20,10 +20,10 @@
 
 *)
 
-open Term.Funs
+open Termtype
 open Sequent.Funs
 open Context.Cxt
-open Tactic
+open Tactictype
 open Prooftree.Tree.Fmttree
  
 type prooftree = Prooftree.Tree.Fmttree.prooftree

@@ -21,7 +21,7 @@
 *)
 
 open Context.Cxt
-open Term.Funs
+open Termtype
 open Proviso
 open Mappingfuns
 

@@ -20,7 +20,7 @@
 
 *)
 
-open Term.Funs
+open Termtype
 open Mappingfuns
 
 (* everything you can say in a LAYOUT tactic *)

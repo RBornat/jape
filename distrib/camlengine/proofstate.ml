@@ -32,7 +32,7 @@ open Rewrite.Funs
 open Sequent.Funs
 open Sml
 open Stringfuns
-open Term.Funs
+open Termfuns
 open Thing
 open Treeformat.Fmt
 
@@ -127,7 +127,7 @@ let rewriteproofstate (Proofstate {cxt = cxt; tree = tree; givens = givens} as s
   let (cxt, tree, _) = rewriteProoftree givens true cxt tree in
   withtree (withcxt state cxt) tree
 
-let autorulelist : (bool * Tactic.tactic) list ref = ref []
+let autorulelist : (bool * Tactictype.tactic) list ref = ref []
 
 let autorules () = !autorulelist
 

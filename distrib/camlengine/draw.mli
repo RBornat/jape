@@ -30,8 +30,8 @@ and box = Box.box
 and textbox = Box.textbox
 and font = Text.font
 and displayclass = Displayclass.displayclass
-and element = Term.Funs.element
-and term = Term.Funs.term
+and element = Termtype.element
+and term = Termtype.term
 and reason = Absprooftree.reason
 
 type 'a plan = Formulaplan of (textlayout * textbox * 'a)

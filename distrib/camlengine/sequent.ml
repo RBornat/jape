@@ -92,7 +92,7 @@ module Funs:  Funs with type seq = Type.seq
     open Sml
     open Symbol
     open Symboltype
-    open Term.Funs
+    open Termfuns
     open Termstore
     open Termstring
     open Termtype

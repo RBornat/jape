@@ -28,7 +28,7 @@ open Idclass
 open Idclassfuns
 open Termtype
 open Termstring
-open Term.Funs
+open Termfuns
 open Termstore
 open Binding
 open Optionfuns

@@ -24,7 +24,7 @@ open Idclass
 open Termtype
 open Termstore
 open Termstring
-open Term.Funs
+open Termfuns
 open Listfuns
 open Miscellaneous
 open Stringfuns

@@ -27,7 +27,7 @@
 
 open Name
 open Sequent.Funs
-open Term.Funs
+open Termfuns
 open Treelayout
  
 type tactic =

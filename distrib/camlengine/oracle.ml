@@ -28,8 +28,8 @@ open Stringfuns
 
 let atoi                   = Miscellaneous.atoi
 let consolereport          = Miscellaneous.consolereport
-let explodeCollection      = Term.Funs.explodeCollection
-let isemptycollection      = Term.Funs.isemptycollection
+let explodeCollection      = Termfuns.explodeCollection
+let isemptycollection      = Termfuns.isemptycollection
 let getfontstuff           = Button.getfontstuff
 let setReason              = Reason.setReason
 let termstring             = Termstring.termstring

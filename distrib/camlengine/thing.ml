@@ -40,12 +40,13 @@ open Sml
 open Stringfuns
 open Symbol
 open Tactic
-open Term.Funs
+open Termfuns
 open Termstring
 open Termtype
 open Termstore
 open Termparse
 
+type tactic = Tactictype.tactic
 
 let thingdebug = ref false
 

@@ -98,7 +98,7 @@ let createdbugfile = Miscellaneous.create_reportfile
 *)
 
 let elementstring = Termstring.elementstring
-let explodeCollection = Term.Funs.explodeCollection
+let explodeCollection = Termfuns.explodeCollection
 let facts = Facts.facts
 let get_oplist = Symbol.get_oplist
 let findfirst = Optionfuns.findfirst
@@ -132,7 +132,7 @@ let proofsdone = Runproof.proofsdone
 let provisoactual = Proviso.provisoactual
 let provisostring = Proviso.provisostring
 let provisovisible = Proviso.provisovisible
-let sameresource = Term.Funs.sameresource
+let sameresource = Termfuns.sameresource
 let seektipselection = Miscellaneous.seektipselection
 let showInputError = Symbol.showInputError
 let string2paragraph = Paragraph.string2paragraph
@@ -182,7 +182,7 @@ let pairs =
    "debracketapplications", bj                         false        Termstring.debracketapplications;
    "displaystyle"         , jv ["box"; "tree"]         "tree"       (Interaction.setdisplaystyle, Interaction.getdisplaystyle);
    "disproofdebug"        , bj                         false        Disproof.disproofdebug;
-   "eqalphadebug"         , bj                         false        Term.Funs.eqalphadebug;
+   "eqalphadebug"         , bj                         false        Termfuns.eqalphadebug;
    "factsdebug"           , bj                         false        Facts.factsdebug;
    "filteredfmt"          , ajd                                     Prooftree.Tree.filteredfmt;
    "FINDdebug"            , bj                         false        Tacticfuns._FINDdebug;
@@ -227,7 +227,7 @@ let pairs =
    "tryresolution"        , bj                         true         Tacticfuns.tryresolution;
    "unfilteredfmt"        , ajd                                     Prooftree.Tree.unfilteredfmt;
    "unifydebug"           , bj                         false        Unify.unifydebug;
-   "varbindingsdebug"     , bj                         false        Term.Funs.varbindingsdebug]
+   "varbindingsdebug"     , bj                         false        Termfuns.varbindingsdebug]
 in
 let rec bjnr r () = bj !r r
 

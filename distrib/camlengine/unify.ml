@@ -68,7 +68,7 @@ open Sml
 open Stringfuns
 open Substmapfuns
 open Symbol
-open Term.Funs
+open Termfuns
 open Termstore
 open Termtype
 open Termstring

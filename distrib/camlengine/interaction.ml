@@ -71,7 +71,7 @@ let optionstring = Optionfuns.optionstring
 
 let provisos = Context.Cxt.provisos
 
-let replaceelement = Term.Funs.replaceelement
+let replaceelement = Termfuns.replaceelement
 
 let rewritecxt = Rewrite.Funs.rewritecxt
 

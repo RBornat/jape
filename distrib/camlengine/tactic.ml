@@ -41,7 +41,7 @@ open Optionfuns
 open Sml
 open Sequent.Funs
 open Stringfuns
-open Term.Funs
+open Termfuns
 open Termstring
 open Termtype
 open Termstore

@@ -25,7 +25,7 @@
  * RB
  *)
 
-open Term.Funs
+open Termtype
 
 type proviso = FreshProviso of (bool * bool * bool * term)
              | UnifiesProviso of (term * term)
