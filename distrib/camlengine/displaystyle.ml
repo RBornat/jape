@@ -55,7 +55,7 @@ module F
     let screenpositiondebug = Miscellaneous.screenpositiondebug
     let string_of_textbox = Box.string_of_textbox
     let tranhitpath = Hit.tranhitpath
-    let try__ = Optionfuns.try__
+    let optf = Optionfuns.optf
     let vispath = Prooftree.Tree.pathtoviewpath
     let visproof = Prooftree.Tree.visproof Proofstore.proved
     let showallproofsteps = Prooftree.Tree.showallproofsteps
@@ -66,7 +66,7 @@ module F
     let rec deVis = fun (VisPath ns) -> ns
 
     let ministate =
-      try__
+      optf
         (fun (proof, pos, vgoal, vproof, plan, showall, hideuseless) ->
            pos, abstracttree vproof, plan)
     let rec vpath showall proof popt = popt &~~ vispath showall proof
@@ -99,7 +99,7 @@ module F
       in
       f tr
     let rec locateHit state pos classopt hitkind =
-      try__ (fmtpath_of_ints tranhitpath state)
+      optf (fmtpath_of_ints tranhitpath state)
         (ministate state &~~ AAA.Screendraw.locateHit pos classopt hitkind)
     let rec notifyselect state selopt sels =
       match ministate state with
@@ -107,7 +107,7 @@ module F
       | _ -> ()
     let rec saveanddraw proof pos vgoal vproof plan =
       clearView ();
-      draw (try__ deVis vgoal) pos (abstracttree vproof) plan;
+      draw (optf deVis vgoal) pos (abstracttree vproof) plan;
       screendrawstate
         (Some
            (proof, pos, vgoal, vproof, plan, !showallproofsteps,
@@ -131,6 +131,10 @@ module F
        * sequent; in boxdraw, the position of the last line - and draw things so that 
        * the characteristic position doesn't shift.
        *)
+      (* But this isn't enough when refreshing the display if the window size is 
+       * stretched -- we need to know what's visible. In general we need that information
+       * anyway.
+       *)
       let vproof = visproof !showallproofsteps !hideuselesscuts proof in
       let vgoal = vpath !showallproofsteps proof goal in
       let plan = layout (abstracttree vproof) in
@@ -138,15 +142,13 @@ module F
         consolereport
           ["looking for "; string_of_option Prooftree.Tree.Fmttree.string_of_path goal;
            " (in visible proof that's "; string_of_option string_of_path vgoal;
-           ")"; " target "; string_of_option Prooftree.Tree.Fmttree.string_of_path target];
+           ")"; " target="; string_of_option Prooftree.Tree.Fmttree.string_of_path target];
       match oldstate with
         None ->
           if !screenpositiondebug then
             consolereport ["showProof calls refresh, no old state"];
           refresh proof vgoal vproof plan
-      | Some
-          (oldproof, oldpos, _, oldvproof, oldplan, oldshowall,
-           oldhideuseless) ->
+      | Some (oldproof, oldpos, _, oldvproof, oldplan, oldshowall, oldhideuseless) ->
           let rec doit oldpoint newpoint =
             if !screenpositiondebug then
               consolereport
@@ -156,20 +158,24 @@ module F
           in
           let rec findtarget target =
             if !screenpositiondebug then
-              consolereport ["tracking "; string_of_option Prooftree.Tree.Fmttree.string_of_path target];
+              consolereport ["tracking "; 
+                string_of_option Prooftree.Tree.Fmttree.string_of_path target];
             match
               vpath oldshowall oldproof target,
               vpath !showallproofsteps proof target
             with
               (Some _ as oldpath), (Some _ as path) ->
+                if !screenpositiondebug then
+                  consolereport ["found oldpath="; string_of_option Prooftree.Tree.Vistree.string_of_path oldpath;
+                    "; path="; string_of_option Prooftree.Tree.Vistree.string_of_path oldpath];
                 begin match
-                  targetbox (try__ deVis oldpath) oldplan,
-                  targetbox (try__ deVis path) plan
+                  targetbox (optf deVis oldpath) oldplan,
+                  targetbox (optf deVis path) plan
                 with
                   Some oldbox, Some box -> doit (tbPos oldbox) (tbPos box)
-                | _ -> retry target
+                | _                     -> retry target
                 end
-            | _ ->(* one of the boxes wasn't there *)
+            | _ ->  (* one of the boxes wasn't there *)
                retry target
           and retry =
             function
@@ -178,17 +184,18 @@ module F
                   try Some (parentPath proof targetpath) with
                     _ -> None
                 with
-                  None -> doit (rootpos oldplan) (rootpos plan)
+                  None      -> doit (rootpos oldplan) (rootpos plan)
                 | newtarget -> findtarget newtarget
                 end
             | None -> findtarget (Some (rootPath proof))
           in
           findtarget target
+    
     and printProof str proof target goal =
       let vproof = visproof !showallproofsteps !hideuselesscuts proof in
       let vgoal = vpath !showallproofsteps proof goal in
       let plan = layout (abstracttree vproof) in
-      AAA.Screendraw.print str (try__ deVis vgoal) origin (abstracttree vproof)
+      AAA.Screendraw.print str (optf deVis vgoal) origin (abstracttree vproof)
         plan
     and showFocussedProof proof goal =
       (* for use when we change styles.
@@ -197,7 +204,7 @@ module F
       let vproof = visproof !showallproofsteps !hideuselesscuts proof in
       let vgoal = vpath !showallproofsteps proof goal in
       let plan = layout (abstracttree vproof) in
-      match targetbox (try__ deVis vgoal) plan with
+      match targetbox (optf deVis vgoal) plan with
         Some box ->
           saveanddraw proof (postoinclude (box_of_textbox box) plan) vgoal vproof
             plan
@@ -207,9 +214,9 @@ module F
       match state with
         None -> ()
       | Some (proof, pos, vgoal, vproof, plan, showall, hideuseless) ->
-          draw (try__ deVis vgoal) pos (abstracttree vproof) plan
+          draw (optf deVis vgoal) pos (abstracttree vproof) plan
     and storedProof state () =
-      try__ (fun (proof, _, _, _, _, _, _) -> proof) state
+      optf (fun (proof, _, _, _, _, _, _) -> proof) state
     and screendrawstate state =
       DisplayState
         {showProof = showProof state; showFocussedProof = showFocussedProof;
