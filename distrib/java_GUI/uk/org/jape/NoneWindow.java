@@ -46,62 +46,9 @@ public class NoneWindow extends JFrame implements ActionListener {
         }
     }
 
-    private class KViewport extends JViewport {
-        KViewport() {
-            super();
-        }
-        private void paintView(Graphics g) {
-            System.err.println("in paintView: position="+getViewPosition()+"; g="+g);
-            Rectangle r = g.getClipBounds();
-            g.setClip(r.x, r.y, r.width, r.height);
-            JComponent view = (JComponent)getView();
-            int x = view.getX();
-            int y = view.getY();
-            System.err.println("view is "+view+"; panel is "+panel);
-            System.err.println("view has bounds "+view.getBounds());
-            g.translate(x, y);
-            if (view.getWidth() < r.width)  {
-                System.err.println("filling in background 0,0,"+r.width+","+r.height);
-                g.setColor(getBackground());
-                g.fillRect(0, 0, r.width, r.height);
-            }
-            view.paint(g);
-            g.translate(-x, -y); // needed !!
-        /*
-            Rectangle r = g.getClipBounds();
-            RepaintManager rm = RepaintManager.currentManager(this);
-            boolean dblbEnable = false;//rm.isDoubleBufferingEnabled();BURKEY JCK COMPLIANCE BUT IGNORE isDoubleBufferingEnabled
-            JComponent view = (JComponent) getView();
-            r.x -= view.getX();
-            r.y -= view.getY();
-            Image off = rm.getOffscreenBuffer(this,r.width,r.height);
-            Graphics og = off.getGraphics();
-            if (view.getWidth() < r.width)
-            {
-                og.setColor(getBackground());
-                og.fillRect(0, 0, r.width, r.height);
-            }
-            og.translate(-r.x,-r.y);
-            og.setClip(r.x,r.y,r.width,r.height);
-            rm.setDoubleBufferingEnabled(false);
-            view.paint(og);
-            if (dblbEnable)
-            {
-                rm.setDoubleBufferingEnabled(true);
-            }
-            g.drawImage(off,r.x + view.getX(),r.y + view.getY(),null);
-            og.dispose();
-            */
-        }
-
-        public void paint(Graphics g) {
-            paintView(g);
-            // super.paint(g);
-        }
-    }
 
     private JScrollablePanel panel;
-    private JScrollPane scrollPane;
+    private KScrollPane scrollPane;
 
     public NoneWindow() {
         panel = new JScrollablePanel();
@@ -122,9 +69,9 @@ public class NoneWindow extends JFrame implements ActionListener {
         KViewport kv = new KViewport();
         kv.setView(panel);
         
-        scrollPane = new JScrollPane();
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane = new KScrollPane();
+        scrollPane.setVerticalScrollBarPolicy(KScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(KScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setViewport(kv);
         
         getContentPane().add(scrollPane);
