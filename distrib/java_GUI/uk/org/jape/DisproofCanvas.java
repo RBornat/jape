@@ -70,7 +70,7 @@ public class DisproofCanvas extends JapeCanvas {
 
     public void setSequentBox(int width, int ascent, int descent) {
         removeAll(); // seems to be necessary
-        setOrigin(0, -ascent);
+        setOrigin(-getSelectionGap()-linethickness, -getSelectionGap()-linethickness-ascent);
     }
 
     public Dimension getPreferredSize() {
