@@ -282,7 +282,7 @@ let rec settextselectionmode m =
 let rec drawLine pos1 pos2 =
   let (x1, y1) = explodePos pos1 in
   let (x2, y2) = explodePos pos2 in
-  writef "DRAWLINE % % % %\n" (List.map fInt [!linethickness; x1; y1; x2; y2])
+  writef "DRAWLINE % % % %\n" (List.map fInt [x1; y1; x2; y2])
 
 let rec drawRect box =
   let (pos, size) = explodeBox box in
@@ -394,7 +394,26 @@ let rec menuseparator (menu : string) =
 let rec setmenuentryequiv (menu, label, key) : unit =
   writef "MENUITEMEQUIV % \"%\" \"%\"\n" [Str menu; Str label; Str key]
 
-let rec makemenusVisible () =(*if !menusVisible then () else *)  writef "MAKEMENUSVISIBLE\n" []
+let rec menucheckbox menu label cmd =
+  writef "MENUCHECKBOX % % %\n" [Str menu; Str label; Str cmd]
+
+let rec menuradiobutton menu lcs =
+  writef "MENURADIOBUTTON\n" [];
+  List.iter
+    (fun (label, cmd) ->
+       writef "MENURADIOBUTTONPART % %\n" [Str label; Str cmd])
+    lcs;
+  writef "MENURADIOBUTTONEND %\n" [Str menu]
+
+let rec tickmenuitem menu label b =
+  writef "TICKMENUITEM % % %\n"
+    [Str menu; Str label; Bool b]
+
+let rec enablemenuitem menu label state =
+  writef "ENABLEMENUITEM % \"%\" \"%\"\n" [Str menu; Str label; Bool state]
+
+let rec makemenusVisible () =
+  (* if !menusVisible then () else *) writef "MAKEMENUSVISIBLE\n" []
 
 (*  mapmenus true  is called when menu construction is finished *)
 (*  mapmenus false is called as menu construction starts *)
@@ -402,12 +421,6 @@ let rec mapmenus =
   function
     true -> makemenusVisible ()
   | false -> ()
-
-let rec enablemenuitem (menu, label, state) =
-  writef "ENABLEMENUITEM % \"%\" \"%\"\n" [Str menu; Str label; Bool state]
-
-let rec tickmenuentry (menu, label, state) =
-  writef "TICKMENUENTRY % \"%\" %\n" [Str menu; Str label; Bool state]
 
 open Panelkind
 
@@ -659,21 +672,6 @@ let rec setdisproofworlds selected worlds =
          children)
     worlds;
   writef "DISPROOFWORLDSEND\n" []
-
-let rec menucheckbox (menu, label, cmd) =
-  writef "MENUCHECKBOX % % %\n" [Str menu; Str label; Str cmd]
-
-let rec menuradiobutton (menu, lcs) =
-  writef "MENURADIOBUTTON\n" [];
-  List.iter
-    (fun (label, cmd) ->
-       writef "MENURADIOBUTTONPART % %\n" [Str label; Str cmd])
-    lcs;
-  writef "MENURADIOBUTTONEND %\n" [Str menu]
-
-let rec tickmenuitem (menu, label, b) =
-  writef "TICKMENUITEM % % %\n"
-    [Str menu; Str label; Bool b]
 
 exception GetPaneGeometry_ of string
 
