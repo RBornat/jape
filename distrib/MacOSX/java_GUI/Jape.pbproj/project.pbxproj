@@ -64,15 +64,14 @@
 				F5152720037BB90501A80116,
 				F516FFB3031F822901A80117,
 				F515B61A0332012801A80116,
-				F515B60C0331D98801A80116,
 				F560AEE9036D799701A80116,
+				F515B60C0331D98801A80116,
 				F560AEEA036D799701A80116,
 				F5D80C8B036F044901A80116,
 				F515B60D0331D98801A80116,
 				F556EA5E0366E4B801A80116,
 				F59989060369844F01A80116,
 				F560AEEB036D799701A80116,
-				F5F84A300381607C01A80116,
 				F563B8B703372EA501A80116,
 				F516FFBB031F827D01A80117,
 				F516FFB9031F825B01A80117,
@@ -295,7 +294,6 @@
 				F5152727037BCC1A01A80116,
 				F515272A037BD50101A80116,
 				F57E7E01037FBF5401A80116,
-				F5F84A310381607C01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1062,7 +1060,6 @@
 				F5152728037BCC1A01A80116,
 				F515272B037BD50101A80116,
 				F57E7E02037FBF5401A80116,
-				F5F84A320381607C01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1149,6 +1146,11 @@
 		</array>
 		<key>MainClass</key>
 		<string>japeserver</string>
+		<key>Properties</key>
+		<dict>
+			<key>com.apple.hwaccel</key>
+			<string>false</string>
+		</dict>
 	</dict>
 	<key>NSJavaNeeded</key>
 	<string>YES</string>
@@ -1386,24 +1388,6 @@
 		};
 		F5EAC0DE036F473D01A80117 = {
 			fileRef = F5EAC0DB036F473D01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5F84A300381607C01A80116 = {
-			isa = PBXFileReference;
-			name = StationaryTile.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/StationaryTile.java;
-			refType = 0;
-		};
-		F5F84A310381607C01A80116 = {
-			fileRef = F5F84A300381607C01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5F84A320381607C01A80116 = {
-			fileRef = F5F84A300381607C01A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};

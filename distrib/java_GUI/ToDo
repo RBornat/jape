@@ -1,3 +1,9 @@
+Bugs:
+Panel window resize has gone wonky
+Tile layout when tiles get wider needs a resize
+
+-----------------
+
 Cancel in choose file dialog after Save/Cancel/Don'tSave shouldn't mean Don'tSave
 
 Stack windows
@@ -18,17 +24,6 @@ Protocol in:
 
 CANCELMENUSANDPANELS
 CLEARCHOICES
-DISPROOFEMPHASISE
-DISPROOFSEQBOX
-DISPROOFTILE
-DISPROOFTILESEND
-DISPROOFTILESSTART
-DISPROOFWORLD
-DISPROOFWORLDCHILD
-DISPROOFWORLDLABEL
-DISPROOFWORLDSELECT
-DISPROOFWORLDSEND
-DISPROOFWORLDSSTART
 DROPBEGIN
 DROPEND
 EMPTYMENUSANDPANELS
