@@ -77,6 +77,8 @@ public class AnchoredScrollPane extends Container {
         viewport.setBackground(Color.white);
     }
 
+    public Container getViewport() { return viewport; }
+    
     private class H implements AdjustmentListener {
         public void adjustmentValueChanged(AdjustmentEvent e) {
             switch (e.getAdjustmentType()) {
@@ -132,8 +134,6 @@ public class AnchoredScrollPane extends Container {
         remove(view);
         view=c;
         viewport.add(c);
-        if (c instanceof Viewportable)
-            ((Viewportable)c).inViewport(viewport);
         c.addComponentListener(new ComponentAdapter() {
             public void componentMoved(ComponentEvent e) {
                 validate();
@@ -149,8 +149,6 @@ public class AnchoredScrollPane extends Container {
     public void remove(Component c) {
         if (c!=null && c==view) {
             viewport.remove(c);
-            if (c instanceof Viewportable)
-                ((Viewportable)c).inViewport(null);
         }
     }
     
@@ -200,7 +198,7 @@ public class AnchoredScrollPane extends Container {
 
     /* this is where the anchor policy bites */
     public void setBounds(int x, int y, int w, int h) {
-        if (getWidth()!=0 && getHeight()!=0) { /* only for true resizing operations */
+        if (getWidth()!=0 && getHeight()!=0 && view!=null) { /* only for true resizing operations */
             Point oldPos = view.getLocation();
             switch (anchor) {
                 case ANCHOR_NORTH:
