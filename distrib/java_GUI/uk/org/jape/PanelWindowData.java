@@ -34,7 +34,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.LayoutManager2;
+import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -68,7 +68,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     
     Vector entryv, cmdv; // matches the list line for line
     Vector buttonv;
-
+    
     private static final String New       = "New...",
                                 Prove     = "Prove",
                                 ShowProof ="Show Proof";
@@ -80,7 +80,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         entryv = new Vector();
         cmdv = new Vector();
         buttonv = new Vector();
-
+        
         if (kind==ConjecturePanelKind) { 
             // has default buttons
             addButton(New, new Insert[] { new StringInsert("New... button pressed") }, true);
@@ -190,7 +190,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
     public void closeWindow() {
         if (window!=null) {
-            JapeWindow.closeWindow(window);
+            window.closeWindow();
             window = null;
         }
     }
@@ -207,7 +207,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 if (!defaultButton(b)) {
                     if (panelempty_tracing)
                         System.err.println("deleting button "+b.label);
-                    window.getContentPane().remove(b);
+                    window.removeButton(b);
                     buttonv.remove(buttonv.indexOf(b));
                 }
             }
@@ -226,6 +226,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         private final DefaultListModel model;
         private JList list;
         private JScrollPane scrollPane;
+        private ButtonPane buttonPane;
 
         private final int prefixw;
         private boolean active = true;
@@ -272,8 +273,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             MouseListener m = new MouseAdapter () {
                 public void mouseClicked(MouseEvent e) {
                     int index = list.locationToIndex(e.getPoint());
-                    if (e.getClickCount()==2 && 0<=index && index<model.size()) {
-                        if (kind==ConjecturePanelKind)
+                    if (e.getClickCount()==2) {
+                        if (kind==ConjecturePanelKind && 0<=index && index<model.size())
                             // double-click means "prove this one"
                             Reply.sendCOMMAND("prove "+cmdv.get(index));
                     }
@@ -296,14 +297,13 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             scrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                                                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
             contentPane.add(scrollPane);
-    
-            for (int i=0; i<buttonv.size(); i++) {
-                addButton((PanelButton)buttonv.get(i));
-            }
 
-            if (kind==ConjecturePanelKind) {
-                list.addListSelectionListener(new Show_ProofWatcher());
-            }
+            buttonPane = new ButtonPane();
+            for (int i=0; i<buttonv.size(); i++)
+                addButton((PanelButton)buttonv.get(i)); // make sure it gets an ActionListener
+            contentPane.add(buttonPane);
+            
+            list.addListSelectionListener(new ButtonWatcher());
             
             if (LocalSettings.panelWindowMenus)
                 setBar(); // by experiment, seems to be necessary before setVisible
@@ -400,10 +400,15 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         }
         
         protected void addButton(PanelButton button) {
-            getContentPane().add(button);
+            buttonPane.addButton(button);
             button.addActionListener(this);
         }
-    
+
+        protected void removeButton(PanelButton button) {
+            button.removeActionListener(this);
+            buttonPane.removeButton(button);
+        }
+        
         // ActionListener interface for buttons
     
         public void actionPerformed(ActionEvent newEvent) {
@@ -425,7 +430,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             }
         }
 
-        protected class Show_ProofWatcher implements ListSelectionListener {
+        protected class ButtonWatcher implements ListSelectionListener {
             public void valueChanged(ListSelectionEvent e) {
                 enableButtons();
             }
@@ -460,8 +465,15 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         
         public Dimension getMaximumSize() {
             if (panellayout_tracing)
-                System.err.println("getMaximumSize called");
+                System.err.println("panel "+this.title+" getMaximumSize called");
             return super.getMaximumSize();
+        }
+
+        // the Container class seems to cache this, but I think it needs calling more than once ...
+        public Dimension getPreferredSize() {
+            if (panellayout_tracing)
+                System.err.println("panel "+this.title+" getPreferredSize called");
+            return super.getPreferredSize();
         }
         
         /**********************************************************************************************
@@ -470,36 +482,24 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     
         **********************************************************************************************/
     
-        // I made this a LayoutManager2, because that has a maximumLayoutSize method, in the hope that this
-        // would affect window maximisation.  It doesn't: the method never seems to be called (in Javish
-        // one should say messaged).
-        
-        protected class PanelWindowLayout implements LayoutManager2 {
+        protected class PanelWindowLayout implements LayoutManager {
     
             /* Called by the Container add methods. Layout managers that don't associate
-            * strings with their components generally do nothing in this method.
-            */
+             * strings with their components generally do nothing in this method.
+             */
             public void addLayoutComponent(String s, Component c) { }
     
             /* Adds the specified component to the layout, using the specified constraint object. */
             public void addLayoutComponent(Component comp, Object constraints) { }
     
-            /* Returns the alignment along the x axis. This specifies how the component would like
-            * to be aligned relative to other components. The value should be a number between 0
-            * and 1 where 0 represents alignment along the origin, 1 is aligned the furthest away
-            * from the origin, 0.5 is centered, etc.
-            */
-            public float getLayoutAlignmentX(Container pane) { return (float)0; } // why not?
-    
-            /* Returns the alignment along the y axis. See above */
-            public float getLayoutAlignmentY(Container pane) { return (float)0; } // why not?
-    
             /* Invalidates the layout, indicating that if the layout manager has cached information
-            * it should be discarded.
-            */
+             * it should be discarded.
+             */
             public void invalidateLayout(Container pane) { } // we don't cache
     
-            /* Returns the maximum size of this component. */
+            /* Returns the maximum size of this component.
+             * Never called, so far as I could tell, when this was a LayoutManager2,
+             * but preserved in case it might one day be useful
             public Dimension maximumLayoutSize(Container pane) {
                 // crude, for now
                 JViewport port = scrollPane.getViewport();
@@ -517,144 +517,65 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                     System.err.println("maximumLayoutSize returns "+width+","+height);
                 return new Dimension(width, height);
             }
+            */
                     
             /* Called by the Container remove and removeAll methods. Many layout managers
-            * do nothing in this method, relying instead on querying the container for its
-            * components, using the Container getComponents method.
-            */
+             * do nothing in this method, relying instead on querying the container for its
+             * components, using the Container getComponents method.
+             */
             public void removeLayoutComponent(Component c) { }
     
-            private int buttonpanelheight, buttonpanelwidth;
-            private int leading(Dimension d) { return d.height/5; } // empirical
-            
-            private void preferredButtonPanelSize(Container pane) {
-                buttonpanelwidth = 0;
-                // two buttons across minimum
-    
-                if (buttonv.size()==0) {
-                    if (panellayout_tracing)
-                        System.err.println("preferredButtonPanelSize no buttons");
-                    PanelButton b = new PanelButton("Prove",  new Insert[0]);
-                    Dimension d = b.getPreferredSize();
-                    int buttonleading = leading(d);
-                    buttonpanelheight = 0;
-                    buttonpanelwidth = d.width*2+1*buttonleading;
-                }
-                else {
-                    if (panellayout_tracing)
-                        System.err.println("preferredButtonPanelSize");
-                    Dimension d = ((PanelButton)buttonv.get(0)).getPreferredSize();
-                    int buttonleading = leading(d);
-                    int buttonheight = d.height;
-                    int twowidth = 0; // shut up compiler
-                    
-                    buttonpanelheight = buttonleading;
-                    
-                    for (int i=0; i<buttonv.size(); i++) {
-                        PanelButton button = (PanelButton)buttonv.get(i);
-                        d = button.getPreferredSize();
-                        
-                        if (panellayout_tracing)
-                            System.err.println(i+": "+d.width+","+d.height);
-    
-                        if (i%2==0) {
-                            buttonpanelheight += buttonleading+buttonheight;
-                            twowidth = d.width;
-                        }
-                        else
-                            twowidth += buttonleading+d.width;
-    
-                        if ((i+1)%2==0)
-                            buttonpanelwidth = Math.max(twowidth, buttonpanelwidth);
-                    }
-    
-                    if (buttonv.size()<2)
-                        buttonpanelwidth = (buttonpanelwidth-(buttonv.size()-1)*buttonleading)*2/buttonv.size()+
-                            1*buttonleading;
-                }
-                if (panellayout_tracing)
-                    System.err.println("preferredButtonPanelSize = "+buttonpanelwidth+","+buttonpanelheight);
-            }
-            
             /* Called by the Container getPreferredSize method, which is itself called under
-            * a variety of circumstances. This method should calculate and return the ideal
-            * size of the container, assuming that the components it contains will be at or
-            * above their preferred sizes. This method must take into account the container's
-            * internal borders, which are returned by the getInsets method.
-            */
+             * a variety of circumstances. This method should calculate and return the ideal
+             * size of the container, assuming that the components it contains will be at or
+             * above their preferred sizes. This method must take into account the container's
+             * internal borders, which are returned by the getInsets method.
+             */
     
             public Dimension preferredLayoutSize(Container pane) {
-                preferredButtonPanelSize(pane);
                 JViewport port = scrollPane.getViewport();
+                Dimension d = buttonPane.getPreferredSize();
                 Dimension preferredSize =
-                    new Dimension(Math.max(buttonpanelwidth, Math.min(buttonpanelwidth*4/3,
-                                                                      port.getX()+list.getWidth())),
-                                  buttonpanelwidth+buttonpanelheight*2/3);
+                    new Dimension(Math.max(d.width, Math.min(d.width*4/3, port.getX()+list.getWidth())),
+                                  d.width+d.height*2/3);
                 return preferredSize;
             }
     
             /* Called by the Container getMinimumSize method, which is itself called under
-            * a variety of circumstances. This method should calculate and return the minimum
-            * size of the container, assuming that the components it contains will be at or
-            * above their minimum sizes. This method must take into account the container's
-            * internal borders, which are returned by the getInsets method.
-            */
+             * a variety of circumstances. This method should calculate and return the minimum
+             * size of the container, assuming that the components it contains will be at or
+             * above their minimum sizes. This method must take into account the container's
+             * internal borders, which are returned by the getInsets method.
+             */
             
             public Dimension minimumLayoutSize(Container pane) {
-                preferredButtonPanelSize(pane);
-                return new Dimension(buttonpanelwidth, buttonpanelheight+buttonpanelwidth); 
+                Dimension d = buttonPane.getPreferredSize();
+                d.height += d.width;
+                return d; 
             }
     
             /* Called when the container is first displayed, and each time its size changes.
-            * A layout manager's layoutContainer method doesn't actually draw components.
-            * It simply invokes each component's resize, move, and reshape methods to set
-            * the component's size and position. This method must take into account the
-            * container's internal borders, which are returned by the getInsets method.
-            * You can't assume that the preferredLayoutSize or minimumLayoutSize method
-            * will be called before layoutContainer is called.
-            */
+             * A layout manager's layoutContainer method doesn't actually draw components.
+             * It simply invokes each component's resize, move, and reshape methods to set
+             * the component's size and position. This method must take into account the
+             * container's internal borders, which are returned by the getInsets method.
+             * You can't assume that the preferredLayoutSize or minimumLayoutSize method
+             * will be called before layoutContainer is called.
+             */
             public void layoutContainer(Container pane) {
-                PanelButton[] buttons = (PanelButton[])buttonv.toArray(new PanelButton[buttonv.size()]);
-                if (buttons.length==0)
+                Dimension buttonPaneSize = buttonPane.doLayout(pane.getWidth());
+                if (buttonPaneSize.height==0) {
+                    buttonPane.setBounds(0, 0, 0, 0);
                     scrollPane.setBounds(pane.getBounds());
+                }
                 else {
-                    // first layout the buttons
-                    Dimension d = buttons[0].getPreferredSize();
-                    int leading = leading(d), bh = d.height;
-                    int width = pane.getWidth(), height=pane.getHeight();
-                    if (panellayout_tracing)
-                        System.err.println("PanelWindow.layoutContainer "+width+","+height);
-                    int y = height-leading-bh, packedwidth = 0;
-                    for (int i=0; i<buttons.length; i++) {
-                        buttons[i].setSize(buttons[i].getPreferredSize());
-                        int bw = buttons[i].getWidth();
-                        if (packedwidth==0 || packedwidth+leading+bw<=width) {
-                            for (int j=0; j<i; j++)
-                                if (buttons[j].getY()==y)
-                                    buttons[j].setLocation(buttons[j].getX()-bw-leading,y);
-                        }
-                        else {
-                            for (int j=0; j<i; j++)
-                                buttons[j].setLocation(buttons[j].getX(), buttons[j].getY()-bh-leading);
-                            packedwidth = 0;
-                        }
-                        buttons[i].setLocation(width-bw, y);
-                        if (packedwidth==0)
-                            packedwidth = bw;
-                        else
-                            packedwidth += bw+leading;
+                    int buttonTop = pane.getHeight()-buttonPaneSize.height;
+                    buttonPane.setBounds(0, buttonTop, pane.getWidth(), buttonPaneSize.height); 
+                    scrollPane.setBounds(0, 0, pane.getWidth(), Math.max(0, buttonTop));
+                    if (panellayout_tracing) {
+                        System.err.print("panelwindow "+PanelWindow.this.title+" layout: ");
+                        japeserver.showContainer(pane);
                     }
-    
-                    if (panellayout_tracing)
-                        for (int i=0; i<buttons.length; i++)
-                            System.err.println(i+": "+buttons[i].getX()+","+buttons[i].getY()+" "+
-                                            buttons[i].getWidth()+","+buttons[i].getHeight());
-    
-                    // give the scroll pane the rest of the height
-                    scrollPane.setBounds(0, 0, width, Math.max(0, buttons[0].getY()-leading));
-                    if (panellayout_tracing)
-                        System.err.println(scrollPane.getX()+","+scrollPane.getY()+" "+
-                                        scrollPane.getWidth()+","+scrollPane.getHeight());
                 }
             }
         }
@@ -673,12 +594,12 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     private static Vector panelv = new Vector();
     
     public static PanelWindowData spawn (String title, int kind) throws ProtocolError {
-        PanelWindowData p = findPanel(title, false);
+        PanelWindowData p = findPanel(title);
         if (p!=null) {
             if (p.kind==kind)
                 return p;
             else
-                throw new ProtocolError ("panel exists with different kind");
+                throw new ProtocolError ("panel already exists (with different kind)");
         }
         else {
             // it ain't there
@@ -688,17 +609,21 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         }
     }
 
-    protected static PanelWindowData findPanel(String title, boolean musthave) throws ProtocolError {
+    protected static PanelWindowData findPanel(String title) {
         for (int i=0; i<panelv.size(); i++) {
             PanelWindowData panel = (PanelWindowData)panelv.get(i);
             if (panel.title.equals(title))
                 return panel;
         }
+        return null;
+    }
 
-        if (musthave)
-            throw new ProtocolError("before NEWPANEL");
+    protected static PanelWindowData mustFindPanel(String title) throws ProtocolError {
+        PanelWindowData panel = findPanel(title);
+        if (panel==null)
+            throw new ProtocolError("no such panel");
         else
-            return null;
+            return panel;
     }
 
     public static void makePanelsVisible() {
@@ -727,15 +652,15 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     }
 
     public static void addEntry(String panel, String entry, String cmd) throws ProtocolError {
-        findPanel(panel,true).addEntry(entry,cmd);
+        mustFindPanel(panel).addEntry(entry,cmd);
     }
     
     public static void addButton(String panel, String button, Insert[] cmd) throws ProtocolError {
-        findPanel(panel,true).addButton(button, cmd, false);
+        mustFindPanel(panel).addButton(button, cmd, false);
     }
 
-    public static void markEntry(String panel, String cmd /* really */, boolean proved, boolean disproved)
-        throws ProtocolError {
-        findPanel(panel,true).markEntry(cmd, proved, disproved);
+    public static void markEntry(String panel, String cmd /* really */,
+                                 boolean proved, boolean disproved) throws ProtocolError {
+        mustFindPanel(panel).markEntry(cmd, proved, disproved);
     }
 }
