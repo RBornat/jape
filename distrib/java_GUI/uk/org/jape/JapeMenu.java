@@ -231,7 +231,7 @@ public class JapeMenu implements DebugConstants {
     private static final String RADIO_ICON_KEY = "RadioButtonMenuItem.checkIcon",
                                 CHECK_ICON_KEY = "CheckBoxMenuItem.checkIcon",
                                 PAGE_SETUP  = "Page Setup...",
-                                PRINT_PROOF = "Print Proof";
+                                PRINT_PROOF = "Print...";
     
     protected static TitledMenuBar mkBar(boolean isProofBar) {
         Object radioIcon = UIManager.get(RADIO_ICON_KEY);
