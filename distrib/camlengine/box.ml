@@ -158,7 +158,10 @@ let rec withintb (p, tb) = within (p, box_of_textbox tb)
 let rec entirelywithin (b1, b2) =
   within (topleft b1, b2) && within (botright b1, b2)
 
-let rec entirelywithintb (b1, b2) =
+let intersects (Box(Pos(x1,y1),Size(w1,h1)),Box(Pos(x2,y2),Size(w2,h2))) =
+  x1<x2+w2 && x2<x1+w1 && y1<y2+h2 && y2<y1+h1
+  
+let entirelywithintb (b1, b2) =
   entirelywithin (box_of_textbox b1, box_of_textbox b2)
 
 (* compute enclosing (or enclosed box) with Outset; shifted box with Offset *)

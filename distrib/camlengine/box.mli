@@ -98,6 +98,7 @@ val withinX : pos * box -> bool
 val withinY : pos * box -> bool
 val within : pos * box -> bool
 val withintb : pos * textbox -> bool
+val intersects : box * box -> bool
 val entirelywithin : box * box -> bool
 val entirelywithintb : textbox * textbox -> bool
 val isemptybox : box -> bool
