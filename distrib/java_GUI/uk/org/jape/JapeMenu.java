@@ -69,9 +69,10 @@ public class JapeMenu implements DebugConstants {
                 return  size;
         }
         public void add(I i) { itemv.insertElementAt(i,nextIndex()); }
+        public void insert(int index, I i) { itemv.insertElementAt(i,index); }
         public void add(RBG rbg) { itemv.insertElementAt(rbg,nextIndex()); }
-        public void addSep() {
-            int i = nextIndex();
+        public void addSep() { insertSep(nextIndex()); }
+        public void insertSep(int i) {
             if (preSep(i))
                 itemv.insertElementAt(new Sep(),i);
         }
@@ -111,8 +112,8 @@ public class JapeMenu implements DebugConstants {
     }
     
     protected static class I {
-        String label;
-        String key;
+        final String label;
+        final String key;
         ItemAction action;
         KeyStroke stroke;
         boolean enabled, selected;
@@ -265,10 +266,6 @@ public class JapeMenu implements DebugConstants {
 
     public static void setNonProofWindowBar(JapeWindow w) { setBar(false, w); }
     
-    public static void makeMenusVisible() {
-    	JapeWindow.updateMenuBars(); 
-    }
-    
     // I need dictionaries from menu titles to Ms and item keys to Is: 
     // hashtables are overkill, but there you go
     
@@ -284,13 +281,19 @@ public class JapeMenu implements DebugConstants {
     private abstract static class ItemAction {
         abstract public void action();
     }
-    
+
     private static class UnimplementedAction extends ItemAction {
         String s;
         UnimplementedAction (String s) { this.s = s; }
         public void action () {  System.err.println(s); }
     }
-    
+
+    private static class AlertAction extends ItemAction {
+        String s;
+        AlertAction (String s) { this.s = s; }
+        public void action () {  Alert.showAlert(Alert.Warning, s); }
+    }
+
     private static class CmdAction extends ItemAction {
         String cmd;
         CmdAction (String cmd) { this.cmd = cmd; }
@@ -313,13 +316,33 @@ public class JapeMenu implements DebugConstants {
             ProofWindow.closeFocussedProof();
         }
     }
+
+    private static boolean insertbefore(M menu, String label) {
+        M other = (M)menutable.get(label);
+        if (other!=null) {
+            barv.add(barv.indexOf(other), menu); return true;
+        }
+        else
+            return false;
+    }
+
+    private static boolean append(M menu) {
+        barv.add(menu); return true;
+    }
     
     private static M indexMenu(boolean proofsonly, String label) {
         M menu = (M)menutable.get(label);
         if (menu==null) {
             menu = new M(proofsonly, label);
             menutable.put(label,menu);
-            barv.add(menu);
+            boolean dummy;
+            if (label.equals("Help"))
+                dummy = append(menu); // Help at the end
+            else
+            if (label.equals("Window"))
+                dummy = insertbefore(menu,"Help") || append(menu);
+            else
+               dummy = insertbefore(menu,"Window") || insertbefore(menu,"Help") || append(menu);
         }
         return menu;
     }
@@ -334,13 +357,17 @@ public class JapeMenu implements DebugConstants {
         actiontable.put(key,i);
         return i;
     }
-    
+
     private static I indexMenuItem(M menu, String label, ItemAction action) {
+        return indexMenuItem(menu, menu.size(), label, action);
+    }
+
+    private static I indexMenuItem(M menu, int index, String label, ItemAction action) {
         I i = makeI(menu.title, label, action);
-        menu.add(i);
+        menu.insert(index, i);
         return i;
     }
-    
+
     private static int menumask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     
     public static void addStdFileMenuItems(M filemenu) {
@@ -406,14 +433,12 @@ public class JapeMenu implements DebugConstants {
             indexMenuItem(editmenu, "Preferences...", new PrefsAction());
         }
     }
-	
-    public static void newMenuBar() {
-	barv = new Vector();        
-        M filemenu = indexMenu(false, "File"); 
-        M editmenu = indexMenu(true, "Edit");
-        
-        addStdFileMenuItems(filemenu);
-        addStdEditMenuItems(editmenu);
+
+    private static void addStdWindowMenuItems(M windowmenu) { }
+    
+    private static void addStdHelpMenuItems(M helpmenu) {
+        indexMenuItem(helpmenu, "No help yet",
+                      new AlertAction("japeserver doesn't have any help available yet.\n\nSorry."));
     }
     
     public static void newMenu(boolean proofsonly, String s) throws ProtocolError {
@@ -447,20 +472,88 @@ public class JapeMenu implements DebugConstants {
     }
 
     protected static final MenuListener menuListener = new MenuListener();
-    
-    public static void init() {
+
+    private static boolean menusVisible = false;
+
+    public static void initMenuBar() {
         // this is the reset action, too
         menutable = new Hashtable(20,(float)0.5);
         actiontable = new Hashtable(100,(float)0.5);
-        newMenuBar();
+        barv = new Vector();
+
+        addStdFileMenuItems(indexMenu(false, "File"));
+        addStdEditMenuItems(indexMenu(true,  "Edit"));
+        if (windowmenu==null)
+            addStdWindowMenuItems(windowmenu = indexMenu(false, "Window"));
+        addStdHelpMenuItems(indexMenu(false, "Help"));
+
+        menusVisible = false;
     }
 
     public static void cancelMenus() {
-        init(); // I hope
+        initMenuBar(); // I hope
     }
 
     public static void emptyMenus() {
-        init(); // I hope
+        initMenuBar(); // I hope
+    }
+
+    public static void makeMenusVisible() {
+        JapeWindow.updateMenuBars();
+        menusVisible = true;
+    }
+
+    private static M windowmenu;
+    private static boolean hassurrogate=false;
+    private static int panelcount=0, proofcount=0;
+    
+    public static void addWindow(String title, JapeWindow w) {
+        int insertpoint = -1;
+        if (w instanceof SurrogateWindow) {
+            if (hassurrogate)
+                Alert.abort("JapeMenu.addWindow two surrogates");
+            else {
+                hassurrogate = true;
+                if (panelcount!=0 || proofcount!=0)
+                    windowmenu.insertSep(0);
+            }
+        }
+        else
+        if (w instanceof PanelWindowData.PanelWindow) {
+            if (panelcount==0) {
+                if (hassurrogate || proofcount!=0) {
+                    windowmenu.insertSep(1);
+                    insertpoint = 2;
+                }
+                else
+                    insertpoint=0;
+            }
+            else {
+                for (int i=(hassurrogate?2:0); i<windowmenu.size(); i++)
+                    if (windowmenu.get(i) instanceof Sep ||
+                        title.compareTo(((I)windowmenu.get(i)).label)<0) {
+                        insertpoint = i; break;
+                    }
+            }
+            panelcount++;
+        }
+        else
+        if (w instanceof ProofWindow) {
+            if (proofcount==0) {
+                if (hassurrogate || panelcount!=0)
+                    windowmenu.addSep();
+            }
+            for (int i=(hassurrogate?2:0)+(panelcount==0?0:panelcount+1); i<windowmenu.size(); i++)
+                if (title.compareTo(((I)windowmenu.get(i)).label)<0) {
+                    insertpoint = i; break;
+                }
+            proofcount++;                    
+        }
+        else
+            Alert.abort("JapeMenu.addWindow "+w);
+            
+        indexMenuItem(windowmenu, insertpoint==-1?windowmenu.size():insertpoint,
+                        title, new ActivateWindowAction(w));
     }
 
     public static void addSeparator(String menuname) throws ProtocolError {
