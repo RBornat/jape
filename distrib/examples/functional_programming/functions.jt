@@ -33,10 +33,10 @@ BIND    x SCOPE P IN è x . P
 
 USE     "equality.j"
 
-INFIX    4010 4000 :
-INFIX    3000 3010 ++
-INFIX    2800 2800 ¥
-INFIX    2900 2900 », ô
+INFIXC    4010 4000 :
+INFIXC    3000 3010 ++
+INFIXC    2800 2800 ¥
+INFIXC    2900 2900 », ô
 OUTFIX   Ý Þ
 
 CLASS FORMULA H, J
@@ -49,34 +49,36 @@ MENU  Rules IS
       SEPARATOR
       
       RULE "æè"(OBJECT xs') WHERE FRESH xs'
-	   FROM  A[xs\xs']
-	   INFER è xs . A
+	   FROM  AA[xs\xs']
+	   INFER è xs . AA
 
       RULE "èæ"(B,OBJECT xs)
-	   FROM   è xs . A
-	   INFER  A[xs\B]
+	   FROM   è xs . AA
+	   INFER  AA[xs\B]
 
-END
-
-THEORY  Function IS
-	RULE     IF'1	IF true X Y     = X
-	RULE     IF'2   IF false X Y    = Y
-	RULE     if     if P (F, G) X   = IF (P X) (F X) (G X)
-	RULE     fst	fst(X,Y)        = X
-	RULE     snd	snd(X,Y)        = Y
-	RULE     "¥"  	IS (F ¥ G) X    = F(G X)
-	RULE     id     id X            = X
-	RULE     » IS	(F»G) X         = (F X, G X)
-	RULE     ô IS	(FôG)(X,Y)      = (F X, G Y)
-	RULE     swap	swap(X,Y)       = (Y,X)
 END
 
 RULE    listinduction (B,  OBJECT xs, OBJECT ys, OBJECT x, OBJECT vs) 
 WHERE   FRESH xs, ys, x 
-FROM    A[vs\nil] 
-AND     A[vs\ÝxÞ] 
-AND     A[vs\xs], A[vs\ys] æ A[vs\xs++ys] 
-INFER   A[vs \ B]
+FROM    AA[vs\nil] 
+AND     AA[vs\ÝxÞ] 
+AND     AA[vs\xs], AA[vs\ys] æ AA[vs\xs++ys] 
+INFER   AA[vs \ B]
+
+THEORY  Function IS
+	RULES	IF
+	ARE	IF true X Y	= X
+	AND	IF false X Y	= Y
+	END
+	RULE	if		IS	if P (F, G) X   = IF (P X) (F X) (G X)
+	RULE	"¥"		IS	(F ¥ G) X		= F(G X)
+	RULE	»		IS	(F»G) X		= (F X, G X)
+	RULE	ô		IS	(FôG)(X,Y)	= (F X, G Y)
+	RULE	id		IS	id X			= X
+	RULE	fst		IS	fst(X,Y)		= X
+	RULE	snd		IS	snd(X,Y)		= Y
+	RULE	swap		IS	swap(X,Y)		= (Y,X)
+END
 
 MENU    Rules IS
         SEPARATOR
@@ -92,64 +94,73 @@ END
 MENU    Rules IS
         SEPARATOR
 	RULE    BoolCases(B,OBJECT v)
-		FROM  A[v\true]
-		AND   A[v\false]
-		INFER A[v\B]
+		FROM  AA[v\true]
+		AND   AA[v\false]
+		INFER AA[v\B]
 
 END
 
 THEORY  List IS
 
-	RULE    none    none X = nil
-	RULE    one     one X  = ÝXÞ
+	RULE	none IS	none X	= nil
+	RULE	one	IS	one X	= ÝXÞ
 
-	RULE    cat     cat             = fold (++) nil
+	RULE	cat	IS	cat = fold (++) nil
 
-	RULES   rev
-	ARE             rev nil         = nil
-	AND             rev ÝXÞ         = Ý X Þ
-	AND             rev (XS++YS)    = rev YS ++ rev XS
+	RULES	rev
+	ARE	rev nil		= nil
+	AND	rev ÝXÞ		= ÝX Þ
+	AND	rev (Xs++Ys)	= rev Ys ++ rev Xs
 	END
 
-	RULES    ++
-	ARE             nil++YS         = YS
-	AND             XS++nil         = XS
-	AND             (XS++YS)++ZS    = XS++(YS++ZS)
+	RULES	++
+	ARE	nil++Ys		= Ys
+	AND	Xs++nil		= Xs
+	AND	(Xs++Ys)++ZS	= Xs++(Ys++ZS)
 	END
 
-	RULES    map
-	ARE             map F nil       = nil
-     	AND             map F ÝXÞ       = ÝF XÞ
-	AND             map F (XS++YS)  = map F XS ++ map F YS
+	RULES	map
+	ARE	map F nil			= nil
+     	AND	map F ÝXÞ		= ÝF XÞ
+	AND	map F (Xs++Ys)	= map F Xs ++ map F Ys
 	END
 
-	RULE     filter filter P        = cat ¥ map (if P (one, none))
+	RULE filter IS filter P = cat ¥ map (if P (one, none))
 
-	RULES    zip
-	ARE             zip(nil, nil)   = nil
-	AND             zip(ÝXÞ, ÝYÞ)   = Ý(X,Y)Þ
-	AND             zip(XS++XS', YS++YS') = zip (XS,YS)++zip(XS',YS')
+	RULES	zip
+	ARE	zip(nil, nil)			= nil
+	AND	zip(ÝXÞ, ÝYÞ)			= Ý(X,Y)Þ
+	AND  zip(Xs++Xs', Ys++Ys')	= zip (Xs,Ys)++zip(Xs',Ys')
 	END
 
-	RULES    fold
-	ARE             fold F Z nil      = Z
-	AND             fold F Z ÝXÞ      = X
-	AND             fold F Z (XS++YS) = F (fold F Z XS, fold F Z YS)
+	RULES fold (OBJECT A, OBJECT B, OBJECT C)
+	ARE	fold F Z nil		= Z
+	AND  fold F Z ÝXÞ	= X
+	AND  FROM F A (F B C) = F (F A B) C AND F A Z = A AND F Z B = B
+		INFER fold F Z (Xs++Ys)	= F (fold F Z Xs) (fold F Z Ys)
 	END
 
-	RULE     rev2   rev2              = fold rcat nil ¥ map one
-	RULE     rcat   rcat(XS, YS)   = YS ++ XS
-	RULE     ":"    X:XS             = ÝXÞ ++ XS
+/*	RULE fold'0 IS fold F Z nil		= Z
+	RULE fold'1 IS  fold F Z ÝXÞ	= X
+	RULE fold'2(OBJECT x, OBJECT y, OBJECT z) WHERE FRESH x,y,z
+		IS  FROM F x (F y z) = F (F x y) z INFER fold F Z (Xs++Ys)	= F (fold F Z Xs) (fold F Z Ys)
+	TACTIC fold IS ALT(fold'1, fold'2, fold'3)
+*/
+	RULE rev2 IS rev2 = fold rcat nil ¥ map one
+	
+	RULE rcat IS rcat Xs Ys = Ys ++ Xs
+	
+	RULE ":" IS X:Xs = ÝXÞ ++ Xs
 END
 
 CONSTANT ref, ins, del, move, L, R
 THEORY  Reflect IS
-	RULE    ref     IS ref                  = (revôrev) ¥ swap
-	RULE    ins     IS ins X (Xs,Ys)        = (Xs ++ ÝXÞ, Ys)
-	RULE    del     IS del  (Xs ++ ÝXÞ, Ys) = (Xs, Ys)
-	RULE    move    IS move (Xs ++ ÝXÞ, Ys) = (Xs, ÝXÞ ++ Ys)
-	RULE    L       IS L F = ref ¥ F ¥ ref
-	RULE    R       IS R F = F
+	RULE	ref		IS 	ref					= (revôrev) ¥ swap
+	RULE	ins		IS 	ins X (Xs,Ys)			= (Xs ++ ÝXÞ, Ys)
+	RULE	del		IS 	del  (Xs ++ ÝXÞ, Ys)		= (Xs, Ys)
+	RULE	move	IS 	move (Xs ++ ÝXÞ, Ys)	= (Xs, ÝXÞ ++ Ys)
+	RULE	L		IS 	L F					= ref ¥ F ¥ ref
+	RULE	R		IS 	R F					= F
 END
 
 CONJECTUREPANEL "List Conjectures" IS
@@ -223,30 +234,30 @@ TACTICPANEL "Functions and Operators"
         /* BUTTON          "Fold  ?"   IS apply Fold Auto */
         PREFIXBUTTON    "Apply"     IS apply
 
-	ENTRY           "if"      
-	ENTRY           "fst" 
-	ENTRY           "snd"  
+	ENTRY           ":"
 	ENTRY           "¥"   
-	ENTRY           "id"   
-	ENTRY           "»"   
 	ENTRY           "ô"   
-	ENTRY           "swap" 
+	ENTRY           "»"   
+	ENTRY           "++"
+	ENTRY           "cat"   
+	ENTRY           "del"
+	ENTRY           "filter"
+	ENTRY           "fold"
+	ENTRY           "fst" 
+	ENTRY           "if"      
+	ENTRY           "id"   
+	ENTRY           "ins"
+	ENTRY           "map"
+	ENTRY           "move"
 	ENTRY           "none" 
 	ENTRY           "one"  
-	ENTRY           "cat"   
-	ENTRY           rev  
-	ENTRY           "++"
-	ENTRY           map
-	ENTRY           filter
-	ENTRY           zip
-	ENTRY           fold
-	ENTRY           rev2
-	ENTRY           rcat
-	ENTRY           ":"
-	ENTRY           ref
-	ENTRY           ins
-	ENTRY           del
-	ENTRY           move
+	ENTRY           "rcat"
+	ENTRY           "ref"
+	ENTRY           "rev"  
+	ENTRY           "rev2"
+	ENTRY           "snd"  
+	ENTRY           "swap" 
+	ENTRY           "zip"
 	ENTRY           L
 	ENTRY           R
 END
@@ -261,17 +272,12 @@ TACTIC  mousebutton3(X)   IS ALT()
 TACTIC  findbutton(X)     IS ALT()
 TACTIC  cutbutton(X)      IS ALT()
 
-/* TACTIC BEGINPROOF IS JAPE(forbidconjectures()) */
-
-MENU    "Mode" 
+MENU    "Edit" 
 	RADIOBUTTON applyconjectures IS
 		"Apply both conjectures and theorems" 	IS true
-	AND	"Apply only theorems " 		IS false
+	AND	"Apply only theorems " 				IS false
    	INITIALLY false
  	END
-END
-
-MENU "Edit"
 	RADIOBUTTON displaystyle IS
 		"Box display" 	IS box
 	AND	"Tree display" 	IS tree
