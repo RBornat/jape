@@ -34,7 +34,6 @@
 
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -51,8 +50,7 @@ public class AnchoredScrollPane extends Container {
     private Component view;
     private Rectangle viewBounds;
     private Container viewport;
-    private JScrollBar vsb,
-                       hsb;
+    private JScrollBar vsb, hsb;
 
     public AnchoredScrollPane() {
         super();
@@ -74,10 +72,14 @@ public class AnchoredScrollPane extends Container {
         view = null; // unnecessary, but it makes me feel better
         setLayout(new AnchoredScrollPaneLayout());
         super.add(hsb); super.add(vsb); super.add(viewport);
-        viewport.setBackground(Color.white);
+        viewport.setBackground(Preferences.ProofBackground);
     }
 
     public Container getViewport() { return viewport; }
+
+    public int scrollbarthickness() {
+        return hsb.getHeight();
+    }
     
     private class H implements AdjustmentListener {
         public void adjustmentValueChanged(AdjustmentEvent e) {
