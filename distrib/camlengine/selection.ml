@@ -11,11 +11,49 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T =
+module M : T with type cxt = Context.Cxt.cxt
+              and type term = Term.Funs.term
+=
   struct
-    open Term
+    open SML.M
+    open Term.Funs
+    open Term.Store
+    open Term.Termstring
+    open Term.Type
     
-    type cxt = cxt
+    type cxt = Context.Cxt.cxt
+     and term = Term.Funs.term
+    
+    let bracketedliststring = Listfuns.M.bracketedliststring
+    let consolereport = Miscellaneous.M.consolereport
+    let enQuote = Stringfuns.M.enQuote
+    
+    let rec freshvar object__ cxt =
+      let class__ = Idclass.M.VariableClass in
+      let prefix = Symbol.Funs.autoID class__ "subst" in
+      let (cxt', vid) = Context.Cxt.freshVID cxt class__ (vid_of_string prefix) in
+      cxt',
+      (if object__ then registerId else registerUnknown)
+        (vid, class__)
+    
+    let rec indistinct cxt =
+     not <*> Answer.M.qDEFNOT <*>
+     Miscellaneous.M.uncurry2
+          (Facts.M.substeqvarsq (Facts.M.facts (Context.Cxt.provisos cxt) cxt))
+    
+    let interpolate = Listfuns.M.interpolate
+    let ( <* ) = Listfuns.M.( <* )
+    let member = Listfuns.M.member
+    let fNotinProviso v = Proviso.M.NotinProviso v
+    let plusvisibleprovisos = Context.Cxt.plusvisibleprovisos
+    let rewrite = Rewrite.Funs.rewrite
+    let simplifySubstAnyway = Substmapfuns.M.simplifySubstAnyway
+    let sort = Listfuns.M.sortunique earliervar
+    let string2term = Termparse.M.string2term
+    let ( <| ) = Listfuns.M.( <| )
+    
+    exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+    exception ParseError_ = Miscellaneous.M.ParseError_
     
     (* convert a text selection into a non-reducible substitution *)
     exception Selection_ of string list
@@ -25,10 +63,7 @@ module M : T =
         try string2term original with
           ParseError_ s ->
             raise
-              (Catastrophe_
-                 (["selection2Subst can't parse original: "; original;
-                   " -- "] @
-                    s))
+              (Catastrophe_ (["selection2Subst can't parse original: "; original; " -- "] @ s))
       in
       let (cxt', v) = freshvar object__ cxt in
       let rec splitup =
@@ -62,34 +97,33 @@ module M : T =
         if List.exists (fun t -> not (eqterms (t, List.hd ss'))) (List.tl ss') then
           bad "your selections weren't all the same"
       in
-      let P =
+      let _P =
         try
           string2term (implode (interpolate ((" " ^ termstring v) ^ " ") ts))
         with
           ParseError_ _ -> badsub ()
       in
       let m = [v, List.hd ss'] in
-      let res = registerSubst (false, P, m) in
+      let res = registerSubst (false, _P, m) in
       let pvs = ((fun v' -> v, v') <* termvars origterm) in
-      let extraps = (NotinProviso <* (indistinct cxt <| pvs)) in
-      let cxt'' = plusvisibleprovisos (cxt', extraps) in
+      let extraps = (fNotinProviso <* (indistinct cxt <| pvs)) in
+      let cxt'' = plusvisibleprovisos cxt' extraps in
       let rec check t =
-        let E = List.exists (fun b -> v = b) in
+        let _E = List.exists (fun b -> v = b) in
         let rec bb () =
-          bad "one of your selections was a binding instance \
-                      \of a variable"
+          bad "one of your selections was a binding instance of a variable"
         in
         if t = v then Some (List.hd ss')
         else
           match t with
             Binding (_, (bs, ss, us), env, pat) ->
-              if E bs then bb () else None
-          | Subst (_, r, P, vts) ->
-              if E ((fst <* vts)) then bb () else None
+              if _E bs then bb () else None
+          | Subst (_, r, _P, vts) ->
+              if _E ((fst <* vts)) then bb () else None
           | _ -> None
       in
       if eqterms (rewrite cxt'' res, origterm) then cxt'', res
-      else if eqterms (mapterm check P, origterm) then
+      else if eqterms (mapterm check _P, origterm) then
         bad
           (("you can't make the substitution you want because " ^
               (if List.length ss = 1 then "your selection"

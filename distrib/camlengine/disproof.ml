@@ -2,16 +2,9 @@
 
 module type T =
   sig
-    type element
-    and facts
-    and fmtpath
-    and forcedef
-    and model
-    and 'a prooftree
-    and seq
-    and term
-    and treeformat
-    type universe
+    type element and facts and forcedef and model and path and prooftree 
+     and seq and term and universe
+    
     val catelim_universestring :
       string -> universe -> string list -> string list
     val universestring : string -> universe -> string
@@ -38,14 +31,11 @@ module type T =
     val disproofstate_selected : disproofstate -> (int * int) list
     val disproofstate_conclusive : disproofstate -> bool
     val disproofstate_countermodel : disproofstate -> bool
-    (* infix withdisproofseq withdisproofworld withdisprooftiles withdisproofselected 
-             withdisproofconclusive
-     *)
     
     (* because of the need for facts when evaluating, these functions don't evaluate.
      * So you should use evaldisproofstate once you've set it up
      *)
-    val withdisproofuniverse : disproofstate * universe -> disproofstate
+    val withdisproofuniverse : disproofstate -> universe -> disproofstate
     val newtile : disproofstate -> term -> disproofstate option
     val deleteworld : disproofstate -> int * int -> disproofstate option
     val worldselect :
@@ -55,18 +45,18 @@ module type T =
       disproofstate -> int * int -> int * int -> disproofstate option
     val deletelink : universe -> int * int -> int * int -> universe option
     val evaldisproofstate :
-      facts -> treeformat prooftree -> disproofstate -> disproofstate
+      facts -> prooftree -> disproofstate -> disproofstate
     val disproof_start :
-      facts -> treeformat prooftree -> fmtpath option -> element list ->
+      facts -> prooftree -> path option -> element list ->
         disproofstate
     val disproof_minimal : disproofstate option -> bool
     (* models and disproofstates *)
     val disproofstate2model : disproofstate option -> (seq * model) option
     val model2disproofstate :
-      facts -> treeformat prooftree -> (seq * model) option ->
+      facts -> prooftree -> (seq * model) option ->
         disproofstate option
     val checkdisproof :
-      facts -> treeformat prooftree -> (seq * model) option -> bool
+      facts -> prooftree -> (seq * model) option -> bool
     exception Disproof_ of string list
     (* stuff to display disproofs *)
     val showdisproof : disproofstate -> unit
@@ -83,32 +73,92 @@ module type T =
    RB 
  *)
 
-module M : T =
+module M : T with type element = Term.Funs.element
+			  and type facts = Facts.M.facts
+			  and type forcedef = Forcedef.M.forcedef
+			  and type model = Forcedef.M.model
+			  and type path = Prooftree.Tree.Fmttree.path
+			  and type prooftree = Prooftree.Tree.Fmttree.prooftree 
+			  and type seq = Seqdraw.M.seq
+			  and type term = Term.Funs.term
+=
   struct
-    open Box
-    open Idclass
-    open Forcedef
-    open Japeserver
-    open Listfuns
-    open Mappingfuns
-    open Optionfuns
-    open Predicate
-    open Seqdraw
-    open Term
+    open Box.M
+    open Idclass.M
+    open Forcedef.M
+    open Japeserver.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Optionfuns.M
+    open Predicate.M
+    open Seqdraw.M
+    open SML.M
+    open Term.Funs
+    open Term.Store
+    open Term.Termstring
     
-    type 'a prooftree = 'a prooftree
-    and treeformat = treeformat
-    and fmtpath = fmtpath
-    and facts = facts
+    type element = Term.Funs.element
+     and facts = Facts.M.facts
+     and forcedef = Forcedef.M.forcedef
+     and model = Forcedef.M.model
+     and path = Prooftree.Tree.Fmttree.path
+     and prooftree = Prooftree.Tree.Fmttree.prooftree 
+     and seq = Seqdraw.M.seq
+     and term = Term.Funs.term
 
-    let rec catelim_intstring i ss = (string_of_int : int -> string) i :: ss
-    let rec catelim_boolstring b ss = (string_of_int : bool -> string) b :: ss
+    let atoi = Miscellaneous.M.atoi
+    let rec ask ss bs def =
+	  Alert.M.ask (Alert.M.defaultseverity bs) (implode ss) bs def
+    let askChoice = Alert.M.askChoice
+    let base_sequent = Prooftree.Tree.Fmttree.sequent
+    let catelim_seqstring = Sequent.Funs.catelim_seqstring
+    let consolereport = Miscellaneous.M.consolereport
+    let drawindisproofpane () = drawinpane Displayfont.M.DisproofPane
+    let getsemanticturnstile = Sequent.Funs.getsemanticturnstile
+    let isdigit = Miscellaneous.M.isdigit
+    let isextensibleID = Symbol.Funs.isextensibleID
+    let lowercase = Stringfuns.M.lowercase
+    let matchdebug = Match.M.matchdebug
+    let matchvars = Match.M.matchvars 
+    let mkSeq = Sequent.Funs.mkSeq
+    let onbraket = String.make 1 Miscellaneous.M.onbra, String.make 1 Miscellaneous.M.onket
+    let offbraket = String.make 1 Miscellaneous.M.offbra, String.make 1 Miscellaneous.M.offket
+    let outbraket = String.make 1 Miscellaneous.M.outbra, String.make 1 Miscellaneous.M.outket
+    let lockbraket = String.make 1 Miscellaneous.M.lockbra, String.make 1 Miscellaneous.M.lockket
+    let option_remapterm = Match.M.option_remapterm
+    let parseTerm = Termparse.M.string2term
+    let pairstring = Stringfuns.M.pairstring
+    let planinfo = Draw.M.planinfo
+    let seqexplode = Sequent.Funs.seqexplode
+    let seqstring = Sequent.Funs.seqstring
+    let seqvars = Sequent.Funs.seqvars termvars tmerge
+    let showAlert = Alert.M.showAlert Alert.M.defaultseverity_alert <*> implode
+    let simplifySubst = Substmapfuns.M.simplifySubst
+    let smlseqstring = Sequent.Funs.smlseqstring
+    let subtree = Prooftree.Tree.Fmttree.followPath
+    let triplestring = Stringfuns.M.triplestring
+    let uncurry2 = Miscellaneous.M.uncurry2
+    
+    let rec term2binding t =
+	  match Binding.M.bindingstructure t with
+		Some t' -> Some (registerBinding t')
+	  | None -> None
+        
+    let catelim_pairstring = Stringfuns.M.catelim_pairstring
+    let catelim_triplestring = Stringfuns.M.catelim_triplestring
+    
+    exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+	exception ParseError_ = Miscellaneous.M.ParseError_
+	exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
+
+    let rec catelim_intstring i ss = string_of_int i :: ss
+    let rec catelim_boolstring b ss = string_of_bool b :: ss
     let disproofdebug = ref false
     let sameelement = eqelements eqterms
     let rec dosubst facts =
       option_mapterm
-           (decodeSubst &~ (fun (_, P, vts) -> simplifySubst facts vts P))
-    let rec patvar t = (isleaf t && isId t) && isextensibleID (vid_of_var t)
+           (decodeSubst &~ (fun (_, _P, vts) -> simplifySubst facts vts _P))
+    let rec patvar t = (isleaf t && isId t) && isextensibleID (string_of_vid (vid_of_var t))
     let rec patvars t = patvar <| termvars t
     let rec matchit pat vs t =
       let res = matchvars true (fun v -> member (v, vs)) pat t empty in
@@ -284,14 +334,14 @@ module M : T =
           discardzeroarities (foldterm (findpredicates notabst []) [] t)
         in
         let rec pvars =
-          fun (P, abss) ->
+          fun (_P, abss) ->
             match findpredicatevars abss with
-              Some vs -> P, vs
+              Some vs -> _P, vs
             | None ->
                 raise
                   (Predicate_
                      ["Semantics must be simple! In the semantic pattern ";
-                      termstring t; ", predicate "; termstring P;
+                      termstring t; ", predicate "; termstring _P;
                       " doesn't have bound variables as arguments"])
         in
         let env = mkmap (List.map pvars pbs) in
@@ -299,7 +349,7 @@ module M : T =
         let (t, fd) = mapterm comp t, mapforcedefterms comp fd in
         let vs = patvars t in
         let (t, fds) = nodups t vs (fun (t', _, _, _) -> t') !forcedefs in
-        let rec hassubst = opt2bool <*> findinforcedef decodeSubst in
+        let hassubst = opt2bool <*> findinforcedef decodeSubst in
         forcedefs := (t, vs, hassubst fd, fd) :: fds;
         occurrences := findoccs fd !occurrences
       with
@@ -486,7 +536,7 @@ module M : T =
         if !disproofdebug then
           consolereport
             ["forced ("; coordstring c; ", "; termstring t; ") => ";
-             pairstring string_of_int string_of_int "," result];
+             pairstring string_of_bool string_of_bool "," result];
         result
       in
       ff
@@ -500,12 +550,12 @@ module M : T =
       List.map doit hyps, List.map doit concs
     (* *********************** interaction states *********************** *)
     
-    type disproofstate =
-        Disproofstate of
-          < seq : seq; universe : universe; tiles : term list;
+    type disproofstaterec =
+          { seq : seq; universe : universe; tiles : term list;
             selected : coord list;
             forcemap : ((coord * term), (bool * bool)) mapping;
-            conclusive : bool; countermodel : bool >
+            conclusive : bool; countermodel : bool }
+    type disproofstate = Disproofstate of disproofstaterec
     let catelim_forcedstring =
       catelim_pairstring catelim_boolstring catelim_boolstring ","
     let rec catelim_disproofstatestring =
@@ -552,113 +602,20 @@ module M : T =
       fun (Disproofstate {countermodel = countermodel}) -> countermodel
     
     (* because of the need for facts, these don't evaluate! *)
-    let rec withdisproofuniverse =
-      fun
-        (Disproofstate
-           {seq = seq;
-            tiles = tiles;
-            selected = selected;
-            forcemap = forcemap;
-            conclusive = conclusive;
-            countermodel = countermodel}, universe) ->
-        Disproofstate
-          (let module M =
-             struct
-               class a =
-                 object
-                   val seq = seq
-                   val universe = universe
-                   val tiles = tiles
-                   val selected = selected
-                   val conclusive = conclusive
-                   val forcemap = forcemap
-                   val countermodel = countermodel
-                   method seq = seq
-                   method universe = universe
-                   method tiles = tiles
-                   method selected = selected
-                   method conclusive = conclusive
-                   method forcemap = forcemap
-                   method countermodel = countermodel
-                 end
-             end
-           in
-           new M.a)
-    let rec withdisproofselected =
-      fun
-        (Disproofstate
-           {seq = seq;
-            universe = universe;
-            tiles = tiles;
-            forcemap = forcemap;
-            conclusive = conclusive;
-            countermodel = countermodel}, selected) ->
-        Disproofstate
-          (let module M =
-             struct
-               class a =
-                 object
-                   val seq = seq
-                   val universe = universe
-                   val tiles = tiles
-                   val selected = selected
-                   val conclusive = conclusive
-                   val forcemap = forcemap
-                   val countermodel = countermodel
-                   method seq = seq
-                   method universe = universe
-                   method tiles = tiles
-                   method selected = selected
-                   method conclusive = conclusive
-                   method forcemap = forcemap
-                   method countermodel = countermodel
-                 end
-             end
-           in
-           new M.a)
-    let rec withdisprooftiles =
-      fun
-        (Disproofstate
-           {seq = seq;
-            universe = universe;
-            selected = selected;
-            forcemap = forcemap;
-            conclusive = conclusive;
-            countermodel = countermodel}, tiles) ->
-        Disproofstate
-          (let module M =
-             struct
-               class a =
-                 object
-                   val seq = seq
-                   val universe = universe
-                   val tiles = tiles
-                   val selected = selected
-                   val conclusive = conclusive
-                   val forcemap = forcemap
-                   val countermodel = countermodel
-                   method seq = seq
-                   method universe = universe
-                   method tiles = tiles
-                   method selected = selected
-                   method conclusive = conclusive
-                   method forcemap = forcemap
-                   method countermodel = countermodel
-                 end
-             end
-           in
-           new M.a)
+    let rec withdisproofuniverse (Disproofstate s) universe =
+        Disproofstate {s with universe = universe}
+    let rec withdisproofselected (Disproofstate s) selected =
+        Disproofstate {s with selected = selected}
+    let rec withdisprooftiles (Disproofstate s) tiles =
+        Disproofstate {s with tiles = tiles}
+        
     let rec disproof_minimal =
       function
         None -> true
       | Some (Disproofstate {universe = universe}) -> isemptyworld universe
     let rec evaldisproofstate facts tree =
-      fun
-        (Disproofstate
-           {seq = seq;
-            universe = universe;
-            selected = selected;
-            tiles = tiles}) ->
+      fun (Disproofstate
+			 {seq = seq; universe = universe; selected = selected; tiles = tiles}) ->
         let (basestyle, hypsbag, basehyps, concsbag, baseconcs) =
           my_seqexplode (base_sequent tree)
         in
@@ -682,60 +639,20 @@ module M : T =
             let forced = memofix forcemap (unfixedforced facts universe) in
             let (hs, cs) = seq_forced forced root seq in
             let countermodel =
-              _All (fst, hs) && not (List.exists fst cs)
+              _All fst hs && not (List.exists fst cs)
             in
             Disproofstate
-              (let module M =
-                 struct
-                   class a =
-                     object
-                       val seq = seq
-                       val universe = universe
-                       val tiles = tiles
-                       val selected = selected
-                       val forcemap = !forcemap
-                       val conclusive = conclusive
-                       val countermodel = countermodel
-                       method seq = seq
-                       method universe = universe
-                       method tiles = tiles
-                       method selected = selected
-                       method forcemap = forcemap
-                       method conclusive = conclusive
-                       method countermodel = countermodel
-                     end
-                 end
-               in
-               new M.a)
+              {seq = seq; universe = universe; tiles = tiles; selected = selected;
+               forcemap = !forcemap; conclusive = conclusive; countermodel = countermodel}
         | _ ->
             Disproofstate
-              (let module M =
-                 struct
-                   class a =
-                     object
-                       val seq = seq
-                       val universe = universe
-                       val tiles = tiles
-                       val selected = selected
-                       val forcemap = empty
-                       val conclusive = conclusive
-                       val countermodel = false
-                       method seq = seq
-                       method universe = universe
-                       method tiles = tiles
-                       method selected = selected
-                       method forcemap = forcemap
-                       method conclusive = conclusive
-                       method countermodel = countermodel
-                     end
-                 end
-               in
-               new M.a)
+              {seq = seq; universe = universe; tiles = tiles; selected = selected;
+               forcemap = empty; conclusive = conclusive; countermodel = false}
     exception Disproof_ of string list
     (* sort, eliminating duplicates.  This sort is no longer case sensitive *)
     let rec alphasort sel ts =
       List.map sel
-        (sortunique (fun ((s1, _), (s2, _)) -> lowercase s1 < lowercase s2)
+        (sortunique (fun (s1, _) (s2, _) -> lowercase s1 < lowercase s2)
            ((List.map termstring ts ||| ts)))
     let tilesort = List.rev <*> alphasort snd
     let labelsort = alphasort fst 
@@ -802,21 +719,18 @@ module M : T =
       (* add occurrence formulae if necessary *)
       let ts =
         (if List.exists (opt2bool <*> decodeBinding) hypterms ||
-            List.exists (opt2bool <*> decodeBinding)) concterms
+            List.exists (opt2bool <*> decodeBinding) concterms
          then
            List.map fst 
-                 (fun (occ, vs) ->
-                    not
-                      (List.exists (opt2bool (matchit occ vs) ts)) <|
-                 !occurrences
-         else []) @
-          ts
+                 ((fun (occ, vs) ->
+                    not (List.exists (opt2bool <*> (matchit occ vs)) ts)) <| !occurrences)
+         else []) @ ts
       in
       (* eliminate all individuals which don't appear free in the sequent, 
        * but if there aren't any such individuals, keep just one
        *)
       let svs = seqvars seq in
-      match isVariable <| NJfold (tmerge, List.map patvars ts, []) with
+      match isVariable <| nj_fold (uncurry2 tmerge) (List.map patvars ts) [] with
         [] -> ts
       | tvs ->
           let tvs' =
@@ -836,7 +750,7 @@ module M : T =
           Some
             (seq,
              Model
-               (List.map (fun (c, (ts, chs)) -> World (Coord c, List.map Coord chs, ts))
+               (List.map (fun (c, (ts, chs)) -> World (Coord c, List.map (fun v->Coord v) chs, ts))
                   (aslist universe)))
     let rec model2disproofstate a1 a2 a3 =
       match a1, a2, a3 with
@@ -848,15 +762,9 @@ module M : T =
             List.map (fun (World (c, chs, ts)) -> coord c, (ts, List.map coord chs))
               worlds
           in
-          let utiles =
-            NJfold
-              ((fun (x, y) -> x @ y),
-               List.map (fst <*> snd) ulist, [])
-          in
-          let uvars = NJfold (tmerge, List.map variables utiles, []) in
-          let tiles =
-            (List.map newoccurrence uvars @ seq2tiles facts seq) @ utiles
-          in
+          let utiles = nj_fold (fun (x, y) -> x @ y) (List.map (fst <*> snd) ulist) [] in
+          let uvars = nj_fold (uncurry2 tmerge) (List.map variables utiles) [] in
+          let tiles = List.map newoccurrence uvars @ seq2tiles facts seq @ utiles in
           let minc =
             foldr
               (fun ((_, cy as c), _) (_, miny as minc) ->
@@ -897,28 +805,9 @@ module M : T =
           Some
             (evaldisproofstate facts tree
                (Disproofstate
-                  (let module M =
-                     struct
-                       class a =
-                         object
-                           val seq = seq
-                           val universe = mkmap ulist
-                           val tiles = tilesort tiles
-                           val selected = [minc]
-                           val conclusive = false
-                           val forcemap = empty
-                           val countermodel = false
-                           method seq = seq
-                           method universe = universe
-                           method tiles = tiles
-                           method selected = selected
-                           method conclusive = conclusive
-                           method forcemap = forcemap
-                           method countermodel = countermodel
-                         end
-                     end
-                   in
-                   new M.a)))
+                  {seq = seq; universe = mkmap ulist; tiles = tilesort tiles;
+                   selected = [minc]; conclusive = false; forcemap = empty;
+                   countermodel = false}))
     let rec checkdisproof facts tree disproofopt =
       match model2disproofstate facts tree disproofopt with
         Some (Disproofstate {countermodel = countermodel}) -> countermodel
@@ -938,28 +827,9 @@ module M : T =
         in
         evaldisproofstate facts tree
           (Disproofstate
-             (let module M =
-                struct
-                  class a =
-                    object
-                      val seq = seq
-                      val universe = emptyworld ()
-                      val tiles = tilesort tiles
-                      val selected = [0, 0]
-                      val conclusive = false
-                      val forcemap = empty
-                      val countermodel = false
-                      method seq = seq
-                      method universe = universe
-                      method tiles = tiles
-                      method selected = selected
-                      method conclusive = conclusive
-                      method forcemap = forcemap
-                      method countermodel = countermodel
-                    end
-                end
-              in
-              new M.a))
+             {seq = seq; universe = emptyworld (); tiles = tilesort tiles;
+              selected = [0, 0]; conclusive = false; forcemap = empty;
+              countermodel = false})
       in
       match pathopt with
         None ->
@@ -1013,7 +883,7 @@ module M : T =
         in
         let (template, tvs) = indivs t in
         let occs = isoccurrence <| tiles in
-        let occvs = NJfold (tmerge, List.map variables occs, []) in
+        let occvs = nj_fold (uncurry2 tmerge) (List.map variables occs) [] in
         if null tvs then None
         else
             ((if member (t, occs) then
@@ -1030,7 +900,7 @@ module M : T =
                   match a1, a2 with
                     xs, 0 -> ([[]] : term list list)
                   | (xs : term list), n ->
-                      (let ys : term list list = nlists xs (n - 1) in
+                     (let ys : term list list = nlists xs (n - 1) in
                        let rec insert a1 a2 =
                          match a1, a2 with
                            i, [] -> [[i]]
@@ -1038,19 +908,14 @@ module M : T =
                              (i :: j :: js) ::
                                List.map (fun js -> j :: js) (insert i js)
                        in
-                       NJfold
-                         ((fun (x, y) -> x @ y),
-                          NJfold
-                            ((fun (x, y) -> x @ y),
+                       nj_fold (fun (x, y) -> x @ y)
+                          (nj_fold (fun (x, y) -> x @ y)
                              (List.map
                                 (fun y ->
-                                   (List.map (fun x -> insert x y) xs :
-                                    term list list list))
-                                ys :
-                              term list list list list),
-                             []),
-                          []) :
-                       term list list)
+                                   (List.map (fun x -> insert x y) xs : term list list list))
+                                ys : term list list list list)
+                             [])
+                          [] : term list list)
                 in
                 let args = set (nlists occvs (List.length tvs)) in
                 let possibles =
@@ -1075,14 +940,13 @@ module M : T =
                         (askChoice
                            ("Choose your new tile",
                             List.map (fun t -> [t])
-                              (sort (fun (x, y) -> x < y)
-                                 (List.map termstring possibles))) &~~
-                         (fun i -> Some (List.nth (possibles) (i))))
+                              (sort (<) (List.map termstring possibles))) 
+                         &~~ (fun i -> Some (List.nth (possibles) (i))))
                     with
-                      Failure "nth" -> raise (Catastrophe_ ["(newtile) Failure "nth" ..."]))  
+                      Failure "nth" -> raise (Catastrophe_ ["(newtile) Failure \"nth\" ..."]))  
 			 &~~
              (fun tile ->
-                Some (withdisprooftiles (d, tilesort (tile :: tiles)))))
+                Some (withdisprooftiles d (tilesort (tile :: tiles)))))
     let rec addchild u (_, py as pc) (_, cy as cc) =
       if py >= cy then None
       else
@@ -1122,15 +986,15 @@ module M : T =
                 let u' = mkmap (List.map doit ws) in
                 Some
                   (withdisproofselected
-                     (withdisproofuniverse (state, u'),
-                      listsub (fun (x, y) -> x = y) selected [c]))
+                     (withdisproofuniverse state u')
+                     (listsub (fun (x, y) -> x = y) selected [c]))
     let rec worldselect =
       fun (Disproofstate {selected = selected} as d) cs ->
         if null (listsub (fun (x, y) -> x = y) selected cs) &&
            null (listsub (fun (x, y) -> x = y) cs selected)
         then
           None
-        else Some (withdisproofselected (d, cs))
+        else Some (withdisproofselected d cs)
     let rec addlink u from to__ =
       let (ts, cs) = getworld u from in
       if member (to__, cs) then u
@@ -1228,7 +1092,7 @@ module M : T =
                   listsub (fun (x, y) -> x = y) sels [from]
                 else List.map swing sels
               in
-              Some (withdisproofselected (withdisproofuniverse (d, u), sels))
+              Some (withdisproofselected (withdisproofuniverse d u) sels)
     let rec showdisproof =
       fun
         (Disproofstate
