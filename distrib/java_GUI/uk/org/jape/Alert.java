@@ -62,7 +62,7 @@ public class Alert {
         JLabel l = makeLabel(s);
         TextDimension m = JapeFont.measure(l, s);
         if (m.width>japeserver.screenBounds.width*2/3) {
-            String[] split = JapeFont.minwaste(l, s, japeserver.screenBounds.width*4/10);
+            String[] split = MinWaste.minwaste(l, s, japeserver.screenBounds.width*4/10);
             JLabel[] ls = new JLabel[split.length];
             for (int i=0; i<ls.length; i++)
                 ls[i] = makeLabel(split[i]);
@@ -96,14 +96,14 @@ public class Alert {
     throws ProtocolError {
         if (buttons.length==1 && buttons[0].equals("OK")) {
             showAlert(messagekind(severity), message);
-            Reply.reply("0"); // I hope
+            Reply.reply(0); // I hope
         }
         else {
             String s = "can't yet show alert: [";
             for (int i=0; i<buttons.length; i++) 
                 s=s+(i==0?"\"":",\"")+buttons[i]+"\"";
             showErrorAlert(s+" "+severity+" \""+message+"\" "+defaultbutton);
-            Reply.reply(defaultbutton+""); // I hope
+            Reply.reply(defaultbutton); // I hope
         }
     }
 }
