@@ -586,7 +586,7 @@ let rec getsubstinfo weaken name argmap cxt =
 let rec hiddencontexts =
   function
     [] -> false, false
-  | _ -> !autoAdditiveLeft, !autoAdditiveRight
+  | _  -> !autoAdditiveLeft, !autoAdditiveRight
 
 let rec expandstuff name (env, principals, thing) =
   fun (Proofstate {givens = givens}) ->
@@ -600,15 +600,12 @@ let rec expandstuff name (env, principals, thing) =
       | Theorem (_, provisos, conseq) -> "theorem", [], conseq, provisos
       | _ -> raise (Catastrophe_ ["expandstuff "; string_of_thing thing])
     in
-    let hiddenleft = not (null givens) && !autoAdditiveLeft in
-    let hiddenright = not (null givens) && !autoAdditiveRight in
-    kind, hiddencontexts givens, how, env, principals, antes, conseq,
-    provisos
+    (* let hiddenleft = not (null givens) && !autoAdditiveLeft in
+     * let hiddenright = not (null givens) && !autoAdditiveRight in *)
+    kind, hiddencontexts givens, how, env, principals, antes, conseq, provisos
 
 let rec apply_of_preparestuff stuff =
-  let (kind, hiddens, how, env, principals, antes, conseq, provisos) =
-    stuff
-  in
+  let (kind, hiddens, how, env, principals, antes, conseq, provisos) = stuff in
   let (argmap, provisos', antes', conseq') =
     instantiateRule env provisos antes conseq
   in
@@ -617,17 +614,12 @@ let rec apply_of_preparestuff stuff =
 
 let (apply, resolve, applyorresolve) =
   let rec makestep stuff state resopt =
-    let (kind, hiddens, how, argmap, principals, antes, conseq, provisos)
-      =
-      stuff
-    in
-    let _ =
-      if !(Applyrule.applydebug) > 0 then
-        consolereport
-          ["makestep "; step_label how; " ";
-           string_of_proofstate (!(Applyrule.applydebug) > 1) state; " ";
-           string_of_option (string_of_pair string_of_cxt string_of_prooftree ",") resopt]
-    in
+    let (kind, hiddens, how, argmap, principals, antes, conseq, provisos) = stuff in
+    if !(Applyrule.applydebug) > 0 then
+      consolereport
+        ["makestep "; step_label how; " ";
+         string_of_proofstate (!(Applyrule.applydebug) > 1) state; " ";
+         string_of_option (string_of_pair string_of_cxt string_of_prooftree ",") resopt];
     let r =
       match resopt with
         Some (cxt, subtree) -> proofstep cxt subtree state
@@ -640,14 +632,12 @@ let (apply, resolve, applyorresolve) =
          string_of_option (string_of_proofstate (!(Applyrule.applydebug) > 1)) r];
     r
   in
-  let rec apply
-    checker filter taker selhyps selconcs stuff reason cxt state =
+  let rec apply checker filter taker selhyps selconcs stuff reason cxt state =
     let stuff' = apply_of_preparestuff stuff in
     makestep stuff' state
       (Applyrule.apply checker filter taker selhyps selconcs stuff' reason
          cxt (getconjecture state))
-  and resolve
-    checker filter taker selhyps selconcs stuff reason cxt state =
+  and resolve checker filter taker selhyps selconcs stuff reason cxt state =
     (* We are actually going to do this with some care. 
      * Is there a cut tactic? Is there left weaken? Can we rearrange the rule?
      *
@@ -656,11 +646,7 @@ let (apply, resolve, applyorresolve) =
      *
      * And at present we can always rearrange the rule.
      *)
-    let
-      (kind, hiddens, how, env, (lefts, rights), antes, conseq, provisos)
-      =
-      stuff
-    in
+    let (kind, hiddens, how, env, (lefts, rights), antes, conseq, provisos) = stuff in
     let (Seq (cst, _, _)) = conseq in
     let rec fail ss =
       setReason ("Can't apply " :: step_label how :: " because " :: ss);
@@ -675,21 +661,18 @@ let (apply, resolve, applyorresolve) =
     let how' =
       match how with
         Apply (r, params, false) -> Apply (r, params, true)
-      | Given (s, i, false) -> Given (s, i, true)
-      | _ ->
-          raise
-            (Catastrophe_
-               ["how in resolve is "; string_of_prooftree_step how])
+      | Given (s, i     , false) -> Given (s, i, true)
+      | _ -> raise (Catastrophe_ ["how in resolve is "; string_of_prooftree_step how])
     in
     let (antes', conseq') = rearrangetoResolve antes conseq in
     let rec doit () =
       apply checker filter taker selhyps selconcs
-        (kind, hiddens, how', env, ([], rights), antes', conseq',
-         provisos)
+        (kind, hiddens, how', env, ([], rights), antes', conseq', provisos)
         reason cxt state
     in
     check CutRule (Some [cst; cst; cst]) "cut"
       (fun _ -> check LeftWeakenRule (Some [cst; cst]) "left weaken" doit)
+  
   and applyorresolve checker filter taker selhyps selconcs stuff reason cxt state =
     (let good = fun (Seq (_, lhs, rhs)) ->
                   let elhs = explodeCollection lhs in
@@ -899,97 +882,108 @@ let rec doSEQ f ts st =
 
 let cutindebug = ref false
 
-let doCUTIN f =
-  fun (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) ->
-    if !cutindebug then
-      consolereport ["CUTIN tree = "; string_of_subtree (Some (rootPath tree)) tree;
-                     "\nat goal = "; string_of_option string_of_fmtpath goal; 
-                     " = "; string_of_subtree goal tree];
-    (* there must be exactly one cut rule, and we must have autoAdditiveLeft *)
-    try
-      let nocando s = raise (Tacastrophe_ ["cannot use CUTIN tactic "; s]) in
-      let cutrule = match uniqueCut () with
-                      Some r -> r
-                    | None   -> nocando "unless there is a unique simple cut rule"
+let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
+  if !cutindebug then
+    consolereport ["CUTIN tree = "; string_of_subtree (Some (rootPath tree)) tree;
+                   "\nat goal = "; string_of_option string_of_fmtpath goal; 
+                   " = "; string_of_subtree goal tree];
+  (* there must be exactly one cut rule, and we must have autoAdditiveLeft *)
+  try
+    let nocando s = raise (Tacastrophe_ ["cannot use CUTIN tactic "; s]) in
+    let cutrule = match uniqueCut () with
+                    Some r -> r
+                  | None   -> nocando "unless there is a unique simple cut rule"
+    in
+    if !autoAdditiveLeft then ()
+                         else nocando "unless the logic is stated without left contexts";
+    let startAtTip = isTip (followPath tree (getGoalPath goal)) in
+    let path = deepest_samehyps tree (getGoalPath goal) in
+    if !cutindebug then 
+      consolereport ["CUTIN path = "; string_of_fmtpath path; 
+                     " = "; string_of_subtree (Some path) tree];
+    let subtree = followPath tree path in
+    let (Proofstate {tree = tree'; goal = goal'} as state') =
+      prunestate path state
+    in
+    let tippath = getGoalPath goal' in
+    let (Proofstate {tree = tree''; cxt = cxt''} as state'') =
+      let (cxt', info) = getapplyinfo cutrule [] cxt in
+      match
+        apply unifyvarious nofilter takeonlyone [] []
+          (expandstuff cutrule info state) (string_of_name cutrule) cxt'
+          (withtree state'
+              (set_prooftree_fmt tree' tippath Treeformat.Fmt.neutralformat))
+      with
+        None -> raise (Catastrophe_ ["cut failed in doCUTIN"])
+      | Some res -> res
+    in
+    let (Seq (_, hs, cs)) = sequent subtree in
+    let (leftofcut, rightofcut) =
+      subgoalPath tree'' tippath [0], subgoalPath tree'' tippath [1]
+    in
+    let (Seq (_, _, cs')) = sequent (followPath tree'' leftofcut) in
+    let (Seq (_, hs', _)) = sequent (followPath tree'' rightofcut) in
+    let cuthypel =
+      match listsub sameresource (explodeCollection hs') (explodeCollection hs) with
+        [c] -> c
+      | _   -> raise (Catastrophe_ ["no cuthypel in doCUTIN"])
+    in
+    let subtree', freshnames = augmenthyps cxt'' subtree [cuthypel] in
+    let cutconcel =
+      match listsub sameresource (explodeCollection cs') (explodeCollection cs) with
+        [c] -> c
+      | _   -> raise (Catastrophe_ ["no cutconcel in doCUTIN"])
+    in
+    let (l, r) =
+      let rec bang () =
+        raise (Catastrophe_ ["resources ";
+                             string_of_pair (debugstring_of_element string_of_term)
+                                            (debugstring_of_element string_of_term) 
+                                            "," (cutconcel, cuthypel);
+                             " in doCUTIN"])
       in
-      if !autoAdditiveLeft then ()
-                           else nocando "unless the logic is stated without left contexts";
-      let startAtTip = isTip (followPath tree (getGoalPath goal)) in
-      let path = deepest_samehyps tree (getGoalPath goal) in
-      if !cutindebug then 
-        consolereport ["CUTIN path = "; string_of_fmtpath path; 
-                       " = "; string_of_subtree (Some path) tree];
-      let subtree = followPath tree path in
-      let (Proofstate {tree = tree'; goal = goal'} as state') =
-        prunestate path state
-      in
-      let tippath = getGoalPath goal' in
-      let (Proofstate {tree = tree''; cxt = cxt''} as state'') =
-        let (cxt', info) = getapplyinfo cutrule [] cxt in
-        match
-          apply unifyvarious nofilter takeonlyone [] []
-            (expandstuff cutrule info state) (string_of_name cutrule) cxt'
-            (withtree state'
-                (set_prooftree_fmt tree' tippath Treeformat.Fmt.neutralformat))
-        with
-          None -> raise (Catastrophe_ ["cut failed in doCUTIN"])
-        | Some res -> res
-      in
-      let (Seq (_, hs, cs)) = sequent subtree in
-      let (leftofcut, rightofcut) =
-        subgoalPath tree'' tippath [0], subgoalPath tree'' tippath [1]
-      in
-      let (Seq (_, _, cs')) = sequent (followPath tree'' leftofcut) in
-      let (Seq (_, hs', _)) = sequent (followPath tree'' rightofcut) in
-      let cuthypel =
-        match listsub sameresource (explodeCollection hs') (explodeCollection hs) with
-          [c] -> c
-        | _   -> raise (Catastrophe_ ["no cuthypel in doCUTIN"])
-      in
-      let subtree' = augmenthyps cxt'' subtree [cuthypel] in
-      let cutconcel =
-        match listsub sameresource (explodeCollection cs') (explodeCollection cs) with
-          [c] -> c
-        | _   -> raise (Catastrophe_ ["no cutconcel in doCUTIN"])
-      in
-      let (l, r) =
-        let rec bang () =
-          raise (Catastrophe_ ["resources ";
-                               string_of_pair (debugstring_of_element string_of_term)
-                                              (debugstring_of_element string_of_term) 
-                                              "," (cutconcel, cuthypel);
-                               " in doCUTIN"])
-        in
-        match cutconcel, cuthypel with
-          Element (_, rc, _), Element (_, rh, _) ->
-            if not (isProperResnum rc) || not (isProperResnum rh) then
-              bang ()
-            else
-              (let (nc, nh) = int_of_resnum rc, int_of_resnum rh in
-               if (nc = nh || nc = 0) || nh = 0 then
-                 raise
-                   (Catastrophe_
-                      ["resnums "; string_of_pair string_of_int string_of_int "," (nc, nh);
-                       " in doCUTIN"])
-               else nc, nh)
-        | _ -> bang ()
-      in
-      let (_, wholeproof) =
-        makewhole cxt'' (Some (tree'', rightofcut)) subtree' (rootPath subtree')
-      in
-      let wholeproof' = set_prooftree_cutnav wholeproof tippath (Some (- l, - r)) in
-      (* tippath is now useless *)
-      (* if we were standing at a tip that has been closed, move on: otherwise stay put *)
-      optf (fun s -> let s' = withgoal s goal in if startAtTip then nextGoal false s' else s')
-           (f (withgoal (withtree state'' wholeproof')
-                        (Some (subgoalPath wholeproof' (parentPath wholeproof' path) [-l])))) 
-                                                       (* that's minus ell, not minus one *)
-    with
-      FollowPath_ stuff ->
-        showAlert ["FollowPath_ in doCUTIN: ";
-                   string_of_pair (fun s -> s) (bracketedstring_of_list string_of_int ",")
-                     ", " stuff];
-        None
+      match cutconcel, cuthypel with
+        Element (_, rc, _), Element (_, rh, _) ->
+          if not (isProperResnum rc) || not (isProperResnum rh) then
+            bang ()
+          else
+            (let (nc, nh) = int_of_resnum rc, int_of_resnum rh in
+             if (nc = nh || nc = 0) || nh = 0 then
+               raise
+                 (Catastrophe_
+                    ["resnums "; string_of_pair string_of_int string_of_int "," (nc, nh);
+                     " in doCUTIN"])
+             else nc, nh)
+      | _ -> bang ()
+    in
+    let cuthypterm = try _The (term_of_element cuthypel) 
+                     with None_ -> raise (Catastrophe_ ["tacticfuns.doCUTIN can't make term of ";
+                                                        debugstring_of_element string_of_term cuthypel])
+    in
+    let provisos' = (function (true, false, v) -> 
+                                Provisotype.NotinProviso(v,cuthypterm) 
+                     |        (b, r, v) -> 
+                                (showAlert["doCUTIN sees fresh name "; 
+                                           string_of_triple string_of_bool string_of_bool string_of_term "," (b,r,v)];
+                                 Provisotype.NotinProviso(v,cuthypterm))) <* freshnames
+    in
+    let cxt''' = plusvisibleprovisos cxt'' provisos' in
+    let (_, wholeproof) =
+      makewhole cxt''' (Some (tree'', rightofcut)) subtree' (rootPath subtree')
+    in
+    let wholeproof' = set_prooftree_cutnav wholeproof tippath (Some (- l, - r)) in
+    (* tippath is now useless *)
+    (* if we were standing at a tip that has been closed, move on: otherwise stay put *)
+    optf (fun s -> let s' = withgoal s goal in if startAtTip then nextGoal false s' else s')
+         (f (withgoal (withtree (withcxt state'' cxt''') wholeproof')
+                      (Some (subgoalPath wholeproof' (parentPath wholeproof' path) [-l])))) 
+                                                     (* that's minus ell, not minus one *)
+  with
+    FollowPath_ stuff ->
+      showAlert ["FollowPath_ in doCUTIN: ";
+                 string_of_pair (fun s -> s) (bracketedstring_of_list string_of_int ",")
+                   ", " stuff];
+      None
 
 (**********************************************************************
 
