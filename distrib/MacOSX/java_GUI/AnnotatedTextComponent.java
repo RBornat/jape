@@ -93,6 +93,7 @@ public class AnnotatedTextComponent extends TextComponent {
 		c==outket  ? ")TUO*"  :
 		c==lockbra ? "*LOCK(" :
 		c==lockket ? ")KCOL*" :
+		c=='"'     ? "\\\""   :
 		String.valueOf(c);
     }
     
