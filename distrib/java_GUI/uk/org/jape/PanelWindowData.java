@@ -206,7 +206,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         private JScrollPane scrollPane;
 
         private final int prefixw;
-        private boolean active;
+        private boolean active = true;
         
         public PanelWindow() {
             super(PanelWindowData.this.title);
@@ -221,10 +221,14 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                                     });
                 }
                 public void windowActivated(WindowEvent e) {
-                    active = true; repaintSelection();
+                    if (LocalSettings.showPanelWindowFocus) {
+                        active = true; repaintSelection();
+                    }
                 }
                 public void windowDeactivated(WindowEvent e) {
-                    active = false; repaintSelection();
+                    if (LocalSettings.showPanelWindowFocus) {
+                        active = false; repaintSelection();
+                    }
                 }
             });
     
