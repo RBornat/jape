@@ -25,12 +25,17 @@
     
 */
 
+import java.awt.geom.Ellipse2D;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 public class WorldItem extends DisplayItem {
 
     protected WorldCanvas canvas;
     protected SelectionRing selectionRing;
+    protected RenderingHints renderingHints;
+    protected Ellipse2D.Float outline;
     
     public WorldItem(WorldCanvas canvas, int x, int y) {
         super(x, y);
@@ -40,6 +45,10 @@ public class WorldItem extends DisplayItem {
                   2*canvas.worldRadius(), 2*canvas.worldRadius());
         selectionRing = new SelectionRing(x0, y0, canvas.worldRadius()+2*canvas.linethickness);
         canvas.add(selectionRing);
+        renderingHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
+                                            RenderingHints.VALUE_ANTIALIAS_ON);
+        renderingHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        outline = new Ellipse2D.Float((float)0, (float)0, (float)getWidth(), (float)getHeight());
     }
 
     public void select(boolean selected) {
@@ -47,7 +56,17 @@ public class WorldItem extends DisplayItem {
     }
 
     public void paint(Graphics g) {
-        g.setColor(Preferences.WorldColour); g.fillOval(0, 0, getWidth(), getHeight());
+        g.setColor(Preferences.WorldColour);
+        if (g instanceof Graphics2D) {
+            System.err.println(((Graphics2D)g).getRenderingHints());
+            System.err.println("world in Graphics2D "+System.getProperty("com.apple.macosx.AntiAliasedGraphicsOn")+
+                               " "+renderingHints);
+            ((Graphics2D)g).addRenderingHints(renderingHints);
+            ((Graphics2D)g).fill(outline);
+            System.err.println(((Graphics2D)g).getRenderingHints());
+        }
+        else
+            g.fillOval(0, 0, getWidth(), getHeight());
     }
     
     protected class SelectionRing extends CircleItem {
