@@ -29,6 +29,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.FontMetrics;
 
+import java.awt.event.MouseEvent;
+
 public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
 
     public ProvisoCanvas(Container viewport, boolean scrolled) {
@@ -125,9 +127,10 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
         super.add(new TextItem(this, inset, cursor, ProvisoFontNum, text));
     }
 
-    private void insertLine(int cursor, String annottext) {
+    private TextSelectableProvisoItem insertLine(int cursor, String annottext) {
         shiftLines(cursor);
-        super.add(new TextSelectableProvisoItem(this, 3*inset, cursor, annottext));
+        return (TextSelectableProvisoItem)
+               super.add(new TextSelectableProvisoItem(this, 3*inset, cursor, annottext));
     }
 
     private static String provisoHeader = "Provided:",
@@ -150,6 +153,14 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
         showGivens();
     }
 
+    private void mkGivenLine(TextSelectableProvisoItem tspi, final int giveni) {
+        tspi.addJapeMouseListener( new JapeMouseAdapter() {
+            public void doubleclicked(MouseEvent e) {
+                Reply.sendCOMMAND("applygiven "+giveni);
+            }
+        });
+    }
+
     private void showGivens() {
         // clear the old ones
         for (int i=0; i<child.getComponentCount(); ) {
@@ -164,7 +175,7 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
             insertHeader(givenCursor, givenHeader);
             givenCursor += linestep;
             for (int i=0; i<givens.length; i++) {
-                insertLine(givenCursor, givens[i].s);
+                mkGivenLine(insertLine(givenCursor, givens[i].s), givens[i].i);
                 givenCursor += linestep;
             }
         }
