@@ -1,0 +1,257 @@
+.notdef              % 0
+.notdef              % 1
+.notdef              % 2
+.notdef              % 3
+.notdef              % 4
+.notdef              % 5
+.notdef              % 6
+.notdef              % 7
+.notdef              % 8
+.notdef              % 9
+.notdef              % 10
+.notdef              % 11
+.notdef              % 12
+.notdef              % 13
+.notdef              % 14
+.notdef              % 15
+.notdef              % 16
+.notdef              % 17
+.notdef              % 18
+.notdef              % 19
+.notdef              % 20
+.notdef              % 21
+.notdef              % 22
+.notdef              % 23
+.notdef              % 24
+.notdef              % 25
+.notdef              % 26
+.notdef              % 27
+.notdef              % 28
+.notdef              % 29
+.notdef              % 30
+.notdef              % 31
+space                % 32
+exclam               % 33
+straight_quotes      % 34
+numbersign           % 35
+dollar               % 36
+percent              % 37
+ampersand            % 38
+primesuper           % 39
+parenleft            % 40
+parenright           % 41
+asterisk             % 42
+plus                 % 43
+comma                % 44
+asciihyphen          % 45
+period               % 46
+slash                % 47
+zero                 % 48
+one                  % 49
+two                  % 50
+three                % 51
+four                 % 52
+five                 % 53
+six                  % 54
+seven                % 55
+eight                % 56
+nine                 % 57
+colon                % 58
+semicolon            % 59
+less                 % 60
+equal                % 61
+greater              % 62
+question             % 63
+at                   % 64
+A                    % 65
+B                    % 66
+C                    % 67
+D                    % 68
+E                    % 69
+F                    % 70
+G                    % 71
+H                    % 72
+I                    % 73
+J                    % 74
+K                    % 75
+L                    % 76
+M                    % 77
+N                    % 78
+O                    % 79
+P                    % 80
+Q                    % 81
+R                    % 82
+S                    % 83
+T                    % 84
+U                    % 85
+V                    % 86
+W                    % 87
+X                    % 88
+Y                    % 89
+Z                    % 90
+bracketleft          % 91
+backslash            % 92
+bracketright         % 93
+asciicircum          % 94
+underscore           % 95
+rprimesuper          % 96
+a                    % 97
+b                    % 98
+c                    % 99
+d                    % 100
+e                    % 101
+f                    % 102
+g                    % 103
+h                    % 104
+i                    % 105
+j                    % 106
+k                    % 107
+l                    % 108
+m                    % 109
+n                    % 110
+o                    % 111
+p                    % 112
+q                    % 113
+r                    % 114
+s                    % 115
+t                    % 116
+u                    % 117
+v                    % 118
+w                    % 119
+x                    % 120
+y                    % 121
+z                    % 122
+braceleft            % 123
+bar                  % 124
+braceright           % 125
+similar              % 126
+.notdef              % 127
+supertop             % 128      = 22A4
+.notdef              % 129
+gu_gamma             % 130      = 0393
+.notdef              % 131
+.notdef              % 132
+.notdef              % 133
+.notdef              % 134
+.notdef              % 135
+.notdef              % 136
+.notdef              % 137
+believes             % 138      = 2AE2
+.notdef              % 139
+.notdef              % 140
+.notdef              % 141
+.notdef              % 142
+.notdef              % 143
+.notdef              % 144
+restrictdom          % 145      = 2282
+.notdef              % 146
+.notdef              % 147
+.notdef              % 148
+vtilde               % 149      = 22A6
+.notdef              % 150
+.notdef              % 151
+.notdef              % 152
+.notdef              % 153
+double_mapsto        % 154      = 27FE
+.notdef              % 155
+.notdef              % 156
+.notdef              % 157
+.notdef              % 158
+leftrightarrows      % 159      = 21C6
+.notdef              % 160
+circle               % 161      = 2218
+.notdef              % 162
+.notdef              % 163
+section              % 164      = 00A7
+bullet               % 165      = 2219
+meet                 % 166      = 2227
+subseteq             % 167      = 2286
+.notdef              % 168
+.notdef              % 169
+.notdef              % 170
+.notdef              % 171
+.notdef              % 172
+neq                  % 173      = 2260
+.notdef              % 174
+emptyset             % 175      = 2205
+infty                % 176      = 221E
+plus_minus           % 177      = 00B1
+leq                  % 178      = 2264
+geq                  % 179      = 2285
+multimap             % 180      = 22B8
+gl_mu                % 181      = 03BC
+gl_delta             % 182      = 03B4
+gu_sigma             % 183      = 03A3
+gu_pi                % 184      = 03A0
+gl_pi                % 185      = 03C0
+integral             % 186                      = 222B
+bigcircletimes       % 187      = 2297
+bigcircleplus        % 188      = 2295
+gu_omega             % 189      = 03A9
+.notdef              % 190
+.notdef              % 191
+.notdef              % 192
+.notdef              % 193
+false_that           % 194      = 00AC
+tick                 % 195      = 2713
+fatletF              % 196                      = 1D53D
+approxeq             % 197      = 2248
+gu_delta             % 198      = 0394
+muchless             % 199      = 27EA
+muchgreater          % 200      = 27EB
+ellipsis             % 201                      = 22EF
+.notdef              % 202
+.notdef              % 203
+.notdef              % 204
+.notdef              % 205
+.notdef              % 206
+.notdef              % 207
+hyphen               % 208                      = 23AF
+underbar             % 209                      = 23BD
+quoteopening         % 210                      = 201C
+quoteclosing         % 211                      = 201D
+.notdef              % 212
+.notdef              % 213
+division             % 214      = 00B8
+diamond              % 215      = 22C4
+mapsto               % 216      = 21A6
+latticebottom        % 217      = 22A5
+elt                  % 218      = 2208
+double_totalfun      % 219      = 21D2
+fatcolon             % 220      = 2982
+fatbra               % 221      = 27E6
+fatket               % 222      = 27E7
+cap                  % 223      = 2229
+dnasrepma            % 224                      = 05E6
+.notdef              % 225
+boxsquare            % 226      = 2AFE
+.notdef              % 227
+there_exists         % 228      = 2203
+.notdef              % 229
+leftstile            % 230      = 22A2
+totalfun             % 231      = 2192
+for_all              % 232      = 2200
+eqv                  % 233      = 2261
+relationarrow        % 234      = 2194
+join                 % 235      = 2228
+gu_lambda            % 236      = 039B
+entails              % 237      = 22A7
+.notdef              % 238
+cup                  % 239      = 222A
+.notdef              % 240
+.notdef              % 241
+aleph                % 242                      = 05D0
+.notdef              % 243
+times                % 244      = 00D7
+sqsupeq              % 245      = 2292
+.notdef              % 246
+defines              % 247      = 2259
+superbottom          % 248                      = 22BB
+midboxsquare         % 249      = 22A1
+superset             % 250      = 2283
+gl_lambda            % 251      = 03BB
+double_relationarrow % 252      = 21D4
+updownimp            % 253      = 21D5
+.notdef              % 254
+.notdef              % 255
+

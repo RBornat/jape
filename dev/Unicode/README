@@ -1,0 +1,18 @@
+$Id$
+
+The python programs herein support working with a variety of
+character encodings.
+
+jape2utf.py:    converts files between encodings -- including the
+                nonstandard jape_konstanz and jape_laura encodings.
+
+japeadhoc.py:   reads a file in any encoding, and constructs
+                (if possible) an ad-hoc octet-encoding vector for it.
+
+
+
+
+
+
+
+
