@@ -79,10 +79,12 @@ public abstract class SelectableProofItem extends    TextSelectableProofItem
         }
 
         protected void paintHooks(Graphics g, int y) {
-            int hooklength = 4*this.canvas.linethickness;
-            int lefthook = hooklength-1, righthook = right-hooklength+1;
-            g.drawLine(left,y, lefthook,y);
-            g.drawLine(righthook,y, right,y);
+            int hooklength = Math.min(4*this.canvas.linethickness, getWidth()/6);
+            if (hooklength>this.canvas.linethickness) {
+                int lefthook = hooklength-1, righthook = right-hooklength+1;
+                g.drawLine(left,y, lefthook,y);
+                g.drawLine(righthook,y, right,y);
+            }
         }
 
         public void paint(Graphics g) {
