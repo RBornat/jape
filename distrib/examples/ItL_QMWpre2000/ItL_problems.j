@@ -62,12 +62,12 @@ CONJECTUREPANEL Conjectures
   AND	P ¦ ÂP æ Q
   AND	æ ((P ç Q) ç P) ç P
   
-  AND	P(c), èx.(P(x) ç Q(x)) æ Q(c)
+  AND	constant c, P(c), èx.(P(x) ç Q(x)) æ Q(c)
   AND	èx.P(x) ç Q(x) æ (èx.P(x)) ç (èx.Q(x))
   AND	èx.P(x) ç Q(x), èx.Q(x) ç R(x) æ èx.P(x) ç R(x)
   AND	(èx.P(x)) ¦ (èx.Q(x)) æ èx.P(x) ¦ Q(x)
   AND	èx.P(x) ¦ Q(x) æ (èx.P(x)) ¦ (èx.Q(x))
-  AND	èx.P(x) æ äx.P(x)
+  AND	constant c, èx.P(x) æ äx.P(x)
   AND	èx.P(x) ç Q(x), äx.P(x) æ äx.Q(x)
   AND	äx.P(x) ¦ Q(x) æ (äx.P(x)) ¦ (äx.Q(x))
   AND	(äx.P(x)) ë (äx.Q(x)) æ äx.P(x) ë Q(x)
@@ -82,10 +82,10 @@ CONJECTUREPANEL Conjectures
   AND	èx. ÂP(x) æ Â(äx.P(x))
   END
   
-  THEOREM "Q(c) æ èx.P(x) ç Q(x) NOT" IS Q(c) æ èx.P(x) ç Q(x)
-  
+  THEOREM "èx.P(x) æ äx.P(x) NOT" IS èx.P(x) æ äx.P(x)
+  THEOREM "P(c), èx.(P(x) ç Q(x)) æ Q(c) NOT" IS P(c), èx.(P(x) ç Q(x)) æ Q(c)
+  THEOREM "constant c, Q(c) æ èx.P(x) ç Q(x) NOT" IS constant c, Q(c) æ èx.P(x) ç Q(x)
   THEOREM "(èx.P(x)) ç (èx.Q(x)) æ èx.P(x) ç Q(x) NOT" IS (èx.P(x)) ç (èx.Q(x)) æ èx.P(x) ç Q(x)
-  
   THEOREM "(äx.P(x)) ¦ (äx.Q(x)) æ äx.P(x) ¦ Q(x) NOT" IS (äx.P(x)) ¦ (äx.Q(x)) æ äx.P(x) ¦ Q(x)
   
   PREFIXBUTTON Apply IS apply TheoremForwardOrBackward
