@@ -8,15 +8,18 @@
 
 FONTS	"Konstanz"
 
-INFIX		2000L	=, ³, ², ­, <, >
-INFIX		2500L	+, -
-INFIX		2600L	*, /
-INFIX		2700L	^
-
-CLASS VARIABLE x, y
-CLASS FORMULA A, B, C, F, G, X, Y, Z
+CLASS VARIABLE x y
+CLASS FORMULA A B C F G X Y Z
 CONSTANT Ù
  
+/* this to allow functions stuff to use square brackets for lists */
+SUBSTFIX	2000 {x\A}
+JUXTFIX	1000
+INFIX		200L	= ³ ² ­ < >
+INFIX		250L	+ -
+INFIX		260L	* /
+INFIX		270L	^
+
  TACTIC FAIL(x)		IS JAPE(fail x)
  TACTIC FAILREASON(x)	IS JAPE (failgivingreason x)
 
@@ -69,7 +72,7 @@ TACTIC "Unfold/Fold with hypothesis"  IS
 	WHEN 
 		(LETHYP _A
 			(WHEN	
-				(LETCONCSUBSTSEL (_B[_x\_C])
+				(LETCONCSUBSTSEL (_B{_x\_C})
 					(ALT	(SEQ (WITHSUBSTSEL rewrite) (WITHHYPSEL hyp))
 						(SEQ (WITHSUBSTSEL rewritebackwards) (WITHHYPSEL hyp))
 						(FAIL (hypothesis _A doesn't fit sub-formula _C))
@@ -95,7 +98,7 @@ TACTIC HypFoldUnfold(t) IS
 	WHEN 
 		(LETHYP _A 
 			(WHEN 
-				(LETCONCSUBSTSEL (_B[_x\_C])
+				(LETCONCSUBSTSEL (_B{_x\_C})
 					(ALT	(WITHSUBSTSEL t)
 						(FAIL (hypothesis _A doesn't fit sub-formula _C))
 					)
