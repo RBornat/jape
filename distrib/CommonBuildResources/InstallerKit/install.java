@@ -589,9 +589,8 @@ public class install implements ActionListener
          // Lots of messing around to get substitution right insight regexps
          // Don't really need this -- should just have a literal substitute
          
-         String INSTALL = (installDirName.trim()+"/");
-
-         if (isWindows) INSTALL=INSTALL.replace('\\', '/');
+         String fsep    = System.getProperty("file.separator");
+         String INSTALL = (installDirName.trim()+fsep);
 
          boolean ok=true;
 
@@ -603,23 +602,27 @@ public class install implements ActionListener
            { String name = (String) names.nextElement();
              System.setProperty(name, prop.getProperty(name));
            }
-           System.setProperty("INSTALL", INSTALL);
+           System.setProperty("INSTALL", new File(INSTALL).getCanonicalPath());
            Class  theClass = Class.forName(postClass);
            showProgress("[Running post-install class "+postClass+"]");
            Object theObject = theClass.newInstance(); 
            showProgress("[Ran "+postClass+" successfully]");
          }
-        
+
+         // this screwing around so as to make replaceAll work
+         // I'm too lazy to do it the easy way.
+         if (isWindows) INSTALL=INSTALL.replace('\\', '\t');
+         
          if (shell!=null)
          {  shell=shell.replaceAll("%INSTALL%", INSTALL); 
-            if (isWindows) shell=shell.replace('/', '\\');
+            if (isWindows) shell=shell.replace('\t', '\\');
             showProgress("[Running shell command: "+shell+"]");
             ok=ok&&execute(shell, true);
          }
          
          if (shell1!=null)
          {  shell1=shell1.replaceAll("%INSTALL%", INSTALL);
-            if (isWindows) shell1=shell1.replace('/', '\\');
+            if (isWindows) shell1=shell1.replace('\t', '\\');
             showProgress("[Running shell command: "+shell1+"]");
             ok=ok&&execute(shell1, true);
          }
@@ -700,6 +703,7 @@ public class install implements ActionListener
 
   
 }
+
 
 
 

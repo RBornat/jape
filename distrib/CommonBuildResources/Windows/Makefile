@@ -26,8 +26,9 @@ BUILTENGINE=jape.exe
 DEPLOYEDENGINE=jape.exe
 
 #
-#       Make the appropriate script file (with installjape.class)
-#       then make shortcuts to it        (with SHORTCUT.EXE)
+#       Make the appropriate installation script file (with installjape.class)
+#       then run it as a command. This two-phase approach is complicated, but
+#       works reliably on lots of different variants of windows.
 #
 AFTERINSTALL= -classwindows installjape -cmdwindows '"%INSTALL%installjape.cmd" "%INSTALL%"'
 
@@ -40,6 +41,7 @@ INSTALLRESOURCES=$(BUILDRESOURCES)/README-WINDOWS.txt           \
                  $(BUILDRESOURCES)/installjape.class 
 
 APP="Windows Jape"
+
 
 
 
