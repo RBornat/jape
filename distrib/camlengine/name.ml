@@ -1,11 +1,12 @@
 (* $Id$ *)
 
 (* don't import Nametype.  At present only paragraph and tactic are entitled *)
-module type Nametype = sig type name = Name of string end
 
-module type Name =
-  sig
-    type name
+(* but in the blasted OCaml system, I can't hide it so easily.  I'll do it the slow way *)
+
+module type Nametype = 
+  sig 
+    type name = Name of string 
     type term
     val namestring : name -> string
     val parseablenamestring : name -> string
@@ -14,26 +15,44 @@ module type Name =
     val namefrom : string -> name
   end
 
+module type T = (* all the stuff that's fit to print *)
+  sig
+    type name and term
+    val namestring : name -> string
+    val parseablenamestring : name -> string
+    val nameorder : name * name -> bool
+    val term2name : term -> name option
+    val namefrom : string -> name
+  end
+  
 (* $Id$ *)
-module
-  Name
+module M
   (AAA :
     sig
-      module symboltype : Symboltype
-      module symbol : Symbol
-      module term : Termtype
+      module Symboltype : Symboltype.T
+      module Symbol : Symbol.T
+             with type symbol = Symboltype.symbol
+      module Term : (*Termtype*)Term.T
+             with type vid = string
       (* sanctioned in name. RB *)
-      module termparse : Termparse
+      module Termparse : Termparse.T
+             with type term = Term.term
+      
       val enQuote : string -> string
+      
       exception Catastrophe_ of string list
       exception ParseError_ of string list
-      
     end)
-  :
-  sig include Nametype include Name end =
+  : (* sig include Nametype include Name end *) Nametype =
   struct
     open AAA
-    open symboltype open symbol open term open termparse
+    open Symboltype 
+    open Symbol 
+    open Term 
+    open Termparse
+    
+    type term = Term.term
+    
     (* it is high time we had a datatype of names of things *)
     
     type name = Name of string
@@ -50,8 +69,8 @@ module
           | STRING _ -> raise (Catastrophe_ ["double quoting in Name "; s])
           | _ -> raise (ParseError_ [])
         in
-        try tryparse parsename s; s with
-          ParseError_ _ -> enQuote (implode (List.map unescapechar (explode s)))
+        try let _ = tryparse parsename s in s with
+          ParseError_ _ -> enQuote (String.escaped s)
     let rec term2name t =
       match t with
         Id (_, s, _) -> Some (Name s)

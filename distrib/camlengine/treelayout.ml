@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type TreeLayout =
+module type T =
   sig
     type term and ('a, 'b) mapping
     (* everything you can say in a LAYOUT tactic *)
@@ -17,8 +17,7 @@ module type TreeLayout =
   end
 (* $Id$ *)
 
-module
-  TreeLayout
+module M
   (AAA :
     sig
       type term and ('a, 'b) mapping
@@ -30,11 +29,10 @@ module
       val termstring : term -> string
       val try__ : ('a -> 'b) -> 'a option -> 'b option
     end)
-  :
-  TreeLayout =
+  : T =
   struct
     open AAA
-    type term = term and ('a, 'b) mapping = ('a, 'b) mapping
+    type term = AAA.term and ('a, 'b) mapping = ('a, 'b) AAA.mapping
     type treelayout =
         HideRootLayout
       | HideCutLayout
