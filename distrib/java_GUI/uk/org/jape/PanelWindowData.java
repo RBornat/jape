@@ -250,7 +250,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             MouseListener m = new MouseAdapter () {
                 public void mouseClicked(MouseEvent e) {
                     int index = list.locationToIndex(e.getPoint());
-                    if (e.getClickCount()==2) {
+                    if (e.getClickCount()==2 && 0<=index && index<model.size()) {
                         if (kind==ConjecturePanelKind)
                             // double-click means "prove this one"
                             Reply.sendCOMMAND("prove "+cmdv.get(index));
@@ -343,7 +343,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         }
 
         private void repaintCell(int index) {
-            if (index!=-1) {
+            if (0<=index && index<model.size()) {
                 Point p = list.indexToLocation(index);
                 Dimension d = ((Entry)model.elementAt(index)).getPreferredSize();
                 list.repaint(p.x, p.y, d.width, d.height);
