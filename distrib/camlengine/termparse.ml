@@ -85,7 +85,7 @@ let popSyntax () =
       raise (ParseError_ ["termparse popSyntax stack empty"])
       
 let popAllSyntaxes () =
-  while !syntaxes!=[] do popSyntax() done
+  while !syntaxes<>[] do popSyntax() done
   
 let rec declareOutRightfix braseps ket =
   (match !syntaxes with 
@@ -531,27 +531,25 @@ let rec parsecurriedarglist _ =
 	flatten (parseTerm (KET ")")) []
   else []
 
-let rec tryparse =
-  fun _R s ->
-	let s = pushlex "" (of_utf8string s) in
-	let r = 
-	  (try (let r = _R EOF in check EOF; r) with exn -> poplex s; raise exn)
-	in poplex s; r
+let rec tryparse _R s =
+  let s = pushlex "" (of_utf8string s) in
+  let r = 
+    (try (let r = _R EOF in check EOF; r) with exn -> poplex s; raise exn)
+  in poplex s; r
 
-let rec tryparse_dbug =
-  fun _R p s ->
-	let lex_s = pushlex "" (of_utf8string s) in
-	let r =
-	  (try
-		 let _ = consolereport ["tryparse_dbug \""; s; "\""] in
-		 let r = _R EOF in
-		 consolereport ["tryparse_dbug found "; p r];
-		 check EOF;
-		 consolereport ["tryparse_dbug EOF ok"];
-		 r
-	   with
-		 exn -> poplex lex_s; raise exn)
-	 in poplex lex_s; r
+let rec tryparse_dbug _R p s =
+  let lex_s = pushlex "" (of_utf8string s) in
+  let r =
+    (try
+       let _ = consolereport ["tryparse_dbug \""; s; "\""] in
+       let r = _R EOF in
+       consolereport ["tryparse_dbug found "; p r];
+       check EOF;
+       consolereport ["tryparse_dbug EOF ok"];
+       r
+     with
+       exn -> poplex lex_s; raise exn)
+   in poplex lex_s; r
 
 let rec asTactic f a =
   let u = !undecl in
