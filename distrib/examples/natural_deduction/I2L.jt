@@ -20,3 +20,10 @@ INITIALISE innerassumptionword assumption
 INITIALISE innerassumptionplural assumptions
 
 INITIALISE seektipselection false
+ 
+MENU Edit
+	SEPARATOR
+	BUTTON Disprove
+END
+
+KEYBOARD ç ¦ ë Â Ù è ä æ í
