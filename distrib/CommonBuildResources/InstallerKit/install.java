@@ -28,14 +28,20 @@
         ------
 
         Assemble all the components you need for your application to work
-        in a directory $(BUILD)
+        in a directory $(BUILD) 
         
                 mkdir $(BUILD)/bootstrap
                 cp    install.class       $(BUILD)/bootstrap
+                cd    $(BUILD)
                 java  bootstrap.install   [switches] $(TARGET).jar $(RESOURCEFILENAMES)
 
         This builds a jar called $(TARGET).jar that can be transported anywhere.
 
+        It is fairly important that the name of this file is not
+        changed, for if it is then the installation process is made a
+        little more complicated (see below). We could make it
+        simpler, but (frankly) it isn't worth it.
+        
         Switches are:
 
          -splash        <image file>        -- specify the installation splash image
@@ -50,10 +56,12 @@
         (The classes specified by -classXXX are loaded and instantiated before the scripts/commands
          specified by -cmdXXX are run)
 
-        It is fairly important that the name of this file is not
-        changed, for if it is then the installation process is made a
-        little more complicated (see below). We could make it
-        simpler, but (frankly) it isn't worth it.
+       Switches that modify the way resource files are treated
+         -boot                              -- synchronize the named files which follow into the installation bootstrap directory before making the jar
+         +boot                              -- turn off -boot
+         -sync                              -- install the files which follow as if they came from the directory
+                                               in which the installation is being constructed.
+         +sync                              -- turns off -sync
 
         WINDOWS/APPLE INSTALL
         ---------------------
@@ -160,13 +168,10 @@ public class install implements ActionListener
 { static String 
          packageName        = "bootstrap"
   ,      packagePath        = "bootstrap"
-  ,      bootstrapClassFile = packagePath+"/install.class"+" "+packagePath+"/install$1.class"
-  ,      bootstrapClass     = packageName+".install"
   ,      installerName      = "install"
   ,      installerClass     = packageName+"."+installerName
   ,      manifestName       = packagePath+"/"+installerName + ".mf"
-  ,      SplashImage            = null
-  ,      installSplashImage     = null
+  ,      SplashImage        = null
   ,      propertiesResource = installerName+".properties"
   ,      propertiesFile     = packagePath+"/"+propertiesResource
   ;
@@ -181,28 +186,47 @@ public class install implements ActionListener
       new install(args.length==1?args[0]:null);
   }
 
+  private static String withoutPath(String s)
+  { return new File(s).getName(); }
+
   public static void makeInstaller(String[] args) throws Exception
   { 
-    String       installjar = null;
-    StringBuffer resources  = new StringBuffer();
-    Properties   props      = new Properties();
+    String       installjar    = null;
+    StringBuffer resources     = new StringBuffer();
+    StringBuffer syncresources = new StringBuffer();
+    StringBuffer bootresources = new StringBuffer();
+    Properties   props         = new Properties();
+    boolean      sync          = false;
+    boolean      boot          = false;
+    
     for (int i=0; i<args.length; i++)
     {
        String arg=args[i];
+       if (arg.equals("-sync")) { sync=true; boot=false; }
+       else
+       if (arg.equals("+sync")) { sync=false; }
+       else
+       if (arg.equals("-boot")) { boot=true; sync=false; }
+       else
+       if (arg.equals("+boot")) { boot=false; }
+       else
        if (arg.startsWith("-"))
        { String param = args[++i];
+         if (arg.startsWith("-C"))
+            resources.append(" -C " + withoutPath(param));
+         else
          if (arg.startsWith("-splash")) 
          { SplashImage = param; 
-           installSplashImage =  packageName + "/" + param;
-           resources.append(" " + installSplashImage);
-           props.setProperty("-splash", SplashImage);
+           bootresources.append(" " + SplashImage);
+           props.setProperty("-splash", withoutPath(SplashImage));
          }
          else
          { 
            props.setProperty(arg, param);
            if (arg.startsWith("-cmdwindows") && param.endsWith(".cmd"))
            { 
-             resources.append(" " + param);
+             resources.append(" " + withoutPath(param));
+             if (sync) syncresources.append(" "+param);
            }
          }
        }
@@ -214,14 +238,18 @@ public class install implements ActionListener
        }
        else
        {
-          resources.append(" "+arg);
+          if (sync) syncresources.append(" "+arg);
+          
+          if (boot) 
+             bootresources.append(" "+arg);
+          else
+             resources.append(" "+withoutPath(arg));
        }
     }
       
     FileOutputStream propfile = new FileOutputStream(propertiesFile);
     props.store(propfile, "Installer properties");
     propfile.close();
-    resources.append(" "+propertiesFile);
  
     if ( installjar == null )
     {
@@ -239,8 +267,9 @@ public class install implements ActionListener
        
        boolean ok = execute
        ( new String[]
-         { SplashImage==null?"# no install-time icon":("cp "    + SplashImage + " " + packagePath)
-         , "jar -cvfm " + installjar + " " + manifestName + " " + bootstrapClassFile + resources.toString()
+         { syncresources.toString().equals("")?"#no resources to sync":"rsync -v -t "+syncresources.toString()+" ."
+         , bootresources.toString().equals("")?"#no install-time-only resources to sync":"rsync -v -t "+bootresources.toString()+" "+packagePath
+         , "jar -cvfm " + installjar + " " + manifestName + " " + packagePath + " " + resources.toString()
          },
          false
        );
@@ -320,6 +349,7 @@ public class install implements ActionListener
   /** Use the place we were loaded from */
   public static Image getImage(Object host, String localname)
   {  Toolkit tk = Toolkit.getDefaultToolkit();
+     System.err.println(localname);
      return tk.getImage(host.getClass().getResource(localname));
   }
 
@@ -492,6 +522,7 @@ public class install implements ActionListener
 
   
 }
+
 
 
 

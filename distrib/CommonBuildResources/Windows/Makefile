@@ -2,39 +2,43 @@
 # $Id$
 #
 #
-# 
-#
-components::  ; (cd ../../CommonBuildResources/; make -f Makefile-java installjape.class)
-#
+#       This include must come first
 #
 #
 include ../../CommonBuildResources/Makefile-common
 #
 #
 #
+#
 OS=Windows
 #
-# Override the special targets
+# Override the special targets (See Makefile-common for explanation)
 #
+#       ENGINETARGET=makejape.bat 
+#               because we make a windows batch file on Unix
+#               then execute it on Windows
+#               rather than trying to get a Windows make that works consistently
+#               with GNU-make
+#               -- the details of the batch file make are in ocamlengine/Makefile
+#       
 ENGINETARGET=makejape.bat
 BUILTENGINE=jape.exe
 DEPLOYEDENGINE=jape.exe
-README=README-WINDOWS 
-INSTALLME=installjape.class
-DEPLOYMENTKIT=$(README) japeicon.ico
 
-                
+#
+#       Make the appropriate script file (with installjape.class)
+#       then make shortcuts to it        (with SHORTCUT.EXE)
+#
+AFTERINSTALL= -cmdwindows   'SHORTCUT.EXE -f -t jape.cmd -n Jape -d . -i japeicon.ico' \
+              -classwindows installjape
 
-jarfile:  ; rsync -v -t $(BUILDRESOURCES)/$(INSTALLME) .;\
-            java bootstrap.install $(OS)jape.jar\
-                   -classwindows installjape installjape.class \
-                   -cmdwindows   'SHORTCUT.EXE -f -t jape.cmd -n Jape -d . -i japeicon.ico' \
-                   -app          "Windows Jape" \
-                   -splash       japesplash.png \
-                   SHORTCUT.EXE  $(DEPLOYEDENGINE) japeserver.jar $(DEPLOYMENTKIT) examples
+#
+#       Send the icon, the README, and the specialised code in the jar
+#
+INSTALLRESOURCES=$(BUILDRESOURCES)/README-WINDOWS               \
+                 $(BUILDRESOURCES)/japeicon.ico                 \
+                 $(BUILDRESOURCES)/InstallerKit/SHORTCUT.EXE    \
+                 $(BUILDRESOURCES)/installjape.class
 
-
-
-
-
+APP="Windows Jape"
 

@@ -14,12 +14,25 @@ SERVERSCRIPT=exec java -jar japeserver.jar
 #
 #       Default (Unix) targets; Windows build overrides these
 #
+#       ENGINETARGET   -- what the architecture-specific make should try to build
+#       BUILTENGINE    -- what the architecture-specific make builds
+#                         (these are only different for the Windows cross-Make)
+#       DEPLOYEDENGINE -- name of the binary that gets deployed
+#                         (should not be "jape" if we want to use a "jape" script)
+#
 ENGINETARGET=jape
 BUILTENGINE=jape
 DEPLOYEDENGINE=jape.engine
-README=README-UNIX
-INSTALLME=installjape.sh
-DEPLOYMENTKIT=$(README) $(INSTALLME)
+#
+#       AFTERINSTALL         -- what to do afterwards InstallerKit/install options
+#       INSTALLRESOURCES     -- extra resources needed for the installation to work
+#       SPLASH               -- splash-image for the installer
+#
+#
+AFTERINSTALL=-cmdunix "sh installjape.sh"
+INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX $(BUILDRESOURCES)/installjape.sh
+SPLASH=$(BUILDRESOURCES)/InstallerKit/japesplash.png
+APP=jape
 #
 #
 ##################################################################
@@ -54,27 +67,31 @@ CLEANGUI:       ; cd $(GUIDIR); $(MAKE) -f $(RESOURCES)/Makefile-java EXTRAFILES
 #
 #       
 #
-components::    ; make engine GUI;\
+components::    engine GUI examples ;\
                   rsync -v -t    $(GUIDIR)/japeserver.jar .                       ;\
-                  rsync -v -t    $(COMPILEDIR)/$(BUILTENGINE) ./$(DEPLOYEDENGINE) ;\
-                  rsync -v -t    $(BUILDRESOURCES)/$(README)    .                 ;\
-                  rsync -v -t    $(BUILDRESOURCES)/$(INSTALLME) . ;\
-                  ln -f -s ../../examples .;\
-                  chmod +x  $(INSTALLME) 
+                  rsync -v -t    $(COMPILEDIR)/$(BUILTENGINE) ./$(DEPLOYEDENGINE)
 
-install:        ; make components; sh installjape.sh
+install:        components; \
+                  rsync -v -t    $(BUILDRESOURCES)/installjape.sh . ;\
+                  sh installjape.sh
 
 clean:          ; rm -f $(BIN)/japeserver.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape $(BIN)/japeserver
 
-distribution::  ; make components ;\
+distribution::  ; make components; (cd $(BUILDRESOURCES)/InstallerKit; make) ;\
                   rm -rf bootstrap; mkdir bootstrap;\
-                  rsync -v -t $(BUILDRESOURCES)/InstallerKit/bootstrap/install*.class bootstrap/ ;\
-                  rsync -v -t $(BUILDRESOURCES)/InstallerKit/japesplash.png . ;\
-                  rsync -v -t $(BUILDRESOURCES)/InstallerKit/japeicon.ico   . ;\
-                  rsync -v -t $(BUILDRESOURCES)/InstallerKit/SHORTCUT.EXE   . ;\
+                  rsync -v -t -r $(BUILDRESOURCES)/InstallerKit/bootstrap/ bootstrap/ ;\
                   make jarfile
 
-jarfile:        ; java bootstrap.install -cmdunix "sh installjape.sh" -splash japesplash.png $(OS)jape.jar $(DEPLOYMENTKIT) $(DEPLOYEDENGINE) japeserver.jar examples 
+examples:       ; ln -s ../../examples .
+
+jarfile:        examples; \
+                java bootstrap.install $(OS)jape.jar    \
+                  $(AFTERINSTALL)                       \
+                  -app          '$(APP)'                \
+                  -splash       $(SPLASH)               \
+                  examples                              \
+                  -sync $(INSTALLRESOURCES) $(DEPLOYEDENGINE) japeserver.jar  
+
 
 
 
