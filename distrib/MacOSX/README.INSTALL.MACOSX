@@ -1,18 +1,20 @@
 1. Get the developer tools (from Apple or from a CD).
 
-2. Double-click MacOSX/java_GUI/Jape.pbproj (it's an Xcode project file)
+2. Get OCaml 3.06 or 3.07
 
-3. It will make a directory MacOSX/java_GUI/build, in which there will be a file Jape.app
+3. cd MacOSX/build
 
-4. In a terminal window, cd to MacOSX/java_GUI/build, execute
+4. make all 
+   -- builds the engine, the application (in MacOSX/java_GUI/build) and a symlink
+      so that it can talk to the engine
 
-    ln -s ../../../camlengine/jape jape_engine
-    open Jape.app
+5. make run
+   -- to try it out. If it works, move it where you like, putting camlengine/jape in the 
+      same folder (called jape_engine -- don't ask!)
 
-5. enjoy
-
-6. tell me how to do it from the command line, if you know.
-
+6. There's an Xcode project file in MacOSX/java_GUI which you can double-click if you want to 
+   try improving things..
+   
 Richard Bornat
 richard@bornat.me.uk
 26th March 2004
