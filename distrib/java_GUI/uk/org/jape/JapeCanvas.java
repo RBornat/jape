@@ -45,9 +45,12 @@ public abstract class JapeCanvas extends ContainerWithOrigin
                 JapeCanvas.this.claimFocus();
                 JapeCanvas.this.clicked(eventKind, e);
             }
+            // default textreleased doesn't always claim focus
             public void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
-                if (isClick)
+                if (isClick) {
+                    JapeCanvas.this.claimFocus();
                     JapeCanvas.this.textclicked(eventKind, e);
+                }
             }
         });
     }
@@ -97,8 +100,8 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         return 2*linethickness;
     }
 
-    // and the surround gap for selection rectangles, emphasis and I don't know what else
-    protected int getSurroundGap() {
+    // and the surround gap for selection items
+    protected int getSelectionGap() {
         return linethickness*3/2;
     }
     
@@ -106,8 +109,10 @@ public abstract class JapeCanvas extends ContainerWithOrigin
     protected void clicked(byte eventKind, MouseEvent e) {
         switch (eventKind) {
             case Selection:
-                killSelections((byte)0xFF);
-                Reply.send("DESELECT");
+                if (getSelectionCount()!=0) {
+                    killAllSelections();
+                    Reply.send("DESELECT");
+                }
                 break;
             case ExtendedSelection:
             case DisjointSelection:
@@ -118,12 +123,26 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         }
     }
 
+    public int getSelectionCount() {
+        int nc = child.getComponentCount(); // oh dear ...
+        int count = 0;
+        for (int i=0; i<nc; i++) {
+            Component c = child.getComponent(i);
+            if (c instanceof DisplayItem && ((DisplayItem)c).getSelected())
+                count++;
+        }
+        return count;
+    }
+    
     // text click on canvas kills text selections
     protected void textclicked(byte eventKind, MouseEvent e) {
         switch (eventKind) {
             case TextSelection:
             case ExtendedTextSelection:
-                killTextSelections(null);
+                if (getTextSelectionCount()!=0) {
+                    killTextSelections(null);
+                    notifyTextSelectionChange(null);
+                }
                 break;
             case DisjointTextSelection:
             case ExtendedDisjointTextSelection:
@@ -133,15 +152,33 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         }
     }
 
-    public abstract String getSelections(String sep);
+    // default action when selectable item is clicked - kill all selections
+    protected void doSelectAction(DisplayItem item) {
+        killAllSelections();
+    }
+
+    // default action when selectable item is shift-clicked - nothing
+    protected void doExtendSelectAction(DisplayItem item) {
+        return;
+    }
+
+    // default action when selected selectable item is shift-clicked - nothing
+    protected void doDeselectAction(DisplayItem item) {
+        return;
+    }
+
+    // default action when selectable item is double-clicked - nothing
+    protected void doHitAction(DisplayItem item) {
+        return;
+    }
     
-    protected void killSelections(byte selmask) {
+    public abstract String getSelections(String sep);
+
+    public void killAllSelections() {
         Component[] cs = child.getComponents(); // oh dear ...
         for (int i=0; i<cs.length; i++) {
-            if (cs[i] instanceof SelectableItem) {
-                SelectableItem s = (SelectableItem)cs[i];
-                if (s.selkindOverlaps(selmask))
-                    s.deselect();
+            if (cs[i] instanceof DisplayItem) {
+                ((DisplayItem)cs[i]).setSelected(false);
             }
         }
     }
@@ -166,7 +203,6 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         return null;
     }
 
-    
     protected void killTextSelections(TextSelectableItem leave) {
         Component[] cs = child.getComponents(); // oh dear ...
         for (int i=0; i<cs.length; i++)
@@ -185,6 +221,15 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         return count;
     }
 
+    // default is not to notify selection changes
+    protected void notifyTextSelectionChange(DisplayItem item) { 
+        return;
+    }
+
+    protected void notifySelectionChange(DisplayItem item) { 
+        return;
+    }
+    
     public ProofWindow getProofWindow() {
         Container c = getParent();
         while (c!=null && !(c instanceof ProofWindow))

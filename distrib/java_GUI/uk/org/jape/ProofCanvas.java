@@ -39,13 +39,12 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
     }
 
     // these are not yet coming out in time order ...
-    // reply always ends with a blank line
     // not yet efficient
     public String getSelections(String sep) {
         String s = null;
         int nc = child.getComponentCount(); // oh dear ...
         for (int i=0; i<nc; i++) {
-            String s1 =getSelection(child.getComponent(i)); // oh dear ...
+            String s1 = getSelection(child.getComponent(i)); // oh dear ...
             if (s1!=null) {
                 if (s==null)
                     s=s1;
@@ -58,9 +57,10 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
 
     protected String getSelection(Component c) {
         byte selclass;
-        if (c instanceof DisplayItem && c instanceof SelectableItem &&
-            (selclass = protocolSelClass("getSelection", (SelectableItem)c))!=PunctTextItem) {
-            return ((DisplayItem)c).idX+" "+((DisplayItem)c).idY+" "+selclass;
+        if (c instanceof SelectableProofItem && ((SelectableProofItem)c).getSelected()) {
+            SelectableProofItem item = (SelectableProofItem)c;
+            return (item.idX+" "+item.idY+" "+
+                    protocolSelClass("getSelection", item.getSelectionKind()));
         }
         else
             return null;
@@ -85,20 +85,24 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
         Reply.send("DESELECT"+(s==null ? "" : " "+s));
     }
 
-    protected byte protocolSelClass(String id, SelectableItem si) {
-        switch (si.getSelkind()) {
-            case NoSel    : return PunctTextItem;
+    protected void notifySelectionChange(DisplayItem item) {
+        if (item.getSelected())
+            notifySelect(item);
+        else
+            notifyDeselect();
+    }
+    
+    protected byte protocolSelClass(String id, byte selclass) {
+        switch (selclass) {
             case HypSel   : return HypTextItem;
             case ConcSel  : return ConcTextItem;
             case ReasonSel: return ReasonTextItem;
-            default       : Alert.abort("ProofCanvas."+id+" selkind="+
-                                        si.getSelkind());
+            default       : Alert.abort("ProofCanvas."+id+" selkind="+selclass);
                             return PunctTextItem; // shut up compiler
         }
     }
     
     // not efficient, not in time order
-    // always ends with a blank line
     public String getTextSelections(String sep) {
         String s = null;
         int nc = child.getComponentCount(); // oh dear ...
@@ -106,7 +110,7 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
             Component c = child.getComponent(i); // oh dear ...
             if (c instanceof TextSelectableItem) {
                 TextSelectableItem sti = (TextSelectableItem)c;
-                String s1 = sti.getTextSelections();
+                String s1 = sti.getContextualisedTextSelections();
                 if (s1!=null) {
                     s1 = sti.idX+Reply.stringSep+sti.idY+Reply.stringSep+s1;
                     if (s==null)
@@ -119,10 +123,56 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
         return s;
     }
 
-    protected void notifyHit(DisplayItem di) {
-        if (di instanceof SelectableItem)
+    public void killSelections(byte mask) {
+        Component[] cs = child.getComponents(); // oh dear ...
+        for (int i=0; i<cs.length; i++) {
+            if (cs[i] instanceof SelectableProofItem &&
+                (((SelectableProofItem)cs[i]).getSelectionKind() & mask)!=0) {
+                ((SelectableProofItem)cs[i]).setSelected(false);
+            }
+        }
+    }
+
+    protected void doSelectAction(DisplayItem di) {
+        if (di instanceof SelectableProofItem) {
+            SelectableProofItem item = (SelectableProofItem) di;
+            switch (item.getSelectionKind()) {
+                case ReasonSel:
+                    killAllSelections();
+                    break;
+                case HypSel:
+                    killSelections((byte)(HypSel | ReasonSel));
+                    break;
+                case ConcSel:
+                    killSelections((byte)(ConcSel | ReasonSel));
+                    break;
+                default:
+                    Alert.abort("ProofCanvas.doSelectAction("+di+");");
+            }
+        }
+    }
+
+    protected void doExtendSelectAction(DisplayItem di) {
+        if (di instanceof SelectableProofItem) {
+            SelectableProofItem item = (SelectableProofItem) di;
+            switch (item.getSelectionKind()) {
+                case ReasonSel:
+                case ConcSel: // only one at a time
+                    doSelectAction(di);
+                    break;
+                case HypSel: // several allowed
+                    break;
+                default:
+                    Alert.abort("ProofCanvas.doExtendSelectAction("+di+");");
+            }
+        }
+    }
+
+    protected void doHitAction(DisplayItem di) {
+        if (di instanceof SelectableProofItem)
             Reply.send("ACT "+di.idX+" "+di.idY+" "+
-                       protocolSelClass("notifyHit",(SelectableItem)di));
+                       protocolSelClass("notifyHit",
+                                    ((SelectableProofItem)di).getSelectionKind()));
         else
             Alert.abort("ProofCanvas.notifyHit di="+di);
     }
