@@ -1,7 +1,10 @@
 /* $Id$ */
 
 TACTIC TheoremForwardOrBackward(thm) IS
-  WHEN (LETHYP _P cut (WITHSELECTIONS thm)) thm
+  WHEN 	(LETHYP _P cut (ALT (WITHSELECTIONS thm) (RESOLVE (WITHSELECTIONS thm))))
+  		(ALT (WITHSELECTIONS thm) (RESOLVE (WITHSELECTIONS thm)) 
+  			(SEQ cut (ALT (WITHSELECTIONS thm) (RESOLVE (WITHSELECTIONS thm))))
+  		)
   
 /* These theorems are all stated without an explicit left context ‚. That is possible because, in ItL_rules.j,
   * we declared a WEAKEN structure rule: Jape will automatically discard any unmatched left-context
