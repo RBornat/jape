@@ -1,6 +1,5 @@
 ﻿/* $Id$ */
 
-Usefile
 INITIALISE interpretpredicates true
 
 USE "BnE-Fprime_syntax.j"

@@ -1,6 +1,5 @@
 ﻿/* $Id$ */
 
-Usefile
 CLASS VARIABLE x y z e f g map
 CLASS FORMULA E F G
 CLASS CONSTANT c

@@ -9,7 +9,7 @@ discursive account of the theory is given in that paper.
 
 */
     /************* Explained in the Lambda section of the paper *************/
-    Usefile    CLASS   VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
+    CLASS   VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
     CLASS   FORMULA  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
     SEQUENT IS LIST ⊢ FORMULA
     SUBSTFIX 500000 [ S / s ]
