@@ -51,6 +51,7 @@ and resnum = Nonum | Resnum of int | ResUnknown of int
 
 val bracketed : term -> bool
 val debracket : term -> term
+
 val int_of_resnum : resnum -> int
 
 val string_of_vid : vid -> string
