@@ -30,13 +30,13 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
-public class WorldItem extends DisplayItem {
+public class WorldItem extends DisplayItem implements DebugConstants {
 
     protected WorldCanvas canvas;
     protected SelectionRing selectionRing;
     protected RenderingHints renderingHints;
     protected Ellipse2D.Float outline;
-    
+
     public WorldItem(WorldCanvas canvas, int x, int y) {
         super(x, y);
         this.canvas = canvas;
@@ -48,7 +48,7 @@ public class WorldItem extends DisplayItem {
         renderingHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
                                             RenderingHints.VALUE_ANTIALIAS_ON);
         renderingHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        outline = new Ellipse2D.Float((float)0, (float)0, (float)getWidth(), (float)getHeight());
+        outline = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
     }
 
     public void select(boolean selected) {
@@ -58,12 +58,18 @@ public class WorldItem extends DisplayItem {
     public void paint(Graphics g) {
         g.setColor(Preferences.WorldColour);
         if (g instanceof Graphics2D) {
-            System.err.println(((Graphics2D)g).getRenderingHints());
-            System.err.println("world in Graphics2D "+System.getProperty("com.apple.macosx.AntiAliasedGraphicsOn")+
-                               " "+renderingHints);
+            if (antialias_trace)
+                System.err.println("pre blob hints "+((Graphics2D)g).getRenderingHints());
             ((Graphics2D)g).addRenderingHints(renderingHints);
             ((Graphics2D)g).fill(outline);
-            System.err.println(((Graphics2D)g).getRenderingHints());
+            if (antialias_trace) {
+                System.err.print("world hints "+((Graphics2D)g).getRenderingHints()+
+                                 " bounds "+outline.getBounds2D());
+                if (japeserver.onMacOS)
+                    System.err.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
+                else
+                    System.err.println();
+            }
         }
         else
             g.fillOval(0, 0, getWidth(), getHeight());
