@@ -81,8 +81,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants {
     }
 
     public void addWorldLabel(int x, int y, String label) throws ProtocolError {
-        findWorld(x,y,true);
-        System.err.println("no world labels yet");
+        findWorld(x,y,true).addlabel(label);
     }
 
     public void addChildWorld(int x, int y, int xc, int yc) {
@@ -93,6 +92,10 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants {
         findWorld(x,y,true).select(selected);
     }
 
+    public TextItem addLabelItem(int x, int y, String label) {
+        return (TextItem)add(new TextItem(this, x, y, ProtocolConstants.ProvisoFontNum, label, label));
+    }
+    
     public void paint(Graphics g) {
         if (paint_tracing)
             System.err.println("painting WorldCanvas");
