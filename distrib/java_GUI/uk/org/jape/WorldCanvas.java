@@ -30,6 +30,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
@@ -38,12 +39,18 @@ import java.awt.image.BufferedImage;
 public class WorldCanvas extends JapeCanvas implements DebugConstants {
 
     protected RenderingHints renderingHints;
+    protected Container layeredPane;
     
-    public WorldCanvas(Container viewport, boolean scrolled) {
+    public WorldCanvas(Container viewport, Container layeredPane,
+                       boolean scrolled, int linethickness) {
         super(viewport, scrolled);
+        this.linethickness = linethickness; this.layeredPane = layeredPane;
+        
         renderingHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
                                             RenderingHints.VALUE_ANTIALIAS_ON);
         renderingHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        Point origin = getOrigin();
+        setOrigin(origin.x, origin.y+2*worldRadius());
     }
 
     // It is worth demanding good antialiasing when drawing blobs, rings, diagonal lines.
@@ -159,7 +166,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants {
 
     public void addWorld(int x, int y) throws ProtocolError /* doesn't! */ {
         if (findWorld(x,y,false)==null)
-            add(new WorldItem(this,x,y));
+            add(new WorldItem(this, layeredPane, x, y));
     }
 
     public void addWorldLabel(int x, int y, String label) throws ProtocolError {
