@@ -269,8 +269,16 @@ public class JapeCharEncoding implements DebugConstants {
                             else
                                 inbuf.append((char)c);
                         }
-                            else
-                                inbuf.append(encoding[c]);
+						else {
+							// this is a hack for prep, which is currently un-glyphed everywhere
+							char c1 = encoding[c];
+							
+							if (englyph_prep && c1==0x2AE0) {
+								inbuf.append((char)0x207B); inbuf.append((char)0x00B9);
+							}
+							else
+								inbuf.append(c1);
+						}
                         break;
                 }
             }
@@ -302,14 +310,19 @@ public class JapeCharEncoding implements DebugConstants {
             else
                 return (byte)c;
         }
-        
     }
     
     public static void output(String s) throws IOException {
         int len = s.length();
         int bufi = 0;
         for (int i=0; i<len; i++) {
-            outbuf[bufi++] = tranchar(s.charAt(i));
+			char c = s.charAt(i);
+			// this is a hack for prep, which is currently un-glyphed everywhere
+			if (englyph_prep && c==0x207B && i<len-1 && s.charAt(i+1)==0x00B9) {
+				outbuf[bufi++]=tranchar((char)0x2AE0); i++;
+			}
+			else
+				outbuf[bufi++] = tranchar(c);
             if (bufi==bufsize) {
                 out.write(outbuf, 0, bufi);
                 if (encoding_tracing)

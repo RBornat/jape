@@ -54,5 +54,7 @@ interface DebugConstants {
                                 notice_MacOSX            = true,
                                 notice_Solaris           = true,
                                 notice_Windows           = true;
+	
+	static final public boolean englyph_prep = true;
 }
 
