@@ -16,6 +16,51 @@ import codecs
 import sys
 import getopt
 import exceptions
+import tempfile
+import os
+from   StringIO import *
+from   unicodedata import name
+from   japeenc import *
+
+def translit(inputcodec, outputcodec, fmt, width=8):
+    if not fmt: fmt = " %(c)03d %(c)c"
+    out=codecs.EncodedFile(sys.stdout, inputcodec, outputcodec)
+    for row in xrange(128, 256, width):
+        for char in xrange(row, row+width):
+          try:
+            out.write(fmt%{'c':char})
+          except exceptions.UnicodeError, e:
+            out.write("?")
+        out.write("\n")
+
+def encoding(inputcodec, fmt):
+    #
+    # This complexity is warranted only by the curiously
+    # opaque way in which the encoding/decoding machinery
+    # is set up (and the nongenerality of StringIO)
+    #
+    if not fmt:
+       fmt = "%(char)03d 0x%(enc)04x %(name)s"
+       
+    base     = tempfile.mktemp()
+    basefile = open(base, 'w')
+    out=codecs.EncodedFile(basefile, inputcodec, 'utf8')
+    for char in xrange(128, 256):
+        try:
+          out.write("%c"%char)
+        except exceptions.UnicodeError, e:
+          out.write("?")
+    out.close()
+    out = codecs.open(base, 'r', 'utf8')
+    enc = Enc()
+    for char in out.read():
+        enc.add(char)
+    os.remove(base)
+    
+    for i in xrange(128, 256):
+        name = unicodedata.name((enc.encoding[i]), "?")
+        print fmt%{ 'char': i, 'enc': ord(enc.encoding[i]), 'name': name}
+
 
 def translate(pathin, pathout, inputcodec, outputcodec):
     
@@ -44,8 +89,9 @@ def main():
     outputcodec = 'utf_8'
     outputpath  = None
     inputpath   = None
+    tablewidth  = 8
     try:
-     optlist, paths = getopt.getopt(sys.argv[1:], "hO:I:KL", ['help'])
+     optlist, paths = getopt.getopt(sys.argv[1:], "EhO:I:KLTt:w:", ['enc=', 'help', 'table=', 'width='])
     except Exception, e:
      report(e, "parsing parameters")
      optlist, paths = [], []
@@ -62,6 +108,17 @@ def main():
            inputpath = arg      
         elif flag=='-o':
            outputpath = arg
+        elif flag=='-E' or flag=='--enc':
+           encoding(inputcodec, arg)
+           paths = []
+        elif flag=='-T':
+           translit(inputcodec, outputcodec, None, tablewidth)
+           paths = []
+        elif flag=='--table' or flag=='-t':
+           translit(inputcodec, outputcodec, arg, tablewidth)
+           paths = []
+        elif flag=='-w' or flag=='--width':
+           tablewidth=int(arg)
         elif flag=='-h' or flag=='--help':
            optlist, paths = [], []
 
@@ -97,9 +154,22 @@ def usage():
        -i inpath      -- translate from file at inpath
        -o outpath     -- translate to file at outpath
        path           -- translate from file at path to stdout
+
+     Special commands:
        -h             -- print help text and exit immediately
        --help         -- ditto
+       
+      Human-readable 
+       --table=fmt    -- output the input encoding in the output encoding using fmt
+       -t fmt         -- ditto
+       -T             -- equivalent to -t "%(c)03d %(c)c" 
+       -w <int>
+       --width=<int>  -- characters per line of the encoding table
 
+      Compiler-readable
+       --enc=fmt      -- output the inut encoding using fmt (one char per line)
+       -E             -- equivlent to --enc="%(char)%03d 0x%(enc)04x %(name)s"
+       
        Examples: 
        
           Print a k-coded jape theory on a (utf-8 capable) printer
@@ -112,11 +182,16 @@ def usage():
                 editor foo
                 jape2utf -O jape_konstanz  -i foo -o equality_theory.j
 
-                
+          Show the Konstanz encoding table in utf8
+
+                jape2utf -K -T                 
      """)
         
         
 if __name__ == '__main__':
    main()
    
+
+
+
 
