@@ -296,6 +296,33 @@ let
 let rec selparsefail sel ss =
   "Your text selection doesn't parse (" :: ss @
     [") - you selected \""; sel; "\""]
+    
+(*************************************************************************************)
+
+let rec _AQ env term =
+  let rec _A =
+    function
+      App (_, Id (_, v, _), a) -> (if string_of_vid v="QUOTE" then Some (_QU env a) else None)
+    | Id _                as v -> (env <@> _The (nameopt_of_term v))
+    | Unknown _           as v -> (env <@> _The (nameopt_of_term v))
+    | _ -> None
+  in
+  mapterm _A term
+
+and _QU env term =
+  let rec _Q =
+    function
+      App (_, Id (_, v, _), a) -> (if string_of_vid v="ANTIQUOTE" then Some (_AQ env a) else None)
+    | _ -> None
+  in
+  mapterm _Q term
+
+let eval = _AQ
+let evalq = _QU
+
+let rec evalvt env (v, t) = v, eval env t (* a service to SubstTac *)
+   
+(***********************************************************************************)
 
 let rec evalname env arg =
   match (env <@> arg) with
@@ -308,6 +335,7 @@ let rec evalname env arg =
             (Tacastrophe_
                [string_of_name arg; " evaluates to "; string_of_term v;
                 " which is not a valid tactic/rule name"])
+
 (* it would be nice to have tactical arguments, n'est ce pas?
  * OK then, here goes ... 
  *)
@@ -463,27 +491,37 @@ let rec make_remark name args =
     | _ -> (string_of_term <* args)
   in
   match thingnamed name with
-    None -> respace ("EVALUATE" :: parseablestring_of_name name :: args)
-  | Some (Rule _, _) -> string_of_name name
-  | Some (Tactic _, _) -> string_of_name name
-  | Some (Macro _, _) -> string_of_name name
+    None                -> respace ("EVALUATE" :: parseablestring_of_name name :: args)
+  | Some (Rule    _, _) -> string_of_name name
+  | Some (Tactic  _, _) -> string_of_name name
+  | Some (Macro   _, _) -> string_of_name name
   | Some (Theorem _, _) -> string_of_name name
-(*  --------------------------------------------------------------------- *)
       
+(*  --------------------------------------------------------------------- *)
 
-let rec freshenv patterns cxt env =
+let freshenv patterns cxt env =
+  (* consolereport ["before evaluation patterns are "; 
+                 bracketedstring_of_list string_of_term ";" patterns; 
+                 " in env "; Japeenv.string_of_japeenv env]; *)
+  let patterns = List.map (evalq env) patterns in
+  (* consolereport ["after evaluation patterns are "; 
+                 bracketedstring_of_list string_of_term ";" patterns]; *)
   let us = nj_fold (uncurry2 (sortedmerge earliervar)) ((termvars <* patterns)) [] in
   let rec f =
     function
-      (Unknown (_, v, c) as u), (us, cxt, env) ->
+      (Unknown (_, v, c) as u), (us, cxt, env, patterns) ->
         let (cxt', v') = freshVID cxt c v in
         let uname = _The (nameopt_of_term u) in
-        uname :: us, cxt', (env ++ (uname |-> registerUnknown (v', c)))
+        uname :: us, cxt', (env ++ (uname |-> registerUnknown (v', c))), patterns
     | _, r -> r
   in
-  nj_fold f us ([], cxt, env)
-(*  --------------------------------------------------------------------- *)
+  nj_fold f us ([], cxt, env, patterns)
+  
+let freshenv_pes pes cxt env = 
+  let (newformals, cxt, env, patterns) = freshenv (fst <* pes) cxt env in
+  (newformals, cxt, env, patterns|||(snd <* pes))
     
+(*  --------------------------------------------------------------------- *)
 
 let rec getGoalPath =
   function
@@ -1345,6 +1383,7 @@ let rec _UnifyWithExplanation message (s, t) cxt =
       None
 type arithKind =
   ArithNumber of int | ArithVariable of (term * bool) | ArithOther
+
 (* Solve deterministic  e3 = e1 opn e2 
                     or  e3 invopn e2 = e1 
                     or  e3 invopn e1 = e2 
@@ -1360,61 +1399,59 @@ type arithKind =
    opn, invopn: int*int->int where opn=+ => invopn=-, opn=* => invopn=div
 *)
 
-let rec _ARITHMETIC =
-  fun _C cxt opn invopn (e1 : term) (e2 : term) (e3 : term) (neg : term) ->
-    let e1 = debracket e1 in
-    let e2 = debracket e2 in
-    let e3 = debracket e3 in
-    let neg = debracket neg in
-    (* the negation function symbol *)
-       
-           (* Classify an arithmetic term as a number, a (negated?) variable, or something else. *)
-    let rec _ArithKind (t : term) : arithKind =
-      match t with
-        Literal (_, Number i) -> ArithNumber i
-      | Unknown (_, _, Idclass.NumberClass) -> ArithVariable (t, false)
-      | Unknown (_, _, Idclass.FormulaClass) -> ArithVariable (t, false)
-      | Unknown (_, _, Idclass.ConstantClass) -> ArithVariable (t, false)
-      | App (_, f, t) ->
-          if f = neg then
-            match _ArithKind t with
-              ArithVariable (t, neg) -> ArithVariable (t, not neg)
-            | ArithNumber n -> ArithNumber (- n)
-            | _ -> ArithOther
-          else ArithOther
-      | _ -> ArithOther
-    in
-    (* Construct a literal term from an integer *)
-    let rec mkLit n = registerLiteral (Number n) in
-    (* Assign the number n to the logical variable e, negating it first if necessary. *)
-    let rec result (e, neg) n =
-      let n = if neg then - n else n in
-      match
-        _UnifyWithExplanation "EVALUATE _ARITHMETIC" (e, mkLit n) cxt
-      with
-        Some cxt' -> Some ("_ARITHMETIC", cxt')
-      | None -> None
-    in
-    let rec checkresult n1 n2 =
-      if n1 = n2 then Some ("_ARITHMETIC", cxt) else None
-    in
-    match _ArithKind e1, _ArithKind e2, _ArithKind e3 with
-      ArithNumber v1, ArithNumber v2, ArithNumber v3 ->
-        checkresult v3 (opn (v1, v2))
-    | ArithNumber v1, ArithNumber v2, ArithVariable e3 ->
-        result e3 (opn (v1, v2))
-    | ArithNumber v1, ArithVariable e2, ArithNumber v3 ->
-        result e2 (invopn (v3, v1))
-    | ArithVariable e1, ArithNumber v2, ArithNumber v3 ->
-        result e1 (invopn (v3, v2))
-    | _ ->
-        (* When there are more variables, a proviso should be introduced.
-           Dunno what to do when the result is negative.
-        *)
-        setReason ["EVALUATE couldn't solve arithmetic "; string_of_term _C];
-        None
-(**********************************************************************)
+let _ARITHMETIC _C cxt opn invopn (e1 : term) (e2 : term) (e3 : term) (neg : term) =
+  let e1 = debracket e1 in
+  let e2 = debracket e2 in
+  let e3 = debracket e3 in
+  let neg = debracket neg in (* the negation function symbol *)
+  
+  (* Classify an arithmetic term as a number, a (negated?) variable, or something else. *)
+  let rec _ArithKind (t : term) : arithKind =
+    match t with
+      Literal (_, Number i)                 -> ArithNumber i
+    | Unknown (_, _, Idclass.NumberClass)   -> ArithVariable (t, false)
+    | Unknown (_, _, Idclass.FormulaClass)  -> ArithVariable (t, false)
+    | Unknown (_, _, Idclass.ConstantClass) -> ArithVariable (t, false)
+    | App (_, f, t) ->
+        if f = neg then
+          match _ArithKind t with
+            ArithVariable (t, neg) -> ArithVariable (t, not neg)
+          | ArithNumber   n        -> ArithNumber (- n)
+          | _                      -> ArithOther
+        else ArithOther
+    | _ -> ArithOther
+  in
+  (* Construct a literal term from an integer *)
+  let rec mkLit n = registerLiteral (Number n) in
+  (* Assign the number n to the logical variable e, negating it first if necessary. *)
+  let rec result (e, neg) n =
+    let n = if neg then - n else n in
+    match
+      _UnifyWithExplanation "EVALUATE _ARITHMETIC" (e, mkLit n) cxt
+    with
+      Some cxt' -> Some ("_ARITHMETIC", cxt')
+    | None -> None
+  in
+  let rec checkresult n1 n2 =
+    if n1 = n2 then Some ("_ARITHMETIC", cxt) else None
+  in
+  match _ArithKind e1, _ArithKind e2, _ArithKind e3 with
+    ArithNumber v1, ArithNumber v2, ArithNumber v3 ->
+      checkresult v3 (opn (v1, v2))
+  | ArithNumber v1, ArithNumber v2, ArithVariable e3 ->
+      result e3 (opn (v1, v2))
+  | ArithNumber v1, ArithVariable e2, ArithNumber v3 ->
+      result e2 (invopn (v3, v1))
+  | ArithVariable e1, ArithNumber v2, ArithNumber v3 ->
+      result e1 (invopn (v3, v2))
+  | _ ->
+      (* When there are more variables, a proviso should be introduced.
+         Dunno what to do when the result is negative.
+      *)
+      setReason ["EVALUATE couldn't solve arithmetic "; string_of_term _C];
+      None
 
+(**********************************************************************)
 
 let rec _DECIDE (turnstile : string) (cxt : Cxttype.cxt) =
   fun (_HS : term) ->
@@ -1424,9 +1461,9 @@ let rec _DECIDE (turnstile : string) (cxt : Cxttype.cxt) =
       | None -> None
       
 (**********************************************************************)
+
 exception MatchinEvaluate exception MatchinTtoV
 (* spurious *)
-   
 
 let rec explodeEval =
   fun _C ->
@@ -1499,9 +1536,8 @@ let rec _Evaluate cxt seq =
       None
 (* non-single conclusion *)
 
-let rec doEVAL a1 a2 =
-  match a1, a2 with
-    args,
+let doEVAL args =
+  function
     (Proofstate {cxt = cxt; goal = Some goal; tree = tree} as state) ->
       let seq = findTip tree goal in
       if !tactictracing then
@@ -1515,9 +1551,9 @@ let rec doEVAL a1 a2 =
                Treeformat.Fmt.neutralformat seq [] ([], []))
             state
       end
-  | args, _ -> None
-(**********************************************************************)
+  | _ -> None
 
+(**********************************************************************)
 
 let rec appendsubterms t q =
   match t with
@@ -1591,30 +1627,7 @@ let rec mkenvfrommap params argmap =
   in
   nj_revfold mk argmap !rootenv
 
-let rec _AQ env term =
-  let rec _A =
-    function
-      App (_, Id (_, v, _), a) -> (if string_of_vid v="QUOTE" then Some (_QU env a) else None)
-    | Id _ as v -> (env <@> _The (nameopt_of_term v))
-    | Unknown _ as v -> (env <@> _The (nameopt_of_term v))
-    | _ -> None
-  in
-  mapterm _A term
-
-and _QU env term =
-  let rec _Q =
-    function
-      App (_, Id (_, v, _), a) -> (if string_of_vid v="ANTIQUOTE" then Some (_AQ env a) else None)
-    | _ -> None
-  in
-  mapterm _Q term
-
-let rec eval env = _AQ env
-
-let rec evalvt env (v, t) = v, eval env t
-(* a service to SubstTac *)
-   
-   (**********************************************************************)
+(**********************************************************************)
 
 type conclusions = (name * thing * term) list
 
@@ -2403,7 +2416,7 @@ and doFOLD name display try__ env contn (tactic, laws) =
 and doFOLDHYP name display try__ env contn (tactic, patterns) =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens; 
                    target = target; root = root} as state) ->
-    let (_, cxt, env) = freshenv patterns cxt env in
+    let (_, cxt, env, patterns) = freshenv patterns cxt env in
     let patterns = (eval env <* patterns) in
     match rewriteseq cxt (getTip tree goal) with
       Seq (_, _HS, Collection (_, collc, [Element (_, resn, _C)])) ->
@@ -2447,7 +2460,7 @@ and doFOLDHYP name display try__ env contn (tactic, patterns) =
 and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
                    target = target; root = root} as state) ->
-    let (_, cxt, env) = freshenv patterns cxt env in
+    let (_, cxt, env, patterns) = freshenv patterns cxt env in
     let patterns = (eval env <* patterns) in
     match rewriteseq cxt (getTip tree goal) with
       Seq (_, _HS, Collection (_, collc, [Element (_, resn, _C)])) ->
@@ -2498,7 +2511,8 @@ and doBIND tac display try__ env =
               (formal |-> rewrite cxt (_The ((env <@> formal))))))
         newformals env
     in
-    let rec checkmatching cxt cxt' expr =
+    
+    let checkmatching cxt cxt' expr =
       not matching ||
       matchedtarget cxt cxt'
         (nj_fold
@@ -2507,15 +2521,17 @@ and doBIND tac display try__ env =
             | _, uvs -> uvs)
            (termvars expr) [])
     in
-    let rec bindunify a1 a2 a3 a4 =
-      match a1, a2, a3, a4 with
-        bad, badp, [], cxt -> Some cxt
-      | bad, badp, (_, expr as pe) :: pes, cxt ->
+    
+    let rec bindunify bad badp =
+      function
+        []                     -> _Some
+      | (_, expr as pe) :: pes ->
+        fun cxt ->
           badunify := None;
           badmatch := None;
           badproviso := None;
           match unifyterms pe cxt with
-            None -> badunify := Some pe; bad []
+            None      -> badunify := Some pe; bad []
           | Some cxt' ->
               try
                 let _ = (verifyprovisos cxt' : cxt) in
@@ -2529,7 +2545,8 @@ and doBIND tac display try__ env =
               with
                 Verifyproviso_ p -> badproviso := Some (pe, p); badp p
     in
-    let rec bind s cxt env pes =
+    
+    let bind s cxt env pes =
       let rec bad ss =
         begin match pes with
           [pattern, expr] ->
@@ -2539,23 +2556,19 @@ and doBIND tac display try__ env =
         | _ ->
             setReason
               (s :: " didn't match patterns " ::
-                 liststring2 string_of_term ", " " and "
-                   ((fst <* pes)) ::
+                 liststring2 string_of_term ", " " and " ((fst <* pes)) ::
                  " to formulae " ::
-                 liststring2 string_of_term ", " " and "
-                   ((snd <* pes)) ::
+                 liststring2 string_of_term ", " " and " ((snd <* pes)) ::
                  ss)
         end;
         None
       in
-      let (newformals, namecxt, env) =
-        freshenv ((fst <* pes)) cxt env
-      in
+      let (newformals, namecxt, env, pes) = freshenv_pes pes cxt env in
       match
         bindunify bad
           (fun p ->
              bad [" because proviso "; string_of_proviso p; " was violated."])
-           ((fun (pattern, expr) -> eval env pattern, expr) <* pes)
+           ((fun (pattern, expr) -> eval env pattern, expr) <* pes) (* eval? really?? *)
           namecxt
       with
         None -> None
@@ -2566,6 +2579,7 @@ and doBIND tac display try__ env =
          *)
          Some (namecxt, newenv cxt' env newformals)
     in
+    
     let rec bindThenDispatch s cxt env pes tac =
       (bind s cxt env pes &~~
          (fun (cxt', env') ->
@@ -2673,9 +2687,11 @@ and doBIND tac display try__ env =
             [tacname; ": requires selection in exactly one formula"];
           None
     in
-    let rec bindOccurs (pat1, term, pat2, tac) =
+    
+    let bindOccurs (pat1, term, pat2, tac) =
       let expr = eval env term in
-      let (newformals, cxt, env) = freshenv [pat1] cxt env in
+      let (newformals, cxt, env, pats) = freshenv [pat1] cxt env in
+      let pat1 = List.hd pats in (* easiest way to shut up the complaint about matching [pat1] above *)
       let rec unify (pat, expr) =
         bindunify (fun _ -> None) (fun _ -> None) [pat, expr]
       in
@@ -2691,6 +2707,7 @@ and doBIND tac display try__ env =
           (* showAlert["bindOccurs got intermediate ", string_of_term subst]; *)
           bindThenDispatch "LETOCCURS" cxt env [pat2, subst] tac
     in
+    
     let rec term_of_seqside colln =
       try
         let ts =
@@ -2749,11 +2766,10 @@ and doBIND tac display try__ env =
     | Tac_of_BindHyp (pat1, pat2, tac) ->
         begin match getselectedhypotheses () with
           Some (_, [Element (_, _, h1); Element (_, _, h2)]) ->
-              (
-                 (bind "LETHYP2" cxt env [pat1, h1; pat2, h2] |~~
-                  (fun _ -> bind "LETHYP2" cxt env [pat1, h2; pat2, h1])) &~~
-               (fun (cxt', env') ->
-                  bindThenDispatch "LETHYP2" cxt' env' [] tac))
+            (bind "LETHYP2" cxt env [pat1, h1; pat2, h2] |~~
+             (fun _ -> bind "LETHYP2" cxt env [pat1, h2; pat2, h1])) &~~
+            (fun (cxt', env') ->
+               bindThenDispatch "LETHYP2" cxt' env' [] tac) 
         | _ ->
             setReason
               ["LETHYP2 with not exactly two selected hypotheses"];
@@ -2806,12 +2822,12 @@ and doBIND tac display try__ env =
         end
     | BindMatchTac (pat, term, tac) ->
         bindThenDispatch "LETMATCH" cxt env [pat, eval env term] tac
-    | BindOccursTac spec -> bindOccurs spec
-    | BindSubstInHypTac spec -> doublesel spec true "LETHYPSUBSTSEL"
+    | BindOccursTac      spec -> bindOccurs spec
+    | BindSubstInHypTac  spec -> doublesel spec true "LETHYPSUBSTSEL"
     | BindSubstInConcTac spec -> doublesel spec false "LETCONCSUBSTSEL"
-    | BindFindHypTac spec -> findsel spec true "LETHYPFIND"
-    | BindFindConcTac spec -> findsel spec false "LETCONCFIND"
-    | BindMultiArgTac spec ->
+    | BindFindHypTac     spec -> findsel spec true "LETHYPFIND"
+    | BindFindConcTac    spec -> findsel spec false "LETCONCFIND"
+    | BindMultiArgTac    spec ->
         (getargs "LETMULTIARG" &~~
            (function
               [t] ->
