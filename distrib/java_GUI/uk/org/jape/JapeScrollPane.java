@@ -24,6 +24,14 @@
     (or look at http://www.gnu.org).
   */
 
+/*
+   This exists because it seems to be impossible to force a JScrollPane to leave the position of
+   its view alone, and on the other hand impossible to anchor the view to a corner or a midpoint
+   in the viewport when resizing.
+
+   It's ok, but it would be nice to be able to do resizing more efficiently.
+ */
+
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.Component;
@@ -61,14 +69,20 @@ public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
         super.add(hsb); super.add(vsb); super.add(viewport);
     }
 
+    public Rectangle getViewportBounds() {
+        return viewport.getBounds();
+    }
+    
     private class H implements AdjustmentListener {
         public void adjustmentValueChanged(AdjustmentEvent e) {
             switch (e.getAdjustmentType()) {
                 case AdjustmentEvent.TRACK:
-                    Point p = view.getLocation();
-                    p.x -= hsb.getValue();
-                    view.setLocation(p);
-                    validate(); repaint();
+                    if (view!=null) {
+                        Point p = view.getLocation();
+                        p.x -= hsb.getValue();
+                        view.setLocation(p);
+                        validate(); repaint();
+                    }
                     break;
                 default:
                     System.err.println("H sees AdjustmentEvent "+e.getAdjustmentType());
@@ -81,10 +95,12 @@ public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
         public void adjustmentValueChanged(AdjustmentEvent e) {
             switch (e.getAdjustmentType()) {
                 case AdjustmentEvent.TRACK:
-                    Point p = view.getLocation();
-                    p.y -= vsb.getValue();
-                    view.setLocation(p);
-                    validate(); repaint();
+                    if (view!=null) {
+                        Point p = view.getLocation();
+                        p.y -= vsb.getValue();
+                        view.setLocation(p);
+                        validate(); repaint();
+                    }
                     break;
                 default:
                     System.err.println("V sees AdjustmentEvent "+e.getAdjustmentType());
@@ -145,16 +161,25 @@ public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
         
     }
     public void validate() {
-        Rectangle act = view.getBounds();
-        Rectangle vis = viewport.getBounds();
-        if (vis.x<=act.x && act.x+act.width<=vis.x+vis.width)
-            hsb.setValues(vis.x,0,vis.x,vis.x);
-        else
-            hsb.setValues(vis.x, vis.width, Math.min(vis.x,act.x), Math.max(vis.x+vis.width,act.x+act.width));
-        if (vis.y<=act.y && act.y+act.height<=vis.y+vis.height)
-            vsb.setValues(vis.y,0,vis.y,vis.y);
-        else
-            vsb.setValues(vis.y, vis.height, Math.min(vis.y,act.y), Math.max(vis.y+vis.height,act.y+act.height));
+        if (view==null) {
+            hsb.setValues(0,0,0,0);
+            vsb.setValues(0,0,0,0);
+        }
+        else {
+            Rectangle act = view.getBounds();
+            Rectangle vis = viewport.getBounds();
+            if (vis.x<=act.x && act.x+act.width<=vis.x+vis.width)
+                hsb.setValues(vis.x,0,vis.x,vis.x);
+            else
+                hsb.setValues(vis.x, vis.width,
+                              Math.min(vis.x,act.x), Math.max(vis.x+vis.width,act.x+act.width));
+            if (vis.y<=act.y && act.y+act.height<=vis.y+vis.height)
+                vsb.setValues(vis.y,0,vis.y,vis.y);
+            else
+                vsb.setValues(vis.y, vis.height,
+                              Math.min(vis.y,act.y), Math.max(vis.y+vis.height,act.y+act.height));
+            
+        }
     }
 
     /* this is where the anchor policy bites */
