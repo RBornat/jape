@@ -173,11 +173,9 @@ let rec isemptyworld u =
     [[], []] -> true
   | _ -> false
 
-let rec getworld u c =
+let getworld u c =
   try _The ((u <@> c)) with
-    _ ->
-      raise
-        (Catastrophe_ ["(getworld) no world at "; coordstring c; "; "; universestring "" u])
+    _ -> raise (Catastrophe_ ["(Disproof.getworld) no world at "; coordstring c; "; "; universestring "" u])
 
 (* enforce monotonicity *)
 
@@ -717,7 +715,7 @@ let rec seq2tiles facts seq =
           [] -> [List.hd tvs]
         | vs -> vs
       in
-      let badvs = listsub (fun (x, y) -> x = y) tvs tvs' in
+      let badvs = listsub (fun (x,y) -> x=y) tvs tvs' in
       let rec changevars i =
         if member (i, badvs) then Some (List.hd tvs') else None
       in
@@ -768,7 +766,7 @@ let rec model2disproofstate a1 a2 a3 =
                   match (u <@> ch) with
                     Some (chts, _) ->
                       if not
-                           (null (listsub (fun (x, y) -> x = y) ts chts))
+                           (null (listsub (fun (x,y) -> x=y) ts chts))
                       then
                         raise
                           (ParseError_
@@ -930,24 +928,22 @@ let rec newtile =
          (fun tile ->
             Some (withdisprooftiles d (tilesort (tile :: tiles)))))
 
-let rec addlink u from to__ =
+let rec addlink u (_, fromy as from) (_, to__y as to__) =
   let (ts, cs) = getworld u from in
-  if member (to__, cs) then u else (u ++ (from |-> (ts, to__ :: cs)))
-
-let rec addmonolink u from to__ =
-  let (ts, cs) = getworld u from in
-  if member (to__, cs) then u else domono ts (u ++ (from |-> (ts, to__ :: cs))) to__
+  if to__y<=fromy then u else
+  if member (to__, cs) then u else 
+  domono ts (u ++ (from |-> (ts, to__ :: cs))) to__
 
 let rec deletelink u from to__ =
   let (ts, cs) = getworld u from in
   if member (to__, cs) then
-    (u ++ (from |-> (ts, listsub (fun (x, y) -> x = y) cs [to__])))
+    (u ++ (from |-> (ts, listsub (fun (x,y) -> x=y) cs [to__])))
   else u
 
 let spliceworldtolink u w lfrom lto__ =
   let u = deletelink u lfrom lto__ in
-  let u = addmonolink u lfrom w in
-  addmonolink u w lto__
+  let u = addlink u lfrom w in
+  addlink u w lto__
 
 let addchild u (_, py as pc) (_, cy as cc) =
   if py >= cy then None
@@ -973,7 +969,7 @@ let deleteworld =
       None   -> None (* it wasn't there *)
     | Some _ ->
         (* a garbage-collection job! But actually we just leave the floaters floating ... *)
-        let ws = listsub (fun (x, y) -> x = y) (dom universe) [c] in
+        let ws = listsub (fun (x,y) -> x=y) (dom universe) [c] in
         (* consolereport ["dom universe := "; bracketedliststring coordstring ";" ws]; *)
         match ws with
           [] -> None (* we don't delete the last world *)
@@ -982,7 +978,7 @@ let deleteworld =
                       pairstring (bracketedliststring termstring ";") (bracketedliststring coordstring ";") 
                                  "," (getworld universe w)]; *)
                   let (ts, cs) = getworld universe w in
-                  let cs' = listsub (fun (x, y) -> x = y) cs [c] in
+                  let cs' = listsub (fun (x,y) -> x=y) cs [c] in
                   (* consolereport [" => "; bracketedliststring coordstring ";" cs']; *)
                   w, (ts, cs')
                 in
@@ -990,12 +986,12 @@ let deleteworld =
                 Some
                   (withdisproofselected
                      (withdisproofuniverse state u')
-                     (listsub (fun (x, y) -> x = y) selected [c]))
+                     (listsub (fun (x,y) -> x=y) selected [c]))
 
 let rec worldselect =
   fun (Disproofstate {selected = selected} as d) cs ->
-    if null (listsub (fun (x, y) -> x = y) selected cs) &&
-       null (listsub (fun (x, y) -> x = y) cs selected)
+    if null (listsub (fun (x,y) -> x=y) selected cs) &&
+       null (listsub (fun (x,y) -> x=y) cs selected)
     then
       None
     else Some (withdisproofselected d cs)
@@ -1005,12 +1001,33 @@ let rec children u c = snd (getworld u c)
 let rec parents u c = (fun p -> member (c, children u p)) <| dom u
 
 let moveworld (Disproofstate {universe = u; selected = sels} as d) from (_, toy as to__) =
-  if from = to__ then None
-  else
-    match (u <@> from) with
-      None -> raise (Catastrophe_ ["(moveworld) no world at "; coordstring from; " in ";
-                                   universestring "" u])
-    | Some (fromts, fromcs) ->
+  if from = to__ then None else
+  let (fromts, fromcs) = getworld u from in
+  (* I used to remake the diagram in various ways; 
+     now you just get what you see, and you can repair as necessary 
+   *)
+  (* delete all to__->child contrary links; don't point to yourself *)
+  let fromcs = (fun (_, cy) -> toy<cy) <| (listsub (fun (x,y) -> x=y) fromcs [to__]) in
+  (* delete parent->to__ contrary links; change parent->from links into parent->to__ links *)
+  let switch w = if w=from then to__ else w in
+  let swing ws = if member (to__, ws) then listsub (fun (x,y) -> x=y) ws [from] else List.map switch ws in
+  let clean (_, wy as w) =
+    let (ts, cs) = getworld u w in
+    w, (ts, (if wy<toy then swing cs else listsub (fun (x,y) -> x=y) cs [from]))
+  in
+  let u = mkmap (List.map clean (listsub (fun (x,y) -> x=y) (dom u) [from])) in
+  let u = match u <@> to__ with
+            None -> (* easy, no world at this position *) 
+              u++(to__|->(fromts, fromcs))
+          | Some (to__ts, to__cs) -> (* harder! unite the worlds *)
+              (* union of the children *)
+              let to__cs = listsub (fun (x,y) -> x=y) fromcs to__cs @ to__cs in
+              (* and all the labels in from *)
+              domono fromts (u++(to__|->(to__ts,to__cs))) to__
+  in
+  Some (withdisproofselected (withdisproofuniverse d u) (swing sels))
+  
+  (* this is what it used to say ...
         (* split all (c->from) contrary links to point parent->from and from->child *)
         let rec splitlink fromcs u (_, cy as c) =
           let rec linkparent u (_, py as p) =
@@ -1026,7 +1043,7 @@ let moveworld (Disproofstate {universe = u; selected = sels} as d) from (_, toy 
         in
         let u =
           foldl (splitlink fromcs) u
-            (listsub (fun (x, y) -> x = y) (dom u) [from])
+            (listsub (fun (x,y) -> x=y) (dom u) [from])
         in
         (* all (from->c) contrary links split into parent->c and c->child *)
         let rec splitlink2 fromps (u, cs) (_, cy as c) =
@@ -1065,16 +1082,17 @@ let moveworld (Disproofstate {universe = u; selected = sels} as d) from (_, toy 
                      ulist)
               in
               domono fromts
-                (u ++ (to__ |-> (tots, tocs @ listsub (fun (x, y) -> x = y) fromcs tocs)))
+                (u ++ (to__ |-> (tots, tocs @ listsub (fun (x,y) -> x=y) fromcs tocs)))
                 to__
         in
         let sels =
           if member (to__, sels) then
-            listsub (fun (x, y) -> x = y) sels [from]
+            listsub (fun (x,y) -> x=y) sels [from]
           else List.map swing sels
         in
         Some (withdisproofselected (withdisproofuniverse d u) sels)
-
+  *)
+  
 let moveworldtolink d from to__ lfrom lto__ =
   moveworld d from to__ &~~ 
   (fun (Disproofstate {universe=u} as d) -> 
@@ -1144,5 +1162,5 @@ let cleardisproof () = Japeserver.clearPane Displayfont.DisproofPane
 let rec deletelink u from to__ =
   let (ts, cs) = getworld u from in
   if member (to__, cs) then
-    Some (u ++ (from |-> (ts, listsub (fun (x, y) -> x = y) cs [to__])))
+    Some (u ++ (from |-> (ts, listsub (fun (x,y) -> x=y) cs [to__])))
   else None
