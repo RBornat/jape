@@ -93,7 +93,7 @@ public class DisproofPane extends Container implements DebugConstants {
         tileCanvas.removeAll();
         tileCanvas.add(Box.createGlue());
         for (int i=0; i<tiles.length; i++) {
-            tileCanvas.add(new StationaryTile(layeredPane, tiles[i]));
+            tileCanvas.add(new Tile(layeredPane, tiles[i]));
             if (i+1<tiles.length)
                 tileCanvas.add(Box.createVerticalStrut(LocalSettings.TileSpacing));
         }
@@ -117,6 +117,11 @@ public class DisproofPane extends Container implements DebugConstants {
         g.setColor(getBackground());
         g.fillRect(0, 0, getWidth(), getHeight());
         super.paint(g);
+    }
+
+    public void makeReady() {
+        if (tileLayoutPending)
+            getLayout().layoutContainer(this); // in case tiles have changed size
     }
     
     protected class DisproofPaneLayout implements LayoutManager {
