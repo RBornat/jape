@@ -31,8 +31,8 @@ DEPLOYEDENGINE=jape_engine
 #       SPLASH               -- splash-image for the installer
 #
 #
-AFTERINSTALL=-cmdunix "chmod +x %INSTALL%/jape_engine"
-INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX 
+AFTERINSTALL=-cmdunix "sh %INSTALL%/installjape.sh %INSTALL%"
+INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX $(BUILDRESOURCES)/installjape.sh 
 ENCODERESOURCES=$(ENCODEDIR)/README_encoder.txt $(ENCODEDIR)/encoder.jar
 SPLASH=$(BUILDRESOURCES)/InstallerKit/japesplash.png
 APP=jape
@@ -98,27 +98,10 @@ jarfile:        examples ; buildinstaller Install$(OS)jape.jar                  
                 -splash         $(SPLASH)                                       \
                 -splashside     North   \
                 -installdir     Jape    \
-                -autoinstall    Jape    \
                 $(AFTERINSTALL)         \
                 $(ENCODERESOURCES)      \
                 $(INSTALLRESOURCES)     \
                 $(DEPLOYEDENGINE)       \
                 examples Jape.jar                    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
