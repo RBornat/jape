@@ -8,6 +8,12 @@
 \usepackage[ligature,reserved]{semantic}
 \usepackage[center,tight]{subfigure}
 
+\usepackage{color}
+
+\definecolor{red}{rgb}{1,0,0}
+\definecolor{magenta}{cmyk}{0,1,0,0}
+\definecolor{halfgrey}{gray}{0.5}
+
 \textwidth = 6.5 in
 \textheight = 9 in
 \oddsidemargin = 0.0 in
@@ -62,6 +68,7 @@
 \begin{document}
 \maketitle
 
+
 \chapter*{Preface}
 
 This manual is a how-to for Jape. Earlier versions contained a good deal of logic teaching. That's been dropped, since now there's a book (Logic for Programmers, OUP) which says it all a good deal better. You will learn about logic by playing with Jape, so I suppose there's still teaching in there.
@@ -85,7 +92,7 @@ So far as I know, these are the only significant differences.
 
 If Jape doesn't work for you, it isn't working, and if it isn't working I'd like to hear about it. 
 
-Please send any comments, thoughts, complaints or whatever to bugs@jape.org.uk. I'll do my best to reply quickly and if your message is of general interest I'll put it up on the website (though of course, because of spambots, I'll hide your email address). 
+Please send any comments, thoughts, complaints or whatever to bugs at jape dot org dot uk.\footnote{That's an email address written in perhaps-fool-the-spambots notation. Please read it carefully.} I'll do my best to reply quickly and if your message is of general interest I'll put it up on the website (with your permission, and hiding your email address from the spambots at least). 
 
 \section*{Acknowledgements}
 
@@ -100,6 +107,7 @@ Jape's proof engine was originally written in SML and compiled by SMLNJ, with in
 In what follows the mistakes are all my own.
 
 \chapter{Basics}
+
 
 \begin{figure}
 \centering
@@ -241,6 +249,7 @@ If you click on a greyed-out formula Jape cancels your current selection(s). If 
 \subfigure[multiple-subformula selection]{
   \label{fig:multiplesubformulaselection}
   \parbox[b]{150pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/multiplesubformulaselection}}}}
+
 \caption{Subformula selection by option/alt/middle-press-and-drag}
 \end{figure}
 
@@ -252,6 +261,7 @@ Occasionally you need to tell Jape to focus on part of a formula. You do this by
 \item with a three-button mouse, middle-press-and-drag;
 \item otherwise by holding the Alt shift (sometimes labelled 'option') during a press-and-drag.
 \end{itemize}
+
 Jape highlights the subformula you've selected by changing the background colour to yellow, as shown in \figref{singlesubformulaselection}. 
 
 If you hold down the add-a-selection shift key (ctrl on Windows and Linux, command on MacOS X) you can make more than one subformula selection, as shown in \figref{multiplesubformulaselection}. Using the same key combination, you can cancel and/or modify subformula selections you've already made.
@@ -394,6 +404,7 @@ in \figref{velimneedstargetconclusion}. The result of the step (there's quite a 
 \end{enumerate}
 
 
+
 \begin{figure}
 \centering
 \subfigure[conclusion selected]{
@@ -429,6 +440,7 @@ In every case the justification of the step is written next to the selected conc
 
 \begin{enumerate}
 \item \emph{Wrong conclusion shape}.\\
+
 Each backward step, except for contra, applies to a particular shape of consequent formula. If you select the wrong shape, you  can't make the step.
 
 \begin{figure}
@@ -498,6 +510,7 @@ early as possible}. Those rules are:
 \item $|*$ elim forwards (for the variable and the assumption).
 \end{itemize}
 
+
 \item $|$ intro works backwards better than it does forwards; but 
 since it throws away half the conclusion you apply it to, use 
 it very carefully and as late as possible.
@@ -525,6 +538,7 @@ included so that you can disprove them --- see \chapref{disproof}).
 \item Don't be afraid to Undo and Redo to search alternative routes to proof. Jape permits multiple Undos and corresponding Redos.
 
 \end{enumerate}
+
 
 \section{Look at the shape of the formula}
 
@@ -936,97 +950,220 @@ Recall that the $@*$ intro and $|*$ elim steps use a variable --- $i$, $\<i1>$, 
 
 \Figref{proofwithproviso} shows what happens when Jape has to invent a variable and there is an unknown in the proof. It must prohibit the possibility that the formula $\_\<B1>$ includes the variable $i$: it does this with the \emph{proviso} ``$i \text{ NOTIN } \_\<B1>$'' in the \emph{proviso pane} below the proof. \Figref{disallowedunification} shows preparation for an attempt to violate the proviso with a Unify command (making $\_\<B1>$, which appears outside the box, the same as $R(i)$ inside the box). \Figref{NOTINerrormessage} shows the error message that Jape generates when you try the unification.
 
-
-%
-%It's often more convenient to eliminate unknowns after they have 
-%arrived in the proof. One easy way to do this is to use the Unify 
-%command in the Edit menu. You text-select as many formulae as 
-%you want, and Jape tries to make them all the same by replacing 
-%unknowns with ordinary formulae.\footnote{\tab The technical name for 
-%this process is \textit{unification}, hence the name of the command.} 
-%Suppose you have
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.361in, height=2.153in]{natural_deduction_manualFig74.pict}
-%\caption{natural_deduction_manualFig74.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%We want to make $!$F and \_B1 the same. Text-select them 
-%both
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.361in, height=2.153in]{natural_deduction_manualFig75.pict}
-%\caption{natural_deduction_manualFig75.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%and choose Unify from the Edit menu: the unknown disappears and 
-%is replaced by the formula.
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.319in, height=2.153in]{natural_deduction_manualFig76.pict}
-%\caption{natural_deduction_manualFig76.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%\textbf{{\large 9.4 Eliminating an unknown with a hyp step}}
-
-%
-%Instead of unifying by text selection, we sometimes tell Jape 
-%to unify a hypothesis formula with a consequent formula, using 
-%the hyp step which is on both Forward and Backward menus.
-
-%
-%Back to an earlier example:
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.361in, height=1.653in]{natural_deduction_manualFig77.pict}
-%\caption{natural_deduction_manualFig77.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%Now when using $!$ elim backwards, as we had to do in this 
-%example, the rules of thumb say that we should look for a hypothesis 
-%which will unify with the negated unknown $!$\_B1. There 
-%is only one negated hypothesis, on line 1. Try that. Click on 
-%line 1 and on line 3
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.361in, height=1.653in]{natural_deduction_manualFig78.pict}
-%\caption{natural_deduction_manualFig78.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%and choose hyp from either the Forward or the Backward menu. 
-%The effect is to unify the two formulae. Jape changes the justification 
-%of the $@$ intro step to point to the assumption, throws away 
-%the unnecessary conclusion, and the proof looks like this:
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.361in, height=1.250in]{natural_deduction_manualFig79.pict}
-%\caption{natural_deduction_manualFig79.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%After that it's up to you (hint: it's ok to try $|$ intro backwards 
-%now).
+You get the same result if you try the steps in the other order ($@*$ intro backwards, $|$ intro forwards selecting only the hypothesis).
 
 
 \chapter{Disproof}
 \label{chap:disproof}
+
+My encoding of natural deduction in Jape deals with disproof by allowing you to make Kripke diagrams which Jape will check against a sequent to see if they are examples, or counter-examples, or neither. You do it by manipulating blobs, lines and atomic formulae in a \emph{disproof pane} above the proof.
+
+Jape shows you what is going on by underlining and colouring formulae and subformulae in the sequent and by colouring blobs on the screen. This chapter should, therefore, be read in colour rather than in monochrome.\footnote{I am aware that this use of colour means that some people can't use Jape as easily as others. This is only the tip of a nasty iceberg: Jape uses a visual presentation to make it easier to understand proof and disproof, and that excludes many people with reduced visual acuity from using it at all.
+
+Contrary to some propaganda, these problems aren't easy to overcome. But I'd love to try, and I'd love to hear from anybody who has suggestions to make, advice to offer, technical information to share, guinea-piggery to volunteer, whatever. Messages to bugs at jape dot org dot uk, as usual.}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{pics/disproofpane}
+\caption{Proof attempt with proof pane below and disproof pane above}
+\label{fig:disproofpane}
+\end{figure}
+
+\section{Getting started}
+
+At any point during a proof attempt you can invoke `Disprove' from the Edit menu.\footnote{There isn't a Disprove button in the conjecture panels. Perhaps there should be! You have to hit Prove to start a prove attempt and then choose Disprove.} Jape splits the proof window and shows you a Kripke diagram with a single empty world and the proof-attempt sequent (you can select hypotheses and conclusions to construct an alternative sequent: see below) in a \emph{disproof pane} above the proof pane. The sequent may already be underlined and coloured as in \figref{disproofpane}.
+
+The main things to notice in this illustration are
+\begin{itemize}
+\item the single world is ringed in \textcolor{red}{red};
+\item some of the names and connectives in the sequent are coloured \textcolor{magenta}{magenta}, some are \textcolor{halfgrey}{grey}, and some are black;
+\item some of the formulae are \textcolor{magenta}{\underline{underlined}} and some are not;
+\item the sequent uses the semantic turnstile $|=$; 
+\item there's a little green waste bin on the right;
+\item above the waste bin there are some tiles, each containing an atomic formula.
+\end{itemize}
+
+In general \textcolor{magenta}{magenta} means `forced', black means `unforced' and \textcolor{halfgrey}{grey} means `irrelevant'.
+
+Because of operating system variations, your window may not look exactly like the illustration, but it will have the same parts. In other illustrations I show the important bits of the proof and/or disproof panes, without the waste bin and the scroll bars and stuff.
+
+\section{Alternative sequents}
+
+If, during a proof attempt, you select a conclusion (or, if Jape doesn't want to let you do that, the reason next to the conclusion) and then hit Edit:Disprove, Jape will use the disproof sequent consisting of the conclusion as consequent and all the hypotheses above it as antecedent formulae. If you select some of the hypotheses, they will be used as the antecedents.
+
+You can choose a new disproof sequent at any time, even in the middle of a disproof attempt.
+
+If you want to set up an entirely new challenge, enter it into one of the conjectures panels (New button), hit Prove and then Edit:Disprove in the proof window.
+
+\subsection{Selecting a situation}
+
+\begin{figure}
+\centering
+\parbox{200pt}{\centering
+\includegraphics[scale=0.5]{pics/firstmultiworld}
+\caption{A multi-world situation}
+\label{fig:firstmultiworld}
+}
+\qquad
+\parbox{200pt}{\centering
+\includegraphics[scale=0.5]{pics/parvainmultum}
+\caption{A single-world situation}
+\label{fig:parvainmultum}
+}
+\end{figure}
+
+There is always one selected world in a diagram, ringed in \textcolor{red}{red}. The selected world is the root world of the situation evaluated by Jape. For example, in \figref{firstmultiworld} the situation is the whole diagram; in \figref{parvainmultum} it's the single world at top left.
+
+\subsection{What's forced ? -- colouring, greying, underlining}
+
+Jape evaluates all the formulae and sub-formulae of the sequent in the situation with the selected world as its root, and colours all those formulae and sub-formulae. 
+\begin{itemize}
+\item The default colour is black, and it means \emph{not forced}.
+\item If a (sub-)formula's value is never called on -- usually this is true of quantified predicates, for example -- then it's \textcolor{halfgrey}{grey}, meaning \emph{strictly irrrelevant}.
+\item An atomic (sub-)formula which is \emph{forced} is coloured \textcolor{magenta}{magenta} (this covers atoms like $E$, atomic predicates like $S(j)$ and individuals like $\<actual> k$).
+\item When a non-atomic (sub-)formula is forced, its connective is coloured \textcolor{magenta}{magenta}. 
+\item When an entire sequent hypothesis or conclusion is forced, it is \textcolor{magenta}{\underline{underlined}} in \textcolor{magenta}{magenta}.
+\end{itemize}
+So: when all the premises are magenta-underlined and the conclusion is not, you have a counter-example; when everything is underlined you have an example; otherwise you have nothing in particular.
+
+\begin{figure}
+\centering
+\parbox{150pt}{\centering
+\includegraphics[scale=0.5]{pics/firstcounterexample}
+\caption{A simple counter-example}
+\label{fig:firstcounterexample}
+}
+\qquad
+\parbox{250pt}{\centering
+\includegraphics[scale=0.5]{pics/elaboratecounterexample}
+\caption{An elaborate counter-example}
+\label{fig:elaboratecounterexample}
+}
+\end{figure}
+
+\Figref{firstcounterexample} shows a sample counter-example, and the colouring gives a hint of why it's a counter-example: $E$ isn't forced anywhere, so the hypothesis implication is forced (magenta arrow, underlining); and then, because $E->F$ is forced but $G$ isn't, the conclusion isn't forced (black arrow, no underlining). \Figref{elaboratecounterexample} shows an elaborate counter-example: the hypotheses are obviously forced, but there are no individuals to force the $!*$.
+
+The disproof pane in \figref{disproofpane} shows neither a counter-example nor an example. The hypotheses aren't forced because, as atomic formulae, they aren't present at the root world; the conclusion is forced because every individual in the situation (there aren't any ... remember the green sheep) forces a version of $R(x)->S(x)$. Similar remarks apply to figures \ref{fig:firstmultiworld} and \ref{fig:parvainmultum}.
+
+\section{Making diagrams}
+
+To begin your disproof Jape presents you with the simplest diagram: the isolated empty world. You add parts of your diagram -- worlds, formulae and lines -- using drag-and-drop mouse gestures. You can delete the same components by dragging them to the waste bin. You can add tiles with double-clicks. You can Undo your actions to any degree that you like, and Redo likewise.\footnote{Undo and Redo apply to the last pane you clicked, either proof or disproof.} 
+
+\subsection{The dragging gesture}
+
+To drag a component of a diagram you move the mouse over it, press, hold a moment, and then --- still pressing --- move to a new position, and finally release. Jape shows you a transparent image of the thing you are dragging, so you can see what you are doing.
+
+To drag-and-drop --- drag one component onto another --- you drag the first component until the mouse pointer is over the second. Usually the second component will change colour to show that it's prepared to accept the drop, and you can let go. If the second component is not prepared to accept the drop, then it won't change colour and the first component will fly back to its original position when you drop it.
+
+Some dragging gestures duplicate the dragged component: you must either use the middle button of a multi-button mouse or hold down the alt/option key throughout the gesture.
+
+\subsection{Moving worlds}
+
+You can drag worlds about the place to make your diagram look nicer. You press on the blob, and you drag the blob plus any formulae attached to it. You can drop the world anywhere you like. To preserve the `connections only upwards' principle, Jape will delete a line if you drag a world below its parent.
+
+You can drag a world onto a line (which lights up to show you are over it) or another world (which lights up ditto) and Jape does the obvious thing, adding whatever formulae are necessary to whatever worlds in order to maintain monotonicity.
+
+If you drag a world to the waste bin it's deleted, along with all the formulae attached to it and all the lines connected to it. The bin lights up when it will accept the world; it won't accept the currently-selected world.
+
+\subsection{Making new worlds}
+
+By alt/option/middle-dragging on a blob, you drag a copy of the world --- the blob plus any formulae attached to it --- with a line attaching it to the world it came from. The new world stays where you put it. If it's above the world you dragged it from, they will be connected by a line. If it's level or below, then no line.
+
+If you drop the world onto another the two worlds are merged. Jape does the correct monotonicity adjustments to the diagram by adding formulae to the children of the destination.
+
+\subsection{Making lines}
+
+If you want to make a line between world A and world B, where A is below B, make-world-drag from A to B and drop the new world onto B. Jape makes the monotonicity adjustments, adding formulae to B and its children as necessary. Dragging from B to A will have some not-very-useful effect (but there's always Undo!).
+
+\subsection{Dragging lines}
+
+You can drag lines and drop them onto worlds or into the waste bin, as you wish. Jape does the obvious thing in each case (if you can't guess what that is, just try it!).
+
+\subsection{Dragging formulae}
+
+You can drag a formula from a tile and drop it onto a world (the world lights up, of course, to show that it's eager to accept; worlds won't accept a second copy of a formula they already have). The formula isn't deleted from the tile.
+
+You can drag a formula from one world onto another; it is added to the destination world (and not deleted from the source world).
+
+%Jape preserves monotonicity, so all worlds reachable from the destination world get a copy of the dropped formula as well.
+
+%If you let go of a formula when you aren't over a world that has lit up to accept it, it flies back to base.
+
+%If you drag a formula from a world to the waste bin it is deleted from that world (and then, to preserve monotonicity, from its parents and its grandparents and so on down).
+
+%\section{Making individuals and predicate instances}
+
+%If a sequent mentions an individual by including a hypothesis like $\<actual> j$, then there will be a tile for that individual (see figures \ref{fig:firstexample}, \ref{fig:firstmultiworld}, \ref{fig:parvainmultum} and \ref{fig:elaboratecounterexample}, for example). If there are quantifiers but no individuals you will get a free $\<actual> i$ tile.
+
+%If you need more individuals, double-click any individual tile. Jape uses a boring but obvious numbering algorithm to name the new individual -- $\<actual> j$, for example, generates first $\<actual> \<j1>$ then $\<actual> \<j2>$, and so on.
+
+%If you want to make a new predicate instance, double-click a predicate-instance tile. Jape looks through your tiles for unused individuals and uses them to give you a new one. For example if you have a tile showing $S(j)$ and individuals $\<actual> j$ and $\<actual> \<j1>$, then double-clicking $S(j)$ gets you $S(\<j1>)$, as you might expect. If there's more than one instance that could be made, Jape shows you the alternatives and asks you to choose. If you don't have enough individuals to make a new instance, it tells you so.
+
+%\begin{figure}
+%\centering
+%\parbox{150pt}{\centering
+%\includegraphics[scale=0.5]{pics/samuels0}
+%\caption{A counter-example}
+%\label{fig:samuels0}
+%}
+%\qquad
+%\parbox{150pt}{\centering
+%\includegraphics[scale=0.5]{pics/samuels1}
+%\caption{$!!E$ forced here}
+%\label{fig:samuels1}
+%}
+%\parbox{150pt}{\centering
+%\includegraphics[scale=0.5]{pics/samuels2}
+%\caption{$!!E->E$ forced here}
+%\label{fig:samuels2}
+%}
+%\qquad
+%\parbox{150pt}{\centering
+%\includegraphics[scale=0.5]{pics/samuels3}
+%\caption{$!E$ forced here}
+%\label{fig:samuels3}
+%}
+%\parbox{150pt}{\centering
+%\includegraphics[scale=0.5]{pics/samuels4}
+%\caption{Multiple forcing}
+%\label{fig:samuels4}
+%}
+%\qquad
+%\parbox{150pt}{\centering
+%\includegraphics[scale=0.5]{pics/samuels5}
+%\caption{Too much forcing}
+%\label{fig:samuels5}
+%}
+%\end{figure}
+
+%\section{Exploring reasons}
+
+%The hardest thing to explain to a novice is \emph{why} a particular formula is forced in a particular situation. \Figref{samuels0} shows a particularly ludicrous formula and its counter-example, which really needs explanation.
+
+%Jape provides some mechanisms which can be some help (in versions v6.2.a1.2 and later).
+
+%First, the colouring of atomic (sub-)formulae and connectives can help. But with the negative connectives -- $->$ and $!$ -- and with the quantifiers, we often need more help.
+
+%Second, Jape allows you to \emph{text-select} -- alt+press-and-drag, or middlebutton press-and-drag -- a subformula (or select a formula) in the sequent. It will then colour magenta all the worlds which force the selected (sub)formula. For example, \figref{samuels1} shows where $!!E$ is forced in our difficult example. Figures \ref{fig:samuels2} and \ref{fig:samuels3} show information about some other subformulae.
+
+%\subsection{Multiple selections}
+
+%If you choose more than one formula, as in \figref{samuels4}, for example, Jape shows you where they are \emph{all} forced. If you choose too many formulae, as in \figref{samuels5}, you may find that there is no subsituation which forces them all. But that's explanation too!
+
+%\begin{figure}
+%\centering
+%\includegraphics[scale=0.5]{pics/quantifiers1}
+%\caption{Support for a quantifier}
+%\label{fig:quantifiers1}
+%\end{figure}
+
+%\subsection{Quantifier reasons}
+
+%The world-colouring trick works well, but it isn't enough when you are dealing with quantifiers. You would like to know which individual formulae in the tree support the quantifier, and which do not. Jape can do that (in versions v6.2.a1.3 and later) by colouring individuals in the tree. In \figref{quantifiers1}, for example, worlds which force the selected quantifier are magenta; individuals which support the quantifier (those which generate a forced formula if you instantiate the quantified formula with them) are magenta too. You can work out that $R(k)->R(j)@R(j)$ at each of the worlds of \figref{quantifiers1}.
+
+%This isn't enough in general. You would like to be able to see those instantiations and play with them -- see why they are forced (or not, as the case may be). I think I can see how to build a Jape which could do that, but it doesn't do it at present.
+
+
 %\newpage
 
 %\begin{center}
@@ -1201,16 +1338,16 @@ Recall that the $@*$ intro and $|*$ elim steps use a variable --- $i$, $\<i1>$, 
 %proof system.
 
 %
-%Jape gives you information about forcing using violet,\footnote{\tab Well 
-%it's violet as I designed it, to make a useful contrast with 
+%Jape gives you information about forcing using magenta,\footnote{\tab Well 
+%it's magenta as I designed it, to make a useful contrast with 
 %the red colour used for selection. You can change it in the preferences 
-%if you want to.} black and grey. Violet means forced, black means 
+%if you want to.} black and grey. magenta means forced, black means 
 %unforced (and grey we shall come to later). In this particular 
-%example there is a a violet line underlining the premise, and 
+%example there is a a magenta line underlining the premise, and 
 %no underlining of the conclusion. Each occurrence of the basic 
 %facts \textit{E}, \textit{F} and \textit{G} is black. Reading from left to right 
-%the first three arrows are violet, and the last is black. All 
-%the brackets are violet.
+%the first three arrows are magenta, and the last is black. All 
+%the brackets are magenta.
 
 %
 %By underlining the premise, Jape is showing you that it is forced. 
@@ -1232,18 +1369,18 @@ Recall that the $@*$ intro and $|*$ elim steps use a variable --- $i$, $\<i1>$, 
 %all of them are show in black. And then, because we never come 
 %across \textit{F}, 
 %$F\rightarrow G$
-% is forced, and so its arrow is shown in violet together with 
+% is forced, and so its arrow is shown in magenta together with 
 %its enclosing brackets.. Because we never come across \textit{E}, 
 
 %$E\rightarrow \left( F\rightarrow G\right) $
-% is forced too, and its arrow is shown violet --- and then, because 
+% is forced too, and its arrow is shown magenta --- and then, because 
 %it's the whole premise, the premise is underlined.
 
 %
 %On the right, 
 %$E\rightarrow F$
 % is forced because we never come across \textit{E}, so its arrow and 
-%brackets are violet. But since 
+%brackets are magenta. But since 
 %$E\rightarrow F$
 % is forced at the root world but \textit{G} isn't, 
 %$\left( E\rightarrow F\right) \rightarrow G$
@@ -1263,7 +1400,7 @@ Recall that the $@*$ intro and $|*$ elim steps use a variable --- $i$, $\<i1>$, 
 
 %
 %Now that \textit{E} is forced, both its occurrences in the sequent 
-%are violet. The premise is still forced, because wherever we 
+%are magenta. The premise is still forced, because wherever we 
 %see \textit{E} we see 
 %$F\rightarrow G$
 %. But now the conclusion is forced also. The black arrow shows 
@@ -1289,7 +1426,7 @@ Recall that the $@*$ intro and $|*$ elim steps use a variable --- $i$, $\<i1>$, 
 %Edit menu\footnote{\tab At the time of writing there isn't a way to delete 
 %formulae from worlds. There is on the Mac, but that's another 
 %story.}) and adding \textit{F} makes an alternative counter-example, 
-%as does adding both \textit{E} and \textit{F} (check out the violet and 
+%as does adding both \textit{E} and \textit{F} (check out the magenta and 
 %black to see why):\\
 
 %
@@ -1478,10 +1615,10 @@ Recall that the $@*$ intro and $|*$ elim steps use a variable --- $i$, $\<i1>$, 
 %$\neg F\rightarrow \neg E$
 % either. Jape shows us a clue: the $!$ connective in 
 %$\neg F$
-% is violet, so although the root world doesn't force \textit{F} (black) 
+% is magenta, so although the root world doesn't force \textit{F} (black) 
 %it does force 
 %$\neg F$
-% (violet connective). It also shows us (black connective) that 
+% (magenta connective). It also shows us (black connective) that 
 %we aren't forcing 
 %$\neg E$
 %, so the promise of 
