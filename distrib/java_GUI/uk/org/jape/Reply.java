@@ -55,13 +55,12 @@ public class Reply {
     }
 
     synchronized public static void reply(String s) throws ProtocolError {
-        if (Debugging.protocol_tracing) System.err.println("replying "+s);
         if (!clientlistening) {
             if (Debugging.protocol_tracing) System.err.println("GUI replies "+s);
             System.out.println(s);
         }
         else
-            throw new ProtocolError("replying "+s+"\" while client is not expecting reply");
+            throw new ProtocolError("replying \""+s+"\" while client is not expecting reply");
     }
 
     synchronized public static void reply(int i) throws ProtocolError {
