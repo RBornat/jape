@@ -87,7 +87,6 @@ public class PosIntHashMap {
         for (int k=keys[i]; k!=key; k=keys[i=(i+1)%size])
             if (k<0) 
                 return -1;
-        
         return values[i];
     }
 }
