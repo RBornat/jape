@@ -40,6 +40,7 @@ import java.awt.geom.Ellipse2D;
 
 import java.awt.image.BufferedImage;
 
+import java.util.Enumeration;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -266,7 +267,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         startx = e.getX(); starty = e.getY(); firstDrag = true;
     }
 
-    protected class WorldImage extends DragComponent {
+    protected class WorldImage extends DragImage {
         public final byte dragKind;
         public WorldImage(byte dragKind) {
             super(Transparent); this.dragKind = dragKind;
@@ -276,10 +277,6 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             for (int i=0; i<labelv.size(); i++)
                 include((WorldLabel)labelv.get(i));
             fixImage();
-        }
-        public void moveTo(int x, int y) {
-            super.moveTo(x,y);
-            dragLines.wakeup();
         }
     }
 
@@ -302,44 +299,14 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         return SwingUtilities.convertPoint(this, radius, radius, layeredPane);
     }
 
-    class DragLine extends LineComponent {
-        private final int endx, endy;
-        public DragLine(WorldItem w) {
-            this(w.dragCentre());
-        }
-        public DragLine(Point p) {
-            super(worldImage.getX()+offsetx+radius, worldImage.getY()+offsety+radius,
-                  p.x, p.y, canvas.linethickness);
-            this.endx = p.x; this.endy = p.y;
-        }
-        public void wakeup() {
-            repaint();
-            resetLine(worldImage.getX()+offsetx+radius, worldImage.getY()+offsety+radius,
-                      endx, endy, canvas.linethickness);
-            repaint();
-        }
+    public void addLine(WorldItem w) {
+        DragWorldLine dl = new DragWorldLine(w, worldImage.getX()+offsetx+radius,
+                                             worldImage.getY()+offsety+radius,
+                                             canvas.linethickness);
+        worldImage.addFriend(dl);
+        layeredPane.add(dl);
+        dl.repaint();
     }
-
-    class DragLines {
-        private Vector lines = new Vector();
-        public void addLine(WorldItem w) {
-            DragLine dl = new DragLine(w);
-            lines.add(dl);
-            layeredPane.add(dl);
-            dl.repaint();
-        }
-        public void wakeup() {
-            for (int i=0; i<lines.size(); i++)
-                ((DragLine)lines.get(i)).wakeup();
-        }
-        public void tidy() {
-            for (int i=0; i<lines.size(); i++)
-                layeredPane.remove((Component)lines.get(i));
-            lines.removeAllElements();
-        }
-    }
-    
-    private DragLines dragLines;
     
     public void dragged(byte dragKind, MouseEvent e) {
         if (firstDrag) {
@@ -360,17 +327,16 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                                                   e.getY()-starty-offsety,
                                                   layeredPane));
             worldImage.repaint();
-            dragLines = new DragLines();
             switch (dragKind) {
                 case MoveWorldDrag:
                     setDrageesVisible(false);
                     for (int i=0; i<fromv.size(); i++)
-                        dragLines.addLine(((WorldConnector)fromv.get(i)).to);
+                        addLine(((WorldConnector)fromv.get(i)).to);
                     for (int i=0; i<tov.size(); i++)
-                        dragLines.addLine(((WorldConnector)tov.get(i)).from);
+                        addLine(((WorldConnector)tov.get(i)).from);
                     break;
                 case NewWorldDrag:
-                    dragLines.addLine(this);
+                    addLine(this);
                     break;
                 default:
                     Alert.abort("WorldItem.dragged dragKind="+dragKind);
@@ -381,9 +347,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         else {
             if (drag_tracing)
                 System.err.print("mouse dragged to "+e.getX()+","+e.getY());
-
-            worldImage.moveTo(worldImage.getX()+(e.getX()-lastx),
-                              worldImage.getY()+(e.getY()-lasty));
+            int deltax = e.getX()-lastx, deltay = e.getY()-lasty;
+            worldImage.moveBy(deltax, deltay);
             if (drag_tracing)
                 System.err.println("; dragged world now at "+worldImage.getX()+","+worldImage.getY());
         }
@@ -423,7 +388,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     protected void finishDrag() {
         layeredPane.remove(worldImage);
-        dragLines.tidy();
+        for (Enumeration e = worldImage.friends(); e.hasMoreElements(); )
+            layeredPane.remove((DragWorldLine)e.nextElement());
         layeredPane.repaint();
         canvas.wasteBin.setEnabled(true);
     }
