@@ -261,25 +261,25 @@ let boxdisplaynames =
 let displayvars = List.map Name.namefrom (displaynames @ boxdisplaynames)
 
 let rec mustredisplay env vals =
-let dispenv =
-  mkmap (displayvars ||| vals)
-in
-let nenv =
-  mkmap (List.map (fun n -> Name.namestring n, n) displayvars)
-in
-let rec lookup s =
-  match
-      ((nenv <:> s) &~~ (fun n -> Japeenv.(<:>) env n))
-  with
-    Some t -> Some (termstring t)
-  | None -> None
-in
-let rec changed s =
-  lookup s <>
-      ((nenv <:> s) &~~ (fun n -> (dispenv <:> n)))
-in
-List.exists changed displaynames ||
-lookup "displaystyle" = Some "box" && List.exists changed boxdisplaynames
+  let dispenv =
+    mkmap (displayvars ||| vals)
+  in
+  let nenv =
+    mkmap (List.map (fun n -> Name.namestring n, n) displayvars)
+  in
+  let rec lookup s =
+    match
+	((nenv <:> s) &~~ (fun n -> Japeenv.(<:>) env n))
+    with
+      Some t -> Some (termstring t)
+    | None -> None
+  in
+  let rec changed s =
+    lookup s <>
+	((nenv <:> s) &~~ (fun n -> (dispenv <:> n)))
+  in
+  List.exists changed displaynames ||
+  lookup "displaystyle" = Some "box" && List.exists changed boxdisplaynames
          
 let profileOn = (* Profile.profileOn *) (fun _ -> ())
 let profileOff = (* Profile.profileOff *) (fun _ -> ())
@@ -306,27 +306,25 @@ type winhistrec =
         disproofhist : disproofstate hist option }
 type winhist = WinHist of winhistrec
 
-let rec winhist_changed = fun (WinHist {changed = changed}) -> changed
-let rec winhist_proofhist =
-  fun (WinHist {proofhist = proofhist}) -> proofhist
-let rec winhist_disproofhist =
-  fun (WinHist {disproofhist = disproofhist}) -> disproofhist
-let rec winhist_proofnow =
-  fun (WinHist {proofhist = Hist {now = now}}) -> now
+let rec winhist_changed (WinHist {changed = changed}) = changed
+let rec winhist_proofhist (WinHist {proofhist = proofhist}) = proofhist
+let rec winhist_disproofhist (WinHist {disproofhist = disproofhist}) = disproofhist
+let rec winhist_proofnow (WinHist {proofhist = Hist {now = now}}) = now
 let rec winhist_disproofnow =
   function
     WinHist {disproofhist = Some (Hist {now = now})} -> Some now
   | _ -> None
-let rec hist_now = fun (Hist {now = now}) -> now
-let rec hist_pasts = fun (Hist {pasts = pasts}) -> pasts
-let rec hist_futures = fun (Hist {futures = futures}) -> futures
+
+let rec hist_now (Hist {now = now}) = now
+let rec hist_pasts (Hist {pasts = pasts}) = pasts
+let rec hist_futures (Hist {futures = futures}) = futures
 
 let rec withchanged (WinHist wh) changed = WinHist {wh with changed = changed}
 let rec withproofhist (WinHist wh) proofhist = WinHist {wh with proofhist = proofhist}
 let rec withdisproofhist (WinHist wh) disproofhist = WinHist {wh with disproofhist = disproofhist}
 
-let rec new_hist now =
-  Hist {now = now; pasts = []; futures = []}
+let rec new_hist now = Hist {now = now; pasts = []; futures = []}
+
 let rec withnow (Hist h) now = Hist {h with now = now}
 let rec withpasts (Hist h) pasts = Hist {h with pasts = pasts}
 let rec withfutures (Hist h) futures = Hist {h with futures = futures}
@@ -338,16 +336,19 @@ let rec insert_step (Hist {now = now; pasts = pasts; futures = futures}) now' =
     Hist {now = now'; pasts = pasts; futures = now :: futures}
 let rec append_step (Hist {now = now; pasts = pasts; futures = futures}) now' =
     Hist {now = now'; pasts = now :: pasts; futures = futures}
+
 let rec redo_step =
   function
     Hist {now = now; pasts = pasts; futures = now' :: futures} ->
       Some (Hist {now = now'; pasts = now :: pasts; futures = futures})
   | _ -> None
+
 let rec undo_step =
   function
     Hist {now = now; pasts = now' :: pasts; futures = futures} ->
       Some (Hist {now = now'; pasts = pasts; futures = now :: futures})
   | _ -> None
+
 let rec reparentprovisos hist =
   let phist = winhist_proofhist hist in
   let proof = hist_now phist in
@@ -360,17 +361,13 @@ type proofinforec =
         fromstore : bool }
 type proofinfo = Pinf of proofinforec
 
-let rec proofinfo_title = fun (Pinf {title = title}) -> title
-let rec proofinfo_proofnum = fun (Pinf {proofnum = proofnum}) -> proofnum
-let rec proofinfo_displayvarsvals =
-  fun (Pinf {displayvarsvals = displayvarsvals}) -> displayvarsvals
-let rec proofinfo_needsrefresh =
-  fun (Pinf {needsrefresh = needsrefresh}) -> needsrefresh
-let rec proofinfo_displaystate =
-  fun (Pinf {displaystate = displaystate}) -> displaystate
-let rec proofinfo_hist = fun (Pinf {hist = hist}) -> hist
-let rec proofinfo_fromstore =
-  fun (Pinf {fromstore = fromstore}) -> fromstore
+let rec proofinfo_title (Pinf {title = title}) = title
+let rec proofinfo_proofnum (Pinf {proofnum = proofnum}) = proofnum
+let rec proofinfo_displayvarsvals (Pinf {displayvarsvals = displayvarsvals}) = displayvarsvals
+let rec proofinfo_needsrefresh (Pinf {needsrefresh = needsrefresh}) = needsrefresh
+let rec proofinfo_displaystate (Pinf {displaystate = displaystate}) = displaystate
+let rec proofinfo_hist (Pinf {hist = hist}) = hist
+let rec proofinfo_fromstore (Pinf {fromstore = fromstore}) = fromstore
 
 let rec withtitle (Pinf pi) title = Pinf {pi with title = title}
 let rec withproofnum (Pinf pi) proofnum = Pinf {pi with proofnum = proofnum}
@@ -384,17 +381,19 @@ let rec withfromstore (Pinf pi) fromstore = Pinf {pi with fromstore = fromstore}
 type showstate = ShowProof | ShowDisproof | ShowBoth | DontShow
 
 let setComment = Alert.setComment <.> implode
-let showAlert =
-  Alert.showAlert Alert.defaultseverity_alert <.> implode
+let showAlert = Alert.showAlert Alert.defaultseverity_alert <.> implode
 
 let rec screenquery ss y n def =
   let bs = [y, true; n, false] in
   Alert.ask (Alert.defaultseverity bs) (implode ss) bs def
 let rec uncurried_screenquery (ss, y, n, def) = screenquery ss y n def
+
 let savefilename : string option ref = ref None
-let mbcache : (name, term ref) mapping ref =
-  ref empty
+
+let mbcache : (name, term ref) mapping ref = ref empty
+
 let rec apply_cleanup () = selections := None
+
 exception Applycommand_ of proofstate option
 let rec docommand displaystate env target comm =
   fun (Proofstate {cxt = cxt; tree = tree; givens = givens} as state) ->
@@ -406,7 +405,9 @@ let rec docommand displaystate env target comm =
        applyLiteralTactic (Some displaystate) env (respace comm)
          state)
     in apply_cleanup (); r
+
 let rec badsel ss = showAlert ss; raise (Applycommand_ None)
+
 (* There appear to be two reasonable behaviours, given a selection and a command.
  * 1. (the original) -- resolve the selection to a single tip, if possible, and work there.
  * 2. (the new and odd) -- just take exactly what was given, and damn the consequences.
@@ -455,6 +456,7 @@ let rec pointToSequent
     with
       Applycommand_ sopt -> apply_cleanup (); sopt
     | exn -> apply_cleanup (); raise exn
+
 let rec nohitcommand displaystate env textselopt comm done__ =
   fun (Proofstate {cxt = cxt; tree = tree} as state) ->
     try
@@ -492,10 +494,12 @@ let rec nohitcommand displaystate env textselopt comm done__ =
     with
       Applycommand_ sopt -> apply_cleanup (); sopt
     | exn -> apply_cleanup (); raise exn
+    
 (* local *)
-   
 let foldstuff = false, "", Some []
+
 let defaultfolded = RotatingFormat (0, [foldstuff])
+
 let rec rotateFormat =
   function
     tfk, DefaultFormat -> Some (tfk, defaultfolded)
@@ -503,6 +507,7 @@ let rec rotateFormat =
       Some
         (tfk,
          RotatingFormat ((if i >= List.length nfs then 0 else i + 1), nfs))
+
 let rec getfmt mess tree path =
   try
     let subproof = followPath tree path in
@@ -515,9 +520,11 @@ let rec getfmt mess tree path =
         TreeFormat tf -> Some tf
   with
     FollowPath_ _ -> None
+
 let rec parent tree path =
   try Some (parentPath tree path) with
     FollowPath_ _ -> None
+
 let rec leftCutParent tree path =
   match parent tree path with
     Some parentpath ->
@@ -528,14 +535,14 @@ let rec leftCutParent tree path =
         Some parentpath
       else None
   | _ -> None
-type layoutcommand =
-    BacktrackCommand
-  | PruneCommand
-  | HideShowCommand
-  | ExpandContractCommand
-  | HideRootCommand
-  | ExposeParentCommand
-  | HideCutCommand
+type layoutcommand = BacktrackCommand
+		   | PruneCommand
+		   | HideShowCommand
+		   | ExpandContractCommand
+		   | HideRootCommand
+		   | ExposeParentCommand
+		   | HideCutCommand
+
 let rec doLayout command =
   fun (Proofstate {tree = tree} as state) path ->
     match command with
@@ -630,6 +637,7 @@ let rec doLayout command =
                  (state)
                   (set_prooftree_fmt tree cutpath
                     (TreeFormat (HideCutFormat, tff))))
+
 let rec getLayoutPath displaystate c pathkind =
     (findLayoutSelection displaystate pathkind |~~
      (fun _ ->
@@ -644,6 +652,7 @@ let rec getLayoutPath displaystate c pathkind =
            | ExposeParentCommand -> "exposing parent"
            | HideCutCommand -> "hiding cut hypothesis"];
         None))
+
 let rec tryLayout displaystate c pathkind hist =
     getLayoutPath displaystate c pathkind &~~
     doLayout c (winhist_proofnow hist) &~~
@@ -654,6 +663,7 @@ let rec tryLayout displaystate c pathkind hist =
      | true, proof' ->
          let phist = winhist_proofhist hist in
          Some (withproofhist hist (append_step phist proof')))
+
 let rec recorddisplayvars env =
   try 
     (fun s -> termstring (_The (Japeenv.(<:>) env s))) <* displayvars
@@ -664,13 +674,16 @@ let rec recorddisplayvars env =
            ["one or more of ";
             bracketedliststring namestring ", " displayvars;
             " isn't set!"])
+
 let rec setdisplayvars env vals =
   List.iter (fun (s, v) -> Japeenv.set (env, s, parseTactic v))
     ((displayvars ||| vals))
+
 (* proofmove doesn't set changed *)
 let rec proofmove =
   fun (WinHist {proofhist = proofhist} as hist) proof' ->
     withproofhist hist (forward_step proofhist proof')
+
 (* nor does disproofmove *)
 let rec disproofmove a1 a2 =
   match a1, a2 with
@@ -679,12 +692,14 @@ let rec disproofmove a1 a2 =
   | (WinHist {disproofhist = None} as hist), disproof' ->
       withdisproofhist
         (hist) (Some (Hist {now = disproof'; pasts = []; futures = []}))
+
 (* this function the same as evolve except for non-application of AUTO tactics,
  * and the fact that it doesn't set changed.
  *)
 let rec tryForward f =
   fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
     f proof &~~ (fSome <.> proofmove hist)
+
 let rec evolvewithexplanation explain displaystate env f =
   fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
     match f proof with
@@ -697,16 +712,20 @@ let rec evolvewithexplanation explain displaystate env f =
                    (autoTactics (Some displaystate) env
                       (Proofstate.autorules ()) proof')))
               (true))
+
 let evolve = evolvewithexplanation (fun () -> ())
+
 let rec reset () =
   resetallcachesandvariables (); savefilename := None; mbcache := empty
+
 let rec cleanup () = ()
+
 let rec parseargs args =
   try parseTermCOMMAList args with
     ParseError_ _ -> []
 exception QuitJape
 
-(* interpretParasFrom includes its own unQuote, so no need for one here *)
+(* interpretParasFrom includes its own disQuote, so no need for one here *)
 let doUse = Paragraphfuns.interpretParasFrom
 
 (* we have a mechanism -- in mbs, set up by paragraphfuns -- for allowing the GUI to 
@@ -924,7 +943,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   in
   let rec writetonamedfile action filename =
     try
-      let sfile = try open_out (unQuote filename) with exn -> raise (Io exn) in
+      let sfile = try open_out (disQuote filename) with exn -> raise (Io exn) in
       action sfile; close_out sfile; true
     with
       Io exn ->
@@ -1159,7 +1178,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     in
     let rec worldlabelact act cx cy s =
       disproofuniverseact
-        (fun u -> act u (atoi cx, atoi cy) (parseTerm (unQuote s)))
+        (fun u -> act u (atoi cx, atoi cy) (parseTerm (disQuote s)))
     in
     match c with
       [] -> default
@@ -1350,7 +1369,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "tileact", [s] ->
             disproofstateact
-              (fun d -> Disproof.newtile d (parseTerm (unQuote s)))
+              (fun d -> Disproof.newtile d (parseTerm (disQuote s)))
 
         | "addworld", [px; py; cx; cy] ->
             disproofuniverseact
@@ -1512,7 +1531,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "saveengine", name :: _ ->
             outside c
-              (fun () -> (* saverunning env mbs (unQuote name); *) default)
+              (fun () -> (* saverunning env mbs (disQuote name); *) default)
 
         | "done", [] ->
             begin match pinfs with
@@ -1793,7 +1812,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "showfile", [filename] ->
             (* here cos I can't work out how to get round the NOSELCOMMAND trap. RB 14/ii/94 *)
-            Japeserver.showfile (unQuote filename); default
+            Japeserver.showfile (disQuote filename); default
 
         | "saveproofs", [w] ->
             let newfile = w = "true" in
@@ -1840,6 +1859,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let (fg, bgs) = findproof pinfs nstring in
             newfocus (env, mbs, DontShow, fg :: bgs)
         
+        | "setfonts", fontnames ->
+            let _ = consolereport ["font names now "; bracketedliststring (fun s -> s) "; " fontnames] in
+            Japeserver.setFontNames (List.map Stringfuns.disQuote fontnames); default
+            
         | "closeproof", [nstring] ->
             (* when closing proofs we must consider proof hist AND disproof hist *)
             let n = atoi nstring in
@@ -1902,7 +1925,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 Japeserver.dbugfiletype
             with
               Some s ->
-                let file = unQuote s in
+                let file = disQuote s in
                 begin try createdbugfile file with
                   exn ->
                     showAlert
