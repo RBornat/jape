@@ -95,6 +95,13 @@ public class Dispatcher extends Thread {
                         if (p.equals("GREYEN")&&len==3)
                             ProofWindow.greyen(toInt(command[1]), toInt(command[2]));
                         else
+                        if (p.equals("HIGHLIGHT")&&len==4)
+                            ProofWindow.highlight(toInt(command[1]), toInt(command[2]),
+                                                  toByte(command[3]));
+                        else
+                        if (p.equals("UNHIGHLIGHT")&&len==3)
+                            ProofWindow.unhighlight(toInt(command[1]), toInt(command[2]));
+                        else
                             
                     // FONTINFO not very often
                         if (p.equals("FONTINFO")&&len==2)
