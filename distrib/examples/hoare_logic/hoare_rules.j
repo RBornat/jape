@@ -23,10 +23,10 @@ RULE "choice" IS FROM (E→A)∧(¬E→B)∧(E defined) simplifiesto G
 RULE "variable-assignment" IS FROM R«E/x»∧(E defined) simplifiesto Q
                               INFER {Q} (x:=E) {R}
 
-RULE "array-element-assignment" (OBJECT a) IS 
-     FROM R«a⊕I↦E/a»∧(E defined) simplifiesto Q 
-      AND Q∧(a[I] defined) simplifiesto P
-    INFER {P} (a[I]:=E) {R}
+RULE "array-element-assignment" IS 
+     FROM B«a⊕E↦F/a»∧(a[E] defined) simplifiesto C 
+      AND C∧(F defined) simplifiesto D
+    INFER {D} (a[E]:=F) {B}
 
 RULE "while"(I, M, OBJECT Km) WHERE FRESH Km IS
      FROM true∧(E defined) simplifiesto G
