@@ -1,42 +1,40 @@
+#       $Id$
 #
-#       Rules that force a complete recompile from the root when a source file changes
-#       I've not found a reliable java dependency generator, and
-#       the compiler start overhead is too ...  large to
-#       use it on individual files.
+#       Rules that force a complete recompile from the root when a 
+#       source file changes. 
 #
-#       ANT here we come. (Now more than ever! BAS Feb 04)
+#       Use ANT  if you want a more discriminating recompilation
 #
 .SUFFIXES:      .jar .java .class
-.SILENT:
-%.class:        %.java; @touch $*.class; echo $*.class "out of date"
 
 #
 #             
 #
-JAVA            = $(shell echo *.java)
+JAVABUILD       = ./BUILD
+JAVASRC         = .
+JAVA            = $(shell find $(JAVASRC) -name "*.java")
 RESOURCEFILES   = $(shell echo *.jpg *.gif)
-CLASS           = $(JAVA:.java=.class)
-JAVACOMPILE     = javac -verbose -d .
-JAVABUILD       = BUILD/uk/org/jape
-JAVASRC         = uk/org/jape
+JAVACOMPILE     = javac -verbose -sourcepath $(JAVASRC) -d $(JAVABUILD)
 #
 #
 #
 
-all:            $(JAVABUILD) Jape.jar;
-$(JAVABUILD):   $(JAVA); mkdir -p $(JAVABUILD); \
-                         cp $(JAVA) $(JAVABUILD);\
-                         cp $(RESOURCEFILES) BUILD
+all:            $(JAVABUILD) Jape.jar; 
+$(JAVABUILD):   ; mkdir -p $(JAVABUILD)
 
-Jape.jar: $(CLASS);\
-                (cd BUILD;\
-                 rm -f MANIFEST *.class;\
-                 echo "Main-Class: uk.org.jape.Jape" > MANIFEST;\
-                 echo $(JAVACOMPILE) $(JAVABUILD)/Jape.java ;\
-                 $(JAVACOMPILE) $(JAVASRC)/Jape.java ;\
-                 jar cmf MANIFEST Jape.jar $(RESOURCEFILES) $(JAVASRC)/*.class;\
-                 mv Jape.jar ..) 
+Jape.jar: $(JAVA);  (rm -f MANIFEST;\
+                     echo "Main-Class: uk.org.jape.Jape" > MANIFEST;\
+                     $(JAVACOMPILE) uk/org/jape/Jape.java ;\
+                     jar cmf MANIFEST Jape.jar $(RESOURCEFILES) -C $(JAVABUILD) uk;\
+                    ) 
+
+clean:          ; rm -rf Jape.jar $(JAVABUILD)
+
+
+               
                 
+
+
 
 
 
