@@ -75,24 +75,21 @@ let rec uncurry2 f (a, b) = f a b
 let rec refstring f {contents = a} = ("ref(" ^ f a) ^ ")"
 let rec earlierpair lta ltb (a, b) (a', b') =
   lta a a' || not (lta a' a) && ltb b b' (* this is trying not to use equality ... *)
-let lemmacount = ref 0
-(* number of lemmas during THIS proof *)
-let applyconjectures = ref true
-(* whether to allow application of conjectures *)
-let applyderivedrules = ref true
-(* whether to allow application of derived rules *)
-let autoselect = ref true
-(* whether to highlight 'next goal' when printing proofs *)
-let givenMenuTactic = ref ""
-(* tactic to use when the interface says applygiven *)
- 
-let foldformulae = ref false
-(* whether to fold long lines in boxdraw *)
-let truncatereasons = ref false
-(* whether to shorten reasons in boxdraw *)
   
-let seektipselection = ref true
-(* whether to look for a tip to work on in boxdraw *)
+(* whether to add context automatically to rule definitions *)
+let autoAdditiveLeft  = ref false
+let autoAdditiveRight = ref false
+    
+let lemmacount = ref 0 (* number of lemmas during THIS proof *)
+let applyconjectures = ref true (* whether to allow application of conjectures *)
+let applyderivedrules = ref true (* whether to allow application of derived rules *)
+let autoselect = ref true    (* whether to highlight 'next goal' when printing proofs *)
+let givenMenuTactic = ref "" (* tactic to use when the interface says applygiven *)
+ 
+let foldformulae = ref false (* whether to fold long lines in boxdraw *)
+let truncatereasons = ref false (* whether to shorten reasons in boxdraw *)
+  
+let seektipselection = ref true (* whether to look for a tip to work on in boxdraw *)
   
 let textselectionmode = ref "subformula"
 let screenpositiondebug = ref true

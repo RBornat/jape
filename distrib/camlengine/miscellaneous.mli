@@ -50,24 +50,20 @@ val outket : char
 val lockbra : char
 val lockket : char
 val invisible : string -> bool
-val lemmacount : int ref
-(* number of lemmas during THIS proof *)
-val applyconjectures : bool ref
-(* conjectures allowed in proofs *)
-val applyderivedrules : bool ref
-(* derived rules allowed in proofs *)
-val autoselect : bool ref
-(* show 'goal' when printing proofs *)
-val givenMenuTactic : string ref
-(* what to use when the interface says applygiven *)
-val foldformulae : bool ref
-(* whether to fold long lines in boxdraw *)
-val truncatereasons : bool ref
-(* whether to shorten reasons in boxdraw *)
-val seektipselection : bool ref
-(* look for a tip to work on in boxdraw *)
-val textselectionmode : string ref
-(* how to press-and-drag over text *)
+
+(* whether to add context automatically to rule definitions *)
+val autoAdditiveLeft  : bool ref
+val autoAdditiveRight : bool ref
+    
+val lemmacount : int ref           (* number of lemmas during THIS proof *)
+val applyconjectures : bool ref    (* conjectures allowed in proofs *)
+val applyderivedrules : bool ref   (* derived rules allowed in proofs *)
+val autoselect : bool ref          (* show 'goal' when printing proofs *)
+val givenMenuTactic : string ref   (* what to use when the interface says applygiven *)
+val foldformulae : bool ref        (* whether to fold long lines in boxdraw *)
+val truncatereasons : bool ref     (* whether to shorten reasons in boxdraw *)
+val seektipselection : bool ref    (* look for a tip to work on in boxdraw *)
+val textselectionmode : string ref (* how to press-and-drag over text *)
 
 val screenpositiondebug : bool ref
 exception Catastrophe_ of string list

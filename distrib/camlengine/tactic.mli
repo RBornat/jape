@@ -39,6 +39,8 @@ val catelim_tacticstring : tactic -> string list -> string list
 val catelim_tacticstringwithNLs : tactic -> string list -> string list
 val remaptactic : (term, term) mapping -> tactic -> tactic
 val isguard : tactic -> bool
-val showargasint : (term -> int) option ref
-val readintasarg : term array option ref
+
+val showargasint  : (term -> int) option ref
+val readintasarg  : term array option ref
+val stripextrabag : bool ref
 

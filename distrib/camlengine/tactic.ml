@@ -53,6 +53,8 @@ open Treelayout
 
 let showargasint : (term -> int) option ref = ref None
 let readintasarg : term array option ref = ref None
+let stripextrabag = ref false
+
 let rec catelim_tacticstring sep t tail =
   let withNLs = String.sub (sep) (0) (1) = "\n" in
   let nextsep = if withNLs then sep ^ "\t" else sep in
@@ -460,279 +462,288 @@ and _SEQ1TAC a1 a2 =
   | name, ts -> _SEQTAC ts
 
 and transTactic tacterm =
-  try
-	match debracket tacterm with
-	  Subst (_, _, _P, vts) ->
-		SubstTac
-		  (butnottacticform _P,
-		   (match !readintasarg with
-			  Some lookup ->
-				let rec decodeterm t =
-				  match t with
-					Literal (_, Number i) ->
-					  begin try Array.get (lookup) (i) with
-						_ ->
-						  raise
-							(Catastrophe_
-							   ["transTactic and readintasarg see ";
-								string_of_int i])
-					  end
-				  | Collection (_, c, es) ->
-					  registerCollection (c, (decodeelement <* es))
-				  | _ -> t
-				and decodeelement =
-				  function
-					Element (_, i, t) -> registerElement (i, decodeterm t)
-				  | el -> el
-				in
-				((fun (v, t) -> v, decodeterm t) <* vts)
-			| None -> vts))
-	| t ->
-		let (n, ts as parts) = explodeForExecute t in
-		let f = namestring n in
-		let rec _Bad why =
-		  raise (TacParseError_ [termstring t; " -- "; why])
-		in
-		let rec _Assignments =
-		  function
-			[] -> []
-		  | s :: t :: ts ->
-			  AssignTac (tacname s, debracket t) :: _Assignments ts
-		  | _ -> _Bad "Assignment malformed"
-		in
-		let rec onearg =
-		  function
-			[t] -> t
-		  | [] -> _Bad "No argument"
-		  | _ -> _Bad "More than one argument"
-		in
-		let rec atleasttwo =
-		  function
-			_ :: _ :: _ as ts -> ts
-		  | ts -> _Bad "should have at least two arguments"
-		in
-		let rec mkBind a1 a2 a3 a4 a5 =
-		  match a1, a2, a3, a4, a5 with
-			f, bind, str, tac, x :: ts -> tac (bind x, _SEQTAC ts)
-		  | f, bind, str, tac, [] ->
-			  raise
-				(TacParseError_
-				   ["Syntax is ("; f; " <"; str; "> tactic ...)"])
-		in
-		let rec mkBind2 a1 a2 a3 a4 a5 a6 a7 =
-		  match a1, a2, a3, a4, a5, a6, a7 with
-			f, b1, b2, s1, s2, tac, x1 :: x2 :: ts ->
-			  tac (b1 x1, b2 x2, _SEQTAC ts)
-		  | f, b1, b2, s1, s2, tac, _ ->
-			  raise
-				(TacParseError_
-				   ["Syntax is ("; f; " <"; s1; "> <"; s2;
-					"> tactic ...)"])
-		in
-		let rec mkBind3 a1 a2 a3 a4 a5 a6 a7 a8 a9 =
-		  match a1, a2, a3, a4, a5, a6, a7, a8, a9 with
-			f, b1, b2, b3, s1, s2, s3, tac, x1 :: x2 :: x3 :: ts ->
-			  tac (b1 x1, b2 x2, b3 x3, _SEQTAC ts)
-		  | f, b1, b2, b3, s1, s2, s3, tac, _ ->
-			  raise
-				(TacParseError_
-				   ["Syntax is ("; f; " <"; s1; "> <"; s2; "> <"; s3;
-					"> tactic ...)"])
-		in
-		let rec patbind t = t in
-		let rec namebind n = tacname n in
-		let rec mkMatch =
-		  function
-			pat :: expr :: ts -> BindMatchTac (pat, expr, _SEQTAC ts)
-		  | _ ->
-			  raise
-				(TacParseError_
-				   ["Syntax is (LETMATCH <pattern> <expr> tactic ...)"])
-		in
-		let rec mkOccurs =
-		  function
-			pat1 :: expr :: pat2 :: ts ->
-			  BindOccursTac (pat1, expr, pat2, _SEQTAC ts)
-		  | _ ->
-			  raise
-				(TacParseError_
-				   ["Syntax is (LETOCCURS <pattern> <expr> <substpattern> tactic ...)"])
-		in
-		let rec mkLayout =
-		  function
-			[] -> badLayout ()
-		  | fmt :: stuff ->
-			  let rec lyt a1 a2 a3 =
-				match a1, a2, a3 with
-				  con, fmt, [] -> transLayout con fmt None []
-				| con, fmt, ns :: ts -> transLayout con fmt (Some ns) ts
-			  in
-			  match maybeSTR fmt, stuff with
-				Some "HIDEROOT", ts ->
-				  LayoutTac (_SEQTAC ts, HideRootLayout)
-			  | Some "HIDECUT", ts -> LayoutTac (_SEQTAC ts, HideCutLayout)
-			  | Some "COMPRESS", fmt :: ts -> lyt (fun v->CompressedLayout v) fmt ts
-			  | Some "COMPRESS", ts ->
-				  lyt (fun v->CompressedLayout v) (registerLiteral (String "%s")) ts
-			  | _, ts -> lyt (fun v->NamedLayout v) fmt ts
-		in
-		let rec mkFold a1 a2 =
-		  match a1, a2 with
-			tac, n :: ts -> tac (tacname n, (transTactic <* ts))
-		  | tac, [] ->
-			  raise
-				(TacParseError_
-				   ["Syntax is (FOLD/UNFOLD tacticname tactic ...)"])
-		in
-		let rec mkHypFold a1 a2 =
-		  match a1, a2 with
-			tac, n :: ts -> tac (tacname n, ts)
-		  | tac, [] ->
-			  raise
-				(TacParseError_
-				   ["Syntax is (FOLDHYP/UNFOLDHYP tacticname pattern ...)"])
-		in
-		let rec mkAlert =
-		  function
-			m :: ps ->
-			  let rec f a1 a2 =
-				match a1, a2 with
-				  rs, Tup (_, ",", [l; t]) :: ps ->
-					f ((l, transTactic t) :: rs) ps
-				| rs, [t] -> AlertTac (m, List.rev rs, Some (transTactic t))
-				| rs, [] -> AlertTac (m, List.rev rs, None)
-				| rs, t :: _ ->
-					raise
-					  (TacParseError_
-						 ["badly formed argument "; termstring t])
-			  in
-			  f [] ps
-		  | [] -> raise (TacParseError_ ["no arguments"])
-		in
-		let rec parsegoalexpr t =
-		  let rec err _ =
-			["path expected after GOALPATH -- found "; termstring t]
-		  in
-		  match explodeApp false t with
-			f, rs ->
-			  match maybeSTR f, rs with
-				Some "PARENT", [r] -> Parent (parsegoalexpr r)
-			  | Some "LEFT", [r] -> LeftSibling (parsegoalexpr r)
-			  | Some "RIGHT", [r] -> RightSibling (parsegoalexpr r)
-			  | Some "SUBGOAL", [r; ns] ->
-				  Subgoal (parsegoalexpr r, checkINTS err (debracket ns))
-			  | Some "HYPROOT", [r] -> HypRoot (parsegoalexpr r)
-			  | _, [] -> SimplePath (checkINTS err (debracket f))
-			  | _ -> raise (TacParseError_ (err t))
-		in
-		let nullArgTac t =
-		  match ts with
-		    [] -> t
-		  | _  -> _Bad (f^" mustn't be given any arguments")
-		in
-		match f with
-		  "SKIP"      -> nullArgTac SkipTac
-		| "FAIL"      -> nullArgTac FailTac
-		| "STOP"      -> nullArgTac StopTac
-		| "NEXTGOAL"  -> nullArgTac NextgoalTac
-		| "UNIFYARGS" -> nullArgTac UnifyArgsTac
-		| "GOALPATH"  -> SetgoalTac (parsegoalexpr (onearg ts))
-		| "PROVE"     -> CompTac (_SEQ1TAC f ts)
-		| "CUTIN"     -> CutinTac (_SEQ1TAC f ts)
-		| "JAPE"      -> AdHocTac [onearg ts]
-		| "FLATTEN"   -> AssocFlatTac (debracket (onearg ts))
-		| "MAPTERMS" -> MapTac (explodeForExecute (onearg ts))
-		| "SEQ" -> _SEQTAC ts
-		| "ALT" -> AltTac ((transTactic <* ts))
-		| "THEORYALT" -> TheoryAltTac ((butnottacticform <* ts))
-		| "IF" -> IfTac (_SEQ1TAC f ts)
-		| "DO" -> RepTac (_SEQ1TAC f ts)
-		| "FOLD" -> mkFold (fun v->FoldTac v) ts
-		| "UNFOLD" -> mkFold (fun v->UnfoldTac v) ts
-		| "FOLDHYP" -> mkHypFold (fun v->FoldHypTac v) ts
-		| "UNFOLDHYP" -> mkHypFold (fun v->UnfoldHypTac v) ts
-		| "WITHARGSEL" -> WithArgSelTac (_SEQ1TAC f ts)
-		| "WITHCONCSEL" -> WithConcSelTac (_SEQ1TAC f ts)
-		| "WITHFORMSEL" -> WithFormSelTac (_SEQ1TAC f ts)
-		| "WITHHYPSEL" -> WithHypSelTac (_SEQ1TAC f ts)
-		| "WITHSELECTIONS" -> WithSelectionsTac (_SEQ1TAC f ts)
-		| "WITHSUBSTSEL" -> WithSubstSelTac (_SEQ1TAC f ts)
-		| "EVALUATE" -> EvalTac ts
-		| "ASSIGN" -> mkSEQ (_Assignments ts)
-		| "WHEN" ->
-			let tacs = (transTactic <* ts) in
-			let rec okwhen =
-			  function
-				[] -> ()
-			  | [t] -> ()
-			  | t1 :: ts ->
-				  if isguard t1 then okwhen ts
-				  else _Bad "WHEN must be given guarded tactics"
-			in
-			okwhen tacs; WhenTac tacs
-		| "LETCONC" -> mkBind f patbind "pattern" (fun v->BindConcTac v) ts
-		| "LETHYP" -> mkBind f patbind "pattern" (fun v->BindHypTac v) ts
-		| "LETHYP2" ->
-			mkBind2 f patbind patbind "pattern" "pattern" (fun v->BindHyp2Tac v) ts
-		| "LETHYPS" -> mkBind f patbind "pattern" (fun v->BindHypsTac v) ts
-		| "LETLHS" -> mkBind f patbind "pattern" (fun v->BindLHSTac v) ts
-		| "LETRHS" -> mkBind f patbind "pattern" (fun v->BindRHSTac v) ts
-		| "LETGOAL" -> mkBind f patbind "pattern" (fun v->BindGoalTac v) ts
-		| "LETGOALPATH" -> mkBind f namebind "name" (fun v->BindGoalPathTac v) ts
-		| "LETOPENSUBGOAL" ->
-			mkBind2 f namebind patbind "name" "pattern" (fun v->BindOpenSubGoalTac v)
-			  ts
-		| "LETOPENSUBGOALS" ->
-			mkBind f patbind "pattern" (fun v->BindOpenSubGoalsTac v) ts
-		| "LETARGSEL" -> mkBind f patbind "pattern" (fun v->BindArgTac v) ts
-		| "LETARGTEXT" -> mkBind f namebind "name" (fun v->BindArgTextTac v) ts
-		| "LETSUBSTSEL" -> mkBind f patbind "pattern" (fun v->BindSubstTac v) ts
-		| "LETHYPSUBSTSEL" ->
-			mkBind f patbind "pattern" (fun v->BindSubstInHypTac v) ts
-		| "LETCONCSUBSTSEL" ->
-			mkBind f patbind "pattern" (fun v->BindSubstInConcTac v) ts
-		| "LETMULTIARG" -> mkBind f patbind "pattern" (fun v->BindMultiArgTac v) ts
-		| "LETHYPFIND" -> mkBind f patbind "pattern" (fun v->BindFindHypTac v) ts
-		| "LETCONCFIND" -> mkBind f patbind "pattern" (fun v->BindFindConcTac v) ts
-		| "LETMATCH" -> mkMatch ts
-		| "LETOCCURS" -> mkOccurs ts
-		| "LAYOUT" -> mkLayout ts
-		| "MATCH" -> MatchTac (_SEQ1TAC f ts)
-		| "SAMEPROVISOS" -> SameProvisosTac (_SEQ1TAC f ts)
-		| "SIMPLEAPPLY" -> SimpleApplyTac (_SEQ1TAC f ts)
-		| "APPLYORRESOLVE" -> ApplyOrResolveTac (_SEQ1TAC f ts)
-		| "UNIQUE" -> UniqueTac (_SEQ1TAC f ts)
-		| "ANY" -> TakeAnyTac (_SEQ1TAC f ts)
-		| "UNIFY" -> UnifyTac (atleasttwo ts)
-		| "RESOLVE" -> ResolveTac (_SEQ1TAC f ts)
-		| "REPLAY" -> ReplayTac (_SEQ1TAC f ts)
-		| "WITHCONTINUATION" ->
-			begin match ts with
-			  t1 :: ts -> ContnTac (transTactic t1, _SEQTAC ts)
-			| _ -> raise (TacParseError_ ["no argument tactic!"])
-			end
-		| "GIVEN" ->
-			begin match ts with
-			  [Literal _ as t] -> GivenTac t
-			| [Id _ as t] -> GivenTac t
-			| _ ->
-				raise
-				  (TacParseError_
-					 ["must have exactly one name/number argument!"])
-			end
-		| "ALERT" -> mkAlert ts
-		| "EXPLAIN" -> ExplainTac (onearg ts)
-		| "COMMENT" -> CommentTac (onearg ts)
-		| "BADUNIFY" ->
-			mkBind2 f namebind namebind "name" "name" (fun v->BadUnifyTac v) ts
-		| "BADMATCH" ->
-			mkBind2 f namebind namebind "name" "name" (fun v->BadMatchTac v) ts
-		| "BADPROVISO" ->
-			mkBind3 f namebind namebind namebind "name" "name" "name"
-			  (fun v->BadProvisoTac v) ts
-		| _ ->
-			if tacticform n then raise (Catastrophe_ ["unrecognised tactic "; f])
-			else TermTac parts
+  try match debracket tacterm with
+        Subst (_, _, _P, vts) ->
+          let vts =
+            (match !readintasarg with
+               Some lookup ->
+                 let rec decodeterm t =
+                   match t with
+                     Literal (_, Number i) ->
+                       (try Array.get lookup i with
+                        _ -> raise (Catastrophe_ ["transTactic and readintasarg see "; string_of_int i]))
+                  | Collection (_, c, es) -> registerCollection (c, (decodeelement <* es))
+                  | _ -> t
+                 and decodeelement =
+                   function
+                     Element (_, i, t) -> registerElement (i, decodeterm t)
+                   | el                -> el
+                 in
+                 ((fun (v, t) -> v, decodeterm t) <* vts)
+             | None -> vts)
+          in
+          (* this is the second part of a pair of TEMPORARY hacks.  See prooftree.sml for a more extensive
+             explanation, but basically it's a good idea to strip out BAG FORMULA arguments to speed up
+             saved-proof replay.
+           *)
+          let vts = 
+            if !stripextrabag then
+              match split (function (_,Collection _) -> true | _ -> false) vts with
+                ([_], oks) -> (* if not (exists (existsterm isUnknown) (#2 MAP vts)) then oks else vts *)
+                              oks (* it can't be slower, even it it contains unknowns *)
+              | _          -> vts
+            else vts
+          in
+          let _P = butnottacticform _P in
+          (match vts with 
+             [] -> TermTac (_P, [])
+           | _  -> SubstTac (_P, vts))
+      | t ->
+              let (n, ts as parts) = explodeForExecute t in
+              let f = namestring n in
+              let rec _Bad why =
+                raise (TacParseError_ [termstring t; " -- "; why])
+              in
+              let rec _Assignments =
+                function
+                      [] -> []
+                | s :: t :: ts ->
+                        AssignTac (tacname s, debracket t) :: _Assignments ts
+                | _ -> _Bad "Assignment malformed"
+              in
+              let rec onearg =
+                function
+                      [t] -> t
+                | [] -> _Bad "No argument"
+                | _ -> _Bad "More than one argument"
+              in
+              let rec atleasttwo =
+                function
+                      _ :: _ :: _ as ts -> ts
+                | ts -> _Bad "should have at least two arguments"
+              in
+              let rec mkBind a1 a2 a3 a4 a5 =
+                match a1, a2, a3, a4, a5 with
+                      f, bind, str, tac, x :: ts -> tac (bind x, _SEQTAC ts)
+                | f, bind, str, tac, [] ->
+                        raise
+                              (TacParseError_
+                                 ["Syntax is ("; f; " <"; str; "> tactic ...)"])
+              in
+              let rec mkBind2 a1 a2 a3 a4 a5 a6 a7 =
+                match a1, a2, a3, a4, a5, a6, a7 with
+                      f, b1, b2, s1, s2, tac, x1 :: x2 :: ts ->
+                        tac (b1 x1, b2 x2, _SEQTAC ts)
+                | f, b1, b2, s1, s2, tac, _ ->
+                        raise
+                              (TacParseError_
+                                 ["Syntax is ("; f; " <"; s1; "> <"; s2;
+                                      "> tactic ...)"])
+              in
+              let rec mkBind3 a1 a2 a3 a4 a5 a6 a7 a8 a9 =
+                match a1, a2, a3, a4, a5, a6, a7, a8, a9 with
+                      f, b1, b2, b3, s1, s2, s3, tac, x1 :: x2 :: x3 :: ts ->
+                        tac (b1 x1, b2 x2, b3 x3, _SEQTAC ts)
+                | f, b1, b2, b3, s1, s2, s3, tac, _ ->
+                        raise
+                              (TacParseError_
+                                 ["Syntax is ("; f; " <"; s1; "> <"; s2; "> <"; s3;
+                                      "> tactic ...)"])
+              in
+              let rec patbind t = t in
+              let rec namebind n = tacname n in
+              let rec mkMatch =
+                function
+                      pat :: expr :: ts -> BindMatchTac (pat, expr, _SEQTAC ts)
+                | _ ->
+                        raise
+                              (TacParseError_
+                                 ["Syntax is (LETMATCH <pattern> <expr> tactic ...)"])
+              in
+              let rec mkOccurs =
+                function
+                      pat1 :: expr :: pat2 :: ts ->
+                        BindOccursTac (pat1, expr, pat2, _SEQTAC ts)
+                | _ ->
+                        raise
+                              (TacParseError_
+                                 ["Syntax is (LETOCCURS <pattern> <expr> <substpattern> tactic ...)"])
+              in
+              let rec mkLayout =
+                function
+                      [] -> badLayout ()
+                | fmt :: stuff ->
+                        let rec lyt a1 a2 a3 =
+                              match a1, a2, a3 with
+                                con, fmt, [] -> transLayout con fmt None []
+                              | con, fmt, ns :: ts -> transLayout con fmt (Some ns) ts
+                        in
+                        match maybeSTR fmt, stuff with
+                              Some "HIDEROOT", ts ->
+                                LayoutTac (_SEQTAC ts, HideRootLayout)
+                        | Some "HIDECUT", ts -> LayoutTac (_SEQTAC ts, HideCutLayout)
+                        | Some "COMPRESS", fmt :: ts -> lyt (fun v->CompressedLayout v) fmt ts
+                        | Some "COMPRESS", ts ->
+                                lyt (fun v->CompressedLayout v) (registerLiteral (String "%s")) ts
+                        | _, ts -> lyt (fun v->NamedLayout v) fmt ts
+              in
+              let rec mkFold a1 a2 =
+                match a1, a2 with
+                      tac, n :: ts -> tac (tacname n, (transTactic <* ts))
+                | tac, [] ->
+                        raise
+                              (TacParseError_
+                                 ["Syntax is (FOLD/UNFOLD tacticname tactic ...)"])
+              in
+              let rec mkHypFold a1 a2 =
+                match a1, a2 with
+                      tac, n :: ts -> tac (tacname n, ts)
+                | tac, [] ->
+                        raise
+                              (TacParseError_
+                                 ["Syntax is (FOLDHYP/UNFOLDHYP tacticname pattern ...)"])
+              in
+              let rec mkAlert =
+                function
+                      m :: ps ->
+                        let rec f a1 a2 =
+                              match a1, a2 with
+                                rs, Tup (_, ",", [l; t]) :: ps ->
+                                      f ((l, transTactic t) :: rs) ps
+                              | rs, [t] -> AlertTac (m, List.rev rs, Some (transTactic t))
+                              | rs, [] -> AlertTac (m, List.rev rs, None)
+                              | rs, t :: _ ->
+                                      raise
+                                        (TacParseError_
+                                               ["badly formed argument "; termstring t])
+                        in
+                        f [] ps
+                | [] -> raise (TacParseError_ ["no arguments"])
+              in
+              let rec parsegoalexpr t =
+                let rec err _ =
+                      ["path expected after GOALPATH -- found "; termstring t]
+                in
+                match explodeApp false t with
+                      f, rs ->
+                        match maybeSTR f, rs with
+                              Some "PARENT", [r] -> Parent (parsegoalexpr r)
+                        | Some "LEFT", [r] -> LeftSibling (parsegoalexpr r)
+                        | Some "RIGHT", [r] -> RightSibling (parsegoalexpr r)
+                        | Some "SUBGOAL", [r; ns] ->
+                                Subgoal (parsegoalexpr r, checkINTS err (debracket ns))
+                        | Some "HYPROOT", [r] -> HypRoot (parsegoalexpr r)
+                        | _, [] -> SimplePath (checkINTS err (debracket f))
+                        | _ -> raise (TacParseError_ (err t))
+              in
+              let nullArgTac t =
+                match ts with
+                  [] -> t
+                | _  -> _Bad (f^" mustn't be given any arguments")
+              in
+              match f with
+                "SKIP"      -> nullArgTac SkipTac
+              | "FAIL"      -> nullArgTac FailTac
+              | "STOP"      -> nullArgTac StopTac
+              | "NEXTGOAL"  -> nullArgTac NextgoalTac
+              | "UNIFYARGS" -> nullArgTac UnifyArgsTac
+              | "GOALPATH"  -> SetgoalTac (parsegoalexpr (onearg ts))
+              | "PROVE"     -> CompTac (_SEQ1TAC f ts)
+              | "CUTIN"     -> CutinTac (_SEQ1TAC f ts)
+              | "JAPE"      -> AdHocTac [onearg ts]
+              | "FLATTEN"   -> AssocFlatTac (debracket (onearg ts))
+              | "MAPTERMS" -> MapTac (explodeForExecute (onearg ts))
+              | "SEQ" -> _SEQTAC ts
+              | "ALT" -> AltTac ((transTactic <* ts))
+              | "THEORYALT" -> TheoryAltTac ((butnottacticform <* ts))
+              | "IF" -> IfTac (_SEQ1TAC f ts)
+              | "DO" -> RepTac (_SEQ1TAC f ts)
+              | "FOLD" -> mkFold (fun v->FoldTac v) ts
+              | "UNFOLD" -> mkFold (fun v->UnfoldTac v) ts
+              | "FOLDHYP" -> mkHypFold (fun v->FoldHypTac v) ts
+              | "UNFOLDHYP" -> mkHypFold (fun v->UnfoldHypTac v) ts
+              | "WITHARGSEL" -> WithArgSelTac (_SEQ1TAC f ts)
+              | "WITHCONCSEL" -> WithConcSelTac (_SEQ1TAC f ts)
+              | "WITHFORMSEL" -> WithFormSelTac (_SEQ1TAC f ts)
+              | "WITHHYPSEL" -> WithHypSelTac (_SEQ1TAC f ts)
+              | "WITHSELECTIONS" -> WithSelectionsTac (_SEQ1TAC f ts)
+              | "WITHSUBSTSEL" -> WithSubstSelTac (_SEQ1TAC f ts)
+              | "EVALUATE" -> EvalTac ts
+              | "ASSIGN" -> mkSEQ (_Assignments ts)
+              | "WHEN" ->
+                      let tacs = (transTactic <* ts) in
+                      let rec okwhen =
+                        function
+                              [] -> ()
+                        | [t] -> ()
+                        | t1 :: ts ->
+                                if isguard t1 then okwhen ts
+                                else _Bad "WHEN must be given guarded tactics"
+                      in
+                      okwhen tacs; WhenTac tacs
+              | "LETCONC" -> mkBind f patbind "pattern" (fun v->BindConcTac v) ts
+              | "LETHYP" -> mkBind f patbind "pattern" (fun v->BindHypTac v) ts
+              | "LETHYP2" ->
+                      mkBind2 f patbind patbind "pattern" "pattern" (fun v->BindHyp2Tac v) ts
+              | "LETHYPS" -> mkBind f patbind "pattern" (fun v->BindHypsTac v) ts
+              | "LETLHS" -> mkBind f patbind "pattern" (fun v->BindLHSTac v) ts
+              | "LETRHS" -> mkBind f patbind "pattern" (fun v->BindRHSTac v) ts
+              | "LETGOAL" -> mkBind f patbind "pattern" (fun v->BindGoalTac v) ts
+              | "LETGOALPATH" -> mkBind f namebind "name" (fun v->BindGoalPathTac v) ts
+              | "LETOPENSUBGOAL" ->
+                      mkBind2 f namebind patbind "name" "pattern" (fun v->BindOpenSubGoalTac v)
+                        ts
+              | "LETOPENSUBGOALS" ->
+                      mkBind f patbind "pattern" (fun v->BindOpenSubGoalsTac v) ts
+              | "LETARGSEL" -> mkBind f patbind "pattern" (fun v->BindArgTac v) ts
+              | "LETARGTEXT" -> mkBind f namebind "name" (fun v->BindArgTextTac v) ts
+              | "LETSUBSTSEL" -> mkBind f patbind "pattern" (fun v->BindSubstTac v) ts
+              | "LETHYPSUBSTSEL" ->
+                      mkBind f patbind "pattern" (fun v->BindSubstInHypTac v) ts
+              | "LETCONCSUBSTSEL" ->
+                      mkBind f patbind "pattern" (fun v->BindSubstInConcTac v) ts
+              | "LETMULTIARG" -> mkBind f patbind "pattern" (fun v->BindMultiArgTac v) ts
+              | "LETHYPFIND" -> mkBind f patbind "pattern" (fun v->BindFindHypTac v) ts
+              | "LETCONCFIND" -> mkBind f patbind "pattern" (fun v->BindFindConcTac v) ts
+              | "LETMATCH" -> mkMatch ts
+              | "LETOCCURS" -> mkOccurs ts
+              | "LAYOUT" -> mkLayout ts
+              | "MATCH" -> MatchTac (_SEQ1TAC f ts)
+              | "SAMEPROVISOS" -> SameProvisosTac (_SEQ1TAC f ts)
+              | "SIMPLEAPPLY" -> SimpleApplyTac (_SEQ1TAC f ts)
+              | "APPLYORRESOLVE" -> ApplyOrResolveTac (_SEQ1TAC f ts)
+              | "UNIQUE" -> UniqueTac (_SEQ1TAC f ts)
+              | "ANY" -> TakeAnyTac (_SEQ1TAC f ts)
+              | "UNIFY" -> UnifyTac (atleasttwo ts)
+              | "RESOLVE" -> ResolveTac (_SEQ1TAC f ts)
+              | "REPLAY" -> ReplayTac (_SEQ1TAC f ts)
+              | "WITHCONTINUATION" ->
+                      begin match ts with
+                        t1 :: ts -> ContnTac (transTactic t1, _SEQTAC ts)
+                      | _ -> raise (TacParseError_ ["no argument tactic!"])
+                      end
+              | "GIVEN" ->
+                      begin match ts with
+                        [Literal _ as t] -> GivenTac t
+                      | [Id _ as t] -> GivenTac t
+                      | _ ->
+                              raise
+                                (TacParseError_
+                                       ["must have exactly one name/number argument!"])
+                      end
+              | "ALERT" -> mkAlert ts
+              | "EXPLAIN" -> ExplainTac (onearg ts)
+              | "COMMENT" -> CommentTac (onearg ts)
+              | "BADUNIFY" ->
+                      mkBind2 f namebind namebind "name" "name" (fun v->BadUnifyTac v) ts
+              | "BADMATCH" ->
+                      mkBind2 f namebind namebind "name" "name" (fun v->BadMatchTac v) ts
+              | "BADPROVISO" ->
+                      mkBind3 f namebind namebind namebind "name" "name" "name"
+                        (fun v->BadProvisoTac v) ts
+              | _ ->
+                      if tacticform n then raise (Catastrophe_ ["unrecognised tactic "; f])
+                      else TermTac parts
   with
 	TacParseError_ ss ->
 	  raise
