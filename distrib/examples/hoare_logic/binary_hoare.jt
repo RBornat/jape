@@ -1,6 +1,7 @@
-﻿/* $Id$ */
+/* $Id$ */
 
-UsefileINITIALISE displaystyle box
+FONTS "Konstanz"
+INITIALISE displaystyle box
 
 USE "hoare_syntax.j"
 USE "hoare_problems.j"
