@@ -30,6 +30,8 @@ import java.awt.Rectangle;
 import java.util.Vector;
 
 public class Reply {
+    public final static char stringSep = 0x0001; // what separates parts of multi-string replies
+    
     private static Vector messages = new Vector();
     private static boolean clientlistening = false;
     
