@@ -10,7 +10,7 @@ Windows menu
 
 Localise file dialogs
 
-mouse shake in click should be allowed, up to a pixel or three ...?
+PanelWindow needs to use minwaste to pack buttons
 
 Protocol in:
 
