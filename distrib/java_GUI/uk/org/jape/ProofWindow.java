@@ -136,6 +136,13 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         reportFocus();
     }
 
+    public static void closeFocussedProof() {
+        if (focusv.size()==0)
+            Alert.abort("ProofWindoow.closeFocussedProof no proofs");
+        else
+            Reply.sendCOMMAND("closeproof "+((ProofWindow)focusv.get(0)).proofnum);
+    }
+
     public static ProofWindow focussedProofWindow(boolean musthave) throws ProtocolError {
         if (focusv.size()==0) {
             if (musthave)
