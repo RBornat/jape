@@ -6,12 +6,15 @@ CLASS VARIABLE u v w
 CONSTANT ¯ Ù U
 
 OUTFIX < >
+PREFIX	1000		Pow
 PREFIX	800		ïï ßß
 POSTFIX	800		ø
 INFIX		700L		ï ß -
+INFIX		720L		¥
+INFIX		740L		ô
 INFIX		600L		§
 INFIX		500L		Ú ÂÚ
-/* 400 is = in BnE-Fprime_syntax.j */
+/* highest priority PREFIX 450 Â in BnE-Fprime_syntax.j */
 
 OUTFIX { | }
 
