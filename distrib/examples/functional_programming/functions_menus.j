@@ -5,7 +5,7 @@ MENU	Rules IS
 	
 	SEPARATOR
 		
-	ENTRY	"List Induction"		IS "list induction tactic"
+	ENTRY	"List Induction"    IS "list induction tactic"
 	ENTRY	"Boolean cases"	IS "Boolean cases tactic"
 	ENTRY	"Monoid Definition" IS monoid
 END
@@ -116,7 +116,7 @@ TACTICPANEL "Definitions"
 END
 
 TACTIC UnfoldL(rule) IS
-	WHEN (LETSUBSTSEL (_A{_x\_F}=_B) "= transitive" (LAYOUT "Unfold %s" () (rewritesmallLR{X,AA,x\_F,_A,_x})) rule)
+	WHEN (LETSUBSTSEL (_A{_x\_F}=_B) "= transitive" (LAYOUT "Unfold %s" () (rewriteLR{X,AA,x\_F,_A,_x})) rule)
 		(Fail "UnfoldL didn't find a substitution")
 
 TACTIC UnfoldR(rule) IS
@@ -125,7 +125,7 @@ TACTIC UnfoldR(rule) IS
 			(LETGOALPATH G
 				"= transitive" 
 				(GOALPATH (SUBGOAL G 1)) 
-				(LAYOUT "Fold %s" () (rewritesmallRL{X,AA,x\_F,_B,_x})) 
+				(LAYOUT "Fold %s" () (rewriteRL{X,AA,x\_F,_B,_x})) 
 				rule
 			)
 		)
@@ -133,7 +133,7 @@ TACTIC UnfoldR(rule) IS
 
 TACTIC FoldL(rule) IS
 	WHEN (LETSUBSTSEL (_A{_x\_F}=_B) "= transitive" 
-				(LAYOUT "Fold %s" () (rewritesmallRL{Y,AA,x\_F,_A,_x})) rule)
+				(LAYOUT "Fold %s" () (rewriteRL{Y,AA,x\_F,_A,_x})) rule)
 		(Fail "FoldL didn't find a substitution")
 
 TACTIC FoldR(rule) IS
@@ -182,6 +182,7 @@ CONJECTUREPANEL "Conjectures" IS
 		ARE     rev ¥ rev	= id
 		AND     rev2	        = rev
 		AND	map F ¥ map G	= map (F ¥ G)
+		AND     cat (XS++YS)    = cat XS ++ cat YS
 		AND	map F ¥ cat	= cat ¥ (map (map F))
 		AND	none ¥ F	= none
 		AND	map F ¥ none	= none
@@ -242,12 +243,18 @@ CONJECTUREPANEL "Conjectures" IS
 	BUTTON	"Find"          IS apply FindSelection
 END
 
-TACTIC  RepeatedlyUnfold IS SEQ UnfoldUsingSearch (DO UnfoldUsingSearch)
+TACTIC  RepeatedlyUnfold IS 
+        (SEQ 
+          (ALT UnfoldUsingSearch 
+               (Fail ("Search yields nothing to Unfold (check the Searching menu)")))
+          (DO UnfoldUsingSearch)
+        )
 	
 TACTIC  UnfoldUsingSearch IS 
 ALT     (SearchHypotheses UnfoldWithAnyHyp)
 	(Unfold SearchTactic)
-	(Fail ("Search yields nothing to Unfold (check the Searching menu)"))
+	FAIL
+	/*(Fail ("Search yields nothing to Unfold (check the Searching menu)"))*/
 
 TACTIC UnfoldWithAnyHyp IS UNFOLDHYP "Fold with hypothesis" (_A=_B)
 
@@ -260,7 +267,8 @@ TACTIC UnfoldWithAnyHyp IS UNFOLDHYP "Fold with hypothesis" (_A=_B)
 TACTIC  FoldUsingSearch IS 
 ALT     (SearchHypotheses FoldWithAnyHyp)
 	(Fold SearchTactic)
-	(Fail ("Search yields nothing to Fold (check the Searching menu)"))
+	FAIL
+	/*(Fail ("Search yields nothing to Fold (check the Searching menu)"))*/
 
 TACTIC FoldWithAnyHyp   IS FOLDHYP   "Unfold with hypothesis" (_A=_B)
 
@@ -299,8 +307,8 @@ AND     X'=Y'æ P
 INFER   X=Y æ P
 
 
-
-CONCHIT C      IS  UnfoldUsingSearch
+CONCHIT monoid X Y IS monoid
+CONCHIT C      IS  (ALT UnfoldUsingSearch (Fail ("Search yields nothing to Unfold (check the Searching menu)")))
 HYPHIT  H æ C IS  UnfoldHypWithOptionalSelection 
 
 /*
@@ -354,17 +362,3 @@ WHEN (LETSUBSTSEL _X{_x\_XX}
        (ALT (WITHHYPSEL (WITHSUBSTSEL "Fold with hypothesis")) 
             (Fail (Couldn't Unfold selected term _XX))))
      "Unfold/Fold with hypothesis"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
