@@ -37,6 +37,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
@@ -48,11 +49,13 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
 
     protected AnchoredScrollPane proofPane;
     protected ProofCanvas proofCanvas;
-    protected AnchoredScrollPane disproofPane;
-    protected JapeCanvas disproofCanvas;
+    protected DisproofPane disproofPane;
+    protected AnchoredScrollPane disproofScrollPane;
+    protected DisproofCanvas disproofCanvas;
     protected AnchoredScrollPane provisoPane;
     protected JapeCanvas provisoCanvas;
-
+    protected JSplitPane mainSplitPane;
+    
     protected JapeCanvas focussedCanvas;
     
     public ProofWindow(String title, int proofnum) {
@@ -155,9 +158,12 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
     private static JapeCanvas byte2JapeCanvas(byte pane, String who) throws ProtocolError {
         switch (pane) {
             case ProofPaneNum:
-                return focussedProofWindow(true).proofCanvas; 
-            case DisproofPaneNum:
-                throw new ProtocolError(who+": no disproofCanvas support yet"); 
+                return focussedProofWindow(true).proofCanvas;
+            case DisproofPaneNum: {
+                    ProofWindow w = focussedProofWindow(true);
+                    w.ensureDisproofCanvasses();
+                    return w.disproofCanvas;
+                }
             default:
                 throw new ProtocolError(who+" pane="+pane);
         }
@@ -180,9 +186,9 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
     private void initProofCanvas(byte style, int linethickness) {
         switch(style) {
             case BoxStyle:
-                proofPane.setanchor(proofPane.ANCHOR_SOUTHWEST); break;
+                proofPane.setAnchor(AnchoredScrollPane.ANCHOR_SOUTHWEST); break;
             case TreeStyle:
-                proofPane.setanchor(proofPane.ANCHOR_SOUTH); break;
+                proofPane.setAnchor(AnchoredScrollPane.ANCHOR_SOUTH); break;
             default:
                 Alert.abort("ProofWindow.initProofCanvas style="+style);
         }
@@ -192,17 +198,40 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
         proofCanvas.linethickness = linethickness;
     }
 
-    private void newDisproofCanvas() throws ProtocolError {
-        throw new ProtocolError("ProofWindow.newDisproofCanvas: not yet");
+    private void ensureDisproofCanvasses() {
+        if (disproofCanvas==null) {
+            disproofCanvas = new DisproofCanvas();
+            disproofScrollPane = new AnchoredScrollPane();
+            disproofScrollPane.setAnchor(AnchoredScrollPane.ANCHOR_SOUTH);
+            disproofScrollPane.add(disproofCanvas);
+            disproofPane = new DisproofPane(disproofScrollPane);
+            if (provisoCanvas==null) {
+                // make double pane
+                Dimension paneSize = proofPane.getSize();
+                getContentPane().remove(proofPane);
+                mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, disproofPane, proofPane);
+                getContentPane().add(mainSplitPane, BorderLayout.CENTER);
+                mainSplitPane.setPreferredSize(paneSize);
+                mainSplitPane.validate();
+                mainSplitPane.repaint();
+            }
+            else {
+                // make a triple pane
+                Alert.abort("ProofWindow.ensureDisproofCanvasses: no triple panes yet");
+            }
+        }
     }
 
     public static void drawInPane(byte pane) throws ProtocolError {
+        ProofWindow focussedw = focussedProofWindow(true);
         switch (pane) {
             case ProofPaneNum:
-                focussedProofWindow(true).focussedCanvas = focussedProofWindow(true).proofCanvas;
+                focussedw.focussedCanvas = focussedw.proofCanvas;
                 break;
             case DisproofPaneNum:
-                throw new ProtocolError("ProofWindow.drawInPane: no disproofCanvas support yet");
+                focussedw.ensureDisproofCanvasses();
+                focussedw.focussedCanvas = focussedw.disproofCanvas;
+                break;
             default:
                 Alert.abort("ProofWindow.drawInPane: pane="+pane);
         }
@@ -234,13 +263,21 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
                     canvas.add(new HypothesisItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
                 }
                 else
-                    throw new ProtocolError("ProofWindow.drawstring HypTextItem not drawing in proof pane");
+                if (canvas instanceof DisproofCanvas) {
+                    canvas.add(new DisproofHypItem((DisproofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
+                }
+                else
+                    throw new ProtocolError("HypTextItem in "+canvas);
             case ConcTextItem:
                 if (canvas instanceof ProofCanvas) {
                     canvas.add(new ConclusionItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
                 }
                 else
-                    throw new ProtocolError("ProofWindow.drawstring ConcTextItem not drawing in proof pane");
+                if (canvas instanceof DisproofCanvas) {
+                    canvas.add(new DisproofConcItem((DisproofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
+                }
+                else
+                    throw new ProtocolError("ConcTextItem in "+canvas);
             case AmbigTextItem:
                 if (canvas instanceof ProofCanvas) {
                     canvas.add(new HypConcItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
@@ -324,5 +361,16 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
             default:
                 throw new ProtocolError("ProofWindow.setTextSelectionMode mode="+mode);
         }
+    }
+
+    // disproof stuff
+    public static void setDisproofSequentBox(int x, int y, int w, int h) throws ProtocolError {
+        focussedProofWindow(true).ensureDisproofCanvasses();
+        focussedProofWindow(true).disproofCanvas.setSequentBox(x, y, w, h);
+    }
+
+    public static void setDisproofTiles(String[] tiles) throws ProtocolError {
+        focussedProofWindow(true).ensureDisproofCanvasses();
+        focussedProofWindow(true).disproofPane.setTiles(tiles);
     }
 }
