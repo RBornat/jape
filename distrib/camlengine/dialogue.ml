@@ -783,10 +783,10 @@ let rec main a1 a2 =
         begin
           let (env, proofs, mbs) =
             try
-              doUse consolereport consolequery (env, proofs, mbs) names
+              doUse showAlert uncurried_screenquery (env, proofs, mbs) names
             with
-              ParseError_ m -> showInputError consolereport m; raise Exit_
-            | Use_ -> raise Exit_
+              ParseError_ m -> showInputError showAlert m; (env, proofs, mbs)
+            | Use_          -> (env, proofs, mbs) (* already reported, we hope *)
           in
           Japeserver.sendVersion (_Title ^ _Version);
           initGUI ();
@@ -2149,5 +2149,5 @@ and start () =
   cleanup (); *)
   initButtons ();
   main (defaultenv (), [], []) (Array.to_list Sys.argv, []); (* empty environment ... ?? *)
-       ()
+  ()
 
