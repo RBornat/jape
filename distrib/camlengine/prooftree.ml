@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -148,7 +148,7 @@ module type Tree =
 
 
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -170,18 +170,18 @@ module type Tree =
 *)
 
 module Tree : Tree with type term = Term.Type.term
-					and type seq = Sequent.Type.seq
-					and type vid = Term.Type.vid
-					and type element = Term.Type.element
-					and type name = Name.name
-					and type treeformat = Treeformat.Fmt.treeformat
-					and type fmtpath = Treeformat.Fmt.fmtpath
-					and type visformat = Treeformat.VisFmt.visformat
-					and type vispath = Treeformat.VisFmt.vispath
-					and type cxt = Context.Cxt.cxt
-					and type thing = Thing.thing
-					and type proviso = Proviso.proviso
-					and type rewinf = Rewinf.rewinf
+                    and type seq = Sequent.Type.seq
+                    and type vid = Term.Type.vid
+                    and type element = Term.Type.element
+                    and type name = Name.name
+                    and type treeformat = Treeformat.Fmt.treeformat
+                    and type fmtpath = Treeformat.Fmt.fmtpath
+                    and type visformat = Treeformat.VisFmt.visformat
+                    and type vispath = Treeformat.VisFmt.vispath
+                    and type cxt = Context.Cxt.cxt
+                    and type thing = Thing.thing
+                    and type proviso = Proviso.proviso
+                    and type rewinf = Rewinf.rewinf
 =
   struct
     open Context.Cxt
@@ -688,15 +688,15 @@ module Tree : Tree with type term = Term.Type.term
         _ -> false
     (* -------------------------- printing proof trees -------------------------- *)
         
-	let shyidforFORMULAE = "FORMULAE"
-	let shyidforFROM     = "FROM"
-	let shyidforINFER    = "INFER"
-	let shyidforIS       = "IS"
-	let shyidforWHERE    = "WHERE"
-	
-	let givenssep        = " AND "
-	let provisosep       = " AND "
-	
+    let shyidforFORMULAE = "FORMULAE"
+    let shyidforFROM     = "FROM"
+    let shyidforINFER    = "INFER"
+    let shyidforIS       = "IS"
+    let shyidforWHERE    = "WHERE"
+    
+    let givenssep        = " AND "
+    let provisosep       = " AND "
+    
     let rec prooftree_stepstring =
       function
         Apply a ->
@@ -749,15 +749,15 @@ module Tree : Tree with type term = Term.Type.term
     exception Can'tHash_
     (* moved outside for OCaml *)
        
-	let mkUnRuleTac u =
-	  match u with
-		("FLATTEN", [t]) -> AssocFlatTac t
-	  | ("EVALUATE", ts) -> EvalTac ts
-	  | _ -> raise (Catastrophe_
-			   ["mkUnRuleTac given "; 
-				pairstring 
-				  (fun s -> s) (bracketedliststring termstring ",") "," u
-			   ])
+    let mkUnRuleTac u =
+      match u with
+        ("FLATTEN", [t]) -> AssocFlatTac t
+      | ("EVALUATE", ts) -> EvalTac ts
+      | _ -> raise (Catastrophe_
+               ["mkUnRuleTac given "; 
+                pairstring 
+                  (fun s -> s) (bracketedliststring termstring ",") "," u
+               ])
     
     let rec catelim_prooftree2tactic tree provisos givens tail =
       (* a proof as an executable tactic *)
@@ -766,9 +766,28 @@ module Tree : Tree with type term = Term.Type.term
         let rec res b t = if b then ResolveTac t else t in
         match join_how j with
           Apply (n, ps, b) ->
-            res b
-              (try SubstTac (n, (ps ||| join_args j)) with
-                 Zip_ -> raise (Catastrophe_ ["Zip_ in prooftree2tactic"]))
+            (* this is one of a pair of TEMPORARY hacks, caused by an inability to treat proof repla
+               as identity matching (current culprit, the fact that Given doesn't have any recorded
+               collection arguments, but it may go deeper).  We strip BagFormula arguments in
+               additiveLeft mode, because they make proof checking disastrously non-linear.
+               
+               The other one of the pair (see tactic.ml) strips the corresponding arguments when the 
+               proof tactic is read.
+               
+               This is so successful :-) that it might become a permanent hack.
+            *)
+            let args = join_args j in
+            let argmap = 
+              try ps|||args with Zip_ -> raise (Catastrophe_ ["params and args won't zip in prooftree2tactic"])
+            in
+            let argmap' = if !autoAdditiveLeft then
+                            (match split (function (_,Collection _) -> true | _ -> false) argmap with
+                               ([_], oks) -> (* if not (List.exists (existsterm isUnknown) args) then oks else argmap *)
+                                             oks (* it can't be slower, even if it contains unknowns ... *)
+                             | _          -> argmap
+                            )
+                          else argmap
+            in res b (SubstTac (n, argmap'))
         | Given (_, i, b) -> res b (GivenTac (int2term i))
         | UnRule (r, _) -> mkUnRuleTac (r, join_args j)
       in
@@ -826,11 +845,11 @@ module Tree : Tree with type term = Term.Type.term
               struct
                 open Hashtbl
                 module Store = Make (struct
-									   type t = term
-									   let equal = (=)
-									   let hash = _The <*> hashterm
-									 end
-									)
+                                       type t = term
+                                       let equal = (=)
+                                       let hash = _The <*> hashterm
+                                     end
+                                    )
                 let store = Store.create 17 (* it will grow *)
                 let lookup t = 
                   try Store.find store t
@@ -845,9 +864,9 @@ module Tree : Tree with type term = Term.Type.term
           let body =
             if null hs then () else showargasint := Some lookup;
             let r = "\n" :: shyidforIS :: "\n" ::
-					catelim_tacticstring (SeqTac (traverse (tree, [])))
-					  ("\n" :: tail) 
-			in showargasint := None; r
+                    catelim_tacticstring (SeqTac (traverse (tree, [])))
+                      ("\n" :: tail) 
+            in showargasint := None; r
           in
           let hashables_body =
             if null hs then body
@@ -1027,9 +1046,9 @@ module Tree : Tree with type term = Term.Type.term
       let tvars =
         tmerge
           (rewinf_vars inf)
-		  (match exteriorinf cxt with
-			 Some ri -> rewinf_vars ri
-		   | None -> [])
+          (match exteriorinf cxt with
+             Some ri -> rewinf_vars ri
+           | None -> [])
       in
       let cxt =
         match
@@ -1390,15 +1409,15 @@ module Tree : Tree with type term = Term.Type.term
           else if not (null r) && isprefix (fun (x, y) -> x = y) r ns then
             _P (drop (List.length r) ns) rns t
           else
-		    visible_subtrees showall t &~~
-			  (fun ts ->
-				 let rec find (i, (tns, t)) =
-				   if isprefix (fun (x, y) -> x = y) tns ns then
-					 Some (i, drop (List.length tns) ns, t)
-				   else None
-				 in
-				 (findfirst find (numbered ts) &~~
-					(fun (i, ns', t) -> _P ns' (i :: rns) t)))
+            visible_subtrees showall t &~~
+              (fun ts ->
+                 let rec find (i, (tns, t)) =
+                   if isprefix (fun (x, y) -> x = y) tns ns then
+                     Some (i, drop (List.length tns) ns, t)
+                   else None
+                 in
+                 (findfirst find (numbered ts) &~~
+                    (fun (i, ns', t) -> _P ns' (i :: rns) t)))
         in
         _P ns [] t
     (* this didn't get the right answer for the root of cuts, so I added pathto to the final result. RB 22/ii/00 *) 
@@ -1568,12 +1587,12 @@ module Tree : Tree with type term = Term.Type.term
      * ain't SML.
      *)
     module Fmttree : Access with type fmt = treeformat
-							 and type path = fmtpath
-							 and type prooftree = treeformat prooftree
-							 and type seq = seq
-							 and type rewinf = rewinf
-							 and type element = element
-							 and type name = name
+                             and type path = fmtpath
+                             and type prooftree = treeformat prooftree
+                             and type seq = seq
+                             and type rewinf = rewinf
+                             and type element = element
+                             and type name = name
     =
       struct
         type fmt = treeformat
@@ -1585,9 +1604,9 @@ module Tree : Tree with type term = Term.Type.term
          and temp_name = name
         type prooftree = temp_prooftree
          and seq = temp_seq
-		 and rewinf = temp_rewinf
-		 and element = temp_element
-		 and name = temp_name
+         and rewinf = temp_rewinf
+         and element = temp_element
+         and name = temp_name
         
         let fFmtPath v = FmtPath v
         let rec dePath = fun (FmtPath ns) -> ns
@@ -1633,12 +1652,12 @@ module Tree : Tree with type term = Term.Type.term
       end
     
     module Vistree : Access  with type fmt = visformat
-							 and type path = vispath
-							 and type prooftree = visformat prooftree
-							 and type seq = seq
-							 and type rewinf = rewinf
-							 and type element = element
-							 and type name = name
+                             and type path = vispath
+                             and type prooftree = visformat prooftree
+                             and type seq = seq
+                             and type rewinf = rewinf
+                             and type element = element
+                             and type name = name
     =
       struct
         type fmt = visformat
@@ -1650,9 +1669,9 @@ module Tree : Tree with type term = Term.Type.term
          and temp_name = name
         type prooftree = temp_prooftree
          and seq = temp_seq
-		 and rewinf = temp_rewinf
-		 and element = temp_element
-		 and name = temp_name
+         and rewinf = temp_rewinf
+         and element = temp_element
+         and name = temp_name
         
         let fVisPath v = VisPath v
         let rec dePath = fun (VisPath ns) -> ns

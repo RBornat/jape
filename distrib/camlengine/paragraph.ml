@@ -43,11 +43,13 @@ open Usefile
 
 let addbindingdirective = Binding.addbindingdirective
 let atoi = Miscellaneous.atoi
+let autoAdditiveLeft = Miscellaneous.autoAdditiveLeft
 let consolereport = Miscellaneous.consolereport
 let enQuote = Stringfuns.enQuote
 let liststring = Listfuns.liststring
 let opt2bool = Optionfuns.opt2bool
 let readintasarg = Tactic.readintasarg
+let stripextrabag = Tactic.stripextrabag
 let tacticstring = Tactic.tacticstring
 let _The = Optionfuns._The
 let transTactic = Tactic.transTactic
@@ -1048,6 +1050,10 @@ and parseProof report stage =
       | _ -> None
     in
     let tacterm = check _ISWORD; asTactic parseTerm EOF in
+    (* this is part of half of a TEMPORARY hack designed to make replay of proofs 
+       linear.  See prooftree.sml, tactic.sml for the meat in the sandwiches 
+     *)
+    let _ = if !autoAdditiveLeft then stripextrabag:= true else () in
     let tac = let r = transTactic tacterm in readintasarg := None; r in
     let _ =
       checkvalidruleheading report (proofstage2word stage)
