@@ -94,7 +94,7 @@ otherwise ignores it.
 Other programs may be more tricky, so there's a switch "-nobom" which
 you can use with the encoder program.
 
-    java encoder -nobom proofs.jp -O proofs.utf.jp
+    java -jar encoder -nobom proofs.jp -O proofs.utf.jp
 
 will translate proofs.jp from Konstanz and produce proofs.utf.jp without
 a BOM.
