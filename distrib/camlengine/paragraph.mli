@@ -63,7 +63,7 @@ type paragraph =
 
 and panelpara = Panelstuff of paneldata | Panelpara of paragraph
 
-and menupara = Menustuff of menudata | Menupara of paragraph
+and menupara = Menustuff of menucommand | Menupara of paragraph
 
 exception Use_
 

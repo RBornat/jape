@@ -52,16 +52,15 @@ type menudata =
   | Mradiobutton of (name * (name * string) list * string option)
                 (* variable  label  cmd            default cmd *)
 
+type menucommand =
+    MCdata   of menudata
+  | MCbefore of (name * menudata) 
+  | MCrename of (name * name) 
+
 type paneldata =
-    Pentry       of (name * string)
-  | Pbutton      of (name * panelbuttoninsert list)
-  (* these are not used any more: I don't know how they could be treated in the GUI;
-                                  they were never used, so far as I know.
-                                  RB 30/xi/2002
-     | Pcheckbox    of (name * name * (string * string) * string option)
-     | Pradiobutton of (name * (name * string) list * string option)
-                   (* variable  label  cmd            default cmd *)
-   *)
+    Pentry  of (name * string)
+  | Pbutton of (name * panelbuttoninsert list)
+  (* will have before, rename one day *)
 
 type pentry = string * string
 
@@ -82,6 +81,12 @@ let rec string_of_menudata =
   | Mentry me       -> "Mentry " ^ string_of_triple string_of_name (string_of_option str) str "," me
   | Mcheckbox mc    -> "Mcheckbox " ^ string_of_checkbox mc
   | Mradiobutton mr -> "Mradiobutton " ^ string_of_radiobutton mr
+  
+let string_of_menucommand = 
+  function
+    MCdata   md -> "MCdata (" ^ string_of_menudata md ^ ")"
+  | MCbefore mb -> "MCbefore " ^ string_of_pair string_of_name string_of_menudata "," mb
+  | MCrename mr -> "MCrename " ^ string_of_pair string_of_name string_of_name "," mr
 
 let rec string_of_panelbuttoninsert =
   function
@@ -96,9 +101,6 @@ let rec string_of_paneldata =
       "Pbutton " ^
         string_of_pair string_of_name
           (bracketedstring_of_list string_of_panelbuttoninsert ",") "," pb
-  (* | Pcheckbox pc -> "Pcheckbox " ^ string_of_checkbox pc
-     | Pradiobutton pr -> "Pradiobutton " ^ string_of_radiobutton pr
-   *)
 
 (* Order of insertion no longer exploits the details of mapping implementation.
  * There is a lot of silliness in what follows, which attempts to keep things
@@ -113,7 +115,7 @@ let panels :
    mapping ref =
   ref empty
 
-let rec addtodata lf vf e es =
+let rec addtodata beforeopt lf vf e es =
   let lsopt = lf e in
   let vopt = vf e in
   let rec conflicts e' =
@@ -128,22 +130,22 @@ let rec addtodata lf vf e es =
   let rec delete ps = (not <.> conflicts) <| ps in
   let rec insert =
     function
-      [] -> []
+      []        -> [e]
     | e' :: es' ->
-        (* won't happen, but who cares? *)
-        if conflicts e' then e :: delete es' else e' :: insert es'
+        if bool_of_opt beforeopt then
+          let tail = if beforeopt=lf e' then e :: delete es' else insert es' in
+          if conflicts e' then tail else e' :: tail
+        else
+          if conflicts e' then e :: delete es' else e' :: insert es'
   in
-  match lsopt, vopt with
-    None, None -> e :: es
-  | _ ->(* I think this reduces churn *)
-     if List.exists conflicts es then insert es else e :: es
+  if bool_of_opt beforeopt || List.exists conflicts es then insert es else e::es
 
 let rec addmenu proofsonly m =
   match (!menus <@> m) with
     None   -> menus := (!menus ++ (m |-> (proofsonly, ref [])))
   | Some _ -> ()
 
-let rec addtomenu e es =
+let rec addtomenu beforeopt e es =
   let rec lf e =
     match e with
       Mseparator                 -> None
@@ -159,15 +161,35 @@ let rec addtomenu e es =
     | Mradiobutton (var, lcs, _) -> Some var
   in
   if !menudebug then consolereport ["adding "; string_of_menudata e];
-  match e with
-    Mseparator -> e :: es
-  | _          -> addtodata lf vf e es
+  addtodata beforeopt lf vf e es
 
+let renamemenu name name' es =
+  let lf e =
+    match e with 
+      Mseparator                 -> None
+    | Mentry (label, x, y)       -> 
+        if name=label then Some (Mentry (name', x, y)) else None
+    | Mcheckbox (label, x, y, z) -> None (* too complicated to rename these -- see paragraphfuns.ml *)
+        (* if name=label then Some (Mcheckbox (name', x, y, z)) else None *)
+    | Mradiobutton (x, lcs, y)   -> None (* ditto -- but if I moved the tick etc. responsibility to the GUI ...  *)
+        (* optionmap (fun (label,z) -> if name=label then Some (name',z) else None) lcs &~~
+           (fun lcs' -> Some (Mradiobutton (x, lcs', y))) *)
+  in
+    match option_rewritelist lf es with
+      Some es' -> es'
+    | None     -> es
+      
 let rec addmenudata m es =
+  let doit cs =
+    function
+      MCdata md              -> addtomenu None md cs
+    | MCbefore (name, md)    -> addtomenu (Some [name]) md cs
+    | MCrename (name, name') -> renamemenu name name' cs
+  in
   if !menudebug then consolereport ["adding to "; string_of_name m];
   match (!menus <@> m) with
-    Some (_, contents) -> List.iter (fun e -> contents := addtomenu e !contents) es
-  | None -> raise (Menuconfusion_ ["no menu called "; string_of_name m; " (addmenudata)"])
+    Some (_, contents) -> List.iter (fun e -> contents := doit !contents e) es
+  | None               -> raise (Menuconfusion_ ["no menu called "; string_of_name m; " (addmenudata)"])
 
 let rec clearmenudata m =
   match (!menus <@> m) with
@@ -209,22 +231,16 @@ let rec addpanel k p =
     None -> panels := (!panels ++ (p |-> ref (k, empty, [])))
   | Some _ -> ()
 
-let rec addtopanel e (k, em, bs as stuff) =
+let rec addtopanel beforeopt e (k, em, bs as stuff) =
   let rec lf e =
     match e with
-      Pentry (label, _) -> Some [label]
+      Pentry  (label, _) -> Some [label]
     | Pbutton (label, _) -> Some [label]
-    (* | Pcheckbox (label, _, _, _) -> Some [label]
-       | Pradiobutton (_, lcs, _) -> Some ((fst <* lcs))
-     *)
   in
   let rec vf e =
     match e with
-      Pentry (_, _) -> None
+      Pentry (_, _)  -> None
     | Pbutton (_, _) -> None
-    (* | Pcheckbox (_, var, _, _) -> Some var
-       | Pradiobutton (var, _, _) -> Some var
-     *)
   in
   match e with
     Pentry (label, cmd) ->
@@ -232,11 +248,11 @@ let rec addtopanel e (k, em, bs as stuff) =
         Some cref -> cref := cmd; stuff
       | None -> k, (em ++ (label |-> ref cmd)), bs
       end
-  | b -> k, em, addtodata lf vf b bs
+  | Pbutton _ as b -> k, em, addtodata beforeopt lf vf b bs
 
 let rec addpaneldata p es =
   match (!panels <@> p) with
-    Some contents -> List.iter (fun e -> contents := addtopanel e !contents) es
+    Some contents -> List.iter (fun e -> contents := addtopanel None e !contents) es
   | None ->
       raise (Menuconfusion_ ["no panel called "; string_of_name p; " (addpaneldata)"])
 
@@ -294,7 +310,7 @@ let rec menuitemiter m ef cbf rbf sf =
 let rec panelitemiter p ef bf (* cbf rbf *) =
   let rec tran e =
     match e with
-      Pentry pe -> ef pe
+      Pentry  pe -> ef pe
     | Pbutton be -> bf be
     (* | Pcheckbox (var, label, (val1, val2), _) ->
            cbf (label, assignvarval var val1)

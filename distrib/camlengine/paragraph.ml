@@ -88,7 +88,7 @@ type paragraph =
   | TacticDef of (tacticheading * tactic)
   | Theory of (ruleheading * paragraph list)
 and panelpara = Panelstuff of paneldata | Panelpara of paragraph
-and menupara = Menustuff of menudata | Menupara of paragraph
+and menupara = Menustuff of menucommand | Menupara of paragraph
 
 exception Use_ (* so-called because it is normally raised by a bad USE "file" *)
        
@@ -116,7 +116,7 @@ let rec stringfromsymbol sy =
     Some (Name s) -> Some s
   | None -> None
 
-let rec currsymb_as_name () =
+let rec name_of_currsymb () =
   let sy = let r = currsymb () in scansymb (); r in
   match name_of_stringsymbol sy with
     Some s -> s
@@ -124,9 +124,9 @@ let rec currsymb_as_name () =
       raise (ParseError_
                ["Identifier or string expected; found "; debugstring_of_symbol sy])
 
-let currsymb_as_string = string_of_name <.> currsymb_as_name
+let currsymb_as_string = string_of_name <.> name_of_currsymb
 
-let fSHYID v = SHYID v
+let _SHYID v = SHYID v
   
 (************************************************************************************)
 
@@ -146,14 +146,14 @@ exception Matchinparseformal of string
 (* no longer spurious *)
    
 let rec parseRuleHeading mustdecl ignoreable =
-  let name = currsymb_as_name () in
+  let name = name_of_currsymb () in
   let formals = parseformals mustdecl in
   let provisos = parseProvisos () in
   ignore ignoreable; RuleHeading (name, formals, provisos)
 
 and parseTacticHeading ignoreable =
   (* shouldn't use parseformals, but one step at a time ... *)
-  let name = currsymb_as_name () in
+  let name = name_of_currsymb () in
   let formals = parseformals false in
   ignore ignoreable; TacticHeading (name, formals)
 
@@ -536,15 +536,15 @@ let rec parseButtonDefault f =
   | _ -> None
 
 let rec parseCheckBox report query con =
-  let var = currsymb_as_name () in
-  let label = currsymb_as_name () in
+  let var = name_of_currsymb () in
+  let label = name_of_currsymb () in
   let defval = parseButtonDefault currsymb_as_string in
   con (var, label, ("true", "false"), defval)
 
 let rec parseRadioButton report query con =
-  let var = currsymb_as_name () in
+  let var = name_of_currsymb () in
   let rec parseentry sep =
-    let label = currsymb_as_name () in
+    let label = name_of_currsymb () in
     let value = ignore _ISWORD; currsymb_as_string () in label, value
   in
   ignore _ISWORD;
@@ -790,13 +790,13 @@ and parseMenu report query mproof =
      "THEORY"; "PROOF"; "CURRENTPROOF"]
   in
   let starters =
-    ["ENTRY"; "BUTTON"; "RADIOBUTTON"; "CHECKBOX"; "SEPARATOR"] @
+    ["BEFOREENTRY"; "RENAMEENTRY"; "ENTRY"; "BUTTON"; "RADIOBUTTON"; "CHECKBOX"; "SEPARATOR"] @
       parastarters
   in
-  let parasymbs = (fSHYID <* parastarters) in
-  let symbs = (fSHYID <* starters) in
+  let parasymbs = (_SHYID <* parastarters) in
+  let symbs = (_SHYID <* starters) in
   let rec mkentry canstart getitem prefix toitem =
-    let itemname = currsymb_as_name () in
+    let itemname = name_of_currsymb () in
     let menukey =
       match currsymb () with
         SHYID "MENUKEY" -> scansymb (); Some (currsymb_as_string ())
@@ -810,12 +810,25 @@ and parseMenu report query mproof =
              if canstart (currsymb ()) then getitem ()
              else toitem itemname)
     in
-    Menustuff (Mentry (itemname, menukey, item))
+    Mentry (itemname, menukey, item)
   in
   let rec parseentry () =
     if member (currsymb (), parasymbs) then
       Menupara (_The (parseParagraph report query))
     else
+      Menustuff (parsemenucommand())
+  and parsemenucommand () = 
+      match currsymb () with
+        SHYID "BEFOREENTRY" -> 
+          scansymb(); 
+          let beforename = name_of_currsymb() in
+          MCbefore (beforename, parsesimpleentry())
+      | SHYID "RENAMEENTRY" -> 
+          scansymb(); 
+          let oldname = name_of_currsymb() in
+          MCrename (oldname, name_of_currsymb())
+      | _ -> MCdata (parsesimpleentry())
+  and parsesimpleentry () = 
       match currsymb () with
         SHYID "ENTRY" ->
           scansymb ();
@@ -825,22 +838,21 @@ and parseMenu report query mproof =
           scansymb (); mkentry canstartCommand parseCommand "" string_of_name
       | SHYID "RADIOBUTTON" ->
           scansymb ();
-          Menustuff (parseRadioButton report query (fun v->Mradiobutton v))
+          parseRadioButton report query (fun v->Mradiobutton v)
       | SHYID "CHECKBOX" ->
-          scansymb (); Menustuff (parseCheckBox report query (fun v->Mcheckbox v))
-      | SHYID "SEPARATOR" -> scansymb (); Menustuff Mseparator
+          scansymb (); parseCheckBox report query (fun v->Mcheckbox v)
+      | SHYID "SEPARATOR" -> scansymb (); Mseparator
       | s ->
           showInputError report
             ["internal error in parseMenu: found "; debugstring_of_symbol s];
           raise Use_
   in
-  let mlabel = currsymb_as_name () in
+  let mlabel = name_of_currsymb () in
   let _ = ignore _ISWORD in
   let m =
     Menu
       (mproof, mlabel,
-       parseUnsepList (fun s -> member (s, symbs))
-         (fun _ -> parseentry ()))
+       parseUnsepList (fun s -> member (s, symbs)) (fun _ -> parseentry ()))
   in
   match currsymb () with
     SHYID "END" -> scansymb (); m
@@ -881,16 +893,16 @@ and parseGivenPanel report query =
 
 and parsePanel report query panelkind parseEntry entrystarters parastarters =
   let starters = entrystarters @ parastarters in
-  let entrysymbs = (fSHYID <* entrystarters) in
-  let parasymbs = (fSHYID <* parastarters) in
-  let symbs = (fSHYID <* starters) in
+  let entrysymbs = (_SHYID <* entrystarters) in
+  let parasymbs = (_SHYID <* parastarters) in
+  let symbs = (_SHYID <* starters) in
   let rec parseentry () =
     if member (currsymb (), parasymbs) then
       Panelpara (_The (parseParagraph report query))
     else
       match currsymb () with
         SHYID "ENTRY" ->
-          let itemname = scansymb (); currsymb_as_name () in
+          let itemname = scansymb (); name_of_currsymb () in
           let item =
             match currsymb () with
               SHYID "IS" -> scansymb (); parseEntry report
@@ -902,7 +914,7 @@ and parsePanel report query panelkind parseEntry entrystarters parastarters =
       | SHYID "BUTTON" ->
           let itemname =
             scansymb (); 
-            let r = currsymb_as_name () in ignore _ISWORD; r
+            let r = name_of_currsymb () in ignore _ISWORD; r
           in
           let rec getcmd () =
             match currsymb () with
@@ -931,7 +943,7 @@ and parsePanel report query panelkind parseEntry entrystarters parastarters =
        *)
       | sy -> raise (Catastrophe_ ["internal error in parsePanel -- "; string_of_symbol sy])
   in
-  let plabel = currsymb_as_name () in
+  let plabel = name_of_currsymb () in
   let _ = ignore _ISWORD in
   let p =
     Panel
@@ -969,7 +981,7 @@ and parseHitDef sense =
   HitDef (sense, action, pattern)
 
 and parseInitialise () =
-  let name = currsymb_as_name () in
+  let name = name_of_currsymb () in
   let value = asTactic parseTerm EOF in InitVar (name, value)
 
 and parseAutoRule sense =
@@ -1042,7 +1054,7 @@ and parseUnnamedTheorem report nopt =
 
 and parseProof report stage =
   try
-    let n = currsymb_as_name () in
+    let n = name_of_currsymb () in
     let params = parseformals true in
     let pros = parseProvisos () in
     let (givens, seq) = parseRulebody () in
@@ -1121,7 +1133,7 @@ and parseTheory report query =
   let starters =
     ["RULE"; "RULES"; "TACTIC"; "THEOREM"; "THEOREMS"; "THEORY"]
   in
-  let parastarters = (fSHYID <* starters) in
+  let parastarters = (_SHYID <* starters) in
   let heading = parseRuleHeading true _ISWORD in
   let body = parseUnsepList (fun s -> member (s, parastarters))
                             (fun _ -> _The (parseParagraph report query))
@@ -1149,7 +1161,7 @@ and parseStructureRule () =
   match currsymb () with
     SHYID s ->
       if member (s, structurerulestrings) then
-        begin scansymb (); StructureRule (s, currsymb_as_name ()) end
+        begin scansymb (); StructureRule (s, name_of_currsymb ()) end
       else bang s
   | sy -> bang (string_of_symbol sy)
 
@@ -1158,7 +1170,7 @@ and parseStructure s =
   ignore (SHYID "RULE");
   ignore _ISWORD;
   if member (s, structurerulestrings) then
-    StructureRule (s, currsymb_as_name ())
+    StructureRule (s, name_of_currsymb ())
   else raise (Catastrophe_ ["parseStructure "; s])
 
 and paragraphs_of_file report query s =
@@ -1213,5 +1225,5 @@ let rec paragraph_of_string report query s =
   in
   tryparse (fun _ -> getpara ()) s
 
-let parsename = currsymb_as_name
+let parsename = name_of_currsymb
 
