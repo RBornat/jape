@@ -49,9 +49,9 @@ public abstract class JapeCanvas extends ContainerWithOrigin implements Viewport
         killSelections((byte)0xFF);
     }
     
-    protected abstract void selectionMade(SelectableTextItem item, MouseEvent e, byte selkind);
+    protected abstract void declareSelection(SelectableTextItem item, MouseEvent e, byte selkind);
 
-    protected abstract void textselectionMade(SelectableTextItem item, MouseEvent e);
+    protected abstract void declareTextSelection(SelectableTextItem item, byte eventKind);
 
     protected void killSelections(byte selmask) {
         Component[] cs = child.getComponents(); // oh dear ...
@@ -60,6 +60,21 @@ public abstract class JapeCanvas extends ContainerWithOrigin implements Viewport
                 SelectableTextItem sti = (SelectableTextItem)cs[i];
                 if (sti.selectionRect!=null && (sti.selectionRect.selkind & selmask)!=0)
                     sti.select(NoSel);
+            }
+        }
+    }
+
+    protected void killTextSelections(SelectableTextItem leave) {
+        int nc = child.getComponentCount();
+        for (int i=0; i<nc; i++) {
+            Component c = child.getComponent(i);
+            if (c!=leave && c instanceof SelectableTextItem) {
+                SelectableTextItem sti = (SelectableTextItem)c;
+                if (sti.textsels!=null)
+                    while (sti.textsels.size()!=0) {
+                        ((SelectableTextItem.TextSel)sti.textsels.get(0)).repaint();
+                        sti.textsels.remove(0);
+                    }
             }
         }
     }
