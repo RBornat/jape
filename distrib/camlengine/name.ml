@@ -28,12 +28,18 @@ let rec parseablenamestring =
       | _ -> raise (ParseError_ [])
     in
     try let _ = tryparse parsename s in s with
-      ParseError_ _ -> enQuote (String.escaped s)
+      ParseError_ _ -> enQuote s 
+        (* String.escaped would seem to be useful here, but it calls isprint 
+           (see the Unix manual) and that, on MacOS X if nowhere else, objects 
+           to most of the funny characters in Konstanz font (for example).
+           So no escaping for the time being, unless and until we can tell the 
+           system what font we want isprint to work in.
+         *)
 
 let rec term2name t =
   match t with
-    Id (_, v, _) -> Some (Name (string_of_vid v))
-  | Unknown (_, v, _) -> Some (Name (metachar ^ string_of_vid v))
+    Id (_, v, _)          -> Some (Name (string_of_vid v))
+  | Unknown (_, v, _)     -> Some (Name (metachar ^ string_of_vid v))
   | Literal (_, Number s) -> Some (Name (string_of_int s))
   | Literal (_, String s) -> Some (Name s)
   | _ -> None
