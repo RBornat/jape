@@ -202,7 +202,7 @@ let pairs =
    "rewritedebug", bj false Rewrite.Funs.rewritedebug;
    "screenpositiondebug", bj false Miscellaneous.screenpositiondebug;
    "substdebug", bj false Substmapfuns.substdebug;
-   "symboldebug", bj true Symbol.symboldebug;
+   "symboldebug", bj false Symbol.symboldebug;
    "tactictracing", bj false Tacticfuns.tactictracing;
    "thingdebug", bj false thingdebug;
    "thingdebugheavy", bj false thingdebugheavy;
