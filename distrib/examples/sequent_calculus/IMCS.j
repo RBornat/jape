@@ -1,10 +1,8 @@
 /* $Id$ */
 
 /*
-	The _intuitionistic_ multiple-conclusion sequent calculus!!
+	The _intuitionistic_ multiple-conclusion sequent calculus!! (add after MCS.jt)
 */
-
-USE "MCS.jt" /* the default */
 
 /* the differences */
 RULE	"æÂ"		FROM ‚,A æ 					INFER ‚ æ ÂA,Æ

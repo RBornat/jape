@@ -6,9 +6,9 @@
 	Dyckhoff-style in the çæ and èæ rules.  Because of multiplicativity and un-Dyckhoffry, you have
 	to use contraction sometimes.
 	RB 20/ix/96
+	
+	Now an add-on to MCS.jt
 */
-
-USE "MCS.jt" /* the default */
 
 /* the differences */
 RULE	axiom(A)								INFER A æ A
