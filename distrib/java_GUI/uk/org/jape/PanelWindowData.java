@@ -44,6 +44,7 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import java.awt.LayoutManager2;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -80,14 +81,32 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     protected void addEntry(String entry, String cmd) {
         int i = entryv.indexOf(entry);
         if (i==-1) {
+            if (panellist_tracing)
+                System.err.println("panel \""+title+"\" adding entry \""+entry+"\", cmd \""+cmd+"\"");
             entryv.add(entry);
             cmdv.add(cmd);
         }
         else {
+            if (panellist_tracing)
+                System.err.println("panel \""+title+"\" setting entry \""+entry+"\" to \""+cmd+"\"");
             cmdv.setElementAt(cmd, i);
         }
         if (window!=null)
             window.addEntry(entry);
+    }
+
+    protected void markEntry(String cmd, boolean proved, boolean disproved) throws ProtocolError {
+        if (window==null)
+            throw new ProtocolError("before MAKEPANELSVISIBLE");
+        else {
+            if (panellist_tracing)
+                System.err.println("panel \""+title+"\" marking cmd \""+cmd+"\" "+proved+","+disproved);
+            int i = cmdv.indexOf(cmd);
+            if (i==-1)
+                throw new ProtocolError("no such command");
+            else
+                window.markEntry(i, proved, disproved);
+        }
     }
 
     public static abstract class Insert { }
@@ -163,6 +182,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             list.setSelectedIndex(0);
             JapeFont.setComponentFont(list, JapeFont.PANELENTRY);
+            list.setCellRenderer(new Renderer());
 
             prefixw = JapeFont.stringWidth(list, "YN ");
             
@@ -195,20 +215,60 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             pack(); // necessary??
         }
 
-        protected class Entry {
-            private String s, prefix;
+        protected class Entry extends Component {
+            private String s;
+            public String prefix;
+            private final TextDimension td;
+            private final Dimension size;
+            public boolean selected, focussed;
+            public Color innerBackground = Color.white;
             public Entry(String s) {
-                super(); this.s = s; prefix = "   ";
-                TextDimension td = JapeFont.measure(list, s);
-                setSize(td.width+prefixw, td.ascent+td.descent);
+                super(); this.s = s; prefix = null; this.td = JapeFont.measure(list, s);
+                this.size = new Dimension(prefixw+td.width, td.ascent+td.descent);
+                setFont(list.getFont());
             }
-            public String toString() {
-                return prefix+s;
+            public Dimension getPreferredSize() {
+                return size;
+            }
+            public void paint(Graphics g) {
+                g.setColor(getBackground()); g.fillRect(0, 0, getWidth(), getHeight());
+                if (selected && !focussed) {
+                    g.setColor(innerBackground); g.fillRect(2, 2, getWidth()-4, getHeight()-4);
+                }
+                g.setColor(getForeground()); g.setFont(getFont());
+                if (prefix!=null) g.drawString(prefix, 0, td.ascent);
+                g.drawString(s, prefixw, td.ascent);
             }
         }
         
         protected void addEntry(String entry) {
             model.addElement(new Entry(entry));
+        }
+
+        protected void markEntry(int i, boolean proved, boolean disproved) {
+            Entry e = (Entry)model.elementAt(i);
+            e.prefix = proved ? LocalSettings.tick+(disproved ? LocalSettings.cross : "") :
+                       disproved ? " "+LocalSettings.cross :
+                       null;
+        }
+
+        class Renderer implements ListCellRenderer {
+            public Component getListCellRendererComponent(JList list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                Entry e = (Entry)value;
+                if (isSelected) {
+                    e.setBackground(list.getSelectionBackground());
+                    e.setForeground(list.getSelectionForeground());
+                }
+                else {
+                    e.setBackground(list.getBackground());
+                    e.setForeground(list.getForeground());
+                }
+                e.selected = isSelected; e.focussed = cellHasFocus;
+                if (isSelected && !cellHasFocus)
+                    e.innerBackground = list.getBackground();
+                return e;
+            }
         }
         
         protected void addButton(PanelButton button) {
@@ -498,11 +558,16 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         }
     }
     
-    public static void panelEntry(String panel, String entry, String cmd) throws ProtocolError {
+    public static void addEntry(String panel, String entry, String cmd) throws ProtocolError {
         findPanel(panel,true).addEntry(entry,cmd);
     }
     
-    public static void panelButton(String panel, String button, Insert[] cmd) throws ProtocolError {
+    public static void addButton(String panel, String button, Insert[] cmd) throws ProtocolError {
         findPanel(panel,true).addButton(button,cmd);
+    }
+
+    public static void markEntry(String panel, String cmd /* really */, boolean proved, boolean disproved)
+        throws ProtocolError {
+        findPanel(panel,true).markEntry(cmd, proved, disproved);
     }
 }
