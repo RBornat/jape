@@ -9,19 +9,4 @@ USE "I2L_rules.j"
 USE "I2L_menus.j"
 USE "I2L_problems.j"
 USE "I2L_disproof.j"
-
-INITIALISE outermostbox false
-
-INITIALISE outerassumptionword premise
-INITIALISE outerassumptionplural premises
-INITIALISE innerassumptionword assumption
-INITIALISE innerassumptionplural assumptions
-
-INITIALISE seektipselection false
- 
-MENU Edit
-	SEPARATOR
-	BUTTON Disprove
-END
-
-KEYBOARD → ∧ ∨ ¬ ⊥ ∀ ∃ ⊢ ⊧
+USE "I2L_settings.j"

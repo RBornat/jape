@@ -12,4 +12,5 @@ PUSHSYNTAX "natural deduction"
   USE "../natural_deduction/I2L_syntax.j"
   USE "../natural_deduction/I2L_rules.j"
   USE "../natural_deduction/I2L_menus.j"
+  USE "../natural_deduction/I2L_settings.j"
 POPSYNTAX
