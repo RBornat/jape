@@ -148,18 +148,18 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
         else {
             if (drag_tracing)
                 System.err.print("mouse dragged to "+e.getX()+","+e.getY());
-            tileImage.repaint();
-            tileImage.setLocation(tileImage.getX()+(e.getX()-lastx),
-                                  tileImage.getY()+(e.getY()-lasty));
+            tileImage.moveTo(tileImage.getX()+(e.getX()-lastx),
+                             tileImage.getY()+(e.getY()-lasty));
             if (drag_tracing)
                 System.err.println("; dragged tile now at "+tileImage.getX()+","+tileImage.getY());
-            tileImage.repaint();
             Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
             TileTarget target = (TileTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
             if (target!=over) {
-                if (over!=null) over.dragExit();
-                if (target!=null) target.dragEnter();
-                over = target;
+                if (over!=null) {
+                    over.dragExit(); over=null;
+                }
+                if (target!=null && target.dragEnter(Tile.this))
+                    over = target;
             }
         }
         lastx = e.getX(); lasty = e.getY();
