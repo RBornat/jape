@@ -90,7 +90,8 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
                             PROOFPANEL  = 300,
                             PANELENTRY  = 301,
                             PANELBUTTON = 302,
-                            LOGWINDOW   = 400;
+                            LOGWINDOW   = 400,
+                            TEXTINPUT   = 500;
 
     public static byte
         FormulaFontSize     = Preferences.getProp("font.formula.size",
@@ -219,6 +220,8 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
                 break;
             case LOGWINDOW:
                 mimicFont(c, LogWindowFontSize); break;
+            case TEXTINPUT:
+                mimicFont(c, FormulaFontSize); break;
             default:
                 Alert.showErrorAlert("setComponentFont("+kind+","+c);
         }
