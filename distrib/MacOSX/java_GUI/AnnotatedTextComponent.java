@@ -30,13 +30,12 @@ package uk.org.jape;
 public class AnnotatedTextComponent extends TextComponent {
     public final char[] printchars;
     public final String annottext;
-    public final int annotlen, pxwidth;
+    public final int annotlen;
     public AnnotatedTextComponent(int x, int y, byte fontnum, String annottext) {
 	super(x, y, fontnum, printtext(annottext));
 	this.annottext = annottext;
 	this.annotlen = annottext.length();
 	this.printchars = printtext.toCharArray();
-	this.pxwidth = JapeFont.charsWidth(printchars, 0, printchars.length, fontnum);
     }
     static String printtext(String annottext) {
 	int annotlength = annottext.length();
@@ -98,7 +97,7 @@ public class AnnotatedTextComponent extends TextComponent {
     }
     
     public String toString() {
-	String s = "AnnotatedTextComponent[pxwidth="+pxwidth+", "+annotlen+":\"";
+	String s = "AnnotatedTextComponent["+annotlen+":\"";
 	for (int i=0; i<annottext.length(); i++)
 	    s = s+annotatedString_of_char(annottext.charAt(i));
 	return s+"\", "+super.toString()+"]";

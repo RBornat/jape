@@ -90,7 +90,7 @@ public class EmphasisableItem extends TextSelectableItem {
 	    while (start>components[ci].printlen) {
 		start -= components[ci].printlen;
 		end -= components[ci].printlen;
-		pxstart -= components[ci].pxwidth;
+		pxstart -= components[ci].dimension.width;
 		ci++;
 	    }
 	    g.setColor(colour);
