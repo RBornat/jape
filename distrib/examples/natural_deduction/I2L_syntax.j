@@ -1,16 +1,20 @@
 ﻿/* $Id$ */
 
-CLASS VARIABLE x y z   i j k
-CLASS FORMULA A B C   E F G H  P  R S T
+CLASS VARIABLE  x y z
+		i j k
+CLASS FORMULA   A B C   
+		E F G H  
+		P  
+		R S T
 CLASS BAG FORMULA Γ
 
 CONSTANT ⊥
 
 PREFIX	10  actual
 
-INFIX	    100R	→
-INFIX	    120L	∨
-INFIX	    140L	∧
+INFIX   100R	→
+INFIX   120L	∨
+INFIX   140L	∧
 
 PREFIX	200 ¬
 
