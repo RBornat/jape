@@ -11,6 +11,7 @@
 FONTS	"Konstanz"
 
 SEQUENT IS BAG æ FORMULA
+
 INITIALISE autoAdditiveLeft true
 
 USE		"equality_rules.j"
@@ -19,5 +20,3 @@ USE		"functions_rules.j"
 USE		"functions_menus.j"
 
 AUTOMATCH "= reflexive"
-
-

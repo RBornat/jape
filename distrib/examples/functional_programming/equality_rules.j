@@ -8,10 +8,10 @@
 
 FONTS	"Konstanz"
 
-INFIX		2000	2000	=, ³, ², ­, <, >
-INFIX		2500	2500	+, -
-INFIX		2600	2600	*, /
-INFIX		2700	2700	^
+INFIX		2000L	=, ³, ², ­, <, >
+INFIX		2500L	+, -
+INFIX		2600L	*, /
+INFIX		2700L	^
 
 CLASS VARIABLE x, y
 CLASS FORMULA A, B, C, F, G, X, Y, Z
@@ -32,11 +32,11 @@ RULE "(,)="			IS FROM X0=X1 AND Y0=Y1	INFER (X0, Y0) = (X1, Y1)
 
 /* The rules of extensionality incorporate a generalization step: hence the FRESH provisos. */
 RULE ext (OBJECT x) WHERE FRESH x 			IS FROM  F x = G x			INFER F = G
-RULE ext2(OBJECT x, OBJECT y) WHERE FRESH x, y	IS FROM  F (x, y) = G (x,y)	INFER F = G
+RULE ext2(OBJECT x, OBJECT y) WHERE FRESH x, y	IS FROM  F (x, y) = G (x,y)		INFER F = G
 
  /* use of AA, rather than A, is to help some other rule somewhere, which uses OBJECT A */
-RULE   rewrite (X, OBJECT x)			IS FROM X=Y AND AA[x\Y] INFER AA[x\X]
-RULE   rewritebackwards (Y, OBJECT x)	IS FROM X=Y AND AA[x\X] INFER AA[x\Y]
+RULE   rewrite (X,ABSTRACTION AA)			IS FROM X=Y AND AA(Y) INFER AA(X)
+RULE   rewritebackwards (Y,ABSTRACTION AA)	IS FROM X=Y AND AA(X) INFER AA(Y)
 
 /*
 	Infrastructure for rewriting in an equational theory
@@ -88,8 +88,8 @@ TACTIC withsubstrewrite(t)
 		(LETCONCSUBSTSEL _A (WITHSUBSTSEL t))
 		(FAILREASON (please text-select a sub-formula, or sub-formulae, in a conclusion))
 		
-RULE "Fold with hypothesis" (X, OBJECT x)	IS FROM X=Y æ AA[x\Y] INFER X=Y æ AA[x\X]
-RULE "Unfold with hypothesis" (Y,OBJECT x)	IS FROM X=Y æ AA[x\X] INFER X=Y æ AA[x\Y]
+RULE "Fold with hypothesis" (X, ABSTRACTION AA)		IS FROM X=Y æ AA(Y) INFER X=Y æ AA(X)
+RULE "Unfold with hypothesis" (Y, ABSTRACTION AA)	IS FROM X=Y æ AA(X) INFER X=Y æ AA(Y)
 
 TACTIC HypFoldUnfold(t) IS 
 	WHEN 

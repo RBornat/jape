@@ -1,9 +1,9 @@
 /* $Id$ */
 
-INFIXC	  4010 4000 :
-INFIXC	  3000 3010 ++
-INFIXC	  2800 2800 Ѕ
-INFIXC	  2900 2900 Л, є
+INFIXC	4000R	:
+INFIXC	3000L	++
+INFIXC	2800L	Ѕ
+INFIXC	2900L	Л, є
 OUTFIX	 н о
 
 CLASS VARIABLE v
@@ -16,9 +16,9 @@ CONSTANT none, one, IF, true, false, if, sel, pair,
 RULE weaken(A) IS FROM B INFER A ц B
 WEAKEN weaken
 
-RULE listinduction (B,	OBJECT x, OBJECT xs, OBJECT ys, OBJECT v)  WHERE FRESH x, xs, ys IS
-	FROM  A[v\но] AND A[v\нxо] AND A[v\xs], A[v\ys] ц A[v\xs++ys] 
-	INFER  A[v \ B]
+RULE listinduction (B, OBJECT x, OBJECT xs, OBJECT ys, ABSTRACTION A)  WHERE FRESH x, xs, ys IS
+	FROM  A(но) AND A(нxо) AND A(xs), A(ys) ц A(xs++ys) 
+	INFER  A(B)
 
 THEORY	Function IS
 	RULES	IF
@@ -39,7 +39,11 @@ TACTIC "list induction tactic" IS
 	WHEN	(LETSUBSTSEL _A (WITHSUBSTSEL listinduction))
 			(FAIL(Please select a sub-formula on which to perform induction))
 
-RULE	BoolCases(B,OBJECT x) IS FROM A[x\true] AND A[x\false] INFER A[x\B]
+TACTIC "Boolean cases tactic" IS
+	WHEN	(LETSUBSTSEL _A (WITHSUBSTSEL BoolCases))
+			(FAIL(Please select a sub-formula on which to perform induction))
+			
+RULE	BoolCases(B,ABSTRACTION A) IS FROM A(true) AND A(false) INFER A(B)
 
 RULE monoid(F, Z, OBJECT A, OBJECT B, OBJECT C) IS	
 	FROM F A (F B C) = F (F A B) C AND F A Z = A AND F Z B = B 

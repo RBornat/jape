@@ -4,7 +4,7 @@ MENU	Rules IS
 	SEPARATOR
 		
 	ENTRY	"List Induction"		IS "list induction tactic"
-	ENTRY	"Boolean cases"	IS BoolCases
+	ENTRY	"Boolean cases"	IS "Boolean cases tactic"
 	ENTRY	"Monoid Definition" IS monoid
 END
 
