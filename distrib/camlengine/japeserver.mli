@@ -110,69 +110,67 @@ val drawLine : box -> unit
 (* top right to bottom left, staying within the box, 
                                 using linethickness from setproofparams
                               *)
-val drawRect : box -> unit
-(* just inside the box, using linethickness from setproofparams *)
+val drawRect : box -> unit (* just inside the box, using linethickness from setproofparams *)
 
-val serverpid : process_id option ref
+val serverpid  : process_id option ref
 val servername : string ref
+
 val startserver : string -> string list -> unit
-val stopserver : unit -> unit
+val stopserver  : unit -> unit
 
 exception DeadServer_
 
-val openproof : string * int -> unit
+val openproof  : string * int -> unit
 val closeproof : int -> unit
+
 val showfile : string -> unit
-val echo : string -> string
-val setProvisos : font * string list -> unit
-(* font * provisos *)
-val setGivens : (int * string) list -> unit
-(* numbered givens *)
+val echo     : string -> string
+
+val setProvisos : font * string list -> unit (* font * provisos *)
+val setGivens : (int * string) list -> unit (* numbered givens *)
    
-val quit : unit -> unit
+val quit     : unit -> unit
 val dontquit : unit -> unit
-val getProofPane : unit -> box
-val getDisproofPane : unit -> box
-val clearProofPane : unit -> unit
+
+val getProofPane      : unit -> box
+val getDisproofPane   : unit -> box
+val clearProofPane    : unit -> unit
 val clearDisproofPane : unit -> unit
+
 (* To make findSelection (interaction.sml) work properly, and to get consistent results from tactics that
  * interpret the answers, getAllSelections should return its answers in time-click order.
  *)
 val getAllSelections :
   unit ->
-    (pos * displayclass) list * (pos * string list) list * string list
+  (pos * displayclass) list * (pos * string list) list * string list
 (* selections               prooof text selections     givens text selections *)
 
-val highlight : pos -> displayclass option -> unit
-(* NOW TAKES TEXTPOS, NOT BOXPOS!!! *)
-val emphasise : pos -> bool -> unit
-(* also textpos; used in disproof *)
+val highlight : pos -> displayclass option -> unit (* NOW TAKES TEXTPOS, NOT BOXPOS!!! *)
+val emphasise : pos -> bool -> unit                (* also textpos; used in disproof *)
 
 val greyen : pos -> unit
 val blacken : pos -> unit
 
 val toplevelfiletype : int  (* .jt *)
-val theoryfiletype : int    (* .j  *)
-val prooffiletype : int     (* .jp *)
+val theoryfiletype   : int  (* .j  *)
+val prooffiletype    : int  (* .jp *)
    
 val dbugfiletype : int
 (* whatever you like *)
    
-   (* In the following calls, 
-    *   string is a message to put in the dialogue box,
-    *   int is a filetype
-    * Either argument may be safely ignored.
-    *)
+(* In the following calls, 
+ *   string is a message to put in the dialogue box,
+ *   int is a filetype
+ * Either argument may be safely ignored.
+ *)
 val writeFileName : string -> int -> string option
-val readFileName : string -> int -> string option
-val resetcache : unit -> unit
-(* forget all cached information *)
+val readFileName  : string -> int -> string option
+
+val resetcache    : unit -> unit (* forget all cached information *)
  
- (* how to draw things *)
 val setinvischars :
-  string * string -> string * string -> string * string ->
-    string * string -> unit
-(*   onbra  ket         offbra ket         outbra ket         lockbra ket *)
+   string * string -> string * string -> string * string -> string * string -> unit
+(*   onbra  ket         offbra ket         outbra ket        lockbra ket *)
 
 type displaystyle = TreeStyle | BoxStyle
 val setproofparams : displaystyle -> int -> unit
