@@ -39,7 +39,6 @@ open Sml
 let (&~~) = Optionfuns.(&~~)
 let (<*) = Listfuns.(<*)
 let (<|) = Listfuns.(<|)
-let clearView = Draw.clearView
 let consolereport = Miscellaneous.consolereport
 let string_of_element = Termstring.string_of_element
 let invisbracketedstring_of_element = Termstring.invisbracketedstring_of_element
@@ -48,7 +47,6 @@ let last = Listfuns.last
 let string_of_list = Listfuns.string_of_list
 let turnstiles = Sequent.syntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
-let viewBox = Draw.viewBox
        
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 
@@ -73,9 +71,20 @@ type treeplanrec =
         reasonplan   : planclass plan option; 
         linespec     : (bool * pos * pos) option;
         subplans     : (pos * treeplan) list; linethickness : int }
+
 and treeplan = Treeplan of treeplanrec
 
 type layout = treeplan
+
+let alltargets pos p =
+  let rec allroots revpath pos (Treeplan p) rs =
+    allchilds 0 revpath pos p.subplans ((List.rev revpath, tbOffset p.seqbox pos) :: rs)
+  and allchilds n revpath pos ps rs =
+    match ps with
+      [] -> rs
+    | (cpos, p)::ps -> allroots (n::revpath) (pos +<-+ cpos) p (allchilds (n+1) revpath pos ps rs)
+  in
+  allroots [] pos p []
 
 let rec shiftoutline indent (ys : outline) =
   ((fun (l, r) -> l + indent, r + indent) <* ys)
@@ -120,7 +129,7 @@ let rec drawReason a1 a2 =
     p, None -> ()
   | p, Some plan -> drawplan displayclass_of_planclass p plan
 
-let rec maketreeplan proof =
+let rec maketreeplan viewport proof =
   let termfontleading = thrd (fontinfo TermFont) in
   let reasonfontleading = thrd (fontinfo ReasonFont) in
   let leading = nj_fold (uncurry2 max) [termfontleading; reasonfontleading] 1 in
@@ -417,10 +426,10 @@ let rec print str goal pos proof plan =
   in
   _D plan 0 []
 
-let rec targetbox path plan =
+let rec targetbox pos path plan =
   let rec _P a1 a2 a3 =
     match a1, a2, a3 with
-      [], Treeplan {seqbox = seqbox}, pos -> Some (tbOffset seqbox pos)
+      []     , Treeplan {seqbox = seqbox}    , pos -> Some (tbOffset seqbox pos)
     | n :: ns, Treeplan {subplans = subplans}, pos ->
         match subplans with
           [] -> None
@@ -432,12 +441,10 @@ let rec targetbox path plan =
               Failure "nth" -> None
   in
   match path with
-    Some route -> _P route plan origin
-  | None -> None
+    Some route -> _P route plan pos
+  | None       -> None
 
-let rec defaultpos =
-  fun (Treeplan {seqbox=seqbox; linethickness=linethickness}) ->
-    let screen = viewBox () in
+let rec defaultpos screen (Treeplan {seqbox=seqbox; linethickness=linethickness}) =
     let screensize = bSize screen in
     let seqpos = tbPos seqbox in
     let seqsize = textsize_of_textbox seqbox in
@@ -451,9 +458,9 @@ let rec defaultpos =
 
 let layout = maketreeplan
 
-let rec postoinclude box =
+let rec postoinclude viewport box =
   fun (Treeplan {proofbox = proofbox} as layout) ->
-    let (defpos, screen) = defaultpos layout in
+    let (defpos, screen) = defaultpos viewport layout in
     (* prefer a centred proof *)
     if entirelywithin (bOffset box defpos, screen) then defpos
     else
@@ -480,7 +487,7 @@ let rec postoinclude box =
 
 let rec samelayout (a, b) = a = b
 
-let defaultpos = fst <.> defaultpos
+let defaultpos screen = fst <.> defaultpos screen
 (* for export *)
 
 let rootpos = defaultpos
