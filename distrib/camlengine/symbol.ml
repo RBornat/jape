@@ -459,10 +459,6 @@ let get_syntax_tables () =
    !optree, !oplist,
    !decVarPrefixes)
 
-let pushSyntax name =
-  syntaxes := (name, (!appfix, !substfix, !substsense), get_syntax_tables()) :: !syntaxes;
-  resetSymbols()
-
 let set_syntax_tables (symT, revT, prioT, assocT, decIDhs, decIDts, idprefT, idfixT, opT, ops, decVs) =
   symboltable := symT; reversemapping := revT;
   priotable := prioT; assoctable := assocT;
@@ -470,17 +466,6 @@ let set_syntax_tables (symT, revT, prioT, assocT, decIDhs, decIDts, idprefT, idf
   idprefixtree := idprefT; idfixedtree := idfixT;
   optree := opT; oplist := ops;
   decVarPrefixes := decVs
-
-let popSyntax () =
-  match !syntaxes with 
-    (name, (appN, substN, substD), tbls) :: sys ->
-      appfix:=appN; substfix:=substN; substsense:=substD;
-      set_syntax_tables tbls;
-      syntaxes := sys
-  | _ -> raise (ParseError_ ["POPSYNTAX: stack empty"])
-  
-let popAllSyntaxes () =
-  while !syntaxes!=[] do popSyntax () done
   
 (* function provided so that other functors don't need to know how operators are
  * represented
@@ -897,5 +882,49 @@ let _ = (try resetSymbols ()
          |    exn -> 
                 consolereport ["resetSymbols raised "; Printexc.to_string exn]
         )
+
+let pushSyntax name =
+  syntaxes := (name, (!appfix, !substfix, !substsense), get_syntax_tables()) :: !syntaxes;
+  resetSymbols()
+
+let popSyntax () =
+  match !syntaxes with 
+    (name, (appN, substN, substD), tbls) :: sys ->
+      let internal_symT = !symboltable in
+      appfix:=appN; substfix:=substN; substsense:=substD;
+      set_syntax_tables tbls;
+      syntaxes := sys;
+      (* because FORMULA CLASS and so on can sneak under the carefullyEnter radar,
+         we run through the contents of the internal symbol table and make sure that
+         every symbol is parsed the same in the outside syntax.
+       *)
+      let checksym str sym =
+        match sym with
+          (SUBSTBRA | SUBSTSEP | SUBSTKET) -> ()
+        | _ -> 
+            let newsym = 
+              try let s = pushlex "" (of_utf8string str) in
+                  let r = !symb in
+                  next(); 
+                  let c = char () in
+                  poplex s;
+                  if c<>uEOF then raise (ParseError_ []);
+                  r
+              with ParseError_ _ ->
+                     raise (ParseError_ ["After PUSHSYNTAX "; enQuote name; " the string "; enQuote str;
+                                         " is read as "; smlsymbolstring sym;
+                                         "; beforehand it would not have been a symbol."]) 
+            in
+            if newsym<>sym then
+              raise (ParseError_ ["After PUSHSYNTAX "; enQuote name; " the string "; enQuote str;
+                                  " is read as "; smlsymbolstring sym;
+                                  "; beforehand it would have been "; 
+                                  smlsymbolstring newsym])
+      in
+      Hashtbl.iter checksym internal_symT
+  | _ -> raise (ParseError_ ["POPSYNTAX: stack empty"])
+  
+let popAllSyntaxes () =
+  while !syntaxes<>[] do popSyntax () done
 
 let resetSymbols() =  popAllSyntaxes(); resetSymbols()
