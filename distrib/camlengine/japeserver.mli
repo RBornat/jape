@@ -66,7 +66,7 @@ val drawmeasuredtext : displayclass ->(pos*font*string) list -> pos -> unit
 (* nowadays we can draw in the proof pane or the disproof pane *)
 val drawinpane : pane -> unit
 (* disproof has sequent and term-buttons and worlds; disproof sequent is drawn separately *)
-val setdisproofseqbox : box -> unit
+val setdisproofseqbox : textsize -> unit
 (* followed by some drawing *)
 val setdisprooftiles : string list -> unit
 val setdisproofworlds :

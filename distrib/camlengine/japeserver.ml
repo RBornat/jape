@@ -671,11 +671,9 @@ let rec dragtargets (segvars : string list) =
   writef "DROPEND\n" []
 (* things added for version 5.0 *)
 
-let rec setdisproofseqbox box =
-  let (pos, size) = explodeBox box in
-  let (x, y) = explodePos pos in
-  let (w, h) = explodeSize size in
-  writef "SEQBOX % % % %\n" (List.map fInt [x; y; w; h])
+let rec setdisproofseqbox size =
+  let (w, a, d) = explodeTextSize size in
+  writef "SEQBOX % % %\n" (List.map fInt [w; a; d])
 
 let rec setdisprooftiles ts =
   writef "TILESSTART\n" [];
