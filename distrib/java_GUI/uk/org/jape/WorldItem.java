@@ -58,14 +58,16 @@ import java.awt.image.BufferedImage;
 
 import java.util.Vector;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-public class WorldItem extends DisplayItem implements DebugConstants, SelectionConstants/*,
+public class WorldItem extends DisplayItem implements DebugConstants, SelectionConstants,
+                                                      TileTarget /*,
                                                       DragSourceListener, DragGestureListener,
                                                       DropTargetListener */{
 
     protected WorldCanvas canvas;
-    protected Container layeredPane;
+    protected JFrame window;
     protected SelectionRing selectionRing;
     protected Ellipse2D.Float outline;
 
@@ -76,9 +78,9 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
     /*public static DataFlavor worldFlavor;
     private DragSource dragSource;*/
 
-    public WorldItem(WorldCanvas canvas, Container layeredPane, int x, int y) {
+    public WorldItem(WorldCanvas canvas, JFrame window, int x, int y) {
         super(x, y);
-        this.canvas = canvas; this.layeredPane = layeredPane;
+        this.canvas = canvas; this.window = window;
         x0 = x; y0 = -y;
         setBounds(x0-canvas.worldRadius(), y0-canvas.worldRadius(),
                   2*canvas.worldRadius(), 2*canvas.worldRadius());
@@ -177,6 +179,43 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
         }
     }
 
+    private boolean draghighlight;
+    Color oldForeground;
+
+    private void setDragHighlight(boolean state) {
+        if (state && !draghighlight) {
+            draghighlight = true;
+            oldForeground = getForeground();
+            setForeground(Preferences.SelectionColour);
+            if (antialias_tracing)
+                System.err.println("highlighting world");
+            canvas.imageRepaint(); repaint();
+        }
+        else
+            if (!state && draghighlight) {
+                draghighlight = false;
+                setForeground(oldForeground);
+                if (antialias_tracing)
+                    System.err.println("de-highlighting world");
+                canvas.imageRepaint(); repaint();
+            }
+    }
+
+    /* ****************************** world as drag target ****************************** */
+    public void dragEnter() {
+        setDragHighlight(true);
+    }
+
+    public void dragExit() {
+        setDragHighlight(false);
+    }
+
+    /* ****************************** world as tile drag target ****************************** */
+    public void drop(Tile t) {
+        Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+t.text+"\"");
+        setDragHighlight(false);
+    }
+    
     /* ****************************** world as drag source ****************************** */
 
     /*protected class WorldTransferable implements Transferable {
@@ -261,27 +300,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
 
     /* ****************************** world as drag target ****************************** */
     
-   /* private boolean draghighlight;
-    Color oldForeground;
-    
-    private void setdraghighlight(boolean state) {
-        if (state && !draghighlight) {
-            draghighlight = true;
-            oldForeground = getForeground();
-            setForeground(Preferences.SelectionColour);
-            if (antialias_tracing)
-                System.err.println("highlighting world");
-            canvas.imageRepaint(); repaint();
-        }
-        else
-        if (!state && draghighlight) {
-            draghighlight = false;
-            setForeground(oldForeground);
-            if (antialias_tracing)
-                System.err.println("de-highlighting world");
-            canvas.imageRepaint(); repaint();
-        }
-    }
+   /* 
 
     // Called when a drag operation has encountered the DropTarget.
     public void dragEnter(DropTargetDragEvent dtde) {
@@ -289,13 +308,13 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
             // dtde.isLocalTransfer() && -- why can't we do this?
             dtde.getDropAction()==DnDConstants.ACTION_COPY) {
             dtde.acceptDrag(DnDConstants.ACTION_COPY);
-            setdraghighlight(true);
+            setDragHighlight(true);
         }
     }
 
     // The drag operation has departed the DropTarget without dropping.
     public void dragExit(DropTargetEvent dte) {
-        setdraghighlight(false);
+        setDragHighlight(false);
     }
 
     // Called when a drag operation is ongoing on the DropTarget.
@@ -316,7 +335,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
             }
             Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+label+"\"");
             dtde.dropComplete(true);
-            setdraghighlight(false);
+            setDragHighlight(false);
         }
     }
 
