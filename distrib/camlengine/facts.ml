@@ -70,7 +70,8 @@ let rec knownNOTIN (ps, _) (v, t) =
        NotinProviso (v', t') ->
          eqterms (v, v') && eqterms (t, t') ||
          eqterms (v, t') && eqterms (t, v')
-     | _ -> false)
+     | DistinctProviso vs    -> List.mem v vs && List.mem t vs
+     | _                     -> false)
     ps
 let rec knownproofvar facts v =
   match v, facts with
