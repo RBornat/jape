@@ -34,11 +34,10 @@ import java.awt.Rectangle;
 import java.awt.Point;
 
 public abstract class JapeCanvas extends ContainerWithOrigin
-                                 implements Viewportable,
-                                            SelectionConstants {
+                                 implements SelectionConstants {
 
-    protected JapeCanvas() {
-        super();
+    protected JapeCanvas(Container viewport, boolean scrolled) {
+        super(viewport, scrolled);
         addMouseListener(new MouseInteractionAdapter() {
             public void clicked(byte eventKind, MouseEvent e) {
                JapeCanvas.this.clicked(eventKind, e);
@@ -110,35 +109,5 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         for (int i=0; i<cs.length; i++)
             if (cs[i] instanceof TextSelectableItem && cs[i]!=leave)
                 ((TextSelectableItem)cs[i]).deTextSelect();
-    }
-
-    Container viewport = null;
-    public void inViewport(Container vp) { viewport = vp; }
-    
-    // when we are in a viewport, we get the mouse events.
-    public boolean contains(int x, int y) {
-        return viewport!=null || super.contains(x,y);
-    }
-
-    // when we are in a viewport, we tell you what the viewport sees
-    public Rectangle viewGeometry() {
-        if (viewport==null)
-            return getBounds();
-        else {
-            Rectangle v = viewport.getBounds();
-            v.x -= (getX()+child.getX()); v.y -= (getY()+child.getY()); // oh dear ...
-            return v;
-        }
-    }
-
-    // when we are in a viewport, minimum size depends on the size of scrollbars -- this is a guess
-    public Dimension getMinimumSize() {
-        return viewport!=null ? new Dimension(80,80) : super.getMinimumSize();
-    }
-
-    public void clearPane() {
-        removeAll(); repaint();
-        if (viewport!=null)
-            viewport.validate();
     }
 }
