@@ -39,7 +39,7 @@ open Termtype
 open Termstore
 
 let consolereport = Miscellaneous.consolereport
-let mkNotin v = Provisotype.NotinProviso v
+let _NotinProviso = Provisotype._NotinProviso
 
 let substdebug = ref false
 let rec substmapdom (vts : (term * term) list) = (fst <* vts)
@@ -113,7 +113,7 @@ and restrictsubstmap facts vts bs ss =
   in
   let (ys, ns, ms) = vtsplit facts vts bs in
   let rec newfacts v =
-    expandfacts facts ((fun b -> mkNotin (v, b)) <* bs)
+    expandfacts facts ((fun b -> _NotinProviso (v, b)) <* bs)
   in
   let rec foundinside v =
     List.exists
@@ -160,7 +160,7 @@ and varoccursinq facts v =
       | No -> existsq (varoccursinq facts v) ss
       | Maybe ->
           let newfacts =
-            expandfacts facts ((fun b -> mkNotin (v, b)) <* bs)
+            expandfacts facts ((fun b -> _NotinProviso (v, b)) <* bs)
           in
           existsq (varoccursinq newfacts v) ss
     in

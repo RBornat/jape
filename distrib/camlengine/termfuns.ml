@@ -477,13 +477,13 @@ let isconstant t =
 let ismetav t =
   match debracket t with
     Id (_, v, c) -> isextensibleID (string_of_vid v)
-  | Unknown _ -> true
-  | _ -> false
+  | Unknown _    -> true
+  | _            -> false
 
 let isextensibleId t =
   match debracket t with
     Id (_, v, c) -> isextensibleID (string_of_vid v)
-  | _ -> false
+  | _            -> false
 
 let isId t =
   match debracket t with
@@ -497,9 +497,9 @@ let isUnknown t =
 
 let isVariable t =
   match debracket t with
-    Id (_, _, VariableClass) -> true
+    Id (_, _, VariableClass)      -> true
   | Unknown (_, _, VariableClass) -> true
-  | _ -> false
+  | _                             -> false
 
 let isleaf t =
   match t with

@@ -51,7 +51,7 @@ let rec indistinct cxt =
 let interpolate = Listfuns.interpolate
 let ( <* ) = Listfuns.( <* )
 let member = Listfuns.member
-let fNotinProviso v = Provisotype.NotinProviso v
+let _NotinProviso = Provisotype._NotinProviso
 let plusvisibleprovisos = Cxtfuns.plusvisibleprovisos
 let rewrite = Rewrite.rewrite
 let simplifySubstAnyway = Substmapfuns.simplifySubstAnyway
@@ -113,7 +113,7 @@ let rec _Subst_of_selection object__ sels cxt =
   let m = [v, List.hd ss'] in
   let res = registerSubst (false, _P, m) in
   let pvs = ((fun v' -> v, v') <* termvars origterm) in
-  let extraps = (fNotinProviso <* (indistinct cxt <| pvs)) in
+  let extraps = (_NotinProviso <* (indistinct cxt <| pvs)) in
   let cxt'' = plusvisibleprovisos cxt' extraps in
   let rec check t =
     let _E = List.exists (fun b -> v = b) in
