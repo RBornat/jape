@@ -35,6 +35,7 @@
  *)
 
 open Box
+open Draw
 open Idclass
 open Forcedef
 open Japeserver
@@ -49,8 +50,8 @@ open Termfuns
 open Termstore
 open Termstring
 
-type forcedef = Forcedef.forcedef
- and model = Forcedef.model
+type forcedef  = Forcedef.forcedef
+ and model     = Forcedef.model
 
 let atoi = Miscellaneous.atoi
 let askChoice = Alert.askChoice
@@ -68,7 +69,6 @@ let mkSeq = Sequent.mkSeq
 let option_remapterm = Match.option_remapterm
 let parseTerm = Termparse.term_of_string
 let pairstring = Stringfuns.pairstring
-let planinfo = Draw.planinfo
 let seqexplode = Sequent.seqexplode
 let seqstring = Sequent.seqstring
 let seqvars = Sequent.seqvars termvars tmerge
@@ -158,10 +158,9 @@ let stringofdisproofemphasis e =
   
 let intofdisproofemphasis e =
   match e with
-    Forced     -> 0
+    Irrelevant -> 0
   | Unforced   -> 1
-  | Irrelevant -> 2
-  
+  | Forced     -> 2
 
 type term = Termtype.term
 type coord = int * int
@@ -169,7 +168,7 @@ type world = disproofemphasis * term list * coord list
           (* colour,            labels,     children *)
 
 let emphasisofworld = fst_of_3
-let labelsofworld = snd_of_3
+let labelsofworld   = snd_of_3
 let childrenofworld = thrd
 
 type universe = (coord, world) mapping
@@ -179,12 +178,6 @@ let catelim_coordstring =
 
 let rec coordstring c = implode (catelim_coordstring c [])
 
-let stringofdisproofemphasis e =
-  match e with
-    Forced -> "Forced"
-  | Unforced -> "Unforced"
-  | Irrelevant -> "Irrelevant"
-  
 let catelim_worldstring =
   catelim_triplestring 
     (stringfn2catelim stringofdisproofemphasis)
@@ -539,6 +532,9 @@ type seq = Seqtype.seq
 
 type disproofstaterec =
       { seq          : seq; 
+        selections   : pos list                 (* element selection coordinates *) *
+                       (pos * string list) list (* text selection coordinates and description *);
+        seqplan      : (planclass plan list * textbox) option;
         universe     : universe; 
         tiles        : term list;
         selected     : coord list;
@@ -606,6 +602,8 @@ let rec disproofstatestring d = implode (catelim_disproofstatestring d [])
 
 let rec disproofstate_seq = fun (Disproofstate {seq = seq}) -> seq
 
+let rec disproofstate_selections = fun (Disproofstate {selections = selections}) -> selections
+
 let rec disproofstate_universe =
   fun (Disproofstate {universe = universe}) -> universe
 
@@ -619,6 +617,9 @@ let rec disproofstate_countermodel =
   fun (Disproofstate {countermodel = countermodel}) -> countermodel
 
 (* because of the need for facts, these don't evaluate! *)
+
+let rec withdisproofselections (Disproofstate s) selections =
+    Disproofstate {s with selections = selections}
 
 let rec withdisproofuniverse (Disproofstate s) universe =
     Disproofstate {s with universe = universe}
@@ -638,8 +639,8 @@ let newforcemap () = Hashtbl.create 17
 
 let newforcefun forcemap facts universe = Fix.memofix forcemap (unfixedforced facts universe)
 
-let rec evaldisproofstate facts tree selections =
-  fun (Disproofstate {seq = seq; universe = universe; selected = selected; tiles = tiles}) ->
+let rec evaldisproofstate facts tree =
+  fun (Disproofstate {seq = seq; selections = selections; universe = universe; selected = selected; tiles = tiles}) ->
     let (basestyle, hypsbag, basehyps, concsbag, baseconcs) = my_seqexplode (base_sequent tree) in
     let (style, _, hyps, _, concs) = my_seqexplode seq in
     let conclusive =
@@ -664,15 +665,60 @@ let rec evaldisproofstate facts tree selections =
          in
          _All (fun x -> x) results)
     in
-    ((*consolereport ["universe is "; universestring "" universe; 
-                    ", selections are "; bracketedliststring termstring ";" selections;
-                    "; after tinting "; universestring "" (tint_universe forced selections universe)]; *)
+    let rec realterm t =
+      match term2binding t with
+        Some t' -> t'
+      | _       -> t
+    in
+    let rec ivb t =
+      let t = realterm t in
+      (* consolereport ["ivb ", smltermstring t, " => ", 
+           optionstring (catelim2stringfn catelim_forcedstring) (forcemap (root <@> t))]; 
+       *)
+      try let results = List.map (fun root -> Hashtbl.find forcemap (root, t)) selected in
+          fst (if _All fst results then onbraket else offbraket) ^ (if List.exists snd results then fst lockbraket else "")
+      with Not_found -> fst outbraket
+    in
+    let rec ivk t =
+      let t = realterm t in
+      (* consolereport ["ivk ", smltermstring t, " => ", string_of_int (forced facts universe root t)]; *)
+      try let results = List.map (fun root -> Hashtbl.find forcemap (root, t)) selected in
+          (if List.exists snd results then snd lockbraket else "") ^ snd (if _All fst results then onbraket else offbraket)
+      with Not_found -> snd outbraket
+    in
+    let seqplan = makeseqplan (elementstring_invischoose ivb ivk) true origin seq in
     Disproofstate
-      {seq = seq; universe = tint_universe forced selections universe; 
+      {seq = seq; selections = selections; seqplan = Some seqplan;
+       universe = tint_universe forced seqplan selections universe; 
        tiles = tiles; selected = selected;
-       forcemap = forcemap; conclusive = conclusive; countermodel = countermodel})
+       forcemap = forcemap; conclusive = conclusive; countermodel = countermodel}
 
-and tint_universe forced selections =
+and tint_universe forced (plan, _) (proofsels, textsels) =
+  let selections =
+     foldr (fun p ts ->
+              match findfirstplanhit p plan &~~ 
+                    (fun plan -> match planinfo plan with
+                       ElementClass (e,_) -> Some e
+                     | _ -> None) &~~ element2term
+              with
+                Some t -> t :: ts
+              | _      -> raise (Catastrophe_ 
+                                   ["Disproof.tint_universe can't find element "; posstring p; " in "; 
+                                    bracketedliststring (planstring planclassstring) ";" plan])
+           ) 
+           (foldr (fun (_,ss) ts ->
+                     let rec tsel sels =
+                       match sels with
+                         [_;t;_ ]      -> Termparse.term_of_string t :: ts
+                       | _::t::s::sels -> Termparse.term_of_string t :: tsel (s::sels)
+                       | []            -> ts
+                       | _  -> raise (Catastrophe_ 
+                                        ["Disproof.tint_universe can't understand text selection "; 
+                                                    bracketedliststring Stringfuns.enQuote ";" ss])
+                     in tsel ss
+                  ) [] textsels)
+           proofsels
+  in
   mkmap <.> List.map (fun (c,w) -> (c, tint_world forced selections c w)) <.> aslist
 
 and tint_world forced selections c (e, ls, chs) = 
@@ -839,9 +885,10 @@ let rec model2disproofstate a1 a2 a3 =
              chs)
         ulist;
       Some
-        (evaldisproofstate facts tree [] (* empty selections is correct *)
+        (evaldisproofstate facts tree
            (Disproofstate
-              {seq = seq; universe = mkmap ulist; tiles = tilesort tiles;
+              {seq = seq; selections = ([],[]); seqplan = None;
+               universe = mkmap ulist; tiles = tilesort tiles;
                selected = [minc]; conclusive = false; forcemap = newforcemap ();
                countermodel = false}))
 
@@ -863,9 +910,10 @@ let rec disproof_start facts tree pathopt hyps =
         Some sem -> mkSeq (sem, hyps, concs)
       | None -> s'
     in
-    evaldisproofstate facts tree [] (* empty selections is right here *)
+    evaldisproofstate facts tree
       (Disproofstate
-         {seq = seq; universe = simplestuniverse (); tiles = tilesort tiles;
+         {seq = seq; selections = ([],[]); seqplan = None; 
+          universe = simplestuniverse (); tiles = tilesort tiles;
           selected = [0, 0]; conclusive = false; forcemap = newforcemap ();
           countermodel = false})
   in
@@ -1149,63 +1197,46 @@ let moveworldtolink d from to__ lfrom lto__ =
   (fun (Disproofstate {universe=u} as d) -> 
      Some (withdisproofuniverse d (spliceworldtolink u to__ lfrom lto__)))
 
-let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = tiles;
-                                     selected = selected; forcemap = forcemap}) =
+let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = plan;
+                                 universe = universe; tiles = tiles;
+                                 selected = selected; forcemap = forcemap}) =
     (*  let _ = consolereport["showdisproof: seq is "; smlseqstring seq; 
                           "\nforcemap is "; mappingstring (pairstring coordstring smltermstring ",") 
                                                           (catelim2stringfn catelim_forcedstring) forcemap
                      ] in
               *)
 
-    (* the value doesn't matter: forcemap will be empty (what? I hope not!) *)
-    (* Gosh! What is this for? *)
-    let rec realterm t =
-      match term2binding t with
-        Some t' -> t'
-      | _       -> t
-    in
-    let rec ivb t =
-      let t = realterm t in
-      (* consolereport ["ivb ", smltermstring t, " => ", 
-           optionstring (catelim2stringfn catelim_forcedstring) (forcemap (root <@> t))]; 
-       *)
-      try let results = List.map (fun root -> Hashtbl.find forcemap (root, t)) selected in
-          fst (if _All fst results then onbraket else offbraket) ^ (if List.exists snd results then fst lockbraket else "")
-      with Not_found -> fst outbraket
-    in
-    let rec ivk t =
-      let t = realterm t in
-      (* consolereport ["ivk ", smltermstring t, " => ", string_of_int (forced facts universe root t)]; *)
-      try let results = List.map (fun root -> Hashtbl.find forcemap (root, t)) selected in
-          (if List.exists snd results then snd lockbraket else "") ^ snd (if _All fst results then onbraket else offbraket)
-      with Not_found -> snd outbraket
-    in
-    let (seqplan, seqbox) = makeseqplan (elementstring_invischoose ivb ivk) true origin seq in
-    let seqsize = tbSize seqbox in
-    (* let _ = consolereport["seqplan is "; bracketedliststring (Draw.planstring planclassstring) "; " seqplan; 
-                          "; and seqbox is "; textboxstring seqbox] in *)
-    setseqbox seqsize;
-    drawindisproofpane ();
-    seqdraw origin seqbox seqplan;
-    (* put the emphasis in *)
-    List.iter
-      (fun plan ->
-         match planinfo plan with
-           ElementClass (el, _) ->
-             let emph =
-               match element2term el with
-                 None -> false
-               | Some t ->
-                   try _All (fst <.> (fun root -> Hashtbl.find forcemap (root, t))) selected 
-                   with Not_found -> false
-             in
-             emphasise (seqelementpos origin seqbox plan) emph
-         | _ -> ())
-      seqplan;
-    settiles (List.map termstring tiles);
-    setworlds selected
-      (List.map (fun (c, e, labels, ws) -> c, intofdisproofemphasis e, labelsort labels, ws)
-         (universe2list universe))
+    match plan with
+      Some(seqplan,seqbox) ->
+        begin
+          let seqsize = tbSize seqbox in
+          (* let _ = consolereport["seqplan is "; bracketedliststring (planstring planclassstring) "; " seqplan; 
+                                "; and seqbox is "; textboxstring seqbox] in *)
+          setseqbox seqsize;
+          drawindisproofpane ();
+          seqdraw origin seqbox seqplan;
+          (* put the emphasis in *)
+          List.iter
+            (fun plan ->
+               match planinfo plan with
+                 ElementClass (el, _) ->
+                   let emph =
+                     match element2term el with
+                       None -> false
+                     | Some t ->
+                         try _All (fst <.> (fun root -> Hashtbl.find forcemap (root, t))) selected 
+                         with Not_found -> false
+                   in
+                   emphasise (seqelementpos origin seqbox plan) emph
+               | _ -> ())
+            seqplan;
+          settiles (List.map termstring tiles);
+          setworlds selected
+            (List.map (fun (c, e, labels, ws) -> c, e=Forced, labelsort labels, ws)
+                      (universe2list universe));
+          forceAllDisproofSelections selections
+        end
+  | _ -> raise (Catastrophe_ ["Disproof.showdisproof unevaluated disproof state"])
 
 let cleardisproof () = Japeserver.clearPane Displayfont.DisproofPane
 
@@ -1224,6 +1255,3 @@ let deletelink u from to__ =
   if member (to__, cs) then
     Some (u ++ (from |-> (Unforced, ts, listsub (fun (x,y) -> x=y) cs [to__])))
   else None
-
-let tint_universe facts selections (Disproofstate({forcemap=forcemap; universe=universe} as d)) =
-  Disproofstate{d with universe = tint_universe (newforcefun forcemap facts universe) selections universe}
