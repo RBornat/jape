@@ -6,162 +6,16 @@
 		activeTarget = 1601BCDBFEEE210811DB9C8B;
 		addToTargets = (
 			1601BCDBFEEE210811DB9C8B,
-			F57AF4290339D74701A80116,
 			F5AB83160339F3B701A80116,
 		);
 		breakpoints = (
 		);
 		executables = (
 			06D05854FF24F2DB11DB9C8B,
-			F57AF42B0339D74701A80116,
-			F5892D2C0339DEA001A80116,
 			F5AB83180339F3B701A80116,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 57753214;
-			"PBXTemplateGeometry-F5CA7ECB015C094F0DCA290F" = {
-				ContentSize = "{668, 621}";
-				LeftSlideOut = {
-					Collapsed = NO;
-					Frame = "{{0, 0}, {668, 621}}";
-					Split0 = {
-						Collapsed = NO;
-						Frame = "{{0, 0}, {668, 621}}";
-						Split0 = {
-							Frame = "{{0, 0}, {668, 621}}";
-						};
-						SplitCount = 1;
-						Tab0 = {
-							Debugger = {
-								Collapsed = NO;
-								Frame = "{{0, 0}, {484, 208}}";
-								Split0 = {
-									Frame = "{{0, 24}, {484, 184}}";
-									Split0 = {
-										Frame = "{{0, 0}, {236, 184}}";
-									};
-									Split1 = {
-										DebugVariablesTableConfiguration = (
-											Name,
-											49,
-											Value,
-											71.07401,
-											Summary,
-											93.123,
-										);
-										Frame = "{{245, 0}, {239, 184}}";
-									};
-									SplitCount = 2;
-								};
-								SplitCount = 1;
-								Tab0 = {
-									Frame = "{{0, 0}, {100, 50}}";
-								};
-								Tab1 = {
-									Frame = "{{0, 0}, {100, 50}}";
-								};
-								TabCount = 2;
-								TabsVisible = YES;
-							};
-							Frame = "{{0, 0}, {484, 208}}";
-							LauncherConfigVersion = 7;
-						};
-						Tab1 = {
-							Frame = "{{0, 0}, {664, 208}}";
-							LauncherConfigVersion = 3;
-							Runner = {
-								Frame = "{{0, 0}, {664, 208}}";
-							};
-						};
-						Tab2 = {
-							BuildMessageFrame = "{{0, 0}, {666, 43}}";
-							BuildTranscriptFrame = "{{0, 52}, {666, 0}}";
-							Frame = "{{0, 0}, {664, 50}}";
-						};
-						Tab3 = {
-							Frame = "{{0, 0}, {612, 295}}";
-						};
-						TabCount = 4;
-						TabsVisible = NO;
-					};
-					SplitCount = 1;
-					Tab0 = {
-						Frame = "{{0, 0}, {313, 531}}";
-						GroupTreeTableConfiguration = (
-							TargetStatusColumn,
-							18,
-							MainColumn,
-							280,
-						);
-					};
-					Tab1 = {
-						ClassesFrame = "{{0, 0}, {280, 398}}";
-						ClassesTreeTableConfiguration = (
-							PBXBookColumnIdentifier,
-							20,
-							PBXClassColumnIdentifier,
-							237,
-						);
-						Frame = "{{0, 0}, {278, 659}}";
-						MembersFrame = "{{0, 407}, {280, 252}}";
-						MembersTreeTableConfiguration = (
-							PBXBookColumnIdentifier,
-							20,
-							PBXMethodColumnIdentifier,
-							236,
-						);
-					};
-					Tab2 = {
-						Frame = "{{0, 0}, {200, 100}}";
-					};
-					Tab3 = {
-						Frame = "{{0, 0}, {200, 557}}";
-						Split0 = {
-							Frame = "{{0, 0}, {200, 270}}";
-							TargetTreeTableConfiguration = (
-								ActiveTarget,
-								16,
-								TargetName,
-								168,
-							);
-						};
-						Split1 = {
-							BuildStyleTreeTableConfiguration = (
-								IsActive,
-								16,
-								Name,
-								169,
-							);
-							Frame = "{{0, 279}, {200, 278}}";
-						};
-						SplitCount = 2;
-					};
-					Tab4 = {
-						ExecutableTreeTableConfiguration = (
-							ActiveExecutable,
-							16,
-							ExecutableName,
-							217,
-						);
-						Frame = "{{0, 0}, {250, 100}}";
-					};
-					Tab5 = {
-						BreakpointsTreeTableConfiguration = (
-							breakpointColumn,
-							197,
-							enabledColumn,
-							31,
-						);
-						Frame = "{{0, 0}, {250, 100}}";
-					};
-					TabCount = 6;
-					TabsVisible = NO;
-				};
-				StatusViewVisible = NO;
-				Template = F5CA7ECB015C094F0DCA290F;
-				ToolbarVisible = NO;
-				WindowLocation = "{48, 103}";
-			};
+			PBXPerProjectTemplateStateSaveDate = 57839428;
 			PBXWorkspaceContents = (
 				{
 					LeftSlideOut = {
@@ -300,14 +154,14 @@
 							Frame = "{{0, 0}, {310, 522}}";
 						};
 						Tab3 = {
-							Frame = "{{0, 0}, {416, 525}}";
+							Frame = "{{0, 0}, {431, 641}}";
 							Split0 = {
-								Frame = "{{0, 0}, {416, 255}}";
+								Frame = "{{0, 0}, {431, 312}}";
 								TargetTreeTableConfiguration = (
 									ActiveTarget,
 									16,
 									TargetName,
-									384,
+									399,
 								);
 							};
 							Split1 = {
@@ -315,9 +169,9 @@
 									IsActive,
 									16,
 									Name,
-									385,
+									400,
 								);
-								Frame = "{{0, 264}, {416, 261}}";
+								Frame = "{{0, 321}, {431, 320}}";
 							};
 							SplitCount = 2;
 						};
@@ -348,7 +202,7 @@
 					WindowLocation = "{353, 20}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 57753214;
+			PBXWorkspaceStateSaveDate = 57839428;
 		};
 		projectwideBuildSettings = {
 		};
@@ -375,50 +229,6 @@
 		activeExec = 0;
 		executables = (
 			06D05854FF24F2DB11DB9C8B,
-		);
-	};
-	F57AF4290339D74701A80116 = {
-		activeExec = 0;
-		executables = (
-			F57AF42B0339D74701A80116,
-		);
-	};
-	F57AF42B0339D74701A80116 = {
-		activeArgIndex = 2147483647;
-		argumentStrings = (
-		);
-		debuggerPlugin = GDBDebugging;
-		dylibVariantSuffix = "";
-		enableDebugStr = 1;
-		environmentEntries = (
-		);
-		isa = PBXExecutable;
-		name = testjape;
-		shlibInfoDictList = (
-		);
-		sourceDirectories = (
-		);
-	};
-	F5892D2A0339DEA001A80116 = {
-		activeExec = 0;
-		executables = (
-			F5892D2C0339DEA001A80116,
-		);
-	};
-	F5892D2C0339DEA001A80116 = {
-		activeArgIndex = 2147483647;
-		argumentStrings = (
-		);
-		debuggerPlugin = GDBDebugging;
-		dylibVariantSuffix = "";
-		enableDebugStr = 1;
-		environmentEntries = (
-		);
-		isa = PBXExecutable;
-		name = nonewindowswing;
-		shlibInfoDictList = (
-		);
-		sourceDirectories = (
 		);
 	};
 	F5AB83160339F3B701A80116 = {
