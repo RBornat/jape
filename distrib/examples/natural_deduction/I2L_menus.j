@@ -553,7 +553,7 @@ MACRO "targeted forward single"(action, stepname, path, selhyp, ogoal) IS
 /* ******************** explanations ******************** */
 
 TACTIC Explainvariables IS
-ALERT   "Variables are introduced into a proof by ∃ intro and/or ∀ elim. They appear at the head of a box \
+ALERT   "Variables are introduced into a proof by ∀ intro and/or ∃ elim. They appear at the head of a box \
         \as a special pseudo-assumption actual i (this is Jape's version of scope-boxing; it uses variable \
         \names i, i1, and so on as appropriate). \
         \\n\nYou have to select one of these pseudo-assumptions each time you make a ∀ elim or ∃ intro step.\
