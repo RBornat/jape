@@ -22,6 +22,7 @@ CONJECTUREPANEL Conjectures
 	AND	C æ letrec f = (ûx.f x) in f end: _T
 	AND	C æ let f = let g = (ûx.x) in g end in f f end :_T
 	AND	C æ letrec f = let g = (ûx.f x) in g end in f end : _T
+	/* the next one won't typecheck ... */
 	AND	C æ letrec f = let g = (ûx.x f) in g end in f end : _T
 	AND	C æ letrec map = (ûf.ûxs.if xs=nil then nil else f (hd xs)Ümap f (tl xs) fi) in map end : _T
 	AND	C æ letrec map = (ûf.ûxs.if xs=nil then nil else f (hd xs)Ümap f (tl xs) fi) 
