@@ -497,9 +497,9 @@ module
               bss []
           in
           let rec mkpairs b = _MAP ((fun v' -> v, v'), b) in
-          flatten (_MAP ((fun bs -> flatten (_MAP (mkpairs, bs))), bss'))
+          List.concat (_MAP ((fun bs -> List.concat (_MAP (mkpairs, bs))), bss'))
         in
-        flatten (_MAP (sks, allbinders))
+        List.concat (_MAP (sks, allbinders))
       in
       diffbinders @ skipbinders
     (* designed to be (NJ) folded *)
@@ -717,7 +717,7 @@ module
             let vs = nj_fold (sortedmerge earliervar) bss [] in
             _MAP ((fun v -> v, P), vs)
           in
-          flatten (_MAP (g, abss)) @ ps
+          List.concat (_MAP (g, abss)) @ ps
       in
       let proofps =
         sortunique (earlierpair (earliervar, earliervar))

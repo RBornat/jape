@@ -711,7 +711,7 @@
 
        (****************** Final step: put everything in place, with line numbers ******************)
        
-    let rec inc id = id + 1
+    let rec _RR id = id + 1
     let rec dec id = id - 1
     type lineID = int
     (* justifications are given as
@@ -1137,7 +1137,7 @@
                  struct
                    class a =
                      object
-                       val id = inc id
+                       val id = _RR id
                        val lines = line :: lines
                        val elbox = ( +||+ ) (elbox, ebox)
                        val idW = max iW (idW)
@@ -1164,7 +1164,7 @@
             IdDep (el, lindep) ->
               if idok ||
                  (match mapped sameresource hypmap el with
-                    Some (LineID id') -> id = inc id'
+                    Some (LineID id') -> id = _RR id'
                   | _ -> false)
               then
                 getIdDep el
@@ -1261,7 +1261,7 @@
                        struct
                          class a =
                            object
-                             val id = inc id
+                             val id = _RR id
                              val lines = line :: lines
                              val elbox =
                                if null lines then linebox

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Match =
+module type T =
   sig
     type term
     type ('a, 'b) mapping
@@ -39,8 +39,7 @@ module type Match =
   end
 (* $Id$ *)
 
-module
-  Match
+module M
   (AAA :
     sig
       module Listfuns : Listfuns.T
@@ -58,8 +57,7 @@ module
       exception Catastrophe_ of string list
       
     end)
-  :
-  Match =
+  : T =
   struct
     open AAA
     open Listfuns 

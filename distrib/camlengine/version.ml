@@ -36,6 +36,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.3  2002/07/04 17:25:57  richard
+     minor changes to capitalisation
+
      Revision 1.2  2002/07/04 11:43:13  richard
      more simple changes to make things compile
 
@@ -96,7 +99,7 @@
 
      Revision 10.47  1999/10/13 20:58:33  richard
      new boxdraw treatment of transitivity and cut;
-     new tactics (inc ALERT)
+     new tactics (_RR ALERT)
 
      Revision 10.46  1998/11/06 15:46:55  sufrin
      Merged bernard's 3.4bcx with richard's 3.4bd

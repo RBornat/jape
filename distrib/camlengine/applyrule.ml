@@ -543,7 +543,7 @@ module
                               (fun ooo ->
                                  explain (exp1 "hypothesis" "hypotheses" CHs)
                                    (nonempty ooo))
-                                (flatten ooo))
+                                (List.concat ooo))
                              (List.map
                                 (fun (thinnedR, cxt) ->
                                    ( >< )

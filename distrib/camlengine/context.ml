@@ -483,7 +483,7 @@ module
         let rec bang () =
           raise (Catastrophe_ ["STOP, STOP, STOP!!!! too many contexts!!!!"])
         in
-        begin try inc nextprovisosig with
+        begin try _RR nextprovisosig with
           _ -> bang ()
         end;
         if !nextprovisosig <= 0 then bang ();

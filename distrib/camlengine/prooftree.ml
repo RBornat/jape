@@ -1474,7 +1474,7 @@ module
         (unSOME,
          ( <| )
            (opt2bool,
-            flatten
+            List.concat
               (_MAP
                  ((fun ooo -> allreasons proved showall ((fun(_,hash2)->hash2) ooo)),
                   (fun(_,hash2)->hash2) (visibles showall j)))))
@@ -1483,7 +1483,7 @@ module
         (match t with
            Tip _ -> []
          | Join j ->
-             flatten (_MAP (allreasons proved showall, join_subtrees j)))
+             List.concat (_MAP (allreasons proved showall, join_subtrees j)))
     let rec join_multistep j vissubts =
       step_resolve (join_how j) ||
       List.exists (fun (ns, _) -> List.length ns > 1) vissubts

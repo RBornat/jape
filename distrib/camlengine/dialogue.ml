@@ -655,13 +655,14 @@ module
     exception applycommand_ of proofstate option
     let rec docommand displaystate env target comm =
       fun (Proofstate {cxt = cxt; tree = tree; givens = givens} as state) ->
-        (let state =
-           withroot
-             (withtarget (withgoal (state, Some target), Some target), None)
-         in
-         tacticfuns.applyLiteralTactic (Some displaystate) env (respace comm)
-           state)
-          before apply_cleanup ()
+        let r =
+		  (let state =
+			 withroot
+			   (withtarget (withgoal (state, Some target), Some target), None)
+		   in
+		   tacticfuns.applyLiteralTactic (Some displaystate) env (respace comm)
+			 state)
+        in apply_cleanup (); r
     let rec badsel ss = showAlert ss; raise (applycommand_ None)
     (* There appear to be two reasonable behaviours, given a selection and a command.
      * 1. (the original) -- resolve the selection to a single tip, if possible, and work there.
@@ -1136,14 +1137,14 @@ module
                        val displayvarsvals = recorddisplayvars env
                        val needsrefresh = false
                        val displaystate =
-                         showFocussedProof goal cxt tree !autoselect before
+                         let r = showFocussedProof goal cxt tree !autoselect in
                            begin
                              setGivens givens;
                              setProvisos cxt;
                              match disproof with
                                None -> ()
                              | Some d -> disproof.showdisproof d
-                           end
+                           end; r
                        val hist =
                          WinHist
                            (let module M =
@@ -1892,9 +1893,9 @@ module
                               nj_fold (fn ((s,t),ts) => 
                                       if sameresource (s,d) then elementstring t::ts else ts
                                    ) dNdm []
-                            fun flatten (ts:string list,rs) = (listsub op= ts rs)@rs
+                            fun List.concat (ts:string list,rs) = (listsub op= ts rs)@rs
                         in
-                            japeserver.dragtargets (nj_fold flatten (targets _MAP dragees) []);
+                            japeserver.dragtargets (nj_fold List.concat (targets _MAP dragees) []);
                             default
                         end
                   )                  
@@ -2086,12 +2087,12 @@ module
                                (withdisplaystate
                                   (withneedsrefresh (pinf, false),
                                    showState (proofinfo_displaystate pinf)
-                                     proof !autoselect before setGivens
-                                     (proofstate_givens proof)),
+                                     (let r = proof !autoselect in 
+                                      setGivens (proofstate_givens proof); r)),
                                 reparentprovisos hist)
                            in
                            _MAP
-                             (f, bgs before japeserver.setforegroundfocus ())
+                             (f, (let r = bgs in japeserver.setforegroundfocus (); r))
                          else
                            _MAP
                              ((fun pinf -> withneedsrefresh (pinf, true)),
@@ -2439,8 +2440,8 @@ module
                      (fun () -> goal))
                 in
                 doShowProof
-                  (showFocussedProof target cxt tree !autoselect before
-                     setProvisos cxt)
+                  (let r = showFocussedProof target cxt tree !autoselect in
+                   setProvisos cxt; r)
                   ShowDisproof
               else
                 begin match showit with

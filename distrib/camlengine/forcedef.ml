@@ -168,13 +168,13 @@ module
         | BRA "(" ->
             scansymb ();
             ForceBracket
-              (parseForceDef (), before,
+              (let r = parseForceDef () in
                (if currsymb () = KET ")" then scansymb ()
                 else
                   raise
                     (ParseError_
                        ["closing bracket expected after FORCE definition; found ";
-                        symbolstring (currsymb ())])))
+                        symbolstring (currsymb ())])); r)
         | sy ->
             raise
               (ParseError_

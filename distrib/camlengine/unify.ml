@@ -1036,7 +1036,7 @@ module
            *)
           match extract isel e1s with
             Some (Element (_, r, t), e1s) ->
-              res (flatten (_MAP (ub e1s, uel [] cxt (r, t) e2s)))
+              res (List.concat (_MAP (ub e1s, uel [] cxt (r, t) e2s)))
           | _ ->
               (* run out of elements on left-hand side - check what's left *)
               match e1s, e2s with
@@ -1054,7 +1054,7 @@ module
               | _ ->
                   match extract isel e2s with
                     Some (Element (_, r, t), e2s) ->
-                      res (flatten (_MAP (ub e2s, uel [] cxt (r, t) e1s)))
+                      res (List.concat (_MAP (ub e2s, uel [] cxt (r, t) e1s)))
                   | _ ->
                       (* the two sides are disjoint;
                        * neither side is empty;
@@ -1199,7 +1199,7 @@ module
         let (p1s, svh1s, tl1s) = twuseg e1s in
         let (p2s, svh2s, tl2s) = twuseg e2s in
         let rec def ps svs es es' =
-          res (flatten (_MAP (ul svs es, allsplits ps cxt es')))
+          res (List.concat (_MAP (ul svs es, allsplits ps cxt es')))
         in
         match List.length svh1s, List.length svh2s with
           0, 0 ->
@@ -1299,7 +1299,7 @@ module
           | Subst (_, _, _, vts), _ -> rematch (t2', t1') vts true
           | _ -> res "trying unification" (unifyv (t1', t2') cxt)
       in
-      let rec do1 (pair, cxts) = flatten (_MAP (dodefer pair, cxts)) in
+      let rec do1 (pair, cxts) = List.concat (_MAP (dodefer pair, cxts)) in
       let rec split (vp, (defers, others)) =
         match provisoactual vp with
           UnifiesProviso pair -> pair :: defers, others
@@ -1378,7 +1378,7 @@ module
     let unifytermsandcheckprovisos pair =
       andthen (doUnify pair, checkprovisos)
     let rec unifyvarious pair cxt =
-      flatten (_MAP (checkdeferred pair, unifyv pair cxt))
+      List.concat (_MAP (checkdeferred pair, unifyv pair cxt))
     let rec dropunify (target, sources) cxt =
       let rec bad mess =
         raise

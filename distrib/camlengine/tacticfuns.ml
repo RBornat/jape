@@ -321,7 +321,7 @@ module
             Some
               (_MAP
                  (parseit,
-                  flatten
+                  List.concat
                     (getsels gs ::
                        _MAP
                          ((fun ooo -> getsels ((fun(_,hash2)->hash2) ooo)), cs @ hs))))
@@ -416,7 +416,7 @@ module
     
     let rec currentlyProving n = !proving = n
     let rec nextLemmaName () =
-      string_of_int begin inc lemmacount; !lemmacount end
+      string_of_int begin _RR lemmacount; !lemmacount end
     let noticetime = ref true
     let triesused_total = ref 0
     let timesbeingtried = ref 0
@@ -2727,7 +2727,7 @@ module
                   _MAP (unSOME, ( <| ) (opt2bool, _MAP (element2term, rhss)))),
                tiprhss)
           in
-          flatten
+          List.concat
             (_MAP
                ((fun (path, terms) -> _MAP ((fun term -> path, term), terms)),
                 tipterms))
