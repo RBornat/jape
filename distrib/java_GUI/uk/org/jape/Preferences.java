@@ -34,6 +34,7 @@ public class Preferences {
                         PanelBackgroundColour   = Color.white,
                         ProofBackgroundColour   = Color.white,
                         SelectionColour         = Color.red,
+                        SeparatorColour         = Color.gray,
                         TextColour              = Color.black,
                         TextSelectionColour     = Color.yellow,
                         WorldColour             = Color.black;
