@@ -120,7 +120,7 @@ ALT (dohyp foldunfoldhyp)
 	(foldunfold reflectthms)
 	(FAIL (Cannot find anything to foldunfold) )
 
-TACTIC UnfoldHyp(a) IS UNFOLDHYP a (_Averylongname=_Bverylongname)
+TACTIC UnfoldHyp(a) IS UNFOLDHYP a (_A=_B)
 
 TACTIC UnfoldWithAnyHyp IS foldunfoldhyp "Unfold with hypothesis"
 TACTIC FoldWithAnyHyp IS SEQ (foldunfoldhyp "Fold with hypothesis") hyp
