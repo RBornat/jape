@@ -59,15 +59,18 @@ import java.awt.image.BufferedImage;
 import java.util.Vector;
 
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
 
-public class WorldItem extends DisplayItem implements DebugConstants, SelectionConstants,
+public class WorldItem extends DisplayItem implements DebugConstants, MiscellaneousConstants,
+                                                      SelectionConstants,
                                                       TileTarget /*,
                                                       DragSourceListener, DragGestureListener,
                                                       DropTargetListener */{
 
     protected WorldCanvas canvas;
-    protected JFrame window;
+    protected JLayeredPane layeredPane;
+    protected Container contentPane;
     protected SelectionRing selectionRing;
     protected Ellipse2D.Float outline;
 
@@ -80,7 +83,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
 
     public WorldItem(WorldCanvas canvas, JFrame window, int x, int y) {
         super(x, y);
-        this.canvas = canvas; this.window = window;
+        this.canvas = canvas;
+        this.layeredPane = window.getLayeredPane(); this.contentPane = window.getContentPane();
         x0 = x; y0 = -y;
         setBounds(x0-canvas.worldRadius(), y0-canvas.worldRadius(),
                   2*canvas.worldRadius(), 2*canvas.worldRadius());
@@ -100,7 +104,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
         labelx = selectionRing.getX()+selectionRing.getWidth()+canvas.linethickness;
         labelgap = 4*canvas.linethickness;
 
-        /* addJapeMouseListener(new JapeMouseAdapter() {
+        addJapeMouseListener(new JapeMouseAdapter() {
             private byte dragKind;
             public void pressed(MouseEvent e) {
                 dragKind = LocalSettings.mouseDownWorldItemMeans(e);
@@ -113,19 +117,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
             public void released(MouseEvent e) {
                 WorldItem.this.released(dragKind, e);
             }
-        }); */
-        
-        /*if (worldFlavor==null) {
-            try {
-                worldFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType+
-                                            "; class="+this.getClass().getName());
-            } catch (ClassNotFoundException e) {
-                Alert.abort("can't create worldFlavor");
-            }
-        }
-
-        dragSource = new DragSource();
-        dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_MOVE, this);*/
+        });
     }
 
     private boolean dragImageUpdateNeeded = true;
@@ -167,7 +159,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
             super(WorldItem.this.canvas, x, y, radius);
             setForeground(Preferences.SelectionColour);
             if (geometry_tracing)
-                System.err.println("ring bounds are "+getBounds()+"; outline is "+this.outline.getBounds2D());
+                System.err.println("ring bounds are "+getBounds()+
+                                   "; outline is "+this.outline.getBounds2D());
         }
 
         public void paint(Graphics g) {
@@ -202,6 +195,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
     }
 
     /* ****************************** world as drag target ****************************** */
+
     public void dragEnter() {
         setDragHighlight(true);
     }
@@ -211,6 +205,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
     }
 
     /* ****************************** world as tile drag target ****************************** */
+
     public void drop(Tile t) {
         Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+t.text+"\"");
         setDragHighlight(false);
@@ -218,31 +213,116 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
     
     /* ****************************** world as drag source ****************************** */
 
-    /*protected class WorldTransferable implements Transferable {
-        public Object getTransferData(DataFlavor flavor) {
-            return WorldItem.this;
-        }
-        public DataFlavor[] getTransferDataFlavors() {
-            return new DataFlavor[]{ worldFlavor };
-        }
-        public boolean isDataFlavorSupported(DataFlavor flavor) {
-            return flavor==worldFlavor;
-        }
-    }
-
-    private BufferedImage image;
-    private Rectangle imagebounds;
-    private Point from;
-
-    private void paintStuff(Component c, Graphics imageGraphics) {
-        int deltax = c.getX()-imagebounds.x, deltay = c.getY()-imagebounds.y;
-        imageGraphics.translate(deltax, deltay);
-        if (dragimage_tracing)
-            System.err.println("painting "+c+" @ ("+deltax+","+deltay+")");
-        c.paint(imageGraphics);
-        imageGraphics.translate(-deltax, -deltay);
+    public void hitCanvas(WorldCanvas canvas, int x, int y) {
+        Reply.sendCOMMAND((dragKind==SimpleDrag ? "moveworld" : "addworld")+" "+idX+" "+idY+" "+x+" "+(-y));
     }
     
+    private int startx, starty, lastx, lasty, offsetx, offsety;
+    private boolean firstDrag;
+
+    public void pressed(byte dragKind, MouseEvent e) {
+        startx = e.getX(); starty = e.getY(); firstDrag = true;
+    }
+
+    protected class WorldImage extends DragComponent {
+        public WorldImage() {
+            super(Transparent);
+            include(WorldItem.this);
+            if (selectionRing.selected)
+                include(selectionRing);
+            for (int i=0; i<labelv.size(); i++)
+                include((TextItem)labelv.get(i));
+            fixImage();
+        }
+    }
+
+    private WorldImage worldImage;
+    private WorldTarget over;
+    private Class targetClass;
+
+    private void setDrageesVisible(boolean state) {
+        this.setVisible(state); selectionRing.setVisible(state);
+        for (int i=0; i<labelv.size(); i++)
+            ((TextItem)labelv.get(i)).setVisible(state);
+        canvas.forcerepaint();
+    }
+    
+    public void dragged(byte dragKind, MouseEvent e) {
+        if (firstDrag) {
+            firstDrag = false;
+            try {
+                targetClass = Class.forName("WorldTarget");
+            } catch (ClassNotFoundException exn) {
+                Alert.abort("can't make WorldTarget a Class");
+            }
+            over = null;
+            if (worldImage==null || dragImageUpdateNeeded) {
+                worldImage = new WorldImage();
+                dragImageUpdateNeeded = false;
+            }
+            if (dragKind==SimpleDrag)
+                setDrageesVisible(false);
+            Point p = worldImage.getImageLocation();
+            offsetx = getX()-p.x; offsety = getY()-p.y;
+            layeredPane.add(worldImage, JLayeredPane.DRAG_LAYER);
+            worldImage.setLocation(
+                    SwingUtilities.convertPoint(this, e.getX()-startx-offsetx, e.getY()-starty-offsety,
+                                                layeredPane));
+            worldImage.repaint();
+        }
+        else {
+            if (drag_tracing)
+                System.err.print("mouse dragged to "+e.getX()+","+e.getY());
+            worldImage.repaint();
+            worldImage.setLocation(worldImage.getX()+(e.getX()-lastx),
+                                   worldImage.getY()+(e.getY()-lasty));
+            if (drag_tracing)
+                System.err.println("; dragged world now at "+worldImage.getX()+","+worldImage.getY());
+            worldImage.repaint();
+            Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
+            WorldTarget target = (WorldTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
+            if (target!=over) {
+                if (over!=null)
+                    over.dragExit();
+                if (target!=null)
+                    target.dragEnter();
+                over = target;
+            }
+        }
+        lastx = e.getX(); lasty = e.getY();
+    }
+
+    private byte dragKind;
+    
+    protected void released(final byte dragKind, MouseEvent e) {
+        if (drag_tracing)
+            System.err.println("mouse released at "+e.getX()+","+e.getY()+
+                               "; dragged world at "+worldImage.getX()+","+worldImage.getY());
+        if (over==null)
+            new Flyback(worldImage, worldImage.getLocation(),
+                        SwingUtilities.convertPoint(this, -offsetx, -offsety, layeredPane)) {
+                protected void finishFlyback() {
+                    finishDrag();
+                    if (dragKind==SimpleDrag)
+                        setDrageesVisible(true);
+                }
+            };
+        else {
+            int radius = canvas.worldRadius();
+            Point p = SwingUtilities.convertPoint(layeredPane, worldImage.getX()+offsetx+radius,
+                                                  worldImage.getY()+offsety+radius, (Component)over);
+            finishDrag();
+            this.dragKind = dragKind;
+            over.drop(this, p.x, p.y);
+        }
+    }
+
+    protected void finishDrag() {
+        layeredPane.remove(worldImage);
+        layeredPane.repaint();
+    }
+
+    /*
     public void dragGestureRecognized(DragGestureEvent event) {
         from = event.getDragOrigin();
         if (dragimage_tracing)
