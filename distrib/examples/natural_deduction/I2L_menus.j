@@ -403,8 +403,12 @@ TACTIC "¦ intro forward"  IS
 						             \\nDo you want to\n\
 						             \\n(a)    Make %t¦%t, or \
 						             \\n(b)    Make %t¦%t.", _A, _B, _B, _A)
-						             ("(a)", (CUTIN	"¦ intro" (ANY (WITHHYPSEL (hyp _A))) (ANY (WITHHYPSEL (hyp _B)))))
-						             ("(b)", (CUTIN	"¦ intro" (ANY (WITHHYPSEL (hyp _B))) (ANY (WITHHYPSEL (hyp _A)))))
+						             ("(a)", (CUTIN     "¦ intro"[A,B\_A,_B] 
+						                                                    (ANY (WITHHYPSEL (MATCH (hyp _A)))) 
+						                                                    (ANY (WITHHYPSEL (MATCH (hyp _B))))))
+						             ("(b)", (CUTIN	"¦ intro"[A,B\_B,_A]
+						                                                        (ANY (WITHHYPSEL (MATCH (hyp _B))))
+						                                                        (ANY (WITHHYPSEL (MATCH (hyp _A))))))
 						             ("Cancel", STOP)
 					)
 				)
