@@ -89,5 +89,5 @@ CONJECTUREPANEL Conjectures
 	THEOREM "(èx.P(x)) ç (èx.Q(x)) æ èx.(P(x) ç Q(x)) NOT" IS èx.P(x) ç èx.Q(x) æ èx.(P(x) ç Q(x))
 	THEOREM "(äx.P(x)) ¦ (äx.Q(x)) æ äx.(P(x) ¦ Q(x)) NOT" IS äx.P(x) ¦ äx.Q(x) æ äx.(P(x) ¦ Q(x))
   
-	PREFIXBUTTON Apply IS apply TheoremForwardOrBackward
+	BUTTON Apply IS apply TheoremForwardOrBackward LABEL
 END

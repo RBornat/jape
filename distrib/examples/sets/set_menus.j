@@ -41,6 +41,30 @@ MENU SetOps IS
 	ENTRY "AÚU"
 END
 
+CONJECTUREPANEL "Derived Rules for Set Operators" IS
+	ENTRY "=-I"
+	ENTRY "§-I(c)"
+	ENTRY "§-I(<c,d>)"
+	ENTRY "ï-I(L)"
+	ENTRY "ï-I(R)"
+	ENTRY "ß-I"
+	ENTRY "(-)-I"
+	ENTRY "ø-I"
+	
+	ENTRY "§-E"
+	ENTRY "=-E(L)"
+	ENTRY "=-E(R)"
+	ENTRY "ï-E"
+	ENTRY "ß-E(L)"
+	ENTRY "ß-E(R)"
+	ENTRY "(-)-E(L)"
+	ENTRY "(-)-E(R)"
+	ENTRY "ø-E"
+		
+	ENTRY "¯-E"
+	ENTRY "AÚU"
+END
+
 TACTICPANEL "Definitions" IS
 	RULE IS AÂÚB ÷ Â(AÚB)
 	RULE IS ¯ ÷ {}
