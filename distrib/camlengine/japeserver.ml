@@ -288,8 +288,8 @@ let rec drawRect box =
   let (pos, size) = explodeBox box in
   let (x, y) = explodePos pos in
   let (w, h) = explodeSize size in
-  writef "DRAWRECT % % % % %\n"
-    (List.map fInt [!linethickness; x; y; w; h])
+  writef "DRAWRECT % % % %\n"
+    (List.map fInt [x; y; w; h])
 
 let rec drawinpane pane = writef "DRAWINPANE %\n" [Int (pane2int pane)]
 

@@ -140,10 +140,7 @@ let turnstiles = Sequent.Funs.syntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
 let _The = Optionfuns._The
 
-let textleading = 3
 let boxlinewidth = 1
-let boxvspace = 2
-let boxhspace = 4
 let boxleading = 3
 let reasongap = 4
 let leftscreengap = 6
@@ -703,14 +700,19 @@ let rec mapn a1 a2 a3 =
     id, [], hn -> empty
   | id, (h, _) :: elis, hn ->
       ( ++ ) (mapn id elis (hn + 1), ( |-> ) (h, HypID (id, hn)))
+
 type fitchlinerec = 
-      { lineID : lineID; elementsbox : textbox;
+      { lineID : lineID; 
+        elementsbox : textbox;
         idplan : displayclass plan;
         elementsplan : elementplankind plan list;
         reasonplan : reasonplankind plan list }
-type fitchboxrec = { outerbox : box; boxlines : fitchstep list; boxed : bool }
+type fitchboxrec = { outerbox : box; 
+                     boxlines : fitchstep list; 
+                     boxed : bool }
  and fitchstep = FitchLine of fitchlinerec
                | FitchBox of fitchboxrec
+
 (* this datatype is included because without it, I get lost in monstrous tuples.
  * It is the type of information accumulated by (rev)folding the _L function (in linearise)
  * across a list of subtrees.
@@ -718,12 +720,14 @@ type fitchboxrec = { outerbox : box; boxlines : fitchstep list; boxed : bool }
 type laccrec = { id : lineID; acclines : fitchstep list; elbox : box; idW : int;
                  reasonW : int; assW : int }
 type lacc = Lacc of laccrec
+
 (* for similar reasons, here is the type of proof layouts *)
 type layoutrec =
       { lines : fitchstep list; colonplan : displayclass plan;
         idmargin : int; bodymargin : int; reasonmargin : int;
         sidescreengap : int; linethickness : int; bodybox : box }
 type layout = Layout of layoutrec
+
 (* moved outside for OCaml *)
 type token =
     S of (pos -> displayclass plan)
@@ -743,12 +747,9 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let _ = setproofparams Japeserver.BoxStyle linethickness in
   (* done early, so that GUIs can be ready for anything *)
            
-  let textleading = (3 * leading + 1) / 2 in
-  (* space between text lines *)
-  let boxvspace = leading in
-  (* space between box and the stuff inside *)
-  let boxhspace = 2 * leading in
-  (* ditto *)
+  let textleading = (3 * leading + 1) / 2 in (* space between text lines *)
+  let boxvspace = 4*linethickness in         (* space between box and the stuff inside *)
+  let boxhspace = 3*linethickness in         (* ditto *)
   let boxleading = textleading in
   (* space between box and next line *)
   let reasongap = boxhspace in
@@ -1143,10 +1144,10 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let outerbox = bOutset innerbox (size (hindent, vindent)) in
           let cid' =
             match cid with
-              LineID jd -> BoxID (id, jd)
+              LineID jd     -> BoxID (id, jd)
             | BoxID (_, jd) -> BoxID (id, jd)
-            | HypID _ -> if id = id' then LineID id else BoxID (id, id')
-            | NoID -> raise (Catastrophe_ ["NoID in BoxDep"])
+            | HypID _       -> if id = id' then LineID id else BoxID (id, id')
+            | NoID          -> raise (Catastrophe_ ["NoID in BoxDep"])
           in
           cid',
           Lacc {id = id'';
