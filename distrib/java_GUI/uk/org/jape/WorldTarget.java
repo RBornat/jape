@@ -25,6 +25,8 @@
     
 */
 
-public interface WorldTarget extends Target {
+public interface WorldTarget {
+    public boolean dragEnter(byte dragKind, WorldItem w); // returns true if drag accepted
+    public void dragExit(byte dragKind, WorldItem w);
     public void drop(byte dragKind, WorldItem w, int x, int y); // Canvases can receive drops too
 }

@@ -25,6 +25,8 @@
     
 */
 
-public interface LineTarget extends Target {
-    public void drop(LineComponent l); // so that Canvases can receive drops too
+public interface LineTarget {
+    public boolean dragEnter(LineComponent l); // returns true if drag accepted
+    public void dragExit(LineComponent l);
+    public void drop(LineComponent l); 
 }

@@ -25,6 +25,8 @@
     
 */
 
-public interface LabelTarget extends Target {
+public interface LabelTarget {
+    public boolean dragEnter(WorldItem w, String label); // returns true if drag accepted
+    public void dragExit(WorldItem w, String label);
     public void drop(WorldItem w, String label); 
 }
