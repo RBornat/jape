@@ -13,6 +13,7 @@ MENU SetOps IS
 	ENTRY "ï-I(L)" IS FOB ForwardCut "ï-I(L)"
 	ENTRY "ï-I(R)" IS FOB ForwardCut "ï-I(R)"
 	ENTRY "ß-I"
+	ENTRY "(-)-I"
 	ENTRY "ø-I" IS FOB ForwardCut "ø-I"
 	
 	SEPARATOR
@@ -24,6 +25,8 @@ MENU SetOps IS
 	ENTRY "ï-E" IS FOB ForwardUncut "ï-E"
 	ENTRY "ß-E(L)" IS FOB ForwardCut "ß-E(L)"
 	ENTRY "ß-E(R)" IS FOB ForwardCut "ß-E(R)"
+	ENTRY "(-)-E(L)" IS FOB ForwardCut "(-)-E(L)"
+	ENTRY "(-)-E(R)" IS FOB ForwardCut "(-)-E(R)"
 	ENTRY "ø-E" IS FOB ForwardCut "ø-E"
 	
 	SEPARATOR
