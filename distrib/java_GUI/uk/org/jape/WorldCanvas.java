@@ -67,37 +67,43 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
     Graphics imageGraphics;
     private boolean imageRepaint = true;
 
-    public void imageRepaint() { imageRepaint = true; } // ho ho!
+    public void imageRepaint() {
+        if (worldpaint_tracing)
+            System.err.println("WorldCanvas.imageRepaint");
+        imageRepaint = true;
+    } // ho ho!
     
     public Component add(Component c) {
-        if (antialias_tracing)
+        if (worldpaint_tracing)
             System.err.println("WorldCanvas adding "+c);
         imageRepaint = true;
         return super.add(c);
     }
 
     public Component add(Component c, int index) {
-        if (antialias_tracing)
+        if (worldpaint_tracing)
             System.err.println("WorldCanvas adding "+c+" at "+index);
         imageRepaint = true;
         return super.add(c, index);
     }
 
     public void remove(Component c) {
-        if (antialias_tracing)
+        if (worldpaint_tracing)
             System.err.println("WorldCanvas removing "+c);
         imageRepaint = true;
         super.remove(c);
     }
 
     public void removeAll() {
-        if (antialias_tracing)
+        if (worldpaint_tracing)
             System.err.println("WorldCanvas removeAll");
         imageRepaint = true;
         super.removeAll();
     }
 
     public void forcerepaint() {
+        if (worldpaint_tracing)
+            System.err.println("WorldCanvas forcerepaint");
         imageRepaint = true;
         repaint();
     }
@@ -105,15 +111,14 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
     private static Rectangle clip = new Rectangle();
 
     public void paint(Graphics g) {
-        if (paint_tracing)
-            System.err.println("painting WorldCanvas");
+        if (worldpaint_tracing) 
+            System.err.println("painting WorldCanvas "+getWidth()+","+getHeight());
         if (imageRepaint) {
+            imageRepaint = false;
             int width = getWidth(), height = getHeight();
-            if (antialias_tracing)
-                System.err.println("painting image "+g.getClipBounds());
             // if the image changes size, we need a new buffer
             if (image==null || image.getWidth()!=width || image.getHeight()!=height) {
-                if (antialias_tracing)
+                if (worldpaint_tracing)
                     System.err.println("new image buffer");
                 image = (BufferedImage)createImage(width, height);
                 imageGraphics = image.createGraphics();
@@ -127,15 +132,23 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
                                            ((Graphics2D)imageGraphics).getRenderingHints());
                     }
                 }
+                imageGraphics.setClip(0, 0, width, height);
+                if (worldpaint_tracing)
+                    System.err.println("painting entire image");
             }
-            g.getClipBounds(clip);
-            imageGraphics.setClip(clip.x, clip.y, clip.width, clip.height);
+            else {
+                g.getClipBounds(clip);
+                imageGraphics.setClip(clip.x, clip.y, clip.width, clip.height);
+                if (worldpaint_tracing)
+                    System.err.println("painting image "+g.getClipBounds());
+            }
+            if (worldpaint_tracing)
+                japeserver.showContainer(this, null);
             imageGraphics.setColor(Preferences.ProofBackgroundColour);
             imageGraphics.fillRect(0, 0, width, height);
             super.paint(imageGraphics);
-            imageRepaint = false;
         }
-        if (antialias_tracing)
+        if (worldpaint_tracing)
             System.err.println("blitting image "+g.getClipBounds());
         g.drawImage(image, 0, 0, this);
     }
