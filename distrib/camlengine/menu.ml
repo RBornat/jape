@@ -238,9 +238,7 @@ let rec addpaneldata p es =
   match (!panels <@> p) with
     Some contents -> List.iter (fun e -> contents := addtopanel e !contents) es
   | None ->
-      raise
-        (Menuconfusion_
-           ["no panel called "; namestring p; " (addpaneldata)"])
+      raise (Menuconfusion_ ["no panel called "; namestring p; " (addpaneldata)"])
 
 let rec clearpaneldata p =
   match (!panels <@> p) with
@@ -262,7 +260,7 @@ let rec getpaneldata p =
               (aslist em)
               (match bs, k with
                  [], ConjecturePanelkind ->
-                   [Pbutton (applyname, [StringInsert "apply"; CommandInsert])]
+                   [Pbutton (applyname, [StringInsert "applyconjecture"; CommandInsert])]
                | [], GivenPanelkind ->
                    [Pbutton (applyname, [StringInsert "applygiven"; CommandInsert])]
                | _ -> List.rev bs))))
