@@ -71,7 +71,7 @@ public class Jape implements DebugConstants {
 		Logger.crash(message,2);
 	}
 	
-    public static boolean onMacOS, onLinux, onSolaris, onWindows;
+    public static boolean onMacOS, onLinux, onSolaris, onWindows, onUnix;
     public static Rectangle screenBounds;
     public static String defaultUnixEnginePath    = "./jape_engine";
     public static String defaultWindowsEnginePath = ".\\jape.exe" ;
@@ -80,11 +80,14 @@ public class Jape implements DebugConstants {
         // since platform independence seems not yet to have been achieved ...
         String osName = System.getProperty("os.name");
         
-        if (!((onMacOS = notice_MacOSX && System.getProperty("mrj.version")!=null) 
-            ||(onLinux = notice_Linux && osName.equals("Linux")) 
-            ||(onSolaris = notice_Solaris && osName.equals("SunOS")) 
-            ||(onWindows = osName.startsWith("Windows")))
-           ) {
+		onMacOS = notice_MacOSX && System.getProperty("mrj.version")!=null;
+		onLinux = notice_Linux && osName.equals("Linux");
+		onSolaris = notice_Solaris && osName.equals("SunOS");
+		onWindows = osName.startsWith("Windows");
+		
+		onUnix = onMacOS || onLinux || onSolaris || onWindows;
+		
+        if (!(onMacOS || onLinux  || onSolaris  || onWindows)) {
             Logger.log.println("Jape.main doesn't recognise OS\n"+
                                "os.name="+System.getProperty("os.name")+
                                "\nos.arch="+System.getProperty("os.arch")+
