@@ -32,20 +32,29 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
-public class CircleItem extends Component implements DebugConstants {
-
-    JapeCanvas canvas;
-    int radius;
+public class CircleItem extends OutlineItem implements DebugConstants {
+    public final int x0, y0, radius;
     protected Ellipse2D.Float outline;
     protected final int strokethickness;
-    
-    public CircleItem(JapeCanvas canvas, int x, int y, int radius) {
-        super();
-        this.canvas = canvas; this.radius=radius; strokethickness = canvas.linethickness;
-        int width = 2*(radius+strokethickness);
-        setBounds(x-radius-strokethickness, y-radius-strokethickness, width, width);
-        setForeground(Preferences.LineColour);
+
+    public CircleItem(JapeCanvas canvas, int x0, int y0, int width,
+                      int radius, int strokethickness) {
+        super(canvas, x0, y0, width, width);
+        this.x0 = x0; this.y0 = y0; this.radius=radius; this.strokethickness = strokethickness;
         outline = new Ellipse2D.Float(strokethickness, strokethickness, 2*radius, 2*radius);
+    }
+
+    public CircleItem(JapeCanvas canvas, int x, int y, int radius, int strokethickness) {
+        this(canvas, x-radius-strokethickness, y-radius-strokethickness,
+                   2*(radius+strokethickness), radius, strokethickness);
+    }
+
+    public CircleItem(JapeCanvas canvas, int x, int y, int radius) {
+        this(canvas, x, y, radius, canvas.linethickness);
+    }
+
+    public boolean contains(int x, int y) {
+        return (x-x0)*(x-x0)+(y-y0)*(y-y0)<=radius*radius;
     }
 
     public void paint(Graphics g) {
