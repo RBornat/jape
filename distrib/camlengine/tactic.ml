@@ -65,7 +65,7 @@ let rec catelim_string_of_tactic sep t tail =
   let nextsep = if withNLs then sep ^ "\t" else sep in
   let oneline t =
     match t with
-      SkipTac -> true
+      SkipTac        -> true
     | UnfoldHypTac _ -> true
     | FoldHypTac   _ -> true
     | AssignTac    _ -> true
@@ -77,25 +77,16 @@ let rec catelim_string_of_tactic sep t tail =
     | SubstTac     _ -> true
     | _              -> false
   in
+  let sepstring_of_tacarg = catelimstring_of_tacarg nextsep in
   let argsep = if oneline t then " " else nextsep in
-  let string_of_tacarg t tail =
-    let ok =
-      function
-        SkipTac -> true
-      | TermTac (s, []) -> true
-      | _ -> false
-    in
-    let res = catelim_string_of_tactic nextsep t in
-    if ok t then res tail else "(" :: res (")" :: tail)
-  in
   let tr f = catelim_interpolate f in
-  let trtacs = tr string_of_tacarg nextsep in
+  let trtacs = tr sepstring_of_tacarg nextsep in
   let trterms = tr catelim_string_of_termarg " " in
   let rec unSEQ =
     function
       SeqTac [t] -> unSEQ t
-    | SeqTac ts -> trtacs ts
-    | t -> string_of_tacarg t
+    | SeqTac ts  -> trtacs ts
+    | t          -> sepstring_of_tacarg t
   in
   let rec trpathexpr p tail =
     let trns ns tail =
@@ -238,7 +229,7 @@ let rec catelim_string_of_tactic sep t tail =
     | ReplayTac tac -> "REPLAY" :: argsep :: unSEQ tac tail
     | ContnTac (tac1, tac2) ->
         "WITHCONTINUATION" :: argsep ::
-          string_of_tacarg tac1 (argsep :: unSEQ tac2 tail)
+          sepstring_of_tacarg tac1 (argsep :: unSEQ tac2 tail)
     | AlertTac (m, ps, copt) ->
         "ALERT" :: argsep ::
           catelim_string_of_termarg m
@@ -247,7 +238,7 @@ let rec catelim_string_of_tactic sep t tail =
                   (catelim_string_of_tactic " ") ", ")
                argsep ps
                (match copt with
-                  Some t -> argsep :: string_of_tacarg t tail
+                  Some t -> argsep :: sepstring_of_tacarg t tail
                 | None -> tail))
     | ExplainTac m -> "EXPLAIN" :: argsep :: catelim_string_of_termarg m tail
     | CommentTac m -> "COMMENT" :: argsep :: catelim_string_of_termarg m tail
@@ -265,10 +256,23 @@ let rec catelim_string_of_tactic sep t tail =
     | UnifyArgsTac -> "UNIFYARGS" :: tail
   in
   tss
+and catelimstring_of_tacarg sep t tail =
+  let ok =
+    function
+      SkipTac         -> true
+    | TermTac (s, []) -> true
+    | _               -> false
+  in
+  let res = catelim_string_of_tactic sep t in
+  if ok t then res tail else "(" :: res (")" :: tail)
+  
 let catelim_string_of_tactic = catelim_string_of_tactic " "
 and catelim_stringwithNLs_of_tactic = catelim_string_of_tactic "\n"
+
 let string_of_tactic = stringfn_of_catelim catelim_string_of_tactic
+let argstring_of_tactic = stringfn_of_catelim (catelimstring_of_tacarg " ") 
 let stringwithNLs_of_tactic = stringfn_of_catelim catelim_stringwithNLs_of_tactic
+
 let remaptactic env t =
   let _E = remapterm env in
   let rec _Ep =
