@@ -86,8 +86,8 @@ let rec ( // ) =
   | ( ++ ), [] -> raise Reduce
 
 
-let _All f = not <.> List.exists (not <.> f)
-let _All1 f xs = _All f xs && not (null xs)
+let all f = not <.> List.exists (not <.> f)
+let all1 f xs = all f xs && not (null xs)
 
 let rec member (x, sf) = List.mem x sf
 let rec nonmember (x, sf) = not (member (x, sf))
@@ -109,7 +109,7 @@ let rec seteq eq xs =
 let rec set (xs : 'a list) =
   seteq ( = ) xs
 
-let rec subset (xs, ys) = _All (fun x -> member (x, ys)) xs
+let rec subset (xs, ys) = all (fun x -> member (x, ys)) xs
 
 let _INTER xs ys = (fun y -> member (y, xs)) <| ys
 

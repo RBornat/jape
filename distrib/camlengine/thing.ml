@@ -360,8 +360,8 @@ let rec formulageneralisable params v =
     | _, _ -> true
   in
   match v with
-    Id (_, v, FormulaClass) -> _All (ok (v, FormulaClass)) params
-  | Unknown (_, v, FormulaClass) -> _All (ok (v, FormulaClass)) params
+    Id (_, v, FormulaClass) -> all (ok (v, FormulaClass)) params
+  | Unknown (_, v, FormulaClass) -> all (ok (v, FormulaClass)) params
   | _ -> false
 exception Fresh_ of string list exception CompileThing_ of string list
 
@@ -1102,7 +1102,7 @@ let rec freshRuletosubst
   let (interesting_resources, args, antes', conseq', cxt') =
     renumberforuse args antes conseq cxt
   in
-  (* ok, we're ready to roll.  _All we have to do is subtract argparams from
+  (* ok, we're ready to roll.  all we have to do is subtract argparams from
    * paramsused, and we are in business
    *)
   let (cxt'', env) =
@@ -1438,7 +1438,7 @@ let rec addstructurerule kind name =
             FROM X |- E op F AND X |- F op' G INFER X |- E op'' G
           where we don't care what X is, provided it's the same in all three places,
           and we don't care what the ops are. We don't care about parameters, 
-          provisos, any of that stuff.  _All that really matters is that 
+          provisos, any of that stuff.  all that really matters is that 
           E, F and G should be arranged like that - transitively, cuttishly.
           I guess the stiles have to be the same as well.
           RB 21/v/98

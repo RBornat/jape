@@ -1043,14 +1043,14 @@ and unifycollections kind (e1s, s_of_e) cxt =
     (* case (e1s, s_of_e) *)
                    (* check that diving would be useless *)
     let rec couldunify cxt usegs el =
-      _All
+      all
          (function
             Segvar (_, ps, Unknown _) -> bool_of_opt (demodeify ps cxt el)
           | _ -> false)
          usegs
     in
     let rec maybedef (allusegs, others) =
-      if _All (couldunify cxt allusegs) others then def () else dive ()
+      if all (couldunify cxt allusegs) others then def () else dive ()
     in
     (* one possibility that is of great interest is that one side is a
      * more-than-one-member list of unknown segvars, and the other

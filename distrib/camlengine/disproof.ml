@@ -672,10 +672,10 @@ let rec evaldisproofstate facts tree =
       if null selected then false else
         (* evaluate everything everywhere -- no short cuts *)
         (let results = List.map (fun root -> let (hs, cs) = seq_forced forced root seq in
-                                             _All fst hs && not (List.exists fst cs)
+                                             all fst hs && not (List.exists fst cs)
                                 ) selected
          in
-         _All (fun x -> x) results)
+         all (fun x -> x) results)
     in
     let rec realterm t =
       match binding_of_term t with
@@ -688,14 +688,14 @@ let rec evaldisproofstate facts tree =
            string_of_option (stringfn_of_catelim catelim_string_of_forced) (forcemap (root <@> t))]; 
        *)
       try let results = List.map (fun root -> Hashtbl.find forcemap (root, t)) selected in
-          fst (if _All fst results then onbraket else offbraket) ^ (if List.exists snd results then fst lockbraket else "")
+          fst (if all fst results then onbraket else offbraket) ^ (if List.exists snd results then fst lockbraket else "")
       with Not_found -> fst outbraket
     in
     let rec ivk t =
       let t = realterm t in
       (* consolereport ["ivk ", debugstring_of_term t, " => ", string_of_int (forced facts universe root t)]; *)
       try let results = List.map (fun root -> Hashtbl.find forcemap (root, t)) selected in
-          (if List.exists snd results then snd lockbraket else "") ^ snd (if _All fst results then onbraket else offbraket)
+          (if List.exists snd results then snd lockbraket else "") ^ snd (if all fst results then onbraket else offbraket)
       with Not_found -> snd outbraket
     in
     let seqplan = makeseqplan (chooseinvisbracketedstring_of_element ivb ivk) true origin seq in
@@ -760,11 +760,11 @@ and tint_universe facts forced (plan, _) (proofsels, textsels) =
 
 and tint_world facts forced selections bindersels c (e, ls, chs) = 
   let do_label = tint_label facts forced bindersels c in
-  ((if _All1 (fun t -> fst (forced (c,t))) selections then Forced else Unforced),
+  ((if all1 (fun t -> fst (forced (c,t))) selections then Forced else Unforced),
    List.map do_label ls, chs)
 
 and tint_label facts forced bindersels c (_,t) = 
-  ((if _All1 (fun bsel -> match indiv_fd facts bsel t &~~ term_of_forcedef with
+  ((if all1 (fun bsel -> match indiv_fd facts bsel t &~~ term_of_forcedef with
                             Some t' -> fst (forced (c,t'))
                           | None    -> false
              ) bindersels 
@@ -1270,7 +1270,7 @@ let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = p
                      match term_of_element el with
                        None -> false
                      | Some t ->
-                         try _All (fst <.> (fun root -> Hashtbl.find forcemap (root, t))) selected 
+                         try all (fst <.> (fun root -> Hashtbl.find forcemap (root, t))) selected 
                          with Not_found -> false
                    in
                    emphasise (seqelementpos origin seqbox plan) emph

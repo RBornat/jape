@@ -402,7 +402,7 @@ let butnottacticform term =
     raise (TacParseError_ [string_of_name name; " used as tactic name"])
   else name
 
-(* _All tactic applications MUST be Curried.  RB & BS 13/8/93.
+(* all tactic applications MUST be Curried.  RB & BS 13/8/93.
  * Outermost brackets are stripped from non-tuple arguments. RB
  *)
 

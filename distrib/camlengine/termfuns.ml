@@ -326,7 +326,7 @@ let rec idclass t =
       begin match idclass t with
         VariableClass ->
           (* ohmygod *) 
-          if _All
+          if all
                (fun t -> idclass t = VariableClass)
                (List.map snd vts)
           then
@@ -688,7 +688,7 @@ let eqalphaterms (t1, t2) =
         let ns = (nxb <* bs) in
         begin try
           (pat = pat' && fEQs (us, us')) &&
-          _All
+          all
             (eq ((bs  ||| ns) @ t1bs) ((bs' ||| ns) @ bs_of_t))
             (ss ||| ss')
         with
@@ -1002,7 +1002,7 @@ let simterms (t1, t2) =
     let (t1, t2) = debracket t1, debracket t2 in
     let sim t1 t2 = similar t1subst t1 subst_of_t t2 in
     let sims t1s s_of_t =
-      try _All (uncurry2 sim) (t1s ||| s_of_t) with
+      try all (uncurry2 sim) (t1s ||| s_of_t) with
         Zip_ -> false
     in
     let reverse () = similar subst_of_t t2 t1subst t1 in

@@ -77,7 +77,7 @@ let rec knownproofvar facts v =
   match v, facts with
     Id _, (_, Exterior (_, Some ri, _)) ->
       not (member (v, rewinf_vars ri)) &&
-      _All
+      all
          (fun u -> knownNOTIN facts (v, u))
          (isUnknown <| rewinf_vars ri)
   | _ -> false

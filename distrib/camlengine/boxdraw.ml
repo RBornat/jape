@@ -875,7 +875,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
    *)
    
   (* Construct the elements plan for a single line (relative to p). 
-   * _All this function does is put the dots in if there is no justification
+   * all this function does is put the dots in if there is no justification
    *)
   let rec mkelementsplan mkelps proven p =
     let (elementsplanlist, elementsbox as elementsplan) = mkelps p in

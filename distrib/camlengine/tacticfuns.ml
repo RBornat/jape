@@ -1153,7 +1153,7 @@ let rec associativelaw operator thing =
            " ("; string_of_term term; ") => lf=";
            bracketedstring_of_list string_of_term ", " lf; "; rf=";
            bracketedstring_of_list string_of_term ", " rf];
-      (List.length lf = 3 && lf = rf) && _All (formulageneralisable params) rf
+      (List.length lf = 3 && lf = rf) && all (formulageneralisable params) rf
     with
       Matchinassociativelawstuff_ -> false
   in

@@ -450,8 +450,8 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
     let _Hkind = snd_of_3 (breakside _Hs) in
     let _Gkind = snd_of_3 (breakside _Gs) in
     let rec checkinclusive js ks =
-      _All (fun j -> List.exists (fun k -> sameresource (j, k)) ks) js ||
-      _All (fun k -> List.exists (fun j -> sameresource (j, k)) js) ks
+      all (fun j -> List.exists (fun k -> sameresource (j, k)) ks) js ||
+      all (fun k -> List.exists (fun j -> sameresource (j, k)) js) ks
     in
     let genSubGoals =
       let rec exp0 ss () =

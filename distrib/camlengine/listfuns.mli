@@ -25,7 +25,7 @@
 
 *)
 
-(* nonfix _All _All1
+(* nonfix all all1
    infixr 7 <|
    infixr 6 <*;
    infix  5 </ //;
@@ -44,8 +44,8 @@ exception Reduce
 val ( ||| ) : 'a list -> 'b list -> ('a * 'b) list  (* equal-length zip = List.combine *)
 exception Zip_ (* unequal lengths *)
 
-val _All :  ('a -> bool) -> 'a list -> bool
-val _All1 : ('a -> bool) -> 'a list -> bool
+val all :  ('a -> bool) -> 'a list -> bool
+val all1 : ('a -> bool) -> 'a list -> bool
 val member : 'a * 'a list -> bool
 val subset : 'a list * 'a list -> bool
 val _INTER : 'a list -> 'a list -> 'a list
