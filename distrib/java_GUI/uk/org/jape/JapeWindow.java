@@ -62,7 +62,7 @@ public class JapeWindow extends JFrame {
             (this instanceof PanelWindow && LocalSettings.panelWindowMenus) ||
             this instanceof SurrogateWindow) // the surrogate needs all the menus, till we implement PROOFMENU 
             // even panel windows get a menu on MacOS X
-            japeserver.menus.setBar(this);
+            JapeMenu.setBar(this);
     }
     
     public static void updateMenuBars() {

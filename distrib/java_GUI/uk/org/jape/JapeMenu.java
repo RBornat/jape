@@ -27,6 +27,7 @@
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.ButtonGroup;
 import java.util.Enumeration;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -35,25 +36,27 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.util.Vector;
 
-public class JapeMenu implements ActionListener {
+public class JapeMenu {
     
-    /* Java doesn't want to share menu bars or menus or menu items, so far
-       as I can tell.  So I have to make a menu factory and build a new
-       menu bar for each window that needs one.
+    /*	Java doesn't want to share menu bars or menus or menu items, so far
+        as I can tell.  So I have to make a menu factory and build a new
+        menu bar for each window that needs one.
      */
     
-    protected Vector barv = new Vector(); // of Ms
+    protected static Vector barv = new Vector(); // of Ms
     
     protected static class M {
         final String title;
-        final Vector itemv; // of Is and Seps
+        final Vector itemv; // of Is and Seps and RBGs and CBs
         M(String title) { this.title=title; itemv=new Vector(); }
         public void add(I i) { itemv.add(i); }
+        public void add(RBG rbg) { itemv.add(rbg); }
         public void addSeparator() { itemv.add(new Sep()); }
     }
     
@@ -72,8 +75,24 @@ public class JapeMenu implements ActionListener {
     
     protected static class Sep {
     }
+
+    protected static class RBG {
+        I[] items;
+        RBG(I[] items) { this.items=items; }
+    }
+
+    private static void mkItem(JMenu menu, I i, JMenuItem item) {
+        item.setActionCommand(i.key);
+        if (i.stroke!=null)
+            item.setAccelerator(i.stroke);
+        if (!i.enabled)
+            item.setEnabled(i.enabled);
+        JapeFont.setComponentFont(JapeFont.MENUENTRY, item.getComponent());
+        item.addActionListener(menuListener);
+        menu.add(item);
+    }
     
-    protected JMenuBar mkBar() {
+    protected static JMenuBar mkBar() {
         JMenuBar bar = new JMenuBar();
         for (Enumeration ebar = barv.elements(); ebar.hasMoreElements(); ) {
             M m = (M)ebar.nextElement();
@@ -83,25 +102,33 @@ public class JapeMenu implements ActionListener {
                 Object o = emenu.nextElement();
                 if (o instanceof Sep) 
                     menu.addSeparator();
-                else {
-                    I i = (I)o;
-                    JMenuItem item = new JMenuItem(i.label);
-                    item.setActionCommand(i.key);
-                    if (i.stroke!=null)
-                        item.setAccelerator(i.stroke);
-                    if (!i.enabled)
-                        item.setEnabled(i.enabled);
-                    JapeFont.setComponentFont(JapeFont.MENUENTRY, item.getComponent());
-                    item.addActionListener(this);
-                    menu.add(item);
+                else
+                    if (o instanceof I) {
+                        I i = (I)o;
+                        JMenuItem item = new JMenuItem(i.label);
+                        mkItem(menu, i, item);
+                    }
+                else
+                if (o instanceof RBG) {
+                    menu.addSeparator();
+                    RBG rbg = (RBG)o;
+                    ButtonGroup group = new ButtonGroup();
+                    for (int i=0; i<rbg.items.length; i++) {
+                        JRadioButtonMenuItem item = new JRadioButtonMenuItem(rbg.items[i].label, i==0);
+                        mkItem(menu, rbg.items[i], item);
+                        group.add(item);
+                    }
+                    menu.addSeparator();
                 }
+                else
+                    Alert.abort("JapeMenu.mkBar sees "+o);
             }
             bar.add(menu);
         }
         return bar;
     }
     
-    public void setBar(JapeWindow w) {
+    public static void setBar(JapeWindow w) {
         if (Debugging.JapeMenu) System.err.println("setting menu bar on "+w+", barv="+barv);
         w.setJMenuBar(mkBar());
         w.getJMenuBar().revalidate();
@@ -114,7 +141,14 @@ public class JapeMenu implements ActionListener {
     // I need dictionaries from menu titles to Ms and item keys to Is: 
     // hashtables are overkill, but there you go
     
-    private Hashtable menutable, actiontable;
+    private static Hashtable menutable, actiontable;
+
+    private static M ensureMenu(String id, String menuname) throws ProtocolError {
+        M menu = (M)menutable.get(menuname);
+        if (menu==null)
+            throw new ProtocolError("JapeMenu."+id+" no menu named "+menuname);
+        return menu;
+    }
     
     private abstract static class ItemAction {
         abstract public void action();
@@ -134,7 +168,7 @@ public class JapeMenu implements ActionListener {
         }
     }
     
-    private class OpenFileAction extends ItemAction {
+    private static class OpenFileAction extends ItemAction {
         public void action () {
              String file = FileChooser.newOpenDialog("theories, logic files and proofs", "jt", "j", "jp");
              if (file.length()!=0)
@@ -143,7 +177,7 @@ public class JapeMenu implements ActionListener {
     
     }
     
-    private M indexMenu(String label) {
+    private static M indexMenu(String label) {
         M menu = (M)menutable.get(label);
         if (menu==null) {
             menu = new M(label);
@@ -153,22 +187,26 @@ public class JapeMenu implements ActionListener {
         return menu;
     }
     
-    private String keyString(String menu, String label) {
+    private static String keyString(String menu, String label) {
         return menu + ": " + label;
     }
-    
-    // may throw NullPointerException ...
-    private I indexMenuItem(M menu, String label, ItemAction action) {
-        String key = keyString(menu.title, label);
+
+    private static I makeI(String menuname, String label, ItemAction action) {
+        String key = keyString(menuname, label);
         I i = new I(label, key, action);
         actiontable.put(key,i);
+        return i;
+    }
+    
+    private static I indexMenuItem(M menu, String label, ItemAction action) {
+        I i = makeI(menu.title, label, action);
         menu.add(i);
         return i;
     }
     
-    private int menumask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    private static int menumask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     
-    public void addStdFileMenuItems(M filemenu) {
+    public static void addStdFileMenuItems(M filemenu) {
         if (LocalSettings.aboutMenuItemNeeded) {
             class AboutBoxAction extends ItemAction {
                 public void action() { japeserver.handleAbout(); }
@@ -199,7 +237,7 @@ public class JapeMenu implements ActionListener {
         }
     }
 	
-    public void addStdEditMenuItems(M editmenu) {
+    public static void addStdEditMenuItems(M editmenu) {
         indexMenuItem(editmenu, "Undo", new UnimplementedAction("Edit: Undo")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, menumask));
         
@@ -228,7 +266,7 @@ public class JapeMenu implements ActionListener {
         }
     }
 	
-    public void newMenuBar() {
+    public static void newMenuBar() {
 	barv = new Vector();        
         M filemenu = indexMenu("File"); 
         M editmenu = indexMenu("Edit");
@@ -237,28 +275,32 @@ public class JapeMenu implements ActionListener {
         addStdEditMenuItems(editmenu);
     }
     
-    public void newMenu(String s) throws ProtocolError {
+    public static void newMenu(String s) throws ProtocolError {
         indexMenu(s);
     }
     
     // ActionListener interface (for menus)
-    public void actionPerformed(ActionEvent newEvent) {
-        String key = newEvent.getActionCommand();
-        I i = (I)actiontable.get(key);
-        if (i!=null)
-            i.action.action();
-        else 
-            Alert.showErrorAlert("unrecognised menu action "+key);
+    protected static class MenuListener implements ActionListener {
+        public void actionPerformed(ActionEvent newEvent) {
+            String key = newEvent.getActionCommand();
+            I i = (I)actiontable.get(key);
+            if (i!=null)
+                i.action.action();
+            else
+                Alert.showErrorAlert("unrecognised menu action "+key);
+        }
     }
 
-    public JapeMenu() {
+    protected static final MenuListener menuListener = new MenuListener();
+    
+    public static void init() {
         // this is the reset action, too
         menutable = new Hashtable(20,(float)0.5);
         actiontable = new Hashtable(100,(float)0.5);
         newMenuBar();
     }
 
-    public void menusep(String menuname) throws ProtocolError {
+    public static void addSeparator(String menuname) throws ProtocolError {
         try {
             M menu = (M)menutable.get(menuname);
             menu.addSeparator();
@@ -267,16 +309,12 @@ public class JapeMenu implements ActionListener {
         }
     }
 
-    public void newMenuItem(String menuname, String label, String code, String cmd) throws ProtocolError {
-        try {
-            indexMenuItem((M)menutable.get(menuname), label, new CmdAction(cmd)); 
-            // and what do we do about code?
-        } catch (Exception e) {
-            throw new ProtocolError("failed");
-        }
+    public static void addItem(String menuname, String label, String code, String cmd) throws ProtocolError {
+        indexMenuItem(ensureMenu("addItem",menuname), label, new CmdAction(cmd)); 
+        // and what do we do about code?
     }
 
-    public void enablemenuitem(String menuname, String label, boolean enable) {
+    public static void enableItem(String menuname, String label, boolean enable) {
         int mi, ii;
         try {
             M menu = (M)menutable.get(menuname);
@@ -295,5 +333,13 @@ public class JapeMenu implements ActionListener {
             if (bar!=null)
                 bar.getMenu(mi).getItem(ii).setEnabled(enable);
         }
+    }
+
+    public static void addRadioButtonGroup(String menuname, String[][] rbs) throws ProtocolError {
+        M menu = ensureMenu("addRadioButtonGroup", menuname);
+        I[] rbg = new I[rbs.length];
+        for (int i=0; i<rbs.length; i++)
+            rbg[i] = makeI(menuname, rbs[i][0], new CmdAction(rbs[i][1]));
+        menu.add(new RBG(rbg));
     }
 }

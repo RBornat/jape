@@ -48,7 +48,7 @@ public class Dispatcher extends Thread {
         }
         System.err.println("]");
     }
-    
+
     public void run() {
         Vector list = new Vector(); 
         try {
@@ -134,10 +134,10 @@ public class Dispatcher extends Thread {
                     
                     // MENU commands
                         if (p.equals("NEWMENU")&&len==2)
-                            japeserver.menus.newMenu(command[1]);
+                            JapeMenu.newMenu(command[1]);
                         else
                         if (p.equals("MENUITEM")&&len==5)
-                            japeserver.menus.newMenuItem(command[1], toUnicode(command[2]), command[3],
+                            JapeMenu.addItem(command[1], toUnicode(command[2]), command[3],
                                                          command[4]);
                         else
                         if (p.equals("MAKEMENUSVISIBLE")&&len==1) {
@@ -146,10 +146,20 @@ public class Dispatcher extends Thread {
                         } 
                         else
                         if (p.equals("MENUSEP")&&len==2)
-                            japeserver.menus.menusep(command[1]);
+                            JapeMenu.addSeparator(command[1]);
                         else
                         if (p.equals("ENABLEMENUITEM")&&len==4)
-                            japeserver.menus.enablemenuitem(command[1], command[2], toBool(command[3]));
+                            JapeMenu.enableItem(command[1], command[2], toBool(command[3]));
+                        else
+                        if (p.equals("MENURADIOBUTTON")&&len==1)
+                            list.removeAllElements();
+                        else
+                        if (p.equals("MENURADIOBUTTONPART")&&len==3)
+                            list.add(new String[] { toUnicode(command[1]), command[2]});
+                        else
+                        if (p.equals("MENURADIOBUTTONEND")&&len==2)
+                            JapeMenu.addRadioButtonGroup(toUnicode(command[1]),
+                                                         (String[][])list.toArray(new String[list.size()][]));
                         else
                     
                     // PANEL commands

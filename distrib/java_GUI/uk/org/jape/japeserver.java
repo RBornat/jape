@@ -35,8 +35,7 @@ import java.awt.Toolkit;
 import java.util.Vector;
 
 public class japeserver {
-    public static JapeMenu menus;
-    
+
     private static boolean tracing = true;
 
     private static String[] operators;
@@ -130,7 +129,7 @@ public class japeserver {
         
         Toolkit.getDefaultToolkit(); // what for?
 
-        menus = new JapeMenu();
+        JapeMenu.init();
 
         LocalSettings l = new LocalSettings();
         
