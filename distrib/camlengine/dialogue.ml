@@ -806,9 +806,9 @@ module M : T =
 			 Some (withproofhist (hist, append_step phist proof'))))
     let rec recorddisplayvars env =
       try 
-        (fun s -> termstring (unSOME (japeenv.at (env, s)))) <* displayvars
+        (fun s -> termstring (_The (japeenv.at (env, s)))) <* displayvars
       with
-        unSOME_ ->
+        _The_ ->
           raise
             (Catastrophe_
                ["one or more of ";
@@ -2085,7 +2085,7 @@ module M : T =
       in
       let rec domb (var, notify) =
         let setting =
-          try unSOME (japeenv.at (env, var)) with
+          try _The (japeenv.at (env, var)) with
             UnSOME_ ->
               raise
                 (Catastrophe_
@@ -2115,7 +2115,7 @@ module M : T =
         begin try
           japeserver.settextselectionmode
             (termstring
-               (unSOME (japeenv.at (env, namefrom "textselectionmode"))))
+               (_The (japeenv.at (env, namefrom "textselectionmode"))))
         with
           UnSOME_ ->
             raise (Catastrophe_ ["textselectionmode not in environment"])

@@ -163,7 +163,7 @@ module M : T =
         [[], []] -> true
       | _ -> false
     let rec getworld u c =
-      try unSOME (at (u, c)) with
+      try _The (at (u, c)) with
         _ ->
           raise
             (Catastrophe_
@@ -251,7 +251,7 @@ module M : T =
            !occurrences
       with
         (occ, [occv]) :: _ ->
-          unSOME (option_remapterm (( |-> ) (v, occv)) occ)
+          _The (option_remapterm (( |-> ) (v, occv)) occ)
       | _ ->
           raise
             (Catastrophe_
@@ -1057,7 +1057,7 @@ module M : T =
                     (fun t -> not (member (t, tiles))) <|
                      List.map
                        (fun vs ->
-                          unSOME
+                          _The
                             (option_remapterm (mkmap ((tvs ||| vs)))
                                template))
                        args

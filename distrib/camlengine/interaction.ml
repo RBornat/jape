@@ -351,7 +351,7 @@ module M : T =
     let rec getCommand displayopt =
       let text = japeserver.listen () in
       let rec getdisplay () =
-        try unSOME displayopt with
+        try _The displayopt with
           UnSOME_ ->
             raise
               (Catastrophe_
@@ -387,7 +387,7 @@ module M : T =
             Some h ->
               begin match findSelection (getdisplay ()) with
                 Some s ->
-                  HitCommand (unSOME (storedProof (getdisplay ())), h, s)
+                  HitCommand (_The (storedProof (getdisplay ())), h, s)
               | None ->
                   raise
                     (Catastrophe_

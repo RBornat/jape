@@ -64,7 +64,7 @@ module M : T with type term = Term.Funs.term =
            Array.set badbindings i [])
         (mklist termkindmax)
     let bindingstructure =
-      let rec lookup env x = unSOME (at (env, x))
+      let rec lookup env x = _The (at (env, x))
       and matchterm term (bounds, scopes, unscopes, pat) =
         match match__ false pat term empty with
           None -> None

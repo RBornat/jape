@@ -93,7 +93,7 @@ module M : T =
     let rec rawran (m : ('a, 'b) mapping) = List.map (fun (_,r)->r) m
     
     let rec formappingpairs (f, mapping) =
-      List.iter (fun d -> f (d, Optionfuns.M.unSOME (at (mapping, d)))) (dom mapping)
+      List.iter (fun d -> f (d, Optionfuns.M._The (at (mapping, d)))) (dom mapping)
     let rec mkmap pairs =
       nj_fold (fun ((a, b), map) -> ( ++ ) (map, ( |-> ) (a, b))) pairs empty
     let rec catelim_mappingstring astring bstring sep mapping ss =

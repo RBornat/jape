@@ -2,13 +2,12 @@
 
 module type T =
   sig
-    (* nonfix _All _Some;
+    (* nonfix _All
        infixr 7 <|
        infixr 6 <*;
        infix  5 </ //;
        infixr 5 doubleslosh />;
-       infix  4 ||| slosh _INTER;
-       infixr 4 _UNION;
+       infix  4 ||| slosh;
        infix  0 nonmember member subset;
      *)
  
@@ -21,17 +20,12 @@ module type T =
     exception Reduce
     val ( ||| ) : 'a list -> 'b list -> ('a * 'b) list  (* zip = combine *)
     exception Zip_ (* unequal lengths *)
-    val first : ('a -> bool) -> 'a list -> 'a
-    exception First
-    val _FIRST : ('a -> bool) -> 'a list -> 'a option
-    val _Some : ('a -> bool) -> 'a list -> bool
+
     val _All : ('a -> bool) -> 'a list -> bool
     val member : 'a * 'a list -> bool
     val subset : 'a list * 'a list -> bool
     val nonmember : 'a * 'a list -> bool
     val slosh : 'a list * 'a list -> 'a list
-    val _UNION : 'a list * 'a list -> 'a list
-    val _INTER : 'a list * 'a list -> 'a list
     val set : 'a list -> 'a list
     val seteq : ('a -> 'a -> bool) -> 'a list -> 'a list
     val last : 'a list -> 'a
@@ -156,27 +150,16 @@ module M : T =
       function
         ( ++ ), x :: xs -> ( /> ) (x, ( ++ )) xs
       | ( ++ ), [] -> raise Reduce
-    let rec first a1 a2 =
-      match a1, a2 with
-        pp, [] -> raise First
-      | pp, x :: xs -> if pp x then x else first pp xs
-    let rec _FIRST a1 a2 =
-      match a1, a2 with
-        pp, [] -> None
-      | pp, x :: xs -> if pp x then Some x else _FIRST pp xs
-    let rec _Some pp xs =
-      match _FIRST pp xs with
-        Some _ -> true
-      | None -> false
-    let rec _All pp xs =
-      match _FIRST (fun x -> not (pp x)) xs with
-        Some _ -> false
-      | None -> true
-    let rec member (x, sf) = List.exists (fun x' -> x = x') sf
+
+
+    let _All f = not <*> List.exists (not <*> f)
+
+    let rec member (x, sf) = List.mem x sf
     let rec nonmember (x, sf) = not (member (x, sf))
-    let rec _INTER = fun (sf, tt) -> (fun x -> member (x, sf)) <| tt
+    
+    (* slosh (was \) is list subtract *)
     let rec slosh = fun (sf, tt) -> (fun x -> nonmember (x, tt)) <| sf
-    let rec _UNION = fun (sf, tt) -> sf @ tt
+
     (*
     val set = [] /> (fn (s, e) => if e member s then s else e :: s)
     *)

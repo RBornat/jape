@@ -583,8 +583,8 @@
             | LinPT (rp, _, concs, stopt, justopt) ->
                 let pi = ordinarypi rp in
                 let (c, (e, s, f)) =
-                  try unSOME (explodedconc concs) with
-                    unSOME_ ->
+                  try _The (explodedconc concs) with
+                    _The_ ->
                       raise
                         (Catastrophe_
                            ["transitive line ";
@@ -1030,8 +1030,8 @@
             | Some (pi, rinf, lprins, subdps) ->
                 let lcids =
                      (fun lp ->
-                        try unSOME (mapped sameresource hypmap lp) with
-                          unSOME_ ->
+                        try _The (mapped sameresource hypmap lp) with
+                          _The_ ->
                             raise
                               (Catastrophe_
                                  ["linearise can't decode lprin ";
@@ -1144,13 +1144,10 @@
                     in
                     (* more or less *)
                     let mybestW =
-                      Integer.max
-                        (2 * tsW (fst (fst words)),
-                         bestW - 2 * posX innerpos)
+                      max (2 * tsW (fst (fst words))) (bestW - 2 * posX innerpos)
                     in
                     minwaste measureplan mybestW
-                      ((fun (e, inf) -> e, foldformula mybestW inf) <*
-                          hypelis)
+                      ((fun (e, inf) -> e, foldformula mybestW inf) <* hypelis)
               in
               let rec dohypline =
                 fun
@@ -1734,7 +1731,7 @@
         let rec blackenthelot () = bg (fun _ -> blacken) in
         let hits =
              (fun (pos, class__) ->
-                try unSOME (locateHit pos (Some class__) HitPath info) with
+                try _The (locateHit pos (Some class__) HitPath info) with
                   _ ->
                     raise
                       (Catastrophe_

@@ -16,7 +16,7 @@ module type T = (* all the stuff that's fit to print *)
      and term
     val namestring : name -> string
     val parseablenamestring : name -> string
-    val nameorder : name * name -> bool
+    val nameorder : name -> name -> bool
     val term2name : term -> name option
     val namefrom : string -> name
   end
@@ -38,8 +38,8 @@ module M : (* sig include Nametype include Name end *) T with type term = Term.F
     (* it is high time we had a datatype of names of things *)
     
     type name = Name of string
-    let rec namestring = fun (Name s) -> s
-    let rec nameorder = fun (Name s1, Name s2) -> s1 < s2
+    let namestring (Name s) = s
+    let nameorder (Name s1) (Name s2) = s1 < s2
     (* this thing ain't cateliminated.  Can you see a way to do it? 
      * I can't: not without a cateliminated explode, and even then ...
      *)

@@ -58,7 +58,7 @@ module M : T =
                  val cxt =
                    withresnum
                      (withusedVIDs (cxt, uvs),
-                      nj_fold Integer.max
+                      nj_fold (uncurry2 max)
                         (maxtreeresnum tree ::
                              ((
                                  maxprovisoresnum <*> provisoactual) <*

@@ -17,7 +17,7 @@ module type Provisotype =
 
     val provisostring : proviso -> string
     val catelim_provisostring : proviso -> string list -> string list
-    val earlierproviso : proviso * proviso -> bool
+    val earlierproviso : proviso -> proviso -> bool
     val provisovars : (term -> 'a) -> ('a -> 'a -> 'a) -> proviso -> 'a
     val provisoVIDs : proviso -> vid list
     val isFreshProviso : proviso -> bool
@@ -317,7 +317,7 @@ module M : Provisotype with type vid = Term.Funs.vid
                   "var IN pattern NOTONEOF collection -- expected, ";
                   "found "; smlsymbolstring sy])
     (* function for sorting proviso lists so that they are nice and readable *)
-    let rec earlierproviso (p1, p2) =
+    let rec earlierproviso p1 p2 =
       let rec lin1 =
         function
           FreshProviso (h, g, r, v) ->

@@ -1,55 +1,48 @@
 (* $Id$ *)
 
-module type ProoftreeAccess =
+module type Access =
   sig
-    type fmt and tpath and 'a prooftree
-    type seq and rewinf and element and name
-    val followPath : fmt prooftree -> tpath -> fmt prooftree
-    val onestep : fmt prooftree -> tpath -> (tpath * fmt prooftree) option
-    val pathPrefix : fmt prooftree -> tpath -> tpath -> bool
-    val findTip : fmt prooftree -> tpath -> seq
-    val getTip : fmt prooftree -> tpath -> seq * rewinf * fmt
-    val allTipPaths : fmt prooftree -> tpath list
-    val allTipConcs : fmt prooftree -> (tpath * element list) list
-    val validelement : bool -> fmt prooftree -> element -> tpath -> bool
-    val validhyp : fmt prooftree -> element -> tpath -> bool
-    val validconc : fmt prooftree -> element -> tpath -> bool
-    val stillopen : fmt prooftree -> tpath -> bool
-    val maxtreeresnum : fmt prooftree -> int
-    val isTip : fmt prooftree -> bool
-    val hasTip : fmt prooftree -> bool
-    val rootPath : fmt prooftree -> tpath
-    val parentPath : fmt prooftree -> tpath -> tpath
-    val siblingPath : fmt prooftree -> tpath -> bool -> tpath
+    type fmt and path and prooftree
+     and seq and rewinf and element and name
+    val followPath : prooftree -> path -> prooftree
+    val onestep : prooftree -> path -> (path * prooftree) option
+    val pathPrefix : prooftree -> path -> path -> bool
+    val findTip : prooftree -> path -> seq
+    val getTip : prooftree -> path -> seq * rewinf * fmt
+    val allTipPaths : prooftree -> path list
+    val allTipConcs : prooftree -> (path * element list) list
+    val validelement : bool -> prooftree -> element -> path -> bool
+    val validhyp : prooftree -> element -> path -> bool
+    val validconc : prooftree -> element -> path -> bool
+    val stillopen : prooftree -> path -> bool
+    val maxtreeresnum : prooftree -> int
+    val isTip : prooftree -> bool
+    val hasTip : prooftree -> bool
+    val rootPath : prooftree -> path
+    val parentPath : prooftree -> path -> path
+    val siblingPath : prooftree -> path -> bool -> path
     (* true gives left, false gives right *)
-    val subgoalPath : fmt prooftree -> tpath -> int list -> tpath
-    val reason : (name -> bool) -> fmt prooftree -> string option
-    val subtrees : fmt prooftree -> fmt prooftree list
-    val sequent : fmt prooftree -> seq
-    val rule : fmt prooftree -> name option
-    val thinned : fmt prooftree -> element list * element list
-    val format : fmt prooftree -> fmt
-    val depends : fmt prooftree -> name list
-    val findAnyGoal : fmt prooftree -> tpath option
-    val findRightwardsGoal : bool -> fmt prooftree -> tpath -> tpath option
+    val subgoalPath : prooftree -> path -> int list -> path
+    val reason : (name -> bool) -> prooftree -> string option
+    val subtrees : prooftree -> prooftree list
+    val sequent : prooftree -> seq
+    val rule : prooftree -> name option
+    val thinned : prooftree -> element list * element list
+    val format : prooftree -> fmt
+    val depends : prooftree -> name list
+    val findAnyGoal : prooftree -> path option
+    val findRightwardsGoal : bool -> prooftree -> path -> path option
     val fmtstring : fmt -> string
-    val tpathstring : tpath -> string
-    val prooftreestring : fmt prooftree -> string
+    val pathstring : path -> string
+    val prooftreestring : prooftree -> string
   end
 
-module type Prooftree =
+module type Tree =
   sig
-    type term
-    and seq
-    and vid
-    and element
-    and name
-    and 'a prooftree
-    and treeformat
-    and fmtpath
-    and visformat
-    and vispath
-    type cxt and thing and proviso and rewinf
+    type term and seq and vid and element and name
+    and 'a prooftree and treeformat and fmtpath and visformat
+    and vispath and cxt and thing and proviso and rewinf
+    
     type prooftree_step =
         Apply of (name * term list * bool)
       | Given of (string * int * bool)
@@ -96,25 +89,23 @@ module type Prooftree =
       (name -> bool) -> bool -> bool -> treeformat prooftree ->
         visformat prooftree
     (* showallsteps    proved          hideuselesscuts *)
-    val visible_subtrees :
-      bool -> treeformat prooftree -> treeformat prooftree list option
-    (* showallsteps *)
+    val visible_subtrees : bool -> treeformat prooftree -> treeformat prooftree list option
+                        (* showallsteps *)
     
-    val pathtoviewpath :
-      bool -> treeformat prooftree -> fmtpath -> vispath option
-    (* showallsteps *)
-    val viewpathtopath :
-      bool -> treeformat prooftree -> vispath -> fmtpath option
-    (* showallsteps *)
+    val pathtoviewpath : bool -> treeformat prooftree -> fmtpath -> vispath option
+                      (* showallsteps *)
+    val viewpathtopath : bool -> treeformat prooftree -> vispath -> fmtpath option
+                      (* showallsteps *)
 
-    module fmtprooftree : ProoftreeAccess
-    module visprooftree : ProoftreeAccess
-    val foldedfmt : string ref
-    (* LAYOUT "" ()    *)
-    val filteredfmt : string ref
-    (* LAYOUT "" (...) *)
-    val unfilteredfmt : string ref
-    (* LAYOUT ""       *)
+    module Fmttree : Access
+                     with type seq = seq and type name = name
+                      and type prooftree = treeformat prooftree
+                      and type path = fmtpath
+    module Vistree : Access
+    
+    val foldedfmt : string ref (* LAYOUT "" ()    *)
+    val filteredfmt : string ref (* LAYOUT "" (...) *)
+    val unfilteredfmt : string ref (* LAYOUT ""       *)
     val rawfmt : string ref
     (* when named layouts are exhausted by doubleclicking *)
        
@@ -133,25 +124,63 @@ module type Prooftree =
 
 (* $Id$ *)
 
-module M :
-  Prooftree =
+module Tree : Tree with type term = Term.Type.term
+					and type seq = Sequent.Type.seq
+					and type vid = Term.Type.vid
+					and type element = Term.Type.element
+					and type name = Name.M.name
+					and type treeformat = Treeformat.Fmt.treeformat
+					and type fmtpath = Treeformat.Fmt.fmtpath
+					and type visformat = Treeformat.VisFmt.visformat
+					and type vispath = Treeformat.VisFmt.vispath
+					and type cxt = Context.Cxt.cxt
+					and type thing = Thing.M.thing
+					and type proviso = Proviso.M.proviso
+					and type rewinf = Rewinf.M.rewinf
+=
   struct
-    open Listfuns
-    open Mappingfuns
-    open Stringfuns
-    open Optionfuns
-    open Name
-    open Idclass
-    open Term
-    open Sequent
-    open Rewrite
-    open Thing
-    open Context
-    open Rewinf
-    open Treelayout
-    open Treeformat
+    open Context.Cxt
+    open Context.Cxtstring
+    open Context.ExteriorFuns
+    open Idclass.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Miscellaneous.M
+    open Name.M
+    open Optionfuns.M
+    open Proviso.M
+    open Provisofuns.M
+    open Rewinf.M
+    open Rewrite.Funs
+    open Rewrite.Rew
+    open Sequent.Funs
+    open Sequent.Type
+    open SML.M
+    open Stringfuns.M
+    open Tactic.Type
+    open Tactic.Funs
+    open Term.Funs
+    open Term.Store
+    open Term.Termstring
+    open Term.Type
+    open Thing.M
+    open Treeformat.Fmt
+    open Treeformat.VisFmt
+    open Treelayout.M
 
-    type rewinf = rewinf and resnum = resnum
+    type term = Term.Type.term
+     and seq = Sequent.Type.seq
+     and vid = Term.Type.vid
+     and element = Term.Type.element
+     and name = Name.M.name
+     and treeformat = Treeformat.Fmt.treeformat
+     and fmtpath = Treeformat.Fmt.fmtpath
+     and visformat = Treeformat.VisFmt.visformat
+     and vispath = Treeformat.VisFmt.vispath
+     and cxt = Context.Cxt.cxt
+     and thing = Thing.M.thing
+     and proviso = Proviso.M.proviso
+     and rewinf = Rewinf.M.rewinf
     
     (* -------------------------------------------------------------------------------- *)
               
@@ -414,7 +443,7 @@ module M :
       match followPath_ns t ns with
         Tip t -> t
       | _ -> raise FindTip_
-    let rec findTip_ns t p = fst (getTip_ns t p)
+    let rec findTip_ns t p = (fun (s,_,_)->s) (getTip_ns t p)
     let rec allTips_ns t =
       let rec moretips a1 a2 a3 =
         match a1, a2, a3 with
@@ -438,18 +467,18 @@ module M :
          allTips_ns t
     (* functions which look for a path *)
     let rec search opt n = (opt &~~ (fun ns -> Some (n :: ns)))
-    let rec F =
+    let rec _F =
       function
         [] -> None
-      | (n, t) :: nts -> (search (G t) n |~~ (fun _ -> F nts))
-    and G t =
+      | (n, t) :: nts -> (search (_G t) n |~~ (fun _ -> _F nts))
+    and _G t =
       match t with
         Tip _ -> Some []
       | Join j ->
           match decode_cutnav j with
-            NormalNav ts -> F (numbered ts)
-          | CutNav (l, r, tl, tr) -> (search (G tl) l |~~ (fun _ -> G tr))
-    let findAnyGoal_ns = G
+            NormalNav ts -> _F (numbered ts)
+          | CutNav (l, r, tl, tr) -> (search (_G tl) l |~~ (fun _ -> _G tr))
+    let findAnyGoal_ns = _G
     let rec findRightwardsGoal_ns skip t path =
       match t with
         Tip _ -> if skip || not (null path) then None else Some []
@@ -458,10 +487,10 @@ module M :
             (search (findRightwardsGoal_ns skip subt ns) n |~~
                (fun _ ->
                   match decode_cutnav j with
-                    NormalNav ts -> F (drop (n + 1) (numbered ts))
-                  | CutNav (l, r, tl, tr) -> G tr))
+                    NormalNav ts -> _F (drop (n + 1) (numbered ts))
+                  | CutNav (l, r, tl, tr) -> _G tr))
           in
-          joinstep go (fun _ -> G t)
+          joinstep go (fun _ -> _G t)
             (fun (l, r, tl, tr) -> findRightwardsGoal_ns skip tr) j path
     (* Find the deepest parent of a particular node which has the same hypotheses.
      * I check on the way back down, because it is more efficient, and actually it is the only right thing to do!
@@ -474,7 +503,7 @@ module M :
           let rec topres () =
             let (Seq (_, hs, _)) = sequent t in Some hs, pathto t
           in
-          let rec unFRESH =
+          let unFRESH =
             not <*> List.exists isFreshProviso <*> List.map snd
           in
           let rec check a1 a2 =
@@ -614,21 +643,27 @@ module M :
         _ -> false
     (* -------------------------- printing proof trees -------------------------- *)
         
+	let shyidforFORMULAE = "FORMULAE"
+	let shyidforFROM     = "FROM"
+	let shyidforINFER    = "INFER"
+	let shyidforIS       = "IS"
+	let shyidforWHERE    = "WHERE"
+	
+	let givenssep        = " AND "
+	let provisosep       = " AND "
+	
     let rec prooftree_stepstring =
       function
         Apply a ->
           "Apply" ^
-            triplestring parseablenamestring termliststring
-              (string_of_int : bool -> string) "," a
+            triplestring parseablenamestring termliststring string_of_bool "," a
       | Given g ->
           "Given" ^
-            triplestring (fun s -> s) (string_of_int : int -> string)
-              (string_of_int : bool -> string) "," g
+            triplestring (fun s -> s) string_of_int string_of_bool "," g
       | UnRule u ->
           "Unrule" ^
-            pairstring (fun s -> s)
-              (bracketedliststring parseablenamestring ",") "," u
-    let nsstring = bracketedliststring (string_of_int : int -> string) ","
+            pairstring (fun s -> s) (bracketedliststring parseablenamestring ",") "," u
+    let nsstring = bracketedliststring string_of_int ","
     let rec join_string
       tlf subtreesf (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       implode
@@ -637,7 +672,7 @@ module M :
          optionstring (pairstring string_of_int string_of_int ",")
            (cutnav : (int * int) option);
          ", args="; pairstring termliststring rewinfstring ", " args;
-         ", fmt="; tlf fmt; ", hastipval="; string_of_int (hastipval : bool);
+         ", fmt="; tlf fmt; ", hastipval="; string_of_bool hastipval;
          ", seq="; pairstring elementseqstring rewinfstring ", " seq;
          ", subtrees="; pairstring subtreesf rewinfstring ", " trs; ", ress=";
          begin
@@ -669,32 +704,42 @@ module M :
     exception Can'tHash_
     (* moved outside for OCaml *)
        
+	let mkUnRuleTac u =
+	  match u with
+		("FLATTEN", [t]) -> AssocFlatTac t
+	  | ("EVALUATE", ts) -> EvalTac ts
+	  | _ -> raise (Catastrophe_
+			   ["mkUnRuleTac given "; 
+				pairstring 
+				  (fun s -> s) (bracketedliststring termstring ",") "," u
+			   ])
+    
     let rec catelim_prooftree2tactic tree provisos givens tail =
       (* a proof as an executable tactic *)
       let seq = sequent tree in
       let rec thisone j =
-        let rec res b t = if b then mkResolveTac t else t in
+        let rec res b t = if b then ResolveTac t else t in
         match join_how j with
           Apply (n, ps, b) ->
             res b
-              (try mkSubstTac (n, (ps ||| join_args j)) with
+              (try SubstTac (n, (ps ||| join_args j)) with
                  Zip_ -> raise (Catastrophe_ ["Zip_ in prooftree2tactic"]))
-        | Given (_, i, b) -> res b (mkGivenTac (int2term i))
+        | Given (_, i, b) -> res b (GivenTac (int2term i))
         | UnRule (r, _) -> mkUnRuleTac (r, join_args j)
       in
       let rec traverse =
         function
-          Tip t, ts -> nextgoalTac :: ts
+          Tip t, ts -> NextgoalTac :: ts
         | Join j, ts ->
             let rec tr ts = thisone j :: nj_fold traverse (join_subtrees j) ts in
             match format2layouts (join_fmt j) with
               [] -> tr ts
             | ls ->
-                nj_fold (fun (l, t) -> mkLayoutTac (t, l)) ls
-                  (mkSeqTac (tr [])) ::
+                nj_fold (fun (l, t) -> LayoutTac (t, l)) ls
+                  (SeqTac (tr [])) ::
                   ts
       in
-      let rec hashes =
+      let rec hashables =
         function
           Tip _, hs -> hs
         | Join j, hs ->
@@ -708,7 +753,7 @@ module M :
                     els hs
               | arg, hs ->
                   match hashterm arg with
-                    Some h -> (h, arg) :: hs
+                    Some h -> arg :: hs
                   | None ->
                       if existsterm
                            (function
@@ -719,7 +764,7 @@ module M :
                         raise Can'tHash_
                       else hs
             in
-            nj_fold hashes (join_subtrees j)
+            nj_fold hashables (join_subtrees j)
               (match join_how j with
                  Apply (_, ps, _) -> nj_fold catalogue (join_args j) hs
                | _ -> hs)
@@ -727,24 +772,42 @@ module M :
       let rec proof tail =
         try
           let count = ref 0 in
-          let rec intorder ((i, _), (j, _)) = i < j in
+          let rec intorder (i, _) (j, _) = i < j in
           let (lookup, reset) =
-            simplecache "prooftree2tactic"
-              (triplestring termstring string_of_int string_of_int ",") 17
-              (fun _ -> !(count before count) := !count + 1)
+            (* terms in the tree get mapped to numbers, so that it can be read in
+               more quickly.
+				simplecache "prooftree2tactic"
+				  (triplestring termstring string_of_int string_of_int ",") 17
+				  (fun _ -> let r = !count in incr count; r)
+             *)
+            let module Cache =
+              struct
+                open Hashtbl
+                module Store = Make (struct
+									   type t = term
+									   let equal = (=)
+									   let hash = _The <*> hashterm
+									 end
+									)
+                let store = Store.create 17 (* it will grow *)
+                let lookup t = 
+                  try Store.find store t
+                  with Not_found -> let r = !count in
+                                    incr count; Store.add store t r; r
+                let reset () = Store.clear store
+              end
+            in Cache.lookup, Cache.reset
           in
-          let hs =
-            try sortunique intorder (hashes (tree, [])) with
-              Can'tHash_ -> []
+          let hs = try sortunique (<) (hashables (tree, [])) with Can'tHash_ -> []
           in
           let body =
             if null hs then () else showargasint := Some lookup;
-            "\n" :: shyidforIS :: "\n" ::
-              catelim_tacticstring (mkSeqTac (traverse (tree, [])))
-                ("\n" :: tail) before showargasint :=
-              None
+            let r = "\n" :: shyidforIS :: "\n" ::
+					catelim_tacticstring (SeqTac (traverse (tree, [])))
+					  ("\n" :: tail) 
+			in showargasint := None; r
           in
-          let hashes_body =
+          let hashables_body =
             if null hs then body
             else
               "\n" :: shyidforFORMULAE :: "\n" ::
@@ -752,12 +815,11 @@ module M :
                   (fun (i, t) tail ->
                      string_of_int i :: " " :: catelim_termstring t tail)
                   ",\n"
-                  (sortunique intorder
-                     ((fun (h, t) -> lookup h t, t) <* hs))
+                  (sortunique intorder ((fun t -> lookup t, t) <* hs))
                   body
           in
           let infer_body =
-            "\n" :: shyidforINFER :: " " :: catelim_seqstring seq hashes_body
+            "\n" :: shyidforINFER :: " " :: catelim_seqstring seq hashables_body
           in
           let givens_body =
             if null givens then infer_body
@@ -922,21 +984,21 @@ module M :
       (* don't forget the givens when considering grounded provisos *)
       let tvars =
         tmerge
-          (rewinf_vars inf,
-           (match exteriorinf cxt with
-              Some ri -> rewinf_vars ri
-            | None -> []))
+          (rewinf_vars inf)
+		  (match exteriorinf cxt with
+			 Some ri -> rewinf_vars ri
+		   | None -> [])
       in
       let cxt =
         match
           if grounded then groundedprovisos tvars (provisos cxt) else None
         with
-          Some ps -> anyway rew_cxt (withprovisos (cxt, ps))
+          Some ps -> anyway rew_cxt (withprovisos cxt ps)
         | None -> anyway rew_cxt cxt
       in
       let cinf = rewinfCxt cxt in
       (* vars only in givens are in the exterior of the proof, but they aren't thereby 'in use' *)
-      let gvars = nj_fold tmerge ((seqvars termvars tmerge <* givens)) [] in
+      let gvars = nj_fold (uncurry2 tmerge) ((seqvars termvars tmerge <* givens)) [] in
       let cvars = sorteddiff earliervar (rewinf_vars cinf) gvars in
       (* val _ =
         consolereport ["gvars are ", termliststring gvars, 
@@ -947,7 +1009,7 @@ module M :
       let usedVIDs =
         orderVIDs (vid_of_var <* mergevars (rewinf_vars inf) cvars)
       in
-      withusedVIDs (withresmap (withvarmap (cxt, empty), empty), usedVIDs),
+      withusedVIDs (withresmap (withvarmap cxt empty) empty) usedVIDs,
       tree, usedVIDs
     (* -------------------------- Tree construction : only for treeformat prooftrees ----------------------------- *)
         
@@ -1115,8 +1177,8 @@ module M :
       let rewinf = raw2rew_ (rawinfElements cxt (els, nullrawinf)) in
       let rec augseq =
         fun (Seq (st, hs, cs)) ->
-          try Seq (st, unSOME (augmentCollection hs els), cs) with
-            unSOME_ ->
+          try Seq (st, _The (augmentCollection hs els), cs) with
+            _The_ ->
               raise (Catastrophe_ ["can't augment non-Collection hyps"])
       in
       let rec aug =
@@ -1134,7 +1196,7 @@ module M :
                        ["no Collection argument for sequent "; seqstring seq])
               | arg :: args ->
                   if isCollection arg then
-                    unSOME (augmentCollection arg els) :: args
+                    _The (augmentCollection arg els) :: args
                   else arg :: augargs args
             in
             Join
@@ -1152,11 +1214,13 @@ module M :
     let rec maxtreeresnum t =
       match t with
         Join j ->
-          nj_fold Integer.max
+          nj_fold (uncurry2 max)
             (maxseqresnum (join_seq j) ::
                (maxtreeresnum <* join_subtrees j))
             0
       | Tip t -> maxseqresnum (tip_seq t)
+            
+    let isCutRule = isstructurerule CutRule
     let rec isCutStep t =
       fun (FmtPath ns) ->
         try
@@ -1264,7 +1328,7 @@ module M :
               ", "
           in
           consolereport
-            ["visibles "; string_of_int showall; " ";
+            ["visibles "; string_of_bool showall; " ";
              join_string treeformatstring onelevel j; " => ";
              pairstring ptstring ptstring ", " res]
         end;
@@ -1277,25 +1341,26 @@ module M :
       try__ fst <*> joinopt (visibles showall)
     let rec invisible_subtrees showall =
       try__ snd <*> joinopt (visibles showall)
+
     let rec pathtoviewpath showall t =
       fun (FmtPath ns) ->
-        let rec P ns rns t =
+        let rec _P ns rns t =
           let r = pathto t in
           if r = ns then Some (VisPath (List.rev rns))
           else if not (null r) && isprefix (fun (x, y) -> x = y) r ns then
-            P (drop (List.length r) ns, rns, t)
+            _P (drop (List.length r) ns) rns t
           else
-            (visible_subtrees showall t &~~
-               (fun ts ->
-                  let rec find (i, (tns, t)) =
-                    if isprefix (fun (x, y) -> x = y) tns ns then
-                      Some (i, drop (List.length tns) ns, t)
-                    else None
-                  in
-                  (findfirst find (numbered ts) &~~
-                     (fun (i, ns', t) -> P (ns', (i :: rns), t)))))
+		    visible_subtrees showall t &~~
+			  (fun ts ->
+				 let rec find (i, (tns, t)) =
+				   if isprefix (fun (x, y) -> x = y) tns ns then
+					 Some (i, drop (List.length tns) ns, t)
+				   else None
+				 in
+				 (findfirst find (numbered ts) &~~
+					(fun (i, ns', t) -> _P ns' (i :: rns) t)))
         in
-        P (ns, [], t)
+        _P ns [] t
     (* this didn't get the right answer for the root of cuts, so I added pathto to the final result. RB 22/ii/00 *) 
     let rec viewpathtopath showall t =
       fun (VisPath ns) ->
@@ -1304,18 +1369,18 @@ module M :
             [], ys -> ys
           | x :: xs, ys -> rev1 xs (x :: ys)
         in
-        let rec P a1 a2 a3 =
+        let rec _P a1 a2 a3 =
           match a1, a2, a3 with
             n :: ns, rns, t ->
               (visible_subtrees showall t &~~
                  (fun ts ->
                     try
-                      let (ns', t) = List.nth (ts) (n) in P (ns, rev1 ns' rns, t)
+                      let (ns', t) = List.nth (ts) (n) in _P ns (rev1 ns' rns) t
                     with
                       Failure "nth" -> None))
           | [], rns, t -> Some (FmtPath (rev1 rns (pathto t)))
         in
-        P (ns, [], t)
+        _P ns [] t
     (* for export *)
     let reasonstyle = ref "long"
     let visible_subtrees showall =
@@ -1385,7 +1450,7 @@ module M :
            in
            f (join_fmt j))
     and invisiblereasons proved showall j =
-         unSOME <*
+         _The <*
            (opt2bool <|
             List.concat
               ((allreasons proved showall <*> snd) <*
@@ -1400,7 +1465,7 @@ module M :
       step_resolve (join_how j) ||
       List.exists (fun (ns, _) -> List.length ns > 1) vissubts
     let hyps =
-      explodeCollection <*> snd <*> seqexplode
+      explodeCollection <*> snd_of_3 <*> seqexplode
     let concs =
       explodeCollection <*> thrd <*> seqexplode
     let rec tranproof proved showall hideuselesscuts t =
@@ -1415,7 +1480,7 @@ module M :
               ((visp <*> snd) <* viss)
             in
             let lps =
-              nj_fold (sortedmerge earlierresource)
+              nj_fold (uncurry2 (sortedmerge earlierresource))
                 ((fst <* lpsNsubts'))
                 (sort earlierresource (fst (fst ress)))
             in
@@ -1450,7 +1515,7 @@ module M :
             in
             lps,
             Join
-              (unSOME (visreason proved showall it), how, None, args,
+              (_The (visreason proved showall it), how, None, args,
                VisFormat (join_multistep j viss, hidecut), tshaveTip subts',
                seq, (subts', snd subts), ress)
       in
@@ -1462,15 +1527,29 @@ module M :
     (* there surely ought to be a way to make these structures into one -- I suppose functors inside functors
      * ain't SML.
      *)
-    module fmtprooftree : ProoftreeAccess =
+    module Fmttree : Access with type fmt = treeformat
+							 and type path = fmtpath
+							 and type prooftree = treeformat prooftree
+							 and type seq = seq
+							 and type rewinf = rewinf
+							 and type element = element
+							 and type name = name
+    =
       struct
         type fmt = treeformat
-        and tpath = fmtpath
-        and 'a prooftree = 'a prooftree
-        type seq = seq
-        and rewinf = rewinf
-        and element = element
-        and name = name
+        and  path = fmtpath
+        type temp_prooftree = fmt prooftree
+         and temp_seq = seq
+         and temp_rewinf = rewinf
+         and temp_element = element
+         and temp_name = name
+        type prooftree = temp_prooftree
+         and seq = temp_seq
+		 and rewinf = temp_rewinf
+		 and element = temp_element
+		 and name = temp_name
+        
+        let fFmtPath v = FmtPath v
         let rec dePath = fun (FmtPath ns) -> ns
         let rec rePath (ns, x) = FmtPath ns, x
         let rec followPath t = followPath_ns t <*> dePath
@@ -1481,23 +1560,23 @@ module M :
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
         let rec findTip t = findTip_ns t <*> dePath
         let rec getTip t = getTip_ns t <*> dePath
-        let rec allTipPaths t = (FmtPath <* allTipPaths_ns t)
+        let rec allTipPaths t = (fFmtPath <* allTipPaths_ns t)
         let rec allTipConcs t = (rePath <* allTipConcs_ns t)
         let rec validelement b t el =
           fun (FmtPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
         let validconc = validelement false
-        let rec stillopen T = stillopen_ns t <*> dePath
+        let rec stillopen t = stillopen_ns t <*> dePath
         let maxtreeresnum = maxtreeresnum
         let isTip = isTip
         let hasTip = hasTip
-        let rootPath = FmtPath <*> rootPath_ns
+        let rootPath = fFmtPath <*> rootPath_ns
         let rec parentPath t =
-          FmtPath <*> parentPath_ns t <*> dePath
+          fFmtPath <*> parentPath_ns t <*> dePath
         let rec siblingPath t path =
-          FmtPath <*> siblingPath_ns t (dePath path)
+          fFmtPath <*> siblingPath_ns t (dePath path)
         let rec subgoalPath t path =
-          FmtPath <*> subgoalPath_ns t (dePath path)
+          fFmtPath <*> subgoalPath_ns t (dePath path)
         let rec reason proved = visreason proved !showallproofsteps
         let subtrees = subtrees
         let sequent = sequent
@@ -1505,22 +1584,29 @@ module M :
         let thinned = thinned
         let format = format
         let depends = depends
-        let findAnyGoal = optioncompose (FmtPath, findAnyGoal_ns)
+        let findAnyGoal = optioncompose (fFmtPath, findAnyGoal_ns)
         let rec findRightwardsGoal skip t =
-          fun (FmtPath ns) -> try__ FmtPath (findRightwardsGoal_ns skip t ns)
+          fun (FmtPath ns) -> try__ fFmtPath (findRightwardsGoal_ns skip t ns)
         let fmtstring = treeformatstring
-        let tpathstring = fmtpathstring
+        let pathstring = fmtpathstring
         let prooftreestring = prooftreestring fmtstring
       end
-    module visprooftree : ProoftreeAccess =
+    module Vistree : Access =
       struct
         type fmt = visformat
-        and tpath = vispath
-        and 'a prooftree = 'a prooftree
-        type seq = seq
-        and rewinf = rewinf
-        and element = element
-        and name = name
+        and path = vispath
+        type temp_prooftree = fmt prooftree
+         and temp_seq = seq
+         and temp_rewinf = rewinf
+         and temp_element = element
+         and temp_name = name
+        type prooftree = temp_prooftree
+         and seq = temp_seq
+		 and rewinf = temp_rewinf
+		 and element = temp_element
+		 and name = temp_name
+        
+        let fVisPath v = VisPath v
         let rec dePath = fun (VisPath ns) -> ns
         let rec rePath (ns, x) = VisPath ns, x
         let rec followPath t = followPath_ns t <*> dePath
@@ -1531,24 +1617,24 @@ module M :
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
         let rec findTip t = findTip_ns t <*> dePath
         let rec getTip t = getTip_ns t <*> dePath
-        let rec allTipPaths t = (VisPath <* allTipPaths_ns t)
+        let rec allTipPaths t = (fVisPath <* allTipPaths_ns t)
         let rec allTipConcs t = (rePath <* allTipConcs_ns t)
         let rec validelement b t el =
           fun (VisPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
         let validconc = validelement false
-        let rec stillopen T = stillopen_ns t <*> dePath
+        let rec stillopen t = stillopen_ns t <*> dePath
         let maxtreeresnum = maxtreeresnum
         let isTip = isTip
         let hasTip = hasTip
         let rec rootPath t = VisPath []
         (* no inner cuts in visprooftrees *)
         let rec parentPath t =
-          VisPath <*> parentPath_ns t <*> dePath
+          fVisPath <*> parentPath_ns t <*> dePath
         let rec siblingPath t path =
-          VisPath <*> siblingPath_ns t (dePath path)
+          fVisPath <*> siblingPath_ns t (dePath path)
         let rec subgoalPath t path =
-          VisPath <*> subgoalPath_ns t (dePath path)
+          fVisPath <*> subgoalPath_ns t (dePath path)
         let rec reason proved = joinopt join_why
         (* doesn't make use of proved, because it's already happened... *)
         let subtrees = subtrees
@@ -1557,11 +1643,11 @@ module M :
         let thinned = thinned
         let format = format
         let depends = depends
-        let findAnyGoal = optioncompose (VisPath, findAnyGoal_ns)
+        let findAnyGoal = optioncompose (fVisPath, findAnyGoal_ns)
         let rec findRightwardsGoal skip t =
-          fun (VisPath ns) -> try__ VisPath (findRightwardsGoal_ns skip t ns)
+          fun (VisPath ns) -> try__ fVisPath (findRightwardsGoal_ns skip t ns)
         let fmtstring = visformatstring
-        let tpathstring = vispathstring
+        let pathstring = vispathstring
         let prooftreestring = prooftreestring fmtstring
       end
   end

@@ -5,16 +5,18 @@ sig
     val char_explode : string -> char list
     val char_implode : char list -> string
     
+    val (<*>) : ('b -> 'c) -> ('a -> 'b) -> 'a -> 'c (* compose -- can't do without it *)
+
     val explode : string -> string list
     val implode : string list -> string
     val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
     val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
     val null : 'a list -> bool
     val ord : string -> int
+    val revapp : ('a -> unit) -> 'a list -> unit
+    val snd_of_3 : ('a * 'b * 'c) -> 'b
     val thrd : ('a * 'b * 'c) -> 'c
     
-    val (<*>) : ('b -> 'c) -> ('a -> 'b) -> 'a -> 'c (* compose -- can't do without it *)
-
     val fSome : 'a ->'a option
 end
 
@@ -45,11 +47,17 @@ module M : T =
       in
       (ii 0 cs; s) 
       
+    let snd_of_3 (a,b,c) = b
     let thrd (a,b,c) = c
     
     let null xs = xs=[]
     
     let ord s = Char.code (String.get s 0)
+    
+    let rec revapp f xs =
+      match xs with
+        []    -> ()
+      | x::xs -> revapp f xs; f x
     
     let fSome v = Some v
 end    

@@ -187,7 +187,7 @@ module type Funs =
     val catelim_tacticstringwithNLs : tactic -> string list -> string list
     val remaptactic : (term, term) mapping -> tactic -> tactic
     val isguard : tactic -> bool
-    val showargasint : (int -> term -> int) option ref
+    val showargasint : (term -> int) option ref
     val readintasarg : term array option ref
   end
 
@@ -232,7 +232,7 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
         TACTIC TRANSLATION
     *)
 
-    let showargasint : (int -> term -> int) option ref = ref None
+    let showargasint : (term -> int) option ref = ref None
     let readintasarg : term array option ref = ref None
     let rec catelim_tacticstring sep t tail =
       let withNLs = String.sub (sep) (0) (1) = "\n" in
@@ -380,7 +380,7 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
                              Collection (None, c, (encodeelement <* es))
                          | _ ->
                              match hashterm t with
-                               Some h -> Literal (None, Number (lookup h t))
+                               Some h -> Literal (None, Number (lookup t))
                              | None -> t
                        and encodeelement =
                          function
@@ -934,7 +934,7 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
       let fmt = checkSTR fmterr fmt in
       let rec nserr t =
         ["list of subtree indices expected in LAYOUT; found ";
-         termstring (unSOME bopt)]
+         termstring (_The bopt)]
       in
       let bopt =
         match try__ (checkINTS nserr) bopt with

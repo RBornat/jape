@@ -375,7 +375,7 @@ module M : T with type term = Term.Type.term
         true, true -> reb (debracket origv) (debracket origt) t
       | false, true -> enbracket t
       | _ -> t
-    let rec simp cxt t = unSOME (whatever class__ cxt t)
+    let rec simp cxt t = _The (whatever class__ cxt t)
     type defers = DeferAssignment | DeferAlignment | DeferSimplification
     let rec pp tts =
       bracketedliststring (pairstring termstring termstring "<:>") "," tts

@@ -1,13 +1,13 @@
 (* $Id$ *)
 
-module type Proofstage =
+module type T =
   sig
     type proofstage = Proved | Disproved | InProgress
     val proofstage2word : proofstage -> string
   end 
 (* $Id$ *)
 
-module Proofstage : Proofstage =
+module M : T =
   struct
     type proofstage = Proved | Disproved | InProgress
     let rec proofstage2word =

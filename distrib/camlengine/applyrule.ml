@@ -2,18 +2,9 @@
 
 module type T =
   sig
-    type term
-    and seq
-    and cxt
-    and 'a prooftree
-    and treeformat
-    and possmatch
-    and rewinf
-    and element
-    and resnum
-    and visproviso
-    and prooftree_step
-    and name
+    type term and seq and rewinf and element and cxt and prooftree
+    and possmatch and resnum and visproviso and prooftree_step and name
+    
     val applydebug : int ref
     val beforeOfferingDo : (unit -> unit) -> unit
     val failOfferingDo : (unit -> unit) -> unit
@@ -35,11 +26,11 @@ module type T =
     val bymatch : possmatch -> possmatch option
     val sameprovisos : possmatch -> possmatch option
     (* discriminators *)
-    val takefirst : possmatch -> (cxt * treeformat prooftree) option
-    val takeonlyone : possmatch -> (cxt * treeformat prooftree) option
-    val offerChoice : possmatch -> (cxt * treeformat prooftree) option
+    val takefirst : possmatch -> (cxt * prooftree) option
+    val takeonlyone : possmatch -> (cxt * prooftree) option
+    val offerChoice : possmatch -> (cxt * prooftree) option
     (* and one more *)
-    val takethelot : possmatch -> (cxt * treeformat prooftree) list
+    val takethelot : possmatch -> (cxt * prooftree) list
   end
 
 (* $Id$ *)
@@ -55,24 +46,66 @@ module type T =
 (* Crudely adapted to multi-conclusion sequents, Nov 94. RB *)
 (* Mightily adapted to use Collections, July 96. RB *)
 
-module M : T =
+module M : T with type prooftree      = Prooftree.Tree.Fmttree.prooftree
+			  and type prooftree_step = Prooftree.Tree.prooftree_step
+			  and type rewinf         = Prooftree.Tree.rewinf
+			  and type name           = Name.M.name
+			  and type visproviso     = Proviso.M.visproviso
+			  and type resnum         = Term.Type.resnum
+			  and type cxt            = Context.Cxt.cxt
+			  and type element        = Term.Type.element
+			  and type seq            = Sequent.Type.seq
+			  and type term           = Term.Type.term
+=
   struct
-    open Listfuns
-    open Stringfuns
-    open Optionfuns
-    open Mappingfuns
-    open Idclass
-    open Term
-    open Sequent
-    open Proviso
-    open Context
-    open Rewrite
-    open Name
+    open Context.Cxt
+    open Idclass.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Name.M
+    open Optionfuns.M
+    open Proviso.M
+    open Rewrite.Funs
+    open SML.M
+    open Sequent.Funs
+    open Sequent.Type
+    open Stringfuns.M
+    open Term.Funs
+    open Term.Store
+    open Term.Termstring
+    open Term.Type
     
-    type 'a prooftree = 'a prooftree
-    and treeformat = treeformat
-    and prooftree_step = prooftree_step
-    and rewinf = rewinf
+    exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+    exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
+    exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
+          
+    type prooftree      = Prooftree.Tree.Fmttree.prooftree
+     and prooftree_step = Prooftree.Tree.prooftree_step
+     and rewinf         = Prooftree.Tree.rewinf
+     and name           = Name.M.name
+     and visproviso     = Proviso.M.visproviso
+     and resnum         = Term.Type.resnum
+     and cxt            = Context.Cxt.cxt
+     and element        = Term.Type.element
+     and seq            = Sequent.Type.seq
+     and term           = Term.Type.term
+
+    let mkJoin cxt reason how args = 
+      Prooftree.Tree.mkJoin cxt reason how args Treeformat.Fmt.neutralformat
+
+    let askChoice            = Alert.M.askChoice
+    let consolereport        = Miscellaneous.M.consolereport
+    let expandFreshProviso   = Provisofuns.M.expandFreshProviso
+    let matchedtarget        = Unify.M.matchedtarget
+    
+    let mkTip cxt seq = Prooftree.Tree.mkTip cxt seq Treeformat.Fmt.neutralformat
+    
+    let prooftree_stepstring = Prooftree.Tree.prooftree_stepstring
+    let rewinf_uVIDs         = Rewinf.M.rewinf_uVIDs
+    let setReason            = Reason.M.setReason
+    let step_label           = Prooftree.Tree.step_label
+    let verifyprovisos       = Provisofuns.M.verifyprovisos    
+      
     let applydebug = ref 0
     (* debug levels: 0 -- nothing
      *               1 -- surface level
@@ -83,10 +116,12 @@ module M : T =
       (beforeOfferingDo, beforeOffering, failOfferingDo, failOffering,
        succeedOfferingDo, succeedOffering)
       =
-      let skip () = ()
-      and whenoffering = ref skip
+      let skip () = () in
+      
+      let whenoffering = ref skip
       and failoffering = ref skip
       and succeedoffering = ref skip in
+      
       (*
                     This is used to print the current prooftree
                     if an offer has to be made during evaluation
@@ -96,16 +131,13 @@ module M : T =
                     has the distressing effect of truncating the tree ...
             *)
       let rec beforeOfferingDo f = whenoffering := f
-      and beforeOffering () = !(whenoffering ()); whenoffering := skip; ()
+      and beforeOffering () = !whenoffering (); whenoffering := skip; ()
       and failOfferingDo f = failoffering := f
       and failOffering () =
-        !(failoffering ()); failoffering := skip; succeedoffering := skip; ()
+        !failoffering (); failoffering := skip; succeedoffering := skip; ()
       and succeedOfferingDo f = succeedoffering := f
       and succeedOffering () =
-        !(succeedoffering ());
-        failoffering := skip;
-        succeedoffering := skip;
-        ()
+        !succeedoffering (); failoffering := skip; succeedoffering := skip; ()
       in
       beforeOfferingDo, beforeOffering, failOfferingDo, failOffering,
       succeedOfferingDo, succeedOffering
@@ -122,6 +154,7 @@ module M : T =
       match a1, a2 with
         why, None -> failwithreason (why ())
       | why, r -> r
+    
     (**************************************************************************
     ***************************************************************************)
 
@@ -140,14 +173,14 @@ module M : T =
          *)
         (* Now the resolve stuff has been dropped, do we still need this? RB Nov 99 *)
         
-    type info =
-        Info of
-          < reason : string; kind : string; conjecture : seq;
-            conjectureinf : rewinf; cxt : cxt; args : term list;
-            provisos : visproviso list; antecedents : seq list;
-            consequent : seq; how : prooftree_step;
-            principals : resnum list * resnum list; selhyps : element list;
-            selconcs : element list >
+    type inforec = { reason : string; kind : string; conjecture : seq;
+                     conjectureinf : rewinf; cxt : cxt; args : term list;
+                     provisos : visproviso list; antecedents : seq list;
+                     consequent : seq; how : prooftree_step;
+                     principals : resnum list * resnum list; selhyps : element list;
+                     selconcs : element list }
+    type info = Info of inforec
+    
     type possmatch =
       (info * element list * element list * cxt * seq list) list
     (* cxt   subgoals *)
@@ -174,8 +207,8 @@ module M : T =
           (* rewrite tips here *)
           (thinnedL, thinnedR)
     (* filters *)
-    let rec nofilter r = Some r
-    let rec filter = List.filter
+    let nofilter r = Some r
+    let filter = List.filter
     let rec nonempty =
       function
         [] -> None
@@ -201,9 +234,9 @@ module M : T =
              consolereport
                (if r then
                   let rec up cxt u =
-                    ((("(" ^ u) ^ ",") ^
-                       optionstring termstring (at (varmap cxt, u))) ^
-                      ")"
+                    "(" ^ string_of_vid u ^ "," ^
+                          optionstring termstring (at (varmap cxt, u)) ^
+                    ")"
                   in
                   ["bymatch passing"; step_label how; " ";
                    bracketedliststring (up cxt) "," us; " and ";
@@ -235,7 +268,7 @@ module M : T =
                 " ("; seqstring conjecture; ") => (";
                 liststring visprovisostring " AND " (provisos cxt); " ... ";
                 liststring visprovisostring " AND " (provisos cxt'); ") => ";
-                string_of_int r];
+                string_of_bool r];
            r)
     (* discriminators *)
     
@@ -247,9 +280,9 @@ module M : T =
         fun (Info {conjecture = Seq (st, chs, cgs)}, thinnedL, thinnedR, _, _)
           (_, thinnedL', thinnedR', _, _) ->
           (thinnedL = thinnedL' ||
-           identical (snd (breakside chs)) (thinnedL, thinnedL')) &&
+           identical (snd_of_3 (breakside chs)) (thinnedL, thinnedL')) &&
           (thinnedR = thinnedR' ||
-           identical (snd (breakside cgs)) (thinnedR, thinnedR'))
+           identical (snd_of_3 (breakside cgs)) (thinnedR, thinnedR'))
       and identical a1 a2 =
         match a1, a2 with
           BagClass _, (rts, rts') -> eqlists sameresource (rts, rts')
@@ -311,15 +344,15 @@ module M : T =
     ***************************************************************************)
 
     let rec fitter checker resnums =
-      fun (As, Bs) cxt ->
-        (* The rule provides the collection As, the conjecture the collection Bs. 
+      fun (_As, _Bs) cxt ->
+        (* The rule provides the collection _As, the conjecture the collection _Bs. 
             
-            Unifying As with Bs provides us with a list of contexts, which will include
+            Unifying _As with _Bs provides us with a list of contexts, which will include
             resource matches for elements which have matched. In order to mesh with the 
             old machinery in other parts of the engine, we need to convert those 
-            resource matches into lists of formulae in Bs that have been resource-matched.
+            resource matches into lists of formulae in _Bs that have been resource-matched.
             
-            We no longer need the elements of Bs that aren't matched as a result of 
+            We no longer need the elements of _Bs that aren't matched as a result of 
             this function, so we return a list of pairs, each containing a unification
             context and a list of matched elements.
          *)
@@ -327,7 +360,7 @@ module M : T =
          * don't return all the resnum matches.
          * RB 27/x/96
          *)
-        let cxts = checker (As, Bs) cxt in
+        let cxts = checker (_As, _Bs) cxt in
         let rec thinned cxt r =
           match r with
             ResUnknown i ->
@@ -342,9 +375,8 @@ module M : T =
           | _ -> None
         in
         (fun cxt -> optionfilter (thinned cxt) resnums, cxt) <* cxts
-    (* obvious analogue of exists *)
-    let rec all f = not <*> List.exists (not <*> f)
-    let rec BnMfilter = List.filter
+
+    let _BnMfilter = List.filter
     (*   Match rule by hypothesis then conclusion
          and generate sets of subgoals from antecedents,
          indexed by the hypothesis match.
@@ -353,13 +385,13 @@ module M : T =
       fun
         (Info
            {kind = kind;
-            conjecture = Seq (Cst, CHs, CGs);
+            conjecture = Seq (_Cst, _CHs, _CGs) as conjecture;
             how = how;
-            consequent = Seq (st, Hs, Gs);
+            consequent = Seq (st, _Hs, _Gs) as consequent;
             antecedents = antecedents;
             cxt = cxt;
             provisos = provisos;
-            principals = resnumLs, resnumRs;
+            principals = resnumLs, resnumRs as principals;
             selhyps = selhyps;
             selconcs = selconcs} as info) ->
         let rec expandfresh b (h, g, r, v as f) left right ps =
@@ -373,7 +405,7 @@ module M : T =
             (fun (vp, (ips, nps)) ->
                match provisoactual vp with
                  FreshProviso (_, _, false, _ as f) ->
-                   ips, expandfresh (provisovisible vp) f CHs CGs nps
+                   ips, expandfresh (provisovisible vp) f _CHs _CGs nps
                | FreshProviso (_, _, true, _ as i) ->
                    (provisovisible vp, i) :: ips, nps
                | _ -> ips, vp :: nps)
@@ -387,8 +419,8 @@ module M : T =
               registerCollection
                 (c, (fun el -> not (member (el, ths))) <| els)
             in
-            let cHs = goodside thinnedL CHs in
-            let cGs = goodside thinnedL CGs in
+            let cHs = goodside thinnedL _CHs in
+            let cGs = goodside thinnedL _CGs in
             nj_fold (fun ((b, i), ps) -> expandfresh b i cHs cGs ps)
               impfreshprovisos []
         in
@@ -418,11 +450,11 @@ module M : T =
         |   remdupposs _            ps = ps
         *)
         
-        let Hkind = snd (breakside Hs) in
-        let Gkind = snd (breakside Gs) in
+        let _Hkind = snd_of_3 (breakside _Hs) in
+        let _Gkind = snd_of_3 (breakside _Gs) in
         let rec checkinclusive js ks =
-          all (fun j -> List.exists (fun k -> sameresource (j, k)) ks) js ||
-          all (fun k -> List.exists (fun j -> sameresource (j, k)) js) ks
+          _All (fun j -> List.exists (fun k -> sameresource (j, k)) ks) js ||
+          _All (fun k -> List.exists (fun j -> sameresource (j, k)) js) ks
         in
         let genSubGoals =
           let rec exp0 ss () =
@@ -454,95 +486,92 @@ module M : T =
             ["The goal fits the rule, but the rule didn't make use of the ";
              word; " "; ts; " which you selected"]
           in
-			(explain (exp1 "conclusion" "conclusions" CGs) <*> nonempty <*> 
-			  fitter checker resnumRs (Gs, CGs)) 
-			&~
-			(explain (unusedprincipal "conclusion" "conclusions" selconcs) <*> 
-			 nonempty <*> 
-			 BnMfilter (fun (thRs, _) ->
-						  let r = checkinclusive thRs selconcs in
-						  if !applydebug > 0 then
-							consolereport
-							  ["usedconc checking ";
-							   bracketedliststring showel ","
-								 selconcs;
-							   " against ";
-							   bracketedliststring showel ","
-								 thRs;
-							   " => "; string_of_int r];
-						  r))),
-			&~
-			(explain (exp1 "hypothesis" "hypotheses" CHs) <*> 
-			 nonempty <*> 
-			 List.concat "" <*> 
-			 List.map
-				(fun (thinnedR, cxt) ->
-				   [thinnedR] >< fitter checker resnumLs (Hs, CHs) cxt))
-			&~
-			(explain (unusedprincipal "hypothesis" "hypotheses" selhyps) <*>
-			 nonempty <*>
-			 BnMfilter ((fun (_, (thLs, _)) ->
-						   let r = checkinclusive thLs selhyps in
-						   if !applydebug > 0 then
-							 consolereport
-							   ["usedhyp checking ";
-								bracketedliststring showel "," selhyps;
-								" against ";
-								bracketedliststring showel "," thLs;
-								" => "; string_of_int r];
-						   r))))
-			&~
-			(fun poss ->
-			   let rec doprovisos
-				 ((thinnedR, (thinnedL, cxt) as pos), (bads, goods)) =
-				 try
-				   bads,
-				   (thinnedL, thinnedR,
-					verifyprovisos
-					  (plusprovisos
-						 (cxt, impprovisos thinnedL thinnedR))) ::
-					 goods
-				 with
-				   Verifyproviso_ p -> p :: bads, goods
-			   in
-			   match nj_fold doprovisos poss ([], []) with
-				 bads, [] ->
-				   begin match sortunique earlierproviso bads with
-					 [p] ->
-					   explain
-						 (exp0
-							["the goal fits the rule, but the proviso ";
-							 provisostring p; " is violated"])
-						 None
-				   | ps ->
-					   explain
-						 (exp0
-							["the goal fits the rule, but the provisos (variously ";
-							 liststring provisostring " and " ps;
-							 ") are violated"])
-						 None
-				   end
-			   | _, (_ :: _ as goods) -> Some goods)),
-			&~
-			nonempty <*>
-			List.map (result antecedents)
+            (explain (exp1 "conclusion" "conclusions" _CGs) <*> nonempty <*> 
+              fitter checker resnumRs (_Gs, _CGs)) 
+            &~
+            (explain (unusedprincipal "conclusion" "conclusions" selconcs) <*> 
+             nonempty <*> 
+             _BnMfilter (fun (thRs, _) ->
+                          let r = checkinclusive thRs selconcs in
+                          if !applydebug > 0 then
+                            consolereport
+                              ["usedconc checking ";
+                               bracketedliststring showel ","
+                                 selconcs;
+                               " against ";
+                               bracketedliststring showel ","
+                                 thRs;
+                               " => "; string_of_bool r];
+                          r))
+            &~
+            (explain (exp1 "hypothesis" "hypotheses" _CHs) <*> 
+             nonempty <*> List.concat <*> 
+             List.map
+                (fun (thinnedR, cxt) ->
+                   [thinnedR] >< fitter checker resnumLs (_Hs, _CHs) cxt))
+            &~
+            (explain (unusedprincipal "hypothesis" "hypotheses" selhyps) <*>
+             nonempty <*>
+             _BnMfilter ((fun (_, (thLs, _)) ->
+                           let r = checkinclusive thLs selhyps in
+                           if !applydebug > 0 then
+                             consolereport
+                               ["usedhyp checking ";
+                                bracketedliststring showel "," selhyps;
+                                " against ";
+                                bracketedliststring showel "," thLs;
+                                " => "; string_of_bool r];
+                           r)))
+            &~
+            (fun poss ->
+               let rec doprovisos
+                 ((thinnedR, (thinnedL, cxt) as pos), (bads, goods)) =
+                 try
+                   bads,
+                   (thinnedL, thinnedR,
+                    verifyprovisos
+                      (plusprovisos cxt
+                         (impprovisos thinnedL thinnedR))) ::
+                     goods
+                 with
+                   Verifyproviso_ p -> p :: bads, goods
+               in
+               match nj_fold doprovisos poss ([], []) with
+                 bads, [] ->
+                   begin match sortunique earlierproviso bads with
+                     [p] ->
+                       explain
+                         (exp0
+                            ["the goal fits the rule, but the proviso ";
+                             provisostring p; " is violated"])
+                         None
+                   | ps ->
+                       explain
+                         (exp0
+                            ["the goal fits the rule, but the provisos (variously ";
+                             liststring provisostring " and " ps;
+                             ") are violated"])
+                         None
+                   end
+               | _, (_ :: _ as goods) -> Some goods)
+            &~
+            (nonempty <*> List.map (result antecedents))
         in
-        if Cst = st then genSubGoals (plusprovisos (cxt, newprovisos))
+        if _Cst = st then genSubGoals (plusprovisos cxt newprovisos)
         else
           failwithreason
             ["The rule "; step_label how; " doesn't match the goal ";
              seqstring conjecture; " because the turnstiles are different"]
     let rec showstuff stuff =
       octuplestring enQuote
-        (pairstring (string_of_int : bool -> string)
-           (string_of_int : bool -> string) ",")
+        (pairstring string_of_bool string_of_bool ",")
         prooftree_stepstring showargs
         (pairstring (bracketedliststring resnumstring ",")
            (bracketedliststring resnumstring ",") ",")
         (bracketedliststring seqstring ",") seqstring
         (bracketedliststring visprovisostring " AND ") ", " stuff
     let rec apply checker filter taker selhyps selconcs stuff reason cxt =
-      fun (C, Cinf) ->
+      fun (_C, _Cinf) ->
         let
           (kind, hiddencontexts, how, args, principals, antes, conseq, provs)
           =
@@ -552,44 +581,13 @@ module M : T =
           if !applydebug > 0 then
             consolereport
               ["apply "; step_label how; " "; showstuff stuff; " ";
-               enQuote reason; " "; seqstring C]
+               enQuote reason; " "; seqstring _C]
         in
         let info =
-          Info
-            (let module M =
-               struct
-                 class a =
-                   object
-                     val reason = reason
-                     val kind = kind
-                     val conjecture = C
-                     val conjectureinf = Cinf
-                     val cxt = cxt
-                     val args = args
-                     val provisos = provs
-                     val antecedents = antes
-                     val consequent = conseq
-                     val how = how
-                     val principals = principals
-                     val selhyps = selhyps
-                     val selconcs = selconcs
-                     method reason = reason
-                     method kind = kind
-                     method conjecture = conjecture
-                     method conjectureinf = conjectureinf
-                     method cxt = cxt
-                     method args = args
-                     method provisos = provisos
-                     method antecedents = antecedents
-                     method consequent = consequent
-                     method how = how
-                     method principals = principals
-                     method selhyps = selhyps
-                     method selconcs = selconcs
-                   end
-               end
-             in
-             new M.a)
+          Info { reason = reason; kind = kind; conjecture = _C; conjectureinf = _Cinf;
+                 cxt = cxt; args = args; provisos = provs; antecedents = antes;
+                 consequent = conseq; how = how; principals = principals;
+                 selhyps = selhyps; selconcs = selconcs }
         in
            subGoalsOfRule checker hiddencontexts info &~~
            (filter &~ taker)

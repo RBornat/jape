@@ -28,7 +28,7 @@ module type T =
     val somef : ('a -> 'a option) -> 'a -> 'a option
     val stripoption : 'a option option -> 'a option
     val try__ : ('a -> 'b) -> 'a option -> 'b option
-    val unSOME : 'a option -> 'a
+    val _The : 'a option -> 'a
 
     exception UnSOME_
   end
@@ -38,7 +38,7 @@ module M : T =
   struct
     open SML.M
     exception UnSOME_
-    let rec unSOME =
+    let rec _The =
       function
         Some x -> x
       | None -> raise UnSOME_

@@ -289,7 +289,7 @@ module Funs : Funs with type idclass = Idclass.M.idclass
       | RIGHTFIX (_, s) -> s
       | STILE s -> s
       | SHYID s -> s
-      | _ -> unSOME (Mappingfuns.M.at (!reversemapping, symbol))
+      | _ -> _The (Mappingfuns.M.at (!reversemapping, symbol))
     let rec preclassopt =
       function
         Some c -> BQuote2 ["Some("; idclassstring c; ")"]

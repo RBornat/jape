@@ -929,7 +929,7 @@ module type Funs =
 	(* takes no notice of resource numbers *)
 	val sameresource : element * element -> bool
 	(* only looks at resource numbers *)
-	val earlierresource : element * element -> bool
+	val earlierresource : element -> element -> bool
 	(* only looks at resource numbers *)
 
 	val explodeApp : bool -> term -> term * term list
@@ -1510,7 +1510,7 @@ module Funs : Funs with type vid = Type.vid
       | _ -> e1 = e2
     (* we don't analyse Segvars *)
       
-    let rec earlierresource (e1, e2) =
+    let rec earlierresource e1 e2 =
       match e1, e2 with
         Element (_, r1, _), Element (_, r2, _) ->
           begin match r1, r2 with

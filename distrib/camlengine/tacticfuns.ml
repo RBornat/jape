@@ -114,8 +114,8 @@ module M : T =
        getargs)
       =
       let rec getsides el sopt =
-        try unSOME ((element2term el &~~ explodebinapp)) with
-          unSOME_ ->
+        try _The ((element2term el &~~ explodebinapp)) with
+          _The_ ->
             raise
               (Catastrophe_
                  ["getsides given "; elementstring el; "; ";
@@ -370,7 +370,7 @@ module M : T =
         function
           (Unknown (_, v, c) as u), (us, cxt, env) ->
             let (cxt', v') = freshVID cxt c v in
-            let uname = unSOME (term2name u) in
+            let uname = _The (term2name u) in
             uname :: us, cxt',
             ( ++ ) (env, ( |-> ) (uname, registerUnknown (v', c)))
         | _, r -> r
@@ -887,7 +887,7 @@ module M : T =
           match nj_fold Applicable rulenames [] with
             [] -> None
           | cs ->
-              let cs = sort (fun ((n, _), (n', _)) -> nameorder (n, n')) cs in
+              let cs = sort (fun (n, _) (n', _) -> nameorder n n') cs in
               let rec showRule (name, (cxt, tree)) =
                 namestring name ::
                     ((seqstring <*> rewriteseq cxt <*> sequent) <* subtrees tree)
@@ -1027,7 +1027,7 @@ module M : T =
           not (currentlyProving name) &&
           (applyAnyway thing || not (needsProof name thing))
     let rec allrelevantthings () =
-        (fst <*> unSOME <*> thingnamed) <* (relevant <| thingnames ())
+        (fst <*> _The <*> thingnamed) <* (relevant <| thingnames ())
     let rec isassociative operator =
       if !FINDdebug then
         consolereport
@@ -1088,7 +1088,7 @@ module M : T =
       function
         Id (_, c, _) as f ->
           let (curried, lassoc) =
-            try unSOME (lookupassoc c) with
+            try _The (lookupassoc c) with
               UnSOME_ -> raise MatchinAssocInfo
           in
           if !FINDdebug then
@@ -1396,9 +1396,9 @@ module M : T =
        
     let rec tranformals formals =
       try
-          (unSOME <*> term2name <*> paramvar) <* formals
+          (_The <*> term2name <*> paramvar) <* formals
       with
-        unSOME_ ->
+        _The_ ->
           raise
             (Catastrophe_
                ["parameter list (";
@@ -1415,8 +1415,8 @@ module M : T =
       mkenv' formals args
     let rec mkenvfrommap params argmap =
       let rec mk ((v, t), e) =
-        try ( ++ ) (e, ( |-> ) (unSOME (term2name v), t)) with
-          unSOME_ ->
+        try ( ++ ) (e, ( |-> ) (_The (term2name v), t)) with
+          _The_ ->
             raise (Catastrophe_ ["can't happen mkenvfrommap "; termstring v])
       in
       nj_revfold mk argmap !rootenv
@@ -1424,8 +1424,8 @@ module M : T =
       let rec A =
         function
           App (_, Id (_, "QUOTE", _), a) -> Some (QU (env, a))
-        | Id _ as v -> at (env, unSOME (term2name v))
-        | Unknown _ as v -> at (env, unSOME (term2name v))
+        | Id _ as v -> at (env, _The (term2name v))
+        | Unknown _ as v -> at (env, _The (term2name v))
         | _ -> None
       in
       mapterm A term
@@ -1506,7 +1506,7 @@ module M : T =
 
 
     let THING = (ref None : term option ref)
-    let rec IT () = unSOME !THING
+    let rec IT () = _The !THING
     let rec strsep t =
       match debracket t with
         Literal (_, String s) -> s
@@ -2359,7 +2359,7 @@ module M : T =
             (fun (formal, env) ->
                ( ++ )
                  (env,
-                  ( |-> ) (formal, rewrite cxt (unSOME (at (env, formal))))))
+                  ( |-> ) (formal, rewrite cxt (_The (at (env, formal))))))
             newformals env
         in
         let rec checkmatching cxt cxt' expr =
@@ -2558,7 +2558,7 @@ module M : T =
         let rec seqside2term colln =
           try
             let ts =
-                ((unSOME <*> element2term) <*
+                ((_The <*> element2term) <*
                  explodeCollection colln)
             in
             (* I wish I didn't have to know how termparse does it, but I do ... *)
@@ -2580,7 +2580,7 @@ module M : T =
           let tipterms =
               ((fun (path, rhss) ->
                   path,
-                  (unSOME <* (opt2bool <| (element2term <* rhss)))) <*
+                  (_The <* (opt2bool <| (element2term <* rhss)))) <*
                tiprhss)
           in
           List.concat
@@ -2631,7 +2631,7 @@ module M : T =
                    Some
                      (registerTup
                         (",",
-                           (((rewrite cxt <*> unSOME) <*> element2term) <*
+                           (((rewrite cxt <*> _The) <*> element2term) <*
                             hs))),
                    spec)
             | _ -> setReason ["LETHYPS with no selected hypothesis/es"]; None

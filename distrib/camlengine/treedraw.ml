@@ -72,7 +72,7 @@ module M : Screendraw.T =
     let rec maketreeplan proof =
       let termfontleading = thrd (fontinfo TermFont) in
       let reasonfontleading = thrd (fontinfo ReasonFont) in
-      let leading = nj_fold Integer.max [termfontleading; reasonfontleading] 1 in
+      let leading = nj_fold (uncurry2 max) [termfontleading; reasonfontleading] 1 in
       let hspace = max (20) (10 * leading)
       (* was 30,15*leading, seemed a bit excessive *)
       and vspace = leading in

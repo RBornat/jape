@@ -2,22 +2,16 @@
 
 module type T =
   sig
-    type cxt
-    and model
-    and name
-    and proofstage
-    and 'a prooftree
-    and proviso
-    and seq
-    and thing
-    and treeformat
+    type cxt and model and name and proofstage and prooftree and proviso
+    and seq and thing
+    
     (* the proof store *)
     val saveable : unit -> bool
     val saved : unit -> bool
     val freezesaved : unit -> unit
     val thawsaved : unit -> unit
     val saveproof :
-      out_channel -> name -> proofstage -> treeformat prooftree ->
+      out_channel -> name -> proofstage -> prooftree ->
         proviso list -> seq list -> (seq * model) option -> unit
     val saveproofs : out_channel -> unit
     val proved : name -> bool
@@ -25,13 +19,13 @@ module type T =
     val provedordisproved : name -> bool option
     val proofnamed :
       name ->
-        (bool * treeformat prooftree * (bool * proviso) list * seq list *
+        (bool * prooftree * (bool * proviso) list * seq list *
            (seq * model) option)
           option
     val addproof :
       (string list -> unit) ->
         (string list * string * string * int -> bool) -> name -> bool ->
-        treeformat prooftree -> seq list -> cxt -> (seq * model) option ->
+        prooftree -> seq list -> cxt -> (seq * model) option ->
         bool
     val clearproofs : unit -> unit
     val proofnames : unit -> name list
@@ -42,19 +36,43 @@ module type T =
     val lacksProof : name -> bool
     val thmLacksProof : name -> bool
   end    
-(* $Id$ *)
 
-module M : T =
+module M : T with type cxt = Context.Cxt.cxt
+			  and type model = Forcedef.M.model 
+			  and type name = Name.M.name
+			  and type proofstage = Proofstage.M.proofstage
+			  and type prooftree = Prooftree.Tree.Fmttree.prooftree
+			  and type proviso = Proviso.M.proviso
+			  and type seq = Sequent.Funs.seq
+			  and type thing = Thing.M.thing
+=
   struct
-    open Listfuns
-    open Mappingfuns
-    open Optionfuns
-    open Proofstage
-    open Prooftree
-    open Prooftree.fmtprooftree
-    open Thing
+    open Context.Cxt
+    open Forcedef.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Menu.M
+    open Miscellaneous.M
+    open Name.M
+    open Optionfuns.M
+    open Panelkind.M
+    open Paraparam.M
+    open Proofstage.M
+    open Prooftree.Tree
+    open Prooftree.Tree.Fmttree
+    open Proviso.M
+    open Rewrite.Funs
+    open SML.M
+    open Thing.M
 
-    type model = model
+    type cxt = Context.Cxt.cxt
+     and model = Forcedef.M.model 
+     and name = Name.M.name
+     and proofstage = Proofstage.M.proofstage
+     and prooftree = Fmttree.prooftree
+     and proviso = Proviso.M.proviso
+     and seq = Sequent.Funs.seq
+     and thing = Thing.M.thing
     
     let
       (freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
@@ -65,7 +83,7 @@ module M : T =
       let proofs
         :
         (name,
-         (bool * treeformat prooftree * name list * (seq * model) option))
+         (bool * prooftree * name list * (seq * model) option))
          mapping ref =
         ref empty
       and allsaved = ref true
@@ -174,6 +192,17 @@ module M : T =
         | _ -> None
       in
       let inproofstore = opt2bool <*> proofnamed in
+
+	  let menu2word _ = "MENU" in
+	  let panel2word p =
+		match getpanelkind p with
+		  Some TacticPanelkind     -> "TACTICPANEL"
+		| Some ConjecturePanelkind -> "CONJECTUREPANEL"
+		| Some GivenPanelkind      -> 
+			raise (Catastrophe_ ["proof in GIVENPANEL"])
+		| None -> 
+		   raise (Catastrophe_ ["proof in unknown panel "; namestring p])
+      in
       let rec saveproof stream name stage tree provisos givens disproof =
         let rec badthing () =
           raise
@@ -264,5 +293,5 @@ module M : T =
       | name, Macro _ -> false
       | name, Theorem _ -> not (proved name)
     let rec lacksProof name =
-      needsProof name (fst (unSOME (thingnamed name)))
+      needsProof name (fst (_The (thingnamed name)))
   end
