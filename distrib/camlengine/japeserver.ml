@@ -352,22 +352,24 @@ let procrusteanCache : (int*string*string*string, string) Hashtbl.t =
   Hashtbl.create 251 (* usual comment *)
 
 let procrustes width ellipsis font text =
-  let fontnum = int_of_displayfont font in
-  let fontname = getfontname fontnum in
-  let arg = (width,text,ellipsis,fontname) in
-  try Hashtbl.find procrusteanCache arg with
-  Not_found -> (
-    let trunc = 
-      writef "PROCRUSTES % % % %\n" [Int width; Str text; Str ellipsis; Int fontnum];
-      readline "PROCRUSTES"
-    in
-    Hashtbl.add procrusteanCache arg trunc;
-    trunc
-  )
+  if fst_of_3 (measurestring font text) <= width then text 
+  else
+    (let fontnum = int_of_displayfont font in
+     let fontname = getfontname fontnum in
+     let arg = (width,text,ellipsis,fontname) in
+     try Hashtbl.find procrusteanCache arg with
+     Not_found -> (
+       let trunc = 
+         writef "PROCRUSTES % % % %\n" [Int width; Str text; Str ellipsis; Int fontnum];
+         readline "PROCRUSTES"
+       in
+       Hashtbl.add procrusteanCache arg trunc;
+       trunc
+     ))
 
-let rec howtoTextSelect () = ask "HOWTO textselect"
-let rec howtoFormulaSelect () = ask "HOWTO formulaselect"
-let rec howtoDrag () = ask "HOWTO drag"
+let howtoTextSelect    () = ask "HOWTO textselect"
+let howtoFormulaSelect () = ask "HOWTO formulaselect"
+let howtoDrag          () = ask "HOWTO drag"
 
 (***************)
 
