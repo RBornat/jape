@@ -47,9 +47,9 @@ CONJECTUREPANEL "Set Conjectures" IS
 
 	END
 
-	BUTTON Apply IS apply TheoremForwardOrBackward LABEL
-	BUTTON "AÍ…" IS apply ForwardSubstHiding "rewrite Í «" "rewrite Í »"  LABEL
-	BUTTON "…ÍB" IS apply ForwardSubstHiding "rewrite Í »" "rewrite Í «"  LABEL
-	BUTTON "A=…" IS apply ForwardSubstHiding "rewrite = «" "rewrite = »"  LABEL
-	BUTTON "…=B" IS apply ForwardSubstHiding "rewrite = »" "rewrite = «"  LABEL
+	BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
+	BUTTON "AÍ…" IS apply ForwardSubstHiding "rewrite Í «" "rewrite Í »"  COMMAND
+	BUTTON "…ÍB" IS apply ForwardSubstHiding "rewrite Í »" "rewrite Í «"  COMMAND
+	BUTTON "A=…" IS apply ForwardSubstHiding "rewrite = «" "rewrite = »"  COMMAND
+	BUTTON "…=B" IS apply ForwardSubstHiding "rewrite = »" "rewrite = «"  COMMAND
 END
