@@ -25,6 +25,7 @@
     
 */
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -32,23 +33,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-
-/*import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-
-import java.awt.dnd.DragSource;
-import java.awt.dnd.DragGestureEvent;
-import java.awt.dnd.DragGestureListener;
-import java.awt.dnd.DragSourceDragEvent;
-import java.awt.dnd.DragSourceDropEvent;
-import java.awt.dnd.DragSourceEvent;
-import java.awt.dnd.DragSourceListener;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;*/
 
 import java.awt.event.MouseEvent;
 
@@ -64,9 +48,7 @@ import javax.swing.SwingUtilities;
 
 public class WorldItem extends DisplayItem implements DebugConstants, MiscellaneousConstants,
                                                       SelectionConstants,
-                                                      TileTarget /*,
-                                                      DragSourceListener, DragGestureListener,
-                                                      DropTargetListener */{
+                                                      TileTarget {
 
     protected WorldCanvas canvas;
     protected JLayeredPane layeredPane;
@@ -74,30 +56,26 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     protected SelectionRing selectionRing;
     protected Ellipse2D.Float outline;
 
-    private final int x0, y0, labelgap;
+    private final int x0, y0, radius, labelgap;
     private int labelx;
-    private Vector labelv = new Vector();
-
-    /*public static DataFlavor worldFlavor;
-    private DragSource dragSource;*/
+    private Vector labelv = new Vector(),
+                   fromv = new Vector(),
+                   tov = new Vector();
 
     public WorldItem(WorldCanvas canvas, JFrame window, int x, int y) {
         super(x, y);
         this.canvas = canvas;
         this.layeredPane = window.getLayeredPane(); this.contentPane = window.getContentPane();
         x0 = x; y0 = -y;
-        setBounds(x0-canvas.worldRadius(), y0-canvas.worldRadius(),
-                  2*canvas.worldRadius(), 2*canvas.worldRadius());
+        this.radius = canvas.worldRadius();
+        setBounds(x0-radius, y0-radius, 2*radius, 2*radius);
 
-        selectionRing = new SelectionRing(x0, y0, canvas.worldRadius()+2*canvas.linethickness);
+        selectionRing = new SelectionRing(x0, y0, radius+2*canvas.linethickness);
         canvas.add(selectionRing);
 
         outline = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
         if (geometry_tracing)
             System.err.println("world bounds are "+getBounds()+"; outline is "+outline.getBounds2D());
-
-       /* setEnabled(true); // I think this is necessary for dragTarget behaviour
-        setDropTarget(new DropTarget(this, this));*/
 
         setForeground(Preferences.WorldColour);
 
@@ -120,18 +98,32 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         });
     }
 
-    private boolean dragImageUpdateNeeded = true;
+    public void registerTo(WorldConnector wc) {
+        for (int i=0; i<tov.size(); i++) {
+            WorldConnector wc1 = (WorldConnector)tov.get(i);
+            if (wc1.from==wc.from)
+                return;
+        }
+        tov.add(wc);
+    }
+
+    public void registerFrom(WorldConnector wc) {
+        for (int i=0; i<fromv.size(); i++) {
+            WorldConnector wc1 = (WorldConnector)fromv.get(i);
+            if (wc1.to==wc.to)
+                return;
+        }
+        fromv.add(wc);
+    }
 
     public void addlabel(String s) {
         TextItem t = canvas.addLabelItem(labelx, y0, s);
         labelv.add(t);
         labelx += t.getWidth()+labelgap;
-        dragImageUpdateNeeded = true;
     }
     
     public void select(boolean selected) {
         selectionRing.select(selected);
-        dragImageUpdateNeeded = true;
     }
 
     public void paint(Graphics g) {
@@ -168,7 +160,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         }
 
         public void select(boolean selected) {
-            this.selected = selected; repaint();
+            this.selected = selected;
+            WorldItem.this.canvas.imageRepaint(); repaint();
         }
     }
 
@@ -180,7 +173,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             draghighlight = true;
             oldForeground = getForeground();
             setForeground(Preferences.SelectionColour);
-            if (antialias_tracing)
+            if (worldpaint_tracing)
                 System.err.println("highlighting world");
             canvas.imageRepaint(); repaint();
         }
@@ -188,7 +181,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             if (!state && draghighlight) {
                 draghighlight = false;
                 setForeground(oldForeground);
-                if (antialias_tracing)
+                if (worldpaint_tracing)
                     System.err.println("de-highlighting world");
                 canvas.imageRepaint(); repaint();
             }
@@ -214,10 +207,11 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     /* ****************************** world as drag source ****************************** */
 
     public void hitCanvas(WorldCanvas canvas, int x, int y) {
-        Reply.sendCOMMAND((dragKind==SimpleDrag ? "moveworld" : "addworld")+" "+idX+" "+idY+" "+x+" "+(-y));
+        Reply.sendCOMMAND((worldImage.dragKind==MoveWorldDrag ? "moveworld" : "addworld")+
+                          " "+idX+" "+idY+" "+x+" "+(-y));
     }
     
-    private int startx, starty, lastx, lasty, offsetx, offsety;
+    private int startx, starty, lastx, lasty, offsetx, offsety, centreoffsetx, centreoffsety;
     private boolean firstDrag;
 
     public void pressed(byte dragKind, MouseEvent e) {
@@ -225,10 +219,11 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     }
 
     protected class WorldImage extends DragComponent {
-        public WorldImage() {
-            super(Transparent);
+        public final byte dragKind;
+        public WorldImage(byte dragKind) {
+            super(Transparent); this.dragKind = dragKind;
             include(WorldItem.this);
-            if (selectionRing.selected)
+            if (selectionRing.selected && dragKind==MoveWorldDrag)
                 include(selectionRing);
             for (int i=0; i<labelv.size(); i++)
                 include((TextItem)labelv.get(i));
@@ -244,8 +239,55 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         this.setVisible(state); selectionRing.setVisible(state);
         for (int i=0; i<labelv.size(); i++)
             ((TextItem)labelv.get(i)).setVisible(state);
+        for (int i=0; i<fromv.size(); i++)
+            ((WorldConnector)fromv.get(i)).setVisible(state);
+        for (int i=0; i<tov.size(); i++)
+            ((WorldConnector)tov.get(i)).setVisible(state);
         canvas.forcerepaint();
     }
+
+    public Point dragCentre() {
+        return SwingUtilities.convertPoint(this, radius, radius, layeredPane);
+    }
+
+    class DragLine extends LineComponent {
+        private final int endx, endy;
+        public DragLine(WorldItem w) {
+            this(w.dragCentre());
+        }
+        public DragLine(Point p) {
+            super(worldImage.getX()+offsetx+radius, worldImage.getY()+offsety+radius,
+                  p.x, p.y, canvas.linethickness);
+            this.endx = p.x; this.endy = p.y;
+        }
+        public void wakeup() {
+            repaint();
+            resetLine(worldImage.getX()+offsetx+radius, worldImage.getY()+offsety+radius,
+                      endx, endy, canvas.linethickness);
+            repaint();
+        }
+    }
+
+    class DragLines {
+        private Vector lines = new Vector();
+        public void addLine(WorldItem w) {
+            DragLine dl = new DragLine(w);
+            lines.add(dl);
+            layeredPane.add(dl);
+            dl.repaint();
+        }
+        public void wakeup() {
+            for (int i=0; i<lines.size(); i++)
+                ((DragLine)lines.get(i)).wakeup();
+        }
+        public void tidy() {
+            for (int i=0; i<lines.size(); i++)
+                layeredPane.remove((Component)lines.get(i));
+            lines.removeAllElements();
+        }
+    }
+    
+    private DragLines dragLines;
     
     public void dragged(byte dragKind, MouseEvent e) {
         if (firstDrag) {
@@ -256,44 +298,57 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                 Alert.abort("can't make WorldTarget a Class");
             }
             over = null;
-            if (worldImage==null || dragImageUpdateNeeded) {
-                worldImage = new WorldImage();
-                dragImageUpdateNeeded = false;
-            }
-            if (dragKind==SimpleDrag)
-                setDrageesVisible(false);
+            worldImage = new WorldImage(dragKind);
             Point p = worldImage.getImageLocation();
             offsetx = getX()-p.x; offsety = getY()-p.y;
+            centreoffsetx = offsetx+radius; centreoffsety = offsety+radius;
             layeredPane.add(worldImage, JLayeredPane.DRAG_LAYER);
             worldImage.setLocation(
                     SwingUtilities.convertPoint(this, e.getX()-startx-offsetx, e.getY()-starty-offsety,
                                                 layeredPane));
             worldImage.repaint();
+            dragLines = new DragLines();
+            switch (dragKind) {
+                case MoveWorldDrag:
+                    setDrageesVisible(false);
+                    for (int i=0; i<fromv.size(); i++)
+                        dragLines.addLine(((WorldConnector)fromv.get(i)).to);
+                    for (int i=0; i<tov.size(); i++)
+                        dragLines.addLine(((WorldConnector)tov.get(i)).from);
+                    break;
+                case NewWorldDrag:
+                    dragLines.addLine(this);
+                    break;
+                default:
+                    Alert.abort("WorldItem.dragged dragKind="+dragKind);
+            }
         }
         else {
             if (drag_tracing)
                 System.err.print("mouse dragged to "+e.getX()+","+e.getY());
+
             worldImage.repaint();
             worldImage.setLocation(worldImage.getX()+(e.getX()-lastx),
                                    worldImage.getY()+(e.getY()-lasty));
             if (drag_tracing)
                 System.err.println("; dragged world now at "+worldImage.getX()+","+worldImage.getY());
             worldImage.repaint();
-            Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-            WorldTarget target = (WorldTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
-            if (target!=over) {
-                if (over!=null)
-                    over.dragExit();
-                if (target!=null)
-                    target.dragEnter();
-                over = target;
-            }
+
+            dragLines.wakeup();
+        }
+            
+        Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
+        WorldTarget target = (WorldTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
+        if (target!=over) {
+            if (over!=null)
+                over.dragExit();
+            if (target!=null)
+                target.dragEnter();
+            over = target;
         }
         lastx = e.getX(); lasty = e.getY();
     }
 
-    private byte dragKind;
-    
     protected void released(final byte dragKind, MouseEvent e) {
         if (drag_tracing)
             System.err.println("mouse released at "+e.getX()+","+e.getY()+
@@ -303,123 +358,21 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                         SwingUtilities.convertPoint(this, -offsetx, -offsety, layeredPane)) {
                 protected void finishFlyback() {
                     finishDrag();
-                    if (dragKind==SimpleDrag)
+                    if (dragKind==MoveWorldDrag)
                         setDrageesVisible(true);
                 }
             };
         else {
-            int radius = canvas.worldRadius();
             Point p = SwingUtilities.convertPoint(layeredPane, worldImage.getX()+offsetx+radius,
                                                   worldImage.getY()+offsety+radius, (Component)over);
             finishDrag();
-            this.dragKind = dragKind;
             over.drop(this, p.x, p.y);
         }
     }
 
     protected void finishDrag() {
         layeredPane.remove(worldImage);
+        dragLines.tidy();
         layeredPane.repaint();
     }
-
-    /*
-    public void dragGestureRecognized(DragGestureEvent event) {
-        from = event.getDragOrigin();
-        if (dragimage_tracing)
-            System.err.println("dragging world image; dragOrigin="+from);
-        if (image==null || dragImageUpdateNeeded) {
-            // find bounding rectangle of drawable stuff
-            imagebounds = getBounds();
-            if (selectionRing.selected)
-                imagebounds.add(selectionRing.getBounds());
-            for (int i=0; i<labelv.size(); i++)
-                imagebounds.add(((TextItem)labelv.get(i)).getBounds());
-            int width = imagebounds.width, height = imagebounds.height;
-            image = (BufferedImage)createImage(width, height);
-            Graphics imageGraphics = image.createGraphics();
-            imageGraphics.setClip(0, 0, width, height);
-            imageGraphics.setColor(Preferences.ProofBackgroundColour);
-            imageGraphics.fillRect(0, 0, width, height);
-            paintStuff(this, imageGraphics);
-            paintStuff(selectionRing, imageGraphics);
-            for (int i=0; i<labelv.size(); i++)
-                paintStuff((TextItem)labelv.get(i), imageGraphics);
-            imageGraphics.dispose();
-            dragImageUpdateNeeded = false;
-        }
-
-        Point offset = new Point(-from.x-(getX()-imagebounds.x), -from.y-(getY()-imagebounds.y));
-        if (dragimage_tracing)
-            System.err.println("from="+from+"; me="+this+"; imagebounds="+imagebounds+"; offset="+offset);
-        if (japeserver.onMacOS) {
-            from.x = -offset.x; from.y = -offset.y; // this seems to work ... 
-        }
-        
-        dragSource.startDrag(event, DragSource.DefaultMoveDrop, image, offset, new WorldTransferable(), this);
-    }
-
-    public void dragEnter(DragSourceDragEvent event) { }
-
-    public void dragExit(DragSourceEvent event) { }
-
-    public void dragOver(DragSourceDragEvent event) { }
-
-    public void dropActionChanged(DragSourceDragEvent event) { }
-
-    public void dragDropEnd (DragSourceDropEvent event) {
-        if (dragimage_tracing)
-            System.err.println("world drag "+event.getDropSuccess());
-    }
-
-    public void draggedTo(Point to) {
-        if (dragimage_tracing)
-            System.err.println("draggedTo from="+from+"; to="+to+"; ("+idX+","+idY+"); ("+
-                               (idX+to.x-from.x)+","+(idY-(to.y-from.y))+")");
-        Reply.sendCOMMAND("moveworld "+idX+" "+idY+" "+(idX+to.x-from.x)+" "+(idY-(to.y-from.y)));
-    }*/
-
-    /* ****************************** world as drag target ****************************** */
-    
-   /* 
-
-    // Called when a drag operation has encountered the DropTarget.
-    public void dragEnter(DropTargetDragEvent dtde) {
-        if (dtde.isDataFlavorSupported(Tile.tileFlavor) &&
-            // dtde.isLocalTransfer() && -- why can't we do this?
-            dtde.getDropAction()==DnDConstants.ACTION_COPY) {
-            dtde.acceptDrag(DnDConstants.ACTION_COPY);
-            setDragHighlight(true);
-        }
-    }
-
-    // The drag operation has departed the DropTarget without dropping.
-    public void dragExit(DropTargetEvent dte) {
-        setDragHighlight(false);
-    }
-
-    // Called when a drag operation is ongoing on the DropTarget.
-    public void dragOver(DropTargetDragEvent dtde) {
-    }
-
-    // The drag operation has terminated with a drop on this DropTarget.
-    public void drop(DropTargetDropEvent dtde) {
-        if (draghighlight) {
-            dtde.acceptDrop(DnDConstants.ACTION_COPY);
-            String label;
-            try {
-                label = ((Tile)dtde.getTransferable().
-                                    getTransferData(Tile.tileFlavor)).text;
-            } catch (Exception e) {
-                Alert.abort("drop onto world not tileFlavor");
-                label = ""; // shut up compiler
-            }
-            Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+label+"\"");
-            dtde.dropComplete(true);
-            setDragHighlight(false);
-        }
-    }
-
-    // Called if the user has modified the current drop gesture
-    public void dropActionChanged(DropTargetDragEvent dtde) {
-    }*/
 }
