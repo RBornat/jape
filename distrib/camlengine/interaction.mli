@@ -54,6 +54,7 @@ val showallprovisos : bool ref
 val getCommand : displaystate option -> command
 val findSelection : displaystate -> path sel option
 val findLayoutSelection : displaystate -> hitkind -> path option
+val findDisproofSelections: unit -> term list
 (* Drag n drop is moribund, as currently implemented.  Will be redone! *)
 val dropsource : element list ref
 val droptarget : element list ref
