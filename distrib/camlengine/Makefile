@@ -37,7 +37,7 @@ jape.opt: $(CMX) main.cmx
 	ocamlopt -o jape.opt unix.cmxa $(CMX) main.cmx
 
 clean:
-	rm -f *.cmi *.cmo *.cmx
+	rm -f *.cmi *.cmo *.cmx *.o
 	
 depend: .depend
 	ocamldep *.mli *.ml >.depend
