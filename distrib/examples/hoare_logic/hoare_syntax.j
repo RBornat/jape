@@ -10,7 +10,7 @@ CONSTANT ⊥ /* to satisfy I2L syntax */
 
 INFIX   5L  ≜
 
-PREFIX  10  actual
+PREFIX  10  actual integer /* actual not used, but we have to satisfy PUSHSYNTAX */
 
 INFIX 10 L ;
 INFIX 12 L :=
@@ -18,7 +18,7 @@ INFIX 12 L :=
 INFIX 50 L ⊕
 INFIX 60 L ↦
 
-INFIX   100R    →
+INFIX   100R    → ↔
 INFIX   120L    ∨
 INFIX   140L    ∧
 
