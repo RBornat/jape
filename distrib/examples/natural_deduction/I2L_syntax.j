@@ -1,13 +1,13 @@
 /* $Id$ */
 
-CLASS VARIABLE x y z c d
-CLASS FORMULA A B C P Q R S
+CLASS VARIABLE x y z   i j k
+CLASS FORMULA A B C   E F G  P  R S T
 CLASS BAG FORMULA ‚
 
 CONSTANT Ù
 
 PREFIX	10		actual
-POSTFIX	10		inscope
+/* POSTFIX	10		inscope   no longer used. I don't think that proof files will crash without it */
 
 INFIX		100R		ç
 INFIX		120L		ë
@@ -21,8 +21,8 @@ PREFIX	200		Â
 JUXTFIX		300
 SUBSTFIX	400 
 
-BIND x SCOPE P IN èx . P
-BIND x SCOPE P IN äx . P
+BIND x SCOPE A IN èx . A
+BIND x SCOPE B IN äx . B
 
 SEQUENT IS BAG æ FORMULA
 
