@@ -34,34 +34,63 @@ open Sml
 open Stringfuns
 open Treeformat.Fmt
 
+
 let ( <| ) = Listfuns.( <| )
+
 let (&~~) = Optionfuns.(&~~)
+
 let (|~~) = Optionfuns.(|~~)
+
 let _The = Optionfuns._The
+
 let atoi = Miscellaneous.atoi
+
 let bracketedliststring = Listfuns.bracketedliststring
+
 let consolereport = Miscellaneous.consolereport
+
 let dont_rewrite_with_this = Context.Cxt.dont_rewrite_with_this
+
 let elementstring = Term.Termstring.elementstring
+
 let findfirst = Optionfuns.findfirst
+
 let interpolate = Listfuns.interpolate
+
 let invisible = Miscellaneous.invisible
+
 let lowercase = Stringfuns.lowercase
+
 let member = Listfuns.member
+
 let numbered = Listfuns.numbered
+
 let optionfilter = Optionfuns.optionfilter
+
 let optionstring = Optionfuns.optionstring
+
 let provisos = Context.Cxt.provisos
+
 let replaceelement = Term.Funs.replaceelement
+
 let rewritecxt = Rewrite.Funs.rewritecxt
+
 let seektipselection = Miscellaneous.seektipselection
+
 let selection2Subst = Selection.selection2Subst
+
 let setComment = Alert.setComment
+
 let showAlert = Alert.showAlert Alert.defaultseverity_alert
+
 let smlelementstring = Term.Termstring.smlelementstring
+
 let sort = Listfuns.sort
+
 let take = Listfuns.take
+
 let termstring = Term.Termstring.termstring
+
 let try__ = Optionfuns.try__
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
@@ -72,6 +101,7 @@ exception DeadServer_ = Japeserver.DeadServer_
 type command =
     TextCommand of string list
   | HitCommand of (prooftree * path hit * path sel)
+
 let rec commandstring =
   function
     TextCommand ws -> "TextCommand" ^ bracketedliststring enQuote ", " ws
@@ -79,11 +109,17 @@ let rec commandstring =
       "HitCommand" ^
         triplestring (fun _ -> "....") (hitstring pathstring)
           (selstring pathstring) "," hc
+
 let intliststring = bracketedliststring (string_of_int : int -> string) ","
+
 let abandonServer = Japeserver.stopserver
+
 let killServer = Japeserver.killserver
+
 let setComment = setComment <*> implode
+
 let rec deadServer strings = consolereport strings; abandonServer (); raise DeadServer_
+
 let rec startServer (serverpath, args) =
   try
     Japeserver.startserver serverpath args;
@@ -95,41 +131,54 @@ let rec startServer (serverpath, args) =
   with
     DeadServer_ -> deadServer ["Cannot find japeserver: "; serverpath]
 
+
 let rec runningServer () = Optionfuns.opt2bool !(Japeserver.serverpid)
+
 let treestyle = Displaystyle.Treestyle.style
+
 let boxstyle = Displaystyle.Boxstyle.style
+
 let currentstyle = ref treestyle
+
 let currentstylename = ref "tree"
+
 let rec proofStyle s =
   match lowercase s with
     "tree" -> treestyle
   | "box" -> boxstyle
   | _ -> treestyle
+
 let rec setdisplaystyle s =
   if !currentstylename <> s then
     begin currentstyle := proofStyle s; currentstylename := s end
+
 let rec getdisplaystyle () = !currentstylename
+
 let rec showProof =
   fun (DisplayState {showProof = sp}) target goal cxt tree withgoal ->
     sp tree target (if withgoal then goal else None)
+
 let rec showFocussedProof goal cxt tree withgoal =
   match !currentstyle with
     DisplayState {showFocussedProof = sfp} ->
       sfp tree (if withgoal then goal else None)
+
 let rec refreshProof = fun (DisplayState {refreshProof = rp}) -> rp ()
-let rec locateHit =
-  fun (DisplayState {locateHit = lh}) p class__ kind ->
-    (lh p class__ kind : path hit option)
-let rec notifyselect =
-  fun (DisplayState {notifyselect = nsel}) bpcopt sels ->
-    (nsel bpcopt sels : unit)
+
+let rec locateHit (DisplayState {locateHit = lh}) p class__ kind = (lh p class__ kind : path hit option)
+
+let rec notifyselect (DisplayState {notifyselect = nsel}) bpcopt sels = (nsel bpcopt sels : unit)
+
 let rec storedProof = fun (DisplayState {storedProof = sp}) -> sp ()
+
 let rec refineSelection = fun (DisplayState {refineSelection = rS}) -> rS
+
 let rec printProof outstream target goal cxt tree withgoal =
   match !currentstyle with
     DisplayState {printProof = pp} ->
       pp outstream tree target (if withgoal then goal else None)
 (* one way of telling that I have the interface and datatypes wrong is all these blasted Catastrophe_ exceptions ... *)
+
 let rec sortoutSelection state pathkind =
   let (fsels, textsels, givensel) = Japeserver.getAllSelections () in
   (* remove invisbra/kets from any text selections we see *)
@@ -174,6 +223,7 @@ let rec sortoutSelection state pathkind =
       textsels
   in
   List.map snd fhits, thits, givensel
+
 let rec findSelection state =
   let (fhits, thits, givensel) = sortoutSelection state HitPath in
   (* only path that makes sense for what we are trying to do ... *)
@@ -303,6 +353,7 @@ let rec findSelection state =
  * hypothesis selection in boxdraw, the interface changes it to a conclusion selection, and that 
  * confuses findSelection no end.  Perhaps this will improve matters ...
  *)
+
 let rec findLayoutSelection state pathkind =
   let (fhits, _, _) = sortoutSelection state pathkind in
   let rec getpath a1 a2 =
@@ -319,6 +370,7 @@ let rec findLayoutSelection state pathkind =
                   hitstring pathstring h])
   in
   getpath None fhits
+
 let rec formulahit2els where h =
   match h with
     Some (FormulaHit fh) ->
@@ -332,7 +384,9 @@ let rec formulahit2els where h =
         (Catastrophe_
            ["formulahit2els (in "; where; ") can't handle ";
             optionstring (hitstring pathstring) h])
+
 let dropsource : element list ref = ref []
+
 let droptarget : element list ref = ref []
 (*
 fun gooddrag d = (* you can't drag from or to one side of a formula *)
@@ -346,6 +400,7 @@ fun gooddrag d = (* you can't drag from or to one side of a formula *)
   end
 *)
   
+
 let rec getCommand displayopt =
   let text = Japeserver.listen () in
   let rec getdisplay () =
@@ -435,9 +490,12 @@ let rec getCommand displayopt =
   | _ ->
       showAlert ("getCommand (interaction) cannot understand " ^ text);
       getCommand displayopt
+
 let showallprovisos = ref false
+
 let rec filterprovisos ps =
   if !showallprovisos then ps else Proviso.provisovisible <| ps
+
 let rec sortprovisos ps =
   sort
     (fun p1 p2 ->
@@ -448,12 +506,15 @@ let rec sortprovisos ps =
         Proviso.earlierproviso
           (Proviso.provisoactual p1) (Proviso.provisoactual p2)))
     ps
+
 let rec setProvisos cxt =
   let ps = sortprovisos (provisos cxt) in
   Japeserver.setProvisos
     (ProvisoFont, List.map Proviso.visprovisostring (filterprovisos ps))
+
 let rec setGivens givens =
   Japeserver.setGivens (numbered (List.map seqstring givens))
+
 let rec printProvisos outstream cxt =
   let ps = sortprovisos (provisos (rewritecxt cxt)) in
   match ps with
@@ -467,6 +528,7 @@ let rec printProvisos outstream cxt =
            output_string outstream "\n")
         (filterprovisos ps);
       output_string outstream ")"
+
 let rec printGivens outstream givens =
   match givens with
     [] -> ()
@@ -478,6 +540,7 @@ let rec printGivens outstream givens =
            output_string outstream "\n")
         gs;
       output_string outstream ")"
+
 let rec showState displaystate =
   fun
     (Proofstate {cxt = cxt; tree = tree; goal = goal; target = target} as
@@ -485,6 +548,7 @@ let rec showState displaystate =
     withgoal ->
     let ds = showProof displaystate target goal cxt tree withgoal in
     setProvisos cxt; ds
+
 let rec printState outstream =
   fun
     (Proofstate
@@ -497,6 +561,7 @@ let rec printState outstream =
     printProof outstream target goal cxt tree withgoal;
     printGivens outstream givens;
     printProvisos outstream cxt
+
 let rec alterTip
   displaystate cxt gpath tree root ((selishyp, selpath, selel), ss) =
   let (wholepath, wholetree) = Prooftree.Tree.makewhole cxt root tree gpath in
