@@ -159,7 +159,7 @@ public class JapeCharEncoding implements DebugConstants {
 //          there_exists                    join                  fatket               fatrparen
                   0x2a1f,                 0x2264,                 0x2282,                 0x2286,
 //          fatsemicolon                     leq                  subset                subseteq
-                  0x227a,                 0x227c,                 0x2208,                 0x2261,
+                  0x227a,                 0x227b,                 0x2208,                 0x2261,
 //              precedes                  preceq                     elt                     eqv
                   0x2982,                 0x2265,                 0x2283,                 0x2287,
 //              fatcolon                     geq                superset                supseteq
@@ -201,7 +201,7 @@ public class JapeCharEncoding implements DebugConstants {
 //               gl_iota                gl_kappa               gl_lambda                   gl_mu
                   0x03bd,                 0x03be,                 0x03c0,                 0x03c1,
 //                 gl_nu                   gl_xi                   gl_pi                  gl_rho
-                  0x03c3,                 0x03c4,                 0x03c5,                 0x03c6,
+                  0x03c3,                 0x03c4,                 0x03c5,                 0x03d5,
 //              gl_sigma                  gl_tau              gl_upsilon                  gl_phi
                   0x03c7,                 0x03c8,                 0x03c9,                 0x0393,
 //                gl_chi                  gl_psi                gl_omega                gu_gamma
@@ -433,6 +433,7 @@ public class JapeCharEncoding implements DebugConstants {
     setmap(0xfb01, 0x27e7); // white right square bracket (semantic ket) (301b may be preferable)
     setmap(0xfb02, 0x2229); // intersection
 */
+
 
 
 
