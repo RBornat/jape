@@ -62,7 +62,7 @@ termfold.cmi: box.cmi draw.cmi termtype.cmi text.cmi
 termfuns.cmi: idclass.cmi termtype.cmi 
 termparse.cmi: symbol.cmi termtype.cmi 
 termstore.cmi: idclass.cmi termtype.cmi 
-termstring.cmi: termtype.cmi 
+termstring.cmi: symbol.cmi termtype.cmi 
 termtype.cmi: idclass.cmi 
 text.cmi: box.cmi displayfont.cmi 
 thing.cmi: cxttype.cmo mappingfuns.cmi name.cmi paraparam.cmi proviso.cmi \
