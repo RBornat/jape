@@ -30,7 +30,7 @@
 (* It implements disproof in Kripke semantics (made classical by restriction to a single
    world, if necessary).  Predicates operate only on individuals, mostly because I don't
    yet understand terms.  It seems reasonable to me that if there is a disproof, then there
-   is one which only uses individuals, so I'm not too unhappy yet.
+   is one which only uses individuals, so I'm not too unhappy.
    RB 
  *)
 
@@ -310,6 +310,7 @@ let rec addforcedef (t, fd) =
 let rec clearforcedefs () = forcedefs := []; occurrences := []
 
 let rec hasforcedefs () = not (null !forcedefs)
+
 (* matching a formula against the definitions *)
 
 let rec semantics facts t =
@@ -320,13 +321,14 @@ let rec semantics facts t =
       !forcedefs
   with
     Some (env, hassubst, fd) ->
-      let fd =
-        mapforcedefterms (option_remapterm env) (uniquebinders t fd)
+      let fd' = mapforcedefterms (option_remapterm env) (uniquebinders t fd)
       in
-      Some (if hassubst then mapforcedefterms (dosubst facts) fd else fd)
+      Some (if hassubst then mapforcedefterms (dosubst facts) fd' else fd')
   | None -> None
+  
 (* avoid variable capture in semantics function *)
 (* really this ought to look inside the forcedef, but one step at a time ... *)
+
 and uniquebinders t fd =
   let rec newoccenv ocvs =
     let vids = orderVIDs (List.map vid_of_var (variables t)) in
@@ -335,8 +337,7 @@ and uniquebinders t fd =
       let ocvid' = uniqueVID VariableClass vids ocvids ocvid in
       ocvid' :: ocvids,
       (if ocvid = ocvid' then env
-       else
-         ((ocv |-> registerId (ocvid', VariableClass)) ++ env))
+       else ((ocv |-> registerId (ocvid', VariableClass)) ++ env))
     in
     let r = snd (foldl newvar ([], empty) ocvs) in
     if !disproofdebug then
@@ -349,35 +350,41 @@ and uniquebinders t fd =
     mapforcedefterms (option_remapterm (newoccenv ocvs)) fd
   in
   match fd with
-    ForceAll (_, ocvs, _) -> doit ocvs
+    ForceAll (_, ocvs, _)  -> doit ocvs
   | ForceSome (_, ocvs, _) -> doit ocvs
-  | _ -> fd
+  | _                      -> fd
+  
 (* finding the subformulae which aren't semantically defined. Designed to be foldl'd *)
 
 let rec semanticfringe facts ts t =
+  (* for efficiency's sake, tf does it the wrong way round: a failing search backed up
+     with a check for bracketing. But I guess that one day somebody might say that 
+     brackets mean something. If so, then aargghh, because all of Jape assumes the
+     opposite. Still, the wrong way round is the way it does it for now.
+   *)
   let rec tf ts t =
     match semantics facts t with
-      None ->
-        begin match decodeBracketed t with
-          Some t' -> tf ts t'
-        | None -> t :: ts
-        end
+      None    -> (match decodeBracketed t with
+                    Some t' -> tf ts t'
+                  | None    -> t :: ts)
     | Some fd -> ff ts fd
   and ff ts fd =
     match fd with
-      ForcePrim t -> tf ts t
-    | ForceBoth pair -> pf ts pair
-    | ForceEither pair -> pf ts pair
-    | ForceIf pair -> pf ts pair
-    | ForceEverywhere fd -> ff ts fd
-    | ForceNowhere fd -> ff ts fd
-    | ForceAll (t, _, fd) -> ff (t :: ts) fd
+      ForcePrim       t    -> tf ts t
+    | ForceBoth       pair -> pf ts pair
+    | ForceEither     pair -> pf ts pair
+    | ForceIf         pair -> pf ts pair
+    | ForceEverywhere fd   -> ff ts fd
+    | ForceNowhere    fd   -> ff ts fd
+    | ForceAll  (t, _, fd) -> ff (t :: ts) fd
     | ForceSome (t, _, fd) -> ff (t :: ts) fd
   and pf ts (fd1, fd2) = ff (ff ts fd1) fd2 in
   tf ts t
+
 (* is it forced? *)
 (* rewritten to be memoised, both for 'efficiency' and for de-emphasising irrelevant subformulae
-   -- i.e. quantified subformulae
+   -- i.e. quantified subformulae. Should also be useful when it comes to highlighting worlds 
+   which force a formula.
  *)
 
 let rec unfixedforced facts u =
@@ -386,27 +393,30 @@ let rec unfixedforced facts u =
     let rec children c = snd (getworld u c) in
     let rec lookup c t = member (t, labels c), true in
     (* emphasis locked *)
-                   (* forced logic -- we force evaluation of subformulae because otherwise things go grey which shouldn't *)
+    (* forced logic -- we force evaluation of subformulae because otherwise things go grey 
+       which shouldn't. (Is that what the second result means?) (No: see lookup above; it
+       seems to be whether you looked it up or not) (i.e. it's whether it's atomic or not)
+     *)
     let rec logNot =
       function
         true, _ -> false, false
-      | _ -> true, false
+      | _       -> true , false
     in
     let rec logAnd a1 a2 =
       match a1, a2 with
-        (true, _), (true, _) -> true, false
-      | _, _ -> false, false
+        (true, _), (true, _) -> true , false
+      | _        , _         -> false, false
     in
     let rec logOr a1 a2 =
       match a1, a2 with
         (false, _), (false, _) -> false, false
-      | _, _ -> true, false
+      | _         , _          -> true , false
     in
     let rec logImp a1 a2 =
       match a1, a2 with
         (true, _), (false, _) -> false, false
-      | _, _ -> true, false
-    in
+      | _        , _          -> true , false
+    in 
     let rec logAll f = foldl logAnd (true, false) <.> List.map f in
     let rec logExists f = foldl logOr (false, false) <.> List.map f in
     let rec indiv_fd (oc, vs, fd) i =
@@ -415,12 +425,9 @@ let rec unfixedforced facts u =
                              (fn t' => dosubst facts t' |~~ (fn () => Some t'))
                             *)
       let r =
-          (matchit oc vs i &~~
+           matchit oc vs i &~~
            (fun env ->
-              Some
-                (mapforcedefterms
-                   ( (option_remapterm env &~ somef (dosubst facts)))
-                   fd)))
+              Some (mapforcedefterms (option_remapterm env &~ somef (dosubst facts)) fd))
       in
       if !disproofdebug then
         begin
@@ -434,7 +441,7 @@ let rec unfixedforced facts u =
              optionstring (mappingstring termstring termstring)
                (matchit oc vs i)];
           match matchit oc vs i with
-            None -> ()
+            None     -> ()
           | Some env ->
               consolereport
                 ["mapforcedefterms (option_remapterm env) fd => ";
@@ -452,28 +459,22 @@ let rec unfixedforced facts u =
     in
     let rec interp fd c =
       match fd with
-        ForcePrim t' -> f (c, t')
-      | ForceBoth (fd1, fd2) -> logAnd (interp fd1 c) (interp fd2 c)
+        ForcePrim t'           -> f (c, t')
+      | ForceBoth (fd1, fd2)   -> logAnd (interp fd1 c) (interp fd2 c)
       | ForceEither (fd1, fd2) -> logOr (interp fd1 c) (interp fd2 c)
-      | ForceIf (fd1, fd2) -> logImp (interp fd1 c) (interp fd2 c)
-      | ForceEverywhere fd' ->
-          logAnd (interp fd' c) (logAll (interp fd) (children c))
-      | ForceNowhere fd' ->
-          logAnd (logNot (interp fd' c)) (logAll (interp fd) (children c))
-      | ForceAll tvsfd ->
-          logAll
-            (fun lab ->
-               match indiv_fd tvsfd lab with
-                 Some fd' -> interp fd' c
-               | _ -> true, false)
-            (labels c)
-      | ForceSome tvsfd ->
-          logExists
-            (fun lab ->
-               match indiv_fd tvsfd lab with
-                 Some fd' -> interp fd' c
-               | _ -> false, false)
-            (labels c)
+      | ForceIf (fd1, fd2)     -> logImp (interp fd1 c) (interp fd2 c)
+      | ForceEverywhere fd'    -> logAnd (interp fd' c) (logAll (interp fd) (children c))
+      | ForceNowhere fd'       -> logAnd (logNot (interp fd' c)) (logAll (interp fd) (children c))
+      | ForceAll tvsfd         -> logAll (fun lab ->
+                                            match indiv_fd tvsfd lab with
+                                              Some fd' -> interp fd' c
+                                            | None     -> true, false)
+                                         (labels c)
+      | ForceSome tvsfd        -> logExists (fun lab ->
+                                               match indiv_fd tvsfd lab with
+                                                 Some fd' -> interp fd' c
+                                               | None     -> false, false)
+                                            (labels c)
     in
     let _ =
       if !disproofdebug then
@@ -481,11 +482,9 @@ let rec unfixedforced facts u =
     in
     let result =
       match semantics facts t with
-        None ->
-          begin match decodeBracketed t with
-            Some t' -> f (c, t')
-          | None -> lookup c t
-          end
+        None    -> (match decodeBracketed t with
+                     Some t' -> f (c, t')
+                   | None    -> lookup c t)
       | Some fd -> interp fd c
     in
     if !disproofdebug then
@@ -497,10 +496,9 @@ let rec unfixedforced facts u =
   ff
 
 let rec seq_forced forced c s =
-  let rec doit e =
-    match element2term e with
-      None -> false, false
-    | Some t -> forced (c, t)
+  let rec doit e = match element2term e with
+                     None   -> false, false
+                   | Some t -> forced (c, t)
   in
   let (_, _, hyps, _, concs) = my_seqexplode s in
   List.map doit hyps, List.map doit concs
@@ -697,9 +695,8 @@ let rec seq2tiles facts seq =
   (* find the fringe *)
   let hypterms = optionfilter element2term hyps in
   let concterms = optionfilter element2term concs in
-  let ts =
-    foldl (semanticfringe facts)
-      (foldl (semanticfringe facts) [] hypterms) concterms
+  let ts = foldl (semanticfringe facts)
+             (foldl (semanticfringe facts) [] hypterms) concterms
   in
   (* add occurrence formulae if necessary *)
   let ts =
@@ -716,7 +713,7 @@ let rec seq2tiles facts seq =
    *)
   let svs = seqvars seq in
   match isVariable <| nj_fold (uncurry2 tmerge) (List.map patvars ts) [] with
-    [] -> ts
+    []  -> ts
   | tvs ->
       let tvs' =
         match (fun i -> member (i, svs)) <| tvs with

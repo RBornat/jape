@@ -1116,17 +1116,17 @@ let rec augmentCollection a1 a2 =
 let rec decodeSubst =
   function
     Subst (_, r, p_, vts) -> Some (r, p_, vts)
-  | _ -> None
+  | _                     -> None
 
 let rec decodeBinding =
   function
     Binding (_, info, _, _) -> Some info
-  | _ -> None
+  | _                       -> None
 
 let rec decodeBracketed =
   function
     Fixapp (_, ["("; ")"], [t]) -> Some t
-  | _ -> None
+  | _                           -> None
 
 let string_of_vid = string_of_vid
 let vid_of_string = vid_of_string
