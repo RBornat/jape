@@ -129,7 +129,7 @@ let rec maketreeplan proof =
   let noreasoninf = string2textinfo ReasonFont "" in
   let showturnstiles = List.length (turnstiles ()) <> 1 in
   let sequentplan =
-    makeseqplan elementstring_invisbracketed showturnstiles
+    makeseqplan (elementstring_invisbracketed true) showturnstiles
   in
   let rec _TP t =
     let s = sequent t in
