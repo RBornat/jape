@@ -1,11 +1,11 @@
 ﻿TACTIC assign(assigntac) IS
     WHEN   
-	(LETGOAL ({_A} (_x := _E) {_B})
-	    (ALT    assigntac 
-		    (SEQ    "consequence(L)" fstep (trueforward assigntac))))
-	(LETGOAL _E (ALERT ("To make a variable-assignment step, you have to select a goal of the form \
-			\{A} (x:=E) {B}. You selected %t.", _E)
-			("OK", STOP)))
+        (LETGOAL ({_A} (_x := _E) {_B})
+            (ALT    assigntac 
+                    (SEQ    "consequence(L)" fstep (trueforward assigntac))))
+        (LETGOAL _E (ALERT ("To make a variable-assignment step, you have to select a goal of the form \
+			    \{A} (x:=E) {B}. You selected %t.", _E)
+			    ("OK", STOP)))
 
 MENU Instructions
     ENTRY "skip"
@@ -22,11 +22,13 @@ END
 
 TACTICPANEL Arithmetic
     RULE IS A=A
+    RULE IS A<B ≜ B>A
+    RULE IS A≤B ≜ B≥A
     RULE IS A≤B ≜ ¬(A>B)
     RULE IS A≥B ≜ ¬(A<B)
-/*  RULE "(A;B);C≜A;(B;C)" IS	A;B;C ≜ A;(B;C)
+/*  RULE "(A;B);C≜A;(B;C)" IS   A;B;C ≜ A;(B;C)
     ENTRY "flatten ;" IS 
-	iterateR2L "rewrite≜"  "symmetric≜" (QUOTE (_A;(_B;_C))) "(A;B);C≜A;(B;C)" (Fail "no semicolons to flatten")
+        iterateR2L "rewrite≜"  "symmetric≜" (QUOTE (_A;(_B;_C))) "(A;B);C≜A;(B;C)" (Fail "no semicolons to flatten")
  */
     BUTTON  "A≜…"   IS apply rewriteL2R "rewrite≜"  "symmetric≜"  COMMAND
     BUTTON  "…≜B"   IS apply rewriteR2L "rewrite≜"  "symmetric≜"  COMMAND

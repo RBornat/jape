@@ -8,6 +8,8 @@ CLASS BAG FORMULA Γ
 CONSTANT true false
 CONSTANT ⊥ /* to satisfy I2L syntax */
 
+INFIX   5L  ≜
+
 PREFIX	10  actual
 
 INFIX 10 L ;
@@ -23,7 +25,7 @@ INFIX	140L	∧
 LEFTFIX 180 ∀ .
 LEFTFIX 180 ∃ .
 
-INFIX	300L	<   >	≤   ≥	≠   =	≡   ¬≡ ≜   
+INFIX	300L	<   >	≤   ≥	≠   =	≡   ¬≡   
 
 INFIX	400 L	+ -
 INFIX	410 L	* div
@@ -33,8 +35,9 @@ PREFIX	1200	¬
 JUXTFIX	    9000
 SUBSTFIX    10000   « E / x  » /* so that { }, [ ] are available for other uses */
 
-BIND x SCOPE P IN ∀x . P
-BIND x SCOPE P IN ∃x . P
+/* PUSHSYNTAX I2L is defeated if you write P in place of A below -- oh dear */
+BIND x SCOPE A IN ∀x . A
+BIND x SCOPE A IN ∃x . A
 
 SEQUENT IS BAG ⊢ FORMULA
 
