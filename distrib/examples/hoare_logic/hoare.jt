@@ -1,7 +1,8 @@
 ﻿/* $Id$ */
 
-INITIALISE displaystyle box
+INITIALISE displaystyle     box
 INITIALISE autoAdditiveLeft true
+INITIALISE foldformulae     true
 
 USE "hoare_syntax.j"
 USE "hoare_rules.j"
