@@ -61,7 +61,7 @@ public class JapeMenu implements DebugConstants {
         M(boolean proofsonly, String title) { this.proofsonly=proofsonly; this.title=title; }
         private static final I quitItem = new I("Quit", "", null),
                                doneItem = new I("Done", "", null);
-        private int nextIndex() {
+        public int nextIndex() {
             int size = itemv.size(), i;
             if (title.equals("File") && (i=itemv.indexOf(quitItem))!=-1)
                 return i-1; // point to separator
@@ -401,7 +401,7 @@ public class JapeMenu implements DebugConstants {
     }
 
     private static I indexMenuItem(M menu, String label, ItemAction action) {
-        return indexMenuItem(menu, menu.size(), label, action);
+        return indexMenuItem(menu, menu.nextIndex(), label, action);
     }
 
     private static I indexMenuItem(M menu, int index, String label, ItemAction action) {
