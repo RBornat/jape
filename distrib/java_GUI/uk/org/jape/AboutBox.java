@@ -3,7 +3,7 @@
 /* 
     $Id$
 
-    Copyright © 2002 Richard Bornat & Bernard Sufrin
+    Copyright © 2003 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
