@@ -1,27 +1,35 @@
 (* $Id$ *)
 
-module type Sequenttype =
-  sig
+(* another case in which I can't do the multiple views of a structure *)
+
+module type T =
+sig
+(* 
+   module type Sequenttype =
+	 sig
+ *)
     type term
     type seq = Seq of (string * term * term)
     (* stile, left, right *)
     val getsemanticturnstile : string -> string option
-  end
+(*   end
 
-module type Sequentparse =
-  sig
-    type seq and symbol and idclass
+   module type Sequentparse =
+	 sig
+ *)
+    type (* seq and *) symbol and idclass
     val describeSeqs : (idclass * string * idclass) list -> unit
     val setsemanticturnstile : string -> string -> unit
     val parseSeq : unit -> seq
     val canstartSeq : symbol -> bool
-  end
+(*   end
 
-module type Sequentreset = sig val resetsyntaxandturnstiles : unit -> unit end
+module type Sequentreset = sig *) val resetsyntaxandturnstiles : unit -> unit (* end
 
-module type Sequent =
-  sig
-    type term and element and vid and seq
+   module type Sequent =
+	 sig
+ *)
+    type (* term and *) element and vid (* and seq *)
     type ('a, 'b) mapping
     val string2sequent : string -> seq
     val seqexplode : seq -> string * term * term
@@ -32,7 +40,7 @@ module type Sequent =
     val catelim_smlseqstring : seq -> string list -> string list
     val catelim_elementseqstring : seq -> string list -> string list
     val seqvars :
-      (term -> 'a list) -> ('a list * 'a list -> 'a list) -> seq -> 'a list
+      (term -> 'a list) -> ('a list -> 'a list -> 'a list) -> seq -> 'a list
     val seqVIDs : seq -> vid list
     val eqseqs : seq * seq -> bool
     val seqmatch :
@@ -49,55 +57,72 @@ module type Sequent =
   end
 (* $Id$ *)
 
-module
-  Sequent
+module M
   (AAA :
     sig
-      module listfuns : Listfuns
-      module optionfuns : Optionfuns
-      module mappingfuns : Mappingfuns
-      module idclass : Idclass
-      module idclassfuns : Idclassfuns
-      module symbol : Symbol
-      module symboltype : Symboltype
-      module term : sig include Termtype include Termstore include Term end
-      module termparse : Termparse
-      module match : Match
+      module Listfuns : Listfuns.T
+      module Optionfuns : Optionfuns.T
+      module Mappingfuns : Mappingfuns.T
+      module Idclass : Idclass.T
+      module Idclassfuns : Idclassfuns.T
+             with type idclass = Idclass.idclass
+      module Symboltype : Symboltype.T
+      module Symbol : Symbol.T
+             with type symbol = Symboltype.symbol
+      module Term : Term.T
+             with type idclass = Idclass.idclass
+              and type vid = Symboltype.vid
+      module Termparse : Termparse.T
+             with type element = Term.element 
+              and type idclass = Idclass.idclass
+              and type symbol = Symboltype.symbol
+              and type term = Term.term
+      module Match : Match.T
+             with type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
+              and type term = Term.term
+      
       val _All : ('a -> bool) -> 'a list -> bool
-      val commasymbol : symbol.symbol
+      val commasymbol : Symbol.symbol
       val consolereport : string list -> unit
       val enQuote : string -> string
-      val Error : string list -> 'a
+      val _Error : string list -> 'a
+      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
       val triplestring :
         ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
           'a * 'b * 'c -> string
       val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
+      
       exception Zip
       exception ParseError_ of string list
       exception Catastrophe_ of string list
       
     end)
   :
-  sig
-    include Sequenttype
-    include Sequentparse
-    include Sequentreset
-    include Sequent
-  end =
+  (* sig
+	   include Sequenttype
+	   include Sequentparse
+	   include Sequentreset
+	   include Sequent
+	 end *) T =
   struct
     open AAA
-    open listfuns
-    open mappingfuns
-    open idclass
-    open idclassfuns
-    open symboltype
-    open symbol
-    open term
-    open termparse
-    open match
-    open optionfuns
+    open Listfuns
+    open Mappingfuns
+    open Idclass
+    open Idclassfuns
+    open Symboltype
+    open Symbol
+    open Term
+    open Termparse
+    open Match
+    open Optionfuns
     
-    
+    type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
+    type vid = Symboltype.vid
+    type element = Term.element
+    type idclass = Idclass.idclass
+    type symbol = Symboltype.symbol
+    type term = Term.term    
     
     
     
@@ -159,7 +184,7 @@ module
             Syntactic, _, _, _ -> true
           | _ -> false),
          !syntaxes)
-    let rec syntacticturnstiles () = _MAP ((fun(_,_,hash3)->hash3), syntacticsequents ())
+    let rec syntacticturnstiles () = _MAP ((fun(_,_,hash3,_)->hash3), syntacticsequents ())
     let rec describeSeqs ds =
       (* val show = triplestring idclassstring enQuote idclassstring "," *)
       let rec f (hyps, stile, concs) =
@@ -167,7 +192,7 @@ module
           Some (kind, hyps', _, concs' as syn') ->
             if (kind = Syntactic && hyps = hyps') && concs = concs' then ()
             else
-              Error
+              _Error
                 ["you cannot redeclare "; syntaxstring syn'; " as ";
                  syntaxstring (Syntactic, hyps, stile, concs)]
         | None ->
@@ -178,7 +203,7 @@ module
                 enter (stile, STILE stile)
               end
             else
-              Error
+              _Error
                 ["bad syntactic sequent syntax description ";
                  syntaxstring (Syntactic, hyps, stile, concs)]
       in
@@ -186,8 +211,8 @@ module
       List.iter f ds
     let rec setsemanticturnstile syn sem =
       let rec bad ss =
-        Error
-          (implode ["Error in SEMANTICTURNSTILE "; syn; " IS "; sem; ": "] ::
+        _Error
+          (String.concat "" ["Error in SEMANTICTURNSTILE "; syn; " IS "; sem; ": "] ::
              ss)
       in
       let newsyntaxes =
@@ -298,7 +323,7 @@ module
           BagClass FormulaClass as c -> parseCollection c
         | ListClass FormulaClass as c -> parseCollection c
         | FormulaClass -> formside (registerElement (Nonum, parseTerm EOF))
-        | x -> Error ["internal error parseSeq parseside "; unparseidclass x]
+        | x -> _Error ["internal error parseSeq parseside "; unparseidclass x]
       in
       match currsymb () with
         STILE st ->
@@ -309,10 +334,8 @@ module
               (ParseError_
                  ["badly formed sequent - lhs formula missing before "; st])
           else
-            begin
-              scansymb ();
-              Seq (st, conformside ((None, []), hypform), parseside concform)
-            end
+            let _ = scansymb () in
+            Seq (st, conformside ((None, []), hypform), parseside concform)
       | _ ->
           let first =
             parseElementList canstartTerm parseTerm commasymbol None
@@ -320,7 +343,7 @@ module
           match currsymb (), first, syntacticsequents () with
             STILE st, _, _ ->
               let (_, hypform, _, concform) = lookupSTILE st in
-              scansymb ();
+              let _ = scansymb () in
               Seq (st, conformside (first, hypform), parseside concform)
           | _, (None, [el]), [_, hypform, st, concform] ->
               begin match hypform, concform with
@@ -344,7 +367,7 @@ module
                     termstring (Collection (None, listkind, els))])
     let rec string2sequent s = tryparse (fun _ -> parseSeq ()) s
     let rec seqvars termvars tmerge =
-      fun (Seq (st, hs, gs)) -> tmerge (termvars hs, termvars gs)
+      fun (Seq (st, hs, gs)) -> tmerge (termvars hs) (termvars gs)
     let rec seqVIDs s = orderVIDs (_MAP (vartoVID, seqvars termvars tmerge s))
     let rec eqseqs =
       fun (Seq (st1, h1s, g1s), Seq (st2, h2s, g2s)) ->
