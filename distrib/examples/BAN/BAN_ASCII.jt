@@ -1,7 +1,6 @@
 ﻿/* $Id$ */
 
-FONTS "Konstanz"
-
+Usefile
 USE "BAN_ASCII_syntax.j"
 USE "BAN_ASCII_rules.j"
 USE "BAN_ASCII_menus.j"

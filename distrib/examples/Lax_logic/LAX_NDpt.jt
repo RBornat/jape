@@ -1,7 +1,6 @@
 ﻿/* $Id$ */
 
-FONTS "Konstanz"
-INITIALISE displaystyle box
+UsefileINITIALISE displaystyle box
 
 CLASS BAG Γ
 CONSTANT false * true efq π1 π2 i1 i2 val i

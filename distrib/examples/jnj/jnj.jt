@@ -12,10 +12,7 @@
         $Id$
 
         (Brought up to date for Jape 6 in January 2003)
-
-        Edit in FONT{lauratt-*}
 */
-        FONTS   "Laura"
         SEQUENT IS BAG ⊢ FORMULA
         INITIALISE autoAdditiveLeft true
         PREFIX   350 ¬

@@ -1,7 +1,6 @@
 ﻿/* $Id$ */
 
-FONTS "Konstanz"
-
+Usefile
 USE "BAN_syntax.j"
 USE "BAN_rules.j"
 USE "BAN_menus.j"

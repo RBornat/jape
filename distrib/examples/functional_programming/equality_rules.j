@@ -6,8 +6,6 @@
 	
 */
 
-FONTS	"Konstanz"
-
 CLASS VARIABLE x y
 CLASS FORMULA A B C F G X Y Z
 CONSTANT ⊥

@@ -8,8 +8,6 @@
 */
 
 
-FONTS	"Konstanz"
-
 SEQUENT IS BAG ⊢ FORMULA
 
 INITIALISE autoAdditiveLeft true

@@ -8,8 +8,7 @@ with Jape'' by Bernard Sufrin and Richard Bornat (April 1998). A
 discursive account of the theory is given in that paper.
 
 */
-        FONTS "Konstanz"
-        CLASS   VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
+        Usefile        CLASS   VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
         CLASS   FORMULA  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
         CLASS   NUMBER   num
         LEFTFIX 20 λ •

@@ -2,8 +2,7 @@
 
 INITIALISE interpretpredicates true
 
-FONTS "Konstanz"
-INITIALISE displaystyle tree
+UsefileINITIALISE displaystyle tree
 
 CLASS BAG Γ ∆
 CLASS FORMULA A B C D P Q R S
