@@ -38,16 +38,17 @@
 
         Switches are:
 
-                -splash     <image file>    -- specify the installation splash image
-                -app        "the app name"  -- default is Jape
-                -bfont      fontname        -- button font         (default Sanserif-18)
-                -tfont      fontname        -- text feedback font  (default Dialog-12)
-                -onunix     "command"       -- specify the post-unpack shell command for Unixoid systems
-                -onwindows  "command"       -- specify the post-unpack shell command for Windoid systems
-                                               this must be a .cmd script (and should also be sent as a resource)
-                -winclass   <class name>    -- specify the post-unpack class to load and instantiate (on Windows)
-                -class      <class name>    -- specify the post-unpack class to load and instantiate (on non-Windows)
-                
+         -splash        <image file>        -- specify the installation splash image
+         -app           "the app name"      -- default is Jape
+         -bfont         fontname            -- button font            (default Sanserif-PLAIN-14)
+         -tfont         fontname            -- feedback window font   (default Monospaced-PLAIN-14)
+         -cmdunix       "command"           -- specify the post-unpack shell command for Unixoid systems
+         -cmdwindows    "command"           -- specify the post-unpack shell command for Windoid systems
+         -classwindows  <class name>        -- specify the post-unpack class to load and instantiate (on Windows)
+         -classunix     <class name>        -- specify the post-unpack class to load and instantiate (on non-Windows)
+
+        (The classes specified by -classXXX are loaded and instantiated before the scripts/commands
+         specified by -cmdXXX are run)
 
         It is fairly important that the name of this file is not
         changed, for if it is then the installation process is made a
@@ -72,7 +73,7 @@
         to the original and double click on it as above.
 
         It's usually possible to arrange for a combination of the
-        -onwindows and -winclass switches to create runtime scripts,
+        -cmdwindows and -classwindows switches to create runtime scripts,
         and to make shortcuts to them with the appropriate icons
         within. The resource SHORTCUT.EXE (a Win32 program) should
         be shipped to do the latter job. Here's how it might be used:
@@ -128,6 +129,21 @@
         
         
 */
+
+/*
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the  GNU General Public License  as published
+ by the Free Software Foundation; either version 2 of the License,
+ or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+
+*/
+
 package bootstrap;
 
 // FOR THE INSTALL-TIME GUI
@@ -149,8 +165,8 @@ public class install implements ActionListener
   ,      installerName      = "install"
   ,      installerClass     = packageName+"."+installerName
   ,      manifestName       = packagePath+"/"+installerName + ".mf"
-  ,      gifFile            = null
-  ,      installgifFile     = null
+  ,      SplashImage            = null
+  ,      installSplashImage     = null
   ,      propertiesResource = installerName+".properties"
   ,      propertiesFile     = packagePath+"/"+propertiesResource
   ;
@@ -176,15 +192,15 @@ public class install implements ActionListener
        if (arg.startsWith("-"))
        { String param = args[++i];
          if (arg.startsWith("-splash")) 
-         { gifFile = param; 
-           installgifFile =  packageName + "/" + param;
-           resources.append(" " + installgifFile);
-           props.setProperty("-splash", gifFile);
+         { SplashImage = param; 
+           installSplashImage =  packageName + "/" + param;
+           resources.append(" " + installSplashImage);
+           props.setProperty("-splash", SplashImage);
          }
          else
          { 
            props.setProperty(arg, param);
-           if (arg.startsWith("-onwindows") && param.endsWith(".cmd"))
+           if (arg.startsWith("-cmdwindows") && param.endsWith(".cmd"))
            { 
              resources.append(" " + param);
            }
@@ -223,7 +239,7 @@ public class install implements ActionListener
        
        boolean ok = execute
        ( new String[]
-         { gifFile==null?"# no install-time icon":("cp "    + gifFile + " " + packagePath)
+         { SplashImage==null?"# no install-time icon":("cp "    + SplashImage + " " + packagePath)
          , "jar -cvfm " + installjar + " " + manifestName + " " + bootstrapClassFile + resources.toString()
          },
          false
@@ -343,18 +359,18 @@ public class install implements ActionListener
   {  prop                  = getProperties(this);
      jarfilename           = filename==null?prop.getProperty("-jar"):filename;
      
-     String    giffilename = prop.getProperty("-splash");
-     String    appName     = prop.getProperty("-app", "Jape");
-     String    tfont       = prop.getProperty("-tfont", "Monospaced-PLAIN-14");
-     String    bfont       = prop.getProperty("-bfont", "SansSerif-PLAIN-14");
-     String    caption     = "Installing "+appName+" from "+jarfilename;
-     Font      tFont       = Font.decode(tfont); //new Font("SansSerif", Font.BOLD, 18);
-     Font      bFont       = Font.decode(bfont); //new Font("SansSerif", Font.BOLD, 18);
-     JFrame    frame       = new JFrame(caption);
-     Container content     = frame.getContentPane();
-     JButton   install     = new JButton("Install "+appName);
-     JButton   exit        = new JButton("Exit Now");
-     JLabel    label       = new JLabel(caption, SwingConstants.CENTER);
+     String    splashFileName = prop.getProperty("-splash");
+     String    appName        = prop.getProperty("-app", "Jape");
+     String    tfont          = prop.getProperty("-tfont", "Monospaced-PLAIN-14");
+     String    bfont          = prop.getProperty("-bfont", "SansSerif-PLAIN-14");
+     String    caption        = "Installing "+appName+" from "+jarfilename;
+     Font      tFont          = Font.decode(tfont); //new Font("SansSerif", Font.BOLD, 18);
+     Font      bFont          = Font.decode(bfont); //new Font("SansSerif", Font.BOLD, 18);
+     JFrame    frame          = new JFrame(caption);
+     Container content        = frame.getContentPane();
+     JButton   install        = new JButton("Install "+appName);
+     JButton   exit           = new JButton("Exit Now");
+     JLabel    label          = new JLabel(caption, SwingConstants.CENTER);
      progress = new TextArea("", 15, 72);
      progress.setFont(tFont);
      install.addActionListener(this);
@@ -366,9 +382,9 @@ public class install implements ActionListener
      // prop.list(System.err);
      
      
-     if (giffilename!=null)
+     if (splashFileName!=null)
      {
-       ImageIcon i = new ImageIcon(getImage(this, giffilename));
+       ImageIcon i = new ImageIcon(getImage(this, splashFileName));
        JLabel icon = new JLabel(i, SwingConstants.CENTER);
        content.add(icon, BorderLayout.NORTH);
      }
@@ -390,9 +406,9 @@ public class install implements ActionListener
        try
        { 
          boolean isWindows = System.getProperty("os.name", "Unix").startsWith("Windows");
-         String  postClass = prop.getProperty(isWindows?"-winclass":"-class");
+         String  postClass = prop.getProperty(isWindows?"-classwindows":"-classunix");
          unJar(".", new FileInputStream(jarfilename));
-         String shell = prop.getProperty(isWindows?"-onwindows":"-onunix");
+         String shell = prop.getProperty(isWindows?"-cmdwindows":"-cmdunix");
 
          if (postClass!=null)
          { Class  theClass = Class.forName(postClass);
@@ -475,22 +491,6 @@ public class install implements ActionListener
 
   
 }
-
-/*
-
- This program is free software; you can redistribute it and/or modify
- it under the terms of the  GNU General Public License  as published
- by the Free Software Foundation; either version 2 of the License,
- or (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- General Public License for more details.
-
-*/
-
-
 
 
 
