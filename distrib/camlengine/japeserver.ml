@@ -560,52 +560,48 @@ let rec setmenuequiv (menu, entry, command) = ()
 let rec explode_ s =
   let rec ff_ a1 a2 a3 =
     match a1, a2, a3 with
-      w, r, [] -> implode w :: r
-    | w, r, "\n" :: cs -> ff_ [] [] cs
+      w, r, []           -> implode w :: r
     | w, r, "\001" :: cs -> ff_ [] (implode w :: r) cs
-    | w, r, c :: cs -> ff_ (c :: w) r cs
+    | w, r, c :: cs      -> ff_ (c :: w) r cs
   in
   ff_ [] [] (List.rev (explode s))
-
-let rec getSelection () =
-  let l : (pos * string list) list ref = ref [] in
-  writef "GETSELECTION\n" [];
-  while
-    match explode_ (readline "GETSELECTIONANSWER") with
-      x :: y :: ss -> l := (pos (atoi x, atoi y), ss) :: !l; true
-    | _ -> false
-  do ()
-  done;
-  !l, []
 
 let rec getTextSelection () =
   let l : (pos * string list) list ref = ref [] in
   writef "GETTEXTSELECTIONS\n" [];
   while
-    match explode_ (readline "GETTEXTSEL") with
+    let line = readline "GETTEXTSELECTIONS" in
+    match explode_ line with
       x :: y :: ss -> l := (pos (atoi x, atoi y), ss) :: !l; true
-    | _            -> false
+    | _            -> (* consolereport ["getTextSelection terminates on "; Stringfuns.enQuote line]; *)
+                      false
   do () done;
+  (* consolereport ["getTextSelection => "; 
+           bracketedliststring (Stringfuns.pairstring posstring 
+                                (bracketedliststring Stringfuns.enQuote ",") ",") "; " !l]; *)
   !l
 
 let rec getFormulaSelection () =
   let l : (pos * displayclass) list ref = ref [] in
-  writef "GETBOXSELECTION\n" [];
+  writef "GETSELECTIONS\n" [];
   while
-    match explode_ (readline "GETBOXSEL") with
-      [x; y; classn] ->
-        l := (pos (atoi x, atoi y), int2displayclass (atoi classn)) :: !l;
-        true
-    | _ -> false
-  do ()
-  done;
+    let line = readline "GETSELECTIONS" in
+    match ints line with
+      [x; y; classn] -> l := (pos (x, y), int2displayclass classn) :: !l; true
+    | _ -> (* consolereport ["getFormulaSelection terminates on "; Stringfuns.enQuote line]; *) 
+           false
+  do () done;
+  (* consolereport ["getFormulaSelection => "; 
+      bracketedliststring (Stringfuns.pairstring posstring displayclassstring ",") "; " !l]; *)
   !l
 
 let rec getGivenSelection () =
-  writef "GETGIVENSELECTION\n" [];
-  match explode_ (readline "GETGIVENSEL") with
-    [""] -> []
-  | xs -> xs
+  writef "GETGIVENTEXTSELECTIONS\n" [];
+  match explode_ (readline "GETGIVENTEXTSELECTIONS") with
+    [""] -> (* consolereport ["getGivenSelection (saw a list with a single empty string) => []"]; *)
+            []
+  | xs   -> (* consolereport ["getGivenSelection => "; bracketedliststring Stringfuns.enQuote "," xs]; *)
+            xs
 
 let rec getAllSelections () =
   (* unit -> ... *)

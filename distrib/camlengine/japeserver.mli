@@ -146,7 +146,7 @@ val getAllSelections :
 val highlight : pos -> displayclass option -> unit (* NOW TAKES TEXTPOS, NOT BOXPOS!!! *)
 val emphasise : pos -> bool -> unit                (* also textpos; used in disproof *)
 
-val greyen : pos -> unit
+val greyen  : pos -> unit
 val blacken : pos -> unit
 
 val toplevelfiletype : int  (* .jt *)
