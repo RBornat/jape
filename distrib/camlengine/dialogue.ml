@@ -1653,18 +1653,18 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         
         (* ****************** the drag and drop stuff is revived! *********************** *)
         
-        | "dragquery", [] ->
-             (match pinfs with
-                [] -> raise (Catastrophe_ ["dragquery not in a proof"] (* ; default *) )
-              | Pinf{hist=WinHist{proofhist=Hist{now=Proofstate{cxt=cxt}}}}::_ ->
-                  let dragees = !dropsource in
-                  let targets = 
-                    (Listfuns.remdups <.> Listfuns.sort earlierresource)
-                       (snd <* ((fun (s,t) -> List.mem s dragees) <| draganddropmapping cxt))
-                  in
-                      Japeserver.droptargets (string_of_element <* targets);
-                      default
-            )                  
+        (* | "dragquery", [] ->
+               (match pinfs with
+                  [] -> raise (Catastrophe_ ["dragquery not in a proof"] (* ; default *) )
+                | Pinf{hist=WinHist{proofhist=Hist{now=Proofstate{cxt=cxt}}}}::_ ->
+                    let dragees = !dropsource in
+                    let targets = 
+                      (Listfuns.remdups <.> Listfuns.sort earlierresource)
+                         (snd <* ((fun (s,t) -> List.mem s dragees) <| draganddropmapping cxt))
+                    in
+                        Japeserver.droptargets (string_of_element <* targets);
+                        default
+              ) *)                 
         | "dropcommand", [] ->
              inside c
                (fun displaystate ->
@@ -1672,7 +1672,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  (fun here -> evolve_proof_explain
                                  (fun () -> showAlert(explain ""))
                                  displaystate env
-                                 (doDropUnify (!droptarget) (!dropsource))
+                                 (doDropUnify (_The !droptarget) [_The !dropsource])
                                  here
                  )
                )
@@ -2113,10 +2113,16 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             displaystate = displaystate;
             hist = hist} as pinf) :: rest ->
           let doShowProof cxt state show =
-            let sources = 
-              Listfuns.remdups (Listfuns.sort earlierresource (fst <* draganddropmapping cxt)) 
-            in
-            Japeserver.dragsources (string_of_element <* sources);
+            if Interaction.getdisplaystyle () = "tree" then
+              (let dNdmapping = draganddropmapping cxt in
+               if List.length dNdmapping!=0 then
+                 (let get_es sel =
+                     Listfuns.remdups 
+                      (Listfuns.sort earlierresource 
+                        (List.concat (sel <* dNdmapping))) 
+                  in
+                  let elementmap es = (fun e -> e, Interaction.locateElement state e) <* es in
+                  Japeserver.draginfo (elementmap (get_es fst)) (elementmap (get_es snd)) dNdmapping));
             env, mbs, show,
             withhist
               (withdisplaystate
