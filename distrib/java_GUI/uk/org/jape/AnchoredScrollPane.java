@@ -273,6 +273,8 @@ public class AnchoredScrollPane extends Container {
             vsb.setBounds(sparewidth, 0, vsbWidth, spareheight);
             hsb.setBounds(0, spareheight, sparewidth, hsbHeight);
             viewport.setBounds(0, 0, sparewidth, spareheight);
+            if (view!=null && view instanceof Clickable)
+                ((Clickable)view).declareViewportSize(sparewidth, spareheight);
             validate();
         }
     }

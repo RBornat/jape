@@ -34,6 +34,7 @@ import java.awt.Insets;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.LayoutManager;
+import java.awt.Point;
 import java.awt.Rectangle;
 import javax.swing.Scrollable;
 
@@ -55,6 +56,7 @@ public class ContainerWithOrigin extends Container {
     }
 
     public void computeBounds() {
+        child.getLayout().layoutContainer(child);
         getLayout().layoutContainer(this);
     }
 
@@ -69,6 +71,18 @@ public class ContainerWithOrigin extends Container {
         super.repaint(tm, x+child.getX(), y+child.getY(), width, height);
     }
 
+    private boolean inViewport = false;
+    private int viewWidth, viewHeight;
+
+    // this allows us to be in a viewport, and to extend across the entire viewport,
+    // so that mouse events are received by us.
+    // To activate this mechanism, make a descendant implement Clickable
+    protected void declareViewportSize(int width, int height) {
+        inViewport = true;
+        viewWidth = width; viewHeight = height;
+        getLayout().layoutContainer(this);
+    }
+    
     protected class ContainerWithOriginLayout implements LayoutManager {
 
         /* Called by the Container add methods. Layout managers that don't associate
@@ -110,23 +124,53 @@ public class ContainerWithOrigin extends Container {
         * will be called before layoutContainer is called.
         */
         public void layoutContainer(Container c) {
-            child.getLayout().layoutContainer(child);
+            if (Debugging.containerlayout)
+                System.err.print("[layoutContainer");
+            // child.getLayout().layoutContainer(child);
             Rectangle vr = child.getVisualBounds();
-            Insets i = c.getInsets();
-            vr.x -= i.left; vr.width += i.left+i.right;
-            vr.y -= i.top; vr.height += i.top+i.bottom;
+            Point pos = getLocation(), childpos = child.getLocation();
+            Dimension size = getSize();
+            if (Debugging.containerlayout)
+                System.err.print(" childpos="+childpos+
+                                 ", vr="+vr+", pos="+pos+", size="+size+
+                                 ", insets="+getInsets()+";");
+            // we don't have any insets, we are an invisible container.
             // new top is at cx+vcx; new left at cy+vcy.
             // we must adjust child location when we adjust our own
-            int deltax = child.getX()+vr.x, deltay=child.getY()+vr.y;
+            int deltax = childpos.x+vr.x, deltay=childpos.y+vr.y;
             if (deltax!=0 || deltay!=0) {
+                pos.x+=deltax; pos.y+=deltay; setLocation(pos);
                 setLocation(getX()+deltax, getY()+deltay);
-                child.setLocation(-vr.x, -vr.y);
+                childpos.x = -vr.x; childpos.y = -vr.y;
+                child.setLocation(childpos);
+                if (Debugging.containerlayout)
+                    System.err.print(" childpos:="+childpos+", pos:="+pos);
             }
-            Dimension size = getSize();
             if (vr.width!=size.width || vr.height!=size.height) {
                 size.width=vr.width; size.height=vr.height;
                 setSize(size);
+                if (Debugging.containerlayout)
+                    System.err.print(" size:="+size);
             }
+            if (inViewport) {
+                int diff;
+                if ((diff=pos.x)>0) {
+                    pos.x=0; size.width+=diff; childpos.x+=diff;
+                }
+                if ((diff=pos.y)>0) {
+                    pos.y=0; size.height+=diff; childpos.y+=diff;
+                }
+                if ((diff=viewWidth-(pos.x+size.width))>0)
+                    size.width+=diff;
+                if ((diff=viewHeight-(pos.y+size.height))>0)
+                    size.height+=diff;
+                setLocation(pos); child.setLocation(childpos); setSize(size);
+                if (Debugging.containerlayout)
+                    System.err.print("; inViewport so childpos:="+childpos+
+                                     ", pos:="+pos+", size:="+size);
+            }
+            if (Debugging.containerlayout)
+                System.err.println("]");
         }
     }
 
@@ -153,9 +197,7 @@ public class ContainerWithOrigin extends Container {
             /* Called by the Container add methods. Layout managers that don't associate
             * strings with their components generally do nothing in this method.
             */
-            public void addLayoutComponent(String s, Component c) {
-                // System.err.println("Child addLayoutComponent "+c);
-            }
+            public void addLayoutComponent(String s, Component c) { }
 
             /* Called by the Container remove and removeAll methods. Many layout managers
             * do nothing in this method, relying instead on querying the container for its
@@ -191,15 +233,19 @@ public class ContainerWithOrigin extends Container {
             * will be called before layoutContainer is called.
             */
             public void layoutContainer(Container c) {
-                Rectangle newBounds=null;
+                if (Debugging.containerlayout)
+                    System.err.print("(childLayoutContainer");
+                Rectangle newBounds=null, tmp=new Rectangle();
                 int nc = getComponentCount();
                 for (int i=0; i<nc; i++) {
                     if (newBounds==null) {
                         newBounds = new Rectangle();
                         getComponent(i).getBounds(newBounds);
                     }
-                    else
-                        newBounds.add(getComponent(i).getBounds());
+                    else {
+                        getComponent(i).getBounds(tmp);
+                        newBounds.add(tmp); 
+                    }
                 }
                 if (newBounds==null)
                     newBounds = new Rectangle();
@@ -207,10 +253,16 @@ public class ContainerWithOrigin extends Container {
                 if (newBounds.width!=size.width || newBounds.height!=size.height) {
                     size.width=newBounds.width; size.height=newBounds.height;
                     setSize(size);
+                    if (Debugging.containerlayout)
+                        System.err.print("; childsize:="+size);
                 }
                 if (!newBounds.equals(visualBounds)) {
                     visualBounds=newBounds;
+                    if (Debugging.containerlayout)
+                        System.err.print("; visualBounds:="+visualBounds);
                 }
+                if (Debugging.containerlayout)
+                    System.err.println(")");
             }
         }
     }
