@@ -49,7 +49,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.ListSelectionModel;
+import java.awt.Rectangle;
 import java.util.Vector;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class PanelWindow extends JapeWindow implements ActionListener, DebugConstants {
     protected int kind;
@@ -64,29 +67,36 @@ public class PanelWindow extends JapeWindow implements ActionListener, DebugCons
     public PanelWindow(String title, int kind) {
         super(title);
         this.kind = kind;
-        model = new DefaultListModel();
-        list = new JList(model);
-        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        list.setSelectedIndex(0);
-        scrollPane = new JScrollPane(list);
+
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                Alert.showAlert(PanelWindow.this, Alert.Info,
+                                new String[] {
+                                    "You can't close a Jape panel: it's needed!",
+                                    "(and if only I knew how to grey out the close button ...)"
+                                });
+            }
+        });
         entryv = new Vector();
         cmdv = new Vector();
         buttonv = new Vector();
 
         Container contentPane = getContentPane();
+        contentPane.setLayout(new PanelWindowLayout());
 
-        contentPane.setLayout(new PanelWindowLayout()); 
+        model = new DefaultListModel();
+        list = new JList(model);
+        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        list.setSelectedIndex(0);
+        scrollPane = new JScrollPane(list);
         contentPane.add(scrollPane);
         
         if (kind==1) { // i.e. a ConjecturePanel
             // has default buttons
-            Insert[] cmd;
-            cmd = new Insert[1]; cmd[0] = new StringInsert("New... button pressed");
-            addButton("New...", cmd);
-            cmd = new Insert[2]; cmd[0] = new StringInsert("prove"); cmd[1] = new CommandInsert();
-            addButton("Prove", cmd);
-            cmd = new Insert[2]; cmd[0] = new StringInsert("showproof"); cmd[1] = new CommandInsert();
-            addButton("Show Proof", cmd);
+            addButton("New...", new Insert[] { new StringInsert("New... button pressed") });
+            addButton("Prove", new Insert[] { new StringInsert("prove"), new CommandInsert() });
+            addButton("Show Proof", new Insert[] { new StringInsert("showproof"), new CommandInsert() });
             // and double-click means "prove this one"
             MouseListener m = new MouseAdapter () {
                 public void mouseClicked(MouseEvent e) {
@@ -207,25 +217,28 @@ public class PanelWindow extends JapeWindow implements ActionListener, DebugCons
                 buttonpanelwidth = d.width*3+2*buttonleading;
             }
             else {
-                Dimension d = 
-                int buttonleading = ((PanelButton)buttonv.get(0)).getLeading();
-                int buttonheight = ((PanelButton)buttonv.get(0)).getHeight();
+                if (panellayout_tracing)
+                    System.err.println("preferredButtonPanelSize");
+                Dimension d = ((PanelButton)buttonv.get(0)).getPreferredSize();
+                int buttonleading = leading(d);
+                int buttonheight = d.height;
                 int threewidth = 0; // shut up compiler
                 
                 buttonpanelheight = buttonleading;
                 
                 for (int i=0; i<buttonv.size(); i++) {
                     PanelButton button = (PanelButton)buttonv.get(i);
-
+                    d = button.getPreferredSize();
+                    
                     if (panellayout_tracing)
-                        System.err.println("preferredButtonPanelSize "+i+": "+button);
+                        System.err.println(i+": "+d.width+","+d.height);
 
                     if (i%3==0) {
                         buttonpanelheight += buttonleading+buttonheight;
-                        threewidth = button.getWidth();
+                        threewidth = d.width;
                     }
                     else
-                        threewidth += buttonleading+button.getWidth();
+                        threewidth += buttonleading+d.width;
 
                     if ((i+1)%3==0)
                         buttonpanelwidth = Math.max(threewidth, buttonpanelwidth);
@@ -272,31 +285,42 @@ public class PanelWindow extends JapeWindow implements ActionListener, DebugCons
                 scrollPane.setBounds(pane.getBounds());
             else {
                 // first layout the buttons
-                int[] xs = new int[buttons.length], ys = new int[buttons.length];
-                int leading = buttons[0].getLeading(), bh = buttons[0].getHeight();
-                int width = getWidth(), height=getHeight();
+                Dimension d = buttons[0].getPreferredSize();
+                int leading = leading(d), bh = d.height;
+                int width = pane.getWidth(), height=pane.getHeight();
+                if (panellayout_tracing)
+                    System.err.println("PanelWindow.layoutContainer "+width+","+height);
                 int y = height-leading-bh, packedwidth = 0;
                 for (int i=0; i<buttons.length; i++) {
+                    buttons[i].setSize(buttons[i].getPreferredSize());
                     int bw = buttons[i].getWidth();
                     if (packedwidth==0 || packedwidth+leading+bw<=width) {
                         for (int j=0; j<i; j++)
-                            if (ys[j]==y) xs[j]-=bw+leading;
+                            if (buttons[j].getY()==y)
+                                buttons[j].setLocation(buttons[j].getX()-bw-leading,y);
                     }
                     else {
-                        for (int j=0; j<i; j++) ys[j]-=bh+leading;
+                        for (int j=0; j<i; j++)
+                            buttons[j].setLocation(buttons[j].getX(), buttons[j].getY()-bh-leading);
                         packedwidth = 0;
                     }
-                    xs[i]=width-bw; ys[i]=y;
+                    buttons[i].setLocation(width-bw, y);
                     if (packedwidth==0)
                         packedwidth = bw;
                     else
                         packedwidth += bw+leading;
                 }
-                // give the buttons their due
-                for (int i=0; i<buttons.length; i++)
-                    buttons[i].setLocation(xs[i],ys[i]);
+
+                if (panellayout_tracing)
+                    for (int i=0; i<buttons.length; i++)
+                        System.err.println(i+": "+buttons[i].getX()+","+buttons[i].getY()+" "+
+                                           buttons[i].getWidth()+","+buttons[i].getHeight());
+
                 // give the scroll pane the rest of the height
-                scrollPane.setBounds(0, 0, width, Math.max(0, ys[0]-leading));
+                scrollPane.setBounds(0, 0, width, Math.max(0, buttons[0].getY()-leading));
+                if (panellayout_tracing)
+                    System.err.println(scrollPane.getX()+","+scrollPane.getY()+" "+
+                                       scrollPane.getWidth()+","+scrollPane.getHeight());
             }
         }
     }
