@@ -4,7 +4,7 @@ open Term.Funs
 open Sequent.Funs
 open Proviso
 open Paraparam
-open Tactic.Funs
+open Tactic
 open Menu
 open Panelkind
 open Doubleclick

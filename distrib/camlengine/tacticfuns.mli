@@ -2,7 +2,7 @@
 
 open Prooftree.Tree.Fmttree
 open Proofstate
-open Tactic.Funs
+open Tactic
 open Japeenv
 open Displaystate
 open Name

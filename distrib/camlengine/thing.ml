@@ -19,7 +19,7 @@ open Sequent.Type
 open Sml
 open Stringfuns
 open Symbol
-open Tactic.Funs
+open Tactic
 open Term.Funs
 open Term.Termstring
 open Term.Type

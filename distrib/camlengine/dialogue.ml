@@ -114,7 +114,7 @@ let sameresource = Term.Funs.sameresource
 let seektipselection = Miscellaneous.seektipselection
 let showInputError = Symbol.showInputError
 let string2paragraph = Paragraph.string2paragraph
-let tacticstring = Tactic.Funs.tacticstring
+let tacticstring = Tactic.tacticstring
 let termstring = Term.Termstring.termstring
 let try__ = Optionfuns.try__
 let _The = Optionfuns._The
@@ -202,7 +202,7 @@ let pairs =
    "rewritedebug", bj false Rewrite.Funs.rewritedebug;
    "screenpositiondebug", bj false Miscellaneous.screenpositiondebug;
    "substdebug", bj false Substmapfuns.substdebug;
-   "symboldebug", bj false Symbol.symboldebug;
+   "symboldebug", bj true Symbol.symboldebug;
    "tactictracing", bj false Tacticfuns.tactictracing;
    "thingdebug", bj false thingdebug;
    "thingdebugheavy", bj false thingdebugheavy;

@@ -8,7 +8,7 @@ open Proofstage
 open Proofstate
 open Proviso
 open Sequent.Funs
-open Tactic.Funs
+open Tactic
 
 val proofsdone : bool ref
 val mkstate : visproviso list -> seq list -> prooftree -> proofstate

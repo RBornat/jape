@@ -162,8 +162,8 @@ module Tree : Tree with type term = Term.Type.term
     open Sequent.Type
     open Sml
     open Stringfuns
-    open Tactic.Type
-    open Tactic.Funs
+    open Tactictype
+    open Tactic
     open Term.Funs
     open Term.Store
     open Term.Termstring

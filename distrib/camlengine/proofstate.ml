@@ -99,7 +99,7 @@ let rewriteproofstate =
   fun (Proofstate {cxt = cxt; tree = tree; givens = givens} as state) ->
 	let (cxt, tree, _) = rewriteProoftree givens true cxt tree in
 	withtree (withcxt state cxt) tree
-let autorulelist : (bool * Tactic.Funs.tactic) list ref = ref []
+let autorulelist : (bool * Tactic.tactic) list ref = ref []
 let autorules () = !autorulelist
 let addautorule (sense, tac as rule) =
   autorulelist :=

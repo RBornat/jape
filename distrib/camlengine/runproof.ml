@@ -27,13 +27,13 @@ let liststring = Listfuns.liststring
 let ( <* ) = Listfuns.( <* )
 let maxprovisoresnum = Proviso.maxprovisoresnum
 let maxtreeresnum = Prooftree.Tree.Fmttree.maxtreeresnum
-let mkReplayTac v = Tactic.Type.ReplayTac v
-let mkSimpleApplyTac v = Tactic.Type.SimpleApplyTac v
+let mkReplayTac v = Tactictype.ReplayTac v
+let mkSimpleApplyTac v = Tactictype.SimpleApplyTac v
 
 let rec mkTip cxt seq =
   Prooftree.Tree.mkTip cxt seq Treeformat.Fmt.neutralformat
 
-let mkUniqueTac v = Tactic.Type.UniqueTac v
+let mkUniqueTac v = Tactictype.UniqueTac v
 let mkvisproviso = Proviso.mkvisproviso
 let proofstage2word = Proofstage.proofstage2word
 let proving = Tacticfuns.proving
@@ -46,7 +46,7 @@ let rewriteseq = Rewrite.Funs.rewriteseq
 let rootPath = Prooftree.Tree.Fmttree.rootPath
 let sequent = Prooftree.Tree.Fmttree.sequent
 let seqstring = Sequent.Funs.seqstring
-let tacticstring = Tactic.Funs.tacticstring
+let tacticstring = Tactic.tacticstring
 let takethelot = Applyrule.takethelot
 let uncurry2 = Miscellaneous.uncurry2
 let ( <| ) = Listfuns.( <| )

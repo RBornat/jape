@@ -3,11 +3,11 @@
 open Sequent.Funs
 open Listfuns
 open Mappingfuns
-open Tactic.Funs
+open Tactic
 open Optionfuns
 
 type seq = Sequent.Funs.seq 
- and tactic = Tactic.Funs.tactic 
+ and tactic = Tactic.tactic 
  and term = Sequent.Funs.term
 
 let seqmatch = seqmatch false

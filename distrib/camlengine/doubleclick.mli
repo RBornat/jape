@@ -1,7 +1,7 @@
 (* $Id$ *)
 
 type seq = Sequent.Funs.seq
-and tactic = Tactic.Funs.tactic
+and tactic = Tactic.tactic
 and term = Sequent.Funs.term
 
 type dclick = DClickHyp | DClickConc

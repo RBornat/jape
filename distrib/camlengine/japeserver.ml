@@ -102,7 +102,7 @@ let rec front =
 (* if the server has crashed, input_line may give an exception *)
 let rec readline s = 
   (flush s; 
-  let r = front (try input_line !infromserver
+  let r = (try input_line !infromserver
                  with End_of_file -> deadserver()
                  |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.readline "; s];
                              deadserver())
@@ -176,6 +176,7 @@ and out8 c =
 
 let rec askf s is = writef s is; ints (readline s)
 let rec ask s = out s; out "\n"; readline s
+
 let rec listen () = writef "GET\n\n\n" []; readline "GET"
 let rec terminate () = writef "TERMINATE\n" []
 let rec closedown () = writef "TERMINATE\n" []
@@ -292,6 +293,7 @@ let rec setComment s =
   if s = "" && not !commentSet then ()
   else begin commentSet := true; writef "SETCOMMENT \"%\"\n" [Str s] end
 let rec showAlert s = writef "SETALERT   \"%\"\n" [Str s]
+
 let rec ask_unpatched severity message buttons default =
   writef "ASKSTART\n" [];
   List.iter (fun but -> writef "ASKBUTTON {%}\n" [Str but]) buttons;
@@ -300,6 +302,7 @@ let rec ask_unpatched severity message buttons default =
   with
     [n] -> n
   | _ -> raise (Catastrophe_ ["ask protocol failure"])
+
 let rec askDangerously_unpatched message doit dont =
   match
     askf "ASKDANGEROUS {%} {%} {%}\n" [Str message; Str doit; Str dont]
@@ -307,6 +310,7 @@ let rec askDangerously_unpatched message doit dont =
     [0] -> None
   | [n] -> Some (n - 1)
   | _ -> raise (Catastrophe_ ["askdangerous protocol failure"])
+
 let rec askCancel_unpatched severity message buttons default =
   let n = ask_unpatched severity message (buttons @ ["Cancel"]) default in
   if n = List.length buttons then None else Some n
@@ -420,10 +424,12 @@ let rec highlight posn classopt =
     None -> writef "UNHIGHLIGHT % %\n" [Int x; Int y]
   | Some c ->
       writef "HIGHLIGHT % % %\n" [Int x; Int y; Int (displayclass2int c)]
+
 let rec readHighlight class__ =
   match askf "READHIGHLIGHT %\n" [Int class__] with
     [x; y] -> Some (pos (x, y))
   | _ -> None
+
 let rec clearProvisoView () = writef "CLEARPROVISOVIEW\n" []
 let rec showProvisoLine (fontn, s) =
   writef "SHOWPROVISOLINE % \"%\"\n" [Int fontn; Str s]
@@ -439,11 +445,13 @@ let (setProvisos : font * string list -> unit) =
     List.iter (fun s -> writef "SHOWPROVISOLINE % \"%\"\n" [fnn; Str s]) ps
 let rec showfile filename = writef "SHOWFILE \"%\"\n" [Str filename]
 let rec resetcache () = commentSet := false;(* initialize cache *)  writef "RESETCACHE\n" []
+
 let rec makeChoice heading =
   match askf "MAKECHOICE \"%\"\n" [Str heading] with
     [0] -> None
   | [n] -> Some (n - 1)
   | _ -> None
+
 let rec clearChoices () = writef "CLEARCHOICES\n" []
 let rec setChoice (show, reply) =
   writef "SETCHOICE \"%\" \"%\"\n" [Str show; Str reply]
@@ -602,6 +610,7 @@ let rec getGeometry pane =
     match askf "%PANEGEOMETRY\n" [Str pane] with
       [w; h; x; y] -> box (pos (x, y), size (w, h))
     | _ -> raise GetGeometry_
+
 let rec getProofPane () = getGeometry "PROOF"
 let rec getDisproofPane () = getGeometry "DISPROOF"
 let rec clearProofPane () = writef "CLEARPROOFPANE\n" []

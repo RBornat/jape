@@ -6,7 +6,7 @@ open Menu
 open Paragraph
 open Runproof
 open Sml
-open Tactic.Type
+open Tactictype
 open Thing
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
@@ -36,7 +36,7 @@ let seqvars = Sequent.Funs.seqvars Term.Funs.termvars Term.Funs.tmerge
 let setfontstuff = Button.setfontstuff
 let setmenuentry = Japeserver.menuentry
 let setpanelbutton = Japeserver.setpanelbutton
-let tacticstring = Tactic.Funs.tacticstring
+let tacticstring = Tactic.tacticstring
 let termstring = Term.Termstring.termstring
 let thawsaved = Proofstore.thawsaved
 let tickmenuitem = Japeserver.tickmenuitem

@@ -3,7 +3,7 @@
 open Term.Funs
 open Sequent.Funs
 open Context.Cxt
-open Tactic.Funs
+open Tactic
 open Prooftree.Tree.Fmttree
  
 type prooftree = Prooftree.Tree.Fmttree.prooftree

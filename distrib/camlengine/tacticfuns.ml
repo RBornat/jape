@@ -32,8 +32,8 @@ open Sequent.Funs
 open Sequent.Type
 open Sml
 open Stringfuns
-open Tactic.Funs
-open Tactic.Type
+open Tactic
+open Tactictype
 open Term.Funs
 open Term.Store
 open Term.Termstring

@@ -5,7 +5,7 @@ open Name
 open Paraparam
 open Proviso
 open Sequent.Funs
-open Tactic.Funs 
+open Tactic 
 open Context.Cxt
 open Mappingfuns
 
