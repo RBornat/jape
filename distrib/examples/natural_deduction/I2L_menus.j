@@ -5,8 +5,8 @@
 TACTIC ForwardOrBackward (Forward, n, Rule) IS 
     WHEN    (LETHYP _Ah 
                 (ALT    (Forward n Rule)
-                    (WHEN   (LETARGSEL _B  (Fail (Rule is not applicable to antecedent ' _Ah ' with argument ' _B ')))
-                                (Fail (Rule is not applicable to antecedent ' _Ah '))
+                    (WHEN   (LETARGSEL _B  (Fail (Rule is not applicable to hypothesis ' _Ah ' with argument ' _B ')))
+                                (Fail (Rule is not applicable to hypothesis ' _Ah '))
                     )
                 )
             )
@@ -47,14 +47,14 @@ TACTIC "∀ elim forward" IS
             (LETHYP (actual _i) ("∀ elim forward moan" ("You only selected %t.", actual _i)))
             (LETHYPS _As ("∀ elim forward moan" ("You selected %l.", (_As, ", ", " and "))))
             (LETGOAL (∀_x._A)
-                (ALERT  ("To make a ∀ elim step forward, you must select an antecedent of the form ∀x.A, and \
-                        \also a pseudo-assumption of the form actual i. You didn't select any antecedents, but the \
+                (ALERT  ("To make a ∀ elim step forward, you must select a hypothesis of the form ∀x.A, and \
+                        \also a pseudo-assumption of the form actual i. You didn't select any hypotheses, but the \
                         \current conclusion is %t, which could be used to make a ∀ intro step backwards.\
                         \\nDid you perhaps mean to make a backward step with ∀ intro?", ∀_x._A)
-                        ("OK",STOP) ("Huh?",SEQ Explainantecedentandconclusionwords STOP)
+                        ("OK",STOP) ("Huh?",SEQ Explainhypothesisandconclusionwords STOP)
                 )
             )
-            ("∀ elim forward moan" "You didn't select any antecedents")
+            ("∀ elim forward moan" "You didn't select any hypotheses")
             
 TACTIC "∀ elim forward step" (P, i) IS
     Noarg   (CUTIN 
@@ -64,7 +64,7 @@ TACTIC "∀ elim forward step" (P, i) IS
             "∀ elim"
 
 TACTIC "∀ elim forward moan" (extra) IS
-    ALERT   ("To make a ∀ elim step forward, you must select an antecedent of the form ∀x.A, and \
+    ALERT   ("To make a ∀ elim step forward, you must select a hypothesis of the form ∀x.A, and \
             \also a pseudo-assumption of the form actual i.%s",extra)
             ("OK", STOP) ("Huh?", SEQ Explainvariables STOP)
 
@@ -106,18 +106,18 @@ TACTIC "∃ intro backward selection moan" (stuff) IS
 
 TACTIC "∃ intro backward hypcheck" (action, gmess) IS
     WHEN    
-        (LETHYP (actual _i) (action _i)) /* the right antecedent - hoorah! */
+        (LETHYP (actual _i) (action _i)) /* the right hypothesis - hoorah! */
         (LETHYP (∃_x._A) /* looks like a forward step */
             (ALERT  ("To make an ∃ intro step backwards, you have to select a conclusion of the form \
                     \∃x.A, and a pseudo-assumption of the form actual i. You selected \
-                    \the antecedent %t, which would fit ∃ elim going forward.\
+                    \the hypothesis %t, which would fit ∃ elim going forward.\
                     \\nWould you like to make the forward step instead?",∃_x._A)
                     ("Forward", "∃ elim forward") ("Huh?", SEQ Explainvariables STOP) ("Cancel", STOP)))
-        (LETHYP _A /* the wrong antecedent */
-            ("∃ intro backward selection moan" ("%s you selected the antecedent %t instead.", gmess, _A)))
+        (LETHYP _A /* the wrong hypothesis */
+            ("∃ intro backward selection moan" ("%s you selected the hypothesis %t instead.", gmess, _A)))
         (LETHYPS _As /* more than one */
-            ("∃ intro backward selection moan" ("%s you selected more than one antecedent – %l.", gmess, (_As, ", ", " and "))))
-        ("∃ intro backward selection moan" ("%s you didn't select an antecedent.", gmess))
+            ("∃ intro backward selection moan" ("%s you selected more than one hypothesis – %l.", gmess, (_As, ", ", " and "))))
+        ("∃ intro backward selection moan" ("%s you didn't select a hypothesis.", gmess))
 
 /* ******************** most rules don't want arguments ******************** */
 
@@ -197,28 +197,28 @@ TACTIC hyptac IS
                             ("try hyp" _Ah _Ag  ("%t and %t (the only relevant unproved conclusion) don't unify", _Ah, _Ag))
                         )
                         (LETOPENSUBGOALS _Ags
-                            (ALERT  ("Please select one of the unproved conclusions %l to unify with the antecedent %t.", 
-                                    (_Ags, ", ", " or "), _Ah) ("OK", STOP) ("Huh?", SEQ Explainantecedentandconclusionwords STOP )
+                            (ALERT  ("Please select one of the unproved conclusions %l to unify with the hypothesis %t.", 
+                                    (_Ags, ", ", " or "), _Ah) ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
                             )
                         )
-                        (ALERT  ("There aren't any unproved conclusions relevant to the antecedent %t.", _Ah)
-                                ("OK", STOP) ("Huh?", SEQ Explainantecedentandconclusionwords STOP )
+                        (ALERT  ("There aren't any unproved conclusions relevant to the hypothesis %t.", _Ah)
+                                ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
                         )
                 )
             )
             (LETGOAL _Ac 
                 (WHEN   (LETLHS ()
-                            (ALERT  ("You can't use hyp to prove %t, because there aren't any relevant antecedents.", _Ac)
-                                    ("OK", STOP) ("Huh?", SEQ Explainantecedentandconclusionwords STOP )
+                            (ALERT  ("You can't use hyp to prove %t, because there aren't any relevant hypotheses.", _Ac)
+                                    ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
                             )
                         )
-                        (ALERT  ("Please select an antecedent to unify with the conclusion %s.", _Ac)
-                                ("OK", STOP) ("Huh?", SEQ Explainantecedentandconclusionwords STOP )
+                        (ALERT  ("Please select a hypothesis to unify with the conclusion %s.", _Ac)
+                                ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
                         )
                 )
             )
-            (ALERT  "To use hyp, you have to select a conclusion and an antecedent. You didn't select anything"
-                    ("OK", STOP) ("Huh?", SEQ Explainantecedentandconclusionwords STOP )
+            (ALERT  "To use hyp, you have to select a conclusion and a hypothesis. You didn't select anything"
+                    ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
             )
                 
 /* ******************** the Backward menu ******************** */
@@ -242,10 +242,17 @@ MENU Backward IS
     
     SEPARATOR
     
+    ENTRY   "contra (classical; makes assumption ¬A)"   
+                                             IS BackwardOnlyA (QUOTE _A) 
+                                                    (Noarg "contra (classical)" "contra (classical)") "contra (classical)" "A"
+    
+    ENTRY   "contra (constructive)"         IS BackwardOnlyA (QUOTE _A) 
+                                                    (Noarg "contra (constructive)" "contra (constructive)") "contra (constructive)" "A"
+    
     ENTRY   "¬ elim (invents formulae)" IS 
         WHEN 
             (LETHYP2 _A (¬_A) 
-                (ALERT  ("To make a backward step with ¬ elim you don't have to select any antecedents. \
+                (ALERT  ("To make a backward step with ¬ elim you don't have to select any hypotheses. \
                         \You selected %t and %t, which would fit a forward step. Since it works better \
                         \that way, would you like to use ¬ elim going forward?", _A, ¬_A)
                         ("Forward", "¬ elim forward") ("Cancel", STOP)
@@ -255,13 +262,9 @@ MENU Backward IS
                 (BackwardWithHyp ⊥ (Noarg (SEQ ("¬ elim") fstep (WITHHYPSEL (hyp (¬_A)))) "¬ elim") "¬ elim" "⊥")
             )
             (BackwardOnlyC ⊥ (SEQ (SingleorNoarg "¬ elim" "¬ elim") fstep fstep) "¬ elim" "⊥")
-    ENTRY   "contra (constructive)"         IS BackwardOnlyA (QUOTE _A) 
-                                                    (Noarg "contra (constructive)" "contra (constructive)") "contra (constructive)" "A"
-    ENTRY   "contra (classical; makes assumption ¬A)"   
-                                            IS BackwardOnlyA (QUOTE _A) 
-                                                    (Noarg "contra (classical)" "contra (classical)") "contra (classical)" "A"
     
     SEPARATOR
+    
     ENTRY   hyp     IS Noarg hyptac hyp
 END
     
@@ -270,7 +273,7 @@ TACTIC "∧ intro backward" IS
                 "∧ intro" fstep fstep   )
             (ALERT "∧ intro backward tactic failed. Tell Richard.")
                 
-/* ******************** special one for rules which don't care about antecedent shape ******************** */
+/* ******************** special one for rules which don't care about hypothesis shape ******************** */
 
 TACTIC "∨ introforward" (rule) IS
     WHEN    (LETHYP _A (ForwardCut 0 (LAYOUT "∨ intro" (0) (WITHARGSEL rule))))
@@ -293,20 +296,20 @@ TACTIC "∧ intro forward" IS
                         (ANY (WITHHYPSEL (MATCH (hyp _A))))))
                  ("Cancel", STOP)))
         (LETHYP _A 
-            (ALERT  ("To make a forward step with ∧ intro, it's necessary to select TWO antecedent formulae to combine. \
+            (ALERT  ("To make a forward step with ∧ intro, it's necessary to select TWO hypothesis formulae to combine. \
                     \You only selected %t.", _A)
                     ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))) 
         (LETHYPS _As 
-            (ALERT  ("To make a forward step with ∧ intro, it's necessary to select only two antecedent formulae to combine. \
+            (ALERT  ("To make a forward step with ∧ intro, it's necessary to select only two hypothesis formulae to combine. \
                     \You selected %l.", (_As, ", ", " and "))
                     ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))) 
         (LETGOAL (_A∧_B)
-            (ALERT  ("To make a forward step with ∧ intro, it's necessary to select TWO antecedent formulae to combine. \
+            (ALERT  ("To make a forward step with ∧ intro, it's necessary to select TWO hypothesis formulae to combine. \
                     \You didn’t select any at all.\
                     \\n\nHowever, the current conclusion %t would fit ∧ intro going backwards. Did you perhaps mean to \
                     \make a backward step?", _A∧_B)
                     ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP)))
-        (ALERT  ("To make a forward step with ∧ intro, it's necessary to select TWO antecedent formulae to combine. \
+        (ALERT  ("To make a forward step with ∧ intro, it's necessary to select TWO hypothesis formulae to combine. \
                 \You didn’t select any at all.")
                 ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))
 
@@ -348,7 +351,7 @@ TACTIC "∃ intro forward" IS
             (LETHYPS _As
                 ("∃ intro forward checktextsel" (" (you selected %l)", _As))
             )
-            ("∃ intro forward checktextsel" " (you didn't select any antecedents)")
+            ("∃ intro forward checktextsel" " (you didn't select any hypotheses)")
 
 TACTIC "∃ intro forward checktextsel" (varstuff) IS
     WHEN    (LETHYPSUBSTSEL (_P [ _x \ _i1 ] ) 
@@ -358,7 +361,7 @@ TACTIC "∃ intro forward checktextsel" (varstuff) IS
                 ("∃ intro forward complain" varstuff (" (your text-selection %t isn't a variable)", _B))
             )
             (LETSUBSTSEL (_P [ _x \ _B ] ) 
-                ("∃ intro forward complain" varstuff (" (your text-selection %t isn't in an antecedent)", _B))
+                ("∃ intro forward complain" varstuff (" (your text-selection %t isn't in a hypothesis)", _B))
             )
             (LETARGTEXT i
                 ("∃ intro forward complain" varstuff (" (your text-selection %s isn't a subformula)", i))
@@ -369,7 +372,7 @@ TACTIC "∃ intro forward checktextsel" (varstuff) IS
 
 MACRO "∃ intro forward checksamehyp" (h, sel, i) IS
     WHEN    (LETMATCH h sel SKIP)
-            ("∃ intro forward complain" " (as you did)" (" (your text selection %t isn't inside the antecedent %t)", i, h))
+            ("∃ intro forward complain" " (as you did)" (" (your text selection %t isn't inside the hypothesis %t)", i, h))
 
 MACRO "∃ intro forward checkvar"(i,j) IS
     WHEN    (LETMATCH i j SKIP)
@@ -381,7 +384,7 @@ MACRO "∃ intro forward doit" (P1,x1,i1) IS
 TACTIC "∃ intro forward complain"(varstuff, selstuff) IS
     SEQ
         (ALERT  ("To make an ∃ intro step forward you have to select an assumption like actual i and also \
-                \an antecedent formula in its scope%s,\
+                \a hypothesis formula in its scope%s,\
                 \and text-select instances of the variable in that formula%s.",
                 varstuff, selstuff)
         )
@@ -395,19 +398,19 @@ TACTIC BadForward (pattern, stepname, shape) IS
     BadForward2 pattern stepname shape (" of the form %s", shape)
 
 MACRO BadForward2(pattern, stepname, shape, stuff) IS
-    WHEN    (LETHYP pattern /* right antecedent, other things wrong */ 
+    WHEN    (LETHYP pattern /* right hypothesis, other things wrong */ 
                 BadForward3 pattern stepname shape stuff
             )
-            (LETHYP _Ah /* wrong antecedent, other things wrong as well */
+            (LETHYP _Ah /* wrong hypothesis, other things wrong as well */
                 (ComplainForwardWrongHyp stepname shape _Ah)
             )
-            /* no antecedent at all -- just complain about that */
+            /* no hypothesis at all -- just complain about that */
             (ComplainForwardNoHyp stepname stuff "")
 
 TACTIC BadForward3(sel, stepname) IS
     WHEN    (LETOPENSUBGOALS _Ags
                 (ALERT  ("There is more than one unproved conclusion (formula below a line of dots) \
-                        \associated with the antecedent %t. \
+                        \associated with the hypothesis %t. \
                         \\nSelect one of them (%l) before you make a forward step.", sel, (_Ags, ", ", " or "))
                         ("OK", SKIP) ("Huh?", ExplainHypMulti stepname sel _Ags)
                 )
@@ -415,7 +418,7 @@ TACTIC BadForward3(sel, stepname) IS
             (LETOPENSUBGOAL G _Ag
                 (ALERT ("Single subgoal in BadForward3. Error in I2LJape -- tell Richard."))
             )
-            (ALERT  ("There are no unproved conclusions associated with the antecedent %t.", sel)
+            (ALERT  ("There are no unproved conclusions associated with the hypothesis %t.", sel)
                         ("OK", SKIP) ("Huh?",  ExplainDeadHyp stepname sel)
             )
 
@@ -437,7 +440,7 @@ TACTIC "→ elim forward" IS
         (LETHYP _A
             ("→ elim forward fail" (" You selected %t, which isn't of the form A→B.", _A)))
         (LETHYPS _A
-            ("→ elim forward fail" (" You selected too many antecedents – %l.", (_A, ", ", " and "))))
+            ("→ elim forward fail" (" You selected too many hypotheses – %l.", (_A, ", ", " and "))))
         ("→ elim forward fail" (" You didn't select anything."))
                 
 TACTIC "→ elim forward fail" (extra) IS
@@ -456,13 +459,15 @@ MENU Forward IS
     ENTRY   "∃ elim (assumption & variable)"    IS Forward (QUOTE (∃_x._A)) 
                                                             (Noarg ("targeted forward" (ForwardUncut 0 "∃ elim") "∃ elim") "∃ elim") 
                                                             "∃ elim" "∃ intro" "∃x.A"
-    ENTRY   "contra (constructive)"         IS Forward ⊥  "contra (constructive) forward" "contra (constructive)" "¬ elim" ⊥
+    ENTRY   "contra (constructive)"         IS Forward ⊥  (Noarg ("targeted forward" "contra (constructive) forward" "contra (constructive)") 
+                                                                  "contra (constructive)")
+                                                           "contra (constructive)" "¬ elim" ⊥
 
     SEPARATOR
-    ENTRY   "∧ intro"               IS "∧ intro forward"
+    ENTRY   "∧ intro"                      IS "∧ intro forward"
 
-    ENTRY   "∨ intro (invents right)"       IS "∨ introforward" "∨ intro(L)"
-    ENTRY   "∨ intro (invents left)"        IS "∨ introforward" "∨ intro(R)"
+    ENTRY   "∨ intro (invents right)"      IS "∨ introforward" "∨ intro(L)"
+    ENTRY   "∨ intro (invents left)"       IS "∨ introforward" "∨ intro(R)"
     
 
     /* removed -- see comment on the tactic below
@@ -488,42 +493,44 @@ TACTIC "¬ elim forward" IS
         (LETHYP (¬_A)
             (Noarg (CUTIN "¬ elim" fstep (WITHHYPSEL (hyp (¬_A)))) "¬ elim"))
         (LETHYP2 _A _B
-            (ALERT  ("To make a forward step with ¬ elim, it's necessary to select two antecedent formulae -- one to match \
+            (ALERT  ("To make a forward step with ¬ elim, it's necessary to select two hypothesis formulae -- one to match \
                         \A, the other to match ¬A. \
                         \You selected %t and %t.", _A, _B)
                     ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP)))
         (LETHYP _A 
-            (ALERT  ("To make a forward step with ¬ elim, it's necessary to select two antecedent formulae -- one to match \
+            (ALERT  ("To make a forward step with ¬ elim, it's necessary to select two hypothesis formulae -- one to match \
                         \A, the other to match ¬A. \
                         \You only selected %t.", _A)
                     ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))) 
         (LETHYPS _As 
-            (ALERT  ("To make a forward step with ¬ elim, it's necessary to select only two antecedent formulae to combine. \
+            (ALERT  ("To make a forward step with ¬ elim, it's necessary to select only two hypothesis formulae to combine. \
                         \You selected %l.", (_As, ", ", " and "))
                     ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))) 
         (LETGOAL ⊥
-            (ALERT  ("To make a forward step with ¬ elim, it's necessary to select two antecedent formulae -- one to match \
+            (ALERT  ("To make a forward step with ¬ elim, it's necessary to select two hypothesis formulae -- one to match \
                         \A, the other to match ¬A. \
                         \You didn’t select any at all.\
                         \\n\nHowever, the current conclusion fits ¬ elim going backwards. Did you perhaps mean to \
                         \make a backward step?", _A∧_B)
                     ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP)))
-        (ALERT  ("To make a forward step with ¬ elim, it's necessary to select two antecedent formulae -- one to match \
+        (ALERT  ("To make a forward step with ¬ elim, it's necessary to select two hypothesis formulae -- one to match \
                     \A, the other to match ¬A. \
                     \You didn’t select any at all.")
                 ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))
 
 
 TACTIC "targeted forward" (action, stepname) IS
-    WHEN    (LETHYP _Ah ("targeted forward 2" action stepname _Ah))
+    WHEN        
+        (LETHYP _Ah ("targeted forward 2" action stepname _Ah))
         (LETLHS _Ah ("targeted forward 2" action stepname _Ah))
         (Fail ("Error in I2LJape (targeted forward falls through). Tell Richard."))
 
 TACTIC "targeted forward 2"(action, stepname, hyp) IS
-    WHEN    (LETCONC _A action) 
+    WHEN    
+        (LETCONC _A action) 
         (LETOPENSUBGOAL G _Ag ("targeted forward single" action stepname G hyp _Ag))
         (LETOPENSUBGOALS _As
-            (ALERT  ("The %s step needs a ‘target’ conclusion to work towards. \
+            (ALERT  ("The %s step needs a target conclusion to work towards. \
                         \Please click on one of the unproved conclusions – %l – and try the \
                         \%s step again.", stepname, (_As, ", ", " or "), stepname)
                     ("OK", STOP) ("Huh?", Explainunprovedconclusionwords)))
@@ -531,15 +538,16 @@ TACTIC "targeted forward 2"(action, stepname, hyp) IS
 
 MACRO "targeted forward single"(action, stepname, path, selhyp, ogoal) IS
     LETGOALPATH G1
-        (WHEN       (LETMATCH path G1 action) /* just do it, it's the next line */
-                (ALERT  ("The %s step needs a ‘target’ conclusion to work towards. \
-                            \There's only one unproved conclusion (%t) which is relevant to the antecedent %t \
+        (WHEN 
+                (LETMATCH path G1 action) /* just do it, it's the next line */
+                (ALERT  ("The %s step needs a target conclusion to work towards. \
+                            \There's only one unproved conclusion (%t) which is relevant to the hypothesis %t \
                             \which you selected.\
                             \\nWould you like to proceed, using %t as the target?\
                             \\n(You can avoid this message in the future if you always select the target conclusion \
                             \before making the %s step.)", stepname, ogoal, selhyp, ogoal, stepname)
                         ("OK", SEQ (GOALPATH path) action) 
-                        ("Huh?", SEQ Explainantecedentandconclusionwords STOP)
+                        ("Huh?", SEQ Explainhypothesisandconclusionwords STOP)
                         ("Cancel", STOP)))
 
 /* ******************** explanations ******************** */
@@ -566,7 +574,7 @@ PATCHALERT "double-click is not defined"
     \then choose a step from the Backward or Forward menu."
     ("OK")
     
-PATCHALERT "You double-clicked on a used antecedent or a proved conclusion"
+PATCHALERT "You double-clicked on a used hypothesis or a proved conclusion"
     "Double-clicking a formula doesn't mean anything in I2L Jape: you have to select (single-click) and \
     \then choose a step from the Backward or Forward menu."
     ("OK")
