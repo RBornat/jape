@@ -34,12 +34,12 @@ RULE	"ëæ"		FROM ‚,A æ Æ AND ‚,B æ Æ		INFER ‚,AëB æ Æ
 RULE	"æÂ"		FROM ‚,A æ Æ					INFER ‚ æ ÂA,Æ
 RULE	"Âæ"		FROM ‚ æ A,Æ 					INFER ‚,ÂA æ Æ
 RULE	"æç"		FROM ‚,A æ B,Æ 				INFER ‚ æ AçB,Æ
-RULE	"çæ"		FROM ‚,AçB æ A,Æ AND ‚,B æ Æ	INFER ‚,AçB æ Æ
+RULE	"çæ"		FROM ‚ æ A,Æ AND ‚,B æ Æ		INFER ‚,AçB æ Æ
 RULE	"æé"		FROM ‚ æ AçB,Æ AND ‚ æ BçA,Æ	INFER ‚ æ AéB,Æ
 RULE	"éæ"		FROM ‚, AçB, BçA æ Æ			INFER ‚,AéB æ Æ
 RULE	"æè"(OBJECT m) WHERE FRESH m
 			FROM ‚ æ A[x\m],Æ				INFER ‚ æ èx.A,Æ
-RULE	"èæ"(B)	FROM ‚, èx.A, A[x\B] æ Æ		INFER ‚,èx.A æ Æ
+RULE	"èæ"(B)	FROM ‚, A[x\B] æ Æ				INFER ‚,èx.A æ Æ
 RULE	"æä"(B)	FROM ‚ æ A[x\B],Æ				INFER ‚ æ äx.A,Æ
 RULE	"äæ"(OBJECT m) WHERE FRESH m
 			FROM  ‚,A[x\m] æ Æ				INFER ‚, äx.A æ Æ
