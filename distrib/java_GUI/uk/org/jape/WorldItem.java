@@ -116,13 +116,17 @@ public class WorldItem extends DisplayItem implements DebugConstants, DropTarget
             draghighlight = true;
             oldForeground = getForeground();
             setForeground(Preferences.SelectionColour);
-            repaint();
+            if (antialias_tracing)
+                System.err.println("highlighting world");
+            canvas.imageRepaint(); repaint();
         }
         else
         if (!state && draghighlight) {
             draghighlight = false;
             setForeground(oldForeground);
-            repaint();
+            if (antialias_tracing)
+                System.err.println("de-highlighting world");
+            canvas.imageRepaint(); repaint();
         }
     }
 

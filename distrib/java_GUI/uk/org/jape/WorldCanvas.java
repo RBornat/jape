@@ -30,7 +30,10 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
+
+import java.awt.image.BufferedImage;
 
 public class WorldCanvas extends JapeCanvas implements DebugConstants {
 
@@ -41,6 +44,85 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants {
         renderingHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
                                             RenderingHints.VALUE_ANTIALIAS_ON);
         renderingHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+    }
+
+    // It is worth demanding good antialiasing when drawing blobs, rings, diagonal lines.
+    // The text can come along for the ride.
+
+    // Since antialiasing may be expensive, I construct an image in a buffer and blit it
+    // into the canvas when needed.  It's rebuilt only when the component population changes
+    // or when we do drag-under highlighting.
+
+    BufferedImage image;
+    Graphics imageGraphics;
+    private boolean imageRepaint = true;
+
+    public void imageRepaint() { imageRepaint = true; } // ho ho!
+    
+    public Component add(Component c) {
+        if (antialias_tracing)
+            System.err.println("WorldCanvas adding "+c);
+        imageRepaint = true;
+        return super.add(c);
+    }
+
+    public Component add(Component c, int index) {
+        if (antialias_tracing)
+            System.err.println("WorldCanvas adding "+c+" at "+index);
+        imageRepaint = true;
+        return super.add(c, index);
+    }
+
+    public void remove(Component c) {
+        if (antialias_tracing)
+            System.err.println("WorldCanvas removing "+c);
+        imageRepaint = true;
+        super.remove(c);
+    }
+
+    public void removeAll() {
+        if (antialias_tracing)
+            System.err.println("WorldCanvas removeAll");
+        imageRepaint = true;
+        super.removeAll();
+    }
+
+    private static Rectangle clip = new Rectangle();
+
+    public void paint(Graphics g) {
+        if (paint_tracing)
+            System.err.println("painting WorldCanvas");
+        if (imageRepaint) {
+            int width = getWidth(), height = getHeight();
+            if (antialias_tracing)
+                System.err.println("painting image "+g.getClipBounds());
+            // if the image changes size, we need a new buffer
+            if (image==null || image.getWidth()!=width || image.getHeight()!=height) {
+                if (antialias_tracing)
+                    System.err.println("new image buffer");
+                image = (BufferedImage)createImage(width, height);
+                imageGraphics = image.createGraphics();
+                if (imageGraphics instanceof Graphics2D) {
+                    if (antialias_tracing)
+                        System.err.println("pre enhancedPaint hints "+
+                                           ((Graphics2D)imageGraphics).getRenderingHints());
+                    ((Graphics2D)imageGraphics).addRenderingHints(renderingHints);
+                    if (antialias_tracing) {
+                        System.err.println("enhancedPaint hints "+
+                                           ((Graphics2D)imageGraphics).getRenderingHints());
+                    }
+                }
+                imageGraphics.setColor(Preferences.ProofBackgroundColour);
+                imageGraphics.fillRect(0, 0, width, height);
+            }
+            g.getClipBounds(clip);
+            imageGraphics.setClip(clip.x, clip.y, clip.width, clip.height);
+            super.paint(imageGraphics);
+            imageRepaint = false;
+        }
+        if (antialias_tracing)
+            System.err.println("blitting image "+g.getClipBounds());
+        g.drawImage(image, 0, 0, this);
     }
 
     public String getSelections(String sep) {
@@ -94,27 +176,5 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants {
 
     public TextItem addLabelItem(int x, int y, String label) {
         return (TextItem)add(new TextItem(this, x, y, ProtocolConstants.ProvisoFontNum, label, label));
-    }
-    
-    public void paint(Graphics g) {
-        if (paint_tracing)
-            System.err.println("painting WorldCanvas");
-        if (g instanceof Graphics2D) {
-            Graphics2D g2D = (Graphics2D)g.create();
-            if (antialias_tracing)
-                System.err.println("pre worldcanvas hints "+g2D.getRenderingHints());
-            g2D.addRenderingHints(renderingHints);
-            if (antialias_tracing) {
-                System.err.print("worldcanvas hints "+g2D.getRenderingHints());
-                if (japeserver.onMacOS)
-                    System.err.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
-                else
-                    System.err.println();
-            }
-            super.paint(g2D);
-            g2D.dispose();
-        }
-        else
-            super.paint(g);
     }
 }
