@@ -64,7 +64,6 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 
     // add, remove, removeAll, paint, repaint all work on the child
 
-
     public Component add(Component c) {
         child.add(c);
         computeBounds();
@@ -80,11 +79,13 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     }
 
     public void remove(Component c) {
+        c.repaint();
         child.remove(c);
         computeBounds();
     }
 
     public void removeAll() {
+        child.repaint();
         child.removeAll();
         computeBounds();
     }
@@ -97,7 +98,10 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     }
 
     public void repaint(long tm, int x, int y, int width, int height) {
-        super.repaint(tm, x+child.getX(), y+child.getY(), width, height);
+        if (containerlayout_tracing)
+            System.err.println("ContainerWithOrigin.repaint "+getWidth()+","+getHeight()+" ("+
+                               tm+","+x+","+y+","+width+","+height+")");
+        super.repaint(tm, x, y, width, height);
     }
     
     protected class ContainerWithOriginLayout implements LayoutManager {
@@ -185,7 +189,11 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 
         // Because I know the way the Component repaint hierarchy works, I can intervene ...
         public void repaint(long tm, int x, int y, int width, int height) {
-            ContainerWithOrigin.this.repaint(tm, x, y, width, height);
+            if (containerlayout_tracing)
+                System.err.println("ContainerWithOrigin.child.repaint ["+getX()+","+getY()+" "
+                                   +getWidth()+","+getHeight()+"] ("+
+                                   tm+","+x+","+y+","+width+","+height+")");
+            ContainerWithOrigin.this.repaint(tm, x+getX(), y+getY(), width, height);
         }
 
         protected class ChildLayout implements LayoutManager {
