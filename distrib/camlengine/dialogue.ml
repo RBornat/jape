@@ -166,71 +166,67 @@ let defaultenv =
 and ajd r = aj !r r in
 (* default settings for all variables accessible via Japeish *)
 let pairs =
-  ["alwaysshowturnstile", bj false Sequent.Funs.alwaysshowturnstile;
-   "applyconjectures", bj true Miscellaneous.applyconjectures;
-   "applyderivedrules", bj true Miscellaneous.applyderivedrules;
-   "autoAdditiveLeft", tparam (bj false autoAdditiveLeft);
-   "autoAdditiveRight", tparam (bj false autoAdditiveRight);
-   "autoselect", bj false Miscellaneous.autoselect;
-   "boxlinedisplay", sj ["left"; "right"] "right" Boxdraw.boxlinedisplay;
-   "debracketapplications", bj false Term.Termstring.debracketapplications;
-   "displaystyle", jv ["box"; "tree"] "tree"
-                      (Interaction.setdisplaystyle, Interaction.getdisplaystyle);
-   "foldformulae", bj false Miscellaneous.foldformulae;
-   (* false for now, till Unix interface catches up *)
-   "hidecut", bj true Boxdraw.hidecut;
-   "hidehyp", bj true Boxdraw.hidehyp;
-   "hidetransitivity", bj false Boxdraw.hidetransitivity;
-   "hidereflexivity", bj true Boxdraw.hidereflexivity;
-   "hideuselesscuts", bj false Prooftree.Tree.hideuselesscuts;
-   "interpretpredicates", tparam (bj false Predicate.interpretpredicates);
-   "outermostbox", bj true Boxdraw.outermostbox;
-   "seektipselection", bj true Miscellaneous.seektipselection;
-   "showallprovisos", bj false Interaction.showallprovisos;
-   "showallproofsteps", bj false Prooftree.Tree.showallproofsteps;
-   "reasonstyle", sj ["short"; "long"] "long" Prooftree.Tree.reasonstyle;
-   "textselectionmode",
-   sj ["subformula"; "token"] "subformula"
-      Miscellaneous.textselectionmode;
-   "truncatereasons", bj false Miscellaneous.truncatereasons;
-   "tryresolution", bj true Tacticfuns.tryresolution;
-   "givenMenuTactic", aj "GIVEN" Miscellaneous.givenMenuTactic;
-   "foldedfmt", ajd Prooftree.Tree.foldedfmt;
-   "filteredfmt", ajd Prooftree.Tree.filteredfmt;
-   "unfilteredfmt", ajd Prooftree.Tree.unfilteredfmt;
-   "rawfmt", ajd Prooftree.Tree.rawfmt;
-   "outerassumptionword", ajd Boxdraw.outerassumptionword;
-   "outerassumptionplural", ajd Boxdraw.outerassumptionplural;
-   "innerassumptionword", ajd Boxdraw.innerassumptionword;
-   "innerassumptionplural", ajd Boxdraw.innerassumptionplural;
-   "profiling", Japeenv.booljapevar false (profileswitcher, profilereader);
-   "applydebug", ij 0 Applyrule.applydebug;
-   "bindingdebug", bj false Binding.bindingdebug;
-   "boxseldebug", bj false Boxdraw.boxseldebug;
-   "boxfolddebug", bj false Boxdraw.boxfolddebug;
-   "cuthidingdebug", bj false Prooftree.Tree.cuthidingdebug;
-   "disproofdebug", bj false Disproof.disproofdebug;
-   "factsdebug", bj false Facts.factsdebug;
-   "FINDdebug", bj false Tacticfuns._FINDdebug;
-   "FOLDdebug", bj false Tacticfuns._FOLDdebug;
-   "matchdebug", bj false Match.matchdebug;
-   "minwastedebug", bj false Minwaste.minwastedebug;
-   "menudebug", bj false Menu.menudebug;
-   "predicatedebug", bj false Predicate.predicatedebug;
-   "prooftreedebug", bj false Prooftree.Tree.prooftreedebug;
-   "prooftreerewinfdebug", bj false Prooftree.Tree.prooftreerewinfdebug;
-   "prooftreedebugheavy", bj false Prooftree.Tree.prooftreedebugheavy;
-   "provisodebug", bj false Proviso.provisodebug;
-   "rewritedebug", bj false Rewrite.Funs.rewritedebug;
-   "screenpositiondebug", bj false Miscellaneous.screenpositiondebug;
-   "substdebug", bj false Substmapfuns.substdebug;
-   "symboldebug", bj false Symbol.symboldebug;
-   "tactictracing", bj false Tacticfuns.tactictracing;
-   "thingdebug", bj false thingdebug;
-   "thingdebugheavy", bj false thingdebugheavy;
-   "unifydebug", bj false Unify.unifydebug;
-   "eqalphadebug", bj false Term.Funs.eqalphadebug;
-   "varbindingsdebug", bj false Term.Funs.varbindingsdebug]
+  ["alwaysshowturnstile"  , bj                         false        Sequent.Funs.alwaysshowturnstile;
+   "applyconjectures"     , bj                         true         Miscellaneous.applyconjectures;
+   "applydebug"           , ij                         0            Applyrule.applydebug;
+   "applyderivedrules"    , bj                         true         Miscellaneous.applyderivedrules;
+   "autoAdditiveLeft"     , tparam (bj                 false        Miscellaneous.autoAdditiveLeft);
+   "autoAdditiveRight"    , tparam (bj                 false        Miscellaneous.autoAdditiveRight);
+   "autoselect"           , bj                         false        Miscellaneous.autoselect;
+   "bindingdebug"         , bj                         false        Binding.bindingdebug;
+   "boxfolddebug"         , bj                         false        Boxdraw.boxfolddebug;
+   "boxlinedisplay"       , sj ["left"; "right"]       "right"      Boxdraw.boxlinedisplay;
+   "boxseldebug"          , bj                         false        Boxdraw.boxseldebug;
+   "cuthidingdebug"       , bj                         false        Prooftree.Tree.cuthidingdebug;
+   "debracketapplications", bj                         false        Term.Termstring.debracketapplications;
+   "displaystyle"         , jv ["box"; "tree"]         "tree"       (Interaction.setdisplaystyle, Interaction.getdisplaystyle);
+   "disproofdebug"        , bj                         false        Disproof.disproofdebug;
+   "eqalphadebug"         , bj                         false        Term.Funs.eqalphadebug;
+   "factsdebug"           , bj                         false        Facts.factsdebug;
+   "filteredfmt"          , ajd                                     Prooftree.Tree.filteredfmt;
+   "FINDdebug"            , bj                         false        Tacticfuns._FINDdebug;
+   "FOLDdebug"            , bj                         false        Tacticfuns._FOLDdebug;
+   "foldedfmt"            , ajd                                     Prooftree.Tree.foldedfmt;
+   "foldformulae"         , bj                         false        Miscellaneous.foldformulae; (* default false, till non-Mac GUIs catch up *)
+   "givenMenuTactic"      , aj                         "GIVEN"      Miscellaneous.givenMenuTactic;
+   "hidecut"              , bj                         true         Boxdraw.hidecut;
+   "hidehyp"              , bj                         true         Boxdraw.hidehyp;
+   "hidereflexivity"      , bj                         true         Boxdraw.hidereflexivity;
+   "hidetransitivity"     , bj                         false        Boxdraw.hidetransitivity;
+   "hideuselesscuts"      , bj                         false        Prooftree.Tree.hideuselesscuts;
+   "innerassumptionplural", ajd                                     Boxdraw.innerassumptionplural;
+   "innerassumptionword"  , ajd                                     Boxdraw.innerassumptionword;
+   "interpretpredicates"  , tparam (bj                 false        Predicate.interpretpredicates);
+   "matchdebug"           , bj                         false        Match.matchdebug;
+   "menudebug"            , bj                         false        Menu.menudebug;
+   "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
+   "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
+   "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
+   "outermostbox"         , bj                         true         Boxdraw.outermostbox;
+   "predicatedebug"       , bj                         false        Predicate.predicatedebug;
+   "profiling"            , Japeenv.booljapevar        false        (profileswitcher, profilereader);
+   "prooftreedebug"       , bj                         false        Prooftree.Tree.prooftreedebug;
+   "prooftreedebugheavy"  , bj                         false        Prooftree.Tree.prooftreedebugheavy;
+   "prooftreerewinfdebug" , bj                         false        Prooftree.Tree.prooftreerewinfdebug;
+   "provisodebug"         , bj                         false        Proviso.provisodebug;
+   "rawfmt"               , ajd                                     Prooftree.Tree.rawfmt;
+   "reasonstyle"          , sj ["short"; "long"]       "long"       Prooftree.Tree.reasonstyle;
+   "rewritedebug"         , bj                         false        Rewrite.Funs.rewritedebug;
+   "screenpositiondebug"  , bj                         false        Miscellaneous.screenpositiondebug;
+   "seektipselection"     , bj                         true         Miscellaneous.seektipselection;
+   "showallproofsteps"    , bj                         false        Prooftree.Tree.showallproofsteps;
+   "showallprovisos"      , bj                         false        Interaction.showallprovisos;
+   "substdebug"           , bj                         false        Substmapfuns.substdebug;
+   "symboldebug"          , bj                         false        Symbol.symboldebug;
+   "tactictracing"        , bj                         false        Tacticfuns.tactictracing;
+   "textselectionmode"    , sj ["subformula"; "token"] "subformula" Miscellaneous.textselectionmode;
+   "thingdebug"           , bj                         false        Thing.thingdebug;
+   "thingdebugheavy"      , bj                         false        Thing.thingdebugheavy;
+   "truncatereasons"      , bj                         false        Miscellaneous.truncatereasons;
+   "tryresolution"        , bj                         true         Tacticfuns.tryresolution;
+   "unfilteredfmt"        , ajd                                     Prooftree.Tree.unfilteredfmt;
+   "unifydebug"           , bj                         false        Unify.unifydebug;
+   "varbindingsdebug"     , bj                         false        Term.Funs.varbindingsdebug]
 in
 let rec bjnr r () = bj !r r
 and ujnr r () = Japeenv.unboundedjaperefvar !r r in
