@@ -553,10 +553,6 @@ let setProvisos ps =
 
 let rec showfile filename = writef "SHOWFILE %\n" [Str filename]
 
-let rec resetcache () = 
-    commentSet := false; resetfontnames() (* initialize cache *)  
-    (* ; writef "RESETCACHE\n" [] -- doesn't seem to be necessary *)
-
 let rec makeChoice heading =
   match askf "MAKECHOICE %\n" [Str heading] with
     [0] -> None
@@ -753,6 +749,11 @@ let rec setproofparams displaystyle linethicknessval =
   linethickness := linethicknessval;
   writef "SETPROOFPARAMS % %\n" [Int (int_of_displaystyle displaystyle); Int linethicknessval]
 
+(********************************* export ***************************************)
+
+let getfontname = getfontname <.> int_of_displayfont
+
+let resetfontnames () = commentSet := false; resetfontnames() (* initialize cache *)  
 
 
 

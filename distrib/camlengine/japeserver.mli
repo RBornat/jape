@@ -189,7 +189,7 @@ val dbugfiletype : int
 val writeFileName : string -> int -> string option
 val readFileName  : string -> int -> string option
 
-val resetcache    : unit -> unit (* forget all cached information *)
+val resetfontnames    : unit -> unit (* forget font names *)
  
 val setinvischars :
    string * string -> string * string -> string * string -> string * string -> unit
@@ -218,7 +218,6 @@ val askCancel_unpatched :
  *             set default = length buttons to choose Cancel
  *)
 
-
 val askDangerously_unpatched : string -> string -> string -> int option
 (* message   Do        Don't     Some button (counting from 0) or None for Cancel
  * special version of ask_cancel, with Do as default, and
@@ -233,3 +232,4 @@ val askDangerously_unpatched : string -> string -> string -> int option
 
 val askChoice : string * string list list -> int option
 
+val getfontname : font -> string
