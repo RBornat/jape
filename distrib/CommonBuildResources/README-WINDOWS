@@ -53,15 +53,15 @@ What to do
    and on your path. You don't need the whole jdk, just the java
    runtime environment (jre -- obtainable from www.javasoft.com)
 
-2. Now complete the installation with
+2. Now complete the installation by double-clicking
 
-        java -jar installjape.jar
+        installjape.jar
 
-   This latter script builds the file jape.cmd into which the path to
-   Java's home is bound. You can make shortcuts to the jape.cmd
-   script from anywhere in your filestore. If you wish to change
-   Jape's home, then you will have to edit this file, or run
-   installjape.jar again from the new home.
+   This latter program (silently) builds the file jape.cmd into
+   which the path to Java's home is bound. You can make shortcuts
+   to the jape.cmd script from anywhere in your filestore. If you
+   wish to change Jape's home, then you will have to edit this file,
+   or run installjape.jar again from the new home.
 
    TROUBLESHOOTING: there should be no problems here. This part of
    the process  will abort if (for some reason) there's no java
@@ -82,6 +82,7 @@ What to do
    the attempted run of jape.        
 
 That's all there is to it.
+
 
 
 
