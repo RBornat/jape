@@ -103,13 +103,21 @@ module F
                   Prooftree.Tree.Fmttree.string_of_path fp])
       in
       f tr
+    
     let rec locateHit state pos classopt hitkind =
       optf (fmtpath_of_ints tranhitpath state)
         (ministate state &~~ AAA.Screendraw.locateHit pos classopt hitkind)
+    
     let rec notifyselect state selopt sels =
       match ministate state with
         Some s -> AAA.Screendraw.notifyselect selopt sels s
       | _ -> ()
+    
+    let rec locateElement state el =
+      match ministate state with
+        Some s -> AAA.Screendraw.locateElement el s
+      | _      -> []
+    
     let rec saveanddraw proof pos vgoal vproof plan =
       Draw.clearView ();
       draw (optf deVis vgoal) pos (abstracttree vproof) plan;
@@ -267,7 +275,8 @@ module F
       DisplayState
         {showProof = showProof state; showFocussedProof = showFocussedProof;
          refreshProof = refreshProof state; printProof = printProof;
-         locateHit = locateHit state; notifyselect = notifyselect state;
+         locateHit = locateHit state; locateElement = locateElement state;
+         notifyselect = notifyselect state;
          refineSelection = AAA.Screendraw.refineSelection;
          storedProof = storedProof state}
     (* and for starters *)

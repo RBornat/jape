@@ -45,6 +45,7 @@ let string_of_element = Termstring.string_of_element
 let invisbracketedstring_of_element = Termstring.invisbracketedstring_of_element
 let highlight = Draw.highlight
 let last = Listfuns.last
+let sameresource = Termfuns.sameresource
 let string_of_list = Listfuns.string_of_list
 let turnstiles = Sequent.getsyntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
@@ -261,9 +262,7 @@ let rec hit_of_pos pos path
           else None
       | _ -> None
     else if
-      match
-        (reasonplan &~~ (_Some <.> textbox_of_plan))
-      with
+      match reasonplan &~~ (_Some <.> textbox_of_plan) with
         Some reasonbox -> withintb (pos, reasonbox)
       | _              -> false
     then
@@ -274,8 +273,27 @@ let rec hit_of_pos pos path
          subplans
   else None
 
-let rec locateHit pos _ _ (prooforigin, proof, plan) =
+let locateHit pos _ _ (prooforigin, proof, plan) =
   hit_of_pos ( (pos +<-+ prooforigin)) [] plan
+
+let locateElement locel (prooforigin, proof, plan) = 
+  let rec locate p ps = 
+    function Treeplan {seqplan = seqplan; seqbox = seqbox; subplans = subplans} ->
+      let locsub ps (subpos, subplan) =
+        locate (p +->+ subpos) ps subplan
+      in
+      let locplan ps (Formulaplan (_, textbox, c)) =
+        match c with
+          ElementClass(el,_) ->
+            if sameresource(el,locel) then
+              (p +->+ tbPos seqbox +->+ tbPos textbox) :: ps
+            else ps
+        | PunctClass  -> ps
+        | ReasonClass -> ps
+      in
+      Listfuns.foldl locplan (Listfuns.foldl locsub ps subplans) seqplan
+  in
+  locate prooforigin [] plan
 
 let allFormulaHits prooforigin p =
   let rec allroots revpath pos (Treeplan p) rs =
@@ -334,8 +352,8 @@ let rec notifyselect bposclassopt posclasslist (prooforigin, proof, plan) =
  *)
 
 let rec _FORNUMBERED f xs =
-  let rec _F a1 a2 = match a1, a2 with  n, []      -> ()
-                     |                  n, x :: xs -> f (n, x); _F (n + 1) xs
+  let rec _F n = function []      -> ()
+                 |        x :: xs -> f (n, x); _F (n + 1) xs
   in _F 0 xs    
 
 let rec samepath =

@@ -43,6 +43,7 @@ module type T =
     val locateHit :
       pos -> displayclass option -> hitkind -> pos * tree * layout ->
         int list hit option
+    val locateElement: element -> pos * tree * layout -> pos list
     val refineSelection : bool
     val notifyselect :
       (pos * displayclass) option -> (pos * displayclass) list ->

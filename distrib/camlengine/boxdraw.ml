@@ -1532,6 +1532,28 @@ let rec locateHit pos classopt hitkind (p, proof, layout) =
          end
      | h -> h))
      
+let locateElement locel (p, proof, (Layout {lines = lines; bodymargin = bodymargin})) = 
+  let rec locate p ps =
+    function 
+      FitchLine {elementsbox = elementsbox; elementsplan = elementsplan} ->
+        let locplan ps (Formulaplan (_, textbox, c)) =
+          let f (pi, el, pl) ps =
+            if sameresource (el, locel) then 
+              ((p +->+ tbPos elementsbox) +->+ tbPos textbox)::ps
+            else ps
+          in
+          match c with 
+            ElementPlan plan          -> f plan ps
+          | AmbigElementPlan (up, dn) -> f up (f dn ps)
+          | ElementPunctPlan          -> ps
+        in
+        Listfuns.foldl locplan ps elementsplan
+    | FitchBox {boxlines = lines} -> 
+        Listfuns.foldl (locate p) ps lines
+        (* oddly, no offset: see _D if you don't believe me *)
+  in
+  Listfuns.foldl (locate (rightby (p,bodymargin))) [] lines
+
 (* Greyening and blackening is now (cross fingers) simplified, at least during selection.
  * We get told when a selection is made (Some(pos, class)) or cancelled (None),
  * and at the same time we are told the current selections.
