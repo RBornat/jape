@@ -129,9 +129,9 @@ public class LocalSettings implements SelectionConstants {
             public void handlePreferences(ApplicationEvent evt) {
                 Jape.handlePrefs();
             }
-            public void handleQuit(ApplicationEvent evt) throws IllegalStateException {
+            public void handleQuit(ApplicationEvent evt) {
                 Jape.handleQuit();
-                throw new IllegalStateException(); // if we return from handleQuit, we didn't exit
+                Alert.showErrorAlert("The engine isn't responding!"); // if we return from handleQuit, we didn't exit
             }
         });
     }
