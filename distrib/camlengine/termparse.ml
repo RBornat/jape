@@ -172,26 +172,25 @@ let canstartidentifier s =
   | _ ->(* because it can be (op) ?? *)
 	 false
 
-let undecl : (string * term -> term) ref =
-  ref
-	(fun (s, t) ->
-	   raise (ParseError_ ["unclassified "; s; " "; string_of_term t]))
+let undecl : (string -> term -> term) ref =
+  ref (fun s t -> raise (ParseError_ ["unclassified "; s; " "; string_of_term t]))
 
 let unvar : (term -> term) ref =
   ref (fun t -> raise (ParseError_ [string_of_term t; " is not a variable"]))
 
-let unclass : (string * term -> term) ref =
-  ref
-	(fun (id, t) ->
-	   raise
-		 (ParseError_
-			[unparseidclass (idclass t); " "; id; " "; string_of_term t;
-			 " in formula"]))
+let unclass : (string -> term -> term) ref =
+  ref (fun id t ->
+         raise (ParseError_ [unparseidclass (idclass t); " "; id; " "; string_of_term t;
+                             " in formula"]))
+let badstart s = 
+  raise (ParseError_ ["beginning of formula expected, found "; debugstring_of_symbol s])
+
+let unstart : (symbol -> term) ref = ref badstart
 
 let checkclass (id, t) =
   match idclass t with
-	BagClass _  -> !unclass (id, t)
-  | ListClass _ -> !unclass (id, t)
+	BagClass _  -> !unclass id t
+  | ListClass _ -> !unclass id t
   | _ -> t
 
 (* moved from let block for OCaml *)
@@ -200,26 +199,23 @@ let rec parseAtom () =
   let sy = currsymb () in
   scansymb ();
   match sy with
-	ID (s, Some c) -> checkclass ("identifier", registerId (vid_of_string s, c))
-  | ID (s, None) -> !undecl ("identifier", registerId (vid_of_string s, NoClass))
+	ID      (s, Some c) -> checkclass ("identifier", registerId (vid_of_string s, c))
+  | ID      (s, None  ) -> !undecl "identifier" (registerId (vid_of_string s, NoClass))
   | UNKNOWN (s, Some c) -> checkclass ("unknown", registerUnknown (vid_of_string s, c))
-  | UNKNOWN (s, None) -> !undecl ("unknown", registerUnknown (vid_of_string s, NoClass))
+  | UNKNOWN (s, None  ) -> !undecl "unknown" (registerUnknown (vid_of_string s, NoClass))
   | NUM s ->
 	  begin try registerLiteral (Number (atoi s)) with
 		_ -> raise (Catastrophe_ ["parseAtom can't convert "; s; " to an integer"])
 	  end
-  | STRING s -> registerLiteral (String s)
-  | BRA "(" -> parseBRA ()
-  | BRA _ -> (* special cos of (op) *) parseOutfix sy
+  | STRING  s -> registerLiteral (String s)
+  | BRA   "(" -> parseBRA ()
+  | BRA     _ -> (* special cos of (op) *) parseOutfix sy
   | LEFTFIX _ -> parseLeftfix (prio sy) sy
-  | PREFIX s ->
+  | PREFIX  s ->
       let m = prio sy in
 	  checkAfterBra sy m;
 	  registerApp (registerId (vid_of_string s, OperatorClass), parseExpr m true)
-  | s ->
-	  raise
-		(ParseError_
-		   ["beginning of formula expected, found "; debugstring_of_symbol s])
+  | s -> !unstart s
 
 and checkAfterBra pre n =
   let sy = currsymb () in
@@ -551,17 +547,30 @@ let tryparse_dbug _R p s =
        exn -> poplex lex_s; raise exn)
    in poplex lex_s; r
 
+(* hack to allow negative numerals in tactic strings *)
+let try_negnum s =
+  consolereport ["try_negnum ("; debugstring_of_symbol s; 
+                 ") {string_of_symbol s = "; Stringfuns.enQuote (string_of_symbol s);
+                 "; currsymb() = "; debugstring_of_symbol (currsymb()); "}"];
+  if string_of_symbol s = "-" && 
+       (match currsymb() with NUM s -> true | _ -> false) then
+     registerApp(registerId(vid_of_string (string_of_symbol s), NoClass), parseAtom())
+   else
+     badstart s
+  
 let asTactic f a =
-  let u = !undecl in
-  let v = !unvar in
-  let c = !unclass in
-  let cleanup () = undecl := u; unvar := v; unclass := c in
-  undecl := (fun (_, t) -> t);
+  let old_unclass = !undecl in
+  let old_unvar = !unvar in
+  let old_unclass = !unclass in
+  let old_unstart = !unstart in
+  let cleanup () = undecl := old_unclass; unvar := old_unvar; 
+                   unclass := old_unclass; unstart := old_unstart 
+  in
+  undecl := (fun _ t -> t);
   unvar := (fun t -> t);
-  unclass := (fun (_, t) -> t);
-  let r = 
-	(try f a with
-	   exn -> cleanup (); raise exn)
+  unclass := (fun _ t -> t);
+  unstart := try_negnum;
+  let r =  (try f a with exn -> cleanup (); raise exn)
   in cleanup (); r
 
 let checkTacticTerm t =
