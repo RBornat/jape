@@ -82,8 +82,9 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
                 dragKind = LocalSettings.mouseDownWorldItemMeans(e);
                 WorldItem.this.pressed(dragKind, e);
             }
-            public void dragged(MouseEvent e) {
-                WorldItem.this.dragged(dragKind, e);
+            public void dragged(boolean wobbly, MouseEvent e) {
+                if (wobbly)
+                    WorldItem.this.dragged(dragKind, e); // don't take notice of small movements
             }
             public void released(MouseEvent e) {
                 WorldItem.this.released(dragKind, e);

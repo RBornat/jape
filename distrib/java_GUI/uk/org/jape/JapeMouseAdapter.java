@@ -49,7 +49,7 @@ public class JapeMouseAdapter implements JapeMouseListener,
     // move back to the same point!  Well blow me down: we're not having that.
 
     private int x, y, wobble;
-    protected boolean wobbly() { return wobble>3; } // a bit of wobble, esp. for laptops
+    private boolean wobbly() { return wobble>3; } // a bit of wobble allowed, esp. for laptops
 
     public final void mouseClicked(MouseEvent e) { }
     public final void mouseEntered(MouseEvent e) { }
@@ -80,17 +80,13 @@ public class JapeMouseAdapter implements JapeMouseListener,
 
     public final void mouseDragged(MouseEvent e) {
         wobble = Math.max(wobble, Math.abs(e.getX()-x)+Math.abs(e.getY()-y));
-        if (wobbly())
-            dragged(e);
-        else
-            slightlydragged(e);
+        dragged(wobbly(), e);
     }
 
     public final void mouseMoved(MouseEvent e) { }
 
     public void pressed(MouseEvent e) { }
-    public void dragged(MouseEvent e) { }
-    protected void slightlydragged(MouseEvent e) { }
+    public void dragged(boolean wobbly, MouseEvent e) { }
     public void released(MouseEvent e) { }
     public void clicked(MouseEvent e) { }
     public void doubleclicked(MouseEvent e) { }

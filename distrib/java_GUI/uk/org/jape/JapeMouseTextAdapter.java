@@ -82,21 +82,17 @@ public class JapeMouseTextAdapter extends    JapeMouseAdapter
             pressed(eventKind, e);
     }
     
-    public final void dragged(MouseEvent e) {
+    public final void dragged(boolean wobbly, MouseEvent e) {
         if ((eventKind&TextSelMask)!=0)
             textdragged(eventKind, e);
         else
+        if (wobbly) // we don't notice little moves
             dragged(eventKind, e);
-    }
-
-    public final void slightlydragged(MouseEvent e) {
-        if ((eventKind&TextSelMask)!=0)
-            textdragged(eventKind, e);
     }
 
     public final void released(MouseEvent e) {
         if ((eventKind&TextSelMask)!=0)
-            textreleased(eventKind, !wobbly(), e);
+            textreleased(eventKind, false, e);
         else
             released(eventKind, e);
     }
