@@ -26,33 +26,34 @@ RULE "¦-E(R)"(A) IS FROM A ¦ B INFER B
 RULE "ë-E"(A,B) IS FROM A ë B AND A æ C AND B æ C INFER C
 RULE "Â-E" IS FROM ÂÂA INFER A
 RULE "Ù-E" IS FROM Ù INFER A
-RULES "è-E"(B) ARE 
-	FROM è x .A(x) INFER A(B)
-AND	FROM è x,y .A(x,y) INFER A(B,C)
-AND	FROM è x,y,z .A(x,y,z) INFER A(B,C,D)
-AND	FROM è w,x,y,z .A(w,x,y,z) INFER A(B,C,D,E)
+RULES "è-E" ARE 
+		FROM è x .A(x) AND c inscope INFER A(c)
+AND	FROM è (x,y) .A(x,y) AND c inscope AND d inscope INFER A(c,d)
+AND	FROM è (x,y,z) .A(x,y,z) AND c inscope AND d inscope AND e inscope INFER A(c,d,e)
+AND	FROM è (w,x,y,z) .A(w,x,y,z) AND c inscope AND d inscope AND e inscope AND f inscope INFER A(c,d,e,f)
 END
 RULES "ä-E" ARE
-	(OBJECT c) WHERE FRESH c AND c NOTIN ä x .A(x) FROM ä x .A(x) AND A(c) æ C INFER C
-AND	(OBJECT c,OBJECT d) WHERE FRESH c,d AND c,d NOTIN ä x,y .A(x,y) FROM ä x,y .A(x,y) AND A(c,d) æ C INFER C
-AND	(OBJECT c,OBJECT d,OBJECT e) WHERE FRESH c,d,e AND c,d,e NOTIN ä x,y,z .A(x,y,z) 
-		FROM ä x,y,z .A(x,y,z) AND A(c,d,e) æ C INFER C
-AND	(OBJECT c,OBJECT d,OBJECT e,OBJECT f) WHERE FRESH c,d,e,f AND c,d,e,f NOTIN ä w,x,y,z .A(w,x,y,z) 
-		FROM ä w,x,y,z .A(w,x,y,z) AND A(c,d,e,f) æ C INFER C
+		(OBJECT c) WHERE FRESH c AND c NOTIN ä x .A(x) FROM ä x .A(x) AND var c, A(c) æ C INFER C
+AND	(OBJECT c,OBJECT d) WHERE FRESH c,d AND c,d NOTIN ä (x,y) .A(x,y) 
+		FROM ä (x,y) .A(x,y) AND var c, var d, A(c,d) æ C INFER C
+AND	(OBJECT c,OBJECT d,OBJECT e) WHERE FRESH c,d,e AND c,d,e NOTIN ä (x,y,z) .A(x,y,z) 
+		FROM ä (x,y,z) .A(x,y,z) AND var c, var d, var e, A(c,d,e) æ C INFER C
+AND	(OBJECT c,OBJECT d,OBJECT e,OBJECT f) WHERE FRESH c,d,e,f AND c,d,e,f NOTIN ä (w,x,y,z) .A(w,x,y,z) 
+		FROM ä (w,x,y,z) .A(w,x,y,z) AND var c, var d, var e, var f, A(c,d,e,f) æ C INFER C
 END
 RULES "ä!-E(ä)" ARE 
 	FROM ä! x .A(x) INFER ä x .A(x)
-AND	FROM ä! x,y .A(x,y) INFER ä x,y .A(x,y)
-AND	FROM ä! x,y,z .A(x,y,z) INFER ä x,y,z .A(x,y,z)
-AND	FROM ä! w,x,y,z .A(w,x,y,z) INFER ä x,y,z .A(w,x,y,z)
+AND	FROM ä! (x,y) .A(x,y) INFER ä (x,y) .A(x,y)
+AND	FROM ä! (x,y,z) .A(x,y,z) INFER ä (x,y,z) .A(x,y,z)
+AND	FROM ä! (w,x,y,z) .A(w,x,y,z) INFER ä (x,y,z) .A(w,x,y,z)
 END
 RULES "ä!-E(èè)" ARE
-	(OBJECT x1) FROM ä! x .A(x) INFER è x . è x1 . A(x)¦A(x1)çx=x1
-AND	(OBJECT x1,OBJECT y1) FROM ä! x,y .A(x,y) INFER è x,y . è x1,y1 . A(x,y)¦A(x1,y1)çx=x1¦y=y1
-AND	(OBJECT x1,OBJECT y1,OBJECT z1) FROM ä! x,y,z .A(x,y,z) 
-		INFER è x,y,z . è x1,y1,z1 . A(x,y,z)¦A(x1,y1,z1)çx=x1¦y=y1¦z=z1
-AND	(OBJECT w1,OBJECT x1,OBJECT y1,OBJECT z1) FROM ä! w,x,y,z .A(w,x,y,z) 
-		INFER è w,x,y,z . è w1,x1,y1,z1 . A(w,x,y,z)¦A(w1,x1,y1,z1)çw=w1¦x=x1¦y=y1¦z=z1
+		(OBJECT x1) FROM ä! x .A(x) INFER è x . è x1 . A(x)¦A(x1)çx=x1
+AND	(OBJECT x1,OBJECT y1) FROM ä! (x,y) .A(x,y) INFER è (x,y) . è (x1,y1) . A(x,y)¦A(x1,y1)çx=x1¦y=y1
+AND	(OBJECT x1,OBJECT y1,OBJECT z1) FROM ä! (x,y,z) .A(x,y,z) 
+		INFER è (x,y,z) . è (x1,y1,z1) . A(x,y,z)¦A(x1,y1,z1)çx=x1¦y=y1¦z=z1
+AND	(OBJECT w1,OBJECT x1,OBJECT y1,OBJECT z1) FROM ä! (w,x,y,z) .A(w,x,y,z) 
+		INFER è (w,x,y,z) . è (w1,x1,y1,z1) . A(w,x,y,z)¦A(w1,x1,y1,z1)çw=w1¦x=x1¦y=y1¦z=z1
 END
 
 TACTIC ForwardCut (n,Rule) IS SEQ cut (WITHCONTINUATION (WITHARGSEL Rule) (JAPE(SUBGOAL n)) (WITHHYPSEL hyp))
@@ -118,30 +119,46 @@ RULE "ë-I(R)"   IS FROM B INFER A ë B
 RULE "Â-I"(B)   IS FROM A æ Ù INFER ÂA
 RULE "Ù-I"	IS FROM P AND ÂP INFER Ù
 RULES "è-I" ARE
-	(OBJECT c) WHERE FRESH c FROM A(c) INFER è x .A(x)
-AND	(OBJECT c, OBJECT d) WHERE FRESH c,d FROM A(c,d) INFER è x,y .A(x,y)
-AND	(OBJECT c, OBJECT d, OBJECT e) WHERE FRESH c,d,e FROM A(c,d,e) INFER è x,y,z .A(x,y,z)
-AND	(OBJECT c, OBJECT d, OBJECT e, OBJECT f) WHERE FRESH c,d,e,f FROM A(c,d,e,f) INFER è w,x,y,z .A(w,x,y,z)
+	(OBJECT c) WHERE FRESH c FROM var c æ A(c) INFER è x .A(x)
+AND	(OBJECT c, OBJECT d) WHERE FRESH c,d FROM var c, var d æ A(c,d) INFER è (x,y) .A(x,y)
+AND	(OBJECT c, OBJECT d, OBJECT e) WHERE FRESH c,d,e 
+		FROM var c, var d, var e æ A(c,d,e) INFER è (x,y,z) .A(x,y,z)
+AND	(OBJECT c, OBJECT d, OBJECT e, OBJECT f) WHERE FRESH c,d,e,f 
+		FROM var c, var d, var e, var f æ A(c,d,e,f) INFER è (w,x,y,z) .A(w,x,y,z)
 END
 RULES "ä-I"(B) ARE 
-	FROM A(B) INFER ä x.A(x)
-AND	FROM A(B,C) INFER ä x,y . A(x,y)
-AND	FROM A(B,C,D) INFER ä x,y,z . A(x,y,z)
-AND	FROM A(B,C,D,E) INFER ä w,x,y,z . A(w,x,y,z)
+	FROM A(B) AND B inscope INFER ä x.A(x)
+AND	FROM A(B,C) AND B inscope AND C inscope INFER ä (x,y) . A(x,y)
+AND	FROM A(B,C,D) AND B inscope AND C inscope AND D inscope INFER ä (x,y,z) . A(x,y,z)
+AND	FROM A(B,C,D,E) AND B inscope AND C inscope AND D inscope AND E inscope INFER ä (w,x,y,z) . A(w,x,y,z)
 END
 RULES "ä!-I" ARE
 	(OBJECT c1,OBJECT c2) WHERE FRESH c1,c2 AND c1,c2 NOTIN ä! x .A(x) 
-		FROM ä x .A(x) AND A(c1),A(c2) æ c1=c2 INFER ä! x .A(x)
-AND	(OBJECT c1,OBJECT c2, OBJECT d1, OBJECT d2) WHERE FRESH c1,c2,d1,d2 AND c1,c2,d1,d2 NOTIN ä! x,y .A(x,y) 
-		FROM ä x,y .A(x,y) AND A(c1,d1),A(c2,d2) æ c1=c2¦d1=d2 INFER ä! x,y .A(x,y)
+		FROM ä x .A(x) AND var c1, var c2, A(c1),A(c2) æ c1=c2 INFER ä! x .A(x)
+AND	(OBJECT c1,OBJECT c2, OBJECT d1, OBJECT d2) WHERE FRESH c1,c2,d1,d2 AND c1,c2,d1,d2 NOTIN ä! (x,y) .A(x,y) 
+		FROM ä (x,y) .A(x,y) AND var c1, var c2, var d1, var d2, A(c1,d1),A(c2,d2) æ c1=c2¦d1=d2 
+		INFER ä! (x,y) .A(x,y)
 AND	(OBJECT c1,OBJECT c2, OBJECT d1, OBJECT d2, OBJECT e1,OBJECT e2) 
-	WHERE FRESH c1,c2,d1,d2,e1,e2 AND c1,c2,d1,d2,e1,e2 NOTIN ä! x,y,z .A(x,y,z) 
-		FROM ä x,y,z .A(x,y,z) AND A(c1,d1,e1),A(c2,d2,e2) æ c1=c2¦d1=d2¦e1=e2 INFER ä! x,y,z .A(x,y,z)
+	WHERE FRESH c1,c2,d1,d2,e1,e2 AND c1,c2,d1,d2,e1,e2 NOTIN ä! (x,y,z) .A(x,y,z) 
+		FROM ä (x,y,z) .A(x,y,z) 
+		AND var c1, var c2, var d1, var d2, var e1, var e2, A(c1,d1,e1),A(c2,d2,e2) æ c1=c2¦d1=d2¦e1=e2 
+		INFER ä! (x,y,z) .A(x,y,z)
 AND	(OBJECT c1,OBJECT c2, OBJECT d1, OBJECT d2, OBJECT e1,OBJECT e2, OBJECT f1,OBJECT f2) 
-	WHERE FRESH c1,c2,d1,d2,e1,e2,f1,f2 AND c1,c2,d1,d2,e1,e2,f1,f2 NOTIN ä! w,x,y,z .A(w,x,y,z) 
-		FROM ä w,x,y,z .A(w,x,y,z) AND A(c1,d1,e1,f1),A(c2,d2,e2,f2) æ c1=c2¦d1=d2¦e1=e2¦f1=f2 
-		INFER ä! w,x,y,z .A(w,x,y,z)
+	WHERE FRESH c1,c2,d1,d2,e1,e2,f1,f2 AND c1,c2,d1,d2,e1,e2,f1,f2 NOTIN ä! (w,x,y,z) .A(w,x,y,z) 
+		FROM ä (w,x,y,z) .A(w,x,y,z) 
+		AND var c1, var c2, var d1, var d2, var e1, var e2, var f1, var f2, 
+			A(c1,d1,e1,f1),A(c2,d2,e2,f2) æ c1=c2¦d1=d2¦e1=e2¦f1=f2 
+		INFER ä! (w,x,y,z) .A(w,x,y,z)
 END
+
+RULE "inscope"	INFER var x æ x inscope
+AUTOMATCH "inscope"
+
+TACTIC "è-E with side condition hidden" IS LAYOUT "è-E" (0) (WITHARGSEL "è-E")
+TACTIC "ä-I with side condition hidden" IS LAYOUT "ä-I" (0) (WITHARGSEL "ä-I")
+
+TACTIC "è-E tac" IS FOBSS ForwardCut 0 "è-E with side condition hidden"
+TACTIC "ä-I tac" IS "ä-I with side condition hidden"
 
 RULE "A=A" IS INFER A=A
 RULE hyp(A) IS INFER A æ A
