@@ -4,7 +4,7 @@
 #       the compiler start overhead is too ...  large to
 #       use it on individual files.
 #
-#       ANT here we come.
+#       ANT here we come. (Now more than ever! BAS Feb 04)
 #
 .SUFFIXES:      .jar .java .class
 .SILENT:
@@ -17,18 +17,26 @@ JAVA            = $(shell echo *.java)
 RESOURCEFILES   = $(shell echo *.jpg *.gif)
 CLASS           = $(JAVA:.java=.class)
 JAVACOMPILE     = javac -verbose -d .
+JAVABUILD       = BUILD/uk/org/jape
+JAVASRC         = uk/org/jape
 #
 #
 #
 
-all:            Jape.jar; 
+all:            $(JAVABUILD) Jape.jar;
+$(JAVABUILD):   $(JAVA); mkdir -p $(JAVABUILD); \
+                         cp $(JAVA) $(JAVABUILD);\
+                         cp $(RESOURCEFILES) BUILD
 
 Jape.jar: $(CLASS);\
-                rm -f MANIFEST *.class;\
-                echo "Main-Class: Jape" > MANIFEST;\
-                echo $(JAVACOMPILE) Jape.java ;\
-                $(JAVACOMPILE) Jape.java ;\
-                jar cmf MANIFEST Jape.jar *.class $(RESOURCEFILES)
+                (cd BUILD;\
+                 rm -f MANIFEST *.class;\
+                 echo "Main-Class: uk.org.jape.Jape" > MANIFEST;\
+                 echo $(JAVACOMPILE) $(JAVABUILD)/Jape.java ;\
+                 $(JAVACOMPILE) $(JAVASRC)/Jape.java ;\
+                 jar cmf MANIFEST Jape.jar $(RESOURCEFILES) $(JAVASRC)/*.class;\
+                 mv Jape.jar ..) 
                 
+
 
 
