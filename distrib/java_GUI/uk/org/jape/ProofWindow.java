@@ -323,15 +323,22 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     public int print(Graphics g, final PageFormat pf, int pi) throws PrinterException {
         
         if (pi!=0) {
-            Logger.log.println("ProofWindow.print pi="+pi);
+			final int pix=pi;
+			if (DebugVars.printdialog_tracing)
+				SwingUtilities.invokeLater(
+					new Runnable() {
+						public void run() {
+							Logger.log.println("ProofWindow.print pi="+pix);
+						}
+					});
             return Printable.NO_SUCH_PAGE;
         }
 
         if (!(g instanceof Graphics2D)) {
-            Logger.log.println("ProofWindow.print can't do Graphics2D");
             SwingUtilities.invokeLater(
                 new Runnable() {
                     public void run() {
+						Logger.log.println("ProofWindow.print can't do Graphics2D");
                         Alert.showAlert(Alert.Warning,
                                         "Can't print: this seems to be a very old version of Java");
                     }
