@@ -102,7 +102,9 @@ public class JapeMenu implements ActionListener {
     }
     
     public void setBar(JapeWindow w) {
+        if (Debugging.JapeMenu) System.err.println("setting menu bar on "+w+", barv="+barv);
         w.setJMenuBar(mkBar());
+        w.getJMenuBar().revalidate();
     }
     
     public static void makeMenusVisible() {

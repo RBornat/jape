@@ -38,7 +38,7 @@ public class SurrogateWindow extends JapeWindow {
     public SurrogateWindow() {
         super("japeserver");
         this.getContentPane().setLayout(null);
-        setJMenuBar(new JMenuBar()); // by experiment, seems to be necessary before setVisible
+        setBar(); // by experiment, seems to be necessary before setVisible
         setVisible(true);
     }
 

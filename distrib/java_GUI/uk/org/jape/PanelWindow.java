@@ -105,7 +105,7 @@ public class PanelWindow extends JapeWindow implements ActionListener {
         
         JapeFont.setComponentFont(JapeFont.PANELENTRY, entries);
         if (LocalSettings.panelWindowMenus)
-            setJMenuBar(new JMenuBar()); // by experiment, seems to be necessary before setVisible
+            setBar(); // by experiment, seems to be necessary before setVisible
     }
     
     protected void addEntry(String entry, String cmd) throws ProtocolError {

@@ -67,7 +67,7 @@ public class NoneWindow extends JFrame implements ActionListener {
         b2.setBounds(55 + insets.left, 35 + insets.top, 75, 20);
         b3.setBounds(150 + insets.left, 15 + insets.top, 75, 30);
 
-		computeBounds();
+        computeBounds();
 		
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -81,46 +81,54 @@ public class NoneWindow extends JFrame implements ActionListener {
     }
     
     protected void computeBounds() {
+        System.err.print("computeBounds "+panel.getBounds());
     	Rectangle r = new Rectangle(0,0,0,0); // always include the zero point
     	r.add(b1.getBounds()); r.add(b2.getBounds()); r.add(b3.getBounds());
-    	System.err.print("computeBounds "+r+"+"+panel.getBounds());
-    	panel.setBounds(r.union(panel.getBounds()));
+        System.err.print("; "+r+"+"+panel.getBounds());
+        panel.setBounds(r.union(panel.getBounds()));
+        System.err.print("=>"+panel.getBounds());
+        panel.revalidate();
     	// this seems to be the only way to tell a scroll pane what to put in its bars 
     	// (http://java.sun.com/docs/books/tutorial/uiswing/components/problems.html and elsewhere)
-    	panel.setPreferredSize(r.getSize());
-    	System.err.println(" "+r+" "+scrollPane.getViewport().getViewPosition());
+    	panel.setPreferredSize(panel.getSize());
+    	System.err.println(" "+scrollPane.getViewport().getViewPosition());
     	panel.revalidate();
+        scrollPane.getViewport().revalidate();
     }
     
     public void actionPerformed(ActionEvent e) {
+        System.err.println("actionPerformed "+panel.getBounds());
     	String s = e.getActionCommand();
-   		if (s.equals("three")) {
-			Rectangle r = b3.getBounds();
-			b3.setBounds(r.x+50, r.y+50, r.width, r.height);
-		}
-		else
-		if (s.equals("two")) {
-			Rectangle r = b2.getBounds();
-			b2.setBounds(r.x-50, r.y, r.width, r.height);
-		}
-		else
-		if (s.equals("one")) {
-			Rectangle r = b1.getBounds();
-			b1.setBounds(r.x, r.y-50, r.width, r.height);
-		}
+        if (s.equals("three")) {
+                Rectangle r = b3.getBounds();
+                b3.setBounds(r.x+50, r.y+50, r.width, r.height);
+        }
+        else
+        if (s.equals("two")) {
+                Rectangle r = b2.getBounds();
+                b2.setBounds(r.x-50, r.y, r.width, r.height);
+        }
+        else
+        if (s.equals("one")) {
+                Rectangle r = b1.getBounds();
+                b1.setBounds(r.x, r.y-50, r.width, r.height);
+        }
 
-		computeBounds();
+        computeBounds();
     	panel.repaint();
     }
 
     public static void main(String args[]) {
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+        } catch (Exception e) {
+            System.err.println("couldn't set L&F javax.swing.plaf.metal.MetalLookAndFeel");
+        }
         NoneWindow window = new NoneWindow();
         Insets insets = window.getInsets();
         window.inAnApplet = false;
 
         window.setTitle("Absolute Positioning");
-        window.setSize(250 + insets.left + insets.right,
-                       90 + insets.top + insets.bottom);
         window.setVisible(true);
     }
 }
