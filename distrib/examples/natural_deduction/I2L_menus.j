@@ -806,20 +806,21 @@ MENU Edit
 END
 
 TACTIC I2Lunify IS
-	WHEN	(LETMULTIARG _As
-				(ALT UNIFYARGS
-		 			(BADUNIFY X Y (ALERT ("%t and %t don't unify, because the formula structures don't match.", X, Y) ("OK", STOP)))
-		 			(BADMATCH X Y (ALERT ("%t and %t don't unify, because to do so would change the proof (you shouldn't see this message).", X, Y) ("OK", STOP)))
-		 			(BADPROVISO X Y P 
-		 				(ALERT ("%t and %t don't unify, because to do so would smuggle a variable out of its scope \
-		 							\(see the proviso %s in the proviso pane).", X, Y, P)
-		 							("OK", STOP)
-		 							("Huh?", SEQ Explainprovisos STOP)
-		 				) 
-		 			)
-			 	)
-			)
-				 (SEQ (ALERT "To use Unify, you must text-select more than one formula.") STOP)
+	WHEN	
+	    (LETMULTIARG _As
+			(ALT UNIFYARGS
+		 		(BADUNIFY X Y (ALERT ("%t and %t don't unify, because the formula structures don't match.", X, Y) ("OK", STOP)))
+		 		(BADMATCH X Y (ALERT ("%t and %t don't unify, because to do so would change the proof (you shouldn't see this message).", X, Y) ("OK", STOP)))
+		 		(BADPROVISO X Y P 
+		 			(ALERT ("%t and %t don't unify, because to do so would smuggle a variable out of its scope \
+		 						\(see the proviso %s in the proviso pane).", X, Y, P)
+		 						("OK", STOP)
+		 						("Huh?", SEQ Explainprovisos STOP)
+		 			) 
+		 		)
+			 )
+		)
+		(SEQ (ALERT "To use Unify, you must text-select more than one formula.") STOP)
 
 /* this hack to get at HowToTextSelect from within a tactic -- I must do this properly asap */
 PATCHALERT "To use Unify, "

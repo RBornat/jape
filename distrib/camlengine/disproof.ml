@@ -968,21 +968,17 @@ let rec newtile =
 let rec addchild u (_, py as pc) (_, cy as cc) =
   if py >= cy then None
   else
-    match (u <:> pc) with
+    match u <:> pc with
       None ->
         raise
           (Catastrophe_
              ["(addchild) no parent world at "; coordstring pc])
     | Some (pts, pcs) ->
-        if member (cc, pcs) then None
+        if member (cc, pcs) then None (* already there *)
         else
-          (* already there *)
-          let u' =
-            (u ++
-               (pc |-> (pts, (if py < cy then cc :: pcs else pcs))))
-          in
-          match (u' <:> cc) with
-            None -> Some ((u' ++ (cc |-> (pts, []))))
+          let u' = u ++ (pc |-> (pts, (if py < cy then cc :: pcs else pcs))) in
+          match u' <:> cc with
+            None   -> Some ((u' ++ (cc |-> (pts, []))))
           | Some _ -> Some (domono pts u' cc)
 
 let rec deleteworld =
