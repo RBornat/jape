@@ -6,8 +6,8 @@
 //  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
 //
 
-import java.util.*;
-import javax.swing.*;
+import java.util.Vector;
+import javax.swing.JOptionPane;
 
 public class Alert {
     // oh the ceaseless dance of interface conversions ..

@@ -74,7 +74,7 @@ public class Dispatcher extends Thread {
                         
                     // font setting
                         if (p.equals("SETFONTS")&&len==2)
-                            Font.setfont(command[1]);
+                            JapeFont.setfont(command[1]);
                         else
                         
                     // INVISCHARS are the way we describe syntactic structure

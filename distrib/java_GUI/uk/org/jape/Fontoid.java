@@ -9,6 +9,7 @@
         Later we will have to adapt this so that measurement is
         related to the device on which the Font will be rendered.
 */
+
 import  java.awt.Font;
 import  java.awt.FontMetrics;
 import  java.awt.Graphics;
@@ -23,7 +24,8 @@ public class Fontoid
     
   private Fontoid(String name) { font = Font.decode(name); }
 
-  
+  static private Component dummy = null;
+
   public TextDimension stringSize(String s)
   { if (metrics==null) 
     { if (dummy==null) dummy = new Label("");
@@ -73,14 +75,9 @@ public class Fontoid
   
   private FontMetrics  metrics; 
   
-  static 
-  private    Component dummy = null;
+  static protected Hashtable fonts = new Hashtable();
 
-  static
-  protected  Hashtable fonts = new Hashtable();
-
-  static
-  public Fontoid decode(String name)
+  static public Fontoid decode(String name)
   { Fontoid r = (Fontoid) fonts.get(name);
     if (r==null)
     { r = new Fontoid(name);
