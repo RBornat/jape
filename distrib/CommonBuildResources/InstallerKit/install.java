@@ -31,9 +31,12 @@
         in a directory $(BUILD) 
         
                 mkdir $(BUILD)/bootstrap
-                cp    install.class       $(BUILD)/bootstrap
+                mkdir bootstrap
+                javac install.java 
+                cp    bootstrap/install*.class       $(BUILD)/bootstrap
                 cd    $(BUILD)
-                java  bootstrap.install   [switches] $(TARGET).jar $(RESOURCEFILENAMES)
+                # You may need rsync to be installed for the next step to work
+                java  bootstrap.install [switches] $(TARGET).jar $(RESOURCEFILENAMES)
 
         This builds a jar called $(TARGET).jar that can be transported anywhere.
 
@@ -73,25 +76,31 @@
          -finished      "caption"           -- specify the post-install caption on the exit button  ("Exit now")
          -installbutton "caption"           -- specify the caption on the start installation button ("Install")
           
-       Switches that modify the way resource files are treated
+       Switches that modify the way resource files are treated, and which can appear an
+       indefinite number of times. 
          -boot                              -- synchronize the named files which follow into the installation bootstrap directory before making the jar
          +boot                              -- turn off -boot
          -sync                              -- install the files which follow as if they came from the directory
                                                in which the installation is being constructed.
-         +sync                              -- turns off -sync
+         +sync                              -- turns off -sync 
+
+        (Note: -boot turns off -sync, and -sync turns off -boot)
 
         WINDOWS/APPLE INSTALL
         ---------------------
 
-        To install on a Windows (or, I suppose, a Napple) machine,
-        on which java has been properly installed (only the jre
-        is needed, not the whole jdk) just place $(TARGET).jar in
-        the installation folder you have chosen, then doubleclick
-        on it. A control panel appears which gives you the option
-        to install the software. The name of the expected target
-        jar file is displayed: it should be the same as the name
-        of the jar file that was doubleclicked. If not, then the
-        install process will not succeed.
+        To install on a Windows (or, I suppose, a Napple) machine, on
+        which java has been properly installed (only the jre is
+        needed, not the whole jdk) just doubleclick on the
+        $(TARGET).jar.  A control panel appears which gives you the
+        option of choosing an installation directory, installing the
+        software in the currently-chosen installation directory, or
+        exiting.
+
+        The name of the expected target jar file is displayed in the
+        control panel: it should be the same as the name of the jar
+        file that was doubleclicked. If not, then the install process
+        will not succeed.
 
         If $(TARGET).jar file has changed its name since it was
         made, then the simplest way to recover is to change it back
@@ -101,7 +110,7 @@
         -cmdwindows and -classwindows switches to create runtime scripts,
         and to make shortcuts to them with the appropriate icons
         within. The resource SHORTCUT.EXE (a Win32 program) should
-        be shipped to do the latter job. Here's how it might be used:
+        be shipped to do the latter job.
 
         shortcut.exe 
           -t target file
@@ -113,7 +122,8 @@
           -f force overwrite of existing shortcut
           -u [natdix or all] show the content of an existing shortcut
 
-        example
+         Here's how it might be used: 
+         
            shortcut.exe -f -t C:\japehome\jape.exe -d C:\japehome -n %userprofile%"\start menu\programs\jape" -i japeicon.ico
           
         
@@ -122,16 +132,19 @@
 
         To install on a Unixoid machine, on which java has been
         properly installed, (only the jre is needed, not the whole
-        jdk), just place $(TARGET).jar in the installation folder
-        you have chosen, then
+        jdk), just
         
                 java -jar $(TARGET).jar
 
-        A control panel appears which gives you the option
-        to install the software. The name of the expected target
-        jar file is displayed: it should be the same as the name
-        of the jar file that was executed. If not, then the
-        install process will not succeed.
+        A control panel appears which gives you the option of
+        choosing an installation directory, installing the software
+        in the currently-chosen installation directory, or exiting.
+
+        The name of the expected target jar file is displayed in the
+        control panel: it should be the same as the name of the jar
+        file that was doubleclicked. If not, then the install process
+        will not succeed.
+
 
         If the $(TARGET).jar file has changed its name (say to
         foo.jar) since it was made, then
@@ -703,6 +716,7 @@ public class install implements ActionListener
 
   
 }
+
 
 
 
