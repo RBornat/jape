@@ -69,7 +69,7 @@ public class PrintProof {
 		       job.print();
 		   } catch (Exception ex) {
 		       ex.printStackTrace();
-		       Alert.showAlert(Alert.Warning, "print job failed -- see log");
+		       Alert.showAlert(Alert.Warning, "print job failed -- see log window");
 		   }
 	       }
 	    });
@@ -136,9 +136,9 @@ public class PrintProof {
 		       Alert.showAlert(Alert.Warning, "print job failed -- see log");
 		   }
 		   // desperate attempt to stop print dialogs doing stupid things
-		   job.setPrintable(null,null); 
+		   // job.setPrintable(null,null); 
 		   if (DebugVars.printdialog_tracing)
-		       Logger.log.println("printing done");				       
+			Logger.log.println("printing done");				       
 	       }
 	    });
     }
