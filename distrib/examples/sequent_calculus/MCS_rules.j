@@ -20,8 +20,8 @@ CLASS FORMULA A, B, C, D, P, Q, R, S
 CLASS VARIABLE x, y, z
 CLASS CONSTANT F, G, H, m, n
 
-BIND    x WITH SCOPE P IN ‰x . P
-BIND    x WITH SCOPE P IN Ëx . P
+BIND    x SCOPE P IN ‰x . P
+BIND    x SCOPE P IN Ëx . P
 
 SEQUENT IS BAG Ê BAG
 
@@ -36,10 +36,12 @@ RULE	"Á-R"		FROM A Ê B INFER Ê AÁB
 RULE	"Á-L"		FROM AÁB Ê A AND B Ê  INFER AÁB Ê
 RULE	"È-R"		FROM Ê AÁB AND Ê BÁA INFER Ê AÈB
 RULE	"È-L"		FROM AÁB, BÁA Ê  INFER AÈB Ê 
-RULE	"Ë-R"(FRESH y) 	FROM Ê A[x\y] INFER Ê Ëx . A
+RULE	"Ë-R"(OBJECT y) WHERE FRESH y
+			FROM Ê A[x\y] INFER Ê Ëx . A
 RULE	"Ë-L"(B)		FROM Ëx.A, A[x\B] Ê INFER Ëx.A Ê
 RULE	"‰-R"(B)		FROM Ê A[x\B] INFER Ê ‰x.A
-RULE	"‰-L"(FRESH y)	FROM  A[x\y] Ê INFER ‰x.A Ê
+RULE	"‰-L"(OBJECT y) WHERE FRESH y
+			FROM  A[x\y] Ê INFER ‰x.A Ê
 RULE	cut(A)		FROM Ê A AND A Ê INFER Ê
 RULE	leftweaken(A)	FROM Ê INFER A Ê 
 RULE	rightweaken(A)	FROM Ê INFER Ê A
