@@ -189,7 +189,7 @@ TACTIC "try hyp" (Ph, Pg, mess) IS
         )
 
 TACTIC hyptac IS
-    WHEN    (LETHYP _Ah /* demand antecedent selection to avoid multi-hyp messages ... */
+    WHEN    (LETHYP _Ah /* demand hypothesis selection to avoid multi-hyp messages ... */
                 (WHEN   (LETCONC _Ag ("try hyp" _Ah _Ag ("%t and %t don't unify", _Ah, _Ag)))
                         (LETOPENSUBGOAL G _Ag 
                             /* shall we just do it if we can? */
@@ -238,6 +238,8 @@ MENU Backward IS
                                                     (Noarg "∀ intro" "∀ intro") "∀ intro" "∀x.A" 
     ENTRY   "∃ intro (needs variable)"      "∃ intro backward"
     
+    ENTRY "truth" IS BackwardOnlyA ⊤(Noarg "truth" "truth") "truth" ⊤
+    
     SEPARATOR
     
     ENTRY   "¬ elim (invents formulae)" IS 
@@ -258,9 +260,6 @@ MENU Backward IS
     ENTRY   "contra (classical; makes assumption ¬A)"   
                                             IS BackwardOnlyA (QUOTE _A) 
                                                     (Noarg "contra (classical)" "contra (classical)") "contra (classical)" "A"
-    
-    SEPARATOR
-    ENTRY "truth" IS BackwardOnlyA ⊤(Noarg "truth" "truth") "truth" ⊤
     
     SEPARATOR
     ENTRY   hyp     IS Noarg hyptac hyp
