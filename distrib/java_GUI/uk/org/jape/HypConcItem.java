@@ -29,8 +29,8 @@ import java.awt.event.MouseEvent;
 
 public class HypConcItem extends SelectableProofItem {
 
-    public HypConcItem(ProofCanvas canvas, int x, int y, byte fontnum, String annottext) {
-        super(canvas, x, y, fontnum, annottext);
+    public HypConcItem(JapeCanvas canvas, int x, int y, byte fontnum, String annottext) {
+        super(canvas, x, y, fontnum, annottext, true, AmbigSel);
     }
 
     public void clicked(byte eventKind, MouseEvent e) {
