@@ -69,6 +69,8 @@ val foldformulae : bool ref        (* whether to fold long lines in boxdraw *)
 val truncatereasons : bool ref     (* whether to shorten reasons in boxdraw *)
 val seektipselection : bool ref    (* look for a tip to work on in boxdraw *)
 val textselectionmode : string ref (* how to press-and-drag over text *)
+val tryresolution : bool ref       (* cut with antecedents of theorems in desperation *)
+val resolvepossible : bool ref     (* resolution is a possibility in the current match *)
 
 val screenpositiondebug : bool ref
 exception Catastrophe_ of string list

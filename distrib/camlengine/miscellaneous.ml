@@ -99,6 +99,9 @@ let seektipselection = ref true (* whether to look for a tip to work on in boxdr
 let textselectionmode = ref "subformula"
 let screenpositiondebug = ref true
 
+let tryresolution = ref true
+let resolvepossible = ref false
+
 (* this collection avoids low characters which might be useful *)
 (* 0 is NUL; can't appear in a C string, so don't use *)
 let onbra = '\001'  (* SOH *)
