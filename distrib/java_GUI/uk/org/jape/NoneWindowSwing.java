@@ -31,21 +31,21 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
      * way to do that ...
      */
 
-    private KPanel panel;
+    private ContainerWithOrigin panel;
     private JapeScrollPane scrollPane;
     
     public NoneWindowSwing() {
         String yes = "Yes", no = "No";
         String[] buttons = { yes, no };
 
-        panel = new KPanel();
+        panel = new ContainerWithOrigin();
         
         bN = new JButton("North"); bN.setBounds(25, 5, 75, 20); bN.addActionListener(this); panel.add(bN);
         bE = new JButton("East"); bE.setBounds(55, 35, 75, 20); bE.addActionListener(this); panel.add(bE);
         bS = new JButton("South"); bS.setBounds(150, 15, 75, 30); bS.addActionListener(this); panel.add(bS);
         bW = new JButton("West"); bW.setBounds(150, -5, 75, 30); bW.addActionListener(this); panel.add(bW);
 
-        panel.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED, Color.red, Color.blue));
+        // panel.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED, Color.red, Color.blue));
         panel.setBackground(Color.yellow);
         panel.setLocation(100,100);
 
@@ -97,7 +97,7 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
             p.x -= 50; bW.setLocation(p);
         }
 
-        panel.revalidate();
+        panel.computeBounds();
     }
 
     public static void main(String args[]) {

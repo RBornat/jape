@@ -41,10 +41,10 @@ public class ProofWindow extends JapeWindow {
     int proofnum;
     protected static ProofWindow focussedproof = null;
 
-    protected KPanel proofpanel; 
+    protected ContainerWithOrigin proofpanel; 
     protected JapeScrollPane proofpane;
 
-    protected KPanel focussedpanel;
+    protected ContainerWithOrigin focussedpanel;
     
     public ProofWindow(String title, int proofnum) {
         super(title);
@@ -109,7 +109,7 @@ public class ProofWindow extends JapeWindow {
     }
 
     private void newProofPanel() {
-        proofpanel = new KPanel();
+        proofpanel = new ContainerWithOrigin();
         proofpane.add(proofpanel);
         if (style!=null) {
             if (style.equals("box"))
