@@ -5,7 +5,7 @@ MENU	Rules IS
 		
 	ENTRY	"List induction"		IS "list induction tactic"
 	ENTRY	"Boolean cases"	IS BoolCases
-	ENTRY	monad
+	ENTRY	monoid
 END
 
 TACTIC JUSTFAIL IS (ALT)
@@ -114,8 +114,8 @@ END
 CONJECTUREPANEL "Conjectures" IS
 
 		THEOREMS	syntactic
-		ARE monad (++) но
-		AND monad rcat но
+		ARE monoid (++) но
+		AND monoid rcat но
 		END
 		
 		THEOREMS	ListThms
