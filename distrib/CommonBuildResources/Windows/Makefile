@@ -21,7 +21,7 @@ BUILTENGINE=jape.exe
 DEPLOYEDENGINE=jape.exe
 README=README-WINDOWS 
 INSTALLME=installjape.class
-DEPLOYMENTKIT=$(README) 
+DEPLOYMENTKIT=$(README) japeicon.ico
                 
 
 jarfile:  ;\
@@ -31,6 +31,7 @@ jarfile:  ;\
                    -cmdwindows   'SHORTCUT.EXE -f -t jape.cmd -n Jape -d . -i japeicon.ico' \
                    -app          "Windows Jape" \
                    -splash       japesplash.png \
-                   SHORTCUT.EXE  $(DEPLOYEDENGINE) japeserver.jar japeicon.ico examples
+                   SHORTCUT.EXE  $(DEPLOYEDENGINE) japeserver.jar $(DEPLOYMENTKIT) examples
+
 
 

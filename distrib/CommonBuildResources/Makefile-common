@@ -70,7 +70,7 @@ distribution::  ; make components ;\
                   rsync -v -t $(BUILDRESOURCES)/InstallerKit/bootstrap/install*.class bootstrap/ ;\
                   rsync -v -t $(BUILDRESOURCES)/InstallerKit/japesplash.png . ;\
                   rsync -v -t $(BUILDRESOURCES)/InstallerKit/japeicon.ico   . ;\
-                  rsync -v -t $(BUILDRESOURCES)/InstallerKit/SHORTCUT.EXE   . ;\ 
+                  rsync -v -t $(BUILDRESOURCES)/InstallerKit/SHORTCUT.EXE   . ;\
                   make jarfile
 
 jarfile:        ; java bootstrap.install -cmdunix "sh installjape.sh" -splash japesplash.png $(OS)jape.jar $(DEPLOYMENTKIT) $(DEPLOYEDENGINE) japeserver.jar examples 
