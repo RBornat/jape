@@ -141,9 +141,10 @@ let rec strings_of_reply s =
   ff_ [] [] (List.rev (explode s))
 
 type _ITEM = Bool of bool | Int of int | Str of string
+
 let fBool v = Bool v
-let fInt v = Int v
-let fStr v = Str v
+let fInt v  = Int  v
+let fStr v  = Str  v
 
 let rec writef s is =
   let rec ww_ a1 a2 =
@@ -474,8 +475,7 @@ let rec panelbutton name label cmd =
       writef "PANELRADIOBUTTONEND %\n" [Str name]
     
     let rec setpanelbutton name label value =
-      writef "SETPANELBUTTON % % %\n"
-        [Str name; Str label; Bool value]
+      writef "SETPANELBUTTON % % %\n" [Str name; Str label; Bool value]
  *)
 
 let rec selectpanelentry name label =
@@ -503,6 +503,14 @@ let rec readHighlight class__ =
     [x; y] -> Some (pos (x, y))
   | _ -> None
 
+let forceAllDisproofSelections (sels, textsels) = 
+  List.iter (fun p -> let (x,y) = explodePos p in 
+                      writef "DISPROOFSELECT % %\n" [Int x; Int y]) sels;
+  List.iter (fun (p, ss) -> let (x,y) = explodePos p in
+                            writef "DISPROOFTEXTSELPOS % %\n" [Int x; Int y];
+                            List.iter (fun s -> writef "DISPROOFTEXTSEL %\n" [Str s]) ss;
+                            writef "DISPROOFTEXTSELDONE\n" []) textsels
+                            
 let rec clearProvisoView () = writef "CLEARPROVISOVIEW\n" []
 
 let setGivens givens =
@@ -585,20 +593,23 @@ let rec writeFileName message filetype =
 
 let rec setmenuequiv (menu, entry, command) = ()
 
-let rec getProofTextSelections () =
+let positioned_textsels id =
   let l : (pos * string list) list ref = ref [] in
-  writef "GETPROOFTEXTSELECTIONS\n" [];
   while
-    let line = readline "GETPROOFTEXTSELECTIONS" in
+    let line = readline id in
     match strings_of_reply line with
       x :: y :: ss -> l := (pos (atoi x, atoi y), ss) :: !l; true
-    | _            -> (* consolereport ["getTextSelection terminates on "; Stringfuns.enQuote line]; *)
+    | _            -> (* consolereport ["textselections terminate with "; Stringfuns.enQuote line]; *)
                       false
   do () done;
-  (* consolereport ["getTextSelection => "; 
+  (* consolereport ["positioned_textsels \""; id; "\" => "; 
            bracketedliststring (Stringfuns.pairstring posstring 
                                 (bracketedliststring Stringfuns.enQuote ",") ",") "; " !l]; *)
   !l
+  
+let rec getProofTextSelections () =
+  writef "GETPROOFTEXTSELECTIONS\n" [];
+  positioned_textsels "GETPROOFTEXTSELECTIONS"
 
 let rec getProofSelections () =
   let l : (pos * displayclass) list ref = ref [] in
@@ -619,13 +630,23 @@ let rec nontrivial_selections line =
     [""] -> []
   | xs   -> xs
     
+let rec getDisproofSelections () =
+  let l : pos list ref = ref [] in
+  writef "GETDISPROOFSELECTIONS\n" [];
+  while
+    let line = readline "GETDISPROOFSELECTIONS" in
+    match ints_of_reply line with
+      [x; y] -> l := pos (x, y) :: !l; true
+    | _ -> (* consolereport ["getDisproofSelections terminates on "; Stringfuns.enQuote line]; *) 
+           false
+  do () done;
+  (* consolereport ["getDisproofSelections => "; 
+      bracketedliststring posstring "; " !l]; *)
+  !l
+
 let rec getDisproofTextSelections () =
   writef "GETDISPROOFTEXTSELECTIONS\n" [];
-  nontrivial_selections (readline "GETDISPROOFTEXTSELECTIONS")
-
-let rec getDisproofSelections () =
-  writef "GETDISPROOFSELECTIONS\n" [];
-  nontrivial_selections (readline "GETDISPROOFSELECTIONS")
+  positioned_textsels "GETDISPROOFTEXTSELECTIONS"
 
 let rec getGivenSelection () =
   writef "GETGIVENTEXTSELECTIONS\n" [];
@@ -673,7 +694,7 @@ let rec settiles ts =
 let rec setworlds selected worlds =
   writef "WORLDSSTART\n" [];
   List.iter (fun ((cx, cy), emphasis, labels, children) ->
-			   writef "WORLD % % %\n" [Int cx; Int cy; Int emphasis];
+			   writef "WORLD % % %\n" [Int cx; Int cy; Bool emphasis];
 			   List.iter
 				 (fun label -> writef "WORLDLABEL % % %\n" [Int cx; Int cy; Str label])
 				 labels;
