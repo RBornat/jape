@@ -124,7 +124,7 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
             Alert.abort("ProofCanvas.notifyHit di="+di);
     }
 
-    public SelectableProofItem findSelectableXY(int x, int y) {
+    public SelectableProofItem findSelectable(int x, int y) {
         int nc = child.getComponentCount(); // oh dear ...
         for (int i=0; i<nc; i++) {
             Component c = child.getComponent(i); // oh dear ...
