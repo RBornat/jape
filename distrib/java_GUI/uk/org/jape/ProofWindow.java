@@ -272,7 +272,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
             }
             subSplitPane.setLeftComponent(proofPane);
             subSplitPane.setRightComponent(provisoPane);
-            subSplitPane.setResizeWeight(0.0);
+            subSplitPane.setResizeWeight(1.0);
             subSplitPane.setPreferredSize(paneSize);
             subSplitPane.setSize(paneSize);
             subSplitPane.validate();
@@ -299,23 +299,6 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
                 break;
             default:
                 Alert.abort("ProofWindow.drawInPane: pane="+pane);
-        }
-    }
-
-    public static void setGivens(String[] gs) throws ProtocolError {
-        focussedProofWindow(true).newGivens(gs);
-    }
-
-    private void newGivens(String[] gs) throws ProtocolError {
-        if (gs.length!=0)
-            throw new ProtocolError("can't (yet) set givens "+gs);
-    }
-
-    public static void clearProvisoView() throws ProtocolError {
-        // don't create a provisoPane just to clear it
-        ProofWindow w = focussedProofWindow(true);
-        if (w.provisoCanvas!=null) {
-            w.provisoCanvas.clear();
         }
     }
 
@@ -466,5 +449,30 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
 
     public static void selectWorld(int x, int y, boolean selected) throws ProtocolError {
         focussedProofWindow(true).ensureDisproofPane().worldCanvas.selectWorld(x, y, selected);
+    }
+
+    // provisos and givens
+
+    public static void clearProvisoView() throws ProtocolError {
+        // don't create a provisoPane just to clear it
+        ProofWindow w = focussedProofWindow(true);
+        if (w.provisoCanvas!=null) {
+            w.provisoCanvas.clear();
+        }
+    }
+
+    public static void showProvisoLine(String annottext) throws ProtocolError {
+        ProofWindow w = focussedProofWindow(true);
+        w.ensureProvisoPane();
+        w.provisoCanvas.addProvisoLine(annottext);
+    }
+
+    public static void setGivens(String[] gs) throws ProtocolError {
+        focussedProofWindow(true).newGivens(gs);
+    }
+
+    private void newGivens(String[] gs) throws ProtocolError {
+        if (gs.length!=0)
+            throw new ProtocolError("can't (yet) set givens "+gs);
     }
 }
