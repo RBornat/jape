@@ -39,7 +39,4 @@ public class Preferences {
 
     public static Color OutColour    = Color.gray,
                         ForcedColour = Color.magenta;
-
-    public static float Translucent = (float)0.5;
-
 }
