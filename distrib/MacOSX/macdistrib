@@ -4,7 +4,7 @@
 # builds jape_<tag> distribution, which you have to pack up using DiskUtility (sorry)
 (cd jape.source/MacOSX; make)
 (cd jape.source/utf8_encoder; make)
-rm -fr jape_$1
+rm -fr jape_$1 jape_$1.dmg
 mkdir jape_$1 jape_$1/jape jape_$1/utf8_encoder
 rsync -rvt jape.source/MacOSX/{Jape.app," README.rtf"} jape.source/camlengine/jape_engine jape_$1/jape
 rsync -rvt jape.source/examples jape_$1
