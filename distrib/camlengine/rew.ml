@@ -269,136 +269,132 @@ ResUnknown i ->
 | _ -> None
 
 let rec rew_Seq subst cxt =
-fun (Seq (st, _H, _G)) ->
-rew_2 (rew_Term subst cxt) _H (rew_Term subst cxt) _G
-  (fun (_H', _G') -> Seq (st, _H', _G'))
+  fun (Seq (st, _H, _G)) ->
+  rew_2 (rew_Term subst cxt) _H (rew_Term subst cxt) _G
+    (fun (_H', _G') -> Seq (st, _H', _G'))
 
 let rec rew_Proviso subst cxt p =
-let _RT = rew_Term subst cxt in
-match p with
-FreshProviso (h, g, r, v) ->
-  rew_ _RT v (fun v -> FreshProviso (h, g, r, v))
-| NotinProviso vp -> rew_ (rew_Pair _RT) vp (fun v->NotinProviso v)
-| NotoneofProviso (vs, pat, _C) ->
-  rew_3 (option_rewritelist _RT) vs _RT pat _RT _C (fun v->NotoneofProviso v)
-| UnifiesProviso pp -> rew_ (rew_Pair _RT) pp (fun v->UnifiesProviso v)
+  let _RT = rew_Term subst cxt in
+  match p with
+  FreshProviso (h, g, r, v) ->
+    rew_ _RT v (fun v -> FreshProviso (h, g, r, v))
+  | NotinProviso vp -> rew_ (rew_Pair _RT) vp (fun v->NotinProviso v)
+  | NotoneofProviso (vs, pat, _C) ->
+    rew_3 (option_rewritelist _RT) vs _RT pat _RT _C (fun v->NotoneofProviso v)
+  | UnifiesProviso pp -> rew_ (rew_Pair _RT) pp (fun v->UnifiesProviso v)
 
 let rec rew_update a1 a2 a3 a4 =
-match a1, a2, a3, a4 with
-f, g, Some ri, cxt ->
-  begin match rewinf_psig ri with
-    Some n ->
-      let n' = getprovisosig cxt in
-      if n = n' then None else Some (f (rewinf_setpsig ri (Some n')))
-  | None -> None
-  end
-| f, g, None, cxt -> g ()
+  match a1, a2, a3, a4 with
+  f, g, Some ri, cxt ->
+    begin match rewinf_psig ri with
+      Some n ->
+        let n' = getprovisosig cxt in
+        if n = n' then None else Some (f (rewinf_setpsig ri (Some n')))
+    | None -> None
+    end
+  | f, g, None, cxt -> g ()
 
 let rec rew_cxt cxt =
-(* there is no point rewriting the substitutions inside the provisos
-* until we have replaced the unknowns.  
-* That fact is the whole reason for the 'subst' argument in the rew_
-* functions.
-*)
-let rec needsit a1 a2 a3 =
-match a1, a2, a3 with
-  subst, cxt, Some inf -> rew_worthwhile subst cxt inf
-| subst, cxt, None -> true
-in
-let rec doprovisos subst cxt =
-let (ps, pinf) = getprovisos cxt in
-if needsit subst cxt pinf then
-  let rec newrewinf n ps =
-    Some
-      (raw2rew_
-         (nj_fold (rawinfProviso n) ((provisoactual <* ps))
-            nullrawinf))
+  (* there is no point rewriting the substitutions inside the provisos
+  * until we have replaced the unknowns.  
+  * That fact is the whole reason for the 'subst' argument in the rew_
+  * functions.
+  *)
+  let rec needsit subst cxt =
+    function Some inf -> rew_worthwhile subst cxt inf
+    |        None     -> true
   in
-  let rec yes nextcxt ps =
-    Some (setprovisos nextcxt (ps, newrewinf (getprovisosig cxt) ps))
-  in
-  let rec updatesig () =
-    let rec f pinf' = setprovisos cxt (ps, Some pinf') in
-    let rec g () = yes cxt ps in(* doesn't change ps, so doesn't cause incprovisosig *)
-     rew_update f g pinf cxt
-  in
-  let rec rew_visproviso subst cxt vp =
-    rew_ (rew_Proviso subst cxt <.> provisoactual) vp
-      (provisoresetactual vp)
-  in
-  match option_rewritelist (rew_visproviso subst cxt) ps with
-    Some ps -> yes (incprovisosig cxt) ps
-  | None -> updatesig ()
-else None
-in
-(* doprovisos *)
-       
-let rec doexterior subst cxt =
-match getexterior cxt with
-  Exterior ((ss, s), inf, fvinf) ->
-    if needsit subst cxt inf then
-      let rec yes (ss, s) =
-        let raw =
-          nj_fold (rawinfSeq (getprovisosig cxt)) (s :: ss) nullrawinf
-        in
-        let inf = raw2rew_ raw in
-        let fvinf =
-          match rewinf_vars inf, rewinf_uVIDs inf with
-            avs, [] ->
-              let (Seq (_, hs, cs)) = s in
-              let hbindings = varbindings hs in
-              let cbindings = varbindings cs in
-              let rec sv1 (s, stuff) =
-                bmerge (seqvars varbindings bmerge s) stuff
-              in
-              let stuff = nj_fold sv1 ss (bmerge hbindings cbindings) in
-              let ps = optionfilter
-                         ((function NotinProviso p -> Some p
-                           | _                     -> None) <.> provisoactual)
-                         (provisos cxt)
-              in
-              let (fvs, m)   = freevarsfrombindings stuff ps in
-              let (bhfvs, _) = freevarsfrombindings hbindings ps in
-              let (bcfvs, _) = freevarsfrombindings cbindings ps in
-              Some {avs=avs; fvs=fvs; vmap=mkmap m; bhfvs=bhfvs; bcfvs=bcfvs}
-          | _ -> None
-        in
-        Some
-          (setexterior (incprovisosig cxt)
-             (Exterior ((ss, s), Some inf, fvinf)))
+  let rec doprovisos subst cxt =
+    let (ps, pinf) = getprovisos cxt in
+    if needsit subst cxt pinf then
+      let rec newrewinf n ps =
+        Some (raw2rew_ (nj_fold (rawinfProviso n) ((provisoactual <* ps)) nullrawinf))
+      in
+      let rec yes nextcxt ps =
+        Some (setprovisos nextcxt (ps, newrewinf (getprovisosig cxt) ps))
       in
       let rec updatesig () =
-        let rec f inf' =
-          setexterior cxt (Exterior ((ss, s), Some inf', fvinf))
-        in
-        let rec g _ = yes (ss, s) in rew_update f g inf cxt
+        let rec f pinf' = setprovisos cxt (ps, Some pinf') in
+        let rec g () = yes cxt ps in (* doesn't change ps, so doesn't cause incprovisosig *)
+         rew_update f g pinf cxt
       in
-      match
-        rew_2 (option_rewritelist (rew_Seq subst cxt)) ss
-          (rew_Seq subst cxt) s (fun p -> p)
-      with
-        Some r -> yes r
+      let rec rew_visproviso subst cxt vp =
+        rew_ (rew_Proviso subst cxt <.> provisoactual) vp
+          (provisoresetactual vp)
+      in
+      match option_rewritelist (rew_visproviso subst cxt) ps with
+        Some ps -> yes (incprovisosig cxt) ps
       | None -> updatesig ()
     else None
-| _ ->(* end case Exterior ... *)
-   None
-in
-let rec doit subst cxt =
-let rec doit2 cxt =
-  match doexterior subst cxt with
-    Some cxt -> rew_yes (doit true) cxt
-  | None -> if subst then None else doit true cxt
-in
-match doprovisos subst cxt with
-  Some cxt -> rew_yes (if subst then doit true else doit2) cxt
-| None -> doit2 cxt
-in
-let r = doit false cxt in
-if !rewritedebug then
-consolereport
-  ["rew_cxt "; cxtstring cxt; " => "; optionstring cxtstring r];
-r
-(*rew_cxt*)let rawinfTerm cxt = rawinfTerm (getprovisosig cxt)
+  in
+  (* end doprovisos *)
+         
+  let rec doexterior subst cxt =
+    match getexterior cxt with
+      Exterior ((ss, s), inf, fvinf) ->
+        if needsit subst cxt inf then
+          let rec yes (ss, s) =
+            let raw =
+              nj_fold (rawinfSeq (getprovisosig cxt)) (s :: ss) nullrawinf
+            in
+            let inf = raw2rew_ raw in
+            let fvinf =
+              match rewinf_vars inf, rewinf_uVIDs inf with
+                avs, [] ->
+                  let (Seq (_, hs, cs)) = s in
+                  let hbindings = varbindings hs in
+                  let cbindings = varbindings cs in
+                  let rec sv1 (s, stuff) =
+                    bmerge (seqvars varbindings bmerge s) stuff
+                  in
+                  let stuff = nj_fold sv1 ss (bmerge hbindings cbindings) in
+                  let ps = optionfilter
+                             ((function NotinProviso p -> Some p
+                               | _                     -> None) <.> provisoactual)
+                             (provisos cxt)
+                  in
+                  let (fvs, m)   = freevarsfrombindings stuff ps in
+                  let (bhfvs, _) = freevarsfrombindings hbindings ps in
+                  let (bcfvs, _) = freevarsfrombindings cbindings ps in
+                  Some {avs=avs; fvs=fvs; vmap=mkmap m; bhfvs=bhfvs; bcfvs=bcfvs}
+              | _ -> None
+            in
+            Some (setexterior (incprovisosig cxt) (Exterior ((ss, s), Some inf, fvinf)))
+          in
+          let rec updatesig () =
+            let rec f inf' =
+              setexterior cxt (Exterior ((ss, s), Some inf', fvinf))
+            in
+            let rec g _ = yes (ss, s) in rew_update f g inf cxt
+          in
+          match
+            rew_2 (option_rewritelist (rew_Seq subst cxt)) ss
+              (rew_Seq subst cxt) s (fun p -> p)
+          with
+            Some r -> yes r
+          | None -> updatesig ()
+        else None
+    | _ -> None
+  in
+  (* end doexterior *)
+     
+  let rec doit subst cxt =
+    let rec doit2 cxt =
+      match doexterior subst cxt with
+        Some cxt -> rew_yes (doit true) cxt
+      | None -> if subst then None else doit true cxt
+    in
+    match doprovisos subst cxt with
+      Some cxt -> rew_yes (if subst then doit true else doit2) cxt
+    | None -> doit2 cxt
+  in
+  let r = doit false cxt in
+  if !rewritedebug then
+    consolereport ["rew_cxt "; cxtstring cxt; " => "; optionstring cxtstring r];
+  r
+  (*end rew_cxt*)
+  
+  let rawinfTerm cxt = rawinfTerm (getprovisosig cxt)
 
 let rawinfSeq cxt = rawinfSeq (getprovisosig cxt)
 

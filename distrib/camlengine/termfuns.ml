@@ -69,6 +69,7 @@ let rec elementnumbers =
       in
       optionfilter f es
   | _ -> []
+
 let rec elementnumbered a1 a2 =
   match a1, a2 with
     Collection (_, _, es), r ->
@@ -78,10 +79,12 @@ let rec elementnumbered a1 a2 =
          | _ -> None)
         es
   | _, _ -> None
+
 let rec isProperResnum =
   function
     Resnum _ -> true
   | _ -> false
+
 let rec collectionkind =
   function
     Collection (_, c, _) -> Some c
@@ -121,6 +124,7 @@ let rec option_mapterm f t =
         | Collection (_, k, es) ->
             (option_mapelements f es &~~
                (fun es' -> Some (registerCollection (k, es'))))))
+
 and option_mapelement a1 a2 =
   match a1, a2 with
     f, Segvar (_, ps, v) ->
@@ -130,8 +134,11 @@ and option_mapelement a1 a2 =
 (* yes, it should really be r *)
 
 and option_mapelements f = option_rewritelist (option_mapelement f)
+
 let rec mapterm f = anyway (option_mapterm f)
+
 let rec mapelements f = anyway (option_mapelements f)
+
 let rec foldterm f z t =
   match f (t, z) with
     Some v -> v
@@ -147,7 +154,9 @@ let rec foldterm f z t =
       | Binding (_, (bs, ss, us), _, _) -> ff (ff (ff z us) ss) bs
       | Collection (_, k, es) -> foldelements f z es
       | _ -> z
+
 and nj_foldterm f (t, z) = foldterm f z t
+
 and foldelements f z es =
   let rec fe z e =
     match e with
@@ -156,6 +165,7 @@ and foldelements f z es =
   in
   (* not sure that's right ... *)
   nj_fold (fun (e, z) -> fe z e) es z
+
 let rec findterm g t =
   match g t with
     None ->
@@ -181,6 +191,7 @@ let rec findterm g t =
       end
   | v -> v
 (* what on earth does findhole do?  Some very clever person must have written this ... *)
+
 let rec findhole g t =
   let rec fh h t =
     let rec fhs sel build h xs =
@@ -252,10 +263,12 @@ let rec findhole g t =
     | res -> res
   in
   fh (fun t -> t) t
+
 let rec searchterm g z t =
   match findterm g t with
     Some v -> v
   | None -> z
+
 let rec existsterm g t =
   opt2bool (findterm (fun t -> if g t then Some true else None) t)
 (* at present we have a very specialised type hierarchy *)
@@ -299,6 +312,7 @@ let rec canoccurfreein (c1, c2) =
      BagClass c -> canoccurfreein (c1, c)
    | ListClass c -> canoccurfreein (c1, c)
    | _ -> false)
+
 let rec idclass t =
   match debracket t with
     Id (_, _, c) -> c
@@ -326,8 +340,10 @@ let rec idclass t =
       end
   | Binding _ -> FormulaClass
   | Collection (_, k, _) -> k
+
 let rec isSubstClass t = idclass t = SubstClass
 (* parse that, you bastards *)
+
 let rec replaceelement a1 a2 a3 =
   match a1, a2, a3 with
     Collection (_, c, es), (Element (_, r, _) as el), t ->
@@ -414,6 +430,7 @@ let rec mergevars xs ys = sortedmerge earliervar xs ys
 let rec canonicalsubstmap vts =
   let rec earliervt (v, _) (v', _) = earliervar v v' in
   sort earliervt vts
+
 let rec isconstantID (_, _, c) =
   match c with
     ConstantClass -> true
@@ -422,6 +439,7 @@ let rec isconstantID (_, _, c) =
   | OperatorClass -> true
   | _ -> false
 (* used (now only in proviso) to tell if we have a 'variable' or a 'constant' *)
+
 let rec isconstant t =
   match debracket t with
     Id s -> isconstantID s
@@ -460,60 +478,74 @@ let rec ismetav t =
     Id (_, v, c) -> isextensibleID (string_of_vid v)
   | Unknown _ -> true
   | _ -> false
+
 let rec isextensibleId t =
   match debracket t with
     Id (_, v, c) -> isextensibleID (string_of_vid v)
   | _ -> false
+
 let rec isId t =
   match debracket t with
     Id _ -> true
   | _ -> false
+
 let rec isUnknown t =
   match debracket t with
     Unknown _ -> true
   | _ -> false
+
 let rec isVariable t =
   match debracket t with
     Id (_, _, VariableClass) -> true
   | Unknown (_, _, VariableClass) -> true
   | _ -> false
+
 let rec isleaf t =
   match t with
     Id _ -> true
   | Unknown _ -> true
   | Literal _ -> true
   | _ -> false
+
 let rec isleafelement e =
   match e with
     Segvar (_, [], v) -> isleaf v
   | Element (_, _, t) -> isleaf t
   | _ -> false
+
 let rec isidentifier t =
   match t with
     Id _ -> true
   | Unknown _ -> true
   | _ -> false
+
 let rec issegvar e =
   match e with
     Segvar _ -> true
   | _ -> false
+
 let rec isCollection =
   function
     Collection _ -> true
   | _ -> false
+
 let rec isemptycollection =
   function
     Collection (_, _, []) -> true
   | _ -> false
+
 let rec isselectionSubst e =
   match e with
     Element (_, _, Subst (_, false, _, _)) -> true
   | _ -> false
+
 let rec emptycollection k = registerCollection (k, [])
+
 let rec element2term =
   function
     Element (_, _, t) -> Some t
   | _ -> None
+
 let rec collection2term =
   function
     Collection (_, _, [el]) -> element2term el
@@ -563,6 +595,7 @@ let rec eqterms (t1, t2) =
     Collection (_, ListClass k2, es2) ->
       k1 = k2 && eqlists (eqelements eqterms) (es1, es2)
   | _ -> false
+
 and eqelements eq (e1, e2) =
   match e1, e2 with
     Segvar (_, p1s, v1), Segvar (_, p2s, v2) ->
@@ -570,6 +603,7 @@ and eqelements eq (e1, e2) =
   | Element (_, r1, t1), Element (_, r2, t2) -> eq (t1, t2)
   | _ ->(* ignore resource numbers *)
      false
+
 let rec sameresource (e1, e2) =
   match e1, e2 with
     Element (_, r1, _), Element (_, r2, _) -> r1 = r2
@@ -601,6 +635,7 @@ let rec earlierresource e1 e2 =
    which variables are declared in a binding.  But one step at a time ...
  *)
 let eqalphadebug = ref false
+
 let rec eqalphaterms (t1, t2) =
   let count = ref 0 in
   let rec nxb _ = incr count; !count in
@@ -686,6 +721,7 @@ let rec termoccursin t = fun p_ -> existsterm (curry2 eqterms t) p_
  *)
 
 let tmerge = sortedmerge earliervar
+
 let rec termvars t =
   sortunique earliervar
     (foldterm
@@ -706,17 +742,21 @@ let bcstring = bracketedliststring termliststring ","
 let bcliststring = bracketedliststring bcstring ","
 let varinfstring = pairstring termstring bcliststring ","
 let varbindingsresstring = bracketedliststring varinfstring ","
+
 let bvsorder = earlierlist earliervar
 let bcorder = earlierlist bvsorder
-let rec relorder (v1, _) (v2, _) = earliervar v1 v2
-let rec combinebindings (x, bcs) (_, bcs') =
-  x, sortedmerge bcorder bcs bcs'
+let relorder (v1, _) (v2, _) = earliervar v1 v2
+
+let combinebindings (x, bcs) (_, bcs') = x, sortedmerge bcorder bcs bcs'
+
 let bmerge = sortedmergeandcombine relorder combinebindings
+
 (* This computes a list of variables in t, each with various binding
  * contexts. A binding context is a list of lists of binders, so each
  * variable is paired with a list of lists of lists of binders.
  * RB 19/xi/97
  *)
+
 let rec varbindings t =
   let rec doit outers inners t = foldterm (f outers inners) [] t
   and f outers inners (t, ps) =
@@ -726,8 +766,8 @@ let rec varbindings t =
     in
     let dothem = List.map (doit outers inners) in
     let rec v () =
-      if canoccurfreein (VariableClass, idclass t) then
-        Some (bmerge [t, [binders]] ps)
+      if canoccurfreein (VariableClass, idclass t) 
+      then Some (bmerge [t, [binders]] ps)
       else Some ps
     in
     let rec doit2 bs = doit binders (sort earliervar bs) in
@@ -760,9 +800,13 @@ let rec varbindings t =
     r
   in
   doit [] [] t
+
 let combinemappings (x, vs) (_, vs') = x, tmerge vs vs'
+
 let mmerge = sortedmergeandcombine relorder combinemappings
+
 let rec fmerge (fvs, m) (fvs', m') = tmerge fvs fvs', mmerge m m'
+
 (* this function finds identifiers that occur free, those of which we have
  * 'lost control', and what binds what otherwise.
  * In the case of bindings which are distinct only because of the order of
@@ -840,9 +884,7 @@ let rec fmerge (fvs, m) (fvs', m') = tmerge fvs fvs', mmerge m m'
 
 let rec freevarsfrombindings inf notins =
   (* we assume that inf is sorted by variable and that each bcs is sorted by bcorder *)
-  let rec vvorder (a, b) (c, d) =
-    earliervar a c || a = c && earliervar b d
-  in
+  let rec vvorder (a, b) (c, d) = earliervar a c || a = c && earliervar b d in
   let rec closed v bc = List.exists (fun bvs -> member (v, bvs)) bc in
   (* step 1 - find all free and semi-free names *)
   let rec freev (v, bcs) = List.exists (not <.> closed v) bcs in
@@ -927,25 +969,30 @@ let rec freevarsfrombindings inf notins =
          notins;
        " => "; showout r];
   r
+
 let orderVIDs = sortunique (<)
-(* should be identifiertoVID *)
+
+(* should be vid_of_identifier *)
 let rec vid_of_var =
   function
     Id (_, v, _) -> v
   | Unknown (_, v, _) -> v
   | t -> raise (Catastrophe_ ["vid_of_var "; argstring t])
+
 let rec termVIDs t = orderVIDs ((vid_of_var <* termvars t))
+
 let rec conVIDs ts =
   nj_fold
     (function
        Id (_, v, c), vs -> v :: vs
      | _, vs -> vs)
     ts []
+
 (* --------------------------------------------------------------------- *)
 
-   (* could t1 be changed by unification/substitution so that it becomes the same term as t2, 
-    * and/or vice-versa? 
-    *)
+(* could t1 be changed by unification/substitution so that it becomes the same term as t2, 
+ * and/or vice-versa? 
+ *)
 let rec simterms (t1, t2) =
   let rec similar t1subst t1 t2subst t2 =
     let (t1, t2) = debracket t1, debracket t2 in
@@ -1017,10 +1064,12 @@ let rec explodeApp curry t =
   match curry, unApp (debracket t) [] with
     true, (f, [Tup (_, ",", rs)]) -> f, (debracket <* rs)
   | _, res -> res
+
 let rec implodeApp curry (t, args) =
   if curry then registerApp (t, registerTup (",", args))
   else nj_revfold (fun (r, l) -> registerApp (l, r)) args t
 (* find the various ways in which a term can be a binary operation (sigh) *)
+
 let rec explodebinapp t =
   match debracket t with
     App (_, Id (_, v, OperatorClass), Tup (_, ",", [e; f])) ->
@@ -1033,6 +1082,7 @@ let rec explodebinapp t =
 (* ---------- for export ------------ *)
 
 let rec int2term (i : int) = registerLiteral (Number i)
+
 let rec term2int t =
   try
     match debracket t with
@@ -1044,24 +1094,30 @@ let rec term2int t =
        raise (Catastrophe_ ["term2int"])
   with
     _ -> raise (Catastrophe_ ["term2int "; smltermstring t])
+
 let rec enbracket t = registerFixapp (["("; ")"], [t])
+
 let rec explodeCollection =
   function
     Collection (_, _, es) -> es
   | t -> [registerElement (Nonum, t)]
+
 let rec augmentCollection a1 a2 =
   match a1, a2 with
     Collection (_, kind, es), els ->
       Some (registerCollection (kind, es @ els))
   | _, _ -> None
+
 let rec decodeSubst =
   function
     Subst (_, r, p_, vts) -> Some (r, p_, vts)
   | _ -> None
+
 let rec decodeBinding =
   function
     Binding (_, info, _, _) -> Some info
   | _ -> None
+
 let rec decodeBracketed =
   function
     Fixapp (_, ["("; ")"], [t]) -> Some t
