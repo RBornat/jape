@@ -70,13 +70,20 @@ public class japeserver {
     private static String theorypath, theory, ext, title, iconname,
         viewpath, pviewpath, proofpath;
 
-    public static boolean onMacOS; 
+    public static boolean onMacOS, useScreenMenuBar;
     public static Rectangle screenBounds;
     
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
         onMacOS = (System.getProperty("mrj.version")!=null);
-        
+        // oh calamity!
+        if (onMacOS) { // deal with the double-bounce menu checkbox bug
+            String s = System.getProperty("com.apple.macos.useScreenMenuBar");
+            JapeMenu.CheckboxDoubleBounce = s!=null && s.equals("true");
+        }
+        else
+            JapeMenu.CheckboxDoubleBounce = false; 
+        useScreenMenuBar=false;
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         GraphicsConfiguration[] gc = gd.getConfigurations();
