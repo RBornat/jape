@@ -50,7 +50,7 @@ let consolereport = Miscellaneous.consolereport
 
 (* --------------------- hack to help binding matches go faster --------------------- *)
 
-let rec termkind t =
+let termkind t =
   match t with
     Id _ -> 0
   | Unknown _ -> 1
@@ -66,10 +66,10 @@ let termkindmax = 8
 
 (**** (possibly temporary) additions to ease transition to Collection use ****)
 
-let rec elementnumbers =
+let elementnumbers =
   function
     Collection (_, _, es) ->
-      let rec f =
+      let f =
         function
           Element (_, r, _) -> Some r
         | _ -> None
@@ -77,7 +77,7 @@ let rec elementnumbers =
       optionfilter f es
   | _ -> []
 
-let rec elementnumbered a1 a2 =
+let elementnumbered a1 a2 =
   match a1, a2 with
     Collection (_, _, es), r ->
       findfirst
@@ -87,12 +87,12 @@ let rec elementnumbered a1 a2 =
         es
   | _, _ -> None
 
-let rec isProperResnum =
+let isProperResnum =
   function
     Resnum _ -> true
   | _ -> false
 
-let rec collectionkind =
+let collectionkind =
   function
     Collection (_, c, _) -> Some c
   | _ -> None
@@ -105,32 +105,32 @@ let rec collectionkind =
 *)
 let rec option_mapterm f t =
   (f t |~~
-     (fun _ ->
-        let mtff = option_mapterm f in
-        let mtfl = option_rewritelist mtff in
-        match t with
-          Id _ -> None
-        | Unknown _ -> None
-        | App (_, f, a) ->
-              (option_rewrite2 mtff mtff (f, a) &~~
-               (fSome <.> registerApp))
-        | Tup (_, s, ts) ->
-            (mtfl ts &~~ (fun ts' -> Some (registerTup (s, ts'))))
-        | Literal _ -> None
-        | Fixapp (_, ss, ts) ->
-            (mtfl ts &~~ (fun ts' -> Some (registerFixapp (ss, ts'))))
-        | Subst (_, r, p_, vts) ->
-              (option_rewrite2 mtff
-                 (option_rewritelist (option_rewrite2 mtff mtff))
-                 (p_, vts) &~~
-               (fun (p_', vts') -> Some (registerSubst (r, p_', vts'))))
-        | Binding (_, bs_ss_us, env, pat) ->
-            (option_rewrite3 mtfl mtfl mtfl bs_ss_us &~~
-               (fun bs_ss_us' ->
-                  Some (registerBinding (bs_ss_us', env, pat))))
-        | Collection (_, k, es) ->
-            (option_mapelements f es &~~
-               (fun es' -> Some (registerCollection (k, es'))))))
+   (fun _ ->
+      let mtff = option_mapterm f in
+      let mtfl = option_rewritelist mtff in
+      match t with
+        Id _ -> None
+      | Unknown _ -> None
+      | App (_, f, a) ->
+            (option_rewrite2 mtff mtff (f, a) &~~
+             (fSome <.> registerApp))
+      | Tup (_, s, ts) ->
+          (mtfl ts &~~ (fun ts' -> Some (registerTup (s, ts'))))
+      | Literal _ -> None
+      | Fixapp (_, ss, ts) ->
+          (mtfl ts &~~ (fun ts' -> Some (registerFixapp (ss, ts'))))
+      | Subst (_, r, p_, vts) ->
+            (option_rewrite2 mtff
+               (option_rewritelist (option_rewrite2 mtff mtff))
+               (p_, vts) &~~
+             (fun (p_', vts') -> Some (registerSubst (r, p_', vts'))))
+      | Binding (_, bs_ss_us, env, pat) ->
+          (option_rewrite3 mtfl mtfl mtfl bs_ss_us &~~
+             (fun bs_ss_us' ->
+                Some (registerBinding (bs_ss_us', env, pat))))
+      | Collection (_, k, es) ->
+          (option_mapelements f es &~~
+             (fun es' -> Some (registerCollection (k, es'))))))
 
 and option_mapelement a1 a2 =
   match a1, a2 with
@@ -142,15 +142,15 @@ and option_mapelement a1 a2 =
 
 and option_mapelements f = option_rewritelist (option_mapelement f)
 
-let rec mapterm f = anyway (option_mapterm f)
+let mapterm f = anyway (option_mapterm f)
 
-let rec mapelements f = anyway (option_mapelements f)
+let mapelements f = anyway (option_mapelements f)
 
 let rec foldterm f z t =
   match f (t, z) with
     Some v -> v
   | None ->
-      let rec ff z ts = nj_fold (nj_foldterm f) ts z in
+      let ff z ts = nj_fold (nj_foldterm f) ts z in
       match t with
         App (_, f, a) -> ff z [f; a]
       | Tup (_, _, ts) -> ff z ts
@@ -165,7 +165,7 @@ let rec foldterm f z t =
 and nj_foldterm f (t, z) = foldterm f z t
 
 and foldelements f z es =
-  let rec fe z e =
+  let fe z e =
     match e with
       Element (_, _, t) -> foldterm f z t
     | Segvar (_, ms, v) -> nj_fold (nj_foldterm f) (v :: ms) z
@@ -187,7 +187,7 @@ let rec findterm g t =
           (findterm g p_ |~~
              (fun _ -> findfirst (fun (v, t) -> fx [v; t]) vts))
       | Collection (_, k, es) ->
-          let rec fe =
+          let fe =
             function
               Element (_, _, t) -> findterm g t
             | Segvar (_, ms, v) -> findfirst (findterm g) (v :: ms)
@@ -199,9 +199,9 @@ let rec findterm g t =
   | v -> v
 (* what on earth does findhole do?  Some very clever person must have written this ... *)
 
-let rec findhole g t =
+let findhole g t =
   let rec fh h t =
-    let rec fhs sel build h xs =
+    let fhs sel build h xs =
       let rec fhx a1 a2 =
         match a1, a2 with
           h, [] -> None
@@ -211,8 +211,8 @@ let rec findhole g t =
       in
       fhx h xs
     in
-    let rec selt t = t in
-    let rec buildt _ t = t in
+    let selt t = t in
+    let buildt _ t = t in
     match g h t with
       None ->
         begin match t with
@@ -251,13 +251,13 @@ let rec findhole g t =
                        h <.> (fun vts -> registerSubst (r, p_, vts)))
                     vts))
         | Collection (_, k, es) ->
-            let rec sele =
+            let sele =
               function
                 Element (_, _, t) -> t
               | Segvar (_, ms, v) -> v
             in
             (* not really satisfactory *)
-            let rec builde a1 a2 =
+            let builde a1 a2 =
               match a1, a2 with
                 Element (_, r, _), t -> registerElement (r, t)
               | Segvar (_, ps, _), v -> registerSegvar (ps, v)
@@ -271,12 +271,12 @@ let rec findhole g t =
   in
   fh (fun t -> t) t
 
-let rec searchterm g z t =
+let searchterm g z t =
   match findterm g t with
     Some v -> v
   | None -> z
 
-let rec existsterm g t =
+let existsterm g t =
   opt2bool (findterm (fun t -> if g t then Some true else None) t)
 (* at present we have a very specialised type hierarchy *)
 (* c1 specialisesto c2 if something of class c1 can, by process of unification
@@ -348,10 +348,10 @@ let rec idclass t =
   | Binding _ -> FormulaClass
   | Collection (_, k, _) -> k
 
-let rec isSubstClass t = idclass t = SubstClass
+let isSubstClass t = idclass t = SubstClass
 (* parse that, you bastards *)
 
-let rec replaceelement a1 a2 a3 =
+let replaceelement a1 a2 a3 =
   match a1, a2, a3 with
     Collection (_, c, es), (Element (_, r, _) as el), t ->
       let newel = registerElement (r, t) in
@@ -375,9 +375,9 @@ let rec replaceelement a1 a2 a3 =
            ["replaceelement ("; smltermstring c; ") (";
             smlelementstring termstring el; ") ("; termstring t; ")"])
 
-let rec uniqueVID class__ sortedVIDs extraVIDs vid =
+let uniqueVID class__ sortedVIDs extraVIDs vid =
   let str = string_of_vid vid in
-  let rec stemNstern s =
+  let stemNstern s =
     let n = String.length s in
     let rec f i =
       if i=0 then "", s else
@@ -388,15 +388,15 @@ let rec uniqueVID class__ sortedVIDs extraVIDs vid =
     f n
   in
   let (stem_str, stern_str) = stemNstern str in
-  let rec next_vid n = vid_of_string (stem_str ^ string_of_int (n + 1)) in
+  let next_vid n = vid_of_string (stem_str ^ string_of_int (n + 1)) in
   let rec e_ vid n =
     if member (vid, extraVIDs) || symclass (string_of_vid vid) <> class__ then
       u_ (next_vid n) (n + 1) sortedVIDs
     else vid
-  and u_ a1 a2 a3 =
-    match a1, a2, a3 with
-      vid, n, [] -> e_ vid n
-    | vid, n, vid1 :: vids ->
+  and u_ vid n =
+    function
+      []           -> e_ vid n
+    | vid1 :: vids ->
         if vid < vid1 then e_ vid n
         else if vid = vid1 then
           let vid' = next_vid n in
@@ -417,8 +417,8 @@ let rec uniqueVID class__ sortedVIDs extraVIDs vid =
 
 let mergeVIDs = sortedmerge (<)
 
-let rec earliervar t1 t2 =
-  let rec ordinal =
+let earliervar t1 t2 =
+  let ordinal =
     function
       Id _ -> 0
     | Unknown _ -> 1
@@ -429,17 +429,17 @@ let rec earliervar t1 t2 =
   | Unknown (_, v1, _), Unknown (_, v2, _) -> v1 < v2
   | t1, t2 -> ordinal t1 < ordinal t2
 
-let rec mergevars xs ys = sortedmerge earliervar xs ys
+let mergevars xs ys = sortedmerge earliervar xs ys
 
 (* In order to be able to compare or unify two maps,
    we must have a canonical order (sigh!).
  *)
 
-let rec canonicalsubstmap vts =
-  let rec earliervt (v, _) (v', _) = earliervar v v' in
+let canonicalsubstmap vts =
+  let earliervt (v, _) (v', _) = earliervar v v' in
   sort earliervt vts
 
-let rec isconstantID (_, _, c) =
+let isconstantID (_, _, c) =
   match c with
     ConstantClass -> true
   | NumberClass -> true
@@ -448,7 +448,7 @@ let rec isconstantID (_, _, c) =
   | _ -> false
 (* used (now only in proviso) to tell if we have a 'variable' or a 'constant' *)
 
-let rec isconstant t =
+let isconstant t =
   match debracket t with
     Id s -> isconstantID s
   | Unknown s -> isconstantID s
@@ -481,80 +481,80 @@ let rec isconstant t =
    BAS September 5th 1996 (slightly edited RB 10/ix/96).
  *)
 
-let rec ismetav t =
+let ismetav t =
   match debracket t with
     Id (_, v, c) -> isextensibleID (string_of_vid v)
   | Unknown _ -> true
   | _ -> false
 
-let rec isextensibleId t =
+let isextensibleId t =
   match debracket t with
     Id (_, v, c) -> isextensibleID (string_of_vid v)
   | _ -> false
 
-let rec isId t =
+let isId t =
   match debracket t with
     Id _ -> true
   | _ -> false
 
-let rec isUnknown t =
+let isUnknown t =
   match debracket t with
     Unknown _ -> true
   | _ -> false
 
-let rec isVariable t =
+let isVariable t =
   match debracket t with
     Id (_, _, VariableClass) -> true
   | Unknown (_, _, VariableClass) -> true
   | _ -> false
 
-let rec isleaf t =
+let isleaf t =
   match t with
     Id _ -> true
   | Unknown _ -> true
   | Literal _ -> true
   | _ -> false
 
-let rec isleafelement e =
+let isleafelement e =
   match e with
     Segvar (_, [], v) -> isleaf v
   | Element (_, _, t) -> isleaf t
   | _ -> false
 
-let rec isidentifier t =
+let isidentifier t =
   match t with
     Id _ -> true
   | Unknown _ -> true
   | _ -> false
 
-let rec issegvar e =
+let issegvar e =
   match e with
     Segvar _ -> true
   | _ -> false
 
-let rec isCollection =
+let isCollection =
   function
     Collection _ -> true
   | _ -> false
 
-let rec isemptycollection =
+let isemptycollection =
   function
     Collection (_, _, []) -> true
   | _ -> false
 
-let rec isselectionSubst e =
+let isselectionSubst e =
   match e with
     Element (_, _, Subst (_, false, _, _)) -> true
   | _ -> false
 
-let rec emptycollection k = registerCollection (k, [])
+let emptycollection k = registerCollection (k, [])
 
-let rec element2term =
+let element2term =
   function
     Element (_, _, t) -> Some t
   | _ -> None
 
-let rec collection2term =
+let collection2term =
   function
     Collection (_, _, [el]) -> element2term el
   | _ -> None
@@ -612,13 +612,13 @@ and eqelements eq (e1, e2) =
   | _ ->(* ignore resource numbers *)
      false
 
-let rec sameresource (e1, e2) =
+let sameresource (e1, e2) =
   match e1, e2 with
     Element (_, r1, _), Element (_, r2, _) -> r1 = r2
   | _ -> e1 = e2
 (* we don't analyse Segvars *)
   
-let rec earlierresource e1 e2 =
+let earlierresource e1 e2 =
   match e1, e2 with
     Element (_, r1, _), Element (_, r2, _) ->
       begin match r1, r2 with
@@ -638,15 +638,15 @@ let rec earlierresource e1 e2 =
    work provided that all the substitutions with which it is presented are 
    maximally reduced.
    
-   It occurs to me that we could, now this function only considers 
+   It occurs to me that we could, sinced this function now only considers 
    alpha-conversion, modify it so that it is independent of the order in
    which variables are declared in a binding.  But one step at a time ...
  *)
 let eqalphadebug = ref false
 
-let rec eqalphaterms (t1, t2) =
+let eqalphaterms (t1, t2) =
   let count = ref 0 in
-  let rec nxb _ = incr count; !count in
+  let nxb _ = incr count; !count in
   (* infix at confuses OCaml *)
   let rec (<@>) tb v =
     match tb with
@@ -661,7 +661,7 @@ let rec eqalphaterms (t1, t2) =
       | [], [] -> true
       | _ -> false
     in
-    let rec doublev () =
+    let doublev () =
       match (t1bs <@> t1), (t2bs <@> t2) with
         Some n1, Some n2 -> n1 = n2
       | None, None -> t1 = t2
@@ -723,14 +723,14 @@ let rec eqalphaterms (t1, t2) =
  * whether in *every* unification/instantiation, t occurs in P.
  * RB 20/i/93
  *)
-let rec termoccursin t = fun p_ -> existsterm (curry2 eqterms t) p_
+let termoccursin t = fun p_ -> existsterm (curry2 eqterms t) p_
 (* termvars takes no note of bindings, and makes no interpretation of maps. 
  * No longer cat-eliminated, produces a sorted list of names.
  *)
 
 let tmerge = sortedmerge earliervar
 
-let rec termvars t =
+let termvars t =
   sortunique earliervar
     (foldterm
        (function
@@ -765,7 +765,7 @@ let bmerge = sortedmergeandcombine relorder combinebindings
  * RB 19/xi/97
  *)
 
-let rec varbindings t =
+let varbindings t =
   let rec doit outers inners t = foldterm (f outers inners) [] t
   and f outers inners (t, ps) =
     let binders =
@@ -773,12 +773,12 @@ let rec varbindings t =
       else inners :: outers
     in
     let dothem = List.map (doit outers inners) in
-    let rec v () =
+    let v () =
       if canoccurfreein (VariableClass, idclass t) 
       then Some (bmerge [t, [binders]] ps)
       else Some ps
     in
-    let rec doit2 bs = doit binders (sort earliervar bs) in
+    let doit2 bs = doit binders (sort earliervar bs) in
     let r =
       match t with
         Id _ -> v ()
@@ -813,7 +813,7 @@ let combinemappings (x, vs) (_, vs') = x, tmerge vs vs'
 
 let mmerge = sortedmergeandcombine relorder combinemappings
 
-let rec fmerge (fvs, m) (fvs', m') = tmerge fvs fvs', mmerge m m'
+let fmerge (fvs, m) (fvs', m') = tmerge fvs fvs', mmerge m m'
 
 (* this function finds identifiers that occur free, those of which we have
  * 'lost control', and what binds what otherwise.
@@ -890,16 +890,16 @@ let rec fmerge (fvs, m) (fvs', m') = tmerge fvs fvs', mmerge m m'
   * RB 20/xi/97
   *)
 
-let rec freevarsfrombindings inf notins =
+let freevarsfrombindings inf notins =
   (* we assume that inf is sorted by variable and that each bcs is sorted by bcorder *)
-  let rec vvorder (a, b) (c, d) = earliervar a c || a = c && earliervar b d in
-  let rec closed v bc = List.exists (fun bvs -> member (v, bvs)) bc in
+  let vvorder (a, b) (c, d) = earliervar a c || a = c && earliervar b d in
+  let closed v bc = List.exists (fun bvs -> member (v, bvs)) bc in
   (* step 1 - find all free and semi-free names *)
-  let rec freev (v, bcs) = List.exists (not <.> closed v) bcs in
+  let freev (v, bcs) = List.exists (not <.> closed v) bcs in
   let freevs = (fst <* (freev <| inf)) in
   (* step 2 - find the dominates relation from all the bindings *)
-  let rec domf (v, bcs) =
-    let rec truncate bc =
+  let domf (v, bcs) =
+    let truncate bc =
       takewhile (fun bvs -> not (member (v, bvs))) bc
     in
     let bcs = (truncate <* bcs) in
@@ -913,7 +913,7 @@ let rec freevarsfrombindings inf notins =
   let allbindings =
     nj_fold (uncurry2 (sortedmerge bcorder)) ((snd <* inf)) []
   in
-  let rec allbpairs bc =
+  let allbpairs bc =
     let vpss =
       List.map (fun (us, vs) -> sort vvorder (( >< ) us vs)) (allpairs bc)
     in
@@ -939,21 +939,21 @@ let rec freevarsfrombindings inf notins =
    * bindings where the dominated is simply a variable - but the code here
    * will be more robust when the notion of idclass gets more intricate
    *)
-  let rec badbindings (v, bcs) =
+  let badbindings (v, bcs) =
     let bcs = (not <.> closed v) <| bcs in
     let vclass = idclass v in
-    let rec allbvs bc =
-      let rec filterbv bv =
+    let allbvs bc =
+      let filterbv bv =
         let bvclass = idclass bv in
         bvclass <> vclass && canoccurfreein (bvclass, vclass)
       in
       nj_fold (uncurry2 tmerge) (((fun bvs -> filterbv <| bvs) <* bc)) []
     in
     let bvss = (allbvs <* bcs) in
-    let rec escapers bvs =
+    let escapers bvs =
       (fun bv -> not (member ((bv, v), notins))) <| bvs
     in
-    let rec b2 ((bv1s, bv2s), bads) =
+    let b2 ((bv1s, bv2s), bads) =
       nj_fold (uncurry2 tmerge)
         [escapers (sorteddiff earliervar bv1s bv2s);
          escapers (sorteddiff earliervar bv2s bv1s)]
@@ -981,15 +981,15 @@ let rec freevarsfrombindings inf notins =
 let orderVIDs = sortunique (<)
 
 (* should be vid_of_identifier *)
-let rec vid_of_var =
+let vid_of_var =
   function
     Id (_, v, _) -> v
   | Unknown (_, v, _) -> v
   | t -> raise (Catastrophe_ ["vid_of_var "; argstring t])
 
-let rec termVIDs t = orderVIDs ((vid_of_var <* termvars t))
+let termVIDs t = orderVIDs ((vid_of_var <* termvars t))
 
-let rec conVIDs ts =
+let conVIDs ts =
   nj_fold
     (function
        Id (_, v, c), vs -> v :: vs
@@ -1001,22 +1001,22 @@ let rec conVIDs ts =
 (* could t1 be changed by unification/substitution so that it becomes the same term as t2, 
  * and/or vice-versa? 
  *)
-let rec simterms (t1, t2) =
+let simterms (t1, t2) =
   let rec similar t1subst t1 t2subst t2 =
     let (t1, t2) = debracket t1, debracket t2 in
-    let rec sim t1 t2 = similar t1subst t1 t2subst t2 in
-    let rec sims t1s t2s =
+    let sim t1 t2 = similar t1subst t1 t2subst t2 in
+    let sims t1s t2s =
       try _All (uncurry2 sim) (t1s ||| t2s) with
         Zip_ -> false
     in
-    let rec reverse () = similar t2subst t2 t1subst t1 in
-    let rec lsub () = t1subst && idclass t1 = VariableClass in
-    let rec rsub () = t2subst && idclass t2 = VariableClass in
-    let rec luni () =
+    let reverse () = similar t2subst t2 t1subst t1 in
+    let lsub () = t1subst && idclass t1 = VariableClass in
+    let rsub () = t2subst && idclass t2 = VariableClass in
+    let luni () =
       specialisesto (idclass t1, idclass t2) ||
       t1subst && specialisesto (idclass t1, VariableClass)
     in
-    let rec runi () =
+    let runi () =
       specialisesto (idclass t2, idclass t1) ||
       t2subst && specialisesto (idclass t2, VariableClass)
     in
@@ -1063,7 +1063,7 @@ let rec simterms (t1, t2) =
  * Now augmented with its converse.
  *)
 
-let rec explodeApp curry t =
+let explodeApp curry t =
   let rec unApp t rs =
     match t with
       App (_, l, r) -> unApp (debracket l) (debracket r :: rs)
@@ -1073,12 +1073,12 @@ let rec explodeApp curry t =
     true, (f, [Tup (_, ",", rs)]) -> f, (debracket <* rs)
   | _, res -> res
 
-let rec implodeApp curry (t, args) =
+let implodeApp curry (t, args) =
   if curry then registerApp (t, registerTup (",", args))
   else nj_revfold (fun (r, l) -> registerApp (l, r)) args t
 (* find the various ways in which a term can be a binary operation (sigh) *)
 
-let rec explodebinapp t =
+let explodebinapp t =
   match debracket t with
     App (_, Id (_, v, OperatorClass), Tup (_, ",", [e; f])) ->
       Some (e, string_of_vid v, f)
@@ -1089,7 +1089,7 @@ let rec explodebinapp t =
 
 (* ---------- for export ------------ *)
 
-let rec int2term (i : int) = registerLiteral (Number i)
+let int2term (i : int) = registerLiteral (Number i)
 
 let rec term2int t =
   try
@@ -1110,28 +1110,28 @@ let comma_enbracket t =
     Tup(_, ",", (_::_::_)) -> enbracket t 
   | _                      -> t
 
-let rec explodeCollection =
+let explodeCollection =
   function
     Collection (_, _, es) -> es
   | t -> [registerElement (Nonum, t)]
 
-let rec augmentCollection a1 a2 =
+let augmentCollection a1 a2 =
   match a1, a2 with
     Collection (_, kind, es), els ->
       Some (registerCollection (kind, es @ els))
   | _, _ -> None
 
-let rec decodeSubst =
+let decodeSubst =
   function
     Subst (_, r, p_, vts) -> Some (r, p_, vts)
   | _                     -> None
 
-let rec decodeBinding =
+let decodeBinding =
   function
     Binding (_, info, _, _) -> Some info
   | _                       -> None
 
-let rec decodeBracketed =
+let decodeBracketed =
   function
     Fixapp (_, ["("; ")"], [t]) -> Some t
   | _                           -> None
