@@ -181,13 +181,7 @@ and intstring i = if i < 0 then "-" ^ string_of_int (- i) else string_of_int i
 and outs s =
   List.iter
     (function
-       "[" -> out "\\["
-     | "]" -> out "\\]"
-     | "{" -> out "\\{"
-     | "}" -> out "\\}"
-     | "$" -> out "\\$"
-     | ";" -> out "\\;"
-     | " " -> out8 " "
+       " " -> out8 " "
      | "\n" -> out "\\n"
      | "\"" -> out "\\\""
      | "\\" -> out "\\\\"
