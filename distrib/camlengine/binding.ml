@@ -47,22 +47,35 @@ let bindingdirectives =
   
 let badbindings = Array.make (termkindmax + 1) ([] : term list)
 
-let rec findbadbinding t bbs =
+let findbadbinding t bbs =
   findfirst (fun bb -> match__ false bb t empty) bbs
-  
-let rec addbindingdirective (bs, ss, us, pat as directive) =
-  consolereport ["Binding.addbindingdirective ";
-                 string_of_quadruple (bracketedstring_of_list string_of_term "; ")
-                                 (bracketedstring_of_list string_of_term "; ")
-                                 (bracketedstring_of_list string_of_term "; ")
-                                 string_of_term
-                                 ", "
-                                 directive];
+
+let string_of_bindingdirective =
+  string_of_quadruple (bracketedstring_of_list string_of_term "; ")
+                      (bracketedstring_of_list string_of_term "; ")
+                      (bracketedstring_of_list string_of_term "; ")
+                      string_of_term
+                      ", "
+
+let samedirective (bs1, ss1, us1, pat1 as binding1) (bs2, ss2, us2, pat2 as binding2) =
+  let r = binding1 = binding2 ||
+      (match match__ false pat1 pat2 empty with
+         None         -> false
+       | Some mapping -> List.map (List.map (remapterm mapping)) [bs1; ss1; us1] = [bs2; ss2; us2]
+      )
+  in
+    (* consolereport [(if r then "equal " else "unequal ");
+                     string_of_bindingdirective binding1; " ";
+                     string_of_bindingdirective binding2]; *)
+    r
+    
+let addbindingdirective (bs, ss, us, pat as directive) =
+  (* consolereport ["Binding.addbindingdirective "; string_of_bindingdirective directive]; *)
   let k = termkind pat in
   let bds = Array.get bindingdirectives k in
   let bbs = Array.get badbindings k in
   (* test could be refined, but works for multiple re-loads of same syntax *)
-  if List.exists (fun bd -> bd = directive) bds then ()
+  if List.exists (samedirective directive) bds then ()
   else
     begin
       Array.set bindingdirectives k (directive :: bds);
@@ -80,7 +93,7 @@ let rec addbindingdirective (bs, ss, us, pat as directive) =
            bt (Array.get badbindings k)]
     end
     
-let rec clearbindingdirectives () =
+let clearbindingdirectives () =
   let rec mklist n = if n >= 0 then n :: mklist (n - 1) else [] in
   List.iter
     (fun i ->
@@ -89,7 +102,7 @@ let rec clearbindingdirectives () =
     (mklist termkindmax)
     
 let bindingstructure =
-  let rec lookup env x = _The ((env <@> x))
+  let rec lookup env x = _The (env <@> x)
   and matchterm term (bounds, scopes, unscopes, pat) =
     match match__ false pat term empty with
       None -> None
@@ -104,10 +117,9 @@ let bindingstructure =
         in
         let _E = lookup mapping in
         Some
-          (((_E <* bounds), (_E <* scopes), (_E <* unscopes)), env,
-           pat)
+          ((_E <* bounds, _E <* scopes, _E <* unscopes), env, pat)
   in
-  let rec doit t =
+  let doit t =
     let k = termkind t in
     match findfirst (matchterm t) (Array.get bindingdirectives k) with
       None ->
