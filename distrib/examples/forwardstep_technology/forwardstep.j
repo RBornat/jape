@@ -36,11 +36,11 @@ TACTIC fstep IS
 /* ******************** tactics to check that a rule can be applied forward ******************** */
 
 TACTIC Forward (fpat, action, frule, brule, shape) IS 
-    Forward2 fpat action fpat    frule  brule shape 
+    Forward2    fpat action fpat frule brule shape 
 
 MACRO Forward2 (fpat, action, bpat, frule, brule, shape) IS
     WHEN    (LETHYP fpat action)
             (LETLHS fpat action) /* why not? */
             (LETHYP _Ah (ComplainForwardWrongHyp frule shape _Ah))
-            (ComplainForward bpat frule brule (" of the form %s", shape))
+            (ComplainForward fpat bpat frule brule shape)
 
