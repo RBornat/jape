@@ -287,25 +287,29 @@ public class JapeCharEncoding implements DebugConstants {
     
     private static byte[] outbuf = new byte[bufsize];
     private static PosIntHashMap toAsc;
+
+    private static byte tranchar(char c0) throws IOException {
+        if (toAsc==null) {
+            if (c0>0xFF)
+                throw new IOException("can't decode "+c0+" without encoding");
+            else
+                return (byte)c0;
+        }
+        else {
+            int c = toAsc.get(c0);
+            if (c<0)
+                throw new IOException("can't decode "+c0);
+            else
+                return (byte)c;
+        }
+        
+    }
     
     public static void output(String s) throws IOException {
         int len = s.length();
         int bufi = 0;
         for (int i=0; i<len; i++) {
-            char c0 = s.charAt(i);
-            if (toAsc==null) {
-                if (c0>0xFF)
-                    throw new IOException("can't decode "+c0+" without encoding");
-                else
-                    outbuf[bufi++] = (byte)c0;
-            }
-            else {
-                int c = toAsc.get(c0);
-                if (c<0)
-                    throw new IOException("can't decode "+c0);
-                else
-                    outbuf[bufi++] = (byte)c;
-            }
+            outbuf[bufi++] = tranchar(s.charAt(i));
             if (bufi==bufsize) {
                 out.write(outbuf, 0, bufi);
                 if (encoding_tracing)
@@ -320,6 +324,16 @@ public class JapeCharEncoding implements DebugConstants {
         }
     }
 
+    public static byte[] tranString(String s) throws IOException {
+        int len = s.length();
+        byte[] outbuf = new byte[len];
+
+        for (int i=0; i<len; i++)
+            outbuf[i] = tranchar(s.charAt(i));
+
+        return outbuf;
+    }
+    
     private static void logchars(int id, byte[] buf, int off, int len) {
         Logger.log.println("JapeCharEncoding.output sends ("+id+")***");
         for (int i=0; i<len; i++) {
