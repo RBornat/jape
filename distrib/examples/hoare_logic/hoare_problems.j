@@ -50,6 +50,17 @@ CONJECTUREPANEL "Verification conditions" IS
   THEOREM IS
     2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧¬(n mod i≠0)→
         2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧n mod i=0
+        
+  THEOREM IS
+    i=Ki∧j=Kj∧i≥0→i≥0∧0+i×j=Ki×Kj
+  THEOREM IS
+    i≥0∧k+i×j=Ki×Kj∧i≠0→i-1≥0∧k+j+(i-1)×j=Ki×Kj
+  THEOREM IS
+    i≥0∧k+i×j=Ki×Kj∧i≠0→i>0
+  THEOREM IS
+    i≥0∧k+i×j=Ki×Kj∧i≠0∧i=Km→i-1<Km
+  THEOREM IS
+    i≥0∧k+i×j=Ki×Kj∧¬(i≠0)→k=Ki×Kj
 END
 
 CONJECTUREPANEL "Lemmas" IS
@@ -57,6 +68,8 @@ CONJECTUREPANEL "Lemmas" IS
     A→A
   THEOREM IS
     A≤B, A≠B ⊢ A<B
+  THEOREM IS
+    A≥B, A≠B ⊢ A>B
   THEOREM WHERE x NOTIN A, B IS
     ∀x.(A≤x∧x<B→P(x)), P(B) ⊢ ∀x.(A≤x∧x<B+1→P(x))
 END
