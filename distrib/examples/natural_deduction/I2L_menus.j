@@ -154,108 +154,25 @@ TACTIC SingleorNoarg (rule, stepname) IS
 
 /* ******************** tactics for rules that only work backwards ******************** */
 
-TACTIC BackwardOnlyA (pattern, action, stepname, shape) IS BackwardOnly pattern action stepname shape "only makes sense working backwards"
+TACTIC BackwardOnlyA (pattern, action, stepname, shape) 
+            IS BackwardOnly pattern action stepname shape "only makes sense working backwards"
 
-TACTIC BackwardOnlyB (pattern, action, stepname, shape) IS BackwardOnly pattern action stepname shape "doesn't work backwards in I2L Jape yet"
+TACTIC BackwardOnlyB (pattern, action, stepname, shape) 
+            IS BackwardOnly pattern action stepname shape "doesn't work backwards in I2L Jape yet"
 
-TACTIC BackwardOnlyC (pattern, action, stepname, shape) IS BackwardOnly pattern action stepname shape "can also be used forward -- see the Forward menu"
-
-MACRO BackwardOnly (pattern, action, stepname, shape, explain) IS
-    WHEN    (LETGOAL pattern 
-            (WHEN   (LETHYP _Ah (BackwardOnly2 stepname action explain _Ah))
-                (WITHSELECTIONS action)
-            )
-        )
-        (LETGOAL _A (FailBackwardWrongGoal stepname shape))
-        (ComplainBackward pattern stepname shape)
-
-TACTIC BackwardOnly2 (stepname, action, explain, _Ah) IS /* oh for a binding mechanism other than tactic application ... */
-    WHEN    (LETCONC _Ac (BackwardOnly3 stepname action explain _Ah _Ac ", selecting"))
-            (LETRHS _Ac  /* can't fail */(BackwardOnly3 stepname action explain _Ah _Ac " from"))
-
-TACTIC BackwardOnly3 (stepname, action, explain, _Ah, _Ac, stuff) IS /* Oh for tactic nesting ... */
-    ALERT   ("You asked for a backward step with the %s rule%s the conclusion %s, \
-             \but you also selected the antecedent %s. \
-             \\n\nThe %s rule %s. \
-             \ \n\nDo you want to go on with the backward step from %s -- ignoring %s?", 
-            stepname, stuff,  _Ac, _Ah, stepname, explain, _Ac, _Ah)
-            ("Backward", action) STOP
-
-TACTIC FailBackwardWrongGoal (stepname, shape) IS
-    WHEN    (LETCONC _Ac (FailBackwardWrongGoal2 stepname shape _Ac "You selected"))
-            (LETRHS _Ac (FailBackwardWrongGoal2 stepname shape _Ac "The current conclusion is"))
-
-TACTIC FailBackwardWrongGoal2 (stepname, shape, Pc, stuff) IS   
-    ALERT   ("To make a backward step with %s, the conclusion must be of the form %s. \
-            \\n%s %s, which isn't of that form.", stepname, shape, stuff, Pc)
-            ("OK", STOP) ("Huh?", SEQ Explainantecedentandconclusionwords STOP )
+TACTIC BackwardOnlyC (pattern, action, stepname, shape) 
+            IS BackwardOnly pattern action stepname shape "can also be used forward -- see the Forward menu"
 
 /* ******************** tactic for rules that allow a hypothesis selection, but must have the right goal ******************** */
 
 TACTIC BackwardWithHyp (gpattern, action, stepname, shape) IS
     WHEN    (LETGOAL gpattern (WITHSELECTIONS action))
-                (LETGOAL _A (FailBackwardWrongGoal stepname shape))
-                (SEQ 
-                    (ComplainBackwardDeadConc gpattern stepname shape)
-                    (ComplainBackwardBadGoal gpattern stepname shape)
+                (LETGOAL _A (ComplainBackwardWrongGoal stepname shape))
+                (ALT 
+                    (ComplainBackwardConc gpattern stepname shape)
+                    (ComplainBackwardGoal gpattern stepname shape)
                     (Fail   ("Error in I2L Jape (no error message in BackwardWithHyp [%t] %s [%t]). Tell Richard.",gpattern,stepname,shape))
                 )
-
-/* ******************** tactics to deal with bad backward selections ******************** */
-
-MACRO ComplainBackward (pattern, stepname, shape) IS
-    ALT 
-        (ComplainBackwardDeadConc pattern stepname shape)
-        (ComplainBackwardHypSel pattern stepname shape)
-        (ComplainBackwardBadGoal pattern stepname shape)
-        (Fail   ("Error in I2L Jape (no error message in ComplainBackward [%t] %s [%t]). Tell Richard.",pattern,stepname,shape))
-        
-MACRO ComplainBackwardDeadConc(pattern, stepname, shape) IS
-    WHEN    (LETCONC pattern /* dead conclusion, right shape */
-                (LETCONC _Ac
-                    (ALERT  ("You selected the already-proved conclusion %t.\
-                                \\nTo make a backward step with %s, select an unproved conclusion.", _Ac, stepname)
-                                ("OK", STOP) ("Huh?", Explainunprovedconclusionwords)
-                    )
-                )
-            )
-            (LETCONC _Ac /* dead conclusion, wrong shape */
-                (FailBackwardWrongGoal stepname shape)
-            )
-                
-MACRO ComplainBackwardHypSel(pattern, stepname, shape) IS
-    (LETHYP _Ah
-        (ALERT  ("You selected the antecedent %t.\n\
-                    \To make a backward %s step, select an unproved conclusion of the \
-                    \form %s, and don't select an antecedent.", _Ah, stepname, shape)
-                    ("OK", STOP) ("Huh?", Explainantecedentandconclusionwords)
-        )
-    )
-    (LETHYPS _Ahs
-        (ALERT  ("You selected the antecedents %l.\n\
-                    \To make a backward %s step, select an unproved conclusion of the \
-                    \form %s, and don't select any antecedents.", (_Ahs, ", ", " and "), stepname, shape)
-                    ("OK", STOP) ("Huh?", Explainantecedentandconclusionwords)
-        )
-    )
-
-MACRO ComplainBackwardBadGoal(pattern, stepname, shape) IS
-    (LETOPENSUBGOAL G _Ag
-        (Fail   ("Error in I2L Jape (open subgoal in ComplainBackward [%t] %s [%t]). Tell Richard.",pattern,stepname,shape))
-    )
-    (LETOPENSUBGOALS _Ags
-        (ALERT  ("There is more than one unproved conclusion. Please select one to show \
-                    \Jape where to apply the %s step.", stepname)
-                    ("OK", STOP) 
-                    ("Huh?", Fail   ("The unproved conclusions (formulae below a line of dots) in your proof \
-                                        \are %l.\nSelect one of them to tell Jape where to make the %s step.",
-                                        (_Ags,", "," and "), stepname)
-                    )
-        )
-    )
-    (ALERT "The proof is finished -- there are no unproved conclusions left."
-                ("OK", STOP) ("Huh?", Explainunprovedconclusionwords)
-    )
 
 /* ******************** special one for hyp ******************** */
 
@@ -319,13 +236,13 @@ MENU Backward IS
     ENTRY   "→ intro (makes assumption)"    IS BackwardOnlyA (QUOTE (_A→_B)) 
                                                     (Noarg "→ intro" "→ intro") "→ intro" "A→B"
     ENTRY   "∧ intro"                       IS BackwardOnlyC (QUOTE (_A∧_B)) 
-                                                    (Noarg "∧ intro backward" "∧ intro") "∧ intro"  "A∧B"
+                                                    (Noarg "∧ intro backward" "∧ intro") "∧ intro" "A∧B"
     ENTRY   "∨ intro (preserving left)"     IS BackwardOnlyC (QUOTE (_A∨_B)) 
                                                     (Noarg (LAYOUT "∨ intro" (0) "∨ intro(L)" fstep) "∨ intro") "∨ intro" "A∨B"
     ENTRY   "∨ intro (preserving right)"    IS BackwardOnlyC (QUOTE (_A∨_B)) 
                                                     (Noarg (LAYOUT "∨ intro" (0) "∨ intro(R)" fstep) "∨ intro") "∨ intro" "A∨B"
-    ENTRY   "¬ intro (makes assumption A)"  IS BackwardOnlyA 
-                                                    (QUOTE (¬_A)) (WITHARGSEL "¬ intro") "¬ intro" "¬A" 
+    ENTRY   "¬ intro (makes assumption A)"  IS BackwardOnlyA (QUOTE (¬_A)) 
+                                                    (WITHARGSEL "¬ intro") "¬ intro" "¬A" 
     ENTRY   "∀ intro (introduces variable)" IS BackwardOnlyA (QUOTE (∀_x._A)) 
                                                     (Noarg "∀ intro" "∀ intro") "∀ intro" "∀x.A" 
     ENTRY   "∃ intro (needs variable)"      "∃ intro backward"
@@ -345,8 +262,11 @@ MENU Backward IS
                 (BackwardWithHyp ⊥ (Noarg (SEQ ("¬ elim") fstep (WITHHYPSEL (hyp (¬_A)))) "¬ elim") "¬ elim" "⊥")
             )
             (BackwardOnlyC ⊥ (SEQ (SingleorNoarg "¬ elim" "¬ elim") fstep fstep) "¬ elim" "⊥")
-    ENTRY   "contra (constructive)"             IS BackwardOnlyA (QUOTE _A) (Noarg "contra (constructive)" "contra (constructive)") "contra (constructive)" "A"
-    ENTRY   "contra (classical; makes assumption ¬A)"   IS BackwardOnlyA (QUOTE _A) (Noarg "contra (classical)" "contra (classical)") "contra (classical)" "A"
+    ENTRY   "contra (constructive)"         IS BackwardOnlyA (QUOTE _A) 
+                                                    (Noarg "contra (constructive)" "contra (constructive)") "contra (constructive)" "A"
+    ENTRY   "contra (classical; makes assumption ¬A)"   
+                                            IS BackwardOnlyA (QUOTE _A) 
+                                                    (Noarg "contra (classical)" "contra (classical)") "contra (classical)" "A"
 
     SEPARATOR
     ENTRY   hyp     IS Noarg hyptac hyp
@@ -529,7 +449,7 @@ TACTIC BadForward3(sel, stepname) IS
                 (ALERT  ("There is more than one unproved conclusion (formula below a line of dots) \
                         \associated with the antecedent %t. \
                         \\nSelect one of them (%l) before you make a forward step.", sel, (_Ags, ", ", " or "))
-                        ("OK", SKIP) ("Huh?", ExplainHypMulti stepname sel)
+                        ("OK", SKIP) ("Huh?", ExplainHypMulti stepname sel _Ags)
                 )
             )
             (LETOPENSUBGOAL G _Ag
@@ -658,101 +578,20 @@ MACRO "targeted forward single"(action, stepname, path, selhyp, ogoal) IS
 
 /* ******************** explanations ******************** */
 
-TACTIC ExplainHypMulti (stepname, Ph) IS
-    WHEN    (LETOPENSUBGOALS _Aandgs
-            (ALERT  ("The lines of dots in a proof-in-progress mark places where there is still work to be done. \
-                        \The formula just below a line of dots is an unproved conclusion (notice that those formulae \
-                        \don't have reasons next to them). Your job is to show that each unproved conclusion follows \
-                        \from the line(s) above it. \
-                        \\n\nYou selected the antecedent %t, and the unproved conclusions which can use that \
-                        \antecedent are %l. (Conclusions which can't make use of the antecedent are 'greyed out'.)\
-                        \\n\nIf you select one of those unproved conclusions AS WELL AS selecting %t, then Jape can make a \
-                        \forward step and put the new formulae that it generates just before the conclusion you selected.", 
-                        Ph, (_Aandgs, ", ", " and "), Ph)
-                    ("OK", STOP) 
-                    ("Huh?", SEQ Explainantecedentandconclusionwords STOP)))
-                
-TACTIC ExplainDeadHyp (stepname, Ph) IS
-    ALERT   ("When you select an antecedent, Jape shows the unproved conclusions that can make use of it \
-            \in black, and any other conclusions – proved or unproved – in grey. You can see that there are no \
-            \non-grey unproved conclusions in the proof, after you selected %t. \
-            \\n\n(If there are any unproved conclusions in the proof, they are greyed-out either because \
-            \they are above %t, or because they are inside a box that %t is outside.)",
-            Ph, Ph, Ph)
-        ("OK", STOP) 
-        ("Huh?", SEQ Explainunprovedconclusionwords STOP)
-
-TACTIC ExplainClicks IS
-    Fail    ("Click on a formula to select it.\n\n\
-         \The red selection marking shows you how you can work with the selected formula.\n\
-         \You can make a forward step from a selection open at the bottom (a downward selection).\n\
-         \You can make a backward step from a selection open at the top (an upward selection).\n\n\
-         \If you want to control where I2L Jape writes the result of a forward step, make both a downward and \
-         \an upward selection – the result will be written just before the upward selection, above the line of three dots."
-        )
-
-TACTIC Explainantecedentandconclusionwords IS
-    Fail    ("When you select an antecedent, you get a downward-pointing selection (a box round the \
-        \formula, open at the bottom). You work forward from an antecedent selection.\
-        \\n\nUnproved conclusion formulae are written with three dots above them. \
-        \When you select an unproved conclusion, you get \
-        \an upward-pointing selection (a box round the formula, open at the top). You work \
-        \backwards from a conclusion selection, or it can be a target for a forward step.\
-        \\n\nSome formulae can be used as antecedent or as unproved conclusion. In those cases \
-        \the selection box has a dotted horizontal line. Click in the bottom half of the formula to make an \
-        \antecedent selection, in the top half for a conclusion selection. or antecedent.\
-        \\n\nAny formula can be used as an antecedent if there are relevant unproved conclusions below it \
-        \in the proof.")
-
-TACTIC Explainunprovedconclusionwords IS
-    Fail    "Lines of dots mark places where there is still work to be done. \
-        \The formula just below a line of dots is an unproved conclusion. \
-        \Your job is to show that each unproved conclusion follows \
-        \from the line(s) above it.\
-        \\nWhen there are no unproved conclusions left, the proof is finished."
-
-TACTIC ExplainDeadConc (stepname, Pc, stuff) IS
-    Fail    ("In making a proof, you normally select unproved conclusions – formulae just below a line of dots, \
-        \with no proof-step reason written next to them. You are allowed to select proved conclusions, however, \
-        \because sometimes you want to backtrack or prune the proof.  \
-        \\n\nThe conclusion %t which you selected is already proved – it has a proof-step reason written next to \
-        \it – so you can't make a forward step towards it, or a backward step from it.%s", Pc, stuff)
-                
-TACTIC ExplainMulti (stepname, stuff) IS 
-    Fail    ("The lines of dots in a proof-in-progress mark places where there is still work to be done. \
-        \The formula just below a line of dots is an unproved conclusion (notice that those formulae \
-        \don't have reasons next to them). \
-        \In this proof there's more than one line of dots, which means more than one \
-        \unproved conclusion.\
-        \Your job is to show that each unproved conclusion follows from the line(s) above it. \
-        \\n\nJape puts the results of a forward step just before a line of dots; it puts the results of a \
-        \backward step just after a line of dots. If there is more than one line of dots in the proof, \
-        \you must tell it where to do its work.\
-        \\n\nSo if you want to make a forward step in this proof, you must select (click on) \
-        \an unproved conclusion AS WELL AS an antecedent. If you want to make a backward step,\
-        \ you only need to select an unproved conclusion.%s", stuff
-        )
-
 TACTIC Explainvariables IS
-ALERT   "Variables are introduced into a proof by ∀ intro and/or ∃ elim. They appear at the head of a box \
+ALERT   "Variables are introduced into a proof by  intro and/or  elim. They appear at the head of a box \
         \as a special pseudo-assumption actual i (this is Jape's version of scope-boxing; it uses variable \
         \names i, i1, and so on as appropriate). \
-        \\n\nYou have to select one of these pseudo-assumptions each time you make a ∀ elim or ∃ intro step.\
+        \\n\nYou have to select one of these pseudo-assumptions each time you make a  elim or  intro step.\
         \\n\nThe box enclosing actual ... is the scope of the variable. If there are unknowns in your proof, \
         \Jape will protect the scope box \
         \by putting a proviso such as i NOTIN _B in the Provisos pane .  If you try to \
         \break the scope using hyp or Unify then Jape will stop you, quoting the proviso."
-            
+
 TACTIC Explainprovisos IS
     ALERT   "The proviso i NOTIN _B (for example) appears when the unknown _B occurs both inside \
             \AND outside variable i's scope box. It means that nothing unified with _B can contain \
             \the variable i, because that would produce an occurrence of i outside its scope box."
-
-TACTIC CrashHypDeadConc IS
-    Fail "I2L Jape error (hyp and dead conc selected). Tell Richard"
-    
-TACTIC CrashNoHypNoConcs IS
-    Fail "I2L Jape error (no sel no concs). Tell Richard."
 
 /* ******************** we don't like some of the automatic alerts ******************** */
 
