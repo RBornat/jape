@@ -44,9 +44,11 @@ module type Funs =
     val resetsyntaxandturnstiles : unit -> unit
 
     val seqstring : seq -> string
+    val seqstring_invisbracketed : bool -> seq -> string
     val smlseqstring : seq -> string
     val elementseqstring : seq -> string
     val catelim_seqstring : seq -> string list -> string list
+    val catelim_seqstring_invisbracketed : bool -> seq -> string list -> string list
     val catelim_smlseqstring : seq -> string list -> string list
     val catelim_elementseqstring : seq -> string list -> string list
     val alwaysshowturnstile : bool ref
@@ -326,6 +328,7 @@ module Funs:  Funs with type seq = Type.seq
             if isemptycollection hs then tf gs ss else default ()
         | _ -> default ()
     let catelim_seqstring = sqs (catelim_collectionstring ", ")
+    let catelim_seqstring_invisbracketed b = sqs (catelim_collectionstring_invisbracketed b ", ")
     let catelim_smlseqstring = sqs catelim_smltermstring
     let catelim_elementseqstring =
       sqs
@@ -335,6 +338,7 @@ module Funs:  Funs with type seq = Type.seq
                ", " es
          | t -> catelim_termstring t)
     let seqstring = catelim2stringfn catelim_seqstring
+    let seqstring_invisbracketed = catelim2stringfn <.> catelim_seqstring_invisbracketed
     let smlseqstring = catelim2stringfn catelim_smlseqstring
     let elementseqstring = catelim2stringfn catelim_elementseqstring
 
