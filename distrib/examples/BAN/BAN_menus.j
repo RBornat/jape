@@ -32,7 +32,7 @@ TACTIC ForwardOrBackward (Forward, n, Rule) IS
    
 MENU "Š"
 	SEPARATOR
-	ENTRY "... PŠX ... Û PŠ(...,X,...)"
+	ENTRY "PŠX,  PŠY,  ... Û PŠ(X,Y,...)"
 	ENTRY "PŠ(...,X,...) Û PŠX"				IS ForwardOrBackward ForwardCut 0 "PŠ(...,X,...) Û PŠX"
 	ENTRY "PŠQŠ(...,X,...) Û PŠQŠX"			IS ForwardOrBackward ForwardCut 0 "PŠQŠ(...,X,...) Û PŠQŠX"
 	SEPARATOR
