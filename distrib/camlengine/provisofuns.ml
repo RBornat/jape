@@ -43,21 +43,24 @@ open Term.Store
 open Term.Termstring
 open Term.Type
 
+
 let baseseqsides cxt =
   match getexterior cxt with
     Exterior((_,Seq(_,left,right)),_,fvi) -> 
       (left,right,
-       (match fvi with Some(_,_,_,bhfvs,bcfvs) -> Some(bhfvs,bcfvs)
-        | None                                 -> None
+       (match fvi with Some{bhfvs=bhfvs;bcfvs=bcfvs} -> Some(bhfvs,bcfvs)
+        | None                                       -> None
        )
       )
   | NoExterior -> raise (Catastrophe_ ["baseseqsides"])
    
+
 let vv = bracketedliststring visprovisostring " AND "
 (* just turn a proviso into a list of simpler provisos 
    (function designed for folding over proviso list) 
  *)
 (* oh, and by the way, uncurried constructors and fold in SML are a PAIN. RB *)
+
 let rec simplifyProviso facts (p, cats) =
   let parent = provisoparent p in
   let vis = provisovisible p in
@@ -144,6 +147,7 @@ let rec simplifyProviso facts (p, cats) =
     NotinProviso (v, t) -> foldterm (np v) cats t
   | NotoneofProviso n -> nop n
   | _ -> p :: cats
+
 let rec deferrable cxt (t1, t2) =
   simterms (t1, t2) &&
   (match t1, t2 with
@@ -161,11 +165,12 @@ let rec deferrable cxt (t1, t2) =
  * where appropriate - but be sure that you don't eliminate two mutually 
  * equivalent provisos (e.g. at this point don't use NOTINs to remove other NOTINs).
  *)
+
 let rec _PROVISOq facts p =
   match p with
-    FreshProviso _ ->(* can occur in a derived rule *)  Maybe
+    FreshProviso _      -> (* can occur in a derived rule *) Maybe
   | NotinProviso (v, t) -> notq (varoccursinq facts v t)
-  | NotoneofProviso _ -> Maybe
+  | NotoneofProviso _   -> Maybe
   | UnifiesProviso (_P1, _P2) ->
       if eqterms (_P1, _P2) then Yes
       else if not (deferrable facts (_P1, _P2)) then No
@@ -175,6 +180,7 @@ let rec _PROVISOq facts p =
 (* the list of names must be sorted, which it will be if it comes out of termvars *)
 (* because of hidden provisos, this thing now gets a visproviso list *)
 (* iso means isolated, I think; so isot is an isolated term, isop an isolated proviso *)
+
 let rec groundedprovisos names provisos =
   let rec isot t =
     let vs = ismetav <| termvars t in
@@ -232,6 +238,7 @@ let rec groundedprovisos names provisos =
        bracketedliststring visprovisostring " AND " provisos; " => ";
        optionstring vv r];
   r
+
 let rec expandFreshProviso b (h, g, r, v) left right ps =
   nj_fold
     (function
@@ -241,6 +248,7 @@ let rec expandFreshProviso b (h, g, r, v) left right ps =
 exception Verifyproviso_ of proviso
 
 (* take out the first occurrence *)
+
 let rec (--) xs ys =
   match (xs, ys) with
     x :: xs, y -> if x = y then xs else x :: (xs -- y)
@@ -250,6 +258,7 @@ let rec (--) xs ys =
  * If op-- is the function above, p is deleted from the set qs before we start,
  * but there are other things we might want to do ...
  *)
+
 let rec checker cxt (--) ps qs =
   let rec ch a1 a2 =
     match a1, a2 with
@@ -282,6 +291,7 @@ let rec checker cxt (--) ps qs =
  * So now I use the restrictive version in verifyprovisos.
  * RB 20/i/00
  *)
+
 
 let rec verifyprovisos cxt =
   try
@@ -357,22 +367,22 @@ let rec verifyprovisos cxt =
           else mkvisproviso (true, FreshProviso f) :: ps
         in
         if knownproofvar (facts pros cxt) v then def () (* no need for it at all *)
-        else if r then
+        else 
+        if r then
           (* IMPFRESH - check if news are needed *)
-          let news' =
-            try checker cxt mm news pros with Verifyproviso_ _ -> news
+          let news' = try checker cxt mm news pros 
+                      with Verifyproviso_ _ -> news
           in
           if null news' then
-           (* we have the lot: just say FRESH *)
-           push (h, g, false, v) (def ())
+            (* we have the lot: just say FRESH *)
+            push (h, g, false, v) (def ())
           else
-           (* something missing: use IMPFRESH *)
-           push f pros
-        else
-         (* FRESH *)
-         push f (def ()) 
+            (* something missing: use IMPFRESH *)
+            push f pros
+        else (* FRESH *)
+          (* take out copies of the new ones *)
+          push f (def ()) 
       in
-      (* take out copies of the new ones *)
       nj_fold dofresh fresh pros
     in
     if !provisodebug then
@@ -392,10 +402,12 @@ let rec verifyprovisos cxt =
         consolereport
           ["proviso "; provisostring p; " failed in verifyprovisos"];
       raise (Verifyproviso_ p)
+
 let rec checkprovisos cxt =
   try Some (verifyprovisos cxt) with
     Verifyproviso_ _ -> None
 (* this is for renaming provisos when a rule/theorem is instantiated *)
+
 let rec remapproviso env p =
   let _T = remapterm env in
   match p with
@@ -438,4 +450,5 @@ fun draganddropmapping ps =
 *)
  
 (* for export *)
+
 let deferrable cxt = deferrable (facts (provisos cxt) cxt)

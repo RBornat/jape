@@ -37,12 +37,15 @@ open Term.Termstring
 open Term.Type
 
 let factsdebug = ref false
+
 type facts = proviso list * exterior
+
 let factsstring =
-  pairstring (bracketedliststring provisostring " AND ") exteriorstring
-    ","
+  pairstring (bracketedliststring provisostring " AND ") exteriorstring ","
+
 let rec facts provisos cxt =
   (provisoactual <* provisos), getexterior cxt
+
 let rec expandfacts (oldps, ext) ps = ps @ oldps, ext
 (* the names of the functions are intended to indicate that the function tells us
    only when a fact is definitely known to be true.
@@ -53,6 +56,7 @@ let rec expandfacts (oldps, ext) ps = ps @ oldps, ext
 (* Strictly, a NOTIN b doesn't imply b NOTIN a, but since a is always a variable in
    our system, a NOTIN b means also b NOTIN a.
  *)
+
 let rec knownNOTIN (ps, _) (v, t) =
   List.exists
     (function
@@ -69,17 +73,19 @@ let rec knownproofvar facts v =
          (fun u -> knownNOTIN facts (v, u))
          (isUnknown <| rewinf_vars ri)
   | _ -> false
+
 (* This function is deciding whether a variable v can be made equal to some term t
    by unification and/or instatiation of parameters.  It is used in simplifySubst.
    
    Provisos, read as facts that we can depend on, make it much more possible to
    distinguish what is and isn't equal in substitutions.
-   If we know that x is NOTIN v or v is NOTIN x then v and x can't be equal.
+   If we know that x is NOTIN v or v is NOTIN x then v and x can't be made equal.
    
    The new 'class' feature of names is more help still.  
    Information about bindings, stored in the Exterior component of the context,
    is yet further help.
  *)
+
 let rec showvarsq facts v1 v2 name r =
   if !factsdebug then
     begin
@@ -90,7 +96,11 @@ let rec showvarsq facts v1 v2 name r =
          " => "; answerstring r]
     end;
   r
-(* this function takes no notice of NOTIN and idclass, but it does look at FRESH ... boy, I hope I get this right! *)
+
+(* this function takes no notice of NOTIN and idclass, but it does look at FRESH ... 
+   boy, I hope I get this right! 
+ *)
+
 let rec exterioreqvarsq facts v1 v2 =
   let v1 = debracket v1 in
   let v2 = debracket v2 in
@@ -104,7 +114,7 @@ let rec exterioreqvarsq facts v1 v2 =
           then No
           else
             begin match facts with
-              ps, Exterior (_, _, Some (_, fvs, vmap, bhfvs, bcfvs)) ->
+              ps, Exterior (_, _, Some {fvs=fvs; vmap=vmap; bhfvs=bhfvs; bcfvs=bcfvs}) ->
                 let rec checkfresh () =
                   if List.exists
                        (function
@@ -139,7 +149,9 @@ let rec exterioreqvarsq facts v1 v2 =
       | _ -> Maybe
   in
   showvarsq facts v1 v2 "exterioreqvarsq" r
+
 (* this function uses NOTIN and idclass *)
+
 let rec substeqvarsq facts v1 v2 =
   let v1 = debracket v1 in
   let v2 = debracket v2 in
@@ -155,6 +167,7 @@ let rec substeqvarsq facts v1 v2 =
     else exterioreqvarsq facts v1 v2
   in
   showvarsq facts v1 v2 "substeqvarsq" r
+
 let rec eqlistsq a1 a2 a3 =
   match a1, a2, a3 with
     _Q, [], [] -> Yes
@@ -178,6 +191,7 @@ let rec eqlistsq a1 a2 a3 =
       
       And it *isn't* uncurried any more.  Hooray!
     *)
+
 let rec unifyeqtermsq facts t1 t2 =
   let (t1, t2) = debracket t1, debracket t2 in
   match t1, t2 with
@@ -230,7 +244,9 @@ let rec unifyeqtermsq facts t1 t2 =
   | t1, Subst _ -> unifyeqtermsq facts t2 t1
   | _ ->(* but otherwise I'm sure, I think *)
      No
+
 and unifyeqtlistsq facts = eqlistsq (unifyeqtermsq facts)
+
 and unifyeqmapsq facts vts vts' =
   eqlistsq
     (fun (v, t) (v', t') ->

@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -23,6 +23,7 @@
 module type Rew =
   sig
     type cxt and term and vid and resnum and element 
+
     and seq and proviso and rawinf and rewinf
     
     (* parameters for rew_... are dosubst, cxt, whatsit *)
@@ -57,7 +58,7 @@ module type Rew =
   end
 
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -79,12 +80,12 @@ module type Rew =
 *)
 
 module Rew : Rew with type cxt = Context.Cxt.cxt 
-				  and type term = Term.Funs.term 
-				  and type seq = Sequent.Type.seq
-				  and type rewinf = Rewinf.rewinf
-				  and type proviso = Proviso.proviso
-				  and type resnum = Term.Type.resnum
-				  and type vid = Term.Type.vid
+                  and type term = Term.Funs.term 
+                  and type seq = Sequent.Type.seq
+                  and type rewinf = Rewinf.rewinf
+                  and type proviso = Proviso.proviso
+                  and type resnum = Term.Type.resnum
+                  and type vid = Term.Type.vid
                   and type element = Term.Type.element
 =
   struct
@@ -120,8 +121,10 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
      and vid = Term.Type.vid
      and element = Term.Type.element
     
+
     let rewinfstring = Rewinf.rewinfstring
     
+
     let rewritedebug = ref false
     (* the rewrite functions rewrite a term/sequent/proviso, 
        returning Some .. if it rewrites, None if it doesn't.  
@@ -145,13 +148,17 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
      *)
     
     type rawinf = term list * vid list * int list * int option
+
     let nullrawinf = [], [], [], None
+
     let mkrawinf raw = raw
+
     let rec raw2rew_ (vars, uVIDs, badres, psig) =
       mkrewinf
         (sortunique earliervar vars, sortunique (<) uVIDs,
          sortunique (<) badres, psig)
     (* these functions designed to be folded *)
+
     let rec rawinfTerm n (t, stuff) =
       let rec f (t, (vars, uVIDs, badres, psig as z)) =
         match t with
@@ -173,13 +180,16 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
         | _ -> None
       in
       foldterm f stuff t
+
     let rec rawinfresnum (r, (vars, uVIDs, badres, psig as raw)) =
       match r with
         ResUnknown i -> vars, uVIDs, i :: badres, psig
       | _ -> raw
+
     let rec rawinfSeq n =
       fun (Seq (st, _Hs, _Gs), stuff) ->
         let _RIT = rawinfTerm n in _RIT (_Hs, _RIT (_Gs, stuff))
+
     let rec rawinfProviso n (p, stuff) =
       let _RIT = rawinfTerm n in
       match p with
@@ -187,6 +197,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
       | NotinProviso (v, p) -> _RIT (v, _RIT (p, stuff))
       | NotoneofProviso (vs, pat, _C) -> nj_fold _RIT vs (_RIT (_C, stuff))
       | UnifiesProviso (p1, p2) -> _RIT (p1, _RIT (p2, stuff))
+
     let rec rawinfElements n (es, stuff) =
       let rec _RE (e, stuff) =
         match e with
@@ -195,6 +206,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
         | Element (_, r, t) -> rawinfresnum (r, rawinfTerm n (t, stuff))
       in
       nj_fold _RE es stuff
+
     let rec rew_worthwhile subst cxt ri =
       (subst &&
        (match rewinf_psig ri, getprovisosig cxt with
@@ -205,25 +217,32 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
       List.exists (opt2bool <.> (fun i -> (resmap cxt <@> i)))
         (rewinf_badres ri)
     (* this is almost f &~ (Some o yes), but types get in the way ... *)
+
     let rec rew_ f x yes =
       match f x with
         Some x' -> Some (yes x')
       | _ -> None
     (* this is Some o anyway f *)
+
     let rec rew_yes f t =
       match f t with
         None -> Some t
       | some -> some
+
     let rec rew_2 f x g y yes =
       (option_rewrite2 f g &~ (fSome <.> yes)) (x, y)
+
     let rec rew_Pair = fun _R -> option_rewrite2 _R _R
     (* there must be a better way ... *)
+
     let rec rew_3 f x g y h z yes =
       (option_rewrite3 f g h &~ (fSome <.> yes)) (x, y, z)
+
     let rec rew_binding outer inner (h, (bs, ss, us), env, pat) =
       rew_3 (option_rewritelist outer) bs (option_rewritelist inner) ss
         (option_rewritelist outer) us
         (fun stuff -> registerBinding (stuff, env, pat))
+
     let rec rew_Term subst cxt t =
       let rec _S t =
         match t with
@@ -252,8 +271,10 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
           ["rew_Term "; string_of_bool subst; " cxt "; argstring t; " => ";
            optionstring termstring res];
       res
+
     and rew_substmap subst cxt vts =
       option_rewritelist (rew_Pair (rew_Term subst cxt)) vts
+
     and rew_Subst subst cxt =
       fun (h, r, _P, m) ->
         let simp = simplifySubst (facts (provisos cxt) cxt) in
@@ -268,6 +289,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
         with
           None -> if subst then simp m _P else None
         | some -> some
+
     and rew_elements subst cxt es =
       let _RT = rew_Term subst cxt in
       let rec def (r, t) =
@@ -315,6 +337,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
           | None, Some es -> Some (e :: es)
           | Some es1, None -> Some (es1 @ es)
           | None, None -> None
+
     let rec rew_resnum cxt r =
       match r with
         ResUnknown i ->
@@ -323,10 +346,12 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
           | None -> None
           end
       | _ -> None
+
     let rec rew_Seq subst cxt =
       fun (Seq (st, _H, _G)) ->
         rew_2 (rew_Term subst cxt) _H (rew_Term subst cxt) _G
           (fun (_H', _G') -> Seq (st, _H', _G'))
+
     let rec rew_Proviso subst cxt p =
       let _RT = rew_Term subst cxt in
       match p with
@@ -336,6 +361,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
       | NotoneofProviso (vs, pat, _C) ->
           rew_3 (option_rewritelist _RT) vs _RT pat _RT _C (fun v->NotoneofProviso v)
       | UnifiesProviso pp -> rew_ (rew_Pair _RT) pp (fun v->UnifiesProviso v)
+
     let rec rew_update a1 a2 a3 a4 =
       match a1, a2, a3, a4 with
         f, g, Some ri, cxt ->
@@ -346,6 +372,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
           | None -> None
           end
       | f, g, None, cxt -> g ()
+
     let rec rew_cxt cxt =
       (* there is no point rewriting the substitutions inside the provisos
        * until we have replaced the unknowns.  
@@ -417,7 +444,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
                       let (fvs, m) = freevarsfrombindings stuff ps in
                       let (bhfvs, _) = freevarsfrombindings hbindings ps in
                       let (bcfvs, _) = freevarsfrombindings cbindings ps in
-                      Some (avs, fvs, mkmap m, bhfvs, bcfvs)
+                      Some {avs=avs; fvs=fvs; vmap=mkmap m; bhfvs=bhfvs; bcfvs=bcfvs}
                   | _ -> None
                 in
                 Some
@@ -456,9 +483,13 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
           ["rew_cxt "; cxtstring cxt; " => "; optionstring cxtstring r];
       r
     (*rew_cxt*)let rawinfTerm cxt = rawinfTerm (getprovisosig cxt)
+
     let rawinfSeq cxt = rawinfSeq (getprovisosig cxt)
+
     let rawinfProviso cxt = rawinfProviso (getprovisosig cxt)
+
     let rawinfElements cxt = rawinfElements (getprovisosig cxt)
+
     let rec rewinfCxt cxt =
       match getprovisos cxt, getexterior cxt with
         (_, Some pinf), Exterior (_, Some binf, _) ->
@@ -481,8 +512,8 @@ module type Funs =
   end
 
 module Funs : Funs with type cxt = Rew.cxt
-					and type term = Rew.term
-					and type seq = Rew.seq
+                    and type term = Rew.term
+                    and type seq = Rew.seq
 =
   struct
     open Rew
@@ -492,10 +523,15 @@ module Funs : Funs with type cxt = Rew.cxt
      and term = Rew.term
      and seq = Rew.seq
     
+
     let rec rewrite cxt = anyway (rew_Term true cxt)
+
     let rec rewriteseq cxt = anyway (rew_Seq true cxt)
+
     let rec rewritesubstmap cxt = anyway (rew_substmap true cxt)
+
     let rewritecxt = anyway rew_cxt
     
+
     let rewritedebug = rewritedebug
   end

@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -23,13 +23,14 @@
 module type Type =
 sig
     type seq and rewinf and term and ('a,'b) mapping and vid and resnum and visproviso
+    type fvinf = {avs:  term list;
+                  fvs:  term list;
+                  vmap: (term, term list) mapping;
+                  bhfvs: term list;
+                  bcfvs: term list}
     type exterior =
         NoExterior
-      | Exterior of
-          ((seq list * seq) * rewinf option *
-             (term list * term list * (term, term list) mapping * term list *
-                term list)
-               option)
+      | Exterior of ((seq list * seq) * rewinf option * fvinf option)
     type cxtrec = 
           { varmap : (vid, term) mapping;
             resmap : (int, (resnum * term)) mapping;
@@ -42,8 +43,8 @@ module Type : Type with type seq = Sequent.Type.seq
                     and type rewinf = Rewinf.rewinf
                     and type term = Term.Funs.term
                     and type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
-					and type vid = Term.Funs.vid
-					and type resnum = Term.Funs.resnum
+                    and type vid = Term.Funs.vid
+                    and type resnum = Term.Funs.resnum
                     and type visproviso = Proviso.visproviso
 =
 struct 
@@ -61,7 +62,7 @@ struct
      * It records the 'exteriority' of a proof: information about the base judgment and 
      * the given judgements, which are where the proof touches the outside world.
      *
-     * Exterior(ss*s,inf,fvinf):
+     * Exterior(ss*s,inf option,fvinf option):
      *   ss are the givens, s is the base sequent of the proof;
      *   inf is the rewinf of that collection of sequents;
      *   fvinf is information about the ways that names relate to each other, used
@@ -73,17 +74,18 @@ struct
      *       bcfvs: all free variables of base conclusions
      *
      *       (I promise, one day, to write down what vmap is and how it's used.
-     *        Until that day, look in facts.sml, where it's used
+     *        Until that day, look in facts.sml, where it's used.
      *       )
      *       
      *)
+    type fvinf = {avs:  term list;
+                  fvs:  term list;
+                  vmap: (term, term list) mapping;
+                  bhfvs: term list;
+                  bcfvs: term list}
     type exterior =
         NoExterior
-      | Exterior of
-          ((seq list * seq) * rewinf option *
-             (term list * term list * (term, term list) mapping * term list *
-                term list)
-               option)
+      | Exterior of ((seq list * seq) * rewinf option * fvinf option)
     type cxtrec = 
           { varmap : (vid, term) mapping;
             resmap : (int, (resnum * term)) mapping;
@@ -116,8 +118,18 @@ module Cxtstring : Cxtstring with type cxt = Type.cxt
     open Sml
     open Proviso
     
-    type cxt = Type.cxt
+    type cxt      = Type.cxt
      and exterior = Type.exterior
+     and fvinf    = Type.fvinf
+     
+    let fvinfstring {avs=avs; fvs=fvs; vmap=vmap; bhfvs=bhfvs; bcfvs=bcfvs} =
+      Sml.implode ["{avs="  ; termliststring avs;
+                   "; fvs=" ; termliststring fvs;
+                   "; vmap="; mappingstring termstring termliststring vmap;
+                   "; bhfvs="; termliststring bhfvs;
+                   "; bcfvs="; termliststring bcfvs;
+                   "}"]
+                   
      
     let exteriorstring =
       function
@@ -125,16 +137,15 @@ module Cxtstring : Cxtstring with type cxt = Type.cxt
       | Exterior e ->
           "Exterior" ^
             triplestring
-              (pairstring (bracketedliststring seqstring " AND ") seqstring
-                 ",")
+              (pairstring (bracketedliststring seqstring " AND ") seqstring ",")
               (optionstring rewinfstring)
-              (optionstring
-                 (quintuplestring termliststring termliststring
-                    (mappingstring termstring termliststring) termliststring
-                    termliststring ","))
+              (optionstring fvinfstring)
               ", " e
+    
     let pint = string_of_int
+    
     let pid = Term.Funs.string_of_vid
+    
     let cxtstring =
       fun
         (Context
@@ -243,12 +254,12 @@ module Cxt : Cxt with type cxt = Type.cxt
     let withprovisos c ps =
       match c, ps with
         (Context ({provisos=provisos; provisosig=provisosig} as cxt)), [] -> 
-		   Context {cxt with provisos = [], Some nullrewinf;
+           Context {cxt with provisos = [], Some nullrewinf;
                                      provisosig = match provisos with
                                                     [], _ -> provisosig
                                                   | _     -> provisosig + 1}
-	  | (Context ({provisosig=provisosig} as cxt)), ps -> 
-		   Context {cxt with provisos = ps, None;
+      | (Context ({provisosig=provisosig} as cxt)), ps -> 
+           Context {cxt with provisos = ps, None;
                                     provisosig = provisosig + 1}
     let withvisibleprovisos cxt ps =
       withprovisos cxt (List.map (fun p -> mkvisproviso (true, p)) ps)
@@ -366,8 +377,8 @@ module type ExteriorFuns =
   end
 
 module ExteriorFuns : ExteriorFuns with type cxt = Type.cxt 
-									and type exterior = Type.exterior
-									and type rewinf = Rewinf.rewinf
+                                    and type exterior = Type.exterior
+                                    and type rewinf = Rewinf.rewinf
 =
   struct
     open Type
@@ -380,5 +391,5 @@ module ExteriorFuns : ExteriorFuns with type cxt = Type.cxt
     let getexterior = fun (Context {outside = outside}) -> outside
     let exteriorinf =
       function (Context {outside=NoExterior})        -> None
-	  |        (Context {outside=Exterior(_,inf,_)}) -> inf
+      |        (Context {outside=Exterior(_,inf,_)}) -> inf
   end
