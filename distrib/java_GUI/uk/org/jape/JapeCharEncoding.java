@@ -85,7 +85,7 @@ public class JapeCharEncoding implements DebugConstants {
      // seuq,   alxce,  not,    root,   curlyf, curlyeq,Delta,  guibra, guiket, ...,    nbspace,Agrave, Atilde, Otilde, OE,     oe,
         0x2013, 0x2014, 0x201C, 0x201D, 0x2018, 0x2019, 0x00F7, 0x25CA, 0x21A6, 0x22A5, 0x2208, 0x21d2, 0x2234, 0x27E6, 0x27E7, 0x2229,
      // endash, emdash, quote,  etouq,  squote, etouqs, divide, lozeng, mapsto, bottom, member, 2arrow, ::,     sembra, semket, interse,
-        0x214B, 0x297D, 0x25AA, 0x201E, 0x2203, 0x27DB, 0x22A2, 0x2192, 0x2200, 0x2261, 0x2194, 0x2228, 0x039B, 0x22A7, 0x22A9, 0x222A,
+        0x214B, 0x297D, 0x25AA, 0x201E, 0x2203, 0x27DB, 0x22A6, 0x2192, 0x2200, 0x2261, 0x2194, 0x2228, 0x039B, 0x22A7, 0x22A9, 0x222A,
      // srepma, fishta, blksq,  lowquot,exists, stiboth,stile,  arrow,  forall, equiv,  lrarrow,logor,  Lambda, models, forces, union
         0x27DA, 0x223C, 0x2135, 0x00DB, 0x00D7, 0x2292, 0x25A1, 0x225C, 0x2AE0, 0x25CF, 0x2283, 0x03BB, 0x00B8, 0x02DD, 0x0328, 0x02C7
      // bimodel,tildop, aleph,  Ucircm, times,  sqgee,  whsqua, eqdef,  prep,   dot,    hook,   lambda, cedilla,2acute, ogonek, caron
@@ -215,7 +215,7 @@ public class JapeCharEncoding implements DebugConstants {
 //             glv_omega                 glv_rho               glv_sigma                 glv_phi
 };
 
-    char[] encoding = null;
+    char[] encoding = null, unicoding = null;
     
     final int bufsize = 1024;
     
@@ -331,12 +331,12 @@ public class JapeCharEncoding implements DebugConstants {
 
     // a temporary hack, while MacOS doesn't do font fallback
     public String toTitle(String s) {
-        if (japeserver.onMacOS && encodingName!=null && encodingName.equals("Konstanz")) {
+        if (japeserver.onMacOS) {
             String asc = toAscii(s);
             int len = s.length();
             StringBuffer buf = new StringBuffer(len);
             for (int i=0; i<len; i++)
-                buf.append(KonstanzUnicode[asc.charAt(i)]);
+                buf.append(unicoding[asc.charAt(i)]);
             return buf.toString();
         }
         else {
@@ -350,25 +350,28 @@ public class JapeCharEncoding implements DebugConstants {
     
     public void setEncoding(String s) throws ProtocolError {
         encodingName = s;
-        if (s.equals("Konstanz")) {
-            encoding = japeserver.onMacOS ? MacRoman : KonstanzUnicode;
-            if (encoding.length!=0x100)
-                Alert.abort("JapeCharEncoding.encode encoding length "+encoding.length);
-            toAsc = new PosIntHashMap(0x200);
-            for (int i=0; i<0x100; i++) {
-                if (toAsc.get(encoding[i])>=0)
-                    Alert.abort("(Konstanz) doubly decodes 0x"+Integer.toHexString(encoding[i])+
-                                " [0x"+Integer.toHexString(toAsc.get(encoding[i]))+",0x"+Integer.toHexString(i)+"]");
-                toAsc.set(encoding[i],i);
-            }
-        }
+        if (s.equals("Konstanz"))
+            unicoding = KonstanzUnicode;
+        else
+        if (s.equals("Laura"))
+            unicoding = LauraUnicode;
         else
             throw new ProtocolError("japeserver doesn't know encoding "+s);
+        encoding = japeserver.onMacOS ? MacRoman : unicoding;
+        if (encoding.length!=0x100)
+            Alert.abort("JapeCharEncoding.encode encoding length "+encoding.length);
+        toAsc = new PosIntHashMap(0x200);
+        for (int i=0; i<0x100; i++) {
+            if (toAsc.get(encoding[i])>=0)
+                Alert.abort("(Konstanz) doubly decodes 0x"+Integer.toHexString(encoding[i])+
+                            " [0x"+Integer.toHexString(toAsc.get(encoding[i]))+",0x"+Integer.toHexString(i)+"]");
+            toAsc.set(encoding[i],i);
+        }
     }
 
     public void resetEncoding() {
         encodingName = null;
-        encoding = null;
+        encoding = unicoding = null;
     }
 }
 
