@@ -468,8 +468,11 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     }
 
     public static void setGivens(MiscellaneousConstants.IntString[] gs) throws ProtocolError {
+        // don't create a provisoPane just to say there aren't any givens
         ProofWindow w = focussedProofWindow(true);
-        w.ensureProvisoPane();
-        w.provisoCanvas.setGivens(gs);
+        if (w.provisoPane!=null || (gs!=null && gs.length!=0)) {
+            w.ensureProvisoPane();
+            w.provisoCanvas.setGivens(gs);
+        }
     }
 }
