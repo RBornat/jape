@@ -1631,7 +1631,7 @@ let rec doJAPE tryf display env ts =
           | Id (_, v, _) -> string_of_vid v
           | _ -> raise MatchindoJAPE_
         in
-        tickmenuitem true (_V menu) (_V label) on; Some state
+        tickmenuitem (_V menu) (_V label) on; Some state
       with
         BadMatch_ ->
           setReason

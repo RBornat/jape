@@ -257,13 +257,13 @@ let rec interpret
 					(namestring mlabel) (namestring label) None
 					 ("assign " ^ parseablenamestring var ^
 					   (if tf then " false" else " true"));
-				  tickmenuitem false (namestring mlabel) (namestring label) tf
+				  tickmenuitem (namestring mlabel) (namestring label) tf
 				in
 				env, (var, basefn tickfn) :: buttonfns, e :: mes, mps
 			| Mradiobutton (var, _, _ as stuff) ->
 				let (env, basefn) = processRadioButton env stuff in
 				let rec tickfn (label, tf) =
-				  tickmenuitem false (namestring mlabel) (namestring label) tf
+				  tickmenuitem (namestring mlabel) (namestring label) tf
 				in
 				env, (var, basefn tickfn) :: buttonfns, e :: mes, mps
 			| _ -> env, buttonfns, e :: mes, mps
