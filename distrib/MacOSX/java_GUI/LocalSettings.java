@@ -72,7 +72,7 @@ public class LocalSettings implements MRJAboutHandler, MRJQuitHandler, MRJPrefsH
 
     // what a mouseDown means on a WorldItem
     public static byte mouseDownWorldItemMeans(MouseEvent e) {
-        return e.isAltDown() ? ExtendedDrag : SimpleDrag;
+        return e.isAltDown() ? NewWorldDrag : MoveWorldDrag;
     }
 
     // how to mark an entry in a conjecture panel

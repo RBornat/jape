@@ -66,7 +66,7 @@ public class LocalSettings implements SelectionConstants {
 
     // what a mouseDown means on a WorldItem (ditto)
     public static byte mouseDownWorldItemMeans(MouseEvent e) {
-        return e.isAltDown() ? ExtendedDrag : SimpleDrag;
+        return e.isAltDown() ? NewWorldDrag : MoveWorldDrag;
     }
 
     // how to mark an entry in a conjecture panel

@@ -49,6 +49,6 @@ public interface SelectionConstants {
                              ReasonSel    = 1<<2,
                              AmbigSel     = 1<<3;
 
-    public static final byte ExtendedDrag = 1,
-                             SimpleDrag   = 2;
+    public static final byte NewWorldDrag  = 1,
+                             MoveWorldDrag = 2;
 }
