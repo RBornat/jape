@@ -9,7 +9,7 @@ all:         ; $(MAKE) engine GUIclean GUI symlink
 
 run:         ; open Jape.app
 
-engine:      ; cd $(ENGINESOURCE); make jape_engine
+engine:      ; cd $(ENGINESOURCE); make jape_engine.opt; cp jape_engine.opt jape_engine
 
 GUI:         ; cd $(SERVERSOURCE); xcodebuild -target $(XCODETARGET) 
 
