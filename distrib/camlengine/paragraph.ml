@@ -1111,20 +1111,19 @@ and parseTheory report query =
     ["RULE"; "RULES"; "TACTIC"; "THEOREM"; "THEOREMS"; "THEORY"]
   in
   let parastarters = (fSHYID <* starters) in
+  let heading = parseRuleHeading true _ISWORD in
   let t =
     Theory
-      (parseRuleHeading true _ISWORD,
+      (heading,
        parseUnsepList (fun s -> member (s, parastarters))
-         (fun _ -> _The (parseParagraph report query)))
+                      (fun _ -> _The (parseParagraph report query)))
   in
   match currsymb () with
     SHYID "END" -> scansymb (); t
   | s ->
       showInputError report
-        ((["error in THEORY description: found "; smlsymbolstring s;
-           ", expecting one of "] @
-            interpolate ", " starters) @
-           [" or END"]);
+        ["error in THEORY description: found "; smlsymbolstring s;
+         ", expecting one of "; liststring (fun s->s) ", " starters; " or END"];
       raise Use_
 
 and parseFontSpec () = FontSpec (currsymb_as_string ())
