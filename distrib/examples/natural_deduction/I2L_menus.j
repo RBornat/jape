@@ -224,10 +224,10 @@ TACTIC hyptac IS
 /* ******************** the Backward menu ******************** */
 
 MENU Backward IS
-    ENTRY   "→ intro (makes assumption)"    IS BackwardOnlyA (QUOTE (_A→_B)) 
-                                                    (Noarg "→ intro" "→ intro") "→ intro" "A→B"
     ENTRY   "∧ intro"                       IS BackwardOnlyC (QUOTE (_A∧_B)) 
                                                     (Noarg "∧ intro backward" "∧ intro") "∧ intro" "A∧B"
+    ENTRY   "→ intro (makes assumption)"    IS BackwardOnlyA (QUOTE (_A→_B)) 
+                                                    (Noarg "→ intro" "→ intro") "→ intro" "A→B"
     ENTRY   "∨ intro (preserving left)"     IS BackwardOnlyC (QUOTE (_A∨_B)) 
                                                     (Noarg (LAYOUT "∨ intro" (0) "∨ intro(L)" fstep) "∨ intro") "∨ intro" "A∨B"
     ENTRY   "∨ intro (preserving right)"    IS BackwardOnlyC (QUOTE (_A∨_B)) 
@@ -448,9 +448,9 @@ TACTIC "→ elim forward fail" (extra) IS
             \and something which matches A (or a target conclusion).%s", extra)
 
 MENU Forward IS
-    ENTRY   "→ elim"                        IS "→ elim forward"
     ENTRY   "∧ elim (preserving left)"      IS Forward (QUOTE (_A∧_B)) (ForwardCut 0 (Noarg (LAYOUT "∧ elim" (0) "∧ elim(L)") "∧ elim"))  "∧ elim" "∧ intro" "A∧B"
     ENTRY   "∧ elim (preserving right)"     IS Forward (QUOTE (_A∧_B)) (ForwardCut 0 (Noarg (LAYOUT "∧ elim" (0) "∧ elim(R)") "∧ elim")) "∧ elim" "∧ intro" "A∧B"
+    ENTRY   "→ elim"                        IS "→ elim forward"
     ENTRY   "∨ elim (makes assumptions)"    IS Forward (QUOTE (_A∨_B)) 
                                                         (Noarg ("targeted forward" (ForwardUncut 0 "∨ elim") "∨ elim") "∨ elim") 
                                                         "∨ elim" "∨ intro" "A∨B"
