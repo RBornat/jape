@@ -25,8 +25,10 @@
     
 */
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.Vector;
 
 public class Dispatcher extends Thread implements DebugConstants {
 
@@ -109,6 +111,9 @@ public class Dispatcher extends Thread implements DebugConstants {
                     // FONTINFO not very often
                         if (p.equals("FONTINFO")&&len==2)
                             Reply.reply(JapeFont.checkedFontMetrics(toByte(cmd[1])));
+                        else
+                        if (p.equals("FONTNAMES")&&len==1)
+                            Reply.reply(JapeFont.getFontNames(Reply.stringSep));
                         else
 
                     // ASK is for alerts
@@ -224,15 +229,15 @@ public class Dispatcher extends Thread implements DebugConstants {
                             PanelWindowData.markEntry(toUnicode(cmd[1]), cmd[2], toBool(cmd[3]), toBool(cmd[4]));
                         else
                     
-                    // PROOF commands
+                    // proof window commands
                         if (p.equals("OPENPROOF")&&len==3)
                             ProofWindow.spawn(JapeFont.toUnicodeTitle(cmd[1]), toInt(cmd[2]));
                         else
                         if (p.equals("CLOSEPROOF")&&len==2)
                             ProofWindow.closeproof(toInt(cmd[1]));
                         else
-						if (p.equals("PANEGEOMETRY")&&len==2)
-						Reply.reply(ProofWindow.getPaneGeometry(toByte(cmd[1])));
+                        if (p.equals("PANEGEOMETRY")&&len==2)
+                        Reply.reply(ProofWindow.getPaneGeometry(toByte(cmd[1])));
                         else
                         if (p.equals("SETPROOFPARAMS")&&len==3)
                             ProofWindow.setProofParams(toByte(cmd[1]), toInt(cmd[2]));
@@ -243,8 +248,25 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("DRAWINPANE")&&len==2)
                             ProofWindow.drawInPane(toByte(cmd[1]));
                         else
-                        if (p.equals("CLEARGIVENS")&&len==1)
+
+                    // disproof
+                        if (p.equals("SEQBOX")&&len==5)
+                            ProofWindow.setDisproofSequentBox(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]), toInt(cmd[4]));
+                        else
+                        if (p.equals("TILESSTART")&&len==1)
                             list.removeAllElements();
+                        else
+                        if (p.equals("TILE")&&len==2)
+                            list.add(toUnicode(cmd[1]));
+                        else
+                        if (p.equals("TILESEND")&&len==1)
+                            ProofWindow.setDisproofTiles((String[])list.toArray(new String[list.size()]));
+                        else
+                                         
+                            
+                    // provisos and givens
+                        if (p.equals("CLEARGIVENS")&&len==1)
+                        list.removeAllElements();
                         else
                         if (p.equals("GIVEN")&&len==3) {
                             int i = toInt(cmd[1]);
@@ -259,6 +281,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("CLEARPROVISOVIEW")&&len==1)
                             ProofWindow.clearProvisoView();
                         else
+
+                    // selections of various kinds
                         if (p.equals("GETSELECTIONS")&&len==1)
                             Reply.reply(ProofWindow.getSelections());
                         else
