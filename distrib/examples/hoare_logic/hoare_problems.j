@@ -35,6 +35,18 @@ CONJECTUREPANEL "Programs"  IS
     {i=Ki∧j=Kj∧i≥0∧j>0}
       (kq:=0; kr:=i; while kr≥j do kr:=kr-j; kq:=kq+1 od)
     {kq×Kj+kr=Ki∧0≤kr∧kr<Kj}
+  THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
+    {i=Ki∧j=Kj∧i≥0}
+      (k:=0;
+       while i≠0 do
+         if i mod 2=1 then k:=k+j else skip fi;
+         i:=i÷2; j:=j×2
+       od)
+    {k=Ki×Kj}
+  THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
+    {i≥0∧k+i×j=Ki×Kj∧i≠0}
+      if i mod 2=1 then k:=k+j else skip fi
+    {i÷2≥0∧k+i÷2×(j×2)=Ki×Kj}
 END
 
 CONJECTUREPANEL "Verification conditions" IS 
@@ -61,6 +73,17 @@ CONJECTUREPANEL "Verification conditions" IS
     i≥0∧k+i×j=Ki×Kj∧i≠0∧i=Km→i-1<Km
   THEOREM IS
     i≥0∧k+i×j=Ki×Kj∧¬(i≠0)→k=Ki×Kj
+  
+  THEOREM IS
+    i=Ki∧j=Kj∧i≥0∧j>0→i≥0∧j>0∧j=Kj∧0×j+i=Ki∧0≤i
+  THEOREM IS
+    i≥0∧j>0∧j=Kj∧kq×j+kr=Ki∧0≤kr∧kr≥j→i≥0∧j>0∧j=Kj∧(kq+1)×j+(kr-j)=Ki∧0≤kr-j
+  THEOREM IS
+    i≥0∧j>0∧j=Kj∧kq×j+kr=Ki∧0≤kr∧kr≥j→kr>0
+  THEOREM IS
+    i≥0∧j>0∧j=Kj∧kq×j+kr=Ki∧0≤kr∧kr≥j∧kr=Km→kr-j<Km
+  THEOREM IS
+    i≥0∧j>0∧j=Kj∧kq×j+kr=Ki∧0≤kr∧¬(kr≥j)→kq×Kj+kr=Ki∧0≤kr∧kr<Kj
 END
 
 CONJECTUREPANEL "Lemmas" IS
