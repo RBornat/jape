@@ -14,18 +14,27 @@ module
   Idclassfuns
   (AAA :
     sig
-      module symboltype : Symboltype
-      module symbol : Symbol
-      module idclass : Idclass
-      val member : 'a * 'a list -> bool
-      exception ParseError_ of string list
+      module Idclass : Idclass.T
+      module Symboltype : Symboltype.T
+             with type idclass = Idclass.idclass
+      module Symbol : Symbol.T
+             with type symbol = Symboltype.symbol
+             and type idclass = Idclass.idclass
       
+      val member : 'a * 'a list -> bool
+      
+      exception ParseError_ of string list      
     end)
   :
   Idclassfuns =
   struct
     open AAA
-    open symboltype open symbol open idclass
+    open Symboltype 
+    open Symbol 
+    open Idclass
+    
+    type idclass = Idclass.idclass
+    type symbol = Symboltype.symbol
     
     (* in future we shall have lots of kinds of Bags and Lists; for the moment 
      * it would be burdensome to force the world to say BAG FORMULA, so we don't.
@@ -41,18 +50,18 @@ module
       member (sy, [SHYID "BAG"; SHYID "LIST"])
     let rec parseidclass prev =
       match currsymb () with
-        SHYID "FORMULA" -> scansymb (); FormulaClass
-      | SHYID "VARIABLE" -> scansymb (); VariableClass
-      | SHYID "CONSTANT" -> scansymb (); ConstantClass
-      | SHYID "NUMBER" -> scansymb (); NumberClass
-      | SHYID "STRING" -> scansymb (); StringClass
+        SHYID "FORMULA" -> let _ = scansymb () in FormulaClass
+      | SHYID "VARIABLE" -> let _ = scansymb () in VariableClass
+      | SHYID "CONSTANT" -> let _ = scansymb () in ConstantClass
+      | SHYID "NUMBER" -> let _ = scansymb () in NumberClass
+      | SHYID "STRING" -> let _ = scansymb () in StringClass
       | SHYID "BAG" ->
-          scansymb ();
+          let _ = scansymb () in
           BagClass
             (if canstartidclass (currsymb ()) then parseidclass "BAG"
              else FormulaClass)
       | SHYID "LIST" ->
-          scansymb ();
+          let _ = scansymb () in
           ListClass
             (if canstartidclass (currsymb ()) then parseidclass "List"
              else FormulaClass)
