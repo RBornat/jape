@@ -44,7 +44,7 @@ import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
-import java.awt.LayoutManager;
+import java.awt.LayoutManager2;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -174,38 +174,79 @@ public class PanelWindow extends JapeWindow implements ActionListener, DebugCons
         }
     }
 
+    // it seems that this method is never called, even when the window is maximised.
+    
+    public Dimension getMaximumSize() {
+        if (panellayout_tracing)
+            System.err.println("getMaximumSize called");
+        return super.getMaximumSize();
+    }
     /**********************************************************************************************
 
         Layout
 
      **********************************************************************************************/
 
-    protected class PanelWindowLayout implements LayoutManager {
+    // I made this a LayoutManager2, because it has a maximumLayoutSize method, in the hope that this
+    // would affect window maximisation.  It doesn't: the method never seems to be called (in Javish
+    // one should say messaged).
+    
+    protected class PanelWindowLayout implements LayoutManager2 {
 
         /* Called by the Container add methods. Layout managers that don't associate
-        * strings with their components generally do nothing in this method.
-        */
+         * strings with their components generally do nothing in this method.
+         */
         public void addLayoutComponent(String s, Component c) { }
 
-        /* Called by the Container remove and removeAll methods. Many layout managers
-        * do nothing in this method, relying instead on querying the container for its
-        * components, using the Container getComponents method.
-        */
-        public void removeLayoutComponent(Component c) { }
+        /* Adds the specified component to the layout, using the specified constraint object. */
+        public void addLayoutComponent(Component comp, Object constraints) { }
 
-        /* Called by the Container getPreferredSize method, which is itself called under
-        * a variety of circumstances. This method should calculate and return the ideal
-        * size of the container, assuming that the components it contains will be at or
-        * above their preferred sizes. This method must take into account the container's
-        * internal borders, which are returned by the getInsets method.
-        */
+        /* Returns the alignment along the x axis. This specifies how the component would like
+         * to be aligned relative to other components. The value should be a number between 0
+         * and 1 where 0 represents alignment along the origin, 1 is aligned the furthest away
+         * from the origin, 0.5 is centered, etc.
+         */
+        public float getLayoutAlignmentX(Container pane) { return (float)0; } // why not?
+
+        /* Returns the alignment along the y axis. See above */
+        public float getLayoutAlignmentY(Container pane) { return (float)0; } // why not?
+
+        /* Invalidates the layout, indicating that if the layout manager has cached information
+         * it should be discarded.
+         */
+        public void invalidateLayout(Container pane) { } // we don't cache
+
+        /* Returns the maximum size of this component. */
+        public Dimension maximumLayoutSize(Container pane) {
+            // crude, for now
+            JViewport port = scrollPane.getViewport();
+            int width = port.getX()+list.getWidth(), height = port.getY()+list.getHeight();
+            if (buttonv.size()!=0) {
+                Dimension d = ((PanelButton)buttonv.get(0)).getPreferredSize();
+                int buttonleading = leading(d);
+                height += d.height+2*buttonleading;
+                int buttonwidth = (buttonv.size()-1)*buttonleading;
+                for (int i=0; i<buttonv.size(); i++)
+                    buttonwidth+=((PanelButton)buttonv.get(i)).getPreferredSize().width;
+                width = Math.max(width, buttonwidth);
+            }
+            if (panellayout_tracing)
+                System.err.println("maximumLayoutSize returns "+width+","+height);
+            return new Dimension(width, height);
+        }
+                
+        /* Called by the Container remove and removeAll methods. Many layout managers
+         * do nothing in this method, relying instead on querying the container for its
+         * components, using the Container getComponents method.
+         */
+        public void removeLayoutComponent(Component c) { }
 
         private int buttonpanelheight, buttonpanelwidth;
         private int leading(Dimension d) { return d.height/5; } // empirical
         
         private void preferredButtonPanelSize(Container pane) {
             buttonpanelwidth = 0;
-            // three buttons across
+            // two buttons across minimum
 
             if (buttonv.size()==0) {
                 if (panellayout_tracing)
@@ -214,7 +255,7 @@ public class PanelWindow extends JapeWindow implements ActionListener, DebugCons
                 Dimension d = b.getPreferredSize();
                 int buttonleading = leading(d);
                 buttonpanelheight = 0;
-                buttonpanelwidth = d.width*3+2*buttonleading;
+                buttonpanelwidth = d.width*2+1*buttonleading;
             }
             else {
                 if (panellayout_tracing)
@@ -222,7 +263,7 @@ public class PanelWindow extends JapeWindow implements ActionListener, DebugCons
                 Dimension d = ((PanelButton)buttonv.get(0)).getPreferredSize();
                 int buttonleading = leading(d);
                 int buttonheight = d.height;
-                int threewidth = 0; // shut up compiler
+                int twowidth = 0; // shut up compiler
                 
                 buttonpanelheight = buttonleading;
                 
@@ -233,38 +274,46 @@ public class PanelWindow extends JapeWindow implements ActionListener, DebugCons
                     if (panellayout_tracing)
                         System.err.println(i+": "+d.width+","+d.height);
 
-                    if (i%3==0) {
+                    if (i%2==0) {
                         buttonpanelheight += buttonleading+buttonheight;
-                        threewidth = d.width;
+                        twowidth = d.width;
                     }
                     else
-                        threewidth += buttonleading+d.width;
+                        twowidth += buttonleading+d.width;
 
-                    if ((i+1)%3==0)
-                        buttonpanelwidth = Math.max(threewidth, buttonpanelwidth);
+                    if ((i+1)%2==0)
+                        buttonpanelwidth = Math.max(twowidth, buttonpanelwidth);
                 }
 
-                if (buttonv.size()<3)
-                    buttonpanelwidth = (buttonpanelwidth-(buttonv.size()-1)*buttonleading)*3/buttonv.size()+
-                        2*buttonleading;
+                if (buttonv.size()<2)
+                    buttonpanelwidth = (buttonpanelwidth-(buttonv.size()-1)*buttonleading)*2/buttonv.size()+
+                        1*buttonleading;
             }
             if (panellayout_tracing)
                 System.err.println("preferredButtonPanelSize = "+buttonpanelwidth+","+buttonpanelheight);
         }
         
+        /* Called by the Container getPreferredSize method, which is itself called under
+         * a variety of circumstances. This method should calculate and return the ideal
+         * size of the container, assuming that the components it contains will be at or
+         * above their preferred sizes. This method must take into account the container's
+         * internal borders, which are returned by the getInsets method.
+         */
+
         public Dimension preferredLayoutSize(Container pane) {
             preferredButtonPanelSize(pane);
             JViewport port = scrollPane.getViewport();
-            return new Dimension(Math.max(buttonpanelwidth, port.getX()+list.getWidth()),
-                                 buttonpanelwidth+buttonpanelheight);
+            Dimension preferredSize = new Dimension(Math.min(buttonpanelwidth, port.getX()+list.getWidth()),
+                                                    buttonpanelwidth+buttonpanelheight);
+            return preferredSize;
         }
 
         /* Called by the Container getMinimumSize method, which is itself called under
-        * a variety of circumstances. This method should calculate and return the minimum
-        * size of the container, assuming that the components it contains will be at or
-        * above their minimum sizes. This method must take into account the container's
-        * internal borders, which are returned by the getInsets method.
-        */
+         * a variety of circumstances. This method should calculate and return the minimum
+         * size of the container, assuming that the components it contains will be at or
+         * above their minimum sizes. This method must take into account the container's
+         * internal borders, which are returned by the getInsets method.
+         */
         
         public Dimension minimumLayoutSize(Container pane) {
             preferredButtonPanelSize(pane);
@@ -272,13 +321,13 @@ public class PanelWindow extends JapeWindow implements ActionListener, DebugCons
         }
 
         /* Called when the container is first displayed, and each time its size changes.
-        * A layout manager's layoutContainer method doesn't actually draw components.
-        * It simply invokes each component's resize, move, and reshape methods to set
-        * the component's size and position. This method must take into account the
-        * container's internal borders, which are returned by the getInsets method.
-        * You can't assume that the preferredLayoutSize or minimumLayoutSize method
-        * will be called before layoutContainer is called.
-        */
+         * A layout manager's layoutContainer method doesn't actually draw components.
+         * It simply invokes each component's resize, move, and reshape methods to set
+         * the component's size and position. This method must take into account the
+         * container's internal borders, which are returned by the getInsets method.
+         * You can't assume that the preferredLayoutSize or minimumLayoutSize method
+         * will be called before layoutContainer is called.
+         */
         public void layoutContainer(Container pane) {
             PanelButton[] buttons = (PanelButton[])buttonv.toArray(new PanelButton[buttonv.size()]);
             if (buttons.length==0)
