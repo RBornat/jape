@@ -42,7 +42,8 @@ interface DebugConstants {
                                 panelempty_tracing       = false,
                                 panellayout_tracing      = false,
                                 panellist_tracing        = false,
-                                protocol_tracing         = false;
+                                protocol_tracing         = false,
+                                worldpaint_tracing       = false;
 
     static final public boolean notice_MacOSX            = true;
 }
