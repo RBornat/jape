@@ -41,7 +41,8 @@ TACTIC ForwardUncut (n,Rule)
 /* ******************** tactics to deal with variables in quantification rules ******************** */
 
 TACTIC "∀ elim forward" IS
-    WHEN    (LETHYP2 (actual _i) (∀_x._A) ("∀ elim forward step" (∀_x._A) _i))
+    WHEN    
+            (LETHYP2 (actual _i) (∀_x._A) ("∀ elim forward step" (∀_x._A) _i))
             (LETHYP (∀_x._A) ("∀ elim forward moan" ("You only selected %t.", ∀_x._A)))
             (LETHYP (actual _i) ("∀ elim forward moan" ("You only selected %t.", actual _i)))
             (LETHYPS _As ("∀ elim forward moan" ("You selected %l.", (_As, ", ", " and "))))
@@ -60,6 +61,7 @@ TACTIC "∀ elim forward step" (P, i) IS
                 "∀ elim"
                 (WITHHYPSEL (hyp P))
                 (WITHHYPSEL (hyp (actual i))))
+            "∀ elim"
 
 TACTIC "∀ elim forward moan" (extra) IS
     ALERT   ("To make a ∀ elim step forward, you must select an antecedent of the form ∀x.A, and \
@@ -70,41 +72,32 @@ TACTIC "∃ elim forward" IS
     ForwardUncut 0 "∃ elim"
     
 TACTIC "∃ intro backward" IS  
-    WHEN    (LETCONC (∃_x._A)
-                ("∃ intro backward hypcheck" "∃ intro backward step" ("You selected the conclusion %t (which is ok), but ", ∃_x._A))
-            )
-            (LETCONC _A
-                ("∃ intro backward selection moan" (" You selected the conclusion %t.", _A))
-            )
-            (LETGOAL (∃_x._A)
-                ("∃ intro backward hypcheck" "∃ intro backward step" ("The conclusion is %t (which is ok), but", ∃_x._A))
-            )
-            (LETGOAL _A /* the wrong goal, sob */
-                ("∃ intro backward selection moan" (" The conclusion you are working on is %t.", _A))
-            )
-            (LETOPENSUBGOAL G (∃_x._A) /* there is something they might have chosen */
-                ("∃ intro backward hypcheck" 
-                    (ALERT ("To make an ∃ intro step backwards, you have to use a conclusion of the form \
-                                \∃x.A, and select a pseudo-assumption of the form actual i. You selected the \
-                                \pseudo-assumption, but you didn't click on the conclusion %t. Would you like to proceed \
-                                \with the step using %t?\
-                                \\n\n(You can avoid this message in the future if you always click on the relevant \
-                                \conclusion before you make the step.)", ∃_x._A, ∃_x._A)
-                                ("OK", SEQ (GOALPATH G) "∃ intro backward step")  ("Huh?", SEQ Explainvariables STOP) ("Cancel", STOP)
-                    )
-                    ("You didn't select the unproved conclusion %t, and", ∃_x._A))
-            )
-            ("∃ intro backward hypcheck" ("∃ intro backward selection moan" " You didn't make any conclusion selection.") 
-                ("You didn't make any conclusion selection, and ")
-            )
+    WHEN    
+        (LETCONC (∃_x._A)
+            ("∃ intro backward hypcheck" "∃ intro backward step" ("You selected the conclusion %t (which is ok), but ", ∃_x._A)))
+        (LETCONC _A
+            ("∃ intro backward selection moan" (" You selected the conclusion %t.", _A)))
+        (LETGOAL (∃_x._A)
+            ("∃ intro backward hypcheck" "∃ intro backward step" ("The conclusion is %t (which is ok), but", ∃_x._A)))
+        (LETGOAL _A /* the wrong goal, sob */
+            ("∃ intro backward selection moan" (" The conclusion you are working on is %t.", _A)))
+        (LETOPENSUBGOAL G (∃_x._A) /* there is something they might have chosen */
+            ("∃ intro backward hypcheck" ("∃ intro backward unselected goal" (∃_x._A))
+                                          ("You didn't select the unproved conclusion %t, and", ∃_x._A)))
+        ("∃ intro backward hypcheck" ("∃ intro backward selection moan" " You didn't make any conclusion selection.") 
+            ("You didn't make any conclusion selection, and "))
 
+TACTIC "∃ intro backward unselected goal" (A) IS
+    ALERT ("To make an ∃ intro step backwards, you have to use a conclusion of the form \
+           \∃x.A, and select a pseudo-assumption of the form actual i. You selected the \
+           \pseudo-assumption, but you didn't click on the conclusion %t. Would you like to proceed \
+           \with the step using %t?\
+           \\n\n(You can avoid this message in the future if you always click on the relevant \
+           \conclusion before you make the step.)", A, A)
+           ("OK", SEQ (GOALPATH G) "∃ intro backward step")  ("Huh?", SEQ Explainvariables STOP) ("Cancel", STOP)
+                            
 TACTIC "∃ intro backward step" (i) IS
-    Noarg   (SEQ
-                "∃ intro"
-                fstep 
-                (WITHHYPSEL (hyp (actual i)))
-            )
-            "∃ intro"
+    Noarg (SEQ "∃ intro" fstep (WITHHYPSEL (hyp (actual i)))) "∃ intro"
 
 TACTIC "∃ intro backward selection moan" (stuff) IS
     ALERT   ("To make an ∃ intro step backwards, you have to use a conclusion of the form \
@@ -112,44 +105,42 @@ TACTIC "∃ intro backward selection moan" (stuff) IS
             ("OK", STOP) ("Huh?", SEQ Explainvariables STOP)
 
 TACTIC "∃ intro backward hypcheck" (action, gmess) IS
-    WHEN    (LETHYP (actual _i) (action _i)) /* the right antecedent - hoorah! */
-            (LETHYP (∃_x._A) /* looks like a forward step */
-                (ALERT  ("To make an ∃ intro step backwards, you have to select a conclusion of the form \
-                        \∃x.A, and a pseudo-assumption of the form actual i. You selected \
-                        \the antecedent %t, which would fit ∃ elim going forward.\
-                        \\nWould you like to make the forward step instead?",∃_x._A)
-                        ("Forward", "∃ elim forward") ("Huh?", SEQ Explainvariables STOP) ("Cancel", STOP)
-                )
-            )
-            (LETHYP _A /* the wrong antecedent */
-                ("∃ intro backward selection moan" ("%s you selected the antecedent %t instead.", gmess, _A))
-            )
-            (LETHYPS _As /* more than one */
-                ("∃ intro backward selection moan" ("%s you selected more than one antecedent – %l.", gmess, (_As, ", ", " and ")) )
-            )
-            ("∃ intro backward selection moan" ("%s you didn't select an antecedent.", gmess))
+    WHEN    
+        (LETHYP (actual _i) (action _i)) /* the right antecedent - hoorah! */
+        (LETHYP (∃_x._A) /* looks like a forward step */
+            (ALERT  ("To make an ∃ intro step backwards, you have to select a conclusion of the form \
+                    \∃x.A, and a pseudo-assumption of the form actual i. You selected \
+                    \the antecedent %t, which would fit ∃ elim going forward.\
+                    \\nWould you like to make the forward step instead?",∃_x._A)
+                    ("Forward", "∃ elim forward") ("Huh?", SEQ Explainvariables STOP) ("Cancel", STOP)))
+        (LETHYP _A /* the wrong antecedent */
+            ("∃ intro backward selection moan" ("%s you selected the antecedent %t instead.", gmess, _A)))
+        (LETHYPS _As /* more than one */
+            ("∃ intro backward selection moan" ("%s you selected more than one antecedent – %l.", gmess, (_As, ", ", " and "))))
+        ("∃ intro backward selection moan" ("%s you didn't select an antecedent.", gmess))
 
 /* ******************** most rules don't want arguments ******************** */
 
 TACTIC Noarg (rule, stepname) IS
-    WHEN    (LETARGTEXT arg 
+    WHEN    
+        (LETARGTEXT arg 
             (ALERT  
                 ("The %s rule doesn't need an argument, but you text-selected %s. \
-                \Do you want to go on with the step, ignoring the text-selection?", stepname, arg)
-                ("OK", rule)
-                ("Cancel", STOP)
-            )
-        )
+                 \Do you want to go on with the step, ignoring the text-selection?", stepname, arg)
+                 ("OK", rule) ("Cancel", STOP)))
+        (LETMULTIARG args 
+            (ALERT  
+                ("The %s rule doesn't need an argument, but you text-selected %l. \
+                 \Do you want to go on with the step, ignoring all the text-selections?", stepname, (args, ", ", " and "))
+                 ("OK", rule) ("Cancel", STOP)))
         rule
 
 TACTIC SingleorNoarg (rule, stepname) IS 
     WHEN    (LETARGSEL _A (WITHARGSEL rule))
             (LETMULTIARG _As 
                 (ALERT  ("The %s rule can accept a single argument. You text-selected %l, which is more than \
-                        \it can deal with. Cancel some or all of your text selections and try again.", stepname, _As)
-                        ("OK", STOP)
-                )
-            )
+                         \it can deal with. Cancel some or all of your text selections and try again.", stepname, _As)
+                         ("OK", STOP)))
             rule
 
 /* ******************** tactics for rules that only work backwards ******************** */
@@ -429,7 +420,8 @@ TACTIC BadForward3(sel, stepname) IS
 /* ******************** the Forward menu ******************** */
 
 TACTIC "→ elim forward" IS
-    WHEN    (LETHYP2 _A (_A→_B) 
+    WHEN    
+        (LETHYP2 _A (_A→_B) 
             (Noarg (CUTIN "→ elim" (WITHHYPSEL (hyp (_A→_B))) (WITHHYPSEL (hyp _A))) "→ elim"))
         (LETHYP2 _C (_A→_B)
             ("→ elim forward fail"
@@ -454,10 +446,14 @@ MENU Forward IS
     ENTRY   "→ elim"                IS "→ elim forward"
     ENTRY   "∧ elim (preserving left)"      IS Forward (QUOTE (_A∧_B)) (ForwardCut 0 (Noarg (LAYOUT "∧ elim" (0) "∧ elim(L)") "∧ elim"))  "∧ elim" "∧ intro" "A∧B"
     ENTRY   "∧ elim (preserving right)"     IS Forward (QUOTE (_A∧_B)) (ForwardCut 0 (Noarg (LAYOUT "∧ elim" (0) "∧ elim(R)") "∧ elim")) "∧ elim" "∧ intro" "A∧B"
-    ENTRY   "∨ elim (makes assumptions)"    IS Forward (QUOTE (_A∨_B)) (Noarg ("targeted forward" (ForwardUncut 0 "∨ elim") "∨ elim") "∨ elim") "∨ elim" "∨ intro" "A∨B"
+    ENTRY   "∨ elim (makes assumptions)"    IS Forward (QUOTE (_A∨_B)) 
+                                                        (Noarg ("targeted forward" (ForwardUncut 0 "∨ elim") "∨ elim") "∨ elim") 
+                                                        "∨ elim" "∨ intro" "A∨B"
     ENTRY "¬ elim"              IS "¬ elim forward"
     ENTRY   "∀ elim (needs variable)"       IS "∀ elim forward"
-    ENTRY   "∃ elim (assumption & variable)"    IS Forward (QUOTE (∃_x._A)) (Noarg ("targeted forward" (ForwardUncut 0 "∃ elim") "∃ elim") "∃ elim") "∃ elim" "∃ intro" "∃x.A"
+    ENTRY   "∃ elim (assumption & variable)"    IS Forward (QUOTE (∃_x._A)) 
+                                                            (Noarg ("targeted forward" (ForwardUncut 0 "∃ elim") "∃ elim") "∃ elim") 
+                                                            "∃ elim" "∃ intro" "∃x.A"
     ENTRY   "contra (constructive)"     IS Forward ⊥  "contra (constructive) forward" "contra (constructive)" "¬ elim" ⊥
 
     SEPARATOR
@@ -484,7 +480,8 @@ TACTIC "contra (constructive) forward" IS
         (ForwardCut 0 (Noarg "contra (constructive)" "contra (constructive)"))
 
 TACTIC "¬ elim forward" IS
-    WHEN    (LETHYP2 _A (¬_A) 
+    WHEN    
+        (LETHYP2 _A (¬_A) 
             (Noarg (CUTIN "¬ elim" (WITHHYPSEL (hyp _A)) (WITHHYPSEL (hyp (¬_A)))) "¬ elim"))
         (LETHYP (¬_A)
             (Noarg (CUTIN "¬ elim" fstep (WITHHYPSEL (hyp (¬_A)))) "¬ elim"))
@@ -514,12 +511,12 @@ TACTIC "¬ elim forward" IS
                     \You didn’t select any at all.")
                 ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))
 
-    
+
 TACTIC "targeted forward" (action, stepname) IS
     WHEN    (LETHYP _Ah ("targeted forward 2" action stepname _Ah))
         (LETLHS _Ah ("targeted forward 2" action stepname _Ah))
-        (Fail ("Error in I2LJape (∨ elim forward falls through). Tell Richard."))
-                
+        (Fail ("Error in I2LJape (targeted forward falls through). Tell Richard."))
+
 TACTIC "targeted forward 2"(action, stepname, hyp) IS
     WHEN    (LETCONC _A action) 
         (LETOPENSUBGOAL G _Ag ("targeted forward single" action stepname G hyp _Ag))
