@@ -487,9 +487,9 @@
 		797B541C048B47C6001F0D29 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
-			name = ExportPic.java;
-			path = ../../java_GUI/ExportPic.java;
-			refType = 2;
+			name = Export.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/Export.java;
+			refType = 0;
 		};
 		797B541D048B47C6001F0D29 = {
 			fileRef = 797B541C048B47C6001F0D29;
