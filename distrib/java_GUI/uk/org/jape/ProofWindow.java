@@ -98,10 +98,11 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
             }
             public void windowActivated(WindowEvent e) {
                 if (windowListener!=null) {
-                    setTopInfocusv();
-                    reportFocus();
-                    enableCopy();
-                    enableUndo();
+                    if (setTopInfocusv()) {
+                        reportFocus();
+                        enableCopy();
+                        enableUndo();
+                    }
                 }
                 else
                     System.err.println("ProofWindow.windowListener late windowActivated \""+
@@ -130,15 +131,16 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         focusv.insertElementAt(this, 0);
     }
 
-    private synchronized void setTopInfocusv() {
+    private synchronized boolean setTopInfocusv() {
         int i = focusv.indexOf(this);
-        if (i==-1)
+        if (i==-1) 
             Alert.abort("unfocussable proof "+this.title);
         else
-            if (i!=0) {
-                focusv.remove(i);
-                focusv.insertElementAt(this,0);
-            }
+        if (i!=0) {
+            focusv.remove(i);
+            focusv.insertElementAt(this,0);
+        }
+        return i!=0;
     }
 
     private synchronized void removeFromfocusv() {
