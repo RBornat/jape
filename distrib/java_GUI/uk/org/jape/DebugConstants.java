@@ -46,6 +46,7 @@ interface DebugConstants {
                                 protocol_tracing         = false,
                                 worldpaint_tracing       = false;
 
-    static final public boolean notice_MacOSX            = true;
+    static final public boolean notice_Linux             = true,
+                                notice_MacOSX            = true;
 }
 
