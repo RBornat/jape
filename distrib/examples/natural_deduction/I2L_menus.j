@@ -237,7 +237,7 @@ MENU Backward IS
     ENTRY   "∀ intro (introduces variable)" IS BackwardOnlyA (QUOTE (∀_x._A)) 
                                                     (Noarg "∀ intro" "∀ intro") "∀ intro" "∀x.A" 
     ENTRY   "∃ intro (needs variable)"      "∃ intro backward"
-        
+    
     SEPARATOR
     
     ENTRY   "¬ elim (invents formulae)" IS 
@@ -258,7 +258,10 @@ MENU Backward IS
     ENTRY   "contra (classical; makes assumption ¬A)"   
                                             IS BackwardOnlyA (QUOTE _A) 
                                                     (Noarg "contra (classical)" "contra (classical)") "contra (classical)" "A"
-
+    
+    SEPARATOR
+    ENTRY "truth" IS BackwardOnlyA ⊤(Noarg "truth" "truth") "truth" ⊤
+    
     SEPARATOR
     ENTRY   hyp     IS Noarg hyptac hyp
 END
@@ -443,18 +446,18 @@ TACTIC "→ elim forward fail" (extra) IS
             \and something which matches A (or a target conclusion).%s", extra)
 
 MENU Forward IS
-    ENTRY   "→ elim"                IS "→ elim forward"
+    ENTRY   "→ elim"                        IS "→ elim forward"
     ENTRY   "∧ elim (preserving left)"      IS Forward (QUOTE (_A∧_B)) (ForwardCut 0 (Noarg (LAYOUT "∧ elim" (0) "∧ elim(L)") "∧ elim"))  "∧ elim" "∧ intro" "A∧B"
     ENTRY   "∧ elim (preserving right)"     IS Forward (QUOTE (_A∧_B)) (ForwardCut 0 (Noarg (LAYOUT "∧ elim" (0) "∧ elim(R)") "∧ elim")) "∧ elim" "∧ intro" "A∧B"
     ENTRY   "∨ elim (makes assumptions)"    IS Forward (QUOTE (_A∨_B)) 
                                                         (Noarg ("targeted forward" (ForwardUncut 0 "∨ elim") "∨ elim") "∨ elim") 
                                                         "∨ elim" "∨ intro" "A∨B"
-    ENTRY "¬ elim"              IS "¬ elim forward"
+    ENTRY   "¬ elim"                        IS "¬ elim forward"
     ENTRY   "∀ elim (needs variable)"       IS "∀ elim forward"
     ENTRY   "∃ elim (assumption & variable)"    IS Forward (QUOTE (∃_x._A)) 
                                                             (Noarg ("targeted forward" (ForwardUncut 0 "∃ elim") "∃ elim") "∃ elim") 
                                                             "∃ elim" "∃ intro" "∃x.A"
-    ENTRY   "contra (constructive)"     IS Forward ⊥  "contra (constructive) forward" "contra (constructive)" "¬ elim" ⊥
+    ENTRY   "contra (constructive)"         IS Forward ⊥  "contra (constructive) forward" "contra (constructive)" "¬ elim" ⊥
 
     SEPARATOR
     ENTRY   "∧ intro"               IS "∧ intro forward"
