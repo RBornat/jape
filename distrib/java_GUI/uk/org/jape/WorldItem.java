@@ -70,6 +70,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
         selectionRing = new SelectionRing(x0, y0, canvas.worldRadius()+2*canvas.linethickness);
         canvas.add(selectionRing);
         outline = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
+        if (geometry_tracing)
+            System.err.println("world bounds are "+getBounds()+"; outline is "+outline.getBounds2D());
         setEnabled(true); // I think this is necessary for dragTarget behaviour
         setDropTarget(new DropTarget(this, this));
         setForeground(Preferences.WorldColour);
@@ -192,6 +194,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
         SelectionRing(int x, int y, int radius) {
             super(WorldItem.this.canvas, x, y, radius);
             setForeground(Preferences.SelectionColour);
+            if (geometry_tracing)
+                System.err.println("ring bounds are "+getBounds()+"; outline is "+this.outline.getBounds2D());
         }
 
         public void paint(Graphics g) {
