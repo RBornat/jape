@@ -11,8 +11,8 @@ RULE "ä-E"(OBJECT c) WHERE FRESH c AND c NOTIN äx.A
 
 RULE "è-I"(OBJECT c) WHERE FRESH c	IS FROM var c æ A(c) INFER èx .A(x)
 RULE "ä-I"(B)						IS FROM A(B) AND B inscope INFER äx.A(x)
-RULE "ä!-I"(B, OBJECT c) WHERE FRESH c AND c NOTIN äx.A(x) AND c NOTIN B
-								IS FROM A(B) AND var c, A(c) æ B=c AND B inscope INFER ä!x.A(x)
+RULE "ä!-I"(OBJECT c, OBJECT d) WHERE FRESH c,d AND c,d NOTIN ä!x.A(x)
+								IS FROM äx.A(x) AND var c,var d,A(c),A(d) æ c=d INFER ä!x.A(x)
 
 RULES "inscope" ARE
 							INFER var x æ x inscope
@@ -29,7 +29,6 @@ AUTOMATCH "inscope"
 
 TACTIC "è-E with side condition hidden" IS LAYOUT "è-E" (0) (WITHARGSEL "è-E")
 TACTIC "ä-I with side condition hidden" IS LAYOUT "ä-I" (0) (WITHARGSEL "ä-I")
-TACTIC "ä!-I with side condition hidden" IS LAYOUT "ä!-I" (0,1) (WITHARGSEL "ä!-I")
 	
 TACTIC "è-E tac" IS FOBSS ForwardCut "è-E with side condition hidden"
 TACTIC "ä-I tac" IS "ä-I with side condition hidden"
