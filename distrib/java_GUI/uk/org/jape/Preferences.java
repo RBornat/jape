@@ -37,8 +37,7 @@ public class Preferences {
                         TextSelectionBackground = Color.yellow,
                         WorldColour             = Color.black;
 
-    public static Color OnColour     = Color.black,
-                        OutColour    = Color.gray,
+    public static Color OutColour    = Color.gray,
                         ForcedColour = Color.magenta;
 
 }
