@@ -68,12 +68,14 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     public Component add(Component c) {
         child.add(c);
         computeBounds();
+        c.repaint();
         return c;
     }
 
     public Component add(Component c, int index) {
         child.add(c, index);
         computeBounds();
+        c.repaint();
         return c;
     }
 
