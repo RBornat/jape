@@ -339,8 +339,8 @@ MENU Backward IS
 				(BackwardWithHyp Ù (Noarg (SEQ ("Â elim") fstep (WITHHYPSEL (hyp (Â_A)))) "Â elim") "Â elim" "Ù")
 			)
 			(BackwardOnlyC Ù (SEQ (SingleorNoarg "Â elim" "Â elim") fstep fstep) "Â elim" "Ù")
-	ENTRY	"Ù elim (constructive)"	IS BackwardOnlyA (QUOTE _A) (Noarg "Ù elim (constructive)" "Ù elim (constructive)") "Ù elim (constructive)" "A"
-	ENTRY	"Ù elim (classical; makes assumption ÂA)"	IS BackwardOnlyA (QUOTE _A) (Noarg "Ù elim (classical)" "Ù elim (classical)") "Ù elim (classical)" "A"
+	ENTRY	"contra (constructive)"	IS BackwardOnlyA (QUOTE _A) (Noarg "contra (constructive)" "contra (constructive)") "contra (constructive)" "A"
+	ENTRY	"contra (classical; makes assumption ÂA)"	IS BackwardOnlyA (QUOTE _A) (Noarg "contra (classical)" "contra (classical)") "contra (classical)" "A"
 
 	SEPARATOR
 	ENTRY	hyp 	IS Noarg hyptac hyp
@@ -586,7 +586,7 @@ MENU Forward IS
 	ENTRY "Â elim" 										IS "Â elim forward"
 	ENTRY	"è elim (needs variable)"				IS "è elim forward"
 	ENTRY	"ä elim (assumption & variable)"	IS Forward (QUOTE (ä_x._A)) (Noarg ("targeted forward" (ForwardUncut 0 "ä elim") "ä elim") "ä elim") "ä elim" "ä intro" "äx.A"
-	ENTRY	"Ù elim (constructive)"				IS Forward Ù  "Ù elim (constructive) forward" "Ù elim (constructive)" "Â elim" Ù
+	ENTRY	"contra (constructive)"				IS Forward Ù  "contra (constructive) forward" "contra (constructive)" "Â elim" Ù
 
 	SEPARATOR
 	ENTRY	"¦ intro"			IS "¦ intro forward"
@@ -603,16 +603,16 @@ MENU Forward IS
 	ENTRY	hyp IS Noarg hyptac hyp
 END
 
-TACTIC "Ù elim (constructive) forward" IS
+TACTIC "contra (constructive) forward" IS
 	WHEN
 		(LETGOAL _A
-			"Ù elim (constructive)"
+			"contra (constructive)"
 			(WHEN
 				(LETHYP Ù (WITHHYPSEL (hyp Ù)))
 				(hyp Ù)
 			)
 		)
-		(ForwardCut 0 (Noarg "Ù elim (constructive)" "Ù elim (constructive)"))
+		(ForwardCut 0 (Noarg "contra (constructive)" "contra (constructive)"))
 
 TACTIC "Â elim forward" IS
 	WHEN	(LETHYP2 _A (Â_A) 
