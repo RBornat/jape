@@ -201,8 +201,14 @@ public class Dispatcher extends Thread {
                         if (p.equals("CLEARPROVISOVIEW")&&len==1)
                             ProofWindow.clearProvisoView();
                         else
+                        if (p.equals("GETSELECTIONS")&&len==1)
+                            Reply.reply(ProofWindow.getSelections());
+                        else
                         if (p.equals("GETTEXTSELECTIONS")&&len==1)
-                            ProofWindow.reportTextSelections();
+                            Reply.reply(ProofWindow.getTextSelections());
+                        else
+                        if (p.equals("GETGIVENTEXTSELECTIONS")&&len==1)
+                            Reply.reply(ProofWindow.getGivenTextSelections());
                         else
                         
                     // OPERATOR .. deal with the keyboard in some dialogue boxes
