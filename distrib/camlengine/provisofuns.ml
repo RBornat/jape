@@ -473,7 +473,8 @@ let draganddropmapping ps =
                         ) <* sts
                     ) ists sts
   in 
-    nj_fold (fun ((ss,ts),rs) -> (ss><ts)@rs) sts [] 
+    (* nj_fold (fun ((ss,ts),rs) -> (ss><ts)@rs) sts [] *) 
+    sts
 
 (* for export *)
 
