@@ -76,13 +76,14 @@ let resetallcachesandvariables () =
   Button.resetfontstuff ();
   Disproof.clearforcedefs ();
   Doubleclick.cleardoubleclicks ();
-  Japeserver.resetcache ();
-  Minwaste.resetminwcache ();
+  Japeserver.resetfontnames ();
+  Minwaste.resetcache ();
   Proofstore.clearproofs ();
   Proofstate.clearautorules ();
   Sequent.resetsyntaxandturnstiles ();
   Symbol.resetSymbols ();
   Tacticfuns.resetcaches ();
+  Termfold.resetcache();
   Termstore.resettermstore ();
   Termparse.resettermparse ();
   Thing.clearthings ();
@@ -1741,7 +1742,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "fonts_reset", [] ->
             (* needs to do disproof as well *)
-            Japeserver.resetcache ();
+            Japeserver.resetfontnames ();
             let pinfs =
               match pinfs with
                 fg :: bgs ->
