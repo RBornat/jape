@@ -25,12 +25,14 @@
     
 */
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -135,32 +137,14 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         Printing
 
      **********************************************************************************************/
-    
-    public int print(Graphics g, PageFormat pf, int pi) throws PrinterException {
-        if (pi >= 1) {
-            return Printable.NO_SUCH_PAGE;
-        }
-        
-        if (printlayout_tracing) {
-            System.err.println("ProofWindow.print("+g+")");
-            japeserver.showContainer(proofCanvas);
-        }
-        
-        g.translate((int)pf.getImageableX()+1, (int)pf.getImageableY()+1);
-        proofCanvas.paint(g);
-        
-        return Printable.PAGE_EXISTS;
-    }
 
-    /* The printed result is set out like this
-       (with obvious modifications if disproof+tiles and/or provisos are empty):
-                                  -------
-         ----------------------  |       |
-        |                      | |       |
-        |      disproof        | | tiles |
-        |                      | |       |
-         ----------------------   -------
-             disproof sequent
+    /* Print layout (with obvious modifications if disproof and/or provisos are empty):
+
+         ----------------------  
+        |                      |
+        |      disproof        |
+        |                      |
+         ---------------------- 
         (line)
          ---------------------------
         |                           |
@@ -175,8 +159,47 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         |    provisos         |
         |                     |
          ---------------------
+     */
 
-        */
+    private int gap() { return 5*proofCanvas.linethickness; }
+
+    private int separatorThickness() { return 2*proofCanvas.linethickness; }
+    
+    public int print(Graphics g, PageFormat pf, int pi) throws PrinterException {
+        if (pi >= 1) {
+            return Printable.NO_SUCH_PAGE;
+        }
+        
+        if (printlayout_tracing) {
+            System.err.println("ProofWindow.print("+g+")");
+            japeserver.showContainer(proofCanvas);
+        }
+        
+        g.translate((int)pf.getImageableX()+1, (int)pf.getImageableY()+1);
+
+        if (disproofPane!=null) {
+            disproofPane.print(g);
+            Dimension disproofSize = disproofPane.printSize();
+            g.setColor(Preferences.SeparatorColour);
+            ((Graphics2D)g).setStroke(new BasicStroke((float)separatorThickness()));
+            g.drawLine(0, disproofSize.height,
+                       Math.max(disproofSize.width, proofCanvas.getWidth()), disproofSize.height);
+            g.translate(0, disproofSize.height+separatorThickness()+gap());
+        }
+
+        proofCanvas.paint(g);
+
+        if (provisoCanvas!=null) {
+            g.translate(0, proofCanvas.getHeight()+gap());
+            g.setColor(Preferences.SeparatorColour);
+            ((Graphics2D)g).setStroke(new BasicStroke((float)separatorThickness()));
+            g.drawLine(0, 0,
+                       Math.max(proofCanvas.getWidth(), provisoCanvas.getWidth()), 0);
+            g.translate(0, separatorThickness()+gap());
+            provisoCanvas.paint(g);
+        }
+        return Printable.PAGE_EXISTS;
+    }
 
     /**********************************************************************************************
 
