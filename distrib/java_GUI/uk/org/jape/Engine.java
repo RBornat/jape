@@ -30,10 +30,12 @@ import java.io.OutputStream;
 
 public class Engine implements DebugConstants {
     private static Process engine;
+    private static Engine  self;
 
     public Engine (String enginePath) {
         try {
             engine = Runtime.getRuntime().exec(enginePath);
+            self = this;
         } catch (Exception exn) {
             /* StringWriter sw = new StringWriter();
             System.getProperties().list(new PrintWriter(sw)); */
@@ -60,8 +62,8 @@ public class Engine implements DebugConstants {
         
         Thread engineLogger = new Logger.StreamLog("engine log", new EngineLog());
         engineLogger.start();
-
         new Dispatcher().start();
     }
 }
+
 

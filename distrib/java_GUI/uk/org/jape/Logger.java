@@ -46,12 +46,19 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class Logger {
+    private static final boolean desperation = false;
+    
     private static final JTextArea textArea = new JTextArea(50,80);
 
     private static class ScreenWriter extends Writer {
         // for the moment, the minimum
         public void write(String s) {
-            textArea.append(s);
+            if (desperation)
+            { System.err.print(s);
+              System.err.flush();
+            }
+            else
+              textArea.append(s);
         }
         public void write(char cs[], int off, int len) {
             write(new String(cs, off, len));
@@ -264,7 +271,10 @@ public class Logger {
         inLogger.start();
 
         PrintStream errStream = new PrintStream(outer, true);
-        System.setErr(errStream);
+        if (desperation) 
+           System.err.println("Straightout error interface (desperation)");
+        else
+           System.setErr(errStream);
 
         // System.err.println("this am a test!");
     }
@@ -309,3 +319,4 @@ public class Logger {
         }
     }
 }
+

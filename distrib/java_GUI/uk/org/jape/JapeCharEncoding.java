@@ -251,6 +251,8 @@ public class JapeCharEncoding implements DebugConstants {
                             ignoreLF=false;
                         else
                             return inbuf.toString();
+                        break;
+                        
                     case -1:
                         ignoreLF=false; // a little unnecessary, but it makes me feel more comfortable
                         if (inbuf.length()==0)
@@ -458,6 +460,7 @@ public class JapeCharEncoding implements DebugConstants {
     setmap(0xfb01, 0x27e7); // white right square bracket (semantic ket) (301b may be preferable)
     setmap(0xfb02, 0x2229); // intersection
 */
+
 
 
 

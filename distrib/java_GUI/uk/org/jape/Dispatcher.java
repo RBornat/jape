@@ -452,3 +452,4 @@ public class Dispatcher extends Thread implements DebugConstants {
         throw new ProtocolError ("\""+s+"\" is not a single char string");
     }
 }
+
