@@ -32,6 +32,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.LayoutManager;
 
+import javax.swing.JFrame;
+
 // BoxLayout doesn't work for laying out this thing,
 // if you use BorderLayout to give lots of space to the worldPane.
 // So I do it by steam (again; sigh!). BoxLayout doesn't even work for the tile canvas ...
@@ -43,17 +45,17 @@ public class DisproofPane extends Container implements DebugConstants {
     final Container seqView;
     final Container tileCanvas;
 
-    Container layeredPane; // for the draggers and droppers
+    JFrame window; // for the draggers and droppers
     
-    public DisproofPane(Container layeredPane, int linethickness) {
+    public DisproofPane(JFrame window, int linethickness) {
         super();
-        this.layeredPane = layeredPane; this.linethickness = linethickness;
+        this.window = window; this.linethickness = linethickness;
         
         setLayout(new DisproofPaneLayout());
         setBackground(Color.white);
         worldPane = new AnchoredScrollPane();
         add(worldPane);
-        worldCanvas = new WorldCanvas(worldPane.getViewport(), layeredPane, true, linethickness);
+        worldCanvas = new WorldCanvas(worldPane.getViewport(), window, true, linethickness);
         worldPane.add(worldCanvas);
         worldPane.setAnchor(AnchoredScrollPane.ANCHOR_SOUTH);
         tileCanvas = new Container() {
@@ -94,7 +96,7 @@ public class DisproofPane extends Container implements DebugConstants {
         tileCanvas.removeAll();
         this.tiles = new Tile[tiles.length];
         for (int i=0; i<tiles.length; i++) {
-            Tile t = new Tile(layeredPane, tiles[i]);
+            Tile t = new Tile(window, tiles[i]);
             this.tiles[i] = t;
             tileCanvas.add(t);
         }
