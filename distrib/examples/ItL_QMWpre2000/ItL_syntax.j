@@ -1,16 +1,18 @@
 /* $Id$ */
 
-INFIX 300 300 ¦
-INFIX 200 200 ë
-INFIX 101 100 ç	/* ç is right-associative, which means a higher _leftwards_ precedence!! */
+INFIX 300L ¦
+INFIX 200L ë
+INFIX 100R ç
 PREFIX Â
 
 LEFTFIX è .
 LEFTFIX ä .
 
-CLASS VARIABLE x, y, z
+PREFIX wellformed, constant
+
+CLASS VARIABLE x, y, z, c, d
 CLASS FORMULA A, B, C, P, Q, R, S
-CLASS CONSTANT c
+/* CLASS CONSTANT c, d */
 
 BIND x SCOPE P IN èx . P
 BIND x SCOPE P IN äx . P

@@ -7,30 +7,10 @@
 	updated again July 1996, with proper sequent syntax
 */
 
-FONTS "Konstanz"
-INITIALISE displaystyle tree
-
-INFIX   1000    1000    é
-INFIX   1101    1100    ç
-INFIX   1500    1500    ¦
-INFIX   1600    1600    ë
-PREFIX Â
-
-LEFTFIX è .
-LEFTFIX ä .
-
-CLASS BAG ‚
-CLASS FORMULA A, B, C, D, P, Q, R, S
-CLASS VARIABLE x, y, z, m, n, u, v
+USE "sequent_syntax.j"
 CONSTANT Ù
 
-BIND x SCOPE P IN äx . P
-BIND x SCOPE P IN èx . P
-
-
 SEQUENT IS BAG æ FORMULA
-
-INITIALISE interpretpredicates true
 
 RULE	hyp(A)							INFER ‚,A æ A
 RULE	"æ¦"		FROM ‚ æ A AND  ‚ æ B		INFER ‚ æ A¦B
@@ -55,14 +35,6 @@ RULE	cut(A)	FROM ‚ æ A AND ‚, A æ C 		INFER ‚ æ C
 RULE	thin(A)	FROM ‚ æ B 				INFER ‚, A æ B
 RULE	dup(A)	FROM ‚, A, A æ B 			INFER ‚, A æ B
 
-/* It would be nice to be able to prove this derived rule ...
-DERIVED	"æÂ'"(A)		FROM A æ Ù INFER ÂA
-*/
-        
-/* and this one, but it's really just contradiction ...
-DERIVED	"Âæ'"(A,B)	FROM A INFER  ÂA æ B
-*/
-                                
 MENU Rules IS
 	ENTRY hyp
 	ENTRY cut
