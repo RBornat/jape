@@ -48,7 +48,7 @@ import javax.swing.SwingUtilities;
 
 public class WorldItem extends DisplayItem implements DebugConstants, MiscellaneousConstants,
                                                       SelectionConstants,
-                                                      TileTarget {
+                                                      TileTarget, WorldTarget {
 
     protected WorldCanvas canvas;
     protected JLayeredPane layeredPane;
@@ -59,8 +59,9 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     private final int x0, y0, radius, labelgap;
     private int labelx;
     private Vector labelv = new Vector(),
-                   fromv = new Vector(),
-                   tov = new Vector();
+                   textv  = new Vector(),
+                   fromv  = new Vector(),
+                   tov    = new Vector();
 
     public WorldItem(WorldCanvas canvas, JFrame window, int x, int y) {
         super(x, y);
@@ -123,7 +124,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     public void addlabel(String s) {
         TextItem t = canvas.addLabelItem(labelx, y0, s);
-        labelv.add(t);
+        labelv.add(t); textv.add(s);
         labelx += t.getWidth()+labelgap;
     }
     
@@ -194,28 +195,54 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     /* ****************************** world as drag target ****************************** */
 
-    public void dragEnter() {
-        setDragHighlight(true);
+    private boolean acceptDrag(Object o) {
+        if (o instanceof Tile) { // only have the label once, thankyou
+            String text = ((Tile)o).text;
+            for (int i=0; i<labelv.size(); i++)
+                if (text.equals((String)textv.get(i)))
+                    return false;
+            return true;
+        }
+        else
+        if (o instanceof WorldItem)
+            return o!=this;
+        else
+            return false;
+    }
+
+    public boolean dragEnter(Object o) { 
+        if (acceptDrag(o)) { 
+            setDragHighlight(true); return true;
+        }
+        else
+            return false;
     }
 
     public void dragExit() {
         setDragHighlight(false);
     }
 
-    /* ****************************** world as tile drag target ****************************** */
+    /* ****************************** world as drop target ****************************** */
 
     public void drop(Tile t) {
-        Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+t.text+"\"");
-        setDragHighlight(false);
+        if (draghighlight) {
+            Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+t.text+"\"");
+            setDragHighlight(false);
+        }
+        else
+            Alert.abort("tile drop on non-accepting world");
     }
-    
+
+    public void drop(byte dragKind, WorldItem w, int x, int y) {
+        if (draghighlight)
+            Reply.sendCOMMAND((dragKind==MoveWorldDrag ? "moveworld" : "addworld")+
+                            " "+w.idX+" "+w.idY+" "+idX+" "+idY);
+        else
+            Alert.abort("world drop on non-accepting world");
+    }
+
     /* ****************************** world as drag source ****************************** */
 
-    public void hitCanvas(WorldCanvas canvas, int x, int y) {
-        Reply.sendCOMMAND((worldImage.dragKind==MoveWorldDrag ? "moveworld" : "addworld")+
-                          " "+idX+" "+idY+" "+x+" "+(-y));
-    }
-    
     private int startx, starty, lastx, lasty, offsetx, offsety, centreoffsetx, centreoffsety;
     private boolean firstDrag;
 
@@ -233,6 +260,10 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             for (int i=0; i<labelv.size(); i++)
                 include((TextItem)labelv.get(i));
             fixImage();
+        }
+        public void moveTo(int x, int y) {
+            super.moveTo(x,y);
+            dragLines.wakeup();
         }
     }
 
@@ -309,8 +340,9 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             centreoffsetx = offsetx+radius; centreoffsety = offsety+radius;
             layeredPane.add(worldImage, JLayeredPane.DRAG_LAYER);
             worldImage.setLocation(
-                    SwingUtilities.convertPoint(this, e.getX()-startx-offsetx, e.getY()-starty-offsety,
-                                                layeredPane));
+                SwingUtilities.convertPoint(this, e.getX()-startx-offsetx,
+                                                  e.getY()-starty-offsety,
+                                                  layeredPane));
             worldImage.repaint();
             dragLines = new DragLines();
             switch (dragKind) {
@@ -332,24 +364,20 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             if (drag_tracing)
                 System.err.print("mouse dragged to "+e.getX()+","+e.getY());
 
-            worldImage.repaint();
-            worldImage.setLocation(worldImage.getX()+(e.getX()-lastx),
-                                   worldImage.getY()+(e.getY()-lasty));
+            worldImage.moveTo(worldImage.getX()+(e.getX()-lastx),
+                              worldImage.getY()+(e.getY()-lasty));
             if (drag_tracing)
                 System.err.println("; dragged world now at "+worldImage.getX()+","+worldImage.getY());
-            worldImage.repaint();
-
-            dragLines.wakeup();
         }
             
         Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
         WorldTarget target = (WorldTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
         if (target!=over) {
-            if (over!=null)
-                over.dragExit();
-            if (target!=null)
-                target.dragEnter();
-            over = target;
+            if (over!=null) {
+                over.dragExit(); over=null;
+            }
+            if (target!=null && target.dragEnter(WorldItem.this))
+                over = target;
         }
         lastx = e.getX(); lasty = e.getY();
     }
@@ -371,7 +399,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             Point p = SwingUtilities.convertPoint(layeredPane, worldImage.getX()+offsetx+radius,
                                                   worldImage.getY()+offsety+radius, (Component)over);
             finishDrag();
-            over.drop(this, p.x, p.y);
+            over.drop(dragKind, this, p.x, p.y);
         }
     }
 
