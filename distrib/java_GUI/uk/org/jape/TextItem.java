@@ -103,8 +103,6 @@ class TextItem extends DisplayItem implements DebugConstants {
         Vector cs = new Vector();
         computeColourSegs((char)0, NormalColour, false, cs);
         coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
-        if (debugTextItem)
-            System.err.println("TextItem built "+this);
     }
 
     // TextItems can have a selection halo
