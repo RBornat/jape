@@ -35,9 +35,9 @@ import java.util.prefs.Preferences;
 
 public class FilePrefs {
     
-    private static final String lastOpenDirKey = "LastOpenedDirectory",
-		lastSavedDirKey = "LastSavedDirectory",
-		recentFilesKey = "RecentFiles";
+    private static final String lastOpenDirKey  = "LastOpenedDirectory",
+				lastSavedDirKey = "LastSavedDirectory",
+				recentFilesKey  = "RecentFiles";
     
     public static void setLastOpenedDir(File path) { 
 	Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
