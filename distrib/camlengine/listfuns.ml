@@ -55,6 +55,7 @@ let rec doubleslosh (f, pp) =
   in
   ff
 (* /> looks like foldl *)
+
 let rec ( /> ) ((e : 'a), (( ++ ) : 'a * 'b -> 'a)) : 'b list -> 'a =
   (* infix ++; *)
   let rec ff a1 a2 =
@@ -64,6 +65,7 @@ let rec ( /> ) ((e : 'a), (( ++ ) : 'a * 'b -> 'a)) : 'b list -> 'a =
   in
   ff e
 (* </ looks like foldr *)
+
 let rec ( </ ) (( ++ ), e) =
   (* infix ++; *) let rec ff =
     function
@@ -72,6 +74,7 @@ let rec ( </ ) (( ++ ), e) =
   in
   ff
 (* wassis? *)
+
 let rec ( // ) =
   function
     ( ++ ), x :: xs -> ( /> ) (x, ( ++ )) xs
@@ -96,10 +99,12 @@ let rec seteq eq xs =
     (fun (x, ys) ->
        if List.exists (fun x' -> eq x x') ys then ys else x :: ys)
     xs []
+
 let rec set (xs : 'a list) =
   seteq ( = ) xs
 
 let rec subset (xs, ys) = _All (fun x -> member (x, ys)) xs
+
 let _INTER xs ys = (fun y -> member (y, xs)) <| ys
 
 let rec interpolate a1 a2 =
@@ -107,15 +112,20 @@ let rec interpolate a1 a2 =
     sep, [] -> []
   | sep, [s] -> [s]
   | sep, s1 :: ss -> s1 :: sep :: interpolate sep ss
+
 let rec catelim_interpolate a1 a2 a3 a4 =
   match a1, a2, a3, a4 with
     f, sep, [], ys -> ys
   | f, sep, [x], ys -> f x ys
   | f, sep, x :: xs, ys -> f x (sep :: catelim_interpolate f sep xs ys)
+
 let rec catelim2stringfn f x = implode (f x [])
+
 let rec stringfn2catelim f x ss = f x :: ss
+
 let rec catelim_liststring obstring punct =
   catelim_interpolate obstring punct
+
 let rec catelim_liststring2 obstring sepn sep2 xs tail =
   match xs with
     [] -> tail
@@ -123,61 +133,75 @@ let rec catelim_liststring2 obstring sepn sep2 xs tail =
   | [x1; x2] -> obstring x1 (sep2 :: obstring x2 tail)
   | x :: xs ->
       obstring x (sepn :: catelim_liststring2 obstring sepn sep2 xs tail)
+
 let rec catelim_bracketedliststring obstring punct xs tail =
   "[" :: catelim_liststring obstring punct xs ("]" :: tail)
+
 let rec liststring obstring punct =
   catelim2stringfn (catelim_liststring (stringfn2catelim obstring) punct)
+
 let rec liststring2 obstring sepn sep2 =
   catelim2stringfn
     (catelim_liststring2 (stringfn2catelim obstring) sepn sep2)
+
 let rec bracketedliststring obstring punct =
   catelim2stringfn
     (catelim_bracketedliststring (stringfn2catelim obstring) punct)
+
 let rec replacenth a1 a2 a3 =
   match a1, a2, a3 with
     x :: xs, 0, y -> y :: xs
   | x :: xs, n, y -> x :: replacenth xs (n - 1) y
   | [], _, _ -> []
 exception Last_
+
 let rec last =
   function
     [x] -> x
   | _ :: xs -> last xs
   | [] -> raise Last_
 (* these things revised to Bird-Meertens standards - no Failure "nth" here! *)
+
 let rec take a1 a2 =
   match a1, a2 with
     0, xs -> []
   | n, [] -> []
   | n, x :: xs -> x :: take (n - 1) xs
+
 let rec drop a1 a2 =
   match a1, a2 with
     0, xs -> xs
   | n, [] -> []
   | n, x :: xs -> drop (n - 1) xs
+
 let rec takewhile a1 a2 =
   match a1, a2 with
     f, x :: xs -> if f x then x :: takewhile f xs else []
   | f, [] -> []
+
 let rec dropwhile a1 a2 =
   match a1, a2 with
     f, x :: xs -> if f x then dropwhile f xs else x :: xs
   | f, [] -> []
+
 let rec _BMzip xs ys = 
   match xs, ys with
     x::xs, y::ys -> (x, y) :: _BMzip xs ys
   | _    , _     -> []
+
 let rec isprefix a1 a2 a3 =
   match a1, a2, a3 with
     eq, [], ys -> true
   | eq, x :: xs, y :: ys -> eq (x, y) && isprefix eq xs ys
   | eq, _, _ -> false
 exception Extract_
+
 let rec extract a1 a2 =
   match a1, a2 with
     f, [] -> raise Extract_
   | f, x :: xs ->
       if f x then x, xs else let (y, ys) = extract f xs in y, x :: ys
+
 let rec split a1 a2 =
   match a1, a2 with
     f, [] -> [], []
@@ -224,6 +248,7 @@ let rec sort (<) ls =
   match ls with
     [] -> []
   | _ -> samsorting (ls, [], 0)
+
 let rec sortandcombine (<) ( ++ ) ls =
   (* infix ++ *)
   let rec merge =
@@ -260,6 +285,7 @@ let rec sortandcombine (<) ( ++ ) ls =
     [] -> []
   | _ -> samsorting (ls, [], 0)
 (* remdups removes consecutive duplicates *)
+
 let rec remdups =
   function
     [] -> []
@@ -267,7 +293,9 @@ let rec remdups =
   | x1 :: x2 :: xs ->
       let rest = remdups (x2 :: xs) in
       if x1 = x2 then rest else x1 :: rest
+
 let rec sortunique (<) = remdups <.> sort (<)
+
 let rec earlierlist a1 a2 a3 =
   match a1, a2, a3 with
     (<), x :: xs, y :: ys ->
@@ -276,6 +304,7 @@ let rec earlierlist a1 a2 a3 =
   | _, [], _  -> true
   | _, _, _  -> false
 (* lists sorted by < or <=; does set diff or bag diff accordingly *)
+
 let rec sorteddiff a1 a2 a3 =
   match a1, a2, a3 with
     (<), [], ys -> []
@@ -286,6 +315,7 @@ let rec sorteddiff a1 a2 a3 =
         x1 :: sorteddiff (<) xs (y1 :: ys)
       else sorteddiff (<) (x1 :: xs) ys
 (* lists sorted by < or <=; does set or bag intersect accordingly *)
+
 let rec sortedsame a1 a2 a3 =
   match a1, a2, a3 with
     (<), [], ys -> []
@@ -295,6 +325,7 @@ let rec sortedsame a1 a2 a3 =
       else if x1 < y1 then sortedsame (<) xs (y1 :: ys)
       else sortedsame (<) (x1 :: xs) ys
 (* given sorted by < -- no duplicates -- lists. designed to be folded ... *)
+
 let rec sortedmergeandcombine (<) ( + ) xs ys =
   let rec s a1 a2 =
     match a1, a2 with
@@ -306,9 +337,11 @@ let rec sortedmergeandcombine (<) ( + ) xs ys =
         else x1 + y1 :: s xs ys
   in
   s xs ys
+
 let rec sortedmerge (<) xs ys =
   sortedmergeandcombine (<) (fun x _ -> x) xs ys
 (* this ignores elements of ys after the last one that actually occurs in xs *)
+
 let rec sortedlistsub eq xs ys =
   let rec g a1 a2 =
     match a1, a2 with
@@ -359,11 +392,13 @@ let rec allpairs xs =
    but I'm trying to avoid consing ... Is that necessary or even a good idea?
    There's a lot of tupling going on ...
  *)
+
 let rec eqlists a1 a2 =
   match a1, a2 with
     ee, ([], []) -> true
   | ee, (x :: xs, y :: ys) -> ee (x, y) && eqlists ee (xs, ys)
   | ee, _ -> false
+
 let rec numbered xs =
   let rec r a1 a2 =
     match a1, a2 with
@@ -372,6 +407,7 @@ let rec numbered xs =
   in
   r 0 xs
 (* list subtraction, often faster than the list function slosh *)
+
 let rec listsub eq xs ys =
   let rec sf a1 a2 =
     match a1, a2 with
@@ -386,9 +422,11 @@ let rec listsub eq xs ys =
         sf (strip xs) ys
   in
   sf xs ys
+
 let rec eqbags =
   fun ee (xs, ys) -> List.length xs = List.length ys && null (listsub ee xs ys)
 (* first attempt at a topological sort: doesn't try to coalesce cycles *)
+
 let rec toposort roots depf =
   let rec ts visited (root, (order, cycles)) =
     if member (root, visited) then

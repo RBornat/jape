@@ -44,19 +44,33 @@ type term       = Term.Funs.term
  and font       = Text.font
  and displayclass = Displayclass.displayclass
  
+
 let consolereport = Miscellaneous.consolereport
+
 let element2text  = Absprooftree.element2text
+
 let elementstring = Term.Termstring.elementstring
+
 let findfirst     = Optionfuns.findfirst
+
 let interpolate   = Listfuns.interpolate
+
 let optionstring  = Optionfuns.optionstring
+
 let pairstring    = Stringfuns.pairstring
+
 let proofpane     = Displayfont.ProofPane
+
 let reason2text   = Absprooftree.reason2text
+
 let reason2fontNstring = Absprooftree.reason2fontNstring
+
 let term2text     = Absprooftree.term2text
+
 let termstring    = Term.Termstring.termstring
+
 let triplestring  = Stringfuns.triplestring
+
 
 let fontinfo = fontinfo
 and blacken = blacken
@@ -65,14 +79,17 @@ and drawLine = drawLine
 
 type class__ = int (* could be Japeserver.class__, if I played it right ... *)
     
+
 let rec drawinproofpane () = Japeserver.drawinpane proofpane
 
 type 'a plan = Formulaplan of (textlayout * textbox * 'a)
+
 
 let rec planstring f =
   fun (Formulaplan plan) ->
     "Formulaplan" ^ triplestring textlayoutstring textboxstring f "," plan
 (* was plan2string *)
+
 let rec plan2string =
   function
     Formulaplan (Textlayout [_, _, s], _, _) -> s
@@ -81,37 +98,59 @@ let rec plan2string =
         (Catastrophe_
            ["multisyllable text in plan2string -- ";
             planstring (fun _ -> "...") p])
+
 let rec plantextlayout = fun (Formulaplan (tl, _, _)) -> tl
+
 let rec plantextbox = fun (Formulaplan (_, b, _)) -> b
+
 let rec planinfo = fun (Formulaplan (_, _, i)) -> i
+
 let rec plantextsize p = tbSize (plantextbox p)
+
 let rec planlisttextsize ps =
   nj_fold ( +-+ ) (List.map plantextsize ps) nulltextsize
+
 let viewBox () = Japeserver.getPaneGeometry Displayfont.ProofPane
+
 let rec clearView () = Japeserver.clearPane Displayfont.ProofPane
+
 let highlight = Japeserver.highlight
+
 let drawBox = Japeserver.drawRect
+
 let rec linethickness leading =
   (* width of the lines (box, selection) we draw *)
   let r = max ((leading + 2) / 3) (1) in(* consolereport["leading ", string_of_int leading, "; thickness ", string_of_int r]; *)
    r
+
 let setproofparams = Japeserver.setproofparams
+
 let rec measuretext ta t = Text.measuretext Japeserver.measurestring ta t
 (* note fixed alignment, so don't use for folded/multiline texts *)
+
 let text2textinfo = measuretext FirstLine
+
 let rec mktextinfo f = text2textinfo <.> f
+
 let rec string2textinfo f = mktextinfo (string2text f)
+
 let rec element2textinfo elementstring =
   mktextinfo (element2text elementstring)
+
 let rec term2textinfo termstring = mktextinfo (term2text termstring)
+
 let reason2textinfo = mktextinfo reason2text
+
 let rec procrustean_reason2textinfo w r =
   let (rf, rs) = reason2fontNstring r in
   string2textinfo rf (Japeserver.procrustes w " ..." rf rs)
+
 let rec textinfo2plan (size, layout) info p =
   Formulaplan (layout, textbox (p, size), info)
+
 let rec string2plan font s info p =
   textinfo2plan (string2textinfo font s) info p
+
 let rec element2plan ef element info p =
   textinfo2plan (element2textinfo ef element) info p
 (* I'd much rather say val element2plan = textinfo2plan o element2textinfo, but
@@ -134,12 +173,15 @@ let rec element2plan ef element info p =
  * afterwards -- in SML, anyway.  Never mind: this works, at least.
  *)
 
+
 let rec plancons =
   fun (Formulaplan (_, b1, _) as plan) moref ->
     let (plans, b2) = moref (rightby (tbPos b1, tsW (tbSize b1))) in
     plan :: plans, ( +|-|+ ) (b1, b2)
+
 let rec plan2plans = fun (Formulaplan (_, b, _) as plan) -> [plan], b
 (* I bet this churns like buggery! Still, it never reverses :-) *)
+
 let rec things2plans thingf sepf moref things zp =
   let rec f a1 a2 =
     match a1, a2 with
@@ -149,6 +191,7 @@ let rec things2plans thingf sepf moref things zp =
         plancons (thingf el p) (fun p' -> plancons (sepf p') (f things))
   in
   f things zp
+
 let rec sequent2plans hs hf cs cf commaf stilef sp =
   let rec rhs rp =
     things2plans cf commaf (fun _ -> [], emptytextbox) cs rp
@@ -200,14 +243,18 @@ let rec sequent2plans hs hf cs cf commaf stilef sp =
 *)                                                 
 *)
 
+
 let rec planOffset =
   fun (Formulaplan (layout, box, thing)) pos ->
     Formulaplan (layout, tbOffset box pos, thing)
+
 let rec drawplan f p =
   fun (Formulaplan (Textlayout tl, b, info)) ->
     Japeserver.drawmeasuredtext (f info) tl (p +->+ tbPos b)
+
 let rec findfirstplanhit p =
   findfirst
     (fun pl -> if withintb (p, plantextbox pl) then Some pl else None)
+
 let textinfostring = pairstring textsizestring textlayoutstring ","
 
