@@ -26,10 +26,11 @@
 */
 
 interface DebugConstants {
-    static final public boolean containerlayout_tracing  = false;
-    static final public boolean menuaction_tracing       = false;
-    static final public boolean panellayout_tracing      = false;
-    static final public boolean panellist_tracing        = false;
-    static final public boolean protocol_tracing         = false;
+    static final public boolean anchoredpane_tracing     = false,
+                                containerlayout_tracing  = false,
+                                menuaction_tracing       = false,
+                                panellayout_tracing      = false,
+                                panellist_tracing        = false,
+                                protocol_tracing         = false;
 }
 
