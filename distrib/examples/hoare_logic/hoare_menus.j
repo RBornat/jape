@@ -1,11 +1,11 @@
-﻿TACTIC assign(assigntac) IS
-    WHEN   
-        (LETGOAL ({_A} (_x := _E) {_B})
-            (ALT    assigntac 
-                    (SEQ    "consequence(L)" fstep (trueforward assigntac))))
-        (LETGOAL _E (ALERT ("To make a variable-assignment step, you have to select a goal of the form \
-                            \{A} (x:=E) {B}. You selected %t.", _E)
-                            ("OK", STOP)))
+﻿TACTIC perhapsconsequenceL (tac) IS
+    ALT    tac 
+           (SEQ    "consequence(L)" fstep (trueforward tac))
+
+TACTIC perhapsconsequenceLR (tac) IS
+    ALT    tac 
+           (SEQ "consequence(L)" fstep
+                "consequence(R)" (trueforward tac) fstep)
 
 TACTIC "A = .." IS
     WHEN
@@ -134,13 +134,47 @@ TACTIC ".. = B" IS
                ("OK", STOP))
 
 MENU Programs
-    ENTRY "skip"
-    ENTRY "tilt"
-    ENTRY "sequence"
-    ENTRY "variable-assignment" IS assign "variable-assignment"
+    ENTRY "skip"    IS BackwardOnly (QUOTE ({_A} skip {_B}))
+                                    (perhapsconsequenceL "skip")
+                                    "skip"
+                                    "{A}skip{B}"
+                                    "only makes sense working backwards"
+    ENTRY "tilt"    IS BackwardOnly (QUOTE ({_A} tilt {_B}))
+                                    (perhapsconsequenceL "tilt")
+                                    "tilt"
+                                    "{A}tilt{B}"
+                                    "only makes sense working backwards"
+    ENTRY "sequence"    
+                    IS BackwardOnly (QUOTE ({_A} (_C1; _C2) {_B}))
+                                    (SEQ "sequence" fstep fstep)
+                                    "sequence"
+                                    "{A}(C1;C2){B}"
+                                    "only makes sense working backwards"
+    ENTRY "variable-assignment" 
+                    IS BackwardOnly (QUOTE ({_A} (_x := _E) {_B}))
+                                    (perhapsconsequenceL "variable-assignment")
+                                    "variable-assignment"
+                                    "{A}(x:=E){B}"
+                                    "only makes sense working backwards"
     ENTRY "array-element-assignment" IS assign "array-element-assignment"
-    ENTRY "choice" IS (SEQ "choice" fstep fstep)
-    ENTRY "while"
+                    IS BackwardOnly (QUOTE ({_A} (_Ea[_Ei] := _E) {_B}))
+                                    (perhapsconsequenceL "array-element-assignment")
+                                    "array-element-assignment"
+                                    "{A}(Ea[Ei]:=E){B}"
+                                    "only makes sense working backwards"
+    ENTRY "choice"  IS BackwardOnly (QUOTE ({_A} if _E then _C1 else _C2 fi {_B}))
+                                    (SEQ "choice" fstep fstep)
+                                    "choice"
+                                    "{A} if E then C1 else C2 fi {B}"
+                                    "only makes sense working backwards"
+    ENTRY "while"  IS BackwardOnly (QUOTE ({_A} while _E do _C od {_B}))
+                                    (perhapsconsequenceLR "array-element-assignment")
+                                    "choice"
+                                    "{A} while E do C od {B}"
+                                    "only makes sense working backwards"
+    
+    SEPARATOR
+    
     ENTRY "consequence(L)"
     ENTRY "consequence(R)"
 END
