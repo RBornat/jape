@@ -1,7 +1,7 @@
 (*
 	$Id$
 
-    Copyright (C) 2003 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -61,6 +61,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.13  2003/03/10 11:24:54  richard
+     better reading of version
+
      Revision 1.12  2003/01/11 17:37:09  richard
      copyright update
 
