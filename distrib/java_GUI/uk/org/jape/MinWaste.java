@@ -127,8 +127,7 @@ public class MinWaste {
                 try {
                     f = (F)super.clone();
                 } catch (Exception e) {
-                    Logger.log.println("can't clone "+this);
-                    System.exit(2);
+                    Logger.crash("can't clone "+this, 2);
                 }
                 f.next=clone(f.next);
                 return f;
