@@ -91,7 +91,7 @@ let lockbraket = String.make 1 Miscellaneous.lockbra, String.make 1 Miscellaneou
 let term2binding t =
   match Binding.bindingstructure t with
     Some t' -> Some (registerBinding t')
-  | None -> None
+  | None    -> None
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception ParseError_ = Miscellaneous.ParseError_
@@ -144,12 +144,34 @@ let rec my_seqexplode s =
  * keep histories of disproof attempts, I had to use a mapping.  Oh well.
  *)
 
+(* nowadays worlds are also coloured, if the user provides some selections of interest, to
+ * say if all those selections are forced at the world or not
+ *)
+
+type disproofemphasis = Forced | Unforced | Irrelevant
+
+let stringofdisproofemphasis e =
+  match e with
+    Forced     -> "Forced"
+  | Unforced   -> "Unforced"
+  | Irrelevant -> "Irrelevant"
+  
+let intofdisproofemphasis e =
+  match e with
+    Forced     -> 0
+  | Unforced   -> 1
+  | Irrelevant -> 2
+  
+
 type term = Termtype.term
 type coord = int * int
-type world = term list * coord list
+type world = disproofemphasis * term list * coord list
+          (* colour,            labels,     children *)
 
-(* labels, children *)
-   
+let emphasisofworld = fst_of_3
+let labelsofworld = snd_of_3
+let childrenofworld = thrd
+
 type universe = (coord, world) mapping
 
 let catelim_coordstring =
@@ -157,8 +179,16 @@ let catelim_coordstring =
 
 let rec coordstring c = implode (catelim_coordstring c [])
 
+let stringofdisproofemphasis e =
+  match e with
+    Forced -> "Forced"
+  | Unforced -> "Unforced"
+  | Irrelevant -> "Irrelevant"
+  
 let catelim_worldstring =
-  catelim_pairstring (catelim_bracketedliststring catelim_termstring ",")
+  catelim_triplestring 
+    (stringfn2catelim stringofdisproofemphasis)
+    (catelim_bracketedliststring catelim_termstring ",")
     (catelim_bracketedliststring catelim_coordstring ",") ", "
 
 let rec worldstring w = implode (catelim_worldstring w [])
@@ -170,51 +200,52 @@ let rec catelim_universestring sep u ss =
 
 let rec universestring sep u = implode (catelim_universestring sep u [])
 
-let rec universe2list u = List.map (fun (c, (ts, cs)) -> c, ts, cs) (aslist u)
+let rec universe2list u = List.map (fun (c, (e, ts, cs)) -> c, e, ts, cs) (aslist u)
 
-let rec emptyworld () = ((0, 0) |-> ([], []))
+let rec simplestuniverse () = ((0, 0) |-> (Unforced, [], []))
 
-let rec isemptyworld u =
+let rec issimplestuniverse u =
   match ran u with
-    [[], []] -> true
-  | _ -> false
+    [(_, [], [])] -> true
+  | _             -> false
 
 let getworld u c =
   try _The ((u <@> c)) with
-    _ -> raise (Catastrophe_ ["(Disproof.getworld) no world at "; coordstring c; "; "; universestring "" u])
+    _ -> raise (Catastrophe_ ["(Disproof.getworld) no world at "; coordstring c; 
+                              "; "; universestring "" u])
 
-(* enforce monotonicity *)
+(* world-changing operations don't preserve emphasis *)
 
 let rec domono pts u c =
-  let (ts, cs) = getworld u c in
+  let (_, ts, cs) = getworld u c in
   match listsub eqterms pts ts with
     []  -> u
-  | ts' -> foldl (domono ts') ((u ++ (c |-> (ts' @ ts, cs)))) cs
+  | ts' -> foldl (domono ts') ((u ++ (c |-> (Unforced, ts' @ ts, cs)))) cs
 
 let rec addworldlabel u c t =
   match (u <@> c) with
     None ->
       raise
         (Tacastrophe_ ["(addworldlabel) no world at "; coordstring c; "; "; universestring "" u])
-  | Some (pts, pcs) ->
+  | Some (_, pts, pcs) ->
       if member (t, pts) then None
-      else Some (foldl (domono [t]) ((u ++ (c |-> (t :: pts, pcs)))) pcs)
+      else Some (foldl (domono [t]) ((u ++ (c |-> (Unforced, t :: pts, pcs)))) pcs)
 
 let rec deleteworldlabel u c t =
   match (u <@> c) with
     None ->
       raise
         (Tacastrophe_ ["(deleteworldlabel) no world at "; coordstring c; "; "; universestring "" u])
-  | Some (pts, pcs) ->
+  | Some (_, pts, pcs) ->
       if not (member (t, pts)) then None
       else
         let rec islabelledparent u c c' =
-          let (ts, cs) = getworld u c' in member (c, cs) && member (t, ts)
+          let (_, ts, cs) = getworld u c' in member (c, cs) && member (t, ts)
         in
         let rec doself u c =
-          let (ts, cs) = getworld u c in
+          let (_, ts, cs) = getworld u c in
           if member (t, ts) then
-            (u ++ (c |-> (listsub eqterms ts [t], cs)))
+            (u ++ (c |-> (Unforced, listsub eqterms ts [t], cs)))
           else u
         in
         let rec doparents u c =
@@ -389,13 +420,12 @@ let rec semanticfringe facts ts t =
 
 let rec unfixedforced facts u =
   let rec ff f (c, t) =
-    let rec labels c = fst (getworld u c) in
-    let rec children c = snd (getworld u c) in
+    let labels = labelsofworld <.> getworld u in
+    let children = childrenofworld <.> getworld u in
     let rec lookup c t = member (t, labels c), true in
-    (* emphasis locked *)
+    (* result is (forced, locked) *)
     (* forced logic -- we force evaluation of subformulae because otherwise things go grey 
-       which shouldn't. (Is that what the second result means?) (No: see lookup above; it
-       seems to be whether you looked it up or not) (i.e. it's whether it's atomic or not)
+       which shouldn't.
      *)
     let rec logNot =
       function
@@ -516,6 +546,18 @@ type disproofstaterec =
         conclusive   : bool; 
         countermodel : bool }
 
+(* we don't store a forced (coord * term -> bool * bool) function in the state rec
+ * because, rather niftily, forcemap is being used for two separate purposes. One is to 
+ * memofun-optimise the calculation of forcing; the other is to check if a formula's
+ * force-state has ever been investigated. The body of a quantifier like All x.(P(x)->Q(x)),
+ * for example, will never be evaluated -- though P(i)->Q(i), P(j)->Q(j), etc., will be.
+ *
+ * The map gives three-valued results; a forced function can only give two.
+ *
+ * But we use forcemap via memofix (see evaldisproofstate) to tint the universe. Provided we 
+ * never allow text-selection of an irrelevant formula, no harm will come (I hope).
+ *)
+ 
 type disproofstate = Disproofstate of disproofstaterec
 
 let catelim_forcedstring =
@@ -590,16 +632,15 @@ let rec withdisprooftiles (Disproofstate s) tiles =
 let rec disproof_minimal =
   function
     None -> true
-  | Some (Disproofstate {universe = universe}) -> isemptyworld universe
+  | Some (Disproofstate {universe = universe}) -> issimplestuniverse universe
 
 let newforcemap () = Hashtbl.create 17 
 
-let rec evaldisproofstate facts tree =
-  fun (Disproofstate
-         {seq = seq; universe = universe; selected = selected; tiles = tiles}) ->
-    let (basestyle, hypsbag, basehyps, concsbag, baseconcs) =
-      my_seqexplode (base_sequent tree)
-    in
+let newforcefun forcemap facts universe = Fix.memofix forcemap (unfixedforced facts universe)
+
+let rec evaldisproofstate facts tree selections =
+  fun (Disproofstate {seq = seq; universe = universe; selected = selected; tiles = tiles}) ->
+    let (basestyle, hypsbag, basehyps, concsbag, baseconcs) = my_seqexplode (base_sequent tree) in
     let (style, _, hyps, _, concs) = my_seqexplode seq in
     let conclusive =
       ((match getsemanticturnstile basestyle with
@@ -611,21 +652,32 @@ let rec evaldisproofstate facts tree =
       (eqlists sameelement (baseconcs, concs) ||
        concsbag && null (listsub sameelement baseconcs concs))
     in
-    match selected with
-      [root] ->
-        let forcemap = newforcemap () in
-        (* fun mf a v = pairstring coordstring smltermstring "," a^"|->"^(catelim2stringfn catelim_forcedstring) v *)
-        let forced = Fix.memofix forcemap (unfixedforced facts universe) in
-        let (hs, cs) = seq_forced forced root seq in
-        let countermodel = _All fst hs && not (List.exists fst cs)
-        in
-        Disproofstate
-          {seq = seq; universe = universe; tiles = tiles; selected = selected;
-           forcemap = forcemap; conclusive = conclusive; countermodel = countermodel}
-    | _ ->
-        Disproofstate
-          {seq = seq; universe = universe; tiles = tiles; selected = selected;
-           forcemap = newforcemap (); conclusive = conclusive; countermodel = false}
+    let forcemap = newforcemap () in
+    (* fun mf a v = pairstring coordstring smltermstring "," a^"|->"^(catelim2stringfn catelim_forcedstring) v *)
+    let forced = newforcefun forcemap facts universe in
+    let countermodel =
+      if null selected then false else
+        (* evaluate everything everywhere -- no short cuts *)
+        (let results = List.map (fun root -> let (hs, cs) = seq_forced forced root seq in
+                                             _All fst hs && not (List.exists fst cs)
+                                ) selected
+         in
+         _All (fun x -> x) results)
+    in
+    ((*consolereport ["universe is "; universestring "" universe; 
+                    ", selections are "; bracketedliststring termstring ";" selections;
+                    "; after tinting "; universestring "" (tint_universe forced selections universe)]; *)
+    Disproofstate
+      {seq = seq; universe = tint_universe forced selections universe; 
+       tiles = tiles; selected = selected;
+       forcemap = forcemap; conclusive = conclusive; countermodel = countermodel})
+
+and tint_universe forced selections =
+  mkmap <.> List.map (fun (c,w) -> (c, tint_world forced selections c w)) <.> aslist
+
+and tint_world forced selections c (e, ls, chs) = 
+  ((if not (null selections) && _All (fun s -> fst (forced (c,s))) selections then Forced else Unforced),
+   ls, chs)
 
 exception Disproof_ of string list
 
@@ -733,7 +785,7 @@ let rec disproofstate2model =
       Some
         (seq,
          Model
-           (List.map (fun (c, (ts, chs)) -> World (Coord c, List.map (fun v->Coord v) chs, ts))
+           (List.map (fun (c, (_, ts, chs)) -> World (Coord c, List.map (fun v->Coord v) chs, ts))
               (aslist universe)))
 
 let rec model2disproofstate a1 a2 a3 =
@@ -743,10 +795,10 @@ let rec model2disproofstate a1 a2 a3 =
       let rec coord = fun (Coord c) -> c in
       let (Model worlds) = model in
       let ulist =
-        List.map (fun (World (c, chs, ts)) -> coord c, (ts, List.map coord chs))
+        List.map (fun (World (c, chs, ts)) -> coord c, (Unforced, ts, List.map coord chs))
           worlds
       in
-      let utiles = nj_fold (fun (x, y) -> x @ y) (List.map (fst <.> snd) ulist) [] in
+      let utiles = nj_fold (fun (x, y) -> x @ y) (List.map (labelsofworld <.> snd) ulist) [] in
       let uvars = nj_fold (uncurry2 tmerge) (List.map variables utiles) [] in
       let tiles = List.map newoccurrence uvars @ seq2tiles facts seq @ utiles in
       let minc =
@@ -758,7 +810,7 @@ let rec model2disproofstate a1 a2 a3 =
       let u = mkmap ulist in
       let ws = List.map fst ulist in
       List.iter
-        (fun ((_, cy as c), (ts, chs)) ->
+        (fun ((_, cy as c), (_, ts, chs)) ->
            List.iter
              (fun (_, chy as ch) ->
                 if chy <= cy then
@@ -769,7 +821,7 @@ let rec model2disproofstate a1 a2 a3 =
                         universestring "" u])
                 else
                   match (u <@> ch) with
-                    Some (chts, _) ->
+                    Some (_, chts, _) ->
                       if not
                            (null (listsub (fun (x,y) -> x=y) ts chts))
                       then
@@ -787,7 +839,7 @@ let rec model2disproofstate a1 a2 a3 =
              chs)
         ulist;
       Some
-        (evaldisproofstate facts tree
+        (evaldisproofstate facts tree [] (* empty selections is correct *)
            (Disproofstate
               {seq = seq; universe = mkmap ulist; tiles = tilesort tiles;
                selected = [minc]; conclusive = false; forcemap = newforcemap ();
@@ -811,9 +863,9 @@ let rec disproof_start facts tree pathopt hyps =
         Some sem -> mkSeq (sem, hyps, concs)
       | None -> s'
     in
-    evaldisproofstate facts tree
+    evaldisproofstate facts tree [] (* empty selections is right here *)
       (Disproofstate
-         {seq = seq; universe = emptyworld (); tiles = tilesort tiles;
+         {seq = seq; universe = simplestuniverse (); tiles = tilesort tiles;
           selected = [0, 0]; conclusive = false; forcemap = newforcemap ();
           countermodel = false})
   in
@@ -934,15 +986,15 @@ let rec newtile =
             Some (withdisprooftiles d (tilesort (tile :: tiles)))))
 
 let rec addlink u (_, fromy as from) (_, to__y as to__) =
-  let (ts, cs) = getworld u from in
+  let (_, ts, cs) = getworld u from in
   if to__y<=fromy then u else
   if member (to__, cs) then u else 
-  domono ts (u ++ (from |-> (ts, to__ :: cs))) to__
+  domono ts (u ++ (from |-> (Unforced, ts, to__ :: cs))) to__
 
 let rec deletelink u from to__ =
-  let (ts, cs) = getworld u from in
+  let (_, ts, cs) = getworld u from in
   if member (to__, cs) then
-    (u ++ (from |-> (ts, listsub (fun (x,y) -> x=y) cs [to__])))
+    (u ++ (from |-> (Unforced, ts, listsub (fun (x,y) -> x=y) cs [to__])))
   else u
 
 let spliceworldtolink u w lfrom lto__ =
@@ -951,12 +1003,12 @@ let spliceworldtolink u w lfrom lto__ =
   addlink u w lto__
 
 let addchild u (_, py as pc) (_, cy as cc) =
-  let (pts, pcs) = getworld u pc in
+  let (_, pts, pcs) = getworld u pc in
   if member (cc, pcs) then None (* already there *)
   else
-    let u = if py<cy then u ++ (pc |-> (pts, cc::pcs)) else u in
+    let u = if py<cy then u ++ (pc |-> (Unforced, pts, cc::pcs)) else u in
     match u <@> cc with
-      None   -> Some (u ++ (cc |-> (pts, [])))
+      None   -> Some (u ++ (cc |-> (Unforced, pts, [])))
     | Some _ -> Some (domono pts u cc)
 
 let addchildtolink u parent child lfrom lto__ =
@@ -974,13 +1026,11 @@ let deleteworld =
         match ws with
           [] -> None (* we don't delete the last world *)
         | _  -> let rec doit w =
-                  (* consolereport [coordstring w; " = "; 
-                      pairstring (bracketedliststring termstring ";") (bracketedliststring coordstring ";") 
-                                 "," (getworld universe w)]; *)
-                  let (ts, cs) = getworld universe w in
+                  (* consolereport [coordstring w; " = "; worldstring (getworld universe w)]; *)
+                  let (_, ts, cs) = getworld universe w in
                   let cs' = listsub (fun (x,y) -> x=y) cs [c] in
                   (* consolereport [" => "; bracketedliststring coordstring ";" cs']; *)
-                  w, (ts, cs')
+                  w, (Unforced, ts, cs')
                 in
                 let u' = mkmap (List.map doit ws) in
                 Some
@@ -996,13 +1046,13 @@ let rec worldselect =
       None
     else Some (withdisproofselected d cs)
 
-let rec children u c = snd (getworld u c)
+let children u = childrenofworld <.> getworld u
 
 let rec parents u c = (fun p -> member (c, children u p)) <| dom u
 
 let moveworld (Disproofstate {universe = u; selected = sels} as d) from (_, toy as to__) =
   if from = to__ then None else
-  let (fromts, fromcs) = getworld u from in
+  let (_, fromts, fromcs) = getworld u from in
   (* I used to remake the diagram in various ways; 
      now you just get what you see, and you can repair as necessary 
    *)
@@ -1010,20 +1060,21 @@ let moveworld (Disproofstate {universe = u; selected = sels} as d) from (_, toy 
   let fromcs = (fun (_, cy) -> toy<cy) <| (listsub (fun (x,y) -> x=y) fromcs [to__]) in
   (* delete parent->to__ contrary links; change parent->from links into parent->to__ links *)
   let switch w = if w=from then to__ else w in
-  let swing ws = if member (to__, ws) then listsub (fun (x,y) -> x=y) ws [from] else List.map switch ws in
+  let swing ws = if member (to__, ws) then listsub (fun (x,y) -> x=y) ws [from] 
+                 else List.map switch ws in
   let clean (_, wy as w) =
-    let (ts, cs) = getworld u w in
-    w, (ts, (if wy<toy then swing cs else listsub (fun (x,y) -> x=y) cs [from]))
+    let (_, ts, cs) = getworld u w in
+    w, (Unforced, ts, (if wy<toy then swing cs else listsub (fun (x,y) -> x=y) cs [from]))
   in
   let u = mkmap (List.map clean (listsub (fun (x,y) -> x=y) (dom u) [from])) in
   let u = match u <@> to__ with
             None -> (* easy, no world at this position *) 
-              u++(to__|->(fromts, fromcs))
-          | Some (to__ts, to__cs) -> (* harder! unite the worlds *)
+              u++(to__|->(Unforced, fromts, fromcs))
+          | Some (_, to__ts, to__cs) -> (* harder! unite the worlds *)
               (* union of the children *)
               let to__cs = listsub (fun (x,y) -> x=y) fromcs to__cs @ to__cs in
               (* and all the labels in from *)
-              domono fromts (u++(to__|->(to__ts,to__cs))) to__
+              domono fromts (u++(to__|->(Unforced,to__ts,to__cs))) to__
   in
   Some (withdisproofselected (withdisproofuniverse d u) (swing sels))
   
@@ -1105,28 +1156,28 @@ let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = til
                                                           (catelim2stringfn catelim_forcedstring) forcemap
                      ] in
               *)
-    let root = match selected with [root] -> root | _ -> 0, 0 in
-    
-    (* the value doesn't matter: forcemap will be empty *)
+
+    (* the value doesn't matter: forcemap will be empty (what? I hope not!) *)
+    (* Gosh! What is this for? *)
     let rec realterm t =
       match term2binding t with
         Some t' -> t'
-      | _ -> t
+      | _       -> t
     in
     let rec ivb t =
       let t = realterm t in
       (* consolereport ["ivb ", smltermstring t, " => ", 
            optionstring (catelim2stringfn catelim_forcedstring) (forcemap (root <@> t))]; 
        *)
-      try let (on, lock) = Hashtbl.find forcemap (root, t) in
-          fst (if on then onbraket else offbraket) ^ (if lock then fst lockbraket else "")
+      try let results = List.map (fun root -> Hashtbl.find forcemap (root, t)) selected in
+          fst (if _All fst results then onbraket else offbraket) ^ (if List.exists snd results then fst lockbraket else "")
       with Not_found -> fst outbraket
     in
     let rec ivk t =
       let t = realterm t in
       (* consolereport ["ivk ", smltermstring t, " => ", string_of_int (forced facts universe root t)]; *)
-      try let (on, lock) = Hashtbl.find forcemap (root, t) in
-          (if lock then snd lockbraket else "") ^ snd (if on then onbraket else offbraket)
+      try let results = List.map (fun root -> Hashtbl.find forcemap (root, t)) selected in
+          (if List.exists snd results then snd lockbraket else "") ^ snd (if _All fst results then onbraket else offbraket)
       with Not_found -> snd outbraket
     in
     let (seqplan, seqbox) = makeseqplan (elementstring_invischoose ivb ivk) true origin seq in
@@ -1145,7 +1196,7 @@ let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = til
                match element2term el with
                  None -> false
                | Some t ->
-                   try let (v, _) = Hashtbl.find forcemap (root, t) in v
+                   try _All (fst <.> (fun root -> Hashtbl.find forcemap (root, t))) selected 
                    with Not_found -> false
              in
              emphasise (seqelementpos origin seqbox plan) emph
@@ -1153,21 +1204,26 @@ let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = til
       seqplan;
     settiles (List.map termstring tiles);
     setworlds selected
-      (List.map (fun (c, labels, ws) -> c, labelsort labels, ws)
+      (List.map (fun (c, e, labels, ws) -> c, intofdisproofemphasis e, labelsort labels, ws)
          (universe2list universe))
 
 let cleardisproof () = Japeserver.clearPane Displayfont.DisproofPane
 
+(* this gets the colouring wrong! *)
 let splitlink u from to__ w =
   if from=w || w=to__ then None else
-  (*let (_, fromcs) = getworld u from in
-  let (_, wcs) = getworld u w in
+  (*let (_, _, fromcs) = getworld u from in
+  let (_, _, wcs) = getworld u w in
   if member (w, fromcs) && member(to__, wcs) then None else*)
   Some (addlink (addlink (deletelink u from to__) from w) w to__)
   
 (* for export, with slightly altered semantics *)
+(* this gets the colouring wrong! *)
 let deletelink u from to__ =
-  let (ts, cs) = getworld u from in
+  let (_, ts, cs) = getworld u from in
   if member (to__, cs) then
-    Some (u ++ (from |-> (ts, listsub (fun (x,y) -> x=y) cs [to__])))
+    Some (u ++ (from |-> (Unforced, ts, listsub (fun (x,y) -> x=y) cs [to__])))
   else None
+
+let tint_universe facts selections (Disproofstate({forcemap=forcemap; universe=universe} as d)) =
+  Disproofstate{d with universe = tint_universe (newforcefun forcemap facts universe) selections universe}
