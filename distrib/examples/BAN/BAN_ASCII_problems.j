@@ -1,4 +1,4 @@
-﻿/* $Id$ */ 
+/* $Id$ */ 
  
 TACTIC TheoremForwardOrBackward(thm) IS
   WHEN (LETHYP _X cut (WITHSELECTIONS thm)) thm

@@ -1,4 +1,4 @@
-﻿/*  $Id$ */
+/*  $Id$ */
 
 TACTIC ForwardCutwithSubstSel(n,Rule) IS
     SEQ cut 
@@ -20,7 +20,7 @@ MENU SetOps IS
     ENTRY "∪-I(R)" IS FOB ForwardCut 0 "∪-I(R)"
     ENTRY "∩-I"
     ENTRY "(-)-I"
-    ENTRY "⫠-I" IS FOB ForwardCut 0 "⫠-I"
+    ENTRY "⁻¹-I" IS FOB ForwardCut 0 "⁻¹-I"
     
     SEPARATOR
     
@@ -33,7 +33,7 @@ MENU SetOps IS
     ENTRY "∩-E(R)" IS FOB ForwardCut 0 "∩-E(R)"
     ENTRY "(-)-E(L)" IS FOB ForwardCut 0 "(-)-E(L)"
     ENTRY "(-)-E(R)" IS FOB ForwardCut 0 "(-)-E(R)"
-    ENTRY "⫠-E" IS FOB ForwardCut 0 "⫠-E"
+    ENTRY "⁻¹-E" IS FOB ForwardCut 0 "⁻¹-E"
     
     SEPARATOR
     
@@ -49,7 +49,7 @@ CONJECTUREPANEL "Derived Rules for Set Operators" IS
     ENTRY "∪-I(R)"
     ENTRY "∩-I"
     ENTRY "(-)-I"
-    ENTRY "⫠-I"
+    ENTRY "⁻¹-I"
     
     ENTRY "⊆-E"
     ENTRY "=-E(L)"
@@ -59,7 +59,7 @@ CONJECTUREPANEL "Derived Rules for Set Operators" IS
     ENTRY "∩-E(R)"
     ENTRY "(-)-E(L)"
     ENTRY "(-)-E(R)"
-    ENTRY "⫠-E"
+    ENTRY "⁻¹-E"
         
     ENTRY "Ø-E"
     ENTRY "A∈U"
@@ -78,7 +78,7 @@ TACTICPANEL "Definitions" IS
     RULE (OBJECT y) IS A∪B ≜ { y | y∈A∨y∈B }
     RULE (OBJECT y) IS A∩B ≜ { y | y∈A∧y∈B }
     RULE (OBJECT y) IS A-B ≜ { y | y∈A∧y¬∈B }
-    RULE (OBJECT y) IS A⫠ ≜ {y | y¬∈A}
+    RULE (OBJECT y) IS A⁻¹ ≜ {y | y¬∈A}
     RULE (OBJECT x, OBJECT y) IS ∪∪(C) ≜ { x | ∃y. x∈y∧y∈C }
     RULE (OBJECT x, OBJECT y) IS ∩∩(C) ≜ { x | ∀y. y∈C→x∈y }
     RULE (OBJECT x) IS Pow(A) ≜ { x | x⊆A }

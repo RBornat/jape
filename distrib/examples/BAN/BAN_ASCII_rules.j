@@ -1,7 +1,7 @@
-﻿/* $Id$ */
+/* $Id$ */
 
 RULE "P|≡(Q,P)↔K, P<|{X}K ⇒ P|≡Q|~X" IS FROM P|≡(Q,P)↔K AND P<|{X}K INFER P|≡Q|~X
-RULE "P|≡Q↦K, P<|{X}K⫠ ⇒ P|≡Q|~X" IS FROM P|≡Q↦K AND P<|{X}K⫠ INFER P|≡Q|~X
+RULE "P|≡Q↦K, P<|{X}K⁻¹ ⇒ P|≡Q|~X" IS FROM P|≡Q↦K AND P<|{X}K⁻¹ INFER P|≡Q|~X
 RULE "P|≡(P,Q)⇌Y, P<|<X>Y ⇒ P|≡Q|~X" IS FROM P|≡(P,Q)⇌Y AND P<|<X>Y INFER P|≡Q|~X
 RULE "P|≡#X, P|≡Q|~X ⇒ P|≡Q|≡X" IS FROM P|≡#X AND P|≡Q|~X INFER P|≡Q|≡X
 RULE "P|≡Q|⇒X, P|≡Q|≡X ⇒ P|≡X" IS FROM P|≡Q|⇒X AND P|≡Q|≡X INFER P|≡X
@@ -57,7 +57,7 @@ END
 RULE "P<|<X>Y ⇒ P<|X" IS FROM P<|<X>Y INFER P<|X
 RULE "P|≡(P,Q)↔K, P<|{X}K ⇒ P<|X" IS FROM P|≡(P,Q)↔K AND P<|{X}K INFER P<|X
 RULE "P|≡P↦K, P<|{X}K ⇒ P<|X" IS FROM P|≡P↦K AND P<|{X}K INFER P<|X
-RULE "P|≡Q↦ K, P<|{X}K⫠ ⇒ P<|X" IS FROM P|≡Q↦ K AND P<|{X}K⫠ INFER P<|X
+RULE "P|≡Q↦ K, P<|{X}K⁻¹ ⇒ P<|X" IS FROM P|≡Q↦ K AND P<|{X}K⁻¹ INFER P<|X
 RULES "P|≡#X ⇒ P|≡#(...,X,...)"(X) ARE
 	FROM P|≡#X INFER P|≡#(X,Y)
  AND	FROM P|≡#X INFER P|≡#(Y,X)

@@ -1,4 +1,4 @@
-﻿/* $Id$ */
+/* $Id$ */
 
 TACTIC Fail(x) IS (SEQ (ALERT x) FAIL)
 
@@ -53,14 +53,14 @@ END
 
 MENU "<|"
 	ENTRY "P<|{X}K, [P|≡(Q,P)↔K] ⇒ P|≡Q|~X"	IS ForwardOrBackward ForwardCut 1 "P|≡(Q,P)↔K, P<|{X}K ⇒ P|≡Q|~X"
-	ENTRY "P<|{X}K⫠, [P|≡Q↦K] ⇒ P|≡Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|≡Q↦K, P<|{X}K⫠ ⇒ P|≡Q|~X"
+	ENTRY "P<|{X}K⁻¹, [P|≡Q↦K] ⇒ P|≡Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|≡Q↦K, P<|{X}K⁻¹ ⇒ P|≡Q|~X"
 	ENTRY " P<|<X>Y, [P|≡(P,Q)⇌Y] ⇒ P|≡Q|~X"	IS ForwardOrBackward ForwardCut 1 "P|≡(P,Q)⇌Y, P<|<X>Y ⇒ P|≡Q|~X"
 	SEPARATOR
 	ENTRY "P<|(...,X,...) ⇒ P<|X" 				IS ForwardOrBackward ForwardCut 0 "P<|(...,X,...) ⇒ P<|X"
 	ENTRY "P<|<X>Y ⇒ P<|X" 				IS ForwardOrBackward ForwardCut 0 "P<|<X>Y ⇒ P<|X"
 	ENTRY "P<|{X}K, [P|≡(P,Q)↔K] ⇒ P<|X"		IS ForwardOrBackward ForwardCut 1 "P|≡(P,Q)↔K, P<|{X}K ⇒ P<|X"
 	ENTRY "P<|{X}K, [P|≡P↦K] ⇒ P<|X"			IS ForwardOrBackward ForwardCut 1 "P|≡P↦K, P<|{X}K ⇒ P<|X"
-	ENTRY "P<|{X}K⫠, [P|≡Q↦ K] ⇒ P<|X"		IS ForwardOrBackward ForwardCut 1 "P|≡Q↦ K, P<|{X}K⫠ ⇒ P<|X"
+	ENTRY "P<|{X}K⁻¹, [P|≡Q↦ K] ⇒ P<|X"		IS ForwardOrBackward ForwardCut 1 "P|≡Q↦ K, P<|{X}K⁻¹ ⇒ P<|X"
 	SEPARATOR
 END
 
@@ -70,7 +70,7 @@ MENU "|~"
 	ENTRY "P|≡Q|~(...,X,...) ⇒ P|≡Q|~X"			IS ForwardOrBackward ForwardCut 0 "P|≡Q|~(...,X,...) ⇒ P|≡Q|~X"
 	SEPARATOR
 	ENTRY "P<|{X}K, [P|≡(Q,P)↔K] ⇒ P|≡Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|≡(Q,P)↔K, P<|{X}K ⇒ P|≡Q|~X"
-	ENTRY "P<|{X}K⫠, [P|≡Q↦K] ⇒ P|≡Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|≡Q↦K, P<|{X}K⫠ ⇒ P|≡Q|~X"
+	ENTRY "P<|{X}K⁻¹, [P|≡Q↦K] ⇒ P|≡Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|≡Q↦K, P<|{X}K⁻¹ ⇒ P|≡Q|~X"
 	ENTRY "P<|<X>Y, [P|≡(P,Q)⇌Y] ⇒ P|≡Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|≡(P,Q)⇌Y, P<|<X>Y ⇒ P|≡Q|~X"
 END
 
@@ -86,9 +86,9 @@ MENU "⇌"
 END
 
 MENU "↦"
-	ENTRY "P|≡Q↦K, [P<|{X}K⫠] ⇒ P|≡Q|~X"		IS ForwardOrBackward ForwardCut  0 "P|≡Q↦K, P<|{X}K⫠ ⇒ P|≡Q|~X"
+	ENTRY "P|≡Q↦K, [P<|{X}K⁻¹] ⇒ P|≡Q|~X"		IS ForwardOrBackward ForwardCut  0 "P|≡Q↦K, P<|{X}K⁻¹ ⇒ P|≡Q|~X"
 	ENTRY "P|≡P↦K, [P<|{X}K] ⇒ P<|X"			IS ForwardOrBackward ForwardCut 0 "P|≡P↦K, P<|{X}K ⇒ P<|X"
-	ENTRY "P|≡Q↦ K, [P<|{X}K⫠] ⇒ P<|X"			IS ForwardOrBackward ForwardCut 0 "P|≡Q↦ K, P<|{X}K⫠ ⇒ P<|X"
+	ENTRY "P|≡Q↦ K, [P<|{X}K⁻¹] ⇒ P<|X"			IS ForwardOrBackward ForwardCut 0 "P|≡Q↦ K, P<|{X}K⁻¹ ⇒ P<|X"
 END
 
 MENU "↔"

@@ -1,4 +1,4 @@
-﻿/* $Id$ */
+/* $Id$ */
 
 TACTIC TheoremForwardOrBackward(X) IS
   WHEN (LETHYP _P cut (WITHSELECTIONS X)) X
@@ -36,13 +36,13 @@ CONJECTUREPANEL "Set Conjectures" IS
 	AND A⊆B ⊢ A∩B=A
 	AND A∩(B-A)=Ø
 	AND A∪(B-A)=A∪B
-	AND A∪A⫠=U
-	AND A∩A⫠=Ø
-	AND A⫠=B ↔ (A∪B=U)∧(A∩B=Ø)
-	AND A⫠⫠=A
-	AND (A∪B)⫠=A⫠∩B⫠
-	AND (A∩B)⫠=A⫠∪B⫠
-	AND (OBJECT y) INFER <C,D>∈A•B ↔ (∃y.<C,y>∈A∧<y,D>∈B)
+	AND A∪A⁻¹=U
+	AND A∩A⁻¹=Ø
+	AND A⁻¹=B ↔ (A∪B=U)∧(A∩B=Ø)
+	AND A⁻¹⁻¹=A
+	AND (A∪B)⁻¹=A⁻¹∩B⁻¹
+                    AND (A∩B)⁻¹=A⁻¹∪B⁻¹
+                    AND (OBJECT y) INFER <C,D>∈A•B ↔ (∃y.<C,y>∈A∧<y,D>∈B)
 	AND (A•B)•C=A•(B•C)
 
 	END
