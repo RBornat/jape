@@ -88,8 +88,12 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 	if (kind==ConjecturePanelKind) { 
 	    // has default buttons
 	    buttonv.add(new NewButton());
-	    addButton(proveLabel, new Insert[] { new StringInsert("prove"), new CommandInsert() }, true);
-	    addButton(showproofLabel, new Insert[] { new StringInsert("showproof"), new CommandInsert() }, true);
+	    addButton(proveLabel, 
+		      new Insert[] { 
+			  new StringInsert("proveconjecture"), new CommandInsert() }, true);
+	    addButton(showproofLabel, 
+		      new Insert[] { 
+			  new StringInsert("showproof"), new CommandInsert() }, true);
 	}
     }
 
@@ -109,7 +113,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 	int i = entryv.indexOf(entry);
 	if (i==-1) {
 	    if (panellist_tracing)
-		Logger.log.println("panel \""+title+"\" adding entry \""+entry+"\", cmd \""+cmd+"\"");
+		Logger.log.println("panel "+JapeUtils.enQuote(title)+" adding entry "+JapeUtils.enQuote(entry)+", cmd "+JapeUtils.enQuote(cmd));
 	    entryv.add(entry);
 	    cmdv.add(cmd);
 	    markv.add(null);
@@ -118,14 +122,14 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 	}
 	else {
 	    if (panellist_tracing)
-		Logger.log.println("panel \""+title+"\" setting entry \""+entry+"\" to \""+cmd+"\"");
+		Logger.log.println("panel "+JapeUtils.enQuote(title)+" setting entry "+JapeUtils.enQuote(entry)+" to "+JapeUtils.enQuote(cmd));
 	    cmdv.setElementAt(cmd, i);
 	}
     }
 
     protected void markEntry(String cmd, boolean proved, boolean disproved) throws ProtocolError {
 	    if (panellist_tracing)
-		Logger.log.println("panel \""+title+"\" marking cmd \""+cmd+"\" "+proved+","+disproved);
+		Logger.log.println("panel "+JapeUtils.enQuote(title)+" marking cmd "+JapeUtils.enQuote(cmd)+" "+proved+","+disproved);
 	    int i = cmdv.indexOf(cmd);
 	    if (i==-1)
 		throw new ProtocolError("no such command");
@@ -145,7 +149,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
     protected void selectEntry(String entry)throws ProtocolError {
 	if (panellist_tracing)
-	    Logger.log.println("panel \""+title+"\" selecting "+entry);
+	    Logger.log.println("panel "+JapeUtils.enQuote(title)+" selecting "+entry);
 	int i = entryv.indexOf(entry);
 	if (i==-1)
 	    throw new ProtocolError("no such entry");
@@ -230,7 +234,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
     protected void addButton(String label, Insert[] inserts, boolean isDefault) {
 	if (isDefaultButton(label)!=isDefault)
-	    Alert.abort("PanelWindowData.addButton \""+label+"\" isDefault="+isDefault+
+	    Alert.abort("PanelWindowData.addButton "+JapeUtils.enQuote(label)+" isDefault="+isDefault+
 			" isDefaultButton(...)="+isDefaultButton(label));
 	// if there already is such a button, just change its inserts
 	PanelButton button = findButton(label);
@@ -338,7 +342,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 		    if (e.getClickCount()==2) {
 			if (kind==ConjecturePanelKind && 0<=index && index<model.size())
 			    // double-click means "prove this one"
-			    Reply.sendCOMMAND("prove "+cmdv.get(index));
+			    Reply.sendCOMMAND("proveconjecture "+cmdv.get(index));
 		    }
 		    else
 		    if (Jape.onLinux || Jape.onSolaris) {
