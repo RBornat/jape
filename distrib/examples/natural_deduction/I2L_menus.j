@@ -403,45 +403,45 @@ TACTIC "∧ intro forward"  IS
 						             \\nDo you want to\n\
 						             \\n(a)    Make %t∧%t, or \
 						             \\n(b)    Make %t∧%t.", _A, _B, _B, _A)
-						             ("(a)", (CUTIN     "∧ intro"[A,B\_A,_B] 
+						             ("(a)", (CUTIN     "∧ intro" SUBSTBRA A,B SUBSTBECOME _A,_B SUBSTKET  
 						                                                    (ANY (WITHHYPSEL (MATCH (hyp _A)))) 
 						                                                    (ANY (WITHHYPSEL (MATCH (hyp _B))))))
-						             ("(b)", (CUTIN	"∧ intro"[A,B\_B,_A]
+						             ("(b)", (CUTIN	"∧ intro" SUBSTBRA A,B SUBSTBECOME _B,_A SUBSTKET 
 						                                                        (ANY (WITHHYPSEL (MATCH (hyp _B))))
 						                                                        (ANY (WITHHYPSEL (MATCH (hyp _A))))))
 						             ("Cancel", STOP)
 					)
 				)
 				(LETHYP _A 
-					(ALERT	("To make a forward step with ∧ intro, it's necessary to select TWO antecedent formulæ to combine. \
+					(ALERT	("To make a forward step with ∧ intro, it's necessary to select TWO antecedent formulae to combine. \
 							\You only selected %t.", _A)
 							("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
 					)
 				) 
 				(LETHYPS _As 
-					(ALERT	("To make a forward step with ∧ intro, it's necessary to select only two antecedent formulæ to combine. \
+					(ALERT	("To make a forward step with ∧ intro, it's necessary to select only two antecedent formulae to combine. \
 							\You selected %l.", (_As, ", ", " and "))
 							("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
 					)
 				) 
 				(LETGOAL (_A∧_B)
-					(ALERT	("To make a forward step with ∧ intro, it's necessary to select TWO antecedent formulæ to combine. \
+					(ALERT	("To make a forward step with ∧ intro, it's necessary to select TWO antecedent formulae to combine. \
 							\You didn’t select any at all.\
 							\\n\nHowever, the current conclusion %t would fit ∧ intro going backwards. Did you perhaps mean to \
 							\make a backward step?", _A∧_B)
 							("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
 					)
 				)
-				(ALERT	("To make a forward step with ∧ intro, it's necessary to select TWO antecedent formulæ to combine. \
+				(ALERT	("To make a forward step with ∧ intro, it's necessary to select TWO antecedent formulae to combine. \
 						\You didn’t select any at all.")
 						("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
 				)
 
 /* TACTIC "∧ intro forward(L)"(arg) IS 
-	ForwardCut 0 ("∧ intro"[B\arg])
+	ForwardCut 0 ("∧ intro" SUBSTBRA B SUBSTBECOME arg SUBSTKET )
 
 TACTIC "∧ intro forward(R)"(arg) IS 
-	ForwardCut 0 ("∧ intro"[A\arg])
+	ForwardCut 0 ("∧ intro" SUBSTBRA A SUBSTBECOME arg SUBSTKET )
 */
 
 /* this tactic is so horrible gesturally that even though it works I've taken it out of the Forward menu, and commented it out.
@@ -449,11 +449,11 @@ TACTIC "∧ intro forward(R)"(arg) IS
 TACTIC "∃ intro forward" IS
 	WHEN	(LETHYP (actual _i)
 				(WHEN
-					(LETHYPSUBSTSEL (_P[_x\_i1]) 
+					(LETHYPSUBSTSEL (_P SUBSTBRA _x SUBSTBECOME _i1 SUBSTKET ) 
 						("∃ intro forward checkvar" _i _i1) 
 						("∃ intro forward complain" 
 							(" (you only selected actual %t)", _i) 
-							(" (as you did). Sorry to be so fussy, but please click on %t and try again", _P[_x\_i1])
+							(" (as you did). Sorry to be so fussy, but please click on %t and try again", _P SUBSTBRA _x SUBSTBECOME _i1 SUBSTKET )
 						)
 					)
 					("∃ intro forward checktextsel" (" (you only selected actual %t)", _i))
@@ -464,8 +464,8 @@ TACTIC "∃ intro forward" IS
 			)
 			(LETHYP2 (actual _i) _A
 				(WHEN
-					(LETHYPSUBSTSEL (_P[_x\_i1])
-						("∃ intro forward checksamehyp" _A (_P[_x\_i1]) _i1)
+					(LETHYPSUBSTSEL (_P SUBSTBRA _x SUBSTBECOME _i1 SUBSTKET )
+						("∃ intro forward checksamehyp" _A (_P SUBSTBRA _x SUBSTBECOME _i1 SUBSTKET ) _i1)
 						("∃ intro forward checkvar" _i _i1) 
 						("∃ intro forward doit" _A _x _i1 )
 					)
@@ -478,13 +478,13 @@ TACTIC "∃ intro forward" IS
 			("∃ intro forward checktextsel" " (you didn't select any antecedents)")
 
 TACTIC "∃ intro forward checktextsel" (varstuff) IS
-	WHEN	(LETHYPSUBSTSEL (_P[_x\_i1]) 
+	WHEN	(LETHYPSUBSTSEL (_P SUBSTBRA _x SUBSTBECOME _i1 SUBSTKET ) 
 				("∃ intro forward complain" varstuff " (as you did)")
 			)
-			(LETHYPSUBSTSEL (_P[_x\_B]) 
+			(LETHYPSUBSTSEL (_P SUBSTBRA _x SUBSTBECOME _B SUBSTKET ) 
 				("∃ intro forward complain" varstuff (" (your text-selection %t isn't a variable)", _B))
 			)
-			(LETSUBSTSEL (_P[_x\_B]) 
+			(LETSUBSTSEL (_P SUBSTBRA _x SUBSTBECOME _B SUBSTKET ) 
 				("∃ intro forward complain" varstuff (" (your text-selection %t isn't in an antecedent)", _B))
 			)
 			(LETARGTEXT i
@@ -621,27 +621,27 @@ TACTIC "¬ elim forward" IS
 				(Noarg (CUTIN "¬ elim" fstep (WITHHYPSEL (hyp (¬_A)))) "¬ elim")
 			)
 			(LETHYP2 _A _B
-				(ALERT	("To make a forward step with ¬ elim, it's necessary to select two antecedent formulæ -- one to match \
+				(ALERT	("To make a forward step with ¬ elim, it's necessary to select two antecedent formulae -- one to match \
 							\A, the other to match ¬A. \
 							\You selected %t and %t.", _A, _B)
 							("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
 				)
 			)
 			(LETHYP _A 
-				(ALERT	("To make a forward step with ¬ elim, it's necessary to select two antecedent formulæ -- one to match \
+				(ALERT	("To make a forward step with ¬ elim, it's necessary to select two antecedent formulae -- one to match \
 							\A, the other to match ¬A. \
 							\You only selected %t.", _A)
 							("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
 				)
 			) 
 			(LETHYPS _As 
-				(ALERT	("To make a forward step with ¬ elim, it's necessary to select only two antecedent formulæ to combine. \
+				(ALERT	("To make a forward step with ¬ elim, it's necessary to select only two antecedent formulae to combine. \
 							\You selected %l.", (_As, ", ", " and "))
 							("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
 				)
 			) 
 			(LETGOAL ⊥
-				(ALERT	("To make a forward step with ¬ elim, it's necessary to select two antecedent formulæ -- one to match \
+				(ALERT	("To make a forward step with ¬ elim, it's necessary to select two antecedent formulae -- one to match \
 							\A, the other to match ¬A. \
 							\You didn’t select any at all.\
 							\\n\nHowever, the current conclusion fits ¬ elim going backwards. Did you perhaps mean to \
@@ -649,7 +649,7 @@ TACTIC "¬ elim forward" IS
 							("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
 				)
 			)
-			(ALERT	("To make a forward step with ¬ elim, it's necessary to select two antecedent formulæ -- one to match \
+			(ALERT	("To make a forward step with ¬ elim, it's necessary to select two antecedent formulae -- one to match \
 					\A, the other to match ¬A. \
 					\You didn’t select any at all.")
 					("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
