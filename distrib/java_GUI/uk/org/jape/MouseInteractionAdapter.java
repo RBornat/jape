@@ -74,8 +74,9 @@ public class MouseInteractionAdapter implements MouseInteractionListener,
     // you get a click event if you press the mouse at a particular point, move it and then
     // move back to the same point!  Well blow me down: we're not having that.
 
-    byte eventKind;
-    boolean dragSeen;
+    private byte eventKind;
+    private int x, y, wobble;
+    private boolean wobbly() { return wobble>3; }
 
     /*
         void mouseClicked(MouseEvent e)
@@ -99,7 +100,7 @@ public class MouseInteractionAdapter implements MouseInteractionListener,
     
     public final void mousePressed(MouseEvent e) {
         eventKind = LocalSettings.mouseDownKind(e);
-        dragSeen = false;
+        x=e.getX(); y=e.getY(); wobble=0;
         if ((eventKind&TextSelMask)!=0)
             textpressed(eventKind, e);
         else
@@ -108,9 +109,9 @@ public class MouseInteractionAdapter implements MouseInteractionListener,
     
     public final void mouseReleased(MouseEvent e) {
         if ((eventKind&TextSelMask)!=0)
-            textreleased(eventKind, !dragSeen, e);
+            textreleased(eventKind, !wobbly(), e);
         else
-        if (dragSeen)
+        if (wobbly())
             released(eventKind, e);
         else
         if (e.getClickCount()==2)
@@ -128,11 +129,13 @@ public class MouseInteractionAdapter implements MouseInteractionListener,
         */
 
     public final void mouseDragged(MouseEvent e) {
-        dragSeen = true;
         if ((eventKind&TextSelMask)!=0)
             textdragged(eventKind, e);
-        else
-            dragged(eventKind, e);
+        else {
+            wobble = Math.max(wobble, Math.abs(e.getX()-x)+Math.abs(e.getY()-y));
+            if (wobbly())
+                dragged(eventKind, e);
+        }
     }
 
     public final void mouseMoved(MouseEvent e) { }
