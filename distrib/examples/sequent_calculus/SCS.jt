@@ -13,6 +13,8 @@ END
 
 USE "SCS_rules.j"
 
+AUTOMATCH hyp
+
 CONJECTUREPANEL "Conjectures"
   THEOREM	modusponens	IS A, AçB æ B
   THEOREM	contradiction	IS A, ÂA æ B
@@ -21,4 +23,5 @@ END
 USE "sequent_problems.j"
 
 TACTIC Fail(x) IS (SEQ (EXPLAIN x) FAIL)
+
 
