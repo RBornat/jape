@@ -294,8 +294,8 @@ let rec drawinpane =
 
 let rec drawstring (font, class__, s, pos) =
   let (x, y) = explodePos pos in
-  writef "DRAWSTRING % % % % %\n"
-    [Int x; Int y; Int font; Int class__; Str s]
+  writef "DRAWSTRING % % % % % %\n"
+    [Int x; Int y; Int font; Int class__; Str s; Str (printable s)]
 
 let rec drawmeasuredtext class__ lines pos =
   (* : displayclass ->(pos*font*string) list -> pos -> unit *)
@@ -412,9 +412,9 @@ open Panelkind
 let rec newpanel (name, panelkind) =
   let kind =
     match panelkind with
-      TacticPanelkind -> "0"
+      TacticPanelkind     -> "0"
     | ConjecturePanelkind -> "1"
-    | GivenPanelkind -> "2"
+    | GivenPanelkind      -> "2"
   in
   writef "NEWPANEL % %\n" [Str name; Str kind]
 
@@ -682,7 +682,7 @@ exception GetGeometry_
 
 let rec getGeometry pane =
     match askf "%PANEGEOMETRY\n" [Str pane] with
-      [w; h; x; y] -> box (pos (x, y), size (w, h))
+      [x; y; w; h] -> box (pos (x, y), size (w, h))
     | _ -> raise GetGeometry_
 
 let rec getProofPane () = getGeometry "PROOF"
