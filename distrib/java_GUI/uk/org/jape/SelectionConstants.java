@@ -26,14 +26,25 @@
 */
 
 public interface SelectionConstants {
-    // these constants chosen so that 1 means extended, 2 disjoint, 4 text.
-    public static final byte Selection                 = 0,
-                             ExtendedSelection         = 1,
-                             DisjointSelection         = 2,
-                             ExtendedDisjointSelection = 3,
+    // bits for mouse events
+    public static final byte PureSelMask     = 1<<0,
+                             ExtendedSelMask = 1<<1,
+                             DisjointSelMask = 1<<2,
+                             TextSelMask     = 1<<3;
+    
+    public static final byte Selection                 = PureSelMask,
+                             ExtendedSelection         = PureSelMask|ExtendedSelMask,
+                             DisjointSelection         = PureSelMask|DisjointSelMask,
+                             ExtendedDisjointSelection = PureSelMask|ExtendedSelMask|DisjointSelMask,
                         
-                             TextSelection                 = 4,
-                             ExtendedTextSelection         = 5,
-                             DisjointTextSelection         = 6,
-                             ExtendedDisjointTextSelection = 7;
+                             TextSelection                 = TextSelMask,
+                             ExtendedTextSelection         = TextSelMask|ExtendedSelMask,
+                             DisjointTextSelection         = TextSelMask|DisjointSelMask,
+                             ExtendedDisjointTextSelection = TextSelMask|ExtendedSelMask|DisjointSelMask;
+
+    // bit selectors for recorded selections
+    static final byte NoSel        = 0,
+                      HypSel       = 1<<0,
+                      ConcSel      = 1<<1,
+                      ReasonSel    = 1<<2;
 }
