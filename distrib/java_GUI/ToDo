@@ -2,6 +2,8 @@ Bugs:
 
 ----------------
 
+Text Command window
+
 investigate dead 'preferences' code in non-Mac LocalSettings
 
 text field in new conjecture dialog should be text area
