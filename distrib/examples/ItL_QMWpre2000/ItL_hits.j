@@ -5,10 +5,10 @@ HYPHIT	P¶Q Ê R	IS ALT	(SEQ "¶-E(L)" (hyp (P¶Q)))
                                            	(SEQ "¶-E(R)" (hyp (P¶Q)))
                                            	(SEQ cut "¶-E(L)" (hyp (P¶Q)) cut "¶-E(R)" (hyp (P¶Q)))
 HYPHIT	PÁQ  Ê R	IS "Á-Eforward"  (PÁQ)
-HYPHIT	PÎQ  Ê R	IS ForwardCut "Î-E"  (PÎQ)
+HYPHIT	PÎQ  Ê R	IS ForwardUncut "Î-E"  (PÎQ)
 HYPHIT	¬¬P   Ê Q	IS ForwardCut "¬-E"   (¬¬P)
 HYPHIT	Ëx.P Ê Q	IS ForwardCut "Ë-E"  (Ëx.P)
-HYPHIT	‰x.P Ê Q	IS ForwardCut "‰-E"  (‰x.P)
+HYPHIT	‰x.P Ê Q	IS ForwardUncut "‰-E"  (‰x.P)
 
 CONCHIT	Q¶R	IS "¶-I"
 CONCHIT	QÎR	IS ALT (SEQ "Î-I(L)" hyp) (SEQ "Î-I(R)" hyp)
