@@ -40,4 +40,6 @@ val relevantprovisos : seq -> proviso list -> proviso list
 val remapproviso : (term, term) mapping -> proviso -> proviso
 val verifyprovisos : cxt -> cxt
 
+val draganddropmapping: proviso list -> (element * element) list
+
 exception Verifyproviso_ of proviso

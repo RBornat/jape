@@ -83,6 +83,19 @@ class TextItem extends DisplayItem implements DebugConstants {
 	setEnabled(false);
     }
     
+    private String _printtext = null;
+    
+    protected String getprinttext() {
+	if (_printtext==null) {
+	    StringBuffer text = new StringBuffer();
+	    for (int i=0; i<components.length; i++) {
+		text.append(components[i].printtext);
+	    }
+	    _printtext = text.toString();
+	}
+	return _printtext;
+    }
+    
     public String toString() {
 	String s = "TextItem["+"components=[";
 	for (int i=0; i<components.length; i++) {

@@ -109,7 +109,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 		}
 	    } 
 	});
-	proofCanvas = new ProofCanvas(proofPane.getViewport(), true);
+	proofCanvas = new ProofCanvas(this, proofPane.getViewport(), true);
 	proofPane.add(proofCanvas);
 	
 	getContentPane().add(proofPane, BorderLayout.CENTER);

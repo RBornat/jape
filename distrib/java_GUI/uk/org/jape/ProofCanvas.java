@@ -30,9 +30,16 @@ package uk.org.jape;
 import java.awt.Component;
 import java.awt.Container;
 
+import javax.swing.JFrame;
+
 public class ProofCanvas extends JapeCanvas implements ProtocolConstants, SelectionConstants {
 
-    public ProofCanvas(Container viewport, boolean scrolled) { super(viewport, scrolled); }
+    public final JFrame window; // for the draggers and droppers
+
+    public ProofCanvas(JFrame window, Container viewport, boolean scrolled) { 
+	super(viewport, scrolled); 
+	this.window = window;
+    }
 
     public byte proofStyle;
 

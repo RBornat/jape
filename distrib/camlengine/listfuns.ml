@@ -292,7 +292,8 @@ let rec sortandcombine (<) ( ++ ) ls =
   match ls with
     [] -> []
   | _ -> samsorting (ls, [], 0)
-(* remdups removes consecutive duplicates *)
+
+(* remdups removes CONSECUTIVE duplicates *)
 
 let rec remdups =
   function

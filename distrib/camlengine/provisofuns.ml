@@ -439,6 +439,7 @@ let rec remapproviso env p =
   | NotoneofProviso (vs, pat, _C) ->
       NotoneofProviso ((_T <* vs), _T pat, _T _C)
   | UnifiesProviso (_P1, _P2) -> UnifiesProviso (_T _P1, _T _P2)
+
 (* the drag and drop mapping is a list of (source,target) pairs, derived from
  * UnifiesProvisos thus:
  * if we have to unify two bag collections, either of which includes an unknown 
@@ -446,32 +447,34 @@ let rec remapproviso env p =
  * the other side of the proviso is a source for that target.
  *)
 
-(* and currently it is a dead duck.  RB 30/vii/01
-fun draganddropmapping ps =
-  let fun istarget (Segvar(_,_,Unknown _)) = true
-      |   istarget _                       = false
-      fun getsts (UnifiesProviso(Collection(_,BagClass FormulaClass, xs),
-                                 Collection(_,BagClass FormulaClass, ys)
-                                ),
-                  rs
-                 ) = (xs,istarget<|ys)::(ys,istarget<|xs)::rs
-      |   getsts (_,rs) = rs
-      val sts = (not o null o #2) <| nj_fold getsts ps []
-      (* We need to run Warshall's algorithm to get the transitive closure.
-       * This implementation is slow, but these collections don't get large 
-       *)
-      val ists = (not o null o #1) <| ((fn (xs,ys) => (istarget<|xs,ys)) <* sts)
-      val ists = nj_fold (fn ((ss,ts),rs) => nj_fold (fn (s,rs) => (s,ts)::rs) ss rs) ists []
-      val sts = nj_fold (fn ((s,ts),sts) => 
-                         (fn (ss',ts') => 
-                             (ss',if List.exists (fn t' => s=t') ts' then ts'@ts else ts')
-                         ) <* sts
-                     ) ists sts
+(* and currently it is a dead duck.  RB 30/vii/01 *)
+(* but now I'm reviving it. RB 17.iii.05 *)
+let draganddropmapping ps =
+  let istarget = function (Segvar(_,_,Unknown _)) -> true
+                 |        _                       -> false
+  in
+  let getsts =
+    function (UnifiesProviso(Collection(_,BagClass FormulaClass, xs),
+                             Collection(_,BagClass FormulaClass, ys)
+                            ),
+              rs
+             ) -> (xs,istarget<|ys)::(ys,istarget<|xs)::rs
+    |        (_,rs) -> rs
   in 
-      nj_fold (fn ((ss,ts),rs) => (ss><ts)@rs) sts []
-  end
-*)
- 
+  let sts = (not <.> null <.> snd) <| nj_fold getsts ps [] in
+  (* We need to run Warshall's algorithm to get the transitive closure.
+   * This implementation is slow, but these collections don't get large 
+   *)
+  let ists = (not <.> null <.> fst) <| ((fun (xs,ys) -> (istarget<|xs,ys)) <* sts) in
+  let ists = nj_fold (fun ((ss,ts),rs) -> nj_fold (fun (s,rs) -> (s,ts)::rs) ss rs) ists [] in
+  let sts = nj_fold (fun ((s,ts),sts) -> 
+                        (fun (ss',ts') -> 
+                            (ss',if List.exists (fun t' -> s=t') ts' then ts'@ts else ts')
+                        ) <* sts
+                    ) ists sts
+  in 
+    nj_fold (fun ((ss,ts),rs) -> (ss><ts)@rs) sts [] 
+
 (* for export *)
 
 let deferrable cxt = deferrable (facts (provisos cxt) cxt)

@@ -113,4 +113,11 @@ public class JapeUtils {
 
 	return null; // all else has failed
     }
+
+    public static boolean isIn(Object thing, Object[] things) {
+	for (int i=0; i<things.length; i++)
+	    if (things[i].equals(thing))
+		return true;
+	return false;
+    }
 }

@@ -90,6 +90,8 @@ let resetallcachesandvariables () =
   Thing.clearstructurerules ()
          
 let ( &~~ ) = Optionfuns.( &~~ )
+let ( |~ ) = Optionfuns.( |~ )
+let ( |~~ ) = Optionfuns.( |~~ )
 let _Some = Optionfuns._Some
 let atoi = Miscellaneous.atoi
 let autoselect = Miscellaneous.autoselect
@@ -101,12 +103,11 @@ let consolereport = Miscellaneous.consolereport
 let consolequery = Miscellaneous.consolequery
 let createdbugfile = Miscellaneous.create_reportfile
 
-(* fun draganddropmapping cxt = 
+let draganddropmapping cxt = 
     Provisofuns.draganddropmapping 
       (List.map Proviso.provisoactual (Cxtfuns.provisos cxt))
-*)
 
-let string_of_element = Termstring.string_of_element
+let earlierresource = Termfuns.earlierresource
 let explodeCollection = Termfuns.explodeCollection
 let facts = Facts.facts
 let get_oplist = Symbol.get_oplist
@@ -126,8 +127,7 @@ let isCutStep = Prooftree.Tree.isCutStep
 let mkvisproviso = Proviso.mkvisproviso
 let optf = Optionfuns.optf
 let string_of_option = Optionfuns.string_of_option
-let ( |~ ) = Optionfuns.( |~ )
-let ( |~~ ) = Optionfuns.( |~~ )
+let paragraph_of_string = Paragraph.paragraph_of_string
 
 let parseCurriedArgList =
   Termparse.tryparse (fun _ -> Termparse.parsecurriedarglist ())
@@ -147,7 +147,7 @@ let provisovisible = Proviso.provisovisible
 let sameresource = Termfuns.sameresource
 let seektipselection = Miscellaneous.seektipselection
 let showInputError = Symbol.showInputError
-let paragraph_of_string = Paragraph.paragraph_of_string
+let string_of_element = Termstring.string_of_element
 let string_of_tactic = Tactic.string_of_tactic
 let string_of_term = Termstring.string_of_term
 let _The = Optionfuns._The
@@ -1651,34 +1651,31 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           
            raise QuitJape
         
-        (* ****************** the drag and drop stuff is moribund *********************** 
-            | ("dragquery", []) =>
-               (case pinfs of
-                  [] => (raise Catastrophe_ ["dragquery not in a proof"]; default)
-                | Pinf{hist=WinHist{now=Proofstate{cxt,...},...},...}::_ =>
-                    let val dragees = !dropsource
-                        val dNdm = draganddropmapping cxt
-                        fun targets d =
-                          nj_fold (fn ((s,t),ts) => 
-                                  if sameresource (s,d) then string_of_element t::ts else ts
-                               ) dNdm []
-                        fun List.concat (ts:string list,rs) = (listsub op= ts rs)@rs
-                    in
-                        Japeserver.dragtargets (nj_fold List.concat (targets <* dragees) []);
-                        default
-                    end
-              )                  
-            | ("dropcommand", []) =>
-                 inside c
-                   (fn displaystate =>
-                     (fn here => evolve_proof_explain
-                                 (fn () => showAlert(explain ""))
+        (* ****************** the drag and drop stuff is revived! *********************** *)
+        
+        | "dragquery", [] ->
+             (match pinfs with
+                [] -> raise (Catastrophe_ ["dragquery not in a proof"] (* ; default *) )
+              | Pinf{hist=WinHist{proofhist=Hist{now=Proofstate{cxt=cxt}}}}::_ ->
+                  let dragees = !dropsource in
+                  let targets = 
+                    (Listfuns.remdups <.> Listfuns.sort earlierresource)
+                       (snd <* ((fun (s,t) -> List.mem s dragees) <| draganddropmapping cxt))
+                  in
+                      Japeserver.droptargets (string_of_element <* targets);
+                      default
+            )                  
+        | "dropcommand", [] ->
+             inside c
+               (fun displaystate ->
+                 showproof <.>
+                 (fun here -> evolve_proof_explain
+                                 (fun () -> showAlert(explain ""))
                                  displaystate env
                                  (doDropUnify (!droptarget) (!dropsource))
                                  here
-                     )
-                   )
-            *)
+                 )
+               )
             
         (* ******************** proof control *********************** *)
             
@@ -2115,7 +2112,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
            {displayvarsvals = displayvarsvals;
             displaystate = displaystate;
             hist = hist} as pinf) :: rest ->
-          let doShowProof state show =
+          let doShowProof cxt state show =
+            let sources = 
+              Listfuns.remdups (Listfuns.sort earlierresource (fst <* draganddropmapping cxt)) 
+            in
+            Japeserver.dragsources (string_of_element <* sources);
             env, mbs, show,
             withhist
               (withdisplaystate
@@ -2132,25 +2133,23 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           let disproof = winhist_disproofnow hist in
           (* how does disproof fit into this?  I think it doesn't *)
           if mustredisplay env displayvarsvals then
-            let target =
-                ( (findSelection displaystate &~~ selpath) |~~
-                 (fun () -> goal))
+            let target = (findSelection displaystate &~~ selpath) |~~ (fun () -> goal)
             in
-            doShowProof
+            doShowProof cxt
               (let r = showFocussedProof target cxt tree !autoselect in
                displayProvisos cxt; r)
               ShowDisproof
           else
             begin match showit with
               ShowProof ->
-                doShowProof (showState displaystate proofstate !autoselect) DontShow
+                doShowProof cxt (showState displaystate proofstate !autoselect) DontShow
             | ShowDisproof ->
                 (match disproof with
                    Some d -> Disproof.showdisproof d
                  | None   -> Disproof.cleardisproof ());
                 env, mbs, DontShow, pinfs
             | ShowBoth ->
-                doShowProof (showState displaystate proofstate !autoselect) ShowDisproof
+                doShowProof cxt (showState displaystate proofstate !autoselect) ShowDisproof
             | DontShow -> administer (Some displaystate)
             end
       | [] -> administer None

@@ -430,7 +430,7 @@ let rec getCommand displayopt =
         els_of_formulahit "getCommand DRAGQ"
           (locateHit (getdisplay ()) (mkpos x y) None HitPath);
       TextCommand ["DRAGQUERY"]
-  | "DROP" :: tx :: ty :: sx :: sy :: _ ->
+  | "DROP" :: sx :: sy :: tx :: ty :: _ ->
       let rec decode x y =
         els_of_formulahit "getCommand DROP"
           (locateHit (getdisplay ()) (mkpos x y) None HitPath)

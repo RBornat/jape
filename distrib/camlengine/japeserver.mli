@@ -238,3 +238,6 @@ val askDangerously_unpatched : string -> string -> string -> int option
 val askChoice : string * string list list -> int option
 
 val getfontname : font -> string
+
+val dragsources : string list -> unit
+val droptargets : string list -> unit

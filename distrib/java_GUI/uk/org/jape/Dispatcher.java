@@ -127,7 +127,29 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    ProofWindow.getFocussedWindow().unhighlight(toInt(cmd[1]), toInt(cmd[2]));
 			else
 			    
-		    // FONTINFO not very often
+		    // DRAGSOURCES/TARGETS needs prompt response, so put early
+			if (p=="DRAGSOURCES"&&len==1)
+			    list.removeAllElements();
+			else
+			if (p=="DRAGSOURCE"&&len==2)
+			    list.add(cmd[1]);
+			else
+			if (p=="ENDDRAGSOURCES"&&len==1)
+			    SelectableProofItem.setDragSources(
+				   ((String[])list.toArray(new String[list.size()])));
+			else
+			if (p=="DROPTARGETS"&&len==1)
+			    list.removeAllElements();
+			else
+			if (p=="DROPTARGET"&&len==2)
+			    list.add(cmd[1]);
+			else
+			if (p=="ENDDROPTARGETS"&&len==1)
+			    SelectableProofItem.setDropTargets(
+				   ((String[])list.toArray(new String[list.size()])));
+			else
+			    
+			// FONTINFO not very often
 			if (p=="FONTINFO"&&len==2)
 			    Reply.reply(JapeFont.getFontMetrics(JapeFont.checkInterfaceFontnum(toByte(cmd[1]))));
 			else

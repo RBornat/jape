@@ -296,10 +296,6 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     private int startx, starty, lastx, lasty, offsetx, offsety, centreoffsetx, centreoffsety;
     private boolean firstDrag;
 
-    private void pressed(byte dragKind, MouseEvent e) {
-	startx = e.getX(); starty = e.getY(); firstDrag = true;
-    }
-
     protected class WorldImage extends DragImage {
 	public final byte dragKind;
 	public WorldImage(byte dragKind) {
@@ -339,6 +335,10 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	worldImage.addFriend(dl);
 	layeredPane.add(dl);
 	dl.repaint();
+    }
+    
+    private void pressed(byte dragKind, MouseEvent e) {
+	startx = e.getX(); starty = e.getY(); firstDrag = true;
     }
     
     public void dragged(byte dragKind, MouseEvent e) {

@@ -54,7 +54,7 @@ public class DisproofPane extends Container implements DebugConstants,
     final Container seqView;
     final Container tileCanvas;
 
-    JFrame window; // for the draggers and droppers
+    public final JFrame window; // for the draggers and droppers
 
     public final WasteBin wasteBin;
     

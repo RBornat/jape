@@ -42,7 +42,9 @@ public class JapePrefs {
 			SeparatorColour		= Color.gray,
 			TextColour		= Color.black,
 			TextSelectionColour	= Color.yellow,
-			WorldColour		= Color.black;
+			WorldColour		= Color.black,
+                        FormulaDragHighlightColour 
+                                                = Color.blue;
 
     public static Color OutColour	      = Color.gray,
 			ForcedColour	      = Color.magenta,

@@ -4,10 +4,6 @@ Bugs (interface): what's with the 'next selection on same line'?
 
 ----------------
 
-Text Command window
-
-investigate dead 'preferences' code in non-Mac LocalSettings
-
 text field in new conjecture dialog should be text area
 
 pane focus is invisible
@@ -15,8 +11,6 @@ pane focus is invisible
 Cancel in choose file dialog after Save/Cancel/Don'tSave shouldn't mean Don'tSave
 
 panel maximise button
-
-why does Konstanz have such descent measurement?
 
 Localise file dialogs
 
@@ -39,8 +33,8 @@ TERMINATE
 
 Protocol out:
 
-DRAGQ (moribund)
-DROP  (moribund)
+DRAGQ
+DROP
 
 Unused commands (many are designed to be issued by hand from Text Command window, so no big deal):
 

@@ -404,18 +404,21 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	return textsels==null ? 0 : textsels.size();
     }
 
-    // don't do this very often
+    private String _annottext = null;
+    
     protected String getannottext() {
-	StringBuffer annottext = new StringBuffer();
-	annotlen = 0;
-	for (int i=0; i<components.length; i++) {
-	    annottext.append(components[i].annottext);
-	    annotlen += components[i].annotlen;
+	if (_annottext==null) {
+	    StringBuffer text = new StringBuffer();
+	    annotlen = 0;
+	    for (int i=0; i<components.length; i++) {
+		text.append(components[i].annottext);
+		annotlen += components[i].annotlen;
+	    }
+	    _annottext = text.toString();
 	}
-	return annottext.toString();
+	return _annottext;
     }
 
-    // nor this
     protected int getprintlen() {
 	int printlen = 0;
 	for (int i=0; i<components.length; i++)
@@ -606,6 +609,8 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	canvas.notifyTextSelectionChange(this);
     }
 
+    protected boolean paintTextSels = true;
+    
     protected void paintTextSels(Graphics g) {
 	if (textsels!=null) {
 	    TextSel current = getTextSel(currenttextselindex);
@@ -618,7 +623,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
     }
     
     public void paint(Graphics g) {
-	if (isEnabled()) {
+	if (isEnabled() && paintTextSels) {
 	    if (DebugVars.paint_tracing)
 		Logger.log.println("painting textselectable item at "+getX()+","+getY());
 	    paintTextSels(g);		  

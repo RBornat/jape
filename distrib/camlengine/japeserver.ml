@@ -718,10 +718,16 @@ let rec getAllDisproofSelections () =
   let disproofsels = getDisproofSelections () in
   disproofsels, disprooftextsels
 
-let rec dragtargets (segvars : string list) =
-  writef "DROPBEGIN\n" [];
-  List.iter (fun t -> writef "DROP %\n" [Str t]) segvars;
-  writef "DROPEND\n" []
+let rec dragsources (formulae : string list) =
+  writef "DRAGSOURCES\n" [];
+  List.iter (fun t -> writef "DRAGSOURCE %\n" [Str t]) formulae;
+  writef "ENDDRAGSOURCES\n" []
+
+let rec droptargets (segvars : string list) =
+  writef "DROPTARGETS\n" [];
+  List.iter (fun t -> writef "DROPTARGET %\n" [Str t]) segvars;
+  writef "ENDDROPTARGETS\n" []
+
 (* things added for version 5.0 *)
 
 let rec setseqbox size =

@@ -616,15 +616,15 @@ let earlierresource e1 e2 =
   match e1, e2 with
     Element (_, r1, _), Element (_, r2, _) ->
       begin match r1, r2 with
-        Resnum i1, Resnum i2 -> i1 < i2
+        Resnum     i1, Resnum     i2 -> i1 < i2
       | ResUnknown i1, ResUnknown i2 -> i1 < i2
-      | Resnum _, Nonum -> true
-      | Resnum _, ResUnknown _ -> true
-      | ResUnknown _, Nonum -> true
-      | _ -> false
+      | Resnum      _, Nonum         -> true
+      | Resnum      _, ResUnknown  _ -> true
+      | ResUnknown  _, Nonum         -> true
+      | _                            -> false
       end
-  | _ -> false
-(* who cares ? *)
+  | _ -> false (* who cares ? *)
+  
 (* this is an alpha-conversion-capable version of eqterms.
    tbs is a binding (a mapping from vars to numbers).
    Because substitutions are a kind of binding, an earlier version tried
