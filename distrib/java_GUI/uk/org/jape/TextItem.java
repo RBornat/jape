@@ -113,6 +113,20 @@ class TextItem extends DisplayItem {
             System.err.println("TextItem built "+this);
     }
 
+    // TextItems can have a selection halo
+    protected int selectionHalo = 0;
+
+    public boolean contains(int x, int y) {
+        return x+selectionHalo>=0 && x-selectionHalo<getWidth() &&
+        y+selectionHalo>=0 && y-selectionHalo<getHeight();
+    }
+
+    // because of the halo, mouse coordinates may be outside the item
+    
+    protected int internalX(int px) {
+        return Math.max(0, Math.min(getWidth(), px));
+    }
+    
     /*protected void computeBounds() {
         bounds = canvas.stringSize(text, fontnum);
         boundaries = canvas.getBoundaries(text, fontnum);

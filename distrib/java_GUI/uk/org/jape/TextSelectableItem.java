@@ -36,11 +36,10 @@ import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.util.Vector;
 
-public class TextSelectableItem extends TextItem
-                                implements ProofConstants, SelectionConstants {
+public class TextSelectableItem extends TextItem {
     public Color textselectionColour = Color.yellow;
 
-    public TextSelectableItem(JapeCanvas canvas, int x, int y, byte fontnum, byte kind,
+    public TextSelectableItem(JapeCanvas canvas, int x, int y, byte fontnum, 
                               String annottext, String printtext) {
         super(canvas,x,y,fontnum,annottext,printtext);
         addMouseInteractionListener(new MouseInteractionAdapter() {
@@ -50,8 +49,8 @@ public class TextSelectableItem extends TextItem
             public void textdragged(byte eventKind, MouseEvent e) {
                 TextSelectableItem.this.textdragged(eventKind, e);
             }
-            public void textreleased(byte eventKind, MouseEvent e) {
-                TextSelectableItem.this.textreleased(eventKind, e);
+            public void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
+                TextSelectableItem.this.textreleased(eventKind, isClick, e);
             }
         });
         selectionHalo = canvas.getSelectionHalo();
@@ -196,7 +195,7 @@ public class TextSelectableItem extends TextItem
     private int currenttextselindex = -1;
     FormulaTree anchor, current;
 
-    public void removeTextSelections() {
+    public void deTextSelect() {
         if (textsels!=null)
             while (textsels.size()!=0) {
                 getTextSel(0).repaint();
@@ -220,7 +219,7 @@ public class TextSelectableItem extends TextItem
                 i = t.end;
             }
             b.append(printchars, i, printchars.length-i);
-            return b.toString();
+            return idX+Reply.stringSep+idY+Reply.stringSep+b.toString()+"\n";
         }
     }
 
@@ -236,13 +235,9 @@ public class TextSelectableItem extends TextItem
         return i<0 || i>=textsels.size() ? null : (TextSel)textsels.get(i);
     }
 
-    protected int mouseX(MouseEvent e) {
-        return Math.max(0, Math.min(getWidth(), e.getX()));
-    }
-
     protected void newTextSel(MouseEvent e) {
         ensureTextSelectionVars();
-        anchor = current = pixel2Subformula(formulae, mouseX(e));
+        anchor = current = pixel2Subformula(formulae, internalX(e.getX()));
         int i;
         for (i=0; i<textsels.size(); i++)
             if (anchor.start<=getTextSel(i).start)
@@ -253,15 +248,15 @@ public class TextSelectableItem extends TextItem
         
     protected void textpressed(byte eventKind, MouseEvent e) {
         switch (eventKind) {
-            case TextSelection:
+            case SelectionConstants.TextSelection:
                 canvas.killTextSelections(null); // kill everybody's, including mine
-            case DisjointTextSelection: // don't kill any text selections?
+            case SelectionConstants.DisjointTextSelection: // don't kill any text selections?
                 newTextSel(e);
                 break;
                 
-            case ExtendedTextSelection:
+            case SelectionConstants.ExtendedTextSelection:
                 canvas.killTextSelections(this); // kill everybody else's
-            case ExtendedDisjointTextSelection:
+            case SelectionConstants.ExtendedDisjointTextSelection:
                 ensureTextSelectionVars();
                 if (textsels.size()==0)
                     newTextSel(e);
@@ -289,14 +284,14 @@ public class TextSelectableItem extends TextItem
     }
 
     protected void textdragged(byte eventKind, MouseEvent e) {
-        FormulaTree sel = enclosingSubformula(anchor, pixel2Subformula(formulae,mouseX(e)));
+        FormulaTree sel = enclosingSubformula(anchor, pixel2Subformula(formulae,internalX(e.getX())));
         if (sel!=current) {
             getTextSel(currenttextselindex).reset(sel);
             current = sel;
         }
     }
     
-    protected void textreleased(byte eventKind, MouseEvent e) {
+    protected void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
         TextSel current = getTextSel(currenttextselindex);
         for (int i=0; i<textsels.size(); ) {
             TextSel t = getTextSel(i);

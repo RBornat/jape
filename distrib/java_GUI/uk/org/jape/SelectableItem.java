@@ -25,20 +25,9 @@
 
   */
 
-public class SelectableItem extends DisplayItem {
-	protected int halomargin;
-	
-    protected SelectableItem(int x, int y, int halomargin) {
-        super(x,y);
-        this.halomargin = halomargin;
-    }
-    
-    public void addMouseInteractionAdapter(MouseInteractionAdapter a) {
-        addMouseListener(a); addMouseMotionListener(a);
-    }
-
-    public boolean contains(int x, int y) {
-        return x>=-halomargin && x<getWidth()+halomargin &&
-               y>=-halomargin && y<getHeight()+halomargin;
-    }
+public interface SelectableItem {
+    public abstract byte getSelkind();
+    public abstract boolean selkindOverlaps(byte selmask);
+    public abstract void select(byte selkind);
+    public abstract void deselect();
 }

@@ -32,8 +32,7 @@ import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.awt.Point;
 
-public class JapeCanvas extends ContainerWithOrigin
-                                 implements Viewportable, SelectionConstants {
+public abstract class JapeCanvas extends ContainerWithOrigin implements Viewportable {
 
     protected JapeCanvas() {
         super();
@@ -41,46 +40,72 @@ public class JapeCanvas extends ContainerWithOrigin
             public void clicked(byte eventKind, MouseEvent e) {
                JapeCanvas.this.clicked(eventKind, e);
             }
+            public void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
+                JapeCanvas.this.textreleased(eventKind, isClick, e);
+            }
         });
     }
 
+    // linethickness is a canvas-wide property
+    protected int linethickness;
+
+    // from it we derive the selection halo for text items
+    protected int getSelectionHalo() {
+        return 2*linethickness;
+    }
+
+    // click on canvas kills selections
     protected void clicked(byte eventKind, MouseEvent e) {
         switch (eventKind) {
-            case TextSelection:
-            case ExtendedTextSelection:
-                killTextSelections(null);
-                break;
-            case DisjointTextSelection:
-            case ExtendedDisjointTextSelection:
-                break;
-            case Selection:
+            case SelectionConstants.Selection:
                 killSelections((byte)0xFF);
                 break;
-            case ExtendedSelection:
-            case DisjointSelection:
-            case ExtendedDisjointSelection:
+            case SelectionConstants.ExtendedSelection:
+            case SelectionConstants.DisjointSelection:
+            case SelectionConstants.ExtendedDisjointSelection:
                 break;
             default:
                 Alert.abort("JapeCanvas.click eventKind="+eventKind);
         }
     }
+
+    // text click on canvas kills text selections
+    protected void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
+        if (isClick) {
+            switch (eventKind) {
+                case SelectionConstants.TextSelection:
+                case SelectionConstants.ExtendedTextSelection:
+                    killTextSelections(null);
+                    break;
+                case SelectionConstants.DisjointTextSelection:
+                case SelectionConstants.ExtendedDisjointTextSelection:
+                    break;
+                default:
+                    Alert.abort("JapeCanvas.textreleased eventKind="+eventKind);
+            }
+        }
+    }
+
+    public abstract String getSelections();
     
     protected void killSelections(byte selmask) {
         Component[] cs = child.getComponents(); // oh dear ...
         for (int i=0; i<cs.length; i++) {
             if (cs[i] instanceof SelectableItem) {
                 SelectableItem s = (SelectableItem)cs[i];
-                if ((s.getSelKind()&selmask)!=0)
-                    s.select(NoSel);
+                if (s.selkindOverlaps(selmask))
+                    s.deselect();
             }
         }
     }
 
+    public abstract String getTextSelections();
+    
     protected void killTextSelections(TextSelectableItem leave) {
         Component[] cs = child.getComponents(); // oh dear ...
         for (int i=0; i<cs.length; i++)
             if (cs[i] instanceof TextSelectableItem && cs[i]!=leave)
-                ((TextSelectableItem)cs[i]).removeTextSelections();
+                ((TextSelectableItem)cs[i]).deTextSelect();
     }
 
     Container viewport = null;

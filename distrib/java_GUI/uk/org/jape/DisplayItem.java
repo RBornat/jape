@@ -28,9 +28,15 @@
 import java.awt.Component;
 
 public class DisplayItem extends Component {
+
     public final int idX, idY;
+
     protected DisplayItem(int x, int y) {
         super();
         this.idX = x; this.idY = y;
+    }
+
+    public void addMouseInteractionListener(MouseInteractionAdapter a) {
+        addMouseListener(a); addMouseMotionListener(a);
     }
 }

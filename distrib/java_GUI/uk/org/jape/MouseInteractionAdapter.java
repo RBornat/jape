@@ -26,8 +26,6 @@
 */
 
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
 /*
     Bernard's original ProofCanvas included this comment:
@@ -71,7 +69,7 @@ import java.awt.event.MouseMotionListener;
     reason for the original design ...
  */
 
-public class MouseInteractionAdapter implements MouseListener, MouseMotionListener {
+public class MouseInteractionAdapter implements MouseInteractionListener {
     // you get a click event if you press the mouse at a particular point, move it and then
     // move back to the same point!  Well blow me down: we're not having that.
 
@@ -108,7 +106,7 @@ public class MouseInteractionAdapter implements MouseListener, MouseMotionListen
     
     public final void mouseReleased(MouseEvent e) {
         if ((eventKind&SelectionConstants.TextSelMask)!=0)
-            textreleased(eventKind, e);
+            textreleased(eventKind, !dragSeen, e);
         else
         if (dragSeen)
             released(eventKind, e);
@@ -143,7 +141,7 @@ public class MouseInteractionAdapter implements MouseListener, MouseMotionListen
     public void textdragged(byte eventKind, MouseEvent e) { }
     public void dragged(byte eventKind, MouseEvent e) { }
 
-    public void textreleased(byte eventKind, MouseEvent e) { }
+    public void textreleased(byte eventKind, boolean isClick, MouseEvent e) { }
     public void clicked(byte eventKind, MouseEvent e) { }
     public void released(byte eventKind, MouseEvent e) { }
     public void doubleclicked(byte eventKind, MouseEvent e) { }

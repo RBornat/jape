@@ -46,5 +46,6 @@ public interface SelectionConstants {
     static final byte NoSel        = 0,
                       HypSel       = 1<<0,
                       ConcSel      = 1<<1,
-                      ReasonSel    = 1<<2;
+                      ReasonSel    = 1<<2,
+                      AmbigSel     = 1<<3;
 }
