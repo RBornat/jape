@@ -202,6 +202,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         private JScrollPane scrollPane;
 
         private final int prefixw;
+        private boolean active;
         
         public PanelWindow() {
             super(PanelWindowData.this.title);
@@ -214,6 +215,14 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                                         "You can't close a Jape panel: it's needed!",
                                         "(and if only I knew how to grey out the close button ...)"
                                     });
+                }
+                public void windowActivated(WindowEvent e) {
+                    active = true;
+                    list.repaint();
+                }
+                public void windowDeactivated(WindowEvent e) {
+                    active = false;
+                    list.repaint();
                 }
             });
     
@@ -277,7 +286,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             public String prefix;
             private final TextDimension td;
             private final Dimension size;
-            public boolean selected, focussed;
+            public boolean selected;
             public Color innerBackground = Color.white;
             public Entry(String s) {
                 super(); this.s = s; prefix = null; this.td = JapeFont.measure(list, s);
@@ -291,7 +300,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 if (paint_tracing)
                     System.err.println("painting PanelWindow.Entry");
                 g.setColor(getBackground()); g.fillRect(0, 0, getWidth(), getHeight());
-                if (selected && !focussed) {
+                if (selected && !active) {
                     g.setColor(innerBackground); g.fillRect(2, 2, getWidth()-4, getHeight()-4);
                 }
                 g.setColor(getForeground()); g.setFont(getFont());
@@ -324,7 +333,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                     e.setBackground(list.getBackground());
                     e.setForeground(list.getForeground());
                 }
-                e.selected = isSelected; e.focussed = cellHasFocus;
+                e.selected = isSelected; 
                 if (isSelected && !cellHasFocus)
                     e.innerBackground = list.getBackground();
                 return e;
