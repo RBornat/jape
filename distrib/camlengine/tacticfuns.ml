@@ -68,10 +68,12 @@ exception Selection_   = Selection.Selection_
 exception Verifyproviso_ = Provisofuns.Verifyproviso_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
          
+
 let rec alterTip =
   function
     Some d -> Interaction.alterTip d
   | None -> raise (Catastrophe_ ["(tacticfuns) alterTip None"])
+
 
 let rec lookupassoc s =
   match Symbol.lookupassoc s with
@@ -87,6 +89,7 @@ identity, we surely can insist that the term mapping comes back the same.
 (* we should be using unifyvariousEQ, but because of a fault in the recording of
 GIVEN steps, we have to use unifyvarious.
 *)
+
 let sameterms = unifyvarious
 (* fun sameterms (t1,t2) cxt = 
   if eqalphaterms 
@@ -94,54 +97,89 @@ let sameterms = unifyvarious
   then Some cxt else None
 *)
 
+
 let rec showProof =
   function
     Some d -> Interaction.showProof d
   | None -> raise (Catastrophe_ ["(tacticfuns) showProof None"])
          
+
 let rec refreshProof =
   function
     Some d -> Interaction.refreshProof d
   | None -> raise (Catastrophe_ ["(tacticfuns) refreshProof None"])
          
+
 let rec askNb m bs = Alert.ask (Alert.defaultseverity bs) m bs 0
+
 let rec askNbc m bs c =
   Alert.askCancel (Alert.defaultseverity bs) m bs c 0
 
+
 let anyCollectionClass = Idclass.BagClass Idclass.FormulaClass
+
 let askChoice = Alert.askChoice
+
 let applyconjectures = Miscellaneous.applyconjectures
+
 let applyderivedrules = Miscellaneous.applyderivedrules
+
 let atoi = Miscellaneous.atoi
+
 let autoAdditiveLeft = Miscellaneous.autoAdditiveLeft
+
 let autoAdditiveRight = Miscellaneous.autoAdditiveRight
+
 let autoselect = Miscellaneous.autoselect
+
 let checkprovisos = Provisofuns.checkprovisos
+
 let conOperatorClass = Idclass.OperatorClass
+
 let consolereport = Miscellaneous.consolereport
+
 let getReason = Reason.getReason
+
 let lemmacount = Miscellaneous.lemmacount
+
 let lacksProof = Proofstore.lacksProof
+
 let needsProof = Proofstore.needsProof
+
 let prefixtoReason = Reason.prefixtoReason
+
 let selection2Subst = Selection.selection2Subst
+
 let setComment = Alert.setComment <.> implode
+
 let setReason = Reason.setReason
+
 let showAlert =
   Alert.showAlert Alert.defaultseverity_alert <.> implode
+
 let symclass = Symbol.symclass
+
 let subterm2subst = Selection.subterm2subst
+
 let tactic_of_string = Termparse.tactic_of_string
+
 let term_of_string = Termparse.term_of_string
+
 let tickmenuitem = Japeserver.tickmenuitem
+
 let uncurry2 = Miscellaneous.uncurry2
+
 let unknownprefix = Symbol.metachar
+
 let verifyprovisos = Provisofuns.verifyprovisos
+
 let _Oracle = Oracle._Oracle
 
 (*  --------------------------------------------------------------------- *)
 
+
 let proving = ref (namefrom "")
+
 let selections
   :
   (path * (element * side option) option * element list *
@@ -149,24 +187,33 @@ let selections
      (element * string list) list * string list)
     option ref =
   ref None
+
 let rec getselectedconclusion () =
   (!selections &~~
      (function
         path, Some (c, _), _, _, _, _ -> Some (path, c)
       | _ -> None))
+
 let rec getselectedhypotheses () =
   (!selections &~~
      (fun (path, _, hs, _, _, _) ->
         if null hs then None else Some (path, hs)))
+
 let tacticresult = ref ""
+
 let tactictracing = ref false
+
 let setReason ss =
   if !tactictracing then consolereport ("setReason -- " :: ss);
   setReason ss
+
 let badunify : (term * term) option ref = ref None
+
 let badmatch : (term * term) option ref = ref None
+
 let badproviso : ((term * term) * proviso) option ref = ref None
 exception StopTactic_
+
 let
   (getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels,
    getargs)
@@ -268,9 +315,11 @@ let
   in
   getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels,
   getargs
+
 let rec selparsefail sel ss =
   "Your text selection doesn't parse (" :: ss @
     [") - you selected \""; sel; "\""]
+
 let rec evalname env arg =
   match (env <@> arg) with
     None -> arg
@@ -286,10 +335,12 @@ let rec evalname env arg =
  * OK then, here goes ... 
  *)
 type evaluatedarg = Argstring of name | Argterm of term
+
 let rec striparg t =
   match term2name t with
     Some n -> Argstring n
   | None -> Argterm t
+
 let rec evalstr2 env arg =
   match (env <@> arg) with
     None -> Argstring arg
@@ -297,6 +348,7 @@ let rec evalstr2 env arg =
 (* we only extend things which actually are named rules or theorems 
    -- or collections of rules in TheoryAlts which don't yet have enough args ...
  *)
+
 let rec extensibletac env tac =
   match tac with
     TermTac (name, args) ->
@@ -312,6 +364,7 @@ let rec extensibletac env tac =
       | Argterm t -> false
       end
   | _ -> false
+
 let rec withabletac outer env t =
   match t with
     WithSubstSelTac t ->
@@ -328,12 +381,14 @@ let rec withabletac outer env t =
   | SubstTac _ -> true
   | _ ->(* I hope *)
      false
+
 let rec quoteterm t =
   registerApp (registerId (vid_of_string "QUOTE", Idclass.ConstantClass), t)
 (* and when we extend, we QUOTE the argument to avoid name capture *)
 (* this sees through 'withing', but is careful not to do so twice.  It relies on the fact
  * that we evaluate outside-in.
  *)
+
 let rec extendwithselection env tac =
   match getsingleargsel (), tac with
     Some arg, TermTac (name, args) ->
@@ -354,16 +409,25 @@ let rec extendwithselection env tac =
      tac
 (*  --------------------------------------------------------------------- *)
 
+
 let rec currentlyProving n = !proving = n
+
 let rec nextLemmaName () =
   string_of_int begin incr lemmacount; !lemmacount end
+
 let noticetime = ref true
+
 let triesused_total = ref 0
+
 let timesbeingtried = ref 0
+
 let triesleft = ref 0
+
 let timestotry = ref 200
 (* for some reason proof replay breaks if this function is called ... I must find out why. *)
+
 let rec time'sUp () = !noticetime && !triesleft <= 0
+
 let rec askTime'sUp () =
   time'sUp () &&
   (* perhaps things should be arranged so that we display the state of the proof at this point ... *)
@@ -389,14 +453,19 @@ let rec askTime'sUp () =
      triesleft := n;
      false
    end)
+
 let rec noMoreTime () = decr triesleft; askTime'sUp ()
+
 let rec interruptTactic () = noticetime := true; triesleft := 0
+
 let rec clearReason () = setReason []
+
 let rec explain r =
   ((if time'sUp () then ["[Time ran out] "] else []) @ getReason ()) @
     (if r <> "" then [" [applying "; r; "]"] else [])
 exception MatchinTermToParam
 (* perhaps spurious *)
+
 let rec _TermToParam =
   function
     Id (_, v, c) -> Ordinaryparam (v, c)
@@ -404,10 +473,12 @@ let rec _TermToParam =
   | _ -> raise MatchinTermToParam
 exception MatchinTermToParamTerm
 (*spurious *)
+
 let _TermToParamTerm =
   (function
      Ordinaryparam vc -> registerId vc
    | _ -> raise MatchinTermToParamTerm) <.> _TermToParam
+
 let rec make_remark name args =
   let args =
     match args with
@@ -422,6 +493,7 @@ let rec make_remark name args =
   | Some (Theorem _, _) -> namestring name
 (*  --------------------------------------------------------------------- *)
       
+
 let rec freshenv patterns cxt env =
   let us = nj_fold (uncurry2 (sortedmerge earliervar)) ((termvars <* patterns)) [] in
   let rec f =
@@ -435,11 +507,14 @@ let rec freshenv patterns cxt env =
   nj_fold f us ([], cxt, env)
 (*  --------------------------------------------------------------------- *)
     
+
 let rec getGoalPath =
   function
     Some g -> g
   | None -> raise (Catastrophe_ ["Tactic ran out of goals"])
+
 let rec getTip parent goalopt = findTip parent (getGoalPath goalopt)
+
 let rec getSubtree parent goalopt =
   followPath parent (getGoalPath goalopt)
 (*  --------------------------------------------------------------------- *)
@@ -453,14 +528,18 @@ let rec getSubtree parent goalopt =
 *)
 
 
+
 let tryresolution = ref true
+
 let rec getcxt = fun (Proofstate {cxt = cxt} as state) -> cxt
+
 let rec getconjecture =
   fun (Proofstate {goal = goal; tree = tree} as state) ->
     let (seq, rewinf, _) =
       Prooftree.Tree.Fmttree.getTip tree (getGoalPath goal)
     in
     seq, rewinf
+
 let rec getapplyinfo name args cxt =
   try
     match freshThingtoapply true name cxt args with
@@ -474,6 +553,7 @@ let rec getapplyinfo name args cxt =
            ("in applying " :: parseablenamestring name ::
               " to arguments " ::
               bracketedliststring termstring ", " args :: ": " :: ss))
+
 let rec getsubstinfo weaken name argmap cxt =
   try
     match freshThingtosubst weaken name cxt argmap with
@@ -489,10 +569,12 @@ let rec getsubstinfo weaken name argmap cxt =
               bracketedliststring (pairstring termstring termstring ",")
                 ", " argmap ::
               ": " :: ss))
+
 let rec hiddencontexts =
   function
     [] -> false, false
   | _ -> !autoAdditiveLeft, !autoAdditiveRight
+
 let rec expandstuff name (env, principals, thing) =
   fun (Proofstate {givens = givens}) ->
     let params = List.rev (Mappingfuns.rawdom env) in
@@ -509,6 +591,7 @@ let rec expandstuff name (env, principals, thing) =
     let hiddenright = not (null givens) && !autoAdditiveRight in
     kind, hiddencontexts givens, how, env, principals, antes, conseq,
     provisos
+
 let rec preparestuff2apply stuff =
   let (kind, hiddens, how, env, principals, antes, conseq, provisos) =
     stuff
@@ -518,6 +601,7 @@ let rec preparestuff2apply stuff =
   in
   kind, hiddens, how, (snd <* argmap), principals, antes',
   conseq', (mkvisproviso <* provisos')
+
 let (apply, resolve, applyorresolve) =
   let rec makestep stuff state resopt =
     let (kind, hiddens, how, argmap, principals, antes, conseq, provisos)
@@ -618,7 +702,9 @@ let (apply, resolve, applyorresolve) =
           else None))
   in
   apply, resolve, applyorresolve
+
 let rec applymethod () = if !tryresolution then applyorresolve else apply
+
 let rec doALERT tryf message m ps copt state =
   let m = message m in
   let ps = ((fun (b, t) -> message b, t) <* ps) in
@@ -628,6 +714,7 @@ let rec doALERT tryf message m ps copt state =
   | _, None ->(* not sure we need this one ... *)
      tryf (askNb m ps) state
   | _, Some ct -> tryf (askNbc m ps ct) state
+
 let rec doSUBGOAL path =
   fun (Proofstate {tree = tree} as state) ->
     try
@@ -643,6 +730,7 @@ let rec doSUBGOAL path =
     with
       _ ->
         setReason ["No such subtree (SUBGOAL) "; fmtpathstring path]; None
+
 let rec doCOMPLETE f =
   fun
     (Proofstate {cxt = cxt; goal = goal; tree = parent; root = root} as
@@ -688,6 +776,7 @@ let rec doCOMPLETE f =
         raise
           (Catastrophe_
              ["Internal Error ("; Printexc.to_string exn; ") in PROVE"])
+
 let rec parseints mess eval ints =
   try
     match debracket (eval ints) with
@@ -700,6 +789,7 @@ let rec parseints mess eval ints =
            [mess; " must be a tuple of integers; you gave ";
             termstring ints; " = "; termstring (debracket (eval ints))])
 (* With the modern prooftree, LAYOUT is a simple assignment to a tip *)
+
 let rec doLAYOUT layout eval action t =
   fun (Proofstate {tree = tree; goal = goal} as state) ->
     let rec parsefmt fmt =
@@ -729,38 +819,47 @@ let rec doLAYOUT layout eval action t =
     with
       AlterProof_ ss ->
         raise (Catastrophe_ ("AlterProof_ in LAYOUT: " :: ss))
+
 let rec doWITHCONCSEL try__ =
   match getselectedconclusion (), try__ with
     Some (_, c),
     (matching, checker, ruler, filter, taker, selhyps, selconcs) ->
       matching, checker, ruler, filter, taker, selhyps, c :: selconcs
   | _ -> try__
+
 let rec doWITHHYPSEL try__ =
   match getselectedhypotheses (), try__ with
     Some (_, hs),
     (matching, checker, ruler, filter, taker, selhyps, selconcs) ->
       matching, checker, ruler, filter, taker, hs @ selhyps, selconcs
   | _ -> try__
+
 let rec doMATCH
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   true, checker, ruler, (bymatch &~ filter), taker, selhyps,
   selconcs
+
 let rec doSAMEPROVISOS
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, checker, ruler, (sameprovisos &~ filter), taker,
   selhyps, selconcs
+
 let rec doSIMPLEAPPLY
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, checker, apply, filter, taker, selhyps, selconcs
+
 let rec doAPPLYORRESOLVE
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, checker, applyorresolve, filter, taker, selhyps, selconcs
+
 let rec doUNIQUE
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, checker, ruler, filter, takeonlyone, selhyps, selconcs
+
 let rec doANY
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, checker, ruler, filter, takefirst, selhyps, selconcs
+
 let rec doRESOLVE
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, checker, resolve, filter, taker, selhyps, selconcs
@@ -768,6 +867,7 @@ let rec doRESOLVE
    apply (no fancy resolution);
    takefirst (because proof recording doesn't identify resources)
 *)
+
 let rec doREPLAY
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, sameterms, apply, filter, takefirst, selhyps, selconcs
@@ -775,6 +875,7 @@ let rec doREPLAY
  * or there is nothing more to do in the state.  Catch exceptions and 
  * treat them as failure.
  *)
+
 let rec doDO f state =
   if noMoreTime () then Some state
   else if isproven state then Some state
@@ -785,6 +886,7 @@ let rec doDO f state =
     with
       None -> Some state
     | Some state' -> doDO f state'
+
 let rec doREPEAT1 f state =
   match
     try f state with
@@ -792,11 +894,13 @@ let rec doREPEAT1 f state =
   with
     None -> Some state
   | answer -> answer
+
 let rec doSEQ a1 a2 a3 =
   match a1, a2, a3 with
     f, [], st -> Some st
   | f, t :: ts, st -> (f t &~ doSEQ f ts) st
 (* insert a cut, run the tactic to the left of the cut, then go back to the original position, if it's still there *)
+
 let rec doCUTIN f =
   fun (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) ->
     (* there must be exactly one cut rule, and we must have autoAdditiveLeft *)
@@ -908,6 +1012,7 @@ let rec doCUTIN f =
 
  **********************************************************************)
 
+
 let rec _CanApply triv name state =
   if triv then []
   else
@@ -928,11 +1033,13 @@ let rec _CanApply triv name state =
       _ -> []
 (* whatever it means, we can't apply it ... *)
 
+
 let rec _CanApplyInState a1 a2 a3 =
   match a1, a2, a3 with
     triv, name, (Proofstate {goal = Some gpath} as state) ->
       _CanApply triv name state
   | _, _, _ -> []
+
 let rec autoStep a1 a2 a3 =
   match a1, a2, a3 with
     triv, rulenames, Proofstate {goal = None} -> None
@@ -961,6 +1068,7 @@ let rec autoStep a1 a2 a3 =
           | Some n ->
               let (name, (cxt, newtree)) = List.nth (cs) (n) in
               proofstep cxt newtree state
+
 let rec forceUnify a1 a2 =
   match a1, a2 with
     t1 :: t2 :: ts, (Proofstate {cxt = cxt} as state) ->
@@ -994,6 +1102,7 @@ let rec forceUnify a1 a2 =
       end
   | _, state -> Some state
 
+
 let rec doDropUnify ts ss =
   fun (Proofstate {cxt = cxt} as state) ->
     let _ =
@@ -1016,9 +1125,11 @@ let rec doDropUnify ts ss =
       Verifyproviso_ p ->
         bad [" because proviso "; provisostring p; " is violated"]
 
+
 let _FINDdebug = ref false
 (* test if some Theorem/Rule defines an operator as associative *)
 exception Matchinassociativelawstuff_
+
 let rec binary operator t =
   if !_FINDdebug then
     consolereport
@@ -1027,6 +1138,7 @@ let rec binary operator t =
     f, [l; r] ->
       if f = operator then l, r else raise Matchinassociativelawstuff_
   | _ -> raise Matchinassociativelawstuff_
+
 let rec fringe operator t =
   if !_FINDdebug then
     consolereport
@@ -1038,7 +1150,9 @@ let rec fringe operator t =
       if f = operator then fringe operator l @ fringe operator r
       else raise Matchinassociativelawstuff_
   | _ -> raise Matchinassociativelawstuff_
+
 let eq = registerId (vid_of_string "=", conOperatorClass)
+
 let rec associativelaw operator thing =
   let rec assoc params term =
     try
@@ -1075,17 +1189,20 @@ let rec associativelaw operator thing =
     Theorem (params, [], seq) -> ok params seq
   | Rule ((params, [], [], seq), _) -> ok params seq
   | _ -> false
+
 let rec applyAnyway thing =
   match thing with
     Rule _ -> !applyderivedrules
   | Theorem _ -> !applyconjectures
   | _ -> false
+
 let rec relevant name =
   match thingnamed name with
     None -> false
   | Some (thing, _) ->
       not (currentlyProving name) &&
       (applyAnyway thing || not (needsProof name thing))
+
 let rec allrelevantthings () =
     (fst <.> _The <.> thingnamed) <* (relevant <| thingnames ())
 
@@ -1103,13 +1220,16 @@ module Assoccache =
            end)
 
 exception Matchinisassociative
+
 let resetassociativecache = Assoccache.reset
+
 let isassociative =
   function
     Id (_, v, _) -> Assoccache.lookup v
   |            _ -> raise Matchinisassociative
 
 (**********************************************************************)
+
 
 let rec _LeftFold f ts =
   let rec _Fold a1 a2 =
@@ -1124,6 +1244,7 @@ let rec _LeftFold f ts =
          symclass "GIVE ME A BREAK! (LEFTFOLD)")
   | t :: ts -> _Fold t ts
 
+
 let rec _RightFold f ts =
   let rec _Fold =
     function
@@ -1136,9 +1257,11 @@ let rec _RightFold f ts =
   in
   _Fold ts
 
+
 let rec _MkApp curry f l r =
   if curry then registerApp (registerApp (f, l), r)
   else registerApp (f, registerTup (",", [l; r]))
+
 
 let rec rator t =
   match debracket t with
@@ -1154,6 +1277,7 @@ let rec rator t =
 
 exception MatchinAssocInfo (* spurious *)
    
+
 let rec assocInfo =
   function
     Id (_, c, _) as f ->
@@ -1167,6 +1291,7 @@ let rec assocInfo =
            ", "; string_of_bool lassoc; ")"];
       curried, (if lassoc then _LeftFold else _RightFold) (_MkApp curried f)
   | _ -> raise MatchinAssocInfo
+
 
 let rec _AssocFlatten pat t =
   let _ =
@@ -1232,10 +1357,12 @@ let rec _AssocFlatten pat t =
 
 (**********************************************************************)
 
+
 let rec explainfailure a1 a2 =
   match a1, a2 with
     why, None -> setReason (why ()); None
   | why, some -> some
+
 let rec _UnifyWithExplanation message (s, t) cxt =
   try
     explainfailure
@@ -1269,6 +1396,7 @@ type arithKind =
    
    opn, invopn: int*int->int where opn=+ => invopn=-, opn=* => invopn=div
 *)
+
 let rec _ARITHMETIC =
   fun _C cxt opn invopn (e1 : term) (e2 : term) (e3 : term) (neg : term) ->
     let e1 = debracket e1 in
@@ -1324,6 +1452,7 @@ let rec _ARITHMETIC =
         None
 (**********************************************************************)
 
+
 let rec _DECIDE (turnstile : string) (cxt : Cxttype.cxt) =
   fun (_HS : term) ->
     fun (_CS : term) (oracle : string) (args : string list) ->
@@ -1335,6 +1464,7 @@ let rec _DECIDE (turnstile : string) (cxt : Cxttype.cxt) =
 exception MatchinEvaluate exception MatchinTtoV
 (* spurious *)
    
+
 let rec explodeEval =
   fun _C ->
     let (f, es) = explodeApp true _C in
@@ -1344,6 +1474,7 @@ let rec explodeEval =
     | _ -> "", []
 exception MatchinOBJECT
 (* spurious *) (* moved out for OCaml *)
+
 
 let rec _Evaluate cxt seq =
   match rewriteseq cxt seq with
@@ -1404,6 +1535,7 @@ let rec _Evaluate cxt seq =
       setReason ["_Evaluate couldn't recognise sequent "; seqstring s];
       None
 (* non-single conclusion *)
+
 let rec doEVAL a1 a2 =
   match a1, a2 with
     args,
@@ -1423,6 +1555,7 @@ let rec doEVAL a1 a2 =
   | args, _ -> None
 (**********************************************************************)
 
+
 let rec appendsubterms t q =
   match t with
     App (_, l, r) -> r :: l :: q
@@ -1430,6 +1563,7 @@ let rec appendsubterms t q =
   | Fixapp (_, _, ts) -> List.rev ts @ q
   | Binding (_, (bs, ss, us), _, _) -> (List.rev ss @ List.rev us) @ q
   | _ -> q
+
 let rec _FIRSTSUBTERM f t =
   let rec _S a1 a2 =
     match a1, a2 with
@@ -1441,7 +1575,9 @@ let rec _FIRSTSUBTERM f t =
         | r -> r
   in
   _S [t] []
+
 let _FOLDdebug = ref false
+
 let rec _Matches goal (name, thing, lhs as rule) =
   if currentlyProving name then None
   else if not (applyAnyway thing) && lacksProof name then None
@@ -1458,9 +1594,11 @@ let rec _Matches goal (name, thing, lhs as rule) =
             | None -> None)
          goal
     end
+
 let rootenv = ref empty
 (* filth, by Richard *)
    
+
 let rec tranformals formals =
   try
       (_The <.> term2name <.> paramvar) <* formals
@@ -1471,6 +1609,7 @@ let rec tranformals formals =
            ["parameter list (";
             liststring (termstring <.> paramvar) "," formals;
             ") isn't all names"])
+
 let rec mkenv params args =
   let formals = tranformals params in
   let rec mkenv' a1 a2 =
@@ -1480,6 +1619,7 @@ let rec mkenv params args =
   in
   (* filth, by Richard *)
   mkenv' formals args
+
 let rec mkenvfrommap params argmap =
   let rec mk ((v, t), e) =
     try (e ++ (_The (term2name v) |-> t)) with
@@ -1487,6 +1627,7 @@ let rec mkenvfrommap params argmap =
         raise (Catastrophe_ ["can't happen mkenvfrommap "; termstring v])
   in
   nj_revfold mk argmap !rootenv
+
 let rec _AQ env term =
   let rec _A =
     function
@@ -1496,6 +1637,7 @@ let rec _AQ env term =
     | _ -> None
   in
   mapterm _A term
+
 and _QU env term =
   let rec _Q =
     function
@@ -1503,14 +1645,18 @@ and _QU env term =
     | _ -> None
   in
   mapterm _Q term
+
 let rec eval env = _AQ env
+
 let rec evalvt env (v, t) = v, eval env t
 (* a service to SubstTac *)
    
    (**********************************************************************)
 
 type conclusions = (name * thing * term) list
+
 let conclusionstore = Hashtbl.create 127
+
 
 let rec emptyenv () = mkenv [] []
 
@@ -1522,6 +1668,7 @@ let rec emptyenv () = mkenv [] []
 (* with bated breath, I try it without freshRule *)
 (* that was years ago.  Must have worked *)
 (* now with memofix. RB 11/vii/2002 *)
+
 let rec unfix_ConcsOf _ConcsOf n =
     begin
       if !_FOLDdebug then
@@ -1550,6 +1697,7 @@ let rec unfix_ConcsOf _ConcsOf n =
             ["Only a macro is named "; namestring n; " (in _ConcsOf)"];
           []
     end
+
 and _ConclusionsofTactic env (spec, l) =
   if !_FOLDdebug then
     consolereport
@@ -1566,21 +1714,29 @@ and _ConclusionsofTactic env (spec, l) =
       nj_fold (fun (n, l) -> _ConclusionsofthingNamed (evalname env n, l)) ns
         l
   | _ -> setReason ["Bad FOLD/UNFOLD argument"]; l
+
 and _ConcsOf v = Fix.memofix conclusionstore unfix_ConcsOf v
+
 and resetconclusioncache () = Hashtbl.clear conclusionstore
+
 and _ConclusionsofthingNamed (n, l) = let ts = _ConcsOf n in ts @ l
+
 
 let rec resetcaches () = resetconclusioncache (); resetassociativecache ()
 
 (**********************************************************************)
 
 
+
 let _THING = (ref None : term option ref)
+
 let rec _IT () = _The !_THING
+
 let rec strsep t =
   match debracket t with
     Literal (_, String s) -> s
   | _ -> termstring t
+
 let rec listf a1 a2 a3 =
   match a1, a2, a3 with
     [], [], r -> List.rev r
@@ -1599,12 +1755,14 @@ let rec listf a1 a2 a3 =
   | "%" :: f :: fs, ts, r -> listf fs ts (f :: r)
   | ["%"], ts, r -> listf [] ts ("%" :: r)
   | f :: fs, ts, r -> listf fs ts (f :: r)
+
 and message term =
   match debracket term with
     Tup (_, ",", Literal (_, String format) :: ts) ->
       implode (listf (explode format) ts [])
   | Literal (_, String s) -> s
   | _ -> termstring term
+
 let message = message
 
 exception MatchindoJAPE_ (* spurious *)
@@ -1612,6 +1770,7 @@ exception BadMatch_ (* moved out for OCaml *)
 exception MatchinTtoIL_ (* not spurious, really *) (* moved out for OCaml *)
 exception MatchinJAPEparam_ (* moved out for OCaml *)
    
+
 let rec doJAPE tryf display env ts =
   fun
     (Proofstate
@@ -1699,6 +1858,7 @@ let rec doJAPE tryf display env ts =
              | _ -> bang())
         | _ -> bang()
         
+
 let rec doFLATTEN env f =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
     match rewriteseq cxt (getTip tree goal) with
@@ -1729,6 +1889,7 @@ let rec doFLATTEN env f =
         end
     | _ -> setReason ["FLATTEN with multiple-conclusion sequent"]; None
 (**********************************************************************)
+
 let rec trace argstring name args =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
     if !tactictracing then
@@ -1741,9 +1902,11 @@ let rec trace argstring name args =
                 seqstring
                   (rewriteseq cxt (sequent (followPath tree path)))) ^
                "]]"]
+
 let tracewithargs =
   trace
     (fun cxt -> liststring (argstring <.> rewrite cxt) " ")
+
 let tracewithmap =
   trace
     (fun cxt ->
@@ -1751,7 +1914,9 @@ let tracewithmap =
          (pairstring termstring (termstring <.> rewrite cxt)
             ",")
          ",")
+
 let rec nullcontn s = s
+
 let rec applyBasic
   name (env, _, thing as stuff)
     (matching, checker, ruler, filter, taker, selhyps, selconcs as try__)
@@ -1777,6 +1942,7 @@ let rec applyBasic
 (* because this is generic it has to be outside the loop, 
  * and given dispatchTactic as an argument 
  *)
+
 let rec tryApplyOrSubst
   dispatch getit mke con trace display try__ contn name args =
   fun
@@ -1839,6 +2005,7 @@ let rec tryApplyOrSubst
           failOfferingDo hideit;
           succeedOfferingDo hideit;
           contn (applyBasic name stuff try__ cxt state)
+
 let rec newpath tacstr eval =
   fun (Proofstate {tree = tree} as state) p ->
     let rec simple ns = parseints (" path in " ^ tacstr) eval ns in
@@ -1857,6 +2024,7 @@ let rec newpath tacstr eval =
           (Tacastrophe_
              ["bad path in "; tacstr; ": "; s; "; ";
               bracketedliststring string_of_int "," ns])
+
 let rec dispatchTactic display try__ env contn tactic =
   fun (Proofstate {cxt = cxt} as state) ->
     if !tactictracing then
@@ -2098,15 +2266,18 @@ let rec dispatchTactic display try__ env contn tactic =
  *)
 (* we are going to stop looking things up again and again RB 29/x/97 *)
 
+
 and tryApply display =
   tryApplyOrSubst dispatchTactic getapplyinfo mkenv
     (fun (n, args) -> TermTac (n, (quoteterm <* args)))(* con *)
      tracewithargs
     display
 
+
 and trySubst display =
   tryApplyOrSubst dispatchTactic (getsubstinfo true) mkenvfrommap (fun v->SubstTac v)
     tracewithmap display
+
 
 and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs as try__) i 
                      (Proofstate {cxt = cxt; givens = givens} as state) =
@@ -2130,6 +2301,7 @@ and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs
     in
     ruler checker filter taker selhyps selconcs stuff name cxt state
 
+
 and doASSIGN env (s, t) state =
   let t' = eval env t in
   let rec fail ss =
@@ -2145,6 +2317,7 @@ and doASSIGN env (s, t) state =
          parseablenamestring s; " can only be set to "; range]
   | NotJapeVar_ -> fail ["it isn't a variable in the environment"]
   | ReadOnly_ -> fail ["that variable can't be altered (at the moment)"]
+
 and doMAPTERMS display try__ contn name args =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
     match rewriteseq cxt (getTip tree goal) with
@@ -2159,6 +2332,7 @@ and doMAPTERMS display try__ contn name args =
  * is a bit restricted ...
  *)
 (* Now it forces you to use the substitution it constructs *)
+
 and doWITHSUBSTSEL display try__ =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
                    target = target; root = root})
@@ -2209,6 +2383,7 @@ and doWITHSUBSTSEL display try__ =
         None
     | _, None ->
         raise (Catastrophe_ ["WITHSUBSTSEL applied without a goal"])
+
 and doUNFOLD name display try__ env contn (tactic, laws) =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
     match rewriteseq cxt (getTip tree goal) with
@@ -2234,6 +2409,7 @@ and doUNFOLD name display try__ env contn (tactic, laws) =
                    state)))
           lhss
     | _ -> setReason ["UNFOLD with multiple-conclusion sequent"]; None
+
 and doFOLD name display try__ env contn (tactic, laws) =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
     match rewriteseq cxt (getTip tree goal) with
@@ -2254,6 +2430,7 @@ and doFOLD name display try__ env contn (tactic, laws) =
                    state)))
           rhss
     | _ -> setReason ["FOLD with multiple-conclusion sequent"]; None
+
 and doFOLDHYP name display try__ env contn (tactic, patterns) =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens; 
                    target = target; root = root} as state) ->
@@ -2297,6 +2474,7 @@ and doFOLDHYP name display try__ env contn (tactic, patterns) =
                   givens = givens; root = root})
         end
     | _ -> setReason ["FOLDHYP with multiple-conclusion sequent"]; None
+
 and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
                    target = target; root = root} as state) ->
@@ -2340,6 +2518,7 @@ and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
                   givens = givens; root = root})
         end
     | _ -> setReason ["UNFOLDHYP with multiple-conclusion sequent"]; None
+
 and doBIND tac display try__ env =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
     let matching = fst_of_7 try__ in
@@ -2782,6 +2961,7 @@ and doBIND tac display try__ env =
           (Catastrophe_
              ["(doBind in tacticfuns) WHEN tactic with non-guard arm ";
               tacticstring t])
+
 and doWHEN ts display try__ env state =
   let rec _W =
     function
@@ -2793,9 +2973,14 @@ and doWHEN ts display try__ env state =
         | Some x -> x
   in
   _W ts
+  
 (* on rules and theorems only, auto-include arguments *)
-let rec firstextend env tac =
+
+let firstextend env tac =
+  (*consolereport ["firstextend ("; Japeenv.string_of_japeenv env; ") ("; tacticstring tac; ") ";
+                 string_of_bool (extensibletac env tac)];*)
   if extensibletac env tac then WithSelectionsTac tac else tac
+
 let rec runTactic display env try__ tac =
   fun (Proofstate {goal = goal} as state) ->
     noticetime := true;
@@ -2809,10 +2994,12 @@ let rec runTactic display env try__ tac =
     match goal with
       None -> None
     | Some goal -> dispatchTactic display try__ env nullcontn tac state
+
 let rec applyTactic display env tac state =
   runTactic display env
     (false, unifyvarious, applymethod (), nofilter, offerChoice, [], [])
     (firstextend env tac) state
+
 let rec applyLiteralTac display env try__ text state =
   runTactic display env try__
     (firstextend env (transTactic (tactic_of_string text))) state
@@ -2836,17 +3023,20 @@ let rec errorcatcher f mess text state =
   | exn -> raise exn
 (* in case compiler thinks StopTactic_ is a variable ... *)
      
+
 let rec applyLiteralTactic display env text state =
   errorcatcher
     (applyLiteralTac display env
        (false, unifyvarious, applymethod (), nofilter, offerChoice, [], [])
        text)
     (fun () -> "during tactic " ^ text) (fun () -> text) state
+    
 (* CAUTION - as written (by me) autoTactics can clearly be exponential.
  * Don't put too much stuff through it.
  * RB.
  *)
 (* this damn thing sometimes switched goals on us ... not any more. RB 21/xii/99 *)
+
 let rec autoTactics display env rules =
   fun (Proofstate {tree = tree; goal = oldgoal} as state) ->
     let rec tryone matching tac goal =
