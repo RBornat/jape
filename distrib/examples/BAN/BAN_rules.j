@@ -33,7 +33,7 @@ MENU TheirRules IS
         AND P <| <X> Y
         INFER P |* Q |~ X
         
-    RULE "|* #, |* |~ => |* |*"(P,Q,X) IS
+    RULE "|* #, |* |~ => |* |*"(X,P,Q) IS
         FROM P |* #X
         AND P |* Q |~ X
         INFER P |* Q |* X
@@ -87,7 +87,7 @@ MENU TheirRules IS
         AND P <| {X} (inverse K)
         INFER P <| X
         
-    RULE "|* #X, X isin Y => |* #Y"(P,X,Y) IS
+    RULE "|* #X, X isin Y => |* #Y"(X,Y,P) IS
          FROM P |* #X
           AND X isin Y
         INFER P |* #Y
