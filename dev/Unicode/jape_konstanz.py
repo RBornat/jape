@@ -42,7 +42,7 @@ decoding_map = codecs.make_identity_dict(range(256))
 # character has no rendition in the given font
 # (BAS: Jan 2003)
 #
-tkBug = 1
+tkBug = 0
 
 if tkBug:
    perp = 0x2310 # laterally reversed not
@@ -79,6 +79,7 @@ jenc = []
 ### Encoding Map
 
 encoding_map = codecs.make_encoding_map(decoding_map)
+
 
 
 

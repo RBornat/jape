@@ -82,6 +82,16 @@ def translate(pathin, pathout, inputcodec, outputcodec):
       out.write(bytes)
       out.close()
     except exceptions.UnicodeError, e:
+      out=codecs.EncodedFile(open("/dev/null", 'w'), inputcodec, outputcodec)
+      count = 0
+      lines = bytes.split("\n")
+      for line in lines:
+          count += 1
+          try:
+             out.write(line)
+          except exceptions.UnicodeError, _:
+             e = str(e) + " at line " + `count` +": " + line
+             break
       fatal(e, "Translating file %s(%s) to %s(%s)"%(pathin, inputcodec, pathout, outputcodec))
 
 def main():
@@ -191,6 +201,7 @@ def usage():
 if __name__ == '__main__':
    main()
    
+
 
 
 
