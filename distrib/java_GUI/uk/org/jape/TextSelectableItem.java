@@ -370,20 +370,21 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
     }
 
     public String toString() {
-        String s = "TextSelectableItem["+super.toString()+
-        ", annottext=..."+
-        ", currenttextselindex="+currenttextselindex;
+        String s = "TextSelectableItem["+
+        "annottext=..."+
+        ", currenttextselindex="+currenttextselindex+
+        ", textsels=";
         if (textsels==null)
-            s = s+", textsels=null";
+            s = s+"null";
         else {
-            s = s+", textsels=[";
+            s = s+"[";
             for (int i=0; i<textsels.size(); i++) {
                 s = s+getTextSel(i);
                 if (i+1<textsels.size())
                     s = s+", ";
             }
-            s = s+"]]";
+            s = s+"]";
         }
-        return s;
+        return s+", "+super.toString()+"]";
     }
 }
