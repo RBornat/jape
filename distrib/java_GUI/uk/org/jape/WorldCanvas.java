@@ -157,6 +157,11 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
         g.drawImage(image, 0, 0, this);
     }
 
+    // draw directly to print graphics
+    public void print(Graphics g) {
+        super.paint(g);
+    }
+    
     public String getSelections(String sep) {
         Alert.abort("WorldCanvas.getSelections");
         return ""; // shut up compiler
