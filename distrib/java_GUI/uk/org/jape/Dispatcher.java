@@ -165,7 +165,17 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("MAKEMENUSVISIBLE")&&len==1) {
                             JapeMenu.makeMenusVisible();
                             PanelWindowData.makePanelsVisible();
-                        } 
+                        }
+                        else
+                        if (p.equals("CANCELMENUSANDPANELS")&&len==1) {
+                            JapeMenu.cancelMenus();
+                            PanelWindowData.cancelPanels();
+                        }
+                        else
+                        if (p.equals("EMPTYMENUSANDPANELS")&&len==1) {
+                            JapeMenu.emptyMenus();
+                            PanelWindowData.emptyPanels();
+                        }
                         else
                         if (p.equals("MENUSEP")&&len==2)
                             JapeMenu.addSeparator(cmd[1]);
