@@ -298,8 +298,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                     String res="";
                     for (int ci=0; ci<b.cmd.length; ci++) {
                         if (ci!=0) res+=" ";
-                        res += b.cmd[ci] instanceof CommandInsert ? (String)cmdv.get(index)                     :
-                               b.cmd[ci] instanceof LabelInsert   ? JapeFont.toAscii((String)entryv.get(index)) :
+                        res += b.cmd[ci] instanceof CommandInsert ? (String)cmdv.get(index)      :
+                               b.cmd[ci] instanceof LabelInsert   ? (String)entryv.get(index)    :
                                                                     ((StringInsert)b.cmd[ci]).s;
                     }
                     Reply.sendCOMMAND(res);

@@ -88,7 +88,7 @@ public class Tile extends JLabel implements DebugConstants,
 
         MouseInteractionListener mil = new MouseInteractionAdapter() {
             public void doubleclicked(byte eventKind, MouseEvent e) {
-                Reply.sendCOMMAND("tileact \""+JapeFont.toAscii(text)+"\"");
+                Reply.sendCOMMAND("tileact \""+text+"\"");
             }
             /*public void pressed(byte eventKind, MouseEvent e) {
             Tile.this.pressed(e);

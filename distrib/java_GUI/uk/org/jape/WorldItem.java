@@ -161,7 +161,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, DropTarget
                 Alert.abort("drop onto world not tileFlavor");
                 label = ""; // shut up compiler
             }
-            Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+JapeFont.toAscii(label)+"\"");
+            Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+label+"\"");
             dtde.dropComplete(true);
             setdraghighlight(false);
         }
