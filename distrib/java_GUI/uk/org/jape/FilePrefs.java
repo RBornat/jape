@@ -31,7 +31,6 @@ import java.io.File;
 
 import java.util.Vector;
 
-import java.util.prefs.Preferences;
 
 public class FilePrefs {
     
@@ -40,13 +39,11 @@ public class FilePrefs {
 				recentFilesKey  = "RecentFiles";
     
     public static void setLastOpenedDir(File path) { 
-	Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
-	prefs.put(lastOpenDirKey, path.toString());
+	JapePrefs.prefs.put(lastOpenDirKey, path.toString());
     }
     
     public static void setLastSavedDir(File path) { 
-	Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
-	prefs.put(lastSavedDirKey, path.toString());
+	JapePrefs.prefs.put(lastSavedDirKey, path.toString());
     }
     
     public static File nextOpen() {
@@ -54,8 +51,7 @@ public class FilePrefs {
     }
     
     private static File nextOpen(boolean firsttime) {
-	Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
-	String lastdir = prefs.get(lastOpenDirKey, null);
+	String lastdir = JapePrefs.prefs.get(lastOpenDirKey, null);
 	if (lastdir==null) {
 	    if (firsttime) {
 		setLastOpenedDir(new File(System.getProperties().getProperty("user.dir")));
@@ -71,8 +67,7 @@ public class FilePrefs {
     }
     
     public static File nextSave() {
-	Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
-	String lastdir = prefs.get(lastSavedDirKey, null);
+	String lastdir = JapePrefs.prefs.get(lastSavedDirKey, null);
 	return lastdir==null ? nextOpen() : new File(lastdir);
     }
     
@@ -93,8 +88,7 @@ public class FilePrefs {
 	    if (fstring.startsWith(home))
 		fstring = "~"+fstring.substring(home.length());
 	}
-	Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
-	String recent = prefs.get(recentFilesKey, "");
+	String recent = JapePrefs.prefs.get(recentFilesKey, "");
 	String r = fstring+"\n";
 	int i = 0, j, count=1;
 	while ((j=recent.indexOf("\n", i))!=-1) {
@@ -106,18 +100,16 @@ public class FilePrefs {
 	    i = j+1;
 	}
 	JapeMenu.setRecentFiles(r, true);
-	prefs.put(recentFilesKey, r);
+	JapePrefs.prefs.put(recentFilesKey, r);
     }
     
     public static String getRecentFiles() {
-	Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
-	String recent = prefs.get(recentFilesKey, "");
+	String recent = JapePrefs.prefs.get(recentFilesKey, "");
 	return recent;
     }
     
     public static void clearRecentFiles() {
-	Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
-	prefs.put(recentFilesKey, "");
+	JapePrefs.prefs.put(recentFilesKey, "");
 	JapeMenu.setRecentFiles("", true);
     }
 }
