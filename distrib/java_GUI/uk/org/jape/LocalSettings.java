@@ -71,7 +71,7 @@ public class LocalSettings implements SelectionConstants {
 
     public static byte mouseClickWorldItemMeans(MouseEvent e) {
         return !e.isAltDown() && !e.isShiftDown() &&
-               !e.isMetaDown() && !e.isControlDown ? WorldClick : WorldNoClick;
+               !e.isMetaDown() && !e.isControlDown() ? WorldClick : WorldNoClick;
     }
     // how to mark an entry in a conjecture panel
     public static final String tick = "\u2713", cross = "\u2717";
