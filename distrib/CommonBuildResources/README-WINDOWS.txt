@@ -1,8 +1,8 @@
 Windows (2K and XP) Jape installation
 =====================================
 
-February 2003 (Revision 3)
-=============
+March 2005 (Revision 4)
+=======================
 
 
 You will need
@@ -34,10 +34,9 @@ License
 What to do
 ----------
 
-0. Decide where you want Jape's home to be on your system, and move
-   the $(OS)jape.jar file there. 
+0. Download the InstallWindowsjape.jar file to your system. 
 
-1. Run the program $(OS)jape.jar by double clicking on it, or by
+1. Run the program InstallWindowsjape.jar by double clicking on it, or by
    whatever other means you normally use to start a java program
    packaged as a .jar file. [See TROUBLESHOOTING note 2 below]
 
@@ -46,28 +45,14 @@ What to do
    The installer brings up a Splash Screen on which there are
    three buttons and a log window. 
 
-           If you have downloaded the jar file to your desktop you
-           are STRONGLY ADVISED to select a folder before pressing
-           the Install button.  You can do this by pressing the
-           "Choose Folder" button -- this brings up a folder
-           selection dialogue.
-
 2. Press the button labelled "Install".
 
-   This unpacks the examples directory, and leaves the inference
-   engine (jape.exe -- architecture dependent), the interface
-   server (Jape.jar -- architecture independent), and an
-   installation program (installjape.class -- should be architecture
-   and OS dependent).  It then runs the installation program, which
-   builds and runs a command file (installjape.cmd) which constructs
-   a shortcut (jape) that starts the jape program when it is 
-   opened/clicked.
-
-3. ONCE YOU ARE SURE THAT YOU CAN RUN JAPE, YOU MAY DELETE THE
-   DEBRIS LEFT BY THE INSTALLATION PROCESS.
-
-        del windowsjape.jar japeicon.ico installjape.class bootstrap meta-inf shortcut.exe installjape.cmd
-  
+   This unpacks the examples directory, and leaves the inference engine
+   (jape.exe -- architecture dependent), the interface server (Jape.jar
+   -- architecture independent). It then constructs a shortcut (Jape)
+   that starts the jape program when it is opened/clicked. 
+   
+3. Press the Exit (and clean up) button
 
    TROUBLESHOOTING: 
 
@@ -78,7 +63,7 @@ What to do
 
    2. If you have installed software (such as WinRAR) that has
    registered .jar files for opening itself, then you will have
-   to single-click on $(OS)jape.jar, then use the Open/With 
+   to single-click on InstallWindowsjape.jar, then use the Open/With 
    menu entry to run the .jar as a java program.
 
    3. Clicking on the shortcut constructed by the installer is
@@ -121,6 +106,7 @@ Jape is now beginning to conform to common user interface standards.
 Control-Z               -- undo one proof step
 Shift-Control-Z         -- redo last undone proof step
 Control-D               -- finish completed proof
+
 
 
 
