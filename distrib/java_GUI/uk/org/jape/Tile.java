@@ -86,22 +86,10 @@ public class Tile extends JLabel implements DebugConstants,
         dragSource = new DragSource();
         dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
 
-        MouseInteractionListener mil = new MouseInteractionAdapter() {
-            public void doubleclicked(byte eventKind, MouseEvent e) {
+        JapeMouseListener mil = new JapeMouseAdapter() {
+            public void doubleclicked(MouseEvent e) {
                 Reply.sendCOMMAND("tileact \""+text+"\"");
             }
-            /*public void pressed(byte eventKind, MouseEvent e) {
-            Tile.this.pressed(e);
-            }
-            public void dragged(byte eventKind, MouseEvent e) {
-                Tile.this.dragged(e);
-            }
-            public void clicked(byte eventKind, MouseEvent e) {
-                Tile.this.released(e);
-            }
-            public void released(byte eventKind, MouseEvent e) {
-                Tile.this.released(e);
-            }*/
         };
         addMouseListener(mil);
         addMouseMotionListener(mil);

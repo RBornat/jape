@@ -36,7 +36,7 @@ public class DisplayItem extends Component {
         this.idX = x; this.idY = y;
     }
 
-    public void addMouseInteractionListener(MouseInteractionAdapter a) {
+    public void addJapeMouseListener(JapeMouseAdapter a) {
         addMouseListener(a); addMouseMotionListener(a);
     }
 }

@@ -38,12 +38,13 @@ public abstract class JapeCanvas extends ContainerWithOrigin
 
     protected JapeCanvas(Container viewport, boolean scrolled) {
         super(viewport, scrolled);
-        addMouseListener(new MouseInteractionAdapter() {
+        addMouseListener(new JapeMouseTextAdapter() {
             public void clicked(byte eventKind, MouseEvent e) {
                JapeCanvas.this.clicked(eventKind, e);
             }
             public void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
-                JapeCanvas.this.textreleased(eventKind, isClick, e);
+                if (isClick)
+                    JapeCanvas.this.textclicked(eventKind, e);
             }
         });
     }
@@ -88,19 +89,17 @@ public abstract class JapeCanvas extends ContainerWithOrigin
     }
 
     // text click on canvas kills text selections
-    protected void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
-        if (isClick) {
-            switch (eventKind) {
-                case TextSelection:
-                case ExtendedTextSelection:
-                    killTextSelections(null);
-                    break;
-                case DisjointTextSelection:
-                case ExtendedDisjointTextSelection:
-                    break;
-                default:
-                    Alert.abort("JapeCanvas.textreleased eventKind="+eventKind);
-            }
+    protected void textclicked(byte eventKind, MouseEvent e) {
+        switch (eventKind) {
+            case TextSelection:
+            case ExtendedTextSelection:
+                killTextSelections(null);
+                break;
+            case DisjointTextSelection:
+            case ExtendedDisjointTextSelection:
+                break;
+            default:
+                Alert.abort("JapeCanvas.textclicked eventKind="+eventKind);
         }
     }
 
