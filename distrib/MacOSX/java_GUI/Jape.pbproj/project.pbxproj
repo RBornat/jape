@@ -113,6 +113,7 @@
 				F52B56B1039D210801A80116,
 				79C23A7F053FF9D300DACFD9,
 				F57EF90F039503AE01A80116,
+				79E9837A05D405520055725F,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -380,6 +381,7 @@
 				79423CA505456E1700F94C40,
 				7948B0CB0545701A00D70218,
 				7948B0CD054574A900D70218,
+				79E9837C05D405520055725F,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -731,6 +733,27 @@
 		};
 		79C23A81053FF9D300DACFD9 = {
 			fileRef = 79C23A7F053FF9D300DACFD9;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79E9837A05D405520055725F = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = ChoiceDialog.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/ChoiceDialog.java;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		79E9837B05D405520055725F = {
+			fileRef = 79E9837A05D405520055725F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79E9837C05D405520055725F = {
+			fileRef = 79E9837A05D405520055725F;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -1704,6 +1727,7 @@
 				790A632505441974009D8257,
 				79423C9F054547E600F94C40,
 				7948B0CC0545701A00D70218,
+				79E9837B05D405520055725F,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
