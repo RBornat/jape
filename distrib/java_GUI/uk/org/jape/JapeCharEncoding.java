@@ -91,6 +91,130 @@ public class JapeCharEncoding implements DebugConstants {
      // bimodel,tildop, aleph,  Ucircm, times,  sqgee,  whsqua, eqdef,  prep,   dot,    hook,   lambda, cedilla,2acute, ogonek, caron
     };
 
+    final static char LauraUnicode[] = new char []
+    {
+                  0x0000,                 0x0001,                 0x0002,                 0x0003,
+                  0x0004,                 0x0005,                 0x0006,                 0x0007,
+                  0x0008,                 0x0009,                 0x000a,                 0x000b,
+                  0x000c,                 0x000d,                 0x000e,                 0x000f,
+                  0x0010,                 0x0011,                 0x0012,                 0x0013,
+                  0x0014,                 0x0015,                 0x0016,                 0x0017,
+                  0x0018,                 0x0019,                 0x001a,                 0x001b,
+                  0x001c,                 0x001d,                 0x001e,                 0x001f,
+                  0x0020,                 0x0021,                 0x0022,                 0x0023,
+//                 space                  exclam         straight_quotes              numbersign
+                  0x0024,                 0x0025,                 0x0026,                 0x0027,
+//                dollar                 percent               ampersand              primesuper
+                  0x0028,                 0x0029,                 0x002a,                 0x002b,
+//             parenleft              parenright                asterisk                    plus
+                  0x002c,                 0x002d,                 0x002e,                 0x002f,
+//                 comma             asciihyphen                  period                   slash
+                  0x0030,                 0x0031,                 0x0032,                 0x0033,
+//                  zero                     one                     two                   three
+                  0x0034,                 0x0035,                 0x0036,                 0x0037,
+//                  four                    five                     six                   seven
+                  0x0038,                 0x0039,                 0x003a,                 0x003b,
+//                 eight                    nine                   colon               semicolon
+                  0x003c,                 0x003d,                 0x003e,                 0x003f,
+//                  less                   equal                 greater                question
+                  0x0040,                 0x0041,                 0x0042,                 0x0043,
+//                    at                       A                       B                       C
+                  0x0044,                 0x0045,                 0x0046,                 0x0047,
+//                     D                       E                       F                       G
+                  0x0048,                 0x0049,                 0x004a,                 0x004b,
+//                     H                       I                       J                       K
+                  0x004c,                 0x004d,                 0x004e,                 0x004f,
+//                     L                       M                       N                       O
+                  0x0050,                 0x0051,                 0x0052,                 0x0053,
+//                     P                       Q                       R                       S
+                  0x0054,                 0x0055,                 0x0056,                 0x0057,
+//                     T                       U                       V                       W
+                  0x0058,                 0x0059,                 0x005a,                 0x005b,
+//                     X                       Y                       Z             bracketleft
+                  0x005c,                 0x005d,                 0x005e,                 0x005f,
+//             backslash            bracketright             asciicircum              underscore
+                  0x0060,                 0x0061,                 0x0062,                 0x0063,
+//           rprimesuper                       a                       b                       c
+                  0x0064,                 0x0065,                 0x0066,                 0x0067,
+//                     d                       e                       f                       g
+                  0x0068,                 0x0069,                 0x006a,                 0x006b,
+//                     h                       i                       j                       k
+                  0x006c,                 0x006d,                 0x006e,                 0x006f,
+//                     l                       m                       n                       o
+                  0x0070,                 0x0071,                 0x0072,                 0x0073,
+//                     p                       q                       r                       s
+                  0x0074,                 0x0075,                 0x0076,                 0x0077,
+//                     t                       u                       v                       w
+                  0x0078,                 0x0079,                 0x007a,                 0x007b,
+//                     x                       y                       z               braceleft
+                  0x007c,                 0x007d,                 0x007e,                 0x007f,
+//                   bar              braceright                 similar                        
+                  0x2193,                 0x2190,                 0x21d0,                 0x2194,
+//            down_arrow           left_totalfun    double_left_totalfun           relationarrow
+                  0x2200,                 0x2227,                 0x27e6,                 0x2987,
+//               for_all                    meet                  fatbra               fatlparen
+                  0x2191,                 0x2192,                 0x21d2,                 0x21d4,
+//              up_arrow                totalfun         double_totalfun    double_relationarrow
+                  0x2203,                 0x2228,                 0x27e7,                 0x2988,
+//          there_exists                    join                  fatket               fatrparen
+                  0x2a1f,                 0x2264,                 0x2282,                 0x2286,
+//          fatsemicolon                     leq                  subset                subseteq
+                  0x227a,                 0x227c,                 0x2208,                 0x2261,
+//              precedes                  preceq                     elt                     eqv
+                  0x2982,                 0x2285,                 0x2283,                 0x2287,
+//              fatcolon                     geq                superset                supseteq
+                  0x227c,                 0x227d,                 0x2209,                 0x2259,
+//               follows                  folleq                  notelt                 defines
+                  0x22a4,                 0x22a2,                 0x27ea,                 0x27e8,
+//            latticetop               leftstile                muchless                anglebra
+                  0x2219,                 0x2294,                 0x222a,                 0x21bf,
+//                  cdot                     lub                     cup           up_spear_left
+                  0x22a5,                 0x22a3,                 0x27eb,                 0x27e9,
+//         latticebottom              rightstile             muchgreater                angleket
+                  0x22c4,                 0x2293,                 0x2229,                 0x21be,
+//               diamond                     glb                     cap          up_spear_right
+                  0x2308,                 0x230a,                 0x2248,                 0x25b3,
+//              leftceil               leftfloor                approxeq              triangleup
+                  0x2282,                 0x2a64,                 0x228f,                 0x2291,
+//           restrictdom           corestrictdom                   sqsub                 sqsubeq
+                  0x2309,                 0x230b,                 0x00b8,                 0x25bd,
+//             rightceil              rightfloor                division            triangledown
+                  0x2283,                 0x2a65,                 0x2290,                 0x2292,
+//           restrictran           corestrictran                   sqsup                 sqsupeq
+                  0x2322,                 0x21d1,                 0x219b,                 0x21a6,
+//                append                   upimp                 redleft                  mapsto
+                  0x2260,                 0x22a1,                 0x00ac,                 0x2295,
+//                   neq               boxsquare              false_that              circleplus
+                  0x2323,                 0x21d3,                 0x219a,                 0x2284,
+//             slurbelow                 downimp                redright               notsubset
+                  0x2218,                 0x2afe,                 0x2713,                 0x2297,
+//           circlesmall                 boxthin                    tick             circletimes
+                  0x2225,                 0x228e,                 0x2205,                 0x21f8,
+//             doublebar                bagunion                emptyset              partialfun
+                  0x21d5,                 0x22a0,                 0x220b,                 0x00d7,
+//             updownimp          boxsquarecross               ownership                   times
+                  0x03b1,                 0x03b2,                 0x03b3,                 0x03b4,
+//              gl_alpha                 gl_beta                gl_gamma                gl_delta
+                  0x03b5,                 0x03b6,                 0x03b7,                 0x03b8,
+//            gl_epsilon                 gl_zeta                  gl_eta                gl_theta
+                  0x03b9,                 0x03ba,                 0x03bb,                 0x03bc,
+//               gl_iota                gl_kappa               gl_lambda                   gl_mu
+                  0x03bd,                 0x03be,                 0x03c0,                 0x03c1,
+//                 gl_nu                   gl_xi                   gl_pi                  gl_rho
+                  0x03c3,                 0x03c4,                 0x03c5,                 0x03c6,
+//              gl_sigma                  gl_tau              gl_upsilon                  gl_phi
+                  0x03c7,                 0x03c8,                 0x03c9,                 0x0393,
+//                gl_chi                  gl_psi                gl_omega                gu_gamma
+                  0x0394,                 0x0398,                 0x039b,                 0x039e,
+//              gu_delta                gu_theta               gu_lambda                   gu_xi
+                  0x03a0,                 0x03a3,                 0x03a5,                 0x03a6,
+//                 gu_pi                gu_sigma              gu_upsilon                  gu_phi
+                  0x03a8,                 0x03a9,                 0x03d0,                 0x03d1,
+//                gu_psi                gu_omega             glv_epsilon               glv_theta
+                  0x03d6,                 0x03f1,                 0x03de,                 0x03c6
+//             glv_omega                 glv_rho               glv_sigma                 glv_phi
+};
+
     char[] encoding = null;
     
     final int bufsize = 1024;
@@ -306,6 +430,7 @@ public class JapeCharEncoding implements DebugConstants {
     setmap(0xfb01, 0x27e7); // white right square bracket (semantic ket) (301b may be preferable)
     setmap(0xfb02, 0x2229); // intersection
 */
+
 
 
 
