@@ -27,6 +27,9 @@
 
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
+
+import java.io.IOException;
+
 import java.util.Vector;
 
 public class Reply implements DebugConstants {
@@ -39,13 +42,20 @@ public class Reply implements DebugConstants {
         clientlistening = true;
         flushmessages();
     }
+
+    public static final JapeCharEncoding decoder = new JapeCharEncoding(System.in, System.out);
     
     synchronized private static void flushmessages() {
-        if (clientlistening && messages.size()!=0) {
-            String s = (String)messages.remove(0);
-            if (protocol_tracing) System.err.println("GUI sends "+s);
-            System.out.println(s);
-            clientlistening=false;
+        try {
+            if (clientlistening && messages.size()!=0) {
+                String s = (String)messages.remove(0);
+                if (protocol_tracing) System.err.println("GUI sends "+s);
+                decoder.outputln(s);
+                decoder.flush();
+                clientlistening=false;
+            }
+        } catch (IOException e) {
+            Alert.abort("Reply.flushmessages gets IOException \""+e.getMessage()+"\"");
         }
     }
 
@@ -61,8 +71,13 @@ public class Reply implements DebugConstants {
 
     synchronized public static void reply(String s) throws ProtocolError {
         if (!clientlistening) {
-            if (protocol_tracing) System.err.println("GUI replies "+s);
-            System.out.println(s);
+            try {
+                if (protocol_tracing) System.err.println("GUI replies "+s);
+                decoder.outputln(s);
+                decoder.flush();
+            } catch (IOException e) {
+                Alert.abort("Reply.reply gets IOException \""+e.getMessage()+"\"");
+            }
         }
         else
             throw new ProtocolError("replying \""+s+"\" while client is not expecting reply");
