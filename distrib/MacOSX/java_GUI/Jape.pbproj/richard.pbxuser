@@ -98,7 +98,7 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 102009326;
+			PBXPerProjectTemplateStateSaveDate = 102012609;
 			PBXPrepackagedSmartGroups_v2 = (
 				{
 					PBXTransientLocationAtTop = bottom;
@@ -268,9 +268,9 @@
 				{
 					PBXProjectWorkspaceModule_StateKey_Rev39 = {
 						PBXProjectWorkspaceModule_DataSourceSelectionKey_Rev6 = {
-							BoundsStr = "{{0, 0}, {398, 1260}}";
+							BoundsStr = "{{0, 0}, {398, 1320}}";
 							Rows = (
-								9,
+								0,
 							);
 							VisibleRectStr = "{{0, 0}, {398, 647}}";
 						};
@@ -326,8 +326,7 @@
 								);
 								PBXSmartGroupTreeModuleOutlineStateSelectionKey = (
 									(
-										2,
-										1,
+										0,
 									),
 								);
 								PBXSmartGroupTreeModuleOutlineStateVisibleRectKey = "{{0, 0}, {163, 646}}";
@@ -518,14 +517,13 @@
 				PBXModuleWindowStatusBarHidden = YES;
 				RubberWindowFrame = "263 272 745 464 0 0 1280 1002 ";
 			};
-			PBXWorkspaceStateSaveDate = 102009326;
+			PBXWorkspaceStateSaveDate = 102012609;
 		};
 		perUserProjectItems = {
 			79D52B50061219E300289570 = 79D52B50061219E300289570;
 		};
 		sourceControlManager = 798BBCC505861E6600B5B478;
 		userBuildSettings = {
-			SYMROOT = "/Users/richard/developments/jape build";
 		};
 	};
 	06D05854FF24F2DB11DB9C8B = {
@@ -553,6 +551,14 @@
 		executables = (
 			06D05854FF24F2DB11DB9C8B,
 		);
+	};
+	791C734405DCEDE00086E5C6 = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {711, 3038}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {711, 449}}";
+			sepNavWindowFrame = "{{38, 418}, {750, 558}}";
+		};
 	};
 	791C734A05DCEDE00086E5C6 = {
 		uiCtxt = {
