@@ -27,6 +27,18 @@ type displayclass = DisplayHyp
                   | DisplayPunct
 
 val displayclassstring : displayclass -> string
+
+(* Useful translation for Japeserver marshalling.
+ * Current C/Java/Tk interfaces believe in these integers.
+ *
+ *   DisplayPunct  0
+ *   DisplayConc   1
+ *   DisplayHyp    2
+ *   DisplayReason 3
+ *   DisplayAmbig  4
+ *
+ *)
+
 val displayclass2int : displayclass -> int
 val int2displayclass : int -> displayclass
 

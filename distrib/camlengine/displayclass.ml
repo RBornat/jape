@@ -32,7 +32,7 @@ let rec displayclassstring =
   | DisplayReason -> "DisplayReason"
   | DisplayPunct -> "DisplayPunct"
 
-(* Useful translation for Japeserver marshalling below.
+(* Useful translation for Japeserver marshalling.
  * Current C/Java/Tk interfaces believe in these integers.
  *
  *   DisplayPunct  0
