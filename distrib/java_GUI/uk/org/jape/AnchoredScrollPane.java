@@ -41,9 +41,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
 import java.awt.Point;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
@@ -64,7 +63,9 @@ public class AnchoredScrollPane extends Container {
         vsb = new JScrollBar(JScrollBar.VERTICAL);
         vsb.setUnitIncrement(10); vsb.setBlockIncrement(100); // for now
         vsb.addAdjustmentListener(new V());
-        viewport = new JPanel();
+        viewport = new JPanel() {
+            public void validate() { setScrollBarValues(); }
+        };
         viewport.setLayout(null);
         view = null; // unnecessary, but it makes me feel better
         setLayout(new AnchoredScrollPaneLayout());
@@ -72,10 +73,6 @@ public class AnchoredScrollPane extends Container {
         viewport.setBackground(Color.white);
     }
 
-    public Rectangle getViewportBounds() {
-        return viewport.getBounds();
-    }
-    
     private class H implements AdjustmentListener {
         public void adjustmentValueChanged(AdjustmentEvent e) {
             switch (e.getAdjustmentType()) {
@@ -128,11 +125,11 @@ public class AnchoredScrollPane extends Container {
     }
 
     public Component add(Component c, int anchor) {
-        Rectangle bounds = viewport.getBounds();
-        if (view!=null)
-            viewport.remove(view);
-        view=c; viewBounds=view.getBounds();
+        remove(view);
+        view=c;
         viewport.add(c);
+        if (c instanceof Viewportable)
+            ((Viewportable)c).inViewport(viewport);
         c.addComponentListener(new ComponentAdapter() {
             public void componentMoved(ComponentEvent e) {
                 validate();
@@ -145,6 +142,14 @@ public class AnchoredScrollPane extends Container {
         return c;
     }
 
+    public void remove(Component c) {
+        if (c!=null && c==view) {
+            viewport.remove(c);
+            if (c instanceof Viewportable)
+                ((Viewportable)c).inViewport(null);
+        }
+    }
+    
     public void setanchor(int anchor) {
         /* we don't do anything with the anchor at this point: anchoring is a resizing action */
         switch (anchor) {
@@ -161,9 +166,13 @@ public class AnchoredScrollPane extends Container {
                 anchor = ANCHOR_NORTHWEST;
         }
         this.anchor = anchor;
-        
     }
-    public void validate() {
+
+    public boolean isValidateRoot() { return true; }
+
+    public void validate() { setScrollBarValues(); }
+
+    public void setScrollBarValues() {
         if (view==null) {
             hsb.setValues(0,0,0,0);
             vsb.setValues(0,0,0,0);
@@ -171,12 +180,12 @@ public class AnchoredScrollPane extends Container {
         else {
             Rectangle act = view.getBounds();
             Rectangle vis = viewport.getBounds();
-            if (vis.x<=act.x && act.x+act.width<=vis.x+vis.width)
+            if (vis.x<=act.x && act.x+act.width<=vis.x+vis.width || vis.width==0)
                 hsb.setValues(vis.x,0,vis.x,vis.x);
             else
                 hsb.setValues(vis.x, vis.width,
                               Math.min(vis.x,act.x), Math.max(vis.x+vis.width,act.x+act.width));
-            if (vis.y<=act.y && act.y+act.height<=vis.y+vis.height)
+            if (vis.y<=act.y && act.y+act.height<=vis.y+vis.height || vis.height==0)
                 vsb.setValues(vis.y,0,vis.y,vis.y);
             else
                 vsb.setValues(vis.y, vis.height,
@@ -188,8 +197,6 @@ public class AnchoredScrollPane extends Container {
     /* this is where the anchor policy bites */
     public void setBounds(int x, int y, int w, int h) {
         if (getWidth()!=0 && getHeight()!=0) { /* only for true resizing operations */
-            // System.err.print("setBounds "+x+","+y+","+w+","+h+"; "+getBounds()+
-            //                  "; "+view.getLocation());
             Point oldPos = view.getLocation();
             switch (anchor) {
                 case ANCHOR_NORTH:
@@ -210,7 +217,6 @@ public class AnchoredScrollPane extends Container {
                 default:
                     break;
             }
-            // System.err.println(" => "+oldPos);
             view.setLocation(oldPos);
         }
         super.setBounds(x,y,w,h);
@@ -273,8 +279,6 @@ public class AnchoredScrollPane extends Container {
             vsb.setBounds(sparewidth, 0, vsbWidth, spareheight);
             hsb.setBounds(0, spareheight, sparewidth, hsbHeight);
             viewport.setBounds(0, 0, sparewidth, spareheight);
-            if (view!=null && view instanceof Clickable)
-                ((Clickable)view).declareViewportSize(sparewidth, spareheight);
             validate();
         }
     }

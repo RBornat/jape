@@ -41,7 +41,8 @@ public class ProofWindow extends JapeWindow {
     int proofnum;
     protected static ProofWindow focussedproof = null;
 
-    protected ProofCanvas proofCanvas; 
+    protected ProofCanvas proofCanvas;
+    protected JapeCanvas disproofCanvas;
     protected AnchoredScrollPane proofpane;
 
     protected JapeCanvas focussedCanvas;
@@ -86,12 +87,42 @@ public class ProofWindow extends JapeWindow {
     private static void checkFocussedCanvas() throws ProtocolError {
         checkFocussedProof();
         if (focussedproof.focussedCanvas==null)
-            throw new ProtocolError("no focussed panel - drawInPane missing?");
+            throw new ProtocolError("no focussed pane - drawInPane missing?");
     }
-        
-    public static Rectangle getViewportBounds() throws ProtocolError {
+
+    /* from displayfont.mli:
+       (* Useful translation for Japeserver marshalling.
+        *
+        *  ProofPane = 0
+        *  DisproofPane = 1
+        *
+        *)
+     */
+
+    public static final byte proofPane = 0, disproofPane = 1;
+
+    private static JapeCanvas byte2JapeCanvas(byte pane, String who) throws ProtocolError {
         checkFocussedProof();
-        return focussedproof.proofpane.getViewportBounds();
+        switch (pane) {
+            case proofPane:
+                if (focussedproof.proofCanvas==null)
+                    focussedproof.newProofCanvas();
+                return focussedproof.proofCanvas; 
+            case disproofPane:
+                if (focussedproof.disproofCanvas==null)
+                    focussedproof.newDisproofCanvas();
+                return focussedproof.disproofCanvas; 
+            default:
+                throw new ProtocolError(who+" pane="+pane);
+        }
+    }
+
+    public static Rectangle getPaneGeometry(byte pane) throws ProtocolError {
+        return byte2JapeCanvas(pane,"ProofWindow.getPaneGeometry").viewGeometry();
+    }
+
+    public static void clearPane(byte pane) throws ProtocolError {
+        byte2JapeCanvas(pane,"ProofWindow.clearPane").clearPane();
     }
 
     /*	from japeserver.ml:
@@ -114,11 +145,6 @@ public class ProofWindow extends JapeWindow {
         focussedproof.linethickness = linethickness;
     }
 
-    public static void clearProofPane() throws ProtocolError {
-        checkFocussedProof();
-        focussedproof.newProofCanvas();
-    }
-
     private void newProofCanvas() {
         proofCanvas = new ProofCanvas();
         proofpane.add(proofCanvas);
@@ -129,9 +155,13 @@ public class ProofWindow extends JapeWindow {
                 proofpane.setanchor(proofpane.ANCHOR_SOUTH); break;
             default:
                 Alert.abort("ProofWindow.newProofCanvas style="+style);
-        } 
+        }
         proofpane.validate(); proofpane.repaint();
         focussedCanvas = proofCanvas;
+    }
+
+    private void newDisproofCanvas() throws ProtocolError {
+        throw new ProtocolError("ProofWindow.newDisproofCanvas: not yet");
     }
 
     public static void drawInPane(String s) throws ProtocolError {

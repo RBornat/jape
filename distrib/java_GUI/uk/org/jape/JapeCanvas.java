@@ -26,12 +26,13 @@
 */
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.awt.Point;
 
-public abstract class JapeCanvas extends ContainerWithOrigin implements Clickable {
+public abstract class JapeCanvas extends ContainerWithOrigin implements Viewportable {
 
     static final byte NoSel = 0;
 
@@ -61,9 +62,28 @@ public abstract class JapeCanvas extends ContainerWithOrigin implements Clickabl
         }
     }
 
-    // when the viewport is sized, we want to stretch right across it,
-    // so we get the mouse events.
-    public void declareViewportSize(int width, int height) {
-        super.declareViewportSize(width, height);
+    Container viewport = null;
+    public void inViewport(Container vp) { viewport = vp; }
+    
+    // when we are in a viewport, we get the mouse events.
+    public boolean contains(int x, int y) {
+        return viewport!=null || super.contains(x,y);
+    }
+
+    // when we are in a viewport, we tell you what the viewport sees
+    public Rectangle viewGeometry() {
+        if (viewport==null)
+            return getBounds();
+        else {
+            Rectangle v = viewport.getBounds();
+            v.x -= (getX()+child.getX()); v.y -= (getY()+child.getY());
+            return v;
+        }
+    }
+
+    public void clearPane() {
+        child.removeAll(); repaint();
+        if (viewport!=null)
+            viewport.validate();
     }
 }

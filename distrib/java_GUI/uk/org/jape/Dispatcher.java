@@ -173,14 +173,14 @@ public class Dispatcher extends Thread {
                         if (p.equals("OPENPROOF")&&len==3) 
                             ProofWindow.spawn(JapeFont.toUnicodeTitle(command[1]), toInt(command[2]));
                         else
-                        if (p.equals("PROOFPANEGEOMETRY")&&len==1)
-                            Reply.reply(ProofWindow.getViewportBounds());
+                        if (p.equals("PANEGEOMETRY")&&len==2)
+                            Reply.reply(ProofWindow.getPaneGeometry(toByte(command[1])));
                         else
                         if (p.equals("SETPROOFPARAMS")&&len==3)
                             ProofWindow.setProofParams(toByte(command[1]), toInt(command[2]));
                         else
-                        if (p.equals("CLEARPROOFPANE")&&len==1)
-                            ProofWindow.clearProofPane();
+                        if (p.equals("CLEARPANE")&&len==2)
+                            ProofWindow.clearPane(toByte(command[1]));
                         else
                         if (p.equals("DRAWINPANE")&&len==2)
                             ProofWindow.drawInPane(JapeFont.toUnicode(command[1]));
