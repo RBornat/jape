@@ -30,6 +30,8 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 
+import java.awt.datatransfer.StringSelection;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -411,7 +413,42 @@ public class JapeMenu implements DebugConstants {
     private static class CopyProofAction extends ItemAction {
         public void action (JapeWindow w) {
             Alert.showAlert(Alert.Info,
-                            "Copy Proof doesn't work yet -- but Print does (in the File menu)");
+                            "Copy Proof doesn't work yet -- but Export (see File menu) can make a pdf file");
+        }
+    }
+
+    private static class CopyUnicodeAction extends ItemAction {
+        public void action (JapeWindow w) {
+            if (w instanceof ProofWindow) {
+                String s = ((ProofWindow)w).getSingleTextSelection();
+                if (s!=null)
+                    Toolkit.getDefaultToolkit().getSystemClipboard().
+                        setContents(new StringSelection(s),null);
+            }
+            else
+                Alert.abort("CopyUnicodeAction on non-proof window");
+        }
+    }
+
+    private static class CopyAsciiAction extends ItemAction {
+        public void action (JapeWindow w) {
+            if (w instanceof ProofWindow) {
+                String s = ((ProofWindow)w).getSingleTextSelection();
+                if (s!=null) {
+                    try {
+                        byte bs[] = JapeCharEncoding.tranString(s);
+                        // oh hackery, thy name is Bornat!
+                        String s1 = new String(bs); // this'll fool em ...
+                        Toolkit.getDefaultToolkit().getSystemClipboard().
+                            setContents(new StringSelection(s1),null);
+                    } catch (java.io.IOException e) {
+                        Alert.showAlert(Alert.Error, "Can't translate "+JapeUtils.enQuote(s)+
+                                        " into ASCII");
+                    }
+                }
+            }
+            else
+                Alert.abort("CopyAsciiAction on non-proof window");
         }
     }
 
@@ -660,13 +697,18 @@ public class JapeMenu implements DebugConstants {
             indexMenuItem(editmenu, "Cut", new UnimplementedAction("Edit: Cut")).
                 setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, menumask));
          */
-        
-        indexMenuItem(editmenu, "Copy", new UnimplementedAction("Edit: Copy")).
+
+        indexMenuItem(editmenu, "Copy", new CopyUnicodeAction()).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, menumask));
+
+        indexMenuItem(editmenu, "Copy Ascii", new CopyAsciiAction()).
+            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C,
+                                                  menumask+java.awt.Event.SHIFT_MASK));
 
         indexMenuItem(editmenu, "Copy Proof", new CopyProofAction()).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C,
-                                                  menumask+java.awt.Event.SHIFT_MASK));
+                                                  menumask+java.awt.Event.ALT_MASK));
+        
         /* likewise we don't need Paste, Clear or Select All ...
         indexMenuItem(editmenu, "Paste", new UnimplementedAction("Edit: Paste")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, menumask));
