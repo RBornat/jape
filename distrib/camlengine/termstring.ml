@@ -35,6 +35,7 @@ open Symbol
 open Symboltype
 open Optionfuns
 open Idclass
+open Invisibles
 open Mappingfuns
 open Idclassfuns
 open UTF
@@ -183,6 +184,7 @@ let rec mapterm f t =
           Subst (None, r, mtf p_, (fun (v, t) -> mtf v, mtf t) <* vts)
       | Collection (_, k, es) -> Collection (None, k, mapelements f es)
       | _ -> t
+
 and mapelements f es =
   let rec g =
     function
@@ -192,19 +194,21 @@ and mapelements f es =
   in
   (* yes, it should really be r *)
   List.map g es
+
 let rec stripelement =
   function
-    Element (_, _, t) -> t
-  | Segvar (_, [], v) -> v
+    Element (_, _, t)      -> t
+  | Segvar (_, [], v)      -> v
   | Segvar (_, p :: ps, v) ->
       App (None, p, stripelement (Segvar (None, ps, v)))
-(* prettyprinter proper starts here *)
+
+(* *********************** prettyprinter proper starts here ************************* *)
 
 let rec firstatom =
   function
     [] -> ""
   | "" :: ss -> firstatom ss
-  | s :: ss -> if invisible_string s then firstatom ss else s
+  | s :: ss -> if isInvisibleString s then firstatom ss else s
 (* now with priority exactly like :: *)
 
 (* triplecolon strips out blank strings, then puts a space _before and after_ things that 
@@ -466,7 +470,7 @@ let showbra _ = invisbra
 let showket _ = invisket
 
 let catelim_invisbracketedstring_of_term b = 
-    (if b then _T showbra showket else _T nobra noket) 0 false
+  (if b then _T showbra showket else _T nobra noket) 0 false
 let invisbracketedstring_of_term =
   stringfn_of_catelim <.> catelim_invisbracketedstring_of_term
 
@@ -483,26 +487,12 @@ let rec catelim_string_of_vts vts ss =
     (_TM nobra nobra vts (quadcolon (string_of_symbol SUBSTKET) ss))
 let string_of_vts = stringfn_of_catelim catelim_string_of_vts
 
-let rec catelim_string_of_termarg t ss =
-  let rec mustbracket t =
-    match t with
-      Id _ -> false
-    | Unknown _ -> false
-    | Literal _ -> false
-    | Fixapp (_, ss, _) ->
-        begin match lookup (List.hd ss) with
-          BRA _ -> false
-        | _ -> true
-        end
-    | Binding stuff -> mustbracket (remake mapterm stuff)
-    | Collection (_, c, _) -> true
-    | Subst (_, _, p_, _) -> !substfix <= !appfix || mustbracket p_
-    | _ -> true
-  in
-  if mustbracket t then
-    quadcolon "(" (catelim_string_of_term t (quadcolon ")" ss))
-  else catelim_string_of_term t ss
-
+let catelim_invisbracketedstring_of_termarg b =
+  (if b then _T showbra showket else _T nobra noket) !appfix true
+let invisbracketedstring_of_termarg =
+  stringfn_of_catelim <.> catelim_invisbracketedstring_of_termarg
+  
+let rec catelim_string_of_termarg = catelim_invisbracketedstring_of_termarg false
 let string_of_termarg = stringfn_of_catelim catelim_string_of_termarg
 
 let catelim_invisbracketedstring_of_element b =
