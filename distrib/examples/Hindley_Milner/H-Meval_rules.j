@@ -167,10 +167,10 @@ RULE "^T«S" IS			FROM C Ê T • () • Ts AND C Ê (T,Ts) • S		INFER C Ê ^T « S
 RULE "T1ºT2«S1ºS2" IS	FROM C Ê T1«S1 AND C Ê T2«S2		INFER C Ê T1ºT2«S1ºS2
 
 RULE "t•..." (OBJECT t) WHERE t NOTIN C AND t NOTIN Ts IS			INFER C Ê t • Ts • (t,Ts)
-RULE "T1ÁT2•..."		FROM C Ê T1• Tsin • Tsmid AND C Ê T2 • Tsmid • Tsout	
+RULE "T1ÁT2•..."		FROM C Ê T1• Tsin • Tsmid AND C Ê T2 • Tsmid • Tsout
 														INFER C Ê T1ÁT2 • Tsin • Tsout
-RULE "T1ÙT2•..."		FROM C Ê C Ê T1• Tsin • Tsmid AND C Ê T2 • Tsmid • Tsout	
-														INFER C Ê T1Ù T2 • Tsin • Tsout
+RULE "T1ÙT2•..."		FROM C Ê T1• Tsin • Tsmid AND C Ê T2 • Tsmid • Tsout
+														INFER C Ê T1ÙT2 • Tsin • Tsout
 RULE "T•..."												INFER C Ê T • Ts • Ts
 
 RULES"«" ARE
