@@ -8,18 +8,27 @@
 #
 .SUFFIXES:              .jar .java .class .manifest
 #
+#       Assume the jar depends on all local java files
+#
+JAVA=$(shell echo *.java)
+CLASS=$(JAVA:.java=.class)
+SHELL=/bin/bash
 #
 #
-%.class:                %.java;  javac -d . $(TARGET) $<
+#
+%.class:                %.java; javac -d . $(TARGET) $<
 
-%.jar:                  %.class %.manifest; \
+#
+#                       This is gross -- but in the absence of a dependency file or an autodepend we need to compile everything if anything changes
+#
+%.jar:                  %.manifest $(CLASS) ;\
+                        rm *.class; javac -verbose -d . $*.java ;\
                         jar cmf $*.manifest $*.jar *.class $(EXTRAFILES)
 
-%.manifest:             %.class;rm -f $*.manifest; \
-                        echo "Main-Class: $*" >$*.manifest
+%.manifest:             %.class; rm -f $*.manifest; echo "Main-Class: $*" >$*.manifest
 
-clean:                  ; \
-                        rm -f *.jar *.manifest *.class
+clean:                  ; rm -f *.jar *.manifest *.class
+
 
 
 
