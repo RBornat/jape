@@ -58,6 +58,7 @@
 				F515271D037BB83201A80116,
 				7903E8F003E05A4600A80117,
 				F586B1630326408D01A80117,
+				797B541C048B47C6001F0D29,
 				F515B6080331D98801A80116,
 				F5F50C890394DDCB01A80116,
 				F560AEE6036D799701A80116,
@@ -368,6 +369,7 @@
 				79B2E1E903EFE81000A80116,
 				799044D303FD5AC20014D8BC,
 				799BE49B0404177B005E27BA,
+				797B541D048B47C6001F0D29,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -480,6 +482,25 @@
 		};
 		7939B40A03EECF4E00A80117 = {
 			fileRef = 7939B40803EECF4E00A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		797B541C048B47C6001F0D29 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = ExportPic.java;
+			path = ../../java_GUI/ExportPic.java;
+			refType = 2;
+		};
+		797B541D048B47C6001F0D29 = {
+			fileRef = 797B541C048B47C6001F0D29;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		797B541E048B47C6001F0D29 = {
+			fileRef = 797B541C048B47C6001F0D29;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -1568,6 +1589,7 @@
 				79B2E1EA03EFE81000A80116,
 				799044D403FD5AC20014D8BC,
 				799BE49C0404177B005E27BA,
+				797B541E048B47C6001F0D29,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
