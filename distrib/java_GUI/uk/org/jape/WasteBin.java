@@ -195,18 +195,26 @@ public class WasteBin extends Component implements DebugConstants,
 
     /* ******************************** drag target ******************************** */
 
-    public boolean dragEnter(Object o) {
-        if (enabled && (o instanceof WorldItem || o instanceof WorldLabel)) {
+    private boolean dragEnter() {
+        if (enabled) {
             setSelected(true); return true;
         }
         else
             return false;
     }
-    
-    public void dragExit() {
+
+    private void dragExit() {
         setSelected(false);
     }
 
+    // WorldTarget
+    public boolean dragEnter(byte dragKind, WorldItem w) { return dragEnter(); }
+    public void dragExit(byte dragKind, WorldItem w) { dragExit(); }
+
+    // LabelTarget
+    public boolean dragEnter(WorldItem w, String label) { return dragEnter(); }
+    public void dragExit(WorldItem w, String label) { dragExit(); }
+    
     /* ******************************** drop target ******************************** */
 
     public void drop(byte dragKind, WorldItem w, int x, int y) {
