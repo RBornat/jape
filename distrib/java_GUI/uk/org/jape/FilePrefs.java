@@ -79,25 +79,40 @@ public class FilePrefs {
 	public static int recentMax = 15; /* should itself be a preference */
 	
 	public static void recordRecentFile(String fstring) {
+		System.out.println("recordRecentFile given "+JapeUtils.enQuote(fstring));
+		if (Jape.onUnix) {
+			String home = System.getProperties().getProperty("user.home");
+			if (fstring.startsWith("~"))
+				fstring = home+fstring.substring(1);
+			System.out.println("recordRecentFile truncated (home="+JapeUtils.enQuote(home)+
+							   ") "+JapeUtils.enQuote(fstring));
+		}
 		File file = new File(fstring);
 		try {
 			fstring = file.getCanonicalPath();
 		} catch (java.io.IOException e) { }
+		System.out.println("recordRecentFile canonical "+JapeUtils.enQuote(fstring));
 		if (Jape.onUnix) {
 			String home = System.getProperties().getProperty("user.home");
 			if (fstring.startsWith(home))
 				fstring = "~"+fstring.substring(home.length());
+			System.out.println("recordRecentFile truncated (home="+JapeUtils.enQuote(home)+
+								") "+JapeUtils.enQuote(fstring));
 		}
 		Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
 		String recent = prefs.get(recentFilesKey, "");
 		String r = fstring+"\n";
+		System.out.println("recordRecentFile recording first "+JapeUtils.enQuote(fstring));
 		int i = 0, j, count=1;
 		while ((j=recent.indexOf("\n", i))!=-1) {
 			String next = recent.substring(i, j);
 			if (count<recentMax && !(next.equals(fstring))){
+				System.out.println("recordRecentFile recording"+JapeUtils.enQuote(next));
 				r = r+next+"\n";
 				count++;
 			}
+			else
+				System.out.println("recordRecentFile rejecting "+JapeUtils.enQuote(next));
 			i = j+1;
 		}
 		JapeMenu.setRecentFiles(r, true);
@@ -108,5 +123,11 @@ public class FilePrefs {
 		Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
 		String recent = prefs.get(recentFilesKey, "");
 		return recent;
+	}
+	
+	public static void clearRecentFiles() {
+		Preferences prefs = Preferences.userNodeForPackage(FilePrefs.class);
+		prefs.put(recentFilesKey, "");
+		JapeMenu.setRecentFiles("", true);
 	}
 }
