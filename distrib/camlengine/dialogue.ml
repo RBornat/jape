@@ -214,6 +214,7 @@ let defaultenv =
      "matchdebug"           , bj                         false        Match.matchdebug;
      "menudebug"            , bj                         false        Menu.menudebug;
      "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
+     "multiassumptionline"      , bj                         true         Boxdraw.multiassumptionline;
      "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
      "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
@@ -270,7 +271,7 @@ let displaynames =
              
 let boxdisplaynames =
   ["boxlinedressright"; "foldformulae"; "hidecut"; "hidehyp"; "hidetransitivity";
-   "hidereflexivity"; "hideuselesscuts"]
+   "hidereflexivity"; "hideuselesscuts"; "multiassumptionline"]
        
 let displayvars = List.map Name.name_of_string (displaynames @ boxdisplaynames)
 
