@@ -35,7 +35,7 @@ open Termstore
 open Sml
 open Listfuns
 
-let fNotinProviso v = Provisotype.NotinProviso v
+let _NotinProviso = Provisotype._NotinProviso
 
 let varmap = fun (Context {varmap = varmap}) -> varmap
 let resmap = fun (Context {resmap = resmap}) -> resmap
@@ -99,7 +99,7 @@ let freshproofvar cxt class__ v =
       plusprovisos cxt'
         (nj_fold
            (fun (u, ps) ->
-              mkvisproviso (false, fNotinProviso (var, u)) :: ps)
+              mkvisproviso (false, _NotinProviso (var, u)) :: ps)
            (isUnknown <| rewinf_vars r) []),
       var
   | _ -> cxt', var

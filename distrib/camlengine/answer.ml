@@ -82,15 +82,15 @@ let rec orelseq a1 a2 =
     Yes, _ -> Yes
   | No, b -> b ()
   | Maybe, b -> orq (b (), Maybe)
-let rec andalsoq a1 a2 =
+let andalsoq a1 a2 =
   match a1, a2 with
-    Yes, b -> b ()
-  | No, _ -> No
+    Yes  , b -> b ()
+  | No   , _ -> No
   | Maybe, b -> andq (b (), Maybe)
-let rec existsq a1 a2 =
-  match a1, a2 with
-    f, [] -> No
-  | f, x :: xs -> orelseq (f x) (fun _ -> existsq f xs)
+let rec existsq f  =
+  function
+    []      -> No
+  | x :: xs -> orelseq (f x) (fun _ -> existsq f xs)
 let rec allq a1 a2 =
   match a1, a2 with
     f, [] -> Yes
