@@ -1,6 +1,6 @@
 ﻿/* $Id$ */
 
-TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
+TACTIC ForwardSubst (ruleLR, ruleRL, pat) IS
     WHEN
         (LETHYPSUBSTSEL _P 
             cut
@@ -8,28 +8,19 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
                 ruleRL 
                 (WHEN
                     (LETHYP _Q 
-                        (ALT    (WITHHYPSEL hyp) 
-                            (Fail (the hypothesis you formula-selected wasn't a pat formula))
-                        )
-                    )
-                    (GOALPATH (SUBGOAL G 1))
-                ) 
+                        (ALT (WITHHYPSEL hyp) 
+                             (Fail (the hypothesis you formula-selected wasn't a pat formula))))
+                    (GOALPATH (SUBGOAL G 1))) 
                 (WITHSUBSTSEL hyp)
                 (GOALPATH G)
-                NEXTGOAL
-            )
-        )
+                NEXTGOAL))
         (LETCONCSUBSTSEL _P
             (WITHSUBSTSEL ruleLR)
             (WHEN   
                 (LETHYP _Q 
-                    (ALT    (WITHHYPSEL hyp) 
-                        (Fail (the hypothesis you formula-selected wasn't a pat formula))
-                    )
-                )
-                SKIP
-            )
-        )
+                    (ALT (WITHHYPSEL hyp) 
+                         (Fail (the hypothesis you formula-selected wasn't a pat formula))))
+                SKIP))
         (Fail (please text-select one or more instances of a sub-formula to replace))
 
 TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS

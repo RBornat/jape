@@ -31,7 +31,7 @@ RULE "= symmetric"          IS FROM X = Y                       INFER Y = X
 RULE "(,)="                 IS FROM X0=X1 AND Y0=Y1 INFER (X0, Y0) = (X1, Y1)
 
 /* The rules of extensionality incorporate a generalization step: hence the FRESH provisos. */
-RULE ext (OBJECT x) WHERE FRESH x                       IS FROM  F x = G x                  INFER F = G
+RULE ext (OBJECT x) WHERE FRESH x                   IS FROM  F x = G x              INFER F = G
 RULE ext2(OBJECT x, OBJECT y) WHERE FRESH x, y      IS FROM  F (x, y) = G (x,y)     INFER F = G
 
  /* use of AA, rather than A, is to help some other rule somewhere, which uses OBJECT A */
@@ -78,14 +78,14 @@ TACTIC "Unfold/Fold with hypothesis"  IS
         (LETHYP _A
             (WHEN   
                 (LETCONCSUBSTSEL (_B{_x\_C})
-                    (ALT    (SEQ (WITHSUBSTSEL rewrite) (WITHHYPSEL hyp))
-                        (SEQ (WITHSUBSTSEL rewritebackwards) (WITHHYPSEL hyp))
-                        (Fail (hypothesis _A doesn't fit sub-formula _C))
+                    (ALT (SEQ (WITHSUBSTSEL rewrite) (WITHHYPSEL hyp))
+                         (SEQ (WITHSUBSTSEL rewritebackwards) (WITHHYPSEL hyp))
+                         (Fail (hypothesis _A doesn't fit sub-formula _C))
                     )
                 )
-                (ALT    (SEQ rewrite (WITHHYPSEL hyp))
-                    (SEQ rewritebackwards (WITHHYPSEL hyp))
-                    (LETGOAL _B (Fail (hypothesis _A doesn't rewrite conclusion _B)))
+                (ALT (SEQ rewrite (WITHHYPSEL hyp))
+                     (SEQ rewritebackwards (WITHHYPSEL hyp))
+                     (LETGOAL _B (Fail (hypothesis _A doesn't rewrite conclusion _B)))
                 )
             )
         )
