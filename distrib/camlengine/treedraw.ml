@@ -257,10 +257,7 @@ let rec pos2hit pos path =
         subplans = subplans}) ->
     if within (pos, proofbox) then
       if withintb (pos, seqbox) then
-        match
-            (findfirstplanhit ( (pos +<-+ tbPos seqbox)) seqplan &~~
-             elinfo)
-        with
+        match findfirstplanhit ( (pos +<-+ tbPos seqbox)) seqplan &~~ elinfo with
           Some (el, c) ->
             if c = DisplayHyp then
               Some (FormulaHit (HypHit (List.rev path, el)))
