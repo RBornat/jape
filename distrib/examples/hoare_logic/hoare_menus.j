@@ -10,6 +10,8 @@ TACTIC perhapsconsequenceL (tac) IS
 
 TACTIC perhapsconsequenceLR (tac) IS
     ALT    tac 
+           (SEQ "consequence(L)" fstep (trueforward tac))
+           (SEQ "consequence(R)" (trueforward tac) fstep)
            (SEQ "consequence(L)" fstep
                 "consequence(R)" (trueforward tac) fstep)
 
