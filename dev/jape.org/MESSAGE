@@ -11,7 +11,6 @@ installer on the machine that it's doing the installation on.
 
 ==============================================================================
 
-$Id$
 
 Release History
 ---------------
@@ -30,4 +29,6 @@ In the pipeline
 (Superficial) eliminate the distracting open command window by making the
 GUI the principal process. (At the moment it's the proof engine)
 
+$Id$
         
+
