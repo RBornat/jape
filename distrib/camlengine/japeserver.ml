@@ -439,12 +439,12 @@ let rec setpanelbutton (name, label, value) =
     [Str name; Str label; Bool value]
 
 let rec panelradiobutton (name, labelcomlist) =
-  writef "BEGINRADIOBUTTON  %\n" [Str name];
+  writef "PANELRADIOBUTTON\n" [];
   List.iter
     (fun (l, c) ->
-       writef "RADIOBUTTONENTRY % % %\n" [Str name; Str l; Str c])
+       writef "PANELRADIOBUTTONPART % % %\n" [Str name; Str l; Str c])
     labelcomlist;
-  writef "ENDRADIOBUTTON  %\n" [Str name]
+  writef "PANELRADIOBUTTONEND %\n" [Str name]
 
 let rec panelentry (name, label, entry) =
   writef "PANELENTRY % % %\n" [Str name; Str label; Str entry]
@@ -664,12 +664,12 @@ let rec menucheckbox (menu, label, cmd) =
   writef "MENUCHECKBOX % % %\n" [Str menu; Str label; Str cmd]
 
 let rec menuradiobutton (menu, lcs) =
-  writef "MENURADIOBUTTONSTART %\n" [Str menu];
+  writef "MENURADIOBUTTON\n" [];
   List.iter
     (fun (label, cmd) ->
        writef "MENURADIOBUTTONPART % %\n" [Str label; Str cmd])
     lcs;
-  writef "MENURADIOBUTTONEND\n" []
+  writef "MENURADIOBUTTONEND %\n" [Str menu]
 
 let rec tickmenuitem (menu, label, b) =
   writef "TICKMENUITEM % % %\n"
