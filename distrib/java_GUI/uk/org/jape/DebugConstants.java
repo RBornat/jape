@@ -32,6 +32,7 @@ interface DebugConstants {
                                 containerlayout_tracing  = false,
                                 disprooflayout_tracing   = false,
                                 drag_tracing             = false,
+                                encoding_tracing         = false,
                                 measure_debug            = false,
                                 menuaction_tracing       = false,
                                 menubar_tracing          = false,
@@ -39,5 +40,7 @@ interface DebugConstants {
                                 panellayout_tracing      = false,
                                 panellist_tracing        = false,
                                 protocol_tracing         = false;
+
+    static final public boolean notice_MacOSX            = true;
 }
 
