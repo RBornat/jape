@@ -41,7 +41,8 @@ open Stringfuns
 open Treeformat.Fmt
 open UTF
 
-let ( <| ) = Listfuns.( <| )
+let (<|) = Listfuns.(<|)
+let (<*) = Listfuns.(<*)
 let (&~~) = Optionfuns.(&~~)
 let (|~~) = Optionfuns.(|~~)
 let _The = Optionfuns._The
@@ -453,17 +454,16 @@ let rec sortprovisos ps =
        let b1 = Proviso.provisovisible p1 in
        let b2 = Proviso.provisovisible p2 in
        (not b1 && b2) ||
-       (b1 = b2 &&
-        Proviso.earlierproviso
-          (Proviso.provisoactual p1) (Proviso.provisoactual p2)))
+       (b1 = b2 && Proviso.earlierproviso (Proviso.provisoactual p1) (Proviso.provisoactual p2)))
     ps
 
-let rec setProvisos cxt =
-  let ps = sortprovisos (provisos cxt) in
-  Japeserver.setProvisos (List.map (Proviso.invisbracketedstring_of_visproviso true) (filterprovisos ps))
+let rec displayProvisos cxt =
+  let ps = sortprovisos (Proviso.compressVisProvisos (provisos cxt)) in
+  Japeserver.displayProvisos 
+    (Proviso.invisbracketedstring_of_visproviso true <* filterprovisos ps)
 
-let setGivens givens =
-  Japeserver.setGivens (numbered (List.map (invisbracketedstring_of_seq true) givens))
+let displayGivens givens =
+  Japeserver.displayGivens (numbered (List.map (invisbracketedstring_of_seq true) givens))
 
 let rec printProvisos outstream cxt =
   let ps = sortprovisos (provisos (rewritecxt cxt)) in
@@ -493,7 +493,7 @@ let rec printGivens outstream givens =
 
 let showState displaystate (Proofstate p) withgoal =
     let ds = showProof displaystate p.target p.goal p.cxt p.tree withgoal in
-    setProvisos p.cxt; ds
+    displayProvisos p.cxt; ds
 
 let printState outstream (Proofstate p) withgoal =
     printProof outstream p.target p.goal p.cxt p.tree withgoal;
