@@ -155,10 +155,11 @@ END
 CONJECTUREPANEL "List Conjectures" IS
 
         PREFIXBUTTON    "Apply"     IS apply
-        PREFIXBUTTON    "Unfold ."  IS apply UnfoldOneSel
-        PREFIXBUTTON    "Fold  ."   IS apply FoldOneSel
-        PREFIXBUTTON    "Unfold .." IS apply UnfoldSel
-        PREFIXBUTTON    "Fold  .."  IS apply FoldSel
+        PREFIXBUTTON    "Unfold"  IS apply UnfoldOneSel
+        PREFIXBUTTON    "Fold"   IS apply FoldOneSel
+        /* PREFIXBUTTON    "Unfold .." IS apply UnfoldSel
+             PREFIXBUTTON    "Fold  .."  IS apply FoldSel
+          */
 
         THEOREMS    ListThms
         ARE     rev ¥ rev       = id
@@ -212,13 +213,16 @@ ALT
 ( List, ListThms, Function, FunctionThms, Reflect, ReflectThms
 )
 
-TACTICPANEL "Fold and Unfold" 
-        PREFIXBUTTON    "Unfold ."  IS apply UnfoldOneSel
-        PREFIXBUTTON    "Fold  ."   IS apply FoldOneSel
-        PREFIXBUTTON    "Unfold .." IS apply UnfoldSel
-        PREFIXBUTTON    "Fold  .."  IS apply FoldSel
-        BUTTON          "Unfold  ?" IS apply Unfold Auto
-        BUTTON          "Fold  ?"   IS apply Fold Auto
+TACTICPANEL "Functions and Operators" 
+        PREFIXBUTTON    "Unfold"  IS apply UnfoldOneSel
+        PREFIXBUTTON    "Fold"   IS apply FoldOneSel
+        /* PREFIXBUTTON    "Unfold .." IS apply UnfoldSel
+             PREFIXBUTTON    "Fold  .."  IS apply FoldSel
+          */
+        BUTTON          "Unfold ?" IS apply Unfold Auto
+        /* BUTTON          "Fold  ?"   IS apply Fold Auto */
+        PREFIXBUTTON    "Apply"     IS apply
+
 	ENTRY           "if"      
 	ENTRY           "fst" 
 	ENTRY           "snd"  
