@@ -30,13 +30,13 @@ CLASS CONSTANT K
 CLASS BAG FORMULA Γ
         
 CONSTANT true false mod length
-CONSTANT ⊥ /* to satisfy I2L syntax */
+CONSTANT ⊥ ⊤
 
 INFIX   5L  ≜ /* equals def */
-INFIX   5L  simplifiesto equivto conjoins /* see hoare_arith.j */
+INFIX   5L  simplifiesto equivto conjoins dependson /* see hoare_arith.j */
 
 PREFIX  10  actual integer /* actual not used, but we have to satisfy PUSHSYNTAX */
-POSTFIX 10  defined
+POSTFIX 10  computes
 
 INFIX 10 L ;
 INFIX 12 L :=

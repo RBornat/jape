@@ -24,81 +24,81 @@
 
 */
 
-RULE "arith_var" IS INFER A∧(x defined) simplifiesto A
-RULE "arith_const" IS INFER A∧(K defined) simplifiesto A
+RULE "arith_var" IS INFER A∧(x computes) simplifiesto A
+RULE "arith_const" IS INFER A∧(K computes) simplifiesto A
 
 RULES "arith_single" ARE
-    FROM E∧(A defined) simplifiesto F
-    INFER E∧(¬A defined) simplifiesto F
+    FROM E∧(A computes) simplifiesto F
+    INFER E∧(¬A computes) simplifiesto F
 END
 
 RULES "arith_double" ARE
-    FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A → B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A ↔ B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A ∨ B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A ∧ B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A < B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A > B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A ≤ B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A ≥ B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A ≠ B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A = B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A + B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A - B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A × B defined) simplifiesto G
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G 
-    INFER E∧(A ↑ B defined) simplifiesto G
+    FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A → B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A ↔ B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A ∨ B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A ∧ B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A < B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A > B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A ≤ B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A ≥ B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A ≠ B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A = B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A + B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A - B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A × B computes) simplifiesto G
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G 
+    INFER E∧(A ↑ B computes) simplifiesto G
 END
 
 RULES "arith_div" ARE
-    FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G AND 
+    FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G AND 
          G∧B≠0 equivto H
-    INFER E∧(A ÷ B defined) simplifiesto H
-AND FROM E∧(A defined) simplifiesto F AND 
-         F∧(B defined) simplifiesto G AND 
+    INFER E∧(A ÷ B computes) simplifiesto H
+AND FROM E∧(A computes) simplifiesto F AND 
+         F∧(B computes) simplifiesto G AND 
          G∧B≠0 equivto H
-    INFER E∧(A mod B defined) simplifiesto H
+    INFER E∧(A mod B computes) simplifiesto H
 END
 
 RULE "arith_index" IS
-     FROM E∧(F defined) simplifiesto G AND 
+     FROM E∧(F computes) simplifiesto G AND 
           G∧0≤F equivto H             AND
           H∧F<length(a) equivto I
-    INFER E∧(a[F] defined) simplifiesto I
+    INFER E∧(a[F] computes) simplifiesto I
 
 TACTIC simpl IS
   SEQ (LAYOUT HIDEROOT)
-      (ALT (LETGOAL (_E∧(_x defined) simplifiesto _F)
+      (ALT (LETGOAL (_E∧(_x computes) simplifiesto _F)
               (UNIFY _F _E) (MATCH "arith_var"))
-           (LETGOAL (_E∧(_K defined) simplifiesto _F)
+           (LETGOAL (_E∧(_K computes) simplifiesto _F)
               (UNIFY _F _E) (MATCH "arith_const"))
           (SEQ (MATCH "arith_index") simpl equiv equiv)
           (SEQ (MATCH "arith_single") simpl)
@@ -149,3 +149,50 @@ TACTIC conjoinstac IS
     (ALT (MATCH "arith_conjoins0")
          (SEQ (MATCH "arith_conjoinsL") conjoinstac)
          (SEQ (MATCH "arith_conjoinsR") conjoinstac))
+
+/* deducing boundedness from equality/inequality */
+
+RULE "bounded(<)" IS FROM A<B AND A dependson a[E] INFER 0≤E∧E<length(a)
+
+RULE "bounded(≤)" IS FROM A≤B AND A dependson a[E] INFER 0≤E∧E<length(a)
+
+RULE "bounded(=)" IS FROM A=B AND A dependson a[E] INFER 0≤E∧E<length(a)
+
+RULE "bounded(≥)" IS FROM A≥B AND A dependson a[E] INFER 0≤E∧E<length(a)
+
+RULE "bounded(>)" IS FROM A>B AND A dependson a[E] INFER 0≤E∧E<length(a)
+
+TACTIC checkdependencytac (rule, rev, H, a, E) IS
+  CUTIN
+    (LAYOUT "bounded" ALL (rule«a,E/a,E»))
+    (ALT (SEQ (LETGOAL _G (UNIFY _G H)) (ANY (MATCH (hyp H))) (dependencyrec a E))
+         (SEQ rev (LETGOAL _G (UNIFY _G H)) (ANY (MATCH (hyp H))) (dependencyrec a E))
+         (ALERT ("To imply boundedness, an equality/inequality must unconditionally \
+                 \depend on the value of an array element.\
+                 \\n\n%t doesn't depend on %t in that way.", H, a[E])
+                ("OK", STOP)))
+                
+RULE bounded0 IS a[E] dependson a[E]
+
+RULES bounded1L ARE
+    FROM A dependson a[E] INFER A+B dependson a[E]
+AND FROM A dependson a[E] INFER A-B dependson a[E]
+AND FROM A dependson a[E] INFER A×B dependson a[E]
+AND FROM A dependson a[E] INFER A÷B dependson a[E]
+AND FROM A dependson a[E] INFER A↑B dependson a[E]
+END
+
+RULES bounded1R ARE
+    FROM B dependson a[E] INFER A+B dependson a[E]
+AND FROM B dependson a[E] INFER A-B dependson a[E]
+AND FROM B dependson a[E] INFER A×B dependson a[E]
+AND FROM B dependson a[E] INFER A÷B dependson a[E]
+AND FROM B dependson a[E] INFER A↑B dependson a[E]
+END
+
+TACTIC dependencyrec(a,E) IS
+  LAYOUT HIDEROOT
+    (ALT (MATCH (bounded0«a,E/a,E»))
+         (SEQ (MATCH (bounded1L«a,E/a,E»)) (dependencyrec a E))
+         (SEQ (MATCH (bounded1R«a,E/a,E»)) (dependencyrec a E)))
+      

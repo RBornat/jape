@@ -271,7 +271,7 @@ MENU Programs
                                     "choice"
                                     "{A} if E then C1 else C2 fi {B}"
     ENTRY "while"  IS BackwardOnlyA (QUOTE ({_A} while _E do _C od {_B}))
-                                    (perhapsconsequenceLR (SEQ "while" simpl maybetrueimpl fstep fstep fstep))
+                                    (perhapsconsequenceLR (SEQ "while" simpl maybetrueimpl fstep fstep /* fstep */))
                                     "while"
                                     "{A} while E do C od {B}"
     
@@ -293,10 +293,40 @@ MENU Extras
     
     ENTRY "obviously" IS obviouslytac
     
-    /* SEPARATOR
+    SEPARATOR
     
-    ENTRY defcheck */
+    ENTRY "boundedness from (in)equality" IS boundednesstac
 END
+
+TACTIC boundednesstac IS
+  WHEN 
+    (LETHYPSUBSTSEL (_P«_a[_E]/_x») 
+        (WHEN 
+            (LETHYPSUBSTSEL (_A<_B) (deduceboundedness (_A<_B) _a _E))
+            (LETHYPSUBSTSEL (_A≤_B) (deduceboundedness (_A≤_B) _a _E))
+            (LETHYPSUBSTSEL (_A=_B) (checkdependencytac "bounded(=)" "symmetric=" (_A=_B) _a _E))
+            (LETHYPSUBSTSEL (_A≥_B) (deduceboundedness (_A≥_B) _a _E))
+            (LETHYPSUBSTSEL (_A>_B) (deduceboundedness (_A>_B) _a _E))
+            (LETHYPSUBSTSEL (_A≠_B)
+                (ALERT ("To deduce array-index boundedness, you must text-select \
+                        \an array-indexing formula inside an equality/inequality hypothesis. \
+                        \\n\nYou chose hypothesis %t: it's hard to be sure if that guarantees boundedness, \
+                        \and Jape is playing safe. Sorry! Try again?", _E) 
+                       ("OK", STOP)))
+            (LETHYPSUBSTSEL _E
+                (ALERT ("To deduce array-index boundedness, you must text-select \
+                        \an array-indexing formula inside an equality/inequality hypothesis. \
+                        \\n\nYou chose hyphothesis %t, which isn't an equality or an inequality.", _E) 
+                       ("OK", STOP)))))
+    (LETHYPSUBSTSEL (_P«_E/_x»)
+        (ALERT ("To deduce array-index boundedness, you must text-select \
+                \an array-indexing formula inside an equality/inequality hypothesis. \
+                \\n\nYou text-selected %t, which isn't an array-indexing formula.", _E) 
+               ("OK", STOP)))
+    (ALERT "To deduce array-index boundedness, you must text-select \
+           \an array-indexing formula inside an equality/inequality hypothesis. \
+           \\n\nYou don't appear to have done that ..." 
+           ("OK", STOP))
 
 TACTICPANEL Comparison
     RULE IS A=B ≜ B=A
@@ -316,13 +346,21 @@ TACTICPANEL Comparison
     ENTRY "flatten ;" IS 
         iterateR2L "rewrite≜"  "symmetric≜" (QUOTE (_A;(_B;_C))) "(A;B);C≜A;(B;C)" (Fail "no semicolons to flatten")
  */
-    BUTTON  "A≜…"   IS apply rewriteL2R "rewrite≜"  "symmetric≜"  COMMAND
-    BUTTON  "…≜B"   IS apply rewriteR2L "rewrite≜"  "symmetric≜"  COMMAND
+    BUTTON  "A≜…"   IS apply (SEQ (rewriteL2R "rewrite≜"  "symmetric≜"  COMMAND) fstep)
+    BUTTON  "…≜B"   IS apply (SEQ (rewriteR2L "rewrite≜"  "symmetric≜"  COMMAND) fstep)
 END
 
+RULE indexR IS FROM E=G INFER (A⊕E↦F)[G]=F
+RULE indexL IS FROM E≠G INFER (A⊕E↦F)[G]=A[G]
+
+TACTIC "index(=)" IS 
+    SEQ indexR (ALT (LAYOUT HIDEROOT (MATCH "reflexive=")) fstep) fstep
+TACTIC "index(≠)" IS
+    SEQ indexL fstep
+
 TACTICPANEL Indexing
-    RULE IS FROM E=G INFER (A⊕E↦F)[G]=F
-    RULE IS FROM E≠G INFER (A⊕E↦F)[G]=A[G]
+    ENTRY "FROM E=G INFER (A⊕E↦F)[G]=F" IS "index(=)"
+    ENTRY "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" IS "index(≠)"
 
     BUTTON  "A≜…"   IS apply rewriteL2R "rewrite="  "symmetric="  COMMAND
     BUTTON  "…≜B"   IS apply rewriteR2L "rewrite="  "symmetric="  COMMAND

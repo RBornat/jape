@@ -15,25 +15,25 @@ END */
 
 RULE "Ntuple" IS  FROM A {B} AND {B} C {D} INFER A {B} C {D}
 
-RULE "choice" IS FROM (E→A)∧(¬E→B)∧(E defined) simplifiesto G 
+RULE "choice" IS FROM (E→A)∧(¬E→B)∧(E computes) simplifiesto G 
                   AND {A} F1 {C} 
                   AND {B} F2 {C} 
                 INFER {G} if E then F1 else F2 fi {C}
 
-RULE "variable-assignment" IS FROM R«E/x»∧(E defined) simplifiesto Q
+RULE "variable-assignment" IS FROM R«E/x»∧(E computes) simplifiesto Q
                               INFER {Q} (x:=E) {R}
 
 RULE "array-element-assignment" IS 
-     FROM B«a⊕E↦F/a»∧(a[E] defined) simplifiesto C 
-      AND C∧(F defined) simplifiesto D
+     FROM B«a⊕E↦F/a»∧(a[E] computes) simplifiesto C 
+      AND C∧(F computes) simplifiesto D
     INFER {D} (a[E]:=F) {B}
 
 RULE "while"(I, M, OBJECT Km) WHERE FRESH Km IS
-     FROM true∧(E defined) simplifiesto G
+     FROM true∧(E computes) simplifiesto G
       AND I→G 
       AND {I∧E} F {I}
       AND I∧E→M>0
-      AND {I∧E∧M=Km} F {M<Km}
+      AND integer Km  ⊢ {I∧E∧M=Km} F {M<Km}
     INFER { I } while E do F od {I∧¬E}
 
 RULE "consequence(L)" IS FROM A→B AND {B} F {C} INFER {A} F {C}

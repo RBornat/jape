@@ -67,9 +67,9 @@ END
 
 CONJECTUREPANEL "Array Programs" IS
   THEOREM WHERE DISTINCT a,i IS
-    {a[i]=2∧0≤i∧i<length(a)} (a[i]:=a[i]+1) {a[i]=3}
+    {a[i]=2} (a[i]:=a[i]+1) {a[i]=3}
   THEOREM WHERE DISTINCT a,i IS
-    {a[i]=0∧0≤i∧i<length(a)} (a[i]:=a[i]+1;a[i]:=a[i]+1) {a[i]=2}
+    {a[i]=0} (a[i]:=a[i]+1;a[i]:=a[i]+1) {a[i]=2}
 END
 
 CONJECTUREPANEL "Useful Lemmas" IS
