@@ -138,16 +138,6 @@ module
     open treeformat
     open IO
     
-    
-    
-    
-    let rec _MAP (f, xs) = List.map f xs
-    
-    
-    
-    
-    
-    
     let rec disproof_finished =
       function
         Some state ->
@@ -641,9 +631,9 @@ module
            in
            new M.a)
     type showstate = ShowProof | ShowDisproof | ShowBoth | DontShow
-    let setComment ooo = alert.setComment (implode ooo)
-    let showAlert ooo =
-      alert.showAlert alert.defaultseverity_alert (implode ooo)
+    let setComment = alert.setComment <*> implode
+    let showAlert =
+      alert.showAlert alert.defaultseverity_alert <*> implode
     let rec screenquery ss y n def =
       let bs = [y, true; n, false] in
       alert.ask (alert.defaultseverity bs) (implode ss) bs def
@@ -688,14 +678,13 @@ module
               match concopt with
                 None ->
                   begin match
-                    ( <| )
-                      ((fun (path, _) ->
+                       (fun (path, _) ->
                           pathPrefix tree target path &&
                           not
                             (List.exists
                                (fun hypel -> not (validhyp tree hypel path))
-                               hyps)),
-                       allTipConcs tree)
+                               hyps)) <|
+                       allTipConcs tree
                   with
                     [path, _] -> doit path
                   | [] ->
@@ -802,59 +791,34 @@ module
             raise (Catastrophe_ ["doLayout BacktrackCommand!"])
         | PruneCommand -> Some (true, prunestate path state)
         | HideShowCommand ->
-            andthenr
-              (andthenr
-                 (getfmt (fun () -> "can't hide subproofs there") tree path,
-                  (function
-                     tfk, RotatingFormat (i, nfs) ->
-                       ortryr
-                         (andthenr
-                            (findfirst
-                               (fun (i, nf) ->
-                                  if nf = foldstuff then Some i else None)
-                               (numbered nfs),
-                             (fun i' ->
-                                Some
-                                  (tfk,
-                                   RotatingFormat
-                                     ((if i = i' then i + 1 else i'), nfs)))),
-                          (fun _ ->
-                             Some
-                               (tfk, RotatingFormat (0, foldstuff :: nfs))))
-                   | tfk, DefaultFormat -> Some (tfk, defaultfolded))),
-               (fun fmt' ->
-                  Some
-                    (false,
-                     withtree
-                       (state,
-                        set_prooftree_fmt tree path (TreeFormat fmt')))))
+			getfmt (fun () -> "can't hide subproofs there") tree path &~~
+			(function tfk, RotatingFormat (i, nfs) ->
+			   (findfirst
+				  (fun (i, nf) -> if nf = foldstuff then Some i else None)
+				  (numbered nfs) &~~
+				(fun i' ->
+				   Some (tfk, RotatingFormat ((if i = i' then i + 1 else i'), nfs)))) 
+			   |~~
+			   (fun _ -> Some (tfk, RotatingFormat (0, foldstuff :: nfs)))
+			 | tfk, DefaultFormat -> Some (tfk, defaultfolded))) 
+			 &~~
+			 (fun fmt' ->
+				Some (false, withtree
+					   (state, set_prooftree_fmt tree path (TreeFormat fmt')))))
         | ExpandContractCommand ->
-            andthenr
-              (andthenr
-                 (andthenr
-                    (getfmt
-                       (fun () ->
-                          raise
-                            (Catastrophe_
-                               ["getLayout sees EXPAND/CONTRACT on a Tip!!!"]
-                                  ))
-                       tree path,
-                     (function
-                        _, DefaultFormat as fmt ->
-                          if null (subtrees (followPath tree path)) then
-                            begin
-                              showAlert
-                                ["no point double-clicking that -- it doesn't have any subproofs"];
-                              None
-                            end
-                          else Some fmt
-                      | fmt -> Some fmt)),
-                  rotateFormat),
-               (fun tf ->
-                  Some
-                    (false,
-                     withtree
-                       (state, set_prooftree_fmt tree path (TreeFormat tf)))))
+            getfmt
+			  (fun () -> raise (Catastrophe_ ["getLayout sees EXPAND/CONTRACT on a Tip!!!"]))
+              tree path &~~
+			(function  _, DefaultFormat as fmt ->
+			   if null (subtrees (followPath tree path)) then
+				  (showAlert ["no point double-clicking that -- it doesn't have any subproofs"];
+				   None)
+			   else Some fmt
+			| fmt -> Some fmt)) &~~
+			rotateFormat &~~
+			(fun tf ->
+			   Some (false, withtree
+					 (state, set_prooftree_fmt tree path (TreeFormat tf)))))
         | HideRootCommand ->
             let rec hideit () =
               try
@@ -914,8 +878,7 @@ module
                       set_prooftree_fmt tree cutpath
                         (TreeFormat (HideCutFormat, tff))))
     let rec getLayoutPath displaystate c pathkind =
-      ortryr
-        (findLayoutSelection displaystate pathkind,
+        (findLayoutSelection displaystate pathkind |~~
          (fun _ ->
             showAlert
               ["Select a single hypothesis, or a single conclusion, or a reason before ";
@@ -929,21 +892,18 @@ module
                | HideCutCommand -> "hiding cut hypothesis"];
             None))
     let rec tryLayout displaystate c pathkind hist =
-      andthenr
-        (andthenr
-           (getLayoutPath displaystate c pathkind,
-            doLayout c (winhist_proofnow hist)),
-         (function
-            false, proof' ->
-              let phist = winhist_proofhist hist in
-              Some (withproofhist (hist, withnow (phist, proof')))
-          | true, proof' ->
-              let phist = winhist_proofhist hist in
-              Some (withproofhist (hist, append_step phist proof'))))
+        getLayoutPath displaystate c pathkind &~~
+        doLayout c (winhist_proofnow hist)) &~~
+		(function
+		   false, proof' ->
+			 let phist = winhist_proofhist hist in
+			 Some (withproofhist (hist, withnow (phist, proof')))
+		 | true, proof' ->
+			 let phist = winhist_proofhist hist in
+			 Some (withproofhist (hist, append_step phist proof'))))
     let rec recorddisplayvars env =
-      try
-        _MAP
-          ((fun s -> termstring (unSOME (japeenv.at (env, s)))), displayvars)
+      try 
+        (fun s -> termstring (unSOME (japeenv.at (env, s)))) <* displayvars
       with
         unSOME_ ->
           raise
@@ -953,7 +913,7 @@ module
                 " isn't set!"])
     let rec setdisplayvars env vals =
       List.iter (fun (s, v) -> japeenv.set (env, s, parseTactic v))
-        (( ||| ) (displayvars, vals))
+        ((displayvars ||| vals))
     (* proofmove doesn't set changed *)
     let rec proofmove =
       fun (WinHist {proofhist = proofhist} as hist) proof' ->
@@ -987,7 +947,7 @@ module
      *)
     let rec tryForward f =
       fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
-        andthenr (f proof, (fun ooo -> Some (proofmove hist ooo)))
+        f proof &~~ (fSome <*> proofmove hist)
     let rec evolvewithexplanation explain displaystate env f =
       fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
         match f proof with
@@ -1103,7 +1063,7 @@ module
             (Proofstate {goal = goal; cxt = cxt; tree = tree; givens = givens}
                as state), disproofopt), pinfs) ->
           let n =
-            List.length (( <| ) ((fun (Pinf {title = t, _}) -> t = name), pinfs))
+            List.length ((fun (Pinf {title = t, _}) -> t = name) <| pinfs)
           in
           if n <> 0 &&
              not
@@ -1258,7 +1218,7 @@ module
       in
       let rec saveproofs newfile =
         let rec doit sfile =
-          let rec pf ps = _MAP (provisoactual, ( <| ) (provisovisible, ps)) in
+          let rec pf ps = (provisoactual <* (provisovisible <| ps)) in
           let rec f =
             fun (Pinf {title = t, _; hist = hist}) ->
               let (Proofstate {cxt = cxt; tree = tree; givens = givens}) =
@@ -1430,7 +1390,7 @@ module
           in
           match freshThingtoprove name with
             Some (Theorem (_, provisos, seq)) ->
-              doit [] seq (_MAP (mkvisproviso, provisos)) "theorem"
+              doit [] seq ((mkvisproviso <* provisos)) "theorem"
           | Some (Rule ((_, provisos, givens, seq), ax)) ->
               if ax then
                 begin
@@ -1439,7 +1399,7 @@ module
                   default
                 end
               else
-                doit givens seq (_MAP (mkvisproviso, provisos)) "derived rule"
+                doit givens seq ((mkvisproviso <* provisos)) "derived rule"
           | Some (Tactic _) ->
               showAlert
                 [namestring name;
@@ -1456,15 +1416,14 @@ module
         in
         let rec disproofstateact act =
           inside c
-            (fun displaystate ooo ->
-               showdisproof
+            (fun displaystate ->
+               showdisproof <*> 
                  ((function
                      WinHist {disproofhist = Some (Hist {now = d})} as hist ->
                        let proof = winhist_proofnow hist in
                        let cxt_now = proofstate_cxt proof in
                        let facts_now = facts (provisos cxt_now) cxt_now in
-                       andthenr
-                         (act d,
+                         (act d &~~
                           (fun d' ->
                              Some
                                (disproofmove hist
@@ -1474,13 +1433,12 @@ module
                        raise
                          (Catastrophe_
                             ["disproof action when no disproof state"]))
-                    ooo))
+                   ))
         in
         let rec disproofuniverseact act =
           disproofstateact
             (fun d ->
-               andthenr
-                 (act (disproofstate_universe d),
+                 (act (disproofstate_universe d) &~~
                   (fun u -> Some (withdisproofuniverse (d, u)))))
         in
         let rec worldlabelact act cx cy s =
@@ -1494,28 +1452,28 @@ module
               "apply", comm ->
                 let rec nosels tselopt =
                   inside c
-                    (fun displaystate ooo ->
-                       showproof
+                    (fun displaystate ->
+                       showproof <*> 
                          ((fun hist ->
                              evolve displaystate env
                                (nohitcommand displaystate env tselopt comm
                                   finishable)
                                hist)
-                            ooo))
+                            ))
                 in
                 begin match pinfs with
                   Pinf {displaystate = displaystate} :: _ ->
                     begin match findSelection displaystate with
                       Some (FormulaSel fsel) ->
                         inside c
-                          (fun displaystate ooo ->
-                             showproof
+                          (fun displaystate ->
+                             showproof <*> 
                                ((fun here ->
                                    evolve displaystate env
                                      (pointToSequent displaystate env comm
                                         fsel)
                                      here)
-                                  ooo))
+                                  ))
                     | Some (TextSel t) -> nosels (Some t)
                     | Some (ReasonSel _) ->
                         showAlert
@@ -1561,36 +1519,30 @@ module
                 end
             | "redo_disproof", [] ->
                 inside c
-                  (fun _ ooo ->
-                     showdisproof
+                  (fun _ ->
+                     showdisproof <*> 
                        ((fun hist ->
-                           ortryr
-                             (andthenr
-                                (andthenr
-                                   (winhist_disproofhist hist, redo_step),
-                                 (fun ooo ->
-                                    Some
-                                      ((fun dh ->
-                                          withdisproofhist (hist, Some dh))
-                                         ooo))),
+                             (winhist_disproofhist hist &~~ redo_step &~~
+							  (fSome <*> 
+								 ((fun dh ->
+									 withdisproofhist (hist, Some dh))
+									))) |~~
                               (fun _ ->
                                  showAlert ["nothing to redo!"]; None)))
-                          ooo))
+                          )
             | "redo_proof", [] ->
                 inside c
-                  (fun _ ooo ->
-                     showproof
-                       ((fun hist ->
-                           ortryr
-                             (andthenr
-                                (redo_step (winhist_proofhist hist),
-                                 (fun ooo ->
-                                    Some
+                  (fun _ ->
+                     showproof <*> 
+                       (fun hist ->
+                                (redo_step (winhist_proofhist hist) &~~
+                                 (
+                                    fSome <*> 
                                       ((fun ph -> withproofhist (hist, ph))
-                                         ooo))),
+                                        ))) |~~
                               (fun _ ->
-                                 showAlert ["nothing to redo!"]; None)))
-                          ooo))
+                                 showAlert ["nothing to redo!"]; None))
+                          )
             | "refreshdisplay", [] ->
                 begin match pinfs with
                   Pinf
@@ -1623,38 +1575,22 @@ module
                 default
             | "undo_disproof", [] ->
                 inside c
-                  (fun _ ooo ->
-                     showdisproof
-                       ((fun hist ->
-                           ortryr
-                             (andthenr
-                                (andthenr
-                                   (winhist_disproofhist hist, undo_step),
-                                 (fun ooo ->
-                                    Some
-                                      ((fun dh ->
-                                          withdisproofhist (hist, Some dh))
-                                         ooo))),
-                              (fun _ ->
-                                 showAlert ["no disproof steps to undo!"];
-                                 None)))
-                          ooo))
+                  (fun _ ->
+                     showdisproof <*> 
+					 (fun hist ->
+						((winhist_disproofhist hist &~~ undo_step &~~
+						  (fSome <*> (fun dh -> withdisproofhist (hist, Some dh)))) 
+						 |~~
+						 (fun _ -> showAlert ["no disproof steps to undo!"]; None))))
             | "undo_proof", [] ->
                 inside c
-                  (fun _ ooo ->
-                     showproof
-                       ((fun hist ->
-                           ortryr
-                             (andthenr
-                                (undo_step (winhist_proofhist hist),
-                                 (fun ooo ->
-                                    Some
-                                      ((fun ph -> withproofhist (hist, ph))
-                                         ooo))),
-                              (fun _ ->
-                                 showAlert ["no proof steps to undo!"];
-                                 None)))
-                          ooo))
+                  (fun _ ->
+                     showproof <*> 
+					 (fun hist ->
+						(undo_step (winhist_proofhist hist) &~~
+						 (fSome <*> ((fun ph -> withproofhist (hist, ph))))) 
+						|~~
+						(fun _ -> showAlert ["no proof steps to undo!"]; None)))
             | "use", (file :: _ as files) ->
                 proofsdone := false;
                 begin try
@@ -1717,8 +1653,8 @@ module
                      disproof.worldselect d (pair cs))
             | "disprove", [] ->
                 inside c
-                  (fun displaystate ooo ->
-                     showdisproof
+                  (fun displaystate ->
+                     showdisproof <*> 
                        ((fun hist ->
                            let proof = winhist_proofnow hist in
                            let cxt_now = proofstate_cxt proof in
@@ -1769,7 +1705,7 @@ module
                                process_disproof
                                  (disproof_start facts_now
                                     (proofstate_tree proof) None []))
-                          ooo))
+                          ))
             | "unify", stuff ->
                 (* ******************* proof stuff ************************)
                 
@@ -1787,12 +1723,12 @@ module
                              (FormulaSel
                                 (_, _, _, concsels, hypsels, givensels)) ->
                              nj_fold getsels [givensels]
-                               (nj_fold getsels (_MAP ((fun(_,hash2)->hash2), concsels))
-                                  (nj_fold getsels (_MAP ((fun(_,hash2)->hash2), hypsels))
+                               (nj_fold getsels ((snd <* concsels))
+                                  (nj_fold getsels ((snd <* hypsels))
                                      []))
                          | Some (TextSel (proofsels, givensels)) ->
                              nj_fold getsels [givensels]
-                               (nj_fold getsels (_MAP ((fun(_,hash2)->hash2), proofsels))
+                               (nj_fold getsels ((snd <* proofsels))
                                   [])
                          | _ -> []
                        in
@@ -1800,7 +1736,7 @@ module
                          try
                            (if null sels || null stuff then
                               parseCurriedArgList
-                            else fun ooo -> (fun t -> [t]) (parseTerm ooo))
+                            else (fun t -> [t]) <*> parseTerm)
                              (respace stuff)
                          with
                            ParseError_ es ->
@@ -1817,7 +1753,7 @@ module
                                   " didn't parse -- " :: es);
                              raise Unify_
                        in
-                       let selargs = _MAP (getit, sels) in
+                       let selargs = (getit <* sels) in
                        if List.length args + List.length selargs < 2 then
                          begin
                            showAlert
@@ -1825,14 +1761,13 @@ module
                            raise Unify_
                          end
                        else
-                         fun ooo ->
-                           showproof
+                           showproof <*> 
                              ((fun here ->
                                  evolvewithexplanation
                                    (fun () -> showAlert (explain ""))
                                    displaystate env
                                    (forceUnify (args @ selargs)) here)
-                                ooo))
+                               ))
                 with
                   Unify_ -> default
                 end
@@ -1861,7 +1796,7 @@ module
                     default
                 | Some (_, tree, provisos, givens, disproofopt) ->
                     let proofstate =
-                      mkstate (_MAP (mkvisproviso, provisos)) givens tree
+                      mkstate ((mkvisproviso <* provisos)) givens tree
                     in
                     newfocus
                       (env, mbs, DontShow,
@@ -1895,7 +1830,7 @@ module
                                    ) dNdm []
                             fun List.concat (ts:string list,rs) = (listsub op= ts rs)@rs
                         in
-                            japeserver.dragtargets (nj_fold List.concat (targets _MAP dragees) []);
+                            japeserver.dragtargets (nj_fold List.concat (targets <* dragees) []);
                             default
                         end
                   )                  
@@ -1914,12 +1849,11 @@ module
                 (* ******************** proof control *********************** *)
                 
                 inside c
-                  (fun displaystate ooo ->
-                     showproof
+                  (fun displaystate ->
+                     showproof <*> 
                        ((fun here ->
-                           andthenr
                              (getLayoutPath displaystate BacktrackCommand
-                                PrunePath,
+                                PrunePath &~~
                               (fun path ->
                                  try
                                    let there = ref here in
@@ -1939,13 +1873,12 @@ module
                                      fun
                                        (WinHist {proofhist = proofhist} as
                                           hist) ->
-                                       andthenr
-                                         (undo_step proofhist,
-                                          (fun ooo ->
-                                             Some
+                                         (undo_step proofhist &~~
+                                          (
+                                             fSome <*> 
                                                ((fun ph ->
                                                    withproofhist (hist, ph))
-                                                  ooo)))
+                                                  )))
                                    in
                                    while stillcomposite !there do
                                      match undo_proofstep !there with
@@ -1958,60 +1891,60 @@ module
                                    Some !there
                                  with
                                    Matchinbacktrack_ -> None)))
-                          ooo))
+                          ))
             | "prune", [] ->
                 (* Prune *)
                 inside c
-                  (fun displaystate ooo ->
-                     showproof
+                  (fun displaystate ->
+                     showproof <*> 
                        ((fun here ->
                            tryLayout displaystate PruneCommand PrunePath here)
-                          ooo))
+                          ))
             | "collapse", [] ->
                 (* Hide/Show subproof *)
                 inside c
-                  (fun displaystate ooo ->
-                     showproof
+                  (fun displaystate ->
+                     showproof <*> 
                        ((fun here ->
                            tryLayout displaystate HideShowCommand PrunePath
                              here)
-                          ooo))
+                          ))
             | "hideroot", [] ->
                 (* Hide conclusion *)
                 inside c
-                  (fun displaystate ooo ->
-                     showproof
+                  (fun displaystate ->
+                     showproof <*> 
                        ((fun here ->
                            tryLayout displaystate HideRootCommand HitPath
                              here)
-                          ooo))
+                          ))
             | "exposeparent", [] ->
                 (* Show parent conclusion *)
                 inside c
-                  (fun displaystate ooo ->
-                     showproof
+                  (fun displaystate ->
+                     showproof <*> 
                        ((fun here ->
                            tryLayout displaystate ExposeParentCommand HitPath
                              here)
-                          ooo))
+                          ))
             | "hidecut", [] ->
                 (* Hide cut hypothesis *)
                 inside c
-                  (fun displaystate ooo ->
-                     showproof
+                  (fun displaystate ->
+                     showproof <*> 
                        ((fun here ->
                            tryLayout displaystate HideCutCommand PrunePath
                              here)
-                          ooo))
+                          ))
             | "layout", _ ->
                 (* Expand/Contract detail *)
                 inside c
-                  (fun displaystate ooo ->
-                     showproof
+                  (fun displaystate ->
+                     showproof <*> 
                        ((fun here ->
                            tryLayout displaystate ExpandContractCommand
                              LayoutPath here)
-                          ooo))
+                         ))
             | "addnewconjecture", panel :: text ->
                 begin try
                   let panel = namefrom panel in
@@ -2091,12 +2024,9 @@ module
                                       setGivens (proofstate_givens proof); r)),
                                 reparentprovisos hist)
                            in
-                           _MAP
-                             (f, (let r = bgs in japeserver.setforegroundfocus (); r))
+                             f <* (let r = bgs in japeserver.setforegroundfocus (); r)
                          else
-                           _MAP
-                             ((fun pinf -> withneedsrefresh (pinf, true)),
-                              bgs))
+                             (fun pinf -> withneedsrefresh (pinf, true)) <* bgs)
                   | _ -> pinfs
                 in
                 env, mbs, ShowBoth, pinfs
@@ -2106,11 +2036,10 @@ module
             | "saveproofs", [w] ->
                 let newfile = w = "true" in
                 let pinfs' =
-                  _MAP
-                    ((fun pinf ->
+                     (fun pinf ->
                         withhist
-                          (pinf, withchanged (proofinfo_hist pinf, false))),
-                     pinfs)
+                          (pinf, withchanged (proofinfo_hist pinf, false))) <*
+                     pinfs
                 in
                 if newfile &&(* Save As .. *)  saveable () || not newfile &&(* Save *)  needssaving ()
                 then
@@ -2293,7 +2222,7 @@ module
         setComment [];
         (* consolereport (("in administer; command is " :: commandstring command) @ [ "; pinfs are ",
                 bracketedliststring (string_of_int:int->string) ","
-                  ((fn Pinf{proofnum,...}=>proofnum) _MAP pinfs)
+                  ((fn Pinf{proofnum,...}=>proofnum)  <* pinfs)
            ]);
          *)
     
@@ -2326,8 +2255,7 @@ module
                 in
                 let rec bang f = "double-click is not defined on " :: f () in
                 let rec comm sense ps ss =
-                  ortryr
-                    (findfirst (trymatch sense) ps,
+                    (findfirst (trymatch sense) ps |~~
                      (fun _ -> showAlert (bang ss); None))
                 in
                 let (sense, (seqs, errf)) =
@@ -2384,23 +2312,23 @@ module
                   Some c ->
                     let c' = [tacticstring c] in
                     inside c'
-                      (fun displaystate ooo ->
-                         showproof
+                      (fun displaystate ->
+                         showproof <*> 
                            ((fun here ->
                                evolve displaystate env
                                  (pointToSequent displaystate env c' fsel)
                                  here)
-                              ooo))
+                              ))
                 | None -> default
                 end
             | _, ReasonSel _ ->
                 inside []
-                  (fun displaystate ooo ->
-                     showproof
+                  (fun displaystate ->
+                     showproof <*> 
                        ((fun here ->
                            tryLayout displaystate ExpandContractCommand
                              LayoutPath here)
-                          ooo))
+                          ))
             | _ ->
                 raise
                   (Catastrophe_
@@ -2435,8 +2363,7 @@ module
               (* how does disproof fit into this?  I think it doesn't *)
               if mustredisplay env displayvarsvals then
                 let target =
-                  ortryr
-                    (andthenr (findSelection displaystate, selpath),
+                    ( (findSelection displaystate &~~ selpath) |~~
                      (fun () -> goal))
                 in
                 doShowProof

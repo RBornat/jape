@@ -128,6 +128,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
     open Match.M
     open Optionfuns.M
     open Miscellaneous.M
+    open SML.M
     
     type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
      and name = Name.M.name
@@ -361,7 +362,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
                        let rec encodeterm t =
                          match t with
                            Collection (_, c, es) ->
-                             Collection (None, c, _MAP (encodeelement, es))
+                             Collection (None, c, (encodeelement <* es))
                          | _ ->
                              match hashterm t with
                                Some h -> Literal (None, Number (lookup h t))
@@ -372,7 +373,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
                              Element (None, i, encodeterm t)
                          | el -> el
                        in
-                       _MAP ((fun (v, t) -> v, encodeterm t), vts)
+                       ((fun (v, t) -> v, encodeterm t) <* vts)
                    | None -> vts)))
               tail
         | GivenTac i -> "GIVEN " :: catelim_argstring i tail
@@ -465,21 +466,21 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
         | ReplayTac t -> ReplayTac (_T t)
         | ContnTac (t1, t2) -> ContnTac (_T t1, _T t2)
         | AssocFlatTac tm -> AssocFlatTac (_E tm)
-        | UnifyTac tms -> UnifyTac (_MAP (_E, tms))
-        | AltTac ts -> AltTac (_MAP (_T, ts))
-        | SeqTac ts -> SeqTac (_MAP (_T, ts))
-        | WhenTac ts -> WhenTac (_MAP (_T, ts))
-        | UnfoldHypTac (s, tms) -> UnfoldHypTac (s, _MAP (_E, tms))
-        | FoldHypTac (s, tms) -> FoldHypTac (s, _MAP (_E, tms))
-        | MapTac (s, tms) -> MapTac (s, _MAP (_E, tms))
-        | TermTac (s, tms) -> TermTac (s, _MAP (_E, tms))
+        | UnifyTac tms -> UnifyTac ((_E <* tms))
+        | AltTac ts -> AltTac ((_T <* ts))
+        | SeqTac ts -> SeqTac ((_T <* ts))
+        | WhenTac ts -> WhenTac ((_T <* ts))
+        | UnfoldHypTac (s, tms) -> UnfoldHypTac (s, (_E <* tms))
+        | FoldHypTac (s, tms) -> FoldHypTac (s, (_E <* tms))
+        | MapTac (s, tms) -> MapTac (s, (_E <* tms))
+        | TermTac (s, tms) -> TermTac (s, (_E <* tms))
         | SubstTac (s, vts) ->
-            SubstTac (s, _MAP ((fun (v, t) -> _E v, _E t), vts))
-        | UnfoldTac (s, ts) -> UnfoldTac (s, _MAP (_T, ts))
-        | FoldTac (s, ts) -> FoldTac (s, _MAP (_T, ts))
+            SubstTac (s, ((fun (v, t) -> _E v, _E t) <* vts))
+        | UnfoldTac (s, ts) -> UnfoldTac (s, (_T <* ts))
+        | FoldTac (s, ts) -> FoldTac (s, (_T <* ts))
         | AssignTac (s, t) -> AssignTac (s, _E t)
-        | EvalTac tms -> EvalTac (_MAP (_E, tms))
-        | AdHocTac tms -> AdHocTac (_MAP (_E, tms))
+        | EvalTac tms -> EvalTac ((_E <* tms))
+        | AdHocTac tms -> AdHocTac ((_E <* tms))
         | BindConcTac (tm, t) -> BindConcTac (_E tm, _T t)
         | BindHypTac (tm, t) -> BindHypTac (_E tm, _T t)
         | BindHyp2Tac (tm1, tm2, t) -> BindHyp2Tac (_E tm1, _E tm2, _T t)
@@ -507,8 +508,8 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
         | LayoutTac (t, tl) -> LayoutTac (_T t, remaptreelayout env tl)
         | AlertTac (m, ps, copt) ->
             AlertTac
-              (_E m, _MAP ((fun (l, t) -> _E l, _T t), ps),
-               (andthenr (copt, (fun ooo -> Some (_T ooo)))))
+              (_E m, ((fun (l, t) -> _E l, _T t) <* ps),
+               ((copt &~~ (fSome <*> _T))))
         | ExplainTac m -> ExplainTac (_E m)
         | CommentTac m -> CommentTac (_E m)
         | BadUnifyTac (n1, n2, t) -> BadUnifyTac (n1, n2, _T t)
@@ -615,7 +616,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
         [] -> SkipTac
       | [t] -> t
       | ts -> SeqTac ts
-    and _SEQTAC ts = mkSEQ (_MAP (transTactic, ts))
+    and _SEQTAC ts = mkSEQ ((transTactic <* ts))
     and _SEQ1TAC a1 a2 =
       match a1, a2 with
         name, [] ->
@@ -647,14 +648,14 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
                                     string_of_int i])
                           end
                       | Collection (_, c, es) ->
-                          registerCollection (c, _MAP (decodeelement, es))
+                          registerCollection (c, (decodeelement <* es))
                       | _ -> t
                     and decodeelement =
                       function
                         Element (_, i, t) -> registerElement (i, decodeterm t)
                       | el -> el
                     in
-                    _MAP ((fun (v, t) -> v, decodeterm t), vts)
+                    ((fun (v, t) -> v, decodeterm t) <* vts)
                 | None -> vts))
         | t ->
             let (n, ts as parts) = explodeForExecute t in
@@ -747,7 +748,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
             in
             let rec mkFold a1 a2 =
               match a1, a2 with
-                tac, n :: ts -> tac (tacname n, _MAP (transTactic, ts))
+                tac, n :: ts -> tac (tacname n, (transTactic <* ts))
               | tac, [] ->
                   raise
                     (TacParseError_
@@ -806,8 +807,8 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
             | "FLATTEN" -> AssocFlatTac (debracket (onearg ts))
             | "MAPTERMS" -> MapTac (explodeForExecute (onearg ts))
             | "SEQ" -> _SEQTAC ts
-            | "ALT" -> AltTac (_MAP (transTactic, ts))
-            | "THEORYALT" -> TheoryAltTac (_MAP (butnottacticform, ts))
+            | "ALT" -> AltTac ((transTactic <* ts))
+            | "THEORYALT" -> TheoryAltTac ((butnottacticform <* ts))
             | "IF" -> IfTac (_SEQ1TAC f ts)
             | "DO" -> RepTac (_SEQ1TAC f ts)
             | "FOLD" -> mkFold (fun v->FoldTac v) ts
@@ -823,7 +824,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
             | "EVALUATE" -> EvalTac ts
             | "ASSIGN" -> mkSEQ (_Assignments ts)
             | "WHEN" ->
-                let tacs = _MAP (transTactic, ts) in
+                let tacs = (transTactic <* ts) in
                 let rec okwhen =
                   function
                     [] -> ()

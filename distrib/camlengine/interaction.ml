@@ -146,7 +146,7 @@ module
     let intliststring = bracketedliststring (string_of_int : int -> string) ","
     let abandonServer = japeserver.stopserver
     let killServer = japeserver.killserver
-    let setComment ooo = setComment (implode ooo)
+    let setComment = setComment <*> implode
     let rec deadServer strings = consolereport strings; abandonServer ()
     let rec startServer (serverpath, args) =
       try
@@ -198,7 +198,7 @@ module
       let (fsels, textsels, givensel) = japeserver.getAllSelections () in
       (* remove invisbra/kets from any text selections we see *)
       let rec deinvis s =
-        implode (( <| ) ((fun c -> not (invisible c)), explode s))
+        implode ((fun c -> not (invisible c)) <| explode s)
       in
       let textsels = map (fun (p, ss) -> p, map deinvis ss) textsels in
       let givensel = map deinvis givensel in
@@ -237,7 +237,7 @@ module
              strings)
           textsels
       in
-      map (fun(_,hash2)->hash2) fhits, thits, givensel
+      map snd fhits, thits, givensel
     let rec findSelection state =
       let (fhits, thits, givensel) = sortoutSelection state HitPath in
       (* only path that makes sense for what we are trying to do ... *)
@@ -309,12 +309,11 @@ module
                  else hpath)
               hs hpath
           in
-          let hypels = map (fun(_,hash2)->hash2) hyphits in
+          let hypels = map snd hyphits in
           let rec ok path =
             not
               (List.exists
-                 (fun ooo ->
-                    not ((fun el -> fmtprooftree.validhyp tree el path) ooo))
+                 (not  <*> (fun el -> fmtprooftree.validhyp tree el path))
                  hypels)
           in
           (* now, because we don't have a definite conclusion path, we have to see if we can refine the path we 
@@ -476,19 +475,17 @@ module
            *)
           let class__ = mkclass c in
           let sels =
-            ( <| )
-              ((match class__ with
+               (match class__ with
                   DisplayReason ->
-                    begin function
+                    (function
                       _, DisplayReason -> true
-                    | pos, _ -> japeserver.highlight pos None; false
-                    end
+                    | pos, _ -> japeserver.highlight pos None; false)
                 | _ ->
-                    function
+                    (function
                       pos, DisplayReason ->
                         japeserver.highlight pos None; false
-                    | _ -> true),
-               parseselections others)
+                    | _ -> true)) <|
+               parseselections others
           in
           notifyselect (getdisplay ()) (Some (mkpos x y, class__)) sels;
           getCommand displayopt
@@ -515,7 +512,7 @@ module
           getCommand displayopt
     let showallprovisos = ref false
     let rec filterprovisos ps =
-      if !showallprovisos then ps else ( <| ) (proviso.provisovisible, ps)
+      if !showallprovisos then ps else proviso.provisovisible <| ps
     let rec sortprovisos ps =
       sort
         (fun (p1, p2) ->

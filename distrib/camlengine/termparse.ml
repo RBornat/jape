@@ -199,8 +199,7 @@ module M : T with type element = Term.M.element
     and parseOutfix bra =
       (* check for empty bracketed form first *)
       match
-        andthenr
-          (fsmpos (rootfsm outrightfixtree) [bra],
+        (fsmpos (rootfsm outrightfixtree) [bra] &~~
            (fun t ->
               match currsymb () with
                 KET _ as ket ->
@@ -208,13 +207,13 @@ module M : T with type element = Term.M.element
                     Found (ket', []) ->
                       check ket';
                       Some
-                        (registerFixapp (_MAP (symbolstring, [bra; ket]), []))
+                        (registerFixapp ((symbolstring <* [bra; ket]), []))
                   | _ -> None
                   end
               | _ -> None))
       with
         Some t -> t
-      | None -> putbacksymb bra; (fun(_,hash2)->hash2) (parseOutRightfixTail 0 [])
+      | None -> putbacksymb bra; snd (parseOutRightfixTail 0 [])
     and parseRightfix m t =
       let (ket, t) = parseOutRightfixTail m [t] in checkAfterKet ket m; t
     and parseOutRightfixTail m ts =
@@ -224,7 +223,7 @@ module M : T with type element = Term.M.element
       with
         Found (ket, (ss, ts)) ->
           check ket;
-          ket, registerFixapp (_MAP (symbolstring, List.rev (ket :: ss)), List.rev ts)
+          ket, registerFixapp ((symbolstring <* List.rev (ket :: ss)), List.rev ts)
       | NotFound (ss, _) ->
           raise
             (ParseError_
@@ -238,7 +237,7 @@ module M : T with type element = Term.M.element
           ([], ts)
       with
         Found (_, (ss, ts)) ->
-          registerFixapp (_MAP (symbolstring, List.rev ss), List.rev ts)
+          registerFixapp ((symbolstring <* List.rev ss), List.rev ts)
       | NotFound (ss, _) ->
           raise
             (ParseError_
@@ -347,9 +346,9 @@ module M : T with type element = Term.M.element
       let ys = parseside (not !substsense) in
       let _ = check SUBSTKET in
       if List.length xs = List.length ys then
-        if !substsense then ( ||| ) (xs, ys) else ( ||| ) (ys, xs)
+        if !substsense then (xs ||| ys) else (ys ||| xs)
       else
-        (* Zip can't happen *)
+        (* Zip_ can't happen *)
         raise
           (ParseError_
              ["Substitution "; symbolstring SUBSTBRA;
@@ -416,7 +415,7 @@ module M : T with type element = Term.M.element
           Some ((bs, us, ss), env, pat) ->
             Some
               (registerBinding
-                 ((bs, _MAP (doit, us), _MAP (doit, ss)), env, pat))
+                 ((bs, (doit <* us), (doit <* ss)), env, pat))
         | None -> None
       in
       doit t
@@ -508,7 +507,7 @@ module M : T with type element = Term.M.element
             if class__ = NoClass then bang "undeclared variable" t else None
         | Unknown (_, _, class__) as t ->
             if class__ = NoClass then bang "undeclared variable" t else None
-        | Subst (_, _, _, vts) -> findfirst badvar (_MAP ((fun(hash1,_)->hash1), vts))
+        | Subst (_, _, _, vts) -> findfirst badvar ((fst <* vts))
         | _ -> None
       in
       let _ = findterm badterm t in

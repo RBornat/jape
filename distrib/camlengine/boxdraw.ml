@@ -198,7 +198,7 @@
     let rec explodedconc cs =
       match cs with
         [c] ->
-          begin match andthenr (element2term c, explodebinapp) with
+          begin match (element2term c &~~ explodebinapp) with
             Some bits -> Some (c, bits)
           | _ -> None
           end
@@ -322,23 +322,23 @@
         let (st, hs, gs) = explode (sequent t) in
         let subts = subtrees t in
         let newhyps = ttsub hs hyps in
-        let lprins = (fun(hash1,_)->hash1) (tree.matched t) in
+        let lprins = fst (tree.matched t) in
         let rec T hs (n, t) = pt (n :: rp) hs t in
         let rec mkl isid subs =
           !hidereflexivity && isStructureRulenode t ReflexivityRule,
           LinPT
             (RevPath rp, isid, gs,
              (if prefixwithstile then Some st else None),
-             andthenr (why, (fun r -> Some (r, lprins, subs))))
+             (why &~~ (fun r -> Some (r, lprins, subs))))
         in
         let rec aslines isid =
-          mkl isid (_MAP ((fun ooo -> respt (T (hs, ooo))), numbered subts))
+          mkl isid (respt <*> T hs) <* numbered subts)
         in
         let rec boxpt lines =
           false, BoxPT (RevPath rp, true, innerwords, newhyps, lines)
         in
-        let rec hyps seq = (fun(_,hash2)->hash2) (explode seq) in
-        let rec concs seq = (fun(_,_,hash3)->hash3) (explode seq) in
+        let rec hyps seq = snd (explode seq) in
+        let rec concs seq = thrd (explode seq) in
         (* The box transformation is applied to anything which has novel lhs elements.
          * The id transformation (aslines true) is applied when it matches, except when the id
          * is the last line of a box (unless the box introduces a single hypothesis and the rest 
@@ -562,7 +562,7 @@
           Some (why, lprins, subpts) ->
             Some
               (pi, tranreason why, lprins,
-               _MAP (dependency tranreason ordinary, subpts))
+               (dependency tranreason ordinary <* subpts))
         | None -> None
       in
       (* transforming stiles *)
@@ -578,7 +578,7 @@
             element2textinfo e, deadf (opt2bool justopt) mkconcplan pi e
           in
           let dep =
-            LinDep (_MAP (mkplan, concs), dostopt stopt, linsubs pi justopt)
+            LinDep ((mkplan <* concs), dostopt stopt, linsubs pi justopt)
           in
           begin match isid, justopt with
             true, Some (_, [lp], []) -> IdDep (lp, dep)
@@ -593,7 +593,7 @@
             (boxit,
              (string2textinfo ReasonFont sing,
               string2textinfo ReasonFont plur),
-             _MAP (mkplan, hs), dependency tranreason ordinary pt')
+             (mkplan <* hs), dependency tranreason ordinary pt')
       | CutPT (RevPath rp, ch, lpt, rpt, chneeded, tobehidden) ->
           let rootp = List.rev rp in
           let leftp = List.rev (0 :: rp) in
@@ -740,7 +740,7 @@
       | NoID ->(* we never make a HypID with l=0 *)
          ""
     let rec IDstring cids =
-      liststring (fun x -> x) "," (( <| ) ((fun s -> s <> ""), List.map Cr cids))
+      liststring (fun x -> x) "," ((fun s -> s <> "") <| List.map Cr cids)
     let rec mapn a1 a2 a3 =
       match a1, a2, a3 with
         id, [], hn -> empty
@@ -775,10 +775,10 @@
       | AR of (pos -> reasonplankind plan)
     let rec linearise screenwidth procrustean_reasonW dp =
       let termfontleading =
-        max 1 ((fun(_,_,hash3)->hash3) (fontinfo TermFont))
+        max 1 (thrd (fontinfo TermFont))
       in
       let reasonfontleading =
-        max 1 ((fun(_,_,hash3)->hash3) (fontinfo ReasonFont))
+        max 1 (thrd (fontinfo ReasonFont))
       in
       let leading = max termfontleading (reasonfontleading) in
       let linethickness = draw.linethickness leading in
@@ -893,8 +893,8 @@
                     raise (Catastrophe_ ["foldformula ElementPunctPlan"])
               in
               let estring = catelim_elementstring e [] in
-              let rec measure ooo =
-                (fun(hash1,_)->hash1) (measurestring TermFont ooo)
+              let rec measure =
+                fst <*> measurestring TermFont
               in
               let _ =
                 if !boxfolddebug then
@@ -915,7 +915,7 @@
                        sss]
               in
               let sys =
-                _MAP ((fun ss -> Syllable (TermFont, implode ss)), sss)
+                (fun ss -> Syllable (TermFont, implode ss)) <* sss
               in
               let text =
                 Text
@@ -979,7 +979,7 @@
               plancons (reasonf p)
                 (fun p ->
                    plancons (reasonspacef p)
-                     (fun ooo -> plan2plans (antesf ooo)))
+                     (plan2plans <*> antesf))
             else if null cids then plan2plans (reasonf p)
             else
               plancons (lantesparenf p)
@@ -987,7 +987,7 @@
                    plancons (antesf p)
                      (fun p ->
                         plancons (rantesparenf p)
-                          (fun ooo -> plan2plans (reasonf ooo))))
+                          (plan2plans <*> reasonf)))
       in
       let rec ljreasonplan ps box =
         let shift = pos (- tsW (tbSize box), 0) in
@@ -1095,15 +1095,14 @@
               None -> acc, None
             | Some (pi, rinf, lprins, subdps) ->
                 let lcids =
-                  _MAP
-                    ((fun lp ->
+                     (fun lp ->
                         try unSOME (mapped sameresource hypmap lp) with
                           unSOME_ ->
                             raise
                               (Catastrophe_
                                  ["linearise can't decode lprin ";
-                                  elementstring lp])),
-                     lprins)
+                                  elementstring lp])) <*
+                     lprins
                 in
                 let rec dosub (dp, (cids, acc)) =
                   let (cid, acc') = getcid dp acc in cid :: cids, acc'
@@ -1173,9 +1172,8 @@
               let concels' =
                 match !foldformulae, wopt with
                   true, Some bestW ->
-                    _MAP
                       (foldformula
-                         (bestW - 2 * posX (topleft elbox) - commaW),
+                         (bestW - 2 * posX (topleft elbox) - commaW) <*
                        concels)
                 | _ -> concels
               in
@@ -1213,13 +1211,12 @@
                     (* more or less *)
                     let mybestW =
                       Integer.max
-                        (2 * tsW ((fun(hash1,_)->hash1) ((fun(hash1,_)->hash1) words)),
+                        (2 * tsW (fst (fst words)),
                          bestW - 2 * posX innerpos)
                     in
                     minwaste measureplan mybestW
-                      (_MAP
-                         ((fun (e, inf) -> e, foldformula mybestW inf),
-                          hypelis))
+                      ((fun (e, inf) -> e, foldformula mybestW inf) <*
+                          hypelis)
               in
               let rec dohypline =
                 fun
@@ -1235,9 +1232,9 @@
                   let (word, hypmap') =
                     match hypelis with
                       [h] ->
-                        (fun(hash1,_)->hash1) words,
-                        ( ++ ) (hypmap, ( |-> ) ((fun(hash1,_)->hash1) h, LineID id))
-                    | hs -> (fun(_,hash2)->hash2) words, ( ++ ) (hypmap, mapn id hs 1)
+                        fst words,
+                        ( ++ ) (hypmap, ( |-> ) (fst h, LineID id))
+                    | hs -> snd words, ( ++ ) (hypmap, mapn id hs 1)
                   in
                   let rec showword p =
                     plan2plans (textinfo2plan word ReasonPunctPlan p)
@@ -1245,8 +1242,7 @@
                   let (line, linebox, lineidW, linereasonW) =
                     mkLine
                       (things2plans
-                         (fun ooo ->
-                            uncurry2 textinfo2plan ((fun(_,hash2)->hash2) ooo))
+                         (uncurry2 textinfo2plan <*> snd)
                          commaf nullf hypelis)
                       showword id (nextpos elbox textleading)
                   in
@@ -1388,7 +1384,7 @@
           (* put in the beginning of the transitive game (forgot this for a time ...) *)
               let rec sourceline p =
                 stprefix stopt
-                  (fun ooo -> plan2plans (uncurry2 textinfo2plan terminf ooo))
+                  (plan2plans <*> uncurry2 textinfo2plan terminf)
                   p
               in
               let (id'', acc'') = doconcline sourceline false (acc', None) in
@@ -1399,9 +1395,8 @@
                       (rightby (p, transindent))
                   in
                   plancons splan
-                    (fun ooo ->
-                       (fun ooo -> plan2plans (uncurry2 textinfo2plan f ooo))
-                         ((fun p' -> rightby (p', transindent)) ooo))
+                       (plan2plans <*> uncurry2 textinfo2plan f <*> 
+                        (fun p' -> rightby (p', transindent)))
                 in
                 doconcline mkp true (acc, just)
               in
@@ -1494,7 +1489,7 @@
               ["trying again, width "; string_of_int maxbestW; "; screenwidth ";
                string_of_int screenwidth]
         in
-        answer ((fun(_,hash2)->hash2) (L (Some maxbestW, empty, false, dp, startacc)))
+        answer (snd (L (Some maxbestW, empty, false, dp, startacc)))
       else answer firstlayout
     (* linearise *)(* desperation ...
     fun IDstring id =
@@ -1535,7 +1530,7 @@
      *)
    
     let rec elementsin ps =
-      List.length (( <| ) ((fun ooo -> iselementkind (planinfo ooo)), ps))
+      List.length ((iselementkind <*> planinfo) <| ps)
     let rec draw goalopt p proof =
       fun
         (Layout
@@ -1719,12 +1714,9 @@
                 | ElementPunctPlan -> None
               in
               if withintb (p, elementsbox) then
-                fun ooo ->
-                  andthenr
-                    (findfirstplanhit (( +<-+ ) (p, tbPos elementsbox))
-                       elementsplan,
-                     Some)
-                    (andthenr (planinfo, decodeplan) ooo)
+                findfirstplanhit (( +<-+ ) (p, tbPos elementsbox)) elementsplan 
+                &~~ (fSome <*> planinfo) 
+                &~~ decodeplan
               else
                 findfirst
                   (fun reason ->
@@ -1746,8 +1738,10 @@
               if withinY (p, outerbox) then findfirst (H p) lines else None
         in
         findfirst (H (rightby (p, - bodymargin))) lines
-    let rec locateHit pos classopt hitkind (p, proof, layout) ooo =
-      andthenr (pos2hit (( +<-+ ) (pos, p)) layout hitkind, Some)
+    let rec locateHit pos classopt hitkind (p, proof, layout) =
+      pos2hit (( +<-+ ) (pos, p)) layout hitkind
+      &~~
+      (fSome <*> 
         ((function
             FormulaHit (AmbigHit (up, dn)) as h ->
               begin match classopt with
@@ -1762,7 +1756,7 @@
                         optionstring displayclassstring classopt])
               end
           | h -> h)
-           ooo)
+           ))
     (* Greyening and blackening is now (cross fingers) simplified, at least during selection.
      * We get told when a selection is made (Some(pos, class)) or cancelled (None),
      * and at the same time we are told the current selections.
@@ -1805,18 +1799,17 @@
         in
         let rec blackenthelot () = bg (fun _ -> blacken) in
         let hits =
-          _MAP
-            ((fun (pos, class__) ->
+             (fun (pos, class__) ->
                 try unSOME (locateHit pos (Some class__) HitPath info) with
                   _ ->
                     raise
                       (Catastrophe_
                          ["notifyselect (boxdraw) can't identify ";
                           pairstring posstring displayclassstring ","
-                            (pos, class__)])),
+                            (pos, class__)])) <*
              (match posclassopt with
                 None -> posclasslist
-              | Some hc -> hc :: posclasslist))
+              | Some hc -> hc :: posclasslist)
         in
         let rec bang s =
           raise
@@ -1874,7 +1867,7 @@
         | _, [cpath, _], [] ->
             (* conc selection gives definite position *)
             let hyps =
-              ( <| ) ((fun (_, hel) -> validhyp proof hel cpath), hyps)
+              (fun (_, hel) -> validhyp proof hel cpath) <| hyps
             in
             let rec emp plan =
               let rec blackhyp (({path = hpath} : pathinfo), el, _) =
@@ -1987,7 +1980,7 @@
             function
               FitchLine
                 {elementsplan = elementsplan; elementsbox = elementsbox} ->
-                if List.exists (fun ooo -> ok (planinfo ooo)) elementsplan then
+                if List.exists (ok <*> planinfo) elementsplan then
                   begin
                     if !screenpositiondebug then
                       consolereport
@@ -2001,7 +1994,7 @@
           findfirst search lines
     let rec samelayout =
       fun (Layout {lines = lines}, Layout {lines = lines'}) -> lines = lines'
-    let defaultpos ooo = (fun(hash1,_)->hash1) (defaultpos ooo)
+    let defaultpos = fst <*> defaultpos
   end
 
 (* a bit of desperate debugging ...

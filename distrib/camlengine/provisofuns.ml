@@ -92,15 +92,15 @@ module
           Id _ -> def ()
         | Unknown _ -> def ()
         | Binding (_, (bs, ss, us), _, _) ->
-            let rs = _MAP (substeqvarsq facts v, bs) in
+            let rs = (substeqvarsq facts v <* bs) in
             if List.exists qDEF rs then Some (nj_fold fnp us cats)
             else if not (List.exists qUNSURE rs) then
               Some (nj_fold fnp ss (nj_fold fnp us cats))
             else def ()
         | Subst (_, r, P, vts) ->
-            let rs = _MAP (substeqvarsq facts v, _MAP ((fun(hash1,_)->hash1), vts)) in
+            let rs = (substeqvarsq facts v <* (fst <* vts)) in
             if List.exists qDEF rs then
-              Some (nj_fold fnp (_MAP ((fun(_,hash2)->hash2), vts)) cats)
+              Some (nj_fold fnp ((snd <* vts)) cats)
             else if not (List.exists qUNSURE rs) then
               match vts with
                 [v', t'] ->
@@ -112,7 +112,7 @@ module
               | _ ->
                   Some
                     (nj_fold fnp
-                       (_MAP ((fun vt -> registerSubst (true, P, [vt])), vts))
+                       ((fun vt -> registerSubst (true, P, [vt])) <* vts)
                        cats)
             else def ()
         | Collection (_, c, es) ->
@@ -174,7 +174,7 @@ module
            not (qDEF (varoccursinq cxt P1 t2)) ||
            specialisesto (idclass P1, conVariableClass) &&
            List.exists (fun t1' -> deferrable cxt (t1', t2))
-             (_MAP ((fun(_,hash2)->hash2), vts))
+             ((snd <* vts))
        | _, Subst _ -> deferrable cxt (t2, t1)
        | _ -> true)
     (* Is this proviso obviously satisfied (Yes) or obviously violated (No)
@@ -199,7 +199,7 @@ module
     (* iso means isolated, I think; so isot is an isolated term, isop an isolated proviso *)
     let rec groundedprovisos names provisos =
       let rec isot t =
-        let vs = ( <| ) (ismetav, termvars t) in
+        let vs = ismetav <| termvars t in
         let rec diff a1 a2 =
           match a1, a2 with
             x :: xs, y :: ys ->
@@ -220,7 +220,7 @@ module
             FreshProviso (_, _, _, v) -> ismetav v && isot v
           | NotinProviso (v, t) -> ismetav v && isot v || isot t
           | NotoneofProviso (vs, pat, C) ->
-              not (List.exists (fun ooo -> not (isot ooo)) vs) || isot C
+              not (List.exists (not <*> isot) vs) || isot C
           | UnifiesProviso (P1, P2) -> isot P1 && isot P2
         in
         if !provisodebug then
@@ -231,7 +231,7 @@ module
       let r =
         if null provisos then None
         else
-          (* keep them? throw them away? *) match split (fun ooo -> isop (provisoactual ooo)) provisos with
+          (* keep them? throw them away? *) match split (isop <*> provisoactual) provisos with
             [], _ -> None
           | _, [] ->(* we kept them all *)
              Some []
@@ -240,10 +240,9 @@ module
               match
                 groundedprovisos
                   (nj_fold tmerge
-                     (_MAP
-                        ((fun ooo ->
-                            provisovars termvars tmerge (provisoactual ooo)),
-                         uses))
+                        ((
+                            provisovars termvars tmerge <*> provisoactual) <*
+                         uses)
                      names)
                   isos
               with
@@ -357,14 +356,12 @@ module
             let rec def () = checker cxt mm pros news in
             let rec push f ps =
               if List.exists
-                   (fun ooo ->
+                   (
                       (function
                          FreshProviso (_, _, _, v') -> v = v'
-                       | _ -> false)
-                        (provisoactual ooo))
+                       | _ -> false) <*> provisoactual)
                    ps
               then
-                _MAP
                   ((fun vp ->
                       match provisoactual vp with
                         FreshProviso (h', g', r', v') ->
@@ -373,7 +370,7 @@ module
                               (true,
                                FreshProviso (h || h', g || g', r && r', v))
                           else vp
-                      | _ -> vp),
+                      | _ -> vp) <*
                    ps)
               else mkvisproviso (true, FreshProviso f) :: ps
             in
@@ -422,7 +419,7 @@ module
         FreshProviso (h, g, r, v) -> FreshProviso (h, g, r, T v)
       | NotinProviso (v, t) -> NotinProviso (T v, T t)
       | NotoneofProviso (vs, pat, C) ->
-          NotoneofProviso (_MAP (T, vs), T pat, T C)
+          NotoneofProviso ((T <* vs), T pat, T C)
       | UnifiesProviso (P1, P2) -> UnifiesProviso (T P1, T P2)
     (* the drag and drop mapping is a list of (source,target) pairs, derived from
      * UnifiesProvisos thus:
@@ -445,12 +442,12 @@ module
           (* We need to run Warshall's algorithm to get the transitive closure.
            * This implementation is slow, but these collections don't get large 
            *)
-          val ists = (not o null o #1) <| ((fn (xs,ys) => (istarget<|xs,ys)) _MAP sts)
+          val ists = (not o null o #1) <| ((fn (xs,ys) => (istarget<|xs,ys)) <* sts)
           val ists = nj_fold (fn ((ss,ts),rs) => nj_fold (fn (s,rs) => (s,ts)::rs) ss rs) ists []
           val sts = nj_fold (fn ((s,ts),sts) => 
                              (fn (ss',ts') => 
                                  (ss',if List.exists (fn t' => s=t') ts' then ts'@ts else ts')
-                             ) _MAP sts
+                             ) <* sts
                          ) ists sts
       in 
           nj_fold (fn ((ss,ts),rs) => (ss><ts)@rs) sts []

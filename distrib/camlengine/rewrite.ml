@@ -168,9 +168,9 @@ module
        (match rewinf_psig ri, getprovisosig cxt with
           Some si, ci -> si <> ci
         | _ -> false) ||
-       List.exists (fun ooo -> opt2bool ((fun uVID -> at (varmap cxt, uVID)) ooo))
+       List.exists (opt2bool <*> (fun uVID -> at (varmap cxt, uVID)))
          (rewinf_uVIDs ri)) ||
-      List.exists (fun ooo -> opt2bool ((fun i -> at (resmap cxt, i)) ooo))
+      List.exists (opt2bool <*> (fun i -> at (resmap cxt, i)))
         (rewinf_badres ri)
     (* this is almost f andthen (Some o yes), but types get in the way ... *)
     let rec rew_ f x yes =
@@ -183,11 +183,11 @@ module
         None -> Some t
       | some -> some
     let rec rew_2 f x g y yes =
-      andthen (option_rewrite2 f g, (fun ooo -> Some (yes ooo))) (x, y)
+      andthen (option_rewrite2 f g, (fSome <*> yes)) (x, y)
     let rec rew_Pair = fun R -> option_rewrite2 R R
     (* there must be a better way ... *)
     let rec rew_3 f x g y h z yes =
-      andthen (option_rewrite3 f g h, (fun ooo -> Some (yes ooo))) (x, y, z)
+      andthen (option_rewrite3 f g h, (fSome <*> yes)) (x, y, z)
     let rec rew_binding outer inner (h, (bs, ss, us), env, pat) =
       rew_3 (option_rewritelist outer) bs (option_rewritelist inner) ss
         (option_rewritelist outer) us
@@ -253,7 +253,7 @@ module
               (function
                  Collection (_, _, []) -> []
                | Collection (_, _, es) as c ->
-                   (* modeifyelement ps _MAP es *)
+                   (* modeifyelement ps <* es *)
                    raise
                      (Catastrophe_
                         ["rew_elements 2 "; elementstring sv; " ";
@@ -331,7 +331,7 @@ module
           let rec newrewinf n ps =
             Some
               (raw2rew_
-                 (nj_fold (rawinfProviso n) (_MAP (provisoactual, ps))
+                 (nj_fold (rawinfProviso n) ((provisoactual <* ps))
                     nullrawinf))
           in
           let rec yes nextcxt ps =
@@ -343,7 +343,7 @@ module
              rew_update f g pinf cxt
           in
           let rec rew_visproviso subst cxt vp =
-            rew_ (fun ooo -> rew_Proviso subst cxt (provisoactual ooo)) vp
+            rew_ (rew_Proviso subst cxt <*> provisoactual) vp
               (provisoresetactual vp)
           in
           match option_rewritelist (rew_visproviso subst cxt) ps with
@@ -376,11 +376,10 @@ module
                       in
                       let ps =
                         optionfilter
-                          (fun ooo ->
+                          (
                              (function
                                 NotinProviso p -> Some p
-                              | _ -> None)
-                               (provisoactual ooo))
+                              | _ -> None) <*> provisoactual)
                           (provisos cxt)
                       in
                       let (fvs, m) = freevarsfrombindings stuff ps in

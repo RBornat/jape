@@ -116,30 +116,30 @@ module
       (* val _ = consolereport ["option_mapforcedefterms ", forcedefstring fd] *)
       let res =
         match fd with
-          ForcePrim t -> andthenr (omt t, (fun ooo -> Some (ForcePrim ooo)))
+          ForcePrim t -> (omt t &~~ (fSome <*> ForcePrim))
         | ForceBracket fd' ->
-            andthenr (omff fd', (fun ooo -> Some (ForceBracket ooo)))
+            (omff fd' &~~ (fSome <*> ForceBracket))
         | ForceAnd pair ->
-            andthenr (ompair pair, (fun ooo -> Some (ForceAnd ooo)))
+            (ompair pair &~~ (fSome <*> ForceAnd))
         | ForceOr pair ->
-            andthenr (ompair pair, (fun ooo -> Some (ForceOr ooo)))
+            (ompair pair &~~ (fSome <*> ForceOr))
         | ForceImplies pair ->
-            andthenr (ompair pair, (fun ooo -> Some (ForceImplies ooo)))
+            (ompair pair &~~ (fSome <*> ForceImplies))
         | ForceEverywhere fd' ->
-            andthenr (omff fd', (fun ooo -> Some (ForceEverywhere ooo)))
+            (omff fd' &~~ (fSome <*> ForceEverywhere))
         | ForceNowhere fd' ->
-            andthenr (omff fd', (fun ooo -> Some (ForceNowhere ooo)))
+            (omff fd' &~~ (fSome <*> ForceNowhere))
         | ForceAll tvsfd ->
-            andthenr (omtvsfd tvsfd, (fun ooo -> Some (ForceAll ooo)))
+            (omtvsfd tvsfd &~~ (fSome <*> ForceAll))
         | ForceSome tvsfd ->
-            andthenr (omtvsfd tvsfd, (fun ooo -> Some (ForceSome ooo)))
+            (omtvsfd tvsfd &~~ (fSome <*> ForceSome))
       in
       (* consolereport ["option_mapforcedefterms ", forcedefstring fd, " => ", optionstring forcedefstring res]; *)
       res
     let rec mapforcedefterms f = anyway (option_mapforcedefterms f)
     let rec findinforcedef f fd =
       let rec findinpair (fd1, fd2) =
-        ortryr (findinforcedef f fd1, (fun _ -> findinforcedef f fd2))
+        (findinforcedef f fd1 |~~ (fun _ -> findinforcedef f fd2))
       in
       match fd with
         ForcePrim t -> findterm f t
@@ -150,11 +150,11 @@ module
       | ForceEverywhere fd -> findinforcedef f fd
       | ForceNowhere fd -> findinforcedef f fd
       | ForceAll (t, _, fd) ->
-          ortryr (findterm f t, (fun _ -> findinforcedef f fd))
+          (findterm f t |~~ (fun _ -> findinforcedef f fd))
       | ForceSome (t, _, fd) ->
-          ortryr (findterm f t, (fun _ -> findinforcedef f fd))
-    let rec existsinforcedef f ooo =
-      opt2bool (findinforcedef (fun t -> if f t then Some true else None) ooo)
+          (findterm f t |~~ (fun _ -> findinforcedef f fd))
+    let rec existsinforcedef f =
+      opt2bool <*> findinforcedef (fun t -> if f t then Some true else None)
     let rec parseForceDef () =
       (* there is no operator priority in forcedefs ... *)
       let f =
@@ -188,9 +188,9 @@ module
       | _ -> f
     and parseForceDefBinder () =
       let t = parseTerm EOF in
-      let vs = ( <| ) (isVariable, termvars t) in
+      let vs = isVariable <| termvars t in
       let f = parseForceDef () in
-      if List.exists (fun ooo -> not (isextensibleId ooo)) vs then
+      if List.exists (not <*> isextensibleId) vs then
         raise
           (ParseError_
              ["ALL and Some must use CLASS VARIABLE identifiers to describe individuals"])

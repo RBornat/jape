@@ -32,6 +32,7 @@ module M : T =
     open Miscellaneous.M
     open Stringfuns.M
     open Optionfuns.M
+    open SML.M
     
     type idclass = Idclass.M.idclass
     type term = Term.M.term
@@ -79,16 +80,16 @@ module M : T =
                 ["compilepredicate spotted "; termstring pp; "(";
                  termliststring ts; ")"]
           in
-          let ts = _MAP (mapterm (compilepredicate isabstraction env), ts) in
+          let ts = (mapterm (compilepredicate isabstraction env) <* ts) in
           begin match env pp with
             Some vs ->
               let res =
                 Some
                   (if vs = ts then pp
                    else
-                     try registerSubst (true, pp, ( ||| ) (vs, ts)) with
-                       Zip ->
-                         raise (Catastrophe_ ["Zip in compilepredicates"]))
+                     try registerSubst (true, pp, (vs ||| ts)) with
+                       Zip_ ->
+                         raise (Catastrophe_ ["Zip_ in compilepredicates"]))
               in
               if !predicatedebug then
                 consolereport
@@ -143,8 +144,8 @@ module M : T =
                (nj_fold (nj_foldterm (fp bs)) us pbs))
       | Subst (_, r, pp, vts) ->
           Some
-            (foldterm (fp (addbinding (_MAP ((fun(hash1,_)->hash1), vts)) bs))
-               (nj_fold (nj_foldterm (fp bs)) (_MAP ((fun(_,hash2)->hash2), vts)) pbs) pp)
+            (foldterm (fp (addbinding ((fst <* vts)) bs))
+               (nj_fold (nj_foldterm (fp bs)) ((snd <* vts)) pbs) pp)
       | _ ->
           match matchpredicate true isabstraction t with
             Some (pp, ts) ->
@@ -153,11 +154,7 @@ module M : T =
           | _ -> None
     (* discard zero-arity 'predicates' -- only necessary for arity check *)
     let rec discardzeroarities pbs =
-      ( <| )
-        ((fun (_, (abss : (term list * 'a) list)) ->
-            List.exists (fun ooo -> (fun ooo -> not (ooo=[])) ((fun(hash1,_)->hash1) ooo))
-              abss),
-         pbs)
+	  (fun (_, (abss : (term list * 'a) list)) -> List.exists (not <*> null <*> fst) abss) <| pbs
     (* To make a mapping from predicates to default args we prefer binding variables, if
      * suitable examples can be found.
      *)

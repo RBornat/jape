@@ -62,7 +62,7 @@ module
             reasonplan : planclass plan option; linebox : (bool * box) option;
             subplans : (pos * treeplan) list; linethickness : int >
     let rec shiftoutline indent (ys : outline) =
-      _MAP ((fun (l, r) -> l + indent, r + indent), ys)
+      ((fun (l, r) -> l + indent, r + indent) <* ys)
     let rec place subh gap =
       fun
         ((Treeplan {proofbox = proofbox; proofoutline = proofoutline} as
@@ -77,14 +77,14 @@ module
         let rec m3 f xs =
           match xs with
             _ :: _ ->
-              let rec MAX ys zs = _MAP (f, zip (ys, zs)) in
+              let rec MAX ys zs = (f <* zip (ys, zs)) in
               let m2 = MAX (xs, List.tl xs) in
               MAX ((List.hd xs :: m2), (m2 @ [last xs]))
           | _ -> xs
         in
-        let rs = m3 (uncurry2 max) (_MAP ((fun(_,hash2)->hash2), alloutline)) in
-        let ls = m3 (uncurry2 min) (_MAP ((fun(hash1,_)->hash1), proofoutline)) in
-        let offset = nj_fold (uncurry2 max) (_MAP (fo, zip (rs, ls))) 0 in
+        let rs = m3 (uncurry2 max) ((snd <* alloutline)) in
+        let ls = m3 (uncurry2 min) ((fst <* proofoutline)) in
+        let offset = nj_fold (uncurry2 max) ((fo <* zip (rs, ls))) 0 in
         (* doesn't take account of indentation; bound to be 0 if rs is null *)
         let newpos = pos (offset, subh - sH (bSize proofbox)) in
         let newbox = box (newpos, bSize proofbox) in
@@ -100,8 +100,8 @@ module
         p, None -> ()
       | p, Some plan -> drawplan planclass2displayclass p plan
     let rec maketreeplan proof =
-      let termfontleading = (fun(_,_,hash3)->hash3) (fontinfo TermFont) in
-      let reasonfontleading = (fun(_,_,hash3)->hash3) (fontinfo ReasonFont) in
+      let termfontleading = thrd (fontinfo TermFont) in
+      let reasonfontleading = thrd (fontinfo ReasonFont) in
       let leading = nj_fold Integer.max [termfontleading; reasonfontleading] 1 in
       let hspace = max (20) (10 * leading)
       (* was 30,15*leading, seemed a bit excessive *)
@@ -130,7 +130,7 @@ module
             None -> noreasoninf
           | Some why -> reason2textinfo why
         in
-        let subh = nj_fold (uncurry2 max) (_MAP (tpH, subps)) 0 in
+        let subh = nj_fold (uncurry2 max) ((tpH <* subps)) 0 in
         let (topbox, suboutline, subplans) =
           nj_revfold (place subh hspace) subps (emptybox, [], [])
         in
@@ -153,8 +153,7 @@ module
           if superw > subw then
             let subindent = max (0) (superw - subw) / 2 in
             let subplans =
-              _MAP
-                ((fun (pos, plan) -> rightby (pos, subindent), plan),
+                ((fun (pos, plan) -> rightby (pos, subindent), plan) <*
                  subplans)
             in
             let suboutline = shiftoutline subindent suboutline in
@@ -173,12 +172,12 @@ module
               let spl = List.hd subplans in
               let spr = last subplans in
               let sublineleft =
-                posX ((fun(hash1,_)->hash1) spl) +
-                  (fun(hash1,_)->hash1) (subline ((fun(_,hash2)->hash2) spl))
+                posX (fst spl) +
+                  fst (subline (snd spl))
               in
               let sublineright =
-                posX ((fun(hash1,_)->hash1) spr) +
-                  (fun(_,hash2)->hash2) (subline ((fun(_,hash2)->hash2) spr))
+                posX (fst spr) +
+                  snd (subline (snd spr))
               in
               let sublinew = sublineright - sublineleft in
               let superindent =
@@ -286,7 +285,7 @@ module
             | _ -> None
           else if
             match
-              andthenr (reasonplan, (fun ooo -> Some (plantextbox ooo)))
+              (reasonplan &~~ (fSome <*> plantextbox))
             with
               Some reasonbox -> withintb (pos, reasonbox)
             | _ -> false
@@ -386,7 +385,7 @@ module
             end;
             begin match
               samepath (rgoal, here),
-              ( <| ) (elementofclass DisplayConc, seqplan)
+              elementofclass DisplayConc <| seqplan
             with
               true, [plan] ->
                 highlight (seqelementpos p seqbox plan) (Some DisplayConc)
@@ -506,7 +505,7 @@ module
           if proofbottom >= screenbottom then midp
           else downby (midp, screenbottom - proofbottom)
     let rec samelayout (a, b) = a = b
-    let defaultpos ooo = (fun(hash1,_)->hash1) (defaultpos ooo)
+    let defaultpos = fst <*> defaultpos
     (* for export *)
     let rootpos = defaultpos
   end

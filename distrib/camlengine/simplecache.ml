@@ -23,11 +23,12 @@ module M : T =
   struct
     open Array
     open Miscellaneous.M
+    open SML.M
     
     let simplecachedebug = ref false
     (* for the millennium, better hashing. Well, up to 15 characters will count ... RB 30/xii/99 *)
     let rec hashstring s =
-      nj_fold (fun (c, h) -> (h lsl 2) lxor Char.code c) (explode s) 0
+      nj_fold (fun (c, h) -> (h lsl 2) lxor Char.code c) (char_explode s) 0
     (* for the millennium, better hashing. Well, up to 15 elements will count ... RB 30/xii/99 *)
     let rec hashlist hashf bs =
       nj_fold (fun (b, h) -> (h lsl 2) lxor hashf b) bs 0

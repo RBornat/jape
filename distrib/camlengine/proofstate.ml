@@ -297,7 +297,7 @@ module
         withtree
           (withtarget (withgoal (state, Some goal'), Some goal'), tree')
     let rec nextusefulgoal skip t path =
-      ortryr (findRightwardsGoal skip t path, (fun _ -> findAnyGoal t))
+      (findRightwardsGoal skip t path |~~ (fun _ -> findAnyGoal t))
     let rec proofstep a1 a2 a3 =
       match a1, a2, a3 with
         cxt, subtree,
@@ -322,9 +322,8 @@ module
         not
           (List.exists isUnknown
              (nj_fold (sortedmerge earliervar)
-                (_MAP
-                   ((fun ooo -> provisovars (provisoactual ooo)),
-                    provisos (rewritecxt cxt)))
+                   ((provisovars <*> provisoactual) <*
+                    provisos (rewritecxt cxt))
                 []))
     let rec rewriteproofstate =
       fun (Proofstate {cxt = cxt; tree = tree; givens = givens} as state) ->
@@ -334,7 +333,7 @@ module
     let rec autorules () = !autorulelist
     let rec addautorule (sense, tac as rule) =
       autorulelist :=
-        rule :: ( <| ) ((fun (_, tac') -> tac <> tac'), !autorulelist)
+        rule :: ((fun (_, tac') -> tac <> tac') <| !autorulelist)
     let rec clearautorules () = autorulelist := []
   end
 

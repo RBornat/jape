@@ -36,6 +36,8 @@ module type T =
 
 module M : T =
   struct
+    open SML.M
+    
     type prestring =
       BQuote1 of string | BQuote2 of string list | BQuote3 of prestring list
     let pre_string s = BQuote1 s
@@ -94,7 +96,7 @@ module M : T =
         | BQuote2 sl -> sl @ ss
         | BQuote3 ps -> List.fold_left iii ss ps
       in
-      String.concat "" (iii [] p)
+      implode (iii [] p)
     let rec pre_app a1 a2 =
       match a1, a2 with
         p, BQuote1 s -> p s

@@ -63,9 +63,9 @@ module
     and reason = string
     and element = element
     and text = text
-    let explode ooo =
-      (fun (st, hs, gs) -> st, explodeCollection hs, explodeCollection gs)
-        (seqexplode ooo)
+    let explode =
+      (fun (st, hs, gs) -> st, explodeCollection hs, explodeCollection gs) <*>
+      seqexplode
     let rec isStructureRulenode node rule =
       match visprooftree.rule node with
         Some r -> isstructurerule rule r
@@ -90,7 +90,7 @@ module
     let rec term2text termstring t = Text [Syllable (TermFont, termstring t)]
     let rec validhyp t el ns = visprooftree.validhyp t el (VisPath ns)
     let rec validconc t el ns = visprooftree.validconc t el (VisPath ns)
-    let rec stillopen t ooo = visprooftree.stillopen t (VisPath ooo)
+    let rec stillopen t = visprooftree.stillopen t <*> VisPath
     let rec ismultistep t =
       match format t with
         VisFormat (b, _) -> b

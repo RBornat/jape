@@ -152,7 +152,7 @@ module
                     let rec redundant nf =
                       List.exists (fun nf' -> nf = nf') nfs1
                     in
-                    let nfs2' = ( <| ) (redundant, nfs2) in
+                    let nfs2' = redundant <| nfs2 in
                     let i2' = min (i2) (List.length nfs2') in
                     (if i1 = List.length nfs1 then i1 + i2' else i1), nfs1 @ nfs2'
               in
@@ -170,7 +170,7 @@ module
       | HideCutLayout -> TreeFormat (HideCutFormat, DefaultFormat)
       | CompressedLayout stuff -> l2f true stuff
       | NamedLayout stuff -> l2f false stuff
-    let rec ints2term tns = mkTup (_MAP (int2term, tns))
+    let rec ints2term tns = mkTup ((int2term <* tns))
     let rec format2layouts =
       fun (TreeFormat (tfk, tff) as f) ->
         let rec layout =

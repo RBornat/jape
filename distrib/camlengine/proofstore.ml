@@ -153,7 +153,7 @@ module
         in
         let rec storedprovisos vps =
           let rec unvisproviso b vp = b, provisoactual vp in
-          _MAP (unvisproviso true, ( <| ) (provisovisible, vps))
+          (unvisproviso true <* (provisovisible <| vps))
         in
         let rec doit () =
           match givens, thingnamed name with
@@ -208,7 +208,7 @@ module
           Some (v, _, _, _, _) -> Some v
         | _ -> None
       in
-      let inproofstore ooo = opt2bool (proofnamed ooo) in
+      let inproofstore = opt2bool <*> proofnamed in
       let rec saveproof stream name stage tree provisos givens disproof =
         let rec badthing () =
           raise
@@ -257,13 +257,13 @@ module
           match proofnamed n with
             Some (v, tree, provisos, givens, disproof) ->
               saveproof stream n (if v then Proved else Disproved) tree
-                (_MAP ((fun(_,hash2)->hash2), ( <| ) ((fun(hash1,_)->hash1), provisos))) givens
+                ((snd <* (fst <| provisos))) givens
                 disproof
           | _ -> ()
         in
-        let names = ( <| ) (proved, thingnames ()) in
+        let names = proved <| thingnames () in
         let (sortednames, _) =
-          toposort names (fun n -> ( <| ) (proved, proof_children n))
+          toposort names (fun n -> proved <| proof_children n)
         in
         revapp show sortednames; allsaved := true
       in
@@ -272,28 +272,26 @@ module
       proved, disproved, provedordisproved, inproofstore, saveproof,
       saveproofs
     let rec thingswithproofs triv =
-      ( <| )
-        ((fun n ->
+         (fun n ->
             match thingnamed n with
               None -> false
             | Some (Tactic _, _) -> false
             | Some (Macro _, _) -> false
             | Some (Rule (_, ax), _) -> not ax && (triv || proved n)
-            | Some (Theorem _, _) -> triv || proved n),
-         thingnames ())
+            | Some (Theorem _, _) -> triv || proved n) <|
+         thingnames ()
     (* why is this different from thingswithproofs??? *)
     
     let rec namedthingswithproofs triv ts =
-      ( <| )
-        ((fun n ->
+        (fun n ->
             match thingnamed n with
               None -> false
             | Some (Tactic _, _) -> true
             | Some (Macro _, _) -> true
             | Some (Rule (_, ax), _) -> (ax || triv) || proved n
-            | Some (Theorem _, _) -> triv || proved n),
-         ts)
-    let thmLacksProof ooo = not (proved ooo)
+            | Some (Theorem _, _) -> triv || proved n) <|
+         ts
+    let thmLacksProof = not <*> proved
     let rec needsProof a1 a2 =
       match a1, a2 with
         name, Rule (_, ax) -> not ax || not (proved name)
@@ -301,5 +299,5 @@ module
       | name, Macro _ -> false
       | name, Theorem _ -> not (proved name)
     let rec lacksProof name =
-      needsProof name ((fun(hash1,_)->hash1) (unSOME (thingnamed name)))
+      needsProof name (fst (unSOME (thingnamed name)))
   end

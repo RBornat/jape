@@ -193,10 +193,9 @@ module
     let sameelement = eqelements eqterms
     let rec dosubst facts =
       option_mapterm
-        (andthen
-           (decodeSubst, (fun (_, P, vts) -> simplifySubst facts vts P)))
+           (decodeSubst &~ (fun (_, P, vts) -> simplifySubst facts vts P))
     let rec patvar t = (isleaf t && isId t) && isextensibleID (vartoVID t)
-    let rec patvars t = ( <| ) (patvar, termvars t)
+    let rec patvars t = patvar <| termvars t
     let rec matchit pat vs t =
       let res = matchvars true (fun v -> member (v, vs)) pat t empty in
       if !matchdebug then
@@ -204,7 +203,7 @@ module
           ["matchit (disproof) matching "; termstring pat; " ";
            bracketedliststring
              (fun v ->
-                pairstring termstring (fun ooo -> idclassstring (idclass ooo))
+                pairstring termstring (idclassstring <*> idclass)
                   "," (v, v))
              ", " vs;
            " against "; termstring t; " => ";
@@ -296,7 +295,7 @@ module
             in
             let rec doparents u c =
               foldl doparents (doself u c)
-                (( <| ) (islabelledparent u c, dom u))
+                (islabelledparent u c <| dom u)
             in
             Some (doparents u c)
     (* memoisation -- here only temporarily *)
@@ -328,15 +327,14 @@ module
        
     let rec isoccurrence t =
       List.exists
-        (fun ooo -> opt2bool ((fun (occ, occvs) -> matchit occ occvs t) ooo))
+        (opt2bool <*> (fun (occ, occvs) -> matchit occ occvs t))
         !occurrences
     let rec newoccurrence v =
       match
-        ( <| )
-          ((function
+           (function
               t, [v] -> true
-            | _ -> false),
-           !occurrences)
+            | _ -> false) <|
+           !occurrences
       with
         (occ, [occv]) :: _ ->
           unSOME (option_remapterm (( |-> ) (v, occv)) occ)
@@ -348,16 +346,11 @@ module
        instead of actual i, actual j, actual k etc.
      *)
     let rec nodups t vs patf xs =
-      t,
-      ( <| )
-        ((fun ooo ->
-            (fun ooo -> (fun ooo -> not (opt2bool ooo)) (matchit t vs ooo))
-              (patf ooo)),
-         xs)
+      t, (not <*> opt2bool <*> matchit t vs <*> patf) <| xs
     let rec newocc t vs os =
       let rec patf (t, vs) = t in
       let (t, os') = nodups t vs patf os in (t, vs) :: os'
-    let rec variables t = ( <| ) (isVariable, termvars t)
+    let rec variables t = isVariable <| termvars t
     let rec findoccs f os =
       match f with
         ForcePrim _ -> os
@@ -392,7 +385,7 @@ module
         let (t, fd) = mapterm comp t, mapforcedefterms comp fd in
         let vs = patvars t in
         let (t, fds) = nodups t vs (fun (t', _, _, _) -> t') !forcedefs in
-        let rec hassubst ooo = opt2bool (findinforcedef decodeSubst ooo) in
+        let rec hassubst = opt2bool <*> findinforcedef decodeSubst in
         forcedefs := (t, vs, hassubst fd, fd) :: fds;
         occurrences := findoccs fd !occurrences
       with
@@ -404,8 +397,7 @@ module
       match
         findfirst
           (fun (pat, vs, hassubst, fd) ->
-             andthenr
-               (matchit pat vs t, (fun env -> Some (env, hassubst, fd))))
+               (matchit pat vs t &~~ (fun env -> Some (env, hassubst, fd))))
           !forcedefs
       with
         Some (env, hassubst, fd) ->
@@ -427,7 +419,7 @@ module
            else
              ( ++ ) (( |-> ) (ocv, registerId (ocvid', VariableClass)), env))
         in
-        let r = (fun(_,hash2)->hash2) (foldl newvar ([], empty) ocvs) in
+        let r = snd (foldl newvar ([], empty) ocvs) in
         if !disproofdebug then
           consolereport
             ["semantics matched "; termstring t; " and "; forcedefstring fd;
@@ -470,8 +462,8 @@ module
      *)
     let rec unfixedforced facts u =
       let rec ff f (c, t) =
-        let rec labels c = (fun(hash1,_)->hash1) (getworld u c) in
-        let rec children c = (fun(_,hash2)->hash2) (getworld u c) in
+        let rec labels c = fst (getworld u c) in
+        let rec children c = snd (getworld u c) in
         let rec lookup c t = member (t, labels c), true in
         (* emphasis locked *)
                        (* forced logic -- we force evaluation of subformulae because otherwise things go grey which shouldn't *)
@@ -495,20 +487,19 @@ module
             (true, _), (false, _) -> false, false
           | _, _ -> true, false
         in
-        let rec logAll f ooo = foldl logAnd (true, false) (List.map f ooo) in
-        let rec logExists f ooo = foldl logOr (false, false) (List.map f ooo) in
+        let rec logAll f = foldl logAnd (true, false) <*> List.map f in
+        let rec logExists f = foldl logOr (false, false) <*> List.map f in
         let rec indiv_fd (oc, vs, fd) i =
           (* fun remap env t = (* written with andthenr, ortryr, because I don't trust 0.93 with the functional version *)
-                                 option_remapterm env t andthenr 
-                                 (fn t' => dosubst facts t' ortryr (fn () => Some t'))
+                                 option_remapterm env t  &~~ 
+                                 (fn t' => dosubst facts t' |~~ (fn () => Some t'))
                                 *)
           let r =
-            andthenr
-              (matchit oc vs i,
+              (matchit oc vs i &~~
                (fun env ->
                   Some
                     (mapforcedefterms
-                       (andthen (option_remapterm env, somef (dosubst facts)))
+                       ( (option_remapterm env &~ somef (dosubst facts)))
                        fd)))
           in
           if !disproofdebug then
@@ -530,11 +521,11 @@ module
                      forcedefstring
                        (mapforcedefterms (option_remapterm env) fd)];
                   consolereport
-                    ["mapforcedefterms (option_remapterm env andthen (somef (dosubst facts))) fd => ";
+                    ["mapforcedefterms (option_remapterm env  &~ (somef (dosubst facts))) fd => ";
                      forcedefstring
                        (mapforcedefterms
-                          (andthen
-                             (option_remapterm env, somef (dosubst facts)))
+                          (
+                             (option_remapterm env &~ somef (dosubst facts)))
                           fd)]
             end;
           r
@@ -777,7 +768,7 @@ module
             let forced = memofix forcemap (unfixedforced facts universe) in
             let (hs, cs) = seq_forced forced root seq in
             let countermodel =
-              _All ((fun(hash1,_)->hash1), hs) && not (List.exists (fun(hash1,_)->hash1) cs)
+              _All (fst, hs) && not (List.exists fst cs)
             in
             Disproofstate
               (let module M =
@@ -831,9 +822,9 @@ module
     let rec alphasort sel ts =
       List.map sel
         (sortunique (fun ((s1, _), (s2, _)) -> lowercase s1 < lowercase s2)
-           (( ||| ) (List.map termstring ts, ts)))
-    let tilesort ooo = List.rev (alphasort (fun(_,hash2)->hash2) ooo)
-    let labelsort = alphasort (fun(hash1,_)->hash1)
+           ((List.map termstring ts ||| ts)))
+    let tilesort = List.rev <*> alphasort snd
+    let labelsort = alphasort fst 
     let rec seq2tiles facts seq =
       let (_, _, hyps, _, concs) = my_seqexplode seq in
       (* check for an absence of silliness *)
@@ -896,15 +887,14 @@ module
       in
       (* add occurrence formulae if necessary *)
       let ts =
-        (if List.exists (fun ooo -> opt2bool (decodeBinding ooo)) hypterms ||
-            List.exists (fun ooo -> opt2bool (decodeBinding ooo)) concterms
+        (if List.exists (opt2bool <*> decodeBinding) hypterms ||
+            List.exists (opt2bool <*> decodeBinding)) concterms
          then
-           List.map (fun(hash1,_)->hash1)
-             (( <| )
-                ((fun (occ, vs) ->
+           List.map fst 
+                 (fun (occ, vs) ->
                     not
-                      (List.exists (fun ooo -> opt2bool (matchit occ vs ooo)) ts)),
-                 !occurrences))
+                      (List.exists (opt2bool (matchit occ vs) ts)) <|
+                 !occurrences
          else []) @
           ts
       in
@@ -912,11 +902,11 @@ module
        * but if there aren't any such individuals, keep just one
        *)
       let svs = seqvars seq in
-      match ( <| ) (isVariable, NJfold (tmerge, List.map patvars ts, [])) with
+      match isVariable <| NJfold (tmerge, List.map patvars ts, []) with
         [] -> ts
       | tvs ->
           let tvs' =
-            match ( <| ) ((fun i -> member (i, svs)), tvs) with
+            match (fun i -> member (i, svs)) <| tvs with
               [] -> [List.hd tvs]
             | vs -> vs
           in
@@ -947,7 +937,7 @@ module
           let utiles =
             NJfold
               ((fun (x, y) -> x @ y),
-               List.map (fun ooo -> (fun(hash1,_)->hash1) ((fun(_,hash2)->hash2) ooo)) ulist, [])
+               List.map (fst <*> snd) ulist, [])
           in
           let uvars = NJfold (tmerge, List.map variables utiles, []) in
           let tiles =
@@ -960,7 +950,7 @@ module
               (0, 0) ulist
           in
           let u = mkmap ulist in
-          let ws = List.map (fun(hash1,_)->hash1) ulist in
+          let ws = List.map fst ulist in
           List.iter
             (fun ((_, cy as c), (ts, chs)) ->
                List.iter
@@ -1093,8 +1083,7 @@ module
           template, variables template
         in
         let rec newtile v v' =
-          andthenr
-            (option_remapterm (( |-> ) (v, v')) t,
+            (option_remapterm (( |-> ) (v, v')) t &~~
              (fun t' -> if member (t', tiles) then None else Some t'))
         in
         let rec newoccurrence v =
@@ -1104,16 +1093,15 @@ module
           let stern = if null ds then 1 else atoi (implode ds) + 1 in
           let rec freshtile stem stern =
             let v' = parseTerm (stem ^ string_of_int stern) in
-            ortryr (newtile v v', (fun _ -> freshtile stem (stern + 1)))
+            (newtile v v'|~~ (fun _ -> freshtile stem (stern + 1)))
           in
           freshtile stem stern
         in
         let (template, tvs) = indivs t in
-        let occs = ( <| ) (isoccurrence, tiles) in
+        let occs = isoccurrence <| tiles in
         let occvs = NJfold (tmerge, List.map variables occs, []) in
         if null tvs then None
         else
-          andthenr
             ((if member (t, occs) then
                 match variables t with
                   [v] -> newoccurrence v
@@ -1152,14 +1140,13 @@ module
                 in
                 let args = set (nlists occvs (List.length tvs)) in
                 let possibles =
-                  ( <| )
-                    ((fun t -> not (member (t, tiles))),
+                    (fun t -> not (member (t, tiles))) <|
                      List.map
                        (fun vs ->
                           unSOME
-                            (option_remapterm (mkmap (( ||| ) (tvs, vs)))
+                            (option_remapterm (mkmap ((tvs ||| vs)))
                                template))
-                       args)
+                       args
                 in
                 match possibles with
                   [] ->
@@ -1171,15 +1158,15 @@ module
                 | [p] -> Some p
                 | _ ->
                     try
-                      andthenr
                         (askChoice
                            ("Choose your new tile",
                             List.map (fun t -> [t])
                               (sort (fun (x, y) -> x < y)
-                                 (List.map termstring possibles))),
+                                 (List.map termstring possibles))) &~~
                          (fun i -> Some (List.nth (possibles) (i))))
                     with
-                      Failure "nth" -> raise (Catastrophe_ ["(newtile) Failure "nth" ..."])),
+                      Failure "nth" -> raise (Catastrophe_ ["(newtile) Failure "nth" ..."]))  
+			 &~~
              (fun tile ->
                 Some (withdisprooftiles (d, tilesort (tile :: tiles)))))
     let rec addchild u (_, py as pc) (_, cy as cc) =
@@ -1240,8 +1227,8 @@ module
         ( ++ )
           (u, ( |-> ) (from, (ts, listsub (fun (x, y) -> x = y) cs [to__])))
       else u
-    let rec children u c = (fun(_,hash2)->hash2) (getworld u c)
-    let rec parents u c = ( <| ) ((fun p -> member (c, children u p)), dom u)
+    let rec children u c = snd (getworld u c)
+    let rec parents u c = (fun p -> member (c, children u p)) <| dom u
     let rec moveworld =
       fun (Disproofstate {universe = u; selected = sels} as d) from
         (_, toy as to__) ->
@@ -1289,7 +1276,7 @@ module
                   fromcs
               in
               let rec swing c = if c = from then to__ else c in
-              let ulist = ( <| ) ((fun (c, _) -> c <> from), aslist u) in
+              let ulist = (fun (c, _) -> c <> from) <| aslist u in
               let u =
                 match at (u, to__) with
                   None ->
@@ -1308,7 +1295,7 @@ module
                               c,
                               (ts,
                                (if member (to__, cs) then
-                                  ( <| ) ((fun c -> c <> from), cs)
+                                  (fun c -> c <> from) <| cs
                                 else List.map swing cs)))
                            ulist)
                     in
@@ -1359,18 +1346,18 @@ module
            *)
           match at (forcemap, (root, t)) with
             Some (on, lock) ->
-              (fun(hash1,_)->hash1) (if on then onbraket else offbraket) ^
-                (if lock then (fun(hash1,_)->hash1) lockbraket else "")
-          | None -> (fun(hash1,_)->hash1) outbraket
+              fst (if on then onbraket else offbraket) ^
+                (if lock then fst lockbraket else "")
+          | None -> fst outbraket
         in
         let rec ivk t =
           let t = realterm t in
           (* consolereport ["ivk ", smltermstring t, " => ", string_of_int (forced facts universe root t)]; *)
           match at (forcemap, (root, t)) with
             Some (on, lock) ->
-              (if lock then (fun(_,hash2)->hash2) lockbraket else "") ^
-                (fun(_,hash2)->hash2) (if on then onbraket else offbraket)
-          | None -> (fun(_,hash2)->hash2) outbraket
+              (if lock then snd lockbraket else "") ^
+                snd (if on then onbraket else offbraket)
+          | None -> snd outbraket
         in
         let (seqplan, seqbox) =
           makeseqplan (elementstring_invischoose ivb ivk) true origin seq

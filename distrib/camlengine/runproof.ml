@@ -131,9 +131,8 @@ module
                      (withusedVIDs (cxt, uvs),
                       nj_fold Integer.max
                         (maxtreeresnum tree ::
-                           _MAP
-                             ((fun ooo ->
-                                 maxprovisoresnum (provisoactual ooo)),
+                             ((
+                                 maxprovisoresnum <*> provisoactual) <*
                               provisos))
                         1 +
                         1)
@@ -187,12 +186,12 @@ module
       report query env name stage seq (givens, pros, tac) disproofopt =
       let tac = mkReplayTac (mkUniqueTac (mkSimpleApplyTac tac)) in
       let (pros', givens, seq) = compiletoprove (pros, givens, seq) in
-      let cxt = withprovisos (newcxt, _MAP (mkvisproviso, pros')) in
+      let cxt = withprovisos (newcxt, (mkvisproviso <* pros')) in
       let oldapply = !applyconjectures in
       let oldproving = !proving in
       let rec checkfinalprovisos cxt =
         let newpros =
-          _MAP (provisoactual, ( <| ) (provisovisible, provisos cxt))
+          (provisoactual <* (provisovisible <| provisos cxt))
         in
         let rec showpros pros =
           if null pros then "no provisos"
@@ -263,8 +262,7 @@ module
             None
         | exn -> cleanup (); raise exn
       in
-      andthenr
-        (checkproof (),
+      (checkproof () &~~
          (fun (stage, state) ->
             let stage =
               match

@@ -146,7 +146,7 @@ module
     let rec measuretext ta t = text.measuretext japeserver.measurestring ta t
     (* note fixed alignment, so don't use for folded/multiline texts *)
     let text2textinfo = measuretext FirstLine
-    let rec mktextinfo f ooo = text2textinfo (f ooo)
+    let rec mktextinfo f = text2textinfo <*> f
     let rec string2textinfo f = mktextinfo (string2text f)
     let rec element2textinfo elementstring =
       mktextinfo (element2text elementstring)

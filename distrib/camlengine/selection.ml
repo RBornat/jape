@@ -73,7 +73,7 @@ module
         raise
           (Selection_
              (s :: " - you split the formula up thus: " ::
-                interpolate "; " (_MAP (enQuote, sels))))
+                interpolate "; " ((enQuote <* sels))))
       in
       let rec badsub () =
         bad
@@ -81,7 +81,7 @@ module
            else "the selections you made weren't all subformulae")
       in
       let ss' =
-        try _MAP (string2term, ss) with
+        try (string2term <* ss) with
           ParseError_ _ -> bad "your selection(s) didn't parse"
       in
       let _ =
@@ -96,8 +96,8 @@ module
       in
       let m = [v, List.hd ss'] in
       let res = registerSubst (false, P, m) in
-      let pvs = _MAP ((fun v' -> v, v'), termvars origterm) in
-      let extraps = _MAP (NotinProviso, ( <| ) (indistinct cxt, pvs)) in
+      let pvs = ((fun v' -> v, v') <* termvars origterm) in
+      let extraps = (NotinProviso <* (indistinct cxt <| pvs)) in
       let cxt'' = plusvisibleprovisos (cxt', extraps) in
       let rec check t =
         let E = List.exists (fun b -> v = b) in
@@ -111,7 +111,7 @@ module
             Binding (_, (bs, ss, us), env, pat) ->
               if E bs then bb () else None
           | Subst (_, r, P, vts) ->
-              if E (_MAP ((fun(hash1,_)->hash1), vts)) then bb () else None
+              if E ((fst <* vts)) then bb () else None
           | _ -> None
       in
       if eqterms (rewrite cxt'' res, origterm) then cxt'', res

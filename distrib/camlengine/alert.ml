@@ -100,17 +100,17 @@ module
         raise
           (Catastrophe_
              ["ask bad default \""; m; "\"";
-              bracketedliststring (fun(hash1,_)->hash1) "," bs; " "; string_of_int def])
+              bracketedliststring fst "," bs; " "; string_of_int def])
       else
         let i =
-          ask_unpatched (intseverity code) m (List.map (fun(hash1,_)->hash1) bs) def
+          ask_unpatched (intseverity code) m (List.map fst bs) def
         in
-        try (fun(_,hash2)->hash2) (List.nth bs i) with
+        try snd (List.nth bs i) with
           Failure "nth" ->
             raise
               (Catastrophe_
                  ["ask bad result \""; m; "\"";
-                  bracketedliststring (fun(hash1,_)->hash1) "," bs; " ";
+                  bracketedliststring fst "," bs; " ";
                   string_of_int def; " => "; string_of_int i])
     let rec askCancel code m (bs : (string * 'a) list) c def =
       if null bs then
@@ -119,19 +119,19 @@ module
         raise
           (Catastrophe_
              ["askCancel bad default \""; m; "\"";
-              bracketedliststring (fun(hash1,_)->hash1) "," bs; " "; string_of_int def])
+              bracketedliststring fst "," bs; " "; string_of_int def])
       else
         match
-          askCancel_unpatched (intseverity code) m (List.map (fun(hash1,_)->hash1) bs) def
+          askCancel_unpatched (intseverity code) m (List.map fst bs) def
         with
           Some i ->
-            (fun(_,hash2)->hash2)
+            snd 
               (try List.nth bs i with
                  Failure "nth" ->
                    raise
                      (Catastrophe_
                         ["ask bad result \""; m; "\"";
-                         bracketedliststring (fun(hash1,_)->hash1) "," bs; " ";
+                         bracketedliststring fst "," bs; " ";
                          string_of_int def; " => "; string_of_int i]))
         | None -> c
     let rec askDangerously m (dol, doa) (dontl, donta) cancela =

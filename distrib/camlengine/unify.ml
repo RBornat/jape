@@ -140,7 +140,7 @@ module
     let rec abstract orig map term ps cxt =
       let newprovisos : proviso list ref = ref [] in
       let newunifications : (term * term) list ref = ref [] in
-      let realmapdom = substmapdom (( <| ) ((fun (v, t) -> v <> t), map)) in
+      let realmapdom = substmapdom ((fun (v, t) -> v <> t) <| map) in
       let rec addunification (t1, t2) =
         if !unifydebug then
           consolereport
@@ -153,7 +153,7 @@ module
         newprovisos := p :: !newprovisos
       in
       let rec ourprovisos () =
-        ps @ _MAP ((fun p -> mkvisproviso (true, p)), !newprovisos)
+        ps @ ((fun p -> mkvisproviso (true, p)) <* !newprovisos)
       in
       let rec okname cxt =
         fun P m ->
@@ -161,7 +161,7 @@ module
             No -> Some (cxt, P)
           | Maybe ->
               List.iter addproviso
-                (_MAP ((fun v -> NotinProviso (v, P)), realmapdom));
+                 ((fun v -> NotinProviso (v, P)) <* realmapdom);
               Some (cxt, P)
           | Yes -> None
       in
@@ -357,14 +357,14 @@ module
               | Some (cxt, P') -> whatever class__ cxt (S P')
               end
           | App (_, f, a) -> Some (cxt, registerApp (S f, S a))
-          | Tup (_, sep, ts) -> Some (cxt, registerTup (sep, _MAP (S, ts)))
+          | Tup (_, sep, ts) -> Some (cxt, registerTup (sep, (S <* ts)))
           | Literal k -> Some (cxt, debracket P)
           | Fixapp (_, bras, ts) ->
-              Some (cxt, registerFixapp (bras, _MAP (S, ts)))
+              Some (cxt, registerFixapp (bras, (S <* ts)))
           | Binding (_, (bs, ss, us), env, pat) ->
               let cxt = rewritecxt cxt in
               let m = rewritesubstmap cxt m in
-              let bs = _MAP (rewrite cxt, bs) in
+              let bs = (rewrite cxt <* bs) in
               let fs = facts (provisos cxt) cxt in
               let (ys, ns, ms) = vtsplit fs m bs in
               let m' = ns @ ms in
@@ -381,22 +381,20 @@ module
                   b' :: bs, (b, b') :: ns,
                   plusvisibleprovisos
                     (cxt,
-                     _MAP
-                       ((fun s -> NotinProviso (b', s)),
+                       ((fun s -> NotinProviso (b', s)) <*
                         (substmapdom m' @ substmapran m') @ ss))
                 else b :: bs, ns, cxt
               in
               let (bs', ns, cxt) = nj_fold newb bs ([], [], cxt) in
               Some
-                (plusvisibleprovisos (cxt, _MAP (NotinProviso, allpairs bs')),
+                (plusvisibleprovisos (cxt, (NotinProviso <* allpairs bs')),
                  registerBinding
                    ((bs',
-                     _MAP
                        ((fun s ->
                            registerSubst
-                             (r, registerSubst (true, s, ns), m')),
+                             (r, registerSubst (true, s, ns), m')) <*
                         ss),
-                     _MAP ((fun u -> registerSubst (r, u, m)), us)),
+                     ((fun u -> registerSubst (r, u, m)) <* us)),
                     env, pat))
           | Subst (_, r', P', m') ->
               let cxt = rewritecxt cxt in
@@ -440,14 +438,14 @@ module
       match a1, a2, a3, a4 with
         [], [], _, cxt -> Some cxt
       | [], dds, false, cxt -> unifycleverly dds [] cxt
-      | [], dds, true, cxt -> unify (_MAP ((fun(_,hash2)->hash2), dds)) [] false cxt
+      | [], dds, true, cxt -> unify ((snd <* dds)) [] false cxt
       | (t1orig, t2orig) :: tts, dds, progress, cxt ->
           let (cxt, t1) = simp cxt t1orig in
           let (cxt, t2) = simp cxt t2orig in
           let rec success cxt = unify tts dds true cxt in
           let rec pushtts (t1s, t2s) =
-            try unify (( ||| ) (t1s, t2s) @ tts) dds progress cxt with
-              Zip -> None
+            try unify ((t1s ||| t2s) @ tts) dds progress cxt with
+              Zip_ -> None
           in
           let rec doit t1 t2 cxt =
             let rec defer d = unify tts ((d, (t1, t2)) :: dds) progress in
@@ -490,11 +488,10 @@ module
                        (function
                           Binding _, Binding _ -> false
                         | _ -> true)
-                       (_MAP
                           ((fun (t1, t2) ->
-                              (fun(_,hash2)->hash2) (simp cxt t1),
-                              (fun(_,hash2)->hash2) (simp cxt t2)),
-                           tts))
+                              snd (simp cxt t1),
+                              snd (simp cxt t2)) <*
+                           tts)
                   then
                     delay cxt
                   else
@@ -562,7 +559,7 @@ module
                   Id (_, vid1, c1), Id (_, vid2, c2) ->
                     let rec notins cxt v ss =
                       plusvisibleprovisos
-                        (cxt, _MAP ((fun s -> NotinProviso (v, s)), ss))
+                        (cxt, ((fun s -> NotinProviso (v, s)) <* ss))
                     in
                     let fs = facts (provisos cxt) cxt in
                     if knownproofvar fs v1 then
@@ -577,13 +574,13 @@ module
             in
             let rec news m s = registerSubst (true, s, m) in
             let (cxt, alls, m1, m2, extras) =
-              nj_fold newb (( ||| ) (_MAP (debracket, b1s), _MAP (debracket, b2s)))
+              nj_fold newb (((debracket <* b1s) ||| (debracket <* b2s)))
                 (cxt, [], [], [], [])
             in
-            let news1s = if null m1 then s1s else _MAP (news m1, s1s) in
-            let news2s = if null m2 then s2s else _MAP (news m2, s2s) in
-            plusvisibleprovisos (cxt, _MAP (NotinProviso, allpairs alls)),
-            extras @ ( ||| ) (news1s @ u1s, news2s @ u2s)
+            let news1s = if null m1 then s1s else (news m1 <* s1s) in
+            let news2s = if null m2 then s2s else (news m2 <* s2s) in
+            plusvisibleprovisos (cxt, (NotinProviso <* allpairs alls)),
+            extras @ ((news1s @ u1s) ||| (news2s @ u2s))
           in
           doit t1 t2 cxt
     (* This function used to be desperation, but now ....  .
@@ -597,7 +594,7 @@ module
       match tts with
         (reason, (t1, t2) as tt) :: tts ->
           let rec yes tts' cxt' =
-            unify (tts' @ _MAP ((fun(_,hash2)->hash2), tts @ dds)) [] true cxt'
+            unify (tts' @ (snd <* (tts @ dds))) [] true cxt'
           in
           let rec no cxt = unifycleverly tts (tt :: dds) cxt in
           let rec reversecleverly () =
@@ -656,7 +653,7 @@ module
                   (canonicalsubstmap m1, canonicalsubstmap m2)
               with
                 Some mms ->
-                  unify ((P1, P2) :: mms @ _MAP ((fun(_,hash2)->hash2), tts @ dds)) []
+                  unify ((P1, P2) :: mms @ (snd <* (tts @ dds))) []
                     true cxt
               | None ->(* used to allow failure ... *)
                  no cxt
@@ -675,7 +672,7 @@ module
       let diff2 = vtminus pdb vts2 vts1 in
       let rec zipup (tt1s, tt2s) =
         nj_fold (fun (((v1, t1), (v2, t2)), mms) -> (v1, v2) :: (t1, t2) :: mms)
-          (( ||| ) (tt1s, tt2s)) []
+          ((tt1s ||| tt2s)) []
       in
       let rec ok (d1, d2) =
         Some
@@ -695,8 +692,8 @@ module
       | true, true, _, _ -> ok (diff1, diff2)
       | _ -> None
     and ziptermlists pdb (t1s, t2s) =
-      try Some (( ||| ) (t1s, t2s)) with
-        Zip -> None
+      try Some ((t1s ||| t2s)) with
+        Zip_ -> None
     and alignsubsts =
       fun (r1, P1, m1) ->
         fun (r2, P2, m2) cxt ->
@@ -773,7 +770,7 @@ module
           | Segvar (_, ps, Unknown (_, v, _)) ->
               begin match at (varmap cxt, v) with
                 Some (Collection (_, _, es')) ->
-                  (* nj_fold expand (modeifyelement ps _MAP es') (cxt,es) *)
+                  (* nj_fold expand (modeifyelement ps <* es') (cxt,es) *)
                   raise (Catastrophe_ ["unify collclass expand"])
               | _ -> cxt, e :: es
               end
@@ -802,8 +799,7 @@ module
               | ps, [] -> Some (ps, [])
               | p :: ps, p' :: ps' -> if p = p' then dm ps ps' else None
             in
-            andthenr
-              (dm ps ps',
+            (dm ps ps' &~~
                (function
                   [], ps' -> Some (cxt, registerSegvar (ps', v))
                 | ps, _ ->
@@ -840,8 +836,7 @@ module
                     (unify [t, mkApp ps] [] false cxt,
                      (fun cxt -> Some (simp cxt u)))
             in
-            andthenr
-              (dm ps (debsimp cxt t),
+            (dm ps (debsimp cxt t) &~~
                (fun (cxt, t) ->
                   let (cxt', n) = freshresnum cxt in
                   let r' =
@@ -853,8 +848,7 @@ module
                   Some (cxt', registerElement (r', t))))
       in
       let rec demodeifyall ps (el, (cxt, els)) =
-        andthenr
-          (demodeify ps cxt el, (fun (cxt, el') -> Some (cxt, el' :: els)))
+        (demodeify ps cxt el &~~ (fun (cxt, el') -> Some (cxt, el' :: els)))
       in
       let rec isuseg =
         function
@@ -898,7 +892,7 @@ module
             [] -> None
           | x :: xs ->
               if p x then Some (x, xs)
-              else andthenr (extract p xs, (fun (y, ys) -> Some (y, x :: ys)))
+              else (extract p xs &~~ (fun (y, ys) -> Some (y, x :: ys)))
         in
         (* It is in some sense optimal to extract equal components from 
          * each side, and unify them (think about it ...).  But in doing so
@@ -961,7 +955,7 @@ module
           match a1, a2, a3, a4 with
             defers, cxt, (r, t), el :: es ->
               let rec push (cxt, es) = cxt, el :: es in
-              let recv = _MAP (push, uel defers cxt (r, t) es) in
+              let recv = (push <* uel defers cxt (r, t) es) in
               begin match el with
                 Element (_, r', t') ->
                   begin match
@@ -969,7 +963,7 @@ module
                       (ures ((r, t), (r', t')) cxt, unify [t, t'] [] false)
                   with
                     Some cxt' ->
-                      (cxt', _MAP ((fun(hash1,_)->hash1), defers) @ es) :: recv
+                      (cxt', (fst <* defers) @ es) :: recv
                   | None -> recv
                   end
               | Segvar (_, ps, Unknown (_, v, c)) ->
@@ -995,7 +989,7 @@ module
                   in
                   [cxt, [registerSegvar (ps, u)]]
               | _ ->
-                  let segvs = _MAP ((fun(hash1,_)->hash1), defers) in
+                  let segvs = (fst <* defers) in
                   let (cxt, newsegvs) =
                     nj_fold
                       (fun ((_, _, ps, v), (cxt, nsvs)) ->
@@ -1036,7 +1030,7 @@ module
            *)
           match extract isel e1s with
             Some (Element (_, r, t), e1s) ->
-              res (List.concat (_MAP (ub e1s, uel [] cxt (r, t) e2s)))
+              res (List.concat (ub e1s <* uel [] cxt (r, t) e2s))
           | _ ->
               (* run out of elements on left-hand side - check what's left *)
               match e1s, e2s with
@@ -1054,7 +1048,7 @@ module
               | _ ->
                   match extract isel e2s with
                     Some (Element (_, r, t), e2s) ->
-                      res (List.concat (_MAP (ub e2s, uel [] cxt (r, t) e1s)))
+                      res (List.concat (ub e2s <* uel [] cxt (r, t) e1s))
                   | _ ->
                       (* the two sides are disjoint;
                        * neither side is empty;
@@ -1062,8 +1056,8 @@ module
                        * neither is a single unknown segment variable. 
                        *)
                       match
-                        List.length (( <| ) (isuseg, e1s)),
-                        List.length (( <| ) (isuseg, e2s))
+                        List.length (isuseg <| e1s),
+                        List.length (isuseg <| e2s)
                       with
                         0, 0 -> res []
                       | 1, _ ->
@@ -1092,12 +1086,12 @@ module
                          urev ()
                       | _, 0 ->
                           res
-                            (if List.exists (fun ooo -> not (isuseg ooo)) e1s then
+                            (if List.exists (not <*> isuseg) e1s then
                                []
                              else def ())
                       | 0, _ ->
                           res
-                            (if List.exists (fun ooo -> not (isuseg ooo)) e2s then
+                            (if List.exists (not <*> isuseg) e2s then
                                []
                              else def ())
                       | _ -> res (def ())
@@ -1120,8 +1114,8 @@ module
          * UnifiesProviso straight away.
          *)
         match
-          extract (fun ooo -> not (isuseg ooo)) e1s, List.length e1s > 1,
-          extract (fun ooo -> not (isuseg ooo)) e2s, List.length e2s > 1
+          extract (not <*> isuseg) e1s, List.length e1s > 1,
+          extract (not <*> isuseg) e2s, List.length e2s > 1
         with
           None, true, _, true -> maybedef (e1s, e2s)
         | _, true, None, true -> maybedef (e1s, e2s)
@@ -1154,7 +1148,7 @@ module
           let rec asp el cxt es =
             let ess = allsplits ps cxt es in
             let rec push (cxt, hds, tls) = cxt, el :: hds, tls in
-            _MAP (push, ess)
+            (push <* ess)
           in
           match es with
             el :: es ->
@@ -1199,7 +1193,7 @@ module
         let (p1s, svh1s, tl1s) = twuseg e1s in
         let (p2s, svh2s, tl2s) = twuseg e2s in
         let rec def ps svs es es' =
-          res (List.concat (_MAP (ul svs es, allsplits ps cxt es')))
+          res (List.concat ((ul svs es <* allsplits ps cxt es')))
         in
         match List.length svh1s, List.length svh2s with
           0, 0 ->
@@ -1299,7 +1293,7 @@ module
           | Subst (_, _, _, vts), _ -> rematch (t2', t1') vts true
           | _ -> res "trying unification" (unifyv (t1', t2') cxt)
       in
-      let rec do1 (pair, cxts) = List.concat (_MAP (dodefer pair, cxts)) in
+      let rec do1 (pair, cxts) = List.concat ((dodefer pair <* cxts)) in
       let rec split (vp, (defers, others)) =
         match provisoactual vp with
           UnifiesProviso pair -> pair :: defers, others
@@ -1320,13 +1314,12 @@ module
         let (t1, t2) = rewrite cxt t1, rewrite cxt t2 in
         (* if the current problem is in the list, don't check anything *)
         if List.exists
-             (fun ooo ->
+             (
                 (function
                    UnifiesProviso (t1', t2') ->
                      eqterms (t1, t1') && eqterms (t2, t2') ||
                      eqterms (t2, t1') && eqterms (t1, t2')
-                 | _ -> false)
-                  (provisoactual ooo))
+                 | _ -> false) <*> provisoactual)
              pros
         then
           [cxt]
@@ -1360,8 +1353,7 @@ module
     let rec unifyterms (t1, t2) cxt =
       let r = doUnify (t1, t2) cxt in
       let r' =
-        andthenr
-          (r,
+        (r &~~
            (fun cxt ->
               match checkdeferred (t1, t2) cxt with
                 [] -> None
@@ -1378,7 +1370,7 @@ module
     let unifytermsandcheckprovisos pair =
       andthen (doUnify pair, checkprovisos)
     let rec unifyvarious pair cxt =
-      List.concat (_MAP (checkdeferred pair, unifyv pair cxt))
+      List.concat ((checkdeferred pair <* unifyv pair cxt))
     let rec dropunify (target, sources) cxt =
       let rec bad mess =
         raise
@@ -1446,5 +1438,5 @@ module
         | None, None -> true
         | _ -> false
       in
-      not (List.exists (fun ooo -> not (ok ooo)) uvids)
+      not (List.exists (not <*> ok) uvids)
   end

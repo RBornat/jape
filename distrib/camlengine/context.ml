@@ -674,7 +674,7 @@ module
              nj_fold
                (fun (u, ps) ->
                   mkvisproviso (false, mkNotinProviso (var, u)) :: ps)
-               (( <| ) (isUnknown, rewinf_vars r)) []),
+               (isUnknown <| rewinf_vars r) []),
           var
       | _ -> cxt', var
     let rec withresnum =

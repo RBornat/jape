@@ -37,7 +37,7 @@ module
       val rewinf_vars : context.rewinf -> term.term list
       val seqstring : context.seq -> string
       val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      exception Zip
+      exception Zip_
       
     end)
   :
@@ -61,7 +61,7 @@ module
       pairstring (bracketedliststring provisostring " AND ") exteriorstring
         ","
     let rec facts provisos cxt =
-      _MAP (provisoactual, provisos), getexterior cxt
+      (provisoactual <* provisos), getexterior cxt
     let rec expandfacts (oldps, ext) ps = ps @ oldps, ext
     (* the names of the functions are intended to indicate that the function tells us
        only when a fact is definitely known to be true.
@@ -86,7 +86,7 @@ module
           not (member (v, rewinf_vars ri)) &&
           _All
             ((fun u -> knownNOTIN facts (v, u)),
-             ( <| ) (isUnknown, rewinf_vars ri))
+             isUnknown <| rewinf_vars ri)
       | _ -> false
     (* This function is deciding whether a variable v can be made equal to some term t
        by unification and/or instatiation of parameters.  It is used in simplifySubst.

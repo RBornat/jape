@@ -414,8 +414,8 @@ module
         match conseq with
           Seq (st, Collection (_, hkind, hes), Collection (_, gkind, ges)) ->
             Seq
-              (st, registerCollection (hkind, _MAP (renumberel, hes)),
-               registerCollection (gkind, _MAP (renumberel, ges)))
+              (st, registerCollection (hkind, (renumberel <* hes)),
+               registerCollection (gkind, (renumberel <* ges)))
         | Seq (st, hs, gs) ->
             raise
               (Catastrophe_
@@ -455,28 +455,28 @@ module
                   Subst (_, _, P, (_ :: _ :: _ as vts)), qs ->
                     Some
                       (nj_fold dmerge
-                         ([sort earliervar (_MAP ((fun(hash1,_)->hash1), vts))] ::
-                            _MAP (dbs, P :: _MAP ((fun(_,hash2)->hash2), vts)))
+                         ([sort earliervar ((fst <* vts))] ::
+                            (dbs <* P :: (snd <* vts)))
                          qs)
                 | Binding (_, ((_ :: _ :: _ as bs), ss, us), _, _), qs ->
                     Some
                       (nj_fold dmerge
-                         ([sort earliervar bs] :: _MAP (dbs, ss) @
-                            _MAP (dbs, us))
+                         ([sort earliervar bs] :: (dbs <* ss) @
+                            (dbs <* us))
                          qs)
                 | _ -> None)
                [] t)
         in
-        nj_fold dmerge (_MAP (seqvars dbs dmerge, b :: ts)) []
+        nj_fold dmerge ((seqvars dbs dmerge <* b :: ts)) []
       in
       let diffbinders =
-        nj_fold (fun (x, y) -> x @ y) (_MAP (allpairs, multibinders)) ps
+        nj_fold (fun (x, y) -> x @ y) ((allpairs <* multibinders)) ps
       in
       (* and then look for skipped binders - things like Ax.Ay.x 
        * and now (that I've tried it) also look for Ax.Ay.z
        *)
       let allbinders =
-        nj_fold bmerge (_MAP (seqvars varbindings bmerge, b :: ts)) []
+        nj_fold bmerge ((seqvars varbindings bmerge <* b :: ts)) []
       in
       let skipbinders =
         let rec sks (v, bss) =
@@ -485,7 +485,7 @@ module
               [] -> if idclass v = VariableClass then Some [] else None
             | b :: bs ->
                 if member (v, b) then Some []
-                else andthenr (skf bs, (fun bs' -> Some (b :: bs')))
+                else (skf bs &~~ (fun bs' -> Some (b :: bs')))
           in
           let bss' =
             nj_fold
@@ -497,9 +497,9 @@ module
               bss []
           in
           let rec mkpairs b = _MAP ((fun v' -> v, v'), b) in
-          List.concat (_MAP ((fun bs -> List.concat (_MAP (mkpairs, bs))), bss'))
+          List.concat (((fun bs -> List.concat ((mkpairs <* bs))) <* bss'))
         in
-        List.concat (_MAP (sks, allbinders))
+        List.concat ((sks <* allbinders))
       in
       diffbinders @ skipbinders
     (* designed to be (NJ) folded *)
@@ -556,7 +556,7 @@ module
       | Objectparam (v, c) :: vs, [] ->
           if isextensibleID v then
             (* trying freshproofvar again *)
-            newname freshproofvar registerId (fun(hash1,_)->hash1) (v, c) vs
+            newname freshproofvar registerId fst (v, c) vs
           else inextensible c v
       | Objectparam vc :: vs, arg :: args -> usearg registerId vc vs arg args
       | Unknownparam vc :: vs, [] ->
@@ -575,10 +575,10 @@ module
       in
       let rec ( ++ ) (xs, ys) = mergeVIDs xs ys in
       let argVIDs =
-        nj_fold (fun (x, y) -> ( ++ ) x y) (_MAP (termVIDs, args)) []
+        nj_fold (fun (x, y) -> ( ++ ) x y) ((termVIDs <* args)) []
       in
       let rec paramVIDs ps =
-        orderVIDs (_MAP ((fun ooo -> (fun(hash1,_)->hash1) (paramidbits ooo)), ps))
+        orderVIDs (((fst <*> paramidbits) <* ps))
       in
       (* desperation ...
       if !thingdebug then 
@@ -597,17 +597,17 @@ module
         listsub
           (function
              Unknownparam v1, Unknownparam v2 ->
-               (fun(hash1,_)->hash1) v1 = (fun(hash1,_)->hash1) v2
+               fst v1 = fst v2
            | Unknownparam v1, _ -> false
            | _, Unknownparam v2 -> false
            | v1, v2 ->
-               (fun(hash1,_)->hash1) (paramidbits v1) = (fun(hash1,_)->hash1) (paramidbits v2))
+               fst (paramidbits v1) = fst (paramidbits v2))
           allvs params
     let rec extraBag () = autoVID (BagClass FormulaClass) "extraBag"
     let rec leftcontextname () =
       if !autoAdditiveLeft then Some (extraBag ()) else None
     let rec newvar con class__ (vid, vars) =
-      let vid = uniqueVID class__ (_MAP (vartoVID, vars)) [] vid in
+      let vid = uniqueVID class__ ((vartoVID <* vars)) [] vid in
       let v = con (vid, class__) in v, tmerge ([v], vars)
     let rec extend a1 a2 =
       match a1, a2 with
@@ -670,7 +670,7 @@ module
     let rec compileR el er (params, provisos, antes, conseq) =
       let (antes, conseq) = numberrule (antes, conseq) in
       let bodyvars =
-        nj_fold tmerge (_MAP (seqvars termvars tmerge, conseq :: antes)) []
+        nj_fold tmerge ((seqvars termvars tmerge <* conseq :: antes)) []
       in
       (* translate predicates *)
       let abstractions =
@@ -717,7 +717,7 @@ module
             let vs = nj_fold (sortedmerge earliervar) bss [] in
             _MAP ((fun v -> v, P), vs)
           in
-          List.concat (_MAP (g, abss)) @ ps
+          List.concat ((g <* abss)) @ ps
       in
       let proofps =
         sortunique (earlierpair (earliervar, earliervar))
@@ -757,14 +757,13 @@ module
       in
       (* now filter out the provisos we don't want any more ... *)
       let applyps =
-        ( <| )
-          ((fun (x, P) ->
+           (fun (x, P) ->
               match at (env, P) with
                 Some (false, vs) -> not (member (x, vs))
               | Some (true, _) -> true
               | None ->
-                  raise (Catastrophe_ ["bad env in filter predicateps"])),
-           proofps)
+                  raise (Catastrophe_ ["bad env in filter predicateps"])) <|
+           proofps
       in
       (* desperation ... *)
       let _ =
@@ -803,7 +802,7 @@ module
          applyantes, applyconseq, applyprovisos, applyparams)
         =
         bodyvars, antes, conseq, makeprovisos proofps, applybodyvars,
-        _MAP (compilepredicates isabstraction env, antes),
+        (compilepredicates isabstraction env <* antes),
         compilepredicates isabstraction env conseq, makeprovisos applyps,
         params @
           nj_fold
@@ -823,7 +822,7 @@ module
         augment el er (applyconseq, applyantes, applybodyvars)
       in
       let rec mkvars vs =
-        ( <| ) ((fun ooo -> isextensibleID (vartoVID ooo)), vs)
+        (isextensibleID <*> vartoVID) <| vs
       in
       (mkvars proofbodyvars, (params, proofprovisos, antes, conseq)),
       (mkvars applybodyvars,
@@ -878,16 +877,15 @@ module
     let structurerules : (structurerule * name) list ref = ref []
     let rec clearstructurerules () = structurerules := []; relationpats := []
     let rec erasestructurerule name =
-      structurerules := ( <| ) ((fun (_, n) -> n <> name), !structurerules)
+      structurerules := ((fun (_, n) -> n <> name) <| !structurerules)
     let rec isstructurerule kind name =
       List.exists (fun (k, n) -> (k, n) = (kind, name)) !structurerules
     let rec uniqueCut () =
       match
-        ( <| )
-          ((function
+           (function
               CutRule, _ -> true
-            | _ -> false),
-           !structurerules)
+            | _ -> false) <|
+           !structurerules
       with
         [_, r] -> Some r
       | _ -> None
@@ -912,7 +910,7 @@ module
         simplestore "thingstore" (triplestring namestring string_of_int pst ",")
           127
       (* why not? It can only grow :-) *)
-      and hash ooo = hashstring (namestring ooo) in
+      and hash = hashstring <*> namestring in
       let rec clearthings () = reset ()
       and compiledthinginfo name =
         let res =
@@ -934,7 +932,7 @@ module
           consolereport [" "; namestring name; " is "; optionstring pst res];
         res
       and compiledthingnamed name =
-        andthenr (compiledthinginfo name, (fun (thing, place) -> Some thing))
+        (compiledthinginfo name &~~ (fun (thing, place) -> Some thing))
       and getthing trim name =
         match compiledthinginfo name with
           Some (Rawthing th, place) -> Some (trim th, place)
@@ -947,10 +945,10 @@ module
       and goodthing =
         function
           Theorem (params, provisos, seq) ->
-            Theorem (params, ( <| ) ((fun(hash1,_)->hash1), provisos), seq)
+            Theorem (params, fst <| provisos, seq)
         | Rule ((params, provisos, antes, conseq), ax) ->
             Rule
-              ((params, ( <| ) ((fun(hash1,_)->hash1), provisos), antes, conseq), ax)
+              ((params, fst <| provisos, antes, conseq), ax)
         | Tactic _ as t -> t
         | Macro _ as m -> m
       and badthing t = t in
@@ -1004,9 +1002,9 @@ module
         allparams params
           (_MAP
              (var2param,
-              ( <| ) ((fun ooo -> isextensibleID (vartoVID ooo)), vars)))
+              (isextensibleID <*> vartoVID) <| vars))
       in
-      let bodyVIDs = orderVIDs (_MAP (vartoVID, vars)) in
+      let bodyVIDs = orderVIDs ((vartoVID <* vars)) in
       let ruleVIDs = extraVIDs paramsused args bodyVIDs in
       paramsused, ruleVIDs
     let rec env4Rule env args cxt defcon (paramsused, ruleVIDs) =
@@ -1028,7 +1026,7 @@ module
     let rec instantiateRule env provisos antes conseq =
       let provisos' = _MAP ((fun (v, p) -> v, remapproviso env p), provisos) in
       let conseq' = remapseq env conseq in
-      let antes' = _MAP (remapseq env, antes) in
+      let antes' = (remapseq env <* antes) in
       (* give args back in the order received, not the mapping order *)
       let res = List.rev (rawaslist env), provisos', antes', conseq' in
       let show =
@@ -1057,7 +1055,7 @@ module
       in
       let provisos' = _MAP ((fun (v, p) -> v, remapproviso env p), provisos) in
       let conseq' = remapseq env conseq in
-      let antes' = _MAP (remapseq env, antes) in
+      let antes' = (remapseq env <* antes) in
       (* give args back in the order received, not the mapping order *)
       let res =
         List.rev (rawaslist env), cxt', (params, provisos', antes', conseq')
@@ -1124,8 +1122,8 @@ module
     let rec freshRuletosubst
       cxt argmap vars (params, provisos, antes, conseq as rd) =
       let _ = List.iter (fun (var, arg) -> checkarg var arg) argmap in
-      let argvars = _MAP ((fun(hash1,_)->hash1), argmap) in
-      let args = _MAP ((fun(_,hash2)->hash2), argmap) in
+      let argvars = (fst <* argmap) in
+      let args = (snd <* argmap) in
       let rec bad w n vs =
         raise
           (Fresh_
@@ -1146,9 +1144,9 @@ module
        * paramsused, and we are in business
        *)
       let (cxt'', env) =
-        env4Rule (mkmap (List.rev (( ||| ) (argvars, args)))) [] cxt'
+        env4Rule (mkmap (List.rev ((argvars ||| args)))) [] cxt'
           registerUnknown
-          (listsub (fun (p, v) -> (fun(hash1,_)->hash1) (paramidbits p) = vartoVID v)
+          (listsub (fun (p, v) -> fst (paramidbits p) = vartoVID v)
              paramsused argvars,
            ruleVIDs)
       in
@@ -1199,7 +1197,7 @@ module
         let rec newrhs el = registerCollection (rcc, el :: rsvs) in
         let rec newante el = Seq (st, newlhs, newrhs el) in
         let r =
-          _MAP ((fun ooo -> newante (renum ooo)), lels) @ antes,
+          ((newante <*> renum) <* lels) @ antes,
           Seq (st, newlhs, rhs)
         in
         let showrule =
@@ -1219,7 +1217,7 @@ module
       params, provisos, conseq
     let rec wehavestructurerule kind stilesopt =
       let names =
-        _MAP ((fun(_,hash2)->hash2), ( <| ) ((fun (k, _) -> k = kind), !structurerules))
+        _MAP (snd, ((fun (k, _) -> k = kind) <| !structurerules))
       in
       let rec getstile = fun (Seq (st, _, _)) -> st in
       not (null names) &&
@@ -1233,7 +1231,7 @@ module
                     (CookedRule
                        (_, (_, (params, provs, tops, bottom)), ax)) ->
                     ((ax || !applyderivedrules) && cst = getstile bottom) &&
-                    eqlists (fun (x, y) -> x = y) (_MAP (getstile, tops), asts)
+                    eqlists (fun (x, y) -> x = y) ((getstile <* tops), asts)
                 | _ -> false)
              names
        | _ -> false)
@@ -1415,25 +1413,25 @@ module
                              (( ||| )
                                 (mparams,
                                  _MAP
-                                   ((fun ooo -> registerId (paramidbits ooo)),
+                                   ((registerId <*> paramidbits),
                                     params)))
                              empty
                        | None -> Some empty),
                       optionfold (uncurry2 (uncurry2 seqmatch))
-                        (( ||| ) (mtops, tops))),
+                        ((mtops ||| tops))),
                    seqmatch mbottom bottom)
               with
                 Some env ->
                   begin match mprovs with
                     Some mprovs ->
                       eqbags (fun (x, y) -> x = y : proviso * proviso -> bool)
-                        (_MAP (remapproviso env, mprovs),
-                         _MAP ((fun(_,hash2)->hash2), provs))
+                        ((remapproviso env <* mprovs),
+                         (snd <* provs))
                   | None -> true
                   end
               | _ -> false
             with
-              Zip -> false
+              Zip_ -> false
             end
         | _ -> false
       in

@@ -3,8 +3,8 @@
 module type T =
   sig
     (* nonfix _All _Some;
-       infixr 7 <|;
-       infixr 6 _MAP;
+       infixr 7 <|
+       infixr 6 <*;
        infix  5 </ //;
        infixr 5 doubleslosh />;
        infix  4 ||| slosh _INTER;
@@ -12,15 +12,15 @@ module type T =
        infix  0 nonmember member subset;
      *)
  
-    val ( <| ) : ('a -> bool) * 'a list -> 'a list
-    val _MAP : ('a -> 'b) * 'a list -> 'b list
+    val ( <| ) : ('a -> bool) -> 'a list -> 'a list     (* filter *)
+    val ( <* ) : ('a -> 'b) -> 'a list -> 'b list       (* map *)
     val doubleslosh : ('a -> 'b) * ('a -> bool) -> 'a list -> 'b list
     val ( </ ) : ('a * 'b -> 'b) * 'b -> 'a list -> 'b
     val ( /> ) : 'a * ('a * 'b -> 'a) -> 'b list -> 'a
     val ( // ) : ('a * 'a -> 'a) * 'a list -> 'a
     exception Reduce
-    val ( ||| ) : 'a list * 'b list -> ('a * 'b) list
-    exception Zip
+    val ( ||| ) : 'a list -> 'b list -> ('a * 'b) list  (* zip = combine *)
+    exception Zip_ (* unequal lengths *)
     val first : ('a -> bool) -> 'a list -> 'a
     exception First
     val _FIRST : ('a -> bool) -> 'a list -> 'a option
@@ -36,7 +36,6 @@ module type T =
     val seteq : ('a -> 'a -> bool) -> 'a list -> 'a list
     val last : 'a list -> 'a
     exception Last_
-    val null : 'a list -> bool
     val take : int -> 'a list -> 'a list
     val drop : int -> 'a list -> 'a list
     val zip : 'a list * 'b list -> ('a * 'b) list
@@ -102,36 +101,31 @@ module M : T =
   struct
     open Simplecache.M
     open Miscellaneous.M
- 
-    let null = function [] -> true | _ -> false
-          
-    exception First exception Zip exception Reduce
+    open SML.M
+              
+    exception First exception Reduce
     (* Bird-Meertens folding *)
     let rec foldr a1 a2 a3 =
       match a1, a2, a3 with
         f, z, [] -> z
       | f, z, x :: xs -> f x (foldr f z xs)
+    
     let rec foldl a1 a2 a3 =
       match a1, a2, a3 with
         f, z, [] -> z
       | f, z, x :: xs -> foldl f (f z x) xs
 
     (* <| is infix filter *)
-    let rec ( <| ) =
-      function
-        pp, [] -> []
-      | pp, x :: xs -> if pp x then x :: ( <| ) (pp, xs) else ( <| ) (pp, xs)
-    (* _MAP is infix map *)
-    let rec _MAP =
-      function
-        f, [] -> []
-      | f, x :: xs -> f x :: _MAP (f, xs)
+    let ( <| ) = List.filter
+
+    (* <* is infix map *)
+    let ( <* ) = List.map
+
     (* ||| is infix zip *)
-    let rec ( ||| ) =
-      function
-        [], [] -> []
-      | x :: xs, y :: ys -> (x, y) :: ( ||| ) (xs, ys)
-      | _, _ -> raise Zip
+    exception Zip_ 
+    let ( ||| ) xs ys = 
+      try List.combine xs ys with Invalid_argument "List.combine" -> raise Zip_
+
     (* this appears to be map f o filter pp *)
     let rec doubleslosh (f, pp) =
       let rec ff =
@@ -180,8 +174,8 @@ module M : T =
       | None -> true
     let rec member (x, sf) = List.exists (fun x' -> x = x') sf
     let rec nonmember (x, sf) = not (member (x, sf))
-    let rec _INTER = fun (sf, tt) -> ( <| ) ((fun x -> member (x, sf)), tt)
-    let rec slosh = fun (sf, tt) -> ( <| ) ((fun x -> nonmember (x, tt)), sf)
+    let rec _INTER = fun (sf, tt) -> (fun x -> member (x, sf)) <| tt
+    let rec slosh = fun (sf, tt) -> (fun x -> nonmember (x, tt)) <| sf
     let rec _UNION = fun (sf, tt) -> sf @ tt
     (*
     val set = [] /> (fn (s, e) => if e member s then s else e :: s)
@@ -206,7 +200,7 @@ module M : T =
         f, sep, [], ys -> ys
       | f, sep, [x], ys -> f x ys
       | f, sep, x :: xs, ys -> f x (sep :: catelim_interpolate f sep xs ys)
-    let rec catelim2stringfn f x = String.concat "" (f x [])
+    let rec catelim2stringfn f x = implode (f x [])
     let rec stringfn2catelim f x ss = f x :: ss
     let rec catelim_liststring obstring punct =
       catelim_interpolate obstring punct
@@ -286,7 +280,7 @@ module M : T =
      *)
     exception Matchinmergepairs
     (* spurious, shut up compiler *)
-    let rec sort ( < ) ls =
+    let rec sort (<) ls =
       let rec merge =
         function
           [], ys -> ys
@@ -319,7 +313,7 @@ module M : T =
       match ls with
         [] -> []
       | _ -> samsorting (ls, [], 0)
-    let rec sortandcombine ( < ) ( ++ ) ls =
+    let rec sortandcombine (<) ( ++ ) ls =
       (* infix ++ *)
       let rec merge =
         function
@@ -362,35 +356,35 @@ module M : T =
       | x1 :: x2 :: xs ->
           let rest = remdups (x2 :: xs) in
           if x1 = x2 then rest else x1 :: rest
-    let rec sortunique ( < ) ooo = remdups (sort ( < ) ooo)
+    let rec sortunique (<) = remdups <*> sort (<)
     let rec earlierlist a1 a2 a3 =
       match a1, a2, a3 with
-        ( < ), x :: xs, y :: ys ->
-          x < y || not (y < x) && earlierlist ( < ) xs ys
+        (<), x :: xs, y :: ys ->
+          x < y || not (y < x) && earlierlist (<) xs ys
       | _, [], [] -> false
       | _, [], _  -> true
-      | _, _ , _  -> false
+      | _, _, _  -> false
     (* lists sorted by < or <=; does set diff or bag diff accordingly *)
     let rec sorteddiff a1 a2 a3 =
       match a1, a2, a3 with
-        ( < ), [], ys -> []
-      | ( < ), xs, [] -> xs
-      | ( < ), x1 :: xs, y1 :: ys ->
-          if x1 = y1 then sorteddiff ( < ) xs ys
+        (<), [], ys -> []
+      | (<), xs, [] -> xs
+      | (<), x1 :: xs, y1 :: ys ->
+          if x1 = y1 then sorteddiff (<) xs ys
           else if x1 < y1 then
-            x1 :: sorteddiff ( < ) xs (y1 :: ys)
-          else sorteddiff ( < ) (x1 :: xs) ys
+            x1 :: sorteddiff (<) xs (y1 :: ys)
+          else sorteddiff (<) (x1 :: xs) ys
     (* lists sorted by < or <=; does set or bag intersect accordingly *)
     let rec sortedsame a1 a2 a3 =
       match a1, a2, a3 with
-        ( < ), [], ys -> []
-      | ( < ), xs, [] -> []
-      | ( < ), x1 :: xs, y1 :: ys ->
-          if x1 = y1 then x1 :: sortedsame ( < ) xs ys
-          else if x1 < y1 then sortedsame ( < ) xs (y1 :: ys)
-          else sortedsame ( < ) (x1 :: xs) ys
+        (<), [], ys -> []
+      | (<), xs, [] -> []
+      | (<), x1 :: xs, y1 :: ys ->
+          if x1 = y1 then x1 :: sortedsame (<) xs ys
+          else if x1 < y1 then sortedsame (<) xs (y1 :: ys)
+          else sortedsame (<) (x1 :: xs) ys
     (* given sorted by < -- no duplicates -- lists. designed to be folded ... *)
-    let rec sortedmergeandcombine ( < ) ( + ) xs ys =
+    let rec sortedmergeandcombine (<) ( + ) xs ys =
       let rec s a1 a2 =
         match a1, a2 with
           [], ys -> ys
@@ -401,8 +395,8 @@ module M : T =
             else x1 + y1 :: s xs ys
       in
       s xs ys
-    let rec sortedmerge ( < ) xs ys =
-      sortedmergeandcombine ( < ) (fun x _ -> x) xs ys
+    let rec sortedmerge (<) xs ys =
+      sortedmergeandcombine (<) (fun x _ -> x) xs ys
     (* this ignores elements of ys after the last one that actually occurs in xs *)
     let rec sortedlistsub eq xs ys =
       let rec g a1 a2 =
@@ -626,7 +620,7 @@ module M : T =
            ((((((((("(" ^ string_of_int hash) ^ ", ") ^ "(") ^ string_of_int w) ^
                   ",") ^
                  bracketedliststring string_of_int "," ns) ^
-                " , ") ^
+                ", ") ^
                ") = ") ^
               bracketedliststring string_of_int "," rs) ^
              ")")
@@ -647,5 +641,5 @@ module M : T =
         | [], [] -> []
         | [], _ -> raise (Catastrophe_ ["minwaste"])
       in
-      let wns = w, _MAP (measurefn, xs) in recon (minw (hash wns) wns) xs
+      let wns = w, measurefn <* xs in recon (minw (hash wns) wns) xs
   end      

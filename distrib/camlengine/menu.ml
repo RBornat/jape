@@ -134,7 +134,7 @@ module M : T =
            Some v, Some v' -> v = v'
          | _ -> false)
       in
-      let rec delete ps = ( <| ) ((fun ooo -> not (conflicts ooo)), ps) in
+      let rec delete ps = (not <*> conflicts) <| ps in
       let rec insert =
         function
           [] -> []
@@ -156,7 +156,7 @@ module M : T =
           Mseparator -> None
         | Mentry (label, _, _) -> Some [label]
         | Mcheckbox (label, _, _, _) -> Some [label]
-        | Mradiobutton (_, lcs, _) -> Some (_MAP ((fun(hash1,_)->hash1), lcs))
+        | Mradiobutton (_, lcs, _) -> Some ((fst <* lcs))
       in
       let rec vf e =
         match e with
@@ -205,11 +205,8 @@ module M : T =
             else es'
         | es' -> es'
       in
-      andthenr
-        (at (!menus, m),
-         (fun ooo ->
-            (fun ooo -> (fun ooo -> Some (tidy ooo)) (List.rev ooo))
-              ((fun (x, y) -> ( ! ) x y) ooo)))
+        at (!menus, m) &~~
+        (fSome <*> tidy <*> List.rev <*> (!))
     let rec addpanel k p =
       match at (!panels, p) with
         None -> panels := ( ++ ) (!panels, ( |-> ) (p, ref (k, empty, [])))
@@ -220,7 +217,7 @@ module M : T =
           Pentry (label, _) -> Some [label]
         | Pbutton (label, _) -> Some [label]
         | Pcheckbox (label, _, _, _) -> Some [label]
-        | Pradiobutton (_, lcs, _) -> Some (_MAP ((fun(hash1,_)->hash1), lcs))
+        | Pradiobutton (_, lcs, _) -> Some ((fst <* lcs))
       in
       let rec vf e =
         match e with
@@ -248,16 +245,13 @@ module M : T =
         Some ({contents = k, _, _} as contents) -> contents := k, empty, []
       | None -> ()
     let rec getpanels () =
-      _MAP ((fun (p, {contents = k, _, _}) -> p, k), aslist !panels)
-    let rec getpanelkind p ooo =
-      (fun ooo -> andthenr (at (!panels, p), Some) ((fun(hash1,_)->hash1) ooo))
-        ((fun (x, y) -> ( ! ) x y) ooo)
+       (fun (p, {contents = k, _, _}) -> p, k) <* aslist !panels
+    let rec getpanelkind p =
+      ((at (!panels, p) &~~ fSome) <*> fst <*> (!)
     let rec getpaneldata p =
-      andthenr
-        (at (!panels, p),
+        (at (!panels, p) &~~
          (let applyname = namefrom "Apply" in
-          fun ooo ->
-            Some
+            fSome <*> 
               ((fun {contents = k, em, bs} ->
                   nj_fold (fun ((l, {contents = c}), es) -> Pentry (l, c) :: es)
                     (aslist em)
@@ -271,7 +265,7 @@ module M : T =
                             (applyname,
                              [StringInsert "applygiven"; CommandInsert])]
                      | _ -> List.rev bs))
-                 ooo)))
+                 )))
     let rec clearmenusandpanels () = menus := empty; panels := empty
     (***** temporary, for backwards compatibility *****)
     
@@ -303,7 +297,7 @@ module M : T =
             cbf (label, assignvarval var val1)
         | Pradiobutton (var, lcs, _) ->
             rbf
-              (_MAP ((fun (label, vval) -> label, assignvarval var vval), lcs))
+              ((fun (label, vval) -> label, assignvarval var vval) <* lcs)
       in
       match getpaneldata p with
         Some es -> List.iter tran es

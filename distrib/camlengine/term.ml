@@ -247,6 +247,7 @@ module M :
     open Idclass.M
     open Idclassfuns.M
     open Answer.M
+    open SML.M
     
     open Simplecache.M
     
@@ -476,14 +477,14 @@ module M :
           let mtf = mapterm f in
           match t with
             App (_, f, a) -> App (None, mtf f, mtf a)
-          | Tup (_, s, ts) -> Tup (None, s, _MAP (mtf, ts))
-          | Fixapp (_, ss, ts) -> Fixapp (None, ss, _MAP (mtf, ts))
+          | Tup (_, s, ts) -> Tup (None, s, (mtf <* ts))
+          | Fixapp (_, ss, ts) -> Fixapp (None, ss, (mtf <* ts))
           | Binding (_, (bs, ss, us), env, pat) ->
               Binding
-                (None, (_MAP (mtf, bs), _MAP (mtf, ss), _MAP (mtf, us)), env,
+                (None, ((mtf <* bs), (mtf <* ss), (mtf <* us)), env,
                  pat)
           | Subst (_, r, p_, vts) ->
-              Subst (None, r, mtf p_, _MAP ((fun (v, t) -> mtf v, mtf t), vts))
+              Subst (None, r, mtf p_, (fun (v, t) -> mtf v, mtf t) <* vts)
           | Collection (_, k, es) -> Collection (None, k, mapelements f es)
           | _ -> t
     and mapelements f es =
@@ -620,8 +621,7 @@ module M :
       | Unknown (_, v, _) -> ivb t :: quadcolon (metachar ^ v) (ivk t :: s)
       | App (_, (App (_, f, arg1) as l), arg2) ->
           begin match
-            andthenr
-              (opname f,
+            (opname f &~~
                (fun name ->
                   match lookup name with
                     INFIXC (m, a, _) ->
@@ -634,8 +634,7 @@ module M :
           end
       | App (_, f, arg) ->
           begin match
-            andthenr
-              (opname f,
+            (opname f &~~
                (fun name ->
                   match lookup name with
                     INFIX (m, a, _) ->
@@ -781,14 +780,14 @@ module M :
         quadcolon "(" (catelim_termstring t (quadcolon ")" ss))
       else catelim_termstring t ss
     let argstring = catelim2stringfn catelim_argstring
-    let catelim_elementstring ooo = catelim_termstring (stripelement ooo)
+    let catelim_elementstring = catelim_termstring <*> stripelement
     let elementstring = catelim2stringfn catelim_elementstring
-    let catelim_elementstring_invisbracketed ooo =
-      catelim_termstring_invisbracketed (stripelement ooo)
+    let catelim_elementstring_invisbracketed =
+      catelim_termstring_invisbracketed <*> stripelement
     let elementstring_invisbracketed =
       catelim2stringfn catelim_elementstring_invisbracketed
-    let rec catelim_elementstring_invischoose ivb ivk ooo =
-      catelim_termstring_invischoose ivb ivk (stripelement ooo)
+    let rec catelim_elementstring_invischoose ivb ivk =
+      catelim_termstring_invischoose ivb ivk <*> stripelement
     let rec elementstring_invischoose ivb ivk =
       catelim2stringfn (catelim_elementstring_invischoose ivb ivk)
     let rec catelim_collectionstring a1 a2 a3 =
@@ -860,7 +859,7 @@ module M :
 			  let rec hash a1 a2 =
 				match a1, a2 with
 				  [], h -> Some h
-				| x :: xs, h -> andthenr (hashcombine (f x) (Some h), hash xs)
+				| x :: xs, h -> (hashcombine (f x) (Some h) &~~ hash xs)
 			  in
 			  hash xs 0
 			
@@ -965,8 +964,7 @@ module M :
     * In fact they will even rewrite bindings, so watch out!
     *)
     let rec option_mapterm f t =
-      ortryr
-        (f t,
+      (f t |~~
          (fun _ ->
             let mtff = option_mapterm f in
             let mtfl = option_rewritelist mtff in
@@ -974,38 +972,31 @@ module M :
               Id _ -> None
             | Unknown _ -> None
             | App (_, f, a) ->
-                andthenr
-                  (option_rewrite2 mtff mtff (f, a),
-                   (fun ooo -> Some (registerApp ooo)))
+                  (option_rewrite2 mtff mtff (f, a) &~~
+                   (fSome <*> registerApp))
             | Tup (_, s, ts) ->
-                andthenr (mtfl ts, (fun ts' -> Some (registerTup (s, ts'))))
+                (mtfl ts &~~ (fun ts' -> Some (registerTup (s, ts'))))
             | Literal _ -> None
             | Fixapp (_, ss, ts) ->
-                andthenr
-                  (mtfl ts, (fun ts' -> Some (registerFixapp (ss, ts'))))
+                (mtfl ts &~~ (fun ts' -> Some (registerFixapp (ss, ts'))))
             | Subst (_, r, p_, vts) ->
-                andthenr
                   (option_rewrite2 mtff
                      (option_rewritelist (option_rewrite2 mtff mtff))
-                     (p_, vts),
+                     (p_, vts) &~~
                    (fun (p_', vts') -> Some (registerSubst (r, p_', vts'))))
             | Binding (_, bs_ss_us, env, pat) ->
-                andthenr
-                  (option_rewrite3 mtfl mtfl mtfl bs_ss_us,
+                (option_rewrite3 mtfl mtfl mtfl bs_ss_us &~~
                    (fun bs_ss_us' ->
                       Some (registerBinding (bs_ss_us', env, pat))))
             | Collection (_, k, es) ->
-                andthenr
-                  (option_mapelements f es,
+                (option_mapelements f es &~~
                    (fun es' -> Some (registerCollection (k, es'))))))
     and option_mapelement a1 a2 =
       match a1, a2 with
         f, Segvar (_, ps, v) ->
-          andthenr
-            (option_mapterm f v, (fun v' -> Some (registerSegvar (ps, v'))))
+          (option_mapterm f v &~~ (fun v' -> Some (registerSegvar (ps, v'))))
       | f, Element (_, r, t) ->
-          andthenr
-            (option_mapterm f t, (fun t' -> Some (registerElement (r, t'))))
+          (option_mapterm f t &~~ (fun t' -> Some (registerElement (r, t'))))
     (* yes, it should really be r *)
 
     and option_mapelements f = option_rewritelist (option_mapelement f)
@@ -1021,8 +1012,8 @@ module M :
           | Tup (_, _, ts) -> ff z ts
           | Fixapp (_, _, ts) -> ff z ts
           | Subst (_, _, p_, vts) ->
-              ff (ff z (_MAP ((fun(_,hash2)->hash2), vts)))
-                 (p_ :: _MAP ((fun(hash1,_)->hash1), vts))
+              ff (ff z ((snd <* vts)))
+                 (p_ :: (fst <* vts))
           | Binding (_, (bs, ss, us), _, _) -> ff (ff (ff z us) ss) bs
           | Collection (_, k, es) -> foldelements f z es
           | _ -> z
@@ -1044,10 +1035,9 @@ module M :
           | Tup (_, s, ts) -> fx ts
           | Fixapp (_, ss, ts) -> fx ts
           | Binding (_, (bs, ss, us), _, _) ->
-              ortryr (ortryr (fx bs, (fun _ -> fx ss)), (fun _ -> fx us))
+              ((fx bs |~~ (fun _ -> fx ss)) |~~ (fun _ -> fx us))
           | Subst (_, r, p_, vts) ->
-              ortryr
-                (findterm g p_,
+              (findterm g p_ |~~
                  (fun _ -> findfirst (fun (v, t) -> fx [v; t]) vts))
           | Collection (_, k, es) ->
               let rec fe =
@@ -1068,9 +1058,8 @@ module M :
             match a1, a2 with
               h, [] -> None
             | h, x :: xs ->
-                ortryr
-                  (fh (fun ooo -> h ((fun t -> build x t :: xs) ooo)) (sel x),
-                   (fun _ -> fhx (fun ooo -> h ((fun xs -> x :: xs) ooo)) xs))
+                (fh (h <*> (fun t -> build x t :: xs)) (sel x) |~~
+                   (fun _ -> fhx (h <*> (fun xs -> x :: xs)) xs))
           in
           fhx h xs
         in
@@ -1080,41 +1069,38 @@ module M :
           None ->
             begin match t with
               App (_, f, a) ->
-                ortryr
-                  (fh (fun ooo -> h ((fun f -> registerApp (f, a)) ooo)) f,
+                  (fh (h <*> (fun f -> registerApp (f, a))) f |~~
                    (fun _ ->
-                      fh (fun ooo -> h ((fun a -> registerApp (f, a)) ooo))
+                      fh (h <*> (fun a -> registerApp (f, a)))
                          a))
             | Tup (_, s, ts) ->
                 fhs selt buildt
-                  (fun ooo -> h ((fun ts -> registerTup (s, ts)) ooo)) ts
+                  (h <*> (fun ts -> registerTup (s, ts))) ts
             | Fixapp (_, ss, ts) ->
                 fhs selt buildt
-                  (fun ooo -> h ((fun ts -> registerFixapp (ss, ts)) ooo)) ts
+                  (h <*> (fun ts -> registerFixapp (ss, ts))) ts
             | Binding (_, (bs, ss, us), env, pat) ->
-                ortryr
                   (fhs selt buildt
-                     (fun ooo ->
-                        h ((fun ss ->
+                     (
+                        h <*> (fun ss ->
                               registerBinding ((bs, ss, us), env, pat))
-                             ooo))
-                     ss,
+                            )
+                     ss |~~
                    (fun _ ->
                       fhs selt buildt
-                        (fun ooo ->
-                           h ((fun us ->
+                        (
+                           h <*> (fun us ->
                                  registerBinding ((bs, ss, us), env, pat))
-                                ooo))
+                               )
                         us))
             | Subst (_, r, p_, vts) ->
-                ortryr
-                  (fh (fun ooo ->
-                         h ((fun p_ -> registerSubst (r, p_, vts)) ooo))
-                      p_,
+                  (fh (
+                         h <*> (fun p_ -> registerSubst (r, p_, vts)))
+                      p_ |~~
                    (fun _ ->
                       fhs (fun (v, t) -> t) (fun (v, _) t -> v, t)
-                        (fun ooo ->
-                           h ((fun vts -> registerSubst (r, p_, vts)) ooo))
+                        (
+                           h <*> (fun vts -> registerSubst (r, p_, vts)))
                         vts))
             | Collection (_, k, es) ->
                 let rec sele =
@@ -1129,7 +1115,7 @@ module M :
                   | Segvar (_, ps, _), v -> registerSegvar (ps, v)
                 in
                 fhs sele builde
-                  (fun ooo -> h ((fun es -> registerCollection (k, es)) ooo))
+                  (h <*> (fun es -> registerCollection (k, es)))
                   es
             | _ -> None
             end
@@ -1198,7 +1184,7 @@ module M :
               (* ohmygod *) 
               if _All
                    (fun t -> idclass t = VariableClass)
-                   (List.map (fun(_,hash2)->hash2) vts)
+                   (List.map snd vts)
               then
                 VariableClass
               else SubstClass
@@ -1531,14 +1517,14 @@ module M :
             fEQ (p1, p2) && fEQvts (vts1, vts2)
         | Binding (_, (bs, ss, us), _, pat),
           Binding (_, (bs', ss', us'), _, pat') ->
-            let ns = _MAP (nxb, bs) in
+            let ns = (nxb <* bs) in
             begin try
               (pat = pat' && fEQs (us, us')) &&
               _All
-                (eq (( ||| ) (bs, ns) @ t1bs) (( ||| ) (bs', ns) @ t2bs))
-                (( ||| ) (ss, ss'))
+                (eq ((bs  ||| ns) @ t1bs) ((bs' ||| ns) @ t2bs))
+                (ss ||| ss')
             with
-              Zip -> false
+              Zip_ -> false
             end
         | Collection (_, BagClass k1, es1),
           Collection (_, BagClass k2, es2) ->
@@ -1621,12 +1607,12 @@ module M :
           | Subst (_, _, p_, vts) ->
               Some
                 (nj_fold (uncurry2 bmerge)
-                   (doit2 (_MAP ((fun(hash1,_)->hash1), vts)) p_ ::
-                      dothem (_MAP ((fun(_,hash2)->hash2), vts)))
+                   (doit2 ((fst <* vts)) p_ ::
+                      dothem ((snd <* vts)))
                    ps)
           | Binding (_, (bs, ss, us), _, _) ->
               Some
-                (nj_fold (uncurry2 bmerge) (_MAP (doit2 bs, ss))
+                (nj_fold (uncurry2 bmerge) ((doit2 bs <* ss))
                    (nj_fold (uncurry2 bmerge) (dothem us) ps))
           | _ -> None
         in
@@ -1728,23 +1714,23 @@ module M :
       in
       let rec closed v bc = List.exists (fun bvs -> member (v, bvs)) bc in
       (* step 1 - find all free and semi-free names *)
-      let rec freev (v, bcs) = List.exists (fun ooo -> not (closed v ooo)) bcs in
-      let freevs = _MAP ((fun(hash1,_)->hash1), ( <| ) (freev, inf)) in
+      let rec freev (v, bcs) = List.exists (not <*> closed v) bcs in
+      let freevs = (fst <* (freev <| inf)) in
       (* step 2 - find the dominates relation from all the bindings *)
       let rec domf (v, bcs) =
         let rec truncate bc =
           takewhile (fun bvs -> not (member (v, bvs))) bc
         in
-        let bcs = _MAP (truncate, bcs) in
+        let bcs = (truncate <* bcs) in
         let dominators = nj_fold (fun (bc, ds) -> nj_fold (uncurry2 tmerge) bc ds) bcs [] in
-        _MAP ((fun bv -> bv, [v]), dominators)
+        ((fun bv -> bv, [v]) <* dominators)
       in
-      let domrel = nj_fold (uncurry2 mmerge) (_MAP (domf, inf)) [] in
+      let domrel = nj_fold (uncurry2 mmerge) (domf <* inf) [] in
       (* step 3 - find all the pairs of names which occur in bindings
        * both ways round, add to domrel
        *)
       let allbindings =
-        nj_fold (uncurry2 (sortedmerge bcorder)) (_MAP ((fun(_,hash2)->hash2), inf)) []
+        nj_fold (uncurry2 (sortedmerge bcorder)) ((snd <* inf)) []
       in
       let rec allbpairs bc =
         let vpss =
@@ -1755,15 +1741,14 @@ module M :
       let vps =
         nj_fold (uncurry2 (sortedmerge vvorder)) (List.map allbpairs allbindings) []
       in
-      let rvps = sort vvorder (_MAP ((fun (x, y) -> y, x), vps)) in
+      let rvps = sort vvorder ((fun (x, y) -> y, x) <* vps) in
       let commonpairs =
-        ( <| )
-          ((fun (x, y) ->
-              not (member ((x, y), notins) || member ((y, x), notins))),
-           sortedsame vvorder vps rvps)
+           (fun (x, y) ->
+              not (member ((x, y), notins) || member ((y, x), notins)))
+            <| sortedsame vvorder vps rvps
       in
       let domrel =
-        nj_fold (uncurry2 mmerge) (_MAP ((fun (x, y) -> [x, [y]; y, [x]]), commonpairs))
+        nj_fold (uncurry2 mmerge) ((fun (x, y) -> [x, [y]; y, [x]]) <* commonpairs)
           domrel
       in
       (* step 4 - find pairs of bindings which aren't the same, add their 
@@ -1774,18 +1759,18 @@ module M :
        * will be more robust when the notion of idclass gets more intricate
        *)
       let rec badbindings (v, bcs) =
-        let bcs = ( <| ) ((fun ooo -> not (closed v ooo)), bcs) in
+        let bcs = (not <*> closed v) <| bcs in
         let vclass = idclass v in
         let rec allbvs bc =
           let rec filterbv bv =
             let bvclass = idclass bv in
             bvclass <> vclass && canoccurfreein (bvclass, vclass)
           in
-          nj_fold (uncurry2 tmerge) (_MAP ((fun bvs -> ( <| ) (filterbv, bvs)), bc)) []
+          nj_fold (uncurry2 tmerge) (((fun bvs -> filterbv <| bvs) <* bc)) []
         in
-        let bvss = _MAP (allbvs, bcs) in
+        let bvss = (allbvs <* bcs) in
         let rec escapers bvs =
-          ( <| ) ((fun bv -> not (member ((bv, v), notins))), bvs)
+          (fun bv -> not (member ((bv, v), notins))) <| bvs
         in
         let rec b2 ((bv1s, bv2s), bads) =
           nj_fold (uncurry2 tmerge)
@@ -1795,14 +1780,14 @@ module M :
         in
         nj_fold b2 (allpairs bvss) []
       in
-      let freevs = nj_fold (uncurry2 tmerge) (_MAP (badbindings, inf)) freevs in
+      let freevs = nj_fold (uncurry2 tmerge) ((badbindings <* inf)) freevs in
       (* and there we have it *)
       let r = freevs, domrel in
       (* stuff to persuade ourselves we have it right :-) *)
       let showin = varinfstring in
       let showout =
         pairstring termliststring
-          (fun ooo -> mappingstring termstring termliststring (mkmap ooo)) ","
+          (mappingstring termstring termliststring <*> mkmap) ","
       in
       if !varbindingsdebug then
         consolereport
@@ -1818,7 +1803,7 @@ module M :
         Id (_, v, _) -> v
       | Unknown (_, v, _) -> v
       | t -> raise (Catastrophe_ ["vartoVID "; argstring t])
-    let rec termVIDs t = orderVIDs (_MAP (vartoVID, termvars t))
+    let rec termVIDs t = orderVIDs ((vartoVID <* termvars t))
     let rec conVIDs ts =
       nj_fold
         (function
@@ -1835,8 +1820,8 @@ module M :
         let (t1, t2) = debracket t1, debracket t2 in
         let rec sim t1 t2 = similar t1subst t1 t2subst t2 in
         let rec sims t1s t2s =
-          try _All (uncurry2 sim) (( ||| ) (t1s, t2s)) with
-            Zip -> false
+          try _All (uncurry2 sim) (t1s ||| t2s) with
+            Zip_ -> false
         in
         let rec reverse () = similar t2subst t2 t1subst t1 in
         let rec lsub () = t1subst && idclass t1 = VariableClass in
@@ -1899,7 +1884,7 @@ module M :
         | _ -> t, rs
       in
       match curry, unApp (debracket t) [] with
-        true, (f, [Tup (_, ",", rs)]) -> f, _MAP (debracket, rs)
+        true, (f, [Tup (_, ",", rs)]) -> f, (debracket <* rs)
       | _, res -> res
     let rec implodeApp curry (t, args) =
       if curry then registerApp (t, registerTup (",", args))

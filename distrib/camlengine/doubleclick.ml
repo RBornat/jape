@@ -44,8 +44,7 @@ module
       doubleclickdefs := insert !doubleclickdefs
     let rec deldoubleclick (b, seq) =
       doubleclickdefs :=
-        ( <| )
-          ((fun (b', _, seq') -> b <> b' || not (eqseqs (seq, seq'))),
+          ((fun (b', _, seq') -> b <> b' || not (eqseqs (seq, seq'))) <|
            !doubleclickdefs)
     let rec cleardoubleclicks () = doubleclickdefs := []
     let rec matchdoubleclick sense seq =

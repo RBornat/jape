@@ -73,8 +73,8 @@ module
     
     
     let substdebug = ref false
-    let rec substmapdom (vts : (term * term) list) = _MAP ((fun(hash1,_)->hash1), vts)
-    let rec substmapran (vts : (term * term) list) = _MAP ((fun(_,hash2)->hash2), vts)
+    let rec substmapdom (vts : (term * term) list) = (fst <* vts)
+    let rec substmapran (vts : (term * term) list) = (snd <* vts)
     (* varmappedbyq doesn't always take a VAR as its first parameter *)
     (* is that true any more? RB May 95 *)
     let rec varmappedbyq facts v vts = varboundbyq facts v (substmapdom vts)
@@ -98,14 +98,14 @@ module
       check (Some v) vts
     let rec vtmetacount vts =
       nj_fold (fun (x, y) -> x + y)
-        (_MAP ((fun (v, _) -> if isUnknown v then 1 else 0), vts)) 0
+        ((fun (v, _) -> if isUnknown v then 1 else 0) <* vts) 0
     let rec vtmaps facts vts (v, _) =
       List.exists (fun (v', _) -> qDEF (substeqvarsq facts v v')) vts
     let rec vtminus facts vts1 vts2 =
-      ( <| ) ((fun ooo -> not (vtmaps facts vts2 ooo)), vts1)
+      (not <*> vtmaps facts vts2) <| vts1
     let rec vtsplit facts vts bs =
       let rec S ((v, t), (ys, ns, ms)) =
-        let rs = _MAP (substeqvarsq facts v, bs) in
+        let rs = (substeqvarsq facts v <* bs) in
         if List.exists qDEF rs then (v, t) :: ys, ns, ms
         else if List.exists qUNSURE rs then ys, ns, (v, t) :: ms
         else ys, (v, t) :: ns, ms
@@ -119,9 +119,8 @@ module
       let vsin = substmapdom vtin in
       match vtsplit facts vtout vsin with
         ys, ns, [] ->
-          Some
-            (_MAP
-               ((fun (v, t) -> v, simplifySubstAnyway facts vtout t), vtin) @
+          Some (
+               ((fun (v, t) -> v, simplifySubstAnyway facts vtout t) <* vtin) @
                ns)
       | _ -> None
     (* Moving a map through a binder.  If this works you get a new map *)
@@ -135,12 +134,11 @@ module
       in
       let (ys, ns, ms) = vtsplit facts vts bs in
       let rec newfacts v =
-        expandfacts facts (_MAP ((fun b -> mkNotin (v, b)), bs))
+        expandfacts facts ((fun b -> mkNotin (v, b)) <* bs)
       in
       let rec foundinside v =
         List.exists
-          (fun ooo ->
-             (fun ooo -> not (qDEFNOT ooo)) (varoccursinq (newfacts v) v ooo))
+             (not <*> qDEFNOT <*> varoccursinq (newfacts v) v)
           ss
       in
       if not (List.exists foundinside (substmapdom ms)) then
@@ -148,9 +146,7 @@ module
              (List.exists
                 (fun b ->
                    List.exists
-                     (fun ooo ->
-                        (fun ooo -> not (qDEFNOT ooo))
-                          (varoccursinq facts b ooo))
+                        (not <*> qDEFNOT <*> varoccursinq facts b)
                      (substmapran ns))
                 bs)
         then
@@ -184,7 +180,7 @@ module
           | No -> existsq (varoccursinq facts v) ss
           | Maybe ->
               let newfacts =
-                expandfacts facts (_MAP ((fun b -> mkNotin (v, b)), bs))
+                expandfacts facts ((fun b -> mkNotin (v, b)) <* bs)
               in
               existsq (varoccursinq newfacts v) ss
         in
@@ -267,10 +263,10 @@ module
           | Unknown _ -> Svar P
           | App (_, f, a) -> res (Some (registerApp (S (vts, f), S (vts, a))))
           | Tup (_, sep, ts) ->
-              res (Some (registerTup (sep, _MAP (S vts, ts))))
+              res (Some (registerTup (sep, (S vts <* ts))))
           | Literal k -> res (Some P)
           | Fixapp (_, ss, ts) ->
-              res (Some (registerFixapp (ss, _MAP (S vts, ts))))
+              res (Some (registerFixapp (ss, (S vts <* ts))))
           | Subst (_, _, P', vts') ->
               begin match plussubstmap facts vts vts' with
                 Some vts'' -> res (more vts'' P')
@@ -282,7 +278,7 @@ module
                   res
                     (Some
                        (registerBinding
-                          ((bs, _MAP (S vts', ss), _MAP (S vts, us)), env,
+                          ((bs, (S vts' <* ss), (S vts <* us)), env,
                            pat)))
               | None -> fail P
               end
@@ -293,7 +289,7 @@ module
                 | _ -> raise Whoops_
               in
               res
-                (try Some (registerCollection (k, _MAP (se, es))) with
+                (try Some (registerCollection (k, (se <* es))) with
                    Whoops_ -> None)
     and simplifysubstmap facts =
       fun P vts ->

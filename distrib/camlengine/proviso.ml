@@ -77,6 +77,7 @@ module M : Provisotype with type vid = Term.M.vid
     open Termparse.M
     open Miscellaneous.M
     open Symbol.M
+    open SML.M
     
     type vid = Term.M.vid
      and term = Term.M.term
@@ -209,14 +210,14 @@ module M : Provisotype with type vid = Term.M.vid
           raise (ParseError_ ("in NOTONEOF proviso, " :: ss))
         in
         let _ =
-          if List.exists (fun ooo -> not (ismetav ooo)) vars then
+          if List.exists (not <*> ismetav) vars then
             bad
               ["not all the names "; bracketedliststring termstring ", " vars;
                " are schematic"]
         in
         let _ = check (SHYID "IN") in
         let pat = parseBindingpattern () in
-        let varsinpat = ( <| ) (ismetav, termvars pat) in
+        let varsinpat = ismetav <| termvars pat in
         let _ =
           if not (subset (vars, varsinpat)) then
             bad
@@ -242,28 +243,25 @@ module M : Provisotype with type vid = Term.M.vid
         in
         let terms =
           match class__ with
-            None -> _MAP (stripElement, els)
+            None -> (stripElement <* els)
           | Some k -> [registerCollection (k, els)]
         in
-        _MAP ((fun v->NotinProviso v), ( >< ) vars terms)
+        ((fun v->NotinProviso v) <* (vars >< terms))
       in
       let rec freshp p h g r v = p (h, g, r, v) in
       match currsymb () with
         SHYID "FRESH" ->
-          _MAP (freshp (fun v->FreshProviso v) true true false, parseNOTINvars "FRESH")
+          freshp (fun v->FreshProviso v) true true false <* parseNOTINvars "FRESH"
       | SHYID "HYPFRESH" ->
-          _MAP
-            (freshp (fun v->FreshProviso v) true false false, parseNOTINvars "HYPFRESH")
+          freshp (fun v->FreshProviso v) true false false <* parseNOTINvars "HYPFRESH"
       | SHYID "CONCFRESH" ->
-          _MAP
-            (freshp (fun v->FreshProviso v) false true false, parseNOTINvars "CONCFRESH")
+          freshp (fun v->FreshProviso v) false true false <* parseNOTINvars "CONCFRESH"
       | SHYID "IMPFRESH" ->
-          _MAP (freshp (fun v->FreshProviso v) true true true, parseNOTINvars "FRESH")
+          (freshp (fun v->FreshProviso v) true true true <* parseNOTINvars "FRESH")
       | SHYID "IMPHYPFRESH" ->
-          _MAP (freshp (fun v->FreshProviso v) true false true, parseNOTINvars "HYPFRESH")
+          (freshp (fun v->FreshProviso v) true false true <* parseNOTINvars "HYPFRESH")
       | SHYID "IMPCONCFRESH" ->
-          _MAP
-            (freshp (fun v->FreshProviso v) false true true, parseNOTINvars "CONCFRESH")
+          freshp (fun v->FreshProviso v) false true true <* parseNOTINvars "CONCFRESH"
       | sy ->
           if canstartTerm sy then
             let (class__, els) =
@@ -281,8 +279,8 @@ module M : Provisotype with type vid = Term.M.vid
                     " found after collection "; bk els])
             in
             match class__, currsymb () with
-              None, SHYID "NOTIN" -> parseNOTIN (_MAP (stripElement, els))
-            | None, SHYID "IN" -> [parseNOTONEOF (_MAP (stripElement, els))]
+              None, SHYID "NOTIN" -> parseNOTIN ((stripElement <* els))
+            | None, SHYID "IN" -> [parseNOTONEOF ((stripElement <* els))]
             | _, SHYID "NOTIN" -> collbad "NOTIN"
             | _, SHYID "IN" -> collbad "IN"
             | _, SHYID "UNIFIESWITH" ->
@@ -345,12 +343,12 @@ module M : Provisotype with type vid = Term.M.vid
       | UnifiesProviso (t1, t2) -> tmerge (termvars t1) (termvars t2)
       | NotinProviso (t1, t2) -> tmerge (termvars t1) (termvars t2)
       | NotoneofProviso (vs, pat, _C) ->
-          nj_fold (uncurry2 tmerge) (_MAP (termvars, vs)) (termvars _C)
+          nj_fold (uncurry2 tmerge) ((termvars <* vs)) (termvars _C)
     let rec provisoVIDs p =
-      orderVIDs (_MAP (vartoVID, provisovars termvars tmerge p))
+      orderVIDs ((vartoVID <* provisovars termvars tmerge p))
     let rec maxprovisoresnum p =
       let rec f t n =
-        nj_fold (uncurry2 max) (_MAP (resnum2int, elementnumbers t)) n
+        nj_fold (uncurry2 max) ((resnum2int <* elementnumbers t)) n
       in
       match p with
         FreshProviso (_, _, _, t) -> f t 0

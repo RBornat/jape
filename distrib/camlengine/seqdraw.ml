@@ -57,7 +57,7 @@ module
       element2plan elementstring el (ElementClass (el, c))
     (* sequents are drawn
                                     C - if lhs empty and rhs a single element
-       [ H { , H } ] |- [ C { , C } ] - otherwise
+       [ H {, H } ] |- [ C {, C } ] - otherwise
  
        that knowledge is entirely encapsulated in the makeseqplan function.
      *)

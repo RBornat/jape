@@ -328,10 +328,10 @@ module
         Tip (seq, rewinf, fmt) -> rewinf
       | Join (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) ->
           rewinf_merge
-            ((fun(_,hash2)->hash2) args,
+            (snd args,
              rewinf_merge
-               ((fun(_,hash2)->hash2) seq,
-                rewinf_merge ((fun(_,hash2)->hash2) trs, (fun(_,hash2)->hash2) ress)))
+               (snd seq,
+                rewinf_merge (snd trs, snd ress)))
     let rec tip_seq (seq, rewinf, hastipval) = seq
     let rec joinopt a1 a2 =
       match a1, a2 with
@@ -357,7 +357,7 @@ module
         Tip _ -> true
       | Join j -> join_hastip j
     let rec tshaveTip ts =
-      nj_fold (fun (a, b) -> a || b) (_MAP (hasTip, ts)) false
+      nj_fold (fun (a, b) -> a || b) ((hasTip <* ts)) false
     let rec subtrees =
       function
         Tip _ -> []
@@ -488,7 +488,7 @@ module
       match followPath_ns t ns with
         Tip t -> t
       | _ -> raise FindTip_
-    let rec findTip_ns t p = (fun(hash1,_)->hash1) (getTip_ns t p)
+    let rec findTip_ns t p = fst (getTip_ns t p)
     let rec allTips_ns t =
       let rec moretips a1 a2 a3 =
         match a1, a2, a3 with
@@ -502,36 +502,34 @@ module
                 moretips (l :: ns) tl (moretips ns tr tips)
       in
       moretips [] t []
-    let rec allTipPaths_ns t = _MAP ((fun(hash1,_)->hash1), allTips_ns t)
+    let rec allTipPaths_ns t = (fst <* allTips_ns t)
     let rec allTipConcs_ns t =
-      _MAP
-        ((function
+         (function
             ns, Tip (Seq (_, hs, gs), _, _) -> ns, explodeCollection gs
           | _ ->
               raise
-                (Catastrophe_ ["allTips gave non-Tip in allTipConcs_ns"])),
-         allTips_ns t)
+                (Catastrophe_ ["allTips gave non-Tip in allTipConcs_ns"])) <*
+         allTips_ns t
     (* functions which look for a path *)
-    let rec search opt n = andthenr (opt, (fun ns -> Some (n :: ns)))
+    let rec search opt n = (opt &~~ (fun ns -> Some (n :: ns)))
     let rec F =
       function
         [] -> None
-      | (n, t) :: nts -> ortryr (search (G t) n, (fun _ -> F nts))
+      | (n, t) :: nts -> (search (G t) n |~~ (fun _ -> F nts))
     and G t =
       match t with
         Tip _ -> Some []
       | Join j ->
           match decode_cutnav j with
             NormalNav ts -> F (numbered ts)
-          | CutNav (l, r, tl, tr) -> ortryr (search (G tl) l, (fun _ -> G tr))
+          | CutNav (l, r, tl, tr) -> (search (G tl) l |~~ (fun _ -> G tr))
     let findAnyGoal_ns = G
     let rec findRightwardsGoal_ns skip t path =
       match t with
         Tip _ -> if skip || not (null path) then None else Some []
       | Join j ->
           let rec go n subt ns =
-            ortryr
-              (search (findRightwardsGoal_ns skip subt ns) n,
+            (search (findRightwardsGoal_ns skip subt ns) n |~~
                (fun _ ->
                   match decode_cutnav j with
                     NormalNav ts -> F (drop (n + 1) (numbered ts))
@@ -550,9 +548,8 @@ module
           let rec topres () =
             let (Seq (_, hs, _)) = sequent t in Some hs, pathto t
           in
-          let rec unFRESH ooo =
-            (fun ooo -> not (List.exists isFreshProviso ooo))
-              (List.map ((fun(_,hash2)->hash2) : bool * proviso -> proviso) ooo)
+          let rec unFRESH =
+            not <*> List.exists isFreshProviso <*> List.map snd
           in
           let rec check a1 a2 =
             match a1, a2 with
@@ -590,7 +587,7 @@ module
               else raise (FollowPath_ ("overflow in deepest_samehyps", path))
           | Join j -> joinstep go topres skip j path
         in
-        FmtPath ((fun(_,hash2)->hash2) (shs tree ks))
+        FmtPath (snd (shs tree ks))
     let rec rootPath_ns t = pathto t
     let rec parentPath_ns t path =
       let rec f t ns =
@@ -600,8 +597,8 @@ module
             else raise (FollowPath_ ("overflow in parentPath", path))
         | Join j ->
             let rec me _ = Some (pathto t) in
-            let rec go n t ns = ortryr (search (f t ns) n, me) in
-            let rec skip (l, r, tl, tr) ns = ortryr (f tr ns, me) in
+            let rec go n t ns = (search (f t ns) n |~~ me) in
+            let rec skip (l, r, tl, tr) ns = (f tr ns |~~ me) in
             joinstep go (fun _ -> None) skip j ns
       in
       match f t path with
@@ -621,8 +618,7 @@ module
             else raise (FollowPath_ ("overflow in siblingPath", path))
         | Join j ->
             let rec go n t ns =
-              ortryr
-                (search (f t ns) n,
+              (search (f t ns) n |~~
                  (fun _ ->
                     match decode_cutnav j with
                       NormalNav ts ->
@@ -634,8 +630,7 @@ module
                         if left then badLeft () else Some (pathto tr)))
             in
             let rec skip (l, r, tl, tr) ns =
-              ortryr
-                (f tr ns, (fun _ -> if left then Some [l] else badRight ()))
+              (f tr ns |~~ (fun _ -> if left then Some [l] else badRight ()))
             in
             joinstep go (fun _ -> None) skip j ns
       in
@@ -739,8 +734,7 @@ module
                     (join_string tlf (fun _ -> "... see below ...") j ::
                        (match decode_cutnav j with
                           NormalNav ts ->
-                            _MAP
-                              ((fun (i, t) -> pft tlf (i :: rp) t),
+                              ((fun (i, t) -> pft tlf (i :: rp) t) <*
                                numbered ts)
                         | CutNav (l, r, tl, tr) ->
                             [pft tlf (l :: rp) tl; pft tlf rp tr]))))
@@ -757,8 +751,8 @@ module
         match join_how j with
           Apply (n, ps, b) ->
             res b
-              (try mkSubstTac (n, ( ||| ) (ps, join_args j)) with
-                 Zip -> raise (Catastrophe_ ["Zip in prooftree2tactic"]))
+              (try mkSubstTac (n, (ps ||| join_args j)) with
+                 Zip_ -> raise (Catastrophe_ ["Zip_ in prooftree2tactic"]))
         | Given (_, i, b) -> res b (mkGivenTac (int2term i))
         | UnRule (r, _) -> mkUnRuleTac (r, join_args j)
       in
@@ -833,7 +827,7 @@ module
                      string_of_int i :: " " :: catelim_termstring t tail)
                   ",\n"
                   (sortunique intorder
-                     (_MAP ((fun (h, t) -> lookup h t, t), hs)))
+                     ((fun (h, t) -> lookup h t, t) <* hs))
                   body
           in
           let infer_body =
@@ -892,9 +886,9 @@ module
           uVIDs []
       in
       let addedinf =
-        getrewinfList (rawinfTerm cxt) (_MAP ((fun(_,hash2)->hash2), changeduts))
+        getrewinfList (rawinfTerm cxt) ((snd <* changeduts))
       in
-      let changedus = _MAP ((fun(hash1,_)->hash1), changeduts) in
+      let changedus = (fst <* changeduts) in
       let vars' =
         sortedlistsub
           (function
@@ -905,12 +899,12 @@ module
       let uVIDs' = sortedlistsub (fun (x, y) -> x = y) uVIDs changedus in
       let badres' =
         sortedlistsub (fun (x, y) -> x = y) badres
-          (_MAP ((fun(hash1,_)->hash1), changedres)) @
+          ((fst <* changedres)) @
           nj_fold
             (function
                ResUnknown i, is -> i :: is
              | _, is -> is)
-            (_MAP ((fun(_,hash2)->hash2), changedres)) []
+            ((snd <* changedres)) []
       in
       rewinf_merge
         (raw2rew_ (mkrawinf (vars', uVIDs', badres', psig)), addedinf)
@@ -1016,7 +1010,7 @@ module
       in
       let cinf = rewinfCxt cxt in
       (* vars only in givens are in the exterior of the proof, but they aren't thereby 'in use' *)
-      let gvars = nj_fold tmerge (_MAP (seqvars termvars tmerge, givens)) [] in
+      let gvars = nj_fold tmerge ((seqvars termvars tmerge <* givens)) [] in
       let cvars = sorteddiff earliervar (rewinf_vars cinf) gvars in
       (* val _ =
         consolereport ["gvars are ", termliststring gvars, 
@@ -1025,7 +1019,7 @@ module
                        "; rewinf_vars inf are ", termliststring (rewinf_vars inf)]
        *)
       let usedVIDs =
-        orderVIDs (_MAP (vartoVID, mergevars (rewinf_vars inf) cvars))
+        orderVIDs (vartoVID <* mergevars (rewinf_vars inf) cvars)
       in
       withusedVIDs (withresmap (withvarmap (cxt, empty), empty), usedVIDs),
       tree, usedVIDs
@@ -1048,7 +1042,7 @@ module
      * RB 10/x/96
      *)
     let rec mkJoin cxt why how args fmt seq tops ress =
-      let args = _MAP (rewrite cxt, args) in
+      let args = (rewrite cxt <* args) in
       let seq = rewriteseq cxt seq in
       let ress = anyway (rew_ress cxt) ress in
       Join
@@ -1097,7 +1091,7 @@ module
         if !prooftreedebug then
           consolereport
             ["setting format "; treeformatstring fmt'; " at "; nsstring ns];
-        (fun(_,_,hash3)->hash3)
+        thrd 
           (applytosubtree_ns ns tree
              (function
                 Join (why, how, cutnav, args, fmt, htv, seq, ts, ress) ->
@@ -1113,7 +1107,7 @@ module
 
     let rec set_prooftree_cutnav tree =
       fun (FmtPath ns) cutnav ->
-        (fun(_,_,hash3)->hash3)
+        thrd 
           (applytosubtree_ns ns tree
              (function
                 Join (why, how, _, args, fmt, htv, seq, ts, ress) ->
@@ -1226,7 +1220,7 @@ module
                     arginf
                 | _ -> augargs args, rewinf_merge (arginf, rewinf)),
                fmt, hastipval, (augseq seq, rewinf_merge (seqinf, rewinf)),
-               (_MAP (aug, trs), rewinf_merge (trsinf, rewinf)), ress)
+               ((aug <* trs), rewinf_merge (trsinf, rewinf)), ress)
       in
       aug tree
     let rec maxtreeresnum t =
@@ -1234,7 +1228,7 @@ module
         Join j ->
           nj_fold Integer.max
             (maxseqresnum (join_seq j) ::
-               _MAP (maxtreeresnum, join_subtrees j))
+               (maxtreeresnum <* join_subtrees j))
             0
       | Tip t -> maxseqresnum (tip_seq t)
     let rec isCutStep t =
@@ -1259,7 +1253,7 @@ module
         ress ->
           [[l], tl; [], tr]
       | why, how, _, args, fmt, hastipval, seq, (ts, rewinf), ress ->
-          _MAP ((fun (i, t) -> [i], t), numbered ts)
+          (fun (i, t) -> [i], t) <* numbered ts
     let rec visibles showall j =
       let pts = pathedsubtrees j in
       let rec default () = pts, [] in
@@ -1271,9 +1265,8 @@ module
             let (Seq (_, hs', _)) = join_seq j' in
             if hs = hs' then
               let hs =
-                _MAP
-                  ((fun (ns, t) -> p @ ns, t),
-                   (fun(hash1,_)->hash1) (visibles showall j'))
+                   (fun (ns, t) -> p @ ns, t) <*
+                   fst (visibles showall j')
               in
               hs @ ins, pt :: outs
             else nohide ()
@@ -1285,14 +1278,14 @@ module
                 TreeFormat (HideRootFormat, _) ->
                   let r = hr j in
                   (* cut steps keep their shape, else they don't mean anything *)
-                  if ascut && List.length ((fun(hash1,_)->hash1) r) <> 1 + List.length ins then
+                  if ascut && List.length (fst r) <> 1 + List.length ins then
                     begin
                       if !cuthidingdebug then
                         consolereport
                           ["visibles not HIDEROOTING ";
                            join_string treeformatstring
                              (bracketedliststring
-                                (fun ooo -> seqstring (sequent ooo)) ",")
+                                (seqstring <*> sequent) ",")
                              j];
                       nohide ()
                     end
@@ -1337,11 +1330,11 @@ module
       if !prooftreedebug then
         begin
           let onelevel =
-            bracketedliststring (fun ooo -> seqstring (sequent ooo)) ","
+            bracketedliststring (seqstring <*> sequent) ","
           in
           let ptstring =
             bracketedliststring
-              (pairstring nsstring (fun ooo -> seqstring (sequent ooo)) ",")
+              (pairstring nsstring (seqstring <*> sequent) ",")
               ", "
           in
           consolereport
@@ -1354,10 +1347,10 @@ module
       match a1, a2, a3 with
         f, showall, Tip _ -> None
       | f, showall, Join j -> Some (f showall j)
-    let rec visible_subtrees showall ooo =
-      try__ (fun(hash1,_)->hash1) (joinopt (visibles showall) ooo)
-    let rec invisible_subtrees showall ooo =
-      try__ (fun(_,hash2)->hash2) (joinopt (visibles showall) ooo)
+    let rec visible_subtrees showall =
+      try__ fst <*> joinopt (visibles showall)
+    let rec invisible_subtrees showall =
+      try__ snd <*> joinopt (visibles showall)
     let rec pathtoviewpath showall t =
       fun (FmtPath ns) ->
         let rec P ns rns t =
@@ -1366,16 +1359,14 @@ module
           else if not (null r) && isprefix (fun (x, y) -> x = y) r ns then
             P (drop (List.length r) ns, rns, t)
           else
-            andthenr
-              (visible_subtrees showall t,
+            (visible_subtrees showall t &~~
                (fun ts ->
                   let rec find (i, (tns, t)) =
                     if isprefix (fun (x, y) -> x = y) tns ns then
                       Some (i, drop (List.length tns) ns, t)
                     else None
                   in
-                  andthenr
-                    (findfirst find (numbered ts),
+                  (findfirst find (numbered ts) &~~
                      (fun (i, ns', t) -> P (ns', (i :: rns), t)))))
         in
         P (ns, [], t)
@@ -1390,8 +1381,7 @@ module
         let rec P a1 a2 a3 =
           match a1, a2, a3 with
             n :: ns, rns, t ->
-              andthenr
-                (visible_subtrees showall t,
+              (visible_subtrees showall t &~~
                  (fun ts ->
                     try
                       let (ns', t) = List.nth (ts) (n) in P (ns, rev1 ns' rns, t)
@@ -1402,9 +1392,8 @@ module
         P (ns, [], t)
     (* for export *)
     let reasonstyle = ref "long"
-    let visible_subtrees showall ooo =
-      try__ (fun pts -> _MAP ((fun(_,hash2)->hash2), pts))
-        (visible_subtrees showall ooo)
+    let visible_subtrees showall =
+      try__ (fun pts -> (snd <* pts)) <*> visible_subtrees showall
     let rec visreason proved showall t =
       joinopt (join_visreason proved showall) t
     and join_visreason proved showall j =
@@ -1470,27 +1459,24 @@ module
            in
            f (join_fmt j))
     and invisiblereasons proved showall j =
-      _MAP
-        (unSOME,
-         ( <| )
-           (opt2bool,
+         unSOME <*
+           (opt2bool <|
             List.concat
-              (_MAP
-                 ((fun ooo -> allreasons proved showall ((fun(_,hash2)->hash2) ooo)),
-                  (fun(_,hash2)->hash2) (visibles showall j)))))
+              ((allreasons proved showall <*> snd) <*
+                  snd (visibles showall j)))
     and allreasons proved showall t =
       visreason proved showall t ::
         (match t with
            Tip _ -> []
          | Join j ->
-             List.concat (_MAP (allreasons proved showall, join_subtrees j)))
+             List.concat ((allreasons proved showall <* join_subtrees j)))
     let rec join_multistep j vissubts =
       step_resolve (join_how j) ||
       List.exists (fun (ns, _) -> List.length ns > 1) vissubts
-    let hyps ooo =
-      (fun ooo -> explodeCollection ((fun(_,hash2)->hash2) ooo)) (seqexplode ooo)
-    let concs ooo =
-      (fun ooo -> explodeCollection ((fun(_,_,hash3)->hash3) ooo)) (seqexplode ooo)
+    let hyps =
+      explodeCollection <*> snd <*> seqexplode
+    let concs =
+      explodeCollection <*> thrd <*> seqexplode
     let rec tranproof proved showall hideuselesscuts t =
       let rec visp =
         function
@@ -1500,14 +1486,14 @@ module
             it ->
             let (viss, _) = visibles showall j in
             let lpsNsubts' =
-              _MAP ((fun ooo -> visp ((fun(_,hash2)->hash2) ooo)), viss)
+              ((visp <*> snd) <* viss)
             in
             let lps =
               nj_fold (sortedmerge earlierresource)
-                (_MAP ((fun(hash1,_)->hash1), lpsNsubts'))
-                (sort earlierresource ((fun(hash1,_)->hash1) ((fun(hash1,_)->hash1) ress)))
+                ((fst <* lpsNsubts'))
+                (sort earlierresource (fst (fst ress)))
             in
-            let subts' = _MAP ((fun(_,hash2)->hash2), lpsNsubts') in
+            let subts' = (snd <* lpsNsubts') in
             let hidecut =
               (not showall && isCutjoin j) &&
               (match fmt with
@@ -1527,7 +1513,7 @@ module
                        (match
                           concs (sequent t1),
                           listsub sameresource (hyps (sequent t2))
-                            (hyps ((fun(hash1,_)->hash1) seq))
+                            (hyps (fst seq))
                         with
                           [cc], [ch] ->
                             not
@@ -1540,13 +1526,13 @@ module
             Join
               (unSOME (visreason proved showall it), how, None, args,
                VisFormat (join_multistep j viss, hidecut), tshaveTip subts',
-               seq, (subts', (fun(_,hash2)->hash2) subts), ress)
+               seq, (subts', snd subts), ress)
       in
       visp t
     (* for export *)
     
-    let rec visproof proved showall hideuselesscuts ooo =
-      (fun(_,hash2)->hash2) (tranproof proved showall hideuselesscuts ooo)
+    let rec visproof proved showall hideuselesscuts =
+      snd <*> tranproof proved showall hideuselesscuts
     (* there surely ought to be a way to make these structures into one -- I suppose functors inside functors
      * ain't SML.
      *)
@@ -1561,31 +1547,31 @@ module
         and name = name
         let rec dePath = fun (FmtPath ns) -> ns
         let rec rePath (ns, x) = FmtPath ns, x
-        let rec followPath t ooo = followPath_ns t (dePath ooo)
-        let rec onestep t ooo =
-          (fun ooo -> try__ rePath (onestep_ns t ooo)) (dePath ooo)
-        let rec fakePath t ooo = fakePath_ns [] t (dePath ooo)
+        let rec followPath t = followPath_ns t <*> dePath
+        let rec onestep t =
+          try__ rePath <*> onestep_ns t <*> dePath
+        let rec fakePath t = fakePath_ns [] t <*> dePath
         let rec pathPrefix t p1 p2 =
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
-        let rec findTip t ooo = findTip_ns t (dePath ooo)
-        let rec getTip t ooo = getTip_ns t (dePath ooo)
-        let rec allTipPaths t = _MAP (FmtPath, allTipPaths_ns t)
-        let rec allTipConcs t = _MAP (rePath, allTipConcs_ns t)
+        let rec findTip t = findTip_ns t <*> dePath
+        let rec getTip t = getTip_ns t <*> dePath
+        let rec allTipPaths t = (FmtPath <* allTipPaths_ns t)
+        let rec allTipConcs t = (rePath <* allTipConcs_ns t)
         let rec validelement b t el =
           fun (FmtPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
         let validconc = validelement false
-        let rec stillopen t ooo = stillopen_ns t (dePath ooo)
+        let rec stillopen t = stillopen_ns t <*> dePath
         let maxtreeresnum = maxtreeresnum
         let isTip = isTip
         let hasTip = hasTip
-        let rootPath ooo = FmtPath (rootPath_ns ooo)
-        let rec parentPath t ooo =
-          (fun ooo -> FmtPath (parentPath_ns t ooo)) (dePath ooo)
-        let rec siblingPath t path ooo =
-          FmtPath (siblingPath_ns t (dePath path) ooo)
-        let rec subgoalPath t path ooo =
-          FmtPath (subgoalPath_ns t (dePath path) ooo)
+        let rootPath = FmtPath <*> rootPath_ns
+        let rec parentPath t =
+          FmtPath <*> parentPath_ns t <*> dePath
+        let rec siblingPath t path =
+          FmtPath <*> siblingPath_ns t (dePath path)
+        let rec subgoalPath t path =
+          FmtPath <*> subgoalPath_ns t (dePath path)
         let rec reason proved = visreason proved !showallproofsteps
         let subtrees = subtrees
         let sequent = sequent
@@ -1611,32 +1597,32 @@ module
         and name = name
         let rec dePath = fun (VisPath ns) -> ns
         let rec rePath (ns, x) = VisPath ns, x
-        let rec followPath t ooo = followPath_ns t (dePath ooo)
-        let rec onestep t ooo =
-          (fun ooo -> try__ rePath (onestep_ns t ooo)) (dePath ooo)
-        let rec fakePath t ooo = fakePath_ns [] t (dePath ooo)
+        let rec followPath t = followPath_ns t <*> dePath
+        let rec onestep t =
+          try__ rePath <*> onestep_ns t <*> dePath
+        let rec fakePath t = fakePath_ns [] t <*> dePath
         let rec pathPrefix t p1 p2 =
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
-        let rec findTip t ooo = findTip_ns t (dePath ooo)
-        let rec getTip t ooo = getTip_ns t (dePath ooo)
-        let rec allTipPaths t = _MAP (VisPath, allTipPaths_ns t)
-        let rec allTipConcs t = _MAP (rePath, allTipConcs_ns t)
+        let rec findTip t = findTip_ns t <*> dePath
+        let rec getTip t = getTip_ns t <*> dePath
+        let rec allTipPaths t = (VisPath <* allTipPaths_ns t)
+        let rec allTipConcs t = (rePath <* allTipConcs_ns t)
         let rec validelement b t el =
           fun (VisPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
         let validconc = validelement false
-        let rec stillopen t ooo = stillopen_ns t (dePath ooo)
+        let rec stillopen t = stillopen_ns t <*> dePath
         let maxtreeresnum = maxtreeresnum
         let isTip = isTip
         let hasTip = hasTip
         let rec rootPath t = VisPath []
         (* no inner cuts in visprooftrees *)
-        let rec parentPath t ooo =
-          (fun ooo -> VisPath (parentPath_ns t ooo)) (dePath ooo)
-        let rec siblingPath t path ooo =
-          VisPath (siblingPath_ns t (dePath path) ooo)
-        let rec subgoalPath t path ooo =
-          VisPath (subgoalPath_ns t (dePath path) ooo)
+        let rec parentPath t =
+          VisPath <*> parentPath_ns t <*> dePath
+        let rec siblingPath t path =
+          VisPath <*> siblingPath_ns t (dePath path)
+        let rec subgoalPath t path =
+          VisPath <*> subgoalPath_ns t (dePath path)
         let rec reason proved = joinopt join_why
         (* doesn't make use of proved, because it's already happened... *)
         let subtrees = subtrees

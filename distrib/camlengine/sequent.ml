@@ -82,6 +82,7 @@ module M :
     open Termparse.M
     open Match.M
     open Optionfuns.M
+    open SML.M
     
     type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
     type vid = Symboltype.M.vid
@@ -139,12 +140,11 @@ module M :
         Some syn -> syn
       | None -> raise (Catastrophe_ ["couldn't find syntax for "; st])
     let rec syntacticsequents () =
-      ( <| )
-        ((function
+         (function
             Syntactic, _, _, _ -> true
-          | _ -> false),
-         !syntaxes)
-    let rec syntacticturnstiles () = _MAP ((fun(_,_,hash3,_)->hash3), syntacticsequents ())
+          | _ -> false) <|
+         !syntaxes
+    let rec syntacticturnstiles () = ((fun(_,_,hash3,_)->hash3) <* syntacticsequents ())
     let rec describeSeqs ds =
       (* val show = triplestring idclassstring enQuote idclassstring "," *)
       let rec f (hyps, stile, concs) =
@@ -172,7 +172,7 @@ module M :
     let rec setsemanticturnstile syn sem =
       let rec bad ss =
         error
-          (String.concat "" ["Error in SEMANTICTURNSTILE "; syn; " IS "; sem; ": "] ::
+          (implode ["Error in SEMANTICTURNSTILE "; syn; " IS "; sem; ": "] ::
              ss)
       in
       let newsyntaxes =
@@ -328,7 +328,7 @@ module M :
     let rec string2sequent s = tryparse (fun _ -> parseSeq ()) s
     let rec seqvars termvars tmerge =
       fun (Seq (st, hs, gs)) -> tmerge (termvars hs) (termvars gs)
-    let rec seqVIDs s = orderVIDs (_MAP (vartoVID, seqvars termvars tmerge s))
+    let rec seqVIDs s = orderVIDs ((vartoVID <* seqvars termvars tmerge s))
     let rec eqseqs =
       fun (Seq (st1, h1s, g1s), Seq (st2, h2s, g2s)) ->
         (st1 = st2 && eqterms (h1s, h2s)) && eqterms (g1s, g2s)
@@ -337,8 +337,7 @@ module M :
         fun (Seq (st, hyps, goals)) env ->
           if stpat <> st then None
           else
-            andthenr
-              (matchvars matchbra ispatvar pathyps hyps env,
+            (matchvars matchbra ispatvar pathyps hyps env &~~
                matchvars matchbra ispatvar patgoals goals)
     let rec seqmatch matchbra = seqmatchvars matchbra ismetav
     let rec remapseq env =
@@ -350,6 +349,6 @@ module M :
       Seq (st, registerCollection (sh, hs), registerCollection (sg, gs))
     let rec maxseqresnum =
       fun (Seq (st, hs, gs)) ->
-        nj_fold (uncurry2 max) (_MAP (resnum2int, elementnumbers hs))
-          (nj_fold (uncurry2 max) (_MAP (resnum2int, elementnumbers gs)) 0)
+        nj_fold (uncurry2 max) ((resnum2int <* elementnumbers hs))
+          (nj_fold (uncurry2 max) ((resnum2int <* elementnumbers gs)) 0)
   end

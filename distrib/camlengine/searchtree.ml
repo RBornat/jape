@@ -33,6 +33,7 @@ module M : T =
   struct
     open Listfuns.M
     open Miscellaneous.M
+    open SML.M
     
     (* updatable syntax search trees, without backtracking. 
      * The trees have to allow for 'prefix' searching, where there is
@@ -70,12 +71,12 @@ module M : T =
       fun (SearchTree (csrbs, status) as t) (cs, r, isprefix as info) ->
         if List.exists (same eqr info) csrbs then t
         else
-          SearchTree (info :: ( <| ) (diff cs, csrbs), Unbuilt (mkalt status))
+          SearchTree (info :: (diff cs <| csrbs), Unbuilt (mkalt status))
     (* delete stuff from trees; explode if it isn't there *)
     let rec deletefromtree eqr =
       fun (SearchTree (csrbs, status) as t) (cs, r, isprefix as info) ->
         if List.exists (same eqr info) csrbs then
-          SearchTree (( <| ) (diff cs, csrbs), Unbuilt (mkalt status))
+          SearchTree (diff cs <| csrbs, Unbuilt (mkalt status))
         else raise (Catastrophe_ ["deletefromtree"])
     (* give list of items in tree and what they index *)
     let rec summarisetree = fun (SearchTree (csrbs, _) as t) -> csrbs
@@ -109,17 +110,17 @@ module M : T =
           and doalt a1 a2 a3 =
             match a1, a2, a3 with
               cqs, [], def ->
-                let cts = _MAP ((fun (c, csrbs) -> c, doit csrbs), cqs) in
+                let cts = ((fun (c, csrbs) -> c, doit csrbs) <* cqs) in
                 begin match cts with
                   [c, t] -> Eq (c, t, def)
                 | [] -> def
-                | _ -> Alt (mkalt (_MAP ((fun (c, t) -> c, Shift t), cts)) def)
+                | _ -> Alt (mkalt ((fun (c, t) -> c, Shift t) <* cts) def)
                 end
             | cqs, qs, def ->
                 let c = List.hd ((fun(xs,_,_)->xs) (List.hd qs)) in
                 let (sames, diffs) = split (fun (cs, _, _) -> List.hd cs = c) qs in
                 doalt
-                  ((c, _MAP ((fun (cs, r, b) -> List.tl cs, r, b), sames)) :: cqs)
+                  ((c, (fun (cs, r, b) -> List.tl cs, r, b) <* sames) :: cqs)
                   diffs def
           in
           let t = doit csrbs in rt := SearchTree (csrbs, Built (mkalt, t)); t

@@ -49,6 +49,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
     open Optionfuns.M 
     open Term.M 
     open Idclass.M
+    open SML.M
     
     type ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
     type term = Term.M.term
@@ -88,11 +89,10 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
       let rec eqt (t1, t2) mrs =
         if eqterms (t1, t2) then mrs
         else if simterms (t1, t2) then
-          _MAP
-            ((function
+             (function
                 Certain e -> Uncertain e
-              | umr -> umr),
-             mrs)
+              | umr -> umr) <*
+             mrs
         else []
       in
       let rec bindvar v t mr =
@@ -107,13 +107,13 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
             | _ -> None
       in
       let rec matchlist f pats objs mrs =
-        try nj_fold (uncurry2 (uncurry2 f)) (( ||| ) (pats, objs)) mrs with
-          Zip -> []
+        try nj_fold (uncurry2 (uncurry2 f)) ((pats ||| objs)) mrs with
+          Zip_ -> []
       in
       let listmatch = matchlist matchterm in
       let matchvts =
-        let rec f (vpat, tpat) (vterm, tterm) ooo =
-          matchterm vpat vterm (matchterm tpat tterm ooo)
+        let rec f (vpat, tpat) (vterm, tterm) =
+          matchterm vpat vterm <*> matchterm tpat tterm
         in
         matchlist f
       in
@@ -145,7 +145,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
               | mrs -> Some mrs
             in
             let rec g (_, mrs, terms) = bagmatch epats terms mrs in
-            res (List.concat (_MAP (g, matchbag f eterms)))
+            res (List.concat ((g <* matchbag f eterms)))
         | _ -> res []
       in
       if null mrs then []
@@ -208,7 +208,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
             let rec f =
               function
                 Segvar (_, ps, v), es ->
-                  let ps' = _MAP (_RR, ps) in
+                  let ps' = (_RR <* ps) in
                   begin match at (env, v) with
                     Some t ->
                       begin match debracket t with
@@ -241,14 +241,14 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
           Id _ -> mkid FormulaClass
         | Unknown _ -> mkid FormulaClass
         | App _ -> registerApp (mkid FormulaClass, mkid FormulaClass)
-        | Tup (_, s, ts) -> registerTup (s, _MAP (_S, ts))
+        | Tup (_, s, ts) -> registerTup (s, (_S <* ts))
         | Literal _ -> t
-        | Fixapp (_, ss, ts) -> registerFixapp (ss, _MAP (_S, ts))
+        | Fixapp (_, ss, ts) -> registerFixapp (ss, (_S <* ts))
         | Subst (_, r, _P, vts) ->
             registerSubst
-              (r, mkid FormulaClass, _MAP ((fun (v, t) -> _S v, _S t), vts))
+              (r, mkid FormulaClass, (fun (v, t) -> _S v, _S t) <* vts)
         | Binding (_, vs, _, pat) -> _S pat
-        | Collection (_, k, es) -> registerCollection (k, _MAP (_E, es))
+        | Collection (_, k, es) -> registerCollection (k, (_E <* es))
       and _E e =
         match e with
           Segvar (_, ps, v) -> registerSegvar (ps, _S v)
@@ -262,7 +262,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
       let rec best mrs =
         match mrs with
           (Certain e as mr) :: _ -> Some mr
-        | mr :: mrs -> ortryr (best mrs, (fun _ -> Some mr))
+        | mr :: mrs -> (best mrs |~~ (fun _ -> Some mr))
         | [] -> None
       in
       best (matchtermvars matchbra ispatvar pat term [mr])
@@ -271,8 +271,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
     let match3vars = matchvars
     let rec match3 matchbra = match3vars matchbra ismetav
     let rec matchvars matchbra ispatvar pat t env =
-      andthenr
-        (match3vars matchbra ispatvar pat t (Certain env),
+        (match3vars matchbra ispatvar pat t (Certain env) &~~
          (function
             Certain e -> Some e
           | _ -> None))

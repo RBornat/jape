@@ -28,6 +28,8 @@ module type T =
 
 module M : T =
   struct
+    open SML.M
+    
     type answer = Yes | Maybe | No
     (* Yes > Maybe > No *)
     
@@ -73,7 +75,7 @@ module M : T =
       match a with
         Yes -> true
       | _ -> false
-    let qDEFNOT ooo = qDEF (notq ooo)
+    let qDEFNOT = qDEF <*> notq
     let rec qUNSURE =
       function
         Maybe -> true

@@ -223,18 +223,18 @@ module
          subgoals) ->
         cxt,
         mkJoin cxt reason how args conjecture
-          (_MAP ((fun ooo -> mkTip cxt (rewriteseq cxt ooo)), subgoals))
+          ((mkTip cxt <*>rewriteseq cxt) <* subgoals)
           (* rewrite tips here *)
           (thinnedL, thinnedR)
     (* filters *)
     let rec nofilter r = Some r
-    let rec filter f ps = ( <| ) (f, ps)
+    let rec filter = List.filter
     let rec nonempty =
       function
         [] -> None
       | xs -> Some xs
-    let rec runfilter e g ooo =
-      (fun ooo -> explain e (nonempty ooo)) (filter g ooo)
+    let rec runfilter e g =
+      explain e <*> nonempty <*> filter g
     let showel = smlelementstring termstring
     let (bymatch : possmatch -> possmatch option) =
       runfilter
@@ -300,9 +300,9 @@ module
         fun (Info {conjecture = Seq (st, chs, cgs)}, thinnedL, thinnedR, _, _)
           (_, thinnedL', thinnedR', _, _) ->
           (thinnedL = thinnedL' ||
-           identical ((fun(_,hash2)->hash2) (breakside chs)) (thinnedL, thinnedL')) &&
+           identical (snd (breakside chs)) (thinnedL, thinnedL')) &&
           (thinnedR = thinnedR' ||
-           identical ((fun(_,hash2)->hash2) (breakside cgs)) (thinnedR, thinnedR'))
+           identical (snd (breakside cgs)) (thinnedR, thinnedR'))
       and identical a1 a2 =
         match a1, a2 with
           BagClass _, (rts, rts') -> eqlists sameresource (rts, rts')
@@ -327,7 +327,7 @@ module
             implode
               [seqstring (rewriteseq cxt c); " generates subgoal";
                if List.length ss = 1 then " " else "s "] ::
-              _MAP ((fun ooo -> seqstring (rewriteseq cxt ooo)), ss)
+              ((seqstring <*> rewriteseq cxt) <* ss)
       in
       let rec numwords n =
         match n with
@@ -353,13 +353,13 @@ module
                  ["The "; kind; " "; step_label how; " matches in ";
                   numwords (List.length ps); " different ways. ";
                   "Select an instance of the "; kind; " from this menu: "],
-               _MAP (listposs, ps))
+               (listposs <* ps))
           with
             None -> failOffering (); None
           | Some n -> succeedOffering (); Some (answer (List.nth (ps) (n)))
     (* this isn't really discriminatory, is it? *)
     
-    let rec takethelot ps = _MAP (answer, ps)
+    let rec takethelot ps = (answer <* ps)
     (**************************************************************************
     ***************************************************************************)
 
@@ -394,10 +394,10 @@ module
               end
           | _ -> None
         in
-        _MAP ((fun cxt -> optionfilter (thinned cxt) resnums, cxt), cxts)
+        (fun cxt -> optionfilter (thinned cxt) resnums, cxt) <* cxts
     (* obvious analogue of exists *)
-    let rec all f ooo = not (List.exists (fun ooo -> not (f ooo)) ooo)
-    let rec BnMfilter f xs = ( <| ) (f, xs)
+    let rec all f = not <*> List.exists (not <*> f)
+    let rec BnMfilter = List.filter
     (*   Match rule by hypothesis then conclusion
          and generate sets of subgoals from antecedents,
          indexed by the hypothesis match.
@@ -438,7 +438,7 @@ module
             let rec goodside ths side =
               let (_, c, els) = breakside side in
               registerCollection
-                (c, ( <| ) ((fun el -> not (member (el, ths))), els))
+                (c, (fun el -> not (member (el, ths))) <| els)
             in
             let cHs = goodside thinnedL CHs in
             let cGs = goodside thinnedL CGs in
@@ -459,7 +459,7 @@ module
          *)
         let rec result subgoals (thinnedL, thinnedR, cxt) =
           (* don't rewrite uHs, uGs, because of 'used' filters above *)
-          info, thinnedL, thinnedR, cxt, _MAP (rewriteseq cxt, subgoals)
+          info, thinnedL, thinnedR, cxt, (rewriteseq cxt <* subgoals)
         in
         (* get rid of alternatives which have the *same* thinners in bag matching 
         fun remdupposs (BagClass _) ps =
@@ -471,8 +471,8 @@ module
         |   remdupposs _            ps = ps
         *)
         
-        let Hkind = (fun(_,hash2)->hash2) (breakside Hs) in
-        let Gkind = (fun(_,hash2)->hash2) (breakside Gs) in
+        let Hkind = snd (breakside Hs) in
+        let Gkind = snd (breakside Gs) in
         let rec checkinclusive js ks =
           all (fun j -> List.exists (fun k -> sameresource (j, k)) ks) js ||
           all (fun k -> List.exists (fun j -> sameresource (j, k)) js) ks
@@ -507,100 +507,78 @@ module
             ["The goal fits the rule, but the rule didn't make use of the ";
              word; " "; ts; " which you selected"]
           in
-          fun ooo ->
-            andthen
-              (andthen
-                 (andthen
-                    (andthen
-                       (andthen
-                          ((fun ooo ->
-                              (fun ooo ->
-                                 explain (exp1 "conclusion" "conclusions" CGs)
-                                   (nonempty ooo))
-                                (fitter checker resnumRs (Gs, CGs) ooo)),
-                           (fun ooo ->
-                              (fun ooo ->
-                                 explain
-                                   (unusedprincipal "conclusion" "conclusions"
-                                      selconcs)
-                                   (nonempty ooo))
-                                (BnMfilter
-                                   ((fun (thRs, _) ->
-                                       let r = checkinclusive thRs selconcs in
-                                       if !applydebug > 0 then
-                                         consolereport
-                                           ["usedconc checking ";
-                                            bracketedliststring showel ","
-                                              selconcs;
-                                            " against ";
-                                            bracketedliststring showel ","
-                                              thRs;
-                                            " => "; string_of_int r];
-                                       r),
-                                    ooo)))),
-                        (fun ooo ->
-                           (fun ooo ->
-                              (fun ooo ->
-                                 explain (exp1 "hypothesis" "hypotheses" CHs)
-                                   (nonempty ooo))
-                                (List.concat ooo))
-                             (List.map
-                                (fun (thinnedR, cxt) ->
-                                   ( >< )
-                                     ([thinnedR],
-                                      fitter checker resnumLs (Hs, CHs) cxt))
-                                ooo))),
-                     (fun ooo ->
-                        (fun ooo ->
-                           explain
-                             (unusedprincipal "hypothesis" "hypotheses"
-                                selhyps)
-                             (nonempty ooo))
-                          (BnMfilter
-                             ((fun (_, (thLs, _)) ->
-                                 let r = checkinclusive thLs selhyps in
-                                 if !applydebug > 0 then
-                                   consolereport
-                                     ["usedhyp checking ";
-                                      bracketedliststring showel "," selhyps;
-                                      " against ";
-                                      bracketedliststring showel "," thLs;
-                                      " => "; string_of_int r];
-                                 r),
-                              ooo)))),
-                  (fun poss ->
-                     let rec doprovisos
-                       ((thinnedR, (thinnedL, cxt) as pos), (bads, goods)) =
-                       try
-                         bads,
-                         (thinnedL, thinnedR,
-                          verifyprovisos
-                            (plusprovisos
-                               (cxt, impprovisos thinnedL thinnedR))) ::
-                           goods
-                       with
-                         Verifyproviso_ p -> p :: bads, goods
-                     in
-                     match nj_fold doprovisos poss ([], []) with
-                       bads, [] ->
-                         begin match sortunique earlierproviso bads with
-                           [p] ->
-                             explain
-                               (exp0
-                                  ["the goal fits the rule, but the proviso ";
-                                   provisostring p; " is violated"])
-                               None
-                         | ps ->
-                             explain
-                               (exp0
-                                  ["the goal fits the rule, but the provisos (variously ";
-                                   liststring provisostring " and " ps;
-                                   ") are violated"])
-                               None
-                         end
-                     | _, (_ :: _ as goods) -> Some goods)),
-               nonempty)
-              (List.map (result antecedents) ooo)
+			(explain (exp1 "conclusion" "conclusions" CGs) <*> nonempty <*> 
+			  fitter checker resnumRs (Gs, CGs)) 
+			&~
+			(explain (unusedprincipal "conclusion" "conclusions" selconcs) <*> 
+			 nonempty <*> 
+			 BnMfilter (fun (thRs, _) ->
+						  let r = checkinclusive thRs selconcs in
+						  if !applydebug > 0 then
+							consolereport
+							  ["usedconc checking ";
+							   bracketedliststring showel ","
+								 selconcs;
+							   " against ";
+							   bracketedliststring showel ","
+								 thRs;
+							   " => "; string_of_int r];
+						  r))),
+			&~
+			(explain (exp1 "hypothesis" "hypotheses" CHs) <*> 
+			 nonempty <*> 
+			 List.concat "" <*> 
+			 List.map
+				(fun (thinnedR, cxt) ->
+				   [thinnedR] >< fitter checker resnumLs (Hs, CHs) cxt))
+			&~
+			(explain (unusedprincipal "hypothesis" "hypotheses" selhyps) <*>
+			 nonempty <*>
+			 BnMfilter ((fun (_, (thLs, _)) ->
+						   let r = checkinclusive thLs selhyps in
+						   if !applydebug > 0 then
+							 consolereport
+							   ["usedhyp checking ";
+								bracketedliststring showel "," selhyps;
+								" against ";
+								bracketedliststring showel "," thLs;
+								" => "; string_of_int r];
+						   r))))
+			&~
+			(fun poss ->
+			   let rec doprovisos
+				 ((thinnedR, (thinnedL, cxt) as pos), (bads, goods)) =
+				 try
+				   bads,
+				   (thinnedL, thinnedR,
+					verifyprovisos
+					  (plusprovisos
+						 (cxt, impprovisos thinnedL thinnedR))) ::
+					 goods
+				 with
+				   Verifyproviso_ p -> p :: bads, goods
+			   in
+			   match nj_fold doprovisos poss ([], []) with
+				 bads, [] ->
+				   begin match sortunique earlierproviso bads with
+					 [p] ->
+					   explain
+						 (exp0
+							["the goal fits the rule, but the proviso ";
+							 provisostring p; " is violated"])
+						 None
+				   | ps ->
+					   explain
+						 (exp0
+							["the goal fits the rule, but the provisos (variously ";
+							 liststring provisostring " and " ps;
+							 ") are violated"])
+						 None
+				   end
+			   | _, (_ :: _ as goods) -> Some goods)),
+			&~
+			nonempty <*>
+			List.map (result antecedents)
         in
         if Cst = st then genSubGoals (plusprovisos (cxt, newprovisos))
         else
@@ -667,6 +645,6 @@ module
              new M.a)
         in
         andthenr
-          (subGoalsOfRule checker hiddencontexts info,
-           andthen (filter, taker))
+           subGoalsOfRule checker hiddencontexts info &~~
+           (filter &~ taker)
   end

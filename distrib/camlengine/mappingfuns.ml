@@ -39,6 +39,7 @@ module M : T =
   struct
     open Miscellaneous.M
     open Listfuns.M
+    open SML.M
 
     type ('a, 'b) mapping = ('a * 'b) list
 

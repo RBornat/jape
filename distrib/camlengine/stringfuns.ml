@@ -93,6 +93,7 @@ module M : T =
   struct
     open Miscellaneous.M
     open Listfuns.M
+    open SML.M
     
     let rec isQuoted s =
       String.sub (s) (0) (1) = "\"" && String.sub (s) (String.length s - 1) (1) = "\""
@@ -129,7 +130,7 @@ module M : T =
             | '"' :: cs -> ['"'] :: wds cs
             | c :: cs -> let ws = qds cs in (c :: List.hd ws) :: List.tl ws
           in
-          List.map implode (wds (explode s))
+          List.map char_implode (wds (char_explode s))
     let respace ws = String.concat " " ws
     
     let lowercase = String.lowercase

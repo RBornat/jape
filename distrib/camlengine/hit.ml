@@ -108,10 +108,10 @@ module
       | ReasonHit p -> Some p
     let rec selpath =
       function
-        FormulaSel f -> Some ((fun(hash1,_)->hash1) f)
+        FormulaSel f -> Some (fst f)
       | TextSel (ths, _) ->
           begin match
-            optionmap (fun ooo -> fhitpath ((fun(hash1,_)->hash1) ooo)) ths
+            optionmap (fhitpath <*> fst) ths
           with
             Some (p :: ps) ->
               if not (List.exists (fun p' -> p <> p') ps) then Some p else None

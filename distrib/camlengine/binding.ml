@@ -78,7 +78,7 @@ module M : T with type term = Match.M.term =
             in
             let _E = lookup mapping in
             Some
-              ((_MAP (_E, bounds), _MAP (_E, scopes), _MAP (_E, unscopes)), env,
+              (((_E <* bounds), (_E <* scopes), (_E <* unscopes)), env,
                pat)
       in
       let rec bindingstructure t =

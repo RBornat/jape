@@ -83,6 +83,7 @@ module M : T with type vid = Symboltype.M.vid
     open Miscellaneous.M
     open Optionfuns.M
     open Stringfuns.M
+    open SML.M
     
 	type vid = string
 	type idclass = Idclass.M.idclass
@@ -95,8 +96,6 @@ module M : T with type vid = Symboltype.M.vid
 	   RB
 	 *)
     open Stream
-    let explode s = List.map (String.make 1) (Miscellaneous.M.explode s)
-    let implode   = String.concat ""
     
     let symboldebug = ref false
     let appfix_default = 10000
@@ -146,7 +145,7 @@ module M : T with type vid = Symboltype.M.vid
         Some ss -> ss
       | None ->
           let ops =
-            List.map (fun ooo -> implode ((fun(r,_,_)->r) ooo))
+            List.map (implode <*> (fun(r,_,_)->r))
               (summarisetree !optree)
           in
           sortunique ((<) : string -> string -> bool)
@@ -301,7 +300,7 @@ module M : T with type vid = Symboltype.M.vid
              BQuote1 s'2; BQuote1 "\")"]
       | STILE s'1 -> BQuote2 ["STILE \""; s'1; "\""]
       | SHYID s'1 -> BQuote2 ["RESERVED-WORD "; s'1]
-    let smlsymbolstring ooo = pre_implode (pre_SYMBOL ooo)
+    let smlsymbolstring = pre_implode <*> pre_SYMBOL
     let symbolstring = reverselookup
     let rec register_op s sym =
       let rec bang () =
@@ -310,7 +309,7 @@ module M : T with type vid = Symboltype.M.vid
       if s = "" then bang ()
       else
         let cs = explode s in
-        if List.exists (fun ooo -> not (ispunct ooo)) cs then bang ()
+        if List.exists (not <*> ispunct) cs then bang ()
         else
           begin
             if !symboldebug then
@@ -411,7 +410,7 @@ module M : T with type vid = Symboltype.M.vid
       (* no warnings about clashes any more *)
       None
     let rec isnumber s =
-      not (List.exists (fun ooo -> not (isdigit ooo)) (explode s))
+      not (List.exists (not <*> isdigit) (explode s))
     let rec isextensibleID s =
       lookup s = None && lookinIdtree idprefixtree (explode s) <> NoClass
     let commasymbol = INFIX (0, TupleAssoc, ",")
@@ -680,7 +679,7 @@ module M : T with type vid = Symboltype.M.vid
         match !peekedsymb with
           [] ->
             symb :=
-              scanwhile (fun ooo -> not (isreserved ooo)) (List.rev cs) checkbadID;
+              scanwhile (not <*> isreserved) (List.rev cs) checkbadID;
             !symb
         | _ -> raise (Catastrophe_ ["peeksymb(); currnovelsymb()"])
       else
@@ -721,8 +720,7 @@ module M : T with type vid = Symboltype.M.vid
       | a1, a2 ->
           let rec msp c =
             opt2bool
-              (andthenr
-                 (fsmpos (rootfsm optree) (explode a1),
+              ((fsmpos (rootfsm optree) (explode a1) &~~
                   (fun t -> fsmpos t [c])))
           in
           let rec ms =

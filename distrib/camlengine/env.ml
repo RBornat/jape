@@ -43,6 +43,6 @@ module env : env =
       nj_fold
         (fun (x, xs) -> if List.exists (fun x' -> x = x') xs then xs else x :: xs)
         l []
-    let rec variables () = nodups (List.map (fun(hash1,_)->hash1) (fetchenv ()))
+    let rec variables () = nodups (List.map fst (fetchenv ()))
   end
 

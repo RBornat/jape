@@ -161,7 +161,7 @@ module
       in
       let i2s : int -> string = string_of_int in
       basejapevar None (i2s v)
-        ((fun ooo -> set (s2i ooo)), (fun ooo -> i2s (get ooo)))
+        ((set <*> s2i), (i2s <*> get))
     let rec intjaperefvar v r =
       intjapevar v ((fun i -> r := i), (fun () -> !r))
     let on = "true"
@@ -170,7 +170,7 @@ module
       let rec s2b t = t = on in
       let rec b2s v = if v then on else off in
       basejapevar (Some [on; off]) (b2s v)
-        ((fun ooo -> set (s2b ooo)), (fun ooo -> b2s (get ooo)))
+        ((set <*> s2b), (b2s <*> get))
     let rec booljaperefvar v r =
       booljapevar v ((fun b -> r := b), (fun () -> !r))
     type envval = Envterm of term | Envvar of japevar
