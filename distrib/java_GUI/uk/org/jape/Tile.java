@@ -59,6 +59,7 @@ public class Tile extends JLabel implements DebugConstants,
     public static DataFlavor tileFlavor;
                                                 
     static final int spacing = LocalSettings.TileSpacing;
+    
     static final Border padding = BorderFactory.createEmptyBorder(spacing/2,spacing,spacing/2,spacing),
                         raisedbevel = BorderFactory.createRaisedBevelBorder(),
                         loweredbevel = BorderFactory.createLoweredBevelBorder(),
@@ -66,12 +67,13 @@ public class Tile extends JLabel implements DebugConstants,
                         border = BorderFactory.createCompoundBorder(compoundbevel, padding);
 
     public Tile(Container layeredPane, final String text) {
-        super(text); this.text = text;
+        super(text);
+        this.layeredPane = layeredPane; this.text = text;
+
         setFont(JapeFont.getFont(ProtocolConstants.TermFontNum));
         setBorder(border);
         setSize(getPreferredSize());
 
-        this.layeredPane = layeredPane;
         if (tileFlavor==null) {
             try {
                 tileFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType+
