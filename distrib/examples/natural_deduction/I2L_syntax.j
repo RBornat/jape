@@ -7,7 +7,6 @@ CLASS BAG FORMULA Γ
 CONSTANT ⊥
 
 PREFIX	10	actual
-/* POSTFIX	10	inscope   no longer used. I don't think that proof files will crash without it */
 
 INFIX		100R		→
 INFIX		120L		∨
