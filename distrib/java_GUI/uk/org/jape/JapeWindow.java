@@ -59,12 +59,12 @@ public class JapeWindow extends JFrame {
     }
     
     protected void setBar() {
-        if (this instanceof ProofWindow || 
-            (this instanceof PanelWindowData.PanelWindow && LocalSettings.panelWindowMenus) ||
-                // even panel windows get a menu on MacOS X
+        if (this instanceof ProofWindow)
+            JapeMenu.setProofWindowBar(this);
+        else
+        if ((this instanceof PanelWindowData.PanelWindow && LocalSettings.panelWindowMenus) ||
             this instanceof SurrogateWindow)
-                // the surrogate needs all the menus, till we implement PROOFMENU 
-            JapeMenu.setBar(this);
+            JapeMenu.setNonProofWindowBar(this);
     }
     
     public static void updateMenuBars() {
@@ -74,6 +74,23 @@ public class JapeWindow extends JFrame {
         }
     }
 
+    public static void ensureMenusAvailable() {
+        SurrogateWindow sw = null;
+        for (int i=0; i<windowv.size(); i++) {
+            JapeWindow w = (JapeWindow)windowv.get(i);
+            if (w instanceof ProofWindow)
+                return;
+            if (w instanceof PanelWindowData.PanelWindow && LocalSettings.panelWindowMenus)
+                return;
+            if (w instanceof SurrogateWindow)
+                sw = (SurrogateWindow) w;
+        }
+        // no useable menus anywhere ... get a surrogate
+        if (sw==null)
+            sw = new SurrogateWindow();
+        sw.setVisible(true);
+    }
+    
     private static Point firstPos = new Point(0,0);
     private static Point lastPos  = null;
 
