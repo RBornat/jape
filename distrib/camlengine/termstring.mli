@@ -76,6 +76,8 @@ val catelim_string_of_resnum : resnum -> string list -> string list
 val string_of_termlist         : term list -> string
 val catelim_string_of_termlist : term list -> string list -> string list
 
+val isInfixApp: term -> bool
+
 val debracketapplications : bool ref
 
 (* this is internals showing.  Sorry. RB *)

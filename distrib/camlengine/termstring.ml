@@ -238,11 +238,27 @@ and insertspace =
     r :: rs as rest ->
       if r = invisket then r :: insertspace rs else " " :: rest
   | [] -> [" "]
-let rec opname f =
+
+let opname f =
   match f, !debracketapplications, debracket f with
-    Id (_, v, _), _, _ -> Some (string_of_vid v)
+    Id (_, v, _), _, _    -> Some (string_of_vid v)
   | _, true, Id (_, v, _) -> Some (string_of_vid v)
-  | _ -> None
+  | _                     -> None
+
+(* test if a formula will be printed as infix *)
+let isInfixApp t =
+  let opsymb = opname &~ (_Some <.> lookup) in
+  match t with
+    App (_, (App (_, f, _)), _) ->
+      (match opsymb f with
+        Some (INFIXC _ ) -> true
+       | _               -> false)
+  | App (_, f, arg) ->
+      (match opsymb f with
+         Some (INFIX _) -> true
+       | _              -> false)
+  | _ -> false
+
 (* this function will probably produce stupid results if the language includes
  * operators with identical priorities but differing associativity.
  *)
@@ -319,42 +335,37 @@ let rec _T ivb ivk n a t s =
   | Unknown (_, v, _) -> ivb t :: quadcolon (metachar_as_string ^ (string_of_vid v)) (ivk t :: s)
   | App (_, (App (_, f, arg1) as l), arg2) ->
       begin match
-        (opname f &~~
-           (fun name ->
-              match lookup name with
-                INFIXC _ as sy' ->
-                  Some
-                    (ivb t :: tip_ (prio sy') (assoc sy') arg1 name arg2 (ivk t :: s))
-              | _ -> None))
+        opname f &~~
+        (fun name ->
+           match lookup name with
+             INFIXC _ as sy' ->
+               Some (ivb t :: tip_ (prio sy') (assoc sy') arg1 name arg2 (ivk t :: s))
+           | _ -> None)
       with
         Some r -> r
-      | _ -> ivb t :: _TAP l arg2 (ivk t :: s)
+      | _      -> ivb t :: _TAP l arg2 (ivk t :: s)
       end
   | App (_, f, arg) ->
       begin match
-        (opname f &~~
-           (fun name ->
-              match lookup name with
-                INFIX _ as sy' ->
-                  let m = prio sy' in
-                  let a = assoc sy' in 
-                  begin match
-                    arg, !debracketapplications, debracket arg
-                  with
-                    Tup (_, ",", [arg1; arg2]), _, _ ->
-                      Some
-                        (ivb t ::
-                           tip_ m a arg1 name arg2 (ivk t :: s))
-                  | _, true, Tup (_, ",", [arg1; arg2]) ->
-                      Some
-                        (ivb t ::
-                           tip_ m a arg1 name arg2 (ivk t :: s))
-                  | _ -> None
-                  end
-              | sy -> Some (ivb t :: _TFA sy f arg (ivk t :: s))))
+        opname f &~~
+        (fun name ->
+           match lookup name with
+             INFIX _ as sy' ->
+               let m = prio sy' in
+               let a = assoc sy' in 
+               begin match
+                 arg, !debracketapplications, debracket arg
+               with
+                 Tup (_, ",", [arg1; arg2]), _, _ ->
+                   Some (ivb t :: tip_ m a arg1 name arg2 (ivk t :: s))
+               | _, true, Tup (_, ",", [arg1; arg2]) ->
+                   Some (ivb t :: tip_ m a arg1 name arg2 (ivk t :: s))
+               | _ -> None
+               end
+           | sy -> Some (ivb t :: _TFA sy f arg (ivk t :: s)))
       with
         Some r -> r
-      | None -> ivb t :: _TAP f arg (ivk t :: s)
+      | None   -> ivb t :: _TAP f arg (ivk t :: s)
       end
   | Tup (_, sep, ts) ->
       let n' =
