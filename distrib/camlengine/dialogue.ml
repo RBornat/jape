@@ -150,6 +150,7 @@ module M : T =
            (* is this too much work to avoid a few quotes? *)
            (fun () -> Name.M.namestring (Name.M.namefrom !r)))
     and ajd r = aj !r r in
+    (* default settings for all variables accessible via Japeish *)
     let pairs =
       ["alwaysshowturnstile", bj false Sequent.Funs.alwaysshowturnstile;
        "applyconjectures", bj true Miscellaneous.M.applyconjectures;
@@ -159,9 +160,8 @@ module M : T =
        "autoselect", bj false Miscellaneous.M.autoselect;
        "boxlinedisplay", sj ["left"; "right"] "right" Boxdraw.M.boxlinedisplay;
        "debracketapplications", bj false Term.Termstring.debracketapplications;
-       "displaystyle",
-       jv ["box"; "tree"] "tree"
-          (Interaction.M.setdisplaystyle, Interaction.M.getdisplaystyle);
+       "displaystyle", jv ["box"; "tree"] "tree"
+                          (Interaction.M.setdisplaystyle, Interaction.M.getdisplaystyle);
        "foldformulae", bj false Miscellaneous.M.foldformulae;
        (* false for now, till Unix interface catches up *)
        "hidecut", bj true Boxdraw.M.hidecut;

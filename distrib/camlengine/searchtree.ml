@@ -26,8 +26,9 @@ module type T =
     val scanstatefsm :
       ('a -> 'c) -> ('a -> 'a) -> ('c, 'r) fsm -> 'a -> ('r, 'a) searchresult
     val searchfsm : ('c, 'r) fsm -> 'c list -> ('r, 'c list) searchresult
+
+    exception DeleteFromTree_
   end
-(* $Id$ *)
 
 module M : T =
   struct
@@ -55,7 +56,7 @@ module M : T =
       ('c * ('c, 'r) fsm) list -> ('c, 'r) fsm -> 'c -> ('c, 'r) fsm
     type ('c, 'r) searchtree =
       SearchTree of (('c list * 'r * bool) list * ('c, 'r) status)
-    (* chars result isprefix         tree            *)
+                    (* chars  result isprefix         tree            *)
 
     let rec emptysearchtree f = SearchTree ([], Unbuilt f)
     let rec mkalt =
@@ -73,11 +74,12 @@ module M : T =
         else
           SearchTree (info :: (diff cs <| csrbs), Unbuilt (mkalt status))
     (* delete stuff from trees; explode if it isn't there *)
+    exception DeleteFromTree_
     let rec deletefromtree eqr =
       fun (SearchTree (csrbs, status) as t) (cs, r, isprefix as info) ->
         if List.exists (same eqr info) csrbs then
           SearchTree (diff cs <| csrbs, Unbuilt (mkalt status))
-        else raise (Catastrophe_ ["deletefromtree"])
+        else raise DeleteFromTree_
     (* give list of items in tree and what they index *)
     let rec summarisetree = fun (SearchTree (csrbs, _) as t) -> csrbs
     let rec catelim_fsmstring cf rf t ss =

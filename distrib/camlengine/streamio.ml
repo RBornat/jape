@@ -57,19 +57,20 @@ module M : T =
       function
         None -> writestring none
       | Some i -> witem i; ()
+    exception WritefGet
     let rec writef writer format items =
       let rec wf a1 a2 a3 =
         match a1, a2, a3 with
           0, _, _ -> ()
         | n, m, items ->
-            match Char.chr (Char.code (String.get format m)) with
+            match String.get format m with
               '%' -> writer (List.hd items); wf (n - 1) (m + 1) (List.tl items)
             | '/' ->
-                writechar (Char.chr (Char.code (String.get format (m + 1))));
+                writechar (String.get format (m + 1));
                 wf (n - 2) (m + 2) items
             | c -> writechar c; wf (n - 1) (m + 1) items
       in
-      wf (String.length format) 0 items
+      (try wf (String.length format) 0 items with _ -> raise WritefGet)
     
     let rec readline () = input_line !instream
     let rec readch () = input_char !instream 

@@ -110,7 +110,7 @@ module M : T =
       q ()
     exception Error_
     let rec error strings = consolereport strings; raise Error_
-    let rec sum ns = List.fold_left (fun x y -> x + y) 0 ns
+    let rec sum ns = List.fold_left (+) 0 ns
     let rec curry2 f a b = f (a, b)
     let rec uncurry2 f (a, b) = f a b
     let rec refstring f {contents = a} = ("ref(" ^ f a) ^ ")"

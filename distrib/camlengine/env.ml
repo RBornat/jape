@@ -15,13 +15,15 @@ module M : T  =
     
     let (env : (string * string) list ref) = ref []
     let rec reset () = env := []
-    let rec split (s : string) =
-      let eq = Char.code '=' in
-      let p = ref 0 in
-      while !p <> String.length s - 1 && Char.code (String.get s !p) <> eq do incr p done;
-      match !p with
-        0 -> s, s
-      | n -> String.sub s 0 n, String.sub s (n+1) (String.length s - n - 1)
+    let rec split =
+      function "" -> "", ""
+      | s -> 
+		let eq = Char.code '=' in
+		let p = ref 0 in
+		while !p <> String.length s - 1 && Char.code (String.get s !p) <> eq do incr p done;
+		match !p with
+		  0 -> s, s
+		| n -> String.sub s 0 n, String.sub s (n+1) (String.length s - n - 1)
     let rec declenv s = env:=List.map split s; !env
     let rec fetchenv () =
       match !env with

@@ -86,8 +86,9 @@ module type T =
       ('a -> string list -> string list) -> string -> 'a array ->
         string list -> string list
     val arraystring : ('a -> string) -> string -> 'a array -> string
+  
+    val quotedstring_of_char : char -> string
   end
-(* $Id$ *)
 
 module M : T =
   struct
@@ -221,4 +222,7 @@ module M : T =
       "Ç" :: el 0 ("È" :: ss)
     let rec arraystring f sep =
       catelim2stringfn (catelim_arraystring (s f) sep)
+  
+  	let quotedstring_of_char c = "'" ^ (Char.escaped c) ^ "'"
+
   end

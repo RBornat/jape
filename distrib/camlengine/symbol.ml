@@ -180,8 +180,8 @@ module Funs : Funs with type idclass = Idclass.M.idclass
     (* for fast-ish lookup of declared operators and identifiers, and for some error reporting *)
     let rec mkalt cts def =
       let aa = Array.make 256 def in
-      let rec lookup c = Array.get aa (Char.code (String.get c 1)) in
-      List.iter (fun (c, t) -> Array.set aa (Char.code (String.get c 1)) t) cts; lookup
+      let rec lookup c = Array.get aa (ord c) in
+      List.iter (fun (c, t) -> Array.set aa (ord c) t) cts; lookup
     let optree : (string, symbol) searchtree ref = ref (emptysearchtree mkalt)
     let idprefixtree : (string, idclass) searchtree ref =
       ref (emptysearchtree mkalt)
@@ -251,13 +251,16 @@ module Funs : Funs with type idclass = Idclass.M.idclass
                string_of_bool isprefix; " "; s];
           tree :=
             addtotree (fun (x, y) -> x = y) !tree (c :: cs, class__, isprefix)
+    
     let friendlyLargeishPrime = 1231
     let symboltable = (* ref (Store.new__ friendlyLargeishPrime) *)
                       Hashtbl.create friendlyLargeishPrime
-    let reversemapping : (symbol, string) Mappingfuns.M.mapping ref =
-      ref Mappingfuns.M.empty
     let lookup string = (* Store.at (!symboltable, string) *)
        try Some (Hashtbl.find symboltable string) with Not_found -> None
+    
+    let reversemapping (* : (symbol, string) Mappingfuns.M.mapping ref = ref Mappingfuns.M.empty *)
+                      = Hashtbl.create friendlyLargeishPrime
+
     exception Symclass_ of string
     (* not spurious *)
       
@@ -270,6 +273,7 @@ module Funs : Funs with type idclass = Idclass.M.idclass
       | Some (INFIXC _) -> OperatorClass
       | Some _ -> raise (Symclass_ s)
       | None -> lookinIdtree idprefixtree (explode s)
+    
     let rec reverselookup symbol =
       match symbol with
         ID (s, _) -> s
@@ -289,7 +293,7 @@ module Funs : Funs with type idclass = Idclass.M.idclass
       | RIGHTFIX (_, s) -> s
       | STILE s -> s
       | SHYID s -> s
-      | _ -> _The (Mappingfuns.M.at (!reversemapping, symbol))
+      | _ -> Hashtbl.find reversemapping symbol
     let rec preclassopt =
       function
         Some c -> BQuote2 ["Some("; idclassstring c; ")"]
@@ -301,6 +305,7 @@ module Funs : Funs with type idclass = Idclass.M.idclass
       | AssocAssoc -> BQuote1 "AssocAssoc"
       | TupleAssoc -> BQuote1 "TupleAssoc"
       | CommAssocAssoc -> BQuote1 "CommAssocAssoc"
+    
     let rec pre_SYMBOL s =
       match s with
         ID (s'1, class__) ->
@@ -316,9 +321,9 @@ module Funs : Funs with type idclass = Idclass.M.idclass
       | BRA s'1 -> BQuote2 ["BRA \""; s'1; "\""]
       | SEP s'1 -> BQuote2 ["SEP \""; s'1; "\""]
       | KET s'1 -> BQuote2 ["KET \""; s'1; "\""]
-      | SUBSTBRA -> BQuote2 ["SUBSTBRA \""; reverselookup SUBSTBRA; "\""]
-      | SUBSTSEP -> BQuote2 ["SUBSTSEP \""; reverselookup SUBSTSEP; "\""]
-      | SUBSTKET -> BQuote2 ["SUBSTKET \""; reverselookup SUBSTKET; "\""]
+      | SUBSTBRA -> BQuote2 ["SUBSTBRA"; (try " \"" ^ reverselookup SUBSTBRA ^ "\"" with Not_found -> "")]
+      | SUBSTSEP -> BQuote2 ["SUBSTSEP"; (try " \"" ^ reverselookup SUBSTSEP ^ "\"" with Not_found -> "")]
+      | SUBSTKET -> BQuote2 ["SUBSTKET"; (try " \"" ^ reverselookup SUBSTKET ^ "\"" with Not_found -> "")]
       | EOF -> BQuote1 "EOF"
       | PREFIX (s'1, s'2) ->
           BQuote3
@@ -329,11 +334,9 @@ module Funs : Funs with type idclass = Idclass.M.idclass
             [BQuote1 "POSTFIX ("; pre_int s'1; pre__comma; BQuote1 "\"";
              BQuote1 s'2; BQuote1 "\")"]
       | INFIX (s'1, s'2, s'3) ->
-          if s'3 = "," then pre__comma
-          else
-            BQuote3
-              [BQuote1 "INFIX("; pre_int s'1; pre__comma; pre_assoc s'2;
-               pre__comma; BQuote1 "\""; BQuote1 s'3; BQuote1 "\")"]
+		  BQuote3
+			[BQuote1 "INFIX("; pre_int s'1; pre__comma; pre_assoc s'2;
+			 pre__comma; BQuote1 "\""; BQuote1 s'3; BQuote1 "\")"]
       | INFIXC (s'1, s'2, s'3) ->
           BQuote3
             [BQuote1 "INFIXC("; pre_int s'1; pre__comma; pre_assoc s'2;
@@ -352,8 +355,11 @@ module Funs : Funs with type idclass = Idclass.M.idclass
              BQuote1 s'2; BQuote1 "\")"]
       | STILE s'1 -> BQuote2 ["STILE \""; s'1; "\""]
       | SHYID s'1 -> BQuote2 ["RESERVED-WORD "; s'1]
+    
     let smlsymbolstring = pre_implode <*> pre_SYMBOL
+    
     let symbolstring = reverselookup
+    
     let rec register_op s sym =
       let rec bang () =
         raise (Catastrophe_ ["attempt to register_op \""; s; "\""])
@@ -385,22 +391,27 @@ module Funs : Funs with type idclass = Idclass.M.idclass
           | _ -> false
         in
         if !symboldebug then
-          consolereport
-            ["enter("; enQuote string; ","; smlsymbolstring symbol; ")"];
-        begin try
-          let oldstring = reverselookup symbol in
-          if isop oldstring then deregister_op oldstring symbol;
-          if hidden then (* Store.delete (!symboltable, oldstring) *)
-                         Hashtbl.remove symboltable oldstring
-        with
-          None_ -> ()
-        end;
+          consolereport ["enter("; enQuote string; ","; smlsymbolstring symbol; ")"];
+        (try
+		   let oldstring = reverselookup symbol in
+		   if isop oldstring then 
+		     (try deregister_op oldstring symbol 
+		      with DeleteFromTree_ -> 
+		        let string_of_csrb =
+		          triplestring (bracketedliststring (enQuote <*> String.escaped) ",") smlsymbolstring string_of_bool ","
+		        in
+		        consolereport 
+		          ["DeleteFromTree_\n\t"; 
+		             pairstring (bracketedliststring string_of_csrb "; ") string_of_csrb "\n\t" 
+		                (summarisetree !optree, (explode oldstring, symbol, false))]
+		     );
+		   if hidden then (* Store.delete (!symboltable, oldstring) *)
+						  Hashtbl.remove symboltable oldstring
+		 with Not_found -> ());
         (* Store.update (!symboltable, string, symbol) *)
         Hashtbl.add symboltable string symbol;
         if hidden then
-          reversemapping :=
-            Mappingfuns.M.( ++ )
-              (!reversemapping, Mappingfuns.M.( |-> ) (symbol, string));
+          Hashtbl.add reversemapping symbol string;
         if isop string then register_op string symbol
       in
       match symbol with
@@ -476,7 +487,8 @@ module Funs : Funs with type idclass = Idclass.M.idclass
       symboldebug := false;
       (* symboltable := Store.new__ friendlyLargeishPrime *)
       Hashtbl.clear symboltable;
-      reversemapping := Mappingfuns.M.empty;
+      (* reversemapping := Mappingfuns.M.empty *)
+      Hashtbl.clear reversemapping;
       optree := emptysearchtree mkalt;
       oplist := None;
       List.iter (fun c -> updateIDhead (c, false)) !decIDheads;
@@ -567,15 +579,14 @@ module Funs : Funs with type idclass = Idclass.M.idclass
           let c = f v in if !symboldebug then consolereport ["scanfsm "; c]; c
       else f
     let rec scannext () = next (); char ()
+
     let rec scanop fsm rcs =
       match scanfsm (scanwatch scannext) fsm rcs (scanwatch char ()) with
         Found (sy, _) -> sy
       | NotFound rcs' ->
           if rcs' = [] then let c = char () in next (); checkbadID c
-          else checkbadID (implode (List.rev rcs'))
-    (* at this point we need backtracking ... *)
+          else checkbadID (implode (List.rev rcs')) (* at this point we need backtracking ... *)
                       
-
     let rec scanid conf =
       let rec q rcs classopt =
         scanwhile isIDtail
@@ -794,6 +805,6 @@ module Funs : Funs with type idclass = Idclass.M.idclass
               charclass (String.sub (a2) (0) (1)))
     let enter = carefullyEnter
     let lookup = checkbadID
-    let _ = resetSymbols ()
+    let _ = (try resetSymbols () with exn -> consolereport ["resetSymbols raised "; Printexc.to_string exn]; ())
   end
 

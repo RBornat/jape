@@ -22,6 +22,8 @@ sig
     val thrd : ('a * 'b * 'c) -> 'c
     
     val fSome : 'a ->'a option
+    
+    exception OrdOf_ of string * int
 end
 
 module M : T =
@@ -29,8 +31,10 @@ module M : T =
     (* useful functions for caml *)
     let (<*>) f g x = f (g x)
     
-    let rec nj_fold f xs z = match xs with [] -> z | x::xs -> nj_fold f xs (f (x,z))
-    let rec nj_revfold f xs z = match xs with [] -> z | x::xs -> f (x, nj_revfold f xs z)
+    let rec nj_fold f xs z = 
+      match xs with [] -> z | x::xs -> f (x, nj_fold f xs z)
+    let rec nj_revfold f xs z = 
+      match xs with [] -> z | x::xs -> nj_revfold f xs (f (x,z))
     
     let char_explode s =
       let len = String.length s in
@@ -60,7 +64,8 @@ module M : T =
 
     let null xs = xs=[]
     
-    let ordof s i = Char.code (String.get s i)
+    exception OrdOf_ of string * int
+    let ordof s i = (try Char.code (String.get s i) with _ -> raise (OrdOf_ (s,i)))
     let ord s = ordof s 0
     
     let rec revapp f xs =

@@ -89,14 +89,16 @@ module M : T =
       BQuote3 [BQuote1 "["; pre_Comma (f) (xs); BQuote1 "]"]
     let rec pre_list f xs =
       BQuote3 [BQuote1 "["; pre_Comma (f) (xs); BQuote1 "]"]
+    
     let rec pre_implode p =
-      let rec iii ss p =
+      let rec _I (p,ss) =
         match p with
           BQuote1 s -> s :: ss
         | BQuote2 sl -> sl @ ss
-        | BQuote3 ps -> List.fold_left iii ss ps
+        | BQuote3 ps -> nj_fold _I ps ss
       in
-      implode (iii [] p)
+      implode (_I (p,[]))
+    
     let rec pre_app a1 a2 =
       match a1, a2 with
         p, BQuote1 s -> p s
