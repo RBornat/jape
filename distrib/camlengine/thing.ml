@@ -112,8 +112,7 @@ let rec storedthingstring =
           (cookedstring (ruledatastring false))
           string_of_bool "," r
   | CookedTheorem t ->
-      "CookedTheorem" ^
-        doublestring (cookedstring (ruledatastring false)) t
+      "CookedTheorem" ^ doublestring (cookedstring (ruledatastring false)) t
 
 let rec thingplacestring =
   function
@@ -488,8 +487,8 @@ let rec freshc defcon cxt env params args =
       newname newVID registerId defcon vc vs
   | Abstractionparam vc :: vs, arg :: args ->
       usearg registerId vc vs arg args
+
 (* infix -- ++ moved out then deleted for OCaml; hope infixr above will do *)
-          
 
 let rec extraVIDs params args bodyVIDs =
   let rec (--) xs ys = listsub (uncurry2 (=)) xs ys in
@@ -746,8 +745,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
     (isextensibleID <.> string_of_vid <.> vid_of_var) <| vs
   in
   (mkvars proofbodyvars, (params, proofprovisos, antes, conseq)),
-  (mkvars applybodyvars,
-   (applyparams, applyprovisos, applyantes, applyconseq))
+  (mkvars applybodyvars, (applyparams, applyprovisos, applyantes, applyconseq))
 
 let rec compilething name thing =
   match thing with

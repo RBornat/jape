@@ -39,7 +39,6 @@ open Treeformat.Fmt
 type prooftree = Prooftree.Tree.Fmttree.prooftree
  and path = Prooftree.Tree.Fmttree.path
  
-
 let provisovars = provisovars termvars tmerge
 
 type proofstate = Proofstate of staterec
@@ -49,28 +48,18 @@ type proofstate = Proofstate of staterec
 
 
 let proofstate_cxt = fun (Proofstate {cxt = cxt}) -> cxt
-
 let proofstate_tree = fun (Proofstate {tree = tree}) -> tree
-
 let proofstate_givens = fun (Proofstate {givens = givens}) -> givens
-
 let proofstate_goal = fun (Proofstate {goal = goal}) -> goal
-
 let proofstate_target = fun (Proofstate {target = target}) -> target
-
 let proofstate_root = fun (Proofstate {root = root}) -> root
 
 
 let withcxt (Proofstate s) cxt = Proofstate {s with cxt = cxt}
-
 let withtree (Proofstate s) tree = Proofstate {s with tree = tree}
-
 let withgivens (Proofstate s) givens = Proofstate {s with givens = givens}
-
 let withgoal (Proofstate s) goal = Proofstate {s with goal = goal}
-
 let withtarget (Proofstate s) target = Proofstate {s with target = target}
-
 let withroot (Proofstate s) root = Proofstate {s with root = root}
 
 

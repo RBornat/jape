@@ -229,6 +229,7 @@ module Cxt : Cxt with type cxt = Type.cxt
     let provisos = fun (Context {provisos = ps, _}) -> ps
     let usedVIDs = fun (Context {usedVIDs = usedVIDs}) -> usedVIDs
     let nextresnum = fun (Context {nextresnum = nextresnum}) -> nextresnum
+    
     let withvarmap =
       fun (Context cxt) map -> Context {cxt with varmap=map}
     let plusvarmap =
@@ -243,9 +244,9 @@ module Cxt : Cxt with type cxt = Type.cxt
       match c, ps with
         (Context ({provisos=provisos; provisosig=provisosig} as cxt)), [] -> 
 		   Context {cxt with provisos = [], Some nullrewinf;
-							 provisosig = match provisos with
-											[], _ -> provisosig
-										  | _ -> provisosig + 1}
+                                     provisosig = match provisos with
+                                                    [], _ -> provisosig
+                                                  | _     -> provisosig + 1}
 	  | (Context ({provisosig=provisosig} as cxt)), ps -> 
 		   Context {cxt with provisos = ps, None;
                                     provisosig = provisosig + 1}

@@ -238,8 +238,8 @@ CONJECTUREPANEL "Conjectures" IS
     AND Â(pëq) æ Âp ¦ Âq
     AND Â(p¦q) æ Âp ë Âq
     AND æ p ë Âp
-    AND	p , Âp æ false
-    AND	p ¦ Âp æ false
+    AND p , Âp æ false
+    AND p ¦ Âp æ false
     AND p æ qçp
     AND æ pêp
     AND Â Â p ê p
@@ -248,7 +248,7 @@ CONJECTUREPANEL "Conjectures" IS
     AND æ (pçq) ë (qçp)
     AND (p¦q ç r) ç (p ç (q ç r))
     AND p ç q æ p¦q ê p
-    AND	æ p ç (q ç p)
+    AND æ p ç (q ç p)
     AND true  ê Âfalse
     AND Âtrue  ê false
     AND p¦true ê p
@@ -265,14 +265,14 @@ CONJECTUREPANEL "Conjectures" IS
     AND (pëp) ê p
     AND (pëq) ê (qëp)
     AND (pë(qër)) ê ((pëq)ër)
-    AND	p ë (q ë r) ê (p ë q) ë r
-    AND	p ¦ (q ë r) ê (p ¦ q) ë (p ¦ r)
-    AND	p ë (q ¦ r) ê (p ë q) ¦ (p ë r)
+    AND p ë (q ë r) ê (p ë q) ë r
+    AND p ¦ (q ë r) ê (p ¦ q) ë (p ¦ r)
+    AND p ë (q ¦ r) ê (p ë q) ¦ (p ë r)
     AND Â(pëq) ê Âp ¦ Âq
     AND Â(p¦q) ê Âp ë Âq
     AND (pçq) ¦ (qçr) ç (pçr)
     AND (pêq) ¦ (qêr) ç (pêr)
-    AND	Âp ¦ p æ false
+    AND Âp ¦ p æ false
     AND Â(pêq)ê((pëq)¦Â(p¦q))
     AND èx:a ¥ p¦q æ (èx:a ¥ p) ¦ (èx:a ¥ q)
     AND (èx:a ¥ p) ¦ (èx:a ¥ q) æ èx:a ¥ p¦q
@@ -281,16 +281,16 @@ CONJECTUREPANEL "Conjectures" IS
     AND Â(è x:a|p¥q) æ (ä x:a|p¥Âq)
     AND WHERE x NOTIN a,a',y AND y NOTIN a,a',x INFER
         äx:a ¥ èy:a' ¥ q æ èy:a' ¥ äx:a ¥ q
-    AND	p ç q, q ç r , p æ r
-    AND	p ç q æ (q ç r) ç (p ç r)
-    AND	p ç (q ç r), p ç q, p æ r
-    AND	p ç q, q ç r æ p ç r
-    AND	p ç (q ç r) æ q ç (p ç r)
-    AND	p ç (q ç (r ç s)) æ r ç (q ç (p ç s ))
-    AND	p ç (q ç r) æ (p ç q) ç (p ç r)
-    AND	æ (p ç (q ç r)) ç ((p ç q) ç (p ç r))
-    AND	(p ¦ q) ç r ê  p ç (q ç r)
-    AND	q ç r æ (p ë q) ç (p ë r)
+    AND p ç q, q ç r , p æ r
+    AND p ç q æ (q ç r) ç (p ç r)
+    AND p ç (q ç r), p ç q, p æ r
+    AND p ç q, q ç r æ p ç r
+    AND p ç (q ç r) æ q ç (p ç r)
+    AND p ç (q ç (r ç s)) æ r ç (q ç (p ç s ))
+    AND p ç (q ç r) æ (p ç q) ç (p ç r)
+    AND æ (p ç (q ç r)) ç ((p ç q) ç (p ç r))
+    AND (p ¦ q) ç r ê  p ç (q ç r)
+    AND q ç r æ (p ë q) ç (p ë r)
     END
     THEOREM "?-äx:a¥èy:a'¥x‘yæèy:a'¥äx:a¥x‘y(no provisos)"
     IS ä x:a ¥ èy:a' ¥ x‘y æ èy:a' ¥ äx:a ¥ x‘y
@@ -353,9 +353,9 @@ END /* PANEL */
             (Fail (Please text-select a subexpression to rewrite)))
 
 CONJECTUREPANEL "Derived rules"
-	DERIVED RULE /* WHERE FRESH z */ FROM zÚaæp[z/x]êq[z/x] AND èx:a¥p INFER èx:a¥q
+    DERIVED RULE /* WHERE FRESH z */ FROM zÚaæp[z/x]êq[z/x] AND èx:a¥p INFER èx:a¥q
 END
-	
+    
 TACTIC GivenForward(i) IS SEQ cut (GIVEN i)
 TACTIC GivenBackward(i) IS GIVEN i
 
