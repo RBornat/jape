@@ -30,7 +30,7 @@ import java.awt.Container;
 
 public class JapeUtils {
     public static String enQuote(Object o) {
-        return "\""+o.toString()+"\"";
+        return o==null ? "null" : "\""+o.toString()+"\"";
     }
 
     public static void showContainer(Container pane, String prefix) {
