@@ -1177,7 +1177,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       disproofact
         (fun facts_now cxt_now proof d ->
            act facts_now d &~~ 
-           (fSome <.> evaldisproofstate facts_now (proofstate_tree proof) (Interaction.findDisproofSelections())))
+           (fSome <.> evaldisproofstate facts_now (proofstate_tree proof)))
     in
     
     let disproofuniverseact act =
@@ -1424,10 +1424,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
              disproofmove
 
         | "disproof_selection_change", [] ->
-            disproofact
-              (fun facts _ _ d ->
-                 Some(Disproof.tint_universe facts (Interaction.findDisproofSelections()) d))
-              disproofmove (* for now *) 
+            disproofacteval
+              (fun _ d -> 
+                 let selections = Interaction.findDisproofSelections() in
+                 if disproofstate_selections d=selections then None else Some(withdisproofselections d selections))
+              disproofmove (* i.e. selections can be undone .... hmmm. *) 
                
         | "disprove", [] ->
             inside c
