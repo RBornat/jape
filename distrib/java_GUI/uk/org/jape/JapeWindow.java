@@ -124,4 +124,9 @@ public class JapeWindow extends JFrame {
 
         return lastPos;
     }
+
+    public static void resetNextPos() {
+        firstPos = new Point(0,0);
+        lastPos = null;
+    }
 }
