@@ -297,8 +297,6 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         g2D.drawLine(0, y, length, y);
     }
 
-    public boolean cockeyed;
-    
     /* By experiment, this method seems to be called three times by any printing operation ...
        don't know what that does for error messages.
      */
@@ -330,12 +328,10 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         
         g2D.translate((int)pf.getImageableX(), (int)pf.getImageableY());
 
-        // scale if necessary -- beware cockeyed image sizing ...
-        PrintSize printSize = new PrintSize();
-        double scalex = (double)pf.getImageableWidth()/
-                (cockeyed ? (double)printSize.printWidth : (double)printSize.printHeight),
-            scaley = (double)pf.getImageableHeight()/
-                (cockeyed ? (double)printSize.printHeight : (double)printSize.printWidth);
+        // scale if necessary 
+        final PrintSize printSize = new PrintSize();
+        double scalex = (double)pf.getImageableWidth()/(double)printSize.printWidth,
+               scaley = (double)pf.getImageableHeight()/(double)printSize.printHeight;
         final double scale = Math.min(scalex, scaley);
         AffineTransform trans = g2D.getTransform();
         
