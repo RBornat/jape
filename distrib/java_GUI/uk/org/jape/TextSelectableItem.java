@@ -247,10 +247,9 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
             } // else do nothing
         }
 
-        public boolean overlaps(TextSel t) {
-            return t!=null && t!=this &&
-                   (t.start<=this.start && this.start<=t.start ||
-                    this.start<=t.start && t.start<=this.start);
+        /* I have decided that two things overlap if they touch ... */
+		public boolean overlaps(TextSel t) {
+            return t!=null && t!=this && (t.end<this.start || this.end<t.start);
         }
 
         public String toString() {
@@ -280,11 +279,15 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
             int i = 0;
             for (int j=0; j<textsels.size(); j++) {
                 TextSel t = getTextSel(j);
-                b.append(printchars, i, t.start-i);
-                b.append(Reply.stringSep);
-                b.append(printchars, t.start, t.end-t.start);
-                b.append(Reply.stringSep);
-                i = t.end;
+                try {
+					b.append(printchars, i, t.start-i);
+					b.append(Reply.stringSep);
+					b.append(printchars, t.start, t.end-t.start);
+					b.append(Reply.stringSep);
+					i = t.end;
+				} catch (Exception e) {
+					Logger.log.println("exception "+e+" in getContextualisedTextSelections\n"+this);
+				}
             }
             b.append(printchars, i, printchars.length-i);
             return b.toString();
