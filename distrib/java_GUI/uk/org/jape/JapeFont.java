@@ -218,22 +218,27 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         initInterfaceFonts();
         return interfaceFonts[fontnum];
     }
+
+    private static String encodingName;
     
     public static void setSubstituteFont(String name) throws ProtocolError {
-        if (codecDone)
-            throw new ProtocolError("too late!");
-        else
-        if (name.equals("Konstanz")) {
-            if (japeserver.onMacOS) {
-                substituteFont = new Font("Konstanz", Font.PLAIN, 1);
-                if (substituteFont==null)
-                    throw new ProtocolError("can't open Konstanz Plain 1.0");
-                setInterfaceFonts(substituteFont);
-                Reply.sendCOMMAND("setfonts \""+getFontNames("\" \"")+"\"");
-            }
+        if (encodingName==null || !encodingName.equals(name)) {
+            if (codecDone)
+                throw new ProtocolError("too late!");
+            else
+                if (name.equals("Konstanz")) {
+                    if (japeserver.onMacOS) {
+                        substituteFont = new Font("Konstanz", Font.PLAIN, 1);
+                        if (substituteFont==null)
+                            throw new ProtocolError("can't open Konstanz Plain 1.0");
+                        setInterfaceFonts(substituteFont);
+                        Reply.sendCOMMAND("setfonts \""+getFontNames("\" \"")+"\"");
+                    }
+                }
+            else
+                throw new ProtocolError("japeserver doesn't understand encoding "+name);
+            encodingName = name;
         }
-        else
-            throw new ProtocolError("japeserver doesn't understand encoding "+name);
     }
     
     public static void unsetfont() {
