@@ -16,7 +16,7 @@ module M :T with type term = Term.Funs.term
     open Context.Cxt
     open Env.M
     open Mappingfuns.M
-    open SML.M
+    open Sml.M
     open Streamio.M
     open Stringfuns.M
 

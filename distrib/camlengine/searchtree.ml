@@ -33,7 +33,7 @@ module M : T =
   struct
     open Listfuns.M
     open Miscellaneous.M
-    open SML.M
+    open Sml.M
     
     (* updatable syntax search trees, without backtracking. 
      * The trees have to allow for 'prefix' searching, where there is

@@ -84,7 +84,7 @@ module M : T with type term       = Term.Funs.term
     open Box.M 
     open Japeserver.M 
     open Mappingfuns.M 
-    open SML.M
+    open Sml.M
     open Text.M
     
 	exception Catastrophe_ = Miscellaneous.M.Catastrophe_

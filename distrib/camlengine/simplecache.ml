@@ -23,7 +23,7 @@ module M : T =
   struct
     open Array
     open Miscellaneous.M
-    open SML.M
+    open Sml.M
     
     let simplecachedebug = ref false
     (* for the millennium, better hashing. Well, up to 15 characters will count ... RB 30/xii/99 *)

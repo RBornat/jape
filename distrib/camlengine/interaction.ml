@@ -70,7 +70,7 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
     open Prooftree.Tree.Fmttree
     open Sequent.Funs
     open Sequent.Type
-    open SML.M
+    open Sml.M
     open Stringfuns.M
     open Treeformat.Fmt
 

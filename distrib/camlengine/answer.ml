@@ -28,7 +28,7 @@ module type T =
 
 module M : T =
   struct
-    open SML.M
+    open Sml.M
     
     type answer = Yes | Maybe | No
     (* Yes > Maybe > No *)

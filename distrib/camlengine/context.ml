@@ -93,7 +93,7 @@ module Cxtstring : Cxtstring with type cxt = Type.cxt
     open Rewinf.M
     open Term.Termstring
     open Mappingfuns.M
-    open SML.M
+    open Sml.M
     open Proviso.M
     
     type cxt = Type.cxt
@@ -199,7 +199,7 @@ module Cxt : Cxt with type cxt = Type.cxt
     open Proviso.M
     open Term.Funs
     open Term.Store
-    open SML.M
+    open Sml.M
     open Listfuns.M
     
     let fNotinProviso v = Proviso.M.NotinProviso v

@@ -84,7 +84,7 @@ module type Funs =
     val mustseparate : string * string -> bool
     (* aid for parsers *)
 
-    val scansymb : unit -> symbol
+    val scansymb : unit -> unit
     val currsymb : unit -> symbol
     val currnovelsymb : unit -> symbol
     (* so that user can define new symbols, punctuation marks, whatever *)
@@ -135,7 +135,7 @@ module Funs : Funs with type idclass = Idclass.M.idclass
     open Miscellaneous.M
     open Optionfuns.M
     open Stringfuns.M
-    open SML.M
+    open Sml.M
     
 	type idclass = Idclass.M.idclass
 	 and associativity = Type.associativity
@@ -704,8 +704,8 @@ module Funs : Funs with type idclass = Idclass.M.idclass
     let showInputError = showInputError
     let rec scansymb () =
       match !peekedsymb with
-        [] -> symb := scan (); !symb
-      | sym :: more -> symb := sym; peekedsymb := more; !symb
+        [] -> symb := scan ()
+      | sym :: more -> symb := sym; peekedsymb := more
     let rec peeksymb () =
       match !peekedsymb with
         [] -> let sym = scan () in peekedsymb := [sym]; sym

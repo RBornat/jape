@@ -62,7 +62,7 @@ module M : T with type cxt = Context.Cxt.cxt
     open Prooftree.Tree.Fmttree
     open Proviso.M
     open Rewrite.Funs
-    open SML.M
+    open Sml.M
     open Thing.M
 
     type cxt = Context.Cxt.cxt

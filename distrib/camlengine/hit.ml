@@ -61,7 +61,7 @@ module type T =
 
 module M : T with type element = Term.Funs.element =
   struct
-    open SML.M
+    open Sml.M
 	
 	type element = Term.Funs.element
 	

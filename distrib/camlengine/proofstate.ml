@@ -53,7 +53,7 @@ module M : T with type term = Term.Funs.term
     open Proviso.M
     open Rewrite.Funs
     open Sequent.Funs
-    open SML.M
+    open Sml.M
     open Stringfuns.M
     open Term.Funs
     open Thing.M

@@ -214,7 +214,7 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
     open Miscellaneous.M
     open Name.M
     open Optionfuns.M
-    open SML.M
+    open Sml.M
     open Sequent.Funs
     open Stringfuns.M
     open Term.Funs

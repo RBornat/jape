@@ -47,7 +47,7 @@ module M : T with type answer = Answer.M.answer
     open Term.Funs
     open Proviso.M
     open Facts.M
-    open SML.M
+    open Sml.M
     open Miscellaneous.M
     open Term.Termstring
     open Term.Type

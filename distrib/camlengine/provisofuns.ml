@@ -40,7 +40,7 @@ module M : T with type cxt = Context.Type.cxt
     open Proviso.M
     open Rewrite.Funs
     open Sequent.Type
-    open SML.M
+    open Sml.M
     open Stringfuns.M
     open Substmapfuns.M
     open Term.Funs

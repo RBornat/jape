@@ -63,7 +63,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
     open Rewinf.M
     open Sequent.Type
     open Sequent.Funs
-    open SML.M
+    open Sml.M
     open Substmapfuns.M
     open Term.Funs
     open Term.Store

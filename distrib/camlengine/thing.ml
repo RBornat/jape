@@ -93,7 +93,7 @@ module M : T with type term = Term.Type.term
     open Rewrite.Funs
     open Sequent.Funs
     open Sequent.Type
-    open SML.M
+    open Sml.M
     open Stringfuns.M
     open Symbol.Funs
     open Tactic.Funs

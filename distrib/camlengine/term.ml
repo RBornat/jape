@@ -131,7 +131,7 @@ module Termstring  : Termstring with type term = Type.term
 	type term = Type.term and resnum = Type.resnum and element = Type.element
     
     open Stringfuns.M
-    open SML.M
+    open Sml.M
     open Listfuns.M
     open Miscellaneous.M
     open Symbol.Funs
@@ -646,7 +646,7 @@ module Store : Store with type vid = Type.vid
     
     open Stringfuns.M
     open Optionfuns.M
-    open SML.M
+    open Sml.M
     
 	type vid = Type.vid 
 	 and idclass = Type.idclass
@@ -965,7 +965,7 @@ module Funs : Funs with type vid = Type.vid
     open Idclass.M
     open Idclassfuns.M
     open Answer.M
-    open SML.M
+    open Sml.M
     
 	type vid = Type.vid 
 	 and idclass = Type.idclass

@@ -66,7 +66,7 @@ module M : T with type prooftree      = Prooftree.Tree.Fmttree.prooftree
     open Optionfuns.M
     open Proviso.M
     open Rewrite.Funs
-    open SML.M
+    open Sml.M
     open Sequent.Funs
     open Sequent.Type
     open Stringfuns.M

@@ -67,7 +67,7 @@ module Funs:  Funs with type seq = Type.seq
     open Mappingfuns.M
     open Miscellaneous.M
     open Optionfuns.M
-    open SML.M
+    open Sml.M
     open Symbol.Funs
     open Symbol.Type
     open Term.Funs

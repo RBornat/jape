@@ -62,7 +62,7 @@ module M : T with type term = Term.Type.term
     open Proviso.M
     open Provisofuns.M
     open Rewrite.Funs
-    open SML.M
+    open Sml.M
     open Stringfuns.M
     open Substmapfuns.M
     open Symbol.Funs

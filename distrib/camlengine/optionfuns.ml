@@ -36,7 +36,7 @@ module type T =
 
 module M : T =
   struct
-    open SML.M
+    open Sml.M
     exception None_
     let rec _The =
       function

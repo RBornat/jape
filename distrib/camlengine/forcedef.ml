@@ -38,7 +38,7 @@ module M : T with type seq = Sequent.Funs.seq
     open Listfuns.M
     open Miscellaneous.M
     open Optionfuns.M 
-    open SML.M
+    open Sml.M
     open Sequent.Funs
     open Stringfuns.M
     open Symbol.Funs

@@ -19,7 +19,7 @@ module M : Screendraw.T with type displayclass = Displayclass.M.displayclass
     open Draw.M
     open Hit.M
     open Seqdraw.M
-    open SML.M
+    open Sml.M
     
     type 'a plan = 'a Draw.M.plan
      and displayclass = Displayclass.M.displayclass

@@ -52,7 +52,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
     open Term.Termstring
     open Term.Store 
     open Idclass.M
-    open SML.M
+    open Sml.M
     
     type ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
     type term = Term.Funs.term

@@ -77,7 +77,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
     open Rewrite.Funs
     open Sequent.Funs
     open Sequent.Type
-    open SML.M
+    open Sml.M
     open Stringfuns.M
     open Tactic.Funs
     open Tactic.Type

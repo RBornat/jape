@@ -40,7 +40,7 @@ module M : T with type term = Term.Funs.term
 =
   struct
     open Mappingfuns.M
-    open SML.M
+    open Sml.M
     
     type term = Term.Funs.term
     and name = Name.M.name

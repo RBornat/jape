@@ -217,7 +217,7 @@ module M : sig include Server include Alert end
     open Displayclass.M
     open Listfuns.M
     open Miscellaneous.M
-    open SML.M
+    open Sml.M
     
     type box = Box.M.box
      and displayclass = Displayclass.M.displayclass

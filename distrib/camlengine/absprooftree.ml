@@ -41,7 +41,7 @@ module M  : T with type structurerule = Thing.M.structurerule
     open Treeformat.VisFmt
     open Prooftree.Tree
     open Prooftree.Tree.Vistree
-    open SML.M
+    open Sml.M
     
 	let commasymbol       = Symbol.Funs.commasymbol
 	let debracket         = Term.Funs.debracket

@@ -63,7 +63,7 @@ module M : T with type panelkind = Panelkind.M.panelkind
     open Name.M
     open Optionfuns.M 
     open Panelkind.M
-    open SML.M
+    open Sml.M
     open Stringfuns.M
     
     type panelkind = Panelkind.M.panelkind

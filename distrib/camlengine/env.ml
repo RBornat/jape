@@ -11,7 +11,7 @@ module type T =
 
 module M : T  =
   struct
-    open SML.M
+    open Sml.M
     
     let (env : (string * string) list ref) = ref []
     let rec reset () = env := []

@@ -1,21 +1,13 @@
 (* $Id$ *)
 
-module type Paragraph =
+module type T =
   sig
-    type term
-    and seq
-    and proviso
-    and paraparam
-    and tactic
-    and menudata
-    and paneldata
-    and panelkind
-    and dclick
-    and forcedef
-    type name
+    type term and seq and proviso and paraparam and tactic and menudata
+    and paneldata and panelkind and dclick and forcedef and name
+    and proofstage and model
+    
     type ruleheading = RuleHeading of (name * paraparam list * proviso list)
     type tacticheading = TacticHeading of (name * paraparam list)
-    type proofstage and model
     type paragraph =
         AutoRule of (bool * tactic list)
       | Conjecture of (ruleheading * seq)
@@ -50,79 +42,81 @@ module type Paragraph =
 
 (* $Id$ *)
 
-module
-  Paragraph
-  (AAA :
-    sig
-      module Listfuns : Listfuns
-      module Usefile : Usefile
-      module Idclass : Idclass
-      module Idclassfuns : Idclassfuns
-      module Symboltype : Symboltype
-      module Symbol : Symbol
-      module Term : Term
-      module Termparse : Termparse
-      module Sequent : sig include Sequentparse include Sequent end
-      module Proviso : Proviso
-      module Paraparam : Paraparam
-      module Menu : Menu
-      module Proofstage : Proofstage
-      module Panelkind : Panelkind
-      module Alert : Alert
-      module Name : sig include Nametype(* sanctioned. RB *) include Name end
-      module Doubleclick : DoubleClick
-      module Forcedef : Forcedef
-      val addbindingdirective :
-        term.term list * term.term list * term.term list * term.term -> unit
-      val atoi : string -> int
-      val consolereport : string list -> unit
-      val enQuote : string -> string
-      val liststring : ('a -> string) -> string -> 'a list -> string
-      val opt2bool : 'a option -> bool
-      val readintasarg : term.term array option ref
-      val tacticstring : doubleclick.tactic -> string
-      val unSOME : 'a option -> 'a
-      val transTactic : term.term -> doubleclick.tactic
-      exception ParseError_ of string list
-      exception Catastrophe_ of string list
-      exception UnSOME_
-      
-    end)
-  :
-  Paragraph =
+module M : T with type term = Term.Type.term
+			  and type seq = Sequent.Funs.seq
+			  and type proviso = Proviso.M.proviso
+			  and type paraparam = Paraparam.M.paraparam
+			  and type tactic = Tactic.Funs.tactic
+			  and type menudata = Menu.M.menudata
+			  and type paneldata = Menu.M.paneldata
+			  and type panelkind = Panelkind.M.panelkind
+			  and type dclick = Doubleclick.M.dclick
+			  and type forcedef = Forcedef.M.forcedef
+			  and type name = Name.M.name
+			  and type proofstage = Proofstage.M.proofstage
+			  and type model = Forcedef.M.model
+=
   struct
-    open AAA
-    open Forcedef
-    open Idclass
-    open Idclassfuns
-    open Listfuns
-    open Proofstage
-    open Proviso
-    open Paraparam
-    open Menu
-    open Panelkind
-    open Name
-    open Doubleclick
-    open Sequent
-    open Symboltype
-    open Symbol
-    open Term
-    open Termparse
-    open Usefile
+    open Doubleclick.M
+    open Forcedef.M
+    open Idclass.M
+    open Idclassfuns.M
+    open Listfuns.M
+    open Menu.M
+    open Name.M
+    open Panelkind.M
+    open Paraparam.M
+    open Proofstage.M
+    open Proviso.M
+    open Sequent.Funs
+    open Sml.M
+    open Symbol.Funs
+    open Symbol.Type
+    open Term.Funs
+    open Term.Termstring
+    open Termparse.M
+    open Usefile.M
     
+    type term = Term.Type.term
+	 and seq = Sequent.Funs.seq
+	 and proviso = Proviso.M.proviso
+	 and paraparam = Paraparam.M.paraparam
+	 and tactic = Tactic.Funs.tactic
+	 and menudata = Menu.M.menudata
+	 and paneldata = Menu.M.paneldata
+	 and panelkind = Panelkind.M.panelkind
+	 and dclick = Doubleclick.M.dclick
+	 and forcedef = Forcedef.M.forcedef
+	 and name = Name.M.name
+     and proofstage = Proofstage.M.proofstage
+     and model = Forcedef.M.model
     
-    
-    
+	let addbindingdirective = Binding.M.addbindingdirective
+	let atoi = Miscellaneous.M.atoi
+	let consolereport = Miscellaneous.M.consolereport
+	let enQuote = Stringfuns.M.enQuote
+	let liststring = Listfuns.M.liststring
+	let opt2bool = Optionfuns.M.opt2bool
+	let readintasarg = Tactic.Funs.readintasarg
+	let tacticstring = Tactic.Funs.tacticstring
+	let _The = Optionfuns.M._The
+	let transTactic = Tactic.Funs.transTactic
+	let uncurry2 = Miscellaneous.M.uncurry2
+	
+	exception ParseError_  = Miscellaneous.M.ParseError_
+	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+	exception None_        = Optionfuns.M.None_
+
     type ruleheading = RuleHeading of (name * paraparam list * proviso list)
     type tacticheading = TacticHeading of (name * paraparam list)
-    type model = model
+
     type paragraph =
         AutoRule of (bool * tactic list)
       | Conjecture of (ruleheading * seq)
       | File of (string * paragraph list)
       | FontSpec of string
-      | HitDef of (dclick * tactic * seq)
       | ForceDef of (term * forcedef)
+      | HitDef of (dclick * tactic * seq)
       | InitVar of (name * term)
       | MacroDef of (tacticheading * term)
       | Menu of (name * menupara list)
@@ -138,13 +132,13 @@ module
       | Theory of (ruleheading * paragraph list)
     and panelpara = Panelstuff of paneldata | Panelpara of paragraph
     and menupara = Menustuff of menudata | Menupara of paragraph
-    exception Use_
-    (* so-called because it is normally raised by a bad USE "file" *)
+
+    exception Use_ (* so-called because it is normally raised by a bad USE "file" *)
            
        (************************************************************************************)
        
     let rec namefromsymbol sy =
-      let rec ok ooo = SOME (Name ooo) in
+      let rec ok v = Some (Name v) in
       match sy with
         ID (s, _) -> ok s
       | UNKNOWN (s, _) -> ok (metachar ^ s)
@@ -158,30 +152,35 @@ module
       | INFIXC (_, _, s) -> ok s
       | NUM s -> ok s
       | STRING s -> ok s
-      | _ -> NONE
+      | _ -> None
     let rec stringfromsymbol sy =
       match namefromsymbol sy with
-        SOME (Name s) -> SOME s
-      | NONE -> NONE
+        Some (Name s) -> Some s
+      | None -> None
     let rec currsymb_as_name () =
-      let sy = currsymb () before scansymb () in
+      let sy = let r = currsymb () in scansymb (); r in
       match namefromsymbol sy with
-        SOME s -> s
-      | NONE ->
+        Some s -> s
+      | None ->
           raise
             (ParseError_
                ["Identifier or string expected; found "; smlsymbolstring sy])
-    let currsymb_as_string ooo = namestring (currsymb_as_name ooo)
+    
+    let currsymb_as_string = namestring <*> currsymb_as_name
+    
+    let fSHYID v = SHYID v
+      
     (************************************************************************************)
     
-    let ISWORD = SHYID "IS"
-    let AREWORD = SHYID "ARE"
+    let _ISWORD = SHYID "IS"
+    let _AREWORD = SHYID "ARE"
+    
     let rec parseProvisos () =
       match currsymb () with
         SHYID "WHERE" ->
           scansymb ();
-          flatten
-            (parseList (fun _ -> true) (fun _ -> proviso.parseProvisos ())
+          List.concat
+            (parseList (fun _ -> true) (fun _ -> Proviso.M.parseProvisos ())
                (SHYID "AND"))
       | _ -> []
     exception Matchinparseformal of string
@@ -203,44 +202,44 @@ module
         BRA "(" ->
           scansymb ();
           parseList (fun sy -> sy <> KET ")") (fun _ -> parseformal mustdecl)
-            commasymbol before
+            ( 
             (match currsymb () with
                KET ")" -> scansymb ()
              | sy ->
                  raise
                    (ParseError_
                       ["\")\" expected in heading; found \""; symbolstring sy;
-                       "\""]))
+                       "\""])); commasymbol)
       | _ -> []
     and parseformal mustdecl =
       try
         match currsymb () with
           SHYID "ABSTRACTION" ->
-            begin match scansymb () with
-              ID (s, SOME c) -> scansymb (); Abstractionparam (s, c)
+            begin match scansymb (); currsymb() with
+              ID (s, Some c) -> scansymb (); Abstractionparam (vid_of_string s, c)
             | _ -> raise (Matchinparseformal "an identifer after ABSTRACTION")
             end
         | SHYID "OBJECT" ->
-            begin match scansymb () with
-              ID (s, SOME c) -> scansymb (); Objectparam (s, c)
+            begin match scansymb(); currsymb() with
+              ID (s, Some c) -> scansymb (); Objectparam (vid_of_string s, c)
             | _ -> raise (Matchinparseformal "an identifer after OBJECT")
             end
-        | ID (s, SOME c) -> scansymb (); Ordinaryparam (s, c)
-        | ID (s, NONE) ->
+        | ID (s, Some c) -> scansymb (); Ordinaryparam (vid_of_string s, c)
+        | ID (s, None) ->
             if mustdecl then
               raise
                 (ParseError_
                    ["unclassified identifier "; s;
                     " in formal parameter list"])
-            else begin scansymb (); Ordinaryparam (s, NoClass) end
-        | UNKNOWN (s, SOME c) -> scansymb (); Unknownparam (s, c)
-        | UNKNOWN (s, NONE) ->
+            else begin scansymb (); Ordinaryparam (vid_of_string s, NoClass) end
+        | UNKNOWN (s, Some c) -> scansymb (); Unknownparam (vid_of_string s, c)
+        | UNKNOWN (s, None) ->
             if mustdecl then
               raise
                 (ParseError_
-                   ["unclassified unknown "; symbol.metachar; s;
+                   ["unclassified unknown "; Symbol.Funs.metachar; s;
                     " in formal parameter list"])
-            else begin scansymb (); Unknownparam (s, NoClass) end
+            else begin scansymb (); Unknownparam (vid_of_string s, NoClass) end
         | sy ->
             raise
               (Matchinparseformal "an identifier in formal parameter list")
@@ -252,17 +251,17 @@ module
     let rec itisaparamlist () =
       match currsymb () with
         BRA "(" ->
-          let rec res ps (v : bool) = app (fun s -> putbacksymb s) ps; v in
+          let rec res ps (v : bool) = List.iter (fun s -> putbacksymb s) ps; v in
           let rec param ps =
             match currsymb () with
-              ID _ -> sep (currsymb () :: ps before scansymb ())
-            | UNKNOWN _ -> sep (currsymb () :: ps before scansymb ())
+              ID _ -> sep (let r = currsymb () :: ps in scansymb (); r)
+            | UNKNOWN _ -> sep (let r = currsymb () :: ps in scansymb (); r)
             | SHYID "ABSTRACTION" -> res ps true
             | SHYID "OBJECT" -> res ps true
             | _ -> res ps false
           and sep ps =
             if currsymb () = commasymbol then
-              param (commasymbol :: ps before scansymb ())
+              param ( scansymb (); commasymbol :: ps)
             else if currsymb () = KET ")" then ket ps
             else res ps false
           and ket ps =
@@ -318,23 +317,23 @@ module
             (ParseError_
                ["Expecting an identifier, found "; smlsymbolstring s])
     let rec processKEYBOARD report query =
-      let _ = ignore ISWORD in
+      let _ = ignore _ISWORD in
       let symbols =
         parseUnsepList canstartnovelsymb
-          (fun _ -> currnovelsymb () before scansymb ())
+          (fun _ -> let r = currnovelsymb () in scansymb (); r)
       in
-      set_oplist (( <* ) (symbolstring, symbols))
+      set_oplist ((symbolstring <* symbols))
     let rec processClassDecl report query class__ =
       let rec doit s =
         match declareIdClass class__ s with
-          SOME (s', class') ->(* showInputError report ["warning: ", unparseidclass class, " ", s,
+          Some (s', class') ->(* showInputError report ["warning: ", unparseidclass class, " ", s,
                                     " may be confused with earlier CLASS ", 
                                     unparseidclass class', " ", s', " directive"]
            *)
            ()
-        | NONE -> ()
+        | None -> ()
       in
-      app doit
+      List.iter doit
         (parseUnsepList
            (function
               ID _ -> true
@@ -342,20 +341,20 @@ module
            (fun _ -> parseClassID ()))
     let rec processCLASS report query =
       let class__ = parseidclass "after CLASS" in
-      let rec doit s = app (warn s) (declareIdPrefix class__ s)
+      let rec doit s = List.iter (warn s) (declareIdPrefix class__ s)
       and warn s (s', class') =(* showInputError report ["warning: CLASS ", unparseidclass class, " ", s, 
                                 " may be confused with earlier ",
                                 unparseidclass class', " ", s', " directive"]
        *)
        () in
-      app doit
+      List.iter doit
         (parseUnsepList
            (function
               ID _ -> true
             | _ -> false)
            (fun _ -> parseClassID ()))
     let rec processInfix =
-      fun SYMBCON ->
+      fun _SYMBCON ->
         let l = parseNUM () in
         let a =
           match currsymb_as_string () with
@@ -375,13 +374,13 @@ module
         let symbs =
           parseUnsepList canstartnovelsymb (fun _ -> parseFixitySYMB ())
         in
-        app (fun s -> enter (s, SYMBCON (l, a, s))) symbs
+        List.iter (fun s -> enter (s, _SYMBCON (l, a, s))) symbs
     let rec processUnifix con =
       let n = parseNUM () in
       let symbs =
         parseUnsepList canstartnovelsymb (fun _ -> parseFixitySYMB ())
       in
-      app (fun s -> enter (s, con (n, s))) symbs
+      List.iter (fun s -> enter (s, con (n, s))) symbs
     let rec processSubstfix report query =
       substfix := parseNUM ();
       if canstartnovelsymb (currsymb ()) then
@@ -423,23 +422,23 @@ module
       let n = parseNUM () in
       let bra = parseFixitySYMB () in
       let symbs = parseUntilSHYID parseFixitySYMB in
-      app (fun sep -> enter (sep, SEP sep)) symbs;
+      List.iter (fun sep -> enter (sep, SEP sep)) symbs;
       enter (bra, con (n, bra));
-      declareLeftMidfix (( <* ) (lookup, bra :: symbs))
+      declareLeftMidfix ((lookup <* bra :: symbs))
     let rec processOutRightfix name con =
       let bra = parseFixitySYMB () in
       let ms = parseUntilSHYID parseFixitySYMB in
-      match rev ms with
+      match List.rev ms with
         [] -> raise (ParseError_ [name; " "; bra; " has no closing bracket"])
       | ket :: ms' ->
-          app (fun m -> enter (m, SEP m)) ms';
+          List.iter (fun m -> enter (m, SEP m)) ms';
           enter (bra, con bra);
           enter (ket, KET ket);
-          declareOutRightfix (( <* ) (lookup, bra :: rev ms')) (lookup ket)
+          declareOutRightfix ((lookup <* bra :: List.rev ms')) (lookup ket)
     let rec processRightfix () =
       let n = parseNUM () in
       processOutRightfix "RIGHTFIX" (fun bra -> RIGHTFIX (n, bra))
-    let rec processOutfix () = processOutRightfix "OUTFIX" BRA
+    let rec processOutfix () = processOutRightfix "OUTFIX" (fun v->BRA v)
     let rec processBind () =
       let vars =
         parseUnsepList canstartidentifier (fun _ -> parseVariable ())
@@ -452,10 +451,10 @@ module
         | _ -> []
       in
       let body = ignore (SHYID "IN"); parseBindingpattern () in
-      let varsinbody = ( <| ) (ismetav, termvars body) in
+      let varsinbody = (ismetav <| termvars body) in
       if not
            ((subset (vars, varsinbody) && subset (scope, varsinbody)) &&
-            null (scope INTER vars))
+            null (_INTER scope vars))
       then
         raise
           (ParseError_
@@ -475,19 +474,19 @@ module
           STRING b ->
             scansymb ();
             begin match currsymb () with
-              KET ")" -> scansymb (); b, NONE
+              KET ")" -> scansymb (); b, None
             | s ->
                 if s = commasymbol then
                   begin
                     scansymb ();
-                    (b, SOME (parsealertspec ())) before
+                    (let r = b, Some (parsealertspec ()) in
                       (match currsymb () with
                          KET ")" -> scansymb ()
                        | s ->
                            raise
                              (ParseError_
                                 ["bracket expected after alert spec in PATCHALERT, found ";
-                                 symbolstring (currsymb ())]))
+                                 symbolstring (currsymb ())])); r)
                   end
                 else
                   raise
@@ -508,21 +507,21 @@ module
               [] ->
                 raise
                   (ParseError_ ["alert in PATCHALERT has no button specs"])
-            | bs -> alert.Alert (m, bs, parsedefaultindex ())
+            | bs -> Alert.M.Alert (m, bs, parsedefaultindex ())
             end
         | s ->
             let rec bang () =
               raise
                 (ParseError_
                    ["string, HowToSelect, HowToFormulaSelect or HowToDrag \
-                                         \expected in alert spec, found ";
+                                          expected in alert spec, found ";
                     symbolstring s])
             in
             match stringfromsymbol s with
-              SOME "HowToTextSelect" -> scansymb (); alert.HowToTextSelect
-            | SOME "HowToFormulaSelect" ->
-                scansymb (); alert.HowToFormulaSelect
-            | SOME "HowToDrag" -> scansymb (); alert.HowToDrag
+              Some "HowToTextSelect" -> scansymb (); Alert.M.HowToTextSelect
+            | Some "HowToFormulaSelect" ->
+                scansymb (); Alert.M.HowToFormulaSelect
+            | Some "HowToDrag" -> scansymb (); Alert.M.HowToDrag
             | _ -> bang ()
       and parsebuttonspecs () =
         parseUnsepList
@@ -532,7 +531,7 @@ module
           parsebuttonspec
       and parsedefaultindex () =
         match currsymb () with
-          NUM s -> atoi s before scansymb ()
+          NUM s -> scansymb (); atoi s
         | _ -> 0
       in
       match currsymb () with
@@ -541,10 +540,10 @@ module
           begin match currsymb () with
             BRA "(" ->
               (* no replacement message, but there are buttons *)
-              alert.patchalert
+              Alert.M.patchalert
                 (h,
-                 alert.Alert ("", parsebuttonspecs (), parsedefaultindex ()))
-          | _ -> alert.patchalert (h, parsealertspec ())
+                 Alert.M.Alert ("", parsebuttonspecs (), parsedefaultindex ()))
+          | _ -> Alert.M.patchalert (h, parsealertspec ())
           end
       | _ ->
           raise
@@ -552,12 +551,12 @@ module
                ["string expected after PATCHALERT, found ";
                 symbolstring (currsymb ())])
     let rec parseAntecedents starter =
-      parseList starter (fun _ -> parseSeq ()) (SHYID "AND") before check
-        (SHYID "INFER")
+      let r = parseList starter (fun _ -> parseSeq ()) (SHYID "AND") in 
+      check (SHYID "INFER"); r
     let rec parseButtonDefault f =
       match currsymb () with
-        SHYID "INITIALLY" -> scansymb (); SOME (f ())
-      | _ -> NONE
+        SHYID "INITIALLY" -> scansymb (); Some (f ())
+      | _ -> None
     let rec parseCheckBox report query con =
       let var = currsymb_as_name () in
       let label = currsymb_as_name () in
@@ -567,9 +566,9 @@ module
       let var = currsymb_as_name () in
       let rec parseentry sep =
         let label = currsymb_as_name () in
-        let value = ignore ISWORD; currsymb_as_string () in label, value
+        let value = ignore _ISWORD; currsymb_as_string () in label, value
       in
-      ignore ISWORD;
+      ignore _ISWORD;
       match parseList (fun _ -> true) parseentry (SHYID "AND") with
         [] ->
           showInputError report
@@ -591,24 +590,24 @@ module
     let rec checkvalidruleheading report objkind wherekind =
       fun (RuleHeading (name, params, provisos)) antes conseq fbvs ->
         let bodyvars =
-          fold tmerge (( <* ) (seqvars termvars tmerge, conseq :: antes)) []
+          nj_fold (uncurry2 tmerge) (seqvars termvars tmerge <* (conseq :: antes)) []
         in
-        let paramvars = sort earliervar (( <* ) (paramvar, params)) in
+        let paramvars = sort earliervar ((paramvar <* params)) in
         let provars =
-          fold tmerge (( <* ) (provisovars termvars tmerge, provisos)) []
+          nj_fold (uncurry2 tmerge) ((provisovars termvars tmerge <* provisos)) []
         in
         (* don't evaluate fbvs unless there is an apparent error, and don't do it twice *)
-        let obvs : term list option ref = ref NONE in
+        let obvs : term list option ref = ref None in
         let rec check vs errorf =
           match !obvs with
-            NONE ->
+            None ->
               begin match sorteddiff earliervar vs bodyvars with
                 [] -> ()
               | _ ->
                   (* nothing wrong - the usual case *)
-                  obvs := SOME (tmerge (bodyvars, fbvs ())); check vs errorf
+                  obvs := Some (tmerge bodyvars (fbvs ())); check vs errorf
               end
-          | SOME bvs ->
+          | Some bvs ->
               match sorteddiff earliervar vs bvs with
                 [] -> ()
               | extras ->(* definitely nothing wrong *)
@@ -620,20 +619,20 @@ module
             [], _ ->
               showInputError report
                 [place; " "; objkind; " "; namestring name; " "; has; " ";
-                 add_an_s "variable" (length vs > 1); " ";
+                 add_an_s "variable" (List.length vs > 1); " ";
                  liststring2 termstring ", " " and " vs;
                  " which aren't in the "; wherekind; "."]
           | _, [] ->
               showInputError report
                 [place; " "; objkind; " "; namestring name; " "; has;
-                 " duplicate "; add_an_s "variable" (length vs > 1); " ";
+                 " duplicate "; add_an_s "variable" (List.length vs > 1); " ";
                  liststring2 termstring ", " " and " vs; "."]
           | dups, rogues ->
               showInputError report
                 [place; " "; objkind; " "; namestring name; " "; has;
-                 " duplicate "; add_an_s "variable" (length dups > 1); " ";
+                 " duplicate "; add_an_s "variable" (List.length dups > 1); " ";
                  liststring2 termstring ", " " and " dups; ", and also ";
-                 add_an_s "variable" (length rogues > 1); " ";
+                 add_an_s "variable" (List.length rogues > 1); " ";
                  liststring2 termstring ", " " and " rogues;
                  " which aren't in the "; wherekind; "."]
           end;
@@ -641,83 +640,83 @@ module
         in
         check paramvars (error "parameter list" "includes");
         check provars
-          (error (add_an_s "proviso" (length provisos > 1))
-             (add_an_s "contain" (length provisos = 1)))
+          (error (add_an_s "proviso" (List.length provisos > 1))
+             (add_an_s "contain" (List.length provisos = 1)))
     let rec parseParagraph report query =
       let sy = currsymb () in
       let rec more () = parseParagraph report query in
       match sy with
-        SHYID "AUTOMATCH" -> scansymb (); SOME (parseAutoRule true)
-      | SHYID "AUTOUNIFY" -> scansymb (); SOME (parseAutoRule false)
+        SHYID "AUTOMATCH" -> scansymb (); Some (parseAutoRule true)
+      | SHYID "AUTOUNIFY" -> scansymb (); Some (parseAutoRule false)
       | SHYID "BIND" -> scansymb (); processBind (); more ()
-      | SHYID "CONCHIT" -> scansymb (); SOME (parseHitDef DClickConc)
+      | SHYID "CONCHIT" -> scansymb (); Some (parseHitDef DClickConc)
       | SHYID "CONSTANT" ->
           scansymb (); processClassDecl report query ConstantClass; more ()
       | SHYID "CLASS" -> scansymb (); processCLASS report query; more ()
       | SHYID "CONJECTUREPANEL" ->
-          scansymb (); SOME (parseConjecturePanel report query)
+          scansymb (); Some (parseConjecturePanel report query)
       | SHYID "CURRENTPROOF" ->
-          scansymb (); SOME (parseProof report InProgress)
-      | SHYID "CUT" -> scansymb (); SOME (parseStructure "CUT")
-      | SHYID "DERIVED" -> scansymb (); SOME (parseDerived report)
-      | SHYID "DISPROOF" -> scansymb (); SOME (parseProof report Disproved)
-      | SHYID "FONTS" -> scansymb (); SOME (parseFontSpec ())
-      | SHYID "FORCE" -> scansymb (); SOME (parseForceDefSpec ())
+          scansymb (); Some (parseProof report InProgress)
+      | SHYID "CUT" -> scansymb (); Some (parseStructure "CUT")
+      | SHYID "DERIVED" -> scansymb (); Some (parseDerived report)
+      | SHYID "DISPROOF" -> scansymb (); Some (parseProof report Disproved)
+      | SHYID "FONTS" -> scansymb (); Some (parseFontSpec ())
+      | SHYID "FORCE" -> scansymb (); Some (parseForceDefSpec ())
       | SHYID "FORMULA" ->
           raise (ParseError_ ["FORMULA without CLASS is meaningless"])
-      | SHYID "GIVENPANEL" -> scansymb (); SOME (parseGivenPanel report query)
-      | SHYID "HYPHIT" -> scansymb (); SOME (parseHitDef DClickHyp)
-      | SHYID "IDENTITY" -> scansymb (); SOME (parseStructure "IDENTITY")
-      | SHYID "INFIX" -> scansymb (); processInfix INFIX; more ()
-      | SHYID "INFIXC" -> scansymb (); processInfix INFIXC; more ()
+      | SHYID "GIVENPANEL" -> scansymb (); Some (parseGivenPanel report query)
+      | SHYID "HYPHIT" -> scansymb (); Some (parseHitDef DClickHyp)
+      | SHYID "IDENTITY" -> scansymb (); Some (parseStructure "IDENTITY")
+      | SHYID "INFIX" -> scansymb (); processInfix (fun v->INFIX v); more ()
+      | SHYID "INFIXC" -> scansymb (); processInfix (fun v->INFIXC v); more ()
       | SHYID "JUXTFIX" -> scansymb (); appfix := parseNUM (); more ()
       | SHYID "KEYBOARD" -> scansymb (); processKEYBOARD report query; more ()
-      | SHYID "INITIALISE" -> scansymb (); SOME (parseInitialise ())
-      | SHYID "LEFTFIX" -> scansymb (); processLeftMidfix LEFTFIX; more ()
-      | SHYID "LEFTWEAKEN" -> scansymb (); SOME (parseStructure "LEFTWEAKEN")
+      | SHYID "INITIALISE" -> scansymb (); Some (parseInitialise ())
+      | SHYID "LEFTFIX" -> scansymb (); processLeftMidfix (fun v->LEFTFIX v); more ()
+      | SHYID "LEFTWEAKEN" -> scansymb (); Some (parseStructure "LEFTWEAKEN")
       | SHYID "MACRO" ->
           scansymb ();
-          SOME (MacroDef (parseTacticHeading ISWORD, asTactic parseTerm EOF))
-      | SHYID "MENU" -> scansymb (); SOME (parseMenu report query)
-      | SHYID "MIDFIX" -> scansymb (); processLeftMidfix MIDFIX; more ()
+          Some (MacroDef (parseTacticHeading _ISWORD, asTactic parseTerm EOF))
+      | SHYID "MENU" -> scansymb (); Some (parseMenu report query)
+      | SHYID "MIDFIX" -> scansymb (); processLeftMidfix (fun v->MIDFIX v); more ()
       | SHYID "NUMBER" ->
           scansymb (); processClassDecl report query NumberClass; more ()
       | SHYID "OUTFIX" -> scansymb (); processOutfix (); more ()
       | SHYID "PATCHALERT" -> scansymb (); processPatchAlert (); more ()
-      | SHYID "POSTFIX" -> scansymb (); processUnifix POSTFIX; more ()
-      | SHYID "PREFIX" -> scansymb (); processUnifix PREFIX; more ()
-      | SHYID "PROOF" -> scansymb (); SOME (parseProof report Proved)
-      | SHYID "REFLEXIVE" -> scansymb (); SOME (parseStructure "REFLEXIVE")
+      | SHYID "POSTFIX" -> scansymb (); processUnifix (fun v->POSTFIX v); more ()
+      | SHYID "PREFIX" -> scansymb (); processUnifix (fun v->PREFIX v); more ()
+      | SHYID "PROOF" -> scansymb (); Some (parseProof report Proved)
+      | SHYID "REFLEXIVE" -> scansymb (); Some (parseStructure "REFLEXIVE")
       | SHYID "RIGHTFIX" -> scansymb (); processRightfix (); more ()
       | SHYID "RIGHTWEAKEN" ->
-          scansymb (); SOME (parseStructure "RIGHTWEAKEN")
-      | SHYID "RULE" -> scansymb (); SOME (RuleDef (parseRule report true))
-      | SHYID "RULES" -> scansymb (); SOME (parseRules report true)
+          scansymb (); Some (parseStructure "RIGHTWEAKEN")
+      | SHYID "RULE" -> scansymb (); Some (RuleDef (parseRule report true))
+      | SHYID "RULES" -> scansymb (); Some (parseRules report true)
       | SHYID "STRING" ->
           scansymb (); processClassDecl report query StringClass; more ()
       | SHYID "SEMANTICTURNSTILE" ->
           scansymb (); processSemanticTurnstileSpec (); more ()
       | SHYID "SEQUENT" -> scansymb (); processSequentSpec (); more ()
-      | SHYID "STRUCTURERULE" -> scansymb (); SOME (parseStructureRule ())
+      | SHYID "STRUCTURERULE" -> scansymb (); Some (parseStructureRule ())
       | SHYID "SUBSTFIX" -> scansymb (); processSubstfix report query; more ()
       | SHYID "TACTIC" ->
           scansymb ();
-          SOME
+          Some
             (TacticDef
-               (parseTacticHeading ISWORD,
+               (parseTacticHeading _ISWORD,
                 transTactic (asTactic parseTerm EOF)))
       | SHYID "TACTICPANEL" ->
-          scansymb (); SOME (parseTacticPanel report query)
-      | SHYID "THEOREM" -> scansymb (); SOME (parseTheorem report)
-      | SHYID "THEOREMS" -> scansymb (); SOME (parseTheorems report)
-      | SHYID "THEORY" -> scansymb (); SOME (parseTheory report query)
-      | SHYID "TRANSITIVE" -> scansymb (); SOME (parseStructure "TRANSITIVE")
+          scansymb (); Some (parseTacticPanel report query)
+      | SHYID "THEOREM" -> scansymb (); Some (parseTheorem report)
+      | SHYID "THEOREMS" -> scansymb (); Some (parseTheorems report)
+      | SHYID "THEORY" -> scansymb (); Some (parseTheory report query)
+      | SHYID "TRANSITIVE" -> scansymb (); Some (parseStructure "TRANSITIVE")
       | SHYID "USE" ->
-          scansymb (); SOME (parseUse report query before scansymb ())
+          scansymb (); Some (let r = parseUse report query in scansymb (); r)
       | SHYID "VARIABLE" ->
           scansymb (); processClassDecl report query VariableClass; more ()
-      | SHYID "WEAKEN" -> scansymb (); SOME (parseStructure "WEAKEN")
-      | _ -> NONE
+      | SHYID "WEAKEN" -> scansymb (); Some (parseStructure "WEAKEN")
+      | _ -> None
     and processSequentSpec () =
       let rec f _ =
         let s1 = parseidclass "on left-hand side of SEQUENT specification" in
@@ -731,18 +730,18 @@ module
         let s3 = parseidclass "on right-hand side of SEQUENT specification" in
         s1, s2, s3
       in
-      ignore ISWORD; describeSeqs (parseList (fun _ -> true) f (SHYID "AND"))
+      ignore _ISWORD; describeSeqs (parseList (fun _ -> true) f (SHYID "AND"))
     and processSemanticTurnstileSpec () =
       let syn =
         match currsymb () with
-          STILE s -> s before scansymb ()
+          STILE s -> scansymb (); s
         | sy ->
             raise
               (ParseError_
                  ["turnstile expected after SEMANTICTURNSTILE: found ";
                   symbolstring sy])
       in
-      let _ = ignore ISWORD in
+      let _ = ignore _ISWORD in
       let sem =
         acceptpreviousnovelsymb
           (function
@@ -750,15 +749,15 @@ module
            | _ -> false)
           "as semantic turnstile"
       in
-      sequent.setsemanticturnstile syn sem
+      Sequent.Funs.setsemanticturnstile syn sem
     and parseRule report axiom =
       if member
            (currsymb (),
             [BRA "("; SHYID "WHERE"; SHYID "FROM"; SHYID "INFER"; SHYID "IS"])
       then
-        parseUnnamedRule report NONE axiom
+        parseUnnamedRule report None axiom
       else
-        let heading = parseRuleHeading true ISWORD in
+        let heading = parseRuleHeading true _ISWORD in
         let (antes, conseq) = parseRulebody () in
         let _ =
           checkvalidruleheading report "rule" "body of the rule" heading antes
@@ -768,20 +767,20 @@ module
     and parseUnnamedRule report nopt axiom =
       let params = if itisaparamlist () then parseformals true else [] in
       let provisos = parseProvisos () in
-      let _ = ignore ISWORD in
+      let _ = ignore _ISWORD in
       let (antes, conseq) = parseRulebody () in
       let name =
         Name
           (match nopt with
-             SOME n -> n
-           | NONE ->
+             Some n -> n
+           | None ->
                match antes, conseq with
                  [], _ -> seqstring conseq
                | _ ->
                    implode
                      ["FROM ";
                       implode
-                        (interpolate " AND " (( <* ) (seqstring, antes)));
+                        (interpolate " AND " ((seqstring <* antes)));
                       " INFER "; seqstring conseq])
       in
       let heading = RuleHeading (name, params, provisos) in
@@ -797,8 +796,8 @@ module
       | _ -> ignore (SHYID "INFER"); [], parseSeq ()
     and parseParaList report query =
       match parseParagraph report query with
-        SOME p -> p :: parseParaList report query
-      | NONE ->
+        Some p -> p :: parseParaList report query
+      | None ->
           match currsymb () with
             SHYID "END" -> scansymb (); []
           | EOF -> []
@@ -816,14 +815,14 @@ module
         ["ENTRY"; "BUTTON"; "RADIOBUTTON"; "CHECKBOX"; "SEPARATOR"] @
           parastarters
       in
-      let parasymbs = ( <* ) (SHYID, parastarters) in
-      let symbs = ( <* ) (SHYID, starters) in
+      let parasymbs = (fSHYID <* parastarters) in
+      let symbs = (fSHYID <* starters) in
       let rec mkentry canstart getitem prefix toitem =
         let itemname = currsymb_as_name () in
         let menukey =
           match currsymb () with
-            SHYID "MENUKEY" -> scansymb (); SOME (currsymb_as_string ())
-          | _ -> NONE
+            SHYID "MENUKEY" -> scansymb (); Some (currsymb_as_string ())
+          | _ -> None
         in
         let item =
           prefix ^
@@ -837,7 +836,7 @@ module
       in
       let rec parseentry () =
         if member (currsymb (), parasymbs) then
-          Menupara (unSOME (parseParagraph report query))
+          Menupara (_The (parseParagraph report query))
         else
           match currsymb () with
             SHYID "ENTRY" ->
@@ -848,9 +847,9 @@ module
               scansymb (); mkentry canstartCommand parseCommand "" namestring
           | SHYID "RADIOBUTTON" ->
               scansymb ();
-              Menustuff (parseRadioButton report query Mradiobutton)
+              Menustuff (parseRadioButton report query (fun v->Mradiobutton v))
           | SHYID "CHECKBOX" ->
-              scansymb (); Menustuff (parseCheckBox report query Mcheckbox)
+              scansymb (); Menustuff (parseCheckBox report query (fun v->Mcheckbox v))
           | SHYID "SEPARATOR" -> scansymb (); Menustuff Mseparator
           | s ->
               showInputError report
@@ -858,7 +857,7 @@ module
               raise Use_
       in
       let mlabel = currsymb_as_name () in
-      let _ = ignore ISWORD in
+      let _ = ignore _ISWORD in
       let m =
         Menu
           (mlabel,
@@ -891,12 +890,12 @@ module
         ["BUTTON"; "RADIOBUTTON"; "CHECKBOX"] []
     and parsePanel report query panelkind entrystarters parastarters =
       let starters = entrystarters @ parastarters in
-      let entrysymbs = ( <* ) (SHYID, entrystarters) in
-      let parasymbs = ( <* ) (SHYID, parastarters) in
-      let symbs = ( <* ) (SHYID, starters) in
+      let entrysymbs = (fSHYID <* entrystarters) in
+      let parasymbs = (fSHYID <* parastarters) in
+      let symbs = (fSHYID <* starters) in
       let rec parseentry () =
         if member (currsymb (), parasymbs) then
-          Panelpara (unSOME (parseParagraph report query))
+          Panelpara (_The (parseParagraph report query))
         else
           match currsymb () with
             SHYID "ENTRY" ->
@@ -911,7 +910,8 @@ module
               Panelstuff (Pentry (itemname, item))
           | SHYID "BUTTON" ->
               let itemname =
-                scansymb (); currsymb_as_name () before ignore ISWORD
+                scansymb (); 
+                let r = currsymb_as_name () in ignore _ISWORD; r
               in
               let rec getcmd () =
                 match currsymb () with
@@ -934,16 +934,16 @@ module
               Panelstuff (Pbutton (itemname, itemcmd))
           | SHYID "RADIOBUTTON" ->
               scansymb ();
-              Panelstuff (parseRadioButton report query Pradiobutton)
+              Panelstuff (parseRadioButton report query (fun v->Pradiobutton v))
           | SHYID "CHECKBOX" ->
-              scansymb (); Panelstuff (parseCheckBox report query Pcheckbox)
+              scansymb (); Panelstuff (parseCheckBox report query (fun v->Pcheckbox v))
           | sy ->
               raise
                 (Catastrophe_
                    ["internal error in parsePanel -- "; symbolstring sy])
       in
       let plabel = currsymb_as_name () in
-      let _ = ignore ISWORD in
+      let _ = ignore _ISWORD in
       let p =
         Panel
           (plabel,
@@ -964,15 +964,15 @@ module
     and parseCommand () =
       (* always protected by canstartCommand *)
       try
-        parseablenamestring
-          (unSOME (namefromsymbol (currsymb ())) before scansymb ()) ^
+         parseablenamestring
+         (let r = _The (namefromsymbol (currsymb ())) in scansymb (); r) ^
           (if canstartCommand (currsymb ()) then " " ^ parseCommand ()
            else "")
       with
-        UnSOME_ -> raise (Catastrophe_ ["UnSOME_ in parseCommand"])
+        None_ -> raise (Catastrophe_ ["None_ in parseCommand"])
     and parseHitDef sense =
       let pattern = parseSeq () in
-      let action = ignore ISWORD; transTactic (asTactic parseTerm EOF) in
+      let action = ignore _ISWORD; transTactic (asTactic parseTerm EOF) in
       HitDef (sense, action, pattern)
     and parseInitialise () =
       let name = currsymb_as_name () in
@@ -980,9 +980,7 @@ module
     and parseAutoRule sense =
       AutoRule
         (sense,
-         ( <* )
-           (transTactic,
-            parseList canstartTerm (asTactic parseTerm) commasymbol))
+           (transTactic <* parseList canstartTerm (asTactic parseTerm) commasymbol))
     and parseUse report query =
       match currsymb () with
         STRING s -> File (s, file2paragraphs report query s)
@@ -992,9 +990,9 @@ module
     and parseTheorems report =
       let n = ref 0 in
       let (RuleHeading (name, formals, provisos) as p) =
-        parseRuleHeading true AREWORD
+        parseRuleHeading true _AREWORD
       in
-      let rec parseThm () = parseUnnamedTheorem report NONE in
+      let rec parseThm () = parseUnnamedTheorem report None in
       let t =
         Theory
           (p, parseList (fun _ -> true) (fun _ -> parseThm ()) (SHYID "AND"))
@@ -1010,9 +1008,9 @@ module
       if member
            (currsymb (), [BRA "("; SHYID "WHERE"; SHYID "IS"; SHYID "INFER"])
       then
-        parseUnnamedTheorem report NONE
+        parseUnnamedTheorem report None
       else
-        let heading = parseRuleHeading true ISWORD in
+        let heading = parseRuleHeading true _ISWORD in
         let body = parseSeq () in
         let _ =
           checkvalidruleheading report "theorem" "body of the theorem" heading
@@ -1022,12 +1020,12 @@ module
     and parseUnnamedTheorem report nopt =
       let params = if itisaparamlist () then parseformals true else [] in
       let provisos = parseProvisos () in
-      let _ = ignore ISWORD; ignore (SHYID "INFER") in
+      let _ = ignore _ISWORD; ignore (SHYID "INFER") in
       let s = parseSeq () in
       let n =
         match nopt with
-          SOME n -> n
-        | NONE -> Name (seqstring s)
+          Some n -> n
+        | None -> Name (seqstring s)
       in
       let heading = RuleHeading (n, params, provisos) in
       let _ =
@@ -1062,11 +1060,11 @@ module
                    | _ -> false)
                   (fun _ -> scansymb (); parseTerm commasymbol) commasymbol
               in
-              readintasarg := SOME (Array.arrayoflist fs); SOME fs
-          | _ -> NONE
+              readintasarg := Some (Array.of_list fs); Some fs
+          | _ -> None
         in
-        let tacterm = check ISWORD; asTactic parseTerm EOF in
-        let tac = transTactic tacterm before readintasarg := NONE in
+        let tacterm = check _ISWORD; asTactic parseTerm EOF in
+        let tac = let r = transTactic tacterm in readintasarg := None; r in
         let _ =
           checkvalidruleheading report (proofstage2word stage)
             "body of the conjecture or the body of the proof"
@@ -1074,26 +1072,26 @@ module
             (* this argument is slowing down proof reading no end - so I lazified it *)
             (fun _ ->
                match fs with
-                 NONE -> termvars tacterm
-               | SOME fs ->
+                 None -> termvars tacterm
+               | Some fs ->
                    (* bodyvars from old-style proof *)
-                   fold tmerge (( <* ) (termvars, fs))
-                     (( <| ) (isUnknown, termvars tacterm)))
+                   nj_fold (uncurry2 tmerge) (termvars <* fs)
+                     ((isUnknown <| termvars tacterm)))
         in
         let disproofopt = parsemodel () in
         Proof (n, stage, seq, (givens, params, pros, tac), disproofopt)
       with
-        exn -> readintasarg := NONE; raise exn
+        exn -> readintasarg := None; raise exn
     and parseRules report axiom =
       let n = ref 0 in
       let (RuleHeading (name, formals, provisos) as p) =
-        parseRuleHeading true AREWORD
+        parseRuleHeading true _AREWORD
       in
       let rec nextname () =
-        (namestring name ^ "'") ^ makestring !n before inc n
+        let r = (namestring name ^ "'") ^ string_of_int !n in incr n; r
       in
       let rec parseRle () =
-        RuleDef (parseUnnamedRule report (SOME (nextname ())) axiom)
+        RuleDef (parseUnnamedRule report (Some (nextname ())) axiom)
       in
       let t =
         RuleGroup
@@ -1119,12 +1117,12 @@ module
       let starters =
         ["RULE"; "RULES"; "TACTIC"; "THEOREM"; "THEOREMS"; "THEORY"]
       in
-      let parastarters = ( <* ) (SHYID, starters) in
+      let parastarters = (fSHYID <* starters) in
       let t =
         Theory
-          (parseRuleHeading true ISWORD,
+          (parseRuleHeading true _ISWORD,
            parseUnsepList (fun s -> member (s, parastarters))
-             (fun _ -> unSOME (parseParagraph report query)))
+             (fun _ -> _The (parseParagraph report query)))
       in
       match currsymb () with
         SHYID "END" -> scansymb (); t
@@ -1154,7 +1152,7 @@ module
     and parseStructure s =
       (* [CUT|IDENTITY|...] [RULE] name; ... *)
       ignore (SHYID "RULE");
-      ignore ISWORD;
+      ignore _ISWORD;
       if member (s, structurerulestrings) then
         StructureRule (s, currsymb_as_name ())
       else raise (Catastrophe_ ["parseStructure "; s])
@@ -1162,31 +1160,32 @@ module
       let s = makerelative s in
       let st =
         pushlex s
-          (try open_in s with
-             Io m ->
+          (try Stream.of_channel (open_in s) with
+             Sys_error e ->
                showInputError report
-                 ["Cannot read file: \""; s; "\""; " ("; Io_explain m; ")"];
+                 ["Cannot read file: \""; s; "\""; " ("; e; ")"];
                raise Use_)
-          before startusing s
       in
+      let _ = startusing s in
       let rec cleanup () =
         poplex st; consolereport ["[CLOSING \""; s; "\"]"]; stopusing ()
       in
       consolereport ["[OPENING \""; s; "\"]"];
-      (try parseParaList report query with
-         ParseError_ m -> showInputError report m; cleanup (); raise Use_
-       | Catastrophe_ ss ->
-           showInputError report ("Catastrophic input error: " :: ss);
-           cleanup ();
-           raise Use_
-       | exn -> cleanup (); raise exn)
+      let r = 
+		(try parseParaList report query with
+		   ParseError_ m -> showInputError report m; cleanup (); raise Use_
+		 | Catastrophe_ ss ->
+			 showInputError report ("Catastrophic input error: " :: ss);
+			 cleanup ();
+			 raise Use_
+		 | exn -> cleanup (); raise exn)
         (* including Use_, at it happens *)
-        before cleanup ()
+      in cleanup (); r
     let rec string2paragraph report query s =
       let rec getpara () =
         match parseParagraph report query with
-          SOME p -> p
-        | NONE ->
+          Some p -> p
+        | None ->
             raise
               (ParseError_
                  ["Error: expecting paragraph beginning; found ";

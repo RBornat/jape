@@ -93,7 +93,7 @@ module M : T =
   struct
     open Miscellaneous.M
     open Listfuns.M
-    open SML.M
+    open Sml.M
     
     let rec isQuoted s =
       String.sub (s) (0) (1) = "\"" && String.sub (s) (String.length s - 1) (1) = "\""

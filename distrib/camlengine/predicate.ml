@@ -38,7 +38,7 @@ module M : T with type idclass = Idclass.M.idclass
     open Miscellaneous.M
     open Stringfuns.M
     open Optionfuns.M
-    open SML.M
+    open Sml.M
     
     type idclass = Idclass.M.idclass
     type term = Term.Funs.term

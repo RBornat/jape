@@ -160,7 +160,7 @@ module Tree : Tree with type term = Term.Type.term
     open Rewrite.Rew
     open Sequent.Funs
     open Sequent.Type
-    open SML.M
+    open Sml.M
     open Stringfuns.M
     open Tactic.Type
     open Tactic.Funs

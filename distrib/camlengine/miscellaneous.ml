@@ -61,7 +61,7 @@ end
 
 module M : T =
   struct
-    open SML.M
+    open Sml.M
        
     let rec iter f (l, h) =
       if l > h then () else begin f l; iter f (l + 1, h) end

@@ -104,7 +104,7 @@
     open Listfuns.M
     open Mappingfuns.M
     open Optionfuns.M
-    open SML.M
+    open Sml.M
     open Term.Termstring
     open Text.M
     open Thing.M

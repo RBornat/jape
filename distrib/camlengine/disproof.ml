@@ -92,7 +92,7 @@ module M : T with type element = Term.Funs.element
     open Optionfuns.M
     open Predicate.M
     open Seqdraw.M
-    open SML.M
+    open Sml.M
     open Term.Funs
     open Term.Store
     open Term.Termstring

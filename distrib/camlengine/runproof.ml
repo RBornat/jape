@@ -2,23 +2,12 @@
 
 module type T =
   sig
-    type cxt
-    and japeenv
-    and model
-    and name
-    and proofstate
-    and 'a prooftree
-    and seq
-    and tactic
-    and treeformat
-    and proofstage
-    and proviso
-    and visproviso
+    type cxt and japeenv and model and name and proofstate and prooftree
+    and seq and tactic and proofstage and proviso and visproviso
+    
     val proofsdone : bool ref
-    val mkstate :
-      visproviso list -> seq list -> treeformat prooftree -> proofstate
-    val startstate :
-      japeenv -> visproviso list -> seq list -> seq -> proofstate
+    val mkstate : visproviso list -> seq list -> prooftree -> proofstate
+    val startstate : japeenv -> visproviso list -> seq list -> seq -> proofstate
     val addproof :
       (string list -> unit) ->
         (string list * string * string * int -> bool) -> name -> bool ->
@@ -30,59 +19,82 @@ module type T =
         (seq * model) option ->
         (name * proofstate * (seq * model) option) option
   end
-(* $Id$ *)
 
-module M : T =
+module M : T with type cxt = Context.Cxt.visproviso
+			  and type japeenv = Japeenv.M.japeenv
+			  and type model = Forcedef.M.model
+			  and type name = Name.M.name
+			  and type proofstate = Proofstate.M.proofstate
+			  and type prooftree = Proofstate.M.prooftree
+			  and type seq = Proofstate.M.seq
+			  and type tactic = Proofstate.M.tactic
+			  and type proofstage = Proofstage.M.proofstage
+			  and type proviso = Context.Cxt.proviso
+			  and type visproviso = Context.Cxt.visproviso
+=
   struct
-    open Context open Name open Proofstage open Proofstate
+    open Context.Cxt 
+    open Context.ExteriorFuns
+    open Name.M 
+    open Proofstage.M 
+    open Proofstate.M
+    open Sml.M
 
-           type model = Forcedef.M.model
-and possmatch = Applyrule.M.possmatch
-and japeenv = Japeenv.M.japeenv
+    type cxt = Context.Cxt.visproviso
+    and japeenv = Japeenv.M.japeenv
+    and model = Forcedef.M.model
+    and name = Name.M.name
+    and proofstate = Proofstate.M.proofstate
+    and prooftree = Proofstate.M.prooftree
+    and seq = Proofstate.M.seq
+    and tactic = Proofstate.M.tactic
+    and proofstage = Proofstage.M.proofstage
+    and proviso = Context.Cxt.proviso
+    and visproviso = Context.Cxt.visproviso
            
-           exception Use_ = Paragraph.M.Use_
-exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
-           
-           let addproof = Proofstore.M.addproof
-           let ( &~~ ) = Optionfuns.M.( &~~ )
-           let applyLiteralTactic = Tacticfuns.M.applyLiteralTactic None
-           let applyconjectures = Miscellaneous.M.applyconjectures
-           let applyTactic = Tacticfuns.M.applyTactic None
-           let rec checkdisproof cxt =
-  Disproof.M.checkdisproof (Facts.M.facts (Context.Cxt.provisos cxt) cxt)
-           let compiletoprove = Thing.M.compiletoprove
-           let consolereport = Miscellaneous.M.consolereport
-           let empty = Mappingfuns.M.empty
-           let eqbags = Listfuns.M.eqbags
-           let explain = Tacticfuns.M.explain
-           let getReason = Reason.M.getReason
-           let liststring = Listfuns.M.liststring
-           let ( <* ) = Listfuns.M.( <* )
-           let maxprovisoresnum = Proviso.M.maxprovisoresnum
-           let maxtreeresnum = Prooftree.Tree.Fmttree.maxtreeresnum
-           let mkReplayTac = Tactic.Funs.ReplayTac
-           let mkSimpleApplyTac = Tactic.Funs.SimpleApplyTac
-           
-           let rec mkTip cxt seq =
-  Prooftree.Tree.mkTip cxt seq Treeformat.M.neutralformat
-           
-           let mkUniqueTac = Tactic.Funs.UniqueTac
-           let mkvisproviso = Proviso.M.mkvisproviso
-           let proofstage2word = Proofstage.M.proofstage2word
-           let proving = Tacticfuns.M.proving
-           let provisoactual = Proviso.M.provisoactual
-           let provisostring = Proviso.M.provisostring
-           let provisovisible = Proviso.M.provisovisible
-           let rewriteproofstate = Proofstate.M.rewriteproofstate
-           let rewriteProoftree = Prooftree.Tree.rewriteProoftree
-           let rewriteseq = Rewrite.Funs.rewriteseq
-           let rootPath = Prooftree.Tree.Fmttree.rootPath
-           let sequent = Prooftree.Tree.Fmttree.sequent
-           let seqstring = Sequent.Funs.seqstring
-           let tacticstring = Tactic.Funs.tacticstring
-           let takethelot = Applyrule.M.takethelot
-           let uncurry2 = Miscellaneous.M.uncurry2
-           let ( <| ) = Listfuns.M.( <| )
+	exception Use_ = Paragraph.M.Use_
+	exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
+	
+	let addproof = Proofstore.M.addproof
+	let ( &~~ ) = Optionfuns.M.( &~~ )
+	let applyLiteralTactic = Tacticfuns.M.applyLiteralTactic None
+	let applyconjectures = Miscellaneous.M.applyconjectures
+	let applyTactic = Tacticfuns.M.applyTactic None
+	let rec checkdisproof cxt =
+	  Disproof.M.checkdisproof (Facts.M.facts (Context.Cxt.provisos cxt) cxt)
+	let compiletoprove = Thing.M.compiletoprove
+	let consolereport = Miscellaneous.M.consolereport
+	let empty = Mappingfuns.M.empty
+	let eqbags = Listfuns.M.eqbags
+	let explain = Tacticfuns.M.explain
+	let getReason = Reason.M.getReason
+	let liststring = Listfuns.M.liststring
+	let ( <* ) = Listfuns.M.( <* )
+	let maxprovisoresnum = Proviso.M.maxprovisoresnum
+	let maxtreeresnum = Prooftree.Tree.Fmttree.maxtreeresnum
+	let mkReplayTac v = Tactic.Type.ReplayTac v
+	let mkSimpleApplyTac v = Tactic.Type.SimpleApplyTac v
+	
+	let rec mkTip cxt seq =
+	  Prooftree.Tree.mkTip cxt seq Treeformat.Fmt.neutralformat
+	
+	let mkUniqueTac v = Tactic.Type.UniqueTac v
+	let mkvisproviso = Proviso.M.mkvisproviso
+	let proofstage2word = Proofstage.M.proofstage2word
+	let proving = Tacticfuns.M.proving
+	let provisoactual = Proviso.M.provisoactual
+	let provisostring = Proviso.M.provisostring
+	let provisovisible = Proviso.M.provisovisible
+	let rewriteproofstate = Proofstate.M.rewriteproofstate
+	let rewriteProoftree = Prooftree.Tree.rewriteProoftree
+	let rewriteseq = Rewrite.Funs.rewriteseq
+	let rootPath = Prooftree.Tree.Fmttree.rootPath
+	let sequent = Prooftree.Tree.Fmttree.sequent
+	let seqstring = Sequent.Funs.seqstring
+	let tacticstring = Tactic.Funs.tacticstring
+	let takethelot = Applyrule.M.takethelot
+	let uncurry2 = Miscellaneous.M.uncurry2
+	let ( <| ) = Listfuns.M.( <| )
     
     let proofsdone = ref false
     let rec doBEGINPROOF env state =
@@ -93,45 +105,22 @@ exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
       let (cxt, tree, uvs) =
         rewriteProoftree givens false
           (withexterior
-             (withprovisos (newcxt, provisos), (givens, sequent tree)))
+             (withprovisos newcxt provisos) (givens, sequent tree))
           tree
       in
       Proofstate
-        (let module M =
-           struct
-             class a =
-               object
-                 val cxt =
-                   withresnum
-                     (withusedVIDs (cxt, uvs),
-                      nj_fold (uncurry2 max)
-                        (maxtreeresnum tree ::
-                             ((
-                                 maxprovisoresnum <*> provisoactual) <*
-                              provisos))
-                        1 +
-                        1)
-                 val givens = givens
-                 val tree = tree
-                 val goal = None
-                 val target = None
-                 val root = None
-                 method cxt = cxt
-                 method givens = givens
-                 method tree = tree
-                 method goal = goal
-                 method target = target
-                 method root = root
-               end
-           end
-         in
-         new M.a)
+        {cxt = withresnum
+				 (withusedVIDs cxt uvs)
+				 (nj_fold (uncurry2 max)
+					(maxtreeresnum tree ::
+						 ((maxprovisoresnum <*> provisoactual) <* provisos)) 1 + 1);
+         givens = givens; tree = tree; goal = None; target = None; root = None}
     let rec startstate env provisos givens seq =
       let (Proofstate {tree = tree} as state) =
         mkstate provisos givens (mkTip newcxt (rewriteseq newcxt seq))
       in
       (* rewrite necessary - see comment on definition of mkTip *)
-      doBEGINPROOF env (withgoal (state, Some (rootPath tree)))
+      doBEGINPROOF env (withgoal state (Some (rootPath tree)))
     let realaddproof = addproof
     let rec addproof report query name proved =
       fun (Proofstate {cxt = cxt; tree = tree; givens = givens})
@@ -161,7 +150,7 @@ exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
       report query env name stage seq (givens, pros, tac) disproofopt =
       let tac = mkReplayTac (mkUniqueTac (mkSimpleApplyTac tac)) in
       let (pros', givens, seq) = compiletoprove (pros, givens, seq) in
-      let cxt = withprovisos (newcxt, (mkvisproviso <* pros')) in
+      let cxt = withprovisos newcxt (mkvisproviso <* pros') in
       let oldapply = !applyconjectures in
       let oldproving = !proving in
       let rec checkfinalprovisos cxt =
@@ -255,7 +244,7 @@ exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
             in
             if stage <> InProgress then
               begin
-                addproof report query name (stage = Proved) state disproofopt;
+                let _ = (addproof report query name (stage = Proved) state disproofopt : bool) in
                 None
               end
             else Some (name, state, disproofopt)))

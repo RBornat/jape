@@ -24,6 +24,7 @@ module type T =
     val _All : ('a -> bool) -> 'a list -> bool
     val member : 'a * 'a list -> bool
     val subset : 'a list * 'a list -> bool
+    val _INTER : 'a list -> 'a list -> 'a list
     val nonmember : 'a * 'a list -> bool
     val slosh : 'a list * 'a list -> 'a list
     val set : 'a list -> 'a list
@@ -95,7 +96,7 @@ module M : T =
   struct
     open Simplecache.M
     open Miscellaneous.M
-    open SML.M
+    open Sml.M
               
     exception First exception Reduce
     (* Bird-Meertens folding *)
@@ -172,7 +173,10 @@ module M : T =
         xs []
     let rec set (xs : 'a list) =
       seteq ( = ) xs
+    
     let rec subset (xs, ys) = _All (fun x -> member (x, ys)) xs
+    let _INTER xs ys = (fun y -> member (y, xs)) <| ys
+    
     let rec interpolate a1 a2 =
       match a1, a2 with
         sep, [] -> []

@@ -49,7 +49,7 @@ module M : T =
   struct
     open Japeserver.M
     open Optionfuns.M
-    open SML.M
+    open Sml.M
     open Miscellaneous.M
     open Listfuns.M
     

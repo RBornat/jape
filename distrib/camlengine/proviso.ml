@@ -73,7 +73,7 @@ module M : Provisotype with type vid = Term.Funs.vid
   struct
     open Listfuns.M 
     open Miscellaneous.M
-    open SML.M
+    open Sml.M
     open Symbol.Funs
     open Symbol.Type 
     open Term.Funs 

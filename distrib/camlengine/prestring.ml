@@ -36,7 +36,7 @@ module type T =
 
 module M : T =
   struct
-    open SML.M
+    open Sml.M
     
     type prestring =
       BQuote1 of string | BQuote2 of string list | BQuote3 of prestring list

@@ -15,7 +15,7 @@ module M : T with type cxt = Context.Cxt.cxt
               and type term = Term.Funs.term
 =
   struct
-    open SML.M
+    open Sml.M
     open Term.Funs
     open Term.Store
     open Term.Termstring
