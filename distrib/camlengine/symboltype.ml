@@ -26,12 +26,12 @@ module type T =
       | RIGHTFIX of (int * string)
       | STILE of string
       | SHYID of string
-    val vidstring : vid -> string
+    
+    val string_of_vid : vid -> string
+    val vid_of_string : string -> vid
   end
-(* $Id$ *)
 
-module M : T with type vid = string 
-              and type idclass = Idclass.M.idclass
+module M : T with type idclass = Idclass.M.idclass
 =
   struct
 
@@ -61,5 +61,6 @@ module M : T with type vid = string
       | STILE of string
       | SHYID of string
   
-    let vidstring vid = vid
+    let string_of_vid vid = vid
+    let vid_of_string s = s
   end
