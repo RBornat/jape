@@ -2,8 +2,8 @@
 {
 	01F12F4CFEC8CE2211DB9C8B = {
 		activeBuildStyle = 0E20B662001FAFA711DB9C8B;
-		activeExecutable = 06D05854FF24F2DB11DB9C8B;
-		activeTarget = 1601BCDBFEEE210811DB9C8B;
+		activeExecutable = F5AB83180339F3B701A80116;
+		activeTarget = F5AB83160339F3B701A80116;
 		addToTargets = (
 			1601BCDBFEEE210811DB9C8B,
 			F5AB83160339F3B701A80116,
@@ -15,17 +15,139 @@
 			F5AB83180339F3B701A80116,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 57872496;
-			"PBXTemplateGeometry-F5CA7ECB015C094F0DCA290F" = {
-				ContentSize = "{668, 621}";
+			PBXPerProjectTemplateStateSaveDate = 58098999;
+			"PBXTemplateGeometry-F5314676015831810DCA290F" = {
+				ContentSize = "{685, 434}";
 				LeftSlideOut = {
 					Collapsed = NO;
-					Frame = "{{0, 0}, {668, 621}}";
+					Frame = "{{0, 23}, {685, 411}}";
+					Split0 = {
+						ActiveTab = 2;
+						Collapsed = NO;
+						Frame = "{{0, 0}, {685, 411}}";
+						Split0 = {
+							Frame = "{{0, 221}, {685, 190}}";
+						};
+						SplitCount = 1;
+						Tab0 = {
+							Debugger = {
+								Collapsed = NO;
+								Frame = "{{0, 0}, {952, 321}}";
+								Split0 = {
+									Frame = "{{0, 24}, {952, 297}}";
+									Split0 = {
+										Frame = "{{0, 0}, {468, 297}}";
+									};
+									Split1 = {
+										DebugVariablesTableConfiguration = (
+											Name,
+											127,
+											Value,
+											150.074,
+											Summary,
+											172.123,
+										);
+										Frame = "{{477, 0}, {475, 297}}";
+									};
+									SplitCount = 2;
+								};
+								SplitCount = 1;
+								Tab0 = {
+									Frame = "{{0, 0}, {100, 50}}";
+								};
+								Tab1 = {
+									Frame = "{{0, 0}, {100, 50}}";
+								};
+								TabCount = 2;
+								TabsVisible = YES;
+							};
+							Frame = "{{0, 0}, {952, 321}}";
+							LauncherConfigVersion = 7;
+						};
+						Tab1 = {
+							Frame = "{{0, 0}, {781, 452}}";
+							LauncherConfigVersion = 3;
+							Runner = {
+								Frame = "{{0, 0}, {781, 452}}";
+							};
+						};
+						Tab2 = {
+							BuildMessageFrame = "{{0, 0}, {687, 149}}";
+							BuildTranscriptFrame = "{{0, 158}, {687, 59}}";
+							Frame = "{{0, 0}, {685, 215}}";
+						};
+						Tab3 = {
+							Frame = "{{0, 0}, {612, 295}}";
+						};
+						TabCount = 4;
+						TabsVisible = NO;
+					};
+					SplitCount = 1;
+					Tab0 = {
+						Frame = "{{0, 0}, {300, 533}}";
+						GroupTreeTableConfiguration = (
+							TargetStatusColumn,
+							18,
+							MainColumn,
+							267,
+						);
+					};
+					Tab1 = {
+						ClassesFrame = "{{0, 0}, {280, 398}}";
+						ClassesTreeTableConfiguration = (
+							PBXBookColumnIdentifier,
+							20,
+							PBXClassColumnIdentifier,
+							237,
+						);
+						Frame = "{{0, 0}, {278, 659}}";
+						MembersFrame = "{{0, 407}, {280, 252}}";
+						MembersTreeTableConfiguration = (
+							PBXBookColumnIdentifier,
+							20,
+							PBXMethodColumnIdentifier,
+							236,
+						);
+					};
+					Tab2 = {
+						Frame = "{{0, 0}, {200, 100}}";
+					};
+					Tab3 = {
+						Frame = "{{0, 0}, {200, 100}}";
+						TargetTableConfiguration = (
+							ActiveObject,
+							16,
+							ObjectNames,
+							202.296,
+						);
+					};
+					Tab4 = {
+						BreakpointsTreeTableConfiguration = (
+							breakpointColumn,
+							197,
+							enabledColumn,
+							31,
+						);
+						Frame = "{{0, 0}, {250, 100}}";
+					};
+					TabCount = 5;
+					TabsVisible = NO;
+				};
+				StatusViewVisible = YES;
+				Template = F5314676015831810DCA290F;
+				ToolbarVisible = YES;
+				WindowLocation = "{7, 250}";
+			};
+			"PBXTemplateGeometry-F5CA7ECB015C094F0DCA290F" = {
+				ContentSize = "{780, 620}";
+				LeftSlideOut = {
+					Collapsed = NO;
+					Frame = "{{0, 0}, {780, 620}}";
 					Split0 = {
 						Collapsed = NO;
-						Frame = "{{0, 0}, {668, 621}}";
+						Frame = "{{0, 0}, {780, 620}}";
 						Split0 = {
-							Frame = "{{0, 0}, {668, 621}}";
+							Frame = "{{0, 0}, {780, 620}}";
 						};
 						SplitCount = 1;
 						Tab0 = {
@@ -113,36 +235,14 @@
 					};
 					Tab3 = {
 						Frame = "{{0, 0}, {200, 557}}";
-						Split0 = {
-							Frame = "{{0, 0}, {200, 270}}";
-							TargetTreeTableConfiguration = (
-								ActiveTarget,
-								16,
-								TargetName,
-								168,
-							);
-						};
-						Split1 = {
-							BuildStyleTreeTableConfiguration = (
-								IsActive,
-								16,
-								Name,
-								169,
-							);
-							Frame = "{{0, 279}, {200, 278}}";
-						};
-						SplitCount = 2;
+						TargetTableConfiguration = (
+							ActiveObject,
+							16,
+							ObjectNames,
+							202.296,
+						);
 					};
 					Tab4 = {
-						ExecutableTreeTableConfiguration = (
-							ActiveExecutable,
-							16,
-							ExecutableName,
-							217,
-						);
-						Frame = "{{0, 0}, {250, 100}}";
-					};
-					Tab5 = {
 						BreakpointsTreeTableConfiguration = (
 							breakpointColumn,
 							197,
@@ -151,13 +251,13 @@
 						);
 						Frame = "{{0, 0}, {250, 100}}";
 					};
-					TabCount = 6;
+					TabCount = 5;
 					TabsVisible = NO;
 				};
 				StatusViewVisible = NO;
 				Template = F5CA7ECB015C094F0DCA290F;
 				ToolbarVisible = NO;
-				WindowLocation = "{71, 82}";
+				WindowLocation = "{94, 62}";
 			};
 			PBXWorkspaceContents = (
 				{
@@ -1662,7 +1762,7 @@
 					WindowLocation = "{71, 82}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 57872496;
+			PBXWorkspaceStateSaveDate = 58098999;
 		};
 		perUserProjectItems = {
 			F5036367037345AE01A80117 = F5036367037345AE01A80117;
@@ -1717,7 +1817,7 @@
 		isa = PBXTextBookmark;
 		name = "JapeWindow.java: nextPos";
 		rLen = 72;
-		rLoc = 2780;
+		rLoc = 3331;
 		rType = 0;
 		vrLen = 529;
 		vrLoc = 2626;
@@ -1754,7 +1854,7 @@
 		isa = PBXTextBookmark;
 		name = "JapeWindow.java: nextPos";
 		rLen = 72;
-		rLoc = 2780;
+		rLoc = 3331;
 		rType = 0;
 		vrLen = 529;
 		vrLoc = 2626;
@@ -1817,7 +1917,7 @@
 		fRef = F531A7B7033213F801A80116;
 		isa = PBXTextBookmark;
 		rLen = 1;
-		rLoc = 87;
+		rLoc = 104;
 		rType = 1;
 	};
 	F5036373037345AE01A80117 = {
@@ -1825,7 +1925,7 @@
 		isa = PBXTextBookmark;
 		name = "JapeWindow.java: 98";
 		rLen = 0;
-		rLoc = 3180;
+		rLoc = 3731;
 		rType = 0;
 		vrLen = 1369;
 		vrLoc = 1843;
@@ -1839,7 +1939,7 @@
 		isa = PBXTextBookmark;
 		name = "LocalSettings.java: 47";
 		rLen = 0;
-		rLoc = 1762;
+		rLoc = 1796;
 		rType = 0;
 		vrLen = 1503;
 		vrLoc = 995;
