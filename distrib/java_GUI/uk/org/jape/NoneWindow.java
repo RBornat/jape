@@ -26,7 +26,6 @@ public class NoneWindow extends JFrame implements ActionListener {
     
     private class JScrollablePanel extends JPanel implements Scrollable {
 		public Dimension getPreferredScrollableViewportSize() {
-			System.err.println("they asked the panel for its preferred size");
 			return getPreferredSize();
 		}
 	
@@ -81,23 +80,20 @@ public class NoneWindow extends JFrame implements ActionListener {
     }
     
     protected void computeBounds() {
-        System.err.print("computeBounds "+panel.getBounds());
-    	Rectangle r = new Rectangle(0,0,0,0); // always include the zero point
-    	r.add(b1.getBounds()); r.add(b2.getBounds()); r.add(b3.getBounds());
-        System.err.print("; "+r+"+"+panel.getBounds());
-        panel.setBounds(r.union(panel.getBounds()));
-        System.err.print("=>"+panel.getBounds());
+    	Rectangle r = new Rectangle(0,0,0,0); 
+        r.add(b1.getBounds());
+        // r = b1.getBounds();
+        r.add(b2.getBounds()); r.add(b3.getBounds());
+        panel.setBounds(r);
         panel.revalidate();
     	// this seems to be the only way to tell a scroll pane what to put in its bars 
     	// (http://java.sun.com/docs/books/tutorial/uiswing/components/problems.html and elsewhere)
     	panel.setPreferredSize(panel.getSize());
-    	System.err.println(" "+scrollPane.getViewport().getViewPosition());
     	panel.revalidate();
         scrollPane.getViewport().revalidate();
     }
     
     public void actionPerformed(ActionEvent e) {
-        System.err.println("actionPerformed "+panel.getBounds());
     	String s = e.getActionCommand();
         if (s.equals("three")) {
                 Rectangle r = b3.getBounds();
@@ -120,7 +116,7 @@ public class NoneWindow extends JFrame implements ActionListener {
 
     public static void main(String args[]) {
         try {
-            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+            // UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
         } catch (Exception e) {
             System.err.println("couldn't set L&F javax.swing.plaf.metal.MetalLookAndFeel");
         }
