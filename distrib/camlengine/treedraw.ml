@@ -3,12 +3,12 @@
 (* draw a Gentzen tree *)
 
 module M : Screendraw.T with type displayclass = Displayclass.displayclass
-                         and type pos = Draw.M.pos
-                         and type textbox = Draw.M.textbox
-                         and type 'a hit = 'a Hit.M.hit
-                         and type box = Draw.M.box
-                         and type hitkind = Hit.M.hitkind
-                         and type size = Draw.M.size
+                         and type pos = Draw.pos
+                         and type textbox = Draw.textbox
+                         and type 'a hit = 'a Hit.hit
+                         and type box = Draw.box
+                         and type hitkind = Hit.hitkind
+                         and type size = Draw.size
                          and type tree = Absprooftree.tree
 =
   struct
@@ -16,39 +16,39 @@ module M : Screendraw.T with type displayclass = Displayclass.displayclass
     open Box
     open Displayclass
     open Displayfont
-    open Draw.M
-    open Hit.M
+    open Draw
+    open Hit
     open Seqdraw.M
     open Sml.M
     
-    type 'a plan = 'a Draw.M.plan
+    type 'a plan = 'a Draw.plan
      and displayclass = Displayclass.displayclass
-     and pos = Draw.M.pos
+     and pos = Draw.pos
      and seq = Sequent.Funs.seq
-     and textbox = Draw.M.textbox
-     and 'a hit = 'a Hit.M.hit
-     and box = Draw.M.box
-     and element = Draw.M.element
-     and hitkind = Hit.M.hitkind
-     and size = Draw.M.size
+     and textbox = Draw.textbox
+     and 'a hit = 'a Hit.hit
+     and box = Draw.box
+     and element = Draw.element
+     and hitkind = Hit.hitkind
+     and size = Draw.size
      and tree = Absprooftree.tree
 
     let (&~~) = Optionfuns.M.(&~~)
-    let (<*) = Listfuns.M.(<*)
-    let (<|) = Listfuns.M.(<|)
-    let (|||) = Listfuns.M.(|||)
-    let clearView = Draw.M.clearView
-    let consolereport = Miscellaneous.M.consolereport
+    let (<*) = Listfuns.(<*)
+    let (<|) = Listfuns.(<|)
+    let (|||) = Listfuns.(|||)
+    let clearView = Draw.clearView
+    let consolereport = Miscellaneous.consolereport
     let elementstring = Term.Termstring.elementstring
     let elementstring_invisbracketed = Term.Termstring.elementstring_invisbracketed
-    let highlight = Draw.M.highlight
-    let last = Listfuns.M.last
-    let liststring = Listfuns.M.liststring
+    let highlight = Draw.highlight
+    let last = Listfuns.last
+    let liststring = Listfuns.liststring
     let turnstiles = Sequent.Funs.syntacticturnstiles
-    let uncurry2 = Miscellaneous.M.uncurry2
-    let viewBox = Draw.M.viewBox
+    let uncurry2 = Miscellaneous.uncurry2
+    let viewBox = Draw.viewBox
            
-    exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+    exception Catastrophe_ = Miscellaneous.Catastrophe_
 
     (* we have a new way of putting trees next to each other, so that they are as 
      * close as may be.  Essentially, we make sure that no formula is too close to the
@@ -117,7 +117,7 @@ module M : Screendraw.T with type displayclass = Displayclass.displayclass
       let hspace = max (20) (10 * leading)
       (* was 30,15*leading, seemed a bit excessive *)
       and vspace = leading in
-      let linethickness = Draw.M.linethickness leading in
+      let linethickness = Draw.linethickness leading in
       let _ = setproofparams "tree" linethickness in
       (* do this early, so GUIs are ready for anything *)
 

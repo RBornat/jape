@@ -31,11 +31,11 @@ module type Type =
     val vid_of_string : string -> vid
 end
 	
-module Type : Type with type idclass = Idclass.M.idclass
+module Type : Type with type idclass = Idclass.idclass
 =
   struct
     type vid = string (* but nobody else knows *) 
-     and idclass = Idclass.M.idclass
+     and idclass = Idclass.idclass
     (* terms now contain hash information. RB 26/i/00 *)
     (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
 	type term =
@@ -132,14 +132,14 @@ module Termstring  : Termstring with type term = Type.term
     
     open Stringfuns.M
     open Sml.M
-    open Listfuns.M
-    open Miscellaneous.M
+    open Listfuns
+    open Miscellaneous
     open Symbol
     open Symboltype
     open Optionfuns.M
-    open Idclass.M
-    open Mappingfuns.M
-    open Idclassfuns.M
+    open Idclass
+    open Mappingfuns
+    open Idclassfuns
     
     let invisbra = String.make 1 offbra
     and invisket = String.make 1 offket
@@ -939,16 +939,16 @@ module Funs : Funs with type vid = Type.vid
     open Store
     open Termstring
         
-    open Miscellaneous.M
+    open Miscellaneous
     open Stringfuns.M
     open Optionfuns.M
-    open Listfuns.M
-    open Mappingfuns.M
+    open Listfuns
+    open Mappingfuns
     open Optionfuns.M
     open Symboltype
     open Symbol
-    open Idclass.M
-    open Idclassfuns.M
+    open Idclass
+    open Idclassfuns
     open Answer
     open Sml.M
     

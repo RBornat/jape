@@ -12,16 +12,16 @@
  
 open Symboltype
 
-open Idclass.M
+open Idclass
 open Searchtree
 open Prestring.M
-open Listfuns.M
-open Miscellaneous.M
+open Listfuns
+open Miscellaneous
 open Optionfuns.M
 open Stringfuns.M
 open Sml.M
 
-type idclass = Idclass.M.idclass
+type idclass = Idclass.idclass
  and associativity = Symboltype.associativity
  and symbol = Symboltype.symbol
 
@@ -147,7 +147,7 @@ let symboltable = (* ref (Store.new__ friendlyLargeishPrime) *)
 let lookup string = (* Store.at (!symboltable, string) *)
    try Some (Hashtbl.find symboltable string) with Not_found -> None
 
-let reversemapping (* : (symbol, string) Mappingfuns.M.mapping ref = ref Mappingfuns.M.empty *)
+let reversemapping (* : (symbol, string) Mappingfuns.mapping ref = ref Mappingfuns.empty *)
                   = Hashtbl.create friendlyLargeishPrime
 
 exception Symclass_ of string
@@ -342,15 +342,15 @@ let rec carefullyEnter (s, t) =
              ["Attempt to redefine the syntactic role of BQuote2"; s;
               "'' to "; smlsymbolstring t])
 
-let decVarPrefixes : (idclass, string) Mappingfuns.M.mapping ref =
-  ref Mappingfuns.M.empty
+let decVarPrefixes : (idclass, string) Mappingfuns.mapping ref =
+  ref Mappingfuns.empty
 
 let rec declareIdPrefix class__ s =
-  begin match Mappingfuns.M.at (!decVarPrefixes, class__) with
+  begin match Mappingfuns.at (!decVarPrefixes, class__) with
     None ->
       decVarPrefixes :=
-        Mappingfuns.M.( ++ )
-          (!decVarPrefixes, Mappingfuns.M.( |-> ) (class__, s))
+        Mappingfuns.( ++ )
+          (!decVarPrefixes, Mappingfuns.( |-> ) (class__, s))
   | Some _ -> ()
   end;
   insertinIdtree "declareIdPrefix" true class__ idprefixtree s;
@@ -362,7 +362,7 @@ let rec declareIdPrefix class__ s =
   []
 
 let rec autoID class__ prefix =
-  match Mappingfuns.M.at (!decVarPrefixes, class__) with
+  match Mappingfuns.at (!decVarPrefixes, class__) with
     Some s -> s
   | None ->
       (* we just add underscores to prefix till it isn't in the IdPrefix tree *)
@@ -390,7 +390,7 @@ let rec resetSymbols () =
   symboldebug := false;
   (* symboltable := Store.new__ friendlyLargeishPrime *)
   Hashtbl.clear symboltable;
-  (* reversemapping := Mappingfuns.M.empty *)
+  (* reversemapping := Mappingfuns.empty *)
   Hashtbl.clear reversemapping;
   optree := emptysearchtree mkalt;
   oplist := None;
@@ -400,7 +400,7 @@ let rec resetSymbols () =
   decIDtails := [];
   idprefixtree := emptysearchtree mkalt;
   idfixedtree := emptysearchtree mkalt;
-  decVarPrefixes := Mappingfuns.M.empty;
+  decVarPrefixes := Mappingfuns.empty;
   List.iter (enterclass (fun s->SHYID s))
     ["ABSTRACTION"; "ALL"; "AND"; "ARE"; "AUTOMATCH"; "AUTOUNIFY"; "BAG";
      "BIND"; "BUTTON"; "CHECKBOX"; "CHILDREN"; "CLASS"; "COMMAND";

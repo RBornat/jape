@@ -33,8 +33,8 @@ module M : T with type textsize = Box.textsize
 =
   struct
     open Box
-    open Miscellaneous.M
-    open Listfuns.M
+    open Miscellaneous
+    open Listfuns
     open Displayfont
     open Stringfuns.M
     

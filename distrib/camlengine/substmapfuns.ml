@@ -36,25 +36,25 @@ module type T =
 (* $Id$ *)
 
 module M : T with type answer = Answer.answer
-			  and type facts = Facts.M.facts
+			  and type facts = Facts.facts
 			  and type term = Term.Funs.term
 =
   struct
-    open Listfuns.M
-    open Mappingfuns.M
+    open Listfuns
+    open Mappingfuns
     open Optionfuns.M
     open Answer
     open Term.Funs
     open Proviso.M
-    open Facts.M
+    open Facts
     open Sml.M
-    open Miscellaneous.M
+    open Miscellaneous
     open Term.Termstring
     open Term.Type
     open Term.Store
     
     type answer = Answer.answer
-     and facts = Facts.M.facts
+     and facts = Facts.facts
      and term = Term.Funs.term
      
     let mkNotin v = Proviso.M.NotinProviso v

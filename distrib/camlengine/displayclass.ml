@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-open Miscellaneous.M
+open Miscellaneous
 
 type displayclass = DisplayHyp | DisplayConc | DisplayAmbig | DisplayReason | DisplayPunct
 

@@ -92,8 +92,8 @@ module type T =
 
 module M : T =
   struct
-    open Miscellaneous.M
-    open Listfuns.M
+    open Miscellaneous
+    open Listfuns
     open Sml.M
     
     let rec isQuoted s =

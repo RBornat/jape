@@ -21,7 +21,7 @@ end
 module Type : Type with type seq = Sequent.Type.seq 
                     and type rewinf = Rewinf.M.rewinf
                     and type term = Term.Funs.term
-                    and type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+                    and type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
 					and type vid = Term.Funs.vid
 					and type resnum = Term.Funs.resnum
                     and type visproviso = Proviso.M.visproviso
@@ -30,7 +30,7 @@ struct
     type seq = Sequent.Type.seq
      and rewinf = Rewinf.M.rewinf
      and term = Term.Funs.term
-     and ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+     and ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
      and vid = Term.Funs.vid
      and resnum = Term.Funs.resnum
      and visproviso = Proviso.M.visproviso
@@ -86,13 +86,13 @@ module Cxtstring : Cxtstring with type cxt = Type.cxt
   struct
     open Type
     
-    open Listfuns.M
+    open Listfuns
     open Sequent.Funs
     open Stringfuns.M
     open Optionfuns.M
     open Rewinf.M
     open Term.Termstring
-    open Mappingfuns.M
+    open Mappingfuns
     open Sml.M
     open Proviso.M
     
@@ -174,12 +174,12 @@ module type Cxt =
 module Cxt : Cxt with type cxt = Type.cxt
                   and type seq = Sequent.Type.seq
                   and type term = Term.Funs.term
-                  and type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+                  and type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
                   and type vid = Term.Funs.vid
                   and type resnum = Term.Funs.resnum
                   and type proviso = Proviso.M.proviso
                   and type visproviso = Proviso.M.visproviso
-                  and type idclass = Idclass.M.idclass
+                  and type idclass = Idclass.idclass
 =
   struct
     open Type
@@ -187,20 +187,20 @@ module Cxt : Cxt with type cxt = Type.cxt
     type cxt = Type.cxt
      and seq = Sequent.Type.seq
      and term = Term.Funs.term
-     and ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+     and ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
      and vid = Term.Funs.vid
      and resnum = Term.Funs.resnum
      and proviso = Proviso.M.proviso
      and visproviso = Proviso.M.visproviso
-     and idclass = Idclass.M.idclass
+     and idclass = Idclass.idclass
     
-    open Mappingfuns.M
+    open Mappingfuns
     open Rewinf.M
     open Proviso.M
     open Term.Funs
     open Term.Store
     open Sml.M
-    open Listfuns.M
+    open Listfuns
     
     let fNotinProviso v = Proviso.M.NotinProviso v
 
@@ -328,7 +328,7 @@ module RewCxt : RewCxt with type cxt = Type.cxt
     let incprovisosig =
       fun (Context cxt) ->
         let bang () =
-          raise (Miscellaneous.M.Catastrophe_ ["STOP, STOP, STOP!!!! too many contexts!!!!"])
+          raise (Miscellaneous.Catastrophe_ ["STOP, STOP, STOP!!!! too many contexts!!!!"])
         in
         (try incr nextprovisosig with _ -> bang ());
         if !nextprovisosig <= 0 then bang () else ();

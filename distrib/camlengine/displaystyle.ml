@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Style = sig val style : Displaystate.M.displaystate end
+module type Style = sig val style : Displaystate.displaystate end
 
 (* $Id$ *)
 
@@ -8,8 +8,8 @@ module F
   (AAA :
     sig
       module Screendraw : Screendraw.T with type tree = Prooftree.Tree.Vistree.prooftree
-                                        and type 'a hit = 'a Hit.M.hit
-                                        and type hitkind = Hit.M.hitkind
+                                        and type 'a hit = 'a Hit.hit
+                                        and type hitkind = Hit.hitkind
                                         and type pos = Box.pos
                                         and type textbox = Box.textbox
                                         and type box = Box.box
@@ -20,29 +20,29 @@ module F
   struct
     open Box 
     open AAA.Screendraw 
-    open Displaystate.M
+    open Displaystate
     open Treeformat.VisFmt
     open Prooftree.Tree.Vistree
         
     let ( &~~ ) = Optionfuns.M.( &~~ )
     let ( |~~ ) = Optionfuns.M.( |~~ )
     let abstracttree = AAA.abstracttree
-    let consolereport = Miscellaneous.M.consolereport
+    let consolereport = Miscellaneous.consolereport
     let fmtpath = Prooftree.Tree.viewpathtopath
     let optionstring = Optionfuns.M.optionstring
     let parentPath = Prooftree.Tree.Fmttree.parentPath
     let posstring = Box.posstring
     let rootPath = Prooftree.Tree.Fmttree.rootPath
-    let screenpositiondebug = Miscellaneous.M.screenpositiondebug
+    let screenpositiondebug = Miscellaneous.screenpositiondebug
     let textboxstring = Box.textboxstring
-    let tranhitpath = Hit.M.tranhitpath
+    let tranhitpath = Hit.tranhitpath
     let try__ = Optionfuns.M.try__
     let vispath = Prooftree.Tree.pathtoviewpath
     let visproof = Prooftree.Tree.visproof Proofstore.M.proved
     let showallproofsteps = Prooftree.Tree.showallproofsteps
     let hideuselesscuts = Prooftree.Tree.hideuselesscuts
     
-    exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+    exception Catastrophe_ = Miscellaneous.Catastrophe_
     
     let rec deVis = fun (VisPath ns) -> ns
 

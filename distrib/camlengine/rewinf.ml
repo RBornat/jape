@@ -29,7 +29,7 @@ module M : T with type vid = Term.Funs.vid
   struct
     open Stringfuns.M
     open Term.Termstring
-    open Listfuns.M
+    open Listfuns
     open Optionfuns.M
     open Term.Funs
     

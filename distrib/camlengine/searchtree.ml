@@ -1,7 +1,7 @@
 (* $Id$ *)
 
-open Listfuns.M
-open Miscellaneous.M
+open Listfuns
+open Miscellaneous
 open Sml.M
 
 (* updatable syntax search trees, without backtracking. 

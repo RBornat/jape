@@ -54,10 +54,10 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
     open Context.ExteriorFuns
     open Context.RewCxt
     open Context.Type
-    open Facts.M
-    open Listfuns.M
-    open Mappingfuns.M
-    open Miscellaneous.M
+    open Facts
+    open Listfuns
+    open Mappingfuns
+    open Miscellaneous
     open Optionfuns.M
     open Proviso.M
     open Rewinf.M

@@ -1,9 +1,9 @@
 (* $Id$ *)
 
-open Listfuns.M
-open Mappingfuns.M 
-open Match.M
-open Miscellaneous.M
+open Listfuns
+open Mappingfuns 
+open Match
+open Miscellaneous
 open Optionfuns.M
 open Stringfuns.M
 open Term.Funs

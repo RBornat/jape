@@ -14,8 +14,8 @@ module M :T with type term = Term.Funs.term
 =
   struct
     open Context.Cxt
-    open Env.M
-    open Mappingfuns.M
+    open Env
+    open Mappingfuns
     open Sml.M
     open Streamio.M
     open Stringfuns.M
@@ -23,7 +23,7 @@ module M :T with type term = Term.Funs.term
 	type term = Term.Funs.term
 	 and cxt = Context.Cxt.cxt
 	
-	let atoi         = Miscellaneous.M.atoi
+	let atoi         = Miscellaneous.atoi
 	let explodeCollection = Term.Funs.explodeCollection
 	let isemptycollection = Term.Funs.isemptycollection
 	let getfontstuff = Button.getfontstuff
@@ -183,7 +183,7 @@ module M :T with type term = Term.Funs.term
                 kill_or = 
                 (fun () ->
                     kkk ();
-                    mappings := Mappingfuns.M.( -- ) (!mappings, [oraclename]))} : _Oracle option)
+                    mappings := Mappingfuns.( -- ) (!mappings, [oraclename]))} : _Oracle option)
           with
             _ -> _NoneBecause ["_Oracle cannot start "; server]
           end
@@ -213,7 +213,7 @@ module M :T with type term = Term.Funs.term
                                   _ -> ()
                                 end;
                                 mappings :=
-                                  Mappingfuns.M.( -- ) (!mappings, [oraclename])
+                                  Mappingfuns.( -- ) (!mappings, [oraclename])
                             method translatehyps = translatehyps
                             method translateconcs = translateconcs
                             method turnstile = turnstile
@@ -237,7 +237,7 @@ module M :T with type term = Term.Funs.term
               _NoneBecause
                 ["_Oracle not specified by program or pipes attributes."]
     let rec getmapping oraclename =
-      match Mappingfuns.M.at (!mappings, oraclename) with
+      match Mappingfuns.at (!mappings, oraclename) with
         Some m -> Some m
       | None ->
           match readmapping (oraclename ^ ".jo") with
@@ -245,14 +245,14 @@ module M :T with type term = Term.Funs.term
               begin match createoracle oraclename m with
                 Some ( or ) ->
                   mappings :=
-                    Mappingfuns.M.( ++ )
-                      (!mappings, Mappingfuns.M.( |-> ) (oraclename, ( or )));
+                    Mappingfuns.( ++ )
+                      (!mappings, Mappingfuns.( |-> ) (oraclename, ( or )));
                   Some ( or )
               | None -> None
               end
           | None -> None
     let rec resetoracle () =
-      Mappingfuns.M.formappingpairs
+      Mappingfuns.formappingpairs
         ((fun (name, ({kill_or = kill_or} : _Oracle)) -> kill_or ()),
          !mappings)
     let rec _Oracle (turnstile : string) (cxt : Context.Cxt.cxt) =

@@ -9,12 +9,12 @@
 open Answer
 open Button
 open Context.Cxt
-open Disproof.M
-open Doubleclick.M
-open Hit.M
-open Interaction.M
-open Listfuns.M
-open Mappingfuns.M
+open Disproof
+open Doubleclick
+open Hit
+open Interaction
+open Listfuns
+open Mappingfuns
 open Name.M
 open Proofstate.M
 open Prooftree.Tree
@@ -32,10 +32,10 @@ open Treeformat.Fmt
 
 (* this is the remains of a huge sml functor argument *)
 
-exception AtoI_ = Miscellaneous.M.AtoI_
-exception Catastrophe_ = Miscellaneous.M.Catastrophe_
-exception ParseError_ = Miscellaneous.M.ParseError_
-exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
+exception AtoI_ = Miscellaneous.AtoI_
+exception Catastrophe_ = Miscellaneous.Catastrophe_
+exception ParseError_ = Miscellaneous.ParseError_
+exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 exception None_ = Optionfuns.M.None_
 exception Use_ = Paragraph.M.Use_
 exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
@@ -45,8 +45,8 @@ let rec resetallcachesandvariables () =
   Binding.clearbindingdirectives ();
   Button.initButtons ();
   Button.resetfontstuff ();
-  Disproof.M.clearforcedefs ();
-  Doubleclick.M.cleardoubleclicks ();
+  Disproof.clearforcedefs ();
+  Doubleclick.cleardoubleclicks ();
   Japeserver.resetcache ();
   Minwaste.resetminwcache ();
   Proofstore.M.clearproofs ();
@@ -60,13 +60,13 @@ let rec resetallcachesandvariables () =
   Thing.M.clearstructurerules ()
          
 let ( &~~ ) = Optionfuns.M.( &~~ )
-let atoi = Miscellaneous.M.atoi
-let autoselect = Miscellaneous.M.autoselect
+let atoi = Miscellaneous.atoi
+let autoselect = Miscellaneous.autoselect
 let clearbindingdirectives = Binding.clearbindingdirectives
-let closedbugfile = Miscellaneous.M.close_reportfile
-let consolereport = Miscellaneous.M.consolereport
-let consolequery = Miscellaneous.M.consolequery
-let createdbugfile = Miscellaneous.M.create_reportfile
+let closedbugfile = Miscellaneous.close_reportfile
+let consolereport = Miscellaneous.consolereport
+let consolequery = Miscellaneous.consolequery
+let createdbugfile = Miscellaneous.create_reportfile
 
 (* fun draganddropmapping cxt = 
     Provisofuns.M.draganddropmapping 
@@ -75,23 +75,23 @@ let createdbugfile = Miscellaneous.M.create_reportfile
 
 let elementstring = Term.Termstring.elementstring
 let explodeCollection = Term.Funs.explodeCollection
-let facts = Facts.M.facts
+let facts = Facts.facts
 let get_oplist = Symbol.get_oplist
 let findfirst = Optionfuns.M.findfirst
-let givenMenuTactic = Miscellaneous.M.givenMenuTactic
+let givenMenuTactic = Miscellaneous.givenMenuTactic
        
 let rec initGUI () =
   (Japeserver.setinvischars 
-     (String.make 1 Miscellaneous.M.onbra, String.make 1 Miscellaneous.M.onket)
-     (String.make 1 Miscellaneous.M.offbra, String.make 1 Miscellaneous.M.offket)
-     (String.make 1 Miscellaneous.M.outbra, String.make 1 Miscellaneous.M.outket)
-     (String.make 1 Miscellaneous.M.lockbra, String.make 1 Miscellaneous.M.lockket) :
+     (String.make 1 Miscellaneous.onbra, String.make 1 Miscellaneous.onket)
+     (String.make 1 Miscellaneous.offbra, String.make 1 Miscellaneous.offket)
+     (String.make 1 Miscellaneous.outbra, String.make 1 Miscellaneous.outket)
+     (String.make 1 Miscellaneous.lockbra, String.make 1 Miscellaneous.lockket) :
    unit);
   Button.initFonts ()
 
 let isCutStep = Prooftree.Tree.isCutStep
 let mkvisproviso = Proviso.M.mkvisproviso
-let observe = Miscellaneous.M.observe
+let observe = Miscellaneous.observe
 let optionstring = Optionfuns.M.optionstring
 let ( |~ ) = Optionfuns.M.( |~ )
 let ( |~~ ) = Optionfuns.M.( |~~ )
@@ -109,7 +109,7 @@ let provisoactual = Proviso.M.provisoactual
 let provisostring = Proviso.M.provisostring
 let provisovisible = Proviso.M.provisovisible
 let sameresource = Term.Funs.sameresource
-let seektipselection = Miscellaneous.M.seektipselection
+let seektipselection = Miscellaneous.seektipselection
 let showInputError = Symbol.showInputError
 let string2paragraph = Paragraph.M.string2paragraph
 let tacticstring = Tactic.Funs.tacticstring
@@ -117,7 +117,7 @@ let termstring = Term.Termstring.termstring
 let try__ = Optionfuns.M.try__
 let _The = Optionfuns.M._The
 let _Title = Version._Title
-let uncurry2 = Miscellaneous.M.uncurry2
+let uncurry2 = Miscellaneous.uncurry2
 let _Version = Version._Version
 let verifyprovisos = Provisofuns.M.verifyprovisos
 
@@ -127,15 +127,15 @@ let rec profileswitcher b =
 let rec profilereader () = !profiling
        
 let thingguard = not <*> thingstodo
-let tparam = Japeenv.M.guardedjapevar thingguard
+let tparam = Japeenv.guardedjapevar thingguard
 
 let defaultenv =
-  let bj = Japeenv.M.booljaperefvar
-  and ij = Japeenv.M.intjaperefvar
-  and sj = Japeenv.M.japerefvar
-  and jv = Japeenv.M.japevar in
+  let bj = Japeenv.booljaperefvar
+  and ij = Japeenv.intjaperefvar
+  and sj = Japeenv.japerefvar
+  and jv = Japeenv.japevar in
   let rec aj default r =
-    Japeenv.M.unboundedjapevar default
+    Japeenv.unboundedjapevar default
       ((fun v -> r := Name.M.namestring (Name.M.namefrom v)),
        (* is this too much work to avoid a few quotes? *)
        (fun () -> Name.M.namestring (Name.M.namefrom !r)))
@@ -143,16 +143,16 @@ and ajd r = aj !r r in
 (* default settings for all variables accessible via Japeish *)
 let pairs =
   ["alwaysshowturnstile", bj false Sequent.Funs.alwaysshowturnstile;
-   "applyconjectures", bj true Miscellaneous.M.applyconjectures;
-   "applyderivedrules", bj true Miscellaneous.M.applyderivedrules;
+   "applyconjectures", bj true Miscellaneous.applyconjectures;
+   "applyderivedrules", bj true Miscellaneous.applyderivedrules;
    "autoAdditiveLeft", tparam (bj false autoAdditiveLeft);
    "autoAdditiveRight", tparam (bj false autoAdditiveRight);
-   "autoselect", bj false Miscellaneous.M.autoselect;
+   "autoselect", bj false Miscellaneous.autoselect;
    "boxlinedisplay", sj ["left"; "right"] "right" Boxdraw.boxlinedisplay;
    "debracketapplications", bj false Term.Termstring.debracketapplications;
    "displaystyle", jv ["box"; "tree"] "tree"
-                      (Interaction.M.setdisplaystyle, Interaction.M.getdisplaystyle);
-   "foldformulae", bj false Miscellaneous.M.foldformulae;
+                      (Interaction.setdisplaystyle, Interaction.getdisplaystyle);
+   "foldformulae", bj false Miscellaneous.foldformulae;
    (* false for now, till Unix interface catches up *)
    "hidecut", bj true Boxdraw.hidecut;
    "hidehyp", bj true Boxdraw.hidehyp;
@@ -161,16 +161,16 @@ let pairs =
    "hideuselesscuts", bj false Prooftree.Tree.hideuselesscuts;
    "interpretpredicates", tparam (bj false Predicate.M.interpretpredicates);
    "outermostbox", bj true Boxdraw.outermostbox;
-   "seektipselection", bj true Miscellaneous.M.seektipselection;
-   "showallprovisos", bj false Interaction.M.showallprovisos;
+   "seektipselection", bj true Miscellaneous.seektipselection;
+   "showallprovisos", bj false Interaction.showallprovisos;
    "showallproofsteps", bj false Prooftree.Tree.showallproofsteps;
    "reasonstyle", sj ["short"; "long"] "long" Prooftree.Tree.reasonstyle;
    "textselectionmode",
    sj ["subformula"; "token"] "subformula"
-      Miscellaneous.M.textselectionmode;
-   "truncatereasons", bj false Miscellaneous.M.truncatereasons;
+      Miscellaneous.textselectionmode;
+   "truncatereasons", bj false Miscellaneous.truncatereasons;
    "tryresolution", bj true Tacticfuns.M.tryresolution;
-   "givenMenuTactic", aj "GIVEN" Miscellaneous.M.givenMenuTactic;
+   "givenMenuTactic", aj "GIVEN" Miscellaneous.givenMenuTactic;
    "foldedfmt", ajd Prooftree.Tree.foldedfmt;
    "filteredfmt", ajd Prooftree.Tree.filteredfmt;
    "unfilteredfmt", ajd Prooftree.Tree.unfilteredfmt;
@@ -179,26 +179,26 @@ let pairs =
    "outerassumptionplural", ajd Boxdraw.outerassumptionplural;
    "innerassumptionword", ajd Boxdraw.innerassumptionword;
    "innerassumptionplural", ajd Boxdraw.innerassumptionplural;
-   "profiling", Japeenv.M.booljapevar false (profileswitcher, profilereader);
+   "profiling", Japeenv.booljapevar false (profileswitcher, profilereader);
    "applydebug", ij 0 Applyrule.applydebug;
    "bindingdebug", bj false Binding.bindingdebug;
    "boxseldebug", bj false Boxdraw.boxseldebug;
    "boxfolddebug", bj false Boxdraw.boxfolddebug;
    "cuthidingdebug", bj false Prooftree.Tree.cuthidingdebug;
-   "disproofdebug", bj false Disproof.M.disproofdebug;
-   "factsdebug", bj false Facts.M.factsdebug;
+   "disproofdebug", bj false Disproof.disproofdebug;
+   "factsdebug", bj false Facts.factsdebug;
    "FINDdebug", bj false Tacticfuns.M._FINDdebug;
    "FOLDdebug", bj false Tacticfuns.M._FOLDdebug;
-   "matchdebug", bj false Match.M.matchdebug;
+   "matchdebug", bj false Match.matchdebug;
    "minwastedebug", bj false Minwaste.minwastedebug;
-   "menudebug", bj false Menu.M.menudebug;
+   "menudebug", bj false Menu.menudebug;
    "predicatedebug", bj false Predicate.M.predicatedebug;
    "prooftreedebug", bj false Prooftree.Tree.prooftreedebug;
    "prooftreerewinfdebug", bj false Prooftree.Tree.prooftreerewinfdebug;
    "prooftreedebugheavy", bj false Prooftree.Tree.prooftreedebugheavy;
    "provisodebug", bj false Proviso.M.provisodebug;
    "rewritedebug", bj false Rewrite.Funs.rewritedebug;
-   "screenpositiondebug", bj false Miscellaneous.M.screenpositiondebug;
+   "screenpositiondebug", bj false Miscellaneous.screenpositiondebug;
    "substdebug", bj false Substmapfuns.M.substdebug;
    "symboldebug", bj false Symbol.symboldebug;
    "tactictracing", bj false Tacticfuns.M.tactictracing;
@@ -209,7 +209,7 @@ let pairs =
    "varbindingsdebug", bj false Term.Funs.varbindingsdebug]
 in
 let rec bjnr r () = bj !r r
-and ujnr r () = Japeenv.M.unboundedjaperefvar !r r in
+and ujnr r () = Japeenv.unboundedjaperefvar !r r in
 let nonresetpairs =
   ["termhashing", bjnr Term.Store.termhashing;
    "tacticresult", ujnr Tacticfuns.M.tacticresult]
@@ -219,13 +219,13 @@ in
  * as the default ...
  *)
 let rec defaultenv () =
-  List.iter Japeenv.M.resetvar (List.map snd pairs);
-  nj_revfold Japeenv.M.( ++ )
+  List.iter Japeenv.resetvar (List.map snd pairs);
+  nj_revfold Japeenv.( ++ )
     (List.map
        (
-          Japeenv.M.( ||-> ) <*> ((fun (s, v) -> Name.M.namefrom s, v)))
+          Japeenv.( ||-> ) <*> ((fun (s, v) -> Name.M.namefrom s, v)))
        (nj_fold (fun ((s, f), ps) -> (s, f ()) :: ps) nonresetpairs pairs))
-    Japeenv.M.empty
+    Japeenv.empty
 in
 defaultenv
 
@@ -248,7 +248,7 @@ let nenv =
 in
 let rec lookup s =
   match
-      (at (nenv, s) &~~ (fun n -> Japeenv.M.at (env, n)))
+      (at (nenv, s) &~~ (fun n -> Japeenv.at (env, n)))
   with
     Some t -> Some (termstring t)
   | None -> None
@@ -454,7 +454,7 @@ let rec nohitcommand displaystate env textselopt comm done__ =
       selections :=
         begin match textselopt with
           Some (proofsels, givensels) ->
-            (* this should be in Interaction.M.sml *)
+            (* this should be in Interaction.sml *)
             let (concsels, hypsels) =
               nj_fold
                 (function
@@ -635,7 +635,7 @@ let rec tryLayout displaystate c pathkind hist =
          Some (withproofhist hist (append_step phist proof')))
 let rec recorddisplayvars env =
   try 
-    (fun s -> termstring (_The (Japeenv.M.at (env, s)))) <* displayvars
+    (fun s -> termstring (_The (Japeenv.at (env, s)))) <* displayvars
   with
     _The_ ->
       raise
@@ -644,7 +644,7 @@ let rec recorddisplayvars env =
             bracketedliststring namestring ", " displayvars;
             " isn't set!"])
 let rec setdisplayvars env vals =
-  List.iter (fun (s, v) -> Japeenv.M.set (env, s, parseTactic v))
+  List.iter (fun (s, v) -> Japeenv.set (env, s, parseTactic v))
     ((displayvars ||| vals))
 (* proofmove doesn't set changed *)
 let rec proofmove =
@@ -710,15 +710,15 @@ let rec main a1 a2 =
   match a1, a2 with
     (env, proofs, mbs), (path :: args, _) ->
       begin try
-        let server = Env.M.getenv (path ^ "server") "JAPESERVER" in
+        let server = Env.getenv (path ^ "server") "JAPESERVER" in
         let rec doargs =
           function
             [] -> [], []
           | "-" :: args -> [], args
           | "-tree" :: args ->
-              Interaction.M.setdisplaystyle "tree"; doargs args
+              Interaction.setdisplaystyle "tree"; doargs args
           | "-box" :: args ->
-              Interaction.M.setdisplaystyle "box"; doargs args
+              Interaction.setdisplaystyle "box"; doargs args
           | "-proofs" :: name :: args ->
               savefilename := Some name; doargs args
           | "" :: args -> doargs args
@@ -816,7 +816,7 @@ and addproofs
                   setProvisos cxt;
                   match disproof with
                     None -> ()
-                  | Some d -> Disproof.M.showdisproof d
+                  | Some d -> Disproof.showdisproof d
                 end; r);
            hist =
              WinHist {changed = false; proofhist = new_hist (withcxt (state) (state_cxt));
@@ -891,7 +891,7 @@ and commands
     let st = rewriteproofstate state in
     try
       let s = try open_out path with exn -> raise (Io exn) in
-      Interaction.M.printState s st true; close_out s
+      Interaction.printState s st true; close_out s
     with
       Io exn ->
         showAlert ["Cannot write file "; path; " ("; Printexc.to_string exn; ")"]
@@ -1184,21 +1184,21 @@ and commands
         | "assign", name :: value ->
             begin try
               let value = parseTactic (respace value) in
-              Japeenv.M.set (env, namefrom name, value);
+              Japeenv.set (env, namefrom name, value);
               resetcaches ();
               default
             with
-              Japeenv.M.OutOfRange_ s ->
+              Japeenv.OutOfRange_ s ->
                 showAlert
                   ["error in "; respace c;
                    " --  value assigned should be "; s];
                 default
-            | Japeenv.M.NotJapeVar_ ->
+            | Japeenv.NotJapeVar_ ->
                 showAlert
                   ["error in "; respace c; " -- "; name;
                    " is not a Jape variable"];
                 default
-            | Japeenv.M.ReadOnly_ ->
+            | Japeenv.ReadOnly_ ->
                 showAlert
                   ["error in "; respace c; " -- "; "you can't assign to ";
                    name; " at this point"];
@@ -1253,7 +1253,7 @@ and commands
         | "tellinterface", name :: interfacecommand ->
             (* Evaluate a variable name; construct a string for the interface *)
             let str =
-              match Japeenv.M.at (env, namefrom name) with
+              match Japeenv.at (env, namefrom name) with
                 Some t -> termstring t
               | None -> ""
             in
@@ -1309,24 +1309,24 @@ and commands
             worldlabelact deleteworldlabel cx cy s
         | "tileact", [s] ->
             disproofstateact
-              (fun d -> Disproof.M.newtile d (parseTerm (unQuote s)))
+              (fun d -> Disproof.newtile d (parseTerm (unQuote s)))
         | "addworld", [px; py; cx; cy] ->
             disproofuniverseact
               (fun u ->
-                 Disproof.M.addchild u (atoi px, atoi py)
+                 Disproof.addchild u (atoi px, atoi py)
                    (atoi cx, atoi cy))
         | "deleteworldlink", [fromx; fromy; tox; toy] ->
             disproofuniverseact
               (fun u ->
-                 Disproof.M.deletelink u (atoi fromx, atoi fromy)
+                 Disproof.deletelink u (atoi fromx, atoi fromy)
                    (atoi tox, atoi toy))
         | "deleteworld", [cx; cy] ->
             disproofstateact
-              (fun d -> Disproof.M.deleteworld d (atoi cx, atoi cy))
+              (fun d -> Disproof.deleteworld d (atoi cx, atoi cy))
         | "moveworld", [x; y; x'; y'] ->
             disproofstateact
               (fun d ->
-                 Disproof.M.moveworld d (atoi x, atoi y) (atoi x', atoi y'))
+                 Disproof.moveworld d (atoi x, atoi y) (atoi x', atoi y'))
         | "worldselect", cs ->
             disproofstateact
               (fun d ->
@@ -1340,7 +1340,7 @@ and commands
                             ["bad command (odd number of arguments): worldselect ";
                              bracketedliststring (fun s -> s) "," cs])
                  in
-                 Disproof.M.worldselect d (pair cs))
+                 Disproof.worldselect d (pair cs))
         | "disprove", [] ->
             inside c
               (fun displaystate ->
@@ -1673,11 +1673,11 @@ and commands
               | None -> default
             else default
         | "profile", ["on"] ->
-            Japeenv.M.set (env, namefrom "profiling", parseTactic "true");
+            Japeenv.set (env, namefrom "profiling", parseTactic "true");
             (* achieves profileOn(), I hope *)
             default
         | "profile", ["off"] ->
-            Japeenv.M.set (env, namefrom "profiling", parseTactic "false");
+            Japeenv.set (env, namefrom "profiling", parseTactic "false");
             (* achieves profileOff(), I hope *)
             default
         | "profile", ["reset"] -> profileReset (); default
@@ -1851,7 +1851,7 @@ and commands
   in
   let rec domb (var, notify) =
     let setting =
-      try _The (Japeenv.M.at (env, var)) with
+      try _The (Japeenv.at (env, var)) with
         None_ ->
           raise
             (Catastrophe_
@@ -1881,7 +1881,7 @@ and commands
     begin try
       Japeserver.settextselectionmode
         (termstring
-           (_The (Japeenv.M.at (env, namefrom "textselectionmode"))))
+           (_The (Japeenv.at (env, namefrom "textselectionmode"))))
     with
       None_ ->
         raise (Catastrophe_ ["textselectionmode not in environment"])
@@ -1913,7 +1913,7 @@ and commands
                         selstring fmtpathstring sel])
             in
             let rec trymatch sense p =
-              Doubleclick.M.matchdoubleclick sense (mkSeq p)
+              Doubleclick.matchdoubleclick sense (mkSeq p)
             in
             let rec hypword hs ss =
               match hs with
@@ -2046,8 +2046,8 @@ and commands
                   (showState displaystate proofstate !autoselect) DontShow
             | ShowDisproof ->
                 begin match disproof with
-                  Some d -> Disproof.M.showdisproof d
-                | None -> Disproof.M.cleardisproof ()
+                  Some d -> Disproof.showdisproof d
+                | None -> Disproof.cleardisproof ()
                 end;
                 env, mbs, DontShow, pinfs
             | ShowBoth ->
@@ -2078,19 +2078,19 @@ and commands
 and save file = _GCsave file
 and _GCsave file =
   Japeserver.quit ();
-  Interaction.M.abandonServer ();
+  Interaction.abandonServer ();
   cleanup ();
   initButtons ();
   exportFn (file, main (defaultenv (), [], []))
 and saverunning env mbs file =
   Japeserver.quit ();
-  Interaction.M.abandonServer ();
+  Interaction.abandonServer ();
   cleanup ();
   exportFn (file, main (env, [], mbs))
 *)
 and start () =
   (* Japeserver.quit ();
-  Interaction.M.abandonServer ();
+  Interaction.abandonServer ();
   cleanup (); *)
   initButtons ();
   main (defaultenv (), [], []) (Array.to_list Sys.argv, []); (* empty environment ... ?? *)

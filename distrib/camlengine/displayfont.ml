@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+exception Catastrophe_ = Miscellaneous.Catastrophe_
 
 type displayfont = TermFont | ReasonFont | ProvisoFont
 

@@ -12,9 +12,9 @@
 (* Mightily adapted to use Collections, July 96. RB *)
 
 open Context.Cxt
-open Idclass.M
-open Listfuns.M
-open Mappingfuns.M
+open Idclass
+open Listfuns
+open Mappingfuns
 open Name.M
 open Optionfuns.M
 open Proviso.M
@@ -28,8 +28,8 @@ open Term.Store
 open Term.Termstring
 open Term.Type
 
-exception Catastrophe_ = Miscellaneous.M.Catastrophe_
-exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
+exception Catastrophe_ = Miscellaneous.Catastrophe_
+exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
       
 type prooftree      = Prooftree.Tree.Fmttree.prooftree
@@ -47,7 +47,7 @@ let mkJoin cxt reason how args =
   Prooftree.Tree.mkJoin cxt reason how args Treeformat.Fmt.neutralformat
 
 let askChoice            = Alert.askChoice
-let consolereport        = Miscellaneous.M.consolereport
+let consolereport        = Miscellaneous.consolereport
 let expandFreshProviso   = Provisofuns.M.expandFreshProviso
 let matchedtarget        = Unify.M.matchedtarget
 

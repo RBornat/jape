@@ -16,13 +16,13 @@
  * All we need to do is to increase j until we find the 'break point'.
  *)
 
-exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+exception Catastrophe_ = Miscellaneous.Catastrophe_
 
-let (<*) = Listfuns.M.(<*)
-let bracketedliststring = Listfuns.M.bracketedliststring
-let consolereport = Miscellaneous.M.consolereport
-let drop = Listfuns.M.drop
-let take = Listfuns.M.take
+let (<*) = Listfuns.(<*)
+let bracketedliststring = Listfuns.bracketedliststring
+let consolereport = Miscellaneous.consolereport
+let drop = Listfuns.drop
+let take = Listfuns.take
 
 (* In this first attempt I've ignored the fact that this is an n^2 algorithm
  * or worse ...

@@ -14,8 +14,8 @@ open Array
 open Box
 open Displayfont
 open Displayclass
-open Listfuns.M
-open Miscellaneous.M
+open Listfuns
+open Miscellaneous
 open Sml.M
 
 type box = Box.box

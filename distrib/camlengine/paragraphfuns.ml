@@ -35,9 +35,9 @@ module M : T with type japeenv = Runproof.M.japeenv
 			  and type seq = Runproof.M.seq
 =
   struct
-    open Japeenv.M
-    open Listfuns.M
-    open Menu.M
+    open Japeenv
+    open Listfuns
+    open Menu
     open Paragraph.M
     open Runproof.M
     open Sml.M
@@ -53,19 +53,19 @@ module M : T with type japeenv = Runproof.M.japeenv
 	 and proviso = Paragraph.M.proviso
 	 and seq = Runproof.M.seq
 	
-	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+	exception Catastrophe_ = Miscellaneous.Catastrophe_
 	
 	let addautorule = Proofstate.M.addautorule
-	let adddoubleclick = Doubleclick.M.adddoubleclick
-	let addforcedef = Disproof.M.addforcedef
-	let atmapping = Mappingfuns.M.at
+	let adddoubleclick = Doubleclick.adddoubleclick
+	let addforcedef = Disproof.addforcedef
+	let atmapping = Mappingfuns.at
 	let cleanup x = x
-	let consolereport = Miscellaneous.M.consolereport
-	let empty = Mappingfuns.M.empty
+	let consolereport = Miscellaneous.consolereport
+	let empty = Mappingfuns.empty
 	let enQuote = Stringfuns.M.enQuote
 	let freezesaved = Proofstore.M.freezesaved
 	let isQuoted = Stringfuns.M.isQuoted
-	let mkmap = Mappingfuns.M.mkmap
+	let mkmap = Mappingfuns.mkmap
 	let namestring = Name.M.namestring
 	let newcxt = Context.Cxt.newcxt
 	let optionfilter = Optionfuns.M.optionfilter
@@ -85,7 +85,7 @@ module M : T with type japeenv = Runproof.M.japeenv
 	let thawsaved = Proofstore.M.thawsaved
 	let tickmenuitem = Japeserver.tickmenuitem
 	let tmerge = Term.Funs.tmerge
-	let uncurry2 = Miscellaneous.M.uncurry2
+	let uncurry2 = Miscellaneous.uncurry2
 	let unQuote = Stringfuns.M.unQuote
 	let _VALFROM = Termparse.M.asTactic Termparse.M.string2term
 	
@@ -160,7 +160,7 @@ module M : T with type japeenv = Runproof.M.japeenv
       in
       let rec newbuttonenv env text var settings defval =
         let defval' =
-          match defval, Japeenv.M.at (env, var), settings with
+          match defval, Japeenv.at (env, var), settings with
             Some v, _, _ -> v
           | _, Some v, s :: _ -> termstring v
           | _, _, s :: _ -> s
@@ -190,7 +190,7 @@ module M : T with type japeenv = Runproof.M.japeenv
               ( ++ )
                 (env, ( ||-> ) (var, japerefvar settings defval' (ref "")))
         in
-        Japeenv.M.set (env', var, _VALFROM defval'); env', defval'
+        Japeenv.set (env', var, _VALFROM defval'); env', defval'
       in
       let rec processCheckBox env (var, label, (vval1, vval2), defvalopt) =
         let (env, _) =
@@ -252,7 +252,7 @@ module M : T with type japeenv = Runproof.M.japeenv
             report ("can't INITIALISE " :: parseablenamestring name :: ss);
             raise Use_
           in
-          begin try Japeenv.M.set (env, name, term) with
+          begin try Japeenv.set (env, name, term) with
             OutOfRange_ range ->
               lreport
                 [" to "; termstring term; " - variable can only be set to ";
@@ -260,7 +260,7 @@ module M : T with type japeenv = Runproof.M.japeenv
           | NotJapeVar_ ->
               lreport [" - it isn't a variable in the environment"]
           | ReadOnly_ ->
-              if Japeenv.M.at (env, name) = Some term then ()
+              if Japeenv.at (env, name) = Some term then ()
               else
                 lreport
                   [" - it can't be altered, given the state of other stored values"]
@@ -302,8 +302,8 @@ module M : T with type japeenv = Runproof.M.japeenv
           let (env, buttonfns, mes, mps) =
             nj_fold process mparas (env, buttonfns, [], [])
           in
-          Menu.M.addmenu mlabel;
-          Menu.M.addmenudata mlabel mes;
+          Menu.addmenu mlabel;
+          Menu.addmenudata mlabel mes;
           nj_revfold
             (interpret report query (InMenu mlabel) params provisos enter) mps
             (env, proofs, buttonfns)
@@ -335,8 +335,8 @@ module M : T with type japeenv = Runproof.M.japeenv
           let (env, buttonfns, pes, pps) =
             nj_fold process pparas (env, buttonfns, [], [])
           in
-          Menu.M.addpanel kind plabel;
-          Menu.M.addpaneldata plabel pes;
+          Menu.addpanel kind plabel;
+          Menu.addpaneldata plabel pes;
           nj_revfold
             (interpret report query (InPanel plabel) params provisos enter)
             pps (env, proofs, buttonfns)

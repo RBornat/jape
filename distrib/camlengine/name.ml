@@ -25,7 +25,7 @@ module type T = (* all the stuff that's fit to print *)
 module M : (* sig include Nametype include Name end *) T with type term = Term.Funs.term 
 =
   struct
-    open Miscellaneous.M
+    open Miscellaneous
     open Stringfuns.M
     open Symbol 
     open Symboltype 

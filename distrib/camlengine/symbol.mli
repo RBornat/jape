@@ -2,7 +2,7 @@
 
 type symbol = Symboltype.symbol
 and associativity = Symboltype.associativity
-and idclass = Idclass.M.idclass
+and idclass = Idclass.idclass
 
 val symboldebug : bool ref
 val enter : string * symbol -> unit

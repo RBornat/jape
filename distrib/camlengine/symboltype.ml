@@ -1,4 +1,4 @@
-type idclass = Idclass.M.idclass 
+type idclass = Idclass.idclass 
 
 type associativity =
   LeftAssoc | RightAssoc | AssocAssoc | TupleAssoc | CommAssocAssoc

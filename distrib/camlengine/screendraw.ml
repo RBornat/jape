@@ -3,9 +3,9 @@
 module type T =
   sig
     type tree = Absprooftree.tree
-    and 'a hit = 'a Hit.M.hit
+    and 'a hit = 'a Hit.hit
     and displayclass = Displayclass.displayclass
-    and hitkind = Hit.M.hitkind
+    and hitkind = Hit.hitkind
     and pos = Box.pos
     and size = Box.size
     and box = Box.box

@@ -21,8 +21,8 @@ module type T =
   end
 
 module M : T with type cxt = Context.Cxt.visproviso
-			  and type japeenv = Japeenv.M.japeenv
-			  and type model = Forcedef.M.model
+			  and type japeenv = Japeenv.japeenv
+			  and type model = Forcedef.model
 			  and type name = Name.M.name
 			  and type proofstate = Proofstate.M.proofstate
 			  and type prooftree = Proofstate.M.prooftree
@@ -41,8 +41,8 @@ module M : T with type cxt = Context.Cxt.visproviso
     open Sml.M
 
     type cxt = Context.Cxt.visproviso
-    and japeenv = Japeenv.M.japeenv
-    and model = Forcedef.M.model
+    and japeenv = Japeenv.japeenv
+    and model = Forcedef.model
     and name = Name.M.name
     and proofstate = Proofstate.M.proofstate
     and prooftree = Proofstate.M.prooftree
@@ -53,23 +53,23 @@ module M : T with type cxt = Context.Cxt.visproviso
     and visproviso = Context.Cxt.visproviso
            
 	exception Use_ = Paragraph.M.Use_
-	exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
+	exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 	
 	let addproof = Proofstore.M.addproof
 	let ( &~~ ) = Optionfuns.M.( &~~ )
 	let applyLiteralTactic = Tacticfuns.M.applyLiteralTactic None
-	let applyconjectures = Miscellaneous.M.applyconjectures
+	let applyconjectures = Miscellaneous.applyconjectures
 	let applyTactic = Tacticfuns.M.applyTactic None
 	let rec checkdisproof cxt =
-	  Disproof.M.checkdisproof (Facts.M.facts (Context.Cxt.provisos cxt) cxt)
+	  Disproof.checkdisproof (Facts.facts (Context.Cxt.provisos cxt) cxt)
 	let compiletoprove = Thing.M.compiletoprove
-	let consolereport = Miscellaneous.M.consolereport
-	let empty = Mappingfuns.M.empty
-	let eqbags = Listfuns.M.eqbags
+	let consolereport = Miscellaneous.consolereport
+	let empty = Mappingfuns.empty
+	let eqbags = Listfuns.eqbags
 	let explain = Tacticfuns.M.explain
 	let getReason = Reason.M.getReason
-	let liststring = Listfuns.M.liststring
-	let ( <* ) = Listfuns.M.( <* )
+	let liststring = Listfuns.liststring
+	let ( <* ) = Listfuns.( <* )
 	let maxprovisoresnum = Proviso.M.maxprovisoresnum
 	let maxtreeresnum = Prooftree.Tree.Fmttree.maxtreeresnum
 	let mkReplayTac v = Tactic.Type.ReplayTac v
@@ -93,8 +93,8 @@ module M : T with type cxt = Context.Cxt.visproviso
 	let seqstring = Sequent.Funs.seqstring
 	let tacticstring = Tactic.Funs.tacticstring
 	let takethelot = Applyrule.takethelot
-	let uncurry2 = Miscellaneous.M.uncurry2
-	let ( <| ) = Listfuns.M.( <| )
+	let uncurry2 = Miscellaneous.uncurry2
+	let ( <| ) = Listfuns.( <| )
     
     let proofsdone = ref false
     let rec doBEGINPROOF env state =

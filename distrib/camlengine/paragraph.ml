@@ -47,22 +47,22 @@ module M : T with type term = Term.Type.term
 			  and type proviso = Proviso.M.proviso
 			  and type paraparam = Paraparam.M.paraparam
 			  and type tactic = Tactic.Funs.tactic
-			  and type menudata = Menu.M.menudata
-			  and type paneldata = Menu.M.paneldata
+			  and type menudata = Menu.menudata
+			  and type paneldata = Menu.paneldata
 			  and type panelkind = Panelkind.M.panelkind
-			  and type dclick = Doubleclick.M.dclick
-			  and type forcedef = Forcedef.M.forcedef
+			  and type dclick = Doubleclick.dclick
+			  and type forcedef = Forcedef.forcedef
 			  and type name = Name.M.name
 			  and type proofstage = Proofstage.M.proofstage
-			  and type model = Forcedef.M.model
+			  and type model = Forcedef.model
 =
   struct
-    open Doubleclick.M
-    open Forcedef.M
-    open Idclass.M
-    open Idclassfuns.M
-    open Listfuns.M
-    open Menu.M
+    open Doubleclick
+    open Forcedef
+    open Idclass
+    open Idclassfuns
+    open Listfuns
+    open Menu
     open Name.M
     open Panelkind.M
     open Paraparam.M
@@ -82,29 +82,29 @@ module M : T with type term = Term.Type.term
 	 and proviso = Proviso.M.proviso
 	 and paraparam = Paraparam.M.paraparam
 	 and tactic = Tactic.Funs.tactic
-	 and menudata = Menu.M.menudata
-	 and paneldata = Menu.M.paneldata
+	 and menudata = Menu.menudata
+	 and paneldata = Menu.paneldata
 	 and panelkind = Panelkind.M.panelkind
-	 and dclick = Doubleclick.M.dclick
-	 and forcedef = Forcedef.M.forcedef
+	 and dclick = Doubleclick.dclick
+	 and forcedef = Forcedef.forcedef
 	 and name = Name.M.name
      and proofstage = Proofstage.M.proofstage
-     and model = Forcedef.M.model
+     and model = Forcedef.model
     
 	let addbindingdirective = Binding.addbindingdirective
-	let atoi = Miscellaneous.M.atoi
-	let consolereport = Miscellaneous.M.consolereport
+	let atoi = Miscellaneous.atoi
+	let consolereport = Miscellaneous.consolereport
 	let enQuote = Stringfuns.M.enQuote
-	let liststring = Listfuns.M.liststring
+	let liststring = Listfuns.liststring
 	let opt2bool = Optionfuns.M.opt2bool
 	let readintasarg = Tactic.Funs.readintasarg
 	let tacticstring = Tactic.Funs.tacticstring
 	let _The = Optionfuns.M._The
 	let transTactic = Tactic.Funs.transTactic
-	let uncurry2 = Miscellaneous.M.uncurry2
+	let uncurry2 = Miscellaneous.uncurry2
 	
-	exception ParseError_  = Miscellaneous.M.ParseError_
-	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+	exception ParseError_  = Miscellaneous.ParseError_
+	exception Catastrophe_ = Miscellaneous.Catastrophe_
 	exception None_        = Optionfuns.M.None_
 
     type ruleheading = RuleHeading of (name * paraparam list * proviso list)

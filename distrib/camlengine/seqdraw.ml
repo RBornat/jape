@@ -18,24 +18,24 @@ module type T =
 (* $Id$ *)
 
 (* draw a sequent - used in treedraw and disproof *)
-module M : T with type element = Draw.M.element
+module M : T with type element = Draw.element
 			  and type displayclass = Displayclass.displayclass
-			  and type 'a plan = 'a Draw.M.plan
-			  and type pos = Draw.M.pos
+			  and type 'a plan = 'a Draw.plan
+			  and type pos = Draw.pos
 			  and type seq = Sequent.Funs.seq
-			  and type textbox = Draw.M.textbox
+			  and type textbox = Draw.textbox
 =
   struct
     open Box 
-    open Draw.M 
+    open Draw 
     open Displayclass
     
-    type element = Draw.M.element
+    type element = Draw.element
 	 and displayclass = Displayclass.displayclass
-	 and 'a plan = 'a Draw.M.plan
-	 and pos = Draw.M.pos
+	 and 'a plan = 'a Draw.plan
+	 and pos = Draw.pos
 	 and seq = Sequent.Funs.seq
-	 and textbox = Draw.M.textbox
+	 and textbox = Draw.textbox
     
     let comma = Absprooftree.comma
     let elementstring = Term.Termstring.elementstring

@@ -18,16 +18,16 @@ module type T =
 (* $Id$ *)
 
 module M : T with type term = Term.Funs.term 
-              and type ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
+              and type ('a, 'b) mapping = ('a, 'b) Mappingfuns.mapping
 =
   struct
-    open Match.M
+    open Match
     open Optionfuns.M
     open Stringfuns.M
     open Term.Funs
     open Term.Termstring
     
-    type term = Term.Funs.term and ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
+    type term = Term.Funs.term and ('a, 'b) mapping = ('a, 'b) Mappingfuns.mapping
     
     type treelayout =
         HideRootLayout

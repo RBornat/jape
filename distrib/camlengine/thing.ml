@@ -74,16 +74,16 @@ module M : T with type term = Term.Type.term
 			  and type seq = Sequent.Type.seq
 			  and type tactic = Tactic.Funs.tactic 
 			  and type cxt = Context.Cxt.cxt
-			  and type ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
+			  and type ('a, 'b) mapping = ('a, 'b) Mappingfuns.mapping
 =
   struct
     open Context.Cxt
     open Context.Cxtstring
-    open Idclass.M
-    open Listfuns.M
-    open Mappingfuns.M
-    open Match.M
-    open Miscellaneous.M
+    open Idclass
+    open Listfuns
+    open Mappingfuns
+    open Match
+    open Miscellaneous
     open Name.M
     open Optionfuns.M
     open Paraparam.M
@@ -111,7 +111,7 @@ module M : T with type term = Term.Type.term
 	 and seq = Sequent.Type.seq
 	 and tactic = Tactic.Funs.tactic 
 	 and cxt = Context.Cxt.cxt
-	 and ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
+	 and ('a, 'b) mapping = ('a, 'b) Mappingfuns.mapping
     
     let thingdebug = ref false
     let thingdebugheavy = ref false
@@ -743,7 +743,7 @@ module M : T with type term = Term.Type.term
       in
       (* ... end desperation *)
       let objparams =
-        Mappingfuns.M.lfold
+        Mappingfuns.lfold
           (function
              (_, (true, bs)), vs -> bs @ vs
            | _, vs -> vs)

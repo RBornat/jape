@@ -7,8 +7,8 @@
 open Japeserver
 open Optionfuns.M
 open Sml.M
-open Miscellaneous.M
-open Listfuns.M
+open Miscellaneous
+open Listfuns
 
 let askChoice = Japeserver.askChoice
 let setComment = Japeserver.setComment

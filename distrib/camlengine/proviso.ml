@@ -71,8 +71,8 @@ module M : Provisotype with type vid = Term.Funs.vid
                         and type term = Term.Funs.term
  =
   struct
-    open Listfuns.M 
-    open Miscellaneous.M
+    open Listfuns 
+    open Miscellaneous
     open Sml.M
     open Symbol
     open Symboltype 
@@ -86,9 +86,9 @@ module M : Provisotype with type vid = Term.Funs.vid
      and term = Term.Funs.term
      
 	let mkBag els = 
-	  registerCollection(Idclass.M.BagClass Idclass.M.FormulaClass,els)
+	  registerCollection(Idclass.BagClass Idclass.FormulaClass,els)
     
-    let listclass = Idclass.M.ListClass Idclass.M.FormulaClass
+    let listclass = Idclass.ListClass Idclass.FormulaClass
     
     let provisodebug = ref false
     

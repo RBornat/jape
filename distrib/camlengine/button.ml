@@ -14,14 +14,14 @@
         BAS
 *)
 
-open Menu.M 
-open Mappingfuns.M
+open Menu 
+open Mappingfuns
 open Panelkind.M
 open Name.M
     
 type name = Name.M.name
 
-let deadServer = Interaction.M.deadServer
+let deadServer = Interaction.deadServer
 and runningServer = (fun() -> Optionfuns.M.opt2bool !Japeserver.serverpid)
  
 type button = UndoProofbutton

@@ -23,19 +23,19 @@ module M : T with type cxt = Context.Type.cxt
 			  and type element = Term.Type.element
 			  and type proviso = Proviso.M.proviso
 			  and type visproviso = Proviso.M.visproviso
-			  and type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+			  and type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
 =
   struct
     open Answer
     open Context.Type
     open Context.ExteriorFuns
     open Context.Cxt
-    open Facts.M
-    open Idclass.M
-    open Listfuns.M
-    open Mappingfuns.M
-    open Match.M
-    open Miscellaneous.M
+    open Facts
+    open Idclass
+    open Listfuns
+    open Mappingfuns
+    open Match
+    open Miscellaneous
     open Optionfuns.M
     open Proviso.M
     open Rewrite.Funs
@@ -54,7 +54,7 @@ module M : T with type cxt = Context.Type.cxt
      and element = Term.Type.element
      and proviso = Proviso.M.proviso
      and visproviso = Proviso.M.visproviso
-     and ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+     and ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
 	
 	let baseseqsides cxt =
 	  match getexterior cxt with

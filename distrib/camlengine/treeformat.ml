@@ -48,7 +48,7 @@ module Fmt : Fmt with type treelayout = Treelayout.M.treelayout
                   and type term = Term.Funs.term
 =
   struct
-    open Listfuns.M
+    open Listfuns
     open Optionfuns.M
     open Sml.M
     open Stringfuns.M
@@ -191,7 +191,7 @@ module type VisFmt =
 module VisFmt : VisFmt =
   struct
     open Stringfuns.M
-    open Listfuns.M
+    open Listfuns
     
     type visformat = VisFormat of (bool * bool)
     (* ismultistep, ishiddencut *)

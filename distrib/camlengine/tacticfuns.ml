@@ -52,21 +52,21 @@ module type T =
 module M : T with type path = Prooftree.Tree.Fmttree.path
 			  and type proofstate = Proofstate.M.proofstate
 			  and type tactic = Thing.M.tactic
-			  and type japeenv = Japeenv.M.japeenv
-			  and type displaystate = Interaction.M.displaystate
+			  and type japeenv = Japeenv.japeenv
+			  and type displaystate = Interaction.displaystate
 			  and type name = Name.M.name
 			  and type term = Term.Funs.term
 			  and type element = Term.Funs.element
-			  and type side = Hit.M.side
+			  and type side = Hit.side
 =
   struct
     open Applyrule
     open Context.Cxt
     open Context.Cxtstring
-    open Hit.M
-    open Japeenv.M
-    open Listfuns.M
-    open Match.M
+    open Hit
+    open Japeenv
+    open Listfuns
+    open Match
     open Name.M
     open Optionfuns.M
     open Paraparam.M
@@ -92,22 +92,22 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
     type path = Prooftree.Tree.Fmttree.path
     and proofstate = Proofstate.M.proofstate
     and tactic = Thing.M.tactic
-    and japeenv = Japeenv.M.japeenv
-    and displaystate = Interaction.M.displaystate
+    and japeenv = Japeenv.japeenv
+    and displaystate = Interaction.displaystate
     and name = Name.M.name
     and term = Term.Funs.term
     and element = Term.Funs.element
-    and side = Hit.M.side
+    and side = Hit.side
     
-	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
-	exception ParseError_  = Miscellaneous.M.ParseError_
+	exception Catastrophe_ = Miscellaneous.Catastrophe_
+	exception ParseError_  = Miscellaneous.ParseError_
 	exception Selection_   = Selection.M.Selection_
 	exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
-	exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
+	exception Tacastrophe_ = Miscellaneous.Tacastrophe_
              
     let rec alterTip =
 	  function
-		Some d -> Interaction.M.alterTip d
+		Some d -> Interaction.alterTip d
 	  | None -> raise (Catastrophe_ ["(tacticfuns) alterTip None"])
 
     let rec lookupassoc s =
@@ -125,29 +125,29 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
 	
 	let rec showProof =
 	  function
-		Some d -> Interaction.M.showProof d
+		Some d -> Interaction.showProof d
 	  | None -> raise (Catastrophe_ ["(tacticfuns) showProof None"])
              
 	let rec refreshProof =
 	  function
-		Some d -> Interaction.M.refreshProof d
+		Some d -> Interaction.refreshProof d
 	  | None -> raise (Catastrophe_ ["(tacticfuns) refreshProof None"])
              
 	let rec askNb m bs = Alert.ask (Alert.defaultseverity bs) m bs 0
 	let rec askNbc m bs c =
 	  Alert.askCancel (Alert.defaultseverity bs) m bs c 0
 	
-	let anyCollectionClass = Idclass.M.BagClass Idclass.M.FormulaClass
+	let anyCollectionClass = Idclass.BagClass Idclass.FormulaClass
 	let askChoice = Alert.askChoice
-	let applyconjectures = Miscellaneous.M.applyconjectures
-	let applyderivedrules = Miscellaneous.M.applyderivedrules
-	let atoi = Miscellaneous.M.atoi
-	let autoselect = Miscellaneous.M.autoselect
+	let applyconjectures = Miscellaneous.applyconjectures
+	let applyderivedrules = Miscellaneous.applyderivedrules
+	let atoi = Miscellaneous.atoi
+	let autoselect = Miscellaneous.autoselect
 	let checkprovisos = Provisofuns.M.checkprovisos
-	let conOperatorClass = Idclass.M.OperatorClass
-	let consolereport = Miscellaneous.M.consolereport
+	let conOperatorClass = Idclass.OperatorClass
+	let consolereport = Miscellaneous.consolereport
 	let getReason = Reason.M.getReason
-	let lemmacount = Miscellaneous.M.lemmacount
+	let lemmacount = Miscellaneous.lemmacount
 	let lacksProof = Proofstore.M.lacksProof
 	let needsProof = Proofstore.M.needsProof
 	let prefixtoReason = Reason.M.prefixtoReason
@@ -161,7 +161,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
 	let string2tactic = Termparse.M.string2tactic
 	let string2term = Termparse.M.string2term
 	let tickmenuitem = Japeserver.tickmenuitem
-	let uncurry2 = Miscellaneous.M.uncurry2
+	let uncurry2 = Miscellaneous.uncurry2
 	let unknownprefix = Symbol.metachar
 	let verifyprovisos = Provisofuns.M.verifyprovisos
 	(* let _Oracle = Japeoracle.M._Oracle *)
@@ -356,7 +356,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
       | _ ->(* I hope *)
          false
     let rec quoteterm t =
-      registerApp (registerId (vid_of_string "QUOTE", Idclass.M.ConstantClass), t)
+      registerApp (registerId (vid_of_string "QUOTE", Idclass.ConstantClass), t)
     (* and when we extend, we QUOTE the argument to avoid name capture *)
     (* this sees through 'withing', but is careful not to do so twice.  It relies on the fact
      * that we evaluate outside-in.
@@ -523,7 +523,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
       | _ -> !autoAdditiveLeft, !autoAdditiveRight
     let rec expandstuff name (env, principals, thing) =
       fun (Proofstate {givens = givens}) ->
-        let params = List.rev (Mappingfuns.M.rawdom env) in
+        let params = List.rev (Mappingfuns.rawdom env) in
         (* I hope *)
         let how = Prooftree.Tree.Apply (name, params, false) in
         let (kind, antes, conseq, provisos) =
@@ -1305,9 +1305,9 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
         let rec _ArithKind (t : term) : arithKind =
           match t with
             Literal (_, Number i) -> ArithNumber i
-          | Unknown (_, _, Idclass.M.NumberClass) -> ArithVariable (t, false)
-          | Unknown (_, _, Idclass.M.FormulaClass) -> ArithVariable (t, false)
-          | Unknown (_, _, Idclass.M.ConstantClass) -> ArithVariable (t, false)
+          | Unknown (_, _, Idclass.NumberClass) -> ArithVariable (t, false)
+          | Unknown (_, _, Idclass.FormulaClass) -> ArithVariable (t, false)
+          | Unknown (_, _, Idclass.ConstantClass) -> ArithVariable (t, false)
           | App (_, f, t) ->
               if f = neg then
                 match _ArithKind t with
@@ -1477,7 +1477,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
                termstring lhs; "\""];
           _FIRSTSUBTERM
              (fun goal ->
-                match match__ false lhs goal Mappingfuns.M.empty with
+                match match__ false lhs goal Mappingfuns.empty with
                   Some _ -> Some (name, thing, goal)
                 | None -> None)
              goal
@@ -1783,7 +1783,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
       let reason = make_remark name [] in
       trace
         (fun cxt ->
-           Mappingfuns.M.mappingstring termstring
+           Mappingfuns.mappingstring termstring
              (termstring <*> rewrite cxt))
         name env state;
       if currentlyProving name then
@@ -2155,7 +2155,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
         let (cxt, principals, given) = freshGiven true given cxt in
         let stuff =
           "given", hiddencontexts givens, Prooftree.Tree.Given (name, i, false),
-          Mappingfuns.M.empty, principals, [], given, []
+          Mappingfuns.empty, principals, [], given, []
         in
         ruler checker filter taker selhyps selconcs stuff name cxt state
     and doASSIGN env (s, t) state =
@@ -2166,7 +2166,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
              ") - " :: ss);
         None
       in
-      try Japeenv.M.set (env, s, t'); resetcaches (); Some state with
+      try Japeenv.set (env, s, t'); resetcaches (); Some state with
         OutOfRange_ range ->
           fail
             ["argument evaluates to "; termstring t'; "; ";
@@ -2457,10 +2457,10 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
         (*
               fun matchterms pattern value cxt =
               let fun VtoT vmap = 
-                    Mappingfuns.M.remapping
+                    Mappingfuns.remapping
                       ((fn (i, t) => (Unknown(_,i,symclass i), t)), vmap)
                   fun TtoV tmap = 
-                    Mappingfuns.M.remapping
+                    Mappingfuns.remapping
                       ((fn (Unknown(_,i,_), t) => (i, t) | _ => raise MatchinTtoV), 
                        tmap
                       )

@@ -45,8 +45,8 @@ module M : T with type term = Term.Funs.term
   struct
     open Context.Cxt
     open Context.Cxtstring
-    open Listfuns.M
-    open Miscellaneous.M
+    open Listfuns
+    open Miscellaneous
     open Optionfuns.M
     open Prooftree.Tree
     open Prooftree.Tree.Fmttree

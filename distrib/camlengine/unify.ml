@@ -53,11 +53,11 @@ module M : T with type term = Term.Type.term
     open Answer
     open Context.Cxt
     open Context.Cxtstring
-    open Facts.M
-    open Idclass.M
-    open Listfuns.M
-    open Mappingfuns.M
-    open Miscellaneous.M
+    open Facts
+    open Idclass
+    open Listfuns
+    open Mappingfuns
+    open Miscellaneous
     open Optionfuns.M
     open Proviso.M
     open Provisofuns.M

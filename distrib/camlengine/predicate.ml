@@ -24,23 +24,23 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type idclass = Idclass.M.idclass
+module M : T with type idclass = Idclass.idclass
 			  and type term = Term.Funs.term
 			  and type vid = Term.Funs.vid 
 =
   struct
-    open Idclass.M 
+    open Idclass 
     open Term.Type
     open Term.Store
     open Term.Termstring
     open Term.Funs
-    open Listfuns.M
-    open Miscellaneous.M
+    open Listfuns
+    open Miscellaneous
     open Stringfuns.M
     open Optionfuns.M
     open Sml.M
     
-    type idclass = Idclass.M.idclass
+    type idclass = Idclass.idclass
     type term = Term.Funs.term
     type vid = Term.Funs.vid 
     

@@ -147,10 +147,10 @@ module Tree : Tree with type term = Term.Type.term
     open Context.Cxt
     open Context.Cxtstring
     open Context.ExteriorFuns
-    open Idclass.M
-    open Listfuns.M
-    open Mappingfuns.M
-    open Miscellaneous.M
+    open Idclass
+    open Listfuns
+    open Mappingfuns
+    open Miscellaneous
     open Name.M
     open Optionfuns.M
     open Proviso.M

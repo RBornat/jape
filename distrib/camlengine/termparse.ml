@@ -34,27 +34,27 @@ module type T =
 (* $Id$ *)
 
 module M : T with type element = Term.Funs.element
-              and type idclass = Idclass.M.idclass
+              and type idclass = Idclass.idclass
               and type term = Term.Type.term
               and type symbol = Symboltype.symbol
 =
   struct
-    open Listfuns.M
+    open Listfuns
     open Searchtree
     open Symbol
     open Symboltype
-    open Idclass.M
-    open Idclassfuns.M
+    open Idclass
+    open Idclassfuns
     open Term.Type
     open Term.Termstring
     open Term.Funs
     open Term.Store
     open Binding
     open Optionfuns.M
-    open Miscellaneous.M
+    open Miscellaneous
     
     type element = Term.Type.element
-    type idclass = Idclass.M.idclass
+    type idclass = Idclass.idclass
     type term = Term.Type.term
     type symbol = Symboltype.symbol
     

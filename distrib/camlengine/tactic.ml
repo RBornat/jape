@@ -200,7 +200,7 @@ module type Funs =
   [[Actually it's all crap, and we need a proper MLish tactic language. BS]]
  *)
 
-module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping 
+module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping 
 					and type name = Name.M.name
 					and type term = Term.Type.term
 					and type tactic = Type.tactic
@@ -208,10 +208,10 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
   struct
     open Type
     
-    open Idclass.M
-    open Listfuns.M
-    open Match.M
-    open Miscellaneous.M
+    open Idclass
+    open Listfuns
+    open Match
+    open Miscellaneous
     open Name.M
     open Optionfuns.M
     open Sml.M
@@ -223,7 +223,7 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
     open Term.Store
     open Treelayout.M    
     
-    type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+    type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
      and name = Name.M.name
      and term = Term.Type.term
      and tactic = Type.tactic

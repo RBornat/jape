@@ -21,7 +21,7 @@ module M : T with type vid = Term.Funs.vid
               and type term = Term.Funs.term 
 =
   struct
-    open Listfuns.M
+    open Listfuns
     open Symbol
     open Term.Funs
     open Term.Store

@@ -73,11 +73,11 @@ open Absprooftree
 open Box
 open Displayclass
 open Displayfont
-open Draw.M
-open Hit.M
-open Listfuns.M
+open Draw
+open Hit
+open Listfuns
 open Minwaste
-open Mappingfuns.M
+open Mappingfuns
 open Optionfuns.M
 open Sml.M
 open Term.Termstring
@@ -86,8 +86,8 @@ open Thing.M
 
 type box = Box.box
  and displayclass = Displayclass.displayclass
- and 'a hit = 'a Hit.M.hit
- and hitkind = Hit.M.hitkind
+ and 'a hit = 'a Hit.hit
+ and hitkind = Hit.hitkind
  and pos = Box.pos
  and size = Box.size
  and term = Term.Funs.term
@@ -97,26 +97,26 @@ type box = Box.box
 let hasrelevanttip el t = Prooftree.Tree.Vistree.hasTip t (* for now *)
 let measurestring f s = Japeserver.measurestring(f,s)
 
-let consolereport = Miscellaneous.M.consolereport
+let consolereport = Miscellaneous.consolereport
 let cuthidingdebug = Prooftree.Tree.cuthidingdebug
 let element2term = Term.Funs.element2term
 let enQuote = Stringfuns.M.enQuote
 let explodebinapp = Term.Funs.explodebinapp
 let findfirst = Optionfuns.M.findfirst
-let foldformulae = Miscellaneous.M.foldformulae
+let foldformulae = Miscellaneous.foldformulae
 let isRelation = Thing.M.isRelation
 let pairstring = Stringfuns.M.pairstring
-let pathstring = Listfuns.M.bracketedliststring string_of_int ","
+let pathstring = Listfuns.bracketedliststring string_of_int ","
 let quadruplestring = Stringfuns.M.quadruplestring
 let reasonstring = (fun s -> s)
-let screenpositiondebug = Miscellaneous.M.screenpositiondebug
+let screenpositiondebug = Miscellaneous.screenpositiondebug
 let seqstring = Sequent.Funs.seqstring
 let sameresource = Term.Funs.sameresource
 let textboxstring = Box.textboxstring
 let triplestring = Stringfuns.M.triplestring
-let truncatereasons = Miscellaneous.M.truncatereasons
+let truncatereasons = Miscellaneous.truncatereasons
 let turnstiles = Sequent.Funs.syntacticturnstiles
-let uncurry2 = Miscellaneous.M.uncurry2
+let uncurry2 = Miscellaneous.uncurry2
 let _The = Optionfuns.M._The
 
 let textleading = 3
@@ -127,7 +127,7 @@ let boxleading = 3
 let reasongap = 4
 let leftscreengap = 6
 
-exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+exception Catastrophe_ = Miscellaneous.Catastrophe_
 
 let element2textinfo = element2textinfo elementstring_invisbracketed
 let term2textinfo = term2textinfo termstring_invisbracketed
@@ -702,7 +702,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
     max 1 (thrd (fontinfo ReasonFont))
   in
   let leading = max termfontleading (reasonfontleading) in
-  let linethickness = Draw.M.linethickness leading in
+  let linethickness = Draw.linethickness leading in
   let _ = setproofparams "box" linethickness in
   (* done early, so that GUIs can be ready for anything *)
            
@@ -846,7 +846,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             if !boxfolddebug then
               consolereport ["text is "; textstring text]
           in
-          let (size, _ as textinfo) = Draw.M.measuretext MidBlock text in
+          let (size, _ as textinfo) = Draw.measuretext MidBlock text in
           let _ =
             if !boxfolddebug then
               consolereport ["textsize is "; textsizestring size]

@@ -38,7 +38,7 @@ module type T =
   end    
 
 module M : T with type cxt = Context.Cxt.cxt
-			  and type model = Forcedef.M.model 
+			  and type model = Forcedef.model 
 			  and type name = Name.M.name
 			  and type proofstage = Proofstage.M.proofstage
 			  and type prooftree = Prooftree.Tree.Fmttree.prooftree
@@ -48,11 +48,11 @@ module M : T with type cxt = Context.Cxt.cxt
 =
   struct
     open Context.Cxt
-    open Forcedef.M
-    open Listfuns.M
-    open Mappingfuns.M
-    open Menu.M
-    open Miscellaneous.M
+    open Forcedef
+    open Listfuns
+    open Mappingfuns
+    open Menu
+    open Miscellaneous
     open Name.M
     open Optionfuns.M
     open Panelkind.M
@@ -66,7 +66,7 @@ module M : T with type cxt = Context.Cxt.cxt
     open Thing.M
 
     type cxt = Context.Cxt.cxt
-     and model = Forcedef.M.model 
+     and model = Forcedef.model 
      and name = Name.M.name
      and proofstage = Proofstage.M.proofstage
      and prooftree = Fmttree.prooftree

@@ -24,12 +24,12 @@ module M : T with type cxt = Context.Cxt.cxt
     type cxt = Context.Cxt.cxt
      and term = Term.Funs.term
     
-    let bracketedliststring = Listfuns.M.bracketedliststring
-    let consolereport = Miscellaneous.M.consolereport
+    let bracketedliststring = Listfuns.bracketedliststring
+    let consolereport = Miscellaneous.consolereport
     let enQuote = Stringfuns.M.enQuote
     
     let rec freshvar object__ cxt =
-      let class__ = Idclass.M.VariableClass in
+      let class__ = Idclass.VariableClass in
       let prefix = Symbol.autoID class__ "subst" in
       let (cxt', vid) = Context.Cxt.freshVID cxt class__ (vid_of_string prefix) in
       cxt',
@@ -38,22 +38,22 @@ module M : T with type cxt = Context.Cxt.cxt
     
     let rec indistinct cxt =
      not <*> Answer.qDEFNOT <*>
-     Miscellaneous.M.uncurry2
-          (Facts.M.substeqvarsq (Facts.M.facts (Context.Cxt.provisos cxt) cxt))
+     Miscellaneous.uncurry2
+          (Facts.substeqvarsq (Facts.facts (Context.Cxt.provisos cxt) cxt))
     
-    let interpolate = Listfuns.M.interpolate
-    let ( <* ) = Listfuns.M.( <* )
-    let member = Listfuns.M.member
+    let interpolate = Listfuns.interpolate
+    let ( <* ) = Listfuns.( <* )
+    let member = Listfuns.member
     let fNotinProviso v = Proviso.M.NotinProviso v
     let plusvisibleprovisos = Context.Cxt.plusvisibleprovisos
     let rewrite = Rewrite.Funs.rewrite
     let simplifySubstAnyway = Substmapfuns.M.simplifySubstAnyway
-    let sort = Listfuns.M.sortunique earliervar
+    let sort = Listfuns.sortunique earliervar
     let string2term = Termparse.M.string2term
-    let ( <| ) = Listfuns.M.( <| )
+    let ( <| ) = Listfuns.( <| )
     
-    exception Catastrophe_ = Miscellaneous.M.Catastrophe_
-    exception ParseError_ = Miscellaneous.M.ParseError_
+    exception Catastrophe_ = Miscellaneous.Catastrophe_
+    exception ParseError_ = Miscellaneous.ParseError_
     
     (* convert a text selection into a non-reducible substitution *)
     exception Selection_ of string list

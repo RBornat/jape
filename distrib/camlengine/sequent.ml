@@ -51,21 +51,21 @@ end
 
 module Funs:  Funs with type seq = Type.seq
                     and type symbol = Symboltype.symbol
-					and type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+					and type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
 					and type vid = Term.Type.vid
 					and type term = Term.Type.term
 					and type element = Term.Type.element
-					and type idclass = Idclass.M.idclass
+					and type idclass = Idclass.idclass
 =
   struct
     open Type 
 
-    open Idclass.M
-    open Idclassfuns.M
-    open Listfuns.M
-    open Match.M
-    open Mappingfuns.M
-    open Miscellaneous.M
+    open Idclass
+    open Idclassfuns
+    open Listfuns
+    open Match
+    open Mappingfuns
+    open Miscellaneous
     open Optionfuns.M
     open Sml.M
     open Symbol
@@ -78,11 +78,11 @@ module Funs:  Funs with type seq = Type.seq
     
     type seq = Type.seq
      and symbol = Symboltype.symbol
-     and ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+     and ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
 	 and vid = Term.Type.vid
 	 and term = Term.Type.term
 	 and element = Term.Type.element
-	 and idclass = Idclass.M.idclass
+	 and idclass = Idclass.idclass
 
     let bagkind = BagClass FormulaClass
     and listkind = ListClass FormulaClass
