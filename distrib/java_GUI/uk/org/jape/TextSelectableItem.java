@@ -264,17 +264,18 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
                     int i, px=e.getX();
                     for (i=0; i<textsels.size(); i++) {
                         if (px<getTextSel(i).pxend) {
-                            // are we nearer to this one than the one before?
-                            if (i==0 || getTextSel(i).pxstart-px<px-getTextSel(i-1).pxend)
-                                i++;
+                            // are we nearer to this one or the one before?
+                            if (i!=0 && getTextSel(i).pxstart-px>px-getTextSel(i-1).pxend)
+                                i--;
                             break;
                         }
                     }
-                    // we are nearest to textsel[i]
-                    currenttextselindex = i;
-                    anchor = findSubformula(formulae, getTextSel(i).start, getTextSel(i).end);
+                    // we are nearest to textsel[i], if there is one
+                    currenttextselindex = Math.min(i, textsels.size()-1);
+                    anchor = findSubformula(formulae, getTextSel(currenttextselindex).start,
+                                            getTextSel(currenttextselindex).end);
                     current = enclosingSubformula(anchor, pixel2Subformula(formulae, px));
-                    getTextSel(i).reset(current);
+                    getTextSel(currenttextselindex).reset(current);
                 }
                 break;
 
