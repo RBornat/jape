@@ -15,12 +15,14 @@ public class Dispatcher extends Thread {
     boolean tracing = false;
     AboutBox aboutbox;
     japeserver boss;
-
-    public Dispatcher(japeserver boss, AboutBox aboutbox) {
+    JapeMenu menus;
+    
+    public Dispatcher(japeserver boss, AboutBox aboutbox, JapeMenu menus) {
         super("Dispatcher");
         in = new BufferedReader(new InputStreamReader(System.in));
         this.boss = boss;
         this.aboutbox = aboutbox;
+        this.menus = menus;
         if (tracing)
             System.err.println("dispatcher initialised");
     }
@@ -33,39 +35,92 @@ public class Dispatcher extends Thread {
     }
     
     public void run() {
-        String line;
+        Vector list = new Vector(); // initialisation to shut up the compiler
         try {
-            while ((line=in.readLine())!="") {
+            while (true) {
+                String line = in.readLine();
                 if (tracing)
                     System.err.println("dispatcher reads "+line);
                 String[] command = japesplit(line);
                 if (tracing) {
                     showcommand("which is, being translated,", command);
                 }
-                String p = command[0];
-                int len = command.length;
-                if (p.equals("VERSION")&&len==2)
-                    aboutbox.setVersion(command[1]);
-                else
-                if(p.equals("SETINVISCHARS")&&len==9)
-                    boss.setinvischars(command[1].charAt(0),command[2].charAt(0),
-                        command[3].charAt(0),command[4].charAt(0),
-                        command[5].charAt(0),command[6].charAt(0),
-                        command[7].charAt(0),command[8].charAt(0));
-                else
-                if (p.equals("OPERATORSBEGIN")&&len==1)
-                    boss.operatorsbegin();
-                else
-                if (p.equals("OPERATOR")&&len==2)
-                    boss.addoperator(command[1]);
-                else
-                if (p.equals("OPERATORSEND")&&len==1)
-                    boss.operatorsend();
-                else
-                    System.err.println("**** dispatcher doesn't understand "+line);
-            }
+                
+                try {
+                    if (command.length!=0) {
+                        String p = command[0];
+                        int len = command.length;
+                        
+                    // ASK is for alerts
+                        if (p.equals("ASKSTART")&&len==1)
+                            list = new Vector();
+                        else
+                        if (p.equals("ASKBUTTON")&&len==2)
+                            list.add(command[1]);
+                        else
+                        if (p.equals("ASKNOW")&&len==4)
+                            Alert.newAlert(list, toInt(command[1]), command[2], toInt(command[3]));
+                        else
+                    
+                    // GET means client is listening
+                        if (p.equals("GET")&&len==1)
+                            Reply.openchannel();
+                        else
+                    
+                    // INVISCHARS are the way we describe syntactic structure
+                        if(p.equals("SETINVISCHARS")&&len==9)
+                            boss.setinvischars(
+                                toChar(command[1]),toChar(command[2]),
+                                toChar(command[3]),toChar(command[4]),
+                                toChar(command[5]),toChar(command[6]),
+                                toChar(command[7]),toChar(command[8]));
+                        else
+                    
+                    // MENU commands
+                        if (p.equals("MENUENTRY")&&len==5)
+                            menus.menuentry(command[1], command[2], command[3], command[4]);
+                        else
+                        if (p.equals("MAKEMENUSVISIBLE")&&len==1) {} // doesn't seem necessary
+                        else
+                        if (p.equals("MENUSEP")&&len==2)
+                            menus.menusep(command[1]);
+                        else
+                        if (p.equals("ENABLEMENUITEM")&&len==4)
+                            menus.enablemenuitem(command[1], command[2], toBool(command[3]));
+                        else
+                    
+                    // OPERATOR .. deal with the keyboard in some dialogue boxes
+                        if (p.equals("OPERATORSBEGIN")&&len==1)
+                            list=new Vector();
+                        else
+                        if (p.equals("OPERATOR")&&len==2)
+                            list.add(command[1]);
+                        else
+                        if (p.equals("OPERATORSEND")&&len==1)
+                            boss.setoperators(list);
+                        else
+                    
+                    // miscellaneous
+                        if (p.equals("QUIT")&&len==1) { 
+                            System.exit(0);
+                        }
+                        else
+                        if (p.equals("SETTEXTSELECTIONMODE")&&len==2)
+                            { } // for now
+                        else
+                        if (p.equals("VERSION")&&len==2)
+                            aboutbox.setVersion(command[1]);
+                        else
+                            System.err.println("**** dispatcher doesn't understand ("+len+") "+line);
+                    } // if (command.length!=0)
+                } catch (ProtocolError e) {
+                    System.err.println("protocol error in "+line+":: "+e.getMessage());
+                    System.exit(2);
+                }
+            } // while
         } catch (IOException e) {
             System.err.println("japeserver crash: dispatcher fails with IOException "+e);
+            System.exit(2);
         }
     }
 
@@ -73,7 +128,7 @@ public class Dispatcher extends Thread {
         // split a line encoded in the japeserver obol form.
         Vector result = new Vector();
         StringBuffer buf   = new StringBuffer();
-        int i     = 0;
+        int i = 0;
         boolean quote = false;
         boolean dbquote=false;
         int len = line.length();
@@ -134,5 +189,28 @@ public class Dispatcher extends Thread {
         }
             
         return ((String[])result.toArray(new String[result.size()]));
+    }
+    
+    private int toInt(String s) throws ProtocolError {
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            throw (new ProtocolError ("\""+s+"\" can't be read as an integer"));
+        }
+    }
+    
+    private boolean toBool(String s) throws ProtocolError {
+        try {
+            int j = toInt(s);
+            if (j==1) return true; else
+            if (j==0) return false; // else fall through
+        } catch (Exception e) { }
+        throw (new ProtocolError ("\""+s+"\" is neither \"1\" nor \"0\""));
+    }
+    
+    private char toChar(String s) throws ProtocolError {
+        if (s.length()==1)
+            return s.charAt(0);
+        throw (new ProtocolError ("\""+s+"\" is not a single char string"));
     }
 }

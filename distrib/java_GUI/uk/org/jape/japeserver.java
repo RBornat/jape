@@ -15,8 +15,7 @@ import java.io.*;
 import java.util.*;
 
 public class japeserver extends JFrame
-                      implements  ActionListener,
-                                  MRJAboutHandler,
+                      implements  MRJAboutHandler,
                                   MRJQuitHandler
 {
 
@@ -25,107 +24,14 @@ public class japeserver extends JFrame
 
     protected AboutBox aboutBox;
     
-    // Declarations for menus
-    static final JMenuBar mainMenuBar = new JMenuBar();
-	
-    static final JMenu fileMenu = new JMenu("File");
-    protected JMenuItem miNew;
-    protected JMenuItem miOpen;
-    protected JMenuItem miClose;
-    protected JMenuItem miSave;
-    protected JMenuItem miSaveAs;
-	
-    static final JMenu editMenu = new JMenu("Edit");
-    protected JMenuItem miUndo;
-    protected JMenuItem miCut;
-    protected JMenuItem miCopy;
-    protected JMenuItem miPaste;
-    protected JMenuItem miClear;
-    protected JMenuItem miSelectAll;
-	
-    public void addFileMenuItems() {
-        miNew = new JMenuItem ("New");
-        miNew.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.Event.META_MASK));
-        fileMenu.add(miNew).setEnabled(true);
-        miNew.addActionListener(this);
-
-        miOpen = new JMenuItem ("Open...");
-        miOpen.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.Event.META_MASK));
-        fileMenu.add(miOpen).setEnabled(true);
-        miOpen.addActionListener(this);
-		
-        miClose = new JMenuItem ("Close");
-        miClose.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.Event.META_MASK));
-        fileMenu.add(miClose).setEnabled(true);
-        miClose.addActionListener(this);
-		
-        miSave = new JMenuItem ("Save");
-        miSave.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.Event.META_MASK));
-        fileMenu.add(miSave).setEnabled(true);
-        miSave.addActionListener(this);
-		
-        miSaveAs = new JMenuItem ("Save As...");
-        fileMenu.add(miSaveAs).setEnabled(true);
-        miSaveAs.addActionListener(this);
-		
-        mainMenuBar.add(fileMenu);
-    }
-	
-	
-    public void addEditMenuItems() {
-        miUndo = new JMenuItem("Undo");
-        miUndo.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.Event.META_MASK));
-        editMenu.add(miUndo).setEnabled(true);
-        miUndo.addActionListener(this);
-        editMenu.addSeparator();
-
-        miCut = new JMenuItem("Cut");
-        miCut.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.Event.META_MASK));
-        editMenu.add(miCut).setEnabled(true);
-        miCut.addActionListener(this);
-
-        miCopy = new JMenuItem("Copy");
-        miCopy.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.Event.META_MASK));
-        editMenu.add(miCopy).setEnabled(true);
-        miCopy.addActionListener(this);
-
-        miPaste = new JMenuItem("Paste");
-        miPaste.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, java.awt.Event.META_MASK));
-        editMenu.add(miPaste).setEnabled(true);
-        miPaste.addActionListener(this);
-
-        miClear = new JMenuItem("Clear");
-        editMenu.add(miClear).setEnabled(true);
-        miClear.addActionListener(this);
-        editMenu.addSeparator();
-
-        miSelectAll = new JMenuItem("Select All");
-        miSelectAll.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.Event.META_MASK));
-        editMenu.add(miSelectAll).setEnabled(true);
-        miSelectAll.addActionListener(this);
-
-        mainMenuBar.add(editMenu);
-    }
-	
-    public void addMenus() {
-        addFileMenuItems();
-        addEditMenuItems();
-        setJMenuBar (mainMenuBar);
-    }
+    private JapeMenu menus;
 
     private static boolean tracing = true;
 
     private Vector operators;
     
-    // this really needs a list construct in the interface ... easy to do.
-    public void operatorsbegin() {
-        operators = new Vector();
-    }
-    public void addoperator(String op) {
-        operators.add(op);
-    }
-    public void operatorsend() {
-        return;
+    public void setoperators(Vector list) {
+        operators=list;
     }
     
     private char onbra, onket, offbra, offket, outbra, outket, lockbra, lockket;
@@ -141,7 +47,8 @@ public class japeserver extends JFrame
     public japeserver() {
         super("japeserver");
         this.getContentPane().setLayout(null);
-        addMenus();
+        menus = new JapeMenu();
+        menus.addMenus(this);
 
         aboutBox = new AboutBox();
         Toolkit.getDefaultToolkit();
@@ -151,7 +58,7 @@ public class japeserver extends JFrame
         setVisible(true);
         
         operators = new Vector();
-        new Dispatcher(this, aboutBox).start();
+        new Dispatcher(this, aboutBox, menus).start();
         
         if (tracing)
             System.err.println("japeserver initialised");
@@ -170,47 +77,19 @@ public class japeserver extends JFrame
         aboutBox.show();
     }
 
-    public void handleQuit() {	
-        System.exit(0);
-    }
-
-    // ActionListener interface (for menus)
-    public void actionPerformed(ActionEvent newEvent) {
-        if (newEvent.getActionCommand().equals(miNew.getActionCommand())) doNew();
-        else if (newEvent.getActionCommand().equals(miOpen.getActionCommand())) doOpen();
-        else if (newEvent.getActionCommand().equals(miClose.getActionCommand())) doClose();
-        else if (newEvent.getActionCommand().equals(miSave.getActionCommand())) doSave();
-        else if (newEvent.getActionCommand().equals(miSaveAs.getActionCommand())) doSaveAs();
-        else if (newEvent.getActionCommand().equals(miUndo.getActionCommand())) doUndo();
-        else if (newEvent.getActionCommand().equals(miCut.getActionCommand())) doCut();
-        else if (newEvent.getActionCommand().equals(miCopy.getActionCommand())) doCopy();
-        else if (newEvent.getActionCommand().equals(miPaste.getActionCommand())) doPaste();
-        else if (newEvent.getActionCommand().equals(miClear.getActionCommand())) doClear();
-        else if (newEvent.getActionCommand().equals(miSelectAll.getActionCommand())) doSelectAll();
-    }
-
-    public void doNew() {}
-	
-    public void doOpen() {}
-	
-    public void doClose() {}
-	
-    public void doSave() {}
-	
-    public void doSaveAs() {}
-	
-    public void doUndo() {}
-	
-    public void doCut() {}
-	
-    public void doCopy() {}
-	
-    public void doPaste() {}
-	
-    public void doClear() {}
-	
-    public void doSelectAll() {}
+    private static boolean quitsent=false;
     
+    public void handleQuit() {
+        if (!quitsent) {
+            quitsent = true;
+            Reply.sendCOMMAND("quit");
+        }
+        else {
+            Alert.showInfoMessage(Alert.Warning, "Quit twice, this time I'm doing it ...");
+            System.exit(0); // should be an alert about this ...
+        }
+    }
+
     static String theorypath, theory, ext, title, iconname,
         viewpath, pviewpath, proofpath;
 
