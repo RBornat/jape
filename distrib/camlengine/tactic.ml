@@ -80,9 +80,25 @@ module type Tactictype =
       | Subgoal of (pathexpr * term)
       | HypRoot of pathexpr
       | SimplePath of term
+
+    type ('a, 'b) mapping
+    val tacname : term -> name
+    (* or raise ParseError_ *)
+    val transTactic : term -> tactic
+    val explodeForExecute : term -> name * term list
+    val tacticstring : tactic -> string
+    (* the simple, unvarnished string *)
+    val tacticstringwithNLs : tactic -> string
+    (* guess what this one does *)
+    val catelim_tacticstring : tactic -> string list -> string list
+    val catelim_tacticstringwithNLs : tactic -> string list -> string list
+    val remaptactic : (term, term) mapping -> tactic -> tactic
+    val isguard : tactic -> bool
+    val showargasint : (int -> term -> int) option ref
+    val readintasarg : term array option ref
   end
 
-module type Tactic =
+module type T =
   sig
     type term and tactic and name
     type ('a, 'b) mapping
@@ -116,39 +132,46 @@ module
   Tactic
   (AAA :
     sig
-      module listfuns : Listfuns
-      module stringfuns : Stringfuns
-      module name : sig include Nametype(* sanctioned in tactic.sml *) include Name end
-      module term : sig include Termtype include Termstore include Term end
-      module sequent : Sequent
-      module treelayout : TreeLayout
+      module Listfuns : Listfuns.T
+      module Stringfuns : Stringfuns.T
+      module Name : Name.Nametype (* sanctioned. RB *)
+      module Term : (* sig include Termtype include Termstore include Term end *) Term.T
+             with type vid = string
+      module Sequent : Sequent.T
+      module Treelayout : Treelayout.T
+             with type term = Term.term
+              and type ('a,'b) mapping = ('a,'b) Sequent.mapping
+      
       val andthenr : 'a option * ('a -> 'b option) -> 'b option
       val atoi : string -> int
       val consolereport : string list -> unit
-      val FormulaClass : term.idclass
+      val _FormulaClass : Term.idclass
       val interpolate : 'a -> 'a list -> 'a list
       val remapterm :
-        (term.term, term.term) sequent.mapping -> term.term -> term.term
+        (Term.term, Term.term) Sequent.mapping -> Term.term -> Term.term
       val try__ : ('a -> 'b) -> 'a option -> 'b option
       val unSOME : 'a option -> 'a
+      
       exception ParseError_ of string list
       exception Catastrophe_ of string list
       exception AtoI_
-      
     end)
-  :
-  sig include Tactictype include Tactic end =
+  : Tactictype =
   struct
     open AAA
-    open listfuns
-    open stringfuns
-    open term
-    open sequent
-    open name
-    open treelayout
-    (* from listfuns *)
+    open Listfuns
+    open Stringfuns
+    open Term
+    open Sequent
+    open Name
+    open Treelayout    
     
-    
+    type ('a,'b) mapping = ('a,'b) Sequent.mapping
+     and name = Name.name
+     and term = Term.term
+     and treelayout = Treelayout.treelayout
+     and seq = Sequent.seq
+     
     (* from optionfuns *)
     
     type tactic =
@@ -371,7 +394,7 @@ module
         | SubstTac (s, vts) ->
             catelim_termstring
               (Subst
-                 (None, true, Id (None, pnstr s, FormulaClass),
+                 (None, true, Id (None, pnstr s, _FormulaClass),
                   (match !showargasint with
                      Some lookup ->
                        let rec encodeterm t =
@@ -442,97 +465,97 @@ module
     let tacticstring = catelim2stringfn catelim_tacticstring
     let tacticstringwithNLs = catelim2stringfn catelim_tacticstringwithNLs
     let rec remaptactic env t =
-      let E = remapterm env in
-      let rec Ep =
+      let _E = remapterm env in
+      let rec _Ep =
         function
-          Parent p -> Parent (Ep p)
-        | LeftSibling p -> LeftSibling (Ep p)
-        | RightSibling p -> RightSibling (Ep p)
-        | Subgoal (p, t) -> Subgoal (Ep p, E t)
-        | HypRoot p -> HypRoot (Ep p)
-        | SimplePath t -> SimplePath (E t)
+          Parent p -> Parent (_Ep p)
+        | LeftSibling p -> LeftSibling (_Ep p)
+        | RightSibling p -> RightSibling (_Ep p)
+        | Subgoal (p, t) -> Subgoal (_Ep p, _E t)
+        | HypRoot p -> HypRoot (_Ep p)
+        | SimplePath t -> SimplePath (_E t)
       in
-      let rec T t =
+      let rec _T t =
         match t with
           SkipTac -> t
         | FailTac -> t
         | StopTac -> t
         | NextgoalTac -> t
-        | SetgoalTac p -> SetgoalTac (Ep p)
+        | SetgoalTac p -> SetgoalTac (_Ep p)
         | TheoryAltTac ns -> t
-        | GivenTac i -> GivenTac (E i)
-        | RepTac t -> RepTac (T t)
-        | IfTac t -> IfTac (T t)
-        | CompTac t -> CompTac (T t)
-        | CutinTac t -> CutinTac (T t)
-        | WithArgSelTac t -> WithArgSelTac (T t)
-        | WithConcSelTac t -> WithConcSelTac (T t)
-        | WithFormSelTac t -> WithFormSelTac (T t)
-        | WithHypSelTac t -> WithHypSelTac (T t)
-        | WithSelectionsTac t -> WithSelectionsTac (T t)
-        | WithSubstSelTac t -> WithSubstSelTac (T t)
-        | MatchTac t -> MatchTac (T t)
-        | SameProvisosTac t -> SameProvisosTac (T t)
-        | SimpleApplyTac t -> SimpleApplyTac (T t)
-        | ApplyOrResolveTac t -> ApplyOrResolveTac (T t)
-        | UniqueTac t -> UniqueTac (T t)
-        | TakeAnyTac t -> TakeAnyTac (T t)
-        | ResolveTac t -> ResolveTac (T t)
-        | ReplayTac t -> ReplayTac (T t)
-        | ContnTac (t1, t2) -> ContnTac (T t1, T t2)
-        | AssocFlatTac tm -> AssocFlatTac (E tm)
-        | UnifyTac tms -> UnifyTac (_MAP (E, tms))
-        | AltTac ts -> AltTac (_MAP (T, ts))
-        | SeqTac ts -> SeqTac (_MAP (T, ts))
-        | WhenTac ts -> WhenTac (_MAP (T, ts))
-        | UnfoldHypTac (s, tms) -> UnfoldHypTac (s, _MAP (E, tms))
-        | FoldHypTac (s, tms) -> FoldHypTac (s, _MAP (E, tms))
-        | MapTac (s, tms) -> MapTac (s, _MAP (E, tms))
-        | TermTac (s, tms) -> TermTac (s, _MAP (E, tms))
+        | GivenTac i -> GivenTac (_E i)
+        | RepTac t -> RepTac (_T t)
+        | IfTac t -> IfTac (_T t)
+        | CompTac t -> CompTac (_T t)
+        | CutinTac t -> CutinTac (_T t)
+        | WithArgSelTac t -> WithArgSelTac (_T t)
+        | WithConcSelTac t -> WithConcSelTac (_T t)
+        | WithFormSelTac t -> WithFormSelTac (_T t)
+        | WithHypSelTac t -> WithHypSelTac (_T t)
+        | WithSelectionsTac t -> WithSelectionsTac (_T t)
+        | WithSubstSelTac t -> WithSubstSelTac (_T t)
+        | MatchTac t -> MatchTac (_T t)
+        | SameProvisosTac t -> SameProvisosTac (_T t)
+        | SimpleApplyTac t -> SimpleApplyTac (_T t)
+        | ApplyOrResolveTac t -> ApplyOrResolveTac (_T t)
+        | UniqueTac t -> UniqueTac (_T t)
+        | TakeAnyTac t -> TakeAnyTac (_T t)
+        | ResolveTac t -> ResolveTac (_T t)
+        | ReplayTac t -> ReplayTac (_T t)
+        | ContnTac (t1, t2) -> ContnTac (_T t1, _T t2)
+        | AssocFlatTac tm -> AssocFlatTac (_E tm)
+        | UnifyTac tms -> UnifyTac (_MAP (_E, tms))
+        | AltTac ts -> AltTac (_MAP (_T, ts))
+        | SeqTac ts -> SeqTac (_MAP (_T, ts))
+        | WhenTac ts -> WhenTac (_MAP (_T, ts))
+        | UnfoldHypTac (s, tms) -> UnfoldHypTac (s, _MAP (_E, tms))
+        | FoldHypTac (s, tms) -> FoldHypTac (s, _MAP (_E, tms))
+        | MapTac (s, tms) -> MapTac (s, _MAP (_E, tms))
+        | TermTac (s, tms) -> TermTac (s, _MAP (_E, tms))
         | SubstTac (s, vts) ->
-            SubstTac (s, _MAP ((fun (v, t) -> E v, E t), vts))
-        | UnfoldTac (s, ts) -> UnfoldTac (s, _MAP (T, ts))
-        | FoldTac (s, ts) -> FoldTac (s, _MAP (T, ts))
-        | AssignTac (s, t) -> AssignTac (s, E t)
-        | EvalTac tms -> EvalTac (_MAP (E, tms))
-        | AdHocTac tms -> AdHocTac (_MAP (E, tms))
-        | BindConcTac (tm, t) -> BindConcTac (E tm, T t)
-        | BindHypTac (tm, t) -> BindHypTac (E tm, T t)
-        | BindHyp2Tac (tm1, tm2, t) -> BindHyp2Tac (E tm1, E tm2, T t)
-        | BindHypsTac (tm, t) -> BindHypsTac (E tm, T t)
-        | BindArgTac (tm, t) -> BindArgTac (E tm, T t)
-        | BindArgTextTac (s, t) -> BindArgTextTac (s, T t)
+            SubstTac (s, _MAP ((fun (v, t) -> _E v, _E t), vts))
+        | UnfoldTac (s, ts) -> UnfoldTac (s, _MAP (_T, ts))
+        | FoldTac (s, ts) -> FoldTac (s, _MAP (_T, ts))
+        | AssignTac (s, t) -> AssignTac (s, _E t)
+        | EvalTac tms -> EvalTac (_MAP (_E, tms))
+        | AdHocTac tms -> AdHocTac (_MAP (_E, tms))
+        | BindConcTac (tm, t) -> BindConcTac (_E tm, _T t)
+        | BindHypTac (tm, t) -> BindHypTac (_E tm, _T t)
+        | BindHyp2Tac (tm1, tm2, t) -> BindHyp2Tac (_E tm1, _E tm2, _T t)
+        | BindHypsTac (tm, t) -> BindHypsTac (_E tm, _T t)
+        | BindArgTac (tm, t) -> BindArgTac (_E tm, _T t)
+        | BindArgTextTac (s, t) -> BindArgTextTac (s, _T t)
         | BindGoalPathTac (s, t) ->(* boy is this wrong! *)
-           BindGoalPathTac (s, T t)
+           BindGoalPathTac (s, _T t)
         | BindSubstTac (tm, t) ->(* boy is this wrong! *)
-           BindSubstTac (E tm, T t)
-        | BindSubstInHypTac (tm, t) -> BindSubstInHypTac (E tm, T t)
-        | BindSubstInConcTac (tm, t) -> BindSubstInConcTac (E tm, T t)
-        | BindMultiArgTac (tm, t) -> BindMultiArgTac (E tm, T t)
-        | BindLHSTac (tm, t) -> BindLHSTac (E tm, T t)
-        | BindRHSTac (tm, t) -> BindRHSTac (E tm, T t)
-        | BindGoalTac (tm, t) -> BindGoalTac (E tm, T t)
-        | BindOpenSubGoalTac (n, tm, t) -> BindOpenSubGoalTac (n, E tm, T t)
+           BindSubstTac (_E tm, _T t)
+        | BindSubstInHypTac (tm, t) -> BindSubstInHypTac (_E tm, _T t)
+        | BindSubstInConcTac (tm, t) -> BindSubstInConcTac (_E tm, _T t)
+        | BindMultiArgTac (tm, t) -> BindMultiArgTac (_E tm, _T t)
+        | BindLHSTac (tm, t) -> BindLHSTac (_E tm, _T t)
+        | BindRHSTac (tm, t) -> BindRHSTac (_E tm, _T t)
+        | BindGoalTac (tm, t) -> BindGoalTac (_E tm, _T t)
+        | BindOpenSubGoalTac (n, tm, t) -> BindOpenSubGoalTac (n, _E tm, _T t)
         | BindOpenSubGoalsTac (tm, t) ->(* boy is this wrong! *)
-           BindOpenSubGoalsTac (E tm, T t)
-        | BindFindHypTac (tm, t) -> BindFindHypTac (E tm, T t)
-        | BindFindConcTac (tm, t) -> BindFindConcTac (E tm, T t)
-        | BindMatchTac (ptm, vtm, t) -> BindMatchTac (E ptm, E vtm, T t)
+           BindOpenSubGoalsTac (_E tm, _T t)
+        | BindFindHypTac (tm, t) -> BindFindHypTac (_E tm, _T t)
+        | BindFindConcTac (tm, t) -> BindFindConcTac (_E tm, _T t)
+        | BindMatchTac (ptm, vtm, t) -> BindMatchTac (_E ptm, _E vtm, _T t)
         | BindOccursTac (pt, vt, st, t) ->
-            BindOccursTac (E pt, E vt, E st, T t)
-        | LayoutTac (t, tl) -> LayoutTac (T t, remaptreelayout env tl)
+            BindOccursTac (_E pt, _E vt, _E st, _T t)
+        | LayoutTac (t, tl) -> LayoutTac (_T t, remaptreelayout env tl)
         | AlertTac (m, ps, copt) ->
             AlertTac
-              (E m, _MAP ((fun (l, t) -> E l, T t), ps),
-               (fun ooo -> andthenr (copt, Some) (T ooo)))
-        | ExplainTac m -> ExplainTac (E m)
-        | CommentTac m -> CommentTac (E m)
-        | BadUnifyTac (n1, n2, t) -> BadUnifyTac (n1, n2, T t)
-        | BadMatchTac (n1, n2, t) -> BadMatchTac (n1, n2, T t)
-        | BadProvisoTac (n1, n2, n3, t) -> BadProvisoTac (n1, n2, n3, T t)
+              (_E m, _MAP ((fun (l, t) -> _E l, _T t), ps),
+               (andthenr (copt, (fun ooo -> Some (_T ooo)))))
+        | ExplainTac m -> ExplainTac (_E m)
+        | CommentTac m -> CommentTac (_E m)
+        | BadUnifyTac (n1, n2, t) -> BadUnifyTac (n1, n2, _T t)
+        | BadMatchTac (n1, n2, t) -> BadMatchTac (n1, n2, _T t)
+        | BadProvisoTac (n1, n2, n3, t) -> BadProvisoTac (n1, n2, n3, _T t)
         | UnifyArgsTac -> UnifyArgsTac
       in
-      T t
+      _T t
     let rec tacticform i =
       member
         (namestring i,
@@ -576,8 +599,8 @@ module
       raise
         (TacParseError_
            ["Syntax is LAYOUT fmt (subtrees) tactic; \
-           \fmt can be () or s or (s,s); \
-           \s can be string, id, unknown or number"])
+            fmt can be () or s or (s,s); \
+            s can be string, id, unknown or number"])
     let rec checkNAME errf t =
       (* suitable for a place where a single name will do *)
       match debracket t with
@@ -598,7 +621,7 @@ module
       | _ -> raise (TacParseError_ (errf t))
     let rec checkINTS errf t =
       match debracket t with
-        Tup (_, ",", ts) as t' -> _MAP (checkINT errf, ts); t'
+        Tup (_, ",", ts) as t' -> let _ = List.map (checkINT errf) ts in t'
       | t -> checkINT errf t
     let rec isguard =
       function
@@ -631,14 +654,14 @@ module
         [] -> SkipTac
       | [t] -> t
       | ts -> SeqTac ts
-    and SEQTAC ts = mkSEQ (_MAP (transTactic, ts))
-    and SEQ1TAC a1 a2 =
+    and _SEQTAC ts = mkSEQ (_MAP (transTactic, ts))
+    and _SEQ1TAC a1 a2 =
       match a1, a2 with
         name, [] ->
           raise
             (TacParseError_
                [name; " tactic must include a non-empty sequence of tactics"])
-      | name, ts -> SEQTAC ts
+      | name, ts -> _SEQTAC ts
     and transTactic tacterm =
       try
         match debracket tacterm with
@@ -647,9 +670,9 @@ module
         | Id (_, "STOP", _) -> StopTac
         | Id (_, "NEXTGOAL", _) -> NextgoalTac
         | Id (_, "UNIFYARGS", _) -> UnifyArgsTac
-        | Subst (_, _, P, vts) ->
+        | Subst (_, _, _P, vts) ->
             SubstTac
-              (butnottacticform P,
+              (butnottacticform _P,
                (match !readintasarg with
                   Some lookup ->
                     let rec decodeterm t =
@@ -675,30 +698,30 @@ module
         | t ->
             let (n, ts as parts) = explodeForExecute t in
             let f = namestring n in
-            let rec Bad why =
+            let rec _Bad why =
               raise (TacParseError_ [termstring t; " -- "; why])
             in
-            let rec Assignments =
+            let rec _Assignments =
               function
                 [] -> []
               | s :: t :: ts ->
-                  AssignTac (tacname s, debracket t) :: Assignments ts
-              | _ -> Bad "Assignment malformed"
+                  AssignTac (tacname s, debracket t) :: _Assignments ts
+              | _ -> _Bad "Assignment malformed"
             in
             let rec onearg =
               function
                 [t] -> t
-              | [] -> Bad "No argument"
-              | _ -> Bad "More than one argument"
+              | [] -> _Bad "No argument"
+              | _ -> _Bad "More than one argument"
             in
             let rec atleasttwo =
               function
                 _ :: _ :: _ as ts -> ts
-              | ts -> Bad "should have at least two arguments"
+              | ts -> _Bad "should have at least two arguments"
             in
             let rec mkBind a1 a2 a3 a4 a5 =
               match a1, a2, a3, a4, a5 with
-                f, bind, str, tac, x :: ts -> tac (bind x, SEQTAC ts)
+                f, bind, str, tac, x :: ts -> tac (bind x, _SEQTAC ts)
               | f, bind, str, tac, [] ->
                   raise
                     (TacParseError_
@@ -707,7 +730,7 @@ module
             let rec mkBind2 a1 a2 a3 a4 a5 a6 a7 =
               match a1, a2, a3, a4, a5, a6, a7 with
                 f, b1, b2, s1, s2, tac, x1 :: x2 :: ts ->
-                  tac (b1 x1, b2 x2, SEQTAC ts)
+                  tac (b1 x1, b2 x2, _SEQTAC ts)
               | f, b1, b2, s1, s2, tac, _ ->
                   raise
                     (TacParseError_
@@ -717,7 +740,7 @@ module
             let rec mkBind3 a1 a2 a3 a4 a5 a6 a7 a8 a9 =
               match a1, a2, a3, a4, a5, a6, a7, a8, a9 with
                 f, b1, b2, b3, s1, s2, s3, tac, x1 :: x2 :: x3 :: ts ->
-                  tac (b1 x1, b2 x2, b3 x3, SEQTAC ts)
+                  tac (b1 x1, b2 x2, b3 x3, _SEQTAC ts)
               | f, b1, b2, b3, s1, s2, s3, tac, _ ->
                   raise
                     (TacParseError_
@@ -728,7 +751,7 @@ module
             let rec namebind n = tacname n in
             let rec mkMatch =
               function
-                pat :: expr :: ts -> BindMatchTac (pat, expr, SEQTAC ts)
+                pat :: expr :: ts -> BindMatchTac (pat, expr, _SEQTAC ts)
               | _ ->
                   raise
                     (TacParseError_
@@ -737,7 +760,7 @@ module
             let rec mkOccurs =
               function
                 pat1 :: expr :: pat2 :: ts ->
-                  BindOccursTac (pat1, expr, pat2, SEQTAC ts)
+                  BindOccursTac (pat1, expr, pat2, _SEQTAC ts)
               | _ ->
                   raise
                     (TacParseError_
@@ -754,12 +777,12 @@ module
                   in
                   match maybeSTR fmt, stuff with
                     Some "HIDEROOT", ts ->
-                      LayoutTac (SEQTAC ts, HideRootLayout)
-                  | Some "HIDECUT", ts -> LayoutTac (SEQTAC ts, HideCutLayout)
-                  | Some "COMPRESS", fmt :: ts -> lyt CompressedLayout fmt ts
+                      LayoutTac (_SEQTAC ts, HideRootLayout)
+                  | Some "HIDECUT", ts -> LayoutTac (_SEQTAC ts, HideCutLayout)
+                  | Some "COMPRESS", fmt :: ts -> lyt (fun v->CompressedLayout v) fmt ts
                   | Some "COMPRESS", ts ->
-                      lyt CompressedLayout (registerLiteral (String "%s")) ts
-                  | _, ts -> lyt NamedLayout fmt ts
+                      lyt (fun v->CompressedLayout v) (registerLiteral (String "%s")) ts
+                  | _, ts -> lyt (fun v->NamedLayout v) fmt ts
             in
             let rec mkFold a1 a2 =
               match a1, a2 with
@@ -784,8 +807,8 @@ module
                     match a1, a2 with
                       rs, Tup (_, ",", [l; t]) :: ps ->
                         f ((l, transTactic t) :: rs) ps
-                    | rs, [t] -> AlertTac (m, rev rs, Some (transTactic t))
-                    | rs, [] -> AlertTac (m, rev rs, None)
+                    | rs, [t] -> AlertTac (m, List.rev rs, Some (transTactic t))
+                    | rs, [] -> AlertTac (m, List.rev rs, None)
                     | rs, t :: _ ->
                         raise
                           (TacParseError_
@@ -811,33 +834,33 @@ module
                   | _ -> raise (TacParseError_ (err t))
             in
             match f with
-              "SKIP" -> Bad "SKIP mustn't be given any arguments"
-            | "FAIL" -> Bad "FAIL mustn't be given any arguments"
-            | "STOP" -> Bad "STOP mustn't be given any arguments"
-            | "NEXTGOAL" -> Bad "NEXTGOAL mustn't be given any arguments"
+              "SKIP" -> _Bad "SKIP mustn't be given any arguments"
+            | "FAIL" -> _Bad "FAIL mustn't be given any arguments"
+            | "STOP" -> _Bad "STOP mustn't be given any arguments"
+            | "NEXTGOAL" -> _Bad "NEXTGOAL mustn't be given any arguments"
             | "GOALPATH" -> SetgoalTac (parsegoalexpr (onearg ts))
-            | "PROVE" -> CompTac (SEQ1TAC (f, ts))
-            | "CUTIN" -> CutinTac (SEQ1TAC (f, ts))
+            | "PROVE" -> CompTac (_SEQ1TAC f ts)
+            | "CUTIN" -> CutinTac (_SEQ1TAC f ts)
             | "JAPE" -> AdHocTac [onearg ts]
             | "FLATTEN" -> AssocFlatTac (debracket (onearg ts))
             | "MAPTERMS" -> MapTac (explodeForExecute (onearg ts))
-            | "SEQ" -> SEQTAC ts
+            | "SEQ" -> _SEQTAC ts
             | "ALT" -> AltTac (_MAP (transTactic, ts))
             | "THEORYALT" -> TheoryAltTac (_MAP (butnottacticform, ts))
-            | "IF" -> IfTac (SEQ1TAC (f, ts))
-            | "DO" -> RepTac (SEQ1TAC (f, ts))
-            | "FOLD" -> mkFold FoldTac ts
-            | "UNFOLD" -> mkFold UnfoldTac ts
-            | "FOLDHYP" -> mkHypFold FoldHypTac ts
-            | "UNFOLDHYP" -> mkHypFold UnfoldHypTac ts
-            | "WITHARGSEL" -> WithArgSelTac (SEQ1TAC (f, ts))
-            | "WITHCONCSEL" -> WithConcSelTac (SEQ1TAC (f, ts))
-            | "WITHFORMSEL" -> WithFormSelTac (SEQ1TAC (f, ts))
-            | "WITHHYPSEL" -> WithHypSelTac (SEQ1TAC (f, ts))
-            | "WITHSELECTIONS" -> WithSelectionsTac (SEQ1TAC (f, ts))
-            | "WITHSUBSTSEL" -> WithSubstSelTac (SEQ1TAC (f, ts))
+            | "IF" -> IfTac (_SEQ1TAC f ts)
+            | "DO" -> RepTac (_SEQ1TAC f ts)
+            | "FOLD" -> mkFold (fun v->FoldTac v) ts
+            | "UNFOLD" -> mkFold (fun v->UnfoldTac v) ts
+            | "FOLDHYP" -> mkHypFold (fun v->FoldHypTac v) ts
+            | "UNFOLDHYP" -> mkHypFold (fun v->UnfoldHypTac v) ts
+            | "WITHARGSEL" -> WithArgSelTac (_SEQ1TAC f ts)
+            | "WITHCONCSEL" -> WithConcSelTac (_SEQ1TAC f ts)
+            | "WITHFORMSEL" -> WithFormSelTac (_SEQ1TAC f ts)
+            | "WITHHYPSEL" -> WithHypSelTac (_SEQ1TAC f ts)
+            | "WITHSELECTIONS" -> WithSelectionsTac (_SEQ1TAC f ts)
+            | "WITHSUBSTSEL" -> WithSubstSelTac (_SEQ1TAC f ts)
             | "EVALUATE" -> EvalTac ts
-            | "ASSIGN" -> mkSEQ (Assignments ts)
+            | "ASSIGN" -> mkSEQ (_Assignments ts)
             | "WHEN" ->
                 let tacs = _MAP (transTactic, ts) in
                 let rec okwhen =
@@ -846,48 +869,48 @@ module
                   | [t] -> ()
                   | t1 :: ts ->
                       if isguard t1 then okwhen ts
-                      else Bad "WHEN must be given guarded tactics"
+                      else _Bad "WHEN must be given guarded tactics"
                 in
                 okwhen tacs; WhenTac tacs
-            | "LETCONC" -> mkBind f patbind "pattern" BindConcTac ts
-            | "LETHYP" -> mkBind f patbind "pattern" BindHypTac ts
+            | "LETCONC" -> mkBind f patbind "pattern" (fun v->BindConcTac v) ts
+            | "LETHYP" -> mkBind f patbind "pattern" (fun v->BindHypTac v) ts
             | "LETHYP2" ->
-                mkBind2 f patbind patbind "pattern" "pattern" BindHyp2Tac ts
-            | "LETHYPS" -> mkBind f patbind "pattern" BindHypsTac ts
-            | "LETLHS" -> mkBind f patbind "pattern" BindLHSTac ts
-            | "LETRHS" -> mkBind f patbind "pattern" BindRHSTac ts
-            | "LETGOAL" -> mkBind f patbind "pattern" BindGoalTac ts
-            | "LETGOALPATH" -> mkBind f namebind "name" BindGoalPathTac ts
+                mkBind2 f patbind patbind "pattern" "pattern" (fun v->BindHyp2Tac v) ts
+            | "LETHYPS" -> mkBind f patbind "pattern" (fun v->BindHypsTac v) ts
+            | "LETLHS" -> mkBind f patbind "pattern" (fun v->BindLHSTac v) ts
+            | "LETRHS" -> mkBind f patbind "pattern" (fun v->BindRHSTac v) ts
+            | "LETGOAL" -> mkBind f patbind "pattern" (fun v->BindGoalTac v) ts
+            | "LETGOALPATH" -> mkBind f namebind "name" (fun v->BindGoalPathTac v) ts
             | "LETOPENSUBGOAL" ->
-                mkBind2 f namebind patbind "name" "pattern" BindOpenSubGoalTac
+                mkBind2 f namebind patbind "name" "pattern" (fun v->BindOpenSubGoalTac v)
                   ts
             | "LETOPENSUBGOALS" ->
-                mkBind f patbind "pattern" BindOpenSubGoalsTac ts
-            | "LETARGSEL" -> mkBind f patbind "pattern" BindArgTac ts
-            | "LETARGTEXT" -> mkBind f namebind "name" BindArgTextTac ts
-            | "LETSUBSTSEL" -> mkBind f patbind "pattern" BindSubstTac ts
+                mkBind f patbind "pattern" (fun v->BindOpenSubGoalsTac v) ts
+            | "LETARGSEL" -> mkBind f patbind "pattern" (fun v->BindArgTac v) ts
+            | "LETARGTEXT" -> mkBind f namebind "name" (fun v->BindArgTextTac v) ts
+            | "LETSUBSTSEL" -> mkBind f patbind "pattern" (fun v->BindSubstTac v) ts
             | "LETHYPSUBSTSEL" ->
-                mkBind f patbind "pattern" BindSubstInHypTac ts
+                mkBind f patbind "pattern" (fun v->BindSubstInHypTac v) ts
             | "LETCONCSUBSTSEL" ->
-                mkBind f patbind "pattern" BindSubstInConcTac ts
-            | "LETMULTIARG" -> mkBind f patbind "pattern" BindMultiArgTac ts
-            | "LETHYPFIND" -> mkBind f patbind "pattern" BindFindHypTac ts
-            | "LETCONCFIND" -> mkBind f patbind "pattern" BindFindConcTac ts
+                mkBind f patbind "pattern" (fun v->BindSubstInConcTac v) ts
+            | "LETMULTIARG" -> mkBind f patbind "pattern" (fun v->BindMultiArgTac v) ts
+            | "LETHYPFIND" -> mkBind f patbind "pattern" (fun v->BindFindHypTac v) ts
+            | "LETCONCFIND" -> mkBind f patbind "pattern" (fun v->BindFindConcTac v) ts
             | "LETMATCH" -> mkMatch ts
             | "LETOCCURS" -> mkOccurs ts
             | "LAYOUT" -> mkLayout ts
-            | "MATCH" -> MatchTac (SEQ1TAC (f, ts))
-            | "SAMEPROVISOS" -> SameProvisosTac (SEQ1TAC (f, ts))
-            | "SIMPLEAPPLY" -> SimpleApplyTac (SEQ1TAC (f, ts))
-            | "APPLYORRESOLVE" -> ApplyOrResolveTac (SEQ1TAC (f, ts))
-            | "UNIQUE" -> UniqueTac (SEQ1TAC (f, ts))
-            | "ANY" -> TakeAnyTac (SEQ1TAC (f, ts))
+            | "MATCH" -> MatchTac (_SEQ1TAC f ts)
+            | "SAMEPROVISOS" -> SameProvisosTac (_SEQ1TAC f ts)
+            | "SIMPLEAPPLY" -> SimpleApplyTac (_SEQ1TAC f ts)
+            | "APPLYORRESOLVE" -> ApplyOrResolveTac (_SEQ1TAC f ts)
+            | "UNIQUE" -> UniqueTac (_SEQ1TAC f ts)
+            | "ANY" -> TakeAnyTac (_SEQ1TAC f ts)
             | "UNIFY" -> UnifyTac (atleasttwo ts)
-            | "RESOLVE" -> ResolveTac (SEQ1TAC (f, ts))
-            | "REPLAY" -> ReplayTac (SEQ1TAC (f, ts))
+            | "RESOLVE" -> ResolveTac (_SEQ1TAC f ts)
+            | "REPLAY" -> ReplayTac (_SEQ1TAC f ts)
             | "WITHCONTINUATION" ->
                 begin match ts with
-                  t1 :: ts -> ContnTac (transTactic t1, SEQTAC ts)
+                  t1 :: ts -> ContnTac (transTactic t1, _SEQTAC ts)
                 | _ -> raise (TacParseError_ ["no argument tactic!"])
                 end
             | "GIVEN" ->
@@ -903,12 +926,12 @@ module
             | "EXPLAIN" -> ExplainTac (onearg ts)
             | "COMMENT" -> CommentTac (onearg ts)
             | "BADUNIFY" ->
-                mkBind2 f namebind namebind "name" "name" BadUnifyTac ts
+                mkBind2 f namebind namebind "name" "name" (fun v->BadUnifyTac v) ts
             | "BADMATCH" ->
-                mkBind2 f namebind namebind "name" "name" BadMatchTac ts
+                mkBind2 f namebind namebind "name" "name" (fun v->BadMatchTac v) ts
             | "BADPROVISO" ->
                 mkBind3 f namebind namebind namebind "name" "name" "name"
-                  BadProvisoTac ts
+                  (fun v->BadProvisoTac v) ts
             | _ ->
                 if tacticform n then
                   raise (Catastrophe_ ["unrecognised tactic "; f])
@@ -917,13 +940,13 @@ module
         TacParseError_ ss ->
           raise
             (ParseError_
-               (["Bad tactic: ("; termstring tacterm; ") -- "] @ ss))
+               (["_Bad tactic: ("; termstring tacterm; ") -- "] @ ss))
       | ParseError_ ss -> raise (ParseError_ ss)
       | Catastrophe_ ss -> raise (Catastrophe_ ss)
       | exn ->
           raise
             (ParseError_
-               ["Unexpected exception in transTactic: "; System.exn_name exn])
+               ["Unexpected exception in transTactic: "; Printexc.to_string exn])
     and transLayout con fmt bopt ts =
       let rec fmterr t =
         ["format string expected in LAYOUT; found "; termstring t]
@@ -938,7 +961,7 @@ module
           Some (Id (_, "ALL", _)) -> None
         | r -> r
       in
-      LayoutTac (SEQTAC ts, con (fmt, bopt))
+      LayoutTac (_SEQTAC ts, con (fmt, bopt))
     let tacname t =
       try tacname t with
         TacParseError_ _ ->
