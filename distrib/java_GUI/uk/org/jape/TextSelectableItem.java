@@ -73,22 +73,33 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	public final int start, end; // printtext indices; start<=i<end -> i is in this subformula
 	public final int pxstart, pxend;
 	public FormulaTree parent;
-	public final FormulaTree[] children;
+	public final FormulaTree[] children, tokens;
 
-	public FormulaTree(int start, int end, FormulaTree[] children) {
+	public FormulaTree(int start, int end) {
+	    this(start, end, new FormulaTree[0], new FormulaTree[0]);
+	}
+	public FormulaTree(int start, int end, FormulaTree[] children, FormulaTree[] tokens) {
 	    this.start = start; this.end = end;
 	    this.pxstart = pxval(start);
 	    this.pxend = pxval(end);
+	    int i;
 	    this.children = children;
-	    for (int i=0; i<children.length; i++)
+	    for (i=0; i<children.length; i++)
 		children[i].parent = this;
+	    this.tokens = tokens;
+	    for (i=0; i<tokens.length; i++)
+		tokens[i].parent = null;
 	}
 	
 	public String toString() {
-	    String s = "FT["+start+","+end+" "+pxstart+","+pxend+" [";
-	    for (int i=0; i<children.length; i++)
+	    int i;
+	    String s = "FT["+start+","+end+" "+pxstart+","+pxend+" {";
+	    for (i=0; i<children.length; i++)
 		s = s+children[i]+(i==children.length-1 ? "" : ",");
-	    return s+"]]";
+	    s= s+"}{";
+	    for (i=0; i<tokens.length; i++)
+		s = s+tokens[i]+(i==tokens.length-1 ? "" : ",");
+	    return s+"}]";
 	}
     }
 
@@ -108,17 +119,23 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
     
     // annoti, printi, annotlen are variables in TextItem
     protected FormulaTree computeFormulaTree(String annottext, char expectedket, int printlen) {
-	int i0 = printi;
-	Vector cs = new Vector();
+	int i0 = printi, i1=printi;
+	Vector cs = new Vector(), ts = new Vector();
 	char c;
 	while (annoti<annotlen) {
 	    c = annottext.charAt(annoti++);
-	    if (AnnotatedTextComponent.invisbra(c))
+	    if (AnnotatedTextComponent.invisbra(c)) {
+		if (i1!=printi)
+		    ts.add(computeFormulaTreeResult(i1, null, null));
 		cs.add(computeFormulaTree(annottext, AnnotatedTextComponent.bra2ket(c), printlen));
+		i1=printi;
+	    }
 	    else
 	    if (AnnotatedTextComponent.invisket(c)) {
+		if (i1!=printi)
+		    ts.add(computeFormulaTreeResult(i1, null, null));
 		if (c==expectedket)
-		    return computeFormulaTreeResult(i0, cs);
+		    return computeFormulaTreeResult(i0, cs, ts);
 		else
 		    Alert.abort("computeFormulaTree saw "+(int)c+", expected "+(int)expectedket);
 	    }
@@ -134,28 +151,55 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	    Alert.abort(this+": text is "+printlen+
 			" chars, but computeFormulaTree thinks it's "+printi);
 
-	return computeFormulaTreeResult(i0, cs);
+	if (i1!=printi && cs.size()!=0)
+	    ts.add(computeFormulaTreeResult(i1, null, null));
+	return computeFormulaTreeResult(i0, cs, ts);
     }
 
-    protected FormulaTree computeFormulaTreeResult(int i0, Vector cs) {
-	if (cs.size()==1) {
+    protected FormulaTree computeFormulaTreeResult(int i0, Vector cs, Vector ts) {
+	if (cs!=null && cs.size()==1 && (ts==null || ts.size()==0)) {
 	    FormulaTree child = (FormulaTree)cs.get(0);
 	    if (child.start==i0 && child.end==printi)
 		return child;
 	}
 
-	return new FormulaTree(i0, printi, (FormulaTree[])cs.toArray(new FormulaTree[cs.size()]));
+	return new FormulaTree(i0, printi, 
+			       cs==null ? new FormulaTree[0] : 
+			                  (FormulaTree[])cs.toArray(new FormulaTree[cs.size()]),
+			       ts==null ? new FormulaTree[0] :
+			                  (FormulaTree[])ts.toArray(new FormulaTree[ts.size()]));
+    }
+    
+    protected boolean tokenSelection() {
+	return ProofWindow.textselectionmode==ProtocolConstants.TokenSelectionMode;
     }
 
     protected FormulaTree pixel2Subformula(FormulaTree f, int px) {
-	if (px<f.pxstart || px>f.pxend)
+	if (px<f.pxstart || px>=f.pxend)
 	    return null;
 	else {
-	    FormulaTree f1;
-	    for (int i=0; i<f.children.length; i++)
-		if ((f1 = pixel2Subformula(f.children[i],px))!=null)
+	    int i;
+	    for (i=0; i<f.children.length; i++) {
+		FormulaTree f1 = pixel2Subformula(f.children[i],px);
+		if (f1!=null)
 		    return f1;
-	    return f;
+	    }
+	    /* we have a hit, but in token selection mode we have to go further */
+	    if (tokenSelection() && f.tokens.length!=0) {
+		Logger.log.println("in pixel2subformula TokenSelectionMode "+px+" "+f);
+		/* we're looking for the best token at this level .. */
+		for (i=0; i<f.tokens.length; i++)
+		    if (f.tokens[i].pxstart<=px && px<f.tokens[i].pxend)
+			return f.tokens[i];
+		Alert.abort("TextSelectableItem.pixel2Subformula("+px+
+			    ") lost in "+f);
+		return null; // shut up compiler
+	    }
+	    else {
+		if (tokenSelection() && f.children.length!=0)
+		    Logger.log.println("??missed in pixel2subformula TokenSelectionMode "+px+" "+f);
+		return f;
+	    }
 	}
     }
 
@@ -166,6 +210,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	return a;
     }
 
+    
     protected FormulaTree findSubformula(FormulaTree f, int start, int end) {
 	if (f==null || f.start==start && f.end==end)
 	    return f;
@@ -177,32 +222,41 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	return null;
     }
 
+    /*
     protected FormulaTree findSubformula(FormulaTree f, TextSel t) {
 	return t==null ? null : findSubformula(f, t.start, t.end);
     }
-
+    */
+    
+    /* a TextSel can now connect two tokens */
     public class TextSel {
-	public int start, end, pxstart, pxend;
+	private final FormulaTree anchor;
+	private FormulaTree f, other;
 	private int startgap = 0, endgap = 0;
 	
-	public TextSel(FormulaTree f) { init(f); }
+	public TextSel(FormulaTree f) { this.anchor=this.f=f; this.other=null; repaint(); }
 	
-	public void reset(FormulaTree f) { repaint(); init(f); }
+	public void reset(FormulaTree f) { repaint(); this.f=f; this.other=null; repaint(); }
 	
-	private void init(FormulaTree f) {
-	    start=f.start; end=f.end; pxstart=f.pxstart; pxend=f.pxend;
-	    repaint();
+	private void reset(FormulaTree f, FormulaTree other) {
+	    repaint(); this.f=f; this.other=other; repaint();
+	}
+		
+	public FormulaTree anchor() {
+	    return anchor;
 	}
 	
-	public TextSel(int start, int end) { init(start, end); }
-	
-	public void reset(int start, int end) { repaint(); init(start, end); }
-	
-	private void init(int start, int end) {
-	    this.start = start; this.end = end;
-	    pxstart = pxval(start);
-	    pxend = pxval(end);
-	    repaint();
+	public int start() {
+	    return other==null ? f.start : Math.min(f.start,other.start);
+	}
+	public int end() {
+	    return other==null ? f.end : Math.max(f.end,other.end);
+	}
+	public int pxstart() {
+	    return other==null ? f.pxstart : Math.min(f.pxstart,other.pxstart);
+	}
+	public int pxend() {
+	    return other==null ? f.pxend : Math.max(f.pxend,other.pxend);
 	}
 	
 	/*  repaint, paint must scan across an array of components. What an obvious
@@ -220,7 +274,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	public void paint(Graphics g) {
 	    if (isEnabled()) {
 		if (DebugVars.paint_tracing)
-		    Logger.log.println("painting text selection "+start+","+end);
+		    Logger.log.println("painting text selection "+start()+","+end());
 		g.setColor(Preferences.TextSelectionColour);
 		initRects();
 		while (hasRect()) {
@@ -233,7 +287,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	private int rX, rY, rW, rH, rStart, rEnd, rI;
 	
 	private void initRects() {
-	    rStart = pxstart; rEnd = pxend; rI=0;
+	    rStart = pxstart(); rEnd = pxend(); rI=0;
 	    while (rStart>=components[rI].dimension.width) {
 		rStart -= components[rI].dimension.width; 
 		rEnd -= components[rI].dimension.width;
@@ -270,11 +324,12 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	
 	/* Overlap doesn't include touching */
 	public boolean overlaps(TextSel t) {
-	    return t!=null && t!=this && t.end>this.start && this.end>t.start;
+	    return t!=null && t!=this && t.end()>start() && this.end()>t.start();
 	}
 
 	public String toString() {
-	    return "TextSel[start="+start+"; end="+end+"; pxstart="+pxstart+"; pxend="+pxend+"]";
+	    return "TextSel[start="+start()+"; end="+end()+
+	                 "; pxstart="+pxstart()+"; pxend="+pxend()+"]";
 	}
     }
 
@@ -311,11 +366,11 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	    for (int j=0; j<textsels.size(); j++) {
 		TextSel t = getTextSel(j);
 		try {
-		    b.append(printchars, i, t.start-i);
+		    b.append(printchars, i, t.start()-i);
 		    b.append(Reply.stringSep);
-		    b.append(printchars, t.start, t.end-t.start);
+		    b.append(printchars, t.start(), t.end()-t.start());
 		    b.append(Reply.stringSep);
-		    i = t.end;
+		    i = t.end();
 		} catch (Exception e) {
 		    Logger.log.println("exception "+e+" in getContextualisedTextSelections\n"+this);
 		}
@@ -335,7 +390,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		TextSel t = getTextSel(j);
 		if (j!=0)
 		    b.append(Reply.stringSep);
-		b.append(printchars, t.start, t.end-t.start);
+		b.append(printchars, t.start(), t.end()-t.start());
 	    }
 	    return b.toString();
 	}
@@ -401,7 +456,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	anchor = current = pixel2Subformula(formulae, getTextPoint(e));
 	int i;
 	for (i=0; i<textsels.size(); i++)
-	    if (anchor.start<=getTextSel(i).start)
+	    if (anchor.start<=getTextSel(i).start())
 		break;
 	textsels.add(i, new TextSel(anchor));
 	currenttextselindex = i;
@@ -413,7 +468,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	for (int i=0; i<textsels.size(); i++) {
 	    TextSel t = getTextSel(i);
 	    // Logger.log.println("enclosingTextSelIndex("+x+") looking at "+t);
-	    if (t.pxstart<=x && x<t.pxend)
+	    if (t.pxstart()<=x && x<t.pxend())
 		return i;
 	}
 	return -1;
@@ -427,7 +482,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		throw (new ProtocolError("must be 3, 5, 7, ... number of strings"));
 	    start += sels[i].length();
 	    end = start+sels[i+1].length();
-	    FormulaTree f = findSubformula(formulae, start, end);
+	    FormulaTree f = tokenSelection() ? new FormulaTree(start, end) : findSubformula(formulae, start, end);
 	    if (f==null)
 		throw (new ProtocolError("can't find selection "+((i+1)/2)));
 	    textsels.add(new TextSel(f));
@@ -459,9 +514,14 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		    }
 		    else {
 			TextSel t = getTextSel(currenttextselindex);
-			anchor = findSubformula(formulae, t);
-			current = enclosingSubformula(anchor, pixel2Subformula(formulae, x));
-			t.reset(current);
+			current = pixel2Subformula(formulae, x);
+			if (tokenSelection()) {
+			    t.reset(anchor,current); 
+			}
+			else {
+			    current = enclosingSubformula(anchor, current);
+			    t.reset(current);
+			}
 			oldsel = true;
 		    }
 		}
@@ -476,18 +536,24 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		else {
 		    int i, px=getTextPoint(e);
 		    for (i=0; i<textsels.size(); i++) {
-			if (px<getTextSel(i).pxend) {
+			if (px<getTextSel(i).pxend()) {
 			    // are we nearer to this one or the one before?
-			    if (i!=0 && getTextSel(i).pxstart-px>px-getTextSel(i-1).pxend)
+			    if (i!=0 && getTextSel(i).pxstart()-px>px-getTextSel(i-1).pxend())
 				i--;
 			    break;
 			}
 		    }
 		    // we are nearest to textsel[i], if there is one
 		    currenttextselindex = Math.min(i, textsels.size()-1);
-		    anchor = findSubformula(formulae, getTextSel(currenttextselindex));
-		    current = enclosingSubformula(anchor, pixel2Subformula(formulae, internalX(px)));
-		    getTextSel(currenttextselindex).reset(current);
+		    TextSel t = getTextSel(currenttextselindex);
+		    anchor = t.anchor();
+		    current = pixel2Subformula(formulae, internalX(px));
+		    if (tokenSelection())
+			t.reset(anchor,current);
+		    else {
+			current = enclosingSubformula(anchor, current);
+			t.reset(current);
+		    }
 		}
 		break;
 
@@ -497,10 +563,20 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
     }
 
     protected void textdragged(byte eventKind, MouseEvent e) {
-	FormulaTree sel = enclosingSubformula(anchor, pixel2Subformula(formulae,getTextPoint(e)));
-	if (sel!=current) {
-	    getTextSel(currenttextselindex).reset(sel);
-	    current = sel;
+	FormulaTree sel = pixel2Subformula(formulae,getTextPoint(e));
+	TextSel t = getTextSel(currenttextselindex);
+	if (tokenSelection()) {
+	    //if (sel!=t.other) {
+		t.reset(anchor, sel);
+		current = sel;
+	    //}
+	} 
+	else {
+	    sel = enclosingSubformula(anchor, sel);
+	    //if (sel!=current) {
+		t.reset(sel);
+		current = sel;
+	   // }
 	}
     }
     
@@ -520,7 +596,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	}
 	for (int i=0; i<textsels.size()-1; i++) {
 	    TextSel t1 = getTextSel(i), t2 = getTextSel(i+1);
-	    t1.endgap = t2.startgap = (t1.end==t2.start ? 1 : 0);
+	    t1.endgap = t2.startgap = (t1.end()==t2.start() ? 1 : 0);
 	}
 	if (textsels.size()!=0)
 	    getTextSel(0).startgap = getTextSel(textsels.size()-1).endgap = 0;
