@@ -48,7 +48,7 @@ import javax.swing.SwingUtilities;
 
 public class WorldItem extends DisplayItem implements DebugConstants, MiscellaneousConstants,
                                                       SelectionConstants,
-                                                      TileTarget, WorldTarget {
+                                                      LabelTarget, WorldTarget, TileTarget {
 
     protected WorldCanvas canvas;
     protected JFrame window;
@@ -197,17 +197,22 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     /* ****************************** world as drag target ****************************** */
 
+    private boolean novelLabel(String label) { // only have the label once, thankyou
+        for (int i=0; i<labelv.size(); i++)
+            if (label.equals(((WorldLabel)labelv.get(i)).text))
+                return false;
+        return true;
+    }
+
     private boolean acceptDrag(Object o) {
-        if (o instanceof Tile) { // only have the label once, thankyou
-            String text = ((Tile)o).text;
-            for (int i=0; i<labelv.size(); i++)
-                if (text.equals(((WorldLabel)labelv.get(i)).text))
-                    return false;
-            return true;
-        }
+        if (o instanceof Tile)
+            return novelLabel((String)((Tile)o).text);
         else
         if (o instanceof WorldItem)
             return o!=this;
+        else
+        if (o instanceof WorldLabel)
+            return novelLabel((String)((WorldLabel)o).text);
         else
             return false;
     }
@@ -226,13 +231,13 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     /* ****************************** world as drop target ****************************** */
 
-    public void drop(Tile t) {
+    public void drop(WorldItem w, String label) {
         if (draghighlight) {
-            Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+t.text+"\"");
+            Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+label+"\"");
             setDragHighlight(false);
         }
         else
-            Alert.abort("tile drop on non-accepting world");
+            Alert.abort("label drop on non-accepting world");
     }
 
     public void drop(byte dragKind, WorldItem w, int x, int y) {
@@ -241,6 +246,15 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                             " "+w.idX+" "+w.idY+" "+idX+" "+idY);
         else
             Alert.abort("world drop on non-accepting world");
+    }
+
+    public void drop(Tile t) {
+        if (draghighlight) {
+            Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+t.text+"\"");
+            setDragHighlight(false);
+        }
+        else
+            Alert.abort("tile drop on non-accepting world");
     }
 
     /* ****************************** world as drag source ****************************** */
