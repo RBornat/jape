@@ -109,8 +109,8 @@ AND	C Ê (-)€#numÁnumÁnum
 AND C Ê (==)€Ëtt.ttÁttÁbool
 END
 
-RULE "C Ê x€S" WHERE x NOTIN C' IS INFER C,x€S,C' Ê x€S
-RULE "C Ê c€S" WHERE c NOTIN C' IS INFER C,c€S,C' Ê c€S
+RULE "C Ê x€S" WHERE x IN x€S' NOTONEOF C' IS INFER C,x€S,C' Ê x€S
+RULE "C Ê c€S" WHERE c IN c€S' NOTONEOF C' IS INFER C,c€S,C' Ê c€S
 
 IDENTITY "C Ê x€S"
 IDENTITY "C Ê c€S"
@@ -251,4 +251,4 @@ TACTIC AutoStep IS
 			(LETGOAL (_E:_T) (JAPE (fail (_E is not a recognisable program formula (AutoStep)))))
 			(LETGOAL _E (JAPE (fail (_E is not a recognisable judgement (AutoStep)))))
 			
-AUTOUNIFY "n:num" "s:string" "true:bool" "false:bool"
+AUTOUNIFY "n:num", "s:string", "true:bool", "false:bool"
