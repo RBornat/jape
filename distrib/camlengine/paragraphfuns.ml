@@ -292,13 +292,13 @@ let rec interpret
 			  Pcheckbox (var, label, _, _ as stuff) ->
 				let (env, basefn) = processCheckBox env stuff in
 				let rec tickfn tf =
-				  setpanelbutton (namestring plabel, namestring label, tf)
+				  setpanelbutton (namestring plabel) (namestring label) tf
 				in
 				env, (var, basefn tickfn) :: buttonfns, e :: pes, pps
 			| Pradiobutton (var, _, _ as stuff) ->
 				let (env, basefn) = processRadioButton env stuff in
 				let rec tickfn (label, tf) =
-				  setpanelbutton (namestring plabel, namestring label, tf)
+				  setpanelbutton (namestring plabel) (namestring label) tf
 				in
 				env, (var, basefn tickfn) :: buttonfns, e :: pes, pps
 			| _ -> env, buttonfns, e :: pes, pps
