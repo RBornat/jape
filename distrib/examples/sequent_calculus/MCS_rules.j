@@ -4,8 +4,8 @@
 	The multi-conclusion sequent calculus
 */
 
-FONTS "Konstanz 12 9 Detroit"
-DISPLAY TREE
+FONTS "Konstanz"
+INITIALISE displaystyle tree
 
 INFIX   1000    1000    é
 INFIX   1100    1100    ç
@@ -48,10 +48,6 @@ RULE	rightweaken(A)	FROM æ INFER æ A
 RULE	leftcontract(A)	FROM A, A æ INFER A æ 
 RULE	rightcontract(A)	FROM æ A, A INFER æ A 
                                 
- 
-THEOREM	modusponens	IS A, AçB æ B
-THEOREM contradiction	IS A, ÂA æ
-
 MENU Rules IS
 	ENTRY axiom	IS  axiom
 	SEPARATOR
