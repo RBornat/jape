@@ -68,7 +68,7 @@ exception None_ = Optionfuns.None_
 exception Use_ = Paragraph.Use_
 exception Verifyproviso_ = Provisofuns.Verifyproviso_
        
-let rec resetallcachesandvariables () =
+let (*rec*) resetallcachesandvariables () =
   Alert.resetalertpatches ();
   Binding.clearbindingdirectives ();
   Button.initButtons ();
@@ -110,7 +110,7 @@ let get_oplist = Symbol.get_oplist
 let findfirst = Optionfuns.findfirst
 let givenMenuTactic = Miscellaneous.givenMenuTactic
        
-let rec initGUI () =
+let (*rec*) initGUI () =
   (Japeserver.setinvischars 
      (onbra_as_string, onket_as_string)
      (offbra_as_string, offket_as_string)
@@ -154,9 +154,9 @@ let _Version = Version._Version
 let verifyprovisos = Provisofuns.verifyprovisos
 
 let profiling = ref false (* see below *)
-let rec profileswitcher b =
+let (*rec*) profileswitcher b =
   profiling := b (* ; if b then Profile.profileOn () else Profile.profileOff () *)
-let rec profilereader () = !profiling
+let (*rec*) profilereader () = !profiling
        
 let thingguard = not <.> thingstodo
 let tparam = Japeenv.guardedjapevar thingguard
@@ -166,98 +166,98 @@ let defaultenv =
   and ij = Japeenv.intjaperefvar
   and sj = Japeenv.japerefvar
   and jv = Japeenv.japevar in
+  
   let rec aj default r =
     Japeenv.unboundedjapevar default
       ((fun v -> r := Name.string_of_name (Name.name_of_string v)),
        (* is this too much work to avoid a few quotes? *)
        (fun () -> Name.string_of_name (Name.name_of_string !r)))
 
-and ajd r = aj !r r in
-(* default settings for all variables accessible via Japeish *)
-let pairs =
-  ["alwaysshowturnstile"  , bj                         false        Sequent.alwaysshowturnstile;
-   "applyconjectures"     , bj                         true         Miscellaneous.applyconjectures;
-   "applydebug"           , ij                         0            Applyrule.applydebug;
-   "applyderivedrules"    , bj                         true         Miscellaneous.applyderivedrules;
-   "autoAdditiveLeft"     , tparam (bj                 false        Miscellaneous.autoAdditiveLeft);
-   "autoAdditiveRight"    , tparam (bj                 false        Miscellaneous.autoAdditiveRight);
-   "autoselect"           , bj                         false        Miscellaneous.autoselect;
-   "bindingdebug"         , bj                         false        Binding.bindingdebug;
-   "boxfolddebug"         , bj                         false        Boxdraw.boxfolddebug;
-   "boxlinedisplay"       , sj ["left"; "right"]       "right"      Boxdraw.boxlinedisplay;
-   "boxseldebug"          , bj                         false        Boxdraw.boxseldebug;
-   "cuthidingdebug"       , bj                         false        Prooftree.Tree.cuthidingdebug;
-   "debracketapplications", bj                         false        Termstring.debracketapplications;
-   "displaystyle"         , jv ["box"; "tree"]         "tree"       (Interaction.setdisplaystyle, Interaction.getdisplaystyle);
-   "disproofdebug"        , bj                         false        Disproof.disproofdebug;
-   "eqalphadebug"         , bj                         false        Termfuns.eqalphadebug;
-   "factsdebug"           , bj                         false        Facts.factsdebug;
-   "filteredfmt"          , ajd                                     Prooftree.Tree.filteredfmt;
-   "FINDdebug"            , bj                         false        Tacticfuns._FINDdebug;
-   "FOLDdebug"            , bj                         false        Tacticfuns._FOLDdebug;
-   "foldedfmt"            , ajd                                     Prooftree.Tree.foldedfmt;
-   "foldformulae"         , bj                         false        Miscellaneous.foldformulae; (* default false, till non-Mac GUIs catch up *)
-   "givenMenuTactic"      , aj                         "GIVEN"      Miscellaneous.givenMenuTactic;
-   "hidecut"              , bj                         true         Boxdraw.hidecut;
-   "hidehyp"              , bj                         true         Boxdraw.hidehyp;
-   "hidereflexivity"      , bj                         true         Boxdraw.hidereflexivity;
-   "hidetransitivity"     , bj                         false        Boxdraw.hidetransitivity;
-   "hideuselesscuts"      , bj                         false        Prooftree.Tree.hideuselesscuts;
-   "innerassumptionplural", ajd                                     Boxdraw.innerassumptionplural;
-   "innerassumptionword"  , ajd                                     Boxdraw.innerassumptionword;
-   "interpretpredicates"  , tparam (bj                 false        Predicate.interpretpredicates);
-   "matchdebug"           , bj                         false        Match.matchdebug;
-   "menudebug"            , bj                         false        Menu.menudebug;
-   "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
-   "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
-   "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
-   "outermostbox"         , bj                         true         Boxdraw.outermostbox;
-   "predicatedebug"       , bj                         false        Predicate.predicatedebug;
-   "profiling"            , Japeenv.booljapevar        false        (profileswitcher, profilereader);
-   "prooftreedebug"       , bj                         false        Prooftree.Tree.prooftreedebug;
-   "prooftreedebugheavy"  , bj                         false        Prooftree.Tree.prooftreedebugheavy;
-   "prooftreerewinfdebug" , bj                         false        Prooftree.Tree.prooftreerewinfdebug;
-   "provisodebug"         , bj                         false        Proviso.provisodebug;
-   "rawfmt"               , ajd                                     Prooftree.Tree.rawfmt;
-   "reasonstyle"          , sj ["short"; "long"]       "long"       Prooftree.Tree.reasonstyle;
-   "rewritedebug"         , bj                         false        Rewrite.rewritedebug;
-   "screenpositiondebug"  , bj                         false        Miscellaneous.screenpositiondebug;
-   "seektipselection"     , bj                         true         Miscellaneous.seektipselection;
-   "showallproofsteps"    , bj                         false        Prooftree.Tree.showallproofsteps;
-   "showallprovisos"      , bj                         false        Interaction.showallprovisos;
-   "substdebug"           , bj                         false        Substmapfuns.substdebug;
-   "symboldebug"          , bj                         false         Symbol.symboldebug;
-   "tactictracing"        , bj                         false        Tacticfuns.tactictracing;
-   "termparsedebug"       , bj                         false         Termparse.termparsedebug;
-   "textselectionmode"    , sj ["subformula"; "token"] "subformula" Miscellaneous.textselectionmode;
-   "thingdebug"           , bj                         false        Thing.thingdebug;
-   "thingdebugheavy"      , bj                         false        Thing.thingdebugheavy;
-   "truncatereasons"      , bj                         false        Miscellaneous.truncatereasons;
-   "tryresolution"        , bj                         true         Tacticfuns.tryresolution;
-   "unfilteredfmt"        , ajd                                     Prooftree.Tree.unfilteredfmt;
-   "unifydebug"           , bj                         false        Unify.unifydebug;
-   "varbindingsdebug"     , bj                         false        Termfuns.varbindingsdebug]
-in
-let rec bjnr r () = bj !r r
-
-and ujnr r () = Japeenv.unboundedjaperefvar !r r in
-let nonresetpairs =
-  ["termhashing", bjnr Termstore.termhashing;
-   "tacticresult", ujnr Tacticfuns.tacticresult]
-in
-(* make sure we don't re-evaluate pairs every time, because of 
- * the ajd function, which takes the current value of a variable 
- * as the default ...
- *)
-let rec defaultenv () =
-  List.iter Japeenv.resetvar (List.map snd pairs);
-  nj_revfold (uncurry2 Japeenv.(++))
-    (List.map
-       (uncurry2 Japeenv.( ||-> ) <.> (fun (s, v) -> Name.name_of_string s, v))
-       (nj_fold (fun ((s, f), ps) -> (s, f ()) :: ps) nonresetpairs pairs))
-    Japeenv.empty
-in
-defaultenv
+  and ajd r = aj !r r in
+  (* default settings for all variables accessible via Japeish *)
+  let pairs =
+    ["alwaysshowturnstile"  , bj                         false        Sequent.alwaysshowturnstile;
+     "applyconjectures"     , bj                         true         Miscellaneous.applyconjectures;
+     "applydebug"           , ij                         0            Applyrule.applydebug;
+     "applyderivedrules"    , bj                         true         Miscellaneous.applyderivedrules;
+     "autoAdditiveLeft"     , tparam (bj                 false        Miscellaneous.autoAdditiveLeft);
+     "autoAdditiveRight"    , tparam (bj                 false        Miscellaneous.autoAdditiveRight);
+     "autoselect"           , bj                         false        Miscellaneous.autoselect;
+     "bindingdebug"         , bj                         false        Binding.bindingdebug;
+     "boxfolddebug"         , bj                         false        Boxdraw.boxfolddebug;
+     "boxlinedisplay"       , sj ["left"; "right"]       "right"      Boxdraw.boxlinedisplay;
+     "boxseldebug"          , bj                         false        Boxdraw.boxseldebug;
+     "cuthidingdebug"       , bj                         false        Prooftree.Tree.cuthidingdebug;
+     "debracketapplications", bj                         false        Termstring.debracketapplications;
+     "displaystyle"         , jv ["box"; "tree"]         "tree"       (Interaction.setdisplaystyle, Interaction.getdisplaystyle);
+     "disproofdebug"        , bj                         false        Disproof.disproofdebug;
+     "eqalphadebug"         , bj                         false        Termfuns.eqalphadebug;
+     "factsdebug"           , bj                         false        Facts.factsdebug;
+     "filteredfmt"          , ajd                                     Prooftree.Tree.filteredfmt;
+     "FINDdebug"            , bj                         false        Tacticfuns._FINDdebug;
+     "FOLDdebug"            , bj                         false        Tacticfuns._FOLDdebug;
+     "foldedfmt"            , ajd                                     Prooftree.Tree.foldedfmt;
+     "foldformulae"         , bj                         false        Miscellaneous.foldformulae; (* default false, till non-Mac GUIs catch up *)
+     "givenMenuTactic"      , aj                         "GIVEN"      Miscellaneous.givenMenuTactic;
+     "hidecut"              , bj                         true         Boxdraw.hidecut;
+     "hidehyp"              , bj                         true         Boxdraw.hidehyp;
+     "hidereflexivity"      , bj                         true         Boxdraw.hidereflexivity;
+     "hidetransitivity"     , bj                         false        Boxdraw.hidetransitivity;
+     "hideuselesscuts"      , bj                         false        Prooftree.Tree.hideuselesscuts;
+     "innerassumptionplural", ajd                                     Boxdraw.innerassumptionplural;
+     "innerassumptionword"  , ajd                                     Boxdraw.innerassumptionword;
+     "interpretpredicates"  , tparam (bj                 false        Predicate.interpretpredicates);
+     "matchdebug"           , bj                         false        Match.matchdebug;
+     "menudebug"            , bj                         false        Menu.menudebug;
+     "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
+     "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
+     "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
+     "outermostbox"         , bj                         true         Boxdraw.outermostbox;
+     "predicatedebug"       , bj                         false        Predicate.predicatedebug;
+     "profiling"            , Japeenv.booljapevar        false        (profileswitcher, profilereader);
+     "prooftreedebug"       , bj                         false        Prooftree.Tree.prooftreedebug;
+     "prooftreedebugheavy"  , bj                         false        Prooftree.Tree.prooftreedebugheavy;
+     "prooftreerewinfdebug" , bj                         false        Prooftree.Tree.prooftreerewinfdebug;
+     "provisodebug"         , bj                         false        Proviso.provisodebug;
+     "rawfmt"               , ajd                                     Prooftree.Tree.rawfmt;
+     "reasonstyle"          , sj ["short"; "long"]       "long"       Prooftree.Tree.reasonstyle;
+     "rewritedebug"         , bj                         false        Rewrite.rewritedebug;
+     "screenpositiondebug"  , bj                         false        Miscellaneous.screenpositiondebug;
+     "seektipselection"     , bj                         true         Miscellaneous.seektipselection;
+     "showallproofsteps"    , bj                         false        Prooftree.Tree.showallproofsteps;
+     "showallprovisos"      , bj                         false        Interaction.showallprovisos;
+     "substdebug"           , bj                         false        Substmapfuns.substdebug;
+     "symboldebug"          , bj                         false         Symbol.symboldebug;
+     "tactictracing"        , bj                         false        Tacticfuns.tactictracing;
+     "termparsedebug"       , bj                         false         Termparse.termparsedebug;
+     "textselectionmode"    , sj ["subformula"; "token"] "subformula" Miscellaneous.textselectionmode;
+     "thingdebug"           , bj                         false        Thing.thingdebug;
+     "thingdebugheavy"      , bj                         false        Thing.thingdebugheavy;
+     "truncatereasons"      , bj                         false        Miscellaneous.truncatereasons;
+     "tryresolution"        , bj                         true         Tacticfuns.tryresolution;
+     "unfilteredfmt"        , ajd                                     Prooftree.Tree.unfilteredfmt;
+     "unifydebug"           , bj                         false        Unify.unifydebug;
+     "varbindingsdebug"     , bj                         false        Termfuns.varbindingsdebug]
+  in
+  let rec bjnr r () = bj !r r
+  and ujnr r () = Japeenv.unboundedjaperefvar !r r in
+  let nonresetpairs =
+    ["termhashing", bjnr Termstore.termhashing;
+     "tacticresult", ujnr Tacticfuns.tacticresult]
+  in
+  (* make sure we don't re-evaluate pairs every time, because of 
+   * the ajd function, which takes the current value of a variable 
+   * as the default ...
+   *)
+  let (*rec*) defaultenv () =
+    List.iter Japeenv.resetvar (List.map snd pairs);
+    nj_revfold (uncurry2 Japeenv.(++))
+      (List.map
+         (uncurry2 Japeenv.( ||-> ) <.> (fun (s, v) -> Name.name_of_string s, v))
+         (nj_fold (fun ((s, f), ps) -> (s, f ()) :: ps) nonresetpairs pairs))
+      Japeenv.empty
+  in
+  defaultenv
 
 let displaynames =
   ["displaystyle"; "showallprovisos"; "showallproofsteps"; "reasonstyle";
@@ -269,21 +269,21 @@ let boxdisplaynames =
        
 let displayvars = List.map Name.name_of_string (displaynames @ boxdisplaynames)
 
-let rec mustredisplay env vals =
+let (*rec*) mustredisplay env vals =
   let dispenv =
     mkmap (displayvars ||| vals)
   in
   let nenv =
     mkmap (List.map (fun n -> Name.string_of_name n, n) displayvars)
   in
-  let rec lookup s =
+  let (*rec*) lookup s =
     match
 	((nenv <@> s) &~~ (fun n -> Japeenv.(<@>) env n))
     with
       Some t -> Some (termstring t)
     | None -> None
   in
-  let rec changed s =
+  let (*rec*) changed s =
     lookup s <> (nenv <@> s &~~ (fun n -> dispenv <@> n))
   in
   List.exists changed displaynames ||
@@ -294,7 +294,7 @@ let profileOff = (* Profile.profileOff *) (fun _ -> ())
 let profileReset = (* Profile.reset *) (fun _ -> ())
 let profileReport = (* Profile.report *) (fun _ -> ())
 
-let rec disproof_finished =
+let (*rec*) disproof_finished =
   function
     Some state ->
       let res =
@@ -318,50 +318,50 @@ type winhistrec =
         disproofhist : disproofstate hist option }
 type winhist = WinHist of winhistrec
 
-let rec winhist_changed (WinHist {changed = changed}) = changed
-let rec winhist_proofhist (WinHist {proofhist = proofhist}) = proofhist
-let rec winhist_disproofhist (WinHist {disproofhist = disproofhist}) = disproofhist
-let rec winhist_proofnow (WinHist {proofhist = Hist {now = now}}) = now
-let rec winhist_disproofnow =
+let (*rec*) winhist_changed (WinHist {changed = changed}) = changed
+let (*rec*) winhist_proofhist (WinHist {proofhist = proofhist}) = proofhist
+let (*rec*) winhist_disproofhist (WinHist {disproofhist = disproofhist}) = disproofhist
+let (*rec*) winhist_proofnow (WinHist {proofhist = Hist {now = now}}) = now
+let (*rec*) winhist_disproofnow =
   function
     WinHist {disproofhist = Some (Hist {now = now})} -> Some now
   | _ -> None
 
-let rec hist_now (Hist {now = now}) = now
-let rec hist_pasts (Hist {pasts = pasts}) = pasts
-let rec hist_futures (Hist {futures = futures}) = futures
+let (*rec*) hist_now (Hist {now = now}) = now
+let (*rec*) hist_pasts (Hist {pasts = pasts}) = pasts
+let (*rec*) hist_futures (Hist {futures = futures}) = futures
 
-let rec withchanged (WinHist wh) changed = WinHist {wh with changed = changed}
-let rec withproofhist (WinHist wh) proofhist = WinHist {wh with proofhist = proofhist}
-let rec withdisproofhist (WinHist wh) disproofhist = WinHist {wh with disproofhist = disproofhist}
+let (*rec*) withchanged (WinHist wh) changed = WinHist {wh with changed = changed}
+let (*rec*) withproofhist (WinHist wh) proofhist = WinHist {wh with proofhist = proofhist}
+let (*rec*) withdisproofhist (WinHist wh) disproofhist = WinHist {wh with disproofhist = disproofhist}
 
-let rec new_hist now = Hist {now = now; pasts = []; futures = []}
+let (*rec*) new_hist now = Hist {now = now; pasts = []; futures = []}
 
-let rec withnow (Hist h) now = Hist {h with now = now}
-let rec withpasts (Hist h) pasts = Hist {h with pasts = pasts}
-let rec withfutures (Hist h) futures = Hist {h with futures = futures}
+let (*rec*) withnow (Hist h) now = Hist {h with now = now}
+let (*rec*) withpasts (Hist h) pasts = Hist {h with pasts = pasts}
+let (*rec*) withfutures (Hist h) futures = Hist {h with futures = futures}
 (* there are several things we can do with a history *)
 
-let rec forward_step (Hist {now = now; pasts = pasts}) now' =
+let (*rec*) forward_step (Hist {now = now; pasts = pasts}) now' =
     Hist {now = now'; pasts = now :: pasts; futures = []}
-let rec insert_step (Hist {now = now; pasts = pasts; futures = futures}) now' =
+let (*rec*) insert_step (Hist {now = now; pasts = pasts; futures = futures}) now' =
     Hist {now = now'; pasts = pasts; futures = now :: futures}
-let rec append_step (Hist {now = now; pasts = pasts; futures = futures}) now' =
+let (*rec*) append_step (Hist {now = now; pasts = pasts; futures = futures}) now' =
     Hist {now = now'; pasts = now :: pasts; futures = futures}
 
-let rec redo_step =
+let (*rec*) redo_step =
   function
     Hist {now = now; pasts = pasts; futures = now' :: futures} ->
       Some (Hist {now = now'; pasts = now :: pasts; futures = futures})
   | _ -> None
 
-let rec undo_step =
+let (*rec*) undo_step =
   function
     Hist {now = now; pasts = now' :: pasts; futures = futures} ->
       Some (Hist {now = now'; pasts = pasts; futures = now :: futures})
   | _ -> None
 
-let rec reparentprovisos hist =
+let (*rec*) reparentprovisos hist =
   let phist = winhist_proofhist hist in
   let proof = hist_now phist in
   let cxt = selfparentprovisos (proofstate_cxt proof) in
@@ -373,41 +373,41 @@ type proofinforec =
         fromstore : bool }
 type proofinfo = Pinf of proofinforec
 
-let rec proofinfo_title (Pinf {title = title}) = title
-let rec proofinfo_proofnum (Pinf {proofnum = proofnum}) = proofnum
-let rec proofinfo_displayvarsvals (Pinf {displayvarsvals = displayvarsvals}) = displayvarsvals
-let rec proofinfo_needsrefresh (Pinf {needsrefresh = needsrefresh}) = needsrefresh
-let rec proofinfo_displaystate (Pinf {displaystate = displaystate}) = displaystate
-let rec proofinfo_hist (Pinf {hist = hist}) = hist
-let rec proofinfo_fromstore (Pinf {fromstore = fromstore}) = fromstore
+let (*rec*) proofinfo_title (Pinf {title = title}) = title
+let (*rec*) proofinfo_proofnum (Pinf {proofnum = proofnum}) = proofnum
+let (*rec*) proofinfo_displayvarsvals (Pinf {displayvarsvals = displayvarsvals}) = displayvarsvals
+let (*rec*) proofinfo_needsrefresh (Pinf {needsrefresh = needsrefresh}) = needsrefresh
+let (*rec*) proofinfo_displaystate (Pinf {displaystate = displaystate}) = displaystate
+let (*rec*) proofinfo_hist (Pinf {hist = hist}) = hist
+let (*rec*) proofinfo_fromstore (Pinf {fromstore = fromstore}) = fromstore
 
-let rec withtitle (Pinf pi) title = Pinf {pi with title = title}
-let rec withproofnum (Pinf pi) proofnum = Pinf {pi with proofnum = proofnum}
-let rec withdisplayvarsvals (Pinf pi) displayvarsvals = 
+let (*rec*) withtitle (Pinf pi) title = Pinf {pi with title = title}
+let (*rec*) withproofnum (Pinf pi) proofnum = Pinf {pi with proofnum = proofnum}
+let (*rec*) withdisplayvarsvals (Pinf pi) displayvarsvals = 
   Pinf {pi with displayvarsvals = displayvarsvals}
-let rec withneedsrefresh (Pinf pi) needsrefresh = Pinf {pi with needsrefresh = needsrefresh}
-let rec withdisplaystate (Pinf pi) displaystate = Pinf {pi with displaystate = displaystate}
-let rec withhist (Pinf pi) hist = Pinf {pi with hist = hist}
-let rec withfromstore (Pinf pi) fromstore = Pinf {pi with fromstore = fromstore}
+let (*rec*) withneedsrefresh (Pinf pi) needsrefresh = Pinf {pi with needsrefresh = needsrefresh}
+let (*rec*) withdisplaystate (Pinf pi) displaystate = Pinf {pi with displaystate = displaystate}
+let (*rec*) withhist (Pinf pi) hist = Pinf {pi with hist = hist}
+let (*rec*) withfromstore (Pinf pi) fromstore = Pinf {pi with fromstore = fromstore}
 
 type showstate = ShowProof | ShowDisproof | ShowBoth | DontShow
 
 let setComment = Alert.setComment <.> implode
 let showAlert = Alert.showAlert Alert.defaultseverity_alert <.> implode
 
-let rec screenquery ss y n def =
+let (*rec*) screenquery ss y n def =
   let bs = [y, true; n, false] in
   Alert.ask (Alert.defaultseverity bs) (implode ss) bs def
-let rec uncurried_screenquery (ss, y, n, def) = screenquery ss y n def
+let (*rec*) uncurried_screenquery (ss, y, n, def) = screenquery ss y n def
 
 let savefilename : string option ref = ref None
 
 let mbcache : (name, term ref) mapping ref = ref empty
 
-let rec apply_cleanup () = selections := None
+let (*rec*) apply_cleanup () = selections := None
 
 exception Applycommand_ of proofstate option
-let rec docommand displaystate env target comm =
+let (*rec*) docommand displaystate env target comm =
   fun (Proofstate {cxt = cxt; tree = tree; givens = givens} as state) ->
     let r =
       (let state =
@@ -418,7 +418,7 @@ let rec docommand displaystate env target comm =
          state)
     in apply_cleanup (); r
 
-let rec badsel ss = showAlert ss; raise (Applycommand_ None)
+let (*rec*) badsel ss = showAlert ss; raise (Applycommand_ None)
 
 (* There appear to be two reasonable behaviours, given a selection and a command.
  * 1. (the original) -- resolve the selection to a single tip, if possible, and work there.
@@ -428,12 +428,12 @@ let rec badsel ss = showAlert ss; raise (Applycommand_ None)
  * backward mode.  It means that the user (tactic programmer) must guard against things
  * like acting at a non-tip conclusion, but that's possible now.
  *)
-let rec pointToSequent
+let (*rec*) pointToSequent
   displaystate env comm
     (target, concopt, hyps, csels, hsels, givensel as fsel) =
   fun (Proofstate {tree = tree} as state) ->
     try
-      let rec doit path =
+      let (*rec*) doit path =
         selections :=
           Some (path, concopt, hyps, csels, hsels, givensel);
         docommand displaystate env path comm state
@@ -469,7 +469,7 @@ let rec pointToSequent
       Applycommand_ sopt -> apply_cleanup (); sopt
     | exn -> apply_cleanup (); raise exn
 
-let rec nohitcommand displaystate env textselopt comm done__ =
+let (*rec*) nohitcommand displaystate env textselopt comm done__ =
   fun (Proofstate {cxt = cxt; tree = tree} as state) ->
     try
       let target =
@@ -512,7 +512,7 @@ let foldstuff = false, "", Some []
 
 let defaultfolded = RotatingFormat (0, [foldstuff])
 
-let rec rotateFormat =
+let (*rec*) rotateFormat =
   function
     tfk, DefaultFormat -> Some (tfk, defaultfolded)
   | tfk, RotatingFormat (i, nfs) ->
@@ -520,7 +520,7 @@ let rec rotateFormat =
         (tfk,
          RotatingFormat ((if i >= List.length nfs then 0 else i + 1), nfs))
 
-let rec getfmt mess tree path =
+let (*rec*) getfmt mess tree path =
   try
     let subproof = followPath tree path in
     if isTip subproof then
@@ -533,11 +533,11 @@ let rec getfmt mess tree path =
   with
     FollowPath_ _ -> None
 
-let rec parent tree path =
+let (*rec*) parent tree path =
   try Some (parentPath tree path) with
     FollowPath_ _ -> None
 
-let rec leftCutParent tree path =
+let (*rec*) leftCutParent tree path =
   match parent tree path with
     Some parentpath ->
       if isCutStep tree parentpath &&
@@ -555,7 +555,7 @@ type layoutcommand = BacktrackCommand
 		   | ExposeParentCommand
 		   | HideCutCommand
 
-let rec doLayout command =
+let (*rec*) doLayout command =
   fun (Proofstate {tree = tree} as state) path ->
     match command with
       BacktrackCommand ->
@@ -592,7 +592,7 @@ let rec doLayout command =
         (fun tf ->
            Some (false, withtree state (set_prooftree_fmt tree path (TreeFormat tf))))
     | HideRootCommand ->
-        let rec hideit () =
+        let (*rec*) hideit () =
           try
             let (TreeFormat (_, tff)) = get_prooftree_fmt tree path in
             Some
@@ -650,7 +650,7 @@ let rec doLayout command =
                   (set_prooftree_fmt tree cutpath
                     (TreeFormat (HideCutFormat, tff))))
 
-let rec getLayoutPath displaystate c pathkind =
+let (*rec*) getLayoutPath displaystate c pathkind =
     (findLayoutSelection displaystate pathkind |~~
      (fun _ ->
         showAlert
@@ -665,7 +665,7 @@ let rec getLayoutPath displaystate c pathkind =
            | HideCutCommand -> "hiding cut hypothesis"];
         None))
 
-let rec tryLayout displaystate c pathkind hist =
+let (*rec*) tryLayout displaystate c pathkind hist =
     getLayoutPath displaystate c pathkind &~~
     doLayout c (winhist_proofnow hist) &~~
     (function
@@ -676,7 +676,7 @@ let rec tryLayout displaystate c pathkind hist =
          let phist = winhist_proofhist hist in
          Some (withproofhist hist (append_step phist proof')))
 
-let rec recorddisplayvars env =
+let (*rec*) recorddisplayvars env =
   try 
     (fun s -> termstring (_The (Japeenv.(<@>) env s))) <* displayvars
   with
@@ -687,7 +687,7 @@ let rec recorddisplayvars env =
             bracketedliststring string_of_name ", " displayvars;
             " isn't set!"])
 
-let rec setdisplayvars env vals =
+let (*rec*) setdisplayvars env vals =
   List.iter (fun (s, v) -> Japeenv.set (env, s, parseTactic v))
     ((displayvars ||| vals))
 
@@ -711,11 +711,11 @@ let disproofevolve a1 a2 =
 (* this function the same as evolve_proof except for non-application of AUTO tactics,
  * and the fact that it doesn't set changed.
  *)
-let rec tryForward f =
+let (*rec*) tryForward f =
   fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
     f proof &~~ (fSome <.> proofmove hist)
 
-let rec evolve_proof_explain explain displaystate env f =
+let (*rec*) evolve_proof_explain explain displaystate env f =
   fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
     match f proof with
       None -> explain (); None
@@ -730,12 +730,12 @@ let rec evolve_proof_explain explain displaystate env f =
 
 let evolve_proof = evolve_proof_explain (fun () -> ())
 
-let rec reset () =
+let (*rec*) reset () =
   resetallcachesandvariables (); savefilename := None; mbcache := empty
 
-let rec cleanup () = ()
+let (*rec*) cleanup () = ()
 
-let rec parseargs args =
+let (*rec*) parseargs args =
   try parseTermCOMMAList args with
     ParseError_ _ -> []
 exception QuitJape
@@ -833,7 +833,7 @@ and startcommands env mbs proofs =
 and addproofs
   fromstore env (proofs : (name * proofstate * (seq * model) option) list)
     (pinfs : proofinfo list) =
-  let rec f =
+  let (*rec*) f =
     fun
       ((name,
         (Proofstate {goal = goal; cxt = cxt; tree = tree; givens = givens}
@@ -900,11 +900,11 @@ and endproof num name st dis =
   end
 
 and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisstate) =
-  let rec findproof pinfs nstring =
+  let (*rec*) findproof pinfs nstring =
     let n = atoi nstring in
     extract (fun (Pinf {proofnum = proofnum}) -> n = proofnum) pinfs
   in
-  let rec newfocus (env, mbs, showit, (pinfs : proofinfo list) as state) =
+  let (*rec*) newfocus (env, mbs, showit, (pinfs : proofinfo list) as state) =
     match pinfs with
       Pinf fg :: bgs ->
         setdisplayvars env (fg.displayvarsvals);
@@ -913,7 +913,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         pinfs
     | [] -> state
   in
-  let rec addnewconjecture panel text =
+  let (*rec*) addnewconjecture panel text =
     let text = respace text in
     let getpara = string2paragraph showAlert uncurried_screenquery in
     let (text, para) =
@@ -946,7 +946,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     name
   in
   
-  let rec printproof path state =
+  let (*rec*) printproof path state =
     let st = rewriteproofstate state in
     try
       let s = try Usefile.open_output_file path with exn -> raise (Io exn) in
@@ -965,10 +965,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       Io exn -> showAlert ["Cannot write file "; filename; " ("; Printexc.to_string exn; ")"]; false
   in
   
-  let rec saveproofs newfile =
-    let rec doit sfile =
-      let rec pf ps = (provisoactual <* (provisovisible <| ps)) in
-      let rec f =
+  let (*rec*) saveproofs newfile =
+    let (*rec*) doit sfile =
+      let (*rec*) pf ps = (provisoactual <* (provisovisible <| ps)) in
+      let (*rec*) f =
         fun (Pinf {title = t, _; hist = hist}) ->
           let (Proofstate {cxt = cxt; tree = tree; givens = givens}) = winhist_proofnow hist in
           saveproof sfile t Proofstage.InProgress tree (pf (provisos cxt)) givens
@@ -984,8 +984,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           Some s -> if writetonamedfile doit s then savefilename := Some s
         | None -> ()
   in
-  let rec saveable () = not (null pinfs) || Proofstore.saveable () in
-  let rec needssaving () =
+  let (*rec*) saveable () = not (null pinfs) || Proofstore.saveable () in
+  let (*rec*) needssaving () =
     List.exists
       (function
          Pinf {hist = WinHist {changed = true}} -> true
@@ -993,19 +993,19 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       pinfs ||
     not (Proofstore.saved ())
   in
-  let rec proofundoable () =
+  let (*rec*) proofundoable () =
     match pinfs with
       Pinf {hist = WinHist {proofhist = Hist {pasts = _ :: _}}} :: _ ->
         true
     | _ -> false
   in
-  let rec proofredoable () =
+  let (*rec*) proofredoable () =
     match pinfs with
       Pinf {hist = WinHist {proofhist = Hist {futures = _ :: _}}} :: _ ->
         true
     | _ -> false
   in
-  let rec disproofundoable () =
+  let (*rec*) disproofundoable () =
     match pinfs with
       Pinf
         {hist = WinHist {disproofhist = Some (Hist {pasts = _ :: _})}} ::
@@ -1013,7 +1013,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         true
     | _ -> false
   in
-  let rec disproofredoable () =
+  let (*rec*) disproofredoable () =
     match pinfs with
       Pinf
         {hist =
@@ -1022,19 +1022,19 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         true
     | _ -> false
   in
-  let rec finished proof disproof =
+  let (*rec*) finished proof disproof =
     isproven proof || disproof_finished disproof
   in
-  let rec finishable () =
+  let (*rec*) finishable () =
     match pinfs with
       pinf :: _ ->
         let hist = proofinfo_hist pinf in
         finished (winhist_proofnow hist) (winhist_disproofnow hist)
     | [] -> false
   in
-  let rec resetable () =(* eggstolay, wormstoscratch, ... *)
+  let (*rec*) resetable () =(* eggstolay, wormstoscratch, ... *)
    thingstodo () || saveable () in
-  let rec askSave action y n cancel =
+  let (*rec*) askSave action y n cancel =
     Alert.askDangerously
       (implode ["Save your proofs before "; action; "?"])
       ("Save", (fun () -> saveproofs false; y))
@@ -1060,7 +1060,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   
   let default = env, mbs, DontShow, pinfs in
   
-  let rec inside c f =
+  let (*rec*) inside c f =
     match pinfs with
       [] -> showAlert ["There is no current proof, so you can't execute \""; respace c; "\""];
         default
@@ -1073,7 +1073,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         env, mbs, showit, withhist pinf hist :: pinfs
   in
   
-  let rec outside c f =
+  let (*rec*) outside c f =
     match pinfs with
       [] -> f ()
     | _ ->
@@ -1090,29 +1090,30 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   (* this idea, which is an attempt to kickstart undo on disproofs, is ridiculously inelegant.
      I think I need to think ...
    *)
-  let rec showproof =
+  let (*rec*) showproof =
     function
       Some hist -> Some (ShowProof, hist)
     | None      -> None
   in
-  let rec showdisproof =
+  let (*rec*) showdisproof =
     function
       Some hist -> Some (ShowDisproof, hist)
     | None      -> None
   in
-  let rec showboth =
+  let (*rec*) showboth =
     function
       Some hist -> Some (ShowBoth, hist)
     | None      -> None
   in
   
-  let rec processcommand  (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisstate) c =
+  let rec processcommand  (env, mbs, (showit : showstate), 
+                           (pinfs : proofinfo list) as thisstate) c =
     (* It is crucial that theorems are proved without application of arguments.
                   * Otherwise we can't say that we have proved the theorem as stated, 
                   * and then store a proof of it.
                   *)
-    let rec doProve name =
-      let rec doit givens seq provisos kind =
+    let (*rec*) doProve name =
+      let (*rec*) doit givens seq provisos kind =
         try
           let (Proofstate {cxt = cxt} as state) = startstate env provisos givens seq in
           (* do this first, cos the cxt needs the proofId information 
@@ -1189,7 +1190,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     in
     
     let doApply action comm =
-      let rec nosels tselopt =
+      let (*rec*) nosels tselopt =
         inside c
           (fun displaystate ->
              showproof <.> 
@@ -1421,7 +1422,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                     let proof = winhist_proofnow hist in
                     let cxt_now = proofstate_cxt proof in
                     let facts_now = facts (provisos cxt_now) cxt_now in
-                    let rec process_disproof disproof' =
+                    let (*rec*) process_disproof disproof' =
                       let doit () = Some (disproofmove hist disproof') in
                       let seq' = disproofstate_seq disproof' in
                       match winhist_disproofnow hist with
@@ -1486,7 +1487,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        showAlert ("cannot parse unify " :: respace stuff :: " -- " :: es);
                        raise Unify_
                    in
-                   let rec getit s =
+                   let (*rec*) getit s =
                      try parseTerm s with
                        ParseError_ es ->
                          showAlert ("your selection " :: s :: " didn't parse -- " :: es);
@@ -1600,13 +1601,13 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        (fun path ->
                           try
                             let there = ref here in
-                            let rec stillcomposite =
+                            let (*rec*) stillcomposite =
                               fun (WinHist {proofhist = Hist {now = Proofstate {tree = tree}}}) ->
                                 try let _ = (findTip tree path : seq) in false with
                                   FollowPath_ _ -> false
                                 | FindTip_ -> true
                             in
-                            let rec undo_proofstep =
+                            let (*rec*) undo_proofstep =
                               fun (WinHist {proofhist = proofhist} as hist) ->
                                 (undo_step proofhist &~~ (fSome <.> withproofhist hist))
                             in
@@ -1736,7 +1737,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 fg :: bgs ->
                   fg ::
                     (if Japeserver.canbackgroundfocus then
-                       let rec f pinf =
+                       let (*rec*) f pinf =
                          let hist = proofinfo_hist pinf in
                          let proof = winhist_proofnow hist in
                          let disproof = winhist_disproofnow hist in
@@ -1878,7 +1879,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     showAlert
       ["Dialogue.processcommand cannot process "; respace command]
   in
-  let rec domb (var, notify) =
+  let (*rec*) domb (var, notify) =
     let setting =
       try _The (Japeenv.(<@>) env var) with
         None_ ->
@@ -1896,7 +1897,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         notify (termstring setting, true)
   in
   (* for the time being, until there is effective proof/disproof focus, we have too many buttons *)
-  let rec administer displayopt =
+  let (*rec*) administer displayopt =
     List.iter Button.enable
       [UndoProofbutton   , proofundoable ();
        RedoProofbutton   , proofredoable ();
@@ -1942,18 +1943,18 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        ["can't follow selpath (commands): ";
                         selstring fmtpathstring sel])
             in
-            let rec trymatch sense p =
+            let (*rec*) trymatch sense p =
               Doubleclick.matchdoubleclick sense (mkSeq p)
             in
-            let rec hypword hs ss =
+            let (*rec*) hypword hs ss =
               match hs with
                 [h] -> "hypothesis " :: elementstring h :: ss
               | _ ->
                   "hypotheses " ::
                     liststring2 elementstring ", " "and " hs :: ss
             in
-            let rec bang f = "double-click is not defined on " :: f () in
-            let rec comm sense ps ss =
+            let (*rec*) bang f = "double-click is not defined on " :: f () in
+            let (*rec*) comm sense ps ss =
                 (findfirst (trymatch sense) ps |~~
                  (fun _ -> showAlert (bang ss); None))
             in
@@ -2031,7 +2032,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
            {displayvarsvals = displayvarsvals;
             displaystate = displaystate;
             hist = hist} as pinf) :: rest ->
-          let rec doShowProof state show =
+          let (*rec*) doShowProof state show =
             env, mbs, show,
             withhist
               (withdisplaystate
