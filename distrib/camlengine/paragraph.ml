@@ -623,7 +623,7 @@ let rec parseParagraph report query =
       scansymb (); Some (parseProof report InProgress)
   | SHYID "CUT" -> scansymb (); Some (parseStructure "CUT")
   | SHYID "DERIVED" -> scansymb (); Some (parseDerived report)
-  | SHYID "DISPROOF" -> scansymb (); Some (parseProof report Disproved)
+  | SHYID "DISPROOF" -> scansymb (); Some (parseProof report Complete) (* some legacy files will have this word *)
   | SHYID "FONTS" -> scansymb (); Some (parseFontSpec ())
   | SHYID "FORCEDEF" -> scansymb (); Some (parseForceDefSpec ())
   | SHYID "FORMULA" ->
@@ -649,7 +649,7 @@ let rec parseParagraph report query =
   | SHYID "PATCHALERT" -> scansymb (); processPatchAlert (); more ()
   | SHYID "POSTFIX" -> scansymb (); processUnifix (fun v->POSTFIX v); more ()
   | SHYID "PREFIX" -> scansymb (); processUnifix (fun v->PREFIX v); more ()
-  | SHYID "PROOF" -> scansymb (); Some (parseProof report Proved)
+  | SHYID "PROOF" -> scansymb (); Some (parseProof report Complete)
   | SHYID "REFLEXIVE" -> scansymb (); Some (parseStructure "REFLEXIVE")
   | SHYID "RIGHTFIX" -> scansymb (); processRightfix (); more ()
   | SHYID "RIGHTWEAKEN" ->
@@ -1042,17 +1042,16 @@ and parseProof report stage =
           scansymb ();
           let fs =
             parseList
-              (function
-                 NUM _ -> true
-               | _ -> false)
+              (function NUM _ -> true | _ -> false)
               (fun _ -> scansymb (); parseTerm commasymbol) commasymbol
           in
           readintasarg := Some (Array.of_list fs); Some fs
       | _ -> None
     in
+    (* there's a missing word SYNTAX somewhere about here *)
     let tacterm = check _ISWORD; asTactic parseTerm EOF in
     (* this is part of half of a TEMPORARY hack designed to make replay of proofs 
-       linear.  See prooftree.sml, tactic.sml for the meat in the sandwiches 
+       linear.  See prooftree.sml, tactic.sml for the rest of the sandwich. 
      *)
     let _ = if !autoAdditiveLeft then stripextrabag:= true else () in
     let tac = let r = transTactic tacterm in readintasarg := None; r in
