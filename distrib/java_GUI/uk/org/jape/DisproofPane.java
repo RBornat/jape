@@ -140,7 +140,7 @@ public class DisproofPane extends Container implements DebugConstants {
         g.fillRect(0, 0, getWidth(), getHeight());
         super.paint(g);
     }
-
+    
     public void makeReady() {
         if (tileLayoutPending)
             getLayout().layoutContainer(this); // in case tiles have changed size
@@ -180,17 +180,16 @@ public class DisproofPane extends Container implements DebugConstants {
             * internal borders, which are returned by the getInsets method.
             */
 
-        private int gap() { return 5*linethickness; }
-        
         public Dimension preferredLayoutSize(Container pane) {
             Dimension seqSize = seqView.getPreferredSize();
             doTileLayout();
             Dimension tileCanvasSize = tileCanvas.getPreferredSize();
             Dimension worldSize = worldPane.getPreferredSize();
 
-            return new Dimension(Math.max(seqSize.width,tileCanvasSize.width+worldSize.width)+2*gap(),
-                                 seqSize.height+2*gap()+Math.max(tileCanvasSize.height+worldPane.scrollbarthickness,
-                                                                 worldSize.height));
+            return new Dimension(Math.max(seqSize.width,tileCanvasSize.width+worldSize.width)+
+                                 2*((DisproofPane)pane).gap(),
+                                 seqSize.height+2*((DisproofPane)pane).gap()+
+                                 Math.max(tileCanvasSize.height+worldPane.scrollbarthickness, worldSize.height));
         }
 
         /* Called by the Container getMinimumSize method, which is itself called under
@@ -202,7 +201,7 @@ public class DisproofPane extends Container implements DebugConstants {
 
         public Dimension minimumLayoutSize(Container pane) {
             Dimension d = seqView.getSize();
-            d.height+=2*gap()+worldPane.scrollbarthickness+6*worldCanvas.worldRadius();
+            d.height+=2*((DisproofPane)pane).gap()+worldPane.scrollbarthickness+6*worldCanvas.worldRadius();
             /* bizarre as it seems, 6* is a good choice ... */
             return d;
         }
@@ -223,16 +222,16 @@ public class DisproofPane extends Container implements DebugConstants {
             doTileLayout();
             Dimension tileCanvasSize = tileCanvas.getPreferredSize();
 
-            int bottom = paneSize.height-gap(),
-                right = paneSize.width-gap(),
+            int bottom = paneSize.height-((DisproofPane)pane).gap(),
+                right = paneSize.width-((DisproofPane)pane).gap(),
                 seqtop = bottom-seqSize.height,
                 tileleft = right-tileCanvasSize.width,
-                worldbottom = seqtop-gap(),
+                worldbottom = seqtop-((DisproofPane)pane).gap(),
                 tilebottom = worldbottom-worldPane.scrollbarthickness,
-                worldright = tileleft-gap();
+                worldright = tileleft-((DisproofPane)pane).gap();
             
-            tileCanvas.setBounds
-                (tileleft, tilebottom-tileCanvasSize.height, tileCanvasSize.width, tileCanvasSize.height);
+            tileCanvas.setBounds(tileleft, tilebottom-tileCanvasSize.height,
+                                 tileCanvasSize.width, tileCanvasSize.height);
 
             wasteBin.setLocation(tileleft, tilebottom+LocalSettings.TileSpacing);
             if (!wasteBin.scaled())
@@ -250,5 +249,54 @@ public class DisproofPane extends Container implements DebugConstants {
             
             pane.repaint();
         }
+    }
+    
+    /**********************************************************************************************
+
+        Printing
+
+     **********************************************************************************************/
+
+     /* layout (disproof sequent is centred on disproof)
+                                  -------
+         ----------------------  |       |
+        |                      | |       |
+        |      disproof        | | tiles |
+        |                      | |       |
+         ----------------------   -------
+             disproof sequent
+     */
+
+    private int gap() { return 5*linethickness; }
+    
+    public Dimension printSize() {
+        if (tileLayoutPending)
+            getLayout().layoutContainer(this);
+        int gap = gap();
+        int width = Math.max(worldCanvas.getWidth(), seqView.getWidth())+
+                    gap+tileCanvas.getWidth();
+        int height = Math.max(worldCanvas.getHeight(), tileCanvas.getHeight())+
+                     gap+seqView.getHeight()+gap;
+        return new Dimension(width, height);            
+    }
+
+    public void print(Graphics g) {
+        int worldx = (Math.max(worldCanvas.getWidth(), seqView.getWidth())-worldCanvas.getWidth())/2,
+            worldy = Math.max(worldCanvas.getHeight(), tileCanvas.getHeight())-worldCanvas.getHeight();
+        g.translate(worldx, worldy);
+        worldCanvas.print(g); // print not paint (no anti-aliasing shenanigans necessary when printing)
+        g.translate(-worldx, -worldy);
+
+        int tilex = Math.max(worldCanvas.getWidth(), seqView.getWidth())+gap(),
+            tiley = Math.max(worldCanvas.getHeight(), tileCanvas.getHeight())-tileCanvas.getHeight();
+        g.translate(tilex, tiley);
+        tileCanvas.paint(g);
+        g.translate(-tilex, -tiley);
+
+        int seqx = (Math.max(worldCanvas.getWidth(), seqView.getWidth())-seqView.getWidth())/2,
+            seqy = Math.max(worldCanvas.getHeight(), tileCanvas.getHeight())+gap();
+        g.translate(seqx, seqy);
+        seqView.paint(g);
+        g.translate(-seqx, -seqy);
     }
 }
