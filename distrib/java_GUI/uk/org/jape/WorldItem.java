@@ -173,7 +173,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         if (state && !draghighlight) {
             draghighlight = true;
             oldForeground = getForeground();
-            setForeground(Preferences.SelectionColour);
+            setForeground(forced ? Preferences.ForcedSelectionColour : Preferences.SelectionColour);
             if (worldpaint_tracing)
                 Logger.log.println("highlighting world");
             canvas.imageRepaint(); repaint();
@@ -186,6 +186,17 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                     Logger.log.println("de-highlighting world");
                 canvas.imageRepaint(); repaint();
             }
+    }
+
+    private boolean forced = false;
+
+    public void setForced(boolean forced) {
+        if (this.forced!=forced) {
+            this.forced = forced;
+            setForeground(isEnabled() ? (forced ? Preferences.ForcedColour : Preferences.WorldColour) :
+                                        Preferences.OutColour);
+            canvas.imageRepaint(); repaint();
+        }
     }
 
     /* ****************************** world as drag target ****************************** */
