@@ -26,8 +26,11 @@
 */
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
@@ -36,35 +39,127 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 
+import java.awt.event.MouseEvent;
+
 import java.awt.geom.Ellipse2D;
 
-public class WorldItem extends DisplayItem implements DebugConstants, DropTargetListener {
+import java.awt.image.BufferedImage;
+
+import javax.swing.SwingUtilities;
+
+import java.util.Vector;
+
+public class WorldItem extends DisplayItem implements DebugConstants, SelectionConstants,
+                                                      DropTargetListener {
 
     protected WorldCanvas canvas;
+    protected Container layeredPane;
     protected SelectionRing selectionRing;
     protected Ellipse2D.Float outline;
 
     private final int x0, y0, labelgap;
     private int labelx;
-
-    public WorldItem(WorldCanvas canvas, int x, int y) {
+    private Vector labelv = new Vector();
+    
+    public WorldItem(WorldCanvas canvas, Container layeredPane, int x, int y) {
         super(x, y);
-        this.canvas = canvas;
-        x0 = x; y0 = -y-2*canvas.worldRadius();
+        this.canvas = canvas; this.layeredPane = layeredPane;
+        x0 = x; y0 = -y;
         setBounds(x0-canvas.worldRadius(), y0-canvas.worldRadius(),
                   2*canvas.worldRadius(), 2*canvas.worldRadius());
         selectionRing = new SelectionRing(x0, y0, canvas.worldRadius()+2*canvas.linethickness);
         canvas.add(selectionRing);
         outline = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
-        setEnabled(true); // I think
+        setEnabled(true); // I think this is necessary for dragTarget behaviour
         setDropTarget(new DropTarget(this, this));
         setForeground(Preferences.WorldColour);
         labelx = selectionRing.getX()+selectionRing.getWidth()+canvas.linethickness;
         labelgap = 4*canvas.linethickness;
+
+        addJapeMouseListener(new JapeMouseAdapter() {
+            private byte dragKind;
+            public void pressed(MouseEvent e) {
+                dragKind = LocalSettings.mouseDownWorldItemMeans(e);
+                WorldItem.this.pressed(dragKind, e);
+            }
+            public void dragged(MouseEvent e) {
+                WorldItem.this.dragged(dragKind, e);
+            }
+            public void released(MouseEvent e) {
+                WorldItem.this.released(dragKind, e);
+            }
+        });
+    }
+
+    int startx, starty, lastx, lasty;
+    
+    protected void pressed(byte dragKind, MouseEvent e) {
+        startx = getX(); starty = getY();
+        Point start = SwingUtilities.convertPoint(this, e.getX(), e.getY(), canvas.child);
+        if (drag_tracing)
+            System.err.println("mouse pressed ("+(dragKind==SimpleDrag?"simple":"extended")+
+                               ") on world at "+start.x+","+start.y);
+        lastx = start.x;
+        lasty = start.y;
+        switch (dragKind) {
+            case SimpleDrag:
+                break;
+            case ExtendedDrag:
+                Alert.showAlert(this, Alert.Info, "no extended drag yet"); break;
+            default:
+                Alert.abort("WorldItem.pressed dragKind="+dragKind);
+        }
+    }
+
+    private void repaintall() {
+        repaint();
+        selectionRing.repaint();
+        for (int i=0; i<labelv.size(); i++)
+            ((Component)labelv.get(i)).repaint();
+    }
+
+    private void shiftall(int deltax, int deltay) {
+        if (deltax!=0 || deltay!=0) {
+            shiftComponent(this, deltax, deltay);
+            shiftComponent(selectionRing, deltax, deltay);
+            for (int i=0; i<labelv.size(); i++)
+                shiftComponent((Component)labelv.get(i), deltax, deltay);
+            canvas.computeBounds();
+        }
+    }
+
+    private void shiftComponent(Component c, int deltax, int deltay) {
+        if (drag_tracing)
+            System.err.println("shifting "+c);
+        c.setLocation(c.getX()+deltax, c.getY()+deltay);
+    }
+    
+    protected void dragged(byte dragKind, MouseEvent e) {
+        Point drag = SwingUtilities.convertPoint(this, e.getX(), e.getY(), canvas.child);
+        drag.y = Math.min(0, drag.y); // don't drag too far down ...
+        // assuming SimpleDrag
+        int deltax = drag.x-lastx, deltay = drag.y-lasty;
+        if (drag_tracing)
+            System.err.println("mouse dragged to "+drag.x+","+drag.y+
+                               " ("+deltax+","+deltay+")");
+        if (deltax!=0 || deltay!=0) {
+            repaintall();
+            shiftall(deltax, deltay);
+            repaintall();
+        }
+        lastx = drag.x; lasty = drag.y;
+            
+    }
+    
+    protected void released(byte dragKind, MouseEvent e) {
+        int radius = canvas.worldRadius();
+        Reply.sendCOMMAND("moveworld "+(startx+radius)+" "+(-(starty+radius))+
+                          " "+(getX()+radius)+" "+(-(getY()+radius)));
     }
 
     public void addlabel(String s) {
         TextItem t = canvas.addLabelItem(labelx, y0, s);
+        labelv.add(t);
         labelx += t.getWidth()+labelgap;
     }
     
