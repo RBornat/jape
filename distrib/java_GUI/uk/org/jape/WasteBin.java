@@ -33,7 +33,7 @@ import java.awt.Toolkit;
 import java.awt.image.ImageObserver;
 
 public class WasteBin extends Component implements DebugConstants,
-                                                   LabelTarget, WorldTarget {
+                                                   LineTarget, LabelTarget, WorldTarget {
     private static Image enabled_image, selected_image, disabled_image,
                          enabled_scaled, selected_scaled, disabled_scaled;
     private Image current_image;
@@ -210,13 +210,6 @@ public class WasteBin extends Component implements DebugConstants,
     // WorldTarget
     public boolean dragEnter(byte dragKind, WorldItem w) { return dragEnter(); }
     public void dragExit(byte dragKind, WorldItem w) { dragExit(); }
-
-    // LabelTarget
-    public boolean dragEnter(WorldItem w, String label) { return dragEnter(); }
-    public void dragExit(WorldItem w, String label) { dragExit(); }
-    
-    /* ******************************** drop target ******************************** */
-
     public void drop(byte dragKind, WorldItem w, int x, int y) {
         if (selected) {
             if (dragKind==SelectionConstants.MoveWorldDrag)
@@ -226,9 +219,29 @@ public class WasteBin extends Component implements DebugConstants,
         else
             Alert.abort("world drop into waste bin when not selected");
     }
-
+    
+    // LabelTarget
+    public boolean dragEnter(WorldItem w, String label) { return dragEnter(); }
+    public void dragExit(WorldItem w, String label) { dragExit(); }
     public void drop(WorldItem w, String label) {
-        Reply.sendCOMMAND("deleteworldlabel "+w.idX+" "+w.idY+" \""+label+"\"");
-        setSelected(false);
+        if (selected) {
+            Reply.sendCOMMAND("deleteworldlabel "+w.idX+" "+w.idY+" \""+label+"\"");
+            setSelected(false);
+        }
+        else
+            Alert.abort("label drop into waste bin when not selected");
+    }
+    
+    // LineTarget
+    public boolean dragEnter(WorldConnector l) { return dragEnter(); }
+    public void dragExit(WorldConnector l) { dragExit(); }
+    public void drop(WorldConnector l) {
+        if (selected) {
+            Reply.sendCOMMAND("deleteworldlink "+l.from.idX+" "+l.from.idY+" "+
+                              l.to.idX+" "+l.to.idY);
+            setSelected(false);
+        }
+        else
+            Alert.abort("line drop into waste bin when not selected");
     }
 }
