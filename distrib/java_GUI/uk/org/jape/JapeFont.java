@@ -30,6 +30,9 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import java.util.HashMap;
 import java.util.Vector;
@@ -122,10 +125,10 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     }
 
     private static class SI {
-        final String label; final int size;
+        final JLabel label; final int size;
         JComboBox comboBox;
         SI(String label, int size) {
-            this.label = label; this.size = size;
+            this.label = new JLabel(label); this.size = size;
             Vector sizes = initsizes(size);
             comboBox = new JComboBox(sizes);
             for (int j=0; j<sizes.size(); j++)
@@ -143,13 +146,32 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
             new SI("Panel font size"         , PanelEntryFontSize), // 2
             new SI("Log window font size"    , LogWindowFontSize )  // 3
         };
-        JPanel [] panels = new JPanel[entries.length];
-        for (int i=0; i<panels.length; i++) {
-            panels[i] = new JPanel();
-            panels[i].add(new JLabel(entries[i].label));
-            panels[i].add(entries[i].comboBox);
+        JPanel panel = new JPanel();
+        GridBagLayout gridbag = new GridBagLayout();
+        panel.setLayout(gridbag);
+
+        GridBagConstraints labelconstraints = new GridBagConstraints(),
+                           comboconstraints = new GridBagConstraints();
+
+        labelconstraints.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        labelconstraints.fill = GridBagConstraints.NONE;      //reset to default
+        labelconstraints.anchor = GridBagConstraints.EAST;
+        labelconstraints.weightx = 0.0;                       //reset to default
+
+        comboconstraints.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        comboconstraints.fill = GridBagConstraints.NONE;
+        comboconstraints.weightx = 1.0;
+        comboconstraints.anchor = GridBagConstraints.WEST;
+        comboconstraints.insets = new Insets(0, 5, 0, 0);
+
+        for (int i=0; i<entries.length; i++) {
+            gridbag.setConstraints(entries[i].label, labelconstraints);
+            panel.add(entries[i].label);
+            gridbag.setConstraints(entries[i].comboBox, comboconstraints);
+            panel.add(entries[i].comboBox);
         }
-        int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), panels,
+        
+        int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), panel,
                                                  "Font sizes", 0,
                                                  JOptionPane.PLAIN_MESSAGE,
                                                  null, buttons, buttons[0]);
