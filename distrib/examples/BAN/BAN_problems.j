@@ -4,7 +4,7 @@ TACTIC TheoremForwardOrBackward(thm) IS
   WHEN (LETHYP _X cut (WITHSELECTIONS thm)) thm
   
 CONJECTUREPANEL Conjectures IS 
-  PREFIXBUTTON Apply IS apply TheoremForwardOrBackward
+  BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 
   THEOREM "Otway-Rees: Së({Na,Nc}Kas,{Nb,Nc}Kbs) Ê SäAï(Na,Nc)" IS 
   		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
