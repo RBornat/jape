@@ -54,7 +54,7 @@ public class Dispatcher extends Thread implements DebugConstants {
         Vector list = new Vector(); 
         try {
             while (true) {
-                String line = JapeCharEncoding.inputline();
+                String line = Engine.fromEngine().readLine();
                 try {
                     String[] cmd = japesplit(line);
                     if (DebugVars.protocol_tracing) {
@@ -151,7 +151,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                             
                     // font setting
                         if (p.equals("SETFONTS")&&len==2) {
-                            JapeCharEncoding.setEncoding(cmd[1]);
+                            Alert.showAlert("The FONTS directive is out of date.\n\n"+
+										    "Please delete it from your source files");
                         }
                         else
                         
@@ -365,7 +366,6 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("RESETTHEORY")&&len==1) {
                             JapeMenu.cancelMenus();
                             PanelWindowData.cancelPanels();
-                            JapeCharEncoding.resetEncoding();
                             JapeWindow.resetNextPos();
                         }
                         else

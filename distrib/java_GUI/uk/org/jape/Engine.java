@@ -27,14 +27,20 @@
 
 package uk.org.jape;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 
 public class Engine implements DebugConstants {
     private static Process engine;
     private static Engine  self;
-
+	private static BufferedReader fromEngine, logEngine;
+	private static BufferedWriter toEngine;
+	
     public Engine (String[] cmd) {
+		super();
         try {
             engine = Runtime.getRuntime().exec(cmd);
             self = this;
@@ -49,26 +55,38 @@ public class Engine implements DebugConstants {
             engine = null; // shut up compiler
         }
 
-        final InputStream  fromEngine = engine.getInputStream();
-        final OutputStream toEngine = engine.getOutputStream();
-        final InputStream  logEngine = engine.getErrorStream();
+		try {
+			fromEngine = new BufferedReader(new InputStreamReader(engine.getInputStream(), "UTF-8"));
+			toEngine = new BufferedWriter(new OutputStreamWriter(engine.getOutputStream(), "UTF-8"));
+			logEngine = new BufferedReader(new InputStreamReader(engine.getErrorStream(), "ISO-8859-1"));
+		} catch (UnsupportedEncodingException e) {
+			Alert.abort("We don't support encoding "+JapeUtils.enQuote("UTF-8"));
+		}
 
-        JapeCharEncoding.init(fromEngine, toEngine, logEngine);
-
-        class EngineLog implements Logger.LineReader {
-            public String readLine() {
-                try {
-                    return JapeCharEncoding.loginputline();
-                } catch (Exception exn) {
-                    return null;
-                }
-            }
-        }
-        
         Thread engineLogger = new Logger.StreamLog("engine log", new EngineLog());
         engineLogger.start();
         new Dispatcher().start();
     }
+	
+	public static BufferedReader fromEngine() {
+		return fromEngine;
+	}
+	public static BufferedWriter toEngine() {
+		return toEngine;
+	}
+	public static BufferedReader logEngine() {
+		return logEngine;
+	}
+	
+	class EngineLog implements Logger.LineReader {
+		public String readLine() {
+			try {
+				return logEngine.readLine();
+			} catch (Exception exn) {
+				return null;
+			}
+		}
+	}
 }
 
 

@@ -157,12 +157,13 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
             Alert.abort("ProofWindow.enableCopy can't find Edit: Copy");
         }
         
-        try {
-            JapeMenu.enableItem(true, "Edit", "Copy Ascii",
-                                proofcount+disproofcount+provisocount==1);
-        } catch (ProtocolError e) {
-            Alert.abort("ProofWindow.enableCopy can't find Edit: Copy Ascii");
-        }
+        /*  try {
+				JapeMenu.enableItem(true, "Edit", "Copy Ascii",
+									proofcount+disproofcount+provisocount==1);
+			} catch (ProtocolError e) {
+				Alert.abort("ProofWindow.enableCopy can't find Edit: Copy Ascii");
+			}
+		 */
     }
 
     public String getSingleTextSelection() {

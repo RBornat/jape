@@ -432,7 +432,7 @@ public class JapeMenu implements DebugConstants {
         }
     }
 
-    private static class CopyAsciiAction extends ItemAction {
+    /* private static class CopyAsciiAction extends ItemAction {
         public void action (JapeWindow w) {
             if (w instanceof ProofWindow) {
                 String s = ((ProofWindow)w).getSingleTextSelection();
@@ -452,7 +452,7 @@ public class JapeMenu implements DebugConstants {
             else
                 Alert.abort("CopyAsciiAction on non-proof window");
         }
-    }
+    } */
 
     private static class DebugSettingsAction extends ItemAction {
         public void action (JapeWindow w) {
@@ -713,10 +713,11 @@ public class JapeMenu implements DebugConstants {
         indexMenuItem(editmenu, "Copy", new CopyUnicodeAction()).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, menumask));
 
-        indexMenuItem(editmenu, "Copy Ascii", new CopyAsciiAction()).
-            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C,
-                                                  menumask+java.awt.Event.SHIFT_MASK));
-
+        /*  indexMenuItem(editmenu, "Copy Ascii", new CopyAsciiAction()).
+				setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C,
+													  menumask+java.awt.Event.SHIFT_MASK));
+		 */
+		
         indexMenuItem(editmenu, "Copy Proof", new CopyProofAction()).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C,
                                                   menumask+java.awt.Event.ALT_MASK));

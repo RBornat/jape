@@ -22,11 +22,11 @@ JAVACOMPILE     = javac -verbose -sourcepath $(JAVASRC) -d $(JAVABUILD)
 all:            $(JAVABUILD) Jape.jar; 
 $(JAVABUILD):   ; mkdir -p $(JAVABUILD)
 
-Jape.jar: $(JAVA);  (rm -f MANIFEST;\
-                     echo "Main-Class: uk.org.jape.Jape" > MANIFEST;\
-                     $(JAVACOMPILE) uk/org/jape/Jape.java ;\
-                     jar cmf MANIFEST Jape.jar $(RESOURCEFILES) -C $(JAVABUILD) uk;\
-                    ) 
+Jape.jar: $(JAVA) $(JAVABUILD);  (rm -f MANIFEST;\
+                                  echo "Main-Class: uk.org.jape.Jape" > MANIFEST;\
+                                  $(JAVACOMPILE) uk/org/jape/Jape.java ;\
+                                  jar cmf MANIFEST Jape.jar $(RESOURCEFILES) -C $(JAVABUILD) uk;\
+                                 )
 
 clean:          ; rm -rf Jape.jar $(JAVABUILD)
 

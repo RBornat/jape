@@ -47,17 +47,12 @@ public class Reply implements DebugConstants {
     }
 
     synchronized private static void flushmessages() {
-        try {
-            if (enginelistening && messages.size()!=0) {
-                String s = (String)messages.remove(0);
-                if (DebugVars.protocol_tracing) Logger.log.println("GUI sends "+s);
-                JapeCharEncoding.outputln(s);
-                JapeCharEncoding.flush();
-                enginelistening=false;
-            }
-        } catch (IOException e) {
-            Alert.abort("Reply.flushmessages gets IOException \""+e.getMessage()+"\"");
-        }
+		if (enginelistening && messages.size()!=0) {
+			String s = (String)messages.remove(0);
+			if (DebugVars.protocol_tracing) Logger.log.println("GUI sends "+s);
+			outputln(s);
+			enginelistening=false;
+		}
     }
 
     synchronized public static void send(String s) {
@@ -72,18 +67,22 @@ public class Reply implements DebugConstants {
 
     synchronized public static void reply(String s) throws ProtocolError {
         if (!enginelistening) {
-            try {
-                if (DebugVars.protocol_tracing) Logger.log.println("GUI replies "+s);
-                JapeCharEncoding.outputln(s);
-                JapeCharEncoding.flush();
-            } catch (IOException e) {
-                Alert.abort("Reply.reply gets IOException \""+e.getMessage()+"\"");
-            }
+			if (DebugVars.protocol_tracing) Logger.log.println("GUI replies "+s);
+			outputln(s);
         }
         else
             throw new ProtocolError("replying \""+s+"\" while client is not expecting reply");
     }
 
+	synchronized private static void outputln(String s) {
+		try {
+			Engine.toEngine().write(s, 0, s.length()); 
+			Engine.toEngine().write('\n');
+			Engine.toEngine().flush();
+		} catch (IOException e) {
+			Alert.showAlert("Reply.outputln("+JapeUtils.enQuote(s)+") gets exception "+e);
+		}
+	}
     synchronized public static void reply(int i) throws ProtocolError {
         reply(i+"");
     }
