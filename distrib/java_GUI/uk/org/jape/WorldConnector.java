@@ -46,14 +46,15 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
     public boolean contains(int x, int y) {
         if (-wobble<=x && x<getWidth()+wobble && -wobble<=y && y<getHeight()+wobble) {
             if (x0==x1)
-                return x-x0<=wobble; // vertical
+                return Math.abs(x-x0)<=wobble; // vertical
             else
             if (y0==y1)
-                return y-y0<=wobble; // horizontal
+                return  Math.abs(y-y0)<=wobble; // horizontal
             else {
                 float a = y1-y0, b = x0-x1, c = a*x0+b*y0;
                 float dx = x-(c-b*y)/a, dy = y-(c-a*x)/b;
-                return dx<=wobble || dy<=wobble || dx*dx*dy*dy/(dx*dx+dy*dy)<=wobble*wobble;
+                return  Math.abs(dx)<=wobble ||  Math.abs(dy)<=wobble ||
+                        dx*dx*dy*dy/(dx*dx+dy*dy)<=wobble*wobble;
             }
         }
         else
@@ -85,8 +86,10 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 
     public void drop(byte dragKind, WorldItem w, int x, int y) {
         if (draghighlight) {
-            System.err.println((dragKind==MoveWorldDrag ? "moveworldtoline" : "addworldtoline")+
-                              " "+w.idX+" "+w.idY+" "+from+" "+to);
+            Reply.sendCOMMAND((dragKind==MoveWorldDrag ? "moveworldtolink" : "addworldtolink")+
+                              " "+w.idX+" "+w.idY+
+                              " "+(x+getX())+" "+(-(y+getY()))+
+                              " "+from.idX+" "+from.idY+" "+to.idX+" "+to.idY);
             dragExit();
         }
         else
