@@ -1144,11 +1144,6 @@
 		</array>
 		<key>MainClass</key>
 		<string>japeserver</string>
-		<key>Properties</key>
-		<dict>
-			<key>com.apple.hwaccel</key>
-			<string>false</string>
-		</dict>
 	</dict>
 	<key>NSJavaNeeded</key>
 	<string>YES</string>
