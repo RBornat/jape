@@ -49,7 +49,7 @@ let ( <* ) = List.map
 (* ||| is infix zip *)
 exception Zip_ 
 let ( ||| ) xs ys = 
-  try List.combine xs ys with Invalid_argument "List.combine" -> raise Zip_
+  try List.combine xs ys with Invalid_argument _ -> raise Zip_
 
 (* this appears to be map f o filter pp *)
 let rec doubleslosh (f, pp) =
@@ -195,28 +195,30 @@ let rec _BMzip xs ys =
     x::xs, y::ys -> (x, y) :: _BMzip xs ys
   | _    , _     -> []
 
-let rec isprefix a1 a2 a3 =
-  match a1, a2, a3 with
-    eq, [], ys -> true
-  | eq, x :: xs, y :: ys -> eq (x, y) && isprefix eq xs ys
-  | eq, _, _ -> false
+let rec isprefix eq xs ys =
+  match xs, ys with
+    []     , _       -> true
+  | x :: xs, y :: ys -> eq (x, y) && isprefix eq xs ys
+  | _      , _       -> false
+
 exception Extract_
 
-let rec extract a1 a2 =
-  match a1, a2 with
-    f, [] -> raise Extract_
-  | f, x :: xs ->
-      if f x then x, xs else let (y, ys) = extract f xs in y, x :: ys
+let rec extract f =
+  function
+    []      -> raise Extract_
+  | x :: xs -> if f x then x, xs else 
+               let (y, ys) = extract f xs in y, x :: ys
 
-let rec split a1 a2 =
-  match a1, a2 with
-    f, [] -> [], []
-  | f, x :: xs ->
+let rec split f =
+  function
+    []      -> [], []
+  | x :: xs ->
       let (yess, nos) = split f xs in
       if f x then x :: yess, nos else yess, x :: nos
+
 (* smooth applicative merge sort
  * Taken from "ML for the Working Programmer", Paulson, pp 99-100
-   - filched by us from SMLNJ profile.script
+   - filched by RB from SMLNJ profile.script
    - and changed, because that function sorted in > order.
  *)
 exception Matchinmergepairs
