@@ -21,7 +21,8 @@ BUILTENGINE=jape.exe
 DEPLOYEDENGINE=jape.exe
 README=README-WINDOWS 
 INSTALLME=installjape.jar
-DEPLOYMENTKIT=$(README) installjape.jar
+DEPLOYMENTKIT=$(README) installjape.jar japelogo.ico japeicon16.ico
                 
+
 
 
