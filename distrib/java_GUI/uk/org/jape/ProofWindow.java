@@ -841,13 +841,14 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	return w;
     }
 
-    public static void closeproof(int proofnum) throws ProtocolError {
+    public static void closeproof(int proofnum, boolean report) throws ProtocolError {
 	ProofWindow proof = findProof(proofnum);
 	proof.removeWindowListener(proof.windowListener); // Linux gives us spurious events otherwise
 	proof.windowListener = null;
 	proof.closeWindow();
 	focusManager.removeFromfocusv(proof);
-	focusManager.reportFocus();
+	if (report)
+	    focusManager.reportFocus();
 	enableProofMenuItems();
     }
 

@@ -143,7 +143,7 @@ val drawRect   : box -> unit        (* stay inside the box; use linethickness fr
 exception DeadGUI_
 
 val openproof  : string -> int -> unit
-val closeproof : int -> unit
+val closeproof : int -> bool -> unit
 
 val showfile : string -> unit
 val echo     : string -> string

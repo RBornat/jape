@@ -267,8 +267,8 @@ public class Dispatcher extends Thread implements DebugConstants {
 			if (p=="OPENPROOF"&&len==3)
 			    ProofWindow.spawn(cmd[1], toInt(cmd[2]));
 			else
-			if (p=="CLOSEPROOF"&&len==2)
-			    ProofWindow.closeproof(toInt(cmd[1]));
+			if (p=="CLOSEPROOF"&&len==3)
+			    ProofWindow.closeproof(toInt(cmd[1]), toBool(cmd[2]));
 			else
 			if (p=="PANEGEOMETRY"&&len==2)
 			Reply.reply(ProofWindow.getFocussedWindow().getPaneGeometry(toByte(cmd[1])));

@@ -898,7 +898,7 @@ and endproof num name st dis =
   let disproved = disproof_finished dis in
   Runproof.addproof showAlert uncurried_screenquery name proved st disproved (model_of_disproofstate dis) &&
   begin
-    Japeserver.closeproof num;
+    Japeserver.closeproof num true;
     markproof (parseablestring_of_name name) (proved, disproved);
     true
   end
@@ -1056,7 +1056,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   in
   
   let doResettheory () =
-    List.iter (fun (Pinf p) -> Japeserver.closeproof p.proofnum) pinfs;
+    List.iter (fun (Pinf p) -> Japeserver.closeproof p.proofnum false) pinfs;
     Japeserver.resettheory ();
     reset ();
     defaultenv (), [], DontShow, []
@@ -1836,7 +1836,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let proofstate = hist_now proofhist in
             let disproof = optf hist_now disproofhist in
             let closed () = newfocus (env, mbs, DontShow, pinfs') in
-            let closeOK () = Japeserver.closeproof n; closed() in
+            let closeOK () = Japeserver.closeproof n true; closed() in
             (* a proof can be finished in no steps.  But if it comes from store, we don't
                re-record it unless you've developed it.
              *)
