@@ -31,11 +31,13 @@ import java.util.Enumeration;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.util.Vector;
 
-public class SelectableTextItem extends TextItem implements SelectionConstants {
+public class SelectableTextItem extends TextItem
+                                implements ProofConstants, SelectionConstants {
     public Color selectionColour     = Color.red,
                  textselectionColour = Color.yellow;
 
@@ -49,37 +51,41 @@ public class SelectableTextItem extends TextItem implements SelectionConstants {
                               byte proofstyle, int selectionthickness) {
         super(canvas,x,y,fontnum,annottext,printtext);
         this.kind=kind; this.proofstyle=proofstyle; this.selectionthickness=selectionthickness;
-        // make room for selection rectangle
-        
 
         addMouseListener(new MouseAdapter() {
             /*
                 void mouseClicked(MouseEvent e)
                     Invoked when the mouse has been clicked on a component.
-                void mouseDragged(MouseEvent e)
-                    Invoked when a mouse button is pressed on a component and then dragged.
                 void mouseEntered(MouseEvent e)
                     Invoked when the mouse enters a component.
                 void mouseExited(MouseEvent e)
                     Invoked when the mouse exits a component.
-                void mouseMoved(MouseEvent e)
-                    Invoked when the mouse button has been moved on a component (with no buttons no down).
                 void mousePressed(MouseEvent e)
                     Invoked when a mouse button has been pressed on a component.
                 void mouseReleased(MouseEvent e)
                     Invoked when a mouse button has been released on a component.
 
-                All reasonable, except that (experimentally) mouseClicked seems to mean mouseReleased
-                in the same place as mousePressed ...
+                All reasonable, except that (experimentally) mouseClicked seems to
+                mean mouseReleased in the same place as mousePressed ...
              */
             public void mousePressed(MouseEvent e) {
                 pressed(LocalSettings.mouseDownKind(e), e);
             }
-            public void mouseDragged(MouseEvent e) {
-                dragged(e);
-            }
             public void mouseReleased(MouseEvent e) {
                 released(e);
+            }
+        });
+        
+        addMouseMotionListener(new MouseMotionAdapter() {
+            /*
+                void mouseDragged(MouseEvent e)
+                    Invoked when a mouse button is pressed on a component and then dragged.
+                void mouseMoved(MouseEvent e)
+                    Invoked when the mouse button has been moved on a component
+                    (with no buttons no down).
+             */
+            public void mouseDragged(MouseEvent e) {
+                dragged(e);
             }
         });
     }
@@ -137,24 +143,24 @@ public class SelectableTextItem extends TextItem implements SelectionConstants {
             g.setColor(selectionColour);
 
             switch (selkind) {
-                case ProofCanvas.ReasonSel:
+                case ReasonSel:
                     paintBox(g); break;
-                case ProofCanvas.HypSel:
-                    if (proofstyle!=ProofCanvas.BoxStyle)
+                case HypSel:
+                    if (proofstyle!=BoxStyle)
                         paintBox(g);
                     else
-                        if (kind==AmbigKind) {
+                        if (kind==AmbigTextItem) {
                             paintSides(g); paintDotted(g, top); paintHooks(g, bottom);
                         }
                         else {
                             paintSides(g); paintHoriz(g, top); paintHooks(g, bottom);
                         }
                         break;
-                case ProofCanvas.ConcSel:
-                    if (proofstyle!=ProofCanvas.BoxStyle)
+                case ConcSel:
+                    if (proofstyle!=BoxStyle)
                         paintBox(g);
                     else
-                        if (kind==AmbigKind) {
+                        if (kind==AmbigTextItem) {
                             paintSides(g); paintDotted(g, bottom); paintHooks(g, top);
                         }
                         else {
@@ -245,6 +251,24 @@ public class SelectableTextItem extends TextItem implements SelectionConstants {
         }
     }
 
+    protected FormulaTree enclosingSubformula(FormulaTree a, FormulaTree b) {
+        while (a.parent!=null && !(a.start<=b.start && b.end<=a.end)) {
+            a = a.parent;
+        }
+        return a;
+    }
+
+    protected FormulaTree findSubformula(FormulaTree f, int start, int end) {
+        if (f==null || f.start==start && f.end==end)
+            return f;
+        for (int i=0; i<f.children.length; i++) {
+            FormulaTree f1;
+            if ((f1=findSubformula(f.children[i], start, end))!=null)
+                return f1;
+        }
+        return null;
+    }
+
     /*
         Bernard's original ProofCanvas included this comment:
     
@@ -299,28 +323,75 @@ public class SelectableTextItem extends TextItem implements SelectionConstants {
     protected byte eventKind;
 
     public class TextSel {
-        public final int start, end, pxstart, pxend;
-        public TextSel(FormulaTree f) {
+        public int start, end, pxstart, pxend;
+        
+        public TextSel(FormulaTree f) { init(f); }
+        
+        public void reset(FormulaTree f) { repaint(); init(f); }
+        
+        private void init(FormulaTree f) {
             start=f.start; end=f.end; pxstart=f.pxstart; pxend=f.pxend;
+            repaint();
         }
-        public TextSel(int start, int end) {
+        
+        public TextSel(int start, int end) { init(start, end); }
+        
+        public void reset(int start, int end) { repaint(); init(start, end); }
+        
+        private void init(int start, int end) {
             this.start = start; this.end = end;
             pxstart = JapeFont.charsWidth(printchars, 0, start, fontnum);
             pxend = JapeFont.charsWidth(printchars, 0, end, fontnum);
+            repaint();
         }
-        public void repaint() { repaintFromTextSel(pxstart, 0, pxend-pxstart, getHeight()); }
+        
+        public void repaint() {
+            SelectableTextItem.this.repaint(pxstart, 0, pxend-pxstart, getHeight());
+        }
+        
         public void paint(Graphics g) {
             g.setColor(textselectionColour);
             g.fillRect(pxstart, 0, pxend-pxstart, getHeight());
         }
-    }
 
-    private void repaintFromTextSel(int x, int y, int width, int height) {
-        repaint(x, y, width, height);
+        public boolean overlaps(TextSel t) {
+            return t!=null && t!=this &&
+                   (t.start<=this.start && this.start<=t.start ||
+                    this.start<=t.start && t.start<=this.start);
+        }
     }
 
     public Vector textsels;
-    
+    private int currenttextselindex = -1;
+    FormulaTree anchor, current;
+
+    public void removeTextSelections() {
+        if (textsels!=null)
+            while (textsels.size()!=0) {
+                getTextSel(0).repaint();
+                textsels.remove(0);
+            }
+    }
+
+    public String getTextSelectionStrings() {
+        if (textsels==null || textsels.size()==0)
+            return null;
+        else {
+            StringBuffer b = new StringBuffer(printchars.length+2*textsels.size());
+            int i = 0;
+            for (int j=0; j<textsels.size(); j++) {
+                TextSel t = getTextSel(j);
+                b.append(printchars, i, t.start-i);
+                b.append(Reply.stringSep);
+                b.append(printchars, t.start, t.end-t.start);
+                b.append(Reply.stringSep);
+                i = t.end;
+            }
+            b.append(printchars, i, printchars.length-i);
+            return b.toString();
+        }
+    }
+
     private void ensureTextSelectionVars() {
         if (formulae==null) {
             annoti = printi = 0; annotlen = annottext.length();
@@ -328,20 +399,53 @@ public class SelectableTextItem extends TextItem implements SelectionConstants {
             textsels = new Vector(1);
         }
     }
+
+    protected TextSel getTextSel(int i) {
+        return i<0 || i>=textsels.size() ? null : (TextSel)textsels.get(i);
+    }
     
     protected void pressed(byte eventKind, MouseEvent e) {
         this.eventKind = eventKind;
         mousemotionseen = false;
         switch (eventKind) {
             case TextSelection:
-                canvas.killTextSelections(null); // i.e. kill the lot
+                canvas.killTextSelections(null); // kill everybody's, including mine
+            case DisjointTextSelection: // don't kill any text selections?
                 ensureTextSelectionVars();
-                TextSel t = new TextSel(pixel2Subformula(formulae, e.getX()));
-                textsels.add(t);
-                t.repaint();
+                anchor = current = pixel2Subformula(formulae, e.getX());
+                {   int i;
+                    for (i=0; i<textsels.size(); i++)
+                        if (anchor.start<=getTextSel(i).start)
+                            break;
+                    textsels.add(i, new TextSel(anchor));
+                    currenttextselindex = i;
+                }
                 break;
+                
+            case ExtendedTextSelection:
+                canvas.killTextSelections(this); // kill everybody else's
+            case ExtendedDisjointTextSelection:
+                ensureTextSelectionVars();
+                {   int i;
+                    FormulaTree sel = pixel2Subformula(formulae, e.getX());
+                    for (i=0; i<textsels.size(); i++) {
+                        if (sel.start<=getTextSel(i).start) {
+                            // are we nearer to this one than the one before?
+                            currenttextselindex =
+                                i==0 || getTextSel(i).start-sel.end<sel.start-getTextSel(i-1).end ? i : i-1;
+                            anchor = findSubformula(formulae, getTextSel(currenttextselindex).start,
+                                                    getTextSel(currenttextselindex).end);
+                            current = enclosingSubformula(anchor, sel);
+                        }
+                    }
+                }
+                break;
+
             case Selection:
-                break; // nothing till release
+            case ExtendedSelection:
+            case DisjointSelection:
+            case ExtendedDisjointSelection:
+                break; // nothing happens till release, and then only sometimes
             default:
                 System.err.println("SelectableTextItem.pressed eventKind="+eventKind);
         }
@@ -351,33 +455,66 @@ public class SelectableTextItem extends TextItem implements SelectionConstants {
         mousemotionseen = true;
         switch (eventKind) {
             case TextSelection:
+            case ExtendedTextSelection:
+            case DisjointTextSelection:
+            case ExtendedDisjointTextSelection:
+                FormulaTree sel = enclosingSubformula(anchor, pixel2Subformula(formulae, e.getX()));
+                if (sel!=current) {
+                    getTextSel(currenttextselindex).reset(sel);
+                    current = sel;
+                }
+                break;
+            case Selection:
+            case ExtendedSelection:
+            case DisjointSelection:
+            case ExtendedDisjointSelection:
+                break;
+            default:
+                System.err.println("SelectableTextItem.dragged eventKind="+eventKind);
         }
     }
     
     protected void released(MouseEvent e) {
         switch (eventKind) {
             case TextSelection:
+            case ExtendedTextSelection:
+            case DisjointTextSelection:
+            case ExtendedDisjointTextSelection:
+                {   TextSel current = getTextSel(currenttextselindex);
+                    for (int i=0; i<textsels.size(); ) {
+                        TextSel t = getTextSel(i);
+                        if (t.overlaps(current))
+                            textsels.remove(i);
+                        else
+                            i++;
+                    }
+                }
+                currenttextselindex = -1;
                 break;
             case Selection:
+            case ExtendedSelection:
+            case DisjointSelection:
+            case ExtendedDisjointSelection:
                 if (!mousemotionseen) {
                     byte selected;
-                    if (selectionRect==null) {
+                    if (e.getClickCount()==1) {
                         // determine selection type
                         switch (kind) {
-                            case ConcKind:
-                                selected = ProofCanvas.ConcSel; break;
-                            case HypKind:
-                                selected = ProofCanvas.HypSel; break;
-                            case ReasonKind:
-                                selected = ProofCanvas.ReasonSel; break;
-                            case AmbigKind:
-                                selected = e.getY()<getHeight()/2 ? ProofCanvas.ConcSel : ProofCanvas.HypSel;
+                            case ConcTextItem:
+                                selected = ConcSel; break;
+                            case HypTextItem:
+                                selected = HypSel; break;
+                            case ReasonTextItem:
+                                selected = ReasonSel; break;
+                            case AmbigTextItem:
+                                selected = e.getY()<getHeight()/2 ? ConcSel : HypSel;
                                 break;
                             default:
                                 Alert.abort("SelectableTextItem.click kind="+kind);
-                                selected = ProofCanvas.NoSel; // shut up compiler
+                                selected = NoSel; // shut up compiler
                         }
-                        canvas.declareSelection(this, e, selected);
+                        canvas.declareSelection(eventKind, selected);
+                        select(selected);
                     }
                     else
                         System.err.println("no SelectableTextItem support for double clicks yet");
@@ -390,14 +527,13 @@ public class SelectableTextItem extends TextItem implements SelectionConstants {
     }
 
     public void select(byte selkind) {
-        if (selkind==ProofCanvas.NoSel) {
-            if (selectionRect!=null) {
-                selectionRect.repaint();
-                canvas.remove(selectionRect);
-                selectionRect = null;
-            }
+        if (selectionRect!=null) {
+            selectionRect.repaint();
+            canvas.remove(selectionRect);
+            selectionRect = null;
         }
-        else {
+        
+        if (selkind!=NoSel) {
             selectionRect = new SelectionRect(selkind, getBounds());
             selectionRect.repaint();
         }
@@ -409,30 +545,13 @@ public class SelectableTextItem extends TextItem implements SelectionConstants {
     
     public void paint(Graphics2D g) {
         if (textsels!=null) {
-            for (Enumeration e = textsels.elements(); e.hasMoreElements(); ) {
-                ((TextSel)e.nextElement()).paint(g);
+            TextSel current = getTextSel(currenttextselindex);
+            for (int i = 0; i<textsels.size(); i++) {
+                TextSel t = getTextSel(i);
+                if (!t.overlaps(current))
+                    t.paint(g);
             }
         }
-
-        /* canvas.fonts[fontnum].setGraphics(g);
-        // Background painting
-        int[]   sel    = marked.runs();
-        boolean normal = true;
-        int     here   = position.x+canvas.textInset.width;
-        int     there;
-
-        g.setColor(Color.green);
-        for (int i=0; i<sel.length; i++) {
-            there = boundaries[sel[i]];
-            if (!normal) g.fillRect(here, position.y, there-here, bounds.height);
-            normal = !normal;
-            here = there;
-        }
-
-        g.setColor(greyed?canvas.getGreyedColour():canvas.getNormalColour());
-        */
-
-        // then draw the rest of it
         super.paint(g);
     }
 }
