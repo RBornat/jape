@@ -67,8 +67,7 @@ val ( +-+ ) : textsize * textsize -> textsize
 (* as if appending text on a line *)
 val ( +->+ ) : pos * pos -> pos
 (* as if offsetting a position right and down *)
-val ( +<-+ ) : pos * pos -> pos
-(* ditto left and up *)
+val ( +<-+ ) : pos -> pos -> pos (* ditto left and up *)
 val ( +||+ ) : box * box -> box
 (* find the bounding box *)
 val ( +|-|+ ) : textbox * textbox -> textbox

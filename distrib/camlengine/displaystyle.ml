@@ -167,7 +167,7 @@ module F
               consolereport
                 ["gotcha "; posstring oldpoint; "; "; posstring newpoint];
             saveanddraw proof
-              (( +<-+ ) (( +->+ ) (oldpos, oldpoint), newpoint)) vgoal vproof
+              ( (( +->+ ) (oldpos, oldpoint) +<-+ newpoint)) vgoal vproof
               plan
           in
           let rec findtarget target =

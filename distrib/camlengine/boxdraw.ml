@@ -181,6 +181,7 @@ let stileclass = DisplayPunct
     *)
     
    (* extract a conclusion and its exploded form *)
+
 let rec explodedconc cs =
   match cs with
     [c] ->
@@ -190,8 +191,10 @@ let rec explodedconc cs =
       end
   | _ -> None
 (* show a hit *)
+
 let my_hitstring = hitstring pathstring
 let my_selstring = selstring pathstring
+
 (*********************** Drawing transitive stacks *****************************
  * 
  * Suppose that we have a transitivity step
@@ -415,26 +418,29 @@ and elementkind = ConcPlan | HypPlan | TranPlan of side
 and elementplaninf = pathinfo * element * elementkind
 (* even reasons need pathinfo, these days *)
 type reasonplankind = ReasonPlan of pathinfo | ReasonPunctPlan
+
 (* this won't last long, I hope *)
 let rec elementplanclass =
   function
-    ElementPlan (_, _, ConcPlan) -> DisplayConc
-  | ElementPlan (_, _, HypPlan) -> DisplayHyp
+    ElementPlan (_, _, ConcPlan  ) -> DisplayConc
+  | ElementPlan (_, _, HypPlan   ) -> DisplayHyp
   | ElementPlan (_, _, TranPlan _) -> DisplayConc
-  | AmbigElementPlan _ -> DisplayAmbig
-  | ElementPunctPlan ->(* for now *)
-     DisplayPunct
+  | AmbigElementPlan _             -> DisplayAmbig
+  | ElementPunctPlan               -> DisplayPunct (* for now *)
+     
 (* for now *)
    
 let rec reasonplanclass =
   function
     ReasonPlan _ -> DisplayReason
   | ReasonPunctPlan -> DisplayPunct
+
 let rec iselementkind epk =
   match epk with
     ElementPlan _ -> true
   | AmbigElementPlan _ -> true
   | ElementPunctPlan -> false
+
 let rec pathinfostring
   {path = path; layoutpath = layoutpath; prunepath = prunepath} =
   ((((("{path=" ^ pathstring path) ^ ",layoutpath=") ^
@@ -442,6 +448,7 @@ let rec pathinfostring
       ",prunepath=") ^
      optionstring pathstring prunepath) ^
     "}"
+
 let rec elementplankindstring pk =
   (* how I HATE having to write these *)
   match pk with
@@ -474,7 +481,9 @@ and trandep = textinfo * elementplaninfo * reasoninfo
 
 let elementplaninfostring =
   pairstring textinfostring elementplankindstring ", "
+
 let elinfostring = pairstring elementstring elementplaninfostring ","
+
 let rec trandepstring t =
   triplestring textinfostring elementplaninfostring reasoninfostring "," t
 and reasoninfostring r =
@@ -519,9 +528,11 @@ and dependencystring d =
  * 
  * Here goes. 
  *)
+
 let rec ordinary _ con pi e = ElementPlan (con pi e)
 let rec mkhypplan pi e = pi, e, HypPlan
 let rec mkconcplan pi e = pi, e, ConcPlan
+
 let rec dependency tranreason deadf pt =
   let rec ordinarypi =
     fun (RevPath rp) -> {path = List.rev rp; layoutpath = None; prunepath = None}
@@ -672,7 +683,9 @@ type cID =
    (* This function produces a single piece of text as its result, which makes it a bit
     * difficult to split it across lines.  Oh well, one day.
     *)
+
 let _IDr = (string_of_int : lineID -> string)
+
 let rec _Cr =
   function
     LineID l -> _IDr l
@@ -681,8 +694,10 @@ let rec _Cr =
      (_IDr l ^ ".") ^ string_of_int n
   | NoID ->(* we never make a HypID with l=0 *)
      ""
+
 let rec _IDstring cids =
   liststring (fun x -> x) "," ((fun s -> s <> "") <| List.map _Cr cids)
+
 let rec mapn a1 a2 a3 =
   match a1, a2, a3 with
     id, [], hn -> empty
@@ -715,6 +730,7 @@ type token =
   | Num
   | RA of (pos -> reasonplankind plan)
   | AR of (pos -> reasonplankind plan)
+
 let rec linearise screenwidth procrustean_reasonW dp =
   let termfontleading =
     max 1 (thrd (fontinfo TermFont))
@@ -1298,6 +1314,7 @@ let rec _BoxLayout screenwidth t =
 
 let rec elementsin ps =
   List.length ((iselementkind <*> planinfo) <| ps)
+
 let rec draw goalopt p proof =
   fun (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
                bodymargin = bodymargin; reasonmargin = reasonmargin;
@@ -1376,6 +1393,7 @@ let rec draw goalopt p proof =
           if boxed then drawBox (bOffset outerbox p); List.iter (_D p) lines
     in
     drawinproofpane (); List.iter (_D (rightby (p, bodymargin))) lines
+
 let rec print str goalopt p proof =
   fun (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
                bodymargin = bodymargin; reasonmargin = reasonmargin}) ->
@@ -1412,6 +1430,7 @@ let rec print str goalopt p proof =
           if boxed then out ")\n"
     in
     revapp (_D (rightby (p, bodymargin))) lines
+
 let rec pos2hit p =
   fun (Layout {lines = lines; bodymargin = bodymargin; reasonmargin = reasonmargin})
     hitkind ->
@@ -1460,7 +1479,7 @@ let rec pos2hit p =
             | ElementPunctPlan -> None
           in
           if withintb (p, elementsbox) then
-            findfirstplanhit (( +<-+ ) (p, tbPos elementsbox)) elementsplan 
+            findfirstplanhit (p +<-+ tbPos elementsbox) elementsplan 
             &~~ (fSome <*> planinfo) 
             &~~ decodeplan
           else
@@ -1469,11 +1488,7 @@ let rec pos2hit p =
                  match planinfo reason with
                    ReasonPlan pi ->
                      if withintb
-                          (( +<-+ )
-                             (p,
-                              pos
-                                (reasonmargin - bodymargin,
-                                 posY (tbPos elementsbox))),
+                          (p +<-+ pos (reasonmargin - bodymargin, posY (tbPos elementsbox)),
                            plantextbox reason)
                      then
                        Some (ReasonHit (answerpath hitkind pi))
@@ -1484,8 +1499,9 @@ let rec pos2hit p =
           if withinY (p, outerbox) then findfirst (_H p) lines else None
     in
     findfirst (_H (rightby (p, - bodymargin))) lines
+
 let rec locateHit pos classopt hitkind (p, proof, layout) =
-  pos2hit (( +<-+ ) (pos, p)) layout hitkind
+  pos2hit (((pos) +<-+ p)) layout hitkind
   &~~
   (fSome <*> 
     ((function
@@ -1523,6 +1539,7 @@ let rec locateHit pos classopt hitkind (p, proof, layout) =
  * with a single click.
  * RB 29/viii/00
  *) 
+
 let rec notifyselect posclassopt posclasslist =
   fun
     (proofpos, proof,
@@ -1634,13 +1651,11 @@ let rec notifyselect posclassopt posclasslist =
         bg emp
     | _, _ :: _, _ -> bang "more than one ConcHit"
     | _, _, _ :: _ -> bang "more than one ReasonHit"
+
 let refineSelection = true
-let rec defaultpos =
-  fun
-    (Layout
-       {bodybox = bodybox;
-        bodymargin = bodymargin;
-        sidescreengap = sidescreengap}) ->
+
+let defaultpos (Layout {bodybox = bodybox; bodymargin = bodymargin;
+                        sidescreengap = sidescreengap; linethickness = linethickness}) =
     let screen = viewBox () in
     let prooforigin = bPos bodybox in
     (* leftby bodymargin not needed ... *)
@@ -1651,10 +1666,13 @@ let rec defaultpos =
     (* put the SW corner of the proof in the SW corner of the screen. Because of botleft this is
        1 pixel too high, but who cares?
      *)
-    ( +<-+ )
-      (upby (rightby (botleft screen, sidescreengap), sH (bSize bodybox)),
-       prooforigin),
+    (* because there is now a single GUI implementation, and because selections are essentially
+       outsets of 2*linethickness, I leave that much space below the proof
+     *)
+    upby (rightby (botleft screen, sidescreengap), sH (bSize bodybox)+2*linethickness)
+    +<-+ prooforigin,
     screen, prooforigin
+
 let rec rootpos =
   fun (Layout {lines = lines}) ->
     (* position of last line in proof, first in lines *)
@@ -1666,13 +1684,13 @@ let rec rootpos =
     match findfirst p lines with
       Some p -> p
     | _ -> origin
+
 let rec postoinclude box =
   fun
     (Layout {bodymargin = bodymargin; sidescreengap = sidescreengap} as
        layout) ->
     let (defpos, screen, prooforigin) = defaultpos layout in
-    let otherdefpos =
-      ( +<-+ ) (rightby (topleft screen, sidescreengap), prooforigin)
+    let otherdefpos = rightby (topleft screen, sidescreengap) +<-+ prooforigin
     in
     (*
     consolereport ["postoinclude: defpos ", posstring defpos, " screen ", boxstring screen, 
@@ -1695,16 +1713,17 @@ let rec postoinclude box =
        * that is, choose p = midp +<-+ bPos Box.
        * I hope.
        *)
-      ( +<-+ )
         (downby
            (rightby (bPos screen, bodymargin),
-            (sH (bSize screen) - sH (bSize box)) / 2),
-         bPos box)
+            (sH (bSize screen) - sH (bSize box)) / 2)
+         +<-+ bPos box)
+
 let rec layout proof = _BoxLayout (sW (bSize (viewBox ()))) proof
 (* This function is used in displaystyle.sml to position a proof.
  * I think it's best if the _conclusion_ box doesn't move.  Otherwise you get into all 
  * kinds of jumpy behaviour.
  *)
+
 let rec targetbox a1 a2 =
   match a1, a2 with
     None, _ -> None
@@ -1735,6 +1754,7 @@ let rec targetbox a1 a2 =
         | FitchBox {boxlines = lines} -> findfirst search lines
       in
       findfirst search lines
+
 let rec samelayout =
   fun (Layout {lines = lines}, Layout {lines = lines'}) -> lines = lines'
 

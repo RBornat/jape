@@ -72,6 +72,7 @@ type layout = treeplan
 
 let rec shiftoutline indent (ys : outline) =
   ((fun (l, r) -> l + indent, r + indent) <* ys)
+
 let rec place subh gap =
   fun
     ((Treeplan {proofbox = proofbox; proofoutline = proofoutline} as
@@ -99,15 +100,19 @@ let rec place subh gap =
     let newbox = box (newpos, bSize proofbox) in
     (if null alloutline then newbox else ( +||+ ) (topbox, newbox)),
     oz offset alloutline proofoutline, (newpos, plan) :: sps
+
 let rec tpH = fun (Treeplan {proofbox = proofbox}) -> sH (bSize proofbox)
 (* from a treeplan, find (x1,x2) of the sequent that underpins it *)
+
 let rec subline =
   fun (Treeplan {seqbox = seqbox}) ->
     let x1 = posX (tbPos seqbox) in x1, x1 + tsW (tbSize seqbox)
+
 let rec drawReason a1 a2 =
   match a1, a2 with
     p, None -> ()
   | p, Some plan -> drawplan planclass2displayclass p plan
+
 let rec maketreeplan proof =
   let termfontleading = thrd (fontinfo TermFont) in
   let reasonfontleading = thrd (fontinfo ReasonFont) in
@@ -222,16 +227,19 @@ let rec maketreeplan proof =
                subplans = subplans; linethickness = linethickness }
   in
   _TP proof
+
 let rec _FIRSTOFN  _P xs =
   let rec _F a1 a2 =
     match a1, a2 with n, []      -> None
     |                 n, x :: xs -> match _P (n, x) with None   -> _F (n + 1) xs
                                     |                    result -> result
   in _F 0 xs
+
 let rec elinfo plan =
   match planinfo plan with
     ElementClass info -> Some info
   | _ -> None
+
 let rec pos2hit pos path =
   fun
     (Treeplan
@@ -243,7 +251,7 @@ let rec pos2hit pos path =
     if within (pos, proofbox) then
       if withintb (pos, seqbox) then
         match
-            (findfirstplanhit (( +<-+ ) (pos, tbPos seqbox)) seqplan &~~
+            (findfirstplanhit ( (pos +<-+ tbPos seqbox)) seqplan &~~
              elinfo)
         with
           Some (el, c) ->
@@ -263,18 +271,21 @@ let rec pos2hit pos path =
         Some (ReasonHit (List.rev path))
       else
         _FIRSTOFN
-           (fun (n, (pos', plan)) -> pos2hit (( +<-+ ) (pos, pos')) (n :: path) plan)
+           (fun (n, (pos', plan)) -> pos2hit ( (pos +<-+ pos')) (n :: path) plan)
            subplans
     else None
+
 let rec locateHit pos _ _ (prooforigin, proof, plan) =
-  pos2hit (( +<-+ ) (pos, prooforigin)) [] plan
+  pos2hit ( (pos +<-+ prooforigin)) [] plan
+
 let refineSelection = false
+
 let rec notifyselect
   bposclassopt posclasslist (prooforigin, proof, plan) =
   let rec cleanup test =
     List.iter
       (fun (oldpos, _) ->
-         match pos2hit (( +<-+ ) (oldpos, prooforigin)) [] plan with
+         match pos2hit ( (oldpos +<-+ prooforigin)) [] plan with
            Some oldhit ->
              if test (oldpos, oldhit) then highlight oldpos None
          | None ->
@@ -289,7 +300,7 @@ let rec notifyselect
   | Some (hitpos, _) ->
       (* cancel anything lying around *)
       (* cancel hits in other sequents ... *)
-      match pos2hit (( +<-+ ) (hitpos, prooforigin)) [] plan with
+      match pos2hit ( (hitpos +<-+ prooforigin)) [] plan with
         Some (ReasonHit _) ->
           (* only one selection *)
           cleanup (fun (oldpos, _) -> oldpos <> hitpos)
@@ -313,17 +324,21 @@ let rec _FORNUMBERED f xs =
   let rec _F a1 a2 = match a1, a2 with  n, []      -> ()
                      |                  n, x :: xs -> f (n, x); _F (n + 1) xs
   in _F 0 xs    
+
 let rec samepath =
   function None   , _  -> false
   |        Some p1, p2 -> p1 = p2
+
 let rec revgoal =
   function
     None -> None
   | Some path -> Some (List.rev path)
+
 let rec elementofclass class__ plan =
   match planinfo plan with
     ElementClass (_, c) -> class__ = c
   | _ -> false
+
 let rec draw goal pos proof =
   fun (Treeplan {linethickness = linethickness} as plan) ->
     let rgoal = revgoal goal in
@@ -361,6 +376,7 @@ let rec draw goal pos proof =
            subplans
     in
     drawinproofpane (); _D plan pos []
+
 let rec print str goal pos proof plan =
   let rgoal = revgoal goal in
   let out = output_string str in
@@ -390,6 +406,7 @@ let rec print str goal pos proof plan =
       out "))\n"
   in
   _D plan 0 []
+
 let rec targetbox path plan =
   let rec _P a1 a2 a3 =
     match a1, a2, a3 with
@@ -407,18 +424,19 @@ let rec targetbox path plan =
   match path with
     Some route -> _P route plan origin
   | None -> None
+
 let rec defaultpos =
-  fun (Treeplan {seqbox = seqbox}) ->
+  fun (Treeplan {seqbox=seqbox; linethickness=linethickness}) ->
     let screen = viewBox () in
     let screensize = bSize screen in
     let seqpos = tbPos seqbox in
     let seqsize = tbSize seqbox in
     (* put the base sequent in the middle of the bottom of the screen *)
-    ( +<-+ )
+    (* with enough space below it to allow for the way that the GUI makes selections *)
       (downby
          (rightby (bPos screen, (sW screensize - tsW seqsize) / 2),
-          sH screensize - tsD seqsize - 1),
-       seqpos),
+          sH screensize - tsD seqsize - 1 - 2*linethickness)
+      +<-+ seqpos),
     screen
 
 let layout = maketreeplan
@@ -440,17 +458,19 @@ let rec postoinclude box =
       let proofsize = bSize proofbox in
       let boxsize = bSize box in
       let midp =
-        ( +<-+ )
           (rightby
              (downby (bPos screen, (sH screensize - sH boxsize) / 2),
-              (sW screensize - sW boxsize) / 2),
-           bPos box)
+              (sW screensize - sW boxsize) / 2)
+           +<-+ bPos box)
       in
       let screenbottom = posY screenpos + sH screensize in
       let proofbottom = posY proofpos + posY midp + sH proofsize in
       if proofbottom >= screenbottom then midp
       else downby (midp, screenbottom - proofbottom)
+
 let rec samelayout (a, b) = a = b
+
 let defaultpos = fst <*> defaultpos
 (* for export *)
+
 let rootpos = defaultpos
