@@ -57,7 +57,6 @@
 				791C735C05DCEDE00086E5C6,
 				791C735D05DCEDE00086E5C6,
 				791C735E05DCEDE00086E5C6,
-				791C735F05DCEDE00086E5C6,
 				791C736005DCEDE00086E5C6,
 				791C736105DCEDE00086E5C6,
 				791C736205DCEDE00086E5C6,
@@ -338,7 +337,6 @@
 				791C73FA05DCEDE10086E5C6,
 				791C73FB05DCEDE10086E5C6,
 				791C73FC05DCEDE10086E5C6,
-				791C73FD05DCEDE10086E5C6,
 				791C73FE05DCEDE10086E5C6,
 				791C73FF05DCEDE10086E5C6,
 				791C740005DCEDE10086E5C6,
@@ -670,15 +668,6 @@
 			lastKnownFileType = sourcecode.java;
 			name = Tile.java;
 			path = ../../java_GUI/uk/org/jape/Tile.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		791C735F05DCEDE00086E5C6 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = JapeCharEncoding.java;
-			path = ../../java_GUI/uk/org/jape/JapeCharEncoding.java;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
@@ -1294,12 +1283,6 @@
 			settings = {
 			};
 		};
-		791C73AE05DCEDE00086E5C6 = {
-			fileRef = 791C735F05DCEDE00086E5C6;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		791C73AF05DCEDE00086E5C6 = {
 			fileRef = 791C736005DCEDE00086E5C6;
 			isa = PBXBuildFile;
@@ -1756,12 +1739,6 @@
 			settings = {
 			};
 		};
-		791C73FD05DCEDE10086E5C6 = {
-			fileRef = 791C735F05DCEDE00086E5C6;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		791C73FE05DCEDE10086E5C6 = {
 			fileRef = 791C736005DCEDE00086E5C6;
 			isa = PBXBuildFile;
@@ -2137,7 +2114,6 @@
 				791C73AB05DCEDE00086E5C6,
 				791C73AC05DCEDE00086E5C6,
 				791C73AD05DCEDE00086E5C6,
-				791C73AE05DCEDE00086E5C6,
 				791C73AF05DCEDE00086E5C6,
 				791C73B005DCEDE00086E5C6,
 				791C73B105DCEDE00086E5C6,
