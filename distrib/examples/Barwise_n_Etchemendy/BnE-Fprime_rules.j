@@ -57,7 +57,7 @@ AND	(OBJECT w1,OBJECT x1,OBJECT y1,OBJECT z1) FROM ä! (w,x,y,z) .A(w,x,y,z)
 END
 
 TACTIC ForwardCut (n,Rule) IS 
-	SEQ cut (ForwardUncut n rule)
+	SEQ cut (ForwardUncut n Rule)
 
 TACTIC ForwardUncut (n, Rule) IS
 	(LETGOALPATH G (WITHCONTINUATION (WITHARGSEL Rule) (GOALPATH (SUBGOAL G n)) (WITHHYPSEL hyp)) (GOALPATH G) NEXTGOAL)
