@@ -26,6 +26,6 @@
 */
 
 public interface Target {
-    public void dragEnter();
+    public boolean dragEnter(Object o); // returns true if drag accepted
     public void dragExit();
 }
