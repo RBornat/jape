@@ -12,7 +12,7 @@ public class installjape
    static String currentPath = System.getProperty("user.dir");
    static String fsep        = System.getProperty("file.separator");
    static String dot(String path)
-   { return currentPath + fsep + path; }
+   { return "\\\""+currentPath + fsep + path+ "\\\""; }
    
    /** When run from the command line this makes the right command files for a WIndows installation */
    public static void main(String[] args) throws Exception
