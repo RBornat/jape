@@ -30,6 +30,85 @@
 		};
 		01F12F4DFEC8CE2211DB9C8B = {
 			children = (
+				791C734405DCEDE00086E5C6,
+				791C734505DCEDE00086E5C6,
+				791C734605DCEDE00086E5C6,
+				791C734705DCEDE00086E5C6,
+				791C734805DCEDE00086E5C6,
+				791C734905DCEDE00086E5C6,
+				791C734A05DCEDE00086E5C6,
+				791C734B05DCEDE00086E5C6,
+				791C734C05DCEDE00086E5C6,
+				791C734D05DCEDE00086E5C6,
+				791C734E05DCEDE00086E5C6,
+				791C734F05DCEDE00086E5C6,
+				791C735005DCEDE00086E5C6,
+				791C735105DCEDE00086E5C6,
+				791C735205DCEDE00086E5C6,
+				791C735305DCEDE00086E5C6,
+				791C735405DCEDE00086E5C6,
+				791C735505DCEDE00086E5C6,
+				791C735605DCEDE00086E5C6,
+				791C735705DCEDE00086E5C6,
+				791C735805DCEDE00086E5C6,
+				791C735905DCEDE00086E5C6,
+				791C735A05DCEDE00086E5C6,
+				791C735B05DCEDE00086E5C6,
+				791C735C05DCEDE00086E5C6,
+				791C735D05DCEDE00086E5C6,
+				791C735E05DCEDE00086E5C6,
+				791C735F05DCEDE00086E5C6,
+				791C736005DCEDE00086E5C6,
+				791C736105DCEDE00086E5C6,
+				791C736205DCEDE00086E5C6,
+				791C736305DCEDE00086E5C6,
+				791C736405DCEDE00086E5C6,
+				791C736505DCEDE00086E5C6,
+				791C736605DCEDE00086E5C6,
+				791C736705DCEDE00086E5C6,
+				791C736805DCEDE00086E5C6,
+				791C736905DCEDE00086E5C6,
+				791C736A05DCEDE00086E5C6,
+				791C736B05DCEDE00086E5C6,
+				791C736C05DCEDE00086E5C6,
+				791C736D05DCEDE00086E5C6,
+				791C736E05DCEDE00086E5C6,
+				791C736F05DCEDE00086E5C6,
+				791C737005DCEDE00086E5C6,
+				791C737105DCEDE00086E5C6,
+				791C737205DCEDE00086E5C6,
+				791C737305DCEDE00086E5C6,
+				791C737405DCEDE00086E5C6,
+				791C737505DCEDE00086E5C6,
+				791C737605DCEDE00086E5C6,
+				791C737705DCEDE00086E5C6,
+				791C737805DCEDE00086E5C6,
+				791C737905DCEDE00086E5C6,
+				791C737A05DCEDE00086E5C6,
+				791C737B05DCEDE00086E5C6,
+				791C737C05DCEDE00086E5C6,
+				791C737D05DCEDE00086E5C6,
+				791C737E05DCEDE00086E5C6,
+				791C737F05DCEDE00086E5C6,
+				791C738005DCEDE00086E5C6,
+				791C738105DCEDE00086E5C6,
+				791C738205DCEDE00086E5C6,
+				791C738305DCEDE00086E5C6,
+				791C738405DCEDE00086E5C6,
+				791C738505DCEDE00086E5C6,
+				791C738605DCEDE00086E5C6,
+				791C738705DCEDE00086E5C6,
+				791C738805DCEDE00086E5C6,
+				791C738905DCEDE00086E5C6,
+				791C738A05DCEDE00086E5C6,
+				791C738B05DCEDE00086E5C6,
+				791C738C05DCEDE00086E5C6,
+				791C738D05DCEDE00086E5C6,
+				791C738E05DCEDE00086E5C6,
+				791C738F05DCEDE00086E5C6,
+				791C739005DCEDE00086E5C6,
+				791C739105DCEDE00086E5C6,
+				791C739205DCEDE00086E5C6,
 				01F12F4FFEC8CEF111DB9C8B,
 				F5E5E3BF035EE05E01A80116,
 				10F9BF62FEEDA25E11DB9C8B,
@@ -37,84 +116,7 @@
 				F5E5E7C603A79B5B01A80116,
 				F5E5E7C703A79B5B01A80116,
 				F5E5E7C803A79B5B01A80116,
-				F515B6050331D98801A80116,
-				F515B6060331D98801A80116,
-				F502FBE7035D88BC01A80116,
-				F5E9EBF203B1E3FF01A80116,
-				F5152729037BD50101A80116,
-				7948B0CA0545701A00D70218,
-				F5CC966D03438BFF01A80116,
-				7939B3FD03EEC56000A80117,
-				F516FFB5031F823A01A80117,
-				7990DD7A03D086A200A80117,
-				790A632005441622009D8257,
-				F528CB2A0307C5B501A80116,
-				F51F6C7B0360086701A80116,
-				F58AB2BF0377FD2D01A80116,
-				F58AB2C80378188901A80116,
-				F57EF912039507ED01A80116,
-				F5E142E0039E1E4001A80116,
-				F5158C94039E321E01A80116,
-				F5158C91039E2C6101A80116,
-				F515271D037BB83201A80116,
-				7903E8F003E05A4600A80117,
-				F586B1630326408D01A80117,
-				797B541C048B47C6001F0D29,
-				F515B6080331D98801A80116,
-				F5F50C890394DDCB01A80116,
-				F5E2B59F03A7982901A80116,
-				799044D203FD5AC20014D8BC,
-				F51F6C7F036025C101A80116,
-				F5B9B5BC038B969501A80116,
-				F515B6090331D98801A80116,
-				F516FFD2031F87F501A80117,
-				F59988FE036976E501A80116,
-				F560AEE8036D799701A80116,
-				F57E549C038BB91A01A80116,
-				79B2E1E803EFE81000A80116,
-				F531A7B7033213F801A80116,
-				F52B56B7039D296801A80116,
-				F574B00903968EBA01A80116,
-				F50BD28C036EEC3A01A80116,
-				F526B567039E4A3A01A80116,
 				F515B6180331DA6801A80116,
-				F59F3D1C033773B101A80116,
-				7939B40803EECF4E00A80117,
-				7939B40503EEC79800A80117,
-				F5E5E3DE035EE1AC01A80116,
-				F5F50C860394DC6601A80116,
-				79271D12053D8725009A0D38,
-				F592908503728EA101A80117,
-				F515B60B0331D98801A80116,
-				F5152720037BB90501A80116,
-				F569E6B4039FC3DF01A80116,
-				F516FFB3031F822901A80117,
-				F515B61A0332012801A80116,
-				F560AEE9036D799701A80116,
-				F515B60C0331D98801A80116,
-				F5EC637A03A0B62D01A80116,
-				F5D80C8B036F044901A80116,
-				790A632305441974009D8257,
-				F515B60D0331D98801A80116,
-				F560AEEB036D799701A80116,
-				F556EA5E0366E4B801A80116,
-				79423C9D054547E600F94C40,
-				F563B8B703372EA501A80116,
-				799BE49A0404177B005E27BA,
-				F516FFBB031F827D01A80117,
-				F516FFB9031F825B01A80117,
-				F5E5E3E2035F171101A80116,
-				F57E7E00037FBF5401A80116,
-				F5F50C8F0394EBCF01A80116,
-				F54C942A039D03FB01A80116,
-				F5152723037BC71E01A80116,
-				F5DFE22903953DAD01A80116,
-				F5152726037BCC1A01A80116,
-				F52B56B1039D210801A80116,
-				79C23A7F053FF9D300DACFD9,
-				F57EF90F039503AE01A80116,
-				79E9837A05D405520055725F,
-				799C11CF05DBA7F7009901CF,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -309,83 +311,85 @@
 		1601BCDCFEEE210811DB9C8B = {
 			buildActionMask = 2147483647;
 			files = (
-				F528CB2D0307C5B501A80116,
-				F516FFB8031F824A01A80117,
-				F516FFBC031F827D01A80117,
-				F516FFD3031F87F501A80117,
-				F586B1640326408D01A80117,
-				F515B60F0331D98801A80116,
-				F515B6110331D98801A80116,
-				F515B6120331D98801A80116,
-				F515B6140331D98801A80116,
-				F515B6150331D98801A80116,
-				F515B6160331D98801A80116,
 				F515B6190331DA6801A80116,
-				F515B61B0332012801A80116,
-				F531A7B8033213F801A80116,
-				F563B8B803372EA501A80116,
-				F5CC966E03438BFF01A80116,
-				F5865C6B035C34DD01A80116,
-				F502FBE8035D88BC01A80116,
-				F5E5E3B9035ED1EE01A80116,
-				F5E5E3DF035EE1AC01A80116,
-				F5E5E3E3035F171101A80116,
-				F51F6C7C0360086701A80116,
-				F51F6C80036025C101A80116,
-				F51F6C830360266F01A80116,
-				F556EA5F0366E4B801A80116,
-				F59988FF036976E501A80116,
-				F560AEEE036D799701A80116,
-				F560AEEF036D799701A80116,
-				F560AEF1036D799701A80116,
-				F50BD28D036EEC3A01A80116,
-				F5D80C8C036F044901A80116,
-				F592908603728EA101A80117,
-				F58AB2C00377FD2D01A80116,
-				F58AB2C90378188901A80116,
-				F515271E037BB83201A80116,
-				F5152721037BB90501A80116,
-				F5152724037BC71E01A80116,
-				F5152727037BCC1A01A80116,
-				F515272A037BD50101A80116,
-				F57E7E01037FBF5401A80116,
-				F5B9B5BD038B969501A80116,
-				F57E549D038BB91A01A80116,
-				F5F50C870394DC6601A80116,
-				F5F50C8A0394DDCB01A80116,
-				F5F50C900394EBCF01A80116,
-				F57EF910039503AE01A80116,
-				F57EF913039507ED01A80116,
-				F5DFE22A03953DAD01A80116,
-				F574B00A03968EBA01A80116,
-				F54C942B039D03FB01A80116,
-				F52B56B2039D210801A80116,
-				F52B56B8039D296801A80116,
-				F5E142E1039E1E4001A80116,
-				F5158C92039E2C6101A80116,
-				F5158C95039E321E01A80116,
-				F526B568039E4A3A01A80116,
-				F569E6B5039FC3DF01A80116,
-				F5EC637B03A0B62D01A80116,
-				F5E2B5A003A7982901A80116,
-				F5E9EBF303B1E3FF01A80116,
-				7990DD7B03D086A200A80117,
-				7903E8F103E05A4600A80117,
-				7939B3FE03EEC56000A80117,
-				7939B40603EEC79800A80117,
-				7939B40903EECF4E00A80117,
-				79B2E1E903EFE81000A80116,
-				799044D303FD5AC20014D8BC,
-				799BE49B0404177B005E27BA,
-				797B541D048B47C6001F0D29,
-				79271D13053D8725009A0D38,
-				790A632A05443E65009D8257,
-				79423C9E054547E600F94C40,
-				79423CA505456E1700F94C40,
-				7948B0CB0545701A00D70218,
-				7948B0CD054574A900D70218,
-				79E9837C05D405520055725F,
-				799C11D105DBA7F7009901CF,
+				791C73E205DCEDE10086E5C6,
+				791C73E305DCEDE10086E5C6,
+				791C73E405DCEDE10086E5C6,
+				791C73E505DCEDE10086E5C6,
+				791C73E605DCEDE10086E5C6,
+				791C73E705DCEDE10086E5C6,
+				791C73E905DCEDE10086E5C6,
+				791C73EA05DCEDE10086E5C6,
+				791C73EB05DCEDE10086E5C6,
+				791C73EC05DCEDE10086E5C6,
+				791C73ED05DCEDE10086E5C6,
+				791C73EE05DCEDE10086E5C6,
+				791C73EF05DCEDE10086E5C6,
+				791C73F005DCEDE10086E5C6,
+				791C73F105DCEDE10086E5C6,
+				791C73F205DCEDE10086E5C6,
+				791C73F305DCEDE10086E5C6,
+				791C73F405DCEDE10086E5C6,
+				791C73F505DCEDE10086E5C6,
+				791C73F605DCEDE10086E5C6,
+				791C73F705DCEDE10086E5C6,
+				791C73F805DCEDE10086E5C6,
+				791C73F905DCEDE10086E5C6,
+				791C73FA05DCEDE10086E5C6,
+				791C73FB05DCEDE10086E5C6,
+				791C73FC05DCEDE10086E5C6,
+				791C73FD05DCEDE10086E5C6,
+				791C73FE05DCEDE10086E5C6,
+				791C73FF05DCEDE10086E5C6,
+				791C740005DCEDE10086E5C6,
+				791C740105DCEDE10086E5C6,
+				791C740205DCEDE10086E5C6,
+				791C740305DCEDE10086E5C6,
+				791C740405DCEDE10086E5C6,
+				791C740505DCEDE10086E5C6,
+				791C740605DCEDE10086E5C6,
+				791C740705DCEDE10086E5C6,
+				791C740805DCEDE10086E5C6,
+				791C740905DCEDE10086E5C6,
+				791C740A05DCEDE10086E5C6,
+				791C740B05DCEDE10086E5C6,
+				791C740C05DCEDE10086E5C6,
+				791C740D05DCEDE10086E5C6,
+				791C740E05DCEDE10086E5C6,
+				791C740F05DCEDE10086E5C6,
+				791C741005DCEDE10086E5C6,
+				791C741105DCEDE10086E5C6,
+				791C741205DCEDE10086E5C6,
+				791C741305DCEDE10086E5C6,
+				791C741405DCEDE10086E5C6,
+				791C741505DCEDE10086E5C6,
+				791C741605DCEDE10086E5C6,
+				791C741705DCEDE10086E5C6,
+				791C741805DCEDE10086E5C6,
+				791C741905DCEDE10086E5C6,
+				791C741A05DCEDE10086E5C6,
+				791C741B05DCEDE10086E5C6,
+				791C741C05DCEDE10086E5C6,
+				791C741D05DCEDE10086E5C6,
+				791C741E05DCEDE10086E5C6,
+				791C741F05DCEDE10086E5C6,
+				791C742005DCEDE10086E5C6,
+				791C742105DCEDE10086E5C6,
+				791C742205DCEDE10086E5C6,
+				791C742305DCEDE10086E5C6,
+				791C742405DCEDE10086E5C6,
+				791C742505DCEDE10086E5C6,
+				791C742605DCEDE10086E5C6,
+				791C742705DCEDE10086E5C6,
+				791C742805DCEDE10086E5C6,
+				791C742905DCEDE10086E5C6,
+				791C742A05DCEDE10086E5C6,
+				791C742B05DCEDE10086E5C6,
+				791C742C05DCEDE10086E5C6,
+				791C742D05DCEDE10086E5C6,
+				791C742E05DCEDE10086E5C6,
+				791C742F05DCEDE10086E5C6,
+				791C743005DCEDE10086E5C6,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -426,359 +430,1655 @@
 //792
 //793
 //794
-		7903E8F003E05A4600A80117 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = Engine.java;
-			path = ../../java_GUI/Engine.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		7903E8F103E05A4600A80117 = {
-			fileRef = 7903E8F003E05A4600A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7903E8F203E05A4600A80117 = {
-			fileRef = 7903E8F003E05A4600A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		790A632005441622009D8257 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = DirectedFormulaSelection.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/DirectedFormulaSelection.java;
-			refType = 0;
-			sourceTree = "<absolute>";
-		};
-		790A632205441622009D8257 = {
-			fileRef = 790A632005441622009D8257;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		790A632305441974009D8257 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = RectSelection.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/RectSelection.java;
-			refType = 0;
-			sourceTree = "<absolute>";
-		};
-		790A632505441974009D8257 = {
-			fileRef = 790A632305441974009D8257;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		790A632A05443E65009D8257 = {
-			fileRef = 790A632005441622009D8257;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		79271D12053D8725009A0D38 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = OutlineItem.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/OutlineItem.java;
-			refType = 0;
-			sourceTree = "<absolute>";
-		};
-		79271D13053D8725009A0D38 = {
-			fileRef = 79271D12053D8725009A0D38;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		79271D14053D8725009A0D38 = {
-			fileRef = 79271D12053D8725009A0D38;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7939B3FD03EEC56000A80117 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = ControlWindow.java;
-			path = ../../java_GUI/ControlWindow.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		7939B3FE03EEC56000A80117 = {
-			fileRef = 7939B3FD03EEC56000A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7939B3FF03EEC56000A80117 = {
-			fileRef = 7939B3FD03EEC56000A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7939B40503EEC79800A80117 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = MenuHolder.java;
-			path = ../../java_GUI/MenuHolder.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		7939B40603EEC79800A80117 = {
-			fileRef = 7939B40503EEC79800A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7939B40703EEC79800A80117 = {
-			fileRef = 7939B40503EEC79800A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7939B40803EECF4E00A80117 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = Logger.java;
-			path = ../../java_GUI/Logger.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		7939B40903EECF4E00A80117 = {
-			fileRef = 7939B40803EECF4E00A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7939B40A03EECF4E00A80117 = {
-			fileRef = 7939B40803EECF4E00A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		79423C9D054547E600F94C40 = {
+		791C734405DCEDE00086E5C6 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
-			name = SelectionIndicator.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/SelectionIndicator.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			name = ButtonPane.java;
+			path = ../../java_GUI/uk/org/jape/ButtonPane.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		79423C9E054547E600F94C40 = {
-			fileRef = 79423C9D054547E600F94C40;
-			isa = PBXBuildFile;
-			settings = {
-			};
+		791C734505DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = JapeMouseListener.java;
+			path = ../../java_GUI/uk/org/jape/JapeMouseListener.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		79423C9F054547E600F94C40 = {
-			fileRef = 79423C9D054547E600F94C40;
-			isa = PBXBuildFile;
-			settings = {
-			};
+		791C734605DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = ProtocolConstants.java;
+			path = ../../java_GUI/uk/org/jape/ProtocolConstants.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		79423CA505456E1700F94C40 = {
-			fileRef = 790A632305441974009D8257;
-			isa = PBXBuildFile;
-			settings = {
-			};
+		791C734705DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = PosIntHashMap.java;
+			path = ../../java_GUI/uk/org/jape/PosIntHashMap.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		7948B0CA0545701A00D70218 = {
+		791C734805DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = SelectableItem.java;
+			path = ../../java_GUI/uk/org/jape/SelectableItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C734905DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = WasteBin.java;
+			path = ../../java_GUI/uk/org/jape/WasteBin.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C734A05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = LocalSettings.java;
+			path = ../../java_GUI/uk/org/jape/LocalSettings.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C734B05DCEDE00086E5C6 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			name = CircleSelection.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/CircleSelection.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../java_GUI/uk/org/jape/CircleSelection.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		7948B0CB0545701A00D70218 = {
-			fileRef = 7948B0CA0545701A00D70218;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7948B0CC0545701A00D70218 = {
-			fileRef = 7948B0CA0545701A00D70218;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7948B0CD054574A900D70218 = {
-			fileRef = 79C23A7F053FF9D300DACFD9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		797B541C048B47C6001F0D29 = {
+		791C734C05DCEDE00086E5C6 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
-			name = Export.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/Export.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			name = FileChooser.java;
+			path = ../../java_GUI/uk/org/jape/FileChooser.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		797B541D048B47C6001F0D29 = {
-			fileRef = 797B541C048B47C6001F0D29;
-			isa = PBXBuildFile;
-			settings = {
-			};
+		791C734D05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DragImage.java;
+			path = ../../java_GUI/uk/org/jape/DragImage.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		797B541E048B47C6001F0D29 = {
-			fileRef = 797B541C048B47C6001F0D29;
-			isa = PBXBuildFile;
-			settings = {
-			};
+		791C734E05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = JapeMouseAdapter.java;
+			path = ../../java_GUI/uk/org/jape/JapeMouseAdapter.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		799044D203FD5AC20014D8BC = {
+		791C734F05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = ProofWindow.java;
+			path = ../../java_GUI/uk/org/jape/ProofWindow.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C735005DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = Reply.java;
+			path = ../../java_GUI/uk/org/jape/Reply.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C735105DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = PanelWindowData.java;
+			path = ../../java_GUI/uk/org/jape/PanelWindowData.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C735205DCEDE00086E5C6 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			name = Jape.java;
-			path = ../../java_GUI/Jape.java;
+			path = ../../java_GUI/uk/org/jape/Jape.java;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
-		799044D303FD5AC20014D8BC = {
-			fileRef = 799044D203FD5AC20014D8BC;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		799044D403FD5AC20014D8BC = {
-			fileRef = 799044D203FD5AC20014D8BC;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7990DD7A03D086A200A80117 = {
-			fileEncoding = 4;
+		791C735305DCEDE00086E5C6 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
-			name = DebugVars.java;
-			path = ../../java_GUI/DebugVars.java;
+			name = TileTarget.java;
+			path = ../../java_GUI/uk/org/jape/TileTarget.java;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
-		7990DD7B03D086A200A80117 = {
-			fileRef = 7990DD7A03D086A200A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		7990DD7C03D086A200A80117 = {
-			fileRef = 7990DD7A03D086A200A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		799BE49A0404177B005E27BA = {
-			fileEncoding = 4;
+		791C735405DCEDE00086E5C6 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
-			name = TextDialog.java;
-			path = ../../java_GUI/TextDialog.java;
+			name = SurrogateWindow.java;
+			path = ../../java_GUI/uk/org/jape/SurrogateWindow.java;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
-		799BE49B0404177B005E27BA = {
-			fileRef = 799BE49A0404177B005E27BA;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		799BE49C0404177B005E27BA = {
-			fileRef = 799BE49A0404177B005E27BA;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		799C11CF05DBA7F7009901CF = {
-			fileEncoding = 4;
+		791C735505DCEDE00086E5C6 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
-			name = FilePrefs.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/FilePrefs.java;
-			refType = 0;
-			sourceTree = "<absolute>";
-		};
-		799C11D005DBA7F7009901CF = {
-			fileRef = 799C11CF05DBA7F7009901CF;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		799C11D105DBA7F7009901CF = {
-			fileRef = 799C11CF05DBA7F7009901CF;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		79B2E1E803EFE81000A80116 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = JapeUtils.java;
-			path = ../../java_GUI/JapeUtils.java;
+			name = Dispatcher.java;
+			path = ../../java_GUI/uk/org/jape/Dispatcher.java;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
-		79B2E1E903EFE81000A80116 = {
-			fileRef = 79B2E1E803EFE81000A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
+		791C735605DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = LineTarget.java;
+			path = ../../java_GUI/uk/org/jape/LineTarget.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		79B2E1EA03EFE81000A80116 = {
-			fileRef = 79B2E1E803EFE81000A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
+		791C735705DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DebugConstants.java;
+			path = ../../java_GUI/uk/org/jape/DebugConstants.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		79C23A7F053FF9D300DACFD9 = {
-			fileEncoding = 4;
+		791C735805DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = JapeMenu.java;
+			path = ../../java_GUI/uk/org/jape/JapeMenu.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C735905DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = WorldTarget.java;
+			path = ../../java_GUI/uk/org/jape/WorldTarget.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C735A05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = ProofCanvas.java;
+			path = ../../java_GUI/uk/org/jape/ProofCanvas.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C735B05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = OutlineItem.java;
+			path = ../../java_GUI/uk/org/jape/OutlineItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C735C05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = Images.java;
+			path = ../../java_GUI/uk/org/jape/Images.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C735D05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = RectSelection.java;
+			path = ../../java_GUI/uk/org/jape/RectSelection.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C735E05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = Tile.java;
+			path = ../../java_GUI/uk/org/jape/Tile.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C735F05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = JapeCharEncoding.java;
+			path = ../../java_GUI/uk/org/jape/JapeCharEncoding.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736005DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DisproofPane.java;
+			path = ../../java_GUI/uk/org/jape/DisproofPane.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736105DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = LineItem.java;
+			path = ../../java_GUI/uk/org/jape/LineItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736205DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DisplayItem.java;
+			path = ../../java_GUI/uk/org/jape/DisplayItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736305DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = AnchoredScrollPane.java;
+			path = ../../java_GUI/uk/org/jape/AnchoredScrollPane.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736405DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = CircleItem.java;
+			path = ../../java_GUI/uk/org/jape/CircleItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736505DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = JapeFont.java;
+			path = ../../java_GUI/uk/org/jape/JapeFont.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736605DCEDE00086E5C6 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			name = WorldSelection.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/WorldSelection.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../java_GUI/uk/org/jape/WorldSelection.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		79C23A81053FF9D300DACFD9 = {
-			fileRef = 79C23A7F053FF9D300DACFD9;
-			isa = PBXBuildFile;
-			settings = {
-			};
+		791C736705DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DragWorldLine.java;
+			path = ../../java_GUI/uk/org/jape/DragWorldLine.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		79E9837A05D405520055725F = {
-			fileEncoding = 4;
+		791C736805DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = TextSelectableItem.java;
+			path = ../../java_GUI/uk/org/jape/TextSelectableItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736905DCEDE00086E5C6 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			name = ChoiceDialog.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/ChoiceDialog.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../java_GUI/uk/org/jape/ChoiceDialog.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
-		79E9837B05D405520055725F = {
-			fileRef = 79E9837A05D405520055725F;
+		791C736A05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = LineComponent.java;
+			path = ../../java_GUI/uk/org/jape/LineComponent.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736B05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DisproofCanvas.java;
+			path = ../../java_GUI/uk/org/jape/DisproofCanvas.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736C05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = FilePrefs.java;
+			path = ../../java_GUI/uk/org/jape/FilePrefs.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736D05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = Alert.java;
+			path = ../../java_GUI/uk/org/jape/Alert.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736E05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = AboutBox.java;
+			path = ../../java_GUI/uk/org/jape/AboutBox.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C736F05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = WorldLabel.java;
+			path = ../../java_GUI/uk/org/jape/WorldLabel.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737005DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = JapeCanvas.java;
+			path = ../../java_GUI/uk/org/jape/JapeCanvas.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737105DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = Export.java;
+			path = ../../java_GUI/uk/org/jape/Export.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737205DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = Flyback.java;
+			path = ../../java_GUI/uk/org/jape/Flyback.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737305DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = TextItem.java;
+			path = ../../java_GUI/uk/org/jape/TextItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737405DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = LabelTarget.java;
+			path = ../../java_GUI/uk/org/jape/LabelTarget.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737505DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = SelectionIndicator.java;
+			path = ../../java_GUI/uk/org/jape/SelectionIndicator.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737605DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = WorldItem.java;
+			path = ../../java_GUI/uk/org/jape/WorldItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737705DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = MiscellaneousConstants.java;
+			path = ../../java_GUI/uk/org/jape/MiscellaneousConstants.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737805DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = TextDimension.java;
+			path = ../../java_GUI/uk/org/jape/TextDimension.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737905DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = Engine.java;
+			path = ../../java_GUI/uk/org/jape/Engine.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737A05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = JapeWindow.java;
+			path = ../../java_GUI/uk/org/jape/JapeWindow.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737B05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = ControlWindow.java;
+			path = ../../java_GUI/uk/org/jape/ControlWindow.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737C05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = RectItem.java;
+			path = ../../java_GUI/uk/org/jape/RectItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737D05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = SelectionConstants.java;
+			path = ../../java_GUI/uk/org/jape/SelectionConstants.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737E05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = ContainerWithOrigin.java;
+			path = ../../java_GUI/uk/org/jape/ContainerWithOrigin.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C737F05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = MinWaste.java;
+			path = ../../java_GUI/uk/org/jape/MinWaste.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738005DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DragComponent.java;
+			path = ../../java_GUI/uk/org/jape/DragComponent.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738105DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = TextDialog.java;
+			path = ../../java_GUI/uk/org/jape/TextDialog.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738205DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DebugVars.java;
+			path = ../../java_GUI/uk/org/jape/DebugVars.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738305DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = JapeUtils.java;
+			path = ../../java_GUI/uk/org/jape/JapeUtils.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738405DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = ProvisoCanvas.java;
+			path = ../../java_GUI/uk/org/jape/ProvisoCanvas.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738505DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = PrintProof.java;
+			path = ../../java_GUI/uk/org/jape/PrintProof.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738605DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = SelectableProofItem.java;
+			path = ../../java_GUI/uk/org/jape/SelectableProofItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738705DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = WorldConnector.java;
+			path = ../../java_GUI/uk/org/jape/WorldConnector.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738805DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DirectedFormulaSelection.java;
+			path = ../../java_GUI/uk/org/jape/DirectedFormulaSelection.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738905DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = MenuHolder.java;
+			path = ../../java_GUI/uk/org/jape/MenuHolder.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738A05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = ExampleFileFilter.java;
+			path = ../../java_GUI/uk/org/jape/ExampleFileFilter.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738B05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = JapeMouseTextAdapter.java;
+			path = ../../java_GUI/uk/org/jape/JapeMouseTextAdapter.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738C05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = ProtocolError.java;
+			path = ../../java_GUI/uk/org/jape/ProtocolError.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738D05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = Preferences.java;
+			path = ../../java_GUI/uk/org/jape/Preferences.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738E05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = ExportPic.java;
+			path = ../../java_GUI/uk/org/jape/ExportPic.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C738F05DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = WorldCanvas.java;
+			path = ../../java_GUI/uk/org/jape/WorldCanvas.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C739005DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DragLine.java;
+			path = ../../java_GUI/uk/org/jape/DragLine.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C739105DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = EmphasisableItem.java;
+			path = ../../java_GUI/uk/org/jape/EmphasisableItem.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C739205DCEDE00086E5C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = Logger.java;
+			path = ../../java_GUI/uk/org/jape/Logger.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		791C739305DCEDE00086E5C6 = {
+			fileRef = 791C734405DCEDE00086E5C6;
 			isa = PBXBuildFile;
 			settings = {
 			};
 		};
-		79E9837C05D405520055725F = {
-			fileRef = 79E9837A05D405520055725F;
+		791C739405DCEDE00086E5C6 = {
+			fileRef = 791C734505DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739505DCEDE00086E5C6 = {
+			fileRef = 791C734605DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739605DCEDE00086E5C6 = {
+			fileRef = 791C734705DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739705DCEDE00086E5C6 = {
+			fileRef = 791C734805DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739805DCEDE00086E5C6 = {
+			fileRef = 791C734905DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739905DCEDE00086E5C6 = {
+			fileRef = 791C734A05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739A05DCEDE00086E5C6 = {
+			fileRef = 791C734B05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739B05DCEDE00086E5C6 = {
+			fileRef = 791C734C05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739C05DCEDE00086E5C6 = {
+			fileRef = 791C734D05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739D05DCEDE00086E5C6 = {
+			fileRef = 791C734E05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739E05DCEDE00086E5C6 = {
+			fileRef = 791C734F05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C739F05DCEDE00086E5C6 = {
+			fileRef = 791C735005DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73A005DCEDE00086E5C6 = {
+			fileRef = 791C735105DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73A105DCEDE00086E5C6 = {
+			fileRef = 791C735205DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73A205DCEDE00086E5C6 = {
+			fileRef = 791C735305DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73A305DCEDE00086E5C6 = {
+			fileRef = 791C735405DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73A405DCEDE00086E5C6 = {
+			fileRef = 791C735505DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73A505DCEDE00086E5C6 = {
+			fileRef = 791C735605DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73A605DCEDE00086E5C6 = {
+			fileRef = 791C735705DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73A705DCEDE00086E5C6 = {
+			fileRef = 791C735805DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73A805DCEDE00086E5C6 = {
+			fileRef = 791C735905DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73A905DCEDE00086E5C6 = {
+			fileRef = 791C735A05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73AA05DCEDE00086E5C6 = {
+			fileRef = 791C735B05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73AB05DCEDE00086E5C6 = {
+			fileRef = 791C735C05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73AC05DCEDE00086E5C6 = {
+			fileRef = 791C735D05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73AD05DCEDE00086E5C6 = {
+			fileRef = 791C735E05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73AE05DCEDE00086E5C6 = {
+			fileRef = 791C735F05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73AF05DCEDE00086E5C6 = {
+			fileRef = 791C736005DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73B005DCEDE00086E5C6 = {
+			fileRef = 791C736105DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73B105DCEDE00086E5C6 = {
+			fileRef = 791C736205DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73B205DCEDE00086E5C6 = {
+			fileRef = 791C736305DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73B305DCEDE00086E5C6 = {
+			fileRef = 791C736405DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73B405DCEDE00086E5C6 = {
+			fileRef = 791C736505DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73B505DCEDE00086E5C6 = {
+			fileRef = 791C736605DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73B605DCEDE00086E5C6 = {
+			fileRef = 791C736705DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73B705DCEDE00086E5C6 = {
+			fileRef = 791C736805DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73B805DCEDE00086E5C6 = {
+			fileRef = 791C736905DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73B905DCEDE00086E5C6 = {
+			fileRef = 791C736A05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73BA05DCEDE00086E5C6 = {
+			fileRef = 791C736B05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73BB05DCEDE00086E5C6 = {
+			fileRef = 791C736C05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73BC05DCEDE00086E5C6 = {
+			fileRef = 791C736D05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73BD05DCEDE00086E5C6 = {
+			fileRef = 791C736E05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73BE05DCEDE00086E5C6 = {
+			fileRef = 791C736F05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73BF05DCEDE00086E5C6 = {
+			fileRef = 791C737005DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73C005DCEDE00086E5C6 = {
+			fileRef = 791C737105DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73C105DCEDE10086E5C6 = {
+			fileRef = 791C737205DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73C205DCEDE10086E5C6 = {
+			fileRef = 791C737305DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73C305DCEDE10086E5C6 = {
+			fileRef = 791C737405DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73C405DCEDE10086E5C6 = {
+			fileRef = 791C737505DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73C505DCEDE10086E5C6 = {
+			fileRef = 791C737605DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73C605DCEDE10086E5C6 = {
+			fileRef = 791C737705DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73C705DCEDE10086E5C6 = {
+			fileRef = 791C737805DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73C805DCEDE10086E5C6 = {
+			fileRef = 791C737905DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73C905DCEDE10086E5C6 = {
+			fileRef = 791C737A05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73CA05DCEDE10086E5C6 = {
+			fileRef = 791C737B05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73CB05DCEDE10086E5C6 = {
+			fileRef = 791C737C05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73CC05DCEDE10086E5C6 = {
+			fileRef = 791C737D05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73CD05DCEDE10086E5C6 = {
+			fileRef = 791C737E05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73CE05DCEDE10086E5C6 = {
+			fileRef = 791C737F05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73CF05DCEDE10086E5C6 = {
+			fileRef = 791C738005DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73D005DCEDE10086E5C6 = {
+			fileRef = 791C738105DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73D105DCEDE10086E5C6 = {
+			fileRef = 791C738205DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73D205DCEDE10086E5C6 = {
+			fileRef = 791C738305DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73D305DCEDE10086E5C6 = {
+			fileRef = 791C738405DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73D405DCEDE10086E5C6 = {
+			fileRef = 791C738505DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73D505DCEDE10086E5C6 = {
+			fileRef = 791C738605DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73D605DCEDE10086E5C6 = {
+			fileRef = 791C738705DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73D705DCEDE10086E5C6 = {
+			fileRef = 791C738805DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73D805DCEDE10086E5C6 = {
+			fileRef = 791C738905DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73D905DCEDE10086E5C6 = {
+			fileRef = 791C738A05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73DA05DCEDE10086E5C6 = {
+			fileRef = 791C738B05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73DB05DCEDE10086E5C6 = {
+			fileRef = 791C738C05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73DC05DCEDE10086E5C6 = {
+			fileRef = 791C738D05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73DD05DCEDE10086E5C6 = {
+			fileRef = 791C738E05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73DE05DCEDE10086E5C6 = {
+			fileRef = 791C738F05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73DF05DCEDE10086E5C6 = {
+			fileRef = 791C739005DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73E005DCEDE10086E5C6 = {
+			fileRef = 791C739105DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73E105DCEDE10086E5C6 = {
+			fileRef = 791C739205DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73E205DCEDE10086E5C6 = {
+			fileRef = 791C734405DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73E305DCEDE10086E5C6 = {
+			fileRef = 791C734505DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73E405DCEDE10086E5C6 = {
+			fileRef = 791C734605DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73E505DCEDE10086E5C6 = {
+			fileRef = 791C734705DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73E605DCEDE10086E5C6 = {
+			fileRef = 791C734805DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73E705DCEDE10086E5C6 = {
+			fileRef = 791C734905DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73E905DCEDE10086E5C6 = {
+			fileRef = 791C734B05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73EA05DCEDE10086E5C6 = {
+			fileRef = 791C734C05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73EB05DCEDE10086E5C6 = {
+			fileRef = 791C734D05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73EC05DCEDE10086E5C6 = {
+			fileRef = 791C734E05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73ED05DCEDE10086E5C6 = {
+			fileRef = 791C734F05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73EE05DCEDE10086E5C6 = {
+			fileRef = 791C735005DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73EF05DCEDE10086E5C6 = {
+			fileRef = 791C735105DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73F005DCEDE10086E5C6 = {
+			fileRef = 791C735205DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73F105DCEDE10086E5C6 = {
+			fileRef = 791C735305DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73F205DCEDE10086E5C6 = {
+			fileRef = 791C735405DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73F305DCEDE10086E5C6 = {
+			fileRef = 791C735505DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73F405DCEDE10086E5C6 = {
+			fileRef = 791C735605DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73F505DCEDE10086E5C6 = {
+			fileRef = 791C735705DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73F605DCEDE10086E5C6 = {
+			fileRef = 791C735805DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73F705DCEDE10086E5C6 = {
+			fileRef = 791C735905DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73F805DCEDE10086E5C6 = {
+			fileRef = 791C735A05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73F905DCEDE10086E5C6 = {
+			fileRef = 791C735B05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73FA05DCEDE10086E5C6 = {
+			fileRef = 791C735C05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73FB05DCEDE10086E5C6 = {
+			fileRef = 791C735D05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73FC05DCEDE10086E5C6 = {
+			fileRef = 791C735E05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73FD05DCEDE10086E5C6 = {
+			fileRef = 791C735F05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73FE05DCEDE10086E5C6 = {
+			fileRef = 791C736005DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C73FF05DCEDE10086E5C6 = {
+			fileRef = 791C736105DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740005DCEDE10086E5C6 = {
+			fileRef = 791C736205DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740105DCEDE10086E5C6 = {
+			fileRef = 791C736305DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740205DCEDE10086E5C6 = {
+			fileRef = 791C736405DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740305DCEDE10086E5C6 = {
+			fileRef = 791C736505DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740405DCEDE10086E5C6 = {
+			fileRef = 791C736605DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740505DCEDE10086E5C6 = {
+			fileRef = 791C736705DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740605DCEDE10086E5C6 = {
+			fileRef = 791C736805DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740705DCEDE10086E5C6 = {
+			fileRef = 791C736905DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740805DCEDE10086E5C6 = {
+			fileRef = 791C736A05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740905DCEDE10086E5C6 = {
+			fileRef = 791C736B05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740A05DCEDE10086E5C6 = {
+			fileRef = 791C736C05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740B05DCEDE10086E5C6 = {
+			fileRef = 791C736D05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740C05DCEDE10086E5C6 = {
+			fileRef = 791C736E05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740D05DCEDE10086E5C6 = {
+			fileRef = 791C736F05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740E05DCEDE10086E5C6 = {
+			fileRef = 791C737005DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C740F05DCEDE10086E5C6 = {
+			fileRef = 791C737105DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741005DCEDE10086E5C6 = {
+			fileRef = 791C737205DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741105DCEDE10086E5C6 = {
+			fileRef = 791C737305DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741205DCEDE10086E5C6 = {
+			fileRef = 791C737405DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741305DCEDE10086E5C6 = {
+			fileRef = 791C737505DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741405DCEDE10086E5C6 = {
+			fileRef = 791C737605DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741505DCEDE10086E5C6 = {
+			fileRef = 791C737705DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741605DCEDE10086E5C6 = {
+			fileRef = 791C737805DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741705DCEDE10086E5C6 = {
+			fileRef = 791C737905DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741805DCEDE10086E5C6 = {
+			fileRef = 791C737A05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741905DCEDE10086E5C6 = {
+			fileRef = 791C737B05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741A05DCEDE10086E5C6 = {
+			fileRef = 791C737C05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741B05DCEDE10086E5C6 = {
+			fileRef = 791C737D05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741C05DCEDE10086E5C6 = {
+			fileRef = 791C737E05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741D05DCEDE10086E5C6 = {
+			fileRef = 791C737F05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741E05DCEDE10086E5C6 = {
+			fileRef = 791C738005DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C741F05DCEDE10086E5C6 = {
+			fileRef = 791C738105DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742005DCEDE10086E5C6 = {
+			fileRef = 791C738205DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742105DCEDE10086E5C6 = {
+			fileRef = 791C738305DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742205DCEDE10086E5C6 = {
+			fileRef = 791C738405DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742305DCEDE10086E5C6 = {
+			fileRef = 791C738505DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742405DCEDE10086E5C6 = {
+			fileRef = 791C738605DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742505DCEDE10086E5C6 = {
+			fileRef = 791C738705DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742605DCEDE10086E5C6 = {
+			fileRef = 791C738805DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742705DCEDE10086E5C6 = {
+			fileRef = 791C738905DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742805DCEDE10086E5C6 = {
+			fileRef = 791C738A05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742905DCEDE10086E5C6 = {
+			fileRef = 791C738B05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742A05DCEDE10086E5C6 = {
+			fileRef = 791C738C05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742B05DCEDE10086E5C6 = {
+			fileRef = 791C738D05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742C05DCEDE10086E5C6 = {
+			fileRef = 791C738E05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742D05DCEDE10086E5C6 = {
+			fileRef = 791C738F05DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742E05DCEDE10086E5C6 = {
+			fileRef = 791C739005DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C742F05DCEDE10086E5C6 = {
+			fileRef = 791C739105DCEDE00086E5C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		791C743005DCEDE10086E5C6 = {
+			fileRef = 791C739205DCEDE00086E5C6;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -793,294 +2093,6 @@
 //F52
 //F53
 //F54
-		F502FBE7035D88BC01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = AnchoredScrollPane.java;
-			path = ../../java_GUI/AnchoredScrollPane.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F502FBE8035D88BC01A80116 = {
-			fileRef = F502FBE7035D88BC01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F502FBEB035D88BC01A80116 = {
-			fileRef = F502FBE7035D88BC01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F50BD28C036EEC3A01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = LineItem.java;
-			path = ../../java_GUI/LineItem.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F50BD28D036EEC3A01A80116 = {
-			fileRef = F50BD28C036EEC3A01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F50BD28F036EEC3A01A80116 = {
-			fileRef = F50BD28C036EEC3A01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F515271D037BB83201A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = EmphasisableItem.java;
-			path = ../../java_GUI/EmphasisableItem.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F515271E037BB83201A80116 = {
-			fileRef = F515271D037BB83201A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F515271F037BB83201A80116 = {
-			fileRef = F515271D037BB83201A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5152720037BB90501A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = Preferences.java;
-			path = ../../java_GUI/Preferences.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5152721037BB90501A80116 = {
-			fileRef = F5152720037BB90501A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5152722037BB90501A80116 = {
-			fileRef = F5152720037BB90501A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5152723037BC71E01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = WorldCanvas.java;
-			path = ../../java_GUI/WorldCanvas.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5152724037BC71E01A80116 = {
-			fileRef = F5152723037BC71E01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5152725037BC71E01A80116 = {
-			fileRef = F5152723037BC71E01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5152726037BCC1A01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = WorldItem.java;
-			path = ../../java_GUI/WorldItem.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5152727037BCC1A01A80116 = {
-			fileRef = F5152726037BCC1A01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5152728037BCC1A01A80116 = {
-			fileRef = F5152726037BCC1A01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5152729037BD50101A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = CircleItem.java;
-			path = ../../java_GUI/CircleItem.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F515272A037BD50101A80116 = {
-			fileRef = F5152729037BD50101A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F515272B037BD50101A80116 = {
-			fileRef = F5152729037BD50101A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5158C91039E2C6101A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = DragWorldLine.java;
-			path = ../../java_GUI/DragWorldLine.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5158C92039E2C6101A80116 = {
-			fileRef = F5158C91039E2C6101A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5158C93039E2C6101A80116 = {
-			fileRef = F5158C91039E2C6101A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5158C94039E321E01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = DragLine.java;
-			path = ../../java_GUI/DragLine.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5158C95039E321E01A80116 = {
-			fileRef = F5158C94039E321E01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5158C96039E321E01A80116 = {
-			fileRef = F5158C94039E321E01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F515B6050331D98801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = AboutBox.java;
-			path = ../../java_GUI/AboutBox.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F515B6060331D98801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = Alert.java;
-			path = ../../java_GUI/Alert.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F515B6080331D98801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = FileChooser.java;
-			path = ../../java_GUI/FileChooser.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F515B6090331D98801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = JapeFont.java;
-			path = ../../java_GUI/JapeFont.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F515B60B0331D98801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = PosIntHashMap.java;
-			path = ../../java_GUI/PosIntHashMap.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F515B60C0331D98801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = ProtocolError.java;
-			path = ../../java_GUI/ProtocolError.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F515B60D0331D98801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = Reply.java;
-			path = ../../java_GUI/Reply.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F515B60F0331D98801A80116 = {
-			fileRef = F515B6060331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F515B6110331D98801A80116 = {
-			fileRef = F515B6080331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F515B6120331D98801A80116 = {
-			fileRef = F515B6090331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F515B6140331D98801A80116 = {
-			fileRef = F515B60B0331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F515B6150331D98801A80116 = {
-			fileRef = F515B60C0331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F515B6160331D98801A80116 = {
-			fileRef = F515B60D0331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		F515B6180331DA6801A80116 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -1095,665 +2107,88 @@
 			settings = {
 			};
 		};
-		F515B61A0332012801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = ProofWindow.java;
-			path = ../../java_GUI/ProofWindow.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F515B61B0332012801A80116 = {
-			fileRef = F515B61A0332012801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F516FFB3031F822901A80117 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = ProofCanvas.java;
-			path = ../../java_GUI/ProofCanvas.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F516FFB5031F823A01A80117 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = DebugConstants.java;
-			path = ../../java_GUI/DebugConstants.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F516FFB8031F824A01A80117 = {
-			fileRef = F516FFB5031F823A01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F516FFB9031F825B01A80117 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = TextItem.java;
-			path = ../../java_GUI/TextItem.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F516FFBB031F827D01A80117 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = TextDimension.java;
-			path = ../../java_GUI/TextDimension.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F516FFBC031F827D01A80117 = {
-			fileRef = F516FFBB031F827D01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F516FFD2031F87F501A80117 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = JapeMenu.java;
-			path = ../../java_GUI/JapeMenu.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F516FFD3031F87F501A80117 = {
-			fileRef = F516FFD2031F87F501A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F51F6C7B0360086701A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = DisplayItem.java;
-			path = ../../java_GUI/DisplayItem.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F51F6C7C0360086701A80116 = {
-			fileRef = F51F6C7B0360086701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F51F6C7E0360086701A80116 = {
-			fileRef = F51F6C7B0360086701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F51F6C7F036025C101A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = JapeCanvas.java;
-			path = ../../java_GUI/JapeCanvas.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F51F6C80036025C101A80116 = {
-			fileRef = F51F6C7F036025C101A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F51F6C82036025C101A80116 = {
-			fileRef = F51F6C7F036025C101A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F51F6C830360266F01A80116 = {
-			fileRef = F516FFB3031F822901A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F526B567039E4A3A01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = LineTarget.java;
-			path = ../../java_GUI/LineTarget.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F526B568039E4A3A01A80116 = {
-			fileRef = F526B567039E4A3A01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F526B569039E4A3A01A80116 = {
-			fileRef = F526B567039E4A3A01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F528CB2A0307C5B501A80116 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = Dispatcher.java;
-			path = ../../java_GUI/Dispatcher.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F528CB2D0307C5B501A80116 = {
-			fileRef = F528CB2A0307C5B501A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F52B56B1039D210801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = WorldLabel.java;
-			path = ../../java_GUI/WorldLabel.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F52B56B2039D210801A80116 = {
-			fileRef = F52B56B1039D210801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F52B56B3039D210801A80116 = {
-			fileRef = F52B56B1039D210801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F52B56B7039D296801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = LabelTarget.java;
-			path = ../../java_GUI/LabelTarget.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F52B56B8039D296801A80116 = {
-			fileRef = F52B56B7039D296801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F52B56B9039D296801A80116 = {
-			fileRef = F52B56B7039D296801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F531A7B7033213F801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = JapeWindow.java;
-			path = ../../java_GUI/JapeWindow.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F531A7B8033213F801A80116 = {
-			fileRef = F531A7B7033213F801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F54C942A039D03FB01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = WasteBin.java;
-			path = ../../java_GUI/WasteBin.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F54C942B039D03FB01A80116 = {
-			fileRef = F54C942A039D03FB01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F54C942C039D03FB01A80116 = {
-			fileRef = F54C942A039D03FB01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F556EA5E0366E4B801A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = SelectionConstants.java;
-			path = ../../java_GUI/SelectionConstants.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F556EA5F0366E4B801A80116 = {
-			fileRef = F556EA5E0366E4B801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F556EA610366E4B801A80116 = {
-			fileRef = F556EA5E0366E4B801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEE8036D799701A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = JapeMouseListener.java;
-			path = ../../java_GUI/JapeMouseListener.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F560AEE9036D799701A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = ProtocolConstants.java;
-			path = ../../java_GUI/ProtocolConstants.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F560AEEB036D799701A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = SelectableProofItem.java;
-			path = ../../java_GUI/SelectableProofItem.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F560AEEE036D799701A80116 = {
-			fileRef = F560AEE8036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEEF036D799701A80116 = {
-			fileRef = F560AEE9036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEF1036D799701A80116 = {
-			fileRef = F560AEEB036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEFA036D799701A80116 = {
-			fileRef = F560AEE8036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEFB036D799701A80116 = {
-			fileRef = F560AEE9036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEFD036D799701A80116 = {
-			fileRef = F560AEEB036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F563B8B703372EA501A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = SurrogateWindow.java;
-			path = ../../java_GUI/SurrogateWindow.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F563B8B803372EA501A80116 = {
-			fileRef = F563B8B703372EA501A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F569E6B4039FC3DF01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = PrintProof.java;
-			path = ../../java_GUI/PrintProof.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F569E6B5039FC3DF01A80116 = {
-			fileRef = F569E6B4039FC3DF01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F569E6B6039FC3DF01A80116 = {
-			fileRef = F569E6B4039FC3DF01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F574B00903968EBA01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = LineComponent.java;
-			path = ../../java_GUI/LineComponent.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F574B00A03968EBA01A80116 = {
-			fileRef = F574B00903968EBA01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F574B00B03968EBA01A80116 = {
-			fileRef = F574B00903968EBA01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F57E549C038BB91A01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = JapeMouseTextAdapter.java;
-			path = ../../java_GUI/JapeMouseTextAdapter.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F57E549D038BB91A01A80116 = {
-			fileRef = F57E549C038BB91A01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F57E549E038BB91A01A80116 = {
-			fileRef = F57E549C038BB91A01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F57E7E00037FBF5401A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = Tile.java;
-			path = ../../java_GUI/Tile.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F57E7E01037FBF5401A80116 = {
-			fileRef = F57E7E00037FBF5401A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F57E7E02037FBF5401A80116 = {
-			fileRef = F57E7E00037FBF5401A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F57EF90F039503AE01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = WorldTarget.java;
-			path = ../../java_GUI/WorldTarget.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F57EF910039503AE01A80116 = {
-			fileRef = F57EF90F039503AE01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F57EF911039503AE01A80116 = {
-			fileRef = F57EF90F039503AE01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F57EF912039507ED01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = DragComponent.java;
-			path = ../../java_GUI/DragComponent.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F57EF913039507ED01A80116 = {
-			fileRef = F57EF912039507ED01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F57EF914039507ED01A80116 = {
-			fileRef = F57EF912039507ED01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5865C6B035C34DD01A80116 = {
-			fileRef = F515B6050331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F586B1630326408D01A80117 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = ExampleFileFilter.java;
-			path = ../../java_GUI/ExampleFileFilter.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F586B1640326408D01A80117 = {
-			fileRef = F586B1630326408D01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F58AB2BF0377FD2D01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = DisproofCanvas.java;
-			path = ../../java_GUI/DisproofCanvas.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F58AB2C00377FD2D01A80116 = {
-			fileRef = F58AB2BF0377FD2D01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F58AB2C10377FD2D01A80116 = {
-			fileRef = F58AB2BF0377FD2D01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F58AB2C80378188901A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = DisproofPane.java;
-			path = ../../java_GUI/DisproofPane.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F58AB2C90378188901A80116 = {
-			fileRef = F58AB2C80378188901A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F58AB2CA0378188901A80116 = {
-			fileRef = F58AB2C80378188901A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F592908503728EA101A80117 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = PanelWindowData.java;
-			path = ../../java_GUI/PanelWindowData.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F592908603728EA101A80117 = {
-			fileRef = F592908503728EA101A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F592908803728EA101A80117 = {
-			fileRef = F592908503728EA101A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F59988FE036976E501A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = JapeMouseAdapter.java;
-			path = ../../java_GUI/JapeMouseAdapter.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F59988FF036976E501A80116 = {
-			fileRef = F59988FE036976E501A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5998901036976E501A80116 = {
-			fileRef = F59988FE036976E501A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F59F3D1C033773B101A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = LocalSettings.java;
-			path = ../../java_GUI/LocalSettings.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
 		F5AB83120339F3B701A80116 = {
 			buildActionMask = 2147483647;
 			files = (
-				F5AB83190339F3FE01A80116,
-				F5AB831A0339F3FF01A80116,
-				F5AB831D0339F40201A80116,
-				F5AB831E0339F40301A80116,
-				F5AB831F0339F40401A80116,
-				F5AB83200339F40501A80116,
-				F5AB83220339F40701A80116,
-				F5AB83230339F40801A80116,
-				F5AB83240339F40901A80116,
-				F5AB83270339F41001A80116,
-				F5AB83290339F41401A80116,
-				F5AB832A0339F41501A80116,
-				F5AB832B0339F41601A80116,
-				F5AB832C0339F41701A80116,
-				F5AB832D0339F41801A80116,
-				F5AB832E0339F41A01A80116,
-				F5AB832F0339F41B01A80116,
-				F5AB83300339F41D01A80116,
-				F5CC967103438BFF01A80116,
-				F502FBEB035D88BC01A80116,
-				F5E5E3E1035EE1AC01A80116,
-				F5E5E3E5035F171101A80116,
-				F51F6C7E0360086701A80116,
-				F51F6C82036025C101A80116,
-				F556EA610366E4B801A80116,
-				F5998901036976E501A80116,
-				F560AEFA036D799701A80116,
-				F560AEFB036D799701A80116,
-				F560AEFD036D799701A80116,
-				F50BD28F036EEC3A01A80116,
-				F5D80C8E036F044901A80116,
-				F592908803728EA101A80117,
-				F58AB2C10377FD2D01A80116,
-				F58AB2CA0378188901A80116,
-				F515271F037BB83201A80116,
-				F5152722037BB90501A80116,
-				F5152725037BC71E01A80116,
-				F5152728037BCC1A01A80116,
-				F515272B037BD50101A80116,
-				F57E7E02037FBF5401A80116,
-				F5B9B5BE038B969501A80116,
-				F57E549E038BB91A01A80116,
-				F5F50C880394DC6601A80116,
-				F5F50C8B0394DDCB01A80116,
-				F5F50C910394EBCF01A80116,
-				F57EF911039503AE01A80116,
-				F57EF914039507ED01A80116,
-				F5DFE22B03953DAD01A80116,
-				F574B00B03968EBA01A80116,
-				F54C942C039D03FB01A80116,
-				F52B56B3039D210801A80116,
-				F52B56B9039D296801A80116,
-				F5E142E2039E1E4001A80116,
-				F5158C93039E2C6101A80116,
-				F5158C96039E321E01A80116,
-				F526B569039E4A3A01A80116,
-				F569E6B6039FC3DF01A80116,
-				F5EC637C03A0B62D01A80116,
-				F5E2B5A103A7982901A80116,
-				F5E9EBF403B1E3FF01A80116,
-				7990DD7C03D086A200A80117,
-				7903E8F203E05A4600A80117,
-				7939B3FF03EEC56000A80117,
-				7939B40703EEC79800A80117,
-				7939B40A03EECF4E00A80117,
-				79B2E1EA03EFE81000A80116,
-				799044D403FD5AC20014D8BC,
-				799BE49C0404177B005E27BA,
-				797B541E048B47C6001F0D29,
-				79271D14053D8725009A0D38,
-				79C23A81053FF9D300DACFD9,
-				790A632205441622009D8257,
-				790A632505441974009D8257,
-				79423C9F054547E600F94C40,
-				7948B0CC0545701A00D70218,
-				79E9837B05D405520055725F,
-				799C11D005DBA7F7009901CF,
+				791C739305DCEDE00086E5C6,
+				791C739405DCEDE00086E5C6,
+				791C739505DCEDE00086E5C6,
+				791C739605DCEDE00086E5C6,
+				791C739705DCEDE00086E5C6,
+				791C739805DCEDE00086E5C6,
+				791C739905DCEDE00086E5C6,
+				791C739A05DCEDE00086E5C6,
+				791C739B05DCEDE00086E5C6,
+				791C739C05DCEDE00086E5C6,
+				791C739D05DCEDE00086E5C6,
+				791C739E05DCEDE00086E5C6,
+				791C739F05DCEDE00086E5C6,
+				791C73A005DCEDE00086E5C6,
+				791C73A105DCEDE00086E5C6,
+				791C73A205DCEDE00086E5C6,
+				791C73A305DCEDE00086E5C6,
+				791C73A405DCEDE00086E5C6,
+				791C73A505DCEDE00086E5C6,
+				791C73A605DCEDE00086E5C6,
+				791C73A705DCEDE00086E5C6,
+				791C73A805DCEDE00086E5C6,
+				791C73A905DCEDE00086E5C6,
+				791C73AA05DCEDE00086E5C6,
+				791C73AB05DCEDE00086E5C6,
+				791C73AC05DCEDE00086E5C6,
+				791C73AD05DCEDE00086E5C6,
+				791C73AE05DCEDE00086E5C6,
+				791C73AF05DCEDE00086E5C6,
+				791C73B005DCEDE00086E5C6,
+				791C73B105DCEDE00086E5C6,
+				791C73B205DCEDE00086E5C6,
+				791C73B305DCEDE00086E5C6,
+				791C73B405DCEDE00086E5C6,
+				791C73B505DCEDE00086E5C6,
+				791C73B605DCEDE00086E5C6,
+				791C73B705DCEDE00086E5C6,
+				791C73B805DCEDE00086E5C6,
+				791C73B905DCEDE00086E5C6,
+				791C73BA05DCEDE00086E5C6,
+				791C73BB05DCEDE00086E5C6,
+				791C73BC05DCEDE00086E5C6,
+				791C73BD05DCEDE00086E5C6,
+				791C73BE05DCEDE00086E5C6,
+				791C73BF05DCEDE00086E5C6,
+				791C73C005DCEDE00086E5C6,
+				791C73C105DCEDE10086E5C6,
+				791C73C205DCEDE10086E5C6,
+				791C73C305DCEDE10086E5C6,
+				791C73C405DCEDE10086E5C6,
+				791C73C505DCEDE10086E5C6,
+				791C73C605DCEDE10086E5C6,
+				791C73C705DCEDE10086E5C6,
+				791C73C805DCEDE10086E5C6,
+				791C73C905DCEDE10086E5C6,
+				791C73CA05DCEDE10086E5C6,
+				791C73CB05DCEDE10086E5C6,
+				791C73CC05DCEDE10086E5C6,
+				791C73CD05DCEDE10086E5C6,
+				791C73CE05DCEDE10086E5C6,
+				791C73CF05DCEDE10086E5C6,
+				791C73D005DCEDE10086E5C6,
+				791C73D105DCEDE10086E5C6,
+				791C73D205DCEDE10086E5C6,
+				791C73D305DCEDE10086E5C6,
+				791C73D405DCEDE10086E5C6,
+				791C73D505DCEDE10086E5C6,
+				791C73D605DCEDE10086E5C6,
+				791C73D705DCEDE10086E5C6,
+				791C73D805DCEDE10086E5C6,
+				791C73D905DCEDE10086E5C6,
+				791C73DA05DCEDE10086E5C6,
+				791C73DB05DCEDE10086E5C6,
+				791C73DC05DCEDE10086E5C6,
+				791C73DD05DCEDE10086E5C6,
+				791C73DE05DCEDE10086E5C6,
+				791C73DF05DCEDE10086E5C6,
+				791C73E005DCEDE10086E5C6,
+				791C73E105DCEDE10086E5C6,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1865,248 +2300,8 @@
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		F5AB83190339F3FE01A80116 = {
-			fileRef = F515B6050331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB831A0339F3FF01A80116 = {
-			fileRef = F515B6060331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB831D0339F40201A80116 = {
-			fileRef = F516FFB5031F823A01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB831E0339F40301A80116 = {
-			fileRef = F528CB2A0307C5B501A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB831F0339F40401A80116 = {
-			fileRef = F586B1630326408D01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB83200339F40501A80116 = {
-			fileRef = F515B6080331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB83220339F40701A80116 = {
-			fileRef = F515B6090331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB83230339F40801A80116 = {
-			fileRef = F516FFD2031F87F501A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB83240339F40901A80116 = {
-			fileRef = F531A7B7033213F801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		F5AB83260339F40E01A80116 = {
 			fileRef = 10F9BF62FEEDA25E11DB9C8B;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB83270339F41001A80116 = {
-			fileRef = F59F3D1C033773B101A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB83290339F41401A80116 = {
-			fileRef = F515B60B0331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB832A0339F41501A80116 = {
-			fileRef = F516FFB3031F822901A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB832B0339F41601A80116 = {
-			fileRef = F515B61A0332012801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB832C0339F41701A80116 = {
-			fileRef = F515B60C0331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB832D0339F41801A80116 = {
-			fileRef = F563B8B703372EA501A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB832E0339F41A01A80116 = {
-			fileRef = F516FFBB031F827D01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB832F0339F41B01A80116 = {
-			fileRef = F515B60D0331D98801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5AB83300339F41D01A80116 = {
-			fileRef = F516FFB9031F825B01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5B9B5BC038B969501A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = JapeCharEncoding.java;
-			path = ../../java_GUI/JapeCharEncoding.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5B9B5BD038B969501A80116 = {
-			fileRef = F5B9B5BC038B969501A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5B9B5BE038B969501A80116 = {
-			fileRef = F5B9B5BC038B969501A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5CC966D03438BFF01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = ContainerWithOrigin.java;
-			path = ../../java_GUI/ContainerWithOrigin.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5CC966E03438BFF01A80116 = {
-			fileRef = F5CC966D03438BFF01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5CC967103438BFF01A80116 = {
-			fileRef = F5CC966D03438BFF01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5D80C8B036F044901A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = RectItem.java;
-			path = ../../java_GUI/RectItem.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5D80C8C036F044901A80116 = {
-			fileRef = F5D80C8B036F044901A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5D80C8E036F044901A80116 = {
-			fileRef = F5D80C8B036F044901A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5DFE22903953DAD01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = WorldConnector.java;
-			path = ../../java_GUI/WorldConnector.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5DFE22A03953DAD01A80116 = {
-			fileRef = F5DFE22903953DAD01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5DFE22B03953DAD01A80116 = {
-			fileRef = F5DFE22903953DAD01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5E142E0039E1E4001A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = DragImage.java;
-			path = ../../java_GUI/DragImage.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5E142E1039E1E4001A80116 = {
-			fileRef = F5E142E0039E1E4001A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5E142E2039E1E4001A80116 = {
-			fileRef = F5E142E0039E1E4001A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5E2B59F03A7982901A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = Images.java;
-			path = ../../java_GUI/Images.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5E2B5A003A7982901A80116 = {
-			fileRef = F5E2B59F03A7982901A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5E2B5A103A7982901A80116 = {
-			fileRef = F5E2B59F03A7982901A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5E5E3B9035ED1EE01A80116 = {
-			fileRef = F516FFB9031F825B01A80117;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -2119,48 +2314,6 @@
 			path = ../../java_GUI/ToDo;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
-		};
-		F5E5E3DE035EE1AC01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = MinWaste.java;
-			path = ../../java_GUI/MinWaste.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5E5E3DF035EE1AC01A80116 = {
-			fileRef = F5E5E3DE035EE1AC01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5E5E3E1035EE1AC01A80116 = {
-			fileRef = F5E5E3DE035EE1AC01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5E5E3E2035F171101A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = TextSelectableItem.java;
-			path = ../../java_GUI/TextSelectableItem.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5E5E3E3035F171101A80116 = {
-			fileRef = F5E5E3E2035F171101A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5E5E3E5035F171101A80116 = {
-			fileRef = F5E5E3E2035F171101A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F5E5E7C303A79B4201A80116 = {
 			isa = PBXFileReference;
@@ -2242,111 +2395,6 @@
 		};
 		F5E5E7CE03A79B5B01A80116 = {
 			fileRef = F5E5E7C803A79B5B01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5E9EBF203B1E3FF01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = ButtonPane.java;
-			path = ../../java_GUI/ButtonPane.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5E9EBF303B1E3FF01A80116 = {
-			fileRef = F5E9EBF203B1E3FF01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5E9EBF403B1E3FF01A80116 = {
-			fileRef = F5E9EBF203B1E3FF01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5EC637A03A0B62D01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = ProvisoCanvas.java;
-			path = ../../java_GUI/ProvisoCanvas.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5EC637B03A0B62D01A80116 = {
-			fileRef = F5EC637A03A0B62D01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5EC637C03A0B62D01A80116 = {
-			fileRef = F5EC637A03A0B62D01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5F50C860394DC6601A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = MiscellaneousConstants.java;
-			path = ../../java_GUI/MiscellaneousConstants.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5F50C870394DC6601A80116 = {
-			fileRef = F5F50C860394DC6601A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5F50C880394DC6601A80116 = {
-			fileRef = F5F50C860394DC6601A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5F50C890394DDCB01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = Flyback.java;
-			path = ../../java_GUI/Flyback.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5F50C8A0394DDCB01A80116 = {
-			fileRef = F5F50C890394DDCB01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5F50C8B0394DDCB01A80116 = {
-			fileRef = F5F50C890394DDCB01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5F50C8F0394EBCF01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = TileTarget.java;
-			path = ../../java_GUI/TileTarget.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		F5F50C900394EBCF01A80116 = {
-			fileRef = F5F50C8F0394EBCF01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5F50C910394EBCF01A80116 = {
-			fileRef = F5F50C8F0394EBCF01A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
