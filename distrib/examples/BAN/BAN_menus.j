@@ -3,12 +3,12 @@
 TACTIC FAIL(x) IS JAPE (fail x)
 
 TACTIC ForwardCut (n,Rule)
-  SEQ cut (WITHARGSEL Rule) (JAPE (SUBGOAL n)) (WITHHYPSEL hyp)
+  SEQ cut (WITHCONTINUATION (WITHARGSEL Rule) (JAPE (SUBGOAL n)) (WITHHYPSEL hyp))
 
 TACTIC ForwardUncut (n,Rule)
-  SEQ (WITHARGSEL Rule) (JAPE (SUBGOAL n)) (WITHHYPSEL hyp)
+  SEQ (WITHCONTINUATION (WITHARGSEL Rule) (JAPE (SUBGOAL n)) (WITHHYPSEL hyp))
 
-TACTIC ForwardOrBackward (Forward, n, Rule)
+TACTIC ForwardOrBackward (Forward, n, Rule) IS 
 	WHEN	(LETHYP 
 				_X 
                           	(ALT	(Forward n Rule)
@@ -32,13 +32,11 @@ TACTIC ForwardOrBackward (Forward, n, Rule)
    
 MENU "Š"
 	SEPARATOR
-	ENTRY "PŠX, PŠY Û PŠ(X+Y)"
-	ENTRY "PŠ(X+Y) Û PŠX"					IS ForwardOrBackward ForwardCut 0 "PŠ(X+Y) Û PŠX"
-	ENTRY "PŠ(X+Y) Û PŠY"					IS ForwardOrBackward ForwardCut 0 "PŠ(X+Y) Û PŠY"
-	ENTRY "PŠQŠ(X+Y) Û PŠQŠX"				IS ForwardOrBackward ForwardCut 0 "PŠQŠ(X+Y) Û PŠQŠX"
-	ENTRY "PŠQŠ(X+Y) Û PŠQŠY"				IS ForwardOrBackward ForwardCut 0 "PŠQŠ(X+Y) Û PŠQŠY"
+	ENTRY "... PŠX ... Û PŠ(...,X,...)"
+	ENTRY "PŠ(...,X,...) Û PŠX"				IS ForwardOrBackward ForwardCut 0 "PŠ(...,X,...) Û PŠX"
+	ENTRY "PŠQŠ(...,X,...) Û PŠQŠX"			IS ForwardOrBackward ForwardCut 0 "PŠQŠ(...,X,...) Û PŠQŠX"
 	SEPARATOR
-        ENTRY "PŠ(èx.X(x)) Û PŠX(Y)"			IS ForwardOrBackward ForwardCut 0 "PŠ(èx.X(x)) Û PŠX(Y)"
+        ENTRY "PŠèx.X(x) Û PŠX(Y)"				IS ForwardOrBackward ForwardCut 0 "PŠèx.X(x) Û PŠX(Y)"
         ENTRY "PŠQ•X, [PŠ#X] Û PŠQŠX"			IS ForwardOrBackward ForwardCut 1 "PŠ#X, PŠQ•X Û PŠQŠX"
 	ENTRY "PŠQŠX, [PŠQšX] Û PŠX"			IS ForwardOrBackward ForwardCut 1 "PŠQšX, PŠQŠX Û PŠX"
 	SEPARATOR
@@ -53,8 +51,7 @@ MENU "‘"
 	ENTRY "P‘{X}Kø, [PŠQØK] Û PŠQ•X"		IS ForwardOrBackward ForwardCut 1 "PŠQØK, P‘{X}Kø Û PŠQ•X"
 	ENTRY " P‘<X>Y, [PŠ(P,Q)ŸY] Û PŠQ•X"		IS ForwardOrBackward ForwardCut 1 "PŠ(P,Q)ŸY, P‘<X>Y Û PŠQ•X"
 	SEPARATOR
-	ENTRY "P‘(X+Y) Û P‘X" 					IS ForwardOrBackward ForwardCut 0 "P‘(X+Y) Û P‘X" 
-	ENTRY "P‘(X+Y) Û P‘Y" 					IS ForwardOrBackward ForwardCut 0 "P‘(X+Y) Û P‘Y" 
+	ENTRY "P‘(...,X,...) Û P‘X" 				IS ForwardOrBackward ForwardCut 0 "P‘(...,X,...) Û P‘X"
 	ENTRY "P‘<X>Y Û P‘X" 					IS ForwardOrBackward ForwardCut 0 "P‘<X>Y Û P‘X"
 	ENTRY "P‘{X}K, [PŠ(P,Q)êK] Û P‘X"		IS ForwardOrBackward ForwardCut 1 "PŠ(P,Q)êK, P‘{X}K Û P‘X"
 	ENTRY "P‘{X}K, [PŠPØK] Û P‘X"			IS ForwardOrBackward ForwardCut 1 "PŠPØK, P‘{X}K Û P‘X"
@@ -65,8 +62,7 @@ END
 MENU "•"
 	ENTRY "PŠQ•X, [PŠ#X] Û PŠQŠX"			IS ForwardOrBackward ForwardCut 1 "PŠ#X, PŠQ•X Û PŠQŠX"
 	SEPARATOR
-	ENTRY "PŠQ•(X+Y) Û PŠQ•X"			IS ForwardOrBackward ForwardCut 0 "PŠQ•(X+Y) Û PŠQ•X"
-	ENTRY "PŠQ•(X+Y) Û PŠQ•Y"			IS ForwardOrBackward ForwardCut 0 "PŠQ•(X+Y) Û PŠQ•Y"
+	ENTRY "PŠQ•(...,X,...) Û PŠQ•X"			IS ForwardOrBackward ForwardCut 0 "PŠQ•(...,X,...) Û PŠQ•X"
 	SEPARATOR
 	ENTRY "P‘{X}K, [PŠ(Q,P)êK] Û PŠQ•X"		IS ForwardOrBackward ForwardCut 1 "PŠ(Q,P)êK, P‘{X}K Û PŠQ•X"
 	ENTRY "P‘{X}Kø, [PŠQØK] Û PŠQ•X"		IS ForwardOrBackward ForwardCut 1 "PŠQØK, P‘{X}Kø Û PŠQ•X"
@@ -101,24 +97,11 @@ END
 MENU "#"
 	ENTRY "PŠ#X, [PŠQ•X] Û PŠQŠX"			IS ForwardOrBackward ForwardCut 0 "PŠ#X, PŠQ•X Û PŠQŠX"
 	SEPARATOR
-	ENTRY "PŠ#X Û PŠ#(X+Y)"				IS ForwardOrBackward ForwardCut 0 "PŠ#X Û PŠ#(X+Y)"
-	ENTRY "PŠ#Y Û PŠ#(X+Y)"				IS ForwardOrBackward ForwardCut 0 "PŠ#Y Û PŠ#(X+Y)"
-END
-
-MENU "+"
-	ENTRY "PŠ(X+Y) Û PŠX"					IS ForwardOrBackward ForwardCut 0 "PŠ(X+Y) Û PŠX"
-	ENTRY "PŠ(X+Y) Û PŠY"					IS ForwardOrBackward ForwardCut 0 "PŠ(X+Y) Û PŠY"
-	ENTRY "PŠQŠ(X+Y) Û PŠQŠX"				IS ForwardOrBackward ForwardCut 0 "PŠQŠ(X+Y) Û PŠQŠX"
-	ENTRY "PŠQŠ(X+Y) Û PŠQŠY"				IS ForwardOrBackward ForwardCut 0 "PŠQŠ(X+Y) Û PŠQŠY"
-	ENTRY "P‘(X+Y) Û P‘X" 					IS ForwardOrBackward ForwardCut 0 "P‘(X+Y) Û P‘X" 
-	ENTRY "P‘(X+Y) Û P‘Y" 					IS ForwardOrBackward ForwardCut 0 "P‘(X+Y) Û P‘Y" 
-	SEPARATOR
-	SEPARATOR
-	ENTRY "PŠX, PŠY Û PŠ(X+Y)"
+	ENTRY "PŠ#X Û PŠ#(...,X,...)"				IS ForwardOrBackward ForwardCut 0 "PŠ#X Û PŠ#(...,X,...)"
 END
 
 MENU Logic 
-        ENTRY "PŠ(èx.X(x)) Û PŠX(Y)"			IS ForwardOrBackward ForwardCut 0 "PŠ(èx.X(x)) Û PŠX(Y)"
+        ENTRY "PŠèx.X(x) Û PŠX(Y)"				IS ForwardOrBackward ForwardCut 0 "PŠèx.X(x) Û PŠX(Y)"
         SEPARATOR
 	ENTRY hyp
 END
