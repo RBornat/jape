@@ -518,25 +518,60 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	}
     }
 
-    public void drawstring(int x, int y, byte fontnum, byte kind,
-			   String annottext) throws ProtocolError {
+    private int mtX, mtY, mtCount;
+    private byte mtKind;
+    private TextComponent[] mtLines;
+    
+    public void startMeasuredText(int x, int y, byte kind, int length) {
+	mtX = x; mtY = y; mtKind = kind;
+	mtCount = 0;
+	mtLines = kind==PunctTextItem ? new TextComponent[length] : 
+	                                new AnnotatedTextComponent[length];
+    }
+    
+    public void continueMeasuredText(int x, int y, byte fontnum, 
+				     String text) throws ProtocolError {
 	JapeFont.checkInterfaceFontnum(fontnum);
+	mtLines[mtCount++] = 
+	    mtKind==PunctTextItem ? new TextComponent(x, y, fontnum, text)
+				  : new AnnotatedTextComponent(x, y, fontnum, text);
+    }
+    
+    public void endMeasuredText() throws ProtocolError {
+	if (mtCount!=mtLines.length)
+	    Alert.showErrorAlert("measured text error: we got "+mtCount+" lines; we expected "+
+				 mtLines.length);
+	drawstring(mtX, mtY, mtKind, mtLines);
+    }
+    
+    public void drawstring(int x, int y, byte fontnum, byte kind,
+			   String text) throws ProtocolError {
+	JapeFont.checkInterfaceFontnum(fontnum);
+	drawstring(x, y, kind, 
+		   kind==PunctTextItem ? 
+		    new TextComponent[]{new TextComponent(x, y, fontnum, text)} : 
+		    new AnnotatedTextComponent[]{
+			new AnnotatedTextComponent(x, y, fontnum, text)});
+   }
+    
+    public void drawstring(int x, int y, byte kind, 
+			   TextComponent[] components) throws ProtocolError {
 	byte selectionKind;
 	boolean ambiguous = false;
 	
 	switch (kind) {
 	    case PunctTextItem:
-		focussedCanvas.add(new TextItem(focussedCanvas, x, y, fontnum, annottext));
+		focussedCanvas.add(new TextItem(focussedCanvas, x, y, components));
 		return;
-
+		
 	    case HypTextItem:
 		selectionKind = HypSel;
 		break;
-
+		
 	    case ConcTextItem:
 		selectionKind = ConcSel;
 		break;
-
+		
 	    case AmbigTextItem:
 		selectionKind = ConcSel; // doesn't matter
 		ambiguous = true;
@@ -545,25 +580,26 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    case ReasonTextItem:
 		selectionKind = ReasonSel;
 		break;
-
+		
 	    default:
 		throw new ProtocolError("invalid item kind");
 	}
-
+	
 	// fall through to determine which canvas to add to
 	if (focussedCanvas instanceof ProofCanvas)
 	    focussedCanvas.add(
-		new SelectableProofItem((ProofCanvas)focussedCanvas, x, y, fontnum, annottext,
-					selectionKind, ambiguous));
+	       new SelectableProofItem((ProofCanvas)focussedCanvas, x, y, selectionKind, 
+				       ambiguous, (AnnotatedTextComponent[])components));
 	else
 	if (focussedCanvas instanceof DisproofCanvas)
 	    focussedCanvas.add(
-		new EmphasisableItem(
-			(DisproofCanvas)focussedCanvas, x, y, fontnum, annottext, selectionKind));
+	       new EmphasisableItem((DisproofCanvas)focussedCanvas, x, y, 
+				    (AnnotatedTextComponent[])components));
 	else
 	    throw new ProtocolError("drawstring in "+focussedCanvas);
     }
-
+	
+	
     public void drawRect(int x, int y, int w, int h) {
 	proofCanvas.add(new RectItem(proofCanvas, x, y, w, h));
     }
