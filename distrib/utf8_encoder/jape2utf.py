@@ -101,7 +101,7 @@ def main():
     inputpath   = None
     tablewidth  = 8
     try:
-     optlist, paths = getopt.getopt(sys.argv[1:], "EhO:I:KLTt:w:", ['enc=', 'help', 'table=', 'width='])
+     optlist, paths = getopt.getopt(sys.argv[1:], "Eho:i:O:I:KLTt:w:", ['enc=', 'help', 'table=', 'width='])
     except Exception, e:
      report(e, "parsing parameters")
      optlist, paths = [], []
@@ -201,6 +201,7 @@ def usage():
 if __name__ == '__main__':
    main()
    
+
 
 
 
