@@ -140,7 +140,7 @@ public class Alert implements DebugConstants {
     }
 
     // this doesn't deal with fonts yet ... I think we have to make a Component (sigh)
-    private static int query(Component parent, String[] buttons, int messageKind,
+    public static int query(Component parent, String[] buttons, int messageKind,
 			     String message, int defaultbutton) {
 	return JOptionPane.showOptionDialog(parent, makeMessage(message), null, 0, messageKind,
 					    null, buttons, buttons[defaultbutton]);
