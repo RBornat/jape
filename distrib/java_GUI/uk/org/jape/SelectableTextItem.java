@@ -26,6 +26,7 @@
  */
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
@@ -60,6 +61,54 @@ public class SelectableTextItem extends TextItem {
         });
     }
 
+    /*
+        Bernard's original ProofCanvas included this comment:
+    
+            This next spasm copes with the fact that Macs have 1-button
+            mice, and that (in order to cope with this) Java AWT
+            reports button 2 and button 3 presses AS IF they were
+            presses with one of Meta or Alt pressed. I simply don't know
+            whether the getButton field of an event on the Mac always
+            says 1, or whether the lowlevel AWTery reports virtual
+            buttons. Until I find out, I'm assuming the former, and using
+            the Alt and Meta fields to give an indication of the button
+            that was actually pressed (on nonMacs) or the (virtual) button
+            that a MacIsta indicated that she wanted to press.
+        
+            Beyond here we're simply pretending we have a 3-button mouse.
+    
+            ---------------
+    
+        and this code:
+        
+            // Assigns the right virtual button for all but a move
+            lastButton = 1;
+            if (e.isAltDown())  lastButton=2;
+            else
+            if (e.isMetaDown()) lastButton=3;
+    
+            -----------------
+    
+        from which I hope we may deduce the translation of keys and buttons.
+    
+        From this point on I'm using isAltDown and isMetaDown :-).
+     */
+
+    /*
+        It would be nice if click meant select me (as it does), and press-and-drag
+        meant text-select me (as it doesn't for us, but it does in every editor).
+    
+        The drawbacks, apart from incompatibility with Actually Existing Jape, would
+        be (a) impossible to select a token with a single click; (b) a modifier key /
+        alternative button needed for drag-n-drop, when I come to it.
+    
+        Ho hum, decisions, decisions.  I'm going to try press-and-drag for text selection
+        till I find out how it feels.
+     */
+
+    // you get a click event if you press the mouse at a particular point, move it and then
+    // move back to the same point!  Well blow me down: we're not having that.
+    
     protected void click(MouseEvent e) {
         byte selected;
         if (this.selected==ProofCanvas.NoSel) {
@@ -89,6 +138,7 @@ public class SelectableTextItem extends TextItem {
         repaint();
     }
 
+    // Java doesn't support wide lines, says the 1.1 docs ...
     protected void paintBox(Graphics g, Color c) {
         g.setColor(c); g.drawRect(left,top, right,bottom);
     }
@@ -129,6 +179,10 @@ public class SelectableTextItem extends TextItem {
      */
 
     public void paint(Graphics g) {
+        paint((Graphics2D) g);
+    }
+    
+    public void paint(Graphics2D g) {
         Color background = getBackground();
         // do the selection stuff
         switch (selected) {
