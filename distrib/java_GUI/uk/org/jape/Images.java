@@ -42,10 +42,11 @@ import java.awt.Label;
         (if we're running a java class at the top level).
 
         We provide a way of loading an image from the place
-        whence the class of a  given object was loaded, and
+        whence the class of a given object was loaded, and
         a (simpler) way to load an image from the
         place whence THIS class was loaded.
 */
+
 public class Images
 { private Images() {}
   private static Images surrogate = new Images();
