@@ -71,6 +71,10 @@
 				F5E5E3E2035F171101A80116,
 				F5EAC0DB036F473D01A80117,
 				F5A024A303654B2601A80116,
+				F58AB2BF0377FD2D01A80116,
+				F58AB2C203780C4001A80116,
+				F58AB2C503780DAC01A80116,
+				F58AB2C80378188901A80116,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -272,6 +276,10 @@
 				F5D80C8C036F044901A80116,
 				F5EAC0DC036F473D01A80117,
 				F592908603728EA101A80117,
+				F58AB2C00377FD2D01A80116,
+				F58AB2C303780C4001A80116,
+				F58AB2C603780DAC01A80116,
+				F58AB2C90378188901A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -746,6 +754,78 @@
 			settings = {
 			};
 		};
+		F58AB2BF0377FD2D01A80116 = {
+			isa = PBXFileReference;
+			name = DisproofCanvas.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DisproofCanvas.java;
+			refType = 0;
+		};
+		F58AB2C00377FD2D01A80116 = {
+			fileRef = F58AB2BF0377FD2D01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F58AB2C10377FD2D01A80116 = {
+			fileRef = F58AB2BF0377FD2D01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F58AB2C203780C4001A80116 = {
+			isa = PBXFileReference;
+			name = DisproofHypItem.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DisproofHypItem.java;
+			refType = 0;
+		};
+		F58AB2C303780C4001A80116 = {
+			fileRef = F58AB2C203780C4001A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F58AB2C403780C4001A80116 = {
+			fileRef = F58AB2C203780C4001A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F58AB2C503780DAC01A80116 = {
+			isa = PBXFileReference;
+			name = DisproofConcItem.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DisproofConcItem.java;
+			refType = 0;
+		};
+		F58AB2C603780DAC01A80116 = {
+			fileRef = F58AB2C503780DAC01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F58AB2C703780DAC01A80116 = {
+			fileRef = F58AB2C503780DAC01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F58AB2C80378188901A80116 = {
+			isa = PBXFileReference;
+			name = DisproofPane.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DisproofPane.java;
+			refType = 0;
+		};
+		F58AB2C90378188901A80116 = {
+			fileRef = F58AB2C80378188901A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F58AB2CA0378188901A80116 = {
+			fileRef = F58AB2C80378188901A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		F592908503728EA101A80117 = {
 			isa = PBXFileReference;
 			name = PanelWindowData.java;
@@ -867,6 +947,10 @@
 				F5D80C8E036F044901A80116,
 				F5EAC0DE036F473D01A80117,
 				F592908803728EA101A80117,
+				F58AB2C10377FD2D01A80116,
+				F58AB2C403780C4001A80116,
+				F58AB2C703780DAC01A80116,
+				F58AB2CA0378188901A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
