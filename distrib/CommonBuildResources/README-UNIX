@@ -1,13 +1,13 @@
 Unix (Solaris and Linux) Jape installation
 ==========================================
-JANUARY 2003
+JANUARY 2003 (Revision 2)
 ============
 
 
 Dependencies
 ------------
 
-        A functioning java (1.3 or later) system
+        A functioning java (1.4 or later) system
 
         A Bourne or Bourne-again shell
 
@@ -41,6 +41,9 @@ What to do
 
         java -jar $(OS)jape.jar
 
+   This brings up a Splash Screen on which there are two buttons
+   and a log window. Press the button labelled "Install Jape Now".
+
    This starts the jape installer, which unpacks the examples
    directory, and leaves the inference engine (jape.engine --
    architecture dependent), the interface server (japeserver.jar
@@ -72,6 +75,7 @@ What to do
    the attempted run of jape.        
 
 That's all there is to it.
+
 
 
 

@@ -1,6 +1,6 @@
 Windows (2K and XP) Jape installation
 ==========================================
-January 2003
+January 2003 (Revision 2)
 ============
 
 
@@ -10,9 +10,6 @@ You will need
         A functioning java (1.4 or later) system. Sun's standard jre
         for windows (available at www.javasoft.com) is good enough --
         you don't need the java development kit.
-        
-        A (shallow) knowledge of how to run a command from a command
-        window opened in a particular folder.
 
 License
 -------
@@ -41,6 +38,9 @@ What to do
 
 1. Open $(OS)jape.jar by double clicking on it, or other means. This
    will start executing the interactive java installer.
+
+   This brings up a Splash Screen on which there are two buttons
+   and a log window. Press the button labelled "Install Jape Now".
 
    This starts the jape installer, which unpacks the examples
    directory, and leaves the inference engine (jape.engine --
@@ -77,6 +77,7 @@ What to do
    the attempted run of jape.        
 
 That's all there is to it.
+
 
 
 
