@@ -126,7 +126,7 @@ let rec setsemanticturnstile syn sem =
   let newturnstiles =
     match (!semanticturnstiles <@> syn) with
       None ->
-        enter (sem, STILE sem);
+        enter sem (STILE sem);
         (!semanticturnstiles ++ (syn |-> sem))
     | Some sem' ->
         if sem = sem' then !semanticturnstiles
@@ -152,7 +152,7 @@ let rec describeSeqs ds =
           begin
             (* consolereport ["accepting ", show syn]; *)
             syntaxes := (Syntactic, hyps, stile, concs) :: !syntaxes;
-            enter (stile, STILE stile)
+            enter stile (STILE stile)
           end
         else
           error
