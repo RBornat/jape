@@ -77,6 +77,7 @@
 				F59989060369844F01A80116,
 				F560AEEB036D799701A80116,
 				F563B8B703372EA501A80116,
+				F5F50C920394F22F01A80116,
 				F516FFBB031F827D01A80117,
 				F516FFB9031F825B01A80117,
 				F5E5E3E2035F171101A80116,
@@ -85,7 +86,8 @@
 				F5F50C8F0394EBCF01A80116,
 				F5152723037BC71E01A80116,
 				F5152726037BCC1A01A80116,
-				F5F50C920394F22F01A80116,
+				F57EF90F039503AE01A80116,
+				F57EF912039507ED01A80116,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -303,6 +305,8 @@
 				F5F50C8A0394DDCB01A80116,
 				F5F50C900394EBCF01A80116,
 				F5F50C930394F22F01A80116,
+				F57EF910039503AE01A80116,
+				F57EF913039507ED01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -885,6 +889,42 @@
 			settings = {
 			};
 		};
+		F57EF90F039503AE01A80116 = {
+			isa = PBXFileReference;
+			name = WorldTarget.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/WorldTarget.java;
+			refType = 0;
+		};
+		F57EF910039503AE01A80116 = {
+			fileRef = F57EF90F039503AE01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57EF911039503AE01A80116 = {
+			fileRef = F57EF90F039503AE01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57EF912039507ED01A80116 = {
+			isa = PBXFileReference;
+			name = DragComponent.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DragComponent.java;
+			refType = 0;
+		};
+		F57EF913039507ED01A80116 = {
+			fileRef = F57EF912039507ED01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57EF914039507ED01A80116 = {
+			fileRef = F57EF912039507ED01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		F5865C6B035C34DD01A80116 = {
 			fileRef = F515B6050331D98801A80116;
 			isa = PBXBuildFile;
@@ -1093,6 +1133,8 @@
 				F5F50C8B0394DDCB01A80116,
 				F5F50C910394EBCF01A80116,
 				F5F50C940394F22F01A80116,
+				F57EF911039503AE01A80116,
+				F57EF914039507ED01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
