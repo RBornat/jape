@@ -103,4 +103,10 @@ public class DragComponent extends Component implements DebugConstants {
         else
             Alert.abort("DragComponent.paint can't enable transparent drawing");
     }
+
+    public void moveTo(int x, int y) {
+        repaint();
+        setLocation(x,y);
+        repaint();
+    }
 }
