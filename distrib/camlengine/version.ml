@@ -56,6 +56,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.6  2002/09/17 14:24:09  richard
+     GPL'd
+
      Revision 1.5  2002/07/12 12:32:39  richard
      almost final (it all compiles!)
 
@@ -260,7 +263,7 @@
    *)
    
   
-   let _Version = "release 5.0b7" 
-   let _Title = "Jape proof engine: "
+   let _Version = "6.0.4a" 
+   let _Title = "Jape proof engine "
 
 
