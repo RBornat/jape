@@ -32,7 +32,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.util.Vector;
 
-class TextItem extends Component {
+class TextItem extends DisplayItem {
+    
     /* from displayclass.ml/mli:
        (* Useful translation for Japeserver marshalling.
         * Current C/Java/Tk interfaces believe in these integers.
@@ -99,20 +100,25 @@ class TextItem extends Component {
               /* c==outbra assumed */ OutColour;
     }
 
+    protected final JapeCanvas canvas;
+    
     protected char[]        printchars;
     protected String        annottext;
     protected byte          fontnum;
     protected Font          font;
     protected TextDimension dimension;
     protected int           inset;
-    /*protected boolean selected, 
-                      greyed;
+
+    /*
             
     protected BitSet  marked;      // the selected character positions.
     
     */
-    public TextItem(int x, int y, byte fontnum, String annottext, String printtext) { 
-        super();
+    
+    public TextItem(JapeCanvas canvas, int x, int y, byte fontnum,
+                    String annottext, String printtext) { 
+        super(x,y);
+        this.canvas = canvas;
         this.fontnum = fontnum;
         this.font = JapeFont.getFont(fontnum);
         this.annottext = annottext;

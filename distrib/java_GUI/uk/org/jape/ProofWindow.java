@@ -41,10 +41,10 @@ public class ProofWindow extends JapeWindow {
     int proofnum;
     protected static ProofWindow focussedproof = null;
 
-    protected ContainerWithOrigin proofpanel; 
+    protected ProofCanvas proofCanvas; 
     protected AnchoredScrollPane proofpane;
 
-    protected ContainerWithOrigin focussedpanel;
+    protected JapeCanvas focussedCanvas;
     
     public ProofWindow(String title, int proofnum) {
         super(title);
@@ -77,15 +77,15 @@ public class ProofWindow extends JapeWindow {
             throw new ProtocolError("no focussed proof");
     }
 
-    private static void checkFocussedProofPanel() throws ProtocolError {
+    private static void checkFocussedProofCanvas() throws ProtocolError {
         checkFocussedProof();
-        if (focussedproof.proofpanel==null)
+        if (focussedproof.proofCanvas==null)
             throw new ProtocolError("no focussed proof panel - clearProofPane missing?");
     }
 
-    private static void checkFocussedPanel() throws ProtocolError {
+    private static void checkFocussedCanvas() throws ProtocolError {
         checkFocussedProof();
-        if (focussedproof.focussedpanel==null)
+        if (focussedproof.focussedCanvas==null)
             throw new ProtocolError("no focussed panel - drawInPane missing?");
     }
         
@@ -101,8 +101,8 @@ public class ProofWindow extends JapeWindow {
             | TreeStyle -> 1
      */
 
-    public final static byte boxStyle  = 0,
-                             treeStyle = 1;
+    public final static byte BoxStyle  = 0,
+                             TreeStyle = 1;
     protected byte style;
     private int linethickness=1;
     
@@ -116,28 +116,28 @@ public class ProofWindow extends JapeWindow {
 
     public static void clearProofPane() throws ProtocolError {
         checkFocussedProof();
-        focussedproof.newProofPanel();
+        focussedproof.newProofCanvas();
     }
 
-    private void newProofPanel() {
-        proofpanel = new ContainerWithOrigin();
-        proofpane.add(proofpanel);
+    private void newProofCanvas() {
+        proofCanvas = new ProofCanvas();
+        proofpane.add(proofCanvas);
         switch(style) {
-            case boxStyle:
+            case BoxStyle:
                 proofpane.setanchor(proofpane.ANCHOR_SOUTHWEST); break;
-            case treeStyle:
+            case TreeStyle:
                 proofpane.setanchor(proofpane.ANCHOR_SOUTH); break;
             default:
-                Alert.abort("newProofPanel sees style "+style);
+                Alert.abort("ProofWindow.newProofCanvas style="+style);
         } 
         proofpane.validate(); proofpane.repaint();
-        focussedpanel = proofpanel;
+        focussedCanvas = proofCanvas;
     }
 
     public static void drawInPane(String s) throws ProtocolError {
         if (s.equals("proof")) {
-            checkFocussedProofPanel();
-            focussedproof.focussedpanel = focussedproof.proofpanel;
+            checkFocussedProofCanvas();
+            focussedproof.focussedCanvas = focussedproof.proofCanvas;
         }
         else
             throw (new ProtocolError("drawInPane "+s));
@@ -159,11 +159,13 @@ public class ProofWindow extends JapeWindow {
 
     public static void drawstring(int x, int y, byte fontnum, byte kind,
                                   String annottext, String printtext) throws ProtocolError {
-        checkFocussedPanel();
+        checkFocussedCanvas();
         JapeFont.checkInterfaceFontnum(fontnum);
-        focussedproof.focussedpanel.add(
-            kind==TextItem.PunctKind ? new TextItem(x, y, fontnum, annottext, printtext) :
-                                       new SelectableTextItem(x, y, fontnum, kind, annottext, printtext,
-                                                              focussedproof.style, focussedproof.linethickness));
+        focussedproof.focussedCanvas.add(
+            kind==TextItem.PunctKind ?
+                new TextItem(focussedproof.focussedCanvas, x, y, fontnum, annottext, printtext) :
+                new SelectableTextItem(focussedproof.focussedCanvas, x, y, fontnum, kind,
+                                       annottext, printtext,
+                                       focussedproof.style, focussedproof.linethickness));
     }
 }
