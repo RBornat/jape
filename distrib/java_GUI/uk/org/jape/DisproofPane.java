@@ -34,6 +34,8 @@ import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
 
+import java.awt.event.MouseEvent;
+
 import java.awt.image.ImageObserver;
 
 import javax.swing.JFrame;
@@ -42,7 +44,8 @@ import javax.swing.JFrame;
 // if you use BorderLayout to give lots of space to the worldPane.
 // So I do it by steam (again; sigh!). BoxLayout doesn't even work for the tile canvas ...
 
-public class DisproofPane extends Container implements DebugConstants {
+public class DisproofPane extends Container implements DebugConstants,
+                                                       SelectionConstants {
     final AnchoredScrollPane worldPane;
     final DisproofCanvas seqCanvas;
     final WorldCanvas worldCanvas;
@@ -90,6 +93,32 @@ public class DisproofPane extends Container implements DebugConstants {
             public float getAlignmentX() { return CENTER_ALIGNMENT; }
         };
         seqView.add(seqCanvas);
+
+        addJapeMouseListener(new JapeMouseTextAdapter() {
+            public void clicked(byte eventKind, MouseEvent e) {
+                if (eventKind==Selection && aroundSequent(e)) {
+                    seqCanvas.killAllSelections();
+                    seqCanvas.notifySelectionChange(null);
+                }
+            }
+            public void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
+                if (isClick && eventKind==TextSelection && aroundSequent(e)) {
+                    seqCanvas.killAllTextSelections();
+                    seqCanvas.notifyTextSelectionChange(null);
+                }
+            }
+        });
+    }
+
+    public void addJapeMouseListener(JapeMouseAdapter a) {
+        addMouseListener(a); addMouseMotionListener(a);
+    }
+
+    private boolean aroundSequent(MouseEvent e) {
+        int x=e.getX(), y=e.getY();
+
+        return x<wasteBin.getX()-seqCanvas.getSelectionGap() &&
+                worldPane.getY()+worldPane.getHeight()+seqCanvas.getSelectionGap()<y;
     }
 
     public int getTextSelectionCount() {
@@ -105,7 +134,7 @@ public class DisproofPane extends Container implements DebugConstants {
     
     public void setSequentBox(int width, int ascent, int descent) {
         seqCanvas.setSequentBox(width, ascent, descent);
-        seqView.setSize(width, ascent+descent+2*linethickness);
+        seqView.setSize(width+4*linethickness, ascent+descent+6*linethickness);
         getLayout().layoutContainer(this);
     }
 
