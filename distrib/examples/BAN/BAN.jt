@@ -1,0 +1,11 @@
+/* $Id$ */
+
+FONTS "Konstanz"
+
+USE "BAN_syntax.j"
+USE "BAN_rules.j"
+USE "BAN_menus.j"
+USE "BAN_problems.j"
+
+INITIALISE displaystyle box
+INITIALISE outermostbox false
