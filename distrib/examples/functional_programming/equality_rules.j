@@ -13,7 +13,7 @@ CLASS FORMULA A B C F G X Y Z
 CONSTANT Ù
  
 /* this to allow functions stuff to use square brackets for lists */
-SUBSTFIX	2000 {x\A}
+SUBSTFIX	2000 { x \ A }
 JUXTFIX	1000
 INFIX		200L	= ³ ² ­ < >
 INFIX		250L	+ -
