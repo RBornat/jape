@@ -53,7 +53,7 @@ seqdraw.cmi: box.cmi displayclass.cmi draw.cmi seqtype.cmo termtype.cmi
 sequent.cmi: idclass.cmi mappingfuns.cmi seqtype.cmo symboltype.cmo \
     termtype.cmi 
 substmapfuns.cmi: answer.cmi facts.cmi termtype.cmi 
-symbol.cmi: idclass.cmi symboltype.cmo 
+symbol.cmi: idclass.cmi symboltype.cmo uTF.cmi 
 tactic.cmi: mappingfuns.cmi name.cmi tactictype.cmo termtype.cmi 
 tacticfuns.cmi: displaystate.cmi hit.cmi japeenv.cmi name.cmi proofstate.cmi \
     prooftree.cmo tactictype.cmo termtype.cmi 
@@ -467,27 +467,29 @@ tactictype.cmx: nametype.cmx seqtype.cmx termtype.cmx treelayout.cmx
 termfuns.cmo: answer.cmi idclass.cmi idclassfuns.cmi listfuns.cmi \
     mappingfuns.cmi miscellaneous.cmi optionfuns.cmi sml.cmi stringfuns.cmi \
     symbol.cmi symboltype.cmo termstore.cmi termstring.cmi termtype.cmi \
-    termfuns.cmi 
+    uTF.cmi termfuns.cmi 
 termfuns.cmx: answer.cmx idclass.cmx idclassfuns.cmx listfuns.cmx \
     mappingfuns.cmx miscellaneous.cmx optionfuns.cmx sml.cmx stringfuns.cmx \
     symbol.cmx symboltype.cmx termstore.cmx termstring.cmx termtype.cmx \
-    termfuns.cmi 
+    uTF.cmx termfuns.cmi 
 termparse.cmo: binding.cmi idclass.cmi idclassfuns.cmi listfuns.cmi \
     miscellaneous.cmi optionfuns.cmi searchtree.cmi symbol.cmi symboltype.cmo \
-    termfuns.cmi termstore.cmi termstring.cmi termtype.cmi termparse.cmi 
+    termfuns.cmi termstore.cmi termstring.cmi termtype.cmi uTF.cmi \
+    termparse.cmi 
 termparse.cmx: binding.cmx idclass.cmx idclassfuns.cmx listfuns.cmx \
     miscellaneous.cmx optionfuns.cmx searchtree.cmx symbol.cmx symboltype.cmx \
-    termfuns.cmx termstore.cmx termstring.cmx termtype.cmx termparse.cmi 
+    termfuns.cmx termstore.cmx termstring.cmx termtype.cmx uTF.cmx \
+    termparse.cmi 
 termstore.cmo: idclass.cmi optionfuns.cmi sml.cmi stringfuns.cmi \
     termstring.cmi termtype.cmi termstore.cmi 
 termstore.cmx: idclass.cmx optionfuns.cmx sml.cmx stringfuns.cmx \
     termstring.cmx termtype.cmx termstore.cmi 
 termstring.cmo: idclass.cmi idclassfuns.cmi listfuns.cmi mappingfuns.cmi \
     miscellaneous.cmi optionfuns.cmi sml.cmi stringfuns.cmi symbol.cmi \
-    symboltype.cmo termtype.cmi termstring.cmi 
+    symboltype.cmo termtype.cmi uTF.cmi termstring.cmi 
 termstring.cmx: idclass.cmx idclassfuns.cmx listfuns.cmx mappingfuns.cmx \
     miscellaneous.cmx optionfuns.cmx sml.cmx stringfuns.cmx symbol.cmx \
-    symboltype.cmx termtype.cmx termstring.cmi 
+    symboltype.cmx termtype.cmx uTF.cmx termstring.cmi 
 termtype.cmo: idclass.cmi termtype.cmi 
 termtype.cmx: idclass.cmx termtype.cmi 
 text.cmo: box.cmi displayfont.cmi listfuns.cmi miscellaneous.cmi \
