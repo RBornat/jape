@@ -32,7 +32,22 @@ import java.awt.Container;
 
 public class JapeUtils {
     public static String enQuote(Object o) {
-	return o==null ? "null" : "\""+o.toString()+"\"";
+	if (o==null)
+	    return "null";
+	else {
+	    StringBuffer b = new StringBuffer();
+	    b.append('"');
+	    String s = o.toString();
+	    for (int i=0; i<s.length(); i++) {
+		char c = s.charAt(i);
+		if (c=='"')
+		    b.append("\\\"");
+		else
+		    b.append(c);
+	    }
+	    b.append('"');
+	    return b.toString();
+	}
     }
 
     public static void showContainer(Container pane, String prefix) {

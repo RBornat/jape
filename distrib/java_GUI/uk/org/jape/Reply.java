@@ -71,7 +71,7 @@ public class Reply implements DebugConstants {
 	outputln(s);
     }
     else
-	throw new ProtocolError("replying \""+s+"\" while client is not expecting reply");
+	throw new ProtocolError("replying "+JapeUtils.enQuote(s)+" while client is not expecting reply");
     }
 
     synchronized private static void outputln(String s) {
@@ -84,7 +84,7 @@ public class Reply implements DebugConstants {
     }
     }
     synchronized public static void reply(int i) throws ProtocolError {
-    reply(i+"");
+    reply(""+i);
     }
 
     synchronized public static void reply(TextDimension td) throws ProtocolError {

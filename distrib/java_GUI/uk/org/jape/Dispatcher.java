@@ -43,7 +43,7 @@ public class Dispatcher extends Thread implements DebugConstants {
     private void showcommand(String m, String[] cmd) {
 	Logger.log.print(m+" [");
 	for (int i=0; i<cmd.length; i++) {
-	    Logger.log.print("\""+cmd[i]+"\"");
+	    Logger.log.print(JapeUtils.enQuote(cmd[i]));
 	    if (i<cmd.length-1)
 		Logger.log.print(" ");
 	}
@@ -474,7 +474,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 	try {
 	    return Integer.parseInt(s);
 	} catch (Exception e) {
-	    throw new ProtocolError ("\""+s+"\" can't be read as an integer");
+	    throw new ProtocolError (JapeUtils.enQuote(s)+" can't be read as an integer");
 	}
     }
 
@@ -483,7 +483,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 	if (Short.MIN_VALUE<=i && i<=Short.MAX_VALUE)
 	    return (short)i;
 	else
-	    throw new ProtocolError ("\""+s+"\" outside range of Java short");
+	    throw new ProtocolError (JapeUtils.enQuote(s)+" outside range of Java short");
     }
 
     private byte toByte(String s) throws ProtocolError {
@@ -491,7 +491,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 	if (Byte.MIN_VALUE<=i && i<=Byte.MAX_VALUE)
 	    return (byte)i;
 	else
-	    throw new ProtocolError ("\""+s+"\" outside range of Java byte");
+	    throw new ProtocolError (JapeUtils.enQuote(s)+" outside range of Java byte");
     }
 
     private boolean toBool(String s) throws ProtocolError {
@@ -501,14 +501,14 @@ public class Dispatcher extends Thread implements DebugConstants {
 	if (s.equals("F")) 
 	    return false; 
 	else
-	    throw new ProtocolError ("\""+s+"\" can't be read as a boolean "+
+	    throw new ProtocolError (JapeUtils.enQuote(s)+" can't be read as a boolean "+
 				      "(it's neither \"T\" nor \"F\")");
     }
     
     private char toChar(String s) throws ProtocolError {
 	if (s.length()==1)
 	    return s.charAt(0);
-	throw new ProtocolError ("\""+s+"\" is not a single char string");
+	throw new ProtocolError (JapeUtils.enQuote(s)+" is not a single char string");
     }
 }
 

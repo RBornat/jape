@@ -63,7 +63,7 @@ public class Alert implements DebugConstants {
     private static String stringOfLabels(JLabel[] labels) {
 	String s = "JLabel[] {";
 	for (int i=0; i<labels.length; i++) {
-	    s = s+"\""+labels[i].getText()+"\"";
+	    s = s+JapeUtils.enQuote(labels[i].getText());
 	    if (i+1<labels.length)
 		s = s+"; ";
 	}
@@ -100,7 +100,7 @@ public class Alert implements DebugConstants {
 	    }
 
 	    if (makeMessage_tracing)
-		Logger.log.println("makeMessage \""+s+"\" => "+stringOfLabels(result));
+		Logger.log.println("makeMessage "+JapeUtils.enQuote(s)+" => "+stringOfLabels(result));
 	    return result;
 	}
 	else

@@ -62,8 +62,8 @@ public abstract class JapeWindow extends JFrame {
 			hideSurrogate();
 		}
 		else
-		    Logger.log.println("JapeWindow.windowListener late windowActivated \""+
-				       title +"\"; "+e);
+		    Logger.log.println("JapeWindow.windowListener late windowActivated "+JapeUtils.enQuote(
+				       title )+"; "+e);
 	    }
 	};
 	addWindowListener(windowListener);
@@ -80,7 +80,7 @@ public abstract class JapeWindow extends JFrame {
 	public synchronized String stringOfWindowv() {
 	    String s = "[";
 	    for (int i=0; i<windowv.size(); i++) {
-		s=s+"\""+((JapeWindow)windowv.get(i)).title+"\"";
+		s=s+JapeUtils.enQuote(((JapeWindow)windowv.get(i)).title);
 		if (i+1<windowv.size())
 		    s=s+"; ";
 	    }
@@ -141,7 +141,7 @@ public abstract class JapeWindow extends JFrame {
 	
 	protected synchronized JapeWindow findWindow(String title) {
 	    if (windowv_tracing)
-		Logger.log.println("JapeWindow.findWindow \""+title+"\", "+stringOfWindowv());
+		Logger.log.println("JapeWindow.findWindow "+JapeUtils.enQuote(title)+", "+stringOfWindowv());
 	    int len = windowv.size();
 	    for (int i=0; i<len; i++) {
 		JapeWindow w = (JapeWindow)windowv.get(i);

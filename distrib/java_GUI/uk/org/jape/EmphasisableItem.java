@@ -56,7 +56,7 @@ public class EmphasisableItem extends TextSelectableItem {
 	    String annottext = getannottext();
 	    char[] printchars = getprintchars();
 	    String annotttext = getannottext();
-	    Logger.log.print("text=\""+new String(printchars)+"; annottext=\"");
+	    Logger.log.print("text="+JapeUtils.enQuote(new String(printchars))+"; annottext=\"");
 	    for (int i=0; i<annottext.length(); i++) {
 		char c = annottext.charAt(i);
 		Logger.log.print(AnnotatedTextComponent.annotatedString_of_char(c));
@@ -120,7 +120,7 @@ public class EmphasisableItem extends TextSelectableItem {
 	    ", start="+start+
 	    ", end="+end+
 	    ", pxstart="+pxstart+
-	    ", chars=\""+(new String(getprintchars(), start, end-start))+"\""+
+	    ", chars="+JapeUtils.enQuote((new String(getprintchars(), start, end-start)))+
 	    "]";
 	}
     }

@@ -102,7 +102,7 @@ public class JapeMenu implements DebugConstants {
 		    itemv.remove(i); return;
 		}
 	    }
-	    Alert.abort("JapeMenu.M.removeI \""+label+"\" from "+this);
+	    Alert.abort("JapeMenu.M.removeI "+JapeUtils.enQuote(label)+" from "+this);
 	}
 	public void removeSep(int index) {
 	    if (index<itemv.size() && itemv.get(index) instanceof Sep)
@@ -122,7 +122,7 @@ public class JapeMenu implements DebugConstants {
 			    return g.items[j];
 		}
 	    }
-	    throw new ProtocolError("no item \""+label+"\" in menu "+title);
+	    throw new ProtocolError("no item "+JapeUtils.enQuote(label)+" in menu "+title);
 	}
 	public boolean preSep(int i) {
 	    return 0<i && i<=itemv.size() && !(itemv.get(i-1) instanceof Sep);
@@ -134,7 +134,7 @@ public class JapeMenu implements DebugConstants {
 	public int size() { return itemv.size(); }
 	public Object get(int i) { return itemv.get(i); }
 	public String toString() {
-	    String s = "M[\""+title+"\" [";
+	    String s = "M["+JapeUtils.enQuote(title)+" [";
 	    for (int i=0; i<itemv.size(); i++) {
 		s = s+itemv.get(i);
 		if (i+1<itemv.size())
@@ -159,8 +159,8 @@ public class JapeMenu implements DebugConstants {
 	public void setSelected(boolean selected) { this.selected = selected; }
 	public String toString() { return "I"+contentsToString(); }
 	public String contentsToString() {
-	    return  "[label=\""+label+"\""+
-		    " key=\""+key+"\""+
+	    return  "[label="+JapeUtils.enQuote(label)+
+		    " key="+JapeUtils.enQuote(key)+
 		    " action="+action+
 		    " stroke="+stroke+
 		    " enabled="+enabled+
@@ -338,7 +338,7 @@ public class JapeMenu implements DebugConstants {
 
     private static void setJMenuBar(boolean isProofBar, JapeWindow w) {
 	if (DebugVars.menuaction_tracing)
-	    Logger.log.println("JapeMenu.setJMenuBar "+isProofBar+" \""+w.title+"\"");
+	    Logger.log.println("JapeMenu.setJMenuBar "+isProofBar+" "+JapeUtils.enQuote(w.title)+"");
 	w.setJMenuBar(mkBar(isProofBar, w));
 	w.getJMenuBar().revalidate();
     }
@@ -522,7 +522,7 @@ public class JapeMenu implements DebugConstants {
 
     public static void doOpenFile(String file) {
 	if (file.length()!=0)
-	    Reply.sendCOMMAND("use \""+file+"\"");
+	    Reply.sendCOMMAND("use "+JapeUtils.enQuote(file)+"");
 
     }
 
@@ -943,7 +943,7 @@ public class JapeMenu implements DebugConstants {
 	    try {
 		tickItem(false, "Window", title, true);
 	    } catch (ProtocolError e) {
-		Alert.abort("JapeMenu.windowActivated \""+title+"\"; windowmenu="+windowmenu);
+		Alert.abort("JapeMenu.windowActivated "+JapeUtils.enQuote(title)+"; windowmenu="+windowmenu);
 	    }
 	}
     }
@@ -975,7 +975,7 @@ public class JapeMenu implements DebugConstants {
 	    haslog = false; windowmenu.removeSep(windowmenu.size()-1);
 	}
 	else
-	    Alert.abort("JapeMenu.windowRemoved(\""+title+"\","+windowmenu+
+	    Alert.abort("JapeMenu.windowRemoved("+JapeUtils.enQuote(title)+","+windowmenu+
 			"; hassurrogate="+hassurrogate+
 			"; panelcount="+panelcount+"; proofcount="+proofcount);
 

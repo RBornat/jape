@@ -123,8 +123,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 		if (windowListener!=null)
 		    Reply.sendCOMMAND("closeproof "+proofnum);
 		else
-		    Logger.log.println("ProofWindow.windowListener late windowClosing \""+
-				       title +"\"; "+e);
+		    Logger.log.println("ProofWindow.windowListener late windowClosing "+JapeUtils.enQuote(
+				       title )+"; "+e);
 	    }
 	    public void windowActivated(WindowEvent e) {
 		if (windowListener!=null) {
@@ -134,8 +134,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 		    }
 		}
 		else
-		    Logger.log.println("ProofWindow.windowListener late windowActivated \""+
-				       title +"\"; "+e);
+		    Logger.log.println("ProofWindow.windowListener late windowActivated "+JapeUtils.enQuote(
+				       title )+"; "+e);
 	    }
 	};
 	addWindowListener(windowListener);

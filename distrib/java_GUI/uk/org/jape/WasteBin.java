@@ -234,7 +234,7 @@ public class WasteBin extends Component implements DebugConstants,
     public void dragExit(WorldItem w, String label) { dragExit(); }
     public void drop(WorldItem w, String label) {
 	if (selected) {
-	    Reply.sendCOMMAND("deleteworldlabel "+w.idX+" "+w.idY+" \""+label+"\"");
+	    Reply.sendCOMMAND("deleteworldlabel "+w.idX+" "+w.idY+" "+JapeUtils.enQuote(label));
 	    setSelected(false);
 	}
 	else

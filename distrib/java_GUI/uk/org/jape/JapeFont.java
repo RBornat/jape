@@ -303,7 +303,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     public static TextDimension measure(String s, byte fontnum) {
 	initInterfaceMetrics();
 	if (measure_debug)
-	    Logger.log.println("measuring \""+s+"\"; ("+
+	    Logger.log.println("measuring "+JapeUtils.enQuote(s)+"; ("+
 			   interfaceMetrics[fontnum].stringWidth(s)+","+
 			   interfaceMetrics[fontnum].getMaxAscent()+"["+
 			   interfaceMetrics[fontnum].getAscent()+"],"+

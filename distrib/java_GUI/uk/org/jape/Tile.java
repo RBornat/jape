@@ -69,7 +69,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
 	JapeMouseListener mil = new JapeMouseAdapter() {
 	    public void doubleclicked(MouseEvent e) {
 		Tile.this.getProofWindow().claimDisproofFocus();
-		Reply.sendCOMMAND("tileact \""+text+"\"");
+		Reply.sendCOMMAND("tileact "+JapeUtils.enQuote(text));
 	    }
 	    public void pressed(MouseEvent e) {
 		Tile.this.getProofWindow().claimDisproofFocus();

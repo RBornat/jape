@@ -256,7 +256,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     public void dragExit(WorldItem w, String label) { dragExit(); }
     public void drop(WorldItem w, String label) {
 	if (draghighlight) {
-	    Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+label+"\"");
+	    Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+JapeUtils.enQuote(label));
 	    setDragHighlight(false);
 	}
 	else
@@ -268,7 +268,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     public void dragExit(Tile t) { dragExit(); }
     public void drop(Tile t) {
 	if (draghighlight) {
-	    Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+t.text+"\"");
+	    Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+JapeUtils.enQuote(t.text));
 	    setDragHighlight(false);
 	}
 	else

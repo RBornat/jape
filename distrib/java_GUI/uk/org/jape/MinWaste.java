@@ -81,7 +81,7 @@ public class MinWaste {
 		// consume following spaces
 		int j0=j;
 		for ( ; j<cs.length && cs[j]==' '; j++);
-		// Logger.log.print(ws.size()+": word \""+new String(cs,i,j0-i)+"\" ");
+		// Logger.log.print(ws.size()+": word "+JapeUtils.enQuote(new String(cs,i,j0-i))+" ");
 		ws.add(new W(i, j0, w, m.charsWidth(cs,j0,j-j0)));
 		// Logger.log.println(ws.get(ws.size()-1));
 		i=j;
