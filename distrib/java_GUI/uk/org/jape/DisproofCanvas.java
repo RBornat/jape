@@ -47,7 +47,7 @@ public class DisproofCanvas extends JapeCanvas {
 
     public void setSequentBox(int width, int ascent, int descent) {
         removeAll(); // seems to be necessary
-        setViewOrigin(0, -ascent);
+        setOrigin(0, -ascent);
     }
 
     public Dimension getPreferredSize() {
