@@ -47,11 +47,31 @@ public class TextDialog {
         operators=_operators;
     }
 
+	private static String lastCommand = "";
+    
+    public static void runTextCommandDialog() {
+		String newCommand = runTextDialog("Text Command", lastCommand, 
+										  "Type a command to be sent to the Jape engine");
+		if (newCommand!=null) {
+			lastCommand = newCommand;
+			Reply.sendCOMMAND(newCommand);
+		}
+	}
+		
     private static String lastConjecture = "";
     
     public static void runNewConjectureDialog(String panel) {
-        final String message = "Type a new conjecture for the "+panel+" panel";
-        final JTextField textField = new JTextField(lastConjecture);
+        String newConjecture = runTextDialog("New Conjecture", lastConjecture, 
+											 "Type a new conjecture for the "+panel+" panel");
+		if (newConjecture!=null) {
+			lastConjecture = newConjecture;
+			Reply.sendCOMMAND("addnewconjecture "+JapeUtils.enQuote(panel)+
+							  " "+newConjecture);
+		}
+	}
+	
+	public static String runTextDialog(String title, String oldText, String message) {
+        final JTextField textField = new JTextField(oldText);
         JapeFont.setComponentFont(textField, JapeFont.TEXTINPUT);
         class OperatorButtonListener implements ActionListener {
             public void actionPerformed(ActionEvent newEvent) {
@@ -89,10 +109,10 @@ public class TextDialog {
         JOptionPane pane = new JOptionPane(display, JOptionPane.PLAIN_MESSAGE, 0,
                                            null, options, options[0]);
         // pane.set.Xxxx(...); // Configure
-        JDialog dialog = pane.createDialog(JapeWindow.getTopWindow(), "New Conjecture");
+        JDialog dialog = pane.createDialog(JapeWindow.getTopWindow(), title);
         dialog.addWindowListener(new WindowAdapter() {
             public void windowActivated(WindowEvent e) {
-                Logger.log.println("dialog windowActivated");
+                // Logger.log.println("dialog windowActivated");
                 textField.requestFocus();
             }
         });
@@ -108,11 +128,8 @@ public class TextDialog {
                 }
             } */
                 
-        if (selectedValue!=null && options[0].equals(selectedValue)) {
-            lastConjecture = textField.getText();
-            if (lastConjecture.length()!=0)
-                Reply.sendCOMMAND("addnewconjecture "+JapeUtils.enQuote(panel)+
-                                    " "+lastConjecture);
-        }
+		String result;
+        return selectedValue!=null && options[0].equals(selectedValue) && 
+			(result = textField.getText()).length()!=0 ? result : null;
     }
 }
