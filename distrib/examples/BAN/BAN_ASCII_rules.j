@@ -70,7 +70,7 @@ RULES "P|=-#X € P|=-#(...,X,...)"(X) ARE
  AND	FROM P|=-#X INFER P|=-#(Y,ZW,X)
 END
 RULE "P|=-(R,R')ÍK € P|=-(R',R)ÍK" IS FROM P|=-(R,R')ÍK INFER P|=-(R',R)ÍK
-RULE "P|=-Q|=-(R,R')ÍK € P|=-Q|=-(R,R')ÍK" IS FROM P|=-Q|=-(R,R')ÍK INFER P|=-Q|=-(R',R)ÍK
+RULE "P|=-Q|=-(R,R')ÍK € P|=-Q|=-(R',R)ÍK" IS FROM P|=-Q|=-(R,R')ÍK INFER P|=-Q|=-(R',R)ÍK
 RULE "P|=-(R,R')üK € P|=-(R',R)üK" IS FROM P|=-(R,R')üK INFER P|=-(R',R)üK
 RULE "P|=-Q|=-(R,R')üK € P|=-Q|=-(R',R)üK" IS FROM P|=-Q|=-(R,R')üK INFER P|=-Q|=-(R',R)üK	
 

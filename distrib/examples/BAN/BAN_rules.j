@@ -70,7 +70,7 @@ RULES "PŠ#X Û PŠ#(...,X,...)"(X) ARE
  AND	FROM PŠ#X INFER PŠ#(Y,ZW,X)
 END
 RULE "PŠ(R,R')êK Û PŠ(R',R)êK" IS FROM PŠ(R,R')êK INFER PŠ(R',R)êK
-RULE "PŠQŠ(R,R')êK Û PŠQŠ(R,R')êK" IS FROM PŠQŠ(R,R')êK INFER PŠQŠ(R',R)êK
+RULE "PŠQŠ(R,R')êK Û PŠQŠ(R',R)êK" IS FROM PŠQŠ(R,R')êK INFER PŠQŠ(R',R)êK
 RULE "PŠ(R,R')ŸK Û PŠ(R',R)ŸK" IS FROM PŠ(R,R')ŸK INFER PŠ(R',R)ŸK
 RULE "PŠQŠ(R,R')ŸK Û PŠQŠ(R',R)ŸK" IS FROM PŠQŠ(R,R')ŸK INFER PŠQŠ(R',R)ŸK	
 

@@ -96,7 +96,7 @@ MENU "Í"
 	ENTRY "P|=-(P,Q)ÍK, [P<|{X}K] € P<|X"		IS ForwardOrBackward ForwardCut 0 "P|=-(P,Q)ÍK, P<|{X}K € P<|X"
 	SEPARATOR
 	ENTRY "P|=-(R,R')ÍK € P|=-(R',R)ÍK"		IS ForwardOrBackward ForwardCut 0 "P|=-(R,R')ÍK € P|=-(R',R)ÍK"
-	ENTRY "P|=-Q|=-(R,R')ÍK € P|=-Q|=-(R,R')ÍK"	IS ForwardOrBackward ForwardCut 0 "P|=-Q|=-(R,R')ÍK € P|=-Q|=-(R,R')ÍK"
+	ENTRY "P|=-Q|=-(R,R')ÍK € P|=-Q|=-(R',R)ÍK"	IS ForwardOrBackward ForwardCut 0 "P|=-Q|=-(R,R')ÍK € P|=-Q|=-(R',R)ÍK"
 END
 
 MENU "#"

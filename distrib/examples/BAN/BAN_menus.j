@@ -96,7 +96,7 @@ MENU "Í"
 	ENTRY "Pä(P,Q)ÍK, [Pë{X}K] € PëX"		IS ForwardOrBackward ForwardCut 0 "Pä(P,Q)ÍK, Pë{X}K € PëX"
 	SEPARATOR
 	ENTRY "Pä(R,R')ÍK € Pä(R',R)ÍK"		IS ForwardOrBackward ForwardCut 0 "Pä(R,R')ÍK € Pä(R',R)ÍK"
-	ENTRY "PäQä(R,R')ÍK € PäQä(R,R')ÍK"	IS ForwardOrBackward ForwardCut 0 "PäQä(R,R')ÍK € PäQä(R,R')ÍK"
+	ENTRY "PäQä(R,R')ÍK € PäQä(R',R)ÍK"	IS ForwardOrBackward ForwardCut 0 "PäQä(R,R')ÍK € PäQä(R',R)ÍK"
 END
 
 MENU "#"
