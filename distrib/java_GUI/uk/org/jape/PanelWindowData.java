@@ -358,7 +358,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                                                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
             contentPane.add(scrollPane);
 
-            buttonPane = new ButtonPane();
+            buttonPane = new ButtonPane(Jape.onMacOS ? 4 : 3);
             for (int i=0; i<buttonv.size(); i++) {
                 PanelButton b = (PanelButton)buttonv.get(i);
                 b.font_reset();
