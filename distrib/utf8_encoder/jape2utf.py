@@ -77,7 +77,9 @@ def translate(pathin, pathout, inputcodec, outputcodec):
       else:
          out     = open(pathout, 'w', 0766)
          report (pathout, "Writing output file %s (%d)"%(pathout, len(bytes)))
-       
+
+      if BOMS.has_key(outputcodec):
+         out.write(BOMS[outputcodec])
       out=codecs.EncodedFile(out, inputcodec, outputcodec)
       out.write(bytes)
       out.close()
@@ -94,6 +96,8 @@ def translate(pathin, pathout, inputcodec, outputcodec):
              break
       fatal(e, "Translating file %s(%s) to %s(%s)"%(pathin, inputcodec, pathout, outputcodec))
 
+BOMS = {'utf_8': "\xEF\xBB\xBF"}
+
 def main():
     inputcodec  = 'utf_8'
     outputcodec = 'utf_8'
@@ -101,7 +105,7 @@ def main():
     inputpath   = None
     tablewidth  = 8
     try:
-     optlist, paths = getopt.getopt(sys.argv[1:], "Eho:i:O:I:KLTt:w:", ['enc=', 'help', 'table=', 'width='])
+     optlist, paths = getopt.getopt(sys.argv[1:], "EhO:i:o:I:KLTt:w:", ['enc=', 'help', 'table=', 'width='])
     except Exception, e:
      report(e, "parsing parameters")
      optlist, paths = [], []
@@ -113,7 +117,7 @@ def main():
         elif flag=='-I':
            inputcodec = arg
         elif flag=='-O':
-           outputcodec = arg        
+           outputcodec = arg  
         elif flag=='-i':
            inputpath = arg      
         elif flag=='-o':
@@ -159,10 +163,13 @@ def usage():
      Commands are:
        -L             -- set jape_laura input encoding
        -K             -- set jape_konstanz input encoding
-       -I inputcodec  -- set given input encoding  (default utf8)
-       -O outputcodec -- set given output encoding (default utf8)
+       -I inputcodec  -- set given input encoding  (default utf_8)
+       -O outputcodec -- set given output encoding (default utf_8)
        -i inpath      -- translate from file at inpath
        -o outpath     -- translate to file at outpath
+                         (Appropriate byte-order marks are generated
+                         for utf_16, and an appropriate ``signature'' BOM
+                         is generated for utf_8)
        path           -- translate from file at path to stdout
 
      Special commands:
@@ -178,10 +185,14 @@ def usage():
 
       Compiler-readable
        --enc=fmt      -- output the inut encoding using fmt (one char per line)
-       -E             -- equivlent to --enc="%(char)%03d 0x%(enc)04x %(name)s"
+       -E             -- equivalent to --enc="%(char)%03d 0x%(enc)04x %(name)s"
        
        Examples: 
        
+          Translate a k-coded jape theory into utf_8
+
+                jape2utf -K equality_theory.j -o UTF/equality_theory.j 
+
           Print a k-coded jape theory on a (utf-8 capable) printer
 
                 jape2utf -K equality_theory.j | lpr
