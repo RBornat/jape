@@ -54,12 +54,14 @@ public class Export {
             /* Use the pre-defined flavor for a Printable from an InputStream */
             DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
             /* Specify the type of the output stream */
-            String psMimeType = DocFlavor.BYTE_ARRAY.POSTSCRIPT.getMimeType();
+            String psMimeType = (Jape.onMacOS ? DocFlavor.BYTE_ARRAY.PDF : 
+								                DocFlavor.BYTE_ARRAY.POSTSCRIPT).getMimeType();
             /* Locate factory which can export a GIF image stream as Postscript */
             StreamPrintServiceFactory[] factories =
                 StreamPrintServiceFactory.lookupStreamPrintServiceFactories(flavor, psMimeType);
             if (factories.length == 0) {
-                Alert.showAlert("your Java system doesn't seem able to produce PostScript");
+                Alert.showAlert(Jape.onMacOS ? "this MacOS X system can't make pdf files!" : 
+								               "your Java system doesn't seem able to produce PostScript");
             } else
                 try {
                     /* Create a file for the exported postscript */
@@ -67,7 +69,7 @@ public class Export {
                                 "Save "+(what == PrintProof.BOTH  ? "image"       :
                                          what == PrintProof.PROOF ? "proof image" :
                                                                     "disproof image"),
-                                new String[]{"ps"});      
+								 new String[]{Jape.onMacOS ? "pdf" : "ps"});      
                     if (outputFileName.equals(""))
                         return;
 
