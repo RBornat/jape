@@ -39,10 +39,14 @@
         Switches are:
 
                 -splash     <image file>    -- specify the installation splash image
-                -app        "the app name"  -- default is Jape 
-                -onunix     <script file>   -- specify the post-unpack command for Unixoid systems
-                -onwin      <script file>   -- specify the post-unpack command for Windoid systems
-                # (not yet) -class      <class name>    -- specify the post-unpack class to instantiate
+                -app        "the app name"  -- default is Jape
+                -bfont      fontname        -- button font         (default Sanserif-18)
+                -tfont      fontname        -- text feedback font  (default Dialog-12)
+                -onunix     <script file>   -- specify the post-unpack shell command for Unixoid systems
+                                            -- (no corresponding parameter for Windows use -winclass)
+                -winclass   <class name>    -- specify the post-unpack class to load and instantiate (on Windows)
+                -class      <class name>    -- specify the post-unpack class to load and instantiate (on non-Windows)
+                
 
         It is fairly important that the name of this file is not
         changed, for if it is then the installation process is made a
@@ -265,6 +269,7 @@ public class install implements ActionListener
          catch (Exception exn)
          {
            System.err.println("[Installer exception "+exn+"]");
+           showProgress("[Installer exception "+exn+"]");
          }
        }
        return status==0;
@@ -315,19 +320,23 @@ public class install implements ActionListener
      prop                  = getProperties(this);
      String    giffilename = prop.getProperty("-splash");
      String    appName     = prop.getProperty("-app", "Jape");
+     String    tfont       = prop.getProperty("-tfont", "Monospaced-PLAIN-14");
+     String    bfont       = prop.getProperty("-bfont", "SansSerif-PLAIN-14");
      String    caption     = "Installing "+appName+" from "+jarfilename;
-     Font      font        = new Font("SansSerif", Font.BOLD, 18);
+     Font      tFont       = Font.decode(tfont); //new Font("SansSerif", Font.BOLD, 18);
+     Font      bFont       = Font.decode(bfont); //new Font("SansSerif", Font.BOLD, 18);
      JFrame    frame       = new JFrame(caption);
      Container content     = frame.getContentPane();
      JButton   install     = new JButton("Install "+appName);
      JButton   exit        = new JButton("Exit Now");
      JLabel    label       = new JLabel(caption, SwingConstants.CENTER);
      progress = new TextArea("", 15, 72);
+     progress.setFont(tFont);
      install.addActionListener(this);
      exit.addActionListener(this);
-     install.setFont(font);
-     exit.setFont(font);
-     label.setFont(font);
+     install.setFont(bFont);
+     exit.setFont(bFont);
+     label.setFont(bFont);
 
      // prop.list(System.err);
      
@@ -346,6 +355,7 @@ public class install implements ActionListener
      frame.setLocation(new Point(200, 200));
      frame.pack();
      frame.setVisible(true);
+     showProgress("Installing for "+System.getProperty("os.name", "unknown OS type (assumed to be Unixoid)"));
   }
 
   public void actionPerformed(ActionEvent e)
@@ -353,10 +363,20 @@ public class install implements ActionListener
     if (c.startsWith("Install"))
     { 
        try
-       { boolean isWindows = System.getProperty("os.name", "Unix").startsWith("Windows");
+       { 
+         boolean isWindows = System.getProperty("os.name", "Unix").startsWith("Windows");
+         String  postClass = prop.getProperty(isWindows?"-winclass":"-class");
          unJar(".", new FileInputStream(jarfilename));
-         String shell = prop.getProperty(isWindows?"-onwin":"-onunix");
-         if (shell!=null)
+         String shell = prop.getProperty("-onunix");
+
+         if (postClass!=null)
+         { Class  theClass = Class.forName(postClass);
+           showProgress("[Running post-install class "+postClass+"]");
+           Object theObject = theClass.newInstance(); 
+           showProgress("[Ran "+postClass+" successfully]");
+         }
+         
+         if (!isWindows && shell!=null)
          { 
             execute(shell, true);
          }
@@ -364,6 +384,7 @@ public class install implements ActionListener
        catch (Exception exn)
        {
           System.err.println(exn);
+          showProgress("Exception during post-install phase "+exn);
        }
     }
     else
@@ -442,6 +463,7 @@ public class install implements ActionListener
  General Public License for more details.
 
 */
+
 
 
 

@@ -2,6 +2,7 @@ import java.io.*;
 
 public class installjape 
 {
+   /** When run from the command line this makes the right command files for a WIndows installation */
    public static void main(String[] args) throws Exception
    { 
      PrintWriter out = new PrintWriter(new FileOutputStream("jape.cmd"));
@@ -11,5 +12,9 @@ public class installjape
      out.println("jape.exe %1%");
      out.close();
    }
+
+   /** When instantiated from the installer this makes the right command files */
+   public installjape() throws Exception { main(null); }
 }
+
 
