@@ -38,8 +38,7 @@ public class LocalSettings implements MRJAboutHandler,
                                       MRJPrefsHandler,
                                       SelectionConstants {
 
-    // parameters to do with menus
-                                           
+    // how to set up menus
     public static final boolean panelWindowMenus = true;
     
     public static final boolean aboutMenuItemNeeded = false;
@@ -47,20 +46,20 @@ public class LocalSettings implements MRJAboutHandler,
     public static final boolean prefsMenuItemNeeded = false;
 
     // size of windows
-
     public static final Dimension DefaultProofWindowSize = new Dimension(450, 350);
     public static final int PosIncr = 35;
 
     // size of fonts
-
     public static final byte 	FormulaFontSize     = 14,
                                 ReasonFontSize      = 11,
                                 ProvisoFontSize     = 11,
                                 PanelButtonFontSize = 11,
                                 PanelEntryFontSize  = 11;
 
-    // what a mouseDown means: see SelectionConstants
+    // spacing of tiles
+    public static final int TileSpacing = 5;
     
+    // what a mouseDown means
     public static byte mouseDownKind(MouseEvent e) {
         byte kind = e.isAltDown() ? TextSelMask : PureSelMask;    
         if (e.isShiftDown()) kind |= ExtendedSelMask;
@@ -68,6 +67,7 @@ public class LocalSettings implements MRJAboutHandler,
         return kind;
     }
 
+    // how to mark an entry in a conjecture panel
     public static final String tick = "\u221A", cross = "\u2022"; // actually square root, blob in Konstanz
 
     /* ********************************************************************** */

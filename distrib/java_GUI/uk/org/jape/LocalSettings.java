@@ -34,8 +34,7 @@ import java.awt.event.MouseEvent;
 
 public class LocalSettings implements SelectionConstants {
 	
-    // parameters to do with menus
-                                           
+    // how to set up menus
     public static final boolean panelWindowMenus = false;
     
     public static final boolean aboutMenuItemNeeded = true,
@@ -43,21 +42,20 @@ public class LocalSettings implements SelectionConstants {
                                 prefsMenuItemNeeded = true;
 
     // size of windows
-
     public static final Dimension DefaultProofWindowSize = new Dimension(625, 500);
     public static final int PosIncr = 50;
 
     // size of fonts
-
     public static final byte 	FormulaFontSize     = 18,
                                 ReasonFontSize      = 14,
                                 ProvisoFontSize     = 14,
                                 PanelButtonFontSize = 14,
                                 PanelEntryFontSize  = 14;
 
-    // what a mouseDown means: see SelectionConstants
-    // this stands until people tell me better.
+    // spacing of tiles
+    public static final int TileSpacing = 7;
 
+    // what a mouseDown means (this stands until people tell me better)
     public static byte mouseDownKind(MouseEvent e) {
         byte kind = e.isAltDown() ? TextSelMask : PureSelMask;
         if (e.isShiftDown()) kind |= ExtendedSelMask;
@@ -65,5 +63,6 @@ public class LocalSettings implements SelectionConstants {
         return kind;
     }
 
+    // how to mark an entry in a conjecture panel
     public static final String tick = "\u2713", cross = "\u2717";
 }
