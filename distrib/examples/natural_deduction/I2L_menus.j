@@ -204,7 +204,7 @@ TACTIC BackwardWithHyp (gpattern, action, stepname, shape) IS
 /* ******************** tactics to deal with bad backward selections ******************** */
 
 MACRO ComplainBackward (pattern, stepname, shape) IS
-	SEQ 
+	ALT 
 		(ComplainBackwardDeadConc pattern stepname shape)
 		(ComplainBackwardHypSel pattern stepname shape)
 		(ComplainBackwardBadGoal pattern stepname shape)
