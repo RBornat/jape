@@ -96,6 +96,7 @@
 				F5152726037BCC1A01A80116,
 				F52B56B1039D210801A80116,
 				F57EF90F039503AE01A80116,
+				F569E6B4039FC3DF01A80116,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -323,6 +324,7 @@
 				F5158C92039E2C6101A80116,
 				F5158C95039E321E01A80116,
 				F526B568039E4A3A01A80116,
+				F569E6B5039FC3DF01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -977,6 +979,24 @@
 			settings = {
 			};
 		};
+		F569E6B4039FC3DF01A80116 = {
+			isa = PBXFileReference;
+			name = PrintProof.java;
+			path = ../../java_japeserver/PrintProof.java;
+			refType = 2;
+		};
+		F569E6B5039FC3DF01A80116 = {
+			fileRef = F569E6B4039FC3DF01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F569E6B6039FC3DF01A80116 = {
+			fileRef = F569E6B4039FC3DF01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		F574B00903968EBA01A80116 = {
 			isa = PBXFileReference;
 			name = LineComponent.java;
@@ -1285,6 +1305,7 @@
 				F5158C93039E2C6101A80116,
 				F5158C96039E321E01A80116,
 				F526B569039E4A3A01A80116,
+				F569E6B6039FC3DF01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
