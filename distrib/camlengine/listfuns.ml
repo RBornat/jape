@@ -163,11 +163,10 @@ let rec dropwhile a1 a2 =
   match a1, a2 with
     f, x :: xs -> if f x then dropwhile f xs else x :: xs
   | f, [] -> []
-let rec zip =
-  function
-    [], _ -> []
-  | _, [] -> []
-  | x :: xs, y :: ys -> (x, y) :: zip (xs, ys)
+let rec _BMzip xs ys = 
+  match xs, ys with
+    x::xs, y::ys -> (x, y) :: _BMzip xs ys
+  | _    , _     -> []
 let rec isprefix a1 a2 a3 =
   match a1, a2, a3 with
     eq, [], ys -> true

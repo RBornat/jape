@@ -36,7 +36,7 @@ val ( </ ) : ('a * 'b -> 'b) * 'b -> 'a list -> 'b
 val ( /> ) : 'a * ('a * 'b -> 'a) -> 'b list -> 'a
 val ( // ) : ('a * 'a -> 'a) * 'a list -> 'a
 exception Reduce
-val ( ||| ) : 'a list -> 'b list -> ('a * 'b) list  (* zip = combine *)
+val ( ||| ) : 'a list -> 'b list -> ('a * 'b) list  (* equal-length zip = List.combine *)
 exception Zip_ (* unequal lengths *)
 
 val _All : ('a -> bool) -> 'a list -> bool
@@ -51,8 +51,7 @@ val last : 'a list -> 'a
 exception Last_
 val take : int -> 'a list -> 'a list
 val drop : int -> 'a list -> 'a list
-val zip : 'a list * 'b list -> ('a * 'b) list
-(* Bird-Meertens zip, uneven lists allowed *)
+val _BMzip : 'a list -> 'b list -> ('a * 'b) list
 val takewhile : ('a -> bool) -> 'a list -> 'a list
 val dropwhile : ('a -> bool) -> 'a list -> 'a list
 (* get ready for change to proper fold semantics *)
