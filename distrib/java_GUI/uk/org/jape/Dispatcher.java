@@ -56,12 +56,12 @@ public class Dispatcher extends Thread implements DebugConstants {
         try {
             while (true) {
                 String line = in.readLine();
-                String[] cmd = japesplit(line);
-                if (protocol_tracing) {
-                    showcommand("dispatcher reads ("+cmd.length+") ", cmd);
-                }
-                
                 try {
+                    String[] cmd = japesplit(line);
+                    if (protocol_tracing) {
+                        showcommand("dispatcher reads ("+cmd.length+") ", cmd);
+                    }
+                
                     if (cmd.length!=0) {
                         String p = cmd[0];
                         int len = cmd.length;
@@ -348,71 +348,55 @@ public class Dispatcher extends Thread implements DebugConstants {
         }
     }
 
-    private String[] japesplit(String line) {
+    private String[] japesplit(String line) throws ProtocolError {
         // split a line encoded in the japeserver obol form.
         Vector result = new Vector();
-        StringBuffer buf   = new StringBuffer();
-        int i = 0;
-        boolean quote = false;
+        StringBuffer buf = new StringBuffer();
         boolean dbquote=false;
         int len = line.length();
-        
-        while (i<len) {
-            char c=line.charAt(i);
 
-            i=i+1;
+        for (int i=0; i<len; ) {
+            char c=line.charAt(i++);
+
             switch (c) {
-                case '{': {
-                    if (quote) {
-                        result.add(buf.toString());
-                        buf = new StringBuffer();
-                        quote = false;
-                    }
-                    else
-                        quote = true;
+                case '"':
+                    dbquote = !dbquote; // string quotes ignored ...
                     break;
-                }
-                case '"': {
-                    dbquote = !dbquote;
-                    break;
-                }
-                case ' ': {
-                    if (!quote) {
-                        if (buf.length()!=0)
+
+                case ' ':
+                    if (buf.length()!=0) {
                         result.add(buf.toString());
                         buf = new StringBuffer();
                     }
-                    else
-                        buf.append(c);
                     break;
-                }
-                case '\\': {
-                    c=line.charAt(i);
-                    i=i+1;
+
+                case '\\':
+                    c=line.charAt(i++);
                     if (c=='n')
                         buf.append('\n');
                     else
-                    if ('0' <= c && c <= '8') { 
-                        int n=((c-'0')*8+line.charAt(i)-'0')*8+line.charAt(i+1)-'0';
-                        i=i+2;
+                    if ('0'<=c && c<='8') { 
+                        int n=((c-'0')*8+line.charAt(i++)-'0')*8+line.charAt(i++)-'0';
                         buf.append((char)n);
                     }
                     else
                         buf.append(c);
                     break;
-                }
-                default: {
+
+                default:
                     buf.append(c);
                     break;
-                }
             }
         }
         
         if (buf.length()!=0) {
             result.add(buf.toString());
         }
-            
-        return ((String[])result.toArray(new String[result.size()]));
+
+        if (dbquote)
+            throw new ProtocolError("unmatched string quote");
+        else
+            return ((String[])result.toArray(new String[result.size()]));
     }
     
     private int toInt(String s) throws ProtocolError {
