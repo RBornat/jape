@@ -107,6 +107,7 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
 	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
 	exception Selection_ = Selection.M.Selection_
 	exception None_ = Optionfuns.M.None_
+	exception DeadServer_ = Japeserver.DeadServer_
     
     type prooftree = Prooftree.Tree.Fmttree.prooftree
 	 and proofstate = Proofstate.M.proofstate
@@ -134,7 +135,7 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
     let abandonServer = Japeserver.stopserver
     let killServer = Japeserver.killserver
     let setComment = setComment <*> implode
-    let rec deadServer strings = consolereport strings; abandonServer ()
+    let rec deadServer strings = consolereport strings; abandonServer (); raise DeadServer_
     let rec startServer (serverpath, args) =
       try
         Japeserver.startserver serverpath args;
@@ -144,9 +145,9 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
             Japeserver.killserver ()
           end
       with
-        server_input_terminated ->
-          deadServer ["Cannot find japeserver: "; serverpath]
-    let rec runningServer () = !(Japeserver.running)
+        DeadServer_ -> deadServer ["Cannot find japeserver: "; serverpath]
+    
+    let rec runningServer () = Optionfuns.M.opt2bool !(Japeserver.serverpid)
     let treestyle = Displaystyle.Treestyle.style
     let boxstyle = Displaystyle.Boxstyle.style
     let currentstyle = ref treestyle

@@ -52,7 +52,7 @@ module M : T with type name = Name.M.name =
 	type name = Name.M.name
 	
 	let deadServer = Interaction.M.deadServer
-	and runningServer = (fun() -> !Japeserver.running)
+	and runningServer = (fun() -> Optionfuns.M.opt2bool !Japeserver.serverpid)
 	 
     type button =
         UndoProofbutton
@@ -169,7 +169,7 @@ module M : T with type name = Name.M.name =
           Japeserver.mapmenus true;
           let _ = Japeserver.echo "" (* synchronise *) in ()
         with
-          server_input_terminated -> deadServer ["WARNING: server broken"]
+          Japeserver.DeadServer_ -> deadServer ["WARNING: server broken"]
     let rec markproof proved cmd =
       (* given parseable name - look in the cmd part of conjecture panels *)
       paneliter

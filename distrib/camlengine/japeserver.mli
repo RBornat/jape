@@ -84,10 +84,13 @@
     val drawRect : box -> unit
     (* just inside the box, using linethickness from setproofparams *)
 
-    val running : bool ref
+    val serverpid : int option ref
     val servername : string ref
     val startserver : string -> string list -> unit
     val stopserver : unit -> unit
+    
+    exception DeadServer_
+
     val openproof : string * int -> unit
     val closeproof : int -> unit
     val showfile : string -> unit

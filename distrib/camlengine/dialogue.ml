@@ -719,10 +719,8 @@ module M : T =
     let rec main a1 a2 =
       match a1, a2 with
         (env, proofs, mbs), (path :: args, _) ->
-          consolereport ["entering main"];
           begin try
             let server = Env.M.getenv (path ^ "server") "JAPESERVER" in
-            consolereport ["found server name "; server];
             let rec doargs =
               function
                 [] -> [], []
@@ -748,7 +746,6 @@ module M : T =
                   ParseError_ m -> showInputError consolereport m; raise Exit_
                 | Use_ -> raise Exit_
               in
-              consolereport ["here we go!"];
               startServer (server, server :: args);
               Japeserver.sendVersion (_Title ^ _Version);
               initGUI ();
@@ -760,6 +757,7 @@ module M : T =
             ()
           with
             Exit_ -> ()
+          | Japeserver.DeadServer_ -> ()
           end
       | _, _ -> raise Matchinmain_
     

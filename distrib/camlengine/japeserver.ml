@@ -37,39 +37,38 @@
     let rec explodeBox box = bPos box, bSize box
     let rec explodePos pos = posX pos, posY pos
     let rec explodeSize s = sW s, sH s
-    let rec explodeTextSize s = tsW s, tsA s, tsD s
-    (* width, ascent, descent *)
-
-   (*  Low level details [should be done in idlbase] *)
-
-    exception Server_input_terminated
-    exception Server_output_terminated
+    let rec explodeTextSize s = tsW s, tsA s, tsD s (* width, ascent, descent *)
     
-    let (infromserver, outtoserver) = ref stdin, ref stdout
-    let running = ref false
+    let infromserver = ref stdin
+    let outtoserver = ref stdout
+    let serverpid = ref (None : int option)
     let servername = ref "<no server>"
     
     let rec stopserver () =
-      prerr_string "in stopserver "; prerr_int (if !running then 1 else 0); prerr_string "\n"; Pervasives.flush stderr;
-      if !running then
-       ((try close_in !infromserver with _ -> ());
-        prerr_endline "done infromserver";
-        (try close_out !outtoserver with _ -> ());
-        prerr_endline "done outfromserver";
-        exit 2;
-        prerr_endline "returned from exit!")
-
+      match !serverpid with 
+        Some pid -> 
+		  serverpid := None;
+		  (try close_in !infromserver with _ -> ());
+		  (try close_out !outtoserver with _ -> ());
+		  (try Unix.kill pid Sys.sigkill with _ -> ())
+      | None -> ()
+      
+    exception DeadServer_
+    
     let rec startserver server args =
-      let (iii, ooo) =
-        stopserver (); 
-        Miscellaneous.M.consolereport ["about to start the server called "; server; " with args "; bracketedliststring (Stringfuns.M.enQuote <*> String.escaped) ", " args];
-        Moresys.execute server args
-      in
-      servername := server;
-      infromserver := iii;
-      outtoserver := ooo;
-      prerr_string "outtoserver set\n"; Pervasives.flush stderr;
-      running := true
+	  stopserver (); 
+      let (pid, iii, ooo) = Moresys.execute server args in
+      infromserver := iii; outtoserver := ooo;
+      servername := server; serverpid := Some pid;
+	  (* if there ain't no server, I want to know NOW *)
+	  Sys.set_signal Sys.sigpipe Sys.Signal_ignore; (* but we do get an exception -- see below *)
+	  match (try input_line iii 
+	         with exn -> consolereport ["server "; server; " crashed or didn't start"]; 
+						 stopserver();
+						 raise DeadServer_)
+	  with "jape server ready" -> ()
+	  |    s -> consolereport [server; " is not a jape server"]; 
+				stopserver(); raise DeadServer_
     
     and write s = out s; out "\n"; flush ("write " ^ s)
     and out s = output_string !outtoserver s
@@ -177,6 +176,7 @@
 
     let rec setFonts stringfromtheory =
       writef "SETFONTS \"%\"\n" [Str stringfromtheory]
+    
     exception Fontinfo_
     let rec fontinfo fontn =
         match askf "FONTINFO %\n" [Int (displayfont2int fontn)] with 
@@ -191,6 +191,7 @@
     let rec printable s =
       implode ((fun c -> not (member (c, !invischars))) <| explode s)
     (* NEED TO CACHE THE RESULTS OF THIS *)
+    
     exception Measurestring_
     let rec measurestring (fontn, string) =
 	  match askf "STRINGSIZE % \"%\"\n" [Int (displayfont2int fontn); Str (printable string)] with
@@ -284,6 +285,7 @@
     let rec inventmenu name =
       let n = let r = !menucount in incr menucount; r in
       menus := (name, n) :: !menus; string_of_int n
+    
     exception Findmenu_
     let rec findmenu name =
         let rec ff_ =
@@ -562,6 +564,7 @@
     let rec tickmenuitem (menu, label, b) =
       writef "TICKMENUITEM % % %\n"
         [Str (findmenu menu); Str label; Int (if b then 1 else 0)]
+    
     exception GetGeometry_
     let rec getGeometry pane =
         match askf "%PANEGEOMETRY\n" [Str pane] with
