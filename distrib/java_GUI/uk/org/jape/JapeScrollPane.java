@@ -160,7 +160,8 @@ public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
     /* this is where the anchor policy bites */
     public void setBounds(int x, int y, int w, int h) {
         if (getWidth()!=0 && getHeight()!=0) { /* only for true resizing operations */
-            System.err.print("setBounds "+x+","+y+","+w+","+h+"; "+getBounds()+"; "+view.getLocation());
+            // System.err.print("setBounds "+x+","+y+","+w+","+h+"; "+getBounds()+
+            //                  "; "+view.getLocation());
             Point oldPos = view.getLocation();
             switch (anchor) {
                 case ANCHOR_NORTH:
@@ -181,7 +182,7 @@ public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
                 default:
                     break;
             }
-            System.err.println(" => "+oldPos);
+            // System.err.println(" => "+oldPos);
             view.setLocation(oldPos);
         }
         super.setBounds(x,y,w,h);
