@@ -356,7 +356,8 @@ public class install implements ActionListener
   }
 
   public install(String filename)
-  {  prop                  = getProperties(this);
+  {  
+     prop                  = getProperties(this);
      jarfilename           = filename==null?prop.getProperty("-jar"):filename;
      
      String    splashFileName = prop.getProperty("-splash");
