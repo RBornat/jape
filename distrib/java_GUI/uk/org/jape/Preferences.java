@@ -30,6 +30,7 @@ import java.awt.Color;
 public class Preferences {
     public static Color GreyTextColour          = Color.gray,
                         LineColour              = Color.black,
+                        NoLineColour            = Color.lightGray,
                         PanelBackgroundColour   = Color.white,
                         ProofBackgroundColour   = Color.white,
                         SelectionColour         = Color.red,
