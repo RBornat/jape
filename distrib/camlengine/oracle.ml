@@ -221,7 +221,7 @@ let rec resetoracle () =
 let rec _Oracle (turnstile : string) (cxt : Context.Cxt.cxt) =
   fun (_HS : Context.Cxt.term) ->
     fun (_CS : Context.Cxt.term) (oracle : string) (args : string list) ->
-      let oracle = unQuote oracle in
+      let oracle = disQuote oracle in
       match getmapping oracle with
         (Some
            {translatehyps = translatehyps;

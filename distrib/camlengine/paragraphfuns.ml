@@ -62,7 +62,7 @@ let thawsaved = Proofstore.thawsaved
 let tickmenuitem = Japeserver.tickmenuitem
 let tmerge = Term.Funs.tmerge
 let uncurry2 = Miscellaneous.uncurry2
-let unQuote = Stringfuns.unQuote
+let disQuote = Stringfuns.disQuote
 let _VALFROM = Termparse.asTactic Termparse.term_of_string
 
 (* let profileOff = Profile.profileOff
@@ -393,7 +393,7 @@ and interpretParasFrom report query res filenames =
   let r = (try
 			 nj_revfold (interpret report query InLimbo [] [] true)
 			   (nj_fold (fun (x, y) -> x @ y)
-					    ((file2paragraphs report query <.> unQuote) <*
+					    ((file2paragraphs report query <.> disQuote) <*
 					    filenames)
 				  [])
 			   res

@@ -21,7 +21,7 @@
 *)
 
 val isQuoted : string -> bool
-val unQuote : string -> string
+val disQuote : string -> string
 val enQuote : string -> string
 val words : string -> string list
 val respace : string list -> string
