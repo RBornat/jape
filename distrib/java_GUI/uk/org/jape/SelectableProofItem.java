@@ -58,20 +58,22 @@ public	class SelectableProofItem extends TextSelectableItem
 	    canvas.proofStyle==BoxStyle ? new DirectedFormulaSelection(this) :
 					  new RectSelection(this));
 	addJapeMouseListener(new JapeMouseAdapter() {
-	    boolean canDrag;
+	    int dragNum;
 	    public void pressed(MouseEvent e) {
 		SelectableProofItem.this.canvas.claimFocus();
-		canDrag = JapeUtils.isIn(getprinttext(), dragSources);
-		if (canDrag)
-		    SelectableProofItem.this.pressed(e);
+		dragNum = pointIsIn(dragSources, idX, idY);
+		if (drag_tracing)
+		    Logger.log.println("looking for drag "+idX+","+idY+"; got "+dragNum);
+		if (dragNum!=-1)
+		    SelectableProofItem.this.pressed(dragNum, e);
 	    }
 	    public void dragged(boolean wobbly, MouseEvent e) {
-		if (canDrag && wobbly)
-		    SelectableProofItem.this.dragged(e); // don't take notice of small movements
+		if (dragNum!=-1 && wobbly)
+		    SelectableProofItem.this.dragged(dragNum, e); // don't take notice of small movements
 	    }
 	    public void released(MouseEvent e) {
-		if (canDrag)
-		    SelectableProofItem.this.released(e);
+		if (dragNum!=-1)
+		    SelectableProofItem.this.released(dragNum, e);
 	    }
 	});
     }
@@ -128,11 +130,11 @@ public	class SelectableProofItem extends TextSelectableItem
     private FormulaTarget over;
     private Class targetClass;
 
-    private void pressed(MouseEvent e) {
+    private void pressed(int dragNum, MouseEvent e) {
 	startx = e.getX(); starty = e.getY(); firstDrag = true;
     }
     
-    public void dragged(MouseEvent e) {
+    public void dragged(int dragNum, MouseEvent e) {
 	if (firstDrag) {
 	    firstDrag = false;
 	    targetClass = FormulaTarget.class;
@@ -145,7 +147,6 @@ public	class SelectableProofItem extends TextSelectableItem
 							       e.getY()-starty-offsety,
 							       layeredPane));
 	    formulaImage.repaint();
-	    Reply.send("DRAGQ "+idX+" "+idY); /* ask engine for targets */
 	}
 	else {
 	    if (drag_tracing)
@@ -162,13 +163,13 @@ public	class SelectableProofItem extends TextSelectableItem
 	    if (over!=null) {
 		over.dragExit(SelectableProofItem.this); over=null;
 	    }
-	    if (target!=null && target.dragEnter(SelectableProofItem.this))
+	    if (target!=null && target.dragEnter(dragNum, SelectableProofItem.this))
 		over = target;
 	}
 	lastx = e.getX(); lasty = e.getY();
     }
     
-    protected void released(MouseEvent e) {
+    protected void released(int dragNum, MouseEvent e) {
 	if (drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged formula at "+formulaImage.getX()+","+formulaImage.getY());
@@ -195,11 +196,26 @@ public	class SelectableProofItem extends TextSelectableItem
 
     boolean acceptDrop = false;
 
-    public boolean dragEnter(SelectableProofItem f) {
-	acceptDrop=JapeUtils.isIn(getprinttext(), dropTargets);
+    public boolean dragEnter(int dragNum, SelectableProofItem f) {
+	acceptDrop = false;
+	int dropNum = pointIsIn(dragTargets, idX, idY);
+	if (dropNum!=-1) {
+	    /* look for source, target pair */
+	    for (int pair=0; !acceptDrop && pair*2+1<dragMap.length; pair++) {
+		int[] ss = dragMap[pair*2], ts = dragMap[pair*2+1];
+		for (int si=0; si<ss.length; si++)
+		    if (ss[si]==dragNum) {
+			for (int ti=0; ti<ts.length; ti++)
+			    if (ts[ti]==dropNum) {
+				acceptDrop = true; break;
+			    }
+			break;
+		    }
+	    }
+	}
 	if (acceptDrop) {
 	    paintTextSels = false;
-	    canvas.repaint();
+	    repaint();
 	}
 	return acceptDrop;
     }
@@ -207,7 +223,7 @@ public	class SelectableProofItem extends TextSelectableItem
     public void dragExit(SelectableProofItem f) { 
 	acceptDrop = false;
 	paintTextSels = true;
-	canvas.repaint();
+	repaint();
 	return; 
     }
 
@@ -233,13 +249,33 @@ public	class SelectableProofItem extends TextSelectableItem
 	super.paint(g);
     }
 
-private static String[] dragSources = new String[0], dropTargets = new String[0];
+    private static Point[][] dragSources = new Point[0][0], 
+                             dragTargets = new Point[0][0];
 
-    public static void setDragSources(String[] dragSources) {
+    private static int pointIsIn(Point[][] es, int x, int y) {
+	for (int i=0; i<es.length; i++) {
+	    Point[] e = es[i];
+	    for (int j=0; j<e.length; j++) {
+		if (drag_tracing)
+		    Logger.log.println("["+i+","+j+"]=="+e[j].x+","+e[j].y);
+		if (e[j].x==x && e[j].y==y)
+		    return i;
+	    }
+	}
+	return -1;
+    }
+
+    private static int[][] dragMap = new int[0][0];
+
+    public static void setDragSources(Point[][] dragSources) {
 	SelectableProofItem.dragSources = dragSources;
     }
 
-    public static void setDropTargets(String[] dropTargets) {
-	SelectableProofItem.dropTargets = dropTargets;
+    public static void setDragTargets(Point[][] dragTargets) {
+	SelectableProofItem.dragTargets = dragTargets;
+    }
+
+    public static void setDragMap(int[][] dragMap) {
+	SelectableProofItem.dragMap = dragMap;
     }
 }
