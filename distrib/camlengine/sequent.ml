@@ -277,7 +277,7 @@ let popSyntax () =
   | _ -> raise (ParseError_ ["sequent popSyntax stack empty"])
 
 let popAllSyntaxes () =
-  while !syntaxes!=[] do popSyntax () done
+  while !syntaxes<>[] do popSyntax () done
 
 let rec describeSeqs ds =
   let rec f (hyps, stile, concs) =
@@ -314,7 +314,7 @@ let rec describeSeqs ds =
 let rec setsemanticturnstile syn sem =
   (match !syntaxes with 
      (name, _, sems, _) :: _ ->
-       if sems<@>syn != (Some sem) then
+       if sems<@>syn <> (Some sem) then
          raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
                              " attempt to declare novel turnstile pair ";
                              syn; " "; sem])
