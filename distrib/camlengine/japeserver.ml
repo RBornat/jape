@@ -131,7 +131,8 @@ let rec ints line =
 
 let rec atoi s = nn_ (explode s)
 
-type _ITEM = Int of int | Str of string
+type _ITEM = Bool of bool | Int of int | Str of string
+let fBool v = Bool v
 let fInt v = Int v
 let fStr v = Str v
 
@@ -140,6 +141,7 @@ let rec writef s is =
     match a1, a2 with
       [], _ -> ()
     | "%" :: "%" :: f, is -> out "%"; ww_ f is
+    | "%" :: f, Bool b :: is -> out (if b then "T" else "F"); ww_ f is
     | "%" :: f, Int i :: is -> out (intstring i); ww_ f is
     | "%" :: f, Str s :: is -> outs s; ww_ f is
     | c :: cs, is -> out c; ww_ cs is
@@ -233,7 +235,7 @@ let rec printable s =
 exception Measurestring_
 
 let rec measurestring (fontn, string) =
-  match askf "STRINGSIZE % \"%\"\n" [Int (displayfont2int fontn); Str (printable string)] with
+  match askf "STRINGSIZE % %\n" [Int (displayfont2int fontn); Str (printable string)] with
     [width; asc; desc] -> width, asc, desc
   | _ -> raise Measurestring_
 
@@ -272,8 +274,8 @@ let rec drawinpane =
 
 let rec drawstring (font, class__, s, pos) =
   let (x, y) = explodePos pos in
-  writef "DRAWSTRING % % % % % %\n"
-    [Int x; Int y; Int font; Int class__; Str (printable s); Str s]
+  writef "DRAWSTRING % % % % %\n"
+    [Int x; Int y; Int font; Int class__; Str s]
 
 let rec drawmeasuredtext class__ lines pos =
   (* : displayclass ->(pos*font*string) list -> pos -> unit *)
@@ -288,14 +290,12 @@ let rec drawmeasuredtext class__ lines pos =
         (Catastrophe_
            ["drawmeasuredtext sees list of texts of length ";
             string_of_int (List.length lines)])
-(* this won't work with annotated text ... fix later. RB *)
 
 let rec procrustes width ellipsis font text =
   (* if stringwidth(text in font) < width then text else [text] cut to width - widthof ...*)
   match
     askf "PROCRUSTES % % % %\n"
-      [Int width; Str ellipsis; Int (displayfont2int font);
-       Str (printable text)]
+      [Int width; Str ellipsis; Int (displayfont2int font); Str text]
   with
     [n] -> String.sub text 0 n
   | _ -> "Procrustes says 'goodness me'"
@@ -432,9 +432,9 @@ let rec panelentry (name, label, entry) =
 let rec selectpanelentry (name, label) =
   writef "SELECTPANELENTRY % %\n" [Str name; Str label]
 
-let rec markpanelentry name label boolmark =
+let rec markpanelentry name label mark =
   writef "MARKPANELENTRY % % %\n"
-    [Str name; Str label; Int (if boolmark then 1 else 0)]
+    [Str name; Str label; Bool mark]
 
 let rec greyen posn =
   let (x, y) = explodePos posn in writef "GREYEN % %\n" [Int x; Int y]
@@ -658,7 +658,7 @@ let rec menuradiobutton (menu, lcs) =
 
 let rec tickmenuitem (menu, label, b) =
   writef "TICKMENUITEM % % %\n"
-    [Str menu; Str label; Int (if b then 1 else 0)]
+    [Str menu; Str label; Bool b]
 
 exception GetGeometry_
 
@@ -669,13 +669,14 @@ let rec getGeometry pane =
 
 let rec getProofPane () = getGeometry "PROOF"
 let rec getDisproofPane () = getGeometry "DISPROOF"
+
 let rec clearProofPane () = writef "CLEARPROOFPANE\n" []
 let rec clearDisproofPane () = writef "CLEARDISPROOFPANE\n" []
 
 let rec emphasise pos b =
   let (x, y) = explodePos pos in
   writef "DISPROOFEMPHASISE % % %\n"
-    [Int x; Int y; Int (if b then 1 else 0)]
+    [Int x; Int y; Bool b]
 
 let rec setproofparams displaystyle linethicknessval =
   linethickness := linethicknessval;
