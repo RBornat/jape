@@ -45,3 +45,52 @@ Protocol out:
 
 DRAGQ
 DROP
+
+Unused commands (many are issued by hand from Text Command window, so no big deal):
+
+"apply", comm
+"applygiven", args
+"assign", name :: value
+"refreshdisplay", []
+"steps", quota
+"steps", []
+"tellinterface", name :: interfacecommand
+"version", []
+"deleteworldlabel", [cx; cy; s]
+"deleteworldlink", [fromx; fromy; tox; toy]
+"deleteworld", [cx; cy]
+"worldselect", cs
+"disprove", []
+"unify", stuff
+"saveengine", name
+"done", []
+"showproof", stuff
+"print", [path]
+"quitnow", []
+"dragquery", []
+"dropcommand", []
+"backtrack", _
+"prune", []
+"collapse", []
+"hideroot", []
+"exposeparent", []
+"hidecut", []
+"layout", _
+"addnewconjecture", panel :: text
+"prove", comm
+"reset", []
+"reset;reload", [] 
+"profile", ["on"]
+"profile", ["off"]
+"profile", ["reset"]
+"profile", ["report"]
+"profile", ["report"; filename]
+"fonts_reset", []
+"showfile", [filename]
+"saveproofs", [w]
+"quit", []
+"setfocus", [nstring]
+"setfonts", fontnames
+"closeproof", [nstring]
+"createdbugfile", []
+"closedbugfile", []
