@@ -277,44 +277,11 @@ TACTIC "∧ intro backward" IS
                 "∧ intro" fstep fstep   )
             (ALERT "∧ intro backward tactic failed. Tell Richard.")
                 
-/* ******************** tactics to check that a rule can be applied forward ******************** */
-
-TACTIC Forward (fpat, action, frule, brule, shape) IS 
-    Forward2 fpat action fpat    frule  brule shape 
-
-MACRO Forward2 (fpat, action, bpat, frule, brule, shape) IS
-    WHEN    (LETHYP fpat action)
-            (LETLHS fpat action) /* why not? */
-            (LETHYP _Ah (FailForwardWrongHyp frule shape _Ah))
-            (FailForward bpat frule brule (" of the form %s", shape))
-
-MACRO FailForward (bpat, frule, brule, explainhyp) IS
-    WHEN    (LETGOAL bpat 
-                (WHEN   (LETCONC _Ac (FailForwardButBackwardPoss frule brule explainhyp ("You did select the conclusion formula %s", _Ac))) 
-                        (FailForwardButBackwardPoss frule brule  explainhyp ("The current conclusion formula is %s", bpat))
-                )
-            )
-            (FailForwardNoHyp frule explainhyp "")
-
-TACTIC FailForwardButBackwardPoss (frule, brule, explainhyp, explainconc) IS
-    FailForwardNoHyp frule explainhyp 
-        ("\n\n(%s, which would fit %s backwards -- did you perhaps mean to work backwards?)", explainconc, brule)
-
-TACTIC FailForwardWrongHyp (stepname, shape, Ph) IS
-    ALERT   ("To make a forward step with %s you must select something of the form %s. \
-            \\nYou selected %s, which isn't of that form.", stepname, shape, Ph)
-            ("OK", STOP) 
-
-TACTIC FailForwardNoHyp (stepname, explainhyp, extra) IS
-    ALERT   ("To make a forward step with %s you must select a formula to work forward from.\
-            \\nYou didn't.%s", stepname, extra)
-            ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
-
 /* ******************** special one for rules which don't care about antecedent shape ******************** */
 
 TACTIC "∨ introforward" (rule) IS
     WHEN    (LETHYP _A (ForwardCut 0 (LAYOUT "∨ intro" (0) (WITHARGSEL rule))))
-        (FailForwardNoHyp "∨ intro" "" "")
+        (ComplainForwardNoHyp "∨ intro" "" "")
 
 TACTIC "∧ intro forward" IS
     WHEN    (LETHYP2 _A _B
@@ -439,10 +406,10 @@ MACRO BadForward2(pattern, stepname, shape, stuff) IS
                 BadForward3 pattern stepname shape stuff
             )
             (LETHYP _Ah /* wrong antecedent, other things wrong as well */
-                (FailForwardWrongHyp stepname shape _Ah)
+                (ComplainForwardWrongHyp stepname shape _Ah)
             )
             /* no antecedent at all -- just complain about that */
-            (FailForwardNoHyp stepname stuff "")
+            (ComplainForwardNoHyp stepname stuff "")
 
 TACTIC BadForward3(sel, stepname) IS
     WHEN    (LETOPENSUBGOALS _Ags
