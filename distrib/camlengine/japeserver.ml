@@ -314,10 +314,15 @@ let rec askDangerously_unpatched message doit dont =
 let rec askCancel_unpatched severity message buttons default =
   let n = ask_unpatched severity message (buttons @ ["Cancel"]) default in
   if n = List.length buttons then None else Some n
+
 let rec echo s = s
+
 let menus = ref ([] : (string * int) list)
+
 let menucount = ref 0
+
 let menusVisible = ref false
+
 let rec inventmenu name =
   let n = let r = !menucount in incr menucount; r in
   menus := (name, n) :: !menus; string_of_int n
@@ -328,55 +333,68 @@ let rec findmenu name =
       function ((n, i) :: m) -> if name = n then string_of_int i else ff_ m
                | _ -> raise Findmenu_
     in
-    if name = "File" then "file"
-    else if name = "Edit" then "edit"
+    if name = "File" then "File"
+    else if name = "Edit" then "Edit"
     else ff_ !menus
      
 let rec existsmenu name =
   try let _ = findmenu name in true with
     _ -> false
+
 let rec emptymenusandpanels () =
   writef "EMPTYMENUSANDPANELS\n" [];
   menucount := 0;
   menus := [];
   menusVisible := false
+
 let rec cancelmenusandpanels () =
   writef "CANCELMENUSANDPANELS\n" [];
   menucount := 0;
   menus := [];
   menusVisible := false
+
 let rec openproof (name, number) =
   writef "OPENPROOF % %\n" [Str name; Int number]
+
 let rec closeproof number = writef "CLOSEPROOF %\n" [Int number]
+
 let rec newmenu name =
   if existsmenu name then ()
   else writef "NEWMENU % \"%\"\n" [Str (inventmenu name); Str name]
+
 let rec menuentry
   ((menuname : string), (label : string), (keyopt : string option),
    (entry : string)) :
   unit =
-  writef "MENUENTRY % % %\n"
-    [Str (findmenu menuname); Str label; Str entry]
+  writef "MENUENTRY % % \"%\" %\n"
+    [Str (findmenu menuname); Str label; Str (match keyopt with Some s -> s | None -> " "); Str entry]
+
 let rec menuseparator (menuname : string) =
   writef "MENUSEP %\n" [Str (findmenu menuname)]
+
 let rec setmenuentryequiv (menuname, label, key) : unit =
   let n = findmenu menuname in
   writef "MENUENTRYEQUIV % \"%\" \"%\"\n" [Str n; Str label; Str key]
+
 let rec makemenusVisible () =(*if !menusVisible then () else *)  writef "MAKEMENUSVISIBLE\n" []
+
 (*  mapmenus true  is called when menu construction is finished *)
 (*  mapmenus false is called as menu construction starts *)
 let rec mapmenus =
   function
     true -> makemenusVisible ()
   | false -> ()
+
 let rec enablemenuitem (menuname, label, state) =
   let n = findmenu menuname in
   let state = if state then "1" else "0" in
   writef "ENABLEMENUITEM % \"%\" \"%\"\n" [Str n; Str label; Str state]
+
 let rec tickmenuentry (menu, label, state) =
   let n = findmenu menu in
   let state = if state then "1" else "0" in
   writef "TICKMENUENTRY % \"%\" %\n" [Str n; Str label; Str state]
+
 open Panelkind
 let rec newpanel (name, panelkind) =
   let kind =

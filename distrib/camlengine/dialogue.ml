@@ -1732,7 +1732,7 @@ and commands
                       (pinf) (withchanged (proofinfo_hist pinf) (false))) <*
                  pinfs
             in
-            if newfile &&(* Save As .. *)  saveable () || not newfile &&(* Save *)  needssaving ()
+            if newfile && (* Save As... *) saveable () || not newfile && (* Save *) needssaving ()
             then
               saveproofs newfile
             else showAlert ["Nothing to save!"];

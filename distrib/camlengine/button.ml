@@ -56,7 +56,7 @@ let rec enable (button, state) =
       | MyDone -> "Edit", "Done"
       | MyClose -> "File", "Close"
       | MySave -> "File", "Save"
-      | MySaveAs -> "File", "Save As"
+      | MySaveAs -> "File", "Save As..."
       | MyDisprove -> "Edit", "Disprove"
     in
     if match at (!buttoncache, b) with
@@ -156,7 +156,7 @@ let rec initButtons () =
   let ( -------- ) = Mseparator in
   let rec _E (name, cut, cmd) = Mentry (namefrom name, cut, cmd) in
   let _EditEntries =
-    [_E ("Done", Some "D", "done"); ( -------- );
+    [( -------- );
      _E ("Undo Proof Step", None, "undo_proof");
      _E ("Redo Proof Step", None, "redo_proof"); ( -------- );
      _E ("Undo Disproof Step", None, "undo_disproof");
@@ -166,7 +166,8 @@ let rec initButtons () =
      _E ("Unify selected terms", None, "unify"); ( -------- );
      _E ("Refresh", None, "refreshdisplay"); ( -------- );
      _E ("Hide/Show subproof", None, "collapse");
-     _E ("Expand/Contract detail", None, "layout")]
+     _E ("Expand/Contract detail", None, "layout"); ( -------- );
+     _E ("Done", Some "D", "done"); ]
   in
   clearmenusandpanels ();
   addmenu (namefrom "Edit");
