@@ -61,7 +61,6 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
         setLayout(new ContainerWithOriginLayout());
     }
 
-
     protected void computeBounds() {
         child.getLayout().layoutContainer(child);
         getLayout().layoutContainer(this);
@@ -195,15 +194,14 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
                 setLocation(getX()+deltax, getY()+deltay);
                 child.setLocation(-vcx, -vcy);
                 if (containerlayout_tracing)
-                    System.err.print("; moved adult to "+getX()+","+getY()+
-                                       ", child to "+child.getX()+","+child.getY());
+                    System.err.print("; adultpos:="+getX()+","+getY()+
+                                     ", childpos:="+child.getX()+","+child.getY());
             }
             Dimension size = getSize();
             if (vcw!=getWidth() || vch!=getHeight()) {
                 setSize(vcw, vch);
-            if (containerlayout_tracing)
-                System.err.print("; set adult size to "+getWidth()+","+getHeight());
-
+                if (containerlayout_tracing)
+                    System.err.print("; adultsize:="+getWidth()+","+getHeight());
             }
             if (containerlayout_tracing)
                 System.err.println("]");
