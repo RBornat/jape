@@ -25,24 +25,37 @@
     
 */
 
-import java.util.Enumeration;
 import java.awt.Font;
-import java.util.Iterator;
+import java.awt.Point;
+
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import java.util.Enumeration;
+import java.util.Vector;
+
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
-import java.awt.Point;
-import java.util.Vector;
 
 public class JapeWindow extends JFrame {
 
-    String title;
-    protected static Vector windowv = new Vector();
+    final String title;
+    private static Vector windowv = new Vector();
+    private boolean iconified = false;
     
-    public JapeWindow(String title) {
+    public JapeWindow(final String title) {
         super(japeserver.onMacOS ? Reply.decoder.toTitle(title) : title);
         this.title=title; // ignoring whatever else may happen outside, this is a uid
         windowv.add(this);
+        JapeMenu.addWindow(title, this);
+        addWindowListener(new WindowAdapter() {
+            public void windowActivated(WindowEvent e) { JapeMenu.windowActivated(title); }
+            public void windowIconified(WindowEvent e) { iconified = true; }
+            public void windowDeiconified(WindowEvent e) { iconified = false; }
+        });
     }
+
+    public boolean iconified() { return iconified; }
     
     public static JapeWindow findWindow(String title) {
         int len = windowv.size();
@@ -59,6 +72,7 @@ public class JapeWindow extends JFrame {
         if (w==null)
             Alert.abort("JapeWindow.closeWindow can't find "+title);
         else {
+            JapeMenu.removeWindow(title);
             windowv.remove(windowv.indexOf(w));
             w.dispose();
         }
