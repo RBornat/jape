@@ -20,7 +20,7 @@
 
 *)
 
-open Term.Type
+open Termtype
 open Name
 
 (* Variables now have names.  Their values are still strings. *)

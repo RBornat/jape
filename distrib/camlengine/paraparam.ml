@@ -23,7 +23,7 @@
 open Listfuns
 open Symbol
 open Term.Funs
-open Term.Store
+open Termstore
 
 type paraparam = Objectparam of (vid * idclass)
                | Ordinaryparam of (vid * idclass)

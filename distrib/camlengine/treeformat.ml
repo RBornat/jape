@@ -157,8 +157,8 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
       | CompressedLayout stuff -> l2f true stuff
       | NamedLayout stuff -> l2f false stuff
     
-    let ints2term tns = Term.Store.registerTup (",", int2term <* tns)
-    let term_of_string s = Term.Store.registerLiteral(Term.Type.String s)
+    let ints2term tns = Termstore.registerTup (",", int2term <* tns)
+    let term_of_string s = Termstore.registerLiteral(Termtype.String s)
 
     let rec format2layouts =
       fun (TreeFormat (tfk, tff) as f) ->

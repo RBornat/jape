@@ -33,8 +33,8 @@ open Rewinf
 open Stringfuns
 open Symbol
 open Term.Funs 
-open Term.Termstring
-open Term.Type
+open Termstring
+open Termtype
 
 let factsdebug = ref false
 

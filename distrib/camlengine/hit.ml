@@ -22,10 +22,10 @@
 
 open Sml
 	
-type element = Term.Type.element
+type element = Termtype.element
 
 let bracketedliststring = Listfuns.bracketedliststring
-let elementstring       = Term.Termstring.smlelementstring Term.Termstring.termstring
+let elementstring       = Termstring.smlelementstring Termstring.termstring
 let optionmap           = Optionfuns.optionmap
 let optionstring        = Optionfuns.optionstring
 let pairstring          = Stringfuns.pairstring

@@ -55,9 +55,9 @@ open Stringfuns
 open Tactic
 open Tactictype
 open Term.Funs
-open Term.Store
-open Term.Termstring
-open Term.Type
+open Termstore
+open Termstring
+open Termtype
 open Thing
 open Treeformat.Fmt
 open Unify

@@ -51,7 +51,7 @@ let consolereport = Miscellaneous.consolereport
 
 let dont_rewrite_with_this = Context.Cxt.dont_rewrite_with_this
 
-let elementstring = Term.Termstring.elementstring
+let elementstring = Termstring.elementstring
 
 let findfirst = Optionfuns.findfirst
 
@@ -83,13 +83,13 @@ let setComment = Alert.setComment
 
 let showAlert = Alert.showAlert Alert.defaultseverity_alert
 
-let smlelementstring = Term.Termstring.smlelementstring
+let smlelementstring = Termstring.smlelementstring
 
 let sort = Listfuns.sort
 
 let take = Listfuns.take
 
-let termstring = Term.Termstring.termstring
+let termstring = Termstring.termstring
 
 let try__ = Optionfuns.try__
 

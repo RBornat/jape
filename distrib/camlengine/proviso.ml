@@ -28,9 +28,9 @@ open Sml
 open Symbol
 open Symboltype 
 open Term.Funs 
-open Term.Store
-open Term.Termstring
-open Term.Type
+open Termstore
+open Termstring
+open Termtype
 open Termparse
 
 let mkBag els = 

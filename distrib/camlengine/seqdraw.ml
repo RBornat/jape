@@ -27,7 +27,7 @@ open Draw
 open Displayclass
 
 let comma = Absprooftree.comma
-let elementstring = Term.Termstring.elementstring
+let elementstring = Termstring.elementstring
 let explode = Absprooftree.explode
 let turnstile = Absprooftree.turnstile
 

@@ -39,9 +39,9 @@ open Sml
 open Stringfuns
 open Substmapfuns
 open Term.Funs
-open Term.Store
-open Term.Termstring
-open Term.Type
+open Termstore
+open Termstring
+open Termtype
 
 
 let baseseqsides cxt =

@@ -20,14 +20,14 @@
 
 *)
 
-type term = Term.Type.term
+type term = Termtype.term
 and seq = Sequent.Type.seq
 and rewinf = Prooftree.Tree.rewinf
-and element = Term.Type.element
+and element = Termtype.element
 and cxt = Context.Cxt.cxt
 and prooftree = Prooftree.Tree.Fmttree.prooftree
 and possmatch
-and resnum = Term.Type.resnum
+and resnum = Termtype.resnum
 and visproviso = Proviso.visproviso
 and prooftree_step = Prooftree.Tree.prooftree_step
 and name = Name.name

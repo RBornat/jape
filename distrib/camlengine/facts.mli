@@ -22,7 +22,7 @@
 
 open Proviso
 open Context.Type
-open Term.Type
+open Termtype
 open Answer
 
 type facts

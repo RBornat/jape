@@ -84,9 +84,9 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
                   and type seq = Sequent.Type.seq
                   and type rewinf = Rewinf.rewinf
                   and type proviso = Proviso.proviso
-                  and type resnum = Term.Type.resnum
-                  and type vid = Term.Type.vid
-                  and type element = Term.Type.element
+                  and type resnum = Termtype.resnum
+                  and type vid = Termtype.vid
+                  and type element = Termtype.element
 =
   struct
     open Answer
@@ -108,18 +108,18 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
     open Sml
     open Substmapfuns
     open Term.Funs
-    open Term.Store
-    open Term.Termstring
-    open Term.Type
+    open Termstore
+    open Termstring
+    open Termtype
     
     type cxt = Context.Cxt.cxt 
      and term = Term.Funs.term 
      and seq = Sequent.Type.seq
      and rewinf = Rewinf.rewinf
      and proviso = Proviso.proviso
-     and resnum = Term.Type.resnum
-     and vid = Term.Type.vid
-     and element = Term.Type.element
+     and resnum = Termtype.resnum
+     and vid = Termtype.vid
+     and element = Termtype.element
     
 
     let rewinfstring = Rewinf.rewinfstring

@@ -42,9 +42,9 @@ open Sml
 open Sequent.Funs
 open Stringfuns
 open Term.Funs
-open Term.Termstring
-open Term.Type
-open Term.Store
+open Termstring
+open Termtype
+open Termstore
 open Treelayout    
 
 (*

@@ -45,9 +45,9 @@ open Sequent.Funs
 open Sequent.Type
 open Stringfuns
 open Term.Funs
-open Term.Store
-open Term.Termstring
-open Term.Type
+open Termstore
+open Termstring
+open Termtype
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
@@ -58,11 +58,11 @@ type prooftree      = Prooftree.Tree.Fmttree.prooftree
  and rewinf         = Prooftree.Tree.rewinf
  and name           = Name.name
  and visproviso     = Proviso.visproviso
- and resnum         = Term.Type.resnum
+ and resnum         = Termtype.resnum
  and cxt            = Context.Cxt.cxt
- and element        = Term.Type.element
+ and element        = Termtype.element
  and seq            = Sequent.Type.seq
- and term           = Term.Type.term
+ and term           = Termtype.term
 
 let mkJoin cxt reason how args = 
   Prooftree.Tree.mkJoin cxt reason how args Treeformat.Fmt.neutralformat

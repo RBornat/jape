@@ -21,7 +21,7 @@
 *)
 
 open Sequent.Type
-open Term.Type
+open Termtype
 
 type forcedef = ForcePrim of term
               | ForceBoth of (forcedef * forcedef)

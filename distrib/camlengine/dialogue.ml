@@ -76,7 +76,7 @@ let rec resetallcachesandvariables () =
   Sequent.Funs.resetsyntaxandturnstiles ();
   Symbol.resetSymbols ();
   Tacticfuns.resetcaches ();
-  Term.Store.resettermstore ();
+  Termstore.resettermstore ();
   Termparse.resettermparse ();
   Thing.clearthings ();
   Thing.clearstructurerules ()
@@ -97,7 +97,7 @@ let createdbugfile = Miscellaneous.create_reportfile
       (List.map Proviso.provisoactual (Context.Cxt.provisos cxt))
 *)
 
-let elementstring = Term.Termstring.elementstring
+let elementstring = Termstring.elementstring
 let explodeCollection = Term.Funs.explodeCollection
 let facts = Facts.facts
 let get_oplist = Symbol.get_oplist
@@ -137,7 +137,7 @@ let seektipselection = Miscellaneous.seektipselection
 let showInputError = Symbol.showInputError
 let string2paragraph = Paragraph.string2paragraph
 let tacticstring = Tactic.tacticstring
-let termstring = Term.Termstring.termstring
+let termstring = Termstring.termstring
 let try__ = Optionfuns.try__
 let _The = Optionfuns._The
 let _Title = Version._Title
@@ -179,7 +179,7 @@ let pairs =
    "boxlinedisplay"       , sj ["left"; "right"]       "right"      Boxdraw.boxlinedisplay;
    "boxseldebug"          , bj                         false        Boxdraw.boxseldebug;
    "cuthidingdebug"       , bj                         false        Prooftree.Tree.cuthidingdebug;
-   "debracketapplications", bj                         false        Term.Termstring.debracketapplications;
+   "debracketapplications", bj                         false        Termstring.debracketapplications;
    "displaystyle"         , jv ["box"; "tree"]         "tree"       (Interaction.setdisplaystyle, Interaction.getdisplaystyle);
    "disproofdebug"        , bj                         false        Disproof.disproofdebug;
    "eqalphadebug"         , bj                         false        Term.Funs.eqalphadebug;
@@ -233,7 +233,7 @@ let rec bjnr r () = bj !r r
 
 and ujnr r () = Japeenv.unboundedjaperefvar !r r in
 let nonresetpairs =
-  ["termhashing", bjnr Term.Store.termhashing;
+  ["termhashing", bjnr Termstore.termhashing;
    "tacticresult", ujnr Tacticfuns.tacticresult]
 in
 (* make sure we don't re-evaluate pairs every time, because of 

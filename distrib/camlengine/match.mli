@@ -21,7 +21,7 @@
 *)
 
 open Mappingfuns
-open Term.Type
+open Termtype
 
 val matchdebug : bool ref
 

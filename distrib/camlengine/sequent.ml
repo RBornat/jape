@@ -26,9 +26,9 @@ module type Type =
     type seq = Seq of (string * term * term) (* stile, left, right *)
   end
 
-module Type : Type with type term = Term.Type.term =
+module Type : Type with type term = Termtype.term =
 struct
-    type term = Term.Type.term
+    type term = Termtype.term
     type seq = Seq of (string * term * term) (* stile, left, right *)
 end
 
@@ -74,9 +74,9 @@ end
 module Funs:  Funs with type seq = Type.seq
                     and type symbol = Symboltype.symbol
 					and type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
-					and type vid = Term.Type.vid
-					and type term = Term.Type.term
-					and type element = Term.Type.element
+					and type vid = Termtype.vid
+					and type term = Termtype.term
+					and type element = Termtype.element
 					and type idclass = Idclass.idclass
 =
   struct
@@ -93,17 +93,17 @@ module Funs:  Funs with type seq = Type.seq
     open Symbol
     open Symboltype
     open Term.Funs
-    open Term.Store
-    open Term.Termstring
-    open Term.Type
+    open Termstore
+    open Termstring
+    open Termtype
     open Termparse    
     
     type seq = Type.seq
      and symbol = Symboltype.symbol
      and ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
-	 and vid = Term.Type.vid
-	 and term = Term.Type.term
-	 and element = Term.Type.element
+	 and vid = Termtype.vid
+	 and term = Termtype.term
+	 and element = Termtype.element
 	 and idclass = Idclass.idclass
 
     let bagkind = BagClass FormulaClass

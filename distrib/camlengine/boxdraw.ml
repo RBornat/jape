@@ -101,7 +101,7 @@ open Minwaste
 open Mappingfuns
 open Optionfuns
 open Sml
-open Term.Termstring
+open Termstring
 open Text
 open Thing
 

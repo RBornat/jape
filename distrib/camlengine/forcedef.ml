@@ -29,7 +29,7 @@ open Stringfuns
 open Symbol
 open Symboltype
 open Term.Funs
-open Term.Termstring
+open Termstring
 open Termparse
     
 type forcedef =

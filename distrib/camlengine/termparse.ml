@@ -26,10 +26,10 @@ open Symbol
 open Symboltype
 open Idclass
 open Idclassfuns
-open Term.Type
-open Term.Termstring
+open Termtype
+open Termstring
 open Term.Funs
-open Term.Store
+open Termstore
 open Binding
 open Optionfuns
 open Miscellaneous

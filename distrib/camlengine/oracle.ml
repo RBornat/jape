@@ -32,8 +32,8 @@ let explodeCollection      = Term.Funs.explodeCollection
 let isemptycollection      = Term.Funs.isemptycollection
 let getfontstuff           = Button.getfontstuff
 let setReason              = Reason.setReason
-let termstring             = Term.Termstring.termstring
-let termOrCollectionstring = Term.Termstring.termOrCollectionstring
+let termstring             = Termstring.termstring
+let termOrCollectionstring = Termstring.termOrCollectionstring
 
 let rec words s =
   let rec wd a1 a2 =

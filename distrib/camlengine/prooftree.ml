@@ -169,10 +169,10 @@ module type Tree =
 
 *)
 
-module Tree : Tree with type term = Term.Type.term
+module Tree : Tree with type term = Termtype.term
                     and type seq = Sequent.Type.seq
-                    and type vid = Term.Type.vid
-                    and type element = Term.Type.element
+                    and type vid = Termtype.vid
+                    and type element = Termtype.element
                     and type name = Name.name
                     and type treeformat = Treeformat.Fmt.treeformat
                     and type fmtpath = Treeformat.Fmt.fmtpath
@@ -205,18 +205,18 @@ module Tree : Tree with type term = Term.Type.term
     open Tactictype
     open Tactic
     open Term.Funs
-    open Term.Store
-    open Term.Termstring
-    open Term.Type
+    open Termstore
+    open Termstring
+    open Termtype
     open Thing
     open Treeformat.Fmt
     open Treeformat.VisFmt
     open Treelayout
 
-    type term = Term.Type.term
+    type term = Termtype.term
      and seq = Sequent.Type.seq
-     and vid = Term.Type.vid
-     and element = Term.Type.element
+     and vid = Termtype.vid
+     and element = Termtype.element
      and name = Name.name
      and treeformat = Treeformat.Fmt.treeformat
      and fmtpath = Treeformat.Fmt.fmtpath

@@ -113,7 +113,7 @@ module Cxtstring : Cxtstring with type cxt = Type.cxt
     open Stringfuns
     open Optionfuns
     open Rewinf
-    open Term.Termstring
+    open Termstring
     open Mappingfuns
     open Sml
     open Proviso
@@ -229,7 +229,7 @@ module Cxt : Cxt with type cxt = Type.cxt
     open Rewinf
     open Proviso
     open Term.Funs
-    open Term.Store
+    open Termstore
     open Sml
     open Listfuns
     

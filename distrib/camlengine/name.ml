@@ -27,7 +27,7 @@ open Stringfuns
 open Symbol 
 open Symboltype 
 open Term.Funs
-open Term.Type 
+open Termtype 
 open Termparse
 
 type name = Nametype.name

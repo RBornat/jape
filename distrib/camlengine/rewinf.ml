@@ -21,7 +21,7 @@
 *)
 
 open Stringfuns
-open Term.Termstring
+open Termstring
 open Listfuns
 open Optionfuns
 open Term.Funs

@@ -27,7 +27,7 @@ open Miscellaneous
 open Optionfuns
 open Stringfuns
 open Term.Funs
-open Term.Termstring
+open Termstring
 
 type term = Term.Funs.term
 

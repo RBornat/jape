@@ -49,7 +49,7 @@ let consolereport = Miscellaneous.consolereport
 
 let element2text  = Absprooftree.element2text
 
-let elementstring = Term.Termstring.elementstring
+let elementstring = Termstring.elementstring
 
 let findfirst     = Optionfuns.findfirst
 
@@ -67,7 +67,7 @@ let reason2fontNstring = Absprooftree.reason2fontNstring
 
 let term2text     = Absprooftree.term2text
 
-let termstring    = Term.Termstring.termstring
+let termstring    = Termstring.termstring
 
 let triplestring  = Stringfuns.triplestring
 

@@ -22,9 +22,9 @@
 
 open Sml
 open Term.Funs
-open Term.Store
-open Term.Termstring
-open Term.Type
+open Termstore
+open Termstring
+open Termtype
 
 let bracketedliststring = Listfuns.bracketedliststring
 let consolereport = Miscellaneous.consolereport

@@ -25,7 +25,7 @@ open Proofstate
 open Hit
 open Context.Type
 open Displaystate
-open Term.Type
+open Termtype
 open Sequent.Type
 
 type command =

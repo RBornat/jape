@@ -69,9 +69,9 @@ open Stringfuns
 open Substmapfuns
 open Symbol
 open Term.Funs
-open Term.Store
-open Term.Type
-open Term.Termstring
+open Termstore
+open Termtype
+open Termstring
 
 let unifydebug = ref false
 let rec freshUnknown cxt c v =

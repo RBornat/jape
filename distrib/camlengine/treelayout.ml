@@ -24,7 +24,7 @@ open Match
 open Optionfuns
 open Stringfuns
 open Term.Funs
-open Term.Termstring
+open Termstring
 
 type treelayout =
     HideRootLayout

@@ -31,7 +31,7 @@ let liststring2 = Listfuns.liststring2
 let member = Listfuns.member
 let namestring = Name.namestring
 let term_of_string = Termparse.asTactic Termparse.term_of_string
-let termstring = Term.Termstring.termstring
+let termstring = Termstring.termstring
 
 exception AtoI_ = Miscellaneous.AtoI_
 exception Catastrophe_ = Miscellaneous.Catastrophe_
@@ -126,7 +126,7 @@ let rec booljapevar v (set, get) =
 let rec booljaperefvar v r =
   booljapevar v ((fun b -> r := b), (fun () -> !r))
 
-type envval = Envterm of Term.Type.term | Envvar of japevar
+type envval = Envterm of Termtype.term | Envvar of japevar
 
 let rec (<@>) env name =
   match Mappingfuns.(<@>) env name with

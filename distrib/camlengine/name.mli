@@ -20,7 +20,7 @@
 
 *)
 
-open Term.Type
+open Termtype
 
 type name = Nametype.name
 

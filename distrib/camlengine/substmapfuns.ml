@@ -29,9 +29,9 @@ open Proviso
 open Facts
 open Sml
 open Miscellaneous
-open Term.Termstring
-open Term.Type
-open Term.Store
+open Termstring
+open Termtype
+open Termstore
 
 let mkNotin v = Provisotype.NotinProviso v
 

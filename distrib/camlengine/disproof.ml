@@ -41,8 +41,8 @@ open Seqdraw
 open Sequent.Funs
 open Sml
 open Term.Funs
-open Term.Store
-open Term.Termstring
+open Termstore
+open Termstring
 
 type forcedef = Forcedef.forcedef
  and model = Forcedef.model

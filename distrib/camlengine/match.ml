@@ -24,15 +24,15 @@ open Miscellaneous
 open Listfuns
 open Mappingfuns
 open Optionfuns 
-open Term.Type
+open Termtype
 open Term.Funs
-open Term.Termstring
-open Term.Store 
+open Termstring
+open Termstore 
 open Idclass
 open Sml
 
 type ('a, 'b) mapping = ('a, 'b) Mappingfuns.mapping
-type term = Term.Type.term
+type term = Termtype.term
 
 let matchdebug = ref false
 (* because of matching in provisos, we have to use a discrimination between 

@@ -20,7 +20,7 @@
 
 *)
 
-open Term.Type
+open Termtype
 
 (* Hits are what drawing packages (treedraw, boxdraw, and one day etc.) translate
  * clicks into.  They are also used to locate text selections.  Only conclusions are

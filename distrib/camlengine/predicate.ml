@@ -21,9 +21,9 @@
 *)
 
 open Idclass 
-open Term.Type
-open Term.Store
-open Term.Termstring
+open Termtype
+open Termstore
+open Termstring
 open Term.Funs
 open Listfuns
 open Miscellaneous
