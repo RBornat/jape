@@ -83,9 +83,14 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         labelgap = 4*canvas.linethickness;
 
         addJapeMouseListener(new JapeMouseAdapter() {
-            private byte dragKind;
+            private byte clickKind, dragKind;
+            public void clicked(MouseEvent e) {
+                if (clickKind==WorldClick)
+                    Reply.sendCOMMAND("worldselect "+idX+" "+idY);
+            }
             public void pressed(MouseEvent e) {
-                dragKind = LocalSettings.mouseDownWorldItemMeans(e);
+                dragKind = LocalSettings.mousePressWorldItemMeans(e);
+                clickKind = LocalSettings.mouseClickWorldItemMeans(e);
                 WorldItem.this.pressed(dragKind, e);
             }
             public void dragged(boolean wobbly, MouseEvent e) {
