@@ -61,6 +61,7 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         switch (eventKind) {
             case Selection:
                 killSelections((byte)0xFF);
+                Reply.send("DESELECT");
                 break;
             case ExtendedSelection:
             case DisjointSelection:
@@ -88,7 +89,7 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         }
     }
 
-    public abstract String getSelections();
+    public abstract String getSelections(String sep);
     
     protected void killSelections(byte selmask) {
         Component[] cs = child.getComponents(); // oh dear ...
@@ -101,7 +102,7 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         }
     }
 
-    public abstract String getTextSelections();
+    public abstract String getTextSelections(String sep);
     
     protected void killTextSelections(TextSelectableItem leave) {
         Component[] cs = child.getComponents(); // oh dear ...
