@@ -1465,68 +1465,61 @@ module Tree : Tree with type term = Termtype.term
         else
           match thingnamed name with
             Some (Theorem _, _) ->
-              [if proved name then "Theorem" else "Conjecture"; " ";
-               namestring name]
+              [if proved name then "Theorem" else "Conjecture"; " "; namestring name]
           | Some (Rule (_, false), _) ->
-              [if proved name then "Derived Rule" else "Conjectured Rule";
-               " "; namestring name]
+              [if proved name then "Derived Rule" else "Conjectured Rule"; " "; namestring name]
           | _ -> [namestring name]
       in
       let rec default_reason () =
         match join_how j with
-          Given _ -> [join_why j]
+          Given _         -> [join_why j]
         | Apply (n, _, _) -> justify n
-        | UnRule (s, _) -> [s]
+        | UnRule (s, _)   -> [s]
       in
       implode
         (if showall then
            if step_resolve (join_how j) then "Resolve " :: default_reason ()
            else default_reason ()
          else
-           let rec f =
-             fun (TreeFormat (_, fmt)) ->
-               match fmt with
-                 RotatingFormat (i, nfs) ->
-                   begin try
-                     let rec invisf () =
-                       interpolate ","
-                         (implode (default_reason ()) ::
-                            invisiblereasons proved showall j)
-                     in
-                     let (fmt, strf) =
-                       match List.nth (nfs) (i) with
-                         _, "", Some [] -> !foldedfmt, invisf
-                       | _, "", Some _ -> !filteredfmt, invisf
-                       | _, "", None -> !unfilteredfmt, default_reason
-                       | _, s, Some _ -> s, invisf
-                       | _, s, None -> s, default_reason
-                     in
-                     rprintf (explode fmt) strf
-                   with
-                     Failure "nth" -> rprintf (explode !rawfmt) default_reason
-                   end
-               | _ -> default_reason ()
+           let invisf () =
+             interpolate "," (implode (default_reason ()) :: invisiblereasons proved showall j)
+           in
+           let f (TreeFormat (_, fmt)) =
+             match fmt with
+               RotatingFormat (i, nfs) ->
+                 (try let (fmt, strf) =
+                        match List.nth (nfs) (i) with
+                          _, "", Some [] -> !foldedfmt, invisf
+                        | _, "", Some _  -> !filteredfmt, invisf
+                        | _, "", None    -> !unfilteredfmt, default_reason
+                        | _, s , Some _  -> s, invisf
+                        | _, s , None    -> s, default_reason
+                      in
+                      rprintf (explode fmt) strf
+                 with Failure "nth" -> rprintf (explode !rawfmt) default_reason)
+             | _ -> default_reason ()
            in
            f (join_fmt j))
+    
     and invisiblereasons proved showall j =
-         _The <*
-           (opt2bool <|
-            List.concat
-              ((allreasons proved showall <.> snd) <*
-                  snd (visibles showall j)))
+      _The <*
+        (opt2bool <|
+         List.concat
+           ((allreasons proved showall <.> snd) <* snd (visibles showall j)))
+    
     and allreasons proved showall t =
       visreason proved showall t ::
         (match t with
            Tip _ -> []
          | Join j ->
              List.concat ((allreasons proved showall <* join_subtrees j)))
+    
     let rec join_multistep j vissubts =
-      step_resolve (join_how j) ||
-      List.exists (fun (ns, _) -> List.length ns > 1) vissubts
-    let hyps =
-      explodeCollection <.> snd_of_3 <.> seqexplode
-    let concs =
-      explodeCollection <.> thrd <.> seqexplode
+      step_resolve (join_how j) || List.exists (fun (ns, _) -> List.length ns > 1) vissubts
+      
+    let hyps = explodeCollection <.> snd_of_3 <.> seqexplode
+    let concs = explodeCollection <.> thrd <.> seqexplode
+    
     let rec tranproof proved showall hideuselesscuts t =
       let rec visp =
         function
