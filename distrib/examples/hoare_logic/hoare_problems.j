@@ -27,6 +27,14 @@ CONJECTUREPANEL "Programs"  IS
     {2≤i∧i≤n∧∀x.(2≤x ∧ x<i → n mod x ≠0) ∧ n mod i = 0}
       (prime := i=n)
     {prime ↔∀y.(2≤y∧y<n → n mod y ≠ 0)}
+  THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
+    {i=Ki∧j=Kj∧i≥0}
+      (k:=0; while i≠0 do k:=k+j; i:=i-1 od)
+    {k=Ki×Kj}
+  THEOREM WHERE i NOTIN j,kq,kr AND j NOTIN kq,kr AND kq NOTIN kr IS
+    {i=Ki∧j=Kj∧i≥0∧j>0}
+      (kq:=0; kr:=i; while kr≥j do kr:=kr-j; kq:=kq+1 od)
+    {kq×Kj+kr=Ki∧0≤kr∧kr<Kj}
 END
 
 CONJECTUREPANEL "Verification conditions" IS 
