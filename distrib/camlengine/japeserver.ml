@@ -201,7 +201,7 @@ and out8 c =
 let rec askf s is = writef s is; ints_of_reply (readline s)
 let rec ask s = out s; out "\n"; readline s
 
-let rec listen () = writef "GET\n\n\n" []; readline "GET"
+let rec listen () = writef "GET\n" []; readline "GET"
 let rec terminate () = writef "TERMINATE\n" []
 let rec closedown () = writef "TERMINATE\n" []
 let rec killserver () = writef "TERMINATE\n" []
