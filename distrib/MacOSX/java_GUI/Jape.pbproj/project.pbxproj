@@ -205,7 +205,7 @@
 			buildSettings = {
 				JAVA_COMPILER = /usr/bin/javac;
 				JAVA_COMPILER_DEPRECATED_WARNINGS = YES;
-				JAVA_COMPILER_TARGET_VM_VERSION = 1.3;
+				JAVA_COMPILER_TARGET_VM_VERSION = 1.4;
 				JAVA_ONLY = YES;
 				JAVA_SOURCE_SUBDIR = .;
 				PRODUCT_NAME = Jape;
@@ -267,18 +267,14 @@
 		<string>Jape</string>
 		<key>Properties</key>
 		<dict>
-			<key>com.apple.macos.useScreenMenuBar</key>
+			<key>apple.awt.showGrowBox</key>
+			<string>true</string>
+			<key>apple.laf.useScreenMenuBar</key>
 			<string>true</string>
 			<key>com.apple.mrj.application.apple.menu.about.name</key>
-			<string>jape</string>
-			<key>com.apple.mrj.application.growbox.intrudes</key>
-			<string>false</string>
-			<key>com.apple.mrj.application.live-resize</key>
-			<string>true</string>
+			<string>Jape</string>
 		</dict>
 	</dict>
-	<key>NSJavaNeeded</key>
-	<string>YES</string>
 	<key>NSJavaPath</key>
 	<array>
 		<string>Jape.jar</string>
