@@ -84,12 +84,20 @@ public class Alert {
     public static void showErrorAlert(String message) {
         String[] buttons = { quit, cont };
         int reply = JOptionPane.showOptionDialog(
-                        null, makeMessage(message), "GUI error", 0, Error,
-                        null, buttons, quit);
+                                                 null, makeMessage(message), "GUI error", 0, Error,
+                                                 null, buttons, quit);
         if (reply==0)
             System.exit(2);
     }
-    
+
+    public static void abort(String message) {
+        String[] buttons = { quit };
+        int reply = JOptionPane.showOptionDialog(
+                                                 null, makeMessage(message), "GUI disaster", 0, Error,
+                                                 null, buttons, quit);
+        System.exit(2);
+    }
+
     // this doesn't deal with fonts yet ... I think we have to make a Component (sigh)
     // and I haven't worked out what to do with defaultbutton ...
     public static void newAlert (String[] buttons, int severity, String message, int defaultbutton) 
