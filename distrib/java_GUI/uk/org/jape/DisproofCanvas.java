@@ -40,14 +40,51 @@ public class DisproofCanvas extends JapeCanvas {
         getProofWindow().claimDisproofFocus();
     }
 
+    // assuming nobody cares about Hyp/Conc distinction
     public String getSelections(String sep) {
-        Alert.abort("DisproofCanvas.getSelections");
-        return null; // shut up compiler
+        String s = null;
+        int nc = child.getComponentCount(); // oh dear ...
+        for (int i=0; i<nc; i++) {
+            Component c = child.getComponent(i); // oh dear ...
+            if (c instanceof EmphasisableItem) {
+                EmphasisableItem item = (EmphasisableItem)c;
+                if (item.getSelected()) {
+                    String s1 = item.text;
+                    if (s==null)
+                        s=s1;
+                    else
+                        s=s+sep+s1;
+                }
+            }
+        }
+        return s;
     }
 
     public String getTextSelections(String sep) {
-        Alert.abort("DisproofCanvas.getTextSelections");
-        return null; // shut up compiler
+        String s = null;
+        int nc = child.getComponentCount(); // oh dear ...
+        for (int i=0; i<nc; i++) {
+            Component c = child.getComponent(i); // oh dear ...
+            if (c instanceof TextSelectableItem) {
+                TextSelectableItem sti = (TextSelectableItem)c;
+                String s1 = sti.getTextSelections();
+                if (s1!=null) {
+                    if (s==null)
+                        s=s1;
+                    else
+                        s=s+sep+s1;
+                }
+            }
+        }
+        return s;
+    }
+
+    protected void notifyTextSelectionChange(DisplayItem item) {
+        notifySelectionChange(item); // text selection, selection -- all the same
+    }
+
+    protected void notifySelectionChange(DisplayItem item) {
+        Reply.sendCOMMAND("disproof_selection_change");
     }
 
     public void setSequentBox(int width, int ascent, int descent) {
