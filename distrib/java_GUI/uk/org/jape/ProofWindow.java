@@ -402,7 +402,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
             case ProofPaneNum:
                 return mustGetFocussedProofWindow().proofCanvas;
             case DisproofPaneNum:
-                return mustGetFocussedProofWindow().ensureDisproofPane().seqCanvas;
+                return mustGetFocussedProofWindow().ensureDisproofPane().seqCanvas; // really?
             default:
                 throw new ProtocolError(who+" pane="+pane);
         }
