@@ -200,9 +200,9 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
        (match rewinf_psig ri, getprovisosig cxt with
           Some si, ci -> si <> ci
         | _ -> false) ||
-       List.exists (opt2bool <.> (fun uVID -> (varmap cxt <:> uVID)))
+       List.exists (opt2bool <.> (fun uVID -> (varmap cxt <@> uVID)))
          (rewinf_uVIDs ri)) ||
-      List.exists (opt2bool <.> (fun i -> (resmap cxt <:> i)))
+      List.exists (opt2bool <.> (fun i -> (resmap cxt <@> i)))
         (rewinf_badres ri)
     (* this is almost f &~ (Some o yes), but types get in the way ... *)
     let rec rew_ f x yes =
@@ -229,7 +229,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
         match t with
           Id (_, v, _) -> None
         | Unknown (_, v, _) ->
-            begin match (varmap cxt <:> v) with
+            begin match (varmap cxt <@> v) with
               Some t' -> rew_yes _S t'
             | None -> None
             end
@@ -299,7 +299,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
              * Without this, some replayed proofs generate enormous amounts of
              * space
              *)
-            begin match (resmap cxt <:> i) with
+            begin match (resmap cxt <@> i) with
               Some (r, t) ->
                 rew_yes (rew_elements subst cxt) [registerElement (r, t)]
             | None -> def (r, t)
@@ -318,7 +318,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
     let rec rew_resnum cxt r =
       match r with
         ResUnknown i ->
-          begin match (resmap cxt <:> i) with
+          begin match (resmap cxt <@> i) with
             Some (r, _) -> rew_yes (rew_resnum cxt) r
           | None -> None
           end

@@ -33,7 +33,7 @@ val ( --  ) : ('a, 'b) mapping -> 'a list -> ('a, 'b) mapping
 val ( |-> ) : 'a -> 'b -> ('a, 'b) mapping
 
 val aslist : ('a, 'b) mapping -> ('a * 'b) list
-val (<:>)  : ('a, 'b) mapping -> 'a -> 'b option
+val (<@>)  : ('a, 'b) mapping -> 'a -> 'b option
 val dom : ('a, 'b) mapping -> 'a list
 val empty : ('a, 'b) mapping
 val formappingpairs : ('a * 'b -> unit) * ('a, 'b) mapping -> unit

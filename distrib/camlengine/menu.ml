@@ -133,7 +133,7 @@ let rec addtodata lf vf e es =
      if List.exists conflicts es then insert es else e :: es
 
 let rec addmenu proofsonly m =
-  match (!menus <:> m) with
+  match (!menus <@> m) with
     None   -> menus := (!menus ++ (m |-> (proofsonly, ref [])))
   | Some _ -> ()
 
@@ -159,18 +159,18 @@ let rec addtomenu e es =
 
 let rec addmenudata m es =
   if !menudebug then consolereport ["adding to "; namestring m];
-  match (!menus <:> m) with
+  match (!menus <@> m) with
     Some (_, contents) -> List.iter (fun e -> contents := addtomenu e !contents) es
   | None -> raise (Menuconfusion_ ["no menu called "; namestring m; " (addmenudata)"])
 
 let rec clearmenudata m =
-  match (!menus <:> m) with
+  match (!menus <@> m) with
     Some (_, contents) -> contents := []
   | None               -> ()
 
 let rec getmenus () = 
   let names = dom !menus in
-  List.map (fun m -> fst(_The(!menus <:> m)),m) names
+  List.map (fun m -> fst(_The(!menus <@> m)),m) names
 
 let rec getmenudata m =
   let rec doseps =
@@ -195,11 +195,11 @@ let rec getmenudata m =
         else es'
     | es' -> es'
   in
-    (!menus <:> m) &~~
+    (!menus <@> m) &~~
     (fun (proofsonly, es) -> Some (proofsonly, tidy(List.rev !es)))
 
 let rec addpanel k p =
-  match (!panels <:> p) with
+  match (!panels <@> p) with
     None -> panels := (!panels ++ (p |-> ref (k, empty, [])))
   | Some _ -> ()
 
@@ -222,14 +222,14 @@ let rec addtopanel e (k, em, bs as stuff) =
   in
   match e with
     Pentry (label, cmd) ->
-      begin match (em <:> label) with
+      begin match (em <@> label) with
         Some cref -> cref := cmd; stuff
       | None -> k, (em ++ (label |-> ref cmd)), bs
       end
   | b -> k, em, addtodata lf vf b bs
 
 let rec addpaneldata p es =
-  match (!panels <:> p) with
+  match (!panels <@> p) with
     Some contents -> List.iter (fun e -> contents := addtopanel e !contents) es
   | None ->
       raise
@@ -237,7 +237,7 @@ let rec addpaneldata p es =
            ["no panel called "; namestring p; " (addpaneldata)"])
 
 let rec clearpaneldata p =
-  match (!panels <:> p) with
+  match (!panels <@> p) with
     Some ({contents = k, _, _} as contents) -> contents := k, empty, []
   | None -> ()
 
@@ -245,10 +245,10 @@ let rec getpanels () =
    (fun (p, {contents = k, _, _}) -> p, k) <* aslist !panels
 
 let rec getpanelkind p =
-  (!panels <:> p) &~~ (fSome <.> (fun (a,b,c) -> a) <.> (!))
+  (!panels <@> p) &~~ (fSome <.> (fun (a,b,c) -> a) <.> (!))
 
 let rec getpaneldata p =
-    ((!panels <:> p) &~~
+    ((!panels <@> p) &~~
      (let applyname = namefrom "Apply" in
         fSome <.> 
           ((fun {contents = k, em, bs} ->

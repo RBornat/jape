@@ -209,7 +209,7 @@ let (bymatch : possmatch -> possmatch option) =
            (if r then
               let rec up cxt u =
                 "(" ^ string_of_vid u ^ "," ^
-                      optionstring termstring ((varmap cxt <:> u)) ^
+                      optionstring termstring ((varmap cxt <@> u)) ^
                 ")"
               in
               ["bymatch passing"; step_label how; " ";
@@ -344,7 +344,7 @@ let rec fitter checker resnums =
     let rec thinned cxt r =
       match r with
         ResUnknown i ->
-          begin match (resmap cxt <:> i) with
+          begin match (resmap cxt <@> i) with
             Some (r, t) ->
               begin match thinned cxt r with
                 None -> Some (registerElement (r, t))

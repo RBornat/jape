@@ -122,10 +122,10 @@ let rec exterioreqvarsq facts v1 v2 =
                 in
                 if member (v1, fvs) && member (v2, fvs) then checkfresh ()
                 else if
-                  (match (vmap <:> v1) with
+                  (match (vmap <@> v1) with
                      Some vs -> member (v2, vs)
                    | _ -> false) ||
-                  (match (vmap <:> v2) with
+                  (match (vmap <@> v2) with
                      Some vs -> member (v1, vs)
                    | _ -> false)
                 then

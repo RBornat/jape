@@ -272,7 +272,7 @@ let rec selparsefail sel ss =
   "Your text selection doesn't parse (" :: ss @
     [") - you selected \""; sel; "\""]
 let rec evalname env arg =
-  match (env <:> arg) with
+  match (env <@> arg) with
     None -> arg
   | Some v ->
       match explodeForExecute v with
@@ -291,7 +291,7 @@ let rec striparg t =
     Some n -> Argstring n
   | None -> Argterm t
 let rec evalstr2 env arg =
-  match (env <:> arg) with
+  match (env <@> arg) with
     None -> Argstring arg
   | Some t -> striparg t
 (* we only extend things which actually are named rules or theorems 
@@ -1491,8 +1491,8 @@ let rec _AQ env term =
   let rec _A =
     function
       App (_, Id (_, v, _), a) -> (if string_of_vid v="QUOTE" then Some (_QU env a) else None)
-    | Id _ as v -> (env <:> _The (term2name v))
-    | Unknown _ as v -> (env <:> _The (term2name v))
+    | Id _ as v -> (env <@> _The (term2name v))
+    | Unknown _ as v -> (env <@> _The (term2name v))
     | _ -> None
   in
   mapterm _A term
@@ -1988,7 +1988,7 @@ let rec dispatchTactic display try__ env contn tactic =
                       termstring t' ::
                       ", which isn't a valid tactic, because " :: ss))
         in
-        begin match (env <:> str) with
+        begin match (env <@> str) with
           None -> calltac str args'
         | Some t ->
             match args' with
@@ -2351,7 +2351,7 @@ and doBIND tac display try__ env =
       nj_fold
         (fun (formal, env) ->
            (env ++
-              (formal |-> rewrite cxt (_The ((env <:> formal))))))
+              (formal |-> rewrite cxt (_The ((env <@> formal))))))
         newformals env
     in
     let rec checkmatching cxt cxt' expr =

@@ -76,7 +76,7 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
     else []
   in
   let rec bindvar v t mr =
-    match (env mr <:> v) with
+    match (env mr <@> v) with
       None ->
         if specialisesto (idclass v, idclass t) then
           Some (( +++ ) (mr, (v |-> t)))
@@ -175,21 +175,21 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
  *)
 let rec option_remapterm env term =
   let rec _Rvar v =
-    match (env <:> v) with
+    match (env <@> v) with
       None -> v
     | Some t -> t
   in
   let rec _R =
     function
-      Id _ as v -> (env <:> v)
-    | Unknown _ as v -> (env <:> v)
+      Id _ as v -> (env <@> v)
+    | Unknown _ as v -> (env <@> v)
     | Collection (_, k, es) ->
         let _RR = mapterm _R in
         let rec f =
           function
             Segvar (_, ps, v), es ->
               let ps' = (_RR <* ps) in
-              begin match (env <:> v) with
+              begin match (env <@> v) with
                 Some t ->
                   begin match debracket t with
                     Collection (_, k', es') ->

@@ -269,14 +269,14 @@ let rec mustredisplay env vals =
   in
   let rec lookup s =
     match
-	((nenv <:> s) &~~ (fun n -> Japeenv.(<:>) env n))
+	((nenv <@> s) &~~ (fun n -> Japeenv.(<@>) env n))
     with
       Some t -> Some (termstring t)
     | None -> None
   in
   let rec changed s =
     lookup s <>
-	((nenv <:> s) &~~ (fun n -> (dispenv <:> n)))
+	((nenv <@> s) &~~ (fun n -> (dispenv <@> n)))
   in
   List.exists changed displaynames ||
   lookup "displaystyle" = Some "box" && List.exists changed boxdisplaynames
@@ -670,7 +670,7 @@ let rec tryLayout displaystate c pathkind hist =
 
 let rec recorddisplayvars env =
   try 
-    (fun s -> termstring (_The (Japeenv.(<:>) env s))) <* displayvars
+    (fun s -> termstring (_The (Japeenv.(<@>) env s))) <* displayvars
   with
     _The_ ->
       raise
@@ -1311,7 +1311,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "tellinterface", name :: interfacecommand ->
             (* Evaluate a variable name; construct a string for the interface *)
             let str =
-              match Japeenv.(<:>) env (namefrom name) with
+              match Japeenv.(<@>) env (namefrom name) with
                 Some t -> termstring t
               | None -> ""
             in
@@ -1912,14 +1912,14 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   in
   let rec domb (var, notify) =
     let setting =
-      try _The (Japeenv.(<:>) env var) with
+      try _The (Japeenv.(<@>) env var) with
         None_ ->
           raise
             (Catastrophe_
                ["domb error: variable "; namestring var;
                 " in mbs but not in env"])
     in
-    match (!mbcache <:> var) with
+    match (!mbcache <@> var) with
       Some r ->
         if !r = setting then ()
         else begin notify (termstring setting, true); r := setting end
@@ -1944,7 +1944,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     begin try
       Japeserver.settextselectionmode
         (termstring
-           (_The (Japeenv.(<:>) env (namefrom "textselectionmode"))))
+           (_The (Japeenv.(<@>) env (namefrom "textselectionmode"))))
     with
       None_ ->
         raise (Catastrophe_ ["textselectionmode not in environment"])

@@ -53,7 +53,7 @@ let rec ( -- ) xs ys =
         (ps -- listsub (fun (x, y) -> x = y) ys [x])
       else (x, xv) :: (ps -- ys)
 
-let rec (<:>) mapping a = mapped (fun (x, y) -> x = y) mapping a (* eta-conversion doesn't work here *)
+let rec (<@>) mapping a = mapped (fun (x, y) -> x = y) mapping a (* eta-conversion doesn't work here *)
 
 let rec mem a1 a2 =
   match a1, a2 with
@@ -90,7 +90,7 @@ let rec rawdom (m : ('a, 'b) mapping) = List.map (fun (r,_)->r) m
 let rec rawran (m : ('a, 'b) mapping) = List.map (fun (_,r)->r) m
 
 let rec formappingpairs (f, mapping) =
-  List.iter (fun d -> f (d, Optionfuns._The ((mapping <:> d)))) (dom mapping)
+  List.iter (fun d -> f (d, Optionfuns._The ((mapping <@> d)))) (dom mapping)
 
 let rec mkmap pairs =
   nj_fold (fun ((a, b), map) -> (map ++ (a |-> b))) pairs empty

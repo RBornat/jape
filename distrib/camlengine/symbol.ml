@@ -366,7 +366,7 @@ let decVarPrefixes : (idclass, string) Mappingfuns.mapping ref =
   ref Mappingfuns.empty
 
 let rec declareIdPrefix class__ s =
-  begin match Mappingfuns.(<:>) !decVarPrefixes class__ with
+  begin match Mappingfuns.(<@>) !decVarPrefixes class__ with
     None ->
       decVarPrefixes :=
         Mappingfuns.(++) !decVarPrefixes (Mappingfuns.(|->) class__ s)
@@ -381,7 +381,7 @@ let rec declareIdPrefix class__ s =
   []
 
 let rec autoID class__ prefix =
-  match Mappingfuns.(<:>) !decVarPrefixes class__ with
+  match Mappingfuns.(<@>) !decVarPrefixes class__ with
     Some s -> s
   | None ->
       (* we just add underscores to prefix till it isn't in the IdPrefix tree *)

@@ -57,7 +57,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   and clearproofs () = proofs := empty; allsaved := true
 
   and proofnamed name =
-    match thinginfo name, (!proofs <:> name) with
+    match thinginfo name, (!proofs <@> name) with
       Some (Theorem (_, provisos, seq), _), Some (v, tree, _, disproved, disproof) ->
         Some (v, tree, provisos, [], disproved, disproof)
     | Some (Rule ((_, provisos, givens, seq), _), _),
@@ -66,7 +66,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     | _ -> None
 
   and proof_depends name =
-    match (!proofs <:> name) with
+    match (!proofs <@> name) with
       Some (_, _, children, _, _) -> Some children
     | _ -> None
 

@@ -34,7 +34,7 @@ exception Catastrophe_ = Miscellaneous.Catastrophe_
 let addautorule = Proofstate.addautorule
 let adddoubleclick = Doubleclick.adddoubleclick
 let addforcedef = Disproof.addforcedef
-let atmapping = Mappingfuns.(<:>)
+let atmapping = Mappingfuns.(<@>)
 let cleanup x = x
 let consolereport = Miscellaneous.consolereport
 let empty = Mappingfuns.empty
@@ -136,7 +136,7 @@ let rec interpret
   in
   let rec newbuttonenv env text var settings defval =
 	let defval' =
-	  match defval, env <:> var, settings with
+	  match defval, env <@> var, settings with
 		Some v, _, _ -> v
 	  | _, Some v, s :: _ -> termstring v
 	  | _, _, s :: _ -> s
@@ -235,7 +235,7 @@ let rec interpret
 	  | NotJapeVar_ ->
 		  lreport [" - it isn't a variable in the environment"]
 	  | ReadOnly_ ->
-		  if Japeenv.(<:>) env name = Some term then ()
+		  if Japeenv.(<@>) env name = Some term then ()
 		  else
 		    lreport [" - it can't be altered, given the state of other stored values"]
 	  end;

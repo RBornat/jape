@@ -86,7 +86,7 @@ let rec occurs cxt v t =
     Id _ -> false
   | Unknown (_, v', _) ->
       v = v' ||
-      (match (varmap cxt <:> v') with
+      (match (varmap cxt <@> v') with
          Some t -> occurs cxt v t
        | None -> false)
   | App (_, f, a) -> occurs cxt v f || occurs cxt v a
@@ -117,7 +117,7 @@ let rec abstract orig map term ps cxt =
     if !unifydebug then
       consolereport
         ["addunification ";
-         pairstring termstring termstring "<:>" (t1, t2)];
+         pairstring termstring termstring "<@>" (t1, t2)];
     newunifications := (t1, t2) :: !newunifications
   in
   let rec addproviso p =
@@ -285,7 +285,7 @@ let rec whatever f cxt t =
 let rec class__ cxt t =
   match t with
     Unknown (_, v, _) ->
-      ((varmap cxt <:> v) &~~ whatever class__ cxt)
+      ((varmap cxt <@> v) &~~ whatever class__ cxt)
   | _ -> if bracketed t then whatever class__ cxt (debracket t) else None
 (* was debracket (simplifySubstAnyway (facts (rewrittenprovisos cxt) cxt) m _P) *)
 (* now a single-step simplifier, in an attempt to speed-up failing unifications.
@@ -375,7 +375,7 @@ let rec reb origv origt t =
 let rec simp cxt t = _The (whatever class__ cxt t)
 type defers = DeferAssignment | DeferAlignment | DeferSimplification
 let rec pp tts =
-  bracketedliststring (pairstring termstring termstring "<:>") "," tts
+  bracketedliststring (pairstring termstring termstring "<@>") "," tts
 let rec ppc dds =
   bracketedliststring
     (pairstring
@@ -684,7 +684,7 @@ and unifycollections kind (e1s, e2s) cxt =
     let rec rval =
       function
         (ResUnknown i as r), t ->
-          begin match (resmap cxt <:> i) with
+          begin match (resmap cxt <@> i) with
             Some (r, t) -> rval (r, t)
           | None -> r, t
           end
@@ -711,12 +711,12 @@ and unifycollections kind (e1s, e2s) cxt =
     let rec expand (e, (cxt, es)) =
       match e with
         Segvar (_, [], Unknown (_, v, _)) ->
-          begin match (varmap cxt <:> v) with
+          begin match (varmap cxt <@> v) with
             Some (Collection (_, _, es')) -> nj_fold expand es' (cxt, es)
           | _ -> cxt, e :: es
           end
       | Segvar (_, ps, Unknown (_, v, _)) ->
-          begin match (varmap cxt <:> v) with
+          begin match (varmap cxt <@> v) with
             Some (Collection (_, _, es')) ->
               (* nj_fold expand (modeifyelement ps <* es') (cxt,es) *)
               raise (Catastrophe_ ["unify collclass expand"])
@@ -1376,7 +1376,7 @@ let rec simplifydeferred cxt =
   | _ -> Some cxt
 let rec matchedtarget origcxt newcxt uvids =
   let rec ok u =
-    match (varmap origcxt <:> u), (varmap newcxt <:> u) with
+    match (varmap origcxt <@> u), (varmap newcxt <@> u) with
       Some old, Some new__ ->
         eqterms (rewrite origcxt old, rewrite newcxt new__)
     | None, None -> true

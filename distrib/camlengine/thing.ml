@@ -194,7 +194,7 @@ let rec numberrule (antes, conseq) =
         let rec numberel (el, (n, oldenv, newenv, es)) =
           match el with
             Element (_, _, t) ->
-              begin match (oldenv <:> t) with
+              begin match (oldenv <@> t) with
                 Some m ->
                   n, (oldenv -- [t]), newenv,
                   registerElement (ResUnknown m, t) :: es
@@ -428,7 +428,7 @@ let rec compilepredicates isabstraction env =
   fun (Seq (st, lhs, rhs)) ->
     let f =
       compilepredicate isabstraction
-        (fun t -> try__ (fun (_, vs) -> vs) ((env <:> t)))
+        (fun t -> try__ (fun (_, vs) -> vs) ((env <@> t)))
     in
     Seq (st, mapterm f lhs, mapterm f rhs)
 
@@ -650,7 +650,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
    *)
   let rec findsubstvars def =
     fun ((_P, abss), (vars, env)) ->
-      match (env <:> _P) with
+      match (env <@> _P) with
         Some _ -> vars, env
       | None ->
           match findpredicatevars abss with
@@ -679,7 +679,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
   (* now filter out the provisos we don't want any more ... *)
   let applyps =
        (fun (x, _P) ->
-          match (env <:> _P) with
+          match (env <@> _P) with
             Some (false, vs) -> not (member (x, vs))
           | Some (true, _) -> true
           | None ->

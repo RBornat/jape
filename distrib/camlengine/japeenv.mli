@@ -47,7 +47,7 @@ val ( ++   ) : japeenv -> japeenv -> japeenv
 val ( |->  ) : name -> term -> japeenv
 val ( ||-> ) : name -> japevar -> japeenv
 
-val (<:>)      : japeenv -> name -> term option
+val (<@>)      : japeenv -> name -> term option
 val checkrange : japeenv -> name -> string list -> unit
 val empty      : japeenv
 val set        : japeenv * name * term -> unit

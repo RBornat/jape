@@ -68,7 +68,7 @@ let rec clearbindingdirectives () =
        Array.set badbindings i [])
     (mklist termkindmax)
 let bindingstructure =
-  let rec lookup env x = _The ((env <:> x))
+  let rec lookup env x = _The ((env <@> x))
   and matchterm term (bounds, scopes, unscopes, pat) =
     match match__ false pat term empty with
       None -> None

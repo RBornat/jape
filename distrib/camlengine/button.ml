@@ -83,7 +83,7 @@ let rec enable (button, state) =
       | MySaveAs       -> "File", "Save Proofs As..."
       | MyDisprove     -> "Edit", "Disprove"
     in
-    if match (!buttoncache <:> b) with
+    if match (!buttoncache <@> b) with
          Some r -> if !r = state then false else begin r := state; true end
        | None   -> buttoncache := (!buttoncache ++ (b |-> ref state)); true
     then

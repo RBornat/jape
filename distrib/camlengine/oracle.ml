@@ -199,7 +199,7 @@ let rec createoracle oraclename (store, table, mapped) =
             ["Oracle not specified by program or pipes attributes."]
 
 let rec getmapping oraclename =
-  match Mappingfuns.(<:>) !mappings oraclename with
+  match Mappingfuns.(<@>) !mappings oraclename with
     Some m -> Some m
   | None ->
       match readmapping (oraclename ^ ".jo") with

@@ -261,7 +261,7 @@ module Termstring  : Termstring with type term = Type.term
       try
         let emap = mkmap env in
         let rec f t =
-          match (emap <:> t) with
+          match (emap <@> t) with
             Some (1, i) -> Some (List.nth (bs) (i))
           | Some (2, i) -> Some (List.nth (ss) (i))
           | Some (3, i) -> Some (List.nth (us) (i))
@@ -1565,9 +1565,9 @@ module Funs : Funs with type vid = Type.vid
       let count = ref 0 in
       let rec nxb _ = incr count; !count in
       (* infix at confuses OCaml *)
-      let rec (<:>) tb v =
+      let rec (<@>) tb v =
         match tb with
-          (v', n) :: tb -> if v = v' then Some n else (tb <:> v)
+          (v', n) :: tb -> if v = v' then Some n else (tb <@> v)
         | [] -> None
       in
       let rec eq t1bs t2bs (t1, t2) =
@@ -1579,7 +1579,7 @@ module Funs : Funs with type vid = Type.vid
           | _ -> false
         in
         let rec doublev () =
-          match (t1bs <:> t1), (t2bs <:> t2) with
+          match (t1bs <@> t1), (t2bs <@> t2) with
             Some n1, Some n2 -> n1 = n2
           | None, None -> t1 = t2
           | _ -> false

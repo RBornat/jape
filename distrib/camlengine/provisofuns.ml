@@ -106,7 +106,7 @@ let rec simplifyProviso facts (p, cats) =
   let rec nop =
 	fun (vs, pat, _C as n) ->
 	  let rec expand env (v, cats) =
-		match (env <:> v) with
+		match (env <@> v) with
 		  Some v' ->
 			simplifyProviso facts (new__ (NotinProviso (v, v')), cats)
 		| None -> raise (Catastrophe_ ["simplifyProviso nop"])

@@ -929,7 +929,7 @@ module Tree : Tree with type term = Term.Type.term
       let changeduts =
         nj_fold
           (fun (u, uts) ->
-             match (varmap cxt <:> u) with
+             match (varmap cxt <@> u) with
                None -> uts
              | Some t -> (u, rewrite cxt t) :: uts)
           uVIDs []

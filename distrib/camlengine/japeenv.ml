@@ -128,8 +128,8 @@ let rec booljaperefvar v r =
 
 type envval = Envterm of Term.Type.term | Envvar of japevar
 
-let rec (<:>) env name =
-  match Mappingfuns.(<:>) env name with
+let rec (<@>) env name =
+  match Mappingfuns.(<@>) env name with
     Some (Envterm t) -> Some t
   | Some (Envvar v) ->
       begin try Some (term_of_string (getjapevar v)) with
@@ -141,11 +141,11 @@ let rec (<:>) env name =
       end
   | None -> None
 let rec set (env, name, value) =
-  match Mappingfuns.(<:>) env name with
+  match Mappingfuns.(<@>) env name with
     Some (Envvar v) -> setjapevar (v, termstring value)
   | _ -> raise NotJapeVar_
 let rec checkrange env name settings =
-  match Mappingfuns.(<:>) env name with
+  match Mappingfuns.(<@>) env name with
     Some (Envvar v) ->
       let asyouwere =
         try Some (getjapevar v) with
