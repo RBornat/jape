@@ -162,7 +162,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         comboconstraints.fill = GridBagConstraints.NONE;
         comboconstraints.weightx = 1.0;
         comboconstraints.anchor = GridBagConstraints.WEST;
-        comboconstraints.insets = new Insets(0, 5, 0, 0);
+        comboconstraints.insets = new Insets(0, 5, 5, 0);
 
         for (int i=0; i<entries.length; i++) {
             gridbag.setConstraints(entries[i].label, labelconstraints);
