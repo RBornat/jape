@@ -49,7 +49,7 @@ interface DebugConstants {
                                 panellayout_tracing      = false,
                                 panellist_tracing        = false,
                                 preference_tracing       = false,
-                                printlayout_tracing      = false,
+								printlayout_tracing      = false,
                                 worldpaint_tracing       = false;
 
     static final public boolean notice_Linux             = true,
