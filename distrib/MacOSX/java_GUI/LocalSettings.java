@@ -131,7 +131,7 @@ public class LocalSettings implements SelectionConstants {
             }
             public void handleQuit(ApplicationEvent evt) {
                 Jape.handleQuit();
-                Alert.showErrorAlert("The engine isn't responding!"); // if we return from handleQuit, we didn't exit
+                // Jape.crash("The engine isn't responding!"); // if we return from handleQuit, we didn't exit
             }
         });
     }
