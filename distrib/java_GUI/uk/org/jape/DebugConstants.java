@@ -35,11 +35,13 @@ interface DebugConstants {
                                 disprooflayout_tracing   = false,
                                 drag_tracing             = false,
                                 encoding_tracing         = false,
+                                fontDebug                = false,
                                 geometry_tracing         = false,
                                 image_tracing            = false,
                                 makeMessage_tracing      = false,
                                 measure_debug            = false,
                                 menubar_tracing          = false,
+                                osDebug                  = false,
                                 paint_tracing            = false,
                                 panelempty_tracing       = false,
                                 panellayout_tracing      = false,
@@ -50,6 +52,7 @@ interface DebugConstants {
 
     static final public boolean notice_Linux             = true,
                                 notice_MacOSX            = true,
-                                notice_Solaris           = true;
+                                notice_Solaris           = true,
+                                notice_Windows           = true;
 }
 
