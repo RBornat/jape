@@ -1060,7 +1060,7 @@ let explodeApp curry t =
   let rec unApp t rs =
     match t with
       App (_, l, r) -> unApp (debracket l) (debracket r :: rs)
-    | _ -> t, rs
+    | _             -> t, rs
   in
   match curry, unApp (debracket t) [] with
     true, (f, [Tup (_, ",", rs)]) -> f, (debracket <* rs)
@@ -1084,14 +1084,16 @@ let explodebinapp t =
 
 let term_of_int (i : int) = registerLiteral (Number i)
 
+(* this is where we deal with negative integer constants -- currently with '-' symbol *)
 let rec int_of_term t =
   try
     match debracket t with
-      Literal (_, Number n) -> n
-    | App (_, Id (_, v, NoClass), t') -> 
-        (match string_of_vid v with "~" -> -int_of_term t'
+      Literal (_, Number n)     -> n
+    | App (_, Id (_, v, _), t') -> 
+        (match string_of_vid v with "-" -> -int_of_term t'
          |                          _   -> raise (Catastrophe_ []))
-    | _ ->(* can happen, and NoClass is important ... *)
+    | _                                 ->
+       (* can happen, and NoClass is important ... *)
        raise (Catastrophe_ ["int_of_term"])
   with
     _ -> raise (Catastrophe_ ["int_of_term "; debugstring_of_term t])
