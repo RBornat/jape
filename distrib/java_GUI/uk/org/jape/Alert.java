@@ -83,8 +83,7 @@ public class Alert {
 
     public static void showErrorAlert(String message) {
         String[] buttons = { quit, cont };
-        int reply = JOptionPane.showOptionDialog(
-                                                 null, makeMessage(message), "GUI error", 0, Error,
+        int reply = JOptionPane.showOptionDialog(null, makeMessage(message), "GUI error", 0, Error,
                                                  null, buttons, quit);
         if (reply==0)
             System.exit(2);
@@ -92,26 +91,28 @@ public class Alert {
 
     public static void abort(String message) {
         String[] buttons = { quit };
-        int reply = JOptionPane.showOptionDialog(
-                                                 null, makeMessage(message), "GUI disaster", 0, Error,
+        int reply = JOptionPane.showOptionDialog(null, makeMessage(message), "GUI disaster", 0, Error,
                                                  null, buttons, quit);
         System.exit(2);
     }
 
     // this doesn't deal with fonts yet ... I think we have to make a Component (sigh)
     // and I haven't worked out what to do with defaultbutton ...
-    public static void newAlert (String[] buttons, int severity, String message, int defaultbutton) 
-    throws ProtocolError {
-        if (buttons.length==1 && buttons[0].equals("OK")) {
-            showAlert(messagekind(severity), message);
-            Reply.reply(0); // I hope
-        }
-        else {
-            String s = "can't yet show alert: [";
-            for (int i=0; i<buttons.length; i++) 
-                s=s+(i==0?"\"":",\"")+buttons[i]+"\"";
-            showErrorAlert(s+" "+severity+" \""+message+"\" "+defaultbutton);
-            Reply.reply(defaultbutton); // I hope
+    public static int ask(String[] buttons, int severity, String message, int defaultbutton)
+        throws ProtocolError{
+        return JOptionPane.showOptionDialog(null, makeMessage(message), null, 0, messagekind(severity),
+                                            null, buttons, buttons[defaultbutton]);
+    }
+
+    public static int askDangerously(String message, String doit, String dont) {
+        String[] buttons = { doit, "Cancel", dont };
+        int reply = JOptionPane.showOptionDialog(null, makeMessage(message), null, 0, Question,
+                                                 null, buttons, doit);
+        // in reply 0 means Cancel, 1 means doit, 2 means don't
+        switch (reply) {
+            case 0 : return 1;
+            case 1 : return 0;
+            default: return reply;
         }
     }
 }

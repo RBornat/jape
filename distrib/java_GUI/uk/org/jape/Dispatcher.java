@@ -71,14 +71,14 @@ public class Dispatcher extends Thread {
 
                     // string passing happens a lot, so put it early
                         if (p.equals("STRINGSIZE")&&len==3)
-                            Reply.reply(JapeFont.checkedMeasure(JapeFont.toUnicode(command[2]),
+                            Reply.reply(JapeFont.checkedMeasure(toUnicode(command[2]),
                                                                 toByte(command[1])));
                         else
                         if (p.equals("DRAWSTRING")&&len==7)
                             ProofWindow.drawstring(toInt(command[1]), toInt(command[2]), // x, y
                                                    toByte(command[3]), toByte(command[4]), // font, kind
-                                                   JapeFont.toUnicode(command[5]),       // annottext
-                                                   JapeFont.toUnicode(command[6]));     // printtext
+                                                   toUnicode(command[5]),       // annottext
+                                                   toUnicode(command[6]));     // printtext
                         else
 
                     // FONTINFO not very often
@@ -91,11 +91,17 @@ public class Dispatcher extends Thread {
                             list.removeAllElements();
                         else
                         if (p.equals("ASKBUTTON")&&len==2)
-                            list.add(command[1]);
+                            list.add(toUnicode(command[1]));
                         else
                         if (p.equals("ASKNOW")&&len==4)
-                            Alert.newAlert(((String[])list.toArray(new String[list.size()])), toInt(command[1]),
-                                           command[2], toInt(command[3]));
+                            Reply.reply(Alert.ask(((String[])list.toArray(new String[list.size()])),
+                                                  toInt(command[1]), toUnicode(command[2]),
+                                                  toInt(command[3])));
+                        else
+                        if (p.equals("ASKDANGEROUSLY")&&len==4)
+                            Reply.reply(Alert.askDangerously(toUnicode(command[1]),
+                                                             toUnicode(command[2]),
+                                                             toUnicode(command[3])));
                         else
                     
                     // file choosing
@@ -122,7 +128,7 @@ public class Dispatcher extends Thread {
                             japeserver.menus.newMenu(command[1]);
                         else
                         if (p.equals("MENUITEM")&&len==5)
-                            japeserver.menus.newMenuItem(command[1], JapeFont.toUnicode(command[2]), command[3],
+                            japeserver.menus.newMenuItem(command[1], toUnicode(command[2]), command[3],
                                                          command[4]);
                         else
                         if (p.equals("MAKEMENUSVISIBLE")&&len==1) {
@@ -143,13 +149,13 @@ public class Dispatcher extends Thread {
                         else
                         if (p.equals("PANELENTRY")&&len==4)
                             PanelWindow.panelEntry(JapeFont.toUnicodeTitle(command[1]),
-                                                   JapeFont.toUnicode(command[2]),
+                                                   toUnicode(command[2]),
                                                    command[3]);
                         else
                         if (p.equals("PANELBUTTON")&&len==3) {
                             list.removeAllElements();
                             list.add(JapeFont.toUnicodeTitle(command[1]));
-                            list.add(JapeFont.toUnicode(command[2]));
+                            list.add(toUnicode(command[2]));
                         }
                         else
                         if (p.equals("PANELBUTTONINSERT")&&len==3) {
@@ -192,7 +198,7 @@ public class Dispatcher extends Thread {
                             int i = toInt(command[1]);
                             if (i!=list.size())
                                 throw new ProtocolError("given "+i+" shouldabeen "+list.size());
-                            list.add(JapeFont.toUnicode(command[2]));
+                            list.add(toUnicode(command[2]));
                         }
                         else
                         if (p.equals("SETGIVENS")&&len==1)
@@ -227,6 +233,9 @@ public class Dispatcher extends Thread {
                             System.exit(0);
                         }
                         else
+                        if (p.equals("DONTQUIT")&&len==1)
+                            japeserver.dontQuit();
+                        else
                         if (p.equals("SETTEXTSELECTIONMODE")&&len==2)
                             { } // for now
                         else
@@ -234,7 +243,7 @@ public class Dispatcher extends Thread {
                             AboutBox.setVersion(command[1]);
                         else
                             /*Alert.showErrorAlert*/System.err.println("dispatcher doesn't understand ("+len+") "+
-                                                                       JapeFont.toUnicode(line));
+                                                                       toUnicode(line));
                     } // if (command.length!=0)
                 } catch (ProtocolError e) {
                     Alert.showErrorAlert("protocol error in "+line+":: "+e.getMessage());
@@ -378,5 +387,9 @@ kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
         if (s.length()==1)
             return s.charAt(0);
         throw new ProtocolError ("\""+s+"\" is not a single char string");
+    }
+
+    private String toUnicode(String s) {
+        return JapeFont.toUnicode(s);
     }
 }
