@@ -25,7 +25,6 @@
 
 */
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -37,7 +36,6 @@ public abstract class SelectableProofItem extends TextSelectableProofItem
                                           implements SelectableItem,
                                                      ProtocolConstants {
 
-    public Color selectionColour = Color.red;
     protected SelectionRect selectionRect;
 
     protected final ProofCanvas canvas;
@@ -46,7 +44,7 @@ public abstract class SelectableProofItem extends TextSelectableProofItem
                                String annottext, String printtext) {
         super(canvas,x,y,fontnum,annottext,printtext);
         this.canvas = canvas;
-        selectionRect = new SelectionRect(canvas.linethickness*3/2, getBounds());
+        selectionRect = new SelectionRect(canvas.getSurroundGap(), getBounds());
         canvas.add(selectionRect);
         addMouseInteractionListener(new MouseInteractionAdapter() {
             public void clicked(byte eventKind, MouseEvent e) {
@@ -70,6 +68,7 @@ public abstract class SelectableProofItem extends TextSelectableProofItem
         SelectionRect(int halo, Rectangle bounds) {
             super(SelectableProofItem.this.canvas,
                   bounds.x-halo, bounds.y-halo, bounds.width+2*halo, bounds.height+2*halo);
+            setForeground(Preferences.SelectionColour);
         }
 
         protected void paintDotted(Graphics g, int y) {
@@ -97,18 +96,17 @@ public abstract class SelectableProofItem extends TextSelectableProofItem
 
             if (selkind!=NoSel) {
                 prepaint(g);
-                g.setColor(selectionColour);
 
                 switch (selkind) {
                     case ReasonSel:
-                        paintBox(g); break;
+                        super.paint(g); break;
 
                     case HypSel:
                         if (SelectableProofItem.this.canvas.proofStyle==BoxStyle) {
                             paintSides(g); paintHorizEdge(g, top); paintHooks(g, bottom);
                         }
                         else
-                            paintBox(g);
+                            super.paint(g);
                         break;
 
                     case HypSel | AmbigSel:
@@ -119,7 +117,7 @@ public abstract class SelectableProofItem extends TextSelectableProofItem
                             paintSides(g); paintHorizEdge(g, bottom); paintHooks(g, top);
                         }
                         else
-                            paintBox(g);
+                            super.paint(g);
                         break;
 
                     case ConcSel | AmbigSel:
