@@ -10,18 +10,20 @@
         related to the device on which the Font will be rendered.
 */
 
-import  java.awt.Font;
-import  java.awt.FontMetrics;
-import  java.awt.Graphics;
-import  java.awt.Label;
-import  java.awt.Dimension;
-import  java.awt.Component;
-import  java.util.Hashtable;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.util.Hashtable;
+import javax.swing.JLabel;
+import java.awt.Label;
 
 public class Fontoid 
 { public    Font         font;
   public    int          descent;
     
+  private FontMetrics  metrics; 
+  
   private Fontoid(String name) { font = Font.decode(name); }
 
   static private Component dummy = null;
@@ -35,12 +37,13 @@ public class Fontoid
       
     return new TextDimension(metrics.stringWidth(s), descent+metrics.getMaxAscent(), descent);
   }
-
+    
   /** 
     Monotonically increasing array containing the left hand edge
     distance of each character in the given string from the origin of
     the string.
   */
+  // this is the job of a TextLayout, I think
   public int[] getBoundaries(String chars)
   { int   l  = chars.length();
     int[] bs = new int[l+1];
@@ -72,8 +75,6 @@ public class Fontoid
     if (s==Font.ITALIC) return "italic"; else
     return "";
   }
-  
-  private FontMetrics  metrics; 
   
   static protected Hashtable fonts = new Hashtable();
 

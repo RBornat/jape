@@ -6,8 +6,12 @@
 //  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
 //
 
-import java.util.Vector;
+import java.awt.Component;
+import java.awt.Container;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import java.util.Vector;
 
 public class Alert {
     // oh the ceaseless dance of interface conversions ..
@@ -26,9 +30,51 @@ public class Alert {
         }
     }
     
+    private static JLabel makeLabel(String s) {
+        JLabel l = new JLabel(s);
+        if (japeserver.onMacOS) {
+            JapeFont.setComponentFont(l);
+        }
+        return l;
+    }
+    
+    // this is where we will eventually process multi-line strings and 
+    // handle aspect ratio
+    private static JLabel[] makeMessage(String s) {
+        JLabel l = makeLabel(s);
+        TextDimension m = JapeFont.measure(l, s);
+        System.err.println("alert message stats: "+m+"--\""+s+"\"");
+        if (m.width>japeserver.screenBounds.width*3/4) {
+            String[] split = JapeFont.minwaste(l, s, japeserver.screenBounds.width/2);
+            System.err.println("splits into :--");
+            for (int i=0; i<split.length; i++) {
+                System.err.println("    "+i+": "+JapeFont.measure(l,split[i])+"--\""+split[i]+"\"");
+            }
+            JLabel[] ls = new JLabel[split.length];
+            for (int i=0; i<ls.length; i++)
+                ls[i] = makeLabel(split[i]);
+            return ls;
+        }
+        else {
+            JLabel[] ls = { l };
+            return ls;
+        }
+    }
+    
     public static void showInfoMessage(int messagekind, String message) {
         // I don't think this needs invokeLater ...
-        JOptionPane.showMessageDialog(null,message,null,messagekind);
+        JOptionPane.showMessageDialog(null,makeMessage(message),null,messagekind);
+    }
+    
+    static String quit="Quit", cont="Continue";
+
+    public static void errorAlert(String message) {
+        String[] buttons = { quit, cont };
+        int reply = JOptionPane.showOptionDialog(
+                        null, makeMessage(message), "GUI error", 0, Error,
+                        null, buttons, quit);
+        if (reply==0)
+            System.exit(2);
     }
     
     // this doesn't deal with fonts yet ... I think we have to make a Component (sigh)

@@ -6,22 +6,27 @@
 //  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
 //
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.util.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.util.Hashtable;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 
-public class JapeMenu implements  ActionListener {
+public class JapeMenu implements ActionListener {
     
     // I need dictionaries from menu names to menus and menu entries to actions: 
     // hashtables are overkill, but there you go
     private Hashtable menutable, actiontable;
     
-    // Declarations for menus
-    private static final JMenuBar mainMenuBar = new JMenuBar();
-
     private abstract class JapeMenuItem extends JMenuItem {
-        JapeMenuItem(String label) { super(label); } // but don't use me, of course (daft language)
+        protected JapeMenuItem(String label) { super(label); }
         public abstract void action();
     }
     
@@ -48,7 +53,7 @@ public class JapeMenu implements  ActionListener {
     }
     
     private class OpenFileAction extends JapeMenuItem {
-        OpenFileAction (String label) {
+        public OpenFileAction (String label) {
             super(label);
         }
         public void action () {
@@ -59,19 +64,29 @@ public class JapeMenu implements  ActionListener {
     
     }
     
-    private void indexMenu(String label) {
-        JMenu menu = new JMenu(label);
-        menutable.put(label,menu);
+    private void indexMenu(JMenuBar bar, String label) {
+        if (menutable.get(label)==null) {
+            JMenu menu = new JMenu(label);
+            if (japeserver.onMacOS) {
+                JapeFont.setComponentFont(menu.getComponent());
+            }
+            menutable.put(label,menu);
+            bar.add(menu);
+        }
     }
     
+    // may throw NullPointerException ...
     private JMenuItem indexMenuItem(String menulabel, JapeMenuItem action) {
-        JMenu menu = (JMenu)menutable.get(menulabel); // needs an exception
+        JMenu menu = (JMenu)menutable.get(menulabel);
         String label = action.getText();
         String key = menulabel + ": " + label;
         actiontable.put(key,action);
         action.setActionCommand(key);
         menu.add(action); // .setEnabled(true)
         action.addActionListener(this);
+        if (japeserver.onMacOS) {
+            JapeFont.setComponentFont(action.getComponent());
+        }
         return action;
     }
     
@@ -90,8 +105,6 @@ public class JapeMenu implements  ActionListener {
              setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, menumask));
 		
         indexMenuItem("File", new DummyAction("Save As...", "File: Save As..."));
-		
-        mainMenuBar.add((JMenu)menutable.get("File"));
     }
 	
 	
@@ -114,16 +127,29 @@ public class JapeMenu implements  ActionListener {
 
         indexMenuItem("Edit", new DummyAction("Select All", "Edit: Select All")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, menumask));
-
-        mainMenuBar.add((JMenu)menutable.get("Edit"));
     }
 	
-    public void addMenus(JFrame frame) {
-        indexMenu("File"); indexMenu("Edit");
+    private JFrame frame=null;
+    
+    public void addStdMenus(JFrame frame) {
+	JMenuBar bar = new JMenuBar();        
+        indexMenu(bar, "File"); indexMenu(bar, "Edit");
         
         addStdFileMenuItems();
         addStdEditMenuItems();
-        frame.setJMenuBar (mainMenuBar);
+        
+        this.frame = frame;
+        frame.setJMenuBar(bar);
+    }
+    
+    public void newMenu(String s) throws ProtocolError {
+        if (frame==null)
+            throw (new ProtocolError("newMenu with null frame??"));
+        else {
+            JMenuBar bar = frame.getJMenuBar();
+            indexMenu(bar, s);
+            frame.setJMenuBar(bar);
+        }
     }
     
     // ActionListener interface (for menus)
@@ -150,9 +176,8 @@ public class JapeMenu implements  ActionListener {
         }
     }
 
-    public void menuentry(String menuname, String label, String code, String cmd) {
+    public void newMenuItem(String menuname, String label, String code, String cmd) {
         try {
-            JMenu menu = (JMenu)menutable.get(menuname);
             indexMenuItem(menuname, new CmdAction(label, cmd)); 
             // and what do we do about code?
         } catch (Exception e) {

@@ -87,8 +87,11 @@ public class Dispatcher extends Thread {
                         else
                     
                     // MENU commands
-                        if (p.equals("MENUENTRY")&&len==5)
-                            menus.menuentry(command[1], command[2], command[3], command[4]);
+                        if (p.equals("NEWMENU")&&len==2)
+                            menus.newMenu(command[1]);
+                        else
+                        if (p.equals("MENUITEM")&&len==5)
+                            menus.newMenuItem(command[1], JapeFont.toUnicode(command[2]), command[3], command[4]);
                         else
                         if (p.equals("MAKEMENUSVISIBLE")&&len==1) {} // doesn't seem necessary
                         else
@@ -121,7 +124,7 @@ public class Dispatcher extends Thread {
                         if (p.equals("VERSION")&&len==2)
                             aboutbox.setVersion(command[1]);
                         else
-                            System.err.println("**** dispatcher doesn't understand ("+len+") "+line);
+                            Alert.errorAlert("dispatcher doesn't understand ("+len+") "+JapeFont.toUnicode(line));
                     } // if (command.length!=0)
                 } catch (ProtocolError e) {
                     System.err.println("protocol error in "+line+":: "+e.getMessage());
@@ -138,7 +141,6 @@ public class Dispatcher extends Thread {
 ./jape.opt
 Jape proof engine: release 5.0b7 [/Users/richard/cvsdownloads/jape/jape/java_japeserver/MacOSX/build/japeserver.app/Contents/MacOS/japeserver]
 
-**** dispatcher doesn't understand (3) NEWMENU Edit "Edit"
 japeserver initialised
 ENABLEMENUITEM "Edit" "Disprove" false failed
 kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
@@ -154,7 +156,6 @@ kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
 [OPENING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_disproof.j"]
 [CLOSING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_disproof.j"]
 [CLOSING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L.jt"]
-**** dispatcher doesn't understand (2) SETFONTS "Konstanz"
 **** dispatcher doesn't understand (1) EMPTYMENUSANDPANELS
 **** dispatcher doesn't understand (3) NEWMENU Backward
 **** dispatcher doesn't understand (3) NEWPANEL Invalid\040conjectures 1

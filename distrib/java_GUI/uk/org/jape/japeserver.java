@@ -7,18 +7,24 @@
 //  Copyright (c) 2002 Richard Bornat. All rights reserved (for the moment, till I get it copylefted).
 //
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.io.File;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import javax.swing.JFrame;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.util.Vector;
+
 import com.apple.mrj.*;
-import javax.swing.*;
-import java.io.*;
-import java.util.*;
 
 public class japeserver extends JFrame
                       implements  MRJAboutHandler,
                                   MRJQuitHandler
 {
-
     static final String message = "Hello World!";
     private Font font = new Font("serif", Font.ITALIC+Font.BOLD, 36);
 
@@ -48,7 +54,7 @@ public class japeserver extends JFrame
         super("japeserver");
         this.getContentPane().setLayout(null);
         menus = new JapeMenu();
-        menus.addMenus(this);
+        menus.addStdMenus(this);
 
         aboutBox = new AboutBox();
         Toolkit.getDefaultToolkit();
@@ -90,10 +96,26 @@ public class japeserver extends JFrame
         }
     }
 
-    static String theorypath, theory, ext, title, iconname,
+    private static String theorypath, theory, ext, title, iconname,
         viewpath, pviewpath, proofpath;
 
+    public static boolean onMacOS;
+    public static Rectangle screenBounds;
+    
     public static void main(String args[]) {
+        // since platform independence seems not yet to have been achieved ...
+        onMacOS = (System.getProperty("mrj.version")!=null);
+        
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        GraphicsConfiguration[] gc = gd.getConfigurations();
+        if (gc.length==1)
+            screenBounds = gc[0].getBounds();
+        else {
+            System.err.println("don't know how to deal with multiple GraphicsConfiguration!");
+            System.exit(2);
+        }
+        
         // #
         // # Set up various paths
         // # 
