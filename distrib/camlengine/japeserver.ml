@@ -61,6 +61,7 @@
       infromserver := iii; outtoserver := ooo;
       servername := server; serverpid := Some pid;
 	  (* if there ain't no server, I want to know NOW *)
+	  (* but this 'solution' will deadlock if the child process doesn't give us some input *)
 	  Sys.set_signal Sys.sigpipe Sys.Signal_ignore; (* but we do get an exception -- see below *)
 	  match (try input_line iii 
 	         with exn -> consolereport ["server "; server; " crashed or didn't start"]; 
