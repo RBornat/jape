@@ -42,7 +42,7 @@ type proviso = Provisotype.proviso
 
 let provisodebug = ref false
 
-let rec catelim_provisostring p tail =
+let catelim_provisostring_invisbracketed b p tail =
   match p with
     FreshProviso (h, g, r, v) ->
       (if r then "IMP" else "") ::
@@ -51,7 +51,7 @@ let rec catelim_provisostring p tail =
          | true, false -> "HYP"
          | false, true -> "CONC"
          | false, false -> "????") ::
-        "FRESH " :: catelim_termstring v tail
+        "FRESH " :: catelim_termstring_invisbracketed b v tail
   | UnifiesProviso (t1, t2) ->
       let good =
         List.exists
@@ -68,20 +68,25 @@ let rec catelim_provisostring p tail =
         | _ -> true
       in
       let tstring =
-        if easy then catelim_termOrCollectionstring ","
-        else catelim_termstring
+        if easy then catelim_termOrCollectionstring_invisbracketed b ","
+        else catelim_termstring_invisbracketed b
       in
       tstring t1 (" UNIFIESWITH " :: tstring t2 tail)
   | NotinProviso (t1, t2) ->
-      catelim_termstring t1
-        (" NOTIN " :: catelim_termOrCollectionstring "," t2 tail)
+      catelim_termstring_invisbracketed b t1
+        (" NOTIN " :: catelim_termOrCollectionstring_invisbracketed b "," t2 tail)
   | NotoneofProviso (vs, pat, _C) ->
       (* this madness IS used! *)
-      catelim_liststring catelim_termstring "," vs
+      catelim_liststring (catelim_termstring_invisbracketed b) "," vs
         (" IN " ::
-           catelim_termstring pat
-             (" NOTONEOF " :: catelim_collectionstring "," _C tail))
+           catelim_termstring_invisbracketed b pat
+             (" NOTONEOF " :: catelim_collectionstring_invisbracketed b"," _C tail))
+
+let provisostring_invisbracketed = catelim2stringfn <.> catelim_provisostring_invisbracketed
+
+let catelim_provisostring = catelim_provisostring_invisbracketed false
 let provisostring = catelim2stringfn catelim_provisostring
+
 let rec isFreshProviso =
   function
     FreshProviso _ -> true
@@ -104,12 +109,16 @@ let rec provisoresetactual (VisProviso v) actual =
 let rec provisoselfparent (VisProviso v) =
     VisProviso {v with parent=v.actual}
 
-let rec catelim_visprovisostring a1 a2 =
+let rec catelim_visprovisostring_invisbracketed b a1 a2 =
   match a1, a2 with
     VisProviso {visible = true; actual = p}, tail ->
-      catelim_provisostring p tail
+      catelim_provisostring_invisbracketed b p tail
   | VisProviso {visible = false; actual = p}, tail ->
-      "<<" :: catelim_provisostring p (">>" :: tail)
+      "<<" :: catelim_provisostring_invisbracketed b p (">>" :: tail)
+let visprovisostring_invisbracketed = catelim2stringfn <.> catelim_visprovisostring_invisbracketed
+
+let catelim_visprovisostring = catelim_visprovisostring_invisbracketed false
+let visprovisostring = catelim2stringfn catelim_visprovisostring
 
 let rec catelim_visprovisostringall =
   fun (VisProviso {visible = visible; parent = parent; actual = actual})
@@ -118,7 +127,6 @@ let rec catelim_visprovisostringall =
       catelim_provisostring actual
         (", parent=" :: catelim_provisostring parent ("}" :: tail))
 
-let visprovisostring = catelim2stringfn catelim_visprovisostring
 let visprovisostringall = catelim2stringfn catelim_visprovisostringall
 
 let rec stripElement =
@@ -251,6 +259,7 @@ let rec parseProvisos () =
               "or formula UNIFIESWITH formula or ids NOTIN terms or ";
               "var IN pattern NOTONEOF collection -- expected, ";
               "found "; smlsymbolstring sy])
+
 (* function for sorting proviso lists so that they are nice and readable *)
 let rec earlierproviso p1 p2 =
   let rec lin1 =
