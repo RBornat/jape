@@ -6,8 +6,8 @@ type element = Term.Type.element
 
 let bracketedliststring = Listfuns.bracketedliststring
 let elementstring       = Term.Termstring.smlelementstring Term.Termstring.termstring
-let optionmap           = Optionfuns.M.optionmap
-let optionstring        = Optionfuns.M.optionstring
+let optionmap           = Optionfuns.optionmap
+let optionstring        = Optionfuns.optionstring
 let pairstring          = Stringfuns.M.pairstring
 let triplestring        = Stringfuns.M.triplestring
 let sextuplestring      = Stringfuns.M.sextuplestring

@@ -42,7 +42,7 @@ module M : T with type answer = Answer.answer
   struct
     open Listfuns
     open Mappingfuns
-    open Optionfuns.M
+    open Optionfuns
     open Answer
     open Term.Funs
     open Proviso.M

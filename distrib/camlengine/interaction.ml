@@ -15,22 +15,22 @@ open Stringfuns.M
 open Treeformat.Fmt
 
 let ( <| ) = Listfuns.( <| )
-let (&~~) = Optionfuns.M.(&~~)
-let (|~~) = Optionfuns.M.(|~~)
-let _The = Optionfuns.M._The
+let (&~~) = Optionfuns.(&~~)
+let (|~~) = Optionfuns.(|~~)
+let _The = Optionfuns._The
 let atoi = Miscellaneous.atoi
 let bracketedliststring = Listfuns.bracketedliststring
 let consolereport = Miscellaneous.consolereport
 let dont_rewrite_with_this = Context.Cxt.dont_rewrite_with_this
 let elementstring = Term.Termstring.elementstring
-let findfirst = Optionfuns.M.findfirst
+let findfirst = Optionfuns.findfirst
 let interpolate = Listfuns.interpolate
 let invisible = Miscellaneous.invisible
 let lowercase = Stringfuns.M.lowercase
 let member = Listfuns.member
 let numbered = Listfuns.numbered
-let optionfilter = Optionfuns.M.optionfilter
-let optionstring = Optionfuns.M.optionstring
+let optionfilter = Optionfuns.optionfilter
+let optionstring = Optionfuns.optionstring
 let provisos = Context.Cxt.provisos
 let replaceelement = Term.Funs.replaceelement
 let rewritecxt = Rewrite.Funs.rewritecxt
@@ -42,11 +42,11 @@ let smlelementstring = Term.Termstring.smlelementstring
 let sort = Listfuns.sort
 let take = Listfuns.take
 let termstring = Term.Termstring.termstring
-let try__ = Optionfuns.M.try__
+let try__ = Optionfuns.try__
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception Selection_ = Selection.M.Selection_
-exception None_ = Optionfuns.M.None_
+exception None_ = Optionfuns.None_
 exception DeadServer_ = Japeserver.DeadServer_
 
 type command =
@@ -75,7 +75,7 @@ let rec startServer (serverpath, args) =
   with
     DeadServer_ -> deadServer ["Cannot find japeserver: "; serverpath]
 
-let rec runningServer () = Optionfuns.M.opt2bool !(Japeserver.serverpid)
+let rec runningServer () = Optionfuns.opt2bool !(Japeserver.serverpid)
 let treestyle = Displaystyle.Treestyle.style
 let boxstyle = Displaystyle.Boxstyle.style
 let currentstyle = ref treestyle

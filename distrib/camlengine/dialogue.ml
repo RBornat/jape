@@ -15,7 +15,7 @@ open Hit
 open Interaction
 open Listfuns
 open Mappingfuns
-open Name.M
+open Name
 open Proofstate.M
 open Prooftree.Tree
 open Prooftree.Tree.Fmttree
@@ -36,7 +36,7 @@ exception AtoI_ = Miscellaneous.AtoI_
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception ParseError_ = Miscellaneous.ParseError_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
-exception None_ = Optionfuns.M.None_
+exception None_ = Optionfuns.None_
 exception Use_ = Paragraph.M.Use_
 exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
        
@@ -59,7 +59,7 @@ let rec resetallcachesandvariables () =
   Thing.M.clearthings ();
   Thing.M.clearstructurerules ()
          
-let ( &~~ ) = Optionfuns.M.( &~~ )
+let ( &~~ ) = Optionfuns.( &~~ )
 let atoi = Miscellaneous.atoi
 let autoselect = Miscellaneous.autoselect
 let clearbindingdirectives = Binding.clearbindingdirectives
@@ -77,7 +77,7 @@ let elementstring = Term.Termstring.elementstring
 let explodeCollection = Term.Funs.explodeCollection
 let facts = Facts.facts
 let get_oplist = Symbol.get_oplist
-let findfirst = Optionfuns.M.findfirst
+let findfirst = Optionfuns.findfirst
 let givenMenuTactic = Miscellaneous.givenMenuTactic
        
 let rec initGUI () =
@@ -92,9 +92,9 @@ let rec initGUI () =
 let isCutStep = Prooftree.Tree.isCutStep
 let mkvisproviso = Proviso.M.mkvisproviso
 let observe = Miscellaneous.observe
-let optionstring = Optionfuns.M.optionstring
-let ( |~ ) = Optionfuns.M.( |~ )
-let ( |~~ ) = Optionfuns.M.( |~~ )
+let optionstring = Optionfuns.optionstring
+let ( |~ ) = Optionfuns.( |~ )
+let ( |~~ ) = Optionfuns.( |~~ )
 let parseCurriedArgList =
   Termparse.M.tryparse (fun _ -> Termparse.M.parsecurriedarglist ())
 let parseTactic = Termparse.M.asTactic Termparse.M.string2term
@@ -114,8 +114,8 @@ let showInputError = Symbol.showInputError
 let string2paragraph = Paragraph.M.string2paragraph
 let tacticstring = Tactic.Funs.tacticstring
 let termstring = Term.Termstring.termstring
-let try__ = Optionfuns.M.try__
-let _The = Optionfuns.M._The
+let try__ = Optionfuns.try__
+let _The = Optionfuns._The
 let _Title = Version._Title
 let uncurry2 = Miscellaneous.uncurry2
 let _Version = Version._Version
@@ -136,9 +136,9 @@ let defaultenv =
   and jv = Japeenv.japevar in
   let rec aj default r =
     Japeenv.unboundedjapevar default
-      ((fun v -> r := Name.M.namestring (Name.M.namefrom v)),
+      ((fun v -> r := Name.namestring (Name.namefrom v)),
        (* is this too much work to avoid a few quotes? *)
-       (fun () -> Name.M.namestring (Name.M.namefrom !r)))
+       (fun () -> Name.namestring (Name.namefrom !r)))
 and ajd r = aj !r r in
 (* default settings for all variables accessible via Japeish *)
 let pairs =
@@ -223,7 +223,7 @@ let rec defaultenv () =
   nj_revfold Japeenv.( ++ )
     (List.map
        (
-          Japeenv.( ||-> ) <*> ((fun (s, v) -> Name.M.namefrom s, v)))
+          Japeenv.( ||-> ) <*> ((fun (s, v) -> Name.namefrom s, v)))
        (nj_fold (fun ((s, f), ps) -> (s, f ()) :: ps) nonresetpairs pairs))
     Japeenv.empty
 in
@@ -237,14 +237,14 @@ let boxdisplaynames =
   ["boxlinedisplay"; "foldformulae"; "hidecut"; "hidehyp"; "hidetransitivity";
    "hidereflexivity"; "hideuselesscuts"]
        
-let displayvars = List.map Name.M.namefrom (displaynames @ boxdisplaynames)
+let displayvars = List.map Name.namefrom (displaynames @ boxdisplaynames)
 
 let rec mustredisplay env vals =
 let dispenv =
   mkmap (displayvars ||| vals)
 in
 let nenv =
-  mkmap (List.map (fun n -> Name.M.namestring n, n) displayvars)
+  mkmap (List.map (fun n -> Name.namestring n, n) displayvars)
 in
 let rec lookup s =
   match
@@ -753,9 +753,9 @@ let rec main a1 a2 =
 
 and rundialogue env mbs proofs =
   try
-    let rec dialogue () = startcommands env mbs proofs in
+    let dialogue () = startcommands env mbs proofs in
     (* open RUN OCaml no like *)
-    let rec _Int () = observe ["[Interrupted]"]; interruptTactic () (* but don't crash *) in
+    let _Int _ = observe ["[Interrupted]"]; interruptTactic () (* but don't crash *) in
     Moresys.onInterrupt _Int dialogue; abandonServer ()
   with
     Catastrophe_ s -> deadServer ("exception Catastrophe_ " :: s)

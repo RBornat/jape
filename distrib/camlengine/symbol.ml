@@ -17,7 +17,7 @@ open Searchtree
 open Prestring.M
 open Listfuns
 open Miscellaneous
-open Optionfuns.M
+open Optionfuns
 open Stringfuns.M
 open Sml.M
 

@@ -50,7 +50,7 @@ module M : T with type element = Term.Funs.element
     open Term.Funs
     open Term.Store
     open Binding
-    open Optionfuns.M
+    open Optionfuns
     open Miscellaneous
     
     type element = Term.Type.element

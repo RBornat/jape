@@ -78,7 +78,7 @@ open Hit
 open Listfuns
 open Minwaste
 open Mappingfuns
-open Optionfuns.M
+open Optionfuns
 open Sml.M
 open Term.Termstring
 open Text.M
@@ -102,7 +102,7 @@ let cuthidingdebug = Prooftree.Tree.cuthidingdebug
 let element2term = Term.Funs.element2term
 let enQuote = Stringfuns.M.enQuote
 let explodebinapp = Term.Funs.explodebinapp
-let findfirst = Optionfuns.M.findfirst
+let findfirst = Optionfuns.findfirst
 let foldformulae = Miscellaneous.foldformulae
 let isRelation = Thing.M.isRelation
 let pairstring = Stringfuns.M.pairstring
@@ -117,7 +117,7 @@ let triplestring = Stringfuns.M.triplestring
 let truncatereasons = Miscellaneous.truncatereasons
 let turnstiles = Sequent.Funs.syntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
-let _The = Optionfuns.M._The
+let _The = Optionfuns._The
 
 let textleading = 3
 let boxlinewidth = 1

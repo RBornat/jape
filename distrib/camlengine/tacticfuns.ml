@@ -53,8 +53,8 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
 			  and type proofstate = Proofstate.M.proofstate
 			  and type tactic = Thing.M.tactic
 			  and type japeenv = Japeenv.japeenv
-			  and type displaystate = Interaction.displaystate
-			  and type name = Name.M.name
+			  and type displaystate = Displaystate.displaystate
+			  and type name = Name.name
 			  and type term = Term.Funs.term
 			  and type element = Term.Funs.element
 			  and type side = Hit.side
@@ -67,8 +67,8 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
     open Japeenv
     open Listfuns
     open Match
-    open Name.M
-    open Optionfuns.M
+    open Name
+    open Optionfuns
     open Paraparam.M
     open Proofstate.M
     open Prooftree.Tree
@@ -93,8 +93,8 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
     and proofstate = Proofstate.M.proofstate
     and tactic = Thing.M.tactic
     and japeenv = Japeenv.japeenv
-    and displaystate = Interaction.displaystate
-    and name = Name.M.name
+    and displaystate = Displaystate.displaystate
+    and name = Name.name
     and term = Term.Funs.term
     and element = Term.Funs.element
     and side = Hit.side
@@ -164,7 +164,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
 	let uncurry2 = Miscellaneous.uncurry2
 	let unknownprefix = Symbol.metachar
 	let verifyprovisos = Provisofuns.M.verifyprovisos
-	(* let _Oracle = Japeoracle.M._Oracle *)
+	let _Oracle = Oracle._Oracle
 
     (*  --------------------------------------------------------------------- *)
     
@@ -1351,9 +1351,9 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
     let rec _DECIDE (turnstile : string) (cxt : Context.Cxt.cxt) =
       fun (_HS : term) ->
         fun (_CS : term) (oracle : string) (args : string list) ->
-          (* match _Oracle (turnstile, cxt, _HS, _CS, oracle, args) with
+          match _Oracle turnstile cxt _HS _CS oracle args with
             Some cxt' -> Some ("ORACLE " ^ oracle, cxt')
-          | None -> no oracles at present. RB *) None
+          | None -> None
           
     (**********************************************************************)
     exception MatchinEvaluate exception MatchinTtoV

@@ -49,7 +49,7 @@ module Fmt : Fmt with type treelayout = Treelayout.M.treelayout
 =
   struct
     open Listfuns
-    open Optionfuns.M
+    open Optionfuns
     open Sml.M
     open Stringfuns.M
     open Term.Funs

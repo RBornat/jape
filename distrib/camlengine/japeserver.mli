@@ -1,5 +1,7 @@
 (* $Id$ *)
 
+open Moresys
+
 type box = Box.box
 and displayclass = Displayclass.displayclass
 and font = Displayfont.displayfont
@@ -86,7 +88,7 @@ val drawLine : box -> unit
 val drawRect : box -> unit
 (* just inside the box, using linethickness from setproofparams *)
 
-val serverpid : int option ref
+val serverpid : process_id option ref
 val servername : string ref
 val startserver : string -> string list -> unit
 val stopserver : unit -> unit

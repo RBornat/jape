@@ -15,7 +15,7 @@ open Forcedef
 open Japeserver
 open Listfuns
 open Mappingfuns
-open Optionfuns.M
+open Optionfuns
 open Predicate.M
 open Seqdraw.M
 open Sml.M

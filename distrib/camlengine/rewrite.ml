@@ -58,7 +58,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
     open Listfuns
     open Mappingfuns
     open Miscellaneous
-    open Optionfuns.M
+    open Optionfuns
     open Proviso.M
     open Rewinf.M
     open Sequent.Type
@@ -445,7 +445,7 @@ module Funs : Funs with type cxt = Rew.cxt
 =
   struct
     open Rew
-    open Optionfuns.M
+    open Optionfuns
     
     type cxt = Rew.cxt
      and term = Rew.term

@@ -1,7 +1,7 @@
 (* $Id$ *)
 
 open Term.Type
-open Name.M
+open Name
 
 (* Variables now have names.  Their values are still strings. *)
 

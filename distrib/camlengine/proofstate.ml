@@ -47,7 +47,7 @@ module M : T with type term = Term.Funs.term
     open Context.Cxtstring
     open Listfuns
     open Miscellaneous
-    open Optionfuns.M
+    open Optionfuns
     open Prooftree.Tree
     open Prooftree.Tree.Fmttree
     open Proviso.M

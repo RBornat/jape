@@ -136,7 +136,7 @@ module Termstring  : Termstring with type term = Type.term
     open Miscellaneous
     open Symbol
     open Symboltype
-    open Optionfuns.M
+    open Optionfuns
     open Idclass
     open Mappingfuns
     open Idclassfuns
@@ -645,7 +645,7 @@ module Store : Store with type vid = Type.vid
     open Termstring
     
     open Stringfuns.M
-    open Optionfuns.M
+    open Optionfuns
     open Sml.M
     
 	type vid = Type.vid 
@@ -941,10 +941,10 @@ module Funs : Funs with type vid = Type.vid
         
     open Miscellaneous
     open Stringfuns.M
-    open Optionfuns.M
+    open Optionfuns
     open Listfuns
     open Mappingfuns
-    open Optionfuns.M
+    open Optionfuns
     open Symboltype
     open Symbol
     open Idclass

@@ -15,8 +15,8 @@ open Context.Cxt
 open Idclass
 open Listfuns
 open Mappingfuns
-open Name.M
-open Optionfuns.M
+open Name
+open Optionfuns
 open Proviso.M
 open Rewrite.Funs
 open Sml.M
@@ -35,7 +35,7 @@ exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
 type prooftree      = Prooftree.Tree.Fmttree.prooftree
  and prooftree_step = Prooftree.Tree.prooftree_step
  and rewinf         = Prooftree.Tree.rewinf
- and name           = Name.M.name
+ and name           = Name.name
  and visproviso     = Proviso.M.visproviso
  and resnum         = Term.Type.resnum
  and cxt            = Context.Cxt.cxt

@@ -2,9 +2,10 @@ open Sys
 
 exception Interrupt (* in case you need it *)
 
+type process_id = int
+
 let rec onInterrupt f g =
-  (* does this catch two ctrl-Cs? or do I need to do the set_signal again, once it's caught? RB *)
-  let now = signal sigint (Signal_handle (fun i -> f ())) in
+  let now = signal sigint (Signal_handle f) in
   try g (); set_signal sigint now
   with exn -> set_signal sigint now; raise exn
     
@@ -26,3 +27,5 @@ let execute cmd args =
 (* let create_process cmd args new_stdin new_stdout new_stderr =
 
 let create_process_env cmd args env new_stdin new_stdout new_stderr = *)
+
+let reap pid = try Unix.kill pid Sys.sigkill with _ -> ()

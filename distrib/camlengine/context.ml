@@ -89,7 +89,7 @@ module Cxtstring : Cxtstring with type cxt = Type.cxt
     open Listfuns
     open Sequent.Funs
     open Stringfuns.M
-    open Optionfuns.M
+    open Optionfuns
     open Rewinf.M
     open Term.Termstring
     open Mappingfuns

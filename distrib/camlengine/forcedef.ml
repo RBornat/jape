@@ -2,7 +2,7 @@
 
 open Listfuns
 open Miscellaneous
-open Optionfuns.M 
+open Optionfuns 
 open Sml.M
 open Sequent.Funs
 open Stringfuns.M

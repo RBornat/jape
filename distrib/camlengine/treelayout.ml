@@ -22,7 +22,7 @@ module M : T with type term = Term.Funs.term
 =
   struct
     open Match
-    open Optionfuns.M
+    open Optionfuns
     open Stringfuns.M
     open Term.Funs
     open Term.Termstring

@@ -39,7 +39,7 @@ module type T =
 
 module M : T with type cxt = Context.Cxt.cxt
 			  and type model = Forcedef.model 
-			  and type name = Name.M.name
+			  and type name = Name.name
 			  and type proofstage = Proofstage.M.proofstage
 			  and type prooftree = Prooftree.Tree.Fmttree.prooftree
 			  and type proviso = Proviso.M.proviso
@@ -53,8 +53,8 @@ module M : T with type cxt = Context.Cxt.cxt
     open Mappingfuns
     open Menu
     open Miscellaneous
-    open Name.M
-    open Optionfuns.M
+    open Name
+    open Optionfuns
     open Panelkind.M
     open Paraparam.M
     open Proofstage.M
@@ -67,7 +67,7 @@ module M : T with type cxt = Context.Cxt.cxt
 
     type cxt = Context.Cxt.cxt
      and model = Forcedef.model 
-     and name = Name.M.name
+     and name = Name.name
      and proofstage = Proofstage.M.proofstage
      and prooftree = Fmttree.prooftree
      and proviso = Proviso.M.proviso

@@ -30,7 +30,7 @@ module M : T with type vid = Term.Funs.vid
     open Stringfuns.M
     open Term.Termstring
     open Listfuns
-    open Optionfuns.M
+    open Optionfuns
     open Term.Funs
     
     type vid = Term.Funs.vid 

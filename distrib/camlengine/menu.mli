@@ -1,7 +1,7 @@
 (* $Id$ *)
 
 open Panelkind.M
-open Name.M
+open Name
  
 val panelbuttoninsertstring : panelbuttoninsert -> string
 type menudata =

@@ -17,12 +17,12 @@
 open Menu 
 open Mappingfuns
 open Panelkind.M
-open Name.M
+open Name
     
-type name = Name.M.name
+type name = Name.name
 
 let deadServer = Interaction.deadServer
-and runningServer = (fun() -> Optionfuns.M.opt2bool !Japeserver.serverpid)
+and runningServer = (fun() -> Optionfuns.opt2bool !Japeserver.serverpid)
  
 type button = UndoProofbutton
 			| RedoProofbutton
@@ -154,7 +154,7 @@ let rec markproof proved cmd =
      | panel, _ -> ())
 let rec initButtons () =
   let ( -------- ) = Mseparator in
-  let rec _E (name, cut, cmd) = Mentry (Name.M.Name name, cut, cmd) in
+  let rec _E (name, cut, cmd) = Mentry (namefrom name, cut, cmd) in
   let _EditEntries =
     [_E ("Done", Some "D", "done"); ( -------- );
      _E ("Undo Proof Step", None, "undo_proof");
@@ -169,8 +169,8 @@ let rec initButtons () =
      _E ("Expand/Contract detail", None, "layout")]
   in
   clearmenusandpanels ();
-  addmenu (Name.M.Name "Edit");
-  addmenudata (Name.M.Name "Edit") _EditEntries
+  addmenu (namefrom "Edit");
+  addmenudata (namefrom "Edit") _EditEntries
 let rec initFonts () =
   match getfontstuff () with
     Some stuff -> Japeserver.setFonts stuff

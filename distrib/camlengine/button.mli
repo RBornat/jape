@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-type name = Name.M.name
+type name = Name.name
 
 (* things we can enable/disable from the interface: often they are entries in menus, but 
  * they can be real buttons, or whatever.  It's up to button.sml to translate.

@@ -68,7 +68,7 @@ module type T =
 
 module M : T with type term = Term.Type.term 
 			  and type resnum = Term.Type.resnum
-			  and type name = Name.M.name
+			  and type name = Name.name
 			  and type paraparam = Paraparam.M.paraparam
 			  and type proviso = Proviso.M.proviso
 			  and type seq = Sequent.Type.seq
@@ -84,8 +84,8 @@ module M : T with type term = Term.Type.term
     open Mappingfuns
     open Match
     open Miscellaneous
-    open Name.M
-    open Optionfuns.M
+    open Name
+    open Optionfuns
     open Paraparam.M
     open Predicate.M
     open Proviso.M
@@ -105,7 +105,7 @@ module M : T with type term = Term.Type.term
     
     type term = Term.Type.term 
      and resnum = Term.Type.resnum
-	 and name = Name.M.name
+	 and name = Name.name
 	 and paraparam = Paraparam.M.paraparam
 	 and proviso = Proviso.M.proviso
 	 and seq = Sequent.Type.seq

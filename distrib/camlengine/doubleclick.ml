@@ -4,7 +4,7 @@ open Sequent.Funs
 open Listfuns
 open Mappingfuns
 open Tactic.Funs
-open Optionfuns.M
+open Optionfuns
 
 type seq = Sequent.Funs.seq 
  and tactic = Tactic.Funs.tactic 

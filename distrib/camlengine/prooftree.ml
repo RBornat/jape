@@ -133,7 +133,7 @@ module Tree : Tree with type term = Term.Type.term
 					and type seq = Sequent.Type.seq
 					and type vid = Term.Type.vid
 					and type element = Term.Type.element
-					and type name = Name.M.name
+					and type name = Name.name
 					and type treeformat = Treeformat.Fmt.treeformat
 					and type fmtpath = Treeformat.Fmt.fmtpath
 					and type visformat = Treeformat.VisFmt.visformat
@@ -151,8 +151,8 @@ module Tree : Tree with type term = Term.Type.term
     open Listfuns
     open Mappingfuns
     open Miscellaneous
-    open Name.M
-    open Optionfuns.M
+    open Name
+    open Optionfuns
     open Proviso.M
     open Provisofuns.M
     open Rewinf.M
@@ -177,7 +177,7 @@ module Tree : Tree with type term = Term.Type.term
      and seq = Sequent.Type.seq
      and vid = Term.Type.vid
      and element = Term.Type.element
-     and name = Name.M.name
+     and name = Name.name
      and treeformat = Treeformat.Fmt.treeformat
      and fmtpath = Treeformat.Fmt.fmtpath
      and visformat = Treeformat.VisFmt.visformat

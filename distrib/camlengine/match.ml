@@ -3,7 +3,7 @@
 open Miscellaneous
 open Listfuns
 open Mappingfuns
-open Optionfuns.M 
+open Optionfuns 
 open Term.Type
 open Term.Funs
 open Term.Termstring

@@ -33,7 +33,7 @@ module M : Screendraw.T with type displayclass = Displayclass.displayclass
      and size = Draw.size
      and tree = Absprooftree.tree
 
-    let (&~~) = Optionfuns.M.(&~~)
+    let (&~~) = Optionfuns.(&~~)
     let (<*) = Listfuns.(<*)
     let (<|) = Listfuns.(<|)
     let (|||) = Listfuns.(|||)

@@ -52,7 +52,7 @@ module M : T with type term = Term.Type.term
 			  and type panelkind = Panelkind.M.panelkind
 			  and type dclick = Doubleclick.dclick
 			  and type forcedef = Forcedef.forcedef
-			  and type name = Name.M.name
+			  and type name = Name.name
 			  and type proofstage = Proofstage.M.proofstage
 			  and type model = Forcedef.model
 =
@@ -63,7 +63,8 @@ module M : T with type term = Term.Type.term
     open Idclassfuns
     open Listfuns
     open Menu
-    open Name.M
+    open Nametype
+    open Name
     open Panelkind.M
     open Paraparam.M
     open Proofstage.M
@@ -87,7 +88,7 @@ module M : T with type term = Term.Type.term
 	 and panelkind = Panelkind.M.panelkind
 	 and dclick = Doubleclick.dclick
 	 and forcedef = Forcedef.forcedef
-	 and name = Name.M.name
+	 and name = Name.name
      and proofstage = Proofstage.M.proofstage
      and model = Forcedef.model
     
@@ -96,16 +97,16 @@ module M : T with type term = Term.Type.term
 	let consolereport = Miscellaneous.consolereport
 	let enQuote = Stringfuns.M.enQuote
 	let liststring = Listfuns.liststring
-	let opt2bool = Optionfuns.M.opt2bool
+	let opt2bool = Optionfuns.opt2bool
 	let readintasarg = Tactic.Funs.readintasarg
 	let tacticstring = Tactic.Funs.tacticstring
-	let _The = Optionfuns.M._The
+	let _The = Optionfuns._The
 	let transTactic = Tactic.Funs.transTactic
 	let uncurry2 = Miscellaneous.uncurry2
 	
 	exception ParseError_  = Miscellaneous.ParseError_
 	exception Catastrophe_ = Miscellaneous.Catastrophe_
-	exception None_        = Optionfuns.M.None_
+	exception None_        = Optionfuns.None_
 
     type ruleheading = RuleHeading of (name * paraparam list * proviso list)
     type tacticheading = TacticHeading of (name * paraparam list)

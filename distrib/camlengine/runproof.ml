@@ -23,7 +23,7 @@ module type T =
 module M : T with type cxt = Context.Cxt.visproviso
 			  and type japeenv = Japeenv.japeenv
 			  and type model = Forcedef.model
-			  and type name = Name.M.name
+			  and type name = Name.name
 			  and type proofstate = Proofstate.M.proofstate
 			  and type prooftree = Proofstate.M.prooftree
 			  and type seq = Proofstate.M.seq
@@ -35,7 +35,7 @@ module M : T with type cxt = Context.Cxt.visproviso
   struct
     open Context.Cxt 
     open Context.ExteriorFuns
-    open Name.M 
+    open Name 
     open Proofstage.M 
     open Proofstate.M
     open Sml.M
@@ -43,7 +43,7 @@ module M : T with type cxt = Context.Cxt.visproviso
     type cxt = Context.Cxt.visproviso
     and japeenv = Japeenv.japeenv
     and model = Forcedef.model
-    and name = Name.M.name
+    and name = Name.name
     and proofstate = Proofstate.M.proofstate
     and prooftree = Proofstate.M.prooftree
     and seq = Proofstate.M.seq
@@ -56,7 +56,7 @@ module M : T with type cxt = Context.Cxt.visproviso
 	exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 	
 	let addproof = Proofstore.M.addproof
-	let ( &~~ ) = Optionfuns.M.( &~~ )
+	let ( &~~ ) = Optionfuns.( &~~ )
 	let applyLiteralTactic = Tacticfuns.M.applyLiteralTactic None
 	let applyconjectures = Miscellaneous.applyconjectures
 	let applyTactic = Tacticfuns.M.applyTactic None

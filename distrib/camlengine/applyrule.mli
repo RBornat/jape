@@ -10,7 +10,7 @@ and possmatch
 and resnum = Term.Type.resnum
 and visproviso = Proviso.M.visproviso
 and prooftree_step = Prooftree.Tree.prooftree_step
-and name = Name.M.name
+and name = Name.name
 
 val applydebug : int ref
 val beforeOfferingDo : (unit -> unit) -> unit

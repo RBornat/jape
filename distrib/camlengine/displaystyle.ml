@@ -24,19 +24,19 @@ module F
     open Treeformat.VisFmt
     open Prooftree.Tree.Vistree
         
-    let ( &~~ ) = Optionfuns.M.( &~~ )
-    let ( |~~ ) = Optionfuns.M.( |~~ )
+    let ( &~~ ) = Optionfuns.( &~~ )
+    let ( |~~ ) = Optionfuns.( |~~ )
     let abstracttree = AAA.abstracttree
     let consolereport = Miscellaneous.consolereport
     let fmtpath = Prooftree.Tree.viewpathtopath
-    let optionstring = Optionfuns.M.optionstring
+    let optionstring = Optionfuns.optionstring
     let parentPath = Prooftree.Tree.Fmttree.parentPath
     let posstring = Box.posstring
     let rootPath = Prooftree.Tree.Fmttree.rootPath
     let screenpositiondebug = Miscellaneous.screenpositiondebug
     let textboxstring = Box.textboxstring
     let tranhitpath = Hit.tranhitpath
-    let try__ = Optionfuns.M.try__
+    let try__ = Optionfuns.try__
     let vispath = Prooftree.Tree.pathtoviewpath
     let visproof = Prooftree.Tree.visproof Proofstore.M.proved
     let showallproofsteps = Prooftree.Tree.showallproofsteps

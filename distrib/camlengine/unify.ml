@@ -58,7 +58,7 @@ module M : T with type term = Term.Type.term
     open Listfuns
     open Mappingfuns
     open Miscellaneous
-    open Optionfuns.M
+    open Optionfuns
     open Proviso.M
     open Provisofuns.M
     open Rewrite.Funs

@@ -4,7 +4,7 @@ open Listfuns
 open Mappingfuns 
 open Match
 open Miscellaneous
-open Optionfuns.M
+open Optionfuns
 open Stringfuns.M
 open Term.Funs
 open Term.Termstring

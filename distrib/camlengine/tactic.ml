@@ -82,13 +82,13 @@ module type Type =
       | SimplePath of term
 end
 
-module Type : Type with type name = Name.M.name
+module Type : Type with type name = Name.name
 					and type term = Term.Funs.term
 					and type treelayout = Treelayout.M.treelayout
 					and type seq = Sequent.Funs.seq
 =
   struct
-    type name = Name.M.name
+    type name = Name.name
 	 and term = Term.Funs.term
 	 and treelayout = Treelayout.M.treelayout
 	 and seq = Sequent.Funs.seq
@@ -201,7 +201,7 @@ module type Funs =
  *)
 
 module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping 
-					and type name = Name.M.name
+					and type name = Name.name
 					and type term = Term.Type.term
 					and type tactic = Type.tactic
 =
@@ -212,8 +212,9 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
     open Listfuns
     open Match
     open Miscellaneous
-    open Name.M
-    open Optionfuns.M
+    open Nametype
+    open Name
+    open Optionfuns
     open Sml.M
     open Sequent.Funs
     open Stringfuns.M
@@ -224,7 +225,7 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
     open Treelayout.M    
     
     type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
-     and name = Name.M.name
+     and name = Name.name
      and term = Term.Type.term
      and tactic = Type.tactic
      

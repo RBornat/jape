@@ -36,7 +36,7 @@ module M : T with type cxt = Context.Type.cxt
     open Mappingfuns
     open Match
     open Miscellaneous
-    open Optionfuns.M
+    open Optionfuns
     open Proviso.M
     open Rewrite.Funs
     open Sequent.Type

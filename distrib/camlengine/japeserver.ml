@@ -39,7 +39,7 @@ let rec explodeTextSize s = tsW s, tsA s, tsD s (* width, ascent, descent *)
 
 let infromserver = ref stdin
 let outtoserver = ref stdout
-let serverpid = ref (None : int option)
+let serverpid = ref (None : Moresys.process_id option)
 let servername = ref "<no server>"
 let serverresponded = ref false
 
@@ -52,7 +52,7 @@ let stopserver () =
        * if the server has crashed. But it doesn't matter too much, because in that case
        * the program is going to exit anyway ... *)
       (try close_out !outtoserver with _ -> ());
-      (try Unix.kill pid Sys.sigkill with _ -> ());
+      Moresys.reap pid;
       (* next line ensures that if we didn't close the stream, we'll get a 
        * sigpipe signal on exit. It looks nicer than an exception. *)
       Sys.set_signal Sys.sigpipe Sys.Signal_default
