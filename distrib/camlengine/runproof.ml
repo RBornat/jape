@@ -35,8 +35,10 @@ let ( &~~ ) = Optionfuns.( &~~ )
 let applyLiteralTactic = Tacticfuns.applyLiteralTactic None
 let applyconjectures = Miscellaneous.applyconjectures
 let applyTactic = Tacticfuns.applyTactic None
-let rec checkdisproof cxt =
+
+let checkdisproof cxt =
   Disproof.checkdisproof (Facts.facts (Context.Cxt.provisos cxt) cxt)
+
 let compiletoprove = Thing.compiletoprove
 let consolereport = Miscellaneous.consolereport
 let empty = Mappingfuns.empty
@@ -49,7 +51,7 @@ let maxprovisoresnum = Proviso.maxprovisoresnum
 let maxtreeresnum = Prooftree.Tree.Fmttree.maxtreeresnum
 let mkReplayTac v = Tactictype.ReplayTac v
 
-let rec mkTip cxt seq =
+let mkTip cxt seq =
   Prooftree.Tree.mkTip cxt seq Treeformat.Fmt.neutralformat
 
 let mkvisproviso = Proviso.mkvisproviso
@@ -70,10 +72,12 @@ let uncurry2 = Miscellaneous.uncurry2
 let ( <| ) = Listfuns.( <| )
 
 let proofsdone = ref false
+
 let rec doBEGINPROOF env state =
   match applyLiteralTactic env "IF BEGINPROOF" state with
     Some state' -> state'
   | None -> state
+
 let rec mkstate provisos givens tree =
   let (cxt, tree, uvs) =
     rewriteProoftree givens false
@@ -88,13 +92,16 @@ let rec mkstate provisos givens tree =
                 (maxtreeresnum tree ::
                      ((maxprovisoresnum <.> provisoactual) <* provisos)) 1 + 1);
      givens = givens; tree = tree; goal = None; target = None; root = None}
+
 let rec startstate env provisos givens seq =
   let (Proofstate {tree = tree} as state) =
     mkstate provisos givens (mkTip newcxt (rewriteseq newcxt seq))
   in
   (* rewrite necessary - see comment on definition of mkTip *)
   doBEGINPROOF env (withgoal state (Some (rootPath tree)))
+
 let realaddproof = addproof
+
 let rec addproof report query name proved =
   fun (Proofstate {cxt = cxt; tree = tree; givens = givens})
     disproofopt ->
@@ -114,13 +121,12 @@ let rec addproof report query name proved =
  *)
 (* this function gives back Some(name,state,disproof option) just when a proof is in 
    progress.  
-   It stores the proof if the proofstage is Proved or Disproved.
+   It stores the proof if the proofstage is Complete.
  *)
 exception NoProof_ of string list
 (* moved out for OCaml *)
 
-let rec doProof
-  report query env name stage seq (givens, pros, tac) disproofopt =
+let rec doProof report query env name stage seq (givens, pros, tac) disproofopt =
   (* ReplayTac now does all the work of setting up the parameters for a replay *)
   let tac = mkReplayTac tac in
   let (pros', givens, seq) = compiletoprove (pros, givens, seq) in
@@ -128,15 +134,12 @@ let rec doProof
   let oldapply = !applyconjectures in
   let oldproving = !proving in
   let rec checkfinalprovisos cxt =
-    let newpros =
-      (provisoactual <* (provisovisible <| provisos cxt))
-    in
+    let newpros = (provisoactual <* (provisovisible <| provisos cxt)) in
     let rec showpros pros =
       if null pros then "no provisos"
       else liststring provisostring " AND " pros
     in
-    eqbags (fun (x, y) -> x = y : proviso * proviso -> bool)
-      (pros, newpros) ||
+    eqbags (uncurry2 (=)) (pros, newpros) ||
     query
       (["The proof of theorem "; namestring name;
         " didn't generate the provisos that were expected: ";
@@ -173,51 +176,29 @@ let rec doProof
             Some (Proofstate {cxt = cxt} as st) ->
               let st = rewriteproofstate st in
               cleanup ();
-              Some
-                ((match stage, isproven st with
-                    Disproved, true ->
-                      complain
-                        ["is a complete proof, but is recorded as a disproof."];
-                      InProgress
-                  | Proved, false ->
-                      complain
-                        ["doesn't seem to be a statement of the theorem ";
-                         "(the base sequent "; seqstring seq;
-                         " matches but it isn't a complete proof)"];
-                      InProgress
-                  | _ ->
-                      if checkfinalprovisos cxt then stage
-                      else InProgress),
-                 st)
+              Some (st, isproven st && checkfinalprovisos cxt)
           | None -> raise (NoProof_ ("proof fails -- " :: explain ""))
     with
       NoProof_ ss -> cleanup (); complain ss; None
     | Tacastrophe_ ss ->
         cleanup ();
-        report
-          ("Error in tactic during " :: label () :: " " :: namestring name :: " -- " :: ss);
+        report ("Error in tactic during " :: label () :: " " :: namestring name :: " -- " :: ss);
         None
     | exn -> cleanup (); raise exn
   in
   (checkproof () &~~
-     (fun (stage, state) ->
+     (fun (state, proved) ->
+        let disproved = checkdisproof (proofstate_cxt state) (proofstate_tree state) disproofopt in
         let stage =
-          match
-            stage,
-            checkdisproof (proofstate_cxt state) (proofstate_tree state)
-              disproofopt
-          with
-            Proved, true ->
-              complain ["is recorded as a proof but is disproved"];
-              InProgress
-          | Disproved, false ->
-              complain ["is recorded as a disproof but isn't disproved"];
-              InProgress
-          | _ -> stage
-        in
-        if stage <> InProgress then
+	  match stage, proved, disproved with
+	    Complete, false, false -> 
+	      complain ["is recorded as complete but is neither proved nor disproved"];
+	      InProgress
+	  | _, _, _ -> stage
+	in
+        if stage = Complete then
           begin
-            let _ = (addproof report query name (stage = Proved) state (stage=Disproved) (* WRONG *) disproofopt : bool) in
+            let _ = (addproof report query name proved state disproved disproofopt : bool) in
             None
           end
         else Some (name, state, disproofopt)))
