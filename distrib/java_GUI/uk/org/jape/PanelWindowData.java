@@ -66,12 +66,12 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     protected int kind;
     PanelWindow window;
     
-    Vector entryv, cmdv; // matches the list line for line
+    Vector entryv, cmdv, markv; // matches the list line for line
     Vector buttonv;
     
-    private static final String New       = "New...",
-                                Prove     = "Prove",
-                                ShowProof ="Show Proof";
+    private static final String newLabel       = "New...",
+                                proveLabel     = "Prove",
+                                showproofLabel = "Show Proof";
         
     public PanelWindowData(String title, int kind) {
         this.title = title; this.kind = kind;
@@ -79,13 +79,14 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
         entryv = new Vector();
         cmdv = new Vector();
+        markv = new Vector();
         buttonv = new Vector();
         
         if (kind==ConjecturePanelKind) { 
             // has default buttons
-            addButton(New, new Insert[] { new StringInsert("New... button pressed") }, true);
-            addButton(Prove, new Insert[] { new StringInsert("prove"), new CommandInsert() }, true);
-            addButton(ShowProof, new Insert[] { new StringInsert("showproof"), new CommandInsert() }, true);
+            addButton(newLabel, new Insert[] { new StringInsert("New... button pressed") }, true);
+            addButton(proveLabel, new Insert[] { new StringInsert("prove"), new CommandInsert() }, true);
+            addButton(showproofLabel, new Insert[] { new StringInsert("showproof"), new CommandInsert() }, true);
         }
     }
 
@@ -108,6 +109,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 System.err.println("panel \""+title+"\" adding entry \""+entry+"\", cmd \""+cmd+"\"");
             entryv.add(entry);
             cmdv.add(cmd);
+            markv.add(null);
         }
         else {
             if (panellist_tracing)
@@ -115,20 +117,27 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             cmdv.setElementAt(cmd, i);
         }
         if (window!=null)
-            window.addEntry(entry);
+            window.addEntry(entry, null);
     }
 
     protected void markEntry(String cmd, boolean proved, boolean disproved) throws ProtocolError {
-        if (window==null)
-            throw new ProtocolError("before MAKEPANELSVISIBLE");
-        else {
             if (panellist_tracing)
                 System.err.println("panel \""+title+"\" marking cmd \""+cmd+"\" "+proved+","+disproved);
             int i = cmdv.indexOf(cmd);
             if (i==-1)
                 throw new ProtocolError("no such command");
-            else
+        else {
+            markv.setElementAt(new Mark(proved,disproved) ,i);
+            if (window!=null) {
                 window.markEntry(i, proved, disproved);
+        }
+    }
+    }
+
+    private static class Mark {
+        public final boolean proved, disproved;
+        public Mark(boolean proved, boolean disproved) {
+            this.proved = proved; this.disproved = disproved;
         }
     }
 
@@ -213,6 +222,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             }
         entryv.removeAllElements();
         cmdv.removeAllElements();
+        markv.removeAllElements();
     }
     
     /* This is now basically functional, but things to do:
@@ -268,7 +278,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             prefixw = JapeFont.stringWidth(list, "YN ");
             
             for (int i=0; i<entryv.size(); i++)
-                addEntry((String)entryv.get(i));
+                addEntry((String)entryv.get(i), (Mark)markv.get(i));
 
             MouseListener m = new MouseAdapter () {
                 public void mouseClicked(MouseEvent e) {
@@ -352,18 +362,24 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 if (prefix!=null) g.drawString(prefix, 0, td.ascent);
                 g.drawString(s, prefixw, td.ascent);
             }
+            public void mark(boolean proved, boolean disproved) {
+                marked = proved || disproved;
+                prefix = proved ? LocalSettings.tick+(disproved ? LocalSettings.cross : "") :
+                         disproved ? " "+LocalSettings.cross :
+                         null;
+            }
         }
         
-        protected void addEntry(String entry) {
-            model.addElement(new Entry(entry));
+        protected void addEntry(String entry, Mark mark) {
+            Entry e = new Entry(entry);
+            model.addElement(e);
+            if (mark!=null)
+                e.mark(mark.proved, mark.disproved);
         }
 
         protected void markEntry(int i, boolean proved, boolean disproved) {
             Entry e = (Entry)model.elementAt(i);
-            e.marked = proved || disproved;
-            e.prefix = proved ? LocalSettings.tick+(disproved ? LocalSettings.cross : "") :
-                       disproved ? " "+LocalSettings.cross :
-                       null;
+            e.mark(proved, disproved);
             repaintCell(i);
             enableButtons();
         }
@@ -441,7 +457,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             if (0<=index && index<model.size()) {
                 for (int i=0; i<buttonv.size(); i++) {
                     PanelButton b = (PanelButton)buttonv.get(i);
-                    if (kind==ConjecturePanelKind && b.label.equals(ShowProof))
+                    if (kind==ConjecturePanelKind && b.label.equals(showproofLabel))
                         b.setEnabled(((Entry)model.get(index)).marked);
                     else
                         b.setEnabled(true);
