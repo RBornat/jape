@@ -99,6 +99,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
                 if (windowListener!=null) {
                     setTopInfocusv();
                     reportFocus();
+                    enableCopy();
                 }
                 else
                     System.err.println("ProofWindow.windowListener late windowActivated \""+
@@ -159,6 +160,18 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
 
     public void closeProof() {
         Reply.sendCOMMAND("closeproof "+proofnum);
+    }
+
+    public void enableCopy() {
+        int proofcount = proofCanvas.getTextSelectionCount(),
+            disproofcount = disproofPane==null ? 0 : disproofPane.getTextSelectionCount(),
+            provisocount = provisoCanvas==null ? 0 : provisoCanvas.getTextSelectionCount();
+
+        try {
+            JapeMenu.enableItem(true, "Edit", "Copy", proofcount+disproofcount+provisocount==1);
+        } catch (ProtocolError e) {
+            Alert.abort("ProofWindow.enableCopy can't find Edit: Copy");
+        }
     }
 
     /**********************************************************************************************
