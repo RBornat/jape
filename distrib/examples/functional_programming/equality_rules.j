@@ -41,8 +41,8 @@ RULE   rewrite (X,ABSTRACTION AA)			IS FROM X=Y AND AA(Y) INFER AA(X)
 RULE   rewritebackwards (Y,ABSTRACTION AA)	IS FROM X=Y AND AA(X) INFER AA(Y)
 
 /* smallstep rewrite rules */
-RULE rewritesmallLR (OBJECT x)			IS FROM X=Y	INFER AA{x\X}=AA{x\Y}
-RULE rewritesmallRL (OBJECT x)			IS FROM X=Y	INFER AA{x\Y}=AA{x\X} /* derivable */
+RULE rewriteLR (OBJECT x)			IS FROM X=Y	INFER AA{x\X}=AA{x\Y}
+RULE rewriteRL (OBJECT x)			IS FROM X=Y	INFER AA{x\Y}=AA{x\X} /* derivable */
 
 /*
 	Infrastructure for rewriting in an equational theory
@@ -117,12 +117,3 @@ TACTIC HypFoldUnfold(t) IS
 
 TACTIC "UnfoldHyp"	IS HypFoldUnfold "Fold with hypothesis"
 TACTIC "FoldHyp"	IS HypFoldUnfold "Unfold with hypothesis"
-
-
-
-
-
-
-
-
-
