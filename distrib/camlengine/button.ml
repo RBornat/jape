@@ -69,6 +69,10 @@ type mybutton = MyUndoProof
 
 let buttoncache : (mybutton, bool ref) mapping ref = ref empty
 
+(* even though there are no longer Undo/Redo Proof/Disproof Step entries in the Edit menu,
+   we still send the commands.  The interface interprets the instruction according to the 
+   focussed pane, and sets Undo or Redo appropriately.
+ *)
 let rec enable (button, state) =
   let rec doit b v =
     let (m, c) =
@@ -171,12 +175,6 @@ let rec initButtons () =
   let rec _E (name, cut, cmd) = Mentry (namefrom name, cut, cmd) in
   let _EditEntries =
     [( -------- );
-     _E ("Undo Proof Step", None, "undo_proof");
-     _E ("Redo Proof Step", None, "redo_proof"); 
-     ( -------- );
-     _E ("Undo Disproof Step", None, "undo_disproof");
-     _E ("Redo Disproof Step", None, "redo_disproof"); 
-     ( -------- );
      _E ("Backtrack", None, "backtrack");
      _E ("Prune", None, "prune"); 
      ( -------- );
