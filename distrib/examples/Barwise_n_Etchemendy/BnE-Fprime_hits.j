@@ -1,9 +1,10 @@
 /* $Id$ */
 
 HYPHIT AÁB Ê C IS "Á-E tac"
-HYPHIT A¶B Ê C IS ALT	(SEQ "¶-E(L)" (WITHHYPSEL hyp))
-                                   	(SEQ "¶-E(R)" (WITHHYPSEL hyp))
-                                   	(SEQ (ForwardCut 0 "¶-E(L)") (ForwardCut 0 "¶-E(R)"))
+HYPHIT A¶B Ê C IS 
+	ALT	(SEQ "¶-E(L)" (WITHHYPSEL hyp))
+			(SEQ "¶-E(R)" (WITHHYPSEL hyp))
+			(SEQ (ForwardCut 0 "¶-E(L)") (ForwardCut 0 "¶-E(R)"))
 HYPHIT AÎB  Ê C IS "Î-E tac"
 HYPHIT Ëx.P Ê C IS "Ë-E tac"
 HYPHIT Ë(x,y).P Ê C IS "Ë-E tac"

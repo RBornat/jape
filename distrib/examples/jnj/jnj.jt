@@ -295,8 +295,8 @@ CONJECTUREPANEL "Conjectures" IS
     THEOREM "?- Ñy:a'§åx:a§q ° åx:a§Ñy:a'§q"
     WHERE x NOTIN a,a',y AND y NOTIN a,a',x
     IS Ñy:a'§åx:a§q ° åx:a§Ñy:a'§q
-    PREFIXBUTTON "Apply Forward"   IS apply ThmForward
-    PREFIXBUTTON "Apply Backwards" IS apply ThmBackward
+    BUTTON "Apply Forward"   IS apply ThmForward COMMAND
+    BUTTON "Apply Backwards" IS apply ThmBackward COMMAND
 END /* PANEL */
     TACTIC ThmForward(thm) IS (SEQ cut (WITHHYPSEL (WITHARGSEL thm)))
     TACTIC ThmBackward(thm) IS (WITHARGSEL(APPLYORRESOLVE thm))
@@ -320,10 +320,10 @@ END /* PANEL */
         AND     r[p/x] ° s
         INFER   r[q/x] ° s
     CONJECTUREPANEL Conjectures IS
-     PREFIXBUTTON "Rewrite â" IS
-      apply RewriteWith Unfolding hyprewrite          rewrite
-     PREFIXBUTTON "Rewrite Å" IS
-      apply RewriteWith Folding   hyprewritebackwards rewritebackwards
+     BUTTON "Rewrite â" IS
+      apply RewriteWith Unfolding hyprewrite rewrite COMMAND
+     BUTTON "Rewrite Å" IS
+      apply RewriteWith Folding   hyprewritebackwards rewritebackwards COMMAND
     END
     TACTIC  RewriteWith(foldunfold, hyprewriterule, rewriterule, thm) IS
     (LAYOUT "rewrite %s" (1)

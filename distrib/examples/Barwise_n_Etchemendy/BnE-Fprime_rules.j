@@ -27,7 +27,7 @@ RULE "Î-E"(A,B) IS FROM A Î B AND A Ê C AND B Ê C INFER C
 RULE "¬-E" IS FROM ¬¬A INFER A
 RULE "Ÿ-E" IS FROM Ÿ INFER A
 RULES "Ë-E" ARE 
-		FROM Ë x .A(x) AND c inscope INFER A(c)
+		(c) FROM Ë x .A(x) AND c inscope INFER A(c)
 AND	FROM Ë (x,y) .A(x,y) AND c inscope AND d inscope INFER A(c,d)
 AND	FROM Ë (x,y,z) .A(x,y,z) AND c inscope AND d inscope AND e inscope INFER A(c,d,e)
 AND	FROM Ë (w,x,y,z) .A(w,x,y,z) AND c inscope AND d inscope AND e inscope AND f inscope INFER A(c,d,e,f)
@@ -112,7 +112,7 @@ TACTIC FSSOB (Forward, n, Rule) IS
 		)
    
 RULE "Á-I"  IS FROM A Ê B INFER AÁB
-RULE "Í-I"  IS FROM A Ê B  AND B Ê A INFER AÍB
+RULE "Í-I"  IS FROM AÁB  AND BÁA INFER AÍB
 RULE "¶-I"  IS FROM A AND B INFER A ¶ B
 RULE "Î-I(L)"   IS FROM A INFER A Î B
 RULE "Î-I(R)"   IS FROM B INFER A Î B
@@ -156,6 +156,11 @@ AUTOMATCH "inscope"
 
 TACTIC "Ë-E with side condition hidden" IS LAYOUT "Ë-E" (0) (WITHARGSEL "Ë-E")
 TACTIC "‰-I with side condition hidden" IS LAYOUT "‰-I" (0) (WITHARGSEL "‰-I")
+
+TACTIC "‰!-I tac" IS WITHARGSEL "‰!-I"
+TACTIC "Á-E tac" IS FOB "Á-E forward" 0 "Á-E"
+TACTIC "Î-E tac" IS FOB ForwardUncut 0 "Î-E"	
+TACTIC "‰-E tac" IS FOB ForwardUncut 0 "‰-E"
 
 TACTIC "Ë-E tac" IS FOBSS ForwardCut 0 "Ë-E with side condition hidden"
 TACTIC "‰-I tac" IS "‰-I with side condition hidden"
