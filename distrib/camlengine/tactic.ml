@@ -114,10 +114,10 @@ let rec catelim_string_of_tactic sep t tail =
     | SimplePath ns -> trns ns tail
   in
   let pnstr = parseablestring_of_name in
-  let rec termsNtac a1 a2 =
-    match a1, a2 with
-      [], tac -> unSEQ tac tail
-    | t :: ts, tac -> catelim_string_of_termarg t (argsep :: termsNtac ts tac)
+  let rec termsNtac ts tac =
+    match ts with
+      []      -> unSEQ tac tail
+    | t :: ts -> catelim_string_of_termarg t (argsep :: termsNtac ts tac)
   in
   let tss =
     match t with
@@ -158,7 +158,7 @@ let rec catelim_string_of_tactic sep t tail =
         "LETGOALPATH " :: parseablestring_of_name name :: argsep ::
           unSEQ tactic tail
     | BindHypTac (term, tactic) -> "LETHYP " :: termsNtac [term] tactic
-    | Tac_of_BindHyp (t1, t2, tactic) ->
+    | BindHyp2Tac (t1, t2, tactic) ->
         "LETHYP2 " :: termsNtac [t1; t2] tactic
     | BindHypsTac (term, tactic) -> "LETHYPS " :: termsNtac [term] tactic
     | BindSubstTac (term, tactic) ->
@@ -183,6 +183,8 @@ let rec catelim_string_of_tactic sep t tail =
         "LETCONCFIND " :: termsNtac [term] tactic
     | BindMatchTac (pterm, vterm, tactic) ->
         "LETMATCH " :: termsNtac [pterm; vterm] tactic
+    | BindTuplistTac (carterm, cdrterm, tupterm, tactic) ->
+        "LETLISTMATCH " :: termsNtac [carterm; cdrterm; tupterm] tactic
     | BindOccursTac (pt, vt, st, tactic) ->
         "LETOCCURS " :: termsNtac [pt; vt; st] tactic
     | LayoutTac (tactic, layout) ->
@@ -324,7 +326,7 @@ let remaptactic env t =
     | AdHocTac tms -> AdHocTac ((_E <* tms))
     | BindConcTac (tm, t) -> BindConcTac (_E tm, _T t)
     | BindHypTac (tm, t) -> BindHypTac (_E tm, _T t)
-    | Tac_of_BindHyp (tm1, tm2, t) -> Tac_of_BindHyp (_E tm1, _E tm2, _T t)
+    | BindHyp2Tac (tm1, tm2, t) -> BindHyp2Tac (_E tm1, _E tm2, _T t)
     | BindHypsTac (tm, t) -> BindHypsTac (_E tm, _T t)
     | BindArgTac (tm, t) -> BindArgTac (_E tm, _T t)
     | BindArgTextTac (s, t) -> BindArgTextTac (s, _T t)
@@ -343,6 +345,7 @@ let remaptactic env t =
        BindOpenSubGoalsTac (_E tm, _T t)
     | BindFindHypTac (tm, t) -> BindFindHypTac (_E tm, _T t)
     | BindFindConcTac (tm, t) -> BindFindConcTac (_E tm, _T t)
+    | BindTuplistTac (carpat, cdrpat, expr, t) -> BindTuplistTac (_E carpat, _E cdrpat, _E expr, _T t)
     | BindMatchTac (ptm, vtm, t) -> BindMatchTac (_E ptm, _E vtm, _T t)
     | BindOccursTac (pt, vt, st, t) ->
         BindOccursTac (_E pt, _E vt, _E st, _T t)
@@ -368,11 +371,11 @@ let tacticform i =
       "FOLDHYP"; "GIVEN"; "GOALPATH"; "IF"; "IMPLICIT"; "JAPE"; "LAYOUT";
       "LETARGSEL"; "LETCONC"; "LETCONCFIND"; "LETCONCSUBSTSEL"; "LETGOAL";
       "LETGOALPATH"; "LETOPENSUBGOAL"; "LETOPENSUBGOALS"; "LETHYP";
-      "LETHYP2"; "LETHYPS"; "LETHYPFIND"; "LETHYPSUBSTSEL"; "LETMATCH";
-      "LETMULTIARG"; "LETOCCURS"; "LETSUBSTSEL"; "MAPTERMS"; "MATCH";
-      "NEXTGOAL"; "PROVE"; "REPLAY"; "RESOLVE"; "SAMEPROVISOS"; "SEQ";
-      "SIMPLEAPPLY"; "SKIP"; "STOP"; "THEORYALT"; "UNFOLD"; "UNFOLDHYP";
-      "UNIFY"; "UNIQUE"; "WHEN"; "WITHARGSEL"; "WITHCONCSEL";
+      "LETHYP2"; "LETHYPS"; "LETHYPFIND"; "LETHYPSUBSTSEL"; "LETLISTMATCH"; 
+      "LETMATCH"; "LETMULTIARG"; "LETOCCURS"; "LETSUBSTSEL"; "MAPTERMS"; 
+      "MATCH"; "NEXTGOAL"; "PROVE"; "REPLAY"; "RESOLVE"; "SAMEPROVISOS"; 
+      "SEQ"; "SIMPLEAPPLY"; "SKIP"; "STOP"; "THEORYALT"; "UNFOLD"; 
+      "UNFOLDHYP"; "UNIFY"; "UNIQUE"; "WHEN"; "WITHARGSEL"; "WITHCONCSEL";
       "WITHCONTINUATION"; "WITHFORMSEL"; "WITHHYPSEL"; "WITHSELECTIONS";
       "WITHSUBSTSEL"; "BADUNIFY"; "BADMATCH"; "BADPROVISO"; "UNIFYARGS"])
 
@@ -443,7 +446,7 @@ let isguard =
   function
     BindConcTac         _ -> true
   | BindHypTac          _ -> true
-  | Tac_of_BindHyp         _ -> true
+  | BindHyp2Tac         _ -> true
   | BindHypsTac         _ -> true
   | BindArgTac          _ -> true
   | BindArgTextTac      _ -> true
@@ -461,6 +464,7 @@ let isguard =
   | BindFindConcTac     _ -> true
   | BindMatchTac        _ -> true
   | BindOccursTac       _ -> true
+  | BindTuplistTac      _ -> true
   | BadUnifyTac         _ -> true
   | BadMatchTac         _ -> true
   | BadProvisoTac       _ -> true
@@ -544,7 +548,7 @@ and transTactic tacterm =
                 function
                   x :: ts -> tac (bind x, _SEQTAC ts)
                 | []      ->
-                    raise (TacParseError_ ["Syntax is ("; f; " <"; str; "> tactic ...)"])
+                    raise (TacParseError_ ["Syntax is ("; f; " <"; str; "> tactics ...)"])
               in
               let mkBind2 f b1 b2 s1 s2 tac =
                 function
@@ -562,21 +566,8 @@ and transTactic tacterm =
                               "> tactic ...)"])
               in
               let patbind t = t in
+              let valbind t = t in
               let namebind n = tacname n in
-              let mkMatch =
-                function
-                  pat :: expr :: ts -> BindMatchTac (pat, expr, _SEQTAC ts)
-                | _                 ->
-                    raise (TacParseError_
-                             ["Syntax is (LETMATCH <pattern> <expr> tactic ...)"])
-              in
-              let mkOccurs =
-                function
-                  pat1 :: expr :: pat2 :: ts ->
-                    BindOccursTac (pat1, expr, pat2, _SEQTAC ts)
-                | _ -> raise (TacParseError_
-                                ["Syntax is (LETOCCURS <pattern> <expr> <substpattern> tactic ...)"])
-              in
               let mkLayout =
                 function
                   []           -> badLayout ()
@@ -683,7 +674,7 @@ and transTactic tacterm =
               | "LETCONC"          -> mkBind f patbind "pattern" (fun v->BindConcTac v) ts
               | "LETHYP"           -> mkBind f patbind "pattern" (fun v->BindHypTac v) ts
               | "LETHYP2"          ->
-                      mkBind2 f patbind patbind "pattern" "pattern" (fun v->Tac_of_BindHyp v) ts
+                      mkBind2 f patbind patbind "pattern" "pattern" (fun v->BindHyp2Tac v) ts
               | "LETHYPS"          -> mkBind f patbind "pattern" (fun v->BindHypsTac v) ts
               | "LETLHS"           -> mkBind f patbind "pattern" (fun v->BindLHSTac v) ts
               | "LETRHS"           -> mkBind f patbind "pattern" (fun v->BindRHSTac v) ts
@@ -704,8 +695,11 @@ and transTactic tacterm =
               | "LETMULTIARG"      -> mkBind f patbind "pattern" (fun v->BindMultiArgTac v) ts
               | "LETHYPFIND"       -> mkBind f patbind "pattern" (fun v->BindFindHypTac v) ts
               | "LETCONCFIND"      -> mkBind f patbind "pattern" (fun v->BindFindConcTac v) ts
-              | "LETMATCH"         -> mkMatch ts
-              | "LETOCCURS"        -> mkOccurs ts
+              | "LETLISTMATCH"          -> 
+                   mkBind3 f patbind patbind valbind "car-pattern" "cdr-pattern" "expr" (fun v -> BindTuplistTac v) ts
+              | "LETMATCH"         -> mkBind2 f patbind valbind "pattern" "expr" (fun v -> BindMatchTac v) ts
+              | "LETOCCURS"        -> 
+                   mkBind3 f valbind valbind patbind "subexpr" "expr" "substitution expr" (fun v -> BindOccursTac v) ts
               | "LAYOUT"           -> mkLayout ts
               | "MATCH"            -> MatchTac (_SEQ1TAC f ts)
               | "SAMEPROVISOS"     -> SameProvisosTac (_SEQ1TAC f ts)
