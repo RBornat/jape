@@ -349,7 +349,7 @@ public class install implements ActionListener
   /** Use the place we were loaded from */
   public static Image getImage(Object host, String localname)
   {  Toolkit tk = Toolkit.getDefaultToolkit();
-     System.err.println(localname);
+     // System.err.println(localname);
      return tk.getImage(host.getClass().getResource(localname));
   }
 
@@ -536,6 +536,7 @@ public class install implements ActionListener
 
   
 }
+
 
 
 

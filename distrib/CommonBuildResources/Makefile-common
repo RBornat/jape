@@ -61,8 +61,8 @@ cleanengine:    ; rm -f $(COMPILEDIR)/.depend;\
 #
 #       Java is compile-once, run anywhere, so we can make the GUI in one place
 #
-GUI:            ; cd $(GUIDIR); $(MAKE) -f $(RESOURCES)/Makefile-java EXTRAFILES="*.jpg *.gif" japeserver.jar
-CLEANGUI:       ; cd $(GUIDIR); $(MAKE) -f $(RESOURCES)/Makefile-java EXTRAFILES="*.jpg *.gif" clean japeserver.jar
+GUI:            ; (cd $(GUIDIR); $(MAKE) japeserver.jar)
+CLEANGUI:       ; (cd $(GUIDIR); $(MAKE) clean japeserver.jar)
 
 #
 #       
@@ -92,6 +92,7 @@ jarfile:        examples; \
                   -splash       $(SPLASH)               \
                   examples                              \
                   -sync $(INSTALLRESOURCES) $(DEPLOYEDENGINE) japeserver.jar  
+
 
 
 
