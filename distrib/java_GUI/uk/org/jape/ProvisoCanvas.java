@@ -79,15 +79,19 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
         Alert.abort("ProvisoCanvas.removeAll()");
     }
 
+    private int initCursorValue() {
+        ensureFontInfo();
+        return inset+ascent;
+    }
+    
     public void clear() {
         super.removeAll();
         setOrigin(0,0); // maybe ...
         ensureFontInfo();
-        provisoCursor = givenCursor = inset+ascent;
-        provisoHeaderInserted = givenHeaderInserted = false;
+        provisoCursor = givenCursor = initCursorValue();
+        showGivens();
     }
 
-    private static String provisoHeader = "Provided:";
     private static int ascent=-1, descent, leading; 
     private static int inset, linestep;
 
@@ -102,18 +106,6 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
     }
     
     private int provisoCursor, givenCursor;
-    private boolean provisoHeaderInserted, givenHeaderInserted;
-
-    public void addProvisoLine(String annottext) {
-        ensureFontInfo();
-        if (!provisoHeaderInserted) {
-            insertHeader(provisoCursor, provisoHeader);
-            provisoCursor += linestep; givenCursor += linestep;
-            provisoHeaderInserted = true;
-        }
-        insertLine(provisoCursor, annottext);
-        provisoCursor += linestep; givenCursor += linestep;
-    }
 
     private void shiftLines(int cursor) {
         ensureFontInfo();
@@ -136,5 +128,45 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
     private void insertLine(int cursor, String annottext) {
         shiftLines(cursor);
         super.add(new TextSelectableProvisoItem(this, 3*inset, cursor, annottext));
+    }
+
+    private static String provisoHeader = "Provided:",
+                          givenHeader   = "Given";
+
+    public void addProvisoLine(String annottext) {
+        ensureFontInfo();
+        if (provisoCursor==initCursorValue()) {
+            insertHeader(provisoCursor, provisoHeader);
+            provisoCursor += linestep; givenCursor += linestep;
+        }
+        insertLine(provisoCursor, annottext);
+        provisoCursor += linestep; givenCursor += linestep;
+    }
+
+    MiscellaneousConstants.IntString[] givens;
+    
+    public void setGivens(MiscellaneousConstants.IntString[] gs) {
+        givens = gs;
+        showGivens();
+    }
+
+    private void showGivens() {
+        // clear the old ones
+        for (int i=0; i<child.getComponentCount(); ) {
+            TextItem t = (TextItem)child.getComponent(i);
+            if (t.getY()+ascent>=provisoCursor)
+                super.remove(t);
+            else
+                i++;
+        }
+        givenCursor = provisoCursor;
+        if (givens!=null && givens.length!=0) {
+            insertHeader(givenCursor, givenHeader);
+            givenCursor += linestep;
+            for (int i=0; i<givens.length; i++) {
+                insertLine(givenCursor, givens[i].s);
+                givenCursor += linestep;
+            }
+        }
     }
 }
