@@ -55,15 +55,15 @@ MACRO ComplainBackwardConc(pattern, stepname, shape) IS
 MACRO ComplainBackwardHyp(pattern, stepname, shape) IS
     WHEN
         (LETHYP _Ah
-            (ALERT  ("You selected the antecedent %t.\n\
+            (ALERT  ("You selected the hypothesis %t.\n\
                         \To make a backward %s step, select an unproved conclusion of the \
-                        \form %s, and don't select an antecedent.", _Ah, stepname, shape)
-                        ("OK", STOP) ("Huh?", Explainantecedentandconclusionwords)))
+                        \form %s, and don't select a hypothesis.", _Ah, stepname, shape)
+                        ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)))
         (LETHYPS _Ahs
-            (ALERT  ("You selected the antecedents %l.\n\
+            (ALERT  ("You selected the hypotheses %l.\n\
                     \To make a backward %s step, select an unproved conclusion of the \
-                    \form %s, and don't select any antecedents.", (_Ahs, ", ", " and "), stepname, shape)
-                    ("OK", STOP) ("Huh?", Explainantecedentandconclusionwords)))
+                    \form %s, and don't select any hypotheses.", (_Ahs, ", ", " and "), stepname, shape)
+                    ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)))
 
 MACRO ComplainBackwardNoGoal(pattern, stepname, shape) IS
     WHEN
@@ -91,21 +91,26 @@ TACTIC ComplainBackwardWrongGoal (stepname, shape) IS
 TACTIC ComplainBackwardWrongGoal2 (stepname, shape, Pc, stuff) IS   
     ALERT   ("To make a backward step with %s, the conclusion must be of the form %s. \
             \\n%s %s, which isn't of that form.", stepname, shape, stuff, Pc)
-            ("OK", STOP) ("Huh?", SEQ Explainantecedentandconclusionwords STOP )
+            ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
 
 /* ******************** tactics to deal with bad forward selections ******************** */
 
-MACRO ComplainForward (bpat, frule, brule, explainhyp) IS
+MACRO ComplainForward (fpat, bpat, frule, brule, shape) IS
     WHEN    
-        (LETGOAL bpat 
-            (WHEN   (LETCONC _Ac (ComplainForwardButBackwardPoss frule brule explainhyp 
-                                    ("You did select the conclusion formula %s", _Ac))) 
-                    (ComplainForwardButBackwardPoss frule brule explainhyp 
-                        ("The current conclusion formula is %s", bpat))))
-        (ComplainForwardNoHyp frule explainhyp "")
+        (LETHYPS _Hs (ComplainForwardExtraHyps fpat frule shape _Hs _Hs))
+        (ComplainForward2 fpat bpat frule brule shape)
 
-TACTIC ComplainForwardButBackwardPoss (frule, brule, explainhyp, explainconc) IS
-    ComplainForwardNoHyp frule explainhyp 
+MACRO ComplainForward2 (fpat, bpat, frule, brule, shape) IS
+    WHEN
+        (LETGOAL bpat 
+            (WHEN   (LETCONC _Ac (ComplainForwardButBackwardPoss fpat frule brule shape 
+                                    ("You did select the conclusion formula %s", _Ac))) 
+                    (ComplainForwardButBackwardPoss fpat frule brule shape 
+                        ("The current conclusion formula is %s", bpat))))
+        (ComplainForwardNoHyp fpat frule shape "")
+
+TACTIC ComplainForwardButBackwardPoss (fpat, frule, brule, shape, explainconc) IS
+    ComplainForwardNoHyp fpat frule shape 
         ("\n\n(%s, which would fit %s backwards -- did you perhaps mean to work backwards?)", 
             explainconc, brule)
 
@@ -114,8 +119,19 @@ TACTIC ComplainForwardWrongHyp (stepname, shape, Ph) IS
             \\nYou selected %s, which isn't of that form.", stepname, shape, Ph)
             ("OK", STOP) 
 
-TACTIC ComplainForwardNoHyp (stepname, explainhyp, extra) IS
-    ALERT   ("To make a forward step with %s you must select a formula to work forward from.\
-            \\nYou didn't.%s", stepname, extra)
-            ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
+TACTIC ComplainForwardNoHyp (fpat, stepname, shape, extra) IS
+        (ALERT   ("To make a forward step with %s you must select a formula to work forward from.\
+                  \\nYou didn't.%s", stepname, extra)
+                  ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))
 
+TACTIC ComplainForwardExtraHyps (fpat, stepname, shape, allhyps, testhyps) IS
+   WHEN (LETLISTMATCH fpat _Hs testhyps
+            (ALERT ("To make a forward step with %s you must select a hypothesis of the form %s. \
+                    \\nYou selected more than that: %l.", frule, shape, (allhyps, ", ", " and "))
+                   ("OK", STOP)))
+        (LETLISTMATCH _H1 _Hs testhyps
+            (ComplainForwardExtraHyps fpat stepname shape allhyps _Hs))
+        (ALERT ("To make a forward step with %s you must select a hypothesis of the form %s. \
+                    \\nYou selected more than one hypothesis -- %l -- but none of them matched %s.", 
+                    frule, shape, (allhyps, ", ", " and "), shape)
+                   ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords))
