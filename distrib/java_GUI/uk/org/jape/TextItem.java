@@ -34,29 +34,45 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 
 class TextItem extends DisplayItem implements DebugConstants {
-    protected final byte	  fontnum;
-    protected final Font	  font;
-    protected final TextDimension dimension;
-    protected final String	  text;
+    protected final TextComponent[] components;
+    protected final int ascent;
 
-    public TextItem(JapeCanvas canvas, int x, int y, byte fontnum, String text) { 
+    public TextItem(JapeCanvas canvas, int x, int y, byte fontnum, String text) {
+	this(canvas, x, y, new TextComponent[]{new TextComponent(0, 0, fontnum, text)});
+    }
+    
+    public TextItem(JapeCanvas canvas, int x, int y, TextComponent[] components){ 
 	super(canvas, x, y);
-	this.fontnum = fontnum;
-	this.font = JapeFont.getFont(fontnum);
-	this.text = text;
-	this.dimension = JapeFont.measure(text, fontnum);
+	this.components = components;
+	int left=x, top=y, right=x, bottom=y;
+	for (int i=0; i<components.length; i++) {
+	    TextComponent c = components[i];
+	    TextDimension d = JapeFont.measure(c.printtext, c.fontnum);
+	    int cLeft = x+c.offX, 
+		cTop = y+c.offY-d.ascent,
+		cRight = cLeft+d.width,
+		cBottom = cTop+d.ascent+d.descent;
+	    left = Math.min(left, cLeft);
+	    top = Math.min(top, cTop);
+	    right = Math.max(right, cRight);
+	    bottom = Math.max(bottom, cBottom);
+	}
+	ascent = y-top;
 	if (fontDebug)
 	    Logger.log.println(this);
-	setBounds((int)x, y-dimension.ascent, dimension.width, dimension.ascent+dimension.descent);
+	setBounds(left, top, right-left, bottom-top);
 	setForeground(Preferences.TextColour);
     }
 
     public void paint(Graphics g) {
 	if (paint_tracing || fontDebug)
 	    Logger.log.println("painting "+this);
-	g.setFont(font);
-	g.setColor(isEnabled() ? getForeground() : Preferences.GreyTextColour);
-	g.drawString(text, 0, dimension.ascent);
+	for (int i=0; i<components.length; i++) {
+	    TextComponent c = components[i];
+	    g.setFont(c.font);
+	    g.setColor(isEnabled() ? getForeground() : Preferences.GreyTextColour);
+	    g.drawString(c.printtext, c.offX, ascent+c.offY);
+	}
     }
 
     public void blacken() {
@@ -68,13 +84,13 @@ class TextItem extends DisplayItem implements DebugConstants {
     }
     
     // this isn't efficient, but that doesn't matter, I think
-    public String toString() {
+    /* public String toString() {
 	return "TextItem["+
 	       "text="+JapeUtils.enQuote(text)+
-	       ", fontnum="+fontnum+", font="+font+
+	       ", font="+font+
 	       ", dimension="+dimension+
 	       ", "+super.toString()+"]";
-    }
+    } */
 }
 
 

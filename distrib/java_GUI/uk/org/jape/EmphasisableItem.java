@@ -38,9 +38,9 @@ public class EmphasisableItem extends TextSelectableItem {
 
     protected final DisproofCanvas canvas;
 
-    public EmphasisableItem(DisproofCanvas canvas, int x, int y, byte fontnum, String annottext,
-			    byte selectionKind) {
-	super(canvas,x,y,fontnum,annottext);
+    public EmphasisableItem(DisproofCanvas canvas, int x, int y, 
+			    AnnotatedTextComponent[] components) {
+	super(canvas,x,y,components);
 	this.canvas = canvas;
 	emphasisLine = new EmphasisLine(false, getX(),
 			    getY()+getHeight()+canvas.getSelectionGap()+canvas.linethickness,
@@ -50,21 +50,16 @@ public class EmphasisableItem extends TextSelectableItem {
 	
 	annoti = printi = 0; 
 	Vector cs = new Vector();
-	computeColourSegs((char)0, Preferences.TextColour, false, cs);
+	computeColourSegs(getannottext(), (char)0, Preferences.TextColour, false, cs, getprintlen());
 	coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
 	if (colourseg_tracing) {
-	    Logger.log.print("text=\""+text+"; annottext=\"");
+	    String annottext = getannottext();
+	    char[] printchars = getprintchars();
+	    String annotttext = getannottext();
+	    Logger.log.print("text=\""+new String(printchars)+"; annottext=\"");
 	    for (int i=0; i<annottext.length(); i++) {
 		char c = annottext.charAt(i);
-		Logger.log.print(c==onbra   ? "*ON("  :
-				 c==onket   ? ")NO*"  :
-				 c==offbra  ? "*OFF("  :
-				 c==offket  ? ")FFO*"  :
-				 c==outbra  ? "*OUT("  :
-				 c==outket  ? ")TUO*"  :
-				 c==lockbra ? "*LOCK(" :
-				 c==lockket ? ")KCOL*" :
-				 String.valueOf(c));
+		Logger.log.print(AnnotatedTextComponent.annotatedString_of_char(c));
 	    }
 	    Logger.log.print("\"; coloursegs=[");
 	    for (int i=0; i<coloursegs.length; i++) {
@@ -79,19 +74,41 @@ public class EmphasisableItem extends TextSelectableItem {
     protected class ColourSeg {
 	public final Color colour;
 	public final int start, pxstart;
-	public int end;
+	public int end;     // not final -- this is odd ...
 
 	public ColourSeg(Color colour, int start, int end) {
 	    this.colour=colour;
 	    this.start=start; this.end=end;
-	    this.pxstart=JapeFont.charsWidth(printchars, 0, start, fontnum);
+	    this.pxstart=pxval(start);
 	}
 
 	public void paint(Graphics g) {
+	    int start = this.start, pxstart = this.pxstart, end = this.end;
 	    if (paint_tracing)
 		Logger.log.println("painting colour segment "+start+","+end);
+	    int ci = 0;
+	    while (start>components[ci].printlen) {
+		start -= components[ci].printlen;
+		end -= components[ci].printlen;
+		pxstart -= components[ci].pxwidth;
+		ci++;
+	    }
 	    g.setColor(colour);
-	    g.drawChars(printchars, start, end-start, pxstart, dimension.ascent);
+	    while (start<end) {
+		AnnotatedTextComponent c = components[ci];
+		g.setFont(c.font);
+		int px = c.offX+pxstart, py = c.offY+ascent;
+		if (end<=c.printlen) {
+		    g.drawChars(c.printchars, start, end-start, px, py);
+		    start = end;
+		}
+		else {
+		    g.drawChars(c.printchars, start, c.printlen-start, px, py);
+		    start = 0; end -= c.printlen;
+		    pxstart = 0;
+		    ci++;
+		}
+	    }
 	}
 
 	public String toString() {
@@ -103,7 +120,7 @@ public class EmphasisableItem extends TextSelectableItem {
 	    ", start="+start+
 	    ", end="+end+
 	    ", pxstart="+pxstart+
-	    ", chars=\""+(new String(printchars, start, end-start))+"\""+
+	    ", chars=\""+(new String(getprintchars(), start, end-start))+"\""+
 	    "]";
 	}
     }
@@ -111,9 +128,9 @@ public class EmphasisableItem extends TextSelectableItem {
     protected ColourSeg[] coloursegs;
 
     static Color bra2TextColour(char c) {
-	return c==onbra	 ? Preferences.ForcedColour :
-	c==offbra ? Preferences.TextColour :
-	/* c==outbra assumed */ Preferences.OutColour;
+	return  c==AnnotatedTextComponent.onbra	 ?  Preferences.ForcedColour    :
+		c==AnnotatedTextComponent.offbra ?  Preferences.TextColour      :
+		/* c==outbra assumed */		    Preferences.OutColour       ;
     }
 
     private void extendColourSeg(Vector cs, Color colour, int start, int end) {
@@ -127,21 +144,23 @@ public class EmphasisableItem extends TextSelectableItem {
 	    cs.add(new ColourSeg(colour, start, end));
     }
 
-    protected void computeColourSegs(char expectedket, Color colour, boolean locked, Vector cs) {
+    protected void computeColourSegs(String annottext, char expectedket, 
+				     Color colour, boolean locked, Vector cs,
+				     int printlen) {
 	int i0 = printi;
 	char c;
 	while (annoti<annotlen) {
 	    c = annottext.charAt(annoti++);
-	    if (invisbra(c)) {
+	    if (AnnotatedTextComponent.invisbra(c)) {
 		extendColourSeg(cs, colour, i0, printi);
-		boolean newlocked = locked || c==lockbra;
+		boolean newlocked = locked || c==AnnotatedTextComponent.lockbra;
 		Color newcolour = newlocked ? colour : bra2TextColour(c);
-		char newket = bra2ket(c);
-		computeColourSegs(newket, newcolour, newlocked, cs);
+		char newket = AnnotatedTextComponent.bra2ket(c);
+		computeColourSegs(annottext, newket, newcolour, newlocked, cs, printlen);
 		i0 = printi;
 	    }
 	    else
-		if (invisket(c)) {
+		if (AnnotatedTextComponent.invisket(c)) {
 		    if (c==expectedket) {
 			extendColourSeg(cs, colour, i0, printi); return;
 		    }
@@ -156,8 +175,8 @@ public class EmphasisableItem extends TextSelectableItem {
 	    Alert.abort(this+": computeColourSegs exhausted text, "+
 			", expected "+(int)expectedket);
 
-	if (printi!=printchars.length)
-	    Alert.abort(this+": text is "+printchars.length+
+	if (printi!=printlen)
+	    Alert.abort(this+": text is "+printlen+
 			" chars, but computeColourSegs thinks it's "+printi);
 
 	extendColourSeg(cs, colour, i0, printi);
@@ -169,7 +188,6 @@ public class EmphasisableItem extends TextSelectableItem {
 	    if (paint_tracing)
 		Logger.log.println("painting EmphasisableItem at "+getX()+","+getY());
 	    paintTextSels(g);
-	    g.setFont(font);
 	    int len = coloursegs.length;
 	    for (int i=0; i<len; i++)
 		coloursegs[i].paint(g);

@@ -39,18 +39,20 @@ import java.util.Vector;
 
 public class TextSelectableItem extends TextItem implements SelectionConstants {
 
-    protected final char[] printchars;
-    protected final String annottext;
+    protected final AnnotatedTextComponent[] components;
 
     // globals for computing ColourTree, FormulaTree
     protected int	   annoti, printi; 
-    protected final int	   annotlen;
+    protected int	   annotlen;
 
     public TextSelectableItem(JapeCanvas canvas, int x, int y, byte fontnum, String annottext) {
-	super(canvas,x,y,fontnum,printtext(annottext));
-	this.printchars = text.toCharArray();
-	this.annottext = annottext;
-	annotlen = annottext.length();
+	this(canvas, x, y, 
+	     new AnnotatedTextComponent[]{new AnnotatedTextComponent(0, 0, fontnum, annottext)});
+    }
+    
+    public TextSelectableItem(JapeCanvas canvas, int x, int y, AnnotatedTextComponent[] components) {
+	super(canvas,x,y,components);
+	this.components = components;
 	addJapeMouseListener(new JapeMouseTextAdapter() {
 	    public void textpressed(byte eventKind, MouseEvent e) {
 		TextSelectableItem.this.textpressed(eventKind, e);
@@ -65,71 +67,23 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	});
     }
 
-
-    protected static char onbra, onket, offbra, offket, outbra, outket, lockbra, lockket;
-
-    public static void setinvischars(char _onbra, char _onket, char _offbra, char _offket,
-				     char _outbra, char _outket, char _lockbra, char _lockket) {
-	onbra=_onbra; onket=_onket;
-	offbra=_offbra; offket=_offket;
-	outbra=_outbra; outket=_outket;
-	lockbra=_lockbra; lockket=_lockket;
-    }
-
-    static boolean invisbra(char c) {
-	return c==onbra || c==offbra || c==outbra || c==lockbra;
-    }
-
-    static boolean invisket(char c) {
-	return c==onket || c==offket || c==outket || c==lockket;
-    }
-
-    static boolean invisible(char c) {
-	return invisbra(c) || invisket(c);
-    }
-
-    static char bra2ket(char c) {
-	return c==onbra	 ? onket :
-	c==offbra ? offket :
-	c==outbra ? outket :
-	/* c==lockbra assumed */ lockket;
-    }
-
-    static char ket2bra(char c) {
-	return c==onket	 ? onbra :
-	c==offket ? offbra :
-	c==outket ? outbra :
-	/* c==lockket assumed */ lockbra;
-    }
-
-    static String printtext(String annottext) {
-	int annotlength = annottext.length();
-	StringBuffer printbuf = new StringBuffer(annotlength);
-	for (int i=0; i<annotlength; i++) {
-	    char c = annottext.charAt(i);
-	    if (!invisible(c))
-		printbuf.append(c);
-	}
-	return printbuf.toString();
-    }
-    
     protected FormulaTree formulae;
     
     protected class FormulaTree {
-	public final int start, end; // start<=i<end -> i is in this subformula
+	public final int start, end; // printtext indices; start<=i<end -> i is in this subformula
 	public final int pxstart, pxend;
 	public FormulaTree parent;
 	public final FormulaTree[] children;
 
 	public FormulaTree(int start, int end, FormulaTree[] children) {
 	    this.start = start; this.end = end;
-	    this.pxstart = JapeFont.charsWidth(printchars, 0, start, fontnum);
-	    this.pxend = JapeFont.charsWidth(printchars, 0, end, fontnum);
+	    this.pxstart = pxval(start);
+	    this.pxend = pxval(end);
 	    this.children = children;
 	    for (int i=0; i<children.length; i++)
 		children[i].parent = this;
 	}
-
+	
 	public String toString() {
 	    String s = "FT["+start+","+end+" "+pxstart+","+pxend+" [";
 	    for (int i=0; i<children.length; i++)
@@ -138,17 +92,31 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	}
     }
 
+    protected int pxval(int i) {
+	int width = 0;
+	for (int j=0; j<components.length; j++) {
+	    AnnotatedTextComponent c = components[j];
+	    if (i>c.printlen) {
+		width += c.pxwidth; i -= c.printlen;
+	    }
+	    else
+		return width+JapeFont.charsWidth(c.printchars, 0, i, c.fontnum);
+	}
+	Alert.abort("TextSelectableItem.pxval runs out of characters");
+	return 0; // shut up compiler
+    }
+    
     // annoti, printi, annotlen are variables in TextItem
-    protected FormulaTree computeFormulaTree(char expectedket) {
+    protected FormulaTree computeFormulaTree(String annottext, char expectedket, int printlen) {
 	int i0 = printi;
 	Vector cs = new Vector();
 	char c;
 	while (annoti<annotlen) {
 	    c = annottext.charAt(annoti++);
-	    if (invisbra(c))
-		cs.add(computeFormulaTree(bra2ket(c)));
+	    if (AnnotatedTextComponent.invisbra(c))
+		cs.add(computeFormulaTree(annottext, AnnotatedTextComponent.bra2ket(c), printlen));
 	    else
-	    if (invisket(c)) {
+	    if (AnnotatedTextComponent.invisket(c)) {
 		if (c==expectedket)
 		    return computeFormulaTreeResult(i0, cs);
 		else
@@ -162,8 +130,8 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	    Alert.abort(this+": computeFormulaTree exhausted text, "+
 			", expected "+(int)expectedket);
 
-	if (printi!=printchars.length)
-	    Alert.abort(this+": text is "+printchars.length+
+	if (printi!=printlen)
+	    Alert.abort(this+": text is "+printlen+
 			" chars, but computeFormulaTree thinks it's "+printi);
 
 	return computeFormulaTreeResult(i0, cs);
@@ -232,8 +200,8 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	
 	private void init(int start, int end) {
 	    this.start = start; this.end = end;
-	    pxstart = JapeFont.charsWidth(printchars, 0, start, fontnum);
-	    pxend = JapeFont.charsWidth(printchars, 0, end, fontnum);
+	    pxstart = pxval(start);
+	    pxend = pxval(end);
 	    repaint();
 	}
 	
@@ -273,11 +241,21 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	    canvas.getProofWindow().enableCopy();
 	}
     }
+    
+    // this is slow -- don't use too often
+    protected char[] getprintchars() {
+	StringBuffer printtext = new StringBuffer();
+	for (int i=0; i<components.length; i++) {
+	    printtext.append(components[i].printtext);
+	}
+	return printtext.toString().toCharArray();
+    }
 
     public String getContextualisedTextSelections() {
 	if (textsels==null || textsels.size()==0)
 	    return null;
 	else {
+	    char[] printchars = getprintchars();
 	    StringBuffer b = new StringBuffer(printchars.length+2*textsels.size());
 	    int i = 0;
 	    for (int j=0; j<textsels.size(); j++) {
@@ -301,6 +279,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	if (textsels==null || textsels.size()==0)
 	    return null;
 	else {
+	    char[] printchars = getprintchars();
 	    StringBuffer b = new StringBuffer(printchars.length+2*textsels.size());
 	    for (int j=0; j<textsels.size(); j++) {
 		TextSel t = getTextSel(j);
@@ -320,10 +299,29 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	return textsels==null ? 0 : textsels.size();
     }
 
+    // don't do this very often
+    protected String getannottext() {
+	StringBuffer annottext = new StringBuffer();
+	annotlen = 0;
+	for (int i=0; i<components.length; i++) {
+	    annottext.append(components[i].annottext);
+	    annotlen += components[i].annotlen;
+	}
+	return annottext.toString();
+    }
+
+    // nor this
+    protected int getprintlen() {
+	int printlen = 0;
+	for (int i=0; i<components.length; i++)
+	    printlen = printlen+components[i].printlen;
+	return printlen;
+    }
+    
     private void ensureTextSelectionVars() {
 	if (formulae==null) {
 	    annoti = printi = 0;
-	    formulae = computeFormulaTree((char)0);
+	    formulae = computeFormulaTree(getannottext(), (char)0, getprintlen());
 	    textsels = new Vector(1);
 	    canvas.getProofWindow().enableCopy();
 	}

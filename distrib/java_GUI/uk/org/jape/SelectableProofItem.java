@@ -39,9 +39,9 @@ public	class SelectableProofItem extends TextSelectableItem
     private final boolean ambiguous;
     private byte selectionKind;
 
-    public SelectableProofItem(ProofCanvas canvas, int x, int y, byte fontnum, String annottext,
-			       byte selectionKind, boolean ambiguous) {
-	super(canvas,x,y,fontnum,annottext);
+    public SelectableProofItem(ProofCanvas canvas, int x, int y, byte selectionKind, boolean ambiguous,
+			       AnnotatedTextComponent[] components) {
+	super(canvas,x,y,components);
 	this.selectionKind = selectionKind; // ReasonSel, HypSel, ConcSel
 	this.ambiguous = ambiguous;
 	addSelectionIndicator(
