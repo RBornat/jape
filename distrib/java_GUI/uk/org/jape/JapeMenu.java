@@ -125,7 +125,8 @@ public class JapeMenu implements DebugConstants {
 	    throw new ProtocolError("no item "+JapeUtils.enQuote(label)+" in menu "+title);
 	}
 	public boolean preSep(int i) {
-	    return 0<i && i<=itemv.size() && !(itemv.get(i-1) instanceof Sep);
+	    return 0<i && i<=itemv.size() && 
+		    !(itemv.get(i-1) instanceof Sep); // why no RBG? confusion here ...
 	}
 	public boolean postSep(int i) {
 	    return 0<=i+1 && i+1<itemv.size() &&
@@ -828,8 +829,10 @@ public class JapeMenu implements DebugConstants {
     }
 
     public static void makeMenusVisible() {
-	JapeWindow.updateMenuBars();
-	menusVisible = true;
+	if (!menusVisible) {
+	    JapeWindow.updateMenuBars();
+	    menusVisible = true;
+	}
     }
 
     private static M windowmenu;
@@ -864,46 +867,44 @@ public class JapeMenu implements DebugConstants {
 	return menu.size();
     }
     
+    /*  the Window menu consists of four lexically ordered sections:
+	0.  surrogates 
+	1.  panels
+	2.  proofs
+	3.  logs
+	There is either zero or one surrogate. There is always one log.
+	Sections are separated (with a separator!).
+     */
+    
     public static void windowAdded(String title, JapeWindow w) {
-	int insertpoint = -1, seppoint = -1;
 	if (w instanceof SurrogateWindow) {
 	    if (hassurrogate)
 		Alert.abort("JapeMenu.addWindow two surrogates");
 	    else {
 		hassurrogate = true;
-		insertpoint = 0; seppoint = 1;
+		indexMenuItem(windowmenu, 0, title, (ItemAction)new ActivateWindowAction(w));
+		windowmenuSep(1);
 	    }
 	}
 	else
 	if (w instanceof PanelWindowData.PanelWindow) {
-	    if (panelcount==0) {
-		if (hassurrogate || proofcount!=0) { // surrogate or proofs but no panels
-		    insertpoint = 1; seppoint = 1;
-		}
-		else { // no surrogate, no proofs, no panels
-		    insertpoint = 0; seppoint = 1;
-		}
-	    }
-	    else // insert in lexical ordering
-		insertpoint = alphapos(windowmenu, title, hassurrogate?2:0);
+	    int offset = hassurrogate?2:0;
+	    indexMenuItem(windowmenu, 
+			  panelcount==0 ? offset : alphapos(windowmenu, title, offset),
+			  title, 
+			  (ItemAction)new ActivateWindowAction(w));
 	    panelcount++;
+	    windowmenuSep(offset+panelcount);
 	}
 	else
 	if (w instanceof ProofWindow) {
-	    if (proofcount==0) { // no proofs
-		if (windowmenu.size()==0) // first in window
-		    insertpoint = 0;
-		else
-		if (haslog) { // before logwindow, separator after
-		    insertpoint = windowmenu.size()-1; seppoint = insertpoint+1;
-		}
-		else // end of window, separator before
-		    insertpoint = seppoint = windowmenu.size();
-	    }
-	    else // insert in lexical ordering
-		insertpoint = alphapos(windowmenu, title,
-					(hassurrogate?2:0)+(panelcount==0?0:panelcount+1));
-	    proofcount++;		     
+	    int offset = (hassurrogate?2:0)+(panelcount==0?0:panelcount+1); 
+	    indexMenuItem(windowmenu, 
+			  proofcount==0 ? offset : alphapos(windowmenu, title, offset),
+			  title, 
+			  (ItemAction)new ActivateWindowAction(w));
+	    proofcount++;
+	    windowmenuSep(offset+proofcount);
 	}
 	else
 	if (w instanceof Logger.LogWindow) {
@@ -911,33 +912,22 @@ public class JapeMenu implements DebugConstants {
 		Alert.abort("JapeMenu.addWindow two console logs");
 	    else {
 		haslog = true;
-		insertpoint = seppoint = windowmenu.size();
+		indexMenuItem(windowmenu, windowmenu.size(), title,
+			      (ItemAction)new ShowWindowAction(w));
 	    }
 	}
 	else
 	    Alert.abort("JapeMenu.addWindow "+w);
 
-	if (insertpoint==-1) {
-	    Logger.log.println("*** insertpoint=-1 when inserting "+w);
-	    insertpoint = 0;
-	}
-
-	if (DebugVars.menuaction_tracing)
-	    Logger.log.println("adding window "+title+
-			       "; insertpoint="+insertpoint+"; seppoint="+seppoint+
-			       "; menu size="+windowmenu.size());
-	
-	indexMenuItem(windowmenu, insertpoint, title,
-		      w instanceof Logger.LogWindow ? (ItemAction)new ShowWindowAction(w)     :
-						      (ItemAction)new ActivateWindowAction(w));
-	
-	if (seppoint!=-1)
-	    windowmenu.insertSep(seppoint);
-
 	if (menusVisible)
 	    JapeWindow.updateMenuBars();
     }
 
+    private static void windowmenuSep(int i) {
+	if (i==windowmenu.size() || !(windowmenu.get(i) instanceof Sep))
+	    windowmenu.insertSep(i);
+    }
+    
     public static void windowActivated(String title, JapeWindow w) {
 	if (LocalSettings.windowMenuItemsTicked) {
 	    try {
@@ -951,28 +941,25 @@ public class JapeMenu implements DebugConstants {
     public static void windowRemoved(String title, JapeWindow w) {
 	windowmenu.removeI(title);
 	if (w instanceof SurrogateWindow && hassurrogate) {
-	    hassurrogate = false; windowmenu.removeSep(0);
+	    hassurrogate = false; 
+	    windowmenu.removeSep(0);
 	}
 	else
 	if (w instanceof PanelWindowData.PanelWindow && panelcount>0) {
 	    if (--panelcount==0) {
-		if (hassurrogate)
-		    windowmenu.removeSep(1);
-		else
-		if (proofcount!=0)
-		    windowmenu.removeSep(0);
+		windowmenu.removeSep(hassurrogate ? 2 : 0);
 	    }
 	}
 	else
 	if (w instanceof ProofWindow && proofcount>0) {
 	    if (--proofcount==0) {
-		if (hassurrogate || panelcount!=0)
-		    windowmenu.removeSep(panelcount+(hassurrogate ? 2 : 0));
+		windowmenu.removeSep((hassurrogate ? 2 : 0)+(panelcount==0?0:panelcount+1));
 	    }
 	}
 	else
 	if (w instanceof Logger.LogWindow) {
-	    haslog = false; windowmenu.removeSep(windowmenu.size()-1);
+	    haslog = false; 
+	    windowmenu.removeSep(windowmenu.size()-1);
 	}
 	else
 	    Alert.abort("JapeMenu.windowRemoved("+JapeUtils.enQuote(title)+","+windowmenu+
