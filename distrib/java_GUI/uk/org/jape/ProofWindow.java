@@ -30,6 +30,8 @@ package uk.org.jape;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -38,12 +40,13 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-
 
 import java.awt.geom.AffineTransform;
 
@@ -60,6 +63,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolConstants,
 						       SelectionConstants,
@@ -68,6 +72,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
     protected AnchoredScrollPane proofPane;
     protected ProofCanvas proofCanvas;
+    protected Timer proofSizeTimer;
+    protected final int resizeDelay = 500;
     protected DisproofPane disproofPane; // more complicated than the others
     protected AnchoredScrollPane provisoPane;
     protected ProvisoCanvas provisoCanvas;
@@ -83,6 +89,26 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	
 	getContentPane().setLayout(new BorderLayout()); 
 	proofPane = new AnchoredScrollPane();
+	proofSizeTimer = new Timer(resizeDelay, new ActionListener(){
+	    public void actionPerformed(ActionEvent e) {
+		proofSizeTimer.stop();
+		Reply.sendCOMMAND("windowresized");;
+	    } 
+	});
+	proofPane.addComponentListener(new ComponentAdapter(){
+	    boolean first = true;
+	    public void componentResized(ComponentEvent e) {
+		if (ProofWindow.this.isVisible()) {
+		    if (first)
+			first = false;
+		    else
+		    if (proofSizeTimer.isRunning())
+			proofSizeTimer.restart();
+		    else
+			proofSizeTimer.start();
+		}
+	    } 
+	});
 	proofCanvas = new ProofCanvas(proofPane.getViewport(), true);
 	proofPane.add(proofCanvas);
 	
@@ -436,7 +462,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     }
 
     private boolean disproofPanePending = false,
-	provisoPanePending  = false;
+		    provisoPanePending  = false;
 
     public void makeWindowReady() {
 	if(disproofPanePending) {
