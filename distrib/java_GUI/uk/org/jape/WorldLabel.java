@@ -43,7 +43,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
 
     public WorldLabel(WorldCanvas canvas, JFrame window, WorldItem world,
                       int x, int y, String text) {
-        super(canvas, x, y, ProtocolConstants.ProvisoFontNum, text, text);
+        super(canvas, x, y, ProtocolConstants.ProvisoFontNum, text);
         this.canvas = canvas;
         this.layeredPane = window.getLayeredPane();
         this.contentPane = window.getContentPane();

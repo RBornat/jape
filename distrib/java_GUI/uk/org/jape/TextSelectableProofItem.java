@@ -28,21 +28,27 @@
 import java.awt.Graphics;
 
 public class TextSelectableProofItem extends TextSelectableItem {
-    public TextSelectableProofItem(JapeCanvas canvas, int x, int y, byte fontnum,
-                                   String annottext, String printtext) {
-        super(canvas, x, y, fontnum, annottext, printtext);
+    public TextSelectableProofItem(ProofCanvas canvas, int x, int y, byte fontnum,
+                                   String annottext) {
+        super(canvas, x, y, fontnum, annottext);
     }
 
-    boolean drawGrey = false;
-
-    public void paint(Graphics g) {
-        if (drawGrey) {
-            if (paint_tracing)
-                System.err.println("painting grey text item at "+getX()+","+getY());
-            g.setColor(Preferences.GreyTextColour); g.setFont(getFont());
-            g.drawChars(printchars, 0, printchars.length, 0, dimension.ascent);
+    public String getTextSelections() {
+        if (textsels==null || textsels.size()==0)
+            return null;
+        else {
+            StringBuffer b = new StringBuffer(printchars.length+2*textsels.size());
+            int i = 0;
+            for (int j=0; j<textsels.size(); j++) {
+                TextSel t = getTextSel(j);
+                b.append(printchars, i, t.start-i);
+                b.append(Reply.stringSep);
+                b.append(printchars, t.start, t.end-t.start);
+                b.append(Reply.stringSep);
+                i = t.end;
+            }
+            b.append(printchars, i, printchars.length-i);
+            return b.toString();
         }
-        else
-            super.paint(g);
     }
 }

@@ -25,7 +25,10 @@
 
 */
 
+import java.awt.Color;
 import java.awt.Graphics;
+
+import java.util.Vector;
 
 public abstract class EmphasisableItem extends TextSelectableItem {
 
@@ -33,14 +36,139 @@ public abstract class EmphasisableItem extends TextSelectableItem {
 
     protected final DisproofCanvas canvas;
 
-    public EmphasisableItem(DisproofCanvas canvas, int x, int y, byte fontnum,
-                            String annottext, String printtext) {
-        super(canvas,x,y,fontnum,annottext,printtext);
+    public EmphasisableItem(DisproofCanvas canvas, int x, int y, byte fontnum, String annottext) {
+        super(canvas,x,y,fontnum,annottext);
         this.canvas = canvas;
         emphasisLine = new EmphasisLine(false, getX(), getY()+getHeight()+canvas.getSurroundGap(), getWidth());
         canvas.add(emphasisLine);
+        
+        annoti = printi = 0; 
+        Vector cs = new Vector();
+        computeColourSegs((char)0, Preferences.TextColour, false, cs);
+        coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
+        if (colourseg_tracing) {
+            System.err.print("text=\""+text+"; annottext=\"");
+            for (int i=0; i<annottext.length(); i++) {
+                char c = annottext.charAt(i);
+                System.err.print(c==onbra   ? "*ON("  :
+                                 c==onket   ? ")NO*"  :
+                                 c==offbra  ? "*OFF("  :
+                                 c==offket  ? ")FFO*"  :
+                                 c==outbra  ? "*OUT("  :
+                                 c==outket  ? ")TUO*"  :
+                                 c==lockbra ? "*LOCK(" :
+                                 c==lockket ? ")KCOL*" :
+                                 String.valueOf(c));
+            }
+            System.err.print("\"; coloursegs=[");
+            for (int i=0; i<coloursegs.length; i++) {
+                System.err.print(coloursegs[i]);
+                if (i+1<coloursegs.length)
+                    System.err.print(", ");
+            }
+            System.err.println("]");
+        }
     }
 
+    protected class ColourSeg {
+        public final Color colour;
+        public final int start, pxstart;
+        public int end;
+
+        public ColourSeg(Color colour, int start, int end) {
+            this.colour=colour;
+            this.start=start; this.end=end;
+            this.pxstart=JapeFont.charsWidth(printchars, 0, start, fontnum);
+        }
+
+        public void paint(Graphics g) {
+            if (paint_tracing)
+                System.err.println("painting colour segment "+start+","+end);
+            g.setColor(colour);
+            g.drawChars(printchars, start, end-start, pxstart, dimension.ascent);
+        }
+
+        public String toString() {
+            return "ColourSeg[colour="+
+            (colour==Preferences.OutColour    ? "OutColour"      :
+             colour==Preferences.ForcedColour ? "ForcedColour"   :
+             colour==Preferences.TextColour   ? "Off/TextColour" :
+             "??"+colour       )+
+            ", start="+start+
+            ", end="+end+
+            ", pxstart="+pxstart+
+            ", chars=\""+(new String(printchars, start, end-start))+"\""+
+            "]";
+        }
+    }
+
+    protected ColourSeg[] coloursegs;
+
+    static Color bra2TextColour(char c) {
+        return c==onbra  ? Preferences.ForcedColour :
+        c==offbra ? Preferences.TextColour :
+        /* c==outbra assumed */ Preferences.OutColour;
+    }
+
+    private void extendColourSeg(Vector cs, Color colour, int start, int end) {
+        if (cs.size()!=0) {
+            ColourSeg cseg = (ColourSeg)cs.lastElement();
+            if (cseg.colour.equals(colour) && cseg.end==start) {
+                cseg.end=end; return;
+            }
+        }
+        if (start!=end)
+            cs.add(new ColourSeg(colour, start, end));
+    }
+
+    protected void computeColourSegs(char expectedket, Color colour, boolean locked, Vector cs) {
+        int i0 = printi;
+        char c;
+        while (annoti<annotlen) {
+            c = annottext.charAt(annoti++);
+            if (invisbra(c)) {
+                extendColourSeg(cs, colour, i0, printi);
+                boolean newlocked = locked || c==lockbra;
+                Color newcolour = newlocked ? colour : bra2TextColour(c);
+                char newket = bra2ket(c);
+                computeColourSegs(newket, newcolour, newlocked, cs);
+                i0 = printi;
+            }
+            else
+                if (invisket(c)) {
+                    if (c==expectedket) {
+                        extendColourSeg(cs, colour, i0, printi); return;
+                    }
+                    else
+                        Alert.abort("TextItem.computeColourSegs saw "+(int)c+
+                                    ", expected "+(int)expectedket);
+                }
+            else
+                printi++;
+        }
+        if (expectedket!=0)
+            Alert.abort(this+": computeColourSegs exhausted text, "+
+                        ", expected "+(int)expectedket);
+
+        if (printi!=printchars.length)
+            Alert.abort(this+": text is "+printchars.length+
+                        " chars, but computeColourSegs thinks it's "+printi);
+
+        extendColourSeg(cs, colour, i0, printi);
+        return;
+    }
+
+    public void paint(Graphics g) {
+        if (paint_tracing)
+            System.err.println("painting EmphasisableItem at "+getX()+","+getY());
+        paintTextSels(g);
+        g.setFont(font);
+        int len = coloursegs.length;
+        for (int i=0; i<len; i++)
+            coloursegs[i].paint(g);
+        
+    }
+    
     protected class EmphasisLine extends LineItem {
 
         private boolean emphasised;
@@ -66,5 +194,19 @@ public abstract class EmphasisableItem extends TextSelectableItem {
     public void emphasise(boolean emphasised) {
         emphasisLine.emphasise(emphasised);
     }
-    
+
+    public String getTextSelections() {
+        Alert.abort("EmphasisableItem.getTextSelections");
+        return ""; // shut up compiler
+    }
+
+    public String toString() {
+        String s = "EmphasisableItem["+super.toString()+"; coloursegs=[";
+        for (int i=0; i<coloursegs.length; i++) {
+            s=s+coloursegs[i];
+            if (i+1<coloursegs.length)
+                s=s+",";
+        }
+        return s+"]]";
+    }
 }

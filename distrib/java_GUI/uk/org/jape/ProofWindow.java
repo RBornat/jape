@@ -26,6 +26,7 @@
 */
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -56,8 +57,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     protected ProofCanvas proofCanvas;
     protected DisproofPane disproofPane; // more complicated than the others
     protected AnchoredScrollPane provisoPane;
-    protected JapeCanvas provisoCanvas;
-    protected JSplitPane mainSplitPane;
+    protected ProvisoCanvas provisoCanvas;
+    protected JSplitPane mainSplitPane, subSplitPane;
     
     protected JapeCanvas focussedCanvas;
 
@@ -230,27 +231,54 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         return disproofPane;
     }
 
-    private boolean disproofPanePending = false;
+    private AnchoredScrollPane ensureProvisoPane() {
+        if (provisoPane==null) {
+            provisoPane = new AnchoredScrollPane();
+            provisoCanvas = new ProvisoCanvas(provisoPane.getViewport(), true);
+            provisoPane.add(provisoCanvas);
+            provisoPane.setAnchor(AnchoredScrollPane.ANCHOR_NORTHWEST);
+            provisoPanePending = true;
+        }
+        return provisoPane;
+    }
+
+    private boolean disproofPanePending = false,
+                    provisoPanePending  = false;
 
     public void makeWindowReady() {
         if(disproofPanePending) {
             disproofPanePending = false;
-            if (provisoCanvas==null) {
-                // make double pane
-                Dimension paneSize = proofPane.getSize();
+            Component other = subSplitPane==null ? (Component)proofPane : (Component)subSplitPane;
+            Dimension paneSize = other.getSize();
+            getContentPane().remove(proofPane);
+            mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, disproofPane, other);
+            mainSplitPane.setResizeWeight(0.5);
+            mainSplitPane.setPreferredSize(paneSize);
+            mainSplitPane.setSize(paneSize);
+            getContentPane().add(mainSplitPane, BorderLayout.CENTER);
+            mainSplitPane.validate();
+            mainSplitPane.repaint();
+        }
+        if (provisoPanePending) {
+            provisoPanePending = false;
+            Dimension paneSize = proofPane.getSize();
+            subSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+            if (mainSplitPane==null) {
                 getContentPane().remove(proofPane);
-                mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, disproofPane, proofPane);
-                mainSplitPane.setPreferredSize(paneSize);
-                mainSplitPane.setSize(paneSize);
-                getContentPane().add(mainSplitPane, BorderLayout.CENTER);
-                mainSplitPane.validate();
-                mainSplitPane.repaint();
+                getContentPane().add(subSplitPane, BorderLayout.CENTER);
             }
             else {
-                // make a triple pane
-                Alert.abort("ProofWindow.makeWindowReady: no triple panes yet");
+                mainSplitPane.setRightComponent(subSplitPane);
             }
+            subSplitPane.setLeftComponent(proofPane);
+            subSplitPane.setRightComponent(provisoPane);
+            subSplitPane.setResizeWeight(0.0);
+            subSplitPane.setPreferredSize(paneSize);
+            subSplitPane.setSize(paneSize);
+            subSplitPane.validate();
+            subSplitPane.repaint();
         }
+        
         if (disproofPane!=null)
             disproofPane.makeReady();
     }
@@ -284,49 +312,52 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     }
 
     public static void clearProvisoView() throws ProtocolError {
-        // do nothing for the time being
+        // don't create a provisoPane just to clear it
+        ProofWindow w = focussedProofWindow(true);
+        if (w.provisoCanvas!=null) {
+            w.provisoCanvas.clear();
+        }
     }
 
     public static void drawstring(int x, int y, byte fontnum, byte kind,
-                                  String annottext, String printtext) throws ProtocolError {
+                                  String annottext) throws ProtocolError {
         checkFocussedCanvas();
         JapeFont.checkInterfaceFontnum(fontnum);
         JapeCanvas canvas = focussedProofWindow(true).focussedCanvas;
         switch (kind) {
             case PunctTextItem:
-                canvas.add(new TextItem(canvas, x, y, fontnum, annottext, printtext)); break;
+                canvas.add(new TextItem(canvas, x, y, fontnum, annottext));
+                break;
             case HypTextItem:
-                if (canvas instanceof ProofCanvas) {
-                    canvas.add(new HypothesisItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
-                }
+                if (canvas instanceof ProofCanvas)
+                    canvas.add(new HypothesisItem((ProofCanvas)canvas, x, y, fontnum, annottext));
                 else
-                if (canvas instanceof DisproofCanvas) {
-                    canvas.add(new DisproofHypItem((DisproofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
-                }
+                if (canvas instanceof DisproofCanvas)
+                    canvas.add(new DisproofHypItem((DisproofCanvas)canvas, x, y, fontnum, annottext));
                 else
                     throw new ProtocolError("HypTextItem in "+canvas);
+                break;
             case ConcTextItem:
-                if (canvas instanceof ProofCanvas) {
-                    canvas.add(new ConclusionItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
-                }
+                if (canvas instanceof ProofCanvas)
+                    canvas.add(new ConclusionItem((ProofCanvas)canvas, x, y, fontnum, annottext));
                 else
-                if (canvas instanceof DisproofCanvas) {
-                    canvas.add(new DisproofConcItem((DisproofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
-                }
+                if (canvas instanceof DisproofCanvas)
+                    canvas.add(new DisproofConcItem((DisproofCanvas)canvas, x, y, fontnum, annottext));
                 else
                     throw new ProtocolError("ConcTextItem in "+canvas);
+                break;
             case AmbigTextItem:
-                if (canvas instanceof ProofCanvas) {
-                    canvas.add(new HypConcItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
-                }
+                if (canvas instanceof ProofCanvas)
+                    canvas.add(new HypConcItem((ProofCanvas)canvas, x, y, fontnum, annottext));
                 else
                     throw new ProtocolError("ProofWindow.drawstring AmbigTextItem not drawing in proof pane");
+                break;
             case ReasonTextItem:
-                if (canvas instanceof ProofCanvas) {
-                    canvas.add(new ReasonItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
-                }
+                if (canvas instanceof ProofCanvas)
+                    canvas.add(new ReasonItem((ProofCanvas)canvas, x, y, fontnum, annottext));
                 else
                     throw new ProtocolError("ProofWindow.drawstring ReasonTextItem not drawing in proof pane");
+                break;
             default:
                 throw new ProtocolError("ProofWindow.drawstring kind="+kind);
         }

@@ -81,11 +81,10 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("STRINGSIZE")&&len==2) // this can happen ... ask a stupid question
                             Reply.reply(JapeFont.checkedMeasure("", toByte(cmd[1])));
                         else
-                        if (p.equals("DRAWSTRING")&&len==7)
+                        if (p.equals("DRAWSTRING")&&len==6)
                             ProofWindow.drawstring(toInt(cmd[1]), toInt(cmd[2]),    // x, y
-                                                    toByte(cmd[3]), toByte(cmd[4]), // font, kind
-                                                    cmd[5],                         // annottext
-                                                    cmd[6]);                        // printtext
+                                                   toByte(cmd[3]), toByte(cmd[4]),  // font, kind
+                                                   cmd[5]);                         // annottext
                         else
                         if (p.equals("DRAWRECT")&&len==5)
                             ProofWindow.drawRect(toInt(cmd[1]), toInt(cmd[2]), // x, y
@@ -148,7 +147,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                         
                     // INVISCHARS are the way we describe syntactic structure
                         if(p.equals("SETINVISCHARS")&&len==9)
-                            TextItem.setinvischars(
+                            TextSelectableItem.setinvischars(
                                 toChar(cmd[1]),toChar(cmd[2]),
                                 toChar(cmd[3]),toChar(cmd[4]),
                                 toChar(cmd[5]),toChar(cmd[6]),
@@ -282,14 +281,10 @@ public class Dispatcher extends Thread implements DebugConstants {
                             
                     // provisos and givens
                         if (p.equals("CLEARGIVENS")&&len==1)
-                        list.removeAllElements();
+                            list.removeAllElements();
                         else
-                        if (p.equals("GIVEN")&&len==3) {
-                            int i = toInt(cmd[1]);
-                            if (i!=list.size())
-                                throw new ProtocolError("given "+i+" shouldabeen "+list.size());
-                            list.add(cmd[2]);
-                        }
+                        if (p.equals("GIVEN")&&len==3)
+                            list.add(new MiscellaneousConstants.IntString(toInt(cmd[1]), cmd[2]));
                         else
                         if (p.equals("SETGIVENS")&&len==1)
                             ProofWindow.setGivens((String[])list.toArray(new String[list.size()]));

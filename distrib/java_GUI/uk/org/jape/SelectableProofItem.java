@@ -41,8 +41,8 @@ public abstract class SelectableProofItem extends    TextSelectableProofItem
     protected final ProofCanvas canvas;
 
     public SelectableProofItem(ProofCanvas canvas, int x, int y, byte fontnum,
-                               String annottext, String printtext) {
-        super(canvas,x,y,fontnum,annottext,printtext);
+                               String annottext) {
+        super(canvas,x,y,fontnum,annottext);
         this.canvas = canvas;
         selectionRect = new SelectionRect(canvas.getSurroundGap(), getBounds());
         canvas.add(selectionRect);
@@ -155,14 +155,11 @@ public abstract class SelectableProofItem extends    TextSelectableProofItem
     public void deselect() { selectionRect.setSelkind(NoSel); }
 
     public void blacken() {
-        if (drawGrey) {
-            drawGrey = false; repaint();
-        }
+        setForeground(Preferences.TextColour); repaint();
     }
 
     public void greyen() {
-        if (!drawGrey) {
-            drawGrey = true; deselect(); deTextSelect(); repaint();
-        }
+        deselect(); deTextSelect();
+        setForeground(Preferences.GreyTextColour); repaint();
     }
 }

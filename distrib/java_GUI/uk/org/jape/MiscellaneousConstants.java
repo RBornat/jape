@@ -30,4 +30,10 @@ public interface MiscellaneousConstants {
 
     public static final int FlybackDelta           = 30,
                             FlybackFramesPerSecond = 24; // not all JVMs can do this, but they can all cope
+
+    public static class IntString {
+        public final int i;
+        public final String s;
+        public IntString(int i, String s) { this.i=i; this.s=s; }
+    }
 }

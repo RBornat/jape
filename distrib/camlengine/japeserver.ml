@@ -329,8 +329,8 @@ let rec drawinpane pane = writef "DRAWINPANE %\n" [Int (pane2int pane)]
 
 let rec drawstring (font, class__, s, pos) =
   let (x, y) = explodePos pos in
-  writef "DRAWSTRING % % % % % %\n"
-    [Int x; Int y; Int font; Int class__; Str s; Str (printable s)]
+  writef "DRAWSTRING % % % % %\n"
+    [Int x; Int y; Int font; Int class__; Str s]
 
 let rec drawmeasuredtext class__ lines pos =
   (* : displayclass ->(pos*font*string) list -> pos -> unit *)

@@ -35,11 +35,20 @@ import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.util.Vector;
 
-public class TextSelectableItem extends TextItem implements SelectionConstants {
+public abstract class TextSelectableItem extends TextItem implements SelectionConstants {
 
-    public TextSelectableItem(JapeCanvas canvas, int x, int y, byte fontnum, 
-                              String annottext, String printtext) {
-        super(canvas,x,y,fontnum,annottext,printtext);
+    protected final char[] printchars;
+    protected final String annottext;
+
+    // globals for computing ColourTree, FormulaTree
+    protected int          annoti, printi; 
+    protected final int    annotlen;
+
+    public TextSelectableItem(JapeCanvas canvas, int x, int y, byte fontnum, String annottext) {
+        super(canvas,x,y,fontnum,printtext(annottext));
+        this.printchars = text.toCharArray();
+        this.annottext = annottext;
+        annotlen = annottext.length();
         addJapeMouseListener(new JapeMouseTextAdapter() {
             public void textpressed(byte eventKind, MouseEvent e) {
                 TextSelectableItem.this.textpressed(eventKind, e);
@@ -54,6 +63,54 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
         selectionHalo = canvas.getSelectionHalo();
     }
 
+
+    protected static char onbra, onket, offbra, offket, outbra, outket, lockbra, lockket;
+
+    public static void setinvischars(char _onbra, char _onket, char _offbra, char _offket,
+                                     char _outbra, char _outket, char _lockbra, char _lockket) {
+        onbra=_onbra; onket=_onket;
+        offbra=_offbra; offket=_offket;
+        outbra=_outbra; outket=_outket;
+        lockbra=_lockbra; lockket=_lockket;
+    }
+
+    static boolean invisbra(char c) {
+        return c==onbra || c==offbra || c==outbra || c==lockbra;
+    }
+
+    static boolean invisket(char c) {
+        return c==onket || c==offket || c==outket || c==lockket;
+    }
+
+    static boolean invisible(char c) {
+        return invisbra(c) || invisket(c);
+    }
+
+    static char bra2ket(char c) {
+        return c==onbra  ? onket :
+        c==offbra ? offket :
+        c==outbra ? outket :
+        /* c==lockbra assumed */ lockket;
+    }
+
+    static char ket2bra(char c) {
+        return c==onket  ? onbra :
+        c==offket ? offbra :
+        c==outket ? outbra :
+        /* c==lockket assumed */ lockbra;
+    }
+
+    static String printtext(String annottext) {
+        int annotlength = annottext.length();
+        StringBuffer printbuf = new StringBuffer(annotlength);
+        for (int i=0; i<annotlength; i++) {
+            char c = annottext.charAt(i);
+            if (!invisible(c))
+                printbuf.append(c);
+        }
+        return printbuf.toString();
+    }
+    
     protected FormulaTree formulae;
     
     protected class FormulaTree {
@@ -203,29 +260,11 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
             }
     }
 
-    // should be abstract: this is the ProofCanvas version
-    public String getTextSelections() {
-        if (textsels==null || textsels.size()==0)
-            return null;
-        else {
-            StringBuffer b = new StringBuffer(printchars.length+2*textsels.size());
-            int i = 0;
-            for (int j=0; j<textsels.size(); j++) {
-                TextSel t = getTextSel(j);
-                b.append(printchars, i, t.start-i);
-                b.append(Reply.stringSep);
-                b.append(printchars, t.start, t.end-t.start);
-                b.append(Reply.stringSep);
-                i = t.end;
-            }
-            b.append(printchars, i, printchars.length-i);
-            return b.toString();
-        }
-    }
+    public abstract String getTextSelections();
 
     private void ensureTextSelectionVars() {
         if (formulae==null) {
-            annoti = printi = 0; annotlen = annottext.length();
+            annoti = printi = 0;
             formulae = computeFormulaTree((char)0);
             textsels = new Vector(1);
         }
@@ -304,9 +343,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
         currenttextselindex = -1;
     }
 
-    public void paint(Graphics g) {
-        if (paint_tracing)
-            System.err.println("painting textselectable item at "+getX()+","+getY());
+    protected void paintTextSels(Graphics g) {
         if (textsels!=null) {
             TextSel current = getTextSel(currenttextselindex);
             for (int i = 0; i<textsels.size(); i++) {
@@ -315,6 +352,29 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
                     t.paint(g);
             }
         }
-        super.paint(g);
+    }
+    
+    public void paint(Graphics g) {
+        if (paint_tracing)
+            System.err.println("painting textselectable item at "+getX()+","+getY());
+        paintTextSels(g); super.paint(g);
+    }
+
+    public String toString() {
+        String s = "TextSelectableItem["+super.toString()+
+        ", annottext=..."+
+        ", currenttextselindex="+currenttextselindex;
+        if (textsels==null)
+            s = s+", textsels=null";
+        else {
+            s = s+", textsels=[";
+            for (int i=0; i<textsels.size(); i++) {
+                s = s+getTextSel(i);
+                if (i+1<textsels.size())
+                    s = s+", ";
+            }
+            s = s+"]]";
+        }
+        return s;
     }
 }
