@@ -1,11 +1,8 @@
 Bugs:
+1. window menu bar making has to synchronized
+2. keyboard focus doesn't come up in new conjecture dialog
+3. argument file parse errors go to console, then engine quits
 
------------------
-
-GUI Launch:
-
-quit has to be handled by GUI
-stop dispatcher, logger threads (maybe they will do it themselves?)
 
 -----------------
 
@@ -38,7 +35,6 @@ MAKECHOICE
 POINTSIZE
 PROCRUSTES
 READHIGHLIGHT
-SELECTPANELENTRY
 SETALERT
 SETCHOICELINE
 SETCOMMENT
@@ -68,7 +64,6 @@ Unused commands (many are designed to be issued by hand from Text Command window
 "hideroot", []
 "exposeparent", []
 "hidecut", []
-"addnewconjecture", panel :: text
 "profile", ["on"]
 "profile", ["off"]
 "profile", ["reset"]
