@@ -2,7 +2,7 @@
 
 CONSTANT pass fail mod
 
-CONJECTUREPANEL "Programs"  IS
+CONJECTUREPANEL "Variable Programs"  IS
   THEOREM IS 
     {i=2} (i:=i+1) {i=3}
   THEOREM WHERE i NOTIN j,t AND j NOTIN t IS 
@@ -63,7 +63,13 @@ CONJECTUREPANEL "Programs"  IS
          if j≥kr then kr:=kr-j; kq:=kq+1 else skip fi 
       od 
     {kq×Kj+kr=Ki ∧ 0≤kr∧kr<Kj}
+END
 
+CONJECTUREPANEL "Array Programs" IS
+  THEOREM WHERE DISTINCT a,i IS
+    {a[i]=2∧0≤i∧i<length(a)} (a[i]:=a[i]+1) {a[i]=3}
+  THEOREM WHERE DISTINCT a,i IS
+    {a[i]=0∧0≤i∧i<length(a)} (a[i]:=a[i]+1;a[i]:=a[i]+1) {a[i]=2}
 END
 
 CONJECTUREPANEL "Useful Lemmas" IS
