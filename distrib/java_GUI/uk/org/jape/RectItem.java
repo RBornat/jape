@@ -26,7 +26,6 @@
 */
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -39,12 +38,14 @@ public class RectItem extends Component {
         super();
         this.canvas = canvas;
         setBounds(x, y, w, h);
+        setForeground(Preferences.LineColour);
     }
 
     protected int left, top, right, bottom;
     protected boolean stroked;
     
     protected void prepaint(Graphics g) {
+        g.setColor(getForeground());
         if (g instanceof Graphics2D) {
             int half = canvas.linethickness/2;
             int otherhalf = canvas.linethickness-canvas.linethickness/2;
@@ -77,13 +78,9 @@ public class RectItem extends Component {
     protected void paintTopAndBottom(Graphics g) {
         paintHorizEdge(g,top); paintHorizEdge(g,bottom);
     }
-    protected void paintBox(Graphics g) {
-        // drawLine seems to work more nicely than drawRect ...
-        paintTopAndBottom(g); paintSides(g);
-    }
 
-    // default behaviour
+    // default behaviour -- drawLine seems to work more nicely than drawRect ...
     public void paint(Graphics g) {
-        g.setColor(Color.black); prepaint(g); paintBox(g);
+        prepaint(g); paintTopAndBottom(g); paintSides(g);
     }
 }
