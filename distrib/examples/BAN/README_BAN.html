@@ -1,8 +1,9 @@
-<h1>BAN on Linux and Windows</h1>
-
-<p>At present the symbols of BAN logic are not well supported in available
-Unicode fonts.  We are missing or not correctly displaying the symbols used in
-the first four menus (believes, sees, says, and whatever the
+<h1>Font problems in BAN logic encoding</h1>
+<p>
+Some of the characters used in the BAN logic encoding aren't in widely-available Unicode fonts, and one of them ('says' -- looks a bit like |~) doesn't correspond a single Unicode glyph. This has a severe effect in Linux, Solaris and Windows, and a mild effect in MacOS X (but watch this space :-)).
+</p>
+<h1>BAN on Linux, Solaris and Windows</h1>
+<p>All the machines we have used are missing or not correctly displaying at least the symbols used in the first four menus (believes, sees, says, and whatever the
 bar-with-double-arrow is called).
 </p>
 
@@ -11,21 +12,30 @@ bar-with-double-arrow is called).
 <p>
 The panels and menus in MacOS X Jape at present use the Konstanz font used in
 MacOS (Classic) Jape, so they work properly.  The menu and window <i>titles</i>
-are rendered in Unicode, however, and depending on the fonts available on your
-machine, you will probably find that some of the titles look wrong.
+are rendered in Unicode, however, and that means that the first four menu titles at least (believes, sees, says, and whatever the
+bar-with-double-arrow is called) look a bit wonky. (If you're missing more than that, OpenType fonts with lots of characters are available semi-piratically on the web: we aren't telling you where ...)
 </p>
 
 <h1>So when are we going to fix it?</h1>
 
 <p>
-These problems won't easily be fixed, until there is a widely available freeware
+These problems won't be permanently fixed until there is a widely available freeware
 universal Unicode font.  One's coming, we believe, from ESSTIX.  Watch the
-skies, because until it comes BAN logic will be effectively inaccessible in Jape
-on Linux and Windows, and a little tricky to use in MacOS X.
+skies!
 </p>
 
+<h1>How about a workaround?</h1>
+
+<p>
+If you are desperate to work in BAN logic on <b><i>Linux</i></b> or <b><i>Solaris</i></b>, the v5 distribution of Jape, available from <a href="http://users.comlab.ox.ac.uk/bernard.sufrin/jape.html">the Oxford Jape site</a> still works fine. If you need to work in <b><i>Windows</i></b>, we've included a BAN_ASCII.jt encoding that uses multi-character sequences to represent the BAN glyphs (but look out: proofs you produce with it won't be readable under the normal BAN encoding).</p>
+
+<h1>Email us!</h1>
+
+<p>
+If the BAN_ASCII encoding is still a bit too rich for your machine, send a screenshot to <a href="mailto:bugs@www.jape.org.uk">bugs@www.jape.org.uk</a>, and we'll go the extra mile for you. But no complaints about split infinitives, if you want a helpful reply.</p>
+
 Richard Bornat
-20.ii.2003
+23.ii.2003
 
 
 
