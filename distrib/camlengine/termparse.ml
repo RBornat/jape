@@ -52,9 +52,7 @@ let rec check s =
 	  (ParseError_
 		 ["Expected "; smlsymbolstring s; ", found "; smlsymbolstring (currsymb ())])
 
-let rec ignore s = 
-  consolereport ["ignoring "; symbolstring s; "; seeing "; symbolstring (currsymb())];
-  if currsymb () = s then scansymb () else ()
+let rec ignore s = if currsymb () = s then scansymb () else ()
 
 let rec parseUnsepList start f =
   if start (currsymb ()) then 
