@@ -16,7 +16,7 @@ GUI:         ; cd $(SERVERSOURCE); xcodebuild -target $(XCODETARGET)
 
 symlink:     ; cd $(TARGETDIR); rm -f jape_engine; ln -s ../../../camlengine/jape jape_engine
 
-clean:       ; $(MAKE) engineclean japeserverclean
+clean:       ; $(MAKE) engineclean GUIclean
 
 engineclean: ; cd $(ENGINESOURCE); make clean
 
