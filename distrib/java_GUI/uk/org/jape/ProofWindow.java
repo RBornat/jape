@@ -49,9 +49,7 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
 
     protected AnchoredScrollPane proofPane;
     protected ProofCanvas proofCanvas;
-    protected DisproofPane disproofPane;
-    protected AnchoredScrollPane disproofScrollPane;
-    protected DisproofCanvas disproofCanvas;
+    protected DisproofPane disproofPane; // more complicated than the others
     protected AnchoredScrollPane provisoPane;
     protected JapeCanvas provisoCanvas;
     protected JSplitPane mainSplitPane;
@@ -64,7 +62,7 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
 
         getContentPane().setLayout(new BorderLayout()); 
         proofPane = new AnchoredScrollPane();
-        proofCanvas = new ProofCanvas();
+        proofCanvas = new ProofCanvas(proofPane.getViewport(), true);
         proofPane.add(proofCanvas);
         
         getContentPane().add(proofPane, BorderLayout.CENTER);
@@ -161,8 +159,8 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
                 return focussedProofWindow(true).proofCanvas;
             case DisproofPaneNum: {
                     ProofWindow w = focussedProofWindow(true);
-                    w.ensureDisproofCanvasses();
-                    return w.disproofCanvas;
+                    w.ensureDisproofPane();
+                    return w.disproofPane.seqCanvas;
                 }
             default:
                 throw new ProtocolError(who+" pane="+pane);
@@ -170,17 +168,17 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
     }
 
     public static Rectangle getPaneGeometry(byte pane) throws ProtocolError {
-        return byte2JapeCanvas(pane,"ProofWindow.getPaneGeometry").viewGeometry();
+        return byte2JapeCanvas(pane,"ProofWindow.getPaneGeometry").getViewGeometry();
     }
 
     public static void clearPane(byte pane) throws ProtocolError {
-        byte2JapeCanvas(pane,"ProofWindow.clearPane").clearPane();
+        byte2JapeCanvas(pane,"ProofWindow.clearPane").removeAll();
     }
 
     public static void setProofParams(byte style, int linethickness) throws ProtocolError {
         focussedProofWindow(true).initProofCanvas(style, linethickness);
-        if (focussedProofWindow(true).disproofCanvas!=null)
-            focussedProofWindow(true).disproofCanvas.linethickness = linethickness;
+        if (focussedProofWindow(true).disproofPane!=null)
+            focussedProofWindow(true).disproofPane.setlinethickness(linethickness);
     }
 
     private void initProofCanvas(byte style, int linethickness) {
@@ -198,28 +196,40 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
         proofCanvas.linethickness = linethickness;
     }
 
-    private void ensureDisproofCanvasses() {
-        if (disproofCanvas==null) {
-            disproofCanvas = new DisproofCanvas();
-            disproofScrollPane = new AnchoredScrollPane();
-            disproofScrollPane.setAnchor(AnchoredScrollPane.ANCHOR_SOUTH);
-            disproofScrollPane.add(disproofCanvas);
-            disproofPane = new DisproofPane(disproofScrollPane);
+    private void ensureDisproofPane() {
+        if (disproofPane==null) {
+            disproofPane = new DisproofPane();
+            disproofPane.setlinethickness(proofCanvas.linethickness);
+            disproofPanePending = true;
+        }
+    }
+
+    private boolean disproofPanePending;
+
+    public void makeWindowReady() {
+        if(disproofPanePending) {
+            disproofPanePending = false;
             if (provisoCanvas==null) {
                 // make double pane
                 Dimension paneSize = proofPane.getSize();
                 getContentPane().remove(proofPane);
                 mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, disproofPane, proofPane);
-                getContentPane().add(mainSplitPane, BorderLayout.CENTER);
                 mainSplitPane.setPreferredSize(paneSize);
+                mainSplitPane.setSize(paneSize);
+                getContentPane().add(mainSplitPane, BorderLayout.CENTER);
                 mainSplitPane.validate();
                 mainSplitPane.repaint();
             }
             else {
                 // make a triple pane
-                Alert.abort("ProofWindow.ensureDisproofCanvasses: no triple panes yet");
+                Alert.abort("ProofWindow.ensureDisproofPane: no triple panes yet");
             }
         }
+    }
+    
+    public static void makeReady() {
+        for (int i = 0; i<focusv.size(); i++)
+            ((ProofWindow)focusv.get(i)).makeWindowReady();
     }
 
     public static void drawInPane(byte pane) throws ProtocolError {
@@ -229,8 +239,8 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
                 focussedw.focussedCanvas = focussedw.proofCanvas;
                 break;
             case DisproofPaneNum:
-                focussedw.ensureDisproofCanvasses();
-                focussedw.focussedCanvas = focussedw.disproofCanvas;
+                focussedw.ensureDisproofPane();
+                focussedw.focussedCanvas = focussedw.disproofPane.seqCanvas;
                 break;
             default:
                 Alert.abort("ProofWindow.drawInPane: pane="+pane);
@@ -364,13 +374,13 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
     }
 
     // disproof stuff
-    public static void setDisproofSequentBox(int x, int y, int w, int h) throws ProtocolError {
-        focussedProofWindow(true).ensureDisproofCanvasses();
-        focussedProofWindow(true).disproofCanvas.setSequentBox(x, y, w, h);
+    public static void setDisproofSequentBox(int w, int a, int d) throws ProtocolError {
+        focussedProofWindow(true).ensureDisproofPane();
+        focussedProofWindow(true).disproofPane.setSequentBox(w, a, d);
     }
 
     public static void setDisproofTiles(String[] tiles) throws ProtocolError {
-        focussedProofWindow(true).ensureDisproofCanvasses();
+        focussedProofWindow(true).ensureDisproofPane();
         focussedProofWindow(true).disproofPane.setTiles(tiles);
     }
 }
