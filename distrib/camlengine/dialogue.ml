@@ -803,7 +803,7 @@ let rec main a1 a2 =
               ParseError_ m -> showInputError showAlert m; (env, proofs, mbs)
             | Use_          -> (env, proofs, mbs) (* already reported, we hope *)
           in
-          Japeserver.sendVersion (_Title ^ _Version);
+          Japeserver.sendVersion (_Version);
           initGUI ();
           reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
           mbcache := empty;
