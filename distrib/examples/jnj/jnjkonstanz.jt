@@ -10,6 +10,10 @@
         companion paper ``Using JnJ in Unix Jape''.
 
         $Id$
+
+        (Brought up to date for Jape 6 in January 2003)
+
+        Edit in FONT{lauratt-*}
 */
         FONTS   "Konstanz"
         SEQUENT IS BAG æ FORMULA
@@ -19,11 +23,11 @@
         INFIX    100R ç
         INFIX    200L ë
         INFIX    300L ¦
-        JUXTFIX  4000
+        JUXTFIX  40000
         CLASS FORMULA  p q r s
         CLASS VARIABLE x y z
         CONSTANT false true
-        SUBSTFIX 5000 [ p / x ]
+        SUBSTFIX 50000 [ p / x ]
         RULE  "¦-intro"  FROM p AND q INFER p¦q
         RULE  "¦-elim1"  FROM p¦q INFER p
         RULE  "¦-elim2"  FROM p¦q INFER q
@@ -38,8 +42,9 @@
         RULE  "Â-intro"  FROM p æ false INFER Â p
         RULE  "Â-elim"   FROM Âp AND p INFER false
 
-        RULE  "false-elim" FROM Âp æ false INFER  p
-        RULE  "true-intro" INFER  æ true
+        RULE  "false-intro" FROM Âp AND p INFER false
+        RULE  "false-elim"  FROM Âp æ false INFER  p
+        RULE  "true-intro"  INFER  æ true
 
         RULE  "ê-intro"  FROM p ç q AND   q ç p INFER p ê q
         RULE  "ê-elim1"  FROM p ê q INFER p ç q
@@ -51,15 +56,15 @@
         IDENTITY RULE hypothesis
         CUT      RULE cut
         WEAKEN   RULE thin
-    INFIX   1000R Ú
-    LEFTFIX 20    è : ¥
-    LEFTFIX 20    è : | ¥
-    LEFTFIX 20    ä : ¥
-    LEFTFIX 20    ä : | ¥
-    CLASS FORMULA a b t
-    BIND x SCOPE p IN è x:a ¥ p
+    INFIX   800R  Ú
+    LEFTFIX 10  è : ¥
+    LEFTFIX 10  è : | ¥
+    LEFTFIX 10  ä : ¥
+    LEFTFIX 10  ä : | ¥
+    CLASS FORMULA a b t u
+    BIND x SCOPE p   IN è x:a ¥ p
+    BIND x SCOPE p   IN ä x:a ¥ p
     BIND x SCOPE p q IN è x:a | p ¥ q
-    BIND x SCOPE p IN ä x:a ¥ p
     BIND x SCOPE p q IN ä x:a | p ¥ q
     RULE    "è-intro"(OBJECT y) WHERE FRESH y
     FROM    yÚa æ q[y/x]
@@ -79,10 +84,8 @@
     FROM    ä x:a ¥ p
     AND     yÚa, p[y/x] æ r
     INFER   r
-    RULE "è|¥-intro" IS FROM è x:a ¥ p ç q INFER è x:a|p¥q
-    RULE "è|¥-elim"  IS FROM è x:a | p ¥ q INFER è x:a¥pçq
-    RULE "ä|¥-intro" IS FROM ä x:a ¥ p ¦ q INFER ä x:a|p¥q
-    RULE "ä|¥-elim"  IS FROM ä x:a | p ¥ q INFER ä x:a¥p¦q
+    RULE "è|¥" IS (è x:a|p¥q) ê (è x:a ¥ p ç q)
+    RULE "ä|¥" IS (ä x:a|p¥q) ê (ä x:a ¥ p ¦ q)
     TACTIC ElimRule(rule)
     (WHEN
       (LETHYP _p
@@ -100,12 +103,10 @@
     TACTIC QuantIntroRule(rule)
     (ALT (WITHARGSEL rule)
          (Fail ("%s is not applicable", rule)))
-    MENU    "Propositional Rules"
-
+MENU    "Propositional Rules"
     ENTRY   "hypothesis"
     SEPARATOR
     ENTRY    "false-elim"   IS (IntroRule "false-elim")
-    SEPARATOR
     SEPARATOR
     ENTRY    "¦-intro"      IS (IntroRule "¦-intro")
     TACTIC   "¦-elim-1"     IS (ElimRule  "¦-elim1")
@@ -120,29 +121,23 @@
     SEPARATOR
     ENTRY    "Â-intro"      IS (IntroRule "Â-intro")
     ENTRY    "Â-elim"       IS (ElimRule "Â-elim")
+    ENTRY    "false-intro"  IS (ElimRule "false-intro")
     ENTRY    "true-intro"   IS (IntroRule "true-intro")
     SEPARATOR
     ENTRY    "ê-intro"      IS (IntroRule "ê-intro")
     ENTRY    "ê-elim1"      IS (ElimRule "ê-elim1")
     ENTRY    "ê-elim2"      IS (ElimRule "ê-elim2")
 END
-
-MENU "Predicate Rules" IS
+MENU "Quantifier Rules" IS
     ENTRY "è-intro"   IS QuantIntroRule "è-intro"
-    ENTRY "è-elim"    IS ElimRule "è-elim"
+    ENTRY "è-elim"    IS ElimRule       "è-elim"
     ENTRY "ä-intro"   IS QuantIntroRule "ä-intro"
-    ENTRY "ä-elim"    IS ElimRule "ä-elim"
-    ENTRY "ä|¥-intro" IS QuantIntroRule "ä|¥-intro"
-    ENTRY "ä|¥-elim"  IS ElimRule "ä|¥-elim"
-    ENTRY "è|¥-intro" IS QuantIntroRule "è|¥-intro"
-    ENTRY "è|¥-elim"  IS ElimRule "è|¥-elim"
+    ENTRY "ä-elim"    IS ElimRule       "ä-elim"
 END
     AUTOMATCH hypothesis
     HYPHIT pëq æ r IS  (ALT (ElimRule "ë-elim")  "ë-elim")
     HYPHIT pçq æ r IS  (ALT (ElimRule "ç-elim")  "ç-elim")
     HYPHIT Âp  æ r IS  (ALT (ElimRule "Â-elim")  "Â-elim")
-    HYPHIT èx:a|p¥q æ r IS ElimRule "è|¥-elim"
-    HYPHIT äx:a|p¥q æ r IS ElimRule "ä|¥-elim"
     HYPHIT èx:a¥q   æ r IS ElimRule "è-elim"
     HYPHIT äx:a¥q   æ r IS ElimRule "ä-elim"
     HYPHIT p¦q æ r IS
@@ -160,8 +155,6 @@ END
                cut "ê-elim1" (hypothesis (pêq))
                cut "ê-elim2" (hypothesis (pêq))
          ))
-    CONCHIT èx:a|p¥q IS QuantIntroRule "è|¥-intro"
-    CONCHIT äx:a|p¥q IS QuantIntroRule "ä|¥-intro"
     CONCHIT èx:a¥q   IS QuantIntroRule "è-intro"
     CONCHIT äx:a¥q   IS QuantIntroRule "ä-intro"
     CONCHIT Âp       IS "Â-intro"
@@ -185,21 +178,18 @@ END
              box
         END
 
-        RADIOBUTTON autoselect
-            "Manual goal selection"    IS false
-        AND "Automatic goal selection" IS true
-        END
+        CHECKBOX autoselect
+                "Automatic goal selection"
+        INITIALLY
+                true
 
-        RADIOBUTTON applyconjectures
-            "Only proven theorems may be used as rules" IS false
-        AND "Unproven theorems may be used as rules"    IS true
-        END
-
+        CHECKBOX applyconjectures
+                "Unproven theorems may be applied"
+        INITIALLY
+                false
         RADIOBUTTON ElimRuleBackward
-            "Forbid backward use of elimination rules" IS
-               ElimRuleBackwardNo
-        AND "Permit backward use of elimination rules" IS
-               ElimRuleBackwardYes
+            "Forbid backward use of elimination rules" IS ElimRuleBackwardNo
+        AND "Permit backward use of elimination rules" IS ElimRuleBackwardYes
         END
 
     END /* MENU Edit */
@@ -212,30 +202,25 @@ END
            rule))
     TACTIC Fail(x) IS
            ((SEQ (ALERT x) FAIL))
-    TACTIC FAILSEL(x, y) IS
+
+    TACTIC FailSEL(x, y) IS
            (WHEN (LETARGSEL _p ((SEQ (ALERT x) FAIL))) ((SEQ (ALERT y) FAIL)))
+
     TACTIC MESSAGE(m) IS
-    (SEQ (COMMENT m)
-         (EXPLAIN m))
+           (SEQ (ALERT m)
+                FAIL)
 
     TACTIC SKIP(x)    IS (SEQ)
 
-    MENU    Edit
-            SEPARATOR
-            RADIOBUTTON Comment IS
-                    "Comments on during tactics"  COMMENT
-            AND     "Comments off during tactics" SKIP
-            END
-    END
-        INFIX 1000L ‘
+        INFIX 1000L ²
 CONJECTUREPANEL "Conjectures" IS
-    THEOREMS Propositional ARE
+    THEOREMS Propositional(p,q,r,s) ARE
         ÂÂp æ p
     AND Â(pëq) æ Âp ¦ Âq
     AND Â(p¦q) æ Âp ë Âq
     AND æ p ë Âp
-    AND p , Âp æ false
-    AND p ¦ Âp æ false
+    AND	p , Âp æ false
+    AND	p ¦ Âp æ false
     AND p æ qçp
     AND æ pêp
     AND Â Â p ê p
@@ -244,7 +229,17 @@ CONJECTUREPANEL "Conjectures" IS
     AND æ (pçq) ë (qçp)
     AND (p¦q ç r) ç (p ç (q ç r))
     AND p ç q æ p¦q ê p
-    AND æ p ç (q ç p)
+    AND	æ p ç (q ç p)
+    AND	p ç q, q ç r , p æ r
+    AND	p ç q æ (q ç r) ç (p ç r)
+    AND	p ç (q ç r), p ç q, p æ r
+    AND	p ç q, q ç r æ p ç r
+    AND	p ç (q ç r) æ q ç (p ç r)
+    AND	p ç (q ç (r ç s)) æ r ç (q ç (p ç s ))
+    AND	p ç (q ç r) æ (p ç q) ç (p ç r)
+    AND	æ (p ç (q ç r)) ç ((p ç q) ç (p ç r))
+    AND	(p ¦ q) ç r ê  p ç (q ç r)
+    AND	q ç r æ (p ë q) ç (p ë r)
     AND true  ê Âfalse
     AND Âtrue  ê false
     AND p¦true ê p
@@ -261,35 +256,31 @@ CONJECTUREPANEL "Conjectures" IS
     AND (pëp) ê p
     AND (pëq) ê (qëp)
     AND (pë(qër)) ê ((pëq)ër)
-    AND p ë (q ë r) ê (p ë q) ë r
-    AND p ¦ (q ë r) ê (p ¦ q) ë (p ¦ r)
-    AND p ë (q ¦ r) ê (p ë q) ¦ (p ë r)
+    AND	p ë (q ë r) ê (p ë q) ë r
+    AND	p ¦ (q ë r) ê (p ¦ q) ë (p ¦ r)
+    AND	p ë (q ¦ r) ê (p ë q) ¦ (p ë r)
     AND Â(pëq) ê Âp ¦ Âq
     AND Â(p¦q) ê Âp ë Âq
     AND (pçq) ¦ (qçr) ç (pçr)
     AND (pêq) ¦ (qêr) ç (pêr)
-    AND Âp ¦ p æ false
+    AND	Âp ¦ p æ false
     AND Â(pêq)ê((pëq)¦Â(p¦q))
-    AND èx:a ¥ p¦q æ (èx:a ¥ p) ¦ (èx:a ¥ q)
+    END
+    THEOREMS Predicate
+    ARE èx:a ¥ p¦q æ (èx:a ¥ p) ¦ (èx:a ¥ q)
     AND (èx:a ¥ p) ¦ (èx:a ¥ q) æ èx:a ¥ p¦q
     AND Â(ä x:a¥q) æ (è x:a¥Âq)
     AND Â(è x:a¥q) æ (ä x:a¥Âq)
     AND Â(è x:a|p¥q) æ (ä x:a|p¥Âq)
     AND WHERE x NOTIN a,a',y AND y NOTIN a,a',x INFER
         äx:a ¥ èy:a' ¥ q æ èy:a' ¥ äx:a ¥ q
-    AND p ç q, q ç r , p æ r
-    AND p ç q æ (q ç r) ç (p ç r)
-    AND p ç (q ç r), p ç q, p æ r
-    AND p ç q, q ç r æ p ç r
-    AND p ç (q ç r) æ q ç (p ç r)
-    AND p ç (q ç (r ç s)) æ r ç (q ç (p ç s ))
-    AND p ç (q ç r) æ (p ç q) ç (p ç r)
-    AND æ (p ç (q ç r)) ç ((p ç q) ç (p ç r))
-    AND (p ¦ q) ç r ê  p ç (q ç r)
-    AND q ç r æ (p ë q) ç (p ë r)
     END
-    THEOREM "?-äx:a¥èy:a'¥x‘yæèy:a'¥äx:a¥x‘y(no provisos)"
-    IS ä x:a ¥ èy:a' ¥ x‘y æ èy:a' ¥ äx:a ¥ x‘y
+    THEOREM "è|¥-intro" IS è x:a ¥ p ç q æ è x:a | p ¥ q
+    THEOREM "è|¥-elim"  IS è x:a | p ¥ q æ è x:a ¥ p ç q
+    THEOREM "ä|¥-intro" IS ä x:a ¥ p ¦ q æ ä x:a | p ¥ q
+    THEOREM "ä|¥-elim"  IS ä x:a | p ¥ q æ ä x:a ¥ p ¦ q
+    THEOREM "?-äx:a¥èy:a'¥x²yæèy:a'¥äx:a¥x²y(no provisos)"
+    IS ä x:a ¥ èy:a' ¥ x²y æ èy:a' ¥ äx:a ¥ x²y
     THEOREM "?- (pçq)çp" IS (pçq)çp
     THEOREM "?- (pëÂp)çÂp" IS (pëÂp)çÂp
     THEOREM "?- èy:a'¥äx:a¥q æ äx:a¥èy:a'¥q"
@@ -300,72 +291,53 @@ CONJECTUREPANEL "Conjectures" IS
 END /* PANEL */
     TACTIC ThmForward(thm) IS (SEQ cut (WITHHYPSEL (WITHARGSEL thm)))
     TACTIC ThmBackward(thm) IS (WITHARGSEL(APPLYORRESOLVE thm))
-        RULE    "rewrite"(p, OBJECT x) WHERE FRESH x
+        RULE    rewrite(p, OBJECT x)
         FROM    p ê q
         AND     r[q/x]
         INFER   r[p/x]
 
-        RULE    "rewritebackwards"(p, OBJECT x) WHERE FRESH x
+        RULE    rewritebackwards(p, OBJECT x)
         FROM    q ê p
         AND     r[q/x]
         INFER   r[p/x]
 
-        RULE    "hyprewrite"(p, OBJECT x) WHERE FRESH x
+        RULE    hyprewrite(p, OBJECT x)
         FROM    p ê q
-        AND     r[p/x] æ s
-        INFER   r[q/x] æ s
+        AND     r[q/x] æ s
+        INFER   r[p/x] æ s
 
-        RULE    "hyprewritebackwards"(p, OBJECT x) WHERE FRESH x
+        RULE    hyprewritebackwards(p, OBJECT x)
         FROM    q ê p
-        AND     r[p/x] æ s
-        INFER   r[q/x] æ s
+        AND     r[q/x] æ s
+        INFER   r[p/x] æ s
     CONJECTUREPANEL Conjectures IS
-   BUTTON "Rewrite Ç" IS
-      apply RewriteWith Unfolding hyprewrite   rewrite COMMAND
-     BUTTON "Rewrite È" IS
-      apply RewriteWith Folding   hyprewritebackwards rewritebackwards COMMAND
+     BUTTON "Rewrite ç" IS
+      apply RewriteWith hyprewrite rewrite COMMAND
+     BUTTON "Rewrite ›" IS
+      apply RewriteWith hyprewritebackwards rewritebackwards COMMAND
     END
-    TACTIC  RewriteWith(foldunfold, hyprewriterule, rewriterule, thm) IS
-    (LAYOUT "rewrite %s" (1)
-      (ALT
+    TACTIC  RewriteWith(hyprewriterule, rewriterule, thm) IS
+    (ALT
+      (LAYOUT "rewrite %s" (1)
         (WHEN
           (LETHYPSUBSTSEL  _p (WITHSUBSTSEL hyprewriterule) thm)
-          (LETCONCSUBSTSEL _p (WITHSUBSTSEL rewriterule) thm))
-        (foldunfold thm)
-        (FAILSEL ("%s not applicable to text selection", thm)
-                 ("%s not applicable anywhere by foldunfold", thm))))
+          (LETCONCSUBSTSEL _p (WITHSUBSTSEL rewriterule) thm)
+          (LETHYP          _p (hyprewriterule _p) thm)
+          (LETCONC         _p (rewriterule _p) thm)))
+      (FailSEL ("%s not applicable to text selection", thm)
+               ("%s not applicable to hypothesis or conclusion", thm)))
     TACTIC Unfolding(thm) IS (UNFOLD rewrite thm)
     TACTIC Folding(thm)   IS (FOLD   rewritebackwards thm)
-    MENU Rewriting
-    ENTRY    "Rewrite Ç"  IS
-                Rewrite rewrite hyprewrite
-    ENTRY    "Rewrite È"  IS
-                Rewrite rewritebackwards hyprewritebackwards
+    TACTIC UnfoldWithIff(rule)
+    (RewriteWith  hyprewrite rewrite rule)
+
+    TACTIC FoldWithIff(rule)
+    (RewriteWith  hyprewritebackwards rewritebackwards rule)
+
+    MENU "Quantifier Rules" IS
+        SEPARATOR
+        ENTRY "ä|¥ç"      IS UnfoldWithIff "ä|¥"
+        ENTRY "ä|¥›"      IS FoldWithIff   "ä|¥"
+        ENTRY "è|¥ç"      IS UnfoldWithIff "è|¥"
+        ENTRY "è|¥›"      IS FoldWithIff   "è|¥"
     END
-
-    TACTIC  Rewrite(rule, hyprule) IS
-    (WHEN   (LETHYPSUBSTSEL  _p (WITHSUBSTSEL hyprule))
-            (LETCONCSUBSTSEL _p (WITHSUBSTSEL rule))
-            (Fail (Please text-select a subexpression to rewrite)))
-
-CONJECTUREPANEL "Derived rules"
-    DERIVED RULE WHERE FRESH y  FROM yÚaæp[y/x]êq[y/x] AND èx:a¥p INFER èx:a¥q
-END
-    
-TACTIC GivenForward(i) IS SEQ cut (GIVEN i)
-TACTIC GivenBackward(i) IS GIVEN i
-
-/*
-GIVENPANEL Given IS
-    BUTTON "Apply Forward"   IS apply GivenForward COMMAND
-    BUTTON "Apply Backwards" IS apply GivenBackward COMMAND
-END /* GIVENPANEL */
-*/
-TACTIC GivenTac(i) IS
-    ALT (GIVEN i)
-          (CUTIN (GIVEN i))
-
-INITIALISE givenMenuTactic GivenTac
-
-
-
