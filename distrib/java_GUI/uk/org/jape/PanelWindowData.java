@@ -113,14 +113,14 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             entryv.add(entry);
             cmdv.add(cmd);
             markv.add(null);
+			if (window!=null)
+				window.addEntry(entry, null);
         }
         else {
             if (panellist_tracing)
                 Logger.log.println("panel \""+title+"\" setting entry \""+entry+"\" to \""+cmd+"\"");
             cmdv.setElementAt(cmd, i);
         }
-        if (window!=null)
-            window.addEntry(entry, null);
     }
 
     protected void markEntry(String cmd, boolean proved, boolean disproved) throws ProtocolError {
