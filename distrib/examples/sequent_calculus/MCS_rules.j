@@ -26,76 +26,75 @@ BIND    x SCOPE P IN èx . P
 SEQUENT IS BAG æ BAG
 
 RULE	axiom(A)		INFER A æ A
-RULE	"¦-R"		FROM æ A AND æ B INFER æ A¦B
-RULE	"¦-L"		FROM A, B æ  INFER   A¦B æ 
-RULE	"ë-R"		FROM æ A,B INFER æ AëB
-RULE	"ë-L"		FROM A æ  AND B æ  INFER AëB æ 
-RULE	"Â-R"		FROM A æ INFER æ ÂA
-RULE	"Â-L"		FROM æ A INFER ÂA æ 
-RULE	"ç-R"		FROM A æ B INFER æ AçB
-RULE	"ç-L"		FROM AçB æ A AND B æ  INFER AçB æ
-RULE	"é-R"		FROM æ AçB AND æ BçA INFER æ AéB
-RULE	"é-L"		FROM AçB, BçA æ  INFER AéB æ 
-RULE	"è-R"(OBJECT y) WHERE FRESH y
+RULE	"æ¦"		FROM æ A AND æ B INFER æ A¦B
+RULE	"¦æ"		FROM A, B æ  INFER   A¦B æ 
+RULE	"æë"		FROM æ A,B INFER æ AëB
+RULE	"ëæ"		FROM A æ  AND B æ  INFER AëB æ 
+RULE	"æÂ"		FROM A æ INFER æ ÂA
+RULE	"Âæ"		FROM æ A INFER ÂA æ 
+RULE	"æç"		FROM A æ B INFER æ AçB
+RULE	"çæ"		FROM AçB æ A AND B æ  INFER AçB æ
+RULE	"æé"		FROM æ AçB AND æ BçA INFER æ AéB
+RULE	"éæ"		FROM AçB, BçA æ  INFER AéB æ 
+RULE	"æè"(OBJECT y) WHERE FRESH y
 			FROM æ A[x\y] INFER æ èx . A
-RULE	"è-L"(B)		FROM èx.A, A[x\B] æ INFER èx.A æ
-RULE	"ä-R"(B)		FROM æ A[x\B] INFER æ äx.A
-RULE	"ä-L"(OBJECT y) WHERE FRESH y
+RULE	"èæ"(B)		FROM èx.A, A[x\B] æ INFER èx.A æ
+RULE	"æä"(B)		FROM æ A[x\B] INFER æ äx.A
+RULE	"äæ"(OBJECT y) WHERE FRESH y
 			FROM  A[x\y] æ INFER äx.A æ
 RULE	cut(A)		FROM æ A AND A æ INFER æ
-RULE	leftweaken(A)	FROM æ INFER A æ 
-RULE	rightweaken(A)	FROM æ INFER æ A
-RULE	leftcontract(A)	FROM A, A æ INFER A æ 
-RULE	rightcontract(A)	FROM æ A, A INFER æ A 
+RULE	"weakenæ"(A)	FROM æ INFER A æ 
+RULE	"æweaken"(A)	FROM æ INFER æ A
+RULE	"contractæ"(A)	FROM A, A æ INFER A æ 
+RULE	"æcontract"(A)	FROM æ A, A INFER æ A 
                                 
 MENU Rules IS
 	ENTRY axiom	IS  axiom
 	SEPARATOR
-	ENTRY "¦-L"	IS "¦-L"
-	ENTRY "ë-L"	IS "ë-L"
-	ENTRY "ç-L"	IS "ç-L"
-	ENTRY "Â-L"	IS "Â-L"
-	ENTRY "é-L"	IS "é-L"
-	ENTRY "è-L"	IS "è-L"
-	ENTRY "ä-L"	IS "ä-L"
+	ENTRY "¦æ"	IS "¦æ"
+	ENTRY "ëæ"	IS "ëæ"
+	ENTRY "çæ"	IS "çæ"
+	ENTRY "Âæ"	IS "Âæ"
+	ENTRY "éæ"	IS "éæ"
+	ENTRY "èæ"	IS "èæ"
+	ENTRY "äæ"	IS "äæ"
 	SEPARATOR
-	ENTRY "¦-R"	IS "¦-R"
-	ENTRY "ë-R"	IS "ë-R"
-	ENTRY "ç-R"	IS "ç-R"
-	ENTRY "Â-R"	IS "Â-R"
-	ENTRY "é-R"	IS "é-R"
-	ENTRY "è-R"	IS "è-R"
-	ENTRY "ä-R"	IS "ä-R"
+	ENTRY "æ¦"	IS "æ¦"
+	ENTRY "æë"	IS "æë"
+	ENTRY "æç"	IS "æç"
+	ENTRY "æÂ"	IS "æÂ"
+	ENTRY "æé"	IS "æé"
+	ENTRY "æè"	IS "æè"
+	ENTRY "æä"	IS "æä"
 	SEPARATOR
 	ENTRY cut		IS cut
-	ENTRY leftweaken	IS leftweaken
-	ENTRY rightweaken	IS rightweaken
-	ENTRY leftcontract	IS leftcontract
-	ENTRY rightcontract	IS rightcontract
+	ENTRY "weakenæ"	IS "weakenæ"
+	ENTRY "æweaken"	IS "æweaken"
+	ENTRY "contractæ"	IS "contractæ"
+	ENTRY "æcontract"	IS "æcontract"
 END
 
 HYPHIT	A æ A	IS axiom       
-HYPHIT	AçB æ	IS "ç-L"        
-HYPHIT	AëB æ	IS "ë-L"
-HYPHIT	A¦B æ 	IS "¦-L"    
-HYPHIT	ÂA æ	IS "Â-L"    
-HYPHIT	AéB æ	IS "é-L"    
-HYPHIT	èx.A æ	IS "è-L"
-HYPHIT	äx.A æ	IS "ä-L"
+HYPHIT	AçB æ	IS "çæ"        
+HYPHIT	AëB æ	IS "ëæ"
+HYPHIT	A¦B æ 	IS "¦æ"    
+HYPHIT	ÂA æ		IS "Âæ"    
+HYPHIT	AéB æ	IS "éæ"    
+HYPHIT	èx.A æ	IS "èæ"
+HYPHIT	äx.A æ	IS "äæ"
 
-CONCHIT	B¦C	IS "¦-R"
-CONCHIT	BëC	IS "ë-R"      
-CONCHIT	BçC	IS "ç-R"
-CONCHIT	ÂB	IS "Â-R"       
-CONCHIT	BéC	IS "é-R"     
-CONCHIT	èx.B	IS "è-R"  
-CONCHIT	äx.B	IS "ä-R"  
+CONCHIT	B¦C	IS "æ¦"
+CONCHIT	BëC	IS "æë"      
+CONCHIT	BçC	IS "æç"
+CONCHIT	ÂB	IS "æÂ"       
+CONCHIT	BéC	IS "æé"     
+CONCHIT	èx.B	IS "æè"  
+CONCHIT	äx.B	IS "æä"  
 
 AUTOMATCH axiom
 
-STRUCTURERULE IDENTITY    axiom
-STRUCTURERULE CUT            cut
-STRUCTURERULE LEFTWEAKEN     leftweaken
-STRUCTURERULE RIGHTWEAKEN   rightweaken
-STRUCTURERULE LEFTCONTRACT   leftcontract
-STRUCTURERULE RIGHTCONTRACT rightcontract
+STRUCTURERULE CUT            		cut
+STRUCTURERULE LEFTWEAKEN     	"weakenæ"
+STRUCTURERULE RIGHTWEAKEN   	"æweaken"
+STRUCTURERULE LEFTCONTRACT   	"contractæ"
+STRUCTURERULE RIGHTCONTRACT 	"æcontract"
