@@ -366,6 +366,13 @@ public class JapeMenu implements DebugConstants {
              Reply.sendCOMMAND(cmd);
         }
     }
+
+    private static class CopyProofAction extends ItemAction {
+        public void action (JapeWindow w) {
+            Alert.showAlert(Alert.Info,
+                            "Copy Proof doesn't work yet -- but Print does (in the File menu)");
+        }
+    }
     
     private static class OpenFileAction extends ItemAction {
         public void action (JapeWindow w) {
@@ -525,16 +532,18 @@ public class JapeMenu implements DebugConstants {
 
         editmenu.addSep();
 
-        indexMenuItem(editmenu, "Cut", new UnimplementedAction("Edit: Cut")).
-            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, menumask));
-
+        /* we don't need Cut in proofs (we do in text dialogs, but they are to come)
+            indexMenuItem(editmenu, "Cut", new UnimplementedAction("Edit: Cut")).
+                setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, menumask));
+         */
+        
         indexMenuItem(editmenu, "Copy", new UnimplementedAction("Edit: Copy")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, menumask));
 
-        indexMenuItem(editmenu, "Copy Proof", new UnimplementedAction("Edit: Copy Proof")).
+        indexMenuItem(editmenu, "Copy Proof", new CopyProofAction()).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C,
                                                   menumask+java.awt.Event.SHIFT_MASK));
-
+        /* likewise we don't need Paste, Clear or Select All ...
         indexMenuItem(editmenu, "Paste", new UnimplementedAction("Edit: Paste")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, menumask));
 
@@ -542,7 +551,8 @@ public class JapeMenu implements DebugConstants {
 
         indexMenuItem(editmenu, "Select All", new UnimplementedAction("Edit: Select All")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, menumask));
-
+         */
+        
         if (LocalSettings.prefsMenuItemNeeded) {
             editmenu.addSep();
             indexMenuItem(editmenu, "Preferences...", new PrefsAction());
