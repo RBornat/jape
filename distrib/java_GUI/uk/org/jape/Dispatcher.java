@@ -37,6 +37,7 @@ public class Dispatcher extends Thread implements DebugConstants {
     public Dispatcher() {
         super("Dispatcher");
         in = new BufferedReader(new InputStreamReader(System.in));
+        System.err.println("encoding used is "+(new InputStreamReader(System.in)).getEncoding());
         if (protocol_tracing)
             System.err.println("dispatcher initialised");
     }
