@@ -98,7 +98,7 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 108576853;
+			PBXPerProjectTemplateStateSaveDate = 108676786;
 			PBXPrepackagedSmartGroups_v2 = (
 				{
 					PBXTransientLocationAtTop = bottom;
@@ -500,7 +500,7 @@
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXNavigatorGroup" = {
 				Frame = "{{0, 0}, {750, 481}}";
 				PBXModuleWindowStatusBarHidden = YES;
-				RubberWindowFrame = "15 495 750 502 0 0 1280 1002 ";
+				RubberWindowFrame = "38 474 750 502 0 0 1280 1002 ";
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXProjectFindModule" = {
 				Frame = "{{0, 0}, {690, 677}}";
@@ -519,7 +519,7 @@
 				PBXModuleWindowStatusBarHidden = YES;
 				RubberWindowFrame = "211 208 745 464 0 0 1280 1002 ";
 			};
-			PBXWorkspaceStateSaveDate = 108576853;
+			PBXWorkspaceStateSaveDate = 108676786;
 		};
 		perUserProjectItems = {
 			79EB647A06786DE700FF9E90 = 79EB647A06786DE700FF9E90;
@@ -592,10 +592,10 @@
 	};
 	791C734F05DCEDE00086E5C6 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {776, 12810}}";
-			sepNavSelRange = "{18212, 19}";
-			sepNavVisRect = "{{0, 8298}, {711, 428}}";
-			sepNavWindowFrame = "{{15, 439}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {776, 12824}}";
+			sepNavSelRange = "{25302, 10}";
+			sepNavVisRect = "{{0, 11648}, {770, 789}}";
+			sepNavWindowFrame = "{{15, 99}, {809, 898}}";
 		};
 	};
 	791C735005DCEDE00086E5C6 = {
@@ -625,9 +625,9 @@
 	791C735505DCEDE00086E5C6 = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {958, 7266}}";
-			sepNavSelRange = "{3418, 15}";
-			sepNavVisRect = "{{0, 1253}, {711, 449}}";
-			sepNavWindowFrame = "{{61, 397}, {750, 558}}";
+			sepNavSelRange = "{8690, 10}";
+			sepNavVisRect = "{{0, 3563}, {711, 449}}";
+			sepNavWindowFrame = "{{38, 418}, {750, 558}}";
 		};
 	};
 	791C735705DCEDE00086E5C6 = {
@@ -886,7 +886,7 @@
 		isa = PBXTextBookmark;
 		name = getPaneGeometry;
 		rLen = 15;
-		rLoc = 8806;
+		rLoc = 8822;
 		rType = 0;
 		vrLen = 669;
 		vrLoc = 8513;
@@ -896,7 +896,7 @@
 		isa = PBXTextBookmark;
 		name = getPaneGeometry;
 		rLen = 15;
-		rLoc = 8806;
+		rLoc = 8822;
 		rType = 0;
 		vrLen = 669;
 		vrLoc = 8513;
