@@ -116,7 +116,7 @@ let abandonServer = Japeserver.stopserver
 
 let killServer = Japeserver.killserver
 
-let setComment = setComment <*> implode
+let setComment = setComment <.> implode
 
 let rec deadServer strings = consolereport strings; abandonServer (); raise DeadServer_
 
@@ -299,7 +299,7 @@ let rec findSelection state =
       let rec ok path =
         not
           (List.exists
-             (not  <*> (fun el -> Prooftree.Tree.Fmttree.validhyp tree el path))
+             (not  <.> (fun el -> Prooftree.Tree.Fmttree.validhyp tree el path))
              hypels)
       in
       (* now, because we don't have a definite conclusion path, we have to see if we can refine the path we 

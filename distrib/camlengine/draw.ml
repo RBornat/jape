@@ -99,7 +99,7 @@ let setproofparams = Japeserver.setproofparams
 let rec measuretext ta t = Text.measuretext Japeserver.measurestring ta t
 (* note fixed alignment, so don't use for folded/multiline texts *)
 let text2textinfo = measuretext FirstLine
-let rec mktextinfo f = text2textinfo <*> f
+let rec mktextinfo f = text2textinfo <.> f
 let rec string2textinfo f = mktextinfo (string2text f)
 let rec element2textinfo elementstring =
   mktextinfo (element2text elementstring)

@@ -73,35 +73,32 @@ let rec enable (button, state) =
   let rec doit b v =
     let (m, c) =
       match b with
-        MyUndoProof -> "Edit", "Undo Proof Step"
-      | MyRedoProof -> "Edit", "Redo Proof Step"
+        MyUndoProof    -> "Edit", "Undo Proof Step"
+      | MyRedoProof    -> "Edit", "Redo Proof Step"
       | MyUndoDisproof -> "Edit", "Undo Disproof Step"
       | MyRedoDisproof -> "Edit", "Redo Disproof Step"
-      | MyDone -> "Edit", "Done"
-      | MyClose -> "File", "Close"
-      | MySave -> "File", "Save"
-      | MySaveAs -> "File", "Save As..."
-      | MyDisprove -> "Edit", "Disprove"
+      | MyDone         -> "Edit", "Done"
+      | MyClose        -> "File", "Close"
+      | MySave         -> "File", "Save"
+      | MySaveAs       -> "File", "Save As..."
+      | MyDisprove     -> "Edit", "Disprove"
     in
-    if match at (!buttoncache, b) with
-         Some r ->
-           if !r = state then false else begin r := state; true end
-       | None ->
-           buttoncache := ( ++ ) (!buttoncache, ( |-> ) (b, ref state));
-           true
+    if match (!buttoncache <:> b) with
+         Some r -> if !r = state then false else begin r := state; true end
+       | None   -> buttoncache := (!buttoncache ++ (b |-> ref state)); true
     then
-      Japeserver.enablemenuitem m c state
+      Japeserver.enablemenuitem true m c state
   in
   match button with
-    UndoProofbutton -> doit MyUndoProof state
-  | RedoProofbutton -> doit MyRedoProof state
+    UndoProofbutton    -> doit MyUndoProof state
+  | RedoProofbutton    -> doit MyRedoProof state
   | UndoDisproofbutton -> doit MyUndoDisproof state
   | RedoDisproofbutton -> doit MyRedoDisproof state
-  | Finishedbutton -> doit MyDone state
-  | Resetbutton -> doit MyClose state
-  | Savebutton -> doit MySave state
-  | SaveAsbutton -> doit MySaveAs state
-  | Disprovebutton -> doit MyDisprove state
+  | Finishedbutton     -> doit MyDone state
+  | Resetbutton        -> doit MyClose state
+  | Savebutton         -> doit MySave state
+  | SaveAsbutton       -> doit MySaveAs state
+  | Disprovebutton     -> doit MyDisprove state
 
 let (resetfontstuff, setfontstuff, getfontstuff) =
   let fontstuff : string option ref = ref None in
@@ -118,13 +115,12 @@ let rec reloadmenusandpanels markconjecture oplist =
       Japeserver.sendOperators oplist;
       buttoncache := empty;
       menuiter
-        (fun menu ->
+        (fun (proofsonly,menu) ->
            let menustring = namestring menu in
-           Japeserver.newmenu menustring;
+           Japeserver.newmenu proofsonly menustring;
            menuitemiter menu
              (fun (label, keyopt, cmd) ->
-                Japeserver.menuentry
-                  (menustring, namestring label, keyopt, cmd))
+                Japeserver.menuentry menustring (namestring label) keyopt cmd)
              (fun (label, cmd) ->
                 (* checkbox *)
                 Japeserver.menucheckbox menustring (namestring label) cmd)
@@ -187,7 +183,7 @@ let rec initButtons () =
      _E ("Done", Some "D", "done"); ]
   in
   clearmenusandpanels ();
-  addmenu (namefrom "Edit");
+  addmenu true (namefrom "Edit"); (* this isn't necessary ... *)
   addmenudata (namefrom "Edit") _EditEntries
 
 let rec initFonts () =

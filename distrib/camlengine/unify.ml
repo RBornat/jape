@@ -86,7 +86,7 @@ let rec occurs cxt v t =
     Id _ -> false
   | Unknown (_, v', _) ->
       v = v' ||
-      (match at (varmap cxt, v') with
+      (match (varmap cxt <:> v') with
          Some t -> occurs cxt v t
        | None -> false)
   | App (_, f, a) -> occurs cxt v f || occurs cxt v a
@@ -285,7 +285,7 @@ let rec whatever f cxt t =
 let rec class__ cxt t =
   match t with
     Unknown (_, v, _) ->
-      (at (varmap cxt, v) &~~ whatever class__ cxt)
+      ((varmap cxt <:> v) &~~ whatever class__ cxt)
   | _ -> if bracketed t then whatever class__ cxt (debracket t) else None
 (* was debracket (simplifySubstAnyway (facts (rewrittenprovisos cxt) cxt) m _P) *)
 (* now a single-step simplifier, in an attempt to speed-up failing unifications.
@@ -366,7 +366,7 @@ and subststep cxt =
     r
 let rec assign (v, c) t cxt =
   if not (specialisesto (c, idclass t)) || occurs cxt v t then None
-  else Some (plusvarmap cxt (( |-> ) (v, t)))
+  else Some (plusvarmap cxt ((v |-> t)))
 let rec reb origv origt t =
   match bracketed origt, bracketed origv with
     true, true -> reb (debracket origv) (debracket origt) t
@@ -684,7 +684,7 @@ and unifycollections kind (e1s, e2s) cxt =
     let rec rval =
       function
         (ResUnknown i as r), t ->
-          begin match at (resmap cxt, i) with
+          begin match (resmap cxt <:> i) with
             Some (r, t) -> rval (r, t)
           | None -> r, t
           end
@@ -699,8 +699,8 @@ and unifycollections kind (e1s, e2s) cxt =
     | ResUnknown i1, ResUnknown i2 ->
         (* can't stop it *)
         if i1 = i2 then Some cxt
-        else Some (plusresmap cxt (( |-> ) (i1, (r2, t2))))
-    | ResUnknown i1, _ -> Some (plusresmap cxt (( |-> ) (i1, (r2, t2))))
+        else Some (plusresmap cxt ((i1 |-> (r2, t2))))
+    | ResUnknown i1, _ -> Some (plusresmap cxt ((i1 |-> (r2, t2))))
     | _, ResUnknown _ -> ures ((r2, t2), (r1, t1)) cxt
     | Resnum _, Resnum _ -> if r1 = r2 then Some cxt else None
   in
@@ -711,12 +711,12 @@ and unifycollections kind (e1s, e2s) cxt =
     let rec expand (e, (cxt, es)) =
       match e with
         Segvar (_, [], Unknown (_, v, _)) ->
-          begin match at (varmap cxt, v) with
+          begin match (varmap cxt <:> v) with
             Some (Collection (_, _, es')) -> nj_fold expand es' (cxt, es)
           | _ -> cxt, e :: es
           end
       | Segvar (_, ps, Unknown (_, v, _)) ->
-          begin match at (varmap cxt, v) with
+          begin match (varmap cxt <:> v) with
             Some (Collection (_, _, es')) ->
               (* nj_fold expand (modeifyelement ps <* es') (cxt,es) *)
               raise (Catastrophe_ ["unify collclass expand"])
@@ -756,8 +756,7 @@ and unifycollections kind (e1s, e2s) cxt =
                     let (cxt, u) = freshUnknown cxt c vid in
                     Some
                       (plusvarmap cxt
-                          (( |-> )
-                            (vid,
+                          ((vid |->
                              registerCollection
                                (c, [registerSegvar (ps, u)]))),
                        registerSegvar ([], u))
@@ -926,8 +925,7 @@ and unifycollections kind (e1s, e2s) cxt =
               let (cxt, u) = freshUnknown cxt kind v in
               let cxt =
                 plusvarmap cxt
-                   (( |-> )
-                     (v,
+                   ((v |->
                       registerCollection
                         (kind, [registerSegvar ([], u); el'])))
               in
@@ -956,7 +954,7 @@ and unifycollections kind (e1s, e2s) cxt =
       match es with
         [] -> [cxt]
       | Segvar (_, _, Unknown (_, v, c)) :: es ->
-          uf (plusvarmap cxt (( |-> ) (v, registerCollection (c, []))))
+          uf (plusvarmap cxt ((v |-> registerCollection (c, []))))
              es
       | _ -> []
     in
@@ -984,7 +982,7 @@ and unifycollections kind (e1s, e2s) cxt =
               begin match optionfold (demodeifyall ps) e2s (cxt, []) with
                 Some (cxt, e2s) ->
                   res
-                    [plusvarmap cxt (( |-> ) (v, registerCollection (c, e2s)))]
+                    [plusvarmap cxt ((v |-> registerCollection (c, e2s)))]
               | _ -> res []
               end
           | _, [Segvar (_, ps, Unknown (_, v, c))] -> urev ()
@@ -1016,8 +1014,7 @@ and unifycollections kind (e1s, e2s) cxt =
                                 (unifybags
                                    (registerSegvar (ps, u') :: e1s', e2us)
                                    (plusvarmap cxt
-                                       (( |-> )
-                                         (v,
+                                       ((v |->
                                           registerCollection
                                             (kind, e2ks')))))
                           | None -> res []
@@ -1028,12 +1025,12 @@ and unifycollections kind (e1s, e2s) cxt =
                      urev ()
                   | _, 0 ->
                       res
-                        (if List.exists (not <*> isuseg) e1s then
+                        (if List.exists (not <.> isuseg) e1s then
                            []
                          else def ())
                   | 0, _ ->
                       res
-                        (if List.exists (not <*> isuseg) e2s then
+                        (if List.exists (not <.> isuseg) e2s then
                            []
                          else def ())
                   | _ -> res (def ())
@@ -1056,8 +1053,8 @@ and unifycollections kind (e1s, e2s) cxt =
      * UnifiesProviso straight away.
      *)
     match
-      extract (not <*> isuseg) e1s, List.length e1s > 1,
-      extract (not <*> isuseg) e2s, List.length e2s > 1
+      extract (not <.> isuseg) e1s, List.length e1s > 1,
+      extract (not <.> isuseg) e2s, List.length e2s > 1
     with
       None, true, _, true -> maybedef (e1s, e2s)
     | _, true, None, true -> maybedef (e1s, e2s)
@@ -1078,7 +1075,7 @@ and unifycollections kind (e1s, e2s) cxt =
       let cxt' =
         match svs with
           [Segvar (_, _, Unknown (_, v, _))] ->
-            plusvarmap  cxt (( |-> ) (v, chds))
+            plusvarmap  cxt ((v |-> chds))
         | _ ->
             plusvisibleprovisos
                cxt
@@ -1100,8 +1097,7 @@ and unifycollections kind (e1s, e2s) cxt =
                let (cxt, u'') = freshUnknown cxt c v in
                let cxt =
                  plusvarmap cxt
-                    (( |-> )
-                      (v,
+                    ((v |->
                        registerCollection
                          (kind,
                           [registerSegvar ([], u');
@@ -1259,7 +1255,7 @@ and checkdeferred (t1, t2) cxt =
                UnifiesProviso (t1', t2') ->
                  eqterms (t1, t1') && eqterms (t2, t2') ||
                  eqterms (t2, t1') && eqterms (t1, t2')
-             | _ -> false) <*> provisoactual)
+             | _ -> false) <.> provisoactual)
          pros
     then
       [cxt]
@@ -1380,10 +1376,10 @@ let rec simplifydeferred cxt =
   | _ -> Some cxt
 let rec matchedtarget origcxt newcxt uvids =
   let rec ok u =
-    match at (varmap origcxt, u), at (varmap newcxt, u) with
+    match (varmap origcxt <:> u), (varmap newcxt <:> u) with
       Some old, Some new__ ->
         eqterms (rewrite origcxt old, rewrite newcxt new__)
     | None, None -> true
     | _ -> false
   in
-  not (List.exists (not <*> ok) uvids)
+  not (List.exists (not <.> ok) uvids)

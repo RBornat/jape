@@ -78,7 +78,7 @@ let rec ( // ) =
   | ( ++ ), [] -> raise Reduce
 
 
-let _All f = not <*> List.exists (not <*> f)
+let _All f = not <.> List.exists (not <.> f)
 
 let rec member (x, sf) = List.mem x sf
 let rec nonmember (x, sf) = not (member (x, sf))
@@ -267,7 +267,7 @@ let rec remdups =
   | x1 :: x2 :: xs ->
       let rest = remdups (x2 :: xs) in
       if x1 = x2 then rest else x1 :: rest
-let rec sortunique (<) = remdups <*> sort (<)
+let rec sortunique (<) = remdups <.> sort (<)
 let rec earlierlist a1 a2 a3 =
   match a1, a2, a3 with
     (<), x :: xs, y :: ys ->

@@ -102,7 +102,7 @@ let rec get_oplist () =
     Some ss -> ss
   | None ->
       let ops =
-        List.map (implode <*> (fun(r,_,_)->r)) (summarisetree !optree)
+        List.map (implode <.> (fun(r,_,_)->r)) (summarisetree !optree)
       in
       sortunique (<) ((ops @ !decIDheads) @ !decIDtails)
 
@@ -265,7 +265,7 @@ let rec pre_SYMBOL s =
   | STILE s'1 -> Prestrs ["STILE \""; s'1; "\""]
   | SHYID s'1 -> Prestrs ["RESERVED-WORD "; s'1]
 
-let smlsymbolstring = pre_implode <*> pre_SYMBOL
+let smlsymbolstring = pre_implode <.> pre_SYMBOL
 
 let symbolstring = reverselookup
 
@@ -276,7 +276,7 @@ let rec register_op s sym =
   if s = "" then bang ()
   else
     let cs = explode s in
-    if List.exists (not <*> ispunct) cs then bang ()
+    if List.exists (not <.> ispunct) cs then bang ()
     else
       begin
         if !symboldebug then
@@ -310,7 +310,7 @@ let rec enter (string, symbol) =
          (try deregister_op oldstring symbol 
           with DeleteFromTree_ -> 
             let string_of_csrb =
-              triplestring (bracketedliststring (enQuote <*> String.escaped) ",") smlsymbolstring string_of_bool ","
+              triplestring (bracketedliststring (enQuote <.> String.escaped) ",") smlsymbolstring string_of_bool ","
             in
             consolereport 
               ["DeleteFromTree_\n\t"; 
@@ -366,11 +366,10 @@ let decVarPrefixes : (idclass, string) Mappingfuns.mapping ref =
   ref Mappingfuns.empty
 
 let rec declareIdPrefix class__ s =
-  begin match Mappingfuns.at (!decVarPrefixes, class__) with
+  begin match Mappingfuns.(<:>) !decVarPrefixes class__ with
     None ->
       decVarPrefixes :=
-        Mappingfuns.( ++ )
-          (!decVarPrefixes, Mappingfuns.( |-> ) (class__, s))
+        Mappingfuns.(++) !decVarPrefixes (Mappingfuns.(|->) class__ s)
   | Some _ -> ()
   end;
   insertinIdtree "declareIdPrefix" true class__ idprefixtree s;
@@ -382,7 +381,7 @@ let rec declareIdPrefix class__ s =
   []
 
 let rec autoID class__ prefix =
-  match Mappingfuns.at (!decVarPrefixes, class__) with
+  match Mappingfuns.(<:>) !decVarPrefixes class__ with
     Some s -> s
   | None ->
       (* we just add underscores to prefix till it isn't in the IdPrefix tree *)
@@ -397,7 +396,7 @@ let rec declareIdClass class__ s =
   None
 
 let rec isnumber s =
-  not (List.exists (not <*> isdigit) (explode s))
+  not (List.exists (not <.> isdigit) (explode s))
 
 let rec isextensibleID s =
   lookup s = None && lookinIdtree idprefixtree (explode s) <> NoClass
@@ -437,7 +436,7 @@ let rec resetSymbols () =
      "RIGHTWEAKEN"; "RULE"; "RULES"; "SCOPE"; "SEMANTICS";
      "SEMANTICTURNSTILE"; "SEPARATOR"; "SEQUENT"; "STRING";
      "STRUCTURERULE"; "SUBSTFIX"; "TACTIC"; "TACTICPANEL"; "THEOREM";
-     "THEOREMS"; "THEORY"; "TRANSITIVE"; "UNIFIESWITH"; "USE"; "VARIABLE";
+     "THEOREMS"; "THEORY"; "TRANSITIVE"; "UMENU"; "UNIFIESWITH"; "USE"; "VARIABLE";
      "VIEW"; "WEAKEN"; "WHERE"; "WORLD"];
   enter ("(", BRA "(");
   (* these two still need special treatment ... *)
@@ -689,7 +688,7 @@ let rec currnovelsymb () =
     match !peekedsymb with
       [] ->
         symb :=
-          scanwhile (not <*> isreserved) (List.rev cs) checkbadID;
+          scanwhile (not <.> isreserved) (List.rev cs) checkbadID;
         !symb
     | _ -> raise (Catastrophe_ ["peeksymb(); currnovelsymb()"])
   else

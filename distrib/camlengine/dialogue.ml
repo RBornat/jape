@@ -150,7 +150,7 @@ let rec profileswitcher b =
   profiling := b (* ; if b then Profile.profileOn () else Profile.profileOff () *)
 let rec profilereader () = !profiling
        
-let thingguard = not <*> thingstodo
+let thingguard = not <.> thingstodo
 let tparam = Japeenv.guardedjapevar thingguard
 
 let defaultenv =
@@ -242,10 +242,9 @@ in
  *)
 let rec defaultenv () =
   List.iter Japeenv.resetvar (List.map snd pairs);
-  nj_revfold Japeenv.( ++ )
+  nj_revfold (uncurry2 Japeenv.(++))
     (List.map
-       (
-          Japeenv.( ||-> ) <*> ((fun (s, v) -> Name.namefrom s, v)))
+       (uncurry2 Japeenv.( ||-> ) <.> ((fun (s, v) -> Name.namefrom s, v)))
        (nj_fold (fun ((s, f), ps) -> (s, f ()) :: ps) nonresetpairs pairs))
     Japeenv.empty
 in
@@ -270,14 +269,14 @@ let nenv =
 in
 let rec lookup s =
   match
-      (at (nenv, s) &~~ (fun n -> Japeenv.at (env, n)))
+      ((nenv <:> s) &~~ (fun n -> Japeenv.(<:>) env n))
   with
     Some t -> Some (termstring t)
   | None -> None
 in
 let rec changed s =
   lookup s <>
-      (at (nenv, s) &~~ (fun n -> at (dispenv, n)))
+      ((nenv <:> s) &~~ (fun n -> (dispenv <:> n)))
 in
 List.exists changed displaynames ||
 lookup "displaystyle" = Some "box" && List.exists changed boxdisplaynames
@@ -384,9 +383,9 @@ let rec withfromstore (Pinf pi) fromstore = Pinf {pi with fromstore = fromstore}
 
 type showstate = ShowProof | ShowDisproof | ShowBoth | DontShow
 
-let setComment = Alert.setComment <*> implode
+let setComment = Alert.setComment <.> implode
 let showAlert =
-  Alert.showAlert Alert.defaultseverity_alert <*> implode
+  Alert.showAlert Alert.defaultseverity_alert <.> implode
 
 let rec screenquery ss y n def =
   let bs = [y, true; n, false] in
@@ -657,7 +656,7 @@ let rec tryLayout displaystate c pathkind hist =
          Some (withproofhist hist (append_step phist proof')))
 let rec recorddisplayvars env =
   try 
-    (fun s -> termstring (_The (Japeenv.at (env, s)))) <* displayvars
+    (fun s -> termstring (_The (Japeenv.(<:>) env s))) <* displayvars
   with
     _The_ ->
       raise
@@ -685,7 +684,7 @@ let rec disproofmove a1 a2 =
  *)
 let rec tryForward f =
   fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
-    f proof &~~ (fSome <*> proofmove hist)
+    f proof &~~ (fSome <.> proofmove hist)
 let rec evolvewithexplanation explain displaystate env f =
   fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
     match f proof with
@@ -831,7 +830,7 @@ and addproofs
         let state_cxt = selfparentprovisos cxt in
         let facts = facts (provisos state_cxt) state_cxt in
         let disproof = model2disproofstate facts tree disproofopt in
-        Japeserver.openproof (heading, num);
+        Japeserver.openproof heading num;
         Pinf
           {title = name, index; proofnum = num; displayvarsvals = recorddisplayvars env;
            needsrefresh = false;
@@ -1134,7 +1133,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     let rec disproofstateact act =
       inside c
         (fun displaystate ->
-           showdisproof <*> 
+           showdisproof <.> 
              ((function
                  WinHist {disproofhist = Some (Hist {now = d})} as hist ->
                    let proof = winhist_proofnow hist in
@@ -1170,7 +1169,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let rec nosels tselopt =
               inside c
                 (fun displaystate ->
-                   showproof <*> 
+                   showproof <.> 
                      ((fun hist ->
                          evolve displaystate env
                            (nohitcommand displaystate env tselopt comm
@@ -1184,7 +1183,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                   Some (FormulaSel fsel) ->
                     inside c
                       (fun displaystate ->
-                         showproof <*> 
+                         showproof <.> 
                            ((fun here ->
                                evolve displaystate env
                                  (pointToSequent displaystate env comm
@@ -1240,10 +1239,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "redo_disproof", [] ->
             inside c
               (fun _ ->
-                 showdisproof <*> 
+                 showdisproof <.> 
                    ((fun hist ->
                          (winhist_disproofhist hist &~~ redo_step &~~
-                          (fSome <*> 
+                          (fSome <.> 
                              ((fun dh ->
                                  withdisproofhist (hist) (Some dh))
                                 ))) |~~
@@ -1254,11 +1253,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "redo_proof", [] ->
             inside c
               (fun _ ->
-                 showproof <*> 
+                 showproof <.> 
                    (fun hist ->
                             (redo_step (winhist_proofhist hist) &~~
                              (
-                                fSome <*> 
+                                fSome <.> 
                                   ((fun ph -> withproofhist hist ph)
                                     ))) |~~
                           (fun _ ->
@@ -1288,7 +1287,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "tellinterface", name :: interfacecommand ->
             (* Evaluate a variable name; construct a string for the interface *)
             let str =
-              match Japeenv.at (env, namefrom name) with
+              match Japeenv.(<:>) env (namefrom name) with
                 Some t -> termstring t
               | None -> ""
             in
@@ -1302,20 +1301,20 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "undo_disproof", [] ->
             inside c
               (fun _ ->
-                 showdisproof <*> 
+                 showdisproof <.> 
                  (fun hist ->
                     ((winhist_disproofhist hist &~~ undo_step &~~
-                      (fSome <*> (fun dh -> withdisproofhist (hist) (Some dh)))) 
+                      (fSome <.> (fun dh -> withdisproofhist (hist) (Some dh)))) 
                      |~~
                      (fun _ -> showAlert ["no disproof steps to undo!"]; None))))
 
         | "undo_proof", [] ->
             inside c
               (fun _ ->
-                 showproof <*> 
+                 showproof <.> 
                  (fun hist ->
                     (undo_step (winhist_proofhist hist) &~~
-                     (fSome <*> ((fun ph -> withproofhist (hist) (ph))))) 
+                     (fSome <.> ((fun ph -> withproofhist (hist) (ph))))) 
                     |~~
                     (fun _ -> showAlert ["no proof steps to undo!"]; None)))
 
@@ -1392,7 +1391,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "disprove", [] ->
             inside c
               (fun displaystate ->
-                 showdisproof <*> 
+                 showdisproof <.> 
                    ((fun hist ->
                        let proof = winhist_proofnow hist in
                        let cxt_now = proofstate_cxt proof in
@@ -1475,7 +1474,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                      try
                        (if null sels || null stuff then
                           parseCurriedArgList
-                        else (fun t -> [t]) <*> parseTerm)
+                        else (fun t -> [t]) <.> parseTerm)
                          (respace stuff)
                      with
                        ParseError_ es ->
@@ -1500,7 +1499,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        raise Unify_
                      end
                    else
-                       showproof <*> 
+                       showproof <.> 
                          ((fun here ->
                              evolvewithexplanation
                                (fun () -> showAlert (explain ""))
@@ -1595,7 +1594,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "backtrack", _ ->
             inside c
               (fun displaystate ->
-                 showproof <*> 
+                 showproof <.> 
                    ((fun here ->
                          (getLayoutPath displaystate BacktrackCommand
                             PrunePath &~~
@@ -1620,7 +1619,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                                       hist) ->
                                      (undo_step proofhist &~~
                                       (
-                                         fSome <*> 
+                                         fSome <.> 
                                            ((fun ph ->
                                                withproofhist (hist) (ph))
                                               )))
@@ -1642,7 +1641,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             (* Prune *)
             inside c
               (fun displaystate ->
-                 showproof <*> 
+                 showproof <.> 
                    ((fun here ->
                        tryLayout displaystate PruneCommand PrunePath here)
                       ))
@@ -1651,7 +1650,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             (* Hide/Show subproof *)
             inside c
               (fun displaystate ->
-                 showproof <*> 
+                 showproof <.> 
                    ((fun here ->
                        tryLayout displaystate HideShowCommand PrunePath
                          here)
@@ -1661,7 +1660,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             (* Hide conclusion *)
             inside c
               (fun displaystate ->
-                 showproof <*> 
+                 showproof <.> 
                    ((fun here ->
                        tryLayout displaystate HideRootCommand HitPath
                          here)
@@ -1671,7 +1670,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             (* Show parent conclusion *)
             inside c
               (fun displaystate ->
-                 showproof <*> 
+                 showproof <.> 
                    ((fun here ->
                        tryLayout displaystate ExposeParentCommand HitPath
                          here)
@@ -1681,7 +1680,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             (* Hide cut hypothesis *)
             inside c
               (fun displaystate ->
-                 showproof <*> 
+                 showproof <.> 
                    ((fun here ->
                        tryLayout displaystate HideCutCommand PrunePath
                          here)
@@ -1691,7 +1690,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             (* Expand/Contract detail *)
             inside c
               (fun displaystate ->
-                 showproof <*> 
+                 showproof <.> 
                    ((fun here ->
                        tryLayout displaystate ExpandContractCommand
                          LayoutPath here)
@@ -1926,19 +1925,19 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   in
   let rec domb (var, notify) =
     let setting =
-      try _The (Japeenv.at (env, var)) with
+      try _The (Japeenv.(<:>) env var) with
         None_ ->
           raise
             (Catastrophe_
                ["domb error: variable "; namestring var;
                 " in mbs but not in env"])
     in
-    match at (!mbcache, var) with
+    match (!mbcache <:> var) with
       Some r ->
         if !r = setting then ()
         else begin notify (termstring setting, true); r := setting end
     | None ->
-        mbcache := ( ++ ) (!mbcache, ( |-> ) (var, ref setting));
+        mbcache := (!mbcache ++ (var |-> ref setting));
         notify (termstring setting, true)
   in
   (* for the time being, until there is effective proof/disproof focus, we have too many buttons *)
@@ -1956,7 +1955,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     begin try
       Japeserver.settextselectionmode
         (termstring
-           (_The (Japeenv.at (env, namefrom "textselectionmode"))))
+           (_The (Japeenv.(<:>) env (namefrom "textselectionmode"))))
     with
       None_ ->
         raise (Catastrophe_ ["textselectionmode not in environment"])
@@ -2057,7 +2056,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 let c' = [tacticstring c] in
                 inside c'
                   (fun displaystate ->
-                     showproof <*> 
+                     showproof <.> 
                        ((fun here ->
                            evolve displaystate env
                              (pointToSequent displaystate env c' fsel)
@@ -2069,7 +2068,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | _, ReasonSel _ ->
             inside []
               (fun displaystate ->
-                 showproof <*> 
+                 showproof <.> 
                    ((fun here ->
                        tryLayout displaystate ExpandContractCommand
                          LayoutPath here)

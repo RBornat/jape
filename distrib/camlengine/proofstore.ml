@@ -57,7 +57,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   and clearproofs () = proofs := empty; allsaved := true
 
   and proofnamed name =
-	match thinginfo name, at (!proofs, name) with
+	match thinginfo name, (!proofs <:> name) with
 	  Some (Theorem (_, provisos, seq), _), Some (v, tree, _, disproved, disproof) ->
 		Some (v, tree, provisos, [], disproved, disproof)
 	| Some (Rule ((_, provisos, givens, seq), _), _),
@@ -66,7 +66,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
 	| _ -> None
 
   and proof_depends name =
-	match at (!proofs, name) with
+	match (!proofs <:> name) with
 	  Some (true, _, children, _, _) -> Some children
 	| _ -> None
 
@@ -99,8 +99,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
 	let rec putitin name thing givens place =
 	  addthing (name, thing, place);
 	  proofs :=
-		( ++ )
-		  (!proofs, ( |-> ) (name, (proved, proof, ds, disproved, disproofopt)));
+		(!proofs ++ (name |-> (proved, proof, ds, disproved, disproofopt)));
 	  allsaved := false;
 	  true
 	in
@@ -168,7 +167,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
 	| _ -> None
   in
 
-  let inproofstore = opt2bool <*> proofnamed in
+  let inproofstore = opt2bool <.> proofnamed in
 
   let menu2word _ = "MENU" in
 
@@ -268,7 +267,7 @@ let rec namedthingswithproofs triv ts =
 		| Some (Theorem _, _) -> triv || proved n) <|
 	 ts
 
-let thmLacksProof = not <*> proved
+let thmLacksProof = not <.> proved
 
 let rec needsProof a1 a2 =
   match a1, a2 with

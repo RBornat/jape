@@ -113,7 +113,7 @@ let isproven =
 	not (hasTip tree) &&
 	not (List.exists isUnknown
 		   (nj_fold (uncurry2 (sortedmerge earliervar))
-			  ((provisovars <*> provisoactual) <* provisos (rewritecxt cxt))
+			  ((provisovars <.> provisoactual) <* provisos (rewritecxt cxt))
 			  []))
 let rewriteproofstate =
   fun (Proofstate {cxt = cxt; tree = tree; givens = givens} as state) ->

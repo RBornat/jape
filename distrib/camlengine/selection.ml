@@ -39,7 +39,7 @@ let rec freshvar object__ cxt =
     (vid, class__)
 
 let rec indistinct cxt =
- not <*> Answer.qDEFNOT <*>
+ not <.> Answer.qDEFNOT <.>
  Miscellaneous.uncurry2
       (Facts.substeqvarsq (Facts.facts (Context.Cxt.provisos cxt) cxt))
 

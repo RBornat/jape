@@ -118,7 +118,7 @@ let lockket = '\015' (* SI *)
  *)
 let invisible_char c = (onbra <= c && c <= outket) || c = lockbra || c = lockket
 let invisible s =
-  not (List.exists (not <*> invisible_char) (chars_of_string s))
+  not (List.exists (not <.> invisible_char) (chars_of_string s))
 
 exception Catastrophe_ of string list
 exception ParseError_ of string list

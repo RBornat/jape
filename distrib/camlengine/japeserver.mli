@@ -73,18 +73,23 @@ val setdisproofworlds :
 val cancelmenusandpanels : unit -> unit
 val emptymenusandpanels : unit -> unit
 
-val newmenu : string -> unit
-val menuentry : string * string * string option * string -> unit
-             (* menu,    label,   key equiv,      cmd *)
-val menucheckbox : string -> string -> string -> unit
-                (* menu      label     cmd *)
+(* *************************************** menus *************************************** *)
+
+val newmenu         : bool -> string -> unit
+                   (* true: proofs only; false: every menubar has this menu *)
+val menuentry       : string -> string -> string option -> string -> unit
+                   (* menu      label     key equiv        cmd *)
+val menucheckbox    : string -> string -> string -> unit
+                   (* menu      label     cmd *)
 val menuradiobutton : string -> (string * string) list -> unit
                    (* menu      (label,   cmd) *)
-val menuseparator : string -> unit
-                 (* menu *)
+val menuseparator   : string -> unit
+                   (* menu *)
 
-val enablemenuitem : string -> string -> bool -> unit (* applies to entries, checkboxes, radio buttons *)
-val tickmenuitem   : string -> string -> bool -> unit (* only for checkboxes, radio buttons *)
+val enablemenuitem : bool -> string -> string -> bool -> unit (* applies to entries, checkboxes, radio buttons *)
+                   (* true: only in focussed proof; false: in every menubar that has the entry *)
+val tickmenuitem   : bool -> string -> string -> bool -> unit (* only for checkboxes, radio buttons *)
+                   (* true: only in focussed proof; false: in every menubar that has the entry *)
 
 val mapmenus : bool -> unit (* false: menus under construction; true: menus constructed *)
  
@@ -121,7 +126,7 @@ val stopserver  : unit -> unit
 
 exception DeadServer_
 
-val openproof  : string * int -> unit
+val openproof  : string -> int -> unit
 val closeproof : int -> unit
 
 val showfile : string -> unit

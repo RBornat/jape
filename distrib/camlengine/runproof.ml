@@ -86,7 +86,7 @@ let rec mkstate provisos givens tree =
              (withusedVIDs cxt uvs)
              (nj_fold (uncurry2 max)
                 (maxtreeresnum tree ::
-                     ((maxprovisoresnum <*> provisoactual) <* provisos)) 1 + 1);
+                     ((maxprovisoresnum <.> provisoactual) <* provisos)) 1 + 1);
      givens = givens; tree = tree; goal = None; target = None; root = None}
 let rec startstate env provisos givens seq =
   let (Proofstate {tree = tree} as state) =

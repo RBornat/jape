@@ -194,12 +194,12 @@ let rec numberrule (antes, conseq) =
         let rec numberel (el, (n, oldenv, newenv, es)) =
           match el with
             Element (_, _, t) ->
-              begin match at (oldenv, t) with
+              begin match (oldenv <:> t) with
                 Some m ->
-                  n, ( -- ) (oldenv, [t]), newenv,
+                  n, (oldenv -- [t]), newenv,
                   registerElement (ResUnknown m, t) :: es
               | None ->
-                  n + 1, oldenv, ( ++ ) (newenv, ( |-> ) (t, n)),
+                  n + 1, oldenv, (newenv ++ (t |-> n)),
                   registerElement (_R n, t) :: es
               end
           | _ -> n, oldenv, newenv, el :: es
@@ -428,7 +428,7 @@ let rec compilepredicates isabstraction env =
   fun (Seq (st, lhs, rhs)) ->
     let f =
       compilepredicate isabstraction
-        (fun t -> try__ (fun (_, vs) -> vs) (at (env, t)))
+        (fun t -> try__ (fun (_, vs) -> vs) ((env <:> t)))
     in
     Seq (st, mapterm f lhs, mapterm f rhs)
 
@@ -458,11 +458,11 @@ let rec freshc defcon cxt env params args =
   in
   let rec extend con bits arg =
     let var = con bits in
-    checkarg var arg; ( ++ ) (env, ( |-> ) (var, arg))
+    checkarg var arg; (env ++ (var |-> arg))
   in
   let rec newname new__ con con' (v, c) vs =
     let (cxt', v') = new__ cxt c v in
-    _F cxt' (( ++ ) (env, ( |-> ) (con (v, c), con' (v', c)))) vs []
+    _F cxt' ((env ++ (con (v, c) |-> con' (v', c)))) vs []
   in
   let rec usearg con vc vs arg args =
     _F cxt (extend con vc arg) vs args
@@ -492,16 +492,10 @@ let rec freshc defcon cxt env params args =
           
 
 let rec extraVIDs params args bodyVIDs =
-  let rec ( -- ) (xs, ys) =
-    listsub (fun (x, y) -> x = y : vid * vid -> bool) xs ys
-  in
-  let rec ( ++ ) (xs, ys) = mergeVIDs xs ys in
-  let argVIDs =
-    nj_fold ( ++ ) ((termVIDs <* args)) []
-  in
-  let rec paramVIDs ps =
-    orderVIDs (((fst <*> paramidbits) <* ps))
-  in
+  let rec (--) xs ys = listsub (uncurry2 (=)) xs ys in
+  let rec ( ++ ) xs ys = mergeVIDs xs ys in
+  let argVIDs = foldr (++) [] (termVIDs <* args) in
+  let paramVIDs ps = orderVIDs (((fst <.> paramidbits) <* ps)) in
   (* desperation ...
   if !thingdebug then 
     consolereport["bodyVIDs are ", 
@@ -513,7 +507,7 @@ let rec extraVIDs params args bodyVIDs =
                  ]
    else ();
    ... end desperation *)
-  ( -- ) (bodyVIDs, ( ++ ) (paramVIDs params, argVIDs))
+  (bodyVIDs -- (paramVIDs params ++ argVIDs))
 
 let rec allparams params allvs =
   params @
@@ -656,11 +650,11 @@ let rec compileR el er (params, provisos, antes, conseq) =
    *)
   let rec findsubstvars def =
     fun ((_P, abss), (vars, env)) ->
-      match at (env, _P) with
+      match (env <:> _P) with
         Some _ -> vars, env
       | None ->
           match findpredicatevars abss with
-            Some bs -> vars, ( ++ ) (env, ( |-> ) (_P, (false, bs)))
+            Some bs -> vars, (env ++ (_P |-> (false, bs)))
           | None ->
               if def then
                 (* make up names *)
@@ -673,7 +667,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
                   v :: vs, vars
                 in
                 let (vs, vars) = nj_fold h ts ([], vars) in
-                vars, ( ++ ) (env, ( |-> ) (_P, (true, vs)))
+                vars, (env ++ (_P |-> (true, vs)))
               else vars, env
   in
   let (applybodyvars, firstenv) =
@@ -685,7 +679,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
   (* now filter out the provisos we don't want any more ... *)
   let applyps =
        (fun (x, _P) ->
-          match at (env, _P) with
+          match (env <:> _P) with
             Some (false, vs) -> not (member (x, vs))
           | Some (true, _) -> true
           | None ->
@@ -749,7 +743,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
     augment el er (applyconseq, applyantes, applybodyvars)
   in
   let rec mkvars vs =
-    (isextensibleID <*> string_of_vid <*> vid_of_var) <| vs
+    (isextensibleID <.> string_of_vid <.> vid_of_var) <| vs
   in
   (mkvars proofbodyvars, (params, proofprovisos, antes, conseq)),
   (mkvars applybodyvars,
@@ -957,7 +951,7 @@ let rec var2param =
 let rec freshparamstouse vars args params =
   let paramsused =
     allparams params
-      (var2param <* ((isextensibleID <*> string_of_vid <*> vid_of_var) <| vars))
+      (var2param <* ((isextensibleID <.> string_of_vid <.> vid_of_var) <| vars))
   in
   let bodyVIDs = orderVIDs ((vid_of_var <* vars)) in
   let ruleVIDs = extraVIDs paramsused args bodyVIDs in
@@ -1163,7 +1157,7 @@ let rec rearrangetoResolve antes =
     let rec newrhs el = registerCollection (rcc, el :: rsvs) in
     let rec newante el = Seq (st, newlhs, newrhs el) in
     let r =
-      ((newante <*> renum) <* lels) @ antes,
+      ((newante <.> renum) <* lels) @ antes,
       Seq (st, newlhs, rhs)
     in
     let showrule =
@@ -1383,7 +1377,7 @@ let rec addstructurerule kind name =
             (match mparams with
                 Some mparams ->
                   optionfold (uncurry2 (uncurry2 match__))
-                    (mparams ||| ((registerId <*> paramidbits) <* params))
+                    (mparams ||| ((registerId <.> paramidbits) <* params))
                     empty
               | None -> Some empty)
             &~~

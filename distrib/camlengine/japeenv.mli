@@ -43,13 +43,14 @@ val guardedjapevar : (unit -> bool) -> japevar -> japevar
  * example: vars which can be set until there is something in the thing store 
  *)
 
-val empty : japeenv
-val ( ++ ) : japeenv * japeenv -> japeenv
-val ( |-> ) : name * term -> japeenv
-val ( ||-> ) : name * japevar -> japeenv
-val at : japeenv * name -> term option
-val set : japeenv * name * term -> unit
+val ( ++   ) : japeenv -> japeenv -> japeenv
+val ( |->  ) : name -> term -> japeenv
+val ( ||-> ) : name -> japevar -> japeenv
+
+val (<:>)      : japeenv -> name -> term option
 val checkrange : japeenv -> name -> string list -> unit
+val empty      : japeenv
+val set        : japeenv * name * term -> unit
 
 exception OutOfRange_ of string 
 exception NotJapeVar_ 

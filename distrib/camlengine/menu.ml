@@ -88,17 +88,16 @@ let rec paneldatastring =
           (bracketedliststring panelbuttoninsertstring ",") "," pb
   | Pcheckbox pc -> "Pcheckbox " ^ checkboxstring pc
   | Pradiobutton pr -> "Pradiobutton " ^ radiobuttonstring pr
+
 (* Order of insertion no longer exploits the details of mapping implementation.
  * There is a lot of silliness in what follows, which attempts to keep things
  * in the same order no matter how often the same data is thrown at addmenudata
  * or addpaneldata
  *)
 
+let menus : (name, (bool*menudata list ref)) mapping ref = ref empty
 
-let menus : (name, menudata list ref) mapping ref = ref empty
-
-let panels
-  :
+let panels :
   (name, (panelkind * (name, string ref) mapping * paneldata list) ref)
    mapping ref =
   ref empty
@@ -115,7 +114,7 @@ let rec addtodata lf vf e es =
        Some v, Some v' -> v = v'
      | _ -> false)
   in
-  let rec delete ps = (not <*> conflicts) <| ps in
+  let rec delete ps = (not <.> conflicts) <| ps in
   let rec insert =
     function
       [] -> []
@@ -128,9 +127,9 @@ let rec addtodata lf vf e es =
   | _ ->(* I think this reduces churn *)
      if List.exists conflicts es then insert es else e :: es
 
-let rec addmenu m =
-  match at (!menus, m) with
-    None -> menus := ( ++ ) (!menus, ( |-> ) (m, ref []))
+let rec addmenu proofsonly m =
+  match (!menus <:> m) with
+    None   -> menus := (!menus ++ (m |-> (proofsonly, ref [])))
   | Some _ -> ()
 
 let rec addtomenu e es =
@@ -155,19 +154,18 @@ let rec addtomenu e es =
 
 let rec addmenudata m es =
   if !menudebug then consolereport ["adding to "; namestring m];
-  match at (!menus, m) with
-    Some contents -> List.iter (fun e -> contents := addtomenu e !contents) es
-  | None ->
-      raise
-        (Menuconfusion_
-           ["no menu called "; namestring m; " (addmenudata)"])
+  match (!menus <:> m) with
+    Some (_, contents) -> List.iter (fun e -> contents := addtomenu e !contents) es
+  | None -> raise (Menuconfusion_ ["no menu called "; namestring m; " (addmenudata)"])
 
 let rec clearmenudata m =
-  match at (!menus, m) with
-    Some contents -> contents := []
-  | None -> ()
+  match (!menus <:> m) with
+    Some (_, contents) -> contents := []
+  | None               -> ()
 
-let rec getmenus () = dom !menus
+let rec getmenus () = 
+  let names = dom !menus in
+  List.map (fun m -> fst(_The(!menus <:> m)),m) names
 
 let rec getmenudata m =
   let rec doseps =
@@ -192,12 +190,12 @@ let rec getmenudata m =
         else es'
     | es' -> es'
   in
-    at (!menus, m) &~~
-    (fSome <*> tidy <*> List.rev <*> (!))
+    (!menus <:> m) &~~
+    (fun (proofsonly, es) -> Some (proofsonly, tidy(List.rev !es)))
 
 let rec addpanel k p =
-  match at (!panels, p) with
-    None -> panels := ( ++ ) (!panels, ( |-> ) (p, ref (k, empty, [])))
+  match (!panels <:> p) with
+    None -> panels := (!panels ++ (p |-> ref (k, empty, [])))
   | Some _ -> ()
 
 let rec addtopanel e (k, em, bs as stuff) =
@@ -217,14 +215,14 @@ let rec addtopanel e (k, em, bs as stuff) =
   in
   match e with
     Pentry (label, cmd) ->
-      begin match at (em, label) with
+      begin match (em <:> label) with
         Some cref -> cref := cmd; stuff
-      | None -> k, ( ++ ) (em, ( |-> ) (label, ref cmd)), bs
+      | None -> k, (em ++ (label |-> ref cmd)), bs
       end
   | b -> k, em, addtodata lf vf b bs
 
 let rec addpaneldata p es =
-  match at (!panels, p) with
+  match (!panels <:> p) with
     Some contents -> List.iter (fun e -> contents := addtopanel e !contents) es
   | None ->
       raise
@@ -232,7 +230,7 @@ let rec addpaneldata p es =
            ["no panel called "; namestring p; " (addpaneldata)"])
 
 let rec clearpaneldata p =
-  match at (!panels, p) with
+  match (!panels <:> p) with
     Some ({contents = k, _, _} as contents) -> contents := k, empty, []
   | None -> ()
 
@@ -240,12 +238,12 @@ let rec getpanels () =
    (fun (p, {contents = k, _, _}) -> p, k) <* aslist !panels
 
 let rec getpanelkind p =
-  at (!panels, p) &~~ (fSome <*> (fun (a,b,c) -> a) <*> (!))
+  (!panels <:> p) &~~ (fSome <.> (fun (a,b,c) -> a) <.> (!))
 
 let rec getpaneldata p =
-    (at (!panels, p) &~~
+    ((!panels <:> p) &~~
      (let applyname = namefrom "Apply" in
-        fSome <*> 
+        fSome <.> 
           ((fun {contents = k, em, bs} ->
               nj_fold (fun ((l, {contents = c}), es) -> Pentry (l, c) :: es)
                 (aslist em)
@@ -284,7 +282,7 @@ let rec menuitemiter m ef cbf rbf sf =
   in
   if !menudebug then consolereport ["reporting on "; namestring m];
   match getmenudata m with
-    Some es -> List.iter tran es
+    Some (_, es) -> List.iter tran es
   | None -> ()
 
 let rec panelitemiter p ef bf cbf rbf =

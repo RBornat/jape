@@ -52,8 +52,8 @@ let rec env =
 
 let rec ( +++ ) =
   function
-    Certain e, e' -> Certain (( ++ ) (e, e'))
-  | Uncertain e, e' -> Uncertain (( ++ ) (e, e'))
+    Certain e, e' -> Certain ((e ++ e'))
+  | Uncertain e, e' -> Uncertain ((e ++ e'))
 (* because of bag matching this is now mr list -> mr list *)
 let rec matchtermvars matchbra ispatvar pat term mrs =
   let matchterm = matchtermvars matchbra ispatvar in
@@ -76,10 +76,10 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
     else []
   in
   let rec bindvar v t mr =
-    match at (env mr, v) with
+    match (env mr <:> v) with
       None ->
         if specialisesto (idclass v, idclass t) then
-          Some (( +++ ) (mr, ( |-> ) (v, t)))
+          Some (( +++ ) (mr, (v |-> t)))
         else None
     | Some t ->
         match eqt (term, t) [mr] with
@@ -93,7 +93,7 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
   let listmatch = matchlist matchterm in
   let matchvts =
     let rec f (vpat, tpat) (vterm, tterm) =
-      matchterm vpat vterm <*> matchterm tpat tterm
+      matchterm vpat vterm <.> matchterm tpat tterm
     in
     matchlist f
   in
@@ -175,21 +175,21 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
  *)
 let rec option_remapterm env term =
   let rec _Rvar v =
-    match at (env, v) with
+    match (env <:> v) with
       None -> v
     | Some t -> t
   in
   let rec _R =
     function
-      Id _ as v -> at (env, v)
-    | Unknown _ as v -> at (env, v)
+      Id _ as v -> (env <:> v)
+    | Unknown _ as v -> (env <:> v)
     | Collection (_, k, es) ->
         let _RR = mapterm _R in
         let rec f =
           function
             Segvar (_, ps, v), es ->
               let ps' = (_RR <* ps) in
-              begin match at (env, v) with
+              begin match (env <:> v) with
                 Some t ->
                   begin match debracket t with
                     Collection (_, k', es') ->

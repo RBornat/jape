@@ -177,7 +177,7 @@ let rec answer =
      subgoals) ->
     cxt,
     mkJoin cxt reason how args conjecture
-      ((mkTip cxt <*>rewriteseq cxt) <* subgoals)
+      ((mkTip cxt <.>rewriteseq cxt) <* subgoals)
       (* rewrite tips here *)
       (thinnedL, thinnedR)
 (* filters *)
@@ -188,7 +188,7 @@ let rec nonempty =
     [] -> None
   | xs -> Some xs
 let rec runfilter e g =
-  explain e <*> nonempty <*> filter g
+  explain e <.> nonempty <.> filter g
 let showel = smlelementstring termstring
 let (bymatch : possmatch -> possmatch option) =
   runfilter
@@ -209,7 +209,7 @@ let (bymatch : possmatch -> possmatch option) =
            (if r then
               let rec up cxt u =
                 "(" ^ string_of_vid u ^ "," ^
-                      optionstring termstring (at (varmap cxt, u)) ^
+                      optionstring termstring ((varmap cxt <:> u)) ^
                 ")"
               in
               ["bymatch passing"; step_label how; " ";
@@ -287,7 +287,7 @@ let rec offerChoice ps =
         implode
           [seqstring (rewriteseq cxt c); " generates subgoal";
            if List.length ss = 1 then " " else "s "] ::
-          ((seqstring <*> rewriteseq cxt) <* ss)
+          ((seqstring <.> rewriteseq cxt) <* ss)
   in
   let rec numwords n =
     match n with
@@ -344,7 +344,7 @@ let rec fitter checker resnums =
     let rec thinned cxt r =
       match r with
         ResUnknown i ->
-          begin match at (resmap cxt, i) with
+          begin match (resmap cxt <:> i) with
             Some (r, t) ->
               begin match thinned cxt r with
                 None -> Some (registerElement (r, t))
@@ -466,11 +466,11 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
         ["The goal fits the rule, but the rule didn't make use of the ";
          word; " "; ts; " which you selected"]
       in
-        (explain (exp1 "conclusion" "conclusions" _CGs) <*> nonempty <*> 
+        (explain (exp1 "conclusion" "conclusions" _CGs) <.> nonempty <.> 
           fitter checker resnumRs (_Gs, _CGs)) 
         &~
-        (explain (unusedprincipal "conclusion" "conclusions" selconcs) <*> 
-         nonempty <*> 
+        (explain (unusedprincipal "conclusion" "conclusions" selconcs) <.> 
+         nonempty <.> 
          _BnMfilter (fun (thRs, _) ->
                       let r = checkinclusive thRs selconcs in
                       if !applydebug > 0 then
@@ -484,14 +484,14 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
                            " => "; string_of_bool r];
                       r))
         &~
-        (explain (exp1 "hypothesis" "hypotheses" _CHs) <*> 
-         nonempty <*> List.concat <*> 
+        (explain (exp1 "hypothesis" "hypotheses" _CHs) <.> 
+         nonempty <.> List.concat <.> 
          List.map
             (fun (thinnedR, cxt) ->
                [thinnedR] >< fitter checker resnumLs (_Hs, _CHs) cxt))
         &~
-        (explain (unusedprincipal "hypothesis" "hypotheses" selhyps) <*>
-         nonempty <*>
+        (explain (unusedprincipal "hypothesis" "hypotheses" selhyps) <.>
+         nonempty <.>
          _BnMfilter ((fun (_, (thLs, _)) ->
                        let r = checkinclusive thLs selhyps in
                        if !applydebug > 0 then
@@ -535,7 +535,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
                end
            | _, (_ :: _ as goods) -> Some goods)
         &~
-        (nonempty <*> List.map (result antecedents))
+        (nonempty <.> List.map (result antecedents))
     in
     if _Cst = st then genSubGoals (plusprovisos cxt newprovisos)
     else

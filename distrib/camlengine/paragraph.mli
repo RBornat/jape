@@ -45,7 +45,7 @@ type paragraph =
   | HitDef of (dclick * tactic * seq)
   | InitVar of (name * term)
   | MacroDef of (tacticheading * term)
-  | Menu of (name * menupara list)
+  | Menu of (bool * name * menupara list)
   | Panel of (name * panelpara list * panelkind)
   | Proof of
       (name * proofstage * seq *

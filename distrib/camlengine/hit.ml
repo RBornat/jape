@@ -60,7 +60,7 @@ let rec selpath =
 	FormulaSel f -> Some (fst_of_6 f)
   | TextSel (ths, _) ->
 	  begin match
-		optionmap (fhitpath <*> fst) ths
+		optionmap (fhitpath <.> fst) ths
 	  with
 		Some (p :: ps) ->
 		  if not (List.exists (fun p' -> p <> p') ps) then Some p else None

@@ -51,7 +51,7 @@ let sequent = Vistree.sequent
 let subtrees = Vistree.subtrees
 
 let explode =
-  (fun (st, hs, gs) -> st, explodeCollection hs, explodeCollection gs) <*>
+  (fun (st, hs, gs) -> st, explodeCollection hs, explodeCollection gs) <.>
   seqexplode
 let isStructureRulenode node rule =
   match Vistree.rule node with
@@ -77,7 +77,7 @@ let element2text elementstring e =
 let term2text termstring t = Text [Syllable (TermFont, termstring t)]
 let validhyp t el ns = Vistree.validhyp t el (VisPath ns)
 let validconc t el ns = Vistree.validconc t el (VisPath ns)
-let stillopen t = Vistree.stillopen t <*> (fun v->VisPath v)
+let stillopen t = Vistree.stillopen t <.> (fun v->VisPath v)
 let ismultistep t =
   match format t with VisFormat (b, _) -> b
 let ishiddencut t =

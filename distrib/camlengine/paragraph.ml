@@ -71,7 +71,7 @@ type paragraph =
   | HitDef of (dclick * tactic * seq)
   | InitVar of (name * term)
   | MacroDef of (tacticheading * term)
-  | Menu of (name * menupara list)
+  | Menu of (bool * name * menupara list)
   | Panel of (name * panelpara list * panelkind)
   | Proof of
       (name * proofstage * seq *
@@ -120,7 +120,7 @@ let rec currsymb_as_name () =
         (ParseError_
            ["Identifier or string expected; found "; smlsymbolstring sy])
 
-let currsymb_as_string = namestring <*> currsymb_as_name
+let currsymb_as_string = namestring <.> currsymb_as_name
 
 let fSHYID v = SHYID v
   
@@ -641,7 +641,7 @@ let rec parseParagraph report query =
   | SHYID "MACRO" ->
       let h = scansymb (); parseTacticHeading _ISWORD in
       Some (MacroDef (h, asTactic parseTerm EOF))
-  | SHYID "MENU" -> scansymb (); Some (parseMenu report query)
+  | SHYID "MENU" -> scansymb (); Some (parseMenu report query true)
   | SHYID "MIDFIX" -> scansymb (); processLeftMidfix (fun v->MIDFIX v); more ()
   | SHYID "NUMBER" ->
       scansymb (); processClassDecl report query NumberClass; more ()
@@ -672,6 +672,7 @@ let rec parseParagraph report query =
   | SHYID "THEOREMS" -> scansymb (); Some (parseTheorems report)
   | SHYID "THEORY" -> scansymb (); Some (parseTheory report query)
   | SHYID "TRANSITIVE" -> scansymb (); Some (parseStructure "TRANSITIVE")
+  | SHYID "UMENU" -> scansymb (); Some (parseMenu report query false)
   | SHYID "USE" ->
       scansymb (); Some (let r = parseUse report query in scansymb (); r)
   | SHYID "VARIABLE" ->
@@ -776,7 +777,7 @@ and parseParaList report query =
                ["Error: expecting symbol beginning paragraph; found ";
                 smlsymbolstring sy])
 
-and parseMenu report query =
+and parseMenu report query mproof =
   let parastarters =
     ["RULE"; "RULES"; "DERIVED"; "TACTIC"; "THEOREM"; "THEOREMS";
      "THEORY"; "PROOF"; "CURRENTPROOF"]
@@ -830,7 +831,7 @@ and parseMenu report query =
   let _ = ignore _ISWORD in
   let m =
     Menu
-      (mlabel,
+      (mproof, mlabel,
        parseUnsepList (fun s -> member (s, symbs))
          (fun _ -> parseentry ()))
   in

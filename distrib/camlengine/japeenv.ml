@@ -113,7 +113,7 @@ let rec intjapevar v (set, get) =
   in
   let i2s : int -> string = string_of_int in
   basejapevar None (i2s v)
-    ((set <*> s2i), (i2s <*> get))
+    ((set <.> s2i), (i2s <.> get))
 let rec intjaperefvar v r =
   intjapevar v ((fun i -> r := i), (fun () -> !r))
 let on = "true"
@@ -122,14 +122,14 @@ let rec booljapevar v (set, get) =
   let rec s2b t = t = on in
   let rec b2s v = if v then on else off in
   basejapevar (Some [on; off]) (b2s v)
-    ((set <*> s2b), (b2s <*> get))
+    ((set <.> s2b), (b2s <.> get))
 let rec booljaperefvar v r =
   booljapevar v ((fun b -> r := b), (fun () -> !r))
 
 type envval = Envterm of Term.Type.term | Envvar of japevar
 
-let rec at (env, name) =
-  match Mappingfuns.at (env, name) with
+let rec (<:>) env name =
+  match Mappingfuns.(<:>) env name with
     Some (Envterm t) -> Some t
   | Some (Envvar v) ->
       begin try Some (term_of_string (getjapevar v)) with
@@ -141,11 +141,11 @@ let rec at (env, name) =
       end
   | None -> None
 let rec set (env, name, value) =
-  match Mappingfuns.at (env, name) with
+  match Mappingfuns.(<:>) env name with
     Some (Envvar v) -> setjapevar (v, termstring value)
   | _ -> raise NotJapeVar_
 let rec checkrange env name settings =
-  match Mappingfuns.at (env, name) with
+  match Mappingfuns.(<:>) env name with
     Some (Envvar v) ->
       let asyouwere =
         try Some (getjapevar v) with
@@ -163,7 +163,7 @@ let rec checkrange env name settings =
 
 let (++) = (++)
 let empty = empty
-let ( |-> ) (t, t') = Mappingfuns.( |-> ) (t, Envterm t')
-let ( ||-> ) (t, var) = Mappingfuns.( |-> ) (t, Envvar var)
+let ( |-> ) t t' = Mappingfuns.(|->) t (Envterm t')
+let ( ||-> ) t var = Mappingfuns.(|->) t (Envvar var)
 
 type japeenv = (Name.name, envval) mapping

@@ -265,7 +265,7 @@ let rec pos2hit pos path =
         | _ -> None
       else if
         match
-          (reasonplan &~~ (fSome <*> plantextbox))
+          (reasonplan &~~ (fSome <.> plantextbox))
         with
           Some reasonbox -> withintb (pos, reasonbox)
         | _ -> false
@@ -379,7 +379,7 @@ let rec draw goal pos proof =
 let rec print str goal pos proof plan =
   let rgoal = revgoal goal in
   let out = output_string str in
-  let outesc = out <*> String.escaped in
+  let outesc = out <.> String.escaped in
   let rec outplan p = out "\""; outesc (plan2string p); out "\" " in
   let rec outsp n = if n = 0 then () else (out " "; outsp (n - 1)) in
   let rec _D (Treeplan {seqplan = seqplan; reasonplan = reasonplan; linespec = linespec;
@@ -478,7 +478,7 @@ let rec postoinclude box =
 
 let rec samelayout (a, b) = a = b
 
-let defaultpos = fst <*> defaultpos
+let defaultpos = fst <.> defaultpos
 (* for export *)
 
 let rootpos = defaultpos

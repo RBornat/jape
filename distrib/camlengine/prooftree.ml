@@ -549,7 +549,7 @@ module Tree : Tree with type term = Term.Type.term
             let (Seq (_, hs, _)) = sequent t in Some hs, pathto t
           in
           let unFRESH =
-            not <*> List.exists isFreshProviso <*> List.map snd
+            not <.> List.exists isFreshProviso <.> List.map snd
           in
           let rec check a1 a2 =
             match a1, a2 with
@@ -847,7 +847,7 @@ module Tree : Tree with type term = Term.Type.term
                 module Store = Make (struct
                                        type t = term
                                        let equal = (=)
-                                       let hash = _The <*> hashterm
+                                       let hash = _The <.> hashterm
                                      end
                                     )
                 let store = Store.create 17 (* it will grow *)
@@ -929,7 +929,7 @@ module Tree : Tree with type term = Term.Type.term
       let changeduts =
         nj_fold
           (fun (u, uts) ->
-             match at (varmap cxt, u) with
+             match (varmap cxt <:> u) with
                None -> uts
              | Some t -> (u, rewrite cxt t) :: uts)
           uVIDs []
@@ -1334,7 +1334,7 @@ module Tree : Tree with type term = Term.Type.term
                           ["visibles not HIDEROOTING ";
                            join_string treeformatstring
                              (bracketedliststring
-                                (seqstring <*> sequent) ",")
+                                (seqstring <.> sequent) ",")
                              j];
                       nohide ()
                     end
@@ -1379,11 +1379,11 @@ module Tree : Tree with type term = Term.Type.term
       if !prooftreedebug then
         begin
           let onelevel =
-            bracketedliststring (seqstring <*> sequent) ","
+            bracketedliststring (seqstring <.> sequent) ","
           in
           let ptstring =
             bracketedliststring
-              (pairstring nsstring (seqstring <*> sequent) ",")
+              (pairstring nsstring (seqstring <.> sequent) ",")
               ", "
           in
           consolereport
@@ -1397,9 +1397,9 @@ module Tree : Tree with type term = Term.Type.term
         f, showall, Tip _ -> None
       | f, showall, Join j -> Some (f showall j)
     let rec visible_subtrees showall =
-      try__ fst <*> joinopt (visibles showall)
+      try__ fst <.> joinopt (visibles showall)
     let rec invisible_subtrees showall =
-      try__ snd <*> joinopt (visibles showall)
+      try__ snd <.> joinopt (visibles showall)
 
     let rec pathtoviewpath showall t =
       fun (FmtPath ns) ->
@@ -1443,7 +1443,7 @@ module Tree : Tree with type term = Term.Type.term
     (* for export *)
     let reasonstyle = ref "long"
     let visible_subtrees showall =
-      try__ (fun pts -> (snd <* pts)) <*> visible_subtrees showall
+      try__ (fun pts -> (snd <* pts)) <.> visible_subtrees showall
     let rec visreason proved showall t =
       joinopt (join_visreason proved showall) t
     and join_visreason proved showall j =
@@ -1512,7 +1512,7 @@ module Tree : Tree with type term = Term.Type.term
          _The <*
            (opt2bool <|
             List.concat
-              ((allreasons proved showall <*> snd) <*
+              ((allreasons proved showall <.> snd) <*
                   snd (visibles showall j)))
     and allreasons proved showall t =
       visreason proved showall t ::
@@ -1524,9 +1524,9 @@ module Tree : Tree with type term = Term.Type.term
       step_resolve (join_how j) ||
       List.exists (fun (ns, _) -> List.length ns > 1) vissubts
     let hyps =
-      explodeCollection <*> snd_of_3 <*> seqexplode
+      explodeCollection <.> snd_of_3 <.> seqexplode
     let concs =
-      explodeCollection <*> thrd <*> seqexplode
+      explodeCollection <.> thrd <.> seqexplode
     let rec tranproof proved showall hideuselesscuts t =
       let rec visp =
         function
@@ -1536,7 +1536,7 @@ module Tree : Tree with type term = Term.Type.term
             it ->
             let (viss, _) = visibles showall j in
             let lpsNsubts' =
-              ((visp <*> snd) <* viss)
+              ((visp <.> snd) <* viss)
             in
             let lps =
               nj_fold (uncurry2 (sortedmerge earlierresource))
@@ -1582,7 +1582,7 @@ module Tree : Tree with type term = Term.Type.term
     (* for export *)
     
     let rec visproof proved showall hideuselesscuts =
-      snd <*> tranproof proved showall hideuselesscuts
+      snd <.> tranproof proved showall hideuselesscuts
     (* there surely ought to be a way to make these structures into one -- I suppose functors inside functors
      * ain't SML.
      *)
@@ -1611,31 +1611,31 @@ module Tree : Tree with type term = Term.Type.term
         let fFmtPath v = FmtPath v
         let rec dePath = fun (FmtPath ns) -> ns
         let rec rePath (ns, x) = FmtPath ns, x
-        let rec followPath t = followPath_ns t <*> dePath
+        let rec followPath t = followPath_ns t <.> dePath
         let rec onestep t =
-          try__ rePath <*> onestep_ns t <*> dePath
-        let rec fakePath t = fakePath_ns [] t <*> dePath
+          try__ rePath <.> onestep_ns t <.> dePath
+        let rec fakePath t = fakePath_ns [] t <.> dePath
         let rec pathPrefix t p1 p2 =
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
-        let rec findTip t = findTip_ns t <*> dePath
-        let rec getTip t = getTip_ns t <*> dePath
+        let rec findTip t = findTip_ns t <.> dePath
+        let rec getTip t = getTip_ns t <.> dePath
         let rec allTipPaths t = (fFmtPath <* allTipPaths_ns t)
         let rec allTipConcs t = (rePath <* allTipConcs_ns t)
         let rec validelement b t el =
           fun (FmtPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
         let validconc = validelement false
-        let rec stillopen t = stillopen_ns t <*> dePath
+        let rec stillopen t = stillopen_ns t <.> dePath
         let maxtreeresnum = maxtreeresnum
         let isTip = isTip
         let hasTip = hasTip
-        let rootPath = fFmtPath <*> rootPath_ns
+        let rootPath = fFmtPath <.> rootPath_ns
         let rec parentPath t =
-          fFmtPath <*> parentPath_ns t <*> dePath
+          fFmtPath <.> parentPath_ns t <.> dePath
         let rec siblingPath t path =
-          fFmtPath <*> siblingPath_ns t (dePath path)
+          fFmtPath <.> siblingPath_ns t (dePath path)
         let rec subgoalPath t path =
-          fFmtPath <*> subgoalPath_ns t (dePath path)
+          fFmtPath <.> subgoalPath_ns t (dePath path)
         let rec reason proved = visreason proved !showallproofsteps
         let subtrees = subtrees
         let sequent = sequent
@@ -1676,32 +1676,32 @@ module Tree : Tree with type term = Term.Type.term
         let fVisPath v = VisPath v
         let rec dePath = fun (VisPath ns) -> ns
         let rec rePath (ns, x) = VisPath ns, x
-        let rec followPath t = followPath_ns t <*> dePath
+        let rec followPath t = followPath_ns t <.> dePath
         let rec onestep t =
-          try__ rePath <*> onestep_ns t <*> dePath
-        let rec fakePath t = fakePath_ns [] t <*> dePath
+          try__ rePath <.> onestep_ns t <.> dePath
+        let rec fakePath t = fakePath_ns [] t <.> dePath
         let rec pathPrefix t p1 p2 =
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
-        let rec findTip t = findTip_ns t <*> dePath
-        let rec getTip t = getTip_ns t <*> dePath
+        let rec findTip t = findTip_ns t <.> dePath
+        let rec getTip t = getTip_ns t <.> dePath
         let rec allTipPaths t = (fVisPath <* allTipPaths_ns t)
         let rec allTipConcs t = (rePath <* allTipConcs_ns t)
         let rec validelement b t el =
           fun (VisPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
         let validconc = validelement false
-        let rec stillopen t = stillopen_ns t <*> dePath
+        let rec stillopen t = stillopen_ns t <.> dePath
         let maxtreeresnum = maxtreeresnum
         let isTip = isTip
         let hasTip = hasTip
         let rec rootPath t = VisPath []
         (* no inner cuts in visprooftrees *)
         let rec parentPath t =
-          fVisPath <*> parentPath_ns t <*> dePath
+          fVisPath <.> parentPath_ns t <.> dePath
         let rec siblingPath t path =
-          fVisPath <*> siblingPath_ns t (dePath path)
+          fVisPath <.> siblingPath_ns t (dePath path)
         let rec subgoalPath t path =
-          fVisPath <*> subgoalPath_ns t (dePath path)
+          fVisPath <.> subgoalPath_ns t (dePath path)
         let rec reason proved = joinopt join_why
         (* doesn't make use of proved, because it's already happened... *)
         let subtrees = subtrees

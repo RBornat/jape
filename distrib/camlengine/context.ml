@@ -233,12 +233,12 @@ module Cxt : Cxt with type cxt = Type.cxt
       fun (Context cxt) map -> Context {cxt with varmap=map}
     let plusvarmap =
       fun (Context ({varmap=varmap} as cxt)) map -> 
-        Context {cxt with varmap = ( ++ ) (varmap, map)}
+        Context {cxt with varmap = (varmap ++ map)}
     let withresmap =
       fun (Context cxt) map -> Context {cxt with resmap=map}
     let plusresmap =
       fun (Context ({resmap=resmap} as cxt)) map -> 
-        Context {cxt with resmap = ( ++ ) (resmap, map)}
+        Context {cxt with resmap = (resmap ++ map)}
     let withprovisos c ps =
       match c, ps with
         (Context ({provisos=provisos; provisosig=provisosig} as cxt)), [] -> 

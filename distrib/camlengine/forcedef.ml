@@ -67,21 +67,21 @@ let rec option_mapforcedefterms f fd =
   (* val _ = consolereport ["option_mapforcedefterms ", forcedefstring fd] *)
   let res =
     match fd with
-      ForcePrim t -> (omt t &~~ (fSome <*> (fun v->ForcePrim v)))
+      ForcePrim t -> (omt t &~~ (fSome <.> (fun v->ForcePrim v)))
     | ForceBoth pair ->
-        (ompair pair &~~ (fSome <*> (fun v->ForceBoth v)))
+        (ompair pair &~~ (fSome <.> (fun v->ForceBoth v)))
     | ForceEither pair ->
-        (ompair pair &~~ (fSome <*> (fun v->ForceEither v)))
+        (ompair pair &~~ (fSome <.> (fun v->ForceEither v)))
     | ForceIf pair ->
-        (ompair pair &~~ (fSome <*> (fun v->ForceIf v)))
+        (ompair pair &~~ (fSome <.> (fun v->ForceIf v)))
     | ForceEverywhere fd' ->
-        (omff fd' &~~ (fSome <*> (fun v->ForceEverywhere v)))
+        (omff fd' &~~ (fSome <.> (fun v->ForceEverywhere v)))
     | ForceNowhere fd' ->
-        (omff fd' &~~ (fSome <*> (fun v->ForceNowhere v)))
+        (omff fd' &~~ (fSome <.> (fun v->ForceNowhere v)))
     | ForceAll tvsfd ->
-        (omtvsfd tvsfd &~~ (fSome <*> (fun v->ForceAll v)))
+        (omtvsfd tvsfd &~~ (fSome <.> (fun v->ForceAll v)))
     | ForceSome tvsfd ->
-        (omtvsfd tvsfd &~~ (fSome <*> (fun v->ForceSome v)))
+        (omtvsfd tvsfd &~~ (fSome <.> (fun v->ForceSome v)))
   in
   (* consolereport ["option_mapforcedefterms ", forcedefstring fd, " => ", optionstring forcedefstring res]; *)
   res
@@ -105,7 +105,7 @@ let rec findinforcedef f fd =
       (findterm f t |~~ (fun _ -> findinforcedef f fd))
 
 let rec existsinforcedef f =
-  opt2bool <*> findinforcedef (fun t -> if f t then Some true else None)
+  opt2bool <.> findinforcedef (fun t -> if f t then Some true else None)
 
 (* this ran into trouble when it emerged that it was using ALL as a reserved word, which had
    been previously used in LAYOUT tactics to mean 'display all subtrees'.  On the principle
@@ -152,7 +152,7 @@ let rec parseForceDef () =
   
   and tranForceDefBinder pat f = 
     let vs = isVariable <| termvars pat in
-    if List.exists (not <*> isextensibleId) vs then
+    if List.exists (not <.> isextensibleId) vs then
       raise (ParseError_ ["ALL and SOME must use CLASS VARIABLE identifiers to describe individuals"])
     else (pat,vs,tranForceDef f)
   in

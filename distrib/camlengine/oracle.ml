@@ -165,7 +165,7 @@ let rec createoracle oraclename (store, table, mapped) =
                 (try close_in iii with _ -> ());
                 (try close_out ooo with _ -> ());
                 Moresys.reap ppp;
-                mappings := Mappingfuns.( -- ) (!mappings, [oraclename]))} : oraclerec option)
+                mappings := Mappingfuns.( -- ) !mappings [oraclename])} : oraclerec option)
       with
         _ -> _NoneBecause ["Oracle cannot start "; server]
       end
@@ -182,16 +182,9 @@ let rec createoracle oraclename (store, table, mapped) =
                 turnstile = turnstile; 
                 from_or = (fun () -> flush ooo; line_from iii);
                 to_or = string_to ooo;
-                kill_or =
-				  (fun () ->
-					begin try close_in iii with
-					  _ -> ()
-					end;
-					begin try close_out ooo with
-					  _ -> ()
-					end;
-					mappings :=
-					  Mappingfuns.( -- ) (!mappings, [oraclename]))} :
+                kill_or = (fun () -> (try close_in iii with _ -> ());
+                                     (try close_out ooo with _ -> ());
+                                     mappings := Mappingfuns.( -- ) !mappings [oraclename])} :
              oraclerec option)
           with
             _ ->
@@ -206,17 +199,16 @@ let rec createoracle oraclename (store, table, mapped) =
             ["Oracle not specified by program or pipes attributes."]
 
 let rec getmapping oraclename =
-  match Mappingfuns.at (!mappings, oraclename) with
+  match Mappingfuns.(<:>) !mappings oraclename with
     Some m -> Some m
   | None ->
       match readmapping (oraclename ^ ".jo") with
         Some m ->
           begin match createoracle oraclename m with
-            Some ( or ) ->
+            Some _or ->
               mappings :=
-                Mappingfuns.( ++ )
-                  (!mappings, Mappingfuns.( |-> ) (oraclename, ( or )));
-              Some ( or )
+                Mappingfuns.(++) !mappings (Mappingfuns.( |-> ) oraclename _or);
+              Some _or
           | None -> None
           end
       | None -> None

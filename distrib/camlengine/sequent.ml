@@ -183,16 +183,16 @@ module Funs:  Funs with type seq = Type.seq
                      syntaxstring (Semantic, hyps, sem, concs)]
       in
       let newturnstiles =
-        match at (!semanticturnstiles, syn) with
+        match (!semanticturnstiles <:> syn) with
           None ->
             enter (sem, STILE sem);
-            ( ++ ) (!semanticturnstiles, ( |-> ) (syn, sem))
+            (!semanticturnstiles ++ (syn |-> sem))
         | Some sem' ->
             if sem = sem' then !semanticturnstiles
             else bad ["semantic turnstile for "; syn; " is "; sem']
       in
       syntaxes := newsyntaxes; semanticturnstiles := newturnstiles
-    let rec getsemanticturnstile syn = at (!semanticturnstiles, syn)
+    let rec getsemanticturnstile syn = (!semanticturnstiles <:> syn)
     let rec resetsyntaxandturnstiles () =
       syntaxes := []; semanticturnstiles := empty
 

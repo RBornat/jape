@@ -313,7 +313,7 @@ let rec pretransform prefixwithstile t =
          (why &~~ (fun r -> Some (r, lprins, subs))))
     in
     let rec aslines isid =
-      mkl isid ((respt <*> _T hs) <* numbered subts)
+      mkl isid ((respt <.> _T hs) <* numbered subts)
     in
     let rec boxpt lines =
       false, BoxPT (RevPath rp, true, innerwords, newhyps, lines)
@@ -694,7 +694,7 @@ let rec mapn a1 a2 a3 =
   match a1, a2, a3 with
     id, [], hn -> empty
   | id, (h, _) :: elis, hn ->
-      ( ++ ) (mapn id elis (hn + 1), ( |-> ) (h, HypID (id, hn)))
+      (mapn id elis (hn + 1) ++ (h |-> HypID (id, hn)))
 
 type fitchlinerec = 
       { lineID : lineID; 
@@ -847,7 +847,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                 raise (Catastrophe_ ["foldformula ElementPunctPlan"])
           in
           let estring = catelim_elementstring_invisbracketed e [] in
-          let measure = fst_of_3 <*> measurestring TermFont in
+          let measure = fst_of_3 <.> measurestring TermFont in
           let _ =
             if !boxfolddebug then
               consolereport
@@ -931,7 +931,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
           plancons (reasonf p)
             (fun p ->
                plancons (reasonspacef p)
-                 (plan2plans <*> antesf))
+                 (plan2plans <.> antesf))
         else if null cids then plan2plans (reasonf p)
         else
           plancons (lantesparenf p)
@@ -939,7 +939,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                plancons (antesf p)
                  (fun p ->
                     plancons (rantesparenf p)
-                      (plan2plans <*> reasonf)))
+                      (plan2plans <.> reasonf)))
   in
   let rec ljreasonplan ps box =
     let shift = pos (- tsW (tbSize box), 0) in
@@ -1105,8 +1105,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
                 match hypelis with
                   [h] ->
                     fst words,
-                    ( ++ ) (hypmap, ( |-> ) (fst h, LineID id))
-                | hs -> snd words, ( ++ ) (hypmap, mapn id hs 1)
+                    (hypmap ++ (fst h |-> LineID id))
+                | hs -> snd words, (hypmap ++ mapn id hs 1)
               in
               let rec showword p =
                 plan2plans (textinfo2plan word ReasonPunctPlan p)
@@ -1114,7 +1114,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
               let (line, linebox, lineidW, linereasonW) =
                 mkLine
                   (things2plans
-                     (uncurry2 textinfo2plan <*> snd)
+                     (uncurry2 textinfo2plan <.> snd)
                      commaf nullf hypelis)
                   showword id (nextpos elbox textleading)
               in
@@ -1178,7 +1178,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             | true, _ -> noway ()
             | _ -> leftdefault ()
           in
-          _L wopt (( ++ ) (hypmap, ( |-> ) (cutel, cutelid))) idok rdp acc'
+          _L wopt ((hypmap ++ (cutel |-> cutelid))) idok rdp acc'
       | TranDep (stopt, terminf, tdeps) ->
           (* In the first phase we just accumulate all the justification info, generating
            * the antecedent lines.
@@ -1196,7 +1196,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
       (* put in the beginning of the transitive game (forgot this for a time ...) *)
           let rec sourceline p =
             stprefix stopt
-              (plan2plans <*> uncurry2 textinfo2plan terminf)
+              (plan2plans <.> uncurry2 textinfo2plan terminf)
               p
           in
           let (id'', acc'') = doconcline sourceline false (acc', None) in
@@ -1207,7 +1207,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                   (rightby (p, transindent))
               in
               plancons splan
-                   (plan2plans <*> uncurry2 textinfo2plan f <*> 
+                   (plan2plans <.> uncurry2 textinfo2plan f <.> 
                     (fun p' -> rightby (p', transindent)))
             in
             doconcline mkp true (acc, just)
@@ -1309,7 +1309,7 @@ let rec _BoxLayout screenwidth t =
  *)
 
 let rec elementsin ps =
-  List.length ((iselementkind <*> planinfo) <| ps)
+  List.length ((iselementkind <.> planinfo) <| ps)
 
 let rec draw goalopt p proof =
   fun (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
@@ -1399,7 +1399,7 @@ let rec print str goalopt p proof =
       | path, Some goalpath -> path = goalpath
     in
     let out = output_string str in
-    let outesc = out <*> String.escaped in
+    let outesc = out <.> String.escaped in
     let rec outplan p = out "\""; outesc (plan2string p); out "\" " in
     let rec _D p line =
       match line with
@@ -1476,7 +1476,7 @@ let rec pos2hit p =
           in
           if withintb (p, elementsbox) then
             findfirstplanhit (p +<-+ tbPos elementsbox) elementsplan 
-            &~~ (fSome <*> planinfo) 
+            &~~ (fSome <.> planinfo) 
             &~~ decodeplan
           else
             findfirst
@@ -1499,7 +1499,7 @@ let rec pos2hit p =
 let rec locateHit pos classopt hitkind (p, proof, layout) =
   pos2hit (((pos) +<-+ p)) layout hitkind
   &~~
-  (fSome <*> 
+  (fSome <.> 
     ((function
         FormulaHit (AmbigHit (up, dn)) as h ->
           begin match classopt with
@@ -1738,7 +1738,7 @@ let rec targetbox a1 a2 =
         function
           FitchLine
             {elementsplan = elementsplan; elementsbox = elementsbox} ->
-            if List.exists (ok <*> planinfo) elementsplan then
+            if List.exists (ok <.> planinfo) elementsplan then
               begin
                 if !screenpositiondebug then
                   consolereport
@@ -1754,7 +1754,7 @@ let rec targetbox a1 a2 =
 let rec samelayout =
   fun (Layout {lines = lines}, Layout {lines = lines'}) -> lines = lines'
 
-let defaultpos = fst_of_3 <*> defaultpos
+let defaultpos = fst_of_3 <.> defaultpos
 
 let highlight = highlight
 let viewBox = viewBox

@@ -67,7 +67,7 @@ let rec qDEF a =
   match a with
     Yes -> true
   | _ -> false
-let qDEFNOT = qDEF <*> notq
+let qDEFNOT = qDEF <.> notq
 let rec qUNSURE =
   function
     Maybe -> true

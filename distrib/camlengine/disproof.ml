@@ -73,7 +73,7 @@ let planinfo = Draw.planinfo
 let seqexplode = Sequent.Funs.seqexplode
 let seqstring = Sequent.Funs.seqstring
 let seqvars = Sequent.Funs.seqvars termvars tmerge
-let showAlert = Alert.showAlert Alert.defaultseverity_alert <*> implode
+let showAlert = Alert.showAlert Alert.defaultseverity_alert <.> implode
 let simplifySubst = Substmapfuns.simplifySubst
 let smlseqstring = Sequent.Funs.smlseqstring
 let subtree = Prooftree.Tree.Fmttree.followPath
@@ -108,7 +108,7 @@ let rec matchit pat vs t =
       ["matchit (disproof) matching "; termstring pat; " ";
        bracketedliststring
          (fun v ->
-            pairstring termstring (idclassstring <*> idclass)
+            pairstring termstring (idclassstring <.> idclass)
               "," (v, v))
          ", " vs;
        " against "; termstring t; " => ";
@@ -148,13 +148,13 @@ let rec catelim_universestring sep u ss =
       ("++" ^ sep) u ss
 let rec universestring sep u = implode (catelim_universestring sep u [])
 let rec universe2list u = List.map (fun (c, (ts, cs)) -> c, ts, cs) (aslist u)
-let rec emptyworld () = ( |-> ) ((0, 0), ([], []))
+let rec emptyworld () = ((0, 0) |-> ([], []))
 let rec isemptyworld u =
   match ran u with
     [[], []] -> true
   | _ -> false
 let rec getworld u c =
-  try _The (at (u, c)) with
+  try _The ((u <:> c)) with
     _ ->
       raise
         (Catastrophe_
@@ -165,9 +165,9 @@ let rec domono pts u c =
   let (ts, cs) = getworld u c in
   match listsub eqterms pts ts with
     [] -> u
-  | ts' -> foldl (domono ts') (( ++ ) (u, ( |-> ) (c, (ts' @ ts, cs)))) cs
+  | ts' -> foldl (domono ts') ((u ++ (c |-> (ts' @ ts, cs)))) cs
 let rec addworldlabel u c t =
-  match at (u, c) with
+  match (u <:> c) with
     None ->
       raise
         (Tacastrophe_
@@ -177,10 +177,10 @@ let rec addworldlabel u c t =
       if member (t, pts) then None
       else
         Some
-          (foldl (domono [t]) (( ++ ) (u, ( |-> ) (c, (t :: pts, pcs))))
+          (foldl (domono [t]) ((u ++ (c |-> (t :: pts, pcs))))
              pcs)
 let rec deleteworldlabel u c t =
-  match at (u, c) with
+  match (u <:> c) with
     None ->
       raise
         (Tacastrophe_
@@ -195,7 +195,7 @@ let rec deleteworldlabel u c t =
         let rec doself u c =
           let (ts, cs) = getworld u c in
           if member (t, ts) then
-            ( ++ ) (u, ( |-> ) (c, (listsub eqterms ts [t], cs)))
+            (u ++ (c |-> (listsub eqterms ts [t], cs)))
           else u
         in
         let rec doparents u c =
@@ -216,7 +216,7 @@ let occurrences : (term * term list) list ref = ref []
    
 let rec isoccurrence t =
   List.exists
-    (opt2bool <*> (fun (occ, occvs) -> matchit occ occvs t))
+    (opt2bool <.> (fun (occ, occvs) -> matchit occ occvs t))
     !occurrences
 let rec newoccurrence v =
   match
@@ -226,7 +226,7 @@ let rec newoccurrence v =
        !occurrences
   with
     (occ, [occv]) :: _ ->
-      _The (option_remapterm (( |-> ) (v, occv)) occ)
+      _The (option_remapterm ((v |-> occv)) occ)
   | _ ->
       raise
         (Catastrophe_
@@ -235,7 +235,7 @@ let rec newoccurrence v =
    instead of actual i, actual j, actual k etc.
  *)
 let rec nodups t vs patf xs =
-  t, (not <*> opt2bool <*> matchit t vs <*> patf) <| xs
+  t, (not <.> opt2bool <.> matchit t vs <.> patf) <| xs
 let rec newocc t vs os =
   let rec patf (t, vs) = t in
   let (t, os') = nodups t vs patf os in (t, vs) :: os'
@@ -269,11 +269,11 @@ let rec addforcedef (t, fd) =
                   " doesn't have bound variables as arguments"])
     in
     let env = mkmap (List.map pvars pbs) in
-    let comp = compilepredicate notabst (fun v -> at (env, v)) in
+    let comp = compilepredicate notabst (fun v -> (env <:> v)) in
     let (t, fd) = mapterm comp t, mapforcedefterms comp fd in
     let vs = patvars t in
     let (t, fds) = nodups t vs (fun (t', _, _, _) -> t') !forcedefs in
-    let hassubst = opt2bool <*> findinforcedef decodeSubst in
+    let hassubst = opt2bool <.> findinforcedef decodeSubst in
     forcedefs := (t, vs, hassubst fd, fd) :: fds;
     occurrences := findoccs fd !occurrences
   with
@@ -305,7 +305,7 @@ and uniquebinders t fd =
       ocvid' :: ocvids,
       (if ocvid = ocvid' then env
        else
-         ( ++ ) (( |-> ) (ocv, registerId (ocvid', VariableClass)), env))
+         ((ocv |-> registerId (ocvid', VariableClass)) ++ env))
     in
     let r = snd (foldl newvar ([], empty) ocvs) in
     if !disproofdebug then
@@ -374,8 +374,8 @@ let rec unfixedforced facts u =
         (true, _), (false, _) -> false, false
       | _, _ -> true, false
     in
-    let rec logAll f = foldl logAnd (true, false) <*> List.map f in
-    let rec logExists f = foldl logOr (false, false) <*> List.map f in
+    let rec logAll f = foldl logAnd (true, false) <.> List.map f in
+    let rec logExists f = foldl logOr (false, false) <.> List.map f in
     let rec indiv_fd (oc, vs, fd) i =
       (* fun remap env t = (* written with andthenr, ortryr, because I don't trust 0.93 with the functional version *)
                              option_remapterm env t  &~~ 
@@ -583,7 +583,7 @@ let rec alphasort sel ts =
   List.map sel
     (sortunique (fun (s1, _) (s2, _) -> lowercase s1 < lowercase s2)
        ((List.map termstring ts ||| ts)))
-let tilesort = List.rev <*> alphasort snd
+let tilesort = List.rev <.> alphasort snd
 let labelsort = alphasort fst 
 let rec seq2tiles facts seq =
   let (_, _, hyps, _, concs) = my_seqexplode seq in
@@ -647,12 +647,12 @@ let rec seq2tiles facts seq =
   in
   (* add occurrence formulae if necessary *)
   let ts =
-    (if List.exists (opt2bool <*> decodeBinding) hypterms ||
-        List.exists (opt2bool <*> decodeBinding) concterms
+    (if List.exists (opt2bool <.> decodeBinding) hypterms ||
+        List.exists (opt2bool <.> decodeBinding) concterms
      then
        List.map fst 
              ((fun (occ, vs) ->
-                not (List.exists (opt2bool <*> (matchit occ vs)) ts)) <| !occurrences)
+                not (List.exists (opt2bool <.> (matchit occ vs)) ts)) <| !occurrences)
      else []) @ ts
   in
   (* eliminate all individuals which don't appear free in the sequent, 
@@ -691,7 +691,7 @@ let rec model2disproofstate a1 a2 a3 =
         List.map (fun (World (c, chs, ts)) -> coord c, (ts, List.map coord chs))
           worlds
       in
-      let utiles = nj_fold (fun (x, y) -> x @ y) (List.map (fst <*> snd) ulist) [] in
+      let utiles = nj_fold (fun (x, y) -> x @ y) (List.map (fst <.> snd) ulist) [] in
       let uvars = nj_fold (uncurry2 tmerge) (List.map variables utiles) [] in
       let tiles = List.map newoccurrence uvars @ seq2tiles facts seq @ utiles in
       let minc =
@@ -713,7 +713,7 @@ let rec model2disproofstate a1 a2 a3 =
                         coordstring c; " to "; coordstring ch; " in ";
                         universestring "" u])
                 else
-                  match at (u, ch) with
+                  match (u <:> ch) with
                     Some (chts, _) ->
                       if not
                            (null (listsub (fun (x, y) -> x = y) ts chts))
@@ -796,7 +796,7 @@ let rec newtile =
       template, variables template
     in
     let rec newtile v v' =
-        (option_remapterm (( |-> ) (v, v')) t &~~
+        (option_remapterm ((v |-> v')) t &~~
          (fun t' -> if member (t', tiles) then None else Some t'))
     in
     let rec newoccurrence v =
@@ -879,7 +879,7 @@ let rec newtile =
 let rec addchild u (_, py as pc) (_, cy as cc) =
   if py >= cy then None
   else
-    match at (u, pc) with
+    match (u <:> pc) with
       None ->
         raise
           (Catastrophe_
@@ -889,17 +889,16 @@ let rec addchild u (_, py as pc) (_, cy as cc) =
         else
           (* already there *)
           let u' =
-            ( ++ )
-              (u,
-               ( |-> ) (pc, (pts, (if py < cy then cc :: pcs else pcs))))
+            (u ++
+               (pc |-> (pts, (if py < cy then cc :: pcs else pcs))))
           in
-          match at (u', cc) with
-            None -> Some (( ++ ) (u', ( |-> ) (cc, (pts, []))))
+          match (u' <:> cc) with
+            None -> Some ((u' ++ (cc |-> (pts, []))))
           | Some _ -> Some (domono pts u' cc)
 let rec deleteworld =
   fun (Disproofstate {universe = universe; selected = selected} as state)
     c ->
-    match at (universe, c) with
+    match (universe <:> c) with
       None -> None
     | Some _ ->
         (* a garbage-collection job! But actually we just leave the floaters floating ... *)
@@ -927,12 +926,11 @@ let rec worldselect =
 let rec addlink u from to__ =
   let (ts, cs) = getworld u from in
   if member (to__, cs) then u
-  else ( ++ ) (u, ( |-> ) (from, (ts, to__ :: cs)))
+  else (u ++ (from |-> (ts, to__ :: cs)))
 let rec deletelink u from to__ =
   let (ts, cs) = getworld u from in
   if member (to__, cs) then
-    ( ++ )
-      (u, ( |-> ) (from, (ts, listsub (fun (x, y) -> x = y) cs [to__])))
+    (u ++ (from |-> (ts, listsub (fun (x, y) -> x = y) cs [to__])))
   else u
 let rec children u c = snd (getworld u c)
 let rec parents u c = (fun p -> member (c, children u p)) <| dom u
@@ -941,7 +939,7 @@ let rec moveworld =
     (_, toy as to__) ->
     if from = to__ then None
     else
-      match at (u, from) with
+      match (u <:> from) with
         None ->
           raise
             (Catastrophe_
@@ -979,20 +977,19 @@ let rec moveworld =
             else u, c :: cs
           in
           let (u, fromcs) =
-            foldl (splitlink2 (parents u from)) (( -- ) (u, [from]), [])
+            foldl (splitlink2 (parents u from)) ((u -- [from]), [])
               fromcs
           in
           let rec swing c = if c = from then to__ else c in
           let ulist = (fun (c, _) -> c <> from) <| aslist u in
           let u =
-            match at (u, to__) with
+            match (u <:> to__) with
               None ->
                 (* it's a new position: swing links from->to *)
-                ( ++ )
-                  (mkmap
-                     (List.map (fun (c, (ts, cs)) -> c, (ts, List.map swing cs))
-                        ulist),
-                   ( |-> ) (to__, (fromts, fromcs)))
+                (mkmap
+                   (List.map (fun (c, (ts, cs)) -> c, (ts, List.map swing cs))
+                      ulist) ++
+                 (to__ |-> (fromts, fromcs)))
             | Some (tots, tocs) ->
                 (* it's already there; delete unnecessary ->from links and unite the worlds *)
                 let u =
@@ -1007,10 +1004,8 @@ let rec moveworld =
                        ulist)
                 in
                 domono fromts
-                  (( ++ )
-                     (u,
-                      ( |-> )
-                        (to__,
+                  ((u ++
+                      (to__ |->
                          (tots,
                           tocs @
                             listsub (fun (x, y) -> x = y) fromcs tocs))))
@@ -1046,7 +1041,7 @@ let rec showdisproof =
     let rec ivb t =
       let t = realterm t in
       (* consolereport ["ivb ", smltermstring t, " => ", 
-           optionstring (catelim2stringfn catelim_forcedstring) (forcemap at (root,t))]; 
+           optionstring (catelim2stringfn catelim_forcedstring) (forcemap (root <:> t))]; 
        *)
       try let (on, lock) = Hashtbl.find forcemap (root, t) in
           fst (if on then onbraket else offbraket) ^ (if lock then fst lockbraket else "")
@@ -1092,7 +1087,6 @@ let rec deletelink u from to__ =
   let (ts, cs) = getworld u from in
   if member (to__, cs) then
     Some
-      (( ++ )
-         (u,
-          ( |-> ) (from, (ts, listsub (fun (x, y) -> x = y) cs [to__]))))
+      ((u ++
+          (from |-> (ts, listsub (fun (x, y) -> x = y) cs [to__]))))
   else None

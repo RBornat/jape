@@ -65,7 +65,7 @@ let rec vtmetacount vts =
 let rec vtmaps facts vts (v, _) =
   List.exists (fun (v', _) -> qDEF (substeqvarsq facts v v')) vts
 let rec vtminus facts vts1 vts2 =
-  (not <*> vtmaps facts vts2) <| vts1
+  (not <.> vtmaps facts vts2) <| vts1
 let rec vtsplit facts vts bs =
   let rec _S ((v, t), (ys, ns, ms)) =
     let rs = (substeqvarsq facts v <* bs) in
@@ -101,7 +101,7 @@ and restrictsubstmap facts vts bs ss =
   in
   let rec foundinside v =
     List.exists
-         (not <*> qDEFNOT <*> varoccursinq (newfacts v) v)
+         (not <.> qDEFNOT <.> varoccursinq (newfacts v) v)
       ss
   in
   if not (List.exists foundinside (substmapdom ms)) then
@@ -109,7 +109,7 @@ and restrictsubstmap facts vts bs ss =
          (List.exists
             (fun b ->
                List.exists
-                    (not <*> qDEFNOT <*> varoccursinq facts b)
+                    (not <.> qDEFNOT <.> varoccursinq facts b)
                  (substmapran ns))
             bs)
     then

@@ -106,7 +106,7 @@ let rec simplifyProviso facts (p, cats) =
   let rec nop =
 	fun (vs, pat, _C as n) ->
 	  let rec expand env (v, cats) =
-		match at (env, v) with
+		match (env <:> v) with
 		  Some v' ->
 			simplifyProviso facts (new__ (NotinProviso (v, v')), cats)
 		| None -> raise (Catastrophe_ ["simplifyProviso nop"])
@@ -198,7 +198,7 @@ let rec groundedprovisos names provisos =
 		FreshProviso (_, _, _, v) -> ismetav v && isot v
 	  | NotinProviso (v, t) -> ismetav v && isot v || isot t
 	  | NotoneofProviso (vs, pat, _C) ->
-		  not (List.exists (not <*> isot) vs) || isot _C
+		  not (List.exists (not <.> isot) vs) || isot _C
 	  | UnifiesProviso (_P1, _P2) -> isot _P1 && isot _P2
 	in
 	if !provisodebug then
@@ -209,7 +209,7 @@ let rec groundedprovisos names provisos =
   let r =
 	if null provisos then None
 	else
-	  (* keep them? throw them away? *) match split (isop <*> provisoactual) provisos with
+	  (* keep them? throw them away? *) match split (isop <.> provisoactual) provisos with
 		[], _ -> None
 	  | _, [] ->(* we kept them all *)
 		 Some []
@@ -218,7 +218,7 @@ let rec groundedprovisos names provisos =
 		  match
 			groundedprovisos
 			  (nj_fold (uncurry2 tmerge)
-					   ((provisovars termvars tmerge <*> provisoactual) <* uses)
+					   ((provisovars termvars tmerge <.> provisoactual) <* uses)
 					   names)
 			  isos
 		  with
@@ -241,10 +241,11 @@ let rec expandFreshProviso b (h, g, r, v) left right ps =
 exception Verifyproviso_ of proviso
 
 (* take out the first occurrence *)
-let rec ( -- ) =
-  function
-	x :: xs, y -> if x = y then xs else x :: ( -- ) (xs, y)
-  | [], y -> []
+let rec ( -- ) xs ys =
+  match (xs, ys) with
+    x :: xs, y -> if x = y then xs else x :: (xs -- y)
+  | []     , y -> []
+
 (* We find out which provisos from the set ps are independent of the set qs.
  * If op-- is the function above, p is deleted from the set qs before we start,
  * but there are other things we might want to do ...
@@ -255,7 +256,7 @@ let rec checker cxt ( -- ) ps qs =
 	  [], qs -> []
 	| p :: ps, qs ->
 		let pp = provisoactual p in
-		let qs' = ( -- ) (qs, p) in
+		let qs' = (qs -- p) in
 		if List.exists (fun p' -> pp = provisoactual p') qs' then ch ps qs'
 		else
 		  match _PROVISOq (facts qs' cxt) pp with
@@ -314,7 +315,7 @@ let rec verifyprovisos cxt =
 	  let _ =
 		if !provisodebug then consolereport ["simpleps = "; vv simpleps]
 	  in
-	  checker cxt ( -- ) simpleps simpleps
+	  checker cxt (--) simpleps simpleps
 	in
 	(* FreshProviso now interacts with other provisos in a number of ways.
 	 * If we have FRESH/IMPFRESH z, but z doesn't appear in the base sequent or the givens,
@@ -328,14 +329,14 @@ let rec verifyprovisos cxt =
 	let ps =
 	  let rec dofresh (((h, g, r, v as f), ns), pros) =
 		let news = nj_fold (simplifyProviso (facts (pros @ ns) cxt)) ns [] in
-		let rec mm (xs, y) = xs in
+		let rec mm xs y = xs in
 		let rec def () = checker cxt mm pros news in
 		let rec push f ps =
 		  if List.exists
 			   (
 				  (function
 					 FreshProviso (_, _, _, v') -> v = v'
-				   | _ -> false) <*> provisoactual)
+				   | _ -> false) <.> provisoactual)
 			   ps
 		  then
 			  ((fun vp ->

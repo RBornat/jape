@@ -148,7 +148,7 @@ let rec parseProvisos () =
       raise (ParseError_ ("in NOTONEOF proviso, " :: ss))
     in
     let _ =
-      if List.exists (not <*> ismetav) vars then
+      if List.exists (not <.> ismetav) vars then
         bad
           ["not all the names "; bracketedliststring termstring ", " vars;
            " are schematic"]

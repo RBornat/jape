@@ -34,7 +34,7 @@ exception Catastrophe_ = Miscellaneous.Catastrophe_
 let addautorule = Proofstate.addautorule
 let adddoubleclick = Doubleclick.adddoubleclick
 let addforcedef = Disproof.addforcedef
-let atmapping = Mappingfuns.at
+let atmapping = Mappingfuns.(<:>)
 let cleanup x = x
 let consolereport = Miscellaneous.consolereport
 let empty = Mappingfuns.empty
@@ -136,7 +136,7 @@ let rec interpret
   in
   let rec newbuttonenv env text var settings defval =
 	let defval' =
-	  match defval, Japeenv.at (env, var), settings with
+	  match defval, env <:> var, settings with
 		Some v, _, _ -> v
 	  | _, Some v, s :: _ -> termstring v
 	  | _, _, s :: _ -> s
@@ -163,8 +163,7 @@ let rec interpret
 		env
 	  with
 		NotJapeVar_ ->
-		  ( ++ )
-			(env, ( ||-> ) (var, japerefvar settings defval' (ref "")))
+		  (env ++ (var ||-> japerefvar settings defval' (ref "")))
 	in
 	Japeenv.set (env', var, _VALFROM defval'); env', defval'
   in
@@ -185,7 +184,7 @@ let rec interpret
 	let (env, _) = newbuttonenv env "RADIOBUTTON" var settings defval in
 	let map = mkmap ((fun (l, v) -> v, l) <* entries) in
 	let rec basefn f (v, tf) =
-	  match atmapping (map, v) with
+	  match atmapping map v with
 		Some label -> f (label, tf)
 	  | None -> ()
 	in
@@ -236,15 +235,14 @@ let rec interpret
 	  | NotJapeVar_ ->
 		  lreport [" - it isn't a variable in the environment"]
 	  | ReadOnly_ ->
-		  if Japeenv.at (env, name) = Some term then ()
+		  if Japeenv.(<:>) env name = Some term then ()
 		  else
-			lreport
-			  [" - it can't be altered, given the state of other stored values"]
+		    lreport [" - it can't be altered, given the state of other stored values"]
 	  end;
 	  res
   | MacroDef (TacticHeading (name, params), macro) ->
 	  addthing (name, Macro (params, macro), where); res
-  | Menu (mlabel, mparas) ->
+  | Menu (mproof, mlabel, mparas) ->
 	  let rec tacentry name =
 		Mentry (name, None, "apply " ^ parseablenamestring name)
 	  in
@@ -256,16 +254,16 @@ let rec interpret
 				let (env, basefn) = processCheckBox env stuff in
 				let rec tickfn tf =
 				  setmenuentry
-					(namestring mlabel, namestring label, None,
-					 ("assign " ^ parseablenamestring var) ^
+					(namestring mlabel) (namestring label) None
+					 ("assign " ^ parseablenamestring var ^
 					   (if tf then " false" else " true"));
-				  tickmenuitem (namestring mlabel) (namestring label) tf
+				  tickmenuitem false (namestring mlabel) (namestring label) tf
 				in
 				env, (var, basefn tickfn) :: buttonfns, e :: mes, mps
 			| Mradiobutton (var, _, _ as stuff) ->
 				let (env, basefn) = processRadioButton env stuff in
 				let rec tickfn (label, tf) =
-				  tickmenuitem (namestring mlabel) (namestring label) tf
+				  tickmenuitem false (namestring mlabel) (namestring label) tf
 				in
 				env, (var, basefn tickfn) :: buttonfns, e :: mes, mps
 			| _ -> env, buttonfns, e :: mes, mps
@@ -278,7 +276,7 @@ let rec interpret
 	  let (env, buttonfns, mes, mps) =
 		nj_fold process mparas (env, buttonfns, [], [])
 	  in
-	  Menu.addmenu mlabel;
+	  Menu.addmenu mproof mlabel;
 	  Menu.addmenudata mlabel mes;
 	  nj_revfold
 		(interpret report query (InMenu mlabel) params provisos enter) mps
@@ -395,7 +393,7 @@ and interpretParasFrom report query res filenames =
   let r = (try
 			 nj_revfold (interpret report query InLimbo [] [] true)
 			   (nj_fold (fun (x, y) -> x @ y)
-					    ((file2paragraphs report query <*> unQuote) <*
+					    ((file2paragraphs report query <.> unQuote) <*
 					    filenames)
 				  [])
 			   res

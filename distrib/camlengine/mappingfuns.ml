@@ -27,9 +27,13 @@ open Sml
 type ('a, 'b) mapping = ('a * 'b) list
 
 let empty = []
+
 let isempty xs = xs=[]
-let rec ( |-> ) (a, b) = [a, b]
-let rec ( ++ ) (m, n) = n @ m
+
+let rec ( |-> ) a b = [a, b]
+
+let rec ( ++  ) m n = n @ m
+
 let rec mapped same mapping a =
   let rec ff =
     function
@@ -40,18 +44,22 @@ let rec mapped same mapping a =
 (* -- [x] is the inverse of ++ x |-> : that is, it deletes only the outermost value of x.
  * --[x,x] deletes two, and so on.
  *) 
-let rec ( -- ) =
-  function
+
+let rec ( -- ) xs ys =
+  match (xs,ys) with
     [], ys -> []
   | (x, xv) :: ps, ys ->
       if member (x, ys) then
-        ( -- ) (ps, listsub (fun (x, y) -> x = y) ys [x])
-      else (x, xv) :: ( -- ) (ps, ys)
-let rec at (mapping, a) = mapped (fun (x, y) -> x = y) mapping a
+        (ps -- listsub (fun (x, y) -> x = y) ys [x])
+      else (x, xv) :: (ps -- ys)
+
+let rec (<:>) mapping a = mapped (fun (x, y) -> x = y) mapping a (* eta-conversion doesn't work here *)
+
 let rec mem a1 a2 =
   match a1, a2 with
     x, [] -> false
   | x, x' :: xs -> x = x' || mem x xs
+
 let rec lfold f r m =
   let rec ff a1 a2 a3 =
     match a1, a2, a3 with
@@ -64,26 +72,35 @@ let rec lfold f r m =
 
 let rec remapping (f, mapping) =
   lfold
-    (fun (pair, m) -> ( ++ ) (( |-> ) (f pair), m))
+    (fun (pair, m) -> (uncurry2 (|->) (f pair) ++ m))
     empty mapping
 (* dom now gives its result in reverse insertion order, just like rawdom *)
+
 let rec aslist (m : ('a * 'b) list) =
   seteq (fun (a, b) (a1, b1) -> a = a1) m
+
 let rec dom m = List.map (fun (r,_)->r) (aslist m)
+
 let rec ran m = List.map (fun (_,r)->r) (aslist m)
+
 let rec rawaslist m = m
+
 let rec rawdom (m : ('a, 'b) mapping) = List.map (fun (r,_)->r) m
+
 let rec rawran (m : ('a, 'b) mapping) = List.map (fun (_,r)->r) m
 
 let rec formappingpairs (f, mapping) =
-  List.iter (fun d -> f (d, Optionfuns._The (at (mapping, d)))) (dom mapping)
+  List.iter (fun d -> f (d, Optionfuns._The ((mapping <:> d)))) (dom mapping)
+
 let rec mkmap pairs =
-  nj_fold (fun ((a, b), map) -> ( ++ ) (map, ( |-> ) (a, b))) pairs empty
+  nj_fold (fun ((a, b), map) -> (map ++ (a |-> b))) pairs empty
+
 let rec catelim_mappingstring astring bstring sep mapping ss =
   "<<" ::
     catelim_liststring
       (fun (a, b) ss -> "(" :: astring a ("|->" :: bstring b (")" :: ss)))
       sep (List.rev mapping) (">>" :: ss)
+
 let rec mappingstring a b =
   catelim2stringfn
     (catelim_mappingstring (stringfn2catelim a) (stringfn2catelim b) "++")

@@ -200,9 +200,9 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
        (match rewinf_psig ri, getprovisosig cxt with
           Some si, ci -> si <> ci
         | _ -> false) ||
-       List.exists (opt2bool <*> (fun uVID -> at (varmap cxt, uVID)))
+       List.exists (opt2bool <.> (fun uVID -> (varmap cxt <:> uVID)))
          (rewinf_uVIDs ri)) ||
-      List.exists (opt2bool <*> (fun i -> at (resmap cxt, i)))
+      List.exists (opt2bool <.> (fun i -> (resmap cxt <:> i)))
         (rewinf_badres ri)
     (* this is almost f &~ (Some o yes), but types get in the way ... *)
     let rec rew_ f x yes =
@@ -215,11 +215,11 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
         None -> Some t
       | some -> some
     let rec rew_2 f x g y yes =
-      (option_rewrite2 f g &~ (fSome <*> yes)) (x, y)
+      (option_rewrite2 f g &~ (fSome <.> yes)) (x, y)
     let rec rew_Pair = fun _R -> option_rewrite2 _R _R
     (* there must be a better way ... *)
     let rec rew_3 f x g y h z yes =
-      (option_rewrite3 f g h &~ (fSome <*> yes)) (x, y, z)
+      (option_rewrite3 f g h &~ (fSome <.> yes)) (x, y, z)
     let rec rew_binding outer inner (h, (bs, ss, us), env, pat) =
       rew_3 (option_rewritelist outer) bs (option_rewritelist inner) ss
         (option_rewritelist outer) us
@@ -229,7 +229,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
         match t with
           Id (_, v, _) -> None
         | Unknown (_, v, _) ->
-            begin match at (varmap cxt, v) with
+            begin match (varmap cxt <:> v) with
               Some t' -> rew_yes _S t'
             | None -> None
             end
@@ -299,7 +299,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
              * Without this, some replayed proofs generate enormous amounts of
              * space
              *)
-            begin match at (resmap cxt, i) with
+            begin match (resmap cxt <:> i) with
               Some (r, t) ->
                 rew_yes (rew_elements subst cxt) [registerElement (r, t)]
             | None -> def (r, t)
@@ -318,7 +318,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
     let rec rew_resnum cxt r =
       match r with
         ResUnknown i ->
-          begin match at (resmap cxt, i) with
+          begin match (resmap cxt <:> i) with
             Some (r, _) -> rew_yes (rew_resnum cxt) r
           | None -> None
           end
@@ -375,7 +375,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
              rew_update f g pinf cxt
           in
           let rec rew_visproviso subst cxt vp =
-            rew_ (rew_Proviso subst cxt <*> provisoactual) vp
+            rew_ (rew_Proviso subst cxt <.> provisoactual) vp
               (provisoresetactual vp)
           in
           match option_rewritelist (rew_visproviso subst cxt) ps with
@@ -411,7 +411,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
                           (
                              (function
                                 NotinProviso p -> Some p
-                              | _ -> None) <*> provisoactual)
+                              | _ -> None) <.> provisoactual)
                           (provisos cxt)
                       in
                       let (fvs, m) = freevarsfrombindings stuff ps in

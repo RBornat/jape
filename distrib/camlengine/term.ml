@@ -261,7 +261,7 @@ module Termstring  : Termstring with type term = Type.term
       try
         let emap = mkmap env in
         let rec f t =
-          match at (emap, t) with
+          match (emap <:> t) with
             Some (1, i) -> Some (List.nth (bs) (i))
           | Some (2, i) -> Some (List.nth (ss) (i))
           | Some (3, i) -> Some (List.nth (us) (i))
@@ -599,14 +599,14 @@ module Termstring  : Termstring with type term = Type.term
         quadcolon "(" (catelim_termstring t (quadcolon ")" ss))
       else catelim_termstring t ss
     let argstring = catelim2stringfn catelim_argstring
-    let catelim_elementstring = catelim_termstring <*> stripelement
+    let catelim_elementstring = catelim_termstring <.> stripelement
     let elementstring = catelim2stringfn catelim_elementstring
     let catelim_elementstring_invisbracketed =
-      catelim_termstring_invisbracketed <*> stripelement
+      catelim_termstring_invisbracketed <.> stripelement
     let elementstring_invisbracketed =
       catelim2stringfn catelim_elementstring_invisbracketed
     let rec catelim_elementstring_invischoose ivb ivk =
-      catelim_termstring_invischoose ivb ivk <*> stripelement
+      catelim_termstring_invischoose ivb ivk <.> stripelement
     let rec elementstring_invischoose ivb ivk =
       catelim2stringfn (catelim_elementstring_invischoose ivb ivk)
     let rec catelim_collectionstring a1 a2 a3 =
@@ -707,7 +707,7 @@ module Store : Store with type vid = Type.vid
       =
 	   (let module Local =
 		  struct
-			let hash_list f = Hashtbl.hash <*> List.map f
+			let hash_list f = Hashtbl.hash <.> List.map f
 			let hash_2 fa fb (a,b) = Hashtbl.hash (fa a, fb b)
 			let hash_3 fa fb fc (a,b,c) = Hashtbl.hash (fa a, fb b, fc c)
 			
@@ -1063,7 +1063,7 @@ module Funs : Funs with type vid = Type.vid
             | Unknown _ -> None
             | App (_, f, a) ->
                   (option_rewrite2 mtff mtff (f, a) &~~
-                   (fSome <*> registerApp))
+                   (fSome <.> registerApp))
             | Tup (_, s, ts) ->
                 (mtfl ts &~~ (fun ts' -> Some (registerTup (s, ts'))))
             | Literal _ -> None
@@ -1148,8 +1148,8 @@ module Funs : Funs with type vid = Type.vid
             match a1, a2 with
               h, [] -> None
             | h, x :: xs ->
-                (fh (h <*> (fun t -> build x t :: xs)) (sel x) |~~
-                   (fun _ -> fhx (h <*> (fun xs -> x :: xs)) xs))
+                (fh (h <.> (fun t -> build x t :: xs)) (sel x) |~~
+                   (fun _ -> fhx (h <.> (fun xs -> x :: xs)) xs))
           in
           fhx h xs
         in
@@ -1159,38 +1159,38 @@ module Funs : Funs with type vid = Type.vid
           None ->
             begin match t with
               App (_, f, a) ->
-                  (fh (h <*> (fun f -> registerApp (f, a))) f |~~
+                  (fh (h <.> (fun f -> registerApp (f, a))) f |~~
                    (fun _ ->
-                      fh (h <*> (fun a -> registerApp (f, a)))
+                      fh (h <.> (fun a -> registerApp (f, a)))
                          a))
             | Tup (_, s, ts) ->
                 fhs selt buildt
-                  (h <*> (fun ts -> registerTup (s, ts))) ts
+                  (h <.> (fun ts -> registerTup (s, ts))) ts
             | Fixapp (_, ss, ts) ->
                 fhs selt buildt
-                  (h <*> (fun ts -> registerFixapp (ss, ts))) ts
+                  (h <.> (fun ts -> registerFixapp (ss, ts))) ts
             | Binding (_, (bs, ss, us), env, pat) ->
                   (fhs selt buildt
                      (
-                        h <*> (fun ss ->
+                        h <.> (fun ss ->
                               registerBinding ((bs, ss, us), env, pat))
                             )
                      ss |~~
                    (fun _ ->
                       fhs selt buildt
                         (
-                           h <*> (fun us ->
+                           h <.> (fun us ->
                                  registerBinding ((bs, ss, us), env, pat))
                                )
                         us))
             | Subst (_, r, p_, vts) ->
                   (fh (
-                         h <*> (fun p_ -> registerSubst (r, p_, vts)))
+                         h <.> (fun p_ -> registerSubst (r, p_, vts)))
                       p_ |~~
                    (fun _ ->
                       fhs (fun (v, t) -> t) (fun (v, _) t -> v, t)
                         (
-                           h <*> (fun vts -> registerSubst (r, p_, vts)))
+                           h <.> (fun vts -> registerSubst (r, p_, vts)))
                         vts))
             | Collection (_, k, es) ->
                 let rec sele =
@@ -1205,7 +1205,7 @@ module Funs : Funs with type vid = Type.vid
                   | Segvar (_, ps, _), v -> registerSegvar (ps, v)
                 in
                 fhs sele builde
-                  (h <*> (fun es -> registerCollection (k, es)))
+                  (h <.> (fun es -> registerCollection (k, es)))
                   es
             | _ -> None
             end
@@ -1565,9 +1565,9 @@ module Funs : Funs with type vid = Type.vid
       let count = ref 0 in
       let rec nxb _ = incr count; !count in
       (* infix at confuses OCaml *)
-      let rec at (tb, v) =
+      let rec (<:>) tb v =
         match tb with
-          (v', n) :: tb -> if v = v' then Some n else at (tb, v)
+          (v', n) :: tb -> if v = v' then Some n else (tb <:> v)
         | [] -> None
       in
       let rec eq t1bs t2bs (t1, t2) =
@@ -1579,7 +1579,7 @@ module Funs : Funs with type vid = Type.vid
           | _ -> false
         in
         let rec doublev () =
-          match at (t1bs, t1), at (t2bs, t2) with
+          match (t1bs <:> t1), (t2bs <:> t2) with
             Some n1, Some n2 -> n1 = n2
           | None, None -> t1 = t2
           | _ -> false
@@ -1805,7 +1805,7 @@ module Funs : Funs with type vid = Type.vid
       in
       let rec closed v bc = List.exists (fun bvs -> member (v, bvs)) bc in
       (* step 1 - find all free and semi-free names *)
-      let rec freev (v, bcs) = List.exists (not <*> closed v) bcs in
+      let rec freev (v, bcs) = List.exists (not <.> closed v) bcs in
       let freevs = (fst <* (freev <| inf)) in
       (* step 2 - find the dominates relation from all the bindings *)
       let rec domf (v, bcs) =
@@ -1850,7 +1850,7 @@ module Funs : Funs with type vid = Type.vid
        * will be more robust when the notion of idclass gets more intricate
        *)
       let rec badbindings (v, bcs) =
-        let bcs = (not <*> closed v) <| bcs in
+        let bcs = (not <.> closed v) <| bcs in
         let vclass = idclass v in
         let rec allbvs bc =
           let rec filterbv bv =
@@ -1878,7 +1878,7 @@ module Funs : Funs with type vid = Type.vid
       let showin = varinfstring in
       let showout =
         pairstring termliststring
-          (mappingstring termstring termliststring <*> mkmap) ","
+          (mappingstring termstring termliststring <.> mkmap) ","
       in
       if !varbindingsdebug then
         consolereport

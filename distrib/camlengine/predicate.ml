@@ -147,7 +147,7 @@ let rec findpredicates isabstraction bs (t, pbs) =
       | _ -> None
 (* discard zero-arity 'predicates' -- only necessary for arity check *)
 let rec discardzeroarities pbs =
-  (fun (_, (abss : (term list * 'a) list)) -> List.exists (not <*> null <*> fst) abss) <| pbs
+  (fun (_, (abss : (term list * 'a) list)) -> List.exists (not <.> null <.> fst) abss) <| pbs
 (* To make a mapping from predicates to default args we prefer binding variables, if
  * suitable examples can be found.
  *)

@@ -22,7 +22,7 @@
 
 (* useful functions for caml *)
 
-let (<*>) f g x = f (g x)
+let (<.>) f g x = f (g x)
 
 let rec nj_fold f xs z = 
   match xs with [] -> z | x::xs -> f (x, nj_fold f xs z)
@@ -34,11 +34,11 @@ let chars_of_string s =
   let rec e n = if n=len then [] else String.get s n :: e (n+1) in
   e 0
   
-let explode = List.map (String.make 1) <*> chars_of_string
+let explode = List.map (String.make 1) <.> chars_of_string
 
 let implode = String.concat ""
 
-(* let string_of_chars = implode <*> String.make 1 *)
+(* let string_of_chars = implode <.> String.make 1 *)
 let string_of_chars cs = 
   let len = List.length cs in
   let s = String.create len in

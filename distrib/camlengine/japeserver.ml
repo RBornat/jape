@@ -375,24 +375,18 @@ let rec cancelmenusandpanels () =
   menus := [];
   menusVisible := false
 
-let rec openproof (name, number) =
+let rec openproof name number =
   writef "OPENPROOF % %\n" [Str name; Int number]
 
 let rec closeproof number = writef "CLOSEPROOF %\n" [Int number]
 
-let rec newmenu name =
+let rec newmenu proofsonly name =
   if existsmenu name then ()
-  else writef "NEWMENU %\n" [Str name]
+  else writef "NEWMENU % %\n" [Bool proofsonly; Str name]
 
-let rec menuentry (menu, label, keyopt, entry) =
+let rec menuentry menu label keyopt entry =
   writef "MENUITEM % % \"%\" %\n"
     [Str menu; Str label; Str (match keyopt with Some s -> s | None -> " "); Str entry]
-
-let rec menuseparator (menu : string) =
-  writef "MENUSEP %\n" [Str menu]
-
-let rec setmenuentryequiv (menu, label, key) : unit =
-  writef "MENUITEMEQUIV % \"%\" \"%\"\n" [Str menu; Str label; Str key]
 
 let rec menucheckbox menu label cmd =
   writef "MENUCHECKBOX % % %\n" [Str menu; Str label; Str cmd]
@@ -405,12 +399,15 @@ let rec menuradiobutton menu lcs =
     lcs;
   writef "MENURADIOBUTTONEND %\n" [Str menu]
 
-let rec tickmenuitem menu label b =
-  writef "TICKMENUITEM % % %\n"
-    [Str menu; Str label; Bool b]
+let rec menuseparator (menu : string) =
+  writef "MENUSEP %\n" [Str menu]
 
-let rec enablemenuitem menu label state =
-  writef "ENABLEMENUITEM % \"%\" \"%\"\n" [Str menu; Str label; Bool state]
+let rec enablemenuitem focussedonly menu label state =
+  writef "ENABLEMENUITEM % % % %\n" [Bool focussedonly; Str menu; Str label; Bool state]
+
+let rec tickmenuitem focussedonly menu label tick =
+  writef "TICKMENUITEM % % % %\n"
+    [Bool focussedonly; Str menu; Str label; Bool tick]
 
 let rec makemenusVisible () =
   (* if !menusVisible then () else *) writef "MAKEMENUSVISIBLE\n" []

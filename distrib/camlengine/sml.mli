@@ -20,7 +20,7 @@
 
 *)
 
-val (<*>) : ('b -> 'c) -> ('a -> 'b) -> 'a -> 'c (* compose -- can't do without it *)
+val (<.>) : ('b -> 'c) -> ('a -> 'b) -> 'a -> 'c (* compose -- can't do without it *)
 
 val chars_of_string : string -> char list
 val explode : string -> string list
