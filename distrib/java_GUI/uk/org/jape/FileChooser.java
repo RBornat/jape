@@ -52,6 +52,8 @@ public class FileChooser /* implements FilenameFilter */ {
 		for (int i=0; i<extension.length; i++)
 			filter.addExtension(extension[i]);
 		
+		String result = "";
+		
         if (Jape.onMacOS) { // use AWT
 			FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.LOAD);
 			d.setDirectory(FilePrefs.nextOpen().toString());
@@ -63,7 +65,7 @@ public class FileChooser /* implements FilenameFilter */ {
 			if (file!=null && dir!=null) {
 				File fdir = new File(dir);
 				FilePrefs.setLastOpenedDir(fdir);
-				return (new File(dir,file)).toString();
+				result = (new File(dir,file)).toString();
 			}
 			else
 				return "";
@@ -76,18 +78,23 @@ public class FileChooser /* implements FilenameFilter */ {
 			if (returnVal==JFileChooser.APPROVE_OPTION) {
 				File dir = selected.getParentFile();
 				if (dir!=null) FilePrefs.setLastOpenedDir(dir);
-				return selected.toString();
+				result = selected.toString();
 			} 
 			else
 				return "";
-			
 		}
+		
+		FilePrefs.recordRecentFile(result);
+		return result;
     }
 
     public static String newSaveDialog(String message, String [] extension) {
         JapeFileFilter filter = new JapeFileFilter(message);
         for (int i=0; i<extension.length; i++)
             filter.addExtension(extension[i]);
+		
+		String result = "";
+		
 		if (Jape.onMacOS) { // use AWT
 			FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.SAVE);
 			d.setDirectory(FilePrefs.nextOpen().toString());
@@ -99,7 +106,7 @@ public class FileChooser /* implements FilenameFilter */ {
 			if (file!=null && dir!=null) {
 				File fdir = new File(dir);
 				FilePrefs.setLastSavedDir(fdir);
-				return (new File(dir,file)).toString();
+				result = (new File(dir,file)).toString();
 			}
 			else
 				return "";
@@ -112,11 +119,14 @@ public class FileChooser /* implements FilenameFilter */ {
 			if (returnVal==JFileChooser.APPROVE_OPTION) {
 				File dir = selected.getParentFile();
 				if (dir!=null) FilePrefs.setLastSavedDir(dir);
-				return selected.toString();
+				result = selected.toString();
 			} 
 			else
 				return "";
 		}
+		
+		FilePrefs.recordRecentFile(result);
+		return result;
     }
 
     public static String newSaveDialog(String message) {
