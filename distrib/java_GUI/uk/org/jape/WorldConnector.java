@@ -26,17 +26,48 @@
 */
 
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.Point;
+
+import java.awt.event.MouseEvent;
 
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.SwingUtilities;
 
 public class WorldConnector extends LineItem implements SelectionConstants, WorldTarget {
-    public final WorldItem from, to;
     public WorldCanvas canvas;
+    public final WorldItem from, to;
+
+    private final JLayeredPane layeredPane;
+    private final Container contentPane;
+    
     public WorldConnector(WorldCanvas canvas, JFrame window, WorldItem from, WorldItem to) {
         super(canvas, from.idX, -from.idY, to.idX, -to.idY);
         this.canvas = canvas;
         this.from = from; this.to = to;
+        this.layeredPane = window.getLayeredPane();
+        this.contentPane = window.getContentPane();
+        
         from.registerFrom(this); to.registerTo(this);
+        
+        addJapeMouseListener(new JapeMouseAdapter() {
+            private boolean noticeDrag;
+            public void pressed(MouseEvent e) {
+                noticeDrag = !(e.isAltDown() || e.isShiftDown() ||
+                               e.isMetaDown() || e.isControlDown());
+                if (noticeDrag)
+                    WorldConnector.this.pressed(e);
+            }
+            public void dragged(boolean wobbly, MouseEvent e) {
+                if (wobbly && noticeDrag)
+                    WorldConnector.this.dragged(e); // don't take notice of small movements
+            }
+            public void released(MouseEvent e) {
+                if (noticeDrag)
+                    WorldConnector.this.released(e);
+            }
+        });
     }
 
     /* ****************************** line as drag target ****************************** */
@@ -103,5 +134,82 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
         }
         else
             Alert.abort("world drop on non-accepting line");
+    }
+
+    /* ****************************** line as drag source ****************************** */
+
+    private int startx, starty, lastx, lasty;
+    private boolean firstDrag;
+    private DragWorldLine dragLine, other;
+    private Class targetClass;
+    private LineTarget over;
+
+    private void pressed(MouseEvent e) {
+        startx = e.getX(); starty = e.getY(); firstDrag = true;
+    }
+
+    protected void dragged(MouseEvent e) {
+        if (firstDrag) {
+            firstDrag = false;
+            try {
+                targetClass = Class.forName("LineTarget");
+            } catch (ClassNotFoundException exn) {
+                Alert.abort("can't make LineTarget a Class");
+            }
+            over = null;
+            Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), layeredPane);
+            dragLine = new DragWorldLine(from, p.x, p.y, canvas.linethickness, false);
+            other = new DragWorldLine(to, p.x, p.y, canvas.linethickness, true);
+            dragLine.addFriend(other);
+            layeredPane.add(dragLine, JLayeredPane.DRAG_LAYER);
+            layeredPane.add(other, JLayeredPane.DRAG_LAYER);
+            if (drag_tracing)
+                System.err.println("; dragged line at "+dragLine.activex+","+dragLine.activey);
+            dragLine.repaint();
+            setVisible(false);
+        }
+        else {
+            if (drag_tracing)
+                System.err.print("mouse dragged to "+e.getX()+","+e.getY());
+            dragLine.moveBy(e.getX()-lastx, e.getY()-lasty);
+            if (drag_tracing)
+                System.err.println("; dragged line now at "+dragLine.activex+","+dragLine.activey);
+            Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
+            LineTarget target = (LineTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
+            if (target!=over) {
+                if (over!=null) {
+                    over.dragExit(this); over=null;
+                }
+                if (target!=null && target.dragEnter(this))
+                    over = target;
+            }
+        }
+        lastx = e.getX(); lasty = e.getY();
+    }
+
+    protected void released(MouseEvent e) {
+        if (drag_tracing)
+            System.err.println("mouse released at "+e.getX()+","+e.getY()+
+                               "; dragged line at "+dragLine.activex+","+dragLine.activey);
+        if (over==null)
+            new Flyback(dragLine, dragLine.activex, dragLine.activey,
+                        SwingUtilities.convertPoint(this, startx, starty, layeredPane)) {
+                protected void finishFlyback() { finishDrag(); setVisible(true); }
+            };
+        else {
+            over.drop(this);
+            finishDrag();
+        }
+    }
+
+    protected void finishDrag() {
+        layeredPane.remove(dragLine);
+        layeredPane.remove(other);
+        layeredPane.repaint();
+    }
+
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        canvas.imageRepaint(); repaint();
     }
 }
