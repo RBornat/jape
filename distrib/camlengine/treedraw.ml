@@ -113,7 +113,7 @@ let rec tpH = fun (Treeplan {proofbox = proofbox}) -> sH (bSize proofbox)
 
 let rec subline =
   fun (Treeplan {seqbox = seqbox}) ->
-    let x1 = posX (tbPos seqbox) in x1, x1 + tsW (tbSize seqbox)
+    let x1 = posX (tbPos seqbox) in x1, x1 + tsW (textsize_of_textbox seqbox)
 
 let rec drawReason a1 a2 =
   match a1, a2 with
@@ -159,7 +159,7 @@ let rec maketreeplan proof =
     let subplans = List.rev subplans in
     (* not allowing for subindent below *)
     let reasonw = tsW reasonsize in
-    let seqsize = tbSize seqbox in
+    let seqsize = textsize_of_textbox seqbox in
     let seqw = tsW seqsize in
     let superw = max reasonw seqw in
     let superh =
@@ -440,7 +440,7 @@ let rec defaultpos =
     let screen = viewBox () in
     let screensize = bSize screen in
     let seqpos = tbPos seqbox in
-    let seqsize = tbSize seqbox in
+    let seqsize = textsize_of_textbox seqbox in
     (* put the base sequent in the middle of the bottom of the screen *)
     (* with enough space below it to allow for the way that the GUI makes selections *)
       (downby

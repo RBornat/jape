@@ -1254,7 +1254,7 @@ let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = p
     match plan with
       Some(seqplan,seqbox) ->
         begin
-          let seqsize = tbSize seqbox in
+          let seqsize = textsize_of_textbox seqbox in
           (* let _ = consolereport["seqplan is "; bracketedstring_of_list (debugstring_of_plan string_of_planclass) "; " seqplan; 
                                 "; and seqbox is "; string_of_textbox seqbox] in *)
           setseqbox seqsize;

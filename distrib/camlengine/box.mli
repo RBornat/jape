@@ -43,16 +43,20 @@ val box_of_textbox : textbox -> box
 (* take them apart *)
 val sW : size -> int
 val sH : size -> int
+
 val tsW : textsize -> int
 val tsH : textsize -> int
 val tsA : textsize -> int
 val tsD : textsize -> int
+
 val posX : pos -> int
 val posY : pos -> int
+
 val bSize : box -> size
-val bPos : box -> pos
-val tbSize : textbox -> textsize
-val tbPos : textbox -> pos
+val bPos  : box -> pos
+
+val textsize_of_textbox : textbox -> textsize
+val tbPos  : textbox -> pos
 
 (* extra conveniences for boxes: note that these points are all inside the box.
  * that is, topright = topleft rightby width-1, botleft = topleft downby height-1,
@@ -76,15 +80,18 @@ val ( +<-+ ) : pos -> pos -> pos              (* ditto left and up *)
 val ( +||+ )  : box * box -> box              (* find the bounding box *)
 val ( +|-|+ ) : textbox * textbox -> textbox  (* find the bounding box - takes y pos of first argument *)
  
-val emptybox : box
+val emptybox     : box
 val emptytextbox : textbox
-val nullsize : size
+
+val nullsize     : size
 val nulltextsize : textsize
+
 val origin : pos
-val downby : pos * int -> pos
+
+val downby  : pos * int -> pos
 val rightby : pos * int -> pos
-val upby : pos * int -> pos
-val leftby : pos * int -> pos
+val upby    : pos * int -> pos
+val leftby  : pos * int -> pos
 
 (* enquiries. within can reasonably be infix *)
 val withinX : pos * box -> bool

@@ -68,7 +68,7 @@ let rec tsD = fun (Textsize (w, a, d)) -> d
 let rec bPos = fun (Box (p, s)) -> p
 let rec tbPos = fun (Textbox (p, s)) -> p
 let rec bSize = fun (Box (p, s)) -> s
-let rec tbSize = fun (Textbox (p, s)) -> s
+let rec textsize_of_textbox = fun (Textbox (p, s)) -> s
 
 (* topleft, topright, botleft, botright: all positions within the box. Hence the -1s *)
 let topleft = bPos
@@ -181,4 +181,4 @@ let rec tbOffset =
     fun (Pos (xa, ya)) -> Textbox (Pos (x + xa, y + ya), textsize)
 
 let rec isemptybox b = let s = bSize b in sW s = 0 && sH s = 0
-let rec isemptytextbox tb = let ts = tbSize tb in tsW ts = 0 && tsH ts = 0
+let rec isemptytextbox tb = let ts = textsize_of_textbox tb in tsW ts = 0 && tsH ts = 0
