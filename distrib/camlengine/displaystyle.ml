@@ -43,10 +43,12 @@ module F
     open Treeformat.VisFmt
     open Prooftree.Tree.Vistree
         
-    let ( &~~ ) = Optionfuns.( &~~ )
-    let ( |~~ ) = Optionfuns.( |~~ )
+    let (&~~) = Optionfuns.(&~~)
+    let (|~~) = Optionfuns.(|~~)
+    let (<|)  = Listfuns.(<|)
     let abstracttree = AAA.abstracttree
     let consolereport = Miscellaneous.consolereport
+    let findfirst = Optionfuns.findfirst
     let fmtpath = Prooftree.Tree.viewpathtopath
     let string_of_option = Optionfuns.string_of_option
     let parentPath = Prooftree.Tree.Fmttree.parentPath
@@ -66,9 +68,8 @@ module F
     let rec deVis = fun (VisPath ns) -> ns
 
     let ministate =
-      optf
-        (fun (proof, pos, vgoal, vproof, plan, showall, hideuseless) ->
-           pos, abstracttree vproof, plan)
+      optf (fun (proof, pos, vgoal, vproof, plan, showall, hideuseless) ->
+              pos, abstracttree vproof, plan)
     let rec vpath showall proof popt = popt &~~ vispath showall proof
     let rec tranvpath state vpath =
          state &~~
@@ -106,20 +107,20 @@ module F
         Some s -> AAA.Screendraw.notifyselect selopt sels s
       | _ -> ()
     let rec saveanddraw proof pos vgoal vproof plan =
-      clearView ();
+      Draw.clearView ();
       draw (optf deVis vgoal) pos (abstracttree vproof) plan;
       screendrawstate
         (Some
            (proof, pos, vgoal, vproof, plan, !showallproofsteps,
             !hideuselesscuts))
-    and refresh proof vgoal vproof plan =
-      clearView (); saveanddraw proof (defaultpos plan) vgoal vproof plan
+    and refresh proof viewport vgoal vproof plan =
+      Draw.clearView (); saveanddraw proof (defaultpos viewport plan) vgoal vproof plan
     (* these functions - showProof and showFocussedProof - now get the raw proof and the 
      * raw target/goal.  This is because we may have to interpret them relative both to 
      * a new and an old proof, and this may cause horridness (specifically, the proof
      * can jump about the screen). 
      *)
-    and showProof oldstate proof target goal =
+    and showProof oldstate proof viewport target goal =
       (* Draw the proof on the screen.
          If target is None, use defaultpos.
          If there is a saved layout which includes the targeted sequent, use its
@@ -137,7 +138,7 @@ module F
        *)
       let vproof = visproof !showallproofsteps !hideuselesscuts proof in
       let vgoal = vpath !showallproofsteps proof goal in
-      let plan = layout (abstracttree vproof) in
+      let plan = layout viewport (abstracttree vproof) in
       if !screenpositiondebug then
         consolereport
           ["looking for "; string_of_option Prooftree.Tree.Fmttree.string_of_path goal;
@@ -147,7 +148,7 @@ module F
         None ->
           if !screenpositiondebug then
             consolereport ["showProof calls refresh, no old state"];
-          refresh proof vgoal vproof plan
+          refresh proof viewport vgoal vproof plan
       | Some (oldproof, oldpos, _, oldvproof, oldplan, oldshowall, oldhideuseless) ->
           let rec doit oldpoint newpoint =
             if !screenpositiondebug then
@@ -168,13 +169,15 @@ module F
                 if !screenpositiondebug then
                   consolereport ["found oldpath="; string_of_option Prooftree.Tree.Vistree.string_of_path oldpath;
                     "; path="; string_of_option Prooftree.Tree.Vistree.string_of_path oldpath];
-                begin match
-                  targetbox (optf deVis oldpath) oldplan,
-                  targetbox (optf deVis path) plan
-                with
-                  Some oldbox, Some box -> doit (tbPos oldbox) (tbPos box)
-                | _                     -> retry target
-                end
+                (match
+                   targetbox origin (optf deVis oldpath) oldplan,
+                   targetbox origin (optf deVis path) plan
+                 with
+                   Some oldbox, Some box -> 
+                     if intersects (box_of_textbox oldbox,viewport) (* it was visible *)
+                     then doit (tbPos oldbox) (tbPos box)
+                     else handleinvis ()
+                 | _                     -> retry target)
             | _ ->  (* one of the boxes wasn't there *)
                retry target
           and retry =
@@ -184,33 +187,60 @@ module F
                   try Some (parentPath proof targetpath) with
                     _ -> None
                 with
-                  None      -> doit (rootpos oldplan) (rootpos plan)
+                  None      -> doit (rootpos viewport oldplan) (rootpos viewport plan)
                 | newtarget -> findtarget newtarget
                 end
-            | None -> findtarget (Some (rootPath proof))
+            | None -> default()
+          and default () = findtarget (Some (rootPath proof))
+          and handleinvis () =
+            let oldts = alltargets oldpos oldplan in
+            let acceptable f ts = (fun (_,tbox) -> f (box_of_textbox tbox,viewport)) <| oldts in
+            let bad() =
+               consolereport ["We have a problem: Displaystyle.handleinvis can't find a visible path"];
+               default()
+            in
+            let process ts =
+              findfirst 
+                (fun (target,oldbox) -> 
+                  match targetbox oldpos (Some target) plan with
+                    Some box -> Some (oldbox, box)
+                  | None     -> None)
+                ts
+            in
+            match acceptable intersects oldts with
+              [] -> bad()
+            | grazers -> 
+                match (match acceptable entirelywithin grazers with
+                         []     -> process grazers
+                       | inners -> process inners |~~ (fun _ -> process grazers))
+                with
+                  None              -> bad()
+                | Some(oldbox, box) -> doit (tbPos oldbox) (tbPos box)
           in
           findtarget target
     
     and printProof str proof target goal =
+      let viewport = Draw.viewBox() in (* daft, but that's what it used to do *)
       let vproof = visproof !showallproofsteps !hideuselesscuts proof in
       let vgoal = vpath !showallproofsteps proof goal in
-      let plan = layout (abstracttree vproof) in
+      let plan = layout viewport (abstracttree vproof) in
       AAA.Screendraw.print str (optf deVis vgoal) origin (abstracttree vproof)
         plan
-    and showFocussedProof proof goal =
+    
+    and showFocussedProof proof viewport goal =
       (* for use when we change styles.
          Ensures that the goal sequent is at least on-screen.
        *)
       let vproof = visproof !showallproofsteps !hideuselesscuts proof in
       let vgoal = vpath !showallproofsteps proof goal in
-      let plan = layout (abstracttree vproof) in
-      match targetbox (optf deVis vgoal) plan with
+      let plan = layout viewport (abstracttree vproof) in
+      match targetbox origin (optf deVis vgoal) plan with (* DANGER: but it used to be origin before *)
         Some box ->
-          saveanddraw proof (postoinclude (box_of_textbox box) plan) vgoal vproof
+          saveanddraw proof (postoinclude viewport (box_of_textbox box) plan) vgoal vproof
             plan
-      | None -> refresh proof vgoal vproof plan
+      | None -> refresh proof viewport vgoal vproof plan
     and refreshProof state () =
-      clearView ();
+      Draw.clearView ();
       match state with
         None -> ()
       | Some (proof, pos, vgoal, vproof, plan, showall, hideuseless) ->
