@@ -30,15 +30,15 @@ open Sml
           
 exception First exception Reduce
 (* Bird-Meertens folding *)
-let rec foldr a1 a2 a3 =
-  match a1, a2, a3 with
-    f, z, [] -> z
-  | f, z, x :: xs -> f x (foldr f z xs)
+let rec foldr f z =
+ function
+    []      -> z
+  | x :: xs -> f x (foldr f z xs)
 
-let rec foldl a1 a2 a3 =
-  match a1, a2, a3 with
-    f, z, [] -> z
-  | f, z, x :: xs -> foldl f (f z x) xs
+let rec foldl f z =
+  function
+    []      -> z
+  | x :: xs -> foldl f (f z x) xs
 
 (* <| is infix filter *)
 let ( <| ) = List.filter
