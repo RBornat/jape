@@ -164,6 +164,17 @@ TACTIC "sequence*"  IS
         )
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
+TACTIC "Ntuple*"  IS
+    WHEN    
+        (LETGOAL (_A{_B}_C{_D})  
+            (LAYOUT COMPRESS "Ntuple") 
+            "Ntuple" "Ntuple*" 
+            (LETMATCH _G tacticresult "Ntuple*" (ASSIGN tacticresult _G)) /* take leftmost GOALPATH */
+        )
+        (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
+
+/* multiple compressed forward steps are harder still */
+
 TACTIC "∧ elim* step"(P, rule, H) IS
     WHEN    
         (LETMATCH (_P∧_Q)  P  
@@ -243,6 +254,10 @@ MENU Programs
                                     (Noarg "sequence*" "sequence")
                                     "sequence"
                                     "{A}(C1;C2){B}"
+    ENTRY "Ntuple"  IS BackwardOnlyA (QUOTE (_A{_B}_C{_D}))
+                                    (Noarg "Ntuple*" "Ntuple")
+                                    "Ntuple"
+                                    "A{B}C{D}"
     ENTRY "variable-assignment" 
                     IS BackwardOnlyA (QUOTE ({_A} (_x := _E) {_B}))
                                     (Noarg (perhapsconsequenceL "variable-assignment")) 
