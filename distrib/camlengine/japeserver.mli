@@ -77,8 +77,8 @@ val setseqbox : textsize -> unit
 val emphasise : pos -> bool -> unit                (* it's a textpos *)
 
 val settiles  : string list -> unit
-val setworlds : (int * int) list -> ((int * int) * bool * string list * (int * int) list) list 
-             (* selections          (coord       forced   labels        children        )      *)
+val setworlds : (int * int) list -> ((int * int) * bool * (bool*string) list * (int * int) list) list 
+             (* selections          (coord       forced   labels               children        )      *)
              -> unit
 
 (* *************************************** menus and panels *************************************** *)

@@ -696,7 +696,8 @@ let rec setworlds selected worlds =
   List.iter (fun ((cx, cy), emphasis, labels, children) ->
 			   writef "WORLD % % %\n" [Int cx; Int cy; Bool emphasis];
 			   List.iter
-				 (fun label -> writef "WORLDLABEL % % %\n" [Int cx; Int cy; Str label])
+				 (fun (lemph,label) -> 
+				    writef "WORLDLABEL % % % %\n" [Int cx; Int cy; Bool lemph; Str label])
 				 labels;
 			   List.iter
 				 (fun (chx, chy) -> writef "WORLDCHILD % % % %\n" [Int cx; Int cy; Int chx; Int chy])
