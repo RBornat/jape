@@ -32,7 +32,8 @@ import java.awt.Toolkit;
 
 import java.awt.image.ImageObserver;
 
-public class WasteBin extends Component implements DebugConstants, WorldTarget {
+public class WasteBin extends Component implements DebugConstants,
+                                                   LabelTarget, WorldTarget {
     private static Image enabled_image, selected_image, disabled_image,
                          enabled_scaled, selected_scaled, disabled_scaled;
     private Image current_image;
@@ -195,7 +196,7 @@ public class WasteBin extends Component implements DebugConstants, WorldTarget {
     /* ******************************** drag target ******************************** */
 
     public boolean dragEnter(Object o) {
-        if (enabled && o instanceof WorldItem) {
+        if (enabled && (o instanceof WorldItem || o instanceof WorldLabel)) {
             setSelected(true); return true;
         }
         else
@@ -216,5 +217,10 @@ public class WasteBin extends Component implements DebugConstants, WorldTarget {
         }
         else
             Alert.abort("world drop into waste bin when not selected");
+    }
+
+    public void drop(WorldItem w, String label) {
+        Reply.sendCOMMAND("deleteworldlabel "+w.idX+" "+w.idY+" \""+label+"\"");
+        setSelected(false);
     }
 }
