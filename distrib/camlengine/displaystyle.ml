@@ -20,6 +20,8 @@
 
 *)
 
+(* this really is a functor: hence the embedded module type *)
+
 module type Style = sig val style : Displaystate.displaystate end
 
 module F
