@@ -67,9 +67,6 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         proofPane.add(proofCanvas);
         
         getContentPane().add(proofPane, BorderLayout.CENTER);
-
-        setSize(LocalSettings.DefaultProofWindowSize);
-        setLocation(nextPos());
         
         focusv.insertElementAt(this, 0);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -92,6 +89,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
 
         setBar();
         pack();
+        setSize(LocalSettings.DefaultProofWindowSize);
+        setLocation(nextPos());
         setVisible(true);
     }
 
@@ -170,7 +169,11 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     }
 
     public static void clearPane(byte pane) throws ProtocolError {
-        byte2JapeCanvas(pane,"ProofWindow.clearPane").removeAll();
+        // don't create a disproof pane just to clear it ...
+        if (pane==DisproofPaneNum && focussedProofWindow(true).disproofPane==null)
+            return;
+        else
+            byte2JapeCanvas(pane,"ProofWindow.clearPane").removeAll();
     }
 
     public static void setProofParams(byte style, int linethickness) throws ProtocolError {
@@ -203,7 +206,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         return disproofPane;
     }
 
-    private boolean disproofPanePending;
+    private boolean disproofPanePending = false;
 
     public void makeWindowReady() {
         if(disproofPanePending) {
@@ -221,7 +224,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
             }
             else {
                 // make a triple pane
-                Alert.abort("ProofWindow.ensureDisproofPane: no triple panes yet");
+                Alert.abort("ProofWindow.makeWindowReady: no triple panes yet");
             }
         }
         if (disproofPane!=null)
