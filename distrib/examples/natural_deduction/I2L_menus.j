@@ -57,10 +57,9 @@ TACTIC "∀ elim forward" IS
 	    
 TACTIC "∀ elim forward step" (P, i) IS
     Noarg   (CUTIN 
-	    "∀ elim"
-	    (WITHHYPSEL (hyp P))
-	    (WITHHYPSEL (hyp (actual i)))
-	)
+		"∀ elim"
+		(WITHHYPSEL (hyp P))
+		(WITHHYPSEL (hyp (actual i))))
 
 TACTIC "∀ elim forward moan" (extra) IS
     ALERT   ("To make a ∀ elim step forward, you must select an antecedent of the form ∀x.A, and \
@@ -347,24 +346,15 @@ MENU Backward IS
     ENTRY   hyp	    IS Noarg hyptac hyp
 END
     
-MACRO trueforward(tac) IS
-    LETGOAL _A 
-	(CUTIN (LETGOAL _B (UNIFY _A _B) tac)) 
-	(ANY (MATCH hyp))
-	
-TACTIC fstep IS
-    ALT (ANY (MATCH hyp)) (trueforward SKIP) /* avoid nasty 'hyp matches two ways', I hope */
-    
 TACTIC "∧ intro backward" IS
     WHEN    (LETGOAL (_A∧_B) /* bound to work, surely? */
-	    "∧ intro" fstep fstep
-	)
-	(ALERT "∧ intro backward tactic failed. Tell Richard.")
+		"∧ intro" fstep fstep   )
+	    (ALERT "∧ intro backward tactic failed. Tell Richard.")
 		
 /* ******************** tactics to check that a rule can be applied forward ******************** */
 
 TACTIC Forward (fpat, action, frule, brule, shape) IS 
-    Forward2 fpat  action  fpat	 frule	brule  shape 
+    Forward2 fpat action fpat	 frule	brule shape 
 
 MACRO Forward2 (fpat, action, bpat, frule, brule, shape) IS
     WHEN    (LETHYP fpat action)
@@ -394,13 +384,13 @@ TACTIC FailForwardNoHyp (stepname, explainhyp, extra) IS
 	    \\nYou didn't.%s", stepname, extra)
 	    ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
 
-/* ******************** special one for rules which don't care about antecedent shape  ******************** */
+/* ******************** special one for rules which don't care about antecedent shape ******************** */
 
 TACTIC "∨ introforward" (rule) IS
     WHEN    (LETHYP _A (ForwardCut 0 (LAYOUT "∨ intro" (0) (WITHARGSEL rule))))
 	(FailForwardNoHyp "∨ intro" "" "")
 
-TACTIC "∧ intro forward"  IS
+TACTIC "∧ intro forward" IS
     WHEN    (LETHYP2 _A _B
 	    (ALERT
 		("∧ intro going forward is visually ambiguous – that is, it can be carried out either way round. \
@@ -411,7 +401,7 @@ TACTIC "∧ intro forward"  IS
 			"∧ intro" [A,B \ _A,_B]	 
 			(ANY (WITHHYPSEL (MATCH (hyp _A)))) 
 			(ANY (WITHHYPSEL (MATCH (hyp _B))))))
-		 ("(b)",    (CUTIN  
+		 ("(b)",    (CUTIN 
 			"∧ intro" [ A,B \ _B,_A ] 
 			(ANY (WITHHYPSEL (MATCH (hyp _B))))
 			(ANY (WITHHYPSEL (MATCH (hyp _A))))))

@@ -10,3 +10,5 @@ USE "I2L_menus.j"
 USE "I2L_problems.j"
 USE "I2L_disproof.j"
 USE "I2L_settings.j"
+
+USE "../forwardstep_technology/forwardstep.j"
