@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Binding =
+module type T =
   sig
     type term
     val bindingstructure :
@@ -14,11 +14,13 @@ module type Binding =
   end
 (* $Id$ *)
 
-module
-  Binding
+module M
   (AAA :
     sig
-      module mappingfuns : Mappingfuns module match : Match
+      module Mappingfuns : Mappingfuns.T
+      module Match : Match.T
+             with type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
+      
       val bracketedliststring : ('a -> string) -> string -> 'a list -> string
       val consolereport : string list -> unit
       val findfirst : ('a -> 'b option) -> 'a list -> 'b option
@@ -27,29 +29,28 @@ module
         ('a -> string) -> ('b -> string) -> ('c -> string) ->
           ('d -> string) -> string -> 'a * 'b * 'c * 'd -> string
       val unSOME : 'a option -> 'a
-      val termstring : match.term -> string
-      val termliststring : match.term list -> string
-      val termkind : match.term -> int
+      val termstring : Match.term -> string
+      val termliststring : Match.term list -> string
+      val termkind : Match.term -> int
       val termkindmax : int
       (* termkind is term -> 0..termkindmax *)
        
       exception ParseError_ of string list
       
     end)
-  :
-  Binding =
+  : T =
   struct
     open AAA
-    open mappingfuns open match
-    (* from mappingfuns.sml *)
+    open Mappingfuns 
+    open Match
     
-    (* from listfuns.sml *)
+    type term = Match.term
     
     let bindingdebug = ref false
     type bindingdirective = term list * term list * term list * term
     let bindingdirectives =
-      Array.make (termkindmax + 1) ([] : bindingdirective list))
-    let badbindings = Array.make (termkindmax + 1) ([] : term list))
+      Array.make (termkindmax + 1) ([] : bindingdirective list)
+    let badbindings = Array.make (termkindmax + 1) ([] : term list)
     let rec findbadbinding t bbs =
       findfirst (fun bb -> match__ false bb t empty) bbs
     let rec addbindingdirective (bs, ss, us, pat as directive) =
@@ -95,9 +96,9 @@ module
             let env =
               (fornth 1 0 bounds @ fornth 2 0 scopes) @ fornth 3 0 unscopes
             in
-            let E = lookup mapping in
+            let _E = lookup mapping in
             Some
-              ((_MAP (E, bounds), _MAP (E, scopes), _MAP (E, unscopes)), env,
+              ((_MAP (_E, bounds), _MAP (_E, scopes), _MAP (_E, unscopes)), env,
                pat)
       in
       let rec bindingstructure t =
