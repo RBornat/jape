@@ -28,17 +28,12 @@
 /*
         Controls the inclusion of various debugging featurettes.
 */
-class Debugging
-{
-    // ProofCanvas tracing
-    static final public boolean canvas_bbox          = false;
-    static final public boolean text_baselines       = false;
-    static final public boolean canvas_events        = false;
-    static final public boolean canvas_itemevents    = false;
+class Debugging {
 
     static final public boolean protocol_tracing     = false;
 
     static final public boolean JapeMenu             = false;
+    static final public boolean menuactions          = false;
 
     static final public boolean TextItem             = false;
 
