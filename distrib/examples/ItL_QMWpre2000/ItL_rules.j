@@ -17,21 +17,33 @@ RULE "¦-E(L)"(B) IS FROM A ¦ B INFER A
 RULE "¦-E(R)"(A) IS FROM A ¦ B INFER B
 RULE "ë-E"(A,B) IS FROM A ë B AND A æ C AND B æ C INFER C
 RULE "Â-E" IS FROM ÂÂA INFER A
-RULE "è-E"(B) IS FROM èx. A(x) INFER A(B)
-RULE "ä-E"(OBJECT c) WHERE FRESH c AND c NOTIN äx.A IS FROM äx.A(x) AND A(c) æ C INFER C
+RULE "è-E"(B) IS FROM èx. A(x) AND B inscope INFER A(B)
+RULE "ä-E"(OBJECT c) WHERE FRESH c AND c NOTIN äx.A IS FROM äx.A(x) AND constant c, A(c) æ C INFER C
 
 RULE "ç-I"						IS FROM A æ B INFER AçB
 RULE "¦-I"						IS FROM A AND B INFER A ¦ B
 RULE "ë-I(L)"(B)					IS FROM A INFER A ë B
 RULE "ë-I(R)"(A)					IS FROM B INFER A ë B
 RULE "Â-I"(B)						IS FROM A æ B ¦ ÂB INFER ÂA
-RULE "è-I"(OBJECT c) WHERE FRESH c	IS FROM A(c) INFER èx .A(x)
-RULE "ä-I"(B)						IS FROM A(B) INFER äx.A(x)
+RULE "è-I"(OBJECT c) WHERE FRESH c	IS FROM constant c æ A(c) INFER èx .A(x)
+RULE "ä-I"(B)						IS FROM A(B) AND B inscope INFER äx.A(x)
 
 RULE hyp(A) IS INFER A æ A
-
 AUTOMATCH hyp
 
 STRUCTURERULE IDENTITY    hyp
 STRUCTURERULE CUT            cut
 STRUCTURERULE WEAKEN     thin
+
+RULES "inscope" ARE
+	constant x æ x inscope
+AND	FROM A inscope AND B inscope INFER AçB inscope
+AND	FROM A inscope AND B inscope INFER A¦B inscope
+AND	FROM A inscope AND B inscope INFER AëB inscope
+AND	FROM A inscope INFER (ÂA) inscope
+AND	FROM constant x æ A inscope INFER èx.A inscope
+AND	FROM constant x æ A inscope INFER äx.A inscope
+END
+
+AUTOMATCH "inscope"
+
