@@ -3,7 +3,7 @@
     ENTRY "reflexive=" IS (LAYOUT HIDEROOT "reflexive=")
     ENTRY "symmetric=" IS symmetry "symmetric="
     ENTRY "symmetric≠" IS symmetry "symmetric≠"
-    ENTRY "symmetric"	
+    ENTRY "symmetric"
     
     SEPARATOR
     

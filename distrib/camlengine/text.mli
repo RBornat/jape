@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -31,9 +31,9 @@ type font = Displayfont.displayfont
 
 type textalign = FirstLine | MidBlock | LastLine
 type syllable = Syllable of (font * string)
-	      | Gap of int
-	      | Linebreak of int
-	      | Block of (textalign * syllable list)
+              | Gap of int
+              | Linebreak of int
+              | Block of (textalign * syllable list)
 type text = Text of syllable list
 type textlayout = Textlayout of (pos * font * string) list
 

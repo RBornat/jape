@@ -124,9 +124,9 @@ let nextGoal a1 a2 =
 let isproven (Proofstate {tree = tree; cxt = cxt}) =
   not (hasTip tree) &&
   not (List.exists isUnknown
-	 (nj_fold (uncurry2 (sortedmerge earliervar))
-	    ((provisovars <.> provisoactual) <* provisos (rewritecxt cxt))
-	    []))
+     (nj_fold (uncurry2 (sortedmerge earliervar))
+        ((provisovars <.> provisoactual) <* provisos (rewritecxt cxt))
+        []))
 
 let rewriteproofstate (Proofstate {cxt = cxt; tree = tree; givens = givens} as state) =
   let (cxt, tree, _) = rewriteProoftree givens true cxt tree in

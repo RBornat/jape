@@ -1,6 +1,6 @@
 ﻿/*
-	$Id$
-	FONT{kontt-14}
+        $Id$
+        FONT{kontt-14}
 
 This theory was derived automatically from the latex source text
 of part of the paper ``Animating Operational Semantics
@@ -19,12 +19,12 @@ discursive account of the theory is given in that paper.
 
     MENU Edit
      RADIOBUTTON displaystyle
-	  "Sequent-Tree display style"	IS tree
-     AND  "Box display style"		IS box
+          "Sequent-Tree display style"  IS tree
+     AND  "Box display style"           IS box
      INITIALLY box
      END
      CHECKBOX  autoselect      "Select goal automatically"  INITIALLY true
-     CHECKBOX  showallprovisos "Show all provisos"	    INITIALLY true
+     CHECKBOX  showallprovisos "Show all provisos"          INITIALLY true
     END
 
     /************************************************************************/
@@ -36,26 +36,26 @@ discursive account of the theory is given in that paper.
     INFIX    100T =
     INFIX    200T + -
     PREFIX   1000 ~
-    USE	     "mapping.j"
+    USE      "mapping.j"
     INFIX   1T →
     LEFTFIX 2  ⟦ ⟧
      INFIX 1T →*
-     RULE Step	      FROM  ⊢ ⟦E⟧S→⟦E'⟧S' INFER ⊢ ⟦E⟧S→*⟦E'⟧S'
+     RULE Step        FROM  ⊢ ⟦E⟧S→⟦E'⟧S' INFER ⊢ ⟦E⟧S→*⟦E'⟧S'
      RULE Transitive  FROM  ⊢ ⟦E⟧S→*⟦E'⟧S' AND ⊢ ⟦E'⟧S'→*⟦E''⟧S'' INFER ⊢⟦E⟧S→*⟦E''⟧S''
      RULE Identity    INFER ⊢ ⟦E⟧S→*⟦E⟧S
     TRANSITIVE RULE Transitive
     REFLEXIVE  RULE Identity
     MENU Edit
     SEPARATOR
-      CHECKBOX	 hidetransitivity "Transitive Rule Display" INITIALLY true
-      CHECKBOX	 hidereflexivity  "Hide Identity Steps"	    INITIALLY true
+      CHECKBOX   hidetransitivity "Transitive Rule Display" INITIALLY true
+      CHECKBOX   hidereflexivity  "Hide Identity Steps"     INITIALLY true
     END
     MENU "Small-Step Rules"
       RULE  Var
       FROM  S x = V
       INFER ⟦x⟧ S → ⟦V⟧ S
       RULE ":=0"
-      FROM    ⟦E⟧     S → ⟦E'⟧	  S'
+      FROM    ⟦E⟧     S → ⟦E'⟧    S'
       INFER   ⟦x:=E⟧  S → ⟦x:=E'⟧ S'
       RULES ":=1"
       FROM  (S⊕(x==k)) = S'
@@ -86,24 +86,24 @@ discursive account of the theory is given in that paper.
       INFER ⟦~k?E2:E3⟧ S → ⟦E2⟧ S
       END
       RULES  "+"
-      FROM  ⟦F⟧	  S → ⟦F'⟧   S'
+      FROM  ⟦F⟧   S → ⟦F'⟧   S'
       INFER ⟦k+F⟧ S → ⟦k+F'⟧ S'
       AND
-      FROM  ⟦F⟧	   S → ⟦F'⟧    S'
+      FROM  ⟦F⟧    S → ⟦F'⟧    S'
       INFER ⟦~k+F⟧ S → ⟦~k+F'⟧ S'
       AND
-      FROM  ⟦E⟧	  S → ⟦E'⟧   S'
+      FROM  ⟦E⟧   S → ⟦E'⟧   S'
       INFER ⟦E+F⟧ S → ⟦E'+F⟧ S'
       END
 
       RULES  "-"
-      FROM  ⟦F⟧	  S → ⟦F'⟧   S'
+      FROM  ⟦F⟧   S → ⟦F'⟧   S'
       INFER ⟦k-F⟧ S → ⟦k-F'⟧ S'
       AND
-      FROM  ⟦F⟧	   S → ⟦F'⟧    S'
+      FROM  ⟦F⟧    S → ⟦F'⟧    S'
       INFER ⟦~k-F⟧ S → ⟦~k-F'⟧ S'
       AND
-      FROM  ⟦E⟧	  S → ⟦E'⟧   S'
+      FROM  ⟦E⟧   S → ⟦E'⟧   S'
       INFER ⟦E-F⟧ S → ⟦E'-F⟧ S'
       END
       RULE  add
@@ -115,39 +115,39 @@ discursive account of the theory is given in that paper.
       INFER ⟦N1 - N2⟧ S → ⟦K⟧ S
    END
     TACTIC SmallStep IS
-    (ALT (LAYOUT "Var"	() Var Lookup)
-	 (LAYOUT ":=1" () ":=1" Update)
-	 ":=0"
-	 ";1"
-	 ";0"
-	 "?1"
-	 "?0"
-	 "⊗"
-	 (ALT (LAYOUT "Add" () add EVALUATE) "+")
-	 (ALT (LAYOUT "Sub" () sub EVALUATE) "-")
-	 )
+    (ALT (LAYOUT "Var"  () Var Lookup)
+         (LAYOUT ":=1" () ":=1" Update)
+         ":=0"
+         ";1"
+         ";0"
+         "?1"
+         "?0"
+         "⊗"
+         (ALT (LAYOUT "Add" () add EVALUATE) "+")
+         (ALT (LAYOUT "Sub" () sub EVALUATE) "-")
+         )
     TACTIC OneStep()
     (ALT
-	 (WHEN (LETGOAL (⟦_E ⟧_S →  ⟦_E'⟧_S') SmallStep)
-	       (LETGOAL (⟦ _k⟧_S →* _T) Identity)
-	       (LETGOAL (⟦~_k⟧_S →* _T) Identity)
-	       (LETGOAL (⟦√  ⟧_S →* _T) Identity)
-	       (LETGOAL (⟦_E ⟧_S →* ⟦_E'⟧_S') Transitive (LAYOUT "%s" () Step SmallStep))))
+         (WHEN (LETGOAL (⟦_E ⟧_S →  ⟦_E'⟧_S') SmallStep)
+               (LETGOAL (⟦ _k⟧_S →* _T) Identity)
+               (LETGOAL (⟦~_k⟧_S →* _T) Identity)
+               (LETGOAL (⟦√  ⟧_S →* _T) Identity)
+               (LETGOAL (⟦_E ⟧_S →* ⟦_E'⟧_S') Transitive (LAYOUT "%s" () Step SmallStep))))
     TACTIC Steps()
     (ALT
-	 (WHEN (LETGOAL (⟦ _k⟧_S →* _T) Identity)
-	       (LETGOAL (⟦~_k⟧_S →* _T) Identity)
-	       (LETGOAL (⟦√  ⟧_S →* _T) Identity)
-	       (SEQ OneStep Steps)))
+         (WHEN (LETGOAL (⟦ _k⟧_S →* _T) Identity)
+               (LETGOAL (⟦~_k⟧_S →* _T) Identity)
+               (LETGOAL (⟦√  ⟧_S →* _T) Identity)
+               (SEQ OneStep Steps)))
     CONJECTUREPANEL "Small Step Execution"
       BUTTON "Step" IS apply OneStep
       BUTTON "Steps" IS apply Steps
       THEOREMS SmallStepTheorems
-      ARE ⟦x:=3⟧ ▪				→* ⟦_E⟧ _S
-      AND ⟦y:=3; x:=y⟧ ▪			→* ⟦_E⟧ _S
-      AND ⟦y:=x+3; x:=y⟧ (▪⊕(x==4))		→* ⟦_E⟧ _S
-      AND ⟦y:=3; x:=y; z:=x+y⟧ ▪		→* ⟦_E⟧ _S
+      ARE ⟦x:=3⟧ ▪                              →* ⟦_E⟧ _S
+      AND ⟦y:=3; x:=y⟧ ▪                        →* ⟦_E⟧ _S
+      AND ⟦y:=x+3; x:=y⟧ (▪⊕(x==4))             →* ⟦_E⟧ _S
+      AND ⟦y:=3; x:=y; z:=x+y⟧ ▪                →* ⟦_E⟧ _S
       AND ⟦t:=x; x:=y; y:=t⟧(▪⊕(x==k1)⊕(y==k2)) →* ⟦_E⟧ _S
-      AND ⟦x:=2; y:=4; x⊗(x:=x-1; y:=y+y)⟧ ▪	→* ⟦_E⟧ _S
+      AND ⟦x:=2; y:=4; x⊗(x:=x-1; y:=y+y)⟧ ▪    →* ⟦_E⟧ _S
       END
     END

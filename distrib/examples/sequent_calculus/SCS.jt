@@ -5,8 +5,8 @@ INITIALISE tryresolution false
 
 MENU "Edit"
     RADIOBUTTON displaystyle IS
-	"Box display"	IS box
-    AND "Tree display"	IS tree
+        "Box display"   IS box
+    AND "Tree display"  IS tree
     INITIALLY tree
     END
 END

@@ -1,5 +1,5 @@
 (*
-	$Id$
+        $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -68,8 +68,8 @@ val menuiter : (bool * name -> unit) -> unit
 val paneliter : (name * panelkind -> unit) -> unit
 val menuitemiter :
   name -> (name * string option * string -> unit) ->
-	(name * string -> unit) -> ((name * string) list -> unit) ->
-	(unit -> unit) -> unit
+        (name * string -> unit) -> ((name * string) list -> unit) ->
+        (unit -> unit) -> unit
 val panelitemiter :
   name -> (name * string -> unit) -> (name * panelbuttoninsert list -> unit) 
     (* -> (name * string -> unit) -> ((name * string) list -> unit) *) -> unit

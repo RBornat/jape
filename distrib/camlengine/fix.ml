@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -30,7 +30,7 @@ let rec fix ff = ff (fix ff)
 open Hashtbl
 let rec memofix mem ff =
   let rec proxy k =
-	try find mem k with Not_found -> let v = ff proxy k in add mem k v; v
+    try find mem k with Not_found -> let v = ff proxy k in add mem k v; v
   in
   proxy
 

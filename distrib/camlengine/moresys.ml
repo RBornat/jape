@@ -1,5 +1,5 @@
 (* 
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -61,7 +61,7 @@ if os_type<>"Win32" then
    let inchan = Unix.in_channel_of_descr in_read in
    let outchan = Unix.out_channel_of_descr out_write in
    let pid = Unix.create_process_env cmd (Array.of_list args) (Array.of_list env)
-			   out_read in_write Unix.stderr 
+               out_read in_write Unix.stderr 
    in
    Unix.close out_read;
    Unix.close in_write;

@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -1318,8 +1318,8 @@ let rec unifyvarious pair cxt =
 (* for unification which mustn't make a difference ... *)
 let unifyvariousEQ pair cxt = 
 (fun cxt' -> List.length (rawaslist (varmap cxt)) = List.length (rawaslist (varmap cxt')) ||
-	  ((*consolereport ["unifyvariousEQ fails "; string_of_cxt cxt'; " (was ", string_of_cxt cxt, ")"];*)
-	   false)
+          ((*consolereport ["unifyvariousEQ fails "; string_of_cxt cxt'; " (was ", string_of_cxt cxt, ")"];*)
+           false)
 ) <| unifyvarious pair cxt
     
 let rec dropunify (target, sources) cxt =

@@ -7,11 +7,11 @@ INITIALISE autoAdditiveLeft true /* avoid explicit statement of left context */
 CLASS FORMULA A B C D E
 CLASS VARIABLE x
 
-INFIX	    100L ≜
+INFIX       100L ≜
 
-INFIX	    300L = ≠
+INFIX       300L = ≠
 
-JUXTFIX	    9000
+JUXTFIX     9000
 
 SUBSTFIX    10000 « E / x  » 
 

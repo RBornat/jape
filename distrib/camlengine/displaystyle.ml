@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -222,11 +222,11 @@ module F
   end
 
 module Treestyle : Style = F (struct
-								module Screendraw = Treedraw
-								let abstracttree t = t
-							  end)
+                                module Screendraw = Treedraw
+                                let abstracttree t = t
+                              end)
 
 module Boxstyle : Style = F (struct
-							   module Screendraw = Boxdraw
-							   let abstracttree t = t
-							 end)
+                               module Screendraw = Boxdraw
+                               let abstracttree t = t
+                             end)

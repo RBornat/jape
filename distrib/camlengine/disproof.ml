@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -980,7 +980,7 @@ let rec newtile =
       let varstrings = List.map string_of_term (variables t) in
       let longest =
         foldl (fun long v -> if String.length v > String.length long then v else long)
-	      "" varstrings
+          "" varstrings
       in
       let appendix = ref "" in
       let template =

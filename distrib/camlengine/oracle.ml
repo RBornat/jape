@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -98,21 +98,21 @@ let rec readmapping filename =
     in
     let mapped = ref false in
     (try
-	   while true do
-		 let line = words (input_line in_mapping) in
-		 match line with
-		   [] -> ()
-		 | "ASCII" :: wd :: (wd2 :: _ as wds) ->
-			 let n = try Pervasives.int_of_string wd with Failure _ -> ordof wd 0 in
-			 mapped := true;
-			 if 1 <= n && n <= 255 then Array.set table n (respace wds)
-		 | wd :: wds ->
-			 match String.get wd 0 with
-			   '#' -> ()
-			 | _ -> Hashtbl.add mapping wd (respace wds)
-	   done
-	 with End_of_file -> ()
-	);
+       while true do
+         let line = words (input_line in_mapping) in
+         match line with
+           [] -> ()
+         | "ASCII" :: wd :: (wd2 :: _ as wds) ->
+             let n = try Pervasives.int_of_string wd with Failure _ -> ordof wd 0 in
+             mapped := true;
+             if 1 <= n && n <= 255 then Array.set table n (respace wds)
+         | wd :: wds ->
+             match String.get wd 0 with
+               '#' -> ()
+             | _ -> Hashtbl.add mapping wd (respace wds)
+       done
+     with End_of_file -> ()
+    );
     consolereport ["[CLOSING "; path; "]\n"];
     close_in in_mapping;
     Some (mapping, table, !mapped)

@@ -16,7 +16,7 @@ USE "set_menus.j"
 
 TACTIC GivenTac(i) IS
     ALT (GIVEN i)
-	  (CUTIN (GIVEN i))
+        (CUTIN (GIVEN i))
 
 INITIALISE givenMenuTactic GivenTac
 

@@ -2,7 +2,7 @@
 
 RULE "tilt" IS {false} tilt {A}
 
-RULE sequence(C) IS FROM { A } F { C } AND  { C } G { B } INFER	 { A } (F; G) { B }
+RULE sequence(C) IS FROM { A } F { C } AND  { C } G { B } INFER  { A } (F; G) { B }
 
 RULE "choice" IS FROM {A∧E} F1 {B} AND {A∧¬E} F2  {B} INFER { A } if E then F1 else F2 fi { B }
 

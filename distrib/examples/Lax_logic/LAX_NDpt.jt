@@ -7,77 +7,77 @@ CONSTANT false * true efq π1 π2 i1 i2 val i
 CLASS VARIABLE x y z c d u v
 CLASS FORMULA A B C P Q R S p q r s
 
-INFIX	10R		:
-LEFTFIX 20		∀ .
-LEFTFIX 20		∃ .
-LEFTFIX 20		λ .
+INFIX   10R     :
+LEFTFIX 20      ∀ .
+LEFTFIX 20      ∃ .
+LEFTFIX 20      λ .
 OUTFIX case of end
 OUTFIX let be in end
 
-PREFIX	50		◊
-INFIX	80L		@
-INFIX		100R	→
-INFIX		120L		∧
-INFIX		140L		∨
-PREFIX	200		¬
+PREFIX  50      ◊
+INFIX   80L     @
+INFIX       100R    →
+INFIX       120L        ∧
+INFIX       140L        ∨
+PREFIX  200     ¬
 JUXTFIX 300
-SUBSTFIX	400 
+SUBSTFIX    400 
 
 BIND x SCOPE P IN ∀x . P
 BIND x SCOPE P IN ∃x . P
 BIND x SCOPE P IN λx . P
 BIND x SCOPE Q IN let x be P in Q end
 
-/* INITIALISE autoAdditiveLeft	true allow rules to be stated without an explicit left context */
-INITIALISE interpretpredicates	true /* allow predicate syntax ... */
+/* INITIALISE autoAdditiveLeft  true allow rules to be stated without an explicit left context */
+INITIALISE interpretpredicates  true /* allow predicate syntax ... */
 
 TACTIC ForwardCut (n,Rule)
-	SEQ cut (ForwardUncut n rule)
+    SEQ cut (ForwardUncut n rule)
 
 TACTIC ForwardUncut (n,Rule)
-	(LETGOALPATH G (WITHARGSEL Rule) (GOALPATH G n) (WITHHYPSEL hyp) (GOALPATH G) NEXTGOAL)
+    (LETGOALPATH G (WITHARGSEL Rule) (GOALPATH G n) (WITHHYPSEL hyp) (GOALPATH G) NEXTGOAL)
 
 TACTIC ForwardOrBackward (Forward, n, Rule) IS 
-	WHEN	(LETHYP 
-				_P 
-				(ALT	(Forward n Rule)
-					(WHEN	(LETARGSEL _Q 
-							      (Fail (Rule is not applicable to assumption ' _P ' with argument ' _Q '))
-							)
-							(Fail (Rule is not applicable to assumption ' _P '))
-					)
-				)
-			)
-			(ALT	(WITHSELECTIONS Rule)
-				(WHEN	(LETARGSEL _P
-							(Fail (Rule is not applicable with argument ' _P '))
-						)
-						(Fail (Rule is not applicable))
-				)
-			)
+    WHEN    (LETHYP 
+                _P 
+                (ALT    (Forward n Rule)
+                    (WHEN   (LETARGSEL _Q 
+                                  (Fail (Rule is not applicable to assumption ' _P ' with argument ' _Q '))
+                            )
+                            (Fail (Rule is not applicable to assumption ' _P '))
+                    )
+                )
+            )
+            (ALT    (WITHSELECTIONS Rule)
+                (WHEN   (LETARGSEL _P
+                            (Fail (Rule is not applicable with argument ' _P '))
+                        )
+                        (Fail (Rule is not applicable))
+                )
+            )
    
 TACTIC "∀-E tac" IS ForwardOrBackward ForwardCut 0 "∀-E"
 TACTIC "∃-I tac" IS "∃-I" /* this because it can be overridden, and we refer to it in ItL_hits.j */
 TACTIC "◊-Etac" IS ForwardOrBackward ForwardUncut 0 "◊-E"
-	
+    
 MENU Rules IS
     ENTRY "→-I"
     ENTRY "∧-I" 
-    ENTRY "∨-I(L)"	IS ForwardOrBackward ForwardCut 0 "∨-I(L)"
-    ENTRY "∨-I(R)"	IS ForwardOrBackward ForwardCut 0 "∨-I(R)"
+    ENTRY "∨-I(L)"  IS ForwardOrBackward ForwardCut 0 "∨-I(L)"
+    ENTRY "∨-I(R)"  IS ForwardOrBackward ForwardCut 0 "∨-I(R)"
     ENTRY "¬-I"
     ENTRY "∀-I"
-    ENTRY "∃-I"		IS "∃-I tac"
+    ENTRY "∃-I"     IS "∃-I tac"
     ENTRY "◊-I"
     SEPARATOR
-    ENTRY "→-E"		IS ForwardOrBackward ForwardCut 1 "→-E" 
-    ENTRY "∧-E(L)"	IS ForwardOrBackward ForwardCut 0 "∧-E(L)"
-    ENTRY "∧-E(R)"	IS ForwardOrBackward ForwardCut 0 "∧-E(R)"
-    ENTRY "∨-E"		IS ForwardOrBackward ForwardUncut 0 "∨-E"	
-    ENTRY "¬-E"		IS ForwardOrBackward ForwardCut 0 "¬-E" 
-    ENTRY "∀-E"		IS "∀-E tac"	
-    ENTRY "∃-E"		IS ForwardOrBackward ForwardUncut 0 "∃-E"
-	ENTRY "◊-E" IS "◊-Etac"
+    ENTRY "→-E"     IS ForwardOrBackward ForwardCut 1 "→-E" 
+    ENTRY "∧-E(L)"  IS ForwardOrBackward ForwardCut 0 "∧-E(L)"
+    ENTRY "∧-E(R)"  IS ForwardOrBackward ForwardCut 0 "∧-E(R)"
+    ENTRY "∨-E"     IS ForwardOrBackward ForwardUncut 0 "∨-E"   
+    ENTRY "¬-E"     IS ForwardOrBackward ForwardCut 0 "¬-E" 
+    ENTRY "∀-E"     IS "∀-E tac"    
+    ENTRY "∃-E"     IS ForwardOrBackward ForwardUncut 0 "∃-E"
+    ENTRY "◊-E" IS "◊-Etac"
     SEPARATOR
     ENTRY hyp
 END
@@ -89,62 +89,62 @@ SEQUENT IS BAG ⊢ FORMULA
 RULE cut(B) IS FROM Γ ⊢ B AND Γ,B ⊢ C INFER Γ ⊢ C
 RULE thin(A) IS FROM Γ ⊢ C INFER Γ,A ⊢ C
 
-RULE "→-E"(A)			IS FROM Γ ⊢ p:A AND Γ ⊢ q:A→B INFER Γ ⊢ p@q:B
-RULE "∧-E(L)"(B)		IS FROM Γ ⊢ r:A ∧ B INFER Γ ⊢ π1(r):A
-RULE "∧-E(R)"(A)		IS FROM Γ ⊢ r:A ∧ B INFER Γ ⊢ π2(r):B
+RULE "→-E"(A)           IS FROM Γ ⊢ p:A AND Γ ⊢ q:A→B INFER Γ ⊢ p@q:B
+RULE "∧-E(L)"(B)        IS FROM Γ ⊢ r:A ∧ B INFER Γ ⊢ π1(r):A
+RULE "∧-E(R)"(A)        IS FROM Γ ⊢ r:A ∧ B INFER Γ ⊢ π2(r):B
 RULE "∨-E"(A,B, OBJECT y, OBJECT z) WHERE y NOTIN Γ AND z NOTIN Γ
-					IS FROM Γ ⊢ r:A ∨ B AND Γ,y:A ⊢ p:C AND Γ,z:B ⊢ q:C 
-					INFER Γ ⊢ case r of (i1(y)→p, i2(z)→q) end:C
-RULE "∀-E"(B)			IS FROM Γ ⊢ p:∀x.A(x) INFER Γ ⊢ p@B:A(B)
+                    IS FROM Γ ⊢ r:A ∨ B AND Γ,y:A ⊢ p:C AND Γ,z:B ⊢ q:C 
+                    INFER Γ ⊢ case r of (i1(y)→p, i2(z)→q) end:C
+RULE "∀-E"(B)           IS FROM Γ ⊢ p:∀x.A(x) INFER Γ ⊢ p@B:A(B)
 RULE "∃-E"(OBJECT c, OBJECT z) WHERE FRESH c AND c NOTIN ∃x.A(x) AND z NOTIN Γ
-					IS FROM Γ ⊢ r:∃x.A(x) AND Γ,z:A(c) ⊢ p:C INFER Γ ⊢ case r of i(x,z)→p end: C
+                    IS FROM Γ ⊢ r:∃x.A(x) AND Γ,z:A(c) ⊢ p:C INFER Γ ⊢ case r of i(x,z)→p end: C
 RULE "◊-E"(OBJECT z) WHERE z NOTIN Γ 
-					IS FROM Γ ⊢ p:◊A  AND Γ,z:A ⊢ q:◊B INFER Γ ⊢ let z be p in q end: ◊B
+                    IS FROM Γ ⊢ p:◊A  AND Γ,z:A ⊢ q:◊B INFER Γ ⊢ let z be p in q end: ◊B
 
 RULE "→-I"(OBJECT z) WHERE z NOTIN Γ
-					IS FROM Γ,z:A ⊢ p:B INFER Γ ⊢ λz.p:A→B
-RULE "∧-I"			IS FROM Γ ⊢ p:A AND Γ ⊢ q:B INFER Γ ⊢ (p,q):A ∧ B
-RULE "∨-I(L)"(B)		IS FROM Γ ⊢ p:A INFER Γ ⊢ i1(p):A ∨ B
-RULE "∨-I(R)"(A)		IS FROM Γ ⊢ p:B INFER Γ ⊢ i2(p):A ∨ B
-/* RULE "¬-I"(B)		IS FROM A ⊢ B ∧ ¬B INFER ¬A */
+                    IS FROM Γ,z:A ⊢ p:B INFER Γ ⊢ λz.p:A→B
+RULE "∧-I"          IS FROM Γ ⊢ p:A AND Γ ⊢ q:B INFER Γ ⊢ (p,q):A ∧ B
+RULE "∨-I(L)"(B)        IS FROM Γ ⊢ p:A INFER Γ ⊢ i1(p):A ∨ B
+RULE "∨-I(R)"(A)        IS FROM Γ ⊢ p:B INFER Γ ⊢ i2(p):A ∨ B
+/* RULE "¬-I"(B)        IS FROM A ⊢ B ∧ ¬B INFER ¬A */
 RULE "∀-I"(OBJECT c) WHERE FRESH c AND x NOTIN Γ
-					IS FROM Γ ⊢ p:A(c) INFER Γ ⊢ λx.p:∀x.A(x)
-RULE "∃-I"(B)			IS FROM Γ ⊢ p:A(B) INFER Γ ⊢ i(B,p):∃x.A(x)
-RULE "◊-I"			IS FROM Γ ⊢ p:A INFER Γ ⊢ val(p):◊A
+                    IS FROM Γ ⊢ p:A(c) INFER Γ ⊢ λx.p:∀x.A(x)
+RULE "∃-I"(B)           IS FROM Γ ⊢ p:A(B) INFER Γ ⊢ i(B,p):∃x.A(x)
+RULE "◊-I"          IS FROM Γ ⊢ p:A INFER Γ ⊢ val(p):◊A
 
-RULE hyp(A)			IS INFER Γ,p:A ⊢ p:A
-RULE "true-I"			IS INFER Γ ⊢ *:true
-RULE "false-E"			IS FROM Γ ⊢ p:false INFER Γ ⊢ efq(p):A
+RULE hyp(A)         IS INFER Γ,p:A ⊢ p:A
+RULE "true-I"           IS INFER Γ ⊢ *:true
+RULE "false-E"          IS FROM Γ ⊢ p:false INFER Γ ⊢ efq(p):A
 
 AUTOMATCH hyp
 
-STRUCTURERULE IDENTITY	  hyp
-STRUCTURERULE CUT	     cut
-STRUCTURERULE WEAKEN	 thin
+STRUCTURERULE IDENTITY    hyp
+STRUCTURERULE CUT        cut
+STRUCTURERULE WEAKEN     thin
 
-HYPHIT	p:P	⊢ q:P	IS hyp	     
-HYPHIT	p:P∧Q ⊢ q:R	IS ALT	(SEQ "∧-E(L)" (WITHHYPSEL hyp))
-							(SEQ "∧-E(R)" (WITHHYPSEL hyp))
-							(SEQ (ForwardCut 0 "∧-E(L)") (ForwardCut 0 "∧-E(R)"))
-HYPHIT	p:P→Q  ⊢ q:R	IS ForwardCut 1 "→-E"
-HYPHIT	p:P∨Q  ⊢ q:R	IS ForwardUncut 0 "∨-E"
-HYPHIT	p:¬¬P	⊢ q:Q	IS ForwardCut 0 "¬-E"
-HYPHIT	p:∀x.P ⊢ q:Q	IS "∀-E tac"
-HYPHIT	p:∃x.P ⊢ q:Q	IS ForwardUncut 0 "∃-E"
-HYPHIT	P:◊A  ⊢ q:B	IS "◊-Etac"
+HYPHIT  p:P ⊢ q:P   IS hyp       
+HYPHIT  p:P∧Q ⊢ q:R IS ALT  (SEQ "∧-E(L)" (WITHHYPSEL hyp))
+                            (SEQ "∧-E(R)" (WITHHYPSEL hyp))
+                            (SEQ (ForwardCut 0 "∧-E(L)") (ForwardCut 0 "∧-E(R)"))
+HYPHIT  p:P→Q  ⊢ q:R    IS ForwardCut 1 "→-E"
+HYPHIT  p:P∨Q  ⊢ q:R    IS ForwardUncut 0 "∨-E"
+HYPHIT  p:¬¬P   ⊢ q:Q   IS ForwardCut 0 "¬-E"
+HYPHIT  p:∀x.P ⊢ q:Q    IS "∀-E tac"
+HYPHIT  p:∃x.P ⊢ q:Q    IS ForwardUncut 0 "∃-E"
+HYPHIT  P:◊A  ⊢ q:B IS "◊-Etac"
 
-CONCHIT p:Q∧R	IS "∧-I"
-CONCHIT p:Q∨R	IS ALT (SEQ "∨-I(L)" hyp) (SEQ "∨-I(R)" hyp)
-CONCHIT p:Q→R	IS "→-I"      
-CONCHIT p:¬Q	IS "¬-I"       
-CONCHIT p:∀x.Q	IS "∀-I"  
-CONCHIT p:∃x.Q	IS "∃-I tac"  
-CONCHIT		p:◊A	IS "◊-I"
+CONCHIT p:Q∧R   IS "∧-I"
+CONCHIT p:Q∨R   IS ALT (SEQ "∨-I(L)" hyp) (SEQ "∨-I(R)" hyp)
+CONCHIT p:Q→R   IS "→-I"      
+CONCHIT p:¬Q    IS "¬-I"       
+CONCHIT p:∀x.Q  IS "∀-I"  
+CONCHIT p:∃x.Q  IS "∃-I tac"  
+CONCHIT     p:◊A    IS "◊-I"
 
 CONSTANT cheese wine port claret dessert brie stilton
 
 CONJECTUREPANEL "Conjectures"
-	THEOREM INFER u1:∀x.∀y.cheese(x)∧wine(y) → (◊dessert(x,y)), 
-		u2:◊cheese(brie), u3:◊cheese(stilton), u4:◊wine(port), u5:◊wine(claret) ⊢ _p:∃x.∃y.◊dessert(x,y)
+    THEOREM INFER u1:∀x.∀y.cheese(x)∧wine(y) → (◊dessert(x,y)), 
+        u2:◊cheese(brie), u3:◊cheese(stilton), u4:◊wine(port), u5:◊wine(claret) ⊢ _p:∃x.∃y.◊dessert(x,y)
  
 END

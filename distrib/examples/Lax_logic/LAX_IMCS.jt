@@ -7,17 +7,17 @@ CONSTANT ⊥
 PREFIX 50 ◊
 
 MENU "Rules"
-	RULE "◊⊢" FROM Γ,A ⊢ ◊B INFER Γ,◊A ⊢ ◊B
-	RULE "⊢◊" FROM Γ⊢ A,∆ INFER Γ ⊢ ◊A,∆
+    RULE "◊⊢" FROM Γ,A ⊢ ◊B INFER Γ,◊A ⊢ ◊B
+    RULE "⊢◊" FROM Γ⊢ A,∆ INFER Γ ⊢ ◊A,∆
 END
 
-HYPHIT ◊A ⊢	IS "◊⊢"
-HYPHIT ◊A ⊢ B	IS "◊⊢"
-CONCHIT ⊢ ◊A	IS "⊢◊"
+HYPHIT ◊A ⊢ IS "◊⊢"
+HYPHIT ◊A ⊢ B   IS "◊⊢"
+CONCHIT ⊢ ◊A    IS "⊢◊"
 
 CONSTANT cheese wine port claret dessert brie stilton
 
 CONJECTUREPANEL "Conjectures"
-	THEOREM INFER ∀x.∀y.cheese(x)∧wine(y) → (◊dessert(x,y)), 
-		◊cheese(brie), ◊cheese(stilton), ◊wine(port), ◊wine(claret) ⊢ ∃u.∃v.◊dessert(u,v)
+    THEOREM INFER ∀x.∀y.cheese(x)∧wine(y) → (◊dessert(x,y)), 
+        ◊cheese(brie), ◊cheese(stilton), ◊wine(port), ◊wine(claret) ⊢ ∃u.∃v.◊dessert(u,v)
 END

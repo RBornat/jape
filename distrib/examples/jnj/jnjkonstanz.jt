@@ -1,63 +1,63 @@
 ﻿/*
-	This jape theory file was generated from the
-	latex source of the paper -- ``JnJ in Jape'' --
-	which describes the way in which the logic of the
-	Woodcock/Davies book is encoded in Jape. A full
-	explanation of how the Jape encoding
-	may be used with the book is given in that paper,
-	and a description of using the logic with the X
-	implementation of Jape is given in the
-	companion paper ``Using JnJ in Unix Jape''.
+    This jape theory file was generated from the
+    latex source of the paper -- ``JnJ in Jape'' --
+    which describes the way in which the logic of the
+    Woodcock/Davies book is encoded in Jape. A full
+    explanation of how the Jape encoding
+    may be used with the book is given in that paper,
+    and a description of using the logic with the X
+    implementation of Jape is given in the
+    companion paper ``Using JnJ in Unix Jape''.
 
-	$Id$
+    $Id$
 
-	(Brought up to date for Jape 6 in January 2003)
+    (Brought up to date for Jape 6 in January 2003)
 */
-	SEQUENT IS BAG ⊢ FORMULA
-	INITIALISE autoAdditiveLeft true
-	PREFIX	 350 ¬
-	INFIX	 50R  ↔
-	INFIX	 100R →
-	INFIX	 200L ∨
-	INFIX	 300L ∧
-	JUXTFIX	 40000
-	CLASS FORMULA  p q r s
-	CLASS VARIABLE x y z
-	CONSTANT false true
-	SUBSTFIX 50000 [ p / x ]
-	RULE  "∧-intro"	 FROM p AND q INFER p∧q
-	RULE  "∧-elim1"	 FROM p∧q INFER p
-	RULE  "∧-elim2"	 FROM p∧q INFER q
+    SEQUENT IS BAG ⊢ FORMULA
+    INITIALISE autoAdditiveLeft true
+    PREFIX   350 ¬
+    INFIX    50R  ↔
+    INFIX    100R →
+    INFIX    200L ∨
+    INFIX    300L ∧
+    JUXTFIX  40000
+    CLASS FORMULA  p q r s
+    CLASS VARIABLE x y z
+    CONSTANT false true
+    SUBSTFIX 50000 [ p / x ]
+    RULE  "∧-intro"  FROM p AND q INFER p∧q
+    RULE  "∧-elim1"  FROM p∧q INFER p
+    RULE  "∧-elim2"  FROM p∧q INFER q
 
-	RULE  "∨-intro1" FROM p INFER p∨q
-	RULE  "∨-intro2" FROM q INFER p∨q
-	RULE  "∨-elim"	 FROM p∨q AND p⊢r AND q⊢r INFER r
+    RULE  "∨-intro1" FROM p INFER p∨q
+    RULE  "∨-intro2" FROM q INFER p∨q
+    RULE  "∨-elim"   FROM p∨q AND p⊢r AND q⊢r INFER r
 
-	RULE  "→-intro"	 FROM p ⊢ q INFER p→q
-	RULE  "→-elim"	 FROM p→q AND p INFER q
+    RULE  "→-intro"  FROM p ⊢ q INFER p→q
+    RULE  "→-elim"   FROM p→q AND p INFER q
 
-	RULE  "¬-intro"	 FROM p ⊢ false INFER ¬ p
-	RULE  "¬-elim"	 FROM ¬p AND p INFER false
+    RULE  "¬-intro"  FROM p ⊢ false INFER ¬ p
+    RULE  "¬-elim"   FROM ¬p AND p INFER false
 
-	RULE  "false-intro" FROM ¬p AND p INFER false
-	RULE  "false-elim"  FROM ¬p ⊢ false INFER  p
-	RULE  "true-intro"  INFER  ⊢ true
+    RULE  "false-intro" FROM ¬p AND p INFER false
+    RULE  "false-elim"  FROM ¬p ⊢ false INFER  p
+    RULE  "true-intro"  INFER  ⊢ true
 
-	RULE  "↔-intro"	 FROM p → q AND	  q → p INFER p ↔ q
-	RULE  "↔-elim1"	 FROM p ↔ q INFER p → q
-	RULE  "↔-elim2"	 FROM p ↔ q INFER q → p
-	RULE hypothesis(p) INFER p ⊢ p
-	RULE cut(p)	   FROM	 ⊢ p AND   p ⊢ q  INFER	  ⊢ q
-	RULE thin(p)	   FROM	 ⊢ q		  INFER p ⊢ q
-	RULE dup(p)	   FROM	 p, p ⊢ q	  INFER p ⊢ q
-	IDENTITY RULE hypothesis
-	CUT	 RULE cut
-	WEAKEN	 RULE thin
+    RULE  "↔-intro"  FROM p → q AND   q → p INFER p ↔ q
+    RULE  "↔-elim1"  FROM p ↔ q INFER p → q
+    RULE  "↔-elim2"  FROM p ↔ q INFER q → p
+    RULE hypothesis(p) INFER p ⊢ p
+    RULE cut(p)    FROM  ⊢ p AND   p ⊢ q  INFER   ⊢ q
+    RULE thin(p)       FROM  ⊢ q          INFER p ⊢ q
+    RULE dup(p)    FROM  p, p ⊢ q     INFER p ⊢ q
+    IDENTITY RULE hypothesis
+    CUT  RULE cut
+    WEAKEN   RULE thin
     INFIX   800R  ∈
-    LEFTFIX 10	∀ : •
-    LEFTFIX 10	∀ : | •
-    LEFTFIX 10	∃ : •
-    LEFTFIX 10	∃ : | •
+    LEFTFIX 10  ∀ : •
+    LEFTFIX 10  ∀ : | •
+    LEFTFIX 10  ∃ : •
+    LEFTFIX 10  ∃ : | •
     CLASS FORMULA a b t u
     BIND x SCOPE p   IN ∀ x:a • p
     BIND x SCOPE p   IN ∃ x:a • p
@@ -68,151 +68,151 @@
     INFER   ∀ x:a • q
     RULE    "∀-elim"(t)
     FROM    ∀ x:a • q
-    AND	    t∈a
+    AND     t∈a
     INFER   q[t/x]
     RULE    "∃-intro"(t)
     FROM    t∈a
-    AND	    q[t/x]
+    AND     q[t/x]
     INFER   ∃ x:a • q
     RULE    "∃-elim"(OBJECT y)
     WHERE   FRESH y
-    AND	    y NOTIN ∃ x:a • p
-    AND	    y NOTIN r
+    AND     y NOTIN ∃ x:a • p
+    AND     y NOTIN r
     FROM    ∃ x:a • p
-    AND	    y∈a, p[y/x] ⊢ r
+    AND     y∈a, p[y/x] ⊢ r
     INFER   r
     RULE "∀|•" IS (∀ x:a|p•q) ↔ (∀ x:a • p → q)
     RULE "∃|•" IS (∃ x:a|p•q) ↔ (∃ x:a • p ∧ q)
     TACTIC ElimRule(rule)
     (WHEN
       (LETHYP _p
-	  (ALT (SEQ	 (WITHARGSEL rule) (WITHHYPSEL hypothesis))
-	       (SEQ  cut (WITHARGSEL rule) (WITHHYPSEL hypothesis))
-	       (Fail ("%s is not applicable to formula %s", rule, _p))))
+      (ALT (SEQ  (WITHARGSEL rule) (WITHHYPSEL hypothesis))
+           (SEQ  cut (WITHARGSEL rule) (WITHHYPSEL hypothesis))
+           (Fail ("%s is not applicable to formula %s", rule, _p))))
       (LETCONC _p
-	  (ElimRuleBackward rule))
+      (ElimRuleBackward rule))
       (Fail ("Select an assumption-like formula before applying %s forwards", rule)))
     TACTIC IntroRule(rule)
     (WHEN  (LETARGSEL _p (SEQ (cut _p) rule))
-	   (ALT (LETHYP	   _p rule)
-		rule
-		(MESSAGE (rule is not applicable))))
+       (ALT (LETHYP    _p rule)
+        rule
+        (MESSAGE (rule is not applicable))))
     TACTIC QuantIntroRule(rule)
     (ALT (WITHARGSEL rule)
-	 (Fail ("%s is not applicable", rule)))
-MENU	"Propositional Rules"
+     (Fail ("%s is not applicable", rule)))
+MENU    "Propositional Rules"
     ENTRY   "hypothesis"
     SEPARATOR
     ENTRY    "false-elim"   IS (IntroRule "false-elim")
     SEPARATOR
-    ENTRY    "∧-intro"	    IS (IntroRule "∧-intro")
-    TACTIC   "∧-elim-1"	    IS (ElimRule  "∧-elim1")
-    ENTRY    "∧-elim-2"	    IS (ElimRule  "∧-elim2")
+    ENTRY    "∧-intro"      IS (IntroRule "∧-intro")
+    TACTIC   "∧-elim-1"     IS (ElimRule  "∧-elim1")
+    ENTRY    "∧-elim-2"     IS (ElimRule  "∧-elim2")
     SEPARATOR
-    ENTRY    "∨-intro1"	    IS (IntroRule "∨-intro1")
-    ENTRY    "∨-intro2"	    IS (IntroRule "∨-intro2")
-    ENTRY    "∨-elim"	    IS (ElimRule "∨-elim")
+    ENTRY    "∨-intro1"     IS (IntroRule "∨-intro1")
+    ENTRY    "∨-intro2"     IS (IntroRule "∨-intro2")
+    ENTRY    "∨-elim"       IS (ElimRule "∨-elim")
     SEPARATOR
-    ENTRY    "→-intro"	    IS (IntroRule "→-intro")
-    ENTRY    "→-elim"	    IS (ElimRule  "→-elim")
+    ENTRY    "→-intro"      IS (IntroRule "→-intro")
+    ENTRY    "→-elim"       IS (ElimRule  "→-elim")
     SEPARATOR
-    ENTRY    "¬-intro"	    IS (IntroRule "¬-intro")
-    ENTRY    "¬-elim"	    IS (ElimRule "¬-elim")
+    ENTRY    "¬-intro"      IS (IntroRule "¬-intro")
+    ENTRY    "¬-elim"       IS (ElimRule "¬-elim")
     ENTRY    "false-intro"  IS (ElimRule "false-intro")
     ENTRY    "true-intro"   IS (IntroRule "true-intro")
     SEPARATOR
-    ENTRY    "↔-intro"	    IS (IntroRule "↔-intro")
-    ENTRY    "↔-elim1"	    IS (ElimRule "↔-elim1")
-    ENTRY    "↔-elim2"	    IS (ElimRule "↔-elim2")
+    ENTRY    "↔-intro"      IS (IntroRule "↔-intro")
+    ENTRY    "↔-elim1"      IS (ElimRule "↔-elim1")
+    ENTRY    "↔-elim2"      IS (ElimRule "↔-elim2")
 END
 MENU "Quantifier Rules" IS
     ENTRY "∀-intro"   IS QuantIntroRule "∀-intro"
-    ENTRY "∀-elim"    IS ElimRule	"∀-elim"
+    ENTRY "∀-elim"    IS ElimRule   "∀-elim"
     ENTRY "∃-intro"   IS QuantIntroRule "∃-intro"
-    ENTRY "∃-elim"    IS ElimRule	"∃-elim"
+    ENTRY "∃-elim"    IS ElimRule   "∃-elim"
 END
     AUTOMATCH hypothesis
-    HYPHIT p∨q ⊢ r IS  (ALT (ElimRule "∨-elim")	 "∨-elim")
-    HYPHIT p→q ⊢ r IS  (ALT (ElimRule "→-elim")	 "→-elim")
-    HYPHIT ¬p  ⊢ r IS  (ALT (ElimRule "¬-elim")	 "¬-elim")
+    HYPHIT p∨q ⊢ r IS  (ALT (ElimRule "∨-elim")  "∨-elim")
+    HYPHIT p→q ⊢ r IS  (ALT (ElimRule "→-elim")  "→-elim")
+    HYPHIT ¬p  ⊢ r IS  (ALT (ElimRule "¬-elim")  "¬-elim")
     HYPHIT ∀x:a•q   ⊢ r IS ElimRule "∀-elim"
     HYPHIT ∃x:a•q   ⊢ r IS ElimRule "∃-elim"
     HYPHIT p∧q ⊢ r IS
     (ALT (SEQ  "∧-elim1"  (hypothesis(p∧q)))
-	 (SEQ  "∧-elim2"  (hypothesis(p∧q)))
-	 (SEQ
-	       cut "∧-elim1" (hypothesis (p∧q))
-	       cut "∧-elim2" (hypothesis (p∧q))
-	 ))
+     (SEQ  "∧-elim2"  (hypothesis(p∧q)))
+     (SEQ
+           cut "∧-elim1" (hypothesis (p∧q))
+           cut "∧-elim2" (hypothesis (p∧q))
+     ))
 
     HYPHIT p↔q ⊢ r IS
     (ALT (SEQ  "↔-elim1"  (hypothesis(p↔q)))
-	 (SEQ  "↔-elim2"  (hypothesis(p↔q)))
-	 (SEQ
-	       cut "↔-elim1" (hypothesis (p↔q))
-	       cut "↔-elim2" (hypothesis (p↔q))
-	 ))
+     (SEQ  "↔-elim2"  (hypothesis(p↔q)))
+     (SEQ
+           cut "↔-elim1" (hypothesis (p↔q))
+           cut "↔-elim2" (hypothesis (p↔q))
+     ))
     CONCHIT ∀x:a•q   IS QuantIntroRule "∀-intro"
     CONCHIT ∃x:a•q   IS QuantIntroRule "∃-intro"
-    CONCHIT ¬p	     IS "¬-intro"
+    CONCHIT ¬p       IS "¬-intro"
     CONCHIT true     IS "true-intro"
-    CONCHIT p→q	     IS "→-intro"
-    CONCHIT p↔q	     IS "↔-intro"
-    CONCHIT p∧q	     IS "∧-intro"
-    CONCHIT q∨r	     IS
+    CONCHIT p→q      IS "→-intro"
+    CONCHIT p↔q      IS "↔-intro"
+    CONCHIT p∧q      IS "∧-intro"
+    CONCHIT q∨r      IS
      (ALT  (SEQ "∨-intro1" hypothesis)
-	   (SEQ "∨-intro2" hypothesis)
-	   (MESSAGE (Neither disjunct q nor disjunct r is available)))
+       (SEQ "∨-intro2" hypothesis)
+       (MESSAGE (Neither disjunct q nor disjunct r is available)))
 
     CONCHIT  p ⊢ p IS
     (WHEN (LETHYP _p (WITHHYPSEL hypothesis))
-	  (Fail ("Please select the hypothesis you want to use")))
+      (Fail ("Please select the hypothesis you want to use")))
     MENU Edit
-	RADIOBUTTON displaystyle
-	     "Sequent-Tree display style"  IS tree
-	AND  "Box display style"	   IS box
-	INITIALLY
-	     box
-	END
+    RADIOBUTTON displaystyle
+         "Sequent-Tree display style"  IS tree
+    AND  "Box display style"       IS box
+    INITIALLY
+         box
+    END
 
-	CHECKBOX autoselect
-		"Automatic goal selection"
-	INITIALLY
-		true
+    CHECKBOX autoselect
+        "Automatic goal selection"
+    INITIALLY
+        true
 
-	CHECKBOX applyconjectures
-		"Unproven theorems may be applied"
-	INITIALLY
-		false
-	RADIOBUTTON ElimRuleBackward
-	    "Forbid backward use of elimination rules" IS ElimRuleBackwardNo
-	AND "Permit backward use of elimination rules" IS ElimRuleBackwardYes
-	END
+    CHECKBOX applyconjectures
+        "Unproven theorems may be applied"
+    INITIALLY
+        false
+    RADIOBUTTON ElimRuleBackward
+        "Forbid backward use of elimination rules" IS ElimRuleBackwardNo
+    AND "Permit backward use of elimination rules" IS ElimRuleBackwardYes
+    END
 
     END /* MENU Edit */
 
     TACTIC ElimRuleBackwardYes(rule)
-	   (WITHARGSEL rule)
+       (WITHARGSEL rule)
 
     TACTIC ElimRuleBackwardNo(rule)
     (Fail ("Select a goal then a non-grey formula before invoking %s",
-	   rule))
+       rule))
     TACTIC Fail(x) IS
-	   ((SEQ (ALERT x) FAIL))
+       ((SEQ (ALERT x) FAIL))
 
     TACTIC FailSEL(x, y) IS
-	   (WHEN (LETARGSEL _p ((SEQ (ALERT x) FAIL))) ((SEQ (ALERT y) FAIL)))
+       (WHEN (LETARGSEL _p ((SEQ (ALERT x) FAIL))) ((SEQ (ALERT y) FAIL)))
 
     TACTIC MESSAGE(m) IS
-	   (SEQ (ALERT m)
-		FAIL)
+       (SEQ (ALERT m)
+        FAIL)
 
     TACTIC SKIP(x)    IS (SEQ)
 
-	INFIX 1000L ≤
+    INFIX 1000L ≤
 CONJECTUREPANEL "Conjectures" IS
     THEOREMS Propositional(p,q,r,s) ARE
-	¬¬p ⊢ p
+    ¬¬p ⊢ p
     AND ¬(p∨q) ⊢ ¬p ∧ ¬q
     AND ¬(p∧q) ⊢ ¬p ∨ ¬q
     AND ⊢ p ∨ ¬p
@@ -270,12 +270,12 @@ CONJECTUREPANEL "Conjectures" IS
     AND ¬(∀ x:a•q) ⊢ (∃ x:a•¬q)
     AND ¬(∀ x:a|p•q) ⊢ (∃ x:a|p•¬q)
     AND WHERE x NOTIN a,a',y AND y NOTIN a,a',x INFER
-	∃x:a • ∀y:a' • q ⊢ ∀y:a' • ∃x:a • q
+    ∃x:a • ∀y:a' • q ⊢ ∀y:a' • ∃x:a • q
     END
     THEOREM "∀|•-intro" IS ∀ x:a • p → q ⊢ ∀ x:a | p • q
-    THEOREM "∀|•-elim"	IS ∀ x:a | p • q ⊢ ∀ x:a • p → q
+    THEOREM "∀|•-elim"  IS ∀ x:a | p • q ⊢ ∀ x:a • p → q
     THEOREM "∃|•-intro" IS ∃ x:a • p ∧ q ⊢ ∃ x:a | p • q
-    THEOREM "∃|•-elim"	IS ∃ x:a | p • q ⊢ ∃ x:a • p ∧ q
+    THEOREM "∃|•-elim"  IS ∃ x:a | p • q ⊢ ∃ x:a • p ∧ q
     THEOREM "?-∃x:a•∀y:a'•x≤y⊢∀y:a'•∃x:a•x≤y(no provisos)"
     IS ∃ x:a • ∀y:a' • x≤y ⊢ ∀y:a' • ∃x:a • x≤y
     THEOREM "?- (p→q)→p" IS (p→q)→p
@@ -288,25 +288,25 @@ CONJECTUREPANEL "Conjectures" IS
 END /* PANEL */
     TACTIC ThmForward(thm) IS (SEQ cut (WITHHYPSEL (WITHARGSEL thm)))
     TACTIC ThmBackward(thm) IS (WITHARGSEL(APPLYORRESOLVE thm))
-	RULE	rewrite(p, OBJECT x)
-	FROM	p ↔ q
-	AND	r[q/x]
-	INFER	r[p/x]
+    RULE    rewrite(p, OBJECT x)
+    FROM    p ↔ q
+    AND r[q/x]
+    INFER   r[p/x]
 
-	RULE	rewritebackwards(p, OBJECT x)
-	FROM	q ↔ p
-	AND	r[q/x]
-	INFER	r[p/x]
+    RULE    rewritebackwards(p, OBJECT x)
+    FROM    q ↔ p
+    AND r[q/x]
+    INFER   r[p/x]
 
-	RULE	hyprewrite(p, OBJECT x)
-	FROM	p ↔ q
-	AND	r[q/x] ⊢ s
-	INFER	r[p/x] ⊢ s
+    RULE    hyprewrite(p, OBJECT x)
+    FROM    p ↔ q
+    AND r[q/x] ⊢ s
+    INFER   r[p/x] ⊢ s
 
-	RULE	hyprewritebackwards(p, OBJECT x)
-	FROM	q ↔ p
-	AND	r[q/x] ⊢ s
-	INFER	r[p/x] ⊢ s
+    RULE    hyprewritebackwards(p, OBJECT x)
+    FROM    q ↔ p
+    AND r[q/x] ⊢ s
+    INFER   r[p/x] ⊢ s
     CONJECTUREPANEL Conjectures IS
      BUTTON "Rewrite →" IS
       apply RewriteWith hyprewrite rewrite COMMAND
@@ -316,15 +316,15 @@ END /* PANEL */
     TACTIC  RewriteWith(hyprewriterule, rewriterule, thm) IS
     (ALT
       (LAYOUT "rewrite %s" (1)
-	(WHEN
-	  (LETHYPSUBSTSEL  _p (WITHSUBSTSEL hyprewriterule) thm)
-	  (LETCONCSUBSTSEL _p (WITHSUBSTSEL rewriterule) thm)
-	  (LETHYP	   _p (hyprewriterule _p) thm)
-	  (LETCONC	   _p (rewriterule _p) thm)))
+    (WHEN
+      (LETHYPSUBSTSEL  _p (WITHSUBSTSEL hyprewriterule) thm)
+      (LETCONCSUBSTSEL _p (WITHSUBSTSEL rewriterule) thm)
+      (LETHYP      _p (hyprewriterule _p) thm)
+      (LETCONC     _p (rewriterule _p) thm)))
       (FailSEL ("%s not applicable to text selection", thm)
-	       ("%s not applicable to hypothesis or conclusion", thm)))
+           ("%s not applicable to hypothesis or conclusion", thm)))
     TACTIC Unfolding(thm) IS (UNFOLD rewrite thm)
-    TACTIC Folding(thm)	  IS (FOLD   rewritebackwards thm)
+    TACTIC Folding(thm)   IS (FOLD   rewritebackwards thm)
     TACTIC UnfoldWithIff(rule)
     (RewriteWith  hyprewrite rewrite rule)
 
@@ -332,9 +332,9 @@ END /* PANEL */
     (RewriteWith  hyprewritebackwards rewritebackwards rule)
 
     MENU "Quantifier Rules" IS
-	SEPARATOR
-	ENTRY "∃|•→"	  IS UnfoldWithIff "∃|•"
-	ENTRY "∃|•⇐"	  IS FoldWithIff   "∃|•"
-	ENTRY "∀|•→"	  IS UnfoldWithIff "∀|•"
-	ENTRY "∀|•⇐"	  IS FoldWithIff   "∀|•"
+    SEPARATOR
+    ENTRY "∃|•→"      IS UnfoldWithIff "∃|•"
+    ENTRY "∃|•⇐"      IS FoldWithIff   "∃|•"
+    ENTRY "∀|•→"      IS UnfoldWithIff "∀|•"
+    ENTRY "∀|•⇐"      IS FoldWithIff   "∀|•"
     END

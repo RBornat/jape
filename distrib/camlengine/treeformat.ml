@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -184,16 +184,16 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
         | HideCutFormat -> HideCutLayout :: ls
         | SimpleFormat -> ls
 
-	(* because of the use of negative numbers in paths to navigate internal cuts, and the 
-	 * wierd way that the root of an internal cut is addressed (see prooftree.sml), 
-	 * DON'T DON'T DON'T do manipulations of the list in a FmtPath.
-	 *
-	 * IN PARTICULAR, note that FmtPath [] is NOT NECESSARILY the root path of a tree: use
-	 * rootPath to give you the correct path instead.
-	 *
-	 * The functions parentPath and siblingPath ought to give you the movement you need ...
-	 * RB 21/i/00
-	 *)
+    (* because of the use of negative numbers in paths to navigate internal cuts, and the 
+     * wierd way that the root of an internal cut is addressed (see prooftree.sml), 
+     * DON'T DON'T DON'T do manipulations of the list in a FmtPath.
+     *
+     * IN PARTICULAR, note that FmtPath [] is NOT NECESSARILY the root path of a tree: use
+     * rootPath to give you the correct path instead.
+     *
+     * The functions parentPath and siblingPath ought to give you the movement you need ...
+     * RB 21/i/00
+     *)
     type fmtpath = FmtPath of int list
     (* VisPaths, at the present, are still simple lists of non-negative integers ... *)
     
@@ -222,7 +222,7 @@ module VisFmt : VisFmt =
     (* ismultistep, ishiddencut *)
        
     let string_of_visformat  (VisFormat f) =
-	  "VisFormat" ^ string_of_pair string_of_bool string_of_bool "," f
+      "VisFormat" ^ string_of_pair string_of_bool string_of_bool "," f
         
     type vispath = VisPath of int list
 

@@ -2,9 +2,9 @@
 
 TACTIC ForwardCutwithSubstSel(n,Rule) IS
     SEQ cut 
-	(WHEN	(LETSUBSTSEL _A Rule (WITHSUBSTSEL hyp))
-		(Fail (please text-select one or more instances of a sub-formula))
-	)
+        (WHEN   (LETSUBSTSEL _A Rule (WITHSUBSTSEL hyp))
+                (Fail (please text-select one or more instances of a sub-formula))
+        )
 
 TACTIC "abstraction-I tac" IS FSSOB ForwardCutwithSubstSel 0 "abstraction-I"
 
@@ -60,7 +60,7 @@ CONJECTUREPANEL "Derived Rules for Set Operators" IS
     ENTRY "(-)-E(L)"
     ENTRY "(-)-E(R)"
     ENTRY "⁻¹-E"
-	
+        
     ENTRY "Ø-E"
     ENTRY "A∈U"
 END
@@ -82,6 +82,6 @@ TACTICPANEL "Definitions" IS
     RULE (OBJECT x, OBJECT y) IS ∪∪(C) ≜ { x | ∃y. x∈y∧y∈C }
     RULE (OBJECT x, OBJECT y) IS ∩∩(C) ≜ { x | ∀y. y∈C→x∈y }
     RULE (OBJECT x) IS Pow(A) ≜ { x | x⊆A }
-    RULE (OBJECT x, OBJECT y) IS A×B ≜ { <x,y>	| x∈A∧y∈B }
+    RULE (OBJECT x, OBJECT y) IS A×B ≜ { <x,y>  | x∈A∧y∈B }
     RULE (OBJECT x, OBJECT y, OBJECT z) IS A•B ≜ { <x,z> | ∃y.<x,y>∈A∧<y,z>∈B }
 END

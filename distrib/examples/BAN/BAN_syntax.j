@@ -7,15 +7,15 @@ CONSTANT A B S
 
 
 SUBSTFIX    700
-JUXTFIX	    600
-PREFIX	    500	    #
-POSTFIX	    500	    ⁻¹
-INFIX		300L	    ⇌  ↦ ↔
-INFIX		200R	    ⇝
-INFIX		150R	    ö
-LEFTFIX		110	∀ .
-INFIX		100R	    ⫢
-INFIX		50L	◁
+JUXTFIX        600
+PREFIX      500     #
+POSTFIX     500     ⁻¹
+INFIX           300L        ⇌  ↦ ↔
+INFIX           200R        ⇝
+INFIX           150R        ö
+LEFTFIX         110     ∀ .
+INFIX           100R        ⫢
+INFIX           50L     ◁
 
 OUTFIX {  }
 OUTFIX <  >

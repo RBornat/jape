@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -34,7 +34,7 @@ val chooseinvisbracketedstring_of_term  : (term -> string) -> (term -> string) -
 val catelim_string_of_term                     : term -> string list -> string list
 val catelim_invisbracketedstring_of_term       : bool -> term -> string list -> string list
 val catelim_chooseinvisbracketedstring_of_term : (term -> string) -> (term -> string) -> term
-									          -> string list -> string list
+                                              -> string list -> string list
 
 val string_of_termarg         : term -> string
 val catelim_string_of_termarg : term -> string list -> string list
@@ -68,7 +68,7 @@ val catelim_invisbracketedstring_of_element : bool -> element -> string list -> 
 
 val debugstring_of_element         : (term -> string) -> element -> string
 val catelim_debugstring_of_element : (term -> string list -> string list) -> element 
-							      -> string list -> string list
+                                  -> string list -> string list
 
 val string_of_resnum         : resnum -> string
 val catelim_string_of_resnum : resnum -> string list -> string list

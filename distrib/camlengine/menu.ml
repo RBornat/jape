@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -132,13 +132,15 @@ let rec addtodata beforeopt lf vf e es =
     function
       []        -> [e]
     | e' :: es' ->
-        if bool_of_opt beforeopt then
-          let tail = if beforeopt=lf e' then e :: delete es' else insert es' in
-          if conflicts e' then tail else e' :: tail
+        if conflicts e' then 
+          e :: delete es' 
         else
-          if conflicts e' then e :: delete es' else e' :: insert es'
+        if bool_of_opt beforeopt && beforeopt=lf e' then
+          e' :: e :: delete es'
+        else
+          e' :: insert es'
   in
-  if bool_of_opt beforeopt || List.exists conflicts es then insert es else e::es
+  if List.exists conflicts es || bool_of_opt beforeopt then insert es else e::es
 
 let rec addmenu proofsonly m =
   match (!menus <@> m) with

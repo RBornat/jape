@@ -1,9 +1,9 @@
 ﻿/*
 
-	A game of functions and lists
-	Bernard Sufrin & Richard Bornat
-	$Id$
-	$Date$
+    A game of functions and lists
+    Bernard Sufrin & Richard Bornat
+    $Id$
+    $Date$
 */
 
 
@@ -13,10 +13,10 @@ INITIALISE autoAdditiveLeft true
 
 TACTIC Fail (x) IS SEQ (ALERT x) STOP
 
-USE		"equality_rules.j"
-USE		"equality_menus.j"
-USE		"functions_rules.j"
-USE		"functions_menus.j"
+USE     "equality_rules.j"
+USE     "equality_menus.j"
+USE     "functions_rules.j"
+USE     "functions_menus.j"
 
 AUTOMATCH "= reflexive"
 TRANSITIVE  "= transitive"

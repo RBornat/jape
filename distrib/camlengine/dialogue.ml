@@ -278,7 +278,7 @@ let mustredisplay env vals =
   in
   let lookup s =
     match
-	((nenv <@> s) &~~ (fun n -> Japeenv.(<@>) env n))
+        ((nenv <@> s) &~~ (fun n -> Japeenv.(<@>) env n))
     with
       Some t -> Some (string_of_term t)
     | None -> None
@@ -548,12 +548,12 @@ let leftCutParent tree path =
       else None
   | _ -> None
 type layoutcommand = BacktrackCommand
-		   | PruneCommand
-		   | HideShowCommand
-		   | ExpandContractCommand
-		   | HideRootCommand
-		   | ExposeParentCommand
-		   | HideCutCommand
+                   | PruneCommand
+                   | HideShowCommand
+                   | ExpandContractCommand
+                   | HideRootCommand
+                   | ExposeParentCommand
+                   | HideCutCommand
 
 let doLayout command =
   fun (Proofstate {tree = tree} as state) path ->
@@ -1409,8 +1409,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                      cx :: cy :: cs -> (atoi cx, atoi cy) :: pair cs
                    | []             -> []
                    | _  -> raise (Catastrophe_
-				    ["bad command (odd number of arguments): worldselect ";
-				     bracketedstring_of_list (fun s -> s) "," cs])
+                                    ["bad command (odd number of arguments): worldselect ";
+                                     bracketedstring_of_list (fun s -> s) "," cs])
                  in
                  Disproof.worldselect d (pair cs))
              disproofmove
@@ -1844,9 +1844,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             if finished proofstate disproof then
               if  not fromstore ||
                   (not (null (hist_pasts proofhist)) && isproven proofstate) ||
-		  (match disproofhist with 
-		     Some d -> not (null (hist_pasts d)) && disproof_finished disproof 
-		   | None   -> false) 
+                  (match disproofhist with 
+                     Some d -> not (null (hist_pasts d)) && disproof_finished disproof 
+                   | None   -> false) 
               then
                 Alert.askDangerously
                   ("The proof of " ^ string_of_name t ^ " is complete - do you want to record it?")
@@ -1870,11 +1870,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "createdbugfile", [] ->
             (match Japeserver.writeFileName "Write diagnostic output to:" Japeserver.dbugfiletype with
-	       Some s -> let file = disQuote s in
-			 (try createdbugfile file with
-			   exn -> showAlert ["can't create file"; file; " ("; Printexc.to_string exn; ")"]);
-			 default
-	     | None  -> default
+               Some s -> let file = disQuote s in
+                         (try createdbugfile file with
+                           exn -> showAlert ["can't create file"; file; " ("; Printexc.to_string exn; ")"]);
+                         default
+             | None  -> default
             )
 
         | "closedbugfile", [] -> closedbugfile (); default

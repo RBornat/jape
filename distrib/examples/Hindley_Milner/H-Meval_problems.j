@@ -24,15 +24,15 @@ CONJECTUREPANEL Conjectures
     THEOREM INFER C ⊢ letrec f = let g = λx.x f in g end in f end : _T
     THEOREM INFER C ⊢ letrec map = λf.λxs.if xs==nil then nil else f (hd xs)∴map f (tl xs) fi in map end : _T
     THEOREM INFER C ⊢ letrec map = λf.λxs.if xs==nil then nil else f (hd xs)∴map f (tl xs) fi , 
-			   f = λx.x+x
-		  in map f (0∴1∴2∴nil)
-		  end : _T
+                           f = λx.x+x
+                  in map f (0∴1∴2∴nil)
+                  end : _T
     DERIVED RULE FROM C ⊢ x:Tx INFER C ⊢ let f = λx.λy.x in f 3 end : _T
     DERIVED RULE FROM C ⊢ E:TE INFER C ⊢ let f = λx.λy.E in f 3 end : _T
     DERIVED RULE  FROM C ⊢ e:Te INFER C ⊢ let x = (e,e) in x end : _T
     DERIVED RULE FROM C ⊢ f⇒ #num×num→num INFER C ⊢ let g = λx.f(x,3) in g 4 end : _T
     DERIVED RULE FROM C ⊢ finc⇒ #num→num AND C ⊢ fdec⇒ #num→num 
-	INFER C ⊢ letrec fadd = λx.λy.if x==0 then y else fadd (fdec x) (finc y) fi in fadd end : _T
+        INFER C ⊢ letrec fadd = λx.λy.if x==0 then y else fadd (fdec x) (finc y) fi in fadd end : _T
 END
 
 

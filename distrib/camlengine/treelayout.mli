@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -30,7 +30,7 @@ open Mappingfuns
 
 (* everything you can say in a LAYOUT tactic *)
 type treelayout =
-	HideRootLayout
+    HideRootLayout
   | HideCutLayout
   | CompressedLayout of (term * term option)
   | NamedLayout of (term * term option)

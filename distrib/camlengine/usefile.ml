@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -74,9 +74,9 @@ let usestack = ref (if Sys.os_type="Win32" then [] else ["./"])
 let isabsolute path =
 if Sys.os_type="Win32" then (
   try
-	String.index path ':'  < String.index path '\\'
+    String.index path ':'  < String.index path '\\'
   with
-	Not_found -> false)
+    Not_found -> false)
 else (try path.[0]='/' with _ -> false)
 
 let makerelative s =

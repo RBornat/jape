@@ -1,11 +1,9 @@
 ﻿/*
-	Functions and lists played transitively
-	Needs Jape 4.1
-	$Id$
-	
+    Functions and lists played transitively
+    Needs Jape 4.1
+    $Id$
+    
 */
 
 USE "functions.jt"
 USE "functions_transitivity.j"
-
-

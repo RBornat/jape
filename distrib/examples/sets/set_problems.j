@@ -4,9 +4,9 @@ TACTIC TheoremForwardOrBackward(X) IS
   WHEN (LETHYP _P cut (WITHSELECTIONS X)) X
   
 CONJECTUREPANEL "Set Conjectures" IS
-    THEOREMS "Set Conjectures" ARE
-	(∃x.P(x) ∧ (∀y. P(y) → y=x)) ↔ (∃u. P(u)) ∧ (∀(v,w). P(v) ∧ P(w) → v=w)
-    AND	    A⊆U
+  THEOREMS "Set Conjectures" ARE
+        (∃x.P(x) ∧ (∀y. P(y) → y=x)) ↔ (∃u. P(u)) ∧ (∀(v,w). P(v) ∧ P(w) → v=w)
+    AND A⊆U
     AND A=B ↔ A⊆B ∧ B⊆A
     AND A⊆A
     AND A⊆B, B⊆C ⊢ A⊆C
@@ -41,11 +41,11 @@ CONJECTUREPANEL "Set Conjectures" IS
     AND A⁻¹=B ↔ (A∪B=U)∧(A∩B=Ø)
     AND A⁻¹⁻¹=A
     AND (A∪B)⁻¹=A⁻¹∩B⁻¹
-		    AND (A∩B)⁻¹=A⁻¹∪B⁻¹
-		    AND (OBJECT y) INFER <C,D>∈A•B ↔ (∃y.<C,y>∈A∧<y,D>∈B)
+    AND (A∩B)⁻¹=A⁻¹∪B⁻¹
+    AND (OBJECT y) INFER <C,D>∈A•B ↔ (∃y.<C,y>∈A∧<y,D>∈B)
     AND (A•B)•C=A•(B•C)
 
-    END
+  END
 
     BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
     BUTTON "A↔…" IS apply ForwardSubstHiding "rewrite ↔ «" "rewrite ↔ »"  COMMAND

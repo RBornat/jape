@@ -4,45 +4,45 @@
 */
 INITIALISE autoselect true
 
-CLASS	VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
-CLASS	FORMULA	 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+CLASS   VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
+CLASS   FORMULA  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
 /* Making either of this collection just VARIABLEs
    causes a problem on the third rule invocation
-   during the derivation of the	 Theorem marked /**/
+   during the derivation of the  Theorem marked /**/
 */
 
-CLASS	CONSTANT con
-CLASS	NUMBER num
+CLASS   CONSTANT con
+CLASS   NUMBER num
 LEFTFIX 20 λ •
 INFIX 1T → 
 BIND x SCOPE T IN λ x • T
 LEFTFIX 10  let = in 
 BIND x SCOPE T IN let x=S in T 
 
-/*	A reduction-based semantics */
+/*      A reduction-based semantics */
 
-/*	Part 1: Rules */
+/*      Part 1: Rules */
 
-SEQUENT IS LIST ⊢ FORMULA	/* Always of the form ⊢ term → term */
+SEQUENT IS LIST ⊢ FORMULA       /* Always of the form ⊢ term → term */
 SUBSTFIX 500000 [ S / s ]
 
     RULE  "rator"  IS FROM ⊢ S→S'  AND ⊢ S' T  → U INFER ⊢ S T → U 
     RULE  "rand"   IS FROM ⊢ T→T'  AND ⊢ S  T' → U INFER ⊢ S T → U
-    RULE  "beta"   IS FROM  ⊢ S[T/x]	     → U INFER ⊢ (λ x • S) T  → U
-    RULE  "let"	   IS FROM  ⊢ (λ x •T)(S)    → U INFER ⊢ let x=S in T → U
+    RULE  "beta"   IS FROM  ⊢ S[T/x]         → U INFER ⊢ (λ x • S) T  → U
+    RULE  "let"    IS FROM  ⊢ (λ x •T)(S)    → U INFER ⊢ let x=S in T → U
     RULES NormalForm 
-    ARE	  ⊢ λ x • S → λ x • S
-    AND	  ⊢ con	      → con
-    AND	  ⊢ x	    → x
+    ARE   ⊢ λ x • S → λ x • S
+    AND   ⊢ con       → con
+    AND   ⊢ x       → x
     END
 
-    RULE "smallbeta" IS INFER ⊢ (λ x • S) T  →	S[T/x]
-    RULE "smalllet" IS INFER ⊢	let x=T in S →	S[T/x]
-    RULE  "smallrator"	IS FROM ⊢ S→S'	INFER ⊢ S T →	S' T 
-    RULE  "smallrand"	IS FROM ⊢ T→T'	INFER ⊢ S T →  S  T'
-    RULE "smallletrand" IS FROM ⊢ T→T'	INFER ⊢	 let x=T in S →	  let x=T' in S
+    RULE "smallbeta" IS INFER ⊢ (λ x • S) T  →  S[T/x]
+    RULE "smalllet" IS INFER ⊢  let x=T in S →  S[T/x]
+    RULE  "smallrator"  IS FROM ⊢ S→S'  INFER ⊢ S T →   S' T 
+    RULE  "smallrand"   IS FROM ⊢ T→T'  INFER ⊢ S T →  S  T'
+    RULE "smallletrand" IS FROM ⊢ T→T'  INFER ⊢  let x=T in S →   let x=T' in S
     
-/*	Part 1a: Transitivity */
+/*      Part 1a: Transitivity */
     
     RULE "transitivity" IS FROM ⊢ A→B AND ⊢ B→C INFER ⊢ A→C
     RULE "identity" IS INFER ⊢ A→A
@@ -50,105 +50,105 @@ SUBSTFIX 500000 [ S / s ]
     TRANSITIVE "transitivity"
     REFLEXIVE "identity"
 
-/*	Part 2: Mechanisation */
+/*      Part 2: Mechanisation */
 
 TACTIC NormalOrderStep(step) IS
-(WHEN (LETGOAL ((λ _x • _S) _T	  →  _U) beta)
+(WHEN (LETGOAL ((λ _x • _S) _T    →  _U) beta)
       (LETGOAL (let _x = _S in _T →  _U) "let")
-      (LETGOAL (_S _T		  →  _U) rator)
+      (LETGOAL (_S _T             →  _U) rator)
       NormalForm)
 
 TACTIC ApplOrderStep(step) IS
-(WHEN (LETGOAL ((λ _x • _S) _T	  →  _U) (WhenNormal _T beta  rand))
-      (LETGOAL (_S _T		  →  _U) (WhenNormal _T rator rand))
+(WHEN (LETGOAL ((λ _x • _S) _T    →  _U) (WhenNormal _T beta  rand))
+      (LETGOAL (_S _T             →  _U) (WhenNormal _T rator rand))
       (LETGOAL (let _x = _S in _T →  _U) "let")
       NormalForm)
-	  
+          
 TACTIC SmallNormOrderStep  IS
     ALT (SEQ transitivity smalllet)
-	(SEQ transitivity smallbeta)
-	(SEQ transitivity smallrator smallnormordersearch)
-	(SEQ transitivity smallrand smallnormordersearch)
-	(SEQ transitivity smallletrand smallnormordersearch)
-	identity
-	(WHEN	(LETGOAL (_A → _B) (Fail "can't show that"  _A "reduces to" _B))
-		(Fail "problem isn't of the form A→B")
-	 ) 
+        (SEQ transitivity smallbeta)
+        (SEQ transitivity smallrator smallnormordersearch)
+        (SEQ transitivity smallrand smallnormordersearch)
+        (SEQ transitivity smallletrand smallnormordersearch)
+        identity
+        (WHEN   (LETGOAL (_A → _B) (Fail "can't show that"  _A "reduces to" _B))
+                (Fail "problem isn't of the form A→B")
+         ) 
 
 TACTIC smallnormordersearch IS
     ALT smalllet
-	smallbeta
-	(SEQ smallrator smallnormordersearch)
-	(SEQ smallrand smallnormordersearch)
-	(SEQ smallletrand smallnormordersearch)
-	
+        smallbeta
+        (SEQ smallrator smallnormordersearch)
+        (SEQ smallrand smallnormordersearch)
+        (SEQ smallletrand smallnormordersearch)
+        
 TACTIC SmallApplOrderStep  IS
     ALT (SEQ transitivity smallrand smallapplordersearch)
-	(SEQ transitivity smallletrand smallapplordersearch)
-	(SEQ transitivity smalllet)
-	(SEQ transitivity smallbeta)
-	(SEQ transitivity smallrator smallapplordersearch)
-	identity
-	(WHEN	(LETGOAL (_A → _B) (Fail "can't show that"  _A "reduces to" _B))
-		(Fail "problem isn't of the form A→B")
-	 ) 
+        (SEQ transitivity smallletrand smallapplordersearch)
+        (SEQ transitivity smalllet)
+        (SEQ transitivity smallbeta)
+        (SEQ transitivity smallrator smallapplordersearch)
+        identity
+        (WHEN   (LETGOAL (_A → _B) (Fail "can't show that"  _A "reduces to" _B))
+                (Fail "problem isn't of the form A→B")
+         ) 
 
 TACTIC smallapplordersearch IS
     ALT (SEQ smallrand smallapplordersearch)
-	(SEQ smallletrand smallapplordersearch)
-	smalllet
-	smallbeta
-	(SEQ smallrator smallapplordersearch)
-	
+        (SEQ smallletrand smallapplordersearch)
+        smalllet
+        smallbeta
+        (SEQ smallrator smallapplordersearch)
+        
 TACTIC WhenNormal(expr, tactic, othertactic)
     (WHEN 
-	(LETMATCH (λ _x • _S) expr tactic)
-	(LETMATCH _con	      expr tactic)
-	(LETMATCH _x	      expr tactic)
-	othertactic
+        (LETMATCH (λ _x • _S) expr tactic)
+        (LETMATCH _con        expr tactic)
+        (LETMATCH _x          expr tactic)
+        othertactic
     )
     
       
 CONJECTUREPANEL "Reductions"
-	BUTTON		"Rator"		    IS apply  rator
-	BUTTON		"Rand"		    IS apply  rand
-	BUTTON		"NormalForm"	    IS apply  NormalForm
-	BUTTON		"Beta"		    IS apply  beta
-	BUTTON		"Let"		    IS apply  "let"
-	BUTTON		"Normal Step"	    IS apply  NormalOrderStep
-	BUTTON		"Applicative Step"  IS apply  ApplOrderStep
-	BUTTON	"Small Normal Step" IS apply SmallNormOrderStep
-	BUTTON	"Small Applicative Step" IS apply SmallApplOrderStep
-	
-	THEOREMS Reductions(f, x, y) 
-	ARE INFER ⊢ (λ x • x x)(λ y • y)(λ y • y) → _T
-	AND WHERE fix NOTIN (_T, x, y, f) AND fix, f, x NOTIN F	 INFER ⊢ 
-	    let fix = (λ f • ((λ x•F(x x))(λ x•F(x x)))) 
-	    in	fix (λ y • y)  → _T 
-	AND WHERE compose NOTIN (_T, x, f) AND id NOTIN (_T, x, f) INFER ⊢ 
-		/**/
-		let compose = λ f • λ g • λ x • f(g x) in
-		let id =   λ x • x in
-		compose id id 1 → _T
-	AND WHERE compose NOTIN (_T, x, f) AND id NOTIN (_T, x, f) INFER ⊢ 
-		/**/
-		let compose = λ f • λ g • λ x • f(g x) in
-		let id =   λ x • x in
-		id (compose id id 1) → _T
-	
-	AND INFER ⊢
-		/**/
-		let comp = λ f • λ g • λ x • f(g x) in
-		let id =   λ x • x in
-		comp id id 1 → _T
-	
-	END
-	
+        BUTTON          "Rator"             IS apply  rator
+        BUTTON          "Rand"              IS apply  rand
+        BUTTON          "NormalForm"        IS apply  NormalForm
+        BUTTON          "Beta"              IS apply  beta
+        BUTTON          "Let"               IS apply  "let"
+        BUTTON          "Normal Step"       IS apply  NormalOrderStep
+        BUTTON          "Applicative Step"  IS apply  ApplOrderStep
+        BUTTON  "Small Normal Step" IS apply SmallNormOrderStep
+        BUTTON  "Small Applicative Step" IS apply SmallApplOrderStep
+        
+        THEOREMS Reductions(f, x, y) 
+        ARE INFER ⊢ (λ x • x x)(λ y • y)(λ y • y) → _T
+        AND WHERE fix NOTIN (_T, x, y, f) AND fix, f, x NOTIN F  INFER ⊢ 
+            let fix = (λ f • ((λ x•F(x x))(λ x•F(x x)))) 
+            in  fix (λ y • y)  → _T 
+        AND WHERE compose NOTIN (_T, x, f) AND id NOTIN (_T, x, f) INFER ⊢ 
+                /**/
+                let compose = λ f • λ g • λ x • f(g x) in
+                let id =   λ x • x in
+                compose id id 1 → _T
+        AND WHERE compose NOTIN (_T, x, f) AND id NOTIN (_T, x, f) INFER ⊢ 
+                /**/
+                let compose = λ f • λ g • λ x • f(g x) in
+                let id =   λ x • x in
+                id (compose id id 1) → _T
+        
+        AND INFER ⊢
+                /**/
+                let comp = λ f • λ g • λ x • f(g x) in
+                let id =   λ x • x in
+                comp id id 1 → _T
+        
+        END
+        
 END
 
-/*	An environment-based semantics */
-	
-	TACTIC Var IS  (LAYOUT "Var" () Variable Lookup)
+/*      An environment-based semantics */
+        
+        TACTIC Var IS  (LAYOUT "Var" () Variable Lookup)
 
 USE   "mapping.j"
 CLASS FORMULA env
@@ -156,77 +156,77 @@ CLASS FORMULA env
 
 /*  Part 2: Evaluation rules 
 
-	env ⊢ term → value
+        env ⊢ term → value
 
-*/	
-	RULE  Variable
-	FROM  env ⫢ x ⊸ V
-	INFER env ⊢ x → V
-	
-	RULE  App 
-	FROM  env	  ⊢ R → ((λ x • S), env')
-	AND   env	  ⊢ T → V
-	AND   env' ⊕ x⊸V  ⊢ S → U 
-	INFER env	  ⊢ R T → U
-	
-	RULE  Let 
-	FROM  env	  ⊢ T → V
-	AND   env  ⊕ x⊸V  ⊢ S → U 
-	INFER env	  ⊢ let x=T in S → U
-	
-	RULE  Abs  IS env ⊢ (λ x • S) → ((λ x • S), env)
-	
-	RULE  Con  IS env ⊢ con		→ con 
-	
-	
-/* Part 3: Mechanisation */	   
+*/      
+        RULE  Variable
+        FROM  env ⫢ x ⊸ V
+        INFER env ⊢ x → V
+        
+        RULE  App 
+        FROM  env         ⊢ R → ((λ x • S), env')
+        AND   env         ⊢ T → V
+        AND   env' ⊕ x⊸V  ⊢ S → U 
+        INFER env         ⊢ R T → U
+        
+        RULE  Let 
+        FROM  env         ⊢ T → V
+        AND   env  ⊕ x⊸V  ⊢ S → U 
+        INFER env         ⊢ let x=T in S → U
+        
+        RULE  Abs  IS env ⊢ (λ x • S) → ((λ x • S), env)
+        
+        RULE  Con  IS env ⊢ con         → con 
+        
+        
+/* Part 3: Mechanisation */        
 
 TACTIC Evaluate IS
-	(WHEN (LETGOAL ((_R _S)		  → _U) App)
-	      (LETGOAL ((λ _x • _S)	  → _U) Abs)
-	      (LETGOAL (_x		  → _U) Var)
-	      (LETGOAL (_con		  → _U) Con)
-	      (LETGOAL ((let _x=_S in _T) → _U) Let))
+        (WHEN (LETGOAL ((_R _S)           → _U) App)
+              (LETGOAL ((λ _x • _S)       → _U) Abs)
+              (LETGOAL (_x                → _U) Var)
+              (LETGOAL (_con              → _U) Con)
+              (LETGOAL ((let _x=_S in _T) → _U) Let))
 
 CONCHIT env ⊢ _S → T IS Evaluate
 
-/*	Part 4: Problems	*/
+/*      Part 4: Problems        */
 
 CONJECTUREPANEL Evaluations
-	BUTTON		"Var"		    IS apply  Var
-	BUTTON		"App"		    IS apply  App
-	BUTTON		"Abs"		    IS apply  Abs
-	BUTTON		"Let"		    IS apply  Let
-	BUTTON		"One Step"	    IS apply  Evaluate
-	
-	THEOREMS Reductions(f, x, y) 
-	ARE WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER ▪  ⊢ 
-		/**/
-		let compose = λ f • λ g • λ x • f(g x) in
-		let id =   λ x • x in
-		compose id id 1 → _T
-	AND WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER ▪  ⊢ 
-		/**/
-		let compose = λ f • λ g • λ x • f(g x) in
-		let id =   λ x • x in
-		id (compose id id 1) → _T
-	
-	AND INFER ▪  ⊢
-		/**/
-		let comp = λ f • λ g • λ x • f(g x) in
-		let id =   λ x • x in
-		comp id id 1 → _T
-	END
+        BUTTON          "Var"               IS apply  Var
+        BUTTON          "App"               IS apply  App
+        BUTTON          "Abs"               IS apply  Abs
+        BUTTON          "Let"               IS apply  Let
+        BUTTON          "One Step"          IS apply  Evaluate
+        
+        THEOREMS Reductions(f, x, y) 
+        ARE WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER ▪  ⊢ 
+                /**/
+                let compose = λ f • λ g • λ x • f(g x) in
+                let id =   λ x • x in
+                compose id id 1 → _T
+        AND WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER ▪  ⊢ 
+                /**/
+                let compose = λ f • λ g • λ x • f(g x) in
+                let id =   λ x • x in
+                id (compose id id 1) → _T
+        
+        AND INFER ▪  ⊢
+                /**/
+                let comp = λ f • λ g • λ x • f(g x) in
+                let id =   λ x • x in
+                comp id id 1 → _T
+        END
 END
 
 /* Details of the user interface */
 MENU Edit
-	RADIOBUTTON displaystyle
-	     "Sequent-Tree display style"  IS tree
-	AND  "Box display style"	   IS box
-	INITIALLY
-	     box
-	END
+        RADIOBUTTON displaystyle
+             "Sequent-Tree display style"  IS tree
+        AND  "Box display style"           IS box
+        INITIALLY
+             box
+        END
 END
 
 

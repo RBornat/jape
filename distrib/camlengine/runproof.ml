@@ -1,5 +1,5 @@
 (*
-	$Id$
+        $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -195,12 +195,12 @@ let rec doProof report query env name stage seq (givens, pros, tac) disproofopt 
      (fun (state, proved) ->
         let disproved = checkdisproof (proofstate_cxt state) (proofstate_tree state) disproofopt in
         let stage =
-	  match stage, proved, disproved with
-	    Complete, false, false -> 
-	      complain ["is recorded as complete but is neither proved nor disproved"];
-	      InProgress
-	  | _, _, _ -> stage
-	in
+          match stage, proved, disproved with
+            Complete, false, false -> 
+              complain ["is recorded as complete but is neither proved nor disproved"];
+              InProgress
+          | _, _, _ -> stage
+        in
         if stage = Complete then
           begin
             let _ = (addproof report query name proved state disproved disproofopt : bool) in

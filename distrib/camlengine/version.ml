@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -61,6 +61,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.14  2004/02/09 19:16:18  richard
+     Copyright 2003-4
+
      Revision 1.13  2003/03/10 11:24:54  richard
      better reading of version
 

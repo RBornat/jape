@@ -1,5 +1,5 @@
 (* 
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -48,8 +48,8 @@ let string_of_chars cs =
   let len = List.length cs in
   let s = String.create len in
   let rec ii n cs = 
-	match cs with (c::cs) -> (s.[n]<-c; ii (n+1) cs)
-	|             []      -> ()
+    match cs with (c::cs) -> (s.[n]<-c; ii (n+1) cs)
+    |             []      -> ()
   in
   (ii 0 cs; s) 
   
@@ -68,7 +68,7 @@ let ord s = ordof s 0
 
 let rec revapp f xs =
   match xs with
-	[]    -> ()
+    []    -> ()
   | x::xs -> revapp f xs; f x
 
 let fSome v = Some v

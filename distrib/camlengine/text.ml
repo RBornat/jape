@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -61,7 +61,7 @@ let rec string_of_syllable =
   | Gap i           -> "Gap " ^ string_of_int i
   | Linebreak i     -> "Linebreak " ^ string_of_int i
   | Block (c, sys)  -> "Block(" ^ string_of_textalign c ^ "," ^
-		                  bracketedstring_of_list string_of_syllable "," sys ^ ")"
+                          bracketedstring_of_list string_of_syllable "," sys ^ ")"
 
 let string_of_text =
   fun (Text sys) -> "Text" ^ bracketedstring_of_list string_of_syllable "," sys

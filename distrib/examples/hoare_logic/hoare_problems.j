@@ -20,14 +20,16 @@ CONJECTUREPANEL "Programs"  IS
 END
 
 CONJECTUREPANEL "Lemmas" IS 
-    THEOREM (OBJECT x) WHERE i NOTIN n IS
-	{n≥2} (i:=2) {2≤i ∧ i≤n ∧ ∀x.(2≤x ∧ x<i → n mod x ≠0)}
-    THEOREM (OBJECT x) WHERE i NOTIN n IS
-	{2≤i ∧ i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧n mod i≠0∧n-i=Km}(i:=i+1){n-i<Km}
-    THEOREM (OBJECT x) WHERE i NOTIN n IS
-	2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧n mod i≠0→n-i>0
-    THEOREM (OBJECT x) WHERE i NOTIN n IS
-	{2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧n mod i≠0}
-	    (i:=i+1)
-	{2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)}
+  THEOREM (OBJECT x) WHERE i NOTIN n IS
+    {n≥2} (i:=2) {2≤i ∧ i≤n ∧ ∀x.(2≤x ∧ x<i → n mod x ≠0)}
+  THEOREM (OBJECT x) WHERE i NOTIN n IS
+    {2≤i ∧ i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧n mod i≠0∧n-i=Km}(i:=i+1){n-i<Km}
+  THEOREM (OBJECT x) WHERE i NOTIN n IS
+    2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧n mod i≠0→n-i>0
+  THEOREM (OBJECT x) WHERE i NOTIN n IS
+    {2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧n mod i≠0}
+        (i:=i+1)
+    {2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)}
+  DERIVED RULE WHERE x NOTIN A, B IS
+    FROM ∀x.(A≤x∧x<B→P(x)) AND P(B) INFER ∀x.(A≤x∧x<B+1→P(x))
 END

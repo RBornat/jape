@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -31,7 +31,7 @@ type associativity =
   LeftAssoc | RightAssoc | AssocAssoc | TupleAssoc | CommAssocAssoc
 
 type symbol =
-	ID       of (string * idclass option)
+    ID       of (string * idclass option)
   | UNKNOWN  of (string * idclass option)
   | NUM      of string
   | STRING   of string

@@ -1,10 +1,16 @@
 ﻿/* $Id$ */
 
 TACTIC TheoremForwardOrBackward(thm) IS
-  WHEN	(LETHYP _P cut (ALT (WITHSELECTIONS thm) (RESOLVE (WITHSELECTIONS thm))))
-	(ALT (WITHSELECTIONS thm) (RESOLVE (WITHSELECTIONS thm)) 
-	    (SEQ cut (ALT (WITHSELECTIONS thm) (RESOLVE (WITHSELECTIONS thm))))
-	)
+  WHEN  
+    (LETHYP _P 
+        cut 
+        (ALT 
+            (WITHSELECTIONS thm) 
+            (RESOLVE (WITHSELECTIONS thm))))
+    (ALT 
+        (WITHSELECTIONS thm) 
+        (RESOLVE (WITHSELECTIONS thm)) 
+        (SEQ cut (ALT (WITHSELECTIONS thm) (RESOLVE (WITHSELECTIONS thm)))))
   
 /* These theorems are all stated without an explicit left context Γ. That is possible because, in ItL_rules.j,
   * we declared a WEAKEN structure rule: Jape will automatically discard any unmatched left-context
@@ -30,8 +36,8 @@ CONJECTUREPANEL Conjectures
     THEOREM INFER   (P ∧ Q) → R ⊢ P → (Q → R)
     THEOREM INFER   P → (Q → R) ⊢ (P ∧ Q) → R
   
-    THEOREM INFER   P ⊢ P ∨ Q	
-    THEOREM INFER   Q ⊢ P ∨ Q	
+    THEOREM INFER   P ⊢ P ∨ Q   
+    THEOREM INFER   Q ⊢ P ∨ Q   
   
     THEOREM INFER   P ∨ Q ⊢ Q ∨ P
     THEOREM INFER   Q → R ⊢ (P ∨ Q) → (P ∨ R)

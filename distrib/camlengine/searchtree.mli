@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -30,11 +30,11 @@ type ('c, 'r) searchtree and ('c, 'r) fsm
 type ('r, 's) searchresult = Found of ('r * 's) | NotFound of 's
 
 val addtotree       : ('r * 'r -> bool) -> ('c, 'r) searchtree -> 'c list * 'r * bool
-				   -> ('c, 'r) searchtree
+                   -> ('c, 'r) searchtree
 val deletefromtree  : ('r * 'r -> bool) -> ('c, 'r) searchtree -> 'c list * 'r * bool
                    -> ('c, 'r) searchtree
 val emptysearchtree : (('c * ('c, 'r) fsm) list -> ('c, 'r) fsm -> 'c -> ('c, 'r) fsm)
-				   -> ('c, 'r) searchtree
+                   -> ('c, 'r) searchtree
 val summarisetree   : ('c, 'r) searchtree -> ('c list * 'r * bool) list
 
 val rootfsm         : ('c, 'r) searchtree ref -> ('c, 'r) fsm
@@ -47,7 +47,7 @@ val scanstatefsm    : ('a -> 'c) -> ('a -> 'a) -> ('c, 'r) fsm -> 'a
 val searchfsm       : ('c, 'r) fsm -> 'c list -> ('r, 'c list) searchresult
 
 val catelim_string_of_fsm : ('c -> string list -> string list)
-					 -> ('r -> string list -> string list) -> ('c, 'r) fsm -> string list
-					 -> string list
+                     -> ('r -> string list -> string list) -> ('c, 'r) fsm -> string list
+                     -> string list
 
 exception DeleteFromTree_

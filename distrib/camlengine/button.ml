@@ -1,5 +1,5 @@
 (*
-	$Id$
+        $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -50,24 +50,24 @@ type name = Name.name
 let reportGUIdead = Interaction.reportGUIdead
 
 type button = UndoProofbutton
-	    | RedoProofbutton
-	    | UndoDisproofbutton
-	    | RedoDisproofbutton
-	    | Finishedbutton
-	    | Resetbutton
-	    | Savebutton
-	    | SaveAsbutton
-	    | Disprovebutton
+            | RedoProofbutton
+            | UndoDisproofbutton
+            | RedoDisproofbutton
+            | Finishedbutton
+            | Resetbutton
+            | Savebutton
+            | SaveAsbutton
+            | Disprovebutton
 
 type mybutton = MyUndoProof
-	      | MyRedoProof
-	      | MyUndoDisproof
-	      | MyRedoDisproof
-	      | MyDone
-	      | MyReset
-	      | MySave
-	      | MySaveAs
-	      | MyDisprove
+              | MyRedoProof
+              | MyUndoDisproof
+              | MyRedoDisproof
+              | MyDone
+              | MyReset
+              | MySave
+              | MySaveAs
+              | MyDisprove
 
 
 let buttoncache : (mybutton, bool ref) mapping ref = ref empty
