@@ -24,3 +24,8 @@ POPSYNTAX
 USE "hoare_menus.j"
 
 USE "../forwardstep_technology/forwardstep.j"
+USE "../backwardstep_technology/backwardstep.j"
+
+USE "../explain_technology/explain_basics.j"
+USE "../explain_technology/explain_words.j"
+USE "../explain_technology/explain_selections.j"
