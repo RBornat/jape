@@ -72,7 +72,7 @@ class TextItem extends DisplayItem implements DebugConstants {
 
     static Color bra2TextColour(char c) {
         return c==onbra  ? Preferences.ForcedColour :
-               c==offbra ? Preferences.OnColour :
+               c==offbra ? Preferences.TextColour :
     /* c==outbra assumed */ Preferences.OutColour;
     }
 
@@ -98,6 +98,28 @@ class TextItem extends DisplayItem implements DebugConstants {
         Vector cs = new Vector();
         computeColourSegs((char)0, Preferences.TextColour, false, cs);
         coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
+        if (colourseg_tracing) {
+            System.err.print("printtext=\""+printtext+"; annottext=\"");
+            for (int i=0; i<annottext.length(); i++) {
+                char c = annottext.charAt(i);
+                System.err.print(c==onbra   ? "*ON("  :
+                                 c==onket   ? ")NO*"  :
+                                 c==offbra  ? "*OFF("  :
+                                 c==offket  ? ")FFO*"  :
+                                 c==outbra  ? "*OUT("  :
+                                 c==outket  ? ")TUO*"  :
+                                 c==lockbra ? "*LOCK(" :
+                                 c==lockket ? ")KCOL*" :
+                                              String.valueOf(c));
+            }
+            System.err.print("\"; coloursegs=[");
+            for (int i=0; i<coloursegs.length; i++) {
+                System.err.print(coloursegs[i]);
+                if (i+1<coloursegs.length)
+                    System.err.print(", ");
+            }
+            System.err.println("]");
+        }
     }
 
     // TextItems can have a selection halo
@@ -133,10 +155,15 @@ class TextItem extends DisplayItem implements DebugConstants {
         }
         
         public String toString() {
-            return "ColourSeg[colour="+colour+
+            return "ColourSeg[colour="+
+                   (colour==Preferences.OutColour    ? "OutColour"      :
+                    colour==Preferences.ForcedColour ? "ForcedColour"   :
+                    colour==Preferences.TextColour   ? "Off/TextColour" :
+                                                       "??"+colour       )+
                    ", start="+start+
                    ", end="+end+
                    ", pxstart="+pxstart+
+                   ", chars=\""+(new String(printchars, start, end-start))+"\""+
                    "]";
         }
     }
@@ -152,7 +179,8 @@ class TextItem extends DisplayItem implements DebugConstants {
                 cseg.end=end; return;
             }
         }
-        cs.add(new ColourSeg(colour, start, end));
+        if (start!=end)
+            cs.add(new ColourSeg(colour, start, end));
     }
     
     protected void computeColourSegs(char expectedket, Color colour, boolean locked, Vector cs) {
@@ -161,18 +189,17 @@ class TextItem extends DisplayItem implements DebugConstants {
         while (annoti<annotlen) {
             c = annottext.charAt(annoti++);
             if (invisbra(c)) {
-                boolean newlocked = locked || c==lockbra;
-                Color newcolour = bra2TextColour(c);
-                char newket = bra2ket(c);
                 extendColourSeg(cs, colour, i0, printi);
+                boolean newlocked = locked || c==lockbra;
+                Color newcolour = newlocked ? colour : bra2TextColour(c);
+                char newket = bra2ket(c);
                 computeColourSegs(newket, newcolour, newlocked, cs);
                 i0 = printi;
             }
             else
             if (invisket(c)) {
                 if (c==expectedket) {
-                    extendColourSeg(cs, colour, i0, printi);
-                    return;
+                    extendColourSeg(cs, colour, i0, printi); return;
                 }
                 else
                     Alert.abort("TextItem.computeColourSegs saw "+(int)c+
