@@ -47,74 +47,77 @@ String[] unicodeButtons = new String[]
 ,	"\u2265"	// >=		≥
 ,	"\u226a"	// <<		≪
 ,	"\u226b"	// >>		≫
-,	"\u00ab"	// Guille 	«
-,	"\u00bb"	// Mots 	»
-,       "--Set Theory"
+,	"\u00ab"	// Guille 		«
+,	"\u00bb"	// Mots 		»
+,	"\u201c"	// openquotes	“
+,	"\u201d"	// closequotes	”
+,       "--Sets"
 ,	"\u2205"	// empty	∅
 ,	"\u2208"	// element	∈
 ,	"\u2209"	// notelement	∉
 ,	"\u220b"	// owns		∋
 ,	"\u220c"	// notowns	∌
 ,	"\u2229"	// intersection	∩
-,	"\u222a"	// union	∪
-,	"\u2282"	// ⊂
-,	"\u2283"	// ⊃
-,	"\u2286"	// ⊆
-,	"\u2287"	// ⊇
-,	"\u2288"	// ⊈
-,	"\u2289"	// ⊉
-,	"\u228e"	// ⊎
-,	"\u228f"	// sqsub ⊏
-,	"\u2290"	// sqsup ⊐
-,	"\u2291"	// sqsubeq ⊑
-,	"\u2292"	// sqsupeq ⊒
-,	"\u2293"	// glb 	⊓
-,	"\u2294"	// lub	⊔
+,	"\u222a"	// union		∪
+,	"\u2282"	// 			⊂
+,	"\u2283"	// 			⊃
+,	"\u2286"	// 			⊆
+,	"\u2287"	// 			⊇
+,	"\u2288"	// 			⊈
+,	"\u2289"	// 			⊉
+,	"\u228e"	// 			⊎
+,	"\u228f"	// sqsub 		⊏
+,	"\u2290"	// sqsup 		⊐
+,	"\u2291"	// sqsubeq 	⊑
+,	"\u2292"	// sqsupeq 	⊒
+,	"\u2293"	// glb 		⊓
+,	"\u2294"	// lub		⊔
 ,	"--Operators"
-,	"\u2295"	// ⊕
-,	"\u2296"	// ⊖
-,	"\u2297"	// ⊗
-,	"\u2298"	// ⊘
-,	"\u2299"	// ⊙
-,	"\u229a"	// ⊚
-,	"\u229b"	// ⊛
+,	"\u2295"	// 			⊕
+,	"\u2296"	// 			⊖
+,	"\u2297"	// 			⊗
+,	"\u2298"	// 			⊘
+,	"\u2299"	// 			⊙
+,	"\u229a"	// 			⊚
+,	"\u229b"	// 			⊛
 ,	"\u22b2"	// <|		⊲
 ,	"\u22b3"	// |>		⊳
 ,	"\u2218"	// compose	∘
-,	"\u2219"	// bigdot	∙
+,	"\u2219"	// bigdot		∙
+,	"\u2022"	// biggerdot	∙
 ,	"\u22c8"	// join		⋈
-,	"\u2191"	// uparrow
-,	"\u2193"	// downarrow
+,	"\u2191"	// uparrow	↑
+,	"\u2193"	// downarrow	↓
 ,	"--Turnstiles"
 ,	"\u22a2"	// turnstile	⊢
 ,	"\u22a3"	// stileturn	⊣
 ,	"\u22a4"	// top		⊤
-,	"\u22a5"	// bottom	⊥
-,	"\u22a8"	// models	⊨
+,	"\u22a5"	// bottom		⊥
+,	"\u22a8"	// models		⊨
 ,	"\u2234"	// therefore	∴
-,	"\u2235"	// so		∵
-,	"\u2237"	// ::		∷
+,	"\u2235"	// so			∵
+,	"\u2237"	// ::			∷
 ,	"\u22a9"	// ||-		⊩
 ,	"\u22aa"	// |||-		⊪
 ,	"\u22ab"	// ||=		⊫
-,	"\u22ac"	// notstile	⊬
+,	"\u22ac"	// notstile		⊬
 ,	"\u22ad"	// notmodels	⊭
 ,	"\u22ae"	// /||-		⊮
 ,	"\u22af"	// /||=		⊯
 // 	Dingbat stuff
 ,	"--Dingbats"
-,	"\u2605"	// 5*		★		
-,	"\u260e"	// phone	☎
+,	"\u2605"	// 5*			★		
+,	"\u260e"	// phone		☎
 ,	"\u261b"	// pointsto	☛
-,	"\u2640"	// female	♀
+,	"\u2640"	// female		♀
 ,	"\u2642"	// male		♂
 ,	"\u2713"	// tick		✓
-,	"\u2714"	// fattick	✔
+,	"\u2714"	// fattick		✔
 ,	"\u2716"	// fatcross	✖
 ,	"\u2717"	// wavycross	✗
 ,	"\u2718"	// wavyfatcross	✘
-,	"\u20ac"	// € Euro
-,	"\u20a4"	// ₤ Sterling
+,	"\u20ac"	// Euro		€ 
+,	"\u20a4"	// Sterling	₤ 
 };
 
 /*
