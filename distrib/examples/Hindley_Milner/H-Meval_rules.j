@@ -23,7 +23,7 @@ BIND t1,t2 SCOPE T IN Ë (t1,t2) . T
 BIND t1,t2,t3 SCOPE T IN Ë (t1,t2,t3) . T
 BIND t1,t2,t3,t4 SCOPE T IN Ë (t1,t2,t3,t4) . T
 
-PREFIX ^ /* how I wish we had control over the priority of prefix operators ... */
+PREFIX # /* how I wish we had control over the priority of prefix operators ... */
 
 INFIX   30 30 and
 INFIX	   40 40 º
@@ -55,38 +55,38 @@ SEQUENT IS LIST Ê FORMULA
 
 RULES letrules ARE
 	FROM C Ê E : T1 
-	AND C Ê ^T1«S1 
+	AND C Ê #T1«S1 
 	AND C,x€S1 Ê F:T	
 	INFER C Ê let x=E in F end : T
 AND	FROM C Ê (E1,E2) : T1ÙT2 
-	AND C Ê ^T1º^T2«S1ºS2 
+	AND C Ê #T1º#T2«S1ºS2 
 	AND C,x1€S1,x2€S2 Ê F:T
 	INFER C Ê let x1=E1 and x2=E2 in F end : T
 AND	FROM C Ê (E1,(E2,E3)) : T1Ù(T2ÙT3) 
-	AND C Ê ^T1º^T2º^T3«S1ºS2ºS3 
+	AND C Ê #T1º#T2º#T3«S1ºS2ºS3 
 	AND C,x1€S1,x2€S2,x3€S3 Ê F:T
 	INFER C Ê let x1=E1 and x2=E2 and x3=E3 in F end : T
 AND	FROM C Ê ((E1,E2),(E3,E4)) : (T1ÙT2)Ù(T3ÙT4) 
-	AND C Ê ^T1º^T2º^T3º^T4«S1ºS2ºS3ºS4
+	AND C Ê #T1º#T2º#T3º#T4«S1ºS2ºS3ºS4
 	AND C,x1€S1,x2€S2,x3€S3,x4€S4 Ê F:T
 	INFER C Ê let x1=E1 and x2=E2 and x3=E3 and x4=E4 in F end : T
 END
 
 RULES letrecrules ARE
-	FROM C,x€^T1 Ê E:T1 
-	AND C Ê ^T1«S1 
+	FROM C,x€#T1 Ê E:T1 
+	AND C Ê #T1«S1 
 	AND C,x€S1 Ê F:T	
 	INFER C Ê letrec x=E in F end : T
-AND	FROM C,x1€^T1,x2€^T2 Ê (E1,E2) : T1ÙT2 
-	AND C Ê ^T1º^T2«S1ºS2 
+AND	FROM C,x1€#T1,x2€#T2 Ê (E1,E2) : T1ÙT2 
+	AND C Ê #T1º#T2«S1ºS2 
 	AND C,x1€S1,x2€S2 Ê F:T	
 	INFER C Ê letrec x1=E1 and x2=E2 in F end : T
-AND	FROM C,x1€^T1,x2€^T2,x3€^T3 Ê (E1,(E2,E3)) : T1Ù(T2ÙT3) 
-	AND C Ê ^T1º^T2º^T3«S1ºS2ºS3 
+AND	FROM C,x1€#T1,x2€#T2,x3€#T3 Ê (E1,(E2,E3)) : T1Ù(T2ÙT3) 
+	AND C Ê #T1º#T2º#T3«S1ºS2ºS3 
 	AND C,x1€S1,x2€S2,x3€S3 Ê F:T
 	INFER C Ê letrec x1=E1 and x2=E2 and x3=E3 in F end : T
-AND	FROM C,x1€^T1,x2€^T2,x3€^T3,x4€^T4 Ê ((E1,E2),(E3,E4)) : (T1ÙT2)Ù(T3ÙT4) 
-	AND C Ê ^T1º^T2º^T3º^T4«S1ºS2ºS3ºS4 
+AND	FROM C,x1€#T1,x2€#T2,x3€#T3,x4€#T4 Ê ((E1,E2),(E3,E4)) : (T1ÙT2)Ù(T3ÙT4) 
+	AND C Ê #T1º#T2º#T3º#T4«S1ºS2ºS3ºS4 
 	AND C,x1€S1,x2€S2,x3€S3,x4€S4 Ê F:T
 	INFER C Ê letrec x1=E1 and x2=E2 and x3=E3 and x4=E4 in F end : T
 END
@@ -96,8 +96,8 @@ RULES constants ARE
 AND	C Ê tl€(Ët.{t}Á{t})
 AND	C Ê (‹)€(Ët.tÁ{t}Á{t})
 AND	C Ê nil€(Ët.{t})
-AND	C Ê (+)€^(numÁnumÁnum)
-AND	C Ê (-)€^(numÁnumÁnum)
+AND	C Ê (+)€#(numÁnumÁnum)
+AND	C Ê (-)€#(numÁnumÁnum)
 AND C Ê (=)€(Ët.tÁtÁbool)
 END
 
@@ -107,21 +107,21 @@ RULE "C Ê c€S" WHERE c NOTIN C' IS INFER C,c€S,C' Ê c€S
 IDENTITY "C Ê x€S"
 IDENTITY "C Ê c€S"
 
-RULE "C Ê x:T" IS FROM CÊx€S AND CÊS»T INFER CÊx:T
-RULE "C Ê c:T" IS FROM CÊc€S AND CÊS»T INFER CÊc:T
+RULE "C Ê x:T" IS FROM CÊx€S AND S»T INFER CÊx:T
+RULE "C Ê c:T" IS FROM CÊc€S AND S»T INFER CÊc:T
 
 RULES "S»T" ARE
-	INFER C Ê ^T » T
-AND	INFER C Ê (Ët.T) » T[t\T1]
-AND	INFER C Ê (Ë(t1,t2).T) » T[t1,t2\T1,T2]
-AND	INFER C Ê (Ë(t1,t2,t3).T) » T[t1,t2,t3\T1,T2,T3]
-AND	INFER C Ê (Ë(t1,t2,t3,t4).T) » T[t1,t2,t3,t4\T1,T2,T3,T4]
+	INFER #T » T
+AND	INFER (Ët.T) » T[t\T1]
+AND	INFER (Ë(t1,t2).T) » T[t1,t2\T1,T2]
+AND	INFER (Ë(t1,t2,t3).T) » T[t1,t2,t3\T1,T2,T3]
+AND	INFER (Ë(t1,t2,t3,t4).T) » T[t1,t2,t3,t4\T1,T2,T3,T4]
 END
 
 MENU Rules IS	
 	RULE "F G : T"		FROM C Ê F: T1ÁT2 AND C Ê G : T1 	INFER  C Ê F G : T2
 	RULE "(˚x.E) : T1ÁT2"
-					FROM C,x€^T1 Ê E:T2 			INFER C Ê (˚x.E) : T1ÁT2
+					FROM C,x€#T1 Ê E:T2 			INFER C Ê (˚x.E) : T1ÁT2
 	RULE "(E,F) : T1ÙT2"	
 					FROM C Ê E: T1 AND C Ê F: T2		INFER C Ê (E,F) : T1ÙT2
 	RULE "if E then ET else EF fi : T"
@@ -161,7 +161,7 @@ MENU Rules IS
 	
 END
     
-RULE "^T«S" IS			FROM C Ê T • () • Ts AND C Ê (T,Ts) • S		INFER C Ê ^T « S
+RULE "#T«S" IS			FROM C Ê T • () • Ts AND C Ê (T,Ts) • S		INFER C Ê #T « S
 RULE "T1ºT2«S1ºS2" IS	FROM C Ê T1«S1 AND C Ê T2«S2		INFER C Ê T1ºT2«S1ºS2
 
 RULE "t•..." (OBJECT t) WHERE t NOTIN C AND t NOTIN Ts IS			INFER C Ê t • Ts • (t,Ts)
@@ -172,7 +172,7 @@ RULE "T1ÙT2•..."		FROM C Ê T1• Tsin • Tsmid AND C Ê T2 • Tsmid • Tsout
 RULE "T•..."												INFER C Ê T • Ts • Ts
 
 RULES"«" ARE
-	INFER C Ê (T,()) • ^T
+	INFER C Ê (T,()) • #T
 AND	INFER C Ê (T,(t,())) • (Ët.T)
 AND INFER C Ê (T,(t2,(t1,()))) • (Ë(t1,t2).T)
 AND INFER C Ê (T,(t3,(t2,(t1,())))) • (Ë(t1,t2,t3).T)
@@ -183,7 +183,7 @@ TACTIC geninduct IS ALT "t•..." (SEQ (MATCH (ALT "T1ÁT2•..." "T1ÙT2•...")) genin
 
  TACTIC generalise IS
  	 LAYOUT "generalise %s" ()  
-		(ALT	(SEQ "^T«S" geninduct "«")
+		(ALT	(SEQ "#T«S" geninduct "«")
 			(SEQ "T1ºT2«S1ºS2" generalise generalise)
 		)
 
