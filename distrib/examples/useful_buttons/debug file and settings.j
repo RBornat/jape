@@ -14,6 +14,7 @@ MENU Edit IS
   CHECKBOX rewritedebug  "trace rewrites"
   CHECKBOX substdebug    "trace substitution simplification"
   CHECKBOX thingdebug    "trace rule/theorem/tactic store/retrieve"
+  CHECKBOX symboldebug	 "trace lexical analysis"
   SEPARATOR
   CHECKBOX showallprovisos "show all provisos"
   CHECKBOX showallproofsteps	"show all proof steps"
