@@ -44,10 +44,9 @@ public interface SelectionConstants {
 
     // bit selectors for recorded selections
     public static final byte NoSel        = 0,
-                             HypSel       = 1<<0,
-                             ConcSel      = 1<<1,
-                             ReasonSel    = 1<<2,
-                             AmbigSel     = 1<<3;
+                             HypSel       = 1<<1,
+                             ConcSel      = 1<<2,
+                             ReasonSel    = 1<<3;
 
     public static final byte NewWorldDrag  = 1,
                              MoveWorldDrag = 2;
