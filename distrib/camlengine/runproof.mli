@@ -27,7 +27,7 @@ open Name
 open Proofstage
 open Proofstate
 open Proviso
-open Sequent.Funs
+open Seqtype
 open Tactictype
 
 val proofsdone : bool ref

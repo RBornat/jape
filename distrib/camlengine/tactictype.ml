@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -25,13 +25,13 @@
  * RB
  *)
 
-open Name
-open Sequent.Funs
-open Termfuns
-open Treelayout
+type term = Termtype.term
+ and seq  = Seqtype.seq
+ and name = Nametype.name
+ and treelayout = Treelayout.treelayout
  
 type tactic =
-	SkipTac
+    SkipTac
   | FailTac
   | StopTac
   | NextgoalTac
@@ -101,7 +101,7 @@ type tactic =
   | BadProvisoTac of (name * name * name * tactic)
   | UnifyArgsTac
 and pathexpr =
-	Parent of pathexpr
+    Parent of pathexpr
   | LeftSibling of pathexpr
   | RightSibling of pathexpr
   | Subgoal of (pathexpr * term)

@@ -27,7 +27,7 @@ open Name
 open Proofstage
 open Prooftree.Tree.Fmttree
 open Proviso
-open Sequent.Funs
+open Seqtype
 open Thing
 
 val saveable : unit -> bool

@@ -170,7 +170,7 @@ module type Tree =
 *)
 
 module Tree : Tree with type term = Termtype.term
-                    and type seq = Sequent.Type.seq
+                    and type seq = Seqtype.seq
                     and type vid = Termtype.vid
                     and type element = Termtype.element
                     and type name = Name.name
@@ -198,8 +198,8 @@ module Tree : Tree with type term = Termtype.term
     open Rewinf
     open Rewrite
     open Rew
-    open Sequent.Funs
-    open Sequent.Type
+    open Sequent
+    open Seqtype
     open Sml
     open Stringfuns
     open Tactictype
@@ -214,7 +214,7 @@ module Tree : Tree with type term = Termtype.term
     open Treelayout
 
     type term = Termtype.term
-     and seq = Sequent.Type.seq
+     and seq = Seqtype.seq
      and vid = Termtype.vid
      and element = Termtype.element
      and name = Name.name

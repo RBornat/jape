@@ -44,8 +44,8 @@ open Prooftree.Tree.Fmttree
 open Proofstore
 open Rewrite
 open Runproof
-open Sequent.Funs
-open Sequent.Type
+open Sequent
+open Seqtype
 open Sml
 open Stringfuns
 open Tacticfuns
@@ -73,7 +73,7 @@ let rec resetallcachesandvariables () =
   Minwaste.resetminwcache ();
   Proofstore.clearproofs ();
   Proofstate.clearautorules ();
-  Sequent.Funs.resetsyntaxandturnstiles ();
+  Sequent.resetsyntaxandturnstiles ();
   Symbol.resetSymbols ();
   Tacticfuns.resetcaches ();
   Termstore.resettermstore ();
@@ -167,7 +167,7 @@ let defaultenv =
 and ajd r = aj !r r in
 (* default settings for all variables accessible via Japeish *)
 let pairs =
-  ["alwaysshowturnstile"  , bj                         false        Sequent.Funs.alwaysshowturnstile;
+  ["alwaysshowturnstile"  , bj                         false        Sequent.alwaysshowturnstile;
    "applyconjectures"     , bj                         true         Miscellaneous.applyconjectures;
    "applydebug"           , ij                         0            Applyrule.applydebug;
    "applyderivedrules"    , bj                         true         Miscellaneous.applyderivedrules;

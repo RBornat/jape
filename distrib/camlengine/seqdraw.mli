@@ -23,7 +23,7 @@
 open Box
 open Displayclass
 open Draw
-open Sequent.Funs
+open Seqtype
 open Termtype
 
 type planclass =

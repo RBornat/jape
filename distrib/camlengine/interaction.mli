@@ -26,7 +26,7 @@ open Hit
 open Context.Type
 open Displaystate
 open Termtype
-open Sequent.Type
+open Seqtype
 
 type command =
     TextCommand of string list

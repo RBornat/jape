@@ -32,7 +32,7 @@ open Panelkind
 open Paraparam
 open Proofstage
 open Proviso
-open Sequent.Funs
+open Sequent
 open Sml
 open Symbol
 open Symboltype
@@ -699,7 +699,7 @@ and processSemanticTurnstileSpec () =
        | _ -> false)
       "as semantic turnstile"
   in
-  Sequent.Funs.setsemanticturnstile syn sem
+  Sequent.setsemanticturnstile syn sem
 
 and parseRule report axiom =
   if member

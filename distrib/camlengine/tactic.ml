@@ -39,7 +39,7 @@ open Nametype
 open Name
 open Optionfuns
 open Sml
-open Sequent.Funs
+open Sequent
 open Stringfuns
 open Termfuns
 open Termstring

@@ -22,7 +22,7 @@
 
 open Context.Cxt
 open Termtype
-open Sequent.Type
+open Seqtype
 open Rewinf
 open Proviso
 

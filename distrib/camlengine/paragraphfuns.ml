@@ -51,8 +51,8 @@ let proofstage2word = Proofstage.proofstage2word
 let provisostring = Proviso.provisostring
 let provisovars =
   Proviso.provisovars Termfuns.termvars Termfuns.tmerge
-let seqstring = Sequent.Funs.seqstring
-let seqvars = Sequent.Funs.seqvars Termfuns.termvars Termfuns.tmerge
+let seqstring = Sequent.seqstring
+let seqvars = Sequent.seqvars Termfuns.termvars Termfuns.tmerge
 let setfontstuff = Button.setfontstuff
 let setmenuentry = Japeserver.menuentry
 (* let setpanelbutton = Japeserver.setpanelbutton *)

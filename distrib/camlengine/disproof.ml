@@ -38,7 +38,7 @@ open Mappingfuns
 open Optionfuns
 open Predicate
 open Seqdraw
-open Sequent.Funs
+open Sequent
 open Sml
 open Termfuns
 open Termstore
@@ -50,26 +50,26 @@ type forcedef = Forcedef.forcedef
 let atoi = Miscellaneous.atoi
 let askChoice = Alert.askChoice
 let base_sequent = Prooftree.Tree.Fmttree.sequent
-let catelim_seqstring = Sequent.Funs.catelim_seqstring
+let catelim_seqstring = Sequent.catelim_seqstring
 let consolereport = Miscellaneous.consolereport
 let drawindisproofpane () = drawinpane Displayfont.DisproofPane
-let getsemanticturnstile = Sequent.Funs.getsemanticturnstile
+let getsemanticturnstile = Sequent.getsemanticturnstile
 let isdigit = Miscellaneous.isdigit
 let isextensibleID = Symbol.isextensibleID
 let lowercase = Stringfuns.lowercase
 let matchdebug = Match.matchdebug
 let matchvars = Match.matchvars 
-let mkSeq = Sequent.Funs.mkSeq
+let mkSeq = Sequent.mkSeq
 let option_remapterm = Match.option_remapterm
 let parseTerm = Termparse.term_of_string
 let pairstring = Stringfuns.pairstring
 let planinfo = Draw.planinfo
-let seqexplode = Sequent.Funs.seqexplode
-let seqstring = Sequent.Funs.seqstring
-let seqvars = Sequent.Funs.seqvars termvars tmerge
+let seqexplode = Sequent.seqexplode
+let seqstring = Sequent.seqstring
+let seqvars = Sequent.seqvars termvars tmerge
 let showAlert = Alert.showAlert Alert.defaultseverity_alert <.> implode
 let simplifySubst = Substmapfuns.simplifySubst
-let smlseqstring = Sequent.Funs.smlseqstring
+let smlseqstring = Sequent.smlseqstring
 let subtree = Prooftree.Tree.Fmttree.followPath
 let triplestring = Stringfuns.triplestring
 let uncurry2 = Miscellaneous.uncurry2
@@ -139,6 +139,7 @@ let rec my_seqexplode s =
  * keep histories of disproof attempts, I had to use a mapping.  Oh well.
  *)
 
+type term = Termtype.term
 type coord = int * int
 type world = term list * coord list
 
@@ -500,6 +501,8 @@ let rec seq_forced forced c s =
   List.map doit hyps, List.map doit concs
 
 (* *********************** interaction states *********************** *)
+
+type seq = Seqtype.seq
 
 type disproofstaterec =
       { seq          : seq; 

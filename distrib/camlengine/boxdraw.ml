@@ -131,12 +131,12 @@ let pathstring = Listfuns.bracketedliststring string_of_int ","
 let quadruplestring = Stringfuns.quadruplestring
 let reasonstring = (fun s -> s)
 let screenpositiondebug = Miscellaneous.screenpositiondebug
-let seqstring = Sequent.Funs.seqstring
+let seqstring = Sequent.seqstring
 let sameresource = Termfuns.sameresource
 let textboxstring = Box.textboxstring
 let triplestring = Stringfuns.triplestring
 let truncatereasons = Miscellaneous.truncatereasons
-let turnstiles = Sequent.Funs.syntacticturnstiles
+let turnstiles = Sequent.syntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
 let _The = Optionfuns._The
 

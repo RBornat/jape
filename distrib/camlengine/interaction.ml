@@ -28,8 +28,8 @@ open Displaystate
 open Hit
 open Proofstate
 open Prooftree.Tree.Fmttree
-open Sequent.Funs
-open Sequent.Type
+open Sequent
+open Seqtype
 open Sml
 open Stringfuns
 open Treeformat.Fmt

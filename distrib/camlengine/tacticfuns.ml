@@ -48,8 +48,8 @@ open Prooftree.Tree
 open Prooftree.Tree.Fmttree
 open Proviso
 open Rewrite
-open Sequent.Funs
-open Sequent.Type
+open Sequent
+open Seqtype
 open Sml
 open Stringfuns
 open Tactic

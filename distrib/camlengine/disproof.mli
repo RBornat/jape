@@ -23,7 +23,7 @@
 open Termtype
 open Facts
 open Prooftree.Tree.Fmttree
-open Sequent.Funs
+open Seqtype
 
 type forcedef = Forcedef.forcedef
  and model = Forcedef.model

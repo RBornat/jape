@@ -21,7 +21,7 @@
 *)
 
 open Termtype
-open Sequent.Funs
+open Seqtype
 open Context.Cxt
 open Tactictype
 open Prooftree.Tree.Fmttree

@@ -20,15 +20,15 @@
 
 *)
 
-open Sequent.Funs
+open Sequent
 open Listfuns
 open Mappingfuns
 open Tactic
 open Optionfuns
 
-type seq = Sequent.Funs.seq 
+type seq = Seqtype.seq 
  and tactic = Tactictype.tactic 
- and term = Sequent.Funs.term
+ and term = Termtype.term
 
 let seqmatch = seqmatch false
 

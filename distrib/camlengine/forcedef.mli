@@ -20,7 +20,7 @@
 
 *)
 
-open Sequent.Type
+open Seqtype
 open Termtype
 
 type forcedef = ForcePrim of term

@@ -34,8 +34,8 @@ open Predicate
 open Proviso
 open Provisofuns
 open Rewrite
-open Sequent.Funs
-open Sequent.Type
+open Sequent
+open Seqtype
 open Sml
 open Stringfuns
 open Symbol

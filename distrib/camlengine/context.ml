@@ -39,7 +39,7 @@ sig
     type cxt = Context of cxtrec
 end
 
-module Type : Type with type seq = Sequent.Type.seq 
+module Type : Type with type seq = Seqtype.seq 
                     and type rewinf = Rewinf.rewinf
                     and type term = Termtype.term
                     and type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
@@ -48,7 +48,7 @@ module Type : Type with type seq = Sequent.Type.seq
                     and type visproviso = Proviso.visproviso
 =
 struct 
-    type seq = Sequent.Type.seq
+    type seq = Seqtype.seq
      and rewinf = Rewinf.rewinf
      and term = Termtype.term
      and ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
@@ -109,7 +109,7 @@ module Cxtstring : Cxtstring with type cxt = Type.cxt
     open Type
     
     open Listfuns
-    open Sequent.Funs
+    open Sequent
     open Stringfuns
     open Optionfuns
     open Rewinf
@@ -203,7 +203,7 @@ module type Cxt =
   end
 
 module Cxt : Cxt with type cxt = Type.cxt
-                  and type seq = Sequent.Type.seq
+                  and type seq = Seqtype.seq
                   and type term = Termtype.term
                   and type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
                   and type vid = Termtype.vid
@@ -216,7 +216,7 @@ module Cxt : Cxt with type cxt = Type.cxt
     open Type
     
     type cxt = Type.cxt
-     and seq = Sequent.Type.seq
+     and seq = Seqtype.seq
      and term = Termtype.term
      and ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
      and vid = Termtype.vid

@@ -21,7 +21,7 @@
 *)
 
 type term = Termtype.term
-and seq = Sequent.Type.seq
+and seq = Seqtype.seq
 and rewinf = Prooftree.Tree.rewinf
 and element = Termtype.element
 and cxt = Context.Cxt.cxt

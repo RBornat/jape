@@ -24,13 +24,15 @@ open Listfuns
 open Miscellaneous
 open Optionfuns 
 open Sml
-open Sequent.Funs
+open Sequent
 open Stringfuns
 open Symbol
 open Symboltype
 open Termfuns
 open Termstring
 open Termparse
+
+type term = Termtype.term
     
 type forcedef =
     ForcePrim of term

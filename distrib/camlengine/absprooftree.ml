@@ -32,12 +32,12 @@ let debracket         = Termfuns.debracket
 let explodeCollection = Termfuns.explodeCollection
 let isstructurerule   = Thing.isstructurerule
 let proved            = Proofstore.proved
-let seqexplode        = Sequent.Funs.seqexplode
+let seqexplode        = Sequent.seqexplode
 let symbolstring      = Symbol.symbolstring
 
 type structurerule = Thing.structurerule
  and tree          = Prooftree.Tree.Vistree.prooftree
- and sequent       = Sequent.Funs.seq
+ and sequent       = Seqtype.seq
  and reason        = string
  and element       = Termtype.element
  and text          = Text.text

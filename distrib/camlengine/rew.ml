@@ -34,8 +34,8 @@ open Optionfuns
 open Provisotype (* ok. RB *)
 open Proviso
 open Rewinf
-open Sequent.Type
-open Sequent.Funs
+open Seqtype
+open Sequent
 open Sml
 open Substmapfuns
 open Termfuns

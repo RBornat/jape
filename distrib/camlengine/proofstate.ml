@@ -29,7 +29,7 @@ open Prooftree.Tree
 open Prooftree.Tree.Fmttree
 open Proviso
 open Rewrite
-open Sequent.Funs
+open Sequent
 open Sml
 open Stringfuns
 open Termfuns

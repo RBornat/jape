@@ -28,7 +28,7 @@ open Paraparam
 open Proofstate
 open Proviso
 open Runproof
-open Sequent.Funs
+open Seqtype
 open Thing
 
 val interpret :

@@ -23,7 +23,7 @@
 type tree = Prooftree.Tree.Vistree.prooftree
 and structurerule = Thing.structurerule
 and font = Displayfont.displayfont
-and sequent = Sequent.Funs.seq
+and sequent = Seqtype.seq
 and reason
 and text = Text.text
 and term = Termtype.term

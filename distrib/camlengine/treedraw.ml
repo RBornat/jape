@@ -41,7 +41,7 @@ let elementstring_invisbracketed = Termstring.elementstring_invisbracketed
 let highlight = Draw.highlight
 let last = Listfuns.last
 let liststring = Listfuns.liststring
-let turnstiles = Sequent.Funs.syntacticturnstiles
+let turnstiles = Sequent.syntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
 let viewBox = Draw.viewBox
        

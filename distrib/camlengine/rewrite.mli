@@ -22,7 +22,7 @@
 
 open Context.Cxt
 open Termtype
-open Sequent.Type
+open Seqtype
 
 val rewrite         : cxt -> term -> term
 val rewriteseq      : cxt -> seq -> seq

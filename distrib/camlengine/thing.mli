@@ -24,7 +24,7 @@ open Termtype
 open Name
 open Paraparam
 open Proviso
-open Sequent.Funs
+open Seqtype
 open Tactictype 
 open Context.Cxt
 open Mappingfuns

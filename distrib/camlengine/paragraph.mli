@@ -21,7 +21,7 @@
 *)
 
 open Termtype
-open Sequent.Funs
+open Seqtype
 open Proviso
 open Paraparam
 open Tactictype

@@ -34,7 +34,7 @@ open Optionfuns
 open Provisotype (* ok, of course. RB *)
 open Proviso
 open Rewrite
-open Sequent.Type
+open Seqtype
 open Sml
 open Stringfuns
 open Substmapfuns
