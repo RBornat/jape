@@ -25,7 +25,6 @@
 
   */
 
-import java.awt.Color;
 import java.awt.Graphics;
 
 public class TextSelectableProofItem extends TextSelectableItem {
@@ -38,7 +37,7 @@ public class TextSelectableProofItem extends TextSelectableItem {
 
     public void paint(Graphics g) {
         if (drawGrey) {
-            g.setColor(Color.gray);
+            g.setColor(Preferences.GreyTextColour); g.setFont(getFont());
             g.drawChars(printchars, 0, printchars.length, 0, dimension.ascent);
         }
         else
