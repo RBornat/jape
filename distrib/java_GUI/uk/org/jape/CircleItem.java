@@ -49,9 +49,11 @@ public class CircleItem extends Component implements DebugConstants {
     }
 
     public void paint(Graphics g) {
+        if (paint_tracing)
+            System.err.println("painting circle at "+getX()+","+getY());
         g.setColor(getForeground());
         if (g instanceof Graphics2D) {
-            if (antialias_trace) {
+            if (antialias_tracing) {
                 System.err.print("circle hints "+((Graphics2D)g).getRenderingHints());
                 if (japeserver.onMacOS)
                     System.err.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));

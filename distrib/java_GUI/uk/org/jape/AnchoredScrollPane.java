@@ -64,6 +64,8 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
         viewport = new Container() {
             public void validate() { setScrollBarValues(); }
             public void paint(Graphics g) {
+                if (paint_tracing)
+                    System.err.println("painting viewport in AnchoredScrollPane");
                 g.setColor(getBackground());
                 g.fillRect(0,0, getWidth(), getHeight());
                 super.paint(g);

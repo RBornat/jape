@@ -127,6 +127,8 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     }
 
     public void paint(Graphics g) {
+        if (paint_tracing)
+            System.err.println("painting ContainerWithOrigin (diverting to child)");
         int x=child.getX(), y=child.getY();
         g.translate(x, y);
         child.paint(g);
