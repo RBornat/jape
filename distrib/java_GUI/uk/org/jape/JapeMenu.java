@@ -246,7 +246,8 @@ public class JapeMenu implements DebugConstants {
     private static final String RADIO_ICON_KEY = "RadioButtonMenuItem.checkIcon",
                                 CHECK_ICON_KEY = "CheckBoxMenuItem.checkIcon",
                                 PAGE_SETUP     = "Page Setup...",
-                                PRINT_PROOF    = "Print...";
+                                PRINT_PROOF    = "Print...",
+                                EXPORT_PIC     = "Export...";
     
     protected static TitledMenuBar mkBar(boolean isProofBar, JapeWindow w) {
         Object radioIcon = UIManager.get(RADIO_ICON_KEY);
@@ -289,8 +290,10 @@ public class JapeMenu implements DebugConstants {
                     if (o instanceof I) {
                         I ii = (I)o;
                         if (isProofBar || !m.title.equals("File") ||
-                              (!ii.label.equals("Close") && !ii.label.equals(PAGE_SETUP) &&
-                                                            !ii.label.equals(PRINT_PROOF))) {
+                              (!(ii.label.equals("Close") ||
+                                 ii.label.equals(PAGE_SETUP) ||
+                                 ii.label.equals(PRINT_PROOF) ||
+                                 ii.label.equals(EXPORT_PIC)))) {
                             if (m.title.equals("File") && ii.label.equals(PAGE_SETUP))
                                 menu.addSeparator();
                             if (buttonGroup==null) {
@@ -483,6 +486,15 @@ public class JapeMenu implements DebugConstants {
         }
     }
 
+    private static class ExportPicAction extends ItemAction {
+        public void action(JapeWindow w) {
+            if (w instanceof ProofWindow)
+                ExportPic.exportPic((ProofWindow)w);
+            else
+                Alert.abort("ExportPicAction on non-proof window");
+        }
+    }
+
     private static class ShowWindowAction extends ItemAction {
         JFrame w;
         public ShowWindowAction(JFrame w) {
@@ -593,8 +605,11 @@ public class JapeMenu implements DebugConstants {
                                                   menumask+java.awt.Event.SHIFT_MASK));
         indexMenuItem(filemenu, PRINT_PROOF, new PrintProofAction()).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, menumask));
+        indexMenuItem(filemenu, EXPORT_PIC, new ExportPicAction()).
+            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, menumask));
 
         filemenu.addSep();
+        
         indexMenuItem(filemenu, "Font Sizes ...", new FontSizesAction());
         if (DebugVars.showDebugVars) {
             indexMenuItem(filemenu, "Debug Settings ...", new DebugSettingsAction());
