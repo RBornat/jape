@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Termparse =
+module type T =
   sig
     type symbol and term and idclass and element
     val check : symbol -> unit
@@ -33,44 +33,52 @@ module type Termparse =
   end
 (* $Id$ *)
 
-module
-  Termparse
+module M
   (AAA :
     sig
-      module listfuns : Listfuns
-      module searchtree : Searchtree
-      module symbol : Symbol
-      module symboltype : Symboltype
-      module idclass : Idclass
-      module idclassfuns : Idclassfuns
-      module term : sig include Termtype include Termstore include Term end
-      module binding : Binding
+      module Listfuns : Listfuns.T
+      module Searchtree : Searchtree.T
+      module Idclass : Idclass.T
+      module Symboltype : Symboltype.T
+             with type idclass = Idclass.idclass
+              and type vid = string
+      module Symbol : Symbol.T
+             with type symbol = Symboltype.symbol
+      module Idclassfuns : Idclassfuns.T
+             with type symbol = Symboltype.symbol
+              and type idclass = Idclass.idclass
+      module Term : Term.T
+             with type idclass = Idclass.idclass
+              and type vid = Symboltype.vid
+      module Binding : Binding.T
+             with type term = Term.term
+      
       val andthenr : 'a option * ('a -> 'b option) -> 'b option
       val atoi : string -> int
       val consolereport : string list -> unit
       val enQuote : string -> string
       val findfirst : ('a -> 'b option) -> 'a list -> 'b option
+      
       exception ParseError_ of string list
       exception Catastrophe_ of string list
       exception Tacastrophe_ of string list
-      
     end)
-  :
-  Termparse =
+  : T =
   struct
     open AAA
-    open listfuns
-    open searchtree
-    open symbol
-    open symboltype
-    open idclass
-    open idclassfuns
-    open term
-    open binding
-    open IO
+    open Listfuns
+    open Searchtree
+    open Symbol
+    open Symboltype
+    open Idclass
+    open Idclassfuns
+    open Term
+    open Binding
     
-    
-    
+    type element = Term.element
+    type idclass = Idclass.idclass
+    type term = Term.term
+    type symbol = Symboltype.symbol
     
     (* stuff to handle variable leftfix/outfix syntax *)
     let symbeq : symbol * symbol -> bool = fun (x, y) -> x = y
@@ -93,22 +101,22 @@ module
     let rec resettermparse () =
       outrightfixtree := emptysearchtree mkalt;
       leftmidfixtree := emptysearchtree mkalt;
-      declareOutRightfix [BRA "("; KET ")"];
+      declareOutRightfix [BRA "("] (KET ")");
       ()
     let rec check s =
-      if currsymb () = s then begin scansymb (); () end
+      if currsymb () = s then let _ = scansymb () in ()
       else
         raise
           (ParseError_
              ["Expected "; smlsymbolstring s; ", found ";
               smlsymbolstring (currsymb ())])
-    let rec ignore s = if currsymb () = s then begin scansymb (); () end
+    let rec ignore s = if currsymb () = s then let _ = scansymb () in ()
     let rec parseUnsepList start f =
       if start (currsymb ()) then f EOF :: parseUnsepList start f else []
     let rec parseList start f sep =
       if start (currsymb ()) then
         let rec more () =
-          if currsymb () = sep then begin scansymb (); one () end else []
+          if currsymb () = sep then let _ = scansymb () in one () else []
         and one () = let v = f sep in v :: more () in
         one ()
       else []
@@ -163,7 +171,7 @@ module
       
     let rec parseAtom () =
       let sy = currsymb () in
-      scansymb ();
+      let _ = scansymb () in
       match sy with
         ID (s, Some c) -> checkclass ("identifier", registerId (s, c))
       | ID (s, None) -> !undecl ("identifier", registerId (s, NoClass))
@@ -264,7 +272,8 @@ module
     and treecurr _ = currsymb ()
     and treenext m a (sys, ts) =
       let s = currsymb () in
-      let t = scansymb (); parseExpr m a in s :: sys, t :: ts
+      let t = (let _ = scansymb () in parseExpr m a) in 
+      s :: sys, t :: ts
     and parseVariable () =
       let rec okv =
         function
@@ -277,16 +286,18 @@ module
       okv (parseAtom ())
     and parseBRA () =
       let rec defop s =
-        registerId (s, OperatorClass) before
-          begin scansymb (); check (KET ")") end
+        let r = registerId (s, OperatorClass) in
+        let _ =  scansymb () in
+        check (KET ")"); r
       in
       let rec defexpr () =
-        (let t = parseterm (KET ")") in
-         match t with
-           Collection _ as t' -> t'
-         | Id (_, _, OperatorClass) as t' -> t'
-         | _ -> enbracket t)
-          before check (KET ")")
+        let r =
+          (let t = parseterm (KET ")") in
+		   match t with
+			 Collection _ as t' -> t'
+		   | Id (_, _, OperatorClass) as t' -> t'
+		   | _ -> enbracket t)
+        in check (KET ")"); r
       in
       match currsymb () with
         INFIX (_, _, s) -> defop s
@@ -295,7 +306,7 @@ module
       | PREFIX (_, s) -> if peeksymb () = KET ")" then defop s else defexpr ()
       | sy ->
           if sy = KET ")" then
-            begin scansymb (); enbracket (registerTup (",", [])) end
+            (let _ = scansymb () in enbracket (registerTup (",", [])))
           else defexpr ()
     (* here a is not an associativity, it is 'left operator gets it' *)
     and parseExpr n a =
@@ -304,7 +315,7 @@ module
         let sy = currsymb () in
         let rec pq (n', a', s) down =
           let rec nextt a =
-            scansymb (); checkAfterBra sy n'; parseExpr n' a
+            (let _ = scansymb () in checkAfterBra sy n'; parseExpr n' a)
           in
           let rec pts () =
             if currsymb () = sy then nextt true :: pts () else []
@@ -331,11 +342,10 @@ module
                     (registerApp (registerId (s, OperatorClass), t), t'))
         | POSTFIX (n', s) ->
             if ( >> ) (n', n) then
-              begin
-                scansymb ();
+              (let _ = scansymb () in
                 checkAfterBra sy n';
                 pe (registerApp (registerId (s, OperatorClass), t))
-              end
+              )
             else t
         | RIGHTFIX i -> pr i parseRightfix
         | MIDFIX i -> pr i parseMidfix
@@ -394,7 +404,7 @@ module
       let rec parseElement sep =
         let rec getSegvar () =
           let rec id con s k' =
-            let rec def k = scansymb (); Some ([], con (s, k)) in
+            let rec def k = (let _ = scansymb () in Some ([], con (s, k))) in
             match !kind with
               Some k ->
                 if k = k' then def k
@@ -409,11 +419,11 @@ module
           in
           match currsymb () with
             PREFIX (_, sp) as sy ->
-              scansymb ();
-              begin match getSegvar () with
-                Some (ps, v) -> Some (registerId (sp, OperatorClass) :: ps, v)
-              | None -> putbacksymb sy; None
-              end
+              (let _ = scansymb () in
+               match getSegvar () with
+				 Some (ps, v) -> Some (registerId (sp, OperatorClass) :: ps, v)
+			   | None -> putbacksymb sy; None
+              )
           | ID (s, Some k') -> id registerId s k'
           | UNKNOWN (s, Some k') -> id registerUnknown s k'
           | _ -> None
@@ -469,24 +479,26 @@ module
         flatten (parseTerm (KET ")")) []
       else []
     let rec tryparse =
-      fun R s ->
-        let s = pushlex "" (open_string s) in
-        (try R (EOF, before, check, EOF) with
-           x -> poplex s; raise x)
-          before poplex s
+      fun _R s ->
+        let s = pushlex "" (Stream.of_string s) in
+        let r = 
+          (try (let r = _R EOF in check EOF; r) 
+          with x -> poplex s; raise x)
+        in poplex s; r
     let rec tryparse_dbug =
-      fun R p s ->
-        let lex_s = pushlex "" (open_string s) in
-        (try
-           let _ = consolereport ["tryparse_dbug \""; s; "\""] in
-           let r = R EOF in
-           consolereport ["tryparse_dbug found "; p r];
-           check EOF;
-           consolereport ["tryparse_dbug EOF ok"];
-           r
-         with
-           x -> poplex lex_s; raise x)
-          before poplex lex_s
+      fun _R p s ->
+        let lex_s = pushlex "" (Stream.of_string s) in
+        let r =
+		  (try
+			 let _ = consolereport ["tryparse_dbug \""; s; "\""] in
+			 let r = _R EOF in
+			 consolereport ["tryparse_dbug found "; p r];
+			 check EOF;
+			 consolereport ["tryparse_dbug EOF ok"];
+			 r
+		   with
+			 x -> poplex lex_s; raise x)
+         in poplex lex_s; r
     let rec asTactic f a =
       let u = !undecl in
       let v = !unvar in
@@ -495,9 +507,10 @@ module
       undecl := (fun (_, t) -> t);
       unvar := (fun t -> t);
       unclass := (fun (_, t) -> t);
-      (try f a with
-         exn -> cleanup (); raise exn)
-        before cleanup ()
+      let r = 
+		(try f a with
+		   exn -> cleanup (); raise exn)
+      in cleanup (); r
     let rec checkTacticTerm t =
       let rec bang reason t =
         raise (Tacastrophe_ [reason; " "; termstring t])
@@ -523,7 +536,8 @@ module
         | Subst (_, _, _, vts) -> findfirst badvar (_MAP ((fun(hash1,_)->hash1), vts))
         | _ -> None
       in
-      findterm badterm t; ()
+      let _ = findterm badterm t in
+      ()
     let rec string2term s = tryparse parseTerm s
     let rec string2tactic s = tryparse (asTactic parseTerm) s
   end
