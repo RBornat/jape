@@ -337,8 +337,7 @@ let rec formulageneralisable params v =
   | Unknown (_, v, FormulaClass) -> _All (ok (v, FormulaClass)) params
   | _ -> false
 exception Fresh_ of string list exception CompileThing_ of string list
-let autoAdditiveLeft = ref false
-let autoAdditiveRight = ref false
+
 let rec findhiddenprovisos (b, ts) ps =
   (* first look for parallel bindings *)
   let multibinders =

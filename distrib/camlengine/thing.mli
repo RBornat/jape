@@ -79,10 +79,9 @@ val uniqueCut : unit -> name option
 val isRelation : term -> bool
 val numberrule : seq list * seq -> seq list * seq
 val numberforproof : seq list * seq -> seq list * seq
+
 val thingdebug : bool ref
 val thingdebugheavy : bool ref
-val autoAdditiveLeft : bool ref
-val autoAdditiveRight : bool ref
 
 exception Fresh_ of string list 
 exception CompileThing_ of string list
