@@ -32,16 +32,13 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 
 class TextItem extends DisplayItem implements DebugConstants {
-    protected final JapeCanvas canvas;
-    
     protected final byte          fontnum;
     protected final Font          font;
     protected final TextDimension dimension;
     protected final String        text;
 
     public TextItem(JapeCanvas canvas, int x, int y, byte fontnum, String text) { 
-        super(x,y);
-        this.canvas = canvas;
+        super(canvas, x, y);
         this.fontnum = fontnum;
         this.font = JapeFont.getFont(fontnum);
         this.text = text;
@@ -52,27 +49,22 @@ class TextItem extends DisplayItem implements DebugConstants {
         setForeground(Preferences.TextColour);
     }
 
-    // TextItems can have a selection halo
-    protected int selectionHalo = 0;
-
-    public boolean contains(int x, int y) {
-        return x+selectionHalo>=0 && x-selectionHalo<getWidth() &&
-        y+selectionHalo>=0 && y-selectionHalo<getHeight();
-    }
-
-    // because of the halo, mouse coordinates may be outside the item
-    
-    protected int internalX(int px) {
-        return Math.max(0, Math.min(getWidth(), px));
-    }
-    
     public void paint(Graphics g) {
         if (paint_tracing || fontDebug)
             Logger.log.println("painting "+this);
-        g.setFont(font); g.setColor(getForeground());
+        g.setFont(font);
+        g.setColor(isEnabled() ? Preferences.TextColour : Preferences.GreyTextColour);
         g.drawString(text, 0, dimension.ascent);
     }
 
+    public void blacken() {
+        setEnabled(true);
+    }
+
+    public void greyen() {
+        setEnabled(false);
+    }
+    
     // this isn't efficient, but that doesn't matter, I think
     public String toString() {
         return "TextItem["+
