@@ -341,16 +341,18 @@ proofstore.cmx: cxtfuns.cmx forcedef.cmx listfuns.cmx mappingfuns.cmx \
     sml.cmx thing.cmx proofstore.cmi 
 prooftree.cmo: cxtexterior.cmi cxtfuns.cmi cxtstring.cmi cxttype.cmo \
     idclass.cmi listfuns.cmi mappingfuns.cmi miscellaneous.cmi name.cmi \
-    optionfuns.cmi paragraph.cmi proviso.cmi provisofuns.cmi rew.cmi \
-    rewinf.cmi rewrite.cmi seqtype.cmo sequent.cmi sml.cmi stringfuns.cmi \
-    tactic.cmi tactictype.cmo termfuns.cmi termstore.cmi termstring.cmi \
-    termtype.cmi thing.cmi treeformat.cmo treelayout.cmi uTF.cmi 
+    optionfuns.cmi paragraph.cmi proviso.cmi provisofuns.cmi provisotype.cmo \
+    rew.cmi rewinf.cmi rewrite.cmi seqtype.cmo sequent.cmi sml.cmi \
+    stringfuns.cmi tactic.cmi tactictype.cmo termfuns.cmi termstore.cmi \
+    termstring.cmi termtype.cmi thing.cmi treeformat.cmo treelayout.cmi \
+    uTF.cmi 
 prooftree.cmx: cxtexterior.cmx cxtfuns.cmx cxtstring.cmx cxttype.cmx \
     idclass.cmx listfuns.cmx mappingfuns.cmx miscellaneous.cmx name.cmx \
-    optionfuns.cmx paragraph.cmx proviso.cmx provisofuns.cmx rew.cmx \
-    rewinf.cmx rewrite.cmx seqtype.cmx sequent.cmx sml.cmx stringfuns.cmx \
-    tactic.cmx tactictype.cmx termfuns.cmx termstore.cmx termstring.cmx \
-    termtype.cmx thing.cmx treeformat.cmx treelayout.cmx uTF.cmx 
+    optionfuns.cmx paragraph.cmx proviso.cmx provisofuns.cmx provisotype.cmx \
+    rew.cmx rewinf.cmx rewrite.cmx seqtype.cmx sequent.cmx sml.cmx \
+    stringfuns.cmx tactic.cmx tactictype.cmx termfuns.cmx termstore.cmx \
+    termstring.cmx termtype.cmx thing.cmx treeformat.cmx treelayout.cmx \
+    uTF.cmx 
 proviso.cmo: idclass.cmi listfuns.cmi miscellaneous.cmi provisotype.cmo \
     sml.cmi symbol.cmi symboltype.cmo termfuns.cmi termparse.cmi \
     termstore.cmi termstring.cmi termtype.cmi proviso.cmi 
