@@ -135,8 +135,11 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
 
     private TextSelectableItem insertLine(int cursor, String annottext) {
 	shiftLines(cursor);
-	return (TextSelectableItem)
-	       super.add(new TextSelectableItem(this, 3*inset, cursor, ProtocolConstants.ProvisoFontNum, annottext));
+	TextSelectableItem t = 
+	    new TextSelectableItem(this, 3*inset, cursor, ProtocolConstants.ProvisoFontNum, 
+				   annottext);
+	super.add(t);
+	return t;
     }
 
     private static String provisoHeader = "Provided:",
