@@ -48,18 +48,52 @@ import javax.swing.Scrollable;
     Oh dear ...
  */
 
+/*  I now realise that this thing has to be in a viewport, or it doesn't make any sense ... */
+
 public class ContainerWithOrigin extends Container implements DebugConstants {
 
-    public ContainerWithOrigin() {
+    protected final Container viewport;
+    protected final boolean scrolled;
+    protected final Child child = new Child();
+    
+    public ContainerWithOrigin(Container viewport, boolean scrolled) {
         super(); super.add(child);
+        this.viewport = viewport; this.scrolled = scrolled;
         setLayout(new ContainerWithOriginLayout());
     }
 
-    protected final Child child = new Child();
 
     protected void computeBounds() {
         child.getLayout().layoutContainer(child);
         getLayout().layoutContainer(this);
+    }
+
+    // the difference between the main panel's position and visualBounds is,
+    // essentially, the origin!
+    public void setViewOrigin(int x, int y) {
+        Rectangle v = viewport.getBounds();
+        computeBounds();
+        setLocation(-child.getX()-x, -child.getY()-y);
+    }
+
+    // if we are the only thing in a viewport, we get the mouse events.
+    public boolean contains(int x, int y) {
+        return viewport.getComponentCount()==1 && viewport.getComponent(0)==this
+            || super.contains(x,y);
+    }
+
+    // since we are in a viewport, we tell you what the viewport sees
+    public Rectangle getViewGeometry() {
+        Rectangle v = viewport.getBounds();
+        computeBounds();
+        v.x -= (getX()+child.getX()); v.y -= (getY()+child.getY()); // oh dear ...
+        return v;
+    }
+
+    // when we are in a scrolled viewport, minimum size depends on the size of scrollbars
+    // -- this is a guess
+    public Dimension getMinimumSize() {
+        return scrolled ? new Dimension(80,80) : super.getMinimumSize();
     }
 
     // add, remove, removeAll, paint, repaint all work on the child
@@ -68,6 +102,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
         child.add(c);
         computeBounds();
         c.repaint();
+        viewport.validate();
         return c;
     }
 
@@ -75,6 +110,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
         child.add(c, index);
         computeBounds();
         c.repaint();
+        viewport.validate();
         return c;
     }
 
@@ -82,12 +118,14 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
         c.repaint();
         child.remove(c);
         computeBounds();
+        viewport.validate();
     }
 
     public void removeAll() {
         child.repaint();
         child.removeAll();
         computeBounds();
+        viewport.validate();
     }
 
     public void paint(Graphics g) {
@@ -250,8 +288,6 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
                         newBounds.add(tmp); 
                     }
                 }
-                // the difference between the main panel's position and visualBounds is,
-                // essentially, the origin!
                 if (newBounds==null)
                     newBounds = new Rectangle(visualBounds.x, visualBounds.y, 0, 0);
                 if (newBounds.width!=getWidth() || newBounds.height!=getHeight()) {
