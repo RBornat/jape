@@ -108,7 +108,31 @@ TACTICPANEL "Definitions"
 	BUTTON	"Apply"	IS apply COMMAND
 	BUTTON	"Flatten"	IS apply Flatten
 	BUTTON	"Find"	IS apply FindSelection
+
+	BUTTON	"UnfoldL"	IS apply UnfoldL COMMAND
+	BUTTON	"UnfoldR"	IS apply UnfoldR COMMAND
+	BUTTON	"FoldL"	IS apply FoldL COMMAND
+	BUTTON	"FoldR"	IS apply FoldR COMMAND
 END
+
+TACTIC UnfoldL(rule) IS
+	WHEN (LETSUBSTSEL (_A{_x\_F}=_B) "= transitive" (LAYOUT "Unfold %s" () (rewritesmallLR{X,AA,x\_F,_A,_x})) rule)
+		(JAPE (fail "UnfoldL didn't find a substitution"))
+
+TACTIC UnfoldR(rule) IS
+	WHEN (LETSUBSTSEL (_A=_B{_x\_F}) "= transitive" 
+				(JAPE (SUBGOAL 1)) (LAYOUT "Fold %s" () (rewritesmallRL{X,AA,x\_F,_B,_x})) rule)
+		(JAPE (fail "UnfoldR didn't find a substitution"))
+
+TACTIC FoldL(rule) IS
+	WHEN (LETSUBSTSEL (_A{_x\_F}=_B) "= transitive" 
+				(LAYOUT "Fold %s" () (rewritesmallRL{Y,AA,x\_F,_A,_x})) rule)
+		(JAPE (fail "FoldL didn't find a substitution"))
+
+TACTIC FoldR(rule) IS
+	WHEN (LETSUBSTSEL (_A=_B{_x\_F}) "= transitive" 
+				(JAPE (SUBGOAL 1)) (LAYOUT "Unfold %s" () (rewritesmalLR{Y,AA,x\_F,_B,_x})) rule)
+		(JAPE (fail "FoldR didn't find a substitution"))
 
 MENU Edit
 	RADIOBUTTON displaystyle IS
@@ -128,6 +152,8 @@ MENU Edit
 	AND	"Apply only theorems " IS false
 	INITIALLY false
 	END
+
+	CHECKBOX  hidetransitivity"transformational style" INITIALLY false
 END
 
 CONJECTUREPANEL "Conjectures" IS
@@ -194,17 +220,16 @@ CONJECTUREPANEL "Conjectures" IS
 		
 		
 
-	BUTTON          "Unfold *"      IS apply RepeatedlyUnfold
+	BUTTON	"Unfold *"      IS apply RepeatedlyUnfold
 	BUTTON	"Unfold"	IS apply UnfoldObvious COMMAND
 	BUTTON	"Fold"	        IS apply FoldObvious COMMAND
 	BUTTON	"Apply"         IS apply COMMAND
-	BUTTON          "Flatten"       IS apply Flatten
-	BUTTON          "Find"          IS apply FindSelection
-		
+	BUTTON	"Flatten"       IS apply Flatten
+	BUTTON	"Find"          IS apply FindSelection
 END
 
 TACTIC  RepeatedlyUnfold IS SEQ UnfoldUsingSearch (DO UnfoldUsingSearch)
-
+	
 TACTIC  UnfoldUsingSearch IS 
 ALT     (SearchHypotheses UnfoldWithAnyHyp)
 	(Unfold SearchTactic)
