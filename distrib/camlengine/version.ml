@@ -56,6 +56,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.8  2002/10/29 15:14:38  richard
+     I put $Tag$ in the version string ...
+
      Revision 1.7  2002/09/17 14:26:02  richard
      first caml+java version
 
@@ -266,7 +269,7 @@
    *)
    
   
-   let _Version = "$Tag$" 
+   let _Version = "$Name$" 
    let _Title = "Jape proof engine "
 
 
