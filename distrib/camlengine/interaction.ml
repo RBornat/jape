@@ -195,7 +195,7 @@ let rec sortoutSelection state pathkind =
   in
   let fhits =
     List.map (fun (pos, class__) -> pos, pos2hit pos (Some class__) pathkind)
-      proofsels
+             proofsels
   in
   let thits =
     List.map
@@ -212,10 +212,8 @@ let rec sortoutSelection state pathkind =
   in
   List.map snd fhits, thits, givensel
 
-let findDisproofSelections () =
-  let (selstrings, textselstrings) = Japeserver.getAllDisproofSelections () in
-  Listfuns.foldr (fun t ts -> Termparse.term_of_string t::ts) 
-                 (List.map Termparse.term_of_string textselstrings) selstrings
+let findDisproofSelections () = Japeserver.getAllDisproofSelections () 
+  (* at present, we don't touch 'em *)
 
 let rec findSelection state =
   let (fhits, thits, givensel) = sortoutSelection state HitPath in
