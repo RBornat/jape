@@ -6,7 +6,7 @@
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
 
-    This file is part of japeserver, which is part of jape.
+    This file is part of the Jape GUI, which is part of Jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with jape; if not, write to the Free Software
+    along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
     
@@ -87,8 +87,8 @@ public class Alert implements DebugConstants {
             else {
                 JLabel l = makeLabel(s);
                 TextDimension m = JapeFont.measure(l, s);
-                if (m.width>japeserver.screenBounds.width*2/3) {
-                    String[] split = MinWaste.minwaste(l, s, japeserver.screenBounds.width*4/10);
+                if (m.width>Jape.screenBounds.width*2/3) {
+                    String[] split = MinWaste.minwaste(l, s, Jape.screenBounds.width*4/10);
                     result = new JLabel[split.length];
                     for (int i=0; i<split.length; i++)
                         result[i] = makeLabel(split[i]);

@@ -6,7 +6,7 @@
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
 
-    This file is part of japeserver, which is part of jape.
+    This file is part of the Jape GUI, which is part of Jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with jape; if not, write to the Free Software
+    along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
     
@@ -153,7 +153,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         if (g instanceof Graphics2D) {
             if (antialias_tracing) {
                 Logger.log.print("blob hints "+((Graphics2D)g).getRenderingHints());
-                if (japeserver.onMacOS)
+                if (Jape.onMacOS)
                     Logger.log.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
                 else
                     Logger.log.println();

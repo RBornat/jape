@@ -6,7 +6,7 @@
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
 
-    This file is part of japeserver, which is part of jape.
+    This file is part of the Jape GUI, which is part of Jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with jape; if not, write to the Free Software
+    along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
     
@@ -361,7 +361,7 @@ public class JapeMenu implements DebugConstants {
     }
 
     private static class AboutBoxAction extends ItemAction {
-        public void action(JapeWindow w) { japeserver.handleAbout(); }
+        public void action(JapeWindow w) { Jape.handleAbout(); }
     }
 
     private static class ActivateWindowAction extends ItemAction {
@@ -458,7 +458,7 @@ public class JapeMenu implements DebugConstants {
     }
 
     private static class PrefsAction extends ItemAction {
-        public void action(JapeWindow w) { japeserver.handlePrefs(); }
+        public void action(JapeWindow w) { Jape.handlePrefs(); }
     }
 
     private static class PageSetupAction extends ItemAction {
@@ -486,7 +486,7 @@ public class JapeMenu implements DebugConstants {
     }
 
     private static class QuitAction extends ItemAction {
-        public void action(JapeWindow w) { japeserver.handleQuit(); }
+        public void action(JapeWindow w) { Jape.handleQuit(); }
     }
 
     private static class UnimplementedAction extends ItemAction {
@@ -654,7 +654,7 @@ public class JapeMenu implements DebugConstants {
     
     private static void addStdHelpMenuItems(M helpmenu) {
         indexMenuItem(helpmenu, "No help yet",
-                      new AlertAction("japeserver doesn't have any help available yet.\n\nSorry."));
+                      new AlertAction("GUI doesn't have any help available yet.\n\nSorry."));
     }
     
     public static void newMenu(boolean proofsonly, String s) throws ProtocolError {
@@ -662,7 +662,7 @@ public class JapeMenu implements DebugConstants {
     }
     
     // ActionListener interface (for menus)
-    public static boolean checkboxDoubleBounce = false; // calamity: see japeserver.main
+    public static boolean checkboxDoubleBounce = false; // calamity: see Jape.main
     
     protected static class MenuItemListener implements ActionListener {
         private JapeWindow window;

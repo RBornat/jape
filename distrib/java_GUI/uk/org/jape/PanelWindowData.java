@@ -6,7 +6,7 @@
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
 
-    This file is part of japeserver, which is part of jape.
+    This file is part of the Jape GUI, which is part of Jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with jape; if not, write to the Free Software
+    along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
     
@@ -291,7 +291,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                             Reply.sendCOMMAND("prove "+cmdv.get(index));
                     }
                     else
-                    if (japeserver.onLinux || japeserver.onSolaris) {
+                    if (Jape.onLinux || Jape.onSolaris) {
                         // workaround for JList bug?
                         // probably the test ought to be on the L&F, but this might work
                         int oldsel = list.getSelectedIndex();

@@ -10,7 +10,7 @@
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
 
-    This file is part of japeserver, which is part of jape.
+    This file is part of the Jape GUI, which is part of Jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with jape; if not, write to the Free Software
+    along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
     
@@ -251,16 +251,6 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 
     private static boolean codecDone;
     
-<<<<<<< JapeFont.java
-    private static void initInterfaceFonts() {
-        if (interfaceFonts==null) {
-            codecDone = true;
-            setInterfaceFonts(new Font(LocalSettings.fontStyle, Font.PLAIN, 1));
-        }
-    }
-
-=======
->>>>>>> 1.23.6.8
     private static FontMetrics[] interfaceMetrics;
 
     private static void initInterfaceMetrics() {
@@ -334,7 +324,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
                 throw new ProtocolError("too late!");
             else
                 if (name.equals("Konstanz") || name.equals("Laura")) {
-                    if (japeserver.onMacOS) {
+                    if (Jape.onMacOS) {
                         substituteFont = new Font(name, Font.PLAIN, 1);
                         if (substituteFont==null)
                             throw new ProtocolError("can't open "+name+" Plain 1.0");
@@ -343,7 +333,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
                     }
                 }
             else
-                throw new ProtocolError("japeserver doesn't understand encoding "+name);
+                throw new ProtocolError("GUI doesn't understand encoding "+name);
             encodingName = name;
         }
     }

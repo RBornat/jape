@@ -6,7 +6,7 @@
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
 
-    This file is part of japeserver, which is part of jape.
+    This file is part of the Jape GUI, which is part of Jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with jape; if not, write to the Free Software
+    along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
     
@@ -48,7 +48,7 @@ public class ButtonPane extends Container implements DebugConstants {
     }
 
     public void addButton(JButton button) {
-        if (japeserver.onMacOS)
+        if (Jape.onMacOS)
             button.putClientProperty("JButton.buttonType", "toolbar");
         add(button);
     }
@@ -95,7 +95,7 @@ public class ButtonPane extends Container implements DebugConstants {
 
         public Dimension preferredLayoutSize(Container pane) {
             int buttonpanelheight=0, buttonpanelwidth=0;
-            int minacross = japeserver.onMacOS ? 4 : 3;
+            int minacross = Jape.onMacOS ? 4 : 3;
             
             if (getComponentCount()==0) {
                 if (buttonlayout_tracing)

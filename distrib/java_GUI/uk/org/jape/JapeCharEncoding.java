@@ -10,7 +10,7 @@
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
 
-    This file is part of japeserver, which is part of jape.
+    This file is part of the Jape GUI, which is part of Jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with jape; if not, write to the Free Software
+    along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
     
@@ -358,7 +358,7 @@ public class JapeCharEncoding implements DebugConstants {
 
     // a temporary hack, while MacOS doesn't do font fallback
     public static String trueUnicode(String s) {
-        if (japeserver.onMacOS) {
+        if (Jape.onMacOS) {
             String asc = toAscii(s);
             int len = s.length();
             StringBuffer buf = new StringBuffer(len);
@@ -385,8 +385,8 @@ public class JapeCharEncoding implements DebugConstants {
         if (s.equals("Laura"))
             unicoding = LauraUnicode;
         else
-            throw new ProtocolError("japeserver doesn't know encoding "+s);
-        encoding = japeserver.onMacOS ? MacRoman : unicoding;
+            throw new ProtocolError("GUI doesn't know encoding "+s);
+        encoding = Jape.onMacOS ? MacRoman : unicoding;
         if (encoding.length!=0x100)
             Alert.abort("JapeCharEncoding.encode encoding length "+encoding.length);
         toAsc = new PosIntHashMap(0x200);

@@ -10,7 +10,7 @@
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
 
-    This file is part of japeserver, which is part of jape.
+    This file is part of the Jape GUI, which is part of Jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with jape; if not, write to the Free Software
+    along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
     
@@ -123,7 +123,7 @@ public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
     /* ************************ MacOS specific bits ************************ */
 
     public void handleAbout() {
-        japeserver.handleAbout();
+        Jape.handleAbout();
     }
 
     public void handleOpenFile(File f) {
@@ -131,11 +131,11 @@ public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
     }
     
     public void handlePrefs() {
-        japeserver.handlePrefs();
+        Jape.handlePrefs();
     }
     
     public void handleQuit() throws IllegalStateException {
-        japeserver.handleQuit();
+        Jape.handleQuit();
         throw new IllegalStateException(); // if we return from handleQuit, we didn't exit
     }
 

@@ -6,7 +6,7 @@
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
 
-    This file is part of japeserver, which is part of jape.
+    This file is part of the Jape GUI, which is part of Jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with jape; if not, write to the Free Software
+    along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
     
@@ -318,7 +318,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                             list.add(cmd[1]);
                         else
                         if (p.equals("OPERATORSEND")&&len==1)
-                            japeserver.setoperators((String[])list.toArray(new String[list.size()]));
+                            Jape.setoperators((String[])list.toArray(new String[list.size()]));
                         else
                     
                     // miscellaneous
@@ -340,7 +340,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                         }
                         else
                         if (p.equals("DONTQUIT")&&len==1)
-                            japeserver.dontQuit();
+                            Jape.dontQuit();
                         else
                         if (p.equals("SETTEXTSELECTIONMODE")&&len==2)
                             ProofWindow.setTextSelectionMode(toByte(cmd[1]));
@@ -355,13 +355,13 @@ public class Dispatcher extends Thread implements DebugConstants {
                 }
             } // while
         } catch (IOException e) {
-            Logger.log.println("japeserver crash: dispatcher fails with IOException "+e);
+            Logger.log.println("GUI crash: dispatcher fails with IOException "+e);
             System.exit(2);
         }
     }
 
     private String[] japesplit(String line) throws ProtocolError {
-        // split a line encoded in the japeserver obol form.
+        // split a line encoded in the obol form.
         Vector result = new Vector();
         StringBuffer buf = new StringBuffer();
         boolean dbquote=false;
