@@ -173,6 +173,15 @@ TACTIC "Ntuple*"  IS
         )
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
+TACTIC "NtupleInner*"  IS
+    WHEN    
+        (LETGOAL ({_A}(_B{_C}_D){_E})  
+            (LAYOUT COMPRESS "NtupleInner") 
+            "NtupleInner" "NtupleInner*" 
+            (LETMATCH _G tacticresult "NtupleInner*" (ASSIGN tacticresult _G)) /* take leftmost GOALPATH */
+        )
+        (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
+
 /* multiple compressed forward steps are harder still */
 
 TACTIC "∧ elim* step"(P, rule, H) IS
@@ -250,10 +259,11 @@ MENU Programs
                                     (Noarg "sequence*" "sequence")
                                     "sequence"
                                     "{A}(C1;C2){B}"
-    ENTRY "Ntuple"  IS BackwardOnlyA (QUOTE (_A{_B}_C{_D}))
+    ENTRY "Ntuple"  IS BackwardOnlyDouble (QUOTE (_A{_B}_C{_D})) (QUOTE ({_A}(_B{_C}_D){_E}))
                                     (Noarg "Ntuple*" "Ntuple")
                                     "Ntuple"
-                                    "A{B}C{D}"
+                                    "A{B}C{D} or {A}(B{C}D){E}"
+                                    "only makes sense backwards."
     ENTRY "variable-assignment" 
                     IS BackwardOnlyA (QUOTE ({_A} (_x := _E) {_B}))
                                     (Noarg (perhapsconsequenceL (SEQ "variable-assignment" simpl)))
@@ -302,11 +312,11 @@ TACTIC boundednesstac IS
   WHEN 
     (LETHYPSUBSTSEL (_P«_a[_E]/_x») 
         (WHEN 
-            (LETHYPSUBSTSEL (_A<_B) (deduceboundedness (_A<_B) _a _E))
-            (LETHYPSUBSTSEL (_A≤_B) (deduceboundedness (_A≤_B) _a _E))
-            (LETHYPSUBSTSEL (_A=_B) (checkdependencytac "bounded(=)" "symmetric=" (_A=_B) _a _E))
-            (LETHYPSUBSTSEL (_A≥_B) (deduceboundedness (_A≥_B) _a _E))
-            (LETHYPSUBSTSEL (_A>_B) (deduceboundedness (_A>_B) _a _E))
+            (LETHYPSUBSTSEL (_A<_B) (checkdependencytac "bounded(<)(L)" "bounded(<)(R)" (_A<_B) _a _E))
+            (LETHYPSUBSTSEL (_A≤_B) (checkdependencytac "bounded(≤)(L)" "bounded(≤)(R)" (_A≤_B) _a _E))
+            (LETHYPSUBSTSEL (_A=_B) (checkdependencytac "bounded(=)(L)" "bounded(=)(R)" (_A=_B) _a _E))
+            (LETHYPSUBSTSEL (_A≥_B) (checkdependencytac "bounded(≥)(L)" "bounded(≥)(R)" (_A≥_B) _a _E))
+            (LETHYPSUBSTSEL (_A>_B) (checkdependencytac "bounded(>)(L)" "bounded(>)(R)" (_A>_B) _a _E))
             (LETHYPSUBSTSEL (_A≠_B)
                 (ALERT ("To deduce array-index boundedness, you must text-select \
                         \an array-indexing formula inside an equality/inequality hypothesis. \
