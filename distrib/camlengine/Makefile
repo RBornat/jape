@@ -39,7 +39,7 @@ jape.opt: $(CMX) main.cmx;   ocamlopt $(SOURCES) -o jape.opt unix.cmxa $(CMX) ma
 
 #############################################################################
 #
-#  For the windows build at Oxford
+#  For the windows build
 #
 #  We don't actually make this target, because we're running on a Unix. 
 #  We do a make -n on it to make a batch file that can be run on Windows. 
@@ -48,7 +48,6 @@ jape.exe: $(CMO) main.cmo;\
           ocamlc $(SOURCES) $(CAMLDEBUG) -custom -o jape.exe unix.cma $(CMO) main.cmo
 
 makejape.bat:: ;\
-               rsync -vt /users/sufrin/WINDOWS-C-RESOURCES/* .;\
                echo cd tmp                                      >  ../makejape.bat;\
                make -n jape.exe | egrep -v "Entering|Leaving|up to date"   >> ../makejape.bat;\
                echo cd ..                                       >> ../makejape.bat;\
@@ -83,7 +82,6 @@ include .depend
 %.tml : ../engine/%.sig.sml ;\
         camltran ../engine/$*.sig.sml >$*.testml ;\
         mv $*.testml $*.tml
-
 
 
 
