@@ -671,35 +671,31 @@ let rec dragtargets (segvars : string list) =
   writef "DROPEND\n" []
 (* things added for version 5.0 *)
 
-let rec setdisproofseqbox size =
+let rec setseqbox size =
   let (w, a, d) = explodeTextSize size in
   writef "SEQBOX % % %\n" (List.map fInt [w; a; d])
 
-let rec setdisprooftiles ts =
+let rec emphasise pos b =
+  let (x, y) = explodePos pos in
+  writef "EMPHASISE % % %\n" [Int x; Int y; Bool b]
+
+let rec settiles ts =
   writef "TILESSTART\n" [];
   List.iter (fun t -> writef "TILE %\n" [Str t]) ts;
   writef "TILESEND\n" []
 
-let rec setdisproofworlds selected worlds =
+let rec setworlds selected worlds =
   writef "WORLDSSTART\n" [];
-  List.iter
-    (fun ((cx, cy), labels, children) ->
-       writef "WORLD % %\n" [Int cx; Int cy];
-       List.iter
-         (fun label ->
-            writef "WORLDLABEL % % %\n"
-              [Int cx; Int cy; Str label])
-         labels;
-       List.iter
-         (fun (chx, chy) ->
-            writef "WORLDCHILD % % % %\n"
-              [Int cx; Int cy; Int chx; Int chy])
-         children)
-    worlds;
-  List.iter
-    (fun (sx, sy) -> writef "WORLDSELECT % %\n" [Int sx; Int sy])
-    selected;
-  writef "WORLDSEND\n" []
+  List.iter (fun ((cx, cy), labels, children) ->
+			   writef "WORLD % %\n" [Int cx; Int cy];
+			   List.iter
+				 (fun label -> writef "WORLDLABEL % % %\n" [Int cx; Int cy; Str label])
+				 labels;
+			   List.iter
+				 (fun (chx, chy) -> writef "WORLDCHILD % % % %\n" [Int cx; Int cy; Int chx; Int chy])
+				 children)
+             worlds;
+  List.iter (fun (sx, sy) -> writef "WORLDSELECT % %\n" [Int sx; Int sy]) selected;
 
 exception GetPaneGeometry_ of string
 
@@ -709,11 +705,6 @@ let rec getPaneGeometry pane =
     | _ -> raise (GetPaneGeometry_ (panestring pane))
 
 let rec clearPane pane = writef "CLEARPANE %\n" [Int (pane2int pane)]
-
-let rec emphasise pos b =
-  let (x, y) = explodePos pos in
-  writef "DISPROOFEMPHASISE % % %\n"
-    [Int x; Int y; Bool b]
 
 type displaystyle = TreeStyle | BoxStyle
 
