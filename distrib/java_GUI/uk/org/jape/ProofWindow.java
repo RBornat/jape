@@ -58,7 +58,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     protected JapeCanvas focussedCanvas;
 
     public ProofWindow(String title, int proofnum) {
-        super(title);
+        super(title, proofnum);
         this.proofnum = proofnum;
 
         getContentPane().setLayout(new BorderLayout()); 
@@ -132,7 +132,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     public static void closeproof(int proofnum) throws ProtocolError {
         ProofWindow proof = findProof(proofnum);
         focusv.remove(focusv.indexOf(proof));
-        closeWindow(proof.title);
+        closeWindow(proof);
         reportFocus();
     }
 
