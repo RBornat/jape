@@ -25,52 +25,64 @@
     
 */
 
-import javax.swing.*;
+/* Apparently FileDialog looks better than JFileChooser in Aqua, and may look better in Windows. */
+
+import java.awt.FileDialog;
+
 import java.io.File;
+import java.io.FilenameFilter;
 
-public class FileChooser {
+import javax.swing.JFileChooser;
 
-    private static String 
-                lastOpen = ".",   // these are paths
-                lastSave = ".";
-    
+public class FileChooser /* implements FilenameFilter */ {
+
+    private static File lastOpen, lastSave; 
+
+    private static File nextOpen() {
+        return (lastOpen==null ? (lastSave==null ? (japeserver.onMacOS ? null : new File("."))
+                                                : lastSave)
+                               : lastOpen);
+    }
+
+    private static File nextSave() {
+        return (lastSave==null ? (lastOpen==null ? (japeserver.onMacOS ? null : new File("."))
+                                                 : lastOpen)
+                               : lastSave);
+    }
 
     private static String doOpenDialog(JFileChooser chooser) {
-        int   returnVal = chooser.showOpenDialog(null);
-        File  selected  =  chooser.getSelectedFile();
-        if (returnVal==JFileChooser.APPROVE_OPTION)
-        { String dir = selected.getParent();
-          if (dir!=null) lastOpen = dir;
-          return selected.toString();
+        int returnVal = chooser.showOpenDialog(null);
+        File selected = chooser.getSelectedFile();
+        if (returnVal==JFileChooser.APPROVE_OPTION) {
+            File dir = selected.getParentFile();
+            if (dir!=null) lastOpen = dir;
+            return selected.toString();
         } 
         else
-        {
-          return "";
-        }
+            return "";
     }
     
     private static String doSaveDialog(JFileChooser chooser) {
-        int   returnVal = chooser.showSaveDialog(null);
-        File  selected  =  chooser.getSelectedFile();
-        if (returnVal==JFileChooser.APPROVE_OPTION)
-        { String dir = selected.getParent();
-          if (dir!=null) lastSave = dir;
-          return selected.toString();
+        int returnVal = chooser.showSaveDialog(null);
+        File selected  =  chooser.getSelectedFile();
+        if (returnVal==JFileChooser.APPROVE_OPTION) {
+            File dir = selected.getParentFile();
+            if (dir!=null) lastSave = dir;
+            return selected.toString();
         } 
         else
-        {
-          return "";
-        }
+            return "";
     }
 
-    // oh tedium .. why can't I have a list argument?
     public static String newOpenDialog(String message) {
         return newOpenDialog(message, new String[]{});
     }
 
-    // oh rtfm! You can  [HE'S BACK!]
     public static String newOpenDialog(String message, String [] extension) {
-        JFileChooser chooser = new JFileChooser(lastOpen);
+        if (japeserver.onMacOS && lastOpen==null) {
+            System.err.println("\".\" translates to"+(new File(".").getAbsolutePath()));
+        }
+        JFileChooser chooser = nextOpen()==null ? new JFileChooser() : new JFileChooser(nextOpen());
         ExampleFileFilter filter = new ExampleFileFilter();
         for (int i=0; i<extension.length; i++)
             filter.addExtension(extension[i]);
@@ -80,7 +92,7 @@ public class FileChooser {
     }
 
     public static String newSaveDialog(String message, String [] extension) {
-        JFileChooser chooser = new JFileChooser(lastSave);
+        JFileChooser chooser = nextSave()==null ? new JFileChooser() : new JFileChooser(nextSave());
         ExampleFileFilter filter = new ExampleFileFilter();
         for (int i=0; i<extension.length; i++)
             filter.addExtension(extension[i]);
