@@ -124,9 +124,10 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         return s;
     }
     
-    public static void checkInterfaceFontnum(int fontnum) throws ProtocolError {
+    public static byte checkInterfaceFontnum(byte fontnum) throws ProtocolError {
         if (fontnum<TermFontNum || fontnum>ProvisoFontNum)
             throw new ProtocolError("fontnum "+fontnum+" out of range");
+        return fontnum;
     }
 
     private static void setInterfaceFonts(Font base) {
@@ -199,19 +200,9 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         return m.stringWidth(s);
     }
 
-    public static TextDimension checkedMeasure(String s, byte fontnum) throws ProtocolError {
-        checkInterfaceFontnum(fontnum);
-        return measure(s, fontnum);
-    }
-
     public static FontMetrics getFontMetrics(byte fontnum) {
         initInterfaceMetrics();
         return interfaceMetrics[fontnum];
-    }
-
-    public static FontMetrics checkedFontMetrics(byte fontnum) throws ProtocolError {
-        checkInterfaceFontnum(fontnum);
-        return getFontMetrics(fontnum);
     }
 
     public static Font getFont(byte fontnum) {
