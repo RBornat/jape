@@ -169,9 +169,10 @@ STRUCTURERULE IDENTITY    hyp
 STRUCTURERULE CUT            cut
 STRUCTURERULE WEAKEN     thin
 
+/*  Because of the ForwardSubstHiding tactic, these all have argument A and "second argument" B */
 RULE "rewrite ê Ç" (A) IS FROM A ê B AND P(B) INFER P(A)
-RULE "rewrite ê È" (B) IS FROM A ê B AND P(A) INFER P(B)
+RULE "rewrite ê È" (A) IS FROM B êA AND P(B) INFER P(A)
 RULE "rewrite = Ç" (A) IS FROM A=B AND P(B) INFER P(A)
-RULE "rewrite = È" (B) IS FROM A=B AND P(A) INFER P(B)
+RULE "rewrite = È" (A) IS FROM B=A AND P(B) INFER P(A)
 RULE "rewrite ÷ Ç" (A) IS FROM A÷B AND P(B) INFER P(A)
-RULE "rewrite ÷ È" (B) IS FROM A÷B AND P(A) INFER P(B)
+RULE "rewrite ÷ È" (A) IS FROM B÷A AND P(B) INFER P(A)
