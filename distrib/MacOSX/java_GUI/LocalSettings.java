@@ -40,19 +40,27 @@ import java.lang.IllegalStateException;
 
 public class LocalSettings implements MRJAboutHandler, MRJQuitHandler, MRJPrefsHandler,
                                       SelectionConstants {
-
+    // focus in panel windows
+                                          
+    public static final boolean showPanelWindowFocus = true;
+                                          
     // how to set up menus
+                                          
     public static final boolean panelWindowMenus = true;
     
-    public static final boolean aboutMenuItemNeeded = false;
-    public static final boolean quitMenuItemNeeded = false;
-    public static final boolean prefsMenuItemNeeded = false;
+    public static final boolean aboutMenuItemNeeded = false,
+                                quitMenuItemNeeded  = false,
+                                prefsMenuItemNeeded = false;
 
+    public static final boolean windowMenuItemsTicked = true;
+    
     // size of windows
+    
     public static final Dimension DefaultProofWindowSize = new Dimension(450, 350);
     public static final int PosIncr = 35;
 
     // size of fonts
+    
     public static final byte 	FormulaFontSize     = 14,
                                 ReasonFontSize      = 11,
                                 ProvisoFontSize     = 11,
@@ -60,9 +68,11 @@ public class LocalSettings implements MRJAboutHandler, MRJQuitHandler, MRJPrefsH
                                 PanelEntryFontSize  = 11;
 
     // spacing of tiles
+    
     public static final int TileSpacing = 5;
 
     // what a mouseDown means on a TextItem
+    
     public static byte mouseDownTextItemMeans(MouseEvent e) {
         byte kind = e.isAltDown() ? TextSelMask : PureSelMask;
         if (e.isShiftDown()) kind |= ExtendedSelMask;
@@ -71,6 +81,7 @@ public class LocalSettings implements MRJAboutHandler, MRJQuitHandler, MRJPrefsH
     }
 
     // what a mouseDown means on a WorldItem
+    
     public static byte mousePressWorldItemMeans(MouseEvent e) {
         return e.isAltDown() ? NewWorldDrag : MoveWorldDrag;
     }
@@ -81,14 +92,16 @@ public class LocalSettings implements MRJAboutHandler, MRJQuitHandler, MRJPrefsH
     }
 
     // how to mark an entry in a conjecture panel
-    public static final String tick = "\u221A", cross = "\u2022"; // actually square root, blob in Konstanz
+    
+    public static final String tick = "\u221A", cross = "\u2022";
+            // actually square root, blob in Konstanz
 
     // window titling (until we have proper Unicode operator coverage, esp. turnstile)
+    
     public static final boolean UnicodeWindowTitles = false;
     
-    /* ********************************************************************** */
+    /* ************************ MacOS specific bits ************************ */
 
-    // MacOS specific bits
     public void handleAbout() {
         japeserver.handleAbout();
     }

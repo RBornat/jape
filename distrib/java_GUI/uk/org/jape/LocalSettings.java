@@ -34,29 +34,40 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 
 public class LocalSettings implements SelectionConstants {
-	
+
+    // focus in panel windows
+
+    public static final boolean showPanelWindowFocus = false;
+    
     // how to set up menus
+    
     public static final boolean panelWindowMenus = false;
     
     public static final boolean aboutMenuItemNeeded = true,
                                 quitMenuItemNeeded  = true,
                                 prefsMenuItemNeeded = true;
 
+    public static final boolean windowMenuItemsTicked = false;
+    
     // size of windows
+    
     public static final Dimension DefaultProofWindowSize = new Dimension(625, 500);
     public static final int PosIncr = 50;
 
     // size of fonts
+    
     public static final byte 	FormulaFontSize     = 18,
                                 ReasonFontSize      = 14,
                                 ProvisoFontSize     = 14,
                                 PanelButtonFontSize = 14,
                                 PanelEntryFontSize  = 14;
 
+    
     // spacing of tiles
     public static final int TileSpacing = 7;
 
     // what a mouseDown means on a TextItem (I took advice from Bernard, hence isControlDown)
+    
     public static byte mouseDownTextItemMeans(MouseEvent e) {
         byte kind = e.isAltDown() ? TextSelMask : PureSelMask;
         if (e.isShiftDown())    kind |= ExtendedSelMask;
@@ -65,6 +76,7 @@ public class LocalSettings implements SelectionConstants {
     }
 
     // what a mouseDown means on a WorldItem (ditto)
+    
     public static byte mousePressWorldItemMeans(MouseEvent e) {
         return e.isAltDown() ? NewWorldDrag : MoveWorldDrag;
     }
@@ -73,9 +85,12 @@ public class LocalSettings implements SelectionConstants {
         return !e.isAltDown() && !e.isShiftDown() &&
                !e.isMetaDown() && !e.isControlDown() ? WorldClick : WorldNoClick;
     }
+    
     // how to mark an entry in a conjecture panel
+    
     public static final String tick = "\u2713", cross = "\u2717";
 
-    // window titling (this is for Linux only, I think)
+    // window titling
+    
     public static final boolean UnicodeWindowTitles = false;
 }
