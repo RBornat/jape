@@ -56,7 +56,7 @@ public class DisproofPane extends Container implements DebugConstants {
     public DisproofPane(JFrame window, int linethickness) {
         super();
         this.window = window; this.linethickness = linethickness;
-        
+
         setLayout(new DisproofPaneLayout());
 
         setBackground(Color.white);
@@ -86,7 +86,7 @@ public class DisproofPane extends Container implements DebugConstants {
         add(seqView);
         seqView.setLayout(null);
 
-        seqCanvas = new DisproofCanvas(seqView, false) {
+        seqCanvas = new DisproofCanvas(seqView, false, linethickness) {
             public float getAlignmentX() { return CENTER_ALIGNMENT; }
         };
         seqView.add(seqCanvas);
@@ -101,7 +101,9 @@ public class DisproofPane extends Container implements DebugConstants {
     private int linethickness = 1;
     
     public void setlinethickness(int linethickness) {
-        linethickness = seqCanvas.linethickness = worldCanvas.linethickness = linethickness;
+        this.linethickness = linethickness;
+        seqCanvas.setlinethickness(linethickness);
+        worldCanvas.setlinethickness(linethickness);
     }
 
     private Tile[] tiles;
@@ -276,7 +278,7 @@ public class DisproofPane extends Container implements DebugConstants {
         int width = Math.max(worldCanvas.getWidth(), seqView.getWidth())+
                     gap+tileCanvas.getWidth();
         int height = Math.max(worldCanvas.getHeight(), tileCanvas.getHeight())+
-                     gap+seqView.getHeight()+gap;
+                     gap+seqView.getHeight();
         return new Dimension(width, height);            
     }
 
