@@ -43,9 +43,12 @@ public interface SelectionConstants {
                              ExtendedDisjointTextSelection = TextSelMask|ExtendedSelMask|DisjointSelMask;
 
     // bit selectors for recorded selections
-    static final byte NoSel        = 0,
-                      HypSel       = 1<<0,
-                      ConcSel      = 1<<1,
-                      ReasonSel    = 1<<2,
-                      AmbigSel     = 1<<3;
+    public static final byte NoSel        = 0,
+                             HypSel       = 1<<0,
+                             ConcSel      = 1<<1,
+                             ReasonSel    = 1<<2,
+                             AmbigSel     = 1<<3;
+
+    public static final byte ExtendedDrag = 1,
+                             SimpleDrag   = 2;
 }
