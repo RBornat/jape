@@ -142,8 +142,8 @@ let _The = Optionfuns._The
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 
-let element2textinfo = element2textinfo elementstring_invisbracketed
-let term2textinfo = term2textinfo termstring_invisbracketed
+let element2textinfo = element2textinfo (elementstring_invisbracketed true)
+let term2textinfo = term2textinfo (termstring_invisbracketed true)
 let outermostbox = ref true
 (* set true to imitate previous boxdraw behaviour *)
 let hidecut = ref true
@@ -846,7 +846,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             | ElementPunctPlan ->
                 raise (Catastrophe_ ["foldformula ElementPunctPlan"])
           in
-          let estring = catelim_elementstring_invisbracketed e [] in
+          let estring = catelim_elementstring_invisbracketed true e [] in
           let measure = fst_of_3 <.> measurestring TermFont in
           let _ =
             if !boxfolddebug then
