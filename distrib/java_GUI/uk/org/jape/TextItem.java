@@ -34,25 +34,6 @@ import java.util.Vector;
 
 class TextItem extends DisplayItem {
     
-    /* from displayclass.ml/mli:
-       (* Useful translation for Japeserver marshalling.
-        * Current C/Java/Tk interfaces believe in these integers.
-        *
-        *   DisplayPunct  0
-        *   DisplayConc   1
-        *   DisplayHyp    2
-        *   DisplayReason 3
-        *   DisplayAmbig  4
-        *
-        *)
-    */
-
-    public static final byte PunctKind  = 0,
-                             ConcKind   = 1,
-                             HypKind    = 2,
-                             ReasonKind = 3,
-                             AmbigKind  = 4;
-    
     public static Color OnColour     = Color.black,
                         OutColour    = Color.gray,
                         ForcedColour = Color.magenta,
@@ -290,22 +271,25 @@ class TextItem extends DisplayItem {
         }
     }
     */
-    /** Repaint this text. */
 
     public void paint(Graphics g) {
         g.setFont(font);
+
+        /* g.setColor(greyed?canvas.getGreyedColour():canvas.getNormalColour()); */
+
         int len = coloursegs.length;
         for (int i=0; i<len; i++)
             coloursegs[i].paint(g);
     }
 
+    // this isn't efficient, but that doesn't matter, I think
     public String toString() {
         String s = super.toString()+": [printchars=\"";
         int i;
         for (i=0; i<printchars.length; i++)
             s = s+printchars[i];
-        s = s+"\", annottext=..."+", fontnum="+fontnum+", font=..."+", dimension="+dimension+
-            ", coloursegs=[";
+        s = s+"\", annottext=..."+", fontnum="+fontnum+", font=..."+
+            ", dimension="+dimension+", coloursegs=[";
         for (i=0; i<coloursegs.length; i++) {
             s=s+coloursegs[i];
             if (i+1<coloursegs.length)
