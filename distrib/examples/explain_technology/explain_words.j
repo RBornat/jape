@@ -27,18 +27,18 @@
 
 /* needs explain_basics.j */
 
-TACTIC Explainantecedentandconclusionwords IS
+TACTIC Explainhypothesisandconclusionwords IS
     ExplainThenStop    
-        "When you select an antecedent, you get a downward-pointing selection (a box round the \
-        \formula, open at the bottom). You work forward from an antecedent selection.\n\n\
+        "When you select a hypothesis, you get a downward-pointing selection (a box round the \
+        \formula, open at the bottom). You work forward from a hypothesis selection.\n\n\
         \Unproved conclusion formulae are written with three dots above them. \
         \When you select an unproved conclusion, you get \
         \an upward-pointing selection (a box round the formula, open at the top). You work \
         \backwards from a conclusion selection, or it can be a target for a forward step.\n\n\
-        \Some formulae can be used as antecedent or as unproved conclusion. In those cases \
+        \Some formulae can be used as hypothesis or as unproved conclusion. In those cases \
         \the selection box has a dotted horizontal line. Click in the bottom half of the formula to make an \
-        \antecedent selection, in the top half for a conclusion selection.\n\n\
-        \Any formula can be used as an antecedent if there are relevant unproved conclusions below it \
+        \hypothesis selection, in the top half for a conclusion selection.\n\n\
+        \Any formula can be used as a hypothesis if there are relevant unproved conclusions below it \
         \in the proof."
 
 TACTIC Explainunprovedconclusionwords IS
@@ -50,7 +50,7 @@ TACTIC Explainunprovedconclusionwords IS
         \When there are no unproved conclusions left, the proof is finished."
 
 TACTIC ExplainDeadHyp (stepname, Ph) IS
-    ALERT   ("When you select an antecedent, Jape shows the unproved conclusions that can make use of it \
+    ALERT   ("When you select a hypothesis, Jape shows the unproved conclusions that can make use of it \
             \in black, and any other conclusions – proved or unproved – in grey. You can see that there are no \
             \non-grey unproved conclusions in the proof, after you selected %t.\n\n\
             \(If there are any unproved conclusions in the proof, they are greyed-out either because \
@@ -83,13 +83,13 @@ TACTIC ExplainHypMulti (stepname, Ph, _Aandgs) IS
             \The formula just below a line of dots is an unproved conclusion (notice that those formulae \
             \don't have reasons next to them). Your job is to show that each unproved conclusion follows \
             \from the line(s) above it.\n\n\
-            \You selected the antecedent %t, and the unproved conclusions which can use that \
-            \antecedent are %l. (Conclusions which can't make use of the antecedent are 'greyed out'.)\n\n\
+            \You selected the hypothesis %t, and the unproved conclusions which can use that \
+            \hypothesis are %l. (Conclusions which can't make use of the hypothesis are 'greyed out'.)\n\n\
             \If you select one of those unproved conclusions AS WELL AS selecting %t, then a \
             \forward step will put the new formulae that it generates just before the selected conclusion.", 
             Ph, (_Aandgs, ", ", " and "), Ph)
             ("OK", STOP) 
-            ("Huh?", SEQ Explainantecedentandconclusionwords STOP)
+            ("Huh?", SEQ Explainhypothesisandconclusionwords STOP)
                 
 /* for theories -- most theories -- which require a conclusion selection */                
 TACTIC ExplainMulti (stepname, stuff) IS 
@@ -103,5 +103,5 @@ TACTIC ExplainMulti (stepname, stuff) IS
         \backward step just after a line of dots. If there is more than one line of dots in the proof, \
         \you must tell it where to do its work.\n\n\
         \So if you want to make a forward step in this proof, you must select (click on) \
-        \an unproved conclusion AS WELL AS an antecedent. If you want to make a backward step,\
+        \an unproved conclusion AS WELL AS a hypothesis. If you want to make a backward step,\
         \ you only need to select an unproved conclusion.%s", stuff)

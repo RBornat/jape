@@ -7,7 +7,7 @@ TACTIC TheoremForwardOrBackward(thm) IS
         (LETHYP _A 
             (ALT    (TheoremForward (WITHHYPSEL (WITHARGSEL thm)))))
         (LETHYPS _As
-            (Fail ("At present I2L Jape can't deal with multiple antecedent selections when applying theorems. Sorry.\
+            (Fail ("At present I2L Jape can't deal with multiple hypothesis selections when applying theorems. Sorry.\
                     \\nCancel one of them and try again.")))
         (LETGOAL _A
             (ALT (WITHARGSEL thm) 
@@ -18,10 +18,10 @@ TACTIC TheoremForwardOrBackward(thm) IS
             (Fail ("Error in I2L Jape (open subgoal in TheoremForwardOrBackward). Tell Richard.")))
         (LETOPENSUBGOALS _As
             (ALERT  ("There is more than one unproved conclusion in the proof. Please select one – \
-                        \or select an antecedent – to show \
+                        \or select a hypothesis – to show \
                         \Jape where to apply the theorem.")
                     ("OK", STOP) 
-                    ("Huh?", Explainantecedentandconclusionwords)))
+                    ("Huh?", Explainhypothesisandconclusionwords)))
         (ALERT  "The proof is finished -- there are no unproved conclusions left."
                 ("OK", STOP) 
                 ("Huh?", Explainunprovedconclusionwords))

@@ -54,7 +54,7 @@ TACTIC BackwardOnly2 (stepname, action, explain) IS
 
 TACTIC BackwardOnly3 (stepname, action, explain, _Ah, _Ac, stuff) IS /* Oh for tactic nesting ... */
     ALERT   ("You asked for a backward step with the %s rule%s the conclusion %s, \
-             \but you also selected the antecedent %s. \
+             \but you also selected the hypothesis %s. \
              \\n\nThe %s rule %s. \
              \ \n\nDo you want to go on with the backward step from %s -- ignoring %s?", 
             stepname, stuff,  _Ac, _Ah, stepname, explain, _Ac, _Ah)
