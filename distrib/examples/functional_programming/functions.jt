@@ -1,0 +1,273 @@
+/*
+
+	A game of functions and lists
+	Bernard Sufrin & Richard Bornat
+	$Id$
+	$Author$
+	$Date$
+*/
+
+
+FONTS   "Konstanz"
+SEQUENT IS BAG Ê TERM 
+
+INFIX   1000    1000    È
+INFIX   1100    1100    Á
+INFIX   1500    1500    ¶
+INFIX   1600    1600    Î
+PREFIX                  ¬
+INFIX   2000    2000    =, ≥, ≤, ≠, <, >
+INFIX   2500    2500    +, -
+INFIX   2600    2600    *, /
+INFIX   2700    2700    ^
+
+LEFTFIX Ë .
+LEFTFIX ‰ .
+
+CLASS    VARIABLE u, v, w, x, y, z
+CLASS    FORMULA A, B, C, D, P, S, T, U, V, W, X, Y, Z
+CONSTANT Ÿ
+ 
+BIND    x SCOPE P IN ‰ x . P
+BIND    x SCOPE P IN Ë x . P
+
+USE     "equality.j"
+
+INITIALISE displaystyle box
+
+INFIX    4010 4000 :
+INFIX    3000 3010 ++
+INFIX    2800 2800 •
+INFIX    2900 2900 ª, Ù
+OUTFIX   › ﬁ
+
+CLASS FORMULA H, J
+CONSTANT none, one, IF, true, false, if, sel, pair,
+	 fst,  snd, id, cat, rcat, rev, nil, rev2, fold,
+	 map,  filter, zip, swap 
+
+
+MENU  Rules IS
+      SEPARATOR
+      
+      RULE "ÊË"(OBJECT xs') WHERE FRESH xs'
+	   FROM  A[xs\xs']
+	   INFER Ë xs . A
+
+      RULE "ËÊ"(B,OBJECT xs)
+	   FROM   Ë xs . A
+	   INFER  A[xs\B]
+
+END
+
+THEORY  Function IS
+	RULE     IF'1	IF true X Y     = X
+	RULE     IF'2   IF false X Y    = Y
+	RULE     if     if P (F, G) X   = IF (P X) (F X) (G X)
+	RULE     fst	fst(X,Y)        = X
+	RULE     snd	snd(X,Y)        = Y
+	RULE     "•"  	IS (F • G) X    = F(G X)
+	RULE     id     id X            = X
+	RULE     ª IS	(FªG) X         = (F X, G X)
+	RULE     Ù IS	(FÙG)(X,Y)      = (F X, G Y)
+	RULE     swap	swap(X,Y)       = (Y,X)
+END
+
+RULE    listinduction (B,  OBJECT xs, OBJECT ys, OBJECT x, OBJECT vs) 
+WHERE   FRESH xs, ys, x 
+FROM    A[vs\nil] 
+AND     A[vs\›xﬁ] 
+AND     A[vs\xs], A[vs\ys] Ê A[vs\xs++ys] 
+INFER   A[vs \ B]
+
+MENU    Rules IS
+        SEPARATOR
+        ENTRY "list induction" IS 
+        WHEN 
+        (LETSUBSTSEL 
+         (_Abase[_xvar\_Asel], 
+          listinduction _Asel
+         ),
+         JAPE(fail(Please select an induction formula)))
+END
+
+MENU    Rules IS
+        SEPARATOR
+	RULE    BoolCases(B,OBJECT v)
+		FROM  A[v\true]
+		AND   A[v\false]
+		INFER A[v\B]
+
+END
+
+THEORY  List IS
+
+	RULE    none    none X = nil
+	RULE    one     one X  = ›Xﬁ
+
+	RULE    cat     cat             = fold (++) nil
+
+	RULES   rev
+	ARE             rev nil         = nil
+	AND             rev ›Xﬁ         = › X ﬁ
+	AND             rev (XS++YS)    = rev YS ++ rev XS
+	END
+
+	RULES    ++
+	ARE             nil++YS         = YS
+	AND             XS++nil         = XS
+	AND             (XS++YS)++ZS    = XS++(YS++ZS)
+	END
+
+	RULES    map
+	ARE             map F nil       = nil
+     	AND             map F ›Xﬁ       = ›F Xﬁ
+	AND             map F (XS++YS)  = map F XS ++ map F YS
+	END
+
+	RULE     filter filter P        = cat • map (if P (one, none))
+
+	RULES    zip
+	ARE             zip(nil, nil)   = nil
+	AND             zip(›Xﬁ, ›Yﬁ)   = ›(X,Y)ﬁ
+	AND             zip(XS++XS', YS++YS') = zip (XS,YS)++zip(XS',YS')
+	END
+
+	RULES    fold
+	ARE             fold F Z nil      = Z
+	AND             fold F Z ›Xﬁ      = X
+	AND             fold F Z (XS++YS) = F (fold F Z XS, fold F Z YS)
+	END
+
+	RULE     rev2   rev2              = fold rcat nil • map one
+	RULE     rcat   rcat(XS, YS)   = YS ++ XS
+	RULE     ":"    X:XS             = ›Xﬁ ++ XS
+END
+
+CONSTANT ref, ins, del, move, L, R
+THEORY  Reflect IS
+	RULE    ref     IS ref                  = (revÙrev) • swap
+	RULE    ins     IS ins X (Xs,Ys)        = (Xs ++ ›Xﬁ, Ys)
+	RULE    del     IS del  (Xs ++ ›Xﬁ, Ys) = (Xs, Ys)
+	RULE    move    IS move (Xs ++ ›Xﬁ, Ys) = (Xs, ›Xﬁ ++ Ys)
+	RULE    L       IS L F = ref • F • ref
+	RULE    R       IS R F = F
+END
+
+CONJECTUREPANEL "List Conjectures" IS
+
+        PREFIXBUTTON    "Apply"     IS apply
+        PREFIXBUTTON    "Unfold ."  IS apply UnfoldOneSel
+        PREFIXBUTTON    "Fold  ."   IS apply FoldOneSel
+        PREFIXBUTTON    "Unfold .." IS apply UnfoldSel
+        PREFIXBUTTON    "Fold  .."  IS apply FoldSel
+
+        THEOREMS    ListThms
+        ARE     rev • rev       = id
+        AND     rev2            = rev
+        AND     map F (xs++ys)  = map F xs ++ map F ys
+/*      AND     
+                associative F,
+	        unit        F i
+	        Ê
+	        fold F i (xs++ys) = F(fold F i xs, fold F i ys) 
+*/
+END
+
+        THEOREMS    FunctionThms
+        ARE     swap • swap             = id
+        AND     swap • (FÙG) • swap     = GÙF
+        AND     (FÙG) • (HªJ)           = (F • H)ª(G • J)
+        AND     idÙid                   = id
+        AND     (FÙG) • (HÙJ)           = (F • H)Ù (G • J)
+        AND     F  • id                 = F
+        AND     F                       = id • F
+        END
+
+        THEOREMS    Associativity
+        ARE         (F • G) • H = F • (G • H)
+        END
+
+
+        THEOREMS  Composition(J,H,F,G)
+        ARE
+                J • H = id,     H • F = H • G Ê F=G
+        AND
+                J • H = id,     F • J = G • J Ê F=G
+        AND
+                J • J = id, J • F • J = J • G • J Ê F=G
+        END
+
+        THEOREMS    ReflectThms
+        ARE         ref • ref = id
+        AND         del • ins X = id
+        AND         R F • R G = R (F • G)
+        AND         L F • L G = L (F • G)
+        AND         G • L F = L G Ê L G • F = G
+        END
+
+
+END
+
+TACTIC Auto IS
+ALT
+( List, ListThms, Function, FunctionThms, Reflect, ReflectThms
+)
+
+TACTICPANEL "Fold and Unfold" 
+        PREFIXBUTTON    "Unfold ."  IS apply UnfoldOneSel
+        PREFIXBUTTON    "Fold  ."   IS apply FoldOneSel
+        PREFIXBUTTON    "Unfold .." IS apply UnfoldSel
+        PREFIXBUTTON    "Fold  .."  IS apply FoldSel
+        BUTTON          "Unfold  ?" IS apply Unfold Auto
+        BUTTON          "Fold  ?"   IS apply Fold Auto
+	ENTRY           "if"      
+	ENTRY           "fst" 
+	ENTRY           "snd"  
+	ENTRY           "•"   
+	ENTRY           "id"   
+	ENTRY           "ª"   
+	ENTRY           "Ù"   
+	ENTRY           "swap" 
+	ENTRY           "none" 
+	ENTRY           "one"  
+	ENTRY           "cat"   
+	ENTRY           rev  
+	ENTRY           "++"
+	ENTRY           map
+	ENTRY           filter
+	ENTRY           zip
+	ENTRY           fold
+	ENTRY           rev2
+	ENTRY           rcat
+	ENTRY           ":"
+	ENTRY           ref
+	ENTRY           ins
+	ENTRY           del
+	ENTRY           move
+	ENTRY           L
+	ENTRY           R
+END
+
+
+
+/*
+	Tactics
+*/
+
+TACTIC  mousebutton3(X)   IS ALT()
+TACTIC  findbutton(X)     IS ALT()
+TACTIC  cutbutton(X)      IS ALT()
+
+/* TACTIC BEGINPROOF IS JAPE(forbidconjectures()) */
+INITIALISE applyconjectures false
+
+MENU    "Mode" 
+ BUTTON "Apply both conjectures and theorems" 	IS assign applyconjectures true
+ BUTTON "Apply only theorems " 		IS assign applyconjectures false
+END
+
+
+
+
+
