@@ -25,5 +25,5 @@ BIND x SCOPE B IN ∃x . B
 
 SEQUENT IS BAG ⊢ FORMULA
 
-INITIALISE autoAdditiveLeft	true /* allow rules to be stated without an explicit left context */
+INITIALISE autoAdditiveLeft		true /* allow rules to be stated without an explicit left context */
 INITIALISE interpretpredicates	true /* allow predicate syntax ... */
