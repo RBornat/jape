@@ -165,9 +165,7 @@ let rec (<@>) env name =
   | Some (Envvar v) ->
       (try Some (term_of_string (getjapevar v)) 
        with ParseError_ rs ->
-          raise
-            (Catastrophe_
-               (["japeenv can't parse get()=\""; getjapevar v; "\" -- "] @ rs)))
+          raise (Catastrophe_ (["japeenv can't parse get()=\""; getjapevar v; "\" -- "] @ rs)))
   | None -> None
 
 let set (env, name, value) =

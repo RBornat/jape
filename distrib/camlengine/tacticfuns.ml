@@ -782,7 +782,7 @@ let rec parseints mess eval ints =
   try
     match debracket (eval ints) with
       Tup (_, ",", ts) -> (int_of_term <* ts)
-    | t -> [int_of_term t]
+    | t                -> [int_of_term t]
   with
     _ ->
       raise
@@ -2233,9 +2233,7 @@ let rec dispatchTactic display try__ env contn tactic =
              m ps copt state)
     | NextgoalTac -> contn (Some (nextGoal true state))
     | SetgoalTac p ->
-        contn
-          (Some
-             (withgoal state (Some (newpath "GOALPATH" (eval env) state p))))
+        contn (Some (withgoal state (Some (newpath "GOALPATH" (eval env) state p))))
 
 (* RULES and THEORY in the paragraph language generate an ALT tactic.  When we
  * apply such a tactic, we want it to behave as much like a RULE or a THEOREM
@@ -2294,11 +2292,10 @@ and doASSIGN env (s, t) state =
   in
   try Japeenv.set (env, s, t'); resetcaches (); Some state with
     OutOfRange_ range ->
-      fail
-        ["argument evaluates to "; string_of_term t'; "; ";
-         parseablestring_of_name s; " can only be set to "; range]
+                   fail ["argument evaluates to "; string_of_term t'; "; ";
+                         parseablestring_of_name s; " can only be set to "; range]
   | NotJapeVar_ -> fail ["it isn't a variable in the environment"]
-  | ReadOnly_ -> fail ["that variable can't be altered (at the moment)"]
+  | ReadOnly_   -> fail ["that variable can't be altered (at the moment)"]
 
 and doMAPTERMS display try__ contn name args =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
@@ -2858,9 +2855,7 @@ and doBIND tac display try__ env =
           try Some (rewriteseq cxt (getTip tree goal)) with
             findTip_ -> None
         with
-          Some
-            (Seq
-               (_, _HS, Collection (_, collc, [Element (_, resn, _C)]))) ->
+          Some (Seq (_, _HS, Collection (_, collc, [Element (_, resn, _C)]))) ->
             checkBIND "LETGOAL" (cxt, env, Some _C, spec)
         | Some _ -> setReason ["LETGOAL with non-single conclusion"]; None
         | None -> setReason ["LETGOAL at non-tip position"]; None
@@ -2908,7 +2903,7 @@ and doBIND tac display try__ env =
           Some sel ->
             Some
               (dispatchTactic display try__
-                 ((env ++ (name |-> registerLiteral (String sel))))
+                 (env ++ (name |-> registerLiteral (String sel)))
                  nullcontn tac state)
         | None -> None
         end
@@ -2916,22 +2911,21 @@ and doBIND tac display try__ env =
         let (FmtPath ns) = getGoalPath goal in
         Some
           (dispatchTactic display try__
-             ((env ++
-                 (name |-> registerTup (",", (term_of_int <* ns)))))
+             (env ++ (name |-> registerTup (",", term_of_int <* ns)))
              nullcontn tac state)
     | BadUnifyTac (n1, n2, tac) ->
         (!badunify &~~
            (fun (t1, t2) ->
               Some
                 (dispatchTactic display try__
-                   ((env ++ ((n1 |-> t1) ++ (n2 |-> t2))))
+                   (env ++ ((n1 |-> t1) ++ (n2 |-> t2)))
                    nullcontn tac state)))
     | BadMatchTac (n1, n2, tac) ->
         (!badmatch &~~
            (fun (t1, t2) ->
               Some
                 (dispatchTactic display try__
-                   ((env ++ ((n1 |-> t1) ++ (n2 |-> t2))))
+                   (env ++ ((n1 |-> t1) ++ (n2 |-> t2)))
                    nullcontn tac state)))
     | BadProvisoTac (n1, n2, n3, tac) ->
         (!badproviso &~~
