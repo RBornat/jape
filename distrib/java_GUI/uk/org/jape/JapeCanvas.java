@@ -111,7 +111,7 @@ public abstract class JapeCanvas extends ContainerWithOrigin
             case Selection:
                 if (getSelectionCount()!=0) {
                     killAllSelections();
-                    Reply.send("DESELECT");
+                    notifySelectionChange(null);
                 }
                 break;
             case ExtendedSelection:
@@ -183,7 +183,26 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         }
     }
 
-    public abstract String getTextSelections(String sep);
+    // not efficient, not in time order
+    public String getPositionedContextualisedTextSelections(String sep) {
+        String s = null;
+        int nc = child.getComponentCount(); // oh dear ...
+        for (int i=0; i<nc; i++) {
+            Component c = child.getComponent(i); // oh dear ...
+            if (c instanceof TextSelectableItem) {
+                TextSelectableItem sti = (TextSelectableItem)c;
+                String s1 = sti.getContextualisedTextSelections();
+                if (s1!=null) {
+                    s1 = sti.idX+Reply.stringSep+sti.idY+Reply.stringSep+s1;
+                    if (s==null)
+                        s=s1;
+                    else
+                        s=s+sep+s1;
+                }
+            }
+        }
+        return s;
+    }
 
     public String getSingleTextSelection() {
         if (getTextSelectionCount()==1) {
