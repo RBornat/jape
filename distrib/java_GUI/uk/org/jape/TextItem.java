@@ -89,12 +89,6 @@ class TextItem extends DisplayItem {
     protected Font          font;
     protected TextDimension dimension;
 
-    /*
-            
-    protected BitSet  marked;      // the selected character positions.
-    
-    */
-    
     public TextItem(JapeCanvas canvas, int x, int y, byte fontnum,
                     String annottext, String printtext) { 
         super(x,y);
@@ -127,23 +121,6 @@ class TextItem extends DisplayItem {
         return Math.max(0, Math.min(getWidth(), px));
     }
     
-    /*protected void computeBounds() {
-        bounds = canvas.stringSize(text, fontnum);
-        boundaries = canvas.getBoundaries(text, fontnum);
-        for (int i=0; i<boundaries.length; i++) boundaries[i]+=position.x;
-        marked = new BitSet(text.length()+1);
-    }*/
-
-    /** 
-            index of the closest character boundary to the right of x 
-    */
-    /*protected int charAt(int x) { 
-        // sequential search!
-        for (int i=0; i<boundaries.length; i++)
-            if (x<boundaries[i]) return i;
-        return -1;
-    } */
-
     protected class ColourSeg {
         public final Color colour;
         public final int start, pxstart;
