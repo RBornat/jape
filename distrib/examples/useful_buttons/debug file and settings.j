@@ -2,7 +2,7 @@
 
 MENU File IS
 	SEPARATOR
-	BUTTON "Debug output to É" IS createdbugfile
+	BUTTON "Debug output to ..." IS createdbugfile
 	BUTTON "Close debug file" IS closedbugfile
 END
 
