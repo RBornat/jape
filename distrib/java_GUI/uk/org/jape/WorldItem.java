@@ -49,23 +49,24 @@ import javax.swing.SwingUtilities;
 
 public class WorldItem extends DisplayItem implements DebugConstants, MiscellaneousConstants,
                                                       SelectionConstants,
-                                                      LineTarget, LabelTarget, WorldTarget, TileTarget {
+                                                      LineTarget, LabelTarget, WorldTarget,
+                                                      TileTarget {
 
-    protected WorldCanvas canvas;
+    protected final WorldCanvas canvas;
     protected JFrame window;
     protected JLayeredPane layeredPane;
     protected Container contentPane;
-    protected SelectionRing selectionRing;
+    protected WorldSelection selectionRing;
     protected Ellipse2D.Float outline;
 
-    private final int x0, y0, radius, labelgap;
+    public final int x0, y0, radius, labelgap;
     private int labelx;
     private Vector labelv = new Vector(), // labels attached to me
                    fromv  = new Vector(), // lines which lead from me
                    tov    = new Vector(); // lines which lead to me
     
     public WorldItem(WorldCanvas canvas, JFrame window, int x, int y) {
-        super(x, y);
+        super(canvas, x, y);
         this.canvas = canvas; this.window = window;
         this.layeredPane = window.getLayeredPane();
         this.contentPane = window.getContentPane();
@@ -73,8 +74,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         this.radius = canvas.worldRadius();
         setBounds(x0-radius, y0-radius, 2*radius, 2*radius);
 
-        selectionRing = new SelectionRing(x0, y0, radius+2*canvas.linethickness);
-        canvas.add(selectionRing);
+        selectionRing = new WorldSelection(this);
+        addSelectionIndicator(selectionRing);
 
         outline = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
         if (geometry_tracing)
@@ -105,6 +106,11 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                 WorldItem.this.released(dragKind, e);
             }
         });
+    }
+
+    public boolean contains(int x, int y) {
+        return indicator!=null ? indicator.contains(x, y) :
+                                 (x-x0)*(x-x0)+(y-y0)*(y-y0)<=radius*radius;
     }
 
     private boolean alreadyFrom(WorldItem from) {
@@ -141,10 +147,6 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         labelv.add(label);
         labelx += label.getWidth()+labelgap;
     }
-    
-    public void select(boolean selected) {
-        selectionRing.select(selected);
-    }
 
     public void paint(Graphics g) {
         if (paint_tracing)
@@ -164,27 +166,6 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             g.fillOval(0, 0, getWidth(), getHeight());
     }
     
-    protected class SelectionRing extends CircleItem {
-        private boolean selected;
-
-        SelectionRing(int x, int y, int radius) {
-            super(WorldItem.this.canvas, x, y, radius);
-            setForeground(Preferences.SelectionColour);
-            if (geometry_tracing)
-                Logger.log.println("ring bounds are "+getBounds()+
-                                   "; outline is "+this.outline.getBounds2D());
-        }
-
-        public void paint(Graphics g) {
-            if (selected) super.paint(g);
-        }
-
-        public void select(boolean selected) {
-            this.selected = selected;
-            WorldItem.this.canvas.imageRepaint(); repaint();
-        }
-    }
-
     private boolean draghighlight;
     Color oldForeground;
 
@@ -308,7 +289,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         public WorldImage(byte dragKind) {
             super(Transparent); this.dragKind = dragKind;
             include(WorldItem.this);
-            if (selectionRing.selected && dragKind==MoveWorldDrag)
+            if (getSelected() && dragKind==MoveWorldDrag)
                 include(selectionRing);
             for (int i=0; i<labelv.size(); i++)
                 include((WorldLabel)labelv.get(i));
@@ -377,7 +358,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                 default:
                     Alert.abort("WorldItem.dragged dragKind="+dragKind);
             }
-            if (dragKind==MoveWorldDrag && canvas.worldCount()==1)
+            if (dragKind==MoveWorldDrag &&
+                (canvas.worldCount()==1 || (getSelected() && canvas.worldSelectionCount()==1)))
                 canvas.wasteBin.setEnabled(false);
         }
         else {
