@@ -333,39 +333,19 @@ let rec askCancel_unpatched severity message buttons default =
 
 let rec echo s = s
 
-let menus = ref ([] : (string * int) list)
-
-let menucount = ref 0
+let menus = ref []
 
 let menusVisible = ref false
 
-let rec inventmenu name =
-  let n = let r = !menucount in incr menucount; r in
-  menus := (name, n) :: !menus; string_of_int n
-
-exception Findmenu_
-let rec findmenu name =
-    let rec ff_ =
-      function ((n, i) :: m) -> if name = n then string_of_int i else ff_ m
-               | _ -> raise Findmenu_
-    in
-    if name = "File" then "File"
-    else if name = "Edit" then "Edit"
-    else ff_ !menus
-     
-let rec existsmenu name =
-  try let _ = findmenu name in true with
-    _ -> false
+let existsmenu name = name="File" || name="Edit" || List.exists (fun m -> m=name) !menus
 
 let rec emptymenusandpanels () =
   writef "EMPTYMENUSANDPANELS\n" [];
-  menucount := 0;
   menus := [];
   menusVisible := false
 
 let rec cancelmenusandpanels () =
   writef "CANCELMENUSANDPANELS\n" [];
-  menucount := 0;
   menus := [];
   menusVisible := false
 
@@ -376,21 +356,17 @@ let rec closeproof number = writef "CLOSEPROOF %\n" [Int number]
 
 let rec newmenu name =
   if existsmenu name then ()
-  else writef "NEWMENU % \"%\"\n" [Str (inventmenu name); Str name]
+  else writef "NEWMENU %\n" [Str name]
 
-let rec menuentry
-  ((menuname : string), (label : string), (keyopt : string option),
-   (entry : string)) :
-  unit =
+let rec menuentry (menu, label, keyopt, entry) =
   writef "MENUENTRY % % \"%\" %\n"
-    [Str (findmenu menuname); Str label; Str (match keyopt with Some s -> s | None -> " "); Str entry]
+    [Str menu; Str label; Str (match keyopt with Some s -> s | None -> " "); Str entry]
 
-let rec menuseparator (menuname : string) =
-  writef "MENUSEP %\n" [Str (findmenu menuname)]
+let rec menuseparator (menu : string) =
+  writef "MENUSEP %\n" [Str menu]
 
-let rec setmenuentryequiv (menuname, label, key) : unit =
-  let n = findmenu menuname in
-  writef "MENUENTRYEQUIV % \"%\" \"%\"\n" [Str n; Str label; Str key]
+let rec setmenuentryequiv (menu, label, key) : unit =
+  writef "MENUENTRYEQUIV % \"%\" \"%\"\n" [Str menu; Str label; Str key]
 
 let rec makemenusVisible () =(*if !menusVisible then () else *)  writef "MAKEMENUSVISIBLE\n" []
 
@@ -401,15 +377,13 @@ let rec mapmenus =
     true -> makemenusVisible ()
   | false -> ()
 
-let rec enablemenuitem (menuname, label, state) =
-  let n = findmenu menuname in
+let rec enablemenuitem (menu, label, state) =
   let state = if state then "1" else "0" in
-  writef "ENABLEMENUITEM % \"%\" \"%\"\n" [Str n; Str label; Str state]
+  writef "ENABLEMENUITEM % \"%\" \"%\"\n" [Str menu; Str label; Str state]
 
 let rec tickmenuentry (menu, label, state) =
-  let n = findmenu menu in
   let state = if state then "1" else "0" in
-  writef "TICKMENUENTRY % \"%\" %\n" [Str n; Str label; Str state]
+  writef "TICKMENUENTRY % \"%\" %\n" [Str menu; Str label; Str state]
 
 open Panelkind
 
@@ -425,11 +399,11 @@ let rec newpanel (name, panelkind) =
 let rec panelbutton (name, label, cmd) =
   let rec ins =
     function
-      StringInsert s -> " " ^ s
-    | LabelInsert -> " %-%LABEL%-%"
-    | CommandInsert -> " %-%COMMAND%-%"
+      StringInsert s -> "0 \"" ^ s ^ "\""
+    | LabelInsert    -> "1"
+    | CommandInsert  -> "2"
   in
-  let cmd = implode (List.map ins cmd) in
+  let cmd = String.concat " " (List.map ins cmd) in
   writef "PANELBUTTON % % %\n" [Str name; Str label; Str cmd]
 
 let rec panelcheckbox (name, label, prefix) =
@@ -494,7 +468,9 @@ let (setProvisos : font * string list -> unit) =
 
 let rec showfile filename = writef "SHOWFILE \"%\"\n" [Str filename]
 
-let rec resetcache () = commentSet := false;(* initialize cache *)  writef "RESETCACHE\n" []
+let rec resetcache () = 
+    commentSet := false (* initialize cache *)  
+    (* ; writef "RESETCACHE\n" [] -- doesn't seem to be necessary *)
 
 let rec makeChoice heading =
   match askf "MAKECHOICE \"%\"\n" [Str heading] with
@@ -665,10 +641,10 @@ let rec setdisproofworlds selected worlds =
   writef "DISPROOFWORLDSEND\n" []
 
 let rec menucheckbox (menu, label, cmd) =
-  writef "MENUCHECKBOX % % %\n" [Str (findmenu menu); Str label; Str cmd]
+  writef "MENUCHECKBOX % % %\n" [Str menu; Str label; Str cmd]
 
 let rec menuradiobutton (menu, lcs) =
-  writef "MENURADIOBUTTONSTART %\n" [Str (findmenu menu)];
+  writef "MENURADIOBUTTONSTART %\n" [Str menu];
   List.iter
     (fun (label, cmd) ->
        writef "MENURADIOBUTTONPART % %\n" [Str label; Str cmd])
@@ -677,7 +653,7 @@ let rec menuradiobutton (menu, lcs) =
 
 let rec tickmenuitem (menu, label, b) =
   writef "TICKMENUITEM % % %\n"
-    [Str (findmenu menu); Str label; Int (if b then 1 else 0)]
+    [Str menu; Str label; Int (if b then 1 else 0)]
 
 exception GetGeometry_
 
