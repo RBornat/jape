@@ -13,7 +13,7 @@ CLASS FORMULA A B C F G X Y Z
 CONSTANT Ù
  
 /* this to allow functions stuff to use square brackets for lists */
-SUBSTFIX	2000 {x\A}
+SUBSTFIX	2000 { x \ A }
 JUXTFIX	1000
 INFIX		200L	= ³ ² ­ < >
 INFIX		250L	+ -
@@ -46,13 +46,17 @@ RULE   rewritebackwards (Y,ABSTRACTION AA)	IS FROM X=Y AND AA(X) INFER AA(Y)
 */
 
 TACTIC Flatten IS
-	WHEN	(LETARGSEL _A (FLATTEN _A))
-			(LETGOAL (_X = _Y) (IF(FLATTEN(_X))) (IF(FLATTEN(_Y)))) 
-			(LETGOAL _X (FAIL (Cannot Flatten _X)))
+	LAYOUT "Associativity" (0)
+		(WHEN	(LETARGSEL _A (FLATTEN _A))
+				(LETGOAL (_X = _Y) (IF(FLATTEN(_X))) (IF(FLATTEN(_Y)))) 
+				(LETGOAL _X (FAIL (Cannot Flatten _X)))
+		)
 
-TACTIC Find IS 
+/* Now obsolete ...
+  TACTIC Find IS 
 	WHEN	(LETARGSEL _A (ALT (FIND _A) (FAIL (Cannot find _A)))) 
 			(FAIL (Please select something to find))
+*/
 
 TACTIC Unfold(x) IS LAYOUT "Fold %s" (1) (UNFOLD rewrite x)
 

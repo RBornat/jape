@@ -1,6 +1,8 @@
 /* $Id$ */
 
 MENU	Rules IS
+	ENTRY	"Find" 	IS FindSelection
+	
 	SEPARATOR
 		
 	ENTRY	"List Induction"		IS "list induction tactic"
