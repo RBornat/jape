@@ -153,8 +153,8 @@ module
                       List.exists (fun nf' -> nf = nf') nfs1
                     in
                     let nfs2' = ( <| ) (redundant, nfs2) in
-                    let i2' = min (i2) (length nfs2') in
-                    (if i1 = length nfs1 then i1 + i2' else i1), nfs1 @ nfs2'
+                    let i2' = min (i2) (List.length nfs2') in
+                    (if i1 = List.length nfs1 then i1 + i2' else i1), nfs1 @ nfs2'
               in
               RotatingFormat res
         in

@@ -326,7 +326,7 @@ module
         | Info {consequent = c}, _, _, cxt, ss ->
             implode
               [seqstring (rewriteseq cxt c); " generates subgoal";
-               if length ss = 1 then " " else "s "] ::
+               if List.length ss = 1 then " " else "s "] ::
               m_a_p ((fun ooo -> seqstring (rewriteseq cxt ooo)), ss)
       in
       let rec numwords n =
@@ -351,7 +351,7 @@ module
             askChoice
               (implode
                  ["The "; kind; " "; step_label how; " matches in ";
-                  numwords (length ps); " different ways. ";
+                  numwords (List.length ps); " different ways. ";
                   "Select an instance of the "; kind; " from this menu: "],
                m_a_p (listposs, ps))
           with

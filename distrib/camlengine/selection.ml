@@ -77,7 +77,7 @@ module
       in
       let rec badsub () =
         bad
-          (if length ss = 1 then "the selection you made wasn't a subformula"
+          (if List.length ss = 1 then "the selection you made wasn't a subformula"
            else "the selections you made weren't all subformulae")
       in
       let ss' =
@@ -118,7 +118,7 @@ module
       else if eqterms (mapterm check P, origterm) then
         bad
           (("you can't make the substitution you want because " ^
-              (if length ss = 1 then "your selection"
+              (if List.length ss = 1 then "your selection"
                else "one of your selections")) ^
              " was inside a binding, and involved a possible bound variable capture")
       else badsub ()

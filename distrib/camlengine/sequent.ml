@@ -230,7 +230,7 @@ module
         let (stkind, hypform, _, concform) = lookupSTILE st in
         match
           (!alwaysshowturnstile || stkind <> Syntactic) ||
-          length (syntacticsequents ()) <> 1,
+          List.length (syntacticsequents ()) <> 1,
           hypform, concform
         with
           false, BagClass FormulaClass, FormulaClass ->

@@ -1100,7 +1100,7 @@ module
         let rec newoccurrence v =
           let cs = explode (termstring v) in
           let ds = List.rev (takewhile isdigit (List.rev cs)) in
-          let stem = implode (take (length cs - length ds) cs) in
+          let stem = implode (take (List.length cs - List.length ds) cs) in
           let stern = if null ds then 1 else atoi (implode ds) + 1 in
           let rec freshtile stem stern =
             let v' = parseTerm (stem ^ string_of_int stern) in
@@ -1150,7 +1150,7 @@ module
                           []) :
                        term list list)
                 in
-                let args = set (nlists occvs (length tvs)) in
+                let args = set (nlists occvs (List.length tvs)) in
                 let possibles =
                   ( <| )
                     ((fun t -> not (member (t, tiles))),

@@ -361,7 +361,7 @@ module
       let _ = check SUBSTSEP in
       let ys = parseside (not !substsense) in
       let _ = check SUBSTKET in
-      if length xs = length ys then
+      if List.length xs = List.length ys then
         if !substsense then ( ||| ) (xs, ys) else ( ||| ) (ys, xs)
       else
         (* Zip can't happen *)

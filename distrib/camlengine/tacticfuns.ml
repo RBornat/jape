@@ -366,7 +366,7 @@ module
                 Some (Rule _, _) -> true
               | Some (Theorem _, _) -> true
               | Some (Tactic (params, TheoryAltTac _), _) as r ->
-                  length args < length params
+                  List.length args < List.length params
               | _ -> false
               end
           | Argterm t -> false
@@ -1118,7 +1118,7 @@ module
                " ("; termstring term; ") => lf=";
                bracketedliststring termstring ", " lf; "; rf=";
                bracketedliststring termstring ", " rf];
-          (length lf = 3 && lf = rf) && a_l_l (formulageneralisable params, rf)
+          (List.length lf = 3 && lf = rf) && a_l_l (formulageneralisable params, rf)
         with
           Matchinassociativelawstuff_ -> false
       in
@@ -2189,7 +2189,7 @@ module
                 (Tacastrophe_
                    (if i < 0 then ["negative index"]
                     else
-                      match length givens with
+                      match List.length givens with
                         0 -> ["no givens available"]
                       | 1 -> ["one given available"]
                       | n -> [string_of_int n; " givens available"]))

@@ -683,7 +683,7 @@ module
              zipup (vtminus pdb vts1 diff1, vtminus pdb vts2 diff2))
       in
       match
-        length vts1 = length vts2,
+        List.length vts1 = List.length vts2,
         vtmetacount diff1 = 1 && vtmetacount diff2 = 1, diff1, diff2
       with
         true, _, [], [] -> ok (diff1, diff2)
@@ -1062,8 +1062,8 @@ module
                        * neither is a single unknown segment variable. 
                        *)
                       match
-                        length (( <| ) (isuseg, e1s)),
-                        length (( <| ) (isuseg, e2s))
+                        List.length (( <| ) (isuseg, e1s)),
+                        List.length (( <| ) (isuseg, e2s))
                       with
                         0, 0 -> res []
                       | 1, _ ->
@@ -1120,8 +1120,8 @@ module
          * UnifiesProviso straight away.
          *)
         match
-          extract (fun ooo -> not (isuseg ooo)) e1s, length e1s > 1,
-          extract (fun ooo -> not (isuseg ooo)) e2s, length e2s > 1
+          extract (fun ooo -> not (isuseg ooo)) e1s, List.length e1s > 1,
+          extract (fun ooo -> not (isuseg ooo)) e2s, List.length e2s > 1
         with
           None, true, _, true -> maybedef (e1s, e2s)
         | _, true, None, true -> maybedef (e1s, e2s)
@@ -1201,7 +1201,7 @@ module
         let rec def ps svs es es' =
           res (flatten (m_a_p (ul svs es, allsplits ps cxt es')))
         in
-        match length svh1s, length svh2s with
+        match List.length svh1s, List.length svh2s with
           0, 0 ->
             (* the easy case *)
             begin match e1s, e2s with
@@ -1263,7 +1263,7 @@ module
             say
               ((" " ^ s) ^
                  (match r with
-                    _ :: _ -> (" succeeds (" ^ string_of_int (length r)) ^ ")"
+                    _ :: _ -> (" succeeds (" ^ string_of_int (List.length r)) ^ ")"
                   | [] -> " fails "));
           r
         in

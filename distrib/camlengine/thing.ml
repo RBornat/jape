@@ -1012,10 +1012,10 @@ module
     let rec env4Rule env args cxt defcon (paramsused, ruleVIDs) =
       let res =
         freshc defcon (plususedVIDs (cxt, ruleVIDs)) env paramsused
-          (* this should read (take (length params) args)
+          (* this should read (take (List.length params) args)
            * .. but that stops me replaying proofs, so for the meantime ...
            *)
-          (take (length paramsused) args)
+          (take (List.length paramsused) args)
       in
       if !thingdebug then
         consolereport
@@ -1050,10 +1050,10 @@ module
         (paramsused, ruleVIDs) =
       let (cxt', env) =
         freshc defcon (plususedVIDs (cxt, ruleVIDs)) env paramsused
-          (* this should read (take (length params) args)
+          (* this should read (take (List.length params) args)
            * .. but that stops me replaying proofs, so for the meantime ...
            *)
-          (take (length paramsused) args)
+          (take (List.length paramsused) args)
       in
       let provisos' = m_a_p ((fun (v, p) -> v, remapproviso env p), provisos) in
       let conseq' = remapseq env conseq in

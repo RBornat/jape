@@ -111,7 +111,7 @@ module
       (* do this early, so GUIs are ready for anything *)
 
       let noreasoninf = string2textinfo ReasonFont "" in
-      let showturnstiles = length (turnstiles ()) <> 1 in
+      let showturnstiles = List.length (turnstiles ()) <> 1 in
       let sequentplan =
         makeseqplan elementstring_invisbracketed showturnstiles
       in

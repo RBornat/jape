@@ -628,7 +628,7 @@ module
                       NormalNav ts ->
                         if left then
                           if n = 0 then badLeft () else Some [n - 1]
-                        else if n + 1 >= length ts then badRight ()
+                        else if n + 1 >= List.length ts then badRight ()
                         else Some [n + 1]
                     | CutNav (l, r, tl, tr) ->
                         if left then badLeft () else Some (pathto tr)))
@@ -1285,7 +1285,7 @@ module
                 TreeFormat (HideRootFormat, _) ->
                   let r = hr j in
                   (* cut steps keep their shape, else they don't mean anything *)
-                  if ascut && length ((fun(hash1,_)->hash1) r) <> 1 + length ins then
+                  if ascut && List.length ((fun(hash1,_)->hash1) r) <> 1 + List.length ins then
                     begin
                       if !cuthidingdebug then
                         consolereport
@@ -1364,14 +1364,14 @@ module
           let r = pathto t in
           if r = ns then Some (VisPath (List.rev rns))
           else if not (null r) && isprefix (fun (x, y) -> x = y) r ns then
-            P (drop (length r) ns, rns, t)
+            P (drop (List.length r) ns, rns, t)
           else
             andthenr
               (visible_subtrees showall t,
                (fun ts ->
                   let rec find (i, (tns, t)) =
                     if isprefix (fun (x, y) -> x = y) tns ns then
-                      Some (i, drop (length tns) ns, t)
+                      Some (i, drop (List.length tns) ns, t)
                     else None
                   in
                   andthenr
@@ -1486,7 +1486,7 @@ module
              flatten (m_a_p (allreasons proved showall, join_subtrees j)))
     let rec join_multistep j vissubts =
       step_resolve (join_how j) ||
-      List.exists (fun (ns, _) -> length ns > 1) vissubts
+      List.exists (fun (ns, _) -> List.length ns > 1) vissubts
     let hyps ooo =
       (fun ooo -> explodeCollection ((fun(_,hash2)->hash2) ooo)) (seqexplode ooo)
     let concs ooo =

@@ -910,7 +910,7 @@
                 if !boxfolddebug then
                   consolereport
                     ["width is "; string_of_int w; ";\nformula folded to ";
-                     string_of_int (length sss); " lines: ";
+                     string_of_int (List.length sss); " lines: ";
                      bracketedliststring (fun ss -> enQuote (implode ss)) ", "
                        sss]
               in
@@ -1505,7 +1505,7 @@
     ... end desperation *)
 
     let rec BoxLayout screenwidth t =
-      let pt = pretransform (length (turnstiles ()) <> 1) t in
+      let pt = pretransform (List.length (turnstiles ()) <> 1) t in
       let procrustean_reasonW = max 100 (screenwidth / 10) in
       let tranreason =
         if !truncatereasons then
@@ -1535,7 +1535,7 @@
      *)
    
     let rec elementsin ps =
-      length (( <| ) ((fun ooo -> iselementkind (planinfo ooo)), ps))
+      List.length (( <| ) ((fun ooo -> iselementkind (planinfo ooo)), ps))
     let rec draw goalopt p proof =
       fun
         (Layout

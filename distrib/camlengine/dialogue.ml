@@ -759,7 +759,7 @@ module
       | tfk, RotatingFormat (i, nfs) ->
           Some
             (tfk,
-             RotatingFormat ((if i >= length nfs then 0 else i + 1), nfs))
+             RotatingFormat ((if i >= List.length nfs then 0 else i + 1), nfs))
     let rec getfmt mess tree path =
       try
         let subproof = followPath tree path in
@@ -1102,7 +1102,7 @@ module
             (Proofstate {goal = goal; cxt = cxt; tree = tree; givens = givens}
                as state), disproofopt), pinfs) ->
           let n =
-            length (( <| ) ((fun (Pinf {title = t, _}) -> t = name), pinfs))
+            List.length (( <| ) ((fun (Pinf {title = t, _}) -> t = name), pinfs))
           in
           if n <> 0 &&
              not
@@ -1372,10 +1372,10 @@ module
         match pinfs with
           [] -> f ()
         | _ ->
-            let n = length pinfs in
+            let n = List.length pinfs in
             showAlert
               [if n = 1 then "There is a proof "
-               else ("there are " ^ string_of_int (length pinfs)) ^ " proofs";
+               else ("there are " ^ string_of_int (List.length pinfs)) ^ " proofs";
                " in progress. You must close ";
                if n = 1 then "it" else "them"; " before the command \"";
                respace c; "\" can be executed."];
@@ -1817,7 +1817,7 @@ module
                              raise Unify_
                        in
                        let selargs = m_a_p (getit, sels) in
-                       if length args + length selargs < 2 then
+                       if List.length args + List.length selargs < 2 then
                          begin
                            showAlert
                              ["Unify must be given at least two things to work with!"];
@@ -2222,7 +2222,7 @@ module
                   else default
                 else(* nothing to save *)
                  begin japeserver.closeproof n;(*  consolereport ["closing proof ", string_of_int n, 
-                       " -- now ", string_of_int (length pinfs'), " proofs left"
+                       " -- now ", string_of_int (List.length pinfs'), " proofs left"
                    ]; 
                  *)
                  closed () end
