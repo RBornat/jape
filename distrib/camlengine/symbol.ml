@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -400,12 +400,12 @@ let decVarPrefixes : (idclass, string) Mappingfuns.mapping ref =
   ref Mappingfuns.empty
 
 let enterStdSymbols () =
-  enter "("  None     None              (BRA "("); (* these two still need special treatment ... *)
-  enter ")"  None     None              (KET ")");
-  enter "["  None     None              SUBSTBRA;
-  enter "\\" None     None              SUBSTSEP;
-  enter "]"  None     None              SUBSTKET;
-  enter ""   None     None              EOF;
+  enter "("  None   None    (BRA "("); (* these two still need special treatment ... *)
+  enter ")"  None   None    (KET ")");
+  enter "["  None   None    SUBSTBRA;
+  enter "\\" None   None    SUBSTSEP;
+  enter "]"  None   None    SUBSTKET;
+  enter ""   None   None    EOF;
   enter ","  (Some 0) (Some TupleAssoc) commasymbol;
   appfix     := appfix_default;
   substfix   := substfix_default;
@@ -433,17 +433,17 @@ let rec resetSymbols () =
   if !symboldebug then  consolereport ["defining SHYIDs"];
   List.iter (fun s -> enter s None None (SHYID s))
     ["ABSTRACTION"; "AND"; "ARE"; "AUTOMATCH"; "AUTOUNIFY"; 
-     "BAG"; "BIND"; "BUTTON"; 
+     "BAG"; "BEFOREBUTTON"; "BEFOREENTRY"; "BIND"; "BUTTON"; 
      "CHECKBOX"; "CHILDREN"; "CLASS"; "COMMAND";
-     	"CONCFRESH"; "CONCHIT"; "CONJECTUREPANEL"; "CONSTANT";
-     	"CURRENTPROOF"; "CUT"; 
+        "CONCFRESH"; "CONCHIT"; "CONJECTUREPANEL"; "CONSTANT";
+        "CURRENTPROOF"; "CUT"; 
      "DERIVED"; "DISPROOF"; (* keep this for a year or so. RB 15.xi.2002 *)
      "END"; "ENTRY";
      "FONTS"; "FORCEDEF"; "FORMULA"; "FORMULAE"; "FRESH"; "FROM"; 
      "GIVENPANEL"; 
      "HYPFRESH"; "HYPHIT"; 
      "IDENTITY"; "IMPCONCFRESH"; "IMPFRESH"; "IMPHYPFRESH"; "IN"; "INFER";
-     	"INFIX"; "INFIXC"; "INITIALLY"; "INITIALISE"; "IS"; 
+        "INFIX"; "INFIXC"; "INITIALLY"; "INITIALISE"; "IS"; 
      "JUXTFIX";
      "KEYBOARD"; 
      "LABEL"; "LABELS"; "LEFTFIX"; "LEFTWEAKEN"; "LIST";
@@ -451,9 +451,9 @@ let rec resetSymbols () =
      "NOTIN"; "NOTONEOF"; "NUMBER"; 
      "OBJECT"; "OUTFIX"; 
      "PATCHALERT"; "POPSYNTAX"; "POSTFIX"; "PREFIX"; "PROOF"; "PUSHSYNTAX";
-     "RADIOBUTTON"; "REFLEXIVE"; "RIGHTFIX"; "RIGHTWEAKEN"; "RULE"; "RULES"; 
+     "RADIOBUTTON"; "REFLEXIVE"; "RENAMEENTRY"; "RIGHTFIX"; "RIGHTWEAKEN"; "RULE"; "RULES"; 
      "SCOPE"; "SEMANTICS"; "SEMANTICTURNSTILE"; "SEPARATOR"; "SEQUENT"; 
-     	"STRING"; "STRUCTURERULE"; "SUBSTFIX";
+        "STRING"; "STRUCTURERULE"; "SUBSTFIX";
      "TACTIC"; "TACTICPANEL"; "THEOREM";
      "THEOREMS"; "THEORY"; "TRANSITIVE"; 
      "UMENU"; "UNIFIESWITH"; "USE"; 
