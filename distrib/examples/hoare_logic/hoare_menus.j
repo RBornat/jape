@@ -294,6 +294,8 @@ TACTICPANEL Comparison
     RULE IS A≤B ≜ A<B+1
     RULE IS A+1≤B ≜ A<B
     RULE IS A≥B ≜ ¬(A<B)
+    RULE IS A≥B ≜ A>B-1
+    RULE IS A-1≥B ≜ A>B
 /*  RULE "(A;B);C≜A;(B;C)" IS   A;B;C ≜ A;(B;C)
     ENTRY "flatten ;" IS 
         iterateR2L "rewrite≜"  "symmetric≜" (QUOTE (_A;(_B;_C))) "(A;B);C≜A;(B;C)" (Fail "no semicolons to flatten")
