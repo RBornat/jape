@@ -20,8 +20,7 @@ INFIX		250L	+ -
 INFIX		260L	* /
 INFIX		270L	^
 
- TACTIC FAIL(x)		IS JAPE(fail x)
- TACTIC FAILREASON(x)	IS JAPE (failgivingreason x)
+ TACTIC Fail(x)		IS (SEQ (ALERT x) STOP)
 
 /***************************** rules *****************************/
  
@@ -53,28 +52,28 @@ TACTIC Flatten IS
 	LAYOUT "Associativity" (0)
 		(WHEN	(LETARGSEL _A (FLATTEN _A))
 				(LETGOAL (_X = _Y) (IF(FLATTEN(_X))) (IF(FLATTEN(_Y)))) 
-				(LETGOAL _X (FAIL (Cannot Flatten _X)))
+				(LETGOAL _X (Fail (Cannot Flatten _X)))
 		)
 
 /* Now obsolete ...
   TACTIC Find IS 
-	WHEN	(LETARGSEL _A (ALT (FIND _A) (FAIL (Cannot find _A)))) 
-			(FAIL (Please select something to find))
+	WHEN	(LETARGSEL _A (ALT (FIND _A) (Fail (Cannot find _A)))) 
+			(Fail (Please select something to find))
 */
 
 TACTIC Unfold(x) IS LAYOUT "Fold %s" (1) (UNFOLD rewrite x)
 
 TACTIC UnfoldOneSel(x) IS
 	WHEN	(LETSUBSTSEL _A (LAYOUT "Fold %s" (1) (WITHSUBSTSEL rewrite)) x)
-			(LETARGSEL _A (FAIL (The formula you selected (_A) is not a proper subformula)))
-			(FAIL (Please text-select an expression))
+			(LETARGSEL _A (Fail (The formula you selected (_A) is not a proper subformula)))
+			(Fail (Please text-select an expression))
 		
 TACTIC Fold(x) IS LAYOUT "Unfold %s" (1) (FOLD rewritebackwards x)
 
 TACTIC FoldOneSel(x) IS
 	WHEN	(LETSUBSTSEL	_A (LAYOUT "Unfold %s" (1) (WITHSUBSTSEL rewritebackwards)) x)
-			(LETARGSEL _A (FAIL (The formula you selected (_A) is not a proper subformula)))
-			(FAIL (Please text-select an expression))
+			(LETARGSEL _A (Fail (The formula you selected (_A) is not a proper subformula)))
+			(Fail (Please text-select an expression))
 
 TACTIC "Unfold/Fold with hypothesis"  IS
 	WHEN 
@@ -83,21 +82,21 @@ TACTIC "Unfold/Fold with hypothesis"  IS
 				(LETCONCSUBSTSEL (_B{_x\_C})
 					(ALT	(SEQ (WITHSUBSTSEL rewrite) (WITHHYPSEL hyp))
 						(SEQ (WITHSUBSTSEL rewritebackwards) (WITHHYPSEL hyp))
-						(FAIL (hypothesis _A doesn't fit sub-formula _C))
+						(Fail (hypothesis _A doesn't fit sub-formula _C))
 					)
 				)
 				(ALT	(SEQ rewrite (WITHHYPSEL hyp))
 					(SEQ rewritebackwards (WITHHYPSEL hyp))
-					(LETGOAL _B (FAIL (hypothesis _A doesn't rewrite conclusion _B)))
+					(LETGOAL _B (Fail (hypothesis _A doesn't rewrite conclusion _B)))
 				)
 			)
 		)
-		(FAIL (please select a hypothesis))
+		(Fail (please select a hypothesis))
 
 TACTIC withsubstrewrite(t)
 	WHEN 
 		(LETCONCSUBSTSEL _A (WITHSUBSTSEL t))
-		(FAILREASON (please text-select a sub-formula, or sub-formulae, in a conclusion))
+		(Fail (please text-select a sub-formula, or sub-formulae, in a conclusion))
 		
 RULE "Fold with hypothesis" (X, ABSTRACTION AA)		IS FROM X=Y æ AA(Y) INFER X=Y æ AA(X)
 RULE "Unfold with hypothesis" (Y, ABSTRACTION AA)	IS FROM X=Y æ AA(X) INFER X=Y æ AA(Y)
@@ -108,13 +107,13 @@ TACTIC HypFoldUnfold(t) IS
 			(WHEN 
 				(LETCONCSUBSTSEL (_B{_x\_C})
 					(ALT	(WITHSUBSTSEL t)
-						(FAIL (hypothesis _A doesn't fit sub-formula _C))
+						(Fail (hypothesis _A doesn't fit sub-formula _C))
 					)
 				)
-				(FAILREASON (please text-select a sub-formula, or sub-formulae, in a conclusion))
+				(Fail (please text-select a sub-formula, or sub-formulae, in a conclusion))
 			)
 		)
-		(FAIL (please select a hypothesis))
+		(Fail (please select a hypothesis))
 
 TACTIC "UnfoldHyp"	IS HypFoldUnfold "Fold with hypothesis"
 TACTIC "FoldHyp"	IS HypFoldUnfold "Unfold with hypothesis"

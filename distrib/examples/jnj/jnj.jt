@@ -89,10 +89,10 @@
       (LETHYP _p
           (ALT (SEQ      (WITHARGSEL rule) (WITHHYPSEL hypothesis))
                (SEQ  cut (WITHARGSEL rule) (WITHHYPSEL hypothesis))
-               (FAIL ("%s is not applicable to formula %s", rule, _p))))
+               (Fail ("%s is not applicable to formula %s", rule, _p))))
       (LETCONC _p
           (ElimRuleBackward rule))
-      (FAIL ("Select an assumption-like formula before applying %s forwards", rule)))
+      (Fail ("Select an assumption-like formula before applying %s forwards", rule)))
     TACTIC IntroRule(rule)
     (WHEN  (LETARGSEL _p (SEQ (cut _p) rule))
            (ALT (LETHYP    _p rule)
@@ -100,7 +100,7 @@
                 (MESSAGE (rule is not applicable))))
     TACTIC QuantIntroRule(rule)
     (ALT (WITHARGSEL rule)
-         (FAIL ("%s is not applicable", rule)))
+         (Fail ("%s is not applicable", rule)))
 MENU    "Propositional Rules"
     ENTRY   "hypothesis"
     SEPARATOR
@@ -167,7 +167,7 @@ END
 
     CONCHIT  p ¡ p IS
     (WHEN (LETHYP _p (WITHHYPSEL hypothesis))
-          (FAIL ("Please select the hypothesis you want to use")))
+          (Fail ("Please select the hypothesis you want to use")))
     MENU Edit
         RADIOBUTTON displaystyle
              "Sequent-Tree display style"  IS tree
@@ -196,17 +196,16 @@ END
            (WITHARGSEL rule)
 
     TACTIC ElimRuleBackwardNo(rule)
-    (FAIL ("Select a goal then a non-grey formula before invoking %s",
+    (Fail ("Select a goal then a non-grey formula before invoking %s",
            rule))
-    TACTIC FAIL(x) IS
-           (JAPE (fail x))
+    TACTIC Fail(x) IS
+           ((SEQ (ALERT x) FAIL))
     TACTIC FAILSEL(x, y) IS
-           (WHEN (LETARGSEL _p (JAPE (fail x))) (JAPE (fail y)))
+           (WHEN (LETARGSEL _p ((SEQ (ALERT x) FAIL))) ((SEQ (ALERT y) FAIL)))
     TACTIC MESSAGE(m) IS
-    (SEQ (JAPE(setcomment m))
-         (JAPE(setreason m)))
+    (SEQ (COMMENT m)
+         (EXPLAIN m))
 
-    TACTIC COMMENT(x) IS (JAPE(setcomment x))
     TACTIC SKIP(x)    IS (SEQ)
 
     MENU    Edit

@@ -1,21 +1,21 @@
 /* $Id$ */
 
-TACTIC FAIL(x) IS JAPE (fail x)
+TACTIC Fail(x) IS (SEQ (ALERT x) FAIL)
 
 TACTIC ForwardCut (n,Rule)
-  SEQ cut (WITHCONTINUATION (WITHARGSEL Rule) (JAPE (SUBGOAL n)) (WITHHYPSEL hyp))
+  SEQ cut (WITHCONTINUATION (WITHARGSEL Rule) (SUBGOAL n) (WITHHYPSEL hyp))
 
 TACTIC ForwardUncut (n,Rule)
-  SEQ (WITHCONTINUATION (WITHARGSEL Rule) (JAPE (SUBGOAL n)) (WITHHYPSEL hyp))
+  SEQ (WITHCONTINUATION (WITHARGSEL Rule) (SUBGOAL n) (WITHHYPSEL hyp))
 
 TACTIC ForwardOrBackward (Forward, n, Rule) IS 
 	WHEN	(LETHYP 
 				_X 
                           	(ALT	(Forward n Rule)
 					(WHEN	(LETARGSEL _Y 
-                                                              (FAIL (Rule is not applicable to assumption ' _X ' with argument ' _Y ' ))
+                                                              (Fail (Rule is not applicable to assumption ' _X ' with argument ' _Y ' ))
 							)
-							(FAIL (Rule is not applicable to assumption ' _X ' ))
+							(Fail (Rule is not applicable to assumption ' _X ' ))
 					)
                                 )
 			)
@@ -23,9 +23,9 @@ TACTIC ForwardOrBackward (Forward, n, Rule) IS
 				_X
 				(ALT	(WITHSELECTIONS Rule)
 	                   		(WHEN	(LETARGSEL _Y
-	                                                	(FAIL (Rule is not applicable to conclusion ' _X ' with argument ' _Y ' ))
+	                                                	(Fail (Rule is not applicable to conclusion ' _X ' with argument ' _Y ' ))
 	                                              	)
-							(FAIL (Rule is not applicable to conclusion ' _X ' ))
+							(Fail (Rule is not applicable to conclusion ' _X ' ))
 					)
 	           		)
 			)

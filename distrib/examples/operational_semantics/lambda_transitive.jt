@@ -72,8 +72,8 @@ TACTIC SmallNormOrderStep  IS
 		(SEQ transitivity smallrand smallnormordersearch)
 		(SEQ transitivity smallletrand smallnormordersearch)
 		identity
-		(WHEN	(LETGOAL (_A Á _B) (JAPE (fail "can't show that"  _A "reduces to" _B)))
-		 		(JAPE (fail "problem isn't of the form AÁB"))
+		(WHEN	(LETGOAL (_A Á _B) (Fail "can't show that"  _A "reduces to" _B))
+		 		(Fail "problem isn't of the form AÁB")
 		 ) 
 
 TACTIC smallnormordersearch IS
@@ -90,8 +90,8 @@ TACTIC SmallApplOrderStep  IS
 		(SEQ transitivity smallbeta)
 		(SEQ transitivity smallrator smallapplordersearch)
 		identity
-		(WHEN	(LETGOAL (_A Á _B) (JAPE (fail "can't show that"  _A "reduces to" _B)))
-		 		(JAPE (fail "problem isn't of the form AÁB"))
+		(WHEN	(LETGOAL (_A Á _B) (Fail "can't show that"  _A "reduces to" _B))
+		 		(Fail "problem isn't of the form AÁB")
 		 ) 
 
 TACTIC smallapplordersearch IS

@@ -8,10 +8,10 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
 			(WHEN
 				(LETHYP	_Q 
 					(ALT	(WITHHYPSEL hyp) 
-						(JAPE (fail(the hypothesis you formula-selected wasn't a pat formula)))
+						(Fail (the hypothesis you formula-selected wasn't a pat formula))
 					)
 				)
-				(JAPE (SUBGOAL 1))
+				(SUBGOAL 1)
 			) 
 			(WITHSUBSTSEL hyp)
 		)
@@ -20,13 +20,13 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
 			(WHEN	
 				(LETHYP	_Q 
 					(ALT	(WITHHYPSEL hyp) 
-						(JAPE (fail(the hypothesis you formula-selected wasn't a pat formula)))
+						(Fail (the hypothesis you formula-selected wasn't a pat formula))
 					)
 				)
 				SKIP
 			)
 		)
-		(JAPE (fail(please text-select one or more instances of a sub-formula to replace)))
+		(Fail (please text-select one or more instances of a sub-formula to replace))
 
 TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS
 	WHEN	

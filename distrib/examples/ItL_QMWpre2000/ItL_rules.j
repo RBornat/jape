@@ -5,7 +5,7 @@
  * in ItL_syntax.j is what does the magic.
  */
  
-TACTIC FAIL(x) IS JAPE (fail x)
+TACTIC Fail(x) IS (SEQ (ALERT x) FAIL)
 
 RULE cut(B) IS FROM B AND B æ C INFER C
 RULE thin(A) IS FROM C INFER A æ C

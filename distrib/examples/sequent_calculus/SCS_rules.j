@@ -58,9 +58,10 @@ MENU Rules IS
 	ENTRY "זה"
 END
 
-TACTIC  "זכ"	IS ALT	(SEQ "זכ(L)" hyp)
+TACTIC  "זכ"	IS 
+	ALT	(SEQ "זכ(L)" hyp)
 					(SEQ "זכ(R)" hyp)
-					(JAPE (fail ("זכ" does not lead to an immediate conclusion)))
+					(Fail ("זכ" does not lead to an immediate conclusion))
 
 MENU Auto
 	TACTIC "Prove this propositional goal"		IS (PROVE Propositional)

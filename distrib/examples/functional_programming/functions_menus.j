@@ -117,22 +117,22 @@ END
 
 TACTIC UnfoldL(rule) IS
 	WHEN (LETSUBSTSEL (_A{_x\_F}=_B) "= transitive" (LAYOUT "Unfold %s" () (rewritesmallLR{X,AA,x\_F,_A,_x})) rule)
-		(JAPE (fail "UnfoldL didn't find a substitution"))
+		(Fail "UnfoldL didn't find a substitution")
 
 TACTIC UnfoldR(rule) IS
 	WHEN (LETSUBSTSEL (_A=_B{_x\_F}) "= transitive" 
-				(JAPE (SUBGOAL 1)) (LAYOUT "Fold %s" () (rewritesmallRL{X,AA,x\_F,_B,_x})) rule)
-		(JAPE (fail "UnfoldR didn't find a substitution"))
+				(SUBGOAL 1) (LAYOUT "Fold %s" () (rewritesmallRL{X,AA,x\_F,_B,_x})) rule)
+		(Fail "UnfoldR didn't find a substitution")
 
 TACTIC FoldL(rule) IS
 	WHEN (LETSUBSTSEL (_A{_x\_F}=_B) "= transitive" 
 				(LAYOUT "Fold %s" () (rewritesmallRL{Y,AA,x\_F,_A,_x})) rule)
-		(JAPE (fail "FoldL didn't find a substitution"))
+		(Fail "FoldL didn't find a substitution")
 
 TACTIC FoldR(rule) IS
 	WHEN (LETSUBSTSEL (_A=_B{_x\_F}) "= transitive" 
-				(JAPE (SUBGOAL 1)) (LAYOUT "Unfold %s" () (rewritesmalLR{Y,AA,x\_F,_B,_x})) rule)
-		(JAPE (fail "FoldR didn't find a substitution"))
+				(SUBGOAL 1) (LAYOUT "Unfold %s" () (rewritesmalLR{Y,AA,x\_F,_B,_x})) rule)
+		(Fail "FoldR didn't find a substitution")
 
 MENU Edit
 	RADIOBUTTON displaystyle IS
@@ -233,7 +233,7 @@ TACTIC  RepeatedlyUnfold IS SEQ UnfoldUsingSearch (DO UnfoldUsingSearch)
 TACTIC  UnfoldUsingSearch IS 
 ALT     (SearchHypotheses UnfoldWithAnyHyp)
 	(Unfold SearchTactic)
-	(FAIL ("Search yields nothing to Unfold (check the Searching menu)"))
+	(Fail ("Search yields nothing to Unfold (check the Searching menu)"))
 
 TACTIC UnfoldWithAnyHyp IS UNFOLDHYP "Fold with hypothesis" (_A=_B)
 
@@ -246,7 +246,7 @@ TACTIC UnfoldWithAnyHyp IS UNFOLDHYP "Fold with hypothesis" (_A=_B)
 TACTIC  FoldUsingSearch IS 
 ALT     (SearchHypotheses FoldWithAnyHyp)
 	(Fold SearchTactic)
-	(FAIL ("Search yields nothing to Fold (check the Searching menu)"))
+	(Fail ("Search yields nothing to Fold (check the Searching menu)"))
 
 TACTIC FoldWithAnyHyp   IS FOLDHYP   "Unfold with hypothesis" (_A=_B)
 
@@ -261,12 +261,12 @@ TACTIC FindSelection IS
    (ALT 
      (LAYOUT "Associativity" (2)
        (rewriteHypotheticalEquation _XOLD _XNEW _YOLD _YNEW) EVALUATE EVALUATE)
-     (LETARGSEL _XSEL (FAIL ("%s isn't a subterm", _XSEL)))))
+     (LETARGSEL _XSEL (Fail ("%s isn't a subterm", _XSEL)))))
  (LETCONCFIND (_XOLD=_YOLD, _XNEW=_YNEW)
    (ALT 
     (LAYOUT "Associativity" (2)
       (rewriteEquation _XOLD _XNEW _YOLD _YNEW) EVALUATE EVALUATE)
-    (LETARGSEL _XSEL (FAIL ("%s isn't a subterm", _XSEL)))))
+    (LETARGSEL _XSEL (Fail ("%s isn't a subterm", _XSEL)))))
 )
 
 
@@ -301,13 +301,13 @@ HYPHIT  H æ C IS  UnfoldHypWithOptionalSelection
 TACTIC UnfoldObvious(tac) IS
 WHEN (LETARGSEL _A (UnfoldTheSel _A tac))
      (ALT (Unfold tac) 
-          (FAIL("%s can't be used rightwards anywhere", tac)))
+          (Fail("%s can't be used rightwards anywhere", tac)))
                   
 
 TACTIC FoldObvious(tac) IS
 WHEN (LETARGSEL _A (FoldTheSel _A tac))
      (ALT (Fold tac) 
-          (FAIL("%s can't be used leftwards anywhere", tac)))
+          (Fail("%s can't be used leftwards anywhere", tac)))
 
     
 TACTIC UnfoldTheSel(sel, tac) IS
@@ -322,7 +322,7 @@ ALT (SEQ  (FindSelection sel)
                   */
                   (ALT (WITHSUBSTSEL rewrite) (rewrite sel))  
                   tac))
-    (FAIL ("Cannot Unfold  %s with %s", sel, tac))
+    (Fail ("Cannot Unfold  %s with %s", sel, tac))
 
 TACTIC FoldTheSel(sel, tac) IS
 ALT (SEQ (FindSelection sel) 
@@ -330,7 +330,7 @@ ALT (SEQ (FindSelection sel)
                   /* See the Unfold ... tactic for an explanation */
                   (ALT (WITHSUBSTSEL rewritebackwards) (rewritebackwards sel))
                   tac))
-    (FAIL ("Cannot Fold %s with %s", sel, tac))
+    (Fail ("Cannot Fold %s with %s", sel, tac))
 
 /*
         USed from HYPHIT -- 
@@ -338,7 +338,7 @@ ALT (SEQ (FindSelection sel)
 TACTIC UnfoldHypWithOptionalSelection IS
 WHEN (LETSUBSTSEL _X{_x\_XX} 
        (ALT (WITHHYPSEL (WITHSUBSTSEL "Fold with hypothesis")) 
-            (FAIL (Couldn't Unfold selected term _XX))))
+            (Fail (Couldn't Unfold selected term _XX))))
      "Unfold/Fold with hypothesis"
 
 

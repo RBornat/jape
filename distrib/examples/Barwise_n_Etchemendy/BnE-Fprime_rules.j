@@ -8,12 +8,12 @@ RULE "Á-E"(A) IS FROM A AND AÁB INFER B
 TACTIC "Á-E forward"(Z) IS
 	WHEN	(LETHYP (_AÁ_B) (ForwardCut 1 "Á-E"))
 	          	(LETHYP _A (ForwardCut 0 "Á-E"))
-	           	(JAPE(fail(what's this in "Á-E" forward?)))
+	           	(Fail (what's this in "Á-E" forward?))
 
 TACTIC "Í-E forward"(rule) IS
 	WHEN	(LETHYP (_AÍ_B) (ForwardCut 1 rule))
 	          	(LETHYP _A (ForwardCut 0 rule))
-	           	(JAPE(fail(what's this in rule forward?)))
+	           	(Fail (what's this in rule forward?))
 
 RULE "Í-E(L)"(B) IS FROM B AND AÍB INFER A
 TACTIC "Í-E(L) forward"(Z) IS "Í-E forward" "Í-E(L)"
@@ -56,7 +56,7 @@ AND	(OBJECT w1,OBJECT x1,OBJECT y1,OBJECT z1) FROM ‰! (w,x,y,z) .A(w,x,y,z)
 		INFER Ë (w,x,y,z) . Ë (w1,x1,y1,z1) . A(w,x,y,z)¶A(w1,x1,y1,z1)Áw=w1¶x=x1¶y=y1¶z=z1
 END
 
-TACTIC ForwardCut (n,Rule) IS SEQ cut (WITHCONTINUATION (WITHARGSEL Rule) (JAPE(SUBGOAL n)) (WITHHYPSEL hyp))
+TACTIC ForwardCut (n,Rule) IS SEQ cut (WITHCONTINUATION (WITHARGSEL Rule) (SUBGOAL n) (WITHHYPSEL hyp))
 
 TACTIC ForwardUncut (n, Rule) IS WITHCONTINUATION (WITHARGSEL Rule) (WITHHYPSEL hyp)
 
@@ -65,16 +65,16 @@ TACTIC FOB (Forward, n, Rule) IS
 		(LETHYP _P
 			(ALT	(Forward n Rule)
 				(WHEN	(LETARGSEL _Q 
-							(JAPE(failgivingreason(Rule is not applicable to assumption ' _P ' 
-															with argument ' _Q ')))
+							(Fail (Rule is not applicable to assumption ' _P ' 
+															with argument ' _Q '))
 						)
-						(JAPE(failgivingreason(Rule is not applicable to assumption ' _P ')))
+						(Fail (Rule is not applicable to assumption ' _P '))
 				)
 			)
 		) 
 		(ALT	(WITHSELECTIONS Rule)
-			(WHEN	(LETARGSEL _P (JAPE(failgivingreason(Rule is not applicable with argument ' _P '))))
-					(JAPE(failgivingreason(Rule is not applicable)))
+			(WHEN	(LETARGSEL _P (Fail (Rule is not applicable with argument ' _P ')))
+					(Fail (Rule is not applicable))
 			)
 		)
    
@@ -84,30 +84,30 @@ TACTIC FOBSS (Forward, n, Rule) IS
 		(LETHYP _P
 			(ALT	(Forward n Rule)
 				(WHEN	(LETARGSEL _Q 
-							(JAPE(failgivingreason(Rule is not applicable to assumption ' _P ' 
-															with argument ' _Q ')))
+							(Fail (Rule is not applicable to assumption ' _P ' 
+															with argument ' _Q '))
 						)
-						(JAPE(failgivingreason(Rule is not applicable to assumption ' _P ')))
+						(Fail (Rule is not applicable to assumption ' _P '))
 				)
 			)
 		) 
 		(LETCONCSUBSTSEL _P 
 			(ALT	(WITHSUBSTSEL (WITHHYPSEL Rule))
 				(LETGOAL _Q
-					(JAPE(failgivingreason(Rule is not applicable to conclusion ' _Q ' with substitution ' _P ')))
+					(Fail (Rule is not applicable to conclusion ' _Q ' with substitution ' _P '))
 				)
 			)
 		)
 		(ALT	(WITHSELECTIONS Rule)
-			(JAPE(failgivingreason(Rule is not applicable to that conclusion)))
+			(Fail (Rule is not applicable to that conclusion))
 		)
    
 TACTIC FSSOB (Forward, n, Rule) IS 
 	WHEN
 		(LETHYPSUBSTSEL _P (Forward n Rule)) 
 		(ALT	(WITHSELECTIONS Rule)
-			(WHEN	(LETARGSEL _P (JAPE(failgivingreason(Rule is not applicable with argument ' _P '))))
-					(JAPE(failgivingreason(Rule is not applicable)))
+			(WHEN	(LETARGSEL _P (Fail (Rule is not applicable with argument ' _P ')))
+					(Fail (Rule is not applicable))
 			)
 		)
    

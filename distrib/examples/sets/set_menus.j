@@ -3,7 +3,7 @@
 TACTIC ForwardCutwithSubstSel(n,Rule) IS
 	SEQ	cut 
 		(WHEN	(LETSUBSTSEL _A Rule (WITHSUBSTSEL hyp))
-				(JAPE (fail(please text-select one or more instances of a sub-formula)))
+				(Fail (please text-select one or more instances of a sub-formula))
 		)
 
 TACTIC "abstraction-I tac" IS FSSOB ForwardCutwithSubstSel 0 "abstraction-I"

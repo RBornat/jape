@@ -145,9 +145,9 @@ MENU Rules IS
 				(LAYOUT "constant" () "C æ c:T" constants)
 				(WHEN
 					(LETGOAL (_E:_T)
-						(JAPE(fail(x:T can only be applied to either variables or constants: you chose _E)))
+						(Fail (x:T can only be applied to either variables or constants: you chose _E))
 					)
-					(LETGOAL _E (JAPE(fail(conclusion _E is not a ' formula:type ' judgement)))
+					(LETGOAL _E (Fail (conclusion _E is not a ' formula:type ' judgement))
 					)
 				)
 			) 
@@ -210,7 +210,7 @@ TACTIC Auto IS
 	WHEN	(LETGOAL (_x:_T) "x:T")
 			(LETGOAL (_c:_T) 
 				(ALT "x:T" "n:num" "s:string" "true:bool" "false:bool"
-					(JAPE (fail (_c isn't a constant from the context, or one of the fixed constants))) 
+					(Fail (_c isn't a constant from the context, or one of the fixed constants))
 				)
 			)
 			(LETGOAL (_F _G:_T) "F G : T" Auto Auto)
@@ -233,15 +233,15 @@ TACTIC Auto IS
 				letrecrules Auto Auto Auto generalise generalise generalise Auto)
 			(LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 , _x4=_E4 in _F end:_T) 
 				letrecrules Auto Auto Auto Auto generalise generalise generalise generalise Auto)
-			(LETGOAL (_E:_T) (JAPE (fail (_E is not a recognisable program formula (Auto)))))
+			(LETGOAL (_E:_T) (Fail (_E is not a recognisable program formula (Auto))))
 			(LETGOAL (_T Ç _S) generalise)
-			(LETGOAL _E (JAPE (fail (_E is not a recognisable judgement (Auto)))))
+			(LETGOAL _E (Fail (_E is not a recognisable judgement (Auto))))
 			
 TACTIC AutoStep IS
 	WHEN	(LETGOAL (_x:_T) "x:T")
 			(LETGOAL (_c:_T) 
 				(ALT "x:T" "n:num" "s:string" "true:bool" "false:bool"
-					(JAPE (fail (_c isn't a constant from the context, or one of the fixed constants))) 
+					(Fail (_c isn't a constant from the context, or one of the fixed constants))
 				)
 			)
 			(LETGOAL (_F _G:_T) "F G : T")
@@ -256,8 +256,8 @@ TACTIC AutoStep IS
 			(LETGOAL (letrec _x1=_E1 , _x2=_E2 in _F end:_T) letrecrules)
 			(LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 in _F end:_T) letrecrules)
 			(LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 , _x4=_E4 in _F end:_T) letrecrules)
-			(LETGOAL (_E:_T) (JAPE (fail (_E is not a recognisable program formula (AutoStep)))))
+			(LETGOAL (_E:_T) (Fail (_E is not a recognisable program formula (AutoStep))))
 			(LETGOAL (_T Ç _S) generalise)
-			(LETGOAL _E (JAPE (fail (_E is not a recognisable judgement (AutoStep)))))
+			(LETGOAL _E (Fail (_E is not a recognisable judgement (AutoStep))))
 			
 AUTOUNIFY "n:num", "s:string", "true:bool", "false:bool"
