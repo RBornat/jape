@@ -47,4 +47,5 @@ val provisostring : proviso -> string
 val provisovars : (term -> 'a) -> ('a -> 'a -> 'a) -> proviso -> 'a
 val provisovisible : visproviso -> bool
 val visprovisostring : visproviso -> string
+val visprovisostring_invisbracketed : bool -> visproviso -> string
 val visprovisostringall : visproviso -> string
