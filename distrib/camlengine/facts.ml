@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Facts =
+module type T =
   sig
     type proviso and visproviso and cxt and term and answer and facts
     val facts : visproviso list -> cxt -> facts
@@ -15,45 +15,9 @@ module type Facts =
   end
 (* $Id$ *)
 
-module
-  Facts
-  (AAA :
-    sig
-      module answer : Answer
-      module term : sig include Termtype include Term end
-      module context : sig include Context include FactsContext end
-      module proviso : sig include Provisotype include Proviso end
-      val ( ||| ) : 'a list * 'a list -> ('a * 'a) list
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val _All : ('a -> bool) -> 'a list -> bool
-      val at : ('a, 'b) context.mapping * 'a -> 'b option
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val consolereport : string list -> unit
-      val isextensibleID : term.vid -> bool
-      val _MAP : ('a -> 'b) * 'a list -> 'b list
-      val member : 'a * 'a list -> bool
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val rewinf_vars : context.rewinf -> term.term list
-      val seqstring : context.seq -> string
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      exception Zip_
-      
-    end)
-  :
-  Facts =
+module M : T =
   struct
-    open AAA
-    open answer open term open context open proviso
-    (* from listfuns.sig.sml *)
-    
-    
-    
-    
-    
-    (* from term.sig.sml *)
-    
-    (* from mappingfuns.sml *)
+    open Answer open Term open Context open Proviso
     
     let factsdebug = ref false
     type facts = proviso list * exterior

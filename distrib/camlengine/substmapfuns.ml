@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Substmapfuns =
+module type T =
   sig
     (* Oh at this point I wish for a type which distinguishes
        variables from terms.  Even though it might be a pain everywhere
@@ -35,42 +35,15 @@ module type Substmapfuns =
   end
 (* $Id$ *)
 
-module
-  Substmapfuns
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      module answer : Answer
-      module term : sig include Termtype include Termstore include Term end
-      module proviso : Proviso
-      module facts : Facts
-      val consolereport : string list -> unit
-      val interpolate : 'a -> 'a list -> 'a list
-      val mkNotin : term.term * term.term -> proviso.proviso
-      
-    end)
-  :
-  Substmapfuns =
+module M : T =
   struct
-    open AAA
-    open listfuns
-    open mappingfuns
-    open optionfuns
-    open answer
-    open term
-    open proviso
-    open facts
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    open Listfuns
+    open Mappingfuns
+    open Optionfuns
+    open Answer
+    open Term
+    open Proviso
+    open Facts
     
     let substdebug = ref false
     let rec substmapdom (vts : (term * term) list) = (fst <* vts)

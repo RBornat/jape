@@ -2,7 +2,7 @@
 
 (* Variables now have names.  Their values are still strings. *)
 
-module type Japeenv =
+module type T =
   sig
     type term and japevar and japeenv
     type name
@@ -33,34 +33,11 @@ module type Japeenv =
   end
 (* $Id$ *)
 
-module
-  Japeenv
-  (AAA :
-    sig
-      module mappingfuns : Mappingfuns
-      type term and name
-      val atoi : string -> int
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val enQuote : string -> string
-      val liststring2 :
-        ('a -> string) -> string -> string -> 'a list -> string
-      val member : 'a * 'a list -> bool
-      val namestring : name -> string
-      val string2term : string -> term
-      val termstring : term -> string
-      exception AtoI_
-      exception Catastrophe_ of string list
-      exception ParseError_ of string list
-    end)
-  :
-  Japeenv =
+module M : T =
   struct
-    open AAA
-    open mappingfuns
+    open Mappingfuns
+    
     type name = name
-    
-    
-    
     
     exception OutOfRange_ of string exception NotJapeVar_ exception ReadOnly_
     (* Because of problems with changing syntax, which means that identifiers

@@ -23,6 +23,6 @@ camlsource: version.tml miscellaneous.tml reason.tml extend.tml streamio.tml ans
 # CAMLSOURCE = SML.ml version.ml miscellaneous.ml reason.ml extend.ml streamio.ml answer.ml prestring.ml hashtype.ml hashstring.ml simplecache.ml listfuns.ml optionfuns.ml mappingfuns.ml stringfuns.ml box.ml displayfont.ml text.ml idclass.ml searchtree.ml symboltype.ml store.ml symbol.ml idclassfuns.ml term.ml predicate.ml match.ml binding.ml termparse.ml sequent.ml name.ml hashname.ml treelayout.ml tactic.ml proviso.ml paraparam.ml panelkind.ml menu.ml displayclass.ml alert.ml doubleclick.ml forcedef.ml proofstage.ml facts.ml rewinf.ml context.ml facts.ml substmapfuns.ml rewrite.ml provisofuns.ml thing.ml unify.ml treeformat.ml prooftree.ml proofstore.ml proofstate.ml applyrule.ml absprooftree.ml hit.ml draw.ml seqdraw.ml treedraw.ml boxdraw.ml displaystate.ml selection.ml disproof.ml interaction.ml japeenv.ml env.ml tacticfuns.ml runproof.ml paragraphfuns.ml dialogue.ml
 
 depend: .depend
-	ocamldep *.mli *.ml >.depend 2>/dev/null
+	ocamldep *.mli *.ml >.depend
 	
 include .depend

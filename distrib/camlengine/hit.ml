@@ -59,29 +59,9 @@ module type Hit =
   end
 (* $Id$ *)
 
-module
-  hit
-  (AAA :
-    sig
-      type element
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val elementstring : element -> string
-      val optionmap : ('a -> 'b option) -> 'a list -> 'b list option
-      val optionstring : ('a -> string) -> 'a option -> string
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val sextuplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) ->
-          ('d -> string) -> ('e -> string) -> ('f -> string) -> string ->
-          'a * 'b * 'c * 'd * 'e * 'f -> string
-      val triplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
-          'a * 'b * 'c -> string
-    end)
-  :
+module  :
   sig include Sidetype include Hit end =
   struct
-    open AAA
     type element = element
     type side = Left | Right
     type 'a hit = FormulaHit of 'a fhit | ReasonHit of 'a

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Proofstate =
+module type T =
   sig
     type term and seq
     type cxt and tactic and 'a prooftree and treeformat and fmtpath
@@ -36,47 +36,18 @@ module type Proofstate =
   end  
 (* $Id$ *)
 
-module
-  Proofstate
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module stringfuns : Stringfuns
-      module optionfuns : Optionfuns
-      module term : Term
-      module sequent : Sequent
-      module context : Context
-      module thing : Thing
-      module prooftree : Prooftree
-      module treeformat : TreeFormat
-      val empty : ('a, 'b) context.mapping
-      val provisoactual : context.visproviso -> context.proviso
-      val provisovars : context.proviso -> term.term list
-      val rewritecxt : context.cxt -> context.cxt
-      val rewriteseq : context.cxt -> sequent.seq -> sequent.seq
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      
-    end)
-  :
-  Proofstate =
+module M : T =
   struct
-    open AAA
-    open listfuns
-    open stringfuns
-    open optionfuns
-    open term
-    open sequent
-    open context
-    open thing
-    open prooftree
-    open prooftree.fmtprooftree
-    open treeformat
-    (* from listfuns.sig.sml *)
-    
-    
-    (* from context.sig.sml *)
-    
-    (* from optionfuns.sig.sml *)
+    open Listfuns
+    open Stringfuns
+    open Optionfuns
+    open Term
+    open Sequent
+    open Context
+    open Thing
+    open Prooftree
+    open Prooftree.fmtprooftree
+    open Treeformat
     
     type proofstate =
         Proofstate of

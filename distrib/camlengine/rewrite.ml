@@ -49,46 +49,19 @@ module type Rewrite =
   end
 (* $Id$ *)
 
-module
-  Rewrite
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      module answer : Answer
-      module term : sig include Termtype include Termstore include Term end
-      module sequent : sig include Sequenttype include Sequent end
-      module proviso : sig include Provisotype include Proviso end
-      module context :
-        sig include Context include rew_Context include FactsContext end
-      module rewinf : Rewinf
-      module substmapfuns : Substmapfuns
-      val consolereport : string list -> unit
-      val enQuote : string -> string
-      val facts : proviso.visproviso list -> context.cxt -> substmapfuns.facts
-      val VIDstring : term.vid -> string
-      exception Catastrophe_ of string list
-      
-    end)
-  :
+module M :
   sig include Rew include Rewrite end =
   struct
-    open AAA
-    open listfuns
-    open mappingfuns
-    open optionfuns
-    open answer
-    open term
-    open sequent
-    open proviso
-    open context
-    open rewinf
-    open substmapfuns
-    
-    
-    
-    
+    open Listfuns
+    open Mappingfuns
+    open Optionfuns
+    open Answer
+    open Term
+    open Sequent
+    open Proviso
+    open Context
+    open Rewinf
+    open Substmapfuns
     
     let rewritedebug = ref false
     (* the rewrite functions rewrite a term/sequent/proviso, 

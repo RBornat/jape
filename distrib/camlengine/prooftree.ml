@@ -133,99 +133,25 @@ module type Prooftree =
 
 (* $Id$ *)
 
-module
-  Prooftree
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module stringfuns : Stringfuns
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      module name : Name
-      module idclass : Idclass
-      module term : sig include Termtype include Term end
-      module sequent : sig include Sequenttype include Sequent end
-      module rewrite : sig include Rew include Rewrite end
-      module thing : Thing
-      module context : Context
-      module rewinf : Rewinf
-      module treelayout : TreeLayout
-      module treeformat : sig include TreeFormat include VisFormat end
-      val atoi : string -> int
-      val catelim_provisostring :
-        context.proviso -> string list -> string list
-      val catelim_tacticstring : thing.tactic -> string list -> string list
-      val consolereport : string list -> unit
-      val exteriorinf : context.cxt -> rewinf.rewinf option
-      val givenssep : string
-      val groundedprovisos :
-        term.term list -> context.visproviso list ->
-          context.visproviso list option
-      val int2term : int -> term.term
-      val interpolate : 'a -> 'a list -> 'a list
-      val isCutRule : name.name -> bool
-      val isFreshProviso : thing.proviso -> bool
-      val mkGivenTac : term.term -> thing.tactic
-      val mkLayoutTac : thing.tactic * treelayout.treelayout -> thing.tactic
-      val mkResolveTac : thing.tactic -> thing.tactic
-      val mkSeqTac : thing.tactic list -> thing.tactic
-      val mkSubstTac :
-        name.name * (term.term * term.term) list -> thing.tactic
-      val mkTermTac : name.name * term.term list -> thing.tactic
-      val mkUnRuleTac : string * term.term list -> thing.tactic
-      val Nonum : term.resnum
-      val nextgoalTac : thing.tactic
-      val provisoactual : context.visproviso -> context.proviso
-      val provisosep : string
-      val provisovisible : context.visproviso -> bool
-      val simplecache :
-        string -> ('a * int * 'b -> string) -> int -> ('a -> 'b) ->
-          (int -> 'a -> 'b) * (unit -> unit)
-      (* function         eval                   reset        *)
-      val showargasint : (int -> term.term -> int) option ref
-      val shyidforFORMULAE : string
-      val shyidforFROM : string
-      val shyidforINFER : string
-      val shyidforIS : string
-      val shyidforWHERE : string
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      exception AtoI_ exception Catastrophe_ of string list
-      
-    end)
-  :
+module M :
   Prooftree =
   struct
-    open AAA
-    open listfuns
-    open mappingfuns
-    open stringfuns
-    open optionfuns
-    open name
-    open idclass
-    open term
-    open sequent
-    open rewrite
-    open thing
-    open context
-    open rewinf
-    open treelayout
-    open treeformat
-    open IO
+    open Listfuns
+    open Mappingfuns
+    open Stringfuns
+    open Optionfuns
+    open Name
+    open Idclass
+    open Term
+    open Sequent
+    open Rewrite
+    open Thing
+    open Context
+    open Rewinf
+    open Treelayout
+    open Treeformat
+
     type rewinf = rewinf and resnum = resnum
-    (* from listfuns.sig.sml *)
-    
-    
-    
-    
-    (* from mappingfuns.sig.sml *)
-    
-    
-    
-    
-    
-    (* from optionfuns.sig.sml *)
-    
-    (* from context.sml *)
     
     (* -------------------------------------------------------------------------------- *)
               
@@ -1561,7 +1487,7 @@ module
           fun (FmtPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
         let validconc = validelement false
-        let rec stillopen t = stillopen_ns t <*> dePath
+        let rec stillopen T = stillopen_ns t <*> dePath
         let maxtreeresnum = maxtreeresnum
         let isTip = isTip
         let hasTip = hasTip
@@ -1611,7 +1537,7 @@ module
           fun (VisPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
         let validconc = validelement false
-        let rec stillopen t = stillopen_ns t <*> dePath
+        let rec stillopen T = stillopen_ns t <*> dePath
         let maxtreeresnum = maxtreeresnum
         let isTip = isTip
         let hasTip = hasTip

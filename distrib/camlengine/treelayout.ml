@@ -24,7 +24,8 @@ module M : T with type term = Term.Type.term
     open Match.M
     open Optionfuns.M
     open Stringfuns.M
-    open Term.M
+    open Term.Funs
+    open Term.Termstring
     
     type term = Term.Type.term and ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
     

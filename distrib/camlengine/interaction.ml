@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Interaction =
+module type T =
   sig
     type 'a prooftree
     and proofstate
@@ -57,81 +57,19 @@ module type Interaction =
 
 (* $Id$ *)
 
-module
-  Interaction
-  (AAA :
-    sig
-      module stringfuns : Stringfuns
-      module answer : Answer
-      module box : Box
-      module sequent : sig include Sequenttype include Sequent end
-      module proviso : Proviso
-      module prooftree : Prooftree
-      module proofstate : Proofstate
-      module japeserver : Japeserver
-      module treedraw : Displaystyle
-      module boxdraw : Displaystyle
-      module displayclass : Displayclass
-      module displayfont : Displayfont
-      module hit : Hit
-      module displaystate : Displaystate
-      module treeformat : TreeFormat
-      exception Catastrophe_ of string list
-      exception Selection_ of string list
-      exception UnSOME_
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val andthenr : 'a option * ('a -> 'b option) -> 'b option
-      val atoi : string -> int
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val consolereport : string list -> unit
-      val dont_rewrite_with_this : proofstate.cxt
-      val elementstring : sequent.element -> string
-      val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      val interpolate : 'a -> 'a list -> 'a list
-      val invisible : string -> bool
-      val lowercase : string -> string
-      val member : 'a * 'a list -> bool
-      val numbered : 'a list -> (int * 'a) list
-      val optionfilter : ('a -> 'b option) -> 'a list -> 'b list
-      val optionstring : ('a -> string) -> 'a option -> string
-      val ortryr : 'a option * (unit -> 'a option) -> 'a option
-      val provisos : proofstate.cxt -> proviso.visproviso list
-      val replaceelement :
-        sequent.term -> sequent.element -> sequent.term ->
-          sequent.element * sequent.term
-      val rewritecxt : proofstate.cxt -> proofstate.cxt
-      val seektipselection : bool ref
-      val selection2Subst :
-        bool -> string list -> proofstate.cxt -> proofstate.cxt * sequent.term
-      val setComment : string -> unit
-      val showAlert : string -> unit
-      val smlelementstring :
-        (sequent.term -> string) -> sequent.element -> string
-      val sort : ('a * 'a -> bool) -> 'a list -> 'a list
-      val termstring : sequent.term -> string
-      val try__ : ('a -> 'b) -> 'a option -> 'b option
-      val unSOME : 'a option -> 'a
-      
-    end)
-  :
-  Interaction =
+module M : T =
   struct
-    open AAA
-    open stringfuns
-    open answer
-    open box
-    open sequent
-    open prooftree
-    open proofstate
-    open treeformat
-    open displayclass
-    open displayfont
-    open hit
-    open displaystate
-    open IO
-    
-    
-    
+    open Stringfuns
+    open Answer
+    open Box
+    open Sequent
+    open Prooftree
+    open Proofstate
+    open Treeformat
+    open Displayclass
+    open Displayfont
+    open Hit
+    open Displaystate
     
     type command =
         TextCommand of string list
@@ -150,7 +88,7 @@ module
     let rec deadServer strings = consolereport strings; abandonServer ()
     let rec startServer (serverpath, args) =
       try
-        (* open japeserver OCaml no like *) startserver serverpath args;
+        (* open Japeserver OCaml no like *) startserver serverpath args;
         if idlsignature <> getSignature () then
           begin
             consolereport ["Incompatible japeserver: "; serverpath; "\007\n"];

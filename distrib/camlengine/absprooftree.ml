@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Absprooftree =
+module type T =
   sig
     type tree and structurerule and font
     type sequent and reason and text and term and element
@@ -27,37 +27,15 @@ module type Absprooftree =
 
 (* $Id$ *)
 
-module
-  absprooftree
-  (AAA :
-    sig
-      module prooftree : Prooftree
-      module treeformat : VisFormat
-      module text : Text
-      module displayfont : Displayfont
-      type symbol and structurerule
-      val commasymbol : symbol
-      val debracket : prooftree.term -> prooftree.term
-      val elementstring_invisbracketed : prooftree.element -> string
-      val explodeCollection : prooftree.term -> prooftree.element list
-      val isstructurerule : structurerule -> prooftree.name -> bool
-      val proved : prooftree.name -> bool
-      val seqexplode :
-        prooftree.seq -> string * prooftree.term * prooftree.term
-      val symbolstring : symbol -> string
-      val termstring_invisbracketed : prooftree.term -> string
-      
-    end)
-  :
-  Absprooftree =
+module M  : T =
   struct
-    open AAA
-    open text
-    open displayfont
-    open treeformat
-    open prooftree
-    open prooftree.visprooftree
-    type tree = visformat prooftree
+    open Text
+    open Displayfont
+    open Treeformat
+    open Prooftree
+    open Prooftree.Visprooftree
+    
+    type tree = Visformat prooftree
     and structurerule = structurerule
     and sequent = seq
     and reason = string
@@ -90,7 +68,7 @@ module
     let rec term2text termstring t = Text [Syllable (TermFont, termstring t)]
     let rec validhyp t el ns = visprooftree.validhyp t el (VisPath ns)
     let rec validconc t el ns = visprooftree.validconc t el (VisPath ns)
-    let rec stillopen t = visprooftree.stillopen t <*> VisPath
+    let rec stillopen T = visprooftree.stillopen T <*> VisPath
     let rec ismultistep t =
       match format t with
         VisFormat (b, _) -> b

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Forcedef =
+module type T =
   sig
     type seq and term
     type forcedef =
@@ -31,47 +31,9 @@ module type Forcedef =
   end
 (* $Id$ *)
 
-module
-  Forcedef
-  (AAA :
-    sig
-      module optionfuns : Optionfuns module symboltype : Symboltype
-      type seq and term
-      val currsymb : unit -> symboltype.symbol
-      val scansymb : unit -> symboltype.symbol
-      val symbolstring : symboltype.symbol -> string
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val atoi : string -> int
-      val canstartTerm : symboltype.symbol -> bool
-      val commasymbol : symboltype.symbol
-      val consolereport : string list -> unit
-      val isextensibleId : term -> bool
-      val isVariable : term -> bool
-      val findterm : (term -> 'a option) -> term -> 'a option
-      val option_mapterm : (term -> term option) -> term -> term option
-      val optionstring : ('a -> string) -> 'a option -> string
-      val parseList :
-        (symboltype.symbol -> bool) -> (symboltype.symbol -> 'a) ->
-          symboltype.symbol -> 'a list
-      val parseSeq : unit -> seq
-      val parseTerm : symboltype.symbol -> term
-      val termvars : term -> term list
-      val catelim_liststring :
-        ('a -> string list -> string list) -> string -> 'a list ->
-          string list -> string list
-      val catelim_pairstring :
-        ('a -> string list -> string list) ->
-          ('b -> string list -> string list) -> string -> 'a * 'b ->
-          string list -> string list
-      val catelim_seqstring : seq -> string list -> string list
-      val catelim_termstring : term -> string list -> string list
-      exception ParseError_ of string list
-    end)
-  :
-  Forcedef =
+module M : T =
   struct
-    open AAA
-    open optionfuns open symboltype
+    open Optionfuns open Symboltype
     
     
     type seq = seq and term = term

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Paragraphfuns =
+module type T =
   sig
     type japeenv
     and model
@@ -32,72 +32,14 @@ module type Paragraphfuns =
   end
 (* $Id$ *)
 
-module
-  Paragraphfuns
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module paragraph : Paragraph
-      module thing : Thing
-      module menu : Menu
-      module japeenv : Japeenv
-      module runproof : Runproof
-      exception Catastrophe_ of string list
-      type ('a, 'b) mapping and forcedef
-      val addautorule : bool * thing.tactic -> unit
-      val adddoubleclick : paragraph.dclick * thing.tactic * thing.seq -> unit
-      val addforcedef : paragraph.term * paragraph.forcedef -> unit
-      val atmapping : ('a, 'b) mapping * 'a -> 'b option
-      val consolereport : string list -> unit
-      val empty : ('a, 'b) mapping
-      val enQuote : string -> string
-      val freezesaved : unit -> unit
-      val isQuoted : string -> bool
-      val mkmap : ('a * 'b) list -> ('a, 'b) mapping
-      val namestring : paragraph.name -> string
-      val optionfilter : ('a -> 'b option) -> 'a list -> 'b list
-      val paramvar : thing.paraparam -> thing.term
-      val parseablenamestring : paragraph.name -> string
-      val proofstage2word : paragraph.proofstage -> string
-      val provisostring : paragraph.proviso -> string
-      val provisovars : paragraph.proviso -> paragraph.term list
-      val seqvars : thing.seq -> thing.term list
-      val setfontstuff : string -> unit
-      val setmenuentry : string * string * string option * string -> unit
-      val setpanelbutton : string * string * bool -> unit
-      val seqstring : thing.seq -> string
-      val tacticstring : thing.tactic -> string
-      val termstring : thing.term -> string
-      val TheoryAltTac : thing.name list -> thing.tactic
-      val thawsaved : unit -> unit
-      val tickmenuitem : string * string * bool -> unit
-      val tmerge : thing.term list * thing.term list -> thing.term list
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      val unQuote : string -> string
-      val VALFROM : string -> thing.term
-      val profileOn : unit -> unit
-      val profileOff : unit -> unit
-      val profileReset : unit -> unit
-      
-    end)
-  :
-  Paragraphfuns =
+module M : T =
   struct
-    open AAA
-    open listfuns
-    open paragraph
-    open thing
-    open menu
-    open japeenv
-    open runproof
-    (* from listfuns.sig.sml *)
-    
-    
-    
-    (* from japeenv.sig.sml *)
-    
-    
-    
+    open Listfuns
+    open Paragraph
+    open Thing
+    open Menu
+    open Japeenv
+    open Runproof
     
     let rec addstructurerule report query stype rule =
       let thingtype =

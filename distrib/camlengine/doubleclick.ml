@@ -1,7 +1,6 @@
 (* $Id$ *)
 
-module type DoubleClick =
-  sig
+T  sig
     type seq and tactic and term
     type dclick = DClickHyp | DClickConc
     val adddoubleclick : dclick * tactic * seq -> unit
@@ -11,23 +10,8 @@ module type DoubleClick =
   end
 (* $Id$ *)
 
-module
-  DoubleClick
-  (AAA :
-    sig
-      type seq and tactic and ('a, 'b) mapping and term
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val empty : ('a, 'b) mapping
-      val eqseqs : seq * seq -> bool
-      val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      val seqmatch :
-        seq -> seq -> (term, term) mapping -> (term, term) mapping option
-      val remaptactic : (term, term) mapping -> tactic -> tactic
-    end)
-  :
-  DoubleClick =
+module M : T =
   struct
-    open AAA
     type seq = seq and tactic = tactic and term = term
     
     type dclick = DClickHyp | DClickConc

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Seqdraw =
+module type Y =
   sig
     type element and displayclass and 'a plan and pos and seq and textbox
     type planclass =
@@ -18,26 +18,9 @@ module type Seqdraw =
 (* $Id$ *)
 
 (* draw a sequent - used in treedraw and disproof *)
-
-module
-  Seqdraw
-  (AAA :
-    sig
-      module box : Box module displayclass : Displayclass module draw : Draw
-      type seq
-      val comma : unit -> draw.text
-      val elementstring : draw.element -> string
-      val explode : seq -> string * draw.element list * draw.element list
-      val turnstile : string -> draw.text
-      
-      
-      
-    end)
-  :
-  Seqdraw =
+ M : T =
   struct
-    open AAA
-    open box open draw open displayclass open IO
+    open Box open Draw open Displayclass
     
     type seq = seq
     type planclass =

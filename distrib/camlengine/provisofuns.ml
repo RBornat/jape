@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Provisofuns =
+module type T =
   sig
     type cxt
     and term
@@ -22,58 +22,17 @@ module type Provisofuns =
   end
 (* $Id$ *)
 
-module
-  Provisofuns
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module optionfuns : Optionfuns
-      module answer : Answer
-      module idclass : Idclass
-      module term : sig include Termtype include Termstore include Term end
-      module match : Match
-      module proviso : sig include Provisotype include Proviso end
-      module facts : Facts
-      module substmapfuns : Substmapfuns
-      val at : ('a, 'b) match.mapping * 'a -> 'b option
-      val baseseqsides :
-        facts.cxt ->
-          term.term * term.term * (term.term list * term.term list) option
-      val consolereport : string list -> unit
-      val conVariableClass : term.idclass
-      val cxtstring : facts.cxt -> string
-      val empty : ('a, 'b) match.mapping
-      val isdigit : string -> bool
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val provisos : facts.cxt -> proviso.visproviso list
-      val rewritecxt : facts.cxt -> facts.cxt
-      val setprovisos : facts.cxt -> proviso.visproviso list -> facts.cxt
-      exception Catastrophe_ of string list
-      
-    end)
-  :
-  Provisofuns =
+module M : T =
   struct
-    open AAA
-    open listfuns
-    open optionfuns
-    open answer
-    open idclass
-    open term
-    open match
-    open proviso
-    open substmapfuns
-    open facts
-    
-    (* from listfuns *)
-    
-    
-    
-    
-    (* from optionfuns *)
-    
-    (* from term *)
+    open Listfuns
+    open Optionfuns
+    open Answer
+    open Idclass
+    open Term
+    open Match
+    open Proviso
+    open Substmapfuns
+    open Facts
     
     let vv = bracketedliststring visprovisostring " AND "
     (* just turn a proviso into a list of simpler provisos 

@@ -16,16 +16,17 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type vid = Term.M.vid 
+module M : T with type vid = Term.Type.vid 
               and type idclass = Idclass.M.idclass 
               and type term = Term.Type.term 
 =
   struct
-    open Symbol.M
     open Listfuns.M
-    open Term.M
+    open Symbol.M
+    open Term.Funs
+    open Term.Store
     
-    type vid = Term.M.vid and idclass = Idclass.M.idclass and term = Term.Type.term
+    type vid = Term.Type.vid and idclass = Idclass.M.idclass and term = Term.Type.term
     
     type paraparam =
         Objectparam of (vid * idclass)

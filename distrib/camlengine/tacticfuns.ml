@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Tacticfuns =
+module type T =
   sig
     type fmtpath
     and proofstate
@@ -56,143 +56,30 @@ module type Tacticfuns =
   * RB 7/xii/94
   *)
 
-module
-  Tacticfuns
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module stringfuns : Stringfuns
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      module term : sig include Termtype include Termstore include Term end
-      module name : Name
-      module match : Match
-      module sequent : sig include Sequenttype include Sequent end
-      module proviso : Proviso
-      module tactic : sig include Tactictype include Tactic end
-      (* no regrets! *)
-      module paraparam : Paraparam
-      module context : Context
-      module rewrite : Rewrite
-      module unify : Unify
-      module thing : Thing
-      module applyrule : Applyrule
-      module prooftree : Prooftree
-      module proofstate : Proofstate
-      (* uses of Proofstate need rationalising. RB 6.vii.01 *)
-      module treeformat : TreeFormat
-      module japeenv : Japeenv
-      module boolcache : Cache
-      module conclusioncache : Cache
-      module idclass : Idclass
-      exception Catastrophe_ of string list
-      exception ParseError_ of string list
-      exception Selection_ of string list
-      exception Verifyproviso_ of proviso.proviso
-      exception Tacastrophe_ of string list
-      type pos
-      type displaystate
-      val alterTip :
-        displaystate option -> context.cxt -> prooftree.fmtpath ->
-          prooftree.treeformat prooftree.prooftree ->
-          (prooftree.treeformat prooftree.prooftree * prooftree.fmtpath)
-            option ->
-          (bool * prooftree.fmtpath * term.element) * string list ->
-          context.cxt * term.element *
-            prooftree.treeformat prooftree.prooftree
-      val anyCollectionClass : term.idclass
-      val applyconjectures : bool ref
-      val applyderivedrules : bool ref
-      val askNb : string -> (string * 'a) list -> 'a
-      val askNbc : string -> (string * 'a) list -> 'a -> 'a
-      val askChoice : string * string list list -> int option
-      val atoi : string -> int
-      val autoselect : bool ref
-      val checkprovisos : context.cxt -> context.cxt option
-      val conOperatorClass : term.idclass
-      val consolereport : string list -> unit
-      val getReason : unit -> string list
-      val lacksProof : name.name -> bool
-      val lemmacount : int ref
-      val lookupassoc : string -> (bool * bool) option
-      val mkvisproviso : bool * context.proviso -> context.visproviso
-      val needsProof : name.name -> thing.thing -> bool
-      val prefixtoReason : string list -> unit
-      val refreshProof : displaystate option -> unit
-      val sameterms : term.term * term.term -> context.cxt -> context.cxt list
-      val selection2Subst :
-        bool -> string list -> context.cxt -> context.cxt * term.term
-      val setComment : string list -> unit
-      val setReason : string list -> unit
-      val showAlert : string list -> unit
-      val showProof :
-        displaystate option -> prooftree.fmtpath option ->
-          prooftree.fmtpath option -> context.cxt ->
-          prooftree.treeformat prooftree.prooftree -> bool -> displaystate
-      val symclass : term.vid -> term.idclass
-      val string2tactic : string -> term.term
-      val string2term : string -> term.term
-      val subterm2subst :
-        (term.term * term.term -> context.cxt -> context.cxt option) ->
-          context.cxt -> term.term -> term.term ->
-          (context.cxt * term.term) option
-      val tickmenuitem : string * string * bool -> unit
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      val unknownprefix : string
-      val verifyprovisos : context.cxt -> context.cxt
-      val Oracle :
-        string -> context.cxt -> term.term -> term.term -> string ->
-          string list -> context.cxt option
-      
-      type conclusions =
-        Conclusions of (thing.name * thing.thing * term.term) list
-      
-      type side = Left | Right
-      val sidestring : side -> string
-    end)
-  :
-  Tacticfuns =
+module M : T =
   struct
-    open AAA
-    open listfuns
-    open stringfuns
-    open optionfuns
-    open term
-    open match
-    open sequent
-    open proviso
-    open paraparam
-    open context
-    open rewrite
-    open unify
-    open tactic
-    open thing
-    open applyrule
-    open treeformat
-    open prooftree
-    open prooftree.fmtprooftree
-    open proofstate
-    open japeenv
-    open name
+    open Applyrule
+    open Context
+    open Japeenv
+    open Listfuns
+    open Match
+    open Name
+    open Optionfuns
+    open Paraparam
+    open Proofstate
+    open Prooftree
+    open Prooftree.Fmtprooftree
+    open Proviso
+    open Rewrite
+    open Sequent
+    open Stringfuns
+    open Tactic
+    open Term
+    open Thing
+    open Treeformat
+    open Unify
+    
     type pos = pos and displaystate = displaystate and side = side
-    (* from context.sig.sml *)
-    
-    (* from listfuns.sig.sml *)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    (* from japeenv.sig.sml *)
-    
-    
-    
-    (* from optionfuns.sig.sml *)
-    
     
     (*  --------------------------------------------------------------------- *)
     

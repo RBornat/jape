@@ -29,7 +29,8 @@ module M : (* sig include Nametype include Name end *) T with type term = Term.T
     open Stringfuns.M
     open Symbol.M 
     open Symboltype.M 
-    open Term.M 
+    open Term.Funs
+    open Term.Type 
     open Termparse.M
     
     type term = Term.Type.term

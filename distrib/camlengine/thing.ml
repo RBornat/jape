@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Thing =
+module type T =
   sig
     type term
     and vid
@@ -71,85 +71,23 @@ module type Thing =
   end
 (* $Id$ *)
 
-module
-  Thing
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      module stringfuns : Stringfuns
-      module idclass : Idclass
-      module term : sig include Termtype include Termstore include Term end
-      module predicate : Predicate
-      module match : Match
-      module paraparam : Paraparam
-      module proviso : Proviso
-      module sequent : sig include Sequenttype include Sequent end
-      module context : Context
-      module rewrite : Rewrite
-      type tactic and name
-      val applyderivedrules : bool ref
-      (* derived rules allowed in proofs *)
-      val autoVID : term.idclass -> term.vid -> term.vid
-      val consolereport : string list -> unit
-      val checkTacticTerm : term.term -> unit
-      val earlierpair :
-        ('a * 'a -> bool) * ('b * 'b -> bool) -> ('a * 'b) * ('a * 'b) -> bool
-      val hashstring : string -> int
-      val isextensibleID : term.vid -> bool
-      val mkNotinProviso : term.term * term.term -> proviso.proviso
-      val namestring : name -> string
-      val refstring : ('a -> string) -> 'a ref -> string
-      val remapproviso :
-        (term.term, term.term) mappingfuns.mapping -> proviso.proviso ->
-          proviso.proviso
-      val simplestore :
-        string -> ('a * int * 'b -> string) -> int ->
-          (int -> 'a -> 'b option) * (int -> 'a -> 'b -> unit) *
-            (int -> 'a -> unit) * (unit -> unit) * (unit -> 'a list) *
-            (unit -> 'b list)
-      (* sources               targets            *)
-      val tacticstring : tactic -> string
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      
-      exception Catastrophe_ of string list
-      exception Tacastrophe_ of string list
-    end)
-  :
-  Thing =
+module M : T =
   struct
-    open AAA
-    open listfuns
-    open mappingfuns
-    open optionfuns
-    open stringfuns
-    open idclass
-    open term
-    open predicate
-    open match
-    open paraparam
-    open proviso
-    open sequent
-    open context
-    open rewrite
+    open Listfuns
+    open Mappingfuns
+    open Optionfuns
+    open Stringfuns
+    open Idclass
+    open Term
+    open Predicate
+    open Match
+    open Paraparam
+    open Proviso
+    open Sequent
+    open Context
+    open Rewrite
+    
     type tactic = tactic and name = name
-    (* from context.sig.sml *)
-    
-    (* from listfuns.sig.sml *)
-    
-    
-    
-    
-    (* from mappingfuns.sig.sml *)
-    
-    
-    
-    
-    (* from optionfuns.sig.sml *)
-    
-    
-    (* from term.sig.sml *)
     
     let thingdebug = ref false
     let thingdebugheavy = ref false

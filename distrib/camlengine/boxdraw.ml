@@ -69,60 +69,7 @@
  * RB 27/viii/99
  *)
  
- module
-  Boxdraw
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module box : Box
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      module tree : Absprooftree
-      module text : Text
-      module draw : Draw
-      module hit : sig include Sidetype include Hit end
-      module displayclass : Displayclass
-      module displayfont : Displayfont
-      val consolereport : string list -> unit
-      val cuthidingdebug : bool ref
-      val elementstring : draw.element -> string
-      val elementstring_invisbracketed : draw.element -> string
-      val element2term : draw.element -> draw.term option
-      val catelim_elementstring : draw.element -> string list -> string list
-      val enQuote : string -> string
-      val explodebinapp : draw.term -> (draw.term * string * draw.term) option
-      val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      val foldformulae : bool ref
-      val hasrelevanttip : tree.element -> tree.tree -> bool
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val pathstring : int list -> string
-      val quadruplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) ->
-          ('d -> string) -> string -> 'a * 'b * 'c * 'd -> string
-      val reasonstring : tree.reason -> string
-      val screenpositiondebug : bool ref
-      val seqstring : tree.sequent -> string
-      val measurestring : draw.font -> string -> int * int * int
-      val sameresource : tree.element * tree.element -> bool
-      val termstring : draw.term -> string
-      val termstring_invisbracketed : draw.term -> string
-      val textboxstring : box.textbox -> string
-      val triplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
-          'a * 'b * 'c -> string
-      val truncatereasons : bool ref
-      val turnstiles : unit -> string list
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      val unSOME : 'a option -> 'a
-      val CutRule : tree.structurerule
-      val IdentityRule : tree.structurerule
-      val TransitivityRule : tree.structurerule
-      val ReflexivityRule : tree.structurerule
-      exception Catastrophe_ of string list
-      
-    end)
-  :
+ module M :
   sig
     include Screendraw
     val hidecut : bool ref
@@ -140,29 +87,16 @@
     val boxfolddebug : bool ref
   end =
   struct
-    open AAA
-    open listfuns
-    open box
-    open mappingfuns
-    open optionfuns
-    open tree
-    open text
-    open draw
-    open hit
-    open displayclass
-    open displayfont
-    open IO
-    (* from listfuns.sig.sml *)
-    
-    
-    
-    (* from mappingfuns.sig.sml *)
-    
-    
-    
-    (* from optionfuns.sig.sml *)
-    
-    (* from box.sig.sml *)
+    open Listfuns
+    open Box
+    open Mappingfuns
+    open Optionfuns
+    open Tree
+    open Text
+    open Draw
+    open Hit
+    open Displayclass
+    open Displayfont
     
     let element2textinfo = element2textinfo elementstring_invisbracketed
     let term2textinfo = term2textinfo termstring_invisbracketed
@@ -357,7 +291,7 @@
                           (* The cut transformation applies to cut nodes in which
                            * the first antecedent has a single rhs formula (why?).
                            * If the left antecedent is proved then the cut line is treated as a hypothesis (CutHyp); 
-                           * otherwise, if the right has no open tips which could use the cut formula then 
+                           * otherwise, if the right has no open Tips which could use the cut formula then 
                            * it's treated as a conclusion (CutConc); 
                            * otherwise it could be either (CutAmbig).
                            *)
@@ -1849,7 +1783,7 @@
                 validhyp proof el path || okhyps hyps hpath
               in
               let rec blackconc (({path = cpath} : pathinfo), _, _) =
-                stillopen proof cpath && okhyps hyps cpath
+                stillopen Proof cpath && okhyps hyps cpath
               in
               if match planinfo plan with
                    ElementPlan (_, _, HypPlan as inf) -> blackhyp inf
@@ -1874,7 +1808,7 @@
                 validhyp proof el cpath
               in
               let rec blackconc (({path = cpath'} : pathinfo), _, _) =
-                stillopen proof cpath' && okhyps hyps cpath'
+                stillopen Proof cpath' && okhyps hyps cpath'
               in
               if match planinfo plan with
                    ElementPlan (_, _, HypPlan as inf) -> blackhyp inf

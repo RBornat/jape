@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type TreeFormat =
+module type T =
   sig
     (* the complexity of this datatype, and the shenanigans relating to its translation, are all due to 
      * the need to have a simple interpretation of double-clicking on a reason.  Essentially, we have
@@ -55,40 +55,10 @@ module type VisFormat =
   end
 (* $Id$ *)
 
-module
-  TreeFormat
-  (AAA :
-    sig
-      module treelayout : TreeLayout
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val drop : int -> 'a list -> 'a list
-      val earlierlist : ('a * 'a -> bool) -> 'a list * 'a list -> bool
-      val enQuote : string -> string
-      val int2term : int -> treelayout.term
-      val mkTup : treelayout.term list -> treelayout.term
-      val liststring : ('a -> string) -> string -> 'a list -> string
-      val _MAP : ('a -> 'b) * 'a list -> 'b list
-      val optionstring : ('a -> string) -> 'a option -> string
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val sortedmergeandcombine :
-        ('a * 'a -> bool) -> ('a * 'a -> 'a) -> 'a list * 'a list -> 'a list
-      val sortunique : ('a * 'a -> bool) -> 'a list -> 'a list
-      val string2term : string -> treelayout.term
-      val take : int -> 'a list -> 'a list
-      val triplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
-          'a * 'b * 'c -> string
-      val try__ : ('a -> 'b) -> 'a option -> 'b option
-      exception Catastrophe_ of string list
-    end)
-  :
+module M :
   sig include TreeFormat include VisFormat end =
   struct
-    open AAA
-    open treelayout
-    
+    open Treelayout
     
     (* the complexity of this datatype, and the shenanigans relating to its translation, are all due to 
      * the need to have a simple interpretation of double-clicking on a reason.  Essentially, we have

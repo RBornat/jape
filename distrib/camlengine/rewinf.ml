@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Rewinf =
+module type T =
   sig
     type rewinf
     type term and vid
@@ -23,26 +23,8 @@ module type Rewinf =
   end
 (* $Id$ *)
 
-module
-  Rewinf
-  (AAA :
-    sig
-      type vid and resnum and term
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val mergevars : term list -> term list -> term list
-      val mergeVIDs : vid list -> vid list -> vid list
-      val optionstring : ('a -> string) -> 'a option -> string
-      val quadruplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) ->
-          ('d -> string) -> string -> 'a * 'b * 'c * 'd -> string
-      val sortedmerge : ('a * 'a -> bool) -> 'a list * 'a list -> 'a list
-      val termliststring : term list -> string
-      val vidstring : vid -> string
-    end)
-  :
-  Rewinf =
+module M : T =
   struct
-    open AAA
     type vid = vid and term = term and resnum = resnum
     (* you'd think it would know ... *)
        

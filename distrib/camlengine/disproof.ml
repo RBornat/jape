@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Disproof =
+module type T =
   sig
     type element
     and facts
@@ -83,110 +83,24 @@ module type Disproof =
    RB 
  *)
 
-module
-  Disproof
-  (AAA :
-    sig
-      module box : Box
-      module forcedef : Forcedef
-      module idclass : Idclass
-      module japeserver : Japeserver
-      module listfuns : Listfuns
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      module predicate : Predicate
-      module seqdraw : Seqdraw
-      module term : sig include Termstore include Term end
-      type facts and fmtpath and 'a prooftree and treeformat
-      val ask : string list -> (string * 'a) list -> int -> 'a
-      val askChoice : string * string list list -> int option
-      val atoi : string -> int
-      val base_sequent : treeformat prooftree -> seqdraw.seq
-      val catelim_seqstring : seqdraw.seq -> string list -> string list
-      val consolereport : string list -> unit
-      val drawindisproofpane : unit -> unit
-      val getsemanticturnstile : string -> string option
-      val isdigit : string -> bool
-      val isextensibleID : term.vid -> bool
-      val lowercase : string -> string
-      val matchdebug : bool ref
-      val matchvars :
-        bool -> (term.term -> bool) -> term.term -> term.term ->
-          (term.term, term.term) mappingfuns.mapping ->
-          (term.term, term.term) mappingfuns.mapping option
-      val mkSeq :
-        string * term.element list * term.element list -> seqdraw.seq
-      val onbraket : string * string
-      val offbraket : string * string
-      val outbraket : string * string
-      val lockbraket : string * string
-      val option_remapterm :
-        (term.term, term.term) mappingfuns.mapping -> term.term ->
-          term.term option
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val parseTerm : string -> term.term
-      val planinfo : 'a seqdraw.plan -> 'a
-      val seqexplode : seqdraw.seq -> string * term.term * term.term
-      val seqstring : seqdraw.seq -> string
-      val seqvars : seqdraw.seq -> term.term list
-      val showAlert : string list -> unit
-      val simplifySubst :
-        facts -> (term.term * term.term) list -> term.term -> term.term option
-      val smlseqstring : seqdraw.seq -> string
-      val subtree : treeformat prooftree -> fmtpath -> treeformat prooftree
-      val term2binding : term.term -> term.term option
-      val triplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
-          'a * 'b * 'c -> string
-      val catelim2stringfn :
-        ('a -> string list -> string list) -> 'a -> string
-      val catelim_arraystring :
-        ('a -> string list -> string list) -> string -> 'a array ->
-          string list -> string list
-      val catelim_bracketedliststring :
-        ('a -> string list -> string list) -> string -> 'a list ->
-          string list -> string list
-      val catelim_pairstring :
-        ('a -> string list -> string list) ->
-          ('b -> string list -> string list) -> string -> 'a * 'b ->
-          string list -> string list
-      val catelim_triplestring :
-        ('a -> string list -> string list) ->
-          ('b -> string list -> string list) ->
-          ('c -> string list -> string list) -> string -> 'a * 'b * 'c ->
-          string list -> string list
-      exception Catastrophe_ of string list
-      exception ParseError_ of string list
-      exception Tacastrophe_ of string list
-      
-    end)
-  :
-  Disproof =
+module M : T =
   struct
-    open AAA
-    open box
-    open idclass
-    open forcedef
-    open japeserver
-    open listfuns
-    open mappingfuns
-    open optionfuns
-    open predicate
-    open seqdraw
-    open term
+    open Box
+    open Idclass
+    open Forcedef
+    open Japeserver
+    open Listfuns
+    open Mappingfuns
+    open Optionfuns
+    open Predicate
+    open Seqdraw
+    open Term
+    
     type 'a prooftree = 'a prooftree
     and treeformat = treeformat
     and fmtpath = fmtpath
     and facts = facts
-    
-    
-    
-    
-    
-    
-    
-    
+
     let rec catelim_intstring i ss = (string_of_int : int -> string) i :: ss
     let rec catelim_boolstring b ss = (string_of_int : bool -> string) b :: ss
     let disproofdebug = ref false

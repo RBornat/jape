@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Runproof =
+module type T =
   sig
     type cxt
     and japeenv
@@ -32,82 +32,11 @@ module type Runproof =
   end
 (* $Id$ *)
 
-module
-  Runproof
-  (AAA :
-    sig
-      module context : Context
-      module name : Name
-      module proofstage : Proofstage
-      module proofstate : Proofstate
-      type japeenv and model and possmatch
-      exception Use_ exception Tacastrophe_ of string list
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val andthenr : 'a option * ('a -> 'b option) -> 'b option
-      val addproof :
-        (string list -> unit) ->
-          (string list * string * string * int -> bool) -> name.name ->
-          bool -> proofstate.treeformat proofstate.prooftree ->
-          proofstate.seq list -> context.cxt ->
-          (proofstate.seq * model) option -> bool
-      val applyconjectures : bool ref
-      val applyLiteralTactic :
-        japeenv -> string -> proofstate.proofstate ->
-          proofstate.proofstate option
-      val applyTactic :
-        japeenv -> proofstate.tactic -> proofstate.proofstate ->
-          proofstate.proofstate option
-      val checkdisproof :
-        context.cxt -> proofstate.treeformat proofstate.prooftree ->
-          (context.seq * model) option -> bool
-      val compiletoprove :
-        context.proviso list * context.seq list * context.seq ->
-          (bool * context.proviso) list * context.seq list * context.seq
-      val eqbags : ('a * 'a -> bool) -> 'a list * 'a list -> bool
-      val explain : string -> string list
-      val getReason : unit -> string list
-      val liststring : ('a -> string) -> string -> 'a list -> string
-      val _MAP : ('a -> 'b) * 'a list -> 'b list
-      val maxprovisoresnum : context.proviso -> int
-      val maxtreeresnum : proofstate.treeformat proofstate.prooftree -> int
-      val mkReplayTac : proofstate.tactic -> proofstate.tactic
-      val mkSimpleApplyTac : proofstate.tactic -> proofstate.tactic
-      val mkTip :
-        context.cxt -> context.seq ->
-          proofstate.treeformat proofstate.prooftree
-      val mkUniqueTac : proofstate.tactic -> proofstate.tactic
-      val mkvisproviso : bool * context.proviso -> context.visproviso
-      val proving : name.name ref
-      val provisoactual : context.visproviso -> context.proviso
-      val provisostring : context.proviso -> string
-      val provisovisible : context.visproviso -> bool
-      val rewriteproofstate : proofstate.proofstate -> proofstate.proofstate
-      val rewriteProoftree :
-        context.seq list -> bool -> context.cxt ->
-          proofstate.treeformat proofstate.prooftree ->
-          context.cxt * proofstate.treeformat proofstate.prooftree *
-            context.vid list
-      val rewriteseq : context.cxt -> context.seq -> context.seq
-      val rootPath :
-        proofstate.treeformat proofstate.prooftree -> proofstate.fmtpath
-      val sequent : proofstate.treeformat proofstate.prooftree -> context.seq
-      val seqstring : context.seq -> string
-      val tacticstring : proofstate.tactic -> string
-      val takethelot :
-        possmatch ->
-          (context.cxt * proofstate.treeformat proofstate.prooftree) list
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      
-    end)
-  :
-  Runproof =
+module M : T =
   struct
-    open AAA
-    open context open name open proofstage open proofstate
+    open Context open Name open Proofstage open Proofstate
+
     type model = model and japeenv = japeenv
-    
-    
-    
     
     let proofsdone = ref false
     let rec doBEGINPROOF env state =

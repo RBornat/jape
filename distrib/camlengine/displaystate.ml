@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Displaystate =
+module type T =
   sig
     type 'a prooftree
     and treeformat
@@ -37,22 +37,8 @@ module type Displaystate =
 
 (* $Id$ *)
 
-module
-  Displaystate
-  (AAA :
-    sig
-      type 'a hit
-      and hitkind
-      and pos
-      and 'a prooftree
-      and treeformat
-      and fmtpath
-      and displayclass
-    end)
-  :
-  Displaystate =
+module M : T =
   struct
-    open AAA
     type 'a hit = 'a hit
     and hitkind = hitkind
     and pos = pos
@@ -60,7 +46,7 @@ module
     and treeformat = treeformat
     and fmtpath = fmtpath
     and displayclass = displayclass
-    open IO
+
     type displaystate =
         DisplayState of
           < showProof

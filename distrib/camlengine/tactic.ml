@@ -1,11 +1,7 @@
 (* $Id$ *)
 
-(* Yet another place where I can't use multiple views *)
-
-module type T = sig
-(* module type Tactictype =
+module type Type =
   sig
- *)
     type term and seq and name and treelayout
     type tactic =
         SkipTac
@@ -84,58 +80,19 @@ module type T = sig
       | Subgoal of (pathexpr * term)
       | HypRoot of pathexpr
       | SimplePath of term
+end
 
-    type ('a, 'b) mapping
-    val tacname : term -> name
-    (* or raise ParseError_ *)
-    val transTactic : term -> tactic
-    val explodeForExecute : term -> name * term list
-    val tacticstring : tactic -> string
-    (* the simple, unvarnished string *)
-    val tacticstringwithNLs : tactic -> string
-    (* guess what this one does *)
-    val catelim_tacticstring : tactic -> string list -> string list
-    val catelim_tacticstringwithNLs : tactic -> string list -> string list
-    val remaptactic : (term, term) mapping -> tactic -> tactic
-    val isguard : tactic -> bool
-    val showargasint : (int -> term -> int) option ref
-    val readintasarg : term array option ref
-  end
-
-(* $Id$ *)
-
-(* some of this stuff is specific to natural deduction
-  (use of 'seq' type is evidence).
-  Tut tut. RB
-
-  [[Actually it's all crap, and we need a proper MLish tactic language. BS]]
- *)
-
-module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-              and type name = Name.M.name
-              and type term = Term.Type.term
-              and type treelayout = Treelayout.M.treelayout
-              and type seq = Sequent.M.seq
+module Type : Type with type name = Name.M.name
+					and type term = Term.Type.term
+					and type treelayout = Treelayout.M.treelayout
+					and type seq = Sequent.Type.seq
 =
   struct
-    open Listfuns.M
-    open Stringfuns.M
-    open Term.M
-    open Sequent.M
-    open Name.M
-    open Treelayout.M    
-    open Idclass.M
-    open Match.M
-    open Optionfuns.M
-    open Miscellaneous.M
-    open SML.M
-    
-    type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-     and name = Name.M.name
-     and term = Term.Type.term
-     and treelayout = Treelayout.M.treelayout
-     and seq = Sequent.M.seq
-     
+    type name = Name.M.name
+	 and term = Term.Type.term
+	 and treelayout = Treelayout.M.treelayout
+	 and seq = Sequent.Type.seq
+	 
     type tactic =
         SkipTac
       | FailTac
@@ -213,6 +170,58 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
       | Subgoal of (pathexpr * term)
       | HypRoot of pathexpr
       | SimplePath of term
+end
+
+module type Funs =
+  sig
+    open Type
+    type ('a, 'b) mapping
+    val tacname : term -> name
+    (* or raise ParseError_ *)
+    val transTactic : term -> tactic
+    val explodeForExecute : term -> name * term list
+    val tacticstring : tactic -> string
+    (* the simple, unvarnished string *)
+    val tacticstringwithNLs : tactic -> string
+    (* guess what this one does *)
+    val catelim_tacticstring : tactic -> string list -> string list
+    val catelim_tacticstringwithNLs : tactic -> string list -> string list
+    val remaptactic : (term, term) mapping -> tactic -> tactic
+    val isguard : tactic -> bool
+    val showargasint : (int -> term -> int) option ref
+    val readintasarg : term array option ref
+  end
+
+(* $Id$ *)
+
+(* some of this stuff is specific to natural deduction
+  (use of 'seq' type is evidence).
+  Tut tut. RB
+
+  [[Actually it's all crap, and we need a proper MLish tactic language. BS]]
+ *)
+
+module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping =
+  struct
+    open Type
+    
+    open Idclass.M
+    open Listfuns.M
+    open Match.M
+    open Miscellaneous.M
+    open Name.M
+    open Optionfuns.M
+    open SML.M
+    open Sequent.Funs
+    open Stringfuns.M
+    open Term.Funs
+    open Term.Termstring
+    open Term.Type
+    open Term.Store
+    open Treelayout.M    
+    
+    type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+     
     (*
         TACTIC TRANSLATION
     *)

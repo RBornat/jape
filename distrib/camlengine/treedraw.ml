@@ -2,45 +2,15 @@
 
 (* draw a Gentzen tree *)
 
-module
-  Treedraw
-  (AAA :
-    sig
-      module box : Box
-      module displayclass : Displayclass
-      module displayfont : Displayfont
-      module draw : Draw
-      module hit : Hit
-      module seqdraw : Seqdraw
-      module tree : Absprooftree
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val andthenr : 'a option * ('a -> 'b option) -> 'b option
-      val consolereport : string list -> unit
-      val elementstring : tree.element -> string
-      val elementstring_invisbracketed : tree.element -> string
-      val liststring : ('a -> string) -> string -> 'a list -> string
-      val last : 'a list -> 'a
-      val _MAP : ('a -> 'b) * 'a list -> 'b list
-      val turnstiles : unit -> string list
-      val zip : 'a list * 'b list -> ('a * 'b) list
-      exception Catastrophe_ of string list
-      
-    end)
-  :
-  Screendraw =
+module M : Screendraw.T =
   struct
-    open AAA
-    open box
-    open draw
-    open displayclass
-    open displayfont
-    open hit
-    open seqdraw
-    open tree
-    open IO
-    (* from box.sml *)
-    
-    
+    open Box
+    open Draw
+    open Displayclass
+    open Displayfont
+    open Hit
+    open Seqdraw
+    open Tree
     
     (* we have a new way of putting trees next to each other, so that they are as 
      * close as may be.  Essentially, we make sure that no formula is too close to the

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Unify =
+module type T =
   sig
     type term and element and cxt and vid
     val unifyterms : term * term -> cxt -> cxt option
@@ -44,62 +44,19 @@ module type Unify =
  *
  * RB May 95
  *)
-module
-  Unify
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      (* and streamio    : Streamio *)
-      module answer : Answer
-      module term : sig include Termtype include Termstore include Term end
-      module idclass : Idclass
-      module proviso : sig include Provisotype include Proviso end
-      module substmapfuns : Substmapfuns
-      module context : Context
-      module rewrite : Rewrite
-      module facts : Facts
-      val autoVID : term.idclass -> term.vid -> term.vid
-      val checkprovisos : context.cxt -> context.cxt option
-      val consolereport : string list -> unit
-      val deferrable : context.cxt -> term.term * term.term -> bool
-      val interpolate : 'a -> 'a list -> 'a list
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      exception Catastrophe_ of string list
-      
-    end)
-  :
-  Unify =
+module M : T =
   struct
-    open AAA
-    open listfuns
-    open mappingfuns
-    open optionfuns
-    open answer
-    open term
-    open idclass
-    open proviso
-    open substmapfuns
-    open context
-    open rewrite
-    open facts
-    (* from context.sig.sml *)
-    
-    (* from listfuns.sig.sml *)
-    
-    
-    
-    (* from mappingfuns.sig.sml *)
-    
-    
-    
-    
-    (* from optionfuns.sig.sml *)
-    
-    (* from term.sig.sml *)
+    open Listfuns
+    open Mappingfuns
+    open Optionfuns
+    open Answer
+    open Term
+    open Idclass
+    open Proviso
+    open Substmapfuns
+    open Context
+    open Rewrite
+    open Facts
     
     let unifydebug = ref false
     let rec freshUnknown cxt c v =

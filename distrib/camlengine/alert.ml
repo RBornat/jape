@@ -1,4 +1,4 @@
-module type Alert =
+module type T =
   sig
     type alertspec =
         Alert of (string * (string * alertspec option) list * int)
@@ -45,20 +45,10 @@ module type Alert =
  *
  *)
 
-module
-  Alert
-  (AAA :
-    sig
-      module japeserver : sig include Japeserver include Serveralert end
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      exception Catastrophe_ of string list
-    end)
-  :
-  Alert =
+module M : T =
   struct
-    open AAA
-    open japeserver
+    open Japeserver
+    
     type alertspec =
         Alert of (string * (string * alertspec option) list * int)
       | HowToTextSelect

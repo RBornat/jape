@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Applyrule =
+module type T =
   sig
     type term
     and seq
@@ -55,72 +55,19 @@ module type Applyrule =
 (* Crudely adapted to multi-conclusion sequents, Nov 94. RB *)
 (* Mightily adapted to use Collections, July 96. RB *)
 
-module
-  Applyrule
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module stringfuns : Stringfuns
-      module optionfuns : Optionfuns
-      module mappingfuns : Mappingfuns
-      module idclass : Idclass
-      module term : sig include Termtype include Termstore include Term end
-      module sequent : sig include Sequenttype include Sequent end
-      module proviso : sig include Provisotype include Proviso end
-      module context : Context
-      module rewrite : Rewrite
-      module name : Name
-      type 'a prooftree and rewinf and treeformat
-      type prooftree_step
-      val askChoice : string * string list list -> int option
-      val consolereport : string list -> unit
-      val expandFreshProviso :
-        bool -> bool * bool * bool * term.term -> term.term -> term.term ->
-          proviso.visproviso list -> proviso.visproviso list
-      val interpolate : 'a -> 'a list -> 'a list
-      val matchedtarget : context.cxt -> context.cxt -> term.vid list -> bool
-      val mkJoin :
-        context.cxt -> string -> prooftree_step -> term.term list ->
-          sequent.seq -> treeformat prooftree list ->
-          term.element list * term.element list -> treeformat prooftree
-      val mkTip : context.cxt -> sequent.seq -> treeformat prooftree
-      val prooftree_stepstring : prooftree_step -> string
-      val rewinf_uVIDs : rewinf -> term.vid list
-      val setReason : string list -> unit
-      val step_label : prooftree_step -> string
-      val verifyprovisos : context.cxt -> context.cxt
-      exception Catastrophe_ of string list
-      exception Tacastrophe_ of string list
-      exception Verifyproviso_ of context.proviso
-      
-    end)
-  :
-  Applyrule =
+module M : T =
   struct
-    open AAA
-    open listfuns
-    open stringfuns
-    open optionfuns
-    open mappingfuns
-    open idclass
-    open term
-    open sequent
-    open proviso
-    open context
-    open rewrite
-    open name
-    (* unify *) (* thing *)
-    
-    
-    
-    
-    (* from optionfuns.sig.sml *)
-    
-    (* from context.sml *)
-    
-    (* from mappingfuns.sig.sml *)
-    
-    
+    open Listfuns
+    open Stringfuns
+    open Optionfuns
+    open Mappingfuns
+    open Idclass
+    open Term
+    open Sequent
+    open Proviso
+    open Context
+    open Rewrite
+    open Name
     
     type 'a prooftree = 'a prooftree
     and treeformat = treeformat

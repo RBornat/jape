@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Proofstore =
+module type T =
   sig
     type cxt
     and model
@@ -17,9 +17,9 @@ module type Proofstore =
     val freezesaved : unit -> unit
     val thawsaved : unit -> unit
     val saveproof :
-      IO.outstream -> name -> proofstage -> treeformat prooftree ->
+      out_channel -> name -> proofstage -> treeformat prooftree ->
         proviso list -> seq list -> (seq * model) option -> unit
-    val saveproofs : IO.outstream -> unit
+    val saveproofs : out_channel -> unit
     val proved : name -> bool
     val disproved : name -> bool
     val provedordisproved : name -> bool option
@@ -44,52 +44,17 @@ module type Proofstore =
   end    
 (* $Id$ *)
 
-module
-  Proofstore
-  (AAA :
-    sig
-      module listfuns : Listfuns
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      module proofstage : Proofstage
-      module prooftree : Prooftree
-      (* sig include ProoftreeAccess; include Prooftree end *)
-      module thing : Thing
-      type model and visproviso
-      val catelim_modelstring :
-        (thing.seq * model) option -> string list -> string list
-      val catelim_paraparamstring :
-        thing.paraparam -> string list -> string list
-      val menu2word : thing.name -> string
-      val panel2word : thing.name -> string
-      val parseablenamestring : thing.name -> string
-      val provisoactual : visproviso -> thing.proviso
-      val provisos : thing.cxt -> visproviso list
-      val provisovisible : visproviso -> bool
-      val rewritecxt : thing.cxt -> thing.cxt
-      val rewriteseq : thing.cxt -> thing.seq -> thing.seq
-      exception Catastrophe_ of string list
-      
-    end)
-  :
-  Proofstore =
+module M : T =
   struct
-    open AAA
-    open listfuns
-    open mappingfuns
-    open optionfuns
-    open proofstage
-    open prooftree
-    open prooftree.fmtprooftree
-    open thing
+    open Listfuns
+    open Mappingfuns
+    open Optionfuns
+    open Proofstage
+    open Prooftree
+    open Prooftree.fmtprooftree
+    open Thing
+
     type model = model
-    
-    
-    
-    
-    
-    
-    
     
     let
       (freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Displayclass =
+module type T =
   sig
     type displayclass =
       DisplayHyp | DisplayConc | DisplayAmbig | DisplayReason | DisplayPunct
@@ -10,10 +10,8 @@ module type Displayclass =
   end
 (* $Id$ *)
 
-module Displayclass (AAA : sig exception Catastrophe_ of string list end) :
-  Displayclass =
+module M : T =
   struct
-    open AAA
     type displayclass =
       DisplayHyp | DisplayConc | DisplayAmbig | DisplayReason | DisplayPunct
     let rec displayclassstring =

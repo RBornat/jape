@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Draw =
+module type T =
   sig
     type text
     and textlayout
@@ -74,39 +74,9 @@ module type Draw =
 
 *)
 
-module
-  draw
-  (AAA :
-    sig
-      module japeserver : Japeserver
-      module box : Box
-      module mappingfuns : Mappingfuns
-      module text : Text
-      type term and element and reason
-      exception Catastrophe_ of string list
-      val consolereport : string list -> unit
-      val element2text : (element -> string) -> element -> text.text
-      val elementstring : element -> string
-      val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      val interpolate : 'a -> 'a list -> 'a list
-      val optionstring : ('a -> string) -> 'a option -> string
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val proofpane : japeserver.pane
-      val reason2text : reason -> text.text
-      val reason2fontNstring : reason -> text.font * string
-      val term2text : (term -> string) -> term -> text.text
-      val termstring : term -> string
-      val triplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
-          'a * 'b * 'c -> string
-      
-    end)
-  :
-  Draw =
+module M : T =
   struct
-    open AAA
-    open japeserver open box open mappingfuns open text
+    open Japeserver open Box open Mappingfuns open Text
     
     type element = element
     and reason = reason

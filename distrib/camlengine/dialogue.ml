@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Dialogue =
+module type T =
   sig
     val reset : unit -> unit
     val cleanup : unit -> unit
@@ -17,126 +17,29 @@ module type Dialogue =
  * loop.  pointToSequent is where a good deal of the confusion centres ...
  * RB 6/vii/2000
  *)
-module
-  Dialogue
-  (AAA :
-    sig
-      module alert : Alert
-      module answer : Answer
-      module button : Button
-      module context : Context
-      module disproof : Disproof
-      module doubleclick : DoubleClick
-      module env : env
-      module hit : Hit
-      module interaction : Interaction
-      module japeenv : Japeenv
-      module japeserver : Japeserver
-      module listfuns : Listfuns
-      module mappingfuns : Mappingfuns
-      module name : Name
-      module paragraphfuns : Paragraphfuns
-      module proofstate : Proofstate
-      module proofstore : Proofstore
-      module prooftree : Prooftree
-      module rewrite : Rewrite
-      module RUN : RUN
-      module runproof : Runproof
-      module sequent :
-        sig include Sequenttype include Sequentreset include Sequent end
-      module stringfuns : Stringfuns
-      module tacticfuns : Tacticfuns
-      module thing : Thing
-      module treeformat : TreeFormat
-      exception AtoI_
-      exception Catastrophe_ of string list
-      exception ParseError_ of string list
-      exception Tacastrophe_ of string list
-      exception UnSOME_
-      exception Use_
-      exception Verifyproviso_ of thing.proviso
-      val resetallcachesandvariables : unit -> unit
-      val andthenr : 'a option * ('a -> 'b option) -> 'b option
-      val atoi : string -> int
-      val autoselect : bool ref
-      val clearbindingdirectives : unit -> unit
-      val closedbugfile : unit -> unit
-      val consolereport : string list -> unit
-      val consolequery : string list * string * string * int -> bool
-      val createdbugfile : string -> unit
-      val defaultenv : unit -> japeenv.japeenv
-      val displayvars : japeenv.name list
-      (* val draganddropmapping 
-                         : context.cxt -> (sequent.element*sequent.element) list
-       *)
-      val elementstring : hit.element -> string
-      val explodeCollection : sequent.term -> sequent.element list
-      val facts : context.visproviso list -> context.cxt -> disproof.facts
-      val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      val get_oplist : unit -> string list
-      val givenMenuTactic : string ref
-      val initGUI : unit -> unit
-      val InProgress : proofstore.proofstage
-      val isCutStep :
-        prooftree.treeformat prooftree.prooftree -> prooftree.fmtpath -> bool
-      val mustredisplay : japeenv.japeenv -> string list -> bool
-      val mkvisproviso : bool * context.proviso -> context.visproviso
-      val observe : string list -> unit
-      val optionstring : ('a -> string) -> 'a option -> string
-      val ortryr : 'a option * (unit -> 'a option) -> 'a option
-      val string2paragraph :
-        (string list -> unit) ->
-          (string list * string * string * int -> bool) -> string ->
-          paragraphfuns.paragraph
-      val parseCurriedArgList : string -> thing.term list
-      val parseTactic : string -> thing.term
-      val parseTerm : string -> thing.term
-      val parseTermCOMMAList : string -> thing.term list
-      val profileReport : Pervasives.out_channel -> unit
-      val profileReset : unit -> unit
-      val proofsdone : bool ref
-      val provisoactual : context.visproviso -> context.proviso
-      val provisostring : thing.proviso -> string
-      val provisovisible : context.visproviso -> bool
-      val sameresource : hit.element * hit.element -> bool
-      val seektipselection : bool ref
-      val showInputError : (string list -> unit) -> string list -> unit
-      val tacticstring : tacticfuns.tactic -> string
-      val termstring : thing.term -> string
-      val try__ : ('a -> 'b) -> 'a option -> 'b option
-      val unSOME : 'a option -> 'a
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      val verifyprovisos : context.cxt -> context.cxt
-      val Title : string
-      val Version : string
-      
-    end)
-  :
-  Dialogue =
+module M : T =
   struct
-    open AAA
-    open answer
-    open button
-    open context
-    open disproof
-    open doubleclick
-    open hit
-    open interaction
-    open listfuns
-    open mappingfuns
-    open name
-    open proofstate
-    open prooftree
-    open prooftree.fmtprooftree
-    open proofstore
-    open rewrite
-    open runproof
-    open sequent
-    open stringfuns
-    open tacticfuns
-    open thing
-    open treeformat
-    open IO
+    open Answer
+    open Button
+    open Context
+    open Disproof
+    open Doubleclick
+    open Hit
+    open Interaction
+    open Listfuns
+    open Mappingfuns
+    open Name
+    open Proofstate
+    open Prooftree
+    open Prooftree.Fmtprooftree
+    open Proofstore
+    open Rewrite
+    open Runproof
+    open Sequent
+    open Stringfuns
+    open Tacticfuns
+    open Thing
+    open Treeformat
     
     let rec disproof_finished =
       function

@@ -41,7 +41,7 @@ module type Context =
     val cxtstring : cxt -> string
   end
 
-module type rew_Context =
+module type Rew_Context =
   sig
     type cxt and proviso and visproviso and rewinf
     (* for now, provisosigs are ints *)
@@ -91,46 +91,10 @@ module type FactsContext =
   end
 (* $Id$ *)
 
-module
-  Context
-  (AAA :
-    sig
-      module mappingfuns : Mappingfuns
-      module term : Term
-      module proviso : Proviso
-      module rewinf : Rewinf
-      type resnum and seq
-      exception Catastrophe_ of string list
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val enQuote : string -> string
-      val Id : term.vid * term.idclass -> term.term
-      val idclassstring : term.idclass -> string
-      val mkNotinProviso : term.term * term.term -> proviso.proviso
-      val optionstring : ('a -> string) -> 'a option -> string
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val resnumstring : resnum -> string
-      val seqstring : seq -> string
-      val triplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
-          'a * 'b * 'c -> string
-      val quintuplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) ->
-          ('d -> string) -> ('e -> string) -> string ->
-          'a * 'b * 'c * 'd * 'e -> string
-      
-    end)
-  :
-  sig include Context include rew_Context include FactsContext end =
+module M :
+  sig include Context include Rew_Context include FactsContext end =
   struct
-    open AAA
-    open mappingfuns open term open proviso open rewinf
-    (* from mappingfuns.sig.sml *)
-    
-    
-    
-    (* from listfuns.sml *)
+    open Mappingfuns open Term open Proviso open Rewinf
     
     type seq = seq
     type exterior =

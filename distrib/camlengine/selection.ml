@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Selection =
+module type T =
   sig
     type term and cxt
     exception Selection_ of string list
@@ -11,37 +11,11 @@ module type Selection =
   end
 (* $Id$ *)
 
-module
-  Selection
-  (AAA :
-    sig
-      module term : sig include Termtype include Termstore include Term end
-      type cxt and proviso
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val enQuote : string -> string
-      val freshvar : bool -> cxt -> cxt * term.term
-      val indistinct : cxt -> term.term * term.term -> bool
-      val interpolate : 'a -> 'a list -> 'a list
-      val _MAP : ('a -> 'b) * 'a list -> 'b list
-      val member : 'a * 'a list -> bool
-      val NotinProviso : term.term * term.term -> proviso
-      val plusvisibleprovisos : cxt * proviso list -> cxt
-      val rewrite : cxt -> term.term -> term.term
-      val sort : term.term list -> term.term list
-      val string2term : string -> term.term
-      exception Catastrophe_ of string list
-      exception ParseError_ of string list
-    end)
-  :
-  Selection =
+module M : T =
   struct
-    open AAA
-    open term
+    open Term
+    
     type cxt = cxt
-    
-    
-    
     
     (* convert a text selection into a non-reducible substitution *)
     exception Selection_ of string list
