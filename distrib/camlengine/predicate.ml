@@ -27,7 +27,10 @@ module type T =
 module M : T =
   struct
     open Idclass.M 
-    open Term.M (* all of it. RB *)
+    open Term.Type
+    open Term.Store
+    open Term.Termstring
+    open Term.Funs
     open Listfuns.M
     open Miscellaneous.M
     open Stringfuns.M
@@ -35,7 +38,7 @@ module M : T =
     open SML.M
     
     type idclass = Idclass.M.idclass
-    type term = Term.M.term
+    type term = Term.Type.term
     type vid = Symboltype.M.vid 
     
     let interpretpredicates = ref false

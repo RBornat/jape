@@ -113,7 +113,7 @@ module type T = sig
 
 module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
               and type name = Name.M.name
-              and type term = Term.M.term
+              and type term = Term.Type.term
               and type treelayout = Treelayout.M.treelayout
               and type seq = Sequent.M.seq
 =
@@ -132,7 +132,7 @@ module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
     
     type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
      and name = Name.M.name
-     and term = Term.M.term
+     and term = Term.Type.term
      and treelayout = Treelayout.M.treelayout
      and seq = Sequent.M.seq
      

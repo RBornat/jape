@@ -14,17 +14,18 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type term = Match.M.term =
+module M : T with type term = Term.Type.term =
   struct
     open Mappingfuns.M 
     open Match.M
-    open Term.M (* oh dear *)
+    open Term.Funs
+    open Term.Termstring
     open Optionfuns.M
     open Stringfuns.M
     open Miscellaneous.M
     open Listfuns.M
     
-    type term = Match.M.term
+    type term = Term.Type.term
     
     let bindingdebug = ref false
     type bindingdirective = term list * term list * term list * term

@@ -1,29 +1,10 @@
 (* $Id$ *)
 
-(* for the second time, I give up trying to make separate views of the Term module.
-   RB 5/vii/2002
- *)
-module type T =
+module type Type = 
   sig
     type vid and idclass
-    
-(* module type TM0 = 
-  sig
-	type vid = Symboltype.M.vid and idclass = Idclass.M.idclass
-	  (* can't seem to avoid this definiteness here ... or can I? *)
-  end
-
-module TM0 : TM0 = 
-  struct
-	type vid = Symboltype.M.vid and idclass = Idclass.M.idclass
-	  (* can't seem to avoid this definiteness here ... or can I? *)
-  end
-
-module type Termtype = 
-  sig
-	open TM0
-*)
-	(* terms now contain hash information. RB 26/i/00 *)
+    (* terms now contain hash information. RB 26/i/00 *)
+    (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
 	type term =
 		Id of (int option * vid * idclass)
 	  | Unknown of (int option * vid * idclass)
@@ -41,11 +22,19 @@ module type Termtype =
 		Segvar of (int option * term list * term)
 	  | Element of (int option * resnum * term)
 	and resnum = Nonum | Resnum of int | ResUnknown of int
-(* end
+
+	val bracketed : term -> bool
+	val debracket : term -> term
+	val resnum2int : resnum -> int
+end
 	
-module Termtype =
+module Type : Type with type vid = Symboltype.M.vid 
+                            and type idclass = Idclass.M.idclass
+=
   struct
-    open TM0
+    type vid = Symboltype.M.vid and idclass = Idclass.M.idclass
+    (* terms now contain hash information. RB 26/i/00 *)
+    (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
 	type term =
 		Id of (int option * vid * idclass)
 	  | Unknown of (int option * vid * idclass)
@@ -63,75 +52,29 @@ module Termtype =
 		Segvar of (int option * term list * term)
 	  | Element of (int option * resnum * term)
 	and resnum = Nonum | Resnum of int | ResUnknown of int
+
+    let rec resnum2int =
+      function
+        Resnum n -> n
+      | ResUnknown n -> n
+      | Nonum -> 0
+
+    (* We keep the user's bracket structure, so every time we match/unify/compare
+       two terms, we must debracket them
+     *)
+    let rec debracket =
+      function
+        Fixapp (_, ["("; ")"], [t]) -> debracket t
+      | t -> t
+    let rec bracketed =
+      function
+        Fixapp (_, ["("; ")"], [t]) -> true
+      | t -> false
   end    	
 
-module type Termstore =
+module type Termstring =
   sig
-	open TM0
-	open Termtype
- *)
-	val registerId : vid * idclass -> term
-	val registerUnknown : vid * idclass -> term
-	val registerApp : term * term -> term
-	val registerTup : string * term list -> term
-	val registerLiteral : litcon -> term
-	val registerFixapp : string list * term list -> term
-	val registerSubst : bool * term * (term * term) list -> term
-	val registerBinding :
-	  (term list * term list * term list) * 
-	  (term * (int * int)) list *
-	  term -> term
-	val registerCollection : idclass * element list -> term
-	val registerElement : resnum * term -> element
-	val registerSegvar : term list * term -> element
-	val resettermstore : unit -> unit
-(*  end
-	   
-module type Term =
-  sig
-	open TM0
-	open Termtype
- *)
-	val isconstant : term -> bool
-	val isId : term -> bool
-	val isUnknown : term -> bool
-	val isVariable : term -> bool
-	val isleaf : term -> bool
-	val isidentifier : term -> bool
-	val ismetav : term -> bool
-	val isextensibleId : term -> bool
-	val isemptycollection : term -> bool
-	val isCollection : term -> bool
-	val isleafelement : element -> bool
-	val issegvar : element -> bool
-	val isselectionSubst : element -> bool
-	val termkind : term -> int
-	val termkindmax : int
-	val emptycollection : idclass -> term
-	val collection2term : term -> term option
-	val element2term : element -> term option
-	val int2term : int -> term
-	val term2int : term -> int
-	(* may raise AtoI_ or Catastrophe_ *)
-	   
-	val debracketapplications : bool ref
-	val mapterm : (term -> term option) -> term -> term
-	val option_mapterm : (term -> term option) -> term -> term option
-	(* Some if rewritten *)
-	val foldterm : (term * 'a -> 'a option) -> 'a -> term -> 'a
-	val nj_foldterm : (term * 'a -> 'a option) -> term * 'a -> 'a
-	val foldelements : (term * 'a -> 'a option) -> 'a -> element list -> 'a
-	val findterm : (term -> 'a option) -> term -> 'a option
-	val findhole : ((term -> term) -> term -> 'a option) -> term -> 'a option
-	val searchterm : (term -> 'a option) -> 'a -> term -> 'a
-	val existsterm : (term -> bool) -> term -> bool
-	(* functions to give access to the innards of a term without giving away the whole type *)
-	val decodeSubst : term -> (bool * term * (term * term) list) option
-	(* gives r, p_, vts *)
-	val decodeBinding : term -> (term list * term list * term list) option
-	(* gives bs, ss, us *)
-	val decodeBracketed : term -> term option
-	val canonicalsubstmap : (term * term) list -> (term * term) list
+	open Type
 	val termstring : term -> string
 	val termstring_invisbracketed : term -> string
 	val termstring_invischoose :
@@ -165,178 +108,31 @@ module type Term =
 		string list
 	val catelim_resnumstring : resnum -> string list -> string list
 	val catelim_termliststring : term list -> string list -> string list
-	val bracketed : term -> bool
-	val debracket : term -> term
-	val enbracket : term -> term
-	val eqterms : term * term -> bool
-	(* ignoring bracketing *)
-	val eqalphaterms : term * term -> bool
-	(* ignoring bracketing and alpha-conversion *)
-	val eqalphadebug : bool ref
-	val termoccursin : term -> term -> bool
-	val simterms : term * term -> bool
-	val termvars : term -> term list
-	val tmerge : term list -> term list -> term list
-	val varbindings : term -> (term * term list list list) list
-	val bmerge :
-	  (term * term list list list) list -> (term * term list list list) list ->
-		(term * term list list list) list
-	val freevarsfrombindings :
-	  (term * term list list list) list -> (term * term) list ->
-		term list * (term * term list) list
-	val varbindingsdebug : bool ref
-	val earliervar : term -> term -> bool
-	val mergevars : term list -> term list -> term list
-	val termVIDs : term -> vid list
-	val vartoVID : term -> vid
-	val conVIDs : term list -> vid list
-	val orderVIDs : vid list -> vid list
-	val uniqueVID : idclass -> vid list -> vid list -> vid -> vid
-	val mergeVIDs : vid list -> vid list -> vid list
-	val idclass : term -> idclass
-	val isSubstClass : term -> bool
-	val specialisesto : idclass * idclass -> bool
-	(* meant to be infix; A specialisesto B if a B-thing is a special kind of A-thing *)
-	val canoccurfreein : idclass * idclass -> bool
-	(* temporary additions to ease the passage to Collection use *)
-	val explodeCollection : term -> element list
-	val augmentCollection : term -> element list -> term option
-	(* possibly permanent additions to ease passage to Collection use *)
-	val elementnumbers : term -> resnum list
-	val resnum2int : resnum -> int
-	val isProperResnum : resnum -> bool
-	val elementnumbered : term -> resnum -> term option
-	val collectionkind : term -> idclass option
-	val replaceelement : term -> element -> term -> element * term
-	val eqelements : (term * term -> bool) -> element * element -> bool
-	(* takes no notice of resource numbers *)
-	val sameresource : element * element -> bool
-	(* only looks at resource numbers *)
-	val earlierresource : element * element -> bool
-	(* only looks at resource numbers *)
-
-	val explodeApp : bool -> term -> term * term list
-	val implodeApp : bool -> term * term list -> term
-	val explodebinapp : term -> (term * string * term) option
-	val hashterm : term -> int option
-	val hashelement : element -> int option
-	val termhashing : bool ref
+	val debracketapplications : bool ref
+	
+	val remake : ((term -> term option) -> term -> 'a) ->
+    int option * (term list * term list * term list) *
+    (term * (int * int)) list * term -> 'a (* this is internals showing.  Sorry. RB *)
   end
-  
-(* $Id$ *)
 
-module M :
-  (* sig include TM0
-      include Termtype
-	  include Termstore
-	  include Term 
-  end *) T with type vid = Symboltype.M.vid and type idclass = Idclass.M.idclass 
-=
-  struct
+module Termstring  : Termstring=
+struct
+  open Type
+  
+    open Stringfuns.M
+    open SML.M
+    open Listfuns.M
     open Miscellaneous.M
+    open Symbol.M
+    open Symboltype.M
+    open Optionfuns.M
+    open Idclass.M
+    open Mappingfuns.M
+    open Idclassfuns.M
+    
     let invisbra = String.make 1 offbra
     and invisket = String.make 1 offket
-    
-    open Stringfuns.M
-    open Optionfuns.M
-    open Listfuns.M
-    open Mappingfuns.M
-    open Optionfuns.M
-    open Symboltype.M
-    open Symbol.M
-    open Idclass.M
-    open Idclassfuns.M
-    open Answer.M
-    open SML.M
-    
-    open Simplecache.M
-    
-    type vid = Symboltype.M.vid
-    type idclass = Idclass.M.idclass
-    
-    (* terms now contain hash information. RB 26/i/00 *)
-    (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
-	type term =
-		Id of (int option * vid * idclass)
-	  | Unknown of (int option * vid * idclass)
-	  | App of (int option * term * term)
-	  | Tup of (int option * string * term list)
-	  | Literal of (int option * litcon)
-	  | Fixapp of (int option * string list * term list)
-	  | Subst of (int option * bool * term * (term * term) list)
-	  | Binding of
-		  (int option * (term list * term list * term list) *
-			 (term * (int * int)) list * term)
-	  | Collection of (int option * idclass * element list)
-	and litcon = Number of int | String of string
-	and element =
-		Segvar of (int option * term list * term)
-	  | Element of (int option * resnum * term)
-	and resnum = Nonum | Resnum of int | ResUnknown of int
 
-    let rec hashterm =
-      function
-        Id (h, _, _) -> h
-      | Unknown (h, _, _) -> h
-      | App (h, _, _) -> h
-      | Tup (h, _, _) -> h
-      | Literal (h, _) -> h
-      | Fixapp (h, _, _) -> h
-      | Subst (h, _, _, _) -> h
-      | Binding (h, _, _, _) -> h
-      | Collection (h, _, _) -> h
-    let rec hashelement =
-      function
-        Segvar (h, _, _) -> h
-      | Element (h, _, _) -> h
-    (* --------------------- hack to help binding matches go faster --------------------- *)
-
-    let rec termkind t =
-      match t with
-        Id _ -> 0
-      | Unknown _ -> 1
-      | App _ -> 2
-      | Tup _ -> 3
-      | Literal _ -> 4
-      | Fixapp _ -> 5
-      | Subst _ -> 6
-      | Binding _ -> 7
-      | Collection _ -> 8
-    let termkindmax = 8
-    (**** (possibly temporary) additions to ease transition to Collection use ****)
-
-    let rec elementnumbers =
-      function
-        Collection (_, _, es) ->
-          let rec f =
-            function
-              Element (_, r, _) -> Some r
-            | _ -> None
-          in
-          optionfilter f es
-      | _ -> []
-    let rec elementnumbered a1 a2 =
-      match a1, a2 with
-        Collection (_, _, es), r ->
-          findfirst
-            (function
-               Element (_, r', t) -> if r = r' then Some t else None
-             | _ -> None)
-            es
-      | _, _ -> None
-    let rec resnum2int =
-      function
-        Resnum n -> n
-      | ResUnknown n -> n
-      | Nonum -> 0
-    let rec isProperResnum =
-      function
-        Resnum _ -> true
-      | _ -> false
-    let rec collectionkind =
-      function
-        Collection (_, c, _) -> Some c
-      | _ -> None
     (************** printing out internal structure of term *************)
      
     let rec catelim_resnumstring r tail =
@@ -426,6 +222,7 @@ module M :
     let smltermstring = catelim2stringfn catelim_smltermstring
     let rec smlelementstring f =
       catelim2stringfn (catelim_smlelementstring (stringfn2catelim f))
+
     (******** rebuilding bindings ******************)
     
     let rec remake mapterm (_, (bs, ss, us), env, pat as b) =
@@ -447,17 +244,7 @@ module M :
       with
         Failure "nth" ->
           raise (Catastrophe_ ["Failure \"nth\" in remake "; smltermstring (Binding b)])
-    (* We keep the user's bracket structure, so every time we match/unify/compare
-       two terms, we must debracket them
-     *)
-    let rec bracketed =
-      function
-        Fixapp (_, ["("; ")"], [t]) -> true
-      | t -> false
-    let rec debracket =
-      function
-        Fixapp (_, ["("; ")"], [t]) -> debracket t
-      | t -> t
+   
     (* ------------------------------------------------------------------------------------- *)
     (* Bernard's pretty-printer in all its glory *)
          
@@ -806,6 +593,49 @@ module M :
     let rec termOrCollectionstring sep =
       catelim2stringfn (catelim_termOrCollectionstring sep)
     
+    let termliststring = bracketedliststring termstring ","
+    let catelim_termliststring =
+      catelim_bracketedliststring catelim_termstring ","
+end
+
+module type Store =
+  sig
+	open Type
+	val registerId : vid * idclass -> term
+	val registerUnknown : vid * idclass -> term
+	val registerApp : term * term -> term
+	val registerTup : string * term list -> term
+	val registerLiteral : litcon -> term
+	val registerFixapp : string list * term list -> term
+	val registerSubst : bool * term * (term * term) list -> term
+	val registerBinding :
+	  (term list * term list * term list) * 
+	  (term * (int * int)) list *
+	  term -> term
+	val registerCollection : idclass * element list -> term
+	val registerElement : resnum * term -> element
+	val registerSegvar : term list * term -> element
+	val resettermstore : unit -> unit
+	
+	val hashterm : term -> int option
+	val hashelement : element -> int option
+	val termhashing : bool ref
+  end
+	   
+module Store : Store =
+  struct
+    open Type
+    open Termstring
+    
+    open Stringfuns.M
+    open Simplecache.M
+    open Optionfuns.M
+    
+    let rec resnum2int =
+      function
+        Resnum n -> n
+      | ResUnknown n -> n
+      | Nonum -> 0
     (* ------------------------------------------ the term store ------------------------------------------ *)
     
     (* this is an attempt to stop space explosions when reading in large proofs, and when rewriting.  It costs
@@ -823,6 +653,22 @@ module M :
      *)
     (* and of course, you idiot, what you should _really_ do is to make resources shared ... *)
     
+    let rec hashterm =
+      function
+        Id (h, _, _) -> h
+      | Unknown (h, _, _) -> h
+      | App (h, _, _) -> h
+      | Tup (h, _, _) -> h
+      | Literal (h, _) -> h
+      | Fixapp (h, _, _) -> h
+      | Subst (h, _, _, _) -> h
+      | Binding (h, _, _, _) -> h
+      | Collection (h, _, _) -> h
+    let rec hashelement =
+      function
+        Segvar (h, _, _) -> h
+      | Element (h, _, _) -> h
+
     let termhashing = ref true
     let
       (hashcombine, hash_tepair, hash_telist, registerId, registerUnknown,
@@ -955,7 +801,174 @@ module M :
 		Open.registerSubst, Open.registerBinding, Open.registerCollection, Open.registerElement,
 		Open.registerSegvar, Open.resettermstore
 	  )
-   
+  end
+
+module type Funs =
+  sig
+	open Type
+ 	val isconstant : term -> bool
+	val isId : term -> bool
+	val isUnknown : term -> bool
+	val isVariable : term -> bool
+	val isleaf : term -> bool
+	val isidentifier : term -> bool
+	val ismetav : term -> bool
+	val isextensibleId : term -> bool
+	val isemptycollection : term -> bool
+	val isCollection : term -> bool
+	val isleafelement : element -> bool
+	val issegvar : element -> bool
+	val isselectionSubst : element -> bool
+	val termkind : term -> int
+	val termkindmax : int
+	val emptycollection : idclass -> term
+	val collection2term : term -> term option
+	val element2term : element -> term option
+	val int2term : int -> term
+	val term2int : term -> int
+	(* may raise AtoI_ or Catastrophe_ *)
+	   
+	val mapterm : (term -> term option) -> term -> term
+	val option_mapterm : (term -> term option) -> term -> term option
+	(* Some if rewritten *)
+	val foldterm : (term * 'a -> 'a option) -> 'a -> term -> 'a
+	val nj_foldterm : (term * 'a -> 'a option) -> term * 'a -> 'a
+	val foldelements : (term * 'a -> 'a option) -> 'a -> element list -> 'a
+	val findterm : (term -> 'a option) -> term -> 'a option
+	val findhole : ((term -> term) -> term -> 'a option) -> term -> 'a option
+	val searchterm : (term -> 'a option) -> 'a -> term -> 'a
+	val existsterm : (term -> bool) -> term -> bool
+	(* functions to give access to the innards of a term without giving away the whole type *)
+	val decodeSubst : term -> (bool * term * (term * term) list) option
+	(* gives r, p_, vts *)
+	val decodeBinding : term -> (term list * term list * term list) option
+	(* gives bs, ss, us *)
+	val decodeBracketed : term -> term option
+	val canonicalsubstmap : (term * term) list -> (term * term) list
+	val bracketed : term -> bool
+	val debracket : term -> term
+	val enbracket : term -> term
+	val eqterms : term * term -> bool
+	(* ignoring bracketing *)
+	val eqalphaterms : term * term -> bool
+	(* ignoring bracketing and alpha-conversion *)
+	val eqalphadebug : bool ref
+	val termoccursin : term -> term -> bool
+	val simterms : term * term -> bool
+	val termvars : term -> term list
+	val tmerge : term list -> term list -> term list
+	val varbindings : term -> (term * term list list list) list
+	val bmerge :
+	  (term * term list list list) list -> (term * term list list list) list ->
+		(term * term list list list) list
+	val freevarsfrombindings :
+	  (term * term list list list) list -> (term * term) list ->
+		term list * (term * term list) list
+	val varbindingsdebug : bool ref
+	val earliervar : term -> term -> bool
+	val mergevars : term list -> term list -> term list
+	val termVIDs : term -> vid list
+	val vartoVID : term -> vid
+	val conVIDs : term list -> vid list
+	val orderVIDs : vid list -> vid list
+	val uniqueVID : idclass -> vid list -> vid list -> vid -> vid
+	val mergeVIDs : vid list -> vid list -> vid list
+	val idclass : term -> idclass
+	val isSubstClass : term -> bool
+	val specialisesto : idclass * idclass -> bool
+	(* meant to be infix; A specialisesto B if a B-thing is a special kind of A-thing *)
+	val canoccurfreein : idclass * idclass -> bool
+	(* temporary additions to ease the passage to Collection use *)
+	val explodeCollection : term -> element list
+	val augmentCollection : term -> element list -> term option
+	(* possibly permanent additions to ease passage to Collection use *)
+	val elementnumbers : term -> resnum list
+	val resnum2int : resnum -> int
+	val isProperResnum : resnum -> bool
+	val elementnumbered : term -> resnum -> term option
+	val collectionkind : term -> idclass option
+	val replaceelement : term -> element -> term -> element * term
+	val eqelements : (term * term -> bool) -> element * element -> bool
+	(* takes no notice of resource numbers *)
+	val sameresource : element * element -> bool
+	(* only looks at resource numbers *)
+	val earlierresource : element * element -> bool
+	(* only looks at resource numbers *)
+
+	val explodeApp : bool -> term -> term * term list
+	val implodeApp : bool -> term * term list -> term
+	val explodebinapp : term -> (term * string * term) option
+  end
+  
+(* $Id$ *)
+
+module Funs : Funs =
+  struct
+    open Miscellaneous.M
+    open Stringfuns.M
+    open Optionfuns.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Optionfuns.M
+    open Symboltype.M
+    open Symbol.M
+    open Idclass.M
+    open Idclassfuns.M
+    open Answer.M
+    open SML.M
+    
+    
+    open Type
+    open Store
+    open Termstring
+        
+	let bracketed = Type.bracketed
+	let debracket = Type.debracket
+	let resnum2int = Type.resnum2int
+	
+    (* --------------------- hack to help binding matches go faster --------------------- *)
+
+    let rec termkind t =
+      match t with
+        Id _ -> 0
+      | Unknown _ -> 1
+      | App _ -> 2
+      | Tup _ -> 3
+      | Literal _ -> 4
+      | Fixapp _ -> 5
+      | Subst _ -> 6
+      | Binding _ -> 7
+      | Collection _ -> 8
+    let termkindmax = 8
+    (**** (possibly temporary) additions to ease transition to Collection use ****)
+
+    let rec elementnumbers =
+      function
+        Collection (_, _, es) ->
+          let rec f =
+            function
+              Element (_, r, _) -> Some r
+            | _ -> None
+          in
+          optionfilter f es
+      | _ -> []
+    let rec elementnumbered a1 a2 =
+      match a1, a2 with
+        Collection (_, _, es), r ->
+          findfirst
+            (function
+               Element (_, r', t) -> if r = r' then Some t else None
+             | _ -> None)
+            es
+      | _, _ -> None
+    let rec isProperResnum =
+      function
+        Resnum _ -> true
+      | _ -> false
+    let rec collectionkind =
+      function
+        Collection (_, c, _) -> Some c
+      | _ -> None
    (* ------------------------------ generic functions on terms and elements ------------------------------ *)
 
    (* These functions mop up after you have picked out the things of
@@ -1198,9 +1211,6 @@ module M :
       | Collection (_, k, _) -> k
     let rec isSubstClass t = idclass t = SubstClass
     (* parse that, you bastards *)
-    let termliststring = bracketedliststring termstring ","
-    let catelim_termliststring =
-      catelim_bracketedliststring catelim_termstring ","
     let rec replaceelement a1 a2 a3 =
       match a1, a2, a3 with
         Collection (_, c, es), (Element (_, r, _) as el), t ->
@@ -1933,7 +1943,3 @@ module M :
         Fixapp (_, ["("; ")"], [t]) -> Some t
       | _ -> None
   end
-
-(* module type Termtype = sig type vid=M.vid and idclass=M.idclass
-						   include Termtype
-					   end *)

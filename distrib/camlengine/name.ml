@@ -22,7 +22,7 @@ module type T = (* all the stuff that's fit to print *)
   end
   
 (* $Id$ *)
-module M : (* sig include Nametype include Name end *) T with type term = Term.M.term 
+module M : (* sig include Nametype include Name end *) T with type term = Term.Type.term 
 =
   struct
     open Miscellaneous.M
@@ -32,7 +32,7 @@ module M : (* sig include Nametype include Name end *) T with type term = Term.M
     open Term.M 
     open Termparse.M
     
-    type term = Term.M.term
+    type term = Term.Type.term
     
     (* it is high time we had a datatype of names of things *)
     

@@ -1,120 +1,90 @@
 (* $Id$ *)
 
-(* another case in which I can't do the multiple views of a structure *)
-
-module type T =
-sig
-(* 
-   module type Sequenttype =
-	 sig
- *)
-    type term
-    type seq = Seq of (string * term * term)
-    (* stile, left, right *)
-    val getsemanticturnstile : string -> string option
-(*   end
-
-   module type Sequentparse =
-	 sig
- *)
-    type (* seq and *) symbol and idclass
-    val describeSeqs : (idclass * string * idclass) list -> unit
-    val setsemanticturnstile : string -> string -> unit
-    val parseSeq : unit -> seq
-    val canstartSeq : symbol -> bool
-(*   end
-
-module type Sequentreset = sig *) val resetsyntaxandturnstiles : unit -> unit (* end
-
-   module type Sequent =
-	 sig
- *)
-    type (* term and *) element and vid (* and seq *)
-    type ('a, 'b) mapping
-    val string2sequent : string -> seq
-    val seqexplode : seq -> string * term * term
-    val seqstring : seq -> string
-    val smlseqstring : seq -> string
-    val elementseqstring : seq -> string
-    val catelim_seqstring : seq -> string list -> string list
-    val catelim_smlseqstring : seq -> string list -> string list
-    val catelim_elementseqstring : seq -> string list -> string list
-    val seqvars :
-      (term -> 'a list) -> ('a list -> 'a list -> 'a list) -> seq -> 'a list
-    val seqVIDs : seq -> vid list
-    val eqseqs : seq * seq -> bool
-    val seqmatch :
-      bool -> seq -> seq -> (term, term) mapping ->
-        (term, term) mapping option
-    val seqmatchvars :
-      bool -> (term -> bool) -> seq -> seq -> (term, term) mapping ->
-        (term, term) mapping option
-    val remapseq : (term, term) mapping -> seq -> seq
-    val mkSeq : string * element list * element list -> seq
-    val maxseqresnum : seq -> int
-    val syntacticturnstiles : unit -> string list
-    val alwaysshowturnstile : bool ref
+module type Type =
+  sig
+    type term and idclass
+    type seq = Seq of (string * term * term) (* stile, left, right *)
+    type kind = Syntactic | Semantic
+    val trueclass : idclass -> idclass (* internals showing, sorry *)
   end
-(* $Id$ *)
 
-module M :
-  (* sig
-	   include Sequenttype
-	   include Sequentparse
-	   include Sequentreset
-	   include Sequent
-	 end *) T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-               and type vid = Symboltype.M.vid
-               and type element = Term.M.element
-               and type idclass = Idclass.M.idclass
-               and type symbol = Symboltype.M.symbol
-               and type term = Term.M.term    
+module Type : Type with type term = Term.Type.term 
+                    and type idclass = Idclass.M.idclass
 =
-  struct
-    open Miscellaneous.M
-    open Listfuns.M
-    open Mappingfuns.M
+struct
     open Idclass.M
-    open Idclassfuns.M
-    open Symboltype.M
-    open Symbol.M
-    open Term.M
-    open Termparse.M
-    open Match.M
-    open Optionfuns.M
-    open SML.M
     
-    type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-    type vid = Symboltype.M.vid
-    type element = Term.M.element
-    type idclass = Idclass.M.idclass
-    type symbol = Symboltype.M.symbol
-    type term = Term.M.term    
+    type term = Term.Type.term and idclass = Idclass.M.idclass
     
-    type seq = Seq of (string * term * term)
-    (* stile * left * right; term inherited from match ... *)
+    type seq = Seq of (string * term * term) (* stile, left, right *)
+    type kind = Syntactic | Semantic
 
-    let rec seqexplode = fun (Seq s) -> s
-    let bagkind = BagClass FormulaClass
-    and listkind = ListClass FormulaClass
-    and formulakind = FormulaClass
     (* Because everything in a tree has to have a resource number, single-formula
      * sides of sequents are encoded as lists (not bags because the unification of
      * lists is simpler :-)).  This causes difficulties, because
      * I keep forgetting ....
      * RB 17/x/1996
      *)
-
-    let rec truekind =
+    let rec trueclass =
       function
-        FormulaClass -> listkind
+        FormulaClass -> ListClass FormulaClass
       | c -> c
-    let validforms = [bagkind; listkind; formulakind]
-    type seqkind = Syntactic | Semantic
-    let syntaxes : (seqkind * idclass * string * idclass) list ref = ref []
-    let semanticturnstiles : (string, string) mapping ref = ref empty
-    let rec resetsyntaxandturnstiles () =
-      syntaxes := []; semanticturnstiles := empty
+end
+
+module type Seqstring =
+  sig
+    open Type
+    val seqstring : seq -> string
+    val smlseqstring : seq -> string
+    val elementseqstring : seq -> string
+    val catelim_seqstring : seq -> string list -> string list
+    val catelim_smlseqstring : seq -> string list -> string list
+    val catelim_elementseqstring : seq -> string list -> string list
+    val alwaysshowturnstile : bool ref
+  end
+  
+module Seqstring =
+  struct
+    open Type
+    open Idclass.M
+    open Idclassfuns.M
+    open Miscellaneous.M
+    open Term.Funs
+    
+    let alwaysshowturnstile = ref false
+
+    let rec sqs tf =
+      fun (Seq (st, hs, gs)) ss ->
+        let rec default () =
+          let tail =
+            st :: " " :: (if isemptycollection gs then ss else tf gs ss)
+          in
+          if isemptycollection hs then tail else tf hs (" " :: tail)
+        in
+        let (stkind, hypform, _, concform) = lookupSTILE st in
+        match
+          (!alwaysshowturnstile || stkind <> Syntactic) ||
+          List.length (syntacticsequents ()) <> 1,
+          hypform, concform
+        with
+          false, BagClass FormulaClass, FormulaClass ->
+            if isemptycollection hs then tf gs ss else default ()
+        | false, ListClass FormulaClass, FormulaClass ->
+            if isemptycollection hs then tf gs ss else default ()
+        | _ -> default ()
+    let catelim_seqstring = sqs (catelim_collectionstring ", ")
+    let catelim_smlseqstring = sqs catelim_smltermstring
+    let catelim_elementseqstring =
+      sqs
+        (function
+           Collection (_, _, es) ->
+             catelim_liststring (catelim_smlelementstring catelim_termstring)
+               ", " es
+         | t -> catelim_termstring t)
+    let seqstring = catelim2stringfn catelim_seqstring
+    let smlseqstring = catelim2stringfn catelim_smlseqstring
+    let elementseqstring = catelim2stringfn catelim_elementseqstring
+
     let rec syntaxclassstring =
       function
         FormulaClass -> "FORMULA"
@@ -130,45 +100,66 @@ module M :
           stile) ^
          " ") ^
         syntaxclassstring concs
+  end
+  
+module type Parse =
+  sig
+    open Type
+    open Seqstring
+    type symbol
+    val describeSeqs : (idclass * string * idclass) list -> unit
+    val getsemanticturnstile : string -> string option
+    val setsemanticturnstile : string -> string -> unit
+    val parseSeq : unit -> seq
+    val canstartSeq : symbol -> bool
+    val resetsyntaxandturnstiles : unit -> unit
+end
+
+module Parse : Parse with type symbol = Symboltype.M.symbol
+=
+  struct
+    open Type 
+    open Seqstring
+
+    open Idclass.M
+    open Idclassfuns.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Miscellaneous.M
+    open Optionfuns.M
+    open SML.M
+    open Symbol.M
+    open Symboltype.M
+    open Term.Store
+    open Term.Termstring
+    open Term.Type
+    open Termparse.M    
+    
+    type symbol = Symboltype.M.symbol
+
+    let bagkind = BagClass FormulaClass
+    and listkind = ListClass FormulaClass
+    and formulakind = FormulaClass
+
+    let validforms = [bagkind; listkind; formulakind]
+
+    let syntaxes : (kind * idclass * string * idclass) list ref = ref []
+
+    let semanticturnstiles : (string, string) mapping ref = ref empty
+
+    let rec syntacticsequents () =
+         (function
+            Syntactic, _, _, _ -> true
+          | _ -> false) <| !syntaxes
+
+    let rec syntacticturnstiles () = ((fun(_,_,stile,_)->stile) <* syntacticsequents ())
+
     let rec lookupsyntax stilestring =
       findfirst
         (fun (_, _, stile, _ as syn) ->
            if stile = stilestring then Some syn else None)
         !syntaxes
-    let rec lookupSTILE st =
-      match lookupsyntax st with
-        Some syn -> syn
-      | None -> raise (Catastrophe_ ["couldn't find syntax for "; st])
-    let rec syntacticsequents () =
-         (function
-            Syntactic, _, _, _ -> true
-          | _ -> false) <|
-         !syntaxes
-    let rec syntacticturnstiles () = ((fun(_,_,hash3,_)->hash3) <* syntacticsequents ())
-    let rec describeSeqs ds =
-      (* val show = triplestring idclassstring enQuote idclassstring "," *)
-      let rec f (hyps, stile, concs) =
-        match lookupsyntax stile with
-          Some (kind, hyps', _, concs' as syn') ->
-            if (kind = Syntactic && hyps = hyps') && concs = concs' then ()
-            else
-              error
-                ["you cannot redeclare "; syntaxstring syn'; " as ";
-                 syntaxstring (Syntactic, hyps, stile, concs)]
-        | None ->
-            if member (hyps, validforms) && member (concs, validforms) then
-              begin
-                (* consolereport ["accepting ", show syn]; *)
-                syntaxes := (Syntactic, hyps, stile, concs) :: !syntaxes;
-                enter (stile, STILE stile)
-              end
-            else
-              error
-                ["bad syntactic sequent syntax description ";
-                 syntaxstring (Syntactic, hyps, stile, concs)]
-      in
-      (* consolereport ["describing ", bracketedliststring show "," ds]; *)
-      List.iter f ds
+
     let rec setsemanticturnstile syn sem =
       let rec bad ss =
         error
@@ -203,57 +194,41 @@ module M :
       in
       syntaxes := newsyntaxes; semanticturnstiles := newturnstiles
     let rec getsemanticturnstile syn = at (!semanticturnstiles, syn)
-    let alwaysshowturnstile = ref false
-    let rec sqs tf =
-      fun (Seq (st, hs, gs)) ss ->
-        let rec default () =
-          let tail =
-            st :: " " :: (if isemptycollection gs then ss else tf gs ss)
-          in
-          if isemptycollection hs then tail else tf hs (" " :: tail)
-        in
-        let (stkind, hypform, _, concform) = lookupSTILE st in
-        match
-          (!alwaysshowturnstile || stkind <> Syntactic) ||
-          List.length (syntacticsequents ()) <> 1,
-          hypform, concform
-        with
-          false, BagClass FormulaClass, FormulaClass ->
-            if isemptycollection hs then tf gs ss else default ()
-        | false, ListClass FormulaClass, FormulaClass ->
-            if isemptycollection hs then tf gs ss else default ()
-        | _ -> default ()
-    let catelim_seqstring = sqs (catelim_collectionstring ", ")
-    let catelim_smlseqstring = sqs catelim_smltermstring
-    let catelim_elementseqstring =
-      sqs
-        (function
-           Collection (_, _, es) ->
-             catelim_liststring (catelim_smlelementstring catelim_termstring)
-               ", " es
-         | t -> catelim_termstring t)
-    let seqstring = catelim2stringfn catelim_seqstring
-    let smlseqstring = catelim2stringfn catelim_smlseqstring
-    let elementseqstring = catelim2stringfn catelim_elementseqstring
-    let canstartSeq = canstartTerm
-    (* 
-    fun parseComponent c () =
-      case currsymb() of
-        s0 as (PREFIX p) =>
-         let fun nope() = (putbacksymb s0; parseTerm()) in
-             case scansymb() of 
-               ID(s,Some c0) => 
-                 if c=c0 then (App(Id(p,OperatorClass),Id(s,c)) before scansymb()) 
-                 else nope()
-             | _ => nope()
-         end
-      | ID(s,Some c0) => if c=c0 then (Id(s,c) before scansymb()) else parseTerm()
-      | _             => parseTerm()
-    *)
-      
+    let rec resetsyntaxandturnstiles () =
+      syntaxes := []; semanticturnstiles := empty
+    let rec lookupSTILE st =
+      match lookupsyntax st with
+        Some syn -> syn
+      | None -> raise (Catastrophe_ ["couldn't find syntax for "; st])
+
+    let rec describeSeqs ds =
+      (* val show = triplestring idclassstring enQuote idclassstring "," *)
+      let rec f (hyps, stile, concs) =
+        match lookupsyntax stile with
+          Some (kind, hyps', _, concs' as syn') ->
+            if (kind = Syntactic && hyps = hyps') && concs = concs' then ()
+            else
+              error
+                ["you cannot redeclare "; syntaxstring syn'; " as ";
+                 syntaxstring (Syntactic, hyps, stile, concs)]
+        | None ->
+            if member (hyps, validforms) && member (concs, validforms) then
+              begin
+                (* consolereport ["accepting ", show syn]; *)
+                syntaxes := (Syntactic, hyps, stile, concs) :: !syntaxes;
+                enter (stile, STILE stile)
+              end
+            else
+              error
+                ["bad syntactic sequent syntax description ";
+                 syntaxstring (Syntactic, hyps, stile, concs)]
+      in
+      (* consolereport ["describing ", bracketedliststring show "," ds]; *)
+      List.iter f ds
+
     let rec parseSeq () =
       let rec formside el =
-        registerCollection (truekind FormulaClass, [el])
+        registerCollection (trueclass FormulaClass, [el])
       in
       let rec conformside (found, c) =
         match found, c with
@@ -325,6 +300,74 @@ module M :
                 (ParseError_
                    ["badly formed sequent - some kind of turnstile expected after ";
                     termstring (Collection (None, listkind, els))])
+
+    let canstartSeq = canstartTerm
+  end
+  
+module type Funs =
+  sig
+    open Type
+    type element and vid and ('a, 'b) mapping
+    val string2sequent : string -> seq
+    val seqexplode : seq -> string * term * term
+    val seqvars :
+      (term -> 'a list) -> ('a list -> 'a list -> 'a list) -> seq -> 'a list
+    val seqVIDs : seq -> vid list
+    val eqseqs : seq * seq -> bool
+    val seqmatch :
+      bool -> seq -> seq -> (term, term) mapping ->
+        (term, term) mapping option
+    val seqmatchvars :
+      bool -> (term -> bool) -> seq -> seq -> (term, term) mapping ->
+        (term, term) mapping option
+    val remapseq : (term, term) mapping -> seq -> seq
+    val mkSeq : string * element list * element list -> seq
+    val maxseqresnum : seq -> int
+    val syntacticturnstiles : unit -> string list
+  end
+(* $Id$ *)
+
+module Funs:  Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+               and type vid = Symboltype.M.vid
+               and type element = Term.Type.element
+=
+  struct
+    open Type 
+    open Seqstring
+
+    open Miscellaneous.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Idclass.M
+    open Idclassfuns.M
+    open Symboltype.M
+    open Symbol.M
+    open Term.Funs
+    open Term.Termstring
+    open Term.Type
+    open Term.Store
+    open Termparse.M
+    open Match.M
+    open Optionfuns.M
+    open SML.M
+    
+    let rec seqexplode = fun (Seq s) -> s
+
+    (* 
+    fun parseComponent c () =
+      case currsymb() of
+        s0 as (PREFIX p) =>
+         let fun nope() = (putbacksymb s0; parseTerm()) in
+             case scansymb() of 
+               ID(s,Some c0) => 
+                 if c=c0 then (App(Id(p,OperatorClass),Id(s,c)) before scansymb()) 
+                 else nope()
+             | _ => nope()
+         end
+      | ID(s,Some c0) => if c=c0 then (Id(s,c) before scansymb()) else parseTerm()
+      | _             => parseTerm()
+    *)
+      
     let rec string2sequent s = tryparse (fun _ -> parseSeq ()) s
     let rec seqvars termvars tmerge =
       fun (Seq (st, hs, gs)) -> tmerge (termvars hs) (termvars gs)
@@ -344,8 +387,8 @@ module M :
       fun (Seq (st, hs, gs)) -> Seq (st, remapterm env hs, remapterm env gs)
     let rec mkSeq (st, hs, gs) =
       let (_, hypform, _, concform) = lookupSTILE st in
-      let sh = truekind hypform in
-      let sg = truekind concform in
+      let sh = trueclass hypform in
+      let sg = trueclass concform in
       Seq (st, registerCollection (sh, hs), registerCollection (sg, gs))
     let rec maxseqresnum =
       fun (Seq (st, hs, gs)) ->

@@ -1,6 +1,9 @@
 %.cmi %.cmo : %.ml ;
 	ocamlc -c $<
 
+%.sig : %.ml ;
+	ocamlc -c -i $< >$*.sig
+	
 %.tml : ../engine/%.sig.sml ../engine/%.sml ;
 	(camltran ../engine/$*.sig.sml; camltran ../engine/$*.sml) >$*.testml
 	mv $*.testml $*.tml

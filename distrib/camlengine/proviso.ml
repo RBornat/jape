@@ -68,7 +68,7 @@ module type T =
 (* $Id$ *)
 
 module M : Provisotype with type vid = Term.M.vid
-                        and type term = Term.M.term
+                        and type term = Term.Type.term
  =
   struct
     open Listfuns.M 
@@ -80,7 +80,7 @@ module M : Provisotype with type vid = Term.M.vid
     open SML.M
     
     type vid = Term.M.vid
-     and term = Term.M.term
+     and term = Term.Type.term
      
 	let mkBag els = 
 	  registerCollection(Idclass.M.BagClass Idclass.M.FormulaClass,els)

@@ -33,9 +33,9 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type element = Term.M.element
+module M : T with type element = Term.Type.element
               and type idclass = Idclass.M.idclass
-              and type term = Term.M.term
+              and type term = Term.Type.term
               and type symbol = Symboltype.M.symbol
 =
   struct
@@ -45,14 +45,17 @@ module M : T with type element = Term.M.element
     open Symboltype.M
     open Idclass.M
     open Idclassfuns.M
-    open Term.M
+    open Term.Type
+    open Term.Termstring
+    open Term.Funs
+    open Term.Store
     open Binding.M
     open Optionfuns.M
     open Miscellaneous.M
     
-    type element = Term.M.element
+    type element = Term.Type.element
     type idclass = Idclass.M.idclass
-    type term = Term.M.term
+    type term = Term.Type.term
     type symbol = Symboltype.M.symbol
     
     (* stuff to handle variable leftfix/outfix syntax *)

@@ -18,14 +18,14 @@ module type T =
 
 module M : T with type vid = Term.M.vid 
               and type idclass = Idclass.M.idclass 
-              and type term = Term.M.term 
+              and type term = Term.Type.term 
 =
   struct
     open Symbol.M
     open Listfuns.M
     open Term.M
     
-    type vid = Term.M.vid and idclass = Idclass.M.idclass and term = Term.M.term
+    type vid = Term.M.vid and idclass = Idclass.M.idclass and term = Term.Type.term
     
     type paraparam =
         Objectparam of (vid * idclass)

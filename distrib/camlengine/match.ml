@@ -40,19 +40,22 @@ module type T =
 (* $Id$ *)
 
 module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
-              and type term = Term.M.term
+              and type term = Term.Type.term
 =
   struct
     open Miscellaneous.M
     open Listfuns.M
     open Mappingfuns.M
     open Optionfuns.M 
-    open Term.M 
+    open Term.Type
+    open Term.Funs
+    open Term.Termstring
+    open Term.Store 
     open Idclass.M
     open SML.M
     
     type ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
-    type term = Term.M.term
+    type term = Term.Type.term
     
     let matchdebug = ref false
     (* because of matching in provisos, we have to use a discrimination between 
