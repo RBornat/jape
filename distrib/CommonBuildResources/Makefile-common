@@ -77,7 +77,8 @@ install:        components; \
 
 clean:          ; rm -f $(BIN)/japeserver.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape $(BIN)/japeserver
 
-distribution::  ; make components; (cd $(BUILDRESOURCES)/InstallerKit; make) ;\
+distribution::  ; make components; (cd $(BUILDRESOURCES)/InstallerKit; make bootstrap) ;\
+                  (cd $(BUILDRESOURCES); make -f Makefile-java installjape.class);\
                   rm -rf bootstrap; mkdir bootstrap;\
                   rsync -v -t -r $(BUILDRESOURCES)/InstallerKit/bootstrap/ bootstrap/ ;\
                   make jarfile
@@ -91,6 +92,7 @@ jarfile:        examples; \
                   -splash       $(SPLASH)               \
                   examples                              \
                   -sync $(INSTALLRESOURCES) $(DEPLOYEDENGINE) japeserver.jar  
+
 
 
 

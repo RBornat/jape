@@ -428,7 +428,7 @@ let timesbeingtried = ref 0
 
 let triesleft = ref 0
 
-let timestotry = ref 200
+let timestotry = ref 400
 (* for some reason proof replay breaks if this function is called ... I must find out why. *)
 
 let rec time'sUp () = !noticetime && !triesleft <= 0
@@ -3094,3 +3094,4 @@ let rec autoTactics display env rules =
           (nextGoal false (withgoal state' oldgoal))
     | None ->(* round again *)
        state
+

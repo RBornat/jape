@@ -363,7 +363,7 @@ public class JapeCharEncoding implements DebugConstants {
         toAsc = new PosIntHashMap(0x200);
         for (int i=0; i<0x100; i++) {
             if (toAsc.get(encoding[i])>=0)
-                Alert.abort("(Konstanz) doubly decodes 0x"+Integer.toHexString(encoding[i])+
+                Alert.abort("Encoding ("+s+") doubly decodes 0x"+Integer.toHexString(encoding[i])+
                             " [0x"+Integer.toHexString(toAsc.get(encoding[i]))+",0x"+Integer.toHexString(i)+"]");
             toAsc.set(encoding[i],i);
         }
@@ -433,6 +433,7 @@ public class JapeCharEncoding implements DebugConstants {
     setmap(0xfb01, 0x27e7); // white right square bracket (semantic ket) (301b may be preferable)
     setmap(0xfb02, 0x2229); // intersection
 */
+
 
 
 
