@@ -90,8 +90,9 @@ public class Jape implements DebugConstants {
                                "\nos.name="+System.getProperty("os.name")+
                                "\nos.arch="+System.getProperty("os.arch")+
                                "\nos.version="+System.getProperty("os.version"));
-        
-        if (onMacOS) { // deal with the double-bounce menu checkbox bug
+
+        if (onMacOS && System.getProperty("java.vm.version").startsWith("1.3.")) {
+            // deal with the double-bounce menu checkbox bug
             String s = System.getProperty("apple.laf.useScreenMenuBar");
             JapeMenu.checkboxDoubleBounce = s!=null && s.equals("true");
         }
