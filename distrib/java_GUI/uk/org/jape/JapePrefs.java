@@ -29,6 +29,7 @@ package uk.org.jape;
 
 import java.awt.Color;
 
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 public class JapePrefs {
@@ -47,9 +48,10 @@ public class JapePrefs {
 			ForcedColour	      = Color.magenta,
 			ForcedSelectionColour = Color.green;
 
-
+    // I don't know if they cache this, so I will
+    public static final Preferences prefs = Preferences.userNodeForPackage(JapePrefs.class);
+    
     static String getProp(String key, String defaultvalue) {
-	Preferences prefs = Preferences.userNodeForPackage(JapePrefs.class);
 	return prefs.get(key, defaultvalue);
     }
     
@@ -71,17 +73,25 @@ public class JapePrefs {
     }
     
     static void putProp(String key, String value) {
-	Preferences prefs = Preferences.userNodeForPackage(JapePrefs.class);
 	if (value==null) prefs.remove(key);
 	else prefs.put(key, value);
+	flush();
     }
     
     static void putProp(String key, int value) {
-	Preferences prefs = Preferences.userNodeForPackage(JapePrefs.class);
 	prefs.putInt(key, value);
+	flush();
     }
     
     static void putProp(String key, byte value) {
 	putProp(key, (int)value);
+    }
+    
+    static void flush() {
+	try {
+	    prefs.flush();
+	} catch (BackingStoreException e) {
+	    Alert.showErrorAlert("prefs.flush got BackingStoreException "+e);
+	}
     }
 }
