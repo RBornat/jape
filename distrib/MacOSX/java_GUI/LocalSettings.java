@@ -93,6 +93,12 @@ public class LocalSettings implements SelectionConstants {
                !e.isMetaDown() && !e.isControlDown() ? WorldClick : WorldNoClick;
     }
 
+    // and on a WorldLabel
+    
+    public static byte mousePressWorldLabelMeans(MouseEvent e) {
+	return e.isAltDown() ? NewLabelDrag : MoveLabelDrag;
+    }
+    
     // how to mark an entry in a conjecture panel
     
     public static final String tick = "\u221A", cross = "\u2022";

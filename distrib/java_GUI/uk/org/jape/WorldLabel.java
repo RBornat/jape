@@ -57,20 +57,22 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
 
 	addJapeMouseListener(new JapeMouseAdapter() {
 	    private boolean noticeDrag;
+	    private byte dragKind;
 	    public void pressed(MouseEvent e) {
+		dragKind = LocalSettings.mousePressWorldLabelMeans(e);
 		WorldLabel.this.canvas.claimFocus();
-		noticeDrag = !(e.isAltDown() || e.isShiftDown() ||
+		noticeDrag = !(/* e.isAltDown() || */ e.isShiftDown() ||
 			       e.isMetaDown() || e.isControlDown());
 		if (noticeDrag)
-		    WorldLabel.this.pressed(e);
+		    WorldLabel.this.pressed(dragKind, e);
 	    }
 	    public void dragged(boolean wobbly, MouseEvent e) {
 		if (wobbly && noticeDrag)
-		    WorldLabel.this.dragged(e); // don't take notice of small movements
+		    WorldLabel.this.dragged(dragKind, e); // don't take notice of small movements
 	    }
 	    public void released(MouseEvent e) {
 		if (noticeDrag)
-		    WorldLabel.this.released(e);
+		    WorldLabel.this.released(dragKind, e);
 	    }
 	});
     }
@@ -88,11 +90,11 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
     private Class targetClass;
     private LabelTarget over;
     
-    private void pressed(MouseEvent e) {
+    private void pressed(byte dragKind, MouseEvent e) {
 	startx = e.getX(); starty = e.getY(); firstDrag = true;
     }
 
-    protected void dragged(MouseEvent e) {
+    protected void dragged(byte dragKind, MouseEvent e) {
 	if (firstDrag) {
 	    firstDrag = false;
 	    targetClass = LabelTarget.class;
@@ -105,6 +107,11 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
 	    if (drag_tracing)
 		Logger.log.println("; dragged label at "+labelImage.getX()+","+labelImage.getY());
 	    labelImage.repaint();
+	    if (dragKind==MoveLabelDrag) {
+		setVisible(false); canvas.forcerepaint();
+	    }
+	    else
+		canvas.wasteBin.setEnabled(false);
 	}
 	else {
 	    if (drag_tracing)
@@ -125,24 +132,28 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
 	lastx = e.getX(); lasty = e.getY();
     }
 
-    protected void released(MouseEvent e) {
+    protected void released(final byte dragKind, MouseEvent e) {
 	if (drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged label at "+labelImage.getX()+","+labelImage.getY());
 	if (over==null)
 	    new Flyback(labelImage, labelImage.getLocation(),
 			SwingUtilities.convertPoint(this, 0, 0, layeredPane)) {
-		protected void finishFlyback() { finishDrag(); }
+		protected void finishFlyback() { finishDrag(dragKind, false); }
 	    };
 	else {
-	    over.drop(world, text);
-	    finishDrag();
+	    over.drop(dragKind, world, text);
+	    finishDrag(dragKind, true);
 	}
     }
 
-    protected void finishDrag() {
+    protected void finishDrag(byte dragKind, boolean success) {
 	layeredPane.remove(labelImage);
 	layeredPane.repaint();
+	canvas.wasteBin.setEnabled(true);
+	if (dragKind==MoveLabelDrag && !success) {
+	    setVisible(true); repaint();
+	}
     }
 
     public void paint(Graphics g) {

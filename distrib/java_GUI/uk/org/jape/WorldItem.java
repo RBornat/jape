@@ -254,9 +254,12 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     // LabelTarget
     public boolean dragEnter(WorldItem w, String label) { return dragEnter(novelLabel(label)); }
     public void dragExit(WorldItem w, String label) { dragExit(); }
-    public void drop(WorldItem w, String label) {
+    public void drop(byte dragKind, WorldItem w, String label) {
 	if (draghighlight) {
-	    Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+JapeUtils.enQuote(label));
+	    if (dragKind==MoveLabelDrag)
+		Reply.sendCOMMAND("moveworldlabel "+w.idX+" "+w.idY+" "+idX+" "+idY+" "+JapeUtils.enQuote(label));
+	    else
+		Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+JapeUtils.enQuote(label));
 	    setDragHighlight(false);
 	}
 	else

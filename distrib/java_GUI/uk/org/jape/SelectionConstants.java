@@ -55,4 +55,8 @@ public interface SelectionConstants {
     
     public static final byte WorldClick	   = 1,
 			     WorldNoClick  = 2;
+
+    public static final byte NewLabelDrag  = 1,
+			     MoveLabelDrag = 2;
+    
 }

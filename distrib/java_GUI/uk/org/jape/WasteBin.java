@@ -232,9 +232,12 @@ public class WasteBin extends Component implements DebugConstants,
     // LabelTarget
     public boolean dragEnter(WorldItem w, String label) { return dragEnter(); }
     public void dragExit(WorldItem w, String label) { dragExit(); }
-    public void drop(WorldItem w, String label) {
+    public void drop(byte dragKind, WorldItem w, String label) {
 	if (selected) {
-	    Reply.sendCOMMAND("deleteworldlabel "+w.idX+" "+w.idY+" "+JapeUtils.enQuote(label));
+	    if (dragKind==SelectionConstants.MoveLabelDrag)
+		Reply.sendCOMMAND("deleteworldlabel "+w.idX+" "+w.idY+" "+JapeUtils.enQuote(label));
+	    else
+		Alert.abort("label drop into waste bin when not MoveLabelDrag");
 	    setSelected(false);
 	}
 	else
