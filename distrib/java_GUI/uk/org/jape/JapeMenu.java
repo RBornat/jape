@@ -510,7 +510,8 @@ public class JapeMenu implements DebugConstants {
     }
 
     public static String chooseFile() {
-       return FileChooser.newOpenDialog("theories, logic files and proofs", "jt", "j", "jp");
+		return FileChooser.newOpenDialog("theories, logic files and proofs", 
+										 new String[]{"jt", "j", "jp"});
     }
 
     public static String chooseTheory() {
