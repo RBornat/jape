@@ -3,6 +3,7 @@
 #
 
 GUIDIR=../../java_GUI
+ENCODEDIR=../../utf8_encoder
 ENGINEDIR=../../camlengine
 RESOURCES=../CommonBuildResources
 BUILDRESOURCES=../../CommonBuildResources
@@ -26,18 +27,20 @@ DEPLOYEDENGINE=jape_engine
 #
 #       AFTERINSTALL         -- what to do afterwards InstallerKit/install options
 #       INSTALLRESOURCES     -- extra resources needed for the installation to work
+#       ENCODERESOURCES      -- extra resources for the encoder
 #       SPLASH               -- splash-image for the installer
 #
 #
 AFTERINSTALL=-cmdunix "sh %INSTALL%installjape.sh %INSTALL%"
 INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX $(BUILDRESOURCES)/installjape.sh
+ENCODERESOURCES=$(ENCODEDIR)/README_encoder.txt $(ENCODEDIR)/encoder.jar
 SPLASH=$(BUILDRESOURCES)/InstallerKit/japesplash.png
 APP=jape
 #
 #
 ##################################################################
 
-all:   ; $(MAKE) engine GUI components install
+all:   ; $(MAKE) engine GUI encoder components install
 
 #
 #       Multiarchitecture/OS engine build is safest if compilations are in separate directories
@@ -65,6 +68,12 @@ GUI:            ; (cd $(GUIDIR); $(MAKE) Jape.jar)
 CLEANGUI:       ; (cd $(GUIDIR); $(MAKE) clean Jape.jar)
 
 #
+#       ditto the encoder
+#
+encoder:            ; (cd $(ENCODEDIR); $(MAKE) encoder.jar)
+cleanencoder:       ; (cd $(GUIDIR); $(MAKE) clean)
+
+#
 #       
 #
 components::    engine GUI examples;\
@@ -79,7 +88,8 @@ clean:          ; rm -f $(BIN)/Jape.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape
 
 distribution::  ; make components; \
                   (cd $(BUILDRESOURCES)/InstallerKit; make bootstrap) ;\
-                  (cd $(BUILDRESOURCES); ln -s InstallerKit/bootstrap .; make -f Makefile-java installjape.class);\
+                  (cd $(BUILDRESOURCES); ln -s InstallerKit/bootstrap .;\
+                  make -f Makefile-java installjape.class);\
                   rm -rf bootstrap; mkdir bootstrap;\
                   rsync -v -t -r $(BUILDRESOURCES)/InstallerKit/bootstrap/ bootstrap/ ;\
                   make jarfile
@@ -92,7 +102,7 @@ jarfile:        examples; \
                   -app          '$(APP)'                \
                   -splash       $(SPLASH)               \
                   examples                              \
-                  -sync $(INSTALLRESOURCES) $(DEPLOYEDENGINE) Jape.jar  
+                  -sync $(ENCODERESOURCES) $(INSTALLRESOURCES) $(DEPLOYEDENGINE) Jape.jar  
 
 
 
