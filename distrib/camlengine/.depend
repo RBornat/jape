@@ -218,8 +218,8 @@ minwaste.cmo: cache.cmi listfuns.cmi miscellaneous.cmi minwaste.cmi
 minwaste.cmx: cache.cmx listfuns.cmx miscellaneous.cmx minwaste.cmi 
 miscellaneous.cmo: sml.cmi miscellaneous.cmi 
 miscellaneous.cmx: sml.cmx miscellaneous.cmi 
-moresys.cmo: moresys.cmi 
-moresys.cmx: moresys.cmi 
+moresys.cmo: sml.cmi moresys.cmi 
+moresys.cmx: sml.cmx moresys.cmi 
 name.cmo: miscellaneous.cmi nametype.cmo stringfuns.cmi symbol.cmi \
     symboltype.cmo term.cmo termparse.cmi name.cmi 
 name.cmx: miscellaneous.cmx nametype.cmx stringfuns.cmx symbol.cmx \
@@ -231,15 +231,17 @@ oracle.cmo: button.cmi context.cmo env.cmi mappingfuns.cmi miscellaneous.cmi \
 oracle.cmx: button.cmx context.cmx env.cmx mappingfuns.cmx miscellaneous.cmx \
     moresys.cmx reason.cmx sml.cmx stringfuns.cmx term.cmx oracle.cmi 
 paragraph.cmo: alert.cmi binding.cmi doubleclick.cmi forcedef.cmi idclass.cmi \
-    idclassfuns.cmi listfuns.cmi menu.cmi miscellaneous.cmi name.cmi \
-    nametype.cmo optionfuns.cmi panelkind.cmo paraparam.cmi proofstage.cmo \
-    proviso.cmi sequent.cmo sml.cmi stringfuns.cmi symbol.cmi symboltype.cmo \
-    tactic.cmi term.cmo termparse.cmi usefile.cmi paragraph.cmi 
+    idclassfuns.cmi listfuns.cmi menu.cmi miscellaneous.cmi moresys.cmi \
+    name.cmi nametype.cmo optionfuns.cmi panelkind.cmo paraparam.cmi \
+    proofstage.cmo proviso.cmi sequent.cmo sml.cmi stringfuns.cmi symbol.cmi \
+    symboltype.cmo tactic.cmi term.cmo termparse.cmi usefile.cmi \
+    paragraph.cmi 
 paragraph.cmx: alert.cmx binding.cmx doubleclick.cmx forcedef.cmx idclass.cmx \
-    idclassfuns.cmx listfuns.cmx menu.cmx miscellaneous.cmx name.cmx \
-    nametype.cmx optionfuns.cmx panelkind.cmx paraparam.cmx proofstage.cmx \
-    proviso.cmx sequent.cmx sml.cmx stringfuns.cmx symbol.cmx symboltype.cmx \
-    tactic.cmx term.cmx termparse.cmx usefile.cmx paragraph.cmi 
+    idclassfuns.cmx listfuns.cmx menu.cmx miscellaneous.cmx moresys.cmx \
+    name.cmx nametype.cmx optionfuns.cmx panelkind.cmx paraparam.cmx \
+    proofstage.cmx proviso.cmx sequent.cmx sml.cmx stringfuns.cmx symbol.cmx \
+    symboltype.cmx tactic.cmx term.cmx termparse.cmx usefile.cmx \
+    paragraph.cmi 
 paragraphfuns.cmo: button.cmi context.cmo disproof.cmi doubleclick.cmi \
     japeenv.cmi japeserver.cmi listfuns.cmi mappingfuns.cmi menu.cmi \
     miscellaneous.cmi name.cmi optionfuns.cmi paragraph.cmi paraparam.cmi \

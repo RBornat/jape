@@ -22,7 +22,10 @@
 
 open Sml
 
-(* this is the Unix version ... Linux and MacOS X ok; Windoze needs '\\' ?? *)
+(* this is the Unix version ... Linux and MacOS X ok; 
+   Windoze needs '\\' so we stay in the world of unix filenames 
+   and normalize filenames according to OS just before opening
+*)
 
 let usestack = ref ["./"]
 
@@ -36,14 +39,7 @@ let rec makerelative =
       | _ -> List.hd !usestack ^ path
 
 let rec startusing path =
-  let rec stem path = implode (List.rev (removestern (List.rev (explode path))))
-  and removestern =
-    function
-      [] -> ["./"]
-    | "/" :: xs -> "/" :: xs
-    | x :: xs -> removestern xs
-  in
-  usestack := stem path :: !usestack
+  usestack := Moresys.pathStem path :: !usestack
 
 exception Matchinstopusing (* spurious *)
 
@@ -52,3 +48,4 @@ let rec stopusing () =
     [path] -> ()
   | path :: paths -> usestack := paths
   | _ -> raise Matchinstopusing
+

@@ -74,9 +74,10 @@ let rec _NoneBecause ss = setReason ss; None
 (* Should be in a module of its own *)
 let rec readmapping filename =
   let oracledir = getenv (getenv "." "JAPEHOME") "JAPEORACLE" in
-  let _ = consolereport ["[OPENING "; oracledir; "/"; filename; "]\n"] in
+  let path = Moresys.normalizePath (oracledir^"/"^filename) in
+  let _ = consolereport ["[OPENING "; path; "]\n"] in
   try
-    let in_mapping = open_in ((oracledir ^ "/") ^ filename) in
+    let in_mapping = Moresys.open_input_file ((oracledir ^ "/") ^ filename) in
     let mapping = Hashtbl.create 31 in
     let table =
       Array.init 256 
@@ -99,7 +100,7 @@ let rec readmapping filename =
 	   done
 	 with End_of_file -> ()
 	);
-    consolereport ["[CLOSING "; oracledir; "/"; filename; "]\n"];
+    consolereport ["[CLOSING "; path; "]\n"];
     close_in in_mapping;
     Some (mapping, table, !mapped)
   with
@@ -174,8 +175,8 @@ let rec createoracle oraclename (store, table, mapped) =
       match words (trans "" "pipes") with
         inpipe :: outpipe :: _ ->
           begin try
-            let ooo = open_out outpipe in
-            let iii = open_in inpipe in
+            let ooo = Moresys.open_output_file outpipe in
+            let iii = Moresys.open_input_file inpipe in
             (Some
                {translatehyps = transhyps; 
                 translateconcs = transconcs;
@@ -256,6 +257,7 @@ let rec _Oracle (turnstile : string) (cxt : Context.Cxt.cxt) =
                 ["Oracle "; oracle; " replied \""; s; "\""]
           end
       | None -> None
+
 
 
 

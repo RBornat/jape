@@ -1136,17 +1136,17 @@ and file2paragraphs report query s =
   let s = makerelative s in
   let st =
     pushlex s
-      (try Stream.of_channel (open_in s) with
+      (try Stream.of_channel (Moresys.open_input_file s) with
          Sys_error e ->
            showInputError report
-             ["Cannot read file: \""; s; "\""; " ("; e; ")"];
+             ["Cannot read file: \""; Moresys.normalizePath s; "\""; " ("; e; ")"];
            raise Use_)
   in
   let _ = startusing s in
   let rec cleanup () =
-    poplex st; consolereport ["[CLOSING \""; s; "\"]"]; stopusing ()
+    poplex st; consolereport ["[CLOSING \""; Moresys.normalizePath s; "\"]"]; stopusing ()
   in
-  consolereport ["[OPENING \""; s; "\"]"];
+  consolereport ["[OPENING \""; Moresys.normalizePath s; "\"]"];
   let r = 
     (try parseParaList report query with
        ParseError_ m -> showInputError report m; cleanup (); raise Use_
@@ -1171,3 +1171,4 @@ let rec string2paragraph report query s =
   tryparse (fun _ -> getpara ()) s
 
 let parsename = currsymb_as_name
+

@@ -22,16 +22,59 @@
 
 open Sys
 
+let _ = Printf.eprintf "Operating System %s\n" os_type
+
 exception Interrupt (* in case you need it *)
 
-type process_id = int
+type process_id = 
+|       Unixoid         of int 
+|       Windowsoid      of (in_channel*out_channel)
+
+
+let ignorePipeSignals() =
+if os_type="Win32" then 
+   (* I daresay we'll have to think of something *)
+   ()
+else
+   Sys.set_signal Sys.sigpipe Sys.Signal_ignore
+
+let normalizePath filename = 
+if os_type="Win32" 
+then 
+   let sloshify = function '/'->'\\' | c -> c
+   in Sml.string_of_chars(List.map sloshify (Sml.chars_of_string filename))
+else filename
+
+let pathStem path =
+  (* Remove the stern of a path 
+     Path separator is immaterial so we can mix unix/windows-style paths
+     in source files.
+  *)
+  let rec removestern =
+  function
+    | [] -> ["./"]
+    | "/"  :: xs -> "/"  :: xs
+    | "\\" :: xs -> "\\" :: xs  
+    | x :: xs -> removestern xs
+  in
+    Sml.implode (List.rev (removestern (List.rev (Sml.explode path))))
+ 
+let open_input_file  filename = open_in  (normalizePath filename)
+
+let open_output_file filename = open_out (normalizePath filename)
+
 
 let rec onInterrupt f g =
-  let now = signal sigint (Signal_handle f) in
+if os_type="Win32" then 
+  let _ = g () in ()
+else 
+  let now = signal (sigint) (Signal_handle f) in
   try g (); set_signal sigint now
   with exn -> set_signal sigint now; raise exn
     
 let execute_in_env cmd args env =
+
+if os_type<>"Win32" then 
    let (in_read, in_write) = Unix.pipe() in
    let (out_read, out_write) = Unix.pipe() in
    let inchan = Unix.in_channel_of_descr in_read in
@@ -41,7 +84,11 @@ let execute_in_env cmd args env =
    in
    Unix.close out_read;
    Unix.close in_write;
-   (pid, inchan, outchan)
+   (Unixoid pid, inchan, outchan)
+else
+   let (inchan, outchan) = 
+       Unix.open_process cmd 
+   in (Windowsoid(inchan, outchan), inchan, outchan)
 
 let execute cmd args =
   execute_in_env cmd args (Array.to_list (Unix.environment()))
@@ -50,4 +97,7 @@ let execute cmd args =
 
 let create_process_env cmd args env new_stdin new_stdout new_stderr = *)
 
-let reap pid = try Unix.kill pid Sys.sigkill with _ -> ()
+let reap = function
+| Unixoid    pid   -> (try Unix.kill pid Sys.sigkill with _ -> ())
+| Windowsoid chans -> (try let _ = Unix.close_process chans in () with _ -> ())
+

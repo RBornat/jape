@@ -942,7 +942,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   let rec printproof path state =
     let st = rewriteproofstate state in
     try
-      let s = try open_out path with exn -> raise (Io exn) in
+      let s = try Moresys.open_output_file path with exn -> raise (Io exn) in
       Interaction.printState s st true; close_out s
     with
       Io exn ->
@@ -951,7 +951,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   
   let writetonamedfile action filename =
     try
-      let sfile = try open_out (disQuote filename) with exn -> raise (Io exn) in
+      let sfile = try Moresys.open_output_file (disQuote filename) with exn -> raise (Io exn) in
       action sfile; close_out sfile; true
     with
       Io exn -> showAlert ["Cannot write file "; filename; " ("; Printexc.to_string exn; ")"]; false
@@ -2164,3 +2164,4 @@ and start () =
   initButtons ();
   main (defaultenv (), [], []) (Array.to_list Sys.argv, []); (* empty environment ... ?? *)
   ()
+

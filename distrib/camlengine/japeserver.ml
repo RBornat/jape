@@ -66,15 +66,7 @@ let stopserver () =
   match !serverpid with 
     Some pid -> 
       serverpid := None;
-      (try close_in !infromserver with _ -> ());
-      (* there is absolutely no way to stop the close_out failing and giving an exception
-       * if the server has crashed. But it doesn't matter too much, because in that case
-       * the program is going to exit anyway ... *)
-      (try close_out !outtoserver with _ -> ());
-      Moresys.reap pid;
-      (* next line ensures that if we didn't close the stream, we'll get a 
-       * sigpipe signal on exit. It looks nicer than an exception. *)
-      Sys.set_signal Sys.sigpipe Sys.Signal_default
+      Moresys.reap pid
   | None -> ()
 
 exception DeadServer_
@@ -92,7 +84,7 @@ let rec startserver server args =
   infromserver := iii; outtoserver := ooo;
   servername := server; serverpid := Some pid;
   serverresponded := false;
-  Sys.set_signal Sys.sigpipe Sys.Signal_ignore
+  Moresys.ignorePipeSignals()
 
 and write s = out s; out "\n"; flush s
 and out s = 
@@ -703,6 +695,7 @@ let displaystyle2int d =
 let rec setproofparams displaystyle linethicknessval =
   linethickness := linethicknessval;
   writef "SETPROOFPARAMS % %\n" [Int (displaystyle2int displaystyle); Int linethicknessval]
+
 
 
 
