@@ -9,7 +9,7 @@ class TextItem extends CanvasItem
                           greyed;
                 
         protected int[]   boundaries;  // actual x cooordinates of character edges.
-        protected Set     marked;      // the selected character positions.
+        protected BitSet  marked;      // the selected character positions.
         
         public TextItem(ProofCanvas canvas, Point position, String text, int fontnum)
         { super(canvas, position);
@@ -23,7 +23,7 @@ class TextItem extends CanvasItem
           bounds = canvas.stringSize(text, fontnum);
           boundaries = canvas.getBoundaries(text, fontnum);
           for (int i=0; i<boundaries.length; i++) boundaries[i]+=position.x;
-          marked = new Set(text.length()+1);
+          marked = new BitSet(text.length()+1);
         }
 
         /** 

@@ -29,4 +29,11 @@ public class Reply {
         messages.add("COMMAND "+s);
         sendmessage();
     }
+
+    synchronized public static void reply(String s) throws ProtocolError {
+        if (!clientlistening)
+            System.out.println(s);
+        else
+            throw (new ProtocolError("replying "+s+"\" while client is not expecting reply"));
+    }	
 }
