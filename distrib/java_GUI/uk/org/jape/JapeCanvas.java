@@ -147,6 +147,25 @@ public abstract class JapeCanvas extends ContainerWithOrigin
     }
 
     public abstract String getTextSelections(String sep);
+
+    public String getSingleTextSelection() {
+        if (getTextSelectionCount()==1) {
+            /* find the child with the stuff (yawn) */
+            int nc = child.getComponentCount(); // oh dear ...
+            for (int i=0; i<nc; i++) {
+                Component c = child.getComponent(i); // oh dear ...
+                if (c instanceof TextSelectableItem) {
+                    TextSelectableItem sti = (TextSelectableItem)c;
+                    String s1 = sti.getSingleTextSelection();
+                    if (s1!=null)
+                        return s1;
+                }
+            }
+        }
+
+        return null;
+    }
+
     
     protected void killTextSelections(TextSelectableItem leave) {
         Component[] cs = child.getComponents(); // oh dear ...

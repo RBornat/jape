@@ -264,10 +264,19 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
 
     public abstract String getTextSelections();
 
+    public String getSingleTextSelection() {
+        if (textsels==null || textsels.size()!=1)
+            return null;
+        else {
+            TextSel t = getTextSel(0);
+            return new String(printchars, t.start, t.end-t.start);
+        }
+    }
+    
     public int getTextSelectionCount() {
         return textsels==null ? 0 : textsels.size();
     }
-    
+
     private void ensureTextSelectionVars() {
         if (formulae==null) {
             annoti = printi = 0;

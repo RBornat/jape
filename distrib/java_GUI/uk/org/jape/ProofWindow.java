@@ -154,6 +154,24 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         } catch (ProtocolError e) {
             Alert.abort("ProofWindow.enableCopy can't find Edit: Copy");
         }
+        
+        try {
+            JapeMenu.enableItem(true, "Edit", "Copy Ascii",
+                                proofcount+disproofcount+provisocount==1);
+        } catch (ProtocolError e) {
+            Alert.abort("ProofWindow.enableCopy can't find Edit: Copy Ascii");
+        }
+    }
+
+    public String getSingleTextSelection() {
+        int proofcount = proofCanvas.getTextSelectionCount(),
+            disproofcount = disproofPane==null ? 0 : disproofPane.getTextSelectionCount(),
+            provisocount = provisoCanvas==null ? 0 : provisoCanvas.getTextSelectionCount();
+
+        return proofcount+disproofcount+provisocount!=1 ? null :
+               proofcount==1    ? proofCanvas.getSingleTextSelection() :
+               disproofcount==1 ? disproofPane.getSingleTextSelection() :
+                                  provisoCanvas.getSingleTextSelection();
     }
 
     public void enableUndo() {
