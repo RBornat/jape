@@ -287,10 +287,7 @@ let rec drawRect box =
   writef "DRAWRECT % % % % %\n"
     (List.map fInt [!linethickness; x - 1; y - 1; x + w + 1; y + h + 1])
 
-let rec drawinpane =
-  function
-    ProofPane -> writef "DRAWINPANE proof\n" []
-  | DisproofPane -> writef "DRAWINPANE disproof\n" []
+let rec drawinpane pane = writef "DRAWINPANE %\n" [Int (pane2int pane)]
 
 let rec drawstring (font, class__, s, pos) =
   let (x, y) = explodePos pos in
@@ -583,13 +580,12 @@ let rec getSelection () =
 
 let rec getTextSelection () =
   let l : (pos * string list) list ref = ref [] in
-  writef "GETTEXTSELECTION\n" [];
+  writef "GETTEXTSELECTIONS\n" [];
   while
     match explode_ (readline "GETTEXTSEL") with
       x :: y :: ss -> l := (pos (atoi x, atoi y), ss) :: !l; true
-    | _ -> false
-  do ()
-  done;
+    | _            -> false
+  do () done;
   !l
 
 let rec getFormulaSelection () =
@@ -681,11 +677,11 @@ let rec tickmenuitem (menu, label, b) =
 exception GetPaneGeometry_ of string
 
 let rec getPaneGeometry pane = 
-    match askf "PANEGEOMETRY %\n" [Int (Displayfont.pane2int pane)] with
+    match askf "PANEGEOMETRY %\n" [Int (pane2int pane)] with
       [x; y; w; h] -> box (pos (x, y), size (w, h))
-    | _ -> raise (GetPaneGeometry_ (Displayfont.panestring pane))
+    | _ -> raise (GetPaneGeometry_ (panestring pane))
 
-let rec clearPane pane = writef "CLEARPANE %\n" [Int (Displayfont.pane2int pane)]
+let rec clearPane pane = writef "CLEARPANE %\n" [Int (pane2int pane)]
 
 let rec emphasise pos b =
   let (x, y) = explodePos pos in
