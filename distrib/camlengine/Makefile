@@ -34,8 +34,8 @@ CAMLDEBUG=
 CMO = sml.cmo moresys.cmo fix.cmo cache.cmo miscellaneous.cmo reason.cmo answer.cmo prestring.cmo listfuns.cmo version.cmo optionfuns.cmo mappingfuns.cmo stringfuns.cmo uTF.cmo minwaste.cmo box.cmo displayfont.cmo text.cmo idclass.cmo searchtree.cmo symbol.cmo idclassfuns.cmo termtype.cmo termstring.cmo termstore.cmo termfuns.cmo predicate.cmo match.cmo binding.cmo termparse.cmo seqtype.cmo sequent.cmo name.cmo treelayout.cmo tactic.cmo proviso.cmo paraparam.cmo panelkind.cmo menu.cmo displayclass.cmo japeserver.cmo alert.cmo doubleclick.cmo forcedef.cmo usefile.cmo proofstage.cmo paragraph.cmo rewinf.cmo cxttype.cmo cxtstring.cmo cxtfuns.cmo cxtprovisos.cmo cxtexterior.cmo facts.cmo substmapfuns.cmo rew.cmo rewrite.cmo provisofuns.cmo thing.cmo unify.cmo treeformat.cmo prooftree.cmo proofstore.cmo proofstate.cmo applyrule.cmo absprooftree.cmo hit.cmo draw.cmo seqdraw.cmo treedraw.cmo boxdraw.cmo displaystate.cmo displaystyle.cmo selection.cmo disproof.cmo interaction.cmo japeenv.cmo env.cmo button.cmo oracle.cmo tacticfuns.cmo runproof.cmo paragraphfuns.cmo dialogue.cmo
 CMX = $(CMO:.cmo=.cmx)
 
-jape:     $(CMO) main.cmo;   ocamlc   $(SOURCES) $(CAMLDEBUG) -custom -o jape unix.cma $(CMO) main.cmo
-jape.opt: $(CMX) main.cmx;   ocamlopt $(SOURCES) -o jape.opt unix.cmxa $(CMX) main.cmx
+jape_engine:     $(CMO) main.cmo;   ocamlc   $(SOURCES) $(CAMLDEBUG) -custom -o jape_engine unix.cma $(CMO) main.cmo
+jape_engine.opt: $(CMX) main.cmx;   ocamlopt $(SOURCES) -o jape_engine.opt unix.cmxa $(CMX) main.cmx
 
 #############################################################################
 #
@@ -64,28 +64,3 @@ clean:;                 rm -f *.cmi *.cmo *.cmx *.o
 depend: .depend;        ocamldep *.mli *.ml >.depend
         
 include .depend
-
-#
-#       Superannuated 
-#
-%.tml : ../engine/%.sig.sml ../engine/%.sml ;\
-        (camltran ../engine/$*.sig.sml; camltran ../engine/$*.sml) >$*.testml ;\
-        mv $*.testml $*.tml
-
-%.tml : ../engine/%.sig.sml ../X/python/interface/%.sml ;\
-        (camltran ../engine/$*.sig.sml; camltran ../X/python/interface/$*.sml) >$*.testml ;\
-        mv $*.testml $*.tml
-
-%.tml : ../engine/%.sml ;\
-        camltran ../engine/$*.sml >$*.testml ;\
-        mv $*.testml $*.tml
-
-%.tml : ../engine/%.sig.sml ;\
-        camltran ../engine/$*.sig.sml >$*.testml ;\
-        mv $*.testml $*.tml
-
-
-
-
-
-
