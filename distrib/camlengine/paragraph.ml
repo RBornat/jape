@@ -583,7 +583,8 @@ let rec checkvalidruleheading report objkind wherekind =
             [place; " "; objkind; " "; namestring name; " "; has; " ";
              add_an_s "variable" (List.length vs > 1); " ";
              liststring2 termstring ", " " and " vs;
-             " which aren't in the "; wherekind; "."]
+             " which ";
+             (if List.length vs =1 then "isn't" else "aren't"); " in the "; wherekind; "."]
       | _, [] ->
           showInputError report
             [place; " "; objkind; " "; namestring name; " "; has;
