@@ -101,38 +101,54 @@ module Type : Type with type idclass = Idclass.idclass
 module type Termstring =
   sig
 	type term and resnum and element
-	val termstring : term -> string
-	val termstring_invisbracketed : term -> string
-	val termstring_invischoose :
-	  (term -> string) -> (term -> string) -> term -> string
-	val vtsstring : (term * term) list -> string
+	val termstring                : term -> string
+	val termstring_invisbracketed : bool -> term -> string (* first arg sets bracketing *)
+	val termstring_invischoose    : (term -> string) -> (term -> string) -> term -> string
+	
+	val catelim_termstring                : term -> string list -> string list
+	val catelim_termstring_invisbracketed : bool -> term -> string list -> string list
+	val catelim_termstring_invischoose    : (term -> string) -> (term -> string) -> term
+	                                     -> string list -> string list
+	
 	val argstring : term -> string
+
+	val smltermstring         : term -> string
+	val catelim_smltermstring : term -> string list -> string list
+	
+	val vtsstring : (term * term) list -> string
+	
 	(* bracketed for use as args in curried functions *)
-	val collectionstring : string -> term -> string
+	val collectionstring                : string -> term -> string
+	val collectionstring_invisbracketed : bool -> string -> term -> string
+	
 	(* for those who don't want to see the details *)
-	val termOrCollectionstring : string -> term -> string
-	val smltermstring : term -> string
-	val elementstring : element -> string
-	(* what goes on the screen *)
-	val elementstring_invisbracketed : element -> string
-	val elementstring_invischoose :
-	  (term -> string) -> (term -> string) -> element -> string
-	val smlelementstring : (term -> string) -> element -> string
+	val termOrCollectionstring                : string -> term -> string
+	val termOrCollectionstring_invisbracketed : bool -> string -> term -> string
+	
+	val catelim_termOrCollectionstring                : string -> term -> string list -> string list
+	val catelim_termOrCollectionstring_invisbracketed : bool -> string -> term -> string list -> string list
+	
+	val elementstring                : element -> string
+	val elementstring_invisbracketed : bool -> element -> string
+	val elementstring_invischoose    : (term -> string) -> (term -> string) -> element -> string
+	
+	val catelim_elementstring                : element -> string list -> string list
+	val catelim_elementstring_invisbracketed : bool -> element -> string list -> string list
+	
+	val smlelementstring         : (term -> string) -> element -> string
+	val catelim_smlelementstring : (term -> string list -> string list) -> element 
+	                            -> string list -> string list
+	
 	val resnumstring : resnum -> string
+	
 	val termliststring : term list -> string
-	val catelim_termstring : term -> string list -> string list
+	
 	val catelim_vtsstring : (term * term) list -> string list -> string list
 	val catelim_argstring : term -> string list -> string list
-	val catelim_collectionstring :
-	  string -> term -> string list -> string list
-	val catelim_termOrCollectionstring :
-	  string -> term -> string list -> string list
-	val catelim_smltermstring : term -> string list -> string list
-	val catelim_elementstring : element -> string list -> string list
-	val catelim_elementstring_invisbracketed : element -> string list -> string list
-	val catelim_smlelementstring :
-	  (term -> string list -> string list) -> element -> string list ->
-		string list
+	
+	val catelim_collectionstring                : string -> term -> string list -> string list
+	val catelim_collectionstring_invisbracketed : bool -> string -> term -> string list -> string list
+	
 	val catelim_resnumstring : resnum -> string list -> string list
 	val catelim_termliststring : term list -> string list -> string list
 	val debracketapplications : bool ref
@@ -564,21 +580,30 @@ module Termstring  : Termstring with type term = Type.term
       let (fst, snd) = if !substsense then var, expr else expr, var in
       _TS ivb ivk (List.map fst vts)
           (quadcolon (symbolstring SUBSTSEP) (_TS ivb ivk (List.map snd vts) s))
-    let rec nobra _ = ""
-    let catelim_termstring = _T nobra nobra 0 false
-    let termstring = catelim2stringfn catelim_termstring
-    let catelim_termstring_invisbracketed =
-      _T (fun _ -> invisbra) (fun _ -> invisket) 0 false
+    
+    let nobra   _ = ""
+    let noket   _ = ""
+    let showbra _ = invisbra
+    let showket _ = invisket
+    
+    let catelim_termstring_invisbracketed b = 
+        (if b then _T showbra showket else _T nobra noket) 0 false
     let termstring_invisbracketed =
-      catelim2stringfn catelim_termstring_invisbracketed
+      catelim2stringfn <.> catelim_termstring_invisbracketed
+    
+    let catelim_termstring = catelim_termstring_invisbracketed false
+    let termstring = catelim2stringfn catelim_termstring
+    
     let rec catelim_termstring_invischoose ivb ivk = _T ivb ivk 0 false
     let rec termstring_invischoose ivb ivk =
       catelim2stringfn (catelim_termstring_invischoose ivb ivk)
+    
     let rec catelim_vtsstring vts ss =
       quadcolon
         (symbolstring SUBSTBRA)
         (_TM nobra nobra vts (quadcolon (symbolstring SUBSTKET) ss))
     let vtsstring = catelim2stringfn catelim_vtsstring
+    
     let rec catelim_argstring t ss =
       let rec mustbracket t =
         match t with
@@ -598,36 +623,45 @@ module Termstring  : Termstring with type term = Type.term
       if mustbracket t then
         quadcolon "(" (catelim_termstring t (quadcolon ")" ss))
       else catelim_termstring t ss
+    
     let argstring = catelim2stringfn catelim_argstring
-    let catelim_elementstring = catelim_termstring <.> stripelement
-    let elementstring = catelim2stringfn catelim_elementstring
-    let catelim_elementstring_invisbracketed =
-      catelim_termstring_invisbracketed <.> stripelement
+   
+    let catelim_elementstring_invisbracketed b =
+      catelim_termstring_invisbracketed b <.> stripelement
     let elementstring_invisbracketed =
-      catelim2stringfn catelim_elementstring_invisbracketed
+      catelim2stringfn <.> catelim_elementstring_invisbracketed
+    
+    let catelim_elementstring = catelim_elementstring_invisbracketed false
+    let elementstring = catelim2stringfn catelim_elementstring
+    
     let rec catelim_elementstring_invischoose ivb ivk =
       catelim_termstring_invischoose ivb ivk <.> stripelement
     let rec elementstring_invischoose ivb ivk =
       catelim2stringfn (catelim_elementstring_invischoose ivb ivk)
-    let rec catelim_collectionstring a1 a2 a3 =
-      match a1, a2, a3 with
-        sep, Collection (_, _, es), ss ->
-          catelim_liststring catelim_elementstring sep es ss
-      | sep, t, ss ->
-          raise
-            (Catastrophe_ ("collectionstring " :: catelim_termstring t []))
-    let rec collectionstring sep =
-      catelim2stringfn (catelim_collectionstring sep)
-    let rec catelim_termOrCollectionstring sep t =
+    
+    let catelim_collectionstring_invisbracketed b sep t =
       match t with
-        Collection _ -> catelim_collectionstring sep t
-      | _ -> catelim_termstring t
-    let rec termOrCollectionstring sep =
-      catelim2stringfn (catelim_termOrCollectionstring sep)
+        Collection (_, _, es) -> 
+          catelim_liststring (catelim_elementstring_invisbracketed b) sep es
+      | _ -> raise (Catastrophe_ ("collectionstring " :: catelim_termstring t []))
+    let collectionstring_invisbracketed b sep = 
+      catelim2stringfn (catelim_collectionstring_invisbracketed b sep)
+    
+    let catelim_collectionstring = catelim_collectionstring_invisbracketed false
+    let collectionstring sep = catelim2stringfn (catelim_collectionstring sep)
+    
+    let rec catelim_termOrCollectionstring_invisbracketed b sep t =
+      match t with
+        Collection _ -> catelim_collectionstring_invisbracketed b sep t
+      | _ -> catelim_termstring_invisbracketed b t
+    let rec termOrCollectionstring_invisbracketed b sep =
+      catelim2stringfn (catelim_collectionstring_invisbracketed b sep)
+    
+    let catelim_termOrCollectionstring = catelim_termOrCollectionstring_invisbracketed false
+    let termOrCollectionstring sep = catelim2stringfn (catelim_collectionstring sep)
     
     let termliststring = bracketedliststring termstring ","
-    let catelim_termliststring =
-      catelim_bracketedliststring catelim_termstring ","
+    let catelim_termliststring = catelim_bracketedliststring catelim_termstring ","
 end
 
 module type Store =
