@@ -38,46 +38,6 @@ import java.io.FileInputStream;
 
 public class LocalSettings implements SelectionConstants {
 
-    static boolean debug = null!=System.getProperty("debug.settings");
-
-    private static Properties props = new Properties();
-
-    static {
-        String  config = System.getProperty("jape.settings");
-        if (config!=null)
-        try { // generalize me!
-            props.load(new FileInputStream(config));
-            if (debug) System.err.println("Using ./jape.properties as configuration");
-            if (debug) props.list(System.err);
-        }
-        catch (Exception e) {
-            System.err.println(e + "(while loading settings)\n[Falling back to default configuration]");
-        }
-    }
-
-    static private byte getProp(String name, int defaultvalue) {
-        String val   = props.getProperty(name);
-        byte   value = (byte) defaultvalue;
-        if (val!=null) 
-        try
-        {   value = Byte.decode(val).byteValue();
-        }
-        catch (Exception e)
-        {  // should go to GUI, but we mayn't have one yet!
-            System.err.println(e + " property name: " + name);
-        }
-        if (debug) System.err.println(name + " = " + value);
-        return value;
-    }
-    
-    static private String getProp(String name, String defaultvalue) {
-        String val   = props.getProperty(name);
-        String value = val==null?defaultvalue:val;
-        if (debug) System.err.println(name + " = " + value);
-        return value;
-    }
-    
-
     // focus in panel windows
 
     public static final boolean showPanelWindowFocus = false;
