@@ -35,9 +35,6 @@ let proved            = Proofstore.proved
 let seqexplode        = Sequent.Funs.seqexplode
 let symbolstring      = Symbol.symbolstring
 
-let termstring_invisbracketed    = Term.Termstring.termstring_invisbracketed
-let elementstring_invisbracketed = Term.Termstring.elementstring_invisbracketed
-
 type structurerule = Thing.structurerule
  and tree          = Prooftree.Tree.Vistree.prooftree
  and sequent       = Sequent.Funs.seq
