@@ -29,6 +29,7 @@ package uk.org.jape;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Rectangle;
 
 public class JapeUtils {
     public static String enQuote(Object o) {
@@ -50,6 +51,10 @@ public class JapeUtils {
 	}
     }
 
+    public static String shortStringOfRectangle(Rectangle r) {
+	return r.x+","+r.y+" "+r.width+"x"+r.height;
+    }
+
     public static void showContainer(Container pane, String prefix) {
 	for (int i=0; i<pane.getComponentCount(); i++) {
 	    Component c = pane.getComponent(i);
@@ -63,6 +68,21 @@ public class JapeUtils {
     public static void showContainer(Container pane) {
 	Logger.log.println(pane);
 	showContainer(pane, null);
+    }
+
+    public static void showShortContainer(Container pane, String prefix) {
+	for (int i=0; i<pane.getComponentCount(); i++) {
+	    Component c = pane.getComponent(i);
+	    String label = prefix==null ? ""+i : prefix+"."+i;
+	    Logger.log.println(label+": "+shortStringOfRectangle(c.getBounds()));
+	    if (c instanceof Container)
+		showShortContainer((Container)c, label);
+	}
+    }
+
+    public static void showShortContainer(Container pane) {
+	    Logger.log.println(shortStringOfRectangle(pane.getBounds()));
+	    showShortContainer(pane,null);
     }
 
     public static Component findTargetAt(Class target, Component c, int x, int y) {
