@@ -6,17 +6,17 @@ CLASS BAG FORMULA ‚
 
 CONSTANT Ù
 
-PREFIX	10		actual
-/* POSTFIX	10		inscope   no longer used. I don't think that proof files will crash without it */
+PREFIX	10	actual
+/* POSTFIX	10	inscope   no longer used. I don't think that proof files will crash without it */
 
 INFIX		100R		ç
 INFIX		120L		ë
 INFIX		140L		¦
 
-PREFIX	200		Â
+PREFIX	200	Â
 
-LEFTFIX	200		è .
-LEFTFIX	200		ä .
+LEFTFIX	200	è .
+LEFTFIX	200	ä .
 
 JUXTFIX	300
 SUBSTFIX	400 
@@ -26,5 +26,5 @@ BIND x SCOPE B IN äx . B
 
 SEQUENT IS BAG æ FORMULA
 
-INITIALISE autoAdditiveLeft		true /* allow rules to be stated without an explicit left context */
+INITIALISE autoAdditiveLeft	true /* allow rules to be stated without an explicit left context */
 INITIALISE interpretpredicates	true /* allow predicate syntax ... */
