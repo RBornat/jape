@@ -1,7 +1,7 @@
 /* 
     $Id$
 
-    Copyright © 2003 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -129,6 +129,15 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("ASKDANGEROUSLY")&&len==4)
                             Reply.reply(Alert.askDangerously(cmd[1], cmd[2], cmd[3]));
                         else
+						if (p.equals("CLEARCHOICES")&&len==1)
+							ChoiceDialog.clearChoices();
+						else
+						if (p.equals("SETCHOICE")&&len==3)
+							ChoiceDialog.setChoice(cmd[1], toInt(cmd[2]));
+						else
+						if (p.equals("MAKECHOICE")&&len==2)
+							Reply.reply(ChoiceDialog.makeChoice(cmd[1]));
+						else
                     
                     // file choosing
                         if (p.equals("READFILENAME")&&len==3)

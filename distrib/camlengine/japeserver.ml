@@ -532,14 +532,14 @@ let rec makeChoice heading =
   match askf "MAKECHOICE %\n" [Str heading] with
     [0] -> None
   | [n] -> Some (n - 1)
-  | _ -> None
+  | _   -> None
 
 let rec clearChoices () = writef "CLEARCHOICES\n" []
 
 let rec setChoice (show, reply) =
   writef "SETCHOICE % %\n" [Str show; Str reply]
 
-let rec setChoiceLine () = writef "SETCHOICELINE\n" []
+(* let rec setChoiceLine () = writef "SETCHOICELINE\n" [] *)
 
 let rec setChoices ((caption : string), (c : string list list)) =
   let rec cs__ =
@@ -551,11 +551,10 @@ let rec setChoices ((caption : string), (c : string list list)) =
       n, ch :: chs ->
         let ns = string_of_int (n : int) in
         setChoice (ch, ns);
-        List.iter (fun l -> setChoice (l, "")) chs;
-        setChoiceLine ()
-    | n, [] -> setChoiceLine ()
+        List.iter (fun l -> setChoice (l, "")) chs
+    | n, [] -> ()
   in
-  clearChoices (); cs__ (1, c); setChoice ("<None of the above>", "0")
+  clearChoices (); cs__ (1, c)
 
 let rec askChoice (query, menu) =
   setChoices (query, menu); makeChoice query
