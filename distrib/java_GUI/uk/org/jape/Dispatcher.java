@@ -28,15 +28,14 @@
 import java.io.*;
 import java.util.*;
 
-// implements DebugConstants annoys javac: something to do with Thread?
-public class Dispatcher extends Thread {
+public class Dispatcher extends Thread implements DebugConstants {
 
     protected BufferedReader in;
     
     public Dispatcher() {
         super("Dispatcher");
         in = new BufferedReader(new InputStreamReader(System.in));
-        if (Reply.protocol_tracing)
+        if (protocol_tracing)
             System.err.println("dispatcher initialised");
     }
 
@@ -56,7 +55,7 @@ public class Dispatcher extends Thread {
             while (true) {
                 String line = in.readLine();
                 String[] command = japesplit(line);
-                if (Reply.protocol_tracing) {
+                if (protocol_tracing) {
                     showcommand("dispatcher reads ("+command.length+") ", command);
                 }
                 
