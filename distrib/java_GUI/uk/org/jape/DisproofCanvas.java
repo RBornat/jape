@@ -25,11 +25,11 @@
     
 */
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 
-public class DisproofCanvas extends JapeCanvas implements ProtocolConstants, SelectionConstants {
+public class DisproofCanvas extends JapeCanvas {
 
     public DisproofCanvas(Container viewport, boolean scrolled) {
         super(viewport, scrolled);
@@ -46,10 +46,22 @@ public class DisproofCanvas extends JapeCanvas implements ProtocolConstants, Sel
     }
 
     public void setSequentBox(int width, int ascent, int descent) {
+        removeAll(); // seems to be necessary
         setViewOrigin(0, -ascent);
     }
 
     public Dimension getPreferredSize() {
         return getSize();
+    }
+
+    public EmphasisableItem findEmphasisableXY(int x, int y) {
+        int nc = child.getComponentCount(); // oh dear ...
+        for (int i=0; i<nc; i++) {
+            Component c = child.getComponent(i); // oh dear ...
+            if (c instanceof EmphasisableItem &&
+                ((EmphasisableItem)c).idX==x && ((EmphasisableItem)c).idY==y)
+                return (EmphasisableItem)c;
+        }
+        return null;
     }
 }
