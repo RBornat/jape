@@ -205,7 +205,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
 
     private DisproofPane ensureDisproofPane() {
         if (disproofPane==null) {
-            disproofPane = new DisproofPane(getLayeredPane(), proofCanvas.linethickness);
+            disproofPane = new DisproofPane(this, proofCanvas.linethickness);
             disproofPanePending = true;
         }
         return disproofPane;
