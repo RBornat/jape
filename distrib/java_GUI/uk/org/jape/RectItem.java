@@ -30,15 +30,10 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-public class RectItem extends Component implements DebugConstants {
-
-    JapeCanvas canvas;
+public class RectItem extends OutlineItem implements DebugConstants {
     
     public RectItem(JapeCanvas canvas, int x, int y, int w, int h) {
-        super();
-        this.canvas = canvas;
-        setBounds(x, y, w, h);
-        setForeground(Preferences.LineColour);
+        super(canvas, x, y, w, h);
     }
 
     protected int left, top, right, bottom;
@@ -47,9 +42,10 @@ public class RectItem extends Component implements DebugConstants {
     protected void prepaint(Graphics g) {
         g.setColor(getForeground());
         if (g instanceof Graphics2D) {
-            int half = canvas.linethickness/2;
-            int otherhalf = canvas.linethickness-canvas.linethickness/2;
-            BasicStroke stroke = new BasicStroke((float)canvas.linethickness);
+            int linethickness = canvas.linethickness;
+            int half = linethickness/2;
+            int otherhalf = linethickness-linethickness/2;
+            BasicStroke stroke = new BasicStroke((float)linethickness);
             ((Graphics2D)g).setStroke(stroke);
             left = top = half; // seems to work
             right = getWidth()-otherhalf;
@@ -82,7 +78,7 @@ public class RectItem extends Component implements DebugConstants {
     // default behaviour -- drawLine seems to work more nicely than drawRect ...
     public void paint(Graphics g) {
         if (paint_tracing)
-            Logger.log.println("painting rectangle at "+getX()+","+getY());
+            Logger.log.println("painting RectItem at "+getX()+","+getY());
         prepaint(g); paintTopAndBottom(g); paintSides(g);
     }
 }
