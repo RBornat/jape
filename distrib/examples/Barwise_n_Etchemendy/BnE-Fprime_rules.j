@@ -27,7 +27,7 @@ RULE "ë-E"(A,B) IS FROM A ë B AND A æ C AND B æ C INFER C
 RULE "Â-E" IS FROM ÂÂA INFER A
 RULE "Ù-E" IS FROM Ù INFER A
 RULES "è-E" ARE 
-		FROM è x .A(x) AND c inscope INFER A(c)
+		(c) FROM è x .A(x) AND c inscope INFER A(c)
 AND	FROM è (x,y) .A(x,y) AND c inscope AND d inscope INFER A(c,d)
 AND	FROM è (x,y,z) .A(x,y,z) AND c inscope AND d inscope AND e inscope INFER A(c,d,e)
 AND	FROM è (w,x,y,z) .A(w,x,y,z) AND c inscope AND d inscope AND e inscope AND f inscope INFER A(c,d,e,f)

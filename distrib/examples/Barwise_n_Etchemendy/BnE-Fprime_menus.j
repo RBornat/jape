@@ -38,12 +38,13 @@ TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS
 		(LETHYP _P cut (LAYOUT () (1) (ruleRL[B\_P]) thm (WITHHYPSEL hyp)))
 		(LETGOAL _P (LAYOUT () (1) (ruleLR _P) thm))
 
-TACTIC "ä-I tac" IS WITHARGSEL "ä-I"
+/* TACTIC "ä-I tac" IS WITHARGSEL "ä-I"
 TACTIC "ä!-I tac" IS WITHARGSEL "ä!-I"
 TACTIC "ç-E tac" IS FOB "ç-E forward" 0 "ç-E"
 TACTIC "ë-E tac" IS FOB ForwardUncut 0 "ë-E"	
 TACTIC "è-E tac" IS FOBSS ForwardCut 0 "è-E"
 TACTIC "ä-E tac" IS FOB ForwardUncut 0 "ä-E"
+*/
 
 MENU "System F«" IS
 	ENTRY "ç-I"	
@@ -84,8 +85,8 @@ MENU "Substitution"
 END
 
 TACTICPANEL "Definitions" IS
-	RULE "A­B ÷ Â(A=B)" IS INFER A­B ÷ Â(A=B)
+	RULE INFER A­B ÷ Â(A=B)
 	
-	PREFIXBUTTON "A÷É" IS apply ForwardSubstHiding "rewrite ÷ Ç" "rewrite ÷ È"
-	PREFIXBUTTON "É÷B" IS apply ForwardSubstHiding "rewrite ÷ È" "rewrite ÷ Ç"
+	BUTTON "A÷É" IS apply ForwardSubstHiding "rewrite ÷ Ç" "rewrite ÷ È"  COMMAND
+	BUTTON "É÷B" IS apply ForwardSubstHiding "rewrite ÷ È" "rewrite ÷ Ç"  COMMAND
 END
