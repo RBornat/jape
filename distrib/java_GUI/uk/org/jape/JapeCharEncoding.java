@@ -119,13 +119,22 @@ public class JapeCharEncoding implements DebugConstants {
                         ignoreLF=false;
                     else
                         return inbuf.toString();
-                case -1  :
+                case -1:
+                    ignoreLF=false; // a little unnecessary, but it makes me feel more comfortable
                     if (inbuf.length()==0)
                         throw new EOFException();
                     else
                         return inbuf.toString();
                 default:
-                    inbuf.append(encoding==null ? (char)c : encoding[c]);
+                    ignoreLF=false;
+                    if (encoding==null) {
+                        if (c>0x7F)
+                            throw new IOException("no encoding for char 0x"+Integer.toHexString(c));
+                        else
+                            inbuf.append((char)c);
+                    }
+                    else
+                        inbuf.append(encoding[c]);
                     break;
             }
         }
@@ -198,22 +207,19 @@ public class JapeCharEncoding implements DebugConstants {
 
     // a temporary hack, while MacOS doesn't do font fallback
     public String toTitle(String s) {
-        if (japeserver.onMacOS) {
-            if (encodingName!=null && encodingName.equals("Konstanz")) {
-                String asc = toAscii(s);
-                int len = s.length();
-                StringBuffer buf = new StringBuffer(len);
-                for (int i=0; i<len; i++)
-                    buf.append(KonstanzUnicode[asc.charAt(i)]);
-                return buf.toString();
-            }
-            else {
-                Alert.abort("JapeCharEncoding.toTitle can't recognise encoding "+encodingName);
-                return s; // shut up compiler
-            }
+        if (japeserver.onMacOS && encodingName!=null && encodingName.equals("Konstanz")) {
+            String asc = toAscii(s);
+            int len = s.length();
+            StringBuffer buf = new StringBuffer(len);
+            for (int i=0; i<len; i++)
+                buf.append(KonstanzUnicode[asc.charAt(i)]);
+            return buf.toString();
         }
-        else
+        else {
+            if (japeserver.onMacOS)
+                System.err.println("toTitle not translating "+s);
             return s;
+        }
     }
 
     private String encodingName;
@@ -234,6 +240,11 @@ public class JapeCharEncoding implements DebugConstants {
         }
         else
             throw new ProtocolError("japeserver doesn't know encoding "+s);
+    }
+
+    public void resetEncoding() {
+        encodingName = null;
+        encoding = null;
     }
 }
 
