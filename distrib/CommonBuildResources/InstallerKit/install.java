@@ -367,8 +367,9 @@ public class install implements ActionListener
      return p;
   }
 
-  String     jarfilename = null;
-  Properties prop        = null; 
+  String     jarfilename    = null;
+  Properties prop           = null; 
+  String     installDirName = null;
   
   static TextArea progress = null;
   static int length = 0;
@@ -388,7 +389,6 @@ public class install implements ActionListener
     return r;
   }
 
-  JTextField installDirField = new JTextField();
 
 
   public install(String filename)
@@ -397,18 +397,20 @@ public class install implements ActionListener
      jarfilename           = filename==null?prop.getProperty("-jar"):filename;
      
      String     splashFileName = prop.getProperty("-splash");
-     String     installDirName = prop.getProperty("-installdir", ".");
+                installDirName = prop.getProperty("-installdir", ".");
      String     appName        = prop.getProperty("-app", "Jape");
      String     tfont          = prop.getProperty("-tfont", "Monospaced-PLAIN-14");
      String     bfont          = prop.getProperty("-bfont", "SansSerif-PLAIN-14");
      String     caption        = "Installer "+appName+" from "+jarfilename;
      Font       tFont          = Font.decode(tfont); //new Font("SansSerif", Font.BOLD, 18);
      Font       bFont          = Font.decode(bfont); //new Font("SansSerif", Font.BOLD, 18);
-     JFrame     frame          = new JFrame(caption);
+     final JFrame     frame          = new JFrame(caption);
      Container  content        = frame.getContentPane();
-     JButton    install        = new JButton("Install "+appName);
+     JButton    install        = new JButton("Install ");
      JButton    exit           = new JButton("Exit Now");
-     JLabel     label          = new JLabel(prop.getProperty("-label", ""));
+     JButton    choose         = new JButton("Choose Folder");
+     JLabel     label          = new JLabel(prop.getProperty("-label", " in Folder "));
+     final JLabel     installDirField = new JLabel();
      progress = new TextArea("", 15, 72);
      progress.setFont(tFont);
      install.addActionListener(this);
@@ -416,6 +418,7 @@ public class install implements ActionListener
      install.setFont(bFont);
      exit.setFont(bFont);
      label.setFont(bFont);
+     choose.setFont(bFont);
      installDirField.setText(installDirName);    
 
      // prop.list(System.err);
@@ -428,14 +431,30 @@ public class install implements ActionListener
        content.add(icon, BorderLayout.NORTH);
      }
      Component[] buttons = new Component[]
-     {  label, /* installDirField, */ exit, install
+     {   choose, install, label, installDirField, exit
      };
      content.add(progress,        BorderLayout.CENTER);
      content.add(column(buttons), BorderLayout.SOUTH);
      frame.setLocation(new Point(200, 200));
      frame.pack();
      frame.setVisible(true);
-     showProgress("Installing for "+System.getProperty("os.name", "unknown OS type (assumed to be Unixoid)"));
+     showProgress("Installing "+appName+" for "+System.getProperty("os.name", "unknown OS type (assumed to be Unixoid)"));
+     if (!new File(installDirName).canWrite()) 
+     {  
+        showProgress("\n\nYou MUST choose an installation folder.");
+     }
+
+     choose.addActionListener
+     ( new ActionListener()
+       { public void actionPerformed(ActionEvent ev)
+         {  JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.showOpenDialog(frame);
+            installDirName = fc.getSelectedFile().toString();
+            installDirField.setText(installDirName);    
+         }
+       }
+     );
   }
 
   public void actionPerformed(ActionEvent e)
@@ -446,7 +465,7 @@ public class install implements ActionListener
        { 
          boolean isWindows = System.getProperty("os.name", "Unix").startsWith("Windows");
          String  postClass = prop.getProperty(isWindows?"-classwindows":"-classunix");
-         unJar(installDirField.getText().trim(), new FileInputStream(jarfilename));
+         unJar(installDirName.trim(), new FileInputStream(jarfilename));
          String shell = prop.getProperty(isWindows?"-cmdwindows":"-cmdunix");
          String shell1 = prop.getProperty(isWindows?"-cmdwindows1":"-cmdunix1");
 
@@ -536,6 +555,7 @@ public class install implements ActionListener
 
   
 }
+
 
 
 
