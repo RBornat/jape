@@ -164,7 +164,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
     public void closeWindow() {
         if (window!=null) {
-            JapeWindow.closeWindow(window.title);
+            JapeWindow.closeWindow(window);
             window = null;
         }
     }
