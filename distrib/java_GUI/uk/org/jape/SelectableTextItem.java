@@ -51,43 +51,6 @@ public class SelectableTextItem extends TextItem
                               byte proofstyle, int selectionthickness) {
         super(canvas,x,y,fontnum,annottext,printtext);
         this.kind=kind; this.proofstyle=proofstyle; this.selectionthickness=selectionthickness;
-
-        addMouseListener(new MouseAdapter() {
-            /*
-                void mouseClicked(MouseEvent e)
-                    Invoked when the mouse has been clicked on a component.
-                void mouseEntered(MouseEvent e)
-                    Invoked when the mouse enters a component.
-                void mouseExited(MouseEvent e)
-                    Invoked when the mouse exits a component.
-                void mousePressed(MouseEvent e)
-                    Invoked when a mouse button has been pressed on a component.
-                void mouseReleased(MouseEvent e)
-                    Invoked when a mouse button has been released on a component.
-
-                All reasonable, except that (experimentally) mouseClicked seems to
-                mean mouseReleased in the same place as mousePressed ...
-             */
-            public void mousePressed(MouseEvent e) {
-                pressed(LocalSettings.mouseDownKind(e), e);
-            }
-            public void mouseReleased(MouseEvent e) {
-                released(e);
-            }
-        });
-        
-        addMouseMotionListener(new MouseMotionAdapter() {
-            /*
-                void mouseDragged(MouseEvent e)
-                    Invoked when a mouse button is pressed on a component and then dragged.
-                void mouseMoved(MouseEvent e)
-                    Invoked when the mouse button has been moved on a component
-                    (with no buttons no down).
-             */
-            public void mouseDragged(MouseEvent e) {
-                dragged(e);
-            }
-        });
     }
 
     protected class SelectionRect extends Component {
@@ -403,7 +366,18 @@ public class SelectableTextItem extends TextItem
     protected TextSel getTextSel(int i) {
         return i<0 || i>=textsels.size() ? null : (TextSel)textsels.get(i);
     }
-    
+
+    protected void newTextSel(MouseEvent e) {
+        ensureTextSelectionVars();
+        anchor = current = pixel2Subformula(formulae, e.getX());
+        int i;
+        for (i=0; i<textsels.size(); i++)
+            if (anchor.start<=getTextSel(i).start)
+                break;
+        textsels.add(i, new TextSel(anchor));
+        currenttextselindex = i;
+    }
+        
     protected void pressed(byte eventKind, MouseEvent e) {
         this.eventKind = eventKind;
         mousemotionseen = false;
@@ -411,33 +385,30 @@ public class SelectableTextItem extends TextItem
             case TextSelection:
                 canvas.killTextSelections(null); // kill everybody's, including mine
             case DisjointTextSelection: // don't kill any text selections?
-                ensureTextSelectionVars();
-                anchor = current = pixel2Subformula(formulae, e.getX());
-                {   int i;
-                    for (i=0; i<textsels.size(); i++)
-                        if (anchor.start<=getTextSel(i).start)
-                            break;
-                    textsels.add(i, new TextSel(anchor));
-                    currenttextselindex = i;
-                }
+                newTextSel(e);
                 break;
                 
             case ExtendedTextSelection:
                 canvas.killTextSelections(this); // kill everybody else's
             case ExtendedDisjointTextSelection:
                 ensureTextSelectionVars();
-                {   int i;
-                    FormulaTree sel = pixel2Subformula(formulae, e.getX());
+                if (textsels.size()==0)
+                    newTextSel(e);
+                else {
+                    int i, px=e.getX();
                     for (i=0; i<textsels.size(); i++) {
-                        if (sel.start<=getTextSel(i).start) {
+                        if (px<getTextSel(i).pxend) {
                             // are we nearer to this one than the one before?
-                            currenttextselindex =
-                                i==0 || getTextSel(i).start-sel.end<sel.start-getTextSel(i-1).end ? i : i-1;
-                            anchor = findSubformula(formulae, getTextSel(currenttextselindex).start,
-                                                    getTextSel(currenttextselindex).end);
-                            current = enclosingSubformula(anchor, sel);
+                            if (i==0 || getTextSel(i).pxstart-px<px-getTextSel(i-1).pxend)
+                                i++;
+                            break;
                         }
                     }
+                    // we are nearest to textsel[i]
+                    currenttextselindex = i;
+                    anchor = findSubformula(formulae, getTextSel(i).start, getTextSel(i).end);
+                    current = enclosingSubformula(anchor, pixel2Subformula(formulae, px));
+                    getTextSel(i).reset(current);
                 }
                 break;
 
