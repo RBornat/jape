@@ -39,5 +39,7 @@ class Debugging
     static final public boolean protocol_tracing     = false;
 
     static final public boolean JapeMenu             = false;
+
+    static final public boolean TextItem             = false;
 }
 
