@@ -48,7 +48,17 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         });
     }
 
-    // linethickness is a canvas-wide property
+    // DisplayItems (things that have an identity) get added at the front;
+    // other items (lines, rects, etc.) at the back.
+    public Component add(Component c) {
+        if (c instanceof DisplayItem)
+            super.add(c, 0);
+        else
+            super.add(c);
+        return c;
+    }
+
+                                     // linethickness is a canvas-wide property
     protected int linethickness;
 
     // from it we derive the selection halo for text items
@@ -56,6 +66,11 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         return 2*linethickness;
     }
 
+    // and the surround gap for selection rectangles, emphasis and I don't know what else
+    protected int getSurroundGap() {
+        return linethickness*3/2;
+    }
+    
     // click on canvas kills selections
     protected void clicked(byte eventKind, MouseEvent e) {
         switch (eventKind) {
