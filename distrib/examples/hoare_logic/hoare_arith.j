@@ -88,30 +88,64 @@ AND FROM E∧(A defined) simplifiesto F AND
     INFER E∧(A mod B defined) simplifiesto H
 END
 
-/* to do: A[B] defined */
+RULE "arith_index" IS
+     FROM E∧(F defined) simplifiesto G AND 
+          G∧0≤F equivto H             AND
+          H∧F<length(a) equivto I
+    INFER E∧(a[F] defined) simplifiesto I
 
 TACTIC simpl IS
-  /* we must stop ourselves matching an unknown, but still do the job */
-  WHEN (LETGOAL (_E∧(_x defined) simplifiesto _F)
-                /* matches variable; if it also matches constant don't do it */
-                (WHEN (LETGOAL (_E∧(_K defined) simplifiesto _F) fstep)
-                      (LAYOUT HIDEROOT "arith_var")))
-       (ALT (LAYOUT HIDEROOT "arith_const")
-            (LAYOUT HIDEROOT (MATCH "arith_single") simpl)
-            (LAYOUT HIDEROOT (MATCH "arith_double") simpl simpl)
-            (LAYOUT HIDEROOT (MATCH "arith_div") simpl simpl equiv))
+  SEQ (LAYOUT HIDEROOT)
+      (ALT (LETGOAL (_E∧(_x defined) simplifiesto _F)
+              (UNIFY _F _E) (MATCH "arith_var"))
+           (LETGOAL (_E∧(_K defined) simplifiesto _F)
+              (UNIFY _F _E) (MATCH "arith_const"))
+          (SEQ (MATCH "arith_index") simpl equiv equiv)
+          (SEQ (MATCH "arith_single") simpl)
+          (SEQ (MATCH "arith_double") simpl simpl)
+          (SEQ (MATCH "arith_div") simpl simpl equiv))
 
-DERIVED RULE equiv1 IS true∧A equivto A
-DERIVED RULE equiv2 IS A equivto A
+TACTIC equiv IS 
+  SEQ (LAYOUT HIDEROOT (ALT (SEQ "arith_dup" conjoinstac) SKIP))
+      (LAYOUT HIDEROOT (ALT "true_equiv" "equiv_default"))
 
-TACTIC equiv IS
-  LAYOUT HIDEROOT
-    /* again, don't let unknowns fool you */
-    (WHEN (LETGOAL (true∧_A equivto _B)
-                   (WHEN (LETGOAL (false∧_A equivto _B) equiv2)
-                         equiv1))
-          equiv2)
+RULE "arith_dup" IS 
+   FROM E conjoins F AND E equivto G 
+  INFER E∧F equivto G
+
+DERIVED RULE "arith_true" IS true∧A equivto A
+DERIVED RULE "equiv_default" IS A equivto A
+
+TACTIC "true_equiv" IS
+  (LETGOAL (true∧_A equivto _B) (UNIFY _B _A) (MATCH "arith_true"))
     
 TACTIC maybetrueimpl IS
   ALT (SEQ (LAYOUT HIDEROOT (MATCH "→ intro")) (LAYOUT HIDEROOT (MATCH "faith")))
       SKIP
+
+/* we can simplify length assertions */
+
+TACTIC "length_simpl"(a,E,F) IS
+  LAYOUT HIDEROOT ("arith_length" a E F)
+
+RULE "arith_length"(a,E,F,OBJECT x) IS
+   FROM A«length(a)/x» simplifiesto B
+  INFER A«length(a⊕E↦F)/x» simplifiesto B
+
+/* we can get rid of duplicate obligations */
+
+RULES "arith_conjoins0" ARE
+    INFER E∧F conjoins F
+AND INFER F conjoins F
+END
+
+RULE "arith_conjoinsL" IS
+  FROM E conjoins G INFER E∧F conjoins G
+RULE "arith_conjoinsR" IS
+  FROM F conjoins G INFER E∧F conjoins G
+
+TACTIC conjoinstac IS
+  LAYOUT HIDEROOT
+    (ALT (MATCH "arith_conjoins0")
+         (SEQ (MATCH "arith_conjoinsL") conjoinstac)
+         (SEQ (MATCH "arith_conjoinsR") conjoinstac))
