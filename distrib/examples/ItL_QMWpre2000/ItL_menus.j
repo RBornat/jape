@@ -25,12 +25,8 @@ TACTIC ForwardOrBackward (Forward, n, Rule) IS
 				)
            		)
    
-/* these next tactics needed because we can't give an application of a tactical as an argument ... */
-TACTIC "è-E with side condition hidden" IS LAYOUT "è-E" (0) (WITHARGSEL "è-E")
-TACTIC "ä-I with side condition hidden" IS LAYOUT "ä-I" (0) (WITHARGSEL "ä-I")
-	
-TACTIC "è-E tac" IS ForwardOrBackward ForwardCut 0 "è-E with side condition hidden"
-TACTIC "ä-I tac" IS "ä-I with side condition hidden"
+TACTIC "è-E tac" IS ForwardOrBackward ForwardCut 0 "è-E"
+TACTIC "ä-I tac" IS "ä-I" /* this because it can be overridden, and we refer to it in ItL_hits.j */
 	
 MENU Rules IS
     ENTRY "ç-I"
