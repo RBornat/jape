@@ -48,25 +48,31 @@ public class ProofWindow extends JapeWindow {
 
         getContentPane().setLayout(new BorderLayout()); 
         canvas = new ProofCanvas();
+        canvas.setLayout(null);
         canvas.setSize(LocalSettings.proofPanelDefaultSize);
         proofpane = new JScrollPane(canvas, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                                             JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+
         getContentPane().add(proofpane, BorderLayout.CENTER);
         setBar(); 
         pack();
         setVisible(true);
         focussedproof = this;
 
+        canvas.setBounds(0,0,200,200); // just to see if it makes a difference, which I bet it does ...
+        System.err.println("canvas bounds are "+canvas.getBounds());
+        
         TextItem t = new TextItem(canvas, new Point(50, 50), "foobaz", 2);
         t.selected=true;
-        canvas.registerItem(t);
+        canvas.add(t);
         t = new TextItem(canvas, new Point(50, 100), "is best for you", 2);
         t.selected=true;
         t.greyed=true;
-        canvas.registerItem(t);
+        canvas.add(t);
         t = new TextItem(canvas, new Point(50, 150), "on \u22d6 April \u22d7 Thursdays", 2);
-        canvas.registerItem(t);
-        canvas.repaint();
+        canvas.add(t);
+        // canvas.repaint();
+        
     }
     
     public static ProofWindow spawn(String title, int proofnum) throws ProtocolError {

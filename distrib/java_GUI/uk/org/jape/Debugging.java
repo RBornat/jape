@@ -36,6 +36,6 @@ class Debugging
     static final public boolean canvas_events        = false;
     static final public boolean canvas_itemevents    = false;
 
-    static final public boolean protocol_tracing     = true;
+    static final public boolean protocol_tracing     = false;
 }
 

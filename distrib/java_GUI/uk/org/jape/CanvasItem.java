@@ -69,14 +69,17 @@ abstract class CanvasItem {
             Do we intersect the clip rectangle of this graphics?
     */
     public boolean intersects(Graphics g) {
+        System.err.println("intersects trying "+position.x+", "+position.y+", "+bounds.width+", "+bounds.height);
         return g.hitClip(position.x, position.y, bounds.width, bounds.height); 
     }
     
     /** 
             Invite the canvas to ask the AWT to ask us to paint ourselves.
     */
-    public void repaint() {  
+    public void repaint() {
+        System.err.print("repaint "+this+" in "+canvas.getGraphics());
         canvas.repaint(position.x, position.y, bounds.width, bounds.height);
+        System.err.println(" => "+canvas.getGraphics());
     }
     
     

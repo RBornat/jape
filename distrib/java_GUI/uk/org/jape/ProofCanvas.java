@@ -25,12 +25,12 @@
 
 */
 
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.Enumeration;
 import java.awt.Graphics;
 import java.util.Hashtable;
+import javax.swing.JPanel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseEvent;
@@ -42,7 +42,7 @@ import javax.swing.Scrollable;
         A basic Jape proof canvas.
 */
 
-public class ProofCanvas extends Canvas implements Scrollable {
+public class ProofCanvas extends JPanel implements Scrollable {
 
     public Dimension getPreferredScrollableViewportSize() {
         return LocalSettings.proofPanelDefaultSize;
@@ -71,8 +71,8 @@ public class ProofCanvas extends Canvas implements Scrollable {
     /*
         Assignment of buttons to functions.
      */
-    static  int HitButton        = 1;
-    static  int TextSelectButton = 2;
+    static final int HitButton        = 1;
+    static final int TextSelectButton = 2;
 
     public ProofCanvas() { 
     addMouseListener( 
@@ -93,7 +93,7 @@ public class ProofCanvas extends Canvas implements Scrollable {
     MouseEvent lastEvent;      // the last event itself
     int        lastButton;     // the last (virtual) button (in 1, 2, 3)
     CanvasItem lastItem,       // item (if any) on which the last event happened
-                focussedItem;   // item with the focus (if any)
+               focussedItem;   // item with the focus (if any)
 
     /** Find (if any) the item containing the given event and
         switch (if necessary) the focus from the focussed item
@@ -212,18 +212,28 @@ public class ProofCanvas extends Canvas implements Scrollable {
                 mapping(pos).position = pos
     </code>
     */
+
     protected Hashtable items = new Hashtable();
-    public void registerItem(CanvasItem c) { items.put(c.position, c); }
+
+    public void add(CanvasItem c) {
+        super.add((Component)c);
+        items.put(c.position, c);
+    }
     
     //*************** Painting Interface with the AWT
     
     
     /** Repaint the canvas. */
-    public void paint(Graphics g) {  
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        System.err.println("paintComponent in proofCanvas "+g+",clipBounds="+g.getClipBounds()+",bounds="+getBounds());
         for (Enumeration is = items.elements(); is.hasMoreElements(); ) { 
             CanvasItem i = (CanvasItem) is.nextElement();
-            if (i.intersects(g)) 
+            System.err.println("looking at "+i);
+            if (i.intersects(g)) {
+                System.err.println("painting "+i);
                 i.paint(g);
+            } 
         }
         if (Debugging.canvas_bbox) {  
             Rectangle bbox = computeBounds();
@@ -243,17 +253,20 @@ public class ProofCanvas extends Canvas implements Scrollable {
     */
     public void repaint() {  
         Rectangle bbox = computeBounds();
-        repaint(bbox.x, bbox.y, bbox.width, bbox.height);
+        super.repaint(bbox.x, bbox.y, bbox.width, bbox.height);
     }
 
     /** Compute the bounding box of the proof that's being shown. */
     public Rectangle computeBounds() { 
         Rectangle r = null;
-        for (Enumeration is = items.elements(); is.hasMoreElements(); ) { 
-            CanvasItem i = (CanvasItem) is.nextElement();
-            Rectangle bbox = new Rectangle(i.position.x, i.position.y, i.bounds.width, i.bounds.height);
-            if (r==null) r=bbox; else r.add(bbox);
-        } 
+        if (items!=null) // this can be called during initialisation
+            for (Enumeration is = items.elements(); is.hasMoreElements(); ) { 
+                CanvasItem i = (CanvasItem) is.nextElement();
+                Rectangle bbox = new Rectangle(i.position.x, i.position.y, i.bounds.width, i.bounds.height);
+                System.err.println("adding item "+i+" = "+bbox);
+                if (r==null) r=bbox; else r.add(bbox);
+            }
+        System.err.println("ProofCanvas.computeBounds: "+items+"; "+r);
         return r==null ? new Rectangle() : r;
     }
 
@@ -306,5 +319,8 @@ public class ProofCanvas extends Canvas implements Scrollable {
     // Size of the frame around text items. */
     public Dimension textInset = new Dimension(3, 3);
 
-
+    public String toString() {
+        return "ProofCanvas ["+super.toString()+";lastPos="+lastPos+",lastEvent="+lastEvent+",lastButton="+lastButton+",lastItem="+lastItem+",focussedItem="+focussedItem+",items="+items+",menuFont="+menuFont+",commentFont="+commentFont+"proofFont="+proofFont+",fonts="+fonts+",textInset="+textInset+"]";
+    }
+    
 }

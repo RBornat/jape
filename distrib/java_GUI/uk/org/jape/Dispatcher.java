@@ -54,11 +54,9 @@ public class Dispatcher extends Thread {
         try {
             while (true) {
                 String line = in.readLine();
-                if (Debugging.protocol_tracing)
-                    System.err.println("dispatcher reads "+line);
                 String[] command = japesplit(line);
                 if (Debugging.protocol_tracing) {
-                    showcommand("which is, being translated,", command);
+                    showcommand("dispatcher reads ("+command.length+") ", command);
                 }
                 
                 try {
