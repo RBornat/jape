@@ -2,26 +2,26 @@ import java.io.*;
 import bootstrap.*;
 
 /**
-        This java class is loaded and instantiated (once) dynamically
-        by the generic bootstrap installer when the installation
-        files have been unpacked and the install directory has been
-        chosen.
+	This java class is loaded and instantiated (once) dynamically
+	by the generic bootstrap installer when the installation
+	files have been unpacked and the install directory has been
+	chosen.
 
-        On instantiation it makes a command file that does 
-        the final Windows shortcut construction for Jape.
+	On instantiation it makes a command file that does 
+	the final Windows shortcut construction for Jape.
 
-        This complexity is needed because we want to make a shortcut that
-        starts the Jape.jar file in the examples directory. Getting
-        the various levels of quotation needed to call the shortcut
-        binding program correct within a cmd script would be
-        utterly dementing.
+	This complexity is needed because we want to make a shortcut that
+	starts the Jape.jar file in the examples directory. Getting
+	the various levels of quotation needed to call the shortcut
+	binding program correct within a cmd script would be
+	utterly dementing.
 */
 
 public class installjape 
 {
    static String javaPath    = System.getProperty("java.home");
    static String currentPath = System.getProperty("user.dir");
-   static String fsep        = System.getProperty("file.separator");
+   static String fsep	     = System.getProperty("file.separator");
    static String INSTALL     = System.getProperty("INSTALL");
 
    static String QUOTEDINSTALLFILE(String path)
