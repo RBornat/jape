@@ -34,13 +34,13 @@ import java.awt.event.ActionListener;
 import javax.swing.Timer;
 
 public class Flyback implements ActionListener, MiscellaneousConstants {
-    Component c;
+    DragComponent c;
     Timer timer;
 
     int lastx, lasty, destx, desty;
     long interval;
     
-    public Flyback(Component c, Point start, Point dest) {
+    public Flyback(DragComponent c, Point start, Point dest) {
         this.c = c;
         this.lastx = start.x; this.lasty = start.y;
         this.destx = dest.x; this.desty = dest.y;
@@ -67,9 +67,7 @@ public class Flyback implements ActionListener, MiscellaneousConstants {
         }
         else {
             int nextx = lastx+delta(lastx, destx), nexty = lasty+delta(lasty, desty);
-            c.repaint(interval);
-            c.setLocation(nextx, nexty);
-            c.repaint(interval);
+            c.moveTo(nextx, nexty);
             lastx = nextx; lasty = nexty;
         }
     }
