@@ -43,6 +43,8 @@
 				F58AB2C203780C4001A80116,
 				F58AB2C80378188901A80116,
 				F57EF912039507ED01A80116,
+				F5E142E0039E1E4001A80116,
+				F5158C91039E2C6101A80116,
 				F515271D037BB83201A80116,
 				F586B1630326408D01A80117,
 				F515B6080331D98801A80116,
@@ -93,6 +95,7 @@
 				F5152726037BCC1A01A80116,
 				F52B56B1039D210801A80116,
 				F57EF90F039503AE01A80116,
+				F5158C94039E321E01A80116,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -317,6 +320,9 @@
 				F54C942B039D03FB01A80116,
 				F52B56B2039D210801A80116,
 				F52B56B8039D296801A80116,
+				F5E142E1039E1E4001A80116,
+				F5158C92039E2C6101A80116,
+				F5158C95039E321E01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -475,6 +481,42 @@
 		};
 		F515272B037BD50101A80116 = {
 			fileRef = F5152729037BD50101A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5158C91039E2C6101A80116 = {
+			isa = PBXFileReference;
+			name = DragWorldLine.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DragWorldLine.java;
+			refType = 0;
+		};
+		F5158C92039E2C6101A80116 = {
+			fileRef = F5158C91039E2C6101A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5158C93039E2C6101A80116 = {
+			fileRef = F5158C91039E2C6101A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5158C94039E321E01A80116 = {
+			isa = PBXFileReference;
+			name = DragLine.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DragLine.java;
+			refType = 0;
+		};
+		F5158C95039E321E01A80116 = {
+			fileRef = F5158C94039E321E01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5158C96039E321E01A80116 = {
+			fileRef = F5158C94039E321E01A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -1240,6 +1282,9 @@
 				F54C942C039D03FB01A80116,
 				F52B56B3039D210801A80116,
 				F52B56B9039D296801A80116,
+				F5E142E2039E1E4001A80116,
+				F5158C93039E2C6101A80116,
+				F5158C96039E321E01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1533,6 +1578,24 @@
 		};
 		F5DFE22B03953DAD01A80116 = {
 			fileRef = F5DFE22903953DAD01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E142E0039E1E4001A80116 = {
+			isa = PBXFileReference;
+			name = DragImage.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DragImage.java;
+			refType = 0;
+		};
+		F5E142E1039E1E4001A80116 = {
+			fileRef = F5E142E0039E1E4001A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E142E2039E1E4001A80116 = {
+			fileRef = F5E142E0039E1E4001A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
