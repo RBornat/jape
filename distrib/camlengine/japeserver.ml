@@ -11,22 +11,22 @@
 
 open Array
 
-open Box.M
-open Displayfont.M
-open Displayclass.M
+open Box
+open Displayfont
+open Displayclass
 open Listfuns.M
 open Miscellaneous.M
 open Sml.M
 
-type box = Box.M.box
- and displayclass = Displayclass.M.displayclass
- and font = Displayfont.M.displayfont
- and pane = Displayfont.M.pane
+type box = Box.box
+ and displayclass = Displayclass.displayclass
+ and font = Displayfont.displayfont
+ and pane = Displayfont.pane
  and panelbuttoninsert = Panelkind.M.panelbuttoninsert
  and panelkind = Panelkind.M.panelkind
- and pos = Box.M.pos
- and size = Box.M.size
- and textsize = Box.M.textsize
+ and pos = Box.pos
+ and size = Box.size
+ and textsize = Box.textsize
 
 let version =
   "$Id$"
@@ -46,12 +46,16 @@ let serverresponded = ref false
 let stopserver () =
   match !serverpid with 
     Some pid -> 
-      let was = Sys.signal Sys.sigpipe (Sys.Signal_handle (fun _ -> ())) in
       serverpid := None;
-      (try close_in !infromserver with exn -> consolereport ["can't close !infromserver "; Printexc.to_string exn]; ());
-      (try close_out !outtoserver with exn -> consolereport ["can't close !outfromserver "; Printexc.to_string exn]; ());
+      (try close_in !infromserver with _ -> ());
+      (* there is absolutely no way to stop the close_out failing and giving an exception
+       * if the server has crashed. But it doesn't matter too much, because in that case
+       * the program is going to exit anyway ... *)
+      (try close_out !outtoserver with _ -> ());
       (try Unix.kill pid Sys.sigkill with _ -> ());
-      Sys.set_signal Sys.sigpipe was
+      (* next line ensures that if we didn't close the stream, we'll get a 
+       * sigpipe signal on exit. It looks nicer than an exception. *)
+      Sys.set_signal Sys.sigpipe Sys.Signal_default
   | None -> ()
 
 exception DeadServer_
@@ -64,12 +68,12 @@ let deadserver () =
   raise DeadServer_
   
 let rec startserver server args =
-  Sys.set_signal Sys.sigpipe Sys.Signal_ignore;
   stopserver (); 
   let (pid, iii, ooo) = Moresys.execute server args in
   infromserver := iii; outtoserver := ooo;
   servername := server; serverpid := Some pid;
-  serverresponded := false
+  serverresponded := false;
+  Sys.set_signal Sys.sigpipe Sys.Signal_ignore
 
 and write s = out s; out "\n"; flush s
 and out s = 
@@ -77,13 +81,15 @@ and out s =
      has crashed, could generate a broken pipe signal
    *)
   try output_string !outtoserver s 
-  with exn -> consolereport [Printexc.to_string exn; " in Japeserver.out "];
+  with Sys_error("Broken pipe") -> deadserver()
+  |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.out "];
               deadserver()
 
 (* if the server is dead, this will definitely cause a problem *)
 and flush s =
   try Pervasives.flush !outtoserver 
-  with exn -> consolereport [Printexc.to_string exn; " in Japeserver.flush "; s];
+  with Sys_error("Broken pipe") -> deadserver()
+  |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.flush "; s];
               deadserver()
 
 let rec visible s = implode (List.map vis (explode s))
@@ -97,7 +103,8 @@ let rec front =
 let rec readline s = 
   (flush s; 
   let r = front (try input_line !infromserver
-                 with exn -> consolereport [Printexc.to_string exn; " in Japeserver.readline "; s];
+                 with End_of_file -> deadserver()
+                 |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.readline "; s];
                              deadserver())
   in
   serverresponded := true; r)
@@ -259,7 +266,7 @@ let rec drawmeasuredtext class__ lines pos =
   match lines with
     [pos', font, string] ->
       let fontn = displayfont2int font in
-      drawstring (fontn, classn, string, Box.M.( +->+ ) (pos, pos'))
+      drawstring (fontn, classn, string, Box.( +->+ ) (pos, pos'))
   | [] -> ()
   | _ ->
       raise
