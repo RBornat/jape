@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -242,24 +242,25 @@ let resetfontnames () = fontnames := Array.make 0 ""
 
 let setFontNames fs =
    if List.length fs = 0 then 
-	 raise (Catastrophe_ ["Japeserver.setFontNames: empty font name list"])
+     raise (Catastrophe_ ["Japeserver.setFontNames: empty font name list"])
    else 
-	 fontnames := Array.of_list fs
+     fontnames := Array.of_list fs
 
 let rec getfontname n =
   try Array.get !fontnames n with
   Invalid_argument "Array.get" -> (
     if length !fontnames = 0 then (* we never initialised it *) (
-	  writef "FONTNAMES\n" [];
-	  let fs = strings_of_reply (readline "FONTNAMES") in 
-	  setFontNames fs; getfontname n )
-	else
-	  raise (Catastrophe_ ["Japeserver.getfontname can't decode fontnumber "; string_of_int n])
+      writef "FONTNAMES\n" [];
+      let fs = strings_of_reply (readline "FONTNAMES") in 
+      setFontNames fs; getfontname n )
+    else
+      raise (Catastrophe_ ["Japeserver.getfontname can't decode fontnumber "; string_of_int n])
   )
   
 open Hashtbl
 
-let stringSizeCache : (string*string, int*int*int) Hashtbl.t = Hashtbl.create 251 (* usual comment *)
+let stringSizeCache : (string*string, int*int*int) Hashtbl.t = 
+  Hashtbl.create 251 (* usual comment *)
 
 exception Measurestring_ of int * string * int list
 
@@ -268,13 +269,13 @@ let rec measurestring font string =
   let fontname = getfontname fontnum in
   try Hashtbl.find stringSizeCache (fontname,string) with
   Not_found -> (
-	let wad = 
-	  match askf "STRINGSIZE % %\n" [Int fontnum; Str (printable string)] with
-		[width; asc; desc] -> width, asc, desc
-	  | ns                 -> raise (Measurestring_ (fontnum, printable string, ns))
-	in
-	Hashtbl.add stringSizeCache (fontname,string) wad;
-	wad
+    let wad = 
+      match askf "STRINGSIZE % %\n" [Int fontnum; Str (printable string)] with
+        [width; asc; desc] -> width, asc, desc
+      | ns                 -> raise (Measurestring_ (fontnum, printable string, ns))
+    in
+    Hashtbl.add stringSizeCache (fontname,string) wad;
+    wad
   )
 
 let rec loadFont (fontn, name) =
@@ -346,14 +347,23 @@ let rec drawmeasuredtext class__ lines pos =
       List.iter dostring lines;
       writef "DRAWMEASUREDTEXTEND\n" []
 
-let rec procrustes width ellipsis font text =
-  (* if stringwidth(text in font) < width then text else [text] cut to width - widthof ...*)
-  match
-    askf "PROCRUSTES % % % %\n"
-      [Int width; Str ellipsis; Int (int_of_displayfont font); Str text]
-  with
-    [n] -> String.sub text 0 n
-  | _ -> "Procrustes says 'goodness me'"
+(* just like string size, we can't use a procrustean Cache, dammit! *)
+let procrusteanCache : (int*string*string*string, string) Hashtbl.t = 
+  Hashtbl.create 251 (* usual comment *)
+
+let procrustes width ellipsis font text =
+  let fontnum = int_of_displayfont font in
+  let fontname = getfontname fontnum in
+  let arg = (width,text,ellipsis,fontname) in
+  try Hashtbl.find procrusteanCache arg with
+  Not_found -> (
+    let trunc = 
+      writef "PROCRUSTES % % % %\n" [Int width; Str text; Str ellipsis; Int fontnum];
+      readline "PROCRUSTES"
+    in
+    Hashtbl.add procrusteanCache arg trunc;
+    trunc
+  )
 
 let rec howtoTextSelect () = ask "HOWTO textselect"
 let rec howtoFormulaSelect () = ask "HOWTO formulaselect"
@@ -709,14 +719,14 @@ let rec settiles ts =
 let rec setworlds selected worlds =
   writef "WORLDSSTART\n" [];
   List.iter (fun ((cx, cy), emphasis, labels, children) ->
-			   writef "WORLD % % %\n" [Int cx; Int cy; Bool emphasis];
-			   List.iter
-				 (fun (lemph,label) -> 
-				    writef "WORLDLABEL % % % %\n" [Int cx; Int cy; Bool lemph; Str label])
-				 labels;
-			   List.iter
-				 (fun (chx, chy) -> writef "WORLDCHILD % % % %\n" [Int cx; Int cy; Int chx; Int chy])
-				 children)
+               writef "WORLD % % %\n" [Int cx; Int cy; Bool emphasis];
+               List.iter
+                 (fun (lemph,label) -> 
+                    writef "WORLDLABEL % % % %\n" [Int cx; Int cy; Bool lemph; Str label])
+                 labels;
+               List.iter
+                 (fun (chx, chy) -> writef "WORLDCHILD % % % %\n" [Int cx; Int cy; Int chx; Int chy])
+                 children)
              worlds;
   List.iter (fun (sx, sy) -> writef "WORLDSELECT % %\n" [Int sx; Int sy]) selected;
 
@@ -739,12 +749,6 @@ let int_of_displaystyle d =
 let rec setproofparams displaystyle linethicknessval =
   linethickness := linethicknessval;
   writef "SETPROOFPARAMS % %\n" [Int (int_of_displaystyle displaystyle); Int linethicknessval]
-
-
-
-
-
-
 
 
 
