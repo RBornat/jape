@@ -152,10 +152,10 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     }
 
     public String undoSuffix() {
-        if (disproofPane==null)
+        if (disproofPane==null || focussedPane==proofPane)
             return "proof";
         else
-            return "foodle";
+            return "disproof";
     }
 
     public void closeProof() {
@@ -174,6 +174,17 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         }
     }
 
+    // the other sort of focus
+    private Container focussedPane = null;
+
+    protected void claimProofFocus() {
+        focussedPane = proofPane;
+    }
+
+    protected void claimDisproofFocus() {
+        focussedPane = disproofPane;
+    }
+    
     /**********************************************************************************************
 
         Printing
@@ -390,6 +401,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         if (disproofPane==null) {
             disproofPane = new DisproofPane(this, proofCanvas.linethickness);
             disproofPanePending = true;
+            claimProofFocus(); // because nothing happened yet
         }
         return disproofPane;
     }
