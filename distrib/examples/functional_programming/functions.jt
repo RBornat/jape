@@ -14,6 +14,8 @@ SEQUENT IS BAG æ FORMULA
 
 INITIALISE autoAdditiveLeft true
 
+TACTIC Fail (x) IS SEQ (ALERT x) STOP
+
 USE		"equality_rules.j"
 USE		"equality_menus.j"
 USE		"functions_rules.j"

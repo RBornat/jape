@@ -3,10 +3,14 @@
 TACTIC Fail(x) IS (SEQ (ALERT x) FAIL)
 
 TACTIC ForwardCut (n,Rule)
-  SEQ cut (WITHCONTINUATION (WITHARGSEL Rule) (SUBGOAL n) (WITHHYPSEL hyp))
+	SEQ cut (ForwardUncut n Rule)
 
 TACTIC ForwardUncut (n,Rule)
-  SEQ (WITHCONTINUATION (WITHARGSEL Rule) (SUBGOAL n) (WITHHYPSEL hyp))
+	(LETGOALPATH G 
+		(WITHCONTINUATION (WITHARGSEL Rule) (GOALPATH (SUBGOAL G n)) (WITHHYPSEL hyp))
+		(GOALPATH G) 
+		NEXTGOAL
+	)
 
 TACTIC ForwardOrBackward (Forward, n, Rule) IS 
 	WHEN	(LETHYP 

@@ -56,9 +56,11 @@ AND	(OBJECT w1,OBJECT x1,OBJECT y1,OBJECT z1) FROM ä! (w,x,y,z) .A(w,x,y,z)
 		INFER è (w,x,y,z) . è (w1,x1,y1,z1) . A(w,x,y,z)¦A(w1,x1,y1,z1)çw=w1¦x=x1¦y=y1¦z=z1
 END
 
-TACTIC ForwardCut (n,Rule) IS SEQ cut (WITHCONTINUATION (WITHARGSEL Rule) (SUBGOAL n) (WITHHYPSEL hyp))
+TACTIC ForwardCut (n,Rule) IS 
+	SEQ cut (ForwardUncut n rule)
 
-TACTIC ForwardUncut (n, Rule) IS WITHCONTINUATION (WITHARGSEL Rule) (WITHHYPSEL hyp)
+TACTIC ForwardUncut (n, Rule) IS
+	(LETGOALPATH G (WITHCONTINUATION (WITHARGSEL Rule) (GOALPATH G n) (WITHHYPSEL hyp)) (GOALPATH G) NEXTGOAL)
 
 TACTIC FOB (Forward, n, Rule) IS 
 	WHEN 

@@ -4,16 +4,20 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
 	WHEN
 		(LETHYPSUBSTSEL _P 
 			cut
-			ruleRL 
-			(WHEN
-				(LETHYP	_Q 
-					(ALT	(WITHHYPSEL hyp) 
-						(Fail (the hypothesis you formula-selected wasn't a pat formula))
+			(LETGOALPATH G
+				ruleRL 
+				(WHEN
+					(LETHYP	_Q 
+						(ALT	(WITHHYPSEL hyp) 
+							(Fail (the hypothesis you formula-selected wasn't a pat formula))
+						)
 					)
-				)
-				(SUBGOAL 1)
-			) 
-			(WITHSUBSTSEL hyp)
+					(GOALPATH G 1)
+				) 
+				(WITHSUBSTSEL hyp)
+				(GOALPATH G)
+				NEXTGOAL
+			)
 		)
 		(LETCONCSUBSTSEL _P
 			(WITHSUBSTSEL ruleLR)

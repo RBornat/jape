@@ -126,12 +126,12 @@ CONJECTUREPANEL "Reductions"
         AND WHERE fix NOTIN (_T, x, y, f) AND fix, f, x NOTIN F  INFER æ 
             let fix = (û f ¥ ((û x¥F(x x))(û x¥F(x x)))) 
             in  fix (û y ¥ y)  ç _T 
-        AND WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER æ 
+        AND WHERE compose NOTIN (_T, x, f) AND id NOTIN (_T, x, f) INFER æ 
                 /**/
                 let compose = û f ¥ û g ¥ û x ¥ f(g x) in
                 let id =   û x ¥ x in
                 compose id id 1 ç _T
-        AND WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER æ 
+        AND WHERE compose NOTIN (_T, x, f) AND id NOTIN (_T, x, f) INFER æ 
                 /**/
                 let compose = û f ¥ û g ¥ û x ¥ f(g x) in
                 let id =   û x ¥ x in

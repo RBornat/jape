@@ -33,10 +33,10 @@ BIND x SCOPE Q IN let x be P in Q end
 INITIALISE interpretpredicates	true /* allow predicate syntax ... */
 
 TACTIC ForwardCut (n,Rule)
-  SEQ cut (WITHARGSEL Rule) (SUBGOAL n) (WITHHYPSEL hyp)
+	SEQ cut (ForwardUncut n rule)
 
 TACTIC ForwardUncut (n,Rule)
-  SEQ (WITHARGSEL Rule) (SUBGOAL n) (WITHHYPSEL hyp)
+	(LETGOALPATH G (WITHARGSEL Rule) (GOALPATH G n) (WITHHYPSEL hyp) (GOALPATH G) NEXTGOAL)
 
 TACTIC ForwardOrBackward (Forward, n, Rule) IS 
 	WHEN	(LETHYP 

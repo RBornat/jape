@@ -120,8 +120,15 @@ TACTIC UnfoldL(rule) IS
 		(Fail "UnfoldL didn't find a substitution")
 
 TACTIC UnfoldR(rule) IS
-	WHEN (LETSUBSTSEL (_A=_B{_x\_F}) "= transitive" 
-				(SUBGOAL 1) (LAYOUT "Fold %s" () (rewritesmallRL{X,AA,x\_F,_B,_x})) rule)
+	WHEN 
+		(LETSUBSTSEL (_A=_B{_x\_F}) 
+			(LETGOALPATH G
+				"= transitive" 
+				(GOALPATH (SUBGOAL G 1)) 
+				(LAYOUT "Fold %s" () (rewritesmallRL{X,AA,x\_F,_B,_x})) 
+				rule
+			)
+		)
 		(Fail "UnfoldR didn't find a substitution")
 
 TACTIC FoldL(rule) IS
@@ -130,8 +137,15 @@ TACTIC FoldL(rule) IS
 		(Fail "FoldL didn't find a substitution")
 
 TACTIC FoldR(rule) IS
-	WHEN (LETSUBSTSEL (_A=_B{_x\_F}) "= transitive" 
-				(SUBGOAL 1) (LAYOUT "Unfold %s" () (rewritesmalLR{Y,AA,x\_F,_B,_x})) rule)
+	WHEN 
+		(LETSUBSTSEL (_A=_B{_x\_F}) 
+			(LETGOALPATH G
+				"= transitive" 
+				(GOALPATH (SUBGOAL G 1)) 
+				(LAYOUT "Unfold %s" () (rewritesmalLR{Y,AA,x\_F,_B,_x}))
+				rule
+			)
+		)
 		(Fail "FoldR didn't find a substitution")
 
 MENU Edit
@@ -272,13 +286,13 @@ TACTIC FindSelection IS
 
 CONSTANT ASSOCEQ
 
-RULE    rewriteEquation(X, X', Y, Y', OBJECT x) IS
+RULE    rewriteEquation(X, X', Y, Y') IS
 FROM    ASSOCEQ (X, X')
 AND     ASSOCEQ (Y, Y') 
 AND     X'=Y'
 INFER   X=Y
 
-RULE    rewriteHypotheticalEquation(X, X', Y, Y', OBJECT x) IS
+RULE    rewriteHypotheticalEquation(X, X', Y, Y') IS
 FROM    ASSOCEQ (X, X')
 AND     ASSOCEQ (Y, Y') 
 AND     X'=Y'æ P

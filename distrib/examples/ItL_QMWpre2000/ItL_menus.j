@@ -1,27 +1,27 @@
 /* $Id$ */
 
-TACTIC ForwardCut (n,Rule)
-  SEQ cut (WITHARGSEL Rule) (SUBGOAL n) (WITHHYPSEL hyp)
+TACTIC ForwardCut (n,rule)
+	SEQ cut (ForwardUncut n rule)
 
-TACTIC ForwardUncut (n,Rule)
-  SEQ (WITHARGSEL Rule) (SUBGOAL n) (WITHHYPSEL hyp)
+TACTIC ForwardUncut (n,rule)
+	(LETGOALPATH G (WITHARGSEL rule) (GOALPATH (SUBGOAL G n)) (WITHHYPSEL hyp) (GOALPATH G) NEXTGOAL)
 
-TACTIC ForwardOrBackward (Forward, n, Rule) IS 
+TACTIC ForwardOrBackward (Forward, n, rule) IS 
 	WHEN	(LETHYP 
 				_P 
-                          	(ALT	(Forward n Rule)
+                          	(ALT	(Forward n rule)
 					(WHEN	(LETARGSEL _Q 
-                                                              (Fail (Rule is not applicable to assumption ' _P ' with argument ' _Q '))
+                                                              (Fail (rule is not applicable to assumption ' _P ' with argument ' _Q '))
 							)
-							(Fail (Rule is not applicable to assumption ' _P '))
+							(Fail (rule is not applicable to assumption ' _P '))
 					)
                                 )
 			)
-			(ALT	(WITHSELECTIONS Rule)
+			(ALT	(WITHSELECTIONS rule)
                    		(WHEN	(LETARGSEL _P
-                                                	(Fail (Rule is not applicable with argument ' _P '))
+                                                	(Fail (rule is not applicable with argument ' _P '))
                                               	)
-						(Fail (Rule is not applicable))
+						(Fail (rule is not applicable))
 				)
            		)
 	

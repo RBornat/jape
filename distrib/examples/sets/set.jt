@@ -15,5 +15,3 @@ USE "set_menus.j"
 
 INITIALISE hiddenfmt "%s"
 INITIALISE unhiddenfmt "¥%s"
-INITIALISE collapsedfmt "(É)"
-INITIALISE uncollapsedfmt "¥%s"
