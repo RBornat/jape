@@ -170,7 +170,7 @@ TACTIC BackwardWithHyp (gpattern, action, stepname, shape) IS
                 (LETGOAL _A (ComplainBackwardWrongGoal stepname shape))
                 (ALT 
                     (ComplainBackwardConc gpattern stepname shape)
-                    (ComplainBackwardGoal gpattern stepname shape)
+                    (ComplainBackwardNoGoal gpattern stepname shape)
                     (Fail   ("Error in I2L Jape (no error message in BackwardWithHyp [%t] %s [%t]). Tell Richard.",gpattern,stepname,shape))
                 )
 
