@@ -116,7 +116,7 @@ type box = Box.box
  and tree = Absprooftree.tree
 
 let hasrelevanttip el t = Prooftree.Tree.Vistree.hasTip t (* for now *)
-let measurestring f s = Japeserver.measurestring(f,s)
+let measurestring = Japeserver.measurestring
 
 let consolereport = Miscellaneous.consolereport
 let cuthidingdebug = Prooftree.Tree.cuthidingdebug
