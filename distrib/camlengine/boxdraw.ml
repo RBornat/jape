@@ -55,8 +55,8 @@
  * 
  * This was already a fairly large module, though not a particularly complicated
  * algorithm.  It got a lot worse when I modified it to treat cut nodes specially.
- * Some cut nodes couldn't be drawn at all, because of deficiencies of the
- * click-to-select UI mechanism we were using; those that could be drawn fell into
+ * Some cut nodes couldn't be specially treated, because of deficiencies of the
+ * click-to-select UI mechanism we were using; those that could be dealt with fell into
  * two categories.  I decided what to do with a cut line by drawing the
  * antecedents and looking at the result -- normally it was enough to draw the
  * left antecedent to make a decision, but not always.
@@ -718,7 +718,7 @@ type fitchboxrec = { outerbox : box;
  * across a list of subtrees.
  *)
 type laccrec = { id : lineID; acclines : fitchstep list; elbox : box; idW : int;
-                 reasonW : int; assW : int }
+                 reasonW : int; assW : int; lastmulti : bool }
 type lacc = Lacc of laccrec
 
 (* for similar reasons, here is the type of proof layouts *)
@@ -919,9 +919,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
         (elementspos,
          textsize (tsW allsize, tsA allsize - textleading, tsD allsize))
   in
-  (* mkelementsplan *)
            
-           (* make the plan for a single reason, relative to p *)
+  (* make the plan for a single reason, relative to p *)
   let rec mkreasonplan a1 a2 =
     match a1, a2 with
       None, p -> [], emptytextbox
@@ -979,10 +978,13 @@ let rec linearise screenwidth procrustean_reasonW dp =
     textbox2box bigelementsbox, tsW idsize, tsW reasonsize
   in
   let rec startLacc id pos =
-    Lacc {id = id; acclines = []; elbox = box (pos, nullsize); idW = 0; reasonW = 0; assW = 0}
+    Lacc {id = id; acclines = []; elbox = box (pos, nullsize); 
+          idW = 0; reasonW = 0; assW = 0; lastmulti = false}
   in
-  let rec nextpos b leading =
-    if isemptybox b then topleft b else downby (botleft b, leading + 1)
+  let rec nextpos b leading lastmulti thismulti =
+    if isemptybox b then 
+      topleft b 
+    else downby (botleft b, (if lastmulti || thismulti then 2*leading else leading + 1))
   in
   (* idok is what to do if you are an IdDep -- 
    *   true means disappear if you like;
@@ -990,7 +992,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
    *)
   let rec _L wopt hypmap idok dp =
     fun (Lacc {id = id; acclines = lines; elbox = elbox; 
-               idW = idW; reasonW = reasonW; assW = assW} as acc) ->
+               idW = idW; reasonW = reasonW; assW = assW; lastmulti = lastmulti} as acc) ->
       let rec getIdDep el =
         match mapped sameresource hypmap el with
           Some cid -> cid, acc
@@ -1024,19 +1026,23 @@ let rec linearise screenwidth procrustean_reasonW dp =
             acc', Some (pi, rinf, List.rev cids')
       in
       (* plan a line: mkp does the content *)
-      let rec doconcline mkp needsreason (acc, justinf) =
+      (* there's a need to make the leading between multi-line formulae larger, 
+         to produce a visual grouping effect which is currently lacking.
+         But I don't know how to do it (sob!)
+       *)
+      let rec doconcline mkp needsreason (acc, justinf) multi =
         let (Lacc {id = id; acclines = lines; elbox = elbox;
-                   idW = idW; reasonW = reasonW; assW = assW}) = acc in
+                   idW = idW; reasonW = reasonW; assW = assW; lastmulti=lastmulti}) = acc in
         let eplaninf =
           mkelementsplan mkp (not needsreason || opt2bool justinf)
         in
         let (line, ebox, iW, rW) =
           mkLine eplaninf (mkreasonplan justinf) id
-            (nextpos elbox textleading)
+            (nextpos elbox textleading lastmulti multi)
         in
         id,
         Lacc {id = _RR id; acclines = line :: lines; elbox = ( +||+ ) (elbox, ebox);
-              idW = max iW (idW); reasonW = max rW (reasonW); assW = assW}
+              idW = max iW (idW); reasonW = max rW (reasonW); assW = assW; lastmulti=multi}
       in
       (* info to prefix a line with a turnstile *)
       let rec stprefix stopt restf p =
@@ -1057,31 +1063,28 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let concels' =
             match !foldformulae, wopt with
               true, Some bestW ->
-                  (foldformula
-                     (bestW - 2 * posX (topleft elbox) - commaW) <*
-                   concels)
+                   foldformula (bestW - 2 * posX (topleft elbox) - commaW) <* concels
             | _ -> concels
           in
           let rec mkp p =
             stprefix stopt
-              (things2plans (uncurry2 textinfo2plan) commaf nullf
-                 concels')
+              (things2plans (uncurry2 textinfo2plan) commaf nullf concels')
               p
           in
           let (id', acc') =
-            doconcline mkp true (dolinsubs hypmap acc justopt)
+            doconcline mkp true (dolinsubs hypmap acc justopt) (List.length concels'>1)
           in
           LineID id', acc'
       | BoxDep (boxed, words, hypelis, dp) ->
           let (topleftpos, hindent, vindent, innerpos) =
             if boxed then
-              let topleftpos = nextpos elbox boxleading in
+              let topleftpos = nextpos elbox boxleading lastmulti false in
               let hindent = linethickness + boxhspace in
               let vindent = linethickness + boxvspace in
               topleftpos, hindent, vindent,
               topleftpos +->+ pos (hindent, vindent)
             else
-              let topleftpos = nextpos elbox textleading in
+              let topleftpos = nextpos elbox textleading lastmulti false in
               topleftpos, 0, 0, topleftpos
           in
           let hyplines =
@@ -1091,7 +1094,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
                 let rec measureplan (_, ((size, _), _)) = tsW size + commaW (* more or less *) in
                 let mybestW = max (2 * tsW (fst (fst words))) (bestW - 2 * posX innerpos) in
                 minwaste measureplan mybestW
-                  ((fun (e, inf) -> e, if !foldformulae then foldformula mybestW inf else inf) <* hypelis)
+                  ((fun (e, inf) -> e, if !foldformulae then foldformula mybestW inf 
+                                                        else inf) <* hypelis)
           in
           let rec dohypline =
             fun
@@ -1113,7 +1117,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                   (things2plans
                      (uncurry2 textinfo2plan <.> snd)
                      commaf nullf hypelis)
-                  showword id (nextpos elbox textleading)
+                  showword id (nextpos elbox textleading false false)
               in
               let lineassW =
                 match hypelis with
@@ -1124,7 +1128,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
               Lacc {id = _RR id; acclines = line :: lines;
                     elbox = if null lines then linebox else ( +||+ ) (elbox, linebox);
                     idW = max idW lineidW; reasonW = max reasonW linereasonW;
-                    assW = max assW lineassW}
+                    assW = max assW lineassW; lastmulti = false}
           in
           let (hypmap', (Lacc {id = id'} as acc')) =
             nj_revfold dohypline hyplines (hypmap, startLacc id innerpos)
@@ -1146,7 +1150,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                 acclines = 
                   FitchBox {outerbox = outerbox; boxlines = innerlines; boxed = boxed} :: lines;
                 elbox = ( +||+ ) (elbox, outerbox); idW = max idW (idW');
-                reasonW = max reasonW (reasonW'); assW = max assW (assW')}
+                reasonW = max reasonW (reasonW'); assW = max assW (assW'); lastmulti = false }
       | CutDep (ldp, cutel, rdp, tobehidden) ->
           (* this is where we hide cut hypotheses completely, if asked.  If the lhs is a single 
            * line, with some antecedents, we replace references to the cut formula by reference 
@@ -1196,7 +1200,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
               (plan2plans <.> uncurry2 textinfo2plan terminf)
               p
           in
-          let (id'', acc'') = doconcline sourceline false (acc', None) in
+          let (id'', acc'') = doconcline sourceline false (acc', None) false in
           let rec phase2 ((s, f, just), (_, acc)) =
             let rec mkp p =
               let splan =
@@ -1207,7 +1211,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                    (plan2plans <.> uncurry2 textinfo2plan f <.> 
                     (fun p' -> rightby (p', transindent)))
             in
-            doconcline mkp true (acc, just)
+            doconcline mkp true (acc, just) false
           in
           let (jd, acc''') = nj_fold phase2 revts (id'', acc'') in
           BoxID (id', jd), acc'''
