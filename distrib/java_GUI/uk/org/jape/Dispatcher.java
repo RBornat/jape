@@ -73,13 +73,16 @@ public class Dispatcher extends Thread {
                     // string passing happens a lot, so put it early
                         if (p.equals("STRINGSIZE")&&len==3)
                             Reply.reply(JapeFont.checkedMeasure(toUnicode(command[2]),
-                                                                toByte(command[1])));
+                                                                    toByte(command[1])));
+                        else
+                        if (p.equals("STRINGSIZE")&&len==2) // this can happen ... ask a stupid question
+                            Reply.reply(JapeFont.checkedMeasure("", toByte(command[1])));
                         else
                         if (p.equals("DRAWSTRING")&&len==7)
-                            ProofWindow.drawstring(toInt(command[1]), toInt(command[2]), // x, y
-                                                   toByte(command[3]), toByte(command[4]), // font, kind
-                                                   toUnicode(command[5]),       // annottext
-                                                   toUnicode(command[6]));     // printtext
+                            ProofWindow.drawstring(toInt(command[1]), toInt(command[2]),    // x, y
+                                                    toByte(command[3]), toByte(command[4]), // font, kind
+                                                    toUnicode(command[5]),                  // annottext
+                                                    toUnicode(command[6]));                 // printtext
                         else
                         if (p.equals("DRAWRECT")&&len==5)
                             ProofWindow.drawRect(toInt(command[1]), toInt(command[2]), // x, y

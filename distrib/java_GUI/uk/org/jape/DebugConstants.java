@@ -35,5 +35,7 @@ interface DebugConstants {
     static final public boolean debugTextItem            = false;
 
     static final public boolean containerlayout_tracing  = false;
+    
+    static final public boolean panellayout_tracing      = true;
 }
 

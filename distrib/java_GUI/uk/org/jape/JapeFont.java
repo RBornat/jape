@@ -61,34 +61,37 @@ public class JapeFont {
         }
     }
     
-    private static Font findsubstitute(int style, int size) {
-        P p = new P(style,size);
-        Object o = (Font)substitutes.get(p);
-        if (o==null) {
-            Font f = substituteFont.deriveFont(style, (float)size);
-            substitutes.put(p,f);
-            return f;
+    private static Font deriveFont(Font f, int style, int size) {
+        if (substituteFont==null)
+            return f.deriveFont(style, (float)size);
+        else {
+            P p = new P(style,size);
+            Object o = (Font)substitutes.get(p);
+            if (o==null) {
+                Font f1 = substituteFont.deriveFont(style, (float)size);
+                substitutes.put(p,f1);
+                return f1;
+            }
+            else
+                return (Font)o;
         }
-        else
-            return (Font)o;
     }
 
-    public static final int MENUENTRY = 0;
+    public static final int MENUENTRY   = 0;
     public static final int DIALOGLABEL = 1;
-    public static final int PROOFPANEL = 2;
-    public static final int PANELENTRY = 3;
-    public static final int BUTTON = 4;
+    public static final int PROOFPANEL  = 2;
+    public static final int PANELENTRY  = 3;
+    public static final int PANELBUTTON = 4;
 
     public static void setComponentFont(int kind, Component c) {
         switch (kind) {
-            case MENUENTRY:
+            case MENUENTRY  : 
             case DIALOGLABEL:
-            case PANELENTRY:
-            case BUTTON:
-                if (substituteFont!=null)
-                    mimicFont(c);
-                // else do nothing
-                break;
+                mimicFont(c); break;
+            case PANELENTRY :
+                mimicFont(c, LocalSettings.PanelEntryFontSize); break;
+            case PANELBUTTON:
+                mimicFont(c, LocalSettings.PanelButtonFontSize); break;
             case PROOFPANEL:
                 // don't know yet
                 break;
@@ -99,9 +102,12 @@ public class JapeFont {
 
     private static void mimicFont(Component c) {
         // use size info from component itself
+        mimicFont(c, c.getFont().getSize());
+    }
+
+    private static void mimicFont(Component c, int size) {
         Font f = c.getFont();
-        Font f1 = findsubstitute(f.getStyle(), f.getSize());
-        c.setFont(f1);
+        c.setFont(deriveFont(f, f.getStyle(), size));
     }
 
     private static boolean codecDone = false;
@@ -227,7 +233,7 @@ public class JapeFont {
 
     public final static int termFontNum = 0,  reasonFontNum = 1,  provisoFontNum = 2;
     public static byte[] interfaceFontSizes =
-        new byte[]{ LocalSettings.formulaSize, LocalSettings.reasonSize, LocalSettings.provisoSize };
+        new byte[]{ LocalSettings.FormulaFontSize, LocalSettings.ReasonFontSize, LocalSettings.ProvisoFontSize };
     private static Font[] interfaceFonts;
 
     public static void checkInterfaceFontnum(int fontnum) throws ProtocolError {
@@ -236,13 +242,12 @@ public class JapeFont {
     }
     
     private static void initInterfaceFonts() {
-        codecDone = true;
         if (interfaceFonts==null) {
             codecDone = true;
+            Font base = new Font("sanserif", Font.PLAIN, 1);
             interfaceFonts = new Font[3];
             for (int i=termFontNum; i<=provisoFontNum; i++)
-                interfaceFonts[i] = substituteFont==null ? new Font("sanserif", Font.PLAIN, interfaceFontSizes[i]) :
-                                                           findsubstitute(Font.PLAIN, interfaceFontSizes[i]);
+                interfaceFonts[i] = deriveFont(base, Font.PLAIN, interfaceFontSizes[i]);
         }
     }
 

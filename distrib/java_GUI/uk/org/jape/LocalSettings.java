@@ -47,9 +47,11 @@ public class LocalSettings implements SelectionConstants {
 
     // size of fonts
 
-    public static final byte formulaSize = 18,
-                             reasonSize  = 14,
-                             provisoSize = 14;
+    public static final byte 	FormulaFontSize     = 18,
+                                ReasonFontSize      = 14,
+                                ProvisoFontSize     = 14,
+                                PanelButtonFontSize = 14,
+                                PanelEntryFontSize  = 14;
 
     // what a mouseDown means: see SelectionConstants
     // this stands until people tell me better.

@@ -52,9 +52,11 @@ public class LocalSettings implements MRJAboutHandler,
 
     // size of fonts
 
-    public static final byte formulaSize = 14,
-                             reasonSize  = 11,
-                             provisoSize = 11;
+    public static final byte 	FormulaFontSize     = 14,
+                                ReasonFontSize      = 11,
+                                ProvisoFontSize     = 11,
+                                PanelButtonFontSize = 11,
+                                PanelEntryFontSize  = 11;
 
     // what a mouseDown means: see SelectionConstants
     
