@@ -33,7 +33,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import java.awt.datatransfer.DataFlavor;
+/*import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
 import java.awt.dnd.DragSource;
@@ -48,7 +48,7 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.DropTargetListener;*/
 
 import java.awt.event.MouseEvent;
 
@@ -60,9 +60,9 @@ import java.util.Vector;
 
 import javax.swing.SwingUtilities;
 
-public class WorldItem extends DisplayItem implements DebugConstants, SelectionConstants,
+public class WorldItem extends DisplayItem implements DebugConstants, SelectionConstants/*,
                                                       DragSourceListener, DragGestureListener,
-                                                      DropTargetListener {
+                                                      DropTargetListener */{
 
     protected WorldCanvas canvas;
     protected Container layeredPane;
@@ -73,8 +73,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
     private int labelx;
     private Vector labelv = new Vector();
 
-    public static DataFlavor worldFlavor;
-    private DragSource dragSource;
+    /*public static DataFlavor worldFlavor;
+    private DragSource dragSource;*/
 
     public WorldItem(WorldCanvas canvas, Container layeredPane, int x, int y) {
         super(x, y);
@@ -90,8 +90,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
         if (geometry_tracing)
             System.err.println("world bounds are "+getBounds()+"; outline is "+outline.getBounds2D());
 
-        setEnabled(true); // I think this is necessary for dragTarget behaviour
-        setDropTarget(new DropTarget(this, this));
+       /* setEnabled(true); // I think this is necessary for dragTarget behaviour
+        setDropTarget(new DropTarget(this, this));*/
 
         setForeground(Preferences.WorldColour);
 
@@ -113,7 +113,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
             }
         }); */
         
-        if (worldFlavor==null) {
+        /*if (worldFlavor==null) {
             try {
                 worldFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType+
                                             "; class="+this.getClass().getName());
@@ -123,8 +123,10 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
         }
 
         dragSource = new DragSource();
-        dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_MOVE, this);
+        dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_MOVE, this);*/
     }
+
+    private boolean dragImageUpdateNeeded = true;
 
     public void addlabel(String s) {
         TextItem t = canvas.addLabelItem(labelx, y0, s);
@@ -177,7 +179,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
 
     /* ****************************** world as drag source ****************************** */
 
-    protected class WorldTransferable implements Transferable {
+    /*protected class WorldTransferable implements Transferable {
         public Object getTransferData(DataFlavor flavor) {
             return WorldItem.this;
         }
@@ -191,7 +193,6 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
 
     private BufferedImage image;
     private Rectangle imagebounds;
-    private boolean dragImageUpdateNeeded = true;
     private Point from;
 
     private void paintStuff(Component c, Graphics imageGraphics) {
@@ -255,17 +256,12 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
         if (dragimage_tracing)
             System.err.println("draggedTo from="+from+"; to="+to+"; ("+idX+","+idY+"); ("+
                                (idX+to.x-from.x)+","+(idY-(to.y-from.y))+")");
-        /*if (japeserver.onMacOS) {
-            if (dragimage_tracing)
-                System.err.println("MacOS error correction -3, "+(-3-(getY()-imagebounds.y)/2));
-            to.translate(-3,-3-(getY()-imagebounds.y)/2); // this is consistent, but I don't know why
-        }*/
         Reply.sendCOMMAND("moveworld "+idX+" "+idY+" "+(idX+to.x-from.x)+" "+(idY-(to.y-from.y)));
-    }
+    }*/
 
     /* ****************************** world as drag target ****************************** */
     
-    private boolean draghighlight;
+   /* private boolean draghighlight;
     Color oldForeground;
     
     private void setdraghighlight(boolean state) {
@@ -326,5 +322,5 @@ public class WorldItem extends DisplayItem implements DebugConstants, SelectionC
 
     // Called if the user has modified the current drop gesture
     public void dropActionChanged(DropTargetDragEvent dtde) {
-    }
+    }*/
 }

@@ -34,19 +34,19 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
-import java.awt.dnd.DnDConstants;
+/*import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetContext;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.DropTargetListener;*/
 
 import java.awt.image.BufferedImage;
 
 import javax.swing.SwingUtilities;
 
-public class WorldCanvas extends JapeCanvas implements DebugConstants, DropTargetListener {
+public class WorldCanvas extends JapeCanvas implements DebugConstants/*, DropTargetListener */{
 
     protected RenderingHints renderingHints;
     protected Container layeredPane;
@@ -61,7 +61,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, DropTarge
         renderingHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         Point origin = getOrigin();
         setOrigin(origin.x, origin.y+2*worldRadius());
-        setDropTarget(new DropTarget(this, this));
+        /*setDropTarget(new DropTarget(this, this));*/
     }
 
     // It is worth demanding good antialiasing when drawing blobs, rings, diagonal lines.
@@ -198,7 +198,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, DropTarge
 
     /* ****************************** canvas as drag target ****************************** */
 
-    // Called when a drag operation has encountered the DropTarget.
+   /* // Called when a drag operation has encountered the DropTarget.
     public void dragEnter(DropTargetDragEvent event) {
         if (dragimage_tracing)
             System.err.println("Canvas dragEnter "+event.getLocation());
@@ -255,5 +255,5 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, DropTarge
 
     // Called if the user has modified the current drop gesture
     public void dropActionChanged(DropTargetDragEvent event) {
-    }
+    }*/
 }
