@@ -83,6 +83,12 @@ discursive account of the theory is given in that paper.
     SEPARATOR
       CHECKBOX   hidetransitivity "Transitive Rule Display" INITIALLY false
       CHECKBOX   hidereflexivity  "Hide Identity Steps"     INITIALLY false
+       RADIOBUTTON oneSmallStep  "Small Step Normal Order"      IS NormalStep
+       AND                       "Small Step Applicative Order" IS ApplicativeStep
+       END
+       RADIOBUTTON oneBigStep "Big Step Normal Order"      IS BigNormalStep
+       AND                    "Big Step Applicative Order" IS BigApplicativeStep
+       END
     END
     TACTIC NormalStep()
     (ALT Beta Add Let
@@ -114,14 +120,12 @@ discursive account of the theory is given in that paper.
           (LETGOAL (~ _num      ç* _T) Identity)
           (LETGOAL ((û _x¥_E)   ç* _T) Identity)
           (TransitiveStep tactic))
-    CONJECTUREPANEL "Structural Semantics"
-       RADIOBUTTON oneSmallStep  "Normal Order"      IS NormalStep
-       AND                       "Applicative Order" IS ApplicativeStep
-       END
 
+    CONJECTUREPANEL "Structural Semantics"
        BUTTON Step    IS apply SingleStep oneSmallStep
        BUTTON "Step*" IS apply RepeatStep oneSmallStep
     END
+    
    RULES Apply ARE
      INFER (û x ¥ E') E ç E'[E/x]
    AND
@@ -179,12 +183,10 @@ discursive account of the theory is given in that paper.
           (LETGOAL (let _x = _S in _T Û  _U) "LetÛ")
           (LETGOAL (_S + _T           ç  _U) Add)
           (LETGOAL (_S + _T           Û  _U) "AddÛ")))
-   CONJECTUREPANEL "Natural Semantics"
-    RADIOBUTTON oneBigStep "Normal Order"      IS BigNormalStep
-    AND                    "Applicative Order" IS BigApplicativeStep
-    END
 
+   CONJECTUREPANEL "Natural Semantics"
     BUTTON Step IS apply oneBigStep
+    
 
     THEOREMS BigStepThms
     ARE æ let f = (û x ¥ x) in f f 1Û _T
@@ -197,7 +199,8 @@ discursive account of the theory is given in that paper.
     AND æ let g = (û f ¥ f f) in
           let k = (û a ¥ û b ¥ a) in k 2 (g g) Û _T
     END
-END
+    END
+    
     MENU "Deterministic Rules"
      RULE   "AppÆ"   IS FROM æ F Û (û x ¥S) AND æ S[A/x] Û U INFER æ F A Û U
      RULE   "LetÆ"   IS FROM æ S[A/x] Û U INFER æ let x=A in S Û U
@@ -256,3 +259,4 @@ END
 
        ENTRY Evaluate IS (DO (EvalStep))
      END
+
