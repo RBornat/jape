@@ -44,6 +44,8 @@ import java.awt.dnd.DragSourceListener;
 
 import java.awt.event.MouseEvent;
 
+import java.awt.image.BufferedImage;
+
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
@@ -144,8 +146,31 @@ public class Tile extends JLabel implements DebugConstants,
         }
     }
 
+    private BufferedImage image;
+    
     public void dragGestureRecognized(DragGestureEvent event) {
-        dragSource.startDrag (event, DragSource.DefaultCopyDrop, new TileTransferable(), this);
+        if (japeserver.onMacOS || !DragSource.isDragImageSupported()) {
+            if (dragimage_tracing && !japeserver.onMacOS)
+                System.err.println("dragging without dragImage support");
+            dragSource.startDrag (event, DragSource.DefaultCopyDrop, new TileTransferable(), this);
+        }
+        else {
+            Point origin = event.getDragOrigin();
+            if (dragimage_tracing)
+                System.err.println("dragging with dragImage support; dragOrigin="+origin);
+            if (image==null) {
+                int width = getWidth(), height = getHeight();
+                image = (BufferedImage)createImage(width, height);
+                Graphics imageGraphics = image.createGraphics();
+                imageGraphics.setColor(Preferences.ProofBackgroundColour);
+                imageGraphics.fillRect(0, 0, width, height);
+                paint(imageGraphics);
+                imageGraphics.dispose();
+            }
+            dragSource.startDrag(event, DragSource.DefaultCopyDrop, image,
+                                 new Point(-origin.x, -origin.y),
+                                 new TileTransferable(), this);
+        }
     }
 
     public void dragEnter(DragSourceDragEvent event) { }
