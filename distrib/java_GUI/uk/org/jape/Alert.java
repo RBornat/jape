@@ -27,10 +27,12 @@
 
 import java.awt.Component;
 import java.awt.Container;
+
+import java.util.Vector;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import java.util.Vector;
 
 public class Alert implements DebugConstants {
     // oh the ceaseless dance of interface conversions ..
