@@ -29,16 +29,18 @@ DEPLOYEDENGINE=jape.exe
 #       Make the appropriate script file (with installjape.class)
 #       then make shortcuts to it        (with SHORTCUT.EXE)
 #
-AFTERINSTALL= -cmdwindows   'SHORTCUT.EXE -f -t jape.cmd -n Jape -d . -i japeicon.ico' \
-              -classwindows installjape
+AFTERINSTALL= -classwindows installjape
 
 #
 #       Send the icon, the README, and the specialised code in the jar
 #
-INSTALLRESOURCES=$(BUILDRESOURCES)/README-WINDOWS               \
+INSTALLRESOURCES=$(BUILDRESOURCES)/README-WINDOWS.txt           \
                  $(BUILDRESOURCES)/japeicon.ico                 \
                  $(BUILDRESOURCES)/InstallerKit/SHORTCUT.EXE    \
-                 $(BUILDRESOURCES)/installjape.class
+                 $(BUILDRESOURCES)/installjape.class 
 
 APP="Windows Jape"
+
+
+
 
