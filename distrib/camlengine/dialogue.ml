@@ -1507,12 +1507,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        raise Unify_
                      end
                    else
-                       showproof <.> 
-                       (fun here ->
-                           evolve_proof_explain
-                             (fun () -> showAlert (explain ""))
-                             displaystate env
-                             (forceUnify (args @ selargs)) here)
+                     showproof <.> 
+                     (fun here ->
+                         evolve_proof_explain
+                           (fun () -> showAlert (explain ""))
+                           displaystate env
+                           (forceUnify (args @ selargs)) here)
                  )
             with
               Unify_ -> default
