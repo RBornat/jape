@@ -77,6 +77,7 @@
 				F516FFB9031F825B01A80117,
 				F5E5E3E2035F171101A80116,
 				F5EAC0DB036F473D01A80117,
+				F57E7E00037FBF5401A80116,
 				F5152723037BC71E01A80116,
 				F5152726037BCC1A01A80116,
 			);
@@ -216,6 +217,8 @@
 		<dict>
 			<key>com.apple.macos.useScreenMenuBar</key>
 			<string>true</string>
+			<key>com.apple.macosx.AntiAliasedGraphicsOn</key>
+			<string>false</string>
 			<key>com.apple.mrj.application.apple.menu.about.name</key>
 			<string>jape</string>
 			<key>com.apple.mrj.application.growbox.intrudes</key>
@@ -288,6 +291,7 @@
 				F5152724037BC71E01A80116,
 				F5152727037BCC1A01A80116,
 				F515272A037BD50101A80116,
+				F57E7E01037FBF5401A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -834,6 +838,24 @@
 			settings = {
 			};
 		};
+		F57E7E00037FBF5401A80116 = {
+			isa = PBXFileReference;
+			name = Tile.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/Tile.java;
+			refType = 0;
+		};
+		F57E7E01037FBF5401A80116 = {
+			fileRef = F57E7E00037FBF5401A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57E7E02037FBF5401A80116 = {
+			fileRef = F57E7E00037FBF5401A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		F5865C6B035C34DD01A80116 = {
 			fileRef = F515B6050331D98801A80116;
 			isa = PBXBuildFile;
@@ -1035,6 +1057,7 @@
 				F5152725037BC71E01A80116,
 				F5152728037BCC1A01A80116,
 				F515272B037BD50101A80116,
+				F57E7E02037FBF5401A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
