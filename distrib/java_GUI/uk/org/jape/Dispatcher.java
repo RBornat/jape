@@ -221,11 +221,14 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
                     
                     // PROOF commands
-                        if (p.equals("OPENPROOF")&&len==3) 
+                        if (p.equals("OPENPROOF")&&len==3)
                             ProofWindow.spawn(JapeFont.toUnicodeTitle(command[1]), toInt(command[2]));
                         else
-                        if (p.equals("PANEGEOMETRY")&&len==2)
-                            Reply.reply(ProofWindow.getPaneGeometry(toByte(command[1])));
+                        if (p.equals("CLOSEPROOF")&&len==2)
+                            ProofWindow.closeproof(toInt(command[1]));
+                        else
+						if (p.equals("PANEGEOMETRY")&&len==2)
+						Reply.reply(ProofWindow.getPaneGeometry(toByte(command[1])));
                         else
                         if (p.equals("SETPROOFPARAMS")&&len==3)
                             ProofWindow.setProofParams(toByte(command[1]), toInt(command[2]));
