@@ -1042,7 +1042,7 @@ exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
 			 Some (withproofhist (hist, append_step phist proof'))))
     let rec recorddisplayvars env =
       try 
-        (fun s -> termstring (_The (japeenv.at (env, s)))) <* displayvars
+        (fun s -> termstring (_The (Japeenv.M.at (env, s)))) <* displayvars
       with
         _The_ ->
           raise
@@ -1051,7 +1051,7 @@ exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
                 bracketedliststring namestring ", " displayvars;
                 " isn't set!"])
     let rec setdisplayvars env vals =
-      List.iter (fun (s, v) -> japeenv.set (env, s, parseTactic v))
+      List.iter (fun (s, v) -> Japeenv.M.set (env, s, parseTactic v))
         ((displayvars ||| vals))
     (* proofmove doesn't set changed *)
     let rec proofmove =
@@ -1633,21 +1633,21 @@ exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
             | "assign", name :: value ->
                 begin try
                   let value = parseTactic (respace value) in
-                  japeenv.set (env, namefrom name, value);
+                  Japeenv.M.set (env, namefrom name, value);
                   tacticfuns.resetcaches ();
                   default
                 with
-                  japeenv.OutOfRange_ s ->
+                  Japeenv.M.OutOfRange_ s ->
                     showAlert
                       ["error in "; respace c;
                        " --  value assigned should be "; s];
                     default
-                | japeenv.NotJapeVar_ ->
+                | Japeenv.M.NotJapeVar_ ->
                     showAlert
                       ["error in "; respace c; " -- "; name;
                        " is not a Jape variable"];
                     default
-                | japeenv.ReadOnly_ ->
+                | Japeenv.M.ReadOnly_ ->
                     showAlert
                       ["error in "; respace c; " -- "; "you can't assign to ";
                        name; " at this point"];
@@ -1702,7 +1702,7 @@ exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
             | "tellinterface", name :: interfacecommand ->
                 (* Evaluate a variable name; construct a string for the interface *)
                 let str =
-                  match japeenv.at (env, namefrom name) with
+                  match Japeenv.M.at (env, namefrom name) with
                     Some t -> termstring t
                   | None -> ""
                 in
@@ -2122,11 +2122,11 @@ exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
                   | None -> default
                 else default
             | "profile", ["on"] ->
-                japeenv.set (env, namefrom "profiling", parseTactic "true");
+                Japeenv.M.set (env, namefrom "profiling", parseTactic "true");
                 (* achieves profileOn(), I hope *)
                 default
             | "profile", ["off"] ->
-                japeenv.set (env, namefrom "profiling", parseTactic "false");
+                Japeenv.M.set (env, namefrom "profiling", parseTactic "false");
                 (* achieves profileOff(), I hope *)
                 default
             | "profile", ["reset"] -> profileReset (); default
@@ -2321,8 +2321,8 @@ exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
       in
       let rec domb (var, notify) =
         let setting =
-          try _The (japeenv.at (env, var)) with
-            The_ ->
+          try _The (Japeenv.M.at (env, var)) with
+            None_ ->
               raise
                 (Catastrophe_
                    ["domb error: variable "; namestring var;
@@ -2351,9 +2351,9 @@ exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
         begin try
           Japeserver.M.settextselectionmode
             (termstring
-               (_The (japeenv.at (env, namefrom "textselectionmode"))))
+               (_The (Japeenv.M.at (env, namefrom "textselectionmode"))))
         with
-          The_ ->
+          None_ ->
             raise (Catastrophe_ ["textselectionmode not in environment"])
         end;
         (* explicit block so that profiler gives more helpful information *)

@@ -10,6 +10,7 @@ sig
     val explode : string -> string list
     val fst_of_3 : ('a * 'b * 'c) -> 'a
     val fst_of_6 : ('a * 'b * 'c * 'd * 'e * 'f) -> 'a
+    val fst_of_7 : ('a * 'b * 'c * 'd * 'e * 'f * 'g) -> 'a
     val implode : string list -> string
     val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
     val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
@@ -55,6 +56,7 @@ module M : T =
     let thrd (a,b,c) = c
     
     let fst_of_6 (a,b,c,d,e,f) = a
+    let fst_of_7 (a,b,c,d,e,f,g) = a
 
     let null xs = xs=[]
     

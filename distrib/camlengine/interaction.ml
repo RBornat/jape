@@ -106,7 +106,7 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
 	
 	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
 	exception Selection_ = Selection.M.Selection_
-	exception The_ = Optionfuns.M.The_
+	exception None_ = Optionfuns.M.None_
     
     type prooftree = Prooftree.Tree.Fmttree.prooftree
 	 and proofstate = Proofstate.M.proofstate
@@ -401,7 +401,7 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
       let text = Japeserver.M.listen () in
       let rec getdisplay () =
         try _The displayopt with
-          The_ ->
+          None_ ->
             raise
               (Catastrophe_
                  ["no display in getCommand (interaction): "; text])

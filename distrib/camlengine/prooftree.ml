@@ -101,10 +101,12 @@ module type Tree =
                      with type fmt = treeformat and type seq = seq and type name = name
                       and type prooftree = treeformat prooftree
                       and type path = fmtpath and type element = element
+                      and type rewinf = rewinf
     module Vistree : Access
                      with type fmt = visformat and type seq = seq and type name = name
                       and type prooftree = visformat prooftree
                       and type path = vispath and type element = element
+                      and type rewinf = rewinf
     
     val foldedfmt : string ref (* LAYOUT "" ()    *)
     val filteredfmt : string ref (* LAYOUT "" (...) *)

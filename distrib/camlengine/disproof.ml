@@ -262,23 +262,7 @@ module M : T with type element = Term.Funs.element
                 (islabelledparent u c <| dom u)
             in
             Some (doparents u c)
-    (* memoisation -- here only temporarily *)
-    (*
-       val fix: ('a -> 'a) -> 'a
-       val memofix: (''a,'b) mapping ref -> ((''a -> 'b) -> ''a -> 'b) -> ''a -> 'b
-     *)
 
-    let rec fix ff = ff (fix ff)
-    let rec memofix mem ff =
-      (* mf *) let rec proxy a =
-        match at (!mem, a) with
-          Some v -> v
-        | None ->
-            (* (consolereport ["found ", mf a v]; v) *)
-            let v = ff proxy a in(* consolereport["recording ", mf a v]; *)
-             mem := ( ++ ) (!mem, ( |-> ) (a, v)); v
-      in
-      proxy
     (* *********************** semantics *********************** *)
     
     type definition = term * term list * bool * forcedef
@@ -553,21 +537,27 @@ module M : T with type element = Term.Funs.element
     type disproofstaterec =
           { seq : seq; universe : universe; tiles : term list;
             selected : coord list;
-            forcemap : ((coord * term), (bool * bool)) mapping;
+            forcemap : ((coord * term), (bool * bool)) Hashtbl.t;
             conclusive : bool; countermodel : bool }
     type disproofstate = Disproofstate of disproofstaterec
     let catelim_forcedstring =
       catelim_pairstring catelim_boolstring catelim_boolstring ","
+
+    let rec catelim_Hashtblstring astring bstring sepstr mapstr store ss =
+      let mapping = Hashtbl.fold (fun k v kvs -> (k,v)::kvs) store [] in
+      "<<:" ::
+        catelim_liststring
+          (fun (a, b) ss -> "(" :: astring a (sepstr :: bstring b (")" :: ss)))
+          sepstr mapping (":>>" :: ss)
+    let rec _Hashtblstring a b =
+      catelim2stringfn
+        (catelim_Hashtblstring (stringfn2catelim a) (stringfn2catelim b) "+:+" "|:->")
+
     let rec catelim_disproofstatestring =
       fun
         (Disproofstate
-           {seq = seq;
-            universe = universe;
-            selected = selected;
-            tiles = tiles;
-            forcemap = forcemap;
-            conclusive = conclusive;
-            countermodel = countermodel})
+           {seq = seq; universe = universe; selected = selected; tiles = tiles;
+            forcemap = forcemap; conclusive = conclusive; countermodel = countermodel})
         ss ->
         let cbs = catelim_bracketedliststring catelim_boolstring "," in
         "Disproofstate{seq = " ::
@@ -581,10 +571,10 @@ module M : T with type element = Term.Funs.element
                          catelim_bracketedliststring catelim_termstring ","
                            tiles
                            (", forcemap = " ::
-                              catelim_mappingstring
+                              catelim_Hashtblstring
                                 (catelim_pairstring catelim_coordstring
                                    catelim_termstring ",")
-                                catelim_forcedstring "++" forcemap
+                                catelim_forcedstring "+:+" "|:->" forcemap
                                 (", conclusive = " ::
                                    catelim_boolstring conclusive
                                      (", countermodel = " ::
@@ -613,6 +603,9 @@ module M : T with type element = Term.Funs.element
       function
         None -> true
       | Some (Disproofstate {universe = universe}) -> isemptyworld universe
+    
+    let newforcemap () = Hashtbl.create 17 
+    
     let rec evaldisproofstate facts tree =
       fun (Disproofstate
 			 {seq = seq; universe = universe; selected = selected; tiles = tiles}) ->
@@ -632,22 +625,20 @@ module M : T with type element = Term.Funs.element
         in
         match selected with
           [root] ->
-            let forcemap : ((coord * term), (bool * bool)) mapping ref =
-              ref empty
-            in
+            let forcemap = newforcemap () in
             (* fun mf a v = pairstring coordstring smltermstring "," a^"|->"^(catelim2stringfn catelim_forcedstring) v *)
-            let forced = memofix forcemap (unfixedforced facts universe) in
+            let forced = Fix.memofix forcemap (unfixedforced facts universe) in
             let (hs, cs) = seq_forced forced root seq in
             let countermodel =
               _All fst hs && not (List.exists fst cs)
             in
             Disproofstate
               {seq = seq; universe = universe; tiles = tiles; selected = selected;
-               forcemap = !forcemap; conclusive = conclusive; countermodel = countermodel}
+               forcemap = forcemap; conclusive = conclusive; countermodel = countermodel}
         | _ ->
             Disproofstate
               {seq = seq; universe = universe; tiles = tiles; selected = selected;
-               forcemap = empty; conclusive = conclusive; countermodel = false}
+               forcemap = newforcemap (); conclusive = conclusive; countermodel = false}
     exception Disproof_ of string list
     (* sort, eliminating duplicates.  This sort is no longer case sensitive *)
     let rec alphasort sel ts =
@@ -806,7 +797,7 @@ module M : T with type element = Term.Funs.element
             (evaldisproofstate facts tree
                (Disproofstate
                   {seq = seq; universe = mkmap ulist; tiles = tilesort tiles;
-                   selected = [minc]; conclusive = false; forcemap = empty;
+                   selected = [minc]; conclusive = false; forcemap = newforcemap ();
                    countermodel = false}))
     let rec checkdisproof facts tree disproofopt =
       match model2disproofstate facts tree disproofopt with
@@ -828,7 +819,7 @@ module M : T with type element = Term.Funs.element
         evaldisproofstate facts tree
           (Disproofstate
              {seq = seq; universe = emptyworld (); tiles = tilesort tiles;
-              selected = [0, 0]; conclusive = false; forcemap = empty;
+              selected = [0, 0]; conclusive = false; forcemap = newforcemap ();
               countermodel = false})
       in
       match pathopt with
@@ -1096,11 +1087,8 @@ module M : T with type element = Term.Funs.element
     let rec showdisproof =
       fun
         (Disproofstate
-           {seq = seq;
-            universe = universe;
-            tiles = tiles;
-            selected = selected;
-            forcemap = forcemap}) ->
+           {seq = seq; universe = universe; tiles = tiles;
+            selected = selected; forcemap = forcemap}) ->
         (*  val _ = consolereport["showdisproof: seq is ", smlseqstring seq, 
                               "\nforcemap is ", mappingstring (pairstring coordstring smltermstring ",") 
                                                               (catelim2stringfn catelim_forcedstring) forcemap
@@ -1122,20 +1110,16 @@ module M : T with type element = Term.Funs.element
           (* consolereport ["ivb ", smltermstring t, " => ", 
                optionstring (catelim2stringfn catelim_forcedstring) (forcemap at (root,t))]; 
            *)
-          match at (forcemap, (root, t)) with
-            Some (on, lock) ->
-              fst (if on then onbraket else offbraket) ^
-                (if lock then fst lockbraket else "")
-          | None -> fst outbraket
+          try let (on, lock) = Hashtbl.find forcemap (root, t) in
+              fst (if on then onbraket else offbraket) ^ (if lock then fst lockbraket else "")
+          with Not_found -> fst outbraket
         in
         let rec ivk t =
           let t = realterm t in
           (* consolereport ["ivk ", smltermstring t, " => ", string_of_int (forced facts universe root t)]; *)
-          match at (forcemap, (root, t)) with
-            Some (on, lock) ->
-              (if lock then snd lockbraket else "") ^
-                snd (if on then onbraket else offbraket)
-          | None -> snd outbraket
+          try let (on, lock) = Hashtbl.find forcemap (root, t) in
+              (if lock then snd lockbraket else "") ^ snd (if on then onbraket else offbraket)
+          with Not_found -> snd outbraket
         in
         let (seqplan, seqbox) =
           makeseqplan (elementstring_invischoose ivb ivk) true origin seq
@@ -1158,9 +1142,8 @@ module M : T with type element = Term.Funs.element
                    match element2term el with
                      None -> false
                    | Some t ->
-                       match at (forcemap, (root, t)) with
-                         Some (v, _) -> v
-                       | None -> false
+                       try let (v, _) = Hashtbl.find forcemap (root, t) in v
+                       with Not_found -> false
                  in
                  emphasise (seqelementpos seqboxpos seqbox plan) emph
              | _ -> ())

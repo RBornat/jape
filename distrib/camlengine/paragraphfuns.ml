@@ -107,7 +107,7 @@ module M : T =
       in
       let rec newbuttonenv env text var settings defval =
         let defval' =
-          match defval, japeenv.at (env, var), settings with
+          match defval, Japeenv.M.at (env, var), settings with
             Some v, _, _ -> v
           | _, Some v, s :: _ -> termstring v
           | _, _, s :: _ -> s
@@ -207,7 +207,7 @@ module M : T =
           | NotJapeVar_ ->
               lreport [" - it isn't a variable in the environment"]
           | ReadOnly_ ->
-              if japeenv.at (env, name) = Some term then ()
+              if Japeenv.M.at (env, name) = Some term then ()
               else
                 lreport
                   [" - it can't be altered, given the state of other stored values"]

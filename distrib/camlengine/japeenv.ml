@@ -35,7 +35,9 @@ module type T =
     exception ReadOnly_
   end
 
-module M : T =
+module M : T with type term = Term.Funs.term
+			  and type name = Name.M.name
+=
   struct
     open Mappingfuns.M
     open SML.M

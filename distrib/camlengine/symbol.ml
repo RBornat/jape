@@ -393,7 +393,7 @@ module Funs : Funs with type idclass = Idclass.M.idclass
           if hidden then (* Store.delete (!symboltable, oldstring) *)
                          Hashtbl.remove symboltable oldstring
         with
-          The_ -> ()
+          None_ -> ()
         end;
         (* Store.update (!symboltable, string, symbol) *)
         Hashtbl.add symboltable string symbol;
