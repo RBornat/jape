@@ -11,11 +11,11 @@ MENU "Edit"
 	END
 END
 
-USE "SCS_predrules.j"
+USE "SCS_rules.j"
 
 CONJECTUREPANEL "Conjectures"
   THEOREM	modusponens(A,B)	IS A, AçB æ B
   THEOREM	contradiction(A,B)	IS A, ÂA æ B
 END
 
-USE "MCS+SCS_predproblems.j"
+USE "sequent_problems.j"
