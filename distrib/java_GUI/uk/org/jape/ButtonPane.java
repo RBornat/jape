@@ -175,6 +175,7 @@ public class ButtonPane extends Container implements DebugConstants {
                         }
                     }
                     else {
+                        centrerow(pane, i, y, packedwidth+leading, width);
                         y += bh+leading;
                         packedwidth = leading;
                     }
@@ -184,6 +185,7 @@ public class ButtonPane extends Container implements DebugConstants {
                     else
                         packedwidth += bw+leading;
                 }
+                centrerow(pane, buttoncount, y, packedwidth+leading, width);
                 pane.setSize(width, y+bh+leading);
             }
             else
@@ -193,6 +195,17 @@ public class ButtonPane extends Container implements DebugConstants {
                 System.err.print("ButtonPane.layoutContainer: ");
                 japeserver.showContainer(pane);
             }
+        }
+    }
+
+    private void centrerow(Container pane, int lim, int y, int packedwidth, int width) {
+        // centre the buttons for those who like that sort of thing
+        // actually it looks quite nice: think I'll keep it.
+        int shift = (width-packedwidth)/2;
+        for (int i=0; i<lim; i++) {
+            Component c = pane.getComponent(i);
+            if (c.getY()==y)
+                c.setLocation(c.getX()-shift, y);
         }
     }
 }
