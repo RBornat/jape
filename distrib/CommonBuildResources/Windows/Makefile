@@ -26,20 +26,13 @@ BUILTENGINE=jape.exe
 DEPLOYEDENGINE=jape.exe
 
 #
-#       Make the appropriate installation script file (with installjape.class)
-#       then run it as a command. This two-phase approach is complicated, but
-#       works reliably on lots of different variants of windows because
-#       it avoids quotation/antiquotation madness in scripts.
-#
-AFTERINSTALL= -classwindows installjape -cmdwindows '"%INSTALL%installjape.cmd" "%INSTALL%"'
-
-#
 #       Send the icon, the README, and the specialised code in the jar
 #
 INSTALLRESOURCES=$(BUILDRESOURCES)/README-WINDOWS.txt           \
                  -autoicon $(BUILDRESOURCES)/japeicon.ico
 
 APP="Windows Jape"
+
 
 
 

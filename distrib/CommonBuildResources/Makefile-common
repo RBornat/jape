@@ -31,7 +31,7 @@ DEPLOYEDENGINE=jape_engine
 #       SPLASH               -- splash-image for the installer
 #
 #
-AFTERINSTALL=-cmdunix "sh %INSTALL%installjape.sh %INSTALL%"
+AFTERINSTALL=-cmdunix "chmod +x %INSTALL%/jape_engine"
 INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX 
 ENCODERESOURCES=$(ENCODEDIR)/README_encoder.txt $(ENCODEDIR)/encoder.jar
 SPLASH=$(BUILDRESOURCES)/InstallerKit/japesplash.png
@@ -59,6 +59,7 @@ engine:         ; rsync -v -t --exclude="*.cm*" \
                
 cleanengine:    ; rm -f $(COMPILEDIR)/.depend;\
                   rm -f $(COMPILEDIR)/*;\
+                  (cd $(COMPILEDIR); rm -f $(BUILTENGINE) $(DEPLOYEDENGINE) $(ENGINETARGET));\
                   make engine
 
 #
@@ -87,11 +88,6 @@ install:        components; \
 clean:          ; rm -rf tmp; rm -f $(BIN)/Jape.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape 
 
 distribution::  ; make encoder; make components; \
-                  (cd $(BUILDRESOURCES)/InstallerKit; make bootstrap) ;\
-                  (cd $(BUILDRESOURCES); ln -s InstallerKit/bootstrap .;\
-                  make -f Makefile-java installjape.class);\
-                  rm -rf bootstrap; mkdir bootstrap;\
-                  rsync -v -t -r $(BUILDRESOURCES)/InstallerKit/bootstrap/ bootstrap/ ;\
                   make jarfile
 
 examples:       ; ln -s ../../examples .
@@ -103,10 +99,13 @@ jarfile:        examples ; buildinstaller Install$(OS)jape.jar                  
                 -splashside     North   \
                 -installdir     Jape    \
                 -autoinstall    Jape    \
+                $(AFTERINSTALL)         \
                 $(ENCODERESOURCES)      \
                 $(INSTALLRESOURCES)     \
                 $(DEPLOYEDENGINE)       \
                 examples Jape.jar                    
+
+
 
 
 

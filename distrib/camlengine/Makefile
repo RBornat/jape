@@ -36,7 +36,7 @@ CMO = sml.cmo moresys.cmo fix.cmo cache.cmo miscellaneous.cmo reason.cmo answer.
 CMX = $(CMO:.cmo=.cmx)
 
 jape_engine:     $(CMO) main.cmo;   ocamlc   $(SOURCES) $(CAMLDEBUG) -custom -o jape_engine unix.cma $(CMO) main.cmo
-jape_engine.opt: $(CMX) main.cmx;   ocamlopt $(SOURCES) -o jape_engine.opt unix.cmxa $(CMX) main.cmx; mv jape_engine.opt jape_engine
+jape_engine.opt: $(CMX) main.cmx;   ocamlopt $(SOURCES) -o jape_engine.opt unix.cmxa $(CMX) main.cmx
 
 #############################################################################
 #
@@ -44,19 +44,30 @@ jape_engine.opt: $(CMX) main.cmx;   ocamlopt $(SOURCES) -o jape_engine.opt unix.
 #
 #  We don't actually make this target, because we're running on a Unix. 
 #  We do a make -n on it to make a batch file that can be run on Windows. 
+
+#       This constructs an interpreted version 
+#       Obsoleted by the native-code version below.
 #
-jape.exe: $(CMO) main.cmo;\
-          ocamlc $(SOURCES) $(CAMLDEBUG) -custom -o jape.exe unix.cma $(CMO) main.cmo
+#jape.exe: $(CMO) main.cmo;\
+#          ocamlc $(SOURCES) $(CAMLDEBUG) -custom -o jape.exe unix.cma $(CMO) main.cmo
+
+#
+#
+#       This constructs a compiled native-code version
+#        * ocamlopt needs to be installed properly
+#          and supplemented with an assembler (ml) and linker (link)
+#        * These can be gotten by downloading and installing masm32, then
+#          copying masm32/bin/{ml.exe,ml.err,link.exe} into the ocaml bin directory
+#       (BS/RB 22 Mar 2005)    
+#
+jape.exe: $(CMX) main.cmx; ocamlopt $(SOURCES) -o jape.exe unix.cmxa $(CMX) main.cmx
 
 makejape.bat:: ;\
-               echo IGNORE ln -s REPORTS;\
-               ln -sf /users/sufrin/WINDOWS-C-RESOURCES/* .;\
-               echo IT IS SAFE TO IGNORE ln -s REPORTS ABOVE ;\
-               echo cd tmp                                      >  ../makejape.bat;\
-               make -n jape.exe | egrep -v "Entering|Leaving|up to date"   >> ../makejape.bat;\
-               echo cd ..                                       >> ../makejape.bat;\
-               echo NOW RUN makejape.bat ON WINDOZE AND TYPE CR WHEN THROUGH;\
-               read ANSWER             
+   echo cd tmp                                                 >  ../makejape.bat;\
+   make -n jape.exe | egrep -v "Entering|Leaving|up to date"   >> ../makejape.bat;\
+   echo cd ..                                                  >> ../makejape.bat;\
+   echo NOW RUN makejape.bat ON WINDOZE AND TYPE CR WHEN THROUGH;\
+   read ANSWER             
 #
 #
 #
@@ -67,3 +78,6 @@ clean:;                 rm -f *.cmi *.cmo *.cmx *.o
 depend: .depend;        ocamldep *.mli *.ml >.depend
         
 include .depend
+
+
+
