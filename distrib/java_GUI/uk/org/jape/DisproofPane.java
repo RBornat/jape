@@ -45,15 +45,15 @@ public class DisproofPane extends Container implements DebugConstants {
 
     Container layeredPane; // for the draggers and droppers
     
-    public DisproofPane(Container layeredPane) {
+    public DisproofPane(Container layeredPane, int linethickness) {
         super();
-        this.layeredPane = layeredPane;
+        this.layeredPane = layeredPane; this.linethickness = linethickness;
         
         setLayout(new DisproofPaneLayout());
         setBackground(Color.white);
         worldPane = new AnchoredScrollPane();
         add(worldPane);
-        worldCanvas = new WorldCanvas(worldPane.getViewport(), true);
+        worldCanvas = new WorldCanvas(worldPane.getViewport(), layeredPane, true, linethickness);
         worldPane.add(worldCanvas);
         worldPane.setAnchor(AnchoredScrollPane.ANCHOR_SOUTH);
         tileCanvas = new Container() {
