@@ -60,9 +60,9 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     private final int x0, y0, radius, labelgap;
     private int labelx;
-    private Vector labelv = new Vector(),
-                   fromv  = new Vector(),
-                   tov    = new Vector();
+    private Vector labelv = new Vector(), // labels attached to me
+                   fromv  = new Vector(), // lines which lead from me
+                   tov    = new Vector(); // lines which lead to me
     
     public WorldItem(WorldCanvas canvas, JFrame window, int x, int y) {
         super(x, y);
@@ -106,22 +106,32 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         });
     }
 
-    public void registerTo(WorldConnector wc) {
+    private boolean alreadyFrom(WorldItem from) {
         for (int i=0; i<tov.size(); i++) {
             WorldConnector wc1 = (WorldConnector)tov.get(i);
-            if (wc1.from==wc.from)
-                return;
+            if (wc1.from==from)
+                return true;
         }
-        tov.add(wc);
+        return false;
+    }
+    
+    public void registerTo(WorldConnector wc) {
+        if (!alreadyFrom(wc.from))
+            tov.add(wc);
     }
 
-    public void registerFrom(WorldConnector wc) {
+    public boolean alreadyTo(WorldItem to) {
         for (int i=0; i<fromv.size(); i++) {
             WorldConnector wc1 = (WorldConnector)fromv.get(i);
-            if (wc1.to==wc.to)
-                return;
+            if (wc1.to==to)
+                return true;
         }
-        fromv.add(wc);
+        return false;
+    }
+    
+    public void registerFrom(WorldConnector wc) {
+        if (!alreadyTo(wc.to))
+            fromv.add(wc);
     }
 
     public void addlabel(String s) {
@@ -210,7 +220,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             return novelLabel((String)((Tile)o).text);
         else
         if (o instanceof WorldItem)
-            return o!=this;
+            return o!=this && !alreadyFrom((WorldItem) o);
         else
         if (o instanceof WorldLabel)
             return novelLabel((String)((WorldLabel)o).text);
@@ -218,18 +228,32 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             return false;
     }
 
-    public boolean dragEnter(Object o) { 
-        if (acceptDrag(o)) { 
+    private boolean dragEnter(boolean ok) { 
+        if (ok) { 
             setDragHighlight(true); return true;
         }
         else
             return false;
     }
 
-    public void dragExit() {
+    private void dragExit() {
         setDragHighlight(false);
     }
 
+    // LabelTarget
+    public boolean dragEnter(WorldItem w, String label) { return dragEnter(novelLabel(label)); }
+    public void dragExit(WorldItem w, String label) { dragExit(); }
+
+    // TileTarget
+    public boolean dragEnter(Tile t) { return dragEnter(novelLabel(t.text)); }
+    public void dragExit(Tile t) { dragExit(); }
+
+    // WorldTarget
+    public boolean dragEnter(byte dragKind, WorldItem w) {
+        return dragEnter(w!=this && !(dragKind==NewWorldDrag && alreadyFrom(w)));
+    }
+    public void dragExit(byte dragKind, WorldItem w) { dragExit(); }
+    
     /* ****************************** world as drop target ****************************** */
 
     public void drop(WorldItem w, String label) {
@@ -299,10 +323,10 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         return SwingUtilities.convertPoint(this, radius, radius, layeredPane);
     }
 
-    public void addLine(WorldItem w) {
+    public void addLine(WorldItem w, boolean dragParent) {
         DragWorldLine dl = new DragWorldLine(w, worldImage.getX()+offsetx+radius,
                                              worldImage.getY()+offsety+radius,
-                                             canvas.linethickness);
+                                             canvas.linethickness, dragParent);
         worldImage.addFriend(dl);
         layeredPane.add(dl);
         dl.repaint();
@@ -331,12 +355,12 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                 case MoveWorldDrag:
                     setDrageesVisible(false);
                     for (int i=0; i<fromv.size(); i++)
-                        addLine(((WorldConnector)fromv.get(i)).to);
+                        addLine(((WorldConnector)fromv.get(i)).to, true);
                     for (int i=0; i<tov.size(); i++)
-                        addLine(((WorldConnector)tov.get(i)).from);
+                        addLine(((WorldConnector)tov.get(i)).from, false);
                     break;
                 case NewWorldDrag:
-                    addLine(this);
+                    addLine(this, false);
                     break;
                 default:
                     Alert.abort("WorldItem.dragged dragKind="+dragKind);
@@ -357,9 +381,9 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         WorldTarget target = (WorldTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
         if (target!=over) {
             if (over!=null) {
-                over.dragExit(); over=null;
+                over.dragExit(dragKind, WorldItem.this); over=null;
             }
-            if (target!=null && target.dragEnter(WorldItem.this))
+            if (target!=null && target.dragEnter(dragKind, WorldItem.this))
                 over = target;
         }
         lastx = e.getX(); lasty = e.getY();
