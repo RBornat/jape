@@ -44,6 +44,7 @@
                 -tfont      fontname        -- text feedback font  (default Dialog-12)
                 -onunix     "command"       -- specify the post-unpack shell command for Unixoid systems
                 -onwindows  "command"       -- specify the post-unpack shell command for Windoid systems
+                                               this must be a .cmd script (and should also be sent as a resource)
                 -winclass   <class name>    -- specify the post-unpack class to load and instantiate (on Windows)
                 -class      <class name>    -- specify the post-unpack class to load and instantiate (on non-Windows)
                 
@@ -67,8 +68,28 @@
         install process will not succeed.
 
         If $(TARGET).jar file has changed its name since it was
-        made, then the simples way to recover is to change it back
+        made, then the simplest way to recover is to change it back
         to the original and double click on it as above.
+
+        It's usually possible to arrange for a combination of the
+        -onwindows and -winclass switches to create runtime scripts,
+        and to make shortcuts to them with the appropriate icons
+        within. The resource SHORTCUT.EXE (a Win32 program) should
+        be shipped to do the latter job. Here's how it might be used:
+
+        shortcut.exe 
+          -t target file
+          -a arguments
+          -d directory to start in
+          -i iconfile
+          -x index into the iconfile
+          -n name of the shortcut
+          -f force overwrite of existing shortcut
+          -u [natdix or all] show the content of an existing shortcut
+
+        example
+           shortcut.exe -f -t C:\japehome\jape.exe -d C:\japehome -n %userprofile%"\start menu\programs\jape" -i japeicon.ico
+          
         
         UNIXOID INSTALL
         ---------------

@@ -68,10 +68,11 @@ clean:          ; rm -f $(BIN)/japeserver.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/j
 distribution::  ; make components ;\
                   rm -rf bootstrap; mkdir bootstrap;\
                   rsync -v -t $(BUILDRESOURCES)/InstallerKit/bootstrap/install*.class bootstrap/ ;\
-                  rsync -v -t $(BUILDRESOURCES)/InstallerKit/japelogo.gif . ;\
+                  rsync -v -t $(BUILDRESOURCES)/InstallerKit/japesplash.png . ;\
                   make jarfile
 
-jarfile:        ; java bootstrap.install -onunix "sh installjape.sh" -splash japeslash.png $(OS)jape.jar $(DEPLOYMENTKIT) $(DEPLOYEDENGINE) japeserver.jar examples 
+jarfile:        ; java bootstrap.install -onunix "sh installjape.sh" -splash japesplash.png $(OS)jape.jar $(DEPLOYMENTKIT) $(DEPLOYEDENGINE) japeserver.jar examples 
+
 
 
 
