@@ -169,21 +169,20 @@ let rec printProof outstream target goal cxt tree withgoal =
 (* one way of telling that I have the interface and datatypes wrong is all these blasted Catastrophe_ exceptions ... *)
 
 let rec sortoutSelection state pathkind =
-  let (fsels, textsels, givensel) = Japeserver.getAllSelections () in
+  let (proofsels, prooftextsels, givensel) = Japeserver.getAllProofSelections () in
   (* remove invisbra/kets from any text selections we see *)
   let rec deinvis s =
     implode ((fun c -> not (invisible c)) <| explode s)
   in
-  let textsels = List.map (fun (p, ss) -> p, List.map deinvis ss) textsels in
+  let prooftextsels = List.map (fun (p, ss) -> p, List.map deinvis ss) prooftextsels in
   let givensel = List.map deinvis givensel in
   let rec pos2hit pos copt pathkind =
     match locateHit state pos copt pathkind with
       Some h -> h
-    | None ->
-        raise
-          (Catastrophe_
-             ["sortoutSelection (interaction) can't locate ";
-              posstring pos; ", "; optionstring displayclassstring copt])
+    | None   ->
+        raise (Catastrophe_
+                 ["sortoutSelection (interaction) can't locate ";
+                  posstring pos; ", "; optionstring displayclassstring copt])
   in
   let rec hit2fhit a1 a2 =
     match a1, a2 with
@@ -196,7 +195,7 @@ let rec sortoutSelection state pathkind =
   in
   let fhits =
     List.map (fun (pos, class__) -> pos, pos2hit pos (Some class__) pathkind)
-      fsels
+      proofsels
   in
   let thits =
     List.map
@@ -209,9 +208,14 @@ let rec sortoutSelection state pathkind =
             Some h -> hit2fhit "textsel" h
           | None -> hit2fhit "textsel" (pos2hit pos None pathkind)),
          strings)
-      textsels
+      prooftextsels
   in
   List.map snd fhits, thits, givensel
+
+let findDisproofSelections () =
+  let (selstrings, textselstrings) = Japeserver.getAllDisproofSelections () in
+  Listfuns.foldr (fun t ts -> Termparse.term_of_string t::ts) 
+                 (List.map Termparse.term_of_string textselstrings) selstrings
 
 let rec findSelection state =
   let (fhits, thits, givensel) = sortoutSelection state HitPath in
