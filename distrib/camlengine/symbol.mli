@@ -32,7 +32,7 @@ and associativity = Symboltype.associativity
 and idclass = Idclass.idclass
 
 val symboldebug : bool ref
-val enter : string * symbol -> unit
+val enter : string -> symbol -> unit
 val lookup : string -> symbol (* default is ID *)
 val lookupassoc : string -> (bool * associativity) option (* (curried, assoc) - when INFIX... *)
 
@@ -61,9 +61,16 @@ type savedlex
 val pushlex : string -> ucode Stream.t -> savedlex
 val poplex  : savedlex -> unit
 
+val pushSyntax : string -> unit
+val popSyntax  : unit -> unit
+
+val popAllSyntaxes : unit -> unit
+
 val showInputError : (string list -> unit) -> string list -> unit
 val resetSymbols   : unit -> unit
+
 val escapechar : ucode -> ucode
+
 val commasymbol : symbol
 
 val appfix     : int ref

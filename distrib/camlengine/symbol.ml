@@ -71,6 +71,11 @@ let appfix = ref appfix_default
 let substfix = ref substfix_default
 let substsense = ref substsense_default
 
+let (syntaxes : ( string  
+                * (int * int * bool) (* name, appfix, substfix, substsense *)
+                * (string, symbol option) Hashtbl.t) list ref)
+                = ref []
+  
 (* to make test parses silent, parsing functions raise ParseError_,
  * which you can catch and translate into a call of showInputError 
  * if you want to.  RB
@@ -201,37 +206,39 @@ exception Symclass_ of string
 let rec symclass s =
   match lookup s with
     Some (ID (_, Some class__)) -> class__
-  | Some (PREFIX _) -> OperatorClass
-  | Some (POSTFIX _) -> OperatorClass
-  | Some (INFIX _) -> OperatorClass
-  | Some (INFIXC _) -> OperatorClass
-  | Some _ -> raise (Symclass_ s)
-  | None -> lookinIdtree idprefixtree (utf8_explode s)
+  | Some (PREFIX _)             -> OperatorClass
+  | Some (POSTFIX _)            -> OperatorClass
+  | Some (INFIX _)              -> OperatorClass
+  | Some (INFIXC _)             -> OperatorClass
+  | Some _                      -> raise (Symclass_ s)
+  | None                        -> lookinIdtree idprefixtree (utf8_explode s)
 
 let rec reverselookup symbol =
   match symbol with
-    ID (s, _) -> s
-  | UNKNOWN (s, _) -> s
-  | NUM s -> s
-  | STRING s -> s
-  | BRA s -> s
-  | SEP s -> s
-  | KET s -> s
-  | EOF -> ""
-  | PREFIX (_, s) -> s
-  | POSTFIX (_, s) -> s
-  | INFIX (_, _, s) -> s
+    ID        (s, _) -> s
+  | UNKNOWN   (s, _) -> s
+  | NUM            s -> s
+  | STRING         s -> s
+  | BRA            s -> s
+  | SEP            s -> s
+  | KET            s -> s
+  | EOF              -> ""
+  | PREFIX    (_, s) -> s
+  | POSTFIX   (_, s) -> s
+  | INFIX  (_, _, s) -> s
   | INFIXC (_, _, s) -> s
-  | LEFTFIX (_, s) -> s
-  | MIDFIX (_, s) -> s
-  | RIGHTFIX (_, s) -> s
-  | STILE s -> s
-  | SHYID s -> s
-  | _ -> Hashtbl.find reversemapping symbol
+  | LEFTFIX   (_, s) -> s
+  | MIDFIX    (_, s) -> s
+  | RIGHTFIX  (_, s) -> s
+  | STILE          s -> s
+  | SHYID          s -> s
+  | _                -> Hashtbl.find reversemapping symbol
+
 let rec preclassopt =
   function
     Some c -> Prestrs ["Some("; idclassstring c; ")"]
   | None -> Prestrs ["None"]
+
 let rec pre_assoc a =
   match a with
     LeftAssoc      -> Prestr "LeftAssoc"
@@ -255,9 +262,9 @@ let rec pre_SYMBOL s =
   | BRA s'1 -> Prestrs ["BRA \""; s'1; "\""]
   | SEP s'1 -> Prestrs ["SEP \""; s'1; "\""]
   | KET s'1 -> Prestrs ["KET \""; s'1; "\""]
-  | SUBSTBRA -> Prestrs ["SUBSTBRA"; (try " \"" ^ reverselookup SUBSTBRA ^ "\"" with Not_found -> "")]
-  | SUBSTSEP -> Prestrs ["SUBSTSEP"; (try " \"" ^ reverselookup SUBSTSEP ^ "\"" with Not_found -> "")]
-  | SUBSTKET -> Prestrs ["SUBSTKET"; (try " \"" ^ reverselookup SUBSTKET ^ "\"" with Not_found -> "")]
+  | SUBSTBRA -> Prestrs ["SUBSTBRA"; (try " " ^ enQuote (reverselookup SUBSTBRA) with Not_found -> "")]
+  | SUBSTSEP -> Prestrs ["SUBSTSEP"; (try " " ^ enQuote (reverselookup SUBSTSEP) with Not_found -> "")]
+  | SUBSTKET -> Prestrs ["SUBSTKET"; (try " " ^ enQuote (reverselookup SUBSTKET) with Not_found -> "")]
   | EOF -> Prestr "EOF"
   | PREFIX (s'1, s'2) ->
       Prepres
@@ -312,55 +319,109 @@ let rec deregister_op s sym =
     consolereport ["deregister_op "; enQuote s; " "; smlsymbolstring sym];
   optree := deletefromtree (fun (x, y) -> x = y) !optree (utf8_explode s, sym, false)
 
-let rec enter (string, symbol) =
+let isop s = ispunct (utf8_sub s 0)
+
+let hidden symbol =
+  match symbol with
+    SUBSTBRA -> true
+  | SUBSTKET -> true
+  | SUBSTSEP -> true
+  | _ -> false
+
+let delete symbol =
+  let doit () = 
+    let oldstring = reverselookup symbol in
+    if isop oldstring && 
+       (match searchfsm (rootfsm optree) (utf8_explode oldstring) with Found _ -> true | NotFound _ -> false)
+    then 
+      (try deregister_op oldstring symbol 
+       with DeleteFromTree_ -> 
+         let string_of_csrb =
+           triplestring (bracketedliststring (fun i -> "0x"^hexstring_of_int i) ",") 
+                        smlsymbolstring string_of_bool ","
+         in
+         consolereport 
+           ["DeleteFromTree_\n\t"; 
+              pairstring (bracketedliststring string_of_csrb "; ") string_of_csrb "\n\t" 
+                 (summarisetree !optree, (utf8_explode oldstring, symbol, false))]
+      );
+    if hidden symbol then 
+      Hashtbl.remove reversemapping symbol;
+    Hashtbl.remove symboltable oldstring
+  in
+  match symbol with
+    ID (_, None) -> ()
+  | UNKNOWN _    -> ()
+  | _            -> doit ()
+
+let enter string symbol =
   let rec doit () =
-    let isop s = ispunct (utf8_sub s 0) in
-    let hidden =
-      match symbol with
-        SUBSTBRA -> true
-      | SUBSTKET -> true
-      | SUBSTSEP -> true
-      | _ -> false
-    in
     if !symboldebug then
-      consolereport ["enter("; enQuote (pre_Ascii string); ","; smlsymbolstring symbol; ")"];
-    (try
-       let oldstring = reverselookup symbol in
-       if isop oldstring && 
-          (match searchfsm (rootfsm optree) (utf8_explode oldstring) with Found _ -> true | NotFound _ -> false)
-       then 
-         (try deregister_op oldstring symbol 
-          with DeleteFromTree_ -> 
-            let string_of_csrb =
-              triplestring (bracketedliststring (fun i -> "0x"^hexstring_of_int i) ",") 
-                           smlsymbolstring string_of_bool ","
-            in
-            consolereport 
-              ["DeleteFromTree_\n\t"; 
-                 pairstring (bracketedliststring string_of_csrb "; ") string_of_csrb "\n\t" 
-                    (summarisetree !optree, (utf8_explode oldstring, symbol, false))]
-         );
-       if hidden then (* Store.delete (!symboltable, oldstring) *)
-                      Hashtbl.remove symboltable oldstring
-     with Not_found -> ());
+      consolereport ["enter"; enQuote (pre_Ascii string); ""; smlsymbolstring symbol];
+    (try delete symbol with Not_found -> ());
     (* Store.update (!symboltable, string, symbol) *)
     Hashtbl.add symboltable string symbol;
-    if hidden then
+    if hidden symbol then
       Hashtbl.add reversemapping symbol string;
     if isop string then register_op string symbol
   in
   match symbol with
     ID (_, None) -> ()
-  | UNKNOWN _ -> ()
-  | _ -> doit ()
+  | UNKNOWN _    -> ()
+  | _            -> doit ()
+  
+let commasymbol = INFIX (0, TupleAssoc, ",") (* comma is now an operator, and may we be lucky *)
 
+let enterStdSymbols () =
+  enter "(" (BRA "("); (* these two still need special treatment ... *)
+  enter ")"  (KET ")");
+  enter "["  SUBSTBRA;
+  enter "\\" SUBSTSEP;
+  enter "]"  SUBSTKET;
+  enter ""   EOF;
+  enter ","  commasymbol;
+  appfix     := appfix_default;
+  substfix   := substfix_default;
+  substsense := substsense_default
+
+let pushSyntax name =
+  let tbl = Hashtbl.create 30 in
+  syntaxes := (name, (!appfix, !substfix, !substsense), tbl) :: !syntaxes;
+  let doit s t =
+    delete t; Hashtbl.add tbl s (Some t)
+  in
+  Hashtbl.iter 
+    (fun s -> (function (BRA _ as t)   -> doit s t
+               |        (KET _ as t)   -> doit s t
+               |        SUBSTBRA as t  -> doit s t
+               |        SUBSTSEP as t  -> doit s t
+               |        SUBSTKET as t  -> doit s t
+               |        _              -> ()))
+    symboltable;
+  enterStdSymbols ()
+  
+let popSyntax () =
+  match !syntaxes with 
+    (_, (appN, substN, substD), tbl) :: sys ->
+      appfix:=appN; substfix:=substN; substsense:=substD;
+      Hashtbl.iter (fun str -> (function None      -> 
+                                           (match lookup str with
+                                              Some t -> delete t
+                                            | _      -> raise (Catastrophe_ ["Symbol.popSyntax sees symbol "; enQuote str; " without entry"]))
+                                |        Some oldt -> enter str oldt)) tbl;
+      syntaxes := sys
+  | _ -> raise (ParseError_ ["POPSYNTAX: stack empty"])
+  
+let popAllSyntaxes () =
+  while !syntaxes!=[] do popSyntax () done
+  
 (* function provided so that other functors don't need to know how operators are
  * represented
  *)
 let rec lookupassoc string =
   match lookup string with
     Some (INFIXC (_, a, _)) -> Some (true, a)
-  | Some (INFIX (_, a, _)) -> Some (false, a)
+  | Some (INFIX (_, a, _))  -> Some (false, a)
   | _ -> None
 
 let rec badID s = ID (s, None)
@@ -368,22 +429,54 @@ let rec badID s = ID (s, None)
 let rec checkentry con s =
   let v = con s in
   match lookup s with
-    None   -> enter (s, v); v
+    None   -> enter s v; v
   | Some v -> v
 
 let checkbadID = checkentry badID
 
-let rec carefullyEnter (s, t) =
+let rec carefullyEnter s t =
+  let doit () =
+    let oldt = lookup s in
+    enter s t;
+    match !syntaxes with 
+      (_, _, tbl) :: sys -> Hashtbl.add tbl s (lookup s)
+    | _                  -> ()
+  in
+  let empty_doit () =
+    match !syntaxes with
+      (sname, _, _) :: _ -> 
+         raise
+           (ParseError_
+              ["After PUSHSYNTAX "; enQuote sname;
+               " attempt to define new symbol "; enQuote s; " as "; smlsymbolstring t])
+    | [] -> doit ()
+  in  
   match lookup s with
-    None -> enter (s, t)
-  | Some (ID _) -> enter (s, t)
-  | Some other ->
-      if other = t then ()
-      else
+    None        -> empty_doit ()
+  | Some (ID _) -> empty_doit ()
+  | Some other  ->
+      let bang ss =
         raise
           (ParseError_
-             ["Attempt to redefine the syntactic role of Prestrs"; s;
-              "'' to "; smlsymbolstring t])
+             (ss @
+              ["redefine the syntactic role of "; enQuote s;
+               " from "; smlsymbolstring other; " to "; smlsymbolstring t]))
+      in
+      if other = t then () else
+      match !syntaxes with
+        (sname, _, _) :: _ -> (
+          match other, t with
+            PREFIX   _, PREFIX   _ -> doit()
+          | POSTFIX  _, POSTFIX  _ -> doit()
+          | INFIX    _, INFIX    _ -> doit()
+          | INFIXC   _, INFIXC   _ -> doit()
+          | LEFTFIX  _, LEFTFIX  _ -> doit()
+          | MIDFIX   _, MIDFIX   _ -> doit()
+          | RIGHTFIX _, RIGHTFIX _ -> doit()
+          | _                  ->
+              bang ["After PUSHSYNTAX "; enQuote sname; " attempt to "])
+      | [] -> 
+          bang ["Attempt to "]
 
 let decVarPrefixes : (idclass, string) Mappingfuns.mapping ref =
   ref Mappingfuns.empty
@@ -414,7 +507,7 @@ let rec autoID class__ prefix =
 
 let rec declareIdClass class__ s =
   insertinIdtree "declareIdClass" false class__ idfixedtree s;
-  enter (s, ID (s, Some class__));
+  enter s (ID (s, Some class__));
   (* no warnings about clashes any more *)
   None
 
@@ -424,10 +517,8 @@ let rec isnumber s =
 let rec isextensibleID s =
   lookup s = None && lookinIdtree idprefixtree (utf8_explode s) <> NoClass
 
-let commasymbol = INFIX (0, TupleAssoc, ",") (* comma is now an operator, and may we be lucky *)
-
 let rec resetSymbols () =
-  let enterclass f s = enter (s, f s) in
+  let enterclass f s = enter s (f s) in
   let debug = !symboldebug in
   symboldebug := false;
   (* symboltable := Store.new__ friendlyLargeishPrime *)
@@ -465,29 +556,16 @@ let rec resetSymbols () =
      "MACRO"; "MENU"; "MENUKEY"; "MIDFIX"; 
      "NOTIN"; "NOTONEOF"; "NUMBER"; 
      "OBJECT"; "OUTFIX"; 
-     "POSTFIX"; "PATCHALERT"; "PREFIX"; "PROOF"; 
+     "PATCHALERT"; "POPSYNTAX"; "POSTFIX"; "PREFIX"; "PROOF"; "PUSHSYNTAX";
      "RADIOBUTTON"; "REFLEXIVE"; "RIGHTFIX"; "RIGHTWEAKEN"; "RULE"; "RULES"; 
      "SCOPE"; "SEMANTICS"; "SEMANTICTURNSTILE"; "SEPARATOR"; "SEQUENT"; 
-     	"STRING"; "STRUCTURERULE"; "SUBSTBECOME"; "SUBSTBRA"; "SUBSTFIX"; "SUBSTKET";
+     	"STRING"; "STRUCTURERULE"; "SUBSTFIX";
      "TACTIC"; "TACTICPANEL"; "THEOREM";
      "THEOREMS"; "THEORY"; "TRANSITIVE"; 
      "UMENU"; "UNIFIESWITH"; "USE"; 
      "VARIABLE"; "VIEW"; 
      "WEAKEN"; "WHERE"; "WORLD"];
-  if !symboldebug then  consolereport ["defining BRA"];
-  enter ("(", BRA "(");
-  (* these two still need special treatment ... *)
-  if !symboldebug then  consolereport ["defining KET"];
-  enter (")", KET ")");
-  enter ("[", SUBSTBRA);
-  enter ("\\", SUBSTSEP);
-  enter ("]", SUBSTKET);
-  enter ("", EOF);
-  if !symboldebug then  consolereport ["defining commasymbol"];
-  enter (",", commasymbol);
-  appfix := appfix_default;
-  substfix := substfix_default;
-  substsense := substsense_default;
+  enterStdSymbols ();
   symboldebug := debug
 
 (* probably this can all be simply camlised *)
