@@ -25,11 +25,12 @@
     
 */
 
-import java.awt.datatransfer.StringSelection;
-
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
+
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
@@ -47,15 +48,24 @@ import javax.swing.SwingUtilities;
 
 public class StationaryTile extends Tile implements DragSourceListener, DragGestureListener {
 
-    Container layeredPane;
-    DragSource dragSource;
+    private Container layeredPane;
+    private DragSource dragSource;
+    public static DataFlavor tileFlavor;
     
     public StationaryTile(Container layeredPane, final String text) {
         super(text);
         this.layeredPane = layeredPane;
+        if (tileFlavor==null) {
+            try {
+                tileFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType+
+                                            "; class="+this.getClass().getName());
+            } catch (ClassNotFoundException e) {
+                Alert.abort("can't create tileFlavor");
+            }
+        }
 
         dragSource = new DragSource();
-        dragSource.createDefaultDragGestureRecognizer( this, DnDConstants.ACTION_MOVE, this);
+        dragSource.createDefaultDragGestureRecognizer( this, DnDConstants.ACTION_COPY, this);
         
         MouseInteractionListener mil = new MouseInteractionAdapter() {
             public void doubleclicked(byte eventKind, MouseEvent e) {
@@ -113,29 +123,31 @@ public class StationaryTile extends Tile implements DragSourceListener, DragGest
         layeredPane.repaint();
     } */
 
-    public void dragGestureRecognized( DragGestureEvent event) {
-        System.err.println("[dragSource] dragGestureRecognized");
-        StringSelection selection = new StringSelection(text);
-        dragSource.startDrag (event, DragSource.DefaultMoveDrop, selection, this);
+    
+    protected class TileTransferable implements Transferable {
+        public Object getTransferData(DataFlavor flavor) {
+            return StationaryTile.this;
+        }
+        public DataFlavor[] getTransferDataFlavors() {
+            return new DataFlavor[]{ tileFlavor };
+        }
+        public boolean isDataFlavorSupported(DataFlavor flavor) {
+            return flavor==tileFlavor;
+        }
+    }
+    
+    public void dragGestureRecognized(DragGestureEvent event) {
+        dragSource.startDrag (event, DragSource.DefaultCopyDrop, new TileTransferable(), this);
     }
 
-    public void dragEnter (DragSourceDragEvent event) {
-        System.err.println("[dragSource] dragEnter");
-    }
+    public void dragEnter(DragSourceDragEvent event) { }
 
-    public void dragExit (DragSourceEvent event) {
-        System.err.println("[dragSource] dragExit");
-    }
+    public void dragExit(DragSourceEvent event) { }
 
-    public void dragOver (DragSourceDragEvent event) {
-        System.err.println("[dragSource] dragOver");
-    }
+    public void dragOver(DragSourceDragEvent event) { }
 
-    public void dropActionChanged ( DragSourceDragEvent event) {
-        System.err.println("[dragSource] dropActionChanged");
-    }
+    public void dropActionChanged(DragSourceDragEvent event) { }
 
     public void dragDropEnd (DragSourceDropEvent event) {
-        System.err.println("[dragSource] dragDropEnd "+event.getDropSuccess());
     }
 }
