@@ -71,9 +71,6 @@ public class japeserver implements DebugConstants {
         Alert.showAlert(Alert.Info, "Preferences item selected in menu");
     }
     
-    private static String theorypath, theory, ext, title, iconname,
-        viewpath, pviewpath, proofpath;
-
     public static boolean onMacOS;
     public static Rectangle screenBounds;
     
@@ -97,49 +94,7 @@ public class japeserver implements DebugConstants {
         else
             Alert.abort("no GraphicsConfiguration!");
         
-        // #
-        // # Set up various paths
-        // # 
-        // # Assumption is:
-        // #   
-        // #   args=[path to server, ... command invoking server ..., --, first arg of command]
-        // #
-        if (args.length>=4 && args[args.length-2].equals("--") && args[args.length-1].charAt(0)!='-') {
-            theorypath = args[args.length-1];
-            File theoryfile = new File(theorypath);
-            // there must be a way of doing this in the library ..
-            String name = theoryfile.getName();
-            int i;
-            for (i = name.length()-1; i>=0; i--) 
-                if (name.charAt(i)=='.') 
-                    break;
-            if (i<0) {
-                theory = name; ext=null;
-            }
-            else
-            if (i==0) {
-                // assume it was a directory
-                // this.theorypath=os.path.join(this.theorypath, "")
-                // this.title(this.appname+' in '+this.theorypath)
-                // this.iconname(this.appname+' in '+this.theorypath)
-                theory = ext = null;
-            }
-            else {
-                theory = name.substring(0,i-1); ext = name.substring(i+1, name.length()-1);
-                // if ext in ['.j', '.jt', '.jape']:
-                //     this.wm_update(this.theorypath)
-            }
-        }
-        
-        viewpath       = null;
-        pviewpath      = null;
-        proofpath      = null;
-        theory         = null;
-        
-        
-        Toolkit.getDefaultToolkit(); // what for?
-
-        JapeMenu.init();
+        JapeMenu.initMenuBar();
 
         LocalSettings l = new LocalSettings();
 
