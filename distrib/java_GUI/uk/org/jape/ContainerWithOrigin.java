@@ -71,6 +71,12 @@ public class ContainerWithOrigin extends Container {
         return c;
     }
 
+    public Component add(Component c, int index) {
+        child.add(c, index);
+        computeBounds();
+        return c;
+    }
+
     public void remove(Component c) {
         child.remove(c);
         computeBounds();

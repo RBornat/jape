@@ -32,6 +32,16 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
 
     public ProofCanvas() { super(); }
 
+    // DisplayItems (things that have an identity) get added at the front;
+    // other items (lines, rects) at the back.
+    public Component add(Component c) {
+        if (c instanceof DisplayItem)
+            super.add(c, 0);
+        else
+            super.add(c);
+        return c;
+    }
+
     public byte proofStyle;
     
     // these are not yet coming out in time order ...

@@ -198,6 +198,11 @@ public class ProofWindow extends JapeWindow implements ProtocolConstants {
                 throw new ProtocolError("ProofWindow.drawstring kind="+kind);
         }
     }
+    
+    public static void drawRect(int x, int y, int w, int h) throws ProtocolError {
+        checkFocussedProofWindow();
+        focussedProofWindow.proofCanvas.add(new RectItem(focussedProofWindow.proofCanvas, x, y, w, h));
+    }
 
     public static String getSelections() throws ProtocolError {
         checkFocussedProofWindow();

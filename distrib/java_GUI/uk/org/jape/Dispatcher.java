@@ -80,6 +80,10 @@ public class Dispatcher extends Thread {
                                                    toUnicode(command[5]),       // annottext
                                                    toUnicode(command[6]));     // printtext
                         else
+                        if (p.equals("DRAWRECT")&&len==5)
+                            ProofWindow.drawRect(toInt(command[1]), toInt(command[2]), // x, y
+                                                 toInt(command[3]), toInt(command[4])); // w, h
+                        else
 
                     // FONTINFO not very often
                         if (p.equals("FONTINFO")&&len==2)

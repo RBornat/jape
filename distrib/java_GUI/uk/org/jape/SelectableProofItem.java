@@ -46,7 +46,8 @@ public abstract class SelectableProofItem extends TextSelectableItem
                                String annottext, String printtext) {
         super(canvas,x,y,fontnum,annottext,printtext);
         this.canvas = canvas;
-        selectionRect = new SelectionRect();
+        selectionRect = new SelectionRect(canvas.getSelectionHalo(), getBounds());
+        canvas.add(selectionRect);
         addMouseInteractionListener(new MouseInteractionAdapter() {
             public void clicked(byte eventKind, MouseEvent e) {
                 SelectableProofItem.this.clicked(eventKind, e);
@@ -56,53 +57,28 @@ public abstract class SelectableProofItem extends TextSelectableItem
 
     protected abstract void clicked(byte eventKind, MouseEvent e);
     
-    protected class SelectionRect extends Component {
+    protected class SelectionRect extends RectItem {
         public byte selkind;
-        private int left, top, right, bottom, selectionthickness;
 
-        SelectionRect() {
-            super();
-            int inset = canvas.getSelectionHalo();
-            Rectangle bounds = SelectableProofItem.this.getBounds();
-            bounds.grow(inset,inset);
-            setBounds(bounds);
-            selectionthickness = canvas.linethickness;
-            canvas.add(this);
-        }
-
-        // Java doesn't support wide lines, says the 1.1 docs ...
-        protected void paintBox(Graphics g) {
-            // drawLine seems to work more nicely ...
-            //g.drawRect(left,top, right,bottom);
-            paintHoriz(g,top);
-            paintHoriz(g,bottom);
-            paintSides(g);
-        }
-
-        protected void paintSides(Graphics g) {
-            g.drawLine(left,top, left,bottom); g.drawLine(right,top, right,bottom);
-        }
-
-        protected void paintHoriz(Graphics g, int y) {
-            g.drawLine(left,y, right,y);
+        SelectionRect(int halo, Rectangle bounds) {
+            super(SelectableProofItem.this.canvas,
+                  bounds.x-halo, bounds.y-halo, bounds.width+2*halo, bounds.height+2*halo);
         }
 
         protected void paintDotted(Graphics g, int y) {
-            int dashlength = 3*selectionthickness;
+            int dashlength = 3*this.canvas.linethickness;
             for (int i=0; i<right; i+=dashlength) {
                 if ((i/3)%2==0) g.drawLine(i,y, Math.min(right, i+dashlength-1),y);
             }
         }
 
         protected void paintHooks(Graphics g, int y) {
-            int hooklength = 4*selectionthickness;
+            int hooklength = 4*this.canvas.linethickness;
             int lefthook = hooklength-1, righthook = right-hooklength+1;
             g.drawLine(left,y, lefthook,y);
             g.drawLine(righthook,y, right,y);
         }
 
-        private boolean stroked;
-        
         public void paint(Graphics g) {
             /*  At present we have two selection styles.  Reasons, and all formulae in tree style,
             are selected by surrounding them with a box.  In box style hyps get a selection
@@ -113,28 +89,16 @@ public abstract class SelectableProofItem extends TextSelectableItem
             */
 
             if (selkind!=NoSel) {
+                prepaint(g);
                 g.setColor(selectionColour);
-
-                if (g instanceof Graphics2D) {
-                    BasicStroke stroke = new BasicStroke((float)selectionthickness);
-                    ((Graphics2D)g).setStroke(stroke);
-                    left = top = selectionthickness/2; // experiment
-                    right = getWidth()-(selectionthickness-selectionthickness/2);
-                    bottom = getHeight()-(selectionthickness-selectionthickness/2);
-                    stroked = true;
-                }
-                else {
-                    right = getWidth()-1; bottom = getHeight()-1;
-                    stroked = false;
-                }
 
                 switch (selkind) {
                     case ReasonSel:
                         paintBox(g); break;
 
                     case HypSel:
-                        if (canvas.proofStyle==BoxStyle) {
-                            paintSides(g); paintHoriz(g, top); paintHooks(g, bottom);
+                        if (SelectableProofItem.this.canvas.proofStyle==BoxStyle) {
+                            paintSides(g); paintHorizEdge(g, top); paintHooks(g, bottom);
                         }
                         else
                             paintBox(g);
@@ -144,8 +108,8 @@ public abstract class SelectableProofItem extends TextSelectableItem
                         paintSides(g); paintDotted(g, top); paintHooks(g, bottom); break;
 
                     case ConcSel:
-                        if (canvas.proofStyle==BoxStyle) {
-                            paintSides(g); paintHoriz(g, bottom); paintHooks(g, top);
+                        if (SelectableProofItem.this.canvas.proofStyle==BoxStyle) {
+                            paintSides(g); paintHorizEdge(g, bottom); paintHooks(g, top);
                         }
                         else
                             paintBox(g);
