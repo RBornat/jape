@@ -6,22 +6,22 @@ CLASS VARIABLE w x y z c d e f
 CLASS FORMULA A B C D E F P Q R S
 CONSTANT Ù
 
-SUBSTFIX	2000
-JUXTFIX	1900
+SUBSTFIX    2000
+JUXTFIX 1900
 
-PREFIX	450		Â
-INFIX		400L		= ­
-INFIX		300L		¦
-INFIX		200L		ë
-INFIX		100R		ç ê
-INFIX		50L		÷
+PREFIX     450     Â
+INFIX       400L        = ­
+INFIX       300L        ¦
+INFIX       200L        ë
+INFIX       100R        ç ê
+INFIX       50L     ÷
 
-LEFTFIX		10	è .
-LEFTFIX		10	ä .
-LEFTFIX		10	ä! .
+LEFTFIX     10  è .
+LEFTFIX     10  ä .
+LEFTFIX     10  ä! .
 
-PREFIX		5		var
-POSTFIX		5		inscope
+PREFIX      5       var
+POSTFIX     5       inscope
 
 BIND x SCOPE P IN è x . P
 BIND x y SCOPE P IN è (x,y) . P

@@ -34,9 +34,7 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
 
 TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS
 	WHEN	
-		(LETHYPSUBSTSEL _P 
-				cut (LAYOUT "" (1) ruleRL thm (WITHSUBSTSEL hyp))  /* guess at LAYOUT label */
-		)
+		(LETHYPSUBSTSEL _P  cut (LAYOUT "" (1) ruleRL thm (WITHSUBSTSEL hyp)))
 		(LETCONCSUBSTSEL _P (LAYOUT "" (1) (WITHSUBSTSEL ruleLR) thm))
 		/* the "second argument" of the rewrite rules has to be B */
 		(LETHYP _P cut (LAYOUT "" (1) (ruleRL[B\_P]) thm (WITHHYPSEL hyp)))
