@@ -51,6 +51,9 @@
 				F5B9B5BC038B969501A80116,
 				F515B6090331D98801A80116,
 				F516FFD2031F87F501A80117,
+				F59988FE036976E501A80116,
+				F560AEE8036D799701A80116,
+				F57E549C038BB91A01A80116,
 				F528CB2B0307C5B501A80116,
 				10F9BF62FEEDA25E11DB9C8B,
 				F531A7B7033213F801A80116,
@@ -58,8 +61,6 @@
 				F515B6180331DA6801A80116,
 				F59F3D1C033773B101A80116,
 				F5E5E3DE035EE1AC01A80116,
-				F59988FE036976E501A80116,
-				F560AEE8036D799701A80116,
 				F592908503728EA101A80117,
 				F515B60B0331D98801A80116,
 				F5152720037BB90501A80116,
@@ -294,6 +295,7 @@
 				F515272A037BD50101A80116,
 				F57E7E01037FBF5401A80116,
 				F5B9B5BD038B969501A80116,
+				F57E549D038BB91A01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -734,8 +736,8 @@
 		};
 		F560AEE8036D799701A80116 = {
 			isa = PBXFileReference;
-			name = MouseInteractionListener.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/MouseInteractionListener.java;
+			name = JapeMouseListener.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/JapeMouseListener.java;
 			refType = 0;
 		};
 		F560AEE9036D799701A80116 = {
@@ -836,6 +838,24 @@
 		};
 		F563B8B803372EA501A80116 = {
 			fileRef = F563B8B703372EA501A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57E549C038BB91A01A80116 = {
+			isa = PBXFileReference;
+			name = JapeMouseTextAdapter.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/JapeMouseTextAdapter.java;
+			refType = 0;
+		};
+		F57E549D038BB91A01A80116 = {
+			fileRef = F57E549C038BB91A01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57E549E038BB91A01A80116 = {
+			fileRef = F57E549C038BB91A01A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -968,8 +988,8 @@
 		};
 		F59988FE036976E501A80116 = {
 			isa = PBXFileReference;
-			name = MouseInteractionAdapter.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/MouseInteractionAdapter.java;
+			name = JapeMouseAdapter.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/JapeMouseAdapter.java;
 			refType = 0;
 		};
 		F59988FF036976E501A80116 = {
@@ -1061,6 +1081,7 @@
 				F515272B037BD50101A80116,
 				F57E7E02037FBF5401A80116,
 				F5B9B5BE038B969501A80116,
+				F57E549E038BB91A01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
