@@ -61,7 +61,7 @@ public class Reply {
             System.out.println(s);
         }
         else
-            throw (new ProtocolError("replying "+s+"\" while client is not expecting reply"));
+            throw new ProtocolError("replying "+s+"\" while client is not expecting reply");
     }
 
     synchronized public static void reply(int i) throws ProtocolError {

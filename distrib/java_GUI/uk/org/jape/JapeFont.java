@@ -231,7 +231,7 @@ public class JapeFont {
 
     public static void checkInterfaceFontnum(int fontnum) throws ProtocolError {
         if (fontnum<termFontNum || fontnum>provisoFontNum)
-            throw (new ProtocolError("fontnum "+fontnum+" out of range"));
+            throw new ProtocolError("fontnum "+fontnum+" out of range");
     }
     
     private static void initInterfaceFonts() {
@@ -296,13 +296,13 @@ public class JapeFont {
     }
     public static void setSubstituteFont(String name) throws ProtocolError {
         if (codecDone)
-            throw (new ProtocolError("too late!"));
+            throw new ProtocolError("too late!");
         else
         if (name.equals("Konstanz")) {
             if (japeserver.onMacOS) {
                 substituteFont = new Font("Konstanz", Font.PLAIN, 1);
                 if (substituteFont==null)
-                    throw (new ProtocolError("can't open Konstanz Plain 1.0"));
+                    throw new ProtocolError("can't open Konstanz Plain 1.0");
             }
             setKonstanzMap();
         }

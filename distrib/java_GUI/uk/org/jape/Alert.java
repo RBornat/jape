@@ -46,7 +46,7 @@ public class Alert {
           case 1: return Warning;
           case 2: return Error;
           case 3: return Question;
-          default: throw (new ProtocolError(severity+" should be message severity (0:info, 1:warning, 2:error, 3: question)"));
+          default: throw new ProtocolError(severity+" should be message severity (0:info, 1:warning, 2:error, 3: question)");
         }
     }
     
