@@ -1356,11 +1356,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             end
 
         | "version", [] -> showAlert [_Title; _Version]; default
-
-        | "addworldlabel", [cx; cy; s] ->
         
         (* ********************* the disproof commands ************************* *)
-            
+
+        | "addworldlabel", [cx; cy; s] ->
             worldlabelact addworldlabel cx cy s
 
         | "deleteworldlabel", [cx; cy; s] ->
@@ -1371,15 +1370,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "addworld", [px; py; cx; cy] ->
             disproofuniverseact
-              (fun u ->
-                 Disproof.addchild u (atoi px, atoi py)
-                   (atoi cx, atoi cy))
+              (fun u -> Disproof.addchild u (atoi px, atoi py) (atoi cx, atoi cy))
 
         | "deleteworldlink", [fromx; fromy; tox; toy] ->
             disproofuniverseact
-              (fun u ->
-                 Disproof.deletelink u (atoi fromx, atoi fromy)
-                   (atoi tox, atoi toy))
+              (fun u -> Disproof.deletelink u (atoi fromx, atoi fromy) (atoi tox, atoi toy))
 
         | "deleteworld", [cx; cy] ->
             disproofstateact (fun d -> Disproof.deleteworld d (atoi cx, atoi cy))
@@ -1394,12 +1389,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  let rec pair =
                    function
                      cx :: cy :: cs -> (atoi cx, atoi cy) :: pair cs
-                   | [] -> []
-                   | _ ->
-                       raise
-                         (Catastrophe_
-                            ["bad command (odd number of arguments): worldselect ";
-                             bracketedliststring (fun s -> s) "," cs])
+                   | []             -> []
+                   | _  -> raise (Catastrophe_
+				    ["bad command (odd number of arguments): worldselect ";
+				     bracketedliststring (fun s -> s) "," cs])
                  in
                  Disproof.worldselect d (pair cs))
 
@@ -1412,31 +1405,23 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        let cxt_now = proofstate_cxt proof in
                        let facts_now = facts (provisos cxt_now) cxt_now in
                        let rec process_disproof disproof' =
-                         let rec doit () =
-                           Some (disproofmove hist disproof')
-                         in
+                         let doit () = Some (disproofmove hist disproof') in
                          let seq' = disproofstate_seq disproof' in
                          match winhist_disproofnow hist with
                            None -> doit ()
                          | Some state ->
                              let seq = disproofstate_seq state in
                              if eqseqs (seq, seq') then
-                               if isemptyworld
-                                    (disproofstate_universe state)
+                               if isemptyworld (disproofstate_universe state)
                                then
-                                 begin
-                                   showAlert
-                                     ["You are already disproving ";
-                                      seqstring seq];
-                                   None
-                                 end
+                                 (showAlert ["You are already disproving "; seqstring seq];
+                                  None)
                                else if
                                  screenquery
-                                   ["You are already disproving ";
-                                    seqstring seq; " - do you want to wipe clean the world(s) you have built?"]
+                                   ["You are already disproving "; seqstring seq; 
+                                    " - do you want to wipe clean the world(s) you have built?"]
                                    "Wipe" "Cancel" 1
-                               then
-                                 doit ()
+                               then doit ()
                                else None
                              else if
                                screenquery
@@ -1444,8 +1429,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                                   " - do you want to replace it with ";
                                   seqstring seq'; "?"]
                                  "Replace" "Cancel" 1
-                             then
-                               doit ()
+                             then doit ()
                              else None
                        in
                        match findSelection displaystate with
