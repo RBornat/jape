@@ -1,7 +1,16 @@
 (* $Id$ *)
 
-module type Termtype =
-  sig
+(* I can't persuade OCaml to accept the multiple inclusion of alternative signatures.
+   So for the time being I just give everybody the lot.
+   RB 4/vii/2002
+ *)
+
+module type T = 
+sig
+
+(* module type Termtype =
+     sig
+ *)
     type vid and idclass
     (* terms now contain hash information. RB 26/i/00 *)
     type term =
@@ -21,11 +30,12 @@ module type Termtype =
         Segvar of (int option * term list * term)
       | Element of (int option * resnum * term)
     and resnum = Nonum | Resnum of int | ResUnknown of int
-  end
-
-module type Termstore =
-  sig
-    type vid and idclass and litcon and term and element and resnum
+(*   end
+  
+   module type Termstore =
+     sig
+       type vid and idclass and term and litcon and element and resnum
+ *)
     val registerId : vid * idclass -> term
     val registerUnknown : vid * idclass -> term
     val registerApp : term * term -> term
@@ -34,18 +44,19 @@ module type Termstore =
     val registerFixapp : string list * term list -> term
     val registerSubst : bool * term * (term * term) list -> term
     val registerBinding :
-      (term list * term list * term list) * (term * (int * int)) list *
-        term ->
-        term
+      (term list * term list * term list) * 
+      (term * (int * int)) list *
+      term -> term
     val registerCollection : idclass * element list -> term
     val registerElement : resnum * term -> element
     val registerSegvar : term list * term -> element
     val resettermstore : unit -> unit
-  end
-
-module type Term =
-  sig
-    type term and vid and idclass and resnum and element
+(*   end
+   
+   module type Term =
+     sig
+    type vid and idclass and term and litcon and element and resnum
+ *)
     val isconstant : term -> bool
     val isId : term -> bool
     val isUnknown : term -> bool
@@ -130,16 +141,16 @@ module type Term =
     val termoccursin : term -> term -> bool
     val simterms : term * term -> bool
     val termvars : term -> term list
-    val tmerge : term list * term list -> term list
+    val tmerge : term list -> term list -> term list
     val varbindings : term -> (term * term list list list) list
     val bmerge :
-      (term * term list list list) list * (term * term list list list) list ->
+      (term * term list list list) list -> (term * term list list list) list ->
         (term * term list list list) list
     val freevarsfrombindings :
       (term * term list list list) list -> (term * term) list ->
         term list * (term * term list) list
     val varbindingsdebug : bool ref
-    val earliervar : term * term -> bool
+    val earliervar : term -> term -> bool
     val mergevars : term list -> term list -> term list
     val termVIDs : term -> vid list
     val vartoVID : term -> vid
@@ -189,11 +200,11 @@ module M
       module Idclass : Idclass.T
       module Symboltype : Symboltype.T
              with type idclass = Idclass.idclass
-              and type vid = string
+             and type vid = string
       module Symbol : Symbol.T
              with type idclass = Idclass.idclass
               and type symbol = Symboltype.symbol
-              and type vid = string
+              and type vid = Symboltype.vid
       module Idclassfuns : Idclassfuns.T
              with type idclass = Idclass.idclass
               and type symbol = Symboltype.symbol
@@ -212,6 +223,7 @@ module M
       val isnumber : string -> bool
       val isQuoted : string -> bool
       val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
+      val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
       val pairstring :
         ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
       val simplecache :
@@ -224,7 +236,12 @@ module M
       exception Catastrophe_ of string list
     end)
   :
-  sig include Termtype include Termstore include Term end =
+  (* sig 
+		 include Termtype
+		 include Termstore
+		 include Term 
+	 end *) T
+  =
   struct
     open AAA
     open Listfuns
@@ -236,13 +253,8 @@ module M
     open Idclassfuns
     open Answer
     
-    
-    
-    
-    
-    
-    
-    
+    type vid = Symboltype.vid
+    type idclass = Idclass.idclass
     
     (* terms now contain hash information. RB 26/i/00 *)
     (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
@@ -1743,12 +1755,12 @@ module M
       in
       let rec allbpairs bc =
         let vpss =
-          m_a_p ((fun (us, vs) -> sort (uncurry2 vvorder) (( >< ) us vs)), allpairs bc)
+          List.map (fun (us, vs) -> sort vvorder (( >< ) us vs)) (allpairs bc)
         in
-        ( <| ) ((fun (x, y) -> x <> y), nj_fold (sortedmerge vvorder) vpss [])
+        List.filter (fun (x, y) -> x <> y) (nj_fold (uncurry2 (sortedmerge vvorder)) vpss [])
       in
       let vps =
-        nj_fold (sortedmerge vvorder) (m_a_p (allbpairs, allbindings)) []
+        nj_fold (uncurry2 (sortedmerge vvorder)) (List.map allbpairs allbindings) []
       in
       let rvps = sort vvorder (m_a_p ((fun (x, y) -> y, x), vps)) in
       let commonpairs =
@@ -1758,7 +1770,7 @@ module M
            sortedsame vvorder vps rvps)
       in
       let domrel =
-        nj_fold mmerge (m_a_p ((fun (x, y) -> [x, [y]; y, [x]]), commonpairs))
+        nj_fold (uncurry2 mmerge) (m_a_p ((fun (x, y) -> [x, [y]; y, [x]]), commonpairs))
           domrel
       in
       (* step 4 - find pairs of bindings which aren't the same, add their 
@@ -1776,21 +1788,21 @@ module M
             let bvclass = idclass bv in
             bvclass <> vclass && canoccurfreein (bvclass, vclass)
           in
-          nj_fold tmerge (m_a_p ((fun bvs -> ( <| ) (filterbv, bvs)), bc)) []
+          nj_fold (uncurry2 tmerge) (m_a_p ((fun bvs -> ( <| ) (filterbv, bvs)), bc)) []
         in
         let bvss = m_a_p (allbvs, bcs) in
         let rec escapers bvs =
           ( <| ) ((fun bv -> not (member ((bv, v), notins))), bvs)
         in
         let rec b2 ((bv1s, bv2s), bads) =
-          nj_fold tmerge
+          nj_fold (uncurry2 tmerge)
             [escapers (sorteddiff earliervar bv1s bv2s);
              escapers (sorteddiff earliervar bv2s bv1s)]
             bads
         in
         nj_fold b2 (allpairs bvss) []
       in
-      let freevs = nj_fold tmerge (m_a_p (badbindings, inf)) freevs in
+      let freevs = nj_fold (uncurry2 tmerge) (m_a_p (badbindings, inf)) freevs in
       (* and there we have it *)
       let r = freevs, domrel in
       (* stuff to persuade ourselves we have it right :-) *)
@@ -1806,7 +1818,7 @@ module M
              notins;
            " => "; showout r];
       r
-    let orderVIDs = sortunique (fun (x, y) -> x < y : vid * vid -> bool)
+    let orderVIDs = sortunique (<)
     (* should be identifiertoVID *)
     let rec vartoVID =
       function
@@ -1830,7 +1842,7 @@ module M
         let (t1, t2) = debracket t1, debracket t2 in
         let rec sim t1 t2 = similar t1subst t1 t2subst t2 in
         let rec sims t1s t2s =
-          try a_l_l (uncurry2 sim, ( ||| ) (t1s, t2s)) with
+          try a_l_l (uncurry2 sim) (( ||| ) (t1s, t2s)) with
             Zip -> false
         in
         let rec reverse () = similar t2subst t2 t1subst t1 in
