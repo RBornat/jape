@@ -37,11 +37,11 @@ AFTERINSTALL= -classwindows installjape -cmdwindows '"%INSTALL%installjape.cmd" 
 #       Send the icon, the README, and the specialised code in the jar
 #
 INSTALLRESOURCES=$(BUILDRESOURCES)/README-WINDOWS.txt           \
-                 $(BUILDRESOURCES)/japeicon.ico                 \
-                 $(BUILDRESOURCES)/InstallerKit/SHORTCUT.EXE    \
-                 $(BUILDRESOURCES)/installjape.class 
+                 -autoicon $(BUILDRESOURCES)/japeicon.ico
 
 APP="Windows Jape"
+
+
 
 
 

@@ -49,7 +49,9 @@ jape.exe: $(CMO) main.cmo;\
           ocamlc $(SOURCES) $(CAMLDEBUG) -custom -o jape.exe unix.cma $(CMO) main.cmo
 
 makejape.bat:: ;\
-               rsync -vt /users/sufrin/WINDOWS-C-RESOURCES/* .;\
+               echo IGNORE ln -s REPORTS;\
+               ln -sf /users/sufrin/WINDOWS-C-RESOURCES/* .;\
+               echo IT IS SAFE TO IGNORE ln -s REPORTS ABOVE ;\
                echo cd tmp                                      >  ../makejape.bat;\
                make -n jape.exe | egrep -v "Entering|Leaving|up to date"   >> ../makejape.bat;\
                echo cd ..                                       >> ../makejape.bat;\

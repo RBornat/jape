@@ -32,7 +32,7 @@ DEPLOYEDENGINE=jape_engine
 #
 #
 AFTERINSTALL=-cmdunix "sh %INSTALL%installjape.sh %INSTALL%"
-INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX $(BUILDRESOURCES)/installjape.sh
+INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX 
 ENCODERESOURCES=$(ENCODEDIR)/README_encoder.txt $(ENCODEDIR)/encoder.jar
 SPLASH=$(BUILDRESOURCES)/InstallerKit/japesplash.png
 APP=jape
@@ -40,7 +40,7 @@ APP=jape
 #
 ##################################################################
 
-all:   ; $(MAKE) engine GUI encoder components install
+all:   ; $(MAKE) components distribution
 
 #
 #       Multiarchitecture/OS engine build is safest if compilations are in separate directories
@@ -84,7 +84,7 @@ install:        components; \
                   rsync -v -t    $(BUILDRESOURCES)/installjape.sh . ;\
                   sh installjape.sh
 
-clean:          ; rm -f $(BIN)/Jape.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape 
+clean:          ; rm -rf tmp; rm -f $(BIN)/Jape.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape 
 
 distribution::  ; make encoder; make components; \
                   (cd $(BUILDRESOURCES)/InstallerKit; make bootstrap) ;\
@@ -96,13 +96,17 @@ distribution::  ; make encoder; make components; \
 
 examples:       ; ln -s ../../examples .
 
-jarfile:        examples; \
-                java bootstrap.install $(OS)jape.jar    \
-                  $(AFTERINSTALL)                       \
-                  -app          '$(APP)'                \
-                  -splash       $(SPLASH)               \
-                  examples                              \
-                  -sync $(ENCODERESOURCES) $(INSTALLRESOURCES) $(DEPLOYEDENGINE) Jape.jar  
+
+jarfile:        examples ; buildinstaller Install$(OS)jape.jar                  \
+                -app            "Jape"                                          \
+                -splash         $(SPLASH)                                       \
+                -splashside     North   \
+                -installdir     Jape    \
+                -autoinstall    Jape    \
+                $(ENCODERESOURCES)      \
+                $(INSTALLRESOURCES)     \
+                $(DEPLOYEDENGINE)       \
+                examples Jape.jar                    
 
 
 
