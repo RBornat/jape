@@ -1,5 +1,9 @@
 /* 
+<<<<<<< JapeMenu.java
     $Id$
+=======
+    $Id$
+>>>>>>> 1.41.2.2
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      
@@ -218,8 +222,7 @@ public class JapeMenu implements DebugConstants {
 
     protected static class TitledMenuBar extends JMenuBar {
         public TitledMenuBar() { super(); }
-        public TitledMenu getMenu(String s) {
-            String title = JapeUtils.trueTitle(s);
+        public TitledMenu getMenu(String title) {
             int mc = getMenuCount();
             for (int i=0; i<mc; i++) {
                 TitledMenu m = (TitledMenu)getMenu(i);
@@ -257,7 +260,7 @@ public class JapeMenu implements DebugConstants {
         for (Enumeration ebar = barv.elements(); ebar.hasMoreElements(); ) {
             M m = (M)ebar.nextElement();
             if (!m.proofsonly || isProofBar) {
-                TitledMenu menu = new TitledMenu(JapeUtils.trueTitle(m.title));
+                TitledMenu menu = new TitledMenu(m.title);
                 boolean isWindowMenu = LocalSettings.windowMenuItemsTicked && m.title.equals("Window");
                 ButtonGroup buttonGroup = isWindowMenu ? new ButtonGroup() : null;
                 if (isWindowMenu && radioIcon!=null && checkIcon!=null) {
@@ -301,7 +304,8 @@ public class JapeMenu implements DebugConstants {
                                 mkItem(menu, ii, item, listener);
                             }
                             else {
-                                JRadioButtonMenuItem item = new JRadioButtonMenuItem(ii.label, i==0);
+                                JRadioButtonMenuItem item =
+                                   new JRadioButtonMenuItem(ii.label, i==0);
                                 if (DebugVars.menuaction_tracing)
                                     Logger.log.println("window menu item "+ii.label+
                                                        "; window="+w.title);
