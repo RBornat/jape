@@ -763,8 +763,7 @@ let rec main a1 a2 =
           startServer (server, server :: args);
           Japeserver.sendVersion (_Title ^ _Version);
           initGUI ();
-          reloadmenusandpanels Proofstore.provedordisproved
-            (get_oplist ());
+          reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
           mbcache := empty;
           rundialogue env mbs proofs
         end;
@@ -859,12 +858,13 @@ and biggestproofnum name pinfs =
        (if t = name then max index (i) else i))
     pinfs (0, 0)
 
-and endproof num name proved st dis =
-  Runproof.addproof showAlert uncurried_screenquery name proved st
-    (disproofstate2model dis) &&
+and endproof num name st dis =
+  let proved = isproven st in
+  let disproved = disproof_finished dis in
+  Runproof.addproof showAlert uncurried_screenquery name proved st disproved (disproofstate2model dis) &&
   begin
     Japeserver.closeproof num;
-    markproof proved (parseablenamestring name);
+    markproof (parseablenamestring name) (proved, disproved);
     true
   end
 
@@ -911,8 +911,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     in
     let name = Paragraphfuns.conjecturename para in
     if namestring panel <> "" then
-      Japeserver.panelentry
-        (namestring panel, namestring name, parseablenamestring name);
+      Japeserver.panelentry (namestring panel) (namestring name) (parseablenamestring name);
     name
   in
   let rec printproof path state =
@@ -1331,8 +1330,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               let proofsfound = !proofsdone || not (null ps) in
               if oldfontstuff <> getfontstuff () then initFonts ();
               Japeserver.emptymenusandpanels ();
-              reloadmenusandpanels Proofstore.provedordisproved
-                (get_oplist ());
+              reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
               mbcache := empty;
               newfocus (env, mbs, DontShow, addproofs false env ps pinfs)
             with
@@ -1525,7 +1523,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 let proof = winhist_proofnow hist in
                 let disproof = winhist_disproofnow hist in
                 if finished proof disproof then
-                  if endproof proofnum t (isproven proof) proof disproof
+                  if endproof proofnum t proof disproof
                   then
                     newfocus (env, mbs, DontShow, pinfs')
                   else default
@@ -1538,7 +1536,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               None ->
                 showAlert ["No stored proof of "; namestring name];
                 default
-            | Some (_, tree, provisos, givens, disproofopt) ->
+            | Some (_, tree, provisos, givens, _, disproofopt) ->
                 let proofstate =
                   mkstate ((mkvisproviso <* provisos)) givens tree
                 in
@@ -1703,8 +1701,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             begin try
               let panel = namefrom panel in
               let name = addnewconjecture panel text in
-              Japeserver.selectpanelentry
-                (namestring panel, namestring name);
+              Japeserver.selectpanelentry (namestring panel) (namestring name);
               default
             with
               AddConjecture_ -> default
@@ -1716,11 +1713,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "prove", comm ->
             let name = namefrom (respace comm) in
             if match proofnamed name with
-                 Some (v, tree, provisos, givens, disproofopt) ->
+                 Some (proved, tree, provisos, givens, disproved, disproofopt) ->
                    screenquery
                      [namestring name;
-                      if v then " is already a theorem"
-                      else " is already disproved";
+                      if proved then " is already a theorem"
+                      else " is already disproved"; (* WRONG *)
                       ".\nDo you want to start a new proof?"]
                      "Yes" "No" 1
                | None -> true
@@ -1873,7 +1870,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               then
                 Alert.askDangerously
                   ("The proof of " ^ namestring t ^ " is complete - do you want to record it?")
-                  ("Record", if endproof n t (isproven proofstate) proofstate disproof 
+                  ("Record", if endproof n t proofstate disproof 
                              then closed else (fun () -> default))
                   ("Don't record", (Japeserver.closeproof n; closed))
                   (fun () -> default) 
