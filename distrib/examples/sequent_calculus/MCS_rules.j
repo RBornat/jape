@@ -36,12 +36,12 @@ RULE	"ÊÁ"		FROM A Ê B INFER Ê AÁB
 RULE	"ÁÊ"		FROM AÁB Ê A AND B Ê  INFER AÁB Ê
 RULE	"ÊÈ"		FROM Ê AÁB AND Ê BÁA INFER Ê AÈB
 RULE	"ÈÊ"		FROM AÁB, BÁA Ê  INFER AÈB Ê 
-RULE	"ÊË"(OBJECT y) WHERE FRESH y
-			FROM Ê A[x\y] INFER Ê Ëx . A
+RULE	"ÊË"(OBJECT m) WHERE FRESH m
+			FROM Ê A[x\m] INFER Ê Ëx . A
 RULE	"ËÊ"(B)		FROM Ëx.A, A[x\B] Ê INFER Ëx.A Ê
 RULE	"Ê‰"(B)		FROM Ê A[x\B] INFER Ê ‰x.A
-RULE	"‰Ê"(OBJECT y) WHERE FRESH y
-			FROM  A[x\y] Ê INFER ‰x.A Ê
+RULE	"‰Ê"(OBJECT m) WHERE FRESH m
+			FROM  A[x\m] Ê INFER ‰x.A Ê
 RULE	cut(A)		FROM Ê A AND A Ê INFER Ê
 RULE	"weakenÊ"(A)	FROM Ê INFER A Ê 
 RULE	"Êweaken"(A)	FROM Ê INFER Ê A
