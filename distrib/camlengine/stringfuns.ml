@@ -109,8 +109,10 @@ let quotedstring_of_char c = "'" ^ (Char.escaped c) ^ "'"
 
 let hexdigs = "0123456789abcdef"
 
-let hexstring_of_int i = 
-  let rec h i = 
-    if i=0 then [] else hexdigs.[i land 0xf] :: h (i lsr 4)
+let fixedwidth_hexstring_of_int w i =
+  let rec h w i cs = 
+    if i=0 && w<=0 then cs else  h (w-1) (i lsr 4) (hexdigs.[i land 0xf] :: cs)
   in
-  Sml.string_of_chars ('0' :: 'x' :: if i=0 then ['0'] else List.rev (h i))
+  Sml.string_of_chars (h w i [])
+
+let hexstring_of_int = fixedwidth_hexstring_of_int 1
