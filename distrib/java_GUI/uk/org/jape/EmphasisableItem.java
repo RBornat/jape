@@ -41,7 +41,7 @@ public class EmphasisableItem extends TextSelectableItem {
         super(canvas,x,y,fontnum,annottext);
         this.canvas = canvas;
         emphasisLine = new EmphasisLine(false, getX(),
-                            getY()+getHeight()+canvas.linethickness,
+                            getY()+getHeight()+canvas.getSelectionGap()+canvas.linethickness,
                             getWidth());
         canvas.add(emphasisLine);
         addSelectionIndicator(new RectSelection(this));
