@@ -38,6 +38,7 @@ open Box
 open Draw
 open Idclass
 open Forcedef
+open Invisibles
 open Japeserver
 open Listfuns
 open Mappingfuns
