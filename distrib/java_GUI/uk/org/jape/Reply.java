@@ -41,7 +41,7 @@ public class Reply {
     synchronized private static void sendmessage() {
         if (clientlistening && messages.size()!=0) {
             String s = (String)messages.remove(0);
-            if (Debugging.protocol_tracing) System.err.println("sending "+s);
+            if (Debugging.protocol_tracing) System.err.println("GUI sends "+s);
             System.out.println(s);
             clientlistening=false;
         }
@@ -56,8 +56,10 @@ public class Reply {
 
     synchronized public static void reply(String s) throws ProtocolError {
         if (Debugging.protocol_tracing) System.err.println("replying "+s);
-        if (!clientlistening)
+        if (!clientlistening) {
+            if (Debugging.protocol_tracing) System.err.println("GUI replies "+s);
             System.out.println(s);
+        }
         else
             throw (new ProtocolError("replying "+s+"\" while client is not expecting reply"));
     }
