@@ -35,7 +35,10 @@ CMO = sml.cmo moresys.cmo fix.cmo cache.cmo miscellaneous.cmo reason.cmo answer.
 
 CMX = $(CMO:.cmo=.cmx)
 
-jape_engine:     $(CMO) main.cmo;   ocamlc   $(SOURCES) $(CAMLDEBUG) -custom -o jape_engine unix.cma $(CMO) main.cmo
+# Obsolete: we'll use compiled code
+# jape_engine:     $(CMO) main.cmo;   ocamlc   $(SOURCES) $(CAMLDEBUG) -custom -o jape_engine unix.cma $(CMO) main.cmo
+#
+jape_engine:     jape_engine.opt; ln -f jape_engine.opt jape_engine
 jape_engine.opt: $(CMX) main.cmx;   ocamlopt $(SOURCES) -o jape_engine.opt unix.cmxa $(CMX) main.cmx
 
 #############################################################################
@@ -78,6 +81,7 @@ clean:;                 rm -f *.cmi *.cmo *.cmx *.o
 depend: .depend;        ocamldep *.mli *.ml >.depend
         
 include .depend
+
 
 
 
