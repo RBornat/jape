@@ -37,7 +37,7 @@ public interface ProtocolConstants {
         *)
      */
     
-    public final static byte termFontNum = 0,  reasonFontNum = 1,  provisoFontNum = 2;
+    public final static byte TermFontNum = 0,  ReasonFontNum = 1,  ProvisoFontNum = 2;
     
     /*  from japeserver.ml:
             match m with
