@@ -31,11 +31,13 @@
  
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import javax.swing.DefaultListModel;
 import java.awt.Dimension;
 import java.util.Enumeration;
+import java.awt.Graphics;
 import java.util.Hashtable;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -103,7 +105,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             super(label);
             this.label=label; this.cmd=cmd;
             setActionCommand(label);
-            JapeFont.setComponentFont(JapeFont.PANELBUTTON, this);
+            JapeFont.setComponentFont(this, JapeFont.PANELBUTTON);
         }
     }
     
@@ -136,7 +138,9 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         private final DefaultListModel model;
         private JList list;
         private JScrollPane scrollPane;
-    
+
+        private final int prefixw;
+        
         public PanelWindow() {
             super(PanelWindowData.this.title);
     
@@ -158,7 +162,9 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             list = new JList(model);
             list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             list.setSelectedIndex(0);
-            JapeFont.setComponentFont(JapeFont.PANELENTRY, list);
+            JapeFont.setComponentFont(list, JapeFont.PANELENTRY);
+
+            prefixw = JapeFont.stringWidth(list, "YN ");
             
             for (int i=0; i<entryv.size(); i++)
                 addEntry((String)entryv.get(i));
@@ -188,9 +194,21 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             
             pack(); // necessary??
         }
-    
+
+        protected class Entry {
+            private String s, prefix;
+            public Entry(String s) {
+                super(); this.s = s; prefix = "   ";
+                TextDimension td = JapeFont.measure(list, s);
+                setSize(td.width+prefixw, td.ascent+td.descent);
+            }
+            public String toString() {
+                return prefix+s;
+            }
+        }
+        
         protected void addEntry(String entry) {
-            model.addElement(entry);
+            model.addElement(new Entry(entry));
         }
         
         protected void addButton(PanelButton button) {
@@ -232,7 +250,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     
         **********************************************************************************************/
     
-        // I made this a LayoutManager2, because it has a maximumLayoutSize method, in the hope that this
+        // I made this a LayoutManager2, because that has a maximumLayoutSize method, in the hope that this
         // would affect window maximisation.  It doesn't: the method never seems to be called (in Javish
         // one should say messaged).
         
@@ -423,6 +441,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     private void initWindow() {
         window = new PanelWindow();
     }
+    
     /**********************************************************************************************
 
         Static interface for Dispatcher
