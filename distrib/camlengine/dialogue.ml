@@ -1183,8 +1183,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       disproofuniverseact
         (fun u -> act u (atoi cx, atoi cy) (parseTerm (disQuote s)))
     in
+    
     match c with
       [] -> default
+      
     | word :: words ->
         match lowercase word, words with
           "apply", comm ->
@@ -1709,9 +1711,6 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               AddConjecture_ -> default
             end
 
-        | "lemma", panel :: text ->
-            processcommand thisstate ("addnewconjecture" :: panel :: text)
-
         | "prove", comm ->
             let name = namefrom (respace comm) in
             if match proofnamed name with
@@ -1963,8 +1962,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       TextCommand words -> processcommand thisstate words
     | HitCommand (tree, hit, sel) ->
         match hit, sel with
-          FormulaHit fh,
-          FormulaSel (path, concopt, hyps, _, _, _ as fsel) ->
+          FormulaHit fh, FormulaSel (path, concopt, hyps, _, _, _ as fsel) ->
             (* find the command given the click (which tells us DClickHyp or DClickConc) and the selection
              * (which may perhaps have to be augmented by a default hypothesis or conclusion selection).
              *)
