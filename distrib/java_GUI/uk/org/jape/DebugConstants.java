@@ -35,7 +35,7 @@ interface DebugConstants {
                                 drag_tracing             = false,
                                 dragimage_tracing        = true,
                                 encoding_tracing         = false,
-                                geometry_tracing         = true,
+                                geometry_tracing         = false,
                                 measure_debug            = false,
                                 menuaction_tracing       = false,
                                 menubar_tracing          = false,
