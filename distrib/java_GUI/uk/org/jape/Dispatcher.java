@@ -71,18 +71,19 @@ public class Dispatcher extends Thread {
 
                     // string passing happens a lot, so put it early
                         if (p.equals("STRINGSIZE")&&len==3)
-                            Reply.reply(JapeFont.measure(JapeFont.toUnicode(command[2]), toInt(command[1])));
+                            Reply.reply(JapeFont.checkedMeasure(JapeFont.toUnicode(command[2]),
+                                                                toByte(command[1])));
                         else
                         if (p.equals("DRAWSTRING")&&len==7)
                             ProofWindow.drawstring(toInt(command[1]), toInt(command[2]), // x, y
-                                                   toInt(command[3]), toInt(command[4]), // font, kind
+                                                   toByte(command[3]), toByte(command[4]), // font, kind
                                                    JapeFont.toUnicode(command[5]),       // annottext
                                                    JapeFont.toUnicode(command[6]));     // printtext
                         else
 
                     // FONTINFO not very often
                         if (p.equals("FONTINFO")&&len==2)
-                            Reply.reply(JapeFont.fontinfo(toInt(command[1])));
+                            Reply.reply(JapeFont.checkedFontMetrics(toByte(command[1])));
                         else
 
                     // ASK is for alerts
@@ -104,12 +105,12 @@ public class Dispatcher extends Thread {
                         
                     // font setting
                         if (p.equals("SETFONTS")&&len==2)
-                            JapeFont.setfont(command[1]);
+                            JapeFont.setSubstituteFont(command[1]);
                         else
                         
                     // INVISCHARS are the way we describe syntactic structure
                         if(p.equals("SETINVISCHARS")&&len==9)
-                            japeserver.setinvischars(
+                            TextItem.setinvischars(
                                 toChar(command[1]),toChar(command[2]),
                                 toChar(command[3]),toChar(command[4]),
                                 toChar(command[5]),toChar(command[6]),
@@ -176,7 +177,7 @@ public class Dispatcher extends Thread {
                             Reply.reply(ProofWindow.getViewportBounds());
                         else
                         if (p.equals("SETPROOFPARAMS")&&len==3)
-                            ProofWindow.setProofParams(JapeFont.toUnicode(command[1]), toInt(command[2]));
+                            ProofWindow.setProofParams(toByte(command[1]), toInt(command[2]));
                         else
                         if (p.equals("CLEARPROOFPANE")&&len==1)
                             ProofWindow.clearProofPane();
@@ -336,7 +337,23 @@ kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
             throw (new ProtocolError ("\""+s+"\" can't be read as an integer"));
         }
     }
-    
+
+    private short toShort(String s) throws ProtocolError {
+        int i = toInt(s);
+        if (Short.MIN_VALUE<=i && i<=Short.MAX_VALUE)
+            return (short)i;
+        else
+            throw (new ProtocolError ("\""+s+"\" outside range of Java short"));
+    }
+
+    private byte toByte(String s) throws ProtocolError {
+        int i = toInt(s);
+        if (Byte.MIN_VALUE<=i && i<=Byte.MAX_VALUE)
+            return (byte)i;
+        else
+            throw (new ProtocolError ("\""+s+"\" outside range of Java byte"));
+    }
+
     private boolean toBool(String s) throws ProtocolError {
         if (s.equals("T")) 
             return true; 
@@ -344,7 +361,8 @@ kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
         if (s.equals("F")) 
             return false; 
         else
-            throw (new ProtocolError ("\""+s+"\" is neither \"T\" nor \"F\""));
+            throw (new ProtocolError ("\""+s+"\" can't be read as a boolean "+
+                                      "(it's neither \"T\" nor \"F\")"));
     }
     
     private char toChar(String s) throws ProtocolError {
