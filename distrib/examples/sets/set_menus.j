@@ -44,6 +44,7 @@ END
 TACTICPANEL "Definitions" IS
 	RULE IS AÂÚB ÷ Â(AÚB)
 	RULE IS ¯ ÷ {}
+	RULE (OBJECT x) IS EQ ÷ {x|x=x}
 	RULE (OBJECT x) IS {A} ÷ {x|x=A}
 	RULE (OBJECT x) IS {A,B} ÷ {x|x=Aëx=B}
 	RULE (OBJECT x) IS {A,B,C} ÷ {x|x=Aëx=Bëx=C}
