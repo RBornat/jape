@@ -102,6 +102,7 @@
     open Draw.M
     open Hit.M
     open Listfuns.M
+    open Minwaste
     open Mappingfuns.M
     open Optionfuns.M
     open Sml.M

@@ -58,7 +58,7 @@ module M : T =
       Disproof.M.clearforcedefs ();
       Doubleclick.M.cleardoubleclicks ();
       Japeserver.M.resetcache ();
-      Listfuns.M.resetminwcache ();
+      Minwaste.resetminwcache ();
       Proofstore.M.clearproofs ();
       Proofstate.M.clearautorules ();
       Sequent.Funs.resetsyntaxandturnstiles ();
@@ -189,8 +189,7 @@ module M : T =
        "outerassumptionplural", ajd Boxdraw.M.outerassumptionplural;
        "innerassumptionword", ajd Boxdraw.M.innerassumptionword;
        "innerassumptionplural", ajd Boxdraw.M.innerassumptionplural;
-       "profiling",
-       Japeenv.M.booljapevar false (profileswitcher, profilereader);
+       "profiling", Japeenv.M.booljapevar false (profileswitcher, profilereader);
        "applydebug", ij 0 Applyrule.M.applydebug;
        "bindingdebug", bj false Binding.M.bindingdebug;
        "boxseldebug", bj false Boxdraw.M.boxseldebug;
@@ -201,7 +200,7 @@ module M : T =
        "FINDdebug", bj false Tacticfuns.M._FINDdebug;
        "FOLDdebug", bj false Tacticfuns.M._FOLDdebug;
        "matchdebug", bj false Match.M.matchdebug;
-       "minwastedebug", bj false Listfuns.M.minwastedebug;
+       "minwastedebug", bj false Minwaste.minwastedebug;
        "menudebug", bj false Menu.M.menudebug;
        "predicatedebug", bj false Predicate.M.predicatedebug;
        "prooftreedebug", bj false Prooftree.Tree.prooftreedebug;
