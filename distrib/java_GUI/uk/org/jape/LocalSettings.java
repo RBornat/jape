@@ -59,8 +59,8 @@ public class LocalSettings implements SelectionConstants {
     // what a mouseDown means on a TextItem (this stands until people tell me better)
     public static byte mouseDownTextItemMeans(MouseEvent e) {
         byte kind = e.isAltDown() ? TextSelMask : PureSelMask;
-        if (e.isShiftDown()) kind |= ExtendedSelMask;
-        if (e.isMetaDown())  kind |= DisjointSelMask;
+        if (e.isShiftDown())    kind |= ExtendedSelMask;
+        if (e.isControlDown())  kind |= DisjointSelMask;
         return kind;
     }
 
