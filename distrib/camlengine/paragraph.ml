@@ -48,6 +48,7 @@ open Usefile
 open UTF
 
 let addbindingdirective = Binding.addbindingdirective
+let argstring_of_tactic = Tactic.argstring_of_tactic
 let atoi = Miscellaneous.atoi
 let autoAdditiveLeft = Miscellaneous.autoAdditiveLeft
 let consolereport = Miscellaneous.consolereport
@@ -56,7 +57,6 @@ let string_of_list = Listfuns.string_of_list
 let bool_of_opt = Optionfuns.bool_of_opt
 let readintasarg = Tactic.readintasarg
 let stripextrabag = Tactic.stripextrabag
-let string_of_tactic = Tactic.string_of_tactic
 let _The = Optionfuns._The
 let transTactic = Tactic.transTactic
 let uncurry2 = Miscellaneous.uncurry2
@@ -862,7 +862,7 @@ and parseMenu report query mproof =
 
 and parseConjectureEntry report =
   try match name_of_stringsymbol (currsymb()) with
-        Some _ -> string_of_tactic (transTactic (asTactic parseTerm EOF))
+        Some _ -> argstring_of_tactic (transTactic (asTactic parseTerm EOF))
       | None   ->
           raise (ParseError_ ["conjecture name expected in ENTRY; found ";
                               string_of_symbol (currsymb())])
@@ -874,7 +874,7 @@ and parseConjecturePanel report query =
     ["THEOREM"; "THEOREMS"; "DERIVED"; "PROOF"; "CURRENTPROOF"]
 
 and parseTacticEntry report =
-  try string_of_tactic (transTactic (asTactic parseTerm EOF)) with
+  try argstring_of_tactic (transTactic (asTactic parseTerm EOF)) with
     ParseError_ ss -> showInputError report ss; raise Use_
 
 and parseTacticPanel report query =
@@ -916,18 +916,14 @@ and parsePanel report query panelkind parseEntry entrystarters parastarters =
             match currsymb () with
               SHYID "LABEL"   -> scansymb (); LabelInsert :: getcmd ()
             | SHYID "COMMAND" -> scansymb (); CommandInsert :: getcmd ()
-            | sy ->
-                if canstartCommand sy then
-                  let v = StringInsert (parseCommand ()) in v :: getcmd ()
-                else []
+            | sy              -> if canstartCommand sy then
+                                   let v = StringInsert (parseCommand ()) in v :: getcmd ()
+                                 else []
           in
           let itemcmd =
             match getcmd () with
-              [] ->
-                raise
-                  (ParseError_
-                     ["command expected after BUTTON, found ";
-                      string_of_symbol (currsymb ())])
+              [] -> raise
+                      (ParseError_ ["command expected after BUTTON, found "; string_of_symbol (currsymb ())])
             | cs -> cs
           in
           Panelstuff (Pbutton (itemname, itemcmd))
@@ -963,7 +959,10 @@ and canstartCommand sy = bool_of_opt (name_of_stringsymbol sy)
 and parseCommand () =
   (* always protected by canstartCommand *)
   try
-    let f = parseablestring_of_name (_The (name_of_stringsymbol (currsymb ()))) in
+    let f = match currsymb() with
+              STRING s -> enQuote s
+            | sy       -> string_of_symbol sy 
+    in
     scansymb();
     if canstartCommand (currsymb ()) then f ^ " " ^ parseCommand ()
     else f
