@@ -1,2 +1,4 @@
-USE "multiconc.konstanz.j"
-USE "pcproblems.konstanz.j"
+/* $Id$ */
+
+USE "MCS_rules.j"
+USE "MCS+SCS_problems.j"
