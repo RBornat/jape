@@ -59,34 +59,47 @@ let rec appflatten t ts =
                     bracketedstring_of_list string_of_term ";\n" ts];
    isJuxtapos t &~~ (fun (f,a) -> appflatten f (a::ts) |~~ (fun _ -> Some (f::a::ts)))
 
+let renderprio n mustbra t = 
+  catelim_invisbracketedstring_of_prioterm true n mustbra t []
+
+let invisQuote = (Stringfuns.enQuote <.> showInvisibleString)  
+
 let rec infixnameflatten name t ts =
    if !termfolddebug then
      consolereport ["infixnameflatten tries "; Stringfuns.enQuote name; 
                     " ("; debugstring_of_term t; ") ";
-                    bracketedstring_of_list string_of_term ";\n" ts];
+                    bracketedstring_of_list (bracketedstring_of_list invisQuote ";") "; " ts];
    isInfixApp t &~~
-   (fun (name', _, assoc, a1, a2) ->
+   (fun (name', prio, assoc, a1, a2) ->
       if name=name' then
-        (match assoc with
-           LeftAssoc -> infixnameflatten name a1 (a2::ts) 
-         | RightAssoc -> (infixnameflatten name a2 ts &~~ (fun ts' -> Some(a1::ts')))
-         | TupleAssoc -> (infixnameflatten name a2 ts |~~ (fun _ -> Some (a2::ts))) &~~
-                         (fun ts' -> infixnameflatten name a1 ts' |~~ (fun _ -> Some(a1::ts')))
-         | _ -> None (* we don't understand others *)
-        ) |~~ (fun _ -> Some(a1::a2::ts))
+        match assoc with
+          LeftAssoc  -> 
+            let ts' = renderprio prio true a2 :: ts in
+            infixnameflatten name a1 ts' |~~ (fun _ -> Some (renderprio prio false a1 :: ts'))
+        | RightAssoc -> 
+            let a1r = renderprio prio true a1 in
+            (infixnameflatten name a2 ts &~~ (fun ts' -> Some(a1r::ts'))) |~~
+            (fun _ -> Some(a1r :: renderprio prio false a2 :: ts))
+        | TupleAssoc -> 
+            (infixnameflatten name a2 ts |~~ (fun _ -> Some (renderprio prio false a2 :: ts))) &~~
+            (fun ts' -> 
+               infixnameflatten name a1 ts' |~~ (fun _ -> Some(renderprio prio false a1 :: ts')))
+        | _ -> None (* we don't understand other associativities *)
       else None)
       
 let rec infixprioflatten n mustbra t ts =
    if !termfolddebug then
      consolereport ["infixprioflatten tries "; string_of_int n; " "; string_of_bool mustbra; 
                     " ("; debugstring_of_term t; ") ";
-                    bracketedstring_of_list string_of_term ";\n" ts];
+                    bracketedstring_of_list (bracketedstring_of_list invisQuote ";") "; " ts];
    isInfixApp t &~~
    (fun (_, n', assoc, a1, a2) ->
       if n'>n || (n'=n && not mustbra) then
-        (infixprioflatten n' (assoc=LeftAssoc) a2 ts |~~ (fun _ -> Some(a2::ts))) &~~
+        (infixprioflatten n' (assoc=LeftAssoc) a2 ts |~~ 
+            (fun _ -> Some(renderprio n' (assoc=LeftAssoc) a2 :: ts))) &~~
         (fun ts' ->
-           infixprioflatten n' (assoc=RightAssoc) a1 ts' |~~ (fun _ -> Some(a1::ts')))
+           infixprioflatten n' (assoc=RightAssoc) a1 ts' |~~ 
+               (fun _ -> Some(renderprio n' (assoc=RightAssoc) a1 :: ts')))
       else None)
       
  let measure font = fst_of_3 <.> Japeserver.measurestring font
@@ -119,9 +132,9 @@ let rec infixprioflatten n mustbra t ts =
        if !termfolddebug then
          consolereport 
            ["matchup tries "; 
-            bracketedstring_of_list (Stringfuns.enQuote <.> showInvisibleString) ";" t;
+            bracketedstring_of_list invisQuote ";" t;
             "\n";
-            bracketedstring_of_list (Stringfuns.enQuote <.> showInvisibleString) ";" tts];
+            bracketedstring_of_list invisQuote ";" tts];
        let rec getstart tt1 tts' =
          match tts' with 
            [] -> raise (Catastrophe_ ["Termfold.tryfold.matchup fails"])
@@ -144,10 +157,10 @@ let rec infixprioflatten n mustbra t ts =
          consolereport 
            ["split tries "; 
             bracketedstring_of_list
-              (bracketedstring_of_list (Stringfuns.enQuote <.> showInvisibleString) ";")
+              (bracketedstring_of_list invisQuote ";")
               ";" ts;
             " ";
-            bracketedstring_of_list (Stringfuns.enQuote <.> showInvisibleString) ";" tts];
+            bracketedstring_of_list invisQuote ";" tts];
        match ts, tts with
          []      , []   -> []
        | (t::ts'), _::_ ->
@@ -155,18 +168,18 @@ let rec infixprioflatten n mustbra t ts =
            if !termfolddebug then
              consolereport 
                ["matchup gives "; 
-                bracketedstring_of_list (Stringfuns.enQuote <.> showInvisibleString) ";" tt1;
+                bracketedstring_of_list invisQuote ";" tt1;
                 ",\n";
-                bracketedstring_of_list (Stringfuns.enQuote <.> showInvisibleString) ";" tts'];
+                bracketedstring_of_list invisQuote ";" tts'];
            tt1 :: split ts' tts'
        | _ -> 
            consolereport 
              ["Termfold.tryfold.split failed on "; 
               bracketedstring_of_list
-                (bracketedstring_of_list (Stringfuns.enQuote <.> showInvisibleString) ";")
+                (bracketedstring_of_list invisQuote ";")
                 ";" ts;
               " ";
-              bracketedstring_of_list (Stringfuns.enQuote <.> showInvisibleString) ";" tts];
+              bracketedstring_of_list invisQuote ";" tts];
               raise (Catastrophe_ ["Termfold.tryfold.split failed"])
      in
      let sss = split ts tts in
@@ -186,9 +199,8 @@ let rec infixprioflatten n mustbra t ts =
    | _ -> 
      (match isInfixApp t with
         Some(name,n,_,_,_) ->
-          tryfold (List.map render (_The (infixnameflatten name t []))) tstring
-                  (fun _ -> 
-                     tryfold (List.map render (_The (infixprioflatten n false t []))) tstring default)
+          tryfold (_The (infixnameflatten name t [])) tstring
+                  (fun _ -> tryfold (_The (infixprioflatten n false t [])) tstring default)
       | _ -> default ())
    
    (*
