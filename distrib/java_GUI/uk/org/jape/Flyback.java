@@ -26,7 +26,6 @@
 */
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Point;
 
 import java.awt.event.ActionEvent;
@@ -35,14 +34,13 @@ import java.awt.event.ActionListener;
 import javax.swing.Timer;
 
 public class Flyback implements ActionListener, MiscellaneousConstants {
-    Container pane;
     Component c;
     Timer timer;
 
     int lastx, lasty, destx, desty;
     
-    public Flyback(Container pane, Component c, Point start, Point dest) {
-        this.pane = pane; this.c = c;
+    public Flyback(Component c, Point start, Point dest) {
+        this.c = c;
         this.lastx = start.x; this.lasty = start.y;
         this.destx = dest.x; this.desty = dest.y;
         
@@ -63,8 +61,7 @@ public class Flyback implements ActionListener, MiscellaneousConstants {
     public void actionPerformed(ActionEvent e) {
         if (lastx==destx && lasty==desty) {
             timer.stop();
-            pane.remove(c);
-            pane.repaint();
+            finishFlyback();
         }
         else {
             int nextx = lastx+delta(lastx, destx), nexty = lasty+delta(lasty, desty);
@@ -74,4 +71,6 @@ public class Flyback implements ActionListener, MiscellaneousConstants {
             lastx = nextx; lasty = nexty;
         }
     }
+
+    protected void finishFlyback() { }
 }
