@@ -5,9 +5,9 @@
 CLASS VARIABLE u, v, w
 CONSTANT ¯, Ù, U
 
-INFIX 700 700 ï, ß, -
-INFIX 600 600 §
-INFIX 500 500 Ú, ÂÚ
+INFIX 700L ï, ß, -
+INFIX 600L §
+INFIX 500L Ú, ÂÚ
 /* 400 is = in BnE-Fprime_syntax.j */
 
 OUTFIX { | }

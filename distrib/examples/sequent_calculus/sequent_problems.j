@@ -57,7 +57,7 @@ CONJECTUREPANEL "Conjectures"
   AND äx.P(x)¦ÂQ(x), èx.P(x)çR(x)  	æ äx.R(x)¦ÂQ(x)
   AND (èx.Q(x)) ç (èy.ÂQ(y)) 			æ Â(äz.Q(z))
   AND (èx.Q(x)) ç (èy.ÂQ(y)) 			æ äz.ÂQ(z)
-  AND (äx.P(x)) ç (äy.ÂP(y)) 			æ Â(èz.P)
+  AND (äx.P(x)) ç (äy.ÂP(y)) 			æ Â(èz.P(z))
   AND äx.ÂP(x) 						æ Â(èx.P(x))
   AND èx.P(x)çQ 					æ (äx.P(x))çQ
   AND èx.S(x) ç ((ÂP(x)¦ÂQ(x)) ç R(x)) 	æ èx.(S(x)¦ÂR(x))ç(P(x)ëQ(x))
