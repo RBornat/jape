@@ -433,18 +433,25 @@ public class JapeMenu implements DebugConstants {
     }
     
     public static void enableItem(String menuname, String label, boolean enable) throws ProtocolError {
-        M menu = ensureMenu("enableItem", menuname);
-        int mi = barv.indexOf(menu);
-        I action = findI("enableItem", menuname, label);
-        int ii = menu.indexOf(label);
+        try {
+            M menu = ensureMenu("enableItem", menuname);
+            int mi = barv.indexOf(menu);
+            I action = findI("enableItem", menuname, label);
+            int ii = menu.indexOf(label);
 
-        action.setEnabled(enable);
-        
-        for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); ) {
-            JapeWindow w = (JapeWindow)e.nextElement();
-            JMenuBar bar = w.getJMenuBar();
-            if (bar!=null)
-                bar.getMenu(mi).getItem(ii).setEnabled(enable);
+            action.setEnabled(enable);
+
+            for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); ) {
+                JapeWindow w = (JapeWindow)e.nextElement();
+                JMenuBar bar = w.getJMenuBar();
+                if (bar!=null)
+                    bar.getMenu(mi).getItem(ii).setEnabled(enable);
+            }
+        } catch (ProtocolError e) {
+            if (menuname.equals("Edit") && label.equals("Disprove"))
+                return;
+            else
+                throw e;
         }
     }
 
