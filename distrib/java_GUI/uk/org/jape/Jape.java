@@ -73,7 +73,8 @@ public class Jape implements DebugConstants {
     
     public static boolean onMacOS, onLinux, onSolaris, onWindows;
     public static Rectangle screenBounds;
-    public static final String defaultEnginePath = "./jape_engine";
+    public static String defaultUnixEnginePath    = "./jape_engine";
+    public static String defaultWindowsEnginePath = ".\\jape.exe" ;
     
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
@@ -110,13 +111,13 @@ public class Jape implements DebugConstants {
 
         LocalSettings l = new LocalSettings();
         Vector engineCmd = new Vector();
-        engineCmd.add(defaultEnginePath);
+        engineCmd.add(onWindows ? defaultWindowsEnginePath : defaultUnixEnginePath);
 
         for (int i=0; i<args.length; i++) {
            if (args[i].equals("-engine")) {
                i++;
                if (i<args.length)
-                   engineCmd.insertElementAt(args[i],0);
+                   engineCmd.setElementAt(args[i],0);
                else
                    Alert.abort("-engine switch needs path argument");
             }
@@ -153,6 +154,7 @@ public class Jape implements DebugConstants {
             Logger.log.println("GUI initialised");
     }
 }
+
 
 
 
