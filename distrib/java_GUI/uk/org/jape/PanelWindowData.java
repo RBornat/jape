@@ -241,7 +241,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             }
             public void paint(Graphics g) {
                 if (paint_tracing)
-                    System.err.println("painting PanelWindow");
+                    System.err.println("painting PanelWindow.Entry");
                 g.setColor(getBackground()); g.fillRect(0, 0, getWidth(), getHeight());
                 if (selected && !focussed) {
                     g.setColor(innerBackground); g.fillRect(2, 2, getWidth()-4, getHeight()-4);
