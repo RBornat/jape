@@ -54,6 +54,9 @@ open Termstore
 open Termstring
 open Termtype
 
+let tryresolution = Miscellaneous.tryresolution
+let resolvepossible = Miscellaneous.resolvepossible 
+
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 exception Verifyproviso_ = Provisofuns.Verifyproviso_
@@ -284,15 +287,13 @@ let rec takeonlyone ps =
   | _ -> failwithreason ["the rule matched the goal in more than one way"]
 let rec offerChoice ps =
   let ps = remdupposs ps in
-  let rec listposs =
-    function
-      Info {consequent = c}, _, _, cxt, [] ->
-        [implode [seqstring (rewriteseq cxt c); " solves this goal"]]
-    | Info {consequent = c}, _, _, cxt, ss ->
-        implode
-          [seqstring (rewriteseq cxt c); " generates subgoal";
-           if List.length ss = 1 then " " else "s "] ::
-          ((seqstring <.> rewriteseq cxt) <* ss)
+  let listposs =
+    function Info {consequent = c}, _, _, cxt, [] ->
+               [implode [seqstring (rewriteseq cxt c); " solves this goal"]]
+    |        Info {consequent = c}, _, _, cxt, ss ->
+               implode [seqstring (rewriteseq cxt c); " generates subgoal";
+                        if List.length ss = 1 then " " else "s "] ::
+                       ((seqstring <.> rewriteseq cxt) <* ss)
   in
   let rec numwords n =
     match n with
@@ -312,19 +313,27 @@ let rec offerChoice ps =
   | [p] -> Some (answer p)
   | (Info {kind = kind; how = how}, _, _, _, _) :: _ ->
       beforeOffering ();
+      let posses = listposs <* ps in
+      let shows = if !tryresolution && !resolvepossible then 
+                    posses @ [["Just match the conclusion, \
+                               making hypotheses of any unmatched antecedents"]] 
+                  else posses 
+      in
       match
-        askChoice
-          (implode
-             ["The "; kind; " "; step_label how; " matches in ";
-              numwords (List.length ps); " different ways. ";
-              "Select one from this list: "],
-           (listposs <* ps))
+        askChoice (implode ["The "; kind; " "; step_label how; " matches in ";
+                            numwords (List.length shows); " different ways. ";
+                            "Select one from this list: "],
+                   shows)
       with
-        None -> failOffering (); None
-      | Some n -> succeedOffering (); Some (answer (List.nth (ps) (n)))
+        None   -> failOffering (); resolvepossible:=false; None
+      | Some n -> if !tryresolution && !resolvepossible && n=List.length posses then 
+                    (failOffering (); None)
+                  else 
+                    (succeedOffering (); Some (answer (List.nth (ps) (n))))
+      
 (* this isn't really discriminatory, is it? *)
-
 let rec takethelot ps = (answer <* ps)
+
 (**************************************************************************
 ***************************************************************************)
 
