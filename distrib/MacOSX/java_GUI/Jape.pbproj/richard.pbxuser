@@ -15,7 +15,7 @@
 			F5AB83180339F3B701A80116,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 67367853;
+			PBXPerProjectTemplateStateSaveDate = 67376951;
 			"PBXTemplateGeometry-F5314676015831810DCA290F" = {
 				ContentSize = "{685, 434}";
 				LeftSlideOut = {
@@ -27,7 +27,7 @@
 						Collapsed = NO;
 						Frame = "{{0, 0}, {685, 411}}";
 						Split0 = {
-							Frame = "{{0, 301}, {685, 110}}";
+							Frame = "{{0, 224}, {685, 187}}";
 						};
 						SplitCount = 1;
 						Tab0 = {
@@ -76,10 +76,10 @@
 							};
 						};
 						Tab3 = {
-							BuildMessageFrame = "{{0, 0}, {687, 262}}";
-							BuildTranscriptFrame = "{{0, 271}, {687, 2}}";
+							BuildMessageFrame = "{{0, 0}, {687, 187}}";
+							BuildTranscriptFrame = "{{0, 196}, {687, 0}}";
 							BuildTranscriptFrameExpanded = YES;
-							Frame = "{{0, 0}, {685, 295}}";
+							Frame = "{{0, 0}, {685, 218}}";
 						};
 						Tab4 = {
 							Frame = "{{0, 0}, {612, 295}}";
@@ -155,7 +155,7 @@
 						Collapsed = YES;
 						Frame = "{{0, 0}, {594, 280}}";
 						Split0 = {
-							Frame = "{{1e+06, 1e+06}, {594, 0}}";
+							Frame = "{{1e+06, 1e+06}, {594, 27}}";
 						};
 						SplitCount = 1;
 						Tab0 = {
@@ -524,7 +524,7 @@
 				StatusViewVisible = NO;
 				Template = F5CA7ECB015C094F0DCA290F;
 				ToolbarVisible = NO;
-				WindowLocation = "{48, 103}";
+				WindowLocation = "{322, 10}";
 			};
 			PBXWorkspaceContents = (
 				{
@@ -694,7 +694,7 @@
 					WindowLocation = "{487, 20}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 67367853;
+			PBXWorkspaceStateSaveDate = 67376951;
 		};
 		projectwideBuildSettings = {
 		};

@@ -99,6 +99,7 @@
 				F560AEEB036D799701A80116,
 				F556EA5E0366E4B801A80116,
 				F563B8B703372EA501A80116,
+				799BE49A0404177B005E27BA,
 				F516FFBB031F827D01A80117,
 				F516FFB9031F825B01A80117,
 				F5E5E3E2035F171101A80116,
@@ -366,6 +367,7 @@
 				7939B40903EECF4E00A80117,
 				79B2E1E903EFE81000A80116,
 				799044D303FD5AC20014D8BC,
+				799BE49B0404177B005E27BA,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -429,8 +431,8 @@
 			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = ControlWindow.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/ControlWindow.java;
-			refType = 0;
+			path = ../../java_GUI/ControlWindow.java;
+			refType = 2;
 		};
 		7939B3FE03EEC56000A80117 = {
 			fileRef = 7939B3FD03EEC56000A80117;
@@ -448,8 +450,8 @@
 			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = MenuHolder.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/MenuHolder.java;
-			refType = 0;
+			path = ../../java_GUI/MenuHolder.java;
+			refType = 2;
 		};
 		7939B40603EEC79800A80117 = {
 			fileRef = 7939B40503EEC79800A80117;
@@ -467,8 +469,8 @@
 			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = Logger.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/Logger.java;
-			refType = 0;
+			path = ../../java_GUI/Logger.java;
+			refType = 2;
 		};
 		7939B40903EECF4E00A80117 = {
 			fileRef = 7939B40803EECF4E00A80117;
@@ -486,8 +488,8 @@
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = Jape.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/Jape.java;
-			refType = 0;
+			path = ../../java_GUI/Jape.java;
+			refType = 2;
 		};
 		799044D303FD5AC20014D8BC = {
 			fileRef = 799044D203FD5AC20014D8BC;
@@ -520,12 +522,31 @@
 			settings = {
 			};
 		};
+		799BE49A0404177B005E27BA = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = TextDialog.java;
+			path = ../../java_GUI/TextDialog.java;
+			refType = 2;
+		};
+		799BE49B0404177B005E27BA = {
+			fileRef = 799BE49A0404177B005E27BA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		799BE49C0404177B005E27BA = {
+			fileRef = 799BE49A0404177B005E27BA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		79B2E1E803EFE81000A80116 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = JapeUtils.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/JapeUtils.java;
-			refType = 0;
+			path = ../../java_GUI/JapeUtils.java;
+			refType = 2;
 		};
 		79B2E1E903EFE81000A80116 = {
 			fileRef = 79B2E1E803EFE81000A80116;
@@ -1546,6 +1567,7 @@
 				7939B40A03EECF4E00A80117,
 				79B2E1EA03EFE81000A80116,
 				799044D403FD5AC20014D8BC,
+				799BE49C0404177B005E27BA,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
