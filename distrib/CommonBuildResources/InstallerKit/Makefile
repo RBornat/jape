@@ -17,9 +17,17 @@ test1: ; java bootstrap.install test1.jar\
                    -cmdwindows   'SHORTCUT.EXE -f -t jape.cmd -n Jape -d . -i japeicon.ico' \
                    -app          "Test Application" \
                    -splash       ../japesplash.png \
+                   -label "Press one of these buttons"\
                    SHORTCUT.EXE japeicon.ico  Makefile* install.java 
                    
-test2: ; java bootstrap.install test2.jar -onunix "ls -l " -app "Another Application"  ../japesplash.png Makefile* install.java
+test2: ; java bootstrap.install test2.jar -onunix "ls -l " \
+         -boot SHORTCUT.EXE -app "Another Application"  ../japesplash.png \
+         -sync \
+         Makefile* install.java japeicon.ico\
+         -cmdwindows    'cd foo'\
+         -cmdwindows1   'foo\bootstrap\SHORTCUT.EXE -f -t test2.jar -n Jape -d . -i .\foo\japeicon.ico' 
+         
+
 test3: ; java bootstrap.install -icon japesplash.gif Makefile* install.java
 test4: ; java bootstrap.install Makefile* install.java
 
@@ -27,6 +35,7 @@ test4: ; java bootstrap.install Makefile* install.java
 #
 #
 clean:  ; rm -rf test bootstrap test*.jar
+
 
 
 

@@ -379,29 +379,36 @@ public class install implements ActionListener
     length+=l.length()+1;
   }
 
-  public static JPanel column(Component[] cs)
-  { JPanel r = new JPanel(new GridLayout(cs.length, 1));
-    for (int i=0; i<cs.length; i++) r.add(cs[i]);
+  public static Container column(Component[] cs)
+  { JToolBar r = new JToolBar();
+    for (int i=0; i<cs.length; i++) 
+    { if (i>0) r.addSeparator(new Dimension(10, 0));
+      r.add(cs[i]);
+    }
     return r;
   }
+
+  JTextField installDirField = new JTextField();
+
 
   public install(String filename)
   {  
      prop                  = getProperties(this);
      jarfilename           = filename==null?prop.getProperty("-jar"):filename;
      
-     String    splashFileName = prop.getProperty("-splash");
-     String    appName        = prop.getProperty("-app", "Jape");
-     String    tfont          = prop.getProperty("-tfont", "Monospaced-PLAIN-14");
-     String    bfont          = prop.getProperty("-bfont", "SansSerif-PLAIN-14");
-     String    caption        = "Installing "+appName+" from "+jarfilename;
-     Font      tFont          = Font.decode(tfont); //new Font("SansSerif", Font.BOLD, 18);
-     Font      bFont          = Font.decode(bfont); //new Font("SansSerif", Font.BOLD, 18);
-     JFrame    frame          = new JFrame(caption);
-     Container content        = frame.getContentPane();
-     JButton   install        = new JButton("Install "+appName);
-     JButton   exit           = new JButton("Exit Now");
-     JLabel    label          = new JLabel(caption, SwingConstants.CENTER);
+     String     splashFileName = prop.getProperty("-splash");
+     String     installDirName = prop.getProperty("-installdir", ".");
+     String     appName        = prop.getProperty("-app", "Jape");
+     String     tfont          = prop.getProperty("-tfont", "Monospaced-PLAIN-14");
+     String     bfont          = prop.getProperty("-bfont", "SansSerif-PLAIN-14");
+     String     caption        = "Installer "+appName+" from "+jarfilename;
+     Font       tFont          = Font.decode(tfont); //new Font("SansSerif", Font.BOLD, 18);
+     Font       bFont          = Font.decode(bfont); //new Font("SansSerif", Font.BOLD, 18);
+     JFrame     frame          = new JFrame(caption);
+     Container  content        = frame.getContentPane();
+     JButton    install        = new JButton("Install "+appName);
+     JButton    exit           = new JButton("Exit Now");
+     JLabel     label          = new JLabel(prop.getProperty("-label", ""));
      progress = new TextArea("", 15, 72);
      progress.setFont(tFont);
      install.addActionListener(this);
@@ -409,6 +416,7 @@ public class install implements ActionListener
      install.setFont(bFont);
      exit.setFont(bFont);
      label.setFont(bFont);
+     installDirField.setText(installDirName);    
 
      // prop.list(System.err);
      
@@ -420,7 +428,7 @@ public class install implements ActionListener
        content.add(icon, BorderLayout.NORTH);
      }
      Component[] buttons = new Component[]
-     { label, exit, install
+     {  label, /* installDirField, */ exit, install
      };
      content.add(progress,        BorderLayout.CENTER);
      content.add(column(buttons), BorderLayout.SOUTH);
@@ -438,8 +446,9 @@ public class install implements ActionListener
        { 
          boolean isWindows = System.getProperty("os.name", "Unix").startsWith("Windows");
          String  postClass = prop.getProperty(isWindows?"-classwindows":"-classunix");
-         unJar(".", new FileInputStream(jarfilename));
+         unJar(installDirField.getText().trim(), new FileInputStream(jarfilename));
          String shell = prop.getProperty(isWindows?"-cmdwindows":"-cmdunix");
+         String shell1 = prop.getProperty(isWindows?"-cmdwindows1":"-cmdunix1");
 
          if (postClass!=null)
          { Class  theClass = Class.forName(postClass);
@@ -451,6 +460,11 @@ public class install implements ActionListener
          if (shell!=null)
          { 
             execute(shell, true);
+         }
+         
+         if (shell1!=null)
+         { 
+            execute(shell1, true);
          }
          
        }
@@ -522,6 +536,7 @@ public class install implements ActionListener
 
   
 }
+
 
 
 
