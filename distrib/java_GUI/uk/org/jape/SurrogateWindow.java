@@ -1,7 +1,7 @@
 /* 
     $Id$
 
-    Copyright © 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-5 Richard Bornat & Bernard Sufrin
      
 	richard@bornat.me.uk
 	sufrin@comlab.ox.ac.uk
@@ -29,37 +29,58 @@ package uk.org.jape;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.Graphics;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 public abstract class SurrogateWindow extends JapeWindow {
     static final String message = "Jape!";
-    private Font font = new Font("serif", Font.ITALIC+Font.BOLD, 36);
+    // private Font font = new Font("serif", Font.ITALIC+Font.BOLD, 36);
     private ImageIcon logoIcon = new ImageIcon(Images.getImage("japelogo.gif"));
 
     public SurrogateWindow(String title) {
 	super(title);
-	// not happy about the way I get a border round the logo
-	// one day the drawing stuff will be in a SplashScreen class
-
-	getContentPane().setBackground(Color.white);
-	JLabel logo = new JLabel("© Richard Bornat and Bernard Sufrin 1991-2003", logoIcon, SwingConstants.CENTER);
+	int hextra = 60, vextra = 60;
+	Container pane = getContentPane();
+	pane.setBackground(Color.white);
+	JPanel panel = new JPanel();
+	pane.add(panel,BorderLayout.CENTER);
+	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+	panel.setBackground(Color.white);
+	panel.add(Box.createVerticalGlue());
+	JLabel logo = new JLabel("© Richard Bornat and Bernard Sufrin 1991-2005", logoIcon, JLabel.CENTER);
 	logo.setVerticalTextPosition(SwingConstants.BOTTOM);
 	logo.setHorizontalTextPosition(SwingConstants.CENTER);
-	getContentPane().add(logo, BorderLayout.CENTER);
-	JLabel link = new JLabel("Freeware under GPL licence: see www.jape.org.uk");
-	getContentPane().add(link, BorderLayout.SOUTH); // It ought to be in the middle ...
+        logo.setAlignmentX(Component.CENTER_ALIGNMENT);
+	panel.add(logo);
+	panel.add(Box.createVerticalGlue());
+	String version = AboutBox.getVersion();
+	if (version!=null) {
+	    vextra += 20;
+	    JLabel vlabel = new JLabel("Version "+version, JLabel.CENTER);
+	    vlabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+	    panel.add(vlabel);
+	    panel.add(Box.createVerticalGlue());
+	}
+	JLabel link = new JLabel("Freeware under GPL licence: see www.jape.org.uk", JLabel.CENTER);
+        link.setAlignmentX(Component.CENTER_ALIGNMENT);
+	panel.add(link); // It ought to be in the middle ...
+	panel.add(Box.createVerticalGlue());
 	pack();
-	setSize(getWidth()+60, getHeight()+60);
+	setSize(getWidth()+hextra, getHeight()+vextra);
 	setBar(); // by experiment, seems to be necessary before setVisible
 		  // no setVisible here ...
 
