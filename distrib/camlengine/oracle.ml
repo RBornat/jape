@@ -3,15 +3,15 @@
 open Context.Cxt
 open Env
 open Mappingfuns
-open Sml.M
-open Streamio.M
-open Stringfuns.M
+open Sml
+open Stringfuns
 
 let atoi                   = Miscellaneous.atoi
+let consolereport          = Miscellaneous.consolereport
 let explodeCollection      = Term.Funs.explodeCollection
 let isemptycollection      = Term.Funs.isemptycollection
 let getfontstuff           = Button.getfontstuff
-let setReason              = Reason.M.setReason
+let setReason              = Reason.setReason
 let termstring             = Term.Termstring.termstring
 let termOrCollectionstring = Term.Termstring.termOrCollectionstring
 
@@ -54,37 +54,33 @@ let rec _NoneBecause ss = setReason ss; None
 (* Should be in a module of its own *)
 let rec readmapping filename =
   let oracledir = getenv (getenv "." "JAPEHOME") "JAPEORACLE" in
-  let _ =
-    output_string
-      !errstream ("[OPENING " ^ oracledir ^ "/" ^ filename ^ "]\n")
-  in
+  let _ = consolereport ["[OPENING "; oracledir; "/"; filename; "]\n"] in
   try
-    let oldinput =
-      _SwapStream instream (open_in ((oracledir ^ "/") ^ filename))
-    in
+    let in_mapping = open_in ((oracledir ^ "/") ^ filename) in
     let mapping = Hashtbl.create 31 in
     let table =
       Array.init 256 
         (fun n -> if n < 128 then String.make 1 (Char.chr n) else "\\" ^ string_of_int n)
     in
     let mapped = ref false in
-    while not (eof ()) do
-      let line = words (readline ()) in
-      match line with
-        [] -> ()
-      | "ASCII" :: wd :: (wd2 :: _ as wds) ->
-          let n = try Pervasives.int_of_string wd with Failure _ -> ordof wd 0 in
-          mapped := true;
-          if 1 <= n && n <= 255 then Array.set table n (respace wds)
-      | wd :: wds ->
-          match String.get wd 0 with
-            '#' -> ()
-          | _ -> Hashtbl.add mapping wd (respace wds)
-    done;
-    output_string
-      !errstream ("[CLOSING " ^ oracledir ^ "/" ^ filename ^ "]\n");
-    close_in !instream;
-    let _ = _SwapStream instream oldinput in
+    (try
+	   while true do
+		 let line = words (input_line in_mapping) in
+		 match line with
+		   [] -> ()
+		 | "ASCII" :: wd :: (wd2 :: _ as wds) ->
+			 let n = try Pervasives.int_of_string wd with Failure _ -> ordof wd 0 in
+			 mapped := true;
+			 if 1 <= n && n <= 255 then Array.set table n (respace wds)
+		 | wd :: wds ->
+			 match String.get wd 0 with
+			   '#' -> ()
+			 | _ -> Hashtbl.add mapping wd (respace wds)
+	   done
+	 with End_of_file -> ()
+	);
+    consolereport ["[CLOSING "; oracledir; "/"; filename; "]\n"];
+    close_in in_mapping;
     Some (mapping, table, !mapped)
   with
     exn ->

@@ -2,15 +2,12 @@
 
 module type T =
   sig
-    type tree = Absprooftree.tree
-    and 'a hit = 'a Hit.hit
-    and displayclass = Displayclass.displayclass
-    and hitkind = Hit.hitkind
-    and pos = Box.pos
-    and size = Box.size
-    and box = Box.box
-    and textbox = Box.textbox
-    and layout
+    open Absprooftree
+    open Hit
+    open Displayclass
+    open Box
+
+    type layout
     
     val clearView : unit -> unit val viewBox : unit -> box
     val layout : tree -> layout
@@ -30,5 +27,3 @@ module type T =
     val targetbox : int list option -> layout -> textbox option
     val samelayout : layout * layout -> bool
   end
-
-

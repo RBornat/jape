@@ -5,12 +5,12 @@ open Mappingfuns
 open Miscellaneous
 open Name
 open Optionfuns 
-open Panelkind.M
-open Sml.M
-open Stringfuns.M
+open Panelkind
+open Sml
+open Stringfuns
 
-type panelkind = Panelkind.M.panelkind
- and panelbuttoninsert = Panelkind.M.panelbuttoninsert
+type panelkind = Panelkind.panelkind
+ and panelbuttoninsert = Panelkind.panelbuttoninsert
  and name = Name.name
  
 let systemmenus = ["File"; "Edit"] (* filth; introduced by RB *)

@@ -84,13 +84,13 @@ end
 
 module Type : Type with type name = Name.name
 					and type term = Term.Funs.term
-					and type treelayout = Treelayout.M.treelayout
+					and type treelayout = Treelayout.treelayout
 					and type seq = Sequent.Funs.seq
 =
   struct
     type name = Name.name
 	 and term = Term.Funs.term
-	 and treelayout = Treelayout.M.treelayout
+	 and treelayout = Treelayout.treelayout
 	 and seq = Sequent.Funs.seq
 	 
     type tactic =
@@ -215,14 +215,14 @@ module Funs : Funs with type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
     open Nametype
     open Name
     open Optionfuns
-    open Sml.M
+    open Sml
     open Sequent.Funs
-    open Stringfuns.M
+    open Stringfuns
     open Term.Funs
     open Term.Termstring
     open Term.Type
     open Term.Store
-    open Treelayout.M    
+    open Treelayout    
     
     type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
      and name = Name.name

@@ -79,10 +79,10 @@ open Listfuns
 open Minwaste
 open Mappingfuns
 open Optionfuns
-open Sml.M
+open Sml
 open Term.Termstring
-open Text.M
-open Thing.M
+open Text
+open Thing
 
 type box = Box.box
  and displayclass = Displayclass.displayclass
@@ -100,20 +100,20 @@ let measurestring f s = Japeserver.measurestring(f,s)
 let consolereport = Miscellaneous.consolereport
 let cuthidingdebug = Prooftree.Tree.cuthidingdebug
 let element2term = Term.Funs.element2term
-let enQuote = Stringfuns.M.enQuote
+let enQuote = Stringfuns.enQuote
 let explodebinapp = Term.Funs.explodebinapp
 let findfirst = Optionfuns.findfirst
 let foldformulae = Miscellaneous.foldformulae
-let isRelation = Thing.M.isRelation
-let pairstring = Stringfuns.M.pairstring
+let isRelation = Thing.isRelation
+let pairstring = Stringfuns.pairstring
 let pathstring = Listfuns.bracketedliststring string_of_int ","
-let quadruplestring = Stringfuns.M.quadruplestring
+let quadruplestring = Stringfuns.quadruplestring
 let reasonstring = (fun s -> s)
 let screenpositiondebug = Miscellaneous.screenpositiondebug
 let seqstring = Sequent.Funs.seqstring
 let sameresource = Term.Funs.sameresource
 let textboxstring = Box.textboxstring
-let triplestring = Stringfuns.M.triplestring
+let triplestring = Stringfuns.triplestring
 let truncatereasons = Miscellaneous.truncatereasons
 let turnstiles = Sequent.Funs.syntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2

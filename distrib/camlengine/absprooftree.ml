@@ -1,29 +1,29 @@
 (* $Id$ *)
 
-open Text.M
+open Text
 open Displayfont
 open Treeformat.VisFmt
 open Prooftree.Tree
 open Prooftree.Tree.Vistree
-open Sml.M
+open Sml
 
 let commasymbol       = Symbol.commasymbol
 let debracket         = Term.Funs.debracket
 let explodeCollection = Term.Funs.explodeCollection
-let isstructurerule   = Thing.M.isstructurerule
-let proved            = Proofstore.M.proved
+let isstructurerule   = Thing.isstructurerule
+let proved            = Proofstore.proved
 let seqexplode        = Sequent.Funs.seqexplode
 let symbolstring      = Symbol.symbolstring
 
 let termstring_invisbracketed    = Term.Termstring.termstring_invisbracketed
 let elementstring_invisbracketed = Term.Termstring.elementstring_invisbracketed
 
-type structurerule = Thing.M.structurerule
+type structurerule = Thing.structurerule
  and tree          = Prooftree.Tree.Vistree.prooftree
  and sequent       = Sequent.Funs.seq
  and reason        = string
  and element       = Term.Funs.element
- and text          = Text.M.text
+ and text          = Text.text
  and term          = Term.Funs.term
  and font          = Displayfont.displayfont
 

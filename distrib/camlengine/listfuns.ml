@@ -1,7 +1,7 @@
 (* $Id$ *)
 
 open Miscellaneous
-open Sml.M
+open Sml
           
 exception First exception Reduce
 (* Bird-Meertens folding *)

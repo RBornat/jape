@@ -1,11 +1,11 @@
 (* $Id$ *)
 
 type tree = Prooftree.Tree.Vistree.prooftree
-and structurerule = Thing.M.structurerule
+and structurerule = Thing.structurerule
 and font = Displayfont.displayfont
 and sequent = Sequent.Funs.seq
 and reason
-and text = Text.M.text
+and text = Text.text
 and term = Term.Funs.term
 and element = Term.Funs.element
 

@@ -1,16 +1,16 @@
 (* $Id$ *)
 
 open Mappingfuns
-open Sml.M
+open Sml
 
 let atoi = Miscellaneous.atoi
 let bracketedliststring = Listfuns.bracketedliststring
 let consolereport = Miscellaneous.consolereport
-let enQuote = Stringfuns.M.enQuote
+let enQuote = Stringfuns.enQuote
 let liststring2 = Listfuns.liststring2
 let member = Listfuns.member
 let namestring = Name.namestring
-let string2term = Termparse.M.asTactic Termparse.M.string2term
+let term_of_string = Termparse.asTactic Termparse.term_of_string
 let termstring = Term.Termstring.termstring
 
 exception AtoI_ = Miscellaneous.AtoI_
@@ -112,7 +112,7 @@ let rec at (env, name) =
   match Mappingfuns.at (env, name) with
     Some (Envterm t) -> Some t
   | Some (Envvar v) ->
-      begin try Some (string2term (getjapevar v)) with
+      begin try Some (term_of_string (getjapevar v)) with
         ParseError_ rs ->
           raise
             (Catastrophe_

@@ -1,14 +1,13 @@
 (* $Id$ *)
 
-type element = Term.Funs.element
-and facts = Facts.facts
-and forcedef = Forcedef.forcedef
-and model = Forcedef.model
-and path = Prooftree.Tree.Fmttree.path
-and prooftree = Prooftree.Tree.Fmttree.prooftree
-and seq = Seqdraw.M.seq
-and term = Term.Funs.term
-and universe
+open Term.Funs
+open Facts
+open Prooftree.Tree.Fmttree
+open Sequent.Funs
+
+type forcedef = Forcedef.forcedef
+ and model = Forcedef.model
+ and universe
 
 val catelim_universestring : string -> universe -> string list -> string list
 val universestring : string -> universe -> string

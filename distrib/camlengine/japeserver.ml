@@ -16,14 +16,14 @@ open Displayfont
 open Displayclass
 open Listfuns
 open Miscellaneous
-open Sml.M
+open Sml
 
 type box = Box.box
  and displayclass = Displayclass.displayclass
  and font = Displayfont.displayfont
  and pane = Displayfont.pane
- and panelbuttoninsert = Panelkind.M.panelbuttoninsert
- and panelkind = Panelkind.M.panelkind
+ and panelbuttoninsert = Panelkind.panelbuttoninsert
+ and panelkind = Panelkind.panelkind
  and pos = Box.pos
  and size = Box.size
  and textsize = Box.textsize
@@ -373,7 +373,7 @@ let rec tickmenuentry (menu, label, state) =
   let n = findmenu menu in
   let state = if state then "1" else "0" in
   writef "TICKMENUENTRY % \"%\" %\n" [Str n; Str label; Str state]
-open Panelkind.M
+open Panelkind
 let rec newpanel (name, panelkind) =
   let kind =
     match panelkind with

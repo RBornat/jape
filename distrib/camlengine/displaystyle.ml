@@ -7,14 +7,8 @@ module type Style = sig val style : Displaystate.displaystate end
 module F
   (AAA :
     sig
-      module Screendraw : Screendraw.T with type tree = Prooftree.Tree.Vistree.prooftree
-                                        and type 'a hit = 'a Hit.hit
-                                        and type hitkind = Hit.hitkind
-                                        and type pos = Box.pos
-                                        and type textbox = Box.textbox
-                                        and type box = Box.box
-                                        and type displayclass = Displayclass.displayclass
-      val abstracttree  : Screendraw.tree -> Screendraw.tree
+      module Screendraw : Screendraw.T 
+      val abstracttree  : Absprooftree.tree -> Absprooftree.tree
     end)
   : Style =
   struct
@@ -38,7 +32,7 @@ module F
     let tranhitpath = Hit.tranhitpath
     let try__ = Optionfuns.try__
     let vispath = Prooftree.Tree.pathtoviewpath
-    let visproof = Prooftree.Tree.visproof Proofstore.M.proved
+    let visproof = Prooftree.Tree.visproof Proofstore.proved
     let showallproofsteps = Prooftree.Tree.showallproofsteps
     let hideuselesscuts = Prooftree.Tree.hideuselesscuts
     
@@ -204,7 +198,7 @@ module F
   end
 
 module Treestyle : Style = F (struct
-								module Screendraw = Treedraw.M
+								module Screendraw = Treedraw
 								let abstracttree t = t
 							  end)
 

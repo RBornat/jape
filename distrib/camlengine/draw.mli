@@ -1,14 +1,14 @@
 (* $Id$ *)
 
-type text = Text.M.text
-and textlayout = Text.M.textlayout
-and textalign = Text.M.textalign
+type text = Text.text
+and textlayout = Text.textlayout
+and textalign = Text.textalign
 and textsize = Box.textsize
 and pos = Box.pos
 and size = Box.size
 and box = Box.box
 and textbox = Box.textbox
-and font = Text.M.font
+and font = Text.font
 and displayclass = Displayclass.displayclass
 and element = Term.Funs.element
 and term = Term.Funs.term

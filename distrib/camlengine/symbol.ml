@@ -14,12 +14,12 @@ open Symboltype
 
 open Idclass
 open Searchtree
-open Prestring.M
+open Prestring
 open Listfuns
 open Miscellaneous
 open Optionfuns
-open Stringfuns.M
-open Sml.M
+open Stringfuns
+open Sml
 
 type idclass = Idclass.idclass
  and associativity = Symboltype.associativity
@@ -185,65 +185,65 @@ let rec reverselookup symbol =
   | _ -> Hashtbl.find reversemapping symbol
 let rec preclassopt =
   function
-    Some c -> BQuote2 ["Some("; idclassstring c; ")"]
-  | None -> BQuote2 ["None"]
+    Some c -> Prestrs ["Some("; idclassstring c; ")"]
+  | None -> Prestrs ["None"]
 let rec pre_assoc a =
   match a with
-    LeftAssoc -> BQuote1 "LeftAssoc"
-  | RightAssoc -> BQuote1 "RightAssoc"
-  | AssocAssoc -> BQuote1 "AssocAssoc"
-  | TupleAssoc -> BQuote1 "TupleAssoc"
-  | CommAssocAssoc -> BQuote1 "CommAssocAssoc"
+    LeftAssoc -> Prestr "LeftAssoc"
+  | RightAssoc -> Prestr "RightAssoc"
+  | AssocAssoc -> Prestr "AssocAssoc"
+  | TupleAssoc -> Prestr "TupleAssoc"
+  | CommAssocAssoc -> Prestr "CommAssocAssoc"
 
 let rec pre_SYMBOL s =
   match s with
     ID (s'1, class__) ->
-      BQuote3
-        [BQuote1 "ID("; BQuote1 "\""; BQuote1 s'1; BQuote1 "\""; pre__comma;
-         preclassopt class__; BQuote1 ")"]
+      Prepres
+        [Prestr "ID("; Prestr "\""; Prestr s'1; Prestr "\""; pre__comma;
+         preclassopt class__; Prestr ")"]
   | UNKNOWN (s'1, class__) ->
-      BQuote3
-        [BQuote1 "UNKNOWN("; BQuote1 "\""; BQuote1 s'1; BQuote1 "\"";
-         pre__comma; preclassopt class__; BQuote1 ")"]
-  | NUM s'1 -> BQuote3 [BQuote1 "NUM "; pre_string s'1]
-  | STRING s'1 -> BQuote3 [BQuote1 "STRING \""; BQuote1 s'1; BQuote1 "\""]
-  | BRA s'1 -> BQuote2 ["BRA \""; s'1; "\""]
-  | SEP s'1 -> BQuote2 ["SEP \""; s'1; "\""]
-  | KET s'1 -> BQuote2 ["KET \""; s'1; "\""]
-  | SUBSTBRA -> BQuote2 ["SUBSTBRA"; (try " \"" ^ reverselookup SUBSTBRA ^ "\"" with Not_found -> "")]
-  | SUBSTSEP -> BQuote2 ["SUBSTSEP"; (try " \"" ^ reverselookup SUBSTSEP ^ "\"" with Not_found -> "")]
-  | SUBSTKET -> BQuote2 ["SUBSTKET"; (try " \"" ^ reverselookup SUBSTKET ^ "\"" with Not_found -> "")]
-  | EOF -> BQuote1 "EOF"
+      Prepres
+        [Prestr "UNKNOWN("; Prestr "\""; Prestr s'1; Prestr "\"";
+         pre__comma; preclassopt class__; Prestr ")"]
+  | NUM s'1 -> Prepres [Prestr "NUM "; pre_string s'1]
+  | STRING s'1 -> Prepres [Prestr "STRING \""; Prestr s'1; Prestr "\""]
+  | BRA s'1 -> Prestrs ["BRA \""; s'1; "\""]
+  | SEP s'1 -> Prestrs ["SEP \""; s'1; "\""]
+  | KET s'1 -> Prestrs ["KET \""; s'1; "\""]
+  | SUBSTBRA -> Prestrs ["SUBSTBRA"; (try " \"" ^ reverselookup SUBSTBRA ^ "\"" with Not_found -> "")]
+  | SUBSTSEP -> Prestrs ["SUBSTSEP"; (try " \"" ^ reverselookup SUBSTSEP ^ "\"" with Not_found -> "")]
+  | SUBSTKET -> Prestrs ["SUBSTKET"; (try " \"" ^ reverselookup SUBSTKET ^ "\"" with Not_found -> "")]
+  | EOF -> Prestr "EOF"
   | PREFIX (s'1, s'2) ->
-      BQuote3
-        [BQuote1 "PREFIX ("; pre_int s'1; pre__comma; BQuote1 "\"";
-         BQuote1 s'2; BQuote1 "\")"]
+      Prepres
+        [Prestr "PREFIX ("; pre_int s'1; pre__comma; Prestr "\"";
+         Prestr s'2; Prestr "\")"]
   | POSTFIX (s'1, s'2) ->
-      BQuote3
-        [BQuote1 "POSTFIX ("; pre_int s'1; pre__comma; BQuote1 "\"";
-         BQuote1 s'2; BQuote1 "\")"]
+      Prepres
+        [Prestr "POSTFIX ("; pre_int s'1; pre__comma; Prestr "\"";
+         Prestr s'2; Prestr "\")"]
   | INFIX (s'1, s'2, s'3) ->
-      BQuote3
-        [BQuote1 "INFIX("; pre_int s'1; pre__comma; pre_assoc s'2;
-         pre__comma; BQuote1 "\""; BQuote1 s'3; BQuote1 "\")"]
+      Prepres
+        [Prestr "INFIX("; pre_int s'1; pre__comma; pre_assoc s'2;
+         pre__comma; Prestr "\""; Prestr s'3; Prestr "\")"]
   | INFIXC (s'1, s'2, s'3) ->
-      BQuote3
-        [BQuote1 "INFIXC("; pre_int s'1; pre__comma; pre_assoc s'2;
-         pre__comma; BQuote1 "\""; BQuote1 s'3; BQuote1 "\")"]
+      Prepres
+        [Prestr "INFIXC("; pre_int s'1; pre__comma; pre_assoc s'2;
+         pre__comma; Prestr "\""; Prestr s'3; Prestr "\")"]
   | LEFTFIX (s'1, s'2) ->
-      BQuote3
-        [BQuote1 "LEFTFIX("; pre_int s'1; pre__comma; BQuote1 "\"";
-         BQuote1 s'2; BQuote1 "\")"]
+      Prepres
+        [Prestr "LEFTFIX("; pre_int s'1; pre__comma; Prestr "\"";
+         Prestr s'2; Prestr "\")"]
   | MIDFIX (s'1, s'2) ->
-      BQuote3
-        [BQuote1 "MIDFIX("; pre_int s'1; pre__comma; BQuote1 "\"";
-         BQuote1 s'2; BQuote1 "\")"]
+      Prepres
+        [Prestr "MIDFIX("; pre_int s'1; pre__comma; Prestr "\"";
+         Prestr s'2; Prestr "\")"]
   | RIGHTFIX (s'1, s'2) ->
-      BQuote3
-        [BQuote1 "RIGHTFIX("; pre_int s'1; pre__comma; BQuote1 "\"";
-         BQuote1 s'2; BQuote1 "\")"]
-  | STILE s'1 -> BQuote2 ["STILE \""; s'1; "\""]
-  | SHYID s'1 -> BQuote2 ["RESERVED-WORD "; s'1]
+      Prepres
+        [Prestr "RIGHTFIX("; pre_int s'1; pre__comma; Prestr "\"";
+         Prestr s'2; Prestr "\")"]
+  | STILE s'1 -> Prestrs ["STILE \""; s'1; "\""]
+  | SHYID s'1 -> Prestrs ["RESERVED-WORD "; s'1]
 
 let smlsymbolstring = pre_implode <*> pre_SYMBOL
 
@@ -339,7 +339,7 @@ let rec carefullyEnter (s, t) =
       else
         raise
           (ParseError_
-             ["Attempt to redefine the syntactic role of BQuote2"; s;
+             ["Attempt to redefine the syntactic role of Prestrs"; s;
               "'' to "; smlsymbolstring t])
 
 let decVarPrefixes : (idclass, string) Mappingfuns.mapping ref =

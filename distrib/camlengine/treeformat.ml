@@ -44,18 +44,18 @@ module type Fmt =
     val fmtpathstring : fmtpath -> string
   end
 
-module Fmt : Fmt with type treelayout = Treelayout.M.treelayout
+module Fmt : Fmt with type treelayout = Treelayout.treelayout
                   and type term = Term.Funs.term
 =
   struct
     open Listfuns
     open Optionfuns
-    open Sml.M
-    open Stringfuns.M
+    open Sml
+    open Stringfuns
     open Term.Funs
-    open Treelayout.M
+    open Treelayout
     
-    type treelayout = Treelayout.M.treelayout
+    type treelayout = Treelayout.treelayout
      and term = Term.Funs.term
     
     (* the complexity of this datatype, and the shenanigans relating to its translation, are all due to 
@@ -138,7 +138,7 @@ module Fmt : Fmt with type treelayout = Treelayout.M.treelayout
       | NamedLayout stuff -> l2f false stuff
     
     let ints2term tns = Term.Store.registerTup (",", int2term <* tns)
-    let string2term s = Term.Store.registerLiteral(Term.Type.String s)
+    let term_of_string s = Term.Store.registerLiteral(Term.Type.String s)
 
     let rec format2layouts =
       fun (TreeFormat (tfk, tff) as f) ->
@@ -148,7 +148,7 @@ module Fmt : Fmt with type treelayout = Treelayout.M.treelayout
               CompressedLayout (ly s isopt) :: layout nfs
           | (false, s, isopt) :: nfs -> NamedLayout (ly s isopt) :: layout nfs
           | [] -> []
-        and ly s isopt = string2term s, try__ ints2term isopt in
+        and ly s isopt = term_of_string s, try__ ints2term isopt in
         let ls =
           match tff with
             DefaultFormat -> []
@@ -190,7 +190,7 @@ module type VisFmt =
 
 module VisFmt : VisFmt =
   struct
-    open Stringfuns.M
+    open Stringfuns
     open Listfuns
     
     type visformat = VisFormat of (bool * bool)

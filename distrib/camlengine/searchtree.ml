@@ -2,7 +2,7 @@
 
 open Listfuns
 open Miscellaneous
-open Sml.M
+open Sml
 
 (* updatable syntax search trees, without backtracking. 
  * The trees have to allow for 'prefix' searching, where there is

@@ -3,12 +3,12 @@
 open Nametype
 
 open Miscellaneous
-open Stringfuns.M
+open Stringfuns
 open Symbol 
 open Symboltype 
 open Term.Funs
 open Term.Type 
-open Termparse.M
+open Termparse
 
 type name = Nametype.name
  and term = Term.Funs.term

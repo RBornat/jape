@@ -2,7 +2,7 @@
 
 open Miscellaneous
 open Listfuns
-open Sml.M
+open Sml
 
 type ('a, 'b) mapping = ('a * 'b) list
 

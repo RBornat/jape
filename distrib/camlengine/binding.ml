@@ -5,7 +5,7 @@ open Mappingfuns
 open Match
 open Miscellaneous
 open Optionfuns
-open Stringfuns.M
+open Stringfuns
 open Term.Funs
 open Term.Termstring
 

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-open Sml.M
+open Sml
    
 let rec iter f (l, h) =
   if l > h then () else begin f l; iter f (l + 1, h) end
@@ -101,7 +101,7 @@ let lockket = '\015' (* SI *)
  *)
 let invisible_char c = (onbra <= c && c <= outket) || c = lockbra || c = lockket
 let invisible s =
-  not (List.exists (not <*> invisible_char) (char_explode s))
+  not (List.exists (not <*> invisible_char) (chars_of_string s))
 
 exception Catastrophe_ of string list
 exception ParseError_ of string list

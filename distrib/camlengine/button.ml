@@ -16,7 +16,7 @@
 
 open Menu 
 open Mappingfuns
-open Panelkind.M
+open Panelkind
 open Name
     
 type name = Name.name

@@ -6,7 +6,7 @@
 
 open Japeserver
 open Optionfuns
-open Sml.M
+open Sml
 open Miscellaneous
 open Listfuns
 

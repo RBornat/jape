@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-open Sml.M
+open Sml
 	
 type element = Term.Type.element
 
@@ -8,9 +8,9 @@ let bracketedliststring = Listfuns.bracketedliststring
 let elementstring       = Term.Termstring.smlelementstring Term.Termstring.termstring
 let optionmap           = Optionfuns.optionmap
 let optionstring        = Optionfuns.optionstring
-let pairstring          = Stringfuns.M.pairstring
-let triplestring        = Stringfuns.M.triplestring
-let sextuplestring      = Stringfuns.M.sextuplestring
+let pairstring          = Stringfuns.pairstring
+let triplestring        = Stringfuns.triplestring
+let sextuplestring      = Stringfuns.sextuplestring
 
 type side = Left | Right
 type 'a hit = FormulaHit of 'a fhit | ReasonHit of 'a

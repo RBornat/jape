@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-open Panelkind.M
+open Panelkind
 open Name
  
 val panelbuttoninsertstring : panelbuttoninsert -> string

@@ -7,23 +7,23 @@
 open Box 
 open Japeserver 
 open Mappingfuns 
-open Sml.M
-open Text.M
+open Sml
+open Text
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 
 type term       = Term.Funs.term
  and element    = Term.Funs.element
  and reason     = Absprooftree.reason
- and textlayout = Text.M.textlayout
- and text       = Text.M.text
- and textalign  = Text.M.textalign
+ and textlayout = Text.textlayout
+ and text       = Text.text
+ and textalign  = Text.textalign
  and textsize   = Box.textsize
  and pos        = Box.pos
  and size       = Box.size
  and box        = Box.box
  and textbox    = Box.textbox
- and font       = Text.M.font
+ and font       = Text.font
  and displayclass = Displayclass.displayclass
  
 let consolereport = Miscellaneous.consolereport
@@ -32,13 +32,13 @@ let elementstring = Term.Termstring.elementstring
 let findfirst     = Optionfuns.findfirst
 let interpolate   = Listfuns.interpolate
 let optionstring  = Optionfuns.optionstring
-let pairstring    = Stringfuns.M.pairstring
+let pairstring    = Stringfuns.pairstring
 let proofpane     = Displayfont.ProofPane
 let reason2text   = Absprooftree.reason2text
 let reason2fontNstring = Absprooftree.reason2fontNstring
 let term2text     = Absprooftree.term2text
 let termstring    = Term.Termstring.termstring
-let triplestring  = Stringfuns.M.triplestring
+let triplestring  = Stringfuns.triplestring
 
 let fontinfo = fontinfo
 and blacken = blacken
@@ -78,7 +78,7 @@ let rec linethickness leading =
   let r = max ((leading + 2) / 3) (1) in(* consolereport["leading ", string_of_int leading, "; thickness ", string_of_int r]; *)
    r
 let setproofparams = Japeserver.setproofparams
-let rec measuretext ta t = Text.M.measuretext Japeserver.measurestring ta t
+let rec measuretext ta t = Text.measuretext Japeserver.measurestring ta t
 (* note fixed alignment, so don't use for folded/multiline texts *)
 let text2textinfo = measuretext FirstLine
 let rec mktextinfo f = text2textinfo <*> f

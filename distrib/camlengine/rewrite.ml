@@ -41,8 +41,8 @@ module type Rew =
 module Rew : Rew with type cxt = Context.Cxt.cxt 
 				  and type term = Term.Funs.term 
 				  and type seq = Sequent.Type.seq
-				  and type rewinf = Rewinf.M.rewinf
-				  and type proviso = Proviso.M.proviso
+				  and type rewinf = Rewinf.rewinf
+				  and type proviso = Proviso.proviso
 				  and type resnum = Term.Type.resnum
 				  and type vid = Term.Type.vid
                   and type element = Term.Type.element
@@ -59,12 +59,13 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
     open Mappingfuns
     open Miscellaneous
     open Optionfuns
-    open Proviso.M
-    open Rewinf.M
+    open Provisotype (* ok. RB *)
+    open Proviso
+    open Rewinf
     open Sequent.Type
     open Sequent.Funs
-    open Sml.M
-    open Substmapfuns.M
+    open Sml
+    open Substmapfuns
     open Term.Funs
     open Term.Store
     open Term.Termstring
@@ -73,13 +74,13 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
     type cxt = Context.Cxt.cxt 
      and term = Term.Funs.term 
      and seq = Sequent.Type.seq
-     and rewinf = Rewinf.M.rewinf
-     and proviso = Proviso.M.proviso
+     and rewinf = Rewinf.rewinf
+     and proviso = Proviso.proviso
      and resnum = Term.Type.resnum
      and vid = Term.Type.vid
      and element = Term.Type.element
     
-    let rewinfstring = Rewinf.M.rewinfstring
+    let rewinfstring = Rewinf.rewinfstring
     
     let rewritedebug = ref false
     (* the rewrite functions rewrite a term/sequent/proviso, 

@@ -6,12 +6,12 @@ open Displayclass
 open Displayfont
 open Displaystate
 open Hit
-open Proofstate.M
+open Proofstate
 open Prooftree.Tree.Fmttree
 open Sequent.Funs
 open Sequent.Type
-open Sml.M
-open Stringfuns.M
+open Sml
+open Stringfuns
 open Treeformat.Fmt
 
 let ( <| ) = Listfuns.( <| )
@@ -26,7 +26,7 @@ let elementstring = Term.Termstring.elementstring
 let findfirst = Optionfuns.findfirst
 let interpolate = Listfuns.interpolate
 let invisible = Miscellaneous.invisible
-let lowercase = Stringfuns.M.lowercase
+let lowercase = Stringfuns.lowercase
 let member = Listfuns.member
 let numbered = Listfuns.numbered
 let optionfilter = Optionfuns.optionfilter
@@ -35,7 +35,7 @@ let provisos = Context.Cxt.provisos
 let replaceelement = Term.Funs.replaceelement
 let rewritecxt = Rewrite.Funs.rewritecxt
 let seektipselection = Miscellaneous.seektipselection
-let selection2Subst = Selection.M.selection2Subst
+let selection2Subst = Selection.selection2Subst
 let setComment = Alert.setComment
 let showAlert = Alert.showAlert Alert.defaultseverity_alert
 let smlelementstring = Term.Termstring.smlelementstring
@@ -45,7 +45,7 @@ let termstring = Term.Termstring.termstring
 let try__ = Optionfuns.try__
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
-exception Selection_ = Selection.M.Selection_
+exception Selection_ = Selection.Selection_
 exception None_ = Optionfuns.None_
 exception DeadServer_ = Japeserver.DeadServer_
 
@@ -428,21 +428,21 @@ let rec getCommand displayopt =
       getCommand displayopt
 let showallprovisos = ref false
 let rec filterprovisos ps =
-  if !showallprovisos then ps else Proviso.M.provisovisible <| ps
+  if !showallprovisos then ps else Proviso.provisovisible <| ps
 let rec sortprovisos ps =
   sort
     (fun p1 p2 ->
-       let b1 = Proviso.M.provisovisible p1 in
-       let b2 = Proviso.M.provisovisible p2 in
+       let b1 = Proviso.provisovisible p1 in
+       let b2 = Proviso.provisovisible p2 in
        (not b1 && b2) ||
        (b1 = b2 &&
-        Proviso.M.earlierproviso
-          (Proviso.M.provisoactual p1) (Proviso.M.provisoactual p2)))
+        Proviso.earlierproviso
+          (Proviso.provisoactual p1) (Proviso.provisoactual p2)))
     ps
 let rec setProvisos cxt =
   let ps = sortprovisos (provisos cxt) in
   Japeserver.setProvisos
-    (ProvisoFont, List.map Proviso.M.visprovisostring (filterprovisos ps))
+    (ProvisoFont, List.map Proviso.visprovisostring (filterprovisos ps))
 let rec setGivens givens =
   Japeserver.setGivens (numbered (List.map seqstring givens))
 let rec printProvisos outstream cxt =
@@ -454,7 +454,7 @@ let rec printProvisos outstream cxt =
       List.iter
         (fun p ->
            output_string outstream
-             (("\"" ^ Proviso.M.visprovisostring p) ^ "\" ");
+             (("\"" ^ Proviso.visprovisostring p) ^ "\" ");
            output_string outstream "\n")
         (filterprovisos ps);
       output_string outstream ")"

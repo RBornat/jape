@@ -16,21 +16,16 @@ open Japeserver
 open Listfuns
 open Mappingfuns
 open Optionfuns
-open Predicate.M
-open Seqdraw.M
-open Sml.M
+open Predicate
+open Seqdraw
+open Sequent.Funs
+open Sml
 open Term.Funs
 open Term.Store
 open Term.Termstring
 
-type element = Term.Funs.element
- and facts = Facts.facts
- and forcedef = Forcedef.forcedef
+type forcedef = Forcedef.forcedef
  and model = Forcedef.model
- and path = Prooftree.Tree.Fmttree.path
- and prooftree = Prooftree.Tree.Fmttree.prooftree 
- and seq = Seqdraw.M.seq
- and term = Term.Funs.term
 
 let atoi = Miscellaneous.atoi
 let rec ask ss bs def =
@@ -43,7 +38,7 @@ let drawindisproofpane () = drawinpane Displayfont.DisproofPane
 let getsemanticturnstile = Sequent.Funs.getsemanticturnstile
 let isdigit = Miscellaneous.isdigit
 let isextensibleID = Symbol.isextensibleID
-let lowercase = Stringfuns.M.lowercase
+let lowercase = Stringfuns.lowercase
 let matchdebug = Match.matchdebug
 let matchvars = Match.matchvars 
 let mkSeq = Sequent.Funs.mkSeq
@@ -52,17 +47,17 @@ let offbraket = String.make 1 Miscellaneous.offbra, String.make 1 Miscellaneous.
 let outbraket = String.make 1 Miscellaneous.outbra, String.make 1 Miscellaneous.outket
 let lockbraket = String.make 1 Miscellaneous.lockbra, String.make 1 Miscellaneous.lockket
 let option_remapterm = Match.option_remapterm
-let parseTerm = Termparse.M.string2term
-let pairstring = Stringfuns.M.pairstring
+let parseTerm = Termparse.term_of_string
+let pairstring = Stringfuns.pairstring
 let planinfo = Draw.planinfo
 let seqexplode = Sequent.Funs.seqexplode
 let seqstring = Sequent.Funs.seqstring
 let seqvars = Sequent.Funs.seqvars termvars tmerge
 let showAlert = Alert.showAlert Alert.defaultseverity_alert <*> implode
-let simplifySubst = Substmapfuns.M.simplifySubst
+let simplifySubst = Substmapfuns.simplifySubst
 let smlseqstring = Sequent.Funs.smlseqstring
 let subtree = Prooftree.Tree.Fmttree.followPath
-let triplestring = Stringfuns.M.triplestring
+let triplestring = Stringfuns.triplestring
 let uncurry2 = Miscellaneous.uncurry2
 
 let rec term2binding t =
@@ -70,8 +65,8 @@ let rec term2binding t =
     Some t' -> Some (registerBinding t')
   | None -> None
     
-let catelim_pairstring = Stringfuns.M.catelim_pairstring
-let catelim_triplestring = Stringfuns.M.catelim_triplestring
+let catelim_pairstring = Stringfuns.catelim_pairstring
+let catelim_triplestring = Stringfuns.catelim_triplestring
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception ParseError_ = Miscellaneous.ParseError_

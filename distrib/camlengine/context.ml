@@ -19,21 +19,21 @@ sig
 end
 
 module Type : Type with type seq = Sequent.Type.seq 
-                    and type rewinf = Rewinf.M.rewinf
+                    and type rewinf = Rewinf.rewinf
                     and type term = Term.Funs.term
                     and type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
 					and type vid = Term.Funs.vid
 					and type resnum = Term.Funs.resnum
-                    and type visproviso = Proviso.M.visproviso
+                    and type visproviso = Proviso.visproviso
 =
 struct 
     type seq = Sequent.Type.seq
-     and rewinf = Rewinf.M.rewinf
+     and rewinf = Rewinf.rewinf
      and term = Term.Funs.term
      and ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
      and vid = Term.Funs.vid
      and resnum = Term.Funs.resnum
-     and visproviso = Proviso.M.visproviso
+     and visproviso = Proviso.visproviso
     
     (* this information perhaps ought to be elsewhere in the proof state, but it's here
      * now, so what the hell.
@@ -88,13 +88,13 @@ module Cxtstring : Cxtstring with type cxt = Type.cxt
     
     open Listfuns
     open Sequent.Funs
-    open Stringfuns.M
+    open Stringfuns
     open Optionfuns
-    open Rewinf.M
+    open Rewinf
     open Term.Termstring
     open Mappingfuns
-    open Sml.M
-    open Proviso.M
+    open Sml
+    open Proviso
     
     type cxt = Type.cxt
      and exterior = Type.exterior
@@ -177,8 +177,8 @@ module Cxt : Cxt with type cxt = Type.cxt
                   and type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
                   and type vid = Term.Funs.vid
                   and type resnum = Term.Funs.resnum
-                  and type proviso = Proviso.M.proviso
-                  and type visproviso = Proviso.M.visproviso
+                  and type proviso = Proviso.proviso
+                  and type visproviso = Proviso.visproviso
                   and type idclass = Idclass.idclass
 =
   struct
@@ -190,19 +190,19 @@ module Cxt : Cxt with type cxt = Type.cxt
      and ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
      and vid = Term.Funs.vid
      and resnum = Term.Funs.resnum
-     and proviso = Proviso.M.proviso
-     and visproviso = Proviso.M.visproviso
+     and proviso = Proviso.proviso
+     and visproviso = Proviso.visproviso
      and idclass = Idclass.idclass
     
     open Mappingfuns
-    open Rewinf.M
-    open Proviso.M
+    open Rewinf
+    open Proviso
     open Term.Funs
     open Term.Store
-    open Sml.M
+    open Sml
     open Listfuns
     
-    let fNotinProviso v = Proviso.M.NotinProviso v
+    let fNotinProviso v = Provisotype.NotinProviso v
 
     let varmap = fun (Context {varmap = varmap}) -> varmap
     let resmap = fun (Context {resmap = resmap}) -> resmap
@@ -301,15 +301,15 @@ module type RewCxt =
   end
 
 module RewCxt : RewCxt with type cxt = Type.cxt 
-                        and type visproviso = Proviso.M.visproviso
-                        and type rewinf = Rewinf.M.rewinf
+                        and type visproviso = Proviso.visproviso
+                        and type rewinf = Rewinf.rewinf
 =
   struct
     open Type
     
     type cxt = Type.cxt 
-     and visproviso = Proviso.M.visproviso
-     and rewinf = Rewinf.M.rewinf
+     and visproviso = Proviso.visproviso
+     and rewinf = Rewinf.rewinf
      
     (* for now, provisosigs are ints *)
     let getprovisos = fun (Context {provisos = provisos}) -> provisos
@@ -346,13 +346,13 @@ module type ExteriorFuns =
 
 module ExteriorFuns : ExteriorFuns with type cxt = Type.cxt 
 									and type exterior = Type.exterior
-									and type rewinf = Rewinf.M.rewinf
+									and type rewinf = Rewinf.rewinf
 =
   struct
     open Type
     type cxt = Type.cxt 
      and exterior = Type.exterior
-     and rewinf = Rewinf.M.rewinf
+     and rewinf = Rewinf.rewinf
      
     let setexterior =
       fun (Context cxt) s -> Context {cxt with outside = s}

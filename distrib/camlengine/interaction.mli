@@ -1,7 +1,7 @@
 (* $Id$*)
 
 open Prooftree.Tree.Fmttree
-open Proofstate.M
+open Proofstate
 open Hit
 open Context.Type
 open Displaystate

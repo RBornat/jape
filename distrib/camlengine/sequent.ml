@@ -67,14 +67,14 @@ module Funs:  Funs with type seq = Type.seq
     open Mappingfuns
     open Miscellaneous
     open Optionfuns
-    open Sml.M
+    open Sml
     open Symbol
     open Symboltype
     open Term.Funs
     open Term.Store
     open Term.Termstring
     open Term.Type
-    open Termparse.M    
+    open Termparse    
     
     type seq = Type.seq
      and symbol = Symboltype.symbol

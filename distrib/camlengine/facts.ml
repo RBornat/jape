@@ -7,9 +7,10 @@ open Context.Type
 open Listfuns
 open Mappingfuns
 open Miscellaneous
-open Proviso.M
-open Rewinf.M
-open Stringfuns.M
+open Provisotype (* ok. RB *)
+open Proviso
+open Rewinf
+open Stringfuns
 open Symbol
 open Term.Funs 
 open Term.Termstring

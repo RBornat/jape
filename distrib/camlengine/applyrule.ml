@@ -17,12 +17,13 @@ open Listfuns
 open Mappingfuns
 open Name
 open Optionfuns
-open Proviso.M
+open Provisotype (* ok. RB *)
+open Proviso
 open Rewrite.Funs
-open Sml.M
+open Sml
 open Sequent.Funs
 open Sequent.Type
-open Stringfuns.M
+open Stringfuns
 open Term.Funs
 open Term.Store
 open Term.Termstring
@@ -30,13 +31,13 @@ open Term.Type
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
-exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
+exception Verifyproviso_ = Provisofuns.Verifyproviso_
       
 type prooftree      = Prooftree.Tree.Fmttree.prooftree
  and prooftree_step = Prooftree.Tree.prooftree_step
  and rewinf         = Prooftree.Tree.rewinf
  and name           = Name.name
- and visproviso     = Proviso.M.visproviso
+ and visproviso     = Proviso.visproviso
  and resnum         = Term.Type.resnum
  and cxt            = Context.Cxt.cxt
  and element        = Term.Type.element
@@ -48,16 +49,16 @@ let mkJoin cxt reason how args =
 
 let askChoice            = Alert.askChoice
 let consolereport        = Miscellaneous.consolereport
-let expandFreshProviso   = Provisofuns.M.expandFreshProviso
-let matchedtarget        = Unify.M.matchedtarget
+let expandFreshProviso   = Provisofuns.expandFreshProviso
+let matchedtarget        = Unify.matchedtarget
 
 let mkTip cxt seq = Prooftree.Tree.mkTip cxt seq Treeformat.Fmt.neutralformat
 
 let prooftree_stepstring = Prooftree.Tree.prooftree_stepstring
-let rewinf_uVIDs         = Rewinf.M.rewinf_uVIDs
-let setReason            = Reason.M.setReason
+let rewinf_uVIDs         = Rewinf.rewinf_uVIDs
+let setReason            = Reason.setReason
 let step_label           = Prooftree.Tree.step_label
-let verifyprovisos       = Provisofuns.M.verifyprovisos    
+let verifyprovisos       = Provisofuns.verifyprovisos    
   
 let applydebug = ref 0
 (* debug levels: 0 -- nothing

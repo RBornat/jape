@@ -3,14 +3,14 @@
 open Listfuns
 open Miscellaneous
 open Optionfuns 
-open Sml.M
+open Sml
 open Sequent.Funs
-open Stringfuns.M
+open Stringfuns
 open Symbol
 open Symboltype
 open Term.Funs
 open Term.Termstring
-open Termparse.M
+open Termparse
     
 type forcedef =
     ForcePrim of term

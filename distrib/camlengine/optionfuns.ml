@@ -1,7 +1,7 @@
 (*$Id$ *)
 
 
-open Sml.M
+open Sml
 
 exception None_
 

@@ -139,9 +139,9 @@ module Tree : Tree with type term = Term.Type.term
 					and type visformat = Treeformat.VisFmt.visformat
 					and type vispath = Treeformat.VisFmt.vispath
 					and type cxt = Context.Cxt.cxt
-					and type thing = Thing.M.thing
-					and type proviso = Proviso.M.proviso
-					and type rewinf = Rewinf.M.rewinf
+					and type thing = Thing.thing
+					and type proviso = Proviso.proviso
+					and type rewinf = Rewinf.rewinf
 =
   struct
     open Context.Cxt
@@ -153,25 +153,25 @@ module Tree : Tree with type term = Term.Type.term
     open Miscellaneous
     open Name
     open Optionfuns
-    open Proviso.M
-    open Provisofuns.M
-    open Rewinf.M
+    open Proviso
+    open Provisofuns
+    open Rewinf
     open Rewrite.Funs
     open Rewrite.Rew
     open Sequent.Funs
     open Sequent.Type
-    open Sml.M
-    open Stringfuns.M
+    open Sml
+    open Stringfuns
     open Tactic.Type
     open Tactic.Funs
     open Term.Funs
     open Term.Store
     open Term.Termstring
     open Term.Type
-    open Thing.M
+    open Thing
     open Treeformat.Fmt
     open Treeformat.VisFmt
-    open Treelayout.M
+    open Treelayout
 
     type term = Term.Type.term
      and seq = Sequent.Type.seq
@@ -183,9 +183,9 @@ module Tree : Tree with type term = Term.Type.term
      and visformat = Treeformat.VisFmt.visformat
      and vispath = Treeformat.VisFmt.vispath
      and cxt = Context.Cxt.cxt
-     and thing = Thing.M.thing
-     and proviso = Proviso.M.proviso
-     and rewinf = Rewinf.M.rewinf
+     and thing = Thing.thing
+     and proviso = Proviso.proviso
+     and rewinf = Rewinf.rewinf
     
     (* -------------------------------------------------------------------------------- *)
               

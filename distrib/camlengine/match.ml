@@ -9,7 +9,7 @@ open Term.Funs
 open Term.Termstring
 open Term.Store 
 open Idclass
-open Sml.M
+open Sml
 
 type ('a, 'b) mapping = ('a, 'b) Mappingfuns.mapping
 type term = Term.Type.term

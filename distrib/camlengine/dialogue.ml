@@ -9,25 +9,27 @@
 open Answer
 open Button
 open Context.Cxt
+open Displaystate
 open Disproof
 open Doubleclick
 open Hit
 open Interaction
+open Japeenv
 open Listfuns
 open Mappingfuns
 open Name
-open Proofstate.M
+open Proofstate
 open Prooftree.Tree
 open Prooftree.Tree.Fmttree
-open Proofstore.M
+open Proofstore
 open Rewrite.Funs
-open Runproof.M
+open Runproof
 open Sequent.Funs
 open Sequent.Type
-open Sml.M
-open Stringfuns.M
-open Tacticfuns.M
-open Thing.M
+open Sml
+open Stringfuns
+open Tacticfuns
+open Thing
 open Treeformat.Fmt
 
 (* this is the remains of a huge sml functor argument *)
@@ -37,8 +39,8 @@ exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception ParseError_ = Miscellaneous.ParseError_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 exception None_ = Optionfuns.None_
-exception Use_ = Paragraph.M.Use_
-exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
+exception Use_ = Paragraph.Use_
+exception Verifyproviso_ = Provisofuns.Verifyproviso_
        
 let rec resetallcachesandvariables () =
   Alert.resetalertpatches ();
@@ -49,15 +51,15 @@ let rec resetallcachesandvariables () =
   Doubleclick.cleardoubleclicks ();
   Japeserver.resetcache ();
   Minwaste.resetminwcache ();
-  Proofstore.M.clearproofs ();
-  Proofstate.M.clearautorules ();
+  Proofstore.clearproofs ();
+  Proofstate.clearautorules ();
   Sequent.Funs.resetsyntaxandturnstiles ();
   Symbol.resetSymbols ();
-  Tacticfuns.M.resetcaches ();
+  Tacticfuns.resetcaches ();
   Term.Store.resettermstore ();
-  Termparse.M.resettermparse ();
-  Thing.M.clearthings ();
-  Thing.M.clearstructurerules ()
+  Termparse.resettermparse ();
+  Thing.clearthings ();
+  Thing.clearstructurerules ()
          
 let ( &~~ ) = Optionfuns.( &~~ )
 let atoi = Miscellaneous.atoi
@@ -69,8 +71,8 @@ let consolequery = Miscellaneous.consolequery
 let createdbugfile = Miscellaneous.create_reportfile
 
 (* fun draganddropmapping cxt = 
-    Provisofuns.M.draganddropmapping 
-      (List.map Proviso.M.provisoactual (Context.Cxt.provisos cxt))
+    Provisofuns.draganddropmapping 
+      (List.map Proviso.provisoactual (Context.Cxt.provisos cxt))
 *)
 
 let elementstring = Term.Termstring.elementstring
@@ -90,28 +92,28 @@ let rec initGUI () =
   Button.initFonts ()
 
 let isCutStep = Prooftree.Tree.isCutStep
-let mkvisproviso = Proviso.M.mkvisproviso
+let mkvisproviso = Proviso.mkvisproviso
 let observe = Miscellaneous.observe
 let optionstring = Optionfuns.optionstring
 let ( |~ ) = Optionfuns.( |~ )
 let ( |~~ ) = Optionfuns.( |~~ )
 let parseCurriedArgList =
-  Termparse.M.tryparse (fun _ -> Termparse.M.parsecurriedarglist ())
-let parseTactic = Termparse.M.asTactic Termparse.M.string2term
-let parseTerm = Termparse.M.string2term
+  Termparse.tryparse (fun _ -> Termparse.parsecurriedarglist ())
+let parseTactic = Termparse.asTactic Termparse.term_of_string
+let parseTerm = Termparse.term_of_string
 let parseTermCOMMAList =
-  Termparse.M.tryparse
+  Termparse.tryparse
     (fun _ ->
-       Termparse.M.parseList Termparse.M.canstartTerm Termparse.M.parseTerm
+       Termparse.parseList Termparse.canstartTerm Termparse.parseTerm
          Symbol.commasymbol)
-let proofsdone = Runproof.M.proofsdone
-let provisoactual = Proviso.M.provisoactual
-let provisostring = Proviso.M.provisostring
-let provisovisible = Proviso.M.provisovisible
+let proofsdone = Runproof.proofsdone
+let provisoactual = Proviso.provisoactual
+let provisostring = Proviso.provisostring
+let provisovisible = Proviso.provisovisible
 let sameresource = Term.Funs.sameresource
 let seektipselection = Miscellaneous.seektipselection
 let showInputError = Symbol.showInputError
-let string2paragraph = Paragraph.M.string2paragraph
+let string2paragraph = Paragraph.string2paragraph
 let tacticstring = Tactic.Funs.tacticstring
 let termstring = Term.Termstring.termstring
 let try__ = Optionfuns.try__
@@ -119,7 +121,7 @@ let _The = Optionfuns._The
 let _Title = Version._Title
 let uncurry2 = Miscellaneous.uncurry2
 let _Version = Version._Version
-let verifyprovisos = Provisofuns.M.verifyprovisos
+let verifyprovisos = Provisofuns.verifyprovisos
 
 let profiling = ref false (* see below *)
 let rec profileswitcher b =
@@ -159,7 +161,7 @@ let pairs =
    "hidetransitivity", bj false Boxdraw.hidetransitivity;
    "hidereflexivity", bj true Boxdraw.hidereflexivity;
    "hideuselesscuts", bj false Prooftree.Tree.hideuselesscuts;
-   "interpretpredicates", tparam (bj false Predicate.M.interpretpredicates);
+   "interpretpredicates", tparam (bj false Predicate.interpretpredicates);
    "outermostbox", bj true Boxdraw.outermostbox;
    "seektipselection", bj true Miscellaneous.seektipselection;
    "showallprovisos", bj false Interaction.showallprovisos;
@@ -169,7 +171,7 @@ let pairs =
    sj ["subformula"; "token"] "subformula"
       Miscellaneous.textselectionmode;
    "truncatereasons", bj false Miscellaneous.truncatereasons;
-   "tryresolution", bj true Tacticfuns.M.tryresolution;
+   "tryresolution", bj true Tacticfuns.tryresolution;
    "givenMenuTactic", aj "GIVEN" Miscellaneous.givenMenuTactic;
    "foldedfmt", ajd Prooftree.Tree.foldedfmt;
    "filteredfmt", ajd Prooftree.Tree.filteredfmt;
@@ -187,24 +189,24 @@ let pairs =
    "cuthidingdebug", bj false Prooftree.Tree.cuthidingdebug;
    "disproofdebug", bj false Disproof.disproofdebug;
    "factsdebug", bj false Facts.factsdebug;
-   "FINDdebug", bj false Tacticfuns.M._FINDdebug;
-   "FOLDdebug", bj false Tacticfuns.M._FOLDdebug;
+   "FINDdebug", bj false Tacticfuns._FINDdebug;
+   "FOLDdebug", bj false Tacticfuns._FOLDdebug;
    "matchdebug", bj false Match.matchdebug;
    "minwastedebug", bj false Minwaste.minwastedebug;
    "menudebug", bj false Menu.menudebug;
-   "predicatedebug", bj false Predicate.M.predicatedebug;
+   "predicatedebug", bj false Predicate.predicatedebug;
    "prooftreedebug", bj false Prooftree.Tree.prooftreedebug;
    "prooftreerewinfdebug", bj false Prooftree.Tree.prooftreerewinfdebug;
    "prooftreedebugheavy", bj false Prooftree.Tree.prooftreedebugheavy;
-   "provisodebug", bj false Proviso.M.provisodebug;
+   "provisodebug", bj false Proviso.provisodebug;
    "rewritedebug", bj false Rewrite.Funs.rewritedebug;
    "screenpositiondebug", bj false Miscellaneous.screenpositiondebug;
-   "substdebug", bj false Substmapfuns.M.substdebug;
+   "substdebug", bj false Substmapfuns.substdebug;
    "symboldebug", bj false Symbol.symboldebug;
-   "tactictracing", bj false Tacticfuns.M.tactictracing;
+   "tactictracing", bj false Tacticfuns.tactictracing;
    "thingdebug", bj false thingdebug;
    "thingdebugheavy", bj false thingdebugheavy;
-   "unifydebug", bj false Unify.M.unifydebug;
+   "unifydebug", bj false Unify.unifydebug;
    "eqalphadebug", bj false Term.Funs.eqalphadebug;
    "varbindingsdebug", bj false Term.Funs.varbindingsdebug]
 in
@@ -212,7 +214,7 @@ let rec bjnr r () = bj !r r
 and ujnr r () = Japeenv.unboundedjaperefvar !r r in
 let nonresetpairs =
   ["termhashing", bjnr Term.Store.termhashing;
-   "tacticresult", ujnr Tacticfuns.M.tacticresult]
+   "tacticresult", ujnr Tacticfuns.tacticresult]
 in
 (* make sure we don't re-evaluate pairs every time, because of 
  * the ajd function, which takes the current value of a variable 
@@ -674,7 +676,7 @@ let rec evolvewithexplanation explain displaystate env f =
              (proofmove hist
                 (rewriteproofstate
                    (autoTactics (Some displaystate) env
-                      (Proofstate.M.autorules ()) proof')))
+                      (Proofstate.autorules ()) proof')))
               (true))
 let evolve = evolvewithexplanation (fun () -> ())
 let rec reset () =
@@ -685,7 +687,7 @@ let rec parseargs args =
     ParseError_ _ -> []
 exception QuitJape
 (* interpretParasFrom includes its own unQuote, so no need for one here *)
-let doUse = Paragraphfuns.M.interpretParasFrom
+let doUse = Paragraphfuns.interpretParasFrom
 (* we have a mechanism -- in mbs, set up by paragraphfuns -- for allowing the GUI to 
    control the values of variables in the engine.  We have another mechanism -- see 
    the definition of mustredisplay in newjape.sml -- for allowing the value of variables
@@ -739,7 +741,7 @@ let rec main a1 a2 =
           startServer (server, server :: args);
           Japeserver.sendVersion (_Title ^ _Version);
           initGUI ();
-          reloadmenusandpanels Proofstore.M.provedordisproved
+          reloadmenusandpanels Proofstore.provedordisproved
             (get_oplist ());
           mbcache := empty;
           rundialogue env mbs proofs
@@ -831,7 +833,7 @@ and biggestproofnum name pinfs =
        (if t = name then max index (i) else i))
     pinfs (0, 0)
 and endproof num name proved st dis =
-  Runproof.M.addproof showAlert uncurried_screenquery name proved st
+  Runproof.addproof showAlert uncurried_screenquery name proved st
     (disproofstate2model dis) &&
   begin
     Japeserver.closeproof num;
@@ -871,7 +873,7 @@ and commands
                       "\n\nTrying to read it as a sequent gave the error Ô" :: (rs @ "Õ.\n\nTrying to read it as a line of Japeish gave the error Ô" :: (rs' @ ["Õ."]))));
               raise AddConjecture_
     in
-    let _ = (Paragraphfuns.M.interpret showAlert uncurried_screenquery [] []
+    let _ = (Paragraphfuns.interpret showAlert uncurried_screenquery [] []
                (env, [], [])
                (match parseablenamestring panel with
                   "" -> para
@@ -881,7 +883,7 @@ and commands
                japeenv * (name * proofstate * (seq * model) option) list *
                          (name * (string * bool -> unit)) list)
     in
-    let name = Paragraphfuns.M.conjecturename para in
+    let name = Paragraphfuns.conjecturename para in
     if namestring panel <> "" then
       Japeserver.panelentry
         (namestring panel, namestring name, parseablenamestring name);
@@ -914,10 +916,10 @@ and commands
           let (Proofstate {cxt = cxt; tree = tree; givens = givens}) =
             winhist_proofnow hist
           in
-          saveproof sfile t Proofstage.M.InProgress tree (pf (provisos cxt)) givens
+          saveproof sfile t Proofstage.InProgress tree (pf (provisos cxt)) givens
             (disproofstate2model (winhist_disproofnow hist))
       in
-      Proofstore.M.saveproofs sfile; List.map f pinfs
+      Proofstore.saveproofs sfile; List.map f pinfs
     in
     match newfile, !savefilename with
       false, Some s -> let _ = (writetonamedfile doit s : bool) in ()
@@ -929,14 +931,14 @@ and commands
           Some s -> if writetonamedfile doit s then savefilename := Some s
         | None -> ()
   in
-  let rec saveable () = not (null pinfs) || Proofstore.M.saveable () in
+  let rec saveable () = not (null pinfs) || Proofstore.saveable () in
   let rec needssaving () =
     List.exists
       (function
          Pinf {hist = WinHist {changed = true}} -> true
        | _ -> false)
       pinfs ||
-    not (Proofstore.M.saved ())
+    not (Proofstore.saved ())
   in
   let rec proofundoable () =
     match pinfs with
@@ -1292,7 +1294,7 @@ and commands
               let proofsfound = !proofsdone || not (null ps) in
               if oldfontstuff <> getfontstuff () then initFonts ();
               Japeserver.emptymenusandpanels ();
-              reloadmenusandpanels Proofstore.M.provedordisproved
+              reloadmenusandpanels Proofstore.provedordisproved
                 (get_oplist ());
               mbcache := empty;
               newfocus (env, mbs, DontShow, addproofs false env ps pinfs)

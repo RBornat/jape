@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-open Sml.M
+open Sml
 
 let (env : (string * string) list ref) = ref []
 let rec reset () = env := []

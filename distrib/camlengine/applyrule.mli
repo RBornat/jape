@@ -8,7 +8,7 @@ and cxt = Context.Cxt.cxt
 and prooftree = Prooftree.Tree.Fmttree.prooftree
 and possmatch
 and resnum = Term.Type.resnum
-and visproviso = Proviso.M.visproviso
+and visproviso = Proviso.visproviso
 and prooftree_step = Prooftree.Tree.prooftree_step
 and name = Name.name
 

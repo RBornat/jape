@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-open Proviso.M
+open Proviso
 open Context.Type
 open Term.Type
 open Answer

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-open Sml.M
+open Sml
 
 type answer = Yes | Maybe | No
 (* Yes > Maybe > No *)
