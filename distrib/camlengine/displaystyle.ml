@@ -47,11 +47,15 @@ module F
     let (|~~) = Optionfuns.(|~~)
     let (<|)  = Listfuns.(<|)
     let abstracttree = AAA.abstracttree
+    let bracketedstring_of_list = Listfuns.bracketedstring_of_list
     let consolereport = Miscellaneous.consolereport
     let findfirst = Optionfuns.findfirst
     let fmtpath = Prooftree.Tree.viewpathtopath
-    let string_of_option = Optionfuns.string_of_option
     let parentPath = Prooftree.Tree.Fmttree.parentPath
+    let string_of_box = Box.string_of_box
+    let string_of_fhit = Hit.string_of_fhit
+    let string_of_option = Optionfuns.string_of_option
+    let string_of_pair = Stringfuns.string_of_pair
     let string_of_pos = Box.string_of_pos
     let rootPath = Prooftree.Tree.Fmttree.rootPath
     let screenpositiondebug = Miscellaneous.screenpositiondebug
@@ -193,18 +197,30 @@ module F
             | None -> default()
           and default () = findtarget (Some (rootPath proof))
           and handleinvis () =
-            let oldts = alltargets oldpos oldplan in
-            let acceptable f ts = (fun (_,tbox) -> f (box_of_textbox tbox,viewport)) <| oldts in
+            (* let string_of_path = bracketedstring_of_list string_of_int ";" in
+               let string_of_hit = string_of_fhit string_of_path in *)
+            let oldts = allFormulaHits oldpos oldplan in
+            (* consolereport ["Boxdraw.showProof.handleinvis oldpos="; string_of_pos oldpos; "; oldts=";
+                       bracketedstring_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
+                       "; viewport="; string_of_box viewport]; *)
+            let newts = allFormulaHits oldpos plan in
+            let acceptable f ts = (fun (tbox, _) -> f (box_of_textbox tbox,viewport)) <| ts in
+            (* consolereport ["acceptable intersects oldts="; 
+                   bracketedstring_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" 
+                                           (acceptable intersects oldts)]; *)
             let bad() =
                consolereport ["We have a problem: Displaystyle.handleinvis can't find a visible path"];
                default()
             in
-            let process ts =
+            let process ts = (* bloody hell, N^2. Oh well. *)
+              (* consolereport ["Boxdraw.showProof.handleinvis.process ";
+                       bracketedstring_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" ts;
+                       "; newts = ";
+                       bracketedstring_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" newts]; *)
               findfirst 
-                (fun (target,oldbox) -> 
-                  match targetbox oldpos (Some target) plan with
-                    Some box -> Some (oldbox, box)
-                  | None     -> None)
+                (fun (oldbox, hit) -> 
+                  findfirst (fun (box, hit') -> if hit=hit' then Some (oldbox, box) else None)
+                  newts)
                 ts
             in
             match acceptable intersects oldts with
