@@ -54,7 +54,7 @@ public class DisproofCanvas extends JapeCanvas {
         return getSize();
     }
 
-    public EmphasisableItem findEmphasisableXY(int x, int y) {
+    public EmphasisableItem findEmphasisable(int x, int y) {
         int nc = child.getComponentCount(); // oh dear ...
         for (int i=0; i<nc; i++) {
             Component c = child.getComponent(i); // oh dear ...
