@@ -17,19 +17,19 @@ RULE "ë elim"				IS FROM A ë B AND A æ C AND B æ C INFER C
 RULE "Ù elim (classical)"	IS FROM ÂA æ Ù INFER A
 RULE "Ù elim (constructive)"	
 								IS FROM Ù INFER B
-RULE "è elim"				IS FROM èx. P(x) AND actual i INFER P(i)
-RULE "ä elim"(OBJECT i) WHERE FRESH i AND i NOTIN äx.P(x)
-									IS FROM äx.P(x) AND actual i, P(i) æ C INFER C
+RULE "è elim"(c)			IS FROM èx. A(x) AND c inscope INFER A(c)
+RULE "ä elim"(OBJECT c) WHERE FRESH c AND c NOTIN äx.A(x)
+								IS FROM äx.A(x) AND actual c, A(c) æ C INFER C
 
 RULE "ç intro"					IS FROM A æ B INFER AçB
 RULE "¦ intro"					IS FROM A AND B INFER A ¦ B
 RULE "ë intro(L)"(B)		IS FROM A INFER A ë B
 RULE "ë intro(R)"(B)		IS FROM A INFER B ë A
 RULE "Â intro"					IS FROM A æ Ù INFER ÂA
-RULE "Â elim"(B)				IS FROM B AND ÂB INFER Ù
-RULE "è intro"(OBJECT i) WHERE FRESH i
-										IS FROM actual i æ P(i) INFER èx .P(x)
-RULE "ä intro"					IS FROM P(i) AND actual i INFER äx.P(x)
+RULE "Ù intro"(B)			IS FROM B AND ÂB INFER Ù
+RULE "è intro"(OBJECT c) WHERE FRESH c
+								IS FROM actual c æ A(c) INFER èx .A(x)
+RULE "ä intro"(c)				IS FROM A(c) AND c inscope INFER äx.A(x)
 
 RULE hyp(A) IS INFER A æ A
 AUTOMATCH hyp
@@ -38,8 +38,6 @@ IDENTITY	hyp
 CUT			cut
 WEAKEN	thin
 
-/* no longer used
 RULE "inscope"(x) IS INFER actual x æ x inscope
 AUTOMATCH "inscope"
- */
 
