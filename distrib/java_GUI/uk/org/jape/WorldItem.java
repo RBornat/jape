@@ -92,7 +92,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                     Reply.sendCOMMAND("worldselect "+idX+" "+idY);
             }
             public void pressed(MouseEvent e) {
-                WorldItem.this.canvas.getProofWindow().claimDisproofFocus();
+                WorldItem.this.canvas.claimFocus();
                 dragKind = LocalSettings.mousePressWorldItemMeans(e);
                 clickKind = LocalSettings.mouseClickWorldItemMeans(e);
                 WorldItem.this.pressed(dragKind, e);

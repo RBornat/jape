@@ -61,6 +61,10 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
         /*setDropTarget(new DropTarget(this, this));*/
     }
 
+    protected void claimFocus() {
+        getProofWindow().claimDisproofFocus();
+    }
+
     // It is worth demanding good antialiasing when drawing blobs, rings, diagonal lines.
     // The text can come along for the ride.
 

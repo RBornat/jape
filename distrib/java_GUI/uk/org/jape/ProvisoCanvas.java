@@ -38,6 +38,10 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
         clear();
     }
 
+    protected void claimFocus() {
+        getProofWindow().claimProofFocus();
+    }
+
     public String getSelections(String sep) {
         Alert.abort("ProvisoCanvas.getSelections");
         return ""; // shut up compiler

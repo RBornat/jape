@@ -33,7 +33,11 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
     public ProofCanvas(Container viewport, boolean scrolled) { super(viewport, scrolled); }
 
     public byte proofStyle;
-    
+
+    protected void claimFocus() {
+        getProofWindow().claimProofFocus();
+    }
+
     // these are not yet coming out in time order ...
     // reply always ends with a blank line
     // not yet efficient
