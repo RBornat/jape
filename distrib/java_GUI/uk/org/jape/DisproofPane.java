@@ -25,29 +25,66 @@
     
 */
 
-import java.awt.BorderLayout;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import javax.swing.JLabel;
+import java.awt.LayoutManager;
+
+// BoxLayout doesn't work for laying out this thing,
+// if you use BorderLayout to give lots of space to the worldPane.
+// So I do it by steam (again; sigh!)
 
 public class DisproofPane extends Container {
-    Container disproof;
-    Box outerBox, tileCanvas;
+    AnchoredScrollPane worldPane;
+    DisproofCanvas seqCanvas;
+    // JapeCanvas worldCanvas;
+    Container seqView;
+    Box tileCanvas;
 
-    public DisproofPane(Container disproof) {
+    public DisproofPane() {
         super();
-        this.disproof = disproof;
-        setLayout(new BorderLayout());
+        setLayout(new DisproofPaneLayout());
+        setBackground(Color.white);
+        worldPane = new AnchoredScrollPane();
+        add(worldPane);
+        // worldCanvas = new JapeCanvas();
+        // worldPane.add(worldCanvas);
+        // worldPane.setAnchor(AnchoredScrollPane.SOUTH);
         tileCanvas = new Box(BoxLayout.Y_AXIS);
-        outerBox = new Box(BoxLayout.X_AXIS);
-        outerBox.createHorizontalStrut(LocalSettings.TileSpacing);
-        outerBox.add(tileCanvas);
-        outerBox.createHorizontalStrut(LocalSettings.TileSpacing);
-        add(disproof, BorderLayout.CENTER);
-        add(outerBox, BorderLayout.EAST);
+        add(tileCanvas);
+        seqView = new Container() {
+            public void validate() { }
+            public Dimension getPreferredSize() {
+                return getSize();
+            }
+            public Dimension getMinimumSize() {
+                return getSize();
+            }
+        };
+        add(seqView);
+        seqView.setLayout(null);
+        seqCanvas = new DisproofCanvas(seqView, false) {
+            public float getAlignmentX() { return CENTER_ALIGNMENT; }
+        };
+        seqView.add(seqCanvas);
     }
 
+    public void setSequentBox(int width, int ascent, int descent) {
+        seqCanvas.setSequentBox(width, ascent, descent);
+        seqView.setSize(width, ascent+descent+2*linethickness);
+    }
+
+    private int linethickness = 1;
+    
+    public void setlinethickness(int linethickness) {
+        linethickness = seqCanvas.linethickness = /* worldCanvas.linethickness = */ linethickness;
+    }
+    
     public void setTiles(String[] tiles) {
         tileCanvas.removeAll();
         tileCanvas.add(Box.createGlue());
@@ -56,9 +93,104 @@ public class DisproofPane extends Container {
             if (i+1<tiles.length)
                 tileCanvas.createVerticalStrut(LocalSettings.TileSpacing);
         }
-        tileCanvas.getLayout().layoutContainer(tileCanvas);
-        outerBox.getLayout().layoutContainer(outerBox);
-        getLayout().layoutContainer(this);
-        repaint();
+        tileLayoutPending = true;
+    }
+
+    private boolean tileLayoutPending = false;
+    
+    protected void doTileLayout() {
+        if (tileLayoutPending) {
+            tileLayoutPending = false;
+            BoxLayout layout = (BoxLayout)tileCanvas.getLayout();
+            layout.invalidateLayout(tileCanvas);
+            layout.layoutContainer(tileCanvas);
+        }
+    }
+
+    public void paint(Graphics g) {
+        g.setColor(getBackground());
+        g.fillRect(0, 0, getWidth(), getHeight());
+        super.paint(g);
+    }
+    
+    protected class DisproofPaneLayout implements LayoutManager {
+
+        /* Called by the Container add methods. Layout managers that don't associate
+        * strings with their components generally do nothing in this method.
+        */
+        public void addLayoutComponent(String s, Component c) { }
+
+        /* Returns the alignment along the x axis. This specifies how the component would like
+        * to be aligned relative to other components. The value should be a number between 0
+        * and 1 where 0 represents alignment along the origin, 1 is aligned the furthest away
+        * from the origin, 0.5 is centered, etc.
+        */
+        public float getLayoutAlignmentX(Container pane) { return (float)0; } // why not?
+
+        /* Returns the alignment along the y axis. See above */
+        public float getLayoutAlignmentY(Container pane) { return (float)0; } // why not?
+
+        /* Called by the Container remove and removeAll methods. Many layout managers
+        * do nothing in this method, relying instead on querying the container for its
+        * components, using the Container getComponents method.
+        */
+        public void removeLayoutComponent(Component c) { }
+
+        /* Called by the Container getPreferredSize method, which is itself called under
+            * a variety of circumstances. This method should calculate and return the ideal
+            * size of the container, assuming that the components it contains will be at or
+            * above their preferred sizes. This method must take into account the container's
+            * internal borders, which are returned by the getInsets method.
+            */
+
+        private int gap() { return 5*linethickness; }
+        
+        public Dimension preferredLayoutSize(Container pane) {
+            Dimension seqSize = seqView.getPreferredSize();
+            doTileLayout();
+            Dimension tileSize = tileCanvas.getPreferredSize();
+            Dimension worldSize = worldPane.getPreferredSize();
+
+            return new Dimension(Math.max(seqSize.width,tileSize.width+worldSize.width)+2*gap(),
+                                 seqSize.height+2*gap()+Math.max(tileSize.height,worldSize.height));
+        }
+
+        /* Called by the Container getMinimumSize method, which is itself called under
+         * a variety of circumstances. This method should calculate and return the minimum
+         * size of the container, assuming that the components it contains will be at or
+         * above their minimum sizes. This method must take into account the container's
+          * internal borders, which are returned by the getInsets method.
+        */
+
+        public Dimension minimumLayoutSize(Container pane) {
+            return preferredLayoutSize(pane);
+        }
+
+        /* Called when the container is first displayed, and each time its size changes.
+         * A layout manager's layoutContainer method doesn't actually draw components.
+         * It simply invokes each component's resize, move, and reshape methods to set
+         * the component's size and position. This method must take into account the
+         * container's internal borders, which are returned by the getInsets method.
+         * You can't assume that the preferredLayoutSize or minimumLayoutSize method
+         * will be called before layoutContainer is called.
+         */
+        
+        public void layoutContainer(Container pane) {
+            Dimension paneSize = pane.getSize();
+            Dimension seqSize = seqView.getSize();
+            doTileLayout();
+            Dimension tileSize = tileCanvas.getPreferredSize();
+
+            int bottom = paneSize.height-gap();
+            int right = paneSize.width-gap();
+            int seqtop = bottom-seqSize.height;
+            int tileleft = right-tileSize.width;
+            
+            seqView.setLocation((paneSize.width-seqSize.width)/2, seqtop);
+            tileCanvas.setBounds(tileleft, seqtop-gap()-tileSize.height, tileSize.width, tileSize.height);
+            worldPane.setBounds(0, 0, tileleft-gap(), seqtop-gap());
+
+            pane.repaint();
+        }
     }
 }
