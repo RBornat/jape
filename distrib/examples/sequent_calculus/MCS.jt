@@ -8,8 +8,8 @@ USE "sequent_syntax.j"
 USE "MCS_rules.j"
 
 CONJECTUREPANEL "Conjectures"
-  THEOREM	modusponens(A,B)	IS A, AçB æ B
-  THEOREM	contradiction(A,B)	IS A, ÂA æ 
+  THEOREM	modusponens	IS A, AçB æ B
+  THEOREM	contradiction	IS A, ÂA æ 
 END
 
 USE "sequent_problems.j"
