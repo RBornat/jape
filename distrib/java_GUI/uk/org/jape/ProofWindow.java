@@ -28,6 +28,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.Enumeration;
 import java.awt.Font;
 import java.awt.Graphics;
 import javax.swing.JFrame;
@@ -36,9 +37,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class ProofWindow extends JapeWindow implements SelectionConstants, ProtocolConstants {
-    int proofnum;
+    public final int proofnum;
     protected static ProofWindow focussedProofWindow = null;
 
     protected AnchoredScrollPane proofPane;
@@ -60,17 +63,44 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
         proofPane.add(proofCanvas);
         
         getContentPane().add(proofPane, BorderLayout.CENTER);
+
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                Reply.sendCOMMAND("closeproof "+ProofWindow.this.proofnum);
+            }
+        });
+
         setBar(); 
         pack();
         setVisible(true);
         focussedProofWindow = this;
     }
-    
+
+    /**********************************************************************************************
+
+        Static interface for Dispatcher
+
+     **********************************************************************************************/
+
     public static ProofWindow spawn(String title, int proofnum) throws ProtocolError {
         if (findWindow(title)!=null)
             throw new ProtocolError("already a window with that title");
         else
             return new ProofWindow(title, proofnum);
+    }
+
+    private static ProofWindow findProof (int proofnum) throws ProtocolError {
+        for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); ) {
+            Object o = e.nextElement();
+            if (o instanceof ProofWindow && ((ProofWindow)o).proofnum==proofnum)
+                return (ProofWindow) o;
+        }
+        throw new ProtocolError("no proof numbered "+proofnum);
+    }
+
+    public static void closeproof(int proofnum) throws ProtocolError {
+        findProof(proofnum).dispose();
     }
     
     public static ProofWindow focussedProofWindow() {
