@@ -46,34 +46,25 @@ What to do
    directory, and leaves the inference engine (jape.engine --
    architecture dependent), the interface server (japeserver.jar
    -- architecture independent), and an installation program
-   (installjape.jar -- should be architecture and OS independent).
+   (installjape.class -- should be architecture and OS independent).
+   It then runs the installation program, which builds two
+   a command file (jape.cmd) into which the path to
+   Jape's home is bound, and a shortcut (Jape) to that command file. 
+   You can copy the shortcut to anywhere in your filestore, and run
+   it from there.
 
    TROUBLESHOOTING: If you don't have java installed then this
    will not work. Do whatever you need to do to get java installed
    and on your path. You don't need the whole jdk, just the java
    runtime environment (jre -- obtainable from www.javasoft.com)
 
-2. Now complete the installation by double-clicking
 
-        installjape.jar
-
-   This latter program (silently) builds the file jape.cmd into
-   which the path to Java's home is bound. You can make shortcuts
-   to the jape.cmd script from anywhere in your filestore. If you
-   wish to change Jape's home, then you will have to edit this file,
-   or run installjape.jar again from the new home.
-
-   TROUBLESHOOTING: there should be no problems here. This part of
-   the process  will abort if (for some reason) there's no java
-   command on your path, but were that so, then you couldn't have
-   unpacked the jar in the first place.
-
-3. Try running jape by double-clicking on jape.cmd
+2. Try running jape by double-clicking on jape.cmd
    then selecting (for example) the theory file
 
         examples/sequent_calculus/SCS.jt
 
-4. Please let us know that you've succeeded (or failed) by sending a short
+3. Please let us know that you've succeeded (or failed) by sending a short
    message of triumph (or despair) to
 
         japeinstall@jape.org.uk
@@ -82,6 +73,7 @@ What to do
    the attempted run of jape.        
 
 That's all there is to it.
+
 
 
 
