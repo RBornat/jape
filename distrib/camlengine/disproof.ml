@@ -1155,9 +1155,9 @@ let cleardisproof () = Japeserver.clearPane Displayfont.DisproofPane
 
 let splitlink u from to__ w =
   if from=w || w=to__ then None else
-  let (_, fromcs) = getworld u from in
+  (*let (_, fromcs) = getworld u from in
   let (_, wcs) = getworld u w in
-  if member (w, fromcs) && member(to__, wcs) then None else
+  if member (w, fromcs) && member(to__, wcs) then None else*)
   Some (addlink (addlink (deletelink u from to__) from w) w to__)
   
 (* for export, with slightly altered semantics *)

@@ -242,7 +242,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     // LineTarget
     public boolean dragEnter(WorldConnector l) {
-        return dragEnter(l.from!=this && l.to!=this && !(alreadyFrom(l.from) && alreadyTo(l.to)));
+        return dragEnter(l.from!=this && l.to!=this /*&& !(alreadyFrom(l.from) && alreadyTo(l.to))*/);
     }
     public void dragExit(WorldConnector l) { dragExit(); }
     public void drop(WorldConnector l) {
