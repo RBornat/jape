@@ -511,50 +511,47 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     public void drawstring(int x, int y, byte fontnum, byte kind,
                            String annottext) throws ProtocolError {
         JapeFont.checkInterfaceFontnum(fontnum);
+        byte selectionKind;
+        boolean ambiguous = false;
+        
         switch (kind) {
             case PunctTextItem:
                 focussedCanvas.add(new TextItem(focussedCanvas, x, y, fontnum, annottext));
-                break;
+                return;
 
             case HypTextItem:
-                if (focussedCanvas==proofCanvas)
-                    proofCanvas.add(new HypothesisItem(proofCanvas, x, y, fontnum, annottext));
-                else
-                if (disproofPane!=null && focussedCanvas==disproofPane.seqCanvas)
-                    disproofPane.seqCanvas.add(new DisproofHypItem(disproofPane.seqCanvas,
-                                                                   x, y, fontnum, annottext));
-                else
-                    throw new ProtocolError("HypTextItem in "+focussedCanvas);
+                selectionKind = HypSel;
                 break;
 
             case ConcTextItem:
-                if (focussedCanvas==proofCanvas)
-                    proofCanvas.add(new ConclusionItem(proofCanvas, x, y, fontnum, annottext));
-                else
-                if (disproofPane!=null && focussedCanvas==disproofPane.seqCanvas)
-                    disproofPane.seqCanvas.add(new DisproofConcItem(disproofPane.seqCanvas,
-                                                                    x, y, fontnum, annottext));
-                else
-                    throw new ProtocolError("ConcTextItem in "+focussedCanvas);
+                selectionKind = ConcSel;
                 break;
 
             case AmbigTextItem:
-                if (focussedCanvas==proofCanvas)
-                    proofCanvas.add(new HypConcItem(proofCanvas, x, y, fontnum, annottext));
-                else
-                    throw new ProtocolError("AmbigTextItem in "+focussedCanvas);
+                selectionKind = ConcSel; // doesn't matter
+                ambiguous = true;
                 break;
                 
             case ReasonTextItem:
-                if (focussedCanvas==proofCanvas)
-                    proofCanvas.add(new ReasonItem(proofCanvas, x, y, fontnum, annottext));
-                else
-                    throw new ProtocolError("ReasonTextItem in "+focussedCanvas);
+                selectionKind = ReasonSel;
                 break;
 
             default:
                 throw new ProtocolError("invalid item kind");
         }
+
+        // fall through to determine which canvas to add to
+        if (focussedCanvas instanceof ProofCanvas)
+            focussedCanvas.add(
+                new SelectableProofItem((ProofCanvas)focussedCanvas, x, y, fontnum, annottext,
+                                        selectionKind, ambiguous));
+        else
+        if (focussedCanvas instanceof DisproofCanvas)
+            focussedCanvas.add(
+                new EmphasisableItem(
+                        (DisproofCanvas)focussedCanvas, x, y, fontnum, annottext, selectionKind));
+        else
+            throw new ProtocolError("drawstring in "+focussedCanvas);
     }
 
     public void drawRect(int x, int y, int w, int h) {
@@ -573,18 +570,30 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
             ei.emphasise(state);
     }
 
-    public String getSelections() {
+    public String getProofSelections() {
         String s = proofCanvas.getSelections("\n");
         return s==null ? "" : s+"\n";
     }
 
-    public String getTextSelections() throws ProtocolError {
+    public String getProofTextSelections() throws ProtocolError {
         String s = proofCanvas.getTextSelections("\n");
         return s==null ? "" : s+"\n";
     }
 
+    public String getDisproofSelections() {
+        String s = disproofPane==null ? null : disproofPane.seqCanvas.getSelections(Reply.stringSep);
+        return s==null ? "" : s;
+    }
+
+    public String getDisproofTextSelections() throws ProtocolError {
+        String s = disproofPane==null ? null :
+                                        disproofPane.seqCanvas.getTextSelections(Reply.stringSep);
+        return s==null ? "" : s;
+    }
+
     public String getGivenTextSelections() throws ProtocolError {
-        return provisoPane==null ? "" : provisoCanvas.getTextSelections(Reply.stringSep);
+        String s = provisoPane==null ? null : provisoCanvas.getTextSelections(Reply.stringSep);
+        return s==null ? "" : s; 
     }
     
     // disproof stuff
@@ -662,16 +671,20 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     public void highlight(int x, int y, byte selclass) throws ProtocolError {
         byte selkind;
         switch (selclass) {
-            case ConcTextItem  : selkind = ConcSel; break;
-            case HypTextItem   : selkind = HypSel; break;
+            case ConcTextItem  : selkind = ConcSel;   break;
+            case HypTextItem   : selkind = HypSel;    break;
             case ReasonTextItem: selkind = ReasonSel; break;
-            default            : throw new ProtocolError("ProofWindow.highlight selclass="+selclass);
+            default            :
+                throw new ProtocolError("selclass not ConcTextItem/HypTextItem/ReasonTextItem");
         }
-        findProofSelectableXY(x,y).select(selkind);
+        DisplayItem i = findProofSelectableXY(x,y);
+        i.setSelected(true);
+        if (i instanceof SelectableProofItem)
+            ((SelectableProofItem)i).setSelectionKind(selkind);
     }
 
     public void unhighlight(int x, int y) throws ProtocolError {
-        findProofSelectableXY(x,y).deselect();
+        findProofSelectableXY(x,y).setSelected(false);
     }
 
     // synchronized access only to the focus vector
