@@ -1,6 +1,6 @@
 /* $Id$ */
 
-USE "BnE-Fprime_hits.j"
+USE "../Barwise_n_Etchemendy/BnE-Fprime_hits.j"
 
 HYPHIT AÚ{y|P} æ B IS "abstraction-E tac"
 HYPHIT AÚ{<y,z>|P} æ B IS "abstraction-E tac"
