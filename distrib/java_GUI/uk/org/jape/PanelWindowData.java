@@ -202,7 +202,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 list.addMouseListener(m);
             }
     
-            scrollPane = new JScrollPane(list);
+            scrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                                               JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
             contentPane.add(scrollPane);
     
             for (int i=0; i<buttonv.size(); i++) {
