@@ -59,7 +59,7 @@ public class JapeWindow extends JFrame {
     
     protected void setBar() {
         if (this instanceof ProofWindow || 
-            (this instanceof PanelWindow && LocalSettings.panelWindowMenus) ||
+            (this instanceof PanelWindowData.PanelWindow && LocalSettings.panelWindowMenus) ||
             this instanceof SurrogateWindow) // the surrogate needs all the menus, till we implement PROOFMENU 
             // even panel windows get a menu on MacOS X
             JapeMenu.setBar(this);
