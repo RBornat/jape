@@ -56,7 +56,7 @@ do
   source=$build/${arch}Jape/build/${arch}jape.jar
   if [ -e $source ]
   then 
-     if [ \( -e $distdir/${arch}jape.jar \) -a ! \( $source -nt $distdir/${arch}jape.jar \)]
+     if [ \( -e $distdir/${arch}jape.jar \) -a ! \( $source -nt $distdir/${arch}jape.jar \) ]
      then
        echo $arch already installed.
      else
@@ -82,6 +82,7 @@ done
 #
 #
 #
+
 
 
 
