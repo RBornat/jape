@@ -44,17 +44,17 @@ import java.awt.dnd.DropTargetListener;*/
 
 import java.awt.image.BufferedImage;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 public class WorldCanvas extends JapeCanvas implements DebugConstants/*, DropTargetListener */{
 
     protected RenderingHints renderingHints;
-    protected Container layeredPane;
+    protected JFrame window;
     
-    public WorldCanvas(Container viewport, Container layeredPane,
-                       boolean scrolled, int linethickness) {
+    public WorldCanvas(Container viewport, JFrame window, boolean scrolled, int linethickness) {
         super(viewport, scrolled);
-        this.linethickness = linethickness; this.layeredPane = layeredPane;
+        this.linethickness = linethickness; this.window = window;
         
         renderingHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
                                             RenderingHints.VALUE_ANTIALIAS_ON);
@@ -177,7 +177,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants/*, DropTar
 
     public void addWorld(int x, int y) throws ProtocolError /* doesn't! */ {
         if (findWorld(x,y,false)==null)
-            add(new WorldItem(this, layeredPane, x, y));
+            add(new WorldItem(this, window, x, y));
     }
 
     public void addWorldLabel(int x, int y, String label) throws ProtocolError {
