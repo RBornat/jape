@@ -25,12 +25,9 @@
     
 */
 
-import java.awt.AlphaComposite;
 import java.awt.Component;
-import java.awt.Composite;
 import java.awt.Container;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 
 /*import java.awt.datatransfer.DataFlavor;
@@ -46,8 +43,6 @@ import java.awt.dnd.DragSourceEvent;
 import java.awt.dnd.DragSourceListener;*/
 
 import java.awt.event.MouseEvent;
-
-import java.awt.image.BufferedImage;
 
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -112,37 +107,14 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
         addMouseMotionListener(mil);
     }
 
-    protected class TileImage extends Component {
-        private BufferedImage image;
-        private AlphaComposite comp;
-
+    protected class TileImage extends DragComponent {
         public TileImage() {
-            super();
-            setSize(Tile.this.getSize());
-            int width = getWidth(), height = getHeight();
-            image = (BufferedImage)Tile.this.createImage(width, height);
-            Graphics imageGraphics = image.createGraphics();
-            imageGraphics.setColor(Preferences.ProofBackgroundColour);
-            imageGraphics.fillRect(0, 0, width, height);
-            Tile.this.paint(imageGraphics);
-            imageGraphics.dispose();
-            comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Transparent);
-        }
-
-        public void paint(Graphics g) {
-            if (g instanceof Graphics2D) {
-                Graphics2D g2D = (Graphics2D)g;
-                Composite oldcomp = g2D.getComposite();
-                g2D.setComposite(comp);
-                g.drawImage(image, 0,0, this);
-                g2D.setComposite(oldcomp);
-            }
-            else
-                Alert.abort("Tile.TileImage.paint can't enable transparent drawing");
+            super(Transparent); include(Tile.this); fixImage();
         }
     }
     
     protected int startx, starty, lastx, lasty;
+    private boolean firstDrag;
     private TileImage tileImage;
     private Class targetClass;
 
@@ -150,44 +122,47 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
         if (drag_tracing)
             System.err.print("mouse pressed on tile "+text+" at "+e.getX()+","+e.getY()+
                              " insets="+getInsets());
-        startx = lastx = e.getX(); starty = lasty = e.getY();
-        try {
-            targetClass = Class.forName("TileTarget");
-            System.err.println("targetClass is "+targetClass.getName());
-        } catch (ClassNotFoundException exn) {
-            Alert.abort("can't make TileTarget a Class");
-        }
-        over = null;
-        if (tileImage==null)
-            tileImage = new TileImage();
-        layeredPane.add(tileImage, JLayeredPane.DRAG_LAYER);
-        tileImage.setLocation(SwingUtilities.convertPoint(this, 0, 0, layeredPane));
-        if (drag_tracing)
-            System.err.println("; dragged tile at "+tileImage.getX()+","+tileImage.getY());
-        tileImage.repaint();
+        startx = lastx = e.getX(); starty = lasty = e.getY(); firstDrag = true; // in case of drag
     }
 
     private TileTarget over;
 
     protected void dragged(MouseEvent e) {
-        if (drag_tracing)
-            System.err.print("mouse dragged to "+e.getX()+","+e.getY());
-        tileImage.repaint();
-        tileImage.setLocation(tileImage.getX()+(e.getX()-lastx),
-                                tileImage.getY()+(e.getY()-lasty));
-        lastx = e.getX(); lasty = e.getY();
-        if (drag_tracing)
-            System.err.println("; dragged tile now at "+tileImage.getX()+","+tileImage.getY());
-        tileImage.repaint();
-        Point p = SwingUtilities.convertPoint(this, lastx, lasty, contentPane);
-        TileTarget target = (TileTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
-        if (target!=over) {
-            if (over!=null)
-                over.dragExit();
-            if (target!=null)
-                target.dragEnter();
-            over = target;
+        if (firstDrag) {
+            firstDrag = false;
+            try {
+                targetClass = Class.forName("TileTarget");
+            } catch (ClassNotFoundException exn) {
+                Alert.abort("can't make TileTarget a Class");
+            }
+            over = null;
+            if (tileImage==null)
+                tileImage = new TileImage();
+            layeredPane.add(tileImage, JLayeredPane.DRAG_LAYER);
+            tileImage.setLocation(SwingUtilities.convertPoint(this, e.getX()-startx,
+                                                              e.getY()-starty, layeredPane));
+            if (drag_tracing)
+                System.err.println("; dragged tile at "+tileImage.getX()+","+tileImage.getY());
+            tileImage.repaint();
         }
+        else {
+            if (drag_tracing)
+                System.err.print("mouse dragged to "+e.getX()+","+e.getY());
+            tileImage.repaint();
+            tileImage.setLocation(tileImage.getX()+(e.getX()-lastx),
+                                  tileImage.getY()+(e.getY()-lasty));
+            if (drag_tracing)
+                System.err.println("; dragged tile now at "+tileImage.getX()+","+tileImage.getY());
+            tileImage.repaint();
+            Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
+            TileTarget target = (TileTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
+            if (target!=over) {
+                if (over!=null) over.dragExit();
+                if (target!=null) target.dragEnter();
+                over = target;
+            }
+        }
+        lastx = e.getX(); lasty = e.getY();
     }
 
     protected void released(MouseEvent e) {
@@ -195,18 +170,21 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
             System.err.println("mouse released at "+e.getX()+","+e.getY()+
                                "; dragged tile at "+tileImage.getX()+","+tileImage.getY());
         if (over==null)
-            new Flyback(layeredPane, tileImage, tileImage.getLocation(),
-                        SwingUtilities.convertPoint(this, 0, 0, layeredPane));
+            new Flyback(tileImage, tileImage.getLocation(),
+                        SwingUtilities.convertPoint(this, 0, 0, layeredPane)) {
+                protected void finishFlyback() { finishDrag(); }
+            };
         else {
             over.drop(this);
-            layeredPane.remove(tileImage);
-            layeredPane.repaint();
+            finishDrag();
         }
     }
 
-    protected boolean testClass(Class c, Object o) {
-        return c.isInstance(o);
+    protected void finishDrag() {
+        layeredPane.remove(tileImage);
+        layeredPane.repaint();
     }
+    
    /* protected class TileTransferable implements Transferable {
         public Object getTransferData(DataFlavor flavor) {
             return Tile.this;
