@@ -99,6 +99,7 @@ public class MouseInteractionAdapter implements MouseInteractionListener,
     
     public final void mousePressed(MouseEvent e) {
         eventKind = LocalSettings.mouseDownKind(e);
+        dragSeen = false;
         if ((eventKind&TextSelMask)!=0)
             textpressed(eventKind, e);
         else
