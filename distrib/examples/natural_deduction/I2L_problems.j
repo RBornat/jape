@@ -74,13 +74,13 @@ CONJECTUREPANEL "Classical conjectures"
 	THEOREM IS	ย(EฆF) ๆ ยE๋ยF
 	THEOREM IS	(E็F)๋(F็E)
 	
-	THEOREM IS	ยไx.(ยR(x)) ๆ ่x.R(x)
-	THEOREM IS	ย่x.(ยR(x)) ๆ ไx.R(x)
-	THEOREM IS	ย่x.R(x) ๆ ไx.(ยR(x))
+	THEOREM IS	ยไx.ยR(x) ๆ ่x.R(x)
+	THEOREM IS	ย่x.ยR(x) ๆ ไx.R(x)
+	THEOREM IS	ย่x.R(x) ๆ ไx.ยR(x)
 	
 	THEOREM IS actual j, actual k ๆ ไx.(R(x)็R(j)ฆR(k))
 
-	THEOREM IS	actual i, ่x.(R(x)๋ยR(x)), ย่y.(ยR(y)) ๆ ไz.R(z)
+	THEOREM IS	actual i, ่x.(R(x)๋ยR(x)), ย่y.ยR(y) ๆ ไz.R(z)
 	
 	BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 END
@@ -157,11 +157,11 @@ CONJECTUREPANEL Conjectures
 	THEOREM IS	ไx.R(x)๋ไx.S(x) ๆ ไx.(R(x)๋S(x))
 	THEOREM IS	ไx.(R(x)๋S(x)) ๆ ไx.R(x)๋ไx.S(x)
 	THEOREM IS	actual j, ่x.R(x) ๆ ไx.R(x)
-	THEOREM IS	่x.R(x) ๆ ยไx.(ยR(x))
-	THEOREM IS	ไx.R(x) ๆ ย่x.(ยR(x))
-	THEOREM IS	ไx.(ยR(x)) ๆ ย่x.R(x)
-	THEOREM IS	่x.(ยR(x) )ๆ ยไx.R(x)
-	THEOREM IS	ยไx.R(x) ๆ ่x.(ยR(x))
+	THEOREM IS	่x.R(x) ๆ ยไx.ยR(x)
+	THEOREM IS	ไx.R(x) ๆ ย่x.ยR(x)
+	THEOREM IS	ไx.ยR(x) ๆ ย่x.R(x)
+	THEOREM IS	่x.ยR(x) ๆ ยไx.R(x)
+	THEOREM IS	ยไx.R(x) ๆ ่x.ยR(x)
 
 	BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 END
