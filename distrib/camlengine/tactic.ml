@@ -67,15 +67,15 @@ let rec catelim_string_of_tactic sep t tail =
     match t with
       SkipTac -> true
     | UnfoldHypTac _ -> true
-    | FoldHypTac _ -> true
-    | AssignTac _ -> true
-    | EvalTac _ -> true
-    | AdHocTac _ -> true
+    | FoldHypTac   _ -> true
+    | AssignTac    _ -> true
+    | EvalTac      _ -> true
+    | AdHocTac     _ -> true
     | AssocFlatTac _ -> true
-    | MapTac _ -> true
-    | TermTac _ -> true
-    | SubstTac _ -> true
-    | _ -> false
+    | MapTac       _ -> true
+    | TermTac      _ -> true
+    | SubstTac     _ -> true
+    | _              -> false
   in
   let argsep = if oneline t then " " else nextsep in
   let string_of_tacarg t tail =
@@ -691,7 +691,7 @@ and transTactic tacterm =
               | "LETGOALPATH"      -> mkBind f namebind "name" (fun v->BindGoalPathTac v) ts
               | "LETOPENSUBGOAL"   ->
                       mkBind2 f namebind patbind "name" "pattern" (fun v->BindOpenSubGoalTac v)
-                        ts
+                              ts
               | "LETOPENSUBGOALS"  ->
                       mkBind f patbind "pattern" (fun v->BindOpenSubGoalsTac v) ts
               | "LETARGSEL"        -> mkBind f patbind "pattern" (fun v->BindArgTac v) ts

@@ -137,7 +137,8 @@ let rec _Subst_of_selection object__ sels cxt =
            else "one of your selections")) ^
          " was inside a binding, and involved a possible bound variable capture")
   else badsub ()
-let rec _SubstOpt_of_subterm unify cxt pat t =
+
+let _SubstOpt_of_subterm unify cxt pat t =
   let (cxt', v) = freshvar true cxt in
   let rec f hole subt =
     match unify (pat, subt) cxt' with
