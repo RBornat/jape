@@ -2,15 +2,41 @@
 
 module type Provisotype =
   sig
-    type term
+    type term and vid
     type proviso =
         FreshProviso of (bool * bool * bool * term)
       | UnifiesProviso of (term * term)
       | NotinProviso of (term * term)
       | NotoneofProviso of (term list * term * term)
+
+    val parseProvisos : unit -> proviso list
+    (* yes, really a list - it has to translate x,y NOTIN A, B into
+     * x NOTIN A AND x NOTIN B AND y NOTIN A AND y NOTIN B; similarly
+     * FRESH and all its derivatives
+     *)
+
+    val provisostring : proviso -> string
+    val catelim_provisostring : proviso -> string list -> string list
+    val earlierproviso : proviso * proviso -> bool
+    val provisovars : (term -> 'a) -> ('a -> 'a -> 'a) -> proviso -> 'a
+    val provisoVIDs : proviso -> vid list
+    val isFreshProviso : proviso -> bool
+    val maxprovisoresnum : proviso -> int
+    val provisodebug : bool ref
+    (* now an abstract datatype *)
+    type visproviso
+    val mkvisproviso : bool * proviso -> visproviso
+    val mkparentedvisproviso : proviso -> bool * proviso -> visproviso
+    val provisovisible : visproviso -> bool
+    val provisoparent : visproviso -> proviso
+    val provisoactual : visproviso -> proviso
+    val provisoresetactual : visproviso -> proviso -> visproviso
+    val provisoselfparent : visproviso -> visproviso
+    val visprovisostring : visproviso -> string
+    val visprovisostringall : visproviso -> string
   end
 
-module type Proviso =
+module type T =
   sig
     type term and vid and proviso
     val parseProvisos : unit -> proviso list
@@ -41,35 +67,43 @@ module type Proviso =
   end
 (* $Id$ *)
 
-module
-  Proviso
+module M
   (AAA :
     sig
-      module listfuns : Listfuns
-      module symboltype : Symboltype
-      module term : sig include Termtype include Termstore include Term end
-      module termparse : Termparse
+      module Listfuns : Listfuns.T
+      module Symboltype : Symboltype.T
+      module Term : (* sig include Termtype include Termstore include Term end *) Term.T
+      module Termparse : Termparse.T
+             with type term = Term.term
+              and type element = Term.element
+              and type symbol = Symboltype.symbol
+              and type idclass = Term.idclass
+      
+      val commasymbol : Termparse.symbol
+      val currsymb : unit -> Termparse.symbol
+      val listclass : Term.idclass
+      val mkBag : Termparse.element list -> Termparse.term
+      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
+      val scansymb : unit -> Termparse.symbol
+      val smlsymbolstring : Termparse.symbol -> string
+      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
+      
       exception ParseError_ of string list
       exception Catastrophe_ of string list
-      val commasymbol : termparse.symbol
-      val currsymb : unit -> termparse.symbol
-      val listclass : term.idclass
-      val mkBag : termparse.element list -> termparse.term
-      val scansymb : unit -> termparse.symbol
-      val smlsymbolstring : termparse.symbol -> string
-      
     end)
-  :
-  sig include Provisotype include Proviso end =
+  : Provisotype =
   struct
     open AAA
-    open listfuns open symboltype open term open termparse
-    (* from listfuns *)
+    open Listfuns 
+    open Symboltype 
+    open Term 
+    open Termparse
     
-    
-    
-    
+    type vid = Term.vid
+     and term = Term.term
+     
     let provisodebug = ref false
+    
     type proviso =
         FreshProviso of (bool * bool * bool * term)
       | UnifiesProviso of (term * term)
@@ -80,7 +114,7 @@ module
                                       conclusions (if g); non-principal formulae only (if r)
        UnifiesProviso (t1, t2)      : t1 must unify with t2.
        NotinProviso (v, t)          : variable v must not occur free in t
-       NotoneofProviso (vs, pat, C) : in any element of collection C that matches pat,
+       NotoneofProviso (vs, pat, _C) : in any element of collection _C that matches pat,
                                       variables vs don't occur in the places indicated
                                       by pat.
      *)
@@ -118,102 +152,52 @@ module
       | NotinProviso (t1, t2) ->
           catelim_termstring t1
             (" NOTIN " :: catelim_termOrCollectionstring "," t2 tail)
-      | NotoneofProviso (vs, pat, C) ->
+      | NotoneofProviso (vs, pat, _C) ->
           (* this madness IS used! *)
           catelim_liststring catelim_termstring "," vs
             (" IN " ::
                catelim_termstring pat
-                 (" NOTONEOF " :: catelim_collectionstring "," C tail))
+                 (" NOTONEOF " :: catelim_collectionstring "," _C tail))
     let provisostring = catelim2stringfn catelim_provisostring
     let rec isFreshProviso =
       function
         FreshProviso _ -> true
       | _ -> false
-    type visproviso =
-      VisProviso of < visible : bool; parent : proviso; actual : proviso >
-    let rec mkvisproviso (vis, pro) =
-      VisProviso
-        (let module M =
-           struct
-             class a =
-               object
-                 val visible = vis
-                 val parent = pro
-                 val actual = pro
-                 method visible = visible
-                 method parent = parent
-                 method actual = actual
-               end
-           end
-         in
-         new M.a)
+    
+    type visrec = { visible : bool; parent : proviso; actual : proviso }
+    type visproviso = VisProviso of visrec
+    
+    let rec mkvisproviso (vis, pro) = 
+      VisProviso { visible=vis; parent=pro; actual=pro }
     let rec mkparentedvisproviso parent (vis, pro) =
-      VisProviso
-        (let module M =
-           struct
-             class a =
-               object
-                 val visible = vis
-                 val parent = parent
-                 val actual = pro
-                 method visible = visible
-                 method parent = parent
-                 method actual = actual
-               end
-           end
-         in
-         new M.a)
-    let rec provisovisible = fun (VisProviso {visible = visible}) -> visible
-    let rec provisoparent = fun (VisProviso {parent = parent}) -> parent
-    let rec provisoactual = fun (VisProviso {actual = actual}) -> actual
-    let rec provisoresetactual =
-      fun (VisProviso {visible = visible; parent = parent}) actual ->
-        VisProviso
-          (let module M =
-             struct
-               class a =
-                 object
-                   val visible = visible
-                   val actual = actual
-                   val parent = parent
-                   method visible = visible
-                   method actual = actual
-                   method parent = parent
-                 end
-             end
-           in
-           new M.a)
-    let rec provisoselfparent =
-      fun (VisProviso {visible = visible; actual = actual}) ->
-        VisProviso
-          (let module M =
-             struct
-               class a =
-                 object
-                   val visible = visible
-                   val parent = actual
-                   val actual = actual
-                   method visible = visible
-                   method parent = parent
-                   method actual = actual
-                 end
-             end
-           in
-           new M.a)
+      VisProviso { visible=vis; parent=parent; actual=pro }
+
+    let rec provisovisible (VisProviso v) = v.visible
+    let rec provisoparent (VisProviso v) = v.parent
+    let rec provisoactual (VisProviso v) = v.actual
+    
+    let rec provisoresetactual (VisProviso v) actual = 
+        VisProviso {v with actual=actual}
+    let rec provisoselfparent (VisProviso v) =
+        VisProviso {v with parent=v.actual}
+
     let rec catelim_visprovisostring a1 a2 =
       match a1, a2 with
         VisProviso {visible = true; actual = p}, tail ->
           catelim_provisostring p tail
       | VisProviso {visible = false; actual = p}, tail ->
           "<<" :: catelim_provisostring p (">>" :: tail)
+    
     let rec catelim_visprovisostringall =
       fun (VisProviso {visible = visible; parent = parent; actual = actual})
         tail ->
-        "{" :: string_of_int visible :: ", actual=" ::
+        "{" :: string_of_bool visible :: ", actual=" ::
           catelim_provisostring actual
             (", parent=" :: catelim_provisostring parent ("}" :: tail))
+    
     let visprovisostring = catelim2stringfn catelim_visprovisostring
     let visprovisostringall = catelim2stringfn catelim_visprovisostringall
+    
     let rec stripElement =
       function
         Element (_, _, t) -> t
@@ -232,7 +216,7 @@ module
                   [termstring t; " in "; pname; " proviso is neither an identifier nor an unknown variable or constant"]))
         vars
     let rec parseNOTINvars pname =
-      scansymb ();
+      let _ = scansymb () in
       let vs = parseList (fun _ -> true) parseTerm commasymbol in
       checkNOTINvars pname vs; vs
     let rec parseProvisos () =
@@ -277,25 +261,25 @@ module
             None -> _MAP (stripElement, els)
           | Some k -> [registerCollection (k, els)]
         in
-        _MAP (NotinProviso, ( >< ) (vars, terms))
+        _MAP ((fun v->NotinProviso v), ( >< ) vars terms)
       in
       let rec freshp p h g r v = p (h, g, r, v) in
       match currsymb () with
         SHYID "FRESH" ->
-          _MAP (freshp FreshProviso true true false, parseNOTINvars "FRESH")
+          _MAP (freshp (fun v->FreshProviso v) true true false, parseNOTINvars "FRESH")
       | SHYID "HYPFRESH" ->
           _MAP
-            (freshp FreshProviso true false false, parseNOTINvars "HYPFRESH")
+            (freshp (fun v->FreshProviso v) true false false, parseNOTINvars "HYPFRESH")
       | SHYID "CONCFRESH" ->
           _MAP
-            (freshp FreshProviso false true false, parseNOTINvars "CONCFRESH")
+            (freshp (fun v->FreshProviso v) false true false, parseNOTINvars "CONCFRESH")
       | SHYID "IMPFRESH" ->
-          _MAP (freshp FreshProviso true true true, parseNOTINvars "FRESH")
+          _MAP (freshp (fun v->FreshProviso v) true true true, parseNOTINvars "FRESH")
       | SHYID "IMPHYPFRESH" ->
-          _MAP (freshp FreshProviso true false true, parseNOTINvars "HYPFRESH")
+          _MAP (freshp (fun v->FreshProviso v) true false true, parseNOTINvars "HYPFRESH")
       | SHYID "IMPCONCFRESH" ->
           _MAP
-            (freshp FreshProviso false true true, parseNOTINvars "CONCFRESH")
+            (freshp (fun v->FreshProviso v) false true true, parseNOTINvars "CONCFRESH")
       | sy ->
           if canstartTerm sy then
             let (class__, els) =
@@ -355,38 +339,38 @@ module
             (if h then 10 else 0) + (if g then 20 else 0) +
               (if r then 40 else 0)
         | NotinProviso (v, t) -> 300
-        | NotoneofProviso (vs, pat, C) -> 400
+        | NotoneofProviso (vs, pat, _C) -> 400
         | UnifiesProviso (t, t') -> 500
       in
       let rec lin2 =
         function
           FreshProviso (h, g, r, v) -> [termstring v]
         | NotinProviso (v, t) -> [termstring v; termstring t]
-        | NotoneofProviso (vs, pat, C) ->
+        | NotoneofProviso (vs, pat, _C) ->
             nj_fold (fun (v, ss) -> termstring v :: ss) vs
-              [termstring pat; termstring C]
+              [termstring pat; termstring _C]
         | UnifiesProviso (t, t') -> [termstring t; termstring t']
       in
       let n1 = lin1 p1 in
       let n2 = lin1 p2 in
       n1 < n2 ||
-      n1 = n2 && earlierlist (fun (x, y) -> x < y) (lin2 p1, lin2 p2)
+      n1 = n2 && earlierlist (<) (lin2 p1) (lin2 p2)
     let rec provisovars termvars tmerge p =
       match p with
         FreshProviso (_, _, _, t) -> termvars t
-      | UnifiesProviso (t1, t2) -> tmerge (termvars t1, termvars t2)
-      | NotinProviso (t1, t2) -> tmerge (termvars t1, termvars t2)
-      | NotoneofProviso (vs, pat, C) ->
-          nj_fold tmerge (_MAP (termvars, vs)) (termvars C)
+      | UnifiesProviso (t1, t2) -> tmerge (termvars t1) (termvars t2)
+      | NotinProviso (t1, t2) -> tmerge (termvars t1) (termvars t2)
+      | NotoneofProviso (vs, pat, _C) ->
+          nj_fold (uncurry2 tmerge) (_MAP (termvars, vs)) (termvars _C)
     let rec provisoVIDs p =
       orderVIDs (_MAP (vartoVID, provisovars termvars tmerge p))
     let rec maxprovisoresnum p =
       let rec f t n =
-        nj_fold max (_MAP (resnum2int, elementnumbers t)) n
+        nj_fold (uncurry2 max) (_MAP (resnum2int, elementnumbers t)) n
       in
       match p with
         FreshProviso (_, _, _, t) -> f t 0
       | UnifiesProviso (t1, t2) -> f t1 (f t2 0)
       | NotinProviso (v, t) -> f v (f t 0)
-      | NotoneofProviso (vs, pat, C) -> nj_fold (fun (v, n) -> f v n) vs (f C 0)
+      | NotoneofProviso (vs, pat, _C) -> nj_fold (fun (v, n) -> f v n) vs (f _C 0)
   end
