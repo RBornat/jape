@@ -233,22 +233,37 @@ public class JapeFont {
      */
 
     public final static int termFontNum = 0,  reasonFontNum = 1,  provisoFontNum = 2;
+
     public static byte[] interfaceFontSizes =
         new byte[]{ LocalSettings.FormulaFontSize, LocalSettings.ReasonFontSize, LocalSettings.ProvisoFontSize };
+
     private static Font[] interfaceFonts;
 
+    public static String getFontNames(String sep) {
+        initInterfaceFonts();
+        String s = null;
+        for (int i=termFontNum; i<=provisoFontNum; i++) {
+            Font f = interfaceFonts[i];
+            s = (s==null ? "" : s+sep)+f.getFontName()+","+f.getStyle()+","+f.getSize();
+        }
+        return s;
+    }
+    
     public static void checkInterfaceFontnum(int fontnum) throws ProtocolError {
         if (fontnum<termFontNum || fontnum>provisoFontNum)
             throw new ProtocolError("fontnum "+fontnum+" out of range");
     }
-    
+
+    private static void setInterfaceFonts(Font base) {
+        interfaceFonts = new Font[3];
+        for (int i=termFontNum; i<=provisoFontNum; i++)
+            interfaceFonts[i] = deriveFont(base, Font.PLAIN, interfaceFontSizes[i]);
+    }
+
     private static void initInterfaceFonts() {
         if (interfaceFonts==null) {
             codecDone = true;
-            Font base = new Font("sanserif", Font.PLAIN, 1);
-            interfaceFonts = new Font[3];
-            for (int i=termFontNum; i<=provisoFontNum; i++)
-                interfaceFonts[i] = deriveFont(base, Font.PLAIN, interfaceFontSizes[i]);
+            setInterfaceFonts(new Font("sanserif", Font.PLAIN, 1));
         }
     }
 
@@ -318,6 +333,7 @@ public class JapeFont {
         initInterfaceFonts();
         return interfaceFonts[fontnum];
     }
+    
     public static void setSubstituteFont(String name) throws ProtocolError {
         if (codecDone)
             throw new ProtocolError("too late!");
@@ -327,6 +343,8 @@ public class JapeFont {
                 substituteFont = new Font("Konstanz", Font.PLAIN, 1);
                 if (substituteFont==null)
                     throw new ProtocolError("can't open Konstanz Plain 1.0");
+                setInterfaceFonts(substituteFont);
+                Reply.sendCOMMAND("setfonts \""+getFontNames("\" \"")+"\"");
             }
             setKonstanzMap();
         }
