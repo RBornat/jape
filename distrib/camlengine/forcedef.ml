@@ -39,16 +39,17 @@ open Termparse
 
 type term = Termtype.term
     
-type forcedef =
-    ForcePrim of term
-  | ForceBoth of (forcedef * forcedef)
-  | ForceEither of (forcedef * forcedef)
-  | ForceIf of (forcedef * forcedef)
-  | ForceEverywhere of forcedef
-  | ForceNowhere of forcedef
-  | ForceAll of (term * term list * forcedef)
-  | ForceSome of (term * term list * forcedef)
-                 (* pat, vars, body: a binder *)
+type forcedef = ForceAlways
+              | ForceNever
+              | ForcePrim of term
+              | ForceBoth of (forcedef * forcedef)
+              | ForceEither of (forcedef * forcedef)
+              | ForceIf of (forcedef * forcedef)
+              | ForceEverywhere of forcedef
+              | ForceNowhere of forcedef
+              | ForceAll of (term * term list * forcedef)
+              | ForceSome of (term * term list * forcedef)
+                            (* pat   vars        body: a binder *)
 
 let term_of_forcedef fd =
   match fd with
@@ -57,7 +58,9 @@ let term_of_forcedef fd =
   
 let rec catelim_string_of_forcedef f ss =
   match f with
-    ForcePrim t          -> "FORCE " :: catelim_string_of_termarg t ss
+    ForceAlways          -> "ALWAYS" :: ss
+  | ForceNever           -> "NEVER" :: ss
+  | ForcePrim t          -> "FORCE " :: catelim_string_of_termarg t ss
   | ForceBoth (f1, f2)   -> "BOTH (" :: catelim_string_of_forcedef f1 (") (" :: catelim_string_of_forcedef f2 (")"::ss))
   | ForceEither (f1, f2) -> "EITHER (" :: catelim_string_of_forcedef f1 (") (" :: catelim_string_of_forcedef f2 (")"::ss))
   | ForceIf (f1, f2)     -> "IF (" :: catelim_string_of_forcedef f1 (") (" :: catelim_string_of_forcedef f2 (")"::ss))
@@ -79,7 +82,9 @@ let rec option_mapforcedefterms f fd =
   (* val _ = consolereport ["option_mapforcedefterms ", string_of_forcedef fd] *)
   let res =
     match fd with
-      ForcePrim t -> (omt t &~~ (_Some <.> (fun v->ForcePrim v)))
+      ForceAlways -> None
+    | ForceNever  -> None
+    | ForcePrim t -> (omt t &~~ (_Some <.> (fun v->ForcePrim v)))
     | ForceBoth pair ->
         (ompair pair &~~ (_Some <.> (fun v->ForceBoth v)))
     | ForceEither pair ->
@@ -105,12 +110,14 @@ let rec findinforcedef f fd =
     (findinforcedef f fd1 |~~ (fun _ -> findinforcedef f fd2))
   in
   match fd with
-    ForcePrim t -> findterm f t
-  | ForceBoth pair -> findinpair pair
-  | ForceEither pair -> findinpair pair
-  | ForceIf pair -> findinpair pair
-  | ForceEverywhere fd -> findinforcedef f fd
-  | ForceNowhere fd -> findinforcedef f fd
+    ForceAlways         -> None
+  | ForceNever          -> None
+  | ForcePrim         t -> findterm f t
+  | ForceBoth      pair -> findinpair pair
+  | ForceEither    pair -> findinpair pair
+  | ForceIf        pair -> findinpair pair
+  | ForceEverywhere  fd -> findinforcedef f fd
+  | ForceNowhere     fd -> findinforcedef f fd
   | ForceAll (t, _, fd) ->
       (findterm f t |~~ (fun _ -> findinforcedef f fd))
   | ForceSome (t, _, fd) ->
@@ -144,7 +151,9 @@ let rec parseForceDef () =
   in
   let rec tranForceDef t =
     match decodeApp t with
-      ("FORCE"       , [t]) -> ForcePrim (tranPrim t)
+      ("ALWAYS"      , [ ]) -> ForceAlways
+    | ("NEVER"       , [ ]) -> ForceNever
+    | ("FORCE"       , [t]) -> ForcePrim (tranPrim t)
     | ("EVERYWHERE"  , [f]) -> ForceEverywhere (tranForceDef f)
     | ("NOWHERE"     , [f]) -> ForceNowhere (tranForceDef f)
     | ("ALL"    , [pat; f]) -> ForceAll (tranForceDefBinder pat f)

@@ -306,7 +306,9 @@ let rec variables t = isVariable <| termvars t
 
 let rec findoccs f os =
   match f with
-    ForcePrim _          -> os
+    ForceAlways          -> os
+  | ForceNever           -> os
+  | ForcePrim _          -> os
   | ForceBoth (f1, f2)   -> findoccs f1 (findoccs f2 os)
   | ForceEither (f1, f2) -> findoccs f1 (findoccs f2 os)
   | ForceIf (f1, f2)     -> findoccs f1 (findoccs f2 os)
@@ -404,7 +406,9 @@ let rec semanticfringe facts ts t =
     | Some fd -> ff ts fd
   and ff ts fd =
     match fd with
-      ForcePrim       t    -> tf ts t
+      ForceAlways          -> ts
+    | ForceNever           -> ts
+    | ForcePrim       t    -> tf ts t
     | ForceBoth       pair -> pf ts pair
     | ForceEither     pair -> pf ts pair
     | ForceIf         pair -> pf ts pair
@@ -494,7 +498,9 @@ let rec unfixedforced facts u =
     
     let rec interp fd c =
       match fd with
-        ForcePrim t'           -> f (c, t')
+        ForceAlways            -> true, false
+      | ForceNever             -> false, false
+      | ForcePrim t'           -> f (c, t')
       | ForceBoth (fd1, fd2)   -> logAnd (interp fd1 c) (interp fd2 c)
       | ForceEither (fd1, fd2) -> logOr (interp fd1 c) (interp fd2 c)
       | ForceIf (fd1, fd2)     -> logImp (interp fd1 c) (interp fd2 c)
@@ -743,7 +749,9 @@ and tint_universe facts forced (plan, _) (proofsels, textsels) =
   let bindersels =
     optionfilter (fun t -> let rec isbinder fd =
                              match fd with
-                               ForcePrim _         -> None
+                               ForceAlways         -> None
+                             | ForceNever          -> None
+                             | ForcePrim _         -> None
                              | ForceBoth _         -> None
                              | ForceEither _       -> None
                              | ForceIf _           -> None

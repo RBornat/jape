@@ -28,7 +28,9 @@
 open Seqtype
 open Termtype
 
-type forcedef = ForcePrim of term
+type forcedef = ForceAlways
+              | ForceNever
+              | ForcePrim of term
               | ForceBoth of (forcedef * forcedef)
               | ForceEither of (forcedef * forcedef)
               | ForceIf of (forcedef * forcedef)
@@ -36,6 +38,8 @@ type forcedef = ForcePrim of term
               | ForceNowhere of forcedef
               | ForceAll of (term * term list * forcedef)
               | ForceSome of (term * term list * forcedef)
+                            (* pat   vars        body: a binder *)
+
 
 val term_of_forcedef: forcedef -> term option (* really, is it ForcePrim? *)
 
