@@ -2,12 +2,7 @@
 
 module type T =
   sig
-    type cxt
-    and term
-    and resnum
-    and proviso
-    and visproviso
-    and element
+    type cxt and term and resnum and element and proviso and visproviso
     and ('a, 'b) mapping
     val checkprovisos : cxt -> cxt option
     val verifyprovisos : cxt -> cxt
@@ -22,18 +17,55 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T =
+module M : T with type cxt = Context.Type.cxt
+			  and type term = Term.Type.term
+			  and type resnum = Term.Type.resnum
+			  and type element = Term.Type.element
+			  and type proviso = Proviso.M.proviso
+			  and type visproviso = Proviso.M.visproviso
+			  and type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+=
   struct
-    open Listfuns
-    open Optionfuns
-    open Answer
-    open Idclass
-    open Term
-    open Match
-    open Proviso
-    open Substmapfuns
-    open Facts
+    open Answer.M
+    open Context.Type
+    open Context.ExteriorFuns
+    open Context.Cxt
+    open Facts.M
+    open Idclass.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Match.M
+    open Miscellaneous.M
+    open Optionfuns.M
+    open Proviso.M
+    open Rewrite.Funs
+    open Sequent.Type
+    open SML.M
+    open Stringfuns.M
+    open Substmapfuns.M
+    open Term.Funs
+    open Term.Store
+    open Term.Termstring
+    open Term.Type
     
+    type cxt = Context.Type.cxt
+     and term = Term.Type.term
+     and resnum = Term.Type.resnum
+     and element = Term.Type.element
+     and proviso = Proviso.M.proviso
+     and visproviso = Proviso.M.visproviso
+     and ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+	
+	let baseseqsides cxt =
+	  match getexterior cxt with
+		Exterior((_,Seq(_,left,right)),_,fvi) -> 
+		  (left,right,
+		   (match fvi with Some(_,_,_,bhfvs,bcfvs) -> Some(bhfvs,bcfvs)
+			| None                                 -> None
+		   )
+		  )
+	  | NoExterior -> raise (Catastrophe_ ["baseseqsides"])
+	   
     let vv = bracketedliststring visprovisostring " AND "
     (* just turn a proviso into a list of simpler provisos 
        (function designed for folding over proviso list) 
@@ -56,7 +88,7 @@ module M : T =
             else if not (List.exists qUNSURE rs) then
               Some (nj_fold fnp ss (nj_fold fnp us cats))
             else def ()
-        | Subst (_, r, P, vts) ->
+        | Subst (_, r, _P, vts) ->
             let rs = (substeqvarsq facts v <* (fst <* vts)) in
             if List.exists qDEF rs then
               Some (nj_fold fnp ((snd <* vts)) cats)
@@ -64,14 +96,14 @@ module M : T =
               match vts with
                 [v', t'] ->
                   begin match varoccursinq facts v t' with
-                    Yes -> Some (foldterm (np v') (fnp (P, cats)) P)
-                  | No -> Some (fnp (P, cats))
+                    Yes -> Some (foldterm (np v') (fnp (_P, cats)) _P)
+                  | No -> Some (fnp (_P, cats))
                   | Maybe -> def ()
                   end
               | _ ->
                   Some
                     (nj_fold fnp
-                       ((fun vt -> registerSubst (true, P, [vt])) <* vts)
+                       ((fun vt -> registerSubst (true, _P, [vt])) <* vts)
                        cats)
             else def ()
         | Collection (_, c, es) ->
@@ -85,7 +117,7 @@ module M : T =
         | _ -> None
       in
       let rec nop =
-        fun (vs, pat, C as n) ->
+        fun (vs, pat, _C as n) ->
           let rec expand env (v, cats) =
             match at (env, v) with
               Some v' ->
@@ -98,7 +130,7 @@ module M : T =
             | Some (Uncertain env) -> None
             | None -> Some cats
           in
-          match C with
+          match _C with
             Collection (_, class__, es) ->
               let rec doel (e, (defers, cats)) =
                 match e with
@@ -129,9 +161,9 @@ module M : T =
       simterms (t1, t2) &&
       (match t1, t2 with
          Subst _, Subst _ -> true
-       | Subst (_, _, (Unknown _ as P1), vts), _ ->
-           not (qDEF (varoccursinq cxt P1 t2)) ||
-           specialisesto (idclass P1, conVariableClass) &&
+       | Subst (_, _, (Unknown _ as _P1), vts), _ ->
+           not (qDEF (varoccursinq cxt _P1 t2)) ||
+           specialisesto (idclass _P1, VariableClass) &&
            List.exists (fun t1' -> deferrable cxt (t1', t2))
              ((snd <* vts))
        | _, Subst _ -> deferrable cxt (t2, t1)
@@ -142,16 +174,16 @@ module M : T =
      * where appropriate - but be sure that you don't eliminate two mutually 
      * equivalent provisos (e.g. at this point don't use NOTINs to remove other NOTINs).
      *)
-    let rec PROVISOq facts p =
+    let rec _PROVISOq facts p =
       match p with
         FreshProviso _ ->(* can occur in a derived rule *)  Maybe
       | NotinProviso (v, t) -> notq (varoccursinq facts v t)
       | NotoneofProviso _ -> Maybe
-      | UnifiesProviso (P1, P2) ->
-          if eqterms (P1, P2) then Yes
-          else if not (deferrable facts (P1, P2)) then No
-          else(* if termoccursin (debracket P2) P1 
-             orelse termoccursin (debracket P1) P2 then No
+      | UnifiesProviso (_P1, _P2) ->
+          if eqterms (_P1, _P2) then Yes
+          else if not (deferrable facts (_P1, _P2)) then No
+          else(* if termoccursin (debracket _P2) _P1 
+             orelse termoccursin (debracket _P1) _P2 then No
           else *)  Maybe
     (* the list of names must be sorted, which it will be if it comes out of termvars *)
     (* because of hidden provisos, this thing now gets a visproviso list *)
@@ -162,15 +194,15 @@ module M : T =
         let rec diff a1 a2 =
           match a1, a2 with
             x :: xs, y :: ys ->
-              earliervar (x, y) && diff xs (y :: ys) ||
-              earliervar (y, x) && diff (x :: xs) ys
+              earliervar x y && diff xs (y :: ys) ||
+              earliervar y x && diff (x :: xs) ys
           | _, _ -> true
         in
         let r = diff vs names in
         if !provisodebug then
           consolereport
             ["isot checking "; termstring t; " against ";
-             termliststring names; " => "; string_of_int r];
+             termliststring names; " => "; string_of_bool r];
         r
       in
       let rec isop p =
@@ -178,13 +210,13 @@ module M : T =
           match p with
             FreshProviso (_, _, _, v) -> ismetav v && isot v
           | NotinProviso (v, t) -> ismetav v && isot v || isot t
-          | NotoneofProviso (vs, pat, C) ->
-              not (List.exists (not <*> isot) vs) || isot C
-          | UnifiesProviso (P1, P2) -> isot P1 && isot P2
+          | NotoneofProviso (vs, pat, _C) ->
+              not (List.exists (not <*> isot) vs) || isot _C
+          | UnifiesProviso (_P1, _P2) -> isot _P1 && isot _P2
         in
         if !provisodebug then
           consolereport
-            ["isop checking "; provisostring p; " => "; string_of_int r];
+            ["isop checking "; provisostring p; " => "; string_of_bool r];
         r
       in
       let r =
@@ -198,11 +230,9 @@ module M : T =
               (* we threw them all away *)
               match
                 groundedprovisos
-                  (nj_fold tmerge
-                        ((
-                            provisovars termvars tmerge <*> provisoactual) <*
-                         uses)
-                     names)
+                  (nj_fold (uncurry2 tmerge)
+                           ((provisovars termvars tmerge <*> provisoactual) <* uses)
+                           names)
                   isos
               with
                 Some more -> Some (uses @ more)
@@ -241,7 +271,7 @@ module M : T =
             let qs' = ( -- ) (qs, p) in
             if List.exists (fun p' -> pp = provisoactual p') qs' then ch ps qs'
             else
-              match PROVISOq (facts qs' cxt, pp) with
+              match _PROVISOq (facts qs' cxt) pp with
                 Yes -> ch ps qs'
               | No -> raise (Verifyproviso_ (provisoparent p))
               | Maybe -> p :: ch ps qs
@@ -297,7 +327,7 @@ module M : T =
           let _ =
             if !provisodebug then consolereport ["simpleps = "; vv simpleps]
           in
-          checker cxt (fun (x, y) -> ( -- ) x y) simpleps simpleps
+          checker cxt ( -- ) simpleps simpleps
         in
         (* FreshProviso now interacts with other provisos in a number of ways.
          * If we have FRESH/IMPFRESH z, but z doesn't appear in the base sequent or the givens,
@@ -361,7 +391,7 @@ module M : T =
                   pairstring provisostring vv "," (FreshProviso f, ns))
                "," fresh;
              ") "; " (unfresh = "; vv unfresh; ") "; " => "; vv ps];
-        rewritecxt (setprovisos cxt ps)
+        rewritecxt (withprovisos cxt ps)
       with
         Verifyproviso_ p ->
           if !provisodebug then
@@ -373,13 +403,13 @@ module M : T =
         Verifyproviso_ _ -> None
     (* this is for renaming provisos when a rule/theorem is instantiated *)
     let rec remapproviso env p =
-      let T = remapterm env in
+      let _T = remapterm env in
       match p with
-        FreshProviso (h, g, r, v) -> FreshProviso (h, g, r, T v)
-      | NotinProviso (v, t) -> NotinProviso (T v, T t)
-      | NotoneofProviso (vs, pat, C) ->
-          NotoneofProviso ((T <* vs), T pat, T C)
-      | UnifiesProviso (P1, P2) -> UnifiesProviso (T P1, T P2)
+        FreshProviso (h, g, r, v) -> FreshProviso (h, g, r, _T v)
+      | NotinProviso (v, t) -> NotinProviso (_T v, _T t)
+      | NotoneofProviso (vs, pat, _C) ->
+          NotoneofProviso ((_T <* vs), _T pat, _T _C)
+      | UnifiesProviso (_P1, _P2) -> UnifiesProviso (_T _P1, _T _P2)
     (* the drag and drop mapping is a list of (source,target) pairs, derived from
      * UnifiesProvisos thus:
      * if we have to unify two bag collections, either of which includes an unknown 
