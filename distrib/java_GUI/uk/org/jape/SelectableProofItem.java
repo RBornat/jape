@@ -180,6 +180,7 @@ public	class SelectableProofItem extends TextSelectableItem
 			SwingUtilities.convertPoint(this, -offsetx, -offsety, layeredPane)) {
 		protected void finishFlyback() {
 		    finishDrag();
+		    ((ProofCanvas)canvas).wakeDragSourceIndicators();
 		}
 	    };
 	else {
@@ -192,7 +193,6 @@ public	class SelectableProofItem extends TextSelectableItem
     
     protected void finishDrag() {
 	layeredPane.remove(formulaImage);
-	((ProofCanvas)canvas).wakeDragSourceIndicators();
     }
     
     /* ******************************** formula as drag target ************************************* */
