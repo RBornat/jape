@@ -361,5 +361,11 @@ GIVENPANEL Given IS
     BUTTON "Apply Backwards" IS apply GivenBackward COMMAND
 END /* GIVENPANEL */
 */
+TACTIC GivenTac(i) IS
+    ALT (GIVEN i)
+          (CUTIN (GIVEN i))
+
+INITIALISE givenMenuTactic GivenTac
+
 
 
