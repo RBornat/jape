@@ -2,7 +2,6 @@
 
 /* single-conclusion sequent calculus with LF-like treatment of variables */
 
-USE "SCS.jt"
 USE "sequent_scoping.j"
 
 RULE	"жи"(OBJECT m) WHERE FRESH m
