@@ -15,6 +15,7 @@ sig
     val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
     val null : 'a list -> bool
     val ord : string -> int
+    val ordof : string -> int -> int
     val revapp : ('a -> unit) -> 'a list -> unit
     val snd_of_3 : ('a * 'b * 'c) -> 'b
     val thrd : ('a * 'b * 'c) -> 'c
@@ -57,7 +58,8 @@ module M : T =
 
     let null xs = xs=[]
     
-    let ord s = Char.code (String.get s 0)
+    let ordof s i = Char.code (String.get s i)
+    let ord s = ordof s 0
     
     let rec revapp f xs =
       match xs with

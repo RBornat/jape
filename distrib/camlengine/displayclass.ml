@@ -23,7 +23,7 @@ module M : T =
       | DisplayAmbig -> "DisplayAmbig"
       | DisplayReason -> "DisplayReason"
       | DisplayPunct -> "DisplayPunct"
-    (* Useful translation for japeserver.
+    (* Useful translation for Japeserver.M.
      * Current C/Java/Tk interfaces believe in these integers.
      *
      *   DisplayPunct  0

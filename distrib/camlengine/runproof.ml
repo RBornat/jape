@@ -36,7 +36,53 @@ module M : T =
   struct
     open Context open Name open Proofstage open Proofstate
 
-    type model = model and japeenv = japeenv
+           type model = Forcedef.M.model
+and possmatch = Applyrule.M.possmatch
+and japeenv = Japeenv.M.japeenv
+           
+           exception Use_ = Paragraph.M.Use_
+exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
+           
+           let addproof = Proofstore.M.addproof
+           let ( &~~ ) = Optionfuns.M.( &~~ )
+           let applyLiteralTactic = Tacticfuns.M.applyLiteralTactic None
+           let applyconjectures = Miscellaneous.M.applyconjectures
+           let applyTactic = Tacticfuns.M.applyTactic None
+           let rec checkdisproof cxt =
+  Disproof.M.checkdisproof (Facts.M.facts (Context.Cxt.provisos cxt) cxt)
+           let compiletoprove = Thing.M.compiletoprove
+           let consolereport = Miscellaneous.M.consolereport
+           let empty = Mappingfuns.M.empty
+           let eqbags = Listfuns.M.eqbags
+           let explain = Tacticfuns.M.explain
+           let getReason = Reason.M.getReason
+           let liststring = Listfuns.M.liststring
+           let ( <* ) = Listfuns.M.( <* )
+           let maxprovisoresnum = Proviso.M.maxprovisoresnum
+           let maxtreeresnum = Prooftree.Tree.Fmttree.maxtreeresnum
+           let mkReplayTac = Tactic.Funs.ReplayTac
+           let mkSimpleApplyTac = Tactic.Funs.SimpleApplyTac
+           
+           let rec mkTip cxt seq =
+  Prooftree.Tree.mkTip cxt seq Treeformat.M.neutralformat
+           
+           let mkUniqueTac = Tactic.Funs.UniqueTac
+           let mkvisproviso = Proviso.M.mkvisproviso
+           let proofstage2word = Proofstage.M.proofstage2word
+           let proving = Tacticfuns.M.proving
+           let provisoactual = Proviso.M.provisoactual
+           let provisostring = Proviso.M.provisostring
+           let provisovisible = Proviso.M.provisovisible
+           let rewriteproofstate = Proofstate.M.rewriteproofstate
+           let rewriteProoftree = Prooftree.Tree.rewriteProoftree
+           let rewriteseq = Rewrite.Funs.rewriteseq
+           let rootPath = Prooftree.Tree.Fmttree.rootPath
+           let sequent = Prooftree.Tree.Fmttree.sequent
+           let seqstring = Sequent.Funs.seqstring
+           let tacticstring = Tactic.Funs.tacticstring
+           let takethelot = Applyrule.M.takethelot
+           let uncurry2 = Miscellaneous.M.uncurry2
+           let ( <| ) = Listfuns.M.( <| )
     
     let proofsdone = ref false
     let rec doBEGINPROOF env state =

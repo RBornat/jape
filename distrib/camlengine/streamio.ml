@@ -8,7 +8,7 @@ module type T =
     (* current output stream *)
     val errstream : Pervasives.out_channel ref
     (* current error stream *)
-    val swapstream : 'a ref -> 'a -> 'a
+    val _SwapStream : 'a ref -> 'a -> 'a
     val eof : unit -> bool
     (* instream is at end of file *)
     val readch : unit -> char
@@ -32,7 +32,7 @@ module type T =
 
 module M : T =
   struct
-    let rec swapstream ({contents = old} as loc) new__ = loc := new__; old
+    let rec _SwapStream ({contents = old} as loc) new__ = loc := new__; old
     let instream = ref stdin
     let outstream = ref stdout
     let errstream = ref stderr

@@ -65,10 +65,12 @@ module M : T =
     open Proviso.M
     open Rewrite.Funs
     open Sequent.Funs
+    open SML.M
     open Stringfuns.M
     open Tactic.Funs
     open Term.Funs
     open Term.Termstring
+    open Term.Type
     open Thing.M
     open Treeformat.Fmt
     open Unify.M
@@ -81,6 +83,12 @@ module M : T =
     and name
     type term and element and side
     
+	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+	exception ParseError_  = Miscellaneous.M.ParseError_
+	exception Selection_   = Selection.M.Selection_
+	exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
+	exception Tacastrophe_ = Miscellaneous.M.Tacastrophe_
+             
     type conclusions = Conclusions of (name * thing * term) list
     module Conclusioncache =
       struct
@@ -470,7 +478,7 @@ module M : T =
     let rec getconjecture =
       fun (Proofstate {goal = goal; tree = tree} as state) ->
         let (seq, rewinf, _) =
-          prooftree.fmtprooftree.getTip tree (getGoalPath goal)
+          Prooftree.Tree.fmtprooftree.getTip tree (getGoalPath goal)
         in
         seq, rewinf
     let rec getapplyinfo name args cxt =
@@ -507,9 +515,9 @@ module M : T =
       | _ -> !autoAdditiveLeft, !autoAdditiveRight
     let rec expandstuff name (env, principals, thing) =
       fun (Proofstate {givens = givens}) ->
-        let params = List.rev (mappingfuns.rawdom env) in
+        let params = List.rev (Mappingfuns.M.rawdom env) in
         (* I hope *)
-        let how = prooftree.Apply (name, params, false) in
+        let how = Prooftree.Tree.Apply (name, params, false) in
         let (kind, antes, conseq, provisos) =
           match thing with
             Rule ((_, provisos, antes, conseq), ax) ->
@@ -917,7 +925,7 @@ module M : T =
 
      **********************************************************************)
 
-    let rec CanApply triv name state =
+    let rec _CanApply triv name state =
       if triv then []
       else
         try
@@ -937,17 +945,17 @@ module M : T =
           _ -> []
     (* whatever it means, we can't apply it ... *)
 
-    let rec CanApplyInState a1 a2 a3 =
+    let rec _CanApplyInState a1 a2 a3 =
       match a1, a2, a3 with
         triv, name, (Proofstate {goal = Some gpath} as state) ->
-          CanApply (triv, name, state)
+          _CanApply (triv, name, state)
       | _, _, _ -> []
     let rec autoStep a1 a2 a3 =
       match a1, a2, a3 with
         triv, rulenames, Proofstate {goal = None} -> None
       | triv, rulenames, (state : proofstate) ->
           let rec Applicable (name, cs) =
-            match CanApplyInState (triv, name, state) with
+            match _CanApplyInState (triv, name, state) with
               [] -> cs
             | hypmatches ->
                 nj_fold (fun (match__, cs) -> (name, match__) :: cs) hypmatches
@@ -1068,12 +1076,12 @@ module M : T =
         match seq with
           Seq
             (_, Collection (_, _, []),
-             Collection (_, _, [Element (_, _, C)])) ->
-            assoc params C
+             Collection (_, _, [Element (_, _, _C)])) ->
+            assoc params _C
         | Seq
             (_, Collection (_, _, [Segvar _]),
-             Collection (_, _, [Element (_, _, C)])) ->
-            assoc params C
+             Collection (_, _, [Element (_, _, _C)])) ->
+            assoc params _C
         | _ -> false
       in
       if !_FINDdebug then
@@ -1114,30 +1122,30 @@ module M : T =
       | _ -> raise Matchinisassociative
     (**********************************************************************)
 
-    let rec LeftFold f ts =
-      let rec Fold a1 a2 =
+    let rec _LeftFold f ts =
+      let rec _Fold a1 a2 =
         match a1, a2 with
           r, [] -> r
-        | r, t :: ts -> Fold (f (r, t), ts)
+        | r, t :: ts -> _Fold (f (r, t)) ts
       in
       match ts with
         [] ->
           registerId
             ("GIVE ME A BREAK! (LEFTFOLD)",
              symclass "GIVE ME A BREAK! (LEFTFOLD)")
-      | t :: ts -> Fold (t, ts)
-    let rec RightFold f ts =
-      let rec Fold =
+      | t :: ts -> _Fold t, ts
+    let rec _RightFold f ts =
+      let rec _Fold =
         function
           [t] -> t
-        | t :: ts -> f (t, Fold ts)
+        | t :: ts -> f t (_Fold ts)
         | [] ->
             registerId
               ("GIVE ME A BREAK! (RIGHTFOLD)",
                symclass "GIVE ME A BREAK! (RIGHTFOLD)")
       in
-      Fold ts
-    let rec MkApp curry f =
+      _Fold ts
+    let rec _MkApp curry f =
       if curry then fun (l, r) -> registerApp (registerApp (f, l), r)
       else fun (l, r) -> registerApp (f, registerTup (",", [l; r]))
     let rec rator t =
@@ -1165,13 +1173,13 @@ module M : T =
               ["assocInfo ("; smltermstring f; ") = ("; string_of_int curried;
                ", "; string_of_int lassoc; ")"];
           curried,
-          (if lassoc then LeftFold else RightFold) (MkApp (curried, f))
+          (if lassoc then _LeftFold else _RightFold) (_MkApp (curried, f))
       | _ -> raise MatchinAssocInfo
-    let rec AssocFlatten pat t =
+    let rec _AssocFlatten pat t =
       let _ =
         if !_FINDdebug then
           consolereport
-            ["AssocFlatten ("; smltermstring pat; ") ("; smltermstring t; ")"]
+            ["_AssocFlatten ("; smltermstring pat; ") ("; smltermstring t; ")"]
       in
       let rec af1 f c =
         if isassociative f then
@@ -1235,7 +1243,7 @@ module M : T =
       match a1, a2 with
         why, None -> setReason (why ()); None
       | why, some -> some
-    let rec UnifyWithExplanation message (s, t) cxt =
+    let rec _UnifyWithExplanation message (s, t) cxt =
       try
         explainfailure
           (fun () ->
@@ -1262,14 +1270,14 @@ module M : T =
        
        neg as the negation function symbol
        
-       C as the conclusion judgement from which this problem arose (for error reports)
+       _C as the conclusion judgement from which this problem arose (for error reports)
        
        cxt as the current context
        
        opn, invopn: int*int->int where opn=+ => invopn=-, opn=* => invopn=div
     *)
     let rec ARITHMETIC =
-      fun C cxt opn invopn (e1 : term) (e2 : term) (e3 : term) (neg : term) ->
+      fun _C cxt opn invopn (e1 : term) (e2 : term) (e3 : term) (neg : term) ->
         let e1 = debracket e1 in
         let e2 = debracket e2 in
         let e3 = debracket e3 in
@@ -1277,7 +1285,7 @@ module M : T =
         (* the negation function symbol *)
            
                (* Classify an arithmetic term as a number, a (negated?) variable, or something else. *)
-        let rec ArithKind (t : term) : arithKind =
+        let rec _ArithKind (t : term) : arithKind =
           match t with
             Literal (_, Number i) -> ArithNumber i
           | Unknown (_, _, Idclass.M.NumberClass) -> ArithVariable (t, false)
@@ -1285,7 +1293,7 @@ module M : T =
           | Unknown (_, _, Idclass.M.ConstantClass) -> ArithVariable (t, false)
           | App (_, f, t) ->
               if f = neg then
-                match ArithKind t with
+                match _ArithKind t with
                   ArithVariable (t, neg) -> ArithVariable (t, not neg)
                 | ArithNumber n -> ArithNumber (- n)
                 | _ -> ArithOther
@@ -1298,7 +1306,7 @@ module M : T =
         let rec result (e, neg) n =
           let n = if neg then - n else n in
           match
-            UnifyWithExplanation ("EVALUATE ARITHMETIC", (e, mkLit n), cxt)
+            _UnifyWithExplanation "EVALUATE ARITHMETIC" (e, mkLit n) cxt
           with
             Some cxt' -> Some ("ARITHMETIC", cxt')
           | None -> None
@@ -1306,7 +1314,7 @@ module M : T =
         let rec checkresult n1 n2 =
           if n1 = n2 then Some ("ARITHMETIC", cxt) else None
         in
-        match ArithKind e1, ArithKind e2, ArithKind e3 with
+        match _ArithKind e1, _ArithKind e2, _ArithKind e3 with
           ArithNumber v1, ArithNumber v2, ArithNumber v3 ->
             checkresult v3 (opn (v1, v2))
         | ArithNumber v1, ArithNumber v2, ArithVariable e3 ->
@@ -1319,14 +1327,14 @@ module M : T =
             (* When there are more variables, a proviso should be introduced.
                Dunno what to do when the result is negative.
             *)
-            setReason ["EVALUATE couldn't solve arithmetic "; termstring C];
+            setReason ["EVALUATE couldn't solve arithmetic "; termstring _C];
             None
     (**********************************************************************)
     
-    let rec DECIDE (turnstile : string) (cxt : context.cxt) =
-      fun (HS : term) ->
-        fun (CS : term) (oracle : string) (args : string list) ->
-          match _Oracle (turnstile, cxt, HS, CS, oracle, args) with
+    let rec _DECIDE (turnstile : string) (cxt : Context.Cxt.cxt) =
+      fun (_HS : term) ->
+        fun (_CS : term) (oracle : string) (args : string list) ->
+          match _Oracle (turnstile, cxt, _HS, _CS, oracle, args) with
             Some cxt' -> Some ("ORACLE " ^ oracle, cxt')
           | None -> None
     (**********************************************************************)
@@ -1334,8 +1342,8 @@ module M : T =
     (* spurious *)
        
     let rec explodeEval =
-      fun C ->
-        let (f, es) = explodeApp true C in
+      fun _C ->
+        let (f, es) = explodeApp true _C in
         match f with
           Id (_, i, _) -> i, es
         | Literal (_, String s) -> s, es
@@ -1343,10 +1351,10 @@ module M : T =
     exception MatchinOBJECT
     (* spurious *) (* moved out for OCaml *)
 
-    let rec Evaluate cxt seq =
+    let rec _Evaluate cxt seq =
       match rewriteseq cxt seq with
-        Seq (turnstile, HS, Collection (_, _, [Element (_, _, C)])) ->
-          begin match explodeEval C with
+        Seq (turnstile, _HS, Collection (_, _, [Element (_, _, _C)])) ->
+          begin match explodeEval _C with
             "ASSOCEQ", [source; target] ->
               let source = debracket source in
               let target = debracket target in
@@ -1357,7 +1365,7 @@ module M : T =
                       None -> source
                     | Some operator ->
                         if isassociative operator then
-                          anyway (AssocFlatten operator) source
+                          anyway (_AssocFlatten operator) source
                         else source
                     end
                 | source -> source
@@ -1366,44 +1374,44 @@ module M : T =
                                      of the expected uses of this, but
                                      at least the thing's complete. *)
               begin match
-                UnifyWithExplanation
-                  ("EVALUATE ASSOCEQ", (flat source, flat target), cxt)
+                _UnifyWithExplanation
+                  "EVALUATE ASSOCEQ" (flat source, flat target) cxt
               with
                 Some cxt' -> Some ("ASSOCEQ", cxt')
               | None -> None
               end
           | "ADD", [e1; e2; e3; e4] ->
               ARITHMETIC
-                (C, cxt, (fun (x, y) -> x + y), (fun (x, y) -> x - y), e1, e2,
+                (_C, cxt, (fun (x, y) -> x + y), (fun (x, y) -> x - y), e1, e2,
                  e3, e4)
           | "MUL", [e1; e2; e3; e4] ->
               ARITHMETIC
-                (C, cxt, (fun (x, y) -> x * y), (fun (x, y) -> div x y), e1,
+                (_C, cxt, (fun (x, y) -> x * y), (fun (x, y) -> div x y), e1,
                  e2, e3, e4)
           | "DECIDE", conclusion :: oracle :: args ->
-              DECIDE
-                (turnstile, cxt, HS, conclusion, termstring oracle,
-                 (termstring <* args))
+              _DECIDE
+                 turnstile cxt _HS conclusion (termstring oracle)
+                 (termstring <* args)
           | _ ->
               setReason
-                ["Evaluate couldn't recognise judgement "; termstring C];
+                ["_Evaluate couldn't recognise judgement "; termstring _C];
               None
           end
       | Seq
-          (turnstile, HS,
-           (Collection (_, idclass, Element (_, _, C) :: CS) as CONCS)) ->
-          begin match explodeEval C with
+          (turnstile, _HS,
+           (Collection (_, idclass, Element (_, _, _C) :: _CS) as _CONCS)) ->
+          begin match explodeEval _C with
             "DECIDEBAG", oracle :: args ->
-              DECIDE
-                (turnstile, cxt, HS, registerCollection (idclass, CS),
-                 termstring oracle, (termstring <* args))
+              _DECIDE
+                 turnstile cxt _HS (registerCollection (idclass, _CS))
+                 (termstring oracle) (termstring <* args)
           | _ ->
               setReason
-                ["Evaluate couldn't recognise judgement "; termstring CONCS];
+                ["_Evaluate couldn't recognise judgement "; termstring _CONCS];
               None
           end
       | s ->
-          setReason ["Evaluate couldn't recognise sequent "; seqstring s];
+          setReason ["_Evaluate couldn't recognise sequent "; seqstring s];
           None
     (* non-single conclusion *)
     let rec doEVAL a1 a2 =
@@ -1414,7 +1422,7 @@ module M : T =
           if !tactictracing then
             consolereport
               ["doEVAL "; cxtstring cxt; " ("; smlseqstring seq; ")"];
-          begin match Evaluate (cxt, seq) with
+          begin match _Evaluate cxt seq with
             None -> None
           | Some (reason, cxt') ->
               proofstep cxt'
@@ -1432,33 +1440,33 @@ module M : T =
       | Fixapp (_, _, ts) -> List.rev ts @ q
       | Binding (_, (bs, ss, us), _, _) -> (List.rev ss @ List.rev us) @ q
       | _ -> q
-    let rec FIRSTSUBTERM f t =
-      let rec S a1 a2 =
+    let rec _FIRSTSUBTERM f t =
+      let rec _S a1 a2 =
         match a1, a2 with
           [], [] -> None
-        | [], rear -> S (List.rev rear, [])
+        | [], rear -> _S (List.rev rear) []
         | t :: front, rear ->
             match f t with
-              None -> S (front, appendsubterms t rear)
+              None -> _S front (appendsubterms t rear)
             | r -> r
       in
-      S ([t], [])
+      _S [t] []
     let _FOLDdebug = ref false
-    let rec Matches goal (name, thing, lhs as rule) =
+    let rec _Matches goal (name, thing, lhs as rule) =
       if currentlyProving name then None
       else if not (applyAnyway thing) && lacksProof name then None
       else
         begin
           if !_FOLDdebug then
             consolereport
-              ["Matches looking at \""; termstring goal; "\" with pattern \"";
+              ["_Matches looking at \""; termstring goal; "\" with pattern \"";
                termstring lhs; "\""];
-          FIRSTSUBTERM
-            ((fun goal ->
-                match match__ false lhs goal mappingfuns.empty with
+          _FIRSTSUBTERM
+             (fun goal ->
+                match match__ false lhs goal Mappingfuns.M.empty with
                   Some _ -> Some (name, thing, goal)
-                | None -> None),
-             goal)
+                | None -> None)
+             goal
         end
     let rootenv = ref empty
     (* filth, by Richard *)
@@ -1489,33 +1497,33 @@ module M : T =
             raise (Catastrophe_ ["can't happen mkenvfrommap "; termstring v])
       in
       nj_revfold mk argmap !rootenv
-    let rec AQ env term =
-      let rec A =
+    let rec _AQ env term =
+      let rec _A =
         function
-          App (_, Id (_, "QUOTE", _), a) -> Some (QU (env, a))
+          App (_, Id (_, "QUOTE", _), a) -> Some (_QU env a)
         | Id _ as v -> at (env, _The (term2name v))
         | Unknown _ as v -> at (env, _The (term2name v))
         | _ -> None
       in
-      mapterm A term
-    and QU env term =
-      let rec Q =
+      mapterm _A term
+    and _QU env term =
+      let rec _Q =
         function
-          App (_, Id (_, "ANTIQUOTE", _), a) -> Some (AQ (env, a))
+          App (_, Id (_, "ANTIQUOTE", _), a) -> Some (_AQ env a)
         | _ -> None
       in
-      mapterm Q term
-    let rec eval env = AQ env
+      mapterm _Q term
+    let rec eval env = _AQ env
     let rec evalvt env (v, t) = v, eval env t
     (* a service to SubstTac *)
        
        (**********************************************************************)
 
     let rec emptyenv () = mkenv [] []
-    let CacheConcsOf =
+    let _Cache_ConcsOf =
       (ref (fun s -> Conclusions []) : (name -> conclusions) ref)
-    let rec ConclusionsofthingNamed (n, l) =
-      let (Conclusions ts) = !(CacheConcsOf n) in ts @ l
+    let rec _ConclusionsofthingNamed (n, l) =
+      let (Conclusions ts) = !(_Cache_ConcsOf n) in ts @ l
     (* I don't quite realise why fresh... is used here.  We might as
        well use the rule itself, surely, since it is only being used as
        a pattern.  Or perhaps I am confused, in which case the use of
@@ -1523,59 +1531,59 @@ module M : T =
        are wrong.  RB 2/9/93 *)
     (* with bated breath, I try it without freshRule *)
     
-    and ConcsOf n =
+    and _ConcsOf n =
       Conclusions
         begin
           if !_FOLDdebug then
             consolereport
-              ["ConcsOf "; namestring n; " (=> ";
+              ["_ConcsOf "; namestring n; " (=> ";
                optionstring (thingstring <*> fst)
                  (thingnamed n);
                ")"];
           match thingnamed n with
             None ->
-              setReason ["Nothing named "; namestring n; " (in ConcsOf)"]; []
-          | Some ((Rule ((_, _, _, Seq (_, _, CS)), _) as t), _) ->
-              begin match CS with
-                Collection (_, _, [Element (_, _, C)]) -> [n, t, C]
+              setReason ["Nothing named "; namestring n; " (in _ConcsOf)"]; []
+          | Some ((Rule ((_, _, _, Seq (_, _, _CS)), _) as t), _) ->
+              begin match _CS with
+                Collection (_, _, [Element (_, _, _C)]) -> [n, t, _C]
               | _ -> []
               end
-          | Some ((Theorem (_, _, Seq (_, _, CS)) as t), _) ->
-              begin match CS with
-                Collection (_, _, [Element (_, _, C)]) -> [n, t, C]
+          | Some ((Theorem (_, _, Seq (_, _, _CS)) as t), _) ->
+              begin match _CS with
+                Collection (_, _, [Element (_, _, _C)]) -> [n, t, _C]
               | _ -> []
               end
           | Some (Tactic (_, spec), _) ->
-              ConclusionsofTactic (emptyenv (), (spec, []))
+              _ConclusionsofTactic (emptyenv ()) (spec, [])
           | Some (Macro (_, spec), _) ->
               setReason
-                ["Only a macro is named "; namestring n; " (in ConcsOf)"];
+                ["Only a macro is named "; namestring n; " (in _ConcsOf)"];
               []
         end
-    and ConclusionsofTactic env (spec, l) =
+    and _ConclusionsofTactic env (spec, l) =
       if !_FOLDdebug then
         consolereport
-          ["ConclusionsofTactic ...";
+          ["_ConclusionsofTactic ...";
            pairstring tacticstring
              (bracketedliststring
                 (triplestring parseablenamestring thingstring termstring ",")
                 ",")
              ", " (spec, l)];
       match spec with
-        TermTac (name, _) -> ConclusionsofthingNamed (evalname env name, l)
-      | AltTac ts -> nj_fold (ConclusionsofTactic env) ts l
+        TermTac (name, _) -> _ConclusionsofthingNamed (evalname env name, l)
+      | AltTac ts -> nj_fold (_ConclusionsofTactic env) ts l
       | TheoryAltTac ns ->
-          nj_fold (fun (n, l) -> ConclusionsofthingNamed (evalname env n, l)) ns
+          nj_fold (fun (n, l) -> _ConclusionsofthingNamed (evalname env n, l)) ns
             l
       | _ -> setReason ["Bad FOLD/UNFOLD argument"]; l
-    let (realCache, resetconclusioncache) = conclusioncache.cache ConcsOf
-    let _ = CacheConcsOf := realCache
+    let (realCache, resetconclusioncache) = conclusioncache.cache _ConcsOf
+    let _ = _Cache_ConcsOf := realCache
     let rec resetcaches () = resetconclusioncache (); resetassociativecache ()
     (**********************************************************************)
 
 
-    let THING = (ref None : term option ref)
-    let rec IT () = _The !THING
+    let _THING = (ref None : term option ref)
+    let rec IT () = _The !_THING
     let rec strsep t =
       match debracket t with
         Literal (_, String s) -> s
@@ -1605,17 +1613,11 @@ module M : T =
       | Literal (_, String s) -> s
       | _ -> termstring term
     let message = message
-    exception MatchindoJAPE
-    (* spurious *)
-             
-    exception BadMatch
-    (* moved out for OCaml *)
-       
-    exception MatchinTtoIL
-    (* not spurious, really *) (* moved out for OCaml *)
-       
-    exception MatchinJAPEparam
-    (* moved out for OCaml *)
+    
+    exception MatchindoJAPE_ (* spurious *)
+    exception BadMatch_ (* moved out for OCaml *)
+    exception MatchinTtoIL_ (* not spurious, really *) (* moved out for OCaml *)
+    exception MatchinJAPEparam_ (* moved out for OCaml *)
        
     let rec doJAPE tryf display env ts =
       fun
@@ -1627,29 +1629,29 @@ module M : T =
             givens = givens;
             root = root} as state) ->
         let rec adhoceval = rewrite cxt <*> eval env in
-        let rec Tickmenu on menu label state =
+        let rec _Tickmenu on menu label state =
           try
-            let rec U s = String.sub (s) (1) (String.length s - 2) in
-            let rec V t =
+            let rec _U s = String.sub (s) (1) (String.length s - 2) in
+            let rec _V t =
               match adhoceval t with
-                Literal (_, String s) -> U s
+                Literal (_, String s) -> _U s
               | Id (_, s, _) -> s
-              | _ -> raise MatchindoJAPE
+              | _ -> raise MatchindoJAPE_
             in
-            tickmenuitem (V menu, V label, on); Some state
+            tickmenuitem (_V menu, _V label, on); Some state
           with
-            BadMatch ->
+            BadMatch_ ->
               setReason
                 (["Badly-formed JAPE tactic: "] @ (termstring <* ts));
               None
         in
         (* function is Term to Integer List *)
-        let rec TtoIL =
+        let rec _TtoIL =
           function
             Literal (_, Number n) -> [n]
           | Tup (_, ",", ts) ->
-              ( </ ) ((fun (x, y) -> x @ y), []) ((TtoIL <* ts))
-          | _ -> raise MatchinTtoIL
+              ( </ ) ((fun (x, y) -> x @ y), []) ((_TtoIL <* ts))
+          | _ -> raise MatchinTtoIL_
         in
         match ts with
           [] ->
@@ -1666,9 +1668,9 @@ module M : T =
               *)
                resetcaches (); Some state
             | Id (_, "tick", _), [menu; label] ->
-                Tickmenu (true, menu, label, state)
+                _Tickmenu true menu label state
             | Id (_, "untick", _), [menu; label] ->
-                Tickmenu (false, menu, label, state)
+                _Tickmenu false menu label state
             | Id (_, "tactic", _), [dest; tactic] ->
                 begin try
                   let dest = adhoceval dest in
@@ -1677,7 +1679,7 @@ module M : T =
                   let rec param =
                     function
                       Id (h, v, c) -> Ordinaryparam (v, c)
-                    | _ -> raise MatchinJAPEparam
+                    | _ -> raise MatchinJAPEparam_
                   in
                   let params = (param <* args) in
                   addthing
@@ -1686,7 +1688,7 @@ module M : T =
                   resetcaches ();
                   Some state
                 with
-                  MatchinJAPEparam ->
+                  MatchinJAPEparam_ ->
                     setReason ["Badly-formed parameters for JAPE(set)"]; None
                 end
             | Id (_, "GROUND", _), [t] ->
@@ -1705,15 +1707,15 @@ module M : T =
     let rec doFLATTEN env f =
       fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
         match rewriteseq cxt (getTip tree goal) with
-          Seq (st, HS, Collection (_, collc, [Element (_, resn, C)])) as
+          Seq (st, _HS, Collection (_, collc, [Element (_, resn, _C)])) as
             seq ->
             let f = eval env f in
-            begin match AssocFlatten (f, C) with
-              Some C' ->
-                (* AssocFlatten should give back rule dependencies
+            begin match _AssocFlatten f _C with
+              Some _C' ->
+                (* _AssocFlatten should give back rule dependencies
                                                          * that we can attach to UnRule below
                                                          *)
-                if C = C' then(* eqterms is modulo bracketing, so is not to be used here! *)
+                if _C = _C' then(* eqterms is modulo bracketing, so is not to be used here! *)
                  Some state
                 else
                   proofstep cxt
@@ -1722,9 +1724,9 @@ module M : T =
                        [mkTip cxt
                           (rewriteseq cxt
                              (Seq
-                                (st, HS,
+                                (st, _HS,
                                  registerCollection
-                                   (collc, [registerElement (resn, C')]))))
+                                   (collc, [registerElement (resn, _C')]))))
                           treeformat.neutralformat]
                        ([], []))
                     state
@@ -1762,7 +1764,7 @@ module M : T =
       let reason = make_remark name [] in
       trace
         (fun cxt ->
-           mappingfuns.mappingstring termstring
+           Mappingfuns.M.mappingstring termstring
              (termstring <*> rewrite cxt))
         name env state;
       if currentlyProving name then
@@ -1960,7 +1962,7 @@ module M : T =
             contn (stripoption (doBIND tactic display try__ env state))
         | BadUnifyTac _ ->
             contn (stripoption (doBIND tactic display try__ env state))
-        | BadMatchTac _ ->
+        | BadMatch_Tac _ ->
             contn (stripoption (doBIND tactic display try__ env state))
         | BadProvisoTac _ ->
             contn (stripoption (doBIND tactic display try__ env state))
@@ -2134,8 +2136,8 @@ module M : T =
         (* this is the problem! *)
         let (cxt, principals, given) = freshGiven true given cxt in
         let stuff =
-          "given", hiddencontexts givens, prooftree.Given (name, i, false),
-          mappingfuns.empty, principals, [], given, []
+          "given", hiddencontexts givens, Prooftree.Tree.Given (name, i, false),
+          Mappingfuns.M.empty, principals, [], given, []
         in
         ruler checker filter taker selhyps selconcs stuff name cxt state
     and doASSIGN env (s, t) state =
@@ -2156,11 +2158,11 @@ module M : T =
     and doMAPTERMS display try__ contn name args =
       fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
         match rewriteseq cxt (getTip tree goal) with
-          Seq (_, HS, Collection (_, _, [Element (_, _, C)])) ->
+          Seq (_, _HS, Collection (_, _, [Element (_, _, _C)])) ->
             let rec TryTacOn term =
               tryApply display try__ contn name (args @ [term]) state
             in
-            FIRSTSUBTERM (TryTacOn, C)
+            _FIRSTSUBTERM TryTacOn _C
         | _ -> setReason ["MAPTERMS with multiple-conclusion sequent"]; None
     (* this is not the right way to do WithSubst: it ought to take more arguments so that
      * we can build our own pseudo-substitutions.  But a tactic language based on terms
@@ -2168,14 +2170,8 @@ module M : T =
      *)
     (* Now it forces you to use the substitution it constructs *)
     and doWITHSUBSTSEL display try__ =
-      fun
-        (Proofstate
-           {cxt = cxt;
-            goal = goal;
-            tree = tree;
-            givens = givens;
-            target = target;
-            root = root})
+      fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
+					   target = target; root = root})
         tacfun ->
         match getunsidedselectedtext (), goal with
           Some (path, concsels, hypsels, givensel), Some g ->
@@ -2187,26 +2183,8 @@ module M : T =
                 in
                 let alteredstate =
                   Proofstate
-                    (let module M =
-                       struct
-                         class a =
-                           object
-                             val cxt = cxt'
-                             val tree = tree'
-                             val givens = givens
-                             val goal = goal
-                             val target = target
-                             val root = root
-                             method cxt = cxt
-                             method tree = tree
-                             method givens = givens
-                             method goal = goal
-                             method target = target
-                             method root = root
-                           end
-                       end
-                     in
-                     new M.a)
+                    {cxt = cxt'; tree = tree'; givens = givens; goal = goal;
+                     target = target root = root}
                 in
                 tacfun
                   (match try__ with
@@ -2244,21 +2222,21 @@ module M : T =
     and doUNFOLD name display try__ env contn (tactic, laws) =
       fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
         match rewriteseq cxt (getTip tree goal) with
-          Seq (_, HS, Collection (_, collc, [Element (_, resn, C)])) ->
+          Seq (_, _HS, Collection (_, collc, [Element (_, resn, _C)])) ->
             let lhss =
               optionfilter
                 (fun (name, thing, t) ->
                    match explodeApp false t with
                      _, [Tup (_, ",", [l; r])] -> Some (name, thing, l)
                    | _ -> None)
-                (nj_fold (ConclusionsofTactic env) laws [])
+                (nj_fold (_ConclusionsofTactic env) laws [])
             in
             findfirst
-              ((Matches C &~
+              ((_Matches _C &~
                   (fun (name, _, term) ->
                      if !_FOLDdebug then
                        consolereport
-                         ["Matches found \""; termstring term;
+                         ["_Matches found \""; termstring term;
                           "\" - now to try "; parseablenamestring tactic;
                           " and then "; parseablenamestring name];
                      (tryApply display try__ contn tactic [term] &~
@@ -2269,17 +2247,17 @@ module M : T =
     and doFOLD name display try__ env contn (tactic, laws) =
       fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
         match rewriteseq cxt (getTip tree goal) with
-          Seq (_, HS, Collection (_, collc, [Element (_, resn, C)])) ->
+          Seq (_, _HS, Collection (_, collc, [Element (_, resn, _C)])) ->
             let rhss =
               optionfilter
                 (fun (name, thing, t) ->
                    match explodeApp false t with
                      _, [Tup (_, ",", [l; r])] -> Some (name, thing, t)
                    | _ -> None)
-                (nj_fold (ConclusionsofTactic env) laws [])
+                (nj_fold (_ConclusionsofTactic env) laws [])
             in
             findfirst
-              ((Matches C &~
+              ((_Matches _C &~
                   (fun (name, _, term) ->
                      (tryApply display try__ contn tactic [term] &~
                         tryApply display try__ contn name [])
@@ -2287,98 +2265,68 @@ module M : T =
               rhss
         | _ -> setReason ["FOLD with multiple-conclusion sequent"]; None
     and doFOLDHYP name display try__ env contn (tactic, patterns) =
-      fun
-        (Proofstate
-           {cxt = cxt;
-            goal = goal;
-            tree = tree;
-            givens = givens;
-            target = target;
-            root = root} as state) ->
+      fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens; 
+                       target = target; root = root} as state) ->
         let (_, cxt, env) = freshenv patterns cxt env in
         let patterns = (eval env <* patterns) in
         match rewriteseq cxt (getTip tree goal) with
-          Seq (_, HS, Collection (_, collc, [Element (_, resn, C)])) ->
-            let rec HypMatches =
+          Seq (_, _HS, Collection (_, collc, [Element (_, resn, _C)])) ->
+            let rec _HypMatches =
               function
-                Element (_, _, Ht) as H ->
-                  begin match explodeApp false Ht with
+                Element (_, _, _Ht) as _H ->
+                  begin match explodeApp false _Ht with
                     _, [Tup (_, ",", [_; rhs])] ->
                       findfirst
                         (fun pat ->
                            match
-                             (unifyterms (pat, Ht) &~ checkprovisos) cxt
+                             (unifyterms (pat, _Ht) &~ checkprovisos) cxt
                            with
                              None -> None
                            | Some _ ->
-                               FIRSTSUBTERM
-                                 ((fun subterm ->
+                               _FIRSTSUBTERM
+                                  (fun subterm ->
                                      match
                                          (unifyterms (subterm, rhs) &~
                                           checkprovisos)
                                          cxt
                                      with
                                        Some cxt -> Some (cxt, subterm)
-                                     | None -> None),
-                                  C))
+                                     | None -> None)
+                                  _C)
                         patterns
                   | _ -> None
                   end
               | _ -> None
             in
-            begin match findfirst HypMatches (explodeCollection HS) with
+            begin match findfirst _HypMatches (explodeCollection _HS) with
               None -> None
             | Some (cxt, term) ->
                 tryApply display try__ contn tactic [term]
                   (Proofstate
-                     (let module M =
-                        struct
-                          class a =
-                            object
-                              val cxt = cxt
-                              val goal = goal
-                              val target = target
-                              val tree = tree
-                              val givens = givens
-                              val root = root
-                              method cxt = cxt
-                              method goal = goal
-                              method target = target
-                              method tree = tree
-                              method givens = givens
-                              method root = root
-                            end
-                        end
-                      in
-                      new M.a))
+                     {cxt = cxt; goal = goal; target = target; tree = tree;
+                      givens = givens; root = root})
             end
         | _ -> setReason ["FOLDHYP with multiple-conclusion sequent"]; None
     and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
-      fun
-        (Proofstate
-           {cxt = cxt;
-            goal = goal;
-            tree = tree;
-            givens = givens;
-            target = target;
-            root = root} as state) ->
+      fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
+					   target = target; root = root} as state) ->
         let (_, cxt, env) = freshenv patterns cxt env in
         let patterns = (eval env <* patterns) in
         match rewriteseq cxt (getTip tree goal) with
-          Seq (_, HS, Collection (_, collc, [Element (_, resn, C)])) ->
-            let rec HypMatches =
+          Seq (_, _HS, Collection (_, collc, [Element (_, resn, _C)])) ->
+            let rec _HypMatches =
               function
-                Element (_, _, Ht) as H ->
-                  begin match explodeApp false Ht with
+                Element (_, _, _Ht) as _H ->
+                  begin match explodeApp false _Ht with
                     _, [Tup (_, ",", [lhs; _])] ->
                       findfirst
                         (fun pat ->
                            match
-                             (unifyterms (pat, Ht) &~ checkprovisos) cxt
+                             (unifyterms (pat, _Ht) &~ checkprovisos) cxt
                            with
                              None -> None
                            | Some _ ->
-                               FIRSTSUBTERM
+                               _FIRSTSUBTERM
                                  ((fun subterm ->
                                      match
                                          (unifyterms (subterm, lhs) &~
@@ -2387,37 +2335,19 @@ module M : T =
                                      with
                                        Some cxt -> Some (cxt, subterm)
                                      | None -> None),
-                                  C))
+                                  _C))
                         patterns
                   | _ -> None
                   end
               | _ -> None
             in
-            begin match findfirst HypMatches (explodeCollection HS) with
+            begin match findfirst _HypMatches (explodeCollection _HS) with
               None -> None
             | Some (cxt, term) ->
                 tryApply display try__ contn tactic [term]
                   (Proofstate
-                     (let module M =
-                        struct
-                          class a =
-                            object
-                              val cxt = cxt
-                              val goal = goal
-                              val target = target
-                              val tree = tree
-                              val givens = givens
-                              val root = root
-                              method cxt = cxt
-                              method goal = goal
-                              method target = target
-                              method tree = tree
-                              method givens = givens
-                              method root = root
-                            end
-                        end
-                      in
-                      new M.a))
+                     {cxt = cxt; goal = goal; target = target; tree = tree;
+                      givens = givens; root = root})
             end
         | _ -> setReason ["UNFOLDHYP with multiple-conclusion sequent"]; None
     and doBIND tac display try__ env =
@@ -2509,10 +2439,10 @@ module M : T =
         (*
               fun matchterms pattern value cxt =
               let fun VtoT vmap = 
-                    mappingfuns.remapping
+                    Mappingfuns.M.remapping
                       ((fn (i, t) => (Unknown(_,i,symclass i), t)), vmap)
                   fun TtoV tmap = 
-                    mappingfuns.remapping
+                    Mappingfuns.M.remapping
                       ((fn (Unknown(_,i,_), t) => (i, t) | _ => raise MatchinTtoV), 
                        tmap
                       )
@@ -2777,8 +2707,8 @@ module M : T =
             with
               Some
                 (Seq
-                   (_, HS, Collection (_, collc, [Element (_, resn, C)]))) ->
-                checkBIND "LETGOAL" (cxt, env, Some C, spec)
+                   (_, _HS, Collection (_, collc, [Element (_, resn, _C)]))) ->
+                checkBIND "LETGOAL" (cxt, env, Some _C, spec)
             | Some _ -> setReason ["LETGOAL with non-single conclusion"]; None
             | None -> setReason ["LETGOAL at non-tip position"]; None
             end
@@ -2847,7 +2777,7 @@ module M : T =
                        (( ++ )
                           (env, ( ++ ) (( |-> ) (n1, t1), ( |-> ) (n2, t2))))
                        nullcontn tac state)))
-        | BadMatchTac (n1, n2, tac) ->
+        | BadMatch_Tac (n1, n2, tac) ->
             (!badmatch &~~
                (fun (t1, t2) ->
                   Some
@@ -2960,26 +2890,8 @@ module M : T =
                    takefirst, [], [])
                   tac
                   (Proofstate
-                     (let module M =
-                        struct
-                          class a =
-                            object
-                              val cxt = cxt
-                              val tree = tree
-                              val givens = givens
-                              val root = root
-                              val goal = Some goal
-                              val target = Some goal
-                              method cxt = cxt
-                              method tree = tree
-                              method givens = givens
-                              method root = root
-                              method goal = goal
-                              method target = target
-                            end
-                        end
-                      in
-                      new M.a))
+                     {cxt = cxt; tree = tree; givens = givens; root = root;
+                      goal = Some goal; target = Some goal})
               with
                 None -> None
               | Some state' -> if time'sUp () then None else Some state'

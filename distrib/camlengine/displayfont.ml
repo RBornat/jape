@@ -26,7 +26,7 @@ module M : T =
         TermFont -> "TermFont"
       | ReasonFont -> "ReasonFont"
       | ProvisoFont -> "ProvisoFont"
-    (* Useful translation for japeserver.
+    (* Useful translation for Japeserver.M.
      * Current C/Java/Tk interfaces believe in these integers.
      *
      *  TermFont = 0
@@ -51,7 +51,7 @@ module M : T =
       function
         ProofPane -> "ProofPane"
       | DisproofPane -> "DisproofPane"
-    (* Useful translation for japeserver.
+    (* Useful translation for Japeserver.M.
      *
      *  ProofPane = 0
      *  DisproofPane = 1
