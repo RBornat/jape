@@ -31,6 +31,8 @@ import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
 
+import javax.swing.SwingUtilities;
+
 public class PrintProof {
     static PageFormat defaultPage;
 
@@ -41,30 +43,40 @@ public class PrintProof {
     
     // run a Page Setup dialogue from the menu
     static void pageSetup() {
-	PrinterJob job = PrinterJob.getPrinterJob();
+	final PrinterJob job = PrinterJob.getPrinterJob();
 	ensureDefaultPage(job);
-	defaultPage = job.pageDialog(defaultPage);
+	// See comment about invokeLater below (weehah! look at the raciness!!). RB 28.09.2004
+	SwingUtilities.invokeLater(
+	    new Runnable() {
+	       public void run() {
+		   defaultPage = job.pageDialog(defaultPage);
+	       }
+	    });
     }
 
     static final int PROOF = 1, DISPROOF = 2, BOTH = 3;
     
     static void printProof(ProofWindow w) {
-	PrinterJob job = PrinterJob.getPrinterJob();
+	final PrinterJob job = PrinterJob.getPrinterJob();
 	ensureDefaultPage(job);
 	w.whattoprint = BOTH;
 	job.setPrintable(w, defaultPage);
-	if (job.printDialog()) {
-	    try {
-		job.print();
-	    } catch (Exception ex) {
-		ex.printStackTrace();
-		Alert.showAlert(Alert.Warning, "print job failed -- see log");
-	    }
-	}
+	// see comment about invokeLater below. RB 28.09.2004
+	SwingUtilities.invokeLater(
+	    new Runnable() {
+	       public void run() {
+		   try {
+		       job.print();
+		   } catch (Exception ex) {
+		       ex.printStackTrace();
+		       Alert.showAlert(Alert.Warning, "print job failed -- see log");
+		   }
+	       }
+	    });
     }
     
     static void printTichy(ProofWindow w, int what) {
-	PrinterJob job = PrinterJob.getPrinterJob();
+	final PrinterJob job = PrinterJob.getPrinterJob();
 	if (DebugVars.printdialog_tracing)
 	    Logger.log.println("PrinterJob succeeded "+job);
 	PageFormat page = new PageFormat();
@@ -104,21 +116,30 @@ public class PrintProof {
 	job.setPrintable(w, page);
 	if (DebugVars.printdialog_tracing)
 	    Logger.log.println("setPrintable done -- starting printDialog");
-	try {
-	    if (job.printDialog()) {
-		if (DebugVars.printdialog_tracing)
-		    Logger.log.println("setPrintable done -- starting printDialog");
-		    job.print();
-		    if (DebugVars.printdialog_tracing)
-			Logger.log.println("job.print done");
-	    }
-	} catch (Exception ex) {
-	    ex.printStackTrace(Logger.log);
-	    Alert.showAlert(Alert.Warning, "print job failed -- see log");
-	}
-	// desperate attempt to stop print dialogs doing stupid things
-	job.setPrintable(null,null); 
-	if (DebugVars.printdialog_tracing)
-	    Logger.log.println("printing done");
+	
+	/* apparently modal dialog(ue)s can cause a hang, it seems ... and don't I know it. 
+	   invokeLater may sort it out. RB 28.09.2004
+	 */
+	SwingUtilities.invokeLater(
+	    new Runnable() {
+	       public void run() {
+		   try {
+		       if (job.printDialog()) {
+			   if (DebugVars.printdialog_tracing)
+			       Logger.log.println("setPrintable done -- starting printDialog");
+			   job.print();
+			   if (DebugVars.printdialog_tracing)
+			       Logger.log.println("job.print done");
+		       }
+		   } catch (Exception ex) {
+		       ex.printStackTrace(Logger.log);
+		       Alert.showAlert(Alert.Warning, "print job failed -- see log");
+		   }
+		   // desperate attempt to stop print dialogs doing stupid things
+		   job.setPrintable(null,null); 
+		   if (DebugVars.printdialog_tracing)
+		       Logger.log.println("printing done");				       
+	       }
+	    });
     }
 }
