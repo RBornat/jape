@@ -151,18 +151,17 @@ let fStr v  = Str  v
 
 (* 0x25 = '%' *)
 let rec writef s is =
+  let signedstring_of_int i = if i < 0 then "-" ^ string_of_int (- i) else string_of_int i in
   let rec ww_ a1 a2 =
     match a1, a2 with
       [], _ -> ()
     | 0x25 :: 0x25 :: f, is -> out "%"; ww_ f is
     | 0x25 :: f, Bool b :: is -> out (if b then "T" else "F"); ww_ f is
-    | 0x25 :: f, Int i :: is -> out (string_of_int i); ww_ f is
+    | 0x25 :: f, Int i :: is -> out (signedstring_of_int i); ww_ f is
     | 0x25 :: f, Str s :: is -> outs s; ww_ f is
     | c :: cs, is -> out (utf8_of_ucode c); ww_ cs is
   in
   ww_ (utf8_explode s) is
-
-and string_of_int i = if i < 0 then "-" ^ string_of_int (- i) else string_of_int i
 
 and outs s =
   List.iter
