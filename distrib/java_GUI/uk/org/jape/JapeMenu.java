@@ -744,6 +744,26 @@ public class JapeMenu implements DebugConstants {
             the panels;
             the log window.
      */
+
+    private static int alphapos(M menu, String title, int start) {
+        for (int i=start; i<menu.size(); i++) {
+            Object o = menu.get(i);
+            if (o instanceof Sep)
+                return i;
+            else
+            if (o instanceof I) {
+                int order = title.compareTo(((I)o).label);
+                if (order<0)
+                    return i;
+                else
+                if (order==0) { // this happens when panels are resized
+                    menu.removeI(title);
+                    return i;
+                }
+            }
+        }
+        return menu.size();
+    }
     
     public static void windowAdded(String title, JapeWindow w) {
         int insertpoint = -1, seppoint = -1;
@@ -765,13 +785,8 @@ public class JapeMenu implements DebugConstants {
                     insertpoint = 0; seppoint = 1;
                 }
             }
-            else { // there are panels: insert in lexical ordering
-                for (int i=(hassurrogate?2:0); i<windowmenu.size(); i++)
-                    if (windowmenu.get(i) instanceof Sep ||
-                        title.compareTo(((I)windowmenu.get(i)).label)<0) {
-                        insertpoint = i; break;
-                    }
-            }
+            else // insert in lexical ordering
+                insertpoint = alphapos(windowmenu, title, hassurrogate?2:0);
             panelcount++;
         }
         else
@@ -786,13 +801,9 @@ public class JapeMenu implements DebugConstants {
                 else // end of window, separator before
                     insertpoint = seppoint = windowmenu.size();
             }
-            else
-                for (int i=(hassurrogate?2:0)+(panelcount==0?0:panelcount+1);
-                     i<windowmenu.size(); i++)
-                    if (windowmenu.get(i) instanceof Sep ||
-                        title.compareTo(((I)windowmenu.get(i)).label)<0) {
-                        insertpoint = i; break;
-                    }
+            else // insert in lexical ordering
+                insertpoint = alphapos(windowmenu, title,
+                                        (hassurrogate?2:0)+(panelcount==0?0:panelcount+1));
             proofcount++;                    
         }
         else
