@@ -330,6 +330,26 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
         currenttextselindex = i;
         canvas.getProofWindow().enableCopy();
     }
+
+    public void setTextSels(String[] sels) throws ProtocolError { // used in disproof sequent
+        ensureTextSelectionVars();
+        int i=0, start=0, end;
+        while (true) {
+            if (sels.length-i<3)
+                throw (new ProtocolError("must be 3, 5, 7, ... number of strings"));
+            start += sels[i].length();
+            end = start+sels[i+1].length();
+            FormulaTree f = findSubformula(formulae, start, end);
+            if (f==null)
+                throw (new ProtocolError("can't find selection "+((i+1)/2)));
+            textsels.add(new TextSel(f));
+            start = end;
+            i+=2;
+            if (sels.length-i==1)
+                break;
+        }
+        repaint();
+    }
         
     protected void textpressed(byte eventKind, MouseEvent e) {
         switch (eventKind) {
