@@ -9,7 +9,7 @@
 
 
 FONTS   "Konstanz"
-SEQUENT IS BAG æ TERM 
+SEQUENT IS BAG æ FORMULA 
 
 INFIX   1000    1000    é
 INFIX   1100    1100    ç
@@ -32,8 +32,6 @@ BIND    x SCOPE P IN ä x . P
 BIND    x SCOPE P IN è x . P
 
 USE     "equality.j"
-
-INITIALISE displaystyle box
 
 INFIX    4010 4000 :
 INFIX    3000 3010 ++
@@ -273,7 +271,7 @@ MENU "Edit"
 	RADIOBUTTON displaystyle IS
 		"Box display" 	IS box
 	AND	"Tree display" 	IS tree
-	INITIALLY tree
+	INITIALLY box
 	END
 END
 
