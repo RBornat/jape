@@ -55,33 +55,6 @@ MENU "Searching" IS
 END
 
 TACTICPANEL "Definitions" 
-		PREFIXBUTTON	"Unfold"		IS apply UnfoldOneSel
-		PREFIXBUTTON	"Fold"		IS apply FoldOneSel
-		BUTTON		"Unfold *"	IS apply SEQ	(Auto Unfold UnfoldWithAnyHyp) 
-											(DO (Auto Unfold UnfoldWithAnyHyp))
-		PREFIXBUTTON	"Apply"		IS apply
-END
-
-MENU Edit
-		RADIOBUTTON displaystyle IS
-			  "Box display style"	IS box
-		AND	  "Tree display style"	IS tree
-		INITIALLY box
-		END
-		
-		RADIOBUTTON autoselect IS
-				"Automatic goal selection" IS true
-		AND		"Manual goal selection" IS false
-		END
-
-		RADIOBUTTON applyconjectures IS
-				"Apply both conjectures and theorems" IS true
-		AND		"Apply only theorems " IS false
-		INITIALLY false
-		END
-END
-
-TACTICPANEL "Definitions" 
 
 	ENTRY	":"
 	ENTRY	"¥"	  
@@ -110,6 +83,31 @@ TACTICPANEL "Definitions"
 	ENTRY	"zip"
 	ENTRY	L
 	ENTRY	R
+
+	PREFIXBUTTON	"Unfold"		IS apply UnfoldOneSel
+	PREFIXBUTTON	"Fold"		IS apply FoldOneSel
+	BUTTON		"Unfold *"	IS apply SEQ	(Auto Unfold UnfoldWithAnyHyp) 
+										(DO (Auto Unfold UnfoldWithAnyHyp))
+	PREFIXBUTTON	"Apply"		IS apply
+END
+
+MENU Edit
+		RADIOBUTTON displaystyle IS
+			  "Box display style"	IS box
+		AND	  "Tree display style"	IS tree
+		INITIALLY box
+		END
+		
+		RADIOBUTTON autoselect IS
+				"Automatic goal selection" IS true
+		AND		"Manual goal selection" IS false
+		END
+
+		RADIOBUTTON applyconjectures IS
+				"Apply both conjectures and theorems" IS true
+		AND		"Apply only theorems " IS false
+		INITIALLY false
+		END
 END
 
 CONJECTUREPANEL "Conjectures" IS
@@ -172,17 +170,17 @@ CONJECTUREPANEL "Conjectures" IS
 		PREFIXBUTTON	"Fold"		IS apply FoldOneSel
 END
 
-CONCHIT C IS Auto Unfold UnfoldWIthAnyHyp
+CONCHIT C IS Auto Unfold UnfoldWithAnyHyp
 HYPHIT  H |- C IS  UnfoldHypWithOptionalSelection 
 
 TACTIC UnfoldHypWithOptionalSelection IS
 	WHEN	
 		(LETSUBSTSEL _X[_x\_XX] 
-           		(ALT	(WITHHYPSEL (WITHSUBSTSEL "Unfold with hypothesis")) 
-                		(FAIL ("Couldn't Unfold selected term " _XX))
+           		(ALT	(WITHHYPSEL (WITHSUBSTSEL "Fold with hypothesis")) 
+                		(FAIL (Couldn't Unfold selected term _XX))
                 	)
 		)
-      		"rewrite with hypothesis"
+      		"Unfold/Fold with hypothesis"
 
 
 
