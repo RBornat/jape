@@ -257,20 +257,15 @@ let rec getpaneldata p =
     ((!panels <@> p) &~~
      (let applyname = namefrom "Apply" in
         fSome <.> 
-          ((fun {contents = k, em, bs} ->
-              nj_fold (fun ((l, {contents = c}), es) -> Pentry (l, c) :: es)
-                (aslist em)
-                (match bs, k with
-                   [], ConjecturePanelkind ->
-                     [Pbutton
-                        (applyname,
-                         [StringInsert "apply"; CommandInsert])]
-                 | [], GivenPanelkind ->
-                     [Pbutton
-                        (applyname,
-                         [StringInsert "applygiven"; CommandInsert])]
-                 | _ -> List.rev bs))
-             )))
+        (fun {contents = k, em, bs} ->
+            nj_fold (fun ((l, {contents = c}), es) -> Pentry (l, c) :: es)
+              (aslist em)
+              (match bs, k with
+                 [], ConjecturePanelkind ->
+                   [Pbutton (applyname, [StringInsert "apply"; CommandInsert])]
+               | [], GivenPanelkind ->
+                   [Pbutton (applyname, [StringInsert "applygiven"; CommandInsert])]
+               | _ -> List.rev bs))))
 
 let rec clearmenusandpanels () = menus := empty; panels := empty
 (***** temporary, for backwards compatibility *****)
@@ -306,8 +301,7 @@ let rec panelitemiter p ef bf (* cbf rbf *) =
     (* | Pcheckbox (var, label, (val1, val2), _) ->
            cbf (label, assignvarval var val1)
        | Pradiobutton (var, lcs, _) ->
-           rbf
-             ((fun (label, vval) -> label, assignvarval var vval) <* lcs)
+           rbf ((fun (label, vval) -> label, assignvarval var vval) <* lcs)
      *)
   in
   match getpaneldata p with
