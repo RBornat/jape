@@ -38,13 +38,15 @@ public class Flyback implements ActionListener, MiscellaneousConstants {
     Timer timer;
 
     int lastx, lasty, destx, desty;
+    long interval;
     
     public Flyback(Component c, Point start, Point dest) {
         this.c = c;
         this.lastx = start.x; this.lasty = start.y;
         this.destx = dest.x; this.desty = dest.y;
+        this.interval = 1000/FlybackFramesPerSecond;
         
-        timer = new Timer(1000/FlybackFramesPerSecond, this);
+        timer = new Timer((int)interval, this);
         timer.setInitialDelay(0);
         timer.setCoalesce(true);
 
@@ -65,9 +67,9 @@ public class Flyback implements ActionListener, MiscellaneousConstants {
         }
         else {
             int nextx = lastx+delta(lastx, destx), nexty = lasty+delta(lasty, desty);
-            c.repaint();
+            c.repaint(interval);
             c.setLocation(nextx, nexty);
-            c.repaint();
+            c.repaint(interval);
             lastx = nextx; lasty = nexty;
         }
     }
