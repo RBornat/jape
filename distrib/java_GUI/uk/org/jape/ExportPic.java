@@ -25,28 +25,52 @@
     
 */
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import javax.print.Doc;
 import javax.print.DocFlavor;
+import javax.print.DocPrintJob;
+import javax.print.PrintException;
+import javax.print.SimpleDoc;
+import javax.print.StreamPrintService;
 import javax.print.StreamPrintServiceFactory;
 
-public class ExportPic /* implements Printable */ {
-    private static void findStreams() {
-        DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
-        showStreams(flavor, DocFlavor.BYTE_ARRAY.AUTOSENSE.getMimeType(), "autosense (????)");
-        showStreams(flavor, DocFlavor.BYTE_ARRAY.GIF.getMimeType(), "gif (.gif)");
-        showStreams(flavor, DocFlavor.BYTE_ARRAY.JPEG.getMimeType(), "jpeg (.jpeg)");
-        showStreams(flavor, DocFlavor.BYTE_ARRAY.PDF.getMimeType(), "pdf (.pdf)");
-        showStreams(flavor, DocFlavor.BYTE_ARRAY.PNG.getMimeType(), "png (.png)");
-        showStreams(flavor, DocFlavor.BYTE_ARRAY.POSTSCRIPT.getMimeType(), "postscript (.ps)");
-    }
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.HashPrintRequestAttributeSet;
 
-    private static void showStreams(DocFlavor flavor, String outputMimeType, String kind) {
-        StreamPrintServiceFactory[] factories =
-            StreamPrintServiceFactory.lookupStreamPrintServiceFactories(flavor, outputMimeType);
-        Alert.showAlert("found "+factories.length+" "+kind+" factories");
-    }
-
+public class ExportPic {
     public static void exportPic(ProofWindow w) {
-        findStreams();
+        if (Jape.onMacOS) {
+            Alert.showAlert("Export doesn't work on MacOS X yet.  Sorry");
+        } else {
+            /* Use the pre-defined flavor for a Printable from an InputStream */
+            DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
+            /* Specify the type of the output stream */
+            String psMimeType = DocFlavor.BYTE_ARRAY.POSTSCRIPT.getMimeType();
+            /* Locate factory which can export a GIF image stream as Postscript */
+            StreamPrintServiceFactory[] factories =
+                StreamPrintServiceFactory.lookupStreamPrintServiceFactories(flavor, psMimeType);
+            if (factories.length == 0) {
+                Alert.showAlert("your Java system doesn't seem able to produce PostScript");
+            } else
+                try {
+                    /* Create a file for the exported postscript */
+                    FileOutputStream fos = new FileOutputStream("exportpic.ps");
+                    /* Create a Stream printer for Postscript */
+                    StreamPrintService sps = factories[0].getPrintService(fos);
+                    /* Create and call a Print Job */
+                    DocPrintJob pj = sps.createPrintJob();
+                    PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+                    Doc doc = new SimpleDoc(w, flavor, null);
+                    pj.print(doc, aset);
+                    fos.close();
+                } catch (PrintException pe) {
+                    Alert.showAlert("ExportPic "+pe);
+                } catch (IOException ie) {
+                    Alert.showAlert("ExportPic "+ie);
+                }
+        }
     }
 }
 
