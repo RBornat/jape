@@ -51,7 +51,7 @@ public class DisproofPane extends Container implements DebugConstants {
 
     JFrame window; // for the draggers and droppers
 
-    private TrashCan trashCan;
+    public final WasteBin wasteBin;
     
     public DisproofPane(JFrame window, int linethickness) {
         super();
@@ -88,8 +88,8 @@ public class DisproofPane extends Container implements DebugConstants {
         };
         seqView.add(seqCanvas);
 
-        trashCan = new TrashCan();
-        add(trashCan);
+        wasteBin = new WasteBin(this);
+        add(wasteBin);
     }
 
     public void setSequentBox(int width, int ascent, int descent) {
@@ -111,7 +111,7 @@ public class DisproofPane extends Container implements DebugConstants {
         tileCanvas.removeAll();
         this.tiles = new Tile[tiles.length];
         for (int i=0; i<tiles.length; i++) {
-            Tile t = new Tile(window, tiles[i]);
+            Tile t = new Tile(window, wasteBin, tiles[i]);
             this.tiles[i] = t;
             tileCanvas.add(t);
         }
@@ -147,6 +147,8 @@ public class DisproofPane extends Container implements DebugConstants {
     }
 
     private boolean layout_set = false;
+
+    public boolean layout_set() { return layout_set; }
     
     protected class DisproofPaneLayout implements LayoutManager {
 
@@ -230,12 +232,11 @@ public class DisproofPane extends Container implements DebugConstants {
                 worldright = tileleft-gap();
             
             tileCanvas.setBounds
-                (tileleft, tilebottom-tileCanvasSize.height,
-                 tileCanvasSize.width, tileCanvasSize.height);
+                (tileleft, tilebottom-tileCanvasSize.height, tileCanvasSize.width, tileCanvasSize.height);
 
-            trashCan.setLocation(tileleft, tilebottom+LocalSettings.TileSpacing);
-            if (!trashCan.scaled())
-                trashCan.notifyHeight(bottom-tilebottom);
+            wasteBin.setLocation(tileleft, tilebottom+LocalSettings.TileSpacing);
+            if (!wasteBin.scaled())
+                wasteBin.notifyHeight(bottom-wasteBin.getY());
 
             worldPane.setBounds(0, 0, worldright, worldbottom);
 
@@ -248,139 +249,6 @@ public class DisproofPane extends Container implements DebugConstants {
             }
             
             pane.repaint();
-        }
-    }
-
-    private static Image normal_image, selected_image, unavailable_image,
-                         normal_scaled, selected_scaled, unavailable_scaled;
-
-    protected class TrashCan extends Component {
-        private Image current_image;
-        private float scaleFactor;
-        
-        public TrashCan() {
-            if (normal_image==null) {
-                Toolkit tk = Toolkit.getDefaultToolkit();
-                normal_image = tk.createImage("trashcan.jpg");
-                selected_image = tk.createImage("trashcan_selected.jpg");
-                current_image = null;
-                // trigger imageUpdate
-                if (image_tracing)
-                    System.err.println("dimension request (normal_image)");
-                normal_image.getWidth(this); normal_image.getHeight(this);
-            }
-            else
-                current_image = normal_scaled;
-
-            if (current_image!=null) {
-                // possible concurrency nasty: see comment in TrashCan
-                if (image_tracing)
-                    System.err.println("dimension request (current_image)");
-                int width = current_image.getWidth(this), height = current_image.getHeight(this);
-                setSize(width, height);
-            }
-            else
-                setSize(-1, -1);
-        }
-
-        public boolean scaled() { return current_image!=null; }
-
-        public void paint(Graphics g) {
-            if (current_image!=null) {
-                if (image_tracing)
-                    System.err.println("painting "+getSize());
-                g.drawImage(current_image, 0, 0, this);
-            }
-        }
-
-        public void notifyHeight(int height) {
-            if (image_tracing)
-                System.err.println("notifyHeight("+height+")");
-            if (current_image==null) {
-                if (image_tracing)
-                    System.err.println("dimension request (normal_image) in notifyHeight");
-                int imageheight = normal_image.getHeight(this),
-                    imagewidth = normal_image.getWidth(this);
-                if (imageheight!=-1 && imagewidth!=-1) {
-                    float scale = ((float)height)/((float)imageheight);
-                    current_image = normal_scaled =
-                        normal_image.getScaledInstance((int)(((float)imagewidth)*scale),
-                                                       (int)(((float)imageheight)*scale),
-                                                       Image.SCALE_SMOOTH);
-                    if (image_tracing)
-                        System.err.println("image to be "+
-                                           (((float)imagewidth)*scale)+" x "+
-                                           (((float)imageheight)*scale));
-                    // there's a nasty bit of concurrency here ... be careful.
-                    // I have to getWidth and getHeight and then believe the local answers;
-                    // if either is -1 then I rely on imageUpdate;
-                    // if neither is -1 then I believe them.
-                    // (Well maybe there isn't, but it it's better to be sure.)
-                    if (image_tracing)
-                        System.err.println("dimension request (current_image) in notifyHeight");
-                    int scaledwidth = current_image.getWidth(this),
-                        scaledheight = current_image.getHeight(this);
-                    if (scaledwidth!=-1 && scaledheight!=-1) {
-                        setSize(scaledwidth, scaledheight); repaint();
-                        if (image_tracing) {
-                            System.err.println("immediate repaint "+getBounds());
-                            japeserver.showContainer(DisproofPane.this, null);
-                        }
-                    }
-                }
-                else
-                if (image_tracing)
-                    System.err.println("not yet: "+imageheight+"x"+imagewidth);
-            }
-            else {
-                if (image_tracing)
-                    System.err.println("we are already set");
-            }
-        }
-
-        // This method should return true if further updates are needed
-        // or false if the required information has been acquired
-        private boolean MORE_PLEASE = true, THATS_ENOUGH = false;
-        
-        public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-            if (image_tracing)
-                System.err.println("imageUpdate("+img+",0x"+Integer.toHexString(infoflags)+
-                                   ","+x+","+y+","+width+","+height+")"+
-                                   "; normal_image="+normal_image+
-                                   "; normal_scaled="+normal_scaled+
-                                   "; current_image="+current_image+
-                                   "; WIDTH=0x"+Integer.toHexString(ImageObserver.WIDTH)+
-                                   "; HEIGHT=0x"+Integer.toHexString(ImageObserver.HEIGHT)+
-                                   "; ALLBITS=0x"+Integer.toHexString(ImageObserver.ALLBITS));
-            if ((infoflags & (ImageObserver.WIDTH | ImageObserver.HEIGHT)) ==
-                (ImageObserver.WIDTH | ImageObserver.HEIGHT)) {
-                if (img==normal_image) {
-                    if (image_tracing)
-                        System.err.println("it's the first time");
-                    if (DisproofPane.this.layout_set) {
-                        DisproofPane.this.getLayout().layoutContainer(DisproofPane.this);
-                        if (image_tracing)
-                            System.err.println("triggered a layout");
-                    }
-                    return THATS_ENOUGH;
-                }
-                else {
-                    setSize(width, height); repaint();
-                    if (image_tracing) {
-                        System.err.println("triggered first repaint "+getBounds());
-                        japeserver.showContainer(DisproofPane.this, null);
-                    }
-                    return MORE_PLEASE;
-                }
-            }
-            else
-            if ((infoflags & ImageObserver.ALLBITS) == ImageObserver.ALLBITS) {
-                if (image_tracing)
-                    System.err.println("triggered second repaint "+getBounds());
-                repaint(); return THATS_ENOUGH;
-            }
-            else
-                return MORE_PLEASE; // you get all sorts of intermediate information
         }
     }
 }
