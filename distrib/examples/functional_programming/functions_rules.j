@@ -108,7 +108,24 @@ THEORY	Reflect IS
 	RULE	R		IS	R F					= F
 END
 
+/* these three tactics are something to do with three-button mice on Suns, and disabling of same*/
+TACTIC	mousebutton3(X)	IS (ALT)	
+TACTIC	findbutton(X)	  	IS (ALT)	
+TACTIC	cutbutton(X)	  	IS (ALT)	
 
+TACTIC Auto(foldunfold, foldunfoldhyp) IS 
+ALT (dohyp foldunfoldhyp)
+	(foldunfold list) 
+	(foldunfold listthms) 
+	(foldunfold function) 
+	(foldunfold functionthms) 
+	(foldunfold reflect ) 
+	(foldunfold reflectthms)
+	(FAIL (Cannot find anything to foldunfold) )
+
+TACTIC DoHyp(T) IS T
+TACTIC UnfoldWithAnyHyp IS UNFOLDHYP "Fold with hypothesis" (_A=_B)
+TACTIC FoldWithAnyHyp IS FOLDHYP "Unfold with hypothesis" (_A=_B)
 
 
 

@@ -132,7 +132,7 @@ MENU Rules IS
 	ENTRY "letrec ... : T" IS letrecrules
 	
 	TACTIC "x:T" IS
-		LAYOUT "C(x)€S; S»T" () 
+		LAYOUT "C(x)€S; S»T" (1) 
 			(ALT	(SEQ "C Ê x:T" "C Ê x€S") 
 				(SEQ "C Ê c:T" (ALT constants "C Ê c€S"))
 				(WHEN
