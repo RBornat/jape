@@ -1,31 +1,79 @@
 <html>
 <head>
+  <script type="text/javascript">
+      <!-- Escape any frame that tries to capture the page -->
+      if (top.location != self.location) { top.location  = self.location; } 
+  </script>
   <meta http-equiv="Content-Type" content="text/html">
   <title>jape.org.uk</title>
+  <!-- 
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta target=_top http-equiv="refresh" content="5;URL=http://jape.comlab.ox.ac.uk:8080/jape/" />
+  -->
 </head>
 
 <body>
-<h1>Welcome to <code>jape.org.uk</code></h1>
+<h1 align="center">Welcome to <code>jape.org.uk</code></h1>
 
-<p align="center"><img alt="Jape Splash" src="./japelogo.gif"></p>
+<p align="center"><img alt="Jape" src="./japelogo.gif"></p>
 
-<h3>News</h3>
+<br>
+<table align="center" border=2>
+<tr>
+   <th align="center">Host Site Selector</th>
+</tr>
+<tr>
+   <td align="center"><a href="http://jape.comlab.ox.ac.uk:8080/jape/" target=_top>jape.comlab.ox.ac.uk</a></td>
+</tr>
+<tr>
+   <td align="center"><a href="http://jape.org.uk" target=_top>jape.org.uk</a></td>
+</tr>
+</table>
 
-<p>The Jape implementation has been ported (by Richard Bornat) from SML of
-New Jersey to OCAML, and all versions now use the same front-end, namely
-Richard's Java-written GUI.</p>
+<h2 align="center">Breaking News</h2>
 
-<p>Implementations are currently available for MacOsX, Solaris (sparc), Linux
-(x86), and Windows (2K, NT, XP), and all will eventually be distributed from
-this site.</p>
+<P>
+(March 2005) <b>New Release</b>. 
+This release (v7.d4.6) brings Jape in line with Richard's forthcoming book. A very nasty bug (blush!) in the natural deduction encoding (I2L.jt) has been fixed. (You could evade the privacy condition on quantifier rules.)
+The Hoare Logic section has been improved, and the drag-n-drop interface to
+multiplicative theories has been resuscitated.
+</P>
 
-<p>The distributions are around 600kb in size and you will need to have a
-functioning Java 2 implementation (preferably Sun's JDK or JRE in a version
-later than 1.3) before you can do the installation. Once you have one of
-these, installation is done by executing a <tt>jar</tt> file -- a one-command
-operation on Unixoid systems and a one-click operation on Windows. </p>
+<P>
+The Windows implementation is now compiled rather than interpreted.
+This means it's faster, though a little larger, than before.
+</P>
 
-<h3>Caution</h3>
+<P>
+The Windows/Solaris/Linux installation process is now somewhat simpler
+and more reliable than hitherto.
+</P>
+
+<P>
+We currently recommend the use of jedit to edit Jape source texts.
+</P>
+
+<h3 align="center">Coming Soon</h3>
+
+<P>
+Up-to-date manuals for natural deduction and "Roll your own". There will be a manual for Hoare logic, a little later.
+</P>
+
+</p>
+<h3 align="center">Resources</h3>
+<ul>
+  <li><a href="jedit">JEdit resources for Jape Unicode support</a></li>
+  <li><a href="MacOSX">Current MacOSX distributions</a></li>
+  <li><a href="CURRENT/">Current Windows/Linux/Solaris Jape Distributions</a></li>
+  <li><a href="BUILDS/">All recent Windows/Linux/Solaris Jape Distributions (ordered by date)</a></li>
+  <li><a href="SOURCE/">Jape source releases</a></li>
+  <li><a href="PUBLIC">PUBLIC directory</a></li>
+  <li><a href="DOCUMENTS/CURRENT/">Using JnJ in Jape (a reasonably up-to-date descripion of using Jape with a logical theory)</a></1li>
+  <li><a href="DOCUMENTS/OLD/">Several interesting Jape Documents (dated, but useful)</a></1li>
+  <li><a href="DOCUMENTS/CURRENT">Current Documentation</a></1li>
+</ul>
+
+<h3 align="center">Caution</h3>
 
 <p>The present distributions  are of late alpha quality,  in the following
 senses:</p>
@@ -34,31 +82,56 @@ senses:</p>
     slight bugs and omissions  in the user interface. To the best of our
     knowledge the bugs all result in mild irritation to the user, rather than
     death of the application.</li>
+  <li>It needs more Unicode characters (particularly in the BAN logic encoding)
+    than widely available fonts can deliver. (Roll on STIX ...)</li>
   <li>It lacks up to date documentation. Much of the existing documentation
     of particular theories can, in the proper hands, and with some caution,
     be reused. To the best of our knowledge the interfaces to most of the
-    example theories are fully functional, although a detail of the text
-    selection interface has changed.(The Control-key must be pressed to make
-    second and subsequent text selections)</li>
+    example theories are fully functional.</li>
   <li>We have not retrotested all the distributed theories completely.</li>
-  <li>The Laura encoding hasn't yet been implemented.</li>
-  <li>We no longer bundle with the distribution an editor that can cope with
-    the text encodings used in the example theories. (One is available on
-    request, but we don't have time to support it)</li>
 </ul>
 
 <p></p>
 
 <p>We are, of course, working to remedy these defects.</p>
 
-<h3>Resources</h3>
+
+<h2 align="center">Old News</h2>
+
+
+<P>
+(May 2004) Jape theory files now use Unicode. 
+You may use any of the conventional Unicode encodings (UTF8, UTF16, ...).
+Support for transcoding existing theories in the old Konstanz or Laura
+encodings is provided in the release.
+</P>
+
+<p>
+<b>We've released the Jape source</b>. Don't ask why it took so long; definitely don't ask why the engine is such a complicated mess; just enjoy the liberty to browse through our dirty washing. And contribute, if you wish, to tidying it up. We'd like it if you sent your improvements back to us to be incorporated in future releases, of course. (We may soon put Jape on an open-source site; we haven't decided which; advice welcome.)
+</p>
+
+<p>The Jape implementation has been ported (by Richard Bornat) from SML of
+New Jersey to OCAML, and all versions now use the same front-end, namely
+Richard's Java-written GUI.</p>
+
+<p>Implementations are currently available for Mac OS X, Solaris (sparc), Linux
+(x86), and Windows (2K, NT, XP).</p>
+
+<p>The distributions are around 600kb in size. Java is built into MacOSX; for other OSs you will need to have a functioning Java 2 implementation (preferably Sun's JDK or JRE, version 1.3.1 or later) before you can do the installation. Once you have one of these, installation is done by executing a <tt>jar</tt> file -- a one-command operation on Unixoid systems and a one-click operation on Windows.
+</p>
+
+<p>
+Jape is a work in progress. 
 <ul>
-  <li><a href="CURRENT/">Current Windows/Linux/Solaris Jape
-  Distributions</a></li>
-  <li><a href="PUBLIC">PUBLIC directory</a></li>
+	<li>The port from the earlier SML version, and different interfaces on different machines, is still incomplete. That's because Richard wanted to reassess the value of some of the accumulated features.</li>
+    <li>There are lots of improvements envisaged, but not implemented yet. Some of these emerge from time to time. Suggestions are welcome but (GUI design being the hard discipline that it is) may often be rejected.</li>
+    <li>We'd really love to have a Presburger arithmetic oracle. Bernard designed a decision-procedure interface for Jape, but we haven't used it yet.</li>
 </ul>
 
+
+
 <h3>Contact</h3>
+Email information about bugs, omissions and infelicities to <a href="mailto:bugs@jape.org.uk">bugs@jape.org.uk</a>
 <ul>
   <li><b>Email:</b> <a
     href="mailto:richard@bornat.me.uk">richard@bornat.me.uk</a></li>
@@ -69,3 +142,6 @@ senses:</p>
 </ul>
 </body>
 </html>
+
+
+
