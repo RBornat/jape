@@ -15,7 +15,7 @@
 			F5AB83180339F3B701A80116,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 60111946;
+			PBXPerProjectTemplateStateSaveDate = 60191399;
 			"PBXTemplateGeometry-F5314676015831810DCA290F" = {
 				ContentSize = "{685, 434}";
 				LeftSlideOut = {
@@ -379,7 +379,7 @@
 				StatusViewVisible = NO;
 				Template = F5CA7ECB015C094F0DCA290F;
 				ToolbarVisible = NO;
-				WindowLocation = "{197, 54}";
+				WindowLocation = "{48, 205}";
 			};
 			PBXWorkspaceContents = (
 				{
@@ -542,7 +542,7 @@
 					WindowLocation = "{453, 20}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 60111946;
+			PBXWorkspaceStateSaveDate = 60191399;
 		};
 		projectwideBuildSettings = {
 		};
