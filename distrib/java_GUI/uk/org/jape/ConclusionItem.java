@@ -29,37 +29,15 @@ import java.awt.event.MouseEvent;
 
 public class ConclusionItem extends SelectableProofItem {
 
-    public ConclusionItem(ProofCanvas canvas, int x, int y, byte fontnum, String annottext) {
-        super(canvas, x, y, fontnum, annottext);
+    public ConclusionItem(JapeCanvas canvas, int x, int y, byte fontnum, String annottext, boolean boxStyle) {
+        super(canvas, x, y, fontnum, annottext, boxStyle, ConcSel);
     }
 
-    public void clicked(byte eventKind, MouseEvent e) {
-        canvas.claimFocus();
-        byte selkind = selectionRect.getSelkind();
-        if (selkind==NoSel) {
-            canvas.killSelections((byte)(ReasonSel | ConcSel));
-            doClick();
-        }
-        else
-            switch (eventKind) {
-                case ExtendedSelection:
-                case DisjointSelection:
-                case ExtendedDisjointSelection:
-                    selectionRect.setSelkind(NoSel);
-                    canvas.notifyDeselect();
-                    break;
-            }
+    public void applySelectionPolicy() {
+        canvas.killSelections((byte)(ReasonSel | ConcSel));
     }
 
-    private void doClick() {
-        selectionRect.setSelkind(ConcSel);
-        canvas.notifySelect(this);
-    }
-    
-    public void select(byte selkind) {
-        if (selkind==ConcSel)
-            selectionRect.setSelkind(ConcSel);
-        else
-            Alert.abort("ConclusionItem.select selkind="+selkind);
+    public void applyExtendSelectionPolicy() {
+        applySelectionPolicy(); // only one conclusion at a time
     }
 }
