@@ -1,7 +1,8 @@
 Bugs:
-1. window menu bar making has to synchronized
 
 ----------------
+
+investigate dead 'preferences' code in non-Mac LocalSettings
 
 text field in new conjecture dialog should be text area
 
