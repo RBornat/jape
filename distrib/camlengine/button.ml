@@ -180,7 +180,7 @@ let rec initButtons () =
      _E ("Backtrack", None, "backtrack");
      _E ("Prune", None, "prune"); 
      ( -------- );
-     _E ("Unify selected terms", None, "unify"); 
+     _E ("Unify", None, "unify"); 
      ( -------- );
      _E ("Hide/Show subproof", None, "collapse");
      _E ("Expand/Contract detail", None, "layout"); 
