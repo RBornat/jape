@@ -87,7 +87,7 @@ let rec enable (button, state) =
          Some r -> if !r = state then false else begin r := state; true end
        | None   -> buttoncache := (!buttoncache ++ (b |-> ref state)); true
     then
-      Japeserver.enablemenuitem true m c state
+      Japeserver.enablemenuitem m c state
   in
   match button with
     UndoProofbutton    -> doit MyUndoProof state
@@ -171,15 +171,21 @@ let rec initButtons () =
   let _EditEntries =
     [( -------- );
      _E ("Undo Proof Step", None, "undo_proof");
-     _E ("Redo Proof Step", None, "redo_proof"); ( -------- );
+     _E ("Redo Proof Step", None, "redo_proof"); 
+     ( -------- );
      _E ("Undo Disproof Step", None, "undo_disproof");
-     _E ("Redo Disproof Step", None, "redo_disproof"); ( -------- );
+     _E ("Redo Disproof Step", None, "redo_disproof"); 
+     ( -------- );
      _E ("Backtrack", None, "backtrack");
-     _E ("Prune", None, "prune"); ( -------- );
-     _E ("Unify selected terms", None, "unify"); ( -------- );
-     _E ("Refresh", None, "refreshdisplay"); ( -------- );
+     _E ("Prune", None, "prune"); 
+     ( -------- );
+     _E ("Unify selected terms", None, "unify"); 
+     ( -------- );
+     _E ("Refresh", None, "refreshdisplay"); 
+     ( -------- );
      _E ("Hide/Show subproof", None, "collapse");
-     _E ("Expand/Contract detail", None, "layout"); ( -------- );
+     _E ("Expand/Contract detail", None, "layout"); 
+     ( -------- );
      _E ("Done", Some "D", "done"); ]
   in
   clearmenusandpanels ();
