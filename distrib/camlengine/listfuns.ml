@@ -412,13 +412,13 @@ let rec eqlists a1 a2 =
   | ee, (x :: xs, y :: ys) -> ee (x, y) && eqlists ee (xs, ys)
   | ee, _ -> false
 
-let rec numbered xs =
-  let rec r a1 a2 =
-    match a1, a2 with
-      n, x :: xs -> (n, x) :: r (n + 1) xs
-    | _, [] -> []
+let numbered xs =
+  let rec r n =
+    function x::xs -> (n,x) :: r (n+1) xs
+    |        []    -> []
   in
   r 0 xs
+
 (* list subtraction, often faster than the list function slosh *)
 
 let rec listsub eq xs ys =

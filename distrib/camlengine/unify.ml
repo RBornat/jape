@@ -1324,28 +1324,28 @@ let rec dropunify (target, sources) cxt =
   let rec bad mess =
     raise
       (Catastrophe_
-         ["bad call of dropunify ("; mess; ") -- arguments (";
-          debugstring_of_element string_of_term target; ") (";
-          bracketedstring_of_list (debugstring_of_element string_of_term) "," sources;
-          ")"])
+         ["bad call of dropunify ("; mess; ") -- arguments ";
+          string_of_pair
+            (debugstring_of_element string_of_term)
+            (bracketedstring_of_list (debugstring_of_element string_of_term) "; ") 
+            ", " (target, sources)])
   in
-  let rec checkout tc sc =
+  let checkout tc sc =
     if List.exists
          (function
-            Segvar (_, _, v) -> idclass v <> sc
+            Segvar  (_, _, v) -> idclass v <> sc
           | Element (_, _, t) -> idclass t <> tc)
          sources
     then
       bad "some sources don't fit target"
   in
-  let rec res tc espair cxt =
+  let res tc espair cxt =
     match unifycollections tc espair cxt with
       [cxt] -> Some cxt
-    | [] -> None
-    | cxts ->
-        bad
-          ("multiple answers -- " ^
-             bracketedstring_of_list string_of_cxt "," cxts)
+    | []    -> None
+    | cxts  ->
+        bad ("multiple answers -- " ^
+               bracketedstring_of_list string_of_cxt "," cxts)
   in
   match target with
     Segvar (_, ops, (Unknown (_, u, tc) as v)) ->
@@ -1369,6 +1369,7 @@ let rec dropunify (target, sources) cxt =
       | _ -> bad "can't happen -- target is neither list nor bag"
       end
   | _ -> bad "target not a Segvar"
+
 let sd = simplifydeferred
 (* for export *)
 
