@@ -89,6 +89,12 @@ public class Dispatcher extends Thread {
                             ProofWindow.drawLine(toInt(command[1]), toInt(command[2]), // x, y
                                                  toInt(command[3]), toInt(command[4])); // w, h
                         else
+                        if (p.equals("BLACKEN")&&len==3)
+                            ProofWindow.blacken(toInt(command[1]), toInt(command[2]));
+                        else
+                        if (p.equals("GREYEN")&&len==3)
+                            ProofWindow.greyen(toInt(command[1]), toInt(command[2]));
+                        else
                             
                     // FONTINFO not very often
                         if (p.equals("FONTINFO")&&len==2)

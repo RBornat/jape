@@ -33,7 +33,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 
-public abstract class SelectableProofItem extends TextSelectableItem
+public abstract class SelectableProofItem extends TextSelectableProofItem
                                           implements SelectableItem,
                                                      ProtocolConstants {
 
@@ -142,14 +142,26 @@ public abstract class SelectableProofItem extends TextSelectableItem
     }
 
     public byte getSelkind() {
-        return (byte)(selectionRect.getSelkind()&~AmbigSel);
+        return selectionRect.getSelkind();
     }
 
     public boolean selkindOverlaps(byte selmask) {
         return (getSelkind()&selmask)!=0;
     }
 
-    public void deselect() {
-        selectionRect.setSelkind(NoSel);
+    public void select(byte selkind) { selectionRect.setSelkind(selkind); }
+
+    public void deselect() { selectionRect.setSelkind(NoSel); }
+
+    public void blacken() {
+        if (drawGrey) {
+            drawGrey = false; repaint();
+        }
+    }
+
+    public void greyen() {
+        if (!drawGrey) {
+            drawGrey = true; deselect(); deTextSelect(); repaint();
+        }
     }
 }
