@@ -1,19 +1,9 @@
 /*
  * Adapted from the Sun java tutorial example.
  *
- * The 'three' button moves SouthEast when clicked; the scroll pane copes fine.
- * 
- * The 'two' button moves West; it's drawn in the right position but when it 
- * crosses the western boundary (the y axis) the scroll pane doesn't indicate
- * properly.  Instead the _eastern_ extent shown as panel (viewport?) background
- * is increased (i.e the scroll pane is responding to getPreferredSize but not 
- * to getBounds).
+ * A brand new attempt, derived from a bit of (belated) thought and a subsequent sleepless night.
  *
- * The 'one' button moves North, and shows similar results.
- *
- * Debug printing in computeBounds shows that the viewport knows it isn't starting
- * from 0,0.  Is this a coordinate transformation problem?
- *
+ * For the time being, no attempt to scroll the panel.
  */
 
 import java.awt.*;
@@ -23,214 +13,240 @@ import javax.swing.border.*;
 
 public class NoneWindowSwing extends JFrame implements ActionListener {
     boolean inAnApplet = true;
-    private JButton b1, b2, b3;
+    private JButton bN, bE, bS, bW;
 
-    /*
-     * The problem is that JViewport (and, no doubt, all its little UI helpers) assumes that the
-     * origin of any JComponent it contains is 0,0.  To compound the error, it alters the location
-     * of the client to record the scrolling position (oh dear!).  So I maintain a separate
-     * origin, which begins to solve some of the problems.
-     */
-
-    /*
-     * I thought I was getting somewhere, but looking at the blithering nonsense it tells me about
-     * the local->screen coordinate conversion, I can no longer believe it can be made to work.
-     * Certainly I'll never get hit detection to work.
-     */ 
-    
+    // this is a panel so that it can have a background, a border and a position.
+    // the clever bit (if it works) is the KComponent it contains
     private class KPanel extends JPanel {
 
+        KPanel() { super(); setLayout(new KPanelLayout()); }
+        KPanel(KComponent child) { this(); setChild(child); }
 
-        Point origin = new Point(0,0);
-        Point viewPos = new Point(0,0);
-        Dimension trueSize = new Dimension(0,0);
+        protected KComponent child;
 
-        public void setViewX(int x) {
-            viewPos.x=x; validate();
+        protected void setChild(KComponent child) {
+            this.child=child;
+            super.add(child);
+            revalidate();
         }
 
-        public void setViewY(int y) {
-            viewPos.y=y; validate();
-        }
-
-        public void setOrigin(int x, int y) {
-            if (true)
-                System.err.println("setting origin to "+x+","+y);
-            origin.x=x; origin.y=y;
-            //super.setLocation(x,y);
-        }
-
-        public void setTrueSize(int w, int h) {
-            if (true)
-                System.err.println("setting true size to "+w+"x"+h);
-            trueSize.width=w; trueSize.height=h;
+        private void ensureChild() {
+            if (child==null) {
+                setChild(new KComponent());
+            }
         }
         
-        public void setTrueBounds(Rectangle r) {
-            setOrigin(r.x,r.y);
-            setTrueSize(r.width, r.height);
+        public Component add(Component c) {
+            ensureChild();
+            child.add(c);
+            child.validate();
+            return c;
         }
 
-        public void validate() {
-            System.err.println("validating");
-            Rectangle r = new Rectangle(0,0,0,0);
-            r.add(b1.getBounds());
-            r = b1.getBounds();
-            r.add(b2.getBounds()); r.add(b3.getBounds());
-            Insets i = panel.getInsets();
-            r.x -= i.left; r.y -= i.top; r.width += i.left+i.right; r.height += i.top+i.bottom;
-            if (true)
-                System.err.println("setting bounds "+r+", including insets "+panel.getInsets());
-            setTrueBounds(r);
-            Rectangle vis = getBounds(); // seems to be what it does ...
-            vis.translate(viewPos.x, viewPos.y);
-            if (v!=null && vis.y<=r.y && r.y+r.height<=vis.y+vis.height)
-                v.setValues(vis.y,0,vis.y,vis.y);
-            else
-                v.setValues(vis.y, vis.height, Math.min(vis.y,r.y), Math.max(vis.y+vis.height,r.y+r.height));
-            if (h!=null && vis.x<=r.x && r.x+r.width<=vis.x+vis.width)
-                h.setValues(vis.x,0,vis.x,vis.x);
-            else
-                h.setValues(vis.x, vis.width, Math.min(vis.x,r.x), Math.max(vis.x+vis.width,r.x+r.width));
-            // this seems to be the only way to tell a scroll pane what to put in its bars
-            // (http://java.sun.com/docs/books/tutorial/uiswing/components/problems.html and elsewhere)
-            panel.setPreferredSize(new Dimension(r.width, r.height));
-            panel.revalidate();
-            /*if (v!=null) {
-                v.setMinimum(
-        }*/
-            if (true) {
-                Point p = new Point(0,0);
-                SwingUtilities.convertPointToScreen(p, panel);
-                System.err.println("after setTrueBounds and setPreferredSize, bounds are "+panel.getBounds()+
-                                   " and origin is at "+p);
+        public final int ANCHOR_NORTH = 0;
+        public final int ANCHOR_NORTHEAST = 1;
+        public final int ANCHOR_EAST = 2;
+        public final int ANCHOR_SOUTHEAST = 3;
+        public final int ANCHOR_SOUTH = 4;
+        public final int ANCHOR_SOUTHWEST = 5;
+        public final int ANCHOR_WEST = 6;
+        public final int ANCHOR_NORTHWEST = 7;
+
+        // call this on a KPanel that already has a size, please.
+        public void setChildAnchor(int anchor) {
+            int x, y;
+            switch (anchor) {
+                case ANCHOR_NORTH:     x=getWidth()/2; y=0;             break;
+                case ANCHOR_NORTHEAST: x=getWidth();   y=0;             break;
+                case ANCHOR_EAST:      x=getWidth();   y=getHeight()/2; break;
+                case ANCHOR_SOUTHEAST: x=getWidth();   y=getHeight();   break;
+                case ANCHOR_SOUTH:     x=getWidth()/2; y=getHeight();   break;
+                case ANCHOR_SOUTHWEST: x=0;            y=getHeight();   break;
+                case ANCHOR_WEST:      x=0;            y=getHeight()/2; break;
+                case ANCHOR_NORTHWEST: x=0;            y=0;             break;
+                default: System.err.println("setChildAnchor "+anchor); return;
             }
+            ensureChild();
+            child.setLocation(x,y);
+            revalidate();
         }
 
-        Point lastPaintedOrigin = null;
-        //Point lastPaintedViewPosition = null;
-        Dimension lastPaintedSize = null;
-        Shape lastPaintedClip = null;
+        public void computeBounds() {
+            getLayout().layoutContainer(this);
+        }
         
-        private boolean mustshow(Graphics g) {
-            //Point viewPosition = scrollPane.getViewport().getViewPosition();
-            Dimension size = getSize();
-            Shape clip = g.getClip();
-            boolean show = true && (lastPaintedOrigin==null ||
-                                         !lastPaintedOrigin.equals(origin) ||
-                                         //!lastPaintedViewPosition.equals(viewPosition) ||
-                                         !lastPaintedSize.equals(size) ||
-                                         !lastPaintedClip.equals(clip));
-            if (show) {
-                if (lastPaintedOrigin==null) {
-                    lastPaintedOrigin = new Point(origin.x, origin.y);
-                    //lastPaintedViewPosition=new Point(viewPosition.x,viewPosition.y);
-                    lastPaintedSize = new Dimension(size.width, size.height);
-                    lastPaintedClip = clip;
-                }
-                else {
-                    lastPaintedOrigin.x=origin.x; lastPaintedOrigin.y=origin.y;
-                    //lastPaintedViewPosition.x=viewPosition.x; lastPaintedViewPosition.y=viewPosition.y;
-                    lastPaintedSize.width = size.width; lastPaintedSize.height = size.height;
-                    lastPaintedClip = clip;
-                }
+        public void paintChildren(Graphics g) {
+            if (child!=null) {
+                int x=child.getX(), y=child.getY();
+                g.translate(x, y);
+                child.paint(g);
+                g.translate(-x,-y);
             }
-            return show;
         }
+        
+        protected class KPanelLayout implements LayoutManager {
 
-        public void paint(Graphics g) {
-            if (false) {
-                boolean show = mustshow(g);
-                if (show) {
-                    //Point viewPosition = scrollPane.getViewport().getViewPosition();
-                    Point p = new Point(0,0);
-                    SwingUtilities.convertPointToScreen(p, this);
-                    System.err.print("paint("+g+")"+/*at "+viewPosition.x+","+viewPosition.y+*/", clip="+g.getClip()+
-                                     ", bounds="+getBounds()+", origin at "+p);
-                }
-                Graphics g1 = g.create(origin.x, origin.y, getWidth(), getHeight());
-                if (show) {
-                    System.err.println(", translated to "+g1+", clip="+g1.getClip());
-                }
-                super.paint(g1);
-                g1.dispose();
-            }
-            else
-                super.paint(g);
-        }
+            /* Called by the Container add methods. Layout managers that don't associate
+            * strings with their components generally do nothing in this method.
+            */
+            public void addLayoutComponent(String s, Component c) { }
 
-        protected void paintChildren(Graphics g) {
-            if (true) {
-                // System.err.println("translating children by "+viewPos.x+","+viewPos.y);
-                g.translate(-viewPos.x, -viewPos.y);
-                super.paintChildren(g);
-                g.translate(viewPos.x,viewPos.y);
+            /* Called by the Container remove and removeAll methods. Many layout managers
+            * do nothing in this method, relying instead on querying the container for its
+            * components, using the Container getComponents method.
+            */
+            public void removeLayoutComponent(Component c) { }
+
+            /* Called by the Container getPreferredSize method, which is itself called under
+            * a variety of circumstances. This method should calculate and return the ideal
+            * size of the container, assuming that the components it contains will be at or
+            * above their preferred sizes. This method must take into account the container's
+            * internal borders, which are returned by the getInsets method.
+            */
+            public Dimension preferredLayoutSize(Container c) {
+                layoutContainer(c);
+                return getSize();
             }
-            else
-                super.paintChildren(g);
+
+            /* Called by the Container getMinimumSize method, which is itself called under
+            * a variety of circumstances. This method should calculate and return the minimum
+            * size of the container, assuming that the components it contains will be at or
+            * above their minimum sizes. This method must take into account the container's
+            * internal borders, which are returned by the getInsets method.
+            */
+            public Dimension minimumLayoutSize(Container c) { return preferredLayoutSize(c); }
+
+            /* Called when the container is first displayed, and each time its size changes.
+            * A layout manager's layoutContainer method doesn't actually draw components.
+            * It simply invokes each component's resize, move, and reshape methods to set
+            * the component's size and position. This method must take into account the
+            * container's internal borders, which are returned by the getInsets method.
+            * You can't assume that the preferredLayoutSize or minimumLayoutSize method
+            * will be called before layoutContainer is called.
+            */
+            public void layoutContainer(Container c) {
+                if (child!=null) {
+                    child.getLayout().layoutContainer(child);
+                    Rectangle vr = child.getVisualBounds();
+                    Insets i = c.getInsets();
+                    vr.x -= i.left; vr.width += i.left+i.right;
+                    vr.y -= i.top; vr.height += i.top+i.bottom;
+                    // new top is at cx+vcx; new left at cy+vcy.
+                    // we must adjust child location when we adjust our own
+                    int deltax = child.getX()+vr.x, deltay=child.getY()+vr.y;
+                    if (deltax!=0 || deltay!=0) {
+                        setLocation(getX()+deltax, getY()+deltay);
+                        child.setLocation(-vr.x, -vr.y);
+                        repaint();
+                    }
+                    setSize(vr.width, vr.height);
+                }
+            }
         }
     }
 
+    public class KComponent extends JComponent {
+        KComponent() { super(); setLayout(new KComponentLayout()); }
+
+        protected Rectangle visualBounds = new Rectangle(0,0,0,0);
+
+        public Rectangle getVisualBounds() {
+            return new Rectangle(visualBounds.x, visualBounds.y, visualBounds.width, visualBounds.height);
+        }
+
+        public boolean contains(int x, int y) {
+            return visualBounds.contains(x,y);
+        }
+
+        protected class KComponentLayout implements LayoutManager {
+            /* Called by the Container add methods. Layout managers that don't associate
+            * strings with their components generally do nothing in this method.
+            */
+            public void addLayoutComponent(String s, Component c) { }
+
+            /* Called by the Container remove and removeAll methods. Many layout managers
+            * do nothing in this method, relying instead on querying the container for its
+            * components, using the Container getComponents method.
+            */
+            public void removeLayoutComponent(Component c) { }
+
+            /* Called by the Container getPreferredSize method, which is itself called under
+            * a variety of circumstances. This method should calculate and return the ideal
+            * size of the container, assuming that the components it contains will be at or
+            * above their preferred sizes. This method must take into account the container's
+            * internal borders, which are returned by the getInsets method.
+            */
+            public Dimension preferredLayoutSize(Container c) {
+                layoutContainer(c);
+                return getSize();
+            }
+
+            /* Called by the Container getMinimumSize method, which is itself called under
+            * a variety of circumstances. This method should calculate and return the minimum
+            * size of the container, assuming that the components it contains will be at or
+            * above their minimum sizes. This method must take into account the container's
+            * internal borders, which are returned by the getInsets method.
+            */
+            public Dimension minimumLayoutSize(Container c) { return preferredLayoutSize(c); }
+
+            /* Called when the container is first displayed, and each time its size changes.
+            * A layout manager's layoutContainer method doesn't actually draw components.
+            * It simply invokes each component's resize, move, and reshape methods to set
+            * the component's size and position. This method must take into account the
+            * container's internal borders, which are returned by the getInsets method.
+            * You can't assume that the preferredLayoutSize or minimumLayoutSize method
+            * will be called before layoutContainer is called.
+            */
+            public void layoutContainer(Container c) {
+                Rectangle newBounds=null;
+                int nc = getComponentCount();
+                for (int i=0; i<nc; i++) {
+                    if (newBounds==null)
+                        newBounds = getComponent(i).getBounds();
+                    else
+                        newBounds.add(getComponent(i).getBounds());
+                }
+                if (newBounds==null)
+                    newBounds = new Rectangle(0,0,0,0);
+                setSize(newBounds.width, newBounds.height);
+                if (!newBounds.equals(visualBounds)) {
+                    visualBounds=newBounds;
+                    repaint();
+                }
+            }
+        }
+    }
+    
     private KPanel panel;
-    private JScrollBar v, h;
     
     public NoneWindowSwing() {
         String yes = "Yes", no = "No";
         String[] buttons = { yes, no };
 
         panel = new KPanel();
-        panel.setLayout(null);
         
-        b1 = new JButton("one"); b1.addActionListener(this); panel.add(b1);
-        b2 = new JButton("two"); b2.addActionListener(this); panel.add(b2);
-        b3 = new JButton("three"); b3.addActionListener(this); panel.add(b3);
-
-        b1.setBounds(25, 5, 75, 20);
-        b2.setBounds(55, 35, 75, 20);
-        b3.setBounds(150, 15, 75, 30);
+        bN = new JButton("North"); bN.setBounds(25, 5, 75, 20); bN.addActionListener(this); panel.add(bN);
+        bE = new JButton("East"); bE.setBounds(55, 35, 75, 20); bE.addActionListener(this); panel.add(bE);
+        bS = new JButton("South"); bS.setBounds(150, 15, 75, 30); bS.addActionListener(this); panel.add(bS);
+        bW = new JButton("West"); bW.setBounds(150, -5, 75, 30); bW.addActionListener(this); panel.add(bW);
 
         panel.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED, Color.red, Color.blue));
         panel.setBackground(Color.yellow);
+        panel.setLocation(100,100);
+
+        panel.computeBounds();
+        System.err.println("panel with four buttons has size "+panel.getSize());
+
+        Container contentPane = getContentPane();
+        Rectangle panelBounds = panel.getBounds();
         
-        /*KViewport kv = new KViewport();
-        kv.setView(panel);
-        kv.setBackground(Color.green);
+        contentPane.setLayout(null);
+        contentPane.add(panel);
+        setSize(Math.min(500, Math.max(200,panelBounds.x+panelBounds.width+50)),
+                Math.min(400, Math.max(200, panelBounds.y+panelBounds.height+50)));
+
+        System.err.println("window bounds are "+getBounds());
         
-        scrollPane = new KScrollPane();
-        scrollPane.setVerticalScrollBarPolicy(KScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(KScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPane.setViewport(kv);
-        
-        getContentPane().add(scrollPane);*/
-        getContentPane().setLayout(new BorderLayout());
-        // System.err.println("layout is "+getContentPane().getLayout());
-        v = new JScrollBar(JScrollBar.VERTICAL);
-        class V implements AdjustmentListener {
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                switch (e.getAdjustmentType()) {
-                    case AdjustmentEvent.TRACK:
-                        System.err.println("V track "+v.getValue()); panel.setViewY(v.getValue()); panel.validate(); panel.repaint(); break;
-                    default:
-                        System.err.println("V sees AdjustmentEvent "+e.getAdjustmentType()); break;
-                }
-            }
-        }
-        v.addAdjustmentListener(new V());
-        h = new JScrollBar(JScrollBar.HORIZONTAL);
-        getContentPane().add(v, BorderLayout.EAST);
-        getContentPane().add(h, BorderLayout.SOUTH);
-        getContentPane().add(panel, BorderLayout.CENTER);
-        getContentPane().setBackground(Color.black);
-        panel.addComponentListener(new ComponentAdapter() {
-            public void componentMoved(ComponentEvent e) {
-                System.err.println("panel moved to "+panel.getLocation());
-                panel.validate();
-            }
-            public void componentResized(ComponentEvent e) {
-                System.err.println("panel resized to "+panel.getSize());
-                panel.validate();
-            }
-        });	
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 if (inAnApplet) {
@@ -244,22 +260,31 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
     
     public void actionPerformed(ActionEvent e) {
     	String s = e.getActionCommand();
-        if (s.equals("three")) {
-                Rectangle r = b3.getBounds();
-                b3.setBounds(r.x+50, r.y+50, r.width, r.height);
+        if (s.equals("North")) {
+            Rectangle r = bN.getBounds();
+            bN.setBounds(r.x, r.y-50, r.width, r.height);
+            System.err.println("North at "+bN.getBounds());
         }
         else
-        if (s.equals("two")) {
-                Rectangle r = b2.getBounds();
-                b2.setBounds(r.x-50, r.y, r.width, r.height);
+        if (s.equals("East")) {
+            Rectangle r = bE.getBounds();
+            bE.setBounds(r.x+50, r.y, r.width, r.height);
+            System.err.println("East at "+bE.getBounds());
         }
         else
-        if (s.equals("one")) {
-                Rectangle r = b1.getBounds();
-                b1.setBounds(r.x, r.y-50, r.width, r.height);
+        if (s.equals("South")) {
+            Rectangle r = bS.getBounds();
+            bS.setBounds(r.x, r.y+50, r.width, r.height);
+            System.err.println("South at "+bS.getBounds());
+        }
+        else
+        if (s.equals("West")) {
+                Rectangle r = bW.getBounds();
+                bW.setBounds(r.x-50, r.y, r.width, r.height);
+                System.err.println("West at "+bW.getBounds());
         }
 
-        panel.validate();
+        panel.revalidate();
     	panel.repaint();
     }
 
@@ -270,10 +295,9 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
             System.err.println("couldn't set L&F javax.swing.plaf.metal.MetalLookAndFeel");
         }
         NoneWindowSwing window = new NoneWindowSwing();
-        Insets insets = window.getInsets();
-        window.inAnApplet = false;
+        window.inAnApplet = false; /* really? */
 
-        window.setTitle("Absolute Positioning");
+        window.setTitle("Absolute Positioning with negative coordinates in a panel");
         window.setVisible(true);
     }
 }
