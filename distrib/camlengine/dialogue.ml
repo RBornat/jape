@@ -1893,7 +1893,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               if screenquery ["Abandon proof of "; namestring t; "?"] "Abandon" "Cancel" 1
               then closeOK() else default
             else (* nothing to save *)
-             closeOK()
+              closeOK()
 
         | "createdbugfile", [] ->
             (match Japeserver.writeFileName "Write diagnostic output to:" Japeserver.dbugfiletype with
