@@ -156,12 +156,6 @@ TACTIC "sequence*"  IS
         )
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
-MENU Backward IS
-    ENTRY "∧ intro" IS BackwardOnlyC (QUOTE (_A∧_B)) 
-                                     (Noarg "∧ intro*" "∧ intro") 
-                                     "∧ intro" "A∧B"
-END
-
 TACTIC "∧ elim* step"(P, rule, H) IS
     WHEN    
         (LETMATCH (_P∧_Q)  P  
@@ -210,8 +204,18 @@ TACTIC obviouslytac IS
               "obviously1" (WITHHYPSEL (hyp _A1))))))
     (LAYOUT "obviously (by itself)" ALL "obviously0")
 
+MENU Backward IS
+    BEFOREENTRY "∧ intro"
+    ENTRY "∧ intro (all at once)" 
+                    IS BackwardOnlyC (QUOTE (_A∧_B)) 
+                                     (Noarg "∧ intro*" "∧ intro") 
+                                     "∧ intro" "A∧B"
+    RENAMEENTRY "∧ intro" "∧ intro (one step)"
+END
+
 MENU Forward IS
-    ENTRY   "∧ elim"      
+    BEFOREENTRY "∧ elim (preserving left)"
+    ENTRY   "∧ elim (all at once)"      
                     IS Forward (QUOTE (_A∧_B)) 
                                (Noarg (LETHYP _P  (MATCH ("∧ elim*" _P))) "∧ elim")  
                                "∧ elim" "∧ intro" "A∧B"
