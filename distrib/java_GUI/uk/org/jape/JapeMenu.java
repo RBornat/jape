@@ -59,6 +59,13 @@ public class JapeMenu implements DebugConstants {
         public void add(I i) { itemv.add(i); }
         public void add(RBG rbg) { itemv.add(rbg); }
         public void addSep() { itemv.add(new Sep()); }
+        public boolean preSep(int i) {
+            return 0<=i-1 && i-1<itemv.size() && !(itemv.get(i-1) instanceof Sep);
+        }
+        public boolean postSep(int i) {
+            return 0<=i+1 && i+1<itemv.size() &&
+                   !(itemv.get(i+1) instanceof Sep || itemv.get(i+1) instanceof RBG);
+        }
         public int indexOf(String label) {
             int j=0;
             for (int i=0; i<itemv.size(); i++) {
@@ -71,21 +78,22 @@ public class JapeMenu implements DebugConstants {
                 }
                 else
                 if (o instanceof RBG) {
-                    j++; // first separator
+                    if (preSep(i)) j++;
                     RBG rbg = (RBG)o;
                     for (int k=0; k<rbg.items.length; k++)
                         if (rbg.items[k].label.equals(label))
                             return j;
                         else
                             j++;
-                    j++; // second separator
+                    if (postSep(i)) j++;
                 }
                 else
                     j++;
             }
             return -1;
         }
-        public Enumeration elements() { return itemv.elements(); }
+        public int size() { return itemv.size(); }
+        public Object get(int i) { return itemv.get(i); }
         public String toString() {
             String s = "M[\""+title+"\" [";
             for (int i=0; i<itemv.size(); i++) {
@@ -174,18 +182,20 @@ public class JapeMenu implements DebugConstants {
             M m = (M)ebar.nextElement();
             JMenu menu = new JMenu(m.title);
             JapeFont.setComponentFont(JapeFont.MENUENTRY, menu.getComponent());
-            for (Enumeration emenu = m.elements(); emenu.hasMoreElements(); ) {
-                Object o = emenu.nextElement();
+            for (int i=0; i<m.size(); i++) {
+                Object o = m.get(i);
                 if (o instanceof RBG) {
-                    menu.addSeparator();
+                    if (m.preSep(i))
+                        menu.addSeparator();
                     RBG rbg = (RBG)o;
                     ButtonGroup group = new ButtonGroup();
-                    for (int i=0; i<rbg.items.length; i++) {
-                        JRadioButtonMenuItem item = new JRadioButtonMenuItem(rbg.items[i].label, i==0);
-                        mkItem(menu, rbg.items[i], item);
+                    for (int j=0; j<rbg.items.length; j++) {
+                        JRadioButtonMenuItem item = new JRadioButtonMenuItem(rbg.items[j].label, j==0);
+                        mkItem(menu, rbg.items[j], item);
                         group.add(item);
                     }
-                    menu.addSeparator();
+                    if (m.postSep(i))
+                        menu.addSeparator();
                 }
                 else
                 if (o instanceof CB) {
@@ -195,9 +205,9 @@ public class JapeMenu implements DebugConstants {
                 }
                 else
                 if (o instanceof I) {
-                    I i = (I)o;
-                    JMenuItem item = new JMenuItem(i.label);
-                    mkItem(menu, i, item);
+                    I ii = (I)o;
+                    JMenuItem item = new JMenuItem(ii.label);
+                    mkItem(menu, ii, item);
                 }
                 else
                 if (o instanceof Sep)
@@ -470,8 +480,7 @@ public class JapeMenu implements DebugConstants {
                 JMenuItem jmi = bar.getMenu(mi).getItem(ii);
                 if (menuaction_tracing)
                     System.err.print("window "+w+" selected="+jmi.isSelected());
-                if (jmi.isSelected()!=state)
-                    jmi.setSelected(state);
+                jmi.setSelected(state);
                 if (menuaction_tracing)
                     System.err.println(" => "+jmi.isSelected());
             }
