@@ -263,6 +263,8 @@
 	<dict>
 		<key>ClassPath</key>
 		<string>$JAVAROOT/Jape.jar</string>
+		<key>JVMVersion</key>
+		<string>1.4+</string>
 		<key>MainClass</key>
 		<string>Jape</string>
 		<key>Properties</key>
