@@ -53,6 +53,8 @@ let rec mkalt sts def s =
 	Some t -> t
   | None -> def
 
+(* these aren't properly handled in the PUSH/POPSYNTAX system *)
+
 let outrightfixtree : (symbol, symbol) searchtree ref =
   ref (emptysearchtree mkalt)
 
@@ -342,44 +344,38 @@ and parseExpr n a =
 		else t
 	| RIGHTFIX i -> pr i parseRightfix
 	| MIDFIX i -> pr i parseMidfix
-	| SUBSTBRA -> ps n t !substsense SUBSTBRA SUBSTSEP SUBSTKET
-	  (* there follows a hack to make syntax files more portable. It doesn't really deal with
-	     priorities at all ... there ought to be a pushsyntax notion, but I have no idea how to 
-	     deal with it. *)
-	| SHYID "SUBSTBRA" -> ps n t true (SHYID "SUBSTBRA") (SHYID "SUBSTBECOME") (SHYID "SUBSTKET")
+	| SUBSTBRA ->
+        if !substfix >> n then
+          let t = registerSubst (true, t, parseSubststuff ()) in
+          checkAfterKet SUBSTKET !substfix; pe t
+        else t
 	| _ ->
 		if canstartAtom sy && !appfix >> n then
 		  pe (registerApp (t, parseExpr !appfix true))
 		else t
-  and ps n t sense bra sep ket = 
-     if !substfix >> n then
-       let t = registerSubst (true, t, parseSubststuff sense bra sep ket) in
-       checkAfterKet ket !substfix; pe t
-     else t
-
   in
   pe (parseAtom ())
 
-and parseSubststuff sense bra sep ket =
+and parseSubststuff () =
   let rec parseside b =
 	if b then
 	  parseList canstartidentifier (fun _ -> parseVariable ()) commasymbol
 	else parseList canstartTerm parseterm commasymbol
   in
-  let _ = check bra in
-  let xs = parseside sense in
-  let _ = check sep in
-  let ys = parseside (not sense) in
-  let _ = check ket in
+  let _ = check SUBSTBRA in
+  let xs = parseside !substsense in
+  let _ = check SUBSTSEP in
+  let ys = parseside (not !substsense) in
+  let _ = check SUBSTKET in
   if List.length xs = List.length ys then
-	if sense then (xs ||| ys) else (ys ||| xs)
+	if !substsense then (xs ||| ys) else (ys ||| xs)
   else
 	(* Zip_ can't happen *)
 	raise
 	  (ParseError_
-		 ["Substitution "; symbolstring bra;
-		  liststring termstring "," xs; symbolstring sep;
-		  liststring termstring "," ys; symbolstring ket;
+		 ["Substitution "; symbolstring SUBSTBRA;
+		  liststring termstring "," xs; symbolstring SUBSTSEP;
+		  liststring termstring "," ys; symbolstring SUBSTKET;
 		  " is unbalanced"])
 
 and parseterm fsy =
