@@ -227,10 +227,6 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
         findWorld(x,y,true).select(selected);
     }
 
-    public TextItem addLabelItem(int x, int y, String label) {
-        return (TextItem)add(new TextItem(this, x, y, ProtocolConstants.ProvisoFontNum, label, label));
-    }
-
     /* ****************************** canvas as drag target ****************************** */
 
     public boolean dragEnter(Object o) { return o instanceof WorldItem; }
