@@ -3,9 +3,6 @@
 CLASS VARIABLE x y z c d
 CLASS FORMULA A B C P Q R S
 
-PREFIX	10		var
-POSTFIX	10		inscope
-
 LEFTFIX	20		è .
 LEFTFIX	20		ä .
 
