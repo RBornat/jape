@@ -34,11 +34,6 @@ import java.util.Vector;
 
 class TextItem extends DisplayItem implements DebugConstants {
     
-    public static Color OnColour     = Color.black,
-                        OutColour    = Color.gray,
-                        ForcedColour = Color.magenta,
-                        NormalColour = Color.black;
-    
     private static char onbra, onket, offbra, offket, outbra, outket, lockbra, lockket;
 
     public static void setinvischars(char _onbra, char _onket, char _offbra, char _offket,
@@ -76,9 +71,9 @@ class TextItem extends DisplayItem implements DebugConstants {
     }
 
     static Color bra2TextColour(char c) {
-        return c==onbra  ? ForcedColour :
-               c==offbra ? OnColour :
-              /* c==outbra assumed */ OutColour;
+        return c==onbra  ? Preferences.ForcedColour :
+               c==offbra ? Preferences.OnColour :
+    /* c==outbra assumed */ Preferences.OutColour;
     }
 
     protected final JapeCanvas canvas;
@@ -101,7 +96,7 @@ class TextItem extends DisplayItem implements DebugConstants {
         setBounds((int)x, y-dimension.ascent, dimension.width, dimension.ascent+dimension.descent);
         annoti = printi = 0; annotlen = annottext.length();
         Vector cs = new Vector();
-        computeColourSegs((char)0, NormalColour, false, cs);
+        computeColourSegs((char)0, Preferences.TextColour, false, cs);
         coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
     }
 

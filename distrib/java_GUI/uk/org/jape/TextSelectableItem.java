@@ -25,7 +25,6 @@
 
  */
 
-import java.awt.Color;
 import java.awt.Component;
 import java.util.Enumeration;
 import java.awt.Graphics;
@@ -37,7 +36,6 @@ import java.awt.Rectangle;
 import java.util.Vector;
 
 public class TextSelectableItem extends TextItem implements SelectionConstants {
-    public Color textselectionColour = Color.yellow;
 
     public TextSelectableItem(JapeCanvas canvas, int x, int y, byte fontnum, 
                               String annottext, String printtext) {
@@ -180,7 +178,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
         }
         
         public void paint(Graphics g) {
-            g.setColor(textselectionColour);
+            g.setColor(Preferences.TextSelectionBackground);
             g.fillRect(pxstart, 0, pxend-pxstart, getHeight());
         }
 
