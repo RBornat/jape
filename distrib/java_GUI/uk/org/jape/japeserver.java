@@ -38,7 +38,7 @@ import java.io.File;
 
 import java.util.Vector;
 
-public class japeserver {
+public class japeserver implements DebugConstants {
 
     private static boolean tracing = true;
 
@@ -79,7 +79,7 @@ public class japeserver {
     
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
-        onMacOS = (System.getProperty("mrj.version")!=null);
+        onMacOS = notice_MacOSX && (System.getProperty("mrj.version")!=null);
         // oh calamity!
         if (onMacOS) { // deal with the double-bounce menu checkbox bug
             String s = System.getProperty("com.apple.macos.useScreenMenuBar");
@@ -142,7 +142,7 @@ public class japeserver {
         JapeMenu.init();
 
         LocalSettings l = new LocalSettings();
-        
+
         new Dispatcher().start();
         
         if (tracing)
