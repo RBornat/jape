@@ -56,19 +56,35 @@ public class JapeMenu implements DebugConstants {
         final boolean proofsonly; final String title;
         protected final Vector itemv=new Vector(); // of Is and Seps and RBGs and CBs
         M(boolean proofsonly, String title) { this.proofsonly=proofsonly; this.title=title; }
-        public void add(I i) { itemv.add(i); }
-        public void add(RBG rbg) { itemv.add(rbg); }
-        public void addSep() { itemv.add(new Sep()); }
+        private static final I quitItem = new I("Quit", "", null),
+                               doneItem = new I("Done", "", null);
+        private int nextIndex() {
+            int size = itemv.size(), i;
+            if (title.equals("File") && (i=itemv.indexOf(quitItem))!=-1)
+                return i-1; // point to separator
+            else
+            if (title.equals("Edit") && (i=itemv.indexOf(doneItem))!=-1)
+                return i-1; // point to separator
+            else
+                return  size;
+        }
+        public void add(I i) { itemv.insertElementAt(i,nextIndex()); }
+        public void add(RBG rbg) { itemv.insertElementAt(rbg,nextIndex()); }
+        public void addSep() {
+            int i = nextIndex();
+            if (preSep(i))
+                itemv.insertElementAt(new Sep(),i);
+        }
         public I findI(String label) throws ProtocolError {
             int vc = itemv.size();
             for (int i=0; i<vc; i++) {
                 Object o = itemv.get(i);
-                if (o instanceof I && o.equals(label))
+                if (o instanceof I && ((I)o).label.equals(label))
                     return (I)o;
                 if (o instanceof RBG) {
                     RBG g = (RBG)o;
                     for (int j=0; j<g.items.length; j++)
-                        if (g.items[j].equals(label))
+                        if (g.items[j].label.equals(label))
                             return g.items[j];
                 }
             }
@@ -99,12 +115,14 @@ public class JapeMenu implements DebugConstants {
         String key;
         ItemAction action;
         KeyStroke stroke;
-        boolean enabled;
+        boolean enabled, selected;
         I(String label, String key, ItemAction action) {
-            this.label=label; this.key=key; this.action=action; this.stroke=null; this.enabled=true;
+            this.label=label; this.key=key; this.action=action; this.stroke=null;
+            this.enabled=true; this.selected=false;
         }
         public void setAccelerator(KeyStroke stroke) { this.stroke=stroke; }
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public void setSelected(boolean selected) { this.selected = selected; }
         public String toString() { return "I"+contentsToString(); }
         public String contentsToString() {
             return  "[label=\""+label+"\""+
@@ -112,13 +130,12 @@ public class JapeMenu implements DebugConstants {
                     " action="+action+
                     " stroke="+stroke+
                     " enabled="+enabled+
+                    " selected="+selected+
                     "]";
         }
         // label equality only
         public boolean equals(Object o) {
-            return  o instanceof I      ? ((I)o).label.equals(label) :
-                    o instanceof String ? ((String)o).equals(label)  :
-                                          false;
+            return o instanceof I && ((I)o).label.equals(label);
         }
     }
     
@@ -156,8 +173,8 @@ public class JapeMenu implements DebugConstants {
         item.setActionCommand(i.key);
         if (i.stroke!=null)
             item.setAccelerator(i.stroke);
-        if (!i.enabled)
-            item.setEnabled(i.enabled);
+        item.setEnabled(i.enabled);
+        item.setSelected(i.selected);
         JapeFont.setComponentFont(item.getComponent(), JapeFont.MENUENTRY);
         item.addActionListener(menuListener);
         if (menuaction_tracing)
@@ -392,6 +409,8 @@ public class JapeMenu implements DebugConstants {
     }
     
     // ActionListener interface (for menus)
+    public static boolean CheckboxDoubleBounce = false; // calamity: see japserver.main
+    
     protected static class MenuListener implements ActionListener {
         public void actionPerformed(ActionEvent newEvent) {
             if (menuaction_tracing)
@@ -399,8 +418,8 @@ public class JapeMenu implements DebugConstants {
             String key = newEvent.getActionCommand();
             I i = (I)actiontable.get(key);
             if (i!=null) {
-                // experimentally, it seems that checkboxes get two actionPerformed events ...
-                if (i instanceof CB) {
+                if (CheckboxDoubleBounce && i instanceof CB) {
+                    // experimentally, it seems that checkboxes can get two actionPerformed events ...
                     CB cb = (CB)i;
                     if (menuaction_tracing)
                         System.err.println("CB "+cb.ready);
@@ -455,7 +474,7 @@ public class JapeMenu implements DebugConstants {
                     if (jmi!=null)
                         jmi.setEnabled(enable);
                     else
-                    if (menuaction_tracing)
+                    if (true || menuaction_tracing)
                         System.err.println("no item "+label+" in menu "+menuname+" in window "+w);
                 }
                 else
@@ -514,7 +533,7 @@ public class JapeMenu implements DebugConstants {
                     if (jmi!=null)
                         jmi.setSelected(state);
                     else
-                    if (menuaction_tracing)
+                    if (true || menuaction_tracing)
                         System.err.println("no item "+label+" in menu "+menuname+" in window "+w);
                 }
                 else
@@ -527,7 +546,9 @@ public class JapeMenu implements DebugConstants {
     public static void tickItem(boolean focussedonly, String menuname, String label, boolean state)
         throws ProtocolError {
         M menu = ensureMenu(menuname);
-        menu.findI(label);
+        I item = menu.findI(label);
+
+        item.setSelected(state);
 
         if (focussedonly)
             doTickItem(ProofWindow.focussedProofWindow(false), menuname, label, state);
