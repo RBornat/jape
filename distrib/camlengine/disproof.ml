@@ -83,7 +83,7 @@ module M : T with type element = Term.Funs.element
 			  and type term = Term.Funs.term
 =
   struct
-    open Box.M
+    open Box
     open Idclass.M
     open Forcedef.M
     open Japeserver
@@ -108,12 +108,12 @@ module M : T with type element = Term.Funs.element
 
     let atoi = Miscellaneous.M.atoi
     let rec ask ss bs def =
-	  Alert.M.ask (Alert.M.defaultseverity bs) (implode ss) bs def
-    let askChoice = Alert.M.askChoice
+	  Alert.ask (Alert.defaultseverity bs) (implode ss) bs def
+    let askChoice = Alert.askChoice
     let base_sequent = Prooftree.Tree.Fmttree.sequent
     let catelim_seqstring = Sequent.Funs.catelim_seqstring
     let consolereport = Miscellaneous.M.consolereport
-    let drawindisproofpane () = drawinpane Displayfont.M.DisproofPane
+    let drawindisproofpane () = drawinpane Displayfont.DisproofPane
     let getsemanticturnstile = Sequent.Funs.getsemanticturnstile
     let isdigit = Miscellaneous.M.isdigit
     let isextensibleID = Symbol.isextensibleID
@@ -132,7 +132,7 @@ module M : T with type element = Term.Funs.element
     let seqexplode = Sequent.Funs.seqexplode
     let seqstring = Sequent.Funs.seqstring
     let seqvars = Sequent.Funs.seqvars termvars tmerge
-    let showAlert = Alert.M.showAlert Alert.M.defaultseverity_alert <*> implode
+    let showAlert = Alert.showAlert Alert.defaultseverity_alert <*> implode
     let simplifySubst = Substmapfuns.M.simplifySubst
     let smlseqstring = Sequent.Funs.smlseqstring
     let subtree = Prooftree.Tree.Fmttree.followPath
@@ -140,7 +140,7 @@ module M : T with type element = Term.Funs.element
     let uncurry2 = Miscellaneous.M.uncurry2
     
     let rec term2binding t =
-	  match Binding.M.bindingstructure t with
+	  match Binding.bindingstructure t with
 		Some t' -> Some (registerBinding t')
 	  | None -> None
         

@@ -48,7 +48,7 @@ module Rew : Rew with type cxt = Context.Cxt.cxt
                   and type element = Term.Type.element
 =
   struct
-    open Answer.M
+    open Answer
     open Context.Cxt
     open Context.Cxtstring
     open Context.ExteriorFuns

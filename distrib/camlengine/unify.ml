@@ -50,7 +50,7 @@ module M : T with type term = Term.Type.term
 			  and type vid = Term.Type.vid
 =
   struct
-    open Answer.M
+    open Answer
     open Context.Cxt
     open Context.Cxtstring
     open Facts.M

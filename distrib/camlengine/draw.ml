@@ -68,20 +68,20 @@ module type T =
 
 module M : T with type term       = Term.Funs.term
 			  and type element    = Term.Funs.element
-			  and type reason     = Absprooftree.M.reason
+			  and type reason     = Absprooftree.reason
 	          and type textlayout = Text.M.textlayout
 			  and type text       = Text.M.text
 			  and type textalign  = Text.M.textalign
-			  and type textsize   = Box.M.textsize
-			  and type pos        = Box.M.pos
-			  and type size       = Box.M.size
-			  and type box        = Box.M.box
-			  and type textbox    = Box.M.textbox
+			  and type textsize   = Box.textsize
+			  and type pos        = Box.pos
+			  and type size       = Box.size
+			  and type box        = Box.box
+			  and type textbox    = Box.textbox
 			  and type font       = Text.M.font
-			  and type displayclass = Displayclass.M.displayclass
+			  and type displayclass = Displayclass.displayclass
 =
   struct
-    open Box.M 
+    open Box 
     open Japeserver 
     open Mappingfuns.M 
     open Sml.M
@@ -91,29 +91,29 @@ module M : T with type term       = Term.Funs.term
  
 	type term       = Term.Funs.term
 	 and element    = Term.Funs.element
-	 and reason     = Absprooftree.M.reason
+	 and reason     = Absprooftree.reason
 	 and textlayout = Text.M.textlayout
 	 and text       = Text.M.text
 	 and textalign  = Text.M.textalign
-	 and textsize   = Box.M.textsize
-	 and pos        = Box.M.pos
-	 and size       = Box.M.size
-	 and box        = Box.M.box
-	 and textbox    = Box.M.textbox
+	 and textsize   = Box.textsize
+	 and pos        = Box.pos
+	 and size       = Box.size
+	 and box        = Box.box
+	 and textbox    = Box.textbox
 	 and font       = Text.M.font
-	 and displayclass = Displayclass.M.displayclass
+	 and displayclass = Displayclass.displayclass
 	 
 	let consolereport = Miscellaneous.M.consolereport
-	let element2text  = Absprooftree.M.element2text
+	let element2text  = Absprooftree.element2text
 	let elementstring = Term.Termstring.elementstring
 	let findfirst     = Optionfuns.M.findfirst
 	let interpolate   = Listfuns.M.interpolate
 	let optionstring  = Optionfuns.M.optionstring
 	let pairstring    = Stringfuns.M.pairstring
-	let proofpane     = Displayfont.M.ProofPane
-	let reason2text   = Absprooftree.M.reason2text
-	let reason2fontNstring = Absprooftree.M.reason2fontNstring
-	let term2text     = Absprooftree.M.term2text
+	let proofpane     = Displayfont.ProofPane
+	let reason2text   = Absprooftree.reason2text
+	let reason2fontNstring = Absprooftree.reason2fontNstring
+	let term2text     = Absprooftree.term2text
 	let termstring    = Term.Termstring.termstring
 	let triplestring  = Stringfuns.M.triplestring
 

@@ -2,27 +2,27 @@
 
 (* draw a Gentzen tree *)
 
-module M : Screendraw.T with type displayclass = Displayclass.M.displayclass
+module M : Screendraw.T with type displayclass = Displayclass.displayclass
                          and type pos = Draw.M.pos
                          and type textbox = Draw.M.textbox
                          and type 'a hit = 'a Hit.M.hit
                          and type box = Draw.M.box
                          and type hitkind = Hit.M.hitkind
                          and type size = Draw.M.size
-                         and type tree = Absprooftree.M.tree
+                         and type tree = Absprooftree.tree
 =
   struct
-    open Absprooftree.M
-    open Box.M
-    open Displayclass.M
-    open Displayfont.M
+    open Absprooftree
+    open Box
+    open Displayclass
+    open Displayfont
     open Draw.M
     open Hit.M
     open Seqdraw.M
     open Sml.M
     
     type 'a plan = 'a Draw.M.plan
-     and displayclass = Displayclass.M.displayclass
+     and displayclass = Displayclass.displayclass
      and pos = Draw.M.pos
      and seq = Sequent.Funs.seq
      and textbox = Draw.M.textbox
@@ -31,7 +31,7 @@ module M : Screendraw.T with type displayclass = Displayclass.M.displayclass
      and element = Draw.M.element
      and hitkind = Hit.M.hitkind
      and size = Draw.M.size
-     and tree = Absprooftree.M.tree
+     and tree = Absprooftree.tree
 
     let (&~~) = Optionfuns.M.(&~~)
     let (<*) = Listfuns.M.(<*)

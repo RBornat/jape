@@ -37,7 +37,7 @@ module M : T with type cxt = Context.Cxt.cxt
         (vid, class__)
     
     let rec indistinct cxt =
-     not <*> Answer.M.qDEFNOT <*>
+     not <*> Answer.qDEFNOT <*>
      Miscellaneous.M.uncurry2
           (Facts.M.substeqvarsq (Facts.M.facts (Context.Cxt.provisos cxt) cxt))
     

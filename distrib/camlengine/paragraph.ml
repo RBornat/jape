@@ -91,7 +91,7 @@ module M : T with type term = Term.Type.term
      and proofstage = Proofstage.M.proofstage
      and model = Forcedef.M.model
     
-	let addbindingdirective = Binding.M.addbindingdirective
+	let addbindingdirective = Binding.addbindingdirective
 	let atoi = Miscellaneous.M.atoi
 	let consolereport = Miscellaneous.M.consolereport
 	let enQuote = Stringfuns.M.enQuote
@@ -507,7 +507,7 @@ module M : T with type term = Term.Type.term
               [] ->
                 raise
                   (ParseError_ ["alert in PATCHALERT has no button specs"])
-            | bs -> Alert.M.Alert (m, bs, parsedefaultindex ())
+            | bs -> Alert.Alert (m, bs, parsedefaultindex ())
             end
         | s ->
             let rec bang () =
@@ -518,10 +518,10 @@ module M : T with type term = Term.Type.term
                     symbolstring s])
             in
             match stringfromsymbol s with
-              Some "HowToTextSelect" -> scansymb (); Alert.M.HowToTextSelect
+              Some "HowToTextSelect" -> scansymb (); Alert.HowToTextSelect
             | Some "HowToFormulaSelect" ->
-                scansymb (); Alert.M.HowToFormulaSelect
-            | Some "HowToDrag" -> scansymb (); Alert.M.HowToDrag
+                scansymb (); Alert.HowToFormulaSelect
+            | Some "HowToDrag" -> scansymb (); Alert.HowToDrag
             | _ -> bang ()
       and parsebuttonspecs () =
         parseUnsepList
@@ -540,10 +540,10 @@ module M : T with type term = Term.Type.term
           begin match currsymb () with
             BRA "(" ->
               (* no replacement message, but there are buttons *)
-              Alert.M.patchalert
+              Alert.patchalert
                 (h,
-                 Alert.M.Alert ("", parsebuttonspecs (), parsedefaultindex ()))
-          | _ -> Alert.M.patchalert (h, parsealertspec ())
+                 Alert.Alert ("", parsebuttonspecs (), parsedefaultindex ()))
+          | _ -> Alert.patchalert (h, parsealertspec ())
           end
       | _ ->
           raise

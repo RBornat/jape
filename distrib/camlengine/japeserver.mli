@@ -1,14 +1,14 @@
 (* $Id$ *)
 
-type box = Box.M.box
-and displayclass = Displayclass.M.displayclass
-and font = Displayfont.M.displayfont
-and pane = Displayfont.M.pane
+type box = Box.box
+and displayclass = Displayclass.displayclass
+and font = Displayfont.displayfont
+and pane = Displayfont.pane
 and panelkind = Panelkind.M.panelkind
 and panelbuttoninsert = Panelkind.M.panelbuttoninsert
-and pos = Box.M.pos
-and size = Box.M.size
-and textsize = Box.M.textsize
+and pos = Box.pos
+and size = Box.size
+and textsize = Box.textsize
 
 val idlsignature : string
 val getSignature : unit -> string

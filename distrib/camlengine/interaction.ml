@@ -60,10 +60,10 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
 			  and type path = Prooftree.Tree.Fmttree.path
 =
   struct
-    open Answer.M
-    open Box.M
-    open Displayclass.M
-    open Displayfont.M
+    open Answer
+    open Box
+    open Displayclass
+    open Displayfont
     open Displaystate.M
     open Hit.M
     open Proofstate.M
@@ -96,8 +96,8 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
 	let rewritecxt = Rewrite.Funs.rewritecxt
 	let seektipselection = Miscellaneous.M.seektipselection
 	let selection2Subst = Selection.M.selection2Subst
-	let setComment = Alert.M.setComment
-	let showAlert = Alert.M.showAlert Alert.M.defaultseverity_alert
+	let setComment = Alert.setComment
+	let showAlert = Alert.showAlert Alert.defaultseverity_alert
 	let smlelementstring = Term.Termstring.smlelementstring
 	let sort = Listfuns.M.sort
 	let take = Listfuns.M.take

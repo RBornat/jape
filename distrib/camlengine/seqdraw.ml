@@ -19,28 +19,28 @@ module type T =
 
 (* draw a sequent - used in treedraw and disproof *)
 module M : T with type element = Draw.M.element
-			  and type displayclass = Displayclass.M.displayclass
+			  and type displayclass = Displayclass.displayclass
 			  and type 'a plan = 'a Draw.M.plan
 			  and type pos = Draw.M.pos
 			  and type seq = Sequent.Funs.seq
 			  and type textbox = Draw.M.textbox
 =
   struct
-    open Box.M 
+    open Box 
     open Draw.M 
-    open Displayclass.M
+    open Displayclass
     
     type element = Draw.M.element
-	 and displayclass = Displayclass.M.displayclass
+	 and displayclass = Displayclass.displayclass
 	 and 'a plan = 'a Draw.M.plan
 	 and pos = Draw.M.pos
 	 and seq = Sequent.Funs.seq
 	 and textbox = Draw.M.textbox
     
-    let comma = Absprooftree.M.comma
+    let comma = Absprooftree.comma
     let elementstring = Term.Termstring.elementstring
-    let explode = Absprooftree.M.explode
-    let turnstile = Absprooftree.M.turnstile
+    let explode = Absprooftree.explode
+    let turnstile = Absprooftree.turnstile
 
     type planclass =
       ElementClass of (element * displayclass) | PunctClass | ReasonClass

@@ -60,7 +60,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
 			  and type side = Hit.M.side
 =
   struct
-    open Applyrule.M
+    open Applyrule
     open Context.Cxt
     open Context.Cxtstring
     open Hit.M
@@ -133,12 +133,12 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
 		Some d -> Interaction.M.refreshProof d
 	  | None -> raise (Catastrophe_ ["(tacticfuns) refreshProof None"])
              
-	let rec askNb m bs = Alert.M.ask (Alert.M.defaultseverity bs) m bs 0
+	let rec askNb m bs = Alert.ask (Alert.defaultseverity bs) m bs 0
 	let rec askNbc m bs c =
-	  Alert.M.askCancel (Alert.M.defaultseverity bs) m bs c 0
+	  Alert.askCancel (Alert.defaultseverity bs) m bs c 0
 	
 	let anyCollectionClass = Idclass.M.BagClass Idclass.M.FormulaClass
-	let askChoice = Alert.M.askChoice
+	let askChoice = Alert.askChoice
 	let applyconjectures = Miscellaneous.M.applyconjectures
 	let applyderivedrules = Miscellaneous.M.applyderivedrules
 	let atoi = Miscellaneous.M.atoi
@@ -152,10 +152,10 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
 	let needsProof = Proofstore.M.needsProof
 	let prefixtoReason = Reason.M.prefixtoReason
 	let selection2Subst = Selection.M.selection2Subst
-	let setComment = Alert.M.setComment <*> implode
+	let setComment = Alert.setComment <*> implode
 	let setReason = Reason.M.setReason
 	let showAlert =
-	  Alert.M.showAlert Alert.M.defaultseverity_alert <*> implode
+	  Alert.showAlert Alert.defaultseverity_alert <*> implode
 	let symclass = Symbol.symclass
 	let subterm2subst = Selection.M.subterm2subst
 	let string2tactic = Termparse.M.string2tactic
@@ -553,10 +553,10 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
           stuff
         in
         let _ =
-          if !(Applyrule.M.applydebug) > 0 then
+          if !(Applyrule.applydebug) > 0 then
             consolereport
               ["makestep "; step_label how; " ";
-               proofstatestring (!(Applyrule.M.applydebug) > 1) state; " ";
+               proofstatestring (!(Applyrule.applydebug) > 1) state; " ";
                optionstring (pairstring cxtstring prooftreestring ",") resopt]
         in
         let r =
@@ -565,17 +565,17 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
           | None ->
               prefixtoReason [step_label how; " is not applicable: "]; None
         in
-        if !(Applyrule.M.applydebug) > 0 then
+        if !(Applyrule.applydebug) > 0 then
           consolereport
             ["makestep => ";
-             optionstring (proofstatestring (!(Applyrule.M.applydebug) > 1)) r];
+             optionstring (proofstatestring (!(Applyrule.applydebug) > 1)) r];
         r
       in
       let rec apply
         checker filter taker selhyps selconcs stuff reason cxt state =
         let stuff' = preparestuff2apply stuff in
         makestep stuff' state
-          (Applyrule.M.apply checker filter taker selhyps selconcs stuff' reason
+          (Applyrule.apply checker filter taker selhyps selconcs stuff' reason
              cxt (getconjecture state))
       and resolve
         checker filter taker selhyps selconcs stuff reason cxt state =
@@ -942,7 +942,7 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
           if needsProof name thing then []
           else
             match
-              Applyrule.M.apply unifyvarious nofilter nofilter [] []
+              Applyrule.apply unifyvarious nofilter nofilter [] []
                 (preparestuff2apply (expandstuff name stuff state))
                 (namestring name) cxt (getconjecture state)
             with

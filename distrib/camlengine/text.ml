@@ -27,18 +27,18 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type textsize = Box.M.textsize 
-              and type pos = Box.M.pos 
-              and type font = Displayfont.M.displayfont
+module M : T with type textsize = Box.textsize 
+              and type pos = Box.pos 
+              and type font = Displayfont.displayfont
 =
   struct
-    open Box.M
+    open Box
     open Miscellaneous.M
     open Listfuns.M
-    open Displayfont.M
+    open Displayfont
     open Stringfuns.M
     
-    type textsize = Box.M.textsize and pos = Box.M.pos and font = displayfont
+    type textsize = Box.textsize and pos = Box.pos and font = displayfont
     
     let fontstring = displayfontstring
     

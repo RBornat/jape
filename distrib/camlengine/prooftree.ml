@@ -781,9 +781,6 @@ module Tree : Tree with type term = Term.Type.term
           let (lookup, reset) =
             (* terms in the tree get mapped to numbers, so that it can be read in
                more quickly.
-				simplecache "prooftree2tactic"
-				  (triplestring termstring string_of_int string_of_int ",") 17
-				  (fun _ -> let r = !count in incr count; r)
              *)
             let module Cache =
               struct

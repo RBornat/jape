@@ -26,7 +26,7 @@ module M : T with type cxt = Context.Type.cxt
 			  and type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
 =
   struct
-    open Answer.M
+    open Answer
     open Context.Type
     open Context.ExteriorFuns
     open Context.Cxt

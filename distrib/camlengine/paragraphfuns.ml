@@ -77,7 +77,7 @@ module M : T with type japeenv = Runproof.M.japeenv
 	  Proviso.M.provisovars Term.Funs.termvars Term.Funs.tmerge
 	let seqstring = Sequent.Funs.seqstring
 	let seqvars = Sequent.Funs.seqvars Term.Funs.termvars Term.Funs.tmerge
-	let setfontstuff = Button.M.setfontstuff
+	let setfontstuff = Button.setfontstuff
 	let setmenuentry = Japeserver.menuentry
 	let setpanelbutton = Japeserver.setpanelbutton
 	let tacticstring = Tactic.Funs.tacticstring

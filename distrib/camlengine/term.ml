@@ -755,21 +755,6 @@ module Store : Store with type vid = Type.vid
 			let elementtable = E.create 127 (* why not? It can only grow :-> *)
 			let cacheelement e =
 			  try E.find elementtable e with Not_found -> E.add elementtable e e; e
-			
-			(* let (cacheterm, resettermstore) =
-				 simplecache "termstore"
-				   (fun (t, h, (t' : term)) ->
-					  pairstring (string_of_int : int -> string) termstring ", " (h, t))
-				   127 (* why not? It can only grow :-> *)
-					(fun t -> t)
-			   let (cacheelement, resetelementstore) =
-				 simplecache "elementstore"
-				   (fun (e, h, (e' : element)) ->
-					  pairstring (string_of_int : int -> string) elementstring ", "
-						(h, e))
-				   127(* why not? It can only grow :-> *)
-					(fun e -> e)
-			 *)
 
 			(* we only cache constant collections and elements. We may experiment, if this
 			 * is a success, with caching Ids, since they are small, frequent and not very 
@@ -964,7 +949,7 @@ module Funs : Funs with type vid = Type.vid
     open Symbol
     open Idclass.M
     open Idclassfuns.M
-    open Answer.M
+    open Answer
     open Sml.M
     
 	type vid = Type.vid 

@@ -10,15 +10,15 @@ module F
       module Screendraw : Screendraw.T with type tree = Prooftree.Tree.Vistree.prooftree
                                         and type 'a hit = 'a Hit.M.hit
                                         and type hitkind = Hit.M.hitkind
-                                        and type pos = Box.M.pos
-                                        and type textbox = Box.M.textbox
-                                        and type box = Box.M.box
-                                        and type displayclass = Displayclass.M.displayclass
+                                        and type pos = Box.pos
+                                        and type textbox = Box.textbox
+                                        and type box = Box.box
+                                        and type displayclass = Displayclass.displayclass
       val abstracttree  : Screendraw.tree -> Screendraw.tree
     end)
   : Style =
   struct
-    open Box.M 
+    open Box 
     open AAA.Screendraw 
     open Displaystate.M
     open Treeformat.VisFmt
@@ -31,10 +31,10 @@ module F
     let fmtpath = Prooftree.Tree.viewpathtopath
     let optionstring = Optionfuns.M.optionstring
     let parentPath = Prooftree.Tree.Fmttree.parentPath
-    let posstring = Box.M.posstring
+    let posstring = Box.posstring
     let rootPath = Prooftree.Tree.Fmttree.rootPath
     let screenpositiondebug = Miscellaneous.M.screenpositiondebug
-    let textboxstring = Box.M.textboxstring
+    let textboxstring = Box.textboxstring
     let tranhitpath = Hit.M.tranhitpath
     let try__ = Optionfuns.M.try__
     let vispath = Prooftree.Tree.pathtoviewpath
@@ -209,6 +209,6 @@ module Treestyle : Style = F (struct
 							  end)
 
 module Boxstyle : Style = F (struct
-							   module Screendraw = Boxdraw.M
+							   module Screendraw = Boxdraw
 							   let abstracttree t = t
 							 end)

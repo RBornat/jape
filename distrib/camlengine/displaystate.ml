@@ -18,18 +18,18 @@ module type T =
 
 (* $Id$ *)
 
-module M : T with type displayclass = Displayclass.M.displayclass
+module M : T with type displayclass = Displayclass.displayclass
 			  and type 'a hit        = 'a Hit.M.hit
 			  and type hitkind       = Hit.M.hitkind
-			  and type pos           = Box.M.pos
+			  and type pos           = Box.pos
 			  and type prooftree     = Prooftree.Tree.Fmttree.prooftree
 			  and type path          = Prooftree.Tree.Fmttree.path
 =
   struct
-    type displayclass = Displayclass.M.displayclass
+    type displayclass = Displayclass.displayclass
 	 and 'a hit        = 'a Hit.M.hit
 	 and hitkind       = Hit.M.hitkind
-	 and pos           = Box.M.pos
+	 and pos           = Box.pos
 	 and prooftree     = Prooftree.Tree.Fmttree.prooftree
 	 and path          = Prooftree.Tree.Fmttree.path
 

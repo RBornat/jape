@@ -49,7 +49,7 @@ module M : T with type element = Term.Funs.element
     open Term.Termstring
     open Term.Funs
     open Term.Store
-    open Binding.M
+    open Binding
     open Optionfuns.M
     open Miscellaneous.M
     

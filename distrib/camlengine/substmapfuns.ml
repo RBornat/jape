@@ -35,7 +35,7 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T with type answer = Answer.M.answer
+module M : T with type answer = Answer.answer
 			  and type facts = Facts.M.facts
 			  and type term = Term.Funs.term
 =
@@ -43,7 +43,7 @@ module M : T with type answer = Answer.M.answer
     open Listfuns.M
     open Mappingfuns.M
     open Optionfuns.M
-    open Answer.M
+    open Answer
     open Term.Funs
     open Proviso.M
     open Facts.M
@@ -53,7 +53,7 @@ module M : T with type answer = Answer.M.answer
     open Term.Type
     open Term.Store
     
-    type answer = Answer.M.answer
+    type answer = Answer.answer
      and facts = Facts.M.facts
      and term = Term.Funs.term
      

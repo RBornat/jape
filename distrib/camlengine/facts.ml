@@ -19,10 +19,10 @@ module M : T with type proviso = Proviso.M.proviso
 			  and type visproviso = Proviso.M.visproviso
 			  and type cxt = Context.ExteriorFuns.cxt
 			  and type term = Term.Funs.term
-			  and type answer = Answer.M.answer
+			  and type answer = Answer.answer
 =
   struct
-    open Answer.M 
+    open Answer 
     open Context.Cxtstring
     open Context.ExteriorFuns 
     open Context.Type
@@ -41,7 +41,7 @@ module M : T with type proviso = Proviso.M.proviso
      and visproviso = Proviso.M.visproviso
      and cxt = Context.ExteriorFuns.cxt
      and term = Term.Funs.term
-     and answer = Answer.M.answer
+     and answer = Answer.answer
 
     let factsdebug = ref false
     type facts = proviso list * exterior

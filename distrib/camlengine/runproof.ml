@@ -92,7 +92,7 @@ module M : T with type cxt = Context.Cxt.visproviso
 	let sequent = Prooftree.Tree.Fmttree.sequent
 	let seqstring = Sequent.Funs.seqstring
 	let tacticstring = Tactic.Funs.tacticstring
-	let takethelot = Applyrule.M.takethelot
+	let takethelot = Applyrule.takethelot
 	let uncurry2 = Miscellaneous.M.uncurry2
 	let ( <| ) = Listfuns.M.( <| )
     
