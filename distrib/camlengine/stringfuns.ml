@@ -45,8 +45,11 @@ let rec disQuote s =
   with
     _ -> s
 
-let enQuote s = "\"" ^ s ^ "\""
-let enCharQuote s = "'" ^ s ^ "'"
+let enQuote s = 
+  "\"" ^ implode (List.map (fun s -> if s="\"" then "\\\"" else s) (explode s)) ^ "\""
+  
+let enCharQuote s = 
+  "'" ^ implode (List.map (fun s -> if s="'" then "\\'" else s) (explode s)) ^ "'"
 
 let lowercase = String.lowercase
 let uppercase = String.uppercase
