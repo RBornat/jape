@@ -160,7 +160,7 @@ module Hashtab = Cache.F (struct type dom = int * int list
                            end)
 
 let minw = Hashtab.lookup
-let resetminwcache = Hashtab.reset
+let resetcache = Hashtab.reset
 
 let rec minwaste measurefn w xs =
   let rec recon a1 a2 =
