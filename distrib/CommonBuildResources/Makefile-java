@@ -1,0 +1,25 @@
+# $Id$
+#
+#
+#
+#### TARGET= -target 1.1
+#
+#       Java dependencies -- generic
+#
+.SUFFIXES:              .jar .java .class .manifest
+#
+#
+#
+%.class:                %.java;  javac -d . $(TARGET) $<
+
+%.jar:                  %.class %.manifest; \
+                        jar cmf $*.manifest $*.jar *.class $(EXTRAFILES)
+
+%.manifest:             %.class;rm -f $*.manifest; \
+                        echo "Main-Class: $*" >$*.manifest
+
+clean:                  ; \
+                        rm -f *.jar *.manifest *.class
+
+
+

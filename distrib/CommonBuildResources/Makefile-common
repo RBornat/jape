@@ -1,0 +1,74 @@
+#
+# $Id$
+#
+
+GUIDIR=../../java_japeserver
+ENGINEDIR=../../camlengine
+RESOURCES=../CommonBuildResources
+BUILDRESOURCES=../../CommonBuildResources
+COMPILEDIR=./tmp
+SOURCES=-I ../../../ocamlengine
+SERVERSCRIPT=exec java -jar japeserver.jar
+
+##################################################################
+#
+#       Default (Unix) targets; Windows build overrides these
+#
+ENGINETARGET=jape
+BUILTENGINE=jape
+DEPLOYEDENGINE=jape.engine
+README=README-UNIX
+INSTALLME=installjape.sh
+DEPLOYMENTKIT=$(README) $(INSTALLME)
+#
+#
+##################################################################
+
+all:   ; $(MAKE) engine GUI components install
+
+#
+#       Multiarchitecture/OS engine build is safest if compilations are in separate directories
+#
+#       1. Different ocaml versions can be used
+#       2. Simultaneous compilations are possible
+#
+#       Technique: synchronize source files in the compile directory, then compile
+#       
+#
+engine:         ; rsync -v -t --exclude="*.cm*" \
+                        $(ENGINEDIR)/Makefile   \
+                        $(ENGINEDIR)/.depend    \
+                        $(ENGINEDIR)/*.ml*  $(COMPILEDIR);\
+                  (cd $(COMPILEDIR); make $(ENGINETARGET))
+               
+cleanengine:    ; rm -f $(COMPILEDIR)/.depend;\
+                  rm -f $(COMPILEDIR)/*;\
+                  make engine
+
+#
+#       Java is compile-once, run anywhere, so we can make the GUI in one place
+#
+GUI:            ; cd $(GUIDIR); $(MAKE) -f $(RESOURCES)/Makefile-java EXTRAFILES="*.jpg *.gif" japeserver.jar
+CLEANGUI:       ; cd $(GUIDIR); $(MAKE) -f $(RESOURCES)/Makefile-java EXTRAFILES="*.jpg *.gif" clean japeserver.jar
+
+#
+#       
+#
+components::    ; make engine GUI;\
+                  rsync -v -t    $(GUIDIR)/japeserver.jar .                       ;\
+                  rsync -v -t    $(COMPILEDIR)/$(BUILTENGINE) ./$(DEPLOYEDENGINE) ;\
+                  rsync -v -t    $(BUILDRESOURCES)/$(README)    .                 ;\
+                  rsync -v -t    $(BUILDRESOURCES)/$(INSTALLME) .                  ;\
+                  chmod +x  $(INSTALLME) 
+
+install:        ; make components; installjape.sh
+
+clean:          ; rm -f $(BIN)/japeserver.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape $(BIN)/japeserver
+
+distribution::  ; make components jarfile
+
+jarfile:        ; jar cvf $(OS)jape.jar $(DEPLOYMENTKIT) $(DEPLOYEDENGINE) japeserver.jar examples 
+
+
+
+
