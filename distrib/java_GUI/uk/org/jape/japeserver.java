@@ -40,7 +40,7 @@ import java.util.Vector;
 
 public class japeserver implements DebugConstants {
 
-    private static boolean tracing = true;
+    private static boolean tracing = false;
 
     private static String[] operators;
     
@@ -71,16 +71,18 @@ public class japeserver implements DebugConstants {
         Alert.showAlert(Alert.Info, "Preferences item selected in menu");
     }
     
-    public static boolean onMacOS, onLinux, onSolaris;
+    public static boolean onMacOS, onLinux, onSolaris, onWindows;
     public static Rectangle screenBounds;
     
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
         String osName = System.getProperty("os.name");
         
-        if (!((onMacOS = notice_MacOSX && System.getProperty("mrj.version")!=null) ||
-              (onLinux = notice_Linux && osName.equals("Linux")) ||
-              (onSolaris = notice_Solaris && osName.equals("SunOS")))) {
+        if (!((onMacOS = notice_MacOSX && System.getProperty("mrj.version")!=null) 
+            ||(onLinux = notice_Linux && osName.equals("Linux")) 
+            ||(onSolaris = notice_Solaris && osName.equals("SunOS")) 
+            ||(onWindows = osName.startsWith("Windows")))
+           ) {
             System.err.println("japeserver.main doesn't recognise OS\n"+
                                "os.name="+System.getProperty("os.name")+
                                "\nos.arch="+System.getProperty("os.arch")+
@@ -149,3 +151,5 @@ public class japeserver implements DebugConstants {
         return null; // all else has failed
     }
 }
+
+
