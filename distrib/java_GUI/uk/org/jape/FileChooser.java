@@ -37,7 +37,7 @@ public class FileChooser {
     public static String newOpenDialog(String message) {
         return doOpenDialog(new JFileChooser());
     }
-    
+
     public static String newOpenDialog(String message, String extension) {
         JFileChooser chooser = new JFileChooser();
         ExampleFileFilter filter = new ExampleFileFilter();
@@ -46,7 +46,7 @@ public class FileChooser {
         chooser.setFileFilter(filter);
         return doOpenDialog(chooser);
     }
-    
+
     public static String newOpenDialog(String message, String ext1, String ext2) {
         JFileChooser chooser = new JFileChooser();
         ExampleFileFilter filter = new ExampleFileFilter();
@@ -65,5 +65,43 @@ public class FileChooser {
         filter.setDescription(message);
         chooser.setFileFilter(filter);
         return doOpenDialog(chooser);
+    }
+
+    private static String doSaveDialog(JFileChooser chooser) {
+        int returnVal = chooser.showSaveDialog(null);
+        return (returnVal==JFileChooser.APPROVE_OPTION ? chooser.getSelectedFile().toString() : "");
+    }
+
+    public static String newSaveDialog(String message) {
+        return doSaveDialog(new JFileChooser());
+    }
+
+    public static String newSaveDialog(String message, String extension) {
+        JFileChooser chooser = new JFileChooser();
+        ExampleFileFilter filter = new ExampleFileFilter();
+        filter.addExtension(extension);
+        filter.setDescription(message);
+        chooser.setFileFilter(filter);
+        return doSaveDialog(chooser);
+    }
+
+    public static String newSaveDialog(String message, String ext1, String ext2) {
+        JFileChooser chooser = new JFileChooser();
+        ExampleFileFilter filter = new ExampleFileFilter();
+        filter.addExtension(ext1);
+        filter.addExtension(ext2);
+        filter.setDescription(message);
+        chooser.setFileFilter(filter);
+        return doSaveDialog(chooser);
+    }
+    public static String newSaveDialog(String message, String ext1, String ext2, String ext3) {
+        JFileChooser chooser = new JFileChooser();
+        ExampleFileFilter filter = new ExampleFileFilter();
+        filter.addExtension(ext1);
+        filter.addExtension(ext2);
+        filter.addExtension(ext3);
+        filter.setDescription(message);
+        chooser.setFileFilter(filter);
+        return doSaveDialog(chooser);
     }
 }
