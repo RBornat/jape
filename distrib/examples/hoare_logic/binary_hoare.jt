@@ -1,0 +1,10 @@
+/* $Id$ */
+
+FONTS "Konstanz"
+INITIALISE displaystyle box
+
+USE "hoare_syntax.j"
+USE "hoare_problems.j"
+
+USE "../natural_deduction/I2L_rules.j"
+USE "../natural_deduction/I2L_menus.j"
