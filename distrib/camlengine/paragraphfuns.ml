@@ -47,11 +47,11 @@ let enQuote = Stringfuns.enQuote
 let freezesaved = Proofstore.freezesaved
 let isQuoted = Stringfuns.isQuoted
 let mkmap = Mappingfuns.mkmap
-let namestring = Name.namestring
+let string_of_name = Name.string_of_name
 let newcxt = Cxtfuns.newcxt
 let optionfilter = Optionfuns.optionfilter
 let paramvar = Paraparam.paramvar
-let parseablenamestring = Name.parseablenamestring
+let parseablestring_of_name = Name.parseablestring_of_name
 let proofstage2word = Proofstage.proofstage2word
 let provisostring = Proviso.provisostring
 let provisovars =
@@ -90,7 +90,7 @@ let rec addstructurerule report query stype rule =
   if Thing.addstructurerule thingtype rule then ()
   else
 	report
-	  ["STRUCTURERULE "; stype; " "; parseablenamestring rule; " failed"]
+	  ["STRUCTURERULE "; stype; " "; parseablestring_of_name rule; " failed"]
 
 let rulename p =
   match p with
@@ -157,7 +157,7 @@ let rec interpret
 			report
 			  [text; " settings are ";
 			   bracketedliststring (fun s -> s) ", " settings;
-			   " - variable "; parseablenamestring var;
+			   " - variable "; parseablestring_of_name var;
 			   " can only be set to "; range];
 			raise Use_
 		end;
@@ -165,7 +165,7 @@ let rec interpret
 		  OutOfRange_ range ->
 			report
 			  [text; " default value is "; defval'; " - variable ";
-			   parseablenamestring var; " can only be set to "; range];
+			   parseablestring_of_name var; " can only be set to "; range];
 			raise Use_
 		end;
 		env
@@ -232,7 +232,7 @@ let rec interpret
   | HitDef stuff -> adddoubleclick stuff; res
   | InitVar (name, term) ->
 	  let rec lreport ss =
-		report ("can't INITIALISE " :: parseablenamestring name :: ss);
+		report ("can't INITIALISE " :: parseablestring_of_name name :: ss);
 		raise Use_
 	  in
 	  begin try Japeenv.set (env, name, term) with
@@ -250,7 +250,7 @@ let rec interpret
 	  addthing (name, Macro (params, macro), where); res
   | Menu (mproof, mlabel, mparas) ->
 	  let rec tacentry name =
-		Mentry (name, None, "apply " ^ parseablenamestring name)
+		Mentry (name, None, "apply " ^ parseablestring_of_name name)
 	  in
 	  let rec process (mp, (env, buttonfns, mes, mps as res)) =
 		match mp with
@@ -260,23 +260,23 @@ let rec interpret
 				let (env, basefn) = processCheckBox env stuff in
 				let rec tickfn tf =
 				  setmenuentry
-					(namestring mlabel) (namestring label) None
-					 ("assign " ^ parseablenamestring var ^
+					(string_of_name mlabel) (string_of_name label) None
+					 ("assign " ^ parseablestring_of_name var ^
 					   (if tf then " false" else " true"));
-				  tickmenuitem (namestring mlabel) (namestring label) tf
+				  tickmenuitem (string_of_name mlabel) (string_of_name label) tf
 				in
 				env, (var, basefn tickfn) :: buttonfns, e :: mes, mps
 			| Mradiobutton (var, _, _ as stuff) ->
 				let (env, basefn) = processRadioButton env stuff in
 				let rec tickfn (label, tf) =
-				  tickmenuitem (namestring mlabel) (namestring label) tf
+				  tickmenuitem (string_of_name mlabel) (string_of_name label) tf
 				in
 				env, (var, basefn tickfn) :: buttonfns, e :: mes, mps
 			| _ -> env, buttonfns, e :: mes, mps
 			end
 		| Menupara p ->
 			env, buttonfns,
-			entrynames ["Menu "; namestring mlabel] tacentry (p, mes),
+			entrynames ["Menu "; string_of_name mlabel] tacentry (p, mes),
 			p :: mps
 	  in
 	  let (env, buttonfns, mes, mps) =
@@ -288,7 +288,7 @@ let rec interpret
 		(interpret report query (InMenu mlabel) params provisos enter) mps
 		(env, proofs, buttonfns)
   | Panel (plabel, pparas, kind) ->
-	  let rec tacentry name = Pentry (name, parseablenamestring name) in
+	  let rec tacentry name = Pentry (name, parseablestring_of_name name) in
 	  let rec process (pp, (env, buttonfns, pes, pps)) =
 		match pp with
 		  Panelstuff e ->
@@ -297,13 +297,13 @@ let rec interpret
                  Pcheckbox (var, label, _, _ as stuff) ->
                    let (env, basefn) = processCheckBox env stuff in
                    let rec tickfn tf =
-                     setpanelbutton (namestring plabel) (namestring label) tf
+                     setpanelbutton (string_of_name plabel) (string_of_name label) tf
                    in
                    env, (var, basefn tickfn) :: buttonfns, e :: pes, pps
                | Pradiobutton (var, _, _ as stuff) ->
                    let (env, basefn) = processRadioButton env stuff in
                    let rec tickfn (label, tf) =
-                     setpanelbutton (namestring plabel) (namestring label) tf
+                     setpanelbutton (string_of_name plabel) (string_of_name label) tf
                    in
                    env, (var, basefn tickfn) :: buttonfns, e :: pes, pps
                | _ -> env, buttonfns, e :: pes, pps
@@ -311,7 +311,7 @@ let rec interpret
               *) env, buttonfns, e :: pes, pps
 		| Panelpara p ->
 			env, buttonfns,
-			entrynames ["Panel "; namestring plabel] tacentry (p, pes),
+			entrynames ["Panel "; string_of_name plabel] tacentry (p, pes),
 			p :: pps
 	  in
 	  let (env, buttonfns, pes, pps) =
@@ -335,7 +335,7 @@ let rec interpret
 		[], Some (Theorem _, _ as info) -> updateplace info
 	  | _ :: _, Some ((Theorem _ as thm), _) ->
 		  report
-			["processing proof of rule "; namestring name;
+			["processing proof of rule "; string_of_name name;
 			 " - found theorem"; thingstring thm;
 			 " stored under that name"];
 		  raise Use_
@@ -350,12 +350,12 @@ let rec interpret
 			 where)
 	  | _, Some (thing, _) ->
 		  report
-			["processing proof of "; namestring name; " - found ";
+			["processing proof of "; string_of_name name; " - found ";
 			 thingstring thing; " stored under that name"];
 		  raise Use_
 	  end;
 	  consolereport
-		["checking "; proofstage2word stage; " "; namestring name];
+		["checking "; proofstage2word stage; " "; string_of_name name];
 	  (* edit this bit of code to profile the checking bit of proof reload *)
 	  (* profileOn(); *)
 	  let res =

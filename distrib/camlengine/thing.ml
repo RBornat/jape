@@ -124,8 +124,8 @@ let rec storedthingstring =
 
 let rec thingplacestring =
   function
-    InMenu s -> "InMenu " ^ namestring s
-  | InPanel s -> "InPanel" ^ namestring s
+    InMenu s -> "InMenu " ^ string_of_name s
+  | InPanel s -> "InPanel" ^ string_of_name s
   | InLimbo -> "InLimbo"
 
 let resnumbase = 1
@@ -762,11 +762,11 @@ let rec compilething name thing =
         try compileR !autoAdditiveLeft !autoAdditiveRight r with
           CompileThing_ ss ->
             raise
-              (CompileThing_ ("Rule " :: namestring name :: ": " :: ss))
+              (CompileThing_ ("Rule " :: string_of_name name :: ": " :: ss))
         | BadAdditivity_ ss ->
             raise
               (CompileThing_
-                 ("the autoAdditive mechanism can't be used with rule/theorem " :: namestring name :: " because " :: ss))
+                 ("the autoAdditive mechanism can't be used with rule/theorem " :: string_of_name name :: " because " :: ss))
       in
       CookedRule (r1, r2, ax)
   | Theorem (params, provisos, bot) ->
@@ -775,7 +775,7 @@ let rec compilething name thing =
       with
         CompileThing_ ss ->
           raise
-            (CompileThing_ ("Theorem " :: namestring name :: ": " :: ss))
+            (CompileThing_ ("Theorem " :: string_of_name name :: ": " :: ss))
       end
   | _ -> Rawthing thing
 
@@ -870,11 +870,11 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
       | None ->
           if !thingdebug then
             consolereport
-              ["compiledthinginfo couldn't find "; namestring name];
+              ["compiledthinginfo couldn't find "; string_of_name name];
           None
     in
     if !thingdebug then
-      consolereport [" "; namestring name; " is "; optionstring pst res];
+      consolereport [" "; string_of_name name; " is "; optionstring pst res];
     res
   
   and compiledthingnamed name =
@@ -929,7 +929,7 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
     if !thingdebug then
       consolereport
         ["addthing ";
-         triplestring namestring thingstring thingplacestring ","
+         triplestring string_of_name thingstring thingplacestring ","
            (name, thing, place);
          " was "; optionstring pst (lookup name); "; is now ";
          pst (newthing, newplace)];

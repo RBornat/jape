@@ -168,9 +168,9 @@ let defaultenv =
   and jv = Japeenv.japevar in
   let rec aj default r =
     Japeenv.unboundedjapevar default
-      ((fun v -> r := Name.namestring (Name.namefrom v)),
+      ((fun v -> r := Name.string_of_name (Name.name_of_string v)),
        (* is this too much work to avoid a few quotes? *)
-       (fun () -> Name.namestring (Name.namefrom !r)))
+       (fun () -> Name.string_of_name (Name.name_of_string !r)))
 
 and ajd r = aj !r r in
 (* default settings for all variables accessible via Japeish *)
@@ -253,7 +253,7 @@ let rec defaultenv () =
   List.iter Japeenv.resetvar (List.map snd pairs);
   nj_revfold (uncurry2 Japeenv.(++))
     (List.map
-       (uncurry2 Japeenv.( ||-> ) <.> (fun (s, v) -> Name.namefrom s, v))
+       (uncurry2 Japeenv.( ||-> ) <.> (fun (s, v) -> Name.name_of_string s, v))
        (nj_fold (fun ((s, f), ps) -> (s, f ()) :: ps) nonresetpairs pairs))
     Japeenv.empty
 in
@@ -267,14 +267,14 @@ let boxdisplaynames =
   ["boxlinedisplay"; "foldformulae"; "hidecut"; "hidehyp"; "hidetransitivity";
    "hidereflexivity"; "hideuselesscuts"]
        
-let displayvars = List.map Name.namefrom (displaynames @ boxdisplaynames)
+let displayvars = List.map Name.name_of_string (displaynames @ boxdisplaynames)
 
 let rec mustredisplay env vals =
   let dispenv =
     mkmap (displayvars ||| vals)
   in
   let nenv =
-    mkmap (List.map (fun n -> Name.namestring n, n) displayvars)
+    mkmap (List.map (fun n -> Name.string_of_name n, n) displayvars)
   in
   let rec lookup s =
     match
@@ -684,7 +684,7 @@ let rec recorddisplayvars env =
       raise
         (Catastrophe_
            ["one or more of ";
-            bracketedliststring namestring ", " displayvars;
+            bracketedliststring string_of_name ", " displayvars;
             " isn't set!"])
 
 let rec setdisplayvars env vals =
@@ -846,7 +846,7 @@ and addproofs
            (screenquery
               [if n = 1 then "There is already a proof of "
                else ("There are already " ^ string_of_int n) ^ " proofs of ";
-               namestring name;
+               string_of_name name;
                " in progress - do you want to add another?"]
               "Add" "Cancel" 1)
       then
@@ -856,8 +856,8 @@ and addproofs
         let num = num + 1 in
         let index = if n = 0 then 0 else index + 1 in
         let heading =
-          if index = 0 then namestring name
-          else ((namestring name ^ " [") ^ string_of_int index) ^ "]"
+          if index = 0 then string_of_name name
+          else ((string_of_name name ^ " [") ^ string_of_int index) ^ "]"
         in
         let state_cxt = selfparentprovisos cxt in
         let facts = facts (provisos state_cxt) state_cxt in
@@ -895,7 +895,7 @@ and endproof num name st dis =
   Runproof.addproof showAlert uncurried_screenquery name proved st disproved (disproofstate2model dis) &&
   begin
     Japeserver.closeproof num;
-    markproof (parseablenamestring name) (proved, disproved);
+    markproof (parseablestring_of_name name) (proved, disproved);
     true
   end
 
@@ -932,7 +932,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     in
     let _ = (Paragraphfuns.interpret showAlert uncurried_screenquery [] []
                (env, [], [])
-               (match parseablenamestring panel with
+               (match parseablestring_of_name panel with
                   "" -> para
                 | p ->
                     getpara
@@ -941,8 +941,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                          (name * (string * bool -> unit)) list)
     in
     let name = Paragraphfuns.conjecturename para in
-    if namestring panel <> "" then
-      Japeserver.panelentry (namestring panel) (namestring name) (parseablenamestring name);
+    if string_of_name panel <> "" then
+      Japeserver.panelentry (string_of_name panel) (string_of_name name) (parseablestring_of_name name);
     name
   in
   
@@ -1134,7 +1134,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         with
           Verifyproviso_ p ->
             showAlert
-              [kind; " "; namestring name; " has unsatisfiable proviso ";
+              [kind; " "; string_of_name name; " has unsatisfiable proviso ";
                provisostring p];
             default
       in
@@ -1145,23 +1145,23 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           if ax then
             begin
               showAlert
-                [namestring name; " is an axiomatic rule, not a conjecture or a derived rule"];
+                [string_of_name name; " is an axiomatic rule, not a conjecture or a derived rule"];
               default
             end
           else
             doit givens seq ((mkvisproviso <* provisos)) "derived rule"
       | Some (Tactic _) ->
           showAlert
-            [namestring name;
+            [string_of_name name;
              " is a tactic, not a conjecture or a derived rule"];
           default
       | Some (Macro _) ->
           showAlert
-            [namestring name;
+            [string_of_name name;
              " is a tactic macro, not a conjecture or a derived rule"];
           default
       | None ->
-          showAlert ["no stored conjecture named "; namestring name];
+          showAlert ["no stored conjecture named "; string_of_name name];
           default
     in
     
@@ -1235,12 +1235,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             
         | "applygiven", args ->
             processcommand thisstate
-              ("apply" :: parseablenamestring (namefrom !givenMenuTactic) :: args)
+              ("apply" :: parseablestring_of_name (name_of_string !givenMenuTactic) :: args)
 
         | "assign", name :: value ->
             (try
               let value = parseTactic (respace value) in
-              Japeenv.set (env, namefrom name, value);
+              Japeenv.set (env, name_of_string name, value);
               resetcaches ();
               default
             with
@@ -1301,7 +1301,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "tellinterface", name :: interfacecommand ->
             (* Evaluate a variable name; construct a string for the interface *)
             let str =
-              match Japeenv.(<@>) env (namefrom name) with
+              match Japeenv.(<@>) env (name_of_string name) with
                 Some t -> termstring t
               | None -> ""
             in
@@ -1537,10 +1537,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             end
 
         | "showproof", stuff ->
-            let name = namefrom (respace stuff) in
+            let name = name_of_string (respace stuff) in
             begin match proofnamed name with
               None ->
-                showAlert ["No stored proof of "; namestring name];
+                showAlert ["No stored proof of "; string_of_name name];
                 default
             | Some (_, tree, provisos, givens, _, disproofopt) ->
                 let proofstate =
@@ -1673,20 +1673,20 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "addnewconjecture", panel :: text ->
             begin try
-              let panel = namefrom panel in
+              let panel = name_of_string panel in
               let name = addnewconjecture panel text in
-              Japeserver.selectpanelentry (namestring panel) (namestring name);
+              Japeserver.selectpanelentry (string_of_name panel) (string_of_name name);
               default
             with
               AddConjecture_ -> default
             end
 
         | "prove", comm ->
-            let name = namefrom (respace comm) in
+            let name = name_of_string (respace comm) in
             if match proofnamed name with
                  Some (proved, tree, provisos, givens, disproved, disproofopt) ->
                    screenquery
-                     [namestring name;
+                     [string_of_name name;
                       if proved then " is already a theorem" else " is already disproved"; (* WRONG *)
                       ".\nDo you want to start a new proof?"]
                      "Yes" "No" 1
@@ -1696,6 +1696,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             else default
 
         | "proveconjecture", comm ->
+            (* let term = parseTerm (respace comm) in *)
             processcommand thisstate ("prove" :: comm) (* for now *)
             
         | "reset", [] ->
@@ -1712,12 +1713,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             else default
 
         | "profile", ["on"] ->
-            Japeenv.set (env, namefrom "profiling", parseTactic "true");
+            Japeenv.set (env, name_of_string "profiling", parseTactic "true");
             (* achieves profileOn(), I hope *)
             default
 
         | "profile", ["off"] ->
-            Japeenv.set (env, namefrom "profiling", parseTactic "false");
+            Japeenv.set (env, name_of_string "profiling", parseTactic "false");
             (* achieves profileOff(), I hope *)
             default
 
@@ -1848,7 +1849,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 		   | None   -> false) 
               then
                 Alert.askDangerously
-                  ("The proof of " ^ namestring t ^ " is complete - do you want to record it?")
+                  ("The proof of " ^ string_of_name t ^ " is complete - do you want to record it?")
                   ("Record", (fun () -> if endproof n t proofstate disproof 
                                         then closed() else default))
                   ("Don't record", closeOK)
@@ -1862,7 +1863,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             if not fromstore &&
               (not (isTip (proofstate_tree proofstate)) || not (disproof_minimal disproof))
             then (* there is something to save *)
-              if screenquery ["Abandon proof of "; namestring t; "?"] "Abandon" "Cancel" 1
+              if screenquery ["Abandon proof of "; string_of_name t; "?"] "Abandon" "Cancel" 1
               then closeOK() else default
             else (* nothing to save *)
               closeOK()
@@ -1892,7 +1893,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         None_ ->
           raise
             (Catastrophe_
-               ["domb error: variable "; namestring var;
+               ["domb error: variable "; string_of_name var;
                 " in mbs but not in env"])
     in
     match (!mbcache <@> var) with
@@ -1920,7 +1921,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     begin try
       Japeserver.settextselectionmode
         (termstring
-           (_The (Japeenv.(<@>) env (namefrom "textselectionmode"))))
+           (_The (Japeenv.(<@>) env (name_of_string "textselectionmode"))))
     with
       None_ ->
         raise (Catastrophe_ ["textselectionmode not in environment"])

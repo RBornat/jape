@@ -299,7 +299,7 @@ module Tree : Tree with type term = Termtype.term
       why, how, cutnav, args, fmt, hastipval, seq, trs, ress
     let rec step_label =
       function
-        Apply (n, _, _) -> parseablenamestring n
+        Apply (n, _, _) -> parseablestring_of_name n
       | Given (s, _, _) -> s
       | UnRule (s, _) -> s
     let rec step_resolve =
@@ -556,7 +556,7 @@ module Tree : Tree with type term = Termtype.term
                             raise
                               (Catastrophe_
                                  ["deepest_samehyps can't find thing named ";
-                                  namestring name])
+                                  string_of_name name])
                         end
                     | _ -> true)
                 then
@@ -685,13 +685,13 @@ module Tree : Tree with type term = Termtype.term
       function
         Apply a ->
           "Apply" ^
-            triplestring parseablenamestring termliststring string_of_bool "," a
+            triplestring parseablestring_of_name termliststring string_of_bool "," a
       | Given g ->
           "Given" ^
             triplestring (fun s -> s) string_of_int string_of_bool "," g
       | UnRule u ->
           "Unrule" ^
-            pairstring (fun s -> s) (bracketedliststring parseablenamestring ",") "," u
+            pairstring (fun s -> s) (bracketedliststring parseablestring_of_name ",") "," u
     let nsstring = bracketedliststring string_of_int ","
     let rec join_string
       tlf subtreesf (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
@@ -1449,14 +1449,14 @@ module Tree : Tree with type term = Termtype.term
         rpr cs
       in
       let rec justify name =
-        if shortnames then [namestring name]
+        if shortnames then [string_of_name name]
         else
           match thingnamed name with
             Some (Theorem _, _) ->
-              [if proved name then "Theorem" else "Conjecture"; " "; namestring name]
+              [if proved name then "Theorem" else "Conjecture"; " "; string_of_name name]
           | Some (Rule (_, false), _) ->
-              [if proved name then "Derived Rule" else "Conjectured Rule"; " "; namestring name]
-          | _ -> [namestring name]
+              [if proved name then "Derived Rule" else "Conjectured Rule"; " "; string_of_name name]
+          | _ -> [string_of_name name]
       in
       let rec default_reason () =
         match join_how j with

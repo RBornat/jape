@@ -119,7 +119,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
             place
       | _ :: _, Some (Theorem (params, _, _), place) ->
           alert
-            ["replacing theorem "; parseablenamestring name;
+            ["replacing theorem "; parseablestring_of_name name;
              " with derived rule"];
           putitin name
             (Rule ((params, storedprovisos provisos, givens, seq), false))
@@ -140,10 +140,10 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
       | _, cycles ->
           (* no cycles *)
           alert
-            ["can't add proof of "; parseablenamestring name;
+            ["can't add proof of "; parseablestring_of_name name;
              " because it introduces circularity: ";
              liststring
-               (fun bs -> liststring parseablenamestring " uses " bs)
+               (fun bs -> liststring parseablestring_of_name " uses " bs)
                "; and " cycles];
           false
 
@@ -183,13 +183,13 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     | Some GivenPanelkind      -> 
         raise (Catastrophe_ ["proof in GIVENPANEL"])
     | None -> 
-       raise (Catastrophe_ ["proof in unknown panel "; namestring p])
+       raise (Catastrophe_ ["proof in unknown panel "; string_of_name p])
   in
 
   let rec saveproof chan name stage tree provisos givens disproof =
     let rec badthing () =
       raise (Catastrophe_ ["No stored conjecture/derived rule called ";
-                           parseablenamestring name])
+                           parseablestring_of_name name])
     in
     let place =
       match thingnamed name with
@@ -211,7 +211,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
         catelim_prooftree2tactic tree provisos givens
           (catelim_modelstring disproof ss)
       in
-      proofstage2word stage :: " " :: parseablenamestring name ::
+      proofstage2word stage :: " " :: parseablestring_of_name name ::
         (if null params then body
          else
            "\n(" ::
@@ -221,10 +221,10 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     List.iter (output_string chan)
       (match place with
          InMenu m ->
-           menu2word m :: " " :: parseablenamestring m :: "\n" ::
+           menu2word m :: " " :: parseablestring_of_name m :: "\n" ::
              doit ["END\n"]
        | InPanel p ->
-           panel2word p :: " " :: parseablenamestring p :: "\n" ::
+           panel2word p :: " " :: parseablestring_of_name p :: "\n" ::
              doit ["END\n"]
        | InLimbo -> doit [])
 

@@ -34,7 +34,7 @@ let consolereport = Miscellaneous.consolereport
 let enQuote = Stringfuns.enQuote
 let liststring2 = Listfuns.liststring2
 let member = Listfuns.member
-let namestring = Name.namestring
+let string_of_name = Name.string_of_name
 let term_of_string = Termparse.asTactic Termparse.term_of_string
 let termstring = Termstring.termstring
 
@@ -199,4 +199,4 @@ let ( ||-> ) t var = Mappingfuns.(|->) t (Envvar var)
 
 type japeenv = (Name.name, envval) mapping
 
-let string_of_japeenv = Mappingfuns.mappingstring Name.namestring string_of_envval
+let string_of_japeenv = Mappingfuns.mappingstring Name.string_of_name string_of_envval

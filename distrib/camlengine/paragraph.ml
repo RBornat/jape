@@ -94,7 +94,7 @@ exception Use_ (* so-called because it is normally raised by a bad USE "file" *)
        
    (************************************************************************************)
    
-let rec namefromsymbol sy =
+let rec name_of_stringsymbol sy =
   let rec ok v = Some (Name v) in
   match sy with
     ID       (s, _) -> ok s
@@ -112,19 +112,19 @@ let rec namefromsymbol sy =
   | _               -> None
 
 let rec stringfromsymbol sy =
-  match namefromsymbol sy with
+  match name_of_stringsymbol sy with
     Some (Name s) -> Some s
   | None -> None
 
 let rec currsymb_as_name () =
   let sy = let r = currsymb () in scansymb (); r in
-  match namefromsymbol sy with
+  match name_of_stringsymbol sy with
     Some s -> s
   | None   ->
       raise (ParseError_
                ["Identifier or string expected; found "; smlsymbolstring sy])
 
-let currsymb_as_string = namestring <.> currsymb_as_name
+let currsymb_as_string = string_of_name <.> currsymb_as_name
 
 let fSHYID v = SHYID v
   
@@ -598,19 +598,19 @@ let rec checkvalidruleheading report objkind wherekind =
       begin match split (fun v -> member (v, bodyvars)) vs with
         [], _ ->
           showInputError report
-            [place; " "; objkind; " "; namestring name; " "; has; " ";
+            [place; " "; objkind; " "; string_of_name name; " "; has; " ";
              add_an_s "variable" (List.length vs > 1); " ";
              liststring2 termstring ", " " and " vs;
              " which ";
              (if List.length vs =1 then "isn't" else "aren't"); " in the "; wherekind; "."]
       | _, [] ->
           showInputError report
-            [place; " "; objkind; " "; namestring name; " "; has;
+            [place; " "; objkind; " "; string_of_name name; " "; has;
              " duplicate "; add_an_s "variable" (List.length vs > 1); " ";
              liststring2 termstring ", " " and " vs; "."]
       | dups, rogues ->
           showInputError report
-            [place; " "; objkind; " "; namestring name; " "; has;
+            [place; " "; objkind; " "; string_of_name name; " "; has;
              " duplicate "; add_an_s "variable" (List.length dups > 1); " ";
              liststring2 termstring ", " " and " dups; ", and also ";
              add_an_s "variable" (List.length rogues > 1); " ";
@@ -820,9 +820,9 @@ and parseMenu report query mproof =
         SHYID "ENTRY" ->
           scansymb ();
           mkentry canstartTerm (fun () -> parseTacticEntry report)
-            "apply " parseablenamestring
+            "apply " parseablestring_of_name
       | SHYID "BUTTON" ->
-          scansymb (); mkentry canstartCommand parseCommand "" namestring
+          scansymb (); mkentry canstartCommand parseCommand "" string_of_name
       | SHYID "RADIOBUTTON" ->
           scansymb ();
           Menustuff (parseRadioButton report query (fun v->Mradiobutton v))
@@ -853,7 +853,7 @@ and parseMenu report query mproof =
       raise Use_
 
 and parseConjectureEntry report =
-  try match namefromsymbol (currsymb()) with
+  try match name_of_stringsymbol (currsymb()) with
         Some _ -> tacticstring (transTactic (asTactic parseTerm EOF))
       | None   ->
           raise (ParseError_ ["conjecture name expected in ENTRY; found ";
@@ -896,7 +896,7 @@ and parsePanel report query panelkind parseEntry entrystarters parastarters =
               SHYID "IS" -> scansymb (); parseEntry report
             | _ ->
                 if canstartTerm (currsymb ()) then parseEntry report
-                else parseablenamestring itemname
+                else parseablestring_of_name itemname
           in
           Panelstuff (Pentry (itemname, item))
       | SHYID "BUTTON" ->
@@ -950,17 +950,17 @@ and parsePanel report query panelkind parseEntry entrystarters parastarters =
            [" or END"]);
       raise Use_
 
-and canstartCommand sy = opt2bool (namefromsymbol sy)
+and canstartCommand sy = opt2bool (name_of_stringsymbol sy)
 
 and parseCommand () =
   (* always protected by canstartCommand *)
   try
-    let f = parseablenamestring (_The (namefromsymbol (currsymb ()))) in
+    let f = parseablestring_of_name (_The (name_of_stringsymbol (currsymb ()))) in
     scansymb();
     if canstartCommand (currsymb ()) then f ^ " " ^ parseCommand ()
     else f
   with
-    None_ ->  raise (Catastrophe_ ["namefromsymbol failed in parseCommand, looking at "; 
+    None_ ->  raise (Catastrophe_ ["name_of_stringsymbol failed in parseCommand, looking at "; 
                                    symbolstring(currsymb())])
 
 and parseHitDef sense =
@@ -1047,7 +1047,7 @@ and parseProof report stage =
     let pros = parseProvisos () in
     let (givens, seq) = parseRulebody () in
     let _ =
-      consolereport ["reading "; proofstage2word stage; " "; namestring n]
+      consolereport ["reading "; proofstage2word stage; " "; string_of_name n]
     in
     let fs =
       match currsymb () with
@@ -1092,7 +1092,7 @@ and parseRules report axiom =
     parseRuleHeading true _AREWORD
   in
   let rec nextname () =
-    let r = (namestring name ^ "'") ^ string_of_int !n in incr n; r
+    let r = (string_of_name name ^ "'") ^ string_of_int !n in incr n; r
   in
   let rec parseRle () =
     RuleDef (parseUnnamedRule report (Some (nextname ())) axiom)

@@ -68,18 +68,18 @@ type pentry = string * string
 let str x = x
 
 let rec checkboxstring c =
-  quadruplestring namestring namestring (pairstring str str ",")
+  quadruplestring string_of_name string_of_name (pairstring str str ",")
     (optionstring str) "," c
 
 let rec radiobuttonstring r =
-  triplestring namestring
-    (bracketedliststring (pairstring namestring str ",") ",")
+  triplestring string_of_name
+    (bracketedliststring (pairstring string_of_name str ",") ",")
     (optionstring str) "," r
 
 let rec menudatastring =
   function
     Mseparator      -> "Mseparator"
-  | Mentry me       -> "Mentry " ^ triplestring namestring (optionstring str) str "," me
+  | Mentry me       -> "Mentry " ^ triplestring string_of_name (optionstring str) str "," me
   | Mcheckbox mc    -> "Mcheckbox " ^ checkboxstring mc
   | Mradiobutton mr -> "Mradiobutton " ^ radiobuttonstring mr
 
@@ -91,10 +91,10 @@ let rec panelbuttoninsertstring =
 
 let rec paneldatastring =
   function
-    Pentry pe -> "Pentry " ^ pairstring namestring str "," pe
+    Pentry pe -> "Pentry " ^ pairstring string_of_name str "," pe
   | Pbutton pb ->
       "Pbutton " ^
-        pairstring namestring
+        pairstring string_of_name
           (bracketedliststring panelbuttoninsertstring ",") "," pb
   (* | Pcheckbox pc -> "Pcheckbox " ^ checkboxstring pc
      | Pradiobutton pr -> "Pradiobutton " ^ radiobuttonstring pr
@@ -164,10 +164,10 @@ let rec addtomenu e es =
   | _          -> addtodata lf vf e es
 
 let rec addmenudata m es =
-  if !menudebug then consolereport ["adding to "; namestring m];
+  if !menudebug then consolereport ["adding to "; string_of_name m];
   match (!menus <@> m) with
     Some (_, contents) -> List.iter (fun e -> contents := addtomenu e !contents) es
-  | None -> raise (Menuconfusion_ ["no menu called "; namestring m; " (addmenudata)"])
+  | None -> raise (Menuconfusion_ ["no menu called "; string_of_name m; " (addmenudata)"])
 
 let rec clearmenudata m =
   match (!menus <@> m) with
@@ -197,7 +197,7 @@ let rec getmenudata m =
      *)
     match doseps es with
       Mseparator :: es' ->
-        if member (namestring m, systemmenus) then Mseparator :: es'
+        if member (string_of_name m, systemmenus) then Mseparator :: es'
         else es'
     | es' -> es'
   in
@@ -238,7 +238,7 @@ let rec addpaneldata p es =
   match (!panels <@> p) with
     Some contents -> List.iter (fun e -> contents := addtopanel e !contents) es
   | None ->
-      raise (Menuconfusion_ ["no panel called "; namestring p; " (addpaneldata)"])
+      raise (Menuconfusion_ ["no panel called "; string_of_name p; " (addpaneldata)"])
 
 let rec clearpaneldata p =
   match (!panels <@> p) with
@@ -253,7 +253,7 @@ let rec getpanelkind p =
 
 let rec getpaneldata p =
     ((!panels <@> p) &~~
-     (let applyname = namefrom "Apply" in
+     (let applyname = name_of_string "Apply" in
         fSome <.> 
         (fun {contents = k, em, bs} ->
             nj_fold (fun ((l, {contents = c}), es) -> Pentry (l, c) :: es)
@@ -270,7 +270,7 @@ let rec clearmenusandpanels () = menus := empty; panels := empty
 
 
 let rec assignvarval var vval =
-  (("assign " ^ parseablenamestring var) ^ " ") ^ vval
+  (("assign " ^ parseablestring_of_name var) ^ " ") ^ vval
 
 let rec menuiter f = List.iter f (getmenus ())
 
@@ -286,7 +286,7 @@ let rec menuitemiter m ef cbf rbf sf =
         (* this will be reset *)
         rbf (List.map (fun (label, vval) -> label, assignvarval var vval) lcs)
   in
-  if !menudebug then consolereport ["reporting on "; namestring m];
+  if !menudebug then consolereport ["reporting on "; string_of_name m];
   match getmenudata m with
     Some (_, es) -> List.iter tran es
   | None -> ()

@@ -113,7 +113,7 @@ let rec catelim_tacticstring sep t tail =
     | HypRoot p -> "(HYPROOT" :: argsep :: trpathexpr p (")" :: tail)
     | SimplePath ns -> trns ns tail
   in
-  let pnstr = parseablenamestring in
+  let pnstr = parseablestring_of_name in
   let rec termsNtac a1 a2 =
     match a1, a2 with
       [], tac -> unSEQ tac tail
@@ -151,11 +151,11 @@ let rec catelim_tacticstring sep t tail =
     | AdHocTac terms -> "JAPE " :: trterms terms tail
     | BindArgTac (term, tactic) -> "LETARGSEL " :: termsNtac [term] tactic
     | BindArgTextTac (name, tactic) ->
-        "LETARGTEXT " :: parseablenamestring name :: argsep ::
+        "LETARGTEXT " :: parseablestring_of_name name :: argsep ::
           unSEQ tactic tail
     | BindConcTac (term, tactic) -> "LETCONC " :: termsNtac [term] tactic
     | BindGoalPathTac (name, tactic) ->
-        "LETGOALPATH " :: parseablenamestring name :: argsep ::
+        "LETGOALPATH " :: parseablestring_of_name name :: argsep ::
           unSEQ tactic tail
     | BindHypTac (term, tactic) -> "LETHYP " :: termsNtac [term] tactic
     | BindHyp2Tac (t1, t2, tactic) ->
@@ -173,7 +173,7 @@ let rec catelim_tacticstring sep t tail =
     | BindRHSTac (term, tactic) -> "LETRHS " :: termsNtac [term] tactic
     | BindGoalTac (term, tactic) -> "LETGOAL " :: termsNtac [term] tactic
     | BindOpenSubGoalTac (name, term, tactic) ->
-        "LETOPENSUBGOAL " :: parseablenamestring name :: argsep ::
+        "LETOPENSUBGOAL " :: parseablestring_of_name name :: argsep ::
           termsNtac [term] tactic
     | BindOpenSubGoalsTac (term, tactic) ->
         "LETOPENSUBGOALS " :: termsNtac [term] tactic
@@ -251,14 +251,14 @@ let rec catelim_tacticstring sep t tail =
     | CommentTac m -> "COMMENT" :: argsep :: catelim_argstring m tail
     | UnifyTac terms -> "UNIFY" :: argsep :: trterms terms tail
     | BadUnifyTac (n1, n2, tac) ->
-        "BADUNIFY" :: argsep :: parseablenamestring n1 :: argsep ::
-          parseablenamestring n2 :: unSEQ tac tail
+        "BADUNIFY" :: argsep :: parseablestring_of_name n1 :: argsep ::
+          parseablestring_of_name n2 :: unSEQ tac tail
     | BadMatchTac (n1, n2, tac) ->
-        "BADMATCH" :: argsep :: parseablenamestring n1 :: argsep ::
-          parseablenamestring n2 :: unSEQ tac tail
+        "BADMATCH" :: argsep :: parseablestring_of_name n1 :: argsep ::
+          parseablestring_of_name n2 :: unSEQ tac tail
     | BadProvisoTac (n1, n2, n3, tac) ->
-        "BADPROVISO" :: argsep :: parseablenamestring n1 :: argsep ::
-          parseablenamestring n2 :: parseablenamestring n3 ::
+        "BADPROVISO" :: argsep :: parseablestring_of_name n1 :: argsep ::
+          parseablestring_of_name n2 :: parseablestring_of_name n3 ::
           unSEQ tac tail
     | UnifyArgsTac -> "UNIFYARGS" :: tail
   in
@@ -359,9 +359,10 @@ let remaptactic env t =
     | UnifyArgsTac -> UnifyArgsTac
   in
   _T t
+
 let tacticform i =
   member
-    (namestring i,
+    (string_of_name i,
      ["ANY"; "ALERT"; "ALT"; "APPLYORRESOLVE"; "ASSIGN"; "CUTIN"; "DO";
       "EVALUATE"; "EXPLAIN"; "EXPLICIT"; "FAIL"; "FLATTEN"; "FOLD";
       "FOLDHYP"; "GIVEN"; "GOALPATH"; "IF"; "IMPLICIT"; "JAPE"; "LAYOUT";
@@ -374,7 +375,9 @@ let tacticform i =
       "UNIFY"; "UNIQUE"; "WHEN"; "WITHARGSEL"; "WITHCONCSEL";
       "WITHCONTINUATION"; "WITHFORMSEL"; "WITHHYPSEL"; "WITHSELECTIONS";
       "WITHSUBSTSEL"; "BADUNIFY"; "BADMATCH"; "BADPROVISO"; "UNIFYARGS"])
+
 exception TacParseError_ of string list
+
 let mustbeSTR term =
   match debracket term with
     Literal (_, String s) -> s
@@ -393,7 +396,7 @@ let tacname term =
 let butnottacticform term =
   let name = tacname term in
   if tacticform name then
-    raise (TacParseError_ [namestring name; " used as tactic name"])
+    raise (TacParseError_ [string_of_name name; " used as tactic name"])
   else name
 
 (* _All tactic applications MUST be Curried.  RB & BS 13/8/93.
@@ -518,7 +521,7 @@ and transTactic tacterm =
            | _  -> SubstTac (_P, vts))
       | t ->
               let (n, ts as parts) = explodeForExecute t in
-              let f = namestring n in
+              let f = string_of_name n in
               let _Bad why = raise (TacParseError_ [termstring t; " -- "; why]) in
               let rec _Assignments =
                 function

@@ -38,13 +38,13 @@ open Termparse
 type name = Nametype.name
  and term = Termtype.term
 
-let namestring (Name s) = s
+let string_of_name (Name s) = s
 let nameorder (Name s1) (Name s2) = s1 < s2
 
 (* this thing ain't cateliminated.  Can you see a way to do it? 
  * I can't: not without a cateliminated explode, and even then ...
  *)
-let rec parseablenamestring =
+let rec parseablestring_of_name =
   fun (Name s) ->
     let rec parsename sy =
       match currsymb () with
@@ -61,7 +61,7 @@ let rec parseablenamestring =
            system what font we want isprint to work in.
          *)
 
-let rec term2name t =
+let rec nameopt_of_term t =
   match t with
     Id (_, v, _)          -> Some (Name (string_of_vid v))
   | Unknown (_, v, _)     -> Some (Name (metachar_as_string ^ string_of_vid v))
@@ -70,7 +70,7 @@ let rec term2name t =
   | _ -> None
 
 (* this is better than disQuote, because it parses the string *)
-let rec namefrom s =
+let rec name_of_string s =
   try
     match tryparse parseTerm s with
       Literal (_, String s) -> Name s

@@ -146,7 +146,7 @@ let rec doProof report query env name stage seq (givens, pros, tac) disproofopt 
     in
     eqbags (uncurry2 (=)) (pros, newpros) ||
     query
-      (["The proof of theorem "; namestring name;
+      (["The proof of theorem "; string_of_name name;
         " didn't generate the provisos that were expected: ";
         " the proof originally had "; showpros pros;
         "; when replayed it had "; showpros newpros;
@@ -159,15 +159,15 @@ let rec doProof report query env name stage seq (givens, pros, tac) disproofopt 
   in
   let rec label () = proofstage2word stage in
   let rec complain ss =
-    report (label () :: " " :: namestring name :: " -- " :: ss)
+    report (label () :: " " :: string_of_name name :: " -- " :: ss)
   in
   let rec checkproof () =
     try
       applyconjectures := true;
-      proving := namefrom "";
+      proving := name_of_string "";
       proofsdone := true;
       match
-        applyLiteralTactic env (parseablenamestring name) initialstate
+        applyLiteralTactic env (parseablestring_of_name name) initialstate
       with
         None ->
           raise
@@ -187,7 +187,7 @@ let rec doProof report query env name stage seq (givens, pros, tac) disproofopt 
       NoProof_ ss -> cleanup (); complain ss; None
     | Tacastrophe_ ss ->
         cleanup ();
-        report ("Error in tactic during " :: label () :: " " :: namestring name :: " -- " :: ss);
+        report ("Error in tactic during " :: label () :: " " :: string_of_name name :: " -- " :: ss);
         None
     | exn -> cleanup (); raise exn
   in

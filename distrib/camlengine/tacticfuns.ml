@@ -155,7 +155,7 @@ let _Oracle = Oracle._Oracle
 (*  --------------------------------------------------------------------- *)
 
 
-let proving = ref (namefrom "")
+let proving = ref (name_of_string "")
 
 let selections
   :
@@ -306,7 +306,7 @@ let rec evalname env arg =
       | _ ->
           raise
             (Tacastrophe_
-               [namestring arg; " evaluates to "; termstring v;
+               [string_of_name arg; " evaluates to "; termstring v;
                 " which is not a valid tactic/rule name"])
 (* it would be nice to have tactical arguments, n'est ce pas?
  * OK then, here goes ... 
@@ -314,7 +314,7 @@ let rec evalname env arg =
 type evaluatedarg = Argstring of name | Argterm of term
 
 let rec striparg t =
-  match term2name t with
+  match nameopt_of_term t with
     Some n -> Argstring n
   | None -> Argterm t
 
@@ -463,11 +463,11 @@ let rec make_remark name args =
     | _ -> (termstring <* args)
   in
   match thingnamed name with
-    None -> respace ("EVALUATE" :: parseablenamestring name :: args)
-  | Some (Rule _, _) -> namestring name
-  | Some (Tactic _, _) -> namestring name
-  | Some (Macro _, _) -> namestring name
-  | Some (Theorem _, _) -> namestring name
+    None -> respace ("EVALUATE" :: parseablestring_of_name name :: args)
+  | Some (Rule _, _) -> string_of_name name
+  | Some (Tactic _, _) -> string_of_name name
+  | Some (Macro _, _) -> string_of_name name
+  | Some (Theorem _, _) -> string_of_name name
 (*  --------------------------------------------------------------------- *)
       
 
@@ -477,7 +477,7 @@ let rec freshenv patterns cxt env =
     function
       (Unknown (_, v, c) as u), (us, cxt, env) ->
         let (cxt', v') = freshVID cxt c v in
-        let uname = _The (term2name u) in
+        let uname = _The (nameopt_of_term u) in
         uname :: us, cxt', (env ++ (uname |-> registerUnknown (v', c)))
     | _, r -> r
   in
@@ -518,12 +518,12 @@ let rec getapplyinfo name args cxt =
     match freshThingtoapply true name cxt args with
       Some (cxt', env, principals, thing) ->
         cxt', (env, principals, thing)
-    | None -> raise (Tacastrophe_ ["Nothing named: "; namestring name])
+    | None -> raise (Tacastrophe_ ["Nothing named: "; string_of_name name])
   with
     Fresh_ ss ->
       raise
         (Tacastrophe_
-           ("in applying " :: parseablenamestring name ::
+           ("in applying " :: parseablestring_of_name name ::
               " to arguments " ::
               bracketedliststring termstring ", " args :: ": " :: ss))
 
@@ -532,13 +532,13 @@ let rec getsubstinfo weaken name argmap cxt =
     match freshThingtosubst weaken name cxt argmap with
       Some (cxt', env, principals, thing) ->
         cxt', (env, principals, thing)
-    | None -> raise (Tacastrophe_ ["Nothing named: "; namestring name])
+    | None -> raise (Tacastrophe_ ["Nothing named: "; string_of_name name])
   with
     Fresh_ ss ->
       raise
         (Tacastrophe_
            ("in substituting rule/theorem/tactic " ::
-              parseablenamestring name :: " with argmap " ::
+              parseablestring_of_name name :: " with argmap " ::
               bracketedliststring (pairstring termstring termstring ",")
                 ", " argmap ::
               ": " :: ss))
@@ -890,7 +890,7 @@ let rec doCUTIN f =
         let (cxt', info) = getapplyinfo cutrule [] cxt in
         match
           apply unifyvarious nofilter takeonlyone [] []
-            (expandstuff cutrule info state) (namestring cutrule) cxt'
+            (expandstuff cutrule info state) (string_of_name cutrule) cxt'
             (withtree state'
                 (set_prooftree_fmt tree' tippath Treeformat.Fmt.neutralformat))
         with
@@ -988,7 +988,7 @@ let rec _CanApply triv name state =
         match
           Applyrule.apply unifyvarious nofilter nofilter [] []
             (preparestuff2apply (expandstuff name stuff state))
-            (namestring name) cxt (getconjecture state)
+            (string_of_name name) cxt (getconjecture state)
         with
           Some rs -> takethelot rs
         | _ -> []
@@ -1019,7 +1019,7 @@ let rec autoStep a1 a2 a3 =
       | cs ->
           let cs = sort (fun (n, _) (n', _) -> nameorder n n') cs in
           let rec showRule (name, (cxt, tree)) =
-            namestring name ::
+            string_of_name name ::
                 ((seqstring <.> rewriteseq cxt <.> sequent) <* subtrees tree)
           in
           match
@@ -1176,7 +1176,7 @@ module Assoccache =
                if !_FINDdebug then
                  consolereport
                    ["allrelevantthings()=";
-                    bracketedliststring parseablenamestring ", " (relevant <| thingnames ())];
+                    bracketedliststring parseablestring_of_name ", " (relevant <| thingnames ())];
                List.exists (associativelaw (registerId (operator, conOperatorClass)))
                            (allrelevantthings ()) 
              let size = 127 
@@ -1564,7 +1564,7 @@ let rootenv = ref empty
 
 let rec tranformals formals =
   try
-      (_The <.> term2name <.> paramvar) <* formals
+      (_The <.> nameopt_of_term <.> paramvar) <* formals
   with
     _The_ ->
       raise
@@ -1585,7 +1585,7 @@ let rec mkenv params args =
 
 let rec mkenvfrommap params argmap =
   let rec mk ((v, t), e) =
-    try (e ++ (_The (term2name v) |-> t)) with
+    try (e ++ (_The (nameopt_of_term v) |-> t)) with
       _The_ ->
         raise (Catastrophe_ ["can't happen mkenvfrommap "; termstring v])
   in
@@ -1595,8 +1595,8 @@ let rec _AQ env term =
   let rec _A =
     function
       App (_, Id (_, v, _), a) -> (if string_of_vid v="QUOTE" then Some (_QU env a) else None)
-    | Id _ as v -> (env <@> _The (term2name v))
-    | Unknown _ as v -> (env <@> _The (term2name v))
+    | Id _ as v -> (env <@> _The (nameopt_of_term v))
+    | Unknown _ as v -> (env <@> _The (nameopt_of_term v))
     | _ -> None
   in
   mapterm _A term
@@ -1636,13 +1636,13 @@ let rec unfix_ConcsOf _ConcsOf n =
     begin
       if !_FOLDdebug then
         consolereport
-          ["_ConcsOf "; namestring n; " (=> ";
+          ["_ConcsOf "; string_of_name n; " (=> ";
            optionstring (thingstring <.> fst)
              (thingnamed n);
            ")"];
       match thingnamed n with
         None ->
-          setReason ["Nothing named "; namestring n; " (in _ConcsOf)"]; []
+          setReason ["Nothing named "; string_of_name n; " (in _ConcsOf)"]; []
       | Some ((Rule ((_, _, _, Seq (_, _, _CS)), _) as t), _) ->
           begin match _CS with
             Collection (_, _, [Element (_, _, _C)]) -> [n, t, _C]
@@ -1657,7 +1657,7 @@ let rec unfix_ConcsOf _ConcsOf n =
           _ConclusionsofTactic (emptyenv ()) (spec, [])
       | Some (Macro (_, spec), _) ->
           setReason
-            ["Only a macro is named "; namestring n; " (in _ConcsOf)"];
+            ["Only a macro is named "; string_of_name n; " (in _ConcsOf)"];
           []
     end
 
@@ -1667,7 +1667,7 @@ and _ConclusionsofTactic env (spec, l) =
       ["_ConclusionsofTactic ...";
        pairstring tacticstring
          (bracketedliststring
-            (triplestring parseablenamestring thingstring termstring ",")
+            (triplestring parseablestring_of_name thingstring termstring ",")
             ",")
          ", " (spec, l)];
   match spec with
@@ -1863,7 +1863,7 @@ let rec trace argstring name args =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
     if !tactictracing then
       consolereport
-        [parseablenamestring name; " "; argstring cxt args;
+        [parseablestring_of_name name; " "; argstring cxt args;
          match goal with
            None -> ""
          | Some path ->
@@ -1899,12 +1899,12 @@ let rec applyBasic
   if currentlyProving name then
     begin
       setReason
-        ["But "; parseablenamestring name;
+        ["But "; parseablestring_of_name name;
          " is what you're trying to prove!"];
       None
     end
   else if not (applyAnyway thing) && lacksProof name then
-    begin setReason [parseablenamestring name; " is unproved"]; None end
+    begin setReason [parseablestring_of_name name; " is unproved"]; None end
   else
     ruler checker filter taker selhyps selconcs
       (expandstuff name stuff state) reason cxt state
@@ -1946,7 +1946,7 @@ let rec tryApplyOrSubst
                 raise
                   (Tacastrophe_
                      ((["can't parse expanded macro-tactic ";
-                        parseablenamestring name; ": "] @
+                        parseablestring_of_name name; ": "] @
                          ss) @
                         [".\nExpanded tactic is "; termstring m]))
           in
@@ -2275,7 +2275,7 @@ and doASSIGN env (s, t) state =
   let t' = eval env t in
   let rec fail ss =
     setReason
-      ("can't ASSIGN (" :: parseablenamestring s :: "," :: termstring t ::
+      ("can't ASSIGN (" :: parseablestring_of_name s :: "," :: termstring t ::
          ") - " :: ss);
     None
   in
@@ -2283,7 +2283,7 @@ and doASSIGN env (s, t) state =
     OutOfRange_ range ->
       fail
         ["argument evaluates to "; termstring t'; "; ";
-         parseablenamestring s; " can only be set to "; range]
+         parseablestring_of_name s; " can only be set to "; range]
   | NotJapeVar_ -> fail ["it isn't a variable in the environment"]
   | ReadOnly_ -> fail ["that variable can't be altered (at the moment)"]
 
@@ -2371,8 +2371,8 @@ and doUNFOLD name display try__ env contn (tactic, laws) =
                  if !_FOLDdebug then
                    consolereport
                      ["_Matches found \""; termstring term;
-                      "\" - now to try "; parseablenamestring tactic;
-                      " and then "; parseablenamestring name];
+                      "\" - now to try "; parseablestring_of_name tactic;
+                      " and then "; parseablestring_of_name name];
                  (tryApply display try__ contn tactic [term] &~
                     tryApply display try__ contn name [])
                    state)))
