@@ -62,12 +62,13 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                    textv  = new Vector(),
                    fromv  = new Vector(),
                    tov    = new Vector();
-
+    
     public WorldItem(WorldCanvas canvas, JFrame window, int x, int y) {
         super(x, y);
         this.canvas = canvas;
-        this.layeredPane = window.getLayeredPane(); this.contentPane = window.getContentPane();
-        x0 = x; y0 = -y;
+        this.layeredPane = window.getLayeredPane();
+        this.contentPane = window.getContentPane();
+        this.x0 = x; this.y0 = -y;
         this.radius = canvas.worldRadius();
         setBounds(x0-radius, y0-radius, 2*radius, 2*radius);
 
@@ -359,6 +360,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                 default:
                     Alert.abort("WorldItem.dragged dragKind="+dragKind);
             }
+            if (dragKind==MoveWorldDrag && canvas.worldCount()==1)
+                canvas.wasteBin.setEnabled(false);
         }
         else {
             if (drag_tracing)
@@ -407,5 +410,6 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         layeredPane.remove(worldImage);
         dragLines.tidy();
         layeredPane.repaint();
+        canvas.wasteBin.setEnabled(true);
     }
 }
