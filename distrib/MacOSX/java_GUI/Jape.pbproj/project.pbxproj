@@ -40,16 +40,15 @@
 				F502FBE7035D88BC01A80116,
 				F5E9EBF203B1E3FF01A80116,
 				F5152729037BD50101A80116,
-				F560AEE2036D797301A80116,
+				7948B0CA0545701A00D70218,
 				F5CC966D03438BFF01A80116,
 				7939B3FD03EEC56000A80117,
 				F516FFB5031F823A01A80117,
 				7990DD7A03D086A200A80117,
+				790A632005441622009D8257,
 				F528CB2A0307C5B501A80116,
 				F51F6C7B0360086701A80116,
 				F58AB2BF0377FD2D01A80116,
-				F58AB2C503780DAC01A80116,
-				F58AB2C203780C4001A80116,
 				F58AB2C80378188901A80116,
 				F57EF912039507ED01A80116,
 				F5E142E0039E1E4001A80116,
@@ -61,8 +60,6 @@
 				797B541C048B47C6001F0D29,
 				F515B6080331D98801A80116,
 				F5F50C890394DDCB01A80116,
-				F560AEE6036D799701A80116,
-				F560AEE7036D799701A80116,
 				F5E2B59F03A7982901A80116,
 				799044D203FD5AC20014D8BC,
 				F51F6C7F036025C101A80116,
@@ -84,6 +81,7 @@
 				7939B40503EEC79800A80117,
 				F5E5E3DE035EE1AC01A80116,
 				F5F50C860394DC6601A80116,
+				79271D12053D8725009A0D38,
 				F592908503728EA101A80117,
 				F515B60B0331D98801A80116,
 				F5152720037BB90501A80116,
@@ -93,19 +91,17 @@
 				F560AEE9036D799701A80116,
 				F515B60C0331D98801A80116,
 				F5EC637A03A0B62D01A80116,
-				F560AEEA036D799701A80116,
 				F5D80C8B036F044901A80116,
+				790A632305441974009D8257,
 				F515B60D0331D98801A80116,
-				F59989060369844F01A80116,
 				F560AEEB036D799701A80116,
 				F556EA5E0366E4B801A80116,
+				79423C9D054547E600F94C40,
 				F563B8B703372EA501A80116,
 				799BE49A0404177B005E27BA,
 				F516FFBB031F827D01A80117,
 				F516FFB9031F825B01A80117,
 				F5E5E3E2035F171101A80116,
-				F5EAC0DB036F473D01A80117,
-				F5EC637D03A0BF7B01A80116,
 				F57E7E00037FBF5401A80116,
 				F5F50C8F0394EBCF01A80116,
 				F54C942A039D03FB01A80116,
@@ -113,6 +109,7 @@
 				F5DFE22903953DAD01A80116,
 				F5152726037BCC1A01A80116,
 				F52B56B1039D210801A80116,
+				79C23A7F053FF9D300DACFD9,
 				F57EF90F039503AE01A80116,
 			);
 			isa = PBXGroup;
@@ -277,6 +274,8 @@
 			<string>Jape</string>
 		</dict>
 	</dict>
+	<key>NSJavaNeeded</key>
+	<string>YES</string>
 	<key>NSJavaPath</key>
 	<array>
 		<string>Jape.jar</string>
@@ -316,21 +315,13 @@
 				F51F6C830360266F01A80116,
 				F556EA5F0366E4B801A80116,
 				F59988FF036976E501A80116,
-				F59989070369844F01A80116,
-				F560AEE3036D797301A80116,
-				F560AEEC036D799701A80116,
-				F560AEED036D799701A80116,
 				F560AEEE036D799701A80116,
 				F560AEEF036D799701A80116,
-				F560AEF0036D799701A80116,
 				F560AEF1036D799701A80116,
 				F50BD28D036EEC3A01A80116,
 				F5D80C8C036F044901A80116,
-				F5EAC0DC036F473D01A80117,
 				F592908603728EA101A80117,
 				F58AB2C00377FD2D01A80116,
-				F58AB2C303780C4001A80116,
-				F58AB2C603780DAC01A80116,
 				F58AB2C90378188901A80116,
 				F515271E037BB83201A80116,
 				F5152721037BB90501A80116,
@@ -356,7 +347,6 @@
 				F526B568039E4A3A01A80116,
 				F569E6B5039FC3DF01A80116,
 				F5EC637B03A0B62D01A80116,
-				F5EC637E03A0BF7B01A80116,
 				F5E2B5A003A7982901A80116,
 				F5E9EBF303B1E3FF01A80116,
 				7990DD7B03D086A200A80117,
@@ -368,6 +358,12 @@
 				799044D303FD5AC20014D8BC,
 				799BE49B0404177B005E27BA,
 				797B541D048B47C6001F0D29,
+				79271D13053D8725009A0D38,
+				790A632A05443E65009D8257,
+				79423C9E054547E600F94C40,
+				79423CA505456E1700F94C40,
+				7948B0CB0545701A00D70218,
+				7948B0CD054574A900D70218,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -427,6 +423,57 @@
 			settings = {
 			};
 		};
+		790A632005441622009D8257 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = DirectedFormulaSelection.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/DirectedFormulaSelection.java;
+			refType = 0;
+		};
+		790A632205441622009D8257 = {
+			fileRef = 790A632005441622009D8257;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		790A632305441974009D8257 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = RectSelection.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/RectSelection.java;
+			refType = 0;
+		};
+		790A632505441974009D8257 = {
+			fileRef = 790A632305441974009D8257;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		790A632A05443E65009D8257 = {
+			fileRef = 790A632005441622009D8257;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79271D12053D8725009A0D38 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = OutlineItem.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/OutlineItem.java;
+			refType = 0;
+		};
+		79271D13053D8725009A0D38 = {
+			fileRef = 79271D12053D8725009A0D38;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79271D14053D8725009A0D38 = {
+			fileRef = 79271D12053D8725009A0D38;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		7939B3FD03EEC56000A80117 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
@@ -480,6 +527,56 @@
 		};
 		7939B40A03EECF4E00A80117 = {
 			fileRef = 7939B40803EECF4E00A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79423C9D054547E600F94C40 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = SelectionIndicator.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/SelectionIndicator.java;
+			refType = 0;
+		};
+		79423C9E054547E600F94C40 = {
+			fileRef = 79423C9D054547E600F94C40;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79423C9F054547E600F94C40 = {
+			fileRef = 79423C9D054547E600F94C40;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79423CA505456E1700F94C40 = {
+			fileRef = 790A632305441974009D8257;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7948B0CA0545701A00D70218 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = CircleSelection.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/CircleSelection.java;
+			refType = 0;
+		};
+		7948B0CB0545701A00D70218 = {
+			fileRef = 7948B0CA0545701A00D70218;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7948B0CC0545701A00D70218 = {
+			fileRef = 7948B0CA0545701A00D70218;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7948B0CD054574A900D70218 = {
+			fileRef = 79C23A7F053FF9D300DACFD9;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -575,6 +672,19 @@
 		};
 		79B2E1EA03EFE81000A80116 = {
 			fileRef = 79B2E1E803EFE81000A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79C23A7F053FF9D300DACFD9 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = WorldSelection.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/WorldSelection.java;
+			refType = 0;
+		};
+		79C23A81053FF9D300DACFD9 = {
+			fileRef = 79C23A7F053FF9D300DACFD9;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -1088,39 +1198,6 @@
 			settings = {
 			};
 		};
-		F560AEE2036D797301A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = ConclusionItem.java;
-			path = ../../java_GUI/ConclusionItem.java;
-			refType = 2;
-		};
-		F560AEE3036D797301A80116 = {
-			fileRef = F560AEE2036D797301A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEE5036D797301A80116 = {
-			fileRef = F560AEE2036D797301A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEE6036D799701A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = HypConcItem.java;
-			path = ../../java_GUI/HypConcItem.java;
-			refType = 2;
-		};
-		F560AEE7036D799701A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = HypothesisItem.java;
-			path = ../../java_GUI/HypothesisItem.java;
-			refType = 2;
-		};
 		F560AEE8036D799701A80116 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -1135,31 +1212,12 @@
 			path = ../../java_GUI/ProtocolConstants.java;
 			refType = 2;
 		};
-		F560AEEA036D799701A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = ReasonItem.java;
-			path = ../../java_GUI/ReasonItem.java;
-			refType = 2;
-		};
 		F560AEEB036D799701A80116 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = SelectableProofItem.java;
 			path = ../../java_GUI/SelectableProofItem.java;
 			refType = 2;
-		};
-		F560AEEC036D799701A80116 = {
-			fileRef = F560AEE6036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEED036D799701A80116 = {
-			fileRef = F560AEE7036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F560AEEE036D799701A80116 = {
 			fileRef = F560AEE8036D799701A80116;
@@ -1173,26 +1231,8 @@
 			settings = {
 			};
 		};
-		F560AEF0036D799701A80116 = {
-			fileRef = F560AEEA036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		F560AEF1036D799701A80116 = {
 			fileRef = F560AEEB036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEF8036D799701A80116 = {
-			fileRef = F560AEE6036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEF9036D799701A80116 = {
-			fileRef = F560AEE7036D799701A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -1205,12 +1245,6 @@
 		};
 		F560AEFB036D799701A80116 = {
 			fileRef = F560AEE9036D799701A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F560AEFC036D799701A80116 = {
-			fileRef = F560AEEA036D799701A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -1386,44 +1420,6 @@
 			settings = {
 			};
 		};
-		F58AB2C203780C4001A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = DisproofHypItem.java;
-			path = ../../java_GUI/DisproofHypItem.java;
-			refType = 2;
-		};
-		F58AB2C303780C4001A80116 = {
-			fileRef = F58AB2C203780C4001A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F58AB2C403780C4001A80116 = {
-			fileRef = F58AB2C203780C4001A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F58AB2C503780DAC01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = DisproofConcItem.java;
-			path = ../../java_GUI/DisproofConcItem.java;
-			refType = 2;
-		};
-		F58AB2C603780DAC01A80116 = {
-			fileRef = F58AB2C503780DAC01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F58AB2C703780DAC01A80116 = {
-			fileRef = F58AB2C503780DAC01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		F58AB2C80378188901A80116 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -1481,25 +1477,6 @@
 			settings = {
 			};
 		};
-		F59989060369844F01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = SelectableItem.java;
-			path = ../../java_GUI/SelectableItem.java;
-			refType = 2;
-		};
-		F59989070369844F01A80116 = {
-			fileRef = F59989060369844F01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F59989090369844F01A80116 = {
-			fileRef = F59989060369844F01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		F59F3D1C033773B101A80116 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -1536,21 +1513,13 @@
 				F51F6C82036025C101A80116,
 				F556EA610366E4B801A80116,
 				F5998901036976E501A80116,
-				F59989090369844F01A80116,
-				F560AEE5036D797301A80116,
-				F560AEF8036D799701A80116,
-				F560AEF9036D799701A80116,
 				F560AEFA036D799701A80116,
 				F560AEFB036D799701A80116,
-				F560AEFC036D799701A80116,
 				F560AEFD036D799701A80116,
 				F50BD28F036EEC3A01A80116,
 				F5D80C8E036F044901A80116,
-				F5EAC0DE036F473D01A80117,
 				F592908803728EA101A80117,
 				F58AB2C10377FD2D01A80116,
-				F58AB2C403780C4001A80116,
-				F58AB2C703780DAC01A80116,
 				F58AB2CA0378188901A80116,
 				F515271F037BB83201A80116,
 				F5152722037BB90501A80116,
@@ -1576,7 +1545,6 @@
 				F526B569039E4A3A01A80116,
 				F569E6B6039FC3DF01A80116,
 				F5EC637C03A0B62D01A80116,
-				F5EC637F03A0BF7B01A80116,
 				F5E2B5A103A7982901A80116,
 				F5E9EBF403B1E3FF01A80116,
 				7990DD7C03D086A200A80117,
@@ -1588,6 +1556,12 @@
 				799044D403FD5AC20014D8BC,
 				799BE49C0404177B005E27BA,
 				797B541E048B47C6001F0D29,
+				79271D14053D8725009A0D38,
+				79C23A81053FF9D300DACFD9,
+				790A632205441622009D8257,
+				790A632505441974009D8257,
+				79423C9F054547E600F94C40,
+				7948B0CC0545701A00D70218,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2070,25 +2044,6 @@
 			settings = {
 			};
 		};
-		F5EAC0DB036F473D01A80117 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = TextSelectableProofItem.java;
-			path = ../../java_GUI/TextSelectableProofItem.java;
-			refType = 2;
-		};
-		F5EAC0DC036F473D01A80117 = {
-			fileRef = F5EAC0DB036F473D01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5EAC0DE036F473D01A80117 = {
-			fileRef = F5EAC0DB036F473D01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		F5EC637A03A0B62D01A80116 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -2104,25 +2059,6 @@
 		};
 		F5EC637C03A0B62D01A80116 = {
 			fileRef = F5EC637A03A0B62D01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5EC637D03A0BF7B01A80116 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = TextSelectableProvisoItem.java;
-			path = ../../java_GUI/TextSelectableProvisoItem.java;
-			refType = 2;
-		};
-		F5EC637E03A0BF7B01A80116 = {
-			fileRef = F5EC637D03A0BF7B01A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5EC637F03A0BF7B01A80116 = {
-			fileRef = F5EC637D03A0BF7B01A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
