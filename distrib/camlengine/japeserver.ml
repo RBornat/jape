@@ -97,15 +97,19 @@ and vis c = if c < " " then "\\" ^ string_of_int (ord c) else c
 
 (* if the server has crashed, input_line may give an exception *)
 let rec readline s = 
-  (flush s; 
+  flush s; 
   let r = (try input_line !infromserver
                  with End_of_file -> deadserver()
                  |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.readline "; s];
                              deadserver())
   in
-  serverresponded := true; r)
+  serverresponded := true; r
 ;;
 
+(* this is a strange bit of code.  I _think_ it converts a space-separated list of numbers
+   into a list of numbers.
+ *)
+ 
 let rec nn_ =
   function
     "-" :: ds -> - dd_ 0 ds
@@ -116,14 +120,14 @@ and dd_ a1 a2 =
     r, [] -> r
   | r, d :: ds -> dd_ (r * 10 + ord d - ord "0") ds
 
-let rec ints readline =
+let rec ints line =
   let rec ff_ a1 a2 a3 =
     match a1, a2, a3 with
       s, r, [] -> nn_ s :: r
     | s, r, " " :: xs -> ff_ [] (nn_ s :: r) xs
     | s, r, x :: xs -> ff_ (x :: s) r xs
   in
-  ff_ [] [] (List.rev (explode readline))
+  ff_ [] [] (List.rev (explode line))
 
 let rec atoi s = nn_ (explode s)
 
@@ -397,14 +401,15 @@ let rec newpanel (name, panelkind) =
   writef "NEWPANEL % %\n" [Str name; Str kind]
 
 let rec panelbutton (name, label, cmd) =
-  let rec ins =
-    function
-      StringInsert s -> "0 \"" ^ s ^ "\""
-    | LabelInsert    -> "1"
-    | CommandInsert  -> "2"
-  in
-  let cmd = String.concat " " (List.map ins cmd) in
-  writef "PANELBUTTON % % %\n" [Str name; Str label; Str cmd]
+  writef "PANELBUTTON % %\n" [Str name; Str label]; 
+  List.iter (fun c -> writef "PANELBUTTONINSERT % %\n"
+                (match c with
+                   StringInsert s -> [Int 0; Str s]
+                 | LabelInsert    -> [Int 1; Str " "]
+                 | CommandInsert  -> [Int 2; Str " "]
+                )
+            ) cmd;
+  writef "PANELBUTTONEND\n" []
 
 let rec panelcheckbox (name, label, prefix) =
   writef "PANELCHECKBOX % % % \n" [Str name; Str label; Str prefix]
