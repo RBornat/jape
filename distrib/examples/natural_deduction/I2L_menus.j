@@ -272,7 +272,7 @@ MACRO ComplainBackward (pattern, stepname, shape) IS
 					)
 				)
 				(LETOPENSUBGOAL G _Pg
-					(Fail	("Error in I2L Jape (open subgoal in ComplainBackward). Tell Richard."))
+					(Fail	("Error in I2L Jape (open subgoal in ComplainBackward [%t] %s [%t]). Tell Richard.",pattern,stepname,shape))
 				)
 				(LETOPENSUBGOALS _Pgs
 					(ALERT	("There is more than one unproved conclusion. Please select one to show \
