@@ -33,9 +33,11 @@ type panelkind = Panelkind.panelkind
  and panelbuttoninsert = Panelkind.panelbuttoninsert
  and name = Name.name
  
+
 let systemmenus = ["File"; "Edit"] (* filth; introduced by RB *)
 
 exception Menuconfusion_ of string list
+
 let menudebug = ref false
 type menudata =
     Mseparator
@@ -52,26 +54,31 @@ type paneldata =
                 (* variable  label  cmd            default cmd *)
 
 type pentry = string * string
+
 let str x = x
+
 let rec checkboxstring c =
   quadruplestring namestring namestring (pairstring str str ",")
     (optionstring str) "," c
+
 let rec radiobuttonstring r =
   triplestring namestring
     (bracketedliststring (pairstring namestring str ",") ",")
     (optionstring str) "," r
+
 let rec menudatastring =
   function
-    Mseparator -> "Mseparator"
-  | Mentry me ->
-      "Mentry " ^ triplestring namestring (optionstring str) str "," me
-  | Mcheckbox mc -> "Mcheckbox " ^ checkboxstring mc
+    Mseparator      -> "Mseparator"
+  | Mentry me       -> "Mentry " ^ triplestring namestring (optionstring str) str "," me
+  | Mcheckbox mc    -> "Mcheckbox " ^ checkboxstring mc
   | Mradiobutton mr -> "Mradiobutton " ^ radiobuttonstring mr
+
 let rec panelbuttoninsertstring =
   function
     StringInsert s -> enQuote s
-  | LabelInsert -> "LABEL"
-  | CommandInsert -> "COMMAND"
+  | LabelInsert    -> "LABEL"
+  | CommandInsert  -> "COMMAND"
+
 let rec paneldatastring =
   function
     Pentry pe -> "Pentry " ^ pairstring namestring str "," pe
@@ -87,12 +94,15 @@ let rec paneldatastring =
  * or addpaneldata
  *)
 
+
 let menus : (name, menudata list ref) mapping ref = ref empty
+
 let panels
   :
   (name, (panelkind * (name, string ref) mapping * paneldata list) ref)
    mapping ref =
   ref empty
+
 let rec addtodata lf vf e es =
   let lsopt = lf e in
   let vopt = vf e in
@@ -117,29 +127,32 @@ let rec addtodata lf vf e es =
     None, None -> e :: es
   | _ ->(* I think this reduces churn *)
      if List.exists conflicts es then insert es else e :: es
+
 let rec addmenu m =
   match at (!menus, m) with
     None -> menus := ( ++ ) (!menus, ( |-> ) (m, ref []))
   | Some _ -> ()
+
 let rec addtomenu e es =
   let rec lf e =
     match e with
-      Mseparator -> None
-    | Mentry (label, _, _) -> Some [label]
+      Mseparator                 -> None
+    | Mentry (label, _, _)       -> Some [label]
     | Mcheckbox (label, _, _, _) -> Some [label]
-    | Mradiobutton (_, lcs, _) -> Some ((fst <* lcs))
+    | Mradiobutton (_, lcs, _)   -> Some ((fst <* lcs))
   in
   let rec vf e =
     match e with
-      Mseparator -> None
-    | Mentry (_, _, _) -> None
-    | Mcheckbox (_, var, _, _) -> Some var
+      Mseparator                 -> None
+    | Mentry (_, _, _)           -> None
+    | Mcheckbox (_, var, _, _)   -> Some var
     | Mradiobutton (var, lcs, _) -> Some var
   in
   if !menudebug then consolereport ["adding "; menudatastring e];
   match e with
     Mseparator -> e :: es
-  | _ -> addtodata lf vf e es
+  | _          -> addtodata lf vf e es
+
 let rec addmenudata m es =
   if !menudebug then consolereport ["adding to "; namestring m];
   match at (!menus, m) with
@@ -148,11 +161,14 @@ let rec addmenudata m es =
       raise
         (Menuconfusion_
            ["no menu called "; namestring m; " (addmenudata)"])
+
 let rec clearmenudata m =
   match at (!menus, m) with
     Some contents -> contents := []
   | None -> ()
+
 let rec getmenus () = dom !menus
+
 let rec getmenudata m =
   let rec doseps =
     function
@@ -178,10 +194,12 @@ let rec getmenudata m =
   in
     at (!menus, m) &~~
     (fSome <*> tidy <*> List.rev <*> (!))
+
 let rec addpanel k p =
   match at (!panels, p) with
     None -> panels := ( ++ ) (!panels, ( |-> ) (p, ref (k, empty, [])))
   | Some _ -> ()
+
 let rec addtopanel e (k, em, bs as stuff) =
   let rec lf e =
     match e with
@@ -204,6 +222,7 @@ let rec addtopanel e (k, em, bs as stuff) =
       | None -> k, ( ++ ) (em, ( |-> ) (label, ref cmd)), bs
       end
   | b -> k, em, addtodata lf vf b bs
+
 let rec addpaneldata p es =
   match at (!panels, p) with
     Some contents -> List.iter (fun e -> contents := addtopanel e !contents) es
@@ -211,14 +230,18 @@ let rec addpaneldata p es =
       raise
         (Menuconfusion_
            ["no panel called "; namestring p; " (addpaneldata)"])
+
 let rec clearpaneldata p =
   match at (!panels, p) with
     Some ({contents = k, _, _} as contents) -> contents := k, empty, []
   | None -> ()
+
 let rec getpanels () =
    (fun (p, {contents = k, _, _}) -> p, k) <* aslist !panels
+
 let rec getpanelkind p =
   at (!panels, p) &~~ (fSome <*> (fun (a,b,c) -> a) <*> (!))
+
 let rec getpaneldata p =
     (at (!panels, p) &~~
      (let applyname = namefrom "Apply" in
@@ -237,21 +260,25 @@ let rec getpaneldata p =
                          [StringInsert "applygiven"; CommandInsert])]
                  | _ -> List.rev bs))
              )))
+
 let rec clearmenusandpanels () = menus := empty; panels := empty
 (***** temporary, for backwards compatibility *****)
 
+
 let rec assignvarval var vval =
   (("assign " ^ parseablenamestring var) ^ " ") ^ vval
+
 let rec menuiter f = List.iter f (getmenus ())
+
 let rec paneliter f = List.iter f (getpanels ())
+
 let rec menuitemiter m ef cbf rbf sf =
   let rec tran e =
     match e with
-      Mseparator -> sf ()
-    | Mentry (label, shortcut, cmd) -> ef (label, shortcut, cmd)
-    | Mcheckbox (var, label, (val1, val2), _) ->
-        cbf (label, assignvarval var val1)
-    | Mradiobutton (var, lcs, _) ->
+      Mseparator                              -> sf ()
+    | Mentry (label, shortcut, cmd)           -> ef (label, shortcut, cmd)
+    | Mcheckbox (var, label, (val1, val2), _) -> cbf (label, assignvarval var val1)
+    | Mradiobutton (var, lcs, _)              ->
         (* this will be reset *)
         rbf (List.map (fun (label, vval) -> label, assignvarval var vval) lcs)
   in
@@ -259,6 +286,7 @@ let rec menuitemiter m ef cbf rbf sf =
   match getmenudata m with
     Some es -> List.iter tran es
   | None -> ()
+
 let rec panelitemiter p ef bf cbf rbf =
   let rec tran e =
     match e with
