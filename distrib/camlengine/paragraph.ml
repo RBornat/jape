@@ -79,10 +79,9 @@ type paragraph =
   | MacroDef of (tacticheading * term)
   | Menu of (bool * name * menupara list)
   | Panel of (name * panelpara list * panelkind)
-  | Proof of
-      (name * proofstage * seq *
-         (seq list * paraparam list * proviso list * tactic) *
-         (seq * model) option)
+  | Proof of (name * proofstage * seq *
+                (seq list * paraparam list * proviso list * tactic) *
+                (seq * model) option)
   | RuleDef of (ruleheading * seq list * seq * bool)
   | RuleGroup of (ruleheading * paragraph list)
   | StructureRule of (string * name)
@@ -98,8 +97,8 @@ exception Use_ (* so-called because it is normally raised by a bad USE "file" *)
 let rec namefromsymbol sy =
   let rec ok v = Some (Name v) in
   match sy with
-    ID      (s, _) -> ok s
-  | UNKNOWN (s, _) -> ok (metachar_as_string ^ s)
+    ID       (s, _) -> ok s
+  | UNKNOWN  (s, _) -> ok (metachar_as_string ^ s)
   | PREFIX        s -> ok s
   | POSTFIX       s -> ok s
   | LEFTFIX       s -> ok s
@@ -121,10 +120,9 @@ let rec currsymb_as_name () =
   let sy = let r = currsymb () in scansymb (); r in
   match namefromsymbol sy with
     Some s -> s
-  | None ->
-      raise
-        (ParseError_
-           ["Identifier or string expected; found "; smlsymbolstring sy])
+  | None   ->
+      raise (ParseError_
+               ["Identifier or string expected; found "; smlsymbolstring sy])
 
 let currsymb_as_string = namestring <.> currsymb_as_name
 
@@ -854,26 +852,34 @@ and parseMenu report query mproof =
            [" or END"]);
       raise Use_
 
+and parseConjectureEntry report =
+  try match namefromsymbol (currsymb()) with
+        Some _ -> tacticstring (transTactic (asTactic parseTerm EOF))
+      | None   ->
+          raise (ParseError_ ["conjecture name expected in ENTRY; found ";
+                              symbolstring (currsymb())])
+  with ParseError_ ss -> showInputError report ss; raise Use_
+  
+and parseConjecturePanel report query =
+  parsePanel report query ConjecturePanelkind parseConjectureEntry
+    ["ENTRY"; "BUTTON" (*; "RADIOBUTTON"; "CHECKBOX"*)]
+    ["THEOREM"; "THEOREMS"; "DERIVED"; "PROOF"; "CURRENTPROOF"]
+
 and parseTacticEntry report =
   try tacticstring (transTactic (asTactic parseTerm EOF)) with
     ParseError_ ss -> showInputError report ss; raise Use_
 
-and parseConjecturePanel report query =
-  parsePanel report query ConjecturePanelkind
-    ["ENTRY"; "BUTTON" (*; "RADIOBUTTON"; "CHECKBOX"*)]
-    ["THEOREM"; "THEOREMS"; "DERIVED"; "PROOF"; "CURRENTPROOF"]
-
 and parseTacticPanel report query =
-  parsePanel report query TacticPanelkind
+  parsePanel report query TacticPanelkind parseTacticEntry
     ["ENTRY"; "BUTTON" (*; "RADIOBUTTON"; "CHECKBOX"*)]
     ["THEORY"; "RULE"; "RULES"; "DERIVED"; "TACTIC"; "THEOREM";
      "THEOREMS"; "PROOF"; "CURRENTPROOF"]
 
 and parseGivenPanel report query =
-  parsePanel report query GivenPanelkind
+  parsePanel report query GivenPanelkind parseTacticEntry
     ["BUTTON" (*; "RADIOBUTTON"; "CHECKBOX"*)] []
 
-and parsePanel report query panelkind entrystarters parastarters =
+and parsePanel report query panelkind parseEntry entrystarters parastarters =
   let starters = entrystarters @ parastarters in
   let entrysymbs = (fSHYID <* entrystarters) in
   let parasymbs = (fSHYID <* parastarters) in
@@ -887,9 +893,9 @@ and parsePanel report query panelkind entrystarters parastarters =
           let itemname = scansymb (); currsymb_as_name () in
           let item =
             match currsymb () with
-              SHYID "IS" -> scansymb (); parseTacticEntry report
+              SHYID "IS" -> scansymb (); parseEntry report
             | _ ->
-                if canstartTerm (currsymb ()) then parseTacticEntry report
+                if canstartTerm (currsymb ()) then parseEntry report
                 else parseablenamestring itemname
           in
           Panelstuff (Pentry (itemname, item))
