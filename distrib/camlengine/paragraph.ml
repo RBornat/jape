@@ -237,21 +237,21 @@ let rec parsenovelsymb message =
       (ParseError_ [smlsymbolstring sy; " shouldn't appear "; message])
   in
   match sy with
-    ID (s, _) -> scansymb (); s
-  | BRA "(" -> bang ()
-  | BRA bra -> scansymb (); bra
-  | SEP s -> scansymb (); s
-  | KET ")" -> bang ()
-  | KET s -> scansymb (); s
-  | INFIX (_, _, s) ->(* |    INFIX(",",_,s)  => bang() *)
-     scansymb (); s
+    ID (s, _)        -> scansymb (); s
+  | BRA "("          -> bang ()
+  | BRA bra          -> scansymb (); bra
+  | SEP s            -> scansymb (); s
+  | KET ")"          -> bang ()
+  | KET s            -> scansymb (); s
+  | INFIX (_, _, s)  -> (* |    INFIX(",",_,s)  => bang() *)
+                        scansymb (); s
   | INFIXC (_, _, s) -> scansymb (); s
   | LEFTFIX (_, bra) -> scansymb (); bra
-  | POSTFIX (_, s) -> scansymb (); s
-  | MIDFIX (_, s) -> scansymb (); s
-  | PREFIX (_, s) -> scansymb (); s
-  | STRING s -> scansymb (); s
-  | sy -> bang ()
+  | POSTFIX (_, s)   -> scansymb (); s
+  | MIDFIX (_, s)    -> scansymb (); s
+  | PREFIX (_, s)    -> scansymb (); s
+  | STRING s         -> scansymb (); s
+  | sy               -> bang ()
 
 let rec parseFixitySYMB () = parsenovelsymb "in a Fixity directive"
 
@@ -338,13 +338,18 @@ let rec processUnifix con =
 
 let processPushSyntax () =
   match currsymb () with
-    STRING s -> pushSyntax s; scansymb ();
-  | s ->
+    STRING s ->  
+      scansymb ();
+      Symbol.pushSyntax s; Termparse.pushSyntax s; Sequent.pushSyntax s
+  | s        ->
       raise
         (ParseError_ ["PUSHSYNTAX expects a string; found: "; smlsymbolstring s])
 
 let processPopSyntax () =
-  popSyntax()
+  Symbol.popSyntax(); Termparse.popSyntax(); Sequent.popSyntax()
+  
+let popAllSyntaxes () =
+  Symbol.popAllSyntaxes(); Termparse.popAllSyntaxes(); Sequent.popAllSyntaxes()
   
 let rec processSubstfix report query =
   substfix := parseNUM ();
