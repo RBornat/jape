@@ -1,11 +1,12 @@
-﻿/* $Id$ */
+/* $Id$ */
+
 CLASS VARIABLE x y z a b c d v i j k m n
 CLASS FORMULA A B C D E F I J K M N  P Q R S T U V 
 CLASS BAG FORMULA Γ
 
 CONSTANT ⊥
 
-PREFIX	10		actual
+PREFIX	10	actual
 
 INFIX 10 L ;
 INFIX 12 L :=
@@ -13,33 +14,31 @@ INFIX 12 L :=
 INFIX 50 L ⊕
 INFIX 60 L ↦
 
-INFIX		100R		→
-INFIX		120L		∨
-INFIX		140L		∧
+INFIX	100R	→
+INFIX	120L	∨
+INFIX	140L	∧
 
-LEFTFIX	180		∀ .
-LEFTFIX	180		∃ .
+LEFTFIX	180	∀ .
+LEFTFIX	180	∃ .
 
-INFIX 300L <   >   ≤   ≥   ≠   =   ≡   ¬≡   
+INFIX	300L	<   >   ≤   ≥   ≠   =   ≡   ¬≡   
 
-INFIX 400 L + -
-INFIX 410 L * div
+INFIX 	400 L	+ -
+INFIX 	410 L	* div
 
-PREFIX	1200		¬
+PREFIX	1200	¬
 
-JUXTFIX	  9000
+JUXTFIX	9000
 
-SUBSTFIX	10000 « E / x  » /* so that { }, [ ] are available for other uses */
+SUBSTFIX	10000 	« E / x  » /* so that { }, [ ] are available for other uses */
 
 BIND x SCOPE P IN ∀x . P
 BIND x SCOPE P IN ∃x . P
 
 SEQUENT IS BAG ⊢ FORMULA
 
-INITIALISE autoAdditiveLeft	true /* allow rules to be stated without an explicit left context */
-INITIALISE interpretpredicates	true /* allow predicate syntax ... */
-
-
+INITIALISE autoAdditiveLeft true /* allow rules to be stated without an explicit left context */
+INITIALISE interpretpredicates true /* allow predicate syntax ... */
 
 OUTFIX { } /* for assertions */
 OUTFIX [ ] /* for indexing */
@@ -53,19 +52,19 @@ INITIALISE hidetransitivity true
 INITIALISE hidereflexivity true
 
 RULES "assign" (OBJECT xx) ARE 
-		FROM Q→R«E/x» INFER {Q} (x:=E) {R}
-AND	FROM Q→R«a⊕I↦E/a» INFER {Q} (a[I]:=E) {R}
+	FROM Q→R«E/x» INFER {Q} (x:=E) {R}
+  AND	FROM Q→R«a⊕I↦E/a» INFER {Q} (a[I]:=E) {R}
 END 
 
 TACTIC ":=" IS
-	LETGOALPATH G
-		(ALT assign (Fail "not an assignment statement")) 
-		(LAYOUT HIDEROOT "→ intro")
-		(LETGOALPATH G1
-			(ALT (SEQ hyp (GOALPATH G) (LAYOUT ":=" ()) (GOALPATH G1) NEXTGOAL)
-				(SEQ (GOALPATH G )(LAYOUT ":=") (GOALPATH G1))
-			)
+  LETGOALPATH G	
+	(ALT assign (Fail "not an assignment statement")) 
+	(LAYOUT HIDEROOT "→ intro")
+	(LETGOALPATH G1
+		(ALT (SEQ hyp (GOALPATH G) (LAYOUT ":=" ()) (GOALPATH G1) NEXTGOAL)
+			(SEQ (GOALPATH G )(LAYOUT ":=") (GOALPATH G1))
 		)
+	)
 
 RULE semicolon(Q) IS FROM { P } P1 { Q } AND  { Q } P2 { R } INFER  { P } (P1; P2) { R }
 
