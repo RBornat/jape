@@ -9,7 +9,7 @@ mkdir jape_$1 jape_$1/jape jape_$1/utf8_encoder
 rsync -rvt jape.source/MacOSX/{Jape.app," README.rtf"} jape.source/camlengine/jape_engine jape_$1/jape
 rsync -rvt jape.source/examples jape_$1
 rsync -rvt jape.source/utf8_encoder/{encoder.jar,README_encoder.txt} jape_$1/utf8_encoder
-rsync -rvt jape.source/License.txt jape_$1
+rsync -rvt jape.source/CommonBuildResources/License.txt jape_$1
 
 
 
