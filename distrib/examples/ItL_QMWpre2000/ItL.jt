@@ -8,5 +8,6 @@ INITIALISE displaystyle box
 
 USE "ItL_syntax.j"
 USE "ItL_rules.j"
+USE "ItL_LF.j"
 USE "ItL_menus.j"
 USE "ItL_problems.j"
