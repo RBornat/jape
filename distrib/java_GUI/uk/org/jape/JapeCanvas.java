@@ -27,6 +27,7 @@
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
@@ -128,6 +129,11 @@ public abstract class JapeCanvas extends ContainerWithOrigin
             v.x -= (getX()+child.getX()); v.y -= (getY()+child.getY()); // oh dear ...
             return v;
         }
+    }
+
+    // when we are in a viewport, minimum size depends on the size of scrollbars -- this is a guess
+    public Dimension getMinimumSize() {
+        return viewport!=null ? new Dimension(80,80) : super.getMinimumSize();
     }
 
     public void clearPane() {
