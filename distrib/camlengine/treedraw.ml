@@ -366,9 +366,8 @@ module M : Screendraw.T with type displayclass = Displayclass.M.displayclass
     let rec print str goal pos proof plan =
       let rgoal = revgoal goal in
       let out = output_string str in
-      let rec outplan p = out "\""; outesc (plan2string p); out "\" "
-      and outesc s = List.iter outch (SML.M.explode s)
-      and outch c = out (match c with "\"" -> "\\\"" | _ -> c) in
+      let outesc = out <*> String.escaped in
+      let rec outplan p = out "\""; outesc (plan2string p); out "\" " in
       let rec outsp n = if n = 0 then () else (out " "; outsp (n - 1)) in
       let rec _D (Treeplan {seqplan = seqplan; reasonplan = reasonplan; linebox = linebox;
 							subplans = subplans; seqbox = seqbox})

@@ -71,7 +71,7 @@
  
  module M :
   sig
-    include Screendraw
+    include Screendraw.T
     val hidecut : bool ref
     val hidehyp : bool ref
     val hidetransitivity : bool ref
@@ -85,19 +85,75 @@
     val boxlinedisplay : string ref
     val boxseldebug : bool ref
     val boxfolddebug : bool ref
-  end =
+  end with type box = Box.M.box
+     and type displayclass = Displayclass.M.displayclass
+     and type 'a hit = 'a Hit.M.hit
+     and type hitkind = Hit.M.hitkind
+     and type pos = Box.M.pos
+     and type size = Box.M.size
+     and type textbox = Box.M.textbox
+     and type tree = Absprooftree.M.tree
+=
   struct
-    open Listfuns
-    open Box
-    open Mappingfuns
-    open Optionfuns
-    open Tree
-    open Text
-    open Draw
-    open Hit
-    open Displayclass
-    open Displayfont
+    open Absprooftree.M
+    open Box.M
+    open Displayclass.M
+    open Displayfont.M
+    open Draw.M
+    open Hit.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Optionfuns.M
+    open SML.M
+    open Term.Termstring
+    open Text.M
+    open Thing.M
     
+	type box = Box.M.box
+     and displayclass = Displayclass.M.displayclass
+     and 'a hit = 'a Hit.M.hit
+     and hitkind = Hit.M.hitkind
+     and pos = Box.M.pos
+     and size = Box.M.size
+	 and term = Term.Funs.term
+     and textbox = Box.M.textbox
+     and tree = Absprooftree.M.tree
+	
+	let hasrelevanttip el t = Prooftree.Tree.Vistree.hasTip t (* for now *)
+	let measurestring f s = Japeserver.M.measurestring(f,s)
+	
+	let consolereport = Miscellaneous.M.consolereport
+	let cuthidingdebug = Prooftree.Tree.cuthidingdebug
+	let element2term = Term.Funs.element2term
+	let enQuote = Stringfuns.M.enQuote
+	let explodebinapp = Term.Funs.explodebinapp
+	let findfirst = Optionfuns.M.findfirst
+	let foldformulae = Miscellaneous.M.foldformulae
+	let isRelation = Thing.M.isRelation
+	let pairstring = Stringfuns.M.pairstring
+	let pathstring = Listfuns.M.bracketedliststring string_of_int ","
+	let quadruplestring = Stringfuns.M.quadruplestring
+	let reasonstring = (fun s -> s)
+	let screenpositiondebug = Miscellaneous.M.screenpositiondebug
+	let seqstring = Sequent.Funs.seqstring
+	let sameresource = Term.Funs.sameresource
+	let textboxstring = Box.M.textboxstring
+	let triplestring = Stringfuns.M.triplestring
+	let truncatereasons = Miscellaneous.M.truncatereasons
+	let turnstiles = Sequent.Funs.syntacticturnstiles
+	let uncurry2 = Miscellaneous.M.uncurry2
+	let _The = Optionfuns.M._The
+
+	let textleading = 3
+	let boxlinewidth = 1
+	let boxvspace = 2
+	let boxhspace = 4
+	let boxleading = 3
+	let reasongap = 4
+	let leftscreengap = 6
+	
+	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+
     let element2textinfo = element2textinfo elementstring_invisbracketed
     let term2textinfo = term2textinfo termstring_invisbracketed
     let outermostbox = ref true
@@ -144,9 +200,9 @@
      * 
      * Suppose that we have a transitivity step
      * 
-     * F=G  G=H
+     * F=G  G=_H
      * --------
-     *   F=H
+     *   F=_H
      *   
      * where neither of the leaves is a further transitivity step.  Then there are
      * four ways in which it might be displayed (all now allowed because we allow
@@ -155,22 +211,22 @@
      * a.   F
      *     ...
      *     = G
-     *     = H  reason
+     *     = _H  reason
      * 
      * b.   F
      *     = G  reason
      *     ...
-     *     = H
+     *     = _H
      *     
      * c.   F
      *     = G  reason
-     *     = H  reason
+     *     = _H  reason
      *     
      * d.   F
      *     ...
      *     = G  
      *     ...
-     *     = H
+     *     = _H
      *     
      * And so on for deeper transitivity stacks.
      * 
@@ -206,13 +262,13 @@
      *       A
      *     = B
      *     = C
-     *     = D
+     *     = _D
      *     = E
      *
-     * then we have proved A=E (root of the stack), A=B, B=C, C=D and D=E, each of which is 
-     * the root of a subtree; but we have also proved A=C, A=D, B=D, B=E and C=E. How do
-     * we gesture at that?  Actually the answer is easy: press on B, drag to D, you've said
-     * B=D.  But that's some way down the line, I think.
+     * then we have proved A=E (root of the stack), A=B, B=C, C=_D and _D=E, each of which is 
+     * the root of a subtree; but we have also proved A=C, A=_D, B=_D, B=E and C=E. How do
+     * we gesture at that?  Actually the answer is easy: press on B, drag to _D, you've said
+     * B=_D.  But that's some way down the line, I think.
      *
      *)
      
@@ -220,7 +276,7 @@
     (* We don't have a special node for identity rules, because those nodes are treated differently in 
      * 'normal' and 'transitive' dependency transformation: it's done with a boolean in LinPT
      * at this stage.  We don't any longer try to find out which kind of cut we have: that's done
-     * on the fly in stage 2.  We still find out if the cut hypothesis is needed in the right tree.
+     * on the fly in stage 2.  We still find out if the cut hypothesis is needed in the right Absprooftree.M.
      * 
      * We do still eliminate reflexive lines here, because transitive stacks get special processing in
      * stage 2, and sometimes eliminating the reflexivity can get rid of the whole stack.  Cuts in 
@@ -253,26 +309,26 @@
       let rec respt (r, pt) = pt in
       let rec pt rp hyps t =
         let why = reason t in
-        let (st, hs, gs) = explode (sequent t) in
+        let (st, hs, gs) = Absprooftree.M.explode (sequent t) in
         let subts = subtrees t in
         let newhyps = ttsub hs hyps in
-        let lprins = fst (tree.matched t) in
-        let rec T hs (n, t) = pt (n :: rp) hs t in
+        let lprins = fst (Absprooftree.M.matched t) in
+        let rec _T hs (n, t) = pt (n :: rp) hs t in
         let rec mkl isid subs =
-          !hidereflexivity && isStructureRulenode t ReflexivityRule,
+          !hidereflexivity && isStructureRulenode t ReflexiveRule,
           LinPT
             (RevPath rp, isid, gs,
              (if prefixwithstile then Some st else None),
              (why &~~ (fun r -> Some (r, lprins, subs))))
         in
         let rec aslines isid =
-          mkl isid (respt <*> T hs) <* numbered subts)
+          mkl isid ((respt <*> _T hs) <* numbered subts)
         in
         let rec boxpt lines =
           false, BoxPT (RevPath rp, true, innerwords, newhyps, lines)
         in
-        let rec hyps seq = snd (explode seq) in
-        let rec concs seq = thrd (explode seq) in
+        let rec hyps seq = snd_of_3 (Absprooftree.M.explode seq) in
+        let rec concs seq = thrd (Absprooftree.M.explode seq) in
         (* The box transformation is applied to anything which has novel lhs elements.
          * The id transformation (aslines true) is applied when it matches, except when the id
          * is the last line of a box (unless the box introduces a single hypothesis and the rest 
@@ -301,8 +357,8 @@
                   concs (sequent a1), ttsub (hyps (sequent a2)) hs
                 with
                   [cc], [ch] ->
-                    let (_, pt1) = T (hs, (0, a1)) in
-                    let (_, pt2) = T ((ch :: hs), (1, a2)) in
+                    let (_, pt1) = _T hs (0, a1) in
+                    let (_, pt2) = _T (ch :: hs) (1, a2) in
                     false,
                     CutPT
                       (RevPath rp, ch, pt1, pt2, hasrelevanttip ch a2,
@@ -320,12 +376,12 @@
                                * I guess layout might make a difference too.
                                *)
                 match
-                  !hidetransitivity && isStructureRulenode t TransitivityRule,
+                  !hidetransitivity && isStructureRulenode t TransitiveRule,
                   gs, subts
                 with
                   true, [c], [a1; a2] ->
-                    let (a1r, a1pt as pt1) = T (hs, (0, a1)) in
-                    let (a2r, a2pt as pt2) = T (hs, (1, a2)) in
+                    let (a1r, a1pt as pt1) = _T hs (0, a1) in
+                    let (a2r, a2pt as pt2) = _T hs (1, a2) in
                     if a1r then pt2
                     else if a2r then pt1
                     else false, TransitivityPT (c, a1pt, a2pt)
@@ -353,9 +409,7 @@
      *)
 
      (* The info which we keep in the drawing plans *)
-    type pathinfo =
-      < path : int list; layoutpath : int list option;
-        prunepath : int list option >
+    type pathinfo = { path : int list; layoutpath : int list option; prunepath : int list option }
     (* include paths in the plan information -- it makes interpreting clicks so much easier *)
     type elementplankind =
         ElementPlan of elementplaninf
@@ -441,14 +495,14 @@
               (optionstring textinfostring) reasoninfostring "," l
       | BoxDep d ->
           "BoxDep" ^
-            quadruplestring (string_of_int : bool -> string)
+            quadruplestring string_of_bool
               (pairstring textinfostring textinfostring ",")
               (bracketedliststring elinfostring ",") dependencystring "," d
       | IdDep i -> "IdDep" ^ pairstring elementstring dependencystring "," i
       | CutDep c ->
           "CutDep" ^
             quadruplestring dependencystring elementstring dependencystring
-              (string_of_int : bool -> string) "," c
+              string_of_bool "," c
       | TranDep t ->
           "TranDep" ^
             triplestring (optionstring textinfostring) elementplaninfostring
@@ -474,21 +528,7 @@
     let rec mkconcplan pi e = pi, e, ConcPlan
     let rec dependency tranreason deadf pt =
       let rec ordinarypi =
-        fun (RevPath rp) ->
-          let module M =
-            struct
-              class a =
-                object
-                  val path = List.rev rp
-                  val layoutpath = None
-                  val prunepath = None
-                  method path = path
-                  method layoutpath = layoutpath
-                  method prunepath = prunepath
-                end
-            end
-          in
-          new M.a
+        fun (RevPath rp) -> {path = List.rev rp; layoutpath = None; prunepath = None}
       in
       (* dealing with subtrees of normal/transformational lines *)
       let rec linsubs pi justopt =
@@ -533,21 +573,7 @@
           let leftp = List.rev (0 :: rp) in
           let rightp = List.rev (1 :: rp) in
           let rec leftdead d con (({path = p} : pathinfo) as pi) el =
-            let up =
-              (let module M =
-                 struct
-                   class a =
-                     object
-                       val path = rightp
-                       val layoutpath = Some leftp
-                       val prunepath = Some leftp
-                       method path = path
-                       method layoutpath = layoutpath
-                       method prunepath = prunepath
-                     end
-                 end
-               in
-               new M.a),
+            let up = {path = rightp; layoutpath = Some leftp; prunepath = Some leftp},
               ch, HypPlan
             in
             (* those leftps were ps and before that leftps ... *)
@@ -555,21 +581,7 @@
           in
           (* the outermost prune path dominates *)
           let rec rightdead d con ({path = p; layoutpath = l} : pathinfo) =
-            deadf d con
-              (let module M =
-                 struct
-                   class a =
-                     object
-                       val path = p
-                       val layoutpath = l
-                       val prunepath = Some rootp
-                       method path = path
-                       method layoutpath = layoutpath
-                       method prunepath = prunepath
-                     end
-                 end
-               in
-               new M.a)
+            deadf d con {path = p; layoutpath = l; prunepath = Some rootp}
           in
           CutDep
             (dependency tranreason (if chneeded then leftdead else ordinary)
@@ -664,43 +676,43 @@
        (* This function produces a single piece of text as its result, which makes it a bit
         * difficult to split it across lines.  Oh well, one day.
         *)
-    let IDr = (string_of_int : lineID -> string)
-    let rec Cr =
+    let _IDr = (string_of_int : lineID -> string)
+    let rec _Cr =
       function
-        LineID l -> IDr l
-      | BoxID (s, f) -> (IDr s ^ "-") ^ IDr f
+        LineID l -> _IDr l
+      | BoxID (s, f) -> (_IDr s ^ "-") ^ _IDr f
       | HypID (l, n) ->(* we never make a BoxID with s=f *)
-         (IDr l ^ ".") ^ string_of_int n
+         (_IDr l ^ ".") ^ string_of_int n
       | NoID ->(* we never make a HypID with l=0 *)
          ""
-    let rec IDstring cids =
-      liststring (fun x -> x) "," ((fun s -> s <> "") <| List.map Cr cids)
+    let rec _IDstring cids =
+      liststring (fun x -> x) "," ((fun s -> s <> "") <| List.map _Cr cids)
     let rec mapn a1 a2 a3 =
       match a1, a2, a3 with
         id, [], hn -> empty
       | id, (h, _) :: elis, hn ->
           ( ++ ) (mapn id elis (hn + 1), ( |-> ) (h, HypID (id, hn)))
-    type fitchstep =
-        FitchLine of
-          < lineID : lineID; elementsbox : textbox;
+    type fitchlinerec = 
+          { lineID : lineID; elementsbox : textbox;
             idplan : displayclass plan;
             elementsplan : elementplankind plan list;
-            reasonplan : reasonplankind plan list >
-      | FitchBox of < outerbox : box; lines : fitchstep list; boxed : bool >
+            reasonplan : reasonplankind plan list }
+    type fitchboxrec = { outerbox : box; boxlines : fitchstep list; boxed : bool }
+     and fitchstep = FitchLine of fitchlinerec
+                   | FitchBox of fitchboxrec
     (* this datatype is included because without it, I get lost in monstrous tuples.
-     * It is the type of information accumulated by (rev)folding the L function (in linearise)
+     * It is the type of information accumulated by (rev)folding the _L function (in linearise)
      * across a list of subtrees.
      *)
-    type lacc =
-        Lacc of
-          < id : lineID; lines : fitchstep list; elbox : box; idW : int;
-            reasonW : int; assW : int >
+    type laccrec = { id : lineID; acclines : fitchstep list; elbox : box; idW : int;
+					 reasonW : int; assW : int }
+    type lacc = Lacc of laccrec
     (* for similar reasons, here is the type of proof layouts *)
-    type layout =
-        Layout of
-          < lines : fitchstep list; colonplan : displayclass plan;
+    type layoutrec =
+          { lines : fitchstep list; colonplan : displayclass plan;
             idmargin : int; bodymargin : int; reasonmargin : int;
-            sidescreengap : int; linethickness : int; bodybox : box >
+            sidescreengap : int; linethickness : int; bodybox : box }
+    type layout = Layout of layoutrec
     (* moved outside for OCaml *)
     type token =
         S of (pos -> displayclass plan)
@@ -715,7 +727,7 @@
         max 1 (thrd (fontinfo ReasonFont))
       in
       let leading = max termfontleading (reasonfontleading) in
-      let linethickness = draw.linethickness leading in
+      let linethickness = Draw.M.linethickness leading in
       let _ = setproofparams "box" linethickness in
       (* done early, so that GUIs can be ready for anything *)
                
@@ -733,7 +745,7 @@
       (* pretty-space at the left of the screen *)                
 
       let transindent = 5 * leading in
-      let (commasize, _ as comminf) = text2textinfo (tree.comma ()) in
+      let (commasize, _ as comminf) = text2textinfo (Absprooftree.M.comma ()) in
       let commaW = tsW commasize in
       let (dotssize, _ as dotsinf) = string2textinfo ReasonFont ". . ." in
       (* In formatting a line, we recognise four elements: 
@@ -786,7 +798,7 @@
           | _ ->
               raise (Catastrophe_ ("getelement (boxdraw) can't parse " :: cs))
         in
-        let fs = String.explode !boxlineformat in
+        let fs = explode !boxlineformat in
         let rec notsep c = c <> "\n" in
         let (ls, rs) =
           takewhile notsep fs,
@@ -827,9 +839,7 @@
                     raise (Catastrophe_ ["foldformula ElementPunctPlan"])
               in
               let estring = catelim_elementstring e [] in
-              let rec measure =
-                fst <*> measurestring TermFont
-              in
+              let measure = fst_of_3 <*> measurestring TermFont in
               let _ =
                 if !boxfolddebug then
                   consolereport
@@ -861,7 +871,7 @@
                 if !boxfolddebug then
                   consolereport ["text is "; textstring text]
               in
-              let (size, _ as textinfo) = draw.measuretext MidBlock text in
+              let (size, _ as textinfo) = Draw.M.measuretext MidBlock text in
               let _ =
                 if !boxfolddebug then
                   consolereport ["textsize is "; textsizestring size]
@@ -906,7 +916,7 @@
         | Some (pi, why, cids), p ->
             let reasonf = textinfo2plan why (ReasonPlan pi) in
             let antesf =
-              textinfo2plan (string2textinfo ReasonFont (IDstring cids))
+              textinfo2plan (string2textinfo ReasonFont (_IDstring cids))
                 ReasonPunctPlan
             in
             if !boxlinedisplay = "right" then
@@ -934,7 +944,7 @@
          *)
         let (elementsplan, elementsbox) = elf origin in
         let elementssize = tbSize elementsbox in
-        let (idsize, _ as idinfo) = string2textinfo ReasonFont (IDr id) in
+        let (idsize, _ as idinfo) = string2textinfo ReasonFont (_IDr id) in
         let idplan =
           textinfo2plan idinfo DisplayPunct (rightby (origin, - tsW idsize))
         in
@@ -942,7 +952,7 @@
         let (reasonplan, reasonbox) = reasonf origin in
         let reasonsize = tbSize reasonbox in
         let linesize = ( +-+ ) (( +-+ ) (elementssize, reasonsize), idsize) in
-        (* just to get A, D *)
+        (* just to get A, _D *)
         let bigelementspos = downby (topleftpos, tsA linesize) in
         let bigsize =
           textsize
@@ -951,50 +961,13 @@
         in
         let bigelementsbox = textbox (bigelementspos, bigsize) in
         FitchLine
-          (let module M =
-             struct
-               class a =
-                 object
-                   val lineID = id
-                   val elementsbox = bigelementsbox
-                   val idplan = idplan
-                   val elementsplan = elementsplan
-                   val reasonplan =
-                     if !boxlinedisplay = "right" then reasonplan
-                     else ljreasonplan reasonplan reasonbox
-                   method lineID = lineID
-                   method elementsbox = elementsbox
-                   method idplan = idplan
-                   method elementsplan = elementsplan
-                   method reasonplan = reasonplan
-                 end
-             end
-           in
-           new M.a),
+          {lineID = id; elementsbox = bigelementsbox; idplan = idplan; elementsplan = elementsplan; 
+           reasonplan = if !boxlinedisplay = "right" then reasonplan
+						else ljreasonplan reasonplan reasonbox},
         textbox2box bigelementsbox, tsW idsize, tsW reasonsize
       in
       let rec startLacc id pos =
-        Lacc
-          (let module M =
-             struct
-               class a =
-                 object
-                   val id = id
-                   val lines = []
-                   val elbox = box (pos, nullsize)
-                   val idW = 0
-                   val reasonW = 0
-                   val assW = 0
-                   method id = id
-                   method lines = lines
-                   method elbox = elbox
-                   method idW = idW
-                   method reasonW = reasonW
-                   method assW = assW
-                 end
-             end
-           in
-           new M.a)
+        Lacc {id = id; acclines = []; elbox = box (pos, nullsize); idW = 0; reasonW = 0; assW = 0}
       in
       let rec nextpos b leading =
         if isemptybox b then topleft b else downby (botleft b, leading + 1)
@@ -1003,15 +976,9 @@
        *   true means disappear if you like;
        *   false means you are the last line of a box, so disappear iff you refer to the previous line.
        *)
-      let rec L wopt hypmap idok dp =
-        fun
-          (Lacc
-             {id = id;
-              lines = lines;
-              elbox = elbox;
-              idW = idW;
-              reasonW = reasonW;
-              assW = assW} as acc) ->
+      let rec _L wopt hypmap idok dp =
+        fun (Lacc {id = id; acclines = lines; elbox = elbox; 
+				   idW = idW; reasonW = reasonW; assW = assW} as acc) ->
           let rec getIdDep el =
             match mapped sameresource hypmap el with
               Some cid -> cid, acc
@@ -1020,7 +987,7 @@
                   (Catastrophe_
                      ["linearise can't find hypothesis "; elementstring el])
           in
-          let getcid = L (wopt, hypmap, true) in
+          let getcid = _L wopt hypmap true in
           (* convert reasoninfo -- reason and antecedent information -- 
            * to a sequence of lines and a justification (plus pathinfo for later)
            *)
@@ -1046,17 +1013,8 @@
           in
           (* plan a line: mkp does the content *)
           let rec doconcline mkp needsreason (acc, justinf) =
-            let
-              (Lacc
-                 {id = id;
-                  lines = lines;
-                  elbox = elbox;
-                  idW = idW;
-                  reasonW = reasonW;
-                  assW = assW})
-              =
-              acc
-            in
+            let (Lacc {id = id; acclines = lines; elbox = elbox;
+					   idW = idW; reasonW = reasonW; assW = assW}) = acc in
             let eplaninf =
               mkelementsplan mkp (not needsreason || opt2bool justinf)
             in
@@ -1065,27 +1023,8 @@
                 (nextpos elbox textleading)
             in
             id,
-            Lacc
-              (let module M =
-                 struct
-                   class a =
-                     object
-                       val id = _RR id
-                       val lines = line :: lines
-                       val elbox = ( +||+ ) (elbox, ebox)
-                       val idW = max iW (idW)
-                       val reasonW = max rW (reasonW)
-                       val assW = assW
-                       method id = id
-                       method lines = lines
-                       method elbox = elbox
-                       method idW = idW
-                       method reasonW = reasonW
-                       method assW = assW
-                     end
-                 end
-               in
-               new M.a)
+            Lacc {id = _RR id; acclines = line :: lines; elbox = ( +||+ ) (elbox, ebox);
+                  idW = max iW (idW); reasonW = max rW (reasonW); assW = assW}
           in
           (* info to prefix a line with a turnstile *)
           let rec stprefix stopt restf p =
@@ -1101,7 +1040,7 @@
                   | _ -> false)
               then
                 getIdDep el
-              else L (wopt, hypmap, false, lindep, acc)
+              else _L wopt hypmap false lindep acc
           | LinDep (concels, stopt, justopt) ->
               let concels' =
                 match !foldformulae, wopt with
@@ -1152,14 +1091,8 @@
               let rec dohypline =
                 fun
                   ((hypelis : elinfo list),
-                   (hypmap,
-                    Lacc
-                      {id = id;
-                       lines = lines;
-                       elbox = elbox;
-                       idW = idW;
-                       reasonW = reasonW;
-                       assW = assW})) ->
+                   (hypmap, Lacc {id = id; acclines = lines; elbox = elbox;
+								  idW = idW; reasonW = reasonW; assW = assW})) ->
                   let (word, hypmap') =
                     match hypelis with
                       [h] ->
@@ -1183,44 +1116,17 @@
                     | _ -> sW (bSize linebox) + 2 * posX innerpos
                   in
                   hypmap',
-                  Lacc
-                    (let module M =
-                       struct
-                         class a =
-                           object
-                             val id = _RR id
-                             val lines = line :: lines
-                             val elbox =
-                               if null lines then linebox
-                               else ( +||+ ) (elbox, linebox)
-                             val idW = max idW (lineidW)
-                             val reasonW = max reasonW (linereasonW)
-                             val assW = max assW (lineassW)
-                             method id = id
-                             method lines = lines
-                             method elbox = elbox
-                             method idW = idW
-                             method reasonW = reasonW
-                             method assW = assW
-                           end
-                       end
-                     in
-                     new M.a)
+                  Lacc {id = _RR id; acclines = line :: lines;
+						elbox = if null lines then linebox else ( +||+ ) (elbox, linebox);
+						idW = max idW lineidW; reasonW = max reasonW linereasonW;
+						assW = max assW lineassW}
               in
               let (hypmap', (Lacc {id = id'} as acc')) =
                 nj_revfold dohypline hyplines (hypmap, startLacc id innerpos)
               in
-              let
-                (cid,
-                 Lacc
-                   {id = id'';
-                    lines = innerlines;
-                    elbox = innerbox;
-                    idW = idW';
-                    reasonW = reasonW';
-                    assW = assW'})
-                =
-                L (wopt, hypmap', false, dp, acc')
+              let (cid, Lacc {id = id''; acclines = innerlines; elbox = innerbox;
+							  idW = idW'; reasonW = reasonW'; assW = assW'})
+                = _L wopt hypmap' false dp acc'
               in
               let outerbox = bOutset innerbox (size (hindent, vindent)) in
               let cid' =
@@ -1231,43 +1137,11 @@
                 | NoID -> raise (Catastrophe_ ["NoID in BoxDep"])
               in
               cid',
-              Lacc
-                (let module M =
-                   struct
-                     class a =
-                       object
-                         val id = id''
-                         val lines =
-                           FitchBox
-                             (let module M =
-                                struct
-                                  class a =
-                                    object
-                                      val outerbox = outerbox
-                                      val lines = innerlines
-                                      val boxed = boxed
-                                      method outerbox = outerbox
-                                      method lines = lines
-                                      method boxed = boxed
-                                    end
-                                end
-                              in
-                              new M.a) ::
-                             lines
-                         val elbox = ( +||+ ) (elbox, outerbox)
-                         val idW = idW (idW')
-                         val reasonW = max reasonW (reasonW')
-                         val assW = max assW (assW')
-                         method id = id
-                         method lines = lines
-                         method elbox = elbox
-                         method idW = idW
-                         method reasonW = reasonW
-                         method assW = assW
-                       end
-                   end
-                 in
-                 new M.a)
+              Lacc {id = id'';
+                    acclines = 
+                      FitchBox {outerbox = outerbox; boxlines = innerlines; boxed = boxed} :: lines;
+                    elbox = ( +||+ ) (elbox, outerbox); idW = max idW (idW');
+                    reasonW = max reasonW (reasonW'); assW = max assW (assW')}
           | CutDep (ldp, cutel, rdp, tobehidden) ->
               (* this is where we hide cut hypotheses completely, if asked.  If the lhs is a single 
                * line, with some antecedents, we replace references to the cut formula by reference 
@@ -1296,8 +1170,7 @@
                 | true, _ -> noway ()
                 | _ -> leftdefault ()
               in
-              L (wopt, ( ++ ) (hypmap, ( |-> ) (cutel, cutelid)), idok, rdp,
-                 acc')
+              _L wopt (( ++ ) (hypmap, ( |-> ) (cutel, cutelid))) idok rdp acc'
           | TranDep (stopt, terminf, tdeps) ->
               (* In the first phase we just accumulate all the justification info, generating
                * the antecedent lines.
@@ -1362,51 +1235,18 @@
           sidescreengap
       in
       let rec answer =
-        fun
-          (Lacc
-             {lines = lines;
-              elbox = elbox;
-              idW = idW;
-              reasonW = reasonW;
-              assW = assW}) ->
-          Layout
-            (let module M =
-               struct
-                 class a =
-                   object
-                     val lines = lines
-                     val colonplan = colonplan
-                     val idmargin = idmargin idW reasonW
-                     val bodymargin = leftmargin idW reasonW
-                     val reasonmargin = reasonmargin lines idW reasonW elbox
-                     val sidescreengap = sidescreengap
-                     val linethickness = linethickness
-                     val bodybox = elbox
-                     method lines = lines
-                     method colonplan = colonplan
-                     method idmargin = idmargin
-                     method bodymargin = bodymargin
-                     method reasonmargin = reasonmargin
-                     method sidescreengap = sidescreengap
-                     method linethickness = linethickness
-                     method bodybox = bodybox
-                   end
-               end
-             in
-             new M.a)
+        fun (Lacc {acclines = lines; elbox = elbox; idW = idW; reasonW = reasonW; assW = assW}) ->
+          Layout {lines = lines; colonplan = colonplan; idmargin = idmargin idW reasonW;
+                  bodymargin = leftmargin idW reasonW; 
+                  reasonmargin = reasonmargin lines idW reasonW elbox;
+                  sidescreengap = sidescreengap; linethickness = linethickness;
+                  bodybox = elbox}
       in
       (* we do it once, then see if we might be able to make it smaller *)
       let startacc = startLacc 1 origin in
-      let
-        (_,
-         (Lacc
-            {elbox = elbox;
-             idW = idW;
-             reasonW = reasonW;
-             assW = assW;
-             lines = lines} as firstlayout))
-        =
-        L (None, empty, false, dp, startacc)
+      let (_, (Lacc {elbox = elbox; idW = idW; reasonW = reasonW; assW = assW; acclines = lines} 
+			   as firstlayout))
+        = _L None empty false dp startacc
       in
       (* body of linearise *)
       if extras lines idW reasonW + boxW elbox > screenwidth &&
@@ -1420,17 +1260,17 @@
               ["trying again, width "; string_of_int maxbestW; "; screenwidth ";
                string_of_int screenwidth]
         in
-        answer (snd (L (Some maxbestW, empty, false, dp, startacc)))
+        answer (snd (_L (Some maxbestW) empty false dp startacc))
       else answer firstlayout
     (* linearise *)(* desperation ...
-    fun IDstring id =
+    fun _IDstring id =
       case id of
-       LineID l     => "LineID "^IDr l
-     | BoxID(s,f)   => "BoxID("^IDr s^","^IDr f^")"
-     | HypID(id, n) => "HypID("^IDr id^","^string_of_int n^")"
+       LineID l     => "LineID "^_IDr l
+     | BoxID(s,f)   => "BoxID("^_IDr s^","^_IDr f^")"
+     | HypID(id, n) => "HypID("^_IDr id^","^string_of_int n^")"
     ... end desperation *)
 
-    let rec BoxLayout screenwidth t =
+    let rec _BoxLayout screenwidth t =
       let pt = pretransform (List.length (turnstiles ()) <> 1) t in
       let procrustean_reasonW = max 100 (screenwidth / 10) in
       let tranreason =
@@ -1440,7 +1280,7 @@
       in
       let dp = dependency tranreason ordinary pt in
       linearise screenwidth procrustean_reasonW dp
-    (* BoxLayout *)(* The emphasis (blacken/greyen) stuff is pretty confused.  
+    (* _BoxLayout *)(* The emphasis (blacken/greyen) stuff is pretty confused.  
      *
      * It seems we need to do several things:
      *
@@ -1450,7 +1290,7 @@
      *
      * 2. When selecting a hypothesis, greyen all conclusions except those which use this
      * hypothesis, and all hypotheses which aren't available in the same lhs as this one,
-     * somewhere in the tree.
+     * somewhere in the Absprooftree.M.
      *
      * 3. When a conclusion line is selected _after_ a hypothesis, only grey, don't blacken.
      * Ditto when a hypothesis is selected after a conclusion.
@@ -1463,15 +1303,9 @@
     let rec elementsin ps =
       List.length ((iselementkind <*> planinfo) <| ps)
     let rec draw goalopt p proof =
-      fun
-        (Layout
-           {lines = lines;
-            colonplan = colonplan;
-            idmargin = idmargin;
-            bodymargin = bodymargin;
-            reasonmargin = reasonmargin;
-            bodybox = bodybox;
-            linethickness = linethickness}) ->
+      fun (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
+				   bodymargin = bodymargin; reasonmargin = reasonmargin;
+				   bodybox = bodybox; linethickness = linethickness}) ->
         let idx = posX p + idmargin in
         let reasonx = posX p + reasonmargin in
         let rec samepath a1 a2 =
@@ -1479,7 +1313,7 @@
             path, None -> false
           | path, Some goalpath -> path = goalpath
         in
-        let rec D p line =
+        let rec _D p line =
           match line with
             FitchLine
               {elementsbox = elementsbox;
@@ -1530,7 +1364,7 @@
                 | _ ->
                     raise
                       (Catastrophe_
-                         ["emp in D "; planstring elementplankindstring plan])
+                         ["emp in _D "; planstring elementplankindstring plan])
               in
               let y = posY pdraw in
               let idpos = pos (idx, y) in
@@ -1542,33 +1376,22 @@
                 Some gpath -> List.iter (emp gpath) elementsplan
               | None -> ()
               end
-          | FitchBox {outerbox = outerbox; lines = lines; boxed = boxed} ->
-              if boxed then drawBox (bOffset outerbox p); List.iter (D p) lines
+          | FitchBox {outerbox = outerbox; boxlines = lines; boxed = boxed} ->
+              if boxed then drawBox (bOffset outerbox p); List.iter (_D p) lines
         in
-        drawinproofpane (); List.iter (D (rightby (p, bodymargin))) lines
+        drawinproofpane (); List.iter (_D (rightby (p, bodymargin))) lines
     let rec print str goalopt p proof =
-      fun
-        (Layout
-           {lines = lines;
-            colonplan = colonplan;
-            idmargin = idmargin;
-            bodymargin = bodymargin;
-            reasonmargin = reasonmargin}) ->
+      fun (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
+				   bodymargin = bodymargin; reasonmargin = reasonmargin}) ->
         let rec samepath a1 a2 =
           match a1, a2 with
             path, None -> false
           | path, Some goalpath -> path = goalpath
         in
-        let rec out s = output (str, s) in
-        let rec outplan p = out "\""; outesc (plan2string p); out "\" "
-        and outch c =
-          output
-            (str,
-             (match c with
-                "\"" -> "\\\""
-              | _ -> c))
-        and outesc s = List.iter outch (String.explode s) in
-        let rec D p line =
+		let out = output_string str in
+		let outesc = out <*> String.escaped in
+        let rec outplan p = out "\""; outesc (plan2string p); out "\" " in
+        let rec _D p line =
           match line with
             FitchLine
               {idplan = idplan;
@@ -1582,30 +1405,26 @@
               out "(BECAUSE ";
               List.iter outplan reasonplan;
               out "))\n"
-          | FitchBox {outerbox = outerbox; lines = lines; boxed = boxed} ->
+          | FitchBox {outerbox = outerbox; boxlines = lines; boxed = boxed} ->
               (* DO THIS STUFF LATER
               case goalopt of 
                 Some gpath => List.iter (emp gpath) elementsplan
               | None       => ()
               *)
               if boxed then out "(BOX\n";
-              revapp (D p) lines;
+              revapp (_D p) lines;
               if boxed then out ")\n"
         in
-        revapp (D (rightby (p, bodymargin))) lines
+        revapp (_D (rightby (p, bodymargin))) lines
     let rec pos2hit p =
-      fun
-        (Layout
-           {lines = lines;
-            bodymargin = bodymargin;
-            reasonmargin = reasonmargin})
+      fun (Layout {lines = lines; bodymargin = bodymargin; reasonmargin = reasonmargin})
         hitkind ->
         let _ =
           if !boxseldebug then
             consolereport
               ["pos2hit "; " "; posstring p; " ... "; hitkindstring hitkind]
         in
-        let rec H a1 a2 =
+        let rec _H a1 a2 =
           match a1, a2 with
             p,
             FitchLine
@@ -1665,10 +1484,10 @@
                          else None
                      | _ -> None)
                   reasonplan
-          | p, FitchBox {outerbox = outerbox; lines = lines} ->
-              if withinY (p, outerbox) then findfirst (H p) lines else None
+          | p, FitchBox {outerbox = outerbox; boxlines = lines} ->
+              if withinY (p, outerbox) then findfirst (_H p) lines else None
         in
-        findfirst (H (rightby (p, - bodymargin))) lines
+        findfirst (_H (rightby (p, - bodymargin))) lines
     let rec locateHit pos classopt hitkind (p, proof, layout) =
       pos2hit (( +<-+ ) (pos, p)) layout hitkind
       &~~
@@ -1723,7 +1542,7 @@
                      if iselementkind (planinfo plan) then
                        emp plan (( +->+ ) (p', tbPos (plantextbox plan))))
                   elementsplan
-            | FitchBox {outerbox = outerbox; lines = lines} ->
+            | FitchBox {outerbox = outerbox; boxlines = lines} ->
                 List.iter (reemphasise p) lines
           in
           List.iter (reemphasise (rightby (proofpos, bodymargin))) lines
@@ -1780,18 +1599,15 @@
                 validhyp proof el path || okhyps hyps hpath
               in
               let rec blackconc (({path = cpath} : pathinfo), _, _) =
-                stillopen Proof cpath && okhyps hyps cpath
+                stillopen proof cpath && okhyps hyps cpath
               in
               if match planinfo plan with
                    ElementPlan (_, _, HypPlan as inf) -> blackhyp inf
                  | ElementPlan inf -> blackconc inf
-                 | AmbigElementPlan (up, down) ->
-                     blackconc up || blackhyp down
-                 | ElementPunctPlan ->(* oh this is a can of worms! *)
-                    true
+                 | AmbigElementPlan (up, down) -> blackconc up || blackhyp down
+                 | ElementPunctPlan -> (* oh this is a can of worms! *) true
               then
-                (* can't happen *)
-                blacken
+                (* can't happen *) blacken
               else greyen
             in
             bg emp
@@ -1805,7 +1621,7 @@
                 validhyp proof el cpath
               in
               let rec blackconc (({path = cpath'} : pathinfo), _, _) =
-                stillopen Proof cpath' && okhyps hyps cpath'
+                stillopen proof cpath' && okhyps hyps cpath'
               in
               if match planinfo plan with
                    ElementPlan (_, _, HypPlan as inf) -> blackhyp inf
@@ -1849,7 +1665,7 @@
         let rec p =
           function
             FitchLine {elementsbox = elementsbox} -> Some (tbPos elementsbox)
-          | FitchBox {lines = lines} -> findfirst p lines
+          | FitchBox {boxlines = lines} -> findfirst p lines
         in
         match findfirst p lines with
           Some p -> p
@@ -1880,7 +1696,7 @@
         else
           (* find p such that bOffset box p is in the middle of the screen:
            * that is, such that bPos box +->+ p = midp:
-           * that is, choose p = midp +<-+ bPos box.
+           * that is, choose p = midp +<-+ bPos Box.M.
            * I hope.
            *)
           ( +<-+ )
@@ -1888,7 +1704,7 @@
                (rightby (bPos screen, bodymargin),
                 (sH (bSize screen) - sH (bSize box)) / 2),
              bPos box)
-    let rec layout proof = BoxLayout (sW (bSize (viewBox ())), proof)
+    let rec layout proof = _BoxLayout (sW (bSize (viewBox ()))) proof
     (* This function is used in displaystyle.sml to position a proof.
      * I think it's best if the _conclusion_ box doesn't move.  Otherwise you get into all 
      * kinds of jumpy behaviour.
@@ -1903,7 +1719,7 @@
                 if !screenpositiondebug then
                   consolereport
                     [elementplankindstring plankind; "; "; pathstring path;
-                     "; "; string_of_int (path = epath)];
+                     "; "; string_of_bool (path = epath)];
                 path = epath
             | _ -> false
           in
@@ -1920,36 +1736,41 @@
                     Some elementsbox
                   end
                 else None
-            | FitchBox {lines = lines} -> findfirst search lines
+            | FitchBox {boxlines = lines} -> findfirst search lines
           in
           findfirst search lines
     let rec samelayout =
       fun (Layout {lines = lines}, Layout {lines = lines'}) -> lines = lines'
-    let defaultpos = fst <*> defaultpos
+
+    let defaultpos = fst_of_3 <*> defaultpos
+    
+    let highlight = highlight
+    let viewBox = viewBox
+    let clearView = clearView
   end
 
 (* a bit of desperate debugging ...
 val _ =
-let fun IDstring id =
+let fun _IDstring id =
       case id of
-       LineID l     => "LineID "^IDr l
-     | BoxID(s,f)   => "BoxID("^IDr s^","^IDr f^")"
-     | HypID(id, n) => "HypID("^IDr id^","^string_of_int n^")"
+       LineID l     => "LineID "^_IDr l
+     | BoxID(s,f)   => "BoxID("^_IDr s^","^_IDr f^")"
+     | HypID(id, n) => "HypID("^_IDr id^","^string_of_int n^")"
 in
     consolereport
     ["BL ", string_of_int lastline, 
-     " ", mappingstring elementstring IDstring hypmapin,
+     " ", mappingstring elementstring _IDstring hypmapin,
      " ", bracketedliststring elementstring "," hyps, 
      "; sequent=", seqstring (sequent t),
      "; hs=", bracketedliststring elementstring "," hs, 
      "; gs=", bracketedliststring elementstring "," gs, 
      "; reason=", optionstring reasonstring (reason t),
      "; id=", string_of_int id,
-     "; cids=", bracketedliststring IDstring "," cids,
+     "; cids=", bracketedliststring _IDstring "," cids,
      "; rpath=", pathstring rpath,
-     "; hypmap=", mappingstring elementstring IDstring hypmap,
+     "; hypmap=", mappingstring elementstring _IDstring hypmap,
      "; thinnedL=", bracketedliststring elementstring "," thinnedL,
-     "; prinids=", bracketedliststring IDstring "," prinids
+     "; prinids=", bracketedliststring _IDstring "," prinids
      ]
 end
 *)
