@@ -96,4 +96,11 @@ public class AnnotatedTextComponent extends TextComponent {
 		c==lockket ? ")KCOL*" :
 		String.valueOf(c);
     }
+    
+    public String toString() {
+	String s = "AnnotatedTextComponent[pxwidth="+pxwidth+", "+annotlen+":\"";
+	for (int i=0; i<annottext.length(); i++)
+	    s = s+annotatedString_of_char(annottext.charAt(i));
+	return s+"\", "+super.toString()+"]";
+    }
 }

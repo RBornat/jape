@@ -41,4 +41,8 @@ public class TextComponent {
 	this.printlen = printtext.length();
 	this.font = JapeFont.getFont(fontnum);
     }
+    public String toString() {
+	return  "TextComponent["+offX+","+offY+" "+fontnum+" "+
+	                       printlen+":"+JapeUtils.enQuote(printtext)+"]";
+    }
 }
