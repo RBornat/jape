@@ -61,6 +61,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.12  2003/01/11 17:37:09  richard
+     copyright update
+
      Revision 1.11  2002/11/05 19:32:49  richard
      improved version string function
 
@@ -288,7 +291,7 @@
      let cs = Sml.chars_of_string s in
      let cs = Listfuns.dropwhile (function ' ' -> false | _ -> true) cs in
      let cs = Listfuns.dropwhile (fun c -> 'a'<=c && c<='z' || 'A'<=c&&c<='z') (List.tl cs) in
-     let cs = Listfuns.takewhile (function ' ' -> false | _ -> true) cs in
+     let cs = Listfuns.takewhile (function ' ' -> false | '$' -> false | _ -> true) cs in
      if Sml.null cs then get_version "$Date$" else
                          Sml.string_of_chars (List.map (function '_' -> '.' | c -> c) cs)
    let _Version = get_version versionstring
