@@ -38,7 +38,7 @@ public class JapeCharEncoding implements DebugConstants {
     // This is the encoding that allows Konstanz to appear on the MacOS X  screen.
     // I don't really need to use it, but since something similar has to support the Konstanz<->Unicode translation
     // on other platforms, it's useful to find out what it is, and be in control.
-    final static char MacRoman[] = new char [] {
+    /*final static char MacRoman[] = new char [] {
         0x00,   0x01,   0x02,   0x03,   0x04,   0x05,   0x06,   0x07,   0x08,   0x09,   0x0A,   0x0B,   0x0C,   0x0D,   0x0E,   0x0F,
         0x10,   0x11,   0x12,   0x13,   0x14,   0x15,   0x16,   0x17,   0x18,   0x19,   0x1A,   0x1B,   0x1C,   0x1D,   0x1E,   0x1F,
         ' ',    '!',    '"',    '#',    '$',    '%',    '&',    '\'',   '(',    ')',    '*',    '+',    ',',    '-',    '.',    '/',
@@ -63,7 +63,7 @@ public class JapeCharEncoding implements DebugConstants {
      // srepma, fishta, blksq,  lowquot,exists, stiboth,stile,  arrow,  forall, equiv,  lrarrow,logor,  Lambda, models, forces, union
         0xF8FF, 0x00D2, 0x00DA, 0x00DB, 0x00D9, 0x0131, 0x02C6, 0x02DC, 0x00AF, 0x02D8, 0x02D9, 0x02DA, 0x00B8, 0x02DD, 0x0328, 0x02C7
      // bimodel,tildop, aleph,  Ucircm, times,  sqgee,  whsqua, eqdef,  prep,   dot,    hook,   lambda, cedilla,2acute, ogonek, caron
-    };
+    };*/
     
     // 21DD is rightwards squiggle arrow (should be turnstile with tilde as horizontal)
     final static char KonstanzUnicode[] = new char[] {
@@ -355,25 +355,6 @@ public class JapeCharEncoding implements DebugConstants {
         return buf.toString();
     }
 
-    // a temporary hack, while MacOS doesn't do font fallback
-    public static String trueUnicode(String s) {
-        if (Jape.onMacOS) {
-            String asc = toAscii(s);
-            int len = s.length();
-            StringBuffer buf = new StringBuffer(len);
-            for (int i=0; i<len; i++) {
-                char c = asc.charAt(i);
-                if (c>0x7f) // ignore septets -- allows encoding when the encoder isn't quite ready
-                    c = unicoding[c];
-                buf.append(c);
-            }
-            return buf.toString();
-        }
-        else {
-            return s;
-        }
-    }
-
     private static String encodingName;
     
     public static void setEncoding(String s) throws ProtocolError {
@@ -385,14 +366,15 @@ public class JapeCharEncoding implements DebugConstants {
             unicoding = LauraUnicode;
         else
             throw new ProtocolError("GUI doesn't know encoding "+s);
-        encoding = Jape.onMacOS ? MacRoman : unicoding;
+        encoding = unicoding;
         if (encoding.length!=0x100)
             Alert.abort("JapeCharEncoding.encode encoding length "+encoding.length);
         toAsc = new PosIntHashMap(0x200);
         for (int i=0; i<0x100; i++) {
             if (toAsc.get(encoding[i])>=0)
                 Alert.abort("Encoding ("+s+") doubly decodes 0x"+Integer.toHexString(encoding[i])+
-                            " [0x"+Integer.toHexString(toAsc.get(encoding[i]))+",0x"+Integer.toHexString(i)+"]");
+                            " [0x"+Integer.toHexString(toAsc.get(encoding[i]))+",0x"+
+                            Integer.toHexString(i)+"]");
             toAsc.set(encoding[i],i);
         }
     }
