@@ -27,9 +27,10 @@
 
 open UTF
 
-type symbol = Symboltype.symbol
+type symbol       = Symboltype.symbol
 and associativity = Symboltype.associativity
-and idclass = Idclass.idclass
+and idclass       = Idclass.idclass
+and ucode         = UTF.ucode
 
 val symboldebug : bool ref
 val enter       : string -> int option -> associativity option -> symbol -> unit
