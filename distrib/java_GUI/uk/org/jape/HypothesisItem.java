@@ -34,6 +34,7 @@ public class HypothesisItem extends SelectableProofItem {
     }
     
     public void clicked(byte eventKind, MouseEvent e) {
+        canvas.getProofWindow().claimProofFocus();
         byte selkind = getSelkind();
         switch (eventKind) {
             case Selection:

@@ -34,6 +34,7 @@ public class HypConcItem extends SelectableProofItem {
     }
 
     public void clicked(byte eventKind, MouseEvent e) {
+        canvas.getProofWindow().claimProofFocus();
         byte newselkind = e.getY()<getHeight()/2 ? ConcSel : HypSel;
         byte oldselkind = selectionRect.getSelkind();
         switch (eventKind) {
