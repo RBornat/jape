@@ -149,6 +149,12 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	setVisible(true);
     }
 
+    protected synchronized void deleteWindowListener() {
+	if (windowListener!=null) {
+	    removeWindowListener(windowListener);
+	    windowListener = null;
+	}
+    }
     protected boolean servesAsControl() { return true; }
 
     public boolean equals(Object o) {
@@ -817,6 +823,11 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    for (int i = 0; i<focusv.size(); i++)
 		((ProofWindow)focusv.get(i)).makeWindowReady();
 	}
+	
+	public synchronized void deleteAllWindowListeners() {
+	    for (int i = 0; i<focusv.size(); i++)
+		((ProofWindow)focusv.get(i)).deleteWindowListener();
+	}
     }
 
     /**********************************************************************************************
@@ -843,8 +854,10 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
     public static void closeproof(int proofnum, boolean report) throws ProtocolError {
 	ProofWindow proof = findProof(proofnum);
-	proof.removeWindowListener(proof.windowListener); // Linux gives us spurious events otherwise
-	proof.windowListener = null;
+	if (report) 
+	    proof.deleteWindowListener();  /* the normal case */
+	else
+	    focusManager.deleteAllWindowListeners(); /* we're closing a theory: nobody peep */
 	proof.closeWindow();
 	focusManager.removeFromfocusv(proof);
 	if (report)

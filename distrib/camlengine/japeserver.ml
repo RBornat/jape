@@ -423,7 +423,7 @@ let rec resettheory () =
 let rec openproof name number =
   writef "OPENPROOF % %\n" [Str name; Int number]
 
-let rec closeproof number report = writef "CLOSEPROOF %\n" [Int number; Bool report]
+let rec closeproof number report = writef "CLOSEPROOF % %\n" [Int number; Bool report]
 
 let rec newmenu proofsonly name =
   if existsmenu name then ()
