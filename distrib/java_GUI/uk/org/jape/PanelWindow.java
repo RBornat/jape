@@ -108,13 +108,16 @@ public class PanelWindow extends JapeWindow implements ActionListener {
             setBar(); // by experiment, seems to be necessary before setVisible
     }
     
-    protected void addEntry(String entry, String cmd) throws ProtocolError {
-        // check for duplicate entries?
-        if (model.indexOf(entry)!=-1)
-            throw new ProtocolError("duplicate entry");
-        model.addElement(entry);
-        entryv.add(entry);
-        cmdv.add(cmd);
+    protected void addEntry(String entry, String cmd) {
+        int i = model.indexOf(entry);
+        if (i==-1) {
+            model.addElement(entry);
+            entryv.add(entry);
+            cmdv.add(cmd);
+        }
+        else {
+            cmdv.setElementAt(cmd, i);
+        }
     }
     
     protected static class PanelButton extends JButton {
