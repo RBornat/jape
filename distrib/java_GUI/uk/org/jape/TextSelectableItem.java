@@ -204,7 +204,7 @@ public class TextSelectableItem extends TextItem {
     }
 
     // should be abstract: this is the ProofCanvas version
-    public String getTextSelectionStrings() {
+    public String getTextSelections() {
         if (textsels==null || textsels.size()==0)
             return null;
         else {
@@ -219,7 +219,7 @@ public class TextSelectableItem extends TextItem {
                 i = t.end;
             }
             b.append(printchars, i, printchars.length-i);
-            return idX+Reply.stringSep+idY+Reply.stringSep+b.toString()+"\n";
+            return b.toString();
         }
     }
 

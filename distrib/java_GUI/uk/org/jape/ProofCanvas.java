@@ -72,8 +72,9 @@ public class ProofCanvas extends JapeCanvas {
             Component c = child.getComponent(i); // oh dear ...
             if (c instanceof TextSelectableItem) {
                 TextSelectableItem sti = (TextSelectableItem)c;
-                String s1 = sti.getTextSelectionStrings();
+                String s1 = sti.getTextSelections();
                 if (s1!=null) {
+                    s1 = sti.idX+Reply.stringSep+sti.idY+Reply.stringSep+s1+"\n";
                     if (s==null)
                         s=s1;
                     else
