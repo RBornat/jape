@@ -1,23 +1,21 @@
 /* $Id$ */
 
-INFIXC	4000R	:
-INFIXC	3000L	++
-INFIXC	2800L	Ѕ
-INFIXC	2900L	Л, є
-OUTFIX	 н о
-
 CLASS VARIABLE v
-CLASS FORMULA C, H, J, P
-CONSTANT none, one, IF, true, false, if, sel, pair,
-	 fst,  snd, id, cat, rcat, rev, rev2, fold,
-	 map,  filter, zip, swap,
-	 monoid, length
+CLASS FORMULA C H J P
+CONSTANT none one IF true false if sel pair fst  snd id cat rcat rev rev2 fold
+	map  filter zip swap monoid length ref ins del move L R
+
+INFIXC	400R	:
+INFIXC	300L		++
+INFIXC	280L		Ѕ
+INFIXC	290L		Л є
+OUTFIX	[ ]
 
 RULE weaken(A) IS FROM B INFER A ц B
 WEAKEN weaken
 
 RULE listinduction (B, OBJECT x, OBJECT xs, OBJECT ys, ABSTRACTION A)  WHERE FRESH x, xs, ys IS
-	FROM  A(но) AND A(нxо) AND A(xs), A(ys) ц A(xs++ys) 
+	FROM  A[] AND A[x] AND A xs, A ys ц A(xs++ys) 
 	INFER  A(B)
 
 THEORY	Function IS
@@ -51,63 +49,62 @@ RULE monoid(F, Z, OBJECT A, OBJECT B, OBJECT C) IS
 	
 THEORY	List IS
 	RULES length 
-	ARE	length но = 0
-	AND	length нXо = 1
+	ARE	length [] = 0
+	AND	length [X] = 1
 	AND	length (Xs++Ys) = length Xs+length Ys
 	END
 	
-	RULE	none IS none X	= но
-	RULE	one IS	one X	= нXо
+	RULE	none IS none X	= []
+	RULE	one IS	one X	= [X]
 
-	RULE	cat IS	cat = fold (++) но
+	RULE	cat IS	cat = fold (++) []
 
 	RULES	rev
-	ARE rev но		= но
-	AND rev нXо		= нX о
+	ARE rev []		= []
+	AND rev [X]		= [X ]
 	AND rev (Xs++Ys)	= rev Ys ++ rev Xs
 	END
 
 	RULES	++
-	ARE но++Ys		= Ys
-	AND Xs++но		= Xs
+	ARE []++Ys		= Ys
+	AND Xs++[]		= Xs
 	AND (Xs++Ys)++ZS	= Xs++(Ys++ZS)
 	END
 
 	RULES	map
-	ARE map F но			= но
-		AND map F нXо		= нF Xо
+	ARE map F []			= []
+		AND map F [X]		= [F X]
 	AND map F (Xs++Ys)	= map F Xs ++ map F Ys
 	END
 
 	RULE filter IS filter P = cat Ѕ map (if P (one, none))
 
 	RULES zip
-	ARE zip(но, но)			= но
-	AND zip(нXо, нYо)			= н(X,Y)о
+	ARE zip([], [])			= []
+	AND zip([X], [Y])			= [(X,Y)]
 	AND	 FROM length Xs = length Ys 
 		INFER zip(Xs++Xs', Ys++Ys') = zip (Xs,Ys)++zip(Xs',Ys')
 	END
 
 	RULES fold 
-	ARE fold F Z но		= Z
-	AND	 fold F Z нXо	= X
+	ARE fold F Z []		= Z
+	AND	 fold F Z [X]	= X
 	AND	 FROM monoid F Z
 		INFER fold F Z (Xs++Ys) = F (fold F Z Xs) (fold F Z Ys)
 	END
 
-	RULE rev2 IS rev2 = fold rcat но Ѕ map one
+	RULE rev2 IS rev2 = fold rcat [] Ѕ map one
 	
 	RULE rcat IS rcat Xs Ys = Ys ++ Xs
 	
-	RULE ":" IS X:Xs = нXо ++ Xs
+	RULE ":" IS X:Xs = [X] ++ Xs
 END
 
-CONSTANT ref, ins, del, move, L, R
 THEORY	Reflect IS
 	RULE	ref		IS	ref					= (revєrev) Ѕ swap
-	RULE	ins		IS	ins X (Xs,Ys)			= (Xs ++ нXо, Ys)
-	RULE	del		IS	del	 (Xs ++ нXо, Ys)		= (Xs, Ys)
-	RULE	move	IS	move (Xs ++ нXо, Ys)	= (Xs, нXо ++ Ys)
+	RULE	ins		IS	ins X (Xs,Ys)			= (Xs ++ [X], Ys)
+	RULE	del		IS	del	 (Xs ++ [X], Ys)		= (Xs, Ys)
+	RULE	move	IS	move (Xs ++ [X], Ys)	= (Xs, [X] ++ Ys)
 	RULE	L		IS	L F					= ref Ѕ F Ѕ ref
 	RULE	R		IS	R F					= F
 END
