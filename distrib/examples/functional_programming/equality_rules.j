@@ -51,7 +51,7 @@ TACTIC Find IS
 	WHEN	(LETARGSEL _A (ALT (FIND _A) (FAIL (Cannot find _A)))) 
 			(FAIL (Please select something to find))
 
-TACTIC Unfold(x) IS LAYOUT "Fold %s" (1) (UNFOLD rewrite	x)
+TACTIC Unfold(x) IS LAYOUT "Fold %s" (1) (UNFOLD rewrite x)
 
 TACTIC UnfoldOneSel(x) IS
 	WHEN	(LETSUBSTSEL _A (LAYOUT "Fold %s" (1) (WITHSUBSTSEL rewrite)) x)
@@ -65,7 +65,7 @@ TACTIC FoldOneSel(x) IS
 			(LETARGSEL _A (FAIL (The formula you selected (_A) is not a proper subformula)))
 			(FAIL (Please text-select an expression))
 
-TACTIC "rewrite with hypothesis"  IS
+TACTIC "Unfold/Fold with hypothesis"  IS
 	WHEN 
 		(LETHYP _A
 			(WHEN	
@@ -75,7 +75,10 @@ TACTIC "rewrite with hypothesis"  IS
 						(FAIL (hypothesis _A doesn't fit sub-formula _C))
 					)
 				)
-				(FAILREASON (please text-select a sub-formula, or sub-formulae, of a conclusion))
+				(ALT	(SEQ rewrite (WITHHYPSEL hyp))
+					(SEQ rewritebackwards (WITHHYPSEL hyp))
+					(LETGOAL _B (FAIL (hypothesis _A doesn't rewrite conclusion _B)))
+				)
 			)
 		)
 		(FAIL (please select a hypothesis))
