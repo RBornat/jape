@@ -316,25 +316,17 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     }
 
     public static String procrustes(int width, String s, String ellipsis, byte fontnum) {
-	TextDimension sd = measure(s, fontnum);
 	TextDimension se = measure(ellipsis, fontnum);
-	
-	if (sd.width<=width) return s;
 	
 	/* find split by binary chop -- oh dear! */
 	char[] cs = s.toCharArray();
-	int i = 0, j = cs.length, w = sd.width-se.width;
+	int i = 0, j = cs.length, w = width-se.width;
 	
-	while (i<j) {
+	while (i+1<j) {
 	    int k = (i+j)/2;
 	    int wk = charsWidth(cs, 0, k, fontnum);
-	    if (wk<width) i=k+1;
-	    else
-	    if (wk>width) j=k;
-	    else {
-		i=k; break;
-	    }
-		
+	    if (wk<w) i=k;
+	    else      j=k;
 	}
 	return (new String(cs, 0, i)+ellipsis);
     }
