@@ -260,11 +260,12 @@ MENU Programs
                                     "variable-assignment"
                                     "{A}(x:=E){B}"
     ENTRY "array-element-assignment"
-                    IS BackwardOnlyA (QUOTE ({_A} (_Ea[_Ei] := _E) {_B}))
-                                    (perhapsconsequenceL (SEQ "array-element-assignment " simpl simpl))
+                    IS BackwardOnlyA (QUOTE ({_A} (_a[_E] := _F) {_B}))
+                                    (perhapsconsequenceL 
+                                      (QUOTE (LETGOAL ({_A} (_a[_E] := _F) {_B}) 
+                                                "array-element-assignment" ("length_simpl" _a _E _F) simpl simpl)))
                                     "array-element-assignment"
-                                    "{A}(Ea[Ei]:=E){B}"
-                                    "only makes sense working backwards"
+                                    "{A}(a[E]:=F){B}"
     ENTRY "choice"  IS BackwardOnlyA (QUOTE ({_A} if _E then _C1 else _C2 fi {_B}))
                                     (perhapsconsequenceL (SEQ "choice" simpl fstep fstep))
                                     "choice"
@@ -317,6 +318,14 @@ TACTICPANEL Comparison
  */
     BUTTON  "A≜…"   IS apply rewriteL2R "rewrite≜"  "symmetric≜"  COMMAND
     BUTTON  "…≜B"   IS apply rewriteR2L "rewrite≜"  "symmetric≜"  COMMAND
+END
+
+TACTICPANEL Indexing
+    RULE IS FROM E=G INFER (A⊕E↦F)[G]=F
+    RULE IS FROM E≠G INFER (A⊕E↦F)[G]=A[G]
+
+    BUTTON  "A≜…"   IS apply rewriteL2R "rewrite="  "symmetric="  COMMAND
+    BUTTON  "…≜B"   IS apply rewriteR2L "rewrite="  "symmetric="  COMMAND
 END
 
 MENU "Edit" IS
