@@ -69,7 +69,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
         });
     }
 
-    class LabelImage extends DragComponent {
+    class LabelImage extends DragImage {
         public LabelImage() {
             super(Transparent);
             include(WorldLabel.this); fixImage();
@@ -107,8 +107,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
         else {
             if (drag_tracing)
                 System.err.print("mouse dragged to "+e.getX()+","+e.getY());
-            labelImage.moveTo(labelImage.getX()+(e.getX()-lastx),
-                              labelImage.getY()+(e.getY()-lasty));
+            labelImage.moveBy(e.getX()-lastx, e.getY()-lasty);
             if (drag_tracing)
                 System.err.println("; dragged label now at "+labelImage.getX()+","+labelImage.getY());
             Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);

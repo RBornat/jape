@@ -66,9 +66,9 @@ public class Flyback implements ActionListener, MiscellaneousConstants {
             finishFlyback();
         }
         else {
-            int nextx = lastx+delta(lastx, destx), nexty = lasty+delta(lasty, desty);
-            c.moveTo(nextx, nexty);
-            lastx = nextx; lasty = nexty;
+            int deltax = delta(lastx, destx), deltay = delta(lasty, desty);
+            c.moveBy(deltax, deltay);
+            lastx += deltax; lasty += deltay;
         }
     }
 

@@ -82,7 +82,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
         addMouseMotionListener(mil);
     }
 
-    protected class TileImage extends DragComponent {
+    protected class TileImage extends DragImage {
         public TileImage() {
             super(Transparent); include(Tile.this); fixImage();
         }
@@ -124,8 +124,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
         else {
             if (drag_tracing)
                 System.err.print("mouse dragged to "+e.getX()+","+e.getY());
-            tileImage.moveTo(tileImage.getX()+(e.getX()-lastx),
-                             tileImage.getY()+(e.getY()-lasty));
+            tileImage.moveBy(e.getX()-lastx, e.getY()-lasty);
             if (drag_tracing)
                 System.err.println("; dragged tile now at "+tileImage.getX()+","+tileImage.getY());
             Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
