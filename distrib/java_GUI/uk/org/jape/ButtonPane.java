@@ -111,8 +111,9 @@ public class ButtonPane extends Container implements DebugConstants {
                 int packedwidth = leading;
                 int buttoncount = getComponentCount();
 
-                buttonpanelheight = leading;
-
+                buttonpanelheight = d.height+2*leading;
+                buttonpanelwidth = leading;
+                
                 for (int i=0; i<buttoncount; i++) {
                     Component button = getComponent(i);
                     d = button.getPreferredSize();
@@ -120,11 +121,7 @@ public class ButtonPane extends Container implements DebugConstants {
                     if (buttonlayout_tracing)
                         Logger.log.println(i+": "+d.width+","+d.height);
 
-                    packedwidth += leading+d.width;
-                    buttonpanelwidth = Math.max(packedwidth+leading, buttonpanelwidth);
-
-                    if ((i+1)%minacross==0)
-                        packedwidth = leading;
+                    buttonpanelwidth += leading+d.width;
                 }
             }
             
