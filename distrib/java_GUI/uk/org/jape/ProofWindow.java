@@ -330,7 +330,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 		w = Math.max(w, proofW);
 		h += proofCanvas.getHeight();
 
-		if (provisoCanvas!=null) {
+		if (provisoCanvas!=null && provisoCanvas.getHeight()!=0) {
 		    int provisoW = provisoCanvas.getWidth();
 		    provisoSepY = h+gap; provisoSepWidth = Math.max(proofW, provisoW);
 		    h += gap+sepH+gap;
@@ -425,7 +425,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    proofCanvas.paint(g);
 	    g2D.translate(0, -printSize.proofY);
 
-	    if (provisoCanvas!=null) {
+	    if (provisoCanvas!=null && provisoCanvas.getHeight()!=0) {
 		printSeparator(g2D, printSize.provisoSepY, printSize.provisoSepWidth);
 		g2D.translate(0, printSize.provisoY);
 		provisoCanvas.paint(g);
