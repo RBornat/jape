@@ -90,7 +90,6 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
             }
         });
 
-
         setBar();
         pack();
         setVisible(true);
@@ -134,6 +133,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     public static void closeproof(int proofnum) throws ProtocolError {
         ProofWindow proof = findProof(proofnum);
         focusv.remove(focusv.indexOf(proof));
+        windowv.remove(windowv.indexOf(proof));
         proof.dispose();
         reportFocus();
     }
@@ -224,6 +224,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
                 Alert.abort("ProofWindow.ensureDisproofPane: no triple panes yet");
             }
         }
+        if (disproofPane!=null)
+            disproofPane.makeReady();
     }
     
     public static void makeReady() {
@@ -312,7 +314,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     }
 
     private static SelectableProofItem findProofSelectableXY(int x, int y) throws ProtocolError {
-        SelectableProofItem si = focussedProofWindow(true).proofCanvas.findSelectableXY(x,y);
+        SelectableProofItem si = focussedProofWindow(true).proofCanvas.findSelectable(x,y);
         if (si==null)
             throw new ProtocolError("no selectable proof item at "+x+","+y);
         else
@@ -343,7 +345,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     }
 
     public static void emphasise(int x, int y, boolean state) throws ProtocolError {
-        EmphasisableItem ei = focussedProofWindow(true).ensureDisproofPane().seqCanvas.findEmphasisableXY(x,y);
+        EmphasisableItem ei = focussedProofWindow(true).ensureDisproofPane().seqCanvas.findEmphasisable(x,y);
         if (ei==null)
             throw new ProtocolError("no emphasisable disproof item at "+x+","+y);
         else
