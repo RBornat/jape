@@ -6,8 +6,8 @@
  * loop.  pointToSequent is where a good deal of the confusion centres ...
  * RB 6/vii/2000
  *)
-open Answer.M
-open Button.M
+open Answer
+open Button
 open Context.Cxt
 open Disproof.M
 open Doubleclick.M
@@ -41,10 +41,10 @@ exception Use_ = Paragraph.M.Use_
 exception Verifyproviso_ = Provisofuns.M.Verifyproviso_
        
 let rec resetallcachesandvariables () =
-  Alert.M.resetalertpatches ();
-  Binding.M.clearbindingdirectives ();
-  Button.M.initButtons ();
-  Button.M.resetfontstuff ();
+  Alert.resetalertpatches ();
+  Binding.clearbindingdirectives ();
+  Button.initButtons ();
+  Button.resetfontstuff ();
   Disproof.M.clearforcedefs ();
   Doubleclick.M.cleardoubleclicks ();
   Japeserver.resetcache ();
@@ -62,7 +62,7 @@ let rec resetallcachesandvariables () =
 let ( &~~ ) = Optionfuns.M.( &~~ )
 let atoi = Miscellaneous.M.atoi
 let autoselect = Miscellaneous.M.autoselect
-let clearbindingdirectives = Binding.M.clearbindingdirectives
+let clearbindingdirectives = Binding.clearbindingdirectives
 let closedbugfile = Miscellaneous.M.close_reportfile
 let consolereport = Miscellaneous.M.consolereport
 let consolequery = Miscellaneous.M.consolequery
@@ -87,7 +87,7 @@ let rec initGUI () =
      (String.make 1 Miscellaneous.M.outbra, String.make 1 Miscellaneous.M.outket)
      (String.make 1 Miscellaneous.M.lockbra, String.make 1 Miscellaneous.M.lockket) :
    unit);
-  Button.M.initFonts ()
+  Button.initFonts ()
 
 let isCutStep = Prooftree.Tree.isCutStep
 let mkvisproviso = Proviso.M.mkvisproviso
@@ -148,19 +148,19 @@ let pairs =
    "autoAdditiveLeft", tparam (bj false autoAdditiveLeft);
    "autoAdditiveRight", tparam (bj false autoAdditiveRight);
    "autoselect", bj false Miscellaneous.M.autoselect;
-   "boxlinedisplay", sj ["left"; "right"] "right" Boxdraw.M.boxlinedisplay;
+   "boxlinedisplay", sj ["left"; "right"] "right" Boxdraw.boxlinedisplay;
    "debracketapplications", bj false Term.Termstring.debracketapplications;
    "displaystyle", jv ["box"; "tree"] "tree"
                       (Interaction.M.setdisplaystyle, Interaction.M.getdisplaystyle);
    "foldformulae", bj false Miscellaneous.M.foldformulae;
    (* false for now, till Unix interface catches up *)
-   "hidecut", bj true Boxdraw.M.hidecut;
-   "hidehyp", bj true Boxdraw.M.hidehyp;
-   "hidetransitivity", bj false Boxdraw.M.hidetransitivity;
-   "hidereflexivity", bj true Boxdraw.M.hidereflexivity;
+   "hidecut", bj true Boxdraw.hidecut;
+   "hidehyp", bj true Boxdraw.hidehyp;
+   "hidetransitivity", bj false Boxdraw.hidetransitivity;
+   "hidereflexivity", bj true Boxdraw.hidereflexivity;
    "hideuselesscuts", bj false Prooftree.Tree.hideuselesscuts;
    "interpretpredicates", tparam (bj false Predicate.M.interpretpredicates);
-   "outermostbox", bj true Boxdraw.M.outermostbox;
+   "outermostbox", bj true Boxdraw.outermostbox;
    "seektipselection", bj true Miscellaneous.M.seektipselection;
    "showallprovisos", bj false Interaction.M.showallprovisos;
    "showallproofsteps", bj false Prooftree.Tree.showallproofsteps;
@@ -175,15 +175,15 @@ let pairs =
    "filteredfmt", ajd Prooftree.Tree.filteredfmt;
    "unfilteredfmt", ajd Prooftree.Tree.unfilteredfmt;
    "rawfmt", ajd Prooftree.Tree.rawfmt;
-   "outerassumptionword", ajd Boxdraw.M.outerassumptionword;
-   "outerassumptionplural", ajd Boxdraw.M.outerassumptionplural;
-   "innerassumptionword", ajd Boxdraw.M.innerassumptionword;
-   "innerassumptionplural", ajd Boxdraw.M.innerassumptionplural;
+   "outerassumptionword", ajd Boxdraw.outerassumptionword;
+   "outerassumptionplural", ajd Boxdraw.outerassumptionplural;
+   "innerassumptionword", ajd Boxdraw.innerassumptionword;
+   "innerassumptionplural", ajd Boxdraw.innerassumptionplural;
    "profiling", Japeenv.M.booljapevar false (profileswitcher, profilereader);
-   "applydebug", ij 0 Applyrule.M.applydebug;
-   "bindingdebug", bj false Binding.M.bindingdebug;
-   "boxseldebug", bj false Boxdraw.M.boxseldebug;
-   "boxfolddebug", bj false Boxdraw.M.boxfolddebug;
+   "applydebug", ij 0 Applyrule.applydebug;
+   "bindingdebug", bj false Binding.bindingdebug;
+   "boxseldebug", bj false Boxdraw.boxseldebug;
+   "boxfolddebug", bj false Boxdraw.boxfolddebug;
    "cuthidingdebug", bj false Prooftree.Tree.cuthidingdebug;
    "disproofdebug", bj false Disproof.M.disproofdebug;
    "factsdebug", bj false Facts.M.factsdebug;
@@ -362,13 +362,13 @@ let rec withfromstore (Pinf pi) fromstore = Pinf {pi with fromstore = fromstore}
 
 type showstate = ShowProof | ShowDisproof | ShowBoth | DontShow
 
-let setComment = Alert.M.setComment <*> implode
+let setComment = Alert.setComment <*> implode
 let showAlert =
-  Alert.M.showAlert Alert.M.defaultseverity_alert <*> implode
+  Alert.showAlert Alert.defaultseverity_alert <*> implode
 
 let rec screenquery ss y n def =
   let bs = [y, true; n, false] in
-  Alert.M.ask (Alert.M.defaultseverity bs) (implode ss) bs def
+  Alert.ask (Alert.defaultseverity bs) (implode ss) bs def
 let rec uncurried_screenquery (ss, y, n, def) = screenquery ss y n def
 let savefilename : string option ref = ref None
 let mbcache : (name, term ref) mapping ref =
@@ -980,7 +980,7 @@ and commands
   let rec resetable () =(* eggstolay, wormstoscratch, ... *)
    thingstodo () || saveable () in
   let rec askSave action y n cancel =
-    Alert.M.askDangerously
+    Alert.askDangerously
       (implode ["Save your proofs before "; action; "?"])
       ("Save", (fun () -> saveproofs false; y))
       ("Don't save", (fun () -> n)) (fun () -> cancel) ()
@@ -1791,7 +1791,7 @@ and commands
                   | None -> false) &&
                  disproof_finished disproof
               then
-                Alert.M.askDangerously
+                Alert.askDangerously
                   (("The proof of " ^ namestring t) ^
                      " is complete - do you want to record it?")
                   ("Record",
@@ -1868,7 +1868,7 @@ and commands
   in
   (* for the time being, until there is effective proof/disproof focus, we have too many buttons *)
   let rec administer displayopt =
-    List.iter Button.M.enable
+    List.iter Button.enable
       [UndoProofbutton, proofundoable ();
        RedoProofbutton, proofredoable ();
        UndoDisproofbutton, disproofundoable ();
