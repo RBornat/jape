@@ -24,36 +24,45 @@ let rec mkalt sts def s =
   | None -> def
 let outrightfixtree : (symbol, symbol) searchtree ref =
   ref (emptysearchtree mkalt)
+
 let leftmidfixtree : (symbol, unit) searchtree ref =
   ref (emptysearchtree mkalt)
+
 let rec declareOutRightfix braseps ket =
   outrightfixtree :=
 	addtotree (fun (x, y) -> x = y) !outrightfixtree (braseps, ket, false)
+
 let rec declareLeftMidfix syms =
   leftmidfixtree :=
 	addtotree (fun (x, y) -> x = y) !leftmidfixtree (syms, (), false)
+
 let rec resettermparse () =
   outrightfixtree := emptysearchtree mkalt;
   leftmidfixtree := emptysearchtree mkalt;
   declareOutRightfix [BRA "("] (KET ")"); (* oh dear this was an sml bug -- what next? *)
   ()
+
 let rec check s =
-  if currsymb () = s then let _ = scansymb () in ()
+  if currsymb () = s then scansymb ()
   else
 	raise
 	  (ParseError_
-		 ["Expected "; smlsymbolstring s; ", found ";
-		  smlsymbolstring (currsymb ())])
-let rec ignore s = if currsymb () = s then let _ = scansymb () in ()
+		 ["Expected "; smlsymbolstring s; ", found "; smlsymbolstring (currsymb ())])
+
+let rec ignore s = if currsymb () = s then scansymb () else ()
+
 let rec parseUnsepList start f =
-  if start (currsymb ()) then f EOF :: parseUnsepList start f else []
+  if start (currsymb ()) then 
+    let v = f EOF in v :: parseUnsepList start f 
+  else []
+
 let rec parseList start f sep =
   if start (currsymb ()) then
-	let rec more () =
-	  if currsymb () = sep then let _ = scansymb () in one () else []
+	let rec more () = if currsymb () = sep then (scansymb (); one ()) else []
 	and one () = let v = f sep in v :: more () in
 	one ()
   else []
+
 let rec canstartTerm sy =
   match sy with
 	ID _ -> true
