@@ -25,7 +25,7 @@ INFIX   140L    ∧
 LEFTFIX 180 ∀ .
 LEFTFIX 180 ∃ .
 
-INFIX   300L    <   >   ≤   ≥   ≠   =   ≡   ¬≡   
+INFIX   300L    <   >   ≤   ≥   ≠   =  
 
 INFIX   400 L   + -
 INFIX   410 L   × ÷
@@ -52,4 +52,6 @@ OUTFIX while do od
 CONSTANT skip tilt
 
 INITIALISE hidetransitivity true
+
+KEYBOARD → ↔ ∧ ∨ ¬ ⊥ ∀ ∃ ⊢ ⊧ ≤ ≥ ≠ ≜ × ÷ ↦ ⊕ « » 
 INITIALISE hidereflexivity true
