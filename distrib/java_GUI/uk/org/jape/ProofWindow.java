@@ -37,9 +37,9 @@ import javax.swing.JScrollPane;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-public class ProofWindow extends JapeWindow {
+public class ProofWindow extends JapeWindow implements ProofConstants {
     int proofnum;
-    protected static ProofWindow focussedproof = null;
+    protected static ProofWindow focussedProofWindow = null;
 
     protected AnchoredScrollPane proofPane;
     protected ProofCanvas proofCanvas;
@@ -61,7 +61,7 @@ public class ProofWindow extends JapeWindow {
         setBar(); 
         pack();
         setVisible(true);
-        focussedproof = this;
+        focussedProofWindow = this;
     }
     
     public static ProofWindow spawn(String title, int proofnum) throws ProtocolError {
@@ -73,23 +73,23 @@ public class ProofWindow extends JapeWindow {
     
     public static ProofWindow focussedProofWindow() {
         // for now, I only deal with one proof window
-        return focussedproof;
+        return focussedProofWindow;
     }
 
     private static void checkFocussedProof() throws ProtocolError {
-        if (focussedproof==null)
+        if (focussedProofWindow==null)
             throw new ProtocolError("no focussed proof");
     }
 
     private static void ensureFocussedProofCanvas() throws ProtocolError {
         checkFocussedProof();
-        if (focussedproof.proofCanvas==null)
-            focussedproof.newProofCanvas();
+        if (focussedProofWindow.proofCanvas==null)
+            focussedProofWindow.newProofCanvas();
     }
 
     private static void checkFocussedCanvas() throws ProtocolError {
         checkFocussedProof();
-        if (focussedproof.focussedCanvas==null)
+        if (focussedProofWindow.focussedCanvas==null)
             throw new ProtocolError("no focussed pane - drawInPane missing?");
     }
 
@@ -108,7 +108,7 @@ public class ProofWindow extends JapeWindow {
         switch (pane) {
             case ProofPaneNum:
                 ensureFocussedProofCanvas();
-                return focussedproof.proofCanvas; 
+                return focussedProofWindow.proofCanvas; 
             case DisproofPaneNum:
                 throw new ProtocolError(who+": no disproofCanvas support yet"); 
             default:
@@ -124,24 +124,20 @@ public class ProofWindow extends JapeWindow {
         byte2JapeCanvas(pane,"ProofWindow.clearPane").clearPane();
     }
 
-    /*	from japeserver.ml:
-          let displaystyle2int d =
-            match d with
-              BoxStyle  -> 0
-            | TreeStyle -> 1
-     */
-
-    public final static byte BoxStyle  = 0,
-                             TreeStyle = 1;
     protected byte style;
     private int linethickness=1;
     
     public static void setProofParams(byte style, int linethickness) throws ProtocolError {
         checkFocussedProof();
-        if (style<0 || style>1)
-            throw new ProtocolError(style+" should be a proof display style: either 0 or 1");
-        focussedproof.style = style;
-        focussedproof.linethickness = linethickness;
+        switch (style) {
+            case BoxStyle:
+            case TreeStyle:
+                focussedProofWindow.style = style;
+                focussedProofWindow.linethickness = linethickness;
+                break;
+            default:
+                throw new ProtocolError("ProofWindow.setProofParams style="+style);
+        }
     }
 
     private void newProofCanvas() {
@@ -167,7 +163,7 @@ public class ProofWindow extends JapeWindow {
         switch (pane) {
             case ProofPaneNum:
                 ensureFocussedProofCanvas();
-                focussedproof.focussedCanvas = focussedproof.proofCanvas;
+                focussedProofWindow.focussedCanvas = focussedProofWindow.proofCanvas;
                 break;
             case DisproofPaneNum:
                 throw new ProtocolError("ProofWindow.drawInPane: no disproofCanvas support yet");
@@ -178,7 +174,7 @@ public class ProofWindow extends JapeWindow {
 
     public static void setGivens(String[] gs) throws ProtocolError {
         checkFocussedProof();
-        focussedproof.newGivens(gs);
+        focussedProofWindow.newGivens(gs);
     }
 
     private void newGivens(String[] gs) throws ProtocolError {
@@ -194,28 +190,41 @@ public class ProofWindow extends JapeWindow {
                                   String annottext, String printtext) throws ProtocolError {
         checkFocussedCanvas();
         JapeFont.checkInterfaceFontnum(fontnum);
-        focussedproof.focussedCanvas.add(
-            kind==TextItem.PunctKind ?
-                new TextItem(focussedproof.focussedCanvas, x, y, fontnum, annottext, printtext) :
-                new SelectableTextItem(focussedproof.focussedCanvas, x, y, fontnum, kind,
+        focussedProofWindow.focussedCanvas.add(
+            kind==PunctTextItem ?
+                new TextItem(focussedProofWindow.focussedCanvas, x, y, fontnum, annottext, printtext) :
+                new SelectableTextItem(focussedProofWindow.focussedCanvas, x, y, fontnum, kind,
                                        annottext, printtext,
-                                       focussedproof.style, focussedproof.linethickness));
+                                       focussedProofWindow.style, focussedProofWindow.linethickness));
     }
 
     public static String getSelections() throws ProtocolError {
         ensureFocussedProofCanvas();
-        return focussedproof.proofCanvas.getSelections();
+        return focussedProofWindow.proofCanvas.getSelections();
     }
 
     public static String getTextSelections() throws ProtocolError {
         ensureFocussedProofCanvas();
-        return focussedproof.proofCanvas.getTextSelections();
+        return focussedProofWindow.proofCanvas.getTextSelections();
     }
 
     public static String getGivenTextSelections() throws ProtocolError {
         checkFocussedProof();
-        if (focussedproof.provisoPane!=null)
+        if (focussedProofWindow.provisoPane!=null)
             Alert.abort("no support for Given Text Selections");
         return "";
+    }
+
+    public static byte textselectionmode;
+    
+    public static void setTextSelectionMode(byte mode) throws ProtocolError {
+        switch (mode) {
+            case SubformulaSelectionMode:
+            case TokenSelectionMode:
+                textselectionmode = mode;
+                break;
+            default:
+                throw new ProtocolError("ProofWindow.setTextSelectionMode mode="+mode);
+        }
     }
 }
