@@ -381,8 +381,8 @@ public class Dispatcher extends Thread implements DebugConstants {
 		    
 		    // miscellaneous
 			if (p=="RESETTHEORY"&&len==1) {
-			    JapeMenu.cancelMenus();
 			    PanelWindowData.cancelPanels();
+			    JapeMenu.cancelMenus();
 			    JapeWindow.resetNextPos();
 			}
 			else
