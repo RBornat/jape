@@ -22,12 +22,6 @@
 #CAMLDEBUG=-g
 CAMLDEBUG= 
 
-#
-# Home of the engine bytecodes relative to the windows bytecode build file
-#      (in WIN syntax, with backquote-insanity) 
-#
-WIN32CMORELATIVE= -I ..\\\\..\\\\camlengine\\\\
-
 %.cmi : %.mli;          ocamlc $(CAMLDEBUG) -c $<
 
 %.cmo : %.ml;           ocamlc $(CAMLDEBUG) -c $<
@@ -40,15 +34,29 @@ WIN32CMORELATIVE= -I ..\\\\..\\\\camlengine\\\\
 CMO = sml.cmo moresys.cmo fix.cmo cache.cmo miscellaneous.cmo reason.cmo answer.cmo prestring.cmo listfuns.cmo version.cmo minwaste.cmo optionfuns.cmo mappingfuns.cmo stringfuns.cmo box.cmo displayfont.cmo text.cmo idclass.cmo searchtree.cmo symbol.cmo idclassfuns.cmo termtype.cmo termstring.cmo termstore.cmo termfuns.cmo predicate.cmo match.cmo binding.cmo termparse.cmo seqtype.cmo sequent.cmo name.cmo treelayout.cmo tactic.cmo proviso.cmo paraparam.cmo panelkind.cmo menu.cmo displayclass.cmo japeserver.cmo alert.cmo doubleclick.cmo forcedef.cmo usefile.cmo proofstage.cmo paragraph.cmo rewinf.cmo cxttype.cmo cxtstring.cmo cxtfuns.cmo cxtprovisos.cmo cxtexterior.cmo facts.cmo substmapfuns.cmo rew.cmo rewrite.cmo provisofuns.cmo thing.cmo unify.cmo treeformat.cmo prooftree.cmo proofstore.cmo proofstate.cmo applyrule.cmo absprooftree.cmo hit.cmo draw.cmo seqdraw.cmo treedraw.cmo boxdraw.cmo displaystate.cmo displaystyle.cmo selection.cmo disproof.cmo interaction.cmo japeenv.cmo env.cmo button.cmo oracle.cmo tacticfuns.cmo runproof.cmo paragraphfuns.cmo dialogue.cmo
 CMX = $(CMO:.cmo=.cmx)
 
-jape:     $(CMO) main.cmo;   ocamlc $(CAMLDEBUG) -o jape unix.cma $(CMO) main.cmo
-jape.opt: $(CMX) main.cmx;   ocamlopt -o jape.opt unix.cmxa $(CMX) main.cmx
+jape:     $(CMO) main.cmo;   ocamlc   $(SOURCES) $(CAMLDEBUG) -custom -o jape unix.cma $(CMO) main.cmo
+jape.opt: $(CMX) main.cmx;   ocamlopt $(SOURCES) -o jape.opt unix.cmxa $(CMX) main.cmx
 
+#############################################################################
 #
-#       This so we can do most of the work on a Unix machine with a single command
+#  For the windows build
 #
-win32link.bat:  $(CMO) main.cmo ;\
-                echo ocamlc -custom $(WIN32CMORELATIVE) $(CAMLDEBUG) -o win32jape.exe unix.cma $(CMO) main.cmo > win32link.bat
+#  We don't actually make this target, because we're running on a Unix. 
+#  We do a make -n on it to make a batch file that can be run on Windows. 
+#
+jape.exe: $(CMO) main.cmo;\
+          ocamlc $(SOURCES) $(CAMLDEBUG) -custom -o jape.exe unix.cma $(CMO) main.cmo
 
+makejape.bat:: ; rm -f jape.exe ;\
+               (echo cd tmp; make -n jape.exe | egrep -v "Entering|Leaving"; echo cd ..) > ../makejape.bat;\
+               echo NOW RUN makejape.bat ON WINDOZE AND TYPE CR WHEN THROUGH;\
+               read ANSWER;\
+               mv jape.exe ..
+               
+#
+#
+#
+#############################################################################
 
 clean:;                 rm -f *.cmi *.cmo *.cmx *.o
         
@@ -74,5 +82,7 @@ include .depend
 %.tml : ../engine/%.sig.sml ;\
         camltran ../engine/$*.sig.sml >$*.testml ;\
         mv $*.testml $*.tml
+
+
 
 
