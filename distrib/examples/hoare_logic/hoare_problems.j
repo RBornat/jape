@@ -47,6 +47,18 @@ CONJECTUREPANEL "Programs"  IS
     {i≥0∧k+i×j=Ki×Kj∧i≠0}
       if i mod 2=1 then k:=k+j else skip fi
     {i÷2≥0∧k+i÷2×(j×2)=Ki×Kj}
+  THEOREM WHERE i NOTIN j,kq,kc,kr AND j NOTIN kq,kc,kr AND kq NOTIN kc,kr AND kc NOTIN kr IS
+    {i=Ki ∧ j=Kj ∧ i≥0 ∧ j>0} 
+      (kq:=0; kr:=i; kc:=0)
+    {j=Kj×2↑kc ∧ j>0 ∧ kq×j+kr=Ki ∧ 0≤kr}
+      while j≤kr do j:=j×2; kc:=kc+1 od
+    {j=Kj×2↑kc ∧ j>0 ∧ kq×j+kr=Ki ∧ 0≤kr∧kr<j} 
+      while kc≠0 do 
+         j:=j÷2; kc:=kc-1; kq:=kq×2; 
+         if j≥kr then kr:=kr-j; kq:=kq+1 else skip fi 
+      od 
+    {kq×Kj+kr=Ki ∧ 0≤kr∧kr<Kj}
+
 END
 
 CONJECTUREPANEL "Verification conditions" IS 
