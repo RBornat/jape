@@ -125,7 +125,7 @@ class TextItem extends DisplayItem {
         this.printchars = printtext.toCharArray();
         this.dimension = JapeFont.measure(printtext, fontnum);
         setBounds((int)x, y-dimension.ascent, dimension.width, dimension.ascent+dimension.descent);
-        annoti=printi=0;
+        annoti = printi = 0; annotlen = annottext.length();
         Vector cs = new Vector();
         computeColourSegs((char)0, NormalColour, false, cs);
         coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
@@ -153,31 +153,32 @@ class TextItem extends DisplayItem {
 
     protected class ColourSeg {
         public final Color colour;
-        public final int start, offx;
+        public final int start, pxstart;
         public int end;
+        
         public ColourSeg(Color colour, int start, int end) {
             this.colour=colour;
             this.start=start; this.end=end;
-            this.offx=JapeFont.charsWidth(printchars, 0, start, fontnum);
+            this.pxstart=JapeFont.charsWidth(printchars, 0, start, fontnum);
         }
         
         public void paint(Graphics g) {
             g.setColor(colour);
-            g.drawChars(printchars, start, end-start, inset+offx, inset+dimension.ascent);
+            g.drawChars(printchars, start, end-start, inset+pxstart, inset+dimension.ascent);
         }
         
         public String toString() {
             return "ColourSeg[colour="+colour+
                    ", start="+start+
                    ", end="+end+
-                   ", offx="+offx+
+                   ", pxstart="+pxstart+
                    "]";
         }
     }
 
     protected ColourSeg[] coloursegs;
     
-    protected int annoti, printi; // globals for computing ColourTree
+    protected int annoti, printi, annotlen; // globals for computing ColourTree, FormulaTree
 
     private void extendColourSeg(Vector cs, Color colour, int start, int end) {
         if (cs.size()!=0) {
@@ -192,7 +193,7 @@ class TextItem extends DisplayItem {
     protected void computeColourSegs(char expectedket, Color colour, boolean locked, Vector cs) {
         int i0 = printi;
         char c;
-        while (annoti<annottext.length()) {
+        while (annoti<annotlen) {
             c = annottext.charAt(annoti++);
             if (invisbra(c)) {
                 boolean newlocked = locked || c==lockbra;
