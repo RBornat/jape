@@ -5,7 +5,7 @@ TACTIC TheoremForwardOrBackward(X) IS
   
 CONJECTUREPANEL "Set Conjectures" IS
 	THEOREMS "Set Conjectures" ARE
-		(äx.P(x) ¦ (èy. P(y) ç y=x)) ê (äu. P(u)) ¦ (èv,w. P(v) ¦ P(w) ç v=w)
+		(äx.P(x) ¦ (èy. P(y) ç y=x)) ê (äu. P(u)) ¦ (è(v,w). P(v) ¦ P(w) ç v=w)
 	AND 	A§U
 	AND	A=B ê A§B ¦ B§A
 	AND	A§A
