@@ -1379,7 +1379,8 @@ let rec simplifydeferred cxt =
   | [cxt'] ->(* can't happen, I think *)
      Some cxt'
   | _ -> Some cxt
-let rec matchedtarget origcxt newcxt uvids =
+  
+let matchedtarget origcxt newcxt uvids =
   let rec ok u =
     match (varmap origcxt <@> u), (varmap newcxt <@> u) with
       Some old, Some new__ ->
