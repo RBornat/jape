@@ -3,26 +3,26 @@
 TACTIC TheoremForward (thm) IS CUTIN (ALT thm (RESOLVE thm))
 
 TACTIC TheoremForwardOrBackward(thm) IS
-  WHEN	(LETHYP _P 
+  WHEN	(LETHYP _A 
   				(ALT	(TheoremForward (WITHHYPSEL (WITHARGSEL thm)))
-  						(Fail	("The theorem %s doesn't apply to the antecedent %t which you selected", thm, _P))
+  						(Fail	("The theorem %s doesn't apply to the antecedent %t which you selected", thm, _A))
   				)
   			)
-  			(LETHYPS _Ps
+  			(LETHYPS _As
   				(Fail ("At present I2L Jape can't deal with multiple antecedent selections when applying theorems. Sorry.\
   						\\nCancel one of them and try again."))
   			)
-  			(LETGOAL _P
+  			(LETGOAL _A
 				(ALT (WITHARGSEL thm) 
 						(RESOLVE (WITHARGSEL thm)) 
 						(TheoremForward (WITHARGSEL thm))
 						(Fail	"Theorem application failed -- tell Richard")
 				)
   			)
-  			(LETOPENSUBGOAL G _P 
+  			(LETOPENSUBGOAL G _A 
   				(Fail ("Error in I2L Jape (open subgoal in TheoremForwardOrBackward). Tell Richard."))
   			)
-			(LETOPENSUBGOALS _Pgs
+			(LETOPENSUBGOALS _As
 				(ALERT	("There is more than one unproved conclusion in the proof. Please select one – \
 				 			\or select an antecedent – to show \
 							\Jape where to apply the theorem.")
@@ -39,103 +39,127 @@ TACTIC TheoremForwardOrBackward(thm) IS
   * formulae.
   */
   
+  /* Panels are declared in reverse order because the GUIs,  quite reasonably, create panels in the order requested.
+    * Thus the last you ask for is the last created, and appears at the front of the stack.
+    */
+
+CONJECTUREPANEL "Impossible conjectures"
+	THEOREM IS EÁ(FÁG) Ê (EÁF)ÁG
+	THEOREM IS (E¶F)ÁG Ê (EÁF)ÁG
+	THEOREM IS (EÁF)ÁG Ê E¶(FÁG)
+	
+	THEOREM IS E Ê E¶F
+	THEOREM IS EÎF Ê E¶F
+	
+	THEOREM IS R(j), Ëx.(R(x)ÁS(x)) Ê S(j)
+	THEOREM IS Ëx.R(x)ÁËx.S(x) Ê Ëx.(R(x)ÁS(x))
+	THEOREM IS actual j, S(j) Ê Ëx.(R(x)ÁS(x))
+	THEOREM IS ‰x.R(x)¶‰x.S(x) Ê ‰x.(R(x)¶S(x))
+	THEOREM IS Ëx.R(x) Ê ‰x.R(x)
+	
+	THEOREM IS actual j, actual k, ‰x.R(x) Ê R(j)
+
+	BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
+END
+
+CONJECTUREPANEL "Classical conjectures"
+	THEOREM IS	¬¬E Ê E
+
+	THEOREM IS	Ê EÎ¬E
+	THEOREM IS	Ê ((EÁF)ÁE)ÁE
+	
+	THEOREM IS	¬FÁ¬E Ê EÁF
+	THEOREM IS	¬(¬E¶¬F) Ê EÎF
+	THEOREM IS	¬(¬EÎ¬F) Ê E¶F
+	THEOREM IS	¬(E¶F) Ê ¬EÎ¬F
+	THEOREM IS	(EÁF)Î(FÁE)
+	
+	THEOREM IS	¬(‰x.¬R(x)) Ê Ëx.R(x)
+	THEOREM IS	¬(Ëx.¬R(x)) Ê ‰x.R(x)
+	THEOREM IS	¬(Ëx.R(x)) Ê ‰x.¬R(x)
+	THEOREM IS	¬(‰x.R(x)) Ê Ëx.¬R(x)
+	
+	THEOREM IS actual j, actual k Ê ‰x.(R(x)ÁR(j)¶R(k))
+
+	BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
+END
+  
 CONJECTUREPANEL Conjectures
-	THEOREM IS	P, PÁQ Ê Q
-	THEOREM IS	PÁQ, QÁR, P Ê R	
-	THEOREM IS	PÁ(QÁR), PÁQ, P Ê R
-	THEOREM IS	PÁQ, QÁR Ê PÁR
-	THEOREM IS	PÁ(QÁR) Ê QÁ(PÁR)
-	THEOREM IS	PÁ(QÁR) Ê (PÁQ)Á(PÁR)
-	THEOREM IS	P Ê QÁP
-	THEOREM IS	PÁ(QÁP)
-	THEOREM IS	PÁQ Ê (QÁR)Á(PÁR)
-	THEOREM IS	PÁ(QÁ(RÁS)) Ê RÁ(QÁ(PÁS))
-	THEOREM IS	(PÁ(QÁR))Á((PÁQ)Á(PÁR))
-	THEOREM IS	(PÁQ)ÁR Ê PÁ(QÁR)
-	THEOREM "PÁ(QÁR) Ê (PÁQ)ÁR NOT" IS PÁ(QÁR) Ê (PÁQ)ÁR
+	THEOREM IS	E, EÁF Ê F
+	THEOREM IS	EÁF, FÁG, E Ê G	
+	THEOREM IS	EÁ(FÁG), EÁF, E Ê G
+	THEOREM IS	EÁF, FÁG Ê EÁG
+	THEOREM IS	EÁ(FÁG) Ê FÁ(EÁG)
+	THEOREM IS	EÁ(FÁG) Ê (EÁF)Á(EÁG)
+	THEOREM IS	E Ê FÁE
+	THEOREM IS	Ê EÁ(FÁE)
+	THEOREM IS	EÁF Ê (FÁG)Á(EÁG)
+	THEOREM IS	EÁ(FÁ(GÁS)) Ê GÁ(FÁ(EÁS))
+	THEOREM IS	Ê (EÁ(FÁG))Á((EÁF)Á(EÁG))
+	THEOREM IS	(EÁF)ÁG Ê EÁ(FÁG)
 
-	THEOREM IS	P, Q Ê P¶Q
-	THEOREM IS	P¶Q Ê P
-	THEOREM IS	P¶Q Ê Q
-	THEOREM IS	P¶(Q¶R) Ê (P¶Q)¶R
-	THEOREM IS	(P¶Q)¶R Ê P¶(Q¶R)
+	THEOREM IS	E, F Ê E¶F
+	THEOREM IS	E¶F Ê E
+	THEOREM IS	E¶F Ê F
+	THEOREM IS	E¶(F¶G) Ê (E¶F)¶G
+	THEOREM IS	(E¶F)¶G Ê E¶(F¶G)
 	
-	THEOREM IS	P¶Q Ê PÁQ
-	THEOREM IS	(PÁQ)¶(PÁR) Ê PÁ(Q¶R)
-	THEOREM IS	PÁ(Q¶R) Ê (PÁQ)¶(PÁR)
-	THEOREM IS	PÁ(QÁR) Ê (P¶Q)ÁR
-	THEOREM IS	(P¶Q)ÁR Ê PÁ(QÁR)
-	THEOREM IS	(PÁQ)ÁR Ê (P¶Q)ÁR
-	THEOREM "(P¶Q)ÁR Ê (PÁQ)ÁR NOT" IS (P¶Q)ÁR Ê (PÁQ)ÁR
-	THEOREM IS	P¶(QÁR) Ê (PÁQ)ÁR
-	THEOREM "(PÁQ)ÁR Ê P¶(QÁR) NOT" IS (PÁQ)ÁR Ê P¶(QÁR)
+	THEOREM IS	E¶F Ê EÁF
+	THEOREM IS	(EÁF)¶(EÁG) Ê EÁ(F¶G)
+	THEOREM IS	EÁ(F¶G) Ê (EÁF)¶(EÁG)
+	THEOREM IS	EÁ(FÁG) Ê (E¶F)ÁG
+	THEOREM IS	(E¶F)ÁG Ê EÁ(FÁG)
+	THEOREM IS	(EÁF)ÁG Ê (E¶F)ÁG
+	THEOREM IS	E¶(FÁG) Ê (EÁF)ÁG
 
-	THEOREM IS	P Ê PÎQ	
-	THEOREM IS	Q Ê PÎQ	
-	THEOREM IS	PÎQ Ê QÎP
+	THEOREM IS	E Ê EÎF	
+	THEOREM IS	F Ê EÎF	
+	THEOREM IS	EÎF Ê FÎE
 	
-	THEOREM IS	QÁR Ê (PÎQ)Á(PÎR)
-	THEOREM IS	PÎP Ê P
-	THEOREM IS	P Ê PÎP
-	THEOREM IS	PÎ(QÎR) Ê (PÎQ)ÎR
-	THEOREM IS	(PÎQ)ÎR Ê PÎ(QÎR)
+	THEOREM IS	FÁG Ê (EÎF)Á(EÎG)
+	THEOREM IS	EÎE Ê E
+	THEOREM IS	E Ê EÎE
+	THEOREM IS	EÎ(FÎG) Ê (EÎF)ÎG
+	THEOREM IS	(EÎF)ÎG Ê EÎ(FÎG)
 	
-	THEOREM IS	P¶(QÎR) Ê (P¶Q)Î(P¶R)
-	THEOREM IS	(P¶Q)Î(P¶R) Ê P¶(QÎR)
-	THEOREM IS	PÎ(Q¶R) Ê (PÎQ)¶(PÎR)
-	THEOREM IS	(PÎQ)¶(PÎR) Ê PÎ(Q¶R)
+	THEOREM IS	E¶(FÎG) Ê (E¶F)Î(E¶G)
+	THEOREM IS	(E¶F)Î(E¶G) Ê E¶(FÎG)
+	THEOREM IS	EÎ(F¶G) Ê (EÎF)¶(EÎG)
+	THEOREM IS	(EÎF)¶(EÎG) Ê EÎ(F¶G)
 	
-	THEOREM IS	(PÁR)¶(QÁR) Ê (PÎQ)ÁR
-	THEOREM IS	(PÎQ)ÁR Ê (PÁR)¶(QÁR)
+	THEOREM IS	(EÁG)¶(FÁG) Ê (EÎF)ÁG
+	THEOREM IS	(EÎF)ÁG Ê (EÁG)¶(FÁG)
 
-	THEOREM IS	¬¬PÁP
-	THEOREM IS	P Ê ¬¬P
-	
-	THEOREM IS	PÁQ Ê ¬QÁ¬P
-	THEOREM IS	¬QÁ¬P Ê PÁQ
+	THEOREM IS	E Ê ¬¬E
+	THEOREM IS	¬E Ê EÁF
+	THEOREM IS	EÁF Ê ¬FÁ¬E
 
-THEOREM IS PÎQ, ¬Q Ê P
-THEOREM IS PÎQ, ¬P Ê Q
+	THEOREM IS EÎF, ¬F Ê E
+	THEOREM IS EÎF, ¬E Ê F
+		
+	THEOREM IS	EÎF Ê ¬(¬E¶¬F)
+	THEOREM IS	E¶F Ê ¬(¬EÎ¬F)
+	THEOREM IS	¬(EÎF) Ê ¬E¶¬F
+	THEOREM IS	¬E¶¬F Ê ¬(EÎF)
+	THEOREM IS	¬EÎ¬F Ê ¬(E¶F)
+	THEOREM IS	 Ê ¬(E¶¬E)
 	
-THEOREM IS	PÎQ Ê ¬(¬P¶¬Q)
-	THEOREM IS	¬(¬P¶¬Q) Ê PÎQ
-	THEOREM IS	P¶Q Ê ¬(¬PÎ¬Q)
-	THEOREM IS	¬(¬PÎ¬Q) Ê P¶Q
-	THEOREM IS	¬(PÎQ) Ê ¬P¶¬Q
-	THEOREM IS	¬P¶¬Q Ê ¬(PÎQ)
-	THEOREM IS	¬(P¶Q) Ê ¬PÎ¬Q
-	THEOREM IS	¬PÎ¬Q Ê ¬(P¶Q)
-	THEOREM IS	 Ê ¬(P¶¬P)
-	
-	THEOREM IS	(PÁQ)Î(QÁP)
-	THEOREM IS	P¶¬P Ê Q
+	THEOREM IS	E¶¬E Ê F
 
-	THEOREM IS	PÎ¬P
-	THEOREM IS	((PÁQ)ÁP)ÁP
-
-	THEOREM IS	actual c, P(c), Ëx.(P(x)ÁQ(x)) Ê Q(c)
-	THEOREM	"P(c), Ëx.(P(x)ÁQ(x)) Ê Q(c) NOT" IS P(c), Ëx.(P(x)ÁQ(x)) Ê Q(c)
-	THEOREM IS	Ëx.(P(x)ÁQ(x)) Ê Ëx.P(x)ÁËx.Q(x)
-	THEOREM	"Ëx.P(x)ÁËx.Q(x) Ê Ëx.(P(x)ÁQ(x)) NOT" IS Ëx.P(x)ÁËx.Q(x) Ê Ëx.(P(x)ÁQ(x))
-	THEOREM IS	Ëx.(P(x)ÁQ(x)), Ëx.(Q(x)ÁR(x)) Ê Ëx.(P(x)ÁR(x))
-	THEOREM	"actual c, Q(c) Ê Ëx.(P(x)ÁQ(x)) NOT" IS actual c, Q(c) Ê Ëx.(P(x)ÁQ(x))
-	THEOREM IS	Ëx.P(x)¶Ëx.Q(x) Ê Ëx.(P(x)¶Q(x))
-	THEOREM IS	Ëx.(P(x)¶Q(x)) Ê Ëx.P(x)¶Ëx.Q(x)
-	THEOREM IS	Ëx.(P(x)ÁQ(x)), ‰x.P(x) Ê ‰x.Q(x)
-	THEOREM IS	‰x.(P(x)¶Q(x)) Ê ‰x.P(x)¶‰x.Q(x)
-	THEOREM	"‰x.P(x)¶‰x.Q(x) Ê ‰x.(P(x)¶Q(x)) NOT" IS ‰x.P(x)¶‰x.Q(x) Ê ‰x.(P(x)¶Q(x))
-	THEOREM IS	‰x.P(x)Î‰x.Q(x) Ê ‰x.(P(x)ÎQ(x))
-	THEOREM IS	‰x.(P(x)ÎQ(x)) Ê ‰x.P(x)Î‰x.Q(x)
-	THEOREM IS	actual c, Ëx.P(x) Ê ‰x.P(x)
-	THEOREM	"Ëx.P(x) Ê ‰x.P(x) NOT" IS Ëx.P(x) Ê ‰x.P(x)
-	THEOREM IS	Ëx.P(x) Ê ¬(‰x.¬P(x))
-	THEOREM IS	¬(‰x.¬P(x)) Ê Ëx.P(x)
-	THEOREM IS	‰x.P(x) Ê ¬(Ëx.¬P(x))
-	THEOREM IS	¬(Ëx.¬P(x)) Ê ‰x.P(x)
-	THEOREM IS	¬(Ëx.P(x)) Ê ‰x.¬P(x)
-	THEOREM IS	‰x.¬P(x) Ê ¬(Ëx.P(x))
-	THEOREM IS	¬(‰x.P(x)) Ê Ëx.¬P(x)
-	THEOREM IS	Ëx.¬P(x) Ê ¬(‰x.P(x))
+	THEOREM IS	actual j, R(j), Ëx.(R(x)ÁS(x)) Ê S(j)
+	THEOREM IS	Ëx.(R(x)ÁS(x)) Ê Ëx.R(x)ÁËx.S(x)
+	THEOREM IS	Ëx.(R(x)ÁS(x)), Ëx.(S(x)ÁT(x)) Ê Ëx.(R(x)ÁT(x))
+	THEOREM IS	Ëx.R(x)¶Ëx.S(x) Ê Ëx.(R(x)¶S(x))
+	THEOREM IS	Ëx.(R(x)¶S(x)) Ê Ëx.R(x)¶Ëx.S(x)
+	THEOREM IS	Ëx.(R(x)ÁS(x)), ‰x.R(x) Ê ‰x.S(x)
+	THEOREM IS	‰x.(R(x)¶S(x)) Ê ‰x.R(x)¶‰x.S(x)
+	THEOREM IS	‰x.R(x)Î‰x.S(x) Ê ‰x.(R(x)ÎS(x))
+	THEOREM IS	‰x.(R(x)ÎS(x)) Ê ‰x.R(x)Î‰x.S(x)
+	THEOREM IS	actual j, Ëx.R(x) Ê ‰x.R(x)
+	THEOREM IS	Ëx.R(x) Ê ¬(‰x.¬R(x))
+	THEOREM IS	‰x.R(x) Ê ¬(Ëx.¬R(x))
+	THEOREM IS	‰x.¬R(x) Ê ¬(Ëx.R(x))
+	THEOREM IS	Ëx.¬R(x) Ê ¬(‰x.R(x))
 
 	BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 END
