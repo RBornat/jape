@@ -145,11 +145,22 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         }
     }
 
+    public void closeWindow() {
+        if (window!=null) {
+            JapeWindow.closeWindow(window.title);
+            window = null;
+        }
+    }
+
+    public void emptyPanel() {
+        closeWindow();
+        entryv.removeAllElements(); cmdv.removeAllElements(); buttonv.removeAllElements();
+    }
+    
     /* This is now basically functional, but things to do:
-       // 1. Arrange a layout so that buttons are always visible, scroll pane doesn't sometimes disappear.
-       2. Disable action of close button (and one day, if poss, grey out close button).
-       3. Make panels float (maybe, and perhaps only on MacOS X)
-       4. Make panels look different -- different title style? smaller title bar?
+       1. Disable action of close button (and one day, if poss, grey out close button).
+       2. Make panels float (maybe, and perhaps only on MacOS X)
+       3. Make panels look different -- different title style? smaller title bar?
      */
  
     public class PanelWindow extends JapeWindow implements ActionListener {
@@ -524,19 +535,6 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
     private static Vector panelv = new Vector();
     
-    protected static PanelWindowData findPanel(String title, boolean musthave) throws ProtocolError {
-        for (int i=0; i<panelv.size(); i++) {
-            PanelWindowData panel = (PanelWindowData)panelv.get(i);
-            if (panel.title.equals(title))
-                return panel;
-        }
-
-        if (musthave)
-            throw new ProtocolError("before NEWPANEL");
-        else
-            return null;
-    }
-    
     public static PanelWindowData spawn (String title, int kind) throws ProtocolError {
         PanelWindowData p = findPanel(title,false);
         if (p!=null) {
@@ -552,17 +550,20 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             return panel;
         }
     }
-    
-    public static Enumeration panels() {
-        Vector v = new Vector();
+
+    protected static PanelWindowData findPanel(String title, boolean musthave) throws ProtocolError {
         for (int i=0; i<panelv.size(); i++) {
             PanelWindowData panel = (PanelWindowData)panelv.get(i);
-            if (panel.window!=null)
-                v.add(panel.window);
+            if (panel.title.equals(title))
+                return panel;
         }
-        return v.elements();
-     }
-    
+
+        if (musthave)
+            throw new ProtocolError("before NEWPANEL");
+        else
+            return null;
+    }
+
     public static void makePanelsVisible() {
         for (int i=0; i<panelv.size(); i++) {
             PanelWindowData panel = (PanelWindowData)panelv.get(i);
@@ -571,7 +572,19 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             panel.window.setVisible(true);
         }
     }
-    
+
+    public static void cancelPanels() {
+        while (panelv.size()!=0) {
+            ((PanelWindowData)panelv.get(0)).closeWindow();
+            panelv.remove(0);
+        }
+    }
+
+    public static void emptyPanels() {
+        for (int i=0; i<panelv.size(); i++)
+            ((PanelWindowData)panelv.get(0)).emptyPanel();
+    }
+
     public static void addEntry(String panel, String entry, String cmd) throws ProtocolError {
         findPanel(panel,true).addEntry(entry,cmd);
     }
