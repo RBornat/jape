@@ -30,6 +30,7 @@ package uk.org.jape;
 /* Apparently FileDialog looks better than JFileChooser in Aqua, and may look better in Windows. */
 
 import java.awt.FileDialog;
+import java.awt.Frame;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -38,18 +39,6 @@ import javax.swing.JFileChooser;
 
 public class FileChooser /* implements FilenameFilter */ {
 
-    private static String doOpenDialog(JFileChooser chooser) {
-        int returnVal = chooser.showOpenDialog(null);
-        File selected = chooser.getSelectedFile();
-        if (returnVal==JFileChooser.APPROVE_OPTION) {
-            File dir = selected.getParentFile();
-            if (dir!=null) FilePrefs.setLastOpenedDir(dir);
-            return selected.toString();
-        } 
-        else
-            return "";
-    }
-    
     private static String doSaveDialog(JFileChooser chooser) {
         int returnVal = chooser.showSaveDialog(null);
         File selected  =  chooser.getSelectedFile();
@@ -65,19 +54,47 @@ public class FileChooser /* implements FilenameFilter */ {
     public static String newOpenDialog(String message) {
         return newOpenDialog(message, new String[]{});
     }
-
+	
+    public static String newOpenDialog(String message, String extension) {
+        return newOpenDialog(message, new String[]{extension});
+    }
+	
     public static String newOpenDialog(String message, String [] extension) {
-        /* if (Jape.onMacOS && lastOpen==null) {
-            Logger.log.println("\".\" translates to "+(new File(".").getAbsolutePath())+"\n"+
-                                  "and nextOpen().getAbsolutePath()="+nextOpen().getAbsolutePath());
-        } */
-        JFileChooser chooser = new JFileChooser(FilePrefs.nextOpen());
-        ExampleFileFilter filter = new ExampleFileFilter();
-        for (int i=0; i<extension.length; i++)
-            filter.addExtension(extension[i]);
-        filter.setDescription(message);
-        chooser.setFileFilter(filter);
-        return doOpenDialog(chooser);
+		ExampleFileFilter filter = new ExampleFileFilter();
+		for (int i=0; i<extension.length; i++)
+			filter.addExtension(extension[i]);
+		filter.setDescription(message);
+		
+        if (Jape.onMacOS) { // use AWT
+			FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.LOAD);
+			d.setDirectory(FilePrefs.nextOpen().toString());
+			d.setFilenameFilter(filter);
+			d.setVisible(true);
+			String file = d.getFile();
+			String dir = d.getDirectory();
+			d.dispose();
+			if (file!=null && dir!=null) {
+				File fdir = new File(dir);
+				FilePrefs.setLastOpenedDir(dir);
+				return (new File(dir,file)).toString();
+			}
+			else
+				return "";
+        } 
+		else { // use Swing
+			JFileChooser chooser = new JFileChooser(FilePrefs.nextOpen());
+			chooser.setFileFilter(filter);
+			int returnVal = chooser.showOpenDialog(null);
+			File selected = chooser.getSelectedFile();
+			if (returnVal==JFileChooser.APPROVE_OPTION) {
+				File dir = selected.getParentFile();
+				if (dir!=null) FilePrefs.setLastOpenedDir(dir);
+				return selected.toString();
+			} 
+			else
+				return "";
+			
+		}
     }
 
     public static String newSaveDialog(String message, String [] extension) {
@@ -90,32 +107,12 @@ public class FileChooser /* implements FilenameFilter */ {
         return doSaveDialog(chooser);
     }
 
-    public static String newOpenDialog(String message, String extension) {
-        return newOpenDialog(message, new String[]{extension});
-    }
-
-    public static String newOpenDialog(String message, String ext1, String ext2) {
-        return newOpenDialog(message, new String[]{ext1, ext2});
-    }
-    
-    public static String newOpenDialog(String message, String ext1, String ext2, String ext3) {
-        return newOpenDialog(message, new String[]{ext1, ext2, ext3});
-    }
-
     public static String newSaveDialog(String message) {
         return newSaveDialog(message, new String[]{});
     }
 
     public static String newSaveDialog(String message, String extension) {
         return newSaveDialog(message, new String[]{extension});
-    }
-
-    public static String newSaveDialog(String message, String ext1, String ext2) {
-        return newSaveDialog(message, new String[]{ext1, ext2});
-    }
-    
-    public static String newSaveDialog(String message, String ext1, String ext2, String ext3) {
-        return newSaveDialog(message, new String[]{ext1, ext2, ext3});
     }
 }
 
