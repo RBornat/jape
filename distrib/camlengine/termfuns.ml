@@ -197,17 +197,24 @@ let rec findterm g t =
       | _ -> None
       end
   | v -> v
+  
 (* what on earth does findhole do?  Some very clever person must have written this ... *)
+(* well, it gets used in selection.ml to find occurrences of a subterm *)
+(* omygod I begin to see. The horror, the horror! 
+   It looks at a term. If that term satisfies g then that will do;
+   otherwise it looks at its subterms.
+   h is a function that you give a hole-filler, and it surrounds the filler to make a term.
+ *)
 
 let findhole g t =
   let rec fh h t =
     let fhs sel build h xs =
-      let rec fhx a1 a2 =
-        match a1, a2 with
-          h, [] -> None
-        | h, x :: xs ->
-            (fh (h <.> (fun t -> build x t :: xs)) (sel x) |~~
-               (fun _ -> fhx (h <.> (fun xs -> x :: xs)) xs))
+      let rec fhx h =
+        function
+          []      -> None
+        | x :: xs ->
+             fh (h <.> (fun t -> build x t :: xs)) (sel x) |~~
+             (fun _ -> fhx (h <.> (fun xs -> x :: xs)) xs)
       in
       fhx h xs
     in
@@ -217,10 +224,8 @@ let findhole g t =
       None ->
         begin match t with
           App (_, f, a) ->
-              (fh (h <.> (fun f -> registerApp (f, a))) f |~~
-               (fun _ ->
-                  fh (h <.> (fun a -> registerApp (f, a)))
-                     a))
+            fh (h <.> (fun f -> registerApp (f, a))) f |~~
+            (fun _ -> fh (h <.> (fun a -> registerApp (f, a))) a)
         | Tup (_, s, ts) ->
             fhs selt buildt
               (h <.> (fun ts -> registerTup (s, ts))) ts
@@ -228,28 +233,16 @@ let findhole g t =
             fhs selt buildt
               (h <.> (fun ts -> registerFixapp (ss, ts))) ts
         | Binding (_, (bs, ss, us), env, pat) ->
-              (fhs selt buildt
-                 (
-                    h <.> (fun ss ->
-                          registerBinding ((bs, ss, us), env, pat))
-                        )
-                 ss |~~
-               (fun _ ->
-                  fhs selt buildt
-                    (
-                       h <.> (fun us ->
-                             registerBinding ((bs, ss, us), env, pat))
-                           )
-                    us))
+            fhs selt buildt
+              (h <.> (fun ss -> registerBinding ((bs, ss, us), env, pat))) ss |~~
+            (fun _ ->
+               fhs selt buildt
+                 (h <.> (fun us -> registerBinding ((bs, ss, us), env, pat))) us)
         | Subst (_, r, p_, vts) ->
-              (fh (
-                     h <.> (fun p_ -> registerSubst (r, p_, vts)))
-                  p_ |~~
+              (fh (h <.> (fun p_ -> registerSubst (r, p_, vts))) p_ |~~
                (fun _ ->
                   fhs (fun (v, t) -> t) (fun (v, _) t -> v, t)
-                    (
-                       h <.> (fun vts -> registerSubst (r, p_, vts)))
-                    vts))
+                      (h <.> (fun vts -> registerSubst (r, p_, vts))) vts))
         | Collection (_, k, es) ->
             let sele =
               function
