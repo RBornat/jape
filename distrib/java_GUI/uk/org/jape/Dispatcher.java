@@ -85,7 +85,11 @@ public class Dispatcher extends Thread {
                             ProofWindow.drawRect(toInt(command[1]), toInt(command[2]), // x, y
                                                  toInt(command[3]), toInt(command[4])); // w, h
                         else
-
+                        if (p.equals("DRAWLINE")&&len==5)
+                            ProofWindow.drawLine(toInt(command[1]), toInt(command[2]), // x, y
+                                                 toInt(command[3]), toInt(command[4])); // w, h
+                        else
+                            
                     // FONTINFO not very often
                         if (p.equals("FONTINFO")&&len==2)
                             Reply.reply(JapeFont.checkedFontMetrics(toByte(command[1])));
