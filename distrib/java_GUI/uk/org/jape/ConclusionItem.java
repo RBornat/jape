@@ -35,17 +35,30 @@ public class ConclusionItem extends SelectableProofItem {
     }
 
     public void clicked(byte eventKind, MouseEvent e) {
-        canvas.killSelections((byte)(ReasonSel | ConcSel));
-        doClick();
+        byte selkind = selectionRect.getSelkind();
+        if (selkind==NoSel) {
+            canvas.killSelections((byte)(ReasonSel | ConcSel));
+            doClick();
+        }
+        else
+            switch (eventKind) {
+                case ExtendedSelection:
+                case DisjointSelection:
+                case ExtendedDisjointSelection:
+                    selectionRect.setSelkind(NoSel);
+                    canvas.notifyDeselect();
+                    break;
+            }
     }
 
     private void doClick() {
         selectionRect.setSelkind(ConcSel);
+        canvas.notifySelect(this);
     }
-
+    
     public void select(byte selkind) {
         if (selkind==ConcSel)
-            doClick();
+            selectionRect.setSelkind(ConcSel);
         else
             Alert.abort("ConclusionItem.select selkind="+selkind);
     }
