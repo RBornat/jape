@@ -9,6 +9,8 @@ CONJECTUREPANEL "Programs"  IS
     {i=Ki∧j=Kj} (t:=i; i:=j; j:=t) {i=Kj∧j=Ki}
   THEOREM WHERE i NOTIN j IS 
     {i=Ki∧j=Kj} (i:=j; j:=i) {i=Kj∧j=Ki}
+  THEOREM WHERE DISTINCT i,j,k IS
+    {true} if j>k then i:=j else i:= k fi {(j≥k→i=j)∧(k≥j→i=k)}
   THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
     {j=Kj∧k=Kk} if j>k then i:=j else i:= k fi {j=Kj∧k=Kk∧(j>k→i=Kj)∧(k≥j→i=Kk)}
   THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
