@@ -96,6 +96,10 @@ public class Logger {
     }
 
     // System.err loopback
+
+    private static final PrintStream savedErr = System.err;
+    private static boolean diverted = false;
+    
     static {
         class Queue {
             // the world's worst queue
@@ -273,6 +277,7 @@ public class Logger {
         if (divertToWindow) {
             PrintStream errStream = new PrintStream(outer, true);
             System.setErr(errStream);
+            diverted = true;
             // System.err.println("this am a test!");
         }
         else
@@ -322,6 +327,16 @@ public class Logger {
             logWindow.setVisible(true);
             logWindow.setVisible(visible);
         }
+    }
+
+    public static void crash(String message, int val) {
+        if (diverted) {
+            System.err.flush();
+            System.setErr(savedErr);
+            System.err.println(textArea.getText());
+        }
+        System.err.println(message);
+        System.exit(val);
     }
 }
 
