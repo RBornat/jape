@@ -260,11 +260,21 @@ TACTIC  findbutton(X)     IS ALT()
 TACTIC  cutbutton(X)      IS ALT()
 
 /* TACTIC BEGINPROOF IS JAPE(forbidconjectures()) */
-INITIALISE applyconjectures false
 
 MENU    "Mode" 
- BUTTON "Apply both conjectures and theorems" 	IS assign applyconjectures true
- BUTTON "Apply only theorems " 		IS assign applyconjectures false
+	RADIOBUTTON applyconjectures IS
+		"Apply both conjectures and theorems" 	IS true
+	AND	"Apply only theorems " 		IS false
+   	INITIALLY false
+ 	END
+END
+
+MENU "Edit"
+	RADIOBUTTON displaystyle IS
+		"Box display" 	IS box
+	AND	"Tree display" 	IS tree
+	INITIALLY tree
+	END
 END
 
 
