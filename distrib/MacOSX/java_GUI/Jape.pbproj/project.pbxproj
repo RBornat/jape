@@ -88,6 +88,7 @@
 				F5152726037BCC1A01A80116,
 				F57EF90F039503AE01A80116,
 				F57EF912039507ED01A80116,
+				F5DFE22903953DAD01A80116,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -307,6 +308,7 @@
 				F5F50C930394F22F01A80116,
 				F57EF910039503AE01A80116,
 				F57EF913039507ED01A80116,
+				F5DFE22A03953DAD01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1135,6 +1137,7 @@
 				F5F50C940394F22F01A80116,
 				F57EF911039503AE01A80116,
 				F57EF914039507ED01A80116,
+				F5DFE22B03953DAD01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1410,6 +1413,24 @@
 		};
 		F5D80C8E036F044901A80116 = {
 			fileRef = F5D80C8B036F044901A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5DFE22903953DAD01A80116 = {
+			isa = PBXFileReference;
+			name = WorldConnector.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/WorldConnector.java;
+			refType = 0;
+		};
+		F5DFE22A03953DAD01A80116 = {
+			fileRef = F5DFE22903953DAD01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5DFE22B03953DAD01A80116 = {
+			fileRef = F5DFE22903953DAD01A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
