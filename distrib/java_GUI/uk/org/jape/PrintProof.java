@@ -65,11 +65,19 @@ public class PrintProof {
     
     static void printTichy(ProofWindow w, int what) {
         PrinterJob job = PrinterJob.getPrinterJob();
+		if (DebugVars.printdialog_tracing)
+			Logger.log.println("PrinterJob succeeded "+job);
         PageFormat page = new PageFormat();
+		if (DebugVars.printdialog_tracing)
+			Logger.log.println("PageFormat succeeded "+page);
         Paper paper = new Paper();
+		if (DebugVars.printdialog_tracing)
+			Logger.log.println("Paper succeeded "+paper);
 
         w.whattoprint = what;
         ProofWindow.PrintSize printSize = w.getPrintSize();
+		if (DebugVars.printdialog_tracing)
+			Logger.log.println("got printSize "+printSize);
         boolean cockeyed = printSize.printWidth>printSize.printHeight;
 
         if (cockeyed) {
@@ -81,20 +89,36 @@ public class PrintProof {
             paper.setImageableArea((double)0.0, (double)0.0,
                                    (double)printSize.printWidth, (double)printSize.printHeight);
         }
+		if (DebugVars.printdialog_tracing)
+			Logger.log.println("paper sizes set");
         page.setPaper(paper);
+		if (DebugVars.printdialog_tracing)
+			Logger.log.println("setPaper succeeded");
 
         if (cockeyed) {
             page.setOrientation(page.LANDSCAPE); // I think this is a bug ... and I have to do it here
         } 
+		if (DebugVars.printdialog_tracing)
+			Logger.log.println("orientation set "+cockeyed);
         
         job.setPrintable(w, page);
-        if (job.printDialog()) {
-            try {
-                job.print();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                Alert.showAlert(Alert.Warning, "print job failed -- see log");
-            }
-        }
+		if (DebugVars.printdialog_tracing)
+			Logger.log.println("setPrintable done -- starting printDialog");
+		try {
+			if (job.printDialog()) {
+				if (DebugVars.printdialog_tracing)
+					Logger.log.println("setPrintable done -- starting printDialog");
+					job.print();
+					if (DebugVars.printdialog_tracing)
+						Logger.log.println("job.print done");
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace(Logger.log);
+			Alert.showAlert(Alert.Warning, "print job failed -- see log");
+		}
+		// desperate attempt to stop print dialogs doing stupid things
+		job.setPrintable(null,null); 
+		if (DebugVars.printdialog_tracing)
+			Logger.log.println("printing done");
     }
 }
