@@ -1,9 +1,5 @@
 /* 
-<<<<<<< LocalSettings.java
     $Id$
-=======
-    $Id$
->>>>>>> 1.18.6.3
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      

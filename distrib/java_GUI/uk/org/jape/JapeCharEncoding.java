@@ -1,9 +1,5 @@
 /* 
-<<<<<<< JapeCharEncoding.java
     $Id$
-=======
-    $Id$
->>>>>>> 1.8.4.7
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      

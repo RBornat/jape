@@ -1,9 +1,5 @@
 /* 
-<<<<<<< JapeFont.java
     $Id$
-=======
-    $Id$
->>>>>>> 1.23.6.8
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      

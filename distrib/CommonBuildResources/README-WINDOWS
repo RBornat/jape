@@ -76,13 +76,16 @@ What to do
    In case of despair, please send a log of your installation session and
    the attempted run of jape.        
 
-That's all there is to it.
+   
+Gestures in jape
+----------------
 
+Being (at last becoming) tri-platform, Jape is now beginning to conform to user
+interface standards.
 
+<letftclick> formula selection
+<shift-leftclick> add a formula selection, or to cancel an existing selection.
 
-
-
-
-
-
-
+<middleclick> text selection
+<shift-middleclick> extend an existing text selection
+<control-middleclick> add a text selection
