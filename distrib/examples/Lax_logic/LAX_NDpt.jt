@@ -1,4 +1,5 @@
 /* $Id$ */
+
 FONTS "Konstanz"
 INITIALISE displaystyle box
 
@@ -16,7 +17,7 @@ OUTFIX let be in end
 
 PREFIX	50 		×
 INFIX 	80L		@
-INFIX		100R		ç
+INFIX		100R	ç
 INFIX		120L		¦
 INFIX		140L		ë
 PREFIX	200		Â
@@ -122,27 +123,24 @@ STRUCTURERULE IDENTITY    hyp
 STRUCTURERULE CUT            cut
 STRUCTURERULE WEAKEN     thin
 
+HYPHIT	p:P     æ q:P	IS hyp       
+HYPHIT	p:P¦Q æ q:R	IS ALT	(SEQ "¦-E(L)" (WITHHYPSEL hyp))
+                                           		(SEQ "¦-E(R)" (WITHHYPSEL hyp))
+                                           		(SEQ (ForwardCut 0 "¦-E(L)") (ForwardCut 0 "¦-E(R)"))
+HYPHIT	p:PçQ  æ q:R	IS ForwardCut 1 "ç-E"
+HYPHIT	p:PëQ  æ q:R	IS ForwardUncut 0 "ë-E"
+HYPHIT	p:ÂÂP   æ q:Q	IS ForwardCut 0 "Â-E"
+HYPHIT	p:èx.P æ q:Q	IS "è-E tac"
+HYPHIT	p:äx.P æ q:Q	IS ForwardUncut 0 "ä-E"
+HYPHIT 	P:×A  æ q:B	IS "×-Etac"
 
-
-/* HYPHIT	A:P     æ A:P	IS hyp       
-HYPHIT	P¦Q æ R	IS ALT	(SEQ "¦-E(L)" (WITHHYPSEL hyp))
-                                           	(SEQ "¦-E(R)" (WITHHYPSEL hyp))
-                                           	(SEQ (ForwardCut 0 "¦-E(L)") (ForwardCut 0 "¦-E(R)"))
-HYPHIT	PçQ  æ R	IS ForwardCut 1 "ç-E"
-HYPHIT	PëQ  æ R	IS ForwardUncut 0 "ë-E"
-HYPHIT	ÂÂP   æ Q	IS ForwardCut 0 "Â-E"
-HYPHIT	èx.P æ Q	IS "è-E tac"
-HYPHIT	äx.P æ Q	IS ForwardUncut 0 "ä-E"
-
-CONCHIT	Q¦R	IS "¦-I"
-CONCHIT	QëR	IS ALT (SEQ "ë-I(L)" hyp) (SEQ "ë-I(R)" hyp)
-CONCHIT	QçR	IS "ç-I"      
-CONCHIT	ÂQ	IS "Â-I"       
-CONCHIT	èx.Q	IS "è-I"  
-CONCHIT	äx.Q	IS "ä-I tac"  
-HYPHIT ×A æ B	IS "×-Etac"
-CONCHIT æ ×A 	IS "×-I"
-*/
+CONCHIT	p:Q¦R	IS "¦-I"
+CONCHIT	p:QëR	IS ALT (SEQ "ë-I(L)" hyp) (SEQ "ë-I(R)" hyp)
+CONCHIT	p:QçR	IS "ç-I"      
+CONCHIT	p:ÂQ	IS "Â-I"       
+CONCHIT	p:èx.Q	IS "è-I"  
+CONCHIT	p:äx.Q	IS "ä-I tac"  
+CONCHIT 	p:×A 	IS "×-I"
 
 CONSTANT cheese wine port claret dessert brie stilton
 
