@@ -5,11 +5,11 @@ HYPHIT	P¦Q æ R	IS ALT(SEQ("¦-E(L)", hyp (P¦Q)),
                                            SEQ("¦-E(R)", hyp (P¦Q)),
                                            SEQ(cut,"¦-E(L)", hyp (P¦Q),cut,"¦-E(R)", hyp (P¦Q))
                                           )
-HYPHIT	PëQ  æ R	IS "ë-Eforward"  (PëQ)
 HYPHIT	PçQ  æ R	IS "ç-Eforward"  (PçQ)
-HYPHIT	ÂÂP   æ Q	IS "Â-Eforward"   (ÂÂP)
-HYPHIT	èx.P æ Q	IS "è-Eforward"  (èx.P)
-HYPHIT	äx.P æ Q	IS "ä-Eforward"  (äx.P)
+HYPHIT	PëQ  æ R	IS ForwardCut "ë-E"  (PëQ)
+HYPHIT	ÂÂP   æ Q	IS ForwardCut "Â-E"   (ÂÂP)
+HYPHIT	èx.P æ Q	IS ForwardCut "è-E"  (èx.P)
+HYPHIT	äx.P æ Q	IS ForwardCut "ä-E"  (äx.P)
 
 CONCHIT	Q¦R	IS "¦-I"
 CONCHIT	QëR	IS ALT(SEQ("ë-I(L)", hyp), SEQ("ë-I(R)", hyp))
