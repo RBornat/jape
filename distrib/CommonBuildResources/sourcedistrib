@@ -2,7 +2,7 @@
 # usage: sourcedistrib <user> <tag>
 rm -fr jape.source jape.source.$2.tgz
 setenv CVS_RSH ssh
-setenv CVSROOT :ext:$1@lucy.dcs.qmul.ac.uk:/import/japedev/cvsroot
+setenv CVSROOT :ext:$1@frank.dcs.qmul.ac.uk:/import/japedev/cvsroot
 cvs export -r $2 -d jape.source distrib
 (cd jape.source/CommonBuildResources; bash create_OS_directories; rm create_OS_directories sourcedistrib)
 (cd jape.source/MacOSX; rm macdistrib)
