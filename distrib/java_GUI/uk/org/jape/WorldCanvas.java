@@ -34,20 +34,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
-/*import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetContext;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;*/
-
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-public class WorldCanvas extends JapeCanvas implements DebugConstants/*, DropTargetListener */{
+public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarget {
 
     protected RenderingHints renderingHints;
     protected JFrame window;
@@ -105,6 +97,11 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants/*, DropTar
         super.removeAll();
     }
 
+    public void forcerepaint() {
+        imageRepaint = true;
+        repaint();
+    }
+
     private static Rectangle clip = new Rectangle();
 
     public void paint(Graphics g) {
@@ -130,11 +127,11 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants/*, DropTar
                                            ((Graphics2D)imageGraphics).getRenderingHints());
                     }
                 }
-                imageGraphics.setColor(Preferences.ProofBackgroundColour);
-                imageGraphics.fillRect(0, 0, width, height);
             }
             g.getClipBounds(clip);
             imageGraphics.setClip(clip.x, clip.y, clip.width, clip.height);
+            imageGraphics.setColor(Preferences.ProofBackgroundColour);
+            imageGraphics.fillRect(0, 0, width, height);
             super.paint(imageGraphics);
             imageRepaint = false;
         }
@@ -198,7 +195,17 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants/*, DropTar
 
     /* ****************************** canvas as drag target ****************************** */
 
-   /* // Called when a drag operation has encountered the DropTarget.
+    public void dragEnter() { }
+    
+    public void dragExit() { }
+
+    /* ****************************** canvas as world drop target ****************************** */
+    
+    public void drop(WorldItem w, int x, int y) {
+        w.hitCanvas(this, x-child.getX(), y-child.getY()); // them's the coordinates, really
+    }
+
+ /* // Called when a drag operation has encountered the DropTarget.
     public void dragEnter(DropTargetDragEvent event) {
         if (dragimage_tracing)
             System.err.println("Canvas dragEnter "+event.getLocation());
