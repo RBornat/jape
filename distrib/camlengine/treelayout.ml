@@ -39,14 +39,14 @@ let rec treelayoutstring =
   | HideCutLayout -> "HIDECUT"
   | CompressedLayout stuff ->
       begin match tls stuff with
-        "\"%s\" ALL" -> "COMPRESS"
+        "\"%s\" ALLL" -> "COMPRESS"
       | s -> "COMPRESS " ^ s
       end
   | NamedLayout stuff -> tls stuff
 and tls =
   function
     fmt, Some tns -> ((termstring fmt ^ " (") ^ termstring tns) ^ ")"
-  | fmt, None -> termstring fmt ^ " ALL"
+  | fmt, None -> termstring fmt ^ " ALLL"
 let rec smltreelayoutstring =
   function
     HideRootLayout -> "HideRootLayout"
