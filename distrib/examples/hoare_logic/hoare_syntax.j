@@ -35,7 +35,6 @@ PREFIX	1200	¬
 JUXTFIX	    9000
 SUBSTFIX    10000   « E / x  » /* so that { }, [ ] are available for other uses */
 
-/* PUSHSYNTAX I2L is defeated if you write P in place of A below -- oh dear */
 BIND x SCOPE A IN ∀x . A
 BIND x SCOPE A IN ∃x . A
 
