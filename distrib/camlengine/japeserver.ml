@@ -321,17 +321,31 @@ let rec drawstring (font, class__, s, pos) =
 let rec showAlert s = writef "SETALERT %\n" [Str s]
 
 let rec drawmeasuredtext class__ lines pos =
-  (* : displayclass ->(pos*font*string) list -> pos -> unit *)
+  (* : displayclass -> (pos*font*string) list -> pos -> unit *)
+  (* consolereport ["drawmeasuredtext ";
+                 displayclassstring class__;
+                 " ";
+                 bracketedliststring 
+                    (Stringfuns.triplestring 
+                        posstring displayfontstring Stringfuns.enQuote ",") 
+                    ";\n" lines;
+                 " ";
+                 posstring pos]; *)
   let classn = displayclass2int class__ in
   match lines with
     [pos', font, string] ->
       let fontn = displayfont2int font in
       drawstring (fontn, classn, string, Box.(+->+) pos pos')
   | [] -> ()
-  | l::ls ->
-      (showAlert (Sml.implode ["drawmeasuredtext sees list of texts of length ";
-                              string_of_int (List.length lines)]);
-       drawmeasuredtext class__ [l] pos)
+  | _  ->
+      let dostring (pos, font, s) =
+        let (x, y) = explodePos pos in
+        writef "DRAWMT % % % %\n" [Int x; Int y; Int (displayfont2int font); Str s]
+      in
+      let (x, y) = explodePos pos in
+      writef "DRAWMEASUREDTEXT % % % %\n" [Int x; Int y; Int classn; Int (List.length(lines))]; 
+      List.iter dostring lines;
+      writef "DRAWMEASUREDTEXTEND\n" []
 
 let rec procrustes width ellipsis font text =
   (* if stringwidth(text in font) < width then text else [text] cut to width - widthof ...*)
