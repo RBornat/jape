@@ -102,8 +102,8 @@ TACTIC HypFoldUnfold(t) IS
 		)
 		(FAIL (please select a hypothesis))
 
-TACTIC "UnfoldHyp"	IS HypFoldUnfold "Unfold with hypothesis"
-TACTIC "FoldHyp"	IS HypFoldUnfold "Fold with hypothesis"
+TACTIC "UnfoldHyp"	IS HypFoldUnfold "Fold with hypothesis"
+TACTIC "FoldHyp"	IS HypFoldUnfold "Unfold with hypothesis"
 
 
 
