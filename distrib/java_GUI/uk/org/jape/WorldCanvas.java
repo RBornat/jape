@@ -50,11 +50,12 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
         super(viewport, scrolled);
         this.window = window;
         this.wasteBin = wasteBin;
-        this.linethickness = linethickness; 
+        setlinethickness(linethickness); 
         
         renderingHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
                                             RenderingHints.VALUE_ANTIALIAS_ON);
         renderingHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        
         Point origin = getOrigin();
         setOrigin(origin.x, origin.y+2*worldRadius());
         /*setDropTarget(new DropTarget(this, this));*/
