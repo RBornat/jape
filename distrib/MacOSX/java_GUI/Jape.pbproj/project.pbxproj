@@ -59,6 +59,7 @@
 				F528CB2B0307C5B501A80116,
 				10F9BF62FEEDA25E11DB9C8B,
 				F531A7B7033213F801A80116,
+				F52B56B7039D296801A80116,
 				F574B00903968EBA01A80116,
 				F50BD28C036EEC3A01A80116,
 				F515B6180331DA6801A80116,
@@ -90,6 +91,7 @@
 				F5152723037BC71E01A80116,
 				F5DFE22903953DAD01A80116,
 				F5152726037BCC1A01A80116,
+				F52B56B1039D210801A80116,
 				F57EF90F039503AE01A80116,
 			);
 			isa = PBXGroup;
@@ -313,6 +315,8 @@
 				F574B00A03968EBA01A80116,
 				F52ED070039BAC4001A80116,
 				F54C942B039D03FB01A80116,
+				F52B56B2039D210801A80116,
+				F52B56B8039D296801A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -687,6 +691,42 @@
 		};
 		F528CB2E0307C5B501A80116 = {
 			fileRef = F528CB2B0307C5B501A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F52B56B1039D210801A80116 = {
+			isa = PBXFileReference;
+			name = WorldLabel.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/WorldLabel.java;
+			refType = 0;
+		};
+		F52B56B2039D210801A80116 = {
+			fileRef = F52B56B1039D210801A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F52B56B3039D210801A80116 = {
+			fileRef = F52B56B1039D210801A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F52B56B7039D296801A80116 = {
+			isa = PBXFileReference;
+			name = LabelTarget.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/LabelTarget.java;
+			refType = 0;
+		};
+		F52B56B8039D296801A80116 = {
+			fileRef = F52B56B7039D296801A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F52B56B9039D296801A80116 = {
+			fileRef = F52B56B7039D296801A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -1198,6 +1238,8 @@
 				F574B00B03968EBA01A80116,
 				F52ED071039BAC4001A80116,
 				F54C942C039D03FB01A80116,
+				F52B56B3039D210801A80116,
+				F52B56B9039D296801A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
