@@ -295,6 +295,8 @@ public class JapeMenu implements DebugConstants {
                     else
                     if (o instanceof I) {
                         I ii = (I)o;
+						if (m.title.equals("File") && ii.label.equals("Close"))
+							menu.add(recentFilesMenu());
                         if (isProofBar || !m.title.equals("File") ||
                               (!(ii.label.equals("Close") ||
                                  ii.label.equals(PAGE_SETUP) ||
@@ -540,7 +542,7 @@ public class JapeMenu implements DebugConstants {
                 Alert.abort("PrintProofAction on non-proof window");
         }
     }
-
+	
     private static class RedoAction extends ItemAction {
         public void action(JapeWindow w) {
             if (w instanceof ProofWindow)
@@ -811,6 +813,9 @@ public class JapeMenu implements DebugConstants {
                                                  indexMenu(windowmenu, "Window"));
         addStdHelpMenuItems(indexMenu(false, "Help"));
 
+		if (recentFiles==null)
+			setRecentFiles(FilePrefs.getRecentFiles(), false);
+		
         menusVisible = false;
     }
 
@@ -1105,5 +1110,48 @@ public class JapeMenu implements DebugConstants {
                 }
             });
     }
+	
+	private static Vector recentFiles = null;
+		
+	public static void setRecentFiles(String recent, boolean rebuildMenus) {
+		recentFiles = new Vector();
+		int i=0, j;
+		while ((j=recent.indexOf("\n", i))!=-1) {
+			String next = recent.substring(i, j);
+			recentFiles.add(next);
+			java.io.File file = new java.io.File(next);
+			String name = file.getName();
+			String parent = file.getParent();
+			recentFiles.add(parent==null ? name : name+" - "+parent);
+			i = j+1;
+		}
+		if (rebuildMenus && menusVisible)
+            JapeWindow.updateMenuBars();
+	}
+		
+	private static JMenu recentFilesMenu() {
+		JMenu menu = new JMenu("Open Recent");
+
+		for (int i=0; i<recentFiles.size(); i+=2) {
+			final String f = (String)recentFiles.get(i);
+			String text = (String)recentFiles.get(i+1);
+			JMenuItem item = new JMenuItem(text);
+			item.setActionCommand(text);
+			item.setEnabled(true);
+			item.setSelected(false);
+			JapeFont.setComponentFont(item.getComponent(), JapeFont.MENUENTRY);
+			if (DebugVars.menuaction_tracing)
+				Logger.log.println("addRecentFile "+JapeUtils.enQuote(item.getText()));
+			item.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent newEvent) {
+					FilePrefs.recordRecentFile(f);
+					doOpenFile(f);
+				}
+			});
+			menu.add(item);
+		}
+		
+		return menu;
+	}
 }
 
