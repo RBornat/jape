@@ -87,6 +87,7 @@ let rec ( // ) =
 
 
 let _All f = not <.> List.exists (not <.> f)
+let _All1 f xs = _All f xs && not (null xs)
 
 let rec member (x, sf) = List.mem x sf
 let rec nonmember (x, sf) = not (member (x, sf))
