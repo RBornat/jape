@@ -52,17 +52,9 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
         int nc = child.getComponentCount(); // oh dear ...
         for (int i=0; i<nc; i++) {
             Component c = child.getComponent(i); // oh dear ...
-            if (c instanceof DisplayItem && c instanceof SelectableItem) {
-                byte selclass;
-                switch (((SelectableItem)c).getSelkind()) {
-                    case NoSel    : continue;
-                    case HypSel   : selclass = HypTextItem; break;
-                    case ConcSel  : selclass = ConcTextItem; break;
-                    case ReasonSel: selclass = ReasonTextItem; break;
-                    default       : Alert.abort("ProofCanvas.getSelections selkind="+
-                                                ((SelectableItem)c).getSelkind());
-                                    selclass=NoSel; // shut up compiler
-                }
+            byte selclass;
+            if (c instanceof DisplayItem && c instanceof SelectableItem &&
+                (selclass = protocolSelClass("getSelections", (SelectableItem)c))!=PunctTextItem) {
                 String s1 = ((DisplayItem)c).idX+" "+((DisplayItem)c).idY+" "+selclass+"\n";
                 if (s==null)
                     s=s1;
@@ -73,6 +65,18 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
         return s==null ? "" : s; 
     }
 
+    protected byte protocolSelClass(String id, SelectableItem si) {
+        switch (si.getSelkind()) {
+            case NoSel    : return PunctTextItem;
+            case HypSel   : return HypTextItem;
+            case ConcSel  : return ConcTextItem;
+            case ReasonSel: return ReasonTextItem;
+            default       : Alert.abort("ProofCanvas."+id+" selkind="+
+                                        si.getSelkind());
+                            return PunctTextItem; // shut up compiler
+        }
+    }
+    
     // not efficient, not in time order
     // always ends with a blank line
     public String getTextSelections() {
@@ -93,5 +97,13 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
             }
         }
         return s==null ? "" : s;
+    }
+
+    protected void notifyHit(DisplayItem di) {
+        if (di instanceof SelectableItem)
+            Reply.send("ACT "+di.idX+" "+di.idY+" "+
+                       protocolSelClass("notifyHit",(SelectableItem)di));
+        else
+            Alert.abort("ProofCanvas.notifyHit di="+di);
     }
 }
