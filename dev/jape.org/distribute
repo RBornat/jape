@@ -1,17 +1,46 @@
 #!/bin/sh
 #
-# Fetch distributions and install them
+# Fetch latest distributions from their build locations, then 
+# install them in a new directory (anmed after the date) on the website, then
+# update current website message, and CURRENT symlink.
 #
+# Assumptions:
+#   
+#       No more than one distribute per day
+#          (delete from the day directory if you make a mistake 
+#           and want to rebuild and distribute)
 #
-architectures="Solaris Windows Linux MacOsX"
+#       Complete installation for architecture ${X} is in 
+#          ${build}/${X}Jape/build/${X}jape.jar           
+#
+# [We'll need to do something special for MacOsX (surprise, surprise)]
+#
+# ##########################################################################
+#
+# List of architectures that we know
+#
+architectures="Solaris Windows Linux"
+#
+# Root of the build CVS tree
+#
 build=/home/sufrin/JAPETREE-6/jape
-README=/home/sufrin/JAPETREE-6/jape/CommonBuildResources/
+#
+# Location of the (various) README files
+#
+README=$build/CommonBuildResources/
 #
 #
+# ###########################################################
+#
+# Where to put the new distribution files
 #
 distdir=BUILDS/`date +%Y%m%d`
+#
+# Where to put the newly-concocted distribution message
+#
 message=$distdir/README
 #
+# ##########################################################################
 #
 #
 echo -n Distribution Directory $distdir
@@ -27,22 +56,32 @@ do
   source=$build/${arch}Jape/build/${arch}jape.jar
   if [ -e $source ]
   then 
-     if [ -e $distdir/${arch}jape.jar ]
+     if [ \( -e $distdir/${arch}jape.jar \) -a ! \( $source -nt $distdir/${arch}jape.jar \)]
      then
        echo $arch already installed.
      else
-       cp   $source $distdir
+       cp   -p $source $distdir
        echo $arch installed.
      fi
   else
-     echo -e $arch not installed.
+     echo -e $arch not installed because I cannot find $source.
   fi 
 done
-  rm -f CURRENT
-  ln -s $distdir        CURRENT
+#
+#       Concoct the distro message, copy the README files
+#
   cp -p $README/README* $distdir
   echo Current distribution made on `date`      >  $message
   echo                                          >> $message
   cat MESSAGE                                   >> $message
+#
+# Swing the pointer (this should be atomic, but at one distro per day ....)
+#
+  rm -f CURRENT
+  ln -s $distdir        CURRENT
+#
+#
+#
+
 
 
