@@ -496,7 +496,7 @@ module
                  | Some bs' -> bs' :: rs)
               bss []
           in
-          let rec mkpairs b = _MAP ((fun v' -> v, v'), b) in
+          let rec mkpairs b = ((fun v' -> v, v') <* b) in
           List.concat (((fun bs -> List.concat ((mkpairs <* bs))) <* bss'))
         in
         List.concat ((sks <* allbinders))
@@ -639,15 +639,14 @@ module
           match ehb vars (getside conseq) with
             Some (vars, sv, side) ->
               let antes =
-                _MAP
-                  ((fun s ->
+                ((fun s ->
                       let side = getside s in
                       if extensible side then setside s (extend sv side)
                       else
                         raise
                           (BadAdditivity_
                              ["antecedent "; seqstring s;
-                              " isn't extensible"])),
+                              " isn't extensible"])) <*
                    antes)
               in
               setside conseq side, antes, vars
@@ -715,7 +714,7 @@ module
         fun ((P, abss), ps) ->
           let rec g (ts, bss) =
             let vs = nj_fold (sortedmerge earliervar) bss [] in
-            _MAP ((fun v -> v, P), vs)
+            ((fun v -> v, P) <* vs)
           in
           List.concat ((g <* abss)) @ ps
       in
@@ -795,7 +794,7 @@ module
       let applyps = findhiddenprovisos (conseq, antes) applyps in
       (* and that's it *)
       let rec makeprovisos ps =
-        _MAP ((fun xy -> false, mkNotinProviso xy), ps) @ provisos
+        ((fun xy -> false, mkNotinProviso xy) <* ps) @ provisos
       in
       let
         (proofbodyvars, proofantes, proofconseq, proofprovisos, applybodyvars,
@@ -1000,8 +999,7 @@ module
     let rec freshparamstouse vars args params =
       let paramsused =
         allparams params
-          (_MAP
-             (var2param,
+          ((var2param <*
               (isextensibleID <*> vartoVID) <| vars))
       in
       let bodyVIDs = orderVIDs ((vartoVID <* vars)) in
@@ -1024,7 +1022,7 @@ module
              res];
       res
     let rec instantiateRule env provisos antes conseq =
-      let provisos' = _MAP ((fun (v, p) -> v, remapproviso env p), provisos) in
+      let provisos' = ((fun (v, p) -> v, remapproviso env p) <* provisos) in
       let conseq' = remapseq env conseq in
       let antes' = (remapseq env <* antes) in
       (* give args back in the order received, not the mapping order *)
@@ -1053,7 +1051,7 @@ module
            *)
           (take (List.length paramsused) args)
       in
-      let provisos' = _MAP ((fun (v, p) -> v, remapproviso env p), provisos) in
+      let provisos' = ((fun (v, p) -> v, remapproviso env p) <* provisos) in
       let conseq' = remapseq env conseq in
       let antes' = (remapseq env <* antes) in
       (* give args back in the order received, not the mapping order *)
@@ -1217,7 +1215,7 @@ module
       params, provisos, conseq
     let rec wehavestructurerule kind stilesopt =
       let names =
-        _MAP (snd, ((fun (k, _) -> k = kind) <| !structurerules))
+        (snd <* ((fun (k, _) -> k = kind) <| !structurerules))
       in
       let rec getstile = fun (Seq (st, _, _)) -> st in
       not (null names) &&
@@ -1258,7 +1256,7 @@ module
     let rec compiletoprove (pros, antes, conseq) =
       let ((_, (_, pros', antes', conseq')), _) =
         compileR false false
-          ([], _MAP ((fun p -> true, p), pros), antes, conseq)
+          ([], ((fun p -> true, p) <* pros), antes, conseq)
       in
       let (antes', conseq') = numberforproof (antes', conseq') in
       pros', antes', conseq'
@@ -1302,11 +1300,10 @@ module
             Collection (_, cc, els) ->
               registerCollection
                 (cc,
-                 _MAP
                    ((function
                        Element (_, Resnum r, t) ->
                          registerElement (ResUnknown r, t)
-                     | el -> el),
+                     | el -> el) <*
                     els))
           | t -> t
         in
@@ -1405,21 +1402,16 @@ module
               end;
             begin try
               match
-                andthenr
-                  (andthenr
-                     ((match mparams with
-                         Some mparams ->
-                           optionfold (uncurry2 (uncurry2 match__))
-                             (( ||| )
-                                (mparams,
-                                 _MAP
-                                   ((registerId <*> paramidbits),
-                                    params)))
-                             empty
-                       | None -> Some empty),
-                      optionfold (uncurry2 (uncurry2 seqmatch))
-                        ((mtops ||| tops))),
-                   seqmatch mbottom bottom)
+				(match mparams with
+					Some mparams ->
+					  optionfold (uncurry2 (uncurry2 match__))
+						(mparams ||| ((registerId <*> paramidbits) <* params))
+						empty
+				  | None -> Some empty)
+				&~~
+				optionfold (uncurry2 (uncurry2 seqmatch)) ((mtops ||| tops))
+				&~~
+				seqmatch mbottom bottom
               with
                 Some env ->
                   begin match mprovs with

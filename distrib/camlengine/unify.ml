@@ -222,44 +222,37 @@ module
                     | Yes -> Ares None
                     end
                 | App (_, f, a) ->
-                    andthenr
-                      (optionfold (Afold m) [f; a] (cxt, []),
+                      (optionfold (Afold m) [f; a] (cxt, []) &~~
                        (function
                           cxt, [f; a] -> Ares (Some (cxt, registerApp (f, a)))
                         | _ -> raise MatchinAbstract_))
                 | Tup (_, sep, ts) ->
-                    ortryr
-                      (andthenr
-                         (optionfold (Afold m) ts (cxt, []),
+                         (optionfold (Afold m) ts (cxt, []) &~~
                           (fun (cxt, ts') ->
-                             Ares (Some (cxt, registerTup (sep, ts'))))),
-                       (fun _ -> Ares None))
+                             Ares (Some (cxt, registerTup (sep, ts'))))) |~~
+                       (fun _ -> Ares None)
                 | Literal _ -> Ares (Some (cxt, P))
                 | Fixapp (_, bras, ts) ->
-                    ortryr
-                      (andthenr
-                         (optionfold (Afold m) ts (cxt, []),
+                         (optionfold (Afold m) ts (cxt, []) &~~
                           (fun (cxt, ts) ->
-                             Some (cxt, registerFixapp (bras, ts)))),
-                       (fun _ -> Ares None))
+                             Some (cxt, registerFixapp (bras, ts)))) |~~
+                       (fun _ -> Ares None)
                 | Binding (_, (bs, ss, us), env, pat) ->
                     begin match
                       restrictsubstmap (facts (ourprovisos ()) cxt) m bs ss
                     with
                       Some m' ->
-                        ortryr
-                          (andthenr
-                             (optionfold (Afold m) us (cxt, []),
+                          (
+                             (optionfold (Afold m) us (cxt, []) &~~
                               (fun (cxt, us') ->
-                                 ortryr
-                                   (andthenr
-                                      (optionfold (Afold m') ss (cxt, []),
+                                   (
+                                      (optionfold (Afold m') ss (cxt, []) &~~
                                        (fun (cxt, ss') ->
                                           Some
                                             (cxt,
                                              registerBinding
-                                               ((bs, ss', us'), env, pat)))),
-                                    (fun _ -> Ares None)))),
+                                               ((bs, ss', us'), env, pat)))) |~~
+                                    (fun _ -> Ares None)))) |~~
                            (fun _ -> Ares None))
                     | None -> defermatch ()
                     end
@@ -269,26 +262,22 @@ module
                     let fs = facts (ourprovisos ()) cxt in
                     begin match vtsplit fs m vs' with
                       ys, ns, [] ->
-                        ortryr
-                          (andthenr
-                             (optionfold (Afold m) ts' (cxt, []),
+                          (
+                             (optionfold (Afold m) ts' (cxt, []) &~~
                               (fun (cxt, ts'') ->
-                                 ortryr
-                                   (andthenr
+                                   (
                                       (Abstract
                                          (cxt,
-                                          ( ||| )
-                                            (vs' @ substmapdom ns,
+                                            (vs' @ substmapdom ns |||
                                              vs' @ substmapran ns),
-                                          P'),
+                                          P') &~~
                                        (fun (cxt, P'') ->
                                           Some
                                             (cxt,
                                              registerSubst
                                                (r, P'',
-                                                ( ||| )
-                                                  (substmapdom m', ts''))))),
-                                    (fun _ -> Ares None)))),
+                                                  (substmapdom m' ||| ts''))))) |~~
+                                    (fun _ -> Ares None)))) |~~
                            (fun _ -> Ares None))
                     | _ -> defermatch ()
                     end
@@ -329,7 +318,7 @@ module
     let rec class__ cxt t =
       match t with
         Unknown (_, v, _) ->
-          andthenr (at (varmap cxt, v), whatever class__ cxt)
+          (at (varmap cxt, v) &~~ whatever class__ cxt)
       | _ -> if bracketed t then whatever class__ cxt (debracket t) else None
     (* was debracket (simplifySubstAnyway (facts (rewrittenprovisos cxt) cxt) m P) *)
     (* now a single-step simplifier, in an attempt to speed-up failing unifications.
@@ -458,11 +447,10 @@ module
               Unknown (_, v1, c1), Unknown (_, v2, c2) ->
                 if v1 = v2 && c1 = c2 then success cxt
                 else
-                  andthenr
-                    (ortryr
-                       (assign (v1, c1) (reb t1orig t2orig t2) cxt,
+                    (
+                       (assign (v1, c1) (reb t1orig t2orig t2) cxt |~~
                         (fun _ ->
-                           assign (v2, c2) (reb t2orig t1orig t1) cxt)),
+                           assign (v2, c2) (reb t2orig t1orig t1) cxt)) &~~
                      success)
             | Unknown (_, v1, c1), _ ->
                 begin match assign (v1, c1) (reb t1orig t2orig t2) cxt with
@@ -711,8 +699,8 @@ module
                     let P2 = rewrite cxt P2 in
                     begin match
                       abstract (debracket P1)
-                        (( ||| )
-                           (substmapdom m2 @ substmapdom ns,
+                        (
+                           (substmapdom m2 @ substmapdom ns |||
                             substmapdom m2 @ substmapran ns))
                         P2 (provisos cxt) cxt
                     with
@@ -726,8 +714,7 @@ module
                     end
                 | _ -> None
           in
-          ortryr
-            (try__ (r1, P1, m2) (r2, P2, m2),
+            (try__ (r1, P1, m2) (r2, P2, m2) |~~
              (fun _ -> try__ (r2, P2, m2) (r1, P1, m1)))
     and unifycollections kind (e1s, e2s) cxt =
       let rec bk f = bracketedliststring f "," in
@@ -832,8 +819,7 @@ module
                       [] -> u
                     | p :: ps -> registerApp (p, mkApp ps)
                   in
-                  andthenr
-                    (unify [t, mkApp ps] [] false cxt,
+                    (unify [t, mkApp ps] [] false cxt &~~
                      (fun cxt -> Some (simp cxt u)))
             in
             (dm ps (debsimp cxt t) &~~
@@ -959,8 +945,7 @@ module
               begin match el with
                 Element (_, r', t') ->
                   begin match
-                    andthenr
-                      (ures ((r, t), (r', t')) cxt, unify [t, t'] [] false)
+                      (ures ((r, t), (r', t')) cxt &~~ unify [t, t'] [] false)
                   with
                     Some cxt' ->
                       (cxt', (fst <* defers) @ es) :: recv
@@ -1203,8 +1188,7 @@ module
             | Element (_, r1, t1) :: e1s, Element (_, r2, t2) :: e2s ->
                 res
                   (match
-                     andthenr
-                       (ures ((r1, t1), (r2, t2)) cxt,
+                       (ures ((r1, t1), (r2, t2)) cxt &~~
                         unify [t1, t2] [] false)
                    with
                      Some cxt -> unifylists (e1s, e2s) cxt
@@ -1368,7 +1352,7 @@ module
         end;
       r'
     let unifytermsandcheckprovisos pair =
-      andthen (doUnify pair, checkprovisos)
+      (doUnify pair &~ checkprovisos)
     let rec unifyvarious pair cxt =
       List.concat ((checkdeferred pair <* unifyv pair cxt))
     let rec dropunify (target, sources) cxt =

@@ -172,7 +172,7 @@ module
          (rewinf_uVIDs ri)) ||
       List.exists (opt2bool <*> (fun i -> at (resmap cxt, i)))
         (rewinf_badres ri)
-    (* this is almost f andthen (Some o yes), but types get in the way ... *)
+    (* this is almost f &~ (Some o yes), but types get in the way ... *)
     let rec rew_ f x yes =
       match f x with
         Some x' -> Some (yes x')
@@ -183,11 +183,11 @@ module
         None -> Some t
       | some -> some
     let rec rew_2 f x g y yes =
-      andthen (option_rewrite2 f g, (fSome <*> yes)) (x, y)
+      (option_rewrite2 f g &~ (fSome <*> yes)) (x, y)
     let rec rew_Pair = fun R -> option_rewrite2 R R
     (* there must be a better way ... *)
     let rec rew_3 f x g y h z yes =
-      andthen (option_rewrite3 f g h, (fSome <*> yes)) (x, y, z)
+      (option_rewrite3 f g h &~ (fSome <*> yes)) (x, y, z)
     let rec rew_binding outer inner (h, (bs, ss, us), env, pat) =
       rew_3 (option_rewritelist outer) bs (option_rewritelist inner) ss
         (option_rewritelist outer) us

@@ -799,11 +799,11 @@ module
       | _ -> try__
     let rec doMATCH
       (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-      true, checker, ruler, andthen (bymatch, filter), taker, selhyps,
+      true, checker, ruler, (bymatch &~ filter), taker, selhyps,
       selconcs
     let rec doSAMEPROVISOS
       (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-      matching, checker, ruler, andthen (sameprovisos, filter), taker,
+      matching, checker, ruler, (sameprovisos &~ filter), taker,
       selhyps, selconcs
     let rec doSIMPLEAPPLY
       (matching, checker, ruler, filter, taker, selhyps, selconcs) =
@@ -847,7 +847,7 @@ module
     let rec doSEQ a1 a2 a3 =
       match a1, a2, a3 with
         f, [], st -> Some st
-      | f, t :: ts, st -> andthen (f t, doSEQ f ts) st
+      | f, t :: ts, st -> (f t &~ doSEQ f ts) st
     (* insert a cut, run the tactic to the left of the cut, then go back to the original position, if it's still there *)
     let rec doCUTIN f =
       fun (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) ->
@@ -1035,8 +1035,7 @@ module
           badproviso := None;
           begin try
             match
-              andthen
-                (unifyterms (t1, t2), (fSome <*> verifyprovisos))
+                (unifyterms (t1, t2) &~ (fSome <*> verifyprovisos))
                 (plususedVIDs (plususedVIDs (cxt, termVIDs t1), termVIDs t2))
             with
               Some cxt' -> forceUnify (t2 :: ts) (withcxt (state, cxt'))
@@ -1061,10 +1060,8 @@ module
         in
         try
           match
-            andthenr
-              (andthenr
-                 (optionfold (fun (t, cxt) -> dropunify (t, ss) cxt) ts cxt,
-                  (fSome <*> verifyprovisos)),
+                 (optionfold (fun (t, cxt) -> dropunify (t, ss) cxt) ts cxt &~~
+                  (fSome <*> verifyprovisos) &~~
                simplifydeferred)
           with
             Some cxt' -> Some (withcxt (state, cxt'))
@@ -1288,9 +1285,9 @@ module
           (fun () ->
              [message; " couldn't unify term ("; termstring s; ") with (";
               termstring t; ")."])
-          (andthenr
-             (ortryr
-                (unifyterms (s, t) cxt, (fun _ -> unifyterms (t, s) cxt)),
+          (
+             (
+                (unifyterms (s, t) cxt |~~ (fun _ -> unifyterms (t, s) cxt)) &~~
               (fSome <*> verifyprovisos)))
       with
         Verifyproviso_ p ->
@@ -2301,16 +2298,14 @@ module
                 (nj_fold (ConclusionsofTactic env) laws [])
             in
             findfirst
-              (andthen
-                 (Matches C,
+              ((Matches C &~
                   (fun (name, _, term) ->
                      if !FOLDdebug then
                        consolereport
                          ["Matches found \""; termstring term;
                           "\" - now to try "; parseablenamestring tactic;
                           " and then "; parseablenamestring name];
-                     andthen
-                       (tryApply display try__ contn tactic [term],
+                     (tryApply display try__ contn tactic [term] &~
                         tryApply display try__ contn name [])
                        state)))
               lhss
@@ -2328,11 +2323,9 @@ module
                 (nj_fold (ConclusionsofTactic env) laws [])
             in
             findfirst
-              (andthen
-                 (Matches C,
+              ((Matches C &~
                   (fun (name, _, term) ->
-                     andthen
-                       (tryApply display try__ contn tactic [term],
+                     (tryApply display try__ contn tactic [term] &~
                         tryApply display try__ contn name [])
                        state)))
               rhss
@@ -2358,15 +2351,14 @@ module
                       findfirst
                         (fun pat ->
                            match
-                             andthen (unifyterms (pat, Ht), checkprovisos) cxt
+                             (unifyterms (pat, Ht) &~ checkprovisos) cxt
                            with
                              None -> None
                            | Some _ ->
                                FIRSTSUBTERM
                                  ((fun subterm ->
                                      match
-                                       andthen
-                                         (unifyterms (subterm, rhs),
+                                         (unifyterms (subterm, rhs) &~
                                           checkprovisos)
                                          cxt
                                      with
@@ -2426,15 +2418,14 @@ module
                       findfirst
                         (fun pat ->
                            match
-                             andthen (unifyterms (pat, Ht), checkprovisos) cxt
+                             (unifyterms (pat, Ht) &~ checkprovisos) cxt
                            with
                              None -> None
                            | Some _ ->
                                FIRSTSUBTERM
                                  ((fun subterm ->
                                      match
-                                       andthen
-                                         (unifyterms (subterm, lhs),
+                                         (unifyterms (subterm, lhs) &~
                                           checkprovisos)
                                          cxt
                                      with
@@ -2735,10 +2726,9 @@ module
         | BindHyp2Tac (pat1, pat2, tac) ->
             begin match getselectedhypotheses () with
               Some (_, [Element (_, _, h1); Element (_, _, h2)]) ->
-                andthenr
-                  (ortryr
-                     (bind "LETHYP2" cxt env [pat1, h1; pat2, h2],
-                      (fun _ -> bind "LETHYP2" cxt env [pat1, h2; pat2, h1])),
+                  (
+                     (bind "LETHYP2" cxt env [pat1, h1; pat2, h2] |~~
+                      (fun _ -> bind "LETHYP2" cxt env [pat1, h2; pat2, h1])) &~~
                    (fun (cxt', env') ->
                       bindThenDispatch "LETHYP2" cxt' env' [] tac))
             | _ ->
@@ -3009,7 +2999,7 @@ module
               match
                 runTactic display env
                   (matching, unifyvarious, apply,
-                   (if matching then andthen (bymatch, sameprovisos)
+                   (if matching then (bymatch &~ sameprovisos)
                     else nofilter),
                    takefirst, [], [])
                   tac

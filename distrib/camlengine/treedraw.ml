@@ -272,8 +272,7 @@ module
         if within (pos, proofbox) then
           if withintb (pos, seqbox) then
             match
-              andthenr
-                (findfirstplanhit (( +<-+ ) (pos, tbPos seqbox)) seqplan,
+                (findfirstplanhit (( +<-+ ) (pos, tbPos seqbox)) seqplan &~~
                  elinfo)
             with
               Some (el, c) ->

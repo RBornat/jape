@@ -644,7 +644,6 @@ module
              in
              new M.a)
         in
-        andthenr
            subGoalsOfRule checker hiddencontexts info &~~
            (filter &~ taker)
   end
