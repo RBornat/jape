@@ -208,7 +208,7 @@ TACTIC obviouslytac IS
                   "obviously2" (WITHHYPSEL (hyp _A1)) (WITHHYPSEL (hyp _B1)))))
           (LAYOUT "obviously, from" ALL 
               "obviously1" (WITHHYPSEL (hyp _A1))))))
-    (LAYOUT "obviously (by itself)" ALL "obviously0")
+    (LAYOUT "obviously" ALL "obviously0")
 
 MENU Backward IS
     BEFOREENTRY "∧ intro"
