@@ -1865,6 +1865,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let (fg, bgs) = findproof pinfs nstring in
             newfocus (env, mbs, DontShow, fg :: bgs)
         
+        | "windowresized", [] ->
+            if !Miscellaneous.foldformulae && Interaction.getdisplaystyle()="box" then 
+              processcommand thisstate ["refreshdisplay"]
+            else default
+            
         | "setfonts", fontnames ->
             (* let _ = consolereport ["font names now "; bracketedliststring (fun s -> s) "; " fontnames] in *)
             (Japeserver.setFontNames (List.map Stringfuns.disQuote fontnames); default)
