@@ -34,11 +34,13 @@
 
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.Point;
@@ -47,10 +49,10 @@ import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import javax.swing.ScrollPaneConstants;
 
-public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
+public class JapeScrollPane extends Container {
     private Component view;
     private Rectangle viewBounds;
-    private JPanel viewport;
+    private Container viewport;
     private JScrollBar vsb,
                        hsb;
 
@@ -67,6 +69,7 @@ public class JapeScrollPane extends JComponent implements ScrollPaneConstants {
         view = null; // unnecessary, but it makes me feel better
         setLayout(new JapeScrollPaneLayout());
         super.add(hsb); super.add(vsb); super.add(viewport);
+        viewport.setBackground(Color.white);
     }
 
     public Rectangle getViewportBounds() {
