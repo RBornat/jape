@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -32,20 +32,20 @@ import java.awt.Point;
 
 public class DragWorldLine extends DragLine {
     public DragWorldLine(WorldItem w, int x, int y, int thickness, boolean dragParent) {
-        this(w.dragCentre(), x, y, thickness, dragParent);
+	this(w.dragCentre(), x, y, thickness, dragParent);
     }
     
     private DragWorldLine(Point endpoint, int x, int y, int thickness, boolean dragParent) {
-        super(x, y, endpoint.x, endpoint.y, thickness);
-        this.dragParent = dragParent;
+	super(x, y, endpoint.x, endpoint.y, thickness);
+	this.dragParent = dragParent;
     }
     
     public final boolean dragParent;
     
     public void paint(Graphics g) {
        setForeground((dragParent ? -activey<-endy : -endy<-activey) ? Preferences.LineColour :
-                                                                   Preferences.NoLineColour);
-        super.paint(g);
-            
+								   Preferences.NoLineColour);
+	super.paint(g);
+	    
     }
 }

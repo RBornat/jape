@@ -3,8 +3,8 @@
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -43,36 +43,36 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 
 public class ExportPic {
     public static void exportPic(ProofWindow w) {
-        if (Jape.onMacOS) {
-            Alert.showAlert("Export doesn't work on MacOS X yet.  Sorry");
-        } else {
-            /* Use the pre-defined flavor for a Printable from an InputStream */
-            DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
-            /* Specify the type of the output stream */
-            String psMimeType = DocFlavor.BYTE_ARRAY.POSTSCRIPT.getMimeType();
-            /* Locate factory which can export a GIF image stream as Postscript */
-            StreamPrintServiceFactory[] factories =
-                StreamPrintServiceFactory.lookupStreamPrintServiceFactories(flavor, psMimeType);
-            if (factories.length == 0) {
-                Alert.showAlert("your Java system doesn't seem able to produce PostScript");
-            } else
-                try {
-                    /* Create a file for the exported postscript */
-                    FileOutputStream fos = new FileOutputStream("exportpic.ps");
-                    /* Create a Stream printer for Postscript */
-                    StreamPrintService sps = factories[0].getPrintService(fos);
-                    /* Create and call a Print Job */
-                    DocPrintJob pj = sps.createPrintJob();
-                    PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
-                    Doc doc = new SimpleDoc(w, flavor, null);
-                    pj.print(doc, aset);
-                    fos.close();
-                } catch (PrintException pe) {
-                    Alert.showAlert("ExportPic "+pe);
-                } catch (IOException ie) {
-                    Alert.showAlert("ExportPic "+ie);
-                }
-        }
+	if (Jape.onMacOS) {
+	    Alert.showAlert("Export doesn't work on MacOS X yet.  Sorry");
+	} else {
+	    /* Use the pre-defined flavor for a Printable from an InputStream */
+	    DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
+	    /* Specify the type of the output stream */
+	    String psMimeType = DocFlavor.BYTE_ARRAY.POSTSCRIPT.getMimeType();
+	    /* Locate factory which can export a GIF image stream as Postscript */
+	    StreamPrintServiceFactory[] factories =
+		StreamPrintServiceFactory.lookupStreamPrintServiceFactories(flavor, psMimeType);
+	    if (factories.length == 0) {
+		Alert.showAlert("your Java system doesn't seem able to produce PostScript");
+	    } else
+		try {
+		    /* Create a file for the exported postscript */
+		    FileOutputStream fos = new FileOutputStream("exportpic.ps");
+		    /* Create a Stream printer for Postscript */
+		    StreamPrintService sps = factories[0].getPrintService(fos);
+		    /* Create and call a Print Job */
+		    DocPrintJob pj = sps.createPrintJob();
+		    PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+		    Doc doc = new SimpleDoc(w, flavor, null);
+		    pj.print(doc, aset);
+		    fos.close();
+		} catch (PrintException pe) {
+		    Alert.showAlert("ExportPic "+pe);
+		} catch (IOException ie) {
+		    Alert.showAlert("ExportPic "+ie);
+		}
+	}
     }
 }
 

@@ -2,9 +2,9 @@
     $Id$
     
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
-        
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
     
     This file is part of the Jape GUI, which is part of Jape.
     
@@ -22,7 +22,7 @@
     along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
-	
+    
 */
 
 package uk.org.jape;

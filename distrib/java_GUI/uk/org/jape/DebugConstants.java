@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -28,35 +28,35 @@
 package uk.org.jape;
 
 public interface DebugConstants {
-    static final public boolean anchoredpane_tracing     = false,
-                                antialias_tracing        = false,
-                                buttonlayout_tracing     = false,
-                                colourseg_tracing        = false,
-                                containerlayout_tracing  = false,
-                                containerrepaint_tracing = false,
-                                disprooflayout_tracing   = false,
-                                drag_tracing             = false,
-                                encoding_tracing         = false,
-                                fontDebug                = false,
-                                geometry_tracing         = false,
-                                image_tracing            = false,
-                                makeMessage_tracing      = false,
-                                measure_debug            = false,
-                                menubar_tracing          = false,
-                                osDebug                  = false,
-                                paint_tracing            = false,
-                                panelempty_tracing       = false,
-                                panellayout_tracing      = false,
-                                panellist_tracing        = false,
-                                preference_tracing       = false,
-								printlayout_tracing      = false,
-                                worldpaint_tracing       = false;
+    static final public boolean anchoredpane_tracing	 = false,
+				antialias_tracing	 = false,
+				buttonlayout_tracing	 = false,
+				colourseg_tracing	 = false,
+				containerlayout_tracing	 = false,
+				containerrepaint_tracing = false,
+				disprooflayout_tracing	 = false,
+				drag_tracing		 = false,
+				encoding_tracing	 = false,
+				fontDebug		 = false,
+				geometry_tracing	 = false,
+				image_tracing		 = false,
+				makeMessage_tracing	 = false,
+				measure_debug		 = false,
+				menubar_tracing		 = false,
+				osDebug			 = false,
+				paint_tracing		 = false,
+				panelempty_tracing	 = false,
+				panellayout_tracing	 = false,
+				panellist_tracing	 = false,
+				preference_tracing	 = false,
+				printlayout_tracing	 = false,
+				worldpaint_tracing	 = false;
 
-    static final public boolean notice_Linux             = true,
-                                notice_MacOSX            = true,
-                                notice_Solaris           = true,
-                                notice_Windows           = true;
-	
-	static final public boolean englyph_prep = true;
+    static final public boolean notice_Linux		 = true,
+				notice_MacOSX		 = true,
+				notice_Solaris		 = true,
+				notice_Windows		 = true;
+    
+    static final public boolean englyph_prep = true;
 }
 

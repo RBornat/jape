@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -29,13 +29,13 @@ package uk.org.jape;
 
 public class MenuHolder extends SurrogateWindow {
     public MenuHolder() {
-        super("menu holder");
+	super("menu holder");
     }
 
     protected void windowCloser() {
-        Alert.showAlert(Alert.Info, "This window is only here so that the File and Windows "+
-                        "menus show in the title bar.\n\n"+
-                        "It will disappear as soon as you have any panels or proof windows "+
-                        "(and reappear whenever there are none).");
+	Alert.showAlert(Alert.Info, "This window is only here so that the File and Windows "+
+			"menus show in the title bar.\n\n"+
+			"It will disappear as soon as you have any panels or proof windows "+
+			"(and reappear whenever there are none).");
     }
 }

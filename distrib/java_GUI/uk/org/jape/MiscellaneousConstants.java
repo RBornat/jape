@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -30,12 +30,12 @@ package uk.org.jape;
 public interface MiscellaneousConstants {
     public static final float Transparent = (float)0.5;
 
-    public static final int FlybackDelta           = 30,
-                            FlybackFramesPerSecond = 24; // not all JVMs can do this, but they can all cope
+    public static final int FlybackDelta	   = 30,
+			    FlybackFramesPerSecond = 24; // not all JVMs can do this, but they can all cope
 
     public static class IntString {
-        public final int i;
-        public final String s;
-        public IntString(int i, String s) { this.i=i; this.s=s; }
+	public final int i;
+	public final String s;
+	public IntString(int i, String s) { this.i=i; this.s=s; }
     }
 }

@@ -3,8 +3,8 @@
     
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+    richard@bornat.me.uk
+    sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -45,11 +45,11 @@ public class LocalSettings implements SelectionConstants {
     // how to set up menus
     
     public static final boolean panelWindowMenus      = false,
-                                aboutMenuItemNeeded   = true,
-                                quitMenuItemNeeded    = true,
-                                prefsMenuItemNeeded   = true,
-                                windowMenuItemsTicked = false,
-                                hideSurrogateWindow   = false;
+		aboutMenuItemNeeded   = true,
+		quitMenuItemNeeded    = true,
+		prefsMenuItemNeeded   = true,
+		windowMenuItemsTicked = false,
+		hideSurrogateWindow   = false;
     
     // size of windows
     
@@ -58,8 +58,8 @@ public class LocalSettings implements SelectionConstants {
 
     // size of fonts
     
-    public static final byte 	FormulaFontSize     = 18,
-                                NonFormulaFontSize  = 14;
+    public static final byte	FormulaFontSize	    = 18,
+		NonFormulaFontSize  = 14;
     
     // spacing of tiles
     public static final int TileSpacing = 7;
@@ -67,21 +67,21 @@ public class LocalSettings implements SelectionConstants {
     // what a mouseDown means on a TextItem (I took advice from Bernard, hence isControlDown)
     
     public static byte mouseDownTextItemMeans(MouseEvent e) {
-        byte kind = e.isAltDown() ? TextSelMask : PureSelMask;
-        if (e.isShiftDown())    kind |= ExtendedSelMask;
-        if (e.isControlDown())  kind |= DisjointSelMask;
-        return kind;
+    byte kind = e.isAltDown() ? TextSelMask : PureSelMask;
+    if (e.isShiftDown())    kind |= ExtendedSelMask;
+    if (e.isControlDown())  kind |= DisjointSelMask;
+    return kind;
     }
 
     // what a mouseDown means on a WorldItem (ditto)
     
     public static byte mousePressWorldItemMeans(MouseEvent e) {
-        return e.isAltDown() ? NewWorldDrag : MoveWorldDrag;
+    return e.isAltDown() ? NewWorldDrag : MoveWorldDrag;
     }
 
     public static byte mouseClickWorldItemMeans(MouseEvent e) {
-        return !e.isAltDown() && !e.isShiftDown() &&
-               !e.isMetaDown() && !e.isControlDown() ? WorldClick : WorldNoClick;
+    return !e.isAltDown() && !e.isShiftDown() &&
+	   !e.isMetaDown() && !e.isControlDown() ? WorldClick : WorldNoClick;
     }
     
     // how to mark an entry in a conjecture panel

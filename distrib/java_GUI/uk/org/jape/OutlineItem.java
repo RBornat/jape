@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -33,9 +33,9 @@ public class OutlineItem extends Component {
     public final JapeCanvas canvas;
     
     public OutlineItem(JapeCanvas canvas, int x, int y, int w, int h) {
-        super();
-        this.canvas = canvas;
-        setBounds(x, y, w, h);
-        setForeground(Preferences.LineColour);
+	super();
+	this.canvas = canvas;
+	setBounds(x, y, w, h);
+	setForeground(Preferences.LineColour);
     }
 }

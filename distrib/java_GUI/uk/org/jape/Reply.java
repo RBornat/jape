@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+    richard@bornat.me.uk
+    sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -41,61 +41,61 @@ public class Reply implements DebugConstants {
     private static boolean enginelistening = false;
     
     synchronized public static boolean openchannel() {
-        enginelistening = true;
-        flushmessages();
-        return enginelistening;
+    enginelistening = true;
+    flushmessages();
+    return enginelistening;
     }
 
     synchronized private static void flushmessages() {
-		if (enginelistening && messages.size()!=0) {
-			String s = (String)messages.remove(0);
-			if (DebugVars.protocol_tracing) Logger.log.println("GUI sends "+s);
-			outputln(s);
-			enginelistening=false;
-		}
+    if (enginelistening && messages.size()!=0) {
+	String s = (String)messages.remove(0);
+	if (DebugVars.protocol_tracing) Logger.log.println("GUI sends "+s);
+	outputln(s);
+	enginelistening=false;
+    }
     }
 
     synchronized public static void send(String s) {
-        if (DebugVars.protocol_tracing) Logger.log.println("queuing "+s);
-        messages.add(s);
-        flushmessages();
+    if (DebugVars.protocol_tracing) Logger.log.println("queuing "+s);
+    messages.add(s);
+    flushmessages();
     }
     
     synchronized public static void sendCOMMAND(String s) {
-        send("COMMAND "+s);
+    send("COMMAND "+s);
     }
 
     synchronized public static void reply(String s) throws ProtocolError {
-        if (!enginelistening) {
-			if (DebugVars.protocol_tracing) Logger.log.println("GUI replies "+s);
-			outputln(s);
-        }
-        else
-            throw new ProtocolError("replying \""+s+"\" while client is not expecting reply");
+    if (!enginelistening) {
+	if (DebugVars.protocol_tracing) Logger.log.println("GUI replies "+s);
+	outputln(s);
+    }
+    else
+	throw new ProtocolError("replying \""+s+"\" while client is not expecting reply");
     }
 
-	synchronized private static void outputln(String s) {
-		try {
-			Engine.toEngine().write(s, 0, s.length()); 
-			Engine.toEngine().write('\n');
-			Engine.toEngine().flush();
-		} catch (IOException e) {
-			Alert.showAlert("Reply.outputln("+JapeUtils.enQuote(s)+") gets exception "+e);
-		}
-	}
+    synchronized private static void outputln(String s) {
+    try {
+	Engine.toEngine().write(s, 0, s.length()); 
+	Engine.toEngine().write('\n');
+	Engine.toEngine().flush();
+    } catch (IOException e) {
+	Alert.showAlert("Reply.outputln("+JapeUtils.enQuote(s)+") gets exception "+e);
+    }
+    }
     synchronized public static void reply(int i) throws ProtocolError {
-        reply(i+"");
+    reply(i+"");
     }
 
     synchronized public static void reply(TextDimension td) throws ProtocolError {
-        reply(td.width+" "+td.ascent+" "+td.descent);
+    reply(td.width+" "+td.ascent+" "+td.descent);
     }
     
     synchronized public static void reply(FontMetrics fm) throws ProtocolError {
-        reply(fm.getMaxAscent()+" "+fm.getMaxDescent()+" "+fm.getLeading());
+    reply(fm.getMaxAscent()+" "+fm.getMaxDescent()+" "+fm.getLeading());
     }
 
     synchronized public static void reply(Rectangle r) throws ProtocolError {
-        reply(r.x+" "+r.y+" "+r.width+" "+r.height);
+    reply(r.x+" "+r.y+" "+r.width+" "+r.height);
     }
 }

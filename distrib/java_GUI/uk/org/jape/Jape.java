@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -45,105 +45,105 @@ public class Jape implements DebugConstants {
     private static boolean tracing = false;
     
     public static void handleAbout() {
-        AboutBox.showAboutBox();
+	AboutBox.showAboutBox();
     }
 
     private static boolean quitsent=false;
     
     public static void handleQuit() {
-        if (!quitsent) {
-            quitsent = true;
-            Reply.sendCOMMAND("quit");
-        }
-        else
-            crash("The engine isn't responding!");
+	if (!quitsent) {
+	    quitsent = true;
+	    Reply.sendCOMMAND("quit");
+	}
+	else
+	    crash("The engine isn't responding!");
     }
 
     public static void dontQuit() {
-        quitsent = false;
+	quitsent = false;
     }
 
     public static void handlePrefs() {
-        Alert.showAlert(Alert.Info, "Preferences item selected in menu");
+	Alert.showAlert(Alert.Info, "Preferences item selected in menu");
     }
     
-	public static void crash(String message) {
-		Logger.crash(message,2);
-	}
-	
+    public static void crash(String message) {
+	Logger.crash(message,2);
+    }
+    
     public static boolean onMacOS, onLinux, onSolaris, onWindows, onUnix;
     public static Rectangle screenBounds;
-    public static String defaultUnixEnginePath    = "./jape_engine";
+    public static String defaultUnixEnginePath	  = "./jape_engine";
     public static String defaultWindowsEnginePath = ".\\jape.exe" ;
     
     public static void main(String args[]) {
-        // since platform independence seems not yet to have been achieved ...
-        String osName = System.getProperty("os.name");
-        
-		onMacOS = notice_MacOSX && System.getProperty("mrj.version")!=null;
-		onLinux = notice_Linux && osName.equals("Linux");
-		onSolaris = notice_Solaris && osName.equals("SunOS");
-		onWindows = osName.startsWith("Windows");
-		
-		onUnix = onMacOS || onLinux || onSolaris || onWindows;
-		
-        if (!(onMacOS || onLinux  || onSolaris  || onWindows)) {
-            Logger.log.println("Jape.main doesn't recognise OS\n"+
-                               "os.name="+System.getProperty("os.name")+
-                               "\nos.arch="+System.getProperty("os.arch")+
-                               "\nos.version="+System.getProperty("os.version"));
-        }
+	// since platform independence seems not yet to have been achieved ...
+	String osName = System.getProperty("os.name");
+	
+	onMacOS = notice_MacOSX && System.getProperty("mrj.version")!=null;
+	onLinux = notice_Linux && osName.equals("Linux");
+	onSolaris = notice_Solaris && osName.equals("SunOS");
+	onWindows = osName.startsWith("Windows");
+	
+	onUnix = onMacOS || onLinux || onSolaris || onWindows;
+	
+	if (!(onMacOS || onLinux  || onSolaris	|| onWindows)) {
+	    Logger.log.println("Jape.main doesn't recognise OS\n"+
+			       "os.name="+System.getProperty("os.name")+
+			       "\nos.arch="+System.getProperty("os.arch")+
+			       "\nos.version="+System.getProperty("os.version"));
+	}
 
-        if (osDebug)
-            Logger.log.println("onMacOS="+onMacOS+"; onLinux="+onLinux+
-                               "; onSolaris="+onSolaris+"; onWindows="+onWindows+
-                               "\nos.name="+System.getProperty("os.name")+
-                               "\nos.arch="+System.getProperty("os.arch")+
-                               "\nos.version="+System.getProperty("os.version"));
+	if (osDebug)
+	    Logger.log.println("onMacOS="+onMacOS+"; onLinux="+onLinux+
+			       "; onSolaris="+onSolaris+"; onWindows="+onWindows+
+			       "\nos.name="+System.getProperty("os.name")+
+			       "\nos.arch="+System.getProperty("os.arch")+
+			       "\nos.version="+System.getProperty("os.version"));
 
-        if (onMacOS && System.getProperty("java.vm.version").startsWith("1.3.")) {
-            // deal with the double-bounce menu checkbox bug
-            String s = System.getProperty("apple.laf.useScreenMenuBar");
-            JapeMenu.checkboxDoubleBounce = s!=null && s.equals("true");
-        }
-        else
-            JapeMenu.checkboxDoubleBounce = false; 
+	if (onMacOS && System.getProperty("java.vm.version").startsWith("1.3.")) {
+	    // deal with the double-bounce menu checkbox bug
+	    String s = System.getProperty("apple.laf.useScreenMenuBar");
+	    JapeMenu.checkboxDoubleBounce = s!=null && s.equals("true");
+	}
+	else
+	    JapeMenu.checkboxDoubleBounce = false; 
 
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = ge.getDefaultScreenDevice();
-        GraphicsConfiguration[] gc = gd.getConfigurations();
-        if (gc.length>=1) {
-            screenBounds = gc[0].getBounds(); // I hope and truly believe that 0 is the default
-        }
-        else
-            Alert.abort("no GraphicsConfiguration!");
-        
-        JapeMenu.initMenuBar();
+	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	GraphicsDevice gd = ge.getDefaultScreenDevice();
+	GraphicsConfiguration[] gc = gd.getConfigurations();
+	if (gc.length>=1) {
+	    screenBounds = gc[0].getBounds(); // I hope and truly believe that 0 is the default
+	}
+	else
+	    Alert.abort("no GraphicsConfiguration!");
+	
+	JapeMenu.initMenuBar();
 
-        LocalSettings l = new LocalSettings();
-        Vector engineCmd = new Vector();
-        engineCmd.add(onWindows ? defaultWindowsEnginePath : defaultUnixEnginePath);
+	LocalSettings l = new LocalSettings();
+	Vector engineCmd = new Vector();
+	engineCmd.add(onWindows ? defaultWindowsEnginePath : defaultUnixEnginePath);
 
-        // all args (except for -engine <path>) sent to engine.
-        
-        for (int i=0; i<args.length; i++) {
-           if (args[i].equals("-engine")) {
-               i++;
-               if (i<args.length)
-                   engineCmd.setElementAt(args[i],0);
-               else
-                   Alert.abort("-engine switch needs path argument");
-            }
-            else
-                engineCmd.add(args[i]);
+	// all args (except for -engine <path>) sent to engine.
+	
+	for (int i=0; i<args.length; i++) {
+	   if (args[i].equals("-engine")) {
+	       i++;
+	       if (i<args.length)
+		   engineCmd.setElementAt(args[i],0);
+	       else
+		   Alert.abort("-engine switch needs path argument");
+	    }
+	    else
+		engineCmd.add(args[i]);
        }
 
-        new Engine((String[])engineCmd.toArray(new String[engineCmd.size()]));
+	new Engine((String[])engineCmd.toArray(new String[engineCmd.size()]));
 
-        Logger.init();
-        
-        if (tracing)
-            Logger.log.println("GUI initialised");
+	Logger.init();
+	
+	if (tracing)
+	    Logger.log.println("GUI initialised");
     }
 }
 

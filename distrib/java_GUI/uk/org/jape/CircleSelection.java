@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -30,23 +30,23 @@ package uk.org.jape;
 import java.awt.Graphics;
 
 public class CircleSelection extends CircleItem
-                          implements SelectionIndicator {
+			  implements SelectionIndicator {
 
     public CircleSelection(DisplayItem item) {
-        super(item.canvas, item.getX()+item.getWidth()/2, item.getY()+item.getHeight()/2,
-              Math.max(item.getWidth(),item.getHeight())/2+2*item.canvas.linethickness);
+	super(item.canvas, item.getX()+item.getWidth()/2, item.getY()+item.getHeight()/2,
+	      Math.max(item.getWidth(),item.getHeight())/2+2*item.canvas.linethickness);
     }
 
     private boolean selected;
 
     public void indicate(DisplayItem item) {
-        selected = item.getSelected();
+	selected = item.getSelected();
     }
 
     public void paint(Graphics g) {
-        if (selected) {
-            setForeground(Preferences.SelectionColour);
-            super.paint(g);
-        }
+	if (selected) {
+	    setForeground(Preferences.SelectionColour);
+	    super.paint(g);
+	}
     }
 }

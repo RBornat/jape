@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -32,40 +32,40 @@ import java.awt.Container;
 
 public class JapeUtils {
     public static String enQuote(Object o) {
-        return o==null ? "null" : "\""+o.toString()+"\"";
+	return o==null ? "null" : "\""+o.toString()+"\"";
     }
 
     public static void showContainer(Container pane, String prefix) {
-        for (int i=0; i<pane.getComponentCount(); i++) {
-            Component c = pane.getComponent(i);
-            String label = prefix==null ? ""+i : prefix+"."+i;
-            Logger.log.println(label+": "+c);
-            if (c instanceof Container)
-                showContainer((Container)c, label);
-        }
+	for (int i=0; i<pane.getComponentCount(); i++) {
+	    Component c = pane.getComponent(i);
+	    String label = prefix==null ? ""+i : prefix+"."+i;
+	    Logger.log.println(label+": "+c);
+	    if (c instanceof Container)
+		showContainer((Container)c, label);
+	}
     }
 
     public static void showContainer(Container pane) {
-        Logger.log.println(pane);
-        showContainer(pane, null);
+	Logger.log.println(pane);
+	showContainer(pane, null);
     }
 
     public static Component findTargetAt(Class target, Component c, int x, int y) {
-        if (c.isVisible() && c.contains(x,y)) {
-            if (c instanceof Container) {
-                Container c1 = (Container) c;
-                int ncs = c1.getComponentCount();
-                for (int i=0; i<ncs; i++) {
-                    Component c2 = c1.getComponent(i);
-                    if ((c2=findTargetAt(target, c2, x-c2.getX(), y-c2.getY()))!=null)
-                        return c2;
-                }
-            }
-            // no child fits: will we do?
-            if (target.isInstance(c))
-                return c;
-        }
+	if (c.isVisible() && c.contains(x,y)) {
+	    if (c instanceof Container) {
+		Container c1 = (Container) c;
+		int ncs = c1.getComponentCount();
+		for (int i=0; i<ncs; i++) {
+		    Component c2 = c1.getComponent(i);
+		    if ((c2=findTargetAt(target, c2, x-c2.getX(), y-c2.getY()))!=null)
+			return c2;
+		}
+	    }
+	    // no child fits: will we do?
+	    if (target.isInstance(c))
+		return c;
+	}
 
-        return null; // all else has failed
+	return null; // all else has failed
     }
 }

@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -34,46 +34,46 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 
 class TextItem extends DisplayItem implements DebugConstants {
-    protected final byte          fontnum;
-    protected final Font          font;
+    protected final byte	  fontnum;
+    protected final Font	  font;
     protected final TextDimension dimension;
-    protected final String        text;
+    protected final String	  text;
 
     public TextItem(JapeCanvas canvas, int x, int y, byte fontnum, String text) { 
-        super(canvas, x, y);
-        this.fontnum = fontnum;
-        this.font = JapeFont.getFont(fontnum);
-        this.text = text;
-        this.dimension = JapeFont.measure(text, fontnum);
-        if (fontDebug)
-            Logger.log.println(this);
-        setBounds((int)x, y-dimension.ascent, dimension.width, dimension.ascent+dimension.descent);
-        setForeground(Preferences.TextColour);
+	super(canvas, x, y);
+	this.fontnum = fontnum;
+	this.font = JapeFont.getFont(fontnum);
+	this.text = text;
+	this.dimension = JapeFont.measure(text, fontnum);
+	if (fontDebug)
+	    Logger.log.println(this);
+	setBounds((int)x, y-dimension.ascent, dimension.width, dimension.ascent+dimension.descent);
+	setForeground(Preferences.TextColour);
     }
 
     public void paint(Graphics g) {
-        if (paint_tracing || fontDebug)
-            Logger.log.println("painting "+this);
-        g.setFont(font);
-        g.setColor(isEnabled() ? getForeground() : Preferences.GreyTextColour);
-        g.drawString(text, 0, dimension.ascent);
+	if (paint_tracing || fontDebug)
+	    Logger.log.println("painting "+this);
+	g.setFont(font);
+	g.setColor(isEnabled() ? getForeground() : Preferences.GreyTextColour);
+	g.drawString(text, 0, dimension.ascent);
     }
 
     public void blacken() {
-        setEnabled(true);
+	setEnabled(true);
     }
 
     public void greyen() {
-        setEnabled(false);
+	setEnabled(false);
     }
     
     // this isn't efficient, but that doesn't matter, I think
     public String toString() {
-        return "TextItem["+
-               "text="+JapeUtils.enQuote(text)+
-               ", fontnum="+fontnum+", font="+font+
-               ", dimension="+dimension+
-               ", "+super.toString()+"]";
+	return "TextItem["+
+	       "text="+JapeUtils.enQuote(text)+
+	       ", fontnum="+fontnum+", font="+font+
+	       ", dimension="+dimension+
+	       ", "+super.toString()+"]";
     }
 }
 

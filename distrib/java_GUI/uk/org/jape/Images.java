@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -33,9 +33,9 @@ import java.awt.Component;
 import java.awt.Label;
 
 /*
-	Because we now are a package, it's not a good idea to load our images
-	relative to a class. So we load them from the top level of the jar,
-	using ClassLoader.
+    Because we now are a package, it's not a good idea to load our images
+    relative to a class. So we load them from the top level of the jar,
+    using ClassLoader.
 */
 
 public class Images
@@ -44,7 +44,7 @@ public class Images
   
   /** Use the place that THIS code was loaded from */
   public static Image getImage(String localname) {
-        return getImage(surrogate, localname);
+	return getImage(surrogate, localname);
   }
   
   /** Use the place that the host was loaded from */

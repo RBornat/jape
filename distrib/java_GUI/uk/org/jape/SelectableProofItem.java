@@ -2,9 +2,9 @@
     $Id$
     
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
-        
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
     
     This file is part of the Jape GUI, which is part of Jape.
     
@@ -34,53 +34,53 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 
-public  class SelectableProofItem extends TextSelectableItem
-                               implements ProtocolConstants {
+public	class SelectableProofItem extends TextSelectableItem
+			       implements ProtocolConstants {
     private final boolean ambiguous;
     private byte selectionKind;
 
     public SelectableProofItem(ProofCanvas canvas, int x, int y, byte fontnum, String annottext,
-                               byte selectionKind, boolean ambiguous) {
-        super(canvas,x,y,fontnum,annottext);
-        this.selectionKind = selectionKind; // ReasonSel, HypSel, ConcSel
-        this.ambiguous = ambiguous;
-        addSelectionIndicator(
-            canvas.proofStyle==BoxStyle ? new DirectedFormulaSelection(this) :
-                                          new RectSelection(this));
+			       byte selectionKind, boolean ambiguous) {
+	super(canvas,x,y,fontnum,annottext);
+	this.selectionKind = selectionKind; // ReasonSel, HypSel, ConcSel
+	this.ambiguous = ambiguous;
+	addSelectionIndicator(
+	    canvas.proofStyle==BoxStyle ? new DirectedFormulaSelection(this) :
+					  new RectSelection(this));
     }
 
     public void setSelectionKind(byte selectionKind) {
-        if (ambiguous ? (selectionKind==HypSel || selectionKind==ConcSel) :
-                        selectionKind==this.selectionKind)
-            this.selectionKind = selectionKind;
-        else
-            Alert.abort("SelectableProofItem.setSelectionKind("+selectionKind+")"+
-                        "; ambiguous="+ambiguous+"; selectionKind="+this.selectionKind);
+	if (ambiguous ? (selectionKind==HypSel || selectionKind==ConcSel) :
+			selectionKind==this.selectionKind)
+	    this.selectionKind = selectionKind;
+	else
+	    Alert.abort("SelectableProofItem.setSelectionKind("+selectionKind+")"+
+			"; ambiguous="+ambiguous+"; selectionKind="+this.selectionKind);
     }
 
     public byte getSelectionKind() {
-        return selectionKind;
+	return selectionKind;
     }
 
     public boolean getAmbiguous() {
-        return ambiguous;
+	return ambiguous;
     }
     
     // single click can change perception of an ambiguous formula
     public void selectionclicked(byte eventKind, MouseEvent e) {
-        if (ambiguous) {
-            byte newSelectionKind = e.getY()<getHeight()/2 ? ConcSel : HypSel;
-            if (newSelectionKind!=selectionKind) {
-                setSelected(false);
-                setSelectionKind(newSelectionKind);
-            }
-        }
-        super.selectionclicked(eventKind, e);
+	if (ambiguous) {
+	    byte newSelectionKind = e.getY()<getHeight()/2 ? ConcSel : HypSel;
+	    if (newSelectionKind!=selectionKind) {
+		setSelected(false);
+		setSelectionKind(newSelectionKind);
+	    }
+	}
+	super.selectionclicked(eventKind, e);
     }
 
     // you can't double-click an ambiguous unselected item
     public void selectiondoubleclicked(byte eventKind, MouseEvent e) {
-        if (!ambiguous || getSelected())
-            super.selectiondoubleclicked(eventKind, e);
+	if (!ambiguous || getSelected())
+	    super.selectiondoubleclicked(eventKind, e);
     }
 }

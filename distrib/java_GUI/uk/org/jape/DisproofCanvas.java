@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -34,59 +34,59 @@ import java.awt.Dimension;
 public class DisproofCanvas extends JapeCanvas {
 
     public DisproofCanvas(Container viewport, boolean scrolled, int linethickness) {
-        super(viewport, scrolled);
-        setlinethickness(linethickness);
+	super(viewport, scrolled);
+	setlinethickness(linethickness);
     }
 
     protected void claimFocus() {
-        getProofWindow().claimDisproofFocus();
+	getProofWindow().claimDisproofFocus();
     }
 
     // at present nobody cares about Hyp/Conc distinction
     public String getSelections(String sep) {
-        String s = null;
-        int nc = child.getComponentCount(); // oh dear ...
-        for (int i=0; i<nc; i++) {
-            Component c = child.getComponent(i); // oh dear ...
-            if (c instanceof EmphasisableItem) {
-                EmphasisableItem item = (EmphasisableItem)c;
-                if (item.getSelected()) {
-                    String s1 = item.idX+" "+item.idY;
-                    if (s==null)
-                        s=s1;
-                    else
-                        s=s+sep+s1;
-                }
-            }
-        }
-        return s;
+	String s = null;
+	int nc = child.getComponentCount(); // oh dear ...
+	for (int i=0; i<nc; i++) {
+	    Component c = child.getComponent(i); // oh dear ...
+	    if (c instanceof EmphasisableItem) {
+		EmphasisableItem item = (EmphasisableItem)c;
+		if (item.getSelected()) {
+		    String s1 = item.idX+" "+item.idY;
+		    if (s==null)
+			s=s1;
+		    else
+			s=s+sep+s1;
+		}
+	    }
+	}
+	return s;
     }
 
     protected void notifyTextSelectionChange(DisplayItem item) {
-        notifySelectionChange(item); // text selection, selection -- all the same
+	notifySelectionChange(item); // text selection, selection -- all the same
     }
 
     protected void notifySelectionChange(DisplayItem item) {
-        Reply.sendCOMMAND("disproof_selection_change");
+	Reply.sendCOMMAND("disproof_selection_change");
     }
 
     public void setSequentBox(int width, int ascent, int descent) {
-        removeAll(); // seems to be necessary
-        setOrigin(-getSelectionGap()-linethickness, -getSelectionGap()-linethickness-ascent);
+	removeAll(); // seems to be necessary
+	setOrigin(-getSelectionGap()-linethickness, -getSelectionGap()-linethickness-ascent);
     }
 
     public Dimension getPreferredSize() {
-        return getSize();
+	return getSize();
     }
 
     public EmphasisableItem findEmphasisable(int x, int y) {
-        int nc = child.getComponentCount(); // oh dear ...
-        for (int i=0; i<nc; i++) {
-            Component c = child.getComponent(i); // oh dear ...
-            if (c instanceof EmphasisableItem &&
-                ((EmphasisableItem)c).idX==x && ((EmphasisableItem)c).idY==y)
-                return (EmphasisableItem)c;
-        }
-        return null;
+	int nc = child.getComponentCount(); // oh dear ...
+	for (int i=0; i<nc; i++) {
+	    Component c = child.getComponent(i); // oh dear ...
+	    if (c instanceof EmphasisableItem &&
+		((EmphasisableItem)c).idX==x && ((EmphasisableItem)c).idY==y)
+		return (EmphasisableItem)c;
+	}
+	return null;
     }
 }

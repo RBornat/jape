@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -28,79 +28,79 @@
 package uk.org.jape;
 
 public interface ProtocolConstants {
-    /*  from displayfont.ml:
-        (* Useful translation for Japeserver marshalling.
-        * Current C/Java/Tk interfaces believe in these integers.
-        *
-        *  TermFont = 0
-        *  ReasonFont = 1
-        *  ProvisoFont = 2
-        *
-        *)
+    /*	from displayfont.ml:
+	(* Useful translation for Japeserver marshalling.
+	* Current C/Java/Tk interfaces believe in these integers.
+	*
+	*  TermFont = 0
+	*  ReasonFont = 1
+	*  ProvisoFont = 2
+	*
+	*)
      */
     
     public final static byte TermFontNum = 0,  ReasonFontNum = 1,  ProvisoFontNum = 2;
     
-    /*  from japeserver.ml:
-            match m with
-              "subformula" -> 0
-            | "token"      -> 1
-            | _ -> raise (Catastrophe_ ...
+    /*	from japeserver.ml:
+	    match m with
+	      "subformula" -> 0
+	    | "token"	   -> 1
+	    | _ -> raise (Catastrophe_ ...
      */
 
     public static final byte SubformulaSelectionMode = 0,
-                             TokenSelectionMode      = 1;
+			     TokenSelectionMode	     = 1;
 
     /*	from japeserver.ml:
-            let displaystyle2int d =
-              match d with
-                  BoxStyle  -> 0
-                | TreeStyle -> 1
+	    let displaystyle2int d =
+	      match d with
+		  BoxStyle  -> 0
+		| TreeStyle -> 1
     */
 
     public final static byte BoxStyle  = 0,
-                             TreeStyle = 1;
+			     TreeStyle = 1;
 
     /* from displayclass.ml/mli:
-        (* Useful translation for Japeserver marshalling.
-         * Current C/Java/Tk interfaces believe in these integers.
-         *
-         *   DisplayPunct  0
-         *   DisplayConc   1
-         *   DisplayHyp    2
-         *   DisplayReason 3
-         *   DisplayAmbig  4
-         *
-         *)
+	(* Useful translation for Japeserver marshalling.
+	 * Current C/Java/Tk interfaces believe in these integers.
+	 *
+	 *   DisplayPunct  0
+	 *   DisplayConc   1
+	 *   DisplayHyp	   2
+	 *   DisplayReason 3
+	 *   DisplayAmbig  4
+	 *
+	 *)
      */
 
     public static final byte PunctTextItem  = 0,
-                             ConcTextItem   = 1,
-                             HypTextItem    = 2,
-                             ReasonTextItem = 3,
-                             AmbigTextItem  = 4;
+			     ConcTextItem   = 1,
+			     HypTextItem    = 2,
+			     ReasonTextItem = 3,
+			     AmbigTextItem  = 4;
 
     /* from displayfont.mli:
-        (* Useful translation for Japeserver marshalling.
-         *
-         *  ProofPane = 0
-         *  DisproofPane = 1
-         *
-         *)
-        */
+	(* Useful translation for Japeserver marshalling.
+	 *
+	 *  ProofPane = 0
+	 *  DisproofPane = 1
+	 *
+	 *)
+	*/
 
     public static final byte ProofPaneNum = 0, DisproofPaneNum = 1;
 
     /* from japeserver.ml:
-        match panelkind with
-        TacticPanelkind     -> "0"
-        | ConjecturePanelkind -> "1"
-        | GivenPanelkind      -> "2"
+	match panelkind with
+	TacticPanelkind	    -> "0"
+	| ConjecturePanelkind -> "1"
+	| GivenPanelkind      -> "2"
     */
 
-    public static final byte	TacticPanelKind     = 0,
-                                ConjecturePanelKind = 1,
-                                GivenPanelKind      = 2;
-        
+    public static final byte	TacticPanelKind	    = 0,
+				ConjecturePanelKind = 1,
+				GivenPanelKind	    = 2;
+	
     
 }

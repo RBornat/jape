@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -32,6 +32,6 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.event.MouseInputListener;
 
 public interface JapeMouseListener extends MouseListener,
-                                           MouseMotionListener,
-                                           MouseInputListener {
+					   MouseMotionListener,
+					   MouseInputListener {
 }

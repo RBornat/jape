@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -32,11 +32,11 @@ public class LineItem extends LineComponent {
     protected final JapeCanvas canvas;
 
     public LineItem(JapeCanvas canvas, int x0, int y0, int x1, int y1) {
-        super(x0, y0, x1, y1, canvas.linethickness);
-        this.canvas = canvas;
+	super(x0, y0, x1, y1, canvas.linethickness);
+	this.canvas = canvas;
     }
 
     public void addJapeMouseListener(JapeMouseAdapter a) {
-        addMouseListener(a); addMouseMotionListener(a);
+	addMouseListener(a); addMouseMotionListener(a);
     }
 }

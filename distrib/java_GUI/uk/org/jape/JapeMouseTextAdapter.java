@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -32,26 +32,26 @@ import java.awt.event.MouseEvent;
 /*
     Bernard's original ProofCanvas included this comment:
     
-        This next spasm copes with the fact that Macs have 1-button
-        mice, and that (in order to cope with this) Java AWT
-        reports button 2 and button 3 presses AS IF they were
-        presses with one of Meta or Alt pressed. I simply don't know
-        whether the getButton field of an event on the Mac always
-        says 1, or whether the lowlevel AWTery reports virtual
-        buttons. Until I find out, I'm assuming the former, and using
-        the Alt and Meta fields to give an indication of the button
-        that was actually pressed (on nonMacs) or the (virtual) button
-        that a MacIsta indicated that she wanted to press.
-        
-        Beyond here we're simply pretending we have a 3-button mouse.
+	This next spasm copes with the fact that Macs have 1-button
+	mice, and that (in order to cope with this) Java AWT
+	reports button 2 and button 3 presses AS IF they were
+	presses with one of Meta or Alt pressed. I simply don't know
+	whether the getButton field of an event on the Mac always
+	says 1, or whether the lowlevel AWTery reports virtual
+	buttons. Until I find out, I'm assuming the former, and using
+	the Alt and Meta fields to give an indication of the button
+	that was actually pressed (on nonMacs) or the (virtual) button
+	that a MacIsta indicated that she wanted to press.
+	
+	Beyond here we're simply pretending we have a 3-button mouse.
     
     and this code:
     
-        // Assigns the right virtual button for all but a move
-        lastButton = 1;
-        if (e.isAltDown())  lastButton=2;
-        else
-        if (e.isMetaDown()) lastButton=3;
+	// Assigns the right virtual button for all but a move
+	lastButton = 1;
+	if (e.isAltDown())  lastButton=2;
+	else
+	if (e.isMetaDown()) lastButton=3;
     
     I'm using LocalSettings to get this right on different machines.
  */
@@ -72,45 +72,45 @@ import java.awt.event.MouseEvent;
  */
 
 public class JapeMouseTextAdapter extends    JapeMouseAdapter
-                                  implements JapeMouseListener,
-                                             SelectionConstants {
+				  implements JapeMouseListener,
+					     SelectionConstants {
     private byte eventKind;
 
     public final void pressed(MouseEvent e) {
-        eventKind = LocalSettings.mouseDownTextItemMeans(e);
-        if ((eventKind&TextSelMask)!=0)
-            textpressed(eventKind, e);
-        else
-            pressed(eventKind, e);
+	eventKind = LocalSettings.mouseDownTextItemMeans(e);
+	if ((eventKind&TextSelMask)!=0)
+	    textpressed(eventKind, e);
+	else
+	    pressed(eventKind, e);
     }
     
     public final void dragged(boolean wobbly, MouseEvent e) {
-        if ((eventKind&TextSelMask)!=0)
-            textdragged(eventKind, e);
-        else
-        if (wobbly) // we don't notice little moves
-            dragged(eventKind, e);
+	if ((eventKind&TextSelMask)!=0)
+	    textdragged(eventKind, e);
+	else
+	if (wobbly) // we don't notice little moves
+	    dragged(eventKind, e);
     }
 
     public final void released(MouseEvent e) {
-        if ((eventKind&TextSelMask)!=0)
-            textreleased(eventKind, false, e);
-        else
-            released(eventKind, e);
+	if ((eventKind&TextSelMask)!=0)
+	    textreleased(eventKind, false, e);
+	else
+	    released(eventKind, e);
     }
 
     public final void clicked(MouseEvent e) {
-        if ((eventKind&TextSelMask)!=0)
-            textreleased(eventKind, true, e);
-        else
-            clicked(eventKind, e);
+	if ((eventKind&TextSelMask)!=0)
+	    textreleased(eventKind, true, e);
+	else
+	    clicked(eventKind, e);
     }
 
     public final void doubleclicked(MouseEvent e) {
-        if ((eventKind&TextSelMask)!=0)
-            textreleased(eventKind, true, e);
-        else
-            doubleclicked(eventKind, e);
+	if ((eventKind&TextSelMask)!=0)
+	    textreleased(eventKind, true, e);
+	else
+	    doubleclicked(eventKind, e);
     }
 
     public void textpressed(byte eventKind, MouseEvent e) { }

@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -31,11 +31,11 @@ public class DragLine extends LineComponent {
     protected final int endx, endy;
     protected int activex, activey;
     public DragLine(int activex, int activey, int endx, int endy, int thickness) {
-        super(activex, activey, endx, endy, thickness);
-        this.activex = activex; this.activey = activey;
-        this.endx = endx; this.endy = endy;
+	super(activex, activey, endx, endy, thickness);
+	this.activex = activex; this.activey = activey;
+	this.endx = endx; this.endy = endy;
     }
     protected void movePosition(int deltax, int deltay) {
-        resetLine(activex += deltax, activey += deltay, endx, endy);
+	resetLine(activex += deltax, activey += deltay, endx, endy);
     }
 }

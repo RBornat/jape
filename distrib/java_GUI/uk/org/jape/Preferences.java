@@ -2,9 +2,9 @@
     $Id$
     
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
-        
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
     
     This file is part of the Jape GUI, which is part of Jape.
     
@@ -36,27 +36,27 @@ import java.util.Properties;
 /* when I get round to it, this stuff will be in the standard preferences file */
 
 public class Preferences {
-    public static Color GreyTextColour          = Color.gray,
-                        LineColour              = Color.black,
-                        NoLineColour            = Color.lightGray,
-                        PanelBackgroundColour   = Color.white,
-                        ProofBackgroundColour   = Color.white,
-                        SelectionColour         = Color.red,
-                        SeparatorColour         = Color.gray,
-                        TextColour              = Color.black,
-                        TextSelectionColour     = Color.yellow,
-                        WorldColour             = Color.black;
+    public static Color GreyTextColour		= Color.gray,
+			LineColour		= Color.black,
+			NoLineColour		= Color.lightGray,
+			PanelBackgroundColour	= Color.white,
+			ProofBackgroundColour	= Color.white,
+			SelectionColour		= Color.red,
+			SeparatorColour		= Color.gray,
+			TextColour		= Color.black,
+			TextSelectionColour	= Color.yellow,
+			WorldColour		= Color.black;
 
-    public static Color OutColour             = Color.gray,
-                        ForcedColour          = Color.magenta,
-                        ForcedSelectionColour = Color.green;
+    public static Color OutColour	      = Color.gray,
+			ForcedColour	      = Color.magenta,
+			ForcedSelectionColour = Color.green;
 
 
     static byte getProp(String name, int defaultvalue) {
-        return (byte) defaultvalue;
+	return (byte) defaultvalue;
     }
 
     static String getProp(String name, String defaultvalue) {
-        return defaultvalue;
+	return defaultvalue;
     }
 }

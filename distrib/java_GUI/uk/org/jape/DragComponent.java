@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -36,29 +36,29 @@ public abstract class DragComponent extends Component {
     private Vector friendv;
     
     public void moveBy(int deltax, int deltay) {
-        repaint();
-        movePosition(deltax, deltay);
-        repaint();
-        if (friendv!=null)
-            for (int i=0; i<friendv.size(); i++)
-                ((DragComponent)friendv.get(i)).moveBy(deltax, deltay);
+	repaint();
+	movePosition(deltax, deltay);
+	repaint();
+	if (friendv!=null)
+	    for (int i=0; i<friendv.size(); i++)
+		((DragComponent)friendv.get(i)).moveBy(deltax, deltay);
     }
 
     protected abstract void movePosition(int deltax, int deltay);
 
     public void addFriend(DragComponent friend) {
-        if (friendv==null)
-            friendv = new Vector();
-        if (friendv.indexOf(friend)==-1)
-            friendv.add(friend);
+	if (friendv==null)
+	    friendv = new Vector();
+	if (friendv.indexOf(friend)==-1)
+	    friendv.add(friend);
     }
 
     public Enumeration friends() {
-        return friendv==null ? new NoFriends() : friendv.elements();
+	return friendv==null ? new NoFriends() : friendv.elements();
     }
 
     private static class NoFriends implements Enumeration {
-        public boolean hasMoreElements() { return false; }
-        public Object nextElement() { return null; }
+	public boolean hasMoreElements() { return false; }
+	public Object nextElement() { return null; }
     }
 }

@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -40,101 +40,101 @@ import javax.swing.JFileChooser;
 public class FileChooser /* implements FilenameFilter */ {
 
     public static String newOpenDialog(String message) {
-        return newOpenDialog(message, new String[]{});
+	return newOpenDialog(message, new String[]{});
     }
-	
+    
     public static String newOpenDialog(String message, String extension) {
-        return newOpenDialog(message, new String[]{extension});
+	return newOpenDialog(message, new String[]{extension});
     }
-	
+    
     public static String newOpenDialog(String message, String [] extension) {
-		JapeFileFilter filter = new JapeFileFilter(message);
-		for (int i=0; i<extension.length; i++)
-			filter.addExtension(extension[i]);
-		
-		String result = "";
-		
-        if (Jape.onMacOS) { // use AWT
-			FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.LOAD);
-			d.setDirectory(FilePrefs.nextOpen().toString());
-			d.setFilenameFilter(filter);
-			d.setVisible(true);
-			String file = d.getFile();
-			String dir = d.getDirectory();
-			d.dispose();
-			if (file!=null && dir!=null) {
-				File fdir = new File(dir);
-				FilePrefs.setLastOpenedDir(fdir);
-				result = (new File(dir,file)).toString();
-			}
-			else
-				return "";
-        } 
-		else { // use Swing
-			JFileChooser chooser = new JFileChooser(FilePrefs.nextOpen());
-			chooser.setFileFilter(filter);
-			int returnVal = chooser.showOpenDialog(null);
-			File selected = chooser.getSelectedFile();
-			if (returnVal==JFileChooser.APPROVE_OPTION) {
-				File dir = selected.getParentFile();
-				if (dir!=null) FilePrefs.setLastOpenedDir(dir);
-				result = selected.toString();
-			} 
-			else
-				return "";
-		}
-		
-		FilePrefs.recordRecentFile(result);
-		return result;
+	JapeFileFilter filter = new JapeFileFilter(message);
+	for (int i=0; i<extension.length; i++)
+	    filter.addExtension(extension[i]);
+	
+	String result = "";
+	
+	if (Jape.onMacOS) { // use AWT
+	    FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.LOAD);
+	    d.setDirectory(FilePrefs.nextOpen().toString());
+	    d.setFilenameFilter(filter);
+	    d.setVisible(true);
+	    String file = d.getFile();
+	    String dir = d.getDirectory();
+	    d.dispose();
+	    if (file!=null && dir!=null) {
+		File fdir = new File(dir);
+		FilePrefs.setLastOpenedDir(fdir);
+		result = (new File(dir,file)).toString();
+	    }
+	    else
+		return "";
+	} 
+	else { // use Swing
+	    JFileChooser chooser = new JFileChooser(FilePrefs.nextOpen());
+	    chooser.setFileFilter(filter);
+	    int returnVal = chooser.showOpenDialog(null);
+	    File selected = chooser.getSelectedFile();
+	    if (returnVal==JFileChooser.APPROVE_OPTION) {
+		File dir = selected.getParentFile();
+		if (dir!=null) FilePrefs.setLastOpenedDir(dir);
+		result = selected.toString();
+	    } 
+	    else
+		return "";
+	}
+	
+	FilePrefs.recordRecentFile(result);
+	return result;
     }
 
     public static String newSaveDialog(String message, String [] extension) {
-        JapeFileFilter filter = new JapeFileFilter(message);
-        for (int i=0; i<extension.length; i++)
-            filter.addExtension(extension[i]);
-		
-		String result = "";
-		
-		if (Jape.onMacOS) { // use AWT
-			FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.SAVE);
-			d.setDirectory(FilePrefs.nextOpen().toString());
-			d.setFilenameFilter(filter);
-			d.setVisible(true);
-			String file = d.getFile();
-			String dir = d.getDirectory();
-			d.dispose();
-			if (file!=null && dir!=null) {
-				File fdir = new File(dir);
-				FilePrefs.setLastSavedDir(fdir);
-				result = (new File(dir,file)).toString();
-			}
-			else
-				return "";
-        } 
-		else { // use Swing
-			JFileChooser chooser = new JFileChooser(FilePrefs.nextSave());
-			chooser.setFileFilter(filter);
-			int returnVal = chooser.showSaveDialog(null);
-			File selected  =  chooser.getSelectedFile();
-			if (returnVal==JFileChooser.APPROVE_OPTION) {
-				File dir = selected.getParentFile();
-				if (dir!=null) FilePrefs.setLastSavedDir(dir);
-				result = selected.toString();
-			} 
-			else
-				return "";
-		}
-		
-		FilePrefs.recordRecentFile(result);
-		return result;
+	JapeFileFilter filter = new JapeFileFilter(message);
+	for (int i=0; i<extension.length; i++)
+	    filter.addExtension(extension[i]);
+	
+	String result = "";
+	
+	if (Jape.onMacOS) { // use AWT
+	    FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.SAVE);
+	    d.setDirectory(FilePrefs.nextOpen().toString());
+	    d.setFilenameFilter(filter);
+	    d.setVisible(true);
+	    String file = d.getFile();
+	    String dir = d.getDirectory();
+	    d.dispose();
+	    if (file!=null && dir!=null) {
+		File fdir = new File(dir);
+		FilePrefs.setLastSavedDir(fdir);
+		result = (new File(dir,file)).toString();
+	    }
+	    else
+		return "";
+	} 
+	else { // use Swing
+	    JFileChooser chooser = new JFileChooser(FilePrefs.nextSave());
+	    chooser.setFileFilter(filter);
+	    int returnVal = chooser.showSaveDialog(null);
+	    File selected  =  chooser.getSelectedFile();
+	    if (returnVal==JFileChooser.APPROVE_OPTION) {
+		File dir = selected.getParentFile();
+		if (dir!=null) FilePrefs.setLastSavedDir(dir);
+		result = selected.toString();
+	    } 
+	    else
+		return "";
+	}
+	
+	FilePrefs.recordRecentFile(result);
+	return result;
     }
 
     public static String newSaveDialog(String message) {
-        return newSaveDialog(message, new String[]{});
+	return newSaveDialog(message, new String[]{});
     }
 
     public static String newSaveDialog(String message, String extension) {
-        return newSaveDialog(message, new String[]{extension});
+	return newSaveDialog(message, new String[]{extension});
     }
 }
 

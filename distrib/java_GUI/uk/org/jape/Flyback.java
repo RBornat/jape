@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -43,43 +43,43 @@ public class Flyback implements ActionListener, MiscellaneousConstants {
     long interval;
     
     public Flyback(DragComponent c, Point start, Point dest) {
-        this(c, start.x, start.y, dest.x, dest.y);
+	this(c, start.x, start.y, dest.x, dest.y);
     }
 
     public Flyback(DragComponent c, int startx, int starty, Point dest) {
-        this(c, startx, starty, dest.x, dest.y);
+	this(c, startx, starty, dest.x, dest.y);
     }
 
     public Flyback(DragComponent c, int startx, int starty, int destx, int desty) {
-        this.c = c;
-        this.lastx = startx; this.lasty = starty;
-        this.destx = destx; this.desty = desty;
-        this.interval = 1000/FlybackFramesPerSecond;
-        
-        timer = new Timer((int)interval, this);
-        timer.setInitialDelay(0);
-        timer.setCoalesce(true);
+	this.c = c;
+	this.lastx = startx; this.lasty = starty;
+	this.destx = destx; this.desty = desty;
+	this.interval = 1000/FlybackFramesPerSecond;
+	
+	timer = new Timer((int)interval, this);
+	timer.setInitialDelay(0);
+	timer.setCoalesce(true);
 
-        timer.start();
+	timer.start();
     }
 
     private int delta(int last, int dest) {
-        if (last<=dest)
-            return Math.min(dest-last, FlybackDelta);
-        else
-            return Math.max(dest-last, -FlybackDelta);
+	if (last<=dest)
+	    return Math.min(dest-last, FlybackDelta);
+	else
+	    return Math.max(dest-last, -FlybackDelta);
     }
     
     public void actionPerformed(ActionEvent e) {
-        if (lastx==destx && lasty==desty) {
-            timer.stop();
-            finishFlyback();
-        }
-        else {
-            int deltax = delta(lastx, destx), deltay = delta(lasty, desty);
-            c.moveBy(deltax, deltay);
-            lastx += deltax; lasty += deltay;
-        }
+	if (lastx==destx && lasty==desty) {
+	    timer.stop();
+	    finishFlyback();
+	}
+	else {
+	    int deltax = delta(lastx, destx), deltay = delta(lasty, desty);
+	    c.moveBy(deltax, deltay);
+	    lastx += deltax; lasty += deltay;
+	}
     }
 
     protected void finishFlyback() { }

@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -37,43 +37,43 @@ import javax.swing.filechooser.FileFilter;
 
 public class JapeFileFilter extends FileFilter implements FilenameFilter {
 
-	protected String description;
-	protected Vector pats = new Vector();
-	
-	public JapeFileFilter(String description) {
-		super();
-		this.description = description;
+    protected String description;
+    protected Vector pats = new Vector();
+    
+    public JapeFileFilter(String description) {
+	super();
+	this.description = description;
+    }
+    
+    public void addExtension(String extension) {
+	addPattern(".*\\."+extension);
+    }
+    
+    public void addPattern(String pattern) {
+	try {
+	    pats.add(Pattern.compile(pattern));
+	} catch (PatternSyntaxException e){
+	    Alert.showErrorAlert("bad file filter pattern\n"+e.getMessage());
 	}
+    }
+    
+    public boolean accept(File f) { 
+	if (f.isDirectory() || pats.size()==0)
+	    return true;
+	String name = f.getName();
 	
-	public void addExtension(String extension) {
-		addPattern(".*\\."+extension);
-	}
+	for (int i=0; i<pats.size(); i++) 
+	    if (((Pattern)pats.get(i)).matcher(name).matches())
+		return true;
 	
-	public void addPattern(String pattern) {
-		try {
-			pats.add(Pattern.compile(pattern));
-		} catch (PatternSyntaxException e){
-			Alert.showErrorAlert("bad file filter pattern\n"+e.getMessage());
-		}
-	}
-	
-	public boolean accept(File f) { 
-		if (f.isDirectory() || pats.size()==0)
-			return true;
-		String name = f.getName();
-		
-		for (int i=0; i<pats.size(); i++) 
-			if (((Pattern)pats.get(i)).matcher(name).matches())
-				return true;
-		
-		return false;
-	}
-	
-	public boolean accept(File dir, String name) {
-		return accept(new File(dir, name));
-	}
-	
-	public String getDescription() { 
-		return description;
-	}
+	return false;
+    }
+    
+    public boolean accept(File dir, String name) {
+	return accept(new File(dir, name));
+    }
+    
+    public String getDescription() { 
+	return description;
+    }
 }

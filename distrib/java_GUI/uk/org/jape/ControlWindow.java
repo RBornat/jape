@@ -3,8 +3,8 @@
 
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
      
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -29,14 +29,14 @@ package uk.org.jape;
 
 public class ControlWindow extends SurrogateWindow {
     public ControlWindow() {
-        super("Jape Control"); // let's give the user a clue when the window is closed
-        setLocation(Jape.screenBounds.width/2-getWidth()/2,
-                    Jape.screenBounds.height/2-getHeight()/2);
+	super("Jape Control"); // let's give the user a clue when the window is closed
+	setLocation(Jape.screenBounds.width/2-getWidth()/2,
+		    Jape.screenBounds.height/2-getHeight()/2);
     }
 
     protected void windowCloser() {
-        if (Alert.askOKCancel(ControlWindow.this, "Quit Jape?")==Alert.OK)
-            Jape.handleQuit();
+	if (Alert.askOKCancel(ControlWindow.this, "Quit Jape?")==Alert.OK)
+	    Jape.handleQuit();
     }
 }
 

@@ -2,9 +2,9 @@
     $Id$
     
     Copyright © 2003-4 Richard Bornat & Bernard Sufrin
-        
-        richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
+	
+	richard@bornat.me.uk
+	sufrin@comlab.ox.ac.uk
     
     This file is part of the Jape GUI, which is part of Jape.
     
@@ -31,31 +31,31 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 
 public class RectSelection extends RectItem
-                        implements SelectionIndicator {
+			implements SelectionIndicator {
 
     public RectSelection(DisplayItem item) {
-        this(item.canvas, item.getBounds(), item.canvas.getSelectionGap());
+	this(item.canvas, item.getBounds(), item.canvas.getSelectionGap());
     }
 
     private RectSelection(JapeCanvas canvas, Rectangle bounds, int gap) {
-        super(canvas, bounds.x-gap, bounds.y-gap, bounds.width+2*gap, bounds.height+2*gap);
+	super(canvas, bounds.x-gap, bounds.y-gap, bounds.width+2*gap, bounds.height+2*gap);
     }
 
     private boolean selected;
-                                     
+				     
     public void indicate(DisplayItem item) {
-        selected = item.getSelected();
-        repaint();
+	selected = item.getSelected();
+	repaint();
     }
 
     protected boolean getSelected() {
-        return selected;
+	return selected;
     }
     
     public void paint(Graphics g) {
-        if (selected) {
-            setForeground(Preferences.SelectionColour);
-            super.paint(g);
-        }
+	if (selected) {
+	    setForeground(Preferences.SelectionColour);
+	    super.paint(g);
+	}
     }
  }
