@@ -14,7 +14,7 @@ INFIX		2600	2600	*, /
 INFIX		2700	2700	^
 
 CLASS VARIABLE x, y
-CLASS FORMULA A, B, F, G, X, Y, Z
+CLASS FORMULA A, B, C, F, G, X, Y, Z
 CONSTANT Ù
  
  TACTIC FAIL(x)		IS JAPE(fail x)
@@ -22,6 +22,9 @@ CONSTANT Ù
 
 /***************************** rules *****************************/
  
+RULE hyp IS A æ A
+IDENTITY hyp
+
 RULE "= reflexive"		IS 						INFER X = X
 RULE "= transitive"(Y)	IS FROM X = Y AND Y = Z 		INFER X = Z
 RULE "= symmetric"		IS FROM X = Y 				INFER Y = X
@@ -82,8 +85,8 @@ TACTIC withsubstrewrite(t)
 		(LETCONCSUBSTSEL _A (WITHSUBSTSEL t))
 		(FAILREASON (please text-select a sub-formula, or sub-formulae, in a conclusion))
 		
-RULE "Unfold with hypothesis" (X, OBJECT x)	IS FROM X=Y æ AA[x\Y] INFER X=Y æ AA[x\X]
-RULE "Fold with hypothesis" (Y,OBJECT x)	IS FROM X=Y æ AA[x\X] INFER X=Y æ AA[x\Y]
+RULE "Fold with hypothesis" (X, OBJECT x)	IS FROM X=Y æ AA[x\Y] INFER X=Y æ AA[x\X]
+RULE "Unfold with hypothesis" (Y,OBJECT x)	IS FROM X=Y æ AA[x\X] INFER X=Y æ AA[x\Y]
 
 TACTIC HypFoldUnfold(t) IS 
 	WHEN 
