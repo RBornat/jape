@@ -80,18 +80,18 @@ alert.cmx: japeserver.cmx listfuns.cmx miscellaneous.cmx optionfuns.cmx \
     sml.cmx alert.cmi 
 answer.cmo: sml.cmi answer.cmi 
 answer.cmx: sml.cmx answer.cmi 
-applyrule.cmo: alert.cmi cxtfuns.cmi cxttype.cmo idclass.cmi listfuns.cmi \
-    mappingfuns.cmi miscellaneous.cmi name.cmi optionfuns.cmi prooftree.cmo \
-    proviso.cmi provisofuns.cmi provisotype.cmo reason.cmi rewinf.cmi \
-    rewrite.cmi seqtype.cmo sequent.cmi sml.cmi stringfuns.cmi termfuns.cmi \
-    termstore.cmi termstring.cmi termtype.cmi treeformat.cmo unify.cmi \
-    applyrule.cmi 
-applyrule.cmx: alert.cmx cxtfuns.cmx cxttype.cmx idclass.cmx listfuns.cmx \
-    mappingfuns.cmx miscellaneous.cmx name.cmx optionfuns.cmx prooftree.cmx \
-    proviso.cmx provisofuns.cmx provisotype.cmx reason.cmx rewinf.cmx \
-    rewrite.cmx seqtype.cmx sequent.cmx sml.cmx stringfuns.cmx termfuns.cmx \
-    termstore.cmx termstring.cmx termtype.cmx treeformat.cmx unify.cmx \
-    applyrule.cmi 
+applyrule.cmo: alert.cmi cxtfuns.cmi cxtstring.cmi cxttype.cmo idclass.cmi \
+    listfuns.cmi mappingfuns.cmi miscellaneous.cmi name.cmi optionfuns.cmi \
+    prooftree.cmo proviso.cmi provisofuns.cmi provisotype.cmo reason.cmi \
+    rewinf.cmi rewrite.cmi seqtype.cmo sequent.cmi sml.cmi stringfuns.cmi \
+    termfuns.cmi termstore.cmi termstring.cmi termtype.cmi treeformat.cmo \
+    unify.cmi applyrule.cmi 
+applyrule.cmx: alert.cmx cxtfuns.cmx cxtstring.cmx cxttype.cmx idclass.cmx \
+    listfuns.cmx mappingfuns.cmx miscellaneous.cmx name.cmx optionfuns.cmx \
+    prooftree.cmx proviso.cmx provisofuns.cmx provisotype.cmx reason.cmx \
+    rewinf.cmx rewrite.cmx seqtype.cmx sequent.cmx sml.cmx stringfuns.cmx \
+    termfuns.cmx termstore.cmx termstring.cmx termtype.cmx treeformat.cmx \
+    unify.cmx applyrule.cmi 
 binding.cmo: listfuns.cmi mappingfuns.cmi match.cmi miscellaneous.cmi \
     optionfuns.cmi stringfuns.cmi termfuns.cmi termstring.cmi termtype.cmi \
     binding.cmi 
