@@ -112,7 +112,7 @@ TACTIC FSSOB (Forward, n, Rule) IS
 		)
    
 RULE "Á-I"  IS FROM A Ê B INFER AÁB
-RULE "Í-I"  IS FROM A Ê B  AND B Ê A INFER AÍB
+RULE "Í-I"  IS FROM AÁB  AND BÁA INFER AÍB
 RULE "¶-I"  IS FROM A AND B INFER A ¶ B
 RULE "Î-I(L)"   IS FROM A INFER A Î B
 RULE "Î-I(R)"   IS FROM B INFER A Î B
@@ -156,6 +156,11 @@ AUTOMATCH "inscope"
 
 TACTIC "Ë-E with side condition hidden" IS LAYOUT "Ë-E" (0) (WITHARGSEL "Ë-E")
 TACTIC "‰-I with side condition hidden" IS LAYOUT "‰-I" (0) (WITHARGSEL "‰-I")
+
+TACTIC "‰!-I tac" IS WITHARGSEL "‰!-I"
+TACTIC "Á-E tac" IS FOB "Á-E forward" 0 "Á-E"
+TACTIC "Î-E tac" IS FOB ForwardUncut 0 "Î-E"	
+TACTIC "‰-E tac" IS FOB ForwardUncut 0 "‰-E"
 
 TACTIC "Ë-E tac" IS FOBSS ForwardCut 0 "Ë-E with side condition hidden"
 TACTIC "‰-I tac" IS "‰-I with side condition hidden"
