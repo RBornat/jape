@@ -378,6 +378,10 @@ type proofinforec =
         fromstore : bool }
 type proofinfo = Pinf of proofinforec
 
+let string_of_proofinfo (Pinf {title = title; proofnum = proofnum}) =
+   "Pinf{title="^Stringfuns.string_of_pair string_of_name string_of_int "," title^
+         "; proofnum="^string_of_int proofnum^"}"
+   
 let proofinfo_title (Pinf {title = title}) = title
 let proofinfo_proofnum (Pinf {proofnum = proofnum}) = proofnum
 let proofinfo_displayvarsvals (Pinf {displayvarsvals = displayvarsvals}) = displayvarsvals
@@ -909,7 +913,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   
   let findproof pinfs nstring =
     let n = atoi nstring in
-    extract (fun (Pinf {proofnum = proofnum}) -> n = proofnum) pinfs
+    try extract (fun (Pinf {proofnum = proofnum}) -> n = proofnum) pinfs
+    with Extract_ -> raise (Catastrophe_ ["Dialogue.findproof can't find proof "; nstring; " in pinfs ";
+                                          bracketedstring_of_list string_of_proofinfo "; " pinfs])
   in
   
   let newfocus (env, mbs, showit, (pinfs : proofinfo list) as state) =
@@ -951,21 +957,22 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   in
   
   let addnewconjecture panel text =
+    let getpara = paragraph_of_string showAlert uncurried_screenquery in
     try
       let text =
         (* praps it's just a conjecture *)
-        try let t = "THEOREM INFER " ^ text in t with
-          ParseError_ rs ->
-            (* praps it has params and stuff *)
-            try let t = "THEOREM " ^ text in t with
-              ParseError_ rs' ->
-                showAlert
-                  (["Cannot parse new conjecture "; text; " -- "] @
-                     (if rs = rs' then rs
-                      else
-                        "\n\nTrying to read it as a sequent gave the error Ô" :: 
-                          (rs @ "Õ.\n\nTrying to read it as a line of Japeish gave the error Ô" :: (rs' @ ["Õ."]))));
-                raise AddConjecture_
+        try let t = "THEOREM IS " ^ text in let _ = getpara t in t 
+        with ParseError_ rs ->
+        (* praps it has params and stuff *)
+        try let t = "THEOREM " ^ text in let _ = getpara t in t
+        with ParseError_ rs' ->
+            showAlert
+              (["Cannot parse new conjecture "; text; " -- "] @
+                 (if rs = rs' then rs
+                  else
+                    "\n\nTrying to read it as a sequent gave the error Ô" :: 
+                      (rs @ "Õ.\n\nTrying to read it as a line of Japeish gave the error Ô" :: (rs' @ ["Õ."]))));
+            raise AddConjecture_
       in
       defineconjecture panel text
     with
@@ -1857,27 +1864,31 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             else begin Japeserver.quit (); raise QuitJape end
 
         | "setfocus", [nstring] ->
-            let
-              (Pinf
-                 {title = title;
-                  proofnum = proofnum;
-                  displayvarsvals = displayvarsvals;
-                  needsrefresh = needsrefresh;
-                  displaystate = displaystate;
-                  hist = hist;
-                  fromstore = fromstore})
-              =
-              List.hd pinfs
-            in
-            let pinfs =
-              Pinf {title = title; proofnum = proofnum; 
-                    displayvarsvals = recorddisplayvars env; (* just in case *)
-                    needsrefresh = needsrefresh; displaystate = displaystate;
-                    hist = hist; fromstore = fromstore} ::
-                List.tl pinfs
-            in
-            let (fg, bgs) = findproof pinfs nstring in
-            newfocus (env, mbs, DontShow, fg :: bgs)
+            if not (null pinfs) then (
+              let
+                (Pinf
+                   {title = title;
+                    proofnum = proofnum;
+                    displayvarsvals = displayvarsvals;
+                    needsrefresh = needsrefresh;
+                    displaystate = displaystate;
+                    hist = hist;
+                    fromstore = fromstore})
+                =
+                List.hd pinfs
+              in
+              let pinfs =
+                Pinf {title = title; proofnum = proofnum; 
+                      displayvarsvals = recorddisplayvars env; (* just in case *)
+                      needsrefresh = needsrefresh; displaystate = displaystate;
+                      hist = hist; fromstore = fromstore} ::
+                  List.tl pinfs
+              in
+              let (fg, bgs) = findproof pinfs nstring in
+              newfocus (env, mbs, DontShow, fg :: bgs))
+            else (
+              showAlert ["GUI protocol error: setfocus "; nstring; " with no proof windows"];
+              default)
         
         | "windowresized", [] ->
             if !Miscellaneous.foldformulae && Interaction.getdisplaystyle()="box" then 
@@ -2011,8 +2022,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 _ ->
                   raise
                     (Catastrophe_
-                       ["can't follow selpath (commands): ";
-                        string_of_sel string_of_fmtpath sel])
+                       ["can't follow selpath (commands): "; string_of_sel string_of_fmtpath sel])
             in
             let trymatch sense p =
               Doubleclick.matchdoubleclick sense (mkSeq p)
