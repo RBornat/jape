@@ -26,7 +26,6 @@
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -85,8 +84,15 @@ public class Jape implements DebugConstants {
                                "\nos.version="+System.getProperty("os.version"));
         }
 
+        if (osDebug)
+            Logger.log.println("onMacOS="+onMacOS+"; onLinux="+onLinux+
+                               "; onSolaris="+onSolaris+"; onWindows="+onWindows+
+                               "\nos.name="+System.getProperty("os.name")+
+                               "\nos.arch="+System.getProperty("os.arch")+
+                               "\nos.version="+System.getProperty("os.version"));
+        
         if (onMacOS) { // deal with the double-bounce menu checkbox bug
-            String s = System.getProperty("com.apple.macos.useScreenMenuBar");
+            String s = System.getProperty("apple.laf.useScreenMenuBar");
             JapeMenu.checkboxDoubleBounce = s!=null && s.equals("true");
         }
         else
