@@ -4,35 +4,26 @@ TACTIC TheoremForward (thm) IS CUTIN (ALT thm (RESOLVE thm))
 
 TACTIC TheoremForwardOrBackward(thm) IS
 	WHEN	(LETHYP _A 
-				(ALT	(TheoremForward (WITHHYPSEL (WITHARGSEL thm)))
-						(Fail	("The theorem %s doesn't apply to the antecedent %t which you selected", thm, _A))
-				)
-			)
+				(ALT	(TheoremForward (WITHHYPSEL (WITHARGSEL thm)))))
 			(LETHYPS _As
 				(Fail ("At present I2L Jape can't deal with multiple antecedent selections when applying theorems. Sorry.\
-						\\nCancel one of them and try again."))
-			)
+						\\nCancel one of them and try again.")))
 			(LETGOAL _A
 				(ALT (WITHARGSEL thm) 
-						(RESOLVE (WITHARGSEL thm)) 
-						(TheoremForward (WITHARGSEL thm))
-						(Fail	"Theorem application failed -- tell Richard")
-				)
-			)
+					(RESOLVE (WITHARGSEL thm)) 
+					(TheoremForward (WITHARGSEL thm))
+					(Fail	"Theorem application failed -- tell Richard")))
 			(LETOPENSUBGOAL G _A 
-				(Fail ("Error in I2L Jape (open subgoal in TheoremForwardOrBackward). Tell Richard."))
-			)
+				(Fail ("Error in I2L Jape (open subgoal in TheoremForwardOrBackward). Tell Richard.")))
 			(LETOPENSUBGOALS _As
 				(ALERT	("There is more than one unproved conclusion in the proof. Please select one Ð \
 				 			\or select an antecedent Ð to show \
 							\Jape where to apply the theorem.")
-							("OK", STOP) 
-							("Huh?", Explainantecedentandconclusionwords)
-				)
-			)
-			(ALERT "The proof is finished -- there are no unproved conclusions left."
-					("OK", STOP) ("Huh?", Explainunprovedconclusionwords)
-			)
+						("OK", STOP) 
+						("Huh?", Explainantecedentandconclusionwords)))
+			(ALERT	"The proof is finished -- there are no unproved conclusions left."
+					("OK", STOP) 
+					("Huh?", Explainunprovedconclusionwords))
 
 /* These theorems are all stated without an explicit left context ‚. That is possible because, in I2L_rules.j,
  * we declared a WEAKEN structure rule: Jape will automatically discard any unmatched left-context
