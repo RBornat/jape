@@ -1,28 +1,10 @@
 /* $Id$ */
 
 /*
-	The multi-conclusion sequent calculus
+	The multi-conclusion sequent calculus. Dyckhoffery removed.
 */
 
-FONTS "Konstanz"
-INITIALISE displaystyle tree
-
-INFIX   1000    1000    é
-INFIX   1101    1100    ç
-INFIX   1500    1500    ¦
-INFIX   1600    1600    ë
-PREFIX Â
-
-LEFTFIX è .
-LEFTFIX ä .
-
-CLASS BAG ‚, Æ
-CLASS FORMULA A, B, C, D, P, Q, R, S
-CLASS VARIABLE x, y, z
-CLASS CONSTANT F, G, H, m, n
-
-BIND    x SCOPE P IN äx . P
-BIND    x SCOPE P IN èx . P
+USE "sequent_syntax.j"
 
 SEQUENT IS BAG æ BAG
 
@@ -38,11 +20,11 @@ RULE	"çæ"		FROM ‚ æ A,Æ AND ‚,B æ Æ		INFER ‚,AçB æ Æ
 RULE	"æé"		FROM ‚ æ AçB,Æ AND ‚ æ BçA,Æ	INFER ‚ æ AéB,Æ
 RULE	"éæ"		FROM ‚, AçB, BçA æ Æ			INFER ‚,AéB æ Æ
 RULE	"æè"(OBJECT m) WHERE FRESH m
-			FROM ‚ æ A[x\m],Æ				INFER ‚ æ èx.A,Æ
-RULE	"èæ"(B)	FROM ‚, A[x\B] æ Æ				INFER ‚,èx.A æ Æ
-RULE	"æä"(B)	FROM ‚ æ A[x\B],Æ				INFER ‚ æ äx.A,Æ
+			FROM ‚ æ A(m),Æ				INFER ‚ æ èx.A(x),Æ
+RULE	"èæ"(B)	FROM ‚, A(B) æ Æ				INFER ‚,èx.A(x) æ Æ
+RULE	"æä"(B)	FROM ‚ æ A(B),Æ				INFER ‚ æ äx.A(x),Æ
 RULE	"äæ"(OBJECT m) WHERE FRESH m
-			FROM  ‚,A[x\m] æ Æ				INFER ‚, äx.A æ Æ
+			FROM  ‚,A(m) æ Æ				INFER ‚, äx.A(x) æ Æ
 RULE	cut(A)	FROM ‚ æ A,Æ AND ‚,A æ Æ		INFER ‚ æ Æ
 RULE	"weakenæ"(A)	FROM ‚ æ Æ				INFER ‚,A æ Æ
 RULE	"æweaken"(A)	FROM ‚ æ Æ				INFER ‚ æ A,Æ

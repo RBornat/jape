@@ -4,6 +4,7 @@ INITIALISE applyconjectures false
 INITIALISE tryresolution false
 INITIALISE displaystyle tree
 
+USE "sequent_syntax.j"
 USE "MCS_rules.j"
 
 CONJECTUREPANEL "Conjectures"
@@ -11,4 +12,4 @@ CONJECTUREPANEL "Conjectures"
   THEOREM	contradiction(A,B)	IS A, ÂA æ 
 END
 
-USE "MCS+SCS_problems.j"
+USE "sequent_problems.j"
