@@ -29,7 +29,52 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+/*
+    Bernard's original ProofCanvas included this comment:
+    
+        This next spasm copes with the fact that Macs have 1-button
+        mice, and that (in order to cope with this) Java AWT
+        reports button 2 and button 3 presses AS IF they were
+        presses with one of Meta or Alt pressed. I simply don't know
+        whether the getButton field of an event on the Mac always
+        says 1, or whether the lowlevel AWTery reports virtual
+        buttons. Until I find out, I'm assuming the former, and using
+        the Alt and Meta fields to give an indication of the button
+        that was actually pressed (on nonMacs) or the (virtual) button
+        that a MacIsta indicated that she wanted to press.
+        
+        Beyond here we're simply pretending we have a 3-button mouse.
+    
+    
+    and this code:
+    
+        // Assigns the right virtual button for all but a move
+        lastButton = 1;
+        if (e.isAltDown())  lastButton=2;
+        else
+        if (e.isMetaDown()) lastButton=3;
+    
+    I'm using LocalSettings to get this right on different machines.
+ */
+
+/*
+    It might be nice if click meant select me (as it does), and press-and-drag
+    meant text-select me (as it doesn't for us, but it does in every editor).
+    
+    The drawbacks, apart from incompatibility with Actually Existing Jape, would
+    be (a) impossible to select a token with a single click; (b) a modifier key /
+    alternative button needed for drag-n-drop, when I come to it.
+    
+    I've thought about it.  Essentially normal click (select, move when it's implemented)
+    works on the whole object, text click (select ranges of text) works within the object.
+    They are two different things, and I shouldn't confuse them.  No doubt that was the
+    reason for the original design ...
+ */
+
 public class MouseInteractionAdapter implements MouseListener, MouseMotionListener {
+    // you get a click event if you press the mouse at a particular point, move it and then
+    // move back to the same point!  Well blow me down: we're not having that.
+
     byte eventKind;
     boolean dragSeen;
 
@@ -56,22 +101,22 @@ public class MouseInteractionAdapter implements MouseListener, MouseMotionListen
     public final void mousePressed(MouseEvent e) {
         eventKind = LocalSettings.mouseDownKind(e);
         if ((eventKind&SelectionConstants.TextSelMask)!=0)
-            textpressed(e);
+            textpressed(eventKind, e);
         else
-            pressed(e);
+            pressed(eventKind, e);
     }
     
     public final void mouseReleased(MouseEvent e) {
         if ((eventKind&SelectionConstants.TextSelMask)!=0)
-            textreleased(e);
+            textreleased(eventKind, e);
         else
         if (dragSeen)
-            released(e);
+            released(eventKind, e);
         else
         if (e.getClickCount()==2)
-            doubleclicked(e);
+            doubleclicked(eventKind, e);
         else
-            clicked(e);
+            clicked(eventKind, e);
     }
 
     /*
@@ -85,21 +130,21 @@ public class MouseInteractionAdapter implements MouseListener, MouseMotionListen
     public final void mouseDragged(MouseEvent e) {
         dragSeen = true;
         if ((eventKind&SelectionConstants.TextSelMask)!=0)
-            textdragged(e);
+            textdragged(eventKind, e);
         else
-            dragged(e);
+            dragged(eventKind, e);
     }
 
     public final void mouseMoved(MouseEvent e) { }
 
-    public void textpressed(MouseEvent e) { }
-    public void pressed(MouseEvent e) { }
+    public void textpressed(byte eventKind, MouseEvent e) { }
+    public void pressed(byte eventKind, MouseEvent e) { }
 
-    public void textdragged(MouseEvent e) { }
-    public void dragged(MouseEvent e) { }
+    public void textdragged(byte eventKind, MouseEvent e) { }
+    public void dragged(byte eventKind, MouseEvent e) { }
 
-    public void textreleased(MouseEvent e) { }
-    public void clicked(MouseEvent e) { }
-    public void released(MouseEvent e) { }
-    public void doubleclicked(MouseEvent e) { }
+    public void textreleased(byte eventKind, MouseEvent e) { }
+    public void clicked(byte eventKind, MouseEvent e) { }
+    public void released(byte eventKind, MouseEvent e) { }
+    public void doubleclicked(byte eventKind, MouseEvent e) { }
 }

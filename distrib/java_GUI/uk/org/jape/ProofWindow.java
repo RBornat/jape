@@ -190,12 +190,37 @@ public class ProofWindow extends JapeWindow implements ProofConstants {
                                   String annottext, String printtext) throws ProtocolError {
         checkFocussedCanvas();
         JapeFont.checkInterfaceFontnum(fontnum);
-        focussedProofWindow.focussedCanvas.add(
-            kind==PunctTextItem ?
-                new TextItem(focussedProofWindow.focussedCanvas, x, y, fontnum, annottext, printtext) :
-                new SelectableTextItem(focussedProofWindow.focussedCanvas, x, y, fontnum, kind,
-                                       annottext, printtext,
-                                       focussedProofWindow.style, focussedProofWindow.linethickness));
+        JapeCanvas canvas = focussedProofWindow.focussedCanvas;
+        switch (kind) {
+            case PunctTextItem:
+                canvas.add(new TextItem(canvas, x, y, fontnum, annottext, printtext)); break;
+            case HypTextItem:
+                if (canvas instanceof ProofCanvas) {
+                    canvas.add(new HypothesisItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
+                }
+                else
+                    throw new ProtocolError("ProofWindow.drawstring HypTextItem not drawing in proof pane");
+            case ConcTextItem:
+                if (canvas instanceof ProofCanvas) {
+                    canvas.add(new ConclusionItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
+                }
+                else
+                    throw new ProtocolError("ProofWindow.drawstring ConcTextItem not drawing in proof pane");
+            case AmbigTextItem:
+                if (canvas instanceof ProofCanvas) {
+                    canvas.add(new HypConcItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
+                }
+                else
+                    throw new ProtocolError("ProofWindow.drawstring AmbigTextItem not drawing in proof pane");
+            case ReasonTextItem:
+                if (canvas instanceof ProofCanvas) {
+                    canvas.add(new ReasonItem((ProofCanvas)canvas, x, y, fontnum, annottext, printtext)); break;
+                }
+                else
+                    throw new ProtocolError("ProofWindow.drawstring ReasonTextItem not drawing in proof pane");
+            default:
+                throw new ProtocolError("ProofWindow.drawstring kind="+kind);
+        }
     }
 
     public static String getSelections() throws ProtocolError {

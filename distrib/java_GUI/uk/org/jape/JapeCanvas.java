@@ -32,21 +32,20 @@ import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.awt.Point;
 
-public abstract class JapeCanvas extends ContainerWithOrigin
+public class JapeCanvas extends ContainerWithOrigin
                                  implements Viewportable, SelectionConstants {
 
     protected JapeCanvas() {
         super();
-        addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                click(e);
+        addMouseListener(new MouseInteractionAdapter() {
+            public void clicked(byte eventKind, MouseEvent e) {
+               JapeCanvas.this.clicked(eventKind, e);
             }
         });
     }
 
-    // I really must organise a 'selection halo' round items ...
-    protected void click(MouseEvent e) {
-        switch (LocalSettings.mouseDownKind(e)) {
+    protected void clicked(byte eventKind, MouseEvent e) {
+        switch (eventKind) {
             case TextSelection:
             case ExtendedTextSelection:
                 killTextSelections(null);
@@ -62,32 +61,26 @@ public abstract class JapeCanvas extends ContainerWithOrigin
             case ExtendedDisjointSelection:
                 break;
             default:
-                Alert.abort("JapeCanvas.click eventKind="+LocalSettings.mouseDownKind(e));
+                Alert.abort("JapeCanvas.click eventKind="+eventKind);
         }
     }
     
-    protected abstract void declareSelection(byte eventKind, byte selkind);
-
-    protected abstract void declareTextSelection(SelectableTextItem item, byte eventKind);
-
     protected void killSelections(byte selmask) {
         Component[] cs = child.getComponents(); // oh dear ...
         for (int i=0; i<cs.length; i++) {
-            if (cs[i] instanceof SelectableTextItem) {
-                SelectableTextItem sti = (SelectableTextItem)cs[i];
-                if (sti.selectionRect!=null && (sti.selectionRect.selkind & selmask)!=0)
-                    sti.select(NoSel);
+            if (cs[i] instanceof SelectableItem) {
+                SelectableItem s = (SelectableItem)cs[i];
+                if ((s.getSelKind()&selmask)!=0)
+                    s.select(NoSel);
             }
         }
     }
 
-    protected void killTextSelections(SelectableTextItem leave) {
-        int nc = child.getComponentCount();
-        for (int i=0; i<nc; i++) {
-            Component c = child.getComponent(i);
-            if (c instanceof SelectableTextItem && c!=leave)
-                ((SelectableTextItem)c).removeTextSelections();
-        }
+    protected void killTextSelections(TextSelectableItem leave) {
+        Component[] cs = child.getComponents(); // oh dear ...
+        for (int i=0; i<cs.length; i++)
+            if (cs[i] instanceof TextSelectableItem && cs[i]!=leave)
+                ((TextSelectableItem)cs[i]).removeTextSelections();
     }
 
     Container viewport = null;

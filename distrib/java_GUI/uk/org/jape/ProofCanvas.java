@@ -53,7 +53,7 @@ public class ProofCanvas extends JapeCanvas
         }
     }
 
-    protected void declareTextSelection(SelectableTextItem item, byte eventKind) {
+    protected void declareTextSelection(TextItem item, byte eventKind) {
         switch (eventKind) {
             case TextSelection:
                 // policy is that all text selections are killed, including current item
@@ -79,8 +79,8 @@ public class ProofCanvas extends JapeCanvas
         int nc = child.getComponentCount(); // oh dear ...
         for (int i=0; i<nc; i++) {
             Component c = child.getComponent(i); // oh dear ...
-            if (c instanceof SelectableTextItem) {
-                SelectableTextItem sti = (SelectableTextItem)c;
+            if (c instanceof TextSelectableItem) {
+                TextSelectableItem sti = (TextSelectableItem)c;
                 String s1 = sti.getTextSelectionStrings();
                 if (s1!=null) {
                     s1 = sti.idX+Reply.stringSep+sti.idY+Reply.stringSep+s1+"\n";
@@ -102,9 +102,9 @@ public class ProofCanvas extends JapeCanvas
         int nc = child.getComponentCount(); // oh dear ...
         for (int i=0; i<nc; i++) {
             Component c = child.getComponent(i); // oh dear ...
-            if (c instanceof SelectableTextItem) {
+            if (c instanceof SelectableItem) {
                 byte selclass;
-                SelectableTextItem sti = (SelectableTextItem)c;
+                SelectableItem sti = (SelectableItem)c;
                 if (sti.selectionRect==null)
                     continue;
                 else
