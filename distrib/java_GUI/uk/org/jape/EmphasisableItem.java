@@ -168,7 +168,7 @@ public abstract class EmphasisableItem extends TextSelectableItem {
             coloursegs[i].paint(g);
         
     }
-    
+
     protected class EmphasisLine extends LineItem {
 
         private boolean emphasised;
@@ -179,9 +179,14 @@ public abstract class EmphasisableItem extends TextSelectableItem {
             this.emphasised = emphasised;
         }
 
+        public void setlinethickness(int linethickness) {
+            super.setlinethickness(linethickness);
+            EmphasisableItem.this.canvas.computeBounds(); // because it might have been 0
+        }
+
         public void paint(Graphics g) {
             if (paint_tracing)
-                System.err.println("painting emphasis at "+getX()+","+getY());
+                System.err.println("painting emphasis at "+getX()+","+getY()+"; "+emphasised);
             if (emphasised)
                 super.paint(g);
         }
