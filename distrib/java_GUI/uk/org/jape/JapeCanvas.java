@@ -151,4 +151,22 @@ public abstract class JapeCanvas extends ContainerWithOrigin
             if (cs[i] instanceof TextSelectableItem && cs[i]!=leave)
                 ((TextSelectableItem)cs[i]).deTextSelect();
     }
+
+    public int getTextSelectionCount() {
+        int nc = child.getComponentCount(); // oh dear ...
+        int count = 0;
+        for (int i=0; i<nc; i++) {
+            Component c = child.getComponent(i);
+            if (c instanceof TextSelectableItem)
+                count += ((TextSelectableItem)c).getTextSelectionCount();
+        }
+        return count;
+    }
+
+    public ProofWindow getProofWindow() {
+        Container c = getParent();
+        while (c!=null && !(c instanceof ProofWindow))
+            c = c.getParent();
+        return (ProofWindow)c; // null if we ain't in a ProofWindow, obviously
+    }
 }

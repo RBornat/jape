@@ -92,6 +92,10 @@ public class DisproofPane extends Container implements DebugConstants {
         seqView.add(seqCanvas);
     }
 
+    public int getTextSelectionCount() {
+        return seqCanvas.getTextSelectionCount()+worldCanvas.getTextSelectionCount();
+    }
+    
     public void setSequentBox(int width, int ascent, int descent) {
         seqCanvas.setSequentBox(width, ascent, descent);
         seqView.setSize(width, ascent+descent+2*linethickness);
