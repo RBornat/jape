@@ -118,6 +118,8 @@ MENU "+"
 END
 
 MENU Logic 
+        ENTRY "PŠ(èx.X) Û PŠX[x\\Y]"			IS ForwardOrBackward ForwardCut 0 "PŠ(èx.X) Û PŠX[x\\Y]"
+        SEPARATOR
 	ENTRY hyp
 END
 
