@@ -165,8 +165,11 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("MENUSEP")&&len==2)
                             JapeMenu.addSeparator(cmd[1]);
                         else
-                        if (p.equals("ENABLEMENUITEM")&&len==5)
-                            JapeMenu.enableItem(toBool(cmd[1]), toUnicode(cmd[2]), toUnicode(cmd[3]), toBool(cmd[4]));
+                        if (p.equals("ENABLEMENUITEM")&&len==4) {
+                            // showcommand("", cmd);
+                            // see comment in japeserver.mli
+                            JapeMenu.enableItem(false, toUnicode(cmd[1]), toUnicode(cmd[2]), toBool(cmd[3]));
+                        }
                         else
                         if (p.equals("MENURADIOBUTTON")&&len==1)
                             list.removeAllElements();
@@ -181,8 +184,11 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("MENUCHECKBOX")&&len==4)
                             JapeMenu.addCheckBox(toUnicode(cmd[1]), toUnicode(cmd[2]), cmd[3]);
                         else
-                        if (p.equals("TICKMENUITEM")&&len==5)
-                            JapeMenu.tickItem(toBool(cmd[1]), toUnicode(cmd[2]), toUnicode(cmd[3]), toBool(cmd[4]));
+                        if (p.equals("TICKMENUITEM")&&len==4) {
+                            // showcommand("",cmd);
+                            // see comment in japeserver.mli
+                            JapeMenu.tickItem(false, toUnicode(cmd[1]), toUnicode(cmd[2]), toBool(cmd[3]));
+                        }
                         else
                     
                     // PANEL commands
