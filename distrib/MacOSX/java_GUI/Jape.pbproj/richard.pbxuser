@@ -98,7 +98,7 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 102629809;
+			PBXPerProjectTemplateStateSaveDate = 103028291;
 			PBXPrepackagedSmartGroups_v2 = (
 				{
 					PBXTransientLocationAtTop = bottom;
@@ -493,7 +493,7 @@
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXNavigatorGroup" = {
 				Frame = "{{0, 0}, {750, 481}}";
 				PBXModuleWindowStatusBarHidden = YES;
-				RubberWindowFrame = "107 155 750 502 0 0 1024 746 ";
+				RubberWindowFrame = "15 671 750 502 0 0 1600 1178 ";
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXProjectFindModule" = {
 				Frame = "{{0, 0}, {690, 677}}";
@@ -512,7 +512,7 @@
 				PBXModuleWindowStatusBarHidden = YES;
 				RubberWindowFrame = "263 272 745 464 0 0 1280 1002 ";
 			};
-			PBXWorkspaceStateSaveDate = 102629809;
+			PBXWorkspaceStateSaveDate = 103028291;
 		};
 		sourceControlManager = 798BBCC505861E6600B5B478;
 		userBuildSettings = {
