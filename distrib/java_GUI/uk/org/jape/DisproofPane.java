@@ -25,8 +25,6 @@
     
 */
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -36,14 +34,14 @@ import java.awt.LayoutManager;
 
 // BoxLayout doesn't work for laying out this thing,
 // if you use BorderLayout to give lots of space to the worldPane.
-// So I do it by steam (again; sigh!)
+// So I do it by steam (again; sigh!). BoxLayout doesn't even work for the tile canvas ...
 
 public class DisproofPane extends Container implements DebugConstants {
-    AnchoredScrollPane worldPane;
-    DisproofCanvas seqCanvas;
-    WorldCanvas worldCanvas;
-    Container seqView;
-    Box tileCanvas;
+    final AnchoredScrollPane worldPane;
+    final DisproofCanvas seqCanvas;
+    final WorldCanvas worldCanvas;
+    final Container seqView;
+    final Container tileCanvas;
 
     Container layeredPane; // for the draggers and droppers
     
@@ -58,16 +56,16 @@ public class DisproofPane extends Container implements DebugConstants {
         worldCanvas = new WorldCanvas(worldPane.getViewport(), true);
         worldPane.add(worldCanvas);
         worldPane.setAnchor(AnchoredScrollPane.ANCHOR_SOUTH);
-        tileCanvas = new Box(BoxLayout.Y_AXIS);
+        tileCanvas = new Container() {
+            public Dimension getPreferredSize() { return getSize(); }
+            public Dimension getMinimumSize() { return getSize(); }
+        };
+        tileCanvas.setLayout(null);
         add(tileCanvas);
         seqView = new Container() {
             public void validate() { }
-            public Dimension getPreferredSize() {
-                return getSize();
-            }
-            public Dimension getMinimumSize() {
-                return getSize();
-            }
+            public Dimension getPreferredSize() { return getSize(); }
+            public Dimension getMinimumSize() { return getSize(); }
         };
         add(seqView);
         seqView.setLayout(null);
@@ -88,26 +86,33 @@ public class DisproofPane extends Container implements DebugConstants {
     public void setlinethickness(int linethickness) {
         linethickness = seqCanvas.linethickness = worldCanvas.linethickness = linethickness;
     }
+
+    private Tile[] tiles;
+    private boolean tileLayoutPending = false;
     
     public void setTiles(String[] tiles) {
         tileCanvas.removeAll();
-        tileCanvas.add(Box.createGlue());
+        this.tiles = new Tile[tiles.length];
         for (int i=0; i<tiles.length; i++) {
-            tileCanvas.add(new Tile(layeredPane, tiles[i]));
-            if (i+1<tiles.length)
-                tileCanvas.add(Box.createVerticalStrut(LocalSettings.TileSpacing));
+            Tile t = new Tile(layeredPane, tiles[i]);
+            this.tiles[i] = t;
+            tileCanvas.add(t);
         }
         tileLayoutPending = true;
     }
-
-    private boolean tileLayoutPending = false;
     
     protected void doTileLayout() {
         if (tileLayoutPending) {
+            int width = 0, height = 0, spacing = LocalSettings.TileSpacing;
+            for (int i=0; i<tiles.length; i++) {
+                if (i!=0) height+=spacing;
+                tiles[i].setLocation(0, height);
+                Dimension size = tiles[i].getPreferredSize();
+                width = Math.max(width, size.width);
+                height += size.height;
+            }
+            tileCanvas.setSize(width, height);
             tileLayoutPending = false;
-            BoxLayout layout = (BoxLayout)tileCanvas.getLayout();
-            layout.invalidateLayout(tileCanvas);
-            layout.layoutContainer(tileCanvas);
         }
     }
 
@@ -159,11 +164,11 @@ public class DisproofPane extends Container implements DebugConstants {
         public Dimension preferredLayoutSize(Container pane) {
             Dimension seqSize = seqView.getPreferredSize();
             doTileLayout();
-            Dimension tileSize = tileCanvas.getPreferredSize();
+            Dimension tileCanvasSize = tileCanvas.getPreferredSize();
             Dimension worldSize = worldPane.getPreferredSize();
 
-            return new Dimension(Math.max(seqSize.width,tileSize.width+worldSize.width)+2*gap(),
-                                 seqSize.height+2*gap()+Math.max(tileSize.height+worldPane.scrollbarthickness,
+            return new Dimension(Math.max(seqSize.width,tileCanvasSize.width+worldSize.width)+2*gap(),
+                                 seqSize.height+2*gap()+Math.max(tileCanvasSize.height+worldPane.scrollbarthickness,
                                                                  worldSize.height));
         }
 
@@ -194,20 +199,24 @@ public class DisproofPane extends Container implements DebugConstants {
             Dimension paneSize = pane.getSize();
             Dimension seqSize = seqView.getSize();
             doTileLayout();
-            Dimension tileSize = tileCanvas.getPreferredSize();
+            Dimension tileCanvasSize = tileCanvas.getPreferredSize();
 
             int bottom = paneSize.height-gap(),
                 right = paneSize.width-gap(),
                 seqtop = bottom-seqSize.height,
                 worldbottom = seqtop-gap(),
-                tileleft = right-tileSize.width;
+                tileleft = right-tileCanvasSize.width;
             
             seqView.setLocation((paneSize.width-seqSize.width)/2, seqtop);
             tileCanvas.setBounds
-                (tileleft, worldbottom-worldPane.scrollbarthickness-tileSize.height,
-                 tileSize.width, tileSize.height);
+                (tileleft, worldbottom-worldPane.scrollbarthickness-tileCanvasSize.height,
+                 tileCanvasSize.width, tileCanvasSize.height);
             worldPane.setBounds(0, 0, tileleft-gap(), worldbottom);
 
+            if (disprooflayout_tracing) {
+                System.err.println(pane); japeserver.showContainer(pane, null); 
+            }
+            
             pane.repaint();
         }
     }
