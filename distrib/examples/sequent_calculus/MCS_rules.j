@@ -16,6 +16,7 @@ PREFIX Â
 LEFTFIX è .
 LEFTFIX ä .
 
+CLASS BAG FORMULA ‚, Æ
 CLASS FORMULA A, B, C, D, P, Q, R, S
 CLASS VARIABLE x, y, z
 CLASS CONSTANT F, G, H, m, n
@@ -25,53 +26,53 @@ BIND    x SCOPE P IN èx . P
 
 SEQUENT IS BAG æ BAG
 
-RULE	axiom(A)		INFER A æ A
-RULE	"æ¦"		FROM æ A AND æ B INFER æ A¦B
-RULE	"¦æ"		FROM A, B æ  INFER   A¦B æ 
-RULE	"æë"		FROM æ A,B INFER æ AëB
-RULE	"ëæ"		FROM A æ  AND B æ  INFER AëB æ 
-RULE	"æÂ"		FROM A æ INFER æ ÂA
-RULE	"Âæ"		FROM æ A INFER ÂA æ 
-RULE	"æç"		FROM A æ B INFER æ AçB
-RULE	"çæ"		FROM AçB æ A AND B æ  INFER AçB æ
-RULE	"æé"		FROM æ AçB AND æ BçA INFER æ AéB
-RULE	"éæ"		FROM AçB, BçA æ  INFER AéB æ 
+RULE	axiom(A)								INFER ‚,A æ A,Æ
+RULE	"æ¦"		FROM ‚ æ A,Æ AND ‚ æ B,Æ 		INFER ‚ æ A¦B,Æ
+RULE	"¦æ"		FROM ‚,A, B æ Æ 				INFER ‚,A¦B æ Æ
+RULE	"æë"		FROM ‚ æ A,B,Æ 				INFER ‚ æ AëB,Æ
+RULE	"ëæ"		FROM ‚,A æ Æ AND ‚,B æ Æ		INFER ‚,AëB æ Æ
+RULE	"æÂ"		FROM ‚,A æ Æ					INFER ‚ æ ÂA,Æ
+RULE	"Âæ"		FROM ‚ æ A,Æ 					INFER ‚,ÂA æ Æ
+RULE	"æç"		FROM ‚,A æ B,Æ 				INFER ‚ æ AçB,Æ
+RULE	"çæ"		FROM ‚,AçB æ A,Æ AND ‚,B æ Æ	INFER ‚,AçB æ Æ
+RULE	"æé"		FROM ‚ æ AçB,Æ AND ‚ æ BçA,Æ	INFER ‚ æ AéB,Æ
+RULE	"éæ"		FROM ‚, AçB, BçA æ Æ			INFER ‚,AéB æ Æ
 RULE	"æè"(OBJECT m) WHERE FRESH m
-			FROM æ A[x\m] INFER æ èx . A
-RULE	"èæ"(B)		FROM èx.A, A[x\B] æ INFER èx.A æ
-RULE	"æä"(B)		FROM æ A[x\B] INFER æ äx.A
+			FROM ‚ æ A[x\m],Æ				INFER ‚ æ èx.A,Æ
+RULE	"èæ"(B)	FROM ‚, èx.A, A[x\B] æ Æ		INFER ‚,èx.A æ Æ
+RULE	"æä"(B)	FROM ‚ æ A[x\B],Æ				INFER ‚ æ äx.A,Æ
 RULE	"äæ"(OBJECT m) WHERE FRESH m
-			FROM  A[x\m] æ INFER äx.A æ
-RULE	cut(A)		FROM æ A AND A æ INFER æ
-RULE	"weakenæ"(A)	FROM æ INFER A æ 
-RULE	"æweaken"(A)	FROM æ INFER æ A
-RULE	"contractæ"(A)	FROM A, A æ INFER A æ 
-RULE	"æcontract"(A)	FROM æ A, A INFER æ A 
+			FROM  ‚,A[x\m] æ Æ				INFER ‚, äx.A æ Æ
+RULE	cut(A)	FROM ‚ æ A,Æ AND ‚,A æ Æ		INFER ‚ æ Æ
+RULE	"weakenæ"(A)	FROM ‚ æ Æ				INFER ‚,A æ Æ
+RULE	"æweaken"(A)	FROM ‚ æ Æ				INFER ‚ æ A,Æ
+RULE	"contractæ"(A)	FROM ‚, A, A æ Æ			INFER ‚, A æ Æ
+RULE	"æcontract"(A)	FROM ‚ æ A,A,Æ			INFER ‚ æ A,Æ
                                 
 MENU Rules IS
-	ENTRY axiom	IS  axiom
+	ENTRY axiom
 	SEPARATOR
-	ENTRY "¦æ"	IS "¦æ"
-	ENTRY "ëæ"	IS "ëæ"
-	ENTRY "çæ"	IS "çæ"
-	ENTRY "Âæ"	IS "Âæ"
-	ENTRY "éæ"	IS "éæ"
-	ENTRY "èæ"	IS "èæ"
-	ENTRY "äæ"	IS "äæ"
+	ENTRY "¦æ"
+	ENTRY "ëæ"
+	ENTRY "çæ"
+	ENTRY "Âæ"
+	ENTRY "éæ"
+	ENTRY "èæ"
+	ENTRY "äæ"
 	SEPARATOR
-	ENTRY "æ¦"	IS "æ¦"
-	ENTRY "æë"	IS "æë"
-	ENTRY "æç"	IS "æç"
-	ENTRY "æÂ"	IS "æÂ"
-	ENTRY "æé"	IS "æé"
-	ENTRY "æè"	IS "æè"
-	ENTRY "æä"	IS "æä"
+	ENTRY "æ¦"
+	ENTRY "æë"
+	ENTRY "æç"
+	ENTRY "æÂ"
+	ENTRY "æé"
+	ENTRY "æè"
+	ENTRY "æä"
 	SEPARATOR
-	ENTRY cut		IS cut
-	ENTRY "weakenæ"	IS "weakenæ"
-	ENTRY "æweaken"	IS "æweaken"
-	ENTRY "contractæ"	IS "contractæ"
-	ENTRY "æcontract"	IS "æcontract"
+	ENTRY cut	
+	ENTRY "weakenæ"
+	ENTRY "æweaken"
+	ENTRY "contractæ"
+	ENTRY "æcontract"
 END
 
 HYPHIT	A æ A	IS axiom       
@@ -83,18 +84,16 @@ HYPHIT	AéB æ	IS "éæ"
 HYPHIT	èx.A æ	IS "èæ"
 HYPHIT	äx.A æ	IS "äæ"
 
-CONCHIT	B¦C	IS "æ¦"
-CONCHIT	BëC	IS "æë"      
-CONCHIT	BçC	IS "æç"
-CONCHIT	ÂB	IS "æÂ"       
-CONCHIT	BéC	IS "æé"     
-CONCHIT	èx.B	IS "æè"  
-CONCHIT	äx.B	IS "æä"  
+CONCHIT	æ B¦C	IS "æ¦"
+CONCHIT	æ BëC	IS "æë"      
+CONCHIT	æ BçC	IS "æç"
+CONCHIT	æ ÂB		IS "æÂ"       
+CONCHIT	æ BéC	IS "æé"     
+CONCHIT	æ èx.B	IS "æè"  
+CONCHIT	æ äx.B	IS "æä"  
 
 AUTOMATCH axiom
 
 STRUCTURERULE CUT            		cut
 STRUCTURERULE LEFTWEAKEN     	"weakenæ"
 STRUCTURERULE RIGHTWEAKEN   	"æweaken"
-STRUCTURERULE LEFTCONTRACT   	"contractæ"
-STRUCTURERULE RIGHTCONTRACT 	"æcontract"
