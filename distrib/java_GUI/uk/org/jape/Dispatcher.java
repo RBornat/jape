@@ -221,11 +221,15 @@ public class Dispatcher extends Thread implements DebugConstants {
                             String panel = (String)list.remove(0);
                             String entry = (String)list.remove(0);
                             PanelWindowData.addButton(panel, entry, 
-                                ((PanelWindowData.Insert[])list.toArray(new PanelWindowData.Insert[list.size()])));
+                                ((PanelWindowData.Insert[])list.toArray(
+                                                new PanelWindowData.Insert[list.size()])));
                         }
                         else
                         if (p.equals("MARKPANELENTRY")&&len==5)
                             PanelWindowData.markEntry(cmd[1], cmd[2], toBool(cmd[3]), toBool(cmd[4]));
+                        else
+                        if (p.equals("SELECTPANELENTRY")&&len==3)
+                            PanelWindowData.selectEntry(cmd[1], cmd[2]);
                         else
                     
                     // proof window commands
