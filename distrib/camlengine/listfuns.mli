@@ -95,12 +95,12 @@ val toposort : 'a list -> ('a -> 'a list) -> 'a list * 'a list list
  *)
 
 val string_of_list : ('a -> string) -> string -> 'a list -> string
-val liststring2 : ('a -> string) -> string -> string -> 'a list -> string
+val sentencestring_of_list : ('a -> string) -> string -> string -> 'a list -> string
 val bracketedstring_of_list : ('a -> string) -> string -> 'a list -> string
 val catelim_string_of_list :
   ('a -> string list -> string list) -> string -> 'a list ->
     string list -> string list
-val catelim_liststring2 :
+val catelim_sentencestring_of_list :
   ('a -> string list -> string list) -> string -> string -> 'a list ->
     string list -> string list
 val catelim_bracketedstring_of_list :

@@ -132,13 +132,13 @@ let rec catelim_of_stringfn f x ss = f x :: ss
 let rec catelim_string_of_list obstring punct =
   catelim_interpolate obstring punct
 
-let rec catelim_liststring2 obstring sepn sep2 xs tail =
+let rec catelim_sentencestring_of_list obstring sepn sep2 xs tail =
   match xs with
     [] -> tail
   | [x] -> obstring x tail
   | [x1; x2] -> obstring x1 (sep2 :: obstring x2 tail)
   | x :: xs ->
-      obstring x (sepn :: catelim_liststring2 obstring sepn sep2 xs tail)
+      obstring x (sepn :: catelim_sentencestring_of_list obstring sepn sep2 xs tail)
 
 let rec catelim_bracketedstring_of_list obstring punct xs tail =
   "[" :: catelim_string_of_list obstring punct xs ("]" :: tail)
@@ -146,9 +146,9 @@ let rec catelim_bracketedstring_of_list obstring punct xs tail =
 let rec string_of_list obstring punct =
   stringfn_of_catelim (catelim_string_of_list (catelim_of_stringfn obstring) punct)
 
-let rec liststring2 obstring sepn sep2 =
+let rec sentencestring_of_list obstring sepn sep2 =
   stringfn_of_catelim
-    (catelim_liststring2 (catelim_of_stringfn obstring) sepn sep2)
+    (catelim_sentencestring_of_list (catelim_of_stringfn obstring) sepn sep2)
 
 let rec bracketedstring_of_list obstring punct =
   stringfn_of_catelim

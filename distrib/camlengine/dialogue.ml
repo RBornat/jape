@@ -1550,7 +1550,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                                      (if tsels!=[] then 
                                         [" (and you must not text-select anything! -- ";
                                          "you text-selected ";
-                                         liststring2 (fun s -> s) ", " " and " tsels;
+                                         sentencestring_of_list (fun s -> s) ", " " and " tsels;
                                          ")."]
                                       else 
                                         ["."]));
@@ -2020,7 +2020,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let hypword hs ss =
               match hs with
                 [h] -> "hypothesis " :: string_of_element h :: ss
-              | _   -> "hypotheses " ::  liststring2 string_of_element ", " "and " hs :: ss
+              | _   -> "hypotheses " ::  sentencestring_of_list string_of_element ", " "and " hs :: ss
             in
             let bang f = "double-click is not defined on " :: f () in
             let comm sense ps ss =

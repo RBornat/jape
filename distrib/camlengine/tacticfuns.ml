@@ -1717,7 +1717,7 @@ let rec listf a1 a2 a3 =
             Tup (_, ",", [Tup (_, _, ts); sep]) ->
               string_of_list string_of_term (strsep sep) ts
           | Tup (_, ",", [Tup (_, _, ts); sep1; sep2]) ->
-              liststring2 string_of_term (strsep sep1) (strsep sep2) ts
+              sentencestring_of_list string_of_term (strsep sep1) (strsep sep2) ts
           | _ -> string_of_term t) ::
            r)
   | 0x25 :: 0x73 :: fs, t :: ts, r -> (* %s *) listf fs ts (message t :: r)
@@ -2544,9 +2544,9 @@ and doBIND tac display try__ env =
         | _ ->
             setReason
               (s :: " didn't match patterns " ::
-                 liststring2 string_of_term ", " " and " ((fst <* pes)) ::
+                 sentencestring_of_list string_of_term ", " " and " ((fst <* pes)) ::
                  " to formulae " ::
-                 liststring2 string_of_term ", " " and " ((snd <* pes)) ::
+                 sentencestring_of_list string_of_term ", " " and " ((snd <* pes)) ::
                  ss)
         end;
         None

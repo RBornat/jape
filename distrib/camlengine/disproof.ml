@@ -1063,7 +1063,7 @@ let rec newtile =
                 showAlert
                   ["Can't make a new tile from "; string_of_term t;
                    ", because you can only use ";
-                   liststring2 string_of_term ", " " and " occs];
+                   sentencestring_of_list string_of_term ", " " and " occs];
                 None
             | [p] -> Some p
             | _ ->
