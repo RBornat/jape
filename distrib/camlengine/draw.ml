@@ -50,32 +50,21 @@ type term       = Termtype.term
  and displayclass = Displayclass.displayclass
  
 
+let (&~~) = Optionfuns.(&~~)
+let (|~~) = Optionfuns.(|~~)
 let consolereport = Miscellaneous.consolereport
-
 let text_of_element  = Absprooftree.text_of_element
-
 let string_of_element = Termstring.string_of_element
-
 let findfirst     = Optionfuns.findfirst
-
 let interpolate   = Listfuns.interpolate
-
 let string_of_option  = Optionfuns.string_of_option
-
 let string_of_pair    = Stringfuns.string_of_pair
-
 let proofpane     = Displayfont.ProofPane
-
 let text_of_reason   = Absprooftree.text_of_reason
-
 let fontNstring_of_reason = Absprooftree.fontNstring_of_reason
-
 let text_of_term     = Absprooftree.text_of_term
-
 let string_of_term    = Termstring.string_of_term
-
 let string_of_triple  = Stringfuns.string_of_triple
-
 
 let fontinfo = fontinfo
 and blacken = blacken
@@ -84,11 +73,9 @@ and drawLine = drawLine
 
 type class__ = int (* could be Japeserver.class__, if I played it right ... *)
     
-
 let rec drawinproofpane () = Japeserver.drawinpane proofpane
 
 type 'a plan = Formulaplan of (textlayout * textbox * 'a)
-
 
 let rec debugstring_of_plan f =
   fun (Formulaplan plan) ->
@@ -110,11 +97,12 @@ let rec plantextbox = fun (Formulaplan (_, b, _)) -> b
 
 let rec planinfo = fun (Formulaplan (_, _, i)) -> i
 
-let rec plantextsize p = tbSize (plantextbox p)
+let rec textsize_of_plan p = textsize_of_textbox (plantextbox p)
 
-let rec planlisttextsize ps =
-  nj_fold ( +-+ ) (List.map plantextsize ps) nulltextsize
-
+let rec textsize_of_planlist ps =
+  let box = nj_fold (+|-|+) (List.map plantextbox ps) emptytextbox in
+  textsize_of_textbox box
+  
 let viewBox () = Japeserver.getPaneGeometry Displayfont.ProofPane
 
 let rec clearView () = Japeserver.clearPane Displayfont.ProofPane
@@ -146,9 +134,31 @@ let rec textinfo_of_term string_of_term = mktextinfo (text_of_term string_of_ter
 
 let textinfo_of_reason = mktextinfo text_of_reason
 
-let rec procrustean_reason2textinfo w r =
-  let (rf, rs) = fontNstring_of_reason r in
-  textinfo_of_string rf (Japeserver.procrustes w " ..." rf rs)
+let textsize_of_textlayout (Textlayout ts) =
+  let strbox (p, f, str) = textbox (p, textsize(Japeserver.measurestring f str)) in 
+  let box = nj_fold (+|-|+) (List.map strbox ts) emptytextbox in
+  textsize_of_textbox box
+
+let rec textinfo_procrustes w p (size, Textlayout ts as inf) =
+  if tsW size<=w then inf else
+  let ellipsis = "..." in
+  let crusty (p', f, text) =
+    let w' = w - (posX p' - posX p) in
+    let text' = Japeserver.procrustes w' ellipsis f text in
+    if text'=text then None else Some [(p, f, text')]
+  in
+  let rec crust ts =
+    match ts with
+      []     -> None
+    | t::ts' -> crusty t |~~
+                (fun _ -> crust ts' &~~ (fun ts'' -> Some (t::ts'')))
+  in
+  match crust ts with
+    None     -> inf
+  | Some ts' -> let layout' = Textlayout ts' in textsize_of_textlayout layout', layout'
+  
+  (* let (rf, rs) = fontNstring_of_reason r in
+  textinfo_of_string rf (Japeserver.procrustes w " ..." rf rs) *)
 
 let rec plan_of_textinfo (size, layout) info p =
   Formulaplan (layout, textbox (p, size), info)
@@ -181,7 +191,7 @@ let rec plan_of_element ef element info p =
 
 let rec plancons =
   fun (Formulaplan (_, b1, _) as plan) moref ->
-    let (plans, b2) = moref (rightby (tbPos b1, tsW (tbSize b1))) in
+    let (plans, b2) = moref (rightby (tbPos b1, tsW (textsize_of_textbox b1))) in
     plan :: plans, ( +|-|+ ) (b1, b2)
 
 let rec plans_of_plan = fun (Formulaplan (_, b, _) as plan) -> [plan], b

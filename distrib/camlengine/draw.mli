@@ -64,14 +64,14 @@ val string_of_plan  : 'a plan -> string (* for external viewing; only works for 
 val plantextlayout : 'a plan -> textlayout
 val plantextbox : 'a plan -> textbox
 val planinfo : 'a plan -> 'a
-val plantextsize : 'a plan -> textsize
-val planlisttextsize : 'a plan list -> textsize
+val textsize_of_plan : 'a plan -> textsize
+val textsize_of_planlist : 'a plan list -> textsize
 val textinfo_of_text : text -> textsize * textlayout
 val textinfo_of_string : font -> string -> textsize * textlayout
 val textinfo_of_term : (term -> string) -> term -> textsize * textlayout
 val textinfo_of_element : (element -> string) -> element -> textsize * textlayout
 val textinfo_of_reason : reason -> textsize * textlayout
-val procrustean_reason2textinfo : int -> reason -> textsize * textlayout
+val textinfo_procrustes : int -> pos -> textsize * textlayout -> textsize * textlayout
 val plan_of_textinfo : textsize * textlayout -> 'a -> pos -> 'a plan
 val plan_of_string : font -> string -> 'a -> pos -> 'a plan
 val plan_of_element : (element -> string) -> element -> 'a -> pos -> 'a plan
