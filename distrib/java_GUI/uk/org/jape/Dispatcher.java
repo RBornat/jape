@@ -162,7 +162,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
                         if (p.equals("MAKEMENUSVISIBLE")&&len==1) {
                             JapeMenu.makeMenusVisible();
-                            PanelWindow.makePanelsVisible();
+                            PanelWindowData.makePanelsVisible();
                         } 
                         else
                         if (p.equals("MENUSEP")&&len==2)
@@ -190,10 +190,10 @@ public class Dispatcher extends Thread implements DebugConstants {
                     
                     // PANEL commands
                         if (p.equals("NEWPANEL")&&len==3)
-                            PanelWindow.spawn(JapeFont.toUnicodeTitle(command[1]), toInt(command[2]));
+                            PanelWindowData.spawn(JapeFont.toUnicodeTitle(command[1]), toInt(command[2]));
                         else
                         if (p.equals("PANELENTRY")&&len==4)
-                            PanelWindow.panelEntry(JapeFont.toUnicodeTitle(command[1]),
+                            PanelWindowData.panelEntry(JapeFont.toUnicodeTitle(command[1]),
                                                    toUnicode(command[2]),
                                                    command[3]);
                         else
@@ -205,9 +205,9 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
                         if (p.equals("PANELBUTTONINSERT")&&len==3) {
                             switch (toInt(command[1])) {
-                              case 0: list.add(new PanelWindow.StringInsert(command[2])); break;
-                              case 1: list.add(new PanelWindow.LabelInsert()); break;
-                              case 2: list.add(new PanelWindow.CommandInsert()); break;
+                              case 0: list.add(new PanelWindowData.StringInsert(command[2])); break;
+                              case 1: list.add(new PanelWindowData.LabelInsert()); break;
+                              case 2: list.add(new PanelWindowData.CommandInsert()); break;
                               default: throw new ProtocolError(toInt(command[1])+" should be 0, 1 or 2");
                             }
                         }
@@ -215,8 +215,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("PANELBUTTONEND")&&len==1) {
                             String panel = (String)list.remove(0);
                             String entry = (String)list.remove(0);
-                            PanelWindow.panelButton(panel, entry, 
-                                ((PanelWindow.Insert[])list.toArray(new PanelWindow.Insert[list.size()])));
+                            PanelWindowData.panelButton(panel, entry, 
+                                ((PanelWindowData.Insert[])list.toArray(new PanelWindowData.Insert[list.size()])));
                         }
                         else
                     
