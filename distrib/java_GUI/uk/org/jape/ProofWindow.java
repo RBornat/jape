@@ -42,7 +42,7 @@ public class ProofWindow extends JapeWindow {
     protected static ProofWindow focussedproof = null;
 
     protected ContainerWithOrigin proofpanel; 
-    protected JapeScrollPane proofpane;
+    protected AnchoredScrollPane proofpane;
 
     protected ContainerWithOrigin focussedpanel;
     
@@ -51,7 +51,7 @@ public class ProofWindow extends JapeWindow {
         this.proofnum = proofnum;
 
         getContentPane().setLayout(new BorderLayout()); 
-        proofpane = new JapeScrollPane();
+        proofpane = new AnchoredScrollPane();
 
         getContentPane().add(proofpane, BorderLayout.CENTER);
         setBar(); 
