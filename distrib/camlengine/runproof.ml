@@ -217,7 +217,7 @@ let rec doProof
         in
         if stage <> InProgress then
           begin
-            let _ = (addproof report query name (stage = Proved) state disproofopt : bool) in
+            let _ = (addproof report query name (stage = Proved) state (stage=Disproved) (* WRONG *) disproofopt : bool) in
             None
           end
         else Some (name, state, disproofopt)))
