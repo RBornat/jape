@@ -77,7 +77,9 @@ val setseqbox : textsize -> unit
 val emphasise : pos -> bool -> unit                (* it's a textpos *)
 
 val settiles  : string list -> unit
-val setworlds : (int * int) list -> ((int * int) * string list * (int * int) list) list -> unit
+val setworlds : (int * int) list -> ((int * int) * int * string list * (int * int) list) list 
+             (* selections          (coord       forced  labels        children        )      *)
+             -> unit
 
 (* *************************************** menus and panels *************************************** *)
 
@@ -158,11 +160,13 @@ val clearPane         : pane -> unit
 (* To make findSelection (interaction.sml) work properly, and to get consistent results from tactics that
  * interpret the answers, getAllSelections should return its answers in time-click order.
  *)
-val getAllSelections :
-  unit ->
-  (pos * displayclass) list * (pos * string list) list * string list
-(* selections               prooof text selections     givens text selections -- just the selected bits *)
+val getAllProofSelections :
+  unit -> (pos * displayclass) list * (pos * string list) list * string list
+(* proof selections           prooof text selections  givens text selections *)
 
+val getAllDisproofSelections: unit ->  string list * string list
+                                   (*  sels          textsels    *)
+       
 val highlight : pos -> displayclass option -> unit (* NOW TAKES TEXTPOS, NOT BOXPOS!!! *)
 
 val greyen  : pos -> unit
