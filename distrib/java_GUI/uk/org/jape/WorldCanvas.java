@@ -221,14 +221,15 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
 
     /* ****************************** canvas as drag target ****************************** */
 
-    public void dragEnter() { }
+    public boolean dragEnter(Object o) { return o instanceof WorldItem; }
     
     public void dragExit() { }
 
-    /* ****************************** canvas as world drop target ****************************** */
+    /* ****************************** canvas as drop target ****************************** */
     
-    public void drop(WorldItem w, int x, int y) {
-        w.hitCanvas(this, x-child.getX(), y-child.getY()); // them's the coordinates, really
+    public void drop(byte dragKind, WorldItem w, int x, int y) {
+        Reply.sendCOMMAND((dragKind==MoveWorldDrag ? "moveworld" : "addworld")+
+                            " "+w.idX+" "+w.idY+" "+(x-child.getX())+" "+(-(y-child.getY())));
     }
 
  /* // Called when a drag operation has encountered the DropTarget.
