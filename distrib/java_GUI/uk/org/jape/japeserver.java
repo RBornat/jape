@@ -22,7 +22,6 @@
     along with jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
-    
 */
 
 import java.io.File;
@@ -44,16 +43,6 @@ public class japeserver {
     
     public static void setoperators(String[] _operators) {
         operators=_operators;
-    }
-    
-    private static char onbra, onket, offbra, offket, outbra, outket, lockbra, lockket;
-    
-    public static void setinvischars(char _onbra, char _onket, char _offbra, char _offket, 
-                                    char _outbra, char _outket, char _lockbra, char _lockket) {
-        onbra=_onbra; onket=_onket;
-        offbra=_offbra; offket=_offket;
-        outbra=_outbra; outket=_outket;
-        lockbra=_lockbra; lockket=_lockket;
     }
     
     public static void handleAbout() {

@@ -229,9 +229,9 @@ public class JapeFont {
     public static byte[] interfaceFontSizes = new byte[]{ 14, 11, 11 };
     private static Font[] interfaceFonts;
 
-    private static void checkInterfaceFontNum(int font) throws ProtocolError {
-        if (font<termFontNum || font>provisoFontNum)
-            throw (new ProtocolError("font "+font+" out of range"));
+    public static void checkInterfaceFontnum(int fontnum) throws ProtocolError {
+        if (fontnum<termFontNum || fontnum>provisoFontNum)
+            throw (new ProtocolError("fontnum "+fontnum+" out of range"));
     }
     
     private static void initInterfaceFonts() {
@@ -263,25 +263,38 @@ public class JapeFont {
         return new TextDimension(m.stringWidth(s), m.getMaxAscent(), m.getMaxDescent());
     }
 
-    public static TextDimension measure(String s, int font) throws ProtocolError {
+    public static TextDimension measure(String s, byte fontnum) {
         initInterfaceMetrics();
-        checkInterfaceFontNum(font);
-        return new TextDimension(interfaceMetrics[font].stringWidth(s),
-                                 interfaceMetrics[font].getMaxAscent(),
-                                 interfaceMetrics[font].getMaxDescent());
+        return new TextDimension(interfaceMetrics[fontnum].stringWidth(s),
+                                 interfaceMetrics[fontnum].getMaxAscent(),
+                                 interfaceMetrics[fontnum].getMaxDescent());
     }
 
-    public static FontMetrics fontinfo(int font) throws ProtocolError {
+    public static int charsWidth(char[] cs, int off, int len, byte fontnum) {
         initInterfaceMetrics();
-        checkInterfaceFontNum(font);
-        return interfaceMetrics[font];
+        return interfaceMetrics[fontnum].charsWidth(cs, off, len);
     }
 
-    public static Font getFont(int font) throws ProtocolError {
-        checkInterfaceFontNum(font);
-        return interfaceFonts[font];
+    public static TextDimension checkedMeasure(String s, byte fontnum) throws ProtocolError {
+        checkInterfaceFontnum(fontnum);
+        return measure(s, fontnum);
     }
-    public static void setfont(String name) throws ProtocolError {
+
+    public static FontMetrics getFontMetrics(byte fontnum) {
+        initInterfaceMetrics();
+        return interfaceMetrics[fontnum];
+    }
+
+    public static FontMetrics checkedFontMetrics(byte fontnum) throws ProtocolError {
+        checkInterfaceFontnum(fontnum);
+        return getFontMetrics(fontnum);
+    }
+
+    public static Font getFont(byte fontnum) {
+        initInterfaceFonts();
+        return interfaceFonts[fontnum];
+    }
+    public static void setSubstituteFont(String name) throws ProtocolError {
         if (codecDone)
             throw (new ProtocolError("too late!"));
         else

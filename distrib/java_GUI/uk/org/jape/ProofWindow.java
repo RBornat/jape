@@ -94,11 +94,22 @@ public class ProofWindow extends JapeWindow {
         return focussedproof.proofpane.getViewportBounds();
     }
 
-    private String style;
-    private int linethickness;
+    /*	from japeserver.ml:
+          let displaystyle2int d =
+            match d with
+              BoxStyle  -> 0
+            | TreeStyle -> 1
+     */
+
+    public final static byte boxStyle  = 0,
+                             treeStyle = 1;
+    protected byte style;
+    private int linethickness=1;
     
-    public static void setProofParams(String style, int linethickness) throws ProtocolError {
+    public static void setProofParams(byte style, int linethickness) throws ProtocolError {
         checkFocussedProof();
+        if (style<0 || style>1)
+            throw (new ProtocolError(style+" should be a proof display style: either 0 or 1"));
         focussedproof.style = style;
         focussedproof.linethickness = linethickness;
     }
@@ -111,12 +122,13 @@ public class ProofWindow extends JapeWindow {
     private void newProofPanel() {
         proofpanel = new ContainerWithOrigin();
         proofpane.add(proofpanel);
-        if (style!=null) {
-            if (style.equals("box"))
-                proofpane.setanchor(proofpane.ANCHOR_SOUTHWEST);
-            else
-            if (style.equals("tree"))
-                proofpane.setanchor(proofpane.ANCHOR_SOUTH);
+        switch(style) {
+            case boxStyle:
+                proofpane.setanchor(proofpane.ANCHOR_SOUTHWEST); break;
+            case treeStyle:
+                proofpane.setanchor(proofpane.ANCHOR_SOUTH); break;
+            default:
+                Alert.abort("newProofPanel sees style "+style);
         } 
         proofpane.validate(); proofpane.repaint();
         focussedpanel = proofpanel;
@@ -145,13 +157,13 @@ public class ProofWindow extends JapeWindow {
         // do nothing for the time being
     }
 
-    public static void drawstring(int x, int y, int font, int kind, String annottext, String printtext) throws ProtocolError {
+    public static void drawstring(int x, int y, byte fontnum, byte kind,
+                                  String annottext, String printtext) throws ProtocolError {
         checkFocussedPanel();
-        // ignore kind for the moment; ditto annottext
-        JLabel l = new JLabel(printtext);
-        l.setFont(JapeFont.getFont(font));
-        TextDimension td = JapeFont.measure(l, printtext);
-        l.setBounds(x,y-td.ascent,td.width, td.ascent+td.descent);
-        focussedproof.focussedpanel.add(l);
+        JapeFont.checkInterfaceFontnum(fontnum);
+        focussedproof.focussedpanel.add(
+            kind==TextItem.PunctKind ? new TextItem(x, y, fontnum, annottext, printtext) :
+                                       new SelectableTextItem(x, y, fontnum, kind, annottext, printtext,
+                                                              focussedproof.style, focussedproof.linethickness));
     }
 }
