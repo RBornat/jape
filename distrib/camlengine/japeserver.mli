@@ -29,6 +29,7 @@ open Moresys
 
 type box = Box.box
 and displayclass = Displayclass.displayclass
+and element = Termtype.element
 and font = Displayfont.displayfont
 and pane = Displayfont.pane
 and panelkind = Panelkind.panelkind
@@ -239,5 +240,5 @@ val askChoice : string * string list list -> int option
 
 val getfontname : font -> string
 
-val dragsources : string list -> unit
-val droptargets : string list -> unit
+val draginfo : (element * pos list) list -> (element * pos list) list 
+            -> (element list * element list) list -> unit

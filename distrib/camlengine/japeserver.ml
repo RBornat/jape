@@ -46,6 +46,7 @@ open UTF
 
 type box = Box.box
  and displayclass = Displayclass.displayclass
+ and element = Termtype.element
  and font = Displayfont.displayfont
  and pane = Displayfont.pane
  and panelbuttoninsert = Panelkind.panelbuttoninsert
@@ -56,6 +57,7 @@ type box = Box.box
 
 let consolereport = Miscellaneous.consolereport
 let enQuote = Stringfuns.enQuote
+let string_of_element = Termstring.string_of_element
 
 let version =
   "$Id$"
@@ -718,15 +720,41 @@ let rec getAllDisproofSelections () =
   let disproofsels = getDisproofSelections () in
   disproofsels, disprooftextsels
 
-let rec dragsources (formulae : string list) =
-  writef "DRAGSOURCES\n" [];
-  List.iter (fun t -> writef "DRAGSOURCE %\n" [Str t]) formulae;
-  writef "ENDDRAGSOURCES\n" []
-
-let rec droptargets (segvars : string list) =
-  writef "DROPTARGETS\n" [];
-  List.iter (fun t -> writef "DROPTARGET %\n" [Str t]) segvars;
-  writef "ENDDROPTARGETS\n" []
+let rec draginfo s2pos t2pos els2els =
+  let el2int m =
+    Mappingfuns.mkmap ((fun (i,e) -> e,i) <* Listfuns.numbered (fst <* m))
+  in
+  let posof map e =
+    match (Mappingfuns.(<@>) map e) with
+      Some v -> v
+    | None   -> raise 
+                  (Catastrophe_ 
+                     ["Japeserver.draginfo no mapping for "; string_of_element e; " in ";
+                      Mappingfuns.string_of_mapping string_of_element string_of_int map
+                     ])
+  in
+  let writelist sep0 sep wf ns =
+    writef "%" [_Int (List.length ns)]; writef sep0 [];
+    List.iter (fun n -> wf n; writef sep []) ns
+  in
+  let writeblock label =
+    writef label []; writef " " [];
+    writelist "\n" "\n"
+  in
+  let writeposmap (e, ps) =
+    writelist " " " " (fun p -> let (x, y) = explodePos p in writef "% % " [_Int x; _Int y]) ps
+  in
+  writeblock "DRAGSOURCES" writeposmap s2pos;
+  writeblock "DRAGTARGETS" writeposmap t2pos;
+  let s2int = el2int s2pos in
+  let t2int = el2int t2pos in
+  let writedragmap (ss, ts) =
+       let wf n = writef "% " [_Int n]
+       in
+       writelist " " " " wf (posof s2int <* ss); writef "\n" [];
+       writelist " " " " wf (posof t2int <* ts) 
+  in
+  writeblock "DRAGMAP" writedragmap els2els
 
 (* things added for version 5.0 *)
 
