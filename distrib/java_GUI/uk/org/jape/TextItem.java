@@ -34,10 +34,10 @@ import java.awt.Graphics;
 class TextItem extends DisplayItem implements DebugConstants {
     protected final JapeCanvas canvas;
     
-    protected byte          fontnum;
-    protected Font          font;
-    protected TextDimension dimension;
-    protected String        text;
+    protected final byte          fontnum;
+    protected final Font          font;
+    protected final TextDimension dimension;
+    protected final String        text;
 
     public TextItem(JapeCanvas canvas, int x, int y, byte fontnum, String text) { 
         super(x,y);
@@ -46,6 +46,8 @@ class TextItem extends DisplayItem implements DebugConstants {
         this.font = JapeFont.getFont(fontnum);
         this.text = text;
         this.dimension = JapeFont.measure(text, fontnum);
+        if (fontDebug)
+            Logger.log.println(this);
         setBounds((int)x, y-dimension.ascent, dimension.width, dimension.ascent+dimension.descent);
         setForeground(Preferences.TextColour);
     }
@@ -65,18 +67,19 @@ class TextItem extends DisplayItem implements DebugConstants {
     }
     
     public void paint(Graphics g) {
-        if (paint_tracing)
-            Logger.log.println("painting text item at "+getX()+","+getY());
+        if (paint_tracing || fontDebug)
+            Logger.log.println("painting "+this);
         g.setFont(font); g.setColor(getForeground());
         g.drawString(text, 0, dimension.ascent);
     }
 
     // this isn't efficient, but that doesn't matter, I think
     public String toString() {
-        return "TextItem["+super.toString()+
-                            ", text=\""+text+"\""+
-                            ", fontnum="+fontnum+", font=..."+
-                            ", dimension="+dimension+"]";
+        return "TextItem["+
+               "text="+JapeUtils.enQuote(text)+
+               ", fontnum="+fontnum+", font="+font+
+               ", dimension="+dimension+
+               ", "+super.toString()+"]";
     }
 }
 
