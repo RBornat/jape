@@ -289,8 +289,18 @@ MENU Programs
     ENTRY "consequence(R)"
 END
 
+RULE "identity" IS
+  FROM ⊤∧(A defined) simplifiesto B 
+  AND  B
+  INFER A=A
+  
+TACTIC "identitytac" IS
+  SEQ "identity" 
+      defin 
+      (ALT (LAYOUT HIDEROOT "truth") SKIP)
+
 MENU Extras
-    ENTRY "A=A" IS (SEQ (LAYOUT "A=A") "reflexive=")
+    ENTRY "A=A" IS (LAYOUT "A=A" ALL "identitytac")
     
     SEPARATOR
     
@@ -345,11 +355,11 @@ TACTICPANEL Comparison
     RULE IS A≤B ≜ A<B ∨ A=B
     RULE IS A≤B ≜ B≥A
     RULE IS A≤B ≜ ¬(A>B)
-    RULE IS A≤B ≜ A<B+1
-    RULE IS A+1≤B ≜ A<B
+    /* RULE IS A≤B ≜ A<B+1
+    RULE IS A+1≤B ≜ A<B */
     RULE IS A≥B ≜ ¬(A<B)
-    RULE IS A≥B ≜ A>B-1
-    RULE IS A-1≥B ≜ A>B
+    /*RULE IS A≥B ≜ A>B-1
+    RULE IS A-1≥B ≜ A>B */
 /*  RULE "(A;B);C≜A;(B;C)" IS   A;B;C ≜ A;(B;C)
     ENTRY "flatten ;" IS 
         iterateR2L "rewrite≜"  "symmetric≜" (QUOTE (_A;(_B;_C))) "(A;B);C≜A;(B;C)" (Fail "no semicolons to flatten")
@@ -362,7 +372,8 @@ RULE indexR IS FROM E=G INFER (A⊕E↦F)[G]=F
 RULE indexL IS FROM E≠G INFER (A⊕E↦F)[G]=A[G]
 
 TACTIC "index(=)" IS 
-    SEQ indexR (ALT (LAYOUT HIDEROOT (MATCH "reflexive=")) fstep) fstep
+    SEQ indexR (ALT (LAYOUT HIDEROOT "identitytac") fstep) fstep
+
 TACTIC "index(≠)" IS
     SEQ indexL fstep
 
