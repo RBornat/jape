@@ -28,6 +28,7 @@
 import java.io.*;
 import java.util.*;
 
+// implements DebugConstants annoys javac: something to do with Thread?
 public class Dispatcher extends Thread {
 
     protected BufferedReader in;
@@ -35,7 +36,7 @@ public class Dispatcher extends Thread {
     public Dispatcher() {
         super("Dispatcher");
         in = new BufferedReader(new InputStreamReader(System.in));
-        if (Debugging.protocol_tracing)
+        if (Reply.protocol_tracing)
             System.err.println("dispatcher initialised");
     }
 
@@ -55,7 +56,7 @@ public class Dispatcher extends Thread {
             while (true) {
                 String line = in.readLine();
                 String[] command = japesplit(line);
-                if (Debugging.protocol_tracing) {
+                if (Reply.protocol_tracing) {
                     showcommand("dispatcher reads ("+command.length+") ", command);
                 }
                 
@@ -134,10 +135,10 @@ public class Dispatcher extends Thread {
                     
                     // MENU commands
                         if (p.equals("NEWMENU")&&len==2)
-                            JapeMenu.newMenu(command[1]);
+                            JapeMenu.newMenu(toUnicode(command[1]));
                         else
                         if (p.equals("MENUITEM")&&len==5)
-                            JapeMenu.addItem(command[1], toUnicode(command[2]), command[3],
+                            JapeMenu.addItem(toUnicode(command[1]), toUnicode(command[2]), toUnicode(command[3]),
                                                          command[4]);
                         else
                         if (p.equals("MAKEMENUSVISIBLE")&&len==1) {
@@ -149,7 +150,7 @@ public class Dispatcher extends Thread {
                             JapeMenu.addSeparator(command[1]);
                         else
                         if (p.equals("ENABLEMENUITEM")&&len==4)
-                            JapeMenu.enableItem(command[1], command[2], toBool(command[3]));
+                            JapeMenu.enableItem(toUnicode(command[1]), toUnicode(command[2]), toBool(command[3]));
                         else
                         if (p.equals("MENURADIOBUTTON")&&len==1)
                             list.removeAllElements();
@@ -160,6 +161,12 @@ public class Dispatcher extends Thread {
                         if (p.equals("MENURADIOBUTTONEND")&&len==2)
                             JapeMenu.addRadioButtonGroup(toUnicode(command[1]),
                                                          (String[][])list.toArray(new String[list.size()][]));
+                        else
+                        if (p.equals("MENUCHECKBOX")&&len==4)
+                            JapeMenu.addCheckBox(toUnicode(command[1]), toUnicode(command[2]), command[3]);
+                        else
+                        if (p.equals("TICKMENUITEM")&&len==4)
+                            JapeMenu.tickItem(toUnicode(command[1]), toUnicode(command[2]), toBool(command[3]));
                         else
                     
                     // PANEL commands
