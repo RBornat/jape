@@ -44,6 +44,7 @@
 				F58AB2C80378188901A80116,
 				F57EF912039507ED01A80116,
 				F5E142E0039E1E4001A80116,
+				F5158C94039E321E01A80116,
 				F5158C91039E2C6101A80116,
 				F515271D037BB83201A80116,
 				F586B1630326408D01A80117,
@@ -95,7 +96,6 @@
 				F5152726037BCC1A01A80116,
 				F52B56B1039D210801A80116,
 				F57EF90F039503AE01A80116,
-				F5158C94039E321E01A80116,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -488,8 +488,8 @@
 		F5158C91039E2C6101A80116 = {
 			isa = PBXFileReference;
 			name = DragWorldLine.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DragWorldLine.java;
-			refType = 0;
+			path = ../../java_japeserver/DragWorldLine.java;
+			refType = 2;
 		};
 		F5158C92039E2C6101A80116 = {
 			fileRef = F5158C91039E2C6101A80116;
@@ -506,8 +506,8 @@
 		F5158C94039E321E01A80116 = {
 			isa = PBXFileReference;
 			name = DragLine.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DragLine.java;
-			refType = 0;
+			path = ../../java_japeserver/DragLine.java;
+			refType = 2;
 		};
 		F5158C95039E321E01A80116 = {
 			fileRef = F5158C94039E321E01A80116;
@@ -740,8 +740,8 @@
 		F52B56B1039D210801A80116 = {
 			isa = PBXFileReference;
 			name = WorldLabel.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/WorldLabel.java;
-			refType = 0;
+			path = ../../java_japeserver/WorldLabel.java;
+			refType = 2;
 		};
 		F52B56B2039D210801A80116 = {
 			fileRef = F52B56B1039D210801A80116;
@@ -758,8 +758,8 @@
 		F52B56B7039D296801A80116 = {
 			isa = PBXFileReference;
 			name = LabelTarget.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/LabelTarget.java;
-			refType = 0;
+			path = ../../java_japeserver/LabelTarget.java;
+			refType = 2;
 		};
 		F52B56B8039D296801A80116 = {
 			fileRef = F52B56B7039D296801A80116;
@@ -776,8 +776,8 @@
 		F52ED06F039BAC4001A80116 = {
 			isa = PBXFileReference;
 			name = Target.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/Target.java;
-			refType = 0;
+			path = ../../java_japeserver/Target.java;
+			refType = 2;
 		};
 		F52ED070039BAC4001A80116 = {
 			fileRef = F52ED06F039BAC4001A80116;
@@ -806,8 +806,8 @@
 		F54C942A039D03FB01A80116 = {
 			isa = PBXFileReference;
 			name = WasteBin.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/WasteBin.java;
-			refType = 0;
+			path = ../../java_japeserver/WasteBin.java;
+			refType = 2;
 		};
 		F54C942B039D03FB01A80116 = {
 			fileRef = F54C942A039D03FB01A80116;
@@ -1585,8 +1585,8 @@
 		F5E142E0039E1E4001A80116 = {
 			isa = PBXFileReference;
 			name = DragImage.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DragImage.java;
-			refType = 0;
+			path = ../../java_japeserver/DragImage.java;
+			refType = 2;
 		};
 		F5E142E1039E1E4001A80116 = {
 			fileRef = F5E142E0039E1E4001A80116;
