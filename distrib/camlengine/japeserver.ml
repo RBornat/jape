@@ -564,12 +564,12 @@ let forceAllDisproofSelections (sels, textsels) =
                             
 let rec clearProvisoView () = writef "CLEARPROVISOVIEW\n" []
 
-let setGivens givens =
+let displayGivens givens =
   out "CLEARGIVENS\n";
   List.iter (fun (n, g) -> writef "GIVEN % %\n" [Int n; Str g]) givens;
   out "SETGIVENS\n"
 
-let setProvisos ps =
+let displayProvisos ps =
   clearProvisoView ();
   List.iter (fun s -> writef "SHOWPROVISOLINE %\n" [Str s]) ps
 

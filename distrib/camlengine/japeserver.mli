@@ -148,8 +148,8 @@ val closeproof : int -> bool -> unit
 val showfile : string -> unit
 val echo     : string -> string
 
-val setProvisos : string list -> unit
-val setGivens   : (int * string) list -> unit (* numbered givens *)
+val displayProvisos : string list -> unit
+val displayGivens   : (int * string) list -> unit (* numbered givens *)
    
 val quit     : unit -> unit
 val dontquit : unit -> unit

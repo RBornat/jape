@@ -47,8 +47,8 @@ val showProof : displaystate -> path option -> path option -> cxt -> prooftree
              -> bool -> displaystate
 val showFocussedProof : path option -> cxt -> prooftree -> bool -> displaystate
 val refreshProof : displaystate -> unit
-val setProvisos : cxt -> unit
-val setGivens : seq list -> unit
+val displayProvisos : cxt -> unit
+val displayGivens : seq list -> unit
 val showallprovisos : bool ref
 val getCommand : displaystate option -> command
 val findSelection : displaystate -> path sel option

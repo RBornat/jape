@@ -875,8 +875,8 @@ and addproofs
            displaystate =
              (let r = showFocussedProof goal cxt tree !autoselect in
                 begin
-                  setGivens givens;
-                  setProvisos cxt;
+                  displayGivens givens;
+                  displayProvisos cxt;
                   match disproof with
                     None -> ()
                   | Some d -> Disproof.showdisproof d
@@ -1327,7 +1327,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "refreshdisplay", [] ->
             begin match pinfs with
               Pinf {hist = WinHist {proofhist = Hist {now = Proofstate {givens = givens}}}} :: _ 
-                -> setGivens givens
+                -> displayGivens givens
             | _ -> ()
             end;
             env, mbs, ShowBoth, pinfs
@@ -1530,7 +1530,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                          let (Proofstate{cxt=cxt}) = winhist_proofnow hist in
                          let vpros = useful_provisos (provisos cxt) in
                          string_of_proviso <*
-                               (Provisofuns.relevantprovisos (Sequent.mkSeq (stile, hyps, [conc])) vpros)
+                               (Proviso.expandProvisos 
+                                  (Provisofuns.relevantprovisos (Sequent.mkSeq (stile, hyps, [conc])) vpros))
                        in
                        (match Japeserver.askLemma druleString thmString panels provisos with
                           None                                 -> default
@@ -1819,7 +1820,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                            (withdisplaystate
                               (withneedsrefresh pinf false)
                                (let r = showState (proofinfo_displaystate pinf) proof !autoselect in 
-                                setGivens (proofstate_givens proof); r))
+                                displayGivens (proofstate_givens proof); r))
                             (reparentprovisos hist)
                        in
                          (let r = f <* bgs in Japeserver.setforegroundfocus (); r)
@@ -2123,7 +2124,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             in
             doShowProof
               (let r = showFocussedProof target cxt tree !autoselect in
-               setProvisos cxt; r)
+               displayProvisos cxt; r)
               ShowDisproof
           else
             begin match showit with
