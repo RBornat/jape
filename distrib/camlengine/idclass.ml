@@ -1,6 +1,11 @@
 (*
 	$Id$
 
+    Copyright (C) 2003 Richard Bornat & Bernard Sufrin
+     
+        richard@bornat.me.uk
+        sufrin@comlab.ox.ac.uk
+
     This file is part of the jape proof engine, which is part of jape.
 
     Jape is free software; you can redistribute it and/or modify

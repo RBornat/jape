@@ -1,6 +1,11 @@
 (*
 	$Id$
 
+    Copyright (C) 2003 Richard Bornat & Bernard Sufrin
+     
+        richard@bornat.me.uk
+        sufrin@comlab.ox.ac.uk
+
     This file is part of the jape proof engine, which is part of jape.
 
     Jape is free software; you can redistribute it and/or modify
@@ -56,6 +61,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.11  2002/11/05 19:32:49  richard
+     improved version string function
+
      Revision 1.10  2002/10/31 18:21:05  richard
      version.ml now automatically contains a version string
 
