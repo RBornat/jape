@@ -40,6 +40,12 @@ FROM CommonBuildResources BY
              ln -s ../../examples .
      DONE
 
+     or running
+
+        CommonBuildResources/buildbuild.sh
+ 
+     from the top-level distrib directory
+
 +-+SolarisJape
 | +-+build
 |
@@ -73,5 +79,6 @@ THE FOLLOWING DIRECTORIES HAVE YET TO BE INCORPORATED INTO THE BUILD SYSTEM
        execution of a build file on a windows machine
        connected to the same filestore, leaving you with WindowsJape.jar
     
+
 
 

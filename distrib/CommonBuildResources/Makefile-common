@@ -86,7 +86,7 @@ install:        components; \
 
 clean:          ; rm -f $(BIN)/Jape.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape 
 
-distribution::  ; make components; \
+distribution::  ; make encoder; make components; \
                   (cd $(BUILDRESOURCES)/InstallerKit; make bootstrap) ;\
                   (cd $(BUILDRESOURCES); ln -s InstallerKit/bootstrap .;\
                   make -f Makefile-java installjape.class);\
@@ -103,6 +103,7 @@ jarfile:        examples; \
                   -splash       $(SPLASH)               \
                   examples                              \
                   -sync $(ENCODERESOURCES) $(INSTALLRESOURCES) $(DEPLOYEDENGINE) Jape.jar  
+
 
 
 
