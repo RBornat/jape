@@ -1,9 +1,5 @@
 /* 
-<<<<<<< Alert.java
     $Id$
-=======
-    $Id$
->>>>>>> 1.22.6.1
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      

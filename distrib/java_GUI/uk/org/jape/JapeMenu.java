@@ -1,9 +1,5 @@
 /* 
-<<<<<<< JapeMenu.java
     $Id$
-=======
-    $Id$
->>>>>>> 1.41.2.2
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      
