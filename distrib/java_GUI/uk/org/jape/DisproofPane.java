@@ -25,6 +25,8 @@
     
 */
 
+import javax.swing.border.Border;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import java.awt.Color;
@@ -42,7 +44,7 @@ import java.awt.LayoutManager;
 public class DisproofPane extends Container {
     AnchoredScrollPane worldPane;
     DisproofCanvas seqCanvas;
-    // JapeCanvas worldCanvas;
+    WorldCanvas worldCanvas;
     Container seqView;
     Box tileCanvas;
 
@@ -52,9 +54,9 @@ public class DisproofPane extends Container {
         setBackground(Color.white);
         worldPane = new AnchoredScrollPane();
         add(worldPane);
-        // worldCanvas = new JapeCanvas();
-        // worldPane.add(worldCanvas);
-        // worldPane.setAnchor(AnchoredScrollPane.SOUTH);
+        worldCanvas = new WorldCanvas(worldPane.getViewport(), true);
+        worldPane.add(worldCanvas);
+        worldPane.setAnchor(AnchoredScrollPane.ANCHOR_SOUTH);
         tileCanvas = new Box(BoxLayout.Y_AXIS);
         add(tileCanvas);
         seqView = new Container() {
@@ -77,21 +79,31 @@ public class DisproofPane extends Container {
     public void setSequentBox(int width, int ascent, int descent) {
         seqCanvas.setSequentBox(width, ascent, descent);
         seqView.setSize(width, ascent+descent+2*linethickness);
+        getLayout().layoutContainer(this);
     }
 
     private int linethickness = 1;
     
     public void setlinethickness(int linethickness) {
-        linethickness = seqCanvas.linethickness = /* worldCanvas.linethickness = */ linethickness;
+        linethickness = seqCanvas.linethickness = worldCanvas.linethickness = linethickness;
     }
     
     public void setTiles(String[] tiles) {
+        int spacing = LocalSettings.TileSpacing;
+        Border padding = BorderFactory.createEmptyBorder(spacing/2,spacing,spacing/2,spacing),
+               raisedbevel = BorderFactory.createRaisedBevelBorder(),
+               loweredbevel = BorderFactory.createLoweredBevelBorder(),
+               compoundbevel = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel),
+               tileborder = BorderFactory.createCompoundBorder(compoundbevel, padding);
+        
         tileCanvas.removeAll();
         tileCanvas.add(Box.createGlue());
         for (int i=0; i<tiles.length; i++) {
-            tileCanvas.add(new JLabel(tiles[i]));
+            JLabel tile = new JLabel(tiles[i]);
+            tile.setBorder(tileborder);
+            tileCanvas.add(tile);
             if (i+1<tiles.length)
-                tileCanvas.createVerticalStrut(LocalSettings.TileSpacing);
+                tileCanvas.add(Box.createVerticalStrut(spacing));
         }
         tileLayoutPending = true;
     }
@@ -152,7 +164,8 @@ public class DisproofPane extends Container {
             Dimension worldSize = worldPane.getPreferredSize();
 
             return new Dimension(Math.max(seqSize.width,tileSize.width+worldSize.width)+2*gap(),
-                                 seqSize.height+2*gap()+Math.max(tileSize.height,worldSize.height));
+                                 seqSize.height+2*gap()+Math.max(tileSize.height+worldPane.scrollbarthickness(),
+                                                                 worldSize.height));
         }
 
         /* Called by the Container getMinimumSize method, which is itself called under
@@ -181,14 +194,17 @@ public class DisproofPane extends Container {
             doTileLayout();
             Dimension tileSize = tileCanvas.getPreferredSize();
 
-            int bottom = paneSize.height-gap();
-            int right = paneSize.width-gap();
-            int seqtop = bottom-seqSize.height;
-            int tileleft = right-tileSize.width;
+            int bottom = paneSize.height-gap(),
+                right = paneSize.width-gap(),
+                seqtop = bottom-seqSize.height,
+                worldbottom = seqtop-gap(),
+                tileleft = right-tileSize.width;
             
             seqView.setLocation((paneSize.width-seqSize.width)/2, seqtop);
-            tileCanvas.setBounds(tileleft, seqtop-gap()-tileSize.height, tileSize.width, tileSize.height);
-            worldPane.setBounds(0, 0, tileleft-gap(), seqtop-gap());
+            tileCanvas.setBounds(tileleft,
+                                 worldbottom-worldPane.scrollbarthickness()-tileSize.height,
+                                 tileSize.width, tileSize.height);
+            worldPane.setBounds(0, 0, tileleft-gap(), worldbottom);
 
             pane.repaint();
         }
