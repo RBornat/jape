@@ -131,7 +131,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
             TileTarget target = (TileTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
             if (target!=over) {
                 if (over!=null) {
-                    over.dragExit(); over=null;
+                    over.dragExit(Tile.this); over=null;
                 }
                 if (target!=null && target.dragEnter(Tile.this))
                     over = target;
