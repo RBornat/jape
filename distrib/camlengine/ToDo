@@ -1,7 +1,4 @@
+Bugs:
+it quits too easily when there's a disproof onscreen.
+
 saved proofs: tactic part seems to be all one line
-
-in saved proofs, allow for possibility of both Proved and Disproved
-
-saved proofs don't seem to include disproofs ...
-
-when you try to Show Proof a disproof, you get exception None_ 
