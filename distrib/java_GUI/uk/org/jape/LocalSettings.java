@@ -55,10 +55,9 @@ public class LocalSettings implements SelectionConstants {
     // this stands until people tell me better.
 
     public static byte mouseDownKind(MouseEvent e) {
-        byte kind = 0;
-        if (e.isShiftDown()) kind |= ExtendedSelection; // +1
-        if (e.isMetaDown())  kind |= DisjointSelection; // +2
-        if (e.isAltDown())   kind |= TextSelection;     // +4
+        byte kind = e.isAltDown() ? TextSelMask : PureSelMask;
+        if (e.isShiftDown()) kind |= ExtendedSelMask;
+        if (e.isMetaDown())  kind |= DisjointSelMask;
         return kind;
     }
 }
