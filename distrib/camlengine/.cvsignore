@@ -2,5 +2,5 @@
 *.cmo
 *.cmx
 *.o
-jape
-jape.opt
+jape_engine
+jape_engine.opt
