@@ -165,12 +165,10 @@ TACTIC "sequence*"  IS
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
 TACTIC "Ntuple*"  IS
-    WHEN    
-        (LETGOAL (_A{_B}_C{_D})  
-            (LAYOUT COMPRESS "Ntuple") 
+    ALT   
+        (LAYOUT COMPRESS "Ntuple" ALL
             "Ntuple" "Ntuple*" 
-            (LETMATCH _G tacticresult "Ntuple*" (ASSIGN tacticresult _G)) /* take leftmost GOALPATH */
-        )
+            (LETMATCH _G tacticresult "Ntuple*" (ASSIGN tacticresult _G)))
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
 TACTIC "NtupleInner*"  IS

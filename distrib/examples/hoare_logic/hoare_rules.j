@@ -1,6 +1,6 @@
 ﻿RULE "skip" IS {A} skip {A}
 
-RULE "tilt" IS {false} tilt {A}
+RULE "tilt" IS {⊥} tilt {A}
 
 RULE sequence(C) IS FROM { A } F { B } AND  { B } G { C } INFER  { A } (F; G) { C }
 
@@ -32,7 +32,7 @@ RULE "array-element-assignment" IS
     INFER {D} (a[E]:=F) {B}
 
 RULE "while"(I, M, OBJECT Km) WHERE FRESH Km IS
-     FROM true∧(E computes) simplifiesto G
+     FROM ⊤∧(E computes) simplifiesto G
       AND I→G 
       AND {I∧E} F {I}
       AND I∧E→M>0
@@ -50,5 +50,4 @@ RULE "obviously2" IS FROM A AND B INFER C
 RULE "obviously3" IS FROM A AND B AND C INFER D 
 RULE "obviously4" IS FROM A AND B AND C AND D INFER E 
 
-RULE "faith" IS INFER true
 

@@ -113,14 +113,14 @@ RULE "arith_dup" IS
    FROM E conjoins F AND E equivto G 
   INFER E∧F equivto G
 
-DERIVED RULE "arith_true" IS true∧A equivto A
+DERIVED RULE "arith_true" IS ⊤∧A equivto A
 DERIVED RULE "equiv_default" IS A equivto A
 
 TACTIC "true_equiv" IS
-  (LETGOAL (true∧_A equivto _B) (UNIFY _B _A) (MATCH "arith_true"))
+  (LETGOAL (⊤∧_A equivto _B) (UNIFY _B _A) (MATCH "arith_true"))
     
 TACTIC maybetrueimpl IS
-  ALT (SEQ (LAYOUT HIDEROOT (MATCH "→ intro")) (LAYOUT HIDEROOT (MATCH "faith")))
+  ALT (SEQ (LAYOUT HIDEROOT (MATCH "→ intro")) (LAYOUT HIDEROOT (MATCH "truth")))
       SKIP
 
 /* we can simplify length assertions */

@@ -10,7 +10,7 @@ CONJECTUREPANEL "Variable Programs"  IS
   THEOREM WHERE i NOTIN j IS 
     {i=Ki∧j=Kj} (i:=j; j:=i) {i=Kj∧j=Ki}
   THEOREM WHERE DISTINCT i,j,k IS
-    {true} if j>k then i:=j else i:= k fi {(j≥k→i=j)∧(k≥j→i=k)}
+    {⊤} if j>k then i:=j else i:= k fi {(j≥k→i=j)∧(k≥j→i=k)}
   THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
     {j=Kj∧k=Kk} if j>k then i:=j else i:= k fi {j=Kj∧k=Kk∧(j>k→i=Kj)∧(k≥j→i=Kk)}
   THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
@@ -78,7 +78,7 @@ CONJECTUREPANEL "Array Programs" IS
     {a[i]=0}
   THEOREM partition WHERE DISTINCT m,n,i,j,p,a,done,t IS
     {0≤m∧m<n∧n≤length(a)∧∃x.(m≤x∧x<n∧a[x]=p)}
-      (i:=m; j:=n; done:=false)
+      (i:=m; j:=n; done:=⊥)
     {0≤m∧m≤i∧i≤j∧j≤n∧n≤length(a)∧
      ∃yl.(m≤yl∧yl<j∧a[yl]≤p)∧∃yh.(i≤yh∧yh<n∧a[yh]≥p)∧
      ∀xl.(m≤xl∧xl<i→a[xl]≤p)∧∀xh.(j≤xh∧xh<n→a[xh]≥p)∧
@@ -103,7 +103,7 @@ CONJECTUREPANEL "Array Programs" IS
             t:=a[i]; a[i]:=a[j]; a[j]:=t;
             i:=i+1
           else
-            done:=true
+            done:=⊤
           fi
       od
     {0≤m∧m≤i∧i≤j∧j≤n∧n≤length(a)∧

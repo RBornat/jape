@@ -29,7 +29,7 @@ CLASS FORMULA A B C D E F G H I J L M N O P Q R S T U V W X Y Z
 CLASS CONSTANT K
 CLASS BAG FORMULA Γ
         
-CONSTANT true false mod length
+CONSTANT mod length
 CONSTANT ⊥ ⊤
 
 INFIX   5L  ≜ /* equals def */
