@@ -21,12 +21,23 @@
 *)
 
 type displayfont = TermFont | ReasonFont | ProvisoFont
-type pane = ProofPane | DisproofPane
 
 val allfonts : displayfont list
 val displayfontstring : displayfont -> string
+
+(* Useful translation for Japeserver marshalling.
+ * Current C/Java/Tk interfaces believe in these integers.
+ *
+ *  TermFont = 0
+ *  ReasonFont = 1
+ *  ProvisoFont = 2
+ *
+ *)
 val displayfont2int : displayfont -> int
 val int2displayfont : int -> displayfont
+
+type pane = ProofPane | DisproofPane
+
 val panestring : pane -> string
 
 (* Useful translation for Japeserver marshalling.
