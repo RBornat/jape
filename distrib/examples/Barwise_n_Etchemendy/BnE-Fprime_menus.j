@@ -34,11 +34,11 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
 
 TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS
 	WHEN	
-		(LETHYPSUBSTSEL _P  cut (LAYOUT "" (1) ruleRL thm (WITHSUBSTSEL hyp)))
-		(LETCONCSUBSTSEL _P (LAYOUT "" (1) (WITHSUBSTSEL ruleLR) thm))
+		(LETHYPSUBSTSEL _P  cut (LAYOUT thm (1) ruleRL thm (WITHSUBSTSEL hyp)))
+		(LETCONCSUBSTSEL _P (LAYOUT thm (1) (WITHSUBSTSEL ruleLR) thm))
 		/* the "second argument" of the rewrite rules has to be B */
-		(LETHYP _P cut (LAYOUT "" (1) (ruleRL[B\_P]) thm (WITHHYPSEL hyp)))
-		(LETGOAL _P (LAYOUT "" (1) (ruleLR _P) thm))
+		(LETHYP _P cut (LAYOUT thm (1) (ruleRL[B\_P]) thm (WITHHYPSEL hyp)))
+		(LETGOAL _P (LAYOUT thm (1) (ruleLR _P) thm))
 
 MENU "System F«" IS
 	ENTRY "ç-I"	
