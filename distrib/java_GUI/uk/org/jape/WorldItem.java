@@ -51,6 +51,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                                                       TileTarget, WorldTarget {
 
     protected WorldCanvas canvas;
+    protected JFrame window;
     protected JLayeredPane layeredPane;
     protected Container contentPane;
     protected SelectionRing selectionRing;
@@ -59,13 +60,12 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     private final int x0, y0, radius, labelgap;
     private int labelx;
     private Vector labelv = new Vector(),
-                   textv  = new Vector(),
                    fromv  = new Vector(),
                    tov    = new Vector();
     
     public WorldItem(WorldCanvas canvas, JFrame window, int x, int y) {
         super(x, y);
-        this.canvas = canvas;
+        this.canvas = canvas; this.window = window;
         this.layeredPane = window.getLayeredPane();
         this.contentPane = window.getContentPane();
         this.x0 = x; this.y0 = -y;
@@ -124,9 +124,10 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     }
 
     public void addlabel(String s) {
-        TextItem t = canvas.addLabelItem(labelx, y0, s);
-        labelv.add(t); textv.add(s);
-        labelx += t.getWidth()+labelgap;
+        WorldLabel label = new WorldLabel(canvas, window, this, labelx, y0, s);
+        canvas.add(label);
+        labelv.add(label);
+        labelx += label.getWidth()+labelgap;
     }
     
     public void select(boolean selected) {
@@ -200,7 +201,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         if (o instanceof Tile) { // only have the label once, thankyou
             String text = ((Tile)o).text;
             for (int i=0; i<labelv.size(); i++)
-                if (text.equals((String)textv.get(i)))
+                if (text.equals(((WorldLabel)labelv.get(i)).text))
                     return false;
             return true;
         }
@@ -247,7 +248,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     private int startx, starty, lastx, lasty, offsetx, offsety, centreoffsetx, centreoffsety;
     private boolean firstDrag;
 
-    public void pressed(byte dragKind, MouseEvent e) {
+    private void pressed(byte dragKind, MouseEvent e) {
         startx = e.getX(); starty = e.getY(); firstDrag = true;
     }
 
@@ -259,7 +260,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             if (selectionRing.selected && dragKind==MoveWorldDrag)
                 include(selectionRing);
             for (int i=0; i<labelv.size(); i++)
-                include((TextItem)labelv.get(i));
+                include((WorldLabel)labelv.get(i));
             fixImage();
         }
         public void moveTo(int x, int y) {
@@ -275,7 +276,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     private void setDrageesVisible(boolean state) {
         this.setVisible(state); selectionRing.setVisible(state);
         for (int i=0; i<labelv.size(); i++)
-            ((TextItem)labelv.get(i)).setVisible(state);
+            ((WorldLabel)labelv.get(i)).setVisible(state);
         for (int i=0; i<fromv.size(); i++)
             ((WorldConnector)fromv.get(i)).setVisible(state);
         for (int i=0; i<tov.size(); i++)
