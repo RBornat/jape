@@ -467,12 +467,9 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         w.provisoCanvas.addProvisoLine(annottext);
     }
 
-    public static void setGivens(String[] gs) throws ProtocolError {
-        focussedProofWindow(true).newGivens(gs);
-    }
-
-    private void newGivens(String[] gs) throws ProtocolError {
-        if (gs.length!=0)
-            throw new ProtocolError("can't (yet) set givens "+gs);
+    public static void setGivens(MiscellaneousConstants.IntString[] gs) throws ProtocolError {
+        ProofWindow w = focussedProofWindow(true);
+        w.ensureProvisoPane();
+        w.provisoCanvas.setGivens(gs);
     }
 }
