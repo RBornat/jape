@@ -86,4 +86,8 @@ public abstract class JapeCanvas extends ContainerWithOrigin implements Viewport
         if (viewport!=null)
             viewport.validate();
     }
+
+    public void reportTextSelections() throws ProtocolError {
+        Reply.reply(""); // for now
+    }
 }
