@@ -1,0 +1,28 @@
+/* $Id$ */
+
+RULE "abstraction-I"(A, OBJECT y) IS FROM P(A) INFER AÚ{ y | P(y) }
+RULE "§-I"(OBJECT c) WHERE FRESH c IS FROM cÚA æ cÚB INFER A§B
+RULE "=-I" IS FROM A§B AND B§A INFER A=B
+RULE "ï-I(L)" IS FROM CÚA INFER CÚAïB
+RULE "ï-I(R)" IS FROM CÚB INFER CÚAïB
+RULE "ß-I" IS FROM CÚA AND CÚB INFER CÚAßB
+RULE "ø-I" IS FROM Â(CÚA) INFER CÚAø
+RULE "abstraction-E"(A, OBJECT y) IS FROM AÚ{ y | P(y) } INFER P(A) 
+RULE "§-E"(C) IS FROM CÚA AND A§B INFER CÚB
+RULE "=-E(L)" IS FROM A=B INFER A§B
+RULE "=-E(R)" IS FROM A=B INFER  B§A
+RULE "ï-E" IS FROM CÚAïB AND CÚA æ P AND CÚB æ P INFER P
+RULE "ß-E(L)" IS FROM CÚAßB INFER CÚA
+RULE "ß-E(R)" IS FROM CÚAßB INFER CÚB
+RULE "ø-E" IS FROM CÚAø INFER Â(CÚA)
+	
+RULE "¯-E" IS FROM AÚ¯ INFER Ù
+RULE "AÚU" IS INFER AÚU
+
+RULE "¯-def" IS INFER ¯ = { }
+RULE "ÂÚ-def" IS INFER AÂÚB ê (AÚB)
+
+RULE "singleton" IS INFER AÚ{B} ê A=B
+
+RULE "= symmetry" IS FROM A=B INFER B=A
+RULE "ê symmetry" IS FROM AêB INFER BêA
