@@ -27,7 +27,7 @@
 
 package uk.org.jape;
 
-/* Apparently FileDialog looks better than JFileChooser in Aqua, and may look better in Windows. */
+/* Apparently FileDialog looks better than JFileChooser in MacOS X Aqua, and may look better in Windows. */
 
 import java.awt.FileDialog;
 import java.awt.Frame;
@@ -48,10 +48,9 @@ public class FileChooser /* implements FilenameFilter */ {
     }
 	
     public static String newOpenDialog(String message, String [] extension) {
-		ExampleFileFilter filter = new ExampleFileFilter();
+		JapeFileFilter filter = new JapeFileFilter(message);
 		for (int i=0; i<extension.length; i++)
 			filter.addExtension(extension[i]);
-		filter.setDescription(message);
 		
         if (Jape.onMacOS) { // use AWT
 			FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.LOAD);
@@ -86,11 +85,10 @@ public class FileChooser /* implements FilenameFilter */ {
     }
 
     public static String newSaveDialog(String message, String [] extension) {
-        ExampleFileFilter filter = new ExampleFileFilter();
+        JapeFileFilter filter = new JapeFileFilter(message);
         for (int i=0; i<extension.length; i++)
             filter.addExtension(extension[i]);
-        filter.setDescription(message);
-        if (Jape.onMacOS) { // use AWT
+		if (Jape.onMacOS) { // use AWT
 			FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.SAVE);
 			d.setDirectory(FilePrefs.nextOpen().toString());
 			d.setFilenameFilter(filter);
