@@ -43,6 +43,9 @@ CONJECTUREPANEL "Invalid conjectures"
     THEOREM IS E ⊢ E∧F
     THEOREM IS E∨F ⊢ E∧F
 
+    THEOREM IS  E∨⊤ ⊢E /* E v top |- E */
+    THEOREM IS  E ⊢ E∧⊥ /* E |- E v bot */
+    
     THEOREM IS R(j), ∀x.(R(x)→S(x)) ⊢ S(j)
     THEOREM IS ∀x.R(x)→∀y.S(y) ⊢ ∀z.(R(z)→S(z))
     THEOREM IS actual j, S(j) ⊢ ∀x.(R(x)→S(x))
@@ -123,6 +126,16 @@ CONJECTUREPANEL Conjectures
 
     THEOREM IS  (E→G)∧(F→G) ⊢ (E∨F)→G
     THEOREM IS  (E∨F)→G ⊢ (E→G)∧(F→G)
+
+    THEOREM IS  E ⊢ E∧⊤ /* E |- E & top */
+    THEOREM IS  E∧⊤ ⊢E /* E & top |- E */
+    
+    THEOREM IS  E ⊢ E∨⊤ /* E |- E v top */
+
+    THEOREM IS  E ⊢ E∨⊥ /* E |- E v bot */
+    THEOREM IS  E∨⊥ ⊢E /* E v bot |- E */
+    
+    THEOREM IS  E∧⊥ ⊢ E /* E & bot |- E */
 
     THEOREM IS  E ⊢ ¬¬E
     THEOREM IS  ¬E ⊢ E→F
