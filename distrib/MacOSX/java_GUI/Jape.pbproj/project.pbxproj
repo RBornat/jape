@@ -215,8 +215,6 @@
 		<string>japeserver</string>
 		<key>Properties</key>
 		<dict>
-			<key>com.apple.hwaccel</key>
-			<string>false</string>
 			<key>com.apple.macos.useScreenMenuBar</key>
 			<string>true</string>
 			<key>com.apple.macosx.AntiAliasedGraphicsOn</key>

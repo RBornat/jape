@@ -1,6 +1,4 @@
 Bugs:
-Panel window resize has gone wonky
-Tile layout when tiles get wider needs a resize
 
 -----------------
 
@@ -51,19 +49,3 @@ Protocol out:
 
 DRAGQ
 DROP
-
-How to print a container:
-
-            System.err.println("bounds="+getX()+","+getY()+","+getWidth()+","+getHeight());
-            showContainer(this, null);
-
-    private void showContainer(Container pane, String prefix) {
-        for (int i=0; i<pane.getComponentCount(); i++) {
-            Component c = pane.getComponent(i);
-            String label = prefix==null ? ""+i : prefix+"."+i;
-            System.err.println(label+": "+c);
-            if (c instanceof Container)
-                showContainer((Container)c, label);
-        }
-        
-    }
