@@ -2,7 +2,7 @@
 # $Id$
 #
 
-GUIDIR=../../java_japeserver
+GUIDIR=../../java_GUI
 ENGINEDIR=../../camlengine
 RESOURCES=../CommonBuildResources
 BUILDRESOURCES=../../CommonBuildResources
@@ -22,7 +22,7 @@ SERVERSCRIPT=exec java -jar japeserver.jar
 #
 ENGINETARGET=jape
 BUILTENGINE=jape
-DEPLOYEDENGINE=jape.engine
+DEPLOYEDENGINE=jape_engine
 #
 #       AFTERINSTALL         -- what to do afterwards InstallerKit/install options
 #       INSTALLRESOURCES     -- extra resources needed for the installation to work
@@ -61,21 +61,21 @@ cleanengine:    ; rm -f $(COMPILEDIR)/.depend;\
 #
 #       Java is compile-once, run anywhere, so we can make the GUI in one place
 #
-GUI:            ; (cd $(GUIDIR); $(MAKE) japeserver.jar)
-CLEANGUI:       ; (cd $(GUIDIR); $(MAKE) clean japeserver.jar)
+GUI:            ; (cd $(GUIDIR); $(MAKE) Jape.jar)
+CLEANGUI:       ; (cd $(GUIDIR); $(MAKE) clean Jape.jar)
 
 #
 #       
 #
 components::    engine GUI examples ;\
-                  rsync -v -t    $(GUIDIR)/japeserver.jar .                       ;\
+                  rsync -v -t    $(GUIDIR)/Jape.jar .                       ;\
                   rsync -v -t    $(COMPILEDIR)/$(BUILTENGINE) ./$(DEPLOYEDENGINE)
 
 install:        components; \
                   rsync -v -t    $(BUILDRESOURCES)/installjape.sh . ;\
                   sh installjape.sh
 
-clean:          ; rm -f $(BIN)/japeserver.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape $(BIN)/japeserver
+clean:          ; rm -f $(BIN)/Jape.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape 
 
 distribution::  ; make components; (cd $(BUILDRESOURCES)/InstallerKit; make bootstrap) ;\
                   (cd $(BUILDRESOURCES); make -f Makefile-java installjape.class);\
@@ -91,7 +91,8 @@ jarfile:        examples; \
                   -app          '$(APP)'                \
                   -splash       $(SPLASH)               \
                   examples                              \
-                  -sync $(INSTALLRESOURCES) $(DEPLOYEDENGINE) japeserver.jar  
+                  -sync $(INSTALLRESOURCES) $(DEPLOYEDENGINE) Jape.jar  
+
 
 
 
