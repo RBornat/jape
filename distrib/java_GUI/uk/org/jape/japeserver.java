@@ -4,7 +4,7 @@
 //	Java properties, refer to the documentation at
 //		http://developer.apple.com/techpubs/java/java.html
 //
-//  Copyright (c) 2002 Richard Bornat. All rights reserved (for the moment, till I get it copylefted).
+//  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
 import java.awt.Color;
@@ -19,16 +19,12 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.util.Vector;
 
-import com.apple.mrj.*;
-
 public class japeserver extends JFrame
-                      implements  MRJAboutHandler,
-                                  MRJQuitHandler
 {
     static final String message = "Hello World!";
     private Font font = new Font("serif", Font.ITALIC+Font.BOLD, 36);
 
-    protected AboutBox aboutBox;
+    protected static AboutBox aboutBox;
     
     private JapeMenu menus;
 
@@ -57,10 +53,9 @@ public class japeserver extends JFrame
         menus.addStdMenus(this);
 
         aboutBox = new AboutBox();
+        LocalSettings l = new LocalSettings();
+        
         Toolkit.getDefaultToolkit();
-        MRJApplicationUtils.registerAboutHandler(this);
-        MRJApplicationUtils.registerQuitHandler(this);
-
         setVisible(true);
         
         operators = new Vector();
@@ -77,7 +72,7 @@ public class japeserver extends JFrame
         g.drawString(message, 40, 80);
     }
 
-    public void handleAbout() {
+    public static void handleAbout() {
         aboutBox.setResizable(false);
         aboutBox.setVisible(true);
         aboutBox.show();
@@ -85,21 +80,25 @@ public class japeserver extends JFrame
 
     private static boolean quitsent=false;
     
-    public void handleQuit() {
+    public static void handleQuit() {
         if (!quitsent) {
             quitsent = true;
             Reply.sendCOMMAND("quit");
         }
         else {
-            Alert.showInfoMessage(Alert.Warning, "Quit twice, this time I'm doing it ...");
+            Alert.showAlert(Alert.Warning, "Quit twice, this time I'm doing it ...");
             System.exit(0); // should be an alert about this ...
         }
     }
 
+    public static void handlePrefs() {
+        Alert.showAlert(Alert.Info, "Preferences item selected in menu");
+    }
+    
     private static String theorypath, theory, ext, title, iconname,
         viewpath, pviewpath, proofpath;
 
-    public static boolean onMacOS;
+    public static boolean onMacOS; 
     public static Rectangle screenBounds;
     
     public static void main(String args[]) {

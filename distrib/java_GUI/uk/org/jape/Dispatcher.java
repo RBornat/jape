@@ -3,7 +3,7 @@
 //  japeserver
 //
 //  Created by Richard Bornat on Fri Aug 09 2002.
-//  Copyright (c) 2002 Richard Bornat. All rights reserved (for the moment, till I get it copylefted).
+//  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
 import java.io.*;
@@ -124,7 +124,7 @@ public class Dispatcher extends Thread {
                         if (p.equals("VERSION")&&len==2)
                             aboutbox.setVersion(command[1]);
                         else
-                            Alert.errorAlert("dispatcher doesn't understand ("+len+") "+JapeFont.toUnicode(line));
+                            /*Alert.showErrorAlert*/System.err.println("dispatcher doesn't understand ("+len+") "+JapeFont.toUnicode(line));
                     } // if (command.length!=0)
                 } catch (ProtocolError e) {
                     System.err.println("protocol error in "+line+":: "+e.getMessage());

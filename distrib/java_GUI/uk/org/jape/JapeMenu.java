@@ -3,7 +3,7 @@
 //  japeserver
 //
 //  Created by Richard Bornat on Fri Aug 30 2002.
-//  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
+//  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
 import java.awt.event.ActionEvent;
@@ -64,22 +64,23 @@ public class JapeMenu implements ActionListener {
     
     }
     
-    private void indexMenu(JMenuBar bar, String label) {
-        if (menutable.get(label)==null) {
-            JMenu menu = new JMenu(label);
+    private JMenu indexMenu(JMenuBar bar, String label) {
+        JMenu menu = (JMenu)menutable.get(label);
+        if (menu==null) {
+            menu = new JMenu(label);
             if (japeserver.onMacOS) {
                 JapeFont.setComponentFont(menu.getComponent());
             }
             menutable.put(label,menu);
             bar.add(menu);
         }
+        return menu;
     }
     
     // may throw NullPointerException ...
-    private JMenuItem indexMenuItem(String menulabel, JapeMenuItem action) {
-        JMenu menu = (JMenu)menutable.get(menulabel);
+    private JMenuItem indexMenuItem(JMenu menu, JapeMenuItem action) {
         String label = action.getText();
-        String key = menulabel + ": " + label;
+        String key = menu.getText() + ": " + label;
         actiontable.put(key,action);
         action.setActionCommand(key);
         menu.add(action); // .setEnabled(true)
@@ -92,51 +93,78 @@ public class JapeMenu implements ActionListener {
     
     private int menumask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     
-    public void addStdFileMenuItems() {
-        indexMenuItem("File", new OpenFileAction("Open...")).
+    public void addStdFileMenuItems(JMenu filemenu) {
+        if (LocalSettings.aboutMenuItemNeeded) {
+            class AboutBoxAction extends JapeMenuItem {
+                AboutBoxAction(String label) { super(label); }
+                public void action() { japeserver.handleAbout(); }
+            }
+            indexMenuItem(filemenu, new AboutBoxAction("About jape"));
+            filemenu.addSeparator();
+        }
+        
+        indexMenuItem(filemenu, new OpenFileAction("Open...")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, menumask));
 		
-        indexMenuItem("File", new CmdAction("Open new theory...", "reset;reload"));
+        indexMenuItem(filemenu, new CmdAction("Open new theory...", "reset;reload"));
 
-        indexMenuItem("File", new DummyAction("Close", "File: Close")).
+        indexMenuItem(filemenu, new DummyAction("Close", "File: Close")).
              setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, menumask));
 		
-        indexMenuItem("File", new DummyAction("Save", "File: Save")).
+        indexMenuItem(filemenu, new DummyAction("Save", "File: Save")).
              setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, menumask));
 		
-        indexMenuItem("File", new DummyAction("Save As...", "File: Save As..."));
+        indexMenuItem(filemenu, new DummyAction("Save As...", "File: Save As..."));
+        
+        if (LocalSettings.quitMenuItemNeeded) {
+            filemenu.addSeparator();
+            class QuitAction extends JapeMenuItem {
+                QuitAction(String label) { super(label); }
+                public void action() { japeserver.handleQuit(); }
+            }
+            indexMenuItem(filemenu, new QuitAction("Quit"));
+        }
     }
 	
-	
-    public void addStdEditMenuItems() {
-        indexMenuItem("Edit", new DummyAction("Undo", "Edit: Undo")).
+    public void addStdEditMenuItems(JMenu editmenu) {
+        indexMenuItem(editmenu, new DummyAction("Undo", "Edit: Undo")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, menumask));
         
-        ((JMenu)menutable.get("Edit")).addSeparator();
+        editmenu.addSeparator();
 
-        indexMenuItem("Edit", new DummyAction("Cut", "Edit: Cut")).
+        indexMenuItem(editmenu, new DummyAction("Cut", "Edit: Cut")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, menumask));
 
-        indexMenuItem("Edit", new DummyAction("Copy", "Edit: Copy")).
+        indexMenuItem(editmenu, new DummyAction("Copy", "Edit: Copy")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, menumask));
 
-        indexMenuItem("Edit", new DummyAction("Paste", "Edit: Paste")).
+        indexMenuItem(editmenu, new DummyAction("Paste", "Edit: Paste")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, menumask));
 
-        indexMenuItem("Edit", new DummyAction("Clear", "Edit: Clear"));
+        indexMenuItem(editmenu, new DummyAction("Clear", "Edit: Clear"));
 
-        indexMenuItem("Edit", new DummyAction("Select All", "Edit: Select All")).
+        indexMenuItem(editmenu, new DummyAction("Select All", "Edit: Select All")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, menumask));
+        
+        if (LocalSettings.prefsMenuItemNeeded) {
+            editmenu.addSeparator();
+            class PrefsAction extends JapeMenuItem {
+                PrefsAction(String label) { super(label); }
+                public void action() { japeserver.handlePrefs(); }
+            }
+            indexMenuItem(editmenu, new PrefsAction("Preferences..."));
+        }
     }
 	
     private JFrame frame=null;
     
     public void addStdMenus(JFrame frame) {
 	JMenuBar bar = new JMenuBar();        
-        indexMenu(bar, "File"); indexMenu(bar, "Edit");
+        JMenu filemenu = indexMenu(bar, "File"); 
+        JMenu editmenu = indexMenu(bar, "Edit");
         
-        addStdFileMenuItems();
-        addStdEditMenuItems();
+        addStdFileMenuItems(filemenu);
+        addStdEditMenuItems(editmenu);
         
         this.frame = frame;
         frame.setJMenuBar(bar);
@@ -178,7 +206,7 @@ public class JapeMenu implements ActionListener {
 
     public void newMenuItem(String menuname, String label, String code, String cmd) {
         try {
-            indexMenuItem(menuname, new CmdAction(label, cmd)); 
+            indexMenuItem((JMenu)menutable.get(menuname), new CmdAction(label, cmd)); 
             // and what do we do about code?
         } catch (Exception e) {
             System.err.println("MENUENTRY \""+menuname+"\" \""+label+"\" \""+code+"\" \""+cmd+"\" failed");

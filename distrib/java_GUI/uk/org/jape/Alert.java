@@ -3,7 +3,7 @@
 //  japeserver
 //
 //  Created by Richard Bornat on Tue Sep 03 2002.
-//  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
+//  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
 import java.awt.Component;
@@ -61,14 +61,14 @@ public class Alert {
         }
     }
     
-    public static void showInfoMessage(int messagekind, String message) {
+    public static void showAlert(int messagekind, String message) {
         // I don't think this needs invokeLater ...
         JOptionPane.showMessageDialog(null,makeMessage(message),null,messagekind);
     }
     
     static String quit="Quit", cont="Continue";
 
-    public static void errorAlert(String message) {
+    public static void showErrorAlert(String message) {
         String[] buttons = { quit, cont };
         int reply = JOptionPane.showOptionDialog(
                         null, makeMessage(message), "GUI error", 0, Error,
@@ -82,13 +82,13 @@ public class Alert {
     public static void newAlert (Vector buttons, int severity, String message, int defaultbutton) 
     throws ProtocolError {
         if (buttons.size()==1 && ((String)buttons.get(0)).equals("OK")) {
-            showInfoMessage(messagekind(severity), message);
+            showAlert(messagekind(severity), message);
         }
         else {
             String s = "can't yet show alert: [";
             for (int i=0; i<buttons.size(); i++) 
                 s=s+(i==0?"\"":",\"")+((String)buttons.get(i))+"\"";
-            showInfoMessage(Error, s+" "+severity+" \""+message+"\" "+defaultbutton);
+            showAlert(Error, s+" "+severity+" \""+message+"\" "+defaultbutton);
         }
     }
 }
