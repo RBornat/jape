@@ -1161,6 +1161,17 @@ and file2paragraphs report query s =
          showInputError report ("Catastrophic input error: " :: ss);
          cleanup ();
          raise Use_
+     | UTF.Malformed_ ->
+        showInputError report ["Malformed UTF-8 input.\n\n\
+                                Jape now works only with unicode (UTF-8/16/32) files.\n\n\
+                                (Are you perhaps reading a old unconverted non-Unicode file? If so, \
+                                try using the file converter that comes with Jape.)\n\n\
+                                (Or, if this is the first time you've run the new version of \
+                                Jape, check that it isn't picking up an unconverted file by \
+                                default. It always goes back to the last file it opened \
+                                in the file dialogue.)"];
+        cleanup ();
+        raise Use_
      | exn -> cleanup (); raise exn)
     (* including Use_, at it happens *)
   in cleanup (); r
