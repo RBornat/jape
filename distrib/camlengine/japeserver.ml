@@ -342,11 +342,12 @@ let rec ask_unpatched severity message buttons default =
 
 let rec askDangerously_unpatched message doit dont =
   match
-    askf "ASKDANGEROUS {%} {%} {%}\n" [Str message; Str doit; Str dont]
+    askf "ASKDANGEROUSLY % % %\n" [Str message; Str doit; Str dont]
   with
     [0] -> None
   | [n] -> Some (n - 1)
-  | _ -> raise (Catastrophe_ ["askdangerous protocol failure"])
+  | ns  -> raise (Catastrophe_ ["askDangerously protocol failure ";
+                                bracketedliststring string_of_int ";" ns])
 
 let rec askCancel_unpatched severity message buttons default =
   let n = ask_unpatched severity message (buttons @ ["Cancel"]) default in
