@@ -37,16 +37,20 @@
 
 MACRO BackwardOnly (pattern, action, stepname, shape, explain) IS
     WHEN
-        (LETGOAL pattern 
-            (WHEN   
-                (LETHYP _Ah (BackwardOnly2 stepname action explain _Ah))
-                (WITHSELECTIONS action)))
+        (LETGOAL pattern (BackwardOnly2 stepname action explain))
         (LETGOAL _A (ComplainBackwardWrongGoal stepname shape))
         (ComplainBackward pattern stepname shape)
 
-TACTIC BackwardOnly2 (stepname, action, explain, _Ah) IS /* oh for a binding mechanism other than tactic application ... */
-    WHEN    (LETCONC _Ac (BackwardOnly3 stepname action explain _Ah _Ac ", selecting"))
-            (LETRHS _Ac  /* can't fail */(BackwardOnly3 stepname action explain _Ah _Ac " from"))
+TACTIC BackwardOnly2 (stepname, action, explain) IS 
+    WHEN   
+       (LETHYP _Ah 
+           (WHEN    
+               (LETCONC _Ac (BackwardOnly3 stepname action explain _Ah _Ac ", selecting"))
+               (LETRHS _Ac  /* can't fail */
+                   (BackwardOnly3 stepname action explain _Ah _Ac " from"))))
+       (WITHSELECTIONS action)
+/* oh for a binding mechanism other than tactic application ... */
+    
 
 TACTIC BackwardOnly3 (stepname, action, explain, _Ah, _Ac, stuff) IS /* Oh for tactic nesting ... */
     ALERT   ("You asked for a backward step with the %s rule%s the conclusion %s, \
@@ -55,3 +59,8 @@ TACTIC BackwardOnly3 (stepname, action, explain, _Ah, _Ac, stuff) IS /* Oh for t
              \ \n\nDo you want to go on with the backward step from %s -- ignoring %s?", 
             stepname, stuff,  _Ac, _Ah, stepname, explain, _Ac, _Ah)
             ("Backward", action) ("Cancel", STOP)
+
+MACRO BackwardOnlyDouble (pattern1, pattern2, action, stepname, shapes, explain) IS
+    WHEN 
+        (LETGOAL pattern1 (BackwardOnly2 stepname action explain))
+        (BackwardOnly pattern2 action stepname shapes explain)
