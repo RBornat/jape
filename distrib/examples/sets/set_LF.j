@@ -4,5 +4,5 @@
 
 USE "BnE-Fprime_LF.j" 
 
-RULE "§-I"(OBJECT c) WHERE FRESH c IS FROM new c, cÚA æ cÚB INFER A§B
-RULE "=-I"(OBJECT c) IS FROM new c, cÚA æ cÚB AND new c, cÚB æ cÚA INFER A=B
+RULE "§-I(c)"(OBJECT c) WHERE FRESH c IS FROM new c, cÚA æ cÚB INFER A§B
+RULE "§-I(<c,d>)"(OBJECT c,OBJECT d) WHERE FRESH c,d IS FROM new c, new d, <c,d>ÚA æ <c,d>ÚB INFER A§B
