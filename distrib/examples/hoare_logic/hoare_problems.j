@@ -76,7 +76,40 @@ CONJECTUREPANEL "Array Programs" IS
     {0≤i∧i<length(a) ∧ ∃x.(i≤x∧x<length(a) ∧ a[x]=0)}
         while a[i]≠0 do i:=i+1 od
     {a[i]=0}
-
+  THEOREM partition WHERE DISTINCT m,n,i,j,p,a,done,t IS
+    {0≤m∧m<n∧n≤length(a)∧∃x.(m≤x∧x<n∧a[x]=p)}
+      (i:=m; j:=n; done:=false)
+    {0≤m∧m≤i∧i≤j∧j≤n∧n≤length(a)∧
+     ∃yl.(m≤yl∧yl<j∧a[yl]≤p)∧∃yh.(i≤yh∧yh<n∧a[yh]≥p)∧
+     ∀xl.(m≤xl∧xl<i→a[xl]≤p)∧∀xh.(j≤xh∧xh<n→a[xh]≥p)∧
+     (done→i=j∨(i+1=j∧a[i]=p))}
+      while ¬done do
+          skip
+        {0≤m∧m≤i∧i≤j∧j≤n∧n≤length(a)∧
+         ∃yl.(m≤yl∧yl<j∧a[yl]≤p)∧∃yh.(i≤yh∧yh<n∧a[yh]≥p)∧
+         ∀xl.(m≤xl∧xl<i→a[xl]≤p)∧∀xh.(j≤xh∧xh<n→a[xh]≥p)∧
+         ¬done}
+          while a[i]<p do i:=i+1 od
+        {0≤m∧m≤i∧i≤j∧j≤n∧n≤length(a)∧
+         ∃yl.(m≤yl∧yl<j∧a[yl]≤p)∧
+         ∀xl.(m≤xl∧xl<i→a[xl]≤p)∧∀xh.(j≤xh∧xh<n→a[xh]≥p)∧
+         ¬done∧a[i]≥p}
+          while a[j-1]>p do j:=j-1 od
+        {0≤m∧m≤i∧i≤j∧j≤n∧n≤length(a)∧
+         ∀xl.(m≤xl∧xl<i→a[xl]≤p)∧∀xh.(j≤xh∧xh<n→a[xh]≥p)∧
+         ¬done∧a[i]≥p∧a[j-1]≤p}
+          if i+1<j then
+            j:=j-1;
+            t:=a[i]; a[i]:=a[j]; a[j]:=t;
+            i:=i+1
+          else
+            done:=true
+          fi
+      od
+    {0≤m∧m≤i∧i≤j∧j≤n∧n≤length(a)∧
+     ∃yl.(m≤yl∧yl<j∧a[yl]≤p)∧∃yh.(i≤yh∧yh<n∧a[yh]≥p)∧
+     ∀xl.(m≤xl∧xl<i→a[xl]≤p)∧∀xh.(j≤xh∧xh<n→a[xh]≥p)∧
+     (i=j∨(i+1=j∧a[i]=p))}
 END
 
 CONJECTUREPANEL "Useful Lemmas" IS
@@ -88,4 +121,6 @@ CONJECTUREPANEL "Useful Lemmas" IS
     A≥B, A≠B ⊢ A>B
   THEOREM WHERE x NOTIN A, B IS
     ∀x.(A≤x∧x<B→P(x)), P(B) ⊢ ∀x.(A≤x∧x<B+1→P(x))
+  THEOREM WHERE x NOTIN A, B IS
+    P(A-1), ∀x.(A≤x∧x<B→P(x)) ⊢ ∀x.(A-1≤x∧x<B→P(x))
 END
