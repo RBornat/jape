@@ -161,6 +161,9 @@ public class Dispatcher extends Thread implements DebugConstants {
 			if (p=="SETALERT"&&len==2)
 			    Alert.showErrorAlert(cmd[1]);
 			else
+			if (p=="ASKUNIFY"&&len==2)
+			    TextDialog.runUnifyDialog(cmd[1]);
+			else
 		    
 		    // file choosing
 			if (p=="READFILENAME"&&len==3)
