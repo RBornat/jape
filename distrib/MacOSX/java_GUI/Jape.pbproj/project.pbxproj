@@ -116,6 +116,8 @@
 				F5E5E7C803A79B5B01A80116,
 				F515B6180331DA6801A80116,
 				7923783006104EE30084726D,
+				79A31803064BF8EF0096C4DA,
+				79A31828064C07100096C4DA,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -388,6 +390,8 @@
 				791C742F05DCEDE10086E5C6,
 				791C743005DCEDE10086E5C6,
 				7923783206104EE40084726D,
+				79A31805064BF8EF0096C4DA,
+				79A3182A064C07100096C4DA,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2061,6 +2065,47 @@
 			settings = {
 			};
 		};
+		79A31803064BF8EF0096C4DA = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = TextComponent.java;
+			path = /Users/richard/cvsdownloads/jape/distrib/java_GUI/uk/org/jape/TextComponent.java;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		79A31804064BF8EF0096C4DA = {
+			fileRef = 79A31803064BF8EF0096C4DA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79A31805064BF8EF0096C4DA = {
+			fileRef = 79A31803064BF8EF0096C4DA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79A31828064C07100096C4DA = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			path = AnnotatedTextComponent.java;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		79A31829064C07100096C4DA = {
+			fileRef = 79A31828064C07100096C4DA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79A3182A064C07100096C4DA = {
+			fileRef = 79A31828064C07100096C4DA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 //790
 //791
 //792
@@ -2166,6 +2211,8 @@
 				791C73E005DCEDE10086E5C6,
 				791C73E105DCEDE10086E5C6,
 				7923783106104EE30084726D,
+				79A31804064BF8EF0096C4DA,
+				79A31829064C07100096C4DA,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
