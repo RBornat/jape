@@ -696,9 +696,16 @@ let rec emphasise pos b =
   writef "DISPROOFEMPHASISE % % %\n"
     [Int x; Int y; Bool b]
 
+type displaystyle = TreeStyle | BoxStyle
+
+let displaystyle2int d =
+  match d with
+    BoxStyle  -> 0
+  | TreeStyle -> 1
+
 let rec setproofparams displaystyle linethicknessval =
   linethickness := linethicknessval;
-  writef "SETPROOFPARAMS % %\n" [Str displaystyle; Int linethicknessval]
+  writef "SETPROOFPARAMS % %\n" [Int (displaystyle2int displaystyle); Int linethicknessval]
 
 
 

@@ -724,7 +724,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
   in
   let leading = max termfontleading (reasonfontleading) in
   let linethickness = Draw.linethickness leading in
-  let _ = setproofparams "box" linethickness in
+  let _ = setproofparams Japeserver.BoxStyle linethickness in
   (* done early, so that GUIs can be ready for anything *)
            
   let textleading = (3 * leading + 1) / 2 in

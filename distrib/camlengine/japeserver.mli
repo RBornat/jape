@@ -150,12 +150,10 @@ val emphasise : pos -> bool -> unit
 
 val greyen : pos -> unit
 val blacken : pos -> unit
-val toplevelfiletype : int
-(* .jt *)
-val theoryfiletype : int
-(* .j  *)
-val prooffiletype : int
-(* .jp *)
+
+val toplevelfiletype : int  (* .jt *)
+val theoryfiletype : int    (* .j  *)
+val prooffiletype : int     (* .jp *)
    
 val dbugfiletype : int
 (* whatever you like *)
@@ -175,8 +173,10 @@ val setinvischars :
   string * string -> string * string -> string * string ->
     string * string -> unit
 (*   onbra  ket         offbra ket         outbra ket         lockbra ket *)
-val setproofparams : string -> int -> unit
-(*    tree/box  linethickness *)
+
+type displaystyle = TreeStyle | BoxStyle
+val setproofparams : displaystyle -> int -> unit
+               (*    tree/box        linethickness *)
 
 (* interface-specific help information *)
 val howtoTextSelect : unit -> string

@@ -116,7 +116,7 @@ let rec maketreeplan proof =
   (* was 30,15*leading, seemed a bit excessive *)
   and vspace = leading in
   let linethickness = Draw.linethickness leading in
-  let _ = setproofparams "tree" linethickness in
+  let _ = setproofparams Japeserver.TreeStyle linethickness in
   (* do this early, so GUIs are ready for anything *)
 
   let noreasoninf = string2textinfo ReasonFont "" in

@@ -48,7 +48,7 @@ val blacken : pos -> unit
 val fontinfo : font -> int * int * int (* ascent, descent, leading *)
 val linethickness : int -> int (* font leading to linethickness *)
    
-val setproofparams : string -> int -> unit (* "tree"/"box", line thickness *)
+val setproofparams : Japeserver.displaystyle -> int -> unit (* Tree/BoxStyle, line thickness *)
    
 val planstring : ('a -> string) -> 'a plan -> string (* for debugging *)
 val plan2string : 'a plan -> string (* for external viewing; only works for single-string plans *)
