@@ -162,6 +162,7 @@ let outerassumptionword = ref "assumption"
 let outerassumptionplural = ref "assumptions"
 let innerassumptionword = ref "assumption"
 let innerassumptionplural = ref "assumptions"
+let multiassumptionline = ref true
 let boxlineformat = ref "R (A) N: |"
 (* "N: |R A" is going to be the default *)
 let boxlinedressright = ref true
@@ -1068,14 +1069,19 @@ let rec linearise screenwidth procrustean_reasonW dp =
               topleftpos, 0, 0, topleftpos
           in
           let hyplines =
-            match wopt with
-              None -> [hypelis] (* first pass - just put them all on one line *)
-            | Some bestW -> (* We make a proper 'minimum waste' split of the assumption line *)
+            let single h = [h] in
+            match !multiassumptionline, wopt with
+              false, None -> single <* hypelis
+            | true , None -> [hypelis] (* first pass - just put them all on one line *)
+            | _, Some bestW -> (* We make a proper 'minimum waste' split of the assumption line *)
                 let rec measureplan (_, ((size, _), _)) = tsW size + commaW (* more or less *) in
                 let mybestW = max (2 * tsW (fst (fst words))) (bestW - 2 * posX innerpos) in
-                minwaste measureplan mybestW
-                  ((fun (e, inf) -> e, if !foldformulae then foldformula mybestW inf 
-                                                        else inf) <* hypelis)
+                let doit (e,inf) = e, if !foldformulae then foldformula mybestW inf else inf in
+                let donehyps = doit <* hypelis in
+                if !multiassumptionline then
+                  minwaste measureplan mybestW donehyps
+                else
+                  single <* donehyps
           in
           let dohypline (hypelis, (hypmap, Lacc haccrec)) =
             let (word, hypmap') =
