@@ -1,13 +1,21 @@
 /* $Id$ */
 
-INITIALISE applyconjectures false
-INITIALISE displaystyle tree
+/*
+	The multi-conclusion sequent calculus, with multiplicative versions of the branching rules (gasp!).
+	This encoding is a testbed, so I have made it use the extreme form of axiom, it doesn't copy 
+	Dyckhoff-style in the çæ and èæ rules.  Because of multiplicativity and un-Dyckhoffry, you have
+	to use contraction sometimes.
+	RB 20/ix/96
+*/
 
-USE "MMCS_rules.j"
+USE "MCS.jt" /* the default */
 
-CONJECTUREPANEL "Conjectures"
-  THEOREM	modusponens(A,B)	IS A, AçB æ B
-  THEOREM	contradiction(A,B)	IS A, ÂA æ 
-END
+/* the differences */
+RULE	axiom(A)								INFER A æ A
+RULE	"æ¦"		FROM ‚ æ A,Æ AND ‚' æ B,Æ' 		INFER ‚,‚' æ A¦B,Æ,Æ'
+RULE	"ëæ"		FROM ‚,A æ Æ AND ‚',B æ Æ'		INFER ‚,‚',AëB æ Æ,Æ'
+RULE	"çæ"		FROM ‚ æ A,Æ AND ‚',B æ Æ'		INFER ‚,‚',AçB æ Æ,Æ'
+RULE	"æé"		FROM ‚ æ AçB,Æ AND ‚' æ BçA,Æ'	INFER ‚,‚' æ AéB,Æ,Æ'
+RULE	cut(A)	FROM ‚ æ A,Æ AND ‚',A æ Æ'		INFER ‚,‚' æ Æ,Æ'
 
-USE "MCS+SCS_problems.j"
+STRUCTURERULE CUT            		cut /* cos it's different now */
