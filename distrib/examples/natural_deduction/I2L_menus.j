@@ -152,7 +152,7 @@ TACTIC FailWrongvar (stepname, arg) IS
 				\\n\nYou text-selected ‘%s’, which isn't a variable.", stepname, arg)
 				("OK", STOP) ("Huh?", SEQ Explainvariables STOP)
 
-/* ******************** most rules don't want argument ******************** */
+/* ******************** most rules don't want arguments ******************** */
 
 TACTIC Noarg (rule, stepname) IS
 	WHEN	(LETARGTEXT arg 
@@ -160,6 +160,16 @@ TACTIC Noarg (rule, stepname) IS
 								\Do you want to go on with the step, ignoring the text-selection?", stepname, arg)
 								("OK", rule)
 								("Cancel", STOP)
+					)
+				)
+				rule
+
+TACTIC SingleorNoarg (rule, stepname) IS 
+	WHEN	(LETARGSEL _P (WITHARGSEL rule))
+				(LETMULTIARG _Ps 
+					(ALERT ("The %s rule can accept a single argument. You text-selected %l, which is more than \
+								\it can deal with. Cancel some or all of your text selections and try again.", stepname, _Ps)
+								("OK", STOP)
 					)
 				)
 				rule
@@ -353,7 +363,7 @@ MENU Backward IS
 							("Forward", "Ÿ intro forward") ("Cancel", STOP)
 				)
 			)
-			(BackwardOnlyC Ÿ (SEQ (Singlearg "Ÿ intro" "Ÿ intro") fstep fstep) "Ÿ intro" "Ÿ")
+			(BackwardOnlyC Ÿ (SEQ (SingleorNoarg "Ÿ intro" "Ÿ intro") fstep fstep) "Ÿ intro" "Ÿ")
 	ENTRY	"Ë intro (introduces variable)"	IS BackwardOnlyA (QUOTE (Ë_x._P)) (Noarg "Ë intro" "Ë intro") "Ë intro" "Ëx.A" 
 	ENTRY	"‰ intro (needs variable)"			"‰ intro backward"
 		
@@ -602,7 +612,7 @@ MENU Forward IS
 	ENTRY	"Î elim (makes assumptions)"	IS Forward (QUOTE (_PÎ_Q)) (Noarg ("targeted forward" (ForwardUncut 0 "Î elim") "Î elim") "Î elim") "Î elim" "Î intro" "AÎB"
 	ENTRY	"Ë elim (needs variable)"				IS "Ë elim forward"
 	ENTRY	"‰ elim (assumption & variable)"	IS Forward (QUOTE (‰_x._P)) (Noarg ("targeted forward" (ForwardUncut 0 "‰ elim") "‰ elim") "‰ elim") "‰ elim" "‰ intro" "‰x.A"
-	ENTRY	"Ÿ elim (constructive)"				IS Forward (QUOTE _P) (Noarg foodle) "Ÿ elim (constructive)" "Ÿ intro" Ÿ
+	ENTRY	"Ÿ elim (constructive)"				IS Forward (QUOTE _P) (Noarg "Ÿ elim (constructive)" "Ÿ elim (constructive)") "Ÿ elim (constructive)" "Ÿ intro" Ÿ
 
 	SEPARATOR
 	ENTRY	"¶ intro"			IS "¶ intro forward"
@@ -803,6 +813,9 @@ PATCHALERT "You double-clicked on a used antecedent or a proved conclusion"
 PATCHALERT "To make an ‰ intro step forward"
 	("OK") ("Huh?", HowToTextSelect)
 
+PATCHALERT "The Ÿ intro step can accept a single argument" 
+	("OK") ("Huh?", HowToTextSelect)
+	
 /* ******************** and we do our own (careful) unification ******************** */
 
 MENU Edit
