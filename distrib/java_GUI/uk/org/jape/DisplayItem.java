@@ -25,18 +25,152 @@
     
 */
 
+import java.awt.event.MouseEvent;
 import java.awt.Component;
 
-public class DisplayItem extends Component {
-
+public class DisplayItem extends Component
+                      implements SelectionConstants {
+    public final JapeCanvas canvas;
     public final int idX, idY;
 
-    protected DisplayItem(int x, int y) {
+    private boolean selected = false;
+    protected SelectionIndicator indicator = null;
+    
+    protected DisplayItem(JapeCanvas canvas, int x, int y) {
         super();
-        this.idX = x; this.idY = y;
+        this.canvas = canvas; this.idX = x; this.idY = y;
     }
 
+    // DisplayItems can have a selection halo; if they have an indicator that defines a halo
+    protected int selectionHalo = 0;
+
+    public boolean contains(int x, int y) {
+        return super.contains(x,y) ||
+                (indicator!=null && indicator.contains(x,y)) ||
+                (selectionHalo>0 && 
+                 x+selectionHalo>=0 && x-selectionHalo<getWidth() &&
+                 y+selectionHalo>=0 && y-selectionHalo<getHeight());
+    }
+
+    // because of the halo, mouse coordinates may be outside the item
+
+    protected int internalX(int px) {
+        return Math.max(0, Math.min(getWidth(), px));
+    }
+
+    protected int internalY(int py) {
+        return Math.max(0, Math.min(getHeight(), py));
+    }
+
+    // a DisplayItem can be enabled ('blackened') or disabled ('greyened')
+
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        if (enabled)
+            enableEvents(java.awt.AWTEvent.MOUSE_EVENT_MASK);
+        else {
+            setSelected(false);
+            disableEvents(java.awt.AWTEvent.MOUSE_EVENT_MASK);
+        }
+        repaint();
+    }
+    
     public void addJapeMouseListener(JapeMouseAdapter a) {
         addMouseListener(a); addMouseMotionListener(a);
+    }
+
+    public void removeJapeMouseListener(JapeMouseAdapter a) {
+        removeMouseListener(a); removeMouseMotionListener(a);
+    }
+
+    private JapeMouseTextAdapter selectionListener = null;
+
+    public void addSelectionIndicator(SelectionIndicator indicator) {
+        if (selectionListener!=null)
+            removeJapeMouseListener(selectionListener);
+        if (indicator!=null)
+            canvas.remove((Component)indicator);
+        selectionListener = new JapeMouseTextAdapter() {
+            public void clicked(byte eventKind, MouseEvent e) {
+                DisplayItem.this.selectionclicked(eventKind, e);
+            }
+            public void doubleclicked(byte eventKind, MouseEvent e) {
+                DisplayItem.this.selectiondoubleclicked(eventKind, e);
+            }
+        };
+        addJapeMouseListener(selectionListener);
+        this.indicator = indicator;
+        indicator.indicate(this);
+        canvas.add((Component)indicator);
+    }
+
+    public boolean selectable() {
+        return indicator!=null;
+    }
+
+    public boolean getSelected() {
+        return indicator!=null && selected;
+    }
+
+    public void setSelected(boolean selected) {
+        if (indicator!=null && this.selected!=selected) {
+            this.selected = selected;
+            indicator.indicate(this);
+        }
+    }
+
+    public void doSelectAction(boolean selected) {
+        if (indicator!=null && this.selected!=selected) {
+            setSelected(selected);
+            canvas.notifySelectionChange(this);
+        }
+    }
+
+    public void selectionclicked(byte eventKind, MouseEvent e) {
+        canvas.claimFocus();
+        if (selected) {
+            switch (eventKind) {
+                case ExtendedSelection:
+                case DisjointSelection:
+                case ExtendedDisjointSelection:
+                    canvas.doDeselectAction(this);
+                    setSelected(false);
+                    break;
+                case Selection:
+                    break;
+                default:
+                    Alert.abort("DisplayItem.selectionclicked selected event="+eventKind);
+            }
+        }
+        else {
+            switch (eventKind) {
+                case ExtendedSelection:
+                case DisjointSelection:
+                case ExtendedDisjointSelection:
+                    canvas.doExtendSelectAction(this);
+                    doSelectAction(true);
+                    break;
+                case Selection:
+                    canvas.doSelectAction(this);
+                    doSelectAction(true);
+                    break;
+                default:
+                    Alert.abort("DisplayItemSelectionAdapter.clicked not selected event="+eventKind);
+            }
+        }
+    }
+
+    public void selectiondoubleclicked(byte eventKind, MouseEvent e) {
+        switch(eventKind) {
+            case ExtendedSelection:
+            case DisjointSelection:
+            case ExtendedDisjointSelection:
+                break;
+            case Selection:
+                canvas.doHitAction(this);
+                break;
+            default:
+                Alert.abort("DisplayItem.selectiondoubleclicked event="+eventKind);
+        }
     }
 }
