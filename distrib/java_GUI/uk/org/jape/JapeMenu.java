@@ -1131,24 +1131,50 @@ public class JapeMenu implements DebugConstants {
 		
 	private static JMenu recentFilesMenu() {
 		JMenu menu = new JMenu("Open Recent");
-
-		for (int i=0; i<recentFiles.size(); i+=2) {
-			final String f = (String)recentFiles.get(i);
-			String text = (String)recentFiles.get(i+1);
-			JMenuItem item = new JMenuItem(text);
-			item.setActionCommand(text);
-			item.setEnabled(true);
-			item.setSelected(false);
-			JapeFont.setComponentFont(item.getComponent(), JapeFont.MENUENTRY);
+		
+		if (recentFiles.size()!=0) {
+			for (int i=0; i<recentFiles.size(); i+=2) {
+				final String f = (String)recentFiles.get(i);
+				String text = (String)recentFiles.get(i+1);
+				JMenuItem item = new JMenuItem(text);
+				item.setActionCommand(text);
+				item.setEnabled(true);
+				item.setSelected(false);
+				JapeFont.setComponentFont(item.getComponent(), JapeFont.MENUENTRY);
+				if (DebugVars.menuaction_tracing)
+					Logger.log.println("addRecentFile "+JapeUtils.enQuote(item.getText()));
+				item.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent newEvent) {
+						FilePrefs.recordRecentFile(f);
+						if (Jape.onUnix && f.startsWith("~")) {
+							String home = System.getProperties().getProperty("user.home");
+							String g = home+f.substring(1);
+							System.out.println("opening (~="+JapeUtils.enQuote(home)+
+											   ") recent "+JapeUtils.enQuote(f)+
+											   " => "+JapeUtils.enQuote(g));
+							doOpenFile(g);
+						}
+						else {
+							System.out.println("opening recent "+JapeUtils.enQuote(f));
+							doOpenFile(f);
+						}
+					}
+				});
+				menu.add(item);
+			}
+			menu.addSeparator();
+			JMenuItem clear = new JMenuItem("Clear Menu");
+			clear.setEnabled(true);
+			clear.setSelected(false);
+			JapeFont.setComponentFont(clear.getComponent(), JapeFont.MENUENTRY);
 			if (DebugVars.menuaction_tracing)
-				Logger.log.println("addRecentFile "+JapeUtils.enQuote(item.getText()));
-			item.addActionListener(new ActionListener(){
+				Logger.log.println("addRecentFile "+JapeUtils.enQuote(clear.getText()));
+			clear.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent newEvent) {
-					FilePrefs.recordRecentFile(f);
-					doOpenFile(f);
+					FilePrefs.clearRecentFiles();
 				}
 			});
-			menu.add(item);
+			menu.add(clear);
 		}
 		
 		return menu;
