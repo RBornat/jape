@@ -48,84 +48,51 @@ type forcedef = Forcedef.forcedef
  and model = Forcedef.model
 
 let atoi = Miscellaneous.atoi
-
-let rec ask ss bs def =
-  Alert.ask (Alert.defaultseverity bs) (implode ss) bs def
-
 let askChoice = Alert.askChoice
-
 let base_sequent = Prooftree.Tree.Fmttree.sequent
-
 let catelim_seqstring = Sequent.Funs.catelim_seqstring
-
 let consolereport = Miscellaneous.consolereport
-
 let drawindisproofpane () = drawinpane Displayfont.DisproofPane
-
 let getsemanticturnstile = Sequent.Funs.getsemanticturnstile
-
 let isdigit = Miscellaneous.isdigit
-
 let isextensibleID = Symbol.isextensibleID
-
 let lowercase = Stringfuns.lowercase
-
 let matchdebug = Match.matchdebug
-
 let matchvars = Match.matchvars 
-
 let mkSeq = Sequent.Funs.mkSeq
+let option_remapterm = Match.option_remapterm
+let parseTerm = Termparse.term_of_string
+let pairstring = Stringfuns.pairstring
+let planinfo = Draw.planinfo
+let seqexplode = Sequent.Funs.seqexplode
+let seqstring = Sequent.Funs.seqstring
+let seqvars = Sequent.Funs.seqvars termvars tmerge
+let showAlert = Alert.showAlert Alert.defaultseverity_alert <.> implode
+let simplifySubst = Substmapfuns.simplifySubst
+let smlseqstring = Sequent.Funs.smlseqstring
+let subtree = Prooftree.Tree.Fmttree.followPath
+let triplestring = Stringfuns.triplestring
+let uncurry2 = Miscellaneous.uncurry2
+let catelim_pairstring = Stringfuns.catelim_pairstring
+let catelim_triplestring = Stringfuns.catelim_triplestring
+
+let ask ss bs def = Alert.ask (Alert.defaultseverity bs) (implode ss) bs def
 
 let onbraket = String.make 1 Miscellaneous.onbra, String.make 1 Miscellaneous.onket
-
 let offbraket = String.make 1 Miscellaneous.offbra, String.make 1 Miscellaneous.offket
-
 let outbraket = String.make 1 Miscellaneous.outbra, String.make 1 Miscellaneous.outket
-
 let lockbraket = String.make 1 Miscellaneous.lockbra, String.make 1 Miscellaneous.lockket
 
-let option_remapterm = Match.option_remapterm
-
-let parseTerm = Termparse.term_of_string
-
-let pairstring = Stringfuns.pairstring
-
-let planinfo = Draw.planinfo
-
-let seqexplode = Sequent.Funs.seqexplode
-
-let seqstring = Sequent.Funs.seqstring
-
-let seqvars = Sequent.Funs.seqvars termvars tmerge
-
-let showAlert = Alert.showAlert Alert.defaultseverity_alert <.> implode
-
-let simplifySubst = Substmapfuns.simplifySubst
-
-let smlseqstring = Sequent.Funs.smlseqstring
-
-let subtree = Prooftree.Tree.Fmttree.followPath
-
-let triplestring = Stringfuns.triplestring
-
-let uncurry2 = Miscellaneous.uncurry2
-
-let rec term2binding t =
+let term2binding t =
   match Binding.bindingstructure t with
     Some t' -> Some (registerBinding t')
   | None -> None
-    
-
-let catelim_pairstring = Stringfuns.catelim_pairstring
-
-let catelim_triplestring = Stringfuns.catelim_triplestring
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception ParseError_ = Miscellaneous.ParseError_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 
 let rec catelim_intstring i ss = string_of_int i :: ss
-
 let rec catelim_boolstring b ss = string_of_bool b :: ss
 
 let disproofdebug = ref false
@@ -162,6 +129,7 @@ let rec isBagClass t =
 let rec my_seqexplode s =
   let (st, h, c) = seqexplode s in
   st, isBagClass h, explodeCollection h, isBagClass c, explodeCollection c
+
 (* *********************** worlds and situations *********************** *)
 
 (* a world has coordinates, labels (terms), and a list of child worlds.  
@@ -173,6 +141,7 @@ let rec my_seqexplode s =
 
 type coord = int * int
 type world = term list * coord list
+
 (* labels, children *)
    
 type universe = (coord, world) mapping
@@ -205,12 +174,11 @@ let rec isemptyworld u =
   | _ -> false
 
 let rec getworld u c =
-  try _The ((u <:> c)) with
+  try _The ((u <@> c)) with
     _ ->
       raise
-        (Catastrophe_
-           ["(getworld) no world at "; coordstring c; "; ";
-            universestring "" u])
+        (Catastrophe_ ["(getworld) no world at "; coordstring c; "; "; universestring "" u])
+
 (* enforce monotonicity *)
 
 let rec domono pts u c =
@@ -220,26 +188,19 @@ let rec domono pts u c =
   | ts' -> foldl (domono ts') ((u ++ (c |-> (ts' @ ts, cs)))) cs
 
 let rec addworldlabel u c t =
-  match (u <:> c) with
+  match (u <@> c) with
     None ->
       raise
-        (Tacastrophe_
-           ["(addworldlabel) no world at "; coordstring c; "; ";
-            universestring "" u])
+        (Tacastrophe_ ["(addworldlabel) no world at "; coordstring c; "; "; universestring "" u])
   | Some (pts, pcs) ->
       if member (t, pts) then None
-      else
-        Some
-          (foldl (domono [t]) ((u ++ (c |-> (t :: pts, pcs))))
-             pcs)
+      else Some (foldl (domono [t]) ((u ++ (c |-> (t :: pts, pcs)))) pcs)
 
 let rec deleteworldlabel u c t =
-  match (u <:> c) with
+  match (u <@> c) with
     None ->
       raise
-        (Tacastrophe_
-           ["(deleteworldlabel) no world at "; coordstring c; "; ";
-            universestring "" u])
+        (Tacastrophe_ ["(deleteworldlabel) no world at "; coordstring c; "; "; universestring "" u])
   | Some (pts, pcs) ->
       if not (member (t, pts)) then None
       else
@@ -332,7 +293,7 @@ let rec addforcedef (t, fd) =
                   " doesn't have bound variables as arguments"])
     in
     let env = mkmap (List.map pvars pbs) in
-    let comp = compilepredicate notabst (fun v -> (env <:> v)) in
+    let comp = compilepredicate notabst (fun v -> (env <@> v)) in
     let (t, fd) = mapterm comp t, mapforcedefterms comp fd in
     let vs = patvars t in
     let (t, fds) = nodups t vs (fun (t', _, _, _) -> t') !forcedefs in
@@ -543,10 +504,13 @@ let rec seq_forced forced c s =
 (* *********************** interaction states *********************** *)
 
 type disproofstaterec =
-      { seq : seq; universe : universe; tiles : term list;
-        selected : coord list;
-        forcemap : ((coord * term), (bool * bool)) Hashtbl.t;
-        conclusive : bool; countermodel : bool }
+      { seq          : seq; 
+        universe     : universe; 
+        tiles        : term list;
+        selected     : coord list;
+        forcemap     : ((coord * term), (bool * bool)) Hashtbl.t;
+        conclusive   : bool; 
+        countermodel : bool }
 
 type disproofstate = Disproofstate of disproofstaterec
 
@@ -658,9 +622,10 @@ let rec evaldisproofstate facts tree =
         Disproofstate
           {seq = seq; universe = universe; tiles = tiles; selected = selected;
            forcemap = newforcemap (); conclusive = conclusive; countermodel = false}
-exception Disproof_ of string list
-(* sort, eliminating duplicates.  This sort is no longer case sensitive *)
 
+exception Disproof_ of string list
+
+(* sort, eliminating duplicates.  This sort is no longer case sensitive *)
 let rec alphasort sel ts =
   List.map sel
     (sortunique (fun (s1, _) (s2, _) -> lowercase s1 < lowercase s2)
@@ -800,7 +765,7 @@ let rec model2disproofstate a1 a2 a3 =
                         coordstring c; " to "; coordstring ch; " in ";
                         universestring "" u])
                 else
-                  match (u <:> ch) with
+                  match (u <@> ch) with
                     Some (chts, _) ->
                       if not
                            (null (listsub (fun (x, y) -> x = y) ts chts))
@@ -968,40 +933,42 @@ let rec newtile =
 let rec addchild u (_, py as pc) (_, cy as cc) =
   if py >= cy then None
   else
-    match u <:> pc with
+    match u <@> pc with
       None ->
-        raise
-          (Catastrophe_
-             ["(addchild) no parent world at "; coordstring pc])
+        raise (Catastrophe_ ["(addchild) no parent world at "; coordstring pc])
     | Some (pts, pcs) ->
         if member (cc, pcs) then None (* already there *)
         else
           let u' = u ++ (pc |-> (pts, (if py < cy then cc :: pcs else pcs))) in
-          match u' <:> cc with
+          match u' <@> cc with
             None   -> Some ((u' ++ (cc |-> (pts, []))))
           | Some _ -> Some (domono pts u' cc)
 
 let rec deleteworld =
-  fun (Disproofstate {universe = universe; selected = selected} as state)
-    c ->
-    match (universe <:> c) with
-      None -> None
+  fun (Disproofstate {universe = universe; selected = selected} as state) c ->
+    (* consolereport ["deleteworld "; universestring "" universe; " "; coordstring c]; *)
+    match universe <@> c with
+      None   -> None (* it wasn't there *)
     | Some _ ->
         (* a garbage-collection job! But actually we just leave the floaters floating ... *)
         let ws = listsub (fun (x, y) -> x = y) (dom universe) [c] in
+        (* consolereport ["dom universe := "; bracketedliststring coordstring ";" ws]; *)
         match ws with
-          [] -> None
-        | _ ->
-            (* we don't delete the last world *)
-            let rec doit w =
-              let (ts, cs) = getworld universe w in
-              w, (ts, listsub (fun (x, y) -> x = y) cs [w])
-            in
-            let u' = mkmap (List.map doit ws) in
-            Some
-              (withdisproofselected
-                 (withdisproofuniverse state u')
-                 (listsub (fun (x, y) -> x = y) selected [c]))
+          [] -> None (* we don't delete the last world *)
+        | _  -> let rec doit w =
+                  (* consolereport [coordstring w; " = "; 
+                      pairstring (bracketedliststring termstring ";") (bracketedliststring coordstring ";") 
+                                 "," (getworld universe w)]; *)
+                  let (ts, cs) = getworld universe w in
+                  let cs' = listsub (fun (x, y) -> x = y) cs [c] in
+                  (* consolereport [" => "; bracketedliststring coordstring ";" cs']; *)
+                  w, (ts, cs')
+                in
+                let u' = mkmap (List.map doit ws) in
+                Some
+                  (withdisproofselected
+                     (withdisproofuniverse state u')
+                     (listsub (fun (x, y) -> x = y) selected [c]))
 
 let rec worldselect =
   fun (Disproofstate {selected = selected} as d) cs ->
@@ -1031,7 +998,7 @@ let rec moveworld =
     (_, toy as to__) ->
     if from = to__ then None
     else
-      match (u <:> from) with
+      match (u <@> from) with
         None ->
           raise
             (Catastrophe_
@@ -1075,7 +1042,7 @@ let rec moveworld =
           let rec swing c = if c = from then to__ else c in
           let ulist = (fun (c, _) -> c <> from) <| aslist u in
           let u =
-            match (u <:> to__) with
+            match (u <@> to__) with
               None ->
                 (* it's a new position: swing links from->to *)
                 (mkmap
@@ -1128,7 +1095,7 @@ let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = til
     let rec ivb t =
       let t = realterm t in
       (* consolereport ["ivb ", smltermstring t, " => ", 
-           optionstring (catelim2stringfn catelim_forcedstring) (forcemap (root <:> t))]; 
+           optionstring (catelim2stringfn catelim_forcedstring) (forcemap (root <@> t))]; 
        *)
       try let (on, lock) = Hashtbl.find forcemap (root, t) in
           fst (if on then onbraket else offbraket) ^ (if lock then fst lockbraket else "")
