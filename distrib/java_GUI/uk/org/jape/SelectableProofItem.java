@@ -32,7 +32,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 
-public abstract class SelectableProofItem extends TextSelectableProofItem
+public abstract class SelectableProofItem extends    TextSelectableProofItem
                                           implements SelectableItem,
                                                      ProtocolConstants {
 
@@ -46,7 +46,7 @@ public abstract class SelectableProofItem extends TextSelectableProofItem
         this.canvas = canvas;
         selectionRect = new SelectionRect(canvas.getSurroundGap(), getBounds());
         canvas.add(selectionRect);
-        addMouseInteractionListener(new MouseInteractionAdapter() {
+        addJapeMouseListener(new JapeMouseTextAdapter() {
             public void clicked(byte eventKind, MouseEvent e) {
                 SelectableProofItem.this.clicked(eventKind, e);
             }
