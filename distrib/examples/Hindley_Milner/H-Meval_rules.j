@@ -50,7 +50,7 @@ BIND x1,x2		SCOPE E1, E2, F		IN letrec x1=E1 and x2=E2 in F end
 BIND x1,x2,x3		SCOPE E1, E2, E3, F		IN letrec x1=E1 and x2=E2 and x3=E3 in F end
 BIND x1,x2,x3,x4	SCOPE E1, E2, E3, E4, F	IN letrec x1=E1 and x2=E2 and x3=E3 and x4=E4 in F end
 
-CLASS LIST FORMULA C
+CLASS LIST C
 SEQUENT IS LIST æ FORMULA
 
 RULES letrules ARE
