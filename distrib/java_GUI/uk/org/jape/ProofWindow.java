@@ -85,6 +85,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         getContentPane().add(proofPane, BorderLayout.CENTER);
 
         insertInfocusv();
+        
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         
         windowListener = new WindowAdapter() {
@@ -100,6 +101,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
                     setTopInfocusv();
                     reportFocus();
                     enableCopy();
+                    enableUndo();
                 }
                 else
                     System.err.println("ProofWindow.windowListener late windowActivated \""+
@@ -109,6 +111,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         addWindowListener(windowListener);
 
         setBar();
+        enableCopy(); enableUndo();
+
         pack();
         setSize(LocalSettings.DefaultProofWindowSize);
         setLocation(nextPos());
@@ -151,8 +155,12 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
                                           super.equals(o);
     }
 
+    private boolean isProofFocus() {
+        return disproofPane==null || focussedPane==proofPane;
+    }
+    
     public String undoSuffix() {
-        if (disproofPane==null || focussedPane==proofPane)
+        if (isProofFocus())
             return "proof";
         else
             return "disproof";
@@ -174,15 +182,40 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         }
     }
 
+    public void enableUndo() {
+        boolean undoenable, redoenable;
+        
+        if (isProofFocus()) {
+            undoenable = proofhistory; redoenable = prooffuture;
+        }
+        else {
+            undoenable = disproofhistory; redoenable = disprooffuture;
+        }
+
+        try {
+            JapeMenu.enableItem(true, "Edit", "Undo", undoenable);
+            JapeMenu.enableItem(true, "Edit", "Redo", redoenable);
+        } catch (ProtocolError e) {
+            Alert.abort("ProofWindow.enableCopy can't find Edit: Undo/Redo");
+        }
+
+        if (japeserver.onMacOS) // put the dot in the red button
+            getRootPane(). putClientProperty("windowModified",
+                                            undoenable ? Boolean.TRUE : Boolean.FALSE);
+    }
+
+    
     // the other sort of focus
     private Container focussedPane = null;
 
     protected void claimProofFocus() {
         focussedPane = proofPane;
+        enableUndo();
     }
 
     protected void claimDisproofFocus() {
         focussedPane = disproofPane;
+        enableUndo();
     }
     
     /**********************************************************************************************
@@ -331,8 +364,17 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         proof.closeWindow();
         proof.removeFromfocusv();
         reportFocus();
+        enableProofMenuItems();
     }
 
+    private static void enableProofMenuItems() {
+        if (focusv!=null && focusv.size()>0) {
+            ProofWindow w = (ProofWindow)focusv.get(0);
+            w.enableCopy();
+            w.enableUndo();
+        }
+    }
+    
     public static ProofWindow getFocussedProofWindow() {
         if (focusv.size()==0)
             return null;
@@ -649,4 +691,23 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
             w.provisoCanvas.setGivens(gs);
         }
     }
-}
+
+    /* because the engine thinks there is only one menu, we have to do clever things
+        with undo and redo
+        */
+
+    private static boolean proofhistory, prooffuture, disproofhistory, disprooffuture;
+
+    public static void setHistoryVar(boolean isUndo, boolean isProof, boolean enable) {
+        if (isUndo) {
+            if (isProof) proofhistory = enable;
+            else         disproofhistory = enable;
+        }
+        else {
+            if (isProof) prooffuture = enable;
+            else         disprooffuture = enable;
+        }
+
+        enableProofMenuItems();
+    }
+                                                       }
