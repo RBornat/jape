@@ -1,244 +1,258 @@
 /*
-       $Id$
-       FONT{kontt-14}
+        $Id$
+        FONT{kontt-14}
+
+This theory was derived automatically from the latex source text
+of part of the paper ``Animating Operational Semantics
+with Jape'' by Bernard Sufrin and Richard Bornat (April 1998). A
+discursive account of the theory is given in that paper.
+
 */
-FONTS "Konstanz"
-INITIALISE autoselect true
-
-CLASS   VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
-CLASS   FORMULA  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-/* Making either of this collection just VARIABLEs
-   causes a problem on the third rule invocation
-   during the derivation of the  Theorem marked /**/
-*/
-
-CLASS   CONSTANT con
-CLASS   NUMBER num
-LEFTFIX 20 û ¥
-INFIX 1T ç 
-BIND x SCOPE T IN û x ¥ T
-LEFTFIX 10  let = in 
-BIND x SCOPE T IN let x=S in T 
-
-/*      A reduction-based semantics */
-
-/*      Part 1: Rules */
-
-SEQUENT IS LIST æ FORMULA       /* Always of the form æ term ç term */
-SUBSTFIX 500000 [ S / s ]
-
-    RULE  "rator"  IS FROM æ SçS'  AND æ S' T  ç U INFER æ S T ç U 
-    RULE  "rand"   IS FROM æ TçT'  AND æ S  T' ç U INFER æ S T ç U
-    RULE  "beta"   IS FROM  æ S[T/x]         ç U INFER æ (û x ¥ S) T  ç U
-    RULE  "let"    IS FROM  æ (û x ¥T)(S)    ç U INFER æ let x=S in T ç U
-    RULES NormalForm 
-    ARE   æ û x ¥ S ç û x ¥ S
-    AND   æ con       ç con
-    AND   æ x       ç x
+        FONTS "Konstanz"
+        CLASS   VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z
+        CLASS   FORMULA  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+        CLASS   NUMBER   num
+        LEFTFIX 20 û ¥
+        INFIX   1T ç ç*
+        INFIX   100T =
+        INFIX   200T +
+        PREFIX  1000 ~
+        LEFTFIX 10   let in
+        BIND x SCOPE T IN û x ¥ T
+        BIND x SCOPE T IN let x=S in T
+        SEQUENT IS LIST æ FORMULA
+        SUBSTFIX 500000 [ S / s ]
+    MENU "Lambda Rules"
+        RULE  Beta    æ (û x ¥ S) T  ç  S[T/x]
+        RULE  Let     æ let x=T in S ç  (û x ¥ S)(T)
+        ENTRY Addition IS Add
+        SEPARATOR
+        RULE  Rator  FROM  æ SçS'  INFER æ S T ç  S' T
+        RULE  Rand   FROM  æ TçT'  INFER æ S T ç  S  T'
+        RULE  AddL   FROM æ E1çE1' INFER æ E1+E2 ç E1'+E2
+        RULE  AddR   FROM æ E2çE2' INFER æ E1+E2 ç E1+E2'
+        SEPARATOR
+        RULE Transitive  FROM  æ Aç*B AND æ Bç*C INFER æ Aç*C
+        RULE Step        FROM  æ AçB INFER æ Aç*B
+        RULE Identity    INFER æ Aç*A
     END
-
-    RULE "smallbeta" IS INFER æ (û x ¥ S) T  ç  S[T/x]
-    RULE "smalllet" IS INFER æ  let x=T in S ç  S[T/x]
-    RULE  "smallrator"  IS FROM æ SçS'  INFER æ S T ç   S' T 
-    RULE  "smallrand"   IS FROM æ TçT'  INFER æ S T ç  S  T'
-    RULE "smallletrand" IS FROM æ TçT'  INFER æ  let x=T in S ç   let x=T' in S
-    
-/*      Part 1a: Transitivity */
-    
-    RULE "transitivity" IS FROM æ AçB AND æ BçC INFER æ AçC
-    RULE "identity" IS INFER æ AçA
-    
-    TRANSITIVE "transitivity"
-    REFLEXIVE "identity"
-
-/*      Part 2: Mechanisation */
-
-TACTIC NormalOrderStep(step) IS
-(WHEN (LETGOAL ((û _x ¥ _S) _T    ç  _U) beta)
-      (LETGOAL (let _x = _S in _T ç  _U) "let")
-      (LETGOAL (_S _T             ç  _U) rator)
-      NormalForm)
-
-TACTIC ApplOrderStep(step) IS
-(WHEN (LETGOAL ((û _x ¥ _S) _T    ç  _U) (WhenNormal _T beta  rand))
-      (LETGOAL (_S _T             ç  _U) (WhenNormal _T rator rand))
-      (LETGOAL (let _x = _S in _T ç  _U) "let")
-      NormalForm)
-          
-TACTIC SmallNormOrderStep  IS
-	ALT	(LAYOUT "let" (1) transitivity smalllet)
-		(LAYOUT "beta" (1) transitivity smallbeta)
-		(LAYOUT "...rator..." (1) transitivity smallrator smallnormordersearch)
-		(LAYOUT "...rand..." (1) transitivity smallrand smallnormordersearch)
-		(LAYOUT "...letrand..." (1) transitivity smallletrand smallnormordersearch)
-		identity
-		(WHEN	(LETGOAL (_A ç _B) (JAPE (fail "can't show that"  _A "reduces to" _B)))
-		 		(JAPE (fail "problem isn't of the form AçB"))
-		 ) 
-
-TACTIC smallnormordersearch IS
-	ALT	smalllet
-		smallbeta
-		(SEQ smallrator smallnormordersearch)
-		(SEQ smallrand smallnormordersearch)
-		(SEQ smallletrand smallnormordersearch)
-		
-TACTIC SmallApplOrderStep  IS
-	ALT	(LAYOUT "...rand..." (1) transitivity smallrand smallapplordersearch)
-		(LAYOUT "...letrand..." (1) transitivity smallletrand smallapplordersearch)
-		(LAYOUT "let" (1) transitivity smalllet)
-		(LAYOUT "beta" (1) transitivity smallbeta)
-		(LAYOUT "...rator..." (1) transitivity smallrator smallapplordersearch)
-		identity
-		(WHEN	(LETGOAL (_A ç _B) (JAPE (fail "can't show that"  _A "reduces to" _B)))
-		 		(JAPE (fail "problem isn't of the form AçB"))
-		 ) 
-
-TACTIC smallapplordersearch IS
-	ALT	(SEQ smallrand smallapplordersearch)
-		(SEQ smallletrand smallapplordersearch)
-		smalllet
-		smallbeta
-		(SEQ smallrator smallapplordersearch)
-		
-TACTIC WhenNormal(expr, tactic, othertactic)
-	(WHEN 
-		(LETMATCH (û _x ¥ _S) expr tactic)
-		(LETMATCH _con        expr tactic)
-		(LETMATCH _x          expr tactic)
-		othertactic
-	)
-    
-      
-CONJECTUREPANEL "Reductions"
-        BUTTON          "Rator"             IS apply  rator
-        BUTTON          "Rand"              IS apply  rand
-        BUTTON          "NormalForm"        IS apply  NormalForm
-        BUTTON          "Beta"              IS apply  beta
-        BUTTON          "Let"               IS apply  "let"
-        BUTTON          "Normal Step"       IS apply  NormalOrderStep
-        BUTTON          "Applicative Step"  IS apply  ApplOrderStep
-        BUTTON	"Small Normal Step" IS apply SmallNormOrderStep
-        BUTTON	"Small Applicative Step" IS apply SmallApplOrderStep
-        
-        THEOREMS Reductions(f, x, y) 
-        ARE INFER æ (û x ¥ x x)(û y ¥ y)(û y ¥ y) ç _T
-        AND WHERE fix NOTIN (_T, x, y, f) AND fix, f, x NOTIN F  INFER æ 
-            let fix = (û f ¥ ((û x¥F(x x))(û x¥F(x x)))) 
-            in  fix (û y ¥ y)  ç _T 
-        AND WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER æ 
-                /**/
-                let compose = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                compose id id 1 ç _T
-        AND WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER æ 
-                /**/
-                let compose = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                id (compose id id 1) ç _T
-        
-        AND INFER æ
-                /**/
-                let comp = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                comp id id 1 ç _T
-        
+    TACTIC Add()    IS (LAYOUT "Add" () Addition (LAYOUT "" () EVALUATE))
+    RULE   Addition IS FROM  æ "ADD"(T1, T2, T3, (~)) INFER  æ T1+T2çT3
+       CONJECTUREPANEL "Structural Semantics"
+        THEOREMS AdHoc
+        ARE æ let f = (û x ¥ x) in f f 1 ç* _T
+        AND æ (1+2)+(3+1)ç*_T
+        AND æ (1+2)+(~4)ç*_T
+        AND æ let x = 1+2 in x+x ç*_T
+        AND æ let c = (û f ¥ û g ¥ û a ¥ f(g a)) in
+              let f = (û a ¥ a) in c f f ç* _T
+        AND æ let g = (û f ¥ f f) in g g ç* _T
+        AND æ let g = (û f ¥ f f) in
+              let k = (û a ¥ û b ¥ a) in k 2 (g g) ç* _T
         END
-        
-END
-
-/*      An environment-based semantics */
-        
-        TACTIC Var IS  (LAYOUT "Var" () Variable Lookup)
-
-USE   "mapping.j"
-CLASS FORMULA env
-
-
-/*  Part 2: Evaluation rules 
-
-        env æ term ç value
-
-*/      
-        RULE  Variable
-        FROM  env Š x ´ V
-        INFER env æ x ç V
-        
-        RULE  App 
-        FROM  env         æ R ç ((û x ¥ S), env')
-        AND   env         æ T ç V
-        AND   env' ¼ x´V  æ S ç U 
-        INFER env         æ R T ç U
-        
-        RULE  Let 
-        FROM  env         æ T ç V
-        AND   env  ¼ x´V  æ S ç U 
-        INFER env         æ let x=T in S ç U
-        
-        RULE  Abs  IS env æ (û x ¥ S) ç ((û x ¥ S), env)
-        
-        RULE  Con  IS env æ con         ç con 
-        
-        
-/* Part 3: Mechanisation */        
-
-TACTIC Evaluate IS
-        (WHEN (LETGOAL ((_R _S)           ç _U) App)
-              (LETGOAL ((û _x ¥ _S)       ç _U) Abs)
-              (LETGOAL (_x                ç _U) Var)
-              (LETGOAL (_con              ç _U) Con)
-              (LETGOAL ((let _x=_S in _T) ç _U) Let))
-
-CONCHIT env æ _S ç T IS Evaluate
-
-/*      Part 4: Problems        */
-
-CONJECTUREPANEL Evaluations
-        BUTTON          "Var"               IS apply  Var
-        BUTTON          "App"               IS apply  App
-        BUTTON          "Abs"               IS apply  Abs
-        BUTTON          "Let"               IS apply  Let
-        BUTTON          "One Step"          IS apply  Evaluate
-        
-        THEOREMS Reductions(f, x, y) 
-        ARE WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER â  æ 
-                /**/
-                let compose = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                compose id id 1 ç _T
-        AND WHERE compose NOTIN (_T, x, y, f) AND id NOTIN (_T, x, y, f) INFER â  æ 
-                /**/
-                let compose = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                id (compose id id 1) ç _T
-        
-        AND INFER â  æ
-                /**/
-                let comp = û f ¥ û g ¥ û x ¥ f(g x) in
-                let id =   û x ¥ x in
-                comp id id 1 ç _T
-        END
-END
-
-/* Details of the user interface */
-MENU Edit
+    END
+     MENU Edit
         RADIOBUTTON displaystyle
              "Sequent-Tree display style"  IS tree
         AND  "Box display style"           IS box
-        INITIALLY
-             box
+        INITIALLY tree
         END
-        CHECKBOX showallprovisos "Show all provisos" INITIALLY true
+        CHECKBOX  autoselect "Select goal automatically"  INITIALLY true
+        CHECKBOX  showallprovisos "Show all provisos" INITIALLY true
+     END
+    TACTIC TransitiveStep(rule)
+    (WHEN (LETGOAL (_E ç* _T) Transitive (LAYOUT "%s" () Step rule))
+          (LETGOAL (_E ç  _T) rule))
+    TACTIC Finished()
+    (WHEN (LETGOAL (_num        ç* _T) Identity)
+          (LETGOAL (~ _num      ç* _T) Identity)
+          (LETGOAL ((û _x ¥ _E) ç* _T) Identity))
+    CONJECTUREPANEL "Structural Semantics"
+         BUTTON Beta      IS apply TransitiveStep Beta
+         BUTTON Let       IS apply TransitiveStep Let
+         BUTTON Rator     IS apply TransitiveStep Rator
+         BUTTON Rand      IS apply TransitiveStep Rand
+         BUTTON AddL      IS apply TransitiveStep AddL
+         BUTTON AddR      IS apply TransitiveStep AddR
+         BUTTON Addition  IS apply TransitiveStep Add
+         BUTTON Finished  IS apply Finished
+    END
+    TRANSITIVE RULE "Transitive"
+    REFLEXIVE  RULE "Identity"
+    MENU Edit
+    SEPARATOR
+      CHECKBOX   hidetransitivity "Transitive Rule Display" INITIALLY false
+      CHECKBOX   hidereflexivity  "Hide Identity Steps"     INITIALLY false
+    END
+    TACTIC NormalStep()
+    (ALT Beta Add Let
+         (WHEN (LETGOAL (_num1 + _E  ç _T) AddR)
+               (LETGOAL (_E1   + _E2 ç _T) AddL)
+               (LETGOAL (_F _A ç _T) Rator)))
+    TACTIC ApplicativeStep()
+    (ALT Add Let
+         (WHEN (LETGOAL ((û _x¥_E) _A ç _T) (WhenNormal _A Beta Rand))
+               (LETGOAL (_num _A        ç _T) FAIL)
+               (LETGOAL (_num1 + _E     ç _T) AddR)
+               (LETGOAL (_E1   + _E2    ç _T) AddL)
+               (LETGOAL (_F _A          ç _T) Rator)))
+
+    TACTIC WhenNormal(expr, tactic, othertactic)
+    (WHEN  (LETMATCH (û _x¥_S) expr tactic)
+           (LETMATCH _num        expr tactic)
+           (LETMATCH (~ _num)    expr tactic)
+           (LETMATCH _x          expr tactic)
+           othertactic)
+    TACTIC RepeatStep(tactic)
+    (WHEN (LETGOAL (_num        ç* _T) Identity)
+          (LETGOAL (~ _num      ç* _T) Identity)
+          (LETGOAL ((û _x¥_E)   ç* _T) Identity)
+          (SEQ (TransitiveStep tactic) (RepeatStep tactic)))
+
+    TACTIC SingleStep(tactic)
+    (WHEN (LETGOAL (_num        ç* _T) Identity)
+          (LETGOAL (~ _num      ç* _T) Identity)
+          (LETGOAL ((û _x¥_E)   ç* _T) Identity)
+          (TransitiveStep tactic))
+    CONJECTUREPANEL "Structural Semantics"
+       RADIOBUTTON oneSmallStep  "Normal Order"      IS NormalStep
+       AND                       "Applicative Order" IS ApplicativeStep
+       END
+
+       BUTTON Step    IS apply SingleStep oneSmallStep
+       BUTTON "Step*" IS apply RepeatStep oneSmallStep
+    END
+   RULES Apply ARE
+     INFER (û x ¥ E') E ç E'[E/x]
+   AND
+     FROM  F ç F'
+     INFER F E ç F' E
+   END
+   RULES Arith ARE
+     FROM   "ADD"(num1, num2, K, (~))
+     INFER  num1 + num2 ç K
+   AND
+     FROM   E2 ç E2'
+     INFER  num + E2 ç num + E2'
+   AND
+     FROM   E1 ç E1'
+     INFER  E1 + E2 ç E1' + E2
+   END
+   TACTIC Arithmetic() IS (SEQ Arith (IF (LAYOUT "Arithmetic" () EVALUATE)))
+   TACTIC NormalStep() IS (ALT Let Apply Arithmetic)
+   MENU "Normal Order Rules"
+      BUTTON Apply    IS apply TransitiveStep Apply
+      BUTTON Arith    IS apply TransitiveStep Arithmetic
+      BUTTON Let      IS apply TransitiveStep Let
+      BUTTON Finished IS apply Finished
+      BUTTON Step     IS apply SingleStep NormalStep
+   END
+    INFIX 1T Û
+
+    MENU "Natural Semantic Rules"
+     RULE  "RatorÛ"   IS FROM æ SÛS'  AND æ S' T  Û U INFER æ S T Û U
+     RULE  "RandÛ"    IS FROM æ TÛT'  AND æ S  T' Û U INFER æ S T Û U
+     RULE  "BetaÛ"    IS FROM  æ S[T/x]         Û U INFER æ (û x ¥S) T  Û U
+     RULE  "LetÛ"     IS FROM  æ (û x ¥T)(S)   Û U INFER æ let x=S in T Û U
+     RULE  "AddÛ"     IS FROM  æ SÛN1 AND TÛN2 AND N1+N2çN INFER S+TÛN
+     ENTRY "Addition" IS Add
+     RULES NormalForm
+     ARE   æ û x ¥ S Û û x ¥ S
+     AND   æ num     Û num
+     AND   æ ~num    Û ~num
+     END
+    END
+    TACTIC BigNormalStep() IS
+    (ALT NormalForm
+       (WHEN
+          (LETGOAL ((û _x ¥ _S) _T   Û  _U) "BetaÛ")
+          (LETGOAL (let _x = _S in _T Û  _U) "LetÛ")
+          (LETGOAL (_S _T             Û  _U) "RatorÛ")
+          (LETGOAL (_S + _T           ç  _U) Add)
+          (LETGOAL (_S + _T           Û  _U) "AddÛ")))
+
+    TACTIC BigApplicativeStep() IS
+    (ALT NormalForm
+      (WHEN
+          (LETGOAL ((û _x ¥ _S) _T    Û  _U) (WhenNormal _T "BetaÛ"  "RandÛ"))
+          (LETGOAL (_S _T             Û  _U) (WhenNormal _T "RatorÛ" "RandÛ"))
+          (LETGOAL (let _x = _S in _T Û  _U) "LetÛ")
+          (LETGOAL (_S + _T           ç  _U) Add)
+          (LETGOAL (_S + _T           Û  _U) "AddÛ")))
+   CONJECTUREPANEL "Natural Semantics"
+    RADIOBUTTON oneBigStep "Normal Order"      IS BigNormalStep
+    AND                    "Applicative Order" IS BigApplicativeStep
+    END
+
+    BUTTON Step IS apply oneBigStep
+
+    THEOREMS BigStepThms
+    ARE æ let f = (û x ¥ x) in f f 1Û _T
+    AND æ (1+2)+(3+1)Û_T
+    AND æ (1+2)+(~4)Û_T
+    AND æ let x = 1+2 in x+x Û_T
+    AND æ let c = (û f ¥ û g ¥ û a ¥ f(g a)) in
+          let f = (û a ¥ a) in c f f Û _T
+    AND æ let g = (û f ¥ f f) in g g Û _T
+    AND æ let g = (û f ¥ f f) in
+          let k = (û a ¥ û b ¥ a) in k 2 (g g) Û _T
+    END
 END
+    MENU "Deterministic Rules"
+     RULE   "AppÆ"   IS FROM æ F Û (û x ¥S) AND æ S[A/x] Û U INFER æ F A Û U
+     RULE   "LetÆ"   IS FROM æ S[A/x] Û U INFER æ let x=A in S Û U
+     TACTIC "AddÆ"   IS "AddÛ"
+     ENTRY  Addition  IS Add
+     ENTRY  NormalForm
+    END
+    TACTIC BigDeterministicStep() IS
+    (ALT NormalForm "AppÆ" "LetÆ" Add "AddÆ")
 
+   CONJECTUREPANEL "Natural Semantics"
+      BUTTON "ÆStep" IS apply BigDeterministicStep
+    END
+     USE "mapping.j"
+     INITIALISE outerassumptionword "Environment"
+     INITIALISE innerassumptionword "Environment"
+     OUTFIX Ý Þ
 
+     MENU "Value Rules"
+       RULES Constant
+       ARE   Env æ num   Û num
+       AND   Env æ ~num  Û ~num
+       AND   Env æ û x¥S Û Ýû x ¥ S, EnvÞ
+       END
+       RULE  Sum
+       FROM  Env æ S Û N1
+       AND   Env æ T Û N2
+       AND       æ N1+N2 ç V
+       INFER Env æ S+TÛV
+       RULE  Variable
+       FROM      æ Env x = V
+       INFER Env æ x Û V
+       RULE  Application
+       FROM            Env æ F Û Ýû x ¥ E, Env'Þ
+       AND             Env æ A Û V
+       AND  Env' ¼ (x==V) æ E Û V'
+       INFER           Env æ F A Û V'
 
+       RULE  Block
+       FROM            Env æ A Û V
+       AND   Env ¼ (x==V) æ E Û V'
+       INFER           Env æ let x=A in E Û V'
+       RULE   TopLevel
+       FROM   â æ E Û V
+       INFER     æ E Û V
 
+       SEPARATOR
+       TACTIC EvalStep IS
+       (ALT Constant
+            (LAYOUT "Variable" () Variable Lookup)
+            Sum
+            Application
+            Block
+            Add
+            TopLevel)
 
-
-
-
-
-
-
-
+       ENTRY Evaluate IS (DO (EvalStep))
+     END
