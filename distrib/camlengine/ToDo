@@ -1,4 +1,0 @@
-Bugs:
-saved proofs: tactic part seems to be all one line
-
-scrolling behaviour is bonkers when undo/redo (try the derived rule in jnjkonstanz.jt).
