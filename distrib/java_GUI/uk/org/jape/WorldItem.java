@@ -49,7 +49,7 @@ import javax.swing.SwingUtilities;
 
 public class WorldItem extends DisplayItem implements DebugConstants, MiscellaneousConstants,
                                                       SelectionConstants,
-                                                      LabelTarget, WorldTarget, TileTarget {
+                                                      LineTarget, LabelTarget, WorldTarget, TileTarget {
 
     protected WorldCanvas canvas;
     protected JFrame window;
@@ -240,22 +240,25 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         setDragHighlight(false);
     }
 
+    // LineTarget
+    public boolean dragEnter(WorldConnector l) {
+        return dragEnter(l.from!=this && l.to!=this && !(alreadyFrom(l.from) && alreadyTo(l.to)));
+    }
+    public void dragExit(WorldConnector l) { dragExit(); }
+    public void drop(WorldConnector l) {
+        if (draghighlight) {
+            Reply.sendCOMMAND("splitworldlink "+l.from.idX+" "+l.from.idY+
+                                            " "+l.to.idX+" "+l.to.idY+
+                                            " "+idX+" "+idY);
+            setDragHighlight(false);
+        }
+        else
+            Alert.abort("line drop on non-accepting world");
+    }
+    
     // LabelTarget
     public boolean dragEnter(WorldItem w, String label) { return dragEnter(novelLabel(label)); }
     public void dragExit(WorldItem w, String label) { dragExit(); }
-
-    // TileTarget
-    public boolean dragEnter(Tile t) { return dragEnter(novelLabel(t.text)); }
-    public void dragExit(Tile t) { dragExit(); }
-
-    // WorldTarget
-    public boolean dragEnter(byte dragKind, WorldItem w) {
-        return dragEnter(w!=this && !(dragKind==NewWorldDrag && alreadyFrom(w)));
-    }
-    public void dragExit(byte dragKind, WorldItem w) { dragExit(); }
-    
-    /* ****************************** world as drop target ****************************** */
-
     public void drop(WorldItem w, String label) {
         if (draghighlight) {
             Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+label+"\"");
@@ -264,15 +267,10 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         else
             Alert.abort("label drop on non-accepting world");
     }
-
-    public void drop(byte dragKind, WorldItem w, int x, int y) {
-        if (draghighlight)
-            Reply.sendCOMMAND((dragKind==MoveWorldDrag ? "moveworld" : "addworld")+
-                            " "+w.idX+" "+w.idY+" "+idX+" "+idY);
-        else
-            Alert.abort("world drop on non-accepting world");
-    }
-
+    
+    // TileTarget
+    public boolean dragEnter(Tile t) { return dragEnter(novelLabel(t.text)); }
+    public void dragExit(Tile t) { dragExit(); }
     public void drop(Tile t) {
         if (draghighlight) {
             Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+"\""+t.text+"\"");
@@ -281,7 +279,20 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         else
             Alert.abort("tile drop on non-accepting world");
     }
-
+    
+    // WorldTarget
+    public boolean dragEnter(byte dragKind, WorldItem w) {
+        return dragEnter(w!=this && !(dragKind==NewWorldDrag && alreadyFrom(w)));
+    }
+    public void dragExit(byte dragKind, WorldItem w) { dragExit(); }
+    public void drop(byte dragKind, WorldItem w, int x, int y) {
+        if (draghighlight)
+            Reply.sendCOMMAND((dragKind==MoveWorldDrag ? "moveworld" : "addworld")+
+                              " "+w.idX+" "+w.idY+" "+idX+" "+idY);
+        else
+            Alert.abort("world drop on non-accepting world");
+    }
+    
     /* ****************************** world as drag source ****************************** */
 
     private int startx, starty, lastx, lasty, offsetx, offsety, centreoffsetx, centreoffsety;
