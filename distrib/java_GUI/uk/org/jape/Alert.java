@@ -56,7 +56,7 @@ public class Alert implements DebugConstants {
         return l;
     }
 
-    private static String showMessage(JLabel[] labels) {
+    private static String stringOfLabels(JLabel[] labels) {
         String s = "JLabel[] {";
         for (int i=0; i<labels.length; i++) {
             s = s+"\""+labels[i].getText()+"\"";
@@ -96,7 +96,7 @@ public class Alert implements DebugConstants {
             }
 
             if (makeMessage_tracing)
-                System.err.println("makeMessage \""+s+"\" => "+showMessage(result));
+                System.err.println("makeMessage \""+s+"\" => "+stringOfLabels(result));
             return result;
         }
         else
@@ -109,14 +109,15 @@ public class Alert implements DebugConstants {
     }
 
     public static void showAlert(int messagekind, Object message) {
-        showAlert(null, messagekind, message);
+        showAlert(JapeWindow.getTopWindow(), messagekind, message);
     }
 
     static String quit="Quit", cont="Continue";
 
     public static void showErrorAlert(String message) {
         String[] buttons = { quit, cont };
-        int reply = JOptionPane.showOptionDialog(null, makeMessage(message), "GUI error", 0, Error,
+        int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), makeMessage(message),
+                                                 "GUI error", 0, Error,
                                                  null, buttons, quit);
         if (reply==0)
             System.exit(2);
@@ -124,7 +125,8 @@ public class Alert implements DebugConstants {
 
     public static void abort(String message) {
         String[] buttons = { quit };
-        int reply = JOptionPane.showOptionDialog(null, makeMessage(message), "GUI disaster", 0, Error,
+        int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), makeMessage(message),
+                                                 "GUI disaster", 0, Error,
                                                  null, buttons, quit);
         System.exit(2);
     }
@@ -138,7 +140,8 @@ public class Alert implements DebugConstants {
     
     public static int ask(String[] buttons, int severity, String message, int defaultbutton)
                                  throws ProtocolError {
-        return query(null, buttons, messagekind(severity), message, defaultbutton);
+        return query(JapeWindow.getTopWindow(), buttons, messagekind(severity),
+                     message, defaultbutton);
     }
 
     public static final int OK     = 0,
@@ -149,12 +152,13 @@ public class Alert implements DebugConstants {
     }
 
     public static int askOKCancel(String message) {
-        return askOKCancel(null, message);
+        return askOKCancel(JapeWindow.getTopWindow(), message);
     }
 
     public static int askDangerously(String message, String doit, String dont) {
         String[] buttons = { doit, "Cancel", dont };
-        int reply = JOptionPane.showOptionDialog(null, makeMessage(message), null, 0, Question,
+        int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), makeMessage(message),
+                                                 null, 0, Question,
                                                  null, buttons, doit);
         // in reply 0 means Cancel, 1 means doit, 2 means don't
         switch (reply) {
