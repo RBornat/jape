@@ -39,7 +39,7 @@ public class JapeWindow extends JFrame {
     protected static Vector windowv = new Vector();
     
     public JapeWindow(String title) {
-        super(title);
+        super(japeserver.onMacOS ? Reply.decoder.toTitle(title) : title);
         this.title=title; // ignoring whatever else may happen outside, this is a uid
         windowv.add(this);
     }
