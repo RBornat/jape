@@ -30,7 +30,7 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-public class LineItem extends Component {
+public class LineItem extends Component implements DebugConstants {
 
     protected final JapeCanvas canvas;
     protected final int x1, y1, x2, y2;
@@ -78,6 +78,8 @@ public class LineItem extends Component {
 
     // default behaviour
     public void paint(Graphics g) {
+        if (paint_tracing)
+            System.err.println("painting line from "+xfrom+","+yfrom+" to "+xto+","+yto);
         prepaint(g); g.drawLine(xfrom, yfrom, xto, yto);
     }
 }

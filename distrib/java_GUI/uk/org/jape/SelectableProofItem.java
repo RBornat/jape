@@ -94,6 +94,9 @@ public abstract class SelectableProofItem extends TextSelectableProofItem
             dotted line.
             */
 
+            if (paint_tracing)
+                System.err.println("painting proof item at "+getX()+","+getY());
+            
             if (selkind!=NoSel) {
                 prepaint(g);
 

@@ -52,6 +52,8 @@ public abstract class EmphasisableItem extends TextSelectableItem {
         }
 
         public void paint(Graphics g) {
+            if (paint_tracing)
+                System.err.println("painting emphasis at "+getX()+","+getY());
             if (emphasised)
                 super.paint(g);
         }

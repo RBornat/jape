@@ -30,7 +30,7 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-public class RectItem extends Component {
+public class RectItem extends Component implements DebugConstants {
 
     JapeCanvas canvas;
     
@@ -81,6 +81,8 @@ public class RectItem extends Component {
 
     // default behaviour -- drawLine seems to work more nicely than drawRect ...
     public void paint(Graphics g) {
+        if (paint_tracing)
+            System.err.println("painting rectangle at "+getX()+","+getY());
         prepaint(g); paintTopAndBottom(g); paintSides(g);
     }
 }

@@ -94,12 +94,14 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants {
     }
 
     public void paint(Graphics g) {
+        if (paint_tracing)
+            System.err.println("painting WorldCanvas");
         if (g instanceof Graphics2D) {
             Graphics2D g2D = (Graphics2D)g.create();
-            if (antialias_trace)
+            if (antialias_tracing)
                 System.err.println("pre worldcanvas hints "+g2D.getRenderingHints());
             g2D.addRenderingHints(renderingHints);
-            if (antialias_trace) {
+            if (antialias_tracing) {
                 System.err.print("worldcanvas hints "+g2D.getRenderingHints());
                 if (japeserver.onMacOS)
                     System.err.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));

@@ -37,6 +37,8 @@ public class TextSelectableProofItem extends TextSelectableItem {
 
     public void paint(Graphics g) {
         if (drawGrey) {
+            if (paint_tracing)
+                System.err.println("painting grey text item at "+getX()+","+getY());
             g.setColor(Preferences.GreyTextColour); g.setFont(getFont());
             g.drawChars(printchars, 0, printchars.length, 0, dimension.ascent);
         }

@@ -126,6 +126,8 @@ class TextItem extends DisplayItem implements DebugConstants {
         }
         
         public void paint(Graphics g) {
+            if (paint_tracing)
+                System.err.println("painting colour segment "+start+","+end);
             g.setColor(colour);
             g.drawChars(printchars, start, end-start, pxstart, dimension.ascent);
         }
@@ -257,10 +259,9 @@ class TextItem extends DisplayItem implements DebugConstants {
     */
 
     public void paint(Graphics g) {
+        if (paint_tracing)
+            System.err.println("painting text item at "+getX()+","+getY());
         g.setFont(font);
-
-        /* g.setColor(greyed?canvas.getGreyedColour():canvas.getNormalColour()); */
-
         int len = coloursegs.length;
         for (int i=0; i<len; i++)
             coloursegs[i].paint(g);
