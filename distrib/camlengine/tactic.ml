@@ -646,35 +646,35 @@ and transTactic tacterm =
                 | _  -> _Bad (f^" mustn't be given any arguments")
               in
               match f with
-                "SKIP"      -> nullArgTac SkipTac
-              | "FAIL"      -> nullArgTac FailTac
-              | "STOP"      -> nullArgTac StopTac
-              | "NEXTGOAL"  -> nullArgTac NextgoalTac
-              | "UNIFYARGS" -> nullArgTac UnifyArgsTac
-              | "GOALPATH"  -> SetgoalTac (parsegoalexpr (onearg ts))
-              | "PROVE"     -> CompTac (_SEQ1TAC f ts)
-              | "CUTIN"     -> CutinTac (_SEQ1TAC f ts)
-              | "JAPE"      -> AdHocTac [onearg ts]
-              | "FLATTEN"   -> AssocFlatTac (debracket (onearg ts))
-              | "MAPTERMS"  -> MapTac (explodeForExecute (onearg ts))
-              | "SEQ"       -> _SEQTAC ts
-              | "ALT"       -> AltTac ((transTactic <* ts))
-              | "THEORYALT" -> TheoryAltTac ((butnottacticform <* ts))
-              | "IF"        -> IfTac (_SEQ1TAC f ts)
-              | "DO"        -> RepTac (_SEQ1TAC f ts)
-              | "FOLD"      -> mkFold (fun v->FoldTac v) ts
-              | "UNFOLD"    -> mkFold (fun v->UnfoldTac v) ts
-              | "FOLDHYP"   -> mkHypFold (fun v->FoldHypTac v) ts
-              | "UNFOLDHYP" -> mkHypFold (fun v->UnfoldHypTac v) ts
-              | "WITHARGSEL" -> WithArgSelTac (_SEQ1TAC f ts)
-              | "WITHCONCSEL" -> WithConcSelTac (_SEQ1TAC f ts)
-              | "WITHFORMSEL" -> WithFormSelTac (_SEQ1TAC f ts)
-              | "WITHHYPSEL" -> WithHypSelTac (_SEQ1TAC f ts)
-              | "WITHSELECTIONS" -> WithSelectionsTac (_SEQ1TAC f ts)
-              | "WITHSUBSTSEL" -> WithSubstSelTac (_SEQ1TAC f ts)
-              | "EVALUATE"  -> EvalTac ts
-              | "ASSIGN"    -> mkSEQ (_Assignments ts)
-              | "WHEN"      ->
+                "SKIP"             -> nullArgTac SkipTac
+              | "FAIL"             -> nullArgTac FailTac
+              | "STOP"             -> nullArgTac StopTac
+              | "NEXTGOAL"         -> nullArgTac NextgoalTac
+              | "UNIFYARGS"        -> nullArgTac UnifyArgsTac
+              | "GOALPATH"         -> SetgoalTac (parsegoalexpr (onearg ts))
+              | "PROVE"            -> CompTac (_SEQ1TAC f ts)
+              | "CUTIN"            -> CutinTac (_SEQ1TAC f ts)
+              | "JAPE"             -> AdHocTac [onearg ts]
+              | "FLATTEN"          -> AssocFlatTac (debracket (onearg ts))
+              | "MAPTERMS"         -> MapTac (explodeForExecute (onearg ts))
+              | "SEQ"              -> _SEQTAC ts
+              | "ALT"              -> AltTac ((transTactic <* ts))
+              | "THEORYALT"        -> TheoryAltTac ((butnottacticform <* ts))
+              | "IF"               -> IfTac (_SEQ1TAC f ts)
+              | "DO"               -> RepTac (_SEQ1TAC f ts)
+              | "FOLD"             -> mkFold (fun v->FoldTac v) ts
+              | "UNFOLD"           -> mkFold (fun v->UnfoldTac v) ts
+              | "FOLDHYP"          -> mkHypFold (fun v->FoldHypTac v) ts
+              | "UNFOLDHYP"        -> mkHypFold (fun v->UnfoldHypTac v) ts
+              | "WITHARGSEL"       -> WithArgSelTac (_SEQ1TAC f ts)
+              | "WITHCONCSEL"      -> WithConcSelTac (_SEQ1TAC f ts)
+              | "WITHFORMSEL"      -> WithFormSelTac (_SEQ1TAC f ts)
+              | "WITHHYPSEL"       -> WithHypSelTac (_SEQ1TAC f ts)
+              | "WITHSELECTIONS"   -> WithSelectionsTac (_SEQ1TAC f ts)
+              | "WITHSUBSTSEL"     -> WithSubstSelTac (_SEQ1TAC f ts)
+              | "EVALUATE"         -> EvalTac ts
+              | "ASSIGN"           -> mkSEQ (_Assignments ts)
+              | "WHEN"             ->
                       let tacs = (transTactic <* ts) in
                       let rec okwhen =
                         function
@@ -685,42 +685,42 @@ and transTactic tacterm =
                                 else _Bad "WHEN must be given guarded tactics"
                       in
                       okwhen tacs; WhenTac tacs
-              | "LETCONC"   -> mkBind f patbind "pattern" (fun v->BindConcTac v) ts
-              | "LETHYP"    -> mkBind f patbind "pattern" (fun v->BindHypTac v) ts
-              | "LETHYP2"   ->
+              | "LETCONC"          -> mkBind f patbind "pattern" (fun v->BindConcTac v) ts
+              | "LETHYP"           -> mkBind f patbind "pattern" (fun v->BindHypTac v) ts
+              | "LETHYP2"          ->
                       mkBind2 f patbind patbind "pattern" "pattern" (fun v->BindHyp2Tac v) ts
-              | "LETHYPS"   -> mkBind f patbind "pattern" (fun v->BindHypsTac v) ts
-              | "LETLHS"    -> mkBind f patbind "pattern" (fun v->BindLHSTac v) ts
-              | "LETRHS"    -> mkBind f patbind "pattern" (fun v->BindRHSTac v) ts
-              | "LETGOAL"   -> mkBind f patbind "pattern" (fun v->BindGoalTac v) ts
-              | "LETGOALPATH" -> mkBind f namebind "name" (fun v->BindGoalPathTac v) ts
-              | "LETOPENSUBGOAL" ->
+              | "LETHYPS"          -> mkBind f patbind "pattern" (fun v->BindHypsTac v) ts
+              | "LETLHS"           -> mkBind f patbind "pattern" (fun v->BindLHSTac v) ts
+              | "LETRHS"           -> mkBind f patbind "pattern" (fun v->BindRHSTac v) ts
+              | "LETGOAL"          -> mkBind f patbind "pattern" (fun v->BindGoalTac v) ts
+              | "LETGOALPATH"      -> mkBind f namebind "name" (fun v->BindGoalPathTac v) ts
+              | "LETOPENSUBGOAL"   ->
                       mkBind2 f namebind patbind "name" "pattern" (fun v->BindOpenSubGoalTac v)
                         ts
-              | "LETOPENSUBGOALS" ->
+              | "LETOPENSUBGOALS"  ->
                       mkBind f patbind "pattern" (fun v->BindOpenSubGoalsTac v) ts
-              | "LETARGSEL" -> mkBind f patbind "pattern" (fun v->BindArgTac v) ts
-              | "LETARGTEXT" -> mkBind f namebind "name" (fun v->BindArgTextTac v) ts
-              | "LETSUBSTSEL" -> mkBind f patbind "pattern" (fun v->BindSubstTac v) ts
-              | "LETHYPSUBSTSEL" ->
+              | "LETARGSEL"        -> mkBind f patbind "pattern" (fun v->BindArgTac v) ts
+              | "LETARGTEXT"       -> mkBind f namebind "name" (fun v->BindArgTextTac v) ts
+              | "LETSUBSTSEL"      -> mkBind f patbind "pattern" (fun v->BindSubstTac v) ts
+              | "LETHYPSUBSTSEL"   ->
                       mkBind f patbind "pattern" (fun v->BindSubstInHypTac v) ts
-              | "LETCONCSUBSTSEL" ->
+              | "LETCONCSUBSTSEL"  ->
                       mkBind f patbind "pattern" (fun v->BindSubstInConcTac v) ts
-              | "LETMULTIARG" -> mkBind f patbind "pattern" (fun v->BindMultiArgTac v) ts
-              | "LETHYPFIND" -> mkBind f patbind "pattern" (fun v->BindFindHypTac v) ts
-              | "LETCONCFIND" -> mkBind f patbind "pattern" (fun v->BindFindConcTac v) ts
-              | "LETMATCH"  -> mkMatch ts
-              | "LETOCCURS" -> mkOccurs ts
-              | "LAYOUT"    -> mkLayout ts
-              | "MATCH"     -> MatchTac (_SEQ1TAC f ts)
-              | "SAMEPROVISOS" -> SameProvisosTac (_SEQ1TAC f ts)
-              | "SIMPLEAPPLY" -> SimpleApplyTac (_SEQ1TAC f ts)
-              | "APPLYORRESOLVE" -> ApplyOrResolveTac (_SEQ1TAC f ts)
-              | "UNIQUE"    -> UniqueTac (_SEQ1TAC f ts)
-              | "ANY"       -> TakeAnyTac (_SEQ1TAC f ts)
-              | "UNIFY"     -> UnifyTac (atleasttwo ts)
-              | "RESOLVE"   -> ResolveTac (_SEQ1TAC f ts)
-              | "REPLAY"    -> ReplayTac (_SEQ1TAC f ts)
+              | "LETMULTIARG"      -> mkBind f patbind "pattern" (fun v->BindMultiArgTac v) ts
+              | "LETHYPFIND"       -> mkBind f patbind "pattern" (fun v->BindFindHypTac v) ts
+              | "LETCONCFIND"      -> mkBind f patbind "pattern" (fun v->BindFindConcTac v) ts
+              | "LETMATCH"         -> mkMatch ts
+              | "LETOCCURS"        -> mkOccurs ts
+              | "LAYOUT"           -> mkLayout ts
+              | "MATCH"            -> MatchTac (_SEQ1TAC f ts)
+              | "SAMEPROVISOS"     -> SameProvisosTac (_SEQ1TAC f ts)
+              | "SIMPLEAPPLY"      -> SimpleApplyTac (_SEQ1TAC f ts)
+              | "APPLYORRESOLVE"   -> ApplyOrResolveTac (_SEQ1TAC f ts)
+              | "UNIQUE"           -> UniqueTac (_SEQ1TAC f ts)
+              | "ANY"              -> TakeAnyTac (_SEQ1TAC f ts)
+              | "UNIFY"            -> UnifyTac (atleasttwo ts)
+              | "RESOLVE"          -> ResolveTac (_SEQ1TAC f ts)
+              | "REPLAY"           -> ReplayTac (_SEQ1TAC f ts)
               | "WITHCONTINUATION" ->
                       begin match ts with
                         t1 :: ts -> ContnTac (transTactic t1, _SEQTAC ts)
@@ -735,17 +735,17 @@ and transTactic tacterm =
                                 (TacParseError_
                                        ["must have exactly one name/number argument!"])
                       end
-              | "ALERT"     -> mkAlert ts
-              | "EXPLAIN"   -> ExplainTac (onearg ts)
-              | "COMMENT"   -> CommentTac (onearg ts)
-              | "BADUNIFY"  ->
+              | "ALERT"            -> mkAlert ts
+              | "EXPLAIN"          -> ExplainTac (onearg ts)
+              | "COMMENT"          -> CommentTac (onearg ts)
+              | "BADUNIFY"         ->
                       mkBind2 f namebind namebind "name" "name" (fun v->BadUnifyTac v) ts
-              | "BADMATCH"  ->
+              | "BADMATCH"         ->
                       mkBind2 f namebind namebind "name" "name" (fun v->BadMatchTac v) ts
-              | "BADPROVISO" ->
+              | "BADPROVISO"       ->
                       mkBind3 f namebind namebind namebind "name" "name" "name"
                         (fun v->BadProvisoTac v) ts
-              | _           ->
+              | _                  ->
                       if tacticform n then raise (Catastrophe_ ["unrecognised tactic "; f])
                       else TermTac parts
   with
