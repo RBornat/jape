@@ -91,13 +91,11 @@ public class japeserver {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         GraphicsConfiguration[] gc = gd.getConfigurations();
-        if (gc.length==1) {
-            screenBounds = gc[0].getBounds();
+        if (gc.length>=1) {
+            screenBounds = gc[0].getBounds(); // I hope and truly believe that 0 is the default
         }
-        else {
-            System.err.println("don't know how to deal with multiple GraphicsConfiguration!");
-            System.exit(2);
-        }
+        else
+            Alert.abort("no GraphicsConfiguration!");
         
         // #
         // # Set up various paths
