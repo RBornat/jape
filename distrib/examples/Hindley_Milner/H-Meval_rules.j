@@ -3,7 +3,7 @@
 FONTS "Konstanz"
 
 CLASS VARIABLE x, y, z, e, f, g, map
-CLASS FORMULA E, F, G, C
+CLASS FORMULA E, F, G
 CLASS CONSTANT c
 CONSTANT hd, tl, nil
 CLASS NUMBER n
@@ -26,7 +26,7 @@ BIND t1,t2,t3,t4 SCOPE T IN Ë (t1,t2,t3,t4) . T
 PREFIX ^ /* how I wish we had control over the priority of prefix operators ... */
 
 INFIX   30 30 and
-INFIX	    40  40   º
+INFIX	   40 40 º
 INFIX    50  50   : , €, «, », •
 INFIX   101 100 Á
 INFIX   102 102 Ù
@@ -50,43 +50,44 @@ BIND x1,x2		SCOPE E1, E2, F		IN letrec x1=E1 and x2=E2 in F end
 BIND x1,x2,x3		SCOPE E1, E2, E3, F		IN letrec x1=E1 and x2=E2 and x3=E3 in F end
 BIND x1,x2,x3,x4	SCOPE E1, E2, E3, E4, F	IN letrec x1=E1 and x2=E2 and x3=E3 and x4=E4 in F end
 
-SEQUENT IS FORMULA Ê FORMULA
+CLASS LIST FORMULA C
+SEQUENT IS LIST Ê FORMULA
 
 RULES letrules ARE
 	FROM C Ê E : T1 
 	AND C Ê ^T1«S1 
-	AND Cºx€S1 Ê F:T	
+	AND C,x€S1 Ê F:T	
 	INFER C Ê let x=E in F end : T
 AND	FROM C Ê (E1,E2) : T1ÙT2 
 	AND C Ê ^T1º^T2«S1ºS2 
-	AND Cºx1€S1ºx2€S2 Ê F:T
+	AND C,x1€S1,x2€S2 Ê F:T
 	INFER C Ê let x1=E1 and x2=E2 in F end : T
 AND	FROM C Ê (E1,(E2,E3)) : T1Ù(T2ÙT3) 
 	AND C Ê ^T1º^T2º^T3«S1ºS2ºS3 
-	AND Cºx1€S1ºx2€S2ºx3€S3 Ê F:T
+	AND C,x1€S1,x2€S2,x3€S3 Ê F:T
 	INFER C Ê let x1=E1 and x2=E2 and x3=E3 in F end : T
 AND	FROM C Ê ((E1,E2),(E3,E4)) : (T1ÙT2)Ù(T3ÙT4) 
 	AND C Ê ^T1º^T2º^T3º^T4«S1ºS2ºS3ºS4
-	AND Cºx1€S1ºx2€S2ºx3€S3ºx4€S4 Ê F:T
+	AND C,x1€S1,x2€S2,x3€S3,x4€S4 Ê F:T
 	INFER C Ê let x1=E1 and x2=E2 and x3=E3 and x4=E4 in F end : T
 END
 
 RULES letrecrules ARE
-	FROM Cºx€^T1 Ê E:T1 
+	FROM C,x€^T1 Ê E:T1 
 	AND C Ê ^T1«S1 
-	AND Cºx€S1 Ê F:T	
+	AND C,x€S1 Ê F:T	
 	INFER C Ê letrec x=E in F end : T
-AND	FROM Cºx1€^T1ºx2€^T2 Ê (E1,E2) : T1ÙT2 
+AND	FROM C,x1€^T1,x2€^T2 Ê (E1,E2) : T1ÙT2 
 	AND C Ê ^T1º^T2«S1ºS2 
-	AND Cºx1€S1ºx2€S2 Ê F:T	
+	AND C,x1€S1,x2€S2 Ê F:T	
 	INFER C Ê letrec x1=E1 and x2=E2 in F end : T
-AND	FROM Cºx1€^T1ºx2€^T2ºx3€^T3 Ê (E1,(E2,E3)) : T1Ù(T2ÙT3) 
+AND	FROM C,x1€^T1,x2€^T2,x3€^T3 Ê (E1,(E2,E3)) : T1Ù(T2ÙT3) 
 	AND C Ê ^T1º^T2º^T3«S1ºS2ºS3 
-	AND Cºx1€S1ºx2€S2ºx3€S3 Ê F:T
+	AND C,x1€S1,x2€S2,x3€S3 Ê F:T
 	INFER C Ê letrec x1=E1 and x2=E2 and x3=E3 in F end : T
-AND	FROM Cºx1€^T1ºx2€^T2ºx3€^T3ºx4€^T4 Ê ((E1,E2),(E3,E4)) : (T1ÙT2)Ù(T3ÙT4) 
+AND	FROM C,x1€^T1,x2€^T2,x3€^T3,x4€^T4 Ê ((E1,E2),(E3,E4)) : (T1ÙT2)Ù(T3ÙT4) 
 	AND C Ê ^T1º^T2º^T3º^T4«S1ºS2ºS3ºS4 
-	AND Cºx1€S1ºx2€S2ºx3€S3ºx4€S4 Ê F:T
+	AND C,x1€S1,x2€S2,x3€S3,x4€S4 Ê F:T
 	INFER C Ê letrec x1=E1 and x2=E2 and x3=E3 and x4=E4 in F end : T
 END
 
@@ -100,14 +101,11 @@ AND	C Ê (-)€^(numÁnumÁnum)
 AND C Ê (=)€(Ët.tÁtÁbool)
 END
 
-RULE "Cºx€S Ê x€S" IS INFER Cºx€S Ê x€S
-RULE "Cºy€... Ê  x€S" WHERE x NOTIN E IS FROM C Ê x€S INFER CºE€S1 Ê x€S 
-TACTIC "C Ê x€S" IS ALT "Cºx€S Ê x€S" (SEQ "Cºy€... Ê  x€S" "C Ê x€S")
+RULE "C Ê x€S" WHERE x NOTIN C' IS INFER C,x€S,C' Ê x€S
+RULE "C Ê c€S" WHERE c NOTIN C' IS INFER C,c€S,C' Ê c€S
 
-RULE "Cºc€S Ê c€S" IS INFER Cºc€S Ê c€S
-RULE "Cºy€... Ê  c€S" WHERE c NOTIN E IS FROM C Ê c€S INFER CºE€S1 Ê c€S 
-				/* NOTIN still needed in case E is unknown */
-TACTIC "C Ê c€S" IS ALT "Cºc€S Ê c€S" (SEQ "Cºy€... Ê  c€S" "C Ê c€S")
+IDENTITY "C Ê x€S"
+IDENTITY "C Ê c€S"
 
 RULE "C Ê x:T" IS FROM CÊx€S AND CÊS»T INFER CÊx:T
 RULE "C Ê c:T" IS FROM CÊc€S AND CÊS»T INFER CÊc:T
@@ -123,7 +121,7 @@ END
 MENU Rules IS	
 	RULE "F G : T"		FROM C Ê F: T1ÁT2 AND C Ê G : T1 	INFER  C Ê F G : T2
 	RULE "(˚x.E) : T1ÁT2"
-					FROM Cºx€^T1 Ê E:T2 			INFER C Ê (˚x.E) : T1ÁT2
+					FROM C,x€^T1 Ê E:T2 			INFER C Ê (˚x.E) : T1ÁT2
 	RULE "(E,F) : T1ÙT2"	
 					FROM C Ê E: T1 AND C Ê F: T2		INFER C Ê (E,F) : T1ÙT2
 	RULE "if E then ET else EF fi : T"
@@ -132,7 +130,7 @@ MENU Rules IS
 	ENTRY "letrec ... : T" IS letrecrules
 	
 	TACTIC "x:T" IS
-		LAYOUT "C(x)€S; S»T" (1) 
+		LAYOUT "C(x)€S; S»T" (0) 
 			(ALT	(SEQ "C Ê x:T" "C Ê x€S") 
 				(SEQ "C Ê c:T" (ALT constants "C Ê c€S"))
 				(WHEN
