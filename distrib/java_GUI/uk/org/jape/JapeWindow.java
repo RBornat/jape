@@ -58,12 +58,18 @@ public class JapeWindow extends JFrame {
 
     protected WindowListener windowListener;
 
+    private final static boolean windowv_tracing = false;
+    
     private void init(final String title, int proofnum) {
-        windowv.add(this);
+        addTowindowv();
+        if (windowv_tracing)
+            System.err.println("JapeWindow.init \""+title+"\", "+proofnum+", "+stringOfwindowv());
         windowListener = new WindowAdapter() {
             public void windowActivated(WindowEvent e) {
-                if (windowListener!=null)
+                if (windowListener!=null) {
+                    setTopWindow();
                     JapeMenu.windowActivated(titleForMenu(), JapeWindow.this);
+                }
                 else
                     System.err.println("JapeWindow.windowListener late windowActivated \""+
                                        title +"\"; "+e);
@@ -71,6 +77,56 @@ public class JapeWindow extends JFrame {
         };
         addWindowListener(windowListener);
         JapeMenu.windowAdded(titleForMenu(proofnum), this);
+    }
+
+    private static String stringOfwindowv() {
+        String s = "[";
+        for (int i=0; i<windowv.size(); i++) {
+            s=s+"\""+((JapeWindow)windowv.get(i)).title+"\"";
+            if (i+1<windowv.size())
+                s=s+"; ";
+        }
+        return s+"]";
+    }
+
+    private synchronized void addTowindowv() {
+        windowv.add(this);
+    }
+    
+    private synchronized void setTopWindow() {
+        if (windowv_tracing)
+            System.err.print("JapeWindow.setTopWindow before \""+title+"\", "+stringOfwindowv());
+        int i = windowv.indexOf(JapeWindow.this);
+        if (i==-1)
+            Alert.abort("untoppable window "+this.title);
+        else {
+            windowv.remove(i);
+            windowv.insertElementAt(this,0);
+        }
+        if (windowv_tracing)
+            System.err.println(" after "+stringOfwindowv());
+    }
+
+    private synchronized void removeFromwindowv() {
+        if (windowv_tracing)
+            System.err.print("JapeWindow.removeFromwindowv before \""+title+"\", "+stringOfwindowv());
+        int i = windowv.indexOf(this);
+        if (i==-1)
+            Alert.abort("unremovable window "+JapeWindow.this.title);
+        else
+            windowv.remove(i);
+        if (windowv_tracing)
+            System.err.println(" after "+stringOfwindowv());
+    }
+
+    public void closeWindow() {
+        if (windowv_tracing)
+            System.err.println("JapeWindow.closeWindow before \""+title+"\", "+stringOfwindowv());
+        removeFromwindowv();
+        // Linux gives us spurious events after the window has gone, so kill the listener
+        removeWindowListener(windowListener); windowListener = null;
+        setVisible(false); dispose();
+        JapeMenu.windowRemoved(titleForMenu(), this);
     }
 
     private String titleForMenu(int proofnum) {
@@ -81,7 +137,45 @@ public class JapeWindow extends JFrame {
         return titleForMenu(this instanceof ProofWindow ? ((ProofWindow)this).proofnum : -1);
     }
 
+    protected void setBar() {
+        if (this instanceof ProofWindow)
+            JapeMenu.setProofWindowBar(this);
+        else
+            if ((this instanceof PanelWindowData.PanelWindow && LocalSettings.panelWindowMenus) ||
+                this instanceof SurrogateWindow)
+                JapeMenu.setNonProofWindowBar(this);
+    }
+
+    protected Point nextPos() {
+        if (lastPos==null) {
+            lastPos = firstPos;
+        }
+        else {
+            lastPos.x += LocalSettings.PosIncr;
+            lastPos.y += LocalSettings.PosIncr;
+
+            if (lastPos.y+getHeight()>japeserver.screenBounds.height ||
+                lastPos.x+getWidth()>japeserver.screenBounds.width) {
+                lastPos.y = 0;
+                firstPos.x += LocalSettings.PosIncr;
+                if (firstPos.x+getWidth()>japeserver.screenBounds.width)
+                    firstPos.x = 0;
+                lastPos.x = firstPos.x;
+            }
+        }
+
+        return lastPos;
+    }
+
+    /*******************************************************************************************
+
+        static interface for Dispatcher, etc.
+        
+    *******************************************************************************************/
+    
     public static JapeWindow findWindow(String title) {
+        if (windowv_tracing)
+            System.err.println("JapeWindow.findWindow \""+title+"\", "+stringOfwindowv());
         int len = windowv.size();
         for (int i=0; i<len; i++) {
             JapeWindow w = (JapeWindow)windowv.get(i);
@@ -91,30 +185,12 @@ public class JapeWindow extends JFrame {
         return null;
     }
 
-    public static void closeWindow(JapeWindow w) {
-        int index = windowv.indexOf(w);
-        if (index==-1)
-            Alert.abort("JapeWindow.closeWindow can't find "+w);
-        else {
-            // Linux gives us spurious events after the window has gone
-            w.removeWindowListener(w.windowListener); w.windowListener = null;
-            w.setVisible(false); w.dispose();
-            windowv.remove(index);
-            JapeMenu.windowRemoved(w.titleForMenu(), w);
-        }
+    public static JapeWindow getTopWindow() {
+        return windowv.size()==0 ? null : (JapeWindow)windowv.get(0);
     }
-    
+
     public static Enumeration windows() {
         return windowv.elements();
-    }
-    
-    protected void setBar() {
-        if (this instanceof ProofWindow)
-            JapeMenu.setProofWindowBar(this);
-        else
-        if ((this instanceof PanelWindowData.PanelWindow && LocalSettings.panelWindowMenus) ||
-            this instanceof SurrogateWindow)
-            JapeMenu.setNonProofWindowBar(this);
     }
     
     public static void updateMenuBars() {
@@ -143,27 +219,6 @@ public class JapeWindow extends JFrame {
     
     private static Point firstPos = new Point(0,0);
     private static Point lastPos  = null;
-
-    protected Point nextPos() {
-        if (lastPos==null) {
-            lastPos = firstPos;
-        }
-        else {
-            lastPos.x += LocalSettings.PosIncr;
-            lastPos.y += LocalSettings.PosIncr;
-
-            if (lastPos.y+getHeight()>japeserver.screenBounds.height ||
-                lastPos.x+getWidth()>japeserver.screenBounds.width) {
-                lastPos.y = 0;
-                firstPos.x += LocalSettings.PosIncr;
-                if (firstPos.x+getWidth()>japeserver.screenBounds.width)
-                    firstPos.x = 0;
-                lastPos.x = firstPos.x;
-            }
-        }
-
-        return lastPos;
-    }
 
     public static void resetNextPos() {
         firstPos = new Point(0,0);
