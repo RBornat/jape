@@ -1,8 +1,11 @@
-/* $Id$ */
+﻿/* $Id$ */
 
 INITIALISE displaystyle box
+INITIALISE autoAdditiveLeft true
 
 USE "hoare_syntax.j"
+USE "hoare_rules.j"
+USE "hoare_menus.j"
 USE "hoare_problems.j"
 
 PUSHSYNTAX "natural deduction"
