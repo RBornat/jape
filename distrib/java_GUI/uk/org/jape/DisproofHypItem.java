@@ -25,7 +25,7 @@
 
   */
 
-public class DisproofHypItem extends TextSelectableItem {
+public class DisproofHypItem extends EmphasisableItem {
     public DisproofHypItem(DisproofCanvas canvas, int x, int y, byte fontnum,
                            String annottext, String printtext) {
         super(canvas, x, y, fontnum, annottext, printtext);
