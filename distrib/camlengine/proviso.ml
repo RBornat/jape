@@ -146,20 +146,19 @@ let rec checkNOTINvars pname vars =
            (ParseError_
               [termstring t; " in "; pname; " proviso is neither an identifier nor an unknown variable or constant"]))
     vars
+
 let rec parseNOTINvars pname =
   let _ = scansymb () in
   let vs = parseList (fun _ -> true) parseTerm commasymbol in
   checkNOTINvars pname vs; vs
+
 let rec parseProvisos () =
   let rec parseNOTONEOF vars =
-    let rec bad ss =
-      raise (ParseError_ ("in NOTONEOF proviso, " :: ss))
-    in
+    let bad ss = raise (ParseError_ ("in NOTONEOF proviso, " :: ss)) in
     let _ =
       if List.exists (not <.> ismetav) vars then
-        bad
-          ["not all the names "; bracketedliststring termstring ", " vars;
-           " are schematic"]
+        bad ["not all the names "; bracketedliststring termstring ", " vars;
+             " are schematic"]
     in
     let _ = check (SHYID "IN") in
     let pat = parseBindingpattern () in
@@ -181,7 +180,7 @@ let rec parseProvisos () =
     in
     NotoneofProviso (vars, pat, registerCollection (class__, els))
   in
-  let rec parseNOTIN vars =
+  let parseNOTIN vars =
     let _ = checkNOTINvars "NOTIN" vars in
     let _ = check (SHYID "NOTIN") in
     let (class__, els) =
@@ -220,15 +219,14 @@ let rec parseProvisos () =
         in
         let rec collbad s =
           raise
-            (ParseError_
-               ["when parsing a proviso, symbol "; s;
-                " found after collection "; bk els])
+            (ParseError_ ["when parsing a proviso, symbol "; s;
+                          " found after collection "; bk els])
         in
         match class__, currsymb () with
-          None, SHYID "NOTIN" -> parseNOTIN ((stripElement <* els))
-        | None, SHYID "IN" -> [parseNOTONEOF ((stripElement <* els))]
-        | _, SHYID "NOTIN" -> collbad "NOTIN"
-        | _, SHYID "IN" -> collbad "IN"
+          None, SHYID "NOTIN"    -> parseNOTIN ((stripElement <* els))
+        | None, SHYID "IN"       -> [parseNOTONEOF ((stripElement <* els))]
+        | _, SHYID "NOTIN"       -> collbad "NOTIN"
+        | _, SHYID "IN"          -> collbad "IN"
         | _, SHYID "UNIFIESWITH" ->
             let _ = scansymb () in
             let (class', els') =

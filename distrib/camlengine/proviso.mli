@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -33,10 +33,10 @@ val maxprovisoresnum : proviso -> int
 val mkparentedvisproviso : proviso -> bool * proviso -> visproviso
 val mkvisproviso : bool * proviso -> visproviso
 val parseProvisos : unit -> proviso list
-        (* yes, really a list - it has to translate x,y NOTIN A, B into
-         * x NOTIN A AND x NOTIN B AND y NOTIN A AND y NOTIN B; similarly
-         * FRESH and all its derivatives
-         *)
+    (* yes, really a proviso list - it has to translate x,y NOTIN A, B into
+     * x NOTIN A AND x NOTIN B AND y NOTIN A AND y NOTIN B; similarly
+     * FRESH and all its derivatives
+     *)
 val provisoVIDs : proviso -> vid list
 val provisoactual : visproviso -> proviso
 val provisodebug : bool ref
