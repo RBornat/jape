@@ -2067,9 +2067,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			name = JapeFileFilter.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_GUI/uk/org/jape/JapeFileFilter.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../java_GUI/uk/org/jape/JapeFileFilter.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		7923783106104EE30084726D = {
 			fileRef = 7923783006104EE30084726D;
