@@ -172,9 +172,21 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
             return null;
     }
 
-    public void addWorld(int x, int y) throws ProtocolError /* doesn't! */ {
-        if (findWorld(x,y,false)==null)
-            add(new WorldItem(this, window, x, y));
+    private WorldItem ensureWorld(int x, int y) {
+        try {
+            WorldItem w;
+            if ((w=findWorld(x,y,false))==null)
+                return (WorldItem)add(new WorldItem(this, window, x, y));
+            else
+                return w;
+        } catch (ProtocolError e) {
+            Alert.abort("WorldCanvas.ensureWorld error "+e.getMessage());
+            return null; // shut up compiler
+        }
+    }
+    
+    public void addWorld(int x, int y) {
+        ensureWorld(x, y);
     }
 
     public void addWorldLabel(int x, int y, String label) throws ProtocolError {
@@ -182,7 +194,8 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
     }
 
     public void addChildWorld(int x, int y, int xc, int yc) {
-        System.err.println("no child worlds yet");
+        WorldItem wfrom = ensureWorld(x, y), wto = ensureWorld(xc, yc);
+        add(new WorldConnector(this, window, wfrom, wto));
     }
 
     public void selectWorld(int x, int y, boolean selected) throws ProtocolError {
