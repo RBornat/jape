@@ -749,6 +749,10 @@ let rec setproofparams displaystyle linethicknessval =
   linethickness := linethicknessval;
   writef "SETPROOFPARAMS % %\n" [Int (int_of_displaystyle displaystyle); Int linethicknessval]
 
+let askUnify s =
+  writef "ASKUNIFY %\n" [Str s];
+  readline "ASKUNIFY"
+  
 (********************************* export ***************************************)
 
 let getfontname = getfontname <.> int_of_displayfont

@@ -208,7 +208,9 @@ val settextselectionmode : string -> unit
 
 val setComment : string -> unit
 (* this demoted to a thing which sets a comment line *)
-   
+
+val askUnify : string -> string
+
 val ask_unpatched : int -> string -> string list -> int -> int
 (* severity 0/1/2    message   buttons     default   which one was pressed, indexed from 0*)
 
