@@ -27,14 +27,13 @@
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.FontMetrics;
 
-public class ProvisoCanvas extends JapeCanvas {
-
-    private int provisocount, givencount;
+public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
 
     public ProvisoCanvas(Container viewport, boolean scrolled) {
         super(viewport, scrolled);
-        provisocount = givencount = 0;
+        clear();
     }
 
     public String getSelections(String sep) {
@@ -83,9 +82,59 @@ public class ProvisoCanvas extends JapeCanvas {
     public void clear() {
         super.removeAll();
         setOrigin(0,0); // maybe ...
+        ensureFontInfo();
+        provisoCursor = givenCursor = inset+ascent;
+        provisoHeaderInserted = givenHeaderInserted = false;
     }
 
+    private static String provisoHeader = "Provided:";
+    private static int ascent=-1, descent, leading; 
+    private static int inset, linestep;
+
+    private void ensureFontInfo() {
+        if (ascent==-1) {
+            FontMetrics f = JapeFont.getFontMetrics(ProvisoFontNum);
+            ascent = f.getMaxAscent(); descent = f.getMaxDescent();
+            leading = f.getLeading();
+            linestep = ascent+descent+leading;
+            inset = Math.max(2, 2*leading);
+        }
+    }
+    
+    private int provisoCursor, givenCursor;
+    private boolean provisoHeaderInserted, givenHeaderInserted;
+
     public void addProvisoLine(String annottext) {
-        
+        ensureFontInfo();
+        if (!provisoHeaderInserted) {
+            insertHeader(provisoCursor, provisoHeader);
+            provisoCursor += linestep; givenCursor += linestep;
+            provisoHeaderInserted = true;
+        }
+        insertLine(provisoCursor, annottext);
+        provisoCursor += linestep; givenCursor += linestep;
+    }
+
+    private void shiftLines(int cursor) {
+        ensureFontInfo();
+        int nc = child.getComponentCount();
+        for (int i=0; i<nc; i++) {
+            TextItem t = (TextItem)child.getComponent(i);
+            if (t.getY()+ascent>=cursor) {
+                t.repaint();
+                t.setLocation(t.getX(), t.getY()+linestep);
+                t.repaint();
+            }
+        }
+    }
+
+    private void insertHeader(int cursor, String text) {
+        shiftLines(cursor);
+        super.add(new TextItem(this, inset, cursor, ProvisoFontNum, text));
+    }
+
+    private void insertLine(int cursor, String annottext) {
+        shiftLines(cursor);
+        super.add(new TextSelectableProvisoItem(this, 3*inset, cursor, annottext));
     }
 }
