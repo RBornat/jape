@@ -275,8 +275,7 @@ let rec mustredisplay env vals =
     | None -> None
   in
   let rec changed s =
-    lookup s <>
-	((nenv <@> s) &~~ (fun n -> (dispenv <@> n)))
+    lookup s <> (nenv <@> s &~~ (fun n -> dispenv <@> n))
   in
   List.exists changed displaynames ||
   lookup "displaystyle" = Some "box" && List.exists changed boxdisplaynames
@@ -684,27 +683,30 @@ let rec setdisplayvars env vals =
     ((displayvars ||| vals))
 
 (* proofmove doesn't set changed *)
-let rec proofmove =
+let proofmove =
   fun (WinHist {proofhist = proofhist} as hist) proof' ->
     withproofhist hist (forward_step proofhist proof')
 
 (* nor does disproofmove *)
-let rec disproofmove a1 a2 =
+let disproofmove a1 a2 =
   match a1, a2 with
     (WinHist {disproofhist = Some d} as hist), disproof' ->
-      withdisproofhist (hist) (Some (forward_step d disproof'))
+      withdisproofhist hist (Some (forward_step d disproof'))
   | (WinHist {disproofhist = None} as hist), disproof' ->
-      withdisproofhist
-        (hist) (Some (Hist {now = disproof'; pasts = []; futures = []}))
+      withdisproofhist hist (Some (Hist {now = disproof'; pasts = []; futures = []}))
 
-(* this function the same as evolve except for non-application of AUTO tactics,
+(* disproofevolve does set changed *)
+let disproofevolve a1 a2 =
+  withchanged (disproofmove a1 a2) true
+  
+(* this function the same as evolve_proof except for non-application of AUTO tactics,
  * and the fact that it doesn't set changed.
  *)
 let rec tryForward f =
   fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
     f proof &~~ (fSome <.> proofmove hist)
 
-let rec evolvewithexplanation explain displaystate env f =
+let rec evolve_proof_explain explain displaystate env f =
   fun (WinHist {proofhist = Hist {now = proof}} as hist) ->
     match f proof with
       None -> explain (); None
@@ -717,7 +719,7 @@ let rec evolvewithexplanation explain displaystate env f =
                       (Proofstate.autorules ()) proof')))
               (true))
 
-let evolve = evolvewithexplanation (fun () -> ())
+let evolve_proof = evolve_proof_explain (fun () -> ())
 
 let rec reset () =
   resetallcachesandvariables (); savefilename := None; mbcache := empty
@@ -1154,34 +1156,31 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           default
     in
     
-    let rec disproofstateact act =
+    let rec disproofstateact act move =
       inside c
         (fun displaystate ->
            showdisproof <.> 
-             ((function
-                 WinHist {disproofhist = Some (Hist {now = d})} as hist ->
-                   let proof = winhist_proofnow hist in
-                   let cxt_now = proofstate_cxt proof in
-                   let facts_now = facts (provisos cxt_now) cxt_now in
-		   act d &~~
-		   (fun d' ->
-		      Some (disproofmove hist
-			      (evaldisproofstate facts_now (proofstate_tree proof) d')))
-               | _ ->
-                   raise (Catastrophe_ ["disproof action when no disproof state"]))
-               ))
+             (function
+                WinHist {disproofhist = Some (Hist {now = d})} as hist ->
+                  let proof = winhist_proofnow hist in
+                  let cxt_now = proofstate_cxt proof in
+                  let facts_now = facts (provisos cxt_now) cxt_now in
+                  act d &~~
+                  (fun d' ->
+                     Some (move hist (evaldisproofstate facts_now (proofstate_tree proof) d')))
+              | _ ->
+                  raise (Catastrophe_ ["disproof action when no disproof state"])))
     in
     
-    let rec disproofuniverseact act =
+    let disproofuniverseact act =
       disproofstateact
-        (fun d ->
-             (act (disproofstate_universe d) &~~
-              (fun u -> Some (withdisproofuniverse (d) (u)))))
+        (fun d -> (act (disproofstate_universe d) &~~ (fun u -> Some (withdisproofuniverse d u))))
     in
     
-    let rec worldlabelact act cx cy s =
+    let worldlabelact act move cx cy s =
       disproofuniverseact
         (fun u -> act u (atoi cx, atoi cy) (parseTerm (disQuote s)))
+        move
     in
     
     match c with
@@ -1195,7 +1194,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 (fun displaystate ->
                    showproof <.> 
                      ((fun hist ->
-                         evolve displaystate env
+                         evolve_proof displaystate env
                            (nohitcommand displaystate env tselopt comm
                               finishable)
                            hist)
@@ -1209,7 +1208,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                       (fun displaystate ->
                          showproof <.> 
                            ((fun here ->
-                               evolve displaystate env
+                               evolve_proof displaystate env
                                  (pointToSequent displaystate env comm
                                     fsel)
                                  here)
@@ -1278,15 +1277,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             inside c
               (fun _ ->
                  showproof <.> 
-                   (fun hist ->
-                            (redo_step (winhist_proofhist hist) &~~
-                             (
-                                fSome <.> 
-                                  ((fun ph -> withproofhist hist ph)
-                                    ))) |~~
-                          (fun _ ->
-                             showAlert ["nothing to redo!"]; None))
-                      )
+                 (fun hist ->
+                    (redo_step (winhist_proofhist hist) &~~
+                     (fSome <.> (fun ph -> withproofhist hist ph))) |~~
+                    (fun _ -> showAlert ["nothing to redo!"]; None)))
 
         | "refreshdisplay", [] ->
             begin match pinfs with
@@ -1366,42 +1360,49 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         (* ********************* the disproof commands ************************* *)
 
         | "addworldlabel", [cx; cy; s] ->
-            worldlabelact addworldlabel cx cy s
+            worldlabelact addworldlabel disproofevolve cx cy s
 
         | "deleteworldlabel", [cx; cy; s] ->
-            worldlabelact deleteworldlabel cx cy s
+            worldlabelact deleteworldlabel disproofevolve cx cy s
 
         | "tileact", [s] ->
-            disproofstateact (fun d -> Disproof.newtile d (parseTerm (disQuote s)))
+            disproofstateact (fun d -> Disproof.newtile d (parseTerm (disQuote s))) disproofmove
 
         | "addworld", [px; py; cx; cy] ->
             disproofuniverseact
               (fun u -> Disproof.addchild u (atoi px, atoi py) (atoi cx, atoi cy))
+              disproofevolve
 
         | "addworldtolink", [px; py; cx; cy; lpx; lpy; lcx; lcy] ->
             disproofuniverseact
               (fun u -> Disproof.addchildtolink u (atoi px, atoi py) (atoi cx, atoi cy)
                                                   (atoi lpx, atoi lpy) (atoi lcx, atoi lcy))
+              disproofevolve
 
         | "deleteworldlink", [fromx; fromy; tox; toy] ->
             disproofuniverseact
               (fun u -> Disproof.deletelink u (atoi fromx, atoi fromy) (atoi tox, atoi toy))
+              disproofevolve
 
         | "deleteworld", [cx; cy] ->
             disproofstateact (fun d -> Disproof.deleteworld d (atoi cx, atoi cy))
+            disproofevolve
 
         | "moveworld", [x; y; x'; y'] ->
             disproofstateact
               (fun d -> Disproof.moveworld d (atoi x, atoi y) (atoi x', atoi y'))
+              disproofmove
 
         | "moveworldtolink", [x; y; x'; y'; px; py; cx; cy] ->
             disproofstateact
               (fun d -> Disproof.moveworldtolink d (atoi x, atoi y) (atoi x', atoi y')
                                                    (atoi px, atoi py) (atoi cx, atoi cy))
+              disproofevolve
         | "splitworldlink", [fromx; fromy; tox; toy; newx; newy] ->
             disproofuniverseact
               (fun u -> Disproof.splitlink u (atoi fromx, atoi fromy) (atoi tox, atoi toy) (atoi newx, atoi newy))
-
+              disproofevolve
+              
         | "worldselect", cs ->
             disproofstateact
               (fun d ->
@@ -1414,6 +1415,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 				     bracketedliststring (fun s -> s) "," cs])
                  in
                  Disproof.worldselect d (pair cs))
+             disproofmove
 
         | "disprove", [] ->
             inside c
@@ -1471,55 +1473,44 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                    let rec getsels =
                      function
                        x :: y :: zs, gs -> y :: getsels (zs, gs)
-                     | _, gs -> gs
+                     | _           , gs -> gs
                    in
                    let sels =
                      match findSelection displaystate with
                        Some
-                         (FormulaSel
-                            (_, _, _, concsels, hypsels, givensels)) ->
+                         (FormulaSel (_, _, _, concsels, hypsels, givensels)) ->
                          nj_fold getsels [givensels]
                            (nj_fold getsels ((snd <* concsels))
-                              (nj_fold getsels ((snd <* hypsels))
-                                 []))
+                              (nj_fold getsels ((snd <* hypsels)) []))
                      | Some (TextSel (proofsels, givensels)) ->
                          nj_fold getsels [givensels]
-                           (nj_fold getsels ((snd <* proofsels))
-                              [])
+                           (nj_fold getsels ((snd <* proofsels)) [])
                      | _ -> []
                    in
                    let args =
-                     try
-                       (if null sels || null stuff then
-                          parseCurriedArgList
-                        else (fun t -> [t]) <.> parseTerm)
+                     try (if null sels || null stuff then parseCurriedArgList
+                                                     else (fun t -> [t]) <.> parseTerm)
                          (respace stuff)
-                     with
-                       ParseError_ es ->
-                         showAlert
-                           ("cannot parse unify " :: respace stuff ::
-                              " -- " :: es);
-                         raise Unify_
+                     with ParseError_ es ->
+                       showAlert ("cannot parse unify " :: respace stuff :: " -- " :: es);
+                       raise Unify_
                    in
                    let rec getit s =
                      try parseTerm s with
                        ParseError_ es ->
-                         showAlert
-                           ("your selection " :: s ::
-                              " didn't parse -- " :: es);
+                         showAlert ("your selection " :: s :: " didn't parse -- " :: es);
                          raise Unify_
                    in
                    let selargs = (getit <* sels) in
                    if List.length args + List.length selargs < 2 then
                      begin
-                       showAlert
-                         ["Unify must be given at least two things to work with!"];
+                       showAlert ["Unify must be given at least two things to work with!"];
                        raise Unify_
                      end
                    else
                        showproof <.> 
                          ((fun here ->
-                             evolvewithexplanation
+                             evolve_proof_explain
                                (fun () -> showAlert (explain ""))
                                displaystate env
                                (forceUnify (args @ selargs)) here)
@@ -1598,7 +1589,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             | ("dropcommand", []) =>
                  inside c
                    (fn displaystate =>
-                     (fn here => evolvewithexplanation
+                     (fn here => evolve_proof_explain
                                  (fn () => showAlert(explain ""))
                                  displaystate env
                                  (doDropUnify (!droptarget) (!dropsource))
@@ -2059,7 +2050,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                   (fun displaystate ->
                      showproof <.> 
                        ((fun here ->
-                           evolve displaystate env
+                           evolve_proof displaystate env
                              (pointToSequent displaystate env c' fsel)
                              here)
                           ))
