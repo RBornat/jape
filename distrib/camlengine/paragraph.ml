@@ -532,14 +532,13 @@ let rec parseRadioButton report query con =
   ignore _ISWORD;
   match parseList (fun _ -> true) parseentry (SHYID "AND") with
     [] ->
-      showInputError report
-        ["null value/label list in RADIOBUTTON directive"];
+      showInputError report ["null value/label list in RADIOBUTTON directive"];
       raise Use_
   | entries ->
       let defval = parseButtonDefault currsymb_as_string in
       match currsymb () with
         SHYID "END" -> scansymb (); con (var, entries, defval)
-      | s ->
+      | s           ->
           showInputError report
             ["found symbol "; smlsymbolstring s;
              " in RADIOBUTTON directive - expecting END"];
@@ -548,8 +547,8 @@ let rec parseRadioButton report query con =
 let structurerulestrings =
   ["CUT"; "IDENTITY"; "LEFTWEAKEN"; "REFLEXIVE"; "RIGHTWEAKEN";
    "TRANSITIVE"; "WEAKEN"]
-(* at the moment all we do is to check that names in params and provisos are from the rule *)
 
+(* at the moment all we do is to check that names in params and provisos are from the rule *)
 let rec checkvalidruleheading report objkind wherekind =
   fun (RuleHeading (name, params, provisos)) antes conseq fbvs ->
     let bodyvars =
@@ -610,75 +609,62 @@ let rec parseParagraph report query =
   let sy = currsymb () in
   let rec more () = parseParagraph report query in
   match sy with
-    SHYID "AUTOMATCH" -> scansymb (); Some (parseAutoRule true)
-  | SHYID "AUTOUNIFY" -> scansymb (); Some (parseAutoRule false)
-  | SHYID "BIND" -> scansymb (); processBind (); more ()
-  | SHYID "CONCHIT" -> scansymb (); Some (parseHitDef DClickConc)
-  | SHYID "CONSTANT" ->
-      scansymb (); processClassDecl report query ConstantClass; more ()
-  | SHYID "CLASS" -> scansymb (); processCLASS report query; more ()
-  | SHYID "CONJECTUREPANEL" ->
-      scansymb (); Some (parseConjecturePanel report query)
-  | SHYID "CURRENTPROOF" ->
-      scansymb (); Some (parseProof report InProgress)
-  | SHYID "CUT" -> scansymb (); Some (parseStructure "CUT")
-  | SHYID "DERIVED" -> scansymb (); Some (parseDerived report)
-  | SHYID "DISPROOF" -> scansymb (); Some (parseProof report Complete) (* some legacy files will have this word *)
-  | SHYID "FONTS" -> scansymb (); Some (parseFontSpec ())
-  | SHYID "FORCEDEF" -> scansymb (); Some (parseForceDefSpec ())
-  | SHYID "FORMULA" ->
-      raise (ParseError_ ["FORMULA without CLASS is meaningless"])
-  | SHYID "GIVENPANEL" -> scansymb (); Some (parseGivenPanel report query)
-  | SHYID "HYPHIT" -> scansymb (); Some (parseHitDef DClickHyp)
-  | SHYID "IDENTITY" -> scansymb (); Some (parseStructure "IDENTITY")
-  | SHYID "INFIX" -> scansymb (); processInfix (fun v->INFIX v); more ()
-  | SHYID "INFIXC" -> scansymb (); processInfix (fun v->INFIXC v); more ()
-  | SHYID "JUXTFIX" -> scansymb (); appfix := parseNUM (); more ()
-  | SHYID "KEYBOARD" -> scansymb (); processKEYBOARD report query; more ()
-  | SHYID "INITIALISE" -> scansymb (); Some (parseInitialise ())
-  | SHYID "LEFTFIX" -> scansymb (); processLeftMidfix (fun v->LEFTFIX v); more ()
-  | SHYID "LEFTWEAKEN" -> scansymb (); Some (parseStructure "LEFTWEAKEN")
-  | SHYID "MACRO" ->
-      let h = scansymb (); parseTacticHeading _ISWORD in
-      Some (MacroDef (h, asTactic parseTerm EOF))
-  | SHYID "MENU" -> scansymb (); Some (parseMenu report query true)
-  | SHYID "MIDFIX" -> scansymb (); processLeftMidfix (fun v->MIDFIX v); more ()
-  | SHYID "NUMBER" ->
-      scansymb (); processClassDecl report query NumberClass; more ()
-  | SHYID "OUTFIX" -> scansymb (); processOutfix (); more ()
-  | SHYID "PATCHALERT" -> scansymb (); processPatchAlert (); more ()
-  | SHYID "POSTFIX" -> scansymb (); processUnifix (fun v->POSTFIX v); more ()
-  | SHYID "PREFIX" -> scansymb (); processUnifix (fun v->PREFIX v); more ()
-  | SHYID "PROOF" -> scansymb (); Some (parseProof report Complete)
-  | SHYID "REFLEXIVE" -> scansymb (); Some (parseStructure "REFLEXIVE")
-  | SHYID "RIGHTFIX" -> scansymb (); processRightfix (); more ()
-  | SHYID "RIGHTWEAKEN" ->
-      scansymb (); Some (parseStructure "RIGHTWEAKEN")
-  | SHYID "RULE" -> scansymb (); Some (RuleDef (parseRule report true))
-  | SHYID "RULES" -> scansymb (); Some (parseRules report true)
-  | SHYID "STRING" ->
-      scansymb (); processClassDecl report query StringClass; more ()
-  | SHYID "SEMANTICTURNSTILE" ->
-      scansymb (); processSemanticTurnstileSpec (); more ()
-  | SHYID "SEQUENT" -> scansymb (); processSequentSpec (); more ()
-  | SHYID "STRUCTURERULE" -> scansymb (); Some (parseStructureRule ())
-  | SHYID "SUBSTFIX" -> scansymb (); processSubstfix report query; more ()
-  | SHYID "TACTIC" ->
-      let h = scansymb (); parseTacticHeading _ISWORD in
-      Some (TacticDef (h, transTactic (asTactic parseTerm EOF)))
-  | SHYID "TACTICPANEL" ->
-      scansymb (); Some (parseTacticPanel report query)
-  | SHYID "THEOREM" -> scansymb (); Some (parseTheorem report)
-  | SHYID "THEOREMS" -> scansymb (); Some (parseTheorems report)
-  | SHYID "THEORY" -> scansymb (); Some (parseTheory report query)
-  | SHYID "TRANSITIVE" -> scansymb (); Some (parseStructure "TRANSITIVE")
-  | SHYID "UMENU" -> scansymb (); Some (parseMenu report query false)
-  | SHYID "USE" ->
-      scansymb (); Some (let r = parseUse report query in scansymb (); r)
-  | SHYID "VARIABLE" ->
-      scansymb (); processClassDecl report query VariableClass; more ()
-  | SHYID "WEAKEN" -> scansymb (); Some (parseStructure "WEAKEN")
-  | _ -> None
+    SHYID "AUTOMATCH"       -> scansymb (); Some (parseAutoRule true)
+  | SHYID "AUTOUNIFY"       -> scansymb (); Some (parseAutoRule false)
+  | SHYID "BIND"            -> scansymb (); processBind (); more ()
+  | SHYID "CONCHIT"         -> scansymb (); Some (parseHitDef DClickConc)
+  | SHYID "CONSTANT"        -> scansymb (); processClassDecl report query ConstantClass; more ()
+  | SHYID "CLASS"           -> scansymb (); processCLASS report query; more ()
+  | SHYID "CONJECTUREPANEL" -> scansymb (); Some (parseConjecturePanel report query)
+  | SHYID "CURRENTPROOF"    -> scansymb (); Some (parseProof report InProgress)
+  | SHYID "CUT"             -> scansymb (); Some (parseStructure "CUT")
+  | SHYID "DERIVED"         -> scansymb (); Some (parseDerived report)
+  | SHYID "DISPROOF"        -> scansymb (); Some (parseProof report Complete) (* some legacy files will have this word *)
+  | SHYID "FONTS"           -> scansymb (); Some (parseFontSpec ())
+  | SHYID "FORCEDEF"        -> scansymb (); Some (parseForceDefSpec ())
+  | SHYID "FORMULA"         -> raise (ParseError_ ["FORMULA without CLASS is meaningless"])
+  | SHYID "GIVENPANEL"      -> scansymb (); Some (parseGivenPanel report query)
+  | SHYID "HYPHIT"          -> scansymb (); Some (parseHitDef DClickHyp)
+  | SHYID "IDENTITY"        -> scansymb (); Some (parseStructure "IDENTITY")
+  | SHYID "INFIX"           -> scansymb (); processInfix (fun v->INFIX v); more ()
+  | SHYID "INFIXC"          -> scansymb (); processInfix (fun v->INFIXC v); more ()
+  | SHYID "JUXTFIX"         -> scansymb (); appfix := parseNUM (); more ()
+  | SHYID "KEYBOARD"        -> scansymb (); processKEYBOARD report query; more ()
+  | SHYID "INITIALISE"      -> scansymb (); Some (parseInitialise ())
+  | SHYID "LEFTFIX"         -> scansymb (); processLeftMidfix (fun v->LEFTFIX v); more ()
+  | SHYID "LEFTWEAKEN"      -> scansymb (); Some (parseStructure "LEFTWEAKEN")
+  | SHYID "MACRO"           -> let h = scansymb (); parseTacticHeading _ISWORD in
+                               Some (MacroDef (h, asTactic parseTerm EOF))
+  | SHYID "MENU"            -> scansymb (); Some (parseMenu report query true)
+  | SHYID "MIDFIX"          -> scansymb (); processLeftMidfix (fun v->MIDFIX v); more ()
+  | SHYID "NUMBER"          -> scansymb (); processClassDecl report query NumberClass; more ()
+  | SHYID "OUTFIX"          -> scansymb (); processOutfix (); more ()
+  | SHYID "PATCHALERT"      -> scansymb (); processPatchAlert (); more ()
+  | SHYID "POSTFIX"         -> scansymb (); processUnifix (fun v->POSTFIX v); more ()
+  | SHYID "PREFIX"          -> scansymb (); processUnifix (fun v->PREFIX v); more ()
+  | SHYID "PROOF"           -> scansymb (); Some (parseProof report Complete)
+  | SHYID "REFLEXIVE"       -> scansymb (); Some (parseStructure "REFLEXIVE")
+  | SHYID "RIGHTFIX"        -> scansymb (); processRightfix (); more ()
+  | SHYID "RIGHTWEAKEN"     -> scansymb (); Some (parseStructure "RIGHTWEAKEN")
+  | SHYID "RULE"            -> scansymb (); Some (RuleDef (parseRule report true))
+  | SHYID "RULES"           -> scansymb (); Some (parseRules report true)
+  | SHYID "STRING"          -> scansymb (); processClassDecl report query StringClass; more ()
+  | SHYID "SEMANTICTURNSTILE" -> scansymb (); processSemanticTurnstileSpec (); more ()
+  | SHYID "SEQUENT"         -> scansymb (); processSequentSpec (); more ()
+  | SHYID "STRUCTURERULE"   -> scansymb (); Some (parseStructureRule ())
+  | SHYID "SUBSTFIX"        -> scansymb (); processSubstfix report query; more ()
+  | SHYID "TACTIC"          -> let h = scansymb (); parseTacticHeading _ISWORD in
+                               Some (TacticDef (h, transTactic (asTactic parseTerm EOF)))
+  | SHYID "TACTICPANEL"     -> scansymb (); Some (parseTacticPanel report query)
+  | SHYID "THEOREM"         -> scansymb (); Some (parseTheorem report)
+  | SHYID "THEOREMS"        -> scansymb (); Some (parseTheorems report)
+  | SHYID "THEORY"          -> scansymb (); Some (parseTheory report query)
+  | SHYID "TRANSITIVE"      -> scansymb (); Some (parseStructure "TRANSITIVE")
+  | SHYID "UMENU"           -> scansymb (); Some (parseMenu report query false)
+  | SHYID "USE"             -> scansymb (); Some (let r = parseUse report query in scansymb (); r)
+  | SHYID "VARIABLE"        -> scansymb (); processClassDecl report query VariableClass; more ()
+  | SHYID "WEAKEN"          -> scansymb (); Some (parseStructure "WEAKEN")
+  | _                       -> None
 
 and processSequentSpec () =
   let rec f _ =
@@ -1092,18 +1078,16 @@ and parseRules report axiom =
     SHYID "END" -> scansymb (); t
   | s ->
       showInputError report
-        ["error in RULES description: found "; smlsymbolstring s;
-         ", expecting AND or END"];
+        ["error in RULES description: found "; symbolstring s; ", expecting AND or END"];
       raise Use_
 
 and parseDerived report =
   match currsymb () with
-    SHYID "RULE" -> scansymb (); RuleDef (parseRule report false)
+    SHYID "RULE"  -> scansymb (); RuleDef (parseRule report false)
   | SHYID "RULES" -> scansymb (); parseRules report false
-  | sy ->
+  | sy            ->
       showInputError report
-        ["expecting RULE or RULES after DERIVED: found ";
-         smlsymbolstring sy];
+        ["expecting RULE or RULES after DERIVED: found "; symbolstring sy];
       raise Use_
 
 and parseTheory report query =
@@ -1112,18 +1096,15 @@ and parseTheory report query =
   in
   let parastarters = (fSHYID <* starters) in
   let heading = parseRuleHeading true _ISWORD in
-  let t =
-    Theory
-      (heading,
-       parseUnsepList (fun s -> member (s, parastarters))
-                      (fun _ -> _The (parseParagraph report query)))
+  let body = parseUnsepList (fun s -> member (s, parastarters))
+                            (fun _ -> _The (parseParagraph report query))
   in
   match currsymb () with
-    SHYID "END" -> scansymb (); t
-  | s ->
+    SHYID "END" -> scansymb (); Theory (heading,body)
+  | s           ->
       showInputError report
-        ["error in THEORY description: found "; smlsymbolstring s;
-         ", expecting one of "; liststring (fun s->s) ", " starters; " or END"];
+        ["error in THEORY description: found "; symbolstring s;
+         ", expecting one of "; liststring symbolstring ", " parastarters; " or END"];
       raise Use_
 
 and parseFontSpec () = FontSpec (currsymb_as_string ())
@@ -1143,7 +1124,7 @@ and parseStructureRule () =
       if member (s, structurerulestrings) then
         begin scansymb (); StructureRule (s, currsymb_as_name ()) end
       else bang s
-  | sy -> bang (smlsymbolstring sy)
+  | sy -> bang (symbolstring sy)
 
 and parseStructure s =
   (* [CUT|IDENTITY|...] [RULE] name; ... *)
@@ -1187,7 +1168,7 @@ let rec string2paragraph report query s =
         raise
           (ParseError_
              ["Error: expecting paragraph beginning; found ";
-              smlsymbolstring (currsymb ())])
+              symbolstring (currsymb ())])
   in
   tryparse (fun _ -> getpara ()) s
 
