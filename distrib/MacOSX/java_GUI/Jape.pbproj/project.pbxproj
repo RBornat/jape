@@ -48,6 +48,7 @@
 				F560AEE6036D799701A80116,
 				F560AEE7036D799701A80116,
 				F51F6C7F036025C101A80116,
+				F5B9B5BC038B969501A80116,
 				F515B6090331D98801A80116,
 				F516FFD2031F87F501A80117,
 				F528CB2B0307C5B501A80116,
@@ -292,6 +293,7 @@
 				F5152727037BCC1A01A80116,
 				F515272A037BD50101A80116,
 				F57E7E01037FBF5401A80116,
+				F5B9B5BD038B969501A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1058,6 +1060,7 @@
 				F5152728037BCC1A01A80116,
 				F515272B037BD50101A80116,
 				F57E7E02037FBF5401A80116,
+				F5B9B5BE038B969501A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1279,6 +1282,24 @@
 		};
 		F5AB83300339F41D01A80116 = {
 			fileRef = F516FFB9031F825B01A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5B9B5BC038B969501A80116 = {
+			isa = PBXFileReference;
+			name = JapeCharEncoding.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/JapeCharEncoding.java;
+			refType = 0;
+		};
+		F5B9B5BD038B969501A80116 = {
+			fileRef = F5B9B5BC038B969501A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5B9B5BE038B969501A80116 = {
+			fileRef = F5B9B5BC038B969501A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
