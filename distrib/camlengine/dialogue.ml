@@ -1149,6 +1149,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           showAlert ["no stored conjecture named "; namestring name];
           default
     in
+    
     let rec disproofstateact act =
       inside c
         (fun displaystate ->
@@ -1158,24 +1159,22 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                    let proof = winhist_proofnow hist in
                    let cxt_now = proofstate_cxt proof in
                    let facts_now = facts (provisos cxt_now) cxt_now in
-                     (act d &~~
-                      (fun d' ->
-                         Some
-                           (disproofmove hist
-                              (evaldisproofstate facts_now
-                                 (proofstate_tree proof) d'))))
+		   act d &~~
+		   (fun d' ->
+		      Some (disproofmove hist
+			      (evaldisproofstate facts_now (proofstate_tree proof) d')))
                | _ ->
-                   raise
-                     (Catastrophe_
-                        ["disproof action when no disproof state"]))
+                   raise (Catastrophe_ ["disproof action when no disproof state"]))
                ))
     in
+    
     let rec disproofuniverseact act =
       disproofstateact
         (fun d ->
              (act (disproofstate_universe d) &~~
               (fun u -> Some (withdisproofuniverse (d) (u)))))
     in
+    
     let rec worldlabelact act cx cy s =
       disproofuniverseact
         (fun u -> act u (atoi cx, atoi cy) (parseTerm (disQuote s)))
@@ -1368,8 +1367,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             worldlabelact deleteworldlabel cx cy s
 
         | "tileact", [s] ->
-            disproofstateact
-              (fun d -> Disproof.newtile d (parseTerm (disQuote s)))
+            disproofstateact (fun d -> Disproof.newtile d (parseTerm (disQuote s)))
 
         | "addworld", [px; py; cx; cy] ->
             disproofuniverseact
@@ -1384,13 +1382,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                    (atoi tox, atoi toy))
 
         | "deleteworld", [cx; cy] ->
-            disproofstateact
-              (fun d -> Disproof.deleteworld d (atoi cx, atoi cy))
+            disproofstateact (fun d -> Disproof.deleteworld d (atoi cx, atoi cy))
 
         | "moveworld", [x; y; x'; y'] ->
             disproofstateact
-              (fun d ->
-                 Disproof.moveworld d (atoi x, atoi y) (atoi x', atoi y'))
+              (fun d -> Disproof.moveworld d (atoi x, atoi y) (atoi x', atoi y'))
 
         | "worldselect", cs ->
             disproofstateact

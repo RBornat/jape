@@ -870,13 +870,11 @@ let rec disproof_start facts tree pathopt hyps =
 
 let rec newtile =
   fun (Disproofstate {tiles = tiles} as d) t ->
-    let rec indivs t =
+    let indivs t =
       let varstrings = List.map termstring (variables t) in
       let longest =
-        foldl
-          (fun long v ->
-             if String.length v > String.length long then v else long)
-          "" varstrings
+        foldl (fun long v -> if String.length v > String.length long then v else long)
+	      "" varstrings
       in
       let appendix = ref "" in
       let template =
