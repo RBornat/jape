@@ -13,27 +13,27 @@ CONSTANT Ù
 SEQUENT IS BAG æ FORMULA
 
 RULE	hyp(A)							INFER ‚,A æ A
-RULE	"æ¦"		FROM ‚ æ A AND  ‚ æ B		INFER ‚ æ A¦B
-RULE	"¦æ"		FROM ‚, A, B æ C			INFER ‚, A¦B æ C
+RULE	"æ¦"		FROM ‚ æ A AND  ‚ æ B			INFER ‚ æ A¦B
+RULE	"¦æ"		FROM ‚, A, B æ C				INFER ‚, A¦B æ C
 RULE	"æë(L)"	FROM  ‚ æ A 				INFER ‚ æ AëB
 RULE	"æë(R)"	FROM  ‚ æ B 				INFER ‚ æ AëB
-RULE	"ëæ"		FROM ‚, A æ C AND ‚, B æ C	INFER ‚, AëB æ C
-RULE	"æÂ"		FROM ‚ æ Aç Ù 			INFER ‚ æ ÂA
+RULE	"ëæ"		FROM ‚, A æ C AND ‚, B æ C		INFER ‚, AëB æ C
+RULE	"æÂ"		FROM ‚ æ Aç Ù 				INFER ‚ æ ÂA
 RULE	"Âæ"		FROM ‚, Aç Ù æ B 			INFER ‚, ÂA æ B
 RULE	"æç"		FROM ‚, A æ B 				INFER ‚ æ AçB
 RULE	"çæ"		FROM ‚ æ A AND ‚, B æ C		INFER ‚, AçB æ C
-RULE	"æé"		FROM ‚ æ AçB AND ‚ æ BçA	INFER ‚ æ AéB
-RULE	"éæ"		FROM ‚, AçB,  BçA æ C		INFER ‚, AéB æ C
-RULE	"Ùæ"							INFER ‚, Ù æ A
+RULE	"æé"		FROM ‚ æ AçB AND ‚ æ BçA		INFER ‚ æ AéB
+RULE	"éæ"		FROM ‚, AçB,  BçA æ C			INFER ‚, AéB æ C
+RULE	"Ùæ"								INFER ‚, Ù æ A
 RULE	"æè"(OBJECT m) WHERE FRESH m
 			FROM ‚ æ P(m) 				INFER ‚ æ èx.P(x)
-RULE	"èæ"(B)	FROM ‚, P(B) æ C 			INFER ‚, èx.P(x) æ C
+RULE	"èæ"(B)	FROM ‚, P(B) æ C 				INFER ‚, èx.P(x) æ C
 RULE	"æä"(B)	FROM ‚ æ P(B)				INFER ‚ æ äx.P(x)
 RULE	"äæ"(OBJECT m) WHERE FRESH m
 			FROM  ‚, P(m) æ C 			INFER ‚, äx.P(x) æ C
 RULE	cut(A)	FROM ‚ æ A AND ‚, A æ C 		INFER ‚ æ C
-RULE	thin(A)	FROM ‚ æ B 				INFER ‚, A æ B
-RULE	dup(A)	FROM ‚, A, A æ B 			INFER ‚, A æ B
+RULE	thin(A)	FROM ‚ æ B 					INFER ‚, A æ B
+RULE	dup(A)	FROM ‚, A, A æ B 				INFER ‚, A æ B
 
 MENU Tracing IS
      CHECKBOX tactictracing "Trace" 
@@ -88,7 +88,7 @@ HYPHIT	AëB æ C	IS "ëæ"
 HYPHIT	AçB æ C	IS "çæ"    
 HYPHIT	ÂA æ B	IS "Âæ"     
 HYPHIT	AéB æ C	IS "éæ"   
-HYPHIT	Ù æ A	IS "Ùæ" 
+HYPHIT	Ù æ A	IS 	"Ùæ" 
 HYPHIT	èx.A æ B	IS "èæ"
 HYPHIT	äx.A æ B	IS "äæ"
 
