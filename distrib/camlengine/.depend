@@ -8,7 +8,8 @@ button.cmi: name.cmi
 displaystate.cmi: box.cmi displayclass.cmi hit.cmi prooftree.cmo 
 disproof.cmi: facts.cmi forcedef.cmi prooftree.cmo sequent.cmo term.cmo 
 doubleclick.cmi: sequent.cmo tactic.cmi 
-draw.cmi: absprooftree.cmi box.cmi displayclass.cmi term.cmo text.cmi 
+draw.cmi: absprooftree.cmi box.cmi displayclass.cmi japeserver.cmi term.cmo \
+    text.cmi 
 facts.cmi: answer.cmi context.cmo proviso.cmi term.cmo 
 forcedef.cmi: sequent.cmo term.cmo 
 hit.cmi: term.cmo 
@@ -402,11 +403,11 @@ thing.cmx: context.cmx idclass.cmx listfuns.cmx mappingfuns.cmx match.cmx \
     sml.cmx stringfuns.cmx symbol.cmx tactic.cmx term.cmx termparse.cmx \
     thing.cmi 
 treedraw.cmo: absprooftree.cmi box.cmi displayclass.cmi displayfont.cmi \
-    draw.cmi hit.cmi listfuns.cmi miscellaneous.cmi optionfuns.cmi \
-    seqdraw.cmi sequent.cmo sml.cmi term.cmo treedraw.cmi 
+    draw.cmi hit.cmi japeserver.cmi listfuns.cmi miscellaneous.cmi \
+    optionfuns.cmi seqdraw.cmi sequent.cmo sml.cmi term.cmo treedraw.cmi 
 treedraw.cmx: absprooftree.cmx box.cmx displayclass.cmx displayfont.cmx \
-    draw.cmx hit.cmx listfuns.cmx miscellaneous.cmx optionfuns.cmx \
-    seqdraw.cmx sequent.cmx sml.cmx term.cmx treedraw.cmi 
+    draw.cmx hit.cmx japeserver.cmx listfuns.cmx miscellaneous.cmx \
+    optionfuns.cmx seqdraw.cmx sequent.cmx sml.cmx term.cmx treedraw.cmi 
 treeformat.cmo: listfuns.cmi optionfuns.cmi sml.cmi stringfuns.cmi term.cmo \
     treelayout.cmi 
 treeformat.cmx: listfuns.cmx optionfuns.cmx sml.cmx stringfuns.cmx term.cmx \
