@@ -44,7 +44,7 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
 
     public String getSelections(String sep) {
         Alert.abort("ProvisoCanvas.getSelections");
-        return ""; // shut up compiler
+        return null; // shut up compiler
     }
     
     // not efficient, not in time order
@@ -67,6 +67,7 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
         }
         return s==null ? "" : s;
     }
+    
     public Component add(Component c) {
         Alert.abort("ProvisoCanvas.add("+c+")");
         return c; // shut up compiler
