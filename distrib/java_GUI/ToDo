@@ -50,9 +50,6 @@ Unused commands (many are designed to be issued by hand from Text Command window
 "steps", []
 "tellinterface", name :: interfacecommand
 "version", []
-"deleteworldlabel", [cx; cy; s]
-"deleteworldlink", [fromx; fromy; tox; toy]
-"deleteworld", [cx; cy]
 "saveengine", name
 "print", [path]
 "quitnow", []
