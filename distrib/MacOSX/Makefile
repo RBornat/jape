@@ -1,37 +1,20 @@
 #
 # $Id$
 #
-#
-#
-#
 SERVERSOURCE=../java_japeserver
 ENGINESOURCE=../../camlengine
 BIN=.
-#SERVERSCRIPT=exec java -jar japeserver.jar
 #
-#
-#
-all:    ; (cd $(SERVERSOURCE); pbxbuild -target japeserver build);  \
-          (cd $(ENGINESOURCE); make jape)
+
+all:    ; $(MAKE) engine GUI
+
+engine:   ; cd $(ENGINESOURCE); make jape
+
+GUI: ; cd $(SERVERSOURCE); pbxbuild -target japeserver build
 
 clean:  ; rm -f $(BIN)/japeserver $(BIN)/japelogo.gif $(BIN)/jape;  \
-          (cd $(SERVERSOURCE); pbxbuild -target japeserver clean);  \
-          (cd $(ENGINESOURCE); make clean)
+          $(MAKE) engineclean japeserverclean
 
-javaclean: ; cd $(SERVERSOURCE); pbxbuild -target japeserver clean
+engineclean: ; cd $(ENGINESOURCE); make clean
 
-camlclean: ; cd $(ENGINESOURCE); make clean
-#
-#
-#
-
-
-
-
-
-
-
-
-
-
-
+GUIclean: ; cd $(SERVERSOURCE); pbxbuild -target japeserver clean
