@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
      
@@ -1267,17 +1267,18 @@ let rec linearise screenwidth procrustean_reasonW dp =
     in
     answer (snd (_L (Some maxbestW) empty false dp startacc))
   else answer firstlayout
-(* linearise *)(* desperation ...
-fun _IDstring id =
-  case id of
-   LineID l     => "LineID "^_IDr l
- | BoxID(s,f)   => "BoxID("^_IDr s^","^_IDr f^")"
- | HypID(id, n) => "HypID("^_IDr id^","^string_of_int n^")"
+  (* end linearise *)
+(* desperation ...
+    fun _IDstring id =
+      case id of
+       LineID l     => "LineID "^_IDr l
+     | BoxID(s,f)   => "BoxID("^_IDr s^","^_IDr f^")"
+     | HypID(id, n) => "HypID("^_IDr id^","^string_of_int n^")"
 ... end desperation *)
 
 let rec _BoxLayout screenwidth t =
   let pt = pretransform (List.length (turnstiles ()) <> 1) t in
-  let procrustean_reasonW = max 100 (screenwidth / 10) in
+  let procrustean_reasonW = max 100 (screenwidth / 6) in
   let tranreason =
     if !truncatereasons then
       procrustean_reason2textinfo procrustean_reasonW
@@ -1285,7 +1286,9 @@ let rec _BoxLayout screenwidth t =
   in
   let dp = dependency tranreason ordinary pt in
   linearise screenwidth procrustean_reasonW dp
-(* _BoxLayout *)(* The emphasis (blacken/greyen) stuff is pretty confused.  
+  (* end of _BoxLayout *)
+
+(* The emphasis (blacken/greyen) stuff is pretty confused.  
  *
  * It seems we need to do several things:
  *
@@ -1711,6 +1714,7 @@ let rec postoinclude box =
          +<-+ bPos box)
 
 let rec layout proof = _BoxLayout (sW (bSize (viewBox ()))) proof
+
 (* This function is used in displaystyle.sml to position a proof.
  * I think it's best if the _conclusion_ box doesn't move.  Otherwise you get into all 
  * kinds of jumpy behaviour.
