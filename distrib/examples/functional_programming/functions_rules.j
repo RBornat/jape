@@ -35,11 +35,11 @@ END
 
 TACTIC "list induction tactic" IS 
 	WHEN	(LETSUBSTSEL _A (WITHSUBSTSEL listinduction))
-			(FAIL(Please select a sub-formula on which to perform induction))
+				(FAIL(Please select a sub-formula on which to perform induction))
 
 TACTIC "Boolean cases tactic" IS
 	WHEN	(LETSUBSTSEL _A (WITHSUBSTSEL BoolCases))
-			(FAIL(Please select a sub-formula on which to perform induction))
+				(FAIL(Please select a sub-formula on which to perform induction))
 			
 RULE	BoolCases(B,ABSTRACTION A) IS FROM A(true) AND A(false) INFER A(B)
 
