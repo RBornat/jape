@@ -57,6 +57,10 @@ public class LineComponent extends DragComponent implements DebugConstants {
         resetLine(x0, y0, x1, y1, thickness);
     }
 
+    public void setlinethickness(int linethickness) {
+        resetLine(x0+getX(), y0+getY(), x1+getX(), y1+getY(), linethickness);
+    }
+
     public int thickness() { return thickness; }
     
     protected boolean stroked;
@@ -95,5 +99,15 @@ public class LineComponent extends DragComponent implements DebugConstants {
         if (paint_tracing)
             System.err.println("painting line from "+xfrom+","+yfrom+" to "+xto+","+yto);
         prepaint(g); g.drawLine(xfrom, yfrom, xto, yto);
+    }
+
+    public String toString() {
+        return "LineComponent["+super.toString()+
+        "; x0="+x0+
+        "; y0="+y0+
+        "; x1="+x1+
+        "; y1="+y1+
+        "; thickness="+thickness+
+        "]";
     }
 }
