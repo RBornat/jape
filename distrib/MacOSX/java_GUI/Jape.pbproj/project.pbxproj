@@ -32,6 +32,7 @@
 				F515B6050331D98801A80116,
 				F515B6060331D98801A80116,
 				F502FBE7035D88BC01A80116,
+				F5152729037BD50101A80116,
 				F560AEE2036D797301A80116,
 				F5CC966D03438BFF01A80116,
 				F516FFB5031F823A01A80117,
@@ -41,6 +42,7 @@
 				F58AB2C503780DAC01A80116,
 				F58AB2C203780C4001A80116,
 				F58AB2C80378188901A80116,
+				F515271D037BB83201A80116,
 				F586B1630326408D01A80117,
 				F515B6080331D98801A80116,
 				F560AEE6036D799701A80116,
@@ -59,6 +61,7 @@
 				F560AEE8036D799701A80116,
 				F592908503728EA101A80117,
 				F515B60B0331D98801A80116,
+				F5152720037BB90501A80116,
 				F516FFB3031F822901A80117,
 				F515B61A0332012801A80116,
 				F515B60C0331D98801A80116,
@@ -74,6 +77,8 @@
 				F516FFB9031F825B01A80117,
 				F5E5E3E2035F171101A80116,
 				F5EAC0DB036F473D01A80117,
+				F5152723037BC71E01A80116,
+				F5152726037BCC1A01A80116,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -278,6 +283,11 @@
 				F58AB2C303780C4001A80116,
 				F58AB2C603780DAC01A80116,
 				F58AB2C90378188901A80116,
+				F515271E037BB83201A80116,
+				F5152721037BB90501A80116,
+				F5152724037BC71E01A80116,
+				F5152727037BCC1A01A80116,
+				F515272A037BD50101A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -346,6 +356,96 @@
 		};
 		F50BD28F036EEC3A01A80116 = {
 			fileRef = F50BD28C036EEC3A01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F515271D037BB83201A80116 = {
+			isa = PBXFileReference;
+			name = EmphasisableItem.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/EmphasisableItem.java;
+			refType = 0;
+		};
+		F515271E037BB83201A80116 = {
+			fileRef = F515271D037BB83201A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F515271F037BB83201A80116 = {
+			fileRef = F515271D037BB83201A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5152720037BB90501A80116 = {
+			isa = PBXFileReference;
+			name = Preferences.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/Preferences.java;
+			refType = 0;
+		};
+		F5152721037BB90501A80116 = {
+			fileRef = F5152720037BB90501A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5152722037BB90501A80116 = {
+			fileRef = F5152720037BB90501A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5152723037BC71E01A80116 = {
+			isa = PBXFileReference;
+			name = WorldCanvas.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/WorldCanvas.java;
+			refType = 0;
+		};
+		F5152724037BC71E01A80116 = {
+			fileRef = F5152723037BC71E01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5152725037BC71E01A80116 = {
+			fileRef = F5152723037BC71E01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5152726037BCC1A01A80116 = {
+			isa = PBXFileReference;
+			name = WorldItem.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/WorldItem.java;
+			refType = 0;
+		};
+		F5152727037BCC1A01A80116 = {
+			fileRef = F5152726037BCC1A01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5152728037BCC1A01A80116 = {
+			fileRef = F5152726037BCC1A01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5152729037BD50101A80116 = {
+			isa = PBXFileReference;
+			name = CircleItem.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/CircleItem.java;
+			refType = 0;
+		};
+		F515272A037BD50101A80116 = {
+			fileRef = F5152729037BD50101A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F515272B037BD50101A80116 = {
+			fileRef = F5152729037BD50101A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -930,6 +1030,11 @@
 				F58AB2C403780C4001A80116,
 				F58AB2C703780DAC01A80116,
 				F58AB2CA0378188901A80116,
+				F515271F037BB83201A80116,
+				F5152722037BB90501A80116,
+				F5152725037BC71E01A80116,
+				F5152728037BCC1A01A80116,
+				F515272B037BD50101A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
