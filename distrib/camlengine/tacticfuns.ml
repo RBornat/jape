@@ -2081,7 +2081,7 @@ let rec dispatchTactic display try__ env contn tactic =
         contn (stripoption (doBIND tactic display try__ env state))
     | BindHypTac _ ->
         contn (stripoption (doBIND tactic display try__ env state))
-    | Tac_of_BindHyp _ ->
+    | BindHyp2Tac _ ->
         contn (stripoption (doBIND tactic display try__ env state))
     | BindHypsTac _ ->
         contn (stripoption (doBIND tactic display try__ env state))
@@ -2100,6 +2100,8 @@ let rec dispatchTactic display try__ env contn tactic =
     | BindFindHypTac _ ->
         contn (stripoption (doBIND tactic display try__ env state))
     | BindFindConcTac _ ->
+        contn (stripoption (doBIND tactic display try__ env state))
+    | BindTuplistTac _ ->
         contn (stripoption (doBIND tactic display try__ env state))
     | BindMatchTac _ ->
         contn (stripoption (doBIND tactic display try__ env state))
@@ -2760,7 +2762,7 @@ and doBIND tac display try__ env =
             setReason ["LETHYP with not exactly one selected hypothesis"];
             None
         end
-    | Tac_of_BindHyp (pat1, pat2, tac) ->
+    | BindHyp2Tac (pat1, pat2, tac) ->
         begin match getselectedhypotheses () with
           Some (_, [Element (_, _, h1); Element (_, _, h2)]) ->
             (bind "LETHYP2" cxt env [pat1, h1; pat2, h2] |~~
@@ -2772,6 +2774,9 @@ and doBIND tac display try__ env =
               ["LETHYP2 with not exactly two selected hypotheses"];
             None
         end
+    (* because there is no notion of lists in the 'language', LETHYPS binds
+       selected hypotheses to a tuple.
+     *)
     | BindHypsTac spec ->
         begin match getselectedhypotheses () with
           Some (_, (_ :: _ as hs)) ->
@@ -2785,6 +2790,17 @@ and doBIND tac display try__ env =
                spec)
         | _ -> setReason ["LETHYPS with no selected hypothesis/es"]; None
         end
+    (* and therefore LETLISTMATCH actually takes tuples apart, amongst endless confusion about
+       brackets, which I don't know how to dispel
+     *)
+    | BindTuplistTac (pat1, pat2, tup, tac) ->
+        (match eval env tup with
+           Tup(_, ",", t::ts) ->
+             bind "LETLISTMATCH" cxt env [pat1, t; pat2, registerTup (",", ts)] &~~
+                (fun (cxt', env') -> bindThenDispatch "LETLISTMATCH" cxt' env' [] tac) 
+         | Tup(_, ",", []) -> setReason ["LETLISTMATCH given empty tuple"]; None
+         | _ as t          -> setReason ["LETLISTMATCH can't match non-tuple "; string_of_term t]; None
+        )
     | BindArgTac spec ->
         begin match getsingleargsel () with
           Some sel ->
