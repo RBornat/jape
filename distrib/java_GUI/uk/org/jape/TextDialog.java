@@ -23,11 +23,16 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
 */
+
 import java.awt.GridLayout;
+import java.awt.Insets;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -43,17 +48,31 @@ public class TextDialog {
 
     public static void runNewConjectureDialog(String panel) {
         final String message = "Type a new conjecture for the "+panel+" panel";
-        JTextField textField = new JTextField();
+        final JTextField textField = new JTextField();
+        JapeFont.setComponentFont(textField, JapeFont.TEXTINPUT);
         class OperatorButtonListener implements ActionListener {
             private final String buttontitle;
             public OperatorButtonListener(String buttontitle) {
                 this.buttontitle = buttontitle;
             }
             public void actionPerformed(ActionEvent newEvent) {
-                Logger.log.println("operator button "+JapeUtils.enQuote(buttontitle));
+                try {
+                    textField.getDocument().insertString(textField.getCaretPosition(),
+                                                         buttontitle, null);
+                    textField.requestFocus();
+                } catch (Exception exn) {
+                    Alert.abort("Button "+buttontitle+" threw exception "+exn);
+                }
             }
         }
         JPanel display = new JPanel();
+        display.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+        display.addComponentListener(new ComponentAdapter() {
+            public void componentShown(ComponentEvent e) {
+                Logger.log.println("display componentShown");
+                textField.requestFocus();
+            }
+        });
         GridLayout gridLayout = new GridLayout(operators==null?2:3, 1);
         display.setLayout(gridLayout);
         display.add(new JLabel(message));
@@ -63,6 +82,7 @@ public class TextDialog {
             for (int i=0; i<operators.length; i++) {
                 JButton button = new JButton(operators[i]);
                 button.addActionListener(new OperatorButtonListener(operators[i]));
+                JapeFont.setComponentFont(button, JapeFont.TEXTINPUT);
                 buttonPane.addButton(button);
             }
             buttonPane.doLayout();
@@ -70,12 +90,13 @@ public class TextDialog {
         }
 
         String [] options = { "OK", "Cancel" };
+        textField.requestFocus();
         int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), display,
                                                  "New Conjecture", 0,
                                                  JOptionPane.PLAIN_MESSAGE,
                                                  null, options, options[0]);
         if (reply==0 && textField.getText().length()!=0)
-            Alert.showAlert(Alert.Plain, "panel "+JapeUtils.enQuote(panel)+
-                            "; command "+JapeUtils.enQuote(textField.getText()));
+            Reply.sendCOMMAND("addnewconjecture "+JapeUtils.enQuote(panel)+
+                              " "+textField.getText());
     }
 }
