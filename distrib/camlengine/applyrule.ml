@@ -227,7 +227,10 @@ let (bymatch : possmatch -> possmatch option) =
               ["bymatch failing "; step_label how; " "; showargs args;
                " ("; seqstring conjecture; ") => (";
                seqstring (rewriteseq cxt conjecture); " ... ";
-               seqstring (rewriteseq cxt' conjecture); ")"]);
+               seqstring (rewriteseq cxt' conjecture); ")\n";
+               Cxtstring.varmapstring cxt; "\n";
+               Cxtstring.varmapstring cxt'; "\n";
+               bracketedliststring Termfuns.string_of_vid ";" us]);
        r)
 let (sameprovisos : possmatch -> possmatch option) =
   runfilter
