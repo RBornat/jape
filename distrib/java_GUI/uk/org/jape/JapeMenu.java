@@ -243,10 +243,13 @@ public class JapeMenu implements DebugConstants {
     }
 
     private static final String RADIO_ICON_KEY = "RadioButtonMenuItem.checkIcon",
-                                CHECK_ICON_KEY = "CheckBoxMenuItem.checkIcon",
-                                PAGE_SETUP     = "Page Setup...",
-                                PRINT_PROOF    = "Print...",
-                                EXPORT_PIC     = "Export...";
+                                CHECK_ICON_KEY = "CheckBoxMenuItem.checkIcon";
+
+    public static final String PAGE_SETUP      = "Page Setup...",
+                               PRINT_PROOF     = "Print...",
+                               EXPORT          = "Export",
+                               EXPORT_PROOF    = "Export Proof",
+                               EXPORT_DISPROOF = "Export Disproof";
     
     protected static TitledMenuBar mkBar(boolean isProofBar, JapeWindow w) {
         Object radioIcon = UIManager.get(RADIO_ICON_KEY);
@@ -292,8 +295,11 @@ public class JapeMenu implements DebugConstants {
                               (!(ii.label.equals("Close") ||
                                  ii.label.equals(PAGE_SETUP) ||
                                  ii.label.equals(PRINT_PROOF) ||
-                                 ii.label.equals(EXPORT_PIC)))) {
-                            if (m.title.equals("File") && ii.label.equals(PAGE_SETUP))
+                                 ii.label.equals(EXPORT) ||
+                                 ii.label.equals(EXPORT_PROOF) ||
+                                 ii.label.equals(EXPORT_DISPROOF)))) {
+                            if (m.title.equals("File") && (ii.label.equals(PAGE_SETUP)  ||
+                                                           ii.label.equals(EXPORT)))
                                 menu.addSeparator();
                             if (buttonGroup==null) {
                                 JMenuItem item = new JMenuItem(ii.label);
@@ -486,12 +492,30 @@ public class JapeMenu implements DebugConstants {
         }
     }
 
-    private static class ExportPicAction extends ItemAction {
+    private static class ExportAction extends ItemAction {
         public void action(JapeWindow w) {
             if (w instanceof ProofWindow)
-                ExportPic.exportPic((ProofWindow)w);
+                Export.export((ProofWindow)w, PrintProof.BOTH);
             else
-                Alert.abort("ExportPicAction on non-proof window");
+                Alert.abort("ExportAction on non-proof window");
+        }
+    }
+
+    private static class ExportDisproofAction extends ItemAction {
+        public void action(JapeWindow w) {
+            if (w instanceof ProofWindow)
+                Export.export((ProofWindow)w, PrintProof.DISPROOF);
+            else
+                Alert.abort("ExportDisproofAction on non-proof window");
+        }
+    }
+
+    private static class ExportProofAction extends ItemAction {
+        public void action(JapeWindow w) {
+            if (w instanceof ProofWindow)
+                Export.export((ProofWindow)w, PrintProof.PROOF);
+            else
+                Alert.abort("ExportProofAction on non-proof window");
         }
     }
 
@@ -605,8 +629,9 @@ public class JapeMenu implements DebugConstants {
                                                   menumask+java.awt.Event.SHIFT_MASK));
         indexMenuItem(filemenu, PRINT_PROOF, new PrintProofAction()).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, menumask));
-        indexMenuItem(filemenu, EXPORT_PIC, new ExportPicAction()).
-            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, menumask));
+        indexMenuItem(filemenu, EXPORT, new ExportAction());
+        indexMenuItem(filemenu, EXPORT_PROOF, new ExportProofAction());
+        indexMenuItem(filemenu, EXPORT_DISPROOF, new ExportDisproofAction());
 
         filemenu.addSep();
         

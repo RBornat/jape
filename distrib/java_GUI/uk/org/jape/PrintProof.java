@@ -26,6 +26,7 @@
 */
 
 import java.awt.print.PageFormat;
+import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
 
 public class PrintProof {
@@ -43,16 +44,54 @@ public class PrintProof {
         defaultPage = job.pageDialog(defaultPage);
     }
 
+    static final int PROOF = 1, DISPROOF = 2, BOTH = 3;
+    
     static void printProof(ProofWindow w) {
         PrinterJob job = PrinterJob.getPrinterJob();
         ensureDefaultPage(job);
+        w.cockeyed = false;
+        w.whattoprint = BOTH;
         job.setPrintable(w, defaultPage);
         if (job.printDialog()) {
             try {
                 job.print();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                Alert.abort("print job failed -- see console");
+                Alert.showAlert(Alert.Warning, "print job failed -- see log");
+            }
+        }
+    }
+    
+    static void printTichy(ProofWindow w, int what) {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        PageFormat page = new PageFormat();
+        Paper paper = new Paper();
+
+        w.whattoprint = what;
+        ProofWindow.PrintSize printSize = w.getPrintSize();
+
+        if ((w.cockeyed = printSize.printWidth>printSize.printHeight)) {
+            paper.setSize((double)printSize.printHeight, (double)printSize.printWidth);
+            paper.setImageableArea((double)0.0, (double)0.0,
+                                   (double)printSize.printHeight, (double)printSize.printWidth);
+        } else {
+            paper.setSize((double)printSize.printWidth, (double)printSize.printHeight);
+            paper.setImageableArea((double)0.0, (double)0.0,
+                                   (double)printSize.printWidth, (double)printSize.printHeight);
+        }
+        page.setPaper(paper);
+
+        if (w.cockeyed) {
+            page.setOrientation(page.LANDSCAPE); // I think this is a bug ...
+        } 
+        
+        job.setPrintable(w, page);
+        if (job.printDialog()) {
+            try {
+                job.print();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                Alert.showAlert(Alert.Warning, "print job failed -- see log");
             }
         }
     }

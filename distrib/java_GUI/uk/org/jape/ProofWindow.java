@@ -57,6 +57,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 
 public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolConstants,
                                                        SelectionConstants,
@@ -101,8 +102,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
                 if (windowListener!=null) {
                     if (focusManager.setTopInfocusv(ProofWindow.this)) {
                         focusManager.reportFocus();
-                        enableCopy();
-                        enableUndo();
+                        doEnableMenuItems();
                     }
                 }
                 else
@@ -113,7 +113,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         addWindowListener(windowListener);
 
         setBar();
-        enableCopy(); enableUndo();
+        doEnableMenuItems();
 
         pack();
         setSize(LocalSettings.DefaultProofWindowSize);
@@ -170,7 +170,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
             JapeMenu.enableItem(true, "Edit", "Undo", undoenable);
             JapeMenu.enableItem(true, "Edit", "Redo", redoenable);
         } catch (ProtocolError e) {
-            Alert.abort("ProofWindow.enableCopy can't find Edit: Undo/Redo");
+            Alert.abort("ProofWindow.enableUndo can't find Edit: Undo/Redo");
         }
 
         if (Jape.onMacOS) // put the dot in the red button
@@ -178,6 +178,15 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
                             (proofhistory||disproofhistory) ? Boolean.TRUE : Boolean.FALSE);
     }
 
+    public void enableExport() {
+        try {
+            JapeMenu.enableItem(true, "File", JapeMenu.EXPORT_PROOF, disproofPane!=null);
+            JapeMenu.enableItem(true, "File", JapeMenu.EXPORT_DISPROOF, disproofPane!=null);
+        } catch (ProtocolError e) {
+            Alert.abort("ProofWindow.enableExport can't find File: Export Proof/Disproof");
+        }
+    }
+    
     // pane focus
     
     private Container focussedPane = null;
@@ -220,30 +229,95 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         |                     |
          ---------------------
      */
-
+    
     private int gap() { return 5*proofCanvas.linethickness; }
 
     private int separatorThickness() { return 2*proofCanvas.linethickness; }
+
+    public int whattoprint;
+    
+    public class PrintSize {
+        public final int printHeight, printWidth,
+                         disproofHeight, disproofWidth,
+                         disproofSepY, disproofSepWidth,
+                         proofY,
+                         provisoY, provisoSepY, provisoSepWidth;
+        
+        public PrintSize() {
+            int h=0, w=0, proofW = proofCanvas.getWidth(),
+                sepH = separatorThickness(), gap = gap();
+
+            if ((whattoprint & PrintProof.DISPROOF)!=0 && disproofPane!=null) {
+                Dimension disproofSize = disproofPane.printSize();
+                w = disproofWidth = disproofSize.width;
+                disproofHeight = disproofSize.height;
+                h = disproofHeight;
+            } else {
+                this.disproofHeight = this.disproofWidth = 0;
+            }
+
+            if ((whattoprint & PrintProof.PROOF)!=0) {
+                if (h!=0) {
+                    h+=gap+sepH+gap;
+                    disproofSepY = disproofHeight+gap;
+                    disproofSepWidth = Math.max(disproofWidth, proofW);
+                    proofY = disproofSepY+sepH+gap;
+                } else {
+                    this.disproofSepY = this.disproofSepWidth = this.proofY = 0;
+                }
+                w = Math.max(w, proofW);
+                h += proofCanvas.getHeight();
+
+                if (provisoCanvas!=null) {
+                    int provisoW = provisoCanvas.getWidth();
+                    provisoSepY = h+gap; provisoSepWidth = Math.max(proofW, provisoW);
+                    h += gap+sepH+gap;
+                    provisoY = h; h+=provisoCanvas.getHeight();
+                    w = Math.max(w, provisoW);
+                }
+                else {
+                    provisoSepY = provisoSepWidth = provisoY = 0;
+                }
+            } else {
+                disproofSepY = disproofSepWidth = proofY =
+                provisoSepY = provisoSepWidth = provisoY = 0;
+            }
+
+            this.printHeight = h; this.printWidth = w;
+        }
+    }
+
+    public PrintSize getPrintSize() {
+        return new PrintSize();
+    }
 
     private void printSeparator(Graphics2D g2D, int y, int length) {
         g2D.setColor(Preferences.SeparatorColour);
         g2D.setStroke(new BasicStroke((float)separatorThickness()));
         g2D.drawLine(0, y, length, y);
     }
+
+    public boolean cockeyed;
     
-    public int print(Graphics g, PageFormat pf, int pi) throws PrinterException {
-        if (pf==null) {
-            Alert.showAlert(Alert.Warning, "null PageFormat in ProofWindow.print");
-            return Printable.NO_SUCH_PAGE;
-        }
+    /* By experiment, this method seems to be called three times by any printing operation ...
+       don't know what that does for error messages.
+     */
+    public int print(Graphics g, final PageFormat pf, int pi) throws PrinterException {
         
-        if (pi >= 1) {
+        if (pi!=0) {
+            Logger.log.println("ProofWindow.print pi="+pi);
             return Printable.NO_SUCH_PAGE;
         }
 
         if (!(g instanceof Graphics2D)) {
-            Alert.showAlert(this, Alert.Warning,
-                            "Can't print: this seems to be a very old version of Java");
+            Logger.log.println("ProofWindow.print can't do Graphics2D");
+            SwingUtilities.invokeLater(
+                new Runnable() {
+                    public void run() {
+                        Alert.showAlert(Alert.Warning,
+                                        "Can't print: this seems to be a very old version of Java");
+                    }
+                });
             return Printable.NO_SUCH_PAGE;
         }
 
@@ -254,60 +328,49 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
             JapeUtils.showContainer(proofCanvas);
         }
         
-        g2D.translate((int)pf.getImageableX()+1, (int)pf.getImageableY()+1);
+        g2D.translate((int)pf.getImageableX(), (int)pf.getImageableY());
 
-        int printHeight=0, printWidth=0, disproofHeight=0, disproofWidth=0;
-
-        // compute size of picture
-        if (disproofPane!=null) {
-            Dimension disproofSize = disproofPane.printSize();
-            printWidth = disproofWidth = disproofSize.width;
-            disproofHeight = disproofSize.height;
-            printHeight = disproofHeight+gap()+separatorThickness()+gap();
-        }
-
-        printWidth = Math.max(printWidth, proofCanvas.getWidth());
-        printHeight += proofCanvas.getHeight();
-
-        if (provisoCanvas!=null) {
-            printWidth = Math.max(printWidth, provisoCanvas.getWidth());
-            printHeight += gap()+separatorThickness()+gap()+provisoCanvas.getHeight();
-        }
-
-        // scale if necessary
-        double scalex = (double)pf.getImageableWidth()/(double)printWidth,
-               scaley = (double)pf.getImageableHeight()/(double)printHeight,
-               scale = Math.min(scalex, scaley);
+        // scale if necessary -- beware cockeyed image sizing ...
+        PrintSize printSize = new PrintSize();
+        double scalex = (double)pf.getImageableWidth()/
+                (cockeyed ? (double)printSize.printWidth : (double)printSize.printHeight),
+            scaley = (double)pf.getImageableHeight()/
+                (cockeyed ? (double)printSize.printHeight : (double)printSize.printWidth);
+        final double scale = Math.min(scalex, scaley);
         AffineTransform trans = g2D.getTransform();
-
+        
         if (scale<1.0) {
-            Logger.log.println("scaling printing to "+scale);
+            SwingUtilities.invokeLater(
+                new Runnable() {
+                    public void run() {
+                        Alert.showAlert("scaling printing to "+scale);
+                    }
+                });
             g2D.scale(scale, scale);
         }
 
-        if (disproofPane!=null) {
+        if ((whattoprint & PrintProof.DISPROOF)!=0 && disproofPane!=null) {
             disproofPane.print(g);
-            int liney = disproofHeight+gap();
-            printSeparator(g2D, liney, Math.max(disproofWidth, proofCanvas.getWidth()));
-            g2D.translate(0, liney+separatorThickness()+gap());
+            if (printSize.disproofSepWidth!=0)
+                printSeparator(g2D, printSize.disproofSepY, printSize.disproofSepWidth);
         }
 
-        proofCanvas.paint(g);
+        if ((whattoprint & PrintProof.PROOF)!=0) {
+            g2D.translate(0, printSize.proofY);
+            proofCanvas.paint(g);
+            g2D.translate(0, -printSize.proofY);
 
-        if (provisoCanvas!=null) {
-            g2D.translate(0, proofCanvas.getHeight()+gap());
-            printSeparator(g2D, 0, Math.max(proofCanvas.getWidth(), provisoCanvas.getWidth()));
-            g2D.translate(0, separatorThickness()+gap());
-            provisoCanvas.paint(g);
-            g2D.translate(0, -(proofCanvas.getHeight()+gap()+separatorThickness()+gap()));
+            if (provisoCanvas!=null) {
+                printSeparator(g2D, printSize.provisoSepY, printSize.provisoSepWidth);
+                g2D.translate(0, printSize.provisoY);
+                provisoCanvas.paint(g);
+                g2D.translate(0, -printSize.provisoY);
+            }
         }
-
-        if (disproofPane!=null)
-            g2D.translate(0, -(disproofHeight+gap()+separatorThickness()+gap()));
-
+        
         g2D.setTransform(trans);
         
-        g2D.translate(-((int)pf.getImageableX()+1), -((int)pf.getImageableY()+1));
+        g2D.translate(-((int)pf.getImageableX()), -((int)pf.getImageableY()));
         
         return Printable.PAGE_EXISTS;
     }
@@ -330,6 +393,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     private DisproofPane ensureDisproofPane() {
         if (disproofPane==null) {
             disproofPane = new DisproofPane(this, proofCanvas.linethickness);
+            enableExport();
             disproofPanePending = true;
             claimProofFocus(); // because nothing happened yet
         }
@@ -679,12 +743,16 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
     private static void enableProofMenuItems() {
         ProofWindow w = maybeFocussedWindow();
-        if (w!=null) {
-            w.enableCopy();
-            w.enableUndo();
-        }
+        if (w!=null)
+            w.doEnableMenuItems();
     }
 
+    public void doEnableMenuItems() {
+        enableCopy();
+        enableUndo();
+        enableExport();
+    }
+    
     public static ProofWindow maybeFocussedWindow() {
         return focusManager.maybeFocussedWindow();
     }
