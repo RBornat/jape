@@ -33,6 +33,8 @@ import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.awt.Point;
 
+import java.lang.reflect.Method;
+
 public abstract class JapeCanvas extends ContainerWithOrigin
                                  implements SelectionConstants {
 
@@ -59,10 +61,35 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         return c;
     }
 
-                                     // linethickness is a canvas-wide property
+    // linethickness is a canvas-wide property
     protected int linethickness;
 
+    // if linethickness changes, tell anybody who has a setlinethickness method
+    public void setlinethickness(int linethickness) {
+        this.linethickness = linethickness;
+        int nc = child.getComponentCount();
+        if (nc>0) {
+            Class [] params = new Class[] { Integer.class };
+            Object [] args = new Object[] { new Integer(linethickness) };
+            for (int i=0; i<nc; i++) {
+                Component c = child.getComponent(i);
+                Class cl = c.getClass();
+                try {
+                    Method m = cl.getMethod("setlinethickness", params);
+                    try {
+                        m.invoke(c, args);
+                    } catch (java.lang.IllegalAccessException e) {
+                        System.err.println("private setlinethickness in "+c);
+                    } catch (Exception e) {
+                        System.err.println("setlinethickness invocation: "+c+"; => "+e);
+                    } 
+                } catch (java.lang.NoSuchMethodException e) { }
+            }
+        }
+    }
+
     // from it we derive the selection halo for text items
+                                     
     protected int getSelectionHalo() {
         return 2*linethickness;
     }
