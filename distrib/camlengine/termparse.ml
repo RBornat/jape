@@ -15,13 +15,16 @@ open Optionfuns
 open Miscellaneous
 
 (* stuff to handle variable leftfix/outfix syntax *)
+
 let symbeq : symbol * symbol -> bool = fun (x, y) -> x = y
+
 let rec mkalt sts def s =
   match
 	findfirst (fun (s', t) -> if s = s' then Some t else None) sts
   with
 	Some t -> t
   | None -> def
+
 let outrightfixtree : (symbol, symbol) searchtree ref =
   ref (emptysearchtree mkalt)
 
@@ -49,7 +52,9 @@ let rec check s =
 	  (ParseError_
 		 ["Expected "; smlsymbolstring s; ", found "; smlsymbolstring (currsymb ())])
 
-let rec ignore s = if currsymb () = s then scansymb () else ()
+let rec ignore s = 
+  consolereport ["ignoring "; symbolstring s; "; seeing "; symbolstring (currsymb())];
+  if currsymb () = s then scansymb () else ()
 
 let rec parseUnsepList start f =
   if start (currsymb ()) then 
@@ -74,6 +79,7 @@ let rec canstartTerm sy =
   | LEFTFIX _ -> true
   | _ ->(* temporary hack to allow Collection formulae *)
 	 canstartCollectionidclass sy
+
 let rec canstartAtom s =
   match s with
 	ID _ -> true
@@ -84,6 +90,7 @@ let rec canstartAtom s =
   | LEFTFIX _ -> true
   | PREFIX _ -> true
   | _ -> false
+
 let rec canstartidentifier s =
   match s with
 	ID _ -> true
@@ -91,12 +98,15 @@ let rec canstartidentifier s =
   | BRA "(" -> true
   | _ ->(* because it can be (op) ?? *)
 	 false
+
 let undecl : (string * term -> term) ref =
   ref
 	(fun (s, t) ->
 	   raise (ParseError_ ["unclassified "; s; " "; termstring t]))
+
 let unvar : (term -> term) ref =
   ref (fun t -> raise (ParseError_ [termstring t; " is not a variable"]))
+
 let unclass : (string * term -> term) ref =
   ref
 	(fun (id, t) ->
@@ -104,6 +114,7 @@ let unclass : (string * term -> term) ref =
 		 (ParseError_
 			[unparseidclass (idclass t); " "; id; " "; termstring t;
 			 " in formula"]))
+
 let rec checkclass (id, t) =
   match idclass t with
 	BagClass _ -> !unclass (id, t)
@@ -114,7 +125,7 @@ let rec checkclass (id, t) =
   
 let rec parseAtom () =
   let sy = currsymb () in
-  let _ = scansymb () in
+  scansymb ();
   match sy with
 	ID (s, Some c) -> checkclass ("identifier", registerId (vid_of_string s, c))
   | ID (s, None) -> !undecl ("identifier", registerId (vid_of_string s, NoClass))
@@ -122,12 +133,11 @@ let rec parseAtom () =
   | UNKNOWN (s, None) -> !undecl ("unknown", registerUnknown (vid_of_string s, NoClass))
   | NUM s ->
 	  begin try registerLiteral (Number (atoi s)) with
-		_ -> raise (Catastrophe_ ["parseAtom can't atoi "; s])
+		_ -> raise (Catastrophe_ ["parseAtom can't convert "; s; " to an integer"])
 	  end
   | STRING s -> registerLiteral (String s)
   | BRA "(" -> parseBRA ()
-  | BRA _ ->(* special cos of (op) *)
-	 parseOutfix sy
+  | BRA _ -> (* special cos of (op) *) parseOutfix sy
   | LEFTFIX (m, _) -> parseLeftfix m sy
   | PREFIX (m, s) ->
 	  checkAfterBra sy m;
@@ -136,6 +146,7 @@ let rec parseAtom () =
 	  raise
 		(ParseError_
 		   ["beginning of formula expected, found "; smlsymbolstring s])
+
 and checkAfterBra pre n =
   let sy = currsymb () in
   let rec checkpre m =
@@ -150,6 +161,7 @@ and checkAfterBra pre n =
 	PREFIX (m, _) -> checkpre m
   | LEFTFIX (m, _) -> checkpre m
   | _ -> ()
+
 and checkAfterKet pre n =
   let sy = currsymb () in
   let rec checkpre m =
@@ -164,6 +176,7 @@ and checkAfterKet pre n =
 	INFIX (m, _, _) -> checkpre m
   | INFIXC (m, _, _) -> checkpre m
   | _ -> if canstartAtom sy then checkpre !appfix
+
 and parseOutfix bra =
   (* check for empty bracketed form first *)
   match
@@ -174,16 +187,17 @@ and parseOutfix bra =
 			  begin match scanfsm (fun _ -> ket) t [] ket with
 				Found (ket', []) ->
 				  check ket';
-				  Some
-					(registerFixapp ((symbolstring <* [bra; ket]), []))
+				  Some (registerFixapp ((symbolstring <* [bra; ket]), []))
 			  | _ -> None
 			  end
 		  | _ -> None))
   with
 	Some t -> t
-  | None -> putbacksymb bra; snd (parseOutRightfixTail 0 [])
+  | None -> putbacksymb bra (* can this be right? *); snd (parseOutRightfixTail 0 [])
+
 and parseRightfix m t =
   let (ket, t) = parseOutRightfixTail m [t] in checkAfterKet ket m; t
+
 and parseOutRightfixTail m ts =
   match
 	scanstatefsm treecurr (treenext m false) (rootfsm outrightfixtree)
@@ -197,8 +211,11 @@ and parseOutRightfixTail m ts =
 		(ParseError_
 		   ["expected "; liststring symbolstring " or " ss; "; found ";
 			symbolstring (currsymb ())])
+
 and parseLeftfix m bra = putbacksymb bra; parseLeftMidfixTail m []
+
 and parseMidfix m t = parseLeftMidfixTail m [t]
+
 and parseLeftMidfixTail m ts =
   match
 	scanstatefsm treecurr (treenext m true) (rootfsm leftmidfixtree)
@@ -211,11 +228,14 @@ and parseLeftMidfixTail m ts =
 		(ParseError_
 		   ["expected "; liststring symbolstring " or " ss; "; found ";
 			symbolstring (currsymb ())])
+
 and treecurr _ = currsymb ()
+
 and treenext m a (sys, ts) =
   let s = currsymb () in
   let t = (let _ = scansymb () in parseExpr m a) in 
   s :: sys, t :: ts
+
 and parseVariable () =
   let rec okv =
 	function
@@ -226,49 +246,51 @@ and parseVariable () =
 	| t -> raise (ParseError_ [termstring t; " is not a variable"])
   in
   okv (parseAtom ())
+
 and parseBRA () =
   let rec defop s =
 	let r = registerId (vid_of_string s, OperatorClass) in
-	let _ =  scansymb () in
-	check (KET ")"); r
+	scansymb (); check (KET ")"); r
   in
   let rec defexpr () =
 	let r =
 	  (let t = parseterm (KET ")") in
 	   match t with
-		 Collection _ as t' -> t'
+		 Collection _             as t' -> t'
 	   | Id (_, _, OperatorClass) as t' -> t'
-	   | _ -> enbracket t)
+	   | _                              -> enbracket t)
 	in check (KET ")"); r
   in
   match currsymb () with
-	INFIX (_, _, s) -> defop s
+	INFIX (_, _, s)  -> defop s
   | INFIXC (_, _, s) -> defop s
-  | POSTFIX (_, s) -> defop s
-  | PREFIX (_, s) -> if peeksymb () = KET ")" then defop s else defexpr ()
+  | POSTFIX (_, s)   -> defop s
+  | PREFIX (_, s)    -> if peeksymb () = KET ")" then defop s else defexpr ()
   | sy ->
 	  if sy = KET ")" then
-		(let _ = scansymb () in enbracket (registerTup (",", [])))
+		(scansymb (); enbracket (registerTup (",", [])))
 	  else defexpr ()
+
 (* here a is not an associativity, it is 'left operator gets it' *)
 and parseExpr n a =
-  let rec ( >> ) (m, n) = m > n || m = n && not a in
+  let ( >> ) m n = m > n || m = n && not a in
   let rec pe t =
 	let sy = currsymb () in
 	let rec pq (n', a', s) down =
-	  let rec nextt a =
-		(let _ = scansymb () in checkAfterBra sy n'; parseExpr n' a)
+	  let rec nextt a = scansymb (); checkAfterBra sy n'; parseExpr n' a
 	  in
 	  let rec pts () =
-		if currsymb () = sy then nextt true :: pts () else []
+		if currsymb () = sy then 
+		  let v = nextt true in v :: pts () 
+		else []
 	  in
-	  if ( >> ) (n', n) then
+	  if n' >> n then
 		pe (if a' = TupleAssoc then registerTup (s, t :: pts ())
 			else down (s, nextt (a' = LeftAssoc)))
 	  else t
 	in
 	let rec pr (n', _) down =
-	  if ( >> ) (n', n) then pe (down n' t) else t
+	  if n' >> n then pe (down n' t) else t
 	in
 	match sy with
 	  INFIX i ->
@@ -283,7 +305,7 @@ and parseExpr n a =
 			  registerApp
 				(registerApp (registerId (vid_of_string s, OperatorClass), t), t'))
 	| POSTFIX (n', s) ->
-		if ( >> ) (n', n) then
+		if n' >> n then
 		  (let _ = scansymb () in
 			checkAfterBra sy n';
 			pe (registerApp (registerId (vid_of_string s, OperatorClass), t))
@@ -292,16 +314,17 @@ and parseExpr n a =
 	| RIGHTFIX i -> pr i parseRightfix
 	| MIDFIX i -> pr i parseMidfix
 	| SUBSTBRA ->
-		if ( >> ) (!substfix, n) then
+		if !substfix >> n then
 		  let t = registerSubst (true, t, parseSubststuff ()) in
 		  checkAfterKet SUBSTKET !substfix; pe t
 		else t
 	| _ ->
-		if canstartAtom sy && ( >> ) (!appfix, n) then
+		if canstartAtom sy && !appfix >> n then
 		  pe (registerApp (t, parseExpr !appfix true))
 		else t
   in
   pe (parseAtom ())
+
 and parseSubststuff () =
   let rec parseside b =
 	if b then
@@ -323,6 +346,7 @@ and parseSubststuff () =
 		  liststring termstring "," xs; symbolstring SUBSTSEP;
 		  liststring termstring "," ys; symbolstring SUBSTKET;
 		  " is unbalanced"])
+
 and parseterm fsy =
   if canstartCollectionidclass (currsymb ()) then
 	let c = parseidclass "" in
@@ -335,6 +359,7 @@ and parseterm fsy =
 	  INFIX (n, _, _) -> parseExpr n true
 	| INFIXC (n, _, _) -> parseExpr n true
 	| _ -> parseExpr 0 false
+
 and parseElementList starter parser__ sep k =
   let kind : idclass option ref = ref k in
   let rec iscoll c =
@@ -346,7 +371,7 @@ and parseElementList starter parser__ sep k =
   let rec parseElement sep =
 	let rec getSegvar () =
 	  let rec id con s k' =
-		let rec def k = (let _ = scansymb () in Some ([], con (s, k))) in
+		let rec def k = scansymb (); Some ([], con (s, k)) in
 		match !kind with
 		  Some k ->
 			if k = k' then def k
@@ -361,7 +386,7 @@ and parseElementList starter parser__ sep k =
 	  in
 	  match currsymb () with
 		PREFIX (_, sp) as sy ->
-		  (let _ = scansymb () in
+		  (scansymb ();
 		   match getSegvar () with
 			 Some (ps, v) -> Some (registerId (vid_of_string sp, OperatorClass) :: ps, v)
 		   | None -> putbacksymb sy; None
@@ -375,6 +400,7 @@ and parseElementList starter parser__ sep k =
 	| None -> registerElement (Nonum, parser__ sep)
   in
   let elements = parseList starter parseElement sep in !kind, elements
+
 and parseTerm sy =
   let t = parseterm sy in
   let rec doit t = mapterm findbinding t
@@ -387,10 +413,12 @@ and parseTerm sy =
 	| None -> None
   in
   doit t
+
 (* -------------------------------------------------------------------------------- *)
 (*                               the interface functions                            *)
  
 let rec parseBindingpattern () = parseterm EOF
+
 (* no binding processing, please ... *)
    
 let rec parseidentifier _ =
@@ -401,16 +429,20 @@ let rec parseidentifier _ =
 	| t -> raise (ParseError_ [termstring t; " is not an identifier"])
   in
   okv (parseAtom ())
+
 (* for parsing sequents *)
+
 let rec parseCollection k =
   let (_, els) =
 	parseElementList canstartTerm parseTerm commasymbol (Some k)
   in
   registerCollection (k, els)
+
 (* a desperate attempt to get around the fact that we can't actually give 
  * argument lists to commands.  Respect their bracketing, but treat unbracketed
  * applications as successive arguments
  *)
+
 let rec parsecurriedarglist _ =
   if canstartTerm (currsymb ()) then
 	let rec flatten a1 a2 =
@@ -420,13 +452,14 @@ let rec parsecurriedarglist _ =
 	in
 	flatten (parseTerm (KET ")")) []
   else []
+
 let rec tryparse =
   fun _R s ->
 	let s = pushlex "" (Stream.of_string s) in
 	let r = 
-	  (try (let r = _R EOF in check EOF; r) 
-	  with x -> poplex s; raise x)
+	  (try (let r = _R EOF in check EOF; r) with exn -> poplex s; raise exn)
 	in poplex s; r
+
 let rec tryparse_dbug =
   fun _R p s ->
 	let lex_s = pushlex "" (Stream.of_string s) in
@@ -439,8 +472,9 @@ let rec tryparse_dbug =
 		 consolereport ["tryparse_dbug EOF ok"];
 		 r
 	   with
-		 x -> poplex lex_s; raise x)
+		 exn -> poplex lex_s; raise exn)
 	 in poplex lex_s; r
+
 let rec asTactic f a =
   let u = !undecl in
   let v = !unvar in
@@ -453,9 +487,9 @@ let rec asTactic f a =
 	(try f a with
 	   exn -> cleanup (); raise exn)
   in cleanup (); r
+
 let rec checkTacticTerm t =
-  let rec bang reason t =
-	raise (Tacastrophe_ [reason; " "; termstring t])
+  let rec bang reason t = raise (Tacastrophe_ [reason; " "; termstring t])
   in
   let rec badvar =
 	function
@@ -480,5 +514,7 @@ let rec checkTacticTerm t =
   in
   let _ = findterm badterm t in
   ()
+
 let rec term_of_string s = tryparse parseTerm s
+
 let rec tactic_of_string s = tryparse (asTactic parseTerm) s
