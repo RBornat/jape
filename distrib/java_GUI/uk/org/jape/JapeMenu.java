@@ -428,19 +428,16 @@ public class JapeMenu implements DebugConstants {
 
     private static class OpenFileAction extends ItemAction {
         public void action (JapeWindow w) {
-          doChooseFile();
+          doOpenFile(chooseFile());
         }
-    
     }
 
-    public static void doChooseFile()
-    {
-       doOpenFile(FileChooser.newOpenDialog("theories, logic files and proofs", "jt", "j", "jp"));
+    public static String chooseFile() {
+       return FileChooser.newOpenDialog("theories, logic files and proofs", "jt", "j", "jp");
     }
 
-    public static void doChooseTheory()
-    {
-       doOpenFile(FileChooser.newOpenDialog("theories", "jt"));
+    public static String chooseTheory() {
+       return FileChooser.newOpenDialog("theories", "jt");
     }
 
     public static void doOpenFile(String file) {
