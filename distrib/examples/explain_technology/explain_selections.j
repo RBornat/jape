@@ -93,3 +93,29 @@ TACTIC ComplainBackwardWrongGoal2 (stepname, shape, Pc, stuff) IS
             \\n%s %s, which isn't of that form.", stepname, shape, stuff, Pc)
             ("OK", STOP) ("Huh?", SEQ Explainantecedentandconclusionwords STOP )
 
+/* ******************** tactics to deal with bad forward selections ******************** */
+
+MACRO ComplainForward (bpat, frule, brule, explainhyp) IS
+    WHEN    
+        (LETGOAL bpat 
+            (WHEN   (LETCONC _Ac (ComplainForwardButBackwardPoss frule brule explainhyp 
+                                    ("You did select the conclusion formula %s", _Ac))) 
+                    (ComplainForwardButBackwardPoss frule brule explainhyp 
+                        ("The current conclusion formula is %s", bpat))))
+        (ComplainForwardNoHyp frule explainhyp "")
+
+TACTIC ComplainForwardButBackwardPoss (frule, brule, explainhyp, explainconc) IS
+    ComplainForwardNoHyp frule explainhyp 
+        ("\n\n(%s, which would fit %s backwards -- did you perhaps mean to work backwards?)", 
+            explainconc, brule)
+
+TACTIC ComplainForwardWrongHyp (stepname, shape, Ph) IS
+    ALERT   ("To make a forward step with %s you must select something of the form %s. \
+            \\nYou selected %s, which isn't of that form.", stepname, shape, Ph)
+            ("OK", STOP) 
+
+TACTIC ComplainForwardNoHyp (stepname, explainhyp, extra) IS
+    ALERT   ("To make a forward step with %s you must select a formula to work forward from.\
+            \\nYou didn't.%s", stepname, extra)
+            ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP )
+
