@@ -43,6 +43,7 @@ TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS
 			(LETGOAL _P (LAYOUT () (1) (ruleLR _P) thm))
 
 TACTIC "ä-I tac" IS "ä-I"
+TACTIC "ä!-I tac" IS "ä!-I"
 TACTIC "è-E tac" IS FOBSS ForwardCut "è-E"
 
 MENU "System F«" IS
@@ -55,6 +56,7 @@ MENU "System F«" IS
 	ENTRY "Ù-I"
 	ENTRY "è-I"
 	ENTRY "ä-I" IS "ä-I tac"
+	ENTRY "ä!-I" IS "ä!-I tac"
 	
 	SEPARATOR
 	
@@ -68,6 +70,8 @@ MENU "System F«" IS
 	ENTRY "Ù-E"		IS FOB ForwardCut "Ù-E"	
 	ENTRY "è-E"		IS "è-E tac"	
 	ENTRY "ä-E"		IS FOB ForwardUncut "ä-E"
+	ENTRY "ä!-E(1)"	IS FOB ForwardCut "ä!-E(1)"
+	ENTRY "ä!-E(2)"	IS FOB ForwardCut "ä!-E(2)"
 	SEPARATOR
 	ENTRY "A=A"
 	ENTRY hyp		IS hyp
