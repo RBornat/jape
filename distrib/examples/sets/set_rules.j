@@ -1,12 +1,12 @@
 /* $Id$ */
 
 RULES "abstraction-I"(A, OBJECT y,OBJECT z) ARE 
-			FROM P(A) INFER AÚ{ y | P(y) }
-	AND	FROM P(A,B) INFER <A,B>Ú{ <y,z> | P(y,z) }
+            FROM P(A) INFER AÚ{ y | P(y) }
+    AND FROM P(A,B) INFER <A,B>Ú{ <y,z> | P(y,z) }
 END
 RULES "abstraction-E"(A, OBJECT y, OBJECT z) ARE
-			FROM AÚ{ y | P(y) } INFER P(A) 
-	AND	FROM <A,B>Ú{ <y,z> | P(y,z) } INFER P(A,B)
+            FROM AÚ{ y | P(y) } INFER P(A) 
+    AND FROM <A,B>Ú{ <y,z> | P(y,z) } INFER P(A,B)
 END
 DERIVED RULE "§-I(c)"(OBJECT c) WHERE FRESH c IS FROM cÚA æ cÚB INFER A§B
 DERIVED RULE "§-I(<c,d>)"(OBJECT c,OBJECT d) WHERE FRESH c,d IS FROM <c,d>ÚA æ <c,d>ÚB INFER A§B
@@ -25,7 +25,7 @@ DERIVED RULE "ß-E(R)" IS FROM CÚAßB INFER CÚB
 DERIVED RULE "(-)-E(L)" IS FROM CÚA-B INFER CÚA
 DERIVED RULE "(-)-E(R)" IS FROM CÚA-B INFER CÂÚB
 DERIVED RULE "ø-E" IS FROM CÚAø INFER Â(CÚA)
-	
+    
 DERIVED RULE "¯-E" IS FROM AÚ¯ INFER Ù
 DERIVED RULE "AÚU" IS INFER AÚU
 
