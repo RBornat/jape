@@ -41,22 +41,36 @@ public class JapeWindow extends JFrame {
 
     final String title;
     private static Vector windowv = new Vector();
-    private boolean iconified = false;
-    
+
     public JapeWindow(final String title) {
         super(japeserver.onMacOS ? Reply.decoder.toTitle(title) : title);
         this.title=title; // ignoring whatever else may happen outside, this is a uid
-        windowv.add(this);
-        JapeMenu.addWindow(title, this);
-        addWindowListener(new WindowAdapter() {
-            public void windowActivated(WindowEvent e) { JapeMenu.windowActivated(title); }
-            public void windowIconified(WindowEvent e) { iconified = true; }
-            public void windowDeiconified(WindowEvent e) { iconified = false; }
-        });
+        init(title, -1);
     }
 
-    public boolean iconified() { return iconified; }
-    
+    public JapeWindow(final String title, int proofnum) {
+        super(LocalSettings.UnicodeWindowTitles ? (japeserver.onMacOS ? Reply.decoder.toTitle(title) : title) :
+              ("Proof #"+proofnum));
+        this.title=title; // ignoring whatever else may happen outside, this is a uid
+        init(title, proofnum);
+    }
+
+    private void init(final String title, int proofnum) {
+        windowv.add(this);
+        addWindowListener(new WindowAdapter() {
+            public void windowActivated(WindowEvent e) { JapeMenu.windowActivated(titleForMenu(), JapeWindow.this); }
+        });
+        JapeMenu.windowAdded(titleForMenu(proofnum), this);
+    }
+
+    private String titleForMenu(int proofnum) {
+        return LocalSettings.UnicodeWindowTitles || proofnum<0 ? title : proofnum+":"+title;
+    }
+
+    private String titleForMenu() {
+        return titleForMenu(this instanceof ProofWindow ? ((ProofWindow)this).proofnum : -1);
+    }
+
     public static JapeWindow findWindow(String title) {
         int len = windowv.size();
         for (int i=0; i<len; i++) {
@@ -67,14 +81,14 @@ public class JapeWindow extends JFrame {
         return null;
     }
 
-    public static void closeWindow(String title) {
-        JapeWindow w = findWindow(title);
-        if (w==null)
-            Alert.abort("JapeWindow.closeWindow can't find "+title);
+    public static void closeWindow(JapeWindow w) {
+        int index = windowv.indexOf(w);
+        if (index==-1)
+            Alert.abort("JapeWindow.closeWindow can't find "+w);
         else {
-            JapeMenu.removeWindow(title);
-            windowv.remove(windowv.indexOf(w));
+            windowv.remove(index);
             w.dispose();
+            JapeMenu.windowRemoved(w.titleForMenu(), w);
         }
     }
     
