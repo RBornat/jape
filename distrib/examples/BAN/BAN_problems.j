@@ -1,42 +1,12 @@
-/* @(#)authentication_problems.j	1.2 93/02/10 16:14:07 */
+/* $Id$ */
 
-THEOREM "Otway-Rees 1a" IS
-   S |* (A,S) <-> Kas,
-   S <| ({Na+Nc }Kas + {Nb+Nc}Kbs)
-   |- S |* A |~ (Na+Nc)
-
-THEOREM "Otway-Rees 1b" IS
-   S |* (B,S) <-> Kbs,
-   S <| ({Na+Nc }Kas + {Nb+Nc}Kbs)
-   |- S |* B |~ (Nb+Nc)
-
-
-THEOREM "Otway-Rees 2a" IS
-   A |* (A,S) <-> Kas,
-   forall K . A |* S |=> (A,B) <-> K,
-   A |* #Na,
-   A <| {Na + (A,B)<->Kab + B|~Nc}Kas
-   |- A |* (A,B) <-> Kab
-  
-THEOREM "Otway-Rees 2b" IS
-   B |* (B,S) <-> Kbs,
-   forall K . B |* S |=> (A,B) <-> K,
-   B |* #Nb,
-   B <| ({Na + (A,B)<->Kab + B|~Nc}Kas + {Nb + (A,B)<->Kab + A|~Nc}Kbs)
-   |- B |* (A,B) <-> Kab
-  
-THEOREM "Otway-Rees 2c" IS
-   A |* (A,S) <-> Kas,
-   forall X . A |* S |=> B |~ X,
-   A |* #Na,
-   A |* #Nc,
-   A <| {Na + (A,B)<->Kab + B|~Nc}Kas
-   |- A |* B |* Nc
-  
-THEOREM "Otway-Rees 2d" IS
-   B |* (B,S) <-> Kbs,
-   forall X . B |* S |=> A |~ X,
-   A |* #Na,
-   B |* #Nb,
-   B <| ({Na + (A,B)<->Kab + B|~Nc}Kas + {Nb + (A,B)<->Kab + A|~Nc}Kbs)
-   |- B |* A |~ Nc
+CONJECTUREPANEL Conjectures IS
+		S – (A,S) ê Kas, S — ({Na+Nc}Kas + {Nb+Nc}Kbs) æ S – A ˜ (Na+Nc)
+AND		S – (B,S) ê Kbs, S — ({Na+Nc }Kas + {Nb+Nc}Kbs) æ S – B ˜ (Nb+Nc)
+AND		A – (A,S) ê Kas, è K . A – S ™ (A,B) ê K, A – #Na, A — {Na + (A,B)êKab + B˜Nc}Kas æ A – (A,B) ê Kab
+AND		B – (B,S) ê Kbs, è K . B – S ™ (A,B) ê K, B – #Nb, B — ({Na + (A,B)êKab + B˜Nc}Kas + {Nb + (A,B)êKab + A˜Nc}Kbs)
+		æ B – (A,B) ê Kab
+AND		A – (A,S) ê Kas, è X . A – S ™ B ˜ X, A – #Na, A – #Nc, A — {Na + (A,B)êKab + B˜Nc}Kas æ A – B – Nc
+AND		 B – (B,S) ê Kbs, è X . B – S ™ A ˜ X, A – #Na, B – #Nb, B — ({Na + (A,B)êKab + B˜Nc}Kas + {Nb + (A,B)êKab + A˜Nc}Kbs)
+		æ B – A ˜ Nc
+END

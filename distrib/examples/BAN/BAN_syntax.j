@@ -1,0 +1,26 @@
+/* $Id$ */
+
+INFIX 40 40 Ú 
+INFIX 61 60 +
+
+INFIX 100 100 —
+INFIX 210 200 – /* rassoc: left priority higher */
+INFIX 300 300 ™
+INFIX 400 400 ˜
+PREFIX #
+INFIX 500 500 ê
+INFIX 600 600 Ø
+INFIX 700 700 Ÿ
+POSTFIX ø
+
+OUTFIX {  }
+OUTFIX <  >
+
+LEFTFIX è .
+
+CLASS VARIABLE x, y
+CLASS FORMULA P, Q, R, C
+
+BIND x SCOPE P IN è x . P
+
+SEQUENT IS BAG æ FORMULA
