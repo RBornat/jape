@@ -219,10 +219,11 @@ public class JapeMenu implements DebugConstants {
     protected static class TitledMenuBar extends JMenuBar {
         public TitledMenuBar() { super(); }
         public TitledMenu getMenu(String s) {
+            String title = JapeUtils.trueTitle(s);
             int mc = getMenuCount();
             for (int i=0; i<mc; i++) {
                 TitledMenu m = (TitledMenu)getMenu(i);
-                if (m.getText().equals(s))
+                if (m.getText().equals(title))
                     return m;
             }
             return null;
@@ -244,8 +245,8 @@ public class JapeMenu implements DebugConstants {
 
     private static final String RADIO_ICON_KEY = "RadioButtonMenuItem.checkIcon",
                                 CHECK_ICON_KEY = "CheckBoxMenuItem.checkIcon",
-                                PAGE_SETUP  = "Page Setup...",
-                                PRINT_PROOF = "Print...";
+                                PAGE_SETUP     = "Page Setup...",
+                                PRINT_PROOF    = "Print...";
     
     protected static TitledMenuBar mkBar(boolean isProofBar, JapeWindow w) {
         Object radioIcon = UIManager.get(RADIO_ICON_KEY);
@@ -255,7 +256,7 @@ public class JapeMenu implements DebugConstants {
         for (Enumeration ebar = barv.elements(); ebar.hasMoreElements(); ) {
             M m = (M)ebar.nextElement();
             if (!m.proofsonly || isProofBar) {
-                TitledMenu menu = new TitledMenu(m.title);
+                TitledMenu menu = new TitledMenu(JapeUtils.trueTitle(m.title));
                 boolean isWindowMenu = LocalSettings.windowMenuItemsTicked && m.title.equals("Window");
                 ButtonGroup buttonGroup = isWindowMenu ? new ButtonGroup() : null;
                 if (isWindowMenu && radioIcon!=null && checkIcon!=null) {
