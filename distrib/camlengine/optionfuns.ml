@@ -77,10 +77,10 @@ let rec optioncompose (f, g) x =
     Some y -> Some (f y)
   | None -> None
 
-let rec optionmap a1 a2 =
-  match a1, a2 with
-    p, [] -> Some []
-  | p, x :: xs -> p x &~~ (fun x -> (optionmap p xs &~~ (fun xs -> Some (x::xs))))
+let rec optionmap f  =
+  function
+    []      -> Some []
+  | x :: xs -> f x &~~ (fun x -> (optionmap f xs &~~ (fun xs -> Some (x::xs))))
   
 let rec optionfilter a1 a2 =
   match a1, a2 with
@@ -141,9 +141,9 @@ let rec string_of_option astring aopt =
 let rec option_rewrite2 fa fb (a, b) =
   match fa a, fb b with
     Some a, Some b -> Some (a, b)
-  | Some a, None -> Some (a, b)
-  | None, Some b -> Some (a, b)
-  | None, None -> None
+  | Some a, None   -> Some (a, b)
+  | None  , Some b -> Some (a, b)
+  | None  , None   -> None
 
 (* the next two could be composed from option_rewrite2, but that would cause churn *)
 let rec option_rewrite3 fa fb fc (a, b, c) =
@@ -156,6 +156,7 @@ let rec option_rewrite3 fa fb fc (a, b, c) =
   | None  , Some b, None   -> Some (a, b, c)
   | None  , None  , Some c -> Some (a, b, c)
   | None  , None  , None   -> None
+
 let rec option_rewritelist f xs =
   match xs with
     []    -> None
