@@ -37,10 +37,10 @@ public class Reply implements DebugConstants {
     
     synchronized public static void openchannel() {
         clientlistening = true;
-        sendmessage();
+        flushmessages();
     }
     
-    synchronized private static void sendmessage() {
+    synchronized private static void flushmessages() {
         if (clientlistening && messages.size()!=0) {
             String s = (String)messages.remove(0);
             if (protocol_tracing) System.err.println("GUI sends "+s);
@@ -48,12 +48,15 @@ public class Reply implements DebugConstants {
             clientlistening=false;
         }
     }
+
+    synchronized public static void send(String s) {
+        if (protocol_tracing) System.err.println("queuing "+s);
+        messages.add(s);
+        flushmessages();
+    }
     
-    synchronized public static void sendCOMMAND(String s) {
-        String m = "COMMAND "+s;
-        if (protocol_tracing) System.err.println("queuing "+m);
-        messages.add(m);
-        sendmessage();
+    public static void sendCOMMAND(String s) {
+        send("COMMAND "+s);
     }
 
     synchronized public static void reply(String s) throws ProtocolError {
