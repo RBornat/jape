@@ -925,8 +925,8 @@ public class JapeMenu implements DebugConstants {
         }
     }
     
-    public static void enableItem(boolean focussedonly, String menuname, String label,
-                                  boolean enable) throws ProtocolError {
+    public static void enableItem(boolean focussedonly, final String menuname, final String label,
+                                  final boolean enable) throws ProtocolError {
         if (menuname.equals("Edit") &&
             (label.startsWith("Undo") || label.startsWith("Redo")) &&
             label.indexOf("Step")!=-1) {
@@ -934,8 +934,8 @@ public class JapeMenu implements DebugConstants {
         }
         else
         try {
-            M menu = ensureMenu(menuname);
-            I action =menu.findI(label);
+            final M menu = ensureMenu(menuname);
+            final I action =menu.findI(label);
 
             if (!focussedonly)
                 action.setEnabled(enable);
@@ -943,8 +943,11 @@ public class JapeMenu implements DebugConstants {
             if (focussedonly)
                 doEnableItem(ProofWindow.maybeFocussedWindow(), menuname, label, enable);
             else
-            for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); )
-                doEnableItem((JapeWindow)e.nextElement(), menuname, label, enable);
+                JapeWindow.windowIter(new JapeWindow.WindowAction() {
+                    public void action(JapeWindow w) {
+                        doEnableItem(w, menuname, label, enable);
+                    }
+                });
         } catch (ProtocolError e) {
             if (menuname.equals("Edit") && label.equals("Disprove"))
                 return;
@@ -985,12 +988,13 @@ public class JapeMenu implements DebugConstants {
                 }
                 else
                 if (DebugVars. menuaction_tracing)
-                    Logger.log.println("no menu "+menuname+" in window "+w);
+                    Alert.showAlert(Alert.Warning, "no menu "+menuname+" in window "+w);
             }
         }
     }
     
-    public static void tickItem(boolean focussedonly, String menuname, String label, boolean state)
+    public static void tickItem(boolean focussedonly, final String menuname, final String label,
+                                final boolean state)
         throws ProtocolError {
         M menu = ensureMenu(menuname);
         I item = menu.findI(label);
@@ -1000,8 +1004,11 @@ public class JapeMenu implements DebugConstants {
         if (focussedonly)
             doTickItem(ProofWindow.maybeFocussedWindow(), menuname, label, state);
         else
-            for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); )
-                doTickItem((JapeWindow)e.nextElement(), menuname, label, state);
+            JapeWindow.windowIter(new JapeWindow.WindowAction() {
+                public void action(JapeWindow w) {
+                    doTickItem(w, menuname, label, state);
+                }
+            });
     }
 }
 
