@@ -43,13 +43,18 @@ module
   Match
   (AAA :
     sig
-      module listfuns : Listfuns
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      module term : sig include Termtype include Termstore include Term end
-      module idclass : Idclass
+      module Listfuns : Listfuns.T
+      module Mappingfuns : Mappingfuns.T
+      module Optionfuns : Optionfuns.T
+      module Idclass : Idclass.T
+      module Term : Term.T
+             with type idclass = Idclass.idclass
+             with type vid = string
+      
       val consolereport : string list -> unit
+      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
       val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
+      
       exception Catastrophe_ of string list
       
     end)
@@ -57,15 +62,14 @@ module
   Match =
   struct
     open AAA
-    open listfuns open mappingfuns open optionfuns open term open idclass
+    open Listfuns 
+    open Mappingfuns 
+    open Optionfuns 
+    open Term 
+    open Idclass
     
-    
-    
-    
-    
-    
-    
-    
+    type ('a, 'b) mapping = ('a, 'b) AAA.Mappingfuns.mapping
+    type term = AAA.Term.term
     
     let matchdebug = ref false
     (* because of matching in provisos, we have to use a discrimination between 
@@ -159,7 +163,7 @@ module
               | mrs -> Some mrs
             in
             let rec g (_, mrs, terms) = bagmatch epats terms mrs in
-            res (flatten (_MAP (g, matchbag f eterms)))
+            res (List.concat (_MAP (g, matchbag f eterms)))
         | _ -> res []
       in
       if null mrs then []
@@ -180,8 +184,8 @@ module
         | Literal (_, k), Literal (_, k') -> res (if k = k' then mrs else [])
         | Fixapp (_, ms, ts), Fixapp (_, ms', ts') ->
             res (if ms = ms' then listmatch ts ts' mrs else [])
-        | Subst (_, _, P, vts), Subst (_, _, P', vts') ->
-            res (matchterm P P' (matchvts vts vts' mrs))
+        | Subst (_, _, _P, vts), Subst (_, _, _P', vts') ->
+            res (matchterm _P _P' (matchvts vts vts' mrs))
         | Binding (_, (bs, ss, us), _, pat),
           Binding (_, (bs', ss', us'), _, pat') ->
             res
@@ -208,21 +212,21 @@ module
      * RB 8/x/96
      *)
     let rec option_remapterm env term =
-      let rec Rvar v =
+      let rec _Rvar v =
         match at (env, v) with
           None -> v
         | Some t -> t
       in
-      let rec R =
+      let rec _R =
         function
           Id _ as v -> at (env, v)
         | Unknown _ as v -> at (env, v)
         | Collection (_, k, es) ->
-            let RR = mapterm R in
+            let _RR = mapterm _R in
             let rec f =
               function
                 Segvar (_, ps, v), es ->
-                  let ps' = _MAP (RR, ps) in
+                  let ps' = _MAP (_RR, ps) in
                   begin match at (env, v) with
                     Some t ->
                       begin match debracket t with
@@ -235,40 +239,40 @@ module
                       end
                   | None -> registerSegvar (ps', v) :: es
                   end
-              | Element (_, r, t), es -> registerElement (r, RR t) :: es
+              | Element (_, r, t), es -> registerElement (r, _RR t) :: es
             in
             Some (registerCollection (k, nj_fold f es []))
         | _ -> None
       in
-      option_mapterm R term
+      option_mapterm _R term
     let rec remapterm env = anyway (option_remapterm env)
     (* convert a pattern into the most general form that will match it with the coarsest
-     * punctuation - e.g. convert forall (x,y) . x+y into forall P . Q
+     * punctuation - e.g. convert forall (x,y) . x+y into forall _P . Q
      * This is used in bindingstructure to check if a term provided by a user could be 
      * a failed attempt to make a binding structure.
      *)
     let rec simplepat term =
       let idnum = ref 0 in
-      let rec mkid c = registerId (string_of_int !idnum, c) before inc idnum in
-      let rec S t =
+      let rec mkid c = let r = registerId (string_of_int !idnum, c) in incr idnum; r in
+      let rec _S t =
         match t with
           Id _ -> mkid FormulaClass
         | Unknown _ -> mkid FormulaClass
         | App _ -> registerApp (mkid FormulaClass, mkid FormulaClass)
-        | Tup (_, s, ts) -> registerTup (s, _MAP (S, ts))
+        | Tup (_, s, ts) -> registerTup (s, _MAP (_S, ts))
         | Literal _ -> t
-        | Fixapp (_, ss, ts) -> registerFixapp (ss, _MAP (S, ts))
-        | Subst (_, r, P, vts) ->
+        | Fixapp (_, ss, ts) -> registerFixapp (ss, _MAP (_S, ts))
+        | Subst (_, r, _P, vts) ->
             registerSubst
-              (r, mkid FormulaClass, _MAP ((fun (v, t) -> S v, S t), vts))
-        | Binding (_, vs, _, pat) -> S pat
-        | Collection (_, k, es) -> registerCollection (k, _MAP (E, es))
-      and E e =
+              (r, mkid FormulaClass, _MAP ((fun (v, t) -> _S v, _S t), vts))
+        | Binding (_, vs, _, pat) -> _S pat
+        | Collection (_, k, es) -> registerCollection (k, _MAP (_E, es))
+      and _E e =
         match e with
-          Segvar (_, ps, v) -> registerSegvar (ps, S v)
-        | Element (_, r, t) -> registerElement (r, S t)
+          Segvar (_, ps, v) -> registerSegvar (ps, _S v)
+        | Element (_, r, t) -> registerElement (r, _S t)
       in
-      S term
+      _S term
     (* for convenience, and backwards compatibility (:-)), 
      * a function which gives you the first good match of pat with term.
      *)
@@ -298,6 +302,6 @@ module
         (function
            Certain e, es -> e :: es
          | Uncertain e, es -> es)
-        (match3termvars matchbra ispatvar pat t (List.map Certain envs)) []
+        (match3termvars matchbra ispatvar pat t (List.map (fun v->Certain v) envs)) []
     let rec matchterm matchbra = matchtermvars matchbra ismetav
   end
