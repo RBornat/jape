@@ -26,8 +26,8 @@
 */
 
 public class DragLine extends LineComponent {
-    private final int endx, endy;
-    private int activex, activey;
+    protected final int endx, endy;
+    protected int activex, activey;
     public DragLine(int activex, int activey, int endx, int endy, int thickness) {
         super(activex, activey, endx, endy, thickness);
         this.activex = activex; this.activey = activey;
