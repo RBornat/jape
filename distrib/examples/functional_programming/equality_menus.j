@@ -13,8 +13,8 @@ MENU	Rules IS
 	ENTRY	rewrite 				IS withsubstrewrite rewrite
 	ENTRY	"rewrite backwards"	IS withsubstrewrite rewritebackwards
 	ENTRY	"rewrite with hypothesis"
-	ENTRY	"Unfold with hypothesis"	IS UnfoldHyp
-	ENTRY	"Fold with hypothesis"	IS FoldHyp
+	ENTRY	"Unfold with hypothesis"	IS "Fold with hypothesis" 
+	ENTRY	"Fold with hypothesis"	IS "Unfold with hypothesis" 
 END
 
 CONJECTUREPANEL "Conjectures" IS
