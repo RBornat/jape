@@ -84,17 +84,17 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         
         if (kind==ConjecturePanelKind) { 
             // has default buttons
-            addButton(newLabel, new Insert[] { new StringInsert("New... button pressed") }, true);
+            buttonv.add(new NewButton());
             addButton(proveLabel, new Insert[] { new StringInsert("prove"), new CommandInsert() }, true);
             addButton(showproofLabel, new Insert[] { new StringInsert("showproof"), new CommandInsert() }, true);
         }
     }
 
-    public boolean defaultButton(PanelButton b) {
-        return defaultButton(b.label);
+    public boolean isDefaultButton(PanelButton b) {
+        return isDefaultButton(b.label);
     }
 
-    public boolean defaultButton(String text) {
+    public boolean isDefaultButton(String text) {
         if (kind==ConjecturePanelKind) {
             return text.equals("New...") || text.equals("Prove") || text.equals("Show Proof");
         }
@@ -149,27 +149,58 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     public static class LabelInsert extends Insert { }
     public static class CommandInsert extends Insert { }
 
-    protected static class PanelButton extends JButton {
+    protected static abstract class PanelButton extends JButton {
         String label;
-        Insert[] cmd;
-        PanelButton(String label, Insert[] cmd) {
+        PanelButton(String label) {
             super(label);
-            this.label=label; this.cmd=cmd;
+            this.label=label;
             setActionCommand(label);
         }
-        void setfont() {
-            JapeFont.setComponentFont(this, JapeFont.PANELBUTTON);
+        abstract boolean needsSelection();
+        abstract void doAction(String title, int listIndex);
+    }
+
+    class InsertButton extends PanelButton {
+        private Insert[] inserts;
+        InsertButton(String label, Insert[] inserts) {
+            super(label);
+            setInserts(inserts);
         }
-        boolean needsSelection() {
-            for (int i=0; i<cmd.length; i++) {
-                Insert ins = cmd[i];
+        public void setInserts(Insert[] inserts) {
+            this.inserts = inserts;
+        }
+        public boolean needsSelection() {
+            for (int i=0; i<inserts.length; i++) {
+                Insert ins = inserts[i];
                 if (ins instanceof CommandInsert || ins instanceof LabelInsert)
                     return true;
             }
             return false;
         }
+        public void doAction(String panel, int listIndex) {
+            String res="";
+            for (int ci=0; ci<inserts.length; ci++) {
+                if (ci!=0) res+=" ";
+                res += inserts[ci] instanceof CommandInsert ? (String)cmdv.get(listIndex)      :
+                       inserts[ci] instanceof LabelInsert   ? (String)entryv.get(listIndex)    :
+                                                              ((StringInsert)inserts[ci]).s;
+            }
+            Reply.sendCOMMAND(res);
+        }
     }
 
+    class NewButton extends PanelButton {
+        public NewButton() {
+            super(newLabel);
+        }
+        public boolean needsSelection() {
+            return false;
+        }
+        public void doAction(String panel, int listIndex) {
+            TextDialog.runNewConjectureDialog(panel);
+        }
+    }
+    
     protected PanelButton findButton(String label) {
         for (int i=0; i<buttonv.size(); i++) {
             PanelButton b = (PanelButton)buttonv.get(i);
@@ -178,19 +209,22 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         }
         return null;
     }
-    
-    protected void addButton(String label, Insert[] cmd, boolean isDefault) {
-        if (defaultButton(label)!=isDefault)
+
+    protected void addButton(String label, Insert[] inserts, boolean isDefault) {
+        if (isDefaultButton(label)!=isDefault)
             Alert.abort("PanelWindowData.addButton \""+label+"\" isDefault="+isDefault+
-                        " defaultButton(...)="+defaultButton(label));
-        // if there already is such a button, just change its cmd
+                        " isDefaultButton(...)="+isDefaultButton(label));
+        // if there already is such a button, just change its inserts
         PanelButton button = findButton(label);
         if (button!=null) {
-            button.cmd = cmd;
+            if (button instanceof InsertButton)
+                ((InsertButton)button).setInserts(inserts);
+            else
+                Alert.abort("PanelWindowData.addButton with inserts finds "+button);
             return;
         }
         // otherwise a new one
-        button = new PanelButton(label, cmd);
+        button = new InsertButton(label, inserts);
         buttonv.add(button);
         if (window!=null) {
             if (panellayout_tracing)
@@ -215,7 +249,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         for (int i=0; i<cs.length; i++)
             if (cs[i] instanceof PanelButton) {
                 PanelButton b = (PanelButton)cs[i];
-                if (!defaultButton(b)) {
+                if (!isDefaultButton(b)) {
                     if (panelempty_tracing)
                         Logger.log.println("deleting button "+b.label);
                     window.removeButton(b);
@@ -313,7 +347,6 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             buttonPane = new ButtonPane();
             for (int i=0; i<buttonv.size(); i++) {
                 PanelButton b = (PanelButton)buttonv.get(i);
-                b.setfont();
                 addButton(b); // make sure it gets an ActionListener
             }
             contentPane.add(buttonPane);
@@ -454,18 +487,12 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             for (int i=0; i<buttonv.size(); i++)  {
                 PanelButton b = (PanelButton)buttonv.get(i);
                 if (b.label.equals(key)) {
-                    int index = list.getSelectedIndex();
-                    String res="";
-                    for (int ci=0; ci<b.cmd.length; ci++) {
-                        if (ci!=0) res+=" ";
-                        res += b.cmd[ci] instanceof CommandInsert ? (String)cmdv.get(index)      :
-                               b.cmd[ci] instanceof LabelInsert   ? (String)entryv.get(index)    :
-                                                                    ((StringInsert)b.cmd[ci]).s;
-                    }
-                    Reply.sendCOMMAND(res);
+                    b.doAction(this.title, list.getSelectedIndex());
                     return;
                 }
             }
+            Alert.abort("PanelWindow.actionPerformed: no button "+JapeUtils.enQuote(key)+
+                        " in panel "+this.title);
         }
 
         protected class ButtonWatcher implements ListSelectionListener {
