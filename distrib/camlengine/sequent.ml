@@ -57,35 +57,34 @@ type kind = Syntactic | Semantic
  * I keep forgetting ....
  * RB 17/x/1996
  *)
-let rec trueclass =
+let trueclass =
   function
     FormulaClass -> listkind
-  | c -> c
+  | c            -> c
+
 let validforms = [bagkind; listkind; formulakind]
 
-let rec syntaxclassstring =
+let syntaxclassstring =
   function
     FormulaClass -> "FORMULA"
   | BagClass FormulaClass -> "BAG"
   | ListClass FormulaClass -> "LIST"
   | c -> raise (Catastrophe_ ["syntaxclassstring "; unparseidclass c])
-let rec syntaxstring (kind, hyps, stile, concs) =
-  (((((match kind with
-         Syntactic -> "SEQUENT "
-       | Semantic -> "(SEMANTIC)SEQUENT ") ^
-        syntaxclassstring hyps) ^
-       " ") ^
-      stile) ^
-     " ") ^
-    syntaxclassstring concs
-let syntaxes : (kind * idclass * string * idclass) list ref = ref []
+
+let syntaxstring (kind, hyps, stile, concs) =
+  (match kind with
+     Syntactic -> "SEQUENT "
+   | Semantic -> "(SEMANTIC)SEQUENT ") ^
+  syntaxclassstring hyps ^ " " ^ stile ^ " " ^ syntaxclassstring concs
+    
+let sequent_descriptions : (kind * idclass * string * idclass) list ref = ref []
 
 let semanticturnstiles : (string, string) mapping ref = ref empty
 
 let rec syntacticsequents () =
      (function
         Syntactic, _, _, _ -> true
-      | _ -> false) <| !syntaxes
+      | _                  -> false) <| !sequent_descriptions
 
 let rec syntacticturnstiles () = ((fun(_,_,stile,_)->stile) <* syntacticsequents ())
 
@@ -93,74 +92,17 @@ let rec lookupsyntax stilestring =
   findfirst
     (fun (_, _, stile, _ as syn) ->
        if stile = stilestring then Some syn else None)
-    !syntaxes
+    !sequent_descriptions
 
 let rec lookupSTILE st =
   match lookupsyntax st with
     Some syn -> syn
   | None -> raise (Catastrophe_ ["couldn't find syntax for "; st])
 
-let rec setsemanticturnstile syn sem =
-  let rec bad ss =
-    error
-      (implode ["Error in SEMANTICTURNSTILE "; syn; " IS "; sem; ": "] ::
-         ss)
-  in
-  let newsyntaxes =
-    match lookupsyntax syn with
-      None -> bad [syn; " is not a turnstile"]
-    | Some (Semantic, hyps, _, concs) ->
-        bad [syn; " is a semantic turnstile"]
-    | Some (Syntactic, hyps, _, concs) ->
-        match lookupsyntax sem with
-          None -> (Semantic, hyps, sem, concs) :: !syntaxes
-        | Some (Syntactic, _, _, _) ->
-            bad [sem; " is a syntactic turnstile"]
-        | Some (Semantic, hyps', _, concs' as sem') ->
-            if hyps = hyps' && concs = concs' then !syntaxes
-            else
-              bad
-                ["you cannot redeclare "; syntaxstring sem'; " as ";
-                 syntaxstring (Semantic, hyps, sem, concs)]
-  in
-  let newturnstiles =
-    match (!semanticturnstiles <@> syn) with
-      None ->
-        enter sem (STILE sem);
-        (!semanticturnstiles ++ (syn |-> sem))
-    | Some sem' ->
-        if sem = sem' then !semanticturnstiles
-        else bad ["semantic turnstile for "; syn; " is "; sem']
-  in
-  syntaxes := newsyntaxes; semanticturnstiles := newturnstiles
 let rec getsemanticturnstile syn = (!semanticturnstiles <@> syn)
-let rec resetsyntaxandturnstiles () =
-  syntaxes := []; semanticturnstiles := empty
 
-let rec describeSeqs ds =
-  (* val show = triplestring idclassstring enQuote idclassstring "," *)
-  let rec f (hyps, stile, concs) =
-    match lookupsyntax stile with
-      Some (kind, hyps', _, concs' as syn') ->
-        if (kind = Syntactic && hyps = hyps') && concs = concs' then ()
-        else
-          error
-            ["you cannot redeclare "; syntaxstring syn'; " as ";
-             syntaxstring (Syntactic, hyps, stile, concs)]
-    | None ->
-        if member (hyps, validforms) && member (concs, validforms) then
-          begin
-            (* consolereport ["accepting ", show syn]; *)
-            syntaxes := (Syntactic, hyps, stile, concs) :: !syntaxes;
-            enter stile (STILE stile)
-          end
-        else
-          error
-            ["bad syntactic sequent syntax description ";
-             syntaxstring (Syntactic, hyps, stile, concs)]
-  in
-  (* consolereport ["describing ", bracketedliststring show "," ds]; *)
-  List.iter f ds
+let rec resetsyntaxandturnstiles () =
+  sequent_descriptions := []; semanticturnstiles := empty
 
 let rec parseSeq () =
   let rec formside el =
@@ -319,3 +261,94 @@ let rec maxseqresnum =
   fun (Seq (st, hs, gs)) ->
     nj_fold (uncurry2 max) ((resnum2int <* elementnumbers hs))
       (nj_fold (uncurry2 max) ((resnum2int <* elementnumbers gs)) 0)
+
+let syntaxes = ref []
+
+let pushSyntax name = 
+  syntaxes := (name, !sequent_descriptions, !semanticturnstiles, !alwaysshowturnstile) :: !syntaxes;
+  resetsyntaxandturnstiles ()
+
+let popSyntax () =
+  match !syntaxes with
+    (_, sqds, sems, show) :: sys ->
+      sequent_descriptions := sqds; semanticturnstiles := sems;
+      alwaysshowturnstile := show;
+      syntaxes := sys
+  | _ -> raise (ParseError_ ["sequent popSyntax stack empty"])
+
+let popAllSyntaxes () =
+  while !syntaxes!=[] do popSyntax () done
+
+let rec describeSeqs ds =
+  let rec f (hyps, stile, concs) =
+    let description = (Syntactic, hyps, stile, concs) in
+    (match !syntaxes with 
+       (name, sqds, _, _) :: _ ->
+         if not (List.mem description sqds) then
+           raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
+                               " attempt to declare novel sequent syntax ";
+                               syntaxstring description])
+     | _ -> ());
+    match lookupsyntax stile with
+      Some (kind, hyps', _, concs' as syn') ->
+        if (kind = Syntactic && hyps = hyps') && concs = concs' then ()
+        else
+          error
+            ["you cannot redeclare "; syntaxstring syn'; " as ";
+             syntaxstring description]
+    | None ->
+        if member (hyps, validforms) && member (concs, validforms) then
+          begin
+            (* consolereport ["accepting ", show syn]; *)
+            sequent_descriptions := description :: !sequent_descriptions;
+            enter stile (STILE stile)
+          end
+        else
+          error
+            ["bad syntactic sequent syntax description ";
+             syntaxstring (Syntactic, hyps, stile, concs)]
+  in
+  (* consolereport ["describing ", bracketedliststring show "," ds]; *)
+  List.iter f ds
+
+let rec setsemanticturnstile syn sem =
+  (match !syntaxes with 
+     (name, _, sems, _) :: _ ->
+       if sems<@>syn != (Some sem) then
+         raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
+                             " attempt to declare novel turnstile pair ";
+                             syn; " "; sem])
+   | _ -> ());
+  let rec bad ss =
+    error
+      (implode ["Error in SEMANTICTURNSTILE "; syn; " IS "; sem; ": "] ::
+         ss)
+  in
+  let newsyntaxes =
+    match lookupsyntax syn with
+      None -> bad [syn; " is not a turnstile"]
+    | Some (Semantic, hyps, _, concs) ->
+        bad [syn; " is a semantic turnstile"]
+    | Some (Syntactic, hyps, _, concs) ->
+        match lookupsyntax sem with
+          None -> (Semantic, hyps, sem, concs) :: !sequent_descriptions
+        | Some (Syntactic, _, _, _) ->
+            bad [sem; " is a syntactic turnstile"]
+        | Some (Semantic, hyps', _, concs' as sem') ->
+            if hyps = hyps' && concs = concs' then !sequent_descriptions
+            else
+              bad
+                ["you cannot redeclare "; syntaxstring sem'; " as ";
+                 syntaxstring (Semantic, hyps, sem, concs)]
+  in
+  let newturnstiles =
+    match (!semanticturnstiles <@> syn) with
+      None ->
+        enter sem (STILE sem);
+        (!semanticturnstiles ++ (syn |-> sem))
+    | Some sem' ->
+        if sem = sem' then !semanticturnstiles
+        else bad ["semantic turnstile for "; syn; " is "; sem']
+  in
+  sequent_descriptions := newsyntaxes; semanticturnstiles := newturnstiles
+      

@@ -64,3 +64,8 @@ val remapseq : (term, term) mapping -> seq -> seq
 val mkSeq : string * element list * element list -> seq
 val maxseqresnum : seq -> int
 val syntacticturnstiles : unit -> string list
+
+val pushSyntax     : string -> unit
+val popSyntax      : unit -> unit
+val popAllSyntaxes : unit -> unit
+
