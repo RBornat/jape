@@ -102,19 +102,6 @@ public class LocalSettings implements SelectionConstants {
     
     public static final boolean UnicodeWindowTitles = true; // now that I have Lucida Sans Unicode
 
-    // where to find settings, we think
-
-    private static String getPrefsFilename() {
-        try {
-            File prefs = new File(MRJFileUtils.findFolder(MRJFileUtils.kPreferencesFolderType),
-                                  "/jape preferences");
-            return prefs.toString();
-        } catch (Exception exn) {
-            return null;
-        }
-    }
-    public static final String PrefsFilename = getPrefsFilename();
-
     /* ************************ MacOS specific bits ************************ */
 
     public LocalSettings() {
