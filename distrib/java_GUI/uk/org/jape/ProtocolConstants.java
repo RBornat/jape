@@ -75,5 +75,17 @@ public interface ProtocolConstants {
         */
 
     public static final byte ProofPaneNum = 0, DisproofPaneNum = 1;
+
+    /* from japeserver.ml:
+        match panelkind with
+        TacticPanelkind     -> "0"
+        | ConjecturePanelkind -> "1"
+        | GivenPanelkind      -> "2"
+    */
+
+    public static final byte	TacticPanelKind     = 0,
+                                ConjecturePanelKind = 1,
+                                GivenPanelKind      = 2;
+        
     
 }
