@@ -60,19 +60,16 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 			    TEXTINPUT	= 500;
 
     public static byte
-	FormulaFontSize	    = Preferences.getProp("font.formula.size",
-						  LocalSettings.FormulaFontSize),
-	NonFormulaFontSize  = Preferences.getProp("font.nonformula.size",
-						  LocalSettings.NonFormulaFontSize),
-	ReasonFontSize	    = Preferences.getProp("font.reason.size",	   NonFormulaFontSize),
-	ProvisoFontSize	    = Preferences.getProp("font.proviso.size",	   NonFormulaFontSize),
-	PanelButtonFontSize = Preferences.getProp("font.panelbutton.size", NonFormulaFontSize),
-	PanelEntryFontSize  = Preferences.getProp("font.panelentry.size",  NonFormulaFontSize),
-	LogWindowFontSize   = Preferences.getProp("font.logwindow.size",   NonFormulaFontSize);
+	FormulaFontSize	    = JapePrefs.getProp("FormulaFontSize",       LocalSettings.FormulaFontSize),
+	ReasonFontSize	    = JapePrefs.getProp("ReasonFontSize",	 LocalSettings.NonFormulaFontSize),
+	ProvisoFontSize	    = JapePrefs.getProp("ProvisoFontSize",	 ReasonFontSize),
+	PanelButtonFontSize = JapePrefs.getProp("PanelButtonFontSize",   LocalSettings.NonFormulaFontSize),
+	PanelEntryFontSize  = JapePrefs.getProp("PanelEntryFontSize",    PanelButtonFontSize),
+	LogWindowFontSize   = JapePrefs.getProp("LogWindowFontSize",     LocalSettings.NonFormulaFontSize);
 
     public static final String
 	FontName =
-	    Preferences.getProp("fonts.family", Jape.onMacOSX ? "LucidaSansUnicode" : "SansSerif");
+	    JapePrefs.getProp("fonts.family", Jape.onMacOSX ? "LucidaSansUnicode" : "SansSerif");
 
     private static final Font baseFont = new Font(FontName, Font.PLAIN, 1);
 
@@ -153,15 +150,31 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 		    switch (i) {
 			case 0:
 			    FormulaFontSize = (byte)selectedvalue;
+			    if (FormulaFontSize==LocalSettings.FormulaFontSize)
+				JapePrefs.putProp("FormulaFontSize", null);
+			    else
+				JapePrefs.putProp("FormulaFontSize", FormulaFontSize);
 			    interfaceChanged = true; break;
 			case 1:
 			    ReasonFontSize = ProvisoFontSize = (byte)selectedvalue;
+			    if (ReasonFontSize==LocalSettings.NonFormulaFontSize)
+				JapePrefs.putProp("ReasonFontSize", null);
+			    else
+				JapePrefs.putProp("ReasonFontSize", ReasonFontSize);
 			    interfaceChanged = true; break;
 			case 2:
 			    PanelButtonFontSize = PanelEntryFontSize = (byte)selectedvalue;
+			    if (PanelButtonFontSize==LocalSettings.NonFormulaFontSize)
+				JapePrefs.putProp("PanelButtonFontSize", null);
+			    else
+				JapePrefs.putProp("PanelButtonFontSize", PanelButtonFontSize);
 			    PanelWindowData.font_reset(); break;
 			case 3:
 			    LogWindowFontSize = (byte)selectedvalue;
+			    if (LogWindowFontSize==LocalSettings.NonFormulaFontSize)
+				JapePrefs.putProp("LogWindowFontSize", null);
+			    else
+				JapePrefs.putProp("LogWindowFontSize", LogWindowFontSize);
 			    Logger.font_reset(); break;
 			default: Alert.abort("runFontSizesDialog switch sees "+i);
 		    }
