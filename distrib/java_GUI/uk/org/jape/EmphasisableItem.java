@@ -202,7 +202,12 @@ public abstract class EmphasisableItem extends TextSelectableItem {
 
     public String getTextSelections() {
         Alert.abort("EmphasisableItem.getTextSelections");
-        return ""; // shut up compiler
+        return null; // shut up compiler
+    }
+
+    public String getSingleTextSelection() {
+        Alert.abort("EmphasisableItem.getSingleTextSelection");
+        return null; // shut up compiler
     }
 
     public String toString() {
