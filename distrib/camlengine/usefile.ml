@@ -22,33 +22,31 @@
 
 open Sml
 
+let bracketedliststring = Listfuns.bracketedliststring
+let consolereport = Miscellaneous.consolereport
+
 (* this is the Unix version ... Linux and MacOS X ok; 
    Windoze needs '\\' so we stay in the world of unix filenames 
    and normalize filenames according to OS just before opening
 *)
 
+(* It's not good enough ... we ought to parse the strings. RB 3/i/2002 *)
+
 let usestack = ref (if Sys.os_type="Win32" then [] else ["./"])
 
-let isAbsoluteWinPath path =
-Sys.os_type="Win32" &&
-try
-  String.index path ':'  < String.index path '\\'
-with
-  Not_found -> false
+let isabsolute path =
+if Sys.os_type="Win32" then (
+  try
+	String.index path ':'  < String.index path '\\'
+  with
+	Not_found -> false)
+else (try String.sub path 0 1 = "/" with _ -> false)
 
-let rec makerelative =
-  function
-  | "" -> ""
-  | path ->
-      match String.sub path 0 1 with
-      | "." -> path
-      | "/" -> path
-      | _ -> if isAbsoluteWinPath path then 
-                path 
-             else 
-             match !usestack with
-             | []     -> path
-             | top::_ -> top ^ path
+let makerelative s =
+  if isabsolute s then s else
+  match !usestack with
+  | []     -> s
+  | top::_ -> top ^ s
 
 let rec startusing path =
   usestack := Moresys.pathStem path :: !usestack
