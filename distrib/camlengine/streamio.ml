@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Streamio =
+module type T =
   sig
     val instream : Pervasives.in_channel ref
     (* current input stream *)
@@ -30,7 +30,7 @@ module type Streamio =
 
 (* $Id$ *)
 
-module Streamio : Streamio =
+module M : T =
   struct
     let rec swapstream ({contents = old} as loc) new__ = loc := new__; old
     let instream = ref stdin

@@ -2,7 +2,9 @@
 
 module type T =
   sig
-    type vid and symbol and associativity and idclass
+    type vid and symbol
+     and associativity and idclass
+    
     val symboldebug : bool ref
     val enter : string * symbol -> unit
     val lookup : string -> symbol
@@ -62,56 +64,38 @@ module type T =
  * None in the idclass position, and I never enter UNKNOWNs at all.
  *)
  
-module M
-  (AAA :
-    sig
-      module Prestring : Prestring.T
-      module Idclass : Idclass.T
-      module Symboltype : Symboltype.T
-             with type idclass = Idclass.idclass
-              and type vid = string
-      module Searchtree : Searchtree.T
-      module Store : Store.T
-             with type ran = Symboltype.symbol
-              and type dom = string
-      module Mappingfuns : Mappingfuns.T
-      
-      val andthenr : 'a option * ('a -> 'b option) -> 'b option
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val charpred : string -> (string -> bool) * (string * bool -> unit)
-      val consolereport : string list -> unit
-      val enQuote : string -> string
-      val explode : string -> char list
-      val isdigit : string -> bool
-      val isprefix : ('a * 'a -> bool) -> 'a list -> 'a list -> bool
-      val opt2bool : 'a option -> bool
-      val sortunique : ('a -> 'a -> bool) -> 'a list -> 'a list
-      val unSOME : 'a option -> 'a
-      
-      exception Catastrophe_ of string list
-      exception ParseError_ of string list
-      exception UnSOME_
-    end) : T =
-  
+module M : T with type vid = Symboltype.M.vid 
+              and type symbol = Symboltype.M.symbol 
+              and type idclass = Idclass.M.idclass
+=
   struct
-    open AAA
-    open Idclass
-    open Searchtree
-    open Symboltype
-    open Prestring
+    open Idclass.M
+    open Searchtree.M
+    open Symboltype.M
+    open Prestring.M
+    module Store
+     = Store.F(struct module Dom=Hashstring.M 
+							 type ran=Symboltype.M.symbol
+			   end
+			  )
     open Store
+    open Listfuns.M
+    open Miscellaneous.M
+    open Optionfuns.M
+    open Stringfuns.M
     
-	type idclass = Idclass.idclass
-	type associativity = Symboltype.associativity
-	type symbol = Symboltype.symbol
 	type vid = string
+	type idclass = Idclass.M.idclass
+
+	type associativity = Symboltype.M.associativity
+	type symbol = Symboltype.M.symbol
 	
 	(* smlnj 0.93 had no notion of char, only single-character strings.  In this first
 	   porting, I've used caml streams and converted all input to single-character strings.
 	   RB
 	 *)
     open Stream
-    let explode s = List.map (String.make 1) (AAA.explode s)
+    let explode s = List.map (String.make 1) (Miscellaneous.M.explode s)
     let implode   = String.concat ""
     
     let symboldebug = ref false
@@ -220,8 +204,8 @@ module M
             addtotree (fun (x, y) -> x = y) !tree (c :: cs, class__, isprefix)
     let friendlyLargeishPrime = 1231
     let symboltable = ref (Store.new__ friendlyLargeishPrime)
-    let reversemapping : (symbol, string) Mappingfuns.mapping ref =
-      ref Mappingfuns.empty
+    let reversemapping : (symbol, string) Mappingfuns.M.mapping ref =
+      ref Mappingfuns.M.empty
     let rec lookup string = Store.at (!symboltable, string)
     exception Symclass_ of string
     (* not spurious *)
@@ -254,7 +238,7 @@ module M
       | RIGHTFIX (_, s) -> s
       | STILE s -> s
       | SHYID s -> s
-      | _ -> unSOME (Mappingfuns.at (!reversemapping, symbol))
+      | _ -> unSOME (Mappingfuns.M.at (!reversemapping, symbol))
     let rec preclassopt =
       function
         Some c -> BQuote2 ["Some("; idclassstring c; ")"]
@@ -362,8 +346,8 @@ module M
         Store.update (!symboltable, string, symbol);
         if hidden then
           reversemapping :=
-            Mappingfuns.( ++ )
-              (!reversemapping, Mappingfuns.( |-> ) (symbol, string));
+            Mappingfuns.M.( ++ )
+              (!reversemapping, Mappingfuns.M.( |-> ) (symbol, string));
         if isop string then register_op string symbol
       in
       match symbol with
@@ -396,14 +380,14 @@ module M
               (ParseError_
                  ["Attempt to redefine the syntactic role of BQuote2"; s;
                   "'' to "; smlsymbolstring t])
-    let decVarPrefixes : (idclass, string) Mappingfuns.mapping ref =
-      ref Mappingfuns.empty
+    let decVarPrefixes : (idclass, string) Mappingfuns.M.mapping ref =
+      ref Mappingfuns.M.empty
     let rec declareIdPrefix class__ s =
-      begin match Mappingfuns.at (!decVarPrefixes, class__) with
+      begin match Mappingfuns.M.at (!decVarPrefixes, class__) with
         None ->
           decVarPrefixes :=
-            Mappingfuns.( ++ )
-              (!decVarPrefixes, Mappingfuns.( |-> ) (class__, s))
+            Mappingfuns.M.( ++ )
+              (!decVarPrefixes, Mappingfuns.M.( |-> ) (class__, s))
       | Some _ -> ()
       end;
       insertinIdtree "declareIdPrefix" true class__ idprefixtree s;
@@ -414,7 +398,7 @@ module M
       *)
       []
     let rec autoVID class__ prefix =
-      match Mappingfuns.at (!decVarPrefixes, class__) with
+      match Mappingfuns.M.at (!decVarPrefixes, class__) with
         Some s -> s
       | None ->
           (* we just add underscores to prefix till it isn't in the IdPrefix tree *)
@@ -438,7 +422,7 @@ module M
       let debug = !symboldebug in
       symboldebug := false;
       symboltable := Store.new__ friendlyLargeishPrime;
-      reversemapping := Mappingfuns.empty;
+      reversemapping := Mappingfuns.M.empty;
       optree := emptysearchtree mkalt;
       oplist := None;
       List.iter (fun c -> updateIDhead (c, false)) !decIDheads;
@@ -447,7 +431,7 @@ module M
       decIDtails := [];
       idprefixtree := emptysearchtree mkalt;
       idfixedtree := emptysearchtree mkalt;
-      decVarPrefixes := Mappingfuns.empty;
+      decVarPrefixes := Mappingfuns.M.empty;
       List.iter (enterclass (fun s->SHYID s))
         ["ABSTRACTION"; "ALL"; "AND"; "ARE"; "AUTOMATCH"; "AUTOUNIFY"; "BAG";
          "BIND"; "BUTTON"; "CHECKBOX"; "CHILDREN"; "CLASS"; "COMMAND";

@@ -29,10 +29,13 @@ module type T =
   end
 (* $Id$ *)
 
-module M (AAA : sig type idclass and vid end) : T =
+module M : T with type vid = string 
+              and type idclass = Idclass.M.idclass
+=
   struct
-    open AAA
-    type idclass = AAA.idclass and vid = AAA.vid
+
+    type idclass = Idclass.M.idclass and vid = string
+    
     type associativity =
       LeftAssoc | RightAssoc | AssocAssoc | TupleAssoc | CommAssocAssoc
     type symbol =

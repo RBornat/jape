@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Extend =
+module type T =
   sig
     module Arrayf :
       sig
@@ -29,7 +29,7 @@ module type Extend =
 
 (* $Id$ *)
 
-module Extend : Extend =
+module M : T =
   struct
     module Integer =
       struct

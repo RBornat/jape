@@ -98,24 +98,10 @@ module type T =
 
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      val cache :
-        string -> ('a * int * 'b -> string) -> int -> ('a -> 'b) ->
-          (int -> 'a -> 'b) * (unit -> unit)
-      (* function         eval                   reset        *)
-      val consolereport : string list -> unit
-      val hashlist : ('a -> int) -> 'a list -> int
-      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-      val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      
-      exception Catastrophe_ of string list
-    end)
-  : T =
+module M : T =
   struct
-    open AAA
+    open Simplecache.M
+    open Miscellaneous.M
  
     let null = function [] -> true | _ -> false
           
@@ -635,7 +621,7 @@ module M
       if n <= 1 then [n] else choose (zerosplits 0)
     let rec minwforcache (w, ns) = minw w (Array.of_list ns) (List.length ns)
     let (minw, resetminwcache) =
-      cache "minwaste"
+      simplecache "minwaste"
         (fun ((w, ns), hash, rs) ->
            ((((((((("(" ^ string_of_int hash) ^ ", ") ^ "(") ^ string_of_int w) ^
                   ",") ^

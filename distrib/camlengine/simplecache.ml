@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type SimpleCache =
+module type T =
   sig
     val hashstring : string -> int
     val hashlist : ('a -> int) -> 'a list -> int
@@ -19,14 +19,10 @@ module type SimpleCache =
     val simplecachedebug : bool ref
   end
   
-module SimpleCache (AAA : sig val consolereport : string list -> unit 
-                              val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-                              val explode : string -> char list
-                          end) :
-  SimpleCache =
+module M : T =
   struct
-    open AAA
     open Array
+    open Miscellaneous.M
     
     let simplecachedebug = ref false
     (* for the millennium, better hashing. Well, up to 15 characters will count ... RB 30/xii/99 *)

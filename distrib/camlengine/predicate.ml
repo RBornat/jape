@@ -24,44 +24,17 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      module Idclass : Idclass.T
-      module Term : Term.T
-             with type idclass = Idclass.idclass
-      
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val ( ||| ) : 'a list * 'b list -> ('a * 'b) list
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val consolereport : string list -> unit
-      val earlierlist : ('a -> 'a -> bool) -> 'a list -> 'a list -> bool
-      val eqbags : ('a * 'a -> bool) -> 'a list * 'a list -> bool
-      val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      val _MAP : ('a -> 'b) * 'a list -> 'b list
-      val member : 'a * 'a list -> bool
-      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-      val optionstring : ('a -> string) -> 'a option -> string
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val sort : ('a -> 'a -> bool) -> 'a list -> 'a list
-      (* given op<, sorts in < order *)
-      val sortedmerge : ('a -> 'a -> bool) -> 'a list -> 'a list -> 'a list
-      val sortunique : ('a -> 'a -> bool) -> 'a list -> 'a list
-      
-      exception Catastrophe_ of string list 
-      exception Zip
-      
-    end)
-  : T =
+module M : T =
   struct
-    open AAA
-    open Idclass 
-    open Term
+    open Idclass.M 
+    open Term.M (* all of it. RB *)
+    open Listfuns.M
+    open Miscellaneous.M
+    open Stringfuns.M
     
-    type idclass = Idclass.idclass
-    type term = Term.term
-    type vid = Term.vid
+    type idclass = Idclass.M.idclass
+    type term = Term.M.term
+    type vid = Symboltype.M.vid 
     
     let interpretpredicates = ref false
     let predicatedebug = ref false

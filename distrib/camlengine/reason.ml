@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Reason =
+module type T =
   sig
     val setReason : string list -> unit
     val prefixtoReason : string list -> unit
@@ -9,7 +9,7 @@ module type Reason =
   end
 (* $Id$ *)
 
-module Reason : Reason =
+module M : T =
   struct
     let reasons : string list ref = ref []
     let rec setReason ss = reasons := ss

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Displayfont =
+module type T =
   sig
     type displayfont = TermFont | ReasonFont | ProvisoFont
     val allfonts : displayfont list
@@ -14,10 +14,10 @@ module type Displayfont =
   end
 (* $Id$ *)
 
-module Displayfont (AAA : sig exception Catastrophe_ of string list end) :
-  Displayfont =
+module M : T =
   struct
-    open AAA
+    exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+    
     type displayfont = TermFont | ReasonFont | ProvisoFont
     let allfonts = [TermFont; ReasonFont; ProvisoFont]
     let rec displayfontstring =

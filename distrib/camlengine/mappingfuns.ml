@@ -35,27 +35,10 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      val catelim_liststring :
-        ('a -> string list -> string list) -> string -> 'a list ->
-          string list -> string list
-      val catelim2stringfn :
-        ('a -> string list -> string list) -> 'a -> string
-      val listsub : ('a * 'b -> bool) -> 'a list -> 'b list -> 'a list
-      val member : 'a * 'a list -> bool
-      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-      val set : 'a list -> 'a list
-      val seteq : ('a * 'a -> bool) -> 'a list -> 'a list
-      val stringfn2catelim :
-        ('a -> string) -> 'a -> string list -> string list
-      val unSOME : 'a option -> 'a
-      exception UnSOME_
-    end)
-  : T =
+module M : T =
   struct
-    open AAA
+    open Miscellaneous.M
+    open Listfuns.M
 
     type ('a, 'b) mapping = ('a * 'b) list
 
@@ -101,7 +84,7 @@ module M
         empty mapping
     (* dom now gives its result in reverse insertion order, just like rawdom *)
     let rec aslist (m : ('a * 'b) list) =
-      seteq (fun ((a, b), (a1, b1)) -> a = a1) m
+      seteq (fun (a, b) (a1, b1) -> a = a1) m
     let rec dom m = List.map (fun (r,_)->r) (aslist m)
     let rec ran m = List.map (fun (_,r)->r) (aslist m)
     let rec rawaslist m = m
@@ -109,7 +92,7 @@ module M
     let rec rawran (m : ('a, 'b) mapping) = List.map (fun (_,r)->r) m
     
     let rec formappingpairs (f, mapping) =
-      List.iter (fun d -> f (d, unSOME (at (mapping, d)))) (dom mapping)
+      List.iter (fun d -> f (d, Optionfuns.M.unSOME (at (mapping, d)))) (dom mapping)
     let rec mkmap pairs =
       nj_fold (fun ((a, b), map) -> ( ++ ) (map, ( |-> ) (a, b))) pairs empty
     let rec catelim_mappingstring astring bstring sep mapping ss =

@@ -1,284 +1,252 @@
 (* $Id$ *)
 
-(* I can't persuade OCaml to accept the multiple inclusion of alternative signatures.
-   So for the time being I just give everybody the lot.
-   RB 4/vii/2002
- *)
-
-module type T = 
-sig
-
-(* module type Termtype =
-     sig
- *)
-    type vid and idclass
-    (* terms now contain hash information. RB 26/i/00 *)
-    type term =
-        Id of (int option * vid * idclass)
-      | Unknown of (int option * vid * idclass)
-      | App of (int option * term * term)
-      | Tup of (int option * string * term list)
-      | Literal of (int option * litcon)
-      | Fixapp of (int option * string list * term list)
-      | Subst of (int option * bool * term * (term * term) list)
-      | Binding of
-          (int option * (term list * term list * term list) *
-             (term * (int * int)) list * term)
-      | Collection of (int option * idclass * element list)
-    and litcon = Number of int | String of string
-    and element =
-        Segvar of (int option * term list * term)
-      | Element of (int option * resnum * term)
-    and resnum = Nonum | Resnum of int | ResUnknown of int
-(*   end
-  
-   module type Termstore =
-     sig
-       type vid and idclass and term and litcon and element and resnum
- *)
-    val registerId : vid * idclass -> term
-    val registerUnknown : vid * idclass -> term
-    val registerApp : term * term -> term
-    val registerTup : string * term list -> term
-    val registerLiteral : litcon -> term
-    val registerFixapp : string list * term list -> term
-    val registerSubst : bool * term * (term * term) list -> term
-    val registerBinding :
-      (term list * term list * term list) * 
-      (term * (int * int)) list *
-      term -> term
-    val registerCollection : idclass * element list -> term
-    val registerElement : resnum * term -> element
-    val registerSegvar : term list * term -> element
-    val resettermstore : unit -> unit
-(*   end
-   
-   module type Term =
-     sig
-    type vid and idclass and term and litcon and element and resnum
- *)
-    val isconstant : term -> bool
-    val isId : term -> bool
-    val isUnknown : term -> bool
-    val isVariable : term -> bool
-    val isleaf : term -> bool
-    val isidentifier : term -> bool
-    val ismetav : term -> bool
-    val isextensibleId : term -> bool
-    val isemptycollection : term -> bool
-    val isCollection : term -> bool
-    val isleafelement : element -> bool
-    val issegvar : element -> bool
-    val isselectionSubst : element -> bool
-    val termkind : term -> int
-    val termkindmax : int
-    val emptycollection : idclass -> term
-    val collection2term : term -> term option
-    val element2term : element -> term option
-    val int2term : int -> term
-    val term2int : term -> int
-    (* may raise AtoI_ or Catastrophe_ *)
-       
-    val debracketapplications : bool ref
-    val mapterm : (term -> term option) -> term -> term
-    val option_mapterm : (term -> term option) -> term -> term option
-    (* Some if rewritten *)
-    val foldterm : (term * 'a -> 'a option) -> 'a -> term -> 'a
-    val nj_foldterm : (term * 'a -> 'a option) -> term * 'a -> 'a
-    val foldelements : (term * 'a -> 'a option) -> 'a -> element list -> 'a
-    val findterm : (term -> 'a option) -> term -> 'a option
-    val findhole : ((term -> term) -> term -> 'a option) -> term -> 'a option
-    val searchterm : (term -> 'a option) -> 'a -> term -> 'a
-    val existsterm : (term -> bool) -> term -> bool
-    (* functions to give access to the innards of a term without giving away the whole type *)
-    val decodeSubst : term -> (bool * term * (term * term) list) option
-    (* gives r, p_, vts *)
-    val decodeBinding : term -> (term list * term list * term list) option
-    (* gives bs, ss, us *)
-    val decodeBracketed : term -> term option
-    val canonicalsubstmap : (term * term) list -> (term * term) list
-    val termstring : term -> string
-    val termstring_invisbracketed : term -> string
-    val termstring_invischoose :
-      (term -> string) -> (term -> string) -> term -> string
-    val vtsstring : (term * term) list -> string
-    val argstring : term -> string
-    (* bracketed for use as args in curried functions *)
-    val collectionstring : string -> term -> string
-    (* for those who don't want to see the details *)
-    val termOrCollectionstring : string -> term -> string
-    val smltermstring : term -> string
-    val elementstring : element -> string
-    (* what goes on the screen *)
-    val elementstring_invisbracketed : element -> string
-    val elementstring_invischoose :
-      (term -> string) -> (term -> string) -> element -> string
-    val smlelementstring : (term -> string) -> element -> string
-    val resnumstring : resnum -> string
-    val termliststring : term list -> string
-    val catelim_termstring : term -> string list -> string list
-    val catelim_vtsstring : (term * term) list -> string list -> string list
-    val catelim_argstring : term -> string list -> string list
-    val catelim_collectionstring :
-      string -> term -> string list -> string list
-    val catelim_termOrCollectionstring :
-      string -> term -> string list -> string list
-    val catelim_smltermstring : term -> string list -> string list
-    val catelim_elementstring : element -> string list -> string list
-    val catelim_smlelementstring :
-      (term -> string list -> string list) -> element -> string list ->
-        string list
-    val catelim_resnumstring : resnum -> string list -> string list
-    val catelim_termliststring : term list -> string list -> string list
-    val bracketed : term -> bool
-    val debracket : term -> term
-    val enbracket : term -> term
-    val eqterms : term * term -> bool
-    (* ignoring bracketing *)
-    val eqalphaterms : term * term -> bool
-    (* ignoring bracketing and alpha-conversion *)
-    val eqalphadebug : bool ref
-    val termoccursin : term -> term -> bool
-    val simterms : term * term -> bool
-    val termvars : term -> term list
-    val tmerge : term list -> term list -> term list
-    val varbindings : term -> (term * term list list list) list
-    val bmerge :
-      (term * term list list list) list -> (term * term list list list) list ->
-        (term * term list list list) list
-    val freevarsfrombindings :
-      (term * term list list list) list -> (term * term) list ->
-        term list * (term * term list) list
-    val varbindingsdebug : bool ref
-    val earliervar : term -> term -> bool
-    val mergevars : term list -> term list -> term list
-    val termVIDs : term -> vid list
-    val vartoVID : term -> vid
-    val conVIDs : term list -> vid list
-    val orderVIDs : vid list -> vid list
-    val uniqueVID : idclass -> vid list -> vid list -> vid -> vid
-    val mergeVIDs : vid list -> vid list -> vid list
-    val idclass : term -> idclass
-    val isSubstClass : term -> bool
-    val specialisesto : idclass * idclass -> bool
-    (* meant to be infix; A specialisesto B if a B-thing is a special kind of A-thing *)
-    val canoccurfreein : idclass * idclass -> bool
-    (* temporary additions to ease the passage to Collection use *)
-    val explodeCollection : term -> element list
-    val augmentCollection : term -> element list -> term option
-    (* possibly permanent additions to ease passage to Collection use *)
-    val elementnumbers : term -> resnum list
-    val resnum2int : resnum -> int
-    val isProperResnum : resnum -> bool
-    val elementnumbered : term -> resnum -> term option
-    val collectionkind : term -> idclass option
-    val replaceelement : term -> element -> term -> element * term
-    val eqelements : (term * term -> bool) -> element * element -> bool
-    (* takes no notice of resource numbers *)
-    val sameresource : element * element -> bool
-    (* only looks at resource numbers *)
-    val earlierresource : element * element -> bool
-    (* only looks at resource numbers *)
-
-    val explodeApp : bool -> term -> term * term list
-    val implodeApp : bool -> term * term list -> term
-    val explodebinapp : term -> (term * string * term) option
-    val hashterm : term -> int option
-    val hashelement : element -> int option
-    val termhashing : bool ref
+module type TM0 = 
+  sig
+	type vid = Symboltype.M.vid and idclass = Idclass.M.idclass
+	  (* can't seem to avoid this definiteness here ... or can I? *)
   end
 
+module TM0 : TM0 = 
+  struct
+	type vid = Symboltype.M.vid and idclass = Idclass.M.idclass
+	  (* can't seem to avoid this definiteness here ... or can I? *)
+  end
+
+module type Termtype = 
+  sig
+	open TM0
+	(* terms now contain hash information. RB 26/i/00 *)
+	type term =
+		Id of (int option * vid * idclass)
+	  | Unknown of (int option * vid * idclass)
+	  | App of (int option * term * term)
+	  | Tup of (int option * string * term list)
+	  | Literal of (int option * litcon)
+	  | Fixapp of (int option * string list * term list)
+	  | Subst of (int option * bool * term * (term * term) list)
+	  | Binding of
+		  (int option * (term list * term list * term list) *
+			 (term * (int * int)) list * term)
+	  | Collection of (int option * idclass * element list)
+	and litcon = Number of int | String of string
+	and element =
+		Segvar of (int option * term list * term)
+	  | Element of (int option * resnum * term)
+	and resnum = Nonum | Resnum of int | ResUnknown of int
+end
+	
+module Termtype =
+  struct
+    open TM0
+	type term =
+		Id of (int option * vid * idclass)
+	  | Unknown of (int option * vid * idclass)
+	  | App of (int option * term * term)
+	  | Tup of (int option * string * term list)
+	  | Literal of (int option * litcon)
+	  | Fixapp of (int option * string list * term list)
+	  | Subst of (int option * bool * term * (term * term) list)
+	  | Binding of
+		  (int option * (term list * term list * term list) *
+			 (term * (int * int)) list * term)
+	  | Collection of (int option * idclass * element list)
+	and litcon = Number of int | String of string
+	and element =
+		Segvar of (int option * term list * term)
+	  | Element of (int option * resnum * term)
+	and resnum = Nonum | Resnum of int | ResUnknown of int
+  end    	
+
+module type Termstore =
+  sig
+	open TM0
+	open Termtype
+	val registerId : vid * idclass -> term
+	val registerUnknown : vid * idclass -> term
+	val registerApp : term * term -> term
+	val registerTup : string * term list -> term
+	val registerLiteral : litcon -> term
+	val registerFixapp : string list * term list -> term
+	val registerSubst : bool * term * (term * term) list -> term
+	val registerBinding :
+	  (term list * term list * term list) * 
+	  (term * (int * int)) list *
+	  term -> term
+	val registerCollection : idclass * element list -> term
+	val registerElement : resnum * term -> element
+	val registerSegvar : term list * term -> element
+	val resettermstore : unit -> unit
+  end
+	   
+module type Term =
+  sig
+	open TM0
+	open Termtype
+	val isconstant : term -> bool
+	val isId : term -> bool
+	val isUnknown : term -> bool
+	val isVariable : term -> bool
+	val isleaf : term -> bool
+	val isidentifier : term -> bool
+	val ismetav : term -> bool
+	val isextensibleId : term -> bool
+	val isemptycollection : term -> bool
+	val isCollection : term -> bool
+	val isleafelement : element -> bool
+	val issegvar : element -> bool
+	val isselectionSubst : element -> bool
+	val termkind : term -> int
+	val termkindmax : int
+	val emptycollection : idclass -> term
+	val collection2term : term -> term option
+	val element2term : element -> term option
+	val int2term : int -> term
+	val term2int : term -> int
+	(* may raise AtoI_ or Catastrophe_ *)
+	   
+	val debracketapplications : bool ref
+	val mapterm : (term -> term option) -> term -> term
+	val option_mapterm : (term -> term option) -> term -> term option
+	(* Some if rewritten *)
+	val foldterm : (term * 'a -> 'a option) -> 'a -> term -> 'a
+	val nj_foldterm : (term * 'a -> 'a option) -> term * 'a -> 'a
+	val foldelements : (term * 'a -> 'a option) -> 'a -> element list -> 'a
+	val findterm : (term -> 'a option) -> term -> 'a option
+	val findhole : ((term -> term) -> term -> 'a option) -> term -> 'a option
+	val searchterm : (term -> 'a option) -> 'a -> term -> 'a
+	val existsterm : (term -> bool) -> term -> bool
+	(* functions to give access to the innards of a term without giving away the whole type *)
+	val decodeSubst : term -> (bool * term * (term * term) list) option
+	(* gives r, p_, vts *)
+	val decodeBinding : term -> (term list * term list * term list) option
+	(* gives bs, ss, us *)
+	val decodeBracketed : term -> term option
+	val canonicalsubstmap : (term * term) list -> (term * term) list
+	val termstring : term -> string
+	val termstring_invisbracketed : term -> string
+	val termstring_invischoose :
+	  (term -> string) -> (term -> string) -> term -> string
+	val vtsstring : (term * term) list -> string
+	val argstring : term -> string
+	(* bracketed for use as args in curried functions *)
+	val collectionstring : string -> term -> string
+	(* for those who don't want to see the details *)
+	val termOrCollectionstring : string -> term -> string
+	val smltermstring : term -> string
+	val elementstring : element -> string
+	(* what goes on the screen *)
+	val elementstring_invisbracketed : element -> string
+	val elementstring_invischoose :
+	  (term -> string) -> (term -> string) -> element -> string
+	val smlelementstring : (term -> string) -> element -> string
+	val resnumstring : resnum -> string
+	val termliststring : term list -> string
+	val catelim_termstring : term -> string list -> string list
+	val catelim_vtsstring : (term * term) list -> string list -> string list
+	val catelim_argstring : term -> string list -> string list
+	val catelim_collectionstring :
+	  string -> term -> string list -> string list
+	val catelim_termOrCollectionstring :
+	  string -> term -> string list -> string list
+	val catelim_smltermstring : term -> string list -> string list
+	val catelim_elementstring : element -> string list -> string list
+	val catelim_smlelementstring :
+	  (term -> string list -> string list) -> element -> string list ->
+		string list
+	val catelim_resnumstring : resnum -> string list -> string list
+	val catelim_termliststring : term list -> string list -> string list
+	val bracketed : term -> bool
+	val debracket : term -> term
+	val enbracket : term -> term
+	val eqterms : term * term -> bool
+	(* ignoring bracketing *)
+	val eqalphaterms : term * term -> bool
+	(* ignoring bracketing and alpha-conversion *)
+	val eqalphadebug : bool ref
+	val termoccursin : term -> term -> bool
+	val simterms : term * term -> bool
+	val termvars : term -> term list
+	val tmerge : term list -> term list -> term list
+	val varbindings : term -> (term * term list list list) list
+	val bmerge :
+	  (term * term list list list) list -> (term * term list list list) list ->
+		(term * term list list list) list
+	val freevarsfrombindings :
+	  (term * term list list list) list -> (term * term) list ->
+		term list * (term * term list) list
+	val varbindingsdebug : bool ref
+	val earliervar : term -> term -> bool
+	val mergevars : term list -> term list -> term list
+	val termVIDs : term -> vid list
+	val vartoVID : term -> vid
+	val conVIDs : term list -> vid list
+	val orderVIDs : vid list -> vid list
+	val uniqueVID : idclass -> vid list -> vid list -> vid -> vid
+	val mergeVIDs : vid list -> vid list -> vid list
+	val idclass : term -> idclass
+	val isSubstClass : term -> bool
+	val specialisesto : idclass * idclass -> bool
+	(* meant to be infix; A specialisesto B if a B-thing is a special kind of A-thing *)
+	val canoccurfreein : idclass * idclass -> bool
+	(* temporary additions to ease the passage to Collection use *)
+	val explodeCollection : term -> element list
+	val augmentCollection : term -> element list -> term option
+	(* possibly permanent additions to ease passage to Collection use *)
+	val elementnumbers : term -> resnum list
+	val resnum2int : resnum -> int
+	val isProperResnum : resnum -> bool
+	val elementnumbered : term -> resnum -> term option
+	val collectionkind : term -> idclass option
+	val replaceelement : term -> element -> term -> element * term
+	val eqelements : (term * term -> bool) -> element * element -> bool
+	(* takes no notice of resource numbers *)
+	val sameresource : element * element -> bool
+	(* only looks at resource numbers *)
+	val earlierresource : element * element -> bool
+	(* only looks at resource numbers *)
+
+	val explodeApp : bool -> term -> term * term list
+	val implodeApp : bool -> term * term list -> term
+	val explodebinapp : term -> (term * string * term) option
+	val hashterm : term -> int option
+	val hashelement : element -> int option
+	val termhashing : bool ref
+  end
+  
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      module Listfuns : Listfuns.T
-      module Mappingfuns : Mappingfuns.T
-      module Optionfuns : Optionfuns.T
-      module Answer : Answer.T
-      module Idclass : Idclass.T
-      module Symboltype : Symboltype.T
-             with type idclass = Idclass.idclass
-             and type vid = string
-      module Symbol : Symbol.T
-             with type idclass = Idclass.idclass
-              and type symbol = Symboltype.symbol
-              and type vid = Symboltype.vid
-      module Idclassfuns : Idclassfuns.T
-             with type idclass = Idclass.idclass
-              and type symbol = Symboltype.symbol
-      
-      val atoi : string -> int
-      val consolereport : string list -> unit
-      val curry2 : ('a * 'b -> 'c) -> 'a -> 'b -> 'c
-      val enQuote : string -> string
-      val hashlist : ('a -> int) -> 'a list -> int
-      val hashstring : string -> int
-      val interpolate : 'a -> 'a list -> 'a list
-      val invisbra : string
-      val invisible : string -> bool
-      val invisket : string
-      val isdigit : string -> bool
-      val isnumber : string -> bool
-      val isQuoted : string -> bool
-      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-      val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val simplecache :
-        string -> ('a * int * 'b -> string) -> int -> ('a -> 'b) ->
-          (int -> 'a -> 'b) * (unit -> unit)
-      (* function         eval                   reset        *)
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      val unQuote : string -> string
-      
-      exception Catastrophe_ of string list
-    end)
-  :
-  (* sig 
-		 include Termtype
-		 include Termstore
-		 include Term 
-	 end *) T
-  =
+module M :
+  sig include TM0
+      include Termtype
+	  include Termstore
+	  include Term 
+  end with type vid = Symboltype.M.vid and type idclass = Idclass.M.idclass
+=
   struct
-    open AAA
-    open Listfuns
-    open Mappingfuns
-    open Optionfuns
-    open Symboltype
-    open Symbol
-    open Idclass
-    open Idclassfuns
-    open Answer
+    open Miscellaneous.M
+    let invisbra = String.make 1 offbra
+    and invisket = String.make 1 offket
     
-    type vid = Symboltype.vid
-    type idclass = Idclass.idclass
+    open Stringfuns.M
+    open Optionfuns.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Optionfuns.M
+    open Symboltype.M
+    open Symbol.M
+    open Idclass.M
+    open Idclassfuns.M
+    open Answer.M
+    
+    open Simplecache.M
+    
+    type vid = Symboltype.M.vid
+    type idclass = Idclass.M.idclass
+    
     
     (* terms now contain hash information. RB 26/i/00 *)
     (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
-    type term =
-        Id of (int option * vid * idclass)
-      | Unknown of (int option * vid * idclass)
-      | App of (int option * term * term)
-      | Tup of (int option * string * term list)
-      | Literal of (int option * litcon)
-      | Fixapp of (int option * string list * term list)
-      | Subst of (int option * bool * term * (term * term) list)
-      | Binding of
-          (int option * (term list * term list * term list) *
-             (term * (int * int)) list * term)
-      | Collection of (int option * idclass * element list)
-    and litcon = Number of int | String of string
-    and element =
-        Segvar of (int option * term list * term)
-      | Element of (int option * resnum * term)
-    and resnum = Nonum | Resnum of int | ResUnknown of int
-    (* resource 'numbers' no longer include a modality history. This mechanism was
-     * never used and was of doubtful utility.  When we find a need for it, we may
-     * include it once more.
-     *)
+    include Termtype
 
     let rec hashterm =
       function
@@ -1955,3 +1923,7 @@ module M
         Fixapp (_, ["("; ")"], [t]) -> Some t
       | _ -> None
   end
+
+(* module type Termtype = sig type vid=M.vid and idclass=M.idclass
+						   include Termtype
+					   end *)

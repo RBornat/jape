@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Box =
+module type T =
   sig
     type size and textsize and pos and box and textbox
     (* build values *)
@@ -82,9 +82,10 @@ module type Box =
     val boxstring : box -> string
     val textboxstring : textbox -> string
   end
+
 (* $Id$ *)
 
-module Box : Box =
+module M : T =
   struct
     (* the algebra of Pos and Box deserves a functor, I think *)
     (* New version, November 94, cos I'm tired of the fact that text printing 

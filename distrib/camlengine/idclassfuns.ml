@@ -10,28 +10,16 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      module Idclass : Idclass.T
-      module Symboltype : Symboltype.T
-             with type idclass = Idclass.idclass
-      module Symbol : Symbol.T
-             with type symbol = Symboltype.symbol
-             and type idclass = Idclass.idclass
-      
-      val member : 'a * 'a list -> bool
-      
-      exception ParseError_ of string list      
-    end) : T =
+module M : T with type idclass = Idclass.M.idclass and type symbol = Symboltype.M.symbol =
   struct
-    open AAA
-    open Symboltype 
-    open Symbol 
-    open Idclass
+    open Symboltype.M 
+    open Symbol.M 
+    open Idclass.M
+    open Miscellaneous.M
+    open Listfuns.M
     
-    type idclass = Idclass.idclass
-    type symbol = Symboltype.symbol
+    type idclass = Idclass.M.idclass
+    type symbol = Symboltype.M.symbol
     
     (* in future we shall have lots of kinds of Bags and Lists; for the moment 
      * it would be burdensome to force the world to say BAG FORMULA, so we don't.

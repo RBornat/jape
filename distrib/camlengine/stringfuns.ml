@@ -89,20 +89,11 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      val interpolate : 'a -> 'a list -> 'a list
-      val catelim2stringfn :
-        ('a -> string list -> string list) -> 'a -> string
-	  val explode : string -> char list
-	  val implode : char list -> string
-      val stringfn2catelim :
-        ('a -> string) -> 'a -> string list -> string list
-    end)
-  : T =
+module M : T =
   struct
-    open AAA
+    open Miscellaneous.M
+    open Listfuns.M
+    
     let rec isQuoted s =
       String.sub (s) (0) (1) = "\"" && String.sub (s) (String.length s - 1) (1) = "\""
     let rec unQuote s =

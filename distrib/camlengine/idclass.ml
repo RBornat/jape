@@ -19,18 +19,13 @@ module type T =
     val catelim_idclassstring : idclass -> string list -> string list
     val idclassstring : idclass -> string
   end
+
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      val catelim2stringfn :
-        ('a -> string list -> string list) -> 'a -> string
-    end)
-  :
-  T =
+module M : T =
   struct
-    open AAA
+    let catelim2stringfn = Listfuns.M.catelim2stringfn
+    
     type idclass =
         NoClass
       | FormulaClass

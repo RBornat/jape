@@ -27,25 +27,17 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      type textsize and pos and font
-      val ( +->+ ) : pos * pos -> pos
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val fontstring : font -> string
-      val pos : int * int -> pos
-      val posstring : pos -> string
-      val textsize : int * int * int -> textsize
-      val triplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
-          'a * 'b * 'c -> string
-    end)
-  :
-  T =
+module M : T =
   struct
-    open AAA
-    type textsize = AAA.textsize and pos = AAA.pos and font = AAA.font
+    open Box.M
+    open Miscellaneous.M
+    open Listfuns.M
+    open Displayfont.M
+    open Stringfuns.M
+    
+    type textsize = Box.M.textsize and pos = Box.M.pos and font = displayfont
+    
+    let fontstring = displayfontstring
     
     type textalign = FirstLine | MidBlock | LastLine
     type syllable =

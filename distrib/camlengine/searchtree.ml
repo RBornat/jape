@@ -29,18 +29,10 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      module Listfuns : Listfuns.T
-      val consolereport : string list -> unit
-      exception Catastrophe_ of string list
-    end)
-  :
-  T =
+module M : T =
   struct
-    open AAA
-    open Listfuns
+    open Listfuns.M
+    open Miscellaneous.M
     
     (* updatable syntax search trees, without backtracking. 
      * The trees have to allow for 'prefix' searching, where there is

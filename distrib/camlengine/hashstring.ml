@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module M : Hashtype.T =
+module M : Hashtype.T with type type__ = string =
   struct
     type type__ = string
     let eq : type__ * type__ -> bool = fun (x, y) -> x = y
