@@ -32,12 +32,11 @@ import java.util.Vector;
 
 public class Dispatcher extends Thread implements DebugConstants {
 
-    protected BufferedReader in;
-    
+    private final JapeCharEncoding encoder;
+
     public Dispatcher() {
         super("Dispatcher");
-        in = new BufferedReader(new InputStreamReader(System.in));
-        System.err.println("encoding used is "+(new InputStreamReader(System.in)).getEncoding());
+        encoder = Reply.decoder;
         if (protocol_tracing)
             System.err.println("dispatcher initialised");
     }
@@ -56,7 +55,7 @@ public class Dispatcher extends Thread implements DebugConstants {
         Vector list = new Vector(); 
         try {
             while (true) {
-                String line = in.readLine();
+                String line = encoder.inputline();
                 try {
                     String[] cmd = japesplit(line);
                     if (protocol_tracing) {
@@ -77,7 +76,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 
                     // string passing happens a lot, so put it early
                         if (p.equals("STRINGSIZE")&&len==3)
-                            Reply.reply(JapeFont.checkedMeasure(toUnicode(cmd[2]), toByte(cmd[1])));
+                            Reply.reply(JapeFont.checkedMeasure(cmd[2], toByte(cmd[1])));
                         else
                         if (p.equals("STRINGSIZE")&&len==2) // this can happen ... ask a stupid question
                             Reply.reply(JapeFont.checkedMeasure("", toByte(cmd[1])));
@@ -85,8 +84,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("DRAWSTRING")&&len==7)
                             ProofWindow.drawstring(toInt(cmd[1]), toInt(cmd[2]),    // x, y
                                                     toByte(cmd[3]), toByte(cmd[4]), // font, kind
-                                                    toUnicode(cmd[5]),                  // annottext
-                                                    toUnicode(cmd[6]));                 // printtext
+                                                    cmd[5],                         // annottext
+                                                    cmd[6]);                        // printtext
                         else
                         if (p.equals("DRAWRECT")&&len==5)
                             ProofWindow.drawRect(toInt(cmd[1]), toInt(cmd[2]), // x, y
@@ -122,29 +121,29 @@ public class Dispatcher extends Thread implements DebugConstants {
                             list.removeAllElements();
                         else
                         if (p.equals("ASKBUTTON")&&len==2)
-                            list.add(toUnicode(cmd[1]));
+                            list.add(cmd[1]);
                         else
                         if (p.equals("ASKNOW")&&len==4)
                             Reply.reply(Alert.ask(((String[])list.toArray(new String[list.size()])),
-                                                  toInt(cmd[1]), toUnicode(cmd[2]), toInt(cmd[3])));
+                                                  toInt(cmd[1]), cmd[2], toInt(cmd[3])));
                         else
                         if (p.equals("ASKDANGEROUSLY")&&len==4)
-                            Reply.reply(Alert.askDangerously(toUnicode(cmd[1]),
-                                                             toUnicode(cmd[2]),
-                                                             toUnicode(cmd[3])));
+                            Reply.reply(Alert.askDangerously(cmd[1], cmd[2], cmd[3]));
                         else
                     
                     // file choosing
                         if (p.equals("READFILENAME")&&len==3)
-                            Reply.reply(FileChooser.newOpenDialog(toUnicode(cmd[1]), toUnicode(cmd[2])));
+                            Reply.reply(FileChooser.newOpenDialog(cmd[1], cmd[2]));
                         else
                         if (p.equals("WRITEFILENAME")&&len==3)
-                            Reply.reply(FileChooser.newSaveDialog(toUnicode(cmd[1]), toUnicode(cmd[2])));
+                            Reply.reply(FileChooser.newSaveDialog(cmd[1], cmd[2]));
                         else
                             
                     // font setting
-                        if (p.equals("SETFONTS")&&len==2)
-                            JapeFont.setSubstituteFont(cmd[1]);
+                            if (p.equals("SETFONTS")&&len==2) {
+                                encoder.setEncoding(cmd[1]);
+                                JapeFont.setSubstituteFont(cmd[1]);
+                            }
                         else
                         
                     // INVISCHARS are the way we describe syntactic structure
@@ -158,10 +157,10 @@ public class Dispatcher extends Thread implements DebugConstants {
                     
                     // MENU commands
                         if (p.equals("NEWMENU")&&len==3)
-                            JapeMenu.newMenu(toBool(cmd[1]), toUnicode(cmd[2]));
+                            JapeMenu.newMenu(toBool(cmd[1]), cmd[2]);
                         else
                         if (p.equals("MENUITEM")&&len==5)
-                            JapeMenu.addItem(toUnicode(cmd[1]), toUnicode(cmd[2]), toUnicode(cmd[3]), cmd[4]);
+                            JapeMenu.addItem(cmd[1], cmd[2],cmd[3], cmd[4]);
                         else
                         if (p.equals("MAKEMENUSVISIBLE")&&len==1) {
                             JapeMenu.makeMenusVisible();
@@ -174,40 +173,39 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("ENABLEMENUITEM")&&len==4) {
                             // showcommand("", cmd);
                             // see comment in japeserver.mli
-                            JapeMenu.enableItem(false, toUnicode(cmd[1]), toUnicode(cmd[2]), toBool(cmd[3]));
+                            JapeMenu.enableItem(false, cmd[1], cmd[2], toBool(cmd[3]));
                         }
                         else
                         if (p.equals("MENURADIOBUTTON")&&len==1)
                             list.removeAllElements();
                         else
                         if (p.equals("MENURADIOBUTTONPART")&&len==3)
-                            list.add(new String[] { toUnicode(cmd[1]), cmd[2]});
+                            list.add(new String[] { cmd[1], cmd[2] });
                         else
                         if (p.equals("MENURADIOBUTTONEND")&&len==2)
-                            JapeMenu.addRadioButtonGroup(toUnicode(cmd[1]),
-                                                         (String[][])list.toArray(new String[list.size()][]));
+                            JapeMenu.addRadioButtonGroup(cmd[1], (String[][])list.toArray(new String[list.size()][]));
                         else
                         if (p.equals("MENUCHECKBOX")&&len==4)
-                            JapeMenu.addCheckBox(toUnicode(cmd[1]), toUnicode(cmd[2]), cmd[3]);
+                            JapeMenu.addCheckBox(cmd[1], cmd[2], cmd[3]);
                         else
                         if (p.equals("TICKMENUITEM")&&len==4) {
                             // showcommand("",cmd);
                             // see comment in japeserver.mli
-                            JapeMenu.tickItem(false, toUnicode(cmd[1]), toUnicode(cmd[2]), toBool(cmd[3]));
+                            JapeMenu.tickItem(false, cmd[1], cmd[2], toBool(cmd[3]));
                         }
                         else
                     
                     // PANEL commands
                         if (p.equals("NEWPANEL")&&len==3)
-                            PanelWindowData.spawn(JapeFont.toUnicodeTitle(cmd[1]), toInt(cmd[2]));
+                            PanelWindowData.spawn(cmd[1], toInt(cmd[2]));
                         else
                         if (p.equals("PANELENTRY")&&len==4)
-                            PanelWindowData.addEntry(JapeFont.toUnicodeTitle(cmd[1]), toUnicode(cmd[2]), cmd[3]);
+                            PanelWindowData.addEntry(cmd[1], cmd[2], cmd[3]);
                         else
                         if (p.equals("PANELBUTTON")&&len==3) {
                             list.removeAllElements();
-                            list.add(JapeFont.toUnicodeTitle(cmd[1]));
-                            list.add(toUnicode(cmd[2]));
+                            list.add(cmd[1]);
+                            list.add(cmd[2]);
                         }
                         else
                         if (p.equals("PANELBUTTONINSERT")&&len==3) {
@@ -227,12 +225,12 @@ public class Dispatcher extends Thread implements DebugConstants {
                         }
                         else
                         if (p.equals("MARKPANELENTRY")&&len==5)
-                            PanelWindowData.markEntry(toUnicode(cmd[1]), cmd[2], toBool(cmd[3]), toBool(cmd[4]));
+                            PanelWindowData.markEntry(cmd[1], cmd[2], toBool(cmd[3]), toBool(cmd[4]));
                         else
                     
                     // proof window commands
                         if (p.equals("OPENPROOF")&&len==3)
-                            ProofWindow.spawn(JapeFont.toUnicodeTitle(cmd[1]), toInt(cmd[2]));
+                            ProofWindow.spawn(cmd[1], toInt(cmd[2]));
                         else
                         if (p.equals("CLOSEPROOF")&&len==2)
                             ProofWindow.closeproof(toInt(cmd[1]));
@@ -261,7 +259,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                             list.removeAllElements();
                         else
                         if (p.equals("TILE")&&len==2)
-                            list.add(toUnicode(cmd[1]));
+                            list.add(cmd[1]);
                         else
                         if (p.equals("TILESEND")&&len==1)
                             ProofWindow.setDisproofTiles((String[])list.toArray(new String[list.size()]));
@@ -273,7 +271,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                             ProofWindow.addWorld(toInt(cmd[1]), toInt(cmd[2]));
                         else
                         if (p.equals("WORLDLABEL")&&len==4)
-                            ProofWindow.addWorldLabel(toInt(cmd[1]), toInt(cmd[2]), toUnicode(cmd[3]));
+                            ProofWindow.addWorldLabel(toInt(cmd[1]), toInt(cmd[2]), cmd[3]);
                         else
                         if (p.equals("WORLDCHILD")&&len==5)
                             ProofWindow.addChildWorld(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]), toInt(cmd[4]));
@@ -290,7 +288,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                             int i = toInt(cmd[1]);
                             if (i!=list.size())
                                 throw new ProtocolError("given "+i+" shouldabeen "+list.size());
-                            list.add(toUnicode(cmd[2]));
+                            list.add(cmd[2]);
                         }
                         else
                         if (p.equals("SETGIVENS")&&len==1)
@@ -336,8 +334,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("VERSION")&&len==2)
                             AboutBox.setVersion(cmd[1]);
                         else
-                            /*Alert.showErrorAlert*/System.err.println("dispatcher doesn't understand ("+len+") "+
-                                                                       toUnicode(line));
+                            /*Alert.showErrorAlert*/System.err.println("dispatcher doesn't understand ("+len+") "+line);
                     } // if (cmd.length!=0)
                 } catch (ProtocolError e) {
                     Alert.showErrorAlert("protocol error in "+line+":: "+e.getMessage());
@@ -439,9 +436,5 @@ public class Dispatcher extends Thread implements DebugConstants {
         if (s.length()==1)
             return s.charAt(0);
         throw new ProtocolError ("\""+s+"\" is not a single char string");
-    }
-
-    private String toUnicode(String s) {
-        return JapeFont.toUnicode(s);
     }
 }
