@@ -34,9 +34,19 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetContext;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
+
 import java.awt.image.BufferedImage;
 
-public class WorldCanvas extends JapeCanvas implements DebugConstants {
+import javax.swing.SwingUtilities;
+
+public class WorldCanvas extends JapeCanvas implements DebugConstants, DropTargetListener {
 
     protected RenderingHints renderingHints;
     protected Container layeredPane;
@@ -51,6 +61,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants {
         renderingHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         Point origin = getOrigin();
         setOrigin(origin.x, origin.y+2*worldRadius());
+        setDropTarget(new DropTarget(this, this));
     }
 
     // It is worth demanding good antialiasing when drawing blobs, rings, diagonal lines.
@@ -183,5 +194,66 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants {
 
     public TextItem addLabelItem(int x, int y, String label) {
         return (TextItem)add(new TextItem(this, x, y, ProtocolConstants.ProvisoFontNum, label, label));
+    }
+
+    /* ****************************** canvas as drag target ****************************** */
+
+    // Called when a drag operation has encountered the DropTarget.
+    public void dragEnter(DropTargetDragEvent event) {
+        if (dragimage_tracing)
+            System.err.println("Canvas dragEnter "+event.getLocation());
+        if (event.isDataFlavorSupported(WorldItem.worldFlavor) &&
+            // event.isLocalTransfer() && -- why can't we do this?
+            event.getDropAction()==DnDConstants.ACTION_MOVE) {
+            event.acceptDrag(DnDConstants.ACTION_MOVE);
+        }
+        else 
+        if (dragimage_tracing)
+            System.err.println("not completely recognised: worldFlavorsupported="+
+                               event.isDataFlavorSupported(WorldItem.worldFlavor)+
+                               "; event.getDropAction()="+event.getDropAction()+
+                               "; DnDConstants.ACTION_MOVE="+DnDConstants.ACTION_MOVE);
+        Component c = event.getDropTargetContext().getComponent();
+        if (dragimage_tracing) {
+            if (c instanceof WorldItem) {
+                System.err.println("in layeredPane coordinates we are at "+
+                                   SwingUtilities.convertPoint(c, event.getLocation(), layeredPane));
+            }
+            else
+                System.err.println("drag Component is "+c);
+        }
+    }
+
+    // The drag operation has departed the DropTarget without dropping.
+    public void dragExit(DropTargetEvent dte) {
+    }
+
+    // Called when a drag operation is ongoing on the DropTarget.
+    public void dragOver(DropTargetDragEvent event) {
+    }
+
+    // The drag operation has terminated with a drop on this DropTarget.
+    public void drop(DropTargetDropEvent event) {
+        // I don't yet know how to avoid inter-window dragging ... perhaps this isn't a good idea!
+        if (event.isDataFlavorSupported(WorldItem.worldFlavor)) {
+            event.acceptDrop(DnDConstants.ACTION_MOVE);
+            try {
+                WorldItem w = ((WorldItem)event.getTransferable().
+                                      getTransferData(WorldItem.worldFlavor));
+                if (dragimage_tracing)
+                    System.err.println("in layeredPane coordinates drop at "+
+                                       SwingUtilities.convertPoint(w, event.getLocation(), layeredPane));
+                w.draggedTo(event.getLocation());
+                event.dropComplete(true);
+            } catch (Exception e) {
+                Alert.abort("drop onto world not worldFlavor");
+            }
+        }
+        else
+            event.dropComplete(false);
+    }
+
+    // Called if the user has modified the current drop gesture
+    public void dropActionChanged(DropTargetDragEvent event) {
     }
 }
