@@ -1,4 +1,4 @@
-/* %W% %E% %T% */
+/* $Id$ */
 
 /*
 	The multi-conclusion sequent calculus
@@ -39,7 +39,7 @@ RULE	"È-L"		FROM AÁB, BÁA Ê  INFER AÈB Ê
 RULE	"Ë-R"(FRESH y) 	FROM Ê A[x\y] INFER Ê Ëx . A
 RULE	"Ë-L"(B)		FROM Ëx.A, A[x\B] Ê INFER Ëx.A Ê
 RULE	"‰-R"(B)		FROM Ê A[x\B] INFER Ê ‰x.A
-RULE	"‰-L"(FRESH y )	FROM  A[x\y] Ê INFER ‰x.A Ê 
+RULE	"‰-L"(FRESH y)	FROM  A[x\y] Ê INFER ‰x.A Ê
 RULE	cut(A)		FROM Ê A AND A Ê INFER Ê
 RULE	leftweaken(A)	FROM Ê INFER A Ê 
 RULE	rightweaken(A)	FROM Ê INFER Ê A
