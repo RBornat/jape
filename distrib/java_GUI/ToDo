@@ -2,6 +2,10 @@ Bugs:
 
 -----------------
 
+pane focus is invisible;
+means of setting focus is lame (do it through JapeCanvas abstract item claimFocus());
+cache of various Undo/Redo actions not reaching GUI properly (rethink).
+
 Cancel in choose file dialog after Save/Cancel/Don'tSave shouldn't mean Don'tSave
 
 panel maximise button
