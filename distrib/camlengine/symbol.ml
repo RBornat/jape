@@ -47,9 +47,10 @@ open Stringfuns
 open Sml
 open UTF
 
-type idclass = Idclass.idclass
+type idclass       = Idclass.idclass
  and associativity = Symboltype.associativity
- and symbol = Symboltype.symbol
+ and symbol        = Symboltype.symbol
+ and ucode         = UTF.ucode
 
 (* smlnj 0.93 had no notion of char, only single-character strings.  In this first
    porting, I've used caml streams and converted all input to single-character strings.
@@ -59,7 +60,7 @@ type idclass = Idclass.idclass
    unicode character.
  *)
 (* and then I thought "how big's a string?" and I realised it ought to be dealing with
-   unicode code points. So it does.
+   unicode code points -- i.e. 21-bit integers. So now it does.
  *)
 open Stream
 
@@ -104,8 +105,10 @@ let (syntaxes : (string * synfixrec * syntabrec) list ref) = ref []
    -- and the things that are derived from them (sigh) like ispunct
  *)
  
-let (isIDhead, updateIDhead) = charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'"
-let (isIDtail, updateIDtail) = charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'0123456789"
+let (isIDhead, updateIDhead) = 
+  charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'"
+let (isIDtail, updateIDtail) = 
+  charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'0123456789"
 
 let decIDheads : int list ref = ref []
 let decIDtails : int list ref = ref []
@@ -121,6 +124,7 @@ let metachar_as_string = "_"
 let rec ispunct c =
   not (c = -1 || c = metachar || isdigit c || isIDhead c || isreserved c)
 
+(* Why are square brackets reservedpunct? *)
 let (reservedpunct, _) = charpred "(),[]"
 
 (* for fast-ish lookup of declared operators and identifiers, and for some error reporting *)
