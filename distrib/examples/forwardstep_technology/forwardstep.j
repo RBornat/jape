@@ -32,3 +32,15 @@ MACRO trueforward(tac) IS
 	
 TACTIC fstep IS
     ALT (ANY (MATCH hyp)) (trueforward SKIP) /* avoid nasty 'hyp matches two ways', I hope */
+
+/* ******************** tactics to check that a rule can be applied forward ******************** */
+
+TACTIC Forward (fpat, action, frule, brule, shape) IS 
+    Forward2 fpat action fpat    frule  brule shape 
+
+MACRO Forward2 (fpat, action, bpat, frule, brule, shape) IS
+    WHEN    (LETHYP fpat action)
+            (LETLHS fpat action) /* why not? */
+            (LETHYP _Ah (ComplainForwardWrongHyp frule shape _Ah))
+            (ComplainForward bpat frule brule (" of the form %s", shape))
+
