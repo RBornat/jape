@@ -549,9 +549,9 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	JapeFont.checkInterfaceFontnum(fontnum);
 	drawstring(x, y, kind, 
 		   kind==PunctTextItem ? 
-		    new TextComponent[]{new TextComponent(x, y, fontnum, text)} : 
+		    new TextComponent[]{new TextComponent(0, 0, fontnum, text)} : 
 		    new AnnotatedTextComponent[]{
-			new AnnotatedTextComponent(x, y, fontnum, text)});
+			new AnnotatedTextComponent(0, 0, fontnum, text)});
    }
     
     public void drawstring(int x, int y, byte kind, 
