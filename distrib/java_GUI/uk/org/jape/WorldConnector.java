@@ -103,7 +103,7 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 	    draghighlight = state;
 	    if (draghighlight) {
 		previousColour = getForeground();
-		setForeground(Preferences.SelectionColour);
+		setForeground(JapePrefs.SelectionColour);
 		canvas.imageRepaint(); repaint();
 	    }
 	    else {

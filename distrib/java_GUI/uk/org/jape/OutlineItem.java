@@ -36,6 +36,6 @@ public class OutlineItem extends Component {
 	super();
 	this.canvas = canvas;
 	setBounds(x, y, w, h);
-	setForeground(Preferences.LineColour);
+	setForeground(JapePrefs.LineColour);
     }
 }

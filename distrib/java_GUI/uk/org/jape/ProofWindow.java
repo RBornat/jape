@@ -354,7 +354,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     }
 
     private void printSeparator(Graphics2D g2D, int y, int length) {
-	g2D.setColor(Preferences.SeparatorColour);
+	g2D.setColor(JapePrefs.SeparatorColour);
 	g2D.setStroke(new BasicStroke((float)separatorThickness()));
 	g2D.drawLine(0, y, length, y);
     }

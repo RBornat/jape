@@ -44,7 +44,7 @@ public class LineComponent extends DragComponent implements DebugConstants {
     public LineComponent(int x0, int y0, int x1, int y1, int thickness) {
 	super();
 	resetLine(x0, y0, x1, y1, thickness);
-	setForeground(Preferences.LineColour);
+	setForeground(JapePrefs.LineColour);
     }
 
     public void resetLine(int x0, int y0, int x1, int y1, int thickness) {

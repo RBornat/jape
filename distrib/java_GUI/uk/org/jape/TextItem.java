@@ -61,7 +61,7 @@ class TextItem extends DisplayItem implements DebugConstants {
 	if (fontDebug)
 	    Logger.log.println(this);
 	setBounds(left, top, right-left, bottom-top);
-	setForeground(Preferences.TextColour);
+	setForeground(JapePrefs.TextColour);
     }
 
     public void paint(Graphics g) {
@@ -70,7 +70,7 @@ class TextItem extends DisplayItem implements DebugConstants {
 	for (int i=0; i<components.length; i++) {
 	    TextComponent c = components[i];
 	    g.setFont(c.font);
-	    g.setColor(isEnabled() ? getForeground() : Preferences.GreyTextColour);
+	    g.setColor(isEnabled() ? getForeground() : JapePrefs.GreyTextColour);
 	    g.drawString(c.printtext, c.offX, ascent+c.offY);
 	}
     }

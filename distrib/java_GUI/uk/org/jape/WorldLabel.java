@@ -146,7 +146,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
     }
 
     public void paint(Graphics g) {
-	setForeground(forced ? Preferences.ForcedColour : Preferences.TextColour);
+	setForeground(forced ? JapePrefs.ForcedColour : JapePrefs.TextColour);
 	super.paint(g);
     }
 

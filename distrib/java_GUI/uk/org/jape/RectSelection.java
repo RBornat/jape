@@ -54,7 +54,7 @@ public class RectSelection extends RectItem
     
     public void paint(Graphics g) {
 	if (selected) {
-	    setForeground(Preferences.SelectionColour);
+	    setForeground(JapePrefs.SelectionColour);
 	    super.paint(g);
 	}
     }

@@ -155,7 +155,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
 	    }
 	    if (worldpaint_tracing)
 		JapeUtils.showContainer(this, null);
-	    imageGraphics.setColor(Preferences.ProofBackgroundColour);
+	    imageGraphics.setColor(JapePrefs.ProofBackgroundColour);
 	    imageGraphics.fillRect(0, 0, width, height);
 	    super.paint(imageGraphics);
 	}

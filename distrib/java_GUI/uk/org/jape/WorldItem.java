@@ -83,7 +83,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	if (geometry_tracing)
 	    Logger.log.println("world bounds are "+getBounds()+"; outline is "+outline.getBounds2D());
 
-	setForeground(Preferences.WorldColour);
+	setForeground(JapePrefs.WorldColour);
 
 	labelx = selectionRing.getX()+selectionRing.getWidth()+canvas.linethickness;
 	labelgap = 4*canvas.linethickness;
@@ -175,7 +175,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	if (state && !draghighlight) {
 	    draghighlight = true;
 	    oldForeground = getForeground();
-	    setForeground(forced ? Preferences.ForcedSelectionColour : Preferences.SelectionColour);
+	    setForeground(forced ? JapePrefs.ForcedSelectionColour : JapePrefs.SelectionColour);
 	    if (worldpaint_tracing)
 		Logger.log.println("highlighting world");
 	    canvas.imageRepaint(); repaint();
@@ -195,8 +195,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     public void setForced(boolean forced) {
 	if (this.forced!=forced) {
 	    this.forced = forced;
-	    setForeground(isEnabled() ? (forced ? Preferences.ForcedColour : Preferences.WorldColour) :
-					Preferences.OutColour);
+	    setForeground(isEnabled() ? (forced ? JapePrefs.ForcedColour : JapePrefs.WorldColour) :
+					JapePrefs.OutColour);
 	    canvas.imageRepaint(); repaint();
 	}
     }

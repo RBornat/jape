@@ -275,7 +275,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	    if (isEnabled()) {
 		if (DebugVars.paint_tracing)
 		    Logger.log.println("painting text selection "+start()+","+end());
-		g.setColor(Preferences.TextSelectionColour);
+		g.setColor(JapePrefs.TextSelectionColour);
 		initRects();
 		while (hasRect()) {
 		    g.fillRect(rX, rY, rW, rH);
