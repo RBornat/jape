@@ -1,4 +1,5 @@
 What you need to do to build an installation for a particular machine/os.
+$Id$
 Jape Associates. 
 December 2002.
 
@@ -65,11 +66,12 @@ THE FOLLOWING DIRECTORIES HAVE YET TO BE INCORPORATED INTO THE BUILD SYSTEM
     make distribution
     -- this completes without intervention, leaving you with LinuxJape.jar
 
-3c. FROM A UNIX (Solaris or Linux) MACHINE IN THE jape DIRECTORY
+3c. FROM A UNIX (Solaris or Linux) MACHINE IN THE jape DIRECTORY (AT OXFORD)
     cd WindowsJape/build
     make distribution
     -- this completes with just one intervention -- namely the
        execution of a build file on a windows machine
        connected to the same filestore, leaving you with WindowsJape.jar
     
+
 
