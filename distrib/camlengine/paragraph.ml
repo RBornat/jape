@@ -70,8 +70,8 @@ module M : T with type term = Term.Type.term
     open Proviso.M
     open Sequent.Funs
     open Sml.M
-    open Symbol.Funs
-    open Symbol.Type
+    open Symbol
+    open Symboltype
     open Term.Funs
     open Term.Termstring
     open Termparse.M
@@ -237,7 +237,7 @@ module M : T with type term = Term.Type.term
             if mustdecl then
               raise
                 (ParseError_
-                   ["unclassified unknown "; Symbol.Funs.metachar; s;
+                   ["unclassified unknown "; Symbol.metachar; s;
                     " in formal parameter list"])
             else begin scansymb (); Unknownparam (vid_of_string s, NoClass) end
         | sy ->

@@ -50,7 +50,7 @@ module type Funs =
 end
 
 module Funs:  Funs with type seq = Type.seq
-                    and type symbol = Symbol.Type.symbol
+                    and type symbol = Symboltype.symbol
 					and type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
 					and type vid = Term.Type.vid
 					and type term = Term.Type.term
@@ -68,8 +68,8 @@ module Funs:  Funs with type seq = Type.seq
     open Miscellaneous.M
     open Optionfuns.M
     open Sml.M
-    open Symbol.Funs
-    open Symbol.Type
+    open Symbol
+    open Symboltype
     open Term.Funs
     open Term.Store
     open Term.Termstring
@@ -77,7 +77,7 @@ module Funs:  Funs with type seq = Type.seq
     open Termparse.M    
     
     type seq = Type.seq
-     and symbol = Symbol.Type.symbol
+     and symbol = Symboltype.symbol
      and ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
 	 and vid = Term.Type.vid
 	 and term = Term.Type.term

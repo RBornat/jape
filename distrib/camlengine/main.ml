@@ -1,1 +1,1 @@
-Dialogue.M.start ()
+Dialogue.start ()

@@ -43,13 +43,13 @@ module M  : T with type structurerule = Thing.M.structurerule
     open Prooftree.Tree.Vistree
     open Sml.M
     
-	let commasymbol       = Symbol.Funs.commasymbol
+	let commasymbol       = Symbol.commasymbol
 	let debracket         = Term.Funs.debracket
 	let explodeCollection = Term.Funs.explodeCollection
 	let isstructurerule   = Thing.M.isstructurerule
 	let proved            = Proofstore.M.proved
 	let seqexplode        = Sequent.Funs.seqexplode
-	let symbolstring      = Symbol.Funs.symbolstring
+	let symbolstring      = Symbol.symbolstring
 	
 	let termstring_invisbracketed    = Term.Termstring.termstring_invisbracketed
 	let elementstring_invisbracketed = Term.Termstring.elementstring_invisbracketed

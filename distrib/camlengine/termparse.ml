@@ -36,13 +36,13 @@ module type T =
 module M : T with type element = Term.Funs.element
               and type idclass = Idclass.M.idclass
               and type term = Term.Type.term
-              and type symbol = Symbol.Type.symbol
+              and type symbol = Symboltype.symbol
 =
   struct
     open Listfuns.M
-    open Searchtree.M
-    open Symbol.Funs
-    open Symbol.Type
+    open Searchtree
+    open Symbol
+    open Symboltype
     open Idclass.M
     open Idclassfuns.M
     open Term.Type
@@ -56,7 +56,7 @@ module M : T with type element = Term.Funs.element
     type element = Term.Type.element
     type idclass = Idclass.M.idclass
     type term = Term.Type.term
-    type symbol = Symbol.Type.symbol
+    type symbol = Symboltype.symbol
     
     (* stuff to handle variable leftfix/outfix syntax *)
     let symbeq : symbol * symbol -> bool = fun (x, y) -> x = y

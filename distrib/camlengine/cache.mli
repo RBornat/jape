@@ -1,3 +1,5 @@
+(* $Id$ *)
+
 module type T =
   sig type dom and ran val lookup : dom -> ran val reset : unit -> unit end
 module F :

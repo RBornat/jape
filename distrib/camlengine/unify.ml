@@ -65,7 +65,7 @@ module M : T with type term = Term.Type.term
     open Sml.M
     open Stringfuns.M
     open Substmapfuns.M
-    open Symbol.Funs
+    open Symbol
     open Term.Funs
     open Term.Store
     open Term.Type

@@ -111,8 +111,8 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
 	  | None -> raise (Catastrophe_ ["(tacticfuns) alterTip None"])
 
     let rec lookupassoc s =
-	  match Symbol.Funs.lookupassoc s with
-		Some (b, Symbol.Type.LeftAssoc) -> Some (b, true)
+	  match Symbol.lookupassoc s with
+		Some (b, Symboltype.LeftAssoc) -> Some (b, true)
 	  | Some (b, _                    ) -> Some (b, false)
 	  | None                            -> None
 
@@ -156,13 +156,13 @@ module M : T with type path = Prooftree.Tree.Fmttree.path
 	let setReason = Reason.M.setReason
 	let showAlert =
 	  Alert.M.showAlert Alert.M.defaultseverity_alert <*> implode
-	let symclass = Symbol.Funs.symclass
+	let symclass = Symbol.symclass
 	let subterm2subst = Selection.M.subterm2subst
 	let string2tactic = Termparse.M.string2tactic
 	let string2term = Termparse.M.string2term
 	let tickmenuitem = Japeserver.tickmenuitem
 	let uncurry2 = Miscellaneous.M.uncurry2
-	let unknownprefix = Symbol.Funs.metachar
+	let unknownprefix = Symbol.metachar
 	let verifyprovisos = Provisofuns.M.verifyprovisos
 	(* let _Oracle = Japeoracle.M._Oracle *)
 

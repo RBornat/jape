@@ -134,8 +134,8 @@ module Termstring  : Termstring with type term = Type.term
     open Sml.M
     open Listfuns.M
     open Miscellaneous.M
-    open Symbol.Funs
-    open Symbol.Type
+    open Symbol
+    open Symboltype
     open Optionfuns.M
     open Idclass.M
     open Mappingfuns.M
@@ -960,8 +960,8 @@ module Funs : Funs with type vid = Type.vid
     open Listfuns.M
     open Mappingfuns.M
     open Optionfuns.M
-    open Symbol.Type
-    open Symbol.Funs
+    open Symboltype
+    open Symbol
     open Idclass.M
     open Idclassfuns.M
     open Answer.M

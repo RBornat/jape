@@ -4,7 +4,7 @@
 %.cmi %.cmo : %.ml ;
 	ocamlc -g -c $<
 
-%.sig : %.ml ;
+%.sig : %.ml %.cmo ;
 	ocamlc -g -c -i $< >$*.sig
 	
 %.tml : ../engine/%.sig.sml ../engine/%.sml ;

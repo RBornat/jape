@@ -27,8 +27,8 @@ module M : (* sig include Nametype include Name end *) T with type term = Term.F
   struct
     open Miscellaneous.M
     open Stringfuns.M
-    open Symbol.Funs 
-    open Symbol.Type 
+    open Symbol 
+    open Symboltype 
     open Term.Funs
     open Term.Type 
     open Termparse.M

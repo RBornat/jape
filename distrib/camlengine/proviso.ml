@@ -74,8 +74,8 @@ module M : Provisotype with type vid = Term.Funs.vid
     open Listfuns.M 
     open Miscellaneous.M
     open Sml.M
-    open Symbol.Funs
-    open Symbol.Type 
+    open Symbol
+    open Symboltype 
     open Term.Funs 
     open Term.Store
     open Term.Termstring

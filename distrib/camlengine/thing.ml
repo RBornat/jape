@@ -95,7 +95,7 @@ module M : T with type term = Term.Type.term
     open Sequent.Type
     open Sml.M
     open Stringfuns.M
-    open Symbol.Funs
+    open Symbol
     open Tactic.Funs
     open Term.Funs
     open Term.Termstring

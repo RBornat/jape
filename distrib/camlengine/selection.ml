@@ -30,7 +30,7 @@ module M : T with type cxt = Context.Cxt.cxt
     
     let rec freshvar object__ cxt =
       let class__ = Idclass.M.VariableClass in
-      let prefix = Symbol.Funs.autoID class__ "subst" in
+      let prefix = Symbol.autoID class__ "subst" in
       let (cxt', vid) = Context.Cxt.freshVID cxt class__ (vid_of_string prefix) in
       cxt',
       (if object__ then registerId else registerUnknown)

@@ -32,7 +32,7 @@ module M : T with type proviso = Proviso.M.proviso
     open Proviso.M
     open Rewinf.M
     open Stringfuns.M
-    open Symbol.Funs
+    open Symbol
     open Term.Funs 
     open Term.Termstring
     open Term.Type

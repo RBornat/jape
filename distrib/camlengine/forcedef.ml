@@ -41,8 +41,8 @@ module M : T with type seq = Sequent.Funs.seq
     open Sml.M
     open Sequent.Funs
     open Stringfuns.M
-    open Symbol.Funs
-    open Symbol.Type
+    open Symbol
+    open Symboltype
     open Term.Funs
     open Term.Termstring
     open Termparse.M
