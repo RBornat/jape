@@ -456,7 +456,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
     let genSubGoals =
       let rec exp0 ss () =
         "In applying the " :: kind :: " " :: step_label how ::
-          " to the problem sequent " :: seqstring conjecture :: ", " :: ss
+          " to the problem sequent " :: seqstring (rewriteseq cxt conjecture) :: ", " :: ss
       in
       let rec exp1 sing plur els () =
         let w =
@@ -465,7 +465,8 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
           | _ -> plur
         in
         exp0
-          ["the "; w; " of the "; kind; "'s consequent don't fit the problem. The consequent of the rule is ";
+          ["the "; w; " of the "; kind; 
+           "'s consequent don't fit the problem. The consequent of the rule is ";
            seqstring consequent; "."]
           ()
       in
