@@ -50,6 +50,11 @@ type forcedef =
   | ForceSome of (term * term list * forcedef)
                  (* pat, vars, body: a binder *)
 
+let forcedef2term fd =
+  match fd with
+    ForcePrim t -> Some t
+  | _           -> None
+  
 let rec catelim_forcedefstring f ss =
   match f with
     ForcePrim t          -> "FORCE " :: catelim_argstring t ss

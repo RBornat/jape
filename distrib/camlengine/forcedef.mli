@@ -37,6 +37,8 @@ type forcedef = ForcePrim of term
               | ForceAll of (term * term list * forcedef)
               | ForceSome of (term * term list * forcedef)
 
+val forcedef2term: forcedef -> term option (* really, is it ForcePrim? *)
+
 val catelim_forcedefstring : forcedef -> string list -> string list
 val forcedefstring : forcedef -> string
 
