@@ -32,8 +32,7 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
      */
 
     private KPanel panel;
-    private JScrollPane scrollPane;
-    private KViewport viewport;
+    private JapeScrollPane scrollPane;
     
     public NoneWindowSwing() {
         String yes = "Yes", no = "No";
@@ -55,10 +54,8 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
         Container contentPane = getContentPane();
         Rectangle panelBounds = panel.getBounds();
 
-        scrollPane = new JScrollPane();
-        viewport = new KViewport();
-        scrollPane.setViewport(viewport);
-        viewport.add(panel);
+        scrollPane = new JapeScrollPane();
+        scrollPane.add(panel, JapeScrollPane.ANCHOR_SOUTH);
         
         contentPane.add(scrollPane);
         contentPane.doLayout();

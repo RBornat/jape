@@ -50,34 +50,6 @@ public class KPanel extends JPanel implements Scrollable {
         return c;
     }
 
-    // this anchor stuff doesn't work yet, but one day it will ...
-    public final int ANCHOR_NORTH = 0;
-    public final int ANCHOR_NORTHEAST = 1;
-    public final int ANCHOR_EAST = 2;
-    public final int ANCHOR_SOUTHEAST = 3;
-    public final int ANCHOR_SOUTH = 4;
-    public final int ANCHOR_SOUTHWEST = 5;
-    public final int ANCHOR_WEST = 6;
-    public final int ANCHOR_NORTHWEST = 7;
-
-    // call this on a KPanel that already has a size, please.
-    public void setChildAnchor(int anchor) {
-        int x, y;
-        switch (anchor) {
-            case ANCHOR_NORTH:     x=getWidth()/2; y=0;             break;
-            case ANCHOR_NORTHEAST: x=getWidth();   y=0;             break;
-            case ANCHOR_EAST:      x=getWidth();   y=getHeight()/2; break;
-            case ANCHOR_SOUTHEAST: x=getWidth();   y=getHeight();   break;
-            case ANCHOR_SOUTH:     x=getWidth()/2; y=getHeight();   break;
-            case ANCHOR_SOUTHWEST: x=0;            y=getHeight();   break;
-            case ANCHOR_WEST:      x=0;            y=getHeight()/2; break;
-            case ANCHOR_NORTHWEST: x=0;            y=0;             break;
-            default: System.err.println("setChildAnchor "+anchor); return;
-        }
-        child.setLocation(x,y);
-        revalidate();
-    }
-
     public void computeBounds() {
         getLayout().layoutContainer(this);
     }
