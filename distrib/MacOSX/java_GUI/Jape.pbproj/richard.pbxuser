@@ -278,7 +278,6 @@
 						PBXProjectWorkspaceModule_EmbeddedNavigatorGroup = {
 							PBXSplitModuleInNavigatorKey = {
 								Split0 = {
-									bookmark = 79984BAA0693478900E4F55C;
 									history = (
 										79EB647A06786DE700FF9E90,
 										79EB648106786E9200FF9E90,
@@ -291,7 +290,6 @@
 										79EB648306786E9200FF9E90,
 										79CBA88B06934166003A5E9B,
 										79CBA891069342BA003A5E9B,
-										79984B9D069342F800E4F55C,
 									);
 								};
 								SplitCount = 1;
@@ -309,7 +307,7 @@
 							};
 						};
 						PBXProjectWorkspaceModule_OldDetailFrame = "{{0, 0}, {642, 496}}";
-						PBXProjectWorkspaceModule_OldEditorFrame = "{{0, 251}, {642, 245}}";
+						PBXProjectWorkspaceModule_OldEditorFrame = "{{0, 0}, {750, 480}}";
 						PBXProjectWorkspaceModule_OldSuperviewFrame = "{{180, 0}, {642, 496}}";
 						PBXProjectWorkspaceModule_SGTM = {
 							PBXBottomSmartGroupGIDs = (
@@ -473,7 +471,7 @@
 					PBXProjectWorkspaceModule_GeometryKey_Rev15 = {
 						PBXProjectWorkspaceModule_RunWindowVisible = true;
 					};
-					RubberWindowFrame = "73 202 822 538 0 0 1024 746 ";
+					RubberWindowFrame = "166 449 822 538 0 0 1280 1002 ";
 				},
 			);
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXBatchFindModule" = {
@@ -483,7 +481,7 @@
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXBuildResultsModule" = {
 				Frame = "{{0, 0}, {774, 422}}";
 				PBXModuleWindowStatusBarHidden = YES;
-				RubberWindowFrame = "158 175 774 443 0 0 1024 746 ";
+				RubberWindowFrame = "320 298 774 443 0 0 1280 1002 ";
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXClassBrowserModule" = {
 				ClassesFrame = "{{0, 0}, {436, 96}}";
@@ -510,7 +508,7 @@
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXDebugCLIModule" = {
 				Frame = "{{0, 0}, {400, 201}}";
 				PBXModuleWindowStatusBarHidden = YES;
-				RubberWindowFrame = "50 718 400 222 0 0 1024 746 ";
+				RubberWindowFrame = "50 974 400 222 0 0 1280 1002 ";
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXNavigatorGroup" = {
 				Frame = "{{0, 0}, {750, 481}}";
@@ -539,8 +537,6 @@
 		perUserProjectItems = {
 			79984B9B069342F800E4F55C = 79984B9B069342F800E4F55C;
 			79984B9C069342F800E4F55C = 79984B9C069342F800E4F55C;
-			79984B9D069342F800E4F55C = 79984B9D069342F800E4F55C;
-			79984BAA0693478900E4F55C = 79984BAA0693478900E4F55C;
 			79CBA88B06934166003A5E9B = 79CBA88B06934166003A5E9B;
 			79CBA890069342BA003A5E9B = 79CBA890069342BA003A5E9B;
 			79CBA891069342BA003A5E9B = 79CBA891069342BA003A5E9B;
@@ -961,26 +957,6 @@
 		rLen = 12;
 		rLoc = 34117;
 		rType = 0;
-	};
-	79984B9D069342F800E4F55C = {
-		fRef = 791C735405DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = SurrogateWindow;
-		rLen = 15;
-		rLoc = 1357;
-		rType = 0;
-		vrLen = 346;
-		vrLoc = 988;
-	};
-	79984BAA0693478900E4F55C = {
-		fRef = 791C735805DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = doEnableItem;
-		rLen = 12;
-		rLoc = 34127;
-		rType = 0;
-		vrLen = 594;
-		vrLoc = 33852;
 	};
 	79A31803064BF8EF0096C4DA = {
 		uiCtxt = {
