@@ -26,36 +26,47 @@
 */
 
 import java.awt.BasicStroke;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
-public class LineComponent extends Component implements DebugConstants {
-    private int x1, y1, x2, y2, linethickness;
+// LineComponents can be dragged
+public class LineComponent extends DragComponent implements DebugConstants {
+    // but if you drag them, you must override this method
+    protected void movePosition(int deltax, int deltay) {
+        Alert.abort("dragging line without overriding movePosition");
+    }
+    
+    private int x1, y1, x2, y2, thickness;
 
-    public LineComponent(int x1, int y1, int x2, int y2, int linethickness) {
+    public LineComponent(int x1, int y1, int x2, int y2, int thickness) {
         super();
-        resetLine(x1, y1, x2, y2, linethickness);
+        resetLine(x1, y1, x2, y2, thickness);
         setForeground(Preferences.LineColour);
     }
 
-    public void resetLine(int x1, int y1, int x2, int y2, int linethickness) {
+    public void resetLine(int x1, int y1, int x2, int y2, int thickness) {
         setBounds(Math.min(x1,x2), Math.min(y1,y2),
-                  Math.max(linethickness, Math.abs(x2-x1)),
-                  Math.max(linethickness, Math.abs(y2-y1)));
+                  Math.max(thickness, Math.abs(x2-x1)),
+                  Math.max(thickness, Math.abs(y2-y1)));
         this.x1 = x1-getX(); this.y1 = y1-getY(); this.x2 = x2-getX(); this.y2 = y2-getY();
-        this.linethickness = linethickness;
+        this.thickness = thickness;
     }
 
+    public void resetLine(int x1, int y1, int x2, int y2) {
+        resetLine(x1, y1, x2, y2, thickness);
+    }
+
+    public int thickness() { return thickness; }
+    
     protected boolean stroked;
     protected int xfrom, yfrom, xto, yto;
 
     protected void prepaint(Graphics g) {
         g.setColor(getForeground());
         if (g instanceof Graphics2D) {
-            BasicStroke stroke = new BasicStroke((float)linethickness);
-            int half = linethickness/2;
+            BasicStroke stroke = new BasicStroke((float)thickness);
+            int half = thickness/2;
             ((Graphics2D)g).setStroke(stroke);
             if (y1==y2) { // horizontal
                 xfrom = x1; xto = x2;
