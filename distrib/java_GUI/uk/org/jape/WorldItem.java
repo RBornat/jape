@@ -141,8 +141,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             fromv.add(wc);
     }
 
-    public void addlabel(String s) {
-        WorldLabel label = new WorldLabel(canvas, window, this, labelx, y0, s);
+    public void addlabel(boolean forced, String s) {
+        WorldLabel label = new WorldLabel(canvas, window, this, labelx, y0, forced, s);
         canvas.add(label);
         labelv.add(label);
         labelx += label.getWidth()+labelgap;

@@ -235,8 +235,8 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
         return nwsel;
     }
 
-    public void addWorldLabel(int x, int y, String label) throws ProtocolError {
-        findWorld(x,y,true).addlabel(label);
+    public void addWorldLabel(int x, int y, boolean forced, String label) throws ProtocolError {
+        findWorld(x,y,true).addlabel(forced, label);
     }
 
     public void addChildWorld(int x, int y, int xc, int yc) {

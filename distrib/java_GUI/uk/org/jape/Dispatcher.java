@@ -272,8 +272,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("WORLD")&&len==4)
                             ProofWindow.getFocussedWindow().addWorld(toInt(cmd[1]), toInt(cmd[2]), toBool(cmd[3]));
                         else
-                        if (p.equals("WORLDLABEL")&&len==4)
-                            ProofWindow.getFocussedWindow().addWorldLabel(toInt(cmd[1]), toInt(cmd[2]), cmd[3]);
+                        if (p.equals("WORLDLABEL")&&len==5)
+                            ProofWindow.getFocussedWindow().addWorldLabel(toInt(cmd[1]), toInt(cmd[2]), toBool(cmd[3]), cmd[4]);
                         else
                         if (p.equals("WORLDCHILD")&&len==5)
                             ProofWindow.getFocussedWindow().addChildWorld(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]), toInt(cmd[4]));

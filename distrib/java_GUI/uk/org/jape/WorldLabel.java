@@ -26,6 +26,7 @@
 */
 
 import java.awt.Container;
+import java.awt.Graphics;
 import java.awt.Point;
 
 import java.awt.event.MouseEvent;
@@ -37,17 +38,19 @@ import javax.swing.SwingUtilities;
 public class WorldLabel extends TextItem implements MiscellaneousConstants {
     protected final WorldCanvas canvas;
     protected final WorldItem world;
+    protected final boolean forced;
     protected final String text;
     protected final JLayeredPane layeredPane;
     protected final Container contentPane;
 
     public WorldLabel(WorldCanvas canvas, JFrame window, WorldItem world,
-                      int x, int y, String text) {
+                      int x, int y, boolean forced, String text) {
         super(canvas, x, y, ProtocolConstants.ProvisoFontNum, text);
         this.canvas = canvas;
         this.layeredPane = window.getLayeredPane();
         this.contentPane = window.getContentPane();
         this.world = world;
+        this.forced = forced;
         this.text = text;
 
         addJapeMouseListener(new JapeMouseAdapter() {
@@ -143,4 +146,10 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
         layeredPane.remove(labelImage);
         layeredPane.repaint();
     }
+
+    public void paint(Graphics g) {
+        setForeground(forced ? Preferences.ForcedSelectionColour : Preferences.TextColour);
+        super.paint(g);
+    }
+
 }

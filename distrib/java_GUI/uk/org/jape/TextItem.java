@@ -53,7 +53,7 @@ class TextItem extends DisplayItem implements DebugConstants {
         if (paint_tracing || fontDebug)
             Logger.log.println("painting "+this);
         g.setFont(font);
-        g.setColor(isEnabled() ? Preferences.TextColour : Preferences.GreyTextColour);
+        g.setColor(isEnabled() ? getForeground() : Preferences.GreyTextColour);
         g.drawString(text, 0, dimension.ascent);
     }
 

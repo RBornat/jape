@@ -605,8 +605,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         ensureDisproofPane().worldCanvas.addWorld(x, y, forcedhere);
     }
 
-    public void addWorldLabel(int x, int y, String label) throws ProtocolError {
-        ensureDisproofPane().worldCanvas.addWorldLabel(x, y, label);
+    public void addWorldLabel(int x, int y, boolean forced, String label) throws ProtocolError {
+        ensureDisproofPane().worldCanvas.addWorldLabel(x, y, forced, label);
     }
 
     public void addChildWorld(int x, int y, int xc, int yc) throws ProtocolError {
