@@ -1,5 +1,5 @@
 (*
-	$Id$
+    $Id$
 
     This file is part of the jape proof engine, which is part of jape.
 
@@ -48,7 +48,7 @@ open Termstore
 open Treelayout    
 
 (*
-	TACTIC TRANSLATION
+    TACTIC TRANSLATION
 *)
 
 let showargasint : (term -> int) option ref = ref None
@@ -59,203 +59,203 @@ let rec catelim_tacticstring sep t tail =
   let withNLs = String.sub (sep) (0) (1) = "\n" in
   let nextsep = if withNLs then sep ^ "\t" else sep in
   let rec oneline t =
-	match t with
-	  SkipTac -> true
-	| UnfoldHypTac _ -> true
-	| FoldHypTac _ -> true
-	| AssignTac _ -> true
-	| EvalTac _ -> true
-	| AdHocTac _ -> true
-	| AssocFlatTac _ -> true
-	| MapTac _ -> true
-	| TermTac _ -> true
-	| SubstTac _ -> true
-	| _ -> false
+    match t with
+      SkipTac -> true
+    | UnfoldHypTac _ -> true
+    | FoldHypTac _ -> true
+    | AssignTac _ -> true
+    | EvalTac _ -> true
+    | AdHocTac _ -> true
+    | AssocFlatTac _ -> true
+    | MapTac _ -> true
+    | TermTac _ -> true
+    | SubstTac _ -> true
+    | _ -> false
   in
   let argsep = if oneline t then " " else nextsep in
   let rec tacargstring t tail =
-	let rec ok =
-	  function
-		SkipTac -> true
-	  | TermTac (s, []) -> true
-	  | _ -> false
-	in
-	let res = catelim_tacticstring nextsep t in
-	if ok t then res tail else "(" :: res (")" :: tail)
+    let rec ok =
+      function
+        SkipTac -> true
+      | TermTac (s, []) -> true
+      | _ -> false
+    in
+    let res = catelim_tacticstring nextsep t in
+    if ok t then res tail else "(" :: res (")" :: tail)
   in
   let rec tr f = catelim_interpolate f in
   let trtacs = tr tacargstring nextsep in
   let trterms = tr catelim_argstring " " in
   let rec unSEQ =
-	function
-	  SeqTac [t] -> unSEQ t
-	| SeqTac ts -> trtacs ts
-	| t -> tacargstring t
+    function
+      SeqTac [t] -> unSEQ t
+    | SeqTac ts -> trtacs ts
+    | t -> tacargstring t
   in
   let rec trpathexpr p tail =
-	let rec trns ns tail =
-	  match debracket ns with
-		Tup _ as t -> "(" :: catelim_termstring t (")" :: tail)
-	  | t -> catelim_termstring t tail
-	in
-	match p with
-	  Parent p -> "(PARENT" :: argsep :: trpathexpr p (")" :: tail)
-	| LeftSibling p -> "(LEFT" :: argsep :: trpathexpr p (")" :: tail)
-	| RightSibling p -> "(RIGHT" :: argsep :: trpathexpr p (")" :: tail)
-	| Subgoal (p, ns) ->
-		"(SUBGOAL" :: argsep ::
-		  trpathexpr p (argsep :: trns ns (")" :: tail))
-	| HypRoot p -> "(HYPROOT" :: argsep :: trpathexpr p (")" :: tail)
-	| SimplePath ns -> trns ns tail
+    let rec trns ns tail =
+      match debracket ns with
+        Tup _ as t -> "(" :: catelim_termstring t (")" :: tail)
+      | t -> catelim_termstring t tail
+    in
+    match p with
+      Parent p -> "(PARENT" :: argsep :: trpathexpr p (")" :: tail)
+    | LeftSibling p -> "(LEFT" :: argsep :: trpathexpr p (")" :: tail)
+    | RightSibling p -> "(RIGHT" :: argsep :: trpathexpr p (")" :: tail)
+    | Subgoal (p, ns) ->
+        "(SUBGOAL" :: argsep ::
+          trpathexpr p (argsep :: trns ns (")" :: tail))
+    | HypRoot p -> "(HYPROOT" :: argsep :: trpathexpr p (")" :: tail)
+    | SimplePath ns -> trns ns tail
   in
   let pnstr = parseablenamestring in
   let rec termsNtac a1 a2 =
-	match a1, a2 with
-	  [], tac -> unSEQ tac tail
-	| t :: ts, tac -> catelim_argstring t (argsep :: termsNtac ts tac)
+    match a1, a2 with
+      [], tac -> unSEQ tac tail
+    | t :: ts, tac -> catelim_argstring t (argsep :: termsNtac ts tac)
   in
   let tss =
-	match t with
-	  SkipTac -> "SKIP" :: tail
-	| FailTac -> "FAIL" :: tail
-	| StopTac -> "STOP" :: tail
-	| NextgoalTac -> "NEXTGOAL" :: tail
-	| SetgoalTac p -> "GOALPATH" :: argsep :: trpathexpr p tail
-	| TheoryAltTac ns ->
-		"THEORYALT" :: " " ::
-		  catelim_liststring (stringfn2catelim pnstr) " " ns tail
-	| AltTac tacs -> "ALT" :: nextsep :: trtacs tacs tail
-	| SeqTac [t] -> catelim_tacticstring sep t tail
-	| SeqTac tacs -> "SEQ" :: nextsep :: trtacs tacs tail
-	| WhenTac tacs -> "WHEN" :: nextsep :: trtacs tacs tail
-	| RepTac tac -> "DO" :: argsep :: unSEQ tac tail
-	| IfTac tac -> "IF" :: argsep :: unSEQ tac tail
-	| CompTac tac -> "PROVE" :: argsep :: unSEQ tac tail
-	| CutinTac tac -> "CUTIN" :: argsep :: unSEQ tac tail
-	| UnfoldHypTac (s, terms) ->
-		"UNFOLDHYP " :: pnstr s :: " " :: trterms terms tail
-	| FoldHypTac (s, terms) ->
-		"FOLDHYP " :: pnstr s :: " " :: trterms terms tail
-	| UnfoldTac (s, tacs) ->
-		"UNFOLD " :: pnstr s :: nextsep :: trtacs tacs tail
-	| FoldTac (s, tacs) ->
-		"FOLD " :: pnstr s :: nextsep :: trtacs tacs tail
-	| AssignTac (s, term) ->
-		"ASSIGN " :: pnstr s :: " " :: catelim_argstring term tail
-	| EvalTac terms -> "EVALUATE " :: trterms terms tail
-	| AdHocTac terms -> "JAPE " :: trterms terms tail
-	| BindArgTac (term, tactic) -> "LETARGSEL " :: termsNtac [term] tactic
-	| BindArgTextTac (name, tactic) ->
-		"LETARGTEXT " :: parseablenamestring name :: argsep ::
-		  unSEQ tactic tail
-	| BindConcTac (term, tactic) -> "LETCONC " :: termsNtac [term] tactic
-	| BindGoalPathTac (name, tactic) ->
-		"LETGOALPATH " :: parseablenamestring name :: argsep ::
-		  unSEQ tactic tail
-	| BindHypTac (term, tactic) -> "LETHYP " :: termsNtac [term] tactic
-	| BindHyp2Tac (t1, t2, tactic) ->
-		"LETHYP2 " :: termsNtac [t1; t2] tactic
-	| BindHypsTac (term, tactic) -> "LETHYPS " :: termsNtac [term] tactic
-	| BindSubstTac (term, tactic) ->
-		"LETSUBSTSEL " :: termsNtac [term] tactic
-	| BindSubstInHypTac (term, tactic) ->
-		"LETHYPSUBSTSEL " :: termsNtac [term] tactic
-	| BindSubstInConcTac (term, tactic) ->
-		"LETCONCSUBSTSEL " :: termsNtac [term] tactic
-	| BindMultiArgTac (term, tactic) ->
-		"LETMULTIARG " :: termsNtac [term] tactic
-	| BindLHSTac (term, tactic) -> "LETLHS " :: termsNtac [term] tactic
-	| BindRHSTac (term, tactic) -> "LETRHS " :: termsNtac [term] tactic
-	| BindGoalTac (term, tactic) -> "LETGOAL " :: termsNtac [term] tactic
-	| BindOpenSubGoalTac (name, term, tactic) ->
-		"LETOPENSUBGOAL " :: parseablenamestring name :: argsep ::
-		  termsNtac [term] tactic
-	| BindOpenSubGoalsTac (term, tactic) ->
-		"LETOPENSUBGOALS " :: termsNtac [term] tactic
-	| BindFindHypTac (term, tactic) ->
-		"LETHYPFIND " :: termsNtac [term] tactic
-	| BindFindConcTac (term, tactic) ->
-		"LETCONCFIND " :: termsNtac [term] tactic
-	| BindMatchTac (pterm, vterm, tactic) ->
-		"LETMATCH " :: termsNtac [pterm; vterm] tactic
-	| BindOccursTac (pt, vt, st, tactic) ->
-		"LETOCCURS " :: termsNtac [pt; vt; st] tactic
-	| LayoutTac (tactic, layout) ->
-		"LAYOUT " :: treelayoutstring layout :: argsep ::
-		  unSEQ tactic tail
-	| AssocFlatTac term -> "FLATTEN " :: catelim_argstring term tail
-	| MapTac (s, terms) ->
-		"MAPTERMS " :: pnstr s :: " " :: trterms terms tail
-	| TermTac (s, []) -> pnstr s :: tail
-	| TermTac (s, terms) -> pnstr s :: " " :: trterms terms tail
-	| SubstTac (s, []) -> pnstr s :: tail
-	| SubstTac (s, vts) ->
-		catelim_termstring
-		  (Subst
-			 (None, true, Id (None, vid_of_string (pnstr s), FormulaClass),
-			  (match !showargasint with
-				 Some lookup ->
-				   let rec encodeterm t =
-					 match t with
-					   Collection (_, c, es) ->
-						 Collection (None, c, (encodeelement <* es))
-					 | _ ->
-						 match hashterm t with
-						   Some h -> Literal (None, Number (lookup t))
-						 | None -> t
-				   and encodeelement =
-					 function
-					   Element (_, i, t) ->
-						 Element (None, i, encodeterm t)
-					 | el -> el
-				   in
-				   ((fun (v, t) -> v, encodeterm t) <* vts)
-			   | None -> vts)))
-		  tail
-	| GivenTac i -> "GIVEN " :: catelim_argstring i tail
-	| WithArgSelTac tac -> "WITHARGSEL" :: argsep :: unSEQ tac tail
-	| WithConcSelTac tac -> "WITHCONCSEL" :: argsep :: unSEQ tac tail
-	| WithFormSelTac tac -> "WITHFORMSEL" :: argsep :: unSEQ tac tail
-	| WithHypSelTac tac -> "WITHHYPSEL" :: argsep :: unSEQ tac tail
-	| WithSelectionsTac tac ->
-		"WITHSELECTIONS" :: argsep :: unSEQ tac tail
-	| WithSubstSelTac tac -> "WITHSUBSTSEL" :: argsep :: unSEQ tac tail
-	| MatchTac tac -> "MATCH" :: argsep :: unSEQ tac tail
-	| SameProvisosTac tac -> "SAMEPROVISOS" :: argsep :: unSEQ tac tail
-	| SimpleApplyTac tac -> "SIMPLEAPPLY" :: argsep :: unSEQ tac tail
-	| ApplyOrResolveTac tac ->
-		"APPLYORRESOLVE" :: argsep :: unSEQ tac tail
-	| UniqueTac tac -> "UNIQUE" :: argsep :: unSEQ tac tail
-	| TakeAnyTac tac -> "ANY" :: argsep :: unSEQ tac tail
-	| ResolveTac tac -> "RESOLVE" :: argsep :: unSEQ tac tail
-	| ReplayTac tac -> "REPLAY" :: argsep :: unSEQ tac tail
-	| ContnTac (tac1, tac2) ->
-		"WITHCONTINUATION" :: argsep ::
-		  tacargstring tac1 (argsep :: unSEQ tac2 tail)
-	| AlertTac (m, ps, copt) ->
-		"ALERT" :: argsep ::
-		  catelim_argstring m
-			(catelim_liststring
-			   (catelim_pairstring catelim_termstring
-				  (catelim_tacticstring " ") ", ")
-			   argsep ps
-			   (match copt with
-				  Some t -> argsep :: tacargstring t tail
-				| None -> tail))
-	| ExplainTac m -> "EXPLAIN" :: argsep :: catelim_argstring m tail
-	| CommentTac m -> "COMMENT" :: argsep :: catelim_argstring m tail
-	| UnifyTac terms -> "UNIFY" :: argsep :: trterms terms tail
-	| BadUnifyTac (n1, n2, tac) ->
-		"BADUNIFY" :: argsep :: parseablenamestring n1 :: argsep ::
-		  parseablenamestring n2 :: unSEQ tac tail
-	| BadMatchTac (n1, n2, tac) ->
-		"BADMATCH" :: argsep :: parseablenamestring n1 :: argsep ::
-		  parseablenamestring n2 :: unSEQ tac tail
-	| BadProvisoTac (n1, n2, n3, tac) ->
-		"BADPROVISO" :: argsep :: parseablenamestring n1 :: argsep ::
-		  parseablenamestring n2 :: parseablenamestring n3 ::
-		  unSEQ tac tail
-	| UnifyArgsTac -> "UNIFYARGS" :: tail
+    match t with
+      SkipTac -> "SKIP" :: tail
+    | FailTac -> "FAIL" :: tail
+    | StopTac -> "STOP" :: tail
+    | NextgoalTac -> "NEXTGOAL" :: tail
+    | SetgoalTac p -> "GOALPATH" :: argsep :: trpathexpr p tail
+    | TheoryAltTac ns ->
+        "THEORYALT" :: " " ::
+          catelim_liststring (stringfn2catelim pnstr) " " ns tail
+    | AltTac tacs -> "ALT" :: nextsep :: trtacs tacs tail
+    | SeqTac [t] -> catelim_tacticstring sep t tail
+    | SeqTac tacs -> "SEQ" :: nextsep :: trtacs tacs tail
+    | WhenTac tacs -> "WHEN" :: nextsep :: trtacs tacs tail
+    | RepTac tac -> "DO" :: argsep :: unSEQ tac tail
+    | IfTac tac -> "IF" :: argsep :: unSEQ tac tail
+    | CompTac tac -> "PROVE" :: argsep :: unSEQ tac tail
+    | CutinTac tac -> "CUTIN" :: argsep :: unSEQ tac tail
+    | UnfoldHypTac (s, terms) ->
+        "UNFOLDHYP " :: pnstr s :: " " :: trterms terms tail
+    | FoldHypTac (s, terms) ->
+        "FOLDHYP " :: pnstr s :: " " :: trterms terms tail
+    | UnfoldTac (s, tacs) ->
+        "UNFOLD " :: pnstr s :: nextsep :: trtacs tacs tail
+    | FoldTac (s, tacs) ->
+        "FOLD " :: pnstr s :: nextsep :: trtacs tacs tail
+    | AssignTac (s, term) ->
+        "ASSIGN " :: pnstr s :: " " :: catelim_argstring term tail
+    | EvalTac terms -> "EVALUATE " :: trterms terms tail
+    | AdHocTac terms -> "JAPE " :: trterms terms tail
+    | BindArgTac (term, tactic) -> "LETARGSEL " :: termsNtac [term] tactic
+    | BindArgTextTac (name, tactic) ->
+        "LETARGTEXT " :: parseablenamestring name :: argsep ::
+          unSEQ tactic tail
+    | BindConcTac (term, tactic) -> "LETCONC " :: termsNtac [term] tactic
+    | BindGoalPathTac (name, tactic) ->
+        "LETGOALPATH " :: parseablenamestring name :: argsep ::
+          unSEQ tactic tail
+    | BindHypTac (term, tactic) -> "LETHYP " :: termsNtac [term] tactic
+    | BindHyp2Tac (t1, t2, tactic) ->
+        "LETHYP2 " :: termsNtac [t1; t2] tactic
+    | BindHypsTac (term, tactic) -> "LETHYPS " :: termsNtac [term] tactic
+    | BindSubstTac (term, tactic) ->
+        "LETSUBSTSEL " :: termsNtac [term] tactic
+    | BindSubstInHypTac (term, tactic) ->
+        "LETHYPSUBSTSEL " :: termsNtac [term] tactic
+    | BindSubstInConcTac (term, tactic) ->
+        "LETCONCSUBSTSEL " :: termsNtac [term] tactic
+    | BindMultiArgTac (term, tactic) ->
+        "LETMULTIARG " :: termsNtac [term] tactic
+    | BindLHSTac (term, tactic) -> "LETLHS " :: termsNtac [term] tactic
+    | BindRHSTac (term, tactic) -> "LETRHS " :: termsNtac [term] tactic
+    | BindGoalTac (term, tactic) -> "LETGOAL " :: termsNtac [term] tactic
+    | BindOpenSubGoalTac (name, term, tactic) ->
+        "LETOPENSUBGOAL " :: parseablenamestring name :: argsep ::
+          termsNtac [term] tactic
+    | BindOpenSubGoalsTac (term, tactic) ->
+        "LETOPENSUBGOALS " :: termsNtac [term] tactic
+    | BindFindHypTac (term, tactic) ->
+        "LETHYPFIND " :: termsNtac [term] tactic
+    | BindFindConcTac (term, tactic) ->
+        "LETCONCFIND " :: termsNtac [term] tactic
+    | BindMatchTac (pterm, vterm, tactic) ->
+        "LETMATCH " :: termsNtac [pterm; vterm] tactic
+    | BindOccursTac (pt, vt, st, tactic) ->
+        "LETOCCURS " :: termsNtac [pt; vt; st] tactic
+    | LayoutTac (tactic, layout) ->
+        "LAYOUT " :: treelayoutstring layout :: argsep ::
+          unSEQ tactic tail
+    | AssocFlatTac term -> "FLATTEN " :: catelim_argstring term tail
+    | MapTac (s, terms) ->
+        "MAPTERMS " :: pnstr s :: " " :: trterms terms tail
+    | TermTac (s, []) -> pnstr s :: tail
+    | TermTac (s, terms) -> pnstr s :: " " :: trterms terms tail
+    | SubstTac (s, []) -> pnstr s :: tail
+    | SubstTac (s, vts) ->
+        catelim_termstring
+          (Subst
+             (None, true, Id (None, vid_of_string (pnstr s), FormulaClass),
+              (match !showargasint with
+                 Some lookup ->
+                   let rec encodeterm t =
+                     match t with
+                       Collection (_, c, es) ->
+                         Collection (None, c, (encodeelement <* es))
+                     | _ ->
+                         match hashterm t with
+                           Some h -> Literal (None, Number (lookup t))
+                         | None -> t
+                   and encodeelement =
+                     function
+                       Element (_, i, t) ->
+                         Element (None, i, encodeterm t)
+                     | el -> el
+                   in
+                   ((fun (v, t) -> v, encodeterm t) <* vts)
+               | None -> vts)))
+          tail
+    | GivenTac i -> "GIVEN " :: catelim_argstring i tail
+    | WithArgSelTac tac -> "WITHARGSEL" :: argsep :: unSEQ tac tail
+    | WithConcSelTac tac -> "WITHCONCSEL" :: argsep :: unSEQ tac tail
+    | WithFormSelTac tac -> "WITHFORMSEL" :: argsep :: unSEQ tac tail
+    | WithHypSelTac tac -> "WITHHYPSEL" :: argsep :: unSEQ tac tail
+    | WithSelectionsTac tac ->
+        "WITHSELECTIONS" :: argsep :: unSEQ tac tail
+    | WithSubstSelTac tac -> "WITHSUBSTSEL" :: argsep :: unSEQ tac tail
+    | MatchTac tac -> "MATCH" :: argsep :: unSEQ tac tail
+    | SameProvisosTac tac -> "SAMEPROVISOS" :: argsep :: unSEQ tac tail
+    | SimpleApplyTac tac -> "SIMPLEAPPLY" :: argsep :: unSEQ tac tail
+    | ApplyOrResolveTac tac ->
+        "APPLYORRESOLVE" :: argsep :: unSEQ tac tail
+    | UniqueTac tac -> "UNIQUE" :: argsep :: unSEQ tac tail
+    | TakeAnyTac tac -> "ANY" :: argsep :: unSEQ tac tail
+    | ResolveTac tac -> "RESOLVE" :: argsep :: unSEQ tac tail
+    | ReplayTac tac -> "REPLAY" :: argsep :: unSEQ tac tail
+    | ContnTac (tac1, tac2) ->
+        "WITHCONTINUATION" :: argsep ::
+          tacargstring tac1 (argsep :: unSEQ tac2 tail)
+    | AlertTac (m, ps, copt) ->
+        "ALERT" :: argsep ::
+          catelim_argstring m
+            (catelim_liststring
+               (catelim_pairstring catelim_termstring
+                  (catelim_tacticstring " ") ", ")
+               argsep ps
+               (match copt with
+                  Some t -> argsep :: tacargstring t tail
+                | None -> tail))
+    | ExplainTac m -> "EXPLAIN" :: argsep :: catelim_argstring m tail
+    | CommentTac m -> "COMMENT" :: argsep :: catelim_argstring m tail
+    | UnifyTac terms -> "UNIFY" :: argsep :: trterms terms tail
+    | BadUnifyTac (n1, n2, tac) ->
+        "BADUNIFY" :: argsep :: parseablenamestring n1 :: argsep ::
+          parseablenamestring n2 :: unSEQ tac tail
+    | BadMatchTac (n1, n2, tac) ->
+        "BADMATCH" :: argsep :: parseablenamestring n1 :: argsep ::
+          parseablenamestring n2 :: unSEQ tac tail
+    | BadProvisoTac (n1, n2, n3, tac) ->
+        "BADPROVISO" :: argsep :: parseablenamestring n1 :: argsep ::
+          parseablenamestring n2 :: parseablenamestring n3 ::
+          unSEQ tac tail
+    | UnifyArgsTac -> "UNIFYARGS" :: tail
   in
   tss
 let catelim_tacticstring = catelim_tacticstring " "
@@ -265,127 +265,127 @@ let tacticstringwithNLs = catelim2stringfn catelim_tacticstringwithNLs
 let rec remaptactic env t =
   let _E = remapterm env in
   let rec _Ep =
-	function
-	  Parent p -> Parent (_Ep p)
-	| LeftSibling p -> LeftSibling (_Ep p)
-	| RightSibling p -> RightSibling (_Ep p)
-	| Subgoal (p, t) -> Subgoal (_Ep p, _E t)
-	| HypRoot p -> HypRoot (_Ep p)
-	| SimplePath t -> SimplePath (_E t)
+    function
+      Parent p -> Parent (_Ep p)
+    | LeftSibling p -> LeftSibling (_Ep p)
+    | RightSibling p -> RightSibling (_Ep p)
+    | Subgoal (p, t) -> Subgoal (_Ep p, _E t)
+    | HypRoot p -> HypRoot (_Ep p)
+    | SimplePath t -> SimplePath (_E t)
   in
   let rec _T t =
-	match t with
-	  SkipTac -> t
-	| FailTac -> t
-	| StopTac -> t
-	| NextgoalTac -> t
-	| SetgoalTac p -> SetgoalTac (_Ep p)
-	| TheoryAltTac ns -> t
-	| GivenTac i -> GivenTac (_E i)
-	| RepTac t -> RepTac (_T t)
-	| IfTac t -> IfTac (_T t)
-	| CompTac t -> CompTac (_T t)
-	| CutinTac t -> CutinTac (_T t)
-	| WithArgSelTac t -> WithArgSelTac (_T t)
-	| WithConcSelTac t -> WithConcSelTac (_T t)
-	| WithFormSelTac t -> WithFormSelTac (_T t)
-	| WithHypSelTac t -> WithHypSelTac (_T t)
-	| WithSelectionsTac t -> WithSelectionsTac (_T t)
-	| WithSubstSelTac t -> WithSubstSelTac (_T t)
-	| MatchTac t -> MatchTac (_T t)
-	| SameProvisosTac t -> SameProvisosTac (_T t)
-	| SimpleApplyTac t -> SimpleApplyTac (_T t)
-	| ApplyOrResolveTac t -> ApplyOrResolveTac (_T t)
-	| UniqueTac t -> UniqueTac (_T t)
-	| TakeAnyTac t -> TakeAnyTac (_T t)
-	| ResolveTac t -> ResolveTac (_T t)
-	| ReplayTac t -> ReplayTac (_T t)
-	| ContnTac (t1, t2) -> ContnTac (_T t1, _T t2)
-	| AssocFlatTac tm -> AssocFlatTac (_E tm)
-	| UnifyTac tms -> UnifyTac ((_E <* tms))
-	| AltTac ts -> AltTac ((_T <* ts))
-	| SeqTac ts -> SeqTac ((_T <* ts))
-	| WhenTac ts -> WhenTac ((_T <* ts))
-	| UnfoldHypTac (s, tms) -> UnfoldHypTac (s, (_E <* tms))
-	| FoldHypTac (s, tms) -> FoldHypTac (s, (_E <* tms))
-	| MapTac (s, tms) -> MapTac (s, (_E <* tms))
-	| TermTac (s, tms) -> TermTac (s, (_E <* tms))
-	| SubstTac (s, vts) ->
-		SubstTac (s, ((fun (v, t) -> _E v, _E t) <* vts))
-	| UnfoldTac (s, ts) -> UnfoldTac (s, (_T <* ts))
-	| FoldTac (s, ts) -> FoldTac (s, (_T <* ts))
-	| AssignTac (s, t) -> AssignTac (s, _E t)
-	| EvalTac tms -> EvalTac ((_E <* tms))
-	| AdHocTac tms -> AdHocTac ((_E <* tms))
-	| BindConcTac (tm, t) -> BindConcTac (_E tm, _T t)
-	| BindHypTac (tm, t) -> BindHypTac (_E tm, _T t)
-	| BindHyp2Tac (tm1, tm2, t) -> BindHyp2Tac (_E tm1, _E tm2, _T t)
-	| BindHypsTac (tm, t) -> BindHypsTac (_E tm, _T t)
-	| BindArgTac (tm, t) -> BindArgTac (_E tm, _T t)
-	| BindArgTextTac (s, t) -> BindArgTextTac (s, _T t)
-	| BindGoalPathTac (s, t) ->(* boy is this wrong! *)
-	   BindGoalPathTac (s, _T t)
-	| BindSubstTac (tm, t) ->(* boy is this wrong! *)
-	   BindSubstTac (_E tm, _T t)
-	| BindSubstInHypTac (tm, t) -> BindSubstInHypTac (_E tm, _T t)
-	| BindSubstInConcTac (tm, t) -> BindSubstInConcTac (_E tm, _T t)
-	| BindMultiArgTac (tm, t) -> BindMultiArgTac (_E tm, _T t)
-	| BindLHSTac (tm, t) -> BindLHSTac (_E tm, _T t)
-	| BindRHSTac (tm, t) -> BindRHSTac (_E tm, _T t)
-	| BindGoalTac (tm, t) -> BindGoalTac (_E tm, _T t)
-	| BindOpenSubGoalTac (n, tm, t) -> BindOpenSubGoalTac (n, _E tm, _T t)
-	| BindOpenSubGoalsTac (tm, t) ->(* boy is this wrong! *)
-	   BindOpenSubGoalsTac (_E tm, _T t)
-	| BindFindHypTac (tm, t) -> BindFindHypTac (_E tm, _T t)
-	| BindFindConcTac (tm, t) -> BindFindConcTac (_E tm, _T t)
-	| BindMatchTac (ptm, vtm, t) -> BindMatchTac (_E ptm, _E vtm, _T t)
-	| BindOccursTac (pt, vt, st, t) ->
-		BindOccursTac (_E pt, _E vt, _E st, _T t)
-	| LayoutTac (t, tl) -> LayoutTac (_T t, remaptreelayout env tl)
-	| AlertTac (m, ps, copt) ->
-		AlertTac
-		  (_E m, ((fun (l, t) -> _E l, _T t) <* ps),
-		   ((copt &~~ (fSome <.> _T))))
-	| ExplainTac m -> ExplainTac (_E m)
-	| CommentTac m -> CommentTac (_E m)
-	| BadUnifyTac (n1, n2, t) -> BadUnifyTac (n1, n2, _T t)
-	| BadMatchTac (n1, n2, t) -> BadMatchTac (n1, n2, _T t)
-	| BadProvisoTac (n1, n2, n3, t) -> BadProvisoTac (n1, n2, n3, _T t)
-	| UnifyArgsTac -> UnifyArgsTac
+    match t with
+      SkipTac -> t
+    | FailTac -> t
+    | StopTac -> t
+    | NextgoalTac -> t
+    | SetgoalTac p -> SetgoalTac (_Ep p)
+    | TheoryAltTac ns -> t
+    | GivenTac i -> GivenTac (_E i)
+    | RepTac t -> RepTac (_T t)
+    | IfTac t -> IfTac (_T t)
+    | CompTac t -> CompTac (_T t)
+    | CutinTac t -> CutinTac (_T t)
+    | WithArgSelTac t -> WithArgSelTac (_T t)
+    | WithConcSelTac t -> WithConcSelTac (_T t)
+    | WithFormSelTac t -> WithFormSelTac (_T t)
+    | WithHypSelTac t -> WithHypSelTac (_T t)
+    | WithSelectionsTac t -> WithSelectionsTac (_T t)
+    | WithSubstSelTac t -> WithSubstSelTac (_T t)
+    | MatchTac t -> MatchTac (_T t)
+    | SameProvisosTac t -> SameProvisosTac (_T t)
+    | SimpleApplyTac t -> SimpleApplyTac (_T t)
+    | ApplyOrResolveTac t -> ApplyOrResolveTac (_T t)
+    | UniqueTac t -> UniqueTac (_T t)
+    | TakeAnyTac t -> TakeAnyTac (_T t)
+    | ResolveTac t -> ResolveTac (_T t)
+    | ReplayTac t -> ReplayTac (_T t)
+    | ContnTac (t1, t2) -> ContnTac (_T t1, _T t2)
+    | AssocFlatTac tm -> AssocFlatTac (_E tm)
+    | UnifyTac tms -> UnifyTac ((_E <* tms))
+    | AltTac ts -> AltTac ((_T <* ts))
+    | SeqTac ts -> SeqTac ((_T <* ts))
+    | WhenTac ts -> WhenTac ((_T <* ts))
+    | UnfoldHypTac (s, tms) -> UnfoldHypTac (s, (_E <* tms))
+    | FoldHypTac (s, tms) -> FoldHypTac (s, (_E <* tms))
+    | MapTac (s, tms) -> MapTac (s, (_E <* tms))
+    | TermTac (s, tms) -> TermTac (s, (_E <* tms))
+    | SubstTac (s, vts) ->
+        SubstTac (s, ((fun (v, t) -> _E v, _E t) <* vts))
+    | UnfoldTac (s, ts) -> UnfoldTac (s, (_T <* ts))
+    | FoldTac (s, ts) -> FoldTac (s, (_T <* ts))
+    | AssignTac (s, t) -> AssignTac (s, _E t)
+    | EvalTac tms -> EvalTac ((_E <* tms))
+    | AdHocTac tms -> AdHocTac ((_E <* tms))
+    | BindConcTac (tm, t) -> BindConcTac (_E tm, _T t)
+    | BindHypTac (tm, t) -> BindHypTac (_E tm, _T t)
+    | BindHyp2Tac (tm1, tm2, t) -> BindHyp2Tac (_E tm1, _E tm2, _T t)
+    | BindHypsTac (tm, t) -> BindHypsTac (_E tm, _T t)
+    | BindArgTac (tm, t) -> BindArgTac (_E tm, _T t)
+    | BindArgTextTac (s, t) -> BindArgTextTac (s, _T t)
+    | BindGoalPathTac (s, t) ->(* boy is this wrong! *)
+       BindGoalPathTac (s, _T t)
+    | BindSubstTac (tm, t) ->(* boy is this wrong! *)
+       BindSubstTac (_E tm, _T t)
+    | BindSubstInHypTac (tm, t) -> BindSubstInHypTac (_E tm, _T t)
+    | BindSubstInConcTac (tm, t) -> BindSubstInConcTac (_E tm, _T t)
+    | BindMultiArgTac (tm, t) -> BindMultiArgTac (_E tm, _T t)
+    | BindLHSTac (tm, t) -> BindLHSTac (_E tm, _T t)
+    | BindRHSTac (tm, t) -> BindRHSTac (_E tm, _T t)
+    | BindGoalTac (tm, t) -> BindGoalTac (_E tm, _T t)
+    | BindOpenSubGoalTac (n, tm, t) -> BindOpenSubGoalTac (n, _E tm, _T t)
+    | BindOpenSubGoalsTac (tm, t) ->(* boy is this wrong! *)
+       BindOpenSubGoalsTac (_E tm, _T t)
+    | BindFindHypTac (tm, t) -> BindFindHypTac (_E tm, _T t)
+    | BindFindConcTac (tm, t) -> BindFindConcTac (_E tm, _T t)
+    | BindMatchTac (ptm, vtm, t) -> BindMatchTac (_E ptm, _E vtm, _T t)
+    | BindOccursTac (pt, vt, st, t) ->
+        BindOccursTac (_E pt, _E vt, _E st, _T t)
+    | LayoutTac (t, tl) -> LayoutTac (_T t, remaptreelayout env tl)
+    | AlertTac (m, ps, copt) ->
+        AlertTac
+          (_E m, ((fun (l, t) -> _E l, _T t) <* ps),
+           ((copt &~~ (fSome <.> _T))))
+    | ExplainTac m -> ExplainTac (_E m)
+    | CommentTac m -> CommentTac (_E m)
+    | BadUnifyTac (n1, n2, t) -> BadUnifyTac (n1, n2, _T t)
+    | BadMatchTac (n1, n2, t) -> BadMatchTac (n1, n2, _T t)
+    | BadProvisoTac (n1, n2, n3, t) -> BadProvisoTac (n1, n2, n3, _T t)
+    | UnifyArgsTac -> UnifyArgsTac
   in
   _T t
 let rec tacticform i =
   member
-	(namestring i,
-	 ["ANY"; "ALERT"; "ALT"; "APPLYORRESOLVE"; "ASSIGN"; "CUTIN"; "DO";
-	  "EVALUATE"; "EXPLAIN"; "EXPLICIT"; "FAIL"; "FLATTEN"; "FOLD";
-	  "FOLDHYP"; "GIVEN"; "GOALPATH"; "IF"; "IMPLICIT"; "JAPE"; "LAYOUT";
-	  "LETARGSEL"; "LETCONC"; "LETCONCFIND"; "LETCONCSUBSTSEL"; "LETGOAL";
-	  "LETGOALPATH"; "LETOPENSUBGOAL"; "LETOPENSUBGOALS"; "LETHYP";
-	  "LETHYP2"; "LETHYPS"; "LETHYPFIND"; "LETHYPSUBSTSEL"; "LETMATCH";
-	  "LETMULTIARG"; "LETOCCURS"; "LETSUBSTSEL"; "MAPTERMS"; "MATCH";
-	  "NEXTGOAL"; "PROVE"; "REPLAY"; "RESOLVE"; "SAMEPROVISOS"; "SEQ";
-	  "SIMPLEAPPLY"; "SKIP"; "STOP"; "THEORYALT"; "UNFOLD"; "UNFOLDHYP";
-	  "UNIFY"; "UNIQUE"; "WHEN"; "WITHARGSEL"; "WITHCONCSEL";
-	  "WITHCONTINUATION"; "WITHFORMSEL"; "WITHHYPSEL"; "WITHSELECTIONS";
-	  "WITHSUBSTSEL"; "BADUNIFY"; "BADMATCH"; "BADPROVISO"; "UNIFYARGS"])
+    (namestring i,
+     ["ANY"; "ALERT"; "ALT"; "APPLYORRESOLVE"; "ASSIGN"; "CUTIN"; "DO";
+      "EVALUATE"; "EXPLAIN"; "EXPLICIT"; "FAIL"; "FLATTEN"; "FOLD";
+      "FOLDHYP"; "GIVEN"; "GOALPATH"; "IF"; "IMPLICIT"; "JAPE"; "LAYOUT";
+      "LETARGSEL"; "LETCONC"; "LETCONCFIND"; "LETCONCSUBSTSEL"; "LETGOAL";
+      "LETGOALPATH"; "LETOPENSUBGOAL"; "LETOPENSUBGOALS"; "LETHYP";
+      "LETHYP2"; "LETHYPS"; "LETHYPFIND"; "LETHYPSUBSTSEL"; "LETMATCH";
+      "LETMULTIARG"; "LETOCCURS"; "LETSUBSTSEL"; "MAPTERMS"; "MATCH";
+      "NEXTGOAL"; "PROVE"; "REPLAY"; "RESOLVE"; "SAMEPROVISOS"; "SEQ";
+      "SIMPLEAPPLY"; "SKIP"; "STOP"; "THEORYALT"; "UNFOLD"; "UNFOLDHYP";
+      "UNIFY"; "UNIQUE"; "WHEN"; "WITHARGSEL"; "WITHCONCSEL";
+      "WITHCONTINUATION"; "WITHFORMSEL"; "WITHHYPSEL"; "WITHSELECTIONS";
+      "WITHSUBSTSEL"; "BADUNIFY"; "BADMATCH"; "BADPROVISO"; "UNIFYARGS"])
 exception TacParseError_ of string list
 let rec mustbeSTR term =
   match debracket term with
-	Literal (_, String s) -> s
+    Literal (_, String s) -> s
   | Id (_, v, _) -> string_of_vid v
   | _ -> raise (TacParseError_ [argstring term; " should be a string"])
 let rec maybeSTR term =
   try Some (mustbeSTR term) with
-	_ -> None
+    _ -> None
 let rec tacname term =
   try Name (mustbeSTR term) with
-	TacParseError_ _ ->
-	  raise (TacParseError_ [argstring term; " should be a name"])
+    TacParseError_ _ ->
+      raise (TacParseError_ [argstring term; " should be a name"])
 let rec butnottacticform term =
   let name = tacname term in
   if tacticform name then
-	raise (TacParseError_ [namestring name; " used as tactic name"])
+    raise (TacParseError_ [namestring name; " used as tactic name"])
   else name
 (* _All tactic applications MUST be Curried.  RB & BS 13/8/93.
  * Outermost brackets are stripped from non-tuple arguments. RB
@@ -395,35 +395,35 @@ let rec explodeForExecute t =
   let (f, rs) = explodeApp false t in tacname f, rs
 let rec badLayout () =
   raise
-	(TacParseError_
-	   ["Syntax is LAYOUT fmt (subtrees) tactic; \
-		fmt can be () or s or (s,s); \
-		s can be string, id, unknown or number"])
+    (TacParseError_
+       ["Syntax is LAYOUT fmt (subtrees) tactic; \
+        fmt can be () or s or (s,s); \
+        s can be string, id, unknown or number"])
 let rec checkNAME errf t =
   (* suitable for a place where a single name will do *)
   match debracket t with
-	Id _ as t -> t
+    Id _ as t -> t
   | Unknown _ as t -> t
   | t -> raise (TacParseError_ (errf t))
 let rec checkSTR errf t =
   match debracket t with
-	Id _ as t -> t
+    Id _ as t -> t
   | Unknown _ as t -> t
   | Literal _ as t -> t
   | t -> raise (TacParseError_ (errf t))
 let rec checkINT errf t =
   match debracket t with
-	Id _ as t -> t
+    Id _ as t -> t
   | Unknown _ as t -> t
   | Literal (_, Number _) as t -> t
   | _ -> raise (TacParseError_ (errf t))
 let rec checkINTS errf t =
   match debracket t with
-	Tup (_, ",", ts) as t' -> let _ = List.map (checkINT errf) ts in t'
+    Tup (_, ",", ts) as t' -> let _ = List.map (checkINT errf) ts in t'
   | t -> checkINT errf t
 let rec isguard =
   function
-	BindConcTac _ -> true
+    BindConcTac _ -> true
   | BindHypTac _ -> true
   | BindHyp2Tac _ -> true
   | BindHypsTac _ -> true
@@ -449,16 +449,16 @@ let rec isguard =
   | _ -> false
 let rec mkSEQ =
   function
-	[] -> SkipTac
+    [] -> SkipTac
   | [t] -> t
   | ts -> SeqTac ts
 and _SEQTAC ts = mkSEQ ((transTactic <* ts))
 and _SEQ1TAC a1 a2 =
   match a1, a2 with
-	name, [] ->
-	  raise
-		(TacParseError_
-		   [name; " tactic must include a non-empty sequence of tactics"])
+    name, [] ->
+      raise
+        (TacParseError_
+           [name; " tactic must include a non-empty sequence of tactics"])
   | name, ts -> _SEQTAC ts
 
 and transTactic tacterm =
@@ -573,13 +573,12 @@ and transTactic tacterm =
                 function
                       [] -> badLayout ()
                 | fmt :: stuff ->
-                        let rec lyt a1 a2 a3 =
-                              match a1, a2, a3 with
-                                con, fmt, [] -> transLayout con fmt None []
-                              | con, fmt, ns :: ts -> transLayout con fmt (Some ns) ts
+                        let rec lyt con fmt = 
+                          function []       -> transLayout con fmt None []
+                          |        ns :: ts -> transLayout con fmt (Some ns) ts
                         in
                         match maybeSTR fmt, stuff with
-                              Some "HIDEROOT", ts ->
+                          Some "HIDEROOT", ts ->
                                 LayoutTac (_SEQTAC ts, HideRootLayout)
                         | Some "HIDECUT", ts -> LayoutTac (_SEQTAC ts, HideCutLayout)
                         | Some "COMPRESS", fmt :: ts -> lyt (fun v->CompressedLayout v) fmt ts
@@ -745,37 +744,37 @@ and transTactic tacterm =
                       if tacticform n then raise (Catastrophe_ ["unrecognised tactic "; f])
                       else TermTac parts
   with
-	TacParseError_ ss ->
-	  raise
-		(ParseError_
-		   (["_Bad tactic: ("; termstring tacterm; ") -- "] @ ss))
+    TacParseError_ ss ->
+      raise
+        (ParseError_
+           (["Bad tactic: ("; termstring tacterm; ") -- "] @ ss))
   | ParseError_ ss -> raise (ParseError_ ss)
   | Catastrophe_ ss -> raise (Catastrophe_ ss)
   | exn ->
-	  raise (ParseError_ ["Unexpected exception in transTactic: "; Printexc.to_string exn])
+      raise (ParseError_ ["Unexpected exception in transTactic: "; Printexc.to_string exn])
 
 and transLayout con fmt bopt ts =
   let rec fmterr t =
-	["format string expected in LAYOUT; found "; termstring t]
+    ["format string expected in LAYOUT; found "; termstring t]
   in
   let fmt = checkSTR fmterr fmt in
   let rec nserr t =
-	["list of subtree indices expected in LAYOUT; found ";
-	 termstring (_The bopt)]
+    ["list of subtree indices expected in LAYOUT; found ";
+     termstring (_The bopt)]
   in
   let bopt =
-	match try__ (checkINTS nserr) bopt with
-	  Some (Id (_, v, _)) as r -> 
-		(match string_of_vid v with
-		   "ALL" -> None
-		 | _     -> r)
-	| r -> r
+    match try__ (checkINTS nserr) bopt with
+      Some (Id (_, v, _)) as r -> 
+        (match string_of_vid v with
+           "ALL" -> None
+         | _     -> r)
+    | r -> r
   in
   LayoutTac (_SEQTAC ts, con (fmt, bopt))
 let tacname t =
   try tacname t with
-	TacParseError_ _ ->
-	  raise (ParseError_ ["not a string or an identifier"])
+    TacParseError_ _ ->
+      raise (ParseError_ ["not a string or an identifier"])
 
 
 
