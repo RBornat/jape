@@ -3,7 +3,7 @@
 /* syntax of very simple set theory, for QMW IDS course 1997 */
 
 CLASS VARIABLE u v w
-CONSTANT ¯ Ù U
+CONSTANT ¯ Ù U EQ
 
 OUTFIX < >
 PREFIX	1000		Pow
