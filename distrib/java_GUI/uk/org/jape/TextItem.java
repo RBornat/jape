@@ -47,7 +47,7 @@ class TextItem extends DisplayItem implements DebugConstants {
 	int left=x, top=y, right=x, bottom=y;
 	for (int i=0; i<components.length; i++) {
 	    TextComponent c = components[i];
-	    TextDimension d = JapeFont.measure(c.printtext, c.fontnum);
+	    TextDimension d = c.dimension;
 	    int cLeft = x+c.offX, 
 		cTop = y+c.offY-d.ascent,
 		cRight = cLeft+d.width,
