@@ -1,7 +1,7 @@
 /* $Id$ */
 
 CLASS VARIABLE x y z   i j k
-CLASS FORMULA A B C   E F G  P  R S T
+CLASS FORMULA A B C   E F G H  P  R S T
 CLASS BAG FORMULA ‚
 
 CONSTANT Ù
