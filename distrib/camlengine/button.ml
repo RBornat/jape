@@ -1,0 +1,221 @@
+(* $Id$ *)
+
+module type T =
+  sig
+    type name
+    
+    (* things we can enable/disable from the interface: often they are entries in menus, but 
+     * they can be real buttons, or whatever.  It's up to button.sml to translate.
+     *)
+    type button =
+        UndoProofbutton
+      | RedoProofbutton
+      | UndoDisproofbutton
+      | RedoDisproofbutton
+      | Finishedbutton
+      | Resetbutton
+      | Savebutton
+      | SaveAsbutton
+      | Disprovebutton
+    val enable : button * bool -> unit
+    val reloadmenusandpanels : (name -> bool option) -> string list -> unit
+    val markproof : bool -> string -> unit
+    (* now marks proofs and disproofs *)
+    val initButtons : unit -> unit
+    val initFonts : unit -> unit
+    val getfontstuff : unit -> string option
+    val setfontstuff : string -> unit
+    val resetfontstuff : unit -> unit
+  end
+
+(*      This is essentially the same as the qmw button stuff: evidently
+        the two interfaces have converged in this area. 
+        
+        Differences are:
+                
+                1. I like putting separators in the Edit menus to separate different
+                   kinds of editing action.
+                
+                2. I don't really care to make use of the variability provided
+                   by markpanelentry in choosing the mark to put by a 
+                   proven conjecture. (Too right: RB.  Now it is a true/false marker)
+        BAS
+*)
+
+module M : T with type name = Name.M.name =
+  struct
+    open Menu.M 
+    open Mappingfuns.M
+    open Panelkind.M
+    open Name.M
+        
+	type name = Name.M.name
+	
+	let deadServer = Interaction.M.deadServer
+	and runningServer = (fun() -> !Japeserver.M.running)
+	 
+    type button =
+        UndoProofbutton
+      | RedoProofbutton
+      | UndoDisproofbutton
+      | RedoDisproofbutton
+      | Finishedbutton
+      | Resetbutton
+      | Savebutton
+      | SaveAsbutton
+      | Disprovebutton
+    type mybutton =
+        MyUndoProof
+      | MyRedoProof
+      | MyUndoDisproof
+      | MyRedoDisproof
+      | MyDone
+      | MyClose
+      | MySave
+      | MySaveAs
+      | MyDisprove
+    let buttoncache : (mybutton, bool ref) mapping ref = ref empty
+    let rec enable (button, state) =
+      let rec doit b v =
+        let (m, c) =
+          match b with
+            MyUndoProof -> "Edit", "Undo Proof Step"
+          | MyRedoProof -> "Edit", "Redo Proof Step"
+          | MyUndoDisproof -> "Edit", "Undo Disproof Step"
+          | MyRedoDisproof -> "Edit", "Redo Disproof Step"
+          | MyDone -> "Edit", "Done"
+          | MyClose -> "File", "Close"
+          | MySave -> "File", "Save"
+          | MySaveAs -> "File", "Save As"
+          | MyDisprove -> "Edit", "Disprove"
+        in
+        if match at (!buttoncache, b) with
+             Some r ->
+               if !r = state then false else begin r := state; true end
+           | None ->
+               buttoncache := ( ++ ) (!buttoncache, ( |-> ) (b, ref state));
+               true
+        then
+          Japeserver.M.enablemenuitem (m, c, state)
+      in
+      match button with
+        UndoProofbutton -> doit MyUndoProof state
+      | RedoProofbutton -> doit MyRedoProof state
+      | UndoDisproofbutton -> doit MyUndoDisproof state
+      | RedoDisproofbutton -> doit MyRedoDisproof state
+      | Finishedbutton -> doit MyDone state
+      | Resetbutton -> doit MyClose state
+      | Savebutton -> doit MySave state
+      | SaveAsbutton -> doit MySaveAs state
+      | Disprovebutton -> doit MyDisprove state
+    let (resetfontstuff, setfontstuff, getfontstuff) =
+      let fontstuff : string option ref = ref None in
+      let rec resetfontstuff () = fontstuff := None
+      and setfontstuff stuff = fontstuff := Some stuff
+      and getfontstuff () = !fontstuff in
+      resetfontstuff, setfontstuff, getfontstuff
+
+    let rec reloadmenusandpanels markconjecture oplist =
+      if runningServer () then
+        try
+          (* was freshmenus... *)
+          Japeserver.M.sendOperators oplist;
+          buttoncache := empty;
+          menuiter
+            (fun menu ->
+               let menustring = namestring menu in
+               Japeserver.M.newmenu menustring;
+               menuitemiter menu
+                 (fun (label, keyopt, cmd) ->
+                    Japeserver.M.menuentry
+                      (menustring, namestring label, keyopt, cmd))
+                 (fun (label, cmd) ->
+                    (* checkbox *)
+                    Japeserver.M.menucheckbox
+                      (menustring, namestring label, cmd))
+                 (fun lcs ->
+                    (* radio button *)
+                    Japeserver.M.menuradiobutton
+                      (menustring,
+                       List.map (fun (label, cmd) -> namestring label, cmd) lcs))
+                 (fun _ -> Japeserver.M.menuseparator menustring));
+          paneliter
+            (fun (panel, kind) ->
+               let panelstring = namestring panel in
+               Japeserver.M.newpanel (panelstring, kind);
+               panelitemiter panel
+                 (fun (label, entry) ->
+                    Japeserver.M.panelentry
+                      (panelstring, namestring label, entry);
+                    if kind = ConjecturePanelkind then
+                      match markconjecture label with
+                        Some mark ->
+                          Japeserver.M.markpanelentry panelstring
+                            (namestring label) mark
+                      | _ -> ())
+                 (fun (name, cmd) ->
+                    (* button *)
+                    Japeserver.M.panelbutton
+                      (panelstring, namestring name, cmd))
+                 (fun (label, cmd) ->
+                    (* checkbox *)
+                    Japeserver.M.panelcheckbox
+                      (panelstring, namestring label, cmd))
+                 (fun lcs ->
+                    (* radio button *)
+                    Japeserver.M.panelradiobutton
+                      (panelstring,
+                       List.map (fun (n, v) -> namestring n, v) lcs)));
+          Japeserver.M.mapmenus true;
+          let _ = Japeserver.M.echo "" (* synchronise *) in ()
+        with
+          server_input_terminated -> deadServer ["WARNING: server broken"]
+    let rec markproof proved cmd =
+      (* given parseable name - look in the cmd part of conjecture panels *)
+      paneliter
+        (function
+           panel, ConjecturePanelkind ->
+             panelitemiter panel
+               (fun (label, entry) ->
+                  if entry = cmd then
+                    Japeserver.M.markpanelentry (namestring panel)
+                      (namestring label) proved)
+               (fun _ -> ()) (fun _ -> ()) (fun _ -> ())
+         | panel, _ -> ())
+    let rec initButtons () =
+      let ( -------- ) = Mseparator in
+      let rec _E (name, cut, cmd) = Mentry (Name.M.Name name, cut, cmd) in
+      let _EditEntries =
+        [_E ("Done", Some "D", "done"); ( -------- );
+         _E ("Undo Proof Step", None, "undo_proof");
+         _E ("Redo Proof Step", None, "redo_proof"); ( -------- );
+         _E ("Undo Disproof Step", None, "undo_disproof");
+         _E ("Redo Disproof Step", None, "redo_disproof"); ( -------- );
+         _E ("Backtrack", None, "backtrack");
+         _E ("Prune", None, "prune"); ( -------- );
+         _E ("Unify selected terms", None, "unify"); ( -------- );
+         _E ("Refresh", None, "refreshdisplay"); ( -------- );
+         _E ("Hide/Show subproof", None, "collapse");
+         _E ("Expand/Contract detail", None, "layout")]
+      in
+      clearmenusandpanels ();
+      addmenu (Name.M.Name "Edit");
+      addmenudata (Name.M.Name "Edit") _EditEntries
+    let rec initFonts () =
+      match getfontstuff () with
+        Some stuff -> Japeserver.M.setFonts stuff
+      | None -> ()
+  end
+
+
+
+
+
+
+
+
+
+
+
+
+
