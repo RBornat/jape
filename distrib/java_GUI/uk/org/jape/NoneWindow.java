@@ -1,5 +1,19 @@
 /*
- * Swing version.
+ * Adapted from the Sun java tutorial example.
+ *
+ * The 'three' button moves SouthEast when clicked; the scroll pane copes fine.
+ * 
+ * The 'two' button moves West; it's drawn in the right position but when it 
+ * crosses the western boundary (the y axis) the scroll pane doesn't indicate
+ * properly.  Instead the _eastern_ extent shown as panel (viewport?) background
+ * is increased (i.e the scroll pane is responding to getPreferredSize but not 
+ * to getBounds).
+ *
+ * The 'one' button moves North, and shows similar results.
+ *
+ * Debug printing in computeBounds shows that the viewport knows it isn't starting
+ * from 0,0.  Is this a coordinate transformation problem?
+ *
  */
 
 import java.awt.*;
@@ -17,24 +31,20 @@ public class NoneWindow extends JFrame implements ActionListener {
 			return getPreferredSize();
 		}
 	
-		public int getScrollableUnitIncrement(Rectangle visibleRect,
-											  int orientation,
-											  int direction) {
+		public int getScrollableUnitIncrement(Rectangle v, int o, int d) {
 			return 10; // for now
 		}
 	
-		public int getScrollableBlockIncrement(Rectangle visibleRect,
-											   int orientation,
-											   int direction) {
+		public int getScrollableBlockIncrement(Rectangle v, int o, int d) {
 			return 100; // for now
 		}
 	
 		public boolean getScrollableTracksViewportWidth() {
-			return false;
+			return false; // so we can see the extent of the panel
 		}
 	
 		public boolean getScrollableTracksViewportHeight() {
-			return false;
+			return false; // ditto
 		}
     }
     
@@ -45,15 +55,9 @@ public class NoneWindow extends JFrame implements ActionListener {
     	panel = new JScrollablePanel();
         panel.setLayout(null);
 
-        b1 = new JButton("one");
-        b1.addActionListener(this);
-        panel.add(b1);
-        b2 = new JButton("two");
-        b2.addActionListener(this);
-        panel.add(b2);
-        b3 = new JButton("three");
-        b3.addActionListener(this);
-        panel.add(b3);
+        b1 = new JButton("one"); b1.addActionListener(this); panel.add(b1);
+        b2 = new JButton("two"); b2.addActionListener(this); panel.add(b2);
+        b3 = new JButton("three"); b3.addActionListener(this); panel.add(b3);
         
         scrollPane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                                             JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -65,7 +69,6 @@ public class NoneWindow extends JFrame implements ActionListener {
         b3.setBounds(150 + insets.left, 15 + insets.top, 75, 30);
 
 		computeBounds();
-		panel.revalidate();
 		
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -79,16 +82,15 @@ public class NoneWindow extends JFrame implements ActionListener {
     }
     
     protected void computeBounds() {
-    	Rectangle r = new Rectangle(0,0,0,0);
-    	r.add(b1.getBounds());
-    	r.add(b2.getBounds());
-    	r.add(b3.getBounds());
+    	Rectangle r = new Rectangle(0,0,0,0); // always include the zero point
+    	r.add(b1.getBounds()); r.add(b2.getBounds()); r.add(b3.getBounds());
     	System.err.print("computeBounds "+r+"+"+panel.getBounds());
-    	panel.setPreferredSize(r.getSize());
     	panel.setBounds(r.union(panel.getBounds()));
+    	// this seems to be the only way to tell a scroll pane what to put in its bars 
+    	// (http://java.sun.com/docs/books/tutorial/uiswing/components/problems.html and elsewhere)
+    	panel.setPreferredSize(r.getSize());
     	System.err.println(" "+r+" "+scrollPane.getViewport().getViewPosition());
-    	scrollPane.getViewport().setViewPosition(new Point(0,0));
-    	System.err.println(scrollPane.getViewport().getViewPosition());
+    	panel.revalidate();
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -107,10 +109,8 @@ public class NoneWindow extends JFrame implements ActionListener {
 			Rectangle r = b1.getBounds();
 			b1.setBounds(r.x, r.y-50, r.width, r.height);
 		}
-		else
-			System.err.println("action command "+s);
+
 		computeBounds();
-    	panel.revalidate();
     	panel.repaint();
     }
 
