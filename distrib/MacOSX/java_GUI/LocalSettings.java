@@ -71,6 +71,8 @@ public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
                                 PanelButtonFontSize = 11,
                                 PanelEntryFontSize  = 11;
 
+    public static final String fontStyle = "sanserif";
+
     // spacing of tiles
     
     public static final int TileSpacing = 5;
