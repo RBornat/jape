@@ -134,7 +134,6 @@ public class japeserver {
 
         LocalSettings l = new LocalSettings();
         
-        new SurrogateWindow();
         new Dispatcher().start();
         
         if (tracing)
