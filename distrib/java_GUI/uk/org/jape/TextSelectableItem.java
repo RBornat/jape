@@ -97,7 +97,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	for (int j=0; j<components.length; j++) {
 	    AnnotatedTextComponent c = components[j];
 	    if (i>c.printlen) {
-		width += c.pxwidth; i -= c.printlen;
+		width += c.dimension.width; i -= c.printlen;
 	    }
 	    else
 		return width+JapeFont.charsWidth(c.printchars, 0, i, c.fontnum);
@@ -205,8 +205,16 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	    repaint();
 	}
 	
+	/*  repaint, paint must scan across an array of components. What an obvious
+	    candidate for a function argument ... 
+	    But no, we must use a ****ing iterator.
+	 */
 	public void repaint() {
-	    TextSelectableItem.this.repaint(pxstart, 0, pxend-pxstart, getHeight());
+	    initRects();
+	    while (hasRect()) {
+		TextSelectableItem.this.repaint(rX, rY, rW, rH);
+		nextRect();
+	    }
 	}
 	
 	public void paint(Graphics g) {
@@ -214,10 +222,52 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		if (paint_tracing)
 		    Logger.log.println("painting text selection "+start+","+end);
 		g.setColor(Preferences.TextSelectionColour);
-		g.fillRect(pxstart+startgap, 0, pxend-pxstart-endgap, getHeight());
-	    } // else do nothing
+		initRects();
+		while (hasRect()) {
+		    g.fillRect(rX, rY, rW, rH);
+		    nextRect();
+		}
+	    }
 	}
-
+	
+	private int rX, rY, rW, rH, rStart, rEnd, rI;
+	
+	private void initRects() {
+	    rStart = pxstart; rEnd = pxend; rI=0;
+	    while (rStart>=components[rI].dimension.width) {
+		rStart -= components[rI].dimension.width; 
+		rEnd -= components[rI].dimension.width;
+		rI++;
+	    }
+	    rStart += startgap;
+	}
+	
+	private boolean hasRect() {
+	    if(rStart<rEnd) {
+		rX = components[rI].offX+rStart;
+		rY = ascent+components[rI].offY-components[rI].dimension.ascent;
+		rW = (rEnd>components[rI].dimension.width ? components[rI].dimension.width
+							  : rEnd-endgap)
+		    -rStart;
+		rH = components[rI].dimension.ascent+components[rI].dimension.descent;
+		return true;
+	    }
+	    else
+		return false;
+	}
+	
+	private void nextRect() {
+	    if (rStart<rEnd) {
+		if (rEnd>components[rI].dimension.width) {
+		    rStart = 0;
+		    rEnd -= components[rI].dimension.width;
+		    rI++;
+		}
+		else
+		    rStart = rEnd;
+	    }
+	}
+	
 	/* Overlap doesn't include touching */
 	public boolean overlaps(TextSel t) {
 	    return t!=null && t!=this && t.end>this.start && this.end>t.start;
@@ -331,9 +381,24 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	return i<0 || i>=textsels.size() ? null : (TextSel)textsels.get(i);
     }
 
+    protected int getTextPoint(MouseEvent e) {
+	int ci=0, px=internalX(e.getX()), py=internalY(e.getY());
+	// Logger.log.print("getTextPoint("+e+") ("+px+","+py+")");
+	while (ci<components.length && 
+	       py>ascent+components[ci].offY+components[ci].dimension.descent) ci++;
+	if (ci==components.length ||
+	    (ci!=0 && (py-(ascent+components[ci-1].offY+components[ci-1].dimension.descent)<
+			ascent+components[ci].offY-components[ci].dimension.ascent-py))) 
+	    ci--;
+	for (int i=0; i<ci; i++)
+	    px += components[i].dimension.width;
+	// Logger.log.println(" => "+px);
+	return px;
+    }
+    
     protected void newTextSel(MouseEvent e) {
 	ensureTextSelectionVars();
-	anchor = current = pixel2Subformula(formulae, internalX(e.getX()));
+	anchor = current = pixel2Subformula(formulae, getTextPoint(e));
 	int i;
 	for (i=0; i<textsels.size(); i++)
 	    if (anchor.start<=getTextSel(i).start)
@@ -385,7 +450,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		break;
 
 	    case DisjointTextSelection: { // don't kill any text selections
-		    int x = internalX(e.getX());
+		    int x = getTextPoint(e);
 		    currenttextselindex = pixel2TextSelIndex(x);
 		    // Logger.log.println("textpressed DisjointTextSelection x="+x
 		    //			  +"; currenttextselindex="+currenttextselindex);
@@ -409,7 +474,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		if (textsels.size()==0)
 		    newTextSel(e);
 		else {
-		    int i, px=e.getX();
+		    int i, px=getTextPoint(e);
 		    for (i=0; i<textsels.size(); i++) {
 			if (px<getTextSel(i).pxend) {
 			    // are we nearer to this one or the one before?
@@ -427,12 +492,12 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		break;
 
 	    default:
-		Logger.log.println("TextSelectableItem.textpressed eventKind="+eventKind);
+		Logger.log.println("?? TextSelectableItem.textpressed eventKind="+eventKind);
 	}
     }
 
     protected void textdragged(byte eventKind, MouseEvent e) {
-	FormulaTree sel = enclosingSubformula(anchor, pixel2Subformula(formulae,internalX(e.getX())));
+	FormulaTree sel = enclosingSubformula(anchor, pixel2Subformula(formulae,getTextPoint(e)));
 	if (sel!=current) {
 	    getTextSel(currenttextselindex).reset(sel);
 	    current = sel;
@@ -487,7 +552,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 
     public String toString() {
 	String s = "TextSelectableItem["+
-	"annottext=..."+
+	"formulae="+formulae+
 	", currenttextselindex="+currenttextselindex+
 	", textsels=";
 	if (textsels==null)
