@@ -208,11 +208,11 @@ public class JapeMenu implements DebugConstants {
         }
     }
     
-    protected static TitledMenuBar mkBar(boolean proofsonly) {
+    protected static TitledMenuBar mkBar(boolean isProofBar) {
         TitledMenuBar bar = new TitledMenuBar();
         for (Enumeration ebar = barv.elements(); ebar.hasMoreElements(); ) {
             M m = (M)ebar.nextElement();
-            if (!m.proofsonly || proofsonly) {
+            if (!m.proofsonly || isProofBar) {
                 TitledMenu menu = new TitledMenu(m.title);
                 JapeFont.setComponentFont(menu.getComponent(), JapeFont.MENUENTRY);
                 for (int i=0; i<m.size(); i++) {
@@ -239,8 +239,10 @@ public class JapeMenu implements DebugConstants {
                     else
                     if (o instanceof I) {
                         I ii = (I)o;
-                        JMenuItem item = new JMenuItem(ii.label);
-                        mkItem(menu, ii, item);
+                        if (isProofBar || !m.title.equals("File") || !ii.label.equals("Close")) {
+                            JMenuItem item = new JMenuItem(ii.label);
+                            mkItem(menu, ii, item);
+                        }
                     }
                     else
                     if (o instanceof Sep)
@@ -254,8 +256,8 @@ public class JapeMenu implements DebugConstants {
         return bar;
     }
 
-    private static void setBar(boolean proofsonly, JapeWindow w) {
-        w.setJMenuBar(mkBar(proofsonly));
+    private static void setBar(boolean isProofBar, JapeWindow w) {
+        w.setJMenuBar(mkBar(isProofBar));
         w.getJMenuBar().revalidate();
     }
 
@@ -305,6 +307,12 @@ public class JapeMenu implements DebugConstants {
         }
     
     }
+
+    private static class CloseProofAction extends ItemAction {
+        public void action() {
+            ProofWindow.closeFocussedProof();
+        }
+    }
     
     private static M indexMenu(boolean proofsonly, String label) {
         M menu = (M)menutable.get(label);
@@ -349,13 +357,13 @@ public class JapeMenu implements DebugConstants {
 		
         indexMenuItem(filemenu, "Open new theory...", new CmdAction("reset;reload"));
 
-        indexMenuItem(filemenu, "Close", new UnimplementedAction("File: Close")).
+        indexMenuItem(filemenu, "Close", new CloseProofAction()).
              setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, menumask));
 		
-        indexMenuItem(filemenu, "Save", new UnimplementedAction("File: Save")).
+        indexMenuItem(filemenu, "Save Proofs", new CmdAction("saveproofs false")).
              setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, menumask));
 		
-        indexMenuItem(filemenu, "Save As...", new UnimplementedAction("File: Save As..."));
+        indexMenuItem(filemenu, "Save Proofs As...", new CmdAction("saveproofs true"));
         
         if (LocalSettings.quitMenuItemNeeded) {
             filemenu.addSep();
