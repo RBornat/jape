@@ -1,7 +1,11 @@
+// 
+// $Id$
+//
+//  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
+//
+
 /**
         A Fontoid is a font equipped with a way of measuring text.
-
-        $Id$
 
         I don't really like the use of a dummy component, but it looks
         like the only concise way of getting the job done.

@@ -1,8 +1,5 @@
-//
-//  japeserver.java
-//	For information on setting Java configuration information, including setting
-//	Java properties, refer to the documentation at
-//		http://developer.apple.com/techpubs/java/java.html
+// 
+// $Id$
 //
 //  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
@@ -125,7 +122,7 @@ public class japeserver {
 
         LocalSettings l = new LocalSettings();
         
-        new ProofWindow();
+        new SurrogateWindow();
         new Dispatcher().start();
         
         if (tracing)

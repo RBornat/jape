@@ -1,11 +1,16 @@
+// 
+// $Id$
 //
-//  JapePanel.java
-//  japeserver
-//
-//  Created by Richard Bornat on Wed Sep 11 2002.
 //  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
+/* This is now basically functional, but things to do:
+   1. Arrange a layout so that buttons are always visible, scroll pane doesn't sometimes disappear.
+   2. Disable action of close button (and one day, if poss, disable visible close button).
+   3. Make panels float (maybe, and perhaps only on MacOS X)
+   4. Make panels look different -- different title style? smaller title bar?
+ */
+ 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
@@ -76,14 +81,14 @@ public class PanelWindow extends JapeWindow implements ActionListener {
         }
         
         JapeFont.setComponentFont(entries);
-        if (japeserver.onMacOS && !LocalSettings.quitMenuItemNeeded)
+        if (LocalSettings.panelWindowMenus)
             setJMenuBar(new JMenuBar()); // by experiment, seems to be necessary before setVisible
     }
     
     protected void addEntry(String entry, String cmd) throws ProtocolError {
         // check for duplicate entries?
         if (model.indexOf(entry)!=-1)
-            throw new ProtocolError("there is already an entry "+entry+" in panel "+title);
+            throw new ProtocolError("duplicate entry");
         model.addElement(entry);
         entryv.add(entry);
         cmdv.add(cmd);
@@ -131,18 +136,26 @@ public class PanelWindow extends JapeWindow implements ActionListener {
         }
     }
 
-    public static PanelWindow spawn (String title, int kind) throws ProtocolError {
+    protected static PanelWindow findPanelWindow(String title, boolean musthave) throws ProtocolError {
         JapeWindow w = findWindow(title);
         if (w!=null) {
             if (!(w instanceof PanelWindow))
-                throw new ProtocolError ("NEWPANEL \""+title+"\" "+kind+" -- non-panel exists with this title");
-            else {
-                PanelWindow p = (PanelWindow) w;
-                if (p.kind==kind)
-                    return p;
-                else
-                    throw new ProtocolError ("NEWPANEL \""+title+"\" "+kind+" -- panel exists with kind "+p.kind);
-            }
+                throw new ProtocolError ("non-panel exists with this title");
+        }
+        else 
+        if (musthave)
+            throw new ProtocolError("before NEWPANEL");
+            
+        return (PanelWindow)w;
+    }
+    
+    public static PanelWindow spawn (String title, int kind) throws ProtocolError {
+        PanelWindow p = findPanelWindow(title, false);
+        if (p!=null) {
+            if (p.kind==kind)
+                return p;
+            else
+                throw new ProtocolError ("panel exists with different kind");
         }
 	else // it ain't there
             return new PanelWindow(title, kind);
@@ -173,26 +186,10 @@ public class PanelWindow extends JapeWindow implements ActionListener {
     public static class CommandInsert extends Insert { }
     
     public static void panelEntry(String panel, String entry, String cmd) throws ProtocolError {
-        JapeWindow w = findWindow(panel);
-        if (w!=null) {
-            if (!(w instanceof PanelWindow))
-                throw new ProtocolError ("PANELENTRY \""+panel+"\" \""+entry+"\" ... non-panel exists with this title");
-            else
-                ((PanelWindow)w).addEntry(entry,cmd);
-        }
-	else // it ain't there
-            throw new ProtocolError ("PANELENTRY \""+panel+"\" \""+entry+"\" ... before NEWPANEL");
+        findPanelWindow(panel, true).addEntry(entry,cmd);
     }
     
     public static void panelButton(String panel, String button, Insert[] cmd) throws ProtocolError {
-        JapeWindow w = findWindow(panel);
-        if (w!=null) {
-            if (!(w instanceof PanelWindow))
-                throw new ProtocolError ("PANELBUTTON \""+panel+"\" \""+button+"\" ... non-panel exists with this title");
-            else
-                ((PanelWindow)w).addButton(button,cmd);
-        }
-	else // it ain't there
-            throw new ProtocolError ("PANELBUTTON \""+panel+"\" \""+button+"\" ... before NEWPANEL");
+        findPanelWindow(panel,true).addButton(button,cmd);
     }
 }

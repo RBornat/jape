@@ -1,8 +1,6 @@
+// 
+// $Id$
 //
-//  Menu.java
-//  japeserver
-//
-//  Created by Richard Bornat on Fri Aug 30 2002.
 //  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
@@ -242,16 +240,16 @@ public class JapeMenu implements ActionListener {
             M menu = (M)menutable.get(menuname);
             menu.addSeparator();
         } catch (Exception e) {
-            throw new ProtocolError("MENUSEP \""+menuname+"\" failed");
+            throw new ProtocolError("failed");
         }
     }
 
-    public void newMenuItem(String menuname, String label, String code, String cmd) {
+    public void newMenuItem(String menuname, String label, String code, String cmd) throws ProtocolError {
         try {
             indexMenuItem((M)menutable.get(menuname), label, new CmdAction(cmd)); 
             // and what do we do about code?
         } catch (Exception e) {
-            System.err.println("MENUENTRY \""+menuname+"\" \""+label+"\" \""+code+"\" \""+cmd+"\" failed");
+            throw new ProtocolError("failed");
         }
     }
 

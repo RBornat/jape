@@ -1,8 +1,6 @@
+// 
+// $Id$
 //
-//  JapeFont.java
-//  japeserver
-//
-//  Created by Richard Bornat on Tue Sep 10 2002.
 //  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
@@ -275,7 +273,7 @@ public class JapeFont {
     }
     
     // we can't set the font of window titles, and I don't know what else ...
-    public static String toUnicodeAlways(String s) {
+    public static String toUnicodeTitle(String s) {
         return tran(toUni, s);
     }
     
@@ -375,7 +373,7 @@ public class JapeFont {
     
     public static void setfont(String name) throws ProtocolError {
         if (codecDone)
-            throw (new ProtocolError("SETFONTS must be sent when there are no open windows and nothing in the menus or panels"));
+            throw (new ProtocolError("too late!"));
         else
         if (name.equals("Konstanz")) {
             if (japeserver.onMacOS) {

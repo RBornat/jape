@@ -1,8 +1,6 @@
+// 
+// $Id$
 //
-//  IntHashMap.java
-//  japeserver
-//
-//  Created by Richard Bornat on Tue Sep 10 2002.
 //  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 

@@ -1,3 +1,9 @@
+// 
+// $Id$
+//
+//  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
+//
+
 /**
         Represents 
                 members: set(0..size-1)

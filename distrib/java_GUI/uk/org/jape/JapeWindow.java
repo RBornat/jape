@@ -1,8 +1,6 @@
+// 
+// $Id$
 //
-//  JapeWindow.java
-//  japeserver
-//
-//  Created by Richard Bornat on Fri Sep 13 2002.
 //  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
@@ -40,7 +38,8 @@ public class JapeWindow extends JFrame {
     
     private static void setBar(JapeWindow w) {
         if (w instanceof ProofWindow || 
-            (w instanceof PanelWindow && japeserver.onMacOS && !LocalSettings.aboutMenuItemNeeded)) 
+            (w instanceof PanelWindow && LocalSettings.panelWindowMenus) ||
+            w instanceof SurrogateWindow) // the surrogate needs all the menus, till we implement PROOFMENU 
             // even panel windows get a menu on MacOS X
             japeserver.menus.setBar(w);
     }

@@ -1,8 +1,6 @@
+// 
+// $Id$
 //
-//  dispatcher.java
-//  japeserver
-//
-//  Created by Richard Bornat on Fri Aug 09 2002.
 //  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
@@ -101,14 +99,14 @@ public class Dispatcher extends Thread {
                     
                     // PANEL commands
                         if (p.equals("NEWPANEL")&&len==3)
-                            PanelWindow.spawn(JapeFont.toUnicodeAlways(command[1]), toInt(command[2]));
+                            PanelWindow.spawn(JapeFont.toUnicodeTitle(command[1]), toInt(command[2]));
                         else
                         if (p.equals("PANELENTRY")&&len==4)
-                            PanelWindow.panelEntry(JapeFont.toUnicodeAlways(command[1]), JapeFont.toUnicode(command[2]), command[3]);
+                            PanelWindow.panelEntry(JapeFont.toUnicodeTitle(command[1]), JapeFont.toUnicode(command[2]), command[3]);
                         else
                         if (p.equals("PANELBUTTON")&&len==3) {
                             list.removeAllElements();
-                            list.add(JapeFont.toUnicodeAlways(command[1]));
+                            list.add(JapeFont.toUnicodeTitle(command[1]));
                             list.add(JapeFont.toUnicode(command[2]));
                         }
                         else
@@ -117,7 +115,7 @@ public class Dispatcher extends Thread {
                               case 0: list.add(new PanelWindow.StringInsert(command[2])); break;
                               case 1: list.add(new PanelWindow.LabelInsert()); break;
                               case 2: list.add(new PanelWindow.CommandInsert()); break;
-                              default: throw new ProtocolError(line+" -- "+toInt(command[1])+" should be 0, 1 or 2");
+                              default: throw new ProtocolError(toInt(command[1])+" should be 0, 1 or 2");
                             }
                         }
                         else
@@ -129,6 +127,14 @@ public class Dispatcher extends Thread {
                         }
                         else
                     
+                    // PROOF commands
+                        if (p.equals("OPENPROOF")&&len==3) 
+                            ProofWindow.spawn(JapeFont.toUnicodeTitle(command[1]), toInt(command[2]));
+                        else
+                        if (p.equals("PROOFPANEGEOMETRY")&&len==1)
+                            ProofWindow.tellDimension();
+                        else
+                        
                     // OPERATOR .. deal with the keyboard in some dialogue boxes
                         if (p.equals("OPERATORSBEGIN")&&len==1)
                             list.removeAllElements();
@@ -154,8 +160,7 @@ public class Dispatcher extends Thread {
                             /*Alert.showErrorAlert*/System.err.println("dispatcher doesn't understand ("+len+") "+JapeFont.toUnicode(line));
                     } // if (command.length!=0)
                 } catch (ProtocolError e) {
-                    System.err.println("protocol error in "+line+":: "+e.getMessage());
-                    System.exit(2);
+                    Alert.showErrorAlert("protocol error in "+line+":: "+e.getMessage());
                 }
             } // while
         } catch (IOException e) {
@@ -266,12 +271,13 @@ kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
     }
     
     private boolean toBool(String s) throws ProtocolError {
-        try {
-            int j = toInt(s);
-            if (j==1) return true; else
-            if (j==0) return false; // else fall through
-        } catch (Exception e) { }
-        throw (new ProtocolError ("\""+s+"\" is neither \"1\" nor \"0\""));
+        if (s.equals("T")) 
+            return true; 
+        else
+        if (s.equals("F")) 
+            return false; 
+        else
+            throw (new ProtocolError ("\""+s+"\" is neither \"T\" nor \"F\""));
     }
     
     private char toChar(String s) throws ProtocolError {

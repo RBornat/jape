@@ -1,5 +1,7 @@
+// 
+// $Id$
 //
-//	File:	AboutBox.java
+//  Copyleft 2002 Richard Bornat & Bernard Sufrin. Proper GPL text to be inserted
 //
 
 public class AboutBox {
