@@ -270,7 +270,8 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("WORLDSSTART")&&len==1)
                             ProofWindow.getFocussedWindow().worldsStart();
                         else
-                        if (p.equals("WORLD")&&len==3)
+                        if (p.equals("WORLD")&&len==4)
+                            // for the moment we ignore world colours (cmd[3])
                             ProofWindow.getFocussedWindow().addWorld(toInt(cmd[1]), toInt(cmd[2]));
                         else
                         if (p.equals("WORLDLABEL")&&len==4)
@@ -303,13 +304,19 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
 
                     // selections of various kinds
-                        if (p.equals("GETSELECTIONS")&&len==1)
-                            Reply.reply(ProofWindow.getFocussedWindow().getSelections());
+                        if (p.equals("GETPROOFSELECTIONS")&&len==1)
+                            Reply.reply(ProofWindow.getFocussedWindow().getProofSelections());
                         else
-                        if (p.equals("GETTEXTSELECTIONS")&&len==1)
-                            Reply.reply(ProofWindow.getFocussedWindow().getTextSelections());
+                        if (p.equals("GETPROOFTEXTSELECTIONS")&&len==1)
+                            Reply.reply(ProofWindow.getFocussedWindow().getProofTextSelections());
                         else
-                        if (p.equals("GETGIVENTEXTSELECTIONS")&&len==1)
+                        if (p.equals("GETDISPROOFSELECTIONS")&&len==1)
+                            Reply.reply(ProofWindow.getFocussedWindow().getDisproofSelections());
+                        else
+                        if (p.equals("GETDISPROOFTEXTSELECTIONS")&&len==1)
+                            Reply.reply(ProofWindow.getFocussedWindow().getDisproofTextSelections());
+                        else
+                            if (p.equals("GETGIVENTEXTSELECTIONS")&&len==1)
                             Reply.reply(ProofWindow.getFocussedWindow().getGivenTextSelections());
                         else
                         
