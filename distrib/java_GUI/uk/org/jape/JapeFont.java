@@ -25,6 +25,7 @@
     
 */
 
+import java.awt.Canvas;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -83,7 +84,7 @@ public class JapeFont {
     public static final int PANELENTRY  = 3;
     public static final int PANELBUTTON = 4;
 
-    public static void setComponentFont(int kind, Component c) {
+    public static void setComponentFont(Component c, int kind) {
         switch (kind) {
             case MENUENTRY  : 
             case DIALOGLABEL:
@@ -264,8 +265,15 @@ public class JapeFont {
         }
     }
 
-    public static TextDimension measure(JLabel l, String s) {
-        FontMetrics m = l.getFontMetrics(l.getFont());
+    private static final Component dummyComponent = new Canvas();
+    
+    public static TextDimension measure(Font f, String s) {
+        dummyComponent.setFont(f);
+        return measure(dummyComponent, s);
+    }
+
+    public static TextDimension measure(Component c, String s) {
+        FontMetrics m = c.getFontMetrics(c.getFont());
         return new TextDimension(m.stringWidth(s), m.getMaxAscent(), m.getMaxDescent());
     }
 
@@ -279,6 +287,16 @@ public class JapeFont {
     public static int charsWidth(char[] cs, int off, int len, byte fontnum) {
         initInterfaceMetrics();
         return interfaceMetrics[fontnum].charsWidth(cs, off, len);
+    }
+
+    public static int stringWidth(Font f, String s) {
+        dummyComponent.setFont(f);
+        return stringWidth(dummyComponent, s);
+    }
+
+    public static int stringWidth(Component c, String s) {
+        FontMetrics m = c.getFontMetrics(c.getFont());
+        return m.stringWidth(s);
     }
 
     public static TextDimension checkedMeasure(String s, byte fontnum) throws ProtocolError {
