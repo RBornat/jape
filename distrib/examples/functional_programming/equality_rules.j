@@ -48,17 +48,17 @@ TACTIC Find IS
 	WHEN	(LETARGSEL _A (ALT (FIND _A) (FAIL (Cannot find _A)))) 
 			(FAIL (Please select something to find))
 
-TACTIC Unfold(x) IS LAYOUT "Unfold %s" (1) (UNFOLD rewrite	x)
+TACTIC Unfold(x) IS LAYOUT "Fold %s" (1) (UNFOLD rewrite	x)
 
 TACTIC UnfoldOneSel(x) IS
-	WHEN	(LETSUBSTSEL _A (WITHSUBSTSEL rewrite) x)
+	WHEN	(LETSUBSTSEL _A (LAYOUT "Fold %s" (1) (WITHSUBSTSEL rewrite)) x)
 			(LETARGSEL _A (FAIL (The formula you selected (_A) is not a proper subformula)))
 			(FAIL (Please text-select an expression))
 		
-TACTIC Fold(x) IS LAYOUT "Fold %s" (1) (FOLD rewritebackwards x)
+TACTIC Fold(x) IS LAYOUT "Unfold %s" (1) (FOLD rewritebackwards x)
 
 TACTIC FoldOneSel(x) IS
-	WHEN	(LETSUBSTSEL	_A (WITHSUBSTSEL rewritebackwards) x)
+	WHEN	(LETSUBSTSEL	_A (LAYOUT "Unfold %s" (1) (WITHSUBSTSEL rewritebackwards)) x)
 			(LETARGSEL _A (FAIL (The formula you selected (_A) is not a proper subformula)))
 			(FAIL (Please text-select an expression))
 
