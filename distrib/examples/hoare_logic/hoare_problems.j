@@ -31,6 +31,9 @@ CONJECTUREPANEL "Verification conditions" IS
     2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧n mod i≠0→n-i>0
   THEOREM IS
     2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧n mod i≠0∧n-i=Km→n-(i+1)<Km
+  THEOREM IS
+    2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧¬(n mod i≠0)→
+        2≤i∧i≤n∧∀x.(2≤x∧x<i→n mod x≠0)∧n mod i=0
 END
 
 CONJECTUREPANEL "Lemmas" IS
