@@ -137,8 +137,8 @@ MENU Rules IS
 	
 	TACTIC "x:T" IS
 		SEQ
-			(ALT	(LAYOUT "C(x)€S; S»T" (0) "C Ê x:T" "C Ê x€S") 
-				(LAYOUT "C(c)€S; S»T" (0)  "C Ê c:T" "C Ê c€S")
+			(ALT	(LAYOUT "C(x)€S; S»T" () "C Ê x:T" "C Ê x€S") 
+				(LAYOUT "C(c)€S; S»T" ()  "C Ê c:T" "C Ê c€S")
 				(LAYOUT "constant" () "C Ê c:T" constants)
 				(WHEN
 					(LETGOAL (_E:_T)
