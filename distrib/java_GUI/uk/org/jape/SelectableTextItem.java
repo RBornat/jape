@@ -24,7 +24,9 @@
     (or look at http://www.gnu.org).
 
  */
+
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
@@ -33,15 +35,97 @@ import java.awt.Rectangle;
 import java.util.Vector;
 
 public class SelectableTextItem extends TextItem {
-    public Color selectionColour = Color.red;
+    public Color selectionColour     = Color.red,
+                 textselectionColour = Color.yellow;
+
+    protected class SelectionRect extends Component {
+        public final byte selkind;
+        private final int left = 0, top = 0, right, bottom;
+
+        SelectionRect(byte selkind, Rectangle bounds) {
+            super();
+            this.selkind = selkind;
+            int inset = 2*selectionthickness;
+            bounds.grow(inset,inset);
+            setBounds(bounds);
+            right = bounds.width-selectionthickness; bottom = bounds.height-selectionthickness;
+            canvas.add(this);
+        }
+
+        // Java doesn't support wide lines, says the 1.1 docs ...
+        protected void paintBox(Graphics g) {
+            g.drawRect(left,top, right,bottom);
+        }
+
+        protected void paintSides(Graphics g) {
+            g.drawLine(left,top, left,bottom); g.drawLine(right,top, right,bottom);
+        }
+
+        protected void paintHoriz(Graphics g, int y) {
+            g.drawLine(left,y, right,y);
+        }
+
+        protected void paintDotted(Graphics g, int y) {
+            int dashlength = 3*selectionthickness;
+            for (int i=0; i<right; i+=dashlength) {
+                if ((i/3)%2==0) g.drawLine(i,y, Math.min(right, i+dashlength-1),y);
+            }
+        }
+
+        protected void paintHooks(Graphics g, int y) {
+            int hooklength = 4*selectionthickness;
+            int lefthook = hooklength-1, righthook = right-hooklength+1;
+            g.drawLine(left,y, lefthook,y);
+            g.drawLine(righthook,y, right,y);
+        }
+
+        public void paint(Graphics g) {
+            /*  At present we have two selection styles.  Reasons, and all formulae in tree style,
+            are selected by surrounding them with a box.  In box style hyps get a selection
+            open at the bottom, concs get a selection open at the top.  Ambigs behave differently
+            when clicked in different places: near the top you get a conc-style selection, near
+            the bottom a hyp-style selection, but in each case the closed end of the box is a dotted line.
+            */
+
+            g.setColor(selectionColour);
+            
+            switch (selkind) {
+                case ProofCanvas.ReasonSel:
+                    paintBox(g); break;
+                case ProofCanvas.HypSel:
+                    if (proofstyle!=ProofCanvas.BoxStyle)
+                        paintBox(g);
+                    else
+                        if (kind==AmbigKind) {
+                            paintSides(g); paintDotted(g, top); paintHooks(g, bottom);
+                        }
+                        else {
+                            paintSides(g); paintHoriz(g, top); paintHooks(g, bottom);
+                        }
+                        break;
+                case ProofCanvas.ConcSel:
+                    if (proofstyle!=ProofCanvas.BoxStyle)
+                        paintBox(g);
+                    else
+                        if (kind==AmbigKind) {
+                            paintSides(g); paintDotted(g, bottom); paintHooks(g, top);
+                        }
+                        else {
+                            paintSides(g); paintHoriz(g, bottom); paintHooks(g, top);
+                        }
+                        break;
+                default:
+                    Alert.abort("SelectableTextItem.SelectionRect selkind="+selkind);
+            }
+        }
+    }
 
     protected final byte kind;
-    protected byte selected = ProofCanvas.NoSel;
     protected byte proofstyle;
     protected int selectionthickness;
+    protected SelectionRect selectionRect = null;
 
     // for drawing selections
-    private final int left = 0, top = 0, right, bottom;
     
     public SelectableTextItem(JapeCanvas canvas, int x, int y, byte fontnum, byte kind,
                               String annottext, String printtext,
@@ -49,11 +133,7 @@ public class SelectableTextItem extends TextItem {
         super(canvas,x,y,fontnum,annottext,printtext);
         this.kind=kind; this.proofstyle=proofstyle; this.selectionthickness=selectionthickness;
         // make room for selection rectangle
-        inset = 2*selectionthickness;
-        Rectangle r = getBounds();
-        r.grow(inset,inset);
-        setBounds(r);
-        right = r.width-selectionthickness; bottom = r.height-selectionthickness;
+        
 
         addMouseListener(new MouseAdapter() {
             /*
@@ -147,6 +227,18 @@ public class SelectableTextItem extends TextItem {
         return new FormulaTree(i0, printi, (FormulaTree[])cs.toArray(new FormulaTree[cs.size()]));
     }
 
+    protected FormulaTree pixel2Subformula(FormulaTree f, int px) {
+        if (px<f.pxstart || px>f.pxend)
+            return null;
+        else {
+            FormulaTree f1;
+            for (int i=0; i<f.children.length; i++)
+                if ((f1 = pixel2Subformula(f.children[i],px))!=null)
+                    return f1;
+            return f;
+        }
+    }
+
     /*
         Bernard's original ProofCanvas included this comment:
     
@@ -198,113 +290,101 @@ public class SelectableTextItem extends TextItem {
     // move back to the same point!  Well blow me down: we're not having that.
 
     protected boolean mousemotionseen = false;
+
+    protected int tstart=0, tend=0,
+        tpxstart=0, tpxend=0; // for the moment we are only dealing with a single text selection
+
+    protected void repaintTextSel(int tpxstart, int tpxend) {
+        repaint(tpxstart, 0, tpxend-tpxstart, getHeight());
+    }
     
     protected void click(MouseEvent e) {
-        byte selected;
-        if (this.selected==ProofCanvas.NoSel) {
-            // determine selection type
-            switch (kind) {
-                case ConcKind:
-                    selected = ProofCanvas.ConcSel; break;
-                case HypKind:
-                    selected = ProofCanvas.HypSel; break;
-                case ReasonKind:
-                   selected = ProofCanvas.ReasonSel; break;
-                case AmbigKind:
-                    selected = e.getY()<getHeight()/2 ? ProofCanvas.ConcSel : ProofCanvas.HypSel;
-                    break;
-                default:
-                    Alert.abort("SelectableTextItem.click kind="+kind);
-                    selected = ProofCanvas.NoSel; // shut up compiler
+        if (e.isAltDown()) {
+            if (formulae==null) {
+                annoti = printi = 0; annotlen = annottext.length();
+                formulae = computeFormulaTree((char)0);
             }
-            canvas.selectionMade(this, e, selected);
+            repaintTextSel(tpxstart, tpxend);
+            int px = Math.min(getWidth(), Math.max(0, e.getX()));
+            FormulaTree f = pixel2Subformula(formulae, px);
+            if (f==null) {
+                System.err.println("SelectableTextItem.click no subformula "+this+" getX()="+e.getX());
+                return;
+            }
+            tstart = f.start; tend = f.end;
+            tpxstart = f.pxstart; tpxend = f.pxend;
+            repaintTextSel(tpxstart, tpxend); 
         }
-        else
-            System.err.println("no SelectableTextItem support for double clicks yet");
+        else {
+            byte selected;
+            if (selectionRect==null) {
+                // determine selection type
+                switch (kind) {
+                    case ConcKind:
+                        selected = ProofCanvas.ConcSel; break;
+                    case HypKind:
+                        selected = ProofCanvas.HypSel; break;
+                    case ReasonKind:
+                        selected = ProofCanvas.ReasonSel; break;
+                    case AmbigKind:
+                        selected = e.getY()<getHeight()/2 ? ProofCanvas.ConcSel : ProofCanvas.HypSel;
+                        break;
+                    default:
+                        Alert.abort("SelectableTextItem.click kind="+kind);
+                        selected = ProofCanvas.NoSel; // shut up compiler
+                }
+                canvas.selectionMade(this, e, selected);
+            }
+            else
+                System.err.println("no SelectableTextItem support for double clicks yet");
+        }
     }
 
     public void select(byte selkind) {
-        selected = selkind;
-        repaint();
-    }
-
-    // Java doesn't support wide lines, says the 1.1 docs ...
-    protected void paintBox(Graphics g, Color c) {
-        g.setColor(c); g.drawRect(left,top, right,bottom);
-    }
-
-    protected void paintSides(Graphics g) {
-        g.setColor(selectionColour);
-        g.drawLine(left,top, left,bottom); g.drawLine(right,top, right,bottom);
-    }
-
-    protected void paintHoriz(Graphics g, int y) {
-        g.setColor(selectionColour); g.drawLine(left,y, right,y);
-    }
-
-    protected void paintDotted(Graphics g, int y) {
-        int dashlength = 3*selectionthickness;
-        Color background = getBackground();
-        for (int i=0; i<right; i+=dashlength) {
-            g.setColor((i/3)%2==0 ? selectionColour : background);
-            g.drawLine(i,y, Math.min(right, i+dashlength-1),y);
+        if (selkind==ProofCanvas.NoSel) {
+            if (selectionRect!=null) {
+                selectionRect.repaint();
+                canvas.remove(selectionRect);
+                selectionRect = null;
+            }
+        }
+        else {
+            selectionRect = new SelectionRect(selkind, getBounds());
+            selectionRect.repaint();
         }
     }
-
-    protected void paintHooks(Graphics g, int y) {
-        int hooklength = 4*selectionthickness;
-        int lefthook = hooklength-1, righthook = right-hooklength+1;
-        g.setColor(selectionColour); g.drawLine(left,y, lefthook,y);
-        if (lefthook+1<=righthook-1) {
-            g.setColor(getBackground()); g.drawLine(lefthook+1,y, righthook-1,y);
-        }
-        g.setColor(selectionColour); g.drawLine(righthook,y, right,y);
-    }
-
-    /*  At present we have two selection styles.  Reasons, and all formulae in tree style,
-        are selected by surrounding them with a box.  In box style hyps get a selection
-        open at the bottom, concs get a selection open at the top.  Ambigs behave differently
-        when clicked in different places: near the top you get a conc-style selection, near
-        the bottom a hyp-style selection, but in each case the closed end of the box is a dotted line.
-     */
 
     public void paint(Graphics g) {
         paint((Graphics2D) g);
     }
     
     public void paint(Graphics2D g) {
-        Color background = getBackground();
-        // do the selection stuff
-        switch (selected) {
-            case JapeCanvas.NoSel:
-                paintBox(g, background); break;
-            case ProofCanvas.ReasonSel:
-                paintBox(g, selectionColour); break;
-            case ProofCanvas.HypSel:
-                if (proofstyle!=ProofCanvas.BoxStyle)
-                    paintBox(g, selectionColour);
-                else
-                if (kind==AmbigKind) {
-                    paintSides(g); paintDotted(g, top); paintHooks(g, bottom);
-                }
-                else {
-                    paintSides(g); paintHoriz(g, top); paintHooks(g, bottom);
-                }
-                break;
-            case ProofCanvas.ConcSel:
-                if (proofstyle!=ProofCanvas.BoxStyle)
-                    paintBox(g, selectionColour);
-                else
-                if (kind==AmbigKind) {
-                    paintSides(g); paintDotted(g, bottom); paintHooks(g, top);
-                }
-                else {
-                    paintSides(g); paintHoriz(g, bottom); paintHooks(g, top);
-                }
-                break;
-            default:
-                Alert.abort("SelectableTextItem.repaint selected="+selected);
+        // I think the background is done elsewhere, isn't it?
+        // Color background = getBackground();
+
+        if (tpxstart<tpxend) {
+            g.setColor(textselectionColour);
+            g.fillRect(tpxstart, 0, tpxend-tpxstart, getHeight());
         }
+
+        /* canvas.fonts[fontnum].setGraphics(g);
+        // Background painting
+        int[]   sel    = marked.runs();
+        boolean normal = true;
+        int     here   = position.x+canvas.textInset.width;
+        int     there;
+
+        g.setColor(Color.green);
+        for (int i=0; i<sel.length; i++) {
+            there = boundaries[sel[i]];
+            if (!normal) g.fillRect(here, position.y, there-here, bounds.height);
+            normal = !normal;
+            here = there;
+        }
+
+        g.setColor(greyed?canvas.getGreyedColour():canvas.getNormalColour());
+        */
+
         // then draw the rest of it
         super.paint(g);
     }

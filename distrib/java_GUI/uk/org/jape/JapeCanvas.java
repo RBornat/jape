@@ -54,11 +54,13 @@ public abstract class JapeCanvas extends ContainerWithOrigin implements Viewport
     protected abstract void textselectionMade(SelectableTextItem item, MouseEvent e);
 
     protected void killSelections(byte selmask) {
-        int lim = child.getComponentCount();
-        for (int i=0; i<lim; i++) {
-            Component c = child.getComponent(i);
-            if (c instanceof SelectableTextItem && (((SelectableTextItem)c).selected & selmask) != 0)
-                ((SelectableTextItem)c).select(NoSel);
+        Component[] cs = child.getComponents(); // oh dear ...
+        for (int i=0; i<cs.length; i++) {
+            if (cs[i] instanceof SelectableTextItem) {
+                SelectableTextItem sti = (SelectableTextItem)cs[i];
+                if (sti.selectionRect!=null && (sti.selectionRect.selkind & selmask)!=0)
+                    sti.select(NoSel);
+            }
         }
     }
 
@@ -76,13 +78,13 @@ public abstract class JapeCanvas extends ContainerWithOrigin implements Viewport
             return getBounds();
         else {
             Rectangle v = viewport.getBounds();
-            v.x -= (getX()+child.getX()); v.y -= (getY()+child.getY());
+            v.x -= (getX()+child.getX()); v.y -= (getY()+child.getY()); // oh dear ...
             return v;
         }
     }
 
     public void clearPane() {
-        child.removeAll(); repaint();
+        removeAll(); repaint();
         if (viewport!=null)
             viewport.validate();
     }

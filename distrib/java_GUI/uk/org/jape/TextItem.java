@@ -107,7 +107,6 @@ class TextItem extends DisplayItem {
     protected byte          fontnum;
     protected Font          font;
     protected TextDimension dimension;
-    protected int           inset;
 
     /*
             
@@ -129,7 +128,6 @@ class TextItem extends DisplayItem {
         Vector cs = new Vector();
         computeColourSegs((char)0, NormalColour, false, cs);
         coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
-        inset = 0;
         if (Debugging.TextItem)
             System.err.println("TextItem built "+this);
     }
@@ -164,7 +162,7 @@ class TextItem extends DisplayItem {
         
         public void paint(Graphics g) {
             g.setColor(colour);
-            g.drawChars(printchars, start, end-start, inset+pxstart, inset+dimension.ascent);
+            g.drawChars(printchars, start, end-start, pxstart, dimension.ascent);
         }
         
         public String toString() {
@@ -299,33 +297,6 @@ class TextItem extends DisplayItem {
         int len = coloursegs.length;
         for (int i=0; i<len; i++)
             coloursegs[i].paint(g);
-        /* canvas.fonts[fontnum].setGraphics(g);
-        // Background painting
-        int[]   sel    = marked.runs();
-        boolean normal = true;
-        int     here   = position.x+canvas.textInset.width;
-        int     there;
-        
-        g.setColor(Color.green);
-        for (int i=0; i<sel.length; i++) { 
-            there = boundaries[sel[i]];
-            if (!normal) g.fillRect(here, position.y, there-here, bounds.height);
-            normal = !normal;
-            here = there;
-        }
-            
-        g.setColor(greyed?canvas.getGreyedColour():canvas.getNormalColour());
-        */
-        //g.drawString(printtext, 0, dimension.ascent);     
-        /*if (Debugging.text_baselines)
-            g.drawLine(position.x, position.y+bounds.height-bounds.descent, position.x+bounds.width-1, position.y+bounds.height-bounds.descent);
-        if (selected) {
-            g.setColor(canvas.getSelectedColour());
-            // java draws a w+1 x h+1 rectangle!
-            g.drawRect(position.x, position.y, bounds.width-1, bounds.height-1);
-            g.drawRect(position.x+1, position.y+1, bounds.width-3, bounds.height-3);
-        }
-        */
     }
 
     public String toString() {

@@ -102,14 +102,14 @@ public class ProofWindow extends JapeWindow {
         *)
      */
 
-    public static final byte proofPaneNum = 0, disproofPaneNum = 1;
+    public static final byte ProofPaneNum = 0, DisproofPaneNum = 1;
 
     private static JapeCanvas byte2JapeCanvas(byte pane, String who) throws ProtocolError {
         switch (pane) {
-            case proofPaneNum:
+            case ProofPaneNum:
                 ensureFocussedProofCanvas();
                 return focussedproof.proofCanvas; 
-            case disproofPaneNum:
+            case DisproofPaneNum:
                 throw new ProtocolError(who+": no disproofCanvas support yet"); 
             default:
                 throw new ProtocolError(who+" pane="+pane);
@@ -165,11 +165,11 @@ public class ProofWindow extends JapeWindow {
 
     public static void drawInPane(byte pane) throws ProtocolError {
         switch (pane) {
-            case proofPaneNum:
+            case ProofPaneNum:
                 ensureFocussedProofCanvas();
                 focussedproof.focussedCanvas = focussedproof.proofCanvas;
                 break;
-            case disproofPaneNum:
+            case DisproofPaneNum:
                 throw new ProtocolError("ProofWindow.drawInPane: no disproofCanvas support yet");
             default:
                 Alert.abort("ProofWindow.drawInPane: pane="+pane);

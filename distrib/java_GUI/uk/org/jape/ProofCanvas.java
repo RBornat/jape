@@ -72,18 +72,20 @@ public class ProofCanvas extends JapeCanvas {
     // reply always ends with a blank line
     public String getSelections() {
         String s = null;
-        int nc = child.getComponentCount();
+        int nc = child.getComponentCount(); // oh dear ...
         for (int i=0; i<nc; i++) {
-            Component c = child.getComponent(i);
+            Component c = child.getComponent(i); // oh dear ...
             if (c instanceof SelectableTextItem) {
                 byte selclass;
                 SelectableTextItem sti = (SelectableTextItem)c;
-                switch (sti.selected) {
-                    case NoSel    : continue;
+                if (sti.selectionRect==null)
+                    continue;
+                else
+                switch (sti.selectionRect.selkind) {
                     case HypSel   : selclass = TextItem.HypKind; break;
                     case ConcSel  : selclass = TextItem.ConcKind; break;
                     case ReasonSel: selclass = TextItem.ReasonKind; break;
-                    default       : Alert.abort("ProofCanvas.reportSelections selected="+sti.selected);
+                    default       : Alert.abort("ProofCanvas.reportSelections selkind="+sti.selectionRect.selkind);
                                     selclass=0; // shut up compiler
                 }
                 String s1 = sti.idX+" "+sti.idY+" "+selclass+"\n";

@@ -42,7 +42,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
-import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
@@ -63,8 +62,13 @@ public class AnchoredScrollPane extends Container {
         vsb = new JScrollBar(JScrollBar.VERTICAL);
         vsb.setUnitIncrement(10); vsb.setBlockIncrement(100); // for now
         vsb.addAdjustmentListener(new V());
-        viewport = new JPanel() {
+        viewport = new Container() {
             public void validate() { setScrollBarValues(); }
+            public void paint(Graphics g) {
+                g.setColor(getBackground());
+                g.fillRect(0,0, getWidth(), getHeight());
+                super.paint(g);
+            }
         };
         viewport.setLayout(null);
         view = null; // unnecessary, but it makes me feel better

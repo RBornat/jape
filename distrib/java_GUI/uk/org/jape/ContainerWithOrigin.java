@@ -37,7 +37,16 @@ import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import javax.swing.Scrollable;
 
-/* A container to which you can add components at arbitrary positions */
+/*  A Container to which you can add components at arbitrary positions
+
+    Because of the way Container is implemented, especially the fact that
+    (the important version of) findComponentAt is final, it's impossible to
+    mess with the component hierarchy, so you have to have a child inside
+    the container which holds the components you are drawing.  This doesn't
+    matter, until you have to scan through the components and such.  So some
+    users of this class have to be aware of the container/child distinction.
+    Oh dear ...
+ */
 
 public class ContainerWithOrigin extends Container {
 
@@ -48,15 +57,28 @@ public class ContainerWithOrigin extends Container {
 
     protected final Child child = new Child();
 
+    protected void computeBounds() {
+        child.getLayout().layoutContainer(child);
+        getLayout().layoutContainer(this);
+    }
+
+    // add, remove, removeAll, paint, repaint all work on the child
+
+
     public Component add(Component c) {
         child.add(c);
         computeBounds();
         return c;
     }
 
-    public void computeBounds() {
-        child.getLayout().layoutContainer(child);
-        getLayout().layoutContainer(this);
+    public void remove(Component c) {
+        child.remove(c);
+        computeBounds();
+    }
+
+    public void removeAll() {
+        child.removeAll();
+        computeBounds();
     }
 
     public void paint(Graphics g) {
@@ -66,8 +88,12 @@ public class ContainerWithOrigin extends Container {
         g.translate(-x,-y);
     }
 
-    public void repaintFromChild(long tm, int x, int y, int width, int height) {
+    public void repaint(long tm, int x, int y, int width, int height) {
         super.repaint(tm, x+child.getX(), y+child.getY(), width, height);
+    }
+    
+    public void repaintFromChild(long tm, int x, int y, int width, int height) {
+        repaint(tm, x, y, width, height);
     }
 
     protected class ContainerWithOriginLayout implements LayoutManager {
@@ -111,7 +137,7 @@ public class ContainerWithOrigin extends Container {
         * will be called before layoutContainer is called.
         */
         public void layoutContainer(Container c) {
-            if (Debugging.containerlayout)
+            if (Debugging.ContainerWithOrigin)
                 System.err.print("[layoutContainer");
             // child.getLayout().layoutContainer(child);
             // we don't have insets, we are an invisible container
@@ -123,18 +149,18 @@ public class ContainerWithOrigin extends Container {
             if (deltax!=0 || deltay!=0) {
                 setLocation(getX()+deltax, getY()+deltay);
                 child.setLocation(-vcx, -vcy);
-                if (Debugging.containerlayout)
-                    System.err.println("; moved adult to "+getX()+","+getY()+
+                if (Debugging.ContainerWithOrigin)
+                    System.err.print("; moved adult to "+getX()+","+getY()+
                                        ", child to "+child.getX()+","+child.getY());
             }
             Dimension size = getSize();
             if (vcw!=getWidth() || vch!=getHeight()) {
                 setSize(vcw, vch);
-            if (Debugging.containerlayout)
-                System.err.println("; set adult size to "+getWidth()+","+getHeight());
+            if (Debugging.ContainerWithOrigin)
+                System.err.print("; set adult size to "+getWidth()+","+getHeight());
 
             }
-            if (Debugging.containerlayout)
+            if (Debugging.ContainerWithOrigin)
                 System.err.println("]");
         }
     }
@@ -198,7 +224,7 @@ public class ContainerWithOrigin extends Container {
             * will be called before layoutContainer is called.
             */
             public void layoutContainer(Container c) {
-                if (Debugging.containerlayout)
+                if (Debugging.ContainerWithOrigin)
                     System.err.print("(childLayoutContainer");
                 Rectangle newBounds=null, tmp=new Rectangle();
                 int nc = getComponentCount();
@@ -216,19 +242,17 @@ public class ContainerWithOrigin extends Container {
                 // essentially, the origin!
                 if (newBounds==null)
                     newBounds = new Rectangle(visualBounds.x, visualBounds.y, 0, 0);
-                Dimension size = getSize();
-                if (newBounds.width!=size.width || newBounds.height!=size.height) {
-                    size.width=newBounds.width; size.height=newBounds.height;
-                    setSize(size);
-                    if (Debugging.containerlayout)
-                        System.err.print("; childsize:="+size);
+                if (newBounds.width!=getWidth() || newBounds.height!=getHeight()) {
+                    setSize(newBounds.width, newBounds.height);
+                    if (Debugging.ContainerWithOrigin)
+                        System.err.print("; childsize:="+getSize());
                 }
                 if (!newBounds.equals(visualBounds)) {
                     visualBounds=newBounds;
-                    if (Debugging.containerlayout)
+                    if (Debugging.ContainerWithOrigin)
                         System.err.print("; visualBounds:="+visualBounds);
                 }
-                if (Debugging.containerlayout)
+                if (Debugging.ContainerWithOrigin)
                     System.err.println(")");
             }
         }
