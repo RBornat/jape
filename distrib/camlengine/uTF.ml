@@ -173,6 +173,7 @@ let utf32_next next32 s =
 let utf8_get s i = 
   if i=String.length s then uEOF else
   utf8_next (fun j -> try s.[i+j] with _ -> raise Stream.Failure)
+  
 let utf8_next s = utf8_next (fun _ -> Stream.next s)
 
 let utf16_next bigendian = 
@@ -359,64 +360,6 @@ let (isucletter, _) = charpred "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 let rec isletter c = islcletter c || isucletter c
 
 (**********************************************)
-
-(* this collection avoids low characters which might be useful *)
-(* 0 is NUL; can't appear in a C string, so don't use *)
-let onbra = 0x01  (* SOH *)
-let onket = 0x02  (* STX *)
-let offbra = 0x03 (* ETX *)
-let offket = 0x04 (* EOT *)
-let outbra = 0x05 (* ENQ *)
-let outket = 0x06 (* ACK *)
-   (* 7 is bell
-      8 is backspace
-      9 is tab
-      10 is lf
-      11 is vt
-      12 is ff
-      13 is cr
-    *)
-let lockbra = 0x14 (* SO *)
-let lockket = 0x15 (* SI *)
-
-let onbra_as_string = "\x01"  (* SOH *)
-let onket_as_string = "\x02"  (* STX *)
-let offbra_as_string = "\x03" (* ETX *)
-let offket_as_string = "\x04" (* EOT *)
-let outbra_as_string = "\x05" (* ENQ *)
-let outket_as_string = "\x06" (* ACK *)
-   (* 7 is bell
-      8 is backspace
-      9 is tab
-      10 is lf
-      11 is vt
-      12 is ff
-      13 is cr
-    *)
-let lockbra_as_string = "\x14" (* SO *)
-let lockket_as_string = "\x15" (* SI *)
-
-let invisibles = Array.make 0x20 false
-
-let _ = invisibles.(onbra)<-true;
-        invisibles.(onket)<-true;
-        invisibles.(offbra)<-true;
-        invisibles.(offket)<-true;
-        invisibles.(outbra)<-true;
-        invisibles.(outket)<-true;
-        invisibles.(lockbra)<-true;
-        invisibles.(lockket)<-true
-   
-(* this function records a decision NEVER to put printable characters below space 
-   (ASCII decimal 32) in a font.
- *)
-let invisible_ucode c = try invisibles.(c) with _ -> false
-let invisible_string s = 
-  let lim = String.length s in
-  let rec f i = i=lim || (invisible_ucode (utf8_get s i) (* won't be true if width 0 *) && 
-                          f (i+utf8width_from_header s.[i])) in
-  f 0
-
 
 let (isdigit, _) = charpred "0123456789"
 

@@ -31,6 +31,7 @@ val uEOF : ucode
 
 exception MalformedUTF_ of string list
 
+val utf8_get   : string -> int -> ucode
 val utf8_next  : char Stream.t -> ucode
 val utf16_next : bool (* bigendian *) -> char Stream.t -> ucode
 val utf32_next : bool (* bigendian *) -> char Stream.t -> ucode
@@ -63,25 +64,3 @@ val isdigit    : ucode -> bool
 val islcletter : ucode -> bool
 val isletter   : ucode -> bool
 val isucletter : ucode -> bool
-
-val onbra : ucode
-val onket : ucode
-val offbra : ucode
-val offket : ucode
-val outbra : ucode
-val outket : ucode
-val lockbra : ucode
-val lockket : ucode
-
-val onbra_as_string : string
-val onket_as_string : string
-val offbra_as_string : string
-val offket_as_string : string
-val outbra_as_string : string
-val outket_as_string : string
-val lockbra_as_string : string
-val lockket_as_string : string
-
-val invisible_string : string -> bool
-val invisible_ucode  : ucode -> bool
-
