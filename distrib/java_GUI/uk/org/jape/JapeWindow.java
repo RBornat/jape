@@ -228,7 +228,7 @@ public abstract class JapeWindow extends JFrame {
 
     public void closeWindow() {
 	if (windowv_tracing)
-	    Logger.log.println("JapeWindow.closeWindow before "+JapeUtils.enQuote(title)+
+	    Logger.log.println("JapeWindow.closeWindow "+JapeUtils.enQuote(title)+
 			       ", "+windowList.stringOfWindowv());
 	windowList.removeFromWindowv(this);
 	// Linux gives us spurious events after the window has gone, so kill the listener
@@ -269,6 +269,7 @@ public abstract class JapeWindow extends JFrame {
 							 ((SurrogateWindow)new ControlWindow());
 	    sw.setVisible(true);
 	}
+	JapeMenu.makeMenusVisible();
     }
     
     private static Point firstPos = new Point(0,0);
