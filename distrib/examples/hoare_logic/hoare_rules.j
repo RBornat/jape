@@ -4,6 +4,13 @@ RULE "tilt" IS {false} tilt {A}
 
 RULE sequence(C) IS FROM { A } F { C } AND  { C } G { B } INFER  { A } (F; G) { B }
 
+RULES "Ntuple" ARE 
+    FROM {A} B {C} AND {C} D {E} INFER  {A} B {C} D {E} AND
+    FROM {A} B {C} D {E} AND {E} F {G} INFER  {A} B {C} D {E} F {G} AND
+    FROM {A} B {C} D {E} F {G} AND {G} H {I} INFER  {A} B {C} D {E} F {G} H {I} AND
+    FROM {A} B {C} D {E} F {G} H {I} AND {I} J {K} INFER  {A} B {C} D {E} F {G} H {I}  J {K}
+END
+
 RULE "choice" IS FROM {A∧E} F1 {B} AND {A∧¬E} F2  {B} INFER { A } if E then F1 else F2 fi { B }
 
 RULE "variable-assignment" IS INFER {R«E/x»} (x:=E) {R}
