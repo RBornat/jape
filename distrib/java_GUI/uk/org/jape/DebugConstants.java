@@ -36,6 +36,7 @@ interface DebugConstants {
                                 encoding_tracing         = false,
                                 geometry_tracing         = false,
                                 image_tracing            = false,
+                                makeMessage_tracing      = true,
                                 measure_debug            = false,
                                 menuaction_tracing       = false,
                                 menubar_tracing          = false,

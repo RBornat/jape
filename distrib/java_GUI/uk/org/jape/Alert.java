@@ -32,7 +32,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.util.Vector;
 
-public class Alert {
+public class Alert implements DebugConstants {
     // oh the ceaseless dance of interface conversions ..
     public static final int Plain    = JOptionPane.PLAIN_MESSAGE;
     public static final int Info     = JOptionPane.INFORMATION_MESSAGE;
@@ -55,35 +55,49 @@ public class Alert {
         JapeFont.setComponentFont(l, JapeFont.DIALOGLABEL);
         return l;
     }
+
+    private static String showMessage(JLabel[] labels) {
+        String s = "JLabel[] {";
+        for (int i=0; i<labels.length; i++) {
+            s = s+"\""+labels[i].getText()+"\"";
+            if (i+1<labels.length)
+                s = s+"; ";
+        }
+        return s+"}";
+    }
     
     // this is where we will eventually handle aspect ratio
     private static Object makeMessage(Object o) {
         if (o instanceof String) {
             String s = (String)o;
             int nli;
+            JLabel[] result;
+            
             if ((nli=s.indexOf('\n'))!=-1) {
                 JLabel[] first = (JLabel[])makeMessage(s.substring(0,nli));
                 JLabel[] second = (JLabel[])makeMessage(s.substring(nli+1));
-                JLabel[] result = new JLabel[first.length+second.length];
+                result = new JLabel[first.length+second.length];
                 for (int i=0; i<first.length; i++)
                     result[i]=first[i];
                 for (int i=0; i<second.length; i++)
                     result[i+first.length]=second[i];
-                return result;
             }
             else {
                 JLabel l = makeLabel(s);
                 TextDimension m = JapeFont.measure(l, s);
                 if (m.width>japeserver.screenBounds.width*2/3) {
                     String[] split = MinWaste.minwaste(l, s, japeserver.screenBounds.width*4/10);
-                    JLabel[] ls = new JLabel[split.length];
-                    for (int i=0; i<ls.length; i++)
-                        ls[i] = makeLabel(split[i]);
-                    return ls;
+                    result = new JLabel[split.length];
+                    for (int i=0; i<split.length; i++)
+                        result[i] = makeLabel(split[i]);
                 }
-                else 
-                    return new JLabel[] { l };
+                else
+                    result = new JLabel[] { l };
             }
+
+            if (makeMessage_tracing)
+                System.err.println("makeMessage \""+s+"\" => "+showMessage(result));
+            return result;
         }
         else
             return o;
