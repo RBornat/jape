@@ -130,21 +130,15 @@ val panelbutton      : string -> string -> panelbuttoninsert list -> unit
 val selectpanelentry : string -> string -> unit
 val markpanelentry   : string -> string -> (bool * bool) -> unit
 
-val listen : unit -> string
-val terminate : unit -> unit
-val closedown : unit -> unit
-val killserver : unit -> unit
+(* this version of jape is started by the GUI *)
+
+val listen       : unit -> string
+val terminateGUI : unit -> unit
 
 val drawLine   : pos -> pos -> unit (* don't extend beyond pos2; use linethickness from setproofparams *)
 val drawRect   : box -> unit        (* stay inside the box; use linethickness from setproofparams *)
 
-val serverpid  : process_id option ref
-val servername : string ref
-
-val startserver : string -> string list -> unit
-val stopserver  : unit -> unit
-
-exception DeadServer_
+exception DeadGUI_
 
 val openproof  : string -> int -> unit
 val closeproof : int -> unit

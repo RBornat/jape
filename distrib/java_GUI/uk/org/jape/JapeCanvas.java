@@ -82,9 +82,9 @@ public abstract class JapeCanvas extends ContainerWithOrigin
                     try {
                         m.invoke(c, args);
                     } catch (java.lang.IllegalAccessException e) {
-                        System.err.println("private setlinethickness in "+c);
+                        Logger.log.println("private setlinethickness in "+c);
                     } catch (Exception e) {
-                        System.err.println("setlinethickness invocation: "+c+"; => "+e);
+                        Logger.log.println("setlinethickness invocation: "+c+"; => "+e);
                     } 
                 } catch (java.lang.NoSuchMethodException e) { }
             }

@@ -31,18 +31,28 @@ import javax.swing.JOptionPane;
 public class DebugVars {
     public static final boolean showDebugVars = true;
 
-    public static boolean protocol_tracing = false;
+    public static boolean protocol_tracing   = false,
+                          menuaction_tracing = false,
+                          loopback_tracing   = false;
 
     public static void runDebugSettingsDialog() {
         String [] buttons = { "OK", "Cancel" };
-        JCheckBox protocol_tracing = new JCheckBox("trace engine/GUI protocol messages");
-        protocol_tracing.setSelected(DebugVars.protocol_tracing);
-        int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), protocol_tracing,
+        JCheckBox [] tracing = {
+            new JCheckBox("trace engine/GUI protocol messages"), // 0
+            new JCheckBox("trace menu activity"),                // 1
+            new JCheckBox("trace System.err loopback")           // 2
+        };
+        tracing[0].setSelected(protocol_tracing);
+        tracing[1].setSelected(menuaction_tracing);
+        tracing[2].setSelected(loopback_tracing);
+        int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), tracing,
                                                  "Debug settings", 0,
                                                  JOptionPane.PLAIN_MESSAGE,
                                                  null, buttons, buttons[0]);
-        if (reply==0)
-            DebugVars.protocol_tracing = protocol_tracing.isSelected();
+        if (reply==0) {
+            protocol_tracing   = tracing[0].isSelected();
+            menuaction_tracing = tracing[1].isSelected();
+            loopback_tracing  = tracing[2].isSelected();
+        }
     }
-
 }

@@ -1,5 +1,9 @@
 /* 
+<<<<<<< JapeCharEncoding.java
     $Id$
+=======
+    $Id$
+>>>>>>> 1.8.4.7
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      
@@ -29,6 +33,7 @@ import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 
 import java.util.HashMap;
@@ -63,6 +68,7 @@ public class JapeCharEncoding implements DebugConstants {
         0xF8FF, 0x00D2, 0x00DA, 0x00DB, 0x00D9, 0x0131, 0x02C6, 0x02DC, 0x00AF, 0x02D8, 0x02D9, 0x02DA, 0x00B8, 0x02DD, 0x0328, 0x02C7
      // bimodel,tildop, aleph,  Ucircm, times,  sqgee,  whsqua, eqdef,  prep,   dot,    hook,   lambda, cedilla,2acute, ogonek, caron
     };
+    
     // 21DD is rightwards squiggle arrow (should be turnstile with tilde as horizontal)
     final static char KonstanzUnicode[] = new char[] {
         0x00,   0x01,   0x02,   0x03,   0x04,   0x05,   0x06,   0x07,   0x08,   0x09,   0x0A,   0x0B,   0x0C,   0x0D,   0x0E,   0x0F,
@@ -91,8 +97,7 @@ public class JapeCharEncoding implements DebugConstants {
      // bimodel,tildop, aleph,  Ucircm, times,  sqgee,  whsqua, eqdef,  prep,   dot,    hook,   lambda, cedilla,2acute, ogonek, caron
     };
 
-    final static char LauraUnicode[] = new char []
-    {
+    final static char LauraUnicode[] = new char [] {
                   0x0000,                 0x0001,                 0x0002,                 0x0003,
                   0x0004,                 0x0005,                 0x0006,                 0x0007,
                   0x0008,                 0x0009,                 0x000a,                 0x000b,
@@ -102,172 +107,188 @@ public class JapeCharEncoding implements DebugConstants {
                   0x0018,                 0x0019,                 0x001a,                 0x001b,
                   0x001c,                 0x001d,                 0x001e,                 0x001f,
                   0x0020,                 0x0021,                 0x0022,                 0x0023,
-//                 space                  exclam         straight_quotes              numbersign
+    //             space                  exclam         straight_quotes              numbersign
                   0x0024,                 0x0025,                 0x0026,                 0x0027,
-//                dollar                 percent               ampersand              primesuper
+    //            dollar                 percent               ampersand              primesuper
                   0x0028,                 0x0029,                 0x002a,                 0x002b,
-//             parenleft              parenright                asterisk                    plus
+    //         parenleft              parenright                asterisk                    plus
                   0x002c,                 0x002d,                 0x002e,                 0x002f,
-//                 comma             asciihyphen                  period                   slash
+    //             comma             asciihyphen                  period                   slash
                   0x0030,                 0x0031,                 0x0032,                 0x0033,
-//                  zero                     one                     two                   three
+    //              zero                     one                     two                   three
                   0x0034,                 0x0035,                 0x0036,                 0x0037,
-//                  four                    five                     six                   seven
+    //              four                    five                     six                   seven
                   0x0038,                 0x0039,                 0x003a,                 0x003b,
-//                 eight                    nine                   colon               semicolon
+    //             eight                    nine                   colon               semicolon
                   0x003c,                 0x003d,                 0x003e,                 0x003f,
-//                  less                   equal                 greater                question
+    //              less                   equal                 greater                question
                   0x0040,                 0x0041,                 0x0042,                 0x0043,
-//                    at                       A                       B                       C
+    //                at                       A                       B                       C
                   0x0044,                 0x0045,                 0x0046,                 0x0047,
-//                     D                       E                       F                       G
+    //                 D                       E                       F                       G
                   0x0048,                 0x0049,                 0x004a,                 0x004b,
-//                     H                       I                       J                       K
+    //                 H                       I                       J                       K
                   0x004c,                 0x004d,                 0x004e,                 0x004f,
-//                     L                       M                       N                       O
+    //                 L                       M                       N                       O
                   0x0050,                 0x0051,                 0x0052,                 0x0053,
-//                     P                       Q                       R                       S
+    //                 P                       Q                       R                       S
                   0x0054,                 0x0055,                 0x0056,                 0x0057,
-//                     T                       U                       V                       W
+    //                 T                       U                       V                       W
                   0x0058,                 0x0059,                 0x005a,                 0x005b,
-//                     X                       Y                       Z             bracketleft
+    //                 X                       Y                       Z             bracketleft
                   0x005c,                 0x005d,                 0x005e,                 0x005f,
-//             backslash            bracketright             asciicircum              underscore
+    //         backslash            bracketright             asciicircum              underscore
                   0x0060,                 0x0061,                 0x0062,                 0x0063,
-//           rprimesuper                       a                       b                       c
+    //       rprimesuper                       a                       b                       c
                   0x0064,                 0x0065,                 0x0066,                 0x0067,
-//                     d                       e                       f                       g
+    //                 d                       e                       f                       g
                   0x0068,                 0x0069,                 0x006a,                 0x006b,
-//                     h                       i                       j                       k
+    //                 h                       i                       j                       k
                   0x006c,                 0x006d,                 0x006e,                 0x006f,
-//                     l                       m                       n                       o
+    //                 l                       m                       n                       o
                   0x0070,                 0x0071,                 0x0072,                 0x0073,
-//                     p                       q                       r                       s
+    //                 p                       q                       r                       s
                   0x0074,                 0x0075,                 0x0076,                 0x0077,
-//                     t                       u                       v                       w
+    //                 t                       u                       v                       w
                   0x0078,                 0x0079,                 0x007a,                 0x007b,
-//                     x                       y                       z               braceleft
+    //                 x                       y                       z               braceleft
                   0x007c,                 0x007d,                 0x007e,                 0x007f,
-//                   bar              braceright                 similar                        
+    //               bar              braceright                 similar                        
                   0x2193,                 0x2190,                 0x21d0,                 0x2194,
-//            down_arrow           left_totalfun    double_left_totalfun           relationarrow
+    //        down_arrow           left_totalfun    double_left_totalfun           relationarrow
                   0x2200,                 0x2227,                 0x27e6,                 0x2987,
-//               for_all                    meet                  fatbra               fatlparen
+    //           for_all                    meet                  fatbra               fatlparen
                   0x2191,                 0x2192,                 0x21d2,                 0x21d4,
-//              up_arrow                totalfun         double_totalfun    double_relationarrow
+    //          up_arrow                totalfun         double_totalfun    double_relationarrow
                   0x2203,                 0x2228,                 0x27e7,                 0x2988,
-//          there_exists                    join                  fatket               fatrparen
+    //      there_exists                    join                  fatket               fatrparen
                   0x2a1f,                 0x2264,                 0x2282,                 0x2286,
-//          fatsemicolon                     leq                  subset                subseteq
+    //      fatsemicolon                     leq                  subset                subseteq
                   0x227a,                 0x227b,                 0x2208,                 0x2261,
-//              precedes                  preceq                     elt                     eqv
+    //          precedes                  preceq                     elt                     eqv
                   0x2982,                 0x2265,                 0x2283,                 0x2287,
-//              fatcolon                     geq                superset                supseteq
+    //          fatcolon                     geq                superset                supseteq
                   0x227c,                 0x227d,                 0x2209,                 0x2259,
-//               follows                  folleq                  notelt                 defines
+    //           follows                  folleq                  notelt                 defines
                   0x22a4,                 0x22a2,                 0x27ea,                 0x27e8,
-//            latticetop               leftstile                muchless                anglebra
+    //        latticetop               leftstile                muchless                anglebra
                   0x2219,                 0x2294,                 0x222a,                 0x21bf,
-//                  cdot                     lub                     cup           up_spear_left
+    //              cdot                     lub                     cup           up_spear_left
                   0x22a5,                 0x22a3,                 0x27eb,                 0x27e9,
-//         latticebottom              rightstile             muchgreater                angleket
+    //     latticebottom              rightstile             muchgreater                angleket
                   0x22c4,                 0x2293,                 0x2229,                 0x21be,
-//               diamond                     glb                     cap          up_spear_right
+    //           diamond                     glb                     cap          up_spear_right
                   0x2308,                 0x230a,                 0x2248,                 0x25b3,
-//              leftceil               leftfloor                approxeq              triangleup
+    //          leftceil               leftfloor                approxeq              triangleup
                   0x22B2,                 0x22B4,                 0x228f,                 0x2291,
-//           restrictdom           corestrictdom  (2a64)           sqsub                 sqsubeq
+    //       restrictdom           corestrictdom  (2a64)           sqsub                 sqsubeq
                   0x2309,                 0x230b,                 0x00f7,                 0x25bd,
-//             rightceil              rightfloor                division            triangledown
+    //         rightceil              rightfloor                division            triangledown
                   0x22B3,                 0x22B5,                 0x2290,                 0x2292,
-//           restrictran           corestrictran  (2a65)           sqsup                 sqsupeq
+    //       restrictran           corestrictran  (2a65)           sqsup                 sqsupeq
                   0x2322,                 0x21d1,                 0x219b,                 0x21a6,
-//                append                   upimp                 redleft                  mapsto
+    //            append                   upimp                 redleft                  mapsto
                   0x2260,                 0x2395,                 0x00ac,                 0x2295,
-//                   neq               boxsquare              false_that              circleplus
+    //               neq               boxsquare              false_that              circleplus
                   0x2323,                 0x21d3,                 0x219a,                 0x2284,
-//             slurbelow                 downimp                redright               notsubset
+    //         slurbelow                 downimp                redright               notsubset
                   0x2218,                 0x2337,                 0x2713,                 0x2297,
-//           circlesmall                 boxthin                    tick             circletimes
+    //       circlesmall                 boxthin                    tick             circletimes
                   0x2225,                 0x228e,                 0x2205,                 0x21f8,
-//             doublebar                bagunion                emptyset              partialfun
+    //         doublebar                bagunion                emptyset              partialfun
                   0x21d5,                 0x22a0,                 0x220b,                 0x00d7,
-//             updownimp          boxsquarecross               ownership                   times
+    //         updownimp          boxsquarecross               ownership                   times
                   0x03b1,                 0x03b2,                 0x03b3,                 0x03b4,
-//              gl_alpha                 gl_beta                gl_gamma                gl_delta
+    //          gl_alpha                 gl_beta                gl_gamma                gl_delta
                   0x03b5,                 0x03b6,                 0x03b7,                 0x03b8,
-//            gl_epsilon                 gl_zeta                  gl_eta                gl_theta
+    //        gl_epsilon                 gl_zeta                  gl_eta                gl_theta
                   0x03b9,                 0x03ba,                 0x03bb,                 0x03bc,
-//               gl_iota                gl_kappa               gl_lambda                   gl_mu
+    //           gl_iota                gl_kappa               gl_lambda                   gl_mu
                   0x03bd,                 0x03be,                 0x03c0,                 0x03c1,
-//                 gl_nu                   gl_xi                   gl_pi                  gl_rho
+    //             gl_nu                   gl_xi                   gl_pi                  gl_rho
                   0x03c3,                 0x03c4,                 0x03c5,                 0x03d5,
-//              gl_sigma                  gl_tau              gl_upsilon                  gl_phi
+    //          gl_sigma                  gl_tau              gl_upsilon                  gl_phi
                   0x03c7,                 0x03c8,                 0x03c9,                 0x0393,
-//                gl_chi                  gl_psi                gl_omega                gu_gamma
+    //            gl_chi                  gl_psi                gl_omega                gu_gamma
                   0x0394,                 0x0398,                 0x039b,                 0x039e,
-//              gu_delta                gu_theta               gu_lambda                   gu_xi
+    //          gu_delta                gu_theta               gu_lambda                   gu_xi
                   0x03a0,                 0x03a3,                 0x03a5,                 0x03a6,
-//                 gu_pi                gu_sigma              gu_upsilon                  gu_phi
+    //             gu_pi                gu_sigma              gu_upsilon                  gu_phi
                   0x03a8,                 0x03a9,                 0x03d0,                 0x03d1,
-//                gu_psi                gu_omega             glv_epsilon               glv_theta
+    //            gu_psi                gu_omega             glv_epsilon               glv_theta
                   0x03d6,                 0x03f1,                 0x03de,                 0x03c6
-//             glv_omega                 glv_rho               glv_sigma                 glv_phi
-};
+    //         glv_omega                 glv_rho               glv_sigma                 glv_phi
+    };
 
-    char[] encoding = null, unicoding = null;
+    private static char[] encoding = null, unicoding = null;
     
-    final int bufsize = 1024;
+    final static int bufsize = 1024;
     
-    BufferedInputStream in;
-    PrintStream out;
+    private static Liner inliner, errliner;
+    private static PrintStream out;
 
-    public JapeCharEncoding(InputStream in, PrintStream out) {
-        this.in = new BufferedInputStream(in, bufsize);
-        this.out = out;
+    public static void init(InputStream in, OutputStream out, InputStream err) {
+        inliner = new Liner(in);
+        JapeCharEncoding.out = new PrintStream(out);
+        errliner = new Liner(err);
     }
 
-    StringBuffer inbuf = new StringBuffer(bufsize);
-    private boolean ignoreLF = false; // deal with CRLF problems
+    private static class Liner {
+        private StringBuffer inbuf = new StringBuffer(bufsize);
+        private boolean ignoreLF = false; // deal with CRLF problems
+        private BufferedInputStream in;
 
-    public String inputline() throws EOFException, IOException {
-        int c;
-        inbuf.delete(0, inbuf.length());
-        while (true) {
-            switch (c=in.read()) {
-                case '\r':
-                    ignoreLF=true;
-                    return inbuf.toString();
-                case '\n':
-                    if (ignoreLF)
-                        ignoreLF=false;
-                    else
+        public Liner(InputStream in) {
+            this.in = new BufferedInputStream(in, bufsize);
+        }
+
+        public synchronized String inputline() throws EOFException, IOException {
+            int c;
+            inbuf.delete(0, inbuf.length());
+            while (true) {
+                switch (c=in.read()) {
+                    case '\r':
+                        ignoreLF=true;
                         return inbuf.toString();
-                case -1:
-                    ignoreLF=false; // a little unnecessary, but it makes me feel more comfortable
-                    if (inbuf.length()==0)
-                        throw new EOFException();
-                    else
-                        return inbuf.toString();
-                default:
-                    ignoreLF=false;
-                    if (encoding==null) {
-                        if (c>0x7F)
-                            throw new IOException("no encoding for char 0x"+Integer.toHexString(c));
+                    case '\n':
+                        if (ignoreLF)
+                            ignoreLF=false;
                         else
-                            inbuf.append((char)c);
-                    }
-                    else
-                        inbuf.append(encoding[c]);
-                    break;
+                            return inbuf.toString();
+                    case -1:
+                        ignoreLF=false; // a little unnecessary, but it makes me feel more comfortable
+                        if (inbuf.length()==0)
+                            throw new EOFException();
+                        else
+                            return inbuf.toString();
+                    default:
+                        ignoreLF=false;
+                        if (encoding==null) {
+                            if (c>0x7F)
+                                throw new IOException("no encoding for char 0x"+Integer.toHexString(c));
+                            else
+                                inbuf.append((char)c);
+                        }
+                            else
+                                inbuf.append(encoding[c]);
+                        break;
+                }
             }
         }
     }
 
-    private byte[] outbuf = new byte[bufsize];
-    private PosIntHashMap toAsc;
+    public static String inputline() throws EOFException, IOException {
+        return inliner.inputline();
+    }
     
-    public void output(String s) throws IOException {
+    public static String loginputline() throws EOFException, IOException {
+        return errliner.inputline();
+    }
+    
+    private static byte[] outbuf = new byte[bufsize];
+    private static PosIntHashMap toAsc;
+    
+    public static void output(String s) throws IOException {
         int len = s.length();
         int bufi = 0;
         for (int i=0; i<len; i++) {
@@ -287,42 +308,48 @@ public class JapeCharEncoding implements DebugConstants {
             }
             if (bufi==bufsize) {
                 out.write(outbuf, 0, bufi);
-                if (encoding_tracing) {
-                    System.err.println("JapeCharEncoding.output sends (1)***");
-                    System.err.write(outbuf, 0, bufi);
-                    System.err.println("\n***");
-                }
+                if (encoding_tracing)
+                    logchars(1, outbuf, 0, bufi);
                 bufi = 0;
             }    
         }
         if (bufi!=0) {
             out.write(outbuf, 0, bufi);
-            if (encoding_tracing) {
-                System.err.println("JapeCharEncoding.output sends (2)***");
-                System.err.write(outbuf, 0, bufi);
-                System.err.println("\n***");
-            }
+            if (encoding_tracing)
+                logchars(2, outbuf, 0, bufi);
         }
     }
 
-    public void outputln(String s) throws IOException {
+    private static void logchars(int id, byte[] buf, int off, int len) {
+        Logger.log.println("JapeCharEncoding.output sends ("+id+")***");
+        for (int i=0; i<len; i++) {
+            Logger.log.write((int)buf[off+i]);
+        }
+        Logger.log.println("\n***");
+    }
+
+    public static void outputln(String s) throws IOException {
         output(s); output("\n"); // do something about sockets some other time
     }
 
-    public void flush() {
+    public static void flush() {
         out.flush();
     }
 
-    public String toAscii(String s) {
-        if (toAsc==null)
-            Alert.abort("JapeCharEncoding.toAscii no encoding");
-        
+    public static String toAscii(String s) {
         int len = s.length();
         StringBuffer buf = new StringBuffer(len);
         for (int i=0; i<len; i++) {
-            int c = toAsc.get(s.charAt(i));
+            int c = s.charAt(i);
+            if (c>0x7f) { // ignore septets -- allows encoding when the encoder isn't quite ready
+                if (toAsc==null)
+                    Alert.abort("JapeCharEncoding.toAscii(\""+s+"\") -- no encoding");
+                else
+                    c=toAsc.get(c);
+            }
             if (c<0)
-                Alert.abort("JapeCharEncoding.toAscii can't decode "+(int)s.charAt(i)+" in \""+s+"\"");
+                Alert.abort("JapeCharEncoding.toAscii can't decode "+(int)s.charAt(i)+
+                            " in \""+s+"\"");
             else
                 buf.append((char)c);
         }
@@ -330,25 +357,27 @@ public class JapeCharEncoding implements DebugConstants {
     }
 
     // a temporary hack, while MacOS doesn't do font fallback
-    public String toTitle(String s) {
+    public static String trueUnicode(String s) {
         if (japeserver.onMacOS) {
             String asc = toAscii(s);
             int len = s.length();
             StringBuffer buf = new StringBuffer(len);
-            for (int i=0; i<len; i++)
-                buf.append(unicoding[asc.charAt(i)]);
+            for (int i=0; i<len; i++) {
+                char c = asc.charAt(i);
+                if (c>0x7f) // ignore septets -- allows encoding when the encoder isn't quite ready
+                    c = unicoding[c];
+                buf.append(c);
+            }
             return buf.toString();
         }
         else {
-            if (japeserver.onMacOS)
-                System.err.println("toTitle not translating "+s);
             return s;
         }
     }
 
-    private String encodingName;
+    private static String encodingName;
     
-    public void setEncoding(String s) throws ProtocolError {
+    public static void setEncoding(String s) throws ProtocolError {
         encodingName = s;
         if (s.equals("Konstanz"))
             unicoding = KonstanzUnicode;
@@ -369,7 +398,7 @@ public class JapeCharEncoding implements DebugConstants {
         }
     }
 
-    public void resetEncoding() {
+    public static void resetEncoding() {
         encodingName = null;
         encoding = unicoding = null;
     }

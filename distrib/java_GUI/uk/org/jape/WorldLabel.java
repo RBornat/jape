@@ -102,17 +102,17 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
             labelImage.setLocation(SwingUtilities.convertPoint(this, e.getX()-startx,
                                                               e.getY()-starty, layeredPane));
             if (drag_tracing)
-                System.err.println("; dragged label at "+labelImage.getX()+","+labelImage.getY());
+                Logger.log.println("; dragged label at "+labelImage.getX()+","+labelImage.getY());
             labelImage.repaint();
         }
         else {
             if (drag_tracing)
-                System.err.print("mouse dragged to "+e.getX()+","+e.getY());
+                Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
             labelImage.moveBy(e.getX()-lastx, e.getY()-lasty);
             if (drag_tracing)
-                System.err.println("; dragged label now at "+labelImage.getX()+","+labelImage.getY());
+                Logger.log.println("; dragged label now at "+labelImage.getX()+","+labelImage.getY());
             Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-            LabelTarget target = (LabelTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
+            LabelTarget target = (LabelTarget)JapeUtils. findTargetAt(targetClass, contentPane, p.x, p.y);
             if (target!=over) {
                 if (over!=null) {
                     over.dragExit(world, text); over=null;
@@ -126,7 +126,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
 
     protected void released(MouseEvent e) {
         if (drag_tracing)
-            System.err.println("mouse released at "+e.getX()+","+e.getY()+
+            Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
                                "; dragged label at "+labelImage.getX()+","+labelImage.getY());
         if (over==null)
             new Flyback(labelImage, labelImage.getLocation(),

@@ -36,14 +36,12 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import java.util.Enumeration;
-import java.util.Vector;
-
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+
 
 import java.awt.geom.AffineTransform;
 
@@ -51,14 +49,17 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 
+import java.util.Enumeration;
+import java.util.Vector;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
-public class ProofWindow extends JapeWindow implements DebugConstants, SelectionConstants,
-                                                       ProtocolConstants,
+public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolConstants,
+                                                       SelectionConstants,
                                                        Printable {
     public final int proofnum;
 
@@ -73,10 +74,10 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
 
     protected WindowListener windowListener;
     
-    public ProofWindow(final String title, int proofnum) {
+    public ProofWindow(final String title, final int proofnum) {
         super(title, proofnum);
         this.proofnum = proofnum;
-
+        
         getContentPane().setLayout(new BorderLayout()); 
         proofPane = new AnchoredScrollPane();
         proofCanvas = new ProofCanvas(proofPane.getViewport(), true);
@@ -84,28 +85,28 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         
         getContentPane().add(proofPane, BorderLayout.CENTER);
 
-        insertInfocusv();
-        
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        
+
+        focusManager.insertInfocusv(this);
+
         windowListener = new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 if (windowListener!=null)
-                    Reply.sendCOMMAND("closeproof "+ProofWindow.this.proofnum);
+                    Reply.sendCOMMAND("closeproof "+proofnum);
                 else
-                    System.err.println("ProofWindow.windowListener late windowClosing \""+
+                    Logger.log.println("ProofWindow.windowListener late windowClosing \""+
                                        title +"\"; "+e);
             }
             public void windowActivated(WindowEvent e) {
                 if (windowListener!=null) {
-                    if (setTopInfocusv()) {
-                        reportFocus();
+                    if (focusManager.setTopInfocusv(ProofWindow.this)) {
+                        focusManager.reportFocus();
                         enableCopy();
                         enableUndo();
                     }
                 }
                 else
-                    System.err.println("ProofWindow.windowListener late windowActivated \""+
+                    Logger.log.println("ProofWindow.windowListener late windowActivated \""+
                                        title +"\"; "+e);
             }
         };
@@ -120,37 +121,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         setVisible(true);
     }
 
-    private static Vector focusv = new Vector();
+    protected boolean servesAsControl() { return true; }
 
-    private static void reportFocus() {
-        if (focusv.size()!=0)
-            Reply.sendCOMMAND("setfocus "+((ProofWindow)focusv.get(0)).proofnum);
-    }
-
-    private synchronized void insertInfocusv() {
-        focusv.insertElementAt(this, 0);
-    }
-
-    private synchronized boolean setTopInfocusv() {
-        int i = focusv.indexOf(this);
-        if (i==-1) 
-            Alert.abort("unfocussable proof "+this.title);
-        else
-        if (i!=0) {
-            focusv.remove(i);
-            focusv.insertElementAt(this,0);
-        }
-        return i!=0;
-    }
-
-    private synchronized void removeFromfocusv() {
-        int i = focusv.indexOf(this);
-        if (i==-1)
-            Alert.abort("unremovable proof "+this.title);
-        else
-            focusv.remove(i);
-    }
-    
     public boolean equals(Object o) {
         return o instanceof ProofWindow ? ((ProofWindow)o).title.equals(title) &&
                                                ((ProofWindow)o).proofnum==proofnum :
@@ -206,8 +178,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
                             (proofhistory||disproofhistory) ? Boolean.TRUE : Boolean.FALSE);
     }
 
+    // pane focus
     
-    // the other sort of focus
     private Container focussedPane = null;
 
     protected void claimProofFocus() {
@@ -273,8 +245,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         Graphics2D g2D = (Graphics2D) g;
         
         if (printlayout_tracing) {
-            System.err.println("ProofWindow.print("+g2D+")");
-            japeserver.showContainer(proofCanvas);
+            Logger.log.println("ProofWindow.print("+g2D+")");
+            JapeUtils.showContainer(proofCanvas);
         }
         
         g2D.translate((int)pf.getImageableX()+1, (int)pf.getImageableY()+1);
@@ -306,7 +278,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         AffineTransform trans = g2D.getTransform();
 
         if (scale<1.0) {
-            System.err.println("scaling printing to "+scale);
+            Logger.log.println("scaling printing to "+scale);
             g2D.scale(scale, scale);
         }
 
@@ -335,95 +307,6 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         g2D.translate(-((int)pf.getImageableX()+1), -((int)pf.getImageableY()+1));
         
         return Printable.PAGE_EXISTS;
-    }
-
-    /**********************************************************************************************
-
-        Static interface for Dispatcher
-
-     **********************************************************************************************/
-
-    public static ProofWindow spawn(String title, int proofnum) throws ProtocolError {
-        if (findWindow(title)!=null)
-            throw new ProtocolError("already a window with that title");
-        else
-            return new ProofWindow(title, proofnum);
-    }
-
-    private static ProofWindow findProof (int proofnum) throws ProtocolError {
-        for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); ) {
-            Object o = e.nextElement();
-            if (o instanceof ProofWindow && ((ProofWindow)o).proofnum==proofnum)
-                return (ProofWindow) o;
-        }
-        throw new ProtocolError("no proof numbered "+proofnum);
-    }
-
-    public static void closeproof(int proofnum) throws ProtocolError {
-        ProofWindow proof = findProof(proofnum);
-        proof.removeWindowListener(proof.windowListener); // Linux gives us spurious events otherwise
-        proof.windowListener = null;
-        proof.closeWindow();
-        proof.removeFromfocusv();
-        reportFocus();
-        enableProofMenuItems();
-    }
-
-    private static void enableProofMenuItems() {
-        if (focusv!=null && focusv.size()>0) {
-            ProofWindow w = (ProofWindow)focusv.get(0);
-            w.enableCopy();
-            w.enableUndo();
-        }
-    }
-    
-    public static ProofWindow getFocussedProofWindow() {
-        if (focusv.size()==0)
-            return null;
-        else
-            return (ProofWindow)focusv.get(0);
-    }
-
-    public static ProofWindow mustGetFocussedProofWindow() throws ProtocolError {
-        ProofWindow w = getFocussedProofWindow();
-        if (w==null)
-            throw new ProtocolError("no proof windows available");
-        else
-            return w;
-    }
-
-    private static void checkFocussedCanvas() throws ProtocolError {
-        if (mustGetFocussedProofWindow().focussedCanvas==null)
-            throw new ProtocolError("no focussed pane - drawInPane missing?");
-    }
-
-    private static JapeCanvas byte2JapeCanvas(byte pane, String who) throws ProtocolError {
-        switch (pane) {
-            case ProofPaneNum:
-                return mustGetFocussedProofWindow().proofCanvas;
-            case DisproofPaneNum:
-                return mustGetFocussedProofWindow().ensureDisproofPane().seqCanvas; // really?
-            default:
-                throw new ProtocolError(who+" pane="+pane);
-        }
-    }
-
-    public static Rectangle getPaneGeometry(byte pane) throws ProtocolError {
-        return byte2JapeCanvas(pane,"ProofWindow.getPaneGeometry").getViewGeometry();
-    }
-
-    public static void clearPane(byte pane) throws ProtocolError {
-        // don't create a disproof pane just to clear it ...
-        if (pane==DisproofPaneNum && mustGetFocussedProofWindow().disproofPane==null)
-            return;
-        else
-            byte2JapeCanvas(pane,"ProofWindow.clearPane").removeAll();
-    }
-
-    public static void setProofParams(byte style, int linethickness) throws ProtocolError {
-        mustGetFocussedProofWindow().initProofCanvas(style, linethickness);
-        if (mustGetFocussedProofWindow().disproofPane!=null)
-            mustGetFocussedProofWindow().disproofPane.setlinethickness(linethickness);
     }
 
     private void initProofCanvas(byte style, int linethickness) {
@@ -462,7 +345,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
     }
 
     private boolean disproofPanePending = false,
-                    provisoPanePending  = false;
+        provisoPanePending  = false;
 
     public void makeWindowReady() {
         if(disproofPanePending) {
@@ -497,99 +380,205 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
             subSplitPane.validate();
             subSplitPane.repaint();
         }
-        
+
         if (disproofPane!=null)
             disproofPane.makeReady();
     }
-    
-    public static void makeReady() {
-        for (int i = 0; i<focusv.size(); i++)
-            ((ProofWindow)focusv.get(i)).makeWindowReady();
-    }
 
-    public static void drawInPane(byte pane) throws ProtocolError {
-        ProofWindow focussedw = mustGetFocussedProofWindow();
+    private JapeCanvas byte2JapeCanvas(byte pane) throws ProtocolError {
         switch (pane) {
             case ProofPaneNum:
-                focussedw.focussedCanvas = focussedw.proofCanvas;
+                return proofCanvas;
+            case DisproofPaneNum:
+                return ensureDisproofPane().seqCanvas; // really? really!
+            default:
+                throw new ProtocolError("invalid pane number");
+        }
+    }
+
+    public Rectangle getPaneGeometry(byte pane) throws ProtocolError {
+        return byte2JapeCanvas(pane).getViewGeometry();
+    }
+
+    public void clearPane(byte pane) throws ProtocolError {
+        // don't create a disproof pane just to clear it ...
+        if (pane==DisproofPaneNum && disproofPane==null)
+            return;
+        else
+            byte2JapeCanvas(pane).removeAll();
+    }
+    
+    public void setProofParams(byte style, int linethickness) throws ProtocolError {
+        initProofCanvas(style, linethickness);
+        if (disproofPane!=null)
+            disproofPane.setlinethickness(linethickness);
+    }
+
+    public void drawInPane(byte pane) throws ProtocolError {
+        switch (pane) {
+            case ProofPaneNum:
+                focussedCanvas = proofCanvas;
                 break;
             case DisproofPaneNum:
-                focussedw.focussedCanvas = focussedw.ensureDisproofPane().seqCanvas;
+                focussedCanvas = ensureDisproofPane().seqCanvas;
                 break;
             default:
-                Alert.abort("ProofWindow.drawInPane: pane="+pane);
+                throw new ProtocolError("invalid pane number");
         }
     }
 
-    public static void drawstring(int x, int y, byte fontnum, byte kind,
-                                  String annottext) throws ProtocolError {
-        checkFocussedCanvas();
+    public void drawstring(int x, int y, byte fontnum, byte kind,
+                           String annottext) throws ProtocolError {
         JapeFont.checkInterfaceFontnum(fontnum);
-        JapeCanvas canvas = mustGetFocussedProofWindow().focussedCanvas;
         switch (kind) {
             case PunctTextItem:
-                canvas.add(new TextItem(canvas, x, y, fontnum, annottext));
+                focussedCanvas.add(new TextItem(focussedCanvas, x, y, fontnum, annottext));
                 break;
+
             case HypTextItem:
-                if (canvas instanceof ProofCanvas)
-                    canvas.add(new HypothesisItem((ProofCanvas)canvas, x, y, fontnum, annottext));
+                if (focussedCanvas==proofCanvas)
+                    proofCanvas.add(new HypothesisItem(proofCanvas, x, y, fontnum, annottext));
                 else
-                if (canvas instanceof DisproofCanvas)
-                    canvas.add(new DisproofHypItem((DisproofCanvas)canvas, x, y, fontnum, annottext));
+                if (disproofPane!=null && focussedCanvas==disproofPane.seqCanvas)
+                    disproofPane.seqCanvas.add(new DisproofHypItem(disproofPane.seqCanvas,
+                                                                   x, y, fontnum, annottext));
                 else
-                    throw new ProtocolError("HypTextItem in "+canvas);
+                    throw new ProtocolError("HypTextItem in "+focussedCanvas);
                 break;
+
             case ConcTextItem:
-                if (canvas instanceof ProofCanvas)
-                    canvas.add(new ConclusionItem((ProofCanvas)canvas, x, y, fontnum, annottext));
+                if (focussedCanvas==proofCanvas)
+                    proofCanvas.add(new ConclusionItem(proofCanvas, x, y, fontnum, annottext));
                 else
-                if (canvas instanceof DisproofCanvas)
-                    canvas.add(new DisproofConcItem((DisproofCanvas)canvas, x, y, fontnum, annottext));
+                if (disproofPane!=null && focussedCanvas==disproofPane.seqCanvas)
+                    disproofPane.seqCanvas.add(new DisproofConcItem(disproofPane.seqCanvas,
+                                                                    x, y, fontnum, annottext));
                 else
-                    throw new ProtocolError("ConcTextItem in "+canvas);
+                    throw new ProtocolError("ConcTextItem in "+focussedCanvas);
                 break;
+
             case AmbigTextItem:
-                if (canvas instanceof ProofCanvas)
-                    canvas.add(new HypConcItem((ProofCanvas)canvas, x, y, fontnum, annottext));
+                if (focussedCanvas==proofCanvas)
+                    proofCanvas.add(new HypConcItem(proofCanvas, x, y, fontnum, annottext));
                 else
-                    throw new ProtocolError("ProofWindow.drawstring AmbigTextItem not drawing in proof pane");
+                    throw new ProtocolError("AmbigTextItem in "+focussedCanvas);
                 break;
+                
             case ReasonTextItem:
-                if (canvas instanceof ProofCanvas)
-                    canvas.add(new ReasonItem((ProofCanvas)canvas, x, y, fontnum, annottext));
+                if (focussedCanvas==proofCanvas)
+                    proofCanvas.add(new ReasonItem(proofCanvas, x, y, fontnum, annottext));
                 else
-                    throw new ProtocolError("ProofWindow.drawstring ReasonTextItem not drawing in proof pane");
+                    throw new ProtocolError("ReasonTextItem in "+focussedCanvas);
                 break;
+
             default:
-                throw new ProtocolError("ProofWindow.drawstring kind="+kind);
+                throw new ProtocolError("invalid item kind");
         }
     }
 
-    public static void drawRect(int x, int y, int w, int h) throws ProtocolError {
-        mustGetFocussedProofWindow().proofCanvas.add(new RectItem(mustGetFocussedProofWindow().proofCanvas, x, y, w, h));
+    public void drawRect(int x, int y, int w, int h) {
+        proofCanvas.add(new RectItem(proofCanvas, x, y, w, h));
     }
 
-    public static void drawLine(int x1, int y1, int x2, int y2) throws ProtocolError {
-        mustGetFocussedProofWindow().proofCanvas.add(new LineItem(mustGetFocussedProofWindow().proofCanvas, x1, y1, x2, y2));
+    public void drawLine(int x1, int y1, int x2, int y2) {
+        proofCanvas.add(new LineItem(proofCanvas, x1, y1, x2, y2));
     }
 
-    private static SelectableProofItem findProofSelectableXY(int x, int y) throws ProtocolError {
-        SelectableProofItem si = mustGetFocussedProofWindow().proofCanvas.findSelectable(x,y);
+    public void emphasise(int x, int y, boolean state) throws ProtocolError {
+        EmphasisableItem ei = ensureDisproofPane().seqCanvas.findEmphasisable(x,y);
+        if (ei==null)
+            throw new ProtocolError("not emphasisable disproof item");
+        else
+            ei.emphasise(state);
+    }
+
+    public String getSelections() {
+        String s = proofCanvas.getSelections("\n");
+        return s==null ? "" : s+"\n";
+    }
+
+    public String getTextSelections() throws ProtocolError {
+        String s = proofCanvas.getTextSelections("\n");
+        return s==null ? "" : s+"\n";
+    }
+
+    public String getGivenTextSelections() throws ProtocolError {
+        return provisoPane==null ? "" : provisoCanvas.getTextSelections(Reply.stringSep);
+    }
+    
+    // disproof stuff
+    public void setSequentBox(int w, int a, int d) throws ProtocolError {
+        ensureDisproofPane().setSequentBox(w, a, d);
+    }
+
+    public void setDisproofTiles(String[] tiles) throws ProtocolError {
+        ensureDisproofPane().setTiles(tiles);
+    }
+
+    public void worldsStart() throws ProtocolError {
+        ensureDisproofPane().worldCanvas.worldsStart();
+    }
+
+    public void addWorld(int x, int y) throws ProtocolError {
+        ensureDisproofPane().worldCanvas.addWorld(x, y);
+    }
+
+    public void addWorldLabel(int x, int y, String label) throws ProtocolError {
+        ensureDisproofPane().worldCanvas.addWorldLabel(x, y, label);
+    }
+
+    public void addChildWorld(int x, int y, int xc, int yc) throws ProtocolError {
+        ensureDisproofPane().worldCanvas.addChildWorld(x, y, xc, yc);
+    }
+
+    public void selectWorld(int x, int y, boolean selected) throws ProtocolError {
+       ensureDisproofPane().worldCanvas.selectWorld(x, y, selected);
+    }
+
+    // provisos and givens
+
+    public void clearProvisoView() throws ProtocolError {
+        // don't create a provisoPane just to clear it
+        if (provisoCanvas!=null) {
+            provisoCanvas.clear();
+        }
+    }
+
+    public void showProvisoLine(String annottext) throws ProtocolError {
+        ensureProvisoPane();
+        provisoCanvas.addProvisoLine(annottext);
+    }
+
+    public void setGivens(MiscellaneousConstants.IntString[] gs) throws ProtocolError {
+        // don't create a provisoPane just to say there aren't any givens
+        if (provisoPane!=null || (gs!=null && gs.length!=0)) {
+            ensureProvisoPane();
+            provisoCanvas.setGivens(gs);
+        }
+    }
+
+    private void checkFocussedCanvas() throws ProtocolError {
+        if (focussedCanvas==null)
+            throw new ProtocolError("no focussed pane - drawInPane missing?");
+    }
+
+    private SelectableProofItem findProofSelectableXY(int x, int y) throws ProtocolError {
+        SelectableProofItem si = proofCanvas.findSelectable(x,y);
         if (si==null)
             throw new ProtocolError("no selectable proof item at "+x+","+y);
         else
             return si;
     }
 
-    public static void blacken(int x, int y) throws ProtocolError {
+    public void blacken(int x, int y) throws ProtocolError {
         findProofSelectableXY(x,y).blacken();
     }
 
-    public static void greyen(int x, int y) throws ProtocolError {
+    public void greyen(int x, int y) throws ProtocolError {
         findProofSelectableXY(x,y).greyen();
     }
 
-    public static void highlight(int x, int y, byte selclass) throws ProtocolError {
+    public void highlight(int x, int y, byte selclass) throws ProtocolError {
         byte selkind;
         switch (selclass) {
             case ConcTextItem  : selkind = ConcSel; break;
@@ -600,35 +589,121 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         findProofSelectableXY(x,y).select(selkind);
     }
 
-    public static void unhighlight(int x, int y) throws ProtocolError {
+    public void unhighlight(int x, int y) throws ProtocolError {
         findProofSelectableXY(x,y).deselect();
     }
 
-    public static void emphasise(int x, int y, boolean state) throws ProtocolError {
-        EmphasisableItem ei = mustGetFocussedProofWindow().ensureDisproofPane().seqCanvas.findEmphasisable(x,y);
-        if (ei==null)
-            throw new ProtocolError("no emphasisable disproof item at "+x+","+y);
+
+    // synchronized access only to the focus vector
+
+    private static FocusManager focusManager = new FocusManager();
+
+    private static class FocusManager {
+        private Vector focusv = new Vector();
+
+        public synchronized ProofWindow maybeFocussedWindow() {
+            if (focusv.size()==0)
+                return null;
+            else
+                return (ProofWindow)focusv.get(0);
+        }
+
+        private synchronized void insertInfocusv(ProofWindow w) {
+            focusv.insertElementAt(w, 0);
+        }
+
+        private synchronized boolean setTopInfocusv(ProofWindow w) {
+            int i = focusv.indexOf(w);
+            if (i==-1)
+                Alert.abort("unfocussable proof "+w.title);
+            else
+                if (i!=0) {
+                    focusv.remove(i);
+                    focusv.insertElementAt(w,0);
+                }
+            return i!=0;
+        }
+
+        private synchronized void removeFromfocusv(ProofWindow w) {
+            int i = focusv.indexOf(w);
+            if (i==-1)
+                Alert.abort("unremovable proof "+w.title);
+            else
+                focusv.remove(i);
+        }
+
+        public synchronized void reportFocus() {
+            if (focusv.size()!=0)
+                Reply.sendCOMMAND("setfocus "+((ProofWindow)focusv.get(0)).proofnum);
+        }
+
+        public synchronized void makeReady() {
+            for (int i = 0; i<focusv.size(); i++)
+                ((ProofWindow)focusv.get(i)).makeWindowReady();
+        }
+    }
+
+    /**********************************************************************************************
+
+        Static interface for Dispatcher
+
+     **********************************************************************************************/
+
+    public static ProofWindow spawn(String title, int proofnum) throws ProtocolError {
+        if (JapeWindow.findWindow(title)!=null)
+            throw new ProtocolError("already a window with that title");
+        else {
+            final ProofWindow w = new ProofWindow(title, proofnum);
+            return w;
+        }
+    }
+
+    private static ProofWindow findProof (int proofnum) throws ProtocolError {
+        for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); ) {
+            Object o = e.nextElement();
+            if (o instanceof ProofWindow && ((ProofWindow)o).proofnum==proofnum)
+                return (ProofWindow) o;
+        }
+        throw new ProtocolError("no proof numbered "+proofnum);
+    }
+
+    public static void closeproof(int proofnum) throws ProtocolError {
+        ProofWindow proof = findProof(proofnum);
+        proof.removeWindowListener(proof.windowListener); // Linux gives us spurious events otherwise
+        proof.windowListener = null;
+        proof.closeWindow();
+        focusManager.removeFromfocusv(proof);
+        focusManager.reportFocus();
+        enableProofMenuItems();
+    }
+
+    private static void enableProofMenuItems() {
+        ProofWindow w = maybeFocussedWindow();
+        if (w!=null) {
+            w.enableCopy();
+            w.enableUndo();
+        }
+    }
+
+    public static ProofWindow maybeFocussedWindow() {
+        return focusManager.maybeFocussedWindow();
+    }
+
+    public static ProofWindow getFocussedWindow() throws ProtocolError {
+        ProofWindow w = maybeFocussedWindow();
+        if (w==null)
+            throw new ProtocolError("no proof windows available");
         else
-            ei.emphasise(state);
-    }
-    
-    public static String getSelections() throws ProtocolError {
-        String s = mustGetFocussedProofWindow().proofCanvas.getSelections("\n");
-        return s==null ? "" : s+"\n";
+            return w;
     }
 
-    public static String getTextSelections() throws ProtocolError {
-        String s = mustGetFocussedProofWindow().proofCanvas.getTextSelections("\n");
-        return s==null ? "" : s+"\n";
+    public static void makeReady() {
+        focusManager.makeReady();
     }
 
-    public static String getGivenTextSelections() throws ProtocolError {
-        ProofWindow w = mustGetFocussedProofWindow();
-        return w.provisoPane==null ? "" : w.provisoCanvas.getTextSelections(Reply.stringSep);
-    }
-
+    /* this doesn't work any more: has to be in a more global place */
     public static byte textselectionmode;
-    
+
     public static void setTextSelectionMode(byte mode) throws ProtocolError {
         switch (mode) {
             case SubformulaSelectionMode:
@@ -637,60 +712,6 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
                 break;
             default:
                 throw new ProtocolError("ProofWindow.setTextSelectionMode mode="+mode);
-        }
-    }
-
-    // disproof stuff
-    public static void setSequentBox(int w, int a, int d) throws ProtocolError {
-        mustGetFocussedProofWindow().ensureDisproofPane().setSequentBox(w, a, d);
-    }
-
-    public static void setDisproofTiles(String[] tiles) throws ProtocolError {
-        mustGetFocussedProofWindow().ensureDisproofPane().setTiles(tiles);
-    }
-
-    public static void worldsStart() throws ProtocolError {
-        mustGetFocussedProofWindow().ensureDisproofPane().worldCanvas.worldsStart();
-    }
-
-    public static void addWorld(int x, int y) throws ProtocolError {
-        mustGetFocussedProofWindow().ensureDisproofPane().worldCanvas.addWorld(x, y);
-    }
-
-    public static void addWorldLabel(int x, int y, String label) throws ProtocolError {
-        mustGetFocussedProofWindow().ensureDisproofPane().worldCanvas.addWorldLabel(x, y, label);
-    }
-
-    public static void addChildWorld(int x, int y, int xc, int yc) throws ProtocolError {
-        mustGetFocussedProofWindow().ensureDisproofPane().worldCanvas.addChildWorld(x, y, xc, yc);
-    }
-
-    public static void selectWorld(int x, int y, boolean selected) throws ProtocolError {
-        mustGetFocussedProofWindow().ensureDisproofPane().worldCanvas.selectWorld(x, y, selected);
-    }
-
-    // provisos and givens
-
-    public static void clearProvisoView() throws ProtocolError {
-        // don't create a provisoPane just to clear it
-        ProofWindow w = mustGetFocussedProofWindow();
-        if (w.provisoCanvas!=null) {
-            w.provisoCanvas.clear();
-        }
-    }
-
-    public static void showProvisoLine(String annottext) throws ProtocolError {
-        ProofWindow w = mustGetFocussedProofWindow();
-        w.ensureProvisoPane();
-        w.provisoCanvas.addProvisoLine(annottext);
-    }
-
-    public static void setGivens(MiscellaneousConstants.IntString[] gs) throws ProtocolError {
-        // don't create a provisoPane just to say there aren't any givens
-        ProofWindow w = mustGetFocussedProofWindow();
-        if (w.provisoPane!=null || (gs!=null && gs.length!=0)) {
-            w.ensureProvisoPane();
-            w.provisoCanvas.setGivens(gs);
         }
     }
 
@@ -712,4 +733,4 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
 
         enableProofMenuItems();
     }
-                                                       }
+}

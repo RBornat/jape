@@ -64,7 +64,7 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
             public void validate() { setScrollBarValues(); }
             public void paint(Graphics g) {
                 if (paint_tracing)
-                    System.err.println("painting viewport in AnchoredScrollPane");
+                    Logger.log.println("painting viewport in AnchoredScrollPane");
                 g.setColor(getBackground());
                 g.fillRect(0,0, getWidth(), getHeight());
                 super.paint(g);
@@ -92,7 +92,7 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
                     }
                     break;
                 default:
-                    System.err.println("H sees AdjustmentEvent "+e.getAdjustmentType());
+                    Logger.log.println("H sees AdjustmentEvent "+e.getAdjustmentType());
                     break;
             }
         }
@@ -110,7 +110,7 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
                     }
                     break;
                 default:
-                    System.err.println("V sees AdjustmentEvent "+e.getAdjustmentType());
+                    Logger.log.println("V sees AdjustmentEvent "+e.getAdjustmentType());
                     break;
             }
         }
@@ -204,7 +204,7 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
             int width = Math.max(getWidth()-scrollbarthickness,0), height = Math.max(getHeight()-scrollbarthickness,0),
                 w1 = Math.max(w-scrollbarthickness,0), h1=Math.max(h-scrollbarthickness,0);
             if (anchoredpane_tracing)
-                System.err.print("Anchored move ("+anchor+") from "+viewPos.x+","+viewPos.y+
+                Logger.log.print("Anchored move ("+anchor+") from "+viewPos.x+","+viewPos.y+
                                  " in "+width+","+height);
             switch (anchor) {
                 case ANCHOR_NORTH:
@@ -227,13 +227,13 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
             }
             view.setLocation(viewPos);
             if (anchoredpane_tracing)
-                System.err.println(" to "+viewPos.x+","+viewPos.y+" in "+w1+","+h1);
+                Logger.log.println(" to "+viewPos.x+","+viewPos.y+" in "+w1+","+h1);
         }
         super.setBounds(x,y,w,h);
         if (view!=null && anchoredpane_tracing) {
             if (view instanceof ContainerWithOrigin)
-                System.err.print(" ("+((ContainerWithOrigin)view).getViewGeometry()+")");
-            System.err.println();
+                Logger.log.print(" ("+((ContainerWithOrigin)view).getViewGeometry()+")");
+            Logger.log.println();
         }
     }
     

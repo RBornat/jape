@@ -1,5 +1,3 @@
-// not happy about the way I get a border round the logo
-
 /* 
     $Id$
 
@@ -41,13 +39,16 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.SwingConstants;
 
-public class SurrogateWindow extends JapeWindow {
+public abstract class SurrogateWindow extends JapeWindow {
     static final String message = "Jape!";
     private Font font = new Font("serif", Font.ITALIC+Font.BOLD, 36);
     private ImageIcon logoIcon = new ImageIcon(Images.getImage("japelogo.gif"));
 
-    public SurrogateWindow() {
-        super("japeserver");
+    public SurrogateWindow(String title) {
+        super(title);
+        // not happy about the way I get a border round the logo
+        // one day the drawing stuff will be in a SplashScreen class
+
         getContentPane().setBackground(Color.white);
         JLabel logo = new JLabel("© Richard Bornat and Bernard Sufrin 1991-2002", logoIcon, SwingConstants.CENTER);
         logo.setVerticalTextPosition(SwingConstants.BOTTOM);
@@ -56,19 +57,20 @@ public class SurrogateWindow extends JapeWindow {
         JLabel link = new JLabel("Freeware under GPL licence: see www.jape.org.uk");
         getContentPane().add(link, BorderLayout.SOUTH); // It ought to be in the middle ...
         pack();
-        setLocation(japeserver.screenBounds.width/2-getWidth()/2,
-                    japeserver.screenBounds.height/2-getHeight()/2);
         setSize(getWidth()+60, getHeight()+60);
         setBar(); // by experiment, seems to be necessary before setVisible
-        // no setVisible here ...
+                  // no setVisible here ...
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                if (Alert.askOKCancel(SurrogateWindow.this, "Quit Jape?")==Alert.OK)
-                    japeserver.handleQuit();
+                SurrogateWindow.this.windowCloser();
             }
         });
     }
+
+    protected boolean servesAsControl() { return false; }
+
+    protected abstract void windowCloser();
 }
 

@@ -78,7 +78,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
         outline = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
         if (geometry_tracing)
-            System.err.println("world bounds are "+getBounds()+"; outline is "+outline.getBounds2D());
+            Logger.log.println("world bounds are "+getBounds()+"; outline is "+outline.getBounds2D());
 
         setForeground(Preferences.WorldColour);
 
@@ -148,15 +148,15 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     public void paint(Graphics g) {
         if (paint_tracing)
-            System.err.println("painting WorldItem at "+getX()+","+getY());
+            Logger.log.println("painting WorldItem at "+getX()+","+getY());
         g.setColor(getForeground());
         if (g instanceof Graphics2D) {
             if (antialias_tracing) {
-                System.err.print("blob hints "+((Graphics2D)g).getRenderingHints());
+                Logger.log.print("blob hints "+((Graphics2D)g).getRenderingHints());
                 if (japeserver.onMacOS)
-                    System.err.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
+                    Logger.log.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
                 else
-                    System.err.println();
+                    Logger.log.println();
             }
             ((Graphics2D)g).fill(outline);
         }
@@ -171,7 +171,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             super(WorldItem.this.canvas, x, y, radius);
             setForeground(Preferences.SelectionColour);
             if (geometry_tracing)
-                System.err.println("ring bounds are "+getBounds()+
+                Logger.log.println("ring bounds are "+getBounds()+
                                    "; outline is "+this.outline.getBounds2D());
         }
 
@@ -194,7 +194,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
             oldForeground = getForeground();
             setForeground(Preferences.SelectionColour);
             if (worldpaint_tracing)
-                System.err.println("highlighting world");
+                Logger.log.println("highlighting world");
             canvas.imageRepaint(); repaint();
         }
         else
@@ -202,7 +202,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                 draghighlight = false;
                 setForeground(oldForeground);
                 if (worldpaint_tracing)
-                    System.err.println("de-highlighting world");
+                    Logger.log.println("de-highlighting world");
                 canvas.imageRepaint(); repaint();
             }
     }
@@ -382,15 +382,15 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
         }
         else {
             if (drag_tracing)
-                System.err.print("mouse dragged to "+e.getX()+","+e.getY());
+                Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
             int deltax = e.getX()-lastx, deltay = e.getY()-lasty;
             worldImage.moveBy(deltax, deltay);
             if (drag_tracing)
-                System.err.println("; dragged world now at "+worldImage.getX()+","+worldImage.getY());
+                Logger.log.println("; dragged world now at "+worldImage.getX()+","+worldImage.getY());
         }
             
         Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-        WorldTarget target = (WorldTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
+        WorldTarget target = (WorldTarget)JapeUtils. findTargetAt(targetClass, contentPane, p.x, p.y);
         if (target!=over) {
             if (over!=null) {
                 over.dragExit(dragKind, WorldItem.this); over=null;
@@ -403,7 +403,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     protected void released(final byte dragKind, MouseEvent e) {
         if (drag_tracing)
-            System.err.println("mouse released at "+e.getX()+","+e.getY()+
+            Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
                                "; dragged world at "+worldImage.getX()+","+worldImage.getY());
         if (over==null)
             new Flyback(worldImage, worldImage.getLocation(),

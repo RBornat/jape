@@ -38,11 +38,8 @@ type command =
   | HitCommand of (prooftree * path hit * path sel)
 
 val commandstring : command -> string
-val startServer : string * string list -> unit
-val abandonServer : unit -> unit
-val killServer : unit -> unit
-val deadServer : string list -> unit
-val runningServer : unit -> bool
+val terminateGUI : unit -> unit
+val reportGUIdead : string list -> unit
 val setdisplaystyle : string -> unit
 val getdisplaystyle : unit -> string
 val showProof :

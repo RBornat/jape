@@ -76,7 +76,7 @@ public class DragImage extends DragComponent implements DebugConstants {
             int deltax = c.getX()-imagebounds.x, deltay = c.getY()-imagebounds.y;
             imageGraphics.translate(deltax, deltay);
             if (drag_tracing)
-                System.err.println("fixImage painting "+c+" @ ("+deltax+","+deltay+")");
+                Logger.log.println("fixImage painting "+c+" @ ("+deltax+","+deltay+")");
             c.paint(imageGraphics);
             imageGraphics.translate(-deltax, -deltay);
         }

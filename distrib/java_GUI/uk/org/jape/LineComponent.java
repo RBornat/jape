@@ -97,7 +97,7 @@ public class LineComponent extends DragComponent implements DebugConstants {
     // default behaviour
     public void paint(Graphics g) {
         if (paint_tracing)
-            System.err.println("painting line from "+xfrom+","+yfrom+" to "+xto+","+yto);
+            Logger.log.println("painting line from "+xfrom+","+yfrom+" to "+xto+","+yto);
         prepaint(g); g.drawLine(xfrom, yfrom, xto, yto);
     }
 

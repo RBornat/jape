@@ -165,18 +165,18 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
             layeredPane.add(dragLine, JLayeredPane.DRAG_LAYER);
             layeredPane.add(other, JLayeredPane.DRAG_LAYER);
             if (drag_tracing)
-                System.err.println("; dragged line at "+dragLine.activex+","+dragLine.activey);
+                Logger.log.println("; dragged line at "+dragLine.activex+","+dragLine.activey);
             dragLine.repaint();
             setVisible(false);
         }
         else {
             if (drag_tracing)
-                System.err.print("mouse dragged to "+e.getX()+","+e.getY());
+                Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
             dragLine.moveBy(e.getX()-lastx, e.getY()-lasty);
             if (drag_tracing)
-                System.err.println("; dragged line now at "+dragLine.activex+","+dragLine.activey);
+                Logger.log.println("; dragged line now at "+dragLine.activex+","+dragLine.activey);
             Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-            LineTarget target = (LineTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
+            LineTarget target = (LineTarget)JapeUtils. findTargetAt(targetClass, contentPane, p.x, p.y);
             if (target!=over) {
                 if (over!=null) {
                     over.dragExit(this); over=null;
@@ -190,7 +190,7 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 
     protected void released(MouseEvent e) {
         if (drag_tracing)
-            System.err.println("mouse released at "+e.getX()+","+e.getY()+
+            Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
                                "; dragged line at "+dragLine.activex+","+dragLine.activey);
         if (over==null)
             new Flyback(dragLine, dragLine.activex, dragLine.activey,

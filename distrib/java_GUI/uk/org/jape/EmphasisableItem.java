@@ -47,10 +47,10 @@ public abstract class EmphasisableItem extends TextSelectableItem {
         computeColourSegs((char)0, Preferences.TextColour, false, cs);
         coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
         if (colourseg_tracing) {
-            System.err.print("text=\""+text+"; annottext=\"");
+            Logger.log.print("text=\""+text+"; annottext=\"");
             for (int i=0; i<annottext.length(); i++) {
                 char c = annottext.charAt(i);
-                System.err.print(c==onbra   ? "*ON("  :
+                Logger.log.print(c==onbra   ? "*ON("  :
                                  c==onket   ? ")NO*"  :
                                  c==offbra  ? "*OFF("  :
                                  c==offket  ? ")FFO*"  :
@@ -60,13 +60,13 @@ public abstract class EmphasisableItem extends TextSelectableItem {
                                  c==lockket ? ")KCOL*" :
                                  String.valueOf(c));
             }
-            System.err.print("\"; coloursegs=[");
+            Logger.log.print("\"; coloursegs=[");
             for (int i=0; i<coloursegs.length; i++) {
-                System.err.print(coloursegs[i]);
+                Logger.log.print(coloursegs[i]);
                 if (i+1<coloursegs.length)
-                    System.err.print(", ");
+                    Logger.log.print(", ");
             }
-            System.err.println("]");
+            Logger.log.println("]");
         }
     }
 
@@ -83,7 +83,7 @@ public abstract class EmphasisableItem extends TextSelectableItem {
 
         public void paint(Graphics g) {
             if (paint_tracing)
-                System.err.println("painting colour segment "+start+","+end);
+                Logger.log.println("painting colour segment "+start+","+end);
             g.setColor(colour);
             g.drawChars(printchars, start, end-start, pxstart, dimension.ascent);
         }
@@ -160,7 +160,7 @@ public abstract class EmphasisableItem extends TextSelectableItem {
 
     public void paint(Graphics g) {
         if (paint_tracing)
-            System.err.println("painting EmphasisableItem at "+getX()+","+getY());
+            Logger.log.println("painting EmphasisableItem at "+getX()+","+getY());
         paintTextSels(g);
         g.setFont(font);
         int len = coloursegs.length;
@@ -186,7 +186,7 @@ public abstract class EmphasisableItem extends TextSelectableItem {
 
         public void paint(Graphics g) {
             if (paint_tracing)
-                System.err.println("painting emphasis at "+getX()+","+getY()+"; "+emphasised);
+                Logger.log.println("painting emphasis at "+getX()+","+getY()+"; "+emphasised);
             if (emphasised)
                 super.paint(g);
         }

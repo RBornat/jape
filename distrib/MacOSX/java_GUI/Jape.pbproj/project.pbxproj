@@ -39,9 +39,10 @@
 				F515B6060331D98801A80116,
 				F502FBE7035D88BC01A80116,
 				F5E9EBF203B1E3FF01A80116,
-				F5152729037BD50101A80116,
 				F560AEE2036D797301A80116,
 				F5CC966D03438BFF01A80116,
+				7939B3FD03EEC56000A80117,
+				F5152729037BD50101A80116,
 				F516FFB5031F823A01A80117,
 				7990DD7A03D086A200A80117,
 				F528CB2A0307C5B501A80116,
@@ -55,6 +56,7 @@
 				F5158C94039E321E01A80116,
 				F5158C91039E2C6101A80116,
 				F515271D037BB83201A80116,
+				7903E8F003E05A4600A80117,
 				F586B1630326408D01A80117,
 				F515B6080331D98801A80116,
 				F5F50C890394DDCB01A80116,
@@ -69,6 +71,7 @@
 				F560AEE8036D799701A80116,
 				F57E549C038BB91A01A80116,
 				F528CB2B0307C5B501A80116,
+				79B2E1E803EFE81000A80116,
 				F531A7B7033213F801A80116,
 				F52B56B7039D296801A80116,
 				F574B00903968EBA01A80116,
@@ -76,6 +79,8 @@
 				F526B567039E4A3A01A80116,
 				F515B6180331DA6801A80116,
 				F59F3D1C033773B101A80116,
+				7939B40803EECF4E00A80117,
+				7939B40503EEC79800A80117,
 				F5E5E3DE035EE1AC01A80116,
 				F5F50C860394DC6601A80116,
 				F592908503728EA101A80117,
@@ -90,9 +95,9 @@
 				F560AEEA036D799701A80116,
 				F5D80C8B036F044901A80116,
 				F515B60D0331D98801A80116,
-				F556EA5E0366E4B801A80116,
 				F59989060369844F01A80116,
 				F560AEEB036D799701A80116,
+				F556EA5E0366E4B801A80116,
 				F563B8B703372EA501A80116,
 				F516FFBB031F827D01A80117,
 				F516FFB9031F825B01A80117,
@@ -215,6 +220,23 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>jt</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Jape theory</string>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>TEXT</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>japeserver</string>
 	<key>CFBundleGetInfoString</key>
@@ -339,6 +361,11 @@
 				F5E2B5A003A7982901A80116,
 				F5E9EBF303B1E3FF01A80116,
 				7990DD7B03D086A200A80117,
+				7903E8F103E05A4600A80117,
+				7939B3FE03EEC56000A80117,
+				7939B40603EEC79800A80117,
+				7939B40903EECF4E00A80117,
+				79B2E1E903EFE81000A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -379,12 +406,88 @@
 //792
 //793
 //794
+		7903E8F003E05A4600A80117 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = Engine.java;
+			path = ../../java_japeserver/Engine.java;
+			refType = 2;
+		};
+		7903E8F103E05A4600A80117 = {
+			fileRef = 7903E8F003E05A4600A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7903E8F203E05A4600A80117 = {
+			fileRef = 7903E8F003E05A4600A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7939B3FD03EEC56000A80117 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = ControlWindow.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/ControlWindow.java;
+			refType = 0;
+		};
+		7939B3FE03EEC56000A80117 = {
+			fileRef = 7939B3FD03EEC56000A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7939B3FF03EEC56000A80117 = {
+			fileRef = 7939B3FD03EEC56000A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7939B40503EEC79800A80117 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = MenuHolder.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/MenuHolder.java;
+			refType = 0;
+		};
+		7939B40603EEC79800A80117 = {
+			fileRef = 7939B40503EEC79800A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7939B40703EEC79800A80117 = {
+			fileRef = 7939B40503EEC79800A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7939B40803EECF4E00A80117 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = Logger.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/Logger.java;
+			refType = 0;
+		};
+		7939B40903EECF4E00A80117 = {
+			fileRef = 7939B40803EECF4E00A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7939B40A03EECF4E00A80117 = {
+			fileRef = 7939B40803EECF4E00A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		7990DD7A03D086A200A80117 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = DebugVars.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/DebugVars.java;
-			refType = 0;
+			path = ../../java_japeserver/DebugVars.java;
+			refType = 2;
 		};
 		7990DD7B03D086A200A80117 = {
 			fileRef = 7990DD7A03D086A200A80117;
@@ -394,6 +497,25 @@
 		};
 		7990DD7C03D086A200A80117 = {
 			fileRef = 7990DD7A03D086A200A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79B2E1E803EFE81000A80116 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = JapeUtils.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/JapeUtils.java;
+			refType = 0;
+		};
+		79B2E1E903EFE81000A80116 = {
+			fileRef = 79B2E1E803EFE81000A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79B2E1EA03EFE81000A80116 = {
+			fileRef = 79B2E1E803EFE81000A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -1413,6 +1535,11 @@
 				F5E2B5A103A7982901A80116,
 				F5E9EBF403B1E3FF01A80116,
 				7990DD7C03D086A200A80117,
+				7903E8F203E05A4600A80117,
+				7939B3FF03EEC56000A80117,
+				7939B40703EEC79800A80117,
+				7939B40A03EECF4E00A80117,
+				79B2E1EA03EFE81000A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1886,8 +2013,8 @@
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = ButtonPane.java;
-			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/ButtonPane.java;
-			refType = 0;
+			path = ../../java_japeserver/ButtonPane.java;
+			refType = 2;
 		};
 		F5E9EBF303B1E3FF01A80116 = {
 			fileRef = F5E9EBF203B1E3FF01A80116;

@@ -237,7 +237,7 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
         
         public void paint(Graphics g) {
             if (paint_tracing)
-                System.err.println("painting text selection "+start+","+end);
+                Logger.log.println("painting text selection "+start+","+end);
             g.setColor(Preferences.TextSelectionColour);
             g.fillRect(pxstart, 0, pxend-pxstart, getHeight());
         }
@@ -327,7 +327,7 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
                 break;
 
             default:
-                System.err.println("TextSelectableItem.textpressed eventKind="+eventKind);
+                Logger.log.println("TextSelectableItem.textpressed eventKind="+eventKind);
         }
     }
 
@@ -365,7 +365,7 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
     
     public void paint(Graphics g) {
         if (paint_tracing)
-            System.err.println("painting textselectable item at "+getX()+","+getY());
+            Logger.log.println("painting textselectable item at "+getX()+","+getY());
         paintTextSels(g); super.paint(g);
     }
 

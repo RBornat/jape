@@ -763,7 +763,6 @@ let rec main a1 a2 =
   match a1, a2 with
     (env, proofs, mbs), (path :: args, _) ->
       begin try
-        let server = Env.getenv (path ^ "server") "JAPESERVER" in
         let rec doargs =
           function
             [] -> [], []
@@ -780,7 +779,7 @@ let rec main a1 a2 =
               else let (names, args) = doargs args in name :: names, args
         in
         let (names, args) = doargs args in
-        consolereport [_Title; _Version; " ["; server; "]\n"];
+        consolereport [_Title; _Version; "\n"];
         begin
           let (env, proofs, mbs) =
             try
@@ -789,7 +788,6 @@ let rec main a1 a2 =
               ParseError_ m -> showInputError consolereport m; raise Exit_
             | Use_ -> raise Exit_
           in
-          startServer (server, server :: args);
           Japeserver.sendVersion (_Title ^ _Version);
           initGUI ();
           reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
@@ -799,7 +797,7 @@ let rec main a1 a2 =
         ()
       with
         Exit_ -> ()
-      | Japeserver.DeadServer_ -> ()
+      | Japeserver.DeadGUI_ -> ()
       end
   | _, _ -> raise Matchinmain_
 
@@ -809,13 +807,13 @@ and rundialogue env mbs proofs =
     let dialogue () = startcommands env mbs proofs in
     (* open RUN OCaml no like *)
     let _Int _ = observe ["[Interrupted]"]; interruptTactic () (* but don't crash *) in
-    Moresys.onInterrupt _Int dialogue; abandonServer ()
+    Moresys.onInterrupt _Int dialogue; terminateGUI ()
   with
-    Catastrophe_ s -> deadServer ("exception Catastrophe_ " :: s)
-  | QuitJape -> deadServer ["Jape finished\n"]
-  | Japeserver.DeadServer_ as exn -> raise exn
+    Catastrophe_ s -> reportGUIdead ("exception Catastrophe_ " :: s)
+  | QuitJape -> reportGUIdead ["Jape finished\n"]
+  | Japeserver.DeadGUI_ as exn -> raise exn
   | exn ->
-      deadServer
+      reportGUIdead
         ["Unexpected exception ["; Printexc.to_string exn;
          "] - Jape quitting"]
 
@@ -2136,7 +2134,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         showAlert
           ("Tacastrophe_ in commands (shouldn't happen)!! -- " :: ss);
         env, mbs, DontShow, pinfs
-    | Japeserver.DeadServer_ as exn -> raise exn
+    | Japeserver.DeadGUI_ as exn -> raise exn
     | QuitJape as exn -> raise exn
     | exn ->
         showAlert
@@ -2144,29 +2142,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         env, mbs, DontShow, pinfs
   in
   commands nextargs
-(*
-
-and save file = _GCsave file
-
-and _GCsave file =
-  Japeserver.quit ();
-  Interaction.abandonServer ();
-  cleanup ();
-  initButtons ();
-  exportFn (file, main (defaultenv (), [], []))
-
-and saverunning env mbs file =
-  Japeserver.quit ();
-  Interaction.abandonServer ();
-  cleanup ();
-  exportFn (file, main (env, [], mbs))
-*)
 
 and start () =
   (* Japeserver.quit ();
-  Interaction.abandonServer ();
+  Interaction.terminateGUI ();
   cleanup (); *)
   initButtons ();
   main (defaultenv (), [], []) (Array.to_list Sys.argv, []); (* empty environment ... ?? *)
-  ()
+       ()
 

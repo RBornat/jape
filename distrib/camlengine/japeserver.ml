@@ -61,52 +61,36 @@ let rec explodePos pos = posX pos, posY pos
 let rec explodeSize s = sW s, sH s
 let rec explodeTextSize s = tsW s, tsA s, tsD s (* width, ascent, descent *)
 
-let infromserver = ref stdin
-let outtoserver = ref stdout
-let serverpid = ref (None : Moresys.process_id option)
-let servername = ref "<no server>"
-let serverresponded = ref false
+let infromGUI = stdin
+let outtoGUI = stdout
 
-let stopserver () =
-  match !serverpid with 
-    Some pid -> 
-      serverpid := None;
-      Moresys.reap pid
-  | None -> ()
+let _GUIresponded = ref false
 
-exception DeadServer_
+exception DeadGUI_
 
-let deadserver () =
-  consolereport [!servername; 
-                 if !serverresponded then " seems to have crashed" 
-                 else " doesn't exist or crashed on startup"];
-  stopserver();
-  raise DeadServer_
+let deadGUI () =
+  consolereport ["the GUI is not responding"; 
+                 if !_GUIresponded then "" 
+                 else " (and has never responded)"];
+  raise DeadGUI_
   
-let rec startserver server args =
-  stopserver (); 
-  let (pid, iii, ooo) = Moresys.execute server args in
-  infromserver := iii; outtoserver := ooo;
-  servername := server; serverpid := Some pid;
-  serverresponded := false;
-  Moresys.ignorePipeSignals()
+(* if the server is dead, this will definitely cause a problem *)
+let flush s =
+  try Pervasives.flush outtoGUI 
+  with Sys_error("Broken pipe") -> deadGUI()
+  |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.flush "; s];
+              deadGUI()
 
-and write s = out s; out "\n"; flush s
-and out s = 
+let out s = 
   (* I can imagine that stuffing loads of stuff down the pipe, if the server
      has crashed, could generate a broken pipe signal
    *)
-  try output_string !outtoserver s 
-  with Sys_error("Broken pipe") -> deadserver()
+  try output_string outtoGUI s 
+  with Sys_error("Broken pipe") -> deadGUI()
   |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.out "];
-              deadserver()
+              deadGUI()
 
-(* if the server is dead, this will definitely cause a problem *)
-and flush s =
-  try Pervasives.flush !outtoserver 
-  with Sys_error("Broken pipe") -> deadserver()
-  |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.flush "; s];
-              deadserver()
+let write s = out s; out "\n"; flush s
 
 let rec visible s = implode (List.map vis (explode s))
 and vis c = if c < " " then "\\" ^ string_of_int (ord c) else c
@@ -114,12 +98,12 @@ and vis c = if c < " " then "\\" ^ string_of_int (ord c) else c
 (* if the server has crashed, input_line may give an exception *)
 let rec readline s = 
   flush s; 
-  let r = (try input_line !infromserver
-                 with End_of_file -> deadserver()
+  let r = (try input_line infromGUI
+                 with End_of_file -> deadGUI()
                  |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.readline "; s];
-                             deadserver())
+                             deadGUI())
   in
-  serverresponded := true; r
+  _GUIresponded := true; r
 ;;
 
 (* this is a strange bit of code.  I _think_ it converts a space-separated list of numbers
@@ -199,9 +183,8 @@ let rec askf s is = writef s is; ints_of_reply (readline s)
 let rec ask s = out s; out "\n"; readline s
 
 let rec listen () = writef "GET\n" []; readline "GET"
-let rec terminate () = writef "TERMINATE\n" []
-let rec closedown () = writef "TERMINATE\n" []
-let rec killserver () = writef "TERMINATE\n" []
+let rec terminateGUI () = writef "TERMINATE\n" []
+
 (*  Local to the interface *)
 
 (* client stuff *)
@@ -217,7 +200,7 @@ let rec getSignature () = ""
  * it won't do such a thing.
  *)
  
-let canbackgroundfocus = false
+let canbackgroundfocus = true
 let rec setbackgroundfocus _ = ()
 let rec setforegroundfocus _ = ()
 
@@ -251,6 +234,8 @@ let rec printable s =
   implode ((fun c -> not (member (c, !invischars))) <| explode s)
 
 let fontnames : string array ref = ref (Array.make 0 "")
+
+let resetfontnames () = fontnames := Array.make 0 ""
 
 let setFontNames fs =
    if List.length fs = 0 then 
@@ -533,7 +518,7 @@ let setProvisos ps =
 let rec showfile filename = writef "SHOWFILE %\n" [Str filename]
 
 let rec resetcache () = 
-    commentSet := false (* initialize cache *)  
+    commentSet := false; resetfontnames() (* initialize cache *)  
     (* ; writef "RESETCACHE\n" [] -- doesn't seem to be necessary *)
 
 let rec makeChoice heading =

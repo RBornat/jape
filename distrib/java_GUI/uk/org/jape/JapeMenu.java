@@ -48,12 +48,19 @@ import javax.swing.UIManager;
 
 public class JapeMenu implements DebugConstants {
     
-    /*	Java doesn't want to share menu bars or menus or menu items, so far
-        as I can tell.  So I have to make a menu factory and build a new
-        menu bar for each window that needs one.
+    /*	Java can't share menu bars or menus or menu items, because of the
+        containment hierarchy idea.
+
+        So this is a menu bar / menu / menu item factory.
+
+        It seems to get very confused when allocating menu bars quite often
+        (which happens because of the Window menu).  So I'm using version stamps
+        to try to cut down the traffic ...
      */
+
+    private static int versionstamp = 0;
     
-    protected static Vector barv = new Vector(); // of Ms
+    private static Vector barv = new Vector(); // of Ms
     
     protected static class M {
         final boolean proofsonly; final String title;
@@ -61,6 +68,9 @@ public class JapeMenu implements DebugConstants {
         M(boolean proofsonly, String title) { this.proofsonly=proofsonly; this.title=title; }
         private static final I quitItem = new I("Quit", "", null),
                                doneItem = new I("Done", "", null);
+        public void clear() {
+            itemv.removeAllElements();
+        }
         public int nextIndex() {
             int size = itemv.size(), i;
             if (title.equals("File") && (i=itemv.indexOf(quitItem))!=-1)
@@ -92,8 +102,7 @@ public class JapeMenu implements DebugConstants {
         public void removeSep(int index) {
             if (index<itemv.size() && itemv.get(index) instanceof Sep)
                 itemv.remove(index);
-            else
-                Alert.abort("JapeMenu.m.removeSep("+index+") from "+this);
+            // else doesn't matter: only happens in Window menu
         }
         public I findI(String label) throws ProtocolError {
             int vc = itemv.size();
@@ -111,7 +120,7 @@ public class JapeMenu implements DebugConstants {
             throw new ProtocolError("no item \""+label+"\" in menu "+title);
         }
         public boolean preSep(int i) {
-            return 0<=i-1 && i-1<itemv.size() && !(itemv.get(i-1) instanceof Sep);
+            return 0<i && i<=itemv.size() && !(itemv.get(i-1) instanceof Sep);
         }
         public boolean postSep(int i) {
             return 0<=i+1 && i+1<itemv.size() &&
@@ -196,9 +205,13 @@ public class JapeMenu implements DebugConstants {
         item.setEnabled(i.enabled);
         item.setSelected(i.selected);
         JapeFont.setComponentFont(item.getComponent(), JapeFont.MENUENTRY);
+        if (DebugVars.menuaction_tracing)
+            Logger.log.println("mkItem "+JapeUtils.enQuote(menu.getText())+
+                            " "+JapeUtils.enQuote(item.getText())+
+                            " addActionListener("+listener+")");
         item.addActionListener(listener);
-        if (menuaction_tracing)
-            System.err.println("ActionListener on "+i);
+        if (DebugVars. menuaction_tracing)
+            Logger.log.println("ActionListener on "+i);
         menu.add(item);
     }
 
@@ -284,6 +297,9 @@ public class JapeMenu implements DebugConstants {
                             }
                             else {
                                 JRadioButtonMenuItem item = new JRadioButtonMenuItem(ii.label, i==0);
+                                if (DebugVars.menuaction_tracing)
+                                    Logger.log.println("window menu item "+ii.label+
+                                                       "; window="+w.title);
                                 mkItem(menu, ii, item, listener);
                                 buttonGroup.add(item);
                             }
@@ -303,19 +319,33 @@ public class JapeMenu implements DebugConstants {
         return bar;
     }
 
-    private static void setBar(boolean isProofBar, JapeWindow w) {
+    private static void setJMenuBar(boolean isProofBar, JapeWindow w) {
+        if (DebugVars.menuaction_tracing)
+            Logger.log.println("JapeMenu.setJMenuBar "+isProofBar+" \""+w.title+"\"");
         w.setJMenuBar(mkBar(isProofBar, w));
         w.getJMenuBar().revalidate();
     }
 
-    public static void setProofWindowBar(JapeWindow w) { setBar(true, w); }
-
-    public static void setNonProofWindowBar(JapeWindow w) { setBar(false, w); }
+    public static int setBar(JapeWindow w, int stamp) {
+        if (DebugVars.menuaction_tracing)
+            Logger.log.println("JapeMenu.setBar "+JapeUtils.enQuote(w.title)+
+                               " "+stamp+
+                               " ("+versionstamp+"; "+w.getJMenuBar()==null+")");
+        if (w.getJMenuBar()==null || stamp<versionstamp) {
+            if (w instanceof ProofWindow)
+                setJMenuBar(true, w);
+            else
+            if ((w instanceof PanelWindowData.PanelWindow && LocalSettings.panelWindowMenus) ||
+                w instanceof SurrogateWindow || w instanceof Logger.LogWindow)
+                setJMenuBar(false, w);
+        }
+        return versionstamp; 
+    }
     
     // I need dictionaries from menu titles to Ms and item keys to Is: 
-    // hashtables are overkill, but there you go
+    // hashtables are overkill, but there you go -- so much of Java is.
     
-    private static Hashtable menutable, actiontable;
+    private static Hashtable menutable, itemtable;
 
     private static M ensureMenu(String menuname) throws ProtocolError {
         M menu = (M)menutable.get(menuname);
@@ -380,17 +410,33 @@ public class JapeMenu implements DebugConstants {
         }
     }
     
-    public static void doOpenFile(String file) {
-        if (file.length()!=0)
-            Reply.sendCOMMAND("use \""+file+"\"");
-        
+    private static class FontSizesAction extends ItemAction {
+        public void action (JapeWindow w) {
+            JapeFont.runFontSizesDialog();
+        }
     }
-    
+
+    private static class HideWindowAction extends ItemAction {
+        JFrame w;
+        public HideWindowAction(JFrame w) {
+            super(); this.w=w;
+        }
+        public void action(JapeWindow ignore) {
+            w.setVisible(false);
+        }
+    }
+
     private static class OpenFileAction extends ItemAction {
         public void action (JapeWindow w) {
              doOpenFile(FileChooser.newOpenDialog("theories, logic files and proofs", "jt", "j", "jp"));
         }
     
+    }
+
+    public static void doOpenFile(String file) {
+        if (file.length()!=0)
+            Reply.sendCOMMAND("use \""+file+"\"");
+
     }
 
     private static class UndoAction extends ItemAction {
@@ -428,6 +474,17 @@ public class JapeMenu implements DebugConstants {
         }
     }
 
+    private static class ShowWindowAction extends ItemAction {
+        JFrame w;
+        public ShowWindowAction(JFrame w) {
+            super(); this.w=w;
+        }
+        public void action(JapeWindow ignore) {
+            w.setVisible(true);
+            w.toFront();
+        }
+    }
+
     private static class QuitAction extends ItemAction {
         public void action(JapeWindow w) { japeserver.handleQuit(); }
     }
@@ -435,7 +492,7 @@ public class JapeMenu implements DebugConstants {
     private static class UnimplementedAction extends ItemAction {
         String s;
         UnimplementedAction (String s) { super(); this.s = s; }
-        public void action (JapeWindow w) {  System.err.println(s); }
+        public void action (JapeWindow w) {  Logger.log.println(s); }
     }
 
     private static boolean insertbefore(M menu, String label) {
@@ -452,6 +509,7 @@ public class JapeMenu implements DebugConstants {
     }
 
     private static M indexMenu(M menu, String label) {
+        versionstamp++;
         menutable.put(label,menu);
         boolean dummy;
         if (label.equals("Help"))
@@ -479,7 +537,7 @@ public class JapeMenu implements DebugConstants {
     private static I makeI(String menuname, String label, ItemAction action) {
         String key = keyString(menuname, label);
         I i = new I(label, key, action);
-        actiontable.put(key,i);
+        itemtable.put(key,i);
         return i;
     }
 
@@ -488,7 +546,8 @@ public class JapeMenu implements DebugConstants {
     }
 
     private static I indexMenuItem(M menu, int index, String label, ItemAction action) {
-        I i = makeI(menu.title, label, action);
+        versionstamp++;
+        I i = makeI(menu.title, label, action); 
         menu.insert(index, i);
         return i;
     }
@@ -526,8 +585,9 @@ public class JapeMenu implements DebugConstants {
         indexMenuItem(filemenu, PRINT_PROOF, new PrintProofAction()).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, menumask));
 
+        filemenu.addSep();
+        indexMenuItem(filemenu, "Font Sizes ...", new FontSizesAction());
         if (DebugVars.showDebugVars) {
-            filemenu.addSep();
             indexMenuItem(filemenu, "Debug Settings ...", new DebugSettingsAction());
         }
         
@@ -574,7 +634,23 @@ public class JapeMenu implements DebugConstants {
         }
     }
 
-    private static void addStdWindowMenuItems(M windowmenu) { }
+    private static void addStdWindowMenuItems(M windowmenu) {
+        // just put surviving items in itemtable
+        if (DebugVars.menuaction_tracing)
+            Logger.log.println("addStdWindowMenuItems "+windowmenu.size()+
+                            "; "+windowmenu);
+        for (int i=0; i<windowmenu.size(); i++) {
+            Object o = windowmenu.get(i);
+            if (o instanceof I) {
+                I item = (I)o;
+                itemtable.put(item.key, item);
+            }
+            else
+            if (o instanceof Sep) { }
+            else
+                Alert.abort("JapeMenu.addStdWindowMenuItems sees "+o);
+        }
+    }
     
     private static void addStdHelpMenuItems(M helpmenu) {
         indexMenuItem(helpmenu, "No help yet",
@@ -586,7 +662,7 @@ public class JapeMenu implements DebugConstants {
     }
     
     // ActionListener interface (for menus)
-    public static boolean CheckboxDoubleBounce = false; // calamity: see japserver.main
+    public static boolean checkboxDoubleBounce = false; // calamity: see japeserver.main
     
     protected static class MenuItemListener implements ActionListener {
         private JapeWindow window;
@@ -594,16 +670,18 @@ public class JapeMenu implements DebugConstants {
             this.window = w;
         } 
         public void actionPerformed(ActionEvent newEvent) {
-            if (menuaction_tracing)
-                System.err.println("JapeMenu.actionPerformed "+newEvent);
+            if (DebugVars. menuaction_tracing)
+                Logger.log.println("JapeMenu.actionPerformed "+this+" "+newEvent);
             String key = newEvent.getActionCommand();
-            I i = (I)actiontable.get(key);
+            if (DebugVars. menuaction_tracing)
+                Logger.log.println("key "+JapeUtils.enQuote(key)+
+                                   "; indexes "+itemtable.get(key));
+            I i = (I)itemtable.get(key);
             if (i!=null) {
-                if (CheckboxDoubleBounce && i instanceof CB) {
-                    // experimentally, it seems that checkboxes can get two actionPerformed events ...
+                if (checkboxDoubleBounce && i instanceof CB) {
                     CB cb = (CB)i;
-                    if (menuaction_tracing)
-                        System.err.println("CB "+cb.ready);
+                    if (DebugVars. menuaction_tracing)
+                        Logger.log.println("CB "+cb.ready);
                     cb.ready = !cb.ready;
                     if (!cb.ready)
                         return;
@@ -620,7 +698,7 @@ public class JapeMenu implements DebugConstants {
     public static void initMenuBar() {
         // this is the reset action, too
         menutable = new Hashtable(20,(float)0.5);
-        actiontable = new Hashtable(100,(float)0.5);
+        itemtable = new Hashtable(100,(float)0.5);
         barv = new Vector();
 
         addStdFileMenuItems(indexMenu(false, "File"));
@@ -646,31 +724,38 @@ public class JapeMenu implements DebugConstants {
     }
 
     private static M windowmenu;
-    private static boolean hassurrogate=false;
+    private static boolean hassurrogate=false, haslog = false;
     private static int panelcount=0, proofcount=0;
 
+    /* the place where the Window menu is organised.
+        It has several sections, all of which (except the last) may be empty:
+            the surrogate;
+            the proofs;
+            the panels;
+            the log window.
+     */
+    
     public static void windowAdded(String title, JapeWindow w) {
-        int insertpoint = -1;
+        int insertpoint = -1, seppoint = -1;
         if (w instanceof SurrogateWindow) {
             if (hassurrogate)
                 Alert.abort("JapeMenu.addWindow two surrogates");
             else {
                 hassurrogate = true;
-                if (panelcount!=0 || proofcount!=0)
-                    windowmenu.insertSep(0);
+                insertpoint = 0; seppoint = 1;
             }
         }
         else
         if (w instanceof PanelWindowData.PanelWindow) {
             if (panelcount==0) {
-                if (hassurrogate || proofcount!=0) {
-                    windowmenu.insertSep(1);
-                    insertpoint = 2;
+                if (hassurrogate || proofcount!=0) { // surrogate or proofs but no panels
+                    insertpoint = 1; seppoint = 1;
                 }
-                else
-                    insertpoint=0;
+                else { // no surrogate, no proofs, no panels
+                    insertpoint = 0; seppoint = 1;
+                }
             }
-            else {
+            else { // there are panels: insert in lexical ordering
                 for (int i=(hassurrogate?2:0); i<windowmenu.size(); i++)
                     if (windowmenu.get(i) instanceof Sep ||
                         title.compareTo(((I)windowmenu.get(i)).label)<0) {
@@ -681,21 +766,53 @@ public class JapeMenu implements DebugConstants {
         }
         else
         if (w instanceof ProofWindow) {
-            if (proofcount==0) {
-                if (hassurrogate || panelcount!=0)
-                    windowmenu.addSep();
-            }
-            for (int i=(hassurrogate?2:0)+(panelcount==0?0:panelcount+1); i<windowmenu.size(); i++)
-                if (title.compareTo(((I)windowmenu.get(i)).label)<0) {
-                    insertpoint = i; break;
+            if (proofcount==0) { // no proofs
+                if (windowmenu.size()==0) // first in window
+                    insertpoint = 0;
+                else
+                if (haslog) { // before logwindow, separator after
+                    insertpoint = windowmenu.size()-1; seppoint = insertpoint+1;
                 }
+                else // end of window, separator before
+                    insertpoint = seppoint = windowmenu.size();
+            }
+            else
+                for (int i=(hassurrogate?2:0)+(panelcount==0?0:panelcount+1);
+                     i<windowmenu.size(); i++)
+                    if (windowmenu.get(i) instanceof Sep ||
+                        title.compareTo(((I)windowmenu.get(i)).label)<0) {
+                        insertpoint = i; break;
+                    }
             proofcount++;                    
         }
         else
+        if (w instanceof Logger.LogWindow) {
+            if (haslog)
+                Alert.abort("JapeMenu.addWindow two console logs");
+            else {
+                haslog = true;
+                insertpoint = seppoint = windowmenu.size();
+            }
+        }
+        else
             Alert.abort("JapeMenu.addWindow "+w);
-            
-        indexMenuItem(windowmenu, insertpoint==-1 ? windowmenu.size() : insertpoint,
-                      title, new ActivateWindowAction(w));
+
+        if (insertpoint==-1) {
+            Logger.log.println("*** insertpoint=-1 when inserting "+w);
+            insertpoint = 0;
+        }
+
+        if (DebugVars.menuaction_tracing)
+            Logger.log.println("adding window "+title+
+                               "; insertpoint="+insertpoint+"; seppoint="+seppoint+
+                               "; menu size="+windowmenu.size());
+        
+        indexMenuItem(windowmenu, insertpoint, title,
+                      w instanceof Logger.LogWindow ? (ItemAction)new ShowWindowAction(w)     :
+                                                      (ItemAction)new ActivateWindowAction(w));
+        
+        if (seppoint!=-1)
+            windowmenu.insertSep(seppoint);
 
         if (menusVisible)
             JapeWindow.updateMenuBars();
@@ -714,9 +831,7 @@ public class JapeMenu implements DebugConstants {
     public static void windowRemoved(String title, JapeWindow w) {
         windowmenu.removeI(title);
         if (w instanceof SurrogateWindow && hassurrogate) {
-            hassurrogate = false;
-            if (panelcount!=0 || proofcount!=0)
-                windowmenu.removeSep(0);
+            hassurrogate = false; windowmenu.removeSep(0);
         }
         else
         if (w instanceof PanelWindowData.PanelWindow && panelcount>0) {
@@ -724,16 +839,20 @@ public class JapeMenu implements DebugConstants {
                 if (hassurrogate)
                     windowmenu.removeSep(1);
                 else
-                    if (proofcount!=0)
-                        windowmenu.removeSep(0);
+                if (proofcount!=0)
+                    windowmenu.removeSep(0);
             }
         }
         else
         if (w instanceof ProofWindow && proofcount>0) {
             if (--proofcount==0) {
                 if (hassurrogate || panelcount!=0)
-                    windowmenu.removeSep(windowmenu.size()-1);
+                    windowmenu.removeSep(panelcount+(hassurrogate ? 2 : 0));
             }
+        }
+        else
+        if (w instanceof Logger.LogWindow) {
+            haslog = false; windowmenu.removeSep(windowmenu.size()-1);
         }
         else
             Alert.abort("JapeMenu.windowRemoved(\""+title+"\","+windowmenu+
@@ -756,7 +875,7 @@ public class JapeMenu implements DebugConstants {
     public static void addItem(String menuname, String label, String code, String cmd)
         throws ProtocolError {
         M menu = ensureMenu(menuname);
-        I item = (I)actiontable.get(keyString(menuname, label));
+        I item = (I)itemtable.get(keyString(menuname, label));
         ItemAction action = new CmdAction(cmd);
         if (item==null)
             item = indexMenuItem(menu, label, action);
@@ -776,12 +895,12 @@ public class JapeMenu implements DebugConstants {
                     if (jmi!=null)
                         jmi.setEnabled(enable);
                     else
-                    if (true || menuaction_tracing)
-                        System.err.println("no item "+label+" in menu "+menuname+" in window "+w);
+                    if (true || DebugVars. menuaction_tracing)
+                        Logger.log.println("no item "+label+" in menu "+menuname+" in window "+w);
                 }
                 else
-                if (menuaction_tracing)
-                    System.err.println("no menu "+menuname+" in window "+w);
+                if (DebugVars. menuaction_tracing)
+                    Logger.log.println("no menu "+menuname+" in window "+w);
             }
         }
     }
@@ -791,8 +910,7 @@ public class JapeMenu implements DebugConstants {
         if (menuname.equals("Edit") &&
             (label.startsWith("Undo") || label.startsWith("Redo")) &&
             label.indexOf("Step")!=-1) {
-            ProofWindow.setHistoryVar(label.startsWith("Undo"), label.indexOf("Proof")!=-1,
-                                      enable);
+            ProofWindow.setHistoryVar(label.startsWith("Undo"), label.indexOf("Proof")!=-1, enable);
         }
         else
         try {
@@ -803,7 +921,7 @@ public class JapeMenu implements DebugConstants {
                 action.setEnabled(enable);
 
             if (focussedonly)
-                doEnableItem(ProofWindow.getFocussedProofWindow(), menuname, label, enable);
+                doEnableItem(ProofWindow.maybeFocussedWindow(), menuname, label, enable);
             else
             for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); )
                 doEnableItem((JapeWindow)e.nextElement(), menuname, label, enable);
@@ -828,7 +946,7 @@ public class JapeMenu implements DebugConstants {
         M menu = ensureMenu(menuname);
         String key = keyString(menuname, label);
         CB cb = new CB(label, key, new CmdAction(cmd));
-        actiontable.put(key,cb);
+        itemtable.put(key,cb);
         menu.add(cb);
     }
 
@@ -842,12 +960,12 @@ public class JapeMenu implements DebugConstants {
                     if (jmi!=null)
                         jmi.setSelected(state);
                     else
-                    if (true || menuaction_tracing)
-                        System.err.println("no item "+label+" in menu "+menuname+" in window "+w);
+                    if (true || DebugVars. menuaction_tracing)
+                        Logger.log.println("no item "+label+" in menu "+menuname+" in window "+w);
                 }
                 else
-                if (menuaction_tracing)
-                    System.err.println("no menu "+menuname+" in window "+w);
+                if (DebugVars. menuaction_tracing)
+                    Logger.log.println("no menu "+menuname+" in window "+w);
             }
         }
     }
@@ -860,7 +978,7 @@ public class JapeMenu implements DebugConstants {
         item.setSelected(state);
 
         if (focussedonly)
-            doTickItem(ProofWindow.getFocussedProofWindow(), menuname, label, state);
+            doTickItem(ProofWindow.maybeFocussedWindow(), menuname, label, state);
         else
             for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); )
                 doTickItem((JapeWindow)e.nextElement(), menuname, label, state);

@@ -141,7 +141,7 @@ public class DisproofPane extends Container implements DebugConstants {
 
     public void paint(Graphics g) {
         if (paint_tracing)
-            System.err.println("painting DisproofPane");
+            Logger.log.println("painting DisproofPane");
         g.setColor(getBackground());
         g.fillRect(0, 0, getWidth(), getHeight());
         super.paint(g);
@@ -250,7 +250,7 @@ public class DisproofPane extends Container implements DebugConstants {
                                 seqtop);
 
             if (disprooflayout_tracing) {
-                System.err.println("disproof layout "+pane); japeserver.showContainer(pane, null); 
+                Logger.log.println("disproof layout "+pane); JapeUtils.showContainer(pane, null); 
             }
             
             pane.repaint();

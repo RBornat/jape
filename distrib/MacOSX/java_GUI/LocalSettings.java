@@ -1,5 +1,9 @@
 /* 
+<<<<<<< LocalSettings.java
     $Id$
+=======
+    $Id$
+>>>>>>> 1.18.6.3
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      
@@ -29,6 +33,7 @@
 
 import com.apple.mrj.MRJAboutHandler;
 import com.apple.mrj.MRJApplicationUtils;
+import com.apple.mrj.MRJFileUtils;
 import com.apple.mrj.MRJOpenDocumentHandler;
 import com.apple.mrj.MRJPrefsHandler;
 import com.apple.mrj.MRJQuitHandler;
@@ -50,14 +55,13 @@ public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
                                           
     // how to set up menus
                                           
-    public static final boolean panelWindowMenus = true;
-    
-    public static final boolean aboutMenuItemNeeded = false,
-                                quitMenuItemNeeded  = false,
-                                prefsMenuItemNeeded = false;
+    public static final boolean panelWindowMenus      = true,
+                                aboutMenuItemNeeded   = false,
+                                quitMenuItemNeeded    = false,
+                                prefsMenuItemNeeded   = false,
+                                windowMenuItemsTicked = true,
+                                hideSurrogateWindow   = true;
 
-    public static final boolean windowMenuItemsTicked = true;
-    
     // size of windows
     
     public static final Dimension DefaultProofWindowSize = new Dimension(450, 350);
@@ -66,10 +70,7 @@ public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
     // size of fonts
     
     public static final byte 	FormulaFontSize     = 14,
-                                ReasonFontSize      = 11,
-                                ProvisoFontSize     = 11,
-                                PanelButtonFontSize = 11,
-                                PanelEntryFontSize  = 11;
+                                NonFormulaFontSize  = 11;
 
     public static final String fontStyle = "sanserif";
 
@@ -105,7 +106,20 @@ public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
     // window titling (until we have proper Unicode operator coverage, esp. turnstile)
     
     public static final boolean UnicodeWindowTitles = true; // now that I have Lucida Sans Unicode
-    
+
+    // where to find settings, we think
+
+    private static String getPrefsFilename() {
+        try {
+            File prefs = new File(MRJFileUtils.findFolder(MRJFileUtils.kPreferencesFolderType),
+                                  "/jape preferences");
+            return prefs.toString();
+        } catch (Exception exn) {
+            return null;
+        }
+    }
+    public static final String PrefsFilename = getPrefsFilename();
+
     /* ************************ MacOS specific bits ************************ */
 
     public void handleAbout() {

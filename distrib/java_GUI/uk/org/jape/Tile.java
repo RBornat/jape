@@ -104,7 +104,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
 
     protected void pressed(MouseEvent e) { // doesn't matter what keys are pressed
         if (drag_tracing)
-            System.err.print("mouse pressed on tile "+text+" at "+e.getX()+","+e.getY()+
+            Logger.log.print("mouse pressed on tile "+text+" at "+e.getX()+","+e.getY()+
                              " insets="+getInsets());
         startx = lastx = e.getX(); starty = lasty = e.getY(); firstDrag = true; // in case of drag
     }
@@ -126,18 +126,18 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
             tileImage.setLocation(SwingUtilities.convertPoint(this, e.getX()-startx,
                                                               e.getY()-starty, layeredPane));
             if (drag_tracing)
-                System.err.println("; dragged tile at "+tileImage.getX()+","+tileImage.getY());
+                Logger.log.println("; dragged tile at "+tileImage.getX()+","+tileImage.getY());
             tileImage.repaint();
             wasteBin.setEnabled(false);
         }
         else {
             if (drag_tracing)
-                System.err.print("mouse dragged to "+e.getX()+","+e.getY());
+                Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
             tileImage.moveBy(e.getX()-lastx, e.getY()-lasty);
             if (drag_tracing)
-                System.err.println("; dragged tile now at "+tileImage.getX()+","+tileImage.getY());
+                Logger.log.println("; dragged tile now at "+tileImage.getX()+","+tileImage.getY());
             Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-            TileTarget target = (TileTarget)japeserver.findTargetAt(targetClass, contentPane, p.x, p.y);
+            TileTarget target = (TileTarget)JapeUtils. findTargetAt(targetClass, contentPane, p.x, p.y);
             if (target!=over) {
                 if (over!=null) {
                     over.dragExit(Tile.this); over=null;
@@ -151,7 +151,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
 
     protected void released(MouseEvent e) {
         if (drag_tracing)
-            System.err.println("mouse released at "+e.getX()+","+e.getY()+
+            Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
                                "; dragged tile at "+tileImage.getX()+","+tileImage.getY());
         if (over==null)
             new Flyback(tileImage, tileImage.getLocation(),

@@ -2,7 +2,13 @@ Bugs:
 
 -----------------
 
-Laura font for MacOS
+GUI Launch:
+
+quit has to be handled by GUI
+stop dispatcher, logger threads (maybe they will do it themselves?)
+
+-----------------
+
 pane focus is invisible;
 means of setting focus is lame (do it through JapeCanvas abstract item claimFocus());
 cache of various Undo/Redo actions not reaching GUI properly (rethink).

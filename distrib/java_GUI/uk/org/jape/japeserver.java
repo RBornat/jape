@@ -83,7 +83,7 @@ public class japeserver implements DebugConstants {
             ||(onSolaris = notice_Solaris && osName.equals("SunOS")) 
             ||(onWindows = osName.startsWith("Windows")))
            ) {
-            System.err.println("japeserver.main doesn't recognise OS\n"+
+            Logger.log.println("japeserver.main doesn't recognise OS\n"+
                                "os.name="+System.getProperty("os.name")+
                                "\nos.arch="+System.getProperty("os.arch")+
                                "\nos.version="+System.getProperty("os.version"));
@@ -91,10 +91,10 @@ public class japeserver implements DebugConstants {
 
         if (onMacOS) { // deal with the double-bounce menu checkbox bug
             String s = System.getProperty("com.apple.macos.useScreenMenuBar");
-            JapeMenu.CheckboxDoubleBounce = s!=null && s.equals("true");
+            JapeMenu.checkboxDoubleBounce = s!=null && s.equals("true");
         }
         else
-            JapeMenu.CheckboxDoubleBounce = false; 
+            JapeMenu.checkboxDoubleBounce = false; 
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
@@ -109,46 +109,12 @@ public class japeserver implements DebugConstants {
 
         LocalSettings l = new LocalSettings();
 
-        new Dispatcher().start();
+        new Engine();
+
+        Logger.init();
         
         if (tracing)
-            System.err.println("japeserver initialised");
-    }
-
-    // service functions to do with containers
-
-    public static void showContainer(Container pane, String prefix) {
-        for (int i=0; i<pane.getComponentCount(); i++) {
-            Component c = pane.getComponent(i);
-            String label = prefix==null ? ""+i : prefix+"."+i;
-            System.err.println(label+": "+c);
-            if (c instanceof Container)
-                showContainer((Container)c, label);
-        }
-    }
-
-    public static void showContainer(Container pane) {
-        System.err.println(pane);
-        showContainer(pane, null);
-    }
-
-    public static Component findTargetAt(Class target, Component c, int x, int y) {
-        if (c.isVisible() && c.contains(x,y)) {
-            if (c instanceof Container) {
-                Container c1 = (Container) c;
-                int ncs = c1.getComponentCount();
-                for (int i=0; i<ncs; i++) {
-                    Component c2 = c1.getComponent(i);
-                    if ((c2=findTargetAt(target, c2, x-c2.getX(), y-c2.getY()))!=null)
-                        return c2;
-                }
-            }
-            // no child fits: will we do?
-            if (target.isInstance(c))
-                return c;
-        }
-
-        return null; // all else has failed
+            Logger.log.println("japeserver initialised");
     }
 }
 

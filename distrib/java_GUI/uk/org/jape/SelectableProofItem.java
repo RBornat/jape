@@ -98,7 +98,7 @@ public abstract class SelectableProofItem extends    TextSelectableProofItem
             */
 
             if (paint_tracing)
-                System.err.println("painting proof item at "+getX()+","+getY());
+                Logger.log.println("painting proof item at "+getX()+","+getY());
             
             if (selkind!=NoSel) {
                 prepaint(g);

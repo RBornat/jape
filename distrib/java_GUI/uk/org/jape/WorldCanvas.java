@@ -78,41 +78,41 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
 
     public void imageRepaint() {
         if (worldpaint_tracing)
-            System.err.println("WorldCanvas.imageRepaint");
+            Logger.log.println("WorldCanvas.imageRepaint");
         imageRepaint = true;
     } // ho ho!
     
     public Component add(Component c) {
         if (worldpaint_tracing)
-            System.err.println("WorldCanvas adding "+c);
+            Logger.log.println("WorldCanvas adding "+c);
         imageRepaint = true;
         return super.add(c);
     }
 
     public Component add(Component c, int index) {
         if (worldpaint_tracing)
-            System.err.println("WorldCanvas adding "+c+" at "+index);
+            Logger.log.println("WorldCanvas adding "+c+" at "+index);
         imageRepaint = true;
         return super.add(c, index);
     }
 
     public void remove(Component c) {
         if (worldpaint_tracing)
-            System.err.println("WorldCanvas removing "+c);
+            Logger.log.println("WorldCanvas removing "+c);
         imageRepaint = true;
         super.remove(c);
     }
 
     public void removeAll() {
         if (worldpaint_tracing)
-            System.err.println("WorldCanvas removeAll");
+            Logger.log.println("WorldCanvas removeAll");
         imageRepaint = true;
         super.removeAll();
     }
 
     public void forcerepaint() {
         if (worldpaint_tracing)
-            System.err.println("WorldCanvas forcerepaint");
+            Logger.log.println("WorldCanvas forcerepaint");
         imageRepaint = true;
         repaint();
     }
@@ -121,44 +121,44 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
 
     public void paint(Graphics g) {
         if (worldpaint_tracing) 
-            System.err.println("painting WorldCanvas "+getWidth()+","+getHeight());
+            Logger.log.println("painting WorldCanvas "+getWidth()+","+getHeight());
         if (imageRepaint) {
             imageRepaint = false;
             int width = getWidth(), height = getHeight();
             // if the image changes size, we need a new buffer
             if (image==null || image.getWidth()!=width || image.getHeight()!=height) {
                 if (worldpaint_tracing)
-                    System.err.println("new image buffer");
+                    Logger.log.println("new image buffer");
                 image = (BufferedImage)createImage(width, height);
                 imageGraphics = image.createGraphics();
                 if (imageGraphics instanceof Graphics2D) {
                     if (antialias_tracing)
-                        System.err.println("pre enhancedPaint hints "+
+                        Logger.log.println("pre enhancedPaint hints "+
                                            ((Graphics2D)imageGraphics).getRenderingHints());
                     ((Graphics2D)imageGraphics).addRenderingHints(renderingHints);
                     if (antialias_tracing) {
-                        System.err.println("enhancedPaint hints "+
+                        Logger.log.println("enhancedPaint hints "+
                                            ((Graphics2D)imageGraphics).getRenderingHints());
                     }
                 }
                 imageGraphics.setClip(0, 0, width, height);
                 if (worldpaint_tracing)
-                    System.err.println("painting entire image");
+                    Logger.log.println("painting entire image");
             }
             else {
                 g.getClipBounds(clip);
                 imageGraphics.setClip(clip.x, clip.y, clip.width, clip.height);
                 if (worldpaint_tracing)
-                    System.err.println("painting image "+g.getClipBounds());
+                    Logger.log.println("painting image "+g.getClipBounds());
             }
             if (worldpaint_tracing)
-                japeserver.showContainer(this, null);
+                JapeUtils.showContainer(this, null);
             imageGraphics.setColor(Preferences.ProofBackgroundColour);
             imageGraphics.fillRect(0, 0, width, height);
             super.paint(imageGraphics);
         }
         if (worldpaint_tracing)
-            System.err.println("blitting image "+g.getClipBounds());
+            Logger.log.println("blitting image "+g.getClipBounds());
         g.drawImage(image, 0, 0, this);
     }
 
@@ -253,7 +253,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
  /* // Called when a drag operation has encountered the DropTarget.
     public void dragEnter(DropTargetDragEvent event) {
         if (dragimage_tracing)
-            System.err.println("Canvas dragEnter "+event.getLocation());
+            Logger.log.println("Canvas dragEnter "+event.getLocation());
         if (event.isDataFlavorSupported(WorldItem.worldFlavor) &&
             // event.isLocalTransfer() && -- why can't we do this?
             event.getDropAction()==DnDConstants.ACTION_MOVE) {
@@ -261,18 +261,18 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
         }
         else 
         if (dragimage_tracing)
-            System.err.println("not completely recognised: worldFlavorsupported="+
+            Logger.log.println("not completely recognised: worldFlavorsupported="+
                                event.isDataFlavorSupported(WorldItem.worldFlavor)+
                                "; event.getDropAction()="+event.getDropAction()+
                                "; DnDConstants.ACTION_MOVE="+DnDConstants.ACTION_MOVE);
         Component c = event.getDropTargetContext().getComponent();
         if (dragimage_tracing) {
             if (c instanceof WorldItem) {
-                System.err.println("in layeredPane coordinates we are at "+
+                Logger.log.println("in layeredPane coordinates we are at "+
                                    SwingUtilities.convertPoint(c, event.getLocation(), layeredPane));
             }
             else
-                System.err.println("drag Component is "+c);
+                Logger.log.println("drag Component is "+c);
         }
     }
 
@@ -293,7 +293,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
                 WorldItem w = ((WorldItem)event.getTransferable().
                                       getTransferData(WorldItem.worldFlavor));
                 if (dragimage_tracing)
-                    System.err.println("in layeredPane coordinates drop at "+
+                    Logger.log.println("in layeredPane coordinates drop at "+
                                        SwingUtilities.convertPoint(w, event.getLocation(), layeredPane));
                 w.draggedTo(event.getLocation());
                 event.dropComplete(true);

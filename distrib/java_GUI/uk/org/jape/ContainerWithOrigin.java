@@ -136,7 +136,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 
     public void paint(Graphics g) {
         if (paint_tracing)
-            System.err.println("painting ContainerWithOrigin (diverting to child)");
+            Logger.log.println("painting ContainerWithOrigin (diverting to child)");
         int x=child.getX(), y=child.getY();
         g.translate(x, y);
         child.paint(g);
@@ -145,7 +145,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 
     public void repaint(long tm, int x, int y, int width, int height) {
         if (containerrepaint_tracing)
-            System.err.println("ContainerWithOrigin.repaint "+getWidth()+","+getHeight()+" ("+
+            Logger.log.println("ContainerWithOrigin.repaint "+getWidth()+","+getHeight()+" ("+
                                tm+","+x+","+y+","+width+","+height+")");
         super.repaint(tm, x, y, width, height);
     }
@@ -192,7 +192,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
         */
         public void layoutContainer(Container c) {
             if (containerlayout_tracing)
-                System.err.print("[layoutContainer");
+                Logger.log.print("[layoutContainer");
             // child.getLayout().layoutContainer(child);
             // we don't have insets, we are an invisible container
             int vcx = child.visualBounds.x, vcy = child.visualBounds.y,
@@ -204,18 +204,18 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
                 setLocation(getX()+deltax, getY()+deltay);
                 child.setLocation(-vcx, -vcy);
                 if (containerlayout_tracing)
-                    System.err.print("; adultpos:="+getX()+","+getY()+
+                    Logger.log.print("; adultpos:="+getX()+","+getY()+
                                      ", childpos:="+child.getX()+","+child.getY());
             }
             Dimension size = getSize();
             if (vcw!=getWidth() || vch!=getHeight()) {
                 setSize(vcw, vch);
                 if (containerlayout_tracing)
-                    System.err.print("; adultsize:="+getWidth()+","+getHeight());
+                    Logger.log.print("; adultsize:="+getWidth()+","+getHeight());
             }
             if (containerlayout_tracing) {
-                System.err.println("]\n"+c);
-                japeserver.showContainer(c, null);
+                Logger.log.println("]\n"+c);
+                JapeUtils.showContainer(c, null);
             }
         }
     }
@@ -237,7 +237,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
         // Because I know the way the Component repaint hierarchy works, I can intervene ...
         public void repaint(long tm, int x, int y, int width, int height) {
             if (containerrepaint_tracing)
-                System.err.println("ContainerWithOrigin.child.repaint ["+getX()+","+getY()+" "
+                Logger.log.println("ContainerWithOrigin.child.repaint ["+getX()+","+getY()+" "
                                    +getWidth()+","+getHeight()+"] ("+
                                    tm+","+x+","+y+","+width+","+height+")");
             ContainerWithOrigin.this.repaint(tm, x+getX(), y+getY(), width, height);
@@ -284,7 +284,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
             */
             public void layoutContainer(Container c) {
                 if (containerlayout_tracing)
-                    System.err.print("(childLayoutContainer");
+                    Logger.log.print("(childLayoutContainer");
                 Rectangle newBounds=null, tmp=new Rectangle();
                 int nc = getComponentCount();
                 for (int i=0; i<nc; i++) {
@@ -302,15 +302,15 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
                 if (newBounds.width!=getWidth() || newBounds.height!=getHeight()) {
                     setSize(newBounds.width, newBounds.height);
                     if (containerlayout_tracing)
-                        System.err.print("; childsize:="+getSize());
+                        Logger.log.print("; childsize:="+getSize());
                 }
                 if (!newBounds.equals(visualBounds)) {
                     visualBounds=newBounds;
                     if (containerlayout_tracing)
-                        System.err.print("; visualBounds:="+visualBounds);
+                        Logger.log.print("; visualBounds:="+visualBounds);
                 }
                 if (containerlayout_tracing)
-                    System.err.println(")");
+                    Logger.log.println(")");
             }
         }
     }

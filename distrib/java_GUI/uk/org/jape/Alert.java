@@ -98,7 +98,7 @@ public class Alert implements DebugConstants {
             }
 
             if (makeMessage_tracing)
-                System.err.println("makeMessage \""+s+"\" => "+stringOfLabels(result));
+                Logger.log.println("makeMessage \""+s+"\" => "+stringOfLabels(result));
             return result;
         }
         else

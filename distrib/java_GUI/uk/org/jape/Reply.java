@@ -33,26 +33,25 @@ import java.io.IOException;
 import java.util.Vector;
 
 public class Reply implements DebugConstants {
-    public final static String stringSep = "\u0001"; // what separates parts of multi-string replies
+    public static final String stringSep = "\u0001"; // what separates parts of multi-string replies
     
     private static Vector messages = new Vector();
-    private static boolean clientlistening = false;
+    private static boolean enginelistening = false;
     
-    synchronized public static void openchannel() {
-        clientlistening = true;
+    synchronized public static boolean openchannel() {
+        enginelistening = true;
         flushmessages();
+        return enginelistening;
     }
 
-    public static final JapeCharEncoding decoder = new JapeCharEncoding(System.in, System.out);
-    
     synchronized private static void flushmessages() {
         try {
-            if (clientlistening && messages.size()!=0) {
+            if (enginelistening && messages.size()!=0) {
                 String s = (String)messages.remove(0);
-                if (DebugVars.protocol_tracing) System.err.println("GUI sends "+s);
-                decoder.outputln(s);
-                decoder.flush();
-                clientlistening=false;
+                if (DebugVars.protocol_tracing) Logger.log.println("GUI sends "+s);
+                JapeCharEncoding.outputln(s);
+                JapeCharEncoding.flush();
+                enginelistening=false;
             }
         } catch (IOException e) {
             Alert.abort("Reply.flushmessages gets IOException \""+e.getMessage()+"\"");
@@ -60,7 +59,7 @@ public class Reply implements DebugConstants {
     }
 
     synchronized public static void send(String s) {
-        if (DebugVars.protocol_tracing) System.err.println("queuing "+s);
+        if (DebugVars.protocol_tracing) Logger.log.println("queuing "+s);
         messages.add(s);
         flushmessages();
     }
@@ -70,11 +69,11 @@ public class Reply implements DebugConstants {
     }
 
     synchronized public static void reply(String s) throws ProtocolError {
-        if (!clientlistening) {
+        if (!enginelistening) {
             try {
-                if (DebugVars.protocol_tracing) System.err.println("GUI replies "+s);
-                decoder.outputln(s);
-                decoder.flush();
+                if (DebugVars.protocol_tracing) Logger.log.println("GUI replies "+s);
+                JapeCharEncoding.outputln(s);
+                JapeCharEncoding.flush();
             } catch (IOException e) {
                 Alert.abort("Reply.reply gets IOException \""+e.getMessage()+"\"");
             }

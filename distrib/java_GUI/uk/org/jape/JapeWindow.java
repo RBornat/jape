@@ -38,40 +38,34 @@ import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 
-public class JapeWindow extends JFrame {
+public abstract class JapeWindow extends JFrame {
 
     final String title;
     private static Vector windowv = new Vector();
 
-    public JapeWindow(final String title) {
-        super(japeserver.onMacOS ? Reply.decoder.toTitle(title) : title);
-        this.title=title; // ignoring whatever else may happen outside, this is a uid
-        init(title, -1);
+    public JapeWindow(String title) {
+        this(title, -1);
     }
 
     public JapeWindow(final String title, int proofnum) {
-        super(LocalSettings.UnicodeWindowTitles ? (japeserver.onMacOS ? Reply.decoder.toTitle(title) : title) :
-              ("Proof #"+proofnum));
+        
+        super((LocalSettings.UnicodeWindowTitles || proofnum<0) ?
+                     (japeserver.onMacOS ? JapeCharEncoding.trueUnicode(title) : title) :
+                     ("Proof #"+proofnum));
         this.title=title; // ignoring whatever else may happen outside, this is a uid
-        init(title, proofnum);
-    }
-
-    protected WindowListener windowListener;
-
-    private final static boolean windowv_tracing = false;
-    
-    private void init(final String title, int proofnum) {
         addTowindowv();
         if (windowv_tracing)
-            System.err.println("JapeWindow.init \""+title+"\", "+proofnum+", "+stringOfwindowv());
+            Logger.log.println("JapeWindow.init \""+title+"\", "+proofnum+", "+stringOfwindowv());
         windowListener = new WindowAdapter() {
             public void windowActivated(WindowEvent e) {
                 if (windowListener!=null) {
                     setTopWindow();
                     JapeMenu.windowActivated(titleForMenu(), JapeWindow.this);
+                    if (LocalSettings.hideSurrogateWindow && servesAsControl())
+                        hideSurrogate();
                 }
                 else
-                    System.err.println("JapeWindow.windowListener late windowActivated \""+
+                    Logger.log.println("JapeWindow.windowListener late windowActivated \""+
                                        title +"\"; "+e);
             }
         };
@@ -79,6 +73,10 @@ public class JapeWindow extends JFrame {
         JapeMenu.windowAdded(titleForMenu(proofnum), this);
     }
 
+    protected WindowListener windowListener;
+
+    private final static boolean windowv_tracing = false;
+    
     private static String stringOfwindowv() {
         String s = "[";
         for (int i=0; i<windowv.size(); i++) {
@@ -95,7 +93,7 @@ public class JapeWindow extends JFrame {
     
     private synchronized void setTopWindow() {
         if (windowv_tracing)
-            System.err.print("JapeWindow.setTopWindow before \""+title+"\", "+stringOfwindowv());
+            Logger.log.print("JapeWindow.setTopWindow before \""+title+"\", "+stringOfwindowv());
         int i = windowv.indexOf(JapeWindow.this);
         if (i==-1)
             Alert.abort("untoppable window "+this.title);
@@ -104,29 +102,35 @@ public class JapeWindow extends JFrame {
             windowv.insertElementAt(this,0);
         }
         if (windowv_tracing)
-            System.err.println(" after "+stringOfwindowv());
+            Logger.log.println(" after "+stringOfwindowv());
     }
 
     private synchronized void removeFromwindowv() {
         if (windowv_tracing)
-            System.err.print("JapeWindow.removeFromwindowv before \""+title+"\", "+stringOfwindowv());
+            Logger.log.print("JapeWindow.removeFromwindowv before \""+title+"\", "+stringOfwindowv());
         int i = windowv.indexOf(this);
         if (i==-1)
             Alert.abort("unremovable window "+JapeWindow.this.title);
         else
             windowv.remove(i);
         if (windowv_tracing)
-            System.err.println(" after "+stringOfwindowv());
+            Logger.log.println(" after "+stringOfwindowv());
     }
 
     public void closeWindow() {
         if (windowv_tracing)
-            System.err.println("JapeWindow.closeWindow before \""+title+"\", "+stringOfwindowv());
+            Logger.log.println("JapeWindow.closeWindow before \""+title+"\", "+stringOfwindowv());
         removeFromwindowv();
         // Linux gives us spurious events after the window has gone, so kill the listener
         removeWindowListener(windowListener); windowListener = null;
         setVisible(false); dispose();
         JapeMenu.windowRemoved(titleForMenu(), this);
+    }
+
+    protected synchronized void hideSurrogate() {
+        for (int i=0; i<windowv.size(); i++)
+            if (windowv.get(i) instanceof SurrogateWindow)
+                ((SurrogateWindow)windowv.get(i)).closeWindow();
     }
 
     private String titleForMenu(int proofnum) {
@@ -137,13 +141,10 @@ public class JapeWindow extends JFrame {
         return titleForMenu(this instanceof ProofWindow ? ((ProofWindow)this).proofnum : -1);
     }
 
-    protected void setBar() {
-        if (this instanceof ProofWindow)
-            JapeMenu.setProofWindowBar(this);
-        else
-            if ((this instanceof PanelWindowData.PanelWindow && LocalSettings.panelWindowMenus) ||
-                this instanceof SurrogateWindow)
-                JapeMenu.setNonProofWindowBar(this);
+    private int menustamp = 0;
+    
+    protected final void setBar() {
+        menustamp = JapeMenu.setBar(this, menustamp);
     }
 
     protected Point nextPos() {
@@ -167,6 +168,8 @@ public class JapeWindow extends JFrame {
         return lastPos;
     }
 
+    protected abstract boolean servesAsControl();
+
     /*******************************************************************************************
 
         static interface for Dispatcher, etc.
@@ -175,7 +178,7 @@ public class JapeWindow extends JFrame {
     
     public static JapeWindow findWindow(String title) {
         if (windowv_tracing)
-            System.err.println("JapeWindow.findWindow \""+title+"\", "+stringOfwindowv());
+            Logger.log.println("JapeWindow.findWindow \""+title+"\", "+stringOfwindowv());
         int len = windowv.size();
         for (int i=0; i<len; i++) {
             JapeWindow w = (JapeWindow)windowv.get(i);
@@ -204,16 +207,16 @@ public class JapeWindow extends JFrame {
         SurrogateWindow sw = null;
         for (int i=0; i<windowv.size(); i++) {
             JapeWindow w = (JapeWindow)windowv.get(i);
-            if (w instanceof ProofWindow)
-                return;
-            if (w instanceof PanelWindowData.PanelWindow && LocalSettings.panelWindowMenus)
-                return;
             if (w instanceof SurrogateWindow)
                 sw = (SurrogateWindow) w;
+            else
+            if (w.isVisible() && w.servesAsControl())
+                return;
         }
         // no useable menus anywhere ... get a surrogate
         if (sw==null)
-            sw = new SurrogateWindow();
+            sw = LocalSettings.hideSurrogateWindow ? ((SurrogateWindow)new MenuHolder()) :
+                                                     ((SurrogateWindow)new ControlWindow());
         sw.setVisible(true);
     }
     

@@ -1,5 +1,9 @@
 /*
+<<<<<<< LocalSettings.java
     $Id$
+=======
+    $Id$
+>>>>>>> 1.19.6.3
     
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      
@@ -82,13 +86,12 @@ public class LocalSettings implements SelectionConstants {
     
     // how to set up menus
     
-    public static final boolean panelWindowMenus = false;
-    
-    public static final boolean aboutMenuItemNeeded = true,
-                                quitMenuItemNeeded  = true,
-                                prefsMenuItemNeeded = true;
-
-    public static final boolean windowMenuItemsTicked = false;
+    public static final boolean panelWindowMenus      = false,
+                                aboutMenuItemNeeded   = true,
+                                quitMenuItemNeeded    = true,
+                                prefsMenuItemNeeded   = true,
+                                windowMenuItemsTicked = false,
+                                hideSurrogateWindow   = false;
     
     // size of windows
     
@@ -97,6 +100,7 @@ public class LocalSettings implements SelectionConstants {
 
     // size of fonts
     
+<<<<<<< LocalSettings.java
     public static final byte 	FormulaFontSize     = getProp("font.formula.size",     18),
                                 defaultOtherSize    = getProp("font.other.size",       14),
                                 ReasonFontSize      = getProp("font.reason.size",      defaultOtherSize),
@@ -105,6 +109,10 @@ public class LocalSettings implements SelectionConstants {
                                 PanelEntryFontSize  = getProp("font.panelentry.size",  defaultOtherSize);
 
     public static final String  fontStyle           = getProp("fonts.family", "sanserif");
+=======
+    public static final byte 	FormulaFontSize     = 18,
+                                NonFormulaFontSize  = 14;
+>>>>>>> 1.19.6.3
     
     // spacing of tiles
     public static final int TileSpacing = 7;
@@ -136,11 +144,18 @@ public class LocalSettings implements SelectionConstants {
     // window titling
     
     public static final boolean UnicodeWindowTitles = false;
+<<<<<<< LocalSettings.java
 
     public static void main(String[] arg)
     { 
       new LocalSettings();
     }
+=======
+
+    // where to find settings, we think
+
+    public static final String PrefsFilename = System.getProperty("jape.settings");
+>>>>>>> 1.19.6.3
 }
 
 

@@ -66,7 +66,7 @@ class TextItem extends DisplayItem implements DebugConstants {
     
     public void paint(Graphics g) {
         if (paint_tracing)
-            System.err.println("painting text item at "+getX()+","+getY());
+            Logger.log.println("painting text item at "+getX()+","+getY());
         g.setFont(font); g.setColor(getForeground());
         g.drawString(text, 0, dimension.ascent);
     }

@@ -1,5 +1,9 @@
 /* 
+<<<<<<< JapeFont.java
     $Id$
+=======
+    $Id$
+>>>>>>> 1.23.6.8
 
     Copyright © 2003 Richard Bornat & Bernard Sufrin
      
@@ -30,8 +34,14 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+
 import java.util.HashMap;
+import java.util.Vector;
+
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 public class JapeFont implements DebugConstants, ProtocolConstants {
 
@@ -77,23 +87,120 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     }
 
     public static final int MENUENTRY   = 100,
-                            DIALOGLABEL = 101,
-                            PROOFPANEL  = 102,
-                            PANELENTRY  = 103,
-                            PANELBUTTON = 104;
+                            DIALOGLABEL = 201,
+                            PROOFPANEL  = 300,
+                            PANELENTRY  = 301,
+                            PANELBUTTON = 302,
+                            LOGWINDOW   = 400;
 
+    public static byte
+        FormulaFontSize     = Preferences.getProp("font.formula.size",
+                                                  LocalSettings.FormulaFontSize),
+        NonFormulaFontSize  = Preferences.getProp("font.nonformula.size",
+                                                  LocalSettings.NonFormulaFontSize),
+        ReasonFontSize      = Preferences.getProp("font.reason.size",      NonFormulaFontSize),
+        ProvisoFontSize     = Preferences.getProp("font.proviso.size",     NonFormulaFontSize),
+        PanelButtonFontSize = Preferences.getProp("font.panelbutton.size", NonFormulaFontSize),
+        PanelEntryFontSize  = Preferences.getProp("font.panelentry.size",  NonFormulaFontSize),
+        LogWindowFontSize   = Preferences.getProp("font.logwindow.size",   NonFormulaFontSize);
+
+    public static String
+        FontStyle           = Preferences.getProp("fonts.family", "sanserif");
+
+    public static final int[] normalsizes = { 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 72 };
+
+    private static Vector initsizes(int size) {
+        Vector sizes = new Vector(normalsizes.length);
+        boolean included = false;
+        for (int i=0; i<normalsizes.length; i++) {
+            if (!included && size<=normalsizes[i]) {
+                if (size!=normalsizes[i])
+                    sizes.add(new Integer(size));
+                included = true;
+            }
+            sizes.add(new Integer(normalsizes[i]));
+        }
+        if (!included)
+            sizes.add(new Integer(size));
+        return sizes;
+    }
+
+    private static class SI {
+        final String label; final int size;
+        JComboBox comboBox;
+        SI(String label, int size) {
+            this.label = label; this.size = size;
+            Vector sizes = initsizes(size);
+            comboBox = new JComboBox(sizes);
+            for (int j=0; j<sizes.size(); j++)
+                if (((Integer)sizes.get(j)).intValue()==size) {
+                    comboBox.setSelectedIndex(j); break;
+                }
+        }
+    }
+        
+    public static void runFontSizesDialog() {
+        String [] buttons = { "OK", "Cancel" };
+        SI [] entries = {
+            new SI("Formula font size"       , FormulaFontSize   ), // 0
+            new SI("Reason/Proviso font size", ReasonFontSize    ), // 1
+            new SI("Panel font size"         , PanelEntryFontSize), // 2
+            new SI("Log window font size"    , LogWindowFontSize )  // 3
+        };
+        JPanel [] panels = new JPanel[entries.length];
+        for (int i=0; i<panels.length; i++) {
+            panels[i] = new JPanel();
+            panels[i].add(new JLabel(entries[i].label));
+            panels[i].add(entries[i].comboBox);
+        }
+        int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), panels,
+                                                 "Font sizes", 0,
+                                                 JOptionPane.PLAIN_MESSAGE,
+                                                 null, buttons, buttons[0]);
+        if (reply==0) {
+            boolean interfaceChanged = false;
+            for (int i=0; i<entries.length; i++) {
+                int selectedvalue = ((Integer)entries[i].comboBox.getSelectedItem()).intValue();
+                if (selectedvalue!=entries[i].size) {
+                    switch (i) {
+                        case 0:
+                            FormulaFontSize = (byte)selectedvalue;
+                            interfaceChanged = true; break;
+                        case 1:
+                            ReasonFontSize = ProvisoFontSize = (byte)selectedvalue;
+                            interfaceChanged = true; break;
+                        case 2:
+                            PanelButtonFontSize = PanelEntryFontSize = (byte)selectedvalue;
+                            PanelWindowData.font_reset(); break;
+                        case 3:
+                            LogWindowFontSize = (byte)selectedvalue;
+                            Logger.font_reset(); break;
+                        default: Alert.abort("runFontSizesDialog switch sees "+i);
+                    }
+                    
+                }
+            }
+            if (interfaceChanged) {
+                interfaceFonts = null; interfaceMetrics = null;
+                Reply.sendCOMMAND("fonts_reset");
+            }
+        }
+    }
+    
     public static void setComponentFont(Component c, int kind) {
         switch (kind) {
             case MENUENTRY  : 
             case DIALOGLABEL:
                 mimicFont(c); break;
             case PANELENTRY :
-                mimicFont(c, LocalSettings.PanelEntryFontSize); break;
+                mimicFont(c, PanelEntryFontSize); break;
             case PANELBUTTON:
-                mimicFont(c, LocalSettings.PanelButtonFontSize); break;
+                mimicFont(c, PanelButtonFontSize); break;
             case PROOFPANEL:
                 // don't know yet
                 break;
+            case LOGWINDOW:
+                mimicFont(c, LogWindowFontSize); break;
             default:
                 Alert.showErrorAlert("setComponentFont("+kind+","+c);
         }
@@ -109,10 +216,22 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         c.setFont(deriveFont(f, f.getStyle(), size));
     }
 
-    public static byte[] interfaceFontSizes =
-        new byte[]{ LocalSettings.FormulaFontSize, LocalSettings.ReasonFontSize, LocalSettings.ProvisoFontSize };
-
+    public static byte[] interfaceFontSizes;
     private static Font[] interfaceFonts;
+
+    private static void initInterfaceFonts() {
+        if (interfaceFonts==null) {
+            codecDone = true;
+            setInterfaceFonts(new Font(FontStyle, Font.PLAIN, 1));
+        }
+    }
+    
+    private static void setInterfaceFonts(Font base) {
+        interfaceFonts = new Font[3];
+        interfaceFontSizes = new byte[]{ FormulaFontSize, ReasonFontSize, ProvisoFontSize };
+        for (int i=TermFontNum; i<=ProvisoFontNum; i++)
+            interfaceFonts[i] = deriveFont(base, Font.PLAIN, interfaceFontSizes[i]);
+    }
 
     public static String getFontNames(String sep) {
         initInterfaceFonts();
@@ -130,14 +249,9 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         return fontnum;
     }
 
-    private static void setInterfaceFonts(Font base) {
-        interfaceFonts = new Font[3];
-        for (int i=TermFontNum; i<=ProvisoFontNum; i++)
-            interfaceFonts[i] = deriveFont(base, Font.PLAIN, interfaceFontSizes[i]);
-    }
-
     private static boolean codecDone;
     
+<<<<<<< JapeFont.java
     private static void initInterfaceFonts() {
         if (interfaceFonts==null) {
             codecDone = true;
@@ -145,6 +259,8 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         }
     }
 
+=======
+>>>>>>> 1.23.6.8
     private static FontMetrics[] interfaceMetrics;
 
     private static void initInterfaceMetrics() {
@@ -173,7 +289,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     public static TextDimension measure(String s, byte fontnum) {
         initInterfaceMetrics();
         if (measure_debug)
-            System.err.println("measuring \""+s+"\"; ("+
+            Logger.log.println("measuring \""+s+"\"; ("+
                            interfaceMetrics[fontnum].stringWidth(s)+","+
                            interfaceMetrics[fontnum].getMaxAscent()+"["+
                            interfaceMetrics[fontnum].getAscent()+"],"+

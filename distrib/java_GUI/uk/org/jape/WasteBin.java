@@ -50,7 +50,7 @@ public class WasteBin extends Component implements DebugConstants,
             current_image = null;
             // trigger imageUpdate
             if (image_tracing)
-                System.err.println("dimension request (enabled_image)");
+                Logger.log.println("dimension request (enabled_image)");
             enabled_image.getWidth(this); enabled_image.getHeight(this);
         }
         else
@@ -59,7 +59,7 @@ public class WasteBin extends Component implements DebugConstants,
         if (current_image!=null) {
             // possible concurrency nasty: see comment in notifyHeight
             if (image_tracing)
-                System.err.println("dimension request (current_image)");
+                Logger.log.println("dimension request (current_image)");
             int width = current_image.getWidth(this), height = current_image.getHeight(this);
             setSize(width, height);
         }
@@ -87,17 +87,17 @@ public class WasteBin extends Component implements DebugConstants,
     public void paint(Graphics g) {
         if (current_image!=null) {
             if (image_tracing)
-                System.err.println("painting "+getSize());
+                Logger.log.println("painting "+getSize());
             g.drawImage(current_image, 0, 0, this);
         }
     }
 
     public void notifyHeight(int height) {
         if (image_tracing)
-            System.err.println("notifyHeight("+height+")");
+            Logger.log.println("notifyHeight("+height+")");
         if (current_image==null) {
             if (image_tracing)
-                System.err.println("dimension request (enabled_image) in notifyHeight");
+                Logger.log.println("dimension request (enabled_image) in notifyHeight");
             int imageheight = enabled_image.getHeight(this),
                 imagewidth = enabled_image.getWidth(this);
             if (imageheight!=-1 && imagewidth!=-1) {
@@ -114,7 +114,7 @@ public class WasteBin extends Component implements DebugConstants,
                     disabled_image.getScaledInstance(scaledwidth, scaledheight, Image.SCALE_SMOOTH);
 
                 if (image_tracing)
-                    System.err.println("image to be "+
+                    Logger.log.println("image to be "+
                                        (((float)imagewidth)*scale)+" x "+
                                        (((float)imageheight)*scale));
 
@@ -126,23 +126,23 @@ public class WasteBin extends Component implements DebugConstants,
                 // if neither is -1 then I believe them.
                 // (Well maybe there isn't, but it it's better to be sure.)
                 if (image_tracing)
-                    System.err.println("dimension request (current_image) in notifyHeight");
+                    Logger.log.println("dimension request (current_image) in notifyHeight");
                 int currwidth = current_image.getWidth(this),
                     currheight = current_image.getHeight(this);
                 if (currwidth!=-1 && currheight!=-1) {
                     setSize(currwidth, currheight); repaint();
                     if (image_tracing) {
-                        System.err.println("immediate repaint "+getBounds());
+                        Logger.log.println("immediate repaint "+getBounds());
                     }
                 }
             }
             else
                 if (image_tracing)
-                    System.err.println("not yet: "+imageheight+"x"+imagewidth);
+                    Logger.log.println("not yet: "+imageheight+"x"+imagewidth);
         }
         else {
             if (image_tracing)
-                System.err.println("we are already set");
+                Logger.log.println("we are already set");
         }
     }
 
@@ -152,7 +152,7 @@ public class WasteBin extends Component implements DebugConstants,
 
     public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
         if (image_tracing)
-            System.err.println("imageUpdate("+img+",0x"+Integer.toHexString(infoflags)+
+            Logger.log.println("imageUpdate("+img+",0x"+Integer.toHexString(infoflags)+
                                ","+x+","+y+","+width+","+height+")"+
                                "; enabled_image="+enabled_image+
                                "; enabled_scaled="+enabled_scaled+
@@ -164,11 +164,11 @@ public class WasteBin extends Component implements DebugConstants,
             (ImageObserver.WIDTH | ImageObserver.HEIGHT)) {
             if (img==enabled_image) {
                 if (image_tracing)
-                    System.err.println("it's the first time");
+                    Logger.log.println("it's the first time");
                 if (disproofPane.layout_set()) {
                     disproofPane.getLayout().layoutContainer(disproofPane);
                     if (image_tracing)
-                        System.err.println("triggered a layout");
+                        Logger.log.println("triggered a layout");
                 }
                 return THATS_ENOUGH;
             }
@@ -177,7 +177,7 @@ public class WasteBin extends Component implements DebugConstants,
                     setSize(width, height);
                 repaint();
                 if (image_tracing) {
-                    System.err.println("triggered first repaint "+getBounds());
+                    Logger.log.println("triggered first repaint "+getBounds());
                 }
                 return MORE_PLEASE;
             }
@@ -185,7 +185,7 @@ public class WasteBin extends Component implements DebugConstants,
         else
             if ((infoflags & ImageObserver.ALLBITS) == ImageObserver.ALLBITS) {
                 if (image_tracing)
-                    System.err.println("triggered second repaint "+getBounds());
+                    Logger.log.println("triggered second repaint "+getBounds());
                 repaint(); return THATS_ENOUGH;
             }
         else

@@ -47,10 +47,8 @@ open Name
 type name = Name.name
 
 
-let deadServer = Interaction.deadServer
+let reportGUIdead = Interaction.reportGUIdead
 
-and runningServer = (fun() -> Optionfuns.opt2bool !Japeserver.serverpid)
- 
 type button = UndoProofbutton
 	    | RedoProofbutton
 	    | UndoDisproofbutton
@@ -118,7 +116,6 @@ let (resetfontstuff, setfontstuff, getfontstuff) =
 
 
 let rec reloadmenusandpanels markconjecture oplist =
-  if runningServer () then
     try
       (* was freshmenus... *)
       Japeserver.sendOperators oplist;
@@ -161,7 +158,7 @@ let rec reloadmenusandpanels markconjecture oplist =
       Japeserver.mapmenus true;
       let _ = Japeserver.echo "" (* synchronise *) in ()
     with
-      Japeserver.DeadServer_ -> deadServer ["WARNING: server broken"]
+      Japeserver.DeadGUI_ -> reportGUIdead ["WARNING: server broken"]
 
 let rec markproof cmd proved =
   (* given parseable name - look in the cmd part of conjecture panels *)

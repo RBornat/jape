@@ -50,15 +50,15 @@ public class CircleItem extends Component implements DebugConstants {
 
     public void paint(Graphics g) {
         if (paint_tracing)
-            System.err.println("painting circle at "+getX()+","+getY());
+            Logger.log.println("painting circle at "+getX()+","+getY());
         g.setColor(getForeground());
         if (g instanceof Graphics2D) {
             if (antialias_tracing) {
-                System.err.print("circle hints "+((Graphics2D)g).getRenderingHints());
+                Logger.log.print("circle hints "+((Graphics2D)g).getRenderingHints());
                 if (japeserver.onMacOS)
-                    System.err.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
+                    Logger.log.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
                 else
-                    System.err.println();
+                    Logger.log.println();
             }
             BasicStroke stroke = new BasicStroke((float)strokethickness);
             ((Graphics2D)g).setStroke(stroke);

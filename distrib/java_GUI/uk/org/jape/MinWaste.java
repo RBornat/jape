@@ -54,34 +54,33 @@ public class MinWaste {
             cs = s.toCharArray();
             spacewidth = m.charWidth(' ');
             ws=new Vector();
-            // it's good enough to use word lengths
+            // break on spaces, commas, semicolons or otherwise on tab-sized chunks
             for (int i=0; i<cs.length; ) {
                 int j;
-                for (j=i; j<cs.length && cs[j]!=' '; j++);
+                for (j=i; j<cs.length; j++)  {
+                    char c = cs[j];
+                    if (c==' ') break;
+                    if (c==',' || c==';') { j++; break; }
+                }
                 int w = m.charsWidth(cs,i,j-i);
                 if (w>constraint) {
-                    // look for places to split a long word
-                    for (int i1=i; i1<j; ) {
-                        int j1;
-                        for (j1=i1; j1<j && j1<i1+constraint && cs[j1]!=',' && cs[j1]!=';'; j1++);
-                        if (j1<j) {
-                            j1++;
-                            // System.err.print(ws.size()+": part-word \""+new String(cs,i1,j1-i1)+"\" ");
-                            ws.add(new W(i1, j1, m.charsWidth(cs,i1,j1-i1), 0));
-                            // System.err.println(ws.get(ws.size()-1));
-                        }
-                        else {
-                            w=m.charsWidth(cs,i1,j1-i1);
-                            i=i1; // add spacing to the last bit
-                        }
-                        i1=j1;
+                    // binary chop to find a nice spot -- we go for eight spaces
+                    int constraint2 = Math.min(constraint, spacewidth*8);
+                    int i1=i;
+                    while (i1+1!=j) {
+                        int k = (i1+j)/2;
+                        if ((w=m.charsWidth(cs,i,j-i))<constraint2)
+                            i1 = k;
+                        else
+                            j = k;
                     }
                 }
+                // consume following spaces
                 int j0=j;
                 for ( ; j<cs.length && cs[j]==' '; j++);
-                // System.err.print(ws.size()+": word \""+new String(cs,i,j0-i)+"\" ");
+                // Logger.log.print(ws.size()+": word \""+new String(cs,i,j0-i)+"\" ");
                 ws.add(new W(i, j0, w, m.charsWidth(cs,j0,j-j0)));
-                // System.err.println(ws.get(ws.size()-1));
+                // Logger.log.println(ws.get(ws.size()-1));
                 i=j;
             }
             fold = new F(0, ws.size(), null);
@@ -128,7 +127,7 @@ public class MinWaste {
                 try {
                     f = (F)super.clone();
                 } catch (Exception e) {
-                    System.err.println("can't clone "+this);
+                    Logger.log.println("can't clone "+this);
                     System.exit(2);
                 }
                 f.next=clone(f.next);
@@ -150,24 +149,24 @@ public class MinWaste {
                 }
                 else {
                     waste = width<next.maxwidth ? Math.max(next.waste,next.maxwidth-width) :
-                    next.waste+width-next.maxwidth;
+                                                  next.waste+width-next.maxwidth;
                     maxwidth=Math.max(width,next.maxwidth);
                     height = next.height+1;
                 }
             }
 
             private void take() {
-                int ww = ((W)ws.get(j)).width;
+                // int ww = ((W)ws.get(j)).width;
                 next.i++; next.measurewidth(); next.measurewaste(); next.smooth();
                 j++; measurewidth(); measurewaste();
-                // System.err.println("after take "+this);
+                // Logger.log.println("after take "+this);
             }
 
             private void give() {
-                int ww = ((W)ws.get(j-1)).width;
+                // int ww = ((W)ws.get(j-1)).width;
                 next.i--; next.measurewidth(); next.measurewaste(); next.smooth();
                 j--; measurewidth(); measurewaste();
-                // System.err.println("after give "+this);
+                // Logger.log.println("after give "+this);
             }
 
             // Oh I wish I could think of a fast undo ...
@@ -181,29 +180,29 @@ public class MinWaste {
                                 give(); break;
                             }
                         }
-                            else // sort of repeated -- sorry
-                                while (width>next.maxwidth && next!=null && i+1<j) {
-                                    int oldwaste = waste;
-                                    give();
-                                    if (waste>oldwaste) {
-                                        take(); break;
-                                    }
-                                }
-                                    // System.err.println("smooth done");
+                    else // sort of repeated -- sorry
+                        while (width>next.maxwidth && next!=null && i+1<j) {
+                            int oldwaste = waste;
+                            give();
+                            if (waste>oldwaste) {
+                                take(); break;
+                            }
+                        }
+                    // Logger.log.println("smooth done");
                 }
             }
 
                 // the split algorithm puts some of the onus on the garbage collector ...
                 public F split() {
-                    F f = i+1<j	  ? new F(i,i+1,new F(i+1,j,clone(next))) :
-                    next!=null  ? new F(i,j,next.split()) :
-                    this;
+                    F f = i+1<j	     ? new F(i,i+1,new F(i+1,j,clone(next))) :
+                          next!=null ? new F(i,j,next.split()) :
+                                       this;
                     return f.maxwidth<maxwidth ? f : this;
                 }
 
                 public void reportSplit(Vector v) {
                     int start = ((W)ws.get(i)).i, end = ((W)ws.get(j-1)).j;
-                    // System.err.println(v.size()+": from "+i+"("+start+") to "+(j-1)+"("+end+")"+" width="+width+", maxwidth="+maxwidth+", waste="+waste);
+                    // Logger.log.println(v.size()+": from "+i+"("+start+") to "+(j-1)+"("+end+")"+" width="+width+", maxwidth="+maxwidth+", waste="+waste);
                     v.add(new String(cs,start,end-start));
                     if (next!=null)
                         next.reportSplit(v);

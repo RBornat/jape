@@ -101,7 +101,7 @@ let try__ = Optionfuns.try__
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception Selection_ = Selection.Selection_
 exception None_ = Optionfuns.None_
-exception DeadServer_ = Japeserver.DeadServer_
+exception DeadGUI_ = Japeserver.DeadGUI_
 
 type command =
     TextCommand of string list
@@ -117,27 +117,11 @@ let rec commandstring =
 
 let intliststring = bracketedliststring (string_of_int : int -> string) ","
 
-let abandonServer = Japeserver.stopserver
-
-let killServer = Japeserver.killserver
-
 let setComment = setComment <.> implode
 
-let rec deadServer strings = consolereport strings; abandonServer (); raise DeadServer_
+let terminateGUI = Japeserver.terminateGUI
 
-let rec startServer (serverpath, args) =
-  try
-    Japeserver.startserver serverpath args;
-    if Japeserver.idlsignature <> Japeserver.getSignature () then
-      begin
-        consolereport ["Incompatible japeserver: "; serverpath];
-        Japeserver.killserver ()
-      end
-  with
-    DeadServer_ -> deadServer ["Cannot find japeserver: "; serverpath]
-
-
-let rec runningServer () = Optionfuns.opt2bool !(Japeserver.serverpid)
+let rec reportGUIdead strings = consolereport strings; raise DeadGUI_
 
 let treestyle = Displaystyle.Treestyle.style
 

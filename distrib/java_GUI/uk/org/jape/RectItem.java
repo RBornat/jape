@@ -82,7 +82,7 @@ public class RectItem extends Component implements DebugConstants {
     // default behaviour -- drawLine seems to work more nicely than drawRect ...
     public void paint(Graphics g) {
         if (paint_tracing)
-            System.err.println("painting rectangle at "+getX()+","+getY());
+            Logger.log.println("painting rectangle at "+getX()+","+getY());
         prepaint(g); paintTopAndBottom(g); paintSides(g);
     }
 }

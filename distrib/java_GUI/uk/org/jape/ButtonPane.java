@@ -99,12 +99,12 @@ public class ButtonPane extends Container implements DebugConstants {
             
             if (getComponentCount()==0) {
                 if (buttonlayout_tracing)
-                    System.err.println("preferredButtonPanelSize no buttons");
+                    Logger.log.println("preferredButtonPanelSize no buttons");
                 buttonpanelheight = buttonpanelwidth = 0; // d.height+2*leading;
             }
             else {
                 if (buttonlayout_tracing)
-                    System.err.println("preferredButtonPanelSize");
+                    Logger.log.println("preferredButtonPanelSize");
                 Dimension d = getComponent(0).getPreferredSize();
                 int leading = leading(d);
                 int buttonheight = d.height;
@@ -118,7 +118,7 @@ public class ButtonPane extends Container implements DebugConstants {
                     d = button.getPreferredSize();
 
                     if (buttonlayout_tracing)
-                        System.err.println(i+": "+d.width+","+d.height);
+                        Logger.log.println(i+": "+d.width+","+d.height);
 
                     packedwidth += leading+d.width;
                     buttonpanelwidth = Math.max(packedwidth+leading, buttonpanelwidth);
@@ -129,7 +129,7 @@ public class ButtonPane extends Container implements DebugConstants {
             }
             
             if (buttonlayout_tracing)
-                System.err.println("preferredButtonPanelSize = "+
+                Logger.log.println("preferredButtonPanelSize = "+
                                    buttonpanelwidth+","+buttonpanelheight);
 
             return new Dimension(buttonpanelwidth, buttonpanelheight);
@@ -192,8 +192,8 @@ public class ButtonPane extends Container implements DebugConstants {
                 pane.setSize(width, 0);
             
             if (buttonlayout_tracing) {
-                System.err.print("ButtonPane.layoutContainer: ");
-                japeserver.showContainer(pane);
+                Logger.log.print("ButtonPane.layoutContainer: ");
+                JapeUtils.showContainer(pane);
             }
         }
     }

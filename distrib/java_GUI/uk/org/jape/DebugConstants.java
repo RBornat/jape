@@ -39,12 +39,12 @@ interface DebugConstants {
                                 image_tracing            = false,
                                 makeMessage_tracing      = false,
                                 measure_debug            = false,
-                                menuaction_tracing       = false,
                                 menubar_tracing          = false,
                                 paint_tracing            = false,
                                 panelempty_tracing       = false,
                                 panellayout_tracing      = false,
                                 panellist_tracing        = false,
+                                preference_tracing       = true,
                                 printlayout_tracing      = false,
                                 worldpaint_tracing       = false;
 

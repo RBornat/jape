@@ -32,30 +32,27 @@ import java.util.Vector;
 
 public class Dispatcher extends Thread implements DebugConstants {
 
-    private final JapeCharEncoding encoder;
-
     public Dispatcher() {
         super("Dispatcher");
-        encoder = Reply.decoder;
         if (DebugVars.protocol_tracing)
-            System.err.println("dispatcher initialised");
+            Logger.log.println("dispatcher initialised");
     }
 
     private void showcommand(String m, String[] cmd) {
-        System.err.print(m+" [");
+        Logger.log.print(m+" [");
         for (int i=0; i<cmd.length; i++) {
-            System.err.print("\""+cmd[i]+"\"");
+            Logger.log.print("\""+cmd[i]+"\"");
             if (i<cmd.length-1)
-                System.err.print(" ");
+                Logger.log.print(" ");
         }
-        System.err.println("]");
+        Logger.log.println("]");
     }
 
     public void run() {
         Vector list = new Vector(); 
         try {
             while (true) {
-                String line = encoder.inputline();
+                String line = JapeCharEncoding.inputline();
                 try {
                     String[] cmd = japesplit(line);
                     if (DebugVars.protocol_tracing) {
@@ -68,9 +65,10 @@ public class Dispatcher extends Thread implements DebugConstants {
                         
                     // GET means client is listening
                         if (p.equals("GET")&&len==1) {
-                            JapeWindow.ensureMenusAvailable();
-                            ProofWindow.makeReady();
-                            Reply.openchannel();
+                            if (Reply.openchannel()) {
+                                JapeWindow.ensureMenusAvailable();
+                                ProofWindow.makeReady();
+                            }
                         }
                         else
 
@@ -84,29 +82,29 @@ public class Dispatcher extends Thread implements DebugConstants {
                                               JapeFont.checkInterfaceFontnum(toByte(cmd[1]))));
                         else
                         if (p.equals("DRAWSTRING")&&len==6)
-                            ProofWindow.drawstring(toInt(cmd[1]), toInt(cmd[2]),    // x, y
+                            ProofWindow.getFocussedWindow().drawstring(toInt(cmd[1]), toInt(cmd[2]),    // x, y
                                                    toByte(cmd[3]), toByte(cmd[4]),  // font, kind
                                                    cmd[5]);                         // annottext
                         else
                         if (p.equals("DRAWRECT")&&len==5)
-                            ProofWindow.drawRect(toInt(cmd[1]), toInt(cmd[2]), // x, y
+                            ProofWindow.getFocussedWindow().drawRect(toInt(cmd[1]), toInt(cmd[2]), // x, y
                                                  toInt(cmd[3]), toInt(cmd[4])); // w, h
                         else
                         if (p.equals("DRAWLINE")&&len==5)
-                            ProofWindow.drawLine(toInt(cmd[1]), toInt(cmd[2]), // x, y
+                            ProofWindow.getFocussedWindow().drawLine(toInt(cmd[1]), toInt(cmd[2]), // x, y
                                                  toInt(cmd[3]), toInt(cmd[4])); // w, h
                         else
                         if (p.equals("BLACKEN")&&len==3)
-                            ProofWindow.blacken(toInt(cmd[1]), toInt(cmd[2]));
+                            ProofWindow.getFocussedWindow().blacken(toInt(cmd[1]), toInt(cmd[2]));
                         else
                         if (p.equals("GREYEN")&&len==3)
-                            ProofWindow.greyen(toInt(cmd[1]), toInt(cmd[2]));
+                            ProofWindow.getFocussedWindow().greyen(toInt(cmd[1]), toInt(cmd[2]));
                         else
                         if (p.equals("HIGHLIGHT")&&len==4)
-                            ProofWindow.highlight(toInt(cmd[1]), toInt(cmd[2]), toByte(cmd[3]));
+                            ProofWindow.getFocussedWindow().highlight(toInt(cmd[1]), toInt(cmd[2]), toByte(cmd[3]));
                         else
                         if (p.equals("UNHIGHLIGHT")&&len==3)
-                            ProofWindow.unhighlight(toInt(cmd[1]), toInt(cmd[2]));
+                            ProofWindow.getFocussedWindow().unhighlight(toInt(cmd[1]), toInt(cmd[2]));
                         else
                             
                     // FONTINFO not very often
@@ -143,7 +141,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                             
                     // font setting
                         if (p.equals("SETFONTS")&&len==2) {
-                            encoder.setEncoding(cmd[1]);
+                            JapeCharEncoding.setEncoding(cmd[1]);
                             JapeFont.setSubstituteFont(cmd[1]);
                         }
                         else
@@ -238,24 +236,24 @@ public class Dispatcher extends Thread implements DebugConstants {
                             ProofWindow.closeproof(toInt(cmd[1]));
                         else
                         if (p.equals("PANEGEOMETRY")&&len==2)
-                        Reply.reply(ProofWindow.getPaneGeometry(toByte(cmd[1])));
+                        Reply.reply(ProofWindow.getFocussedWindow().getPaneGeometry(toByte(cmd[1])));
                         else
                         if (p.equals("SETPROOFPARAMS")&&len==3)
-                            ProofWindow.setProofParams(toByte(cmd[1]), toInt(cmd[2]));
+                            ProofWindow.getFocussedWindow().setProofParams(toByte(cmd[1]), toInt(cmd[2]));
                         else
                         if (p.equals("CLEARPANE")&&len==2)
-                            ProofWindow.clearPane(toByte(cmd[1]));
+                            ProofWindow.getFocussedWindow().clearPane(toByte(cmd[1]));
                         else
                         if (p.equals("DRAWINPANE")&&len==2)
-                            ProofWindow.drawInPane(toByte(cmd[1]));
+                            ProofWindow.getFocussedWindow().drawInPane(toByte(cmd[1]));
                         else
 
                     // disproof
                         if (p.equals("SEQBOX")&&len==4)
-                            ProofWindow.setSequentBox(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]));
+                            ProofWindow.getFocussedWindow().setSequentBox(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]));
                         else
                         if (p.equals("EMPHASISE")&&len==4)
-                            ProofWindow.emphasise(toInt(cmd[1]), toInt(cmd[2]), toBool(cmd[3]));
+                            ProofWindow.getFocussedWindow().emphasise(toInt(cmd[1]), toInt(cmd[2]), toBool(cmd[3]));
                         else
                         if (p.equals("TILESSTART")&&len==1)
                             list.removeAllElements();
@@ -264,30 +262,30 @@ public class Dispatcher extends Thread implements DebugConstants {
                             list.add(cmd[1]);
                         else
                         if (p.equals("TILESEND")&&len==1)
-                            ProofWindow.setDisproofTiles((String[])list.toArray(new String[list.size()]));
+                            ProofWindow.getFocussedWindow().setDisproofTiles((String[])list.toArray(new String[list.size()]));
                         else
                         if (p.equals("WORLDSSTART")&&len==1)
-                            ProofWindow.worldsStart();
+                            ProofWindow.getFocussedWindow().worldsStart();
                         else
                         if (p.equals("WORLD")&&len==3)
-                            ProofWindow.addWorld(toInt(cmd[1]), toInt(cmd[2]));
+                            ProofWindow.getFocussedWindow().addWorld(toInt(cmd[1]), toInt(cmd[2]));
                         else
                         if (p.equals("WORLDLABEL")&&len==4)
-                            ProofWindow.addWorldLabel(toInt(cmd[1]), toInt(cmd[2]), cmd[3]);
+                            ProofWindow.getFocussedWindow().addWorldLabel(toInt(cmd[1]), toInt(cmd[2]), cmd[3]);
                         else
                         if (p.equals("WORLDCHILD")&&len==5)
-                            ProofWindow.addChildWorld(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]), toInt(cmd[4]));
+                            ProofWindow.getFocussedWindow().addChildWorld(toInt(cmd[1]), toInt(cmd[2]), toInt(cmd[3]), toInt(cmd[4]));
                         else
                         if (p.equals("WORLDSELECT")&&len==3)
-                            ProofWindow.selectWorld(toInt(cmd[1]), toInt(cmd[2]), true);
+                            ProofWindow.getFocussedWindow().selectWorld(toInt(cmd[1]), toInt(cmd[2]), true);
                         else
                             
                     // provisos and givens
                         if (p.equals("CLEARPROVISOVIEW")&&len==1)
-                            ProofWindow.clearProvisoView();
+                            ProofWindow.getFocussedWindow().clearProvisoView();
                         else
                         if (p.equals("SHOWPROVISOLINE")&&len==2)
-                            ProofWindow.showProvisoLine(cmd[1]);
+                            ProofWindow.getFocussedWindow().showProvisoLine(cmd[1]);
                         else
                         if (p.equals("CLEARGIVENS")&&len==1)
                             list.removeAllElements();
@@ -296,20 +294,20 @@ public class Dispatcher extends Thread implements DebugConstants {
                             list.add(new MiscellaneousConstants.IntString(toInt(cmd[1]), cmd[2]));
                         else
                         if (p.equals("SETGIVENS")&&len==1)
-                            ProofWindow.setGivens(
+                            ProofWindow.getFocussedWindow().setGivens(
                                 (MiscellaneousConstants.IntString[])
                                     list.toArray(new  MiscellaneousConstants.IntString[list.size()]));
                         else
 
                     // selections of various kinds
                         if (p.equals("GETSELECTIONS")&&len==1)
-                            Reply.reply(ProofWindow.getSelections());
+                            Reply.reply(ProofWindow.getFocussedWindow().getSelections());
                         else
                         if (p.equals("GETTEXTSELECTIONS")&&len==1)
-                            Reply.reply(ProofWindow.getTextSelections());
+                            Reply.reply(ProofWindow.getFocussedWindow().getTextSelections());
                         else
                         if (p.equals("GETGIVENTEXTSELECTIONS")&&len==1)
-                            Reply.reply(ProofWindow.getGivenTextSelections());
+                            Reply.reply(ProofWindow.getFocussedWindow().getGivenTextSelections());
                         else
                         
                     // OPERATOR .. deal with the keyboard in some dialogue boxes
@@ -327,7 +325,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("RESETTHEORY")&&len==1) {
                             JapeMenu.cancelMenus();
                             PanelWindowData.cancelPanels();
-                            encoder.resetEncoding();
+                            JapeCharEncoding.resetEncoding();
                             JapeFont.resetSubstituteFont();
                             JapeWindow.resetNextPos();
                         }
@@ -350,14 +348,14 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("VERSION")&&len==2)
                             AboutBox.setVersion(cmd[1]);
                         else
-                            /*Alert.showErrorAlert*/System.err.println("dispatcher doesn't understand ("+len+") "+line);
+                            /*Alert.showErrorAlert*/Logger.log.println("dispatcher doesn't understand ("+len+") "+line);
                     } // if (cmd.length!=0)
                 } catch (ProtocolError e) {
                     Alert.showErrorAlert("protocol error in "+line+":: "+e.getMessage());
                 }
             } // while
         } catch (IOException e) {
-            System.err.println("japeserver crash: dispatcher fails with IOException "+e);
+            Logger.log.println("japeserver crash: dispatcher fails with IOException "+e);
             System.exit(2);
         }
     }

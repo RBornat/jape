@@ -106,14 +106,14 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         int i = entryv.indexOf(entry);
         if (i==-1) {
             if (panellist_tracing)
-                System.err.println("panel \""+title+"\" adding entry \""+entry+"\", cmd \""+cmd+"\"");
+                Logger.log.println("panel \""+title+"\" adding entry \""+entry+"\", cmd \""+cmd+"\"");
             entryv.add(entry);
             cmdv.add(cmd);
             markv.add(null);
         }
         else {
             if (panellist_tracing)
-                System.err.println("panel \""+title+"\" setting entry \""+entry+"\" to \""+cmd+"\"");
+                Logger.log.println("panel \""+title+"\" setting entry \""+entry+"\" to \""+cmd+"\"");
             cmdv.setElementAt(cmd, i);
         }
         if (window!=null)
@@ -122,7 +122,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
     protected void markEntry(String cmd, boolean proved, boolean disproved) throws ProtocolError {
             if (panellist_tracing)
-                System.err.println("panel \""+title+"\" marking cmd \""+cmd+"\" "+proved+","+disproved);
+                Logger.log.println("panel \""+title+"\" marking cmd \""+cmd+"\" "+proved+","+disproved);
             int i = cmdv.indexOf(cmd);
             if (i==-1)
                 throw new ProtocolError("no such command");
@@ -156,6 +156,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             super(label);
             this.label=label; this.cmd=cmd;
             setActionCommand(label);
+        }
+        void setfont() {
             JapeFont.setComponentFont(this, JapeFont.PANELBUTTON);
         }
         boolean needsSelection() {
@@ -192,7 +194,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         buttonv.add(button);
         if (window!=null) {
             if (panellayout_tracing)
-                System.err.println("late PanelButton "+label);
+                Logger.log.println("late PanelButton "+label);
             window.addButton(button); // this is ok after an emptyPanel
         }
     }
@@ -206,7 +208,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
     public void emptyPanel() {
         if (panelempty_tracing)
-            System.err.println("emptying panel "+window.title);
+            Logger.log.println("emptying panel "+window.title);
         window.setVisible(false);
         window.model.removeAllElements();
         Component[] cs = window.getContentPane().getComponents();
@@ -215,7 +217,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 PanelButton b = (PanelButton)cs[i];
                 if (!defaultButton(b)) {
                     if (panelempty_tracing)
-                        System.err.println("deleting button "+b.label);
+                        Logger.log.println("deleting button "+b.label);
                     window.removeButton(b);
                     buttonv.remove(buttonv.indexOf(b));
                 }
@@ -309,8 +311,11 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             contentPane.add(scrollPane);
 
             buttonPane = new ButtonPane();
-            for (int i=0; i<buttonv.size(); i++)
-                addButton((PanelButton)buttonv.get(i)); // make sure it gets an ActionListener
+            for (int i=0; i<buttonv.size(); i++) {
+                PanelButton b = (PanelButton)buttonv.get(i);
+                b.setfont();
+                addButton(b); // make sure it gets an ActionListener
+            }
             contentPane.add(buttonPane);
             
             list.addListSelectionListener(new ButtonWatcher());
@@ -325,6 +330,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             pack(); // necessary??
         }
 
+        protected boolean servesAsControl() { return LocalSettings.panelWindowMenus; }
+
         public void resetPanelLayout() {
             Container contentPane = getContentPane();
             contentPane.getLayout().layoutContainer(contentPane);
@@ -335,6 +342,21 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                                               super.equals(o);
         }
 
+        public class PanelWindowState {
+            public final boolean visible;
+            PanelWindowState() {
+                visible = isVisible();
+            }
+        }
+
+        public PanelWindowState getPanelWindowState() {
+            return new PanelWindowState();
+        }
+
+        public void setPanelWindowState(PanelWindowState state) {
+            setVisible(state.visible);
+        }
+        
         protected class Entry extends Component {
             private String s;
             public String prefix;
@@ -353,7 +375,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             }
             public void paint(Graphics g) {
                 if (paint_tracing)
-                    System.err.println("painting PanelWindow.Entry");
+                    Logger.log.println("painting PanelWindow.Entry");
                 g.setColor(getBackground()); g.fillRect(0, 0, getWidth(), getHeight());
                 if (selected && !active) {
                     g.setColor(innerBackground); g.fillRect(2, 2, getWidth()-4, getHeight()-4);
@@ -481,14 +503,14 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         
         public Dimension getMaximumSize() {
             if (panellayout_tracing)
-                System.err.println("panel "+this.title+" getMaximumSize called");
+                Logger.log.println("panel "+this.title+" getMaximumSize called");
             return super.getMaximumSize();
         }
 
         // the Container class seems to cache this, but I think it needs calling more than once ...
         public Dimension getPreferredSize() {
             if (panellayout_tracing)
-                System.err.println("panel "+this.title+" getPreferredSize called");
+                Logger.log.println("panel "+this.title+" getPreferredSize called");
             return super.getPreferredSize();
         }
         
@@ -530,7 +552,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                     width = Math.max(width, buttonwidth);
                 }
                 if (panellayout_tracing)
-                    System.err.println("maximumLayoutSize returns "+width+","+height);
+                    Logger.log.println("maximumLayoutSize returns "+width+","+height);
                 return new Dimension(width, height);
             }
             */
@@ -589,8 +611,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                     buttonPane.setBounds(0, buttonTop, pane.getWidth(), buttonPaneSize.height); 
                     scrollPane.setBounds(0, 0, pane.getWidth(), Math.max(0, buttonTop));
                     if (panellayout_tracing) {
-                        System.err.print("panelwindow "+PanelWindow.this.title+" layout: ");
-                        japeserver.showContainer(pane);
+                        Logger.log.print("panelwindow "+PanelWindow.this.title+" layout: ");
+                        JapeUtils.showContainer(pane);
                     }
                 }
             }
@@ -652,6 +674,18 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 // but don't reset the size or position ...
             }
             panel.window.setVisible(true);
+        }
+    }
+
+    public static void font_reset() {
+        for (int i=0; i<panelv.size(); i++) {
+            PanelWindowData panel = (PanelWindowData)panelv.get(i);
+            if (panel.window!=null) {
+                PanelWindow.PanelWindowState state = panel.window.getPanelWindowState();
+                panel.window.dispose();
+                panel.initWindow();
+                panel.window.setPanelWindowState(state);
+            }
         }
     }
 

@@ -36,18 +36,18 @@ import javax.swing.JFileChooser;
 
 public class FileChooser /* implements FilenameFilter */ {
 
-    private static File lastOpen, lastSave; 
+    private static File lastOpen=null, lastSave=null; 
 
     private static File nextOpen() {
-        return (lastOpen==null ? (lastSave==null ? (japeserver.onMacOS ? null : new File("."))
-                                                : lastSave)
-                               : lastOpen);
+        return (lastOpen!=null ? lastOpen :
+                lastSave!=null ? lastSave :
+                                 new File(System.getProperties().getProperty("user.dir")));
     }
 
     private static File nextSave() {
-        return (lastSave==null ? (lastOpen==null ? (japeserver.onMacOS ? null : new File("."))
-                                                 : lastOpen)
-                               : lastSave);
+        return (lastSave!=null ? lastSave :
+                lastOpen!=null ? lastOpen :
+                                 new File(System.getProperties().getProperty("user.dir")));
     }
 
     private static String doOpenDialog(JFileChooser chooser) {
@@ -79,10 +79,11 @@ public class FileChooser /* implements FilenameFilter */ {
     }
 
     public static String newOpenDialog(String message, String [] extension) {
-        if (japeserver.onMacOS && lastOpen==null) {
-            System.err.println("\".\" translates to"+(new File(".").getAbsolutePath()));
-        }
-        JFileChooser chooser = nextOpen()==null ? new JFileChooser() : new JFileChooser(nextOpen());
+        /* if (japeserver.onMacOS && lastOpen==null) {
+            Logger.log.println("\".\" translates to "+(new File(".").getAbsolutePath())+"\n"+
+                                  "and nextOpen().getAbsolutePath()="+nextOpen().getAbsolutePath());
+        } */
+        JFileChooser chooser = new JFileChooser(nextOpen());
         ExampleFileFilter filter = new ExampleFileFilter();
         for (int i=0; i<extension.length; i++)
             filter.addExtension(extension[i]);
@@ -92,7 +93,7 @@ public class FileChooser /* implements FilenameFilter */ {
     }
 
     public static String newSaveDialog(String message, String [] extension) {
-        JFileChooser chooser = nextSave()==null ? new JFileChooser() : new JFileChooser(nextSave());
+        JFileChooser chooser = new JFileChooser(nextSave());
         ExampleFileFilter filter = new ExampleFileFilter();
         for (int i=0; i<extension.length; i++)
             filter.addExtension(extension[i]);
