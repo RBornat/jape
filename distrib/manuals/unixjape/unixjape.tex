@@ -42,13 +42,6 @@ Richard Bornat%
 \maketitle
 \vfill
 \newpage
-\begin{abstract}
-\noindent In this document we briefly describe the Unix Jape user interface then 
-give a fuller description of the auxiliary programs which may be used to edit Jape 
-theories, print Jape proofs, incorporate Jape proofs in
-Latex documents, and construct new Jape font encodings.
-\end{abstract}
-\newpage
 \tableofcontents
 \newpage
 \section{The Unix Jape System}
@@ -91,7 +84,7 @@ Jape proof engine: release 5.0b5 [/ecslab/pl/JAPEHOME/bin/GUI/japeserver.py]
 
 and by putting up a session window (see \FIGREF{session1}). 
 
-\JPSFIG[scale=0.45]{session1}{A \Jape Session Window}
+\JPSFIG[scale=0.3]{session1}{A \Jape Session Window}
 
 
 The {\tt File} menu can then be used to select a top-level \Index{theory file}
@@ -103,9 +96,9 @@ in your current directory, then you may
 double click on the name of a directory in
 order to change the directory to one where there are theories
 (see, for example, \FIGREF{theorydialogue2}).
-\JPSFIG[scale=0.75]{filemenu}{The \Jape{} {\tt File} menu}
-\JPSFIG[scale=0.75]{theorydialogue1}{A \Jape theory dialogue (the {\tt JAPEHOME/examples} directory)}
-\JPSFIG[scale=0.75]{theorydialogue2}{A \Jape theory dialogue (the examples \texttt{sequent\_calculus} subdirectory}
+\JPSFIG[scale=0.55]{filemenu}{The \Jape{} {\tt File} menu}
+\JPSFIG[scale=0.55]{theorydialogue1}{A \Jape theory dialogue (directory {\tt JAPEHOME/examples})}
+\JPSFIG[scale=0.55]{theorydialogue2}{A \Jape theory dialogue (subdirectory \texttt{sequent\_calculus}}
 
 Double-clicking (with the leftmost mouse button) on a {\tt .jt}
 file selects and loads it. The Session window shortly changes to
@@ -426,7 +419,7 @@ which is not sound if $x$ appears free in $Q$.
 First we add the conjecture to the conjecture list by pressing
 the \button{New} button on the conjectures menu, whereupon
 a conjecture editor, which will look something
-like Figure \FIGREF{Editconj} will appear.
+like  \FIGREF{Editconj} will appear.
 \JPSFIG[scale=0.5]{Editconj}{The New Conjecture Editor}
 
 
@@ -434,7 +427,7 @@ Type the conjecture into the main window
 of the editor, and press \button{Execute} or the
 \button{Return} key to add it to the
 conjectures panel (where it will automatically be selected).
-Now press \button{Prove} on the conjectures panel, to starrt
+Now press \button{Prove} on the conjectures panel, to start
 the proof attempt:
 
 \JPSPROOF[scale=0.85]{Prov1}
@@ -443,9 +436,8 @@ Double clicking on the conclusion yields
 
 \JPSPROOF[scale=0.85]{Prov2}
 
-\Jape has invented a variable, $m$, that doesn't
-appear anywhere in the proof in order to apply the
-$жи$ rule. 
+In order to apply the $жи$ rule  \Jape has invented a variable that doesn't
+appear anywhere in the proof, namely $m$. 
 
 Now, despite the fact that the $hyp$ rule looks inapplicable because
 the hypothesis and conclusion are different, \Jape can be a little
@@ -928,6 +920,7 @@ the Laura font encoding.
 
 \input{unixjape.ind}
 \end{document}
+
 
 
 
