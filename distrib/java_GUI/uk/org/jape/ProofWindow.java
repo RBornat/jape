@@ -63,7 +63,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
 
     protected WindowListener windowListener;
     
-    public ProofWindow(String title, int proofnum) {
+    public ProofWindow(final String title, int proofnum) {
         super(title, proofnum);
         this.proofnum = proofnum;
 
@@ -82,7 +82,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
                 if (windowListener!=null)
                     Reply.sendCOMMAND("closeproof "+ProofWindow.this.proofnum);
                 else
-                    System.err.println("ProofWindow.windowListener late windowClosing "+e);
+                    System.err.println("ProofWindow.windowListener late windowClosing \""+
+                                       title +"\"; "+e);
             }
             public void windowActivated(WindowEvent e) {
                 if (windowListener!=null) {
@@ -97,7 +98,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
                         }
                 }
                 else
-                    System.err.println("ProofWindow.windowListener late windowActivated "+e);
+                    System.err.println("ProofWindow.windowListener late windowActivated \""+
+                                       title +"\"; "+e);
             }
         };
         addWindowListener(windowListener);
