@@ -1,0 +1,323 @@
+
+\chapter{Encoding BAN logic}
+\label{chap:BAN}
+
+Burroughs-Abadi-Needham (BAN) logic is a logic of authentication-protocols. It's of interest to us chiefly because it is a logic in which the rules don't fit into a tidy introduction / elimination structure, so that we have to use some ingenuity to design menus and double-clicking mechanisms to suit. Also, conjectures seem naturally to require long lists of assumptions, which makes it possible to demonstrate Jape's mechanism for folding long association lists. And its use of tuples allows us to demonstrate some new ways in which Jape can deal with families of rules.
+
+
+\textbf{{\large 9.1\tab Syntax}}
+
+
+The syntax of the logic is very simple, although it includes a number of novel operators which we managed to add to our Konstanz font. We've had to transform some of the notation to linearise it: for example, we have made $A<->^{K} B$ (A and B share private key K) into $\left( A,B\right) <->K$ and we've made $\left\{ X\right\} _{K} $ into $\left\{ X\right\} K$ . We've used $K^{\bot } $ rather than $K^{-1} $ . Otherwise, we believe, we have faithfully described the syntax, even if we have had to guess at the syntactic hierarchy of operators.
+
+CLASS VARIABLE x k\\
+CLASS FORMULA W X Y Z\\
+CLASS CONSTANT P Q R K N T\\
+CONSTANT A B S
+
+SUBSTFIX\tab 700\\
+JUXTFIX\tab 600\\
+PREFIX \tab 500\tab \#\\
+POSTFIX \tab 500\tab \={}\\
+INFIX\tab 300L\tab \"{u} \"{y} $<->$\\
+INFIX\tab 200R\tab \"{\i}\\
+INFIX\tab 150R\tab \"{o}\\
+LEFTFIX \tab 110\tab ∀.\\
+INFIX\tab 100R\tab \"{a}\\
+INFIX\tab 50L\tab $\triangleleft$
+
+OUTFIX \{ \}\\
+OUTFIX \texttt{<} \texttt{>}
+
+BIND x SCOPE P IN ∀x. P\\
+SEQUENT IS BAG ⊦ FORMULA\\
+INITIALISE autoAdditiveLeft true
+
+
+\textbf{{\large 9.2\tab Rules}}
+
+
+The rules of the logic are depicted in [``A Logic of Authentication'', Burrows Abadi, Needham] which is available on the Web from Mart\'{\i}n Abadi's home page, or in paper form as (Proceedings of the Royal Society, Series A, 426, 1871 (December 1989), 233-271). Two of the rules have a `\textit{from} R' side-condition which we haven't reproduced (and which is discussed in the paper though not depicted there). The rules are given natural-deduction style, without mentioning a context of hypotheses:\\
+
+
+%\begin{tabular}{llllllll}
+%\hline
+%% ROW 1
+%\multicolumn{1}{|p{1.082in}|}
+%{\raggedright
+%
+%$\frac{PQ<->^{K} P\quad P\left\{ X\right\} _{K} }{PQX} $
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%
+%$\frac{P ^{K} Q\quad P\left\{ X\right\} _{K^{-1} } }{PQX} $
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%
+%$\frac{PQ ^{Y} P\quad P\left\langle X\right\rangle _{Y} }{PQX} $
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%}\\
+%\hline
+%% ROW 2
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%
+%$\infer{PQX}{P\#X\quad PQX}$
+%} &
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%
+%$\infer{PX}{PQX\quad PQX}$
+%} &
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%} &
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%}\\
+%\hline
+%% ROW 3
+%\multicolumn{1}{|p{1.082in}|}
+%{\raggedright
+%
+%$\infer{P\left( X,Y\right) }{PX\quad PY}$
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%
+%$\infer{PX}{P\left( X,Y\right) }$
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%
+%$\infer{PQX}{PQ\left( X,Y\right) }$
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%
+%$\infer{PQX}{PQ\left( X,Y\right) }$
+%}\\
+%\hline
+%% ROW 4
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%
+%$\infer{PX}{P\left( X,Y\right) }$
+%} &
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%
+%$\frac{P\left\langle X\right\rangle _{Y} }{PX} $
+%} &
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%} &
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%}\\
+%\hline
+%% ROW 5
+%\multicolumn{1}{|p{1.082in}|}
+%{\raggedright
+%
+%$\frac{PQ<->^{K} P\quad P\left\{ X\right\} _{K} }{PX} $
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%
+%$\frac{P ^{K} P\quad P\left\{ X\right\} _{K} }{PX} $
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%
+%$\frac{P ^{K} Q\quad P\left\{ X\right\} _{K^{-1} } }{PX} $
+%} &
+%\multicolumn{5}{p{1.253in}|}
+%{\raggedright
+%}\\
+%\hline
+%% ROW 6
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%
+%$\infer{P\#\left( X,Y\right) }{P\#X}$
+%} &
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%} &
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%} &
+%\multicolumn{1}{p{0.043in}|}
+%{\raggedright
+%}\\
+%\hline
+%% ROW 7
+%\multicolumn{1}{|p{1.082in}|}
+%{\raggedright
+%
+%$\frac{PR<->^{K} R' }{PR' <->^{K} R} $
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%
+%$\frac{PQR<->^{K} R' }{PQR' <->^{K} R} $
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%
+%$\frac{PR \^{X} R' }{PR'  \^{X} R} $
+%} &
+%\multicolumn{5}{p{1.253in}|}
+%{\raggedright
+%
+%$\frac{PQR \^{X} R' }{PQR'  \^{X} R} $
+%}\\
+%\hline
+%% ROW 8
+%\multicolumn{1}{|p{1.082in}|}
+%{\raggedright
+%
+%$\frac{P@*v_{1} ...v_{n} .\left( QX\right) }{PQX\left[ v_{1} ...v_{n}
+%\backslash Y_{1} ...Y_{n} \right] } $
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%} &
+%\multicolumn{1}{p{1.082in}|}
+%{\raggedright
+%} &
+%\multicolumn{5}{p{1.253in}|}
+%{\raggedright
+%}\\
+%\hline
+%\end{tabular}
+
+
+The rules which don't deal with tuples are very straightforwardly encoded:
+
+RULE "P\"{a}(Q,P)$<->$K, P$\triangleleft$\{X\}K $=>$ P\"{a}Q\"{\i}X" IS FROM P\"{a}(Q,P)$<->$K AND P$\triangleleft$\{X\}K INFER P\"{a}Q\"{\i}X\\
+RULE "P\"{a}Q\"{y}K, P$\triangleleft$\{X\}K\={} $=>$ P\"{a}Q\"{\i}X" IS FROM P\"{a}Q\"{y}K AND P$\triangleleft$\{X\}K\={} INFER P\"{a}Q\"{\i}X\\
+RULE "P\"{a}(P,Q)\"{u}Y, P$\triangleleft$\texttt{<}X\texttt{>}Y $=>$ P\"{a}Q\"{\i}X" IS FROM P\"{a}(P,Q)\"{u}Y AND P$\triangleleft$\texttt{<}X\texttt{>}Y INFER P\"{a}Q\"{\i}X\\
+RULE "P\"{a}\#X, P\"{a}Q\"{\i}X $=>$ P\"{a}Q\"{a}X" IS FROM P\"{a}\#X AND P\"{a}Q\"{\i}X INFER P\"{a}Q\"{a}X\\
+RULE "P\"{a}Q\"{o}X, P\"{a}Q\"{a}X $=>$ P\"{a}X" IS FROM P\"{a}Q\"{o}X AND P\"{a}Q\"{a}X INFER P\"{a}X
+
+RULE "P$\triangleleft$\texttt{<}X\texttt{>}Y $=>$ P$\triangleleft$X" IS FROM P$\triangleleft$\texttt{<}X\texttt{>}Y INFER P$\triangleleft$X\\
+RULE "P\"{a}(P,Q)$<->$K, P$\triangleleft$\{X\}K $=>$ P$\triangleleft$X" IS FROM P\"{a}(P,Q)$<->$K AND P$\triangleleft$\{X\}K INFER P$\triangleleft$X\\
+RULE "P\"{a}P\"{y}K, P$\triangleleft$\{X\}K $=>$ P$\triangleleft$X" IS FROM P\"{a}P\"{y}K AND P$\triangleleft$\{X\}K INFER P$\triangleleft$X\\
+RULE "P\"{a}Q\"{y} K, P$\triangleleft$\{X\}K\={} $=>$ P$\triangleleft$X" IS FROM P\"{a}Q\"{y} K AND P$\triangleleft$\{X\}K\={} INFER P$\triangleleft$X\\
+RULE "P\"{a}(R,R')$<->$K $=>$ P\"{a}(R',R)$<->$K" IS FROM P\"{a}(R,R')$<->$K INFER P\"{a}(R',R)$<->$K\\
+RULE "P\"{a}Q\"{a}(R,R')$<->$K $=>$ P\"{a}Q\"{a}(R,R')$<->$K" IS FROM P\"{a}Q\"{a}(R,R')$<->$K INFER P\"{a}Q\"{a}(R',R)$<->$K\\
+RULE "P\"{a}(R,R')\"{u}K $=>$ P\"{a}(R',R)\"{u}K" IS FROM P\"{a}(R,R')\"{u}K INFER P\"{a}(R',R)\"{u}K\\
+RULE "P\"{a}Q\"{a}(R,R')\"{u}K $=>$ P\"{a}Q\"{a}(R',R)\"{u}K" IS FROM P\"{a}Q\"{a}(R,R')\"{u}K INFER P\"{a}Q\"{a}(R',R)\"{u}K
+
+RULE "P\"{a}∀x.X(x) $=>$ P\"{a}X(Y)"(Y,ABSTRACTION X) IS FROM P\"{a}∀x.X(x) INFER P\"{a}X(Y)
+
+
+We've had to include \texttt{hyp} so that we can use assumptions. \texttt{Cut} allows us to mimic forward proof. Left-weakening means that we can use theorems which don't match all the hypotheses:
+
+RULE hyp IS INFER X ⊦ X\\
+RULE cut(X) IS FROM X AND X ⊦ Y INFER Y\\
+RULE weaken(X) IS FROM Y INFER X ⊦ Y\\
+IDENTITY hyp\\
+CUT cut\\
+WEAKEN weaken
+
+
+\textit{Putting rules into menus}
+
+
+Organising these into menus is quite a problem. We've included a menu for each operator and put each rule into all the menus which seem relevant to it: for example, "P\"{a}(Q,P)$<->$K, P$\triangleleft$\{X\}K $=>$ P\"{a}Q\"{\i}X" is in the menus for $<->$, $\triangleleft$ and \"{\i}. Only \texttt{hyp} and the rule dealing with \ensuremath{\forall} are in a menu labelled `Logic'.
+
+
+We have implemented forward reasoning in the style of \chapref{ItL}; then, for example when "P\"{a}(Q,P)$<->$K, P$\triangleleft$\{X\}K $=>$ P\"{a}Q\"{\i}X" is included in the $<->$ menu we have
+
+ENTRY "P\"{a}(Q,P)$<->$K, [P$\triangleleft$\{X\}K] $=>$ P\"{a}Q\"{\i}X"\\
+\tab IS ForwardOrBackward ForwardCut 0 "P\"{a}(Q,P)$<->$K, P$\triangleleft$\{X\}K $=>$ P\"{a}Q\"{\i}X"
+
+
+in the $\triangleleft$ menu we have
+
+ENTRY "P$\triangleleft$\{X\}K, [P\"{a}(Q,P)$<->$K] $=>$ P\"{a}Q\"{\i}X" IS \\
+\tab ForwardOrBackward ForwardCut 1 "P\"{a}(Q,P)$<->$K, P$\triangleleft$\{X\}K $=>$ P\"{a}Q\"{\i}X"
+
+
+The square-bracketted antecedent in the menu entry is the one that \textit{isn't} focussed upon in that step. The whole gory details are in the file BAN\_menus.j. We may not have included the rules in enough menus or enough times (for example, we probably ought to have "P\"{a}(Q,P)$<->$K, P$\triangleleft$\{X\}K $=>$ P\"{a}Q\"{\i}X" in the \"{\i} menu twice, focussing once on each antecedent). We haven't had enough users to know if we have got this bit of user interaction right.
+
+
+\textit{Dealing with tuples}
+
+
+We've generalised some of the BAN rules: for example, we have implemented\\
+
+
+\begin{tabular}{|p{1.082in}|p{1.082in}|p{1.082in}|p{1.082in}|p{0.043in}|p{0.043in}|p{0.043in}|p{0.043in}|} \hline
+% ROW 1
+{\raggedright $\frac{PX_{1} \quad ...\quad PX_{n} }{P\left( X_{1},...,X_{n} \right) } $ } & {\raggedright $\infer{PX}
+       {P\left( ...,X,...\right) }$ } & {\raggedright } & {\raggedright }\\
+\hline \end{tabular}
+
+
+for 2-, 3- and 4-tuples. We've done it, as you ought to expect, by listing each version of the rule and combining them with the \textsc{rules} directive:
+
+RULES "... P\"{a}X... $=>$ P\"{a}(...,X,...)" ARE\\
+\tab FROM P\"{a}X AND P\"{a}Y\tab INFER P\"{a}(X,Y) \\
+AND\tab FROM P\"{a}X AND P\"{a}Y AND P\"{a}Z\tab INFER P\"{a}(X,Y,Z) \\
+AND\tab FROM P\"{a}W AND P\"{a}X AND P\"{a}Y AND P\"{a}Z\tab INFER P\"{a}(W,X,Y,Z)\\
+END
+
+RULES "P\"{a}(...,X,...) $=>$ P\"{a}X"(X) ARE \\
+\tab FROM P\"{a}(X,Y)\tab INFER P\"{a}X \\
+AND\tab FROM P\"{a}(Y,X)\tab INFER P\"{a}X \\
+AND\tab FROM P\"{a}(X,Y,Z)\tab INFER P\"{a}X \\
+AND\tab FROM P\"{a}(Z,X,Y)\tab INFER P\"{a}X \\
+AND\tab FROM P\"{a}(Y,Z,X)\tab INFER P\"{a}X \\
+AND\tab FROM P\"{a}(X,Y,Z,W)\tab INFER P\"{a}X \\
+AND\tab FROM P\"{a}(W,X,Y,Z)\tab INFER P\"{a}X \\
+AND\tab FROM P\"{a}(Z,W,X,Y)\tab INFER P\"{a}X \\
+AND\tab FROM P\"{a}(Y,Z,W,X)\tab INFER P\"{a}X\\
+END
+
+
+The second group gives us an interesting forward proof problem. We would like to be able to select an item of a tuple and pick it out using one of these rules. To do so we need to be able to search the collection. Since our forward proof steps are all sequences ``\textit{cut; rule; select subgoal; hyp}'' we have to make sure on the second step that we select the right rule. We don't have a very good mechanism for that in our tactic language at present. The best we have come up with is a sort of automatic backtracking using \textsc{withcontinuation}.
+
+
+\textsc{withcontinuation} \textit{tactic}$_{0}$ \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$ sets the sequence \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$ as a continuation, and runs \textit{tactic}$_{0}$. If \textit{tactic}$_{0}$ is an \textsc{alt}, or ends with an \textsc{alt}, it will add that continuation to each of its alternatives. The effect is that an alternative won't succeed unless the continuation \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$ succeeds as well. If \textit{tactic}$_{0}$ doesn't end with an \textsc{alt}, then the effect is the same as \textsc{seq} \textit{tactic}$_{0}$ \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$. We make our forward step tactics use \textsc{withcontinuation}:
+
+TACTIC ForwardCut (n,Rule)\\
+\tab SEQ cut (WITHCONTINUATION (WITHARGSEL Rule) (JAPE (SUBGOAL n)) (WITHHYPSEL hyp))\\
+TACTIC ForwardUncut (n,Rule)\\
+\tab WITHCONTINUATION (WITHARGSEL Rule) (JAPE (SUBGOAL n)) (WITHHYPSEL hyp)
+
+
+Then we include in the \"{a} menu
+
+ENTRY "P\"{a}Q\"{a}(...,X,...) $=>$ P\"{a}Q\"{a}X"\\
+\tab IS ForwardOrBackward ForwardCut 0 "P\"{a}Q\"{a}(...,X,...) $=>$ P\"{a}Q\"{a}X"
+
+
+and Bob's your uncle.
+
+
+\textbf{{\large 9.3\tab Conjectures with long assumption lists}}
+
+
+On educational grounds we thought it best to include lots of assumptions in each conjecture, simply because the problem for novices is to decide which assumptions are relevant and how. This makes very long conjectures. For example, one of the conjectures about the Needham-Schroeder protocol is
+
+{\small THEOREM "Needham-Schroeder: A$\triangleleft$\{Na,(A,B)$<->$Kab,\#((A,B)$<->$Kab),\{(A,B)$<->$Kab\}Kbs\}Kas ⊦ A\"{a}(A,B)$<->$Kab" IS  \\
+\tab \tab A\"{a}(A,S)$<->$Kas, S\"{a}(A,S)$<->$Kas, B\"{a}(B,S)$<->$Kbs, S\"{a}(B,S)$<->$Kbs, S\"{a}(A,B)$<->$Kab,\\
+\tab \tab A\"{a}(∀k.S\"{o}(A,B)$<->$k), B\"{a}(∀k.S\"{o}(A,B)$<->$k), A\"{a}(∀k.S\"{o}\#((A,B)$<->$k)), \\
+\tab \tab A\"{a}\#Na, B\"{a}\#Nb, S\"{a}\#((A,B)$<->$Kab), B\"{a}(∀k.\#((A,B)$<->$k)), \\
+\tab \tab A$\triangleleft$\{Na,(A,B)$<->$Kab,\#((A,B)$<->$Kab),\{(A,B)$<->$Kab\}Kbs\}Kas \\
+\tab \tab ⊦ A\"{a}(A,B)$<->$Kab}
+
+
+Jape automatically folds long assumption lists in a box display to fit the proof window. The proof of this conjecture, in a moderately-sized window, is
+
+\begin{figure}[htbp] \begin{center} \includegraphics[width=6.736in, height=2.986in]{oldpics/Roll_your_own_v3_2+Fig49} \caption{Fig49} \end{center} \end{figure}
+
+ 

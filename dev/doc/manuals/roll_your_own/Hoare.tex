@@ -1,0 +1,8 @@
+\chapter{Encoding Hoare logic}
+\label{chap:Hoare}
+
+This chapter has very little to say. The encoding defined in the file hoare.jt and the files that it invokes is chiefly interesting for what it \textit{doesn't} do. Jape is perfectly capable of encoding the program syntax and the rules of inference about predicates, but it falls down when it tries to handle arithmetic. You could, in principle, prove that \textit{x}\texttt{<}\textit{x}+1 by induction (really!) but induction is absolutely no help when it comes to deciding that 3\texttt{<}4. Experience with this encoding shows that Jape needs an `arithmetic oracle', and one is under construction.
+
+
+The problem of arithmetic is tricky, and we realise that provision of an arithmetic oracle won't make it go away. Jape lacks a `the user is an oracle' mechanism, as for example is provided in the Imperial College proof editor Pandora. Such a mechanism would make it possible to certify certain steps in a proof and for the steps to be accepted without further ado. That makes difficult arithmetic the responsibility of the user: certainly not sound, but far more convenient than Jape's current incapacity.\\
+ 

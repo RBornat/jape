@@ -1,0 +1,712 @@
+\chapter{The paragraph and formula languages}
+\label{appx:paraformlang}
+
+
+The paragraph language is the one in which logics, their syntax, their rules, the tactics you intend to use and the menus of commands you intend to display are all defined. It uses a lot of reserved words: we add to the list as the need arises but all are multi-letter upper-case words, so it is a good idea to avoid use of that kind of word in your encodings.
+
+
+At the time of writing the complete list of reserved words is
+
+
+\textsc{abstraction, and, are, automatch, autounify, bag, bind, button, checkbox, class, concfresh, conchit, conjecturepanel, constant, currentproof, cut, end, entry, fonts, formula, fresh, from, hypfresh, hyphit, identity, in, infer, infix, infixc, initially, initialise, is, judgement, juxtfix, leftfix, leftweaken, list, menu, menukey, notin, number, object, outfix, postfix, prefix, prefixbutton, proof, radiobutton, rightweaken, rule, rules, scope, separator, sequent, string, structurerule, substfix, tactic, tacticpanel, theorem, theorems, theory, unifieswith, use, variable, view, weaken, where}
+
+
+\textbf{{\large A.1\tab Directives}}
+
+
+In this description I use [... {\textbar}... ] to describe alternatives, \{... \} to describe optional components and ellipsis to denote optional repetition.
+
+
+\textsc{abstraction}: decorates a parameter in a \textsc{rule} or \textsc{theorem} directive. When the rule is instantiated, applications of this parameter to arguments are translated into substitutions, with a substitution variable which is made an \textsc{object} parameter of the rule. The effect is to simulate predicate notation with that parameter.
+
+
+\textsc{and}: separator\\
+\textsc{are}: separator
+
+
+\textsc{automatch} \textit{tacticname,..., tacticname}: at the end of each proof step, run the tactics (usually they are rules) specified over each open tip of the tree, but only allow them to work by `matching' --- that is, don't allow any unknowns in the tree to change as a result of running the tactic (see also \textsc{match} in the tactic language).
+
+
+\textsc{autounify} \textit{tacticname,..., tacticname}: same as \textsc{automatch} but without the restriction on working by `matching'. This directive is less used than \textsc{automatch}, chiefly because it is easy to make automatic steps which make large and/or unexpected and/or unhelpful changes to a proof. But sometimes it is the right thing: see for example the way that the Hindley-Milner algorithm encodings use \textsc{autounify} to determine the type of constants.
+
+
+\textsc{bag \{} \texttt{<}kind\texttt{>} \textsc{\}} \textit{names}: see the discussion of flexible syntax below.
+
+
+\textsc{bind} \textit{variable... variable} \textsc{scope} \textit{name... name} \textsc{in} \textit{formula}: see the discussion of flexible syntax below.\\
+\textsc{button:} this allows you to attach a command to a label in a menu or a button on a panel. See \appxref{GUIlang} for information on the command language.
+
+
+\textsc{checkbox} \textit{variable label} \{ \textsc{initially [} true {\textbar} false ] \}: a checkbox is created associated with the named variable. If the variable doesn't exist in Jape's default environment this directive declares it, and its range of values will be true and false; if it exists, those must already be its range. The initial value, if included, is immediately assigned to the variable.
+
+
+\tab In a menu, \textit{label} appears ticked or unticked according to whether or not the value of \textit{variable} is true or false; in a panel you see a proper user-interface checkbox with that label.
+
+
+\textsc{class}  \texttt{<}kind\texttt{>} \textit{names}: see the discussion of flexible syntax below.
+
+
+\textsc{concfresh} \textit{variable}: proviso that \textit{variable} doesn't occur free in any right-hand-side formula of the consequent of a proof step. See \textsc{fresh}.
+
+
+\textsc{conchit} \{ \{ \textit{formula1} \} \texttt{<}entails\texttt{>} \} \textit{formula2} \textsc{is} \textit{tactic}: if the user double-clicks on a right-hand-side formula matching \textit{formula2} then run \textit{tactic}. If \textit{formula1} also appears, then either the sequent must have a single left-hand-side formula matching it, or the user must also have selected a left-hand-side formula matching it. See also \textsc{hyphit} below.
+
+
+\textsc{conjecturepanel} \textit{name} \{ \textsc{is} \} [ \textit{entry} {\textbar} \textit{button} ]* \textsc{end}: build a panel of conjectures. Each \textit{entry} is one of \textsc{entry}, \textsc{theorem, theorems, proof, currentproof}; each \textit{button} is one of \textsc{button, prefixbutton, radiobutton, checkbox}. \textsc{entry}, \textsc{theorem} and \textsc{theorems} add entries to the list of conjectures which forms part of the panel; \textsc{proof} and \textsc{currentproof} are used in the proof save and reload mechanism. \\
+\tab In addition to the buttons explicitly described, every conjecture panel always has ``New\dots '', ``Prove'' and ``Show{\nobreakspace}Proof'' buttons, and if there isn't a description of an ``Apply'' button then one is added as if you had written ``\textsc{prefixbutton} Apply \textsc{is} apply''. Like \textsc{menu} (q.v.), a panel description can be divided into sections, and the complete description is just the concatenation of the various parts.
+
+
+\textsc{constant} \textit{name... name}: the \textit{name}s are defined to have the syntactic class \textsc{constant}. See the discussion of flexible syntax below.
+
+
+\textsc{currentproof} \textit{name sequent} \{ \textsc{where} \textit{proviso} \textsc{and... and} \textit{proviso} \textsc{\} is} \textit{tactic}: same as \textsc{proof} (q.v. below), except that the proof of \textit{sequent} built by \textit{tactic} need not be complete, is not recorded in the proof store, and is displayed on the screen.
+
+
+\textsc{cut} \textit{rulename}: synonym for \textsc{structurerule} \textsc{cut}; declares that the rule called \textit{rulename} is a `cut' rule, provided that it meets certain conditions (see below). Applications of the rule will normally be hidden in the box display mode of Jape. This directive is required before Jape will properly interpret the `tryresolution' variable (see \appxref{GUIlang}).
+
+
+\textsc{end:} closer in lots of directives.
+
+
+\textsc{entry} \textit{name} \{ \{ \textsc{is} \} \textit{tactic} \} \{ \textsc{menukey} \textit{letter} \}: used to describe an entry in a menu or in the list of a panel. May only appear as part of a \textsc{menu} or \textsc{panel} directive; \textsc{menukey} is permitted only when part of a \textsc{menu} directive. The label is \textit{name}; if the \textit{tactic} component is omitted then the tactic expression \textit{name} is used; if the \textsc{menukey} component is included then \textit{letter} is used as the `command key' of that label. When the label is selected in a menu, the command ``apply \textit{tactic}'' is transmitted to the proof engine; when the label is selected in a panel, there is no effect until a \textsc{prefixbutton} (q.v.) is pressed.
+
+
+\textsc{fonts} \textit{name}: the font-encoding name \textit{name} is transmitted to the graphical interface. At the time of writing our interfaces only recognise ``Konstanz'', but watch this space...\\
+\textsc{formula} \textit{name... name}: the \textit{name}s are declared to be in the syntactic class \textsc{formula}. See discussion of flexible syntax below.
+
+
+\textsc{fresh} \textit{variable}: proviso in a rule or theorem. \textit{Variable} mustn't appear free in any hypothesis or conclusion of the sequent to which the rule or theorem is applied; is translated into \textsc{notin} provisos for each of the formulae of that sequent.
+
+
+\textsc{from}: separator in \textsc{rule} directive.\\
+\textsc{hypfresh} \textit{variable}: \textit{variable} doesn't occur free in any hypothesis of the problem sequent. See \textsc{fresh.}
+
+
+\textsc{hyphit} \textit{formula}1 \texttt{<}entails\texttt{>} \{ \textit{formula}2 \} \textsc{is} \textit{tactic}: if the user double-clicks on a left-hand-side \textit{formula}1 then run \textit{tactic}. If \textit{formula}2 appears then either the sequent must have a single right-hand side which matches \textit{formula}2, or the user must also select a right-hand-side formula matching \textit{formula}2 in order for the directive to fire.
+
+
+\textsc{identity} \textit{rulename}: synonym for \textsc{structurerule} \textsc{identity}; the rule named \textit{rulename} is declared to be a `identity' rule. Instances of the application of this rule are normally hidden in box display mode.
+
+
+\textsc{in}: connective in binding directive.\\
+\textsc{infer}: connective in \textsc{rule} directive.
+
+
+\textsc{infix} \textit{precedence} [ L {\textbar} R {\textbar} T ] \textit{operatorname... operatorname}: the names are declared to be infix binary operators with the given precedence; L means left-associative, R right-associative, T tupling. Instances of formulae such as \textit{A} \textit{op} \textit{B} are then treated internally as if they were `uncurried' function applications --- that is, as if you had written (\textit{op})(\textit{A},\textit{B}). See discussion of flexible syntax below.
+
+
+\textsc{infixc} \textit{precedence} [ L {\textbar} R {\textbar} T ] \textit{operatorname... operatorname}: very similar to \textsc{infix} (q.v. above), but parsed `curried' so that \textit{A} \textit{op} \textit{B} is then treated internally as if you had written (\textit{op}) \textit{A} \textit{B}.
+
+
+\textsc{initially}: part of the \textsc{radiobutton} and \textsc{checkbox} directives.
+
+
+\textsc{initialise} \textit{variablename} \textit{value}: the variable named is assigned the value given. See the discussion of variables in \appxref{GUIlang}.
+
+
+\textsc{is}: connective, often omitted.
+
+
+\textsc{judgement is} [ \textsc{bag} {\textbar} \textsc{list} {\textbar} \textsc{formula} ] \textit{turnstile} [ \textsc{bag} {\textbar} \textsc{list} {\textbar} \textsc{formula} ]: same as \textsc{sequent} directive (see below), except that in box display a \textsc{judgement} form is always displayed complete, on a conclusion line. That is, the left-hand side is not treated as a collection of hypotheses in box display.
+
+
+\textsc{juxtfix} \textit{precedence}: defines syntactic precedence of juxtaposition: see discussion of flexible syntax below.\\
+\textsc{leftfix} \textit{precedence leftbra punct}1\textit{... punctN}: defines syntactic precedence and form of bracketed form which misses a closing bracket. See discussion of flexible syntax below.
+
+
+\textsc{leftweaken} \textit{rulename}: synonym for \textsc{structurerule} \textsc{leftweaken}; declares that the rule called \textit{rulename} is a `left weakening' rule. Essential if Jape is to be able to apply theorems which don't have enough hypotheses to match the whole of the problem sequent.
+
+
+\textsc{list \texttt{<}}kind\textsc{\texttt{>}} \textit{names}: see the discussion of flexible syntax below.
+
+
+\textsc{menu} \textit{name} \textsc{is} \textit{entry.... entry} \textsc{end}: the effect of the entries (which can be \textsc{rule, rules, tactic, theorem, theorems, theory, proof, currentproof, entry, button, radiobutton, checkbox} or \textsc{separator)} are added to the menu named \textit{name}. \textsc{menu} directives for the same menu are accumulated in sequence, and need not be given all in one place.
+
+
+\textsc{menukey} \textit{letter}: part of the \textsc{entry} directive when used inside a \textsc{menu} description.
+
+
+\textit{name} \textsc{notin} \textit{formula}: a proviso that \textit{name} must not occur free in \textit{formula}. Often generated as the result of a \textsc{fresh, hypfresh} or \textsc{concfresh} proviso; sometimes included in its own right.\\
+\textsc{number} \textit{name... name}: the \textit{name}s are declared to be in the syntactic class \textsc{number}. See the discussion of flexible syntax below.
+
+
+\textsc{object} \textit{name}: decorates a parameter in a \textsc{rule} or \textsc{theorem} directive. When the rule is instantiated, the parameter is replaced by a newly-minted object variable rather than an unknown, unless this default assignment is overridden by provision of an argument formula.
+
+
+\textsc{outfix} \textit{leftbra punct}1\textit{... punctN rightbra}: see the discussion of flexible syntax below.\\
+\textsc{postfix} \textit{precedence operator... operator}: see discussion of synctactic directives below\\
+\textsc{prefix} \textit{precedence operator... operator}: see discussion of synctactic directives below.
+
+
+\textsc{prefixbutton} \textit{label} \{ \textsc{is} \} \textit{command}: in a panel, a button with label \textit{label} is added. When the button is pressed and an entry which indexes \textit{text} is selected, then the string ``\textit{command text}'' is passed to the proof engine.
+
+
+\textsc{proof} \textit{name sequent} \{ \textsc{where} \textit{proviso} \textsc{and... and} \textit{proviso} \textsc{\} is} \textit{tactic}: both \textsc{proof} and \textsc{currentproof} are generated when you save proofs. You will probably never want to write one yourself, but this is what \textsc{proof} means: \textit{sequent} is a statement of the conjecture named \textit{name}, and \textit{tactic}, when run, will produce a proof of that conjecture with the given provisos. If it all works out: if \textit{sequent} unifies with the statement of conjecture \textit{name}, if \textit{tactic} produces a completed proof without introducing any additional unifications or inventing more or less provisos, then the resulting proof is stored under \textit{name} in the proof store.
+
+
+\textsc{radiobutton} \textit{variablename} \{ \textsc{is} \} \textit{label} \{ \textsc{is} \} \textit{value} \{ \textsc{and} \textit{label} \{ \textsc{is} \} \textit{value} \}* \{ \textsc{initially} \textit{value} \} \textsc{end}: a radio button with the list of labels given is associated with the named variable. If that variable doesn't exist it is declared by this directive, and its range of possible values is those given here; if it does exist the values given here must be in its range. If an initial value is given, the variable is assigned that value immediately.
+
+
+\tab In a menu a radio button is shown as a sequence of labels, one of which is ticked according to the value of the variable; in a panel it is a proper Macintosh-style radio button.\\
+\textsc{rightweaken}: same as \textsc{structurerule} \textsc{rightweaken}{\large .} Similar to \textsc{leftweaken} above, and plays a similar r\^{o}le in theorem application.
+
+
+\textsc{rule{\nobreakspace}}\textit{rule}: definition of a rule. Puts a rule with name \textit{name} into the tactic store; if it appears inside a \textsc{menu} definition then the effect is also of \textsc{entry} \textit{name} \textsc{is} \textit{name}. See `rules, tactics and conjectures' below for more explanation.
+
+
+\textsc{rules} \textit{name} \{ ( \textit{params} ) \} \{ \textsc{where} \textit{provisos} \} \textsc{are} \textit{rule}1 \textsc{and... and} \textit{ruleN} \textsc{end}: definition of a number of rules, organised automatically into an \textsc{alt} tactic.
+
+
+\tab Each \textit{rule} is an unnamed rule definition (see `rules, tactics and conjectures below); each is considered to be qualified by \textit{params} and \textit{provisos} from the head of the directive, filtered according to the names that occur in each rule (that is, if a particular parameter doesn't occur in a rule, you don't get that parameter declaration with that rule, and you don't get any provisos that mention it). The rules are entered into the tactic store under the names \textit{name'1... name'N}; at the same time a tactic \textsc{alt} \textit{name'1... name'N} is entered under \textit{name}.
+
+
+\tab If it occurs in a menu or a panel, \textsc{rules} \textit{name...} has the effect also of \textsc{entry} \textit{name}: that is, only one entry appears in the menu.
+
+
+\textsc{scope}: part of the \textsc{bind} directive.
+
+
+\textsc{separator}: used in the definition of a \textsc{menu}, gives a division between entries. On a panel, probably has no effect.\\
+\textsc{sequent is}  \textsc{bag} {\textbar} \textsc{list} {\textbar} \textsc{formula} ] \texttt{<}entails\texttt{>} \textsc{bag} {\textbar} \textsc{list} {\textbar} \textsc{formula} ]: see discussion of flexible syntax below.
+
+
+\textsc{string} \textit{name,..., name}: see the discussion of flexible syntax below.
+
+
+\textsc{structurerule} \textit{kind} \textsc{is} \textit{name}: \textit{kind} must be \textsc{cut}, \textsc{identity}, \textsc{leftweaken, rightweaken} or \textsc{weaken}; \textit{name} must be the name of a rule in the tactic store. See `structural rules' below, and see the discussion of each of the \textit{kind}s in this list.
+
+
+\textsc{substfix} \textit{precedence} \{ \textit{bra fst sep snd ket} \}: defines the syntactic precedence of substitution forms and, optionally, their appearance as well. See the discussion of flexible syntax below.
+
+
+\textsc{tactic} \textit{name} \{ ( \textit{name}1\textit{,..., nameN} ) \} \{ \textsc{is \}} \textit{tactic}: puts a tactic with name \textit{name} and parameters \textit{name}1\textit{,..., nameN} into the tactic store. If it appears inside a \textsc{menu} or \textsc{panel} definition then the effect is also of \textsc{entry} \textit{name}; in a \textsc{tacticpanel} it has the effect of \textsc{entry} \textit{name} \textsc{is} apply \textit{name}. See `rules, tactics and conjectures' below for more explanation.
+
+
+\textsc{tacticpanel} \textit{name} \{ \textsc{is} \} [ \textit{entry} {\textbar} \textit{button} ]* \textsc{end}: very like \textsc{conjecturepanel} above, except that there are no extra buttons and no default buttons and each entry labels a command rather than a conjecture. Tactics, rules and conjectures included in a \textsc{tacticpanel} description are associated with the command ``apply \textit{name}'' where \textit{name} is the name of the tactic, rule or conjecture.
+
+
+\textsc{theorem} \textit{conjecture}: puts a conjecture into the tactic store. Jape's conjectures are always `theorem schemata', in the sense that they stand for any substitution-instance of \textit{sequent}. See `rules, tactics and conjectures' below for more explanation.
+
+
+\textsc{theorems} \textit{name} \{ \textit{params} \} \{ \textsc{where} \textit{provisos} \} \textsc{are} \textit{theorem1} \textsc{and}... \textsc{and} \textit{theoremN} \textsc{end}: define a collection of conjectures which are organised into an \textsc{alt} tactic.
+
+
+\tab Each \textit{theorem} is an unnamed conjecture (see `rules, tactics and conjectures' below); each theorem is added to the tactic store prefixed by \textit{params} and \textit{provisos} in the same way as in the \textsc{rules} directive (q.v. above); at the same time a tactic \textsc{alt} \textit{theorem1... theoremN} is added to the tactic store under \textit{name}. If included in a menu or panel description, an \textsc{entry} is created for each conjecture. The effect is to define a number of conjectures with evocative names, and to allow searching of the collection if desired. See also \textsc{theorem} above.
+
+
+\textsc{theory} \textit{name} \{ \textsc{is} \} \textit{directive... directive} \textsc{end}: the directives may be \textsc{rule, rules, tactic, theorem, theorems} or \textsc{theory}; an \textsc{alt} tactic is made of the various directives and added to the tactic store under \textit{name}. If \textsc{theory} occurs in a menu or panel description, the effect is as if the directives occurred separately (that is, Jape does not add an entry corresponding to the overall \textsc{alt} tactic).
+
+
+\textit{formula} \textsc{unifieswith} \textit{formula}: a proviso which requires that the two formulae should unify. Used to delay unification when difficult substitutions get in the way.
+
+
+\textit{collection} \textsc{unifieswith} \textit{collection}: a proviso which helps when contexts are split. See chapter 3.\\
+\textsc{use} ``\textit{filename}'': same effect as C's \#include ``\textit{filename}''.\\
+\textsc{variable} \textit{name... name}: see the discussion of identifier classes below.\\
+\textsc{weaken}: synonym for \textsc{leftweaken} (q.v. above).\\
+\textsc{where}: prefixes a list of proviso declarations.
+ 
+\textbf{{\large A.2\tab Rules, tactics and conjectures}}
+
+
+The syntax of rules and conjectures can take various forms. The syntax is:
+
+
+\{ \textit{name} \} \{ ( \textit{param},..., \textit{param} ) \} \{ \textsc{where} \textit{proviso} \textsc{and... and} \textit{proviso} \} \{ \textsc{is} \} \textit{body}
+
+
+Note that almost every part is optional, apart from the body of the rule or conjecture. Note also that, for obvious reasons, if parameters or provisos are included then either the \textsc{is} word must be included, or else \textit{body} must start with \textsc{from} or \textsc{infer}.
+
+
+In a conjecture, \textit{body} is
+
+
+\{ \textsc{infer \}} \textit{sequent}
+
+
+In a rule, \textit{body} is
+
+
+\{ \textsc{from} \textit{antecedent} \textsc{and... and} \textit{antecedent} \} \{ \textsc{infer \}} \textit{consequent}
+
+
+If the conjecture is un-named, its name is taken to be \textit{sequent}; if a rule is un-named, its name is taken to be \textit{consequent}\\
+Each \textit{param} is either a name, \textsc{object} followed by a name or \textsc{abstraction} followed by a name: in every case the name must have been declared in a \textsc{class} directive. Each proviso is either
+
+\textsc{concfresh} \textit{name},..., \textit{name}\\
+\textsc{hypfresh} \textit{name},..., \textit{name}\\
+\textsc{fresh} \textit{name},..., \textit{name}\\
+\textit{name} \textsc{notin} \textit{formula}\\
+\textit{formula} \textsc{unifieswith} \textit{formula}
+
+
+where the names used must be parameters of the rule or conjecture.
+
+
+\textit{The meaning of a \textsc{rule} directive}
+
+
+Ignoring parameters for the moment, the rule
+
+
+$\infer[\reason{$(prov1,...,provN)\;rule$}]
+       {conse}
+       {ante1\quad ...\quad anteM}$
+
+with name \textit{rule}, antecedent sequents \textit{ante1}... \textit{anteM}, consequent \textit{conse} and provisos) \textit{prov1}... \textit{provN} is stated as the rule directive
+
+
+\textsc{rule} \textit{rule} \textsc{where} \textit{prov1} \textsc{and... and} \textit{provN} \textsc{is from} \textit{ante}1 \textsc{and.... and} \textit{anteM} \textsc{infer} \textit{conse}
+
+
+A rule is schematic in all names appearing in the antecedents, consequents or provisos which are declared in a \textsc{class} directive. When the rule is applied to a problem sequent, a version of the rule is produced in which all the schematic names have been replaced by new unknowns, and then the consequent of that version is unified with the problem sequent.
+
+
+Rule matching is linear --- formulae that are matched in the consequent are used up, and aren't copied to the antecedent unless you write them there. For example the sequent calculus `$->$ on the left' rule
+
+
+$\infer[\reason{$->|- $}]
+       {\Gamma,A->B |- \Delta }
+       {\Gamma  |- A,\Delta \quad \Gamma,B |- \Delta }$
+
+is stated as
+
+
+\textsc{rule} ``$->$⊦'' \textsc{is from} \textsc{\ensuremath{\Gamma}} \textsc{⊦} \textit{A}, Δ \textsc{and} \textsc{\ensuremath{\Gamma}}\textsc{,} \textit{B} ⊦ Δ \textsc{infer} \textsc{\ensuremath{\Gamma}}, \textit{A}$->$\textit{B} ⊦ Δ
+
+
+and the `multiplicative' or `context-splitting' version of that rule
+
+
+$\infer[\reason{$->|- $}]
+       {\Gamma 1,\Gamma 2,A->B |- \Delta 1,\Delta 2}
+       {\Gamma 1 |- A,\Delta 1\quad \Gamma 2,B |- \Delta 2}$
+
+as
+
+
+\textsc{rule} ``$->$⊦'' \textsc{is from} \textsc{\ensuremath{\Gamma}1} \textsc{⊦} \textit{A}, Δ2 \textsc{and} \textsc{\ensuremath{\Gamma}2}\textsc{,} \textit{B} ⊦ Δ2 \textsc{infer} \textsc{\ensuremath{\Gamma}1, \ensuremath{\Gamma}2}, \textit{A}$->$\textit{B} ⊦ Δ1, Δ2
+
+
+If you want a version in which the implication formula is not used up
+
+
+$\infer[\reason{$->|- $}]
+       {\Gamma,A->B |- \Delta }
+       {\Gamma,A->B |- A,\Delta \quad \Gamma,B |- \Delta }$
+
+then you can have it:
+
+
+\textsc{rule} ``$->$⊦'' \textsc{is from} \textsc{\ensuremath{\Gamma}}, \textit{A}$->$\textit{B} \textsc{⊦} \textit{A}, Δ \textsc{and} \textsc{\ensuremath{\Gamma}}\textsc{,} \textit{B} ⊦ Δ \textsc{infer} \textsc{\ensuremath{\Gamma}}, \textit{A}$->$\textit{B} ⊦ Δ
+
+
+If either of the \textit{autoAdditive} variables is set to $\<true>$ (see \appxref{GUIlang}) then some of these rules can be defined as rules often are in natural deduction presentation, without mentioning unmatched hypotheses and/or conclusions. For example, if \textit{autoAdditiveLeft} is $\<true>$, the rule
+
+
+$\infer[\reason{$->|- $}]
+       {\Gamma,A->B |- C}
+       {\Gamma  |- A\quad \Gamma,B |- C}$
+
+can be stated as
+
+
+\textsc{rule} ``$->$⊦'' \textsc{is from} \textit{A} \textsc{and} \textit{B} ⊦ \textit{C} \textsc{infer} \textit{A}$->$\textit{B} ⊦ \textit{C}
+
+
+\textit{Parameters in \textsc{rule} directives}
+
+
+Rule parameters are used for a number of reasons:
+
+
+{\textbullet}\tab On instantiation the first parameter is replaced by the user's text selection, rather than an unknown. This is useful when that parameter doesn't appear in the consequent or is the replacing formula in a substitution form in the consequent (see the discussions of substitution matching below and in various chapters above);
+
+
+{\textbullet}\tab A parameter which is decorated with \textsc{object} is replaced with a freshly-minted name, rather than a new unknown.\\
+{\textbullet}\tab a parameter which is decorated with \textsc{abstraction} is treated as a predicate, and juxtapositions involving that parameter are translated into substitution forms --- see below.
+
+
+{\textbullet}\tab parameters are used to drive the `proof reload' mechanism.
+
+
+\textit{Instantiating a rule, including interpretation of predicate notation}
+
+
+When a rule is instantiated, each of its schematic names is replaced by a freshly-minted unknown, whose name is based on the schematic name itself. This instantiation is modified in case the name is a parameter (see above), if an \textit{autoAdditive} parameter is set to true, or if \textit{interpretpredicates} is true.\\
+When an \textit{autoAdditive} parameter is true, a rule is automatically extended so that all the hypotheses (\textit{autoAdditiveLeft}) and/or the conclusions (\textit{autoAdditiveRight}) are extended with a freshly-minted segment variable, and all the antecedents likewise; then the augmented rule is instantiated normally.
+
+
+When \textit{interpretpredicates} is true, juxtapositions in the rule are interpreted as predicate formulae and replaced by substitution forms; at the same time the parameter list is extended with \textsc{object} parameters as appropriate and the rule is augmented with invisible provisos. For example, a juxtaposition $P$(\textit{x},\textit{y}) will be replaced by $P\left[ u,v\backslash x,y\right] $ ; the parameter list will be extended with \textsc{object} \textit{u}, \textsc{object} \textit{v}, and an invisible proviso \textit{x,y} \textsc{notin} $P$ will be added to the rule; every other `predicate' application of $P$ in the rule then has to have exactly two `arguments' and the same variables \textit{u} and \textit{v} will be used in those cases as well. Jape avoids substitution forms wherever possible by noting the context: for example, it will translate $@*x.@*y.P\left( x,y\right) $ as $@*x.@*y.P$ and then would translate $P\left( E,F\right) $ as $P\left[ x,y\backslash E,F\right] $ and in such an example there is no need for extra \textsc{object} parameters. For example, it will translate $\infer{|*x.P\left( x\right) }
+       {P\left( E\right) }$ into $\infer{|*x.P}
+       {P\left[ x\backslash E\right] }$ .
+
+
+The latter form of rule is well-suited to backwards reasoning. The effect is to allow a kind of predicate notation while preserving Jape's existing unification mechanisms.
+
+
+\textit{The meaning of provisos in \textsc{rule} and \textsc{theorem} directives}
+
+
+Provisos are side conditions. At present we have a small number of built-in provisos, listed above. All the forms of \textsc{fresh} provisos are automatically translated into a collection of \textsc{notin} provisos --- one for each unmatched hypothesis and/or conclusion as appropriate.
+
+
+Each time a rule is applied, its provisos are added to the set which is displayed in the bottom pane of the proof window. At the end of each proof step, that set of provisos is checked, and if any proviso is violated, the proof step is cancelled (memo to implementers: change the proof engine so that this is more obviously the way that things happen...). At the same time provisos which are satisfied are deleted from the set. The ones that are left are those whose status can't be decided, because of the presence of unknowns, substitution forms or names over which the conjecture being proved is quantified.
+
+
+\textit{The meaning of conjectures (stated in \textsc{theorem} directives)}
+
+
+A conjecture is stated as a rule without antecedents. Normally the first thing you do with a conjecture is to try to prove it. If that proof is successful, you can store it in the proof store and it will appear in the conjecture panel as a proved theorem. The provisos of a proved theorem are those given in the statement of the conjecture, plus any which arise and aren't satisfied during the proof.
+
+
+Jape will normally refuse to apply a conjecture until it is proved, but you can tell it not to be so cautious if you wish by setting the variable \texttt{applyconjectures} (see \appxref{GUIlang}).
+
+
+If the consequent of a theorem matches a problem sequent, but in so doing it doesn't use up all the hypotheses and conclusion formulae of the problem, then Jape is cautious. If the logic you are using has a declared \textsc{leftweaken} rule and there are too many hypotheses, then you could have first eliminated the extra hypotheses by applications of that rule, and then the theorem would have exactly used up all the remaining ones; similarly if it has a declared \textsc{rightweaken} rule and there are too many conclusions. But unless all that applies, the theorem will be said to be inapplicable.
+
+
+\textit{Proof by resolution}
+
+
+There is a facility to use a sort of resolution step when applying a theorem. If a theorem's conclusion(s) match but its hypotheses don't, and if there is a declared \textsc{cut} rule, then it would be possible to use a sequence of cuts to introduce the necessary extra hypotheses. In those circumstances Jape can introduce an antecedent for each of the hypotheses, and label the step with the name of the theorem. This feature is turned on and off by assigning to the \texttt{tryresolution} variable (see \appxref{GUIlang}). The effect is that if you have both right-weakening and cut, we treat a theorem $H_{1},...,H_{n}  |- C$ as equivalent to the rule $\frac{\Gamma  |- H_{1} \quad ...\quad \Gamma  |- H_{n} }{\Gamma  |- C} $ provided that $\Gamma,H_{1},...,H_{n}  |- C$ is a theorem; if you have cut but not right-weakening, we treat it as equivalent to $\frac{\Gamma  |- H_{1} \quad \Gamma,H_{1}  |- H_{2} \quad ...\quad \Gamma,H_{1},...,H_{n-1}  |- H_{n} }{\Gamma  |- C} $ with the same proviso.
+
+
+\textit{The meaning of \textsc{structurerule} directives}
+
+
+It is necessary for the application of conjectures as rules (see above), and for the proper operation of the box display mechanism, for Jape to be informed of the presence of certain kinds of structural rules in the logic. The rules we cater for are the various kinds of identity (hypothesis, axiom), cut and weakening rules.
+
+
+At present Jape will recognise a rule as of the right form if it is in one of the following patterns (\ensuremath{\Gamma} is a bag of formulae, Δ a list of formulae, B and C are formulae).
+
+
+\textsc{cut\tab (B) from} \textsc{{\large \ensuremath{\Gamma}}} \textsc{⊦} \textsc{B and} \textsc{{\large \ensuremath{\Gamma}}}\textsc{, B} \textsc{⊦} \textsc{{\large c}} \textsc{infer} \textsc{{\large \ensuremath{\Gamma}}} \textsc{⊦} \textsc{{\large c}}\\
+\textsc{(B) from} \textsc{{\large \ensuremath{\Gamma}}} \textsc{⊦} \textsc{B,}\textsc{{\large \ensuremath{\Gamma}}}\textsc{'} \textsc{and} \textsc{{\large \ensuremath{\Gamma}}}\textsc{, B} \textsc{⊦} \textsc{{\large \ensuremath{\Gamma}}}\textsc{'} \textsc{infer} \textsc{{\large \ensuremath{\Gamma}}} \textsc{⊦} \textsc{{\large \ensuremath{\Gamma}}}\textsc{'}\\
+\textsc{(B) from} \textsc{{\large \ensuremath{\Gamma}}} \textsc{⊦} \textsc{B,}\textsc{{\large \ensuremath{\Gamma}}}\textsc{'} \textsc{and} \textsc{{\large \ensuremath{\Gamma}}}\textsc{''}\textsc{, B} \textsc{⊦} \textsc{{\large \ensuremath{\Gamma}}}\textsc{'''} \textsc{infer} \textsc{{\large \ensuremath{\Gamma},\ensuremath{\Gamma}}}\textsc{''} \textsc{⊦} \textsc{{\large \ensuremath{\Gamma}}}\textsc{',}\textsc{\ensuremath{\Gamma}}\textsc{'''}\\
+\textsc{weaken, leftweaken\\
+(B) from} \textsc{\ensuremath{\Gamma}} \textsc{⊦} \textsc{C infer} \textsc{\ensuremath{\Gamma}}\textsc{,B} \textsc{⊦} \textsc{C \\
+(B) from} \textsc{\ensuremath{\Gamma}} \textsc{⊦} \textsc{\ensuremath{\Gamma}}\textsc{'} \textsc{infer} \textsc{\ensuremath{\Gamma}}\textsc{,B} \textsc{⊦} \textsc{\ensuremath{\Gamma}}\textsc{'}
+
+\textsc{rightweaken\\
+(B) from} \textsc{\ensuremath{\Gamma}} \textsc{⊦} \textsc{\ensuremath{\Gamma}}\textsc{'} \textsc{infer} \textsc{\ensuremath{\Gamma}} \textsc{⊦} \textsc{B,}\textsc{\ensuremath{\Gamma}}\textsc{'}
+
+\textsc{identity\tab }\\
+\textsc{\ensuremath{\Gamma}}\textsc{,B} \textsc{⊦} \textsc{B}\\
+\textsc{\ensuremath{\Gamma}}\textsc{,B} \textsc{⊦} \textsc{B,}\textsc{\ensuremath{\Gamma}}\textsc{'}\\
+\textsc{Δ}\textsc{,B,}\textsc{Δ}\textsc{'} \textsc{⊦} \textsc{B}
+
+
+\textit{Substitution matching}
+
+
+Substitution forms are used in Jape to describe the operation of rules. They aren't intended to be interpreted as themselves --- that is, they are not a special sort of formula with associated introduction and elimination rules. There are instead mechanisms inside the proof engine designed to eliminate substitution forms whenever they arise by carrying out the substitutions they describe, and the intention is that substitution forms should normally be read as naming the formula to which they simplify. For example, consider Dijkstra's weakest precondition calculus assignment rule $\operatorname{wp}(x:=e,R)=R_{x}^{e} $, expressed in the notation of Hoare logic:
+
+
+$\infer[\reason{$:=$}]
+       {\left\{ R^{x}_{e} \right\} x:=e{R}}
+       {}$
+
+This can be expressed in Japeish as follows (see the file hoare\_rules.j):
+
+{\small RULE ``:='' IS INFER \texttt{<}\{R[x{\textbackslash}E]\} x:=E \{R\}\texttt{>}}
+
+
+Now suppose that we apply this rule to the problem sequent {\small \texttt{<}\{\_Q\} x:=1 \{x=1\}\texttt{>}}. If we apply the asignment rule then a version will be generated expressed in terms of new unknowns, which will be {\small \texttt{<}\{\_R[\_x1{\textbackslash}\_E]\} \_x1:=\_E \{\_R\}\texttt{>}}. However the unification proceeds, it will eventually have unified {\small (x=1)[x{\textbackslash}1]} with {\small \_Q}. Before that formula is displayed to the user it will be simplified to {\small 1=1}, and the rule will have done its job.\\
+If the problem sequent had been {\small \texttt{<}\{1=1\} x:=1 \{x=1\}\texttt{>}}, then the unification process might first come across the problem of unifying {\small \_R[\_x1{\textbackslash}\_e]} with {\small 1=1}. Since that involves a substitution which won't simplify, it is deferred until later on. Unification of {\small x:=1} with {\small \_x1:=\_e} and of {\small x=1} with {\small \_R} mean that when the deferred problem must finally be considered, it has been transformed into that of unifying {\small (x=1)[x{\textbackslash}1]} with {\small 1=1}: the substitution form simplifies to {\small 1=1} and the unification is trivial.
+
+
+But not every use of substitution forms in rules gives so little difficulty. When you define a rule with a substitution form in the consequent, and there aren't other occurrences of the components of the substitution form which will help to simplify it, matching becomes a problem. For example, consider the natural deduction \ensuremath{\forall} elimination rule:
+
+
+$\infer[\reason{$@*\operatorname{elim}$}]
+       {\Gamma  |- P[x\backslash E]}
+       {\Gamma  |- @*x.P}$
+
+If the problem sequent is, say, $a=b,b=c |- (a+b)+c=a+(b+c)$, then there are fourteen significantly different ways in which the consequent of the rule can match the problem:
+
+1.\tab $P$ : (\textit{a}+\textit{b})+$c$\ensuremath{=}\textit{a}+(\textit{b}+$c$); \textit{x} : \textit{x}; $E$ : $E$\\
+2.\tab $P$ : (\textit{x}+\textit{b})+$c$\ensuremath{=}\textit{a}+(\textit{b}+$c$); \textit{x} : \textit{x}; $E$ : \textit{a}\\
+3.\tab $P$ : (\textit{a}+\textit{b})+$c$\ensuremath{=}\textit{x}+(\textit{b}+$c$); \textit{x} : \textit{x}; $E$ : \textit{a}\\
+4.\tab $P$ : (\textit{x}+\textit{b})+$c$\ensuremath{=}\textit{x}+(\textit{b}+$c$); \textit{x} : \textit{x}; $E$ : \textit{a}\\
+5.\tab $P$ : (\textit{a}+\textit{x})+$c$\ensuremath{=}\textit{a}+(\textit{b}+$c$); \textit{x} : \textit{x}; $E$ : \textit{b}\\
+6.\tab $P$ : (\textit{a}+\textit{b})+$c$\ensuremath{=}\textit{a}+(\textit{x}+$c$); \textit{x} : \textit{x}; $E$ : \textit{b}\\
+7.\tab $P$ : (\textit{a}+\textit{x})+$c$\ensuremath{=}\textit{a}+(\textit{x}+$c$); \textit{x} : \textit{x}; $E$ : \textit{b}\\
+8.\tab $P$ : (\textit{a}+\textit{b})+\textit{x}\ensuremath{=}\textit{a}+(\textit{b}+$c$); \textit{x} : \textit{x}; $E$ : $c$\\
+9.\tab $P$ : (\textit{a}+\textit{b})+$c$\ensuremath{=}\textit{a}+(\textit{b}+\textit{x}); \textit{x} : \textit{x}; $E$ : $c$\\
+10.\tab $P$ : (\textit{a}+\textit{b})+\textit{x}\ensuremath{=}\textit{a}+(\textit{b}+\textit{x}); \textit{x} : \textit{x}; $E$ : $c$\\
+11.\tab $P$ : \textit{x}+$c$\ensuremath{=}\textit{a}+(\textit{b}+$c$); \textit{x} : \textit{x}; $E$ : \textit{a}+\textit{b}\\
+12.\tab $P$ : \textit{x}\ensuremath{=}\textit{a}+(\textit{b}+$c$); \textit{x} : \textit{x}; $E$ : (\textit{a}+\textit{b})+$c$\\
+13.\tab $P$ : (\textit{a}+\textit{b})+$c$\ensuremath{=}\textit{a}+\textit{x}; \textit{x} : \textit{x}; $E$ : \textit{b}+$c$\\
+14.\tab $P$ : (\textit{a}+\textit{b})+$c$\ensuremath{=}\textit{x}; \textit{x} : \textit{x}; $E$ : \textit{a}+(\textit{b}+$c$)
+
+
+It's clearly necessary to say in just which way the formula should match. Jape has two mechanisms which help. A statement of the rule which can make use of either mechanism is
+
+
+\textsc{rule ``}\ensuremath{\forall} elim''($E$, \textsc{object} \textit{x}) \textsc{is from} \ensuremath{\Gamma} ⊦ \ensuremath{\forall}\textit{x}.$P$ \textsc{infer} \ensuremath{\Gamma} ⊦ $P$[\textit{x{\textbackslash}E}]
+
+
+The first mechanism, called `abstraction', finds matches in which every instance of a particular subformula is replaced by the substitution variable: for example, numbers 4, 7, 10, 11, 12, 13 and 14 in the lists of matches above. The abstraction mechanism is a kind of higher-order unification.
+
+
+The first parameter of the rule, $E$, can be replaced by an argument which is provided by text-selection (if you provide no argument then an unknown will silently be used): if you text-select \textit{a}, for example, then $E$ must be replaced by \textit{a} in the version of the rule that is generated. The second parameter, \textit{x}, is declared to be an \textsc{object}. This means that instead of generating an unknown, a freshly-minted identifier will be used in place of \textit{x} in the version of the rule that is generated. The parameter declarations say nothing about the name $P$: it will always be replaced by an unknown.
+
+
+Suppose, now, that you text-select \textit{a} and apply the rule. The generated consequent will be \ensuremath{\Gamma} ⊦\_$P$[\textit{x{\textbackslash}a}], and the problem sequent $a=b,b=c |- (a+b)+c=a+(b+c)$ . Jape will try to unify \_$P$[\textit{x{\textbackslash}a}] with (\textit{a}+\textit{b})+$c$\ensuremath{=}\textit{a}+(\textit{b}+$c$) and, by default, will try to turn the problem formula into a substitution by finding every occurrence of \textit{a} (the replacement formula in the substitution form) in the problem formula and replacing each of them by \textit{x} (the replacement variable in the substitution form). It succeeds, producing the formula (\textit{x}+\textit{b})+$c$\ensuremath{=}\textit{x}+(\textit{b}+$c$), which it unifies with \_$P$. That is, of course, does \textit{not} generate a most general unifier of the original pair of formulae, but pragmatically it is often the one which you want.
+
+
+If Jape can't find every instance of the replacement formula in the problem formula --- for example, if there are unknowns in either or both of them, or if either or both of them contain names over which the theorem being proved is quantified --- then it will generate a `deferred unification' proviso. That's a proviso \textit{formula} \textsc{unifieswith} \textit{formula}. When those appear it is often because you have done something silly: either you are going through the proof in an unhelpful order, or there is some additional information which could help to clarify the situation and avoid the deferred unifications.
+
+
+The second mechanism is called user-defined substitution matching. The mechanism works together with the \textsc{withsubstsel} tactic (see \appxref{tacticlang} and \chapref{funcprog}). The user must text-select all the subformulas in the problem sequent which they want to be considered --- both the \textit{a}s, for example, or one of the \textit{bs}. Then the tactic \textsc{withsubstsel}(``\ensuremath{\forall} elim'') firsts constructs a `stable substitution form' based on those selections: if both the \textit{a}s it would build ((\_\textit{v}+\textit{b})+$c$\ensuremath{=}\_\textit{v}+(\textit{b}+$c$))[\_\textit{v}{\textbackslash}\textit{a}]; if the first \textit{b} it would build ((\textit{a}+\_\textit{v})+$c$\ensuremath{=}\textit{a}+(\textit{b}+$c$))[\_\textit{v}{\textbackslash}\textit{b}]. Then it applies the rule ``\ensuremath{\forall} elim'', which causes it to unify the new substitution form with \_$P$[\textit{x}{\textbackslash}\_$E$] from the rule: the unification process recognises the stable substitution form as something special, and pattern-matches the two, unifying \_$P$ with its body, \textit{x} with \textit{v} and \_$E$ with its replacement formula (\textit{a} in the first example, \textit{b} in the second). Jape hasn't constructed the most general unifier this time either, but it has justification, because it constructs the one which you asked for.
+
+
+\textit{The tactic store}
+
+
+Theorems are a kind of rule; rules are a kind of tactic. Tactics are programs whose primitive proof steps are the application of rules and/or theorems to problem sequents. The tactic store therefore contains all three in a single soup, indexed by name.
+
+\textbf{{\large A.3\tab Fonts}}
+
+
+Presentations of logics in textbooks and technical papers make use of special logical symbols, sometimes invented specially for the purposes of that particular logic, which can't easily be represented in the \textsc{ascii} character set. In polished presentations of logics in Jape we use special fonts --- but it is perfectly possible to use, and in the first instance you may want to use, combinations of \textsc{ascii} characters to approximate the special characters. Whatever font you use, it will need at least to include the normal \textsc{ascii} characters for identifiers, numbers, round and square brackets, quotation marks, backslash and comma as well as the special characters you need for your logical connectives and operators.
+
+
+A description of a logic will therefore often begin by describing the font in which the logic is intended to be viewed. This will necessarily also be the font in which the logic description itself is written, and therefore you will need an 8-bit \textsc{ascii} text editor to create and modify the logic description\footnote{Under MacOS, we've found BBEdit Lite (freeware) very useful in preparing Jape logic descriptions, and thank its authors for their skill and philanthropy. Under X, Bernard has produced an 8-bit editor of his own called jed; it's part of the standard UNIX distribution of Jape.}. In practice the graphical interface part of Jape may use more than one font and more than one character size to handle proof display, menus and buttons. You therefore use the name of a `font encoding' to describe the whole scheme to Jape. The graphical examples in this manual are taken from the current implementation of Jape on MacOS, and they use Roy Dyckhoff's Konstanz and Detroit fonts in various sizes\footnote{Konstanz and Detroit fonts were produced by Roy Dyckhoff as part of the MALT project at the University of St Andrews. We are grateful to Roy for permission to use them and to distribute them with MacOS Jape.}. The name of the encoding is Konstanz, and there is a similar encoding in X Jape. The directive used in this and the other encodings in this manual is therefore
+
+FONTS "Konstanz"
+
+
+Other encodings are in preparation.
+
+
+\textbf{{\large A.4\tab Flexible syntax}}
+
+
+There are various ways in which you control what formulae can be written down and how they will be interpreted by Jape.
+
+
+\textit{Symbols}
+
+
+The rules of a logic are written in terms of various symbols --- logical operators and connectives as well as identifiers like \textit{A}, \textit{B} or \textit{x}. Jape reserves a few special characters --- they are double-quote, underscore, opening or closing parenthesis (round bracket), space, newline or tab --- which can't be used in symbols.
+
+
+Jape recognises four distinct kinds of symbol:
+
+
+{\textbullet}\tab \textit{identifiers}, which are rather like programming language identifiers or mathematical variable names: sequences of characters which start with an alphabetic character and optionally continue with any sequence of alphabetic and/or numeric characters and/or primes (\textsc{ascii} single quotes). Actually Jape's identifiers can start with any defined sequence of characters, given in a \textsc{class} directive, though some choices --- like using commas or arithmetic operator characters --- may be more confusing than useful.
+
+
+{\textbullet}\tab \textit{unknowns}, which are are written as an underscore followed by an identifier.\\
+{\textbullet}\tab \textit{numbers}, which are sequences of numeric characters.
+
+
+{\textbullet}\tab \textit{strings}, which start with an \textsc{ascii} double-quote, continue with any sequence of characters not including newline or double-quote, and end with an \textsc{ascii} double-quote.
+
+
+{\textbullet}\tab \textit{special symbols}, which are user-defined sequences of characters containing anything other than Jape's reserved characters. Everything else goes, though some choices --- like using primes or commas inside a special symbol --- may be more confusing than useful. Special symbols are defined in \textsc{infix, prefix, postfix, leftfix} and \textsc{outfix} directives.
+
+
+Special symbols are always used as constants, and usually as operators or some kind of brackets, and they are defined implicitly by including them in various kinds of syntactic definitions. Identifiers can also be used as operators or brackets, by using them in just the same kind of syntactic definition.
+
+
+Numbers, strings and special symbols are always constants of a logic --- they stand for themselves and not for anything else. Identifiers can be constants or they can stand for classes of things, like formulae, variables, or whatever\footnote{We haven't done the `whatever' bit, or not very much of it. But we know what we want to do, and we know how to do it...}.
+
+
+\textit{Juxtaposition may need care}
+
+
+Jape's syntax allows juxtaposition of formulae. You may have to use white space (blanks, spaces, newlines) to separate juxtaposed identifiers in some way --- \textit{xy}, without spacing, is usually a single identifier, whereas \textit{x y} is usually two juxtaposed identifiers and is equivalent to \textit{x}(\textit{y}), (\textit{x)y} or (\textit{x})(\textit{y}). Similarly, \textit{x}1 is usually a single identifier, whereas \textit{x} 1 is an identifier followed by a number. The syntactic priority of juxtaposition is user-defined.
+
+
+Usually you can juxtapose special symbols without separation. If you define ¬ to be a special symbol, for example, and you don't also define ¬¬, then ¬¬\textit{x} is read as two ¬ symbols followed by an identifier.
+
+
+\textit{Identifier classes}
+
+
+Typically, you start the definition of a logic by saying what the various identifiers you are going to use `stand for' or `range over'. You can say that an identifier ranges over formulae, variables, numbers, strings, or constants; you can say that any identifier which starts with a particular prefix ranges over one of those categories. The directives are
+
+\texttt{<}kind\texttt{>} \textit{names}\\
+\textsc{class} \texttt{<}kind\texttt{>} \textit{names}
+
+
+where \texttt{<}kind\texttt{>} is \textsc{formula, variable}, \textsc{constant, string}, \textsc{number}, \textsc{bag} \texttt{<}kind\texttt{>} or \textsc{list} \texttt{<}kind\texttt{>} and \textit{names} is a comma-separated list of identifiers or identifier prefixes.
+
+
+The unprefixed directives --- such as, for example, \textsc{constant} \textit{map}, \textit{fold}, \textit{filter} --- define particular identifiers which are of a particular class. They are `object language' names and when they appear in rules or theorems, they won't be instantiated with anything. But they will unify with unknowns of the same kind.\\
+The prefixed directives --- such as, for example, \textsc{class variable} \textit{x}, \textit{y}, $z$ --- define identifier prefixes which are of a particular kind. Every identifier or unknown which starts with one of those prefixes is of the specified kind and they are all `general' or `schematic' or `meta-language' names: when they appear in rules they are always instantiated with an unknown or an argument of the same kind.
+
+
+Unknowns follow the same rules as identifiers: given the directives above, \_\textit{map} would be an unknown that would only unify with constants, \_\textit{x33} would be one that unified only with variables.\\
+There isn't, at present, any way of defining a name that is of a kind which is a mixture of primitive kinds (\textsc{variable} and \textsc{constant}, for example), but \textsc{formula} includes all the other kinds.
+
+
+\textit{Syntactic hierarchy}
+
+
+Jape has a built-in notion of certain syntactic forms:
+
+
+{\textbullet}\tab identifiers --- like \textit{A, ABC, A1, x, y, y37f,...} \\
+{\textbullet}\tab strings --- ``\textit{anything at all}'' \\
+{\textbullet}\tab numbers --- 1, 2, 46 \\
+{\textbullet}\tab fully-bracketed formulae --- (\textit{formula})
+
+
+{\textbullet}\tab substitutions --- by default \textit{formula} [ \textit{variable list} {\textbackslash} \textit{formula list} ], but the order of \textit{variable list} and \textit{formula list} can be reversed if you wish, and you can choose different symbols in place of `[`, `{\textbackslash}' and `];
+
+
+{\textbullet}\tab juxtaposition (like function application in functional languages) --- \textit{formula formula};\\
+{\textbullet}\tab prefix operators --- \textit{op formula};\\
+{\textbullet}\tab postfix operators --- \textit{formula op};\\
+{\textbullet}\tab infix operators --- \textit{formula op formula};
+
+
+{\textbullet}\tab \textsc{leftfix} bracketing --- $bra\;f_{1} \;sep_{1} \;f_{2} \;sep_{2} ...sep_{n-1} \;f_{n} $
+
+
+
+{\textbullet}\tab \textsc{outfix} bracketing --- $bra\;f_{1} \;sep_{1} \;f_{2} \;sep_{2} ...sep_{n-1} \;f_{n} ket$
+
+
+
+In addition, comma (`,') is always a zero-precedence tupling operator, so that tuples --- \textit{formula}, \textit{formula},..., \textit{formula} --- are automatically available, with or without brackets.
+
+
+Both substitution and juxtaposition associate to the left\footnote{Substitution \textit{has} to associate to the left, but we can imagine right-associative juxtaposition. Another enhancement for the fugure (sigh).}; you define the associativity of infix operators as well as their precedence. Prefix operators, postfix operators, substitution forms, juxtaposition and \textsc{leftfix} bracketed forms all have user-defined precedence.
+
+
+There are well-known pitfalls in the definition of flexible precedence grammars (but probably no deeper than the holes beneath other forms of grammar). If your definition falls into a hole, Jape may not give much assistance, nor even provide readable parsing diagnostics.
+
+
+\textit{Bracketed formulae}
+
+
+Jape recognises bracketed formulae which use round brackets (parentheses). You can define other kinds of brackets for yourself in \textsc{leftfix} and \textsc{outfix} directives.
+
+
+\textsc{Outfix} directives allow you to define new kinds of opening and closing brackets together with internal punctuation as well. You list the opening bracket, the internal separators and the closing bracket. For example you might write
+
+
+\textsc{outfix} if then else fi
+
+
+and then Jape will recognise
+
+
+if \textit{formula} then \textit{formula} else \textit{formula} fi
+
+
+At present the parser allows you to bring in the closing bracket early, before the list of internal punctuation symbols is exhausted, so that given the \textsc{outfix} directive above any of the following will be recognised as a formula:
+
+if fi\\
+if \textit{formula} fi\\
+if \textit{formula} then \textit{formula} fi\\
+if \textit{formula} then \textit{formula} else \textit{formula} fi
+
+
+This is a temporary hack, pending a more flexible parser-generator.
+
+
+\textsc{Leftfix} directives allow you to define opening brackets which have no corresponding closing bracket: you list the syntactic precedence, the opening bracket and the separating symbols. For example you might write
+
+
+\textsc{leftfix 100} letrec be in
+
+
+and then Jape will recognise formulae of the form
+
+
+letrec \textit{formula} be \textit{formula} in \textit{formula}
+
+
+\textsc{Leftfix} formulae are notoriously ambiguous --- experts will recognise this as the `dangling else' problem. In effect the final separator has the priority given in the declaration, and Jape will not allow the opening bracket to be preceded by an operator which is of higher priority than that given in the declaration. For example, if you have
+
+\textsc{infix 120} \textsc{∧}\\
+\textsc{leftfix 100} ∀.
+
+
+then you could write \ensuremath{\forall}\textit{x}.\textit{A}\textsc{∧}\textit{B}, but not \textit{C}\textsc{∧}\ensuremath{\forall}\textit{x}.\textit{A}\textsc{∧}\textit{B}. That restriction, we hope, eliminates visual ambiguity in the use of bracketed forms without a closing bracket. If you want to write a formula which breaks these rules, you can always use brackets, as for example in \textit{C}\textsc{∧}(\ensuremath{\forall}\textit{x}.\textit{A}\textsc{∧}\textit{B}).
+
+
+\textit{Substitution forms}
+
+
+You can define the relative priority of substitution and juxtaposition as well as that of operators. Normally substitution is the highest priority form, and juxtaposition is either the next or follows some prefix/postfix operators, but the choice is yours. You write
+
+\textsc{juxtfix} \textit{precedence}\\
+\textsc{substfix} \textit{precedence}\\
+\textsc{substfix} \textit{precedence bra id1 sep id2 ket}
+
+
+The second form of \textsc{substfix} allows you to define the syntax of a substitution form, choosing opening bracket (by default `['), separator (by default `/') and closing bracket (by default `]'). At the same time you choose whether the variable list or the formula list comes first, by putting a variable identifier and a formula identifier in place of \textit{id1} and \textit{id2}. Because Jape uses this directive as a definition of some of the symbols, there must always be white space between its various components.
+
+
+\textit{Operator syntax}
+
+
+You define connectives and other such symbols in your logic by defining (unary) \textsc{prefix}, (unary) \textsc{postfix} operators and (binary) \textsc{infix} operators together with their syntactic precedence; in addition infix operators need an associativity. You write
+
+\textsc{prefix} \textit{precedence op op...}\\
+\textsc{postfix} \textit{precedence op op...}\\
+\textsc{infix} \textit{precedence} \texttt{<}associativity\texttt{>} \textit{op op...}\\
+\textsc{infixc} \textit{precedence} \texttt{<}associativity\texttt{>} \textit{op op...}
+
+
+The \textit{op}s are special symbols, but they may be made up of any characters that you wish --- they don't have to be made up of non-alphanumeric characters. \texttt{<}Associativity\texttt{>} is a single character: L means left-associative, so that \textit{A op B op C} means (\textit{A op B}) \textit{op C}; R means right-associative, so that \textit{A op B op C} means \textit{A op} (\textit{B op C}); T means tupling or non-associative, so that \textit{A op B op C} means \textit{A op B op C}. Mixing operators of the same precedence and different associativity may cause confusion, but Jape doesn't prohibit it. The difference between \textsc{infix} and \textsc{infixc} is to do with the way that formulae are parsed.
+
+
+As in many modern programming languages, we permit a bracketed operator as a formula, so you can write formulae like (+), (\ensuremath{@}), (++) once those symbols have been defined as operators. Operation formulae are parsed as juxtapositions, so that \textit{prefixop formula} is parsed as the juxtaposition (\textit{prefixop) formula}, \textit{formula postfixop} is parsed as (\textit{postfixop}) \textit{formula}, \textit{f1 infixop f2} is parsed as (\textit{infixop}) (\textit{f1,f2}) and \textit{f1 infixCop f2} is parsed as (\textit{infixCop}) \textit{f1 f2}; the reverse transcription is made when the formulae are printed out.
+
+
+\textit{Binding structure}
+
+
+Binding structure is defined by pattern: you give some variable names and some formula names and then give a pattern using those names. Any formula or subformula which matches the pattern is automatically a binding formula. Because substitution or unification mustn't be allowed to change the structure of a formula, Jape checks for `near miss' patterns and complains if it finds them.
+
+
+The sort of thing you write is
+
+BIND x SCOPE P IN ∃x. P\\
+BIND y SCOPE P IN \{ y {\textbar} P \}\\
+BIND x, y SCOPE P IN ∀x,y. P
+
+
+It's normal to use \textsc{leftfix} or \textsc{outfix} patterns, as in these examples, but it isn't obligatory.
+
+
+The last of the three examples above defines a parallel binding: one that at the same time binds two variable names. At present Jape has no means of defining families of parallel binding formula structures except by exhaustively listing each alternative. And it has no way of defining serial bindings at all.
+
+
+\textit{Sequent structure}
+
+
+At present sequents are always double-sided, and each side is one of
+
+
+{\textbullet}\tab an optionally-empty comma-separated bag/multiset of formulae --- say \textsc{bag} or \textsc{bag formula};\\
+{\textbullet}\tab an optionally-empty comma-separated list/sequence of formulae --- say \textsc{list} or \textsc{list formula};\\
+{\textbullet}\tab a single formula --- say \textsc{formula}
+
+
+The \textsc{sequent} directive gives you the opportunity to say what can appear on either side, and what the entailment symbol is. You write
+
+
+\textsc{sequent} \textit{lhs entailment rhs} \{ \textsc{and} \textit{lhs entailment rhs...} \}
+
+
+You can have as many different kinds of sequent as you wish, provided that their entailment symbols are unique.
+
+
+In version 3.2 we have introduced a \textsc{judgement} directive. This works in just the same way as \textsc{sequent}, except that in box display a \textsc{judgement} is always written on a single line --- that is, its lhs is not interpreted as a collection of hypotheses and its rhs a conclusion. We are fairly sure we have chosen the wrong word for this directive (and indeed for \textsc{sequent}). Watch this space or send us a suggestion.
+
+
+\textit{Future work}
+
+
+In the future we intend to provide a more powerful form of syntax definition for Jape's users, providing in particular a more efficient means of defining binding forms and ways of making finer distinctions between syntactic categories. More structure in sequent forms would be a step still further, and we don't yet envisage it.
+
+

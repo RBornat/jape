@@ -1,0 +1,538 @@
+\chapter{Encoding equational reasoning in functional programs}
+\label{chap:funcprog}
+
+Previous chapters have dealt with the encoding of logics which are, more or less, variations on the sequent calculus. This chapter describes Bernard Sufrin's treatment of a very different logic (I helped with some of the underlying mechanisms, but it's Bernard's ideas and Bernard's implementation). The problem here is to control a large number of equations used to reason about functional-programming formulae, and to present an interface which makes it look as if equational reasoning is taking place, despite the Gentzen tree in the background. The treatment is distributed in \texttt{examples/functional\_programming}.
+
+(The rest of this chapter is being refurbished.)
+%The master file (\texttt{functions.jt}) defines the shape of a sequent, allows rules to be stated additively, without repetition of the context Γ, and defines the \texttt{Fail} tactic:
+%\begin{quote}\tt\small
+%SEQUENT IS BAG ⊢ FORMULA \\
+%INITIALISE autoAdditiveLeft true \\
+%TACTIC Fail (x) IS SEQ (ALERT x) STOP
+%\end{quote}
+
+%\section{Syntax (\texttt{equality\_rules.j}, \texttt{functions\_rules.j})}
+
+%Jape provides juxtaposition as a primitive syntactic construction, and functional programming uses it for function application. In the same way the syntax of tupling is inherited from Jape. This encoding doesn't automatically treat every juxtaposition as predicate application, but it uses Jape's \textsc{abstraction} mechanism in certain key places: see below for examples.
+
+%The file \texttt{equality\_rules.j} covers more than simple equality, since it is intended to be shared between different encodings. Apart from that, it is pretty straightforward. The syntactic description is:
+%\begin{quote}\tt\small
+%CLASS VARIABLE x y \\
+%CLASS FORMULA A B C F G X Y Z \\
+%CONSTANT ⊥ \\
+% 
+%/* this to allow functions stuff to use square brackets for lists */ \\
+%SUBSTFIX    2000 \{ x \textbackslash A \} \\
+%JUXTFIX 1000 \\
+%INFIX       200L    = ≥ ≤ ≠ < > \\
+%INFIX       250L    + - \\
+%INFIX       260L    * / \\
+%INFIX       270L    \textasciicircum \\
+%\end{quote}
+%Reading from the bottom, he defines some binary arithmetical operators, all left-associative, then the priority of juxtaposition and substitution. The syntax of substitution is slightly variable in Jape: you can specify the bracketing symbols and the separating symbol as well as defining whether the variables come before the names or vice-versa. The spaces between symbols and names are essential to delimit the various components of the syntactic form. Bernard chose to make \textit{formula} \{ \textit{variables} \textbackslash\; \textit{formulae} \} the syntax of a substitution form, because that liberates square brackets for use in their conventional r\^{o}le in functional programming as list brackets.\footnote{He would have reversed the order of formulae and variables had he not already used the `/' operator elsewhere.}
+
+%Then there is a perfectly normal definition of an identity rule:
+%\begin{quote}\tt\small
+%RULE hyp IS A ⊢ A \\
+%IDENTITY hyp
+%\end{quote}
+%There follow the basic rules of equality. Because Jape doesn't yet have any treatment of families of rules, Bernard can only give a tuple-equality rule for a fixed finite number of tuple sizes, and he restricts himself to pairs\footnote{But see the treatment of BAN logic in \chapref{BAN}.}:\\
+
+%{\small
+%\begin{tabular}{|l|l|l|}
+%\hline
+%% ROW 1
+%{\raggedright 
+%$\infer[\reason{$=\;\operatorname{reflexive}$}]
+%       {\Gamma  |- X=X}
+%       {}$
+%} & 
+%{\raggedright 
+%$\infer[\reason{$
+%\;=\,\operatorname{transitive}$}]
+%       {\Gamma  |- X=Z}
+%       {\Gamma  |- X=Y\quad \Gamma  |- Y=Z}$
+%} & 
+%{\raggedright 
+%$\infer[\reason{$=\,\operatorname{symmetric}$}]
+%       {\Gamma  |- Y=X}
+%       {\Gamma  |- X=Y}$
+%}\\
+%\hline
+%% ROW 2
+%{\raggedright 
+%$\infer[\reason{$
+%\;=\,(,)$}]
+%       {\Gamma  |- (X0,X1)=(Y0,Y1)}
+%       {\Gamma  |- X0=X1\quad \Gamma  |- Y0=Y1}$
+%} & 
+%{\raggedright } & 
+%{\raggedright }\\
+%\hline
+%\end{tabular}}
+
+%
+%Although most of these rules can be derived from `= reflexive' plus the rewrite rules given below, it is convenient to have them available directly. At the time, Jape couldn't prove derived rules with antecedents. In Japeish the rules are:
+%\begin{quote}\tt\small
+%RULE "= reflexive"          IS                                  INFER X = X\\
+%RULE "= transitive"(Y)      IS FROM X = Y AND Y = Z             INFER X = Z\\
+%RULE "= symmetric"          IS FROM X = Y                       INFER Y = X\\
+%RULE "(,)="                 IS FROM X0=X1 AND Y0=Y1 INFER (X0, Y0) = (X1, Y1)
+%\end{quote}
+%Extensionality rules are straightforward but because each implicitly incorporates a step of generalisation, it's necessary to include \textsc{fresh} provisos:
+
+%{\small
+%\begin{tabular}{|l|l|}
+%\hline
+%% ROW 1
+%$\infer[\reason{(\textsc{fresh} $x$) ext}]
+%       {\Gamma  |- F=G}
+%       {\Gamma  |- F\left( x\right) =G\left( x\right) }$
+% & 
+%$\infer[\reason{(\textsc{fresh} $x$, $y$) ext2}]
+%       {\Gamma  |- F=G}
+%       {\Gamma  |- F(x,y)=G(x,y)}$
+%\\
+%\hline
+%\end{tabular}}
+
+%The Japeish version uses \textsc{object} parameters so that the rules, normally used backwards, introduce new identifiers rather than unknowns:
+%\begin{quote}\tt\small
+%RULE ext (OBJECT x) WHERE FRESH x IS FROM  F x = G x INFER F = G\\
+%RULE ext2(OBJECT x, OBJECT y) WHERE FRESH x, y IS FROM  F (x, y) = G (x,y)     INFER F = G
+%\end{quote}
+%That, so far as this encoding is concerned, is where the simple bit ends.
+
+%
+%\section{The rewrite rule and user definition of substitutions}
+
+%The treatment of equational reasoning is founded on rewrite rules. You can replace occurrences of a sub-formula $X$ within a formula \textit{A} by an alternative sub-formula $Y$, provided only that you can prove $X=Y$ . Because an equality can be used to rewrite in either direction Bernard includes two rules, whose names are arbitrarily chosen:
+
+%\begin{tabular}{|p{2.265in}|p{2.132in}|p{0.051in}|p{0.051in}|} \hline
+%% ROW 1
+%{\raggedright $\frac{\Gamma  |- X=Y\quad \Gamma  |- A\{x\backslash Y\} }{\Gamma |- A\{x\backslash X\} } \;\operatorname{rewrite}$ } & {\raggedright $\frac{\Gamma  |- X=Y\quad \Gamma  |- A\{x\backslash X\} }{\Gamma |- A\{x\backslash Y\} } \;\operatorname{rewritebackwards}$ }\\
+%\hline \end{tabular}
+
+%
+%In Japeish, as by now you must expect, we give the first rule a parameter $X$ and the second a parameter $Y$. Just for fun we write the rules in predicate notation, which Jape immediately translates into the rules written above.
+%\begin{quote}\tt\small
+%RULE   rewrite (X,ABSTRACTION AA)           IS FROM X=Y AND AA(Y) INFER AA(X)\\
+%RULE   rewritebackwards (Y,ABSTRACTION AA)  IS FROM X=Y AND AA(X) INFER AA(Y)
+%\end{quote}
+%The problem formula which matches $AA(X)$ or $AA(Y)$ will itself be an equation in all the conjectures which we shall consider, but we don't need to take account of that in the rewrite rules themselves.
+
+%In principle, and in practice, it is possible to use the rewrite rule by providing (by subformula selection) just the argument corresponding to $X$ in the \texttt{rewrite} rule or $Y$ in the \texttt{rewritebackwards} rule: Jape will search for instances of that argument on the right-hand side of the problem sequent and, in effect, construct a substitution which it unifies with $\_A\{x\backslash\_X\}$ or $\_A\{x\backslash\_{}Y\}$. That process finds every instance of the argument formula in the right-hand side of the problem sequent, and sometimes that is just what is required.
+
+%When we want finer control, which we do when working under direct user control rather than via a search controlled by a tactic, we use the \textsc{letsubstsel} and \textsc{withsubstsel} tacticals. The basis of the technique which we use in encoding equational reasoning with functional programs is exemplified by the following fragment
+
+%WHEN (LETSUBSTSEL \_A (WITHSUBSTSEL rewrite))
+
+%\textsc{Letsubstsel} \textit{pattern} \textit{tactic} \dots  is a guarded tactic whose guard succeeds if:
+%\begin{itemize}
+%\item the user has made at least one text-selection;
+%\item all text-selections are of identical subformulae $E$ within the same formula $F$ in the current goal sequent;
+%\item it is possible to construct a substitution form $F'\{v\backslash E\}$, where $v$ is a fresh variable, such that $F'\{v\backslash E\}$ reduces to $F$ in the presence of the proviso $v$ \textsc{notin} $F$;
+%\item \textit{pattern} unifies with $F'\{v\backslash E\}$, without simplifying the substitution unless it is unified with a non-substitution form.
+%\end{itemize}
+
+%If all four conditions are satisfied, the sequence \textit{tactic} \dots  is executed within the context created by the unification of \textit{pattern} with $F'\{v\backslash E\}$ . The substitution form $F'\{v\backslash E\}$ is specially marked so that it is not simplified during the unification process unless it is matched with a non-substitution form: the effect is that it will be unified by structure-matching with a substitution form in \textit{pattern}, if one is provided.
+
+%$F'\{v\backslash E\}$ is equivalent to the original formula $F$, and if it isn't used immediately in a unification it is simplified out of existence: that's the reason that we have to have both \textsc{letsubstsel}, to check if we can make the substitution form at all, and then \textsc{withsubstsel,} to make it again and to use it immediately in a rule application.
+
+%\textsc{Withsubstsel} \textit{tactic} \dots is a tactic which requires that the first three of the \textsc{letsubstsel} conditions are satisfied and, if they are, it applies the sequence \textit{tactic} \dots to a copy of the problem sequent in which formula $F$ has been replaced by $F'\{\_{}v\backslash E\}$, this time using a fresh unknown $\_v$ to facilitate unification with the consequent of a rule which uses a corresponding \textsc{object} parameter. As before, the substitution form $F'\{\_v\backslash E\}$ is specially marked so that it can be unified component-by-component with a corresponding substitution form in the consequent of a rule, and it's eliminated very easily by simplification, so the first rule of \textit{tactic} \dots  is usually the only one that gets a bite at it.
+
+%The effect of all this machinery is that it is possible for a user to specify, simply by text-selecting them, the instances of a subformula $X$ which are to be replaced by $Y$, working backwards with the rewrite rule --- or $Y$ with $X$, working backwards with rewritebackwards. Based on that bit of magic, a great deal becomes possible.
+
+%\section{Hiding parts of proofs: the \textsc{layout} tactical}
+%\word{map,rev,id}
+%When Jape uses the rewrite rule in this logic-encoding, for the most part the left antecedent $X=Y$ is part of a function definition. These definitions --- `facts' like $\<map> f\;[\,] = [\,]$ --- are supposed to be well-known to the user, and are therefore best kept as marginal notes in the proof. The eventual goal is to be able to show a linear equational proof like those in Bird and Wadler's \textit{Functional Programming}, in which every step transforms a formula by equality-substitution:
+%\begin{equation*}
+%\cols[ll]
+%\<rev>(\<rev> [\,]) = \<rev> [\,] & \reason{($\<rev> [\,] = [\,]$)}\\
+%= [\,]                            & \reason{($\<rev> [\,] = [',]$)}\\
+%= \<id> [\;]                      & \reason{($\<id> x = x$)}
+%\sloc
+%\end{equation*}
+
+%In this style the definitions used in each step are noted in the justification of an equality, not included as antecedents of an inference step. 
+
+%One thing Jape can do is to hide some of the antecedent proof trees of a proof step, and to alter the displayed justification of that step to record some of the information which is hidden. Ths is done with the \textsc{layout} tactical, which is given the justification of the step, a description of the antecedents that should remain visible, and a tactic which generates the proof tree itself. One of the tactics in Bernard's encoding, for example, reads as follows:
+%\begin{quote}\tt\small
+%TACTIC UnfoldOneSel(x) IS \\
+%\tab WHEN    \\
+%\tab \tab (LETSUBSTSEL \_A (LAYOUT "Fold \%s" (1) (WITHSUBSTSEL rewrite)) x) \\
+%\tab \tab (LETARGSEL \_A \\
+%\tab \tab \tab (Fail (The formula you selected (\_A) is not a proper subformula))) \\
+%\tab \tab (Fail (Please text-select an expression))
+%\end{quote}
+%\textsc{Letsubstsel} checks that the user has selected some instance or instances of a sub-formula which describe a substitution, and if so \textsc{withsubstsel} applies \textit{rewrite} to the user's selection; finally the argument tactic \textit{x} is applied to the first antecedent of the rewrite (the $X=Y$ antecedent). The \textsc{layout} tactical says in its second argument that only antecedent 1 of the rewrite step --- that is, the right-hand antecedent --- should be shown (antecedents are numbered 0, 1,...); the first argument says that it should be shown with a text which starts with Fold\footnote{A backwards step of unfolding is a folding step when read forwards. Proofs in this encoding are made backwards but read forwards: Bernard labelled buttons and named tactics in the backward sense, but the labels on the proofs, which are inserted by \textsc{layout} and the Fold/Unfold with hypothesis rules, are written in the forward sense. Confusing, but necessary.} and continues with a summary of the hidden subtree. The rest of the code tries to explain what has gone wrong if the user mis-applies the tactic.\footnote{The attempt to analyse errors in the application of this tactic, using \textsc{letsubstsel} and \textsc{letargsel} to pick out different cases, doesn't really work. To do a proper job, the tactic would to distinguish between at least these possibilities:
+%\begin{itemize}
+%\item the subformulae you select aren't identical;
+%\item they don't all come from the same formula;
+%\item one or more of them isn't a proper subformula;
+%\item you didn't select anything at all.
+%\end{itemize}
+%In practice the tactic's error message is often inappropriate, but I show it as it is in order to illustrate the difficulty. The first error message (you didn't select a proper subformula) is also out-of-date: Jape's subformula selection mechanism makes it hard not to select a subformula.}
+
+%Here is an example proof using this encoding, after two steps:
+
+%\begin{figure}[htbp] \begin{center} \includegraphics[width=2.056in, height=1.194in]{oldpics/Roll_your_own_v3_2+Fig38} \caption{Fig38} \end{center} \end{figure}
+
+%
+%Lines 1, 2 and 3 can be read as a partly-completed linear equational proof, up the left-hand side and down the right:
+%\begin{equation*}
+%\cols[lll]
+%(\<rev> \bullet \<rev>) x & = \<rev>(\<rev> x) & \reason{$(f \bullet g) \;x = f(g \;x)$}\\
+%                          & = x                 &\reason{\dots}\\
+%                          & = \<id> x           &\reason{$\<id> x=x$}
+%\sloc
+%\end{equation*}
+
+%
+%Layout only hides antecedents, it doesn't destroy them: by double-clicking on the justification of line 2 or line 3 the hidden detail can be revealed. Here is what you see if you double-click on line 3:
+
+%\begin{figure}[htbp] \begin{center} \includegraphics[width=2.861in, height=1.389in]{oldpics/Roll_your_own_v3_2+Fig39} \caption{Fig39} \end{center} \end{figure}
+
+%
+%\textbf{5.4\tab Selecting a subformula: lethypfind, letconcfind, assoceq and flatten}
+
+%
+%Letsubstsel and withsubstsel don't solve all the problems of rewriting, because Jape has a very simple-minded treatment of subformula selection. It provides only character-sequence selection, and the user can select any sub-sequence of the characters which make up a formula. It is possible to select a section of text which isn't a formula at all --- $a+b)$, for example, in $x+(a+b)$ . Worse, it is possible to select text which is a formula but not a proper subformula --- $x+y$, for example, in $f\;x+y$ . There are well-known user-interface solutions to this problem, exploiting the syntactic structure of a formula to guide selection, but we haven't implemented any of them. The reason is partly lack of effort, but we have our eyes on a higher prize: we want eventually to include a proper treatment of subformula selection in logics which include associative operators: those which, like + and \ensuremath{\times} in school algebra, don't need to be bracketed when they occur in sequence.
+
+%
+%The problem begins when a formula is input. In Jape's treatment of syntax, just as in any ordinary programming-language compiler, binary operators have relative priorities (or precedences) and an formula such as $A\times B+C$, where \ensuremath{\times} has higher priority than +, is treated internally just like $(A\times B)+C$ but displayed in its unbracketed form\footnote{Jape tries to keep the user's bracketing structure. If the input is bracketed, so will be the display.}. Since we treat all operators as either binary or unary, Jape has to be told, faced with the formula
+
+%$A+B+C$, whether to read it left-associatively as $(A+B)+C$ or right-associatively as $A+(B+C)$ . Whichever you tell it, it will display the result unbracketed as $A+B+C$, and then inevitably some textual segment --- $B+C$ in the left-associative case, $A+B$ in the right-associative --- can be read as a formula even though it is not a structural subformula of the whole.
+
+%
+%We might hope to tell Jape that the operator + is neither left- nor right-associative but \textit{associative} in the mathematical sense, so that $A+B+C$ should be read at will as either $(A+B)+C$ or $A+(B+C)$ as circumstances dictate --- and then you can imagine that it ought to be possible to tell it that + is commutative as well, so that $A+B+C$ can be read as $(A+C)+B$ if that is what you wish. We intend that a future version of Jape will incorporate a more seamless syntactic treatment of associative and commutative operators that will allow some of these alternative readings, based on the mechanisms which already underly our treatment of bags and lists in sequents. For the time being we provide support for the explicit manipulation of associative operators in the tactic language.
+
+%
+%Our treatment is based on the principle that a formula whose operator is associative can be rewritten in a canonical form, and we provide means to access an internal mechanism of Jape which converts formulae to their canonical form via the built-in judgement assoceq(\textit{formula1}, \textit{formula2}) and the tactic flatten \textit{formula}.
+
+%
+%The first problem is to convert a formula so that the selected text is a proper sub-formula. For example, consider the following proof-in-progress of one of the conjectures from functions.jt:
+
+%\begin{figure}[htbp] \begin{center} \includegraphics[width=3.472in, height=1.222in]{oldpics/Roll_your_own_v3_2+Fig40} \caption{Fig40} \end{center} \end{figure}
+
+%
+%Next we want to use the second assumed equality, to replace $HF$ with $HG$ . But the {\textbullet} operator in this encoding is left-associative, and to make the step we must first change the structure of the conclusion formula on line 2, changing its structure from the left-associative form $(JH)F=G$ into $J(HF)=G$ . The step won't work unless there is a proof that {\textbullet} is associative --- i.e. unless a conjecture with the form $(FG)H=F(GH)$ or one with the form $F(GH)=(FG)H$ exists and is either proved or can be assumed proved because `apply conjectures and theorems' is ticked in the Edit menu.
+
+%
+%We text-select $HF$ and apply Find from the Rules menu\footnote{Or from either of the panels --- one of us doesn't think that this is good GUI / HCI practice, but the other one made the encoding.}to alter the structure of the formula:
+
+%\begin{figure}[htbp] \begin{center} \includegraphics[width=3.472in, height=1.472in]{oldpics/Roll_your_own_v3_2+Fig41} \caption{Fig41} \end{center} \end{figure}
+
+%
+%Now the $HF=HG$ equality can be used:
+
+%\begin{figure}[htbp] \begin{center} \includegraphics[width=3.472in, height=1.722in]{oldpics/Roll_your_own_v3_2+Fig42} \caption{Fig42} \end{center} \end{figure}
+
+%
+%Now we would like to apply the first assumption again, but $JH$ isn't a textual subformula as the formula is written, so we have first to modify the conclusion. Flatten from the Rules menu does the trick:
+
+%\begin{figure}[htbp] \begin{center} \includegraphics[width=3.472in, height=1.972in]{oldpics/Roll_your_own_v3_2+Fig43} \caption{Fig43} \end{center} \end{figure}
+
+%
+%The rest of the proof is straightforward. It remains to explain how all this is done.
+
+%
+%The lethypfind and letconcfind tacticals allow the user to rebracket a formula. lethypfind (\textit{old},\textit{new}) \textit{tactic... tactic} succeeds if
+
+%
+%{\textbullet}\tab the user has made a single text-selection in a hypothesis formula, dividing it in effect into \textit{before}, \textit{middle} and \textit{after} texts;
+
+%
+%{\textbullet}\tab the hypothesis formula unifies with the pattern \textit{old};
+
+%
+%{\textbullet}\tab \textit{middle} is a valid formula\footnote{Maybe we don't need this condition, but it would be very odd not to impose it.};
+
+%
+%{\textbullet}\tab the text \textit{before} ( \textit{middle} ) \textit{after} is a valid formula and unifies with \textit{new};\\
+%{\textbullet}\tab the sequence \textit{tactic... tactic} succeeds in the context produced by those unifications.
+
+%
+%(letconcfind is similar, but demands a selection in a conclusion formula.) The tactical succeeds silently, without running \textit{tactic... tactic}, if \textit{before} ( \textit{middle} ) \textit{after} turns out to be structurally equal to the original unmodified formula --- a test which does not call upon information about associativity. So lethypfind and letconcfind match, and run their argument tactics, if your text selection reorganises the structure of the formula.
+
+%
+%In functions\_menus.j an entry is put in the Rules menu, and an associated tactic is defined:
+
+%MENU Rules IS\\
+%\tab ENTRY\tab "Find" \tab IS FindSelection\\
+%\tab ...
+
+%TACTIC FindSelection IS\\
+%\tab WHEN\tab (LETHYPFIND (\_XOLD=\_YOLD, \_XNEW=\_YNEW)\\
+%\tab \tab \tab (ALT\tab (LAYOUT "Associativity" (2)\\
+%\tab \tab \tab \tab \tab (rewriteHypotheticalEquation \_XOLD \_XNEW \_YOLD \_YNEW) \\
+%\tab \tab \tab \tab \tab EVALUATE EVALUATE\\
+%\tab \tab \tab \tab )\\
+%\tab \tab \tab \tab (LETARGSEL \_XSEL (FAIL ("\%s isn't a subterm", \_XSEL)))\\
+%\tab \tab \tab )\\
+%\tab \tab )\\
+%\tab \tab (LETCONCFIND (\_XOLD=\_YOLD, \_XNEW=\_YNEW)\\
+%\tab \tab \tab (ALT\tab (LAYOUT "Associativity" (2)\\
+%\tab \tab \tab \tab \tab (rewriteEquation \_XOLD \_XNEW \_YOLD \_YNEW) \\
+%\tab \tab \tab \tab \tab EVALUATE EVALUATE\\
+%\tab \tab \tab \tab )\\
+%\tab \tab \tab \tab (LETARGSEL \_XSEL (FAIL ("\%s isn't a subterm", \_XSEL)))\\
+%\tab \tab \tab )\\
+%\tab \tab )
+
+%
+%The FindSelection tactic calls either rewriteHypotheticalEquation or rewriteEquation: those rules are\footnote{The fact that FindSelection splits the selected formula into two, and the rules pick up that split, is an artefact of the way that assoceq is currently implemented; we will fix the problem Real Soon Now. The existence of two rewrite rules, rather than a single one plus a tactic that can use cut, is because the encoder doesn't want the kind of ugly trees that result from that kind of simulated forward reasoning.}
+
+%RULE rewriteEquation(X, X', Y, Y', OBJECT x) IS\\
+%\tab FROM ASSOCEQ (X, X') AND ASSOCEQ (Y, Y') AND X'=Y' INFER X=Y\\
+%RULE rewriteHypotheticalEquation(X, X', Y, Y', OBJECT x) IS\\
+%\tab FROM ASSOCEQ (X, X') AND ASSOCEQ (Y, Y') AND X'=Y'⊦ P INFER X=Y ⊦ P
+
+%
+%The built-in assoceq judgement flattens its arguments, using any relevant theorems / rules about associativity. Each of these rules therefore replaces an equation with a provably equivalent equation. The evaluate tactic interprets the judgement; the use of layout in FindSelection hides this internal working and gives Associativity as the justification for the step.
+
+%
+%The reverse operation is provided by the flatten tactic. The menu entry indexes the Flatten tactic (see equality\_menus.j)
+
+%TACTIC Flatten IS\\
+%\tab LAYOUT "Associativity" (0)\\
+%\tab \tab (WHEN\tab (LETARGSEL \_A (FLATTEN \_A))\\
+%\tab \tab \tab \tab (LETGOAL (\_X = \_Y) (IF(FLATTEN(\_X))) (IF(FLATTEN(\_Y)))) \\
+%\tab \tab \tab \tab (LETGOAL \_X (FAIL (Cannot Flatten \_X)))\\
+%\tab \tab )
+
+%
+%This tactic gives the same justification as FindSelection; via flatten it accesses the same machinery. The argument to flatten is used to determine the principal operator of the formula to be flattened; subformulae of which that is the operator alone are flattened\footnote{This is the reason that, at present, the FindSelection mechanism splits the formula to which it is matched. It's a bug in our existing mechanism, which will be fixed.}.
+
+%
+%The effect of all this machinery is to enable the user to manipulate formulae which use associative operators without too many uses of associative rewrite laws.
+
+%
+%\textbf{5.5\tab Induction in Jape}
+
+%
+%Jape makes no special treatment of induction. It is handled in the same way as any other logical generalisation rule, using the fresh proviso. We encode a form of list induction which uses concatenation rather than \textit{cons}\footnote{Definining lists with concatentation rather than \textit{cons} has advantages, in particular the fact that it doesn't favour either end of a list when making a reduction. It has difficulties, but it is valid. The sceptics (Richard is ashamed to admit that he was once one of them!) should note that you can derive this rule from the more familiar \textit{cons} version. As for evaluation strategies, or function definition by concatenation, that's a different story!}:
+
+%
+%$\frac{\Gamma  |- A[\,]\quad \Gamma  |- A[x]\quad \Gamma,A\left( xs\right),A\left( ys\right)  |- A\left( xs{}+{}+{}ys\right) }{\Gamma  |- A\left( B\right) } \;(\,x,xs,ys)$
+
+%We have collapsed into one step that which usually takes two (by an induction principle prove \ensuremath{\forall}\textit{x}.\textit{A}(\textit{x}); then infer \textit{A}(\textit{B}) by specialisation). There is no need to introduce quantification into equational reasoning, and our one-step rule is perfectly convenient. We encode it directly:
+
+%RULE listinduction (B, OBJECT x, OBJECT xs, OBJECT ys, ABSTRACTION A) \\
+%\tab WHERE FRESH x, xs, ys IS\\
+%\tab \tab FROM A[ ] AND A[x] AND A xs, A ys ⊦ A(xs++ys) INFER A(B)
+
+%
+%Sometimes you will want to make a proof by induction of a proposition which is expressed in terms of some variable or other, and then you would want induction to apply to every instance of that variable. Other times you may want to be more precise in specifying just what instances of what sub-formula are to be the basis of induction, and so we require the user to specify those instances. We could allow both mechanisms, activated by different entries in a menu, but we have instead required our users always to select the particular instances of a subformula which they wish to be the subject of induction. The entry in the menu which gives the user access to the list induction principle connects to a tactic which uses the letsubstsel/withsubstsel mechanism:
+
+%TACTIC "list induction tactic" IS \\
+%\tab WHEN\tab (LETSUBSTSEL \_A (WITHSUBSTSEL listinduction))\\
+%\tab \tab (FAIL(Please select a sub-formula on which to perform induction))
+
+%
+%\textbf{5.6\tab Controlling collections of rules}
+
+%
+%One of the problems of reasoning in functional programming, as we have set it up in this encoding, is that each function definition corresponds to a number of individual statements of equality. The definition of \textit{map}, for example, gives three:
+
+%
+%$ \begin{array}{l} map\,f\,[]=[] \\
+%map\,f\,[x]=f\,x \\
+%map\,f\,(xs{}+{}+{}ys)=map\,f\,xs{}+{}+{}map\,f\,ys \end{array} $
+
+%It would be tedious to be required to give a name to each individual equality, and in any case we expect our users to be happy to refer to them as a collection --- `use one of the \textit{map} equalities', rather than `use the \textit{map} equality which applies to singletons'.
+
+%
+%The rules directive allows us to make and name collections of rules. If we turn all the function definitions into collections of rules we can use them, with some instantiation of their variables, to close the left-hand antecedent of a \textit{rewrite} rule application or to close a tip of a proof tree in the normal way. The definition of \textit{map}, for example, goes as follows:
+
+%RULES map\\
+%\tab ARE map F [ ]\tab = [ ]\\
+%\tab AND map F [X]\tab = [F X]\\
+%\tab AND map F (Xs++Ys)\tab = map F Xs ++ map F Ys\\
+%END
+
+%
+%This generates three rules, called \textit{map'0}, \textit{map'1} and \textit{map'2}, plus a tactic \textit{map}:
+
+%TACTIC map IS ALT map'0 map'1 map'2
+
+%
+%In addition, for control of searching of our collections of rules, we group them into collections called `theories'. Part of the \textit{List} theory, for example, as it is given in functions\_rules.j is
+
+%THEORY List IS\\
+%\tab RULES length \\
+%\tab ...\\
+%\tab RULE\tab none \tab IS none X\tab = [ ]\\
+%\tab RULE\tab one\tab IS one X\tab = [X]\\
+%\tab RULE\tab cat\tab IS cat = fold (++) []\\
+%\tab RULES rev\\
+%\tab ...\\
+%\tab RULES ++\\
+%\tab ...\\
+%\tab RULES map\\
+%\tab ...\\
+%\tab RULE filter IS filter P = cat {\textbullet} map (if P (one, none))\\
+%\tab RULES zip\\
+%\tab ...\\
+%\tab RULES fold \\
+%\tab ...\\
+%\tab RULE rev2 IS rev2 = fold rcat [] {\textbullet} map one\\
+%\tab RULE rcat IS rcat Xs Ys = Ys ++ Xs\\
+%\tab RULE ":" IS X:Xs = [X] ++ Xs\\
+%END
+
+%
+%The effect of theory is to define all the rules and tactics described by its components, plus a tactic which allows search of those components. In this case the tactic is
+
+%TACTIC List IS ALT length none rev (++) map filter zip fold rev2 rcat (:)
+
+%
+%We put the rule-collections --- but not the theory-collections --- into a panel of definitions. The panel is described in functions\_menus.j as
+
+%TACTICNANEL "Definitions" \\
+%\tab TACTIC "Use any rule enabled by Searching" IS SearchTactic\\
+%\tab ENTRY\tab ":"\\
+%\tab ENTRY\tab "{\textbullet}"\tab  \\
+%\tab ENTRY\tab "$\times$"\tab  \\
+%\tab ENTRY\tab "\ensuremath{^a}"\tab  \\
+%\tab ...\\
+%\tab BUTTON\tab "Unfold *"\tab IS apply RepeatedlyUnfold\\
+%\tab PREFIXBUTTON\tab "Unfold"\tab IS apply UnfoldObvious\\
+%\tab PREFIXBUTTON\tab "Fold"\tab IS apply FoldObvious\\
+%\tab PREFIXBUTTON\tab "Apply"\tab IS apply\\
+%\tab BUTTON\tab "Flatten"\tab IS apply Flatten\\
+%\tab BUTTON\tab "Find"\tab IS apply FindSelection\\
+%END
+
+%
+%The effect, on the Macintosh, is a panel which looks like this:
+
+%\begin{figure}[htbp] \begin{center} \includegraphics[width=2.778in, height=6.042in]{oldpics/Roll_your_own_v3_2+Fig44} \caption{Fig44} \end{center} \end{figure}
+
+%
+%We discuss the effect of the tactics bound to the buttons and entries below.
+
+%
+%\textbf{5.7\tab Searching collections of rules and theorems: the fold and unfold tacticals}
+
+%
+%It's quite possible, using the Unfold and Fold buttons on the Definitions panel, plus the Unfold with hypothesis and Fold with hypothesis entries in the Rules menu, to construct proofs entirely by hand --- selecting the subformula to be replaced, the definition or hypothesis to be used, pressing the appropriate button or choosing the appropriate menu entry. But it's also quite easy to program Jape to do a sort of evaluation step. This involves identifying helpful equations (in the form of rules or theorems) which can be used to rewrite part of the conclusion of the problem sequent.
+
+%
+%Jape has a number of built-in mechanisms which help with the process. The alt tactical allows an undirected search amongst a number of possibly-applicable tactics, and we have illustrated above how the rules and theory directives automatically construct alts which may be useful in searching for a proof. But in equational reasoning the problem is somewhat different: we are looking for a subformula which is replaceable and a definition or hypothesis which matches it; alt is not sufficient to do the job.
+
+%
+%In the future Jape will support such searching by a mechanism based on mapping tactics over a list of subformulae of a formula. For the moment our support is more ad-hoc: although based on the same principles, it is closely adapted to the particular problem of equational rewriting.
+
+%
+%Jape's support for search in equational reasoning is at present the fold, unfold, foldhyp and unfoldhyp tacticals. The fold and unfold tacticals take a rewrite rule and an alt tactic, which is treated as a collection of rules. They filter the rules to consider only those whose consequents have a conclusion of the form \textit{L op R} for some formulae \textit{L} and \textit{R} and a binary operator \textit{op}\footnote{The rules --- actually rules and theorems --- are doubly filtered because we eliminate all unproved conjectures unless the applyconjectures variable is set to true.}; they search for subformulae of the conclusion of the problem sequent which match the \textit{R} (fold) or \textit{L} (unfold) of one of the rules, and when they find a coincidence try to apply the rewrite rule followed by the matching filtered rule. Foldhyp and unfoldhyp are similar, except that they take a pattern which allows the user to define \textit{op}, and they search the list of hypotheses rather than a collection of rules.
+
+%
+%However ad-hoc, these techniques are fast and they work well. In this encoding our rules are such that automatic folding is little use: too many equalities have right-hand sides which are similar, and searching with alt for a match rarely finds a useful one. But automatic unfolding can often be fruitful: if there is a subformula which matches \textit{map} $F$ (\textit{Xs}++\textit{Ys}), for example, then unfolding with the rule \textit{map F} (\textit{Xs}++\textit{Ys}) = \textit{map F Xs}++ \textit{map F Ys} is probably worthwhile.
+
+%
+%Our search mechanism, then, is based on the tactic
+
+%TACTIC Unfold(x) IS LAYOUT "Fold \%s" (1) (UNFOLD rewrite x)
+
+%
+%which is given an alt tactic \textit{x} and which searches for (backwards) unfold actions which it can carry out by rewriting with the rules within \textit{x}.
+
+%
+%The magic by no means stops with the unfold tactical, because we also use the collections of theories to control the search. The idea is that you should be able to `turn on and off' the definitions and theorems in particular theories when searching. Because the variable-processing facilities of Japeish are still in their infancy, we have done this in the most naive way possible, using radiobuttons in a special Searching menu\footnote{These controls would have been easier to use if they had been simple checkboxes, but at present Jape can't make much use of the values of variables during tactics. This will be remedied soon.}.
+
+%
+%We have grouped the equality rules into three theories: List (illustrated above), Functions and Reflect. We have grouped conjectures into collections, some of which we are prepared to search. Here, for example, is the Listthms collection:
+
+%THEOREMS ListThms\\
+%ARE\tab rev {\textbullet} rev\tab = id\\
+%AND\tab rev2\tab  = rev\\
+%AND\tab map F {\textbullet} map G\tab = map (F {\textbullet} G)\\
+%AND\tab map F {\textbullet} cat\tab = cat {\textbullet} (map (map F))\\
+%AND\tab none {\textbullet} F\tab = none\\
+%AND\tab map F {\textbullet} none\tab = none\\
+%AND\tab map F {\textbullet} one\tab = one {\textbullet} F\\
+%AND\tab map F {\textbullet} rev\tab = rev {\textbullet} map F\\
+%AND\tab map id\tab = id\\
+%AND\tab length{\textbullet}map F\tab = length\\
+%AND\tab zip {\textbullet} (map F \ensuremath{^a} map G)\tab = map (F\ensuremath{^a}G)\\
+%AND\tab map F {\textbullet} if P (G,G')\tab = if P (map F {\textbullet} G, map F {\textbullet} G')\\
+%AND\tab filter P\tab = map fst {\textbullet} filter snd {\textbullet} zip {\textbullet} (id \ensuremath{^a} map P)\\
+%END
+
+%
+%These, once proved, can be searched when automatically unfolding equalities; they can even be searched before they are proved, if applyconjectures is set to true.
+
+%
+%Our basic technique at present\footnote{This paragraph reflects a temporary hack to get around the fact that Jape doesn't yet have any analogue of the ML \textit{case} expression, which we can use to direct the activity of a tactic according to the value of a variable. It probably took longer to type this footnote than to implement the mechanism --- but the manual must come first!} is to use variables each of which is set to the name of a theory if we want to search that theory, or to the name of a tactic which is certain to fail, if we don't want to search it. The justfail tactic is
+
+%TACTIC JUSTFAIL IS (ALT)
+
+%
+%and the Searching menu is
+
+%MENU "Searching" IS\\
+%\tab RADIOBUTTON dohyp IS \\
+%\tab "Search hypotheses" IS DoHyp\\
+%\tab AND "Ignore hypotheses" IS JUSTFAIL\\
+%\tab INITIALLY DoHyp\\
+%\tab END
+
+%\tab RADIOBUTTON list IS \\
+%\tab "List rules enabled" IS List\\
+%\tab AND\tab  "List rules disabled" IS JUSTFAIL\\
+%\tab INITIALLY List\\
+%\tab END
+
+%\tab  END
+
+%
+%On the Macintosh this produces a menu
+
+%\begin{figure}[htbp] \begin{center} \includegraphics[width=2.958in, height=4.750in]{oldpics/Roll_your_own_v3_2+Fig45} \caption{Fig45} \end{center} \end{figure}
+
+%
+%The auto tactic is set up either to unfold or to fold --- though for the reasons given above, we never actually use it for folding --- and is defined as
+
+%TACTIC Auto(foldunfold, foldunfoldhyp) IS \\
+%ALT\tab (dohyp foldunfoldhyp)\\
+%\tab (foldunfold list) \\
+%\tab (foldunfold listthms) \\
+%\tab (foldunfold function) \\
+%\tab (foldunfold functionthms) \\
+%\tab (foldunfold reflect ) \\
+%\tab (foldunfold reflectthms)\\
+%\tab (FAIL (Cannot find anything to foldunfold) )
+
+%
+%It's called from the Unfold * button with the tactic
+
+%SEQ\tab (Auto Unfold UnfoldWithAnyHyp) \\
+%\tab (DO (Auto Unfold UnfoldWithAnyHyp))
+
+%
+%--- since do always silently succeeds, we wanted to make the button fail noisily if there was nothing at all that it could do; hence the double invocation of the tactic.
+
+%
+%We use the same tactic --- but only singly, without repetition --- if you double-click on a conclusion:
+
+%CONCHIT C IS Auto Unfold UnfoldWIthAnyHyp
+
+%
+%The remaining parts of this jigsaw are the UnfoldWithAnyHyp tactic
+
+%TACTIC UnfoldWithAnyHyp IS UNFOLDHYP "Fold with hypothesis" (\_A=\_B)
+
+%
+%and the Fold/Unfold with hypothesis pair of rules:
+
+%RULE "Fold with hypothesis" (X, OBJECT x)\tab IS FROM X=Y ⊦ AA[x{\textbackslash}Y] INFER X=Y ⊦ AA[x{\textbackslash}X]\\
+%RULE "Unfold with hypothesis" (Y,OBJECT x)\tab IS FROM X=Y ⊦ AA[x{\textbackslash}X] INFER X=Y ⊦ AA[x{\textbackslash}Y]
+
+%
+%These rules are named for forward reading, so the menu entries which enable them to be used by hand have to be contrariwise.
+
+%
+%All of the other techniques that we have used are discussed in earlier chapters.
+
+%\section{Transitive reasoning} 

@@ -1,0 +1,367 @@
+\chapter{Encoding the Hindley-Milner type-assignment algorithm}
+\label{chap:HindleyMilner}
+
+We consider a version of the algorithm for the lambda calculus with tuples and \textit{let}/\textit{letrec} bindings. \\
+
+
+\begin{tabular}{lllllll} \hline
+% ROW 1
+\multicolumn{1}{|p{2.056in}|} {\raggedright
+
+$\infer[\reason{$\lambda -I$}]
+       {C |- \lambda x.E:T->T' }
+       {C,x:T |- E:T' }$ } & \multicolumn{2}{p{2.357in}|} {\raggedright
+
+$\infer[\reason{$application-I$}]
+       {C |- F\,G:T' }
+       {C |- F:T->T' \quad C |- G:T}$ }\\
+\hline
+% ROW 2
+\multicolumn{2}{p{0.043in}|} {\raggedright
+
+$\infer[\reason{$tuple-I$}]
+       {C |- (E1,E2):(T1\times T2)}
+       {C |- E1:T1\quad C |- E2:T2}$ } & \multicolumn{2}{p{0.043in}|} {\raggedright }\\
+\hline
+% ROW 3
+\multicolumn{1}{|p{2.056in}|} {\raggedright
+
+$\infer[\reason{$\operatorname{let}-I$}]
+       {C |- \operatorname{let}\,x=E\,\operatorname{in}\,F\,\operatorname{end}:T}
+       {C |- E:T1\quad C |- T1\prec S\quad C,x:S |- F:T}$ } & \multicolumn{1}{p{2.351in}|} {\raggedright
+
+$\infer[\reason{$\operatorname{letrec}-I$}]
+       {C |- \operatorname{letrec}\,x=E\,\operatorname{in}\,F\,\operatorname{end}:T}
+       {C,x:T1 |- E:T1\quad C |- T1\prec S\quad C,x:S |- F:T}$ }\\
+\hline
+% ROW 4
+\multicolumn{2}{p{0.043in}|} {\raggedright
+
+$\infer[\reason{$identifier\;type$}]
+       {C |- x:T}
+       {C(x)\mapsto S\quad S\succ T}$ } & \multicolumn{3}{p{0.049in}|} {\raggedright }\\
+\hline \end{tabular}
+
+
+In each of these rules the context \textit{C} is a sequence of bindings of program variables to type schemes which can be read, right to left, as a mapping from variables to type schemes. The judgement
+
+$C(x)\mapsto $ interprets the context in just that way. The judgement $C |- T\prec S$ is the \textit{generalisation step}, in which `type variables' free in the type \textit{T} but not free in the context \textit{C} are used to transform type \textit{T} into type scheme \textit{S}. The judgement
+
+$S\succ T$ is the corresponding \textit{specialisation step}, when the schematic variables of \textit{S} are replaced by type formulae.
+
+
+The difficulties of encoding the Hindley-Milner algorithm are just those of representing the schematic `type variables', representing and interpreting the type context and implementing the generalisation and specialisation steps.
+
+
+\textbf{7.2\tab Syntax}
+
+
+We represent \ensuremath{\lambda} formulae as a leftfix formula, and we give that formula a lower priority than the colon operator, so that we don't unnecessarily have to bracket \ensuremath{\lambda} formulae. The type-tupling operator \ensuremath{\times} is treated as an associative operator, rather like comma. We need an == operator (blechh!) because = is used in the \textit{let / letrec} syntax. We use $\ll$ for generalisation and $\gg$ for specialisation. We use a double-arrow operator rather than a colon in the contexts, for no particularly good reason that we can remember. We have included additional operators {\textbullet} and $\triangleleft$ which are used in the generalisation-step induction.
+
+
+We have represented type schemes which include schematic variables-- so-called polytypes --- as $@*t.T$ or $@*t1,t2.T$ and so on, with up to four schematic variables. Those which have no schematic variables --- so-called monotypes --- as \#\textit{T}, where \textit{T} is a type formula. This is faithful to Milner's treatment in the ML description, where he describes the scheme \textit{T} as a shorthand for \ensuremath{\forall}().\textit{\ensuremath{T}}.
+
+
+We have included constants \textit{hd}, \textit{tl} and \textit{nil} which are useful in describing list-processing, $\<true>$ and \textit{false} which are useful in handling booleans; we have included constant type-names \textit{bool}, \textit{string} and \textit{num}.
+
+
+First the program names:
+
+CLASS VARIABLE x y z e f g map\\
+CLASS FORMULA E F G\\
+CLASS CONSTANT c\\
+CONSTANT hd tl nil\\
+CLASS NUMBER n\\
+CLASS STRING s\\
+CONSTANT true false
+
+
+and then the type names:
+
+CLASS VARIABLE t\\
+CLASS FORMULA S T /* we use T for types, S for type schemes in the rules which follow */\\
+CONSTANT bool string num
+
+
+Next operators for programs:
+
+SUBSTFIX\tab 500\tab \{ E / x \}\\
+JUXTFIX\tab 400\\
+INFIXC\tab 140L\tab + -\\
+INFIXC\tab 120R\tab ::\\
+INFIXC\tab 100L\tab == /* we need this because we also have let f =... */\\
+LEFTFIX\tab 75\tab $\lambda$.\\
+INFIX\tab 50L\tab =
+
+OUTFIX [ ]\\
+OUTFIX letrec in end\\
+OUTFIX let in end\\
+OUTFIX if then else fi
+
+
+and operators for types:
+
+INFIX\tab 150T \tab $\times$\\
+INFIX\tab 100R \tab →\\
+LEFTFIX\tab 75\tab ∀.\\
+PREFIX\tab 75\tab \#\\
+INFIX\tab 55L \tab {\textbullet} $\triangleleft$\\
+INFIX\tab 50L \tab : $=>$ $\ll$ $\gg$
+
+
+Now bindings:
+
+BIND x SCOPE E IN $\lambda$ x. E
+
+BIND t SCOPE T IN ∀ t. T\\
+BIND t1 t2 SCOPE T IN ∀ t1, t2. T\\
+BIND t1 t2 t3 SCOPE T IN ∀ t1, t2, t3. T\\
+BIND t1 t2 t3 t4 SCOPE T IN ∀ t1, t2, t3, t4. T
+
+BIND x \tab SCOPE F\tab IN let x = E in F end\\
+BIND x1 x2 \tab SCOPE F\tab IN let x1=E1, x2=E2 in F end\\
+BIND x1 x2 x3\tab SCOPE F\tab IN let x1=E1, x2=E2, x3=E3 in F end\\
+BIND x1 x2 x3 x4\tab SCOPE F\tab IN let x1=E1, x2=E2, x3=E3, x4=E4 in F end\\
+BIND x\tab SCOPE E F\tab IN letrec x = E in F end\\
+BIND x1 x2\tab SCOPE E1 E2 F\tab IN letrec x1=E1, x2=E2 in F end\\
+BIND x1 x2 x3\tab SCOPE E1 E2 E3 F\tab IN letrec x1=E1, x2=E2, x3=E3 in F end\\
+BIND x1 x2 x3 x4\tab SCOPE E1 E2 E3 E4 F\tab IN letrec x1=E1, x2=E2, x3=E3, x4=E4 in F end
+
+
+Finally, the definition of a judgement:
+
+CLASS LIST C\\
+SEQUENT IS LIST ⊦ FORMULA
+
+
+\textbf{7.2\tab Rules}
+
+
+The structural rules are very straightforwardly encoded, following the algorithm directly. Note the use of a type scheme \#\textit{T1} in the rule which deals with \ensuremath{\lambda} formulae.
+
+RULE "F G : T"\tab FROM C ⊦ F: T1→T2 AND C ⊦ G : T1 \tab INFER C ⊦ F G : T2\\
+RULE "$\lambda$x.E : T1→T2"\tab FROM C,x$=>$\#T1 ⊦ E:T2 \tab INFER C ⊦ $\lambda$x.E : T1→T2\\
+RULE "(E,F) : T1$\times$T2"\tab FROM C ⊦ E: T1 AND C ⊦ F: T2\tab INFER C ⊦ (E,F) : T1$\times$T2\\
+RULE "if E then ET else EF fi : T"\\
+\tab FROM C ⊦ E : bool AND C ⊦ ET : T AND C ⊦ EF : T\tab INFER C ⊦ if E then ET else EF fi : T
+
+
+There are some simple rules which deal with constants:
+
+RULE "n:num"\tab INFER C ⊦ n:num\\
+RULE "s:string"\tab INFER C ⊦ s:string\\
+RULE "true:bool"\tab INFER C ⊦ true:bool\\
+RULE "false:bool"\tab INFER C ⊦ false:bool
+
+
+which we apply whenever possible --- in this case autounify seems to be the best mechanism:
+
+AUTOUNIFY "n:num" "s:string" "true:bool" "false:bool"
+
+
+Dealing with the various forms of \textit{let} and \textit{letrec} formulae is a matter of tedious listing. Here are the \textit{letrec} rules:
+
+RULES letrecrules ARE\\
+\tab FROM C,x$=>$\#T1 ⊦ E:T1 AND C ⊦ T1$\ll$S1 AND C,x$=>$S1 ⊦ F:T\\
+\tab \tab INFER C ⊦ letrec x=E in F end : T\\
+AND\tab FROM C,x1$=>$\#T1,x2$=>$\#T2 ⊦ E1 : T1 AND C,x1$=>$\#T1,x2$=>$\#T2 ⊦ E2 : T2 \\
+\tab AND C ⊦ T1$\ll$S1 AND C ⊦ T2$\ll$S2 AND C,x1$=>$S1,x2$=>$S2 ⊦ F:T\tab \\
+\tab \tab INFER C ⊦ letrec x1=E1, x2=E2 in F end : T\\
+AND\tab FROM C,x1$=>$\#T1,x2$=>$\#T2,x3$=>$\#T3 ⊦ E1 : T1 AND C,x1$=>$\#T1,x2$=>$\#T2,x3$=>$\#T3 ⊦ E2 : T2\\
+\tab AND C,x1$=>$\#T1,x2$=>$\#T2,x3$=>$\#T3 ⊦ E3 : T3 AND C ⊦ T1$\ll$S1 AND C ⊦ T2$\ll$S2\\
+\tab AND C ⊦ T3$\ll$S3 AND C,x1$=>$S1,x2$=>$S2,x3$=>$S3 ⊦ F:T\\
+\tab \tab INFER C ⊦ letrec x1=E1, x2=E2, x3=E3 in F end : T\\
+AND\tab FROM C,x1$=>$\#T1,x2$=>$\#T2,x3$=>$\#T3,x4$=>$\#T4 ⊦ E1 : T1 \\
+\tab AND C,x1$=>$\#T1,x2$=>$\#T2,x3$=>$\#T3,x4$=>$\#T4 ⊦ E2 : T2\\
+\tab AND C,x1$=>$\#T1,x2$=>$\#T2,x3$=>$\#T3,x4$=>$\#T4 ⊦ E3 : T3 \\
+\tab AND C,x1$=>$\#T1,x2$=>$\#T2,x3$=>$\#T3,x4$=>$\#T4 ⊦ E4 : T4\\
+\tab AND C ⊦ T1$\ll$S1 AND C ⊦ T2$\ll$S2 AND C ⊦ T3$\ll$S3 AND C ⊦ T4$\ll$S4\\
+\tab AND C,x1$=>$S1,x2$=>$S2,x3$=>$S3,x4$=>$S4 ⊦ F:T\\
+\tab \tab INFER C ⊦ letrec x1=E1, x2=E2, x3=E3, x4=E4 in F end : T\\
+END
+
+
+\textit{Reading the context and specialising a type scheme}
+
+
+Things get more interesting when we consider how to handle the context-evaluation step $C(x)\mapsto S$ : \textit{C} maps \textit{x} to scheme \textit{S}. The context is just a list of name$->$scheme bindings, and it should be read right-to-left, so that the most recent bindings take precedence. Because program names can't appear in types in this logic, we can use a notin proviso to help us to read the context in this way. Because variables and constants are different syntactic classes, we need two rules:
+
+RULE "C ⊦ x$=>$S" WHERE x NOTIN C' IS INFER C,x$=>$S,C' ⊦ x$=>$S\\
+RULE "C ⊦ c$=>$S" WHERE c NOTIN C' IS INFER C,c$=>$S,C' ⊦ c$=>$S
+
+
+We declare these two as identity rules so that their application is hidden in a box-and-line display of a proof:
+
+IDENTITY "C ⊦ x$=>$S"\\
+IDENTITY "C ⊦ c$=>$S"
+
+
+We have rules for the types of the constant function identifiers which we have used:
+
+RULES constants ARE\\
+\tab C ⊦ hd$=>$∀tt.[tt]→tt\\
+AND\tab C ⊦ tl$=>$∀tt.[tt]→[tt]\\
+AND\tab C ⊦ (::)$=>$∀tt.tt→[tt]→[tt]\\
+AND\tab C ⊦ nil$=>$∀tt.[tt]\\
+AND\tab C ⊦ (+)$=>$\#num→num→num\\
+AND\tab C ⊦ (-)$=>$\#num→num→num\\
+AND\tab C ⊦ (==)$=>$∀tt.tt→tt→bool\\
+END
+
+
+Typing a variable or a constant is a matter of finding the type scheme and then specialising to some type. Specialisation is just a matter of substituting types for schematic variables:
+
+RULES "S$\gg$T" ARE\\
+\tab INFER \#T $\gg$ T\\
+AND\tab INFER ∀tt.TT $\gg$ TT\{T1/tt\}\\
+AND\tab INFER ∀tt1,tt2.TT $\gg$ TT\{T1,T2/tt1,tt2\}\\
+AND\tab INFER ∀tt1,tt2,tt3.TT $\gg$ TT\{T1,T2,T3/tt1,tt2,tt3\}\\
+AND\tab INFER ∀tt1,tt2,tt3,tt4.TT $\gg$ TT\{T1,T2,T3,T4/tt1,tt2,tt3,tt4\}\\
+END
+
+
+Then two rules put these together in just the way that the algorithm does:
+
+RULE "C ⊦ x:T" IS FROM C⊦x$=>$S AND S$\gg$T INFER C⊦x:T\\
+RULE "C ⊦ c:T" IS FROM C⊦c$=>$S AND S$\gg$T INFER C⊦c:T
+
+
+In the menu we use a tactic which looks in three places for a type scheme and then specialises, showing none of its working when it succeeds, but trying to give some error messages when it fails:
+
+TACTIC "x:T" IS\\
+\tab SEQ\tab (ALT\tab (LAYOUT "C(x)$=>$S; S$\gg$T" () "C ⊦ x:T" "C ⊦ x$=>$S") \\
+\tab \tab \tab (LAYOUT "C(c)$=>$S; S$\gg$T" () "C ⊦ c:T" "C ⊦ c$=>$S")\\
+\tab \tab \tab (LAYOUT "constant" () "C ⊦ c:T" constants)\\
+\tab \tab \tab (WHEN\tab (LETGOAL\tab (\_E:\_T)\\
+\tab \tab \tab \tab \tab (JAPE(fail(x:T can only be applied to either variables or\\
+\tab \tab \tab \tab \tab \tab \tab constants: \_E is neither)))\\
+\tab \tab \tab \tab )\\
+\tab \tab \tab \tab (LETGOAL\tab \_E (JAPE(fail(conclusion \_E is not a ' name:type ' judgement))))\\
+\tab \tab \tab )\\
+\tab \tab ) \\
+\tab \tab "S$\gg$T"
+
+
+\textit{The generalisation step}
+
+
+The technique used here is to perform a structural induction on the type \textit{T} in order to calculate its schematic variables. These will be unknowns, because of course we don't judiciously introduce type variables when running the algorithm (though we might): we simply introduce unknowns as necessary, as we go.
+
+
+The generalisation step is run by a tactic, and all the working is normally hidden from the user. It works with a formula \textit{type} {\textbullet} $\textit{scheme}_{\textit{in}}$ $\triangleleft$ $\textit{scheme}_{\textit{out}}$, in which the operators {\textbullet} and $\triangleleft$ are no more than punctuation. The starting rule is
+
+RULE "T$\ll$S" IS\tab FROM C ⊦ T {\textbullet} \#T $\triangleleft$ S \tab INFER C ⊦ T $\ll$ S
+
+
+The induction works with rules which take a type apart, and two rules which are the base case. The structural rules are
+
+RULE "T1→T2{\textbullet}..."\tab FROM C ⊦ T1{\textbullet} Sin $\triangleleft$ Smid AND C ⊦ T2 {\textbullet} Smid $\triangleleft$ Sout\\
+\tab \tab INFER C ⊦ T1→T2 {\textbullet} Sin $\triangleleft$ Sout\\
+RULE "T1$\times$T2{\textbullet}..."\tab FROM C ⊦ T1{\textbullet} Sin $\triangleleft$ Smid AND C ⊦ T2 {\textbullet} Smid $\triangleleft$ Sout\\
+\tab \tab INFER C ⊦ T1$\times$T2 {\textbullet} Sin $\triangleleft$ Sout\\
+RULE "[T]{\textbullet}..."\tab FROM C ⊦ T {\textbullet} Sin $\triangleleft$ Sout\\
+\tab \tab INFER C ⊦ [T] {\textbullet} Sin $\triangleleft$ Sout
+
+
+The tactic applies these rules, we shall see, `by matching': they aren't allowed to make any substantial unifications which alter the problem sequent to which they are applied. So if the problem sequent is \textit{unknown} {\textbullet} \textit{scheme}$_{\textit{in}}$ $\triangleleft$ \textit{scheme}$_{\textit{out}}$, none of these rules will be used.
+
+
+The rules which deal with an unknown do so by unifying it with a freshly-minted variable name and making sure that it doesn't appear in the context or the original type:
+
+RULES "new t{\textbullet}..." (OBJECT t1) WHERE t1 NOTIN C ARE\\
+\tab C⊦ t1 {\textbullet} \#T$\triangleleft$ ∀t1.T \\
+AND\tab C⊦ t1 {\textbullet} ∀tt1.T $\triangleleft$ ∀tt1,t1.T \\
+AND\tab C⊦ t1 {\textbullet} ∀tt1,tt2.T $\triangleleft$ ∀tt1,tt2,t1.T \\
+AND\tab C⊦ t1 {\textbullet} ∀tt1,tt2,tt3.T $\triangleleft$ ∀tt1,tt2,tt3,t1.T \\
+END
+
+
+The only formula which can possibly unify with a freshly-minted type variable is a type unknown, and these rules have a proviso that the result shouldn't be free in the context \textit{C}. The effect is to replace an unknown type by a type variable, and to include it in the context.
+
+
+If none of these rules applies, then we must have an unknown which \textit{does} appear in the context: that unknown must be left alone:
+
+RULE "same T{\textbullet}..."\tab INFER C ⊦ T {\textbullet} S $\triangleleft$ S
+
+
+The whole is stitched together with a tactic which tries first the structural rules by matching, then the variable rule and finally the leave-alone rule; that tactic is used by another which starts the process, calls the induction and hides all its working:
+
+TACTIC geninduct IS \\
+\tab ALT\tab (SEQ (MATCH (ALT "T1→T2{\textbullet}..." "T1$\times$T2{\textbullet}...")) geninduct geninduct) \\
+\tab \tab (SEQ (MATCH "[T]{\textbullet}...") geninduct)\\
+\tab \tab "new t{\textbullet}..."\\
+\tab \tab "same T{\textbullet}..."
+
+TACTIC generalise IS LAYOUT "generalise" () "T$\ll$S" geninduct
+
+
+We also provide a `single-step' tactic which carries out the same tasks, so that users can view the process as it evolves:
+
+TACTIC genstep IS \\
+\tab ALT\tab "T$\ll$S" \\
+\tab \tab (MATCH "T1→T2{\textbullet}...") \\
+\tab \tab (MATCH "T1$\times$T2{\textbullet}...") \\
+\tab \tab (MATCH "[T]{\textbullet}...") \\
+\tab \tab "new t{\textbullet}..."\\
+\tab \tab "same T{\textbullet}..."
+
+
+\textit{Automatic search}
+
+
+In this chapter we are dealing with an encoding of an \textit{algorithm}, not simply a logic. It's possible to get strange answers by running the steps in the wrong order. On the other hand, it's easy to write a tactic which automatically runs the algorithm. That tactic is long-winded because it has to deal, case-by-case, with the various sizes of binding structures. If only Jape could handle families of rules...
+
+TACTIC Auto IS\\
+\tab WHEN\tab (LETGOAL (\_x:\_T) "x:T")\\
+\tab \tab (LETGOAL (\_c:\_T) \\
+\tab \tab \tab (ALT\tab "x:T" "n:num" "s:string" "true:bool" "false:bool"\\
+\tab \tab \tab \tab (JAPE (fail (\_c isn't a constant from the context, \\
+\tab \tab \tab \tab \tab \tab \tab or one of the fixed constants))) \\
+\tab \tab \tab )\\
+\tab \tab )\\
+\tab \tab (LETGOAL (\_F \_G:\_T) "F G : T" Auto Auto)\\
+\tab \tab (LETGOAL ((\_E,\_F):\_T) "(E,F) : T1$\times$T2" Auto Auto)\\
+\tab \tab (LETGOAL (($\lambda$\_x.\_E):\_T) "$\lambda$x.E : T1→T2" Auto)\\
+\tab \tab (LETGOAL (if \_E then \_ET else \_EF fi:\_T) "if E then ET else EF fi : T" Auto Auto Auto)\\
+\tab \tab (LETGOAL (let \_x=\_E in \_F end:\_T) \\
+\tab \tab \tab \tab letrules Auto generalise Auto)\\
+\tab \tab (LETGOAL (let \_x1=\_E1, \_x2=\_E2 in \_F end:\_T) \\
+\tab \tab \tab \tab letrules Auto Auto generalise generalise Auto)\\
+\tab \tab ... \textit{etc...}\\
+\tab \tab (LETGOAL (letrec \_x=\_E in \_F end:\_T) \\
+\tab \tab \tab \tab letrecrules Auto generalise Auto)\\
+\tab \tab (LETGOAL (letrec \_x1=\_E1, \_x2=\_E2 in \_F end:\_T) \\
+\tab \tab \tab \tab letrecrules Auto Auto generalise generalise Auto)\\
+\tab \tab ... \textit{etc...}\\
+\tab \tab (LETGOAL (\_E:\_T) (JAPE (fail (\_E is not a recognisable program formula (Auto)))))\\
+\tab \tab (LETGOAL \_E (JAPE (fail (\_E is not a recognisable judgement (Auto)))))
+
+
+There's a similar AutoStep tactic which lets the user make just one step of the algorithm.
+
+
+\textbf{{\large 7.3\tab An example}}
+
+
+The algorithm will calculate, for example, the type of \textit{map} and use it correctly in an application:
+
+\begin{figure}[htbp] \begin{center} \includegraphics[width=6.944in, height=9.333in]{oldpics/Roll_your_own_v3_2+Fig48} \caption{Fig48} \end{center} \end{figure}
+
+
+This example shows that it is necessary for Jape to learn how to fold long formulae when displaying a proof (it can fold long lists of formulae --- see, for example, the BAN logic encoding).
+
+
+\textbf{{\large 7.4\tab Jape's treatment of type-theoretic logics}}
+
+
+In simple, `pure' logics, we can reasonably claim that Jape can transparently encode the inference rules, and all the magic is hidden in its treatment of substitutions, bindings and unification. In the case of the Hindley-Milner logic and, we surmise, other type-theoretic logics, that isn't so. We've made some creative choices and had to program an encoding of the treatment of contexts. If the treatment in this chapter is to serve as a model of how Jape can encode type-theoretic logics, there are a number of questions which have to be answered.
+
+
+First, and trivially, we ought to able to deal with the monotype / polytype distinction without the ugly syntactic mechanism we have used here. That's a matter of improving our parser generator, we believe, and is simply a question of development.
+
+
+More seriously, our treatment has no judgement equivalent to `C is a context', and we have pushed the question into the context-interpretation rule, treating the context as a mapping and making sure with a proviso that we aren't overlooking a later binding. Meta-theoretically it is clear that the context might easily be formed by ensuring that every name it contains is distinct; the necessary \ensuremath{\alpha}-conversion, however, makes it hard for a human prover to keep track of what is going on. It seems to us, therefore, that we are pragmatically correct to treat the context as a mapping. Also, our rules are context-validity preserving. But it is still possible to state a conjecture with a nonsense context and yet prove it in our system: $GARBAGE |- \lambda x.x:T->T$ will be a theorem. It would be absurdly inefficient to check the validity of the context at every rule application; nevertheless, we must find ways in which we can check its validity at crucial points in a proof.
+
+
+We intend, in future work on type-theoretic logics, to continue to develop the approach used here. We expect to invent proviso mechanisms which allow us to state that the names in some type judgement are not rebound by the context to their right, or something similar. We dream, even, of user-defined provisos which will allow close control of the meaning of such provisos. We hope to find the right place to put `C is a context' judgements.
+ 

@@ -1,0 +1,165 @@
+\chapter{The tactic language}
+\label{appx:tacticlang}
+
+
+There are no reserved words in the tactic language. It is written in a very restricted sub-dialect of the formula language, without the restriction that the class of every identifier must be pre-declared. When it comes to the application of a rule --- the simplest kind of tactic --- then the arguments must be stated in the formula language.
+
+
+Although there aren't any reserved words, there are a lot of tactic language verbs. As in the paragraph language, these are all in upper case. You don't have to avoid these names in the statement of rules and theorems, but if you start using them as tactic parameter names you might confuse things.
+
+
+Since version 3.0, tactic applications are written in `curried' style: \textit{verb} \textit{arg1}... \textit{argN}, where each argument is bracketed if necessary\footnote{The older `uncurried' style, with arguments provided as a bracketed tuple, is now withdrawn. That means we have curried applications and uncurried definitions. One day...}. If a tactic starts with a verb which isn't one of those listed below, it is treated as an application of a named tactic, rule or conjecture. The verb and arguments of a tactic application are evaluated in the current environment --- that means that any names they contain which are parameters of the current tactic, or parameters of the current \textsc{let...} tactical, are replaced by the corresponding formulae.
+
+
+When a named tactic is applied to arguments, a new environment is created by zipping together tactic parameters and supplied arguments. If there are too few arguments, the remaining parameters are ignored. When a name is evaluated which doesn't have a value in the current environment, the name itself is taken as the result.
+
+
+\textbf{{\large B.1\tab Tactic verbs}}
+
+
+\textsc{alt} \textit{tactic}... \textit{tactic}: try each of the tactics in turn, until one is found that succeeds. If none succeeds, \textsc{alt} fails.
+
+
+\textsc{applyorresolve} \textit{tactic}: rules applied by \textit{tactic} will be tried first normally, where both hypotheses and conclusions must match, and then `by resolution' where only conclusions need match and extra antecedents are inserted to prove each of the hypotheses. The `resolution' step requires that the logic have a \textsc{cut} structure rule.
+
+
+\textsc{assign} \textit{variable} \textit{value}: the named variable, which must be part of the global enviroment (see \appxref{GUIlang}) is assigned the given value. Some variables can't be altered once anything has been loaded into the tactic/rule/conjecture store\footnote{Those variables are properly parameters and for clarity we ought to have a syntax for handling them. Patience, patience.}.
+
+
+\textsc{do} \textit{tactic}: apply \textit{tactic} repeatedly until it fails, then \textsc{do} succeeds.
+
+
+\textsc{evaluate} \textit{formula} : evaluate one of a fixed number of built-in judgements. Where used, this tactic is explained in one of the distributed encodings; at the time of writing it is used only in the functional programming encoding to evaluate \textsc{assoceq}(\textit{f1}, \textit{f2}), a judgement that two formulae are identical when rewritten with maximal use of associativity laws. \textsc{evaluate} is intended to be the basis, one day, for a mechanism of communication with oracle programs.
+
+
+\textsc{explicit} \textit{name},..., \textit{name}: succeeds if every \textit{name} is a parameter for which an argument has been supplied. I think. Opposite of \textsc{implicit} below. I think.
+
+
+\textsc{flatten} \textit{formula}: `flattens out' all subformulae of \textit{formula} in the conclusion of the current problem sequent by rewriting according to the rules of associativity. It's based on the same machinery as \textsc{assoceq}; see \textsc{evaluate} above and \chapref{funcprog}.
+
+
+\textsc{fold} \textit{rulename} \textit{tactic}: Automatically `folds' collections of rules. See \chapref{funcprog} above.\\
+\textsc{foldhyp} \textit{pattern tactic}: Automatically `folds' hypotheses. See \chapref{funcprog} above.\\
+\textsc{if} \textit{tactic}: run \textit{tactic}, but succeed even if it fails.
+
+
+\textsc{implicit} \textit{name}... \textit{nameN}: succeeds if none of of \textit{name}1... \textit{nameN} is a parameter for which an argument has been supplied. I think. Opposite of \textsc{explicit} above. I think.
+
+
+\textsc{jape} \textit{stuff} : probably deserves a section on its own. Was originally called the `AdHoc' tactic, and it shows. Usually \textit{stuff} is nothing more than ``fail \textit{message}'', but can also be ``showalert \textit{message}'' and ``write \textit{message}'' and lots more which it would be tedious and embarrassing to list. Likely to change soon and without notice.
+
+
+\textsc{layout} \textit{pattern} \textit{numbers} \textit{tactic} ... \textit{tactic}: the way in which a tactic can hide part of a proof. \textit{Pattern} is either () or \textit{string1} or (\textit{string1}, \textit{string2}); \textit{numbers} is a tuple of integers. Run \textit{tactic} ... \textit{tactic} as a sequence and if that succeeds, mark the subtree it produces so that it is displayed in a special way determined by \textit{pattern} and \textit{numbers}. The tree is displayed either in `hidden' or `full' form: by double-clicking on the justfication at the root of the tree the user can force Jape to switch between forms. In `hidden' form only the antecedents selected by \textit{numbers} are shown, and all others are hidden: antecedents are numbered from left to right, starting with 0, so that if \textit{numbers} is (1,3), for example, only the second and fourth antecedents will be shown. In `full' form all antecedents are shown. In `hidden' form the justification shown at the root of the subtree is controlled by \textit{string1}, if included, or by the variable `hiddenfmt' otherwise; in `full' form that justificaiton is controlled by \textit{string2}, if included, or by the variable `unhiddenfmt' otherwise. In either form the controlling string is used as a format string rather as in a very simple kind of C printf, and occurrences of \%s in that string are replaced by a summary of the justifications on hidden parts of the subtree; in `full' format occurrences of \%s in the controlling string are replaced by the justification of the node at the root of the subtree.
+
+
+\textsc{letargsel} \textit{pattern tactic... tactic}: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has made a \textit{single} text selection, parse that text and unify it with \textit{pattern}; then proceed as normal for a binding tactic.\\
+\textsc{letconc} \textit{pattern tactic... tactic}: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has formula-selected a conclusion, unify it with \textit{pattern}; then proceed as normal for a binding tactic.
+
+
+\textsc{letconcfind} \textit{pattern tactic... tactic}: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has made a single text selection \textit{fs} in a conclusion formula \textit{C} so that \textit{C} consists of \textit{f1} followed by \textit{fs} followed by \textit{f2}, if the text \textit{f1} (\textit{fs}) \textit{f2} is a parseable formula, and if the formula (\textit{C}, \textit{f1} (\textit{fs}) \textit{f2}) unifies with \textit{pattern}, then: if \textit{C} is not structurally the same formula as \textit{f1} (\textit{fs}) \textit{f2} proceed as normal for a binding tactic; if they are the same formula, succeed silently, without running the sequence \textit{tactic... tactic}.
+
+
+\textsc{letconcsubstsel} \textit{pattern tactic... tactic}: like \textsc{letsubstsel} (q.v. below) except that the text-selection must be made in a conclusion (right-hand side) formula.
+
+
+\textsc{letgoal} \textit{pattern tactic... tactic}: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the current problem sequent has a single conclusion formula, unify it with \textit{pattern}; then proceed as normal for a binding tactic.\\
+\textsc{lethyp} \textit{pattern tactic... tactic}: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has formula-selected a hypothesis formula, unify it with \textit{pattern}; then proceed as normal for a binding tactic.
+
+
+\textsc{lethypfind} \textit{pattern tactic... tactic}: just like \textsc{letconcfind} (q.v. above), except that the single text-selection must be made in a hypothesis formula\\
+\textsc{lethypsubstsel} \textit{pattern tactic... tactic}: like \textsc{letsubstsel} (q.v. below) except that the text-selection must be made in a hypothesis formula of the current problem sequent.\\
+\textsc{letmatch} \textit{pat1 pat2} \textit{tactic... tactic}: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If \textit{pat1} unifies with \textit{pat2}, proceed as normal for a binding tactic.
+
+
+\textsc{letmultisel} \textit{pattern tactic... tactic}: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). Unify all the user's text-selections, expressed as a tuple of formulae, with \textit{pattern}; then proceed as normal for a binding tactic.
+
+
+\textsc{letsubstsel} \textit{pattern tactic... tactic}: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has made a number of text selections within a single formula, each an instance of an identical sub-formula, convert that to a substitution (see chapter 1) and unify it with \textit{pattern}; then proceed as normal for a binding tactic.
+
+
+\textsc{mapterms} \textit{tactic}: if the current problem sequent has a conclusion which is a single formula, try to apply \textit{tactic} (which is probably some sort of rewrite rule) to each of the structural subformulae of that conclusion formula.\\
+\textsc{match} \textit{tactic}: runs \textit{tactic} so that any rules which it applies are required to succeed without visibly changing the unification context --- that is, without changing the interpretation of any unknowns in the problem sequent.\\
+\textsc{prove} \textit{tactic}: detaches the current goal from the proof tree; tries to prove it; and then plugs in the proof if it's complete, otherwise fails. A way of ensuring that a tactic builds a subtree with no open tips.\\
+\textsc{replay} \textit{tactic}: run \textit{tactic} but use term equality (up to \ensuremath{\alpha}-conversion and elimination of substitutions) instead of unification. Used in proof loading, because it seems to be a bit faster than the normal mechanism.\\
+\textsc{resolve} \textit{tactic}: rules and theorems applied by \textit{tactic} will all be applied `by resolution' in which only the conclusions need match and extra antecedents are inserted for each hypothesis. See \textsc{simpleapply} below and \textsc{applyorresolve} above.
+
+
+\textsc{sameprovisos} \textit{tactic}: rules applied by \textit{tactic} mustn't add or delete any provisos from the current unification context. Used to be used in proof reloading; may now be obsolete.
+
+
+\textsc{seq} \textit{tactic}... \textit{tacticN}: run the tactics in sequence. Fail if any of them fails.
+
+
+\textsc{simpleapply} \textit{tactic}: each of the rules applied by \textit{tactic} will be applied in `normal' style, without using the `by resolution' mechanism.
+
+
+\textsc{skip}: succeed.
+
+
+\textsc{theoryalt} : generated internally, and used when a particular mechanism, used only in the functional programming encoding, is searching for and caching rules. It's all rather horrid and extremely \textit{ad hoc}, and no further details will ever be released.
+
+
+\textsc{unfold} \textit{rulename tactic}: see \textsc{fold} above.\\
+\textsc{unfoldhyp} \textit{formula tactic}: see \textsc{foldhyp} above.
+
+
+\textsc{unique} \textit{tactic}: run \textit{tactic} so that any rules it applies are required to succeed in only one way (i.e. prevents application of those rules from offering the user a choice of alternative matches). Used in proof reloading.
+
+
+\textsc{when} \textit{guardedtactic}.... \textit{guardedtactic tactic}: try each of the guarded tactics in turn until one is found whose guard unifies, then run the tactics it guards; if none of the guards succeeds, run the final alternative \textit{tactic}. The guarded tactics must each be one of the \textsc{let...} variety: see `guarded and binding tactics' below.
+
+
+\textsc{withargsel} \textit{tactic}: run \textit{tactic}, giving it as argument the current text-selection, provided that there is only a single text selection and it parses properly as a formula. Fails if there is a single text selection but it can't be parsed.
+
+
+\textsc{withconcsel} \textit{tactic}: if the user has formula-selected a conclusion formula, rules applied by \textit{tactic} must consume it (that is, explicitly match it).
+
+
+\textsc{withcontinuation} \textit{tactic1 tactic tactic...}: \textit{tactic1} is run so that its continuation is the sequence \textit{tactic tactic...}. Has no effect unless \textit{tactic1} ends with an \textsc{alt/theoryalt}; then it will ensure that no alternative of that \textsc{alt} succeeds unless the sequence \textit{tactic tactic...} succeeds afterwards. Makes alternative choice a little more lazy.
+
+
+\textsc{withformsel} \textit{tactic}: a combination of \textsc{withconcsel} above and \textsc{withhypsel} below.
+
+
+\textsc{withhypsel} \textit{tactic}: if the user has formula-selected a hypothesis formula, rules applied by \textit{tactic} must consume it (that is, explicitly match it).
+
+
+\textsc{withselections} \textit{tactic}: a combination of \textsc{withargsel}, \textsc{withconcsel} and \textsc{withhypsel}.
+
+
+\textsc{withsubstsel} \textit{tactic}: normally used inside a \textsc{letsubstsel} tactical. The user's text selections have to be entirely within one of the hypotheses or conclusions of the current problem sequent: rewrite that hypothesis or conclusion as a substitution form, based on the text selections given, and then run \textit{tactic}. Fails noisily if the text selections don't describe a substitution in just the right way; fails normally if the substitution is described, but \textit{tactic} fails. Rules applied by \textit{tactic} must consume (i.e. explicitly match) the reconstructed formula.
+
+
+In addition to all those there are two that can occur inside a \textit{formula} inside a tactic:
+
+
+\textsc{antiquote} ( \textit{formula} ): everything inside \textit{formula} is liable to `evaluation' in the current tactic environment, unless it is \textsc{quote}d. Arguments in applications of tactics are treated as if they were \textsc{antiquote}d.
+
+
+\textsc{quote} ( \textit{formula} ): nothing inside \textit{formula} is liable to `evaluation' unless it is \textsc{antiquote}d.
+
+
+\textbf{{\large B.2\tab The `current problem sequent', the `goal' and the `target'}}
+
+
+When you start a proof there is only one problem sequent. When you apply a rule with two antecedents, there are two to choose from. When you are well into a proof, there may be many.
+
+
+Each time Jape makes a proof step (by application of a rule or in a small number of other ways, mostly to do with the more exotic of the tactics like \textsc{find} or \textsc{flatten}, and sometimes caused by the dialogue language) it selects a new problem sequent if the current one is closed, or replaced by a subtree. It always finds the `next rightmost unclosed tip' and makes that the current problem sequent. The `next rightmost unclosed tip' is the first one in the fringe of the tree to the right of the current one, or the first one in the fringe if there isn't one to the right of the current one.
+
+
+The current problem sequent is called the `goal'; the problem sequent from which we moved to the current one because application of a rule succeeded is called the `target' (not a very good name, `target', but that's the way it is).
+
+
+\textbf{{\large B.3\tab Guarded and binding tactics}}
+
+
+Jape's tactic language is `eager' --- whether it should be so continues to be a matter of debate --- with backtracking on failure. If a tactic fails, then the enclosing tactic either fails, or if it is an \textsc{alt}, tries another alternative starting from the state in which it first applied the sub-tactic that failed. That sort of backtracking search is fine sometimes, but not always. It can be modified --- slightly --- by \textsc{withcontinuation}.
+
+
+The \textsc{when} tactical takes `guarded tactics' and applies them carefully, accepting the result of the first one of them whose guard matches. Note that the whole guarded tactic may fail after its guard has matched, and in that case \textsc{when} won't backtrack, it will simply fail.
+
+
+Each of the guarded tacticals --- they are all called \textsc{let...} --- takes a \textit{pattern} and a \textit{tactic} sequence. The \textit{pattern} is matched against something by unification: if the unification succeeds then the environment is updated to reflect that unification. Roughly speaking you can assume that unknowns in \textit{pattern} will be added to the environment as parameters corresponding to the stuff they unified with, and if they are used again in the tactic sequence, they will be replaced by that same stuff. You don't have to worry that the unknowns you use might already appear in the unification context: Jape invents new ones, based on the ones you use, so that the effects of a successful binding tactic never leak into the unification context used in proof steps.
+
+ 
