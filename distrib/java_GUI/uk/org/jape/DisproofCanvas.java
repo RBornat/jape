@@ -40,7 +40,7 @@ public class DisproofCanvas extends JapeCanvas {
         getProofWindow().claimDisproofFocus();
     }
 
-    // assuming nobody cares about Hyp/Conc distinction
+    // at present nobody cares about Hyp/Conc distinction
     public String getSelections(String sep) {
         String s = null;
         int nc = child.getComponentCount(); // oh dear ...
@@ -49,26 +49,7 @@ public class DisproofCanvas extends JapeCanvas {
             if (c instanceof EmphasisableItem) {
                 EmphasisableItem item = (EmphasisableItem)c;
                 if (item.getSelected()) {
-                    String s1 = item.text;
-                    if (s==null)
-                        s=s1;
-                    else
-                        s=s+sep+s1;
-                }
-            }
-        }
-        return s;
-    }
-
-    public String getTextSelections(String sep) {
-        String s = null;
-        int nc = child.getComponentCount(); // oh dear ...
-        for (int i=0; i<nc; i++) {
-            Component c = child.getComponent(i); // oh dear ...
-            if (c instanceof TextSelectableItem) {
-                TextSelectableItem sti = (TextSelectableItem)c;
-                String s1 = sti.getTextSelections();
-                if (s1!=null) {
+                    String s1 = item.idX+" "+item.idY;
                     if (s==null)
                         s=s1;
                     else
