@@ -27,12 +27,11 @@
 
 // the MacOSX version of LocalSettings.
 
-import com.apple.mrj.MRJAboutHandler;
-import com.apple.mrj.MRJApplicationUtils;
+import com.apple.eawt.Application;
+import com.apple.eawt.ApplicationAdapter;
+import com.apple.eawt.ApplicationEvent;
+
 import com.apple.mrj.MRJFileUtils;
-import com.apple.mrj.MRJOpenDocumentHandler;
-import com.apple.mrj.MRJPrefsHandler;
-import com.apple.mrj.MRJQuitHandler;
 
 import java.awt.Dimension;
 
@@ -42,9 +41,7 @@ import java.lang.IllegalStateException;
 
 import java.io.File;
 
-public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
-                                      MRJQuitHandler, MRJPrefsHandler,
-                                      SelectionConstants {
+public class LocalSettings implements SelectionConstants {
     // focus in panel windows
                                           
     public static final boolean showPanelWindowFocus = true;
@@ -63,10 +60,10 @@ public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
     public static final Dimension DefaultProofWindowSize = new Dimension(450, 350);
     public static final int PosIncr = 35;
 
-    // size of fonts
+    // size of fonts -- these optimised for Lucida Sans Unicode (blush)
     
-    public static final byte 	FormulaFontSize     = 14,
-                                NonFormulaFontSize  = 11;
+    public static final byte 	FormulaFontSize     = 18,
+                                NonFormulaFontSize  = 14;
 
     public static final String fontStyle = "sanserif";
 
@@ -118,27 +115,22 @@ public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
 
     /* ************************ MacOS specific bits ************************ */
 
-    public void handleAbout() {
-        Jape.handleAbout();
-    }
-
-    public void handleOpenFile(File f) {
-        JapeMenu.doOpenFile(f.toString());
-    }
-    
-    public void handlePrefs() {
-        Jape.handlePrefs();
-    }
-    
-    public void handleQuit() throws IllegalStateException {
-        Jape.handleQuit();
-        throw new IllegalStateException(); // if we return from handleQuit, we didn't exit
-    }
-
     public LocalSettings() {
-        MRJApplicationUtils.registerAboutHandler(this);
-        MRJApplicationUtils.registerQuitHandler(this);
-        MRJApplicationUtils.registerPrefsHandler(this);
-        MRJApplicationUtils.registerOpenDocumentHandler(this);
+        Application appl = new Application();
+        appl.addApplicationListener(new ApplicationAdapter() {
+            public void handleAbout(ApplicationEvent evt) {
+                Jape.handleAbout();
+            }
+            public void handleOpenFile(ApplicationEvent evt) {
+                JapeMenu.doOpenFile(evt.getFilename());
+            }
+            public void handlePreferences(ApplicationEvent evt) {
+                Jape.handlePrefs();
+            }
+            public void handleQuit(ApplicationEvent evt) throws IllegalStateException {
+                Jape.handleQuit();
+                throw new IllegalStateException(); // if we return from handleQuit, we didn't exit
+            }
+        });
     }
 }
