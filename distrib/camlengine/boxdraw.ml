@@ -1494,24 +1494,23 @@ let rec pos2hit p =
     findfirst (_H (rightby (p, - bodymargin))) lines
 
 let rec locateHit pos classopt hitkind (p, proof, layout) =
-  pos2hit (((pos) +<-+ p)) layout hitkind
-  &~~
+  pos2hit ((pos +<-+ p)) layout hitkind &~~
   (fSome <.> 
-    ((function
-        FormulaHit (AmbigHit (up, dn)) as h ->
-          begin match classopt with
-            Some DisplayConc -> FormulaHit (ConcHit up)
-          | Some DisplayHyp -> FormulaHit (HypHit dn)
-          | None -> h
-          | _ ->
-              raise
-                (Catastrophe_
-                   ["locateHit (boxdraw) finds "; hitstring pathstring h;
-                    ", given classopt ";
-                    optionstring displayclassstring classopt])
-          end
-      | h -> h)
-       ))
+   (function
+       FormulaHit (AmbigHit (up, dn)) as h ->
+         begin match classopt with
+           Some DisplayConc -> FormulaHit (ConcHit up)
+         | Some DisplayHyp -> FormulaHit (HypHit dn)
+         | None -> h
+         | _ ->
+             raise
+               (Catastrophe_
+                  ["locateHit (boxdraw) finds "; hitstring pathstring h;
+                   ", given classopt ";
+                   optionstring displayclassstring classopt])
+         end
+     | h -> h))
+     
 (* Greyening and blackening is now (cross fingers) simplified, at least during selection.
  * We get told when a selection is made (Some(pos, class)) or cancelled (None),
  * and at the same time we are told the current selections.

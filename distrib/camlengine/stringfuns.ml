@@ -30,15 +30,15 @@ open Listfuns
 open Sml
 
 let rec isQuoted s =
-  String.sub (s) (0) (1) = "\"" && String.sub (s) (String.length s - 1) (1) = "\""
+  String.sub s 0 1 = "\"" && String.sub s (String.length s - 1) 1 = "\""
 
 let rec disQuote s =
   try
     let size = String.length s in
-    match String.sub (s) (0) (1) with
+    match String.sub s 0 1 with
       "\"" ->
-        begin match String.sub (s) (size - 1) (1) with
-          "\"" -> String.sub (s) (1) (size - 2)
+        begin match String.sub s (size - 1) 1 with
+          "\"" -> String.sub s 1 (size - 2)
         | _ -> s
         end
     | _ -> s

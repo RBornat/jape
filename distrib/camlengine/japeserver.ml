@@ -343,7 +343,7 @@ let rec drawmeasuredtext class__ lines pos =
         writef "DRAWMT % % % %\n" [Int x; Int y; Int (displayfont2int font); Str s]
       in
       let (x, y) = explodePos pos in
-      writef "DRAWMEASUREDTEXT % % % %\n" [Int x; Int y; Int classn; Int (List.length(lines))]; 
+      writef "DRAWMEASUREDTEXT % % % %\n" [Int x; Int y; Int classn; Int (List.length lines)]; 
       List.iter dostring lines;
       writef "DRAWMEASUREDTEXTEND\n" []
 

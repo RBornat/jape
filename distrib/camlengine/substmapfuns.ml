@@ -244,7 +244,7 @@ and simplifySubst a1 a2 a3 =
       match _P with
         Id _ -> _Svar _P
       | Unknown _ -> _Svar _P
-      | App (_, f, a) -> res (Some (registerApp (_S (vts) (f), _S (vts) (a))))
+      | App (_, f, a) -> res (Some (registerApp (_S vts f, _S vts a)))
       | Tup (_, sep, ts) ->
           res (Some (registerTup (sep, (_S vts <* ts))))
       | Literal k -> res (Some _P)

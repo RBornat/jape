@@ -332,7 +332,7 @@ let rec offerChoice ps =
       | Some n -> if !tryresolution && !resolvepossible && n=List.length posses then 
                     (failOffering (); None)
                   else 
-                    (succeedOffering (); Some (answer (List.nth (ps) (n))))
+                    (succeedOffering (); Some (answer (List.nth ps n)))
       
 (* this isn't really discriminatory, is it? *)
 let rec takethelot ps = (answer <* ps)

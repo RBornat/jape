@@ -61,7 +61,7 @@ let readintasarg : term array option ref = ref None
 let stripextrabag = ref false
 
 let rec catelim_tacticstring sep t tail =
-  let withNLs = String.sub (sep) (0) (1) = "\n" in
+  let withNLs = String.sub sep 0 1 = "\n" in
   let nextsep = if withNLs then sep ^ "\t" else sep in
   let oneline t =
     match t with

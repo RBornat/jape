@@ -1029,7 +1029,7 @@ let rec autoStep a1 a2 a3 =
           with
             None -> None
           | Some n ->
-              let (name, (cxt, newtree)) = List.nth (cs) (n) in
+              let (name, (cxt, newtree)) = List.nth cs n in
               proofstep cxt newtree state
 
 let rec forceUnify a1 a2 =
@@ -1752,7 +1752,7 @@ let rec doJAPE tryf display env ts =
     let adhoceval = rewrite cxt <.> eval env in
     let rec _Tickmenu on menu label state =
       try
-        let rec _U s = String.sub (s) (1) (String.length s - 2) in
+        let rec _U s = String.sub s 1 (String.length s - 2) in
         let rec _V t =
           match adhoceval t with
             Literal (_, String s) -> _U s
@@ -2252,7 +2252,7 @@ and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs
                      (Proofstate {cxt = cxt; givens = givens} as state) =
     let i = try term2int i with _ -> raise (Tacastrophe_ ["not an integer"]) in
     let given =
-      try List.nth (givens) (i) with
+      try List.nth givens i with
         Failure "nth" ->
           raise (Tacastrophe_
                    (if i < 0 then ["negative index"]
@@ -2584,7 +2584,7 @@ and doBIND tac display try__ env =
                    tmap
                   )
           in
-              case match (pattern) value (VtoT (varmap cxt)) of
+              case match pattern value (VtoT (varmap cxt)) of
                    Some tmap => Some(cxt withvarmap (TtoV tmap))
               |    None      => None
           end

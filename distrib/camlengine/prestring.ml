@@ -86,10 +86,10 @@ let pre_Tuple f xs =
 let pre_Set f xs = Prepres [Prestr "{"; pre_Comma f xs; Prestr "}"]
 
 let pre_List f xs =
-  Prepres [Prestr "["; pre_Comma (f) (xs); Prestr "]"]
+  Prepres [Prestr "["; pre_Comma f xs; Prestr "]"]
 
 let pre_list f xs =
-  Prepres [Prestr "["; pre_Comma (f) (xs); Prestr "]"]
+  Prepres [Prestr "["; pre_Comma f xs; Prestr "]"]
 
 let pre_implode p =
   let rec _I (p,ss) =

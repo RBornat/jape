@@ -272,11 +272,11 @@ let rec numberforapplication n (antes, conseq) =
         match el with
           Element (_, ResUnknown m', t) ->
             let r' = ResUnknown (new__ m') in
-            max (m) (new__ m'),
+            max m (new__ m'),
             (if member (r', rs) then rs else r' :: rs),
             registerElement (r', t) :: els
         | Element (_, Resnum m', t) ->
-            max (m) (new__ m'), rs,
+            max m (new__ m'), rs,
             registerElement (Resnum (new__ m'), t) :: els
         | _ -> m, rs, el :: els
       in
@@ -284,7 +284,7 @@ let rec numberforapplication n (antes, conseq) =
         Collection (_, hkind, hes), Collection (_, gkind, ges) ->
           let (m, leftrs, hes) = nj_fold renumberel hes (0, [], []) in
           let (m', rightrs, ges) = nj_fold renumberel ges (0, [], []) in
-          max (m) (m'), (leftrs, rightrs),
+          max m m', (leftrs, rightrs),
           Seq
             (st, registerCollection (hkind, hes),
              registerCollection (gkind, ges))
@@ -300,7 +300,7 @@ let rec numberforapplication n (antes, conseq) =
     nj_fold
       (fun (seq, (m, seqs)) ->
          let (m', _, seq') = renumberseq n seq in
-         max (m) (m'), seq' :: seqs)
+         max m m', seq' :: seqs)
       antes (m, [])
   in
   let res = m + 1, rs, antes', conseq' in(* desperation ... 

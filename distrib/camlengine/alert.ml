@@ -64,7 +64,7 @@ let alertpatches : (string * alertspec) list ref = ref []
 
 let rec alertpatch s =
   let rec patched (h, a) =
-    if String.length h <= String.length s && String.sub (s) (0) (String.length h) = h then Some a
+    if String.length h <= String.length s && String.sub s 0 (String.length h) = h then Some a
     else None
   in
   match findfirst patched !alertpatches with

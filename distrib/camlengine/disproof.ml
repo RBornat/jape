@@ -1071,7 +1071,7 @@ let rec newtile =
                        ("Choose your new tile",
                         List.map (fun t -> [t])
                           (sort (<) (List.map termstring possibles))) 
-                     &~~ (fun i -> Some (List.nth (possibles) (i))))
+                     &~~ (fun i -> Some (List.nth possibles i)))
                 with
                   Failure "nth" -> raise (Catastrophe_ ["(newtile) Failure \"nth\" ..."]))  
          &~~

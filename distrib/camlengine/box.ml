@@ -110,15 +110,15 @@ let rec textboxstring =
  *)
 let rec ( +-+ ) =
   fun (Textsize (w, a, d), Textsize (w', a', d')) ->
-    Textsize (w+w', max (a) (a'), max (d) (d'))
+    Textsize (w+w', max a a', max d d')
 
 (* Given two boxes, we can form the enclosing box of the two *)
 let rec ( +||+ ) =
   fun
     (Box (Pos (x, y), Size (w, h)), Box (Pos (x', y'), Size (w', h'))) ->
-    let minx = min (x) (x') in
+    let minx = min x x' in
     let maxx = max (x+w) (x'+w') in
-    let miny = min (y) (y') in
+    let miny = min y y' in
     let maxy = max (y+h) (y'+h') in
     Box (Pos (minx, miny), Size (maxx - minx, maxy - miny))
 
@@ -127,7 +127,7 @@ let rec ( +|-|+ ) =
   fun
     (Textbox (Pos (x, y), Textsize (w, a, d)),
      Textbox (Pos (x', y'), Textsize (w', a', d'))) ->
-    let minx = min (x) (x') in
+    let minx = min x x' in
     let maxx = max (x+w) (x'+w') in
     let miny = min (y - a) (y' - a') in
     let maxy = max (y+d) (y'+d') in

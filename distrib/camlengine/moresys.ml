@@ -49,7 +49,7 @@ let rec onInterrupt f g =
 if os_type="Win32" then 
   let _ = g () in ()
 else 
-  let now = signal (sigint) (Signal_handle f) in
+  let now = signal sigint (Signal_handle f) in
   try g (); set_signal sigint now
   with exn -> set_signal sigint now; raise exn
     

@@ -424,7 +424,7 @@ module Tree : Tree with type term = Termtype.term
           (* this is what makes the tip path work *)
           match path with
             n :: ns ->
-              begin try go n (List.nth (ts) (n)) ns with
+              begin try go n (List.nth ts n) ns with
                 Failure "nth" -> raise (FollowPath_ ("out of range", path))
               end
           | [] -> stop ()
@@ -457,7 +457,7 @@ module Tree : Tree with type term = Termtype.term
       | Join (_, _, _, _, _, _, _, (ts, _), _) ->
           match path with
             n :: ns ->
-              begin try Some (ns, List.nth (ts) (n)) with
+              begin try Some (ns, List.nth ts n) with
                 Failure "nth" -> raise (FollowPath_ ("onestep out of range", path))
               end
           | [] -> None
@@ -1325,7 +1325,7 @@ module Tree : Tree with type term = Termtype.term
                   else r
               | TreeFormat (_, RotatingFormat (i, nfs)) ->
                   if try
-                       match fmt, List.nth (nfs) (i) with
+                       match fmt, List.nth nfs i with
                          Some (true, s, _), (true, s', _) -> s = s'
                        | _ -> false
                      with
@@ -1343,7 +1343,7 @@ module Tree : Tree with type term = Termtype.term
           match join_fmt j with
             TreeFormat (_, RotatingFormat (i, nfs)) ->
               begin try
-                match List.nth (nfs) (i) with
+                match List.nth nfs i with
                   _, _, Some which as fmt ->
                     let inouts =
                       nj_fold
@@ -1418,7 +1418,7 @@ module Tree : Tree with type term = Termtype.term
               (visible_subtrees showall t &~~
                  (fun ts ->
                     try
-                      let (ns', t) = List.nth (ts) (n) in _P ns (rev1 ns' rns) t
+                      let (ns', t) = List.nth ts n in _P ns (rev1 ns' rns) t
                     with
                       Failure "nth" -> None))
           | [], rns, t -> Some (FmtPath (rev1 rns (pathto t)))
@@ -1476,7 +1476,7 @@ module Tree : Tree with type term = Termtype.term
              match fmt with
                RotatingFormat (i, nfs) ->
                  (try let (fmt, strf) =
-                        match List.nth (nfs) (i) with
+                        match List.nth nfs i with
                           _, "", Some [] -> !foldedfmt, invisf
                         | _, "", Some _  -> !filteredfmt, invisf
                         | _, "", None    -> !unfilteredfmt, default_reason

@@ -365,7 +365,7 @@ let rec reparentprovisos hist =
   let phist = winhist_proofhist hist in
   let proof = hist_now phist in
   let cxt = selfparentprovisos (proofstate_cxt proof) in
-  withproofhist hist (withnow (phist) (withcxt (proof) (cxt)))
+  withproofhist hist (withnow phist (withcxt proof cxt))
 
 type proofinforec =
       { title : name * int; proofnum : int; displayvarsvals : string list;
@@ -412,7 +412,7 @@ let rec docommand displaystate env target comm =
     let r =
       (let state =
          withroot
-           (withtarget (withgoal (state) (Some target)) (Some target)) (None)
+           (withtarget (withgoal state (Some target)) (Some target)) (None)
        in
        applyLiteralTactic (Some displaystate) env (respace comm)
          state)
@@ -575,7 +575,7 @@ let rec doLayout command =
          | tfk, DefaultFormat -> Some (tfk, defaultfolded)) 
          &~~
          (fun fmt' ->
-            Some (false, withtree (state) (set_prooftree_fmt tree path (TreeFormat fmt'))))
+            Some (false, withtree state (set_prooftree_fmt tree path (TreeFormat fmt'))))
     | ExpandContractCommand ->
         getfmt
           (fun () -> raise (Catastrophe_ ["getLayout sees EXPAND/CONTRACT on a Tip!!!"]))
@@ -590,7 +590,7 @@ let rec doLayout command =
         &~~ rotateFormat 
         &~~
         (fun tf ->
-           Some (false, withtree (state) (set_prooftree_fmt tree path (TreeFormat tf))))
+           Some (false, withtree state (set_prooftree_fmt tree path (TreeFormat tf))))
     | HideRootCommand ->
         let rec hideit () =
           try
@@ -598,7 +598,7 @@ let rec doLayout command =
             Some
               (false,
                withtree
-                 (state)
+                 state
                   (set_prooftree_fmt tree path
                     (TreeFormat (HideRootFormat, tff))))
           with
@@ -630,7 +630,7 @@ let rec doLayout command =
                 Some
                   (false,
                    withtree
-                     (state)
+                     state
                       (set_prooftree_fmt tree parentpath
                         (TreeFormat (SimpleFormat, tff))))
             | _ -> showAlert ["the parent isn't hidden!"]; None
@@ -646,7 +646,7 @@ let rec doLayout command =
             Some
               (false,
                withtree
-                 (state)
+                 state
                   (set_prooftree_fmt tree cutpath
                     (TreeFormat (HideCutFormat, tff))))
 
@@ -671,7 +671,7 @@ let rec tryLayout displaystate c pathkind hist =
     (function
        false, proof' ->
          let phist = winhist_proofhist hist in
-         Some (withproofhist hist (withnow (phist) (proof')))
+         Some (withproofhist hist (withnow phist proof'))
      | true, proof' ->
          let phist = winhist_proofhist hist in
          Some (withproofhist hist (append_step phist proof')))
@@ -726,7 +726,7 @@ let rec evolve_proof_explain explain displaystate env f =
                 (rewriteproofstate
                    (autoTactics (Some displaystate) env
                       (Proofstate.autorules ()) proof')))
-              (true))
+              true)
 
 let evolve_proof = evolve_proof_explain (fun () -> ())
 
@@ -779,7 +779,7 @@ let rec main a1 a2 =
               savefilename := Some name; doargs args
           | "" :: args -> doargs args
           | name :: args ->
-              if String.sub (name) (0) (1) = "-" then [], name :: args
+              if String.sub name 0 1 = "-" then [], name :: args
               else let (names, args) = doargs args in name :: names, args
         in
         let (names, args) = doargs args in
@@ -876,7 +876,7 @@ and addproofs
                   | Some d -> Disproof.showdisproof d
                 end; r);
            hist =
-             WinHist {changed = false; proofhist = new_hist (withcxt (state) (state_cxt));
+             WinHist {changed = false; proofhist = new_hist (withcxt state (state_cxt));
                       disproofhist = try__ new_hist disproof};
            fromstore = fromstore} :: pinfs
   in
@@ -885,8 +885,8 @@ and addproofs
 and biggestproofnum name pinfs =
   nj_fold
     (fun (Pinf {proofnum = proofnum; title = t, index}, (n, i)) ->
-       max proofnum (n),
-       (if t = name then max index (i) else i))
+       max proofnum n,
+       (if t = name then max index i else i))
     pinfs (0, 0)
 
 and endproof num name st dis =
@@ -1062,19 +1062,15 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   
   let rec inside c f =
     match pinfs with
-      [] ->
-        showAlert
-          ["There is no current proof, so you can't execute \"";
-           respace c; "\""];
+      [] -> showAlert ["There is no current proof, so you can't execute \""; respace c; "\""];
         default
-    | (Pinf {displaystate = displaystate; hist = hist} as pinf) ::
-      pinfs ->
+    | (Pinf {displaystate = displaystate; hist = hist} as pinf) :: pinfs ->
         let (hist, showit) =
           match f displaystate hist with
             Some (show, hist) -> hist, show
-          | None -> hist, DontShow
+          | None              -> hist, DontShow
         in
-        env, mbs, showit, withhist (pinf) (hist) :: pinfs
+        env, mbs, showit, withhist pinf hist :: pinfs
   in
   
   let rec outside c f =
@@ -1110,55 +1106,42 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     | None      -> None
   in
   
-  let rec processcommand
-    (env, mbs, (showit : showstate), (pinfs : proofinfo list) as
-       thisstate)
-      c =
+  let rec processcommand  (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisstate) c =
     (* It is crucial that theorems are proved without application of arguments.
                   * Otherwise we can't say that we have proved the theorem as stated, 
                   * and then store a proof of it.
                   *)
-    let rec doproof env mbs name pinfs =
+    let rec doProve name =
       let rec doit givens seq provisos kind =
         try
-          let (Proofstate {cxt = cxt} as state) =
-            startstate env provisos givens seq
-          in
+          let (Proofstate {cxt = cxt} as state) = startstate env provisos givens seq in
           (* do this first, cos the cxt needs the proofId information 
            * before we can check the provisos 
            *)
           let cxt' = verifyprovisos cxt in
           env, mbs, DontShow,
-          addproofs false env
-            [name, withgivens (withcxt (state) (cxt')) (givens), None] pinfs
+          addproofs false env [name, withgivens (withcxt state cxt') givens, None] pinfs
         with
           Verifyproviso_ p ->
-            showAlert
-              [kind; " "; string_of_name name; " has unsatisfiable proviso ";
-               provisostring p];
+            showAlert [kind; " "; string_of_name name; " has unsatisfiable proviso "; provisostring p];
             default
       in
       match freshThingtoprove name with
         Some (Theorem (_, provisos, seq)) ->
-          doit [] seq ((mkvisproviso <* provisos)) "theorem"
+          doit [] seq (mkvisproviso <* provisos) "theorem"
       | Some (Rule ((_, provisos, givens, seq), ax)) ->
           if ax then
             begin
-              showAlert
-                [string_of_name name; " is an axiomatic rule, not a conjecture or a derived rule"];
+              showAlert [string_of_name name; " is a rule, not a conjecture or a derived rule"];
               default
             end
           else
-            doit givens seq ((mkvisproviso <* provisos)) "derived rule"
+            doit givens seq (mkvisproviso <* provisos) "derived rule"
       | Some (Tactic _) ->
-          showAlert
-            [string_of_name name;
-             " is a tactic, not a conjecture or a derived rule"];
+          showAlert [string_of_name name; " is a tactic, not a conjecture or a derived rule"];
           default
       | Some (Macro _) ->
-          showAlert
-            [string_of_name name;
-             " is a tactic macro, not a conjecture or a derived rule"];
+          showAlert [string_of_name name; " is a tactic macro, not a conjecture or a derived rule"];
           default
       | None ->
           showAlert ["no stored conjecture named "; string_of_name name];
@@ -1187,7 +1170,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     
     let disproofuniverseact act =
       disproofacteval
-        (fun facts_now d -> (act facts_now (disproofstate_universe d) &~~ (fun u -> Some (withdisproofuniverse d u))))
+        (fun facts_now d -> (act facts_now (disproofstate_universe d) &~~ 
+                             (fun u -> Some (withdisproofuniverse d u))))
     in
     
     let worldlabelact act move cx cy s =
@@ -1196,46 +1180,55 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         move
     in
     
+    let interpretConjecture action comm =
+      let term = parseTactic (respace comm) in
+      let f, ts = Termfuns.explodeApp false term in
+      match Name.nameopt_of_term f with
+        Some name -> name, ts
+        | _       -> raise (Catastrophe_ ["name in "; action; " is "; termstring f])
+    in
+    
+    let doApply action comm =
+      let rec nosels tselopt =
+        inside c
+          (fun displaystate ->
+             showproof <.> 
+             evolve_proof displaystate env
+               (nohitcommand displaystate env tselopt comm finishable)
+          )
+      in
+      match pinfs with
+        Pinf {displaystate = displaystate} :: _ ->
+          (match findSelection displaystate with
+            Some (FormulaSel fsel) ->
+              inside c
+                (fun displaystate ->
+                   showproof <.> 
+                   evolve_proof displaystate env (pointToSequent displaystate env comm fsel))
+          | Some (TextSel t)       -> nosels (Some t)
+          | Some (ReasonSel _)     ->
+              showAlert ["only reason selection (applying "; respace comm; ")"];
+              default
+          | None                   -> nosels None
+         )
+      | _ ->
+          showAlert ["no current proof (applying "; respace comm; ")"];
+          default
+    in
+    
     match c with
       []            -> default
     | word :: words ->
         match lowercase word, words with
           "apply", comm ->
-            (let rec nosels tselopt =
-               inside c
-                 (fun displaystate ->
-                    showproof <.> 
-                    evolve_proof displaystate env
-                      (nohitcommand displaystate env tselopt comm finishable)
-                 )
-             in
-             match pinfs with
-               Pinf {displaystate = displaystate} :: _ ->
-                 (match findSelection displaystate with
-                   Some (FormulaSel fsel) ->
-                     inside c
-                       (fun displaystate ->
-                          showproof <.> 
-                          (fun here -> evolve_proof displaystate env
-                                         (pointToSequent displaystate env comm fsel)
-                                         here))
-                 | Some (TextSel t) -> nosels (Some t)
-                 | Some (ReasonSel _) ->
-                     showAlert ["only reason selection (applying "; respace comm; ")"];
-                     default
-                 | None -> nosels None
-                )
-             | _ ->
-                 showAlert ["no current proof (applying "; respace comm; ")"];
-                 default
-            )
+            doApply "apply" comm
 
         | "applyconjecture", comm ->
-            processcommand thisstate ("apply" :: comm) (* for now *)
+            let name, _ = interpretConjecture "applyconjecture" comm in
+            doApply "applyconjecture" [string_of_name name] 
             
         | "applygiven", args ->
-            processcommand thisstate
-              ("apply" :: parseablestring_of_name (name_of_string !givenMenuTactic) :: args)
+            doApply "applygiven" (parseablestring_of_name (name_of_string !givenMenuTactic) :: args)
 
         | "assign", name :: value ->
             (try
@@ -1266,7 +1259,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  showdisproof <.> 
                  (fun hist ->
                       (winhist_disproofhist hist &~~ redo_step &~~
-                       (fSome <.> (fun dh -> withdisproofhist (hist) (Some dh)))) |~~
+                       (fSome <.> (fun dh -> withdisproofhist hist (Some dh)))) |~~
                       (fun _ -> showAlert ["nothing to redo!"]; None)))
 
         | "redo_proof", [] ->
@@ -1318,7 +1311,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  showdisproof <.> 
                  (fun hist ->
                     ((winhist_disproofhist hist &~~ undo_step &~~
-                      (fSome <.> (fun dh -> withdisproofhist (hist) (Some dh)))) 
+                      (fSome <.> (fun dh -> withdisproofhist hist (Some dh)))) 
                      |~~
                      (fun _ -> showAlert ["no disproof steps to undo!"]; None))))
 
@@ -1328,7 +1321,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  showproof <.> 
                  (fun hist ->
                     (undo_step (winhist_proofhist hist) &~~
-                     (fSome <.> (fun ph -> withproofhist (hist) (ph)))) 
+                     (fSome <.> (fun ph -> withproofhist hist ph))) 
                     |~~
                     (fun _ -> showAlert ["no proof steps to undo!"]; None)))
 
@@ -1681,8 +1674,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               AddConjecture_ -> default
             end
 
-        | "prove", comm ->
-            let name = name_of_string (respace comm) in
+        | "proveconjecture", comm ->
+            let name, ts = interpretConjecture "proveconjecture" comm in
             if match proofnamed name with
                  Some (proved, tree, provisos, givens, disproved, disproofopt) ->
                    screenquery
@@ -1692,12 +1685,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                      "Yes" "No" 1
                | None -> true
             then
-              doproof env mbs name pinfs
+              let state = doProve name in
+              if ts<>[] then showAlert ["now apply "; liststring termstring " " ts];
+              state
             else default
-
-        | "proveconjecture", comm ->
-            (* let term = parseTerm (respace comm) in *)
-            processcommand thisstate ("prove" :: comm) (* for now *)
             
         | "reset", [] ->
             if askResettheory false then doResettheory () else default
@@ -1753,14 +1744,14 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                            (proofinfo_proofnum pinf);
                          withhist
                            (withdisplaystate
-                              (withneedsrefresh (pinf) (false))
+                              (withneedsrefresh pinf false)
                                (let r = showState (proofinfo_displaystate pinf) proof !autoselect in 
                                 setGivens (proofstate_givens proof); r))
                             (reparentprovisos hist)
                        in
                          (let r = f <* bgs in Japeserver.setforegroundfocus (); r)
                      else
-                         (fun pinf -> withneedsrefresh (pinf) (true)) <* bgs)
+                         (fun pinf -> withneedsrefresh pinf true) <* bgs)
               | _ -> pinfs
             in
             env, mbs, ShowBoth, pinfs
@@ -1774,7 +1765,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let pinfs' =
                  (fun pinf ->
                     withhist
-                      (pinf) (withchanged (proofinfo_hist pinf) (false))) <*
+                      pinf (withchanged (proofinfo_hist pinf) false)) <*
                  pinfs
             in
             if newfile && (* Save As... *) saveable () || not newfile && (* Save *) needssaving ()
@@ -2012,30 +2003,25 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                           hypword hyps
                             [" with selected conclusion ";
                              elementstring c]))
-              | _ ->
-                  raise
-                    (Catastrophe_ ["ambiguous doubleclick (commands)"])
+              | _ -> raise (Catastrophe_ ["ambiguous doubleclick (commands)"])
             in
-            begin match comm sense seqs errf with
-              Some c ->
-                let c' = [tacticstring c] in
-                inside c'
-                  (fun displaystate ->
-                     showproof <.> 
-                     evolve_proof displaystate env 
-                       (pointToSequent displaystate env c' fsel)
-                  )
-            | None -> default
-            end
+            (match comm sense seqs errf with
+               Some c ->
+                 let c' = [tacticstring c] in
+                 inside c'
+                   (fun displaystate ->
+                      showproof <.> 
+                      evolve_proof displaystate env (pointToSequent displaystate env c' fsel)
+                   )
+             | None -> default
+            )
 
         | _, ReasonSel _ ->
             inside []
               (fun displaystate ->
-                 showproof <.> tryLayout displaystate ExpandContractCommand LayoutPath 
-              )
+                 showproof <.> tryLayout displaystate ExpandContractCommand LayoutPath)
 
-        | _ ->
-            raise (Catastrophe_ ["funny hit (commands): "; commandstring command])
+        | _ -> raise (Catastrophe_ ["funny hit (commands): "; commandstring command])
   in
   (* assignment to displayvars can force redisplay *)
   let nextargs =
@@ -2050,9 +2036,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             withhist
               (withdisplaystate
                  (withneedsrefresh
-                    (withdisplayvarsvals (pinf) (recorddisplayvars env))
-                     (false))
-                  (state))
+                    (withdisplayvarsvals pinf (recorddisplayvars env))
+                     false)
+                  state)
                (reparentprovisos hist) ::
               rest
           in

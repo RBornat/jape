@@ -124,7 +124,7 @@ let rec maketreeplan proof =
   let termfontleading = thrd (fontinfo TermFont) in
   let reasonfontleading = thrd (fontinfo ReasonFont) in
   let leading = nj_fold (uncurry2 max) [termfontleading; reasonfontleading] 1 in
-  let hspace = max (20) (10 * leading)
+  let hspace = max 20 (10 * leading)
   (* was 30,15*leading, seemed a bit excessive *)
   and vspace = leading in
   let linethickness = Draw.linethickness leading in
@@ -161,7 +161,7 @@ let rec maketreeplan proof =
     let reasonw = tsW reasonsize in
     let seqsize = tbSize seqbox in
     let seqw = tsW seqsize in
-    let superw = max (reasonw) (seqw) in
+    let superw = max reasonw seqw in
     let superh =
       tsH seqsize +
         (match r with
@@ -172,7 +172,7 @@ let rec maketreeplan proof =
     (* we set the subtrees in if they are narrower than the seq/reason *)
     let (subindent, subplans, suboutline) =
       if superw > subw then
-        let subindent = max (0) (superw - subw) / 2 in
+        let subindent = max 0 (superw - subw) / 2 in
         let subplans =
             ((fun (pos, plan) -> rightby (pos, subindent), plan) <*
              subplans)
@@ -182,7 +182,7 @@ let rec maketreeplan proof =
       else 0, subplans, suboutline
     in
     (* the minimum line cover is halfway between the reason width and the sequent width *)
-    let minlineindent = max (0) ((superw - reasonw) / 3) in
+    let minlineindent = max 0 ((superw - reasonw) / 3) in
     (* if the topbox is wider than the sequent, we try to centre the sequent 
      * within the line
      *)
@@ -202,11 +202,11 @@ let rec maketreeplan proof =
           in
           let sublinew = sublineright - sublineleft in
           let superindent =
-            max (0) (sublineleft + (sublinew - superw) / 2)
+            max 0 (sublineleft + (sublinew - superw) / 2)
           in
           superindent,
-          min (sublineleft) (superindent + minlineindent),
-          max (sublineright) (superindent + superw - minlineindent)
+          min sublineleft (superindent + minlineindent),
+          max sublineright (superindent + superw - minlineindent)
     in
     let reasonindent = superindent + (superw - reasonw) / 2 in
     let seqindent = superindent + (superw - seqw) / 2 in
@@ -426,7 +426,7 @@ let rec targetbox path plan =
           [] -> None
         | _ ->
             try
-              let (sp, s) = List.nth (subplans) (n) in
+              let (sp, s) = List.nth subplans n in
               _P ns s (pos +->+ sp)
             with
               Failure "nth" -> None

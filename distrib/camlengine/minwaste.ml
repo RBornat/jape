@@ -64,7 +64,7 @@ let minwastedebug = ref false
 let rec minw w a n =
   let rec ma (ma, mi) = ma in
   let rec mi (ma, mi) = mi in
-  let rec combine k m = max (k) (ma m), min (k) (mi m) in
+  let rec combine k m = max k (ma m), min k (mi m) in
   let rec better m m' = ma m - mi m < ma m' - mi m' in
   (* just look at waste *)
   let rec ok m = ma m <= w in
@@ -74,7 +74,7 @@ let rec minw w a n =
 	else
 	  match zerosplits (i + 1) with
 		((y1, y2), [k]) :: _ as zs ->
-		  let x = Array.get (a) (i) in ((x + y1, x + y2), [k + 1]) :: zs
+		  let x = Array.get a i in ((x + y1, x + y2), [k + 1]) :: zs
 	  | _ -> raise (Catastrophe_ ["zerosplits => []"])
   in
   (* *)
@@ -94,7 +94,7 @@ let rec minw w a n =
   
   let rec split i j mgs ss =
 	let rec foundone first =
-	  first :: split (i + 1) j (mgs - Array.get (a) (i)) ss
+	  first :: split (i + 1) j (mgs - Array.get a i) ss
 	in
 	(* *)
 	let _ =
@@ -110,7 +110,7 @@ let rec minw w a n =
 	  true, _, [m, s] -> [combine mgs m, 0 :: s]
 	| _, _, [m, s] -> foundone (combine mgs m, j - i :: s)
 	| _, false, (m1, s1) :: ((m2, s2) :: _ as ss') ->
-		let h1 = Array.get (a) (j) in
+		let h1 = Array.get a j in
 		let m1' = combine mgs m1 in
 		let mgs' = mgs + h1 in
 		let m2' = combine mgs' m2 in

@@ -81,6 +81,6 @@ let rec rewinf_merge =
       (mergevars allvars allvars', mergeVIDs uVIDs uVIDs',
        sortedmerge (<) badres badres',
        (match psig, psig' with
-          Some n, Some n' -> Some (min (n) (n'))
+          Some n, Some n' -> Some (min n n')
         | Some _, None -> psig
         | _ -> psig'))
