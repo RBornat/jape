@@ -631,18 +631,20 @@ public class JapeMenu implements DebugConstants {
         }
         else
         if (w instanceof PanelWindowData.PanelWindow && panelcount>0) {
-            panelcount--;
-            if (hassurrogate)
-                windowmenu.removeSep(1);
-            else
-            if (proofcount!=0)
-                windowmenu.removeSep(0);
+            if (--panelcount==0) {
+                if (hassurrogate)
+                    windowmenu.removeSep(1);
+                else
+                    if (proofcount!=0)
+                        windowmenu.removeSep(0);
+            }
         }
         else
         if (w instanceof ProofWindow && proofcount>0) {
-            proofcount--;
-            if (hassurrogate || panelcount!=0)
-                windowmenu.removeSep(windowmenu.size()-1);
+            if (--proofcount==0) {
+                if (hassurrogate || panelcount!=0)
+                    windowmenu.removeSep(windowmenu.size()-1);
+            }
         }
         else
             Alert.abort("JapeMenu.windowRemoved(\""+title+"\","+windowmenu+
