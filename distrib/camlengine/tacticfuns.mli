@@ -54,8 +54,10 @@ val explain : string -> string list
 
 val _FINDdebug : bool ref
 val _FOLDdebug : bool ref
-val proving : name ref
-val tacticresult : string ref
-val tactictracing : bool ref
-val timestotry : int ref
-val tryresolution : bool ref
+
+val proving          : name ref
+val tacticresult     : string ref
+val tactictracing    : bool ref
+val timestotry       : int ref
+val tryresolution    : bool ref
+val applyautotactics : bool ref

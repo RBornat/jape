@@ -181,6 +181,7 @@ let defaultenv =
   (* default settings for all variables accessible via Japeish *)
   let pairs =
     ["alwaysshowturnstile"  , bj                         false        Sequent.alwaysshowturnstile;
+     "applyautotactics"     , bj                         true         Tacticfuns.applyautotactics;
      "applyconjectures"     , bj                         true         Miscellaneous.applyconjectures;
      "applydebug"           , ij                         0            Applyrule.applydebug;
      "applyderivedrules"    , bj                         true         Miscellaneous.applyderivedrules;
@@ -736,7 +737,7 @@ let evolve_proof_explain explain displaystate env f =
              (proofmove hist
                 (rewriteproofstate
                    (autoTactics (Some displaystate) env
-                      (Proofstate.autorules ()) proof')))
+                      (if !applyautotactics then Proofstate.autorules () else []) proof')))
               true)
 
 let evolve_proof = evolve_proof_explain (fun () -> ())

@@ -70,6 +70,7 @@ open UTF
 
 let tryresolution = Miscellaneous.tryresolution
 let resolvepossible = Miscellaneous.resolvepossible 
+let applyautotactics = ref true
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception ParseError_  = Miscellaneous.ParseError_
@@ -3004,56 +3005,51 @@ let rec applyLiteralTactic display env text state =
  *)
 (* this damn thing sometimes switched goals on us ... not any more. RB 21/xii/99 *)
 
-let rec autoTactics display env rules =
-  fun (Proofstate {tree = tree; goal = oldgoal} as state) ->
-    let rec tryone matching tac goal =
-      fun
-        (Proofstate {cxt = cxt; tree = tree; givens = givens; root = root}
-           as state) ->
-        let rec bad ss =
-          showAlert (ss @ [" during autoTactics "; string_of_tactic tac]);
-          None
-        in
-        try
-          match
-            runTactic display env
-              (matching, unifyvarious, apply,
-               (if matching then (bymatch &~ sameprovisos)
-                else nofilter),
-               takefirst, [], [])
-              tac
-              (Proofstate
-                 {cxt = cxt; tree = tree; givens = givens; root = root;
-                  goal = Some goal; target = Some goal})
-          with
-            None        -> None
-          | Some state' -> if time'sUp () then None else Some state'
-        with
-          Catastrophe_ ss -> bad ("Catastrophic error: " :: ss)
-        | Tacastrophe_ ss -> bad ("Error in tactic: " :: ss)
-        | ParseError_ ss -> bad ("Parse error: " :: ss)
-        | AlterProof_ ss -> bad ("AlterProof_ error: " :: ss)
-        | StopTactic_ -> None
+let rec autoTactics display env rules (Proofstate {tree = tree; goal = oldgoal} as state) =
+  let rec tryone matching tac goal
+                 (Proofstate {cxt = cxt; tree = tree; givens = givens; root = root} as state) =
+    let rec bad ss =
+      showAlert (ss @ [" during autoTactics "; string_of_tactic tac]);
+      None
     in
-    match
-      nj_fold
-        (fun ((matching, tac), stateopt) ->
-           nj_fold
-             (function
-                goal, Some state' ->
-                  (tryone matching tac goal state' |~~
-                     (fun _ -> Some state'))
-              | goal, None -> tryone matching tac goal state)
-             (allTipPaths
-                (match stateopt with
-                   Some (Proofstate {tree = tree'}) -> tree'
-                 | None -> tree))
-             stateopt)
-        rules None
+    try match
+          runTactic display env
+            (matching, unifyvarious, apply,
+             (if matching then (bymatch &~ sameprovisos) else nofilter),
+             takefirst, [], [])
+            tac
+            (Proofstate
+               {cxt = cxt; tree = tree; givens = givens; root = root;
+                goal = Some goal; target = Some goal})
+      with
+        None        -> None
+      | Some state' -> if time'sUp () then None else Some state'
     with
-      Some (Proofstate {tree = tree'} as state') ->
-        autoTactics display env rules
-          (nextGoal false (withgoal state' oldgoal))
-    | None ->(* round again *)
-       state
+      Catastrophe_ ss -> bad ("Catastrophic error: " :: ss)
+    | Tacastrophe_ ss -> bad ("Error in tactic: " :: ss)
+    | ParseError_ ss -> bad ("Parse error: " :: ss)
+    | AlterProof_ ss -> bad ("AlterProof_ error: " :: ss)
+    | StopTactic_ -> None
+  in
+  match
+    nj_fold
+      (fun ((matching, tac), stateopt) ->
+         nj_fold
+           (function
+              goal, Some state' ->
+                (tryone matching tac goal state' |~~
+                   (fun _ -> Some state'))
+            | goal, None -> tryone matching tac goal state)
+           (allTipPaths
+              (match stateopt with
+                 Some (Proofstate {tree = tree'}) -> tree'
+               | None -> tree))
+           stateopt)
+      rules None
+  with
+    Some (Proofstate {tree = tree'} as state') ->
+      autoTactics display env rules
+        (nextGoal false (withgoal state' oldgoal))
+  | None ->(* round again *)
+     state
 
