@@ -78,6 +78,11 @@ public class japeserver implements DebugConstants {
         // since platform independence seems not yet to have been achieved ...
         onMacOS = notice_MacOSX && (System.getProperty("mrj.version")!=null);
 
+        if (!onMacOS)
+            System.err.println("os.name="+System.getProperty("os.name")+
+                               "\nos.arch="+System.getProperty("os.arch")+
+                               "\nos.version="+System.getProperty("os.version"));
+
         if (onMacOS) { // deal with the double-bounce menu checkbox bug
             String s = System.getProperty("com.apple.macos.useScreenMenuBar");
             JapeMenu.CheckboxDoubleBounce = s!=null && s.equals("true");
