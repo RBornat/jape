@@ -232,6 +232,11 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     }
     
     public int print(Graphics g, PageFormat pf, int pi) throws PrinterException {
+        if (pf==null) {
+            Alert.showAlert(Alert.Warning, "null PageFormat in ProofWindow.print");
+            return Printable.NO_SUCH_PAGE;
+        }
+        
         if (pi >= 1) {
             return Printable.NO_SUCH_PAGE;
         }
@@ -251,17 +256,15 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         
         g2D.translate((int)pf.getImageableX()+1, (int)pf.getImageableY()+1);
 
-        int printHeight=0, printWidth=0;
-        Dimension disproofSize;
+        int printHeight=0, printWidth=0, disproofHeight=0, disproofWidth=0;
 
         // compute size of picture
         if (disproofPane!=null) {
-            disproofSize = disproofPane.printSize();
-            printWidth = disproofSize.width;
-            printHeight = disproofSize.height+gap()+separatorThickness()+gap();
+            Dimension disproofSize = disproofPane.printSize();
+            printWidth = disproofWidth = disproofSize.width;
+            disproofHeight = disproofSize.height;
+            printHeight = disproofHeight+gap()+separatorThickness()+gap();
         }
-        else
-            disproofSize = null; // shut up compiler
 
         printWidth = Math.max(printWidth, proofCanvas.getWidth());
         printHeight += proofCanvas.getHeight();
@@ -284,8 +287,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
         if (disproofPane!=null) {
             disproofPane.print(g);
-            int liney = disproofSize.height+gap();
-            printSeparator(g2D, liney, Math.max(disproofSize.width, proofCanvas.getWidth()));
+            int liney = disproofHeight+gap();
+            printSeparator(g2D, liney, Math.max(disproofWidth, proofCanvas.getWidth()));
             g2D.translate(0, liney+separatorThickness()+gap());
         }
 
@@ -300,7 +303,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         }
 
         if (disproofPane!=null)
-            g2D.translate(0, -(disproofSize.height+gap()+separatorThickness()+gap()));
+            g2D.translate(0, -(disproofHeight+gap()+separatorThickness()+gap()));
 
         g2D.setTransform(trans);
         
