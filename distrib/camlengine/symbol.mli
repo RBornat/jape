@@ -61,9 +61,8 @@ type savedlex
 val pushlex : string -> ucode Stream.t -> savedlex
 val poplex  : savedlex -> unit
 
-val pushSyntax : string -> unit
-val popSyntax  : unit -> unit
-
+val pushSyntax     : string -> unit
+val popSyntax      : unit -> unit
 val popAllSyntaxes : unit -> unit
 
 val showInputError : (string list -> unit) -> string list -> unit
