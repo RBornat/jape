@@ -76,6 +76,19 @@ let rec infixnameflatten name t ts =
         ) |~~ (fun _ -> Some(a1::a2::ts))
       else None)
       
+let rec infixprioflatten n mustbra t ts =
+   if !termfolddebug then
+     consolereport ["infixprioflatten tries "; string_of_int n; " "; string_of_bool mustbra; 
+                    " ("; debugstring_of_term t; ") ";
+                    bracketedstring_of_list string_of_term ";\n" ts];
+   isInfixApp t &~~
+   (fun (_, n', assoc, a1, a2) ->
+      if n'>n || (n'=n && not mustbra) then
+        (infixprioflatten n' (assoc=LeftAssoc) a2 ts |~~ (fun _ -> Some(a2::ts))) &~~
+        (fun ts' ->
+           infixprioflatten n' (assoc=RightAssoc) a1 ts' |~~ (fun _ -> Some(a1::ts')))
+      else None)
+      
  let measure font = fst_of_3 <.> Japeserver.measurestring font
  
  let termfold (_, font, preleading, interleading, postleading, w, t) =
@@ -95,7 +108,7 @@ let rec infixnameflatten name t ts =
      let sss = minwaste measure w tstring in
      mkTextInfo sss
    in
-   let tryfold ts tts =
+   let tryfold ts tts default =
      let rec starts xs ys =
        match xs, ys with
          []   , _     -> true
@@ -169,11 +182,13 @@ let rec infixnameflatten name t ts =
                         " into "; 
                         bracketedstring_of_list (Stringfuns.enQuote <.> string_of_term) 
                                                 "\n" ts];
-       tryfold (List.map renderargs ts) tstring
+       tryfold (List.map renderargs ts) tstring default
    | _ -> 
      (match isInfixApp t with
-        Some(name,_,_,_,_) ->
+        Some(name,n,_,_,_) ->
           tryfold (List.map render (_The (infixnameflatten name t []))) tstring
+                  (fun _ -> 
+                     tryfold (List.map render (_The (infixprioflatten n false t []))) tstring default)
       | _ -> default ())
    
    (*
