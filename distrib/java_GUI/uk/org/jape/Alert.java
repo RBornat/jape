@@ -56,23 +56,33 @@ public class Alert {
         return l;
     }
     
-    // this is where we will eventually process multi-line strings and 
-    // handle aspect ratio
+    // this is where we will eventually handle aspect ratio
     private static Object makeMessage(Object o) {
         if (o instanceof String) {
             String s = (String)o;
-            JLabel l = makeLabel(s);
-            TextDimension m = JapeFont.measure(l, s);
-            if (m.width>japeserver.screenBounds.width*2/3) {
-                String[] split = MinWaste.minwaste(l, s, japeserver.screenBounds.width*4/10);
-                JLabel[] ls = new JLabel[split.length];
-                for (int i=0; i<ls.length; i++)
-                    ls[i] = makeLabel(split[i]);
-                return ls;
+            int nli;
+            if ((nli=s.indexOf('\n'))!=-1) {
+                JLabel[] first = (JLabel[])makeMessage(s.substring(0,nli));
+                JLabel[] second = (JLabel[])makeMessage(s.substring(nli+1));
+                JLabel[] result = new JLabel[first.length+second.length];
+                for (int i=0; i<first.length; i++)
+                    result[i]=first[i];
+                for (int i=0; i<second.length; i++)
+                    result[i+first.length]=second[i];
+                return result;
             }
             else {
-                JLabel[] ls = { l };
-                return ls;
+                JLabel l = makeLabel(s);
+                TextDimension m = JapeFont.measure(l, s);
+                if (m.width>japeserver.screenBounds.width*2/3) {
+                    String[] split = MinWaste.minwaste(l, s, japeserver.screenBounds.width*4/10);
+                    JLabel[] ls = new JLabel[split.length];
+                    for (int i=0; i<ls.length; i++)
+                        ls[i] = makeLabel(split[i]);
+                    return ls;
+                }
+                else 
+                    return new JLabel[] { l };
             }
         }
         else
