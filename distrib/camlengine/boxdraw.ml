@@ -387,6 +387,7 @@ let rec pretransform prefixwithstile t =
     BoxPT (pi, _, words, hs, ptr) ->
       BoxPT (pi, !outermostbox, outerwords, hs, ptr)
   | ptr -> ptr
+
 (******** Step 2: compute class of each element, element texts and sizes, and paths ********)
 (* In order to deal with cut dependencies properly, we refine the notion of path.
  * When we point to a formula we may want to 
@@ -701,15 +702,22 @@ let rec mapn a1 a2 a3 =
   | id, (h, _) :: elis, hn ->
       (mapn id elis (hn + 1) ++ (h |-> HypID (id, hn)))
 
+type reasondesc = NoReason
+                | ReasonDesc of (pathinfo * textinfo * cID list)
+                | ReasonWord of textinfo
+              
 type fitchlinerec = 
-      { lineID : lineID; 
-        elementsbox : textbox;
-        idplan : displayclass plan;
+      { lineID       : lineID; 
+        elementsbox  : textbox;
+        idplan       : displayclass plan;
         elementsplan : elementplankind plan list;
-        reasonplan : reasonplankind plan list }
+        reasonplan   : reasonplankind plan list;
+        reason       : reasondesc}
+        
 type fitchboxrec = { outerbox : box; 
                      boxlines : fitchstep list; 
                      boxed : bool }
+                     
  and fitchstep = FitchLine of fitchlinerec
                | FitchBox of fitchboxrec
 
@@ -760,6 +768,9 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let transindent = 5 * leading in
   let (commasize, _ as comminf) = textinfo_of_text (Absprooftree.comma ()) in
   let commaW = tsW commasize in
+  
+  let minreasonW = 5*commaW in
+
   let (dotssize, _ as dotsinf) = textinfo_of_string ReasonFont ". . ." in
   (* In formatting a line, we recognise four elements: 
    *   line number N
@@ -825,7 +836,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
     let (ltokens, rtokens) = getelements ls, getelements rs in ()
   in
   let colonplan = plan_of_string ReasonFont ": " DisplayPunct origin in
-  let colonsize = plantextsize colonplan in
+  let colonsize = textsize_of_plan colonplan in
   let reasonspacef =
     plan_of_textinfo (textinfo_of_string ReasonFont " ") ReasonPunctPlan
   in
@@ -903,7 +914,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
     if proven then elementsplan
     else
       let elementspos = tbPos elementsbox in
-      let elementssize = tbSize elementsbox in
+      let elementssize = textsize_of_textbox elementsbox in
       let dotspos =
         pos
           (posX elementspos,
@@ -912,7 +923,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
       in
       let dotsplan = plan_of_textinfo dotsinf ElementPunctPlan dotspos in
       let allsize =
-        tbSize (( +|-|+ ) (elementsbox, textbox (dotspos, dotssize)))
+        textsize_of_textbox (( +|-|+ ) (elementsbox, textbox (dotspos, dotssize)))
       in
       dotsplan :: elementsplanlist,
       textbox
@@ -921,32 +932,35 @@ let rec linearise screenwidth procrustean_reasonW dp =
   in
            
   (* make the plan for a single reason, relative to p *)
-  let rec mkreasonplan a1 a2 =
-    match a1, a2 with
-      None, p -> [], emptytextbox
-    | Some (pi, why, cids), p ->
-        let reasonf = plan_of_textinfo why (ReasonPlan pi) in
-        let antesf =
-          plan_of_textinfo (textinfo_of_string ReasonFont (_IDstring cids))
-            ReasonPunctPlan
+  let rec mkreasonplan reason p =
+    match reason with
+      None                 -> [], emptytextbox, NoReason
+    | Some (pi, why, cids) ->
+        let rplan, rbox =
+          (let reasonf = plan_of_textinfo why (ReasonPlan pi) in
+           let antesf =
+             plan_of_textinfo (textinfo_of_string ReasonFont (_IDstring cids))
+               ReasonPunctPlan
+           in
+           if !boxlinedisplay = "right" then
+             plancons (reasonf p)
+               (fun p -> plancons (reasonspacef p) (plans_of_plan <.> antesf))
+           else if null cids then plans_of_plan (reasonf p)
+           else
+             plancons (lantesparenf p)
+               (fun p ->
+                  plancons (antesf p)
+                    (fun p -> plancons (rantesparenf p) (plans_of_plan <.> reasonf))))
         in
-        if !boxlinedisplay = "right" then
-          plancons (reasonf p)
-            (fun p ->
-               plancons (reasonspacef p)
-                 (plans_of_plan <.> antesf))
-        else if null cids then plans_of_plan (reasonf p)
-        else
-          plancons (lantesparenf p)
-            (fun p ->
-               plancons (antesf p)
-                 (fun p ->
-                    plancons (rantesparenf p)
-                      (plans_of_plan <.> reasonf)))
+          rplan, rbox, ReasonDesc (pi, why, cids)
   in
   let rec ljreasonplan ps box =
-    let shift = pos (- tsW (tbSize box), 0) in
+    let shift = pos (- tsW (textsize_of_textbox box), 0) in
     List.map (fun p -> planOffset p shift) ps
+  in
+  let showword word p =
+    let plan, box = plans_of_plan (plan_of_textinfo word ReasonPunctPlan p) in
+    plan, box, ReasonWord word
   in
   (* make the data structure for a single line, positioned relative to topleftpos *)
   let rec mkLine elf reasonf id topleftpos =
@@ -954,14 +968,14 @@ let rec linearise screenwidth procrustean_reasonW dp =
      * baseline is originY; then we make bigelementsbox to say where the elements really are
      *)
     let (elementsplan, elementsbox) = elf origin in
-    let elementssize = tbSize elementsbox in
+    let elementssize = textsize_of_textbox elementsbox in
     let (idsize, _ as idinfo) = textinfo_of_string ReasonFont (_IDr id) in
     let idplan =
       plan_of_textinfo idinfo DisplayPunct (rightby (origin, - tsW idsize))
     in
     (* this is right justified *)
-    let (reasonplan, reasonbox) = reasonf origin in
-    let reasonsize = tbSize reasonbox in
+    let (reasonplan, reasonbox, reason) = reasonf origin in
+    let reasonsize = textsize_of_textbox reasonbox in
     let linesize = ( +-+ ) (( +-+ ) (elementssize, reasonsize), idsize) in
     (* just to get A, _D *)
     let bigelementspos = downby (topleftpos, tsA linesize) in
@@ -974,7 +988,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
     FitchLine
       {lineID = id; elementsbox = bigelementsbox; idplan = idplan; elementsplan = elementsplan; 
        reasonplan = if !boxlinedisplay = "right" then reasonplan
-                    else ljreasonplan reasonplan reasonbox},
+                    else ljreasonplan reasonplan reasonbox;
+       reason = reason},
     box_of_textbox bigelementsbox, tsW idsize, tsW reasonsize
   in
   let rec startLacc id pos =
@@ -1100,20 +1115,15 @@ let rec linearise screenwidth procrustean_reasonW dp =
                               idW = idW; reasonW = reasonW; assW = assW})) ->
               let (word, hypmap') =
                 match hypelis with
-                  [h] ->
-                    fst words,
-                    (hypmap ++ (fst h |-> LineID id))
-                | hs -> snd words, (hypmap ++ mapn id hs 1)
-              in
-              let rec showword p =
-                plans_of_plan (plan_of_textinfo word ReasonPunctPlan p)
+                  [h] -> fst words, (hypmap ++ (fst h |-> LineID id))
+                | hs  -> snd words, (hypmap ++ mapn id hs 1)
               in
               let (line, linebox, lineidW, linereasonW) =
                 mkLine
                   (plans_of_things
                      (uncurry2 plan_of_textinfo <.> snd)
                      commaf nullf hypelis)
-                  showword id (nextpos elbox textleading false false)
+                  (showword word) id (nextpos elbox textleading false false)
               in
               let lineassW =
                 match hypelis with
@@ -1217,7 +1227,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
   * At present the 'right' style is n: F R A -- n right-justified, R aligned
   * and the 'left' style is (A R) n: F -- (A R) and n right-justified
   *)
-  let rec idmargin idW reasonW =
+  let idmargin idW reasonW =
     (if !boxlinedisplay = "right" then 0 else reasonW + reasongap) + idW +
       tsW colonsize
   in
@@ -1226,26 +1236,30 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let rec reasonspace lines =
     match lines with
       [FitchBox {boxed = true}] -> reasongap
-    | _ -> 2 * reasongap
+    | _                         -> 2 * reasongap
   in
   let rec reasonmargin lines idW reasonW elbox =
     if !boxlinedisplay = "right" then
       leftmargin idW reasonW + boxW elbox + reasonspace lines
     else reasonW
   in
-  let rec extras lines idW reasonW =
-    sidescreengap + leftmargin idW reasonW +
-      (if !boxlinedisplay = "right" then reasonspace lines + reasonW
-       else 0) +
-      sidescreengap
+  let allbutreasonW lines idW elbox =
+    (* reasonably accurate for right and left reasonstyle *)
+    sidescreengap + idW + tsW colonsize + boxW elbox + reasonspace lines + sidescreengap
+                  + reasonspace lines (* seems to be useful but I don't know why *)
   in
-  let rec answer =
-    fun (Lacc {acclines = lines; elbox = elbox; idW = idW; reasonW = reasonW; assW = assW}) ->
-      Layout {lines = lines; colonplan = colonplan; idmargin = idmargin idW reasonW;
-              bodymargin = leftmargin idW reasonW; 
-              reasonmargin = reasonmargin lines idW reasonW elbox;
-              sidescreengap = sidescreengap; linethickness = linethickness;
-              bodybox = elbox}
+  let extras lines idW reasonW =
+    sidescreengap + 
+      leftmargin idW reasonW +
+      (if !boxlinedisplay = "right" then reasonspace lines + reasonW else 0) +
+    sidescreengap
+  in
+  let answer (Lacc {acclines = lines; elbox = elbox; idW = idW; reasonW = reasonW; assW = assW}) =
+    Layout {lines = lines; colonplan = colonplan; idmargin = idmargin idW reasonW;
+            bodymargin = leftmargin idW reasonW; 
+            reasonmargin = reasonmargin lines idW reasonW elbox;
+            sidescreengap = sidescreengap; linethickness = linethickness;
+            bodybox = elbox}
   in
   (* we do it once, then see if we might be able to make it smaller *)
   let startacc = startLacc 1 origin in
@@ -1259,15 +1273,42 @@ let rec linearise screenwidth procrustean_reasonW dp =
   then
     (* we have a picture which is too wide, and might be made less wide *)
     let maxbestW = screenwidth - extras lines idW procrustean_reasonW in
-    let _ =
-      if !boxfolddebug then
-        consolereport
-          ["trying again, width "; string_of_int maxbestW; "; screenwidth ";
-           string_of_int screenwidth]
+    if !boxfolddebug then
+      consolereport
+        ["trying again, width "; string_of_int maxbestW; "; screenwidth ";
+         string_of_int screenwidth];
+    let (_, (Lacc acc as secondlayout)) = _L (Some maxbestW) empty false dp startacc in
+    let Layout a = answer secondlayout in
+    let availableW = screenwidth - allbutreasonW a.lines acc.idW acc.elbox in
+    consolereport ["screenwidth="; string_of_int screenwidth;
+                   "; sidescreengap="; string_of_int sidescreengap;
+                   "; idW="; string_of_int acc.idW;
+                   "; colonsize="; string_of_textsize colonsize;
+                   "; elbox="; string_of_box acc.elbox;
+                   "; reasongap="; string_of_int (reasonspace a.lines);
+                   "; availableW="; string_of_int availableW];
+    let rereason line =
+      match line.reason with
+        NoReason -> line
+      | ReasonDesc (pi, why, cids) -> 
+          let reasonplan = line.reasonplan in
+          let w = availableW - (tsW (textsize_of_planlist reasonplan) - tsW (fst why)) in
+          let why' = textinfo_procrustes (max minreasonW w) origin why in
+          consolereport ["truncated reason is "; string_of_textinfo why'];
+          {line with reasonplan = fst_of_3 (mkreasonplan (Some (pi, why', cids)) origin)}
+      | ReasonWord why ->
+          let why' = textinfo_procrustes (max minreasonW availableW) origin why in
+          {line with reasonplan = fst_of_3 (showword why' origin)}
     in
-    answer (snd (_L (Some maxbestW) empty false dp startacc))
+    let rec reline f =
+      match f with 
+        FitchLine l -> FitchLine (rereason l)
+      | FitchBox  b -> FitchBox {b with boxlines = List.map reline b.boxlines}
+    in
+    Layout {a with lines = List.map reline a.lines}
   else answer firstlayout
   (* end linearise *)
+  
 (* desperation ...
     fun _IDstring id =
       case id of
@@ -1279,10 +1320,10 @@ let rec linearise screenwidth procrustean_reasonW dp =
 let rec _BoxLayout screenwidth t =
   let pt = pretransform (List.length (turnstiles ()) <> 1) t in
   let procrustean_reasonW = max 100 (screenwidth / 6) in
-  let tranreason =
-    if !truncatereasons then
+  let tranreason = (* we now truncate reasons later *)
+    (* if !truncatereasons then
       procrustean_reason2textinfo procrustean_reasonW
-    else textinfo_of_reason
+    else *) textinfo_of_reason
   in
   let dp = dependency tranreason ordinary pt in
   linearise screenwidth procrustean_reasonW dp
@@ -1317,17 +1358,17 @@ let rec draw goalopt p proof =
                bodybox = bodybox; linethickness = linethickness}) ->
     let idx = posX p + idmargin in
     let reasonx = posX p + reasonmargin in
-    let rec samepath a1 a2 =
-      match a1, a2 with
-        path, None -> false
-      | path, Some goalpath -> path = goalpath
+    let samepath path =
+      function
+        None          -> false
+      | Some goalpath -> path = goalpath
     in
     let rec _D p line =
       match line with
         FitchLine
-          {elementsbox = elementsbox;
+          {elementsplan = elementsplan;
+           elementsbox = elementsbox;
            idplan = idplan;
-           elementsplan = elementsplan;
            reasonplan = reasonplan} ->
           let pdraw = p +->+ tbPos elementsbox in
           let rec emp gpath plan =
