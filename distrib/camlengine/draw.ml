@@ -268,8 +268,7 @@ let rec drawplan f p =
     Japeserver.drawmeasuredtext (f info) tl (p +->+ tbPos b)
 
 let rec findfirstplanhit p =
-  findfirst
-    (fun pl -> if withintb (p, plantextbox pl) then Some pl else None)
+  findfirst (fun pl -> if withintb (p, plantextbox pl) then Some pl else None)
 
 let string_of_textinfo = string_of_pair string_of_textsize string_of_textlayout ","
 

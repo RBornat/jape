@@ -105,31 +105,33 @@ let rec option_njfold f =
     []      -> _Some
   | x :: xs -> option_njfold f xs &~ (Miscellaneous.curry2 f) x
 
-let rec findfirst a1 a2 =
-  match a1, a2 with
-    f, [] -> None
-  | f, x :: xs ->
-      match f x with
-        None -> findfirst f xs
-      | t -> t
-let rec findbest a1 a2 a3 =
-  match a1, a2, a3 with
-    f, best, [] -> None
-  | f, best, x :: xs ->
-      match f x with
-        None -> findbest f best xs
-      | Some y1 ->
-          match findbest f best xs with
-            None -> Some y1
-          | Some y2 -> Some (best y1 y2)
+let rec findfirst f =
+  function
+    []      -> None
+  | x :: xs -> match f x with
+                 None -> findfirst f xs
+               | t -> t
+
+let rec findbest f best =
+  function
+    []      -> None
+  | x :: xs -> match f x with
+                 None -> findbest f best xs
+               | Some y1 ->
+                   match findbest f best xs with
+                     None    -> Some y1
+                   | Some y2 -> Some (best y1 y2)
+
 let rec stripoption =
   function
     None -> None
   | Some x -> x
+
 let rec optordefault =
   function
     Some v, _ -> v
   | None, v -> v
+
 let rec catelim_string_of_option catelim_astring aopt ss =
   match aopt with
     Some a -> "Some (" :: catelim_astring a (")" :: ss)
