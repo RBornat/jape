@@ -272,8 +272,8 @@ name.cmo: miscellaneous.cmi nametype.cmo stringfuns.cmi symbol.cmi \
     symboltype.cmo termfuns.cmi termparse.cmi termtype.cmi name.cmi 
 name.cmx: miscellaneous.cmx nametype.cmx stringfuns.cmx symbol.cmx \
     symboltype.cmx termfuns.cmx termparse.cmx termtype.cmx name.cmi 
-optionfuns.cmo: sml.cmi optionfuns.cmi 
-optionfuns.cmx: sml.cmx optionfuns.cmi 
+optionfuns.cmo: miscellaneous.cmi sml.cmi optionfuns.cmi 
+optionfuns.cmx: miscellaneous.cmx sml.cmx optionfuns.cmi 
 oracle.cmo: button.cmi cxtfuns.cmi cxttype.cmo env.cmi mappingfuns.cmi \
     miscellaneous.cmi moresys.cmi reason.cmi sml.cmi stringfuns.cmi \
     termfuns.cmi termstring.cmi termtype.cmi uTF.cmi usefile.cmi oracle.cmi 
