@@ -2,12 +2,12 @@
 %.cmi %.cmo : %.ml ;
 	ocamlc $<
 
-%.ml : %.sig.sml %.sml ;
-	(camltran $*.sig.sml; camltran $*.sml) >$*.testml
+%.ml : ../engine/%.sig.sml ../engine/%.sml ;
+	(camltran ../engine/$*.sig.sml; camltran ../engine/$*.sml) >$*.testml
 	mv $*.testml $*.ml
 
-%.ml : %.sml ;
-	camltran $*.sml >$*.testml
+%.ml : ../engine/%.sml ;
+	camltran ../engine/$*.sml >$*.testml
 	mv $*.testml $*.ml
 
 camlcode: version.cmo miscellaneous.cmo
