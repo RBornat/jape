@@ -309,6 +309,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             e.prefix = proved ? LocalSettings.tick+(disproved ? LocalSettings.cross : "") :
                        disproved ? " "+LocalSettings.cross :
                        null;
+            list.repaint();
         }
 
         class Renderer implements ListCellRenderer {
