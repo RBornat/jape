@@ -430,12 +430,19 @@ let rec processBind () =
        ((subset (vars, varsinbody) && subset (scope, varsinbody)) &&
         null (_INTER scope vars))
   then
+    let names xs =
+       (if List.length xs=1 then "is " else "are ") ^
+       sentencestring_of_list (enQuote <.> string_of_term) ", " " and "  xs
+    in
+    let numstring s t xs =
+      s ^ (if List.length xs>1 then "s" else "") ^ t ^ names xs
+    in
     raise
       (ParseError_
          ["Component names badly chosen in BIND directive. ";
-          "Bound variables are "; string_of_list string_of_term "," vars;
-          "; scopes are "; string_of_list string_of_term "," scope;
-          "; names in formula are "; string_of_list string_of_term "," varsinbody;
+          numstring "Bound variable" " " vars;
+          numstring "; scope" " " scope;
+          numstring "; name" " in formula " varsinbody;
           "; formula is "; string_of_term body])
   else
     addbindingdirective
@@ -598,21 +605,21 @@ let rec checkvalidruleheading report objkind wherekind =
            showInputError report
              [place; " "; objkind; " "; string_of_name name; " "; has; " ";
               add_an_s "variable" (List.length vs > 1); " ";
-              liststring2 string_of_term ", " " and " vs;
+              sentencestring_of_list string_of_term ", " " and " vs;
               " which ";
               (if List.length vs =1 then "isn't" else "aren't"); " in the "; wherekind; "."]
        | _, [] ->
            showInputError report
              [place; " "; objkind; " "; string_of_name name; " "; has;
               " duplicate "; add_an_s "variable" (List.length vs > 1); " ";
-              liststring2 string_of_term ", " " and " vs; "."]
+              sentencestring_of_list string_of_term ", " " and " vs; "."]
        | dups, rogues ->
            showInputError report
              [place; " "; objkind; " "; string_of_name name; " "; has;
               " duplicate "; add_an_s "variable" (List.length dups > 1); " ";
-              liststring2 string_of_term ", " " and " dups; ", and also ";
+              sentencestring_of_list string_of_term ", " " and " dups; ", and also ";
               add_an_s "variable" (List.length rogues > 1); " ";
-              liststring2 string_of_term ", " " and " rogues;
+              sentencestring_of_list string_of_term ", " " and " rogues;
               " which aren't in the "; wherekind; "."]);
       raise Use_
     in
