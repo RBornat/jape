@@ -133,9 +133,8 @@ let parseTerm = Termparse.term_of_string
 
 let parseTermCOMMAList =
   Termparse.tryparse
-    (fun _ ->
-       Termparse.parseList Termparse.canstartTerm Termparse.parseTerm
-         Symbol.commasymbol)
+    (fun _ -> Termparse.parseList Termparse.canstartTerm Termparse.parseTerm
+                                  Symbol.commasymbol)
          
 let proofsdone = Runproof.proofsdone
 let provisoactual = Proviso.provisoactual
@@ -1231,6 +1230,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  default
             )
 
+        | "applyconjecture", comm ->
+            processcommand thisstate ("apply" :: comm) (* for now *)
+            
         | "applygiven", args ->
             processcommand thisstate
               ("apply" :: parseablenamestring (namefrom !givenMenuTactic) :: args)
@@ -1601,34 +1603,25 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               (fun displaystate ->
                  showproof <.> 
                  (fun here ->
-                      (getLayoutPath displaystate BacktrackCommand
-                         PrunePath &~~
+                      (getLayoutPath displaystate BacktrackCommand PrunePath &~~
                        (fun path ->
                           try
                             let there = ref here in
                             let rec stillcomposite =
-                              fun
-                                (WinHist
-                                   {proofhist =
-                                      Hist
-                                        {now =
-                                           Proofstate
-                                             {tree = tree}}}) ->
+                              fun (WinHist {proofhist = Hist {now = Proofstate {tree = tree}}}) ->
                                 try let _ = (findTip tree path : seq) in false with
                                   FollowPath_ _ -> false
                                 | FindTip_ -> true
                             in
                             let rec undo_proofstep =
                               fun (WinHist {proofhist = proofhist} as hist) ->
-                                (undo_step proofhist &~~
-                                 (fSome <.> withproofhist hist))
+                                (undo_step proofhist &~~ (fSome <.> withproofhist hist))
                             in
                             while stillcomposite !there do
                               match undo_proofstep !there with
                                 Some h -> there := h
                               | _ ->
-                                  showAlert
-                                    ["can't backtrack to that point"];
+                                  showAlert ["can't backtrack to that point"];
                                   raise Matchinbacktrack_
                             done;
                             Some !there
@@ -1694,8 +1687,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  Some (proved, tree, provisos, givens, disproved, disproofopt) ->
                    screenquery
                      [namestring name;
-                      if proved then " is already a theorem"
-                      else " is already disproved"; (* WRONG *)
+                      if proved then " is already a theorem" else " is already disproved"; (* WRONG *)
                       ".\nDo you want to start a new proof?"]
                      "Yes" "No" 1
                | None -> true
@@ -1703,7 +1695,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               doproof env mbs name pinfs
             else default
 
-
+        | "proveconjecture", comm ->
+            processcommand thisstate ("prove" :: comm) (* for now *)
+            
         | "reset", [] ->
             if askResettheory false then doResettheory () else default
 
@@ -1714,7 +1708,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                   Japeserver.toplevelfiletype
               with
                 Some s -> processcommand (doResettheory ()) ["use"; s]
-              | None -> default
+              | None   -> default
             else default
 
         | "profile", ["on"] ->
