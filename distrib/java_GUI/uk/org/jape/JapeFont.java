@@ -33,7 +33,7 @@ import java.awt.Graphics;
 import java.util.HashMap;
 import javax.swing.JLabel;
 
-public class JapeFont implements ProtocolConstants {
+public class JapeFont implements DebugConstants, ProtocolConstants {
 
     /* ************************
        Ascii -> Unicode translation, for fonts (such as Konstanz) which don't 
@@ -292,6 +292,14 @@ public class JapeFont implements ProtocolConstants {
 
     public static TextDimension measure(String s, byte fontnum) {
         initInterfaceMetrics();
+        if (measure_debug)
+            System.err.println("measuring \""+s+"\"; ("+
+                           interfaceMetrics[fontnum].stringWidth(s)+","+
+                           interfaceMetrics[fontnum].getMaxAscent()+"["+
+                           interfaceMetrics[fontnum].getAscent()+"],"+
+                           interfaceMetrics[fontnum].getMaxDescent()+"["+
+                           interfaceMetrics[fontnum].getDescent()+"]); "+
+                           interfaceMetrics[fontnum].getLeading());
         return new TextDimension(interfaceMetrics[fontnum].stringWidth(s),
                                  interfaceMetrics[fontnum].getMaxAscent(),
                                  interfaceMetrics[fontnum].getMaxDescent());
