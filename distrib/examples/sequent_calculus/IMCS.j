@@ -1,14 +1,13 @@
 /* $Id$ */
 
-INITIALISE applyconjectures false
-INITIALISE tryresolution false
-INITIALISE displaystyle tree
+/*
+	The _intuitionistic_ multiple-conclusion sequent calculus!!
+*/
 
-USE "IMCS_rules.j"
+USE "MCS.jt" /* the default */
 
-CONJECTUREPANEL "Conjectures"
-  THEOREM	modusponens(A,B)	IS A, AçB æ B
-  THEOREM	contradiction(A,B)	IS A, ÂA æ 
-END
-
-USE "MCS+SCS_problems.j"
+/* the differences */
+RULE	"æÂ"		FROM ‚,A æ 					INFER ‚ æ ÂA,Æ
+RULE	"Âæ"		FROM ‚ æ A					INFER ‚,ÂA æ Æ
+RULE	"æç"		FROM ‚,A æ B	 				INFER ‚ æ AçB,Æ
+RULE	"çæ"		FROM ‚ æ A AND ‚,B æ Æ			INFER ‚,AçB æ Æ
