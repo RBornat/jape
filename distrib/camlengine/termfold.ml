@@ -41,6 +41,7 @@
  open Miscellaneous
  open Optionfuns
  open Sml
+ open Symboltype
  open Termstring
  open Text
  open UTF
@@ -57,7 +58,24 @@ let rec appflatten t ts =
      consolereport ["appflatten tries ("; debugstring_of_term t; ") ";
                     bracketedstring_of_list string_of_term ";\n" ts];
    isJuxtapos t &~~ (fun (f,a) -> appflatten f (a::ts) |~~ (fun _ -> Some (f::a::ts)))
- 
+
+let rec infixnameflatten name t ts =
+   if !termfolddebug then
+     consolereport ["infixnameflatten tries "; Stringfuns.enQuote name; 
+                    " ("; debugstring_of_term t; ") ";
+                    bracketedstring_of_list string_of_term ";\n" ts];
+   isInfixApp t &~~
+   (fun (name', _, assoc, a1, a2) ->
+      if name=name' then
+        (match assoc with
+           LeftAssoc -> infixnameflatten name a1 (a2::ts) 
+         | RightAssoc -> (infixnameflatten name a2 ts &~~ (fun ts' -> Some(a1::ts')))
+         | TupleAssoc -> (infixnameflatten name a2 ts |~~ (fun _ -> Some (a2::ts))) &~~
+                         (fun ts' -> infixnameflatten name a1 ts' |~~ (fun _ -> Some(a1::ts')))
+         | _ -> None (* we don't understand others *)
+        ) |~~ (fun _ -> Some(a1::a2::ts))
+      else None)
+      
  let measure font = fst_of_3 <.> Japeserver.measurestring font
  
  let termfold (_, font, preleading, interleading, postleading, w, t) =
@@ -152,7 +170,11 @@ let rec appflatten t ts =
                         bracketedstring_of_list (Stringfuns.enQuote <.> string_of_term) 
                                                 "\n" ts];
        tryfold (List.map renderargs ts) tstring
-   | _       -> default ()
+   | _ -> 
+     (match isInfixApp t with
+        Some(name,_,_,_,_) ->
+          tryfold (List.map render (_The (infixnameflatten name t []))) tstring
+      | _ -> default ())
    
    (*
         if tsW size <= w then
