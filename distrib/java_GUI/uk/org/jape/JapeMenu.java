@@ -374,6 +374,12 @@ public class JapeMenu implements DebugConstants {
         }
     }
 
+    private static class DebugSettingsAction extends ItemAction {
+        public void action (JapeWindow w) {
+            DebugVars.runDebugSettingsDialog();
+        }
+    }
+    
     public static void doOpenFile(String file) {
         if (file.length()!=0)
             Reply.sendCOMMAND("use \""+file+"\"");
@@ -519,6 +525,11 @@ public class JapeMenu implements DebugConstants {
                                                   menumask+java.awt.Event.SHIFT_MASK));
         indexMenuItem(filemenu, PRINT_PROOF, new PrintProofAction()).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, menumask));
+
+        if (DebugVars.showDebugVars) {
+            filemenu.addSep();
+            indexMenuItem(filemenu, "Debug Settings ...", new DebugSettingsAction());
+        }
         
         if (LocalSettings.quitMenuItemNeeded) {
             filemenu.addSep();
