@@ -139,7 +139,11 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
                         child.setLocation(-vr.x, -vr.y);
                         repaint();
                     }
-                    setSize(vr.width, vr.height);
+                    Dimension size = getSize();
+                    if (vr.width!=size.width || vr.height!=size.height) {
+                        size.width=vr.width; size.height=vr.height;
+                        setSize(size); setPreferredSize(size); setMinimumSize(size);
+                    }
                 }
             }
         }
@@ -208,7 +212,11 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
                 }
                 if (newBounds==null)
                     newBounds = new Rectangle(0,0,0,0);
-                setSize(newBounds.width, newBounds.height);
+                Dimension size = getSize();
+                if (newBounds.width!=size.width || newBounds.height!=size.height) {
+                    size.width=newBounds.width; size.height=newBounds.height;
+                    setSize(size); setPreferredSize(size); setMinimumSize(size);
+                }
                 if (!newBounds.equals(visualBounds)) {
                     visualBounds=newBounds;
                     repaint();
@@ -235,13 +243,16 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
         panel.setLocation(100,100);
 
         panel.computeBounds();
-        System.err.println("panel with four buttons has size "+panel.getSize());
+        System.err.println("panel with four buttons has size "+panel.getPreferredSize());
 
         Container contentPane = getContentPane();
         Rectangle panelBounds = panel.getBounds();
         
         contentPane.setLayout(null);
         contentPane.add(panel);
+        contentPane.doLayout();
+
+        // nothing seems to give us a properly-sized window ...
         setSize(Math.min(500, Math.max(200,panelBounds.x+panelBounds.width+50)),
                 Math.min(400, Math.max(200, panelBounds.y+panelBounds.height+50)));
 
@@ -298,6 +309,7 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
         window.inAnApplet = false; /* really? */
 
         window.setTitle("Absolute Positioning with negative coordinates in a panel");
+        // window.pack(); // gives a zero-dimensioned pane, I kid you not.
         window.setVisible(true);
     }
 }
