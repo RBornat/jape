@@ -71,10 +71,14 @@ let appfix = ref appfix_default
 let substfix = ref substfix_default
 let substsense = ref substsense_default
 
-let (syntaxes : ( string  
-                * (int * int * bool) (* name, appfix, substfix, substsense *)
-                * (string, symbol option) Hashtbl.t) list ref)
-                = ref []
+type syn_fixes  = int * int * bool (* appfix, substfix, substsense *)
+ and syn_tables = (string, symbol) Hashtbl.t * (symbol, string) Hashtbl.t   (* symboltable, reversemapping *)
+                * ucode list * ucode list                                   (* decIDheads, decIDtails *)
+                * (ucode, idclass) searchtree * (ucode, idclass) searchtree (* idprefixtree, idfixedtree *)
+                * (ucode, symbol) searchtree * string list option           (* optree, oplist *)
+                * (idclass, string) Mappingfuns.mapping                     (* decVarPrefixes *)
+
+let (syntaxes : (string * syn_fixes * syn_tables) list ref) = ref []
   
 (* to make test parses silent, parsing functions raise ParseError_,
  * which you can catch and translate into a call of showInputError 
@@ -192,13 +196,10 @@ let insertinIdtree what isprefix class__ tree s =
         addtotree (fun (x, y) -> x = y) !tree (c :: cs, class__, isprefix)
 
 let friendlyLargeishPrime = 1231
-let symboltable = (* ref (Store.new__ friendlyLargeishPrime) *)
-                  Hashtbl.create friendlyLargeishPrime
-let lookup string = (* Store.at (!symboltable, string) *)
-   try Some (Hashtbl.find symboltable string) with Not_found -> None
+let symboltable = ref (Hashtbl.create friendlyLargeishPrime)
+let lookup string = try Some (Hashtbl.find !symboltable string) with Not_found -> None
 
-let reversemapping (* : (symbol, string) Mappingfuns.mapping ref = ref Mappingfuns.empty *)
-                  = Hashtbl.create friendlyLargeishPrime
+let reversemapping = ref (Hashtbl.create 10)
 
 exception Symclass_ of string
 (* not spurious *)
@@ -232,7 +233,7 @@ let rec reverselookup symbol =
   | RIGHTFIX  (_, s) -> s
   | STILE          s -> s
   | SHYID          s -> s
-  | _                -> Hashtbl.find reversemapping symbol
+  | _                -> Hashtbl.find !reversemapping symbol
 
 let rec preclassopt =
   function
@@ -262,9 +263,9 @@ let rec pre_SYMBOL s =
   | BRA s'1 -> Prestrs ["BRA \""; s'1; "\""]
   | SEP s'1 -> Prestrs ["SEP \""; s'1; "\""]
   | KET s'1 -> Prestrs ["KET \""; s'1; "\""]
-  | SUBSTBRA -> Prestrs ["SUBSTBRA"; (try " " ^ enQuote (reverselookup SUBSTBRA) with Not_found -> "")]
-  | SUBSTSEP -> Prestrs ["SUBSTSEP"; (try " " ^ enQuote (reverselookup SUBSTSEP) with Not_found -> "")]
-  | SUBSTKET -> Prestrs ["SUBSTKET"; (try " " ^ enQuote (reverselookup SUBSTKET) with Not_found -> "")]
+  | SUBSTBRA -> Prestr "SUBSTBRA"
+  | SUBSTSEP -> Prestr "SUBSTSEP"
+  | SUBSTKET -> Prestr "SUBSTKET"
   | EOF -> Prestr "EOF"
   | PREFIX (s'1, s'2) ->
       Prepres
@@ -346,8 +347,8 @@ let delete symbol =
                  (summarisetree !optree, (utf8_explode oldstring, symbol, false))]
       );
     if hidden symbol then 
-      Hashtbl.remove reversemapping symbol;
-    Hashtbl.remove symboltable oldstring
+      Hashtbl.remove !reversemapping symbol;
+    Hashtbl.remove !symboltable oldstring
   in
   match symbol with
     ID (_, None) -> ()
@@ -360,9 +361,9 @@ let enter string symbol =
       consolereport ["enter"; enQuote (pre_Ascii string); ""; smlsymbolstring symbol];
     (try delete symbol with Not_found -> ());
     (* Store.update (!symboltable, string, symbol) *)
-    Hashtbl.add symboltable string symbol;
+    Hashtbl.add !symboltable string symbol;
     if hidden symbol then
-      Hashtbl.add reversemapping symbol string;
+      Hashtbl.add !reversemapping symbol string;
     if isop string then register_op string symbol
   in
   match symbol with
@@ -371,6 +372,9 @@ let enter string symbol =
   | _            -> doit ()
   
 let commasymbol = INFIX (0, TupleAssoc, ",") (* comma is now an operator, and may we be lucky *)
+
+let decVarPrefixes : (idclass, string) Mappingfuns.mapping ref =
+  ref Mappingfuns.empty
 
 let enterStdSymbols () =
   enter "(" (BRA "("); (* these two still need special treatment ... *)
@@ -384,151 +388,16 @@ let enterStdSymbols () =
   substfix   := substfix_default;
   substsense := substsense_default
 
-let pushSyntax name =
-  let tbl = Hashtbl.create 30 in
-  syntaxes := (name, (!appfix, !substfix, !substsense), tbl) :: !syntaxes;
-  let doit s t =
-    delete t; Hashtbl.add tbl s (Some t)
-  in
-  Hashtbl.iter 
-    (fun s -> (function (BRA _ as t)   -> doit s t
-               |        (KET _ as t)   -> doit s t
-               |        SUBSTBRA as t  -> doit s t
-               |        SUBSTSEP as t  -> doit s t
-               |        SUBSTKET as t  -> doit s t
-               |        _              -> ()))
-    symboltable;
-  enterStdSymbols ()
-  
-let popSyntax () =
-  match !syntaxes with 
-    (_, (appN, substN, substD), tbl) :: sys ->
-      appfix:=appN; substfix:=substN; substsense:=substD;
-      Hashtbl.iter (fun str -> (function None      -> 
-                                           (match lookup str with
-                                              Some t -> delete t
-                                            | _      -> raise (Catastrophe_ ["Symbol.popSyntax sees symbol "; enQuote str; " without entry"]))
-                                |        Some oldt -> enter str oldt)) tbl;
-      syntaxes := sys
-  | _ -> raise (ParseError_ ["POPSYNTAX: stack empty"])
-  
-let popAllSyntaxes () =
-  while !syntaxes!=[] do popSyntax () done
-  
-(* function provided so that other functors don't need to know how operators are
- * represented
- *)
-let rec lookupassoc string =
-  match lookup string with
-    Some (INFIXC (_, a, _)) -> Some (true, a)
-  | Some (INFIX (_, a, _))  -> Some (false, a)
-  | _ -> None
-
-let rec badID s = ID (s, None)
-
-let rec checkentry con s =
-  let v = con s in
-  match lookup s with
-    None   -> enter s v; v
-  | Some v -> v
-
-let checkbadID = checkentry badID
-
-let rec carefullyEnter s t =
-  let doit () =
-    let oldt = lookup s in
-    enter s t;
-    match !syntaxes with 
-      (_, _, tbl) :: sys -> Hashtbl.add tbl s (lookup s)
-    | _                  -> ()
-  in
-  let empty_doit () =
-    match !syntaxes with
-      (sname, _, _) :: _ -> 
-         raise
-           (ParseError_
-              ["After PUSHSYNTAX "; enQuote sname;
-               " attempt to define new symbol "; enQuote s; " as "; smlsymbolstring t])
-    | [] -> doit ()
-  in  
-  match lookup s with
-    None        -> empty_doit ()
-  | Some (ID _) -> empty_doit ()
-  | Some other  ->
-      let bang ss =
-        raise
-          (ParseError_
-             (ss @
-              ["redefine the syntactic role of "; enQuote s;
-               " from "; smlsymbolstring other; " to "; smlsymbolstring t]))
-      in
-      if other = t then () else
-      match !syntaxes with
-        (sname, _, _) :: _ -> (
-          match other, t with
-            PREFIX   _, PREFIX   _ -> doit()
-          | POSTFIX  _, POSTFIX  _ -> doit()
-          | INFIX    _, INFIX    _ -> doit()
-          | INFIXC   _, INFIXC   _ -> doit()
-          | LEFTFIX  _, LEFTFIX  _ -> doit()
-          | MIDFIX   _, MIDFIX   _ -> doit()
-          | RIGHTFIX _, RIGHTFIX _ -> doit()
-          | _                  ->
-              bang ["After PUSHSYNTAX "; enQuote sname; " attempt to "])
-      | [] -> 
-          bang ["Attempt to "]
-
-let decVarPrefixes : (idclass, string) Mappingfuns.mapping ref =
-  ref Mappingfuns.empty
-
-let rec declareIdPrefix class__ s =
-  begin match Mappingfuns.(<@>) !decVarPrefixes class__ with
-    None ->
-      decVarPrefixes :=
-        Mappingfuns.(++) !decVarPrefixes (Mappingfuns.(|->) class__ s)
-  | Some _ -> ()
-  end;
-  insertinIdtree "declareIdPrefix" true class__ idprefixtree s;
-  (* no warnings about clashes any more
-     case fsmpos (rootfsm idfixedtree) (utf8_explode s) of
-       Some t => List.map ((fn t => s^utf8_implode t) o #1) (summarisetree t)
-     | None   => []
-  *)
-  []
-
-let rec autoID class__ prefix =
-  match Mappingfuns.(<@>) !decVarPrefixes class__ with
-    Some s -> s
-  | None ->
-      (* we just add underscores to prefix till it isn't in the IdPrefix tree *)
-      match fsmpos (rootfsm idprefixtree) (utf8_explode prefix) with
-        None   -> (let _ = declareIdPrefix class__ prefix in prefix)
-      | Some _ -> autoID class__ (prefix ^ "_")
-
-let rec declareIdClass class__ s =
-  insertinIdtree "declareIdClass" false class__ idfixedtree s;
-  enter s (ID (s, Some class__));
-  (* no warnings about clashes any more *)
-  None
-
-let rec isnumber s =
-  not (List.exists (not <.> isdigit) (utf8_explode s))
-
-let rec isextensibleID s =
-  lookup s = None && lookinIdtree idprefixtree (utf8_explode s) <> NoClass
-
 let rec resetSymbols () =
   let enterclass f s = enter s (f s) in
   let debug = !symboldebug in
   symboldebug := false;
   (* symboltable := Store.new__ friendlyLargeishPrime *)
-  Hashtbl.clear symboltable;
+  Hashtbl.clear !symboltable;
   (* reversemapping := Mappingfuns.empty *)
-  Hashtbl.clear reversemapping;
-  if !symboldebug then consolereport ["about to make optree"];
+  Hashtbl.clear !reversemapping;
   optree := emptysearchtree mkalt;
   oplist := None;
-  if !symboldebug then  consolereport ["clearing IDheads"];
   List.iter (fun c -> updateIDhead (c, false)) !decIDheads;
   decIDheads := [];
   List.iter (fun c -> updateIDtail (c, false)) !decIDtails;
@@ -567,6 +436,137 @@ let rec resetSymbols () =
      "WEAKEN"; "WHERE"; "WORLD"];
   enterStdSymbols ();
   symboldebug := debug
+
+(* the problem of running one syntax inside another (e.g. a syntax for logical formulae
+   inside one for Hoare logic) is problematic. Essentially, the inner syntax should accept
+   a subset of what the outer syntax does.
+ *)
+
+let get_syntax_tables () =
+  (Hashtbl.copy !symboltable, Hashtbl.copy !reversemapping,
+   !decIDheads, !decIDtails,
+   !idprefixtree, !idfixedtree,
+   !optree, !oplist,
+   !decVarPrefixes)
+
+let pushSyntax name =
+  syntaxes := (name, (!appfix, !substfix, !substsense), get_syntax_tables()) :: !syntaxes;
+  resetSymbols()
+
+let set_syntax_tables (symT, revT, decIDhs, decIDts, idprefT, idfixT, opT, ops, decVs) =
+  symboltable := symT; reversemapping := revT;
+  decIDheads := decIDhs; decIDtails := decIDts;
+  idprefixtree := idprefT; idfixedtree := idfixT;
+  optree := opT; oplist := ops;
+  decVarPrefixes := decVs
+
+let popSyntax () =
+  match !syntaxes with 
+    (_, (appN, substN, substD), tbls) :: sys ->
+      appfix:=appN; substfix:=substN; substsense:=substD;
+      set_syntax_tables tbls;
+      syntaxes := sys
+  | _ -> raise (ParseError_ ["POPSYNTAX: stack empty"])
+  
+let popAllSyntaxes () =
+  while !syntaxes!=[] do popSyntax () done
+  
+(* function provided so that other functors don't need to know how operators are
+ * represented
+ *)
+let rec lookupassoc string =
+  match lookup string with
+    Some (INFIXC (_, a, _)) -> Some (true, a)
+  | Some (INFIX (_, a, _))  -> Some (false, a)
+  | _ -> None
+
+let rec badID s = ID (s, None)
+
+let rec checkentry con s =
+  let v = con s in
+  match lookup s with
+    None   -> enter s v; v
+  | Some v -> v
+
+let checkbadID = checkentry badID
+
+let rec carefullyEnter s t =
+  let bang_redef other ss =
+    raise (ParseError_ (ss @ ["redefine the syntactic role of "; enQuote s;
+                              " from "; smlsymbolstring other; " to "; smlsymbolstring t]))
+  in
+  let doit () =
+    match !syntaxes with
+      (sname, _, tbls) :: _ -> 
+         let saved_tbls = get_syntax_tables() in
+         (try set_syntax_tables tbls;
+              match lookup s, t with
+                               _ , SUBSTBRA   -> ()
+              |                _ , SUBSTKET   -> ()
+              |                _ , SUBSTSEP   -> ()
+              | Some (PREFIX   _), PREFIX   _ -> ()
+              | Some (POSTFIX  _), POSTFIX  _ -> ()
+              | Some (INFIX    _), INFIX    _ -> ()
+              | Some (INFIXC   _), INFIXC   _ -> ()
+              | Some (LEFTFIX  _), LEFTFIX  _ -> ()
+              | Some (MIDFIX   _), MIDFIX   _ -> ()
+              | Some (RIGHTFIX _), RIGHTFIX _ -> ()
+              | Some (SEP      _), SEP      _ -> ()
+              | Some (BRA      _), BRA      _ -> ()
+              | Some (KET      _), KET      _ -> ()
+              | None             , _          -> 
+                  raise
+                    (ParseError_
+                       ["After PUSHSYNTAX "; enQuote sname;
+                        " attempt to define new symbol "; enQuote s; " as "; smlsymbolstring t])
+              | Some other       , t         ->
+                  bang_redef other ["After PUSHSYNTAX "; enQuote sname; " attempt to "]
+          with exn -> set_syntax_tables saved_tbls; raise exn);
+         set_syntax_tables saved_tbls;
+         enter s t
+    | [] -> enter s t
+  in  
+  match lookup s with
+    None        -> doit ()
+  | Some (ID _) -> doit ()
+  | Some other  ->
+      if other = t then () else bang_redef other ["Attempt to "]
+
+let rec declareIdPrefix class__ s =
+  begin match Mappingfuns.(<@>) !decVarPrefixes class__ with
+    None ->
+      decVarPrefixes :=
+        Mappingfuns.(++) !decVarPrefixes (Mappingfuns.(|->) class__ s)
+  | Some _ -> ()
+  end;
+  insertinIdtree "declareIdPrefix" true class__ idprefixtree s;
+  (* no warnings about clashes any more
+     case fsmpos (rootfsm idfixedtree) (utf8_explode s) of
+       Some t => List.map ((fn t => s^utf8_implode t) o #1) (summarisetree t)
+     | None   => []
+  *)
+  []
+
+let rec autoID class__ prefix =
+  match Mappingfuns.(<@>) !decVarPrefixes class__ with
+    Some s -> s
+  | None ->
+      (* we just add underscores to prefix till it isn't in the IdPrefix tree *)
+      match fsmpos (rootfsm idprefixtree) (utf8_explode prefix) with
+        None   -> (let _ = declareIdPrefix class__ prefix in prefix)
+      | Some _ -> autoID class__ (prefix ^ "_")
+
+let rec declareIdClass class__ s =
+  insertinIdtree "declareIdClass" false class__ idfixedtree s;
+  enter s (ID (s, Some class__));
+  (* no warnings about clashes any more *)
+  None
+
+let rec isnumber s =
+  not (List.exists (not <.> isdigit) (utf8_explode s))
+
+let rec isextensibleID s =
+  lookup s = None && lookinIdtree idprefixtree (utf8_explode s) <> NoClass
 
 (* probably this can all be simply camlised *)
 let rec escapechar c =
@@ -886,3 +886,4 @@ let _ = (try resetSymbols ()
                 consolereport ["resetSymbols raised "; Printexc.to_string exn]
         )
 
+let resetSymbols() =  popAllSyntaxes(); resetSymbols()
