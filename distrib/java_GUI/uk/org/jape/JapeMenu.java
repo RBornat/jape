@@ -32,6 +32,7 @@ import java.util.Enumeration;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.util.Hashtable;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -42,7 +43,7 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.util.Vector;
 
-public class JapeMenu {
+public class JapeMenu implements DebugConstants {
     
     /*	Java doesn't want to share menu bars or menus or menu items, so far
         as I can tell.  So I have to make a menu factory and build a new
@@ -53,11 +54,47 @@ public class JapeMenu {
     
     protected static class M {
         final String title;
-        final Vector itemv; // of Is and Seps and RBGs and CBs
+        protected final Vector itemv; // of Is and Seps and RBGs and CBs
         M(String title) { this.title=title; itemv=new Vector(); }
         public void add(I i) { itemv.add(i); }
         public void add(RBG rbg) { itemv.add(rbg); }
-        public void addSeparator() { itemv.add(new Sep()); }
+        public void addSep() { itemv.add(new Sep()); }
+        public int indexOf(String label) {
+            int j=0;
+            for (int i=0; i<itemv.size(); i++) {
+                Object o = itemv.get(i);
+                if (o instanceof I) {
+                    if (((I)o).label.equals(label))
+                        return j;
+                    else
+                        j++;
+                }
+                else
+                if (o instanceof RBG) {
+                    j++; // first separator
+                    RBG rbg = (RBG)o;
+                    for (int k=0; k<rbg.items.length; k++)
+                        if (rbg.items[k].label.equals(label))
+                            return j;
+                        else
+                            j++;
+                    j++; // second separator
+                }
+                else
+                    j++;
+            }
+            return -1;
+        }
+        public Enumeration elements() { return itemv.elements(); }
+        public String toString() {
+            String s = "M[\""+title+"\" [";
+            for (int i=0; i<itemv.size(); i++) {
+                s = s+itemv.get(i);
+                if (i+1<itemv.size())
+                    s = s+", ";
+            }
+            return s+"]]";
+        }
     }
     
     protected static class I {
@@ -71,14 +108,51 @@ public class JapeMenu {
         }
         public void setAccelerator(KeyStroke stroke) { this.stroke=stroke; }
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public String toString() { return "I"+contentsToString(); }
+        public String contentsToString() {
+            return  "[label=\""+label+"\""+
+                    " key=\""+key+"\""+
+                    " action="+action+
+                    " stroke="+stroke+
+                    " enabled="+enabled+
+                    "]";
+        }
+        // label equality only
+        public boolean equals(Object o) {
+            return  o instanceof I      ? ((I)o).label.equals(label) :
+                    o instanceof String ? ((String)o).equals(label)  :
+                                          false;
+        }
     }
     
     protected static class Sep {
+        public String toString() { return "Sep"; }
     }
 
     protected static class RBG {
         I[] items;
         RBG(I[] items) { this.items=items; }
+        public String toString() {
+            String s = "RBG[";
+            for (int i=0; i<items.length; i++) {
+                s = s+items[i];
+                if (i+1<items.length)
+                    s = s+", ";
+            }
+            return s+"]";
+        }
+    }
+
+    protected static class CB extends I {
+        boolean ready;
+        CB(String label, String key, ItemAction action) {
+            super(label, key, action);
+            // experimentally, it seems that we get ActionPerformed twice for checkboxes ...
+            ready = true;
+        }
+        public String toString() {
+            return "CB"+contentsToString();
+        }
     }
 
     private static void mkItem(JMenu menu, I i, JMenuItem item) {
@@ -89,6 +163,8 @@ public class JapeMenu {
             item.setEnabled(i.enabled);
         JapeFont.setComponentFont(JapeFont.MENUENTRY, item.getComponent());
         item.addActionListener(menuListener);
+        if (menuaction_tracing)
+            System.err.println("ActionListener on "+i);
         menu.add(item);
     }
     
@@ -98,17 +174,8 @@ public class JapeMenu {
             M m = (M)ebar.nextElement();
             JMenu menu = new JMenu(m.title);
             JapeFont.setComponentFont(JapeFont.MENUENTRY, menu.getComponent());
-            for (Enumeration emenu = m.itemv.elements(); emenu.hasMoreElements(); ) {
+            for (Enumeration emenu = m.elements(); emenu.hasMoreElements(); ) {
                 Object o = emenu.nextElement();
-                if (o instanceof Sep) 
-                    menu.addSeparator();
-                else
-                    if (o instanceof I) {
-                        I i = (I)o;
-                        JMenuItem item = new JMenuItem(i.label);
-                        mkItem(menu, i, item);
-                    }
-                else
                 if (o instanceof RBG) {
                     menu.addSeparator();
                     RBG rbg = (RBG)o;
@@ -121,6 +188,21 @@ public class JapeMenu {
                     menu.addSeparator();
                 }
                 else
+                if (o instanceof CB) {
+                    CB cb = (CB)o;
+                    JCheckBoxMenuItem item = new JCheckBoxMenuItem(cb.label);
+                    mkItem(menu, cb, item);
+                }
+                else
+                if (o instanceof I) {
+                    I i = (I)o;
+                    JMenuItem item = new JMenuItem(i.label);
+                    mkItem(menu, i, item);
+                }
+                else
+                if (o instanceof Sep)
+                    menu.addSeparator();
+                else
                     Alert.abort("JapeMenu.mkBar sees "+o);
             }
             bar.add(menu);
@@ -129,7 +211,6 @@ public class JapeMenu {
     }
     
     public static void setBar(JapeWindow w) {
-        if (Debugging.JapeMenu) System.err.println("setting menu bar on "+w+", barv="+barv);
         w.setJMenuBar(mkBar());
         w.getJMenuBar().revalidate();
     }
@@ -212,7 +293,7 @@ public class JapeMenu {
                 public void action() { japeserver.handleAbout(); }
             }
             indexMenuItem(filemenu, "About jape", new AboutBoxAction());
-            filemenu.addSeparator();
+            filemenu.addSep();
         }
         
         indexMenuItem(filemenu, "Open...", new OpenFileAction()).
@@ -229,7 +310,7 @@ public class JapeMenu {
         indexMenuItem(filemenu, "Save As...", new UnimplementedAction("File: Save As..."));
         
         if (LocalSettings.quitMenuItemNeeded) {
-            filemenu.addSeparator();
+            filemenu.addSep();
             class QuitAction extends ItemAction {
                 public void action() { japeserver.handleQuit(); }
             }
@@ -241,7 +322,7 @@ public class JapeMenu {
         indexMenuItem(editmenu, "Undo", new UnimplementedAction("Edit: Undo")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, menumask));
         
-        editmenu.addSeparator();
+        editmenu.addSep();
 
         indexMenuItem(editmenu, "Cut", new UnimplementedAction("Edit: Cut")).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, menumask));
@@ -258,7 +339,7 @@ public class JapeMenu {
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, menumask));
         
         if (LocalSettings.prefsMenuItemNeeded) {
-            editmenu.addSeparator();
+            editmenu.addSep();
             class PrefsAction extends ItemAction {
                 public void action() { japeserver.handlePrefs(); }
             }
@@ -282,10 +363,22 @@ public class JapeMenu {
     // ActionListener interface (for menus)
     protected static class MenuListener implements ActionListener {
         public void actionPerformed(ActionEvent newEvent) {
+            if (menuaction_tracing)
+                System.err.println("JapeMenu.actionPerformed "+newEvent);
             String key = newEvent.getActionCommand();
             I i = (I)actiontable.get(key);
-            if (i!=null)
+            if (i!=null) {
+                // experimentally, it seems that checkboxes get two actionPerformed events ...
+                if (i instanceof CB) {
+                    CB cb = (CB)i;
+                    if (menuaction_tracing)
+                        System.err.println("CB "+cb.ready);
+                    cb.ready = !cb.ready;
+                    if (!cb.ready)
+                        return;
+                }
                 i.action.action();
+            }
             else
                 Alert.showErrorAlert("unrecognised menu action "+key);
         }
@@ -303,29 +396,39 @@ public class JapeMenu {
     public static void addSeparator(String menuname) throws ProtocolError {
         try {
             M menu = (M)menutable.get(menuname);
-            menu.addSeparator();
+            menu.addSep();
         } catch (Exception e) {
             throw new ProtocolError("failed");
         }
     }
 
-    public static void addItem(String menuname, String label, String code, String cmd) throws ProtocolError {
-        indexMenuItem(ensureMenu("addItem",menuname), label, new CmdAction(cmd)); 
-        // and what do we do about code?
+    public static void addItem(String menuname, String label, String code, String cmd)
+        throws ProtocolError {
+        M menu = ensureMenu("addItem", menuname);
+        I item = (I)actiontable.get(keyString(menuname, label));
+        ItemAction action = new CmdAction(cmd);
+        if (item==null)
+            indexMenuItem(menu, label, action);
+            // and what do we do about code?
+        else
+            item.action = action;
     }
 
-    public static void enableItem(String menuname, String label, boolean enable) {
-        int mi, ii;
-        try {
-            M menu = (M)menutable.get(menuname);
-            mi = barv.indexOf(menu);
-            I action = (I)actiontable.get(keyString(menuname, label)); 
-            ii = menu.itemv.indexOf(action);
-            action.setEnabled(enable);
-        } catch (Exception e) {
-            System.err.println("ENABLEMENUITEM \""+menuname+"\" \""+label+"\" "+enable+" failed");
-            return;
-        }
+    protected static I findI(String id, String menuname, String label) throws ProtocolError {
+        M menu = ensureMenu(id, menuname);
+        I item = (I)actiontable.get(keyString(menuname, label));
+        if (item==null)
+            throw new ProtocolError("JapeMenu."+id+" no item \""+label+"\" in menu "+menuname);
+        return item;
+    }
+    
+    public static void enableItem(String menuname, String label, boolean enable) throws ProtocolError {
+        M menu = ensureMenu("enableItem", menuname);
+        int mi = barv.indexOf(menu);
+        I action = findI("enableItem", menuname, label);
+        int ii = menu.indexOf(label);
+
+        action.setEnabled(enable);
         
         for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); ) {
             JapeWindow w = (JapeWindow)e.nextElement();
@@ -341,5 +444,37 @@ public class JapeMenu {
         for (int i=0; i<rbs.length; i++)
             rbg[i] = makeI(menuname, rbs[i][0], new CmdAction(rbs[i][1]));
         menu.add(new RBG(rbg));
+    }
+
+    public static void addCheckBox(String menuname, String label, String cmd)
+        throws ProtocolError {
+        M menu = ensureMenu("addCheckBox", menuname);
+        String key = keyString(menuname, label);
+        CB cb = new CB(label, key, new CmdAction(cmd));
+        actiontable.put(key,cb);
+        menu.add(cb);
+    }
+
+    public static void tickItem(String menuname, String label, boolean state) throws ProtocolError {
+        M menu = ensureMenu("tickItem", menuname);
+        int mi = barv.indexOf(menu);
+        int ii = menu.indexOf(label);
+
+        if (menuaction_tracing)
+            System.err.println("tickItem menu "+menu+" mi="+mi+" ii="+ii+" state="+state);
+
+        for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); ) {
+            JapeWindow w = (JapeWindow)e.nextElement();
+            JMenuBar bar = w.getJMenuBar();
+            if (bar!=null) {
+                JMenuItem jmi = bar.getMenu(mi).getItem(ii);
+                if (menuaction_tracing)
+                    System.err.print("window "+w+" selected="+jmi.isSelected());
+                if (jmi.isSelected()!=state)
+                    jmi.setSelected(state);
+                if (menuaction_tracing)
+                    System.err.println(" => "+jmi.isSelected());
+            }
+        }
     }
 }
