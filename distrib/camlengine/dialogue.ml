@@ -686,8 +686,10 @@ let rec parseargs args =
   try parseTermCOMMAList args with
     ParseError_ _ -> []
 exception QuitJape
+
 (* interpretParasFrom includes its own unQuote, so no need for one here *)
 let doUse = Paragraphfuns.interpretParasFrom
+
 (* we have a mechanism -- in mbs, set up by paragraphfuns -- for allowing the GUI to 
    control the values of variables in the engine.  We have another mechanism -- see 
    the definition of mustredisplay in newjape.sml -- for allowing the value of variables
@@ -1304,7 +1306,8 @@ and commands
             end
         | "version", [] -> showAlert [_Title; _Version]; default
         | "addworldlabel", [cx; cy; s] ->
-            (* ********************* the disproof commands ************************* *)
+        
+        (* ********************* the disproof commands ************************* *)
             
             worldlabelact addworldlabel cx cy s
         | "deleteworldlabel", [cx; cy; s] ->
@@ -1398,9 +1401,10 @@ and commands
                              (disproof_start facts_now
                                 (proofstate_tree proof) None []))
                       ))
-        | "unify", stuff ->
-            (* ******************* proof stuff ************************)
+        
+        (* ******************* proof stuff ************************)
             
+        | "unify", stuff ->
             begin try
               inside c
                 (fun displaystate ->
@@ -1508,8 +1512,8 @@ and commands
           (* used to be "QUIT" *)
           
            raise QuitJape
-        | "backtrack", _ ->
-            (* ****************** the drag and drop stuff is moribund *********************** 
+        
+        (* ****************** the drag and drop stuff is moribund *********************** 
             | ("dragquery", []) =>
                (case pinfs of
                   [] => (raise Catastrophe_ ["dragquery not in a proof"]; default)
@@ -1538,8 +1542,9 @@ and commands
                    )
             *)
             
-            (* ******************** proof control *********************** *)
+        (* ******************** proof control *********************** *)
             
+        | "backtrack", _ ->
             inside c
               (fun displaystate ->
                  showproof <*> 
@@ -1663,6 +1668,7 @@ and commands
             then
               doproof env mbs name pinfs
             else default
+
         | "reset", [] ->
             if askResettheory false then doResettheory () else default
         | "reset;reload", [] ->
@@ -1674,6 +1680,7 @@ and commands
                 Some s -> processcommand (doResettheory ()) ["use"; s]
               | None -> default
             else default
+
         | "profile", ["on"] ->
             Japeenv.set (env, namefrom "profiling", parseTactic "true");
             (* achieves profileOn(), I hope *)
@@ -1694,6 +1701,7 @@ and commands
             default
         | "profile", ["report"; filename] ->
             let _ = (writetonamedfile profileReport filename : bool) in default
+
         | "fonts_reset", [] ->
             (* needs to do disproof as well *)
             Japeserver.resetcache ();
@@ -1724,6 +1732,7 @@ and commands
         | "showfile", [filename] ->
             (* here cos I can't work out how to get round the NOSELCOMMAND trap. RB 14/ii/94 *)
             Japeserver.showfile (unQuote filename); default
+
         | "saveproofs", [w] ->
             let newfile = w = "true" in
             let pinfs' =
@@ -1844,7 +1853,9 @@ and commands
             | None -> default
             end
         | "closedbugfile", [] -> closedbugfile (); default
+
         | _ -> cannotprocesscommand c; default
+  
   (*processcommand*)
            
   and cannotprocesscommand command =

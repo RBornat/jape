@@ -375,8 +375,8 @@ and interpretParasFrom report query res filenames =
   let r = (try
 			 nj_revfold (interpret report query InLimbo [] [] true)
 			   (nj_fold (fun (x, y) -> x @ y)
-					 ((file2paragraphs report query <*> unQuote) <*
-					  filenames)
+					    ((file2paragraphs report query <*> unQuote) <*
+					    filenames)
 				  [])
 			   res
 		   with
