@@ -34,6 +34,7 @@ interface DebugConstants {
                                 disprooflayout_tracing   = false,
                                 drag_tracing             = false,
                                 encoding_tracing         = false,
+                                geometry_tracing         = true,
                                 measure_debug            = false,
                                 menuaction_tracing       = false,
                                 menubar_tracing          = false,
