@@ -11,10 +11,10 @@ END
 TACTIC JUSTFAIL IS (ALT)
 
 MENU "Searching" IS
-		RADIOBUTTON foldunfoldhyp IS 
-			"Search hypotheses" IS UnfoldHyp
+		RADIOBUTTON dohyp IS 
+			"Search hypotheses" IS DoHyp
 		AND "Ignore hypotheses" IS JUSTFAIL
-		INITIALLY UnfoldHyp
+		INITIALLY DoHyp
 		END
 
 		RADIOBUTTON list IS 
@@ -57,7 +57,8 @@ END
 TACTICPANEL "Definitions" 
 		PREFIXBUTTON	"Unfold"		IS apply UnfoldOneSel
 		PREFIXBUTTON	"Fold"		IS apply FoldOneSel
-		BUTTON		"Unfold *"	IS apply DO (Auto Unfold UnfoldWithAnyHyp)
+		BUTTON		"Unfold *"	IS apply SEQ	(Auto Unfold UnfoldWithAnyHyp) 
+											(DO (Auto Unfold UnfoldWithAnyHyp))
 		PREFIXBUTTON	"Apply"		IS apply
 END
 
@@ -171,7 +172,7 @@ CONJECTUREPANEL "Conjectures" IS
 		PREFIXBUTTON	"Fold"		IS apply FoldOneSel
 END
 
-CONCHIT C IS Auto Unfold UnfoldWithAnyHyp
+CONCHIT C IS Auto Unfold UnfoldWIthAnyHyp
 HYPHIT  H |- C IS  UnfoldHypWithOptionalSelection 
 
 TACTIC UnfoldHypWithOptionalSelection IS
