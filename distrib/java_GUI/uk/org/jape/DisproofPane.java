@@ -204,14 +204,17 @@ public class DisproofPane extends Container implements DebugConstants {
             int bottom = paneSize.height-gap(),
                 right = paneSize.width-gap(),
                 seqtop = bottom-seqSize.height,
+                tileleft = right-tileCanvasSize.width,
                 worldbottom = seqtop-gap(),
-                tileleft = right-tileCanvasSize.width;
+                worldright = tileleft-gap();
             
-            seqView.setLocation((paneSize.width-seqSize.width)/2, seqtop);
             tileCanvas.setBounds
                 (tileleft, worldbottom-worldPane.scrollbarthickness-tileCanvasSize.height,
                  tileCanvasSize.width, tileCanvasSize.height);
-            worldPane.setBounds(0, 0, tileleft-gap(), worldbottom);
+            worldPane.setBounds(0, 0, worldright, worldbottom);
+            // centre the sequent on the world pane viewport, otherwise the world looks off-centre
+            seqView.setLocation(Math.max(0, worldright-worldPane.scrollbarthickness-seqSize.width)/2,
+                                seqtop);
 
             if (disprooflayout_tracing) {
                 System.err.println(pane); japeserver.showContainer(pane, null); 
