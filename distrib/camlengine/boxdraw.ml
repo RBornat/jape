@@ -860,7 +860,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
                 raise (Catastrophe_ ["foldformula ElementPunctPlan"])
           in
           Termfold.termfold TermFont textleading termfontleading textleading
-                            (fst_of_3 <.> measurestring TermFont) w (stripelement e), epi
+                            w (stripelement e), 
+          epi
   in
   (*************** the engine room ******************************: 
    * given a line number, a list of elements and reason information,
