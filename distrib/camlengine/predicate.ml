@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Predicate =
+module type T =
   sig
     type term and vid and idclass
     val compilepredicate :
@@ -24,39 +24,44 @@ module type Predicate =
   end
 (* $Id$ *)
 
-module
-  Predicate
+module M
   (AAA :
     sig
-      module idclass : Idclass
-      module term : sig include Termtype include Termstore include Term end
+      module Idclass : Idclass.T
+      module Term : Term.T
+             with type idclass = Idclass.idclass
+      
       val ( <| ) : ('a -> bool) * 'a list -> 'a list
       val ( ||| ) : 'a list * 'b list -> ('a * 'b) list
       val bracketedliststring : ('a -> string) -> string -> 'a list -> string
       val consolereport : string list -> unit
-      val earlierlist : ('a * 'a -> bool) -> 'a list * 'a list -> bool
+      val earlierlist : ('a -> 'a -> bool) -> 'a list -> 'a list -> bool
       val eqbags : ('a * 'a -> bool) -> 'a list * 'a list -> bool
       val findfirst : ('a -> 'b option) -> 'a list -> 'b option
       val m_a_p : ('a -> 'b) * 'a list -> 'b list
       val member : 'a * 'a list -> bool
+      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
       val optionstring : ('a -> string) -> 'a option -> string
       val pairstring :
         ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val sort : ('a * 'a -> bool) -> 'a list -> 'a list
+      val sort : ('a -> 'a -> bool) -> 'a list -> 'a list
       (* given op<, sorts in < order *)
-      val sortedmerge : ('a * 'a -> bool) -> 'a list * 'a list -> 'a list
-      val sortunique : ('a * 'a -> bool) -> 'a list -> 'a list
-      exception Catastrophe_ of string list exception Zip
+      val sortedmerge : ('a -> 'a -> bool) -> 'a list -> 'a list -> 'a list
+      val sortunique : ('a -> 'a -> bool) -> 'a list -> 'a list
+      
+      exception Catastrophe_ of string list 
+      exception Zip
       
     end)
-  :
-  Predicate =
+  : T =
   struct
     open AAA
-    open idclass open term
+    open Idclass 
+    open Term
     
-    
-    
+    type idclass = Idclass.idclass
+    type term = Term.term
+    type vid = Term.vid
     
     let interpretpredicates = ref false
     let predicatedebug = ref false
@@ -75,10 +80,10 @@ module
     (* FormulaClass stops operators becoming predicates when interpretpredicates is on ... *)
     let rec matchpredicate all isabstraction t =
       match t with
-        App (_, (Id (_, _, c) as P), arg) ->
-          if !interpretpredicates && c = FormulaClass || isabstraction P then
+        App (_, (Id (_, _, c) as pp), arg) ->
+          if !interpretpredicates && c = FormulaClass || isabstraction pp then
             Some
-              (P,
+              (pp,
                (match debracket arg with
                   Tup (_, ",", ts) -> ts
                 | arg -> [arg]))
@@ -93,27 +98,27 @@ module
     (* given a mapping from names to lists of variables, translate predicates into substitutions *)
     let rec compilepredicate isabstraction env t =
       match matchpredicate false isabstraction t with
-        Some (P, ts) ->
+        Some (pp, ts) ->
           let _ =
             if !predicatedebug then
               consolereport
-                ["compilepredicate spotted "; termstring P; "(";
+                ["compilepredicate spotted "; termstring pp; "(";
                  termliststring ts; ")"]
           in
           let ts = m_a_p (mapterm (compilepredicate isabstraction env), ts) in
-          begin match env P with
+          begin match env pp with
             Some vs ->
               let res =
                 Some
-                  (if vs = ts then P
+                  (if vs = ts then pp
                    else
-                     try registerSubst (true, P, ( ||| ) (vs, ts)) with
+                     try registerSubst (true, pp, ( ||| ) (vs, ts)) with
                        Zip ->
                          raise (Catastrophe_ ["Zip in compilepredicates"]))
               in
               if !predicatedebug then
                 consolereport
-                  ["compilepredicate "; termstring P; "("; termliststring ts;
+                  ["compilepredicate "; termstring pp; "("; termliststring ts;
                    ") => "; optionstring termstring res];
               res
           | None -> raise (Catastrophe_ ["bad env in compilepredicates"])
@@ -126,7 +131,7 @@ module
      *)
     let rec findpredicates isabstraction bs (t, pbs) =
       let rec addbinding newbs bs =
-        sortedmerge earliervar (sort earliervar newbs, bs)
+        sortedmerge earliervar (sort earliervar newbs) bs
       in
       let rec insertinlist eq f k kvs =
         let rec g =
@@ -138,23 +143,23 @@ module
         g kvs
       in
       let rec inserttbs =
-        fun P ((ts : term list), bs) ->
+        fun pp ((ts : term list), bs) ->
           insertinlist
             (fun (ts, ts') ->
-               if length ts <> length ts' then
+               if List.length ts <> List.length ts' then
                  raise
                    (Predicate_
-                      ["predicate "; termstring P;
+                      ["predicate "; termstring pp;
                        " is used inconsistently: "; "sometimes with ";
-                       string_of_int (length ts); ", sometimes with ";
-                       string_of_int (length ts'); " arguments."])
+                       string_of_int (List.length ts); ", sometimes with ";
+                       string_of_int (List.length ts'); " arguments."])
                else ts = ts')
-            (fun bs' -> sortedmerge (earlierlist earliervar) (bs, bs')) ts
+            (fun bs' -> sortedmerge (earlierlist earliervar) bs bs') ts
       in
       let rec insertP =
-        fun ((P : term), tbs) ->
+        fun ((pp : term), tbs) ->
           insertinlist (fun (x, y) -> x = y)
-            (fun tbss -> inserttbs P tbs tbss) P
+            (fun tbss -> inserttbs pp tbs tbss) pp
       in
       let fp = findpredicates isabstraction in
       match t with
@@ -162,21 +167,21 @@ module
           Some
             (nj_fold (nj_foldterm (fp (addbinding newbs bs))) ss
                (nj_fold (nj_foldterm (fp bs)) us pbs))
-      | Subst (_, r, P, vts) ->
+      | Subst (_, r, pp, vts) ->
           Some
             (foldterm (fp (addbinding (m_a_p ((fun(hash1,_)->hash1), vts)) bs))
-               (nj_fold (nj_foldterm (fp bs)) (m_a_p ((fun(_,hash2)->hash2), vts)) pbs) P)
+               (nj_fold (nj_foldterm (fp bs)) (m_a_p ((fun(_,hash2)->hash2), vts)) pbs) pp)
       | _ ->
           match matchpredicate true isabstraction t with
-            Some (P, ts) ->
+            Some (pp, ts) ->
               Some
-                (insertP (P, (ts, [bs])) (nj_fold (nj_foldterm (fp bs)) ts pbs))
+                (insertP (pp, (ts, [bs])) (nj_fold (nj_foldterm (fp bs)) ts pbs))
           | _ -> None
     (* discard zero-arity 'predicates' -- only necessary for arity check *)
     let rec discardzeroarities pbs =
       ( <| )
         ((fun (_, (abss : (term list * 'a) list)) ->
-            List.exists (fun ooo -> (fun ooo -> not (null ooo)) ((fun(hash1,_)->hash1) ooo))
+            List.exists (fun ooo -> (fun ooo -> not (ooo=[])) ((fun(hash1,_)->hash1) ooo))
               abss),
          pbs)
     (* To make a mapping from predicates to default args we prefer binding variables, if
