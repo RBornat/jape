@@ -29,30 +29,34 @@
    preferred size and such -- until we have all the data we need.
  */
  
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import javax.swing.DefaultListModel;
 import java.awt.Dimension;
-import java.util.Enumeration;
 import java.awt.Graphics;
+import java.awt.LayoutManager2;
+import java.awt.Point;
+import java.awt.Rectangle;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
-import java.awt.LayoutManager2;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.Rectangle;
-import java.util.Vector;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 public class PanelWindowData implements DebugConstants, ProtocolConstants {
     protected String title;
@@ -217,12 +221,10 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                                     });
                 }
                 public void windowActivated(WindowEvent e) {
-                    active = true;
-                    list.repaint();
+                    active = true; repaintSelection();
                 }
                 public void windowDeactivated(WindowEvent e) {
-                    active = false;
-                    list.repaint();
+                    active = false; repaintSelection();
                 }
             });
     
@@ -294,7 +296,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 setFont(list.getFont());
             }
             public Dimension getPreferredSize() {
-                return size;
+                return new Dimension (size.width, size.height);
             }
             public void paint(Graphics g) {
                 if (paint_tracing)
@@ -319,6 +321,15 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                        disproved ? " "+LocalSettings.cross :
                        null;
             list.repaint();
+        }
+
+        private void repaintSelection() {
+            int index = list.getSelectedIndex();
+            if (index!=-1) {
+                Point p = list.indexToLocation(index);
+                Dimension d = ((Entry)model.elementAt(index)).getPreferredSize();
+                list.repaint(p.x, p.y, d.width, d.height);
+            }
         }
 
         class Renderer implements ListCellRenderer {
