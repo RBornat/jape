@@ -48,13 +48,15 @@ val hasforcedefs : unit -> bool
 
 (* states of the interaction *)
 type disproofstate
-val catelim_disproofstatestring :
-  disproofstate -> string list -> string list
+
+val catelim_disproofstatestring : disproofstate -> string list -> string list
+
 val disproofstatestring : disproofstate -> string
 val disproofstate_seq : disproofstate -> seq
 val disproofstate_universe : disproofstate -> universe
 val disproofstate_selected : disproofstate -> (int * int) list
-val disproofstate_conclusive : disproofstate -> bool
+
+val disproofstate_conclusive   : disproofstate -> bool
 val disproofstate_countermodel : disproofstate -> bool
 
 (* because of the need for facts when evaluating, these functions don't evaluate.

@@ -47,7 +47,6 @@ open Term.Termstring
 type forcedef = Forcedef.forcedef
  and model = Forcedef.model
 
-
 let atoi = Miscellaneous.atoi
 
 let rec ask ss bs def =
@@ -111,7 +110,6 @@ let triplestring = Stringfuns.triplestring
 
 let uncurry2 = Miscellaneous.uncurry2
 
-
 let rec term2binding t =
   match Binding.bindingstructure t with
     Some t' -> Some (registerBinding t')
@@ -125,7 +123,6 @@ let catelim_triplestring = Stringfuns.catelim_triplestring
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception ParseError_ = Miscellaneous.ParseError_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
-
 
 let rec catelim_intstring i ss = string_of_int i :: ss
 
@@ -542,6 +539,7 @@ let rec seq_forced forced c s =
   in
   let (_, _, hyps, _, concs) = my_seqexplode s in
   List.map doit hyps, List.map doit concs
+
 (* *********************** interaction states *********************** *)
 
 type disproofstaterec =
@@ -549,11 +547,11 @@ type disproofstaterec =
         selected : coord list;
         forcemap : ((coord * term), (bool * bool)) Hashtbl.t;
         conclusive : bool; countermodel : bool }
+
 type disproofstate = Disproofstate of disproofstaterec
 
 let catelim_forcedstring =
   catelim_pairstring catelim_boolstring catelim_boolstring ","
-
 
 let rec catelim_Hashtblstring astring bstring sepstr mapstr store ss =
   let mapping = Hashtbl.fold (fun k v kvs -> (k,v)::kvs) store [] in
@@ -565,7 +563,6 @@ let rec catelim_Hashtblstring astring bstring sepstr mapstr store ss =
 let rec _Hashtblstring a b =
   catelim2stringfn
     (catelim_Hashtblstring (stringfn2catelim a) (stringfn2catelim b) "+:+" "|:->")
-
 
 let rec catelim_disproofstatestring =
   fun
@@ -622,15 +619,12 @@ let rec withdisproofselected (Disproofstate s) selected =
 let rec withdisprooftiles (Disproofstate s) tiles =
     Disproofstate {s with tiles = tiles}
     
-
 let rec disproof_minimal =
   function
     None -> true
   | Some (Disproofstate {universe = universe}) -> isemptyworld universe
 
-
 let newforcemap () = Hashtbl.create 17 
-
 
 let rec evaldisproofstate facts tree =
   fun (Disproofstate
@@ -655,8 +649,7 @@ let rec evaldisproofstate facts tree =
         (* fun mf a v = pairstring coordstring smltermstring "," a^"|->"^(catelim2stringfn catelim_forcedstring) v *)
         let forced = Fix.memofix forcemap (unfixedforced facts universe) in
         let (hs, cs) = seq_forced forced root seq in
-        let countermodel =
-          _All fst hs && not (List.exists fst cs)
+        let countermodel = _All fst hs && not (List.exists fst cs)
         in
         Disproofstate
           {seq = seq; universe = universe; tiles = tiles; selected = selected;
