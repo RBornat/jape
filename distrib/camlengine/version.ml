@@ -56,6 +56,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.7  2002/09/17 14:26:02  richard
+     first caml+java version
+
      Revision 1.6  2002/09/17 14:24:09  richard
      GPL'd
 
@@ -263,7 +266,7 @@
    *)
    
   
-   let _Version = "6.0.4a" 
+   let _Version = "$Tag$" 
    let _Title = "Jape proof engine "
 
 
