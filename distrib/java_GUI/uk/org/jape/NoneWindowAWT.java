@@ -246,6 +246,7 @@ public class NoneWindowAWT extends Frame implements ActionListener {
         Insets insets = window.getInsets();
 
         window.setTitle("Absolute Positioning");
+        window.pack();
         window.setVisible(true);
     }
 }

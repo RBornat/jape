@@ -38,91 +38,99 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
      * Certainly I'll never get hit detection to work.
      */ 
     
-    private class KPanel extends JPanel implements Scrollable {
-        public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+    private class KPanel extends JPanel {
 
-        public int getScrollableUnitIncrement(Rectangle v, int o, int d) { return 10; } // for now 
-
-        public int getScrollableBlockIncrement(Rectangle v, int o, int d) { return 100; } // for now
-
-        public boolean getScrollableTracksViewportWidth() { return false; } // so we can see the extent of the panel
-
-        public boolean getScrollableTracksViewportHeight() { return false; } // ditto
-
-        public void setLocation(int x, int y) {
-            if (placeBackground || placeButtons)
-                System.err.println("panel setLocation "+x+","+y);
-            super.setLocation(x,y);
-        }
-
-        public void setLocation(Point p) {
-            if (placeBackground || placeButtons)
-                System.err.println("panel setLocation "+p);
-            super.setLocation(p);
-        }
-
-        public void setBounds(Rectangle r) {
-            if (placeBackground || placeButtons)
-                System.err.println("panel setBounds "+r);
-            super.setBounds(r);
-        }
-
-        public void setBounds(int x, int y, int w, int h) {
-            if (placeBackground || placeButtons)
-                System.err.println("panel setBounds "+x+","+y+","+w+","+h);
-            super.setBounds(x,y,w,h);
-        }
-
-        public void setSize(int width, int height) {
-            if (placeBackground || placeButtons)
-                System.err.println("setting size to "+width+","+height);
-            super.setSize(width,height);
-        }
-
-        public void setSize(Dimension d) {
-            if (placeBackground || placeButtons)
-                System.err.println("setting size to "+d);
-            super.setSize(d);
-        }
 
         Point origin = new Point(0,0);
-        
-        public void setOrigin(int x, int y) {
-            if (placeBackground || placeButtons)
-                System.err.println("setting origin to "+x+","+y);
-            origin.x=x; origin.y=y;
-            super.setLocation(x,y); // needed -- without it you don't get proper performance in the SE sector
+        Point viewPos = new Point(0,0);
+        Dimension trueSize = new Dimension(0,0);
+
+        public void setViewX(int x) {
+            viewPos.x=x; validate();
         }
 
+        public void setViewY(int y) {
+            viewPos.y=y; validate();
+        }
+
+        public void setOrigin(int x, int y) {
+            if (true)
+                System.err.println("setting origin to "+x+","+y);
+            origin.x=x; origin.y=y;
+            //super.setLocation(x,y);
+        }
+
+        public void setTrueSize(int w, int h) {
+            if (true)
+                System.err.println("setting true size to "+w+"x"+h);
+            trueSize.width=w; trueSize.height=h;
+        }
+        
         public void setTrueBounds(Rectangle r) {
             setOrigin(r.x,r.y);
-            setSize(r.width, r.height);
+            setTrueSize(r.width, r.height);
+        }
+
+        public void validate() {
+            System.err.println("validating");
+            Rectangle r = new Rectangle(0,0,0,0);
+            r.add(b1.getBounds());
+            r = b1.getBounds();
+            r.add(b2.getBounds()); r.add(b3.getBounds());
+            Insets i = panel.getInsets();
+            r.x -= i.left; r.y -= i.top; r.width += i.left+i.right; r.height += i.top+i.bottom;
+            if (true)
+                System.err.println("setting bounds "+r+", including insets "+panel.getInsets());
+            setTrueBounds(r);
+            Rectangle vis = getBounds(); // seems to be what it does ...
+            vis.translate(viewPos.x, viewPos.y);
+            if (v!=null && vis.y<=r.y && r.y+r.height<=vis.y+vis.height)
+                v.setValues(vis.y,0,vis.y,vis.y);
+            else
+                v.setValues(vis.y, vis.height, Math.min(vis.y,r.y), Math.max(vis.y+vis.height,r.y+r.height));
+            if (h!=null && vis.x<=r.x && r.x+r.width<=vis.x+vis.width)
+                h.setValues(vis.x,0,vis.x,vis.x);
+            else
+                h.setValues(vis.x, vis.width, Math.min(vis.x,r.x), Math.max(vis.x+vis.width,r.x+r.width));
+            // this seems to be the only way to tell a scroll pane what to put in its bars
+            // (http://java.sun.com/docs/books/tutorial/uiswing/components/problems.html and elsewhere)
+            panel.setPreferredSize(new Dimension(r.width, r.height));
+            panel.revalidate();
+            /*if (v!=null) {
+                v.setMinimum(
+        }*/
+            if (true) {
+                Point p = new Point(0,0);
+                SwingUtilities.convertPointToScreen(p, panel);
+                System.err.println("after setTrueBounds and setPreferredSize, bounds are "+panel.getBounds()+
+                                   " and origin is at "+p);
+            }
         }
 
         Point lastPaintedOrigin = null;
-        Point lastPaintedViewPosition = null;
+        //Point lastPaintedViewPosition = null;
         Dimension lastPaintedSize = null;
         Shape lastPaintedClip = null;
         
         private boolean mustshow(Graphics g) {
-            Point viewPosition = scrollPane.getViewport().getViewPosition();
+            //Point viewPosition = scrollPane.getViewport().getViewPosition();
             Dimension size = getSize();
             Shape clip = g.getClip();
-            boolean show = placeBackground || placeButtons && (lastPaintedOrigin==null ||
+            boolean show = true && (lastPaintedOrigin==null ||
                                          !lastPaintedOrigin.equals(origin) ||
-                                         !lastPaintedViewPosition.equals(viewPosition) ||
+                                         //!lastPaintedViewPosition.equals(viewPosition) ||
                                          !lastPaintedSize.equals(size) ||
                                          !lastPaintedClip.equals(clip));
             if (show) {
                 if (lastPaintedOrigin==null) {
                     lastPaintedOrigin = new Point(origin.x, origin.y);
-                    lastPaintedViewPosition=new Point(viewPosition.x,viewPosition.y);
+                    //lastPaintedViewPosition=new Point(viewPosition.x,viewPosition.y);
                     lastPaintedSize = new Dimension(size.width, size.height);
                     lastPaintedClip = clip;
                 }
                 else {
                     lastPaintedOrigin.x=origin.x; lastPaintedOrigin.y=origin.y;
-                    lastPaintedViewPosition.x=viewPosition.x; lastPaintedViewPosition.y=viewPosition.y;
+                    //lastPaintedViewPosition.x=viewPosition.x; lastPaintedViewPosition.y=viewPosition.y;
                     lastPaintedSize.width = size.width; lastPaintedSize.height = size.height;
                     lastPaintedClip = clip;
                 }
@@ -131,13 +139,13 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
         }
 
         public void paint(Graphics g) {
-            if (placeBackground) {
+            if (false) {
                 boolean show = mustshow(g);
                 if (show) {
-                    Point viewPosition = scrollPane.getViewport().getViewPosition();
+                    //Point viewPosition = scrollPane.getViewport().getViewPosition();
                     Point p = new Point(0,0);
                     SwingUtilities.convertPointToScreen(p, this);
-                    System.err.print("paint("+g+") at "+viewPosition.x+","+viewPosition.y+", clip="+g.getClip()+
+                    System.err.print("paint("+g+")"+/*at "+viewPosition.x+","+viewPosition.y+*/", clip="+g.getClip()+
                                      ", bounds="+getBounds()+", origin at "+p);
                 }
                 Graphics g1 = g.create(origin.x, origin.y, getWidth(), getHeight());
@@ -152,71 +160,24 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
         }
 
         protected void paintChildren(Graphics g) {
-            if (placeButtons) {
-                g.translate(-origin.x, -origin.y);
+            if (true) {
+                // System.err.println("translating children by "+viewPos.x+","+viewPos.y);
+                g.translate(-viewPos.x, -viewPos.y);
                 super.paintChildren(g);
-                g.translate(origin.x,origin.y);
+                g.translate(viewPos.x,viewPos.y);
             }
             else
                 super.paintChildren(g);
         }
     }
 
-    private class KViewport extends JViewport {
-
-        KViewport() {
-            super();
-        }
-
-        // this code copied from JViewport, here to override private restriction
-        private void paintView(Graphics g)
-        {
-            Rectangle r = g.getClipBounds();
-            g.setClip(r.x, r.y, r.width, r.height);
-
-            JComponent view = (JComponent)getView();
-            int x = view.getX();
-            int y = view.getY();
-            g.translate(x, y);
-            if (paintViewBackground || view.getWidth() < r.width) {
-                g.setColor(getBackground());
-                g.fillRect(0, 0, r.width, r.height);
-            }
-            view.paint(g);
-            g.translate(-x, -y); // needed !!
-        }
-        
-        public void paint(Graphics g) {
-            if (useBlit)
-                super.paint(g);
-            else
-                paintView(g);
-        }
-    }
-
-    private class KScrollPane extends JScrollPane {
-        KScrollPane() {
-            super();
-        }
-        // experiments in here so far unsuccessful.
-    }
-    
     private KPanel panel;
-    private KScrollPane scrollPane;
-
-    private final boolean placeBackground, placeButtons, useBlit, paintViewBackground;
-
+    private JScrollBar v, h;
+    
     public NoneWindowSwing() {
         String yes = "Yes", no = "No";
         String[] buttons = { yes, no };
-        placeBackground = JOptionPane.showOptionDialog(null, "attempt to place panel background correctly?", null, 0,
-                                     JOptionPane.QUESTION_MESSAGE,null,buttons, no)==0;
-        placeButtons = JOptionPane.showOptionDialog(null, "attempt to place buttons relative to background?", null, 0,
-                                                    JOptionPane.QUESTION_MESSAGE,null,buttons, no)==0;
-        useBlit = JOptionPane.showOptionDialog(null, "use background painting store?", null, 0,
-                                               JOptionPane.QUESTION_MESSAGE,null,buttons, yes)==0;
-        paintViewBackground = !useBlit && JOptionPane.showOptionDialog(null, "always colour viewport?", null, 0,
-                                                           JOptionPane.QUESTION_MESSAGE,null,buttons, no)==0;
+
         panel = new KPanel();
         panel.setLayout(null);
         
@@ -230,9 +191,8 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
 
         panel.setBorder(new SoftBevelBorder(SoftBevelBorder.LOWERED, Color.red, Color.blue));
         panel.setBackground(Color.yellow);
-        computeBounds();
         
-        KViewport kv = new KViewport();
+        /*KViewport kv = new KViewport();
         kv.setView(panel);
         kv.setBackground(Color.green);
         
@@ -241,8 +201,36 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
         scrollPane.setHorizontalScrollBarPolicy(KScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setViewport(kv);
         
-        getContentPane().add(scrollPane);
-		
+        getContentPane().add(scrollPane);*/
+        getContentPane().setLayout(new BorderLayout());
+        // System.err.println("layout is "+getContentPane().getLayout());
+        v = new JScrollBar(JScrollBar.VERTICAL);
+        class V implements AdjustmentListener {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                switch (e.getAdjustmentType()) {
+                    case AdjustmentEvent.TRACK:
+                        System.err.println("V track "+v.getValue()); panel.setViewY(v.getValue()); panel.validate(); panel.repaint(); break;
+                    default:
+                        System.err.println("V sees AdjustmentEvent "+e.getAdjustmentType()); break;
+                }
+            }
+        }
+        v.addAdjustmentListener(new V());
+        h = new JScrollBar(JScrollBar.HORIZONTAL);
+        getContentPane().add(v, BorderLayout.EAST);
+        getContentPane().add(h, BorderLayout.SOUTH);
+        getContentPane().add(panel, BorderLayout.CENTER);
+        getContentPane().setBackground(Color.black);
+        panel.addComponentListener(new ComponentAdapter() {
+            public void componentMoved(ComponentEvent e) {
+                System.err.println("panel moved to "+panel.getLocation());
+                panel.validate();
+            }
+            public void componentResized(ComponentEvent e) {
+                System.err.println("panel resized to "+panel.getSize());
+                panel.validate();
+            }
+        });	
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 if (inAnApplet) {
@@ -252,28 +240,6 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
                 }
             }
         });
-    }
-    
-    protected void computeBounds() {
-    	Rectangle r = new Rectangle(0,0,0,0); 
-        r.add(b1.getBounds());
-        r = b1.getBounds();
-        r.add(b2.getBounds()); r.add(b3.getBounds());
-        Insets i = panel.getInsets();
-        r.x -= i.left; r.y -= i.top; r.width += i.left+i.right; r.height += i.top+i.bottom;
-        if (placeButtons || placeBackground)
-            System.err.println("setting bounds "+r+", including insets "+panel.getInsets());
-        panel.setTrueBounds(r);
-    	// this seems to be the only way to tell a scroll pane what to put in its bars 
-    	// (http://java.sun.com/docs/books/tutorial/uiswing/components/problems.html and elsewhere)
-    	panel.setPreferredSize(new Dimension(r.width, r.height));
-    	panel.revalidate();
-        if (placeButtons || placeBackground) {
-            Point p = new Point(0,0);
-            SwingUtilities.convertPointToScreen(p, panel);
-            System.err.println("after setTrueBounds and setPreferredSize, bounds are "+panel.getBounds()+
-                               " and origin is at "+p);
-        }
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -293,7 +259,7 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
                 b1.setBounds(r.x, r.y-50, r.width, r.height);
         }
 
-        computeBounds();
+        panel.validate();
     	panel.repaint();
     }
 
