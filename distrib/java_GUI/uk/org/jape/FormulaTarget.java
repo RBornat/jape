@@ -28,7 +28,7 @@
 package uk.org.jape;
 
 public interface FormulaTarget {
-    public boolean dragEnter(SelectableProofItem w); // returns true if drag accepted
+    public boolean dragEnter(int dragNum, SelectableProofItem w); // returns true if drag accepted
     public void dragExit(SelectableProofItem w);
     public void drop(SelectableProofItem w, int x, int y); // Canvases can receive drops too
 }
