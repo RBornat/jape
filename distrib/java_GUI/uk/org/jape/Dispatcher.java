@@ -140,10 +140,10 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
                             
                     // font setting
-                            if (p.equals("SETFONTS")&&len==2) {
-                                encoder.setEncoding(cmd[1]);
-                                JapeFont.setSubstituteFont(cmd[1]);
-                            }
+                        if (p.equals("SETFONTS")&&len==2) {
+                            encoder.setEncoding(cmd[1]);
+                            JapeFont.setSubstituteFont(cmd[1]);
+                        }
                         else
                         
                     // INVISCHARS are the way we describe syntactic structure
@@ -165,16 +165,6 @@ public class Dispatcher extends Thread implements DebugConstants {
                         if (p.equals("MAKEMENUSVISIBLE")&&len==1) {
                             JapeMenu.makeMenusVisible();
                             PanelWindowData.makePanelsVisible();
-                        }
-                        else
-                        if (p.equals("CANCELMENUSANDPANELS")&&len==1) {
-                            JapeMenu.cancelMenus();
-                            PanelWindowData.cancelPanels();
-                        }
-                        else
-                        if (p.equals("EMPTYMENUSANDPANELS")&&len==1) {
-                            JapeMenu.emptyMenus();
-                            PanelWindowData.emptyPanels();
                         }
                         else
                         if (p.equals("MENUSEP")&&len==2)
@@ -331,8 +321,21 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
                     
                     // miscellaneous
+                        if (p.equals("RESETTHEORY")&&len==1) {
+                            JapeMenu.cancelMenus();
+                            PanelWindowData.cancelPanels();
+                            encoder.resetEncoding();
+                            JapeFont.resetSubstituteFont();
+                            JapeWindow.resetNextPos();
+                        }
+                        else
+                        if (p.equals("EMPTYMENUSANDPANELS")&&len==1) {
+                            JapeMenu.emptyMenus();
+                            PanelWindowData.emptyPanels();
+                        }
+                        else
                         if (p.equals("QUIT")&&len==1) { 
-                            System.exit(0);
+                        System.exit(0);
                         }
                         else
                         if (p.equals("DONTQUIT")&&len==1)
