@@ -69,10 +69,10 @@ module type Tree =
     and vispath and cxt and thing and proviso and rewinf
     
     type prooftree_step =
-        Apply of (name * term list * bool)
-      | Given of (string * int * bool)
+        Apply of (name * term list * bool) (* bool is 'isresolution step'. RB 9.iii.2005 *)
+      | Given of (string * int * bool) (* bool is 'isresolution step'. RB 9.iii.2005 *)
       | UnRule of (string * name list)
-    (* step name, rule dependencies *)
+                  (* step name, rule dependencies *)
 
     val string_of_prooftree_step : prooftree_step -> string
     val step_label : prooftree_step -> string
@@ -104,7 +104,7 @@ module type Tree =
       cxt -> (treeformat prooftree * fmtpath) option ->
         treeformat prooftree -> fmtpath -> fmtpath * treeformat prooftree
     val augmenthyps :
-      cxt -> treeformat prooftree -> element list -> treeformat prooftree
+      cxt -> treeformat prooftree -> element list -> treeformat prooftree * (bool*bool*term) list
     val deepest_samehyps : treeformat prooftree -> fmtpath -> fmtpath
     val isCutStep : treeformat prooftree -> fmtpath -> bool
     val catelim_prooftree2tactic :
@@ -301,33 +301,40 @@ module Tree : Tree with type term = Termtype.term
       function
         Apply (n, _, _) -> parseablestring_of_name n
       | Given (s, _, _) -> s
-      | UnRule (s, _) -> s
+      | UnRule (s, _)   -> s
     let rec step_resolve =
       function
         Apply (_, _, b) -> b
       | Given (_, _, b) -> b
-      | _ -> false
+      | _               -> false
     let rec rewinfProoftree =
       function
         Tip (seq, rewinf, fmt) -> rewinf
       | Join (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) ->
-          rewinf_merge
-            (snd args,
-             rewinf_merge
-               (snd seq,
-                rewinf_merge (snd trs, snd ress)))
+          rewinf_merge (snd args, rewinf_merge (snd seq, rewinf_merge (snd trs, snd ress)))
     let rec tip_seq (seq, rewinf, hastipval) = seq
-    let rec joinopt a1 a2 =
+    let joinopt a1 a2 =
       match a1, a2 with
-        f, Tip _ -> None
+        f, Tip _  -> None
       | f, Join j -> Some (f j)
-    let rec rule =
+    let howrule =
       function
-        Tip _ -> None
-      | Join j ->
-          match join_how j with
-            Apply (r, _, _) -> Some r
-          | _ -> None
+        Apply (r, _, _) -> Some r
+      | _               -> None
+    let rule =
+      function
+        Tip _  -> None
+      | Join j -> howrule (join_how j)
+    let ruleprovisos name = 
+      match thinginfo name with
+        Some (Rule ((_, provisos, _, _), _), _) -> provisos
+      | Some (Theorem (_, provisos, _), _)      -> provisos
+      | _ -> raise (Catastrophe_ ["prooftree.ruleprovisos can't find thing named ";
+                                  string_of_name name])
+    let howprovisos =
+      howrule &~ (_Some <.> ruleprovisos)
+    let stepprovisos =
+      rule &~ (_Some <.> ruleprovisos)
     let rec thinned =
       function
         Join j -> join_thinned j
@@ -361,9 +368,9 @@ module Tree : Tree with type term = Termtype.term
         | Join j, ds ->
             let rest = nj_fold d (join_subtrees j) ds in
             match join_how j with
-              UnRule (_, ss) -> ss @ rest
+              UnRule (_, ss)  -> ss @ rest
             | Apply (n, _, _) -> n :: rest
-            | Given _ -> rest
+            | Given _         -> rest
       in
       sortunique nameorder (nj_fold d [tree] [])
     (* -------------------------- navigation with int lists -------------------------- *)
@@ -521,10 +528,13 @@ module Tree : Tree with type term = Termtype.term
           in
           joinstep go (fun _ -> _G t)
             (fun (l, r, tl, tr) -> findRightwardsGoal_ns skip tr) j path
+    
     (* Find the deepest parent of a particular node which has the same hypotheses.
      * I check on the way back down, because it is more efficient, and actually it is the only right thing to do!
      * Note that a FRESH proviso in effect introduces a var hypothesis, so we don't go past a rule which has a
-     * FRESH proviso.
+     * FRESH proviso, if we have the same hypotheses.
+     *
+     * At least that's what I _think_ it's doing. RB 9.iii.2005
      *)
     let rec deepest_samehyps tree =
       fun (FmtPath ks) ->
@@ -537,7 +547,7 @@ module Tree : Tree with type term = Termtype.term
           in
           let rec check a1 a2 =
             match a1, a2 with
-              (None, ns), f -> None, f ns
+              (None   , ns), f -> None, f ns
             | (Some hs, ns), f ->
                 let (Seq (_, hs', _)) = sequent t in
                 if (match hs, hs' with
@@ -545,23 +555,12 @@ module Tree : Tree with type term = Termtype.term
                       Collection (_, BagClass FormulaClass, es') ->
                         null (listsub sameresource es es')
                     | _ -> hs = hs') &&
-                   (match joinopt join_how t with
-                      Some (Apply (name, _, _)) ->
-                        begin match thinginfo name with
-                          Some (Rule ((_, provisos, _, _), _), _) ->
-                            unFRESH provisos
-                        | Some (Theorem (_, provisos, _), _) ->
-                            unFRESH provisos
-                        | _ ->
-                            raise
-                              (Catastrophe_
-                                 ["deepest_samehyps can't find thing named ";
-                                  string_of_name name])
-                        end
-                    | _ -> true)
+                   (match stepprovisos t with
+                      Some provisos -> unFRESH provisos
+                    | None          -> true)
                 then
-                  Some hs, pathto t
-                else None, f ns
+                     Some hs, pathto t
+                else None   , f ns
           in
           let rec go n subt ns = check (shs subt ns) (fun ns -> n :: ns) in
           let rec skip (l, r, tl, tr) ns = check (shs tr ns) (fun ns -> ns) in
@@ -572,7 +571,9 @@ module Tree : Tree with type term = Termtype.term
           | Join j -> joinstep go topres skip j path
         in
         FmtPath (snd (shs tree ks))
+    
     let rec rootPath_ns t = pathto t
+    
     let rec parentPath_ns t path =
       let rec f t ns =
         match t with
@@ -670,6 +671,7 @@ module Tree : Tree with type term = Termtype.term
         | _ -> false
       with
         _ -> false
+    
     (* -------------------------- printing proof trees -------------------------- *)
         
     let shyidforFORMULAE = "FORMULAE"
@@ -692,7 +694,9 @@ module Tree : Tree with type term = Termtype.term
       | UnRule u ->
           "Unrule" ^
             string_of_pair (fun s -> s) (bracketedstring_of_list parseablestring_of_name ",") "," u
+    
     let string_of_ns = bracketedstring_of_list string_of_int ","
+    
     let rec string_of_Join
       tlf subtreesf (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       implode
@@ -712,6 +716,7 @@ module Tree : Tree with type term = Termtype.term
              ress
          end;
          ")"]
+    
     let rec string_of_prooftree tlf t =
       let rec pft tlf rp t =
         (string_of_ns (pathto t @ List.rev rp) ^ " = ") ^
@@ -730,6 +735,7 @@ module Tree : Tree with type term = Termtype.term
                             [pft tlf (l :: rp) tl; pft tlf rp tr]))))
       in
       pft tlf [] t
+    
     exception Can'tHash_
     (* moved outside for OCaml *)
        
@@ -743,37 +749,36 @@ module Tree : Tree with type term = Termtype.term
                   (fun s -> s) (bracketedstring_of_list string_of_term ",") "," u
                ])
     
+    let step_argmap ps args =
+      (* this is one of a pair of TEMPORARY hacks, caused by an inability to treat proof replay
+         as identity matching (current culprit, the fact that Given doesn't have any recorded
+         collection arguments, but it may go deeper).  We strip BagFormula arguments in
+         additiveLeft mode, because they make proof checking disastrously non-linear.
+         
+         The other one of the pair (see tactic.ml) strips the corresponding arguments when the 
+         proof tactic is read.
+         
+         This is so successful :-) that it might become a permanent hack.
+       *)
+      let argmap = 
+        try ps|||args with Zip_ -> raise (Catastrophe_ ["params and args won't zip in prooftree.step_argmap"])
+      in
+      if !autoAdditiveLeft then
+        (match split (function (_,Collection _) -> true | _ -> false) argmap with
+           ([_], oks) -> (* if not (List.exists (existsterm isUnknown) args) then oks else argmap *)
+                         oks (* it can't be slower, even if it contains unknowns ... *)
+         | _          -> argmap)
+      else argmap
+      
     let rec catelim_prooftree2tactic tree provisos givens tail =
       (* a proof as an executable tactic *)
       let seq = sequent tree in
       let rec thisone j =
         let rec res b t = if b then ResolveTac t else t in
         match join_how j with
-          Apply (n, ps, b) ->
-            (* this is one of a pair of TEMPORARY hacks, caused by an inability to treat proof repla
-               as identity matching (current culprit, the fact that Given doesn't have any recorded
-               collection arguments, but it may go deeper).  We strip BagFormula arguments in
-               additiveLeft mode, because they make proof checking disastrously non-linear.
-               
-               The other one of the pair (see tactic.ml) strips the corresponding arguments when the 
-               proof tactic is read.
-               
-               This is so successful :-) that it might become a permanent hack.
-            *)
-            let args = join_args j in
-            let argmap = 
-              try ps|||args with Zip_ -> raise (Catastrophe_ ["params and args won't zip in tactic_of_prooftree"])
-            in
-            let argmap' = if !autoAdditiveLeft then
-                            (match split (function (_,Collection _) -> true | _ -> false) argmap with
-                               ([_], oks) -> (* if not (List.exists (existsterm isUnknown) args) then oks else argmap *)
-                                             oks (* it can't be slower, even if it contains unknowns ... *)
-                             | _          -> argmap
-                            )
-                          else argmap
-            in res b (SubstTac (n, argmap'))
-        | Given (_, i, b) -> res b (GivenTac (term_of_int i))
-        | UnRule (r, _) -> mkUnRuleTac (r, join_args j)
+          Apply (n, ps, b) -> res b (SubstTac (n, step_argmap ps (join_args j)))
+        | Given (_, i, b)  -> res b (GivenTac (term_of_int i))
+        | UnRule (r, _)    -> mkUnRuleTac (r, join_args j)
       in
       let rec traverse =
         function
@@ -868,6 +873,7 @@ module Tree : Tree with type term = Termtype.term
           exn -> showargasint := None; raise exn
       in
       proof tail
+    
     (* -------------------------- rewriting proof trees -------------------------- *)
         
     let rec rew_ress cxt = rew_Pair (rew_elements true cxt)
@@ -1188,6 +1194,7 @@ module Tree : Tree with type term = Termtype.term
              | _ -> raise (AlterProof_ ["replaceTip applied to Join"]))
         in
         tree
+    
     let rec makewhole a1 a2 a3 a4 =
       match a1, a2, a3, a4 with
         cxt, Some (oldtree, (FmtPath oldns as oldpath)), newtree,
@@ -1197,36 +1204,55 @@ module Tree : Tree with type term = Termtype.term
           in
           FmtPath (subgoalPath_ns tree ns newns), tree
       | cxt, None, newtree, newpath -> newpath, newtree
+    
     (* this is the most dangerous thing I have tried so far. It must be done ONLY if
      * autoAdditiveLeft is true.  It must not be applied to a subtree which contains
      * a rule that has a FRESH proviso.
+     *
+     * But (I hadn't noticed) the horror happens now we have true forward steps applied to 
+     * a hypothesis without a conclusion. So now we are going to have to generate new
+     * provisos from (slumbering) FRESHness in the tree. Ho hum. This function therefore
+     * calculates a list of 'fresh in the hypotheses' variables. RB 9.iii.2005
      *)
-    let rec augmenthyps cxt tree els =
+    let augmenthyps cxt tree els =
       let rewinf = raw2rew_ (rawinfElements cxt (els, nullrawinf)) in
       let rec augseq =
         fun (Seq (st, hs, cs)) ->
           try Seq (st, _The (augmentCollection hs els), cs) with
             _The_ ->
-              raise (Catastrophe_ ["can't augment non-Collection hyps"])
+              raise (Catastrophe_ ["prooftree.augmenthyps can't augment non-Collection hyps"])
       in
-      let rec aug =
+      let rec aug names =
         function
           Tip (seq, inf, fmt) ->
-            Tip (augseq seq, rewinf_merge (inf, rewinf), fmt)
-        | Join
-            (why, how, cutnav, (args, arginf), fmt, hastipval, (seq, seqinf),
-             (trs, trsinf), ress) ->
+            Tip (augseq seq, rewinf_merge (inf, rewinf), fmt), names (* Tips have no FRESH provisos, I'm sure *)
+        | Join (why, how, cutnav, (args, arginf), fmt, hastipval, (seq, seqinf), (trs, trsinf), ress) ->
+            let names' =
+              match how with
+                Apply(n,ps,b) ->
+                  let provisos = 
+                    Optionfuns.optionfilter (function (b, Provisotype.FreshProviso(true,_,r,v)) -> Some (b,r,v) | _ -> None) 
+                                            (ruleprovisos n) 
+                  in
+                  if null provisos then [] else
+                    let argmap = Mappingfuns.mkmap (step_argmap ps args) in
+                    (fun (b,r,v) -> 
+                       try (b,r,_The(argmap<@>v)) 
+                       with None_ -> raise (Catastrophe_["can't translate "; string_of_term v; " in prooftree.augmenthyps"]))
+                    <* provisos
+              | _ -> []
+            in
             let rec augargs =
               function
-                [] ->
-                  raise
-                    (Catastrophe_
-                       ["no Collection argument for sequent "; string_of_seq seq])
+                [] -> 
+                  raise (Catastrophe_ ["no Collection argument for sequent "; string_of_seq seq])
               | arg :: args ->
                   if isCollection arg then
                     _The (augmentCollection arg els) :: args
                   else arg :: augargs args
             in
+            let trs', names'' = List.fold_right (fun t (ts,ns) -> let t',ns' = aug ns t in (t'::ts, ns')) 
+                                                trs ([],names'@names) in
             Join
               (why, how, cutnav,
                (match how with
@@ -1234,9 +1260,10 @@ module Tree : Tree with type term = Termtype.term
                 | Given  _ -> (try augargs args with _ -> args), arginf (* Given doesn't have args, unfortunately *)
                 | _        -> augargs args, rewinf_merge (arginf, rewinf)),
                fmt, hastipval, (augseq seq, rewinf_merge (seqinf, rewinf)),
-               ((aug <* trs), rewinf_merge (trsinf, rewinf)), ress)
+               (trs', rewinf_merge (trsinf, rewinf)), ress), names''
       in
-      aug tree
+      aug [] tree
+    
     let rec maxtreeresnum t =
       match t with
         Join j ->
