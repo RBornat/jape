@@ -32,9 +32,8 @@ import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.awt.Point;
 
-public abstract class JapeCanvas extends ContainerWithOrigin implements Viewportable {
-
-    static final byte NoSel = 0;
+public abstract class JapeCanvas extends ContainerWithOrigin
+                                 implements Viewportable, SelectionConstants {
 
     protected JapeCanvas() {
         super();
@@ -45,11 +44,29 @@ public abstract class JapeCanvas extends ContainerWithOrigin implements Viewport
         });
     }
 
+    // I really must organise a 'selection halo' round items ...
     protected void click(MouseEvent e) {
-        killSelections((byte)0xFF);
+        switch (LocalSettings.mouseDownKind(e)) {
+            case TextSelection:
+            case ExtendedTextSelection:
+                killTextSelections(null);
+                break;
+            case DisjointTextSelection:
+            case ExtendedDisjointTextSelection:
+                break;
+            case Selection:
+                killSelections((byte)0xFF);
+                break;
+            case ExtendedSelection:
+            case DisjointSelection:
+            case ExtendedDisjointSelection:
+                break;
+            default:
+                Alert.abort("JapeCanvas.click eventKind="+LocalSettings.mouseDownKind(e));
+        }
     }
     
-    protected abstract void declareSelection(SelectableTextItem item, MouseEvent e, byte selkind);
+    protected abstract void declareSelection(byte eventKind, byte selkind);
 
     protected abstract void declareTextSelection(SelectableTextItem item, byte eventKind);
 
@@ -68,14 +85,8 @@ public abstract class JapeCanvas extends ContainerWithOrigin implements Viewport
         int nc = child.getComponentCount();
         for (int i=0; i<nc; i++) {
             Component c = child.getComponent(i);
-            if (c!=leave && c instanceof SelectableTextItem) {
-                SelectableTextItem sti = (SelectableTextItem)c;
-                if (sti.textsels!=null)
-                    while (sti.textsels.size()!=0) {
-                        ((SelectableTextItem.TextSel)sti.textsels.get(0)).repaint();
-                        sti.textsels.remove(0);
-                    }
-            }
+            if (c instanceof SelectableTextItem && c!=leave)
+                ((SelectableTextItem)c).removeTextSelections();
         }
     }
 
