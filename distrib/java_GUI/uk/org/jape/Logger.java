@@ -46,19 +46,19 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class Logger {
-    private static final boolean desperation = false;
+    private static final boolean divertToWindow = true;
     
     private static final JTextArea textArea = new JTextArea(50,80);
 
     private static class ScreenWriter extends Writer {
         // for the moment, the minimum
         public void write(String s) {
-            if (desperation)
-            { System.err.print(s);
-              System.err.flush();
+            if (divertToWindow)
+                textArea.append(s);
+            else {
+                System.err.print(s);
+                System.err.flush();
             }
-            else
-              textArea.append(s);
         }
         public void write(char cs[], int off, int len) {
             write(new String(cs, off, len));
@@ -270,13 +270,13 @@ public class Logger {
         Thread inLogger = new StreamLog("System.err loopback", new InLiner(inner));
         inLogger.start();
 
-        PrintStream errStream = new PrintStream(outer, true);
-        if (desperation) 
-           System.err.println("Straightout error interface (desperation)");
+        if (divertToWindow) {
+            PrintStream errStream = new PrintStream(outer, true);
+            System.setErr(errStream);
+            // System.err.println("this am a test!");
+        }
         else
-           System.setErr(errStream);
-
-        // System.err.println("this am a test!");
+            System.err.println("Straightout error interface (not diverted to window)");
     }
 
     public static class LogWindow extends JapeWindow {
