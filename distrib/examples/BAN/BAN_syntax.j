@@ -1,17 +1,19 @@
 /* $Id$ */
 
-INFIX 40 40 Ú 
-INFIX 61 60 +
-
-INFIX 100 100 —
-INFIX 210 200 – /* rassoc: left priority higher */
-INFIX 300 300 ™
-INFIX 400 400 ˜
 PREFIX #
-INFIX 500 500 ê
-INFIX 600 600 Ø
-INFIX 700 700 Ÿ
 POSTFIX ø
+
+INFIX 300 300 ê
+INFIX 300 300 Ø
+INFIX 300 300 Ÿ
+
+INFIX 200 200 ‘
+INFIX 200 200 š
+INFIX 200 200 •
+
+INFIX 101 100 Š /* rassoc: left priority higher */
+
+INFIX 10 10 +
 
 OUTFIX {  }
 OUTFIX <  >
@@ -19,8 +21,12 @@ OUTFIX <  >
 LEFTFIX è .
 
 CLASS VARIABLE x, y
-CLASS FORMULA P, Q, R, C
+CLASS FORMULA X, Y, Z
+CLASS CONSTANT P, Q, R, K, N
+CONSTANT A, B, S
 
-BIND x SCOPE P IN è x . P
+BIND x SCOPE P IN èx . P
 
 SEQUENT IS BAG æ FORMULA
+
+INITIALISE autoAdditiveLeft true /* allow rules to be stated without an explicit left context */
