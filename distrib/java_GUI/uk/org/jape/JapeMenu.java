@@ -1149,13 +1149,9 @@ public class JapeMenu implements DebugConstants {
 			if (Jape.onUnix && f.startsWith("~")) {
 			    String home = System.getProperties().getProperty("user.home");
 			    String g = home+f.substring(1);
-			    System.out.println("opening (~="+JapeUtils.enQuote(home)+
-					       ") recent "+JapeUtils.enQuote(f)+
-					       " => "+JapeUtils.enQuote(g));
 			    doOpenFile(g);
 			}
 			else {
-			    System.out.println("opening recent "+JapeUtils.enQuote(f));
 			    doOpenFile(f);
 			}
 		    }
