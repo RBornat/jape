@@ -326,7 +326,7 @@ let expandProvisos ps =
         let rec dp = 
           function 
             []    -> ps
-          | v::vs -> foldr (fun v' ps -> NotinProviso(v,v')::ps) (dp vs) vs
+          | v::vs -> foldr (fun v' ps -> DistinctProviso[v;v']::ps) (dp vs) vs
         in dp vs
     | p -> p :: ps
   in
@@ -342,21 +342,24 @@ let compressProvisos ps =
   let xys, xts, others =
     foldl (fun (xys, xts, others) ->
              function (NotinProviso(v,t)) ->
-                         if isVariable t then [v;t]::xys, xts, others
+                         if isVariable t then (false,[v;t])::xys, xts, others
                                    else xys, (v,t)::xts, others
-           |          p -> xys, xts, p::others) 
+           |          (DistinctProviso[v;v']) -> (true,[v;v'])::xys, xts, others
+           |          p                       -> xys, xts, p::others) 
           ([],[],[]) ps
   in
   (* remove duplication *)
-  let xys = sortunique (earlierlist earliervar) (sort earliervar <* xys) in
-  let names = foldl tmerge [] xys in
+  let xys = (fun (tf,xs) -> tf, sort earliervar xs) <* xys in
+  let xys = sortunique (fun (_,xs) (_,ys) -> earlierlist earliervar xs ys) xys in
+  let xy2s = List.map snd xys in
+  let names = foldl tmerge [] xy2s in
   (* make all supported subsets *)
   let rec subsets =
     function 
       [] -> [[]]
     | x :: xs -> 
         let xss = subsets xs in
-        foldr (fun ys yss -> if all (fun y -> List.mem [x;y] xys) ys
+        foldr (fun ys yss -> if all (fun y -> List.mem [x;y] xy2s) ys
                              then (x::ys)::yss
                              else yss) 
               xss xss
@@ -368,7 +371,9 @@ let compressProvisos ps =
       []        -> []
     | xs :: xss -> xs :: comb ((fun xs' -> sorteddiff earliervar xs' xs != []) <| xss)
   in
-  let distincts = _DistinctProviso <* comb sets in 
+  let distincts = (function ([x;y] as xy) -> if List.mem (false,xy) xys 
+                                             then _NotinProviso(x,y) else _DistinctProviso xy
+                   |        xs            -> _DistinctProviso xs) <* comb sets in 
   (* One day I'll try to join the xts into larger groups *)
   (* and do something about FreshProviso *)
   distincts @ (_NotinProviso <* xts) @ others
