@@ -152,21 +152,26 @@ TACTIC conjoinstac IS
 
 /* deducing boundedness from equality/inequality */
 
-RULE "bounded(<)" IS FROM A<B AND A dependson a[E] INFER 0≤E∧E<length(a)
+RULE "bounded(<)(L)" IS FROM A<B AND A dependson a[E] INFER 0≤E∧E<length(a)
+RULE "bounded(<)(R)" IS FROM A<B AND B dependson a[E] INFER 0≤E∧E<length(a)
 
-RULE "bounded(≤)" IS FROM A≤B AND A dependson a[E] INFER 0≤E∧E<length(a)
+RULE "bounded(≤)(L)" IS FROM A≤B AND A dependson a[E] INFER 0≤E∧E<length(a)
+RULE "bounded(≤)(R)" IS FROM A≤B AND B dependson a[E] INFER 0≤E∧E<length(a)
 
-RULE "bounded(=)" IS FROM A=B AND A dependson a[E] INFER 0≤E∧E<length(a)
+RULE "bounded(=)(L)" IS FROM A=B AND A dependson a[E] INFER 0≤E∧E<length(a)
+RULE "bounded(=)(R)" IS FROM A=B AND B dependson a[E] INFER 0≤E∧E<length(a)
 
-RULE "bounded(≥)" IS FROM A≥B AND A dependson a[E] INFER 0≤E∧E<length(a)
+RULE "bounded(≥)(L)" IS FROM A≥B AND A dependson a[E] INFER 0≤E∧E<length(a)
+RULE "bounded(≥)(R)" IS FROM A≥B AND B dependson a[E] INFER 0≤E∧E<length(a)
 
-RULE "bounded(>)" IS FROM A>B AND A dependson a[E] INFER 0≤E∧E<length(a)
+RULE "bounded(>)(L)" IS FROM A>B AND A dependson a[E] INFER 0≤E∧E<length(a)
+RULE "bounded(>)(R)" IS FROM A>B AND B dependson a[E] INFER 0≤E∧E<length(a)
 
-TACTIC checkdependencytac (rule, rev, H, a, E) IS
+TACTIC checkdependencytac (ruleL, ruleR, H, a, E) IS
   CUTIN
-    (LAYOUT "bounded" ALL (rule«a,E/a,E»))
-    (ALT (SEQ (LETGOAL _G (UNIFY _G H)) (ANY (MATCH (hyp H))) (dependencyrec a E))
-         (SEQ rev (LETGOAL _G (UNIFY _G H)) (ANY (MATCH (hyp H))) (dependencyrec a E))
+    (LAYOUT "bounded")
+    (ALT (SEQ (ruleL«a,E/a,E») (LETGOAL _G (UNIFY _G H)) (ANY (MATCH (hyp H))) (dependencyrec a E))
+         (SEQ (ruleR«a,E/a,E») (LETGOAL _G (UNIFY _G H)) (ANY (MATCH (hyp H))) (dependencyrec a E))
          (ALERT ("To imply boundedness, an equality/inequality must unconditionally \
                  \depend on the value of an array element.\
                  \\n\n%t doesn't depend on %t in that way.", H, a[E])
