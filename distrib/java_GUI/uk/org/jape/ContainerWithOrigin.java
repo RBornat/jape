@@ -52,6 +52,16 @@ import javax.swing.Scrollable;
 
 /*  I now realise that this thing has to be in a viewport, or it doesn't make any sense ... */
 
+/* It no longer makes any sense to me. It took about a month to invent, I remember. I've been 
+    several times round the loop, and each time I've concluded that I have to have two containers.
+    But I can't remember why any longer.
+
+    First it's essential to override contains, which (scandalously) requires that coordinate
+    systems start at 0.
+
+    paint is involved too.
+ */
+
 public class ContainerWithOrigin extends Container implements DebugConstants {
 
     protected final Container viewport;
@@ -65,8 +75,9 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     }
 
     protected void computeBounds() {
-	child.getLayout().layoutContainer(child);
-	getLayout().layoutContainer(this);
+	// child.getLayout().layoutContainer(child);
+	// getLayout().layoutContainer(this);
+	validate();
     }
 
     // the difference between the main panel's position and visualBounds is,
@@ -82,6 +93,9 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 	Rectangle v = viewport.getBounds();
 	computeBounds();
 	setLocation(-child.getX()-x, -child.getY()-y);
+	if (DebugVars.containerlayout_tracing)
+	    Logger.log.println("ContainerWithOrigin.setOrigin("+x+","+y+
+			       "); container origin now "+JapeUtils.shortStringOfRectangle(getViewGeometry()));
     }
 
     // if we are the only thing in a viewport, we get the mouse events.
@@ -93,7 +107,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     // since we are in a viewport, we tell you what the viewport sees
     public Rectangle getViewGeometry() {
 	Rectangle v = viewport.getBounds();
-	computeBounds();
+	// computeBounds();
 	v.x -= (getX()+child.getX()); v.y -= (getY()+child.getY()); // oh dear ...
 	return v;
     }
@@ -111,14 +125,20 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 	computeBounds();
 	c.repaint();
 	viewport.validate();
+	if (DebugVars.containerlayout_tracing)
+	    Logger.log.println("ContainerWithOrigin.add("+c+
+			       ");\ncontainer origin now "+JapeUtils.shortStringOfRectangle(getViewGeometry()));
 	return c;
     }
 
     public Component add(Component c, int index) {
 	child.add(c, index);
 	computeBounds();
-	c.repaint();
 	viewport.validate();
+	c.repaint();
+	if (DebugVars.containerlayout_tracing)
+	    Logger.log.println("ContainerWithOrigin.add("+c+","+index+
+			       ");\ncontainer origin now "+JapeUtils.shortStringOfRectangle(getViewGeometry()));
 	return c;
     }
 
@@ -127,6 +147,9 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 	child.remove(c);
 	computeBounds();
 	viewport.validate();
+	if (DebugVars.containerlayout_tracing)
+	    Logger.log.println("ContainerWithOrigin.remove("+c+
+			       "); container origin now "+JapeUtils.shortStringOfRectangle(getViewGeometry()));
     }
 
     public void removeAll() {
@@ -134,6 +157,9 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 	child.removeAll();
 	computeBounds();
 	viewport.validate();
+	if (DebugVars.containerlayout_tracing)
+	    Logger.log.println("ContainerWithOrigin.removeAll("+
+			       "); container origin now "+JapeUtils.shortStringOfRectangle(getViewGeometry()));
     }
 
     public void paint(Graphics g) {
@@ -192,8 +218,8 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 	* You can't assume that the preferredLayoutSize or minimumLayoutSize method
 	* will be called before layoutContainer is called.
 	*/
-	public void layoutContainer(Container c) {
-	    if (containerlayout_tracing)
+	public synchronized void layoutContainer(Container c) { // unless synchronized causes horrors ...
+	    if (DebugVars.containerlayout_tracing)
 		Logger.log.print("[layoutContainer");
 	    // child.getLayout().layoutContainer(child);
 	    // we don't have insets, we are an invisible container
@@ -205,19 +231,19 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 	    if (deltax!=0 || deltay!=0) {
 		setLocation(getX()+deltax, getY()+deltay);
 		child.setLocation(-vcx, -vcy);
-		if (containerlayout_tracing)
+		if (DebugVars.containerlayout_tracing)
 		    Logger.log.print("; adultpos:="+getX()+","+getY()+
 				     ", childpos:="+child.getX()+","+child.getY());
 	    }
 	    Dimension size = getSize();
 	    if (vcw!=getWidth() || vch!=getHeight()) {
 		setSize(vcw, vch);
-		if (containerlayout_tracing)
+		if (DebugVars.containerlayout_tracing)
 		    Logger.log.print("; adultsize:="+getWidth()+","+getHeight());
 	    }
-	    if (containerlayout_tracing) {
-		Logger.log.println("]\n"+c);
-		JapeUtils.showContainer(c, null);
+	    if (DebugVars.containerlayout_tracing) {
+		Logger.log.println("]");
+		JapeUtils.showShortContainer(c);
 	    }
 	}
     }
@@ -284,8 +310,8 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 	    * You can't assume that the preferredLayoutSize or minimumLayoutSize method
 	    * will be called before layoutContainer is called.
 	    */
-	    public void layoutContainer(Container c) {
-		if (containerlayout_tracing)
+	    public synchronized void layoutContainer(Container c) {
+		if (DebugVars.containerlayout_tracing)
 		    Logger.log.print("(childLayoutContainer");
 		Rectangle newBounds=null, tmp=new Rectangle();
 		int nc = getComponentCount();
@@ -303,15 +329,15 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 		    newBounds = new Rectangle(visualBounds.x, visualBounds.y, 0, 0);
 		if (newBounds.width!=getWidth() || newBounds.height!=getHeight()) {
 		    setSize(newBounds.width, newBounds.height);
-		    if (containerlayout_tracing)
+		    if (DebugVars.containerlayout_tracing)
 			Logger.log.print("; childsize:="+getSize());
 		}
 		if (!newBounds.equals(visualBounds)) {
 		    visualBounds=newBounds;
-		    if (containerlayout_tracing)
+		    if (DebugVars.containerlayout_tracing)
 			Logger.log.print("; visualBounds:="+visualBounds);
 		}
-		if (containerlayout_tracing)
+		if (DebugVars.containerlayout_tracing)
 		    Logger.log.println(")");
 	    }
 	}
