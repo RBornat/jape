@@ -257,7 +257,7 @@ module M : sig include Server include Alert end
     let rec startserver server args =
       let (iii, ooo) =
         stopserver (); 
-        Miscellaneous.M.consolereport ["about to start the server called "; server];
+        Miscellaneous.M.consolereport ["about to start the server called "; server; " with args "; bracketedliststring (Stringfuns.M.enQuote <*> String.escaped) ", " args];
         Moresys.execute server args
       in
       servername := server;
@@ -273,6 +273,7 @@ module M : sig include Server include Alert end
         exn ->
           Miscellaneous.M.consolereport ["[WARNING: Server "; !servername; " may have died -- ";
                                          Printexc.to_string exn; "]\n"];
+          Pervasives.flush stdout; Pervasives.flush stderr;
           stopserver ()
     let rec visible s = implode (List.map vis (explode s))
     and vis c = if c < " " then "\\" ^ string_of_int (ord c) else c
