@@ -35,8 +35,8 @@ TEMPORARY STRUCTURE THAT CAN BE REMOVED AND REBUILT AS NECESSARY
 FROM CommonBuildResources BY
      FOREACH OS IN Linux Solaris Windows
      DO      mkdir ../$(OS)Jape ../$(OS)Jape/build
-             cp    $(OS)/Make $(OS)Jape/build 
-             cd    $(OS)Jape/build
+             cp    $(OS)/Make ../$(OS)Jape/build 
+             cd    ../$(OS)Jape/build
              ln -s ../../examples .
      DONE
 
