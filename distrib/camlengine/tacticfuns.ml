@@ -2086,6 +2086,7 @@ let rec dispatchTactic display try__ env contn tactic =
         contn
           (Some
              (withgoal state (Some (newpath "GOALPATH" (eval env) state p))))
+
 (* RULES and THEORY in the paragraph language generate an ALT tactic.  When we
  * apply such a tactic, we want it to behave as much like a RULE or a THEOREM
  * as we can -- it is just a choice between different rules or theorems, 
@@ -2102,29 +2103,23 @@ and tryApply display =
     (fun (n, args) -> TermTac (n, (quoteterm <* args)))(* con *)
      tracewithargs
     display
+
 and trySubst display =
   tryApplyOrSubst dispatchTactic (getsubstinfo true) mkenvfrommap (fun v->SubstTac v)
     tracewithmap display
-and tryGiven
-  display
-    (matching, checker, ruler, filter, taker, selhyps, selconcs as try__)
-    i =
-  fun (Proofstate {cxt = cxt; givens = givens} as state) ->
-    let i =
-      try term2int i with
-        _ -> raise (Tacastrophe_ ["not an integer"])
-    in
+
+and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs as try__) i 
+                     (Proofstate {cxt = cxt; givens = givens} as state) =
+    let i = try term2int i with _ -> raise (Tacastrophe_ ["not an integer"]) in
     let given =
       try List.nth (givens) (i) with
         Failure "nth" ->
-          raise
-            (Tacastrophe_
-               (if i < 0 then ["negative index"]
-                else
-                  match List.length givens with
-                    0 -> ["no givens available"]
-                  | 1 -> ["one given available"]
-                  | n -> [string_of_int n; " givens available"]))
+          raise (Tacastrophe_
+                   (if i < 0 then ["negative index"]
+                    else match List.length givens with
+                           0 -> ["no givens available"]
+                         | 1 -> ["only one given available"]
+                         | n -> ["only "; string_of_int n; " givens available"]))
     in
     let name = seqstring given in
     (* this is the problem! *)
@@ -2134,6 +2129,7 @@ and tryGiven
       Mappingfuns.empty, principals, [], given, []
     in
     ruler checker filter taker selhyps selconcs stuff name cxt state
+
 and doASSIGN env (s, t) state =
   let t' = eval env t in
   let rec fail ss =
