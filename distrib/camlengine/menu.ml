@@ -1,7 +1,7 @@
 (* $Id$ *)
 
 (* menus and labels now have names, as do variables in check boxes and radio buttons *)
-module type Menu =
+module type T =
   sig
     type panelkind and panelbuttoninsert and name
     val panelbuttoninsertstring : panelbuttoninsert -> string
@@ -49,47 +49,20 @@ module type Menu =
         (name * panelbuttoninsert list -> unit) -> (name * string -> unit) ->
         ((name * string) list -> unit) -> unit
   end
+
 (* $Id$ *)
 
-module
-  Menu
-  (AAA :
-    sig
-      module mappingfuns : Mappingfuns
-      module optionfuns : Optionfuns
-      module panelkind : Panelkind
-      module name : Name
-      val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val consolereport : string list -> unit
-      val enQuote : string -> string
-      val listsub : ('a * 'b -> bool) -> 'a list -> 'b list -> 'a list
-      val member : 'a * 'a list -> bool
-      val _MAP : ('a -> 'b) * 'a list -> 'b list
-      val systemmenus : string list
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val triplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
-          'a * 'b * 'c -> string
-      val quadruplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) ->
-          ('d -> string) -> string -> 'a * 'b * 'c * 'd -> string
-    end)
-  :
-  Menu =
+module M : T =
   struct
-    open AAA
-    open mappingfuns open optionfuns open panelkind open name
-    (* from mappingfuns.sig.sml *)
+    open Listfuns.M
+    open Mappingfuns.M 
+    open Miscellaneous.M
+    open Name.M
+    open Optionfuns.M 
+    open Panelkind.M
+    open Stringfuns.M
     
-    
-    
-    
-    
-    
-    (* from optionfuns *)
-    
+    let systemmenus = ["File"; "Edit"] (* filth; introduced by RB *)
     
     exception Menuconfusion_ of string list
     let menudebug = ref false
