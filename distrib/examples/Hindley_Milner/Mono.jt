@@ -3,9 +3,10 @@
         
         A simple type-inference system for (monomorphic) PicoML.
         
-        This system is designed to show why it's necessary to generalize
-        the type variables that remain after a type inference is concluded
-        and before the type is installed in the environment.        
+        This system is designed to show why it's necessary 9in doing
+        polymorphic type inference) to generalize the type variables
+        that remain after a type inference is concluded and before
+        the type is installed in the environment.
        
 */
         FONTS "Laura"
@@ -22,9 +23,10 @@
         SUBSTFIX 500000 [| x := T |]
         
         LEFTFIX 20   if then else
-        OUTFIX       let in end
-        OUTFIX       { Ã }
-        OUTFIX       [ ]
+        OUTFIX       let    in end
+        OUTFIX       letrec in end
+        OUTFIX       { Ã }              /* Function expressions */
+        OUTFIX       [ ]                /* List expressions */
         
         
         INFIX   50R  ‰ 
@@ -35,16 +37,20 @@
         INFIXC  220L /
         PREFIX  1000 ~
         POSTFIX 1000 C
-        BIND x SCOPE B IN { x Ã B }
-        BIND x SCOPE B IN let x=E in B end
+        
+        BIND x   SCOPE B IN { x Ã B }
+        BIND x   SCOPE B IN let x=E         in B end
         BIND x y SCOPE B IN let x=E and y=F in B end
+
+        BIND x   SCOPE B E   IN letrec x=E         in B end
+        BIND x y SCOPE B E F IN letrec x=E and y=F in B end
         
         
         SEQUENT IS LIST ¡ FORMULA
         
         
-        CONJECTUREPANEL "Type Inference" IS
-          THEOREMS "Types" ARE
+        CONJECTUREPANEL "Type Inference Problems" IS
+          THEOREMS "Type Derivations" ARE
             Env ¡ Fst(3, True) == Snd((), 4) ˜ _T
            AND
             Env ¡ Fst(3, True) == Fst(3, 4) ˜ _T
@@ -66,6 +72,8 @@
             Env ¡ let f = { x Ã x } in (f 3, f 5) end˜ _T
            AND 
             Env ¡ let f = { x Ã x } in (f 3, f ()) end˜ _T
+           AND
+            Env ¡ letrec l = { xs Ã if Null xs then 0 else 1+l(Tl xs) } in l end ˜ _T
           END
           BUTTON "Theorem"   IS  apply COMMAND
           BUTTON Constant    IS  apply "Constant"
@@ -81,7 +89,7 @@
         END
         
         TACTIC OneStep IS 
-        (ALT "==" Apply Pair Fun If Let Id "Built In" Constant  
+        (ALT "==" Apply Pair Fun If Let LetRec Id "Built In" Constant  
              (SEQ (EXPLAIN "No applicable rule") FAIL))
         
         TACTIC ManySteps IS 
@@ -96,6 +104,8 @@
            Env ¡ False ˜ Bool
         AND
            Env ¡ () ˜ ()
+        AND
+           Env ¡ Nil ˜ [T]
         END
              
         RULES BuiltIn ARE
@@ -170,6 +180,17 @@
                  AND   Env, x˜Te, y˜Tf ¡ B˜Tb
                  INFER Env ¡ let x=E and y=F in B end˜ Tb
             END
+            
+            RULES LetRec ARE
+                 FROM  Env, x˜Te ¡ E˜Te
+                 AND   Env, x˜Te ¡ B˜Tb
+                 INFER Env ¡ letrec x=E in B end ˜ Tb
+                 AND   WHERE x NOTIN y 
+                 FROM  Env, x˜Te, y˜Tf  ¡ E˜Te
+                 AND   Env, x˜Te, y˜Tf  ¡ F˜Tf
+                 AND   Env, x˜Te, y˜Tf ¡ B˜Tb
+                 INFER Env ¡ let x=E and y=F in B end˜ Tb
+            END
                   
                                
         END
@@ -202,8 +223,8 @@
         INITIALISE outerassumptionplural Environment
         INITIALISE innerassumptionword   Environment
         INITIALISE innerassumptionword   Environment
-        INITIALISE hidereflexivity       false
         
+
 
 
 
