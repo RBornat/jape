@@ -30,12 +30,12 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.Vector;
 
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileView;
 
-public class JapeFileFilter extends FileFilter implements FilenameFilter{
+public class JapeFileFilter extends FileFilter implements FilenameFilter {
 
 	protected String description;
 	protected Vector pats = new Vector();
@@ -50,7 +50,11 @@ public class JapeFileFilter extends FileFilter implements FilenameFilter{
 	}
 	
 	public void addPattern(String pattern) {
-		pats.add(Pattern.compile(pattern));
+		try {
+			pats.add(Pattern.compile(pattern));
+		} catch (PatternSyntaxException e){
+			Alert.showErrorAlert("bad file filter pattern\n"+e.getMessage());
+		}
 	}
 	
 	public boolean accept(File f) { 
