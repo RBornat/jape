@@ -73,6 +73,23 @@ public class TextDialog {
 	}
     }
     
+    private static String lastUnify = "";
+    
+    public static void runUnifyDialog(String formula) {
+	String newFormula = runTextDialog("Unify", lastUnify, 
+					  "Type a formula to unify with "+formula);
+	try {
+	    if (newFormula!=null) {
+		lastUnify = newFormula;
+		Reply.reply(newFormula);
+	    }
+	    else
+		Reply.reply(""); 
+	} catch (ProtocolError e) {
+	    Alert.abort("TextDialog.runUnifyDialog can't reply");
+	}   
+    }
+
     public static String runTextDialog(String title, String oldText, String message) {
 	final JTextField textField = new JTextField(oldText);
 	JapeFont.setComponentFont(textField, JapeFont.TEXTINPUT);
