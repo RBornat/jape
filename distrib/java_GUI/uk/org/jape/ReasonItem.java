@@ -34,6 +34,7 @@ public class ReasonItem extends SelectableProofItem {
     }
 
     public void clicked(byte eventKind, MouseEvent e) {
+        canvas.getProofWindow().claimProofFocus();
         if (selectionRect.getSelkind()==NoSel) {
             canvas.killSelections((byte)(ReasonSel | HypSel | ConcSel));
             selectionRect.setSelkind(ReasonSel);

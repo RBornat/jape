@@ -51,6 +51,7 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
         annotlen = annottext.length();
         addJapeMouseListener(new JapeMouseTextAdapter() {
             public void textpressed(byte eventKind, MouseEvent e) {
+                TextSelectableItem.this.canvas.claimFocus();
                 TextSelectableItem.this.textpressed(eventKind, e);
             }
             public void textdragged(byte eventKind, MouseEvent e) {

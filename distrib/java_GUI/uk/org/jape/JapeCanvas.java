@@ -42,7 +42,8 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         super(viewport, scrolled);
         addMouseListener(new JapeMouseTextAdapter() {
             public void clicked(byte eventKind, MouseEvent e) {
-               JapeCanvas.this.clicked(eventKind, e);
+                JapeCanvas.this.claimFocus();
+                JapeCanvas.this.clicked(eventKind, e);
             }
             public void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
                 if (isClick)
@@ -51,6 +52,13 @@ public abstract class JapeCanvas extends ContainerWithOrigin
         });
     }
 
+    protected void claimFocus() {
+        if (this instanceof ProofCanvas || this instanceof ProvisoCanvas)
+            getProofWindow().claimProofFocus();
+        else
+            getProofWindow().claimDisproofFocus();
+    }
+                                     
     // DisplayItems (things that have an identity) get added at the front;
     // other items (lines, rects, etc.) at the back.
     public Component add(Component c) {

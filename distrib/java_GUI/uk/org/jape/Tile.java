@@ -66,9 +66,11 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
 
         JapeMouseListener mil = new JapeMouseAdapter() {
             public void doubleclicked(MouseEvent e) {
+                Tile.this.getProofWindow().claimDisproofFocus();
                 Reply.sendCOMMAND("tileact \""+text+"\"");
             }
             public void pressed(MouseEvent e) {
+                Tile.this.getProofWindow().claimDisproofFocus();
                 Tile.this.pressed(e);
             }
             public void dragged(boolean wobbly, MouseEvent e) {
@@ -82,6 +84,13 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
         addMouseMotionListener(mil);
     }
 
+    public ProofWindow getProofWindow() {
+        Container c = getParent();
+        while (c!=null && !(c instanceof ProofWindow))
+            c = c.getParent();
+        return (ProofWindow)c; // null if we ain't in a ProofWindow, obviously -- but we always are
+    }
+    
     protected class TileImage extends DragImage {
         public TileImage() {
             super(Transparent); include(Tile.this); fixImage();

@@ -54,6 +54,7 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
         addJapeMouseListener(new JapeMouseAdapter() {
             private boolean noticeDrag;
             public void pressed(MouseEvent e) {
+                WorldConnector.this.canvas.getProofWindow().claimDisproofFocus();
                 noticeDrag = !(e.isAltDown() || e.isShiftDown() ||
                                e.isMetaDown() || e.isControlDown());
                 if (noticeDrag)

@@ -53,6 +53,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
         addJapeMouseListener(new JapeMouseAdapter() {
             private boolean noticeDrag;
             public void pressed(MouseEvent e) {
+                WorldLabel.this.canvas.getProofWindow().claimDisproofFocus();
                 noticeDrag = !(e.isAltDown() || e.isShiftDown() ||
                                e.isMetaDown() || e.isControlDown());
                 if (noticeDrag)

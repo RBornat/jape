@@ -48,6 +48,7 @@ public abstract class SelectableProofItem extends    TextSelectableProofItem
         canvas.add(selectionRect);
         addJapeMouseListener(new JapeMouseTextAdapter() {
             public void clicked(byte eventKind, MouseEvent e) {
+                SelectableProofItem.this.canvas.getProofWindow().claimProofFocus();
                 SelectableProofItem.this.clicked(eventKind, e);
             }
             public void doubleclicked(byte eventKind, MouseEvent e) {
