@@ -43,14 +43,7 @@ public class PrintProof {
         defaultPage = job.pageDialog(defaultPage);
     }
 
-    static void printProof() {
-        ProofWindow w;
-        try {
-            w = ProofWindow.getFocussedProofWindow(true);
-        } catch (ProtocolError e) {
-            Alert.abort("PrintProof.printProof no focussed window");
-            w = null; // shut up compiler
-        }
+    static void printProof(ProofWindow w) {
         PrinterJob job = PrinterJob.getPrinterJob();
         ensureDefaultPage(job);
         job.setPrintable(w, defaultPage);
