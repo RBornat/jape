@@ -36,22 +36,20 @@ type planclass =
 
 let rec planclassstring =
   function
-    ElementClass (el, c) ->
-      (("ElementClass(" ^ elementstring el) ^ displayclassstring c) ^ ")"
-  | PunctClass -> "PunctClass"
-  | ReasonClass -> "ReasonClass"
+    ElementClass (el, c) -> "ElementClass(\"" ^ elementstring el ^ "\"," ^ displayclassstring c ^ ")"
+  | PunctClass           -> "PunctClass"
+  | ReasonClass          -> "ReasonClass"
 
 let rec planclass2displayclass =
-  function
-    ElementClass (_, i) -> i
-  | PunctClass -> DisplayPunct
-  | ReasonClass -> DisplayReason
+  function ElementClass (_, i) -> i
+  |        PunctClass          -> DisplayPunct
+  |        ReasonClass         -> DisplayReason
 
 let rec makeelementplan elementstring c el =
   element2plan elementstring el (ElementClass (el, c))
 
 (* sequents are drawn
-                                C - if lhs empty and rhs a single element
+                              C - if lhs empty and rhs a single element
    [ H {, H } ] |- [ C {, C } ] - otherwise
 
    that knowledge is entirely encapsulated in the makeseqplan function.
