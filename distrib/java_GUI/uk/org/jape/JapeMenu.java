@@ -229,7 +229,9 @@ public class JapeMenu implements DebugConstants {
     }
 
     private static final String RADIO_ICON_KEY = "RadioButtonMenuItem.checkIcon",
-                                CHECK_ICON_KEY = "CheckBoxMenuItem.checkIcon";
+                                CHECK_ICON_KEY = "CheckBoxMenuItem.checkIcon",
+                                PAGE_SETUP  = "Page Setup...",
+                                PRINT_PROOF = "Print Proof";
     
     protected static TitledMenuBar mkBar(boolean isProofBar) {
         Object radioIcon = UIManager.get(RADIO_ICON_KEY);
@@ -270,7 +272,11 @@ public class JapeMenu implements DebugConstants {
                     else
                     if (o instanceof I) {
                         I ii = (I)o;
-                        if (isProofBar || !m.title.equals("File") || !ii.label.equals("Close")) {
+                        if (isProofBar || !m.title.equals("File") ||
+                              (!ii.label.equals("Close") && !ii.label.equals(PAGE_SETUP) &&
+                                                            !ii.label.equals(PRINT_PROOF))) {
+                            if (m.title.equals("File") && ii.label.equals(PAGE_SETUP))
+                                menu.addSeparator();
                             if (buttonGroup==null) {
                                 JMenuItem item = new JMenuItem(ii.label);
                                 mkItem(menu, ii, item);
@@ -316,21 +322,23 @@ public class JapeMenu implements DebugConstants {
             throw new ProtocolError("no menu named "+menuname);
         return menu;
     }
-    
+
+    /* ******************************* menu actions ******************************* */
+
     private abstract static class ItemAction {
         abstract public void action();
-    }
-
-    private static class UnimplementedAction extends ItemAction {
-        String s;
-        UnimplementedAction (String s) { this.s = s; }
-        public void action () {  System.err.println(s); }
     }
 
     private static class AlertAction extends ItemAction {
         String s;
         AlertAction (String s) { this.s = s; }
         public void action () {  Alert.showAlert(Alert.Warning, s); }
+    }
+
+    private static class CloseProofAction extends ItemAction {
+        public void action() {
+            ProofWindow.closeFocussedProof();
+        }
     }
 
     private static class CmdAction extends ItemAction {
@@ -350,10 +358,18 @@ public class JapeMenu implements DebugConstants {
     
     }
 
-    private static class CloseProofAction extends ItemAction {
-        public void action() {
-            ProofWindow.closeFocussedProof();
-        }
+    private static class PageSetupAction extends ItemAction {
+        public void action() { PrintProof.pageSetup(); }
+    }
+
+    private static class PrintProofAction extends ItemAction {
+        public void action() { PrintProof.printProof(); }
+    }
+
+    private static class UnimplementedAction extends ItemAction {
+        String s;
+        UnimplementedAction (String s) { this.s = s; }
+        public void action () {  System.err.println(s); }
     }
 
     private static boolean insertbefore(M menu, String label) {
@@ -438,6 +454,12 @@ public class JapeMenu implements DebugConstants {
         filemenu.addSep();
 
         indexMenuItem(filemenu, "Erase theory", new CmdAction("reset"));
+
+        // separator implicit before these ...
+
+        indexMenuItem(filemenu, PAGE_SETUP, new PageSetupAction());
+        indexMenuItem(filemenu, PRINT_PROOF, new PrintProofAction()).
+            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, menumask));
         
         if (LocalSettings.quitMenuItemNeeded) {
             filemenu.addSep();
@@ -706,7 +728,7 @@ public class JapeMenu implements DebugConstants {
                 action.setEnabled(enable);
 
             if (focussedonly)
-                doEnableItem(ProofWindow.focussedProofWindow(false), menuname, label, enable);
+                doEnableItem(ProofWindow.getFocussedProofWindow(false), menuname, label, enable);
             else
             for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); )
                 doEnableItem((JapeWindow)e.nextElement(), menuname, label, enable);
@@ -763,7 +785,7 @@ public class JapeMenu implements DebugConstants {
         item.setSelected(state);
 
         if (focussedonly)
-            doTickItem(ProofWindow.focussedProofWindow(false), menuname, label, state);
+            doTickItem(ProofWindow.getFocussedProofWindow(false), menuname, label, state);
         else
             for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); )
                 doTickItem((JapeWindow)e.nextElement(), menuname, label, state);
