@@ -1,4 +1,4 @@
-/* $Id$ */
+﻿/* $Id$ */
 
 INITIALISE interpretpredicates true
 

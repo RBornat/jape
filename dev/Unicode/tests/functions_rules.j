@@ -1,4 +1,4 @@
-/* $Id$ */
+﻿/* $Id$ */
 
 CLASS VARIABLE v
 CLASS FORMULA C H J P
