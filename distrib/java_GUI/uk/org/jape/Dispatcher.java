@@ -106,9 +106,14 @@ public class Dispatcher extends Thread {
                     
                     // file choosing
                         if (p.equals("READFILENAME")&&len==3)
-                            Reply.reply(FileChooser.newOpenDialog(command[1], command[2]));
+                            Reply.reply(FileChooser.newOpenDialog(toUnicode(command[1]),
+                                                                  toUnicode(command[2])));
                         else
-                        
+                        if (p.equals("WRITEFILENAME")&&len==3)
+                            Reply.reply(FileChooser.newSaveDialog(toUnicode(command[1]),
+                                                                  toUnicode(command[2])));
+                        else
+                            
                     // font setting
                         if (p.equals("SETFONTS")&&len==2)
                             JapeFont.setSubstituteFont(command[1]);
@@ -237,7 +242,7 @@ public class Dispatcher extends Thread {
                             japeserver.dontQuit();
                         else
                         if (p.equals("SETTEXTSELECTIONMODE")&&len==2)
-                            { } // for now
+                            ProofWindow.setTextSelectionMode(toByte(command[1]));
                         else
                         if (p.equals("VERSION")&&len==2)
                             AboutBox.setVersion(command[1]);
