@@ -101,12 +101,9 @@ public class LocalSettings implements SelectionConstants {
     
     // how to mark an entry in a conjecture panel
     
-    public static final String tick = "\u221A", cross = "\u2022";
-            // actually square root, blob in Konstanz
-
-    // window titling (until we have proper Unicode operator coverage, esp. turnstile)
+    public static final String tick = "\u2713", cross = "\u2717";
     
-    public static final boolean UnicodeWindowTitles = true; // now that I have Lucida Sans Unicode
+    public static final boolean UnicodeWindowTitles = true; // now that I have good Unicode fonts
 
     /* ************************ MacOS specific bits ************************ */
 
