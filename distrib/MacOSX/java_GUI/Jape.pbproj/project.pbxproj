@@ -45,6 +45,7 @@
 				F515271D037BB83201A80116,
 				F586B1630326408D01A80117,
 				F515B6080331D98801A80116,
+				F5F50C890394DDCB01A80116,
 				F560AEE6036D799701A80116,
 				F560AEE7036D799701A80116,
 				F51F6C7F036025C101A80116,
@@ -61,6 +62,7 @@
 				F515B6180331DA6801A80116,
 				F59F3D1C033773B101A80116,
 				F5E5E3DE035EE1AC01A80116,
+				F5F50C860394DC6601A80116,
 				F592908503728EA101A80117,
 				F515B60B0331D98801A80116,
 				F5152720037BB90501A80116,
@@ -80,8 +82,10 @@
 				F5E5E3E2035F171101A80116,
 				F5EAC0DB036F473D01A80117,
 				F57E7E00037FBF5401A80116,
+				F5F50C8F0394EBCF01A80116,
 				F5152723037BC71E01A80116,
 				F5152726037BCC1A01A80116,
+				F5F50C920394F22F01A80116,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -295,6 +299,10 @@
 				F57E7E01037FBF5401A80116,
 				F5B9B5BD038B969501A80116,
 				F57E549D038BB91A01A80116,
+				F5F50C870394DC6601A80116,
+				F5F50C8A0394DDCB01A80116,
+				F5F50C900394EBCF01A80116,
+				F5F50C930394F22F01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1081,6 +1089,10 @@
 				F57E7E02037FBF5401A80116,
 				F5B9B5BE038B969501A80116,
 				F57E549E038BB91A01A80116,
+				F5F50C880394DC6601A80116,
+				F5F50C8B0394DDCB01A80116,
+				F5F50C910394EBCF01A80116,
+				F5F50C940394F22F01A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1422,6 +1434,78 @@
 		};
 		F5EAC0DE036F473D01A80117 = {
 			fileRef = F5EAC0DB036F473D01A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F50C860394DC6601A80116 = {
+			isa = PBXFileReference;
+			name = MiscellaneousConstants.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/MiscellaneousConstants.java;
+			refType = 0;
+		};
+		F5F50C870394DC6601A80116 = {
+			fileRef = F5F50C860394DC6601A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F50C880394DC6601A80116 = {
+			fileRef = F5F50C860394DC6601A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F50C890394DDCB01A80116 = {
+			isa = PBXFileReference;
+			name = Flyback.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/Flyback.java;
+			refType = 0;
+		};
+		F5F50C8A0394DDCB01A80116 = {
+			fileRef = F5F50C890394DDCB01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F50C8B0394DDCB01A80116 = {
+			fileRef = F5F50C890394DDCB01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F50C8F0394EBCF01A80116 = {
+			isa = PBXFileReference;
+			name = TileTarget.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/TileTarget.java;
+			refType = 0;
+		};
+		F5F50C900394EBCF01A80116 = {
+			fileRef = F5F50C8F0394EBCF01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F50C910394EBCF01A80116 = {
+			fileRef = F5F50C8F0394EBCF01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F50C920394F22F01A80116 = {
+			isa = PBXFileReference;
+			name = Target.java;
+			path = /Users/richard/cvsdownloads/jape/jape/java_japeserver/Target.java;
+			refType = 0;
+		};
+		F5F50C930394F22F01A80116 = {
+			fileRef = F5F50C920394F22F01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F50C940394F22F01A80116 = {
+			fileRef = F5F50C920394F22F01A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
