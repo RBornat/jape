@@ -108,8 +108,3 @@ THEORY	Reflect IS
 	RULE	L		IS	L F					= ref ¥ F ¥ ref
 	RULE	R		IS	R F					= F
 END
-
-
-
-
-
