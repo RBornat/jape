@@ -62,4 +62,6 @@ public class LocalSettings implements SelectionConstants {
         if (e.isMetaDown())  kind |= DisjointSelMask;
         return kind;
     }
+
+    public static final String tick = "\u2713", cross = "\u2717";
 }

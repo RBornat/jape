@@ -67,6 +67,8 @@ public class LocalSettings implements MRJAboutHandler,
         return kind;
     }
 
+    public static final String tick = "\u221A", cross = "\u2022"; // actually square root, blob in Konstanz
+
     /* ********************************************************************** */
 
     // MacOS specific bits
