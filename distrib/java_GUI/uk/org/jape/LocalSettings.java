@@ -30,6 +30,7 @@
 // or I don't know what else.
 
 import java.awt.Dimension;
+
 import java.awt.event.MouseEvent;
 
 public class LocalSettings implements SelectionConstants {
@@ -55,12 +56,17 @@ public class LocalSettings implements SelectionConstants {
     // spacing of tiles
     public static final int TileSpacing = 7;
 
-    // what a mouseDown means (this stands until people tell me better)
-    public static byte mouseDownKind(MouseEvent e) {
+    // what a mouseDown means on a TextItem (this stands until people tell me better)
+    public static byte mouseDownTextItemMeans(MouseEvent e) {
         byte kind = e.isAltDown() ? TextSelMask : PureSelMask;
         if (e.isShiftDown()) kind |= ExtendedSelMask;
         if (e.isMetaDown())  kind |= DisjointSelMask;
         return kind;
+    }
+
+    // what a mouseDown means on a WorldItem (ditto)
+    public static byte mouseDownWorldItemMeans(MouseEvent e) {
+        return e.isAltDown() ? ExtendedDrag : SimpleDrag;
     }
 
     // how to mark an entry in a conjecture panel

@@ -27,15 +27,18 @@
 
 // the MacOSX version of LocalSettings.
 
-import java.awt.Dimension;
-import java.lang.IllegalStateException;
+import com.apple.mrj.MRJAboutHandler;
+import com.apple.mrj.MRJApplicationUtils;
+import com.apple.mrj.MRJQuitHandler;
+import com.apple.mrj.MRJPrefsHandler;
 
-import com.apple.mrj.*;
+import java.awt.Dimension;
+
 import java.awt.event.MouseEvent;
 
-public class LocalSettings implements MRJAboutHandler,
-                                      MRJQuitHandler,
-                                      MRJPrefsHandler,
+import java.lang.IllegalStateException;
+
+public class LocalSettings implements MRJAboutHandler, MRJQuitHandler, MRJPrefsHandler,
                                       SelectionConstants {
 
     // how to set up menus
@@ -58,13 +61,18 @@ public class LocalSettings implements MRJAboutHandler,
 
     // spacing of tiles
     public static final int TileSpacing = 5;
-    
-    // what a mouseDown means
-    public static byte mouseDownKind(MouseEvent e) {
-        byte kind = e.isAltDown() ? TextSelMask : PureSelMask;    
+
+    // what a mouseDown means on a TextItem
+    public static byte mouseDownTextItemMeans(MouseEvent e) {
+        byte kind = e.isAltDown() ? TextSelMask : PureSelMask;
         if (e.isShiftDown()) kind |= ExtendedSelMask;
         if (e.isMetaDown())  kind |= DisjointSelMask;
         return kind;
+    }
+
+    // what a mouseDown means on a WorldItem
+    public static byte mouseDownWorldItemMeans(MouseEvent e) {
+        return e.isAltDown() ? ExtendedDrag : SimpleDrag;
     }
 
     // how to mark an entry in a conjecture panel
