@@ -101,44 +101,44 @@ public class ChoiceDialog {
     }
     
     private static class ListSelectionListener extends JapeMouseAdapter {
-    public void doubleclicked(MouseEvent e) {
-	JList list = (JList)e.getSource();
-	int index = list.locationToIndex(e.getPoint());
-	
-	Alert.showAlert(list.getModel().getElementAt(index).toString());
-    }
+	public void doubleclicked(MouseEvent e) {
+	    JList list = (JList)e.getSource();
+	    int index = list.locationToIndex(e.getPoint());
+	    
+	    Alert.showAlert(list.getModel().getElementAt(index).toString());
+	}
     }
 
     static void clearChoices() {
-    list.removeAllElements();
+	list.removeAllElements();
     }
     
     static void setChoice(String str, int n) {
-    list.add(new Choice(str, n));
+	list.add(new Choice(str, n));
     }
     
     static int makeChoice(String message) {
-    Choice[] choices = (Choice[])list.toArray(new Choice[list.size()]);
-    JList choicelist = new JList(choices);
-    JScrollPane sp = new JScrollPane(choicelist);
-    
-    int i, nlines;
-    for (i=0, nlines=0; i<choices.length && nlines<8; i++)
-	nlines += choices[i].nlines;
-    choicelist.setVisibleRowCount(i);
-    choicelist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    choicelist.setSelectedIndex(0);
-    choicelist.addMouseListener(new ListSelectionListener());
-    choicelist.setCellRenderer(new Renderer());
-    
-    JLabel[] m = wrap(message);
-    Object[] ml = new Object[m.length+1];
-    
-    System.arraycopy(m, 0, ml, 0, m.length);
-    ml[ml.length-1] = sp;
-    
-    int res = JOptionPane.showConfirmDialog(null, ml, "Choose a match", 
-			       JOptionPane.OK_CANCEL_OPTION);
-    return res==JOptionPane.OK_OPTION ? ((Choice)choicelist.getSelectedValue()).n : 0;
+	Choice[] choices = (Choice[])list.toArray(new Choice[list.size()]);
+	JList choicelist = new JList(choices);
+	JScrollPane sp = new JScrollPane(choicelist);
+	
+	int i, nlines;
+	for (i=0, nlines=0; i<choices.length && nlines<8; i++)
+	    nlines += choices[i].nlines;
+	choicelist.setVisibleRowCount(i);
+	choicelist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	choicelist.setSelectedIndex(0);
+	choicelist.addMouseListener(new ListSelectionListener());
+	choicelist.setCellRenderer(new Renderer());
+	
+	JLabel[] m = wrap(message);
+	Object[] ml = new Object[m.length+1];
+	
+	System.arraycopy(m, 0, ml, 0, m.length);
+	ml[ml.length-1] = sp;
+	
+	int res = JOptionPane.showConfirmDialog(null, ml, "Choose a match", 
+				   JOptionPane.OK_CANCEL_OPTION);
+	return res==JOptionPane.OK_OPTION ? ((Choice)choicelist.getSelectedValue()).n : 0;
     }
 }
