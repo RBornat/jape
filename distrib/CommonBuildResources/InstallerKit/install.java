@@ -122,6 +122,10 @@
         the bootstrap-builder, and the primary bootstrap installer, but
         (at the moment) the overhead of the builder being present at
         install time is rather small (about 10kb). 
+
+        I may need to add something for MacOSX installation.
+
+        
         
 */
 package bootstrap;
@@ -180,6 +184,10 @@ public class install implements ActionListener
          else
          { 
            props.setProperty(arg, param);
+           if (arg.startsWith("-onwindows") && param.endsWith(".cmd"))
+           { 
+             resources.append(" " + param);
+           }
          }
        }
        else

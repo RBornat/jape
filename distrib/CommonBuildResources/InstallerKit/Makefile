@@ -11,12 +11,12 @@ fails:  test3 test4 ;
 
 test1: ; java bootstrap.install test1.jar\
                    -winclass installjape installjape.class \
-                   -bfont       "Sanserif-BOLD-20"  \
+                   -bfont       "Sanserif-BOLD-16"  \
                    -onunix      "echo hurrah, you won" \
-                   -onwindows   ".\\wincmd.cmd" \
+                   -onwindows   "wincmd.cmd" \
                    -app         "Test Application" \
                    -splash      japesplash.png \
-                   Makefile* install.java wincmd.cmd
+                   SHORTCUT.EXE japeicon.ico Makefile* install.java 
                    
 test2: ; java bootstrap.install test2.jar -onunix "ls -l " -app "Another Application" Makefile* install.java
 test3: ; java bootstrap.install -icon japesplash.gif Makefile* install.java
@@ -26,6 +26,7 @@ test4: ; java bootstrap.install Makefile* install.java
 #
 #
 clean:  ; rm -rf test bootstrap test*.jar
+
 
 
 
