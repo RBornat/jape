@@ -46,11 +46,12 @@ import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import javax.swing.ScrollPaneConstants;
 
-public class AnchoredScrollPane extends Container {
+public class AnchoredScrollPane extends Container implements DebugConstants {
     private Component view;
     private Rectangle viewBounds;
     private Container viewport;
     private JScrollBar vsb, hsb;
+    public final int scrollbarthickness;
 
     public AnchoredScrollPane() {
         super();
@@ -73,14 +74,11 @@ public class AnchoredScrollPane extends Container {
         setLayout(new AnchoredScrollPaneLayout());
         super.add(hsb); super.add(vsb); super.add(viewport);
         viewport.setBackground(Preferences.ProofBackground);
+        scrollbarthickness = hsb.getPreferredSize().height;
     }
 
     public Container getViewport() { return viewport; }
 
-    public int scrollbarthickness() {
-        return hsb.getHeight();
-    }
-    
     private class H implements AdjustmentListener {
         public void adjustmentValueChanged(AdjustmentEvent e) {
             switch (e.getAdjustmentType()) {
@@ -200,30 +198,42 @@ public class AnchoredScrollPane extends Container {
 
     /* this is where the anchor policy bites */
     public void setBounds(int x, int y, int w, int h) {
-        if (getWidth()!=0 && getHeight()!=0 && view!=null) { /* only for true resizing operations */
-            Point oldPos = view.getLocation();
+        if (view!=null) { 
+            Point viewPos = view.getLocation();
+            int width = Math.max(getWidth()-scrollbarthickness,0), height = Math.max(getHeight()-scrollbarthickness,0),
+                w1 = Math.max(w-scrollbarthickness,0), h1=Math.max(h-scrollbarthickness,0);
+            if (anchoredpane_tracing)
+                System.err.print("Anchored move ("+anchor+") from "+viewPos.x+","+viewPos.y+
+                                 " in "+width+","+height);
             switch (anchor) {
                 case ANCHOR_NORTH:
-                    oldPos.x += (w-getWidth())/2; break;
+                    viewPos.x += (w1-width)/2; break;
                 case ANCHOR_NORTHEAST:
-                    oldPos.x += w-getWidth(); break;
+                    viewPos.x += w1-width; break;
                 case ANCHOR_EAST:
-                    oldPos.x += w-getWidth(); oldPos.y += (h-getHeight())/2; break;
+                    viewPos.x += w1-width; viewPos.y += (h1-height)/2; break;
                 case ANCHOR_SOUTHEAST:
-                    oldPos.x += w-getWidth(); oldPos.y += h-getHeight(); break;
+                    viewPos.x += w1-width; viewPos.y += h1-height; break;
                 case ANCHOR_SOUTH:
-                    oldPos.x += (w-getWidth())/2; oldPos.y += h-getHeight(); break;
+                    viewPos.x += (w1-width)/2; viewPos.y += h1-height; break;
                 case ANCHOR_SOUTHWEST:
-                    oldPos.y += h-getHeight(); break;
+                    viewPos.y += h1-height; break;
                 case ANCHOR_WEST:
-                    oldPos.y += (h-getHeight())/2; break;
+                    viewPos.y += (h1-height)/2; break;
                 case ANCHOR_NORTHWEST:
                 default:
                     break;
             }
-            view.setLocation(oldPos);
+            view.setLocation(viewPos);
+            if (anchoredpane_tracing)
+                System.err.println(" to "+viewPos.x+","+viewPos.y+" in "+w1+","+h1);
         }
         super.setBounds(x,y,w,h);
+        if (view!=null && anchoredpane_tracing) {
+            if (view instanceof ContainerWithOrigin)
+                System.err.print(" ("+((ContainerWithOrigin)view).getViewGeometry()+")");
+            System.err.println();
+        }
     }
     
     private class AnchoredScrollPaneLayout implements LayoutManager {
@@ -275,13 +285,11 @@ public class AnchoredScrollPane extends Container {
          */
         public void layoutContainer(Container c) {
             Dimension size = getSize();
-            int vsbWidth = vsb.getPreferredSize().width;
-            int hsbHeight = hsb.getPreferredSize().height;
-            int sparewidth = size.width-vsbWidth;
-            int spareheight = size.height-hsbHeight;
+            int sparewidth = size.width-scrollbarthickness;
+            int spareheight = size.height-scrollbarthickness;
 
-            vsb.setBounds(sparewidth, 0, vsbWidth, spareheight);
-            hsb.setBounds(0, spareheight, sparewidth, hsbHeight);
+            vsb.setBounds(sparewidth, 0, scrollbarthickness, spareheight);
+            hsb.setBounds(0, spareheight, sparewidth, scrollbarthickness);
             viewport.setBounds(0, 0, sparewidth, spareheight);
             validate();
         }
