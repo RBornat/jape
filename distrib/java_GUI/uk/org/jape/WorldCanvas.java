@@ -229,9 +229,9 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
 
     /* ****************************** canvas as drag target ****************************** */
 
-    public boolean dragEnter(Object o) { return o instanceof WorldItem; }
+    public boolean dragEnter(byte dragKind, WorldItem w) { return true; }
     
-    public void dragExit() { }
+    public void dragExit(byte dragKind, WorldItem w) { }
 
     /* ****************************** canvas as drop target ****************************** */
     

@@ -39,7 +39,7 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
         from.registerFrom(this); to.registerTo(this);
     }
 
-    /* ****************************** world as drag target ****************************** */
+    /* ****************************** line as drag target ****************************** */
 
     private static final int wobble = 3;
     
@@ -63,26 +63,35 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 
     private boolean draghighlight;
     private Color previousColour;
-    
-    public boolean dragEnter(Object o) {
-        if (o instanceof WorldItem) {
-            previousColour = getForeground();
-            setForeground(Preferences.SelectionColour);
-            canvas.imageRepaint(); repaint();
-            draghighlight = true;
-            return true;
+
+    private void setDragHighlight(boolean state) {
+        if (state!=draghighlight) {
+            draghighlight = state;
+            if (draghighlight) {
+                previousColour = getForeground();
+                setForeground(Preferences.SelectionColour);
+                canvas.imageRepaint(); repaint();
+            }
+            else {
+                setForeground(previousColour);
+                canvas.imageRepaint(); repaint();
+            }
         }
-        else
-            return false;
     }
 
-    public void dragExit() {
-       setForeground(previousColour);
-        canvas.imageRepaint(); repaint();
-        draghighlight = false;
+    private boolean dragEnter(boolean ok) {
+        setDragHighlight(ok); return ok;
     }
 
-    /* ****************************** world as drop target ****************************** */
+    private void dragExit() {
+        setDragHighlight(false);
+    }
+
+    // WorldTarget
+    public boolean dragEnter(byte dragKind, WorldItem w) { return dragEnter(true); }
+    public void dragExit(byte dragKind, WorldItem w) { dragExit(); }
+
+    /* ****************************** line as drop target ****************************** */
 
     public void drop(byte dragKind, WorldItem w, int x, int y) {
         if (draghighlight) {
