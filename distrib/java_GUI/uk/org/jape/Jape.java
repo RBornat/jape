@@ -73,8 +73,7 @@ public class Jape implements DebugConstants {
     
     public static boolean onMacOS, onLinux, onSolaris, onWindows;
     public static Rectangle screenBounds;
-    public static String enginePath = "./jape_engine";
-    static String theoryPath = null;
+    public static final String defaultEnginePath = "./jape_engine";
     
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
@@ -110,44 +109,48 @@ public class Jape implements DebugConstants {
         JapeMenu.initMenuBar();
 
         LocalSettings l = new LocalSettings();
+        Vector engineCmd = new Vector();
+        engineCmd.add(defaultEnginePath);
 
-        for (int i=0; i<args.length; i++)
-        {
-           if (args[i].equals("-engine"))
-           { i++;
-             if (i<args.length) 
-               enginePath = args[i];
-             else
-               Alert.abort("-engine switch needs path argument");
-           }
-           else 
-           theoryPath = args[i];
+        for (int i=0; i<args.length; i++) {
+           if (args[i].equals("-engine")) {
+               i++;
+               if (i<args.length)
+                   engineCmd.insertElementAt(args[i],0);
+               else
+                   Alert.abort("-engine switch needs path argument");
+            }
+            else
+            if (args[i].equals("-theory")) {
+                i++;
+                if (i<args.length) {
+                    File f = new File(args[i]);
+                    if (f.isDirectory()) {
+                        FileChooser.setOpen(f);
+                        engineCmd.add(JapeMenu.chooseTheory());
+                    }
+                    else
+                    if (f.exists()) {
+                        FileChooser.setOpen(f);
+                        engineCmd.add(args[i]);
+                    }
+                    else
+                        Alert.showErrorAlert("theory path "+args[i]+
+                                             " is neither a file nor a folder.");
+                }
+                else
+                    Alert.abort("-theory switch needs path argument");
+            }
+            else
+                engineCmd.add(args[i]);
         }
 
-        new Engine(enginePath);
+        new Engine((String[])engineCmd.toArray(new String[engineCmd.size()]));
 
         Logger.init();
         
         if (tracing)
             Logger.log.println("GUI initialised");
-
-        if (theoryPath!=null) 
-        { File f = new File(theoryPath);
-          if (f.isDirectory())
-          {
-             FileChooser.setOpen(f);
-             JapeMenu.doChooseTheory(); 
-          }          
-          else
-          if (f.exists())
-          {
-             FileChooser.setOpen(f);
-             JapeMenu.doOpenFile(theoryPath); 
-          }
-          else
-             Alert.showErrorAlert(theoryPath + " is neither a file nor a folder.");
-        }
-
     }
 }
 
