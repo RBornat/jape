@@ -53,6 +53,16 @@ public class JapeWindow extends JFrame {
         }
         return null;
     }
+
+    public static void closeWindow(String title) {
+        JapeWindow w = findWindow(title);
+        if (w==null)
+            Alert.abort("JapeWindow.closeWindow can't find "+title);
+        else {
+            windowv.remove(windowv.indexOf(w));
+            w.dispose();
+        }
+    }
     
     public static Enumeration windows() {
         return windowv.elements();
