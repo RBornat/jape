@@ -37,14 +37,12 @@ import javax.swing.JButton;
 public class ButtonPane extends Container implements DebugConstants {
 
     public ButtonPane() {
-        super();
-        setLayout(new ButtonPaneLayout());
+        this(0);
     }
 
-    public ButtonPane(JButton[] buttons) {
-        this();
-        for (int i=0; i<buttons.length; i++)
-            addButton(buttons[i]);
+    public ButtonPane(int minacross) {
+        super();
+        setLayout(new ButtonPaneLayout(minacross));
     }
 
     public void addButton(JButton button) {
@@ -64,6 +62,11 @@ public class ButtonPane extends Container implements DebugConstants {
     }
     
     private class ButtonPaneLayout implements LayoutManager {
+        private final int minacross;
+
+        public ButtonPaneLayout(int minacross) {
+            this.minacross = minacross;
+        }
 
         /* Called by the Container add methods. Layout managers that don't associate
          * strings with their components generally do nothing in this method.
@@ -110,7 +113,7 @@ public class ButtonPane extends Container implements DebugConstants {
                 int buttoncount = getComponentCount();
 
                 buttonpanelheight = d.height+2*leading;
-                buttonpanelwidth = leading;
+                buttonpanelwidth = packedwidth;
                 
                 for (int i=0; i<buttoncount; i++) {
                     Component button = getComponent(i);
@@ -119,7 +122,13 @@ public class ButtonPane extends Container implements DebugConstants {
                     if (buttonlayout_tracing)
                         Logger.log.println(i+": "+d.width+","+d.height);
 
-                    buttonpanelwidth += leading+d.width;
+                    packedwidth += leading+d.width;
+                    buttonpanelwidth = Math.max(packedwidth+leading, buttonpanelwidth);
+
+                    if (minacross!=0 && i+1<buttoncount && (i+1)%minacross==0) {
+                        packedwidth = leading;
+                        buttonpanelheight += d.height+leading;
+                    }
                 }
             }
             
