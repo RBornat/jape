@@ -223,7 +223,7 @@ module
          subgoals) ->
         cxt,
         mkJoin cxt reason how args conjecture
-          (m_a_p ((fun ooo -> mkTip cxt (rewriteseq cxt ooo)), subgoals))
+          (_MAP ((fun ooo -> mkTip cxt (rewriteseq cxt ooo)), subgoals))
           (* rewrite tips here *)
           (thinnedL, thinnedR)
     (* filters *)
@@ -327,7 +327,7 @@ module
             implode
               [seqstring (rewriteseq cxt c); " generates subgoal";
                if List.length ss = 1 then " " else "s "] ::
-              m_a_p ((fun ooo -> seqstring (rewriteseq cxt ooo)), ss)
+              _MAP ((fun ooo -> seqstring (rewriteseq cxt ooo)), ss)
       in
       let rec numwords n =
         match n with
@@ -353,13 +353,13 @@ module
                  ["The "; kind; " "; step_label how; " matches in ";
                   numwords (List.length ps); " different ways. ";
                   "Select an instance of the "; kind; " from this menu: "],
-               m_a_p (listposs, ps))
+               _MAP (listposs, ps))
           with
             None -> failOffering (); None
           | Some n -> succeedOffering (); Some (answer (List.nth (ps) (n)))
     (* this isn't really discriminatory, is it? *)
     
-    let rec takethelot ps = m_a_p (answer, ps)
+    let rec takethelot ps = _MAP (answer, ps)
     (**************************************************************************
     ***************************************************************************)
 
@@ -394,7 +394,7 @@ module
               end
           | _ -> None
         in
-        m_a_p ((fun cxt -> optionfilter (thinned cxt) resnums, cxt), cxts)
+        _MAP ((fun cxt -> optionfilter (thinned cxt) resnums, cxt), cxts)
     (* obvious analogue of exists *)
     let rec all f ooo = not (List.exists (fun ooo -> not (f ooo)) ooo)
     let rec BnMfilter f xs = ( <| ) (f, xs)
@@ -459,7 +459,7 @@ module
          *)
         let rec result subgoals (thinnedL, thinnedR, cxt) =
           (* don't rewrite uHs, uGs, because of 'used' filters above *)
-          info, thinnedL, thinnedR, cxt, m_a_p (rewriteseq cxt, subgoals)
+          info, thinnedL, thinnedR, cxt, _MAP (rewriteseq cxt, subgoals)
         in
         (* get rid of alternatives which have the *same* thinners in bag matching 
         fun remdupposs (BagClass _) ps =

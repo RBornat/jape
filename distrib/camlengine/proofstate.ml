@@ -322,7 +322,7 @@ module
         not
           (List.exists isUnknown
              (nj_fold (sortedmerge earliervar)
-                (m_a_p
+                (_MAP
                    ((fun ooo -> provisovars (provisoactual ooo)),
                     provisos (rewritecxt cxt)))
                 []))

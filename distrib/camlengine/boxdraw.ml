@@ -332,7 +332,7 @@
              andthenr (why, (fun r -> Some (r, lprins, subs))))
         in
         let rec aslines isid =
-          mkl isid (m_a_p ((fun ooo -> respt (T (hs, ooo))), numbered subts))
+          mkl isid (_MAP ((fun ooo -> respt (T (hs, ooo))), numbered subts))
         in
         let rec boxpt lines =
           false, BoxPT (RevPath rp, true, innerwords, newhyps, lines)
@@ -562,7 +562,7 @@
           Some (why, lprins, subpts) ->
             Some
               (pi, tranreason why, lprins,
-               m_a_p (dependency tranreason ordinary, subpts))
+               _MAP (dependency tranreason ordinary, subpts))
         | None -> None
       in
       (* transforming stiles *)
@@ -578,7 +578,7 @@
             element2textinfo e, deadf (opt2bool justopt) mkconcplan pi e
           in
           let dep =
-            LinDep (m_a_p (mkplan, concs), dostopt stopt, linsubs pi justopt)
+            LinDep (_MAP (mkplan, concs), dostopt stopt, linsubs pi justopt)
           in
           begin match isid, justopt with
             true, Some (_, [lp], []) -> IdDep (lp, dep)
@@ -593,7 +593,7 @@
             (boxit,
              (string2textinfo ReasonFont sing,
               string2textinfo ReasonFont plur),
-             m_a_p (mkplan, hs), dependency tranreason ordinary pt')
+             _MAP (mkplan, hs), dependency tranreason ordinary pt')
       | CutPT (RevPath rp, ch, lpt, rpt, chneeded, tobehidden) ->
           let rootp = List.rev rp in
           let leftp = List.rev (0 :: rp) in
@@ -915,7 +915,7 @@
                        sss]
               in
               let sys =
-                m_a_p ((fun ss -> Syllable (TermFont, implode ss)), sss)
+                _MAP ((fun ss -> Syllable (TermFont, implode ss)), sss)
               in
               let text =
                 Text
@@ -940,7 +940,7 @@
        *)
        
       (* Construct the elements plan for a single line (relative to p). 
-       * a_l_l this function does is put the dots in if there is no justification
+       * _All this function does is put the dots in if there is no justification
        *)
       let rec mkelementsplan mkelps proven p =
         let (elementsplanlist, elementsbox as elementsplan) = mkelps p in
@@ -1095,7 +1095,7 @@
               None -> acc, None
             | Some (pi, rinf, lprins, subdps) ->
                 let lcids =
-                  m_a_p
+                  _MAP
                     ((fun lp ->
                         try unSOME (mapped sameresource hypmap lp) with
                           unSOME_ ->
@@ -1173,7 +1173,7 @@
               let concels' =
                 match !foldformulae, wopt with
                   true, Some bestW ->
-                    m_a_p
+                    _MAP
                       (foldformula
                          (bestW - 2 * posX (topleft elbox) - commaW),
                        concels)
@@ -1217,7 +1217,7 @@
                          bestW - 2 * posX innerpos)
                     in
                     minwaste measureplan mybestW
-                      (m_a_p
+                      (_MAP
                          ((fun (e, inf) -> e, foldformula mybestW inf),
                           hypelis))
               in
@@ -1805,7 +1805,7 @@
         in
         let rec blackenthelot () = bg (fun _ -> blacken) in
         let hits =
-          m_a_p
+          _MAP
             ((fun (pos, class__) ->
                 try unSOME (locateHit pos (Some class__) HitPath info) with
                   _ ->

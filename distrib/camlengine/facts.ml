@@ -25,12 +25,12 @@ module
       module proviso : sig include Provisotype include Proviso end
       val ( ||| ) : 'a list * 'a list -> ('a * 'a) list
       val ( <| ) : ('a -> bool) * 'a list -> 'a list
-      val a_l_l : ('a -> bool) -> 'a list -> bool
+      val _All : ('a -> bool) -> 'a list -> bool
       val at : ('a, 'b) context.mapping * 'a -> 'b option
       val bracketedliststring : ('a -> string) -> string -> 'a list -> string
       val consolereport : string list -> unit
       val isextensibleID : term.vid -> bool
-      val m_a_p : ('a -> 'b) * 'a list -> 'b list
+      val _MAP : ('a -> 'b) * 'a list -> 'b list
       val member : 'a * 'a list -> bool
       val pairstring :
         ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
@@ -61,7 +61,7 @@ module
       pairstring (bracketedliststring provisostring " AND ") exteriorstring
         ","
     let rec facts provisos cxt =
-      m_a_p (provisoactual, provisos), getexterior cxt
+      _MAP (provisoactual, provisos), getexterior cxt
     let rec expandfacts (oldps, ext) ps = ps @ oldps, ext
     (* the names of the functions are intended to indicate that the function tells us
        only when a fact is definitely known to be true.
@@ -84,7 +84,7 @@ module
       match v, facts with
         Id _, (_, Exterior (_, Some ri, _)) ->
           not (member (v, rewinf_vars ri)) &&
-          a_l_l
+          _All
             ((fun u -> knownNOTIN facts (v, u)),
              ( <| ) (isUnknown, rewinf_vars ri))
       | _ -> false

@@ -102,7 +102,7 @@ module
       let rec eqt (t1, t2) mrs =
         if eqterms (t1, t2) then mrs
         else if simterms (t1, t2) then
-          m_a_p
+          _MAP
             ((function
                 Certain e -> Uncertain e
               | umr -> umr),
@@ -159,7 +159,7 @@ module
               | mrs -> Some mrs
             in
             let rec g (_, mrs, terms) = bagmatch epats terms mrs in
-            res (flatten (m_a_p (g, matchbag f eterms)))
+            res (flatten (_MAP (g, matchbag f eterms)))
         | _ -> res []
       in
       if null mrs then []
@@ -222,7 +222,7 @@ module
             let rec f =
               function
                 Segvar (_, ps, v), es ->
-                  let ps' = m_a_p (RR, ps) in
+                  let ps' = _MAP (RR, ps) in
                   begin match at (env, v) with
                     Some t ->
                       begin match debracket t with
@@ -255,14 +255,14 @@ module
           Id _ -> mkid FormulaClass
         | Unknown _ -> mkid FormulaClass
         | App _ -> registerApp (mkid FormulaClass, mkid FormulaClass)
-        | Tup (_, s, ts) -> registerTup (s, m_a_p (S, ts))
+        | Tup (_, s, ts) -> registerTup (s, _MAP (S, ts))
         | Literal _ -> t
-        | Fixapp (_, ss, ts) -> registerFixapp (ss, m_a_p (S, ts))
+        | Fixapp (_, ss, ts) -> registerFixapp (ss, _MAP (S, ts))
         | Subst (_, r, P, vts) ->
             registerSubst
-              (r, mkid FormulaClass, m_a_p ((fun (v, t) -> S v, S t), vts))
+              (r, mkid FormulaClass, _MAP ((fun (v, t) -> S v, S t), vts))
         | Binding (_, vs, _, pat) -> S pat
-        | Collection (_, k, es) -> registerCollection (k, m_a_p (E, es))
+        | Collection (_, k, es) -> registerCollection (k, _MAP (E, es))
       and E e =
         match e with
           Segvar (_, ps, v) -> registerSegvar (ps, S v)

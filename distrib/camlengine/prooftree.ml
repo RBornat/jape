@@ -357,7 +357,7 @@ module
         Tip _ -> true
       | Join j -> join_hastip j
     let rec tshaveTip ts =
-      nj_fold (fun (a, b) -> a || b) (m_a_p (hasTip, ts)) false
+      nj_fold (fun (a, b) -> a || b) (_MAP (hasTip, ts)) false
     let rec subtrees =
       function
         Tip _ -> []
@@ -502,9 +502,9 @@ module
                 moretips (l :: ns) tl (moretips ns tr tips)
       in
       moretips [] t []
-    let rec allTipPaths_ns t = m_a_p ((fun(hash1,_)->hash1), allTips_ns t)
+    let rec allTipPaths_ns t = _MAP ((fun(hash1,_)->hash1), allTips_ns t)
     let rec allTipConcs_ns t =
-      m_a_p
+      _MAP
         ((function
             ns, Tip (Seq (_, hs, gs), _, _) -> ns, explodeCollection gs
           | _ ->
@@ -739,7 +739,7 @@ module
                     (join_string tlf (fun _ -> "... see below ...") j ::
                        (match decode_cutnav j with
                           NormalNav ts ->
-                            m_a_p
+                            _MAP
                               ((fun (i, t) -> pft tlf (i :: rp) t),
                                numbered ts)
                         | CutNav (l, r, tl, tr) ->
@@ -833,7 +833,7 @@ module
                      string_of_int i :: " " :: catelim_termstring t tail)
                   ",\n"
                   (sortunique intorder
-                     (m_a_p ((fun (h, t) -> lookup h t, t), hs)))
+                     (_MAP ((fun (h, t) -> lookup h t, t), hs)))
                   body
           in
           let infer_body =
@@ -892,9 +892,9 @@ module
           uVIDs []
       in
       let addedinf =
-        getrewinfList (rawinfTerm cxt) (m_a_p ((fun(_,hash2)->hash2), changeduts))
+        getrewinfList (rawinfTerm cxt) (_MAP ((fun(_,hash2)->hash2), changeduts))
       in
-      let changedus = m_a_p ((fun(hash1,_)->hash1), changeduts) in
+      let changedus = _MAP ((fun(hash1,_)->hash1), changeduts) in
       let vars' =
         sortedlistsub
           (function
@@ -905,12 +905,12 @@ module
       let uVIDs' = sortedlistsub (fun (x, y) -> x = y) uVIDs changedus in
       let badres' =
         sortedlistsub (fun (x, y) -> x = y) badres
-          (m_a_p ((fun(hash1,_)->hash1), changedres)) @
+          (_MAP ((fun(hash1,_)->hash1), changedres)) @
           nj_fold
             (function
                ResUnknown i, is -> i :: is
              | _, is -> is)
-            (m_a_p ((fun(_,hash2)->hash2), changedres)) []
+            (_MAP ((fun(_,hash2)->hash2), changedres)) []
       in
       rewinf_merge
         (raw2rew_ (mkrawinf (vars', uVIDs', badres', psig)), addedinf)
@@ -1016,7 +1016,7 @@ module
       in
       let cinf = rewinfCxt cxt in
       (* vars only in givens are in the exterior of the proof, but they aren't thereby 'in use' *)
-      let gvars = nj_fold tmerge (m_a_p (seqvars termvars tmerge, givens)) [] in
+      let gvars = nj_fold tmerge (_MAP (seqvars termvars tmerge, givens)) [] in
       let cvars = sorteddiff earliervar (rewinf_vars cinf) gvars in
       (* val _ =
         consolereport ["gvars are ", termliststring gvars, 
@@ -1025,7 +1025,7 @@ module
                        "; rewinf_vars inf are ", termliststring (rewinf_vars inf)]
        *)
       let usedVIDs =
-        orderVIDs (m_a_p (vartoVID, mergevars (rewinf_vars inf) cvars))
+        orderVIDs (_MAP (vartoVID, mergevars (rewinf_vars inf) cvars))
       in
       withusedVIDs (withresmap (withvarmap (cxt, empty), empty), usedVIDs),
       tree, usedVIDs
@@ -1048,7 +1048,7 @@ module
      * RB 10/x/96
      *)
     let rec mkJoin cxt why how args fmt seq tops ress =
-      let args = m_a_p (rewrite cxt, args) in
+      let args = _MAP (rewrite cxt, args) in
       let seq = rewriteseq cxt seq in
       let ress = anyway (rew_ress cxt) ress in
       Join
@@ -1226,7 +1226,7 @@ module
                     arginf
                 | _ -> augargs args, rewinf_merge (arginf, rewinf)),
                fmt, hastipval, (augseq seq, rewinf_merge (seqinf, rewinf)),
-               (m_a_p (aug, trs), rewinf_merge (trsinf, rewinf)), ress)
+               (_MAP (aug, trs), rewinf_merge (trsinf, rewinf)), ress)
       in
       aug tree
     let rec maxtreeresnum t =
@@ -1234,7 +1234,7 @@ module
         Join j ->
           nj_fold Integer.max
             (maxseqresnum (join_seq j) ::
-               m_a_p (maxtreeresnum, join_subtrees j))
+               _MAP (maxtreeresnum, join_subtrees j))
             0
       | Tip t -> maxseqresnum (tip_seq t)
     let rec isCutStep t =
@@ -1259,7 +1259,7 @@ module
         ress ->
           [[l], tl; [], tr]
       | why, how, _, args, fmt, hastipval, seq, (ts, rewinf), ress ->
-          m_a_p ((fun (i, t) -> [i], t), numbered ts)
+          _MAP ((fun (i, t) -> [i], t), numbered ts)
     let rec visibles showall j =
       let pts = pathedsubtrees j in
       let rec default () = pts, [] in
@@ -1271,7 +1271,7 @@ module
             let (Seq (_, hs', _)) = join_seq j' in
             if hs = hs' then
               let hs =
-                m_a_p
+                _MAP
                   ((fun (ns, t) -> p @ ns, t),
                    (fun(hash1,_)->hash1) (visibles showall j'))
               in
@@ -1403,7 +1403,7 @@ module
     (* for export *)
     let reasonstyle = ref "long"
     let visible_subtrees showall ooo =
-      try__ (fun pts -> m_a_p ((fun(_,hash2)->hash2), pts))
+      try__ (fun pts -> _MAP ((fun(_,hash2)->hash2), pts))
         (visible_subtrees showall ooo)
     let rec visreason proved showall t =
       joinopt (join_visreason proved showall) t
@@ -1470,12 +1470,12 @@ module
            in
            f (join_fmt j))
     and invisiblereasons proved showall j =
-      m_a_p
+      _MAP
         (unSOME,
          ( <| )
            (opt2bool,
             flatten
-              (m_a_p
+              (_MAP
                  ((fun ooo -> allreasons proved showall ((fun(_,hash2)->hash2) ooo)),
                   (fun(_,hash2)->hash2) (visibles showall j)))))
     and allreasons proved showall t =
@@ -1483,7 +1483,7 @@ module
         (match t with
            Tip _ -> []
          | Join j ->
-             flatten (m_a_p (allreasons proved showall, join_subtrees j)))
+             flatten (_MAP (allreasons proved showall, join_subtrees j)))
     let rec join_multistep j vissubts =
       step_resolve (join_how j) ||
       List.exists (fun (ns, _) -> List.length ns > 1) vissubts
@@ -1500,14 +1500,14 @@ module
             it ->
             let (viss, _) = visibles showall j in
             let lpsNsubts' =
-              m_a_p ((fun ooo -> visp ((fun(_,hash2)->hash2) ooo)), viss)
+              _MAP ((fun ooo -> visp ((fun(_,hash2)->hash2) ooo)), viss)
             in
             let lps =
               nj_fold (sortedmerge earlierresource)
-                (m_a_p ((fun(hash1,_)->hash1), lpsNsubts'))
+                (_MAP ((fun(hash1,_)->hash1), lpsNsubts'))
                 (sort earlierresource ((fun(hash1,_)->hash1) ((fun(hash1,_)->hash1) ress)))
             in
-            let subts' = m_a_p ((fun(_,hash2)->hash2), lpsNsubts') in
+            let subts' = _MAP ((fun(_,hash2)->hash2), lpsNsubts') in
             let hidecut =
               (not showall && isCutjoin j) &&
               (match fmt with
@@ -1569,8 +1569,8 @@ module
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
         let rec findTip t ooo = findTip_ns t (dePath ooo)
         let rec getTip t ooo = getTip_ns t (dePath ooo)
-        let rec allTipPaths t = m_a_p (FmtPath, allTipPaths_ns t)
-        let rec allTipConcs t = m_a_p (rePath, allTipConcs_ns t)
+        let rec allTipPaths t = _MAP (FmtPath, allTipPaths_ns t)
+        let rec allTipConcs t = _MAP (rePath, allTipConcs_ns t)
         let rec validelement b t el =
           fun (FmtPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
@@ -1619,8 +1619,8 @@ module
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
         let rec findTip t ooo = findTip_ns t (dePath ooo)
         let rec getTip t ooo = getTip_ns t (dePath ooo)
-        let rec allTipPaths t = m_a_p (VisPath, allTipPaths_ns t)
-        let rec allTipConcs t = m_a_p (rePath, allTipConcs_ns t)
+        let rec allTipPaths t = _MAP (VisPath, allTipPaths_ns t)
+        let rec allTipConcs t = _MAP (rePath, allTipConcs_ns t)
         let rec validelement b t el =
           fun (VisPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true

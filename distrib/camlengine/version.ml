@@ -14,7 +14,7 @@
        Fixed small bug in treedraw                BAS.
   4.6: Added
       JAPE(SUBGOAL...) tactic
-       Made MEMBER and m_a_p coherent               BAS.
+       Made MEMBER and _MAP coherent               BAS.
   4.7: Richard's improvements and some fixes
        concerning debracketing                    BAS.
   4.9: Attempt at better online error reporting
@@ -36,6 +36,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.2  2002/07/04 11:43:13  richard
+     more simple changes to make things compile
+
      Revision 1.1  2002/07/03 08:09:08  richard
      translated, with a few alterations
 

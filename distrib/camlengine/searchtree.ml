@@ -117,17 +117,17 @@ module M
           and doalt a1 a2 a3 =
             match a1, a2, a3 with
               cqs, [], def ->
-                let cts = m_a_p ((fun (c, csrbs) -> c, doit csrbs), cqs) in
+                let cts = _MAP ((fun (c, csrbs) -> c, doit csrbs), cqs) in
                 begin match cts with
                   [c, t] -> Eq (c, t, def)
                 | [] -> def
-                | _ -> Alt (mkalt (m_a_p ((fun (c, t) -> c, Shift t), cts)) def)
+                | _ -> Alt (mkalt (_MAP ((fun (c, t) -> c, Shift t), cts)) def)
                 end
             | cqs, qs, def ->
                 let c = List.hd ((fun(xs,_,_)->xs) (List.hd qs)) in
                 let (sames, diffs) = split (fun (cs, _, _) -> List.hd cs = c) qs in
                 doalt
-                  ((c, m_a_p ((fun (cs, r, b) -> List.tl cs, r, b), sames)) :: cqs)
+                  ((c, _MAP ((fun (cs, r, b) -> List.tl cs, r, b), sames)) :: cqs)
                   diffs def
           in
           let t = doit csrbs in rt := SearchTree (csrbs, Built (mkalt, t)); t

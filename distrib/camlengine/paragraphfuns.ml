@@ -210,9 +210,9 @@ module
         env, doit
       in
       let rec processRadioButton env (var, entries, defval) =
-        let settings = m_a_p ((fun(_,hash2)->hash2), entries) in
+        let settings = _MAP ((fun(_,hash2)->hash2), entries) in
         let (env, _) = newbuttonenv env "RADIOBUTTON" var settings defval in
-        let map = mkmap (m_a_p ((fun (l, v) -> v, l), entries)) in
+        let map = mkmap (_MAP ((fun (l, v) -> v, l), entries)) in
         let rec basefn f (v, tf) =
           match atmapping (map, v) with
             Some label -> f (label, tf)
@@ -231,7 +231,7 @@ module
                provisos)
         | ps -> ps
       in
-      let rec visprovisos ps = m_a_p ((fun p -> true, p), ps) in
+      let rec visprovisos ps = _MAP ((fun p -> true, p), ps) in
       let rec filterparams vars ps =
         match ps with
           [] -> ( <| ) ((fun p -> member (paramvar p, vars)), params)
@@ -392,7 +392,7 @@ module
           in
           (* profileOff(); *) res
       | RuleDef (RuleHeading (name, params, provisos), top, bottom, axiom) ->
-          let rvs = nj_fold tmerge (m_a_p (seqvars, top)) (seqvars bottom) in
+          let rvs = nj_fold tmerge (_MAP (seqvars, top)) (seqvars bottom) in
           let thing =
             Rule
               ((filterparams rvs params,
@@ -425,7 +425,7 @@ module
       (try
          nj_revfold (interpret report query InLimbo [] [] true)
            (nj_fold (fun (x, y) -> x @ y)
-              (m_a_p
+              (_MAP
                  ((fun ooo -> file2paragraphs report query (unQuote ooo)),
                   filenames))
               [])

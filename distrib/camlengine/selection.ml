@@ -23,7 +23,7 @@ module
       val freshvar : bool -> cxt -> cxt * term.term
       val indistinct : cxt -> term.term * term.term -> bool
       val interpolate : 'a -> 'a list -> 'a list
-      val m_a_p : ('a -> 'b) * 'a list -> 'b list
+      val _MAP : ('a -> 'b) * 'a list -> 'b list
       val member : 'a * 'a list -> bool
       val NotinProviso : term.term * term.term -> proviso
       val plusvisibleprovisos : cxt * proviso list -> cxt
@@ -73,7 +73,7 @@ module
         raise
           (Selection_
              (s :: " - you split the formula up thus: " ::
-                interpolate "; " (m_a_p (enQuote, sels))))
+                interpolate "; " (_MAP (enQuote, sels))))
       in
       let rec badsub () =
         bad
@@ -81,7 +81,7 @@ module
            else "the selections you made weren't all subformulae")
       in
       let ss' =
-        try m_a_p (string2term, ss) with
+        try _MAP (string2term, ss) with
           ParseError_ _ -> bad "your selection(s) didn't parse"
       in
       let _ =
@@ -96,8 +96,8 @@ module
       in
       let m = [v, List.hd ss'] in
       let res = registerSubst (false, P, m) in
-      let pvs = m_a_p ((fun v' -> v, v'), termvars origterm) in
-      let extraps = m_a_p (NotinProviso, ( <| ) (indistinct cxt, pvs)) in
+      let pvs = _MAP ((fun v' -> v, v'), termvars origterm) in
+      let extraps = _MAP (NotinProviso, ( <| ) (indistinct cxt, pvs)) in
       let cxt'' = plusvisibleprovisos (cxt', extraps) in
       let rec check t =
         let E = List.exists (fun b -> v = b) in
@@ -111,7 +111,7 @@ module
             Binding (_, (bs, ss, us), env, pat) ->
               if E bs then bb () else None
           | Subst (_, r, P, vts) ->
-              if E (m_a_p ((fun(hash1,_)->hash1), vts)) then bb () else None
+              if E (_MAP ((fun(hash1,_)->hash1), vts)) then bb () else None
           | _ -> None
       in
       if eqterms (rewrite cxt'' res, origterm) then cxt'', res

@@ -141,7 +141,7 @@ module
     
     
     
-    let rec m_a_p (f, xs) = List.map f xs
+    let rec _MAP (f, xs) = List.map f xs
     
     
     
@@ -941,7 +941,7 @@ module
               Some (withproofhist (hist, append_step phist proof'))))
     let rec recorddisplayvars env =
       try
-        m_a_p
+        _MAP
           ((fun s -> termstring (unSOME (japeenv.at (env, s)))), displayvars)
       with
         unSOME_ ->
@@ -1257,7 +1257,7 @@ module
       in
       let rec saveproofs newfile =
         let rec doit sfile =
-          let rec pf ps = m_a_p (provisoactual, ( <| ) (provisovisible, ps)) in
+          let rec pf ps = _MAP (provisoactual, ( <| ) (provisovisible, ps)) in
           let rec f =
             fun (Pinf {title = t, _; hist = hist}) ->
               let (Proofstate {cxt = cxt; tree = tree; givens = givens}) =
@@ -1429,7 +1429,7 @@ module
           in
           match freshThingtoprove name with
             Some (Theorem (_, provisos, seq)) ->
-              doit [] seq (m_a_p (mkvisproviso, provisos)) "theorem"
+              doit [] seq (_MAP (mkvisproviso, provisos)) "theorem"
           | Some (Rule ((_, provisos, givens, seq), ax)) ->
               if ax then
                 begin
@@ -1438,7 +1438,7 @@ module
                   default
                 end
               else
-                doit givens seq (m_a_p (mkvisproviso, provisos)) "derived rule"
+                doit givens seq (_MAP (mkvisproviso, provisos)) "derived rule"
           | Some (Tactic _) ->
               showAlert
                 [namestring name;
@@ -1786,12 +1786,12 @@ module
                              (FormulaSel
                                 (_, _, _, concsels, hypsels, givensels)) ->
                              nj_fold getsels [givensels]
-                               (nj_fold getsels (m_a_p ((fun(_,hash2)->hash2), concsels))
-                                  (nj_fold getsels (m_a_p ((fun(_,hash2)->hash2), hypsels))
+                               (nj_fold getsels (_MAP ((fun(_,hash2)->hash2), concsels))
+                                  (nj_fold getsels (_MAP ((fun(_,hash2)->hash2), hypsels))
                                      []))
                          | Some (TextSel (proofsels, givensels)) ->
                              nj_fold getsels [givensels]
-                               (nj_fold getsels (m_a_p ((fun(_,hash2)->hash2), proofsels))
+                               (nj_fold getsels (_MAP ((fun(_,hash2)->hash2), proofsels))
                                   [])
                          | _ -> []
                        in
@@ -1816,7 +1816,7 @@ module
                                   " didn't parse -- " :: es);
                              raise Unify_
                        in
-                       let selargs = m_a_p (getit, sels) in
+                       let selargs = _MAP (getit, sels) in
                        if List.length args + List.length selargs < 2 then
                          begin
                            showAlert
@@ -1860,7 +1860,7 @@ module
                     default
                 | Some (_, tree, provisos, givens, disproofopt) ->
                     let proofstate =
-                      mkstate (m_a_p (mkvisproviso, provisos)) givens tree
+                      mkstate (_MAP (mkvisproviso, provisos)) givens tree
                     in
                     newfocus
                       (env, mbs, DontShow,
@@ -1894,7 +1894,7 @@ module
                                    ) dNdm []
                             fun flatten (ts:string list,rs) = (listsub op= ts rs)@rs
                         in
-                            japeserver.dragtargets (nj_fold flatten (targets m_a_p dragees) []);
+                            japeserver.dragtargets (nj_fold flatten (targets _MAP dragees) []);
                             default
                         end
                   )                  
@@ -2090,10 +2090,10 @@ module
                                      (proofstate_givens proof)),
                                 reparentprovisos hist)
                            in
-                           m_a_p
+                           _MAP
                              (f, bgs before japeserver.setforegroundfocus ())
                          else
-                           m_a_p
+                           _MAP
                              ((fun pinf -> withneedsrefresh (pinf, true)),
                               bgs))
                   | _ -> pinfs
@@ -2105,7 +2105,7 @@ module
             | "saveproofs", [w] ->
                 let newfile = w = "true" in
                 let pinfs' =
-                  m_a_p
+                  _MAP
                     ((fun pinf ->
                         withhist
                           (pinf, withchanged (proofinfo_hist pinf, false))),
@@ -2292,7 +2292,7 @@ module
         setComment [];
         (* consolereport (("in administer; command is " :: commandstring command) @ [ "; pinfs are ",
                 bracketedliststring (string_of_int:int->string) ","
-                  ((fn Pinf{proofnum,...}=>proofnum) m_a_p pinfs)
+                  ((fn Pinf{proofnum,...}=>proofnum) _MAP pinfs)
            ]);
          *)
     

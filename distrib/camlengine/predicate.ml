@@ -38,7 +38,7 @@ module M
       val earlierlist : ('a -> 'a -> bool) -> 'a list -> 'a list -> bool
       val eqbags : ('a * 'a -> bool) -> 'a list * 'a list -> bool
       val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      val m_a_p : ('a -> 'b) * 'a list -> 'b list
+      val _MAP : ('a -> 'b) * 'a list -> 'b list
       val member : 'a * 'a list -> bool
       val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
       val optionstring : ('a -> string) -> 'a option -> string
@@ -105,7 +105,7 @@ module M
                 ["compilepredicate spotted "; termstring pp; "(";
                  termliststring ts; ")"]
           in
-          let ts = m_a_p (mapterm (compilepredicate isabstraction env), ts) in
+          let ts = _MAP (mapterm (compilepredicate isabstraction env), ts) in
           begin match env pp with
             Some vs ->
               let res =
@@ -169,8 +169,8 @@ module M
                (nj_fold (nj_foldterm (fp bs)) us pbs))
       | Subst (_, r, pp, vts) ->
           Some
-            (foldterm (fp (addbinding (m_a_p ((fun(hash1,_)->hash1), vts)) bs))
-               (nj_fold (nj_foldterm (fp bs)) (m_a_p ((fun(_,hash2)->hash2), vts)) pbs) pp)
+            (foldterm (fp (addbinding (_MAP ((fun(hash1,_)->hash1), vts)) bs))
+               (nj_fold (nj_foldterm (fp bs)) (_MAP ((fun(_,hash2)->hash2), vts)) pbs) pp)
       | _ ->
           match matchpredicate true isabstraction t with
             Some (pp, ts) ->

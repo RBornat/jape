@@ -253,7 +253,7 @@ module
               (function
                  Collection (_, _, []) -> []
                | Collection (_, _, es) as c ->
-                   (* modeifyelement ps m_a_p es *)
+                   (* modeifyelement ps _MAP es *)
                    raise
                      (Catastrophe_
                         ["rew_elements 2 "; elementstring sv; " ";
@@ -331,7 +331,7 @@ module
           let rec newrewinf n ps =
             Some
               (raw2rew_
-                 (nj_fold (rawinfProviso n) (m_a_p (provisoactual, ps))
+                 (nj_fold (rawinfProviso n) (_MAP (provisoactual, ps))
                     nullrawinf))
           in
           let rec yes nextcxt ps =

@@ -483,14 +483,14 @@ module M
           let mtf = mapterm f in
           match t with
             App (_, f, a) -> App (None, mtf f, mtf a)
-          | Tup (_, s, ts) -> Tup (None, s, m_a_p (mtf, ts))
-          | Fixapp (_, ss, ts) -> Fixapp (None, ss, m_a_p (mtf, ts))
+          | Tup (_, s, ts) -> Tup (None, s, _MAP (mtf, ts))
+          | Fixapp (_, ss, ts) -> Fixapp (None, ss, _MAP (mtf, ts))
           | Binding (_, (bs, ss, us), env, pat) ->
               Binding
-                (None, (m_a_p (mtf, bs), m_a_p (mtf, ss), m_a_p (mtf, us)), env,
+                (None, (_MAP (mtf, bs), _MAP (mtf, ss), _MAP (mtf, us)), env,
                  pat)
           | Subst (_, r, p_, vts) ->
-              Subst (None, r, mtf p_, m_a_p ((fun (v, t) -> mtf v, mtf t), vts))
+              Subst (None, r, mtf p_, _MAP ((fun (v, t) -> mtf v, mtf t), vts))
           | Collection (_, k, es) -> Collection (None, k, mapelements f es)
           | _ -> t
     and mapelements f es =
@@ -531,7 +531,7 @@ module M
           else atom :: rest
     (* quadruplecolon strips out blank strings, removes double spaces, puts spaces in between
      * atoms that must be separated.
-     * Because tt is now properly cat-eliminated, we can't fold quadcolon into the result as we used to.
+     * Because _T is now properly cat-eliminated, we can't fold quadcolon into the result as we used to.
      * So we have to use it in place of quadcolon, almost everywhere.
      *)
     let rec quadcolon a b =
@@ -561,51 +561,51 @@ module M
      * inefficient.
      * RB 25/6/2001
      *)
-    let rec tt ivb ivk n a t s =
+    let rec _T ivb ivk n a t s =
       (* a isn't associativity, it's mustbracket if equal priority *)
       let rec mustbracket b a m = if n > m || n = m && a then b else "" in
-      let ob_ = mustbracket "(" a in
-      let cb_ = mustbracket ")" a in
-      let ob_prefix = mustbracket "(" false in
-      let cb_prefix = mustbracket ")" false in
-      let rec tap_ f arg s =
+      let _OB = mustbracket "(" a in
+      let _CB = mustbracket ")" a in
+      let _OBprefix = mustbracket "(" false in
+      let _CBprefix = mustbracket ")" false in
+      let rec _TAP f arg s =
         quadcolon
-          (ob_ !appfix)
-		  (tt ivb ivk !appfix false f
-			  (tt ivb ivk !appfix true arg (quadcolon (cb_ !appfix) s)))
+          (_OB !appfix)
+		  (_T ivb ivk !appfix false f
+			  (_T ivb ivk !appfix true arg (quadcolon (_CB !appfix) s)))
       in
       let rec tip_ n' assoc arg1 f arg2 s =
         quadcolon
-          (ob_ n')
+          (_OB n')
 		  (let afterf =
-			 tt ivb ivk n' (assoc <> RightAssoc) arg2
-				(quadcolon (cb_ n') s)
+			 _T ivb ivk n' (assoc <> RightAssoc) arg2
+				(quadcolon (_CB n') s)
 		   in
-		   tt ivb ivk n' (assoc <> LeftAssoc) arg1
+		   _T ivb ivk n' (assoc <> LeftAssoc) arg1
 			  (tricolon f afterf))
       in
-      let rec tfa_ sy f t s =
+      let rec _TFA sy f t s =
         match sy with
           PREFIX (m, name) ->
             quadcolon
-              (ob_prefix m)
+              (_OBprefix m)
               (quadcolon
-                 name (tt ivb ivk m false t (quadcolon (cb_prefix m) s)))
+                 name (_T ivb ivk m false t (quadcolon (_CBprefix m) s)))
         | POSTFIX (m, name) ->
             quadcolon
-              (ob_ m)
-              (tt ivb ivk m false t
-                  (quadcolon name (quadcolon (cb_ m) s)))
-        | _ -> tap_ f t s
+              (_OB m)
+              (_T ivb ivk m false t
+                  (quadcolon name (quadcolon (_CB m) s)))
+        | _ -> _TAP f t s
       in
-      let rec tt_ n b sep ts s =
-        let rec tt_' =
+      let rec _TT n b sep ts s =
+        let rec _TT' =
           function
             [] -> s
-          | [t] -> tt ivb ivk n b t s
-          | t :: ts -> tt ivb ivk n b t (tricolon sep (tt_' ts))
+          | [t] -> _T ivb ivk n b t s
+          | t :: ts -> _T ivb ivk n b t (tricolon sep (_TT' ts))
         in
-        tt_' ts
+        _TT' ts
       in
       match t with
         Id (_, v, _) ->
@@ -637,7 +637,7 @@ module M
                   | _ -> None))
           with
             Some r -> r
-          | _ -> ivb t :: tap_ l arg2 (ivk t :: s)
+          | _ -> ivb t :: _TAP l arg2 (ivk t :: s)
           end
       | App (_, f, arg) ->
           begin match
@@ -659,10 +659,10 @@ module M
                                tip_ m a arg1 name arg2 (ivk t :: s))
                       | _ -> None
                       end
-                  | sy -> Some (ivb t :: tfa_ sy f arg (ivk t :: s))))
+                  | sy -> Some (ivb t :: _TFA sy f arg (ivk t :: s))))
           with
             Some r -> r
-          | None -> ivb t :: tap_ f arg (ivk t :: s)
+          | None -> ivb t :: _TAP f arg (ivk t :: s)
           end
       | Tup (_, sep, ts) ->
           let n' =
@@ -672,7 +672,7 @@ module M
           in
           ivb t ::
             quadcolon
-              (ob_ n') (tt_ n' true sep ts (quadcolon (cb_ n') (ivk t :: s)))
+              (_OB n') (_TT n' true sep ts (quadcolon (_CB n') (ivk t :: s)))
       | Literal (_, Number k) ->(* take in the brackets as well ... *)
          ivb t :: quadcolon (string_of_int k) (ivk t :: s)
       | Literal (_, String k) ->
@@ -682,91 +682,91 @@ module M
             BRA _ ->
               ivb t ::
                 quadcolon
-                  (List.hd ss) (ts1_ ivb ivk 0 (List.tl ss) false ts (ivk t :: s))
+                  (List.hd ss) (_TS1 ivb ivk 0 (List.tl ss) false ts (ivk t :: s))
           | LEFTFIX (m, _) ->
               ivb t ::
                 quadcolon
-                  (ob_prefix m)
+                  (_OBprefix m)
                   (quadcolon
                      (List.hd ss)
-                      (ts2_
+                      (_TS2
                          ivb ivk m (List.tl ss) true ts
-                         (quadcolon (cb_prefix m) (ivk t :: s))))
+                         (quadcolon (_CBprefix m) (ivk t :: s))))
           | MIDFIX (m, _) ->
               ivb t ::
                 quadcolon
-                  (ob_ m)
-                  (ts2_ ivb ivk m ss true ts
-                        (quadcolon (cb_ m) (ivk t :: s)))
+                  (_OB m)
+                  (_TS2 ivb ivk m ss true ts
+                        (quadcolon (_CB m) (ivk t :: s)))
           | RIGHTFIX (m, _) ->
               ivb t ::
                 quadcolon
-                  (ob_ m)
-                  (ts1_ ivb ivk m ss true ts
-                        (quadcolon (cb_ m) (ivk t :: s)))
+                  (_OB m)
+                  (_TS1 ivb ivk m ss true ts
+                        (quadcolon (_CB m) (ivk t :: s)))
           | _ -> raise Matchintermstring_
           end
       | Subst (_, _, t, m) ->
           ivb t ::
-            tt ivb ivk !substfix false t
+            _T ivb ivk !substfix false t
                (quadcolon
                  (symbolstring SUBSTBRA)
-                 (tm_ ivb ivk m
+                 (_TM ivb ivk m
                       (quadcolon (symbolstring SUBSTKET) (ivk t :: s))))
-      | Binding stuff -> tt ivb ivk n a (remake mapterm stuff) s
+      | Binding stuff -> _T ivb ivk n a (remake mapterm stuff) s
       | Collection (_, c, es) ->
           ivb t ::
             quadcolon
-              (ob_ 0)
+              (_OB 0)
               (quadcolon
                  (unparseidclass c)
                  (quadcolon
                     " "
-                    (tt_ 0 true "," (List.map stripelement es)
-                         (quadcolon (cb_ 0) (ivk t :: s)))))
-    and ts_ ivb ivk ts r =
+                    (_TT 0 true "," (List.map stripelement es)
+                         (quadcolon (_CB 0) (ivk t :: s)))))
+    and _TS ivb ivk ts r =
       match ts with
         [] -> r
-      | [t] -> tt ivb ivk 0 true t r
+      | [t] -> _T ivb ivk 0 true t r
       | t :: ts ->
-          tt ivb ivk 0 true t (quadcolon "," (ts_ ivb ivk ts r))
-    and ts1_ ivb ivk m seps b ts s =
+          _T ivb ivk 0 true t (quadcolon "," (_TS ivb ivk ts r))
+    and _TS1 ivb ivk m seps b ts s =
       match seps, ts with
         [ket], [] -> quadcolon ket s
       | [], [] ->(* special case for empty tuples *)
          s
       | sep :: seps, t :: ts ->
           (* normal case when as many seps as terms *)
-          tt ivb ivk m b t
-             (quadcolon sep (ts1_ ivb ivk m seps b ts s))
-      | _ -> quadcolon "???ts1_???" s
-    and ts2_ ivb ivk m seps b ts s =
+          _T ivb ivk m b t
+             (quadcolon sep (_TS1 ivb ivk m seps b ts s))
+      | _ -> quadcolon "???_TS1???" s
+    and _TS2 ivb ivk m seps b ts s =
       match seps, ts with
-        [], [t] -> tt ivb ivk m b t s
+        [], [t] -> _T ivb ivk m b t s
       | sep :: seps, t :: ts ->
-          tt ivb ivk m b t
-             (quadcolon sep (ts2_ ivb ivk m seps b ts s))
-      | _ -> quadcolon "???ts2_???" s
-    and tm_ ivb ivk vts s =
+          _T ivb ivk m b t
+             (quadcolon sep (_TS2 ivb ivk m seps b ts s))
+      | _ -> quadcolon "???_TS2???" s
+    and _TM ivb ivk vts s =
       let rec var (v, t) = v in
       let rec expr (v, t) = t in
       let (fst, snd) = if !substsense then var, expr else expr, var in
-      ts_ ivb ivk (List.map fst vts)
-          (quadcolon (symbolstring SUBSTSEP) (ts_ ivb ivk (List.map snd vts) s))
+      _TS ivb ivk (List.map fst vts)
+          (quadcolon (symbolstring SUBSTSEP) (_TS ivb ivk (List.map snd vts) s))
     let rec nobra _ = ""
-    let catelim_termstring = tt nobra nobra 0 false
+    let catelim_termstring = _T nobra nobra 0 false
     let termstring = catelim2stringfn catelim_termstring
     let catelim_termstring_invisbracketed =
-      tt (fun _ -> invisbra) (fun _ -> invisket) 0 false
+      _T (fun _ -> invisbra) (fun _ -> invisket) 0 false
     let termstring_invisbracketed =
       catelim2stringfn catelim_termstring_invisbracketed
-    let rec catelim_termstring_invischoose ivb ivk = tt ivb ivk 0 false
+    let rec catelim_termstring_invischoose ivb ivk = _T ivb ivk 0 false
     let rec termstring_invischoose ivb ivk =
       catelim2stringfn (catelim_termstring_invischoose ivb ivk)
     let rec catelim_vtsstring vts ss =
       quadcolon
         (symbolstring SUBSTBRA)
-        (tm_ nobra nobra vts (quadcolon (symbolstring SUBSTKET) ss))
+        (_TM nobra nobra vts (quadcolon (symbolstring SUBSTKET) ss))
     let vtsstring = catelim2stringfn catelim_vtsstring
     let rec catelim_argstring t ss =
       let rec mustbracket t =
@@ -1028,8 +1028,8 @@ module M
           | Tup (_, _, ts) -> ff z ts
           | Fixapp (_, _, ts) -> ff z ts
           | Subst (_, _, p_, vts) ->
-              ff (ff z (m_a_p ((fun(_,hash2)->hash2), vts)))
-                 (p_ :: m_a_p ((fun(hash1,_)->hash1), vts))
+              ff (ff z (_MAP ((fun(_,hash2)->hash2), vts)))
+                 (p_ :: _MAP ((fun(hash1,_)->hash1), vts))
           | Binding (_, (bs, ss, us), _, _) -> ff (ff (ff z us) ss) bs
           | Collection (_, k, es) -> foldelements f z es
           | _ -> z
@@ -1203,7 +1203,7 @@ module M
           begin match idclass t with
             VariableClass ->
               (* ohmygod *) 
-              if a_l_l
+              if _All
                    (fun t -> idclass t = VariableClass)
                    (List.map (fun(_,hash2)->hash2) vts)
               then
@@ -1538,10 +1538,10 @@ module M
             fEQ (p1, p2) && fEQvts (vts1, vts2)
         | Binding (_, (bs, ss, us), _, pat),
           Binding (_, (bs', ss', us'), _, pat') ->
-            let ns = m_a_p (nxb, bs) in
+            let ns = _MAP (nxb, bs) in
             begin try
               (pat = pat' && fEQs (us, us')) &&
-              a_l_l
+              _All
                 (eq (( ||| ) (bs, ns) @ t1bs) (( ||| ) (bs', ns) @ t2bs))
                 (( ||| ) (ss, ss'))
             with
@@ -1628,12 +1628,12 @@ module M
           | Subst (_, _, p_, vts) ->
               Some
                 (nj_fold (uncurry2 bmerge)
-                   (doit2 (m_a_p ((fun(hash1,_)->hash1), vts)) p_ ::
-                      dothem (m_a_p ((fun(_,hash2)->hash2), vts)))
+                   (doit2 (_MAP ((fun(hash1,_)->hash1), vts)) p_ ::
+                      dothem (_MAP ((fun(_,hash2)->hash2), vts)))
                    ps)
           | Binding (_, (bs, ss, us), _, _) ->
               Some
-                (nj_fold (uncurry2 bmerge) (m_a_p (doit2 bs, ss))
+                (nj_fold (uncurry2 bmerge) (_MAP (doit2 bs, ss))
                    (nj_fold (uncurry2 bmerge) (dothem us) ps))
           | _ -> None
         in
@@ -1736,22 +1736,22 @@ module M
       let rec closed v bc = List.exists (fun bvs -> member (v, bvs)) bc in
       (* step 1 - find all free and semi-free names *)
       let rec freev (v, bcs) = List.exists (fun ooo -> not (closed v ooo)) bcs in
-      let freevs = m_a_p ((fun(hash1,_)->hash1), ( <| ) (freev, inf)) in
+      let freevs = _MAP ((fun(hash1,_)->hash1), ( <| ) (freev, inf)) in
       (* step 2 - find the dominates relation from all the bindings *)
       let rec domf (v, bcs) =
         let rec truncate bc =
           takewhile (fun bvs -> not (member (v, bvs))) bc
         in
-        let bcs = m_a_p (truncate, bcs) in
+        let bcs = _MAP (truncate, bcs) in
         let dominators = nj_fold (fun (bc, ds) -> nj_fold (uncurry2 tmerge) bc ds) bcs [] in
-        m_a_p ((fun bv -> bv, [v]), dominators)
+        _MAP ((fun bv -> bv, [v]), dominators)
       in
-      let domrel = nj_fold (uncurry2 mmerge) (m_a_p (domf, inf)) [] in
+      let domrel = nj_fold (uncurry2 mmerge) (_MAP (domf, inf)) [] in
       (* step 3 - find all the pairs of names which occur in bindings
        * both ways round, add to domrel
        *)
       let allbindings =
-        nj_fold (uncurry2 (sortedmerge bcorder)) (m_a_p ((fun(_,hash2)->hash2), inf)) []
+        nj_fold (uncurry2 (sortedmerge bcorder)) (_MAP ((fun(_,hash2)->hash2), inf)) []
       in
       let rec allbpairs bc =
         let vpss =
@@ -1762,7 +1762,7 @@ module M
       let vps =
         nj_fold (uncurry2 (sortedmerge vvorder)) (List.map allbpairs allbindings) []
       in
-      let rvps = sort vvorder (m_a_p ((fun (x, y) -> y, x), vps)) in
+      let rvps = sort vvorder (_MAP ((fun (x, y) -> y, x), vps)) in
       let commonpairs =
         ( <| )
           ((fun (x, y) ->
@@ -1770,7 +1770,7 @@ module M
            sortedsame vvorder vps rvps)
       in
       let domrel =
-        nj_fold (uncurry2 mmerge) (m_a_p ((fun (x, y) -> [x, [y]; y, [x]]), commonpairs))
+        nj_fold (uncurry2 mmerge) (_MAP ((fun (x, y) -> [x, [y]; y, [x]]), commonpairs))
           domrel
       in
       (* step 4 - find pairs of bindings which aren't the same, add their 
@@ -1788,9 +1788,9 @@ module M
             let bvclass = idclass bv in
             bvclass <> vclass && canoccurfreein (bvclass, vclass)
           in
-          nj_fold (uncurry2 tmerge) (m_a_p ((fun bvs -> ( <| ) (filterbv, bvs)), bc)) []
+          nj_fold (uncurry2 tmerge) (_MAP ((fun bvs -> ( <| ) (filterbv, bvs)), bc)) []
         in
-        let bvss = m_a_p (allbvs, bcs) in
+        let bvss = _MAP (allbvs, bcs) in
         let rec escapers bvs =
           ( <| ) ((fun bv -> not (member ((bv, v), notins))), bvs)
         in
@@ -1802,7 +1802,7 @@ module M
         in
         nj_fold b2 (allpairs bvss) []
       in
-      let freevs = nj_fold (uncurry2 tmerge) (m_a_p (badbindings, inf)) freevs in
+      let freevs = nj_fold (uncurry2 tmerge) (_MAP (badbindings, inf)) freevs in
       (* and there we have it *)
       let r = freevs, domrel in
       (* stuff to persuade ourselves we have it right :-) *)
@@ -1825,7 +1825,7 @@ module M
         Id (_, v, _) -> v
       | Unknown (_, v, _) -> v
       | t -> raise (Catastrophe_ ["vartoVID "; argstring t])
-    let rec termVIDs t = orderVIDs (m_a_p (vartoVID, termvars t))
+    let rec termVIDs t = orderVIDs (_MAP (vartoVID, termvars t))
     let rec conVIDs ts =
       nj_fold
         (function
@@ -1842,7 +1842,7 @@ module M
         let (t1, t2) = debracket t1, debracket t2 in
         let rec sim t1 t2 = similar t1subst t1 t2subst t2 in
         let rec sims t1s t2s =
-          try a_l_l (uncurry2 sim) (( ||| ) (t1s, t2s)) with
+          try _All (uncurry2 sim) (( ||| ) (t1s, t2s)) with
             Zip -> false
         in
         let rec reverse () = similar t2subst t2 t1subst t1 in
@@ -1906,7 +1906,7 @@ module M
         | _ -> t, rs
       in
       match curry, unApp (debracket t) [] with
-        true, (f, [Tup (_, ",", rs)]) -> f, m_a_p (debracket, rs)
+        true, (f, [Tup (_, ",", rs)]) -> f, _MAP (debracket, rs)
       | _, res -> res
     let rec implodeApp curry (t, args) =
       if curry then registerApp (t, registerTup (",", args))

@@ -20,7 +20,7 @@ module
       val elementstring_invisbracketed : tree.element -> string
       val liststring : ('a -> string) -> string -> 'a list -> string
       val last : 'a list -> 'a
-      val m_a_p : ('a -> 'b) * 'a list -> 'b list
+      val _MAP : ('a -> 'b) * 'a list -> 'b list
       val turnstiles : unit -> string list
       val zip : 'a list * 'b list -> ('a * 'b) list
       exception Catastrophe_ of string list
@@ -62,7 +62,7 @@ module
             reasonplan : planclass plan option; linebox : (bool * box) option;
             subplans : (pos * treeplan) list; linethickness : int >
     let rec shiftoutline indent (ys : outline) =
-      m_a_p ((fun (l, r) -> l + indent, r + indent), ys)
+      _MAP ((fun (l, r) -> l + indent, r + indent), ys)
     let rec place subh gap =
       fun
         ((Treeplan {proofbox = proofbox; proofoutline = proofoutline} as
@@ -77,14 +77,14 @@ module
         let rec m3 f xs =
           match xs with
             _ :: _ ->
-              let rec MAX ys zs = m_a_p (f, zip (ys, zs)) in
+              let rec MAX ys zs = _MAP (f, zip (ys, zs)) in
               let m2 = MAX (xs, List.tl xs) in
               MAX ((List.hd xs :: m2), (m2 @ [last xs]))
           | _ -> xs
         in
-        let rs = m3 (uncurry2 max) (m_a_p ((fun(_,hash2)->hash2), alloutline)) in
-        let ls = m3 (uncurry2 min) (m_a_p ((fun(hash1,_)->hash1), proofoutline)) in
-        let offset = nj_fold (uncurry2 max) (m_a_p (fo, zip (rs, ls))) 0 in
+        let rs = m3 (uncurry2 max) (_MAP ((fun(_,hash2)->hash2), alloutline)) in
+        let ls = m3 (uncurry2 min) (_MAP ((fun(hash1,_)->hash1), proofoutline)) in
+        let offset = nj_fold (uncurry2 max) (_MAP (fo, zip (rs, ls))) 0 in
         (* doesn't take account of indentation; bound to be 0 if rs is null *)
         let newpos = pos (offset, subh - sH (bSize proofbox)) in
         let newbox = box (newpos, bSize proofbox) in
@@ -130,7 +130,7 @@ module
             None -> noreasoninf
           | Some why -> reason2textinfo why
         in
-        let subh = nj_fold (uncurry2 max) (m_a_p (tpH, subps)) 0 in
+        let subh = nj_fold (uncurry2 max) (_MAP (tpH, subps)) 0 in
         let (topbox, suboutline, subplans) =
           nj_revfold (place subh hspace) subps (emptybox, [], [])
         in
@@ -153,7 +153,7 @@ module
           if superw > subw then
             let subindent = max (0) (superw - subw) / 2 in
             let subplans =
-              m_a_p
+              _MAP
                 ((fun (pos, plan) -> rightby (pos, subindent), plan),
                  subplans)
             in

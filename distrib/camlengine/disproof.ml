@@ -777,7 +777,7 @@ module
             let forced = memofix forcemap (unfixedforced facts universe) in
             let (hs, cs) = seq_forced forced root seq in
             let countermodel =
-              a_l_l ((fun(hash1,_)->hash1), hs) && not (List.exists (fun(hash1,_)->hash1) cs)
+              _All ((fun(hash1,_)->hash1), hs) && not (List.exists (fun(hash1,_)->hash1) cs)
             in
             Disproofstate
               (let module M =

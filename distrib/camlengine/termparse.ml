@@ -225,7 +225,7 @@ module
                     Found (ket', []) ->
                       check ket';
                       Some
-                        (registerFixapp (m_a_p (symbolstring, [bra; ket]), []))
+                        (registerFixapp (_MAP (symbolstring, [bra; ket]), []))
                   | _ -> None
                   end
               | _ -> None))
@@ -241,7 +241,7 @@ module
       with
         Found (ket, (ss, ts)) ->
           check ket;
-          ket, registerFixapp (m_a_p (symbolstring, List.rev (ket :: ss)), List.rev ts)
+          ket, registerFixapp (_MAP (symbolstring, List.rev (ket :: ss)), List.rev ts)
       | NotFound (ss, _) ->
           raise
             (ParseError_
@@ -255,7 +255,7 @@ module
           ([], ts)
       with
         Found (_, (ss, ts)) ->
-          registerFixapp (m_a_p (symbolstring, List.rev ss), List.rev ts)
+          registerFixapp (_MAP (symbolstring, List.rev ss), List.rev ts)
       | NotFound (ss, _) ->
           raise
             (ParseError_
@@ -431,7 +431,7 @@ module
           Some ((bs, us, ss), env, pat) ->
             Some
               (registerBinding
-                 ((bs, m_a_p (doit, us), m_a_p (doit, ss)), env, pat))
+                 ((bs, _MAP (doit, us), _MAP (doit, ss)), env, pat))
         | None -> None
       in
       doit t
@@ -520,7 +520,7 @@ module
             if class__ = NoClass then bang "undeclared variable" t else None
         | Unknown (_, _, class__) as t ->
             if class__ = NoClass then bang "undeclared variable" t else None
-        | Subst (_, _, _, vts) -> findfirst badvar (m_a_p ((fun(hash1,_)->hash1), vts))
+        | Subst (_, _, _, vts) -> findfirst badvar (_MAP ((fun(hash1,_)->hash1), vts))
         | _ -> None
       in
       findterm badterm t; ()

@@ -67,7 +67,7 @@ module
       val explain : string -> string list
       val getReason : unit -> string list
       val liststring : ('a -> string) -> string -> 'a list -> string
-      val m_a_p : ('a -> 'b) * 'a list -> 'b list
+      val _MAP : ('a -> 'b) * 'a list -> 'b list
       val maxprovisoresnum : context.proviso -> int
       val maxtreeresnum : proofstate.treeformat proofstate.prooftree -> int
       val mkReplayTac : proofstate.tactic -> proofstate.tactic
@@ -131,7 +131,7 @@ module
                      (withusedVIDs (cxt, uvs),
                       nj_fold Integer.max
                         (maxtreeresnum tree ::
-                           m_a_p
+                           _MAP
                              ((fun ooo ->
                                  maxprovisoresnum (provisoactual ooo)),
                               provisos))
@@ -187,12 +187,12 @@ module
       report query env name stage seq (givens, pros, tac) disproofopt =
       let tac = mkReplayTac (mkUniqueTac (mkSimpleApplyTac tac)) in
       let (pros', givens, seq) = compiletoprove (pros, givens, seq) in
-      let cxt = withprovisos (newcxt, m_a_p (mkvisproviso, pros')) in
+      let cxt = withprovisos (newcxt, _MAP (mkvisproviso, pros')) in
       let oldapply = !applyconjectures in
       let oldproving = !proving in
       let rec checkfinalprovisos cxt =
         let newpros =
-          m_a_p (provisoactual, ( <| ) (provisovisible, provisos cxt))
+          _MAP (provisoactual, ( <| ) (provisovisible, provisos cxt))
         in
         let rec showpros pros =
           if null pros then "no provisos"

@@ -2,18 +2,18 @@
 
 module type T =
   sig
-    (* nonfix a_l_l s_o_m_e;
+    (* nonfix _All _Some;
        infixr 7 <|;
-       infixr 6 m_a_p;
+       infixr 6 _MAP;
        infix  5 </ //;
        infixr 5 doubleslosh />;
-       infix  4 ||| slosh i_n_t_e_r;
-       infixr 4 u_n_i_o_n;
+       infix  4 ||| slosh _INTER;
+       infixr 4 _UNION;
        infix  0 nonmember member subset;
      *)
  
     val ( <| ) : ('a -> bool) * 'a list -> 'a list
-    val m_a_p : ('a -> 'b) * 'a list -> 'b list
+    val _MAP : ('a -> 'b) * 'a list -> 'b list
     val doubleslosh : ('a -> 'b) * ('a -> bool) -> 'a list -> 'b list
     val ( </ ) : ('a * 'b -> 'b) * 'b -> 'a list -> 'b
     val ( /> ) : 'a * ('a * 'b -> 'a) -> 'b list -> 'a
@@ -23,15 +23,15 @@ module type T =
     exception Zip
     val first : ('a -> bool) -> 'a list -> 'a
     exception First
-    val f_i_r_s_t : ('a -> bool) -> 'a list -> 'a option
-    val s_o_m_e : ('a -> bool) -> 'a list -> bool
-    val a_l_l : ('a -> bool) -> 'a list -> bool
+    val _FIRST : ('a -> bool) -> 'a list -> 'a option
+    val _Some : ('a -> bool) -> 'a list -> bool
+    val _All : ('a -> bool) -> 'a list -> bool
     val member : 'a * 'a list -> bool
     val subset : 'a list * 'a list -> bool
     val nonmember : 'a * 'a list -> bool
     val slosh : 'a list * 'a list -> 'a list
-    val u_n_i_o_n : 'a list * 'a list -> 'a list
-    val i_n_t_e_r : 'a list * 'a list -> 'a list
+    val _UNION : 'a list * 'a list -> 'a list
+    val _INTER : 'a list * 'a list -> 'a list
     val set : 'a list -> 'a list
     val seteq : ('a -> 'a -> bool) -> 'a list -> 'a list
     val last : 'a list -> 'a
@@ -135,11 +135,11 @@ module M
       function
         pp, [] -> []
       | pp, x :: xs -> if pp x then x :: ( <| ) (pp, xs) else ( <| ) (pp, xs)
-    (* m_a_p is infix map *)
-    let rec m_a_p =
+    (* _MAP is infix map *)
+    let rec _MAP =
       function
         f, [] -> []
-      | f, x :: xs -> f x :: m_a_p (f, xs)
+      | f, x :: xs -> f x :: _MAP (f, xs)
     (* ||| is infix zip *)
     let rec ( ||| ) =
       function
@@ -180,23 +180,23 @@ module M
       match a1, a2 with
         pp, [] -> raise First
       | pp, x :: xs -> if pp x then x else first pp xs
-    let rec f_i_r_s_t a1 a2 =
+    let rec _FIRST a1 a2 =
       match a1, a2 with
         pp, [] -> None
-      | pp, x :: xs -> if pp x then Some x else f_i_r_s_t pp xs
-    let rec s_o_m_e pp xs =
-      match f_i_r_s_t pp xs with
+      | pp, x :: xs -> if pp x then Some x else _FIRST pp xs
+    let rec _Some pp xs =
+      match _FIRST pp xs with
         Some _ -> true
       | None -> false
-    let rec a_l_l pp xs =
-      match f_i_r_s_t (fun x -> not (pp x)) xs with
+    let rec _All pp xs =
+      match _FIRST (fun x -> not (pp x)) xs with
         Some _ -> false
       | None -> true
     let rec member (x, sf) = List.exists (fun x' -> x = x') sf
     let rec nonmember (x, sf) = not (member (x, sf))
-    let rec i_n_t_e_r = fun (sf, tt) -> ( <| ) ((fun x -> member (x, sf)), tt)
+    let rec _INTER = fun (sf, tt) -> ( <| ) ((fun x -> member (x, sf)), tt)
     let rec slosh = fun (sf, tt) -> ( <| ) ((fun x -> nonmember (x, tt)), sf)
-    let rec u_n_i_o_n = fun (sf, tt) -> sf @ tt
+    let rec _UNION = fun (sf, tt) -> sf @ tt
     (*
     val set = [] /> (fn (s, e) => if e member s then s else e :: s)
     *)
@@ -209,7 +209,7 @@ module M
         xs []
     let rec set (xs : 'a list) =
       seteq ( = ) xs
-    let rec subset (xs, ys) = a_l_l (fun x -> member (x, ys)) xs
+    let rec subset (xs, ys) = _All (fun x -> member (x, ys)) xs
     let rec interpolate a1 a2 =
       match a1, a2 with
         sep, [] -> []
@@ -661,5 +661,5 @@ module M
         | [], [] -> []
         | [], _ -> raise (Catastrophe_ ["minwaste"])
       in
-      let wns = w, m_a_p (measurefn, xs) in recon (minw (hash wns) wns) xs
+      let wns = w, _MAP (measurefn, xs) in recon (minw (hash wns) wns) xs
   end      

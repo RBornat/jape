@@ -92,15 +92,15 @@ module
           Id _ -> def ()
         | Unknown _ -> def ()
         | Binding (_, (bs, ss, us), _, _) ->
-            let rs = m_a_p (substeqvarsq facts v, bs) in
+            let rs = _MAP (substeqvarsq facts v, bs) in
             if List.exists qDEF rs then Some (nj_fold fnp us cats)
             else if not (List.exists qUNSURE rs) then
               Some (nj_fold fnp ss (nj_fold fnp us cats))
             else def ()
         | Subst (_, r, P, vts) ->
-            let rs = m_a_p (substeqvarsq facts v, m_a_p ((fun(hash1,_)->hash1), vts)) in
+            let rs = _MAP (substeqvarsq facts v, _MAP ((fun(hash1,_)->hash1), vts)) in
             if List.exists qDEF rs then
-              Some (nj_fold fnp (m_a_p ((fun(_,hash2)->hash2), vts)) cats)
+              Some (nj_fold fnp (_MAP ((fun(_,hash2)->hash2), vts)) cats)
             else if not (List.exists qUNSURE rs) then
               match vts with
                 [v', t'] ->
@@ -112,7 +112,7 @@ module
               | _ ->
                   Some
                     (nj_fold fnp
-                       (m_a_p ((fun vt -> registerSubst (true, P, [vt])), vts))
+                       (_MAP ((fun vt -> registerSubst (true, P, [vt])), vts))
                        cats)
             else def ()
         | Collection (_, c, es) ->
@@ -174,7 +174,7 @@ module
            not (qDEF (varoccursinq cxt P1 t2)) ||
            specialisesto (idclass P1, conVariableClass) &&
            List.exists (fun t1' -> deferrable cxt (t1', t2))
-             (m_a_p ((fun(_,hash2)->hash2), vts))
+             (_MAP ((fun(_,hash2)->hash2), vts))
        | _, Subst _ -> deferrable cxt (t2, t1)
        | _ -> true)
     (* Is this proviso obviously satisfied (Yes) or obviously violated (No)
@@ -240,7 +240,7 @@ module
               match
                 groundedprovisos
                   (nj_fold tmerge
-                     (m_a_p
+                     (_MAP
                         ((fun ooo ->
                             provisovars termvars tmerge (provisoactual ooo)),
                          uses))
@@ -364,7 +364,7 @@ module
                         (provisoactual ooo))
                    ps
               then
-                m_a_p
+                _MAP
                   ((fun vp ->
                       match provisoactual vp with
                         FreshProviso (h', g', r', v') ->
@@ -422,7 +422,7 @@ module
         FreshProviso (h, g, r, v) -> FreshProviso (h, g, r, T v)
       | NotinProviso (v, t) -> NotinProviso (T v, T t)
       | NotoneofProviso (vs, pat, C) ->
-          NotoneofProviso (m_a_p (T, vs), T pat, T C)
+          NotoneofProviso (_MAP (T, vs), T pat, T C)
       | UnifiesProviso (P1, P2) -> UnifiesProviso (T P1, T P2)
     (* the drag and drop mapping is a list of (source,target) pairs, derived from
      * UnifiesProvisos thus:
@@ -445,12 +445,12 @@ module
           (* We need to run Warshall's algorithm to get the transitive closure.
            * This implementation is slow, but these collections don't get large 
            *)
-          val ists = (not o null o #1) <| ((fn (xs,ys) => (istarget<|xs,ys)) m_a_p sts)
+          val ists = (not o null o #1) <| ((fn (xs,ys) => (istarget<|xs,ys)) _MAP sts)
           val ists = nj_fold (fn ((ss,ts),rs) => nj_fold (fn (s,rs) => (s,ts)::rs) ss rs) ists []
           val sts = nj_fold (fn ((s,ts),sts) => 
                              (fn (ss',ts') => 
                                  (ss',if List.exists (fn t' => s=t') ts' then ts'@ts else ts')
-                             ) m_a_p sts
+                             ) _MAP sts
                          ) ists sts
       in 
           nj_fold (fn ((ss,ts),rs) => (ss><ts)@rs) sts []

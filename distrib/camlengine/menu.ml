@@ -65,7 +65,7 @@ module
       val enQuote : string -> string
       val listsub : ('a * 'b -> bool) -> 'a list -> 'b list -> 'a list
       val member : 'a * 'a list -> bool
-      val m_a_p : ('a -> 'b) * 'a list -> 'b list
+      val _MAP : ('a -> 'b) * 'a list -> 'b list
       val systemmenus : string list
       val pairstring :
         ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
@@ -183,7 +183,7 @@ module
           Mseparator -> None
         | Mentry (label, _, _) -> Some [label]
         | Mcheckbox (label, _, _, _) -> Some [label]
-        | Mradiobutton (_, lcs, _) -> Some (m_a_p ((fun(hash1,_)->hash1), lcs))
+        | Mradiobutton (_, lcs, _) -> Some (_MAP ((fun(hash1,_)->hash1), lcs))
       in
       let rec vf e =
         match e with
@@ -247,7 +247,7 @@ module
           Pentry (label, _) -> Some [label]
         | Pbutton (label, _) -> Some [label]
         | Pcheckbox (label, _, _, _) -> Some [label]
-        | Pradiobutton (_, lcs, _) -> Some (m_a_p ((fun(hash1,_)->hash1), lcs))
+        | Pradiobutton (_, lcs, _) -> Some (_MAP ((fun(hash1,_)->hash1), lcs))
       in
       let rec vf e =
         match e with
@@ -275,7 +275,7 @@ module
         Some ({contents = k, _, _} as contents) -> contents := k, empty, []
       | None -> ()
     let rec getpanels () =
-      m_a_p ((fun (p, {contents = k, _, _}) -> p, k), aslist !panels)
+      _MAP ((fun (p, {contents = k, _, _}) -> p, k), aslist !panels)
     let rec getpanelkind p ooo =
       (fun ooo -> andthenr (at (!panels, p), Some) ((fun(hash1,_)->hash1) ooo))
         ((fun (x, y) -> ( ! ) x y) ooo)
@@ -330,7 +330,7 @@ module
             cbf (label, assignvarval var val1)
         | Pradiobutton (var, lcs, _) ->
             rbf
-              (m_a_p ((fun (label, vval) -> label, assignvarval var vval), lcs))
+              (_MAP ((fun (label, vval) -> label, assignvarval var vval), lcs))
       in
       match getpaneldata p with
         Some es -> List.iter tran es

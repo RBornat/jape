@@ -68,7 +68,7 @@ module
       val int2term : int -> treelayout.term
       val mkTup : treelayout.term list -> treelayout.term
       val liststring : ('a -> string) -> string -> 'a list -> string
-      val m_a_p : ('a -> 'b) * 'a list -> 'b list
+      val _MAP : ('a -> 'b) * 'a list -> 'b list
       val optionstring : ('a -> string) -> 'a option -> string
       val pairstring :
         ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
@@ -170,7 +170,7 @@ module
       | HideCutLayout -> TreeFormat (HideCutFormat, DefaultFormat)
       | CompressedLayout stuff -> l2f true stuff
       | NamedLayout stuff -> l2f false stuff
-    let rec ints2term tns = mkTup (m_a_p (int2term, tns))
+    let rec ints2term tns = mkTup (_MAP (int2term, tns))
     let rec format2layouts =
       fun (TreeFormat (tfk, tff) as f) ->
         let rec layout =
