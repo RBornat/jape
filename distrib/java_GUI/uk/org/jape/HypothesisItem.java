@@ -29,46 +29,15 @@ import java.awt.event.MouseEvent;
 
 public class HypothesisItem extends SelectableProofItem {
     
-    public HypothesisItem(ProofCanvas canvas, int x, int y, byte fontnum, String annottext) {
-        super(canvas, x, y, fontnum, annottext);
-    }
-    
-    public void clicked(byte eventKind, MouseEvent e) {
-        canvas.claimFocus();
-        byte selkind = getSelkind();
-        switch (eventKind) {
-            case Selection:
-                if (selkind==NoSel) {
-                    canvas.killSelections((byte)(ReasonSel | HypSel));
-                    doClick();
-                }
-                break;
-            case ExtendedSelection:
-            case DisjointSelection:
-            case ExtendedDisjointSelection:
-                if (selkind==NoSel) {
-                    canvas.killSelections(ReasonSel);
-                    doClick();
-                }
-                else {
-                    selectionRect.setSelkind(NoSel);
-                    canvas.notifyDeselect();
-                }
-                break;
-            default:
-                Alert.abort("HypothesisItem.clicked eventKind="+eventKind);
-        }
+    public HypothesisItem(JapeCanvas canvas, int x, int y, byte fontnum, String annottext, boolean boxStyle) {
+        super(canvas, x, y, fontnum, annottext, boxStyle, HypSel);
     }
 
-    private void doClick() {
-        select(HypSel);
-        canvas.notifySelect(this);
+    public void applySelectionPolicy() {
+        canvas.killSelections((byte)(ReasonSel | HypSel));
     }
 
-    public void select(byte selkind) {
-        if (selkind==HypSel)
-            super.select(HypSel);
-        else
-            Alert.abort("HypothesisItem.select selkind="+selkind);
+    public void applyExtendSelectionPolicy() {
+        canvas.killSelections(ReasonSel);
     }
 }
