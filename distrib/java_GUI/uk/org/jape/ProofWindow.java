@@ -26,7 +26,6 @@
 */
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.util.Enumeration;
 import java.awt.event.FocusAdapter;
@@ -157,11 +156,8 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
         switch (pane) {
             case ProofPaneNum:
                 return focussedProofWindow(true).proofCanvas;
-            case DisproofPaneNum: {
-                    ProofWindow w = focussedProofWindow(true);
-                    w.ensureDisproofPane();
-                    return w.disproofPane.seqCanvas;
-                }
+            case DisproofPaneNum:
+                return focussedProofWindow(true).ensureDisproofPane().seqCanvas;
             default:
                 throw new ProtocolError(who+" pane="+pane);
         }
@@ -196,12 +192,13 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
         proofCanvas.linethickness = linethickness;
     }
 
-    private void ensureDisproofPane() {
+    private DisproofPane ensureDisproofPane() {
         if (disproofPane==null) {
             disproofPane = new DisproofPane();
             disproofPane.setlinethickness(proofCanvas.linethickness);
             disproofPanePending = true;
         }
+        return disproofPane;
     }
 
     private boolean disproofPanePending;
@@ -239,8 +236,7 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
                 focussedw.focussedCanvas = focussedw.proofCanvas;
                 break;
             case DisproofPaneNum:
-                focussedw.ensureDisproofPane();
-                focussedw.focussedCanvas = focussedw.disproofPane.seqCanvas;
+                focussedw.focussedCanvas = focussedw.ensureDisproofPane().seqCanvas;
                 break;
             default:
                 Alert.abort("ProofWindow.drawInPane: pane="+pane);
@@ -313,20 +309,20 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
         focussedProofWindow(true).proofCanvas.add(new LineItem(focussedProofWindow(true).proofCanvas, x1, y1, x2, y2));
     }
 
-    private static SelectableProofItem findSelectableXY(int x, int y) throws ProtocolError {
+    private static SelectableProofItem findProofSelectableXY(int x, int y) throws ProtocolError {
         SelectableProofItem si = focussedProofWindow(true).proofCanvas.findSelectableXY(x,y);
         if (si==null)
-            throw new ProtocolError("no blackenable item at "+x+","+y);
+            throw new ProtocolError("no selectable proof item at "+x+","+y);
         else
             return si;
     }
 
     public static void blacken(int x, int y) throws ProtocolError {
-        findSelectableXY(x,y).blacken();
+        findProofSelectableXY(x,y).blacken();
     }
 
     public static void greyen(int x, int y) throws ProtocolError {
-        findSelectableXY(x,y).greyen();
+        findProofSelectableXY(x,y).greyen();
     }
 
     public static void highlight(int x, int y, byte selclass) throws ProtocolError {
@@ -337,13 +333,21 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
             case ReasonTextItem: selkind = ReasonSel; break;
             default            : throw new ProtocolError("ProofWindow.highlight selclass="+selclass);
         }
-        findSelectableXY(x,y).select(selkind);
+        findProofSelectableXY(x,y).select(selkind);
     }
 
     public static void unhighlight(int x, int y) throws ProtocolError {
-        findSelectableXY(x,y).deselect();
+        findProofSelectableXY(x,y).deselect();
     }
 
+    public static void emphasise(int x, int y, boolean state) throws ProtocolError {
+        EmphasisableItem ei = focussedProofWindow(true).ensureDisproofPane().seqCanvas.findEmphasisableXY(x,y);
+        if (ei==null)
+            throw new ProtocolError("no emphasisable disproof item at "+x+","+y);
+        else
+            ei.emphasise(state);
+    }
+    
     public static String getSelections() throws ProtocolError {
         String s = focussedProofWindow(true).proofCanvas.getSelections("\n");
         return s==null ? "" : s+"\n";
@@ -374,13 +378,31 @@ public class ProofWindow extends JapeWindow implements SelectionConstants, Proto
     }
 
     // disproof stuff
-    public static void setDisproofSequentBox(int w, int a, int d) throws ProtocolError {
-        focussedProofWindow(true).ensureDisproofPane();
-        focussedProofWindow(true).disproofPane.setSequentBox(w, a, d);
+    public static void setSequentBox(int w, int a, int d) throws ProtocolError {
+        focussedProofWindow(true).ensureDisproofPane().setSequentBox(w, a, d);
     }
 
     public static void setDisproofTiles(String[] tiles) throws ProtocolError {
-        focussedProofWindow(true).ensureDisproofPane();
-        focussedProofWindow(true).disproofPane.setTiles(tiles);
+        focussedProofWindow(true).ensureDisproofPane().setTiles(tiles);
+    }
+
+    public static void worldsStart() throws ProtocolError {
+        focussedProofWindow(true).ensureDisproofPane().worldCanvas.worldsStart();
+    }
+
+    public static void addWorld(int x, int y) throws ProtocolError {
+        focussedProofWindow(true).ensureDisproofPane().worldCanvas.addWorld(x, y);
+    }
+
+    public static void addWorldLabel(int x, int y, String label) throws ProtocolError {
+        focussedProofWindow(true).ensureDisproofPane().worldCanvas.addWorldLabel(x, y, label);
+    }
+
+    public static void addChildWorld(int x, int y, int xc, int yc) throws ProtocolError {
+        focussedProofWindow(true).ensureDisproofPane().worldCanvas.addChildWorld(x, y, xc, yc);
+    }
+
+    public static void selectWorld(int x, int y, boolean selected) throws ProtocolError {
+        focussedProofWindow(true).ensureDisproofPane().worldCanvas.selectWorld(x, y, selected);
     }
 }
