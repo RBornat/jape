@@ -241,7 +241,10 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         }
     }
     
-    public static void unsetfont() {
+    public static void resetSubstituteFont() {
+        encodingName = null;
         codecDone = false;
+        interfaceFonts = null;
+        interfaceMetrics = null;
     }
 }
