@@ -29,7 +29,7 @@ import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.util.Vector;
 
-public class Reply {
+public class Reply implements DebugConstants {
     public final static String stringSep = "\u0001"; // what separates parts of multi-string replies
     
     private static Vector messages = new Vector();
@@ -43,7 +43,7 @@ public class Reply {
     synchronized private static void sendmessage() {
         if (clientlistening && messages.size()!=0) {
             String s = (String)messages.remove(0);
-            if (Debugging.protocol_tracing) System.err.println("GUI sends "+s);
+            if (protocol_tracing) System.err.println("GUI sends "+s);
             System.out.println(s);
             clientlistening=false;
         }
@@ -51,14 +51,14 @@ public class Reply {
     
     synchronized public static void sendCOMMAND(String s) {
         String m = "COMMAND "+s;
-        if (Debugging.protocol_tracing) System.err.println("queuing "+m);
+        if (protocol_tracing) System.err.println("queuing "+m);
         messages.add(m);
         sendmessage();
     }
 
     synchronized public static void reply(String s) throws ProtocolError {
         if (!clientlistening) {
-            if (Debugging.protocol_tracing) System.err.println("GUI replies "+s);
+            if (protocol_tracing) System.err.println("GUI replies "+s);
             System.out.println(s);
         }
         else

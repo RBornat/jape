@@ -32,7 +32,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.util.Vector;
 
-class TextItem extends DisplayItem {
+class TextItem extends DisplayItem implements DebugConstants {
     
     public static Color OnColour     = Color.black,
                         OutColour    = Color.gray,
@@ -103,7 +103,7 @@ class TextItem extends DisplayItem {
         Vector cs = new Vector();
         computeColourSegs((char)0, NormalColour, false, cs);
         coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
-        if (Debugging.TextItem)
+        if (debugTextItem)
             System.err.println("TextItem built "+this);
     }
 
