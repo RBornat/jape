@@ -164,8 +164,8 @@ let intofdisproofemphasis e =
 
 type term = Termtype.term
 type coord = int * int
-type world = disproofemphasis * term list * coord list
-          (* colour,            labels,     children *)
+type world = disproofemphasis * (disproofemphasis * term) list * coord list
+          (* colour,            labels,                          children *)
 
 let emphasisofworld = fst_of_3
 let labelsofworld   = snd_of_3
@@ -173,15 +173,20 @@ let childrenofworld = thrd
 
 type universe = (coord, world) mapping
 
+let catelim_emphstring = stringfn2catelim stringofdisproofemphasis
+
 let catelim_coordstring =
   catelim_pairstring catelim_intstring catelim_intstring ","
 
+let catelim_labelstring =
+  catelim_pairstring catelim_emphstring catelim_termstring ","
+  
 let rec coordstring c = implode (catelim_coordstring c [])
 
 let catelim_worldstring =
   catelim_triplestring 
-    (stringfn2catelim stringofdisproofemphasis)
-    (catelim_bracketedliststring catelim_termstring ",")
+    catelim_emphstring
+    (catelim_bracketedliststring catelim_labelstring ",")
     (catelim_bracketedliststring catelim_coordstring ",") ", "
 
 let rec worldstring w = implode (catelim_worldstring w [])
@@ -209,11 +214,15 @@ let getworld u c =
 
 (* world-changing operations don't preserve emphasis *)
 
+let eqlabels ((_,t1),(_,t2)) = eqterms (t1,t2)
+
 let rec domono pts u c =
   let (_, ts, cs) = getworld u c in
-  match listsub eqterms pts ts with
+  match listsub eqlabels pts ts with
     []  -> u
   | ts' -> foldl (domono ts') ((u ++ (c |-> (Unforced, ts' @ ts, cs)))) cs
+
+let label_member ((_,t),ls) = member (t,List.map snd ls)
 
 let rec addworldlabel u c t =
   match (u <@> c) with
@@ -221,8 +230,9 @@ let rec addworldlabel u c t =
       raise
         (Tacastrophe_ ["(addworldlabel) no world at "; coordstring c; "; "; universestring "" u])
   | Some (_, pts, pcs) ->
-      if member (t, pts) then None
-      else Some (foldl (domono [t]) ((u ++ (c |-> (Unforced, t :: pts, pcs)))) pcs)
+      let l = Unforced,t in
+      if label_member (l, pts) then None
+      else Some (foldl (domono [l]) ((u ++ (c |-> (Unforced, l :: pts, pcs)))) pcs)
 
 let rec deleteworldlabel u c t =
   match (u <@> c) with
@@ -230,15 +240,16 @@ let rec deleteworldlabel u c t =
       raise
         (Tacastrophe_ ["(deleteworldlabel) no world at "; coordstring c; "; "; universestring "" u])
   | Some (_, pts, pcs) ->
-      if not (member (t, pts)) then None
+      let l = Unforced,t in
+      if not (label_member (l, pts)) then None
       else
         let rec islabelledparent u c c' =
-          let (_, ts, cs) = getworld u c' in member (c, cs) && member (t, ts)
+          let (_, ts, cs) = getworld u c' in member (c, cs) && label_member (l, ts)
         in
         let rec doself u c =
           let (_, ts, cs) = getworld u c in
-          if member (t, ts) then
-            (u ++ (c |-> (Unforced, listsub eqterms ts [t], cs)))
+          if label_member (l, ts) then
+            (u ++ (c |-> (Unforced, listsub eqlabels ts [l], cs)))
           else u
         in
         let rec doparents u c =
@@ -413,7 +424,7 @@ let rec semanticfringe facts ts t =
 
 let rec unfixedforced facts u =
   let rec ff f (c, t) =
-    let labels = labelsofworld <.> getworld u in
+    let labels = List.map snd <.> labelsofworld <.> getworld u in
     let children = childrenofworld <.> getworld u in
     let rec lookup c t = member (t, labels c), true in
     (* result is (forced, locked) *)
@@ -722,20 +733,22 @@ and tint_universe forced (plan, _) (proofsels, textsels) =
   mkmap <.> List.map (fun (c,w) -> (c, tint_world forced selections c w)) <.> aslist
 
 and tint_world forced selections c (e, ls, chs) = 
-  ((if not (null selections) && _All (fun s -> fst (forced (c,s))) selections then Forced else Unforced),
-   ls, chs)
+  ((if _All1 (fun s -> fst (forced (c,s))) selections then Forced else Unforced),
+   List.map (tint_label forced selections c) ls, chs)
+
+and tint_label forced selections c (_,t) = (Unforced,t) (* for now *)
 
 exception Disproof_ of string list
 
 (* sort, eliminating duplicates.  This sort is no longer case sensitive *)
-let rec alphasort sel ts =
+let rec alphasort render sel ts =
   List.map sel
     (sortunique (fun (s1, _) (s2, _) -> lowercase s1 < lowercase s2)
-       ((List.map termstring ts ||| ts)))
+                (List.map (fun t -> render t,t) ts))
 
-let tilesort = List.rev <.> alphasort snd
+let tilesort = List.rev <.> alphasort termstring snd
 
-let labelsort = alphasort fst 
+let labelsort = alphasort (fun (_,t) ->termstring t) snd 
 
 let rec seq2tiles facts seq =
   let (_, _, hyps, _, concs) = my_seqexplode seq in
@@ -831,7 +844,7 @@ let rec disproofstate2model =
       Some
         (seq,
          Model
-           (List.map (fun (c, (_, ts, chs)) -> World (Coord c, List.map (fun v->Coord v) chs, ts))
+           (List.map (fun (c, (_, ts, chs)) -> World (Coord c, List.map (fun v->Coord v) chs, List.map snd ts))
               (aslist universe)))
 
 let rec model2disproofstate a1 a2 a3 =
@@ -841,10 +854,10 @@ let rec model2disproofstate a1 a2 a3 =
       let rec coord = fun (Coord c) -> c in
       let (Model worlds) = model in
       let ulist =
-        List.map (fun (World (c, chs, ts)) -> coord c, (Unforced, ts, List.map coord chs))
+        List.map (fun (World (c, chs, ts)) -> coord c, (Unforced, List.map (fun t -> (Unforced,t)) ts, List.map coord chs))
           worlds
       in
-      let utiles = nj_fold (fun (x, y) -> x @ y) (List.map (labelsofworld <.> snd) ulist) [] in
+      let utiles = nj_fold (fun (x, y) -> x @ y) (List.map (List.map snd <.> labelsofworld <.> snd) ulist) [] in
       let uvars = nj_fold (uncurry2 tmerge) (List.map variables utiles) [] in
       let tiles = List.map newoccurrence uvars @ seq2tiles facts seq @ utiles in
       let minc =
@@ -1232,7 +1245,9 @@ let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = p
             seqplan;
           settiles (List.map termstring tiles);
           setworlds selected
-            (List.map (fun (c, e, labels, ws) -> c, e=Forced, labelsort labels, ws)
+            (List.map 
+              (fun (c, e, labels, ws) -> 
+                 c, e=Forced, List.map (fun(e,t) -> e=Forced,termstring t) (labelsort labels), ws)
                       (universe2list universe));
           forceAllDisproofSelections selections
         end
