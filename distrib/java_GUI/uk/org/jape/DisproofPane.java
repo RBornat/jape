@@ -25,8 +25,6 @@
     
 */
 
-import javax.swing.border.Border;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import java.awt.Color;
@@ -34,7 +32,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import javax.swing.JLabel;
 import java.awt.LayoutManager;
 
 // BoxLayout doesn't work for laying out this thing,
@@ -89,21 +86,12 @@ public class DisproofPane extends Container {
     }
     
     public void setTiles(String[] tiles) {
-        int spacing = LocalSettings.TileSpacing;
-        Border padding = BorderFactory.createEmptyBorder(spacing/2,spacing,spacing/2,spacing),
-               raisedbevel = BorderFactory.createRaisedBevelBorder(),
-               loweredbevel = BorderFactory.createLoweredBevelBorder(),
-               compoundbevel = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel),
-               tileborder = BorderFactory.createCompoundBorder(compoundbevel, padding);
-        
         tileCanvas.removeAll();
         tileCanvas.add(Box.createGlue());
         for (int i=0; i<tiles.length; i++) {
-            JLabel tile = new JLabel(tiles[i]);
-            tile.setBorder(tileborder);
-            tileCanvas.add(tile);
+            tileCanvas.add(new Tile(tiles[i]));
             if (i+1<tiles.length)
-                tileCanvas.add(Box.createVerticalStrut(spacing));
+                tileCanvas.add(Box.createVerticalStrut(LocalSettings.TileSpacing));
         }
         tileLayoutPending = true;
     }
