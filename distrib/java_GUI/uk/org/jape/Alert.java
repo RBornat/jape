@@ -58,27 +58,36 @@ public class Alert {
     
     // this is where we will eventually process multi-line strings and 
     // handle aspect ratio
-    private static JLabel[] makeMessage(String s) {
-        JLabel l = makeLabel(s);
-        TextDimension m = JapeFont.measure(l, s);
-        if (m.width>japeserver.screenBounds.width*2/3) {
-            String[] split = MinWaste.minwaste(l, s, japeserver.screenBounds.width*4/10);
-            JLabel[] ls = new JLabel[split.length];
-            for (int i=0; i<ls.length; i++)
-                ls[i] = makeLabel(split[i]);
-            return ls;
+    private static Object makeMessage(Object o) {
+        if (o instanceof String) {
+            String s = (String)o;
+            JLabel l = makeLabel(s);
+            TextDimension m = JapeFont.measure(l, s);
+            if (m.width>japeserver.screenBounds.width*2/3) {
+                String[] split = MinWaste.minwaste(l, s, japeserver.screenBounds.width*4/10);
+                JLabel[] ls = new JLabel[split.length];
+                for (int i=0; i<ls.length; i++)
+                    ls[i] = makeLabel(split[i]);
+                return ls;
+            }
+            else {
+                JLabel[] ls = { l };
+                return ls;
+            }
         }
-        else {
-            JLabel[] ls = { l };
-            return ls;
-        }
+        else
+            return o;
     }
-    
-    public static void showAlert(int messagekind, String message) {
+
+    public static void showAlert(Component parent, int messagekind, Object message) {
         // I don't think this needs invokeLater ...
-        JOptionPane.showMessageDialog(null,makeMessage(message),null,messagekind);
+        JOptionPane.showMessageDialog(parent,makeMessage(message),null,messagekind);
     }
-    
+
+    public static void showAlert(int messagekind, Object message) {
+        showAlert(null,messagekind,message);
+    }
+
     static String quit="Quit", cont="Continue";
 
     public static void showErrorAlert(String message) {
