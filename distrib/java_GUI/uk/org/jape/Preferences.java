@@ -43,8 +43,9 @@ public class Preferences {
                         TextSelectionColour     = Color.yellow,
                         WorldColour             = Color.black;
 
-    public static Color OutColour    = Color.gray,
-                        ForcedColour = Color.magenta;
+    public static Color OutColour             = Color.gray,
+                        ForcedColour          = Color.magenta,
+                        ForcedSelectionColour = Color.green;
 
     private static Properties props = new Properties();
 
