@@ -26,7 +26,7 @@
 */
 
 public interface LineTarget {
-    public boolean dragEnter(LineComponent l); // returns true if drag accepted
-    public void dragExit(LineComponent l);
-    public void drop(LineComponent l); 
+    public boolean dragEnter(WorldConnector l); // returns true if drag accepted
+    public void dragExit(WorldConnector l);
+    public void drop(WorldConnector l); 
 }
