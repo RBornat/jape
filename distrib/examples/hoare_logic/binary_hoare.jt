@@ -1,6 +1,6 @@
 ﻿/* $Id$ */
 
-UsefileINITIALISE displaystyle box
+INITIALISE displaystyle box
 
 USE "hoare_syntax.j"
 USE "hoare_problems.j"

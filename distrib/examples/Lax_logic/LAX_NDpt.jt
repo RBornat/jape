@@ -1,6 +1,6 @@
 ﻿/* $Id$ */
 
-UsefileINITIALISE displaystyle box
+INITIALISE displaystyle box
 
 CLASS BAG Γ
 CONSTANT false * true efq π1 π2 i1 i2 val i
