@@ -44,7 +44,7 @@ let rec catelim_paraparamstring p tail =
   match p with
     Objectparam (v, _) -> "OBJECT " :: string_of_vid v :: tail
   | Ordinaryparam (v, _) -> string_of_vid v :: tail
-  | Unknownparam (v, _) -> metachar :: string_of_vid v :: tail
+  | Unknownparam (v, _) -> metachar_as_string :: string_of_vid v :: tail
   | Abstractionparam (v, _) -> "ABSTRACTION " :: string_of_vid v :: tail
 
 let paraparamstring = catelim2stringfn catelim_paraparamstring

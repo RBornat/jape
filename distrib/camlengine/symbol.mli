@@ -25,6 +25,8 @@
 
 *)
 
+open UTF
+
 type symbol = Symboltype.symbol
 and associativity = Symboltype.associativity
 and idclass = Idclass.idclass
@@ -44,8 +46,8 @@ val symbolstring : symbol -> string
 val smlsymbolstring : symbol -> string
 
 (* aid for prettyprinters *)
-val metachar : string
-val mustseparate : string * string -> bool
+val metachar_as_string : string
+val mustseparate       : string * string -> bool
 
 (* aid for parsers *)
 val scansymb : unit -> unit
@@ -56,16 +58,16 @@ val peeksymb : unit -> symbol
 val putbacksymb : symbol -> unit (* for primitive backtracking *)
 
 type savedlex
-val pushlex : string -> char Stream.t -> savedlex
-val poplex : savedlex -> unit
+val pushlex : string -> ucode Stream.t -> savedlex
+val poplex  : savedlex -> unit
 
 val showInputError : (string list -> unit) -> string list -> unit
-val resetSymbols : unit -> unit
-val escapechar : string -> string
-val unescapechar : string -> string
+val resetSymbols   : unit -> unit
+val escapechar : ucode -> ucode
 val commasymbol : symbol
-val appfix : int ref
-val substfix : int ref
+
+val appfix     : int ref
+val substfix   : int ref
 val substsense : bool ref
 
 (* aid for keyboardists *)

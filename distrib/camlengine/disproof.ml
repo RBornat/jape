@@ -49,6 +49,7 @@ open Sml
 open Termfuns
 open Termstore
 open Termstring
+open UTF
 
 type forcedef  = Forcedef.forcedef
  and model     = Forcedef.model
@@ -60,7 +61,7 @@ let catelim_seqstring = Sequent.catelim_seqstring
 let consolereport = Miscellaneous.consolereport
 let drawindisproofpane () = drawinpane Displayfont.DisproofPane
 let getsemanticturnstile = Sequent.getsemanticturnstile
-let isdigit = Miscellaneous.isdigit
+let isdigit = isdigit
 let isextensibleID = Symbol.isextensibleID
 let lowercase = Stringfuns.lowercase
 let matchdebug = Match.matchdebug
@@ -83,10 +84,10 @@ let catelim_triplestring = Stringfuns.catelim_triplestring
 
 let ask ss bs def = Alert.ask (Alert.defaultseverity bs) (implode ss) bs def
 
-let onbraket = String.make 1 Miscellaneous.onbra, String.make 1 Miscellaneous.onket
-let offbraket = String.make 1 Miscellaneous.offbra, String.make 1 Miscellaneous.offket
-let outbraket = String.make 1 Miscellaneous.outbra, String.make 1 Miscellaneous.outket
-let lockbraket = String.make 1 Miscellaneous.lockbra, String.make 1 Miscellaneous.lockket
+let onbraket = onbra_as_string, onket_as_string
+let offbraket = offbra_as_string, offket_as_string
+let outbraket = outbra_as_string, outket_as_string
+let lockbraket = lockbra_as_string, lockket_as_string
 
 let term2binding t =
   match Binding.bindingstructure t with
@@ -1000,10 +1001,10 @@ let rec newtile =
          (fun t' -> if member (t', tiles) then None else Some t'))
     in
     let rec newoccurrence v =
-      let cs = UTF.utf8_explode (termstring v) in
+      let cs = utf8_explode (termstring v) in
       let ds = List.rev (takewhile isdigit (List.rev cs)) in
-      let stem = implode (take (List.length cs - List.length ds) cs) in
-      let stern = if null ds then 1 else atoi (implode ds) + 1 in
+      let stem = utf8_implode (take (List.length cs - List.length ds) cs) in
+      let stern = if null ds then 1 else atoi (utf8_implode ds) + 1 in
       let rec freshtile stem stern =
         let v' = parseTerm (stem ^ string_of_int stern) in
         (newtile v v'|~~ (fun _ -> freshtile stem (stern + 1)))

@@ -56,6 +56,7 @@ open Stringfuns
 open Tacticfuns
 open Thing
 open Treeformat.Fmt
+open UTF
 
 (* this is the remains of a huge sml functor argument *)
 
@@ -111,10 +112,10 @@ let givenMenuTactic = Miscellaneous.givenMenuTactic
        
 let rec initGUI () =
   (Japeserver.setinvischars 
-     (String.make 1 Miscellaneous.onbra, String.make 1 Miscellaneous.onket)
-     (String.make 1 Miscellaneous.offbra, String.make 1 Miscellaneous.offket)
-     (String.make 1 Miscellaneous.outbra, String.make 1 Miscellaneous.outket)
-     (String.make 1 Miscellaneous.lockbra, String.make 1 Miscellaneous.lockket) :
+     (onbra_as_string, onket_as_string)
+     (offbra_as_string, offket_as_string)
+     (outbra_as_string, outket_as_string)
+     (lockbra_as_string, lockket_as_string) :
    unit);
   Button.initFonts ()
 
@@ -123,15 +124,19 @@ let mkvisproviso = Proviso.mkvisproviso
 let optionstring = Optionfuns.optionstring
 let ( |~ ) = Optionfuns.( |~ )
 let ( |~~ ) = Optionfuns.( |~~ )
+
 let parseCurriedArgList =
   Termparse.tryparse (fun _ -> Termparse.parsecurriedarglist ())
+  
 let parseTactic = Termparse.asTactic Termparse.term_of_string
 let parseTerm = Termparse.term_of_string
+
 let parseTermCOMMAList =
   Termparse.tryparse
     (fun _ ->
        Termparse.parseList Termparse.canstartTerm Termparse.parseTerm
          Symbol.commasymbol)
+         
 let proofsdone = Runproof.proofsdone
 let provisoactual = Proviso.provisoactual
 let provisostring = Proviso.provisostring
@@ -410,7 +415,7 @@ let rec docommand displaystate env target comm =
          withroot
            (withtarget (withgoal (state) (Some target)) (Some target)) (None)
        in
-       applyLiteralTactic (Some displaystate) env (UTF.respace comm)
+       applyLiteralTactic (Some displaystate) env (respace comm)
          state)
     in apply_cleanup (); r
 
@@ -910,7 +915,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     | [] -> state
   in
   let rec addnewconjecture panel text =
-    let text = UTF.respace text in
+    let text = respace text in
     let getpara = string2paragraph showAlert uncurried_screenquery in
     let (text, para) =
       (* praps it's just a conjecture *)
@@ -1061,7 +1066,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       [] ->
         showAlert
           ["There is no current proof, so you can't execute \"";
-           UTF.respace c; "\""];
+           respace c; "\""];
         default
     | (Pinf {displaystate = displaystate; hist = hist} as pinf) ::
       pinfs ->
@@ -1083,7 +1088,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
            else ("there are " ^ string_of_int (List.length pinfs)) ^ " proofs";
            " in progress. You must close ";
            if n = 1 then "it" else "them"; " before the command \"";
-           UTF.respace c; "\" can be executed."];
+           respace c; "\" can be executed."];
         default
   in
   
@@ -1224,14 +1229,14 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  | Some (TextSel t) -> nosels (Some t)
                  | Some (ReasonSel _) ->
                      showAlert
-                       ["only reason selection (applying "; UTF.respace comm;
+                       ["only reason selection (applying "; respace comm;
                         ")"];
                      default
                  | None -> nosels None
                  end
              | _ ->
                  showAlert
-                   ["no current proof (applying "; UTF.respace comm; ")"];
+                   ["no current proof (applying "; respace comm; ")"];
                  default
              end)
 
@@ -1242,28 +1247,28 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "assign", name :: value ->
             (try
-              let value = parseTactic (UTF.respace value) in
+              let value = parseTactic (respace value) in
               Japeenv.set (env, namefrom name, value);
               resetcaches ();
               default
             with
               Japeenv.OutOfRange_ s ->
                 showAlert
-                  ["error in "; UTF.respace c;
+                  ["error in "; respace c;
                    " --  value assigned should be "; s];
                 default
             | Japeenv.NotJapeVar_ ->
                 showAlert
-                  ["error in "; UTF.respace c; " -- "; name;
+                  ["error in "; respace c; " -- "; name;
                    " is not a Jape variable"];
                 default
             | Japeenv.ReadOnly_ ->
                 showAlert
-                  ["error in "; UTF.respace c; " -- "; "you can't assign to ";
+                  ["error in "; respace c; " -- "; "you can't assign to ";
                    name; " at this point"];
                 default
             | ParseError_ rs ->
-                showAlert (["can't parse "; UTF.respace value; " -- "] @ rs);
+                showAlert (["can't parse "; respace value; " -- "] @ rs);
                 default)
 
         | "redo_disproof", [] ->
@@ -1316,7 +1321,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 Some t -> termstring t
               | None -> ""
             in
-            Japeserver.showfile ((UTF.respace interfacecommand ^ " ") ^ str);
+            Japeserver.showfile ((respace interfacecommand ^ " ") ^ str);
             (* This should be called -- "tellinterface" *)
             (* It's the way that an interface can do something
                with the value of a jape variable
@@ -1504,9 +1509,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                    let args =
                      try (if null sels || null stuff then parseCurriedArgList
                                                      else (fun t -> [t]) <.> parseTerm)
-                         (UTF.respace stuff)
+                         (respace stuff)
                      with ParseError_ es ->
-                       showAlert ("cannot parse unify " :: UTF.respace stuff :: " -- " :: es);
+                       showAlert ("cannot parse unify " :: respace stuff :: " -- " :: es);
                        raise Unify_
                    in
                    let rec getit s =
@@ -1553,7 +1558,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             end
 
         | "showproof", stuff ->
-            let name = namefrom (UTF.respace stuff) in
+            let name = namefrom (respace stuff) in
             begin match proofnamed name with
               None ->
                 showAlert ["No stored proof of "; namestring name];
@@ -1730,7 +1735,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             end
 
         | "prove", comm ->
-            let name = namefrom (UTF.respace comm) in
+            let name = namefrom (respace comm) in
             if match proofnamed name with
                  Some (proved, tree, provisos, givens, disproved, disproofopt) ->
                    screenquery
@@ -1926,7 +1931,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
            
   and cannotprocesscommand command =
     showAlert
-      ["Dialogue.processcommand cannot process "; UTF.respace command]
+      ["Dialogue.processcommand cannot process "; respace command]
   in
   let rec domb (var, notify) =
     let setting =

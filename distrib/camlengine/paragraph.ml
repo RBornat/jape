@@ -45,6 +45,7 @@ open Termfuns
 open Termstring
 open Termparse
 open Usefile
+open UTF
 
 let addbindingdirective = Binding.addbindingdirective
 let atoi = Miscellaneous.atoi
@@ -98,7 +99,7 @@ let rec namefromsymbol sy =
   let rec ok v = Some (Name v) in
   match sy with
     ID (s, _) -> ok s
-  | UNKNOWN (s, _) -> ok (metachar ^ s)
+  | UNKNOWN (s, _) -> ok (metachar_as_string ^ s)
   | PREFIX (_, s) -> ok s
   | POSTFIX (_, s) -> ok s
   | LEFTFIX (_, s) -> ok s
@@ -190,7 +191,7 @@ and parseformal mustdecl =
         if mustdecl then
           raise
             (ParseError_
-               ["unclassified unknown "; Symbol.metachar; s; " in formal parameter list"])
+               ["unclassified unknown "; metachar_as_string; s; " in formal parameter list"])
         else begin scansymb (); Unknownparam (vid_of_string s, NoClass) end
     | sy ->
         raise (Matchinparseformal "an identifier in formal parameter list")
@@ -1147,7 +1148,7 @@ and file2paragraphs report query s =
              ["Cannot read file: \""; Usefile.normalizePath s; "\""; " ("; e; ")"];
            raise Use_
   in
-  let st = pushlex s (UTF.utf8_of_utfchannel ic) in
+  let st = pushlex s (of_utfchannel ic) in
   let _ = startusing s in
   let rec cleanup () =
     poplex st; consolereport ["[CLOSING \""; Usefile.normalizePath s; "\"]"]; 
@@ -1161,8 +1162,9 @@ and file2paragraphs report query s =
          showInputError report ("Catastrophic input error: " :: ss);
          cleanup ();
          raise Use_
-     | UTF.Malformed_ ->
-        showInputError report ["Malformed UTF-8 input.\n\n\
+     | MalformedUTF_ ss ->
+        showInputError report ["Malformed UTF-8 input: "; liststring (fun s -> s) "" ss;
+                               ".\n\n\
                                 Jape now works only with unicode (UTF-8/16/32) files.\n\n\
                                 (Are you perhaps reading a old unconverted non-Unicode file? If so, \
                                 try using the file converter that comes with Jape.)\n\n\

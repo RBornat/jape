@@ -26,6 +26,7 @@
 *)
 
 open Sml
+open UTF
 
 let bracketedliststring = Listfuns.bracketedliststring
 let consolereport = Miscellaneous.consolereport
@@ -38,8 +39,11 @@ let consolereport = Miscellaneous.consolereport
 let normalizePath filename = 
 if Sys.os_type="Win32" 
 then 
-   let sloshify = function "/"->"\\" | c -> c
-   in Sml.implode (List.map sloshify (UTF.utf8_explode filename))
+   (* 0x2f = '/'
+      0x5c = '\\'
+    *)
+   let sloshify = function 0x2f->0x5c | c -> c in 
+   utf8_implode (List.map sloshify (utf8_explode filename))
 else filename
 
 let pathStem path =
@@ -47,14 +51,17 @@ let pathStem path =
      Path separator is immaterial so we can mix unix/windows-style paths
      in source files.
   *)
+   (* 0x2f = '/'
+      0x5c = '\\'
+    *)
   let rec removestern =
   function
-    | [] -> ["./"]
-    | "/"  :: xs -> "/"  :: xs
-    | "\\" :: xs -> "\\" :: xs  
-    | x :: xs -> removestern xs
+    | []          -> [Char.code '.'; Char.code '/']
+    | 0x2f  :: xs -> 0x2f  :: xs
+    | 0x5c :: xs  -> 0x5c :: xs  
+    | x :: xs     -> removestern xs
   in
-    Sml.implode (List.rev (removestern (List.rev (UTF.utf8_explode path))))
+    utf8_implode (List.rev (removestern (List.rev (utf8_explode path))))
  
 let open_input_file  filename = open_in  (normalizePath filename)
 

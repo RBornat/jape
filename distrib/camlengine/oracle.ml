@@ -30,6 +30,7 @@ open Env
 open Mappingfuns
 open Sml
 open Stringfuns
+open UTF
 
 let atoi                   = Miscellaneous.atoi
 let consolereport          = Miscellaneous.consolereport
@@ -41,32 +42,36 @@ let termstring             = Termstring.termstring
 let termOrCollectionstring = Termstring.termOrCollectionstring
 
 (* probably this ought to use UTF.words *)
+(* bloody OCaml constant lextax.
+   0x22 '\"'
+   0x5c '\\' 
+ *)
 let rec words s =
   let rec wd a1 a2 =
     match a1, a2 with
       res, [] -> List.rev res, []
-    | res, [c] -> if c <= " " then List.rev res, [] else List.rev (c :: res), []
-    | res, "\"" :: cs -> qd res cs
+    | res, [c] -> if c <= Char.code ' ' then List.rev res, [] else List.rev (c :: res), []
+    | res, 0x22 :: cs -> qd res cs
     | res, c :: cs ->
-        if c <= " " then List.rev res, unspace cs else wd (c :: res) cs
+        if c <= Char.code ' ' then List.rev res, unspace cs else wd (c :: res) cs
   and qd a1 a2 =
     match a1, a2 with
-      res, "\"" :: cs -> List.rev res, cs
-    | res, "\\" :: c :: cs -> qd (c :: res) cs
+      res, 0x22 :: cs -> List.rev res, cs
+    | res, 0x5c :: c :: cs -> qd (c :: res) cs
     | res, c :: cs -> qd (c :: res) cs
     | res, [] -> List.rev res, []
   and unspace =
     function
       [] -> []
-    | c :: cs as this -> if c <= " " then unspace cs else this
+    | c :: cs as this -> if c <= Char.code ' ' then unspace cs else this
   and wds =
     function
       [] -> []
     | cs ->
         let (word, rest) = wd [] (unspace cs) in
-        if null word then wds rest else implode word :: wds rest
+        if null word then wds rest else utf8_implode word :: wds rest
   in
-  wds (UTF.utf8_explode s) 
+  wds (utf8_explode s) 
 
 type term = Termtype.term
 
@@ -100,11 +105,11 @@ let rec readmapping filename =
 		 | "ASCII" :: wd :: (wd2 :: _ as wds) ->
 			 let n = try Pervasives.int_of_string wd with Failure _ -> ordof wd 0 in
 			 mapped := true;
-			 if 1 <= n && n <= 255 then Array.set table n (UTF.respace wds)
+			 if 1 <= n && n <= 255 then Array.set table n (respace wds)
 		 | wd :: wds ->
 			 match String.get wd 0 with
 			   '#' -> ()
-			 | _ -> Hashtbl.add mapping wd (UTF.respace wds)
+			 | _ -> Hashtbl.add mapping wd (respace wds)
 	   done
 	 with End_of_file -> ()
 	);
@@ -121,7 +126,7 @@ let emptyCollection = isemptycollection
 
 let rec hypconcstring punct mapped table term =
   let rec translatewith table string =
-    implode (List.map (fun c -> Array.get table (ord c)) (UTF.utf8_explode string)) 
+    implode (List.map (fun c -> Array.get table c) (utf8_explode string)) 
   in
   let rec docollection term =
     ("(" ^ termOrCollectionstring ((")" ^ punct) ^ "(") term) ^ ")"

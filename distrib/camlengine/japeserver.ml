@@ -41,6 +41,7 @@ open Displayclass
 open Listfuns
 open Miscellaneous
 open Sml
+open UTF
 
 type box = Box.box
  and displayclass = Displayclass.displayclass
@@ -94,8 +95,8 @@ let out s =
 
 let write s = out s; out "\n"; flush s
 
-let rec visible s = implode (List.map vis (UTF.utf8_explode s))
-and vis c = if c < " " then "\\" ^ string_of_int (ord c) else c
+let rec visible s = implode (List.map vis (utf8_explode s))
+and vis c = if invisible_ucode c then "\\" ^ string_of_int c else utf8_of_ucode c
     
 (* if the server has crashed, input_line may give an exception *)
 let rec readline s = 
@@ -114,33 +115,33 @@ let rec readline s =
  
 let rec nn_ =
   function
-    "-" :: ds -> - dd_ 0 ds
-  | ds -> dd_ 0 ds
+    dash :: ds when dash=Char.code '-' -> - dd_ 0 ds
+  | ds                                 -> dd_ 0 ds
 
 and dd_ a1 a2 =
   match a1, a2 with
-    r, [] -> r
-  | r, d :: ds -> dd_ (r * 10 + ord d - ord "0") ds
+    r, []      -> r
+  | r, d :: ds -> dd_ (r * 10 + d - Char.code '0') ds
 
 let rec ints_of_reply line =
   let rec ff_ a1 a2 a3 =
     match a1, a2, a3 with
-      s, r, [] -> nn_ s :: r
-    | s, r, " " :: xs -> ff_ [] (nn_ s :: r) xs
-    | s, r, x :: xs -> ff_ (x :: s) r xs
+      s, r, []         -> nn_ s :: r
+    | s, r, 0x20 :: xs -> ff_ [] (nn_ s :: r) xs
+    | s, r, x :: xs    -> ff_ (x :: s) r xs
   in
-  ff_ [] [] (List.rev (UTF.utf8_explode line))
+  ff_ [] [] (List.rev (utf8_explode line))
 
-let rec atoi s = nn_ (UTF.utf8_explode s)
+let rec atoi s = nn_ (utf8_explode s)
 
 let rec strings_of_reply s =
   let rec ff_ a1 a2 a3 =
     match a1, a2, a3 with
-      w, r, []               -> implode w :: r
-    | w, r, "\xc2\x91" :: cs -> ff_ [] (implode w :: r) cs
-    | w, r, c :: cs          -> ff_ (c :: w) r cs
+      w, r, []         -> utf8_implode w :: r
+    | w, r, 0x91 :: cs -> ff_ [] (utf8_implode w :: r) cs
+    | w, r, c :: cs    -> ff_ (c :: w) r cs
   in
-  ff_ [] [] (List.rev (UTF.utf8_explode s))
+  ff_ [] [] (List.rev (utf8_explode s))
 
 type _ITEM = Bool of bool | Int of int | Str of string
 
@@ -148,38 +149,38 @@ let fBool v = Bool v
 let fInt v  = Int  v
 let fStr v  = Str  v
 
+(* 0x25 = '%' *)
 let rec writef s is =
   let rec ww_ a1 a2 =
     match a1, a2 with
       [], _ -> ()
-    | "%" :: "%" :: f, is -> out "%"; ww_ f is
-    | "%" :: f, Bool b :: is -> out (if b then "T" else "F"); ww_ f is
-    | "%" :: f, Int i :: is -> out (intstring i); ww_ f is
-    | "%" :: f, Str s :: is -> outs s; ww_ f is
-    | c :: cs, is -> out c; ww_ cs is
+    | 0x25 :: 0x25 :: f, is -> out "%"; ww_ f is
+    | 0x25 :: f, Bool b :: is -> out (if b then "T" else "F"); ww_ f is
+    | 0x25 :: f, Int i :: is -> out (intstring i); ww_ f is
+    | 0x25 :: f, Str s :: is -> outs s; ww_ f is
+    | c :: cs, is -> out (utf8_of_ucode c); ww_ cs is
   in
-  ww_ (UTF.utf8_explode s) is
+  ww_ (utf8_explode s) is
 
 and intstring i = if i < 0 then "-" ^ string_of_int (- i) else string_of_int i
 
 and outs s =
   List.iter
     (function
-       " " -> out8 " "
-     | "\n" -> out "\\n"
-     | "\"" -> out "\\\""
-     | "\\" -> out "\\\\"
-     | c -> if ord c < 32 then out8 c else out c)
-    (UTF.utf8_explode s)
+       sp when sp=Char.code ' ' -> out8 sp
+     | nl when nl=Char.code '\n' -> out "\\n"
+     | dq when dq=Char.code '\"' -> out "\\\""
+     | slosh when slosh=Char.code '\\' -> out "\\\\"
+     | c -> if c < 32 then out8 c else out (utf8_of_ucode c))
+    (utf8_explode s)
 
 and out8 c =
-  let i = ord c in
   let r =
     implode
-      ["\\"; string_of_int (i / 64); string_of_int (i mod 64 / 8);
-       string_of_int (i mod 8)]
+      ["\\"; string_of_int (c / 64); string_of_int (c mod 64 / 8);
+       string_of_int (c mod 8)]
   in
-  (*consolereport ["mks8 ", string_of_int i, " => ", r];*)
+  (*consolereport ["mks8 ", string_of_int c, " => ", r];*)
   out r
 
 let rec askf s is = writef s is; ints_of_reply (readline s)
@@ -234,7 +235,7 @@ let rec getPointSize n =
 let invischars : string list ref = ref []
 
 let rec printable s =
-  implode ((fun c -> not (member (c, !invischars))) <| UTF.utf8_explode s)
+  utf8_implode ((not <.> invisible_ucode) <| utf8_explode s)
 
 let fontnames : string array ref = ref (Array.make 0 "")
 

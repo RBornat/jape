@@ -64,7 +64,7 @@ let rec parseablenamestring =
 let rec term2name t =
   match t with
     Id (_, v, _)          -> Some (Name (string_of_vid v))
-  | Unknown (_, v, _)     -> Some (Name (metachar ^ string_of_vid v))
+  | Unknown (_, v, _)     -> Some (Name (metachar_as_string ^ string_of_vid v))
   | Literal (_, Number s) -> Some (Name (string_of_int s))
   | Literal (_, String s) -> Some (Name s)
   | _ -> None

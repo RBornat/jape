@@ -58,6 +58,9 @@ type idclass = Idclass.idclass
 (* and that's lucky, because it means I can deal in utf8 items -- strings representing a
    unicode character.
  *)
+(* and then I thought "how big's a string?" and I realised it ought to be dealing with
+   unicode code points. So it does.
+ *)
 open Stream
 
 let symboldebug = ref false
@@ -82,18 +85,19 @@ let substsense = ref substsense_default
 let (isIDhead, updateIDhead) = charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'"
 let (isIDtail, updateIDtail) = charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'0123456789"
 
-let decIDheads : string list ref = ref []
-let decIDtails : string list ref = ref []
+let decIDheads : int list ref = ref []
+let decIDtails : int list ref = ref []
 
 let (isreserved, _) = charpred "\"_() \n\t" (* the chars we give special meaning to *)
 (* we can't use a list of the chars we allow as PUNCT because that kills 8-bit fonts *)
 (* recently deleted from isreserved: "$,[]" *)
 
-let metachar = "_"   (* not a punct *)
+let metachar = Char.code '_'   (* not a punct *)
+let metachar_as_string = "_"
 
 (* this could be quicker, could it not? *)
 let rec ispunct c =
-  not (c = "" || c = metachar || isdigit c || isIDhead c || isreserved c)
+  not (c = -1 || c = metachar || isdigit c || isIDhead c || isreserved c)
 
 let (reservedpunct, _) = charpred "(),[]"
 
@@ -103,10 +107,10 @@ let rec mkalt cts def =
   let rec lookup c = try Hashtbl.find aa c with Not_found -> def in
   List.iter (fun (c, t) -> Hashtbl.add aa c t) cts; lookup
 
-let optree : (string, symbol) searchtree ref = ref (emptysearchtree mkalt)
-let idprefixtree : (string, idclass) searchtree ref =
+let optree : (int, symbol) searchtree ref = ref (emptysearchtree mkalt)
+let idprefixtree : (int, idclass) searchtree ref =
   ref (emptysearchtree mkalt)
-let idfixedtree : (string, idclass) searchtree ref =
+let idfixedtree : (int, idclass) searchtree ref =
   ref (emptysearchtree mkalt)
 
 (* list of 'funny symbols' to be used in on-screen keyboards and the like *)
@@ -117,9 +121,9 @@ let rec get_oplist () =
     Some ss -> ss
   | None ->
       let ops =
-        List.map (implode <.> (fun(r,_,_)->r)) (summarisetree !optree)
+        List.map (utf8_implode <.> (fun(r,_,_)->r)) (summarisetree !optree)
       in
-      sortunique (<) ((ops @ !decIDheads) @ !decIDtails)
+      sortunique (<) (ops @ List.map utf8_of_ucode !decIDheads @ List.map utf8_of_ucode !decIDtails)
 
 let rec set_oplist ss = oplist := Some ss
 
@@ -131,7 +135,7 @@ let rec lookinIdtree rt cs =
   match searchfsm (rootfsm rt) cs with
     Found (res, _) ->
       if !symboldebug then
-        consolereport [implode cs; " class "; idclassstring res];
+        consolereport [utf8_implode cs; " class "; idclassstring res];
       res
   | NotFound _ ->
       if !symboldebug then
@@ -140,9 +144,9 @@ let rec lookinIdtree rt cs =
             (fun (cs', r, b) ->
                if b && isprefix (fun (x, y) -> x = y) cs' cs then
                  consolereport
-                   ["missed prefix "; implode cs'; " "; idclassstring r])
+                   ["missed prefix "; utf8_implode cs'; " "; idclassstring r])
             (summarisetree !rt);
-          consolereport [implode cs; " class "; idclassstring NoClass]
+          consolereport [utf8_implode cs; " class "; idclassstring NoClass]
         end;
       NoClass
 
@@ -150,14 +154,14 @@ let rec decIDhead c =
   isIDhead c ||
   not (isdigit c || isreserved c) &&
   (if !symboldebug then
-     consolereport ["decIDhead "; enCharQuote (pre_Ascii c)];
+     consolereport ["decIDhead "; enCharQuote (pre_Ascii (utf8_of_ucode c))];
    updateIDhead (c, true); decIDheads := c :: !decIDheads; true)
 
 let rec decIDtail c =
   isIDtail c ||
   not (isreserved c) &&
   (if !symboldebug then
-     consolereport ["decIDtail "; enCharQuote (pre_Ascii c)];
+     consolereport ["decIDtail "; enCharQuote (pre_Ascii (utf8_of_ucode c))];
    updateIDtail (c, true); decIDtails := c :: !decIDtails; true)
 
 (* when we explode a string, we must make it a sequence of utf8 items *)
@@ -297,7 +301,7 @@ let rec register_op s sym =
   if s = "" then bang "is_EOF";
   let cs = utf8_explode s in
   if List.exists (not <.> ispunct) cs then 
-    bang ("notallpunct "^bracketedliststring (enQuote<.>pre_Ascii) ";" cs);
+    bang ("notallpunct "^bracketedliststring (enQuote<.>pre_Ascii<.>utf8_of_ucode) ";" cs);
   if !symboldebug then
     consolereport
       ["register_op "; enQuote (pre_Ascii s); " "; smlsymbolstring sym];
@@ -328,7 +332,8 @@ let rec enter (string, symbol) =
          (try deregister_op oldstring symbol 
           with DeleteFromTree_ -> 
             let string_of_csrb =
-              triplestring (bracketedliststring (enQuote <.> String.escaped) ",") smlsymbolstring string_of_bool ","
+              triplestring (bracketedliststring (fun i -> "0x"^hexstring_of_int i) ",") 
+                           smlsymbolstring string_of_bool ","
             in
             consolereport 
               ["DeleteFromTree_\n\t"; 
@@ -363,7 +368,7 @@ let rec badID s = ID (s, None)
 let rec checkentry con s =
   let v = con s in
   match lookup s with
-    None -> enter (s, v); v
+    None   -> enter (s, v); v
   | Some v -> v
 
 let checkbadID = checkentry badID
@@ -393,7 +398,7 @@ let rec declareIdPrefix class__ s =
   insertinIdtree "declareIdPrefix" true class__ idprefixtree s;
   (* no warnings about clashes any more
      case fsmpos (rootfsm idfixedtree) (utf8_explode s) of
-       Some t => List.map ((fn t => s^implode t) o #1) (summarisetree t)
+       Some t => List.map ((fn t => s^utf8_implode t) o #1) (summarisetree t)
      | None   => []
   *)
   []
@@ -488,22 +493,10 @@ let rec resetSymbols () =
 (* probably this can all be simply camlised *)
 let rec escapechar c =
   match c with
-    "n" -> "\n"
-  | "r" -> "\r"
-  | "t" -> "\t"
-  (* next two lines not strictly necessary, but worth it for notification value *)
-  | "\"" -> "\""
-  | "\\" -> "\\"
-  | c    -> c
-
-let rec unescapechar c =
-  match c with
-    "\n" -> "\\n"
-  | "\t" -> "\\t"
-  | "\"" -> "\\\""
-  | "\\" -> "\\\\"
-  | "\r" -> "\\r"
-  | c    -> c
+    c when c=Char.code 'n' -> Char.code '\n'
+  | c when c=Char.code 'r' -> Char.code '\r'
+  | c when c=Char.code 't' -> Char.code '\t'
+  | c                      -> c
 
 (* I collected all these things into one place, and wrapped them in local, 
  * because these variables form all of the state of the lexer.  
@@ -514,7 +507,7 @@ let rec unescapechar c =
 (* but then translation to ocaml delocalised them, and I didn't yet realise how to 
    undo that. RB 15/vii/2002
  *)
-let lexin = ref (of_channel stdin)
+let lexin = ref utf_stdin
 let lexinfile = ref ""
 let linenum = ref 0
 let symb = ref EOF
@@ -528,34 +521,41 @@ let rec showInputError f msg =
   f (loc @ msg)
 
 (* get utf8 items; translate 85, 2028 and 2029 into Unix newline *)
-let char () = match utf8_peek !lexin with 
-                  Some s -> if s="\xc2\x85" || s="\xe2\x80\xa8" || s="\xe2\x80\xa9" then "\n" else s
-                | None   -> "" 
 
-let next () = utf8_junk !lexin
+let char () = match peek !lexin with 
+                Some 0x85   -> Char.code '\n'
+              | Some 0x2028 -> Char.code '\n'
+              | Some 0x2029 -> Char.code '\n'
+              | Some i      -> i
+              | None        -> uEOF
+
+let next () = junk !lexin
 
 let rec scanwhile =
   fun pp rcs con ->
     let c = char () in
-    if c <> "" && pp c then (next (); scanwhile pp (c :: rcs) con)
-    else con (implode (List.rev rcs))
+    if c <> uEOF && pp c then (next (); scanwhile pp (c :: rcs) con)
+    else con (utf8_implode (List.rev rcs))
 
 let rec scanwatch f =
   if !symboldebug then
     fun v ->
-      let c = f v in if !symboldebug then consolereport ["scanfsm '"; pre_Ascii c; "'"]; c
+      let c = f v in 
+      if !symboldebug then consolereport ["scanfsm '"; pre_Ascii (utf8_of_ucode c); "'"]; 
+      c
   else f
 
 let rec scannext () = next (); char ()
 
 let rec scanop fsm rcs =
   if !symboldebug then 
-    consolereport ["scanop "; bracketedliststring (fun c -> enCharQuote (pre_Ascii c)) ";" rcs];
+    consolereport 
+      ["scanop "; bracketedliststring (fun c -> enCharQuote (pre_Ascii (utf8_of_ucode c))) ";" rcs];
   match scanfsm (scanwatch scannext) fsm rcs (scanwatch char ()) with
     Found (sy, _) -> sy
   | NotFound rcs' ->
-      if rcs' = [] then let c = char () in next (); checkbadID c
-      else checkbadID (implode (List.rev rcs')) (* at this point we need backtracking ... *)
+      if rcs' = [] then let c = char () in next (); checkbadID (utf8_of_ucode c)
+      else checkbadID (utf8_implode (List.rev rcs')) (* at this point we need backtracking ... *)
                   
 let rec scanid conf =
   let rec q rcs classopt =
@@ -564,7 +564,7 @@ let rec scanid conf =
       (conf classopt)
   in
   if !symboldebug then 
-    consolereport ["scanid "];
+    consolereport ["scanid "; enQuote (utf8_of_ucode (char()))];
   match
     scanfsm (scanwatch scannext) (rootfsm idprefixtree) [] (scanwatch char ())
   with
@@ -583,65 +583,65 @@ let rec checkidclass con takeit class__ s =
 
 let rec scan () =
   match char () with
-    ""   -> scanreport EOF
-  | " "  -> next (); scan ()
-  | "\t" -> next (); scan ()
-  | "\n" -> incr linenum; next (); scan ()
-  | "("  -> next (); scanreport (BRA "(")
-  | ")"  -> (* necessary ? - I think so *)
+    eof   when eof  =uEOF            -> scanreport EOF
+  | space when space=Char.code ' '   -> next (); scan ()
+  | tab   when tab  =Char.code '\t'  -> next (); scan ()
+  | nl    when nl   =Char.code '\n' -> incr linenum; next (); scan ()
+  | bra   when bra  =Char.code '('  -> next (); scanreport (BRA "(")
+  | ket   when ket  =Char.code ')'  -> (* necessary ? - I think so *)
      next (); scanreport (KET ")")
-  | "/" ->
+  | slash when slash=Char.code '/' ->
       (* "/" must be a punct *)
       next ();
       begin match char () with
-        "*" ->
+        c when c=Char.code '*' ->
           next ();
           scanComment (0, !linenum);
           if !symboldebug then consolereport ["... comment ..."];
           scan ()
       | c ->
           scanreport
-            (match fsmpos (rootfsm optree) ["/"] with
-               Some t -> scanop t ["/"]
-             | None -> checkbadID "/")
+            (match fsmpos (rootfsm optree) [slash] with
+               Some t -> scanop t [slash]
+             | None -> checkbadID (utf8_of_ucode slash))
       end
-  | "\"" -> next (); scanreport (scanString !linenum [])
+  | dquote when dquote=Char.code '"' -> next (); scanreport (scanString !linenum [])
   | c ->
       if c = metachar then
         let rec goodunknown class__ s =
           if isextensibleID s then 
             checkidclass (fun sc->UNKNOWN sc) false class__ s
           else 
-            raise (ParseError_ ["non-CLASS unknown "; metachar; s])
+            raise (ParseError_ ["non-CLASS unknown "; utf8_of_ucode metachar; s])
         in
         next (); 
         if isIDhead (char ()) then
           scanreport (scanid (checkidclass (fun sc->UNKNOWN sc) false))
-        else raise (ParseError_ ["ID expected following "; metachar])
+        else raise (ParseError_ ["ID expected following "; utf8_of_ucode metachar])
       else if isIDhead c then scanreport (scanid (checkidclass (fun sc->ID sc) true))
       else if isdigit c then scanreport (scanwhile isdigit [] (fun s->NUM s))
       else if ispunct c then scanreport (scanop (rootfsm optree) [])
-      else raise (Catastrophe_ ["scan can't see class of "; c])
+      else raise (Catastrophe_ ["scan can't see class of "; utf8_of_ucode c])
 
 and scanComment (n, k) =
   match char () with
-    "" ->
+    eof when eof=uEOF ->
       raise
         (ParseError_
            ["End of file inside level "; string_of_int n;
             " comment starting on line "; string_of_int k])
-  | "\n" -> incr linenum; next (); scanComment (n, k)
-  | "*" ->
+  | nl    when nl   =Char.code '\n' -> incr linenum; next (); scanComment (n, k)
+  | star  when star =Char.code '*'  ->
       next (); 
       begin match char () with
-        "/" -> next ()
-      | "\n" -> incr linenum; next (); scanComment (n, k)
-      | _ -> scanComment (n, k)
-      end
-  | "/" ->
+        slash when slash=Char.code '/'  -> next ()
+      | nl    when nl   =Char.code '\n' -> incr linenum; next (); scanComment (n, k)
+      | _                               -> scanComment (n, k)
+      end  
+  | slash when slash=Char.code '/' ->
       next (); 
       begin match char () with
-        "*" ->
+        star when star=Char.code '*' ->
           next (); 
           begin try scanComment (n + 1, !linenum) with
             ParseError_ ss ->
@@ -652,33 +652,33 @@ and scanComment (n, k) =
                        " comment starting on line"; string_of_int k]))
           end;
           scanComment (n, k)
-      | "\n" -> incr linenum; next (); scanComment (n, k)
-      | _ -> scanComment (n, k)
+      | nl when nl=Char.code '\n' -> incr linenum; next (); scanComment (n, k)
+      | _                         -> scanComment (n, k)
       end
   | _ -> next (); scanComment (n, k)
 
 and scanString k rcs =
   match (let r = char () in next (); r) with
-    "" ->
+    eof when eof=uEOF  ->
       raise
         (ParseError_
            ["end of file inside string starting on line "; string_of_int k])
-  | "\n" -> raise (ParseError_ ["end of line inside string"])
-  | "\"" -> STRING (implode (List.rev rcs))
-  | "\\" ->
-      if char () = "\n" then
+  | nl when nl=Char.code '\n' -> raise (ParseError_ ["end of line inside string"])
+  | dquote when dquote=Char.code '"' -> STRING (utf8_implode (List.rev rcs))
+  | backslash when backslash=Char.code '\\' ->
+      if char () = Char.code '\n' then
         begin
           incr linenum;
           next ();
           while
             match char () with
-              " " -> true
-            | "\t" -> true
-            | "\n" -> incr linenum; true
+              space when space=Char.code ' ' -> true
+            | tab   when tab  =Char.code '\t' -> true
+            | nl    when nl   =Char.code '\n' -> incr linenum; true
             | _ -> false
           do next ()
           done;
-          if char () = "\\" then next ()
+          if char () = Char.code '\\' then next ()
           else
             raise
               (ParseError_
@@ -743,7 +743,7 @@ let rec currnovelsymb () =
          [symbolstring !symb;
           " can't start a new identifier or operator"])
 
-type savedlex = char Stream.t * string * int * symbol * symbol list
+type savedlex = ucode Stream.t * string * int * symbol * symbol list
 
 let rec pushlex name newstream =
   let state = !lexin, !lexinfile, !linenum, !symb, !peekedsymb in
@@ -768,7 +768,7 @@ type charclass = LETTER | PUNCT | RESERVEDPUNCT | SPACE | OTHER
 
 let rec charclass =
   function
-    " " -> SPACE
+    c when c=Char.code ' ' -> SPACE
   | c   ->
       if isIDtail           c then LETTER
       else if ispunct       c then PUNCT

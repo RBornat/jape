@@ -37,9 +37,10 @@ open Optionfuns
 open Idclass
 open Mappingfuns
 open Idclassfuns
+open UTF
 
-let invisbra = String.make 1 offbra
-and invisket = String.make 1 offket
+let invisbra = offbra_as_string
+and invisket = offket_as_string
 
 (************** printing out internal structure of term *************)
  
@@ -203,7 +204,7 @@ let rec firstatom =
   function
 	[] -> ""
   | "" :: ss -> firstatom ss
-  | s :: ss -> if invisible s then firstatom ss else s
+  | s :: ss -> if invisible_string s then firstatom ss else s
 (* now with priority exactly like :: *)
 
 (* triplecolon strips out blank strings, then puts a space _before and after_ things that 
@@ -313,7 +314,7 @@ let rec _T ivb ivk n a t s =
 		  ivb t ::
 			quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
 	  | _ -> ivb t :: quadcolon sv (ivk t :: s))
-  | Unknown (_, v, _) -> ivb t :: quadcolon (metachar ^ (string_of_vid v)) (ivk t :: s)
+  | Unknown (_, v, _) -> ivb t :: quadcolon (metachar_as_string ^ (string_of_vid v)) (ivk t :: s)
   | App (_, (App (_, f, arg1) as l), arg2) ->
 	  begin match
 		(opname f &~~

@@ -41,6 +41,7 @@ open Idclass
 open Idclassfuns
 open Answer
 open Sml
+open UTF
 
 let bracketed = Termtype.bracketed
 let debracket = Termtype.debracket
@@ -377,13 +378,14 @@ let rec replaceelement a1 a2 a3 =
 let rec uniqueVID class__ sortedVIDs extraVIDs vid =
   let str = string_of_vid vid in
   let rec stemNstern s =
-    let s' = String.sub s 0 (String.length s - 1) in
-    let n = String.sub s (String.length s - 1) 1 in
-    if isdigit n && s' <> "" && isextensibleID s' &&
-       symclass s' = class__
-    then
-      let (s'', n') = stemNstern s' in s'', n' ^ n
-    else s, ""
+    let n = String.length s in
+    let rec f i =
+      if i=0 then "", s else
+      let d = utf8_presub s i in
+      if isdigit d then f (i-utf8width_from_ucode d) else 
+      String.sub s 0 i, String.sub s i (n-i)
+    in
+    f n
   in
   let (stem_str, stern_str) = stemNstern str in
   let rec next_vid n = vid_of_string (stem_str ^ string_of_int (n + 1)) in

@@ -38,64 +38,35 @@ open Seqtype
 open Sml
 open Stringfuns
 open Treeformat.Fmt
-
+open UTF
 
 let ( <| ) = Listfuns.( <| )
-
 let (&~~) = Optionfuns.(&~~)
-
 let (|~~) = Optionfuns.(|~~)
-
 let _The = Optionfuns._The
-
 let atoi = Miscellaneous.atoi
-
 let bracketedliststring = Listfuns.bracketedliststring
-
 let consolereport = Miscellaneous.consolereport
-
 let dont_rewrite_with_this = Cxtfuns.dont_rewrite_with_this
-
 let elementstring = Termstring.elementstring
-
 let findfirst = Optionfuns.findfirst
-
 let interpolate = Listfuns.interpolate
-
-let invisible = Miscellaneous.invisible
-
 let lowercase = Stringfuns.lowercase
-
 let member = Listfuns.member
-
 let numbered = Listfuns.numbered
-
 let optionfilter = Optionfuns.optionfilter
-
 let optionstring = Optionfuns.optionstring
-
 let provisos = Cxtfuns.provisos
-
 let replaceelement = Termfuns.replaceelement
-
 let rewritecxt = Rewrite.rewritecxt
-
 let seektipselection = Miscellaneous.seektipselection
-
 let selection2Subst = Selection.selection2Subst
-
 let setComment = Alert.setComment
-
 let showAlert = Alert.showAlert Alert.defaultseverity_alert
-
 let smlelementstring = Termstring.smlelementstring
-
 let sort = Listfuns.sort
-
 let take = Listfuns.take
-
 let termstring = Termstring.termstring
-
 let try__ = Optionfuns.try__
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
@@ -172,7 +143,7 @@ let rec sortoutSelection state pathkind =
   let (proofsels, prooftextsels, givensel) = Japeserver.getAllProofSelections () in
   (* remove invisbra/kets from any text selections we see *)
   let rec deinvis s =
-    implode ((fun c -> not (Miscellaneous.invisible c)) <| UTF.utf8_explode s)
+    utf8_implode ((fun c -> not (invisible_ucode c)) <| utf8_explode s)
   in
   let prooftextsels = List.map (fun (p, ss) -> p, List.map deinvis ss) prooftextsels in
   let givensel = List.map deinvis givensel in
@@ -423,7 +394,7 @@ let rec getCommand displayopt =
           (Catastrophe_
              ["bad selection tail in getCommand (interaction): "; text])
   in
-  match UTF.words text with
+  match words text with
     "ACT" :: x :: y :: c :: _ ->
       begin match
         locateHit (getdisplay ()) (mkpos x y) (Some (mkclass c)) HitPath

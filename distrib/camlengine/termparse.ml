@@ -38,6 +38,7 @@ open Termstore
 open Binding
 open Optionfuns
 open Miscellaneous
+open UTF
 
 let termparsedebug = ref false
 
@@ -485,14 +486,14 @@ let rec parsecurriedarglist _ =
 
 let rec tryparse =
   fun _R s ->
-	let s = pushlex "" (Stream.of_string s) in
+	let s = pushlex "" (of_utf8string s) in
 	let r = 
 	  (try (let r = _R EOF in check EOF; r) with exn -> poplex s; raise exn)
 	in poplex s; r
 
 let rec tryparse_dbug =
   fun _R p s ->
-	let lex_s = pushlex "" (Stream.of_string s) in
+	let lex_s = pushlex "" (of_utf8string s) in
 	let r =
 	  (try
 		 let _ = consolereport ["tryparse_dbug \""; s; "\""] in

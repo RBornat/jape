@@ -66,6 +66,7 @@ open Termtype
 open Thing
 open Treeformat.Fmt
 open Unify
+open UTF
 
 let tryresolution = Miscellaneous.tryresolution
 let resolvepossible = Miscellaneous.resolvepossible 
@@ -76,12 +77,10 @@ exception Selection_   = Selection.Selection_
 exception Verifyproviso_ = Provisofuns.Verifyproviso_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
          
-
 let rec alterTip =
   function
     Some d -> Interaction.alterTip d
   | None -> raise (Catastrophe_ ["(tacticfuns) alterTip None"])
-
 
 let rec lookupassoc s =
   match Symbol.lookupassoc s with
@@ -105,82 +104,52 @@ let sameterms = unifyvarious
   then Some cxt else None
 *)
 
-
 let rec showProof =
   function
     Some d -> Interaction.showProof d
   | None -> raise (Catastrophe_ ["(tacticfuns) showProof None"])
          
-
 let rec refreshProof =
   function
     Some d -> Interaction.refreshProof d
   | None -> raise (Catastrophe_ ["(tacticfuns) refreshProof None"])
          
-
 let rec askNb m bs = Alert.ask (Alert.defaultseverity bs) m bs 0
 
 let rec askNbc m bs c =
   Alert.askCancel (Alert.defaultseverity bs) m bs c 0
 
-
 let anyCollectionClass = Idclass.BagClass Idclass.FormulaClass
-
 let askChoice = Alert.askChoice
-
 let applyconjectures = Miscellaneous.applyconjectures
-
 let applyderivedrules = Miscellaneous.applyderivedrules
-
 let atoi = Miscellaneous.atoi
-
 let autoAdditiveLeft = Miscellaneous.autoAdditiveLeft
-
 let autoAdditiveRight = Miscellaneous.autoAdditiveRight
-
 let autoselect = Miscellaneous.autoselect
-
 let checkprovisos = Provisofuns.checkprovisos
-
 let conOperatorClass = Idclass.OperatorClass
-
 let consolereport = Miscellaneous.consolereport
-
 let getReason = Reason.getReason
-
 let lemmacount = Miscellaneous.lemmacount
-
 let lacksProof = Proofstore.lacksProof
-
 let needsProof = Proofstore.needsProof
-
 let prefixtoReason = Reason.prefixtoReason
-
 let selection2Subst = Selection.selection2Subst
-
 let setComment = Alert.setComment <.> implode
-
 let setReason = Reason.setReason
 
 let showAlert =
   Alert.showAlert Alert.defaultseverity_alert <.> implode
 
 let symclass = Symbol.symclass
-
 let subterm2subst = Selection.subterm2subst
-
 let tactic_of_string = Termparse.tactic_of_string
-
 let term_of_string = Termparse.term_of_string
-
 let tickmenuitem = Japeserver.tickmenuitem
-
 let uncurry2 = Miscellaneous.uncurry2
-
-let unknownprefix = Symbol.metachar
-
+let unknownprefix = Symbol.metachar_as_string
 let verifyprovisos = Provisofuns.verifyprovisos
-
 let _Oracle = Oracle._Oracle
 
 (*  --------------------------------------------------------------------- *)
@@ -494,7 +463,7 @@ let rec make_remark name args =
     | _ -> (termstring <* args)
   in
   match thingnamed name with
-    None -> UTF.respace ("EVALUATE" :: parseablenamestring name :: args)
+    None -> respace ("EVALUATE" :: parseablenamestring name :: args)
   | Some (Rule _, _) -> namestring name
   | Some (Tactic _, _) -> namestring name
   | Some (Macro _, _) -> namestring name
@@ -1731,11 +1700,17 @@ let rec strsep t =
     Literal (_, String s) -> s
   | _ -> termstring t
 
+(* bloody OCaml lextax
+   0x25 % 
+   0x6c l 
+   0x73 s
+   0x74 t 
+ *)
 let rec listf a1 a2 a3 =
   match a1, a2, a3 with
     [], [], r -> List.rev r
   | [], t :: ts, r -> listf [] ts (" " :: termstring t :: " " :: r)
-  | "%" :: "l" :: fs, t :: ts, r ->
+  | 0x25 :: 0x6c :: fs, t :: ts, r -> (* %l *)
       listf fs ts
         ((match debracket t with
             Tup (_, ",", [Tup (_, _, ts); sep]) ->
@@ -1744,16 +1719,16 @@ let rec listf a1 a2 a3 =
               liststring2 termstring (strsep sep1) (strsep sep2) ts
           | _ -> termstring t) ::
            r)
-  | "%" :: "s" :: fs, t :: ts, r -> listf fs ts (message t :: r)
-  | "%" :: "t" :: fs, t :: ts, r -> listf fs ts (termstring t :: r)
-  | "%" :: f :: fs, ts, r -> listf fs ts (f :: r)
-  | ["%"], ts, r -> listf [] ts ("%" :: r)
-  | f :: fs, ts, r -> listf fs ts (f :: r)
+  | 0x25 :: 0x73 :: fs, t :: ts, r -> (* %s *) listf fs ts (message t :: r)
+  | 0x25 :: 0x74 :: fs, t :: ts, r -> listf fs ts (termstring t :: r)
+  | 0x25 :: f :: fs, ts, r -> listf fs ts (utf8_of_ucode f :: r)
+  | [0x25], ts, r -> listf [] ts ("%" :: r)
+  | f :: fs, ts, r -> listf fs ts (utf8_of_ucode f :: r)
 
 and message term =
   match debracket term with
     Tup (_, ",", Literal (_, String format) :: ts) ->
-      implode (listf (UTF.utf8_explode format) ts [])
+      implode (listf (utf8_explode format) ts [])
   | Literal (_, String s) -> s
   | _ -> termstring term
 

@@ -1434,13 +1434,17 @@ module Tree : Tree with type term = Termtype.term
       let shortnames = !reasonstyle = "short" in
       let rec rprintf cs f =
         (* doesn't evaluate f() until it's needed *)
+        (* bloody OCaml constant syntax.
+           0x25 %
+           0x73 s
+         *)
         let rec rpr =
           function
             [] -> []
-          | "%" :: "s" :: cs ->
+          | 0x25 :: 0x73 :: cs -> (* %s *)
               let ss = f () in ss @ rprintf cs (fun () -> ss)
-          | "%" :: c :: cs -> c :: rpr cs
-          | c :: cs -> c :: rpr cs
+          | 0x25 :: c :: cs -> UTF.utf8_of_ucode c :: rpr cs
+          | c :: cs -> UTF.utf8_of_ucode c :: rpr cs
         in
         rpr cs
       in
