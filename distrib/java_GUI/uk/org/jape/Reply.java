@@ -25,7 +25,9 @@
     
 */
 
-import java.util.*;
+import java.awt.FontMetrics;
+import java.awt.Rectangle;
+import java.util.Vector;
 
 public class Reply {
     private static Vector messages = new Vector();
@@ -58,5 +60,21 @@ public class Reply {
             System.out.println(s);
         else
             throw (new ProtocolError("replying "+s+"\" while client is not expecting reply"));
-    }	
+    }
+
+    synchronized public static void reply(int i) throws ProtocolError {
+        reply(i+"");
+    }
+
+    synchronized public static void reply(TextDimension td) throws ProtocolError {
+        reply(td.width+" "+td.ascent+" "+td.descent);
+    }
+    
+    synchronized public static void reply(FontMetrics fm) throws ProtocolError {
+        reply(fm.getMaxAscent()+" "+fm.getMaxDescent()+" "+fm.getLeading());
+    }
+
+    synchronized public static void reply(Rectangle r) throws ProtocolError {
+        reply(r.x+" "+r.y+" "+r.width+" "+r.height);
+    }
 }
