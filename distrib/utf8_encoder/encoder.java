@@ -145,23 +145,22 @@ public class encoder {
 								 BufferedReader in, PrintStream out)
 	throws UnsupportedEncodingException, IOException { 
 		String line;
-		boolean first = true;
 		int linenum = 0;
 		
 		while ((line=in.readLine())!=null) {
 			linenum++;
-			if (first && inUTF && line.startsWith("\ufeff"))
+			if (linenum==1 && inUTF && line.startsWith("\ufeff"))
 				line = line.substring(1);
-			
+
 			if (inputTranslation!=null)
 				line = translateLine(line, inputTranslation, true, linenum);
 			if (outputTranslation!=null)
 				line = translateLine(line, outputTranslation, false, linenum);
 			
-			if (first && writeBOM && outUTF)
+			if (linenum==1 && writeBOM && outUTF)
 				out.print("\ufeff");
+
 			out.println(line);
-			first = false;
 		}
 		in.close();
 		out.close();
