@@ -56,4 +56,8 @@ val declareOutRightfix : symbol list -> symbol -> unit
 val declareLeftMidfix : symbol list -> unit
 val resettermparse : unit -> unit
 
+val pushSyntax     : string -> unit
+val popSyntax      : unit -> unit
+val popAllSyntaxes : unit -> unit
+
 val termparsedebug : bool ref

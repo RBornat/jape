@@ -25,6 +25,8 @@
 
 *)
 
+open List
+open Miscellaneous
 open Listfuns
 open Searchtree
 open Symbol
@@ -37,7 +39,7 @@ open Termfuns
 open Termstore
 open Binding
 open Optionfuns
-open Miscellaneous
+open Stringfuns
 open UTF
 
 let termparsedebug = ref false
@@ -53,25 +55,70 @@ let rec mkalt sts def s =
 	Some t -> t
   | None -> def
 
-(* these aren't properly handled in the PUSH/POPSYNTAX system *)
-
 let outrightfixtree : (symbol, symbol) searchtree ref =
   ref (emptysearchtree mkalt)
 
 let leftmidfixtree : (symbol, unit) searchtree ref =
   ref (emptysearchtree mkalt)
 
+let outrightfixes = ref []
+let leftmidfixes  = ref []
+
+let reset_termparse_vars () =
+  outrightfixtree := emptysearchtree mkalt;
+  leftmidfixtree := emptysearchtree mkalt;
+  outrightfixes := []; leftmidfixes := []
+
+let syntaxes = ref []
+
+let pushSyntax name =
+  syntaxes := (name, !outrightfixtree, !leftmidfixtree, !outrightfixes, !leftmidfixes) :: !syntaxes;
+  reset_termparse_vars ()
+  
+let popSyntax () =
+  match !syntaxes with
+    (s, orT, lmT, ors, lms) :: sys ->
+      outrightfixtree := orT; leftmidfixtree := lmT;
+      outrightfixes := ors; leftmidfixes := lms;
+      syntaxes := sys
+  | _ -> 
+      raise (ParseError_ ["termparse popSyntax stack empty"])
+      
+let popAllSyntaxes () =
+  while !syntaxes!=[] do popSyntax() done
+  
 let rec declareOutRightfix braseps ket =
+  (match !syntaxes with 
+     (name, _, _, ors, _) :: _ ->
+       if not (mem (braseps, ket) ors) then
+         raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
+                             " attempt to define novel OUTFIX/RIGHTFIX ";
+                             liststring symbolstring " " (braseps @ [ket])
+                             ])
+   | _ -> ());
+  outrightfixes := (braseps, ket) :: !outrightfixes;
   outrightfixtree :=
 	addtotree (fun (x, y) -> x = y) !outrightfixtree (braseps, ket, false)
 
 let rec declareLeftMidfix syms =
+  (match !syntaxes with 
+     (name, _, _, _, lms) :: _ ->
+       if not (mem syms lms) then
+         raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
+                             " attempt to define novel LEFTFIX/MIDFIX ";
+                             liststring smlsymbolstring " " syms;
+                             " "; bracketedliststring
+                                    (bracketedliststring smlsymbolstring " ")
+                                    ";" lms;
+                             " "; bracketedliststring string_of_bool ";"
+                                  (map (fun s -> syms = s) lms)])
+   | _ -> ());
+  leftmidfixes := syms :: !leftmidfixes;
   leftmidfixtree :=
 	addtotree (fun (x, y) -> x = y) !leftmidfixtree (syms, (), false)
 
 let rec resettermparse () =
-  outrightfixtree := emptysearchtree mkalt;
-  leftmidfixtree := emptysearchtree mkalt;
+  reset_termparse_vars ();
   declareOutRightfix [BRA "("] (KET ")"); (* oh dear this was an sml bug -- what next? *)
   ()
 
@@ -148,7 +195,7 @@ let unclass : (string * term -> term) ref =
 
 let rec checkclass (id, t) =
   match idclass t with
-	BagClass _ -> !unclass (id, t)
+	BagClass _  -> !unclass (id, t)
   | ListClass _ -> !unclass (id, t)
   | _ -> t
 
@@ -236,7 +283,7 @@ and parseOutRightfixTail m ts =
   with
 	Found (ket, (ss, ts)) ->
 	  check ket;
-	  ket, registerFixapp ((symbolstring <* List.rev (ket :: ss)), List.rev ts)
+	  ket, registerFixapp ((symbolstring <* rev (ket :: ss)), rev ts)
   | NotFound (ss, _) ->
 	  raise
 		(ParseError_
@@ -253,7 +300,7 @@ and parseLeftMidfixTail m ts =
 	  ([], ts)
   with
 	Found (_, (ss, ts)) ->
-	  registerFixapp ((symbolstring <* List.rev ss), List.rev ts)
+	  registerFixapp ((symbolstring <* rev ss), rev ts)
   | NotFound (ss, _) ->
 	  raise
 		(ParseError_
@@ -367,7 +414,7 @@ and parseSubststuff () =
   let _ = check SUBSTSEP in
   let ys = parseside (not !substsense) in
   let _ = check SUBSTKET in
-  if List.length xs = List.length ys then
+  if length xs = length ys then
 	if !substsense then (xs ||| ys) else (ys ||| xs)
   else
 	(* Zip_ can't happen *)
