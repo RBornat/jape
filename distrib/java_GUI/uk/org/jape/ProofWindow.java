@@ -593,7 +593,6 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         findProofSelectableXY(x,y).deselect();
     }
 
-
     // synchronized access only to the focus vector
 
     private static FocusManager focusManager = new FocusManager();
@@ -658,13 +657,11 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
         }
     }
 
-    private static ProofWindow findProof (int proofnum) throws ProtocolError {
-        for (Enumeration e = JapeWindow.windows(); e.hasMoreElements(); ) {
-            Object o = e.nextElement();
-            if (o instanceof ProofWindow && ((ProofWindow)o).proofnum==proofnum)
-                return (ProofWindow) o;
-        }
-        throw new ProtocolError("no proof numbered "+proofnum);
+    private static ProofWindow findProof(int proofnum) throws ProtocolError {
+        ProofWindow w = windowList.findProofWindow(proofnum);
+        if (w==null)
+            throw new ProtocolError("no proof numbered "+proofnum);
+        return w;
     }
 
     public static void closeproof(int proofnum) throws ProtocolError {
