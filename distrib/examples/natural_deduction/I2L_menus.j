@@ -553,10 +553,10 @@ MACRO "targeted forward single"(action, stepname, path, selhyp, ogoal) IS
 /* ******************** explanations ******************** */
 
 TACTIC Explainvariables IS
-ALERT   "Variables are introduced into a proof by  intro and/or  elim. They appear at the head of a box \
+ALERT   "Variables are introduced into a proof by ∃ intro and/or ∀ elim. They appear at the head of a box \
         \as a special pseudo-assumption actual i (this is Jape's version of scope-boxing; it uses variable \
         \names i, i1, and so on as appropriate). \
-        \\n\nYou have to select one of these pseudo-assumptions each time you make a  elim or  intro step.\
+        \\n\nYou have to select one of these pseudo-assumptions each time you make a ∀ elim or ∃ intro step.\
         \\n\nThe box enclosing actual ... is the scope of the variable. If there are unknowns in your proof, \
         \Jape will protect the scope box \
         \by putting a proviso such as i NOTIN _B in the Provisos pane .  If you try to \
@@ -610,3 +610,4 @@ TACTIC I2Lunify IS
 /* this hack to get at HowToTextSelect from within a tactic -- I must do this properly asap */
 PATCHALERT "To use Unify, "
     ("OK") ("Huh?", HowToTextSelect)
+
