@@ -1,0 +1,19 @@
+/* $Id$ */
+
+FONTS "Konstanz"
+
+INITIALISE applyconjectures false
+INITIALISE tryresolution false
+INITIALISE displaystyle box
+
+USE "I2L_syntax.j"
+USE "I2L_rules.j"
+USE "I2L_menus.j"
+USE "I2L_problems.j"
+
+INITIALISE outerassumptionword premise
+INITIALISE outerassumptionplural premises
+INITIALISE innerassumptionword assumption
+INITIALISE innerassumptionplural assumptions
+
+INITIALISE seektipselection false

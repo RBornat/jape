@@ -1,0 +1,5 @@
+/* $Id$ */
+
+CONJECTUREPANEL "Derived Rules"
+	DERIVED RULE FROM ‚, ÂA æ B¦ÂB INFER ‚ æ  A
+END
