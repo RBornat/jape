@@ -585,11 +585,11 @@ let rec writeFileName message filetype =
 
 let rec setmenuequiv (menu, entry, command) = ()
 
-let rec getTextSelection () =
+let rec getProofTextSelections () =
   let l : (pos * string list) list ref = ref [] in
-  writef "GETTEXTSELECTIONS\n" [];
+  writef "GETPROOFTEXTSELECTIONS\n" [];
   while
-    let line = readline "GETTEXTSELECTIONS" in
+    let line = readline "GETPROOFTEXTSELECTIONS" in
     match strings_of_reply line with
       x :: y :: ss -> l := (pos (atoi x, atoi y), ss) :: !l; true
     | _            -> (* consolereport ["getTextSelection terminates on "; Stringfuns.enQuote line]; *)
@@ -600,11 +600,11 @@ let rec getTextSelection () =
                                 (bracketedliststring Stringfuns.enQuote ",") ",") "; " !l]; *)
   !l
 
-let rec getFormulaSelection () =
+let rec getProofSelections () =
   let l : (pos * displayclass) list ref = ref [] in
-  writef "GETSELECTIONS\n" [];
+  writef "GETPROOFSELECTIONS\n" [];
   while
-    let line = readline "GETSELECTIONS" in
+    let line = readline "GETPROOFSELECTIONS" in
     match ints_of_reply line with
       [x; y; classn] -> l := (pos (x, y), int2displayclass classn) :: !l; true
     | _ -> (* consolereport ["getFormulaSelection terminates on "; Stringfuns.enQuote line]; *) 
@@ -614,24 +614,42 @@ let rec getFormulaSelection () =
       bracketedliststring (Stringfuns.pairstring posstring displayclassstring ",") "; " !l]; *)
   !l
 
+let rec nontrivial_selections line =
+  match strings_of_reply line with
+    [""] -> []
+  | xs   -> xs
+    
+let rec getDisproofTextSelections () =
+  writef "GETDISPROOFTEXTSELECTIONS\n" [];
+  nontrivial_selections (readline "GETDISPROOFTEXTSELECTIONS")
+
+let rec getDisproofSelections () =
+  writef "GETDISPROOFSELECTIONS\n" [];
+  nontrivial_selections (readline "GETDISPROOFSELECTIONS")
+
 let rec getGivenSelection () =
   writef "GETGIVENTEXTSELECTIONS\n" [];
-  match strings_of_reply (readline "GETGIVENTEXTSELECTIONS") with
-    [""] -> (* consolereport ["getGivenSelection (saw a list with a single empty string) => []"]; *)
-            []
-  | xs   -> (* consolereport ["getGivenSelection => "; bracketedliststring Stringfuns.enQuote "," xs]; *)
-            xs
+  nontrivial_selections (readline "GETGIVENTEXTSELECTIONS")
 
-let rec getAllSelections () =
-  (* unit -> ... *)
-     (* list of all formula selections, 
-        list of all text selections, 
+let rec getAllProofSelections () =
+  (* unit -> 
+        list of all proof selections, 
+        list of all proof text selections, 
         the givens text selection 
-     *)
-     (* a text selection is a position, text-selection *)
-  let textsel = getTextSelection () in
-  let formsel = getFormulaSelection () in
-  let givensel = getGivenSelection () in formsel, textsel, givensel
+   *)
+  let prooftextsels = getProofTextSelections () in
+  let proofsels = getProofSelections () in
+  let givensel = getGivenSelection () in 
+  proofsels, prooftextsels, givensel
+
+let rec getAllDisproofSelections () =
+  (* unit -> 
+        list of disproof selections,
+        list of disproof text selections 
+   *)
+  let disprooftextsels = getDisproofTextSelections () in
+  let disproofsels = getDisproofSelections () in
+  disproofsels, disprooftextsels
 
 let rec dragtargets (segvars : string list) =
   writef "DROPBEGIN\n" [];
@@ -654,8 +672,8 @@ let rec settiles ts =
 
 let rec setworlds selected worlds =
   writef "WORLDSSTART\n" [];
-  List.iter (fun ((cx, cy), labels, children) ->
-			   writef "WORLD % %\n" [Int cx; Int cy];
+  List.iter (fun ((cx, cy), emphasis, labels, children) ->
+			   writef "WORLD % % %\n" [Int cx; Int cy; Int emphasis];
 			   List.iter
 				 (fun label -> writef "WORLDLABEL % % %\n" [Int cx; Int cy; Str label])
 				 labels;
