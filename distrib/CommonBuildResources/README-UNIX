@@ -33,17 +33,19 @@ License
 What to do
 ----------
 
-0. Decide where you want Jape's home to be on your system
+0. Decide where you want Jape's home to be on your system, and move
+   the $(OS)jape.jar file there
 
-1. Unpack the distribution jar file in Jape's home with
+1. From an X window terminal in that directory unpack the
+   distribution jar file in Jape's home with
 
-        jar -xvf $(OS)jape.jar
+        java -jar $(OS)jape.jar
 
-   This unpacks the examples directory, and leaves the inference
-   engine (jape.engine -- architecture dependent), the interface
-   server (japeserver.jar -- architecture independent), and an
-   installation script (installjape.sh -- should be architecture and
-   OS independent).
+   This starts the jape installer, which unpacks the examples
+   directory, and leaves the inference engine (jape.engine --
+   architecture dependent), the interface server (japeserver.jar
+   -- architecture independent), and an installation script
+   (installjape.sh -- should be architecture and OS independent).
 
    TROUBLESHOOTING: If you don't have java installed, and the java
    commands on your path, then this will not work. Do whatever you
@@ -78,6 +80,7 @@ What to do
    the attempted run of jape.        
 
 That's all there is to it.
+
 
 
 

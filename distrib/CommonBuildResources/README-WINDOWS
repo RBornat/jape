@@ -36,22 +36,22 @@ License
 What to do
 ----------
 
-0. Decide where you want Jape's home to be on your system
+0. Decide where you want Jape's home to be on your system, and move
+   the $(OS)jape.jar file there
 
-1. Unpack the distribution jar file in Jape's home with
+1. Open $(OS)jape.jar by double clicking on it, or other means. This
+   will start executing the interactive java installer.
 
-        jar -xvf $(OS)jape.jar
+   This starts the jape installer, which unpacks the examples
+   directory, and leaves the inference engine (jape.engine --
+   architecture dependent), the interface server (japeserver.jar
+   -- architecture independent), and an installation program
+   (installjape.jar -- should be architecture and OS independent).
 
-   This unpacks the examples directory, and leaves the inference
-   engine (jape.engine -- architecture dependent), the interface
-   server (japeserver.jar -- architecture independent), and an
-   installation program (installjape.jar -- should be architecture and
-   OS independent).
-
-   TROUBLESHOOTING: If you don't have java installed, and the java
-   commands on your path, then this will not work. Do whatever you
-   need to do to get java installed and on your path. You don't need
-   the whole jdk, just the java runtime environment.
+   TROUBLESHOOTING: If you don't have java installed then this
+   will not work. Do whatever you need to do to get java installed
+   and on your path. You don't need the whole jdk, just the java
+   runtime environment (jre -- obtainable from www.javasoft.com)
 
 2. Now complete the installation with
 
@@ -82,6 +82,7 @@ What to do
    the attempted run of jape.        
 
 That's all there is to it.
+
 
 
 

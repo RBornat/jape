@@ -58,16 +58,21 @@ components::    ; make engine GUI;\
                   rsync -v -t    $(GUIDIR)/japeserver.jar .                       ;\
                   rsync -v -t    $(COMPILEDIR)/$(BUILTENGINE) ./$(DEPLOYEDENGINE) ;\
                   rsync -v -t    $(BUILDRESOURCES)/$(README)    .                 ;\
-                  rsync -v -t    $(BUILDRESOURCES)/$(INSTALLME) .                  ;\
+                  rsync -v -t    $(BUILDRESOURCES)/$(INSTALLME) . ;\
                   chmod +x  $(INSTALLME) 
 
-install:        ; make components; installjape.sh
+install:        ; make components; sh installjape.sh
 
 clean:          ; rm -f $(BIN)/japeserver.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape $(BIN)/japeserver
 
-distribution::  ; make components jarfile
+distribution::  ; make components ;\
+                  rm -rf bootstrap; mkdir bootstrap;\
+                  rsync -v -t $(BUILDRESOURCES)/InstallerKit/bootstrap/install*.class bootstrap/ ;\
+                  rsync -v -t $(BUILDRESOURCES)/InstallerKit/japelogo.gif . ;\
+                  make jarfile
 
-jarfile:        ; jar cvf $(OS)jape.jar $(DEPLOYMENTKIT) $(DEPLOYEDENGINE) japeserver.jar examples 
+jarfile:        ; java bootstrap.install -splash japelogo.gif $(OS)jape.jar $(DEPLOYMENTKIT) $(DEPLOYEDENGINE) japeserver.jar examples 
+
 
 
 
