@@ -51,17 +51,20 @@ let string_of_predicatebinding =
           ",")
        ", ")
     "; "
+
 (* check that a formula is an application which can be viewed as a predicate *)
 (* FormulaClass stops operators becoming predicates when interpretpredicates is on ... *)
+(* but we need PredicateClass ... *)
+(* Experimenting with demanding round brackets in predicate applications ... *)
 let rec matchpredicate all isabstraction t =
   match t with
-    App (_, (Id (_, _, c) as pp), arg) ->
+    App (_, (Id (_, _, c) as pp), (Fixapp (_, ["("; ")"], _) as arg)) ->
       if !interpretpredicates && c = FormulaClass || isabstraction pp then
         Some
           (pp,
            (match debracket arg with
               Tup (_, ",", ts) -> ts
-            | arg -> [arg]))
+            | arg              -> [arg]))
       else None
   | Id (_, v, c) ->
       if all &&
@@ -99,10 +102,16 @@ let rec compilepredicate isabstraction env t =
       | None -> raise (Catastrophe_ ["bad env in compilepredicates"])
       end
   | None -> None
+
 (* find predicates, record their arguments and the bindings which enclose them.
    Produces a list of predicates, each paired with a list of arguments, each
    paired with a list of binding contexts in which that predicate/argument pair
    occurs. Does an arity check. Designed to be foldtermed.
+ *)
+(* this ought to use a PredicateClass notion -- or maybe that should be in the 
+   isabstraction argument. At present any application is taken as a predicate
+   application -- at any rate if it uses round brackets (which covers a numbe
+   of sins ...)
  *)
 let rec findpredicates isabstraction bs (t, pbs) =
   let rec addbinding newbs bs =
@@ -152,9 +161,11 @@ let rec findpredicates isabstraction bs (t, pbs) =
           Some
             (insertP (pp, (ts, [bs])) (nj_fold (nj_foldterm (fp bs)) ts pbs))
       | _ -> None
+
 (* discard zero-arity 'predicates' -- only necessary for arity check *)
 let rec discardzeroarities pbs =
   (fun (_, (abss : (term list * 'a) list)) -> List.exists (not <.> null <.> fst) abss) <| pbs
+
 (* To make a mapping from predicates to default args we prefer binding variables, if
  * suitable examples can be found.
  *)

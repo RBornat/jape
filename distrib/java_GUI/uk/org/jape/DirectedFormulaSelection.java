@@ -78,7 +78,7 @@ public class DirectedFormulaSelection extends RectSelection
     
     public void paint(Graphics g) {
     if (getSelected()) {
-	if (paint_tracing)
+	if (DebugVars.paint_tracing)
 	Logger.log.println("painting DirectedFormulaSelection at "+getX()+","+getY());
 
 	setForeground(Preferences.SelectionColour);

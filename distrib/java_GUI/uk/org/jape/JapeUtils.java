@@ -51,6 +51,16 @@ public class JapeUtils {
 	}
     }
 
+    public static String stringOfArray(Object[] a, String sep, boolean enQuote) {
+	String s = "{";
+	for (int i=0; i<a.length; i++) {
+	    s = s+(enQuote ? enQuote(a[i].toString()) : a[i].toString());
+	    if (i+1<a.length)
+		s=s+sep;
+	}
+	return s+"}";
+    }
+
     public static String shortStringOfRectangle(Rectangle r) {
 	return r.x+","+r.y+" "+r.width+"x"+r.height;
     }

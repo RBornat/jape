@@ -49,20 +49,21 @@ public class Reply implements DebugConstants {
     synchronized private static void flushmessages() {
     if (enginelistening && messages.size()!=0) {
 	String s = (String)messages.remove(0);
-	if (DebugVars.protocol_tracing) Logger.log.println("GUI sends "+s);
+	if (DebugVars.protocol_tracing) 
+	    Logger.log.println("GUI sends "+s);
 	outputln(s);
 	enginelistening=false;
     }
     }
 
     synchronized public static void send(String s) {
-    if (DebugVars.protocol_tracing) Logger.log.println("queuing "+s);
-    messages.add(s);
-    flushmessages();
+	if (DebugVars.protocol_tracing) Logger.log.println("queuing "+s);
+	    messages.add(s);
+	    flushmessages();
     }
     
     synchronized public static void sendCOMMAND(String s) {
-    send("COMMAND "+s);
+	send("COMMAND "+s);
     }
 
     synchronized public static void reply(String s) throws ProtocolError {

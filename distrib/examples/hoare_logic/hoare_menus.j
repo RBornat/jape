@@ -178,10 +178,7 @@ TACTIC "Ntuple*"  IS
 TACTIC "∧ elim* step"(P, rule, H) IS
     WHEN    
         (LETMATCH (_P∧_Q)  P  
-            (CUTIN
-                (LETGOALPATH G (GOALPATH (PARENT G)) (LAYOUT HIDECUT) (GOALPATH G)) 
-                rule
-                (LETGOAL _A (UNIFY _A H) hyp)))
+            (CUTIN (LAYOUT HIDEROOT) rule (LETGOAL _A (UNIFY _A H) hyp)))
         (CUTIN (LAYOUT "∧ elim") rule (LETGOAL _A (UNIFY _A H) hyp))
 
 TACTIC "∧ elim*"(P)  IS
@@ -190,8 +187,7 @@ TACTIC "∧ elim*"(P)  IS
             ("∧ elim* step" _P  "∧ elim(L)" P) 
             ("∧ elim*" _P) 
             ("∧ elim* step" _Q  "∧ elim(R)" P) 
-            ("∧ elim*" _Q) 
-        )
+            ("∧ elim*" _Q))
         SKIP
 
 TACTIC obviouslytac IS
@@ -260,22 +256,22 @@ MENU Programs
                                     "A{B}C{D}"
     ENTRY "variable-assignment" 
                     IS BackwardOnlyA (QUOTE ({_A} (_x := _E) {_B}))
-                                    (Noarg (perhapsconsequenceL "variable-assignment")) 
+                                    (Noarg (perhapsconsequenceL (SEQ "variable-assignment" simpl)))
                                     "variable-assignment"
                                     "{A}(x:=E){B}"
     ENTRY "array-element-assignment"
                     IS BackwardOnlyA (QUOTE ({_A} (_Ea[_Ei] := _E) {_B}))
-                                    (perhapsconsequenceL "array-element-assignment")
+                                    (perhapsconsequenceL (SEQ "array-element-assignment " simpl simpl))
                                     "array-element-assignment"
                                     "{A}(Ea[Ei]:=E){B}"
                                     "only makes sense working backwards"
     ENTRY "choice"  IS BackwardOnlyA (QUOTE ({_A} if _E then _C1 else _C2 fi {_B}))
-                                    (SEQ "choice" fstep fstep)
+                                    (perhapsconsequenceL (SEQ "choice" simpl fstep fstep))
                                     "choice"
                                     "{A} if E then C1 else C2 fi {B}"
     ENTRY "while"  IS BackwardOnlyA (QUOTE ({_A} while _E do _C od {_B}))
-                                    (perhapsconsequenceLR "while")
-                                    "choice"
+                                    (perhapsconsequenceLR (SEQ "while" simpl maybetrueimpl fstep fstep fstep))
+                                    "while"
                                     "{A} while E do C od {B}"
     
     SEPARATOR
@@ -295,6 +291,10 @@ MENU Extras
     SEPARATOR
     
     ENTRY "obviously" IS obviouslytac
+    
+    /* SEPARATOR
+    
+    ENTRY defcheck */
 END
 
 TACTICPANEL Comparison
@@ -317,4 +317,9 @@ TACTICPANEL Comparison
  */
     BUTTON  "A≜…"   IS apply rewriteL2R "rewrite≜"  "symmetric≜"  COMMAND
     BUTTON  "…≜B"   IS apply rewriteR2L "rewrite≜"  "symmetric≜"  COMMAND
+END
+
+MENU "Edit" IS
+  SEPARATOR
+  CHECKBOX boxlinedressright "Justifications on right"
 END

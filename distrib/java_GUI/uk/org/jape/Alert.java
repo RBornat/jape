@@ -148,8 +148,13 @@ public class Alert implements DebugConstants {
     
     public static int ask(String[] buttons, int severity, String message, int defaultbutton)
 				 throws ProtocolError {
-	return query(JapeWindow.getTopWindow(), buttons, messagekind(severity),
-		     message, defaultbutton);
+	int result = query(JapeWindow.getTopWindow(), buttons, messagekind(severity),
+			   message, defaultbutton);
+	/* Logger.log.println("Alert.ask; message="+JapeUtils.enQuote(message)+
+			   "; buttons="+JapeUtils.stringOfArray(buttons, ",", true)+
+			   "; default="+defaultbutton+
+			   "; result="+result); */
+	return result;
     }
 
     public static final int OK	   = 0,

@@ -551,6 +551,7 @@ let term_of_collection =
   function
     Collection (_, _, [el]) -> term_of_element el
   | _ -> None
+  
 (* This function would be simple equality, were it not for the debracketing.
  * Now perhaps the right thing would be a stripbracket function ... but no.
  * It might be more economically expressed if it used |||, but this way 
@@ -560,9 +561,9 @@ let term_of_collection =
 let rec eqterms (t1, t2) =
   let rec fEQs =
     function
-      t1 :: t1s, t2 :: s_of_t -> eqterms (t1, t2) && fEQs (t1s, s_of_t)
-    | [], [] -> true
-    | _ -> false
+      t1 :: t1s, t2 :: t2s -> eqterms (t1, t2) && fEQs (t1s, t2s)
+    | []       , []        -> true
+    | _                    -> false
   in
   match debracket t1, debracket t2 with
     Id (_, s1, c1), Id (_, s2, c2) ->(* first the ones which alter the interpretation *)
@@ -717,6 +718,7 @@ let eqalphaterms (t1, t2) =
  * RB 20/i/93
  *)
 let termoccursin t = fun p_ -> existsterm (curry2 eqterms t) p_
+
 (* termvars takes no note of bindings, and makes no interpretation of maps. 
  * No longer cat-eliminated, produces a sorted list of names.
  *)
@@ -727,10 +729,11 @@ let termvars t =
   sortunique earliervar
     (foldterm
        (function
-          (Id _ as v), vs -> Some (v :: vs)
+          (Id _      as v), vs -> Some (v :: vs)
         | (Unknown _ as v), vs -> Some (v :: vs)
         | _ -> None)
        [] t)
+
 (*-------------------------- stuff about bindings ------------------------------ *)
 
 (* The functions which follow are intended to help in minimising the need for 

@@ -69,26 +69,9 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
 	return s;
     }
 
-    public Component add(Component c) {
-	Alert.abort("ProvisoCanvas.add("+c+")");
-	return c; // shut up compiler
-    }
-
-    public Component add(Component c, int index) {
-	Alert.abort("ProvisoCanvas.add("+c+", "+index+")");
-	return c; // shut up compiler
-    }
-
-    public void remove(Component c) {
-	Alert.abort("ProvisoCanvas.remove("+c+")");
-    }
-
-    public void removeAll() {
-	Alert.abort("ProvisoCanvas.removeAll()");
-    }
-
     private int initCursorValue() {
 	ensureFontInfo();
+	// Logger.log.println("initCursorValue()+"+(inset+ascent));
 	return inset+ascent;
     }
     
@@ -130,7 +113,10 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
 
     private void insertHeader(int cursor, String text) {
 	shiftLines(cursor);
-	super.add(new TextItem(this, inset, cursor, ProvisoFontNum, text));
+	TextItem t = new TextItem(this, inset, cursor, ProvisoFontNum, text);
+	super.add(t);
+	// Logger.log.println("proviso header "+t);
+	t.repaint();
     }
 
     private TextSelectableItem insertLine(int cursor, String annottext) {
@@ -139,6 +125,8 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
 	    new TextSelectableItem(this, 3*inset, cursor, ProtocolConstants.ProvisoFontNum, 
 				   annottext);
 	super.add(t);
+	// Logger.log.println("proviso line "+t);
+	t.repaint();
 	return t;
     }
 

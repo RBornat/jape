@@ -709,7 +709,7 @@ and tint_universe facts forced (plan, _) (proofsels, textsels) =
   let selections =
      foldr (fun p ts ->
               match findfirstplanhit p plan &~~ 
-                    (fun plan -> match planinfo plan with
+                    (fun plan -> match info_of_plan plan with
                        ElementClass (e,_) -> Some e
                      | _ -> None) &~~ term_of_element
               with
@@ -1264,7 +1264,7 @@ let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = p
           (* put the emphasis in *)
           List.iter
             (fun plan ->
-               match planinfo plan with
+               match info_of_plan plan with
                  ElementClass (el, _) ->
                    let emph =
                      match term_of_element el with

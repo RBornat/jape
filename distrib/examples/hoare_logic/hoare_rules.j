@@ -4,21 +4,36 @@ RULE "tilt" IS {false} tilt {A}
 
 RULE sequence(C) IS FROM { A } F { C } AND  { C } G { B } INFER  { A } (F; G) { B }
 
-RULES "Ntuple" ARE 
+/* RULES "Ntuple" ARE 
     FROM {A} B {C} AND {C} D {E} INFER  {A} B {C} D {E} AND
     FROM {A} B {C} D {E} AND {E} F {G} INFER  {A} B {C} D {E} F {G} AND
     FROM {A} B {C} D {E} F {G} AND {G} H {I} INFER  {A} B {C} D {E} F {G} H {I} AND
     FROM {A} B {C} D {E} F {G} H {I} AND {I} J {K} INFER  {A} B {C} D {E} F {G} H {I}  J {K}
-END
+END */
 
-RULE "choice" IS FROM {A∧E} F1 {B} AND {A∧¬E} F2  {B} INFER { A } if E then F1 else F2 fi { B }
+/* Since triples are parsed as juxtapositions (sigh!) this works */
 
-RULE "variable-assignment" IS INFER {R«E/x»} (x:=E) {R}
+RULE "Ntuple" IS  FROM A {B} AND {B} C {D} INFER A {B} C {D}
 
-RULE "array-element-assignment" (OBJECT a) IS INFER {R«a⊕I↦E/a»} (a[I]:=E) {R}
+RULE "choice" IS FROM (E→B)∧(¬E→C)∧(E defined) simplifiesto G 
+                  AND {B} F1 {D} 
+                  AND {C} F2 {D} 
+                INFER { G } if E then F1 else F2 fi { D }
+
+RULE "variable-assignment" IS FROM R«E/x»∧(E defined) simplifiesto Q
+                              INFER {Q} (x:=E) {R}
+
+RULE "array-element-assignment" (OBJECT a) IS 
+     FROM R«a⊕I↦E/a»∧(E defined) simplifiesto Q 
+      AND Q∧(a[I] defined) simplifiesto P
+    INFER {P} (a[I]:=E) {R}
 
 RULE "while"(I, M, OBJECT Km) WHERE FRESH Km IS
-    FROM  {I∧E} F {I} AND I∧E→M>0 AND {I∧E∧M=Km} F {M<Km}
+     FROM true∧(E defined) simplifiesto G
+      AND I→G 
+      AND {I∧E} F {I}
+      AND I∧E→M>0
+      AND {I∧E∧M=Km} F {M<Km}
     INFER { I } while E do F od {I∧¬E}
 
 RULE "consequence(L)" IS FROM A→C AND {C} F {B} INFER {A} F {B}
@@ -31,4 +46,6 @@ RULE "obviously1" IS FROM A INFER B
 RULE "obviously2" IS FROM A AND B INFER C 
 RULE "obviously3" IS FROM A AND B AND C INFER D 
 RULE "obviously4" IS FROM A AND B AND C AND D INFER E 
+
+RULE "faith" IS INFER true
 

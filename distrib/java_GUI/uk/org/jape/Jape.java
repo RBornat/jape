@@ -71,7 +71,7 @@ public class Jape implements DebugConstants {
 	Logger.crash(message,2);
     }
     
-    public static boolean onMacOS, onLinux, onSolaris, onWindows, onUnix;
+    public static boolean onMacOSX, onLinux, onSolaris, onWindows, onUnix;
     public static Rectangle screenBounds;
     public static String defaultUnixEnginePath	  = "./jape_engine";
     public static String defaultWindowsEnginePath = ".\\jape.exe" ;
@@ -80,14 +80,14 @@ public class Jape implements DebugConstants {
 	// since platform independence seems not yet to have been achieved ...
 	String osName = System.getProperty("os.name");
 	
-	onMacOS = notice_MacOSX && System.getProperty("mrj.version")!=null;
+	onMacOSX = notice_MacOSX && System.getProperty("mrj.version")!=null;
 	onLinux = notice_Linux && osName.equals("Linux");
 	onSolaris = notice_Solaris && osName.equals("SunOS");
 	onWindows = osName.startsWith("Windows");
 	
-	onUnix = onMacOS || onLinux || onSolaris || onWindows;
+	onUnix = onMacOSX || onLinux || onSolaris || onWindows;
 	
-	if (!(onMacOS || onLinux  || onSolaris	|| onWindows)) {
+	if (!(onMacOSX || onLinux  || onSolaris	|| onWindows)) {
 	    Logger.log.println("Jape.main doesn't recognise OS\n"+
 			       "os.name="+System.getProperty("os.name")+
 			       "\nos.arch="+System.getProperty("os.arch")+
@@ -95,13 +95,13 @@ public class Jape implements DebugConstants {
 	}
 
 	if (osDebug)
-	    Logger.log.println("onMacOS="+onMacOS+"; onLinux="+onLinux+
+	    Logger.log.println("onMacOSX="+onMacOSX+"; onLinux="+onLinux+
 			       "; onSolaris="+onSolaris+"; onWindows="+onWindows+
 			       "\nos.name="+System.getProperty("os.name")+
 			       "\nos.arch="+System.getProperty("os.arch")+
 			       "\nos.version="+System.getProperty("os.version"));
 
-	if (onMacOS && System.getProperty("java.vm.version").startsWith("1.3.")) {
+	if (onMacOSX && System.getProperty("java.vm.version").startsWith("1.3.")) {
 	    // deal with the double-bounce menu checkbox bug
 	    String s = System.getProperty("apple.laf.useScreenMenuBar");
 	    JapeMenu.checkboxDoubleBounce = s!=null && s.equals("true");

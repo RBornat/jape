@@ -71,6 +71,10 @@ public abstract class SurrogateWindow extends JapeWindow {
 	});
     }
 
+    public int getBarKind() {
+	return JapeMenu.OTHERWINDOW_BAR;
+    }
+    
     protected boolean servesAsControl() { return false; }
 
     protected abstract void windowCloser();

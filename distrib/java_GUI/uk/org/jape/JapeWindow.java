@@ -203,6 +203,8 @@ public abstract class JapeWindow extends JFrame {
 	menustamp = JapeMenu.setBar(this, menustamp);
     }
 
+    public abstract int getBarKind();
+    
     protected Point nextPos() {
 	if (lastPos==null) {
 	    lastPos = firstPos;

@@ -55,6 +55,7 @@ type box = Box.box
  and textsize = Box.textsize
 
 let consolereport = Miscellaneous.consolereport
+let enQuote = Stringfuns.enQuote
 
 let version =
   "$Id$"
@@ -100,7 +101,7 @@ let rec visible s = implode (List.map vis (utf8_explode s))
 and vis c = if isInvisibleUcode c then "\\" ^ string_of_int c else utf8_of_ucode c
     
 (* if the server has crashed, input_line may give an exception *)
-let rec readline s = 
+let readline s = 
   flush s; 
   let r = (try input_line infromGUI
                  with End_of_file -> deadGUI()
@@ -108,6 +109,11 @@ let rec readline s =
                              deadGUI())
   in
   _GUIresponded := true; r
+
+let rec readlines s =
+  function
+    0 -> []
+  | n -> readline s :: readlines s (n-1)
 ;;
 
 (* this is a strange bit of code.  I _think_ it converts a space-separated list of numbers
@@ -133,34 +139,47 @@ let rec ints_of_reply line =
   in
   ff_ [] [] (List.rev (utf8_explode line))
 
-let rec atoi s = nn_ (utf8_explode s)
-
+let atoi s = nn_ (utf8_explode s)
+let atob =
+  function 
+    "0" -> false
+  | "1" -> true
+  | s   -> raise (Catastrophe_ ["Japeserver.atob "; Stringfuns.enQuote s])
+  
 let rec strings_of_reply s =
   let rec ff_ a1 a2 a3 =
     match a1, a2, a3 with
       w, r, []         -> utf8_implode w :: r
     | w, r, 0x91 :: cs -> ff_ [] (utf8_implode w :: r) cs
-    | w, r, c :: cs    -> ff_ (c :: w) r cs
+    | w, r, c    :: cs -> ff_ (c :: w) r cs
   in
   ff_ [] [] (List.rev (utf8_explode s))
 
 type _ITEM = Bool of bool | Int of int | Str of string
 
-let fBool v = Bool v
-let fInt v  = Int  v
-let fStr v  = Str  v
+let string_of__ITEM =
+  function
+    Bool b -> "Bool "^string_of_bool b
+  | Int  i -> "Int "^string_of_int i
+  | Str  s -> "Str "^enQuote s
+
+let _Bool v = Bool v
+let _Int v  = Int  v
+let _Str v  = Str  v
 
 (* 0x25 = '%' *)
 let rec writef s is =
   let signedstring_of_int i = if i < 0 then "-" ^ string_of_int (- i) else string_of_int i in
-  let rec ww_ a1 a2 =
-    match a1, a2 with
-      [], _ -> ()
-    | 0x25 :: 0x25 :: f, is -> out "%"; ww_ f is
-    | 0x25 :: f, Bool b :: is -> out (if b then "T" else "F"); ww_ f is
-    | 0x25 :: f, Int i :: is -> out (signedstring_of_int i); ww_ f is
-    | 0x25 :: f, Str s :: is -> outs s; ww_ f is
-    | c :: cs, is -> out (utf8_of_ucode c); ww_ cs is
+  let rec ww_ cs is =
+    match cs, is with
+      [], [] -> ()
+    | [], _  -> raise (Catastrophe_ ["Japeserver.writef "; enQuote s; 
+                                     bracketedstring_of_list string_of__ITEM ";" is])
+    | 0x25 :: 0x25 :: f, is           -> out "%"; ww_ f is
+    | 0x25 :: f,         Bool b :: is -> out (if b then "T" else "F"); ww_ f is
+    | 0x25 :: f,         Int i  :: is -> out (signedstring_of_int i); ww_ f is
+    | 0x25 :: f,         Str s  :: is -> outs s; ww_ f is
+    | c :: cs,                     is -> out (utf8_of_ucode c); ww_ cs is
   in
   ww_ (utf8_explode s) is
 
@@ -177,8 +196,7 @@ and outs s =
 and out8 c =
   let r =
     implode
-      ["\\"; string_of_int (c / 64); string_of_int (c mod 64 / 8);
-       string_of_int (c mod 8)]
+      ["\\"; string_of_int (c / 64); string_of_int (c mod 64 / 8); string_of_int (c mod 8)]
   in
   (*consolereport ["mks8 ", string_of_int c, " => ", r];*)
   out r
@@ -303,14 +321,14 @@ let rec settextselectionmode m =
 let rec drawLine pos1 pos2 =
   let (x1, y1) = explodePos pos1 in
   let (x2, y2) = explodePos pos2 in
-  writef "DRAWLINE % % % %\n" (List.map fInt [x1; y1; x2; y2])
+  writef "DRAWLINE % % % %\n" (List.map _Int [x1; y1; x2; y2])
 
 let rec drawRect box =
   let (pos, size) = explodeBox box in
   let (x, y) = explodePos pos in
   let (w, h) = explodeSize size in
   writef "DRAWRECT % % % %\n"
-    (List.map fInt [x; y; w; h])
+    (List.map _Int [x; y; w; h])
 
 let rec drawinpane pane = writef "DRAWINPANE %\n" [Int (int_of_pane pane)]
 
@@ -387,7 +405,7 @@ let rec ask_unpatched severity message buttons default =
     askf "ASKNOW % % %\n" [Int severity; Str message; Int default]
   with
     [n] -> n
-  | _ -> raise (Catastrophe_ ["ask protocol failure"])
+  | _   -> raise (Catastrophe_ ["ask protocol failure"])
 
 let rec askDangerously_unpatched message doit dont =
   match
@@ -410,8 +428,8 @@ let menusVisible = ref false
 
 let existsmenu name = name="File" || name="Edit" || List.exists (fun m -> m=name) !menus
 
-let rec emptymenusandpanels () =
-  writef "EMPTYMENUSANDPANELS\n" [];
+let emptymenusandpanels lemmasAllowed =
+  writef "EMPTYMENUSANDPANELS %\n" [Bool lemmasAllowed];
   menus := [];
   menusVisible := false
 
@@ -425,34 +443,38 @@ let rec openproof name number =
 
 let rec closeproof number report = writef "CLOSEPROOF % %\n" [Int number; Bool report]
 
-let rec newmenu proofsonly name =
+(* this bit has to match JapeMenu.java, which says PROOFWINDOW_BAR=1 *)
+
+let barKinds_of_bool proofsonly = if proofsonly then 1 else -1
+
+let  newmenu proofsonly name =
   if existsmenu name then ()
-  else writef "NEWMENU % %\n" [Bool proofsonly; Str name]
+  else writef "NEWMENU % %\n" [Str name; Int (barKinds_of_bool proofsonly)]
 
-let rec menuentry menu label keyopt entry =
-  writef "MENUITEM % % % %\n"
-    [Str menu; Str label; Str (match keyopt with Some s -> s | None -> " "); Str entry]
+let rec menuentry menu proofsonly label keyopt entry =
+  writef "MENUITEM % % % % %\n"
+    [Str menu; Str label; Str (match keyopt with Some s -> s | None -> " "); Str entry;
+     Int (barKinds_of_bool proofsonly)]
 
-let rec menucheckbox menu label cmd =
-  writef "MENUCHECKBOX % % %\n" [Str menu; Str label; Str cmd]
+let rec menucheckbox menu proofsonly label cmd =
+  writef "MENUCHECKBOX % % % %\n" [Str menu; Str label; Str cmd; Int (barKinds_of_bool proofsonly)]
 
-let rec menuradiobutton menu lcs =
+let rec menuradiobutton menu proofsonly lcs =
   writef "MENURADIOBUTTON\n" [];
   List.iter
     (fun (label, cmd) ->
        writef "MENURADIOBUTTONPART % %\n" [Str label; Str cmd])
     lcs;
-  writef "MENURADIOBUTTONEND %\n" [Str menu]
+  writef "MENURADIOBUTTONEND % %\n" [Str menu; Int (barKinds_of_bool proofsonly)]
 
-let rec menuseparator (menu : string) =
-  writef "MENUSEP %\n" [Str menu]
+let rec menuseparator menu proofsonly =
+  writef "MENUSEP % %\n" [Str menu; Int (barKinds_of_bool proofsonly)]
 
-let rec enablemenuitem menu label state =
-  writef "ENABLEMENUITEM % % %\n" [Str menu; Str label; Bool state]
+let rec enablemenuitem proofsonly menu label state =
+  writef "ENABLEMENUITEM % % % %\n" [Str menu; Str label; Int (barKinds_of_bool proofsonly); Bool state]
 
-let rec tickmenuitem menu label tick =
-  writef "TICKMENUITEM % % %\n"
-    [Str menu; Str label; Bool tick]
+let rec tickmenuitem proofsonly menu label tick =
+  writef "TICKMENUITEM % % % %\n" [Str menu; Str label; Int (barKinds_of_bool proofsonly); Bool tick]
 
 let rec makemenusVisible () =
   (* if !menusVisible then () else *) writef "MAKEMENUSVISIBLE\n" []
@@ -704,7 +726,7 @@ let rec dragtargets (segvars : string list) =
 
 let rec setseqbox size =
   let (w, a, d) = explodeTextSize size in
-  writef "SEQBOX % % %\n" (List.map fInt [w; a; d])
+  writef "SEQBOX % % %\n" (List.map _Int [w; a; d])
 
 let rec emphasise pos b =
   let (x, y) = explodePos pos in
@@ -751,7 +773,21 @@ let rec setproofparams displaystyle linethicknessval =
 
 let askUnify s =
   writef "ASKUNIFY %\n" [Str s];
-  readline "ASKUNIFY"
+  match readline "ASKUNIFY" with
+    "" -> None
+  | s  -> Some s
+
+let askLemma druleString thmString panels provisos =
+  writef "ASKLEMMA % % % %\n" [Str druleString; Str thmString; 
+                               Int (List.length panels); Int (List.length provisos)];
+  List.iter (fun s -> out s; out "\n") panels;
+  List.iter (fun s -> out s; out "\n") provisos;
+  match strings_of_reply (readline "ASKLEMMA") with
+    b :: lemma :: panel :: provisos  -> Some (atob b, 
+                                              (if lemma="" then None else Some lemma), 
+                                              panel, 
+                                              (if provisos=[""] then [] else provisos))
+  | _                                -> None
   
 (********************************* export ***************************************)
 

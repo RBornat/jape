@@ -300,6 +300,10 @@ public class Logger {
 	    });
 	}
 
+	public int getBarKind() {
+	    return JapeMenu.OTHERWINDOW_BAR;
+	}
+	
 	public void setVisible(boolean state) {
 	    if (state)
 		{ JapeFont.setComponentFont(textArea, JapeFont.LOGWINDOW);

@@ -43,7 +43,7 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 
 public class Export {
     public static void export(ProofWindow w, int what) {
-	if (Jape.onMacOS) {
+	if (Jape.onMacOSX) {
 	    Alert.showAlert((what == PrintProof.BOTH ? JapeMenu.EXPORT :
 			     what == PrintProof.PROOF ? JapeMenu.EXPORT_PROOF :
 							JapeMenu.EXPORT_DISPROOF)+
@@ -54,13 +54,13 @@ public class Export {
 	    /* Use the pre-defined flavor for a Printable from an InputStream */
 	    DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
 	    /* Specify the type of the output stream */
-	    String psMimeType = (Jape.onMacOS ? DocFlavor.BYTE_ARRAY.PDF : 
+	    String psMimeType = (Jape.onMacOSX ? DocFlavor.BYTE_ARRAY.PDF : 
 						DocFlavor.BYTE_ARRAY.POSTSCRIPT).getMimeType();
 	    /* Locate factory which can export a GIF image stream as Postscript */
 	    StreamPrintServiceFactory[] factories =
 		StreamPrintServiceFactory.lookupStreamPrintServiceFactories(flavor, psMimeType);
 	    if (factories.length == 0) {
-		Alert.showAlert(Jape.onMacOS ? "this MacOS X system can't make pdf files!" : 
+		Alert.showAlert(Jape.onMacOSX ? "this MacOS X system can't make pdf files!" : 
 					       "your Java system doesn't seem able to produce PostScript");
 	    } else
 		try {
@@ -69,7 +69,7 @@ public class Export {
 				"Save "+(what == PrintProof.BOTH  ? "image"	  :
 					 what == PrintProof.PROOF ? "proof image" :
 								    "disproof image"),
-				 new String[]{Jape.onMacOS ? "pdf" : "ps"});	  
+				 new String[]{Jape.onMacOSX ? "pdf" : "ps"});	  
 		    if (outputFileName.equals(""))
 			return;
 

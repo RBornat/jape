@@ -75,3 +75,9 @@ val paragraph_of_string :
   (string list -> unit) ->
     (string list * string * string * int -> bool) -> string -> paragraph
 
+val catelim_string_of_rulebody : string (* linesep *) -> proviso list -> seq list -> seq
+                              -> string list -> string list
+val catelim_string_of_thmbody : string (* linesep *) -> proviso list -> seq
+                             -> string list -> string list
+val string_of_rulebody : string (* linesep *) -> proviso list -> seq list -> seq -> string
+val string_of_thmbody : string (* linesep *) -> proviso list -> seq -> string

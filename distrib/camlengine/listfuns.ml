@@ -309,17 +309,19 @@ let rec earlierlist a1 a2 a3 =
   | _, [], [] -> false
   | _, [], _  -> true
   | _, _, _  -> false
+
 (* lists sorted by < or <=; does set diff or bag diff accordingly *)
 
-let rec sorteddiff a1 a2 a3 =
-  match a1, a2, a3 with
-    (<), [], ys -> []
-  | (<), xs, [] -> xs
-  | (<), x1 :: xs, y1 :: ys ->
+let rec sorteddiff (<) xs ys =
+  match xs, ys with
+    [], ys -> []
+  | xs, [] -> xs
+  | x1 :: xs, y1 :: ys ->
       if x1 = y1 then sorteddiff (<) xs ys
       else if x1 < y1 then
         x1 :: sorteddiff (<) xs (y1 :: ys)
       else sorteddiff (<) (x1 :: xs) ys
+
 (* lists sorted by < or <=; does set or bag intersect accordingly *)
 
 let rec sortedsame a1 a2 a3 =
@@ -346,21 +348,23 @@ let rec sortedmergeandcombine (<) ( + ) xs ys =
 
 let rec sortedmerge (<) xs ys =
   sortedmergeandcombine (<) (fun x _ -> x) xs ys
+
 (* this ignores elements of ys after the last one that actually occurs in xs *)
 
 let rec sortedlistsub eq xs ys =
-  let rec g a1 a2 =
-    match a1, a2 with
-      xs, y :: ys ->
+  let rec g xs =
+    function
+      y :: ys ->
         let rec f =
           function
             x :: xs -> if eq (x, y) then g xs ys else x :: f xs
-          | [] -> []
+          | []      -> []
         in
         f xs
-    | xs, [] -> xs
+    | [] -> xs
   in
   g xs ys
+
 (* matchbag pp XS = { (x, pp x, XS -- [x]) | x<-XS ; x in dom pp } *)
 
 let rec matchbag pp xs =

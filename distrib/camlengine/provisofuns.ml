@@ -165,6 +165,7 @@ let rec deferrable cxt (t1, t2) =
          ((snd <* vts))
    | _, Subst _ -> deferrable cxt (t2, t1)
    | _ -> true)
+
 (* Is this proviso obviously satisfied (Yes) or obviously violated (No)
  * or can't we tell (Maybe)?
  * Make use of other, more basic, provisos as facts to help you decide, 
@@ -183,6 +184,7 @@ let rec _PROVISOq facts p =
       else(* if termoccursin (debracket _P2) _P1 
          orelse termoccursin (debracket _P1) _P2 then No
       else *)  Maybe
+
 (* the list of names must be sorted, which it will be if it comes out of termvars *)
 (* because of hidden provisos, this thing now gets a visproviso list *)
 (* iso means isolated, I think; so isot is an isolated term, isop an isolated proviso *)
@@ -221,10 +223,10 @@ let rec groundedprovisos names provisos =
   let r =
     if null provisos then None
     else
-      (* keep them? throw them away? *) match split (isop <.> provisoactual) provisos with
+      (* keep them? throw them away? *) 
+      match split (isop <.> provisoactual) provisos with
         [], _ -> None
-      | _, [] ->(* we kept them all *)
-         Some []
+      | _, [] -> Some [] (* we kept them all *)
       | isos, uses ->
           (* we threw them all away *)
           match
@@ -235,8 +237,8 @@ let rec groundedprovisos names provisos =
               isos
           with
             Some more -> Some (uses @ more)
-          | None ->(* we kept some *)
-             None
+          | None      -> None (* we kept some *)
+             
   in
   if !provisodebug then
     consolereport
@@ -245,12 +247,20 @@ let rec groundedprovisos names provisos =
        string_of_option vv r];
   r
 
+(* I don't know what groundedprovisos does any more, so I'm not touching it. This is useful
+   when fabricating lemmas
+ *)
+let relevantprovisos seq ps =
+  let lemmavars = Sequent.seqvars termvars tmerge seq in
+  (fun p -> Listfuns.sorteddiff earliervar (provisovars termvars tmerge p) lemmavars=[]) <| ps
+  
 let rec expandFreshProviso b (h, g, r, v) left right ps =
   nj_fold
     (function
        (true, side), ps -> mkvisproviso (b, NotinProviso (v, side)) :: ps
      | (false, side), ps -> ps)
     [h, left; g, right] ps
+
 exception Verifyproviso_ of proviso
 
 (* take out the first occurrence *)

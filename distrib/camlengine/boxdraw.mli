@@ -40,6 +40,7 @@ val outerassumptionplural : string ref
 val innerassumptionword : string ref
 val innerassumptionplural : string ref
 
-val boxlinedisplay : string ref
-val boxseldebug : bool ref
+val boxlinedressright : bool ref
+
+val boxseldebug  : bool ref
 val boxfolddebug : bool ref

@@ -55,7 +55,7 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
     private JScrollBar vsb, hsb;
     public final int scrollbarthickness;
 
-    public AnchoredScrollPane() {
+    public AnchoredScrollPane(final String id) {
 	super();
 	hsb = new JScrollBar(JScrollBar.HORIZONTAL);
 	hsb.setUnitIncrement(10); hsb.setBlockIncrement(100); // for now
@@ -66,8 +66,10 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
 	viewport = new Container() {
 	    public void validate() { setScrollBarValues(); }
 	    public void paint(Graphics g) {
-		if (paint_tracing)
-		    Logger.log.println("painting viewport in AnchoredScrollPane");
+		if (DebugVars.paint_tracing) {
+		    Logger.log.println("painting viewport in AnchoredScrollPane "+id);
+		    JapeUtils.showContainer(this);
+		}
 		g.setColor(getBackground());
 		g.fillRect(0,0, getWidth(), getHeight());
 		super.paint(g);

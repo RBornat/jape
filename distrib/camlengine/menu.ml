@@ -45,22 +45,19 @@ let systemmenus = ["File"; "Edit"] (* filth; introduced by RB *)
 exception Menuconfusion_ of string list
 
 let menudebug = ref false
-type menudata =
-    Mseparator
-  | Mentry       of (name * string option * string)
-  | Mcheckbox    of (name * name * (string * string) * string option)
-  | Mradiobutton of (name * (name * string) list * string option)
-                (* variable  label  cmd            default cmd *)
+type menudata = Mseparator
+              | Mentry       of (name * string option * string)
+              | Mcheckbox    of (name * name * (string * string) * string option)
+              | Mradiobutton of (name * (name * string) list * string option)
+                            (* variable  label  cmd            default cmd *)
 
-type menucommand =
-    MCdata   of menudata
-  | MCbefore of (name * menudata) 
-  | MCrename of (name * name) 
+type menucommand = MCdata   of menudata
+                 | MCbefore of (name * menudata) 
+                 | MCrename of (name * name) 
 
-type paneldata =
-    Pentry  of (name * string)
-  | Pbutton of (name * panelbuttoninsert list)
-  (* will have before, rename one day *)
+type paneldata = Pentry  of (name * string)
+               | Pbutton of (name * panelbuttoninsert list)
+               (* will have before, rename one day *)
 
 type pentry = string * string
 
@@ -108,7 +105,7 @@ let rec string_of_paneldata =
  * or addpaneldata
  *)
 
-let menus : (name, (bool*menudata list ref)) mapping ref = ref empty
+let menus : (name, (bool * (bool*menudata) list ref)) mapping ref = ref empty
 
 let panels :
   (name, (panelkind * (name, string ref) mapping * paneldata list) ref)
@@ -147,46 +144,46 @@ let rec addmenu proofsonly m =
     None   -> menus := (!menus ++ (m |-> (proofsonly, ref [])))
   | Some _ -> ()
 
-let rec addtomenu beforeopt e es =
+let rec addtomenu beforeopt proofsonly e es =
   let rec lf e =
     match e with
-      Mseparator                 -> None
-    | Mentry (label, _, _)       -> Some [label]
-    | Mcheckbox (label, _, _, _) -> Some [label]
-    | Mradiobutton (_, lcs, _)   -> Some ((fst <* lcs))
+      _, Mseparator                 -> None
+    | _, Mentry (label, _, _)       -> Some [label]
+    | _, Mcheckbox (label, _, _, _) -> Some [label]
+    | _, Mradiobutton (_, lcs, _)   -> Some ((fst <* lcs))
   in
   let rec vf e =
     match e with
-      Mseparator                 -> None
-    | Mentry (_, _, _)           -> None
-    | Mcheckbox (_, var, _, _)   -> Some var
-    | Mradiobutton (var, lcs, _) -> Some var
+      _, Mseparator                 -> None
+    | _, Mentry (_, _, _)           -> None
+    | _, Mcheckbox (_, var, _, _)   -> Some var
+    | _, Mradiobutton (var, lcs, _) -> Some var
   in
-  if !menudebug then consolereport ["adding "; string_of_menudata e];
-  addtodata beforeopt lf vf e es
+  if !menudebug then consolereport ["adding "; string_of_menudata e; " "; string_of_bool proofsonly];
+  addtodata beforeopt lf vf (proofsonly,e) es
 
-let renamemenu name name' es =
+let renamemenu name proofsonly name' es =
   let lf e =
     match e with 
-      Mseparator                 -> None
-    | Mentry (label, x, y)       -> 
-        if name=label then Some (Mentry (name', x, y)) else None
-    | Mcheckbox (label, x, y, z) -> None (* too complicated to rename these -- see paragraphfuns.ml *)
-        (* if name=label then Some (Mcheckbox (name', x, y, z)) else None *)
-    | Mradiobutton (x, lcs, y)   -> None (* ditto -- but if I moved the tick etc. responsibility to the GUI ...  *)
+      _, Mseparator                 -> None
+    | _, Mentry (label, x, y)       -> 
+        if name=label then Some (proofsonly, Mentry (name', x, y)) else None
+    | _, Mcheckbox (label, x, y, z) -> None (* too complicated to rename these -- see paragraphfuns.ml *)
+        (* if name=label then Some (proofsonly, Mcheckbox (name', x, y, z)) else None *)
+    | _, Mradiobutton (x, lcs, y)   -> None (* ditto -- but if I moved the tick etc. responsibility to the GUI ...  *)
         (* optionmap (fun (label,z) -> if name=label then Some (name',z) else None) lcs &~~
-           (fun lcs' -> Some (Mradiobutton (x, lcs', y))) *)
+           (fun lcs' -> Some (proofsonly, Mradiobutton (x, lcs', y))) *)
   in
     match option_rewritelist lf es with
       Some es' -> es'
     | None     -> es
       
-let rec addmenudata m es =
+let rec addmenudata proofsonly m es =
   let doit cs =
     function
-      MCdata md              -> addtomenu None md cs
-    | MCbefore (name, md)    -> addtomenu (Some [name]) md cs
-    | MCrename (name, name') -> renamemenu name name' cs
+      MCdata md              -> addtomenu None proofsonly md cs
+    | MCbefore (name, md)    -> addtomenu (Some [name]) proofsonly md cs
+    | MCrename (name, name') -> renamemenu name proofsonly name' cs
   in
   if !menudebug then consolereport ["adding to "; string_of_name m];
   match (!menus <@> m) with
@@ -205,12 +202,12 @@ let rec getmenus () =
 let rec getmenudata m =
   let rec doseps =
     function
-      Mseparator :: Mseparator :: es -> doseps (Mseparator :: es)
-    | [Mseparator] -> []
-    | Mseparator :: Mradiobutton r :: es ->
-        Mseparator :: Mradiobutton r :: doseps (Mseparator :: es)
-    | Mradiobutton r :: es ->
-        Mseparator :: Mradiobutton r :: doseps (Mseparator :: es)
+      (p1,Mseparator) :: (p2,Mseparator) :: es -> doseps (((p1||p2),Mseparator) :: es)
+    | [_,Mseparator] -> []
+    | (p1,Mseparator) :: (p2,Mradiobutton r) :: es ->
+        (p1,Mseparator) :: (p2,Mradiobutton r) :: doseps ((p2,Mseparator) :: es)
+    | (p1,Mradiobutton r) :: es ->
+        (p1,Mseparator) :: (p1,Mradiobutton r) :: doseps ((p1,Mseparator) :: es)
     | e :: es -> e :: doseps es
     | [] -> []
   in
@@ -220,9 +217,8 @@ let rec getmenudata m =
      * server; no other menu can start with a separator
      *)
     match doseps es with
-      Mseparator :: es' ->
-        if member (string_of_name m, systemmenus) then Mseparator :: es'
-        else es'
+      (p1,Mseparator) :: es'' as es' ->
+        if member (string_of_name m, systemmenus) then es' else es''
     | es' -> es'
   in
     (!menus <@> m) &~~
@@ -263,8 +259,10 @@ let rec clearpaneldata p =
     Some ({contents = k, _, _} as contents) -> contents := k, empty, []
   | None -> ()
 
-let rec getpanels () =
+let getpanels () =
    (fun (p, {contents = k, _, _}) -> p, k) <* aslist !panels
+
+let getconjecturepanels () = List.map fst ((fun (_,kind) -> kind=ConjecturePanelkind) <| getpanels())
 
 let rec getpanelkind p =
   (!panels <@> p) &~~ (_Some <.> (fun (a,b,c) -> a) <.> (!))
@@ -287,22 +285,22 @@ let rec clearmenusandpanels () = menus := empty; panels := empty
 (***** temporary, for backwards compatibility *****)
 
 
-let rec assignvarval var vval =
+let assignvarval var vval =
   (("assign " ^ parseablestring_of_name var) ^ " ") ^ vval
 
-let rec menuiter f = List.iter f (getmenus ())
+let menuiter f = List.iter f (getmenus ())
 
-let rec paneliter f = List.iter f (getpanels ())
+let paneliter f = List.iter f (getpanels ())
 
-let rec menuitemiter m ef cbf rbf sf =
+let menuitemiter m ef cbf rbf sf =
   let rec tran e =
     match e with
-      Mseparator                              -> sf ()
-    | Mentry (label, shortcut, cmd)           -> ef (label, shortcut, cmd)
-    | Mcheckbox (var, label, (val1, val2), _) -> cbf (label, assignvarval var val1)
-    | Mradiobutton (var, lcs, _)              ->
+      p, Mseparator                              -> sf p
+    | p, Mentry (label, shortcut, cmd)           -> ef p label shortcut cmd
+    | p, Mcheckbox (var, label, (val1, val2), _) -> cbf p label (assignvarval var val1)
+    | p, Mradiobutton (var, lcs, _)              ->
         (* this will be reset *)
-        rbf (List.map (fun (label, vval) -> label, assignvarval var vval) lcs)
+        rbf p (List.map (fun (label, vval) -> label, assignvarval var vval) lcs)
   in
   if !menudebug then consolereport ["reporting on "; string_of_name m];
   match getmenudata m with

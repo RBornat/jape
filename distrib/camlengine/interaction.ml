@@ -197,17 +197,14 @@ let rec findSelection state =
     nj_fold
       (function
          FormulaHit (ConcHit c), (cs, hs, rs) -> c :: cs, hs, rs
-       | FormulaHit (HypHit h), (cs, hs, rs) -> cs, h :: hs, rs
-       | ReasonHit r, (cs, hs, rs) -> cs, hs, r :: rs
-       | h, _ ->
-           raise
-             (Catastrophe_
-                ["findSelection (interaction) sees hit ";
-                 string_of_hit string_of_path h]))
+       | FormulaHit (HypHit  h), (cs, hs, rs) -> cs, h :: hs, rs
+       | ReasonHit           r , (cs, hs, rs) -> cs, hs, r :: rs
+       | h, _ -> raise (Catastrophe_
+                          ["findSelection (interaction) sees hit "; string_of_hit string_of_path h]))
       fhits ([], [], [])
   in
-  (* it gets too hard not to trust the interface here ... I'm just going to take the hyp interpretation of 
-   * each ambiguous text selection.
+  (* it gets too hard not to trust the interface here ... 
+   * I'm just going to take the hyp interpretation of each ambiguous text selection.
    *)
   let (tcs, ths) =
     nj_fold
@@ -231,15 +228,12 @@ let rec findSelection state =
         List.map
           (fun (hpath, hypel) ->
              if Prooftree.Tree.Fmttree.validhyp tree hypel cpath then hypel
-             else
-               raise
-                 (Catastrophe_
-                    ["incompatible double hit in findSelection (interaction): ";
-                     string_of_path hpath; " ";
-                     debugstring_of_element string_of_term hypel; "; ";
-                     string_of_path cpath; " ";
-                     string_of_pair (debugstring_of_element string_of_term)
-                       (string_of_option string_of_side) "," conc]))
+             else raise (Catastrophe_ ["incompatible double hit in findSelection (interaction): ";
+                                       string_of_path hpath; " ";
+                                       debugstring_of_element string_of_term hypel; "; ";
+                                       string_of_path cpath; " ";
+                                       string_of_pair (debugstring_of_element string_of_term)
+                                         (string_of_option string_of_side) "," conc]))
           hyphits
       in
       Some (FormulaSel (cpath, Some conc, hyps, tcs, ths, givensel))
@@ -379,19 +373,14 @@ let rec getCommand displayopt =
   in
   let rec mkclass c =
     try displayclass_of_int (atoi c) with
-      _ ->
-        raise
-          (Catastrophe_ ["bad class in getCommand (interaction): "; text])
+      _ -> raise (Catastrophe_ ["bad class in getCommand (interaction): "; text])
   in
   let rec parseselections =
     function
       x :: y :: c :: others ->
         (mkpos x y, mkclass c) :: parseselections others
     | [] -> []
-    | _ ->
-        raise
-          (Catastrophe_
-             ["bad selection tail in getCommand (interaction): "; text])
+    | _ -> raise (Catastrophe_ ["bad selection tail in getCommand (interaction): "; text])
   in
   match words text with
     "ACT" :: x :: y :: c :: _ ->
@@ -431,8 +420,9 @@ let rec getCommand displayopt =
       notifyselect (getdisplay ()) (Some (mkpos x y, class__)) sels;
       getCommand displayopt
   | "DESELECT" :: sels ->
+      let sels = parseselections sels in
       (* DESELECT sels means something has been taken away, and this is the selection now. *)
-      notifyselect (getdisplay ()) None (parseselections sels);
+      notifyselect (getdisplay ()) None sels;
       getCommand displayopt
   | "DRAGQ" :: x :: y :: _ ->
       dropsource :=

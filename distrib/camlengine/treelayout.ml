@@ -43,7 +43,7 @@ type treelayout =
 let rec string_of_treelayout =
   function
     HideRootLayout -> "HIDEROOT"
-  | HideCutLayout -> "HIDECUT"
+  | HideCutLayout  -> "HIDECUT"
   | CompressedLayout stuff ->
       begin match tls stuff with
         "\"%s\" ALL" -> "COMPRESS"

@@ -43,11 +43,9 @@ val terminateGUI : unit -> unit
 val reportGUIdead : string list -> unit
 val setdisplaystyle : string -> unit
 val getdisplaystyle : unit -> string
-val showProof :
-  displaystate -> path option -> path option -> cxt ->
-    prooftree -> bool -> displaystate
-val showFocussedProof :
-  path option -> cxt -> prooftree -> bool -> displaystate
+val showProof : displaystate -> path option -> path option -> cxt -> prooftree 
+             -> bool -> displaystate
+val showFocussedProof : path option -> cxt -> prooftree -> bool -> displaystate
 val refreshProof : displaystate -> unit
 val setProvisos : cxt -> unit
 val setGivens : seq list -> unit
@@ -62,8 +60,6 @@ val droptarget : element list ref
 val setComment : string list -> unit
 val showState : displaystate -> proofstate -> bool -> displaystate
 val printState : Pervasives.out_channel -> proofstate -> bool -> unit
-val alterTip :
-  displaystate -> cxt -> path -> prooftree ->
-    (prooftree * path) option ->
-    (bool * path * element) * string list ->
-    cxt * element * prooftree
+val alterTip : displaystate -> cxt -> path -> prooftree
+            -> (prooftree * path) option -> (bool * path * element) * string list
+            -> cxt * element * prooftree

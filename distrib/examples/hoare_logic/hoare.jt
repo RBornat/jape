@@ -9,6 +9,7 @@ INITIALISE hideuselesscuts  true
 
 USE "hoare_syntax.j"
 USE "hoare_rules.j"
+USE "hoare_arith.j"
 USE "hoare_problems.j"
 
 PUSHSYNTAX "natural deduction"

@@ -364,7 +364,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 					       JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 	    contentPane.add(scrollPane);
 
-	    buttonPane = new ButtonPane(Jape.onMacOS ? 4 : 3);
+	    buttonPane = new ButtonPane(Jape.onMacOSX ? 4 : 3);
 	    for (int i=0; i<buttonv.size(); i++) {
 		PanelButton b = (PanelButton)buttonv.get(i);
 		b.font_reset();
@@ -384,6 +384,10 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 	    pack(); // necessary??
 	}
 
+	public int getBarKind() {
+	    return JapeMenu.OTHERWINDOW_BAR;
+	}
+	
 	protected boolean servesAsControl() { return LocalSettings.panelWindowMenus; }
 
 	public void resetPanelLayout() {
@@ -438,7 +442,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 		this.size = new Dimension(prefixw+td.width, td.ascent+td.descent);
 	    }
 	    public void paint(Graphics g) {
-		if (paint_tracing)
+		if (DebugVars.paint_tracing)
 		    Logger.log.println("painting PanelWindow.Entry");
 		g.setColor(getBackground()); g.fillRect(0, 0, getWidth(), getHeight());
 		if (selected && !active) {

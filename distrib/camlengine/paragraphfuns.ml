@@ -271,16 +271,16 @@ let rec interpret
             let (env, basefn) = processCheckBox env stuff in
             let rec tickfn tf =
               setmenuentry
-                (string_of_name mlabel) (string_of_name label) None
+                (string_of_name mlabel) mproof (string_of_name label) None
                  ("assign " ^ parseablestring_of_name var ^
                    (if tf then " false" else " true"));
-              tickmenuitem (string_of_name mlabel) (string_of_name label) tf
+              tickmenuitem mproof (string_of_name mlabel) (string_of_name label) tf
             in
             env, (var, basefn tickfn) :: buttonfns
         | Mradiobutton (var, _, _ as stuff) ->
             let (env, basefn) = processRadioButton env stuff in
             let rec tickfn (label, tf) =
-              tickmenuitem (string_of_name mlabel) (string_of_name label) tf
+              tickmenuitem mproof (string_of_name mlabel) (string_of_name label) tf
             in
             env, (var, basefn tickfn) :: buttonfns
         | _ -> env, buttonfns
@@ -289,7 +289,7 @@ let rec interpret
         nj_fold processcommand mparas (env, buttonfns, [], [])
       in
       Menu.addmenu mproof mlabel;
-      Menu.addmenudata mlabel mes;
+      Menu.addmenudata mproof mlabel mes;
       nj_revfold
         (interpret report query (InMenu mlabel) params provisos enter) mps
         (env, proofs, buttonfns)

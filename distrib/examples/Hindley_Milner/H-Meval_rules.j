@@ -177,16 +177,16 @@ END
 RULE "T«S" IS       FROM C ⊢ T • #T ◁ S     INFER C ⊢ T « S
 
 RULES "new t•..." (OBJECT t1) WHERE t1 NOTIN C ARE
-    C⊢ t1 • #T◁ ∀t1.T 
-AND C⊢ t1 • ∀tt1.T ◁ ∀(tt1,t1).T 
-AND C⊢ t1 • ∀(tt1,tt2).T ◁ ∀(tt1,tt2,t1).T 
+    C⊢ t1 • #T                ◁ ∀t1.T 
+AND C⊢ t1 • ∀tt1.T           ◁ ∀(tt1,t1).T 
+AND C⊢ t1 • ∀(tt1,tt2).T     ◁ ∀(tt1,tt2,t1).T 
 AND C⊢ t1 • ∀(tt1,tt2,tt3).T ◁ ∀(tt1,tt2,tt3,t1).T 
 END
 
 RULE "T1→T2•..."    FROM C ⊢ T1• Sin ◁ Smid AND C ⊢ T2 • Smid ◁ Sout    INFER C ⊢ T1→T2 • Sin ◁ Sout
 RULE "T1×T2•..."    FROM C ⊢ T1• Sin ◁ Smid AND C ⊢ T2 • Smid ◁ Sout    INFER C ⊢ T1×T2 • Sin ◁ Sout
-RULE "[T]•..."      FROM C ⊢ T • Sin ◁ Sout                     INFER C ⊢ [T] • Sin ◁ Sout
-RULE "same T•..."                                           INFER C ⊢ T • S ◁ S
+RULE "[T]•..."       FROM C ⊢ T • Sin ◁ Sout                               INFER C ⊢ [T] • Sin ◁ Sout
+RULE "same T•..."                                                            INFER C ⊢ T • S ◁ S
 
 
 TACTIC geninduct IS 
@@ -196,6 +196,7 @@ TACTIC geninduct IS
         "same T•..."
 
 TACTIC generalise IS LAYOUT "generalise" ()  "T«S" geninduct
+
 TACTIC genstep IS 
     ALT "T«S" 
         (MATCH "T1→T2•...") 

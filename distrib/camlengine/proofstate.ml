@@ -67,34 +67,29 @@ let withgoal (Proofstate s) goal = Proofstate {s with goal = goal}
 let withtarget (Proofstate s) target = Proofstate {s with target = target}
 let withroot (Proofstate s) root = Proofstate {s with root = root}
 
+let string_of_subtree pathopt tree =
+  match pathopt with
+    Some path -> string_of_prooftree (followPath tree path)
+  | _         -> "..."
 
-let string_of_proofstate all =
-  fun
-    (Proofstate
-       {cxt = cxt;
-        tree = tree;
-        givens = givens;
-        goal = goal;
-        target = target;
-        root = root}) ->
-    let showsubtree pathopt tree =
-      match all, pathopt with
-        true, Some path -> string_of_prooftree (followPath tree path)
-      | _ -> "..."
-    in
-    implode
-      ["Proofstate{cxt = "; string_of_cxt cxt; ",\nproof = ";
-       showsubtree (Some (rootPath tree)) tree; ",\ngivens = ";
-       string_of_list string_of_seq " AND " givens; ",\ngoal = ";
-       string_of_option string_of_fmtpath goal; " = "; showsubtree goal tree;
-       ",\ntarget = "; string_of_option string_of_fmtpath target; " = ";
-       showsubtree target tree; ",\nroot = ";
-       string_of_option
-         (fun (rp, _ as r) ->
-            string_of_pair (showsubtree (Some (rootPath rp))) string_of_fmtpath
-              "," r)
-         root;
-       "}"]
+let string_of_proofstate all (Proofstate {cxt = cxt; tree = tree; givens = givens;
+                                          goal = goal; target = target; root = root}) =
+  let string_of_subtree pathopt =
+    string_of_subtree (if all then pathopt else None)
+  in
+  implode
+    ["Proofstate{cxt = "; string_of_cxt cxt; ",\nproof = ";
+     string_of_subtree (Some (rootPath tree)) tree; ",\ngivens = ";
+     string_of_list string_of_seq " AND " givens; ",\ngoal = ";
+     string_of_option string_of_fmtpath goal; " = "; string_of_subtree goal tree;
+     ",\ntarget = "; string_of_option string_of_fmtpath target; " = ";
+     string_of_subtree target tree; ",\nroot = ";
+     string_of_option
+       (fun (rp, _ as r) ->
+          string_of_pair (string_of_subtree (Some (rootPath rp))) string_of_fmtpath
+            "," r)
+       root;
+     "}"]
 
 let prunestate goal =
   fun (Proofstate {cxt = cxt; tree = tree} as state) ->

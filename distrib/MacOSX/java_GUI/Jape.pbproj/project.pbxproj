@@ -118,6 +118,7 @@
 				F515B6180331DA6801A80116,
 				7923783006104EE30084726D,
 				79A31803064BF8EF0096C4DA,
+				79135452067F2BC7002D81A7,
 			);
 			isa = PBXGroup;
 			refType = 4;
@@ -392,6 +393,7 @@
 				7923783206104EE40084726D,
 				79A31805064BF8EF0096C4DA,
 				792473B50650EC5700FCFD44,
+				79135453067F2BC7002D81A7,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -432,6 +434,27 @@
 //792
 //793
 //794
+		79135452067F2BC7002D81A7 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = LemmaDialog.java;
+			path = /Users/richard/cvsdownloads/jape/distrib/java_GUI/uk/org/jape/LemmaDialog.java;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		79135453067F2BC7002D81A7 = {
+			fileRef = 79135452067F2BC7002D81A7;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		79135454067F2BC7002D81A7 = {
+			fileRef = 79135452067F2BC7002D81A7;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		791C734405DCEDE00086E5C6 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -2214,6 +2237,7 @@
 				7923783106104EE30084726D,
 				79A31804064BF8EF0096C4DA,
 				792473B40650EC5700FCFD44,
+				79135454067F2BC7002D81A7,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;

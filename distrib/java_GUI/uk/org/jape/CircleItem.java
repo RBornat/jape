@@ -58,13 +58,13 @@ public class CircleItem extends OutlineItem implements DebugConstants {
     }
 
     public void paint(Graphics g) {
-	if (paint_tracing)
+	if (DebugVars.paint_tracing)
 	    Logger.log.println("painting circle at "+getX()+","+getY());
 	g.setColor(getForeground());
 	if (g instanceof Graphics2D) {
 	    if (antialias_tracing) {
 		Logger.log.print("circle hints "+((Graphics2D)g).getRenderingHints());
-		if (Jape.onMacOS)
+		if (Jape.onMacOSX)
 		    Logger.log.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
 		else
 		    Logger.log.println();

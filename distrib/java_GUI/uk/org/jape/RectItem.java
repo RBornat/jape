@@ -79,7 +79,7 @@ public class RectItem extends OutlineItem implements DebugConstants {
 
     // default behaviour -- drawLine seems to work more nicely than drawRect ...
     public void paint(Graphics g) {
-	if (paint_tracing)
+	if (DebugVars.paint_tracing)
 	    Logger.log.println("painting RectItem at "+getX()+","+getY());
 	prepaint(g); paintTopAndBottom(g); paintSides(g);
     }

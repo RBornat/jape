@@ -84,4 +84,4 @@ let rec seqdraw p seqbox seqplan =
   List.iter (drawplan displayclass_of_planclass (p +->+ tbPos seqbox)) seqplan
 
 let rec seqelementpos p seqbox plan =
-  p +->+ tbPos seqbox +->+ tbPos (plantextbox plan)
+  p +->+ tbPos seqbox +->+ tbPos (textbox_of_plan plan)

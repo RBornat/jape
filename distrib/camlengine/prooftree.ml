@@ -621,6 +621,7 @@ module Tree : Tree with type term = Termtype.term
       match f t path with
         Some res -> res
       | None -> raise (FollowPath_ ("siblingPath of root", path))
+    
     (* for subgoalPath we could use path@extras but I don't like leaving cutroot addresses in paths *)
     let rec subgoalPath_ns t path extras =
       let rec f t ns =
@@ -632,14 +633,13 @@ module Tree : Tree with type term = Termtype.term
               raise (FollowPath_ ("subgoal of Tip", path))
             else pathto t
         | Join j ->
-            let rec go n t ns = n :: f t ns in
-            let rec skip (l, r, tl, tr) ns = f tr ns in
-            joinstep go
-              (fun _ ->
-                 if null extras then pathto t else subgoalPath_ns t extras [])
-              skip j ns
+            let go n t ns = n :: f t ns in
+            let skip (l, r, tl, tr) ns = f tr ns in
+            joinstep go (fun _ -> if null extras then pathto t else subgoalPath_ns t extras [])
+                     skip j ns
       in
       f t path
+    
     (* Hypothesis/conclusion el occurs at position ns;
      * check that it's still there at position ns'.
      * ns must be a prefix of ns', but because resources work the way they do, 
@@ -863,21 +863,7 @@ module Tree : Tree with type term = Termtype.term
                   (sortunique intorder ((fun t -> lookup t, t) <* hs))
                   body
           in
-          let infer_body =
-            "\n" :: shyidforINFER :: " " :: catelim_string_of_seq seq hashables_body
-          in
-          let givens_body =
-            if null givens then infer_body
-            else
-              "\n" :: shyidforFROM :: " " ::
-                catelim_string_of_list catelim_string_of_seq givenssep givens
-                  infer_body
-          in
-          if null provisos then givens_body
-          else
-            "\n" :: shyidforWHERE :: " " ::
-              catelim_string_of_list catelim_string_of_proviso provisosep provisos
-                givens_body
+          "\n" :: Paragraph.catelim_string_of_rulebody "\n" provisos givens seq hashables_body
         with
           exn -> showargasint := None; raise exn
       in
@@ -1027,19 +1013,16 @@ module Tree : Tree with type term = Termtype.term
                 bracketedstring_of_list string_of_int ", " (rewinf_badres inf)])
       in
       (* don't forget the givens when considering grounded provisos *)
-      let tvars =
-        tmerge
-          (rewinf_vars inf)
-          (match exteriorinf cxt with
-             Some ri -> rewinf_vars ri
-           | None -> [])
+      let tvars = tmerge (rewinf_vars inf) (match exteriorinf cxt with
+                                              Some ri -> rewinf_vars ri
+                                            | None    -> [])
       in
       let cxt =
         match
           if grounded then groundedprovisos tvars (provisos cxt) else None
         with
           Some ps -> anyway rew_cxt (withprovisos cxt ps)
-        | None -> anyway rew_cxt cxt
+        | None    -> anyway rew_cxt cxt
       in
       let cinf = rewinfCxt cxt in
       (* vars only in givens are in the exterior of the proof, but they aren't thereby 'in use' *)
@@ -1054,8 +1037,8 @@ module Tree : Tree with type term = Termtype.term
       let usedVIDs =
         orderVIDs (vid_of_var <* mergevars (rewinf_vars inf) cvars)
       in
-      withusedVIDs (withresmap (withvarmap cxt empty) empty) usedVIDs,
-      tree, usedVIDs
+      withusedVIDs (withresmap (withvarmap cxt empty) empty) usedVIDs, tree, usedVIDs
+    
     (* -------------------------- Tree construction : only for treeformat prooftrees ----------------------------- *)
         
         (* There is an important subtlety in the design of mkTip.
@@ -1276,52 +1259,49 @@ module Tree : Tree with type term = Termtype.term
       match join_how j with
         Apply (r, _, _) -> isCutRule r
       | _ -> false
+    
     (* ---------------------- translating trees and paths -------------------------- *)
 
     let rec join_fmtNsubts j = join_fmt j, join_subtrees j
     let fmtNsubts = joinopt join_fmtNsubts
-    let rec pathedsubtrees =
+    
+    let pathedsubtrees =
       function
         why, how, Some (l, r), args, fmt, hastipval, seq, ([tl; tr], rewinf),
         ress ->
           [[l], tl; [], tr]
       | why, how, _, args, fmt, hastipval, seq, (ts, rewinf), ress ->
           (fun (i, t) -> [i], t) <* numbered ts
+    
     let rec visibles showall j =
       let pts = pathedsubtrees j in
-      let rec default () = pts, [] in
+      let default () = pts, [] in
       let rec hideroots fmt ascut (ins, outs) =
         let rec h ((p, t as pt), (ins, outs)) =
           let rec nohide () = pt :: ins, outs in
-          let rec hr j' =
-            let (Seq (_, hs, _)) = join_seq j in
+          let rec hr hard j' =
             let (Seq (_, hs', _)) = join_seq j' in
-            if hs = hs' then
-              let hs =
-                   (fun (ns, t) -> p @ ns, t) <*
-                   fst (visibles showall j')
-              in
+            if hard || (let (Seq (_, hs, _)) = join_seq j in hs = hs') then
+              let hs = (fun (ns, t) -> p @ ns, t) <* fst (visibles showall j') in
               hs @ ins, pt :: outs
             else nohide ()
           in
           match t with
-            Tip _ -> nohide ()
+            Tip _  -> nohide ()
           | Join j ->
               match join_fmt j with
                 TreeFormat (HideRootFormat, _) ->
-                  let r = hr j in
+                  let r = hr true j in
                   (* cut steps keep their shape, else they don't mean anything *)
                   if ascut && List.length (fst r) <> 1 + List.length ins then
-                    begin
-                      if !cuthidingdebug then
-                        consolereport
-                          ["visibles not HIDEROOTING ";
-                           string_of_Join string_of_treeformat
-                             (bracketedstring_of_list
-                                (string_of_seq <.> sequent) ",")
-                             j];
-                      nohide ()
-                    end
+                    (if !cuthidingdebug then
+                       consolereport
+                         ["visibles not HIDEROOTING ";
+                          string_of_Join string_of_treeformat
+                            (bracketedstring_of_list
+                               (string_of_seq <.> sequent) ",")
+                            j];
+                     nohide ())
                   else r
               | TreeFormat (_, RotatingFormat (i, nfs)) ->
                   if try
@@ -1331,7 +1311,7 @@ module Tree : Tree with type term = Termtype.term
                      with
                        _ -> false
                   then
-                    hr j
+                    hr false j
                   else nohide ()
               | _ -> nohide ()
         in
@@ -1342,50 +1322,49 @@ module Tree : Tree with type term = Termtype.term
         else
           match join_fmt j with
             TreeFormat (_, RotatingFormat (i, nfs)) ->
-              begin try
-                match List.nth nfs i with
-                  _, _, Some which as fmt ->
-                    let inouts =
-                      nj_fold
-                        (fun ((i, (_, t as pt)), (ins, outs)) ->
-                           if hasTip t || member (i, which) then
-                             pt :: ins, outs
-                           else ins, pt :: outs)
-                        (numbered pts) ([], [])
-                    in
-                    hideroots (Some fmt) false inouts
-                | fmt -> hideroots (Some fmt) (isCutjoin j) (pts, [])
-              with
-                Failure "nth" -> default ()
-              end
+              (try match List.nth nfs i with
+                     _, _, Some which as fmt ->
+                       let inouts =
+                         nj_fold
+                           (fun ((i, (_, t as pt)), (ins, outs)) ->
+                              if hasTip t || member (i, which) then
+                                pt :: ins, outs
+                              else ins, pt :: outs)
+                           (numbered pts) ([], [])
+                       in
+                       hideroots (Some fmt) false inouts
+                   | fmt -> hideroots (Some fmt) (isCutjoin j) (pts, [])
+               with
+                 Failure "nth" -> default ())
           | _ -> hideroots None (isCutjoin j) (pts, [])
       in
       if !prooftreedebug then
-        begin
-          let onelevel =
-            bracketedstring_of_list (string_of_seq <.> sequent) ","
-          in
-          let string_of_pt =
-            bracketedstring_of_list
-              (string_of_pair string_of_ns (string_of_seq <.> sequent) ",")
-              ", "
-          in
-          consolereport
-            ["visibles "; string_of_bool showall; " ";
-             string_of_Join string_of_treeformat onelevel j; " => ";
-             string_of_pair string_of_pt string_of_pt ", " res]
-        end;
+        (let onelevel =
+           bracketedstring_of_list (string_of_seq <.> sequent) ","
+         in
+         let string_of_pt =
+           bracketedstring_of_list
+             (string_of_pair string_of_ns (string_of_seq <.> sequent) ",")
+             ", "
+         in
+         consolereport
+           ["visibles "; string_of_bool showall; " ";
+            string_of_Join string_of_treeformat onelevel j; " => ";
+            string_of_pair string_of_pt string_of_pt ", " res]);
       res
-    let rec visfn a1 a2 a3 =
-      match a1, a2, a3 with
-        f, showall, Tip _ -> None
-      | f, showall, Join j -> Some (f showall j)
-    let rec visible_subtrees showall =
+    
+    let visfn f showall =
+      function
+        Tip  _ -> None
+      | Join j -> Some (f showall j)
+      
+    let visible_subtrees showall =
       optf fst <.> joinopt (visibles showall)
-    let rec invisible_subtrees showall =
+      
+    let invisible_subtrees showall =
       optf snd <.> joinopt (visibles showall)
 
-    let rec pathtoviewpath showall t =
+    let pathtoviewpath showall t =
       fun (FmtPath ns) ->
         let rec _P ns rns t =
           let r = pathto t in
@@ -1404,8 +1383,9 @@ module Tree : Tree with type term = Termtype.term
                     (fun (i, ns', t) -> _P ns' (i :: rns) t)))
         in
         _P ns [] t
+    
     (* this didn't get the right answer for the root of cuts, so I added pathto to the final result. RB 22/ii/00 *) 
-    let rec viewpathtopath showall t =
+    let viewpathtopath showall t =
       fun (VisPath ns) ->
         let rec rev1 a1 a2 =
           match a1, a2 with
@@ -1424,7 +1404,9 @@ module Tree : Tree with type term = Termtype.term
           | [], rns, t -> Some (FmtPath (rev1 rns (pathto t)))
         in
         _P ns [] t
-    (* for export *)
+    
+    (* **************************************** export **************************************** *)
+    
     let reasonstyle = ref "long"
     let visible_subtrees showall =
       optf (fun pts -> (snd <* pts)) <.> visible_subtrees showall
@@ -1443,8 +1425,8 @@ module Tree : Tree with type term = Termtype.term
             [] -> []
           | 0x25 :: 0x73 :: cs -> (* %s *)
               let ss = f () in ss @ rprintf cs (fun () -> ss)
-          | 0x25 :: c :: cs -> UTF.utf8_of_ucode c :: rpr cs
-          | c :: cs -> UTF.utf8_of_ucode c :: rpr cs
+          | 0x25 :: c :: cs    -> UTF.utf8_of_ucode c :: rpr cs
+          | c :: cs            -> UTF.utf8_of_ucode c :: rpr cs
         in
         rpr cs
       in
@@ -1611,11 +1593,11 @@ module Tree : Tree with type term = Termtype.term
         let isTip = isTip
         let hasTip = hasTip
         let rootPath = fFmtPath <.> rootPath_ns
-        let rec parentPath t =
+        let parentPath t =
           fFmtPath <.> parentPath_ns t <.> dePath
-        let rec siblingPath t path =
+        let siblingPath t path =
           fFmtPath <.> siblingPath_ns t (dePath path)
-        let rec subgoalPath t path =
+        let subgoalPath t path =
           fFmtPath <.> subgoalPath_ns t (dePath path)
         let rec reason proved = visreason proved !showallproofsteps
         let subtrees = subtrees
@@ -1677,11 +1659,11 @@ module Tree : Tree with type term = Termtype.term
         let hasTip = hasTip
         let rec rootPath t = VisPath []
         (* no inner cuts in visprooftrees *)
-        let rec parentPath t =
+        let parentPath t =
           fVisPath <.> parentPath_ns t <.> dePath
-        let rec siblingPath t path =
+        let siblingPath t path =
           fVisPath <.> siblingPath_ns t (dePath path)
-        let rec subgoalPath t path =
+        let subgoalPath t path =
           fVisPath <.> subgoalPath_ns t (dePath path)
         let rec reason proved = joinopt join_why
         (* doesn't make use of proved, because it's already happened... *)

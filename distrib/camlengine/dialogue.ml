@@ -124,6 +124,7 @@ let initGUI () =
 
 let isCutStep = Prooftree.Tree.isCutStep
 let mkvisproviso = Proviso.mkvisproviso
+let optf = Optionfuns.optf
 let string_of_option = Optionfuns.string_of_option
 let ( |~ ) = Optionfuns.( |~ )
 let ( |~~ ) = Optionfuns.( |~~ )
@@ -149,9 +150,9 @@ let showInputError = Symbol.showInputError
 let paragraph_of_string = Paragraph.paragraph_of_string
 let string_of_tactic = Tactic.string_of_tactic
 let string_of_term = Termstring.string_of_term
-let optf = Optionfuns.optf
 let _The = Optionfuns._The
 let _Title = Version._Title
+let tmerge = Termfuns.tmerge
 let uncurry2 = Miscellaneous.uncurry2
 let _Version = Version._Version
 let verifyprovisos = Provisofuns.verifyprovisos
@@ -188,7 +189,7 @@ let defaultenv =
      "autoselect"           , bj                         false        Miscellaneous.autoselect;
      "bindingdebug"         , bj                         false        Binding.bindingdebug;
      "boxfolddebug"         , bj                         false        Boxdraw.boxfolddebug;
-     "boxlinedisplay"       , sj ["left"; "right"]       "right"      Boxdraw.boxlinedisplay;
+     "boxlinedressright"    , bj                         true         Boxdraw.boxlinedressright;
      "boxseldebug"          , bj                         false        Boxdraw.boxseldebug;
      "cuthidingdebug"       , bj                         false        Prooftree.Tree.cuthidingdebug;
      "debracketapplications", bj                         false        Termstring.debracketapplications;
@@ -268,7 +269,7 @@ let displaynames =
    "truncatereasons"] 
              
 let boxdisplaynames =
-  ["boxlinedisplay"; "foldformulae"; "hidecut"; "hidehyp"; "hidetransitivity";
+  ["boxlinedressright"; "foldformulae"; "hidecut"; "hidehyp"; "hidetransitivity";
    "hidereflexivity"; "hideuselesscuts"]
        
 let displayvars = List.map Name.name_of_string (displaynames @ boxdisplaynames)
@@ -402,6 +403,7 @@ let showAlert = Alert.showAlert Alert.defaultseverity_alert <.> implode
 let screenquery ss y n def =
   let bs = [y, true; n, false] in
   Alert.ask (Alert.defaultseverity bs) (implode ss) bs def
+  
 let uncurried_screenquery (ss, y, n, def) = screenquery ss y n def
 
 let savefilename : string option ref = ref None
@@ -904,10 +906,12 @@ and endproof num name st dis =
   end
 
 and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisstate) =
+  
   let findproof pinfs nstring =
     let n = atoi nstring in
     extract (fun (Pinf {proofnum = proofnum}) -> n = proofnum) pinfs
   in
+  
   let newfocus (env, mbs, showit, (pinfs : proofinfo list) as state) =
     match pinfs with
       Pinf fg :: bgs ->
@@ -917,37 +921,55 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         pinfs
     | [] -> state
   in
+  
+  let getpara = paragraph_of_string showAlert uncurried_screenquery in
+
+  let defineconjecture panel text =
+    let ispanel, novel, paratext = match parseablestring_of_name panel with
+                                      "" -> false, false, text
+                                    | p  -> let exists = 
+                                              List.exists (fun (panelname,_) -> panelname=panel) (Menu.getpanels()) 
+                                            in 
+                                            true, not exists, ("CONJECTUREPANEL " ^ p ^ " IS " ^ text ^ " END")
+    in
+    (* consolereport ["para is "; paratext]; *)
+    try 
+      let _ = (Paragraphfuns.interpret showAlert uncurried_screenquery [] []
+                  (env, [], []) (getpara paratext) :
+                  japeenv * (name * proofstate * (seq * model) option) list *
+                            (name * (string * bool -> unit)) list)
+      in
+      if ispanel then
+        let name = Paragraphfuns.conjecturename (getpara text) in
+        if novel then
+          reloadmenusandpanels Proofstore.provedordisproved (get_oplist ())
+        else
+          Japeserver.panelentry (string_of_name panel) (string_of_name name) (parseablestring_of_name name);
+        Japeserver.selectpanelentry (string_of_name panel) (string_of_name name)
+    with 
+      Use_ -> ()
+  in
+  
   let addnewconjecture panel text =
-    let text = respace text in
-    let getpara = paragraph_of_string showAlert uncurried_screenquery in
-    let (text, para) =
-      (* praps it's just a conjecture *)
-      try let t = "THEOREM INFER " ^ text in t, getpara t with
-        ParseError_ rs ->
-          (* praps it has params and stuff *)
-          try let t = "THEOREM " ^ text in t, getpara t with
-            ParseError_ rs' ->
-              showAlert
-                (["Cannot parse new conjecture "; text; " -- "] @
-                   (if rs = rs' then rs
-                    else
-                      "\n\nTrying to read it as a sequent gave the error Ô" :: (rs @ "Õ.\n\nTrying to read it as a line of Japeish gave the error Ô" :: (rs' @ ["Õ."]))));
-              raise AddConjecture_
-    in
-    let _ = (Paragraphfuns.interpret showAlert uncurried_screenquery [] []
-               (env, [], [])
-               (match parseablestring_of_name panel with
-                  "" -> para
-                | p ->
-                    getpara
-                      (((("CONJECTUREPANEL " ^ p) ^ " IS ") ^ text) ^ " END")) : 
-               japeenv * (name * proofstate * (seq * model) option) list *
-                         (name * (string * bool -> unit)) list)
-    in
-    let name = Paragraphfuns.conjecturename para in
-    if string_of_name panel <> "" then
-      Japeserver.panelentry (string_of_name panel) (string_of_name name) (parseablestring_of_name name);
-    name
+    try
+      let text =
+        (* praps it's just a conjecture *)
+        try let t = "THEOREM INFER " ^ text in t with
+          ParseError_ rs ->
+            (* praps it has params and stuff *)
+            try let t = "THEOREM " ^ text in t with
+              ParseError_ rs' ->
+                showAlert
+                  (["Cannot parse new conjecture "; text; " -- "] @
+                     (if rs = rs' then rs
+                      else
+                        "\n\nTrying to read it as a sequent gave the error Ô" :: 
+                          (rs @ "Õ.\n\nTrying to read it as a line of Japeish gave the error Ô" :: (rs' @ ["Õ."]))));
+                raise AddConjecture_
+      in
+      defineconjecture panel text
+    with
+      AddConjecture_ -> ()
   in
   
   let printproof path state =
@@ -969,13 +991,14 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       Io exn -> showAlert ["Cannot write file "; filename; " ("; Printexc.to_string exn; ")"]; false
   in
   
+  let useful_provisos ps = (provisoactual <* (provisovisible <| ps)) in
+  
   let saveproofs newfile =
     let doit sfile =
-      let pf ps = (provisoactual <* (provisovisible <| ps)) in
       let f =
         fun (Pinf {title = t, _; hist = hist}) ->
           let (Proofstate {cxt = cxt; tree = tree; givens = givens}) = winhist_proofnow hist in
-          saveproof sfile t Proofstage.InProgress tree (pf (provisos cxt)) givens
+          saveproof sfile t Proofstage.InProgress tree (useful_provisos (provisos cxt)) givens
             (model_of_disproofstate (winhist_disproofnow hist))
       in
       Proofstore.saveproofs sfile; List.map f pinfs
@@ -1067,7 +1090,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   let inside c f =
     match pinfs with
       [] -> showAlert ["There is no current proof, so you can't execute \""; respace c; "\""];
-        default
+            default
     | (Pinf {displaystate = displaystate; hist = hist} as pinf) :: pinfs ->
         let (hist, showit) =
           match f displaystate hist with
@@ -1229,6 +1252,23 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           default
     in
     
+    let get_textselections displaystate =
+      let rec getsels = 
+        function
+          x :: y :: zs, gs -> y :: getsels (zs, gs)
+        | _           , gs -> gs
+      in
+      match findSelection displaystate with
+        Some (FormulaSel (_, _, _, concsels, hypsels, givensels)) ->
+          nj_fold getsels [givensels]
+            (nj_fold getsels ((snd <* concsels))
+               (nj_fold getsels ((snd <* hypsels)) []))
+      | Some (TextSel (proofsels, givensels)) ->
+          nj_fold getsels [givensels]
+            (nj_fold getsels ((snd <* proofsels)) [])
+      | _ -> []
+    in
+
     match c with
       []            -> default
     | word :: words ->
@@ -1335,22 +1375,21 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "use", (file :: _ as files) ->
             proofsdone := false;
-            begin try
-              let oldfontstuff = getfontstuff () in
-              (* interpretParasFrom assigns to this variable, perhaps *)
-              let (env, ps, mbs) =
-                doUse showAlert uncurried_screenquery (env, [], mbs) files
-              in
-              let proofsfound = !proofsdone || not (null ps) in
-              if oldfontstuff <> getfontstuff () then initFonts ();
-              Japeserver.emptymenusandpanels ();
-              reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
-              mbcache := empty;
-              newfocus (env, mbs, DontShow, addproofs false env ps pinfs)
-            with
-              ParseError_ rs -> showAlert rs; default
-            | Use_ -> default
-            end
+            (try
+               let oldfontstuff = getfontstuff () in
+               (* interpretParasFrom assigns to this variable, perhaps *)
+               let (env, ps, mbs) =
+                 doUse showAlert uncurried_screenquery (env, [], mbs) files
+               in
+               let proofsfound = !proofsdone || not (null ps) in
+               if oldfontstuff <> getfontstuff () then initFonts ();
+               Japeserver.emptymenusandpanels (!autoAdditiveLeft && List.length (getsyntacticturnstiles())=1);
+               reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
+               mbcache := empty;
+               newfocus (env, mbs, DontShow, addproofs false env ps pinfs)
+             with
+               ParseError_ rs -> showAlert rs; default
+             | Use_ -> default)
 
         | "version", [] -> showAlert [_Title; _Version]; default
         
@@ -1464,59 +1503,91 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                                             (proofstate_tree proof) None [])))
         
         (* ******************* proof stuff ************************)
+        
+        | "makelemma", [] ->
+            (match pinfs with
+               [] -> raise (Catastrophe_ ["makelemma with no proof"])
+             | (Pinf{displaystate=displaystate; hist=hist})::_ ->
+                  (match findSelection displaystate with
+                     Some (FormulaSel(_, Some (conc, _), hyps, [] , [] , [])) ->
+                       let stile = match Sequent.getsyntacticturnstiles() with
+                                     [s] -> s
+                                   | ss -> raise (Catastrophe_ ["makelemma with choice of turnstile ";
+                                                                bracketedstring_of_list (fun s -> s) "; " ss])
+                       in
+                       let druleString, thmString =
+                         if not(!autoAdditiveLeft) then
+                           raise (Catastrophe_ ["makelemma without autoAdditiveLeft"])
+                         else
+                           (if hyps=[] then " " (* non-empty argument essential for transmission to GUI *)
+                            else
+                              Paragraph.string_of_rulebody "\n" []  (List.map (fun h -> mkSeq(stile,[],[h])) hyps)
+                                                                   (mkSeq(stile,[],[conc]))),
+                           Paragraph.string_of_thmbody "\n" [] (mkSeq(stile, hyps, [conc]))
+                       in
+                       let panels = List.map string_of_name (Menu.getconjecturepanels ()) in
+                       let provisos = 
+                         let (Proofstate{cxt=cxt}) = winhist_proofnow hist in
+                         let vpros = useful_provisos (provisos cxt) in
+                         string_of_proviso <*
+                               (Provisofuns.relevantprovisos (Sequent.mkSeq (stile, hyps, [conc])) vpros)
+                       in
+                       (match Japeserver.askLemma druleString thmString panels provisos with
+                          None                                 -> default
+                        | Some (isThm, lemma, panel, provisos) -> 
+                            let provisotext = if provisos=[] then "" 
+                                              else ("WHERE " ^ string_of_list (fun s -> s) " AND " provisos)
+                            in
+                            let nametext = (match lemma with None -> "" | Some n -> enQuote n) in
+                            let text = if isThm then ("THEOREM " ^ nametext ^ " " ^ provisotext ^ " IS " ^ thmString)
+                                                else ("DERIVED RULE " ^ nametext ^ " " ^ provisotext ^ " IS " ^ druleString)
+                            in
+                            (* consolereport ["text is "; text]; *)
+                            defineconjecture (name_of_string panel) text; default) 
+                   | _ -> let tsels = get_textselections displaystate in
+                          showAlert ("Can't make a lemma unless you select a conclusion" :: 
+                                     (if tsels!=[] then 
+                                        [" (and you must not text-select anything! -- ";
+                                         "you text-selected ";
+                                         liststring2 (fun s -> s) ", " " and " tsels;
+                                         ")."]
+                                      else 
+                                        ["."]));
+                          default))
             
         | "unify", stuff ->
-            begin try
-              inside c
-                (fun displaystate ->
-                   let rec getsels =
-                     function
-                       x :: y :: zs, gs -> y :: getsels (zs, gs)
-                     | _           , gs -> gs
-                   in
-                   let sels =
-                     match findSelection displaystate with
-                       Some
-                         (FormulaSel (_, _, _, concsels, hypsels, givensels)) ->
-                         nj_fold getsels [givensels]
-                           (nj_fold getsels ((snd <* concsels))
-                              (nj_fold getsels ((snd <* hypsels)) []))
-                     | Some (TextSel (proofsels, givensels)) ->
-                         nj_fold getsels [givensels]
-                           (nj_fold getsels ((snd <* proofsels)) [])
-                     | _ -> []
-                   in
-                   let args =
-                     try (if null sels || null stuff then parseCurriedArgList
-                                                     else (fun t -> [t]) <.> parseTerm)
-                         (respace stuff)
-                     with ParseError_ es ->
-                       showAlert ("cannot parse unify " :: respace stuff :: " -- " :: es);
-                       raise Unify_
-                   in
-                   let getit s =
-                     try parseTerm s with
-                       ParseError_ es ->
-                         showAlert ("your selection " :: s :: " didn't parse -- " :: es);
-                         raise Unify_
-                   in
-                   let selargs = (getit <* sels) in
-                   if List.length args + List.length selargs < 2 then
-                     begin
-                       showAlert ["Unify must be given at least two things to work with!"];
-                       raise Unify_
-                     end
-                   else
-                     showproof <.> 
-                     (fun here ->
-                         evolve_proof_explain
-                           (fun () -> showAlert (explain ""))
-                           displaystate env
-                           (forceUnify (args @ selargs)) here)
-                 )
-            with
-              Unify_ -> default
-            end
+            (try
+               inside c
+                 (fun displaystate ->
+                    let sels = get_textselections displaystate in
+                    let args =
+                      try (if null sels || null stuff then parseCurriedArgList
+                                                      else (fun t -> [t]) <.> parseTerm)
+                          (respace stuff)
+                      with ParseError_ es ->
+                        showAlert ("cannot parse unify " :: respace stuff :: " -- " :: es);
+                        raise Unify_
+                    in
+                    let getit s =
+                      try parseTerm s with
+                        ParseError_ es ->
+                          showAlert ("your selection " :: s :: " didn't parse -- " :: es);
+                          raise Unify_
+                    in
+                    let selargs = (getit <* sels) in
+                    if List.length args + List.length selargs < 2 then
+                      (showAlert ["Unify must be given at least two things to work with!"];
+                       raise Unify_)
+                    else
+                      showproof <.> 
+                      (fun here ->
+                          evolve_proof_explain
+                            (fun () -> showAlert (explain ""))
+                            displaystate env
+                            (forceUnify (args @ selargs)) here)
+                  )
+             with
+               Unify_ -> default)
 
         | "saveengine", name :: _ ->
             outside c
@@ -1673,14 +1744,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               )
 
         | "addnewconjecture", panel :: text ->
-            begin try
-              let panel = name_of_string panel in
-              let name = addnewconjecture panel text in
-              Japeserver.selectpanelentry (string_of_name panel) (string_of_name name);
-              default
-            with
-              AddConjecture_ -> default
-            end
+            addnewconjecture (name_of_string panel) (respace text);
+            default
 
         | "proveconjecture", comm ->
             let name, ts = interpretConjecture "proveconjecture" comm in
@@ -1954,9 +2019,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let hypword hs ss =
               match hs with
                 [h] -> "hypothesis " :: string_of_element h :: ss
-              | _ ->
-                  "hypotheses " ::
-                    liststring2 string_of_element ", " "and " hs :: ss
+              | _   -> "hypotheses " ::  liststring2 string_of_element ", " "and " hs :: ss
             in
             let bang f = "double-click is not defined on " :: f () in
             let comm sense ps ss =

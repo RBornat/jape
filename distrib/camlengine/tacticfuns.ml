@@ -189,7 +189,9 @@ let badunify : (term * term) option ref = ref None
 let badmatch : (term * term) option ref = ref None
 
 let badproviso : ((term * term) * proviso) option ref = ref None
+
 exception StopTactic_
+exception Time'sUp_ of proofstate option
 
 let
   (getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels,
@@ -433,56 +435,57 @@ let timestotry = ref 400
 
 let rec time'sUp () = !noticetime && !triesleft <= 0
 
-let rec askTime'sUp () =
-  time'sUp () &&
-  (* perhaps things should be arranged so that we display the state of the proof at this point ... *)
-  (let tried = !timesbeingtried in
-   let bs =
-     (string_of_int tried, tried) :: (string_of_int (tried * 2), tried * 2) ::
-       (if tried / 2 > 0 then
-          [string_of_int (tried / 2), tried / 2; "Stop", 0]
-        else ["Stop", 0])
-   in
-   let n =
-     askNb
-       (implode
-          ["Time ran out after ";
-           string_of_int (!triesused_total + !timesbeingtried);
-           " steps -- do you want to try more steps?"])
-       bs
-   in
-   n = 0 ||
-   begin
-     triesused_total := !triesused_total + !timesbeingtried;
-     timesbeingtried := n;
-     triesleft := n;
-     false
-   end)
+let askTime'sUp state =
+  if time'sUp () then
+    (* perhaps things should be arranged so that we display the state of the proof at this point ... *)
+    (let tried = !timesbeingtried in
+     let bs =
+       (string_of_int tried, tried) :: (string_of_int (tried * 2), tried * 2) ::
+         (if tried / 2 > 0 then
+            [string_of_int (tried / 2), tried / 2; "Show state", 0; "Cancel", -1]
+          else ["Show state", 0; "Cancel", -1])
+     in
+     let n = askNb (implode ["Time ran out after ";
+                             string_of_int (!triesused_total + !timesbeingtried);
+                             " steps -- do you want to try more steps?"])
+                   bs
+     in
+     (* consolereport ["askTime'sUp response was "; string_of_int n]; *)
+     if n=0 then
+       raise (Time'sUp_ (Some state))
+     else
+     if n = -1 then
+       raise (Time'sUp_ None)
+     else
+       (triesused_total := !triesused_total + !timesbeingtried;
+        timesbeingtried := n;
+        triesleft := n))
+  else ()
+  
+let checkTimer state = decr triesleft; askTime'sUp state
 
-let rec noMoreTime () = decr triesleft; askTime'sUp ()
+let interruptTactic () = noticetime := true; triesleft := 0
 
-let rec interruptTactic () = noticetime := true; triesleft := 0
+let clearReason () = setReason []
 
-let rec clearReason () = setReason []
-
-let rec explain r =
+let explain r =
   ((if time'sUp () then ["[Time ran out] "] else []) @ getReason ()) @
     (if r <> "" then [" [applying "; r; "]"] else [])
-exception MatchinTermToParam
-(* perhaps spurious *)
+
+exception MatchinTermToParam (* perhaps spurious *)
 
 let rec _TermToParam =
   function
     Id (_, v, c) -> Ordinaryparam (v, c)
   | Unknown (_, v, c) -> Unknownparam (v, c)
   | _ -> raise MatchinTermToParam
-exception MatchinTermToParamTerm
-(*spurious *)
+
+exception MatchinTermToParamTerm (*spurious *)
 
 let _TermToParamTerm =
   (function
      Ordinaryparam vc -> registerId vc
-   | _ -> raise MatchinTermToParamTerm) <.> _TermToParam
+   | _                -> raise MatchinTermToParamTerm) <.> _TermToParam
 
 let rec make_remark name args =
   let args =
@@ -722,61 +725,48 @@ let rec doSUBGOAL path =
       let tip = followPath tree path in
       if isTip tip then Some (withgoal state (Some path))
       else
-        begin
-          setReason
-            ["That subgoal has been solved (SUBGOAL) ";
-             string_of_fmtpath path];
-          None
-        end
+        (setReason ["That subgoal has been solved (SUBGOAL) "; string_of_fmtpath path];
+         None)
     with
-      _ ->
-        setReason ["No such subtree (SUBGOAL) "; string_of_fmtpath path]; None
+      _ -> setReason ["No such subtree (SUBGOAL) "; string_of_fmtpath path]; None
 
-let rec doCOMPLETE f =
-  fun
-    (Proofstate {cxt = cxt; goal = goal; tree = parent; root = root} as
-       state) ->
-    try
-      let seq = getTip parent goal in
-      let tree' =
-        mkTip cxt (rewriteseq cxt seq) Treeformat.Fmt.neutralformat
-      in
-      let (wholegoal, wholeproof) =
-        makewhole cxt root parent (getGoalPath goal)
-      in
-      let state' =
-        withroot
-          (withtree
-             (withtarget (withgoal state (Some (rootPath tree'))) None)
-              tree')
-           (Some (wholeproof, wholegoal))
-      in
-      match
-        try f state' with
-          Catastrophe_ ss ->
-            raise (Catastrophe_ ("in argument of PROVE: " :: ss))
-        | Tacastrophe_ ss ->
-            raise (Tacastrophe_ ("in argument of PROVE: " :: ss))
-        | StopTactic_ -> raise StopTactic_
-        | exn ->
-            raise
-              (Catastrophe_
-                 ["Internal Error ("; Printexc.to_string exn;
-                  ") in argument of PROVE"])
-      with
-        Some (Proofstate {cxt = subcxt; tree = subproof}) ->
-          if not (hasTip subproof) || time'sUp () then
-            proofstep subcxt subproof state
-          else None
-      | _ -> None
+let rec doCOMPLETE f (Proofstate {cxt = cxt; goal = goal; tree = parent; root = root} as state) =
+  try
+    let seq = getTip parent goal in
+    let tree' =
+      mkTip cxt (rewriteseq cxt seq) Treeformat.Fmt.neutralformat
+    in
+    let (wholegoal, wholeproof) =
+      makewhole cxt root parent (getGoalPath goal)
+    in
+    let state' =
+      withroot
+        (withtree
+           (withtarget (withgoal state (Some (rootPath tree'))) None)
+            tree')
+         (Some (wholeproof, wholegoal))
+    in
+    match
+      try f state' with
+        Catastrophe_ ss ->
+          raise (Catastrophe_ ("in argument of PROVE: " :: ss))
+      | Tacastrophe_ ss ->
+          raise (Tacastrophe_ ("in argument of PROVE: " :: ss))
+      | StopTactic_ -> raise StopTactic_
+      | exn ->
+          raise (Catastrophe_ ["Internal Error ("; Printexc.to_string exn; ") in argument of PROVE"])
     with
-      Catastrophe_ ss -> raise (Catastrophe_ ("in PROVE: " :: ss))
-    | Tacastrophe_ ss -> raise (Tacastrophe_ ("in PROVE: " :: ss))
-    | StopTactic_ -> raise StopTactic_
-    | exn ->
-        raise
-          (Catastrophe_
-             ["Internal Error ("; Printexc.to_string exn; ") in PROVE"])
+      Some (Proofstate {cxt = subcxt; tree = subproof}) ->
+        if not (hasTip subproof) || time'sUp () then
+          proofstep subcxt subproof state
+        else None
+    | _ -> None
+  with
+    Catastrophe_ ss -> raise (Catastrophe_ ("in PROVE: " :: ss))
+  | Tacastrophe_ ss -> raise (Tacastrophe_ ("in PROVE: " :: ss))
+  | StopTactic_     -> raise StopTactic_
+  | exn             ->
+      raise (Catastrophe_ ["Internal Error ("; Printexc.to_string exn; ") in PROVE"])
 
 let rec parseints mess eval ints =
   try
@@ -785,10 +775,9 @@ let rec parseints mess eval ints =
     | t                -> [int_of_term t]
   with
     _ ->
-      raise
-        (Tacastrophe_
-           [mess; " must be a tuple of integers; you gave ";
-            string_of_term ints; " = "; string_of_term (debracket (eval ints))])
+      raise (Tacastrophe_ [mess; " must be a tuple of integers; you gave ";
+                           string_of_term ints; " = "; string_of_term (debracket (eval ints))])
+
 (* With the modern prooftree, LAYOUT is a simple assignment to a tip *)
 
 let rec doLAYOUT layout eval action t =
@@ -872,53 +861,65 @@ let rec doRESOLVE
 let rec doREPLAY
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, sameterms, apply, filter, takefirst, selhyps, selconcs
+
 (* semantics: keep applying a tactic till it fails, you run out of time, 
  * or there is nothing more to do in the state.  Catch exceptions and 
  * treat them as failure.
  *)
 
 let rec doDO f state =
-  if noMoreTime () then Some state
-  else if isproven state then Some state
+  checkTimer state;
+  if isproven state then Some state
   else
     match
-      try f state with
-        _ -> None
+      try f state with Time'sUp_   res -> raise (Time'sUp_ res) 
+                  |    Catastrophe_ ss -> raise (Catastrophe_ ss) 
+                  |    exn             -> None
     with
-      None -> Some state
+      None        -> Some state
     | Some state' -> doDO f state'
 
 let rec doREPEAT1 f state =
   match
-    try f state with
-      _ -> None
+    try f state with Time'sUp_   res -> raise (Time'sUp_ res) 
+                |    Catastrophe_ ss -> raise (Catastrophe_ ss) 
+                |    exn             -> None
   with
-    None -> Some state
+    None   -> Some state
   | answer -> answer
 
-let rec doSEQ a1 a2 a3 =
-  match a1, a2, a3 with
-    f, [], st -> Some st
-  | f, t :: ts, st -> (f t &~ doSEQ f ts) st
-(* insert a cut, run the tactic to the left of the cut, then go back to the original position, if it's still there *)
+let rec doSEQ f ts st =
+  match ts with
+    []      -> Some st
+  | t :: ts -> (f t &~ doSEQ f ts) st
 
-let rec doCUTIN f =
+(* insert a cut, run the tactic to the left of the cut, 
+   then go back to the original position, if it's still there.
+   (If it's still there??!! It had better be!!)
+ *)
+
+let cutindebug = ref false
+
+let doCUTIN f =
   fun (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) ->
+    if !cutindebug then
+      consolereport ["CUTIN tree = "; string_of_subtree (Some (rootPath tree)) tree;
+                     "\nat goal = "; string_of_option string_of_fmtpath goal; 
+                     " = "; string_of_subtree goal tree];
     (* there must be exactly one cut rule, and we must have autoAdditiveLeft *)
     try
-      let rec nocando s =
-        raise (Tacastrophe_ ["cannot use CUTIN tactic "; s])
+      let nocando s = raise (Tacastrophe_ ["cannot use CUTIN tactic "; s]) in
+      let cutrule = match uniqueCut () with
+                      Some r -> r
+                    | None   -> nocando "unless there is a unique simple cut rule"
       in
-      let cutrule =
-        match uniqueCut () with
-          Some r -> r
-        | None -> nocando "unless there is a unique simple cut rule"
-      in
-      let _ =
-        if !autoAdditiveLeft then ()
-        else nocando "unless the logic is stated without left contexts"
-      in
+      if !autoAdditiveLeft then ()
+                           else nocando "unless the logic is stated without left contexts";
+      let startAtTip = isTip (followPath tree (getGoalPath goal)) in
       let path = deepest_samehyps tree (getGoalPath goal) in
+      if !cutindebug then 
+        consolereport ["CUTIN path = "; string_of_fmtpath path; 
+                       " = "; string_of_subtree (Some path) tree];
       let subtree = followPath tree path in
       let (Proofstate {tree = tree'; goal = goal'} as state') =
         prunestate path state
@@ -942,65 +943,55 @@ let rec doCUTIN f =
       let (Seq (_, _, cs')) = sequent (followPath tree'' leftofcut) in
       let (Seq (_, hs', _)) = sequent (followPath tree'' rightofcut) in
       let cuthypel =
-        match
-          listsub sameresource (explodeCollection hs')
-            (explodeCollection hs)
-        with
+        match listsub sameresource (explodeCollection hs') (explodeCollection hs) with
           [c] -> c
-        | _ -> raise (Catastrophe_ ["no cuthypel in doCUTIN"])
+        | _   -> raise (Catastrophe_ ["no cuthypel in doCUTIN"])
       in
       let subtree' = augmenthyps cxt'' subtree [cuthypel] in
       let cutconcel =
-        match
-          listsub sameresource (explodeCollection cs')
-            (explodeCollection cs)
-        with
+        match listsub sameresource (explodeCollection cs') (explodeCollection cs) with
           [c] -> c
-        | _ -> raise (Catastrophe_ ["no cutconcel in doCUTIN"])
+        | _   -> raise (Catastrophe_ ["no cutconcel in doCUTIN"])
       in
       let (l, r) =
         let rec bang () =
-          raise
-            (Catastrophe_
-               ["resources ";
-                string_of_pair (debugstring_of_element string_of_term)
-                  (debugstring_of_element string_of_term) "," (cutconcel, cuthypel);
-                " in doCUTIN"])
+          raise (Catastrophe_ ["resources ";
+                               string_of_pair (debugstring_of_element string_of_term)
+                                              (debugstring_of_element string_of_term) 
+                                              "," (cutconcel, cuthypel);
+                               " in doCUTIN"])
         in
         match cutconcel, cuthypel with
           Element (_, rc, _), Element (_, rh, _) ->
             if not (isProperResnum rc) || not (isProperResnum rh) then
               bang ()
             else
-              let (nc, nh) = int_of_resnum rc, int_of_resnum rh in
-              if (nc = nh || nc = 0) || nh = 0 then
-                raise
-                  (Catastrophe_
-                     ["resnums ";
-                      string_of_pair string_of_int string_of_int "," (nc, nh);
-                      " in doCUTIN"])
-              else nc, nh
+              (let (nc, nh) = int_of_resnum rc, int_of_resnum rh in
+               if (nc = nh || nc = 0) || nh = 0 then
+                 raise
+                   (Catastrophe_
+                      ["resnums "; string_of_pair string_of_int string_of_int "," (nc, nh);
+                       " in doCUTIN"])
+               else nc, nh)
         | _ -> bang ()
       in
       let (_, wholeproof) =
-        makewhole cxt'' (Some (tree'', rightofcut)) subtree'
-          (rootPath subtree')
+        makewhole cxt'' (Some (tree'', rightofcut)) subtree' (rootPath subtree')
       in
-      let wholeproof' =
-        set_prooftree_cutnav wholeproof tippath (Some (- l, - r))
-      in
+      let wholeproof' = set_prooftree_cutnav wholeproof tippath (Some (- l, - r)) in
       (* tippath is now useless *)
-      optf (fun s -> nextGoal false (withgoal s goal))
-        (f (withgoal
-              (withtree state'' wholeproof')
-              (Some (subgoalPath wholeproof' (parentPath wholeproof' path) [-l]))))
+      (* if we were standing at a tip that has been closed, move on: otherwise stay put *)
+      optf (fun s -> let s' = withgoal s goal in if startAtTip then nextGoal false s' else s')
+           (f (withgoal (withtree state'' wholeproof')
+                        (Some (subgoalPath wholeproof' (parentPath wholeproof' path) [-l])))) 
+                                                       (* that's minus ell, not minus one *)
     with
       FollowPath_ stuff ->
-        showAlert
-          ["FollowPath_ in doCUTIN: ";
-           string_of_pair (fun s -> s) (bracketedstring_of_list string_of_int ",")
-             ", " stuff];
+        showAlert ["FollowPath_ in doCUTIN: ";
+                   string_of_pair (fun s -> s) (bracketedstring_of_list string_of_int ",")
+                     ", " stuff];
         None
+
 (**********************************************************************
 
        Evaluation of built-in judgements
@@ -1028,10 +1019,11 @@ let rec _CanApply triv name state =
         with
           Some rs -> takethelot rs
         | _ -> []
-    with
-      _ -> []
-(* whatever it means, we can't apply it ... *)
+    with Time'sUp_   res -> raise (Time'sUp_ res) 
+    |    Catastrophe_ ss -> raise (Catastrophe_ ss) 
+    |    exn             -> []
 
+(* whatever it means, we can't apply it ... *)
 
 let rec _CanApplyInState a1 a2 a3 =
   match a1, a2, a3 with
@@ -1085,18 +1077,17 @@ let rec forceUnify ts (Proofstate {cxt = cxt} as state) =
       badunify := None;
       badmatch := None;
       badproviso := None;
-      begin try
-        match
-            (unifyterms (t1, t2) &~ (_Some <.> verifyprovisos))
-            (plususedVIDs (plususedVIDs cxt (termVIDs t1)) (termVIDs t2))
-        with
-          Some cxt' -> forceUnify (t2 :: ts) (withcxt state cxt')
-        | None -> badunify := Some (t1, t2); bad []
-      with
-        Verifyproviso_ p ->
-          badproviso := Some ((t1, t2), p);
-          bad [" because proviso "; string_of_proviso p; " is violated"]
-      end
+      (try
+         match
+             (unifyterms (t1, t2) &~ (_Some <.> verifyprovisos))
+             (plususedVIDs (plususedVIDs cxt (termVIDs t1)) (termVIDs t2))
+         with
+           Some cxt' -> forceUnify (t2 :: ts) (withcxt state cxt')
+         | None -> badunify := Some (t1, t2); bad []
+       with
+         Verifyproviso_ p ->
+           badproviso := Some ((t1, t2), p);
+           bad [" because proviso "; string_of_proviso p; " is violated"]) 
   | _ -> Some state
 
 
@@ -1377,6 +1368,7 @@ let rec _UnifyWithExplanation message (s, t) cxt =
          ") appeared to unify, but proviso "; string_of_proviso p;
          " was violated."];
       None
+
 type arithKind =
   ArithNumber of int | ArithVariable of (term * bool) | ArithOther
 
@@ -1748,7 +1740,6 @@ exception BadMatch_ (* moved out for OCaml *)
 exception MatchinTtoIL_ (* not spurious, really *) (* moved out for OCaml *)
 exception MatchinJAPEparam_ (* moved out for OCaml *)
    
-
 let rec doJAPE tryf display env ts =
   fun
     (Proofstate
@@ -1768,7 +1759,7 @@ let rec doJAPE tryf display env ts =
           | Id (_, v, _) -> string_of_vid v
           | _ -> raise MatchindoJAPE_
         in
-        tickmenuitem (_V menu) (_V label) on; Some state
+        tickmenuitem true (_V menu) (_V label) on; Some state
       with
         BadMatch_ ->
           setReason
@@ -1806,25 +1797,24 @@ let rec doJAPE tryf display env ts =
              | "untick", [menu; label] ->
                  _Tickmenu false menu label state
              | "tactic", [dest; tactic] ->
-                 begin try
-                   let dest = adhoceval dest in
-                   let tactic = adhoceval tactic in
-                   let (name, args) = explodeForExecute dest in
-                   let rec param =
-                     function
-                       Id (h, v, c) -> Ordinaryparam (v, c)
-                     | _ -> raise MatchinJAPEparam_
-                   in
-                   let params = (param <* args) in
-                   addthing
-                     (name, Tactic (params, transTactic tactic), InLimbo);
-                   (* cleanup(); (*DO ME SOON*)*)
-                   resetcaches ();
-                   Some state
-                 with
-                   MatchinJAPEparam_ ->
-                     setReason ["Badly-formed parameters for JAPE(set)"]; None
-                 end
+                 (try
+                    let dest = adhoceval dest in
+                    let tactic = adhoceval tactic in
+                    let (name, args) = explodeForExecute dest in
+                    let rec param =
+                      function
+                        Id (h, v, c) -> Ordinaryparam (v, c)
+                      | _ -> raise MatchinJAPEparam_
+                    in
+                    let params = (param <* args) in
+                    addthing
+                      (name, Tactic (params, transTactic tactic), InLimbo);
+                    (* cleanup(); (*DO ME SOON*)*)
+                    resetcaches ();
+                    Some state
+                  with
+                    MatchinJAPEparam_ ->
+                      setReason ["Badly-formed parameters for JAPE(set)"]; None)
              | "GROUND", [t] ->
                  let vs = termvars (adhoceval t) in
                  if List.exists isUnknown vs then None else Some state
@@ -1931,58 +1921,57 @@ let rec tryApplyOrSubst
         goal = goal;
         target = target;
         root = root} as state) ->
-    if noMoreTime () then Some state
-    else
-      (* warning: this causes a loop in autoTactics if timesbeingtried=0 *)
-      (* if isproven state then Some state else -- removed because it is confusing error-message tactics *)
-      let (cxt, stuff) = getit name args cxt in
-      match stuff with
-        _, _, Tactic (formals, tac) ->
-          let rec def tac args =
-            trace name args state;
-            dispatch display try__ (mke formals args) contn tac state
+    checkTimer state;
+    (* warning: this causes a loop in autoTactics if timesbeingtried=0 *)
+    (* if isproven state then Some state else -- removed because it is confusing error-message tactics *)
+    let (cxt, stuff) = getit name args cxt in
+    match stuff with
+      _, _, Tactic (formals, tac) ->
+        let rec def tac args =
+          trace name args state;
+          dispatch display try__ (mke formals args) contn tac state
+        in
+        begin match args, tac with
+          _ :: _, TheoryAltTac ns ->
+            def (AltTac ((fun n -> con (n, args)) <* ns)) []
+        | _ -> def tac args
+        end
+    | _, _, Macro (formals, m) ->
+        let m' = eval (mke formals args) m in
+        let t =
+          try transTactic m' with
+            ParseError_ ss ->
+              raise
+                (Tacastrophe_
+                   ((["can't parse expanded macro-tactic ";
+                      parseablestring_of_name name; ": "] @
+                       ss) @
+                      [".\nExpanded tactic is "; string_of_term m]))
+        in
+        dispatch display try__ !rootenv(* so we can ASSIGN ??? *)  contn t state
+    | argmap, _, _ ->
+        (* must it be a rule? *)
+        let rec showit () =
+          let (_, wholetree) =
+            makewhole cxt root tree (rootPath tree)
           in
-          begin match args, tac with
-            _ :: _, TheoryAltTac ns ->
-              def (AltTac ((fun n -> con (n, args)) <* ns)) []
-          | _ -> def tac args
-          end
-      | _, _, Macro (formals, m) ->
-          let m' = eval (mke formals args) m in
-          let t =
-            try transTactic m' with
-              ParseError_ ss ->
-                raise
-                  (Tacastrophe_
-                     ((["can't parse expanded macro-tactic ";
-                        parseablestring_of_name name; ": "] @
-                         ss) @
-                        [".\nExpanded tactic is "; string_of_term m]))
+          let rec wholepath path =
+            match root, path with
+              Some (_, rpath), Some (FmtPath pns) ->
+                Some (subgoalPath wholetree rpath pns)
+            | _ -> path
           in
-          dispatch display try__ !rootenv(* so we can ASSIGN ??? *)  contn t state
-      | argmap, _, _ ->
-          (* must it be a rule? *)
-          let rec showit () =
-            let (_, wholetree) =
-              makewhole cxt root tree (rootPath tree)
-            in
-            let rec wholepath path =
-              match root, path with
-                Some (_, rpath), Some (FmtPath pns) ->
-                  Some (subgoalPath wholetree rpath pns)
-              | _ -> path
-            in
-            let wholegoal = wholepath goal in
-            let wholetarget = wholepath target in
-            let _ = (showProof display wholetarget wholegoal cxt wholetree !autoselect 
-                    : displaystate) in
-            ()
-          in
-          let rec hideit () = refreshProof display in
-          beforeOfferingDo showit;
-          failOfferingDo hideit;
-          succeedOfferingDo hideit;
-          contn (applyBasic name stuff try__ cxt state)
+          let wholegoal = wholepath goal in
+          let wholetarget = wholepath target in
+          let _ = (showProof display wholetarget wholegoal cxt wholetree !autoselect 
+                  : displaystate) in
+          ()
+        in
+        let rec hideit () = refreshProof display in
+        beforeOfferingDo showit;
+        failOfferingDo hideit;
+        succeedOfferingDo hideit;
+        contn (applyBasic name stuff try__ cxt state)
 
 let rec newpath tacstr eval =
   fun (Proofstate {tree = tree} as state) p ->
@@ -2048,12 +2037,13 @@ let rec dispatchTactic display try__ env contn tactic =
     | UnifyArgsTac ->
         (getargs "UNIFYARGS" &~~
            (function
-              [t] -> let t' = Japeserver.askUnify (string_of_term t) in
-                     if t' ="" then raise StopTactic_ else 
-                     (try Some (term_of_string t')
-                      with ParseError_ ss ->
-                        showAlert ("Your formula didn't parse, because " :: ss); raise StopTactic_) &~~
-                     (fun t' -> contn (forceUnify [t'; t] state))
+              [t] -> (match Japeserver.askUnify (string_of_term t) with
+                        None    -> raise StopTactic_ 
+                      | Some t' -> (try Some (term_of_string t')
+                                    with ParseError_ ss ->
+                                           showAlert ("Your formula didn't parse, because " :: ss); 
+                                           raise StopTactic_) &~~
+                                   (fun t' -> contn (forceUnify [t'; t] state)))
             | ts  -> contn (forceUnify ts state)))
     | AdHocTac ts ->
         contn
@@ -2709,19 +2699,15 @@ and doBIND tac display try__ env =
     let rec term_of_seqside colln =
       try
         let ts =
-            ((_The <.> term_of_element) <*
-             explodeCollection colln)
+            ((_The <.> term_of_element) <* explodeCollection colln)
         in
         (* I wish I didn't have to know how termparse does it, but I do ... *)
         match ts with
-          [t] -> t
-        | _ ->(* If I don't write this I can never match a single-term lhs/rhs *)
-           enbracket (registerTup (",", ts))
+          [t] -> t (* If I don't write this I can never match a single-term lhs/rhs *)
+        | _   ->  enbracket (registerTup (",", ts))
       with
-        _ -> colln
+        _ -> colln (* take it as it is! *)
     in
-    (* take it as it is! *)
-
     let rec opensubgoals () =
       let tiprhss =
            (pathPrefix tree (getGoalPath goal) <.> fst) <|
@@ -3004,19 +2990,15 @@ let rec errorcatcher f mess text state =
   try
     match f state with
       None -> showAlert (explain (text ())); None
-    | res -> if time'sUp () then showAlert (explain (text ())); res
+    | res  -> if time'sUp() then showAlert (explain (text ())); res
   with
-    Tacastrophe_ ss ->
-      showAlert ("Error in tactic: " :: ss @ [" "; mess ()]); None
+    Tacastrophe_ ss -> showAlert ("Error in tactic: " :: ss @ [" "; mess ()]); None
   | Catastrophe_ ss -> raise (Catastrophe_ (ss @ [" "; mess ()]))
-  | ParseError_ ss ->
-      showAlert ("Parse error: " :: ss @ [" "; mess ()]); None
-  | AlterProof_ ss ->
-      showAlert ("AlterProof_ error: " :: ss @ [" "; mess ()]); None
-  | StopTactic_ -> None
-  | exn         -> raise exn
-(* in case compiler thinks StopTactic_ is a variable ... *)
-     
+  | ParseError_  ss -> showAlert ("Parse error: " :: ss @ [" "; mess ()]); None
+  | AlterProof_  ss -> showAlert ("AlterProof_ error: " :: ss @ [" "; mess ()]); None
+  | StopTactic_     -> None
+  | Time'sUp_   res -> res
+  | exn             -> raise exn
 
 let rec applyLiteralTactic display env text state =
   errorcatcher
@@ -3053,7 +3035,7 @@ let rec autoTactics display env rules =
                  {cxt = cxt; tree = tree; givens = givens; root = root;
                   goal = Some goal; target = Some goal})
           with
-            None -> None
+            None        -> None
           | Some state' -> if time'sUp () then None else Some state'
         with
           Catastrophe_ ss -> bad ("Catastrophic error: " :: ss)

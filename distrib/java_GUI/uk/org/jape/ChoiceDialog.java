@@ -47,21 +47,21 @@ import javax.swing.ListSelectionModel;
 public class ChoiceDialog {
 
     private static class Choice extends JPanel {
-    final int n, nlines;
-    Choice(String str, int n) {
-	JLabel[] m = wrap(str);
-	this.nlines = m.length;
-	this.n = n;
-	this.setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
-	add(Box.createVerticalStrut(2));
-	for (int i=0; i<m.length; i++)
-	add(m[i]);
-	add(Box.createVerticalStrut(2));
-    }
-    public String toString() {
-	return "ChoiceDialog.Choice["+getX()+","+getY()+","+getWidth()+"x"+getHeight()+
-	"; n="+n+"; nlines="+nlines+"]";
-    }
+	final int n, nlines;
+	Choice(String str, int n) {
+	    JLabel[] m = wrap(str);
+	    this.nlines = m.length;
+	    this.n = n;
+	    this.setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
+	    add(Box.createVerticalStrut(2));
+	    for (int i=0; i<m.length; i++)
+	    add(m[i]);
+	    add(Box.createVerticalStrut(2));
+	}
+	public String toString() {
+	    return "ChoiceDialog.Choice["+getX()+","+getY()+","+getWidth()+"x"+getHeight()+
+	    "; n="+n+"; nlines="+nlines+"]";
+	}
     }
     
     static class Renderer implements ListCellRenderer {
@@ -72,12 +72,12 @@ public class ChoiceDialog {
 	JapeUtils.showContainer((Choice)value);
 	Choice e = (Choice)value;
 	if (isSelected) {
-	e.setBackground(list.getSelectionBackground());
-	e.setForeground(list.getSelectionForeground());
+	    e.setBackground(list.getSelectionBackground());
+	    e.setForeground(list.getSelectionForeground());
 	}
 	else {
-	e.setBackground(list.getBackground());
-	e.setForeground(list.getForeground());
+	    e.setBackground(list.getBackground());
+	    e.setForeground(list.getForeground());
 	}
 	return e;
     }
@@ -85,19 +85,34 @@ public class ChoiceDialog {
     
     private static Vector list = new Vector();
     
-    static JLabel[] wrap(String s) {
-    JLabel[] result;
-    JLabel l = Alert.makeLabel(s);
-    TextDimension m = JapeFont.measure(l, s);
-    if (m.width>Jape.screenBounds.width*2/3) {
-	String[] split = MinWaste.minwaste(l, s, Jape.screenBounds.width*4/10);
-	result = new JLabel[split.length];
-	for (int i=0; i<split.length; i++)
-	result[i] = Alert.makeLabel(split[i]);
+    static JLabel[] wrap(String s, int width) {
+	JLabel[] result;
+	int nli;
+	if ((nli=s.indexOf('\n'))!=-1) {
+	    JLabel[] first = wrap(s.substring(0,nli));
+	    JLabel[] second = wrap(s.substring(nli+1));
+	    result = new JLabel[first.length+second.length];
+	    System.arraycopy(first, 0, result, 0, first.length);
+	    System.arraycopy(second, 0, result, first.length, second.length);
+	} 
+	else {
+	    JLabel l = Alert.makeLabel(s);
+	    TextDimension m = JapeFont.measure(l, s);
+	    if (m.width>Jape.screenBounds.width*2/3) {
+		String[] split = MinWaste.minwaste(l, s, width);
+		result = new JLabel[split.length];
+		for (int i=0; i<split.length; i++)
+		    result[i] = Alert.makeLabel(split[i]);
+	    }
+	    else
+		result = new JLabel[] { l };
+	}
+    
+	return result;
     }
-    else
-	result = new JLabel[] { l };
-    return result;
+    
+    static JLabel[] wrap(String s) {
+	return wrap(s, Jape.screenBounds.width*4/10);
     }
     
     private static class ListSelectionListener extends JapeMouseAdapter {

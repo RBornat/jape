@@ -66,7 +66,7 @@ public class DisproofPane extends Container implements DebugConstants,
 
 	setBackground(Color.white);
 	
-	worldPane = new AnchoredScrollPane();
+	worldPane = new AnchoredScrollPane("world pane");
 	add(worldPane);
 
 	wasteBin = new WasteBin(this);
@@ -178,7 +178,7 @@ public class DisproofPane extends Container implements DebugConstants,
     }
 
     public void paint(Graphics g) {
-	if (paint_tracing)
+	if (DebugVars.paint_tracing)
 	    Logger.log.println("painting DisproofPane");
 	g.setColor(getBackground());
 	g.fillRect(0, 0, getWidth(), getHeight());

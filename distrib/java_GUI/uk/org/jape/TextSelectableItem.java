@@ -219,7 +219,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	
 	public void paint(Graphics g) {
 	    if (isEnabled()) {
-		if (paint_tracing)
+		if (DebugVars.paint_tracing)
 		    Logger.log.println("painting text selection "+start+","+end);
 		g.setColor(Preferences.TextSelectionColour);
 		initRects();
@@ -543,7 +543,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
     
     public void paint(Graphics g) {
 	if (isEnabled()) {
-	    if (paint_tracing)
+	    if (DebugVars.paint_tracing)
 		Logger.log.println("painting textselectable item at "+getX()+","+getY());
 	    paintTextSels(g);		  
 	}

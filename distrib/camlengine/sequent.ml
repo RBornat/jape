@@ -86,7 +86,7 @@ let rec syntacticsequents () =
         Syntactic, _, _, _ -> true
       | _                  -> false) <| !sequent_descriptions
 
-let rec syntacticturnstiles () = ((fun(_,_,stile,_)->stile) <* syntacticsequents ())
+let rec getsyntacticturnstiles () = ((fun(_,_,stile,_)->stile) <* syntacticsequents ())
 
 let rec lookupsyntax stilestring =
   findfirst
@@ -189,35 +189,40 @@ let rec mkSeq (st, hs, gs) =
 
 let alwaysshowturnstile = ref false
 
-let rec sqs tf =
-  fun (Seq (st, hs, gs)) ss ->
-    let rec default () =
-      let tail =
-        st :: " " :: (if isemptycollection gs then ss else tf gs ss)
-      in
-      if isemptycollection hs then tail else tf hs (" " :: tail)
+let rec sqs linesep tf (Seq (st, hs, gs)) ss =
+  let rec default () =
+    let tail =
+      st :: " " :: (if isemptycollection gs then ss else tf gs ss)
     in
-    let (stkind, hypform, _, concform) = lookupSTILE st in
-    match
-      (!alwaysshowturnstile || stkind <> Syntactic) ||
-      List.length (syntacticsequents ()) <> 1,
-      hypform, concform
-    with
-      false, BagClass FormulaClass, FormulaClass ->
-        if isemptycollection hs then tf gs ss else default ()
-    | false, ListClass FormulaClass, FormulaClass ->
-        if isemptycollection hs then tf gs ss else default ()
-    | _ -> default ()
-let catelim_string_of_seq = sqs (catelim_string_of_collection ", ")
-let catelim_invisbracketedstring_of_seq b = sqs (catelim_invisbracketedstring_of_collection b ", ")
-let catelim_debugstring_of_seq = sqs catelim_debugstring_of_term
+    if isemptycollection hs then tail else tf hs (linesep :: tail)
+  in
+  let (stkind, hypform, _, concform) = lookupSTILE st in
+  match
+    (!alwaysshowturnstile || stkind <> Syntactic) ||
+    List.length (syntacticsequents ()) <> 1,
+    hypform, concform
+  with
+    false, BagClass FormulaClass, FormulaClass ->
+      if isemptycollection hs then tf gs ss else default ()
+  | false, ListClass FormulaClass, FormulaClass ->
+      if isemptycollection hs then tf gs ss else default ()
+  | _ -> default ()
+
+let catelim_string_of_seq = 
+  sqs " " (catelim_string_of_collection ", ")
+let catelim_invisbracketedstring_of_seq b = 
+  sqs " " (catelim_invisbracketedstring_of_collection b ", ") 
+let catelim_debugstring_of_seq = sqs " " catelim_debugstring_of_term
+let catelim_separatedstring_of_seq linesep =
+  sqs linesep (catelim_string_of_collection (","^linesep))
+
 let catelim_elementstring_of_seq =
-  sqs
-    (function
-       Collection (_, _, es) ->
-         catelim_string_of_list (catelim_debugstring_of_element catelim_string_of_term)
-           ", " es
-     | t -> catelim_string_of_term t)
+  sqs " " (function
+             Collection (_, _, es) ->
+               catelim_string_of_list (catelim_debugstring_of_element catelim_string_of_term)
+                 ", " es
+           | t -> catelim_string_of_term t)
+     
 let string_of_seq = stringfn_of_catelim catelim_string_of_seq
 let invisbracketedstring_of_seq = stringfn_of_catelim <.> catelim_invisbracketedstring_of_seq
 let debugstring_of_seq = stringfn_of_catelim catelim_debugstring_of_seq
@@ -241,9 +246,11 @@ fun parseComponent c () =
 *)
   
 let rec sequent_of_string s = tryparse (fun _ -> parseSeq ()) s
+
 let rec seqvars termvars tmerge =
   fun (Seq (st, hs, gs)) -> tmerge (termvars hs) (termvars gs)
 let rec seqVIDs s = orderVIDs ((vid_of_var <* seqvars termvars tmerge s))
+
 let rec eqseqs =
   fun (Seq (st1, h1s, g1s), Seq (st2, s_of_h, s_of_g)) ->
     (st1 = st2 && eqterms (h1s, s_of_h)) && eqterms (g1s, s_of_g)

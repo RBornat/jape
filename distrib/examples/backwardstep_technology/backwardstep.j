@@ -4,7 +4,6 @@
     Copyright (C) 2003-4 Richard Bornat
      
         richard@bornat.me.uk
-        sufrin@comlab.ox.ac.uk
 
     This file is part of the jape examples distribution, which is part of jape.
 

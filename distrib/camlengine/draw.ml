@@ -91,17 +91,17 @@ let rec string_of_plan  =
            ["multisyllable text in string_of_plan  -- ";
             debugstring_of_plan (fun _ -> "...") p])
 
-let rec plantextlayout = fun (Formulaplan (tl, _, _)) -> tl
+let textlayout_of_plan = fun (Formulaplan (tl, _, _)) -> tl
 
-let rec plantextbox = fun (Formulaplan (_, b, _)) -> b
+let textbox_of_plan = fun (Formulaplan (_, b, _)) -> b
 
-let rec planinfo = fun (Formulaplan (_, _, i)) -> i
+let textbox_of_planlist ps = nj_fold (+|-|+) (List.map textbox_of_plan ps) emptytextbox
 
-let rec textsize_of_plan p = textsize_of_textbox (plantextbox p)
+let info_of_plan = fun (Formulaplan (_, _, i)) -> i
 
-let rec textsize_of_planlist ps =
-  let box = nj_fold (+|-|+) (List.map plantextbox ps) emptytextbox in
-  textsize_of_textbox box
+let textsize_of_plan p = textsize_of_textbox (textbox_of_plan p)
+
+let textsize_of_planlist ps = textsize_of_textbox (textbox_of_planlist ps)
   
 let viewBox () = Japeserver.getPaneGeometry Displayfont.ProofPane
 
@@ -268,7 +268,7 @@ let rec drawplan f p =
     Japeserver.drawmeasuredtext (f info) tl (p +->+ tbPos b)
 
 let rec findfirstplanhit p =
-  findfirst (fun pl -> if withintb (p, plantextbox pl) then Some pl else None)
+  findfirst (fun pl -> if withintb (p, textbox_of_plan pl) then Some pl else None)
 
 let string_of_textinfo = string_of_pair string_of_textsize string_of_textlayout ","
 

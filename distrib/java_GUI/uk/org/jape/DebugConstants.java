@@ -43,7 +43,6 @@ public interface DebugConstants {
 				measure_debug		 = false,
 				menubar_tracing		 = false,
 				osDebug			 = false,
-				paint_tracing		 = false,
 				panelempty_tracing	 = false,
 				panellayout_tracing	 = false,
 				panellist_tracing	 = false,

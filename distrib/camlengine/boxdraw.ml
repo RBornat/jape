@@ -141,7 +141,7 @@ let sameresource = Termfuns.sameresource
 let string_of_textbox = Box.string_of_textbox
 let string_of_triple = Stringfuns.string_of_triple
 let truncatereasons = Miscellaneous.truncatereasons
-let turnstiles = Sequent.syntacticturnstiles
+let turnstiles = Sequent.getsyntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
 let _The = Optionfuns._The
 
@@ -164,7 +164,7 @@ let innerassumptionword = ref "assumption"
 let innerassumptionplural = ref "assumptions"
 let boxlineformat = ref "R (A) N: |"
 (* "N: |R A" is going to be the default *)
-let boxlinedisplay = ref "right"
+let boxlinedressright = ref true
 let rec ttsub hs hs' = listsub sameresource hs hs'
 (* This collection of classes will do for experimental purposes, but it won't last for ever *)
 
@@ -462,28 +462,34 @@ and string_of_elementkind ek =
   | TranPlan side -> "TranPlan " ^ string_of_side side
 and string_of_elementplaninf epi =
   string_of_triple string_of_pathinfo string_of_element string_of_elementkind "," epi
+  
+let string_of_reasonplankind pk =
+  match pk with
+    ReasonPlan pi   -> "ReasonPlan " ^ string_of_pathinfo pi
+  | ReasonPunctPlan -> "ReasonPunctPlan"
+  
 type textinfo = textsize * textlayout
-type elementplaninfo = textinfo * elementplankind
-type elinfo = element * elementplaninfo
+type elementinfo_of_plan = textinfo * elementplankind
+type elinfo = element * elementinfo_of_plan
 type wordp = textinfo * textinfo
 type dependency =
-    LinDep of (elementplaninfo list * textinfo option * reasoninfo)
+    LinDep of (elementinfo_of_plan list * textinfo option * reasoninfo)
   | BoxDep of (bool * (textinfo * textinfo) * elinfo list * dependency)
   | IdDep of (element * dependency)
   | CutDep of (dependency * element * dependency * bool)
-  | TranDep of (textinfo option * elementplaninfo * trandep list)
+  | TranDep of (textinfo option * elementinfo_of_plan * trandep list)
 and reasoninfo =
   (pathinfo * textinfo * element list * dependency list) option
-and trandep = textinfo * elementplaninfo * reasoninfo
+and trandep = textinfo * elementinfo_of_plan * reasoninfo
 (*   op         formula        *)
 
-let string_of_elementplaninfo =
+let string_of_elementinfo_of_plan =
   string_of_pair string_of_textinfo string_of_elementplankind ", "
 
-let string_of_elinfo = string_of_pair string_of_element string_of_elementplaninfo ","
+let string_of_elinfo = string_of_pair string_of_element string_of_elementinfo_of_plan ","
 
 let rec string_of_trandep t =
-  string_of_triple string_of_textinfo string_of_elementplaninfo string_of_reasoninfo "," t
+  string_of_triple string_of_textinfo string_of_elementinfo_of_plan string_of_reasoninfo "," t
 and string_of_reasoninfo r =
   string_of_option
     (string_of_quadruple string_of_pathinfo string_of_textinfo
@@ -494,7 +500,7 @@ and string_of_dependency d =
   match d with
     LinDep l ->
       "LinDep" ^
-        string_of_triple (bracketedstring_of_list string_of_elementplaninfo ",")
+        string_of_triple (bracketedstring_of_list string_of_elementinfo_of_plan ",")
           (string_of_option string_of_textinfo) string_of_reasoninfo "," l
   | BoxDep d ->
       "BoxDep" ^
@@ -508,7 +514,7 @@ and string_of_dependency d =
           string_of_bool "," c
   | TranDep t ->
       "TranDep" ^
-        string_of_triple (string_of_option string_of_textinfo) string_of_elementplaninfo
+        string_of_triple (string_of_option string_of_textinfo) string_of_elementinfo_of_plan
           (bracketedstring_of_list string_of_trandep ",") "," t
 (* A conclusion line can be dead (have a reason next to it) or live (have no
  * reason yet).  If it's dead, it may sometimes be the left-hand conclusion of a
@@ -904,7 +910,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
              plan_of_textinfo (textinfo_of_string ReasonFont (_IDstring cids))
                ReasonPunctPlan
            in
-           if !boxlinedisplay = "right" then
+           if !boxlinedressright then
              plancons (reasonf p)
                (fun p -> plancons (reasonspacef p) (plans_of_plan <.> antesf))
            else if null cids then plans_of_plan (reasonf p)
@@ -918,7 +924,17 @@ let rec linearise screenwidth procrustean_reasonW dp =
   in
   let rec ljreasonplan ps box =
     let shift = pos (- tsW (textsize_of_textbox box), 0) in
-    List.map (fun p -> planOffset p shift) ps
+    (* consolereport ["Boxdraw.ljreasonplan "; 
+                   "(ps = "; bracketedstring_of_list (debugstring_of_plan string_of_reasonplankind) "; " ps; " )";
+                   "(box = "; Box.string_of_textbox box; " )";
+                   "(shift = "; Box.string_of_pos shift; " )"]; *)
+    let r = List.map (fun p -> planOffset p shift) ps in
+    (* consolereport ["shifted to "; 
+                   bracketedstring_of_list (debugstring_of_plan string_of_reasonplankind) "; " r]; *)
+    r
+  in
+  let alignreasonplan reasonplan reasonbox =
+    if !boxlinedressright then reasonplan else ljreasonplan reasonplan reasonbox
   in
   let showword word p =
     let plan, box = plans_of_plan (plan_of_textinfo word ReasonPunctPlan p) in
@@ -949,8 +965,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
     let bigelementsbox = textbox (bigelementspos, bigsize) in
     FitchLine
       {lineID = id; elementsbox = bigelementsbox; idplan = idplan; elementsplan = elementsplan; 
-       reasonplan = if !boxlinedisplay = "right" then reasonplan
-                    else ljreasonplan reasonplan reasonbox;
+       reasonplan = alignreasonplan reasonplan reasonbox;
        reason = reason},
     box_of_textbox bigelementsbox, tsW idsize, tsW reasonsize
   in
@@ -1174,12 +1189,12 @@ let rec linearise screenwidth procrustean_reasonW dp =
           BoxID (id', jd), acc'''
   in
   (* stuff to do with computing margins and gaps *)
-  (* One day boxlinedisplay will tell us in detail how to show a line.
+  (* One day boxlineformat will tell us in detail how to show a line.
   * At present the 'right' style is n: F R A -- n right-justified, R aligned
   * and the 'left' style is (A R) n: F -- (A R) and n right-justified
   *)
   let idmargin idW reasonW =
-    (if !boxlinedisplay = "right" then 0 else reasonW + reasongap) + idW +
+    (if !boxlinedressright then 0 else reasonW + reasongap) + idW +
       tsW colonsize
   in
   let rec leftmargin idW reasonW = idmargin idW reasonW + tsW colonsize in
@@ -1190,7 +1205,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
     | _                         -> 2 * reasongap
   in
   let rec reasonmargin lines idW reasonW elbox =
-    if !boxlinedisplay = "right" then
+    if !boxlinedressright then
       leftmargin idW reasonW + boxW elbox + reasonspace lines
     else reasonW
   in
@@ -1202,7 +1217,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let extras lines idW reasonW =
     sidescreengap + 
       leftmargin idW reasonW +
-      (if !boxlinedisplay = "right" then reasonspace lines + reasonW else 0) +
+      (if !boxlinedressright then reasonspace lines + reasonW else 0) +
     sidescreengap
   in
   let answer (Lacc {acclines = lines; elbox = elbox; idW = idW; reasonW = reasonW; assW = assW}) =
@@ -1232,16 +1247,19 @@ let rec linearise screenwidth procrustean_reasonW dp =
     let Layout a = answer secondlayout in
     let availableW = screenwidth - allbutreasonW a.lines acc.idW acc.elbox in
     let rereason line =
+      let realignreasonplan (reasonplan, reasonbox, _) =
+        alignreasonplan reasonplan reasonbox
+      in
       match line.reason with
         NoReason -> line
       | ReasonDesc (pi, why, cids) -> 
           let reasonplan = line.reasonplan in
           let w = availableW - (tsW (textsize_of_planlist reasonplan) - tsW (fst why)) in
           let why' = textinfo_procrustes (max minreasonW w) origin why in
-          {line with reasonplan = fst_of_3 (mkreasonplan (Some (pi, why', cids)) origin)}
+          {line with reasonplan = realignreasonplan (mkreasonplan (Some (pi, why', cids)) origin)}
       | ReasonWord why ->
           let why' = textinfo_procrustes (max minreasonW availableW) origin why in
-          {line with reasonplan = fst_of_3 (showword why' origin)}
+          {line with reasonplan = realignreasonplan (showword why' origin)}
     in
     let rec reline f =
       match f with 
@@ -1293,7 +1311,7 @@ let rec _BoxLayout screenwidth t =
  *)
 
 let rec elementsin ps =
-  List.length ((iselementkind <.> planinfo) <| ps)
+  List.length ((iselementkind <.> info_of_plan) <| ps)
 
 let rec draw goalopt p proof =
   fun (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
@@ -1313,11 +1331,11 @@ let rec draw goalopt p proof =
           let pdraw = p +->+ tbPos elementsbox in
           let rec emp gpath plan =
             (* (Elementplan((el,siopt),_,class,elbox)) = *)
-            let rec dohigh () = highlight (tbPos (plantextbox plan) +->+ pdraw) (Some DisplayConc) in
-            let rec dogrey () = greyen (tbPos (plantextbox plan) +->+ pdraw) in
+            let rec dohigh () = highlight (tbPos (textbox_of_plan plan) +->+ pdraw) (Some DisplayConc) in
+            let rec dogrey () = greyen (tbPos (textbox_of_plan plan) +->+ pdraw) in
             let rec doconc path = if gpath = path then dohigh () else dogrey () in
             
-            match planinfo plan with
+            match info_of_plan plan with
               ElementPlan ({path = path}, el, HypPlan) ->
                 if validhyp proof el gpath then () else dogrey ()
             | ElementPlan ({path = path}, el, ConcPlan) ->
@@ -1352,6 +1370,9 @@ let rec draw goalopt p proof =
           drawplan (fun i -> i) idpos idplan;
           drawplan (fun i -> i) idpos colonplan;
           List.iter (drawplan elementplanclass pdraw) elementsplan;
+          (* consolereport ["drawing reasonplan "; 
+                         bracketedstring_of_list (debugstring_of_plan string_of_reasonplankind) "; " reasonplan;
+                         " at pos "; Box.string_of_pos (pos (reasonx, y))]; *)
           List.iter (drawplan reasonplanclass (pos (reasonx, y))) reasonplan;
           begin match goalopt with
             Some gpath -> List.iter (emp gpath) elementsplan
@@ -1416,9 +1437,8 @@ let cp hitkind (pi, el, kind) =
 
 let hp hitkind (pi, el, kind) = answerpath hitkind pi, el
 
-let hit_of_pos p 
-               (Layout {lines = lines; bodymargin = bodymargin; reasonmargin = reasonmargin})
-               hitkind =
+let hit_of_pos p (Layout {lines = lines; bodymargin = bodymargin; reasonmargin = reasonmargin})
+                 hitkind =
   if !boxseldebug then
     consolereport
       ["hit_of_pos "; " "; string_of_pos p; " ... "; string_of_hitkind hitkind];
@@ -1439,16 +1459,16 @@ let hit_of_pos p
         in
         if withintb (p, elementsbox) then
           findfirstplanhit (p +<-+ tbPos elementsbox) elementsplan 
-          &~~ (_Some <.> planinfo) 
+          &~~ (_Some <.> info_of_plan) 
           &~~ decodeplan
         else
           findfirst
             (fun reason ->
-               match planinfo reason with
+               match info_of_plan reason with
                  ReasonPlan pi ->
                    if withintb
                         (p +<-+ pos (reasonmargin - bodymargin, posY (tbPos elementsbox)),
-                         plantextbox reason)
+                         textbox_of_plan reason)
                    then
                      Some (ReasonHit (answerpath hitkind pi))
                    else None
@@ -1539,8 +1559,8 @@ let rec notifyselect posclassopt posclasslist =
             let p' = p +->+ tbPos elementsbox in
             List.iter
               (fun plan ->
-                 if iselementkind (planinfo plan) then
-                   emp plan (p' +->+ tbPos (plantextbox plan)))
+                 if iselementkind (info_of_plan plan) then
+                   emp plan (p' +->+ tbPos (textbox_of_plan plan)))
               elementsplan
         | FitchBox {outerbox = outerbox; boxlines = lines} ->
             List.iter (reemphasise p) lines
@@ -1601,7 +1621,7 @@ let rec notifyselect posclassopt posclasslist =
           let rec blackconc (({path = cpath} : pathinfo), _, _) =
             stillopen proof cpath && okhyps hyps cpath
           in
-          if match planinfo plan with
+          if match info_of_plan plan with
                ElementPlan (_, _, HypPlan as inf) -> blackhyp inf
              | ElementPlan inf -> blackconc inf
              | AmbigElementPlan (up, down) -> blackconc up || blackhyp down
@@ -1623,7 +1643,7 @@ let rec notifyselect posclassopt posclasslist =
           let rec blackconc (({path = cpath'} : pathinfo), _, _) =
             stillopen proof cpath' && okhyps hyps cpath'
           in
-          if match planinfo plan with
+          if match info_of_plan plan with
                ElementPlan (_, _, HypPlan as inf) -> blackhyp inf
              | ElementPlan inf -> blackconc inf
              | AmbigElementPlan (up, down) ->
@@ -1726,7 +1746,7 @@ let targetbox pos target layout =
       let rec search pos =
         function
           FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
-            if List.exists (ok <.> planinfo) elementsplan then
+            if List.exists (ok <.> info_of_plan) elementsplan then
                (if !screenpositiondebug then
                   consolereport
                     ["boxdraw targetbox gotcha "; string_of_textbox elementsbox];

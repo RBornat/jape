@@ -51,7 +51,7 @@ val proofstate_goal : proofstate -> path option
 val proofstate_root : proofstate -> (prooftree * path) option
 val proofstate_target : proofstate -> path option
 val proofstate_tree : proofstate -> prooftree
-val string_of_proofstate : bool -> proofstate -> string
+
 val proofstep : cxt -> prooftree -> proofstate -> proofstate option
 val prunestate : path -> proofstate -> proofstate
 val rewriteproofstate : proofstate -> proofstate
@@ -61,3 +61,6 @@ val withgoal : proofstate -> path option -> proofstate
 val withroot : proofstate -> (prooftree * path) option -> proofstate
 val withtarget : proofstate -> path option -> proofstate
 val withtree : proofstate -> prooftree -> proofstate
+
+val string_of_proofstate : bool -> proofstate -> string
+val string_of_subtree : path option -> prooftree -> string

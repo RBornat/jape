@@ -96,7 +96,16 @@ public class TextDialog {
 	class OperatorButtonListener implements ActionListener {
 	    public void actionPerformed(ActionEvent newEvent) {
 		try {
-		    textField.getDocument().insertString(textField.getCaretPosition(),
+		    int caret = textField.getCaretPosition(),
+		        selstart = textField.getSelectionStart(),
+		    selend = textField.getSelectionEnd();
+		    
+		    if (selstart<selend) {
+			// imitate a text editor, sigh!
+			textField.getDocument().remove(selstart, selend-selstart);
+			caret = selstart;
+		    }
+		    textField.getDocument().insertString(caret,
 							 newEvent.getActionCommand(), null);
 		    textField.requestFocus();
 		} catch (Exception exn) {
@@ -136,6 +145,9 @@ public class TextDialog {
 		textField.requestFocus();
 	    }
 	});
+	
+	JapeMenu.setDialogMenuBar(JapeMenu.TEXTDIALOGWINDOW_BAR|JapeMenu.DIALOGWINDOW_BAR, 
+				  dialog, title);
 	dialog.show();
 	
 	Object selectedValue = pane.getValue();
@@ -148,8 +160,12 @@ public class TextDialog {
 		}
 	    } */
 		
-	String result;
+	String result = textField.getText();
+
+	JapeMenu.undoDialogMenuBar();
+	dialog.dispose(); // I hope
+	
 	return selectedValue!=null && options[0].equals(selectedValue) && 
-	    (result = textField.getText()).length()!=0 ? result : null;
+	         result.length()!=0 ? result : null;
     }
 }

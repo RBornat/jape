@@ -43,7 +43,7 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 
 public class ExportPic {
     public static void exportPic(ProofWindow w) {
-	if (Jape.onMacOS) {
+	if (Jape.onMacOSX) {
 	    Alert.showAlert("Export doesn't work on MacOS X yet.  Sorry");
 	} else {
 	    /* Use the pre-defined flavor for a Printable from an InputStream */

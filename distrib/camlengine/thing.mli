@@ -35,53 +35,49 @@ open Cxttype
 open Mappingfuns
 
 type thing =
-    Rule of
-      ((paraparam list * (bool * proviso) list * seq list * seq) * bool)
+    Rule    of ((paraparam list * (bool * proviso) list * seq list * seq) * bool)
   | Theorem of (paraparam list * (bool * proviso) list * seq)
-  | Tactic of (paraparam list * tactic)
-  | Macro of (paraparam list * term)
+  | Tactic  of (paraparam list * tactic)
+  | Macro   of (paraparam list * term)
+  
 type thingplace = InMenu of name | InPanel of name | InLimbo
+
 val string_of_thing : thing -> string
-val freshThingtoapply :
-  bool -> name -> cxt -> term list ->
-    (cxt * (term, term) mapping * (resnum list * resnum list) * thing)
-      option
-val freshThingtosubst :
-  bool -> name -> cxt -> (term * term) list ->
-    (cxt * (term, term) mapping * (resnum list * resnum list) * thing)
-      option
+val freshThingtoapply : bool -> name -> cxt -> term list
+                     -> (cxt * (term, term) mapping * (resnum list * resnum list) * thing) option
+val freshThingtosubst : bool -> name -> cxt -> (term * term) list 
+                     -> (cxt * (term, term) mapping * (resnum list * resnum list) * thing) option
 val freshThingtoprove : name -> thing option
-val freshGiven :
-  bool -> seq -> cxt -> cxt * (resnum list * resnum list) * seq
+val freshGiven : bool -> seq -> cxt -> cxt * (resnum list * resnum list) * seq
 val rearrangetoResolve : seq list -> seq -> seq list * seq
-val instantiateRule :
-  (term, term) mapping -> (bool * proviso) list -> seq list -> seq ->
-    (term * term) list * (bool * proviso) list * seq list * seq
-val compiletoprove :
-  proviso list * seq list * seq -> (bool * proviso) list * seq list * seq
+val instantiateRule : (term, term) mapping -> (bool * proviso) list -> seq list -> seq
+                   -> (term * term) list * (bool * proviso) list * seq list * seq
+val compiletoprove : proviso list * seq list * seq -> (bool * proviso) list * seq list * seq
 val formulageneralisable : paraparam list -> term -> bool
+
 val addthing : name * thing * thingplace -> unit
 val thingnamed : name -> (thing * thingplace) option
-val thinginfo : name -> (thing * thingplace) option
-(* including invisible provisos *)
+val thinginfo : name -> (thing * thingplace) option (* including invisible provisos *)
    
 val clearthings : unit -> unit
 val thingnames : unit -> name list
 val thingstodo : unit -> bool
-type structurerule =
-    CutRule
-  | LeftWeakenRule
-  | RightWeakenRule
-  | IdentityRule
-  | TransitiveRule
-  | ReflexiveRule
+
+type structurerule = CutRule
+                   | LeftWeakenRule
+                   | RightWeakenRule
+                   | IdentityRule
+                   | TransitiveRule
+                   | ReflexiveRule
 val addstructurerule : structurerule -> name -> bool
 val clearstructurerules : unit -> unit
 val isstructurerule : structurerule -> name -> bool
 val wehavestructurerule : structurerule -> string list option -> bool
 val string_of_structurerule : structurerule -> string
 val uniqueCut : unit -> name option
+
 val isRelation : term -> bool
+
 val numberrule : seq list * seq -> seq list * seq
 val numberforproof : seq list * seq -> seq list * seq
 

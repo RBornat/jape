@@ -134,8 +134,8 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     public Component add(Component c, int index) {
 	child.add(c, index);
 	computeBounds();
-	viewport.validate();
 	c.repaint();
+	viewport.validate();
 	if (DebugVars.containerlayout_tracing)
 	    Logger.log.println("ContainerWithOrigin.add("+c+","+index+
 			       ");\ncontainer origin now "+JapeUtils.shortStringOfRectangle(getViewGeometry()));
@@ -163,7 +163,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     }
 
     public void paint(Graphics g) {
-	if (paint_tracing)
+	if (DebugVars.paint_tracing)
 	    Logger.log.println("painting ContainerWithOrigin (diverting to child)");
 	int x=child.getX(), y=child.getY();
 	g.translate(x, y);
@@ -325,20 +325,24 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 			newBounds.add(tmp); 
 		    }
 		}
+		boolean changed = false;
 		if (newBounds==null)
 		    newBounds = new Rectangle(visualBounds.x, visualBounds.y, 0, 0);
 		if (newBounds.width!=getWidth() || newBounds.height!=getHeight()) {
-		    setSize(newBounds.width, newBounds.height);
+		    setSize(newBounds.width, newBounds.height); changed = true;
 		    if (DebugVars.containerlayout_tracing)
 			Logger.log.print("; childsize:="+getSize());
 		}
 		if (!newBounds.equals(visualBounds)) {
-		    visualBounds=newBounds;
+		    visualBounds=newBounds; changed = true;
 		    if (DebugVars.containerlayout_tracing)
 			Logger.log.print("; visualBounds:="+visualBounds);
 		}
 		if (DebugVars.containerlayout_tracing)
 		    Logger.log.println(")");
+		
+		if (changed)
+		    computeBounds();
 	    }
 	}
     }

@@ -72,7 +72,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 
     public static final String
 	FontName =
-	    Preferences.getProp("fonts.family", Jape.onMacOS ? "LucidaSansUnicode" : "SansSerif");
+	    Preferences.getProp("fonts.family", Jape.onMacOSX ? "LucidaSansUnicode" : "SansSerif");
 
     private static final Font baseFont = new Font(FontName, Font.PLAIN, 1);
 

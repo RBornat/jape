@@ -68,6 +68,19 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
 	    return null;
     }
     
+    protected boolean hasConcSelection() {
+	int nc = child.getComponentCount(); // oh dear ...
+	for (int i=0; i<nc; i++) {
+	    Component c = child.getComponent(i); // oh dear ...
+	    if (c instanceof SelectableProofItem) {
+		SelectableProofItem item = (SelectableProofItem) c;
+		if (item.getSelected() && item.getSelectionKind()==ConcSel)
+		    return true;
+	    }
+	}
+	return false;
+    }
+    
     protected void notifySelect(DisplayItem d) {
 	String s = "SELECT "+getSelection(d);
 	int nc = child.getComponentCount(); // oh dear ...
@@ -80,11 +93,13 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
 	    }
 	}
 	Reply.send(s);
+	getProofWindow().enableLemmas();
     }
 
     protected void notifyDeselect() {
 	String s = getSelections(" ");
 	Reply.send("DESELECT"+(s==null ? "" : " "+s));
+	getProofWindow().enableLemmas();
     }
 
     protected void notifySelectionChange(DisplayItem item) {

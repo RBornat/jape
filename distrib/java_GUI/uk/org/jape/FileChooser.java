@@ -54,7 +54,7 @@ public class FileChooser /* implements FilenameFilter */ {
 	
 	String result = "";
 	
-	if (Jape.onMacOS) { // use AWT
+	if (Jape.onMacOSX) { // use AWT
 	    FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.LOAD);
 	    d.setDirectory(FilePrefs.nextOpen().toString());
 	    d.setFilenameFilter(filter);
@@ -95,7 +95,7 @@ public class FileChooser /* implements FilenameFilter */ {
 	
 	String result = "";
 	
-	if (Jape.onMacOS) { // use AWT
+	if (Jape.onMacOSX) { // use AWT
 	    FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.SAVE);
 	    d.setDirectory(FilePrefs.nextOpen().toString());
 	    d.setFilenameFilter(filter);

@@ -84,19 +84,19 @@ val setworlds : (int * int) list -> ((int * int) * bool * (bool*string) list * (
 (* *************************************** menus and panels *************************************** *)
 
 val resettheory : unit -> unit
-val emptymenusandpanels  : unit -> unit
+val emptymenusandpanels  : bool -> unit
 
 (* *************************************** menus *************************************** *)
 
 val newmenu         : bool -> string -> unit
                    (* true: proofs only; false: every menubar has this menu *)
-val menuentry       : string -> string -> string option -> string -> unit
-                   (* menu      label     key equiv        cmd *)
-val menucheckbox    : string -> string -> string -> unit
-                   (* menu      label     cmd *)
-val menuradiobutton : string -> (string * string) list -> unit
-                   (* menu      (label,   cmd) *)
-val menuseparator   : string -> unit
+val menuentry       : string -> bool -> string -> string option -> string -> unit
+                   (* menu      ponly   label     key equiv        cmd *)
+val menucheckbox    : string -> bool -> string -> string -> unit
+                   (* menu      ponly label     cmd *)
+val menuradiobutton : string -> bool -> (string * string) list -> unit
+                   (* menu      ponly   (label,   cmd) *)
+val menuseparator   : string -> bool -> unit
                    (* menu *)
 
 (* I toyed with the idea that enablemenuitem and tickmenuitem should have an argument which 
@@ -109,8 +109,8 @@ val menuseparator   : string -> unit
    the focussedonly idea.
    RB 5/xi/02
  *)
-val enablemenuitem : string -> string -> bool -> unit (* applies to entries, checkboxes, radio buttons *)
-val tickmenuitem   : string -> string -> bool -> unit (* only for checkboxes, radio buttons *)
+val enablemenuitem : bool -> string -> string -> bool -> unit (* applies to entries, checkboxes, radio buttons *)
+val tickmenuitem   : bool -> string -> string -> bool -> unit (* only for checkboxes, radio buttons *)
 
 val mapmenus : bool -> unit (* false: menus under construction; true: menus constructed *)
  
@@ -209,8 +209,11 @@ val settextselectionmode : string -> unit
 val setComment : string -> unit
 (* this demoted to a thing which sets a comment line *)
 
-val askUnify : string -> string
-
+val askUnify : string -> string option
+val askLemma : string -> string -> string list -> string list 
+           (*  drule     thm       panels         provisos    *)
+            -> (bool * string option * string * string list) option
+             (* isthm  name            panel    provisos      *)
 val ask_unpatched : int -> string -> string list -> int -> int
 (* severity 0/1/2    message   buttons     default   which one was pressed, indexed from 0*)
 

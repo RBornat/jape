@@ -158,7 +158,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
       in
       match l with
         HideRootLayout -> TreeFormat (HideRootFormat, DefaultFormat)
-      | HideCutLayout -> TreeFormat (HideCutFormat, DefaultFormat)
+      | HideCutLayout  -> TreeFormat (HideCutFormat, DefaultFormat)
       | CompressedLayout stuff -> f_of_l true stuff
       | NamedLayout stuff -> f_of_l false stuff
     

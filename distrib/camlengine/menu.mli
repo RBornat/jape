@@ -28,33 +28,31 @@
 open Panelkind
 open Name
  
-type menudata =
-    Mseparator
-  | Mentry       of (name * string option * string)
-  | Mcheckbox    of (name * name * (string * string) * string option)
-  | Mradiobutton of (name * (name * string) list * string option)
-                (* variable  label  cmd            default cmd *)
+type menudata = Mseparator
+              | Mentry       of (name * string option * string)
+              | Mcheckbox    of (name * name * (string * string) * string option)
+              | Mradiobutton of (name * (name * string) list * string option)
+                            (* variable  label  cmd            default cmd *)
 
-type menucommand =
-    MCdata   of menudata
-  | MCbefore of (name * menudata) 
-  | MCrename of (name * name) 
+type menucommand = MCdata   of menudata
+                 | MCbefore of (name * menudata) 
+                 | MCrename of (name * name) 
 
-type paneldata =
-    Pentry  of (name * string)
-  | Pbutton of (name * panelbuttoninsert list)
-  (* will have before, rename one day *)
+type paneldata = Pentry  of (name * string)
+               | Pbutton of (name * panelbuttoninsert list)
+               (* will have before, rename one day *)
 
 val addmenu       : bool -> name -> unit
-val addmenudata   : name -> menucommand list -> unit
+val addmenudata   : bool -> name -> menucommand list -> unit
 val clearmenudata : name -> unit
 val getmenus      : unit -> (bool * name) list
-val getmenudata   : name -> (bool * menudata list) option
+val getmenudata   : name -> (bool * (bool * menudata) list) option
 
 val addpanel       : panelkind -> name -> unit
 val addpaneldata   : name -> paneldata list -> unit
 val clearpaneldata : name -> unit
 val getpanels      : unit -> (name * panelkind) list
+val getconjecturepanels : unit -> name list
 val getpanelkind   : name -> panelkind option
 val getpaneldata   : name -> paneldata list option
 
@@ -66,12 +64,13 @@ val menudebug : bool ref
 
 val menuiter : (bool * name -> unit) -> unit
 val paneliter : (name * panelkind -> unit) -> unit
-val menuitemiter :
-  name -> (name * string option * string -> unit) ->
-        (name * string -> unit) -> ((name * string) list -> unit) ->
-        (unit -> unit) -> unit
-val panelitemiter :
-  name -> (name * string -> unit) -> (name * panelbuttoninsert list -> unit) 
-    (* -> (name * string -> unit) -> ((name * string) list -> unit) *) -> unit
+val menuitemiter : name -> (bool -> name -> string option -> string -> unit) 
+                        -> (bool -> name -> string -> unit) 
+                        -> (bool -> (name * string) list -> unit) 
+                        -> (bool -> unit) 
+                        -> unit
+val panelitemiter : name -> (name * string -> unit) 
+                         -> (name * panelbuttoninsert list -> unit) 
+                         -> unit
 
 val string_of_panelbuttoninsert : panelbuttoninsert -> string

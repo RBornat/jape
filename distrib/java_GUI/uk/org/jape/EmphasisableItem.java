@@ -84,7 +84,7 @@ public class EmphasisableItem extends TextSelectableItem {
 
 	public void paint(Graphics g) {
 	    int start = this.start, pxstart = this.pxstart, end = this.end;
-	    if (paint_tracing)
+	    if (DebugVars.paint_tracing)
 		Logger.log.println("painting colour segment "+start+","+end);
 	    int ci = 0;
 	    while (start>components[ci].printlen) {
@@ -185,7 +185,7 @@ public class EmphasisableItem extends TextSelectableItem {
 
     public void paint(Graphics g) {
 	if (isEnabled()) {
-	    if (paint_tracing)
+	    if (DebugVars.paint_tracing)
 		Logger.log.println("painting EmphasisableItem at "+getX()+","+getY());
 	    paintTextSels(g);
 	    int len = coloursegs.length;
@@ -212,7 +212,7 @@ public class EmphasisableItem extends TextSelectableItem {
 	}
 
 	public void paint(Graphics g) {
-	    if (paint_tracing)
+	    if (DebugVars.paint_tracing)
 		Logger.log.println("painting emphasis at "+getX()+","+getY()+"; "+emphasised);
 	    if (emphasised)
 		super.paint(g);

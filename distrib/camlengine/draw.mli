@@ -26,13 +26,13 @@
 *)
 
 type text = Text.text
+and textbox = Box.textbox
 and textlayout = Text.textlayout
 and textalign = Text.textalign
 and textsize = Box.textsize
 and pos = Box.pos
 and size = Box.size
 and box = Box.box
-and textbox = Box.textbox
 and font = Text.font
 and displayclass = Displayclass.displayclass
 and element = Termtype.element
@@ -61,9 +61,10 @@ val setproofparams : Japeserver.displaystyle -> int -> unit (* Tree/BoxStyle, li
 val debugstring_of_plan : ('a -> string) -> 'a plan -> string 
 val string_of_plan  : 'a plan -> string (* for external viewing; only works for single-string plans *)
    
-val plantextlayout : 'a plan -> textlayout
-val plantextbox : 'a plan -> textbox
-val planinfo : 'a plan -> 'a
+val textlayout_of_plan : 'a plan -> textlayout
+val textbox_of_plan : 'a plan -> textbox
+val textbox_of_planlist : 'a plan list -> textbox
+val info_of_plan : 'a plan -> 'a
 val textsize_of_plan : 'a plan -> textsize
 val textsize_of_planlist : 'a plan list -> textsize
 val textinfo_of_text : text -> textsize * textlayout

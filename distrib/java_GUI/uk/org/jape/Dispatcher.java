@@ -164,6 +164,17 @@ public class Dispatcher extends Thread implements DebugConstants {
 			if (p=="ASKUNIFY"&&len==2)
 			    TextDialog.runUnifyDialog(cmd[1]);
 			else
+			if (p=="ASKLEMMA"&&len==5) {
+			    String thmString = cmd[1];
+			    String druleString = cmd[2];
+			    int panelCount = toInt(cmd[3]);
+			    int provisoCount = toInt(cmd[4]);
+			    String[] panels = readLines(panelCount);
+			    String[] provisos = readLines(provisoCount);
+			    Reply.reply(LemmaDialog.runLemmaDialog(thmString, druleString,
+								   panels, provisos));
+			}
+			else
 		    
 		    // file choosing
 			if (p=="READFILENAME"&&len==3)
@@ -191,23 +202,24 @@ public class Dispatcher extends Thread implements DebugConstants {
 		    
 		    // MENU commands
 			if (p=="NEWMENU"&&len==3)
-			    JapeMenu.newMenu(toBool(cmd[1]), cmd[2]);
+			    JapeMenu.newMenu(cmd[1], toInt(cmd[2]));
 			else
-			if (p=="MENUITEM"&&len==5)
-			    JapeMenu.addItem(cmd[1], cmd[2], cmd[3], cmd[4]);
+			if (p=="MENUITEM"&&len==6)
+			    JapeMenu.addItem(cmd[1], cmd[2], cmd[3], cmd[4], toInt(cmd[5]));
 			else
-			if (p=="MAKEMENUSVISIBLE"&&len==1) {
+			    if (p=="MAKEMENUSVISIBLE"&&len==1) {
 			    JapeMenu.makeMenusVisible();
 			    PanelWindowData.makePanelsVisible();
 			}
 			else
-			if (p=="MENUSEP"&&len==2)
-			    JapeMenu.addSeparator(cmd[1]);
+			if (p=="MENUSEP"&&len==3)
+			    JapeMenu.addSeparator(cmd[1], toInt(cmd[2]));
 			else
-			if (p=="ENABLEMENUITEM"&&len==4) {
+			if (p=="ENABLEMENUITEM"&&len==5) {
 			    // showcommand("", cmd);
 			    // see comment in japeserver.mli
-			    JapeMenu.enableItem(false, cmd[1], cmd[2], toBool(cmd[3]));
+			    JapeMenu.enableItem(false, cmd[1], cmd[2], toInt(cmd[3]), 
+						toBool(cmd[4]));
 			}
 			else
 			if (p=="MENURADIOBUTTON"&&len==1)
@@ -216,16 +228,18 @@ public class Dispatcher extends Thread implements DebugConstants {
 			if (p=="MENURADIOBUTTONPART"&&len==3)
 			    list.add(new String[] { cmd[1], cmd[2] });
 			else
-			if (p=="MENURADIOBUTTONEND"&&len==2)
-			    JapeMenu.addRadioButtonGroup(cmd[1], (String[][])list.toArray(new String[list.size()][]));
+			if (p=="MENURADIOBUTTONEND"&&len==3)
+			    JapeMenu.addRadioButtonGroup(cmd[1], 
+				 (String[][])list.toArray(new String[list.size()][]),
+				 toInt(cmd[2]));
 			else
-			if (p=="MENUCHECKBOX"&&len==4)
-			    JapeMenu.addCheckBox(cmd[1], cmd[2], cmd[3]);
+			if (p=="MENUCHECKBOX"&&len==5)
+			    JapeMenu.addCheckBox(cmd[1], cmd[2], cmd[3], toInt(cmd[4]));
 			else
-			if (p=="TICKMENUITEM"&&len==4) {
-			    // showcommand("",cmd);
-			    // see comment in japeserver.mli
-			    JapeMenu.tickItem(false, cmd[1], cmd[2], toBool(cmd[3]));
+			if (p=="TICKMENUITEM"&&len==5) {
+			// showcommand("",cmd);
+			// see comment in japeserver.mli
+			JapeMenu.tickItem(false, cmd[1], cmd[2], toInt(cmd[3]), toBool(cmd[4]));
 			}
 			else
 		    
@@ -393,8 +407,8 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    JapeWindow.resetNextPos();
 			}
 			else
-			if (p=="EMPTYMENUSANDPANELS"&&len==1) {
-			    JapeMenu.emptyMenus();
+			if (p=="EMPTYMENUSANDPANELS"&&len==2) {
+			    JapeMenu.emptyMenus(toBool(cmd[1]));
 			    PanelWindowData.emptyPanels();
 			}
 			else
@@ -422,6 +436,18 @@ public class Dispatcher extends Thread implements DebugConstants {
 	}
     }
 
+    private String[] readLines(int n) {
+	String[] res = new String[n];
+	for (int i=0; i<n; i++) {
+	    try {
+		res[i] = Engine.fromEngine().readLine();
+	    } catch (IOException e) {
+		Logger.crash("GUI crash: dispatcher fails during readLines("+n+") at line "+i+
+			     " with IOException "+e, 2);
+	    }
+	}
+	return res;
+    }
     private String[] japesplit(String line) throws ProtocolError, IOException {
     if (line==null) {
 	Alert.showErrorAlert("Dispatcher sees null line -- is jape_engine ok?");

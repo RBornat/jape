@@ -46,24 +46,23 @@ val catelim_string_of_seq : seq -> string list -> string list
 val catelim_invisbracketedstring_of_seq : bool -> seq -> string list -> string list
 val catelim_debugstring_of_seq : seq -> string list -> string list
 val catelim_elementstring_of_seq : seq -> string list -> string list
+val catelim_separatedstring_of_seq : string -> seq -> string list -> string list
 val alwaysshowturnstile : bool ref
 
 val sequent_of_string : string -> seq
 val seqexplode : seq -> string * term * term
-val seqvars :
-(term -> 'a list) -> ('a list -> 'a list -> 'a list) -> seq -> 'a list
+
+val seqvars : (term -> 'a list) -> ('a list -> 'a list -> 'a list) -> seq -> 'a list
 val seqVIDs : seq -> vid list
+
 val eqseqs : seq * seq -> bool
-val seqmatch :
-bool -> seq -> seq -> (term, term) mapping ->
-(term, term) mapping option
-val seqmatchvars :
-bool -> (term -> bool) -> seq -> seq -> (term, term) mapping ->
-(term, term) mapping option
+val seqmatch : bool -> seq -> seq -> (term, term) mapping -> (term, term) mapping option
+val seqmatchvars : bool -> (term -> bool) -> seq -> seq -> (term, term) mapping
+                -> (term, term) mapping option
 val remapseq : (term, term) mapping -> seq -> seq
 val mkSeq : string * element list * element list -> seq
 val maxseqresnum : seq -> int
-val syntacticturnstiles : unit -> string list
+val getsyntacticturnstiles : unit -> string list
 
 val pushSyntax     : string -> unit
 val popSyntax      : unit -> unit

@@ -46,7 +46,7 @@ let invisbracketedstring_of_element = Termstring.invisbracketedstring_of_element
 let highlight = Draw.highlight
 let last = Listfuns.last
 let string_of_list = Listfuns.string_of_list
-let turnstiles = Sequent.syntacticturnstiles
+let turnstiles = Sequent.getsyntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
        
 exception Catastrophe_ = Miscellaneous.Catastrophe_
@@ -243,7 +243,7 @@ let rec _FIRSTOFN  _P xs =
   in _F 0 xs
 
 let rec elinfo plan =
-  match planinfo plan with
+  match info_of_plan plan with
     ElementClass info -> Some info
   | _                 -> None
 
@@ -262,7 +262,7 @@ let rec hit_of_pos pos path
       | _ -> None
     else if
       match
-        (reasonplan &~~ (_Some <.> plantextbox))
+        (reasonplan &~~ (_Some <.> textbox_of_plan))
       with
         Some reasonbox -> withintb (pos, reasonbox)
       | _              -> false
@@ -348,7 +348,7 @@ let rec revgoal =
   | Some path -> Some (List.rev path)
 
 let rec elementofclass class__ plan =
-  match planinfo plan with
+  match info_of_plan plan with
     ElementClass (_, c) -> class__ = c
   | _ -> false
 

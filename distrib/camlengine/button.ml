@@ -78,23 +78,23 @@ let buttoncache : (mybutton, bool ref) mapping ref = ref empty
  *)
 let rec enable (button, state) =
   let rec doit b v =
-    let (m, c) =
+    let (m, c, proofsonly) =
       match b with
-        MyUndoProof    -> "Edit", "Undo Proof Step"
-      | MyRedoProof    -> "Edit", "Redo Proof Step"
-      | MyUndoDisproof -> "Edit", "Undo Disproof Step"
-      | MyRedoDisproof -> "Edit", "Redo Disproof Step"
-      | MyDone         -> "Edit", "Done"
-      | MyReset        -> "File", "Erase theory"
-      | MySave         -> "File", "Save Proofs"
-      | MySaveAs       -> "File", "Save Proofs As..."
-      | MyDisprove     -> "Edit", "Disprove"
+        MyUndoProof    -> "Edit", "Undo Proof Step", true
+      | MyRedoProof    -> "Edit", "Redo Proof Step", true
+      | MyUndoDisproof -> "Edit", "Undo Disproof Step", true
+      | MyRedoDisproof -> "Edit", "Redo Disproof Step", true
+      | MyDone         -> "Edit", "Done", true
+      | MyReset        -> "File", "Erase theory", false
+      | MySave         -> "File", "Save Proofs", false
+      | MySaveAs       -> "File", "Save Proofs As...", false
+      | MyDisprove     -> "Edit", "Disprove", true
     in
     if match (!buttoncache <@> b) with
          Some r -> if !r = state then false else begin r := state; true end
        | None   -> buttoncache := (!buttoncache ++ (b |-> ref state)); true
     then
-      Japeserver.enablemenuitem m c state
+      Japeserver.enablemenuitem proofsonly m c state
   in
   match button with
     UndoProofbutton    -> doit MyUndoProof state
@@ -124,16 +124,16 @@ let rec reloadmenusandpanels markconjecture oplist =
            let string_of_menu = string_of_name menu in
            Japeserver.newmenu proofsonly string_of_menu;
            menuitemiter menu
-             (fun (label, keyopt, cmd) ->
-                Japeserver.menuentry string_of_menu (string_of_name label) keyopt cmd)
-             (fun (label, cmd) ->
+             (fun proofsonly label keyopt cmd ->
+                Japeserver.menuentry string_of_menu proofsonly (string_of_name label) keyopt cmd)
+             (fun proofsonly label cmd ->
                 (* checkbox *)
-                Japeserver.menucheckbox string_of_menu (string_of_name label) cmd)
-             (fun lcs ->
+                Japeserver.menucheckbox string_of_menu proofsonly (string_of_name label) cmd)
+             (fun proofsonly lcs ->
                 (* radio button *)
                 Japeserver.menuradiobutton
-                   string_of_menu (List.map (fun (label, cmd) -> string_of_name label, cmd) lcs))
-             (fun _ -> Japeserver.menuseparator string_of_menu));
+                   string_of_menu proofsonly (List.map (fun (label, cmd) -> string_of_name label, cmd) lcs))
+             (Japeserver.menuseparator string_of_menu));
       paneliter
         (fun (panel, kind) ->
            let string_of_panel = string_of_name panel in
@@ -188,7 +188,7 @@ let rec initButtons () =
   in
   clearmenusandpanels ();
   addmenu true (name_of_string "Edit"); (* this isn't necessary ... *)
-  addmenudata (name_of_string "Edit") (List.map (fun e -> MCdata e) _EditEntries)
+  addmenudata true (name_of_string "Edit") (List.map (fun e -> MCdata e) _EditEntries)
 
 let rec initFonts () =
   match getfontstuff () with

@@ -573,56 +573,57 @@ let rec checkvalidruleheading report objkind wherekind =
       nj_fold (uncurry2 tmerge) (seqvars termvars tmerge <* (conseq :: antes)) []
     in
     let paramvars = sort earliervar ((paramvar <* params)) in
-    let provars =
-      nj_fold (uncurry2 tmerge) ((provisovars termvars tmerge <* provisos)) []
+    let provars = nj_fold (uncurry2 tmerge) (provisovars termvars tmerge <* provisos) []
     in
     (* don't evaluate fbvs unless there is an apparent error, and don't do it twice *)
     let obvs : term list option ref = ref None in
     let rec check vs errorf =
       match !obvs with
         None ->
-          begin match sorteddiff earliervar vs bodyvars with
-            [] -> ()
-          | _ ->
-              (* nothing wrong - the usual case *)
-              obvs := Some (tmerge bodyvars (fbvs ())); check vs errorf
-          end
+          (match sorteddiff earliervar vs bodyvars with
+             [] -> () (* nothing wrong - the usual case *)
+           | _  -> obvs := Some (tmerge bodyvars (fbvs ())); 
+                   check vs errorf)
       | Some bvs ->
-          match sorteddiff earliervar vs bvs with
-            [] -> ()
-          | extras ->(* definitely nothing wrong *)
-             errorf extras
+          (match sorteddiff earliervar vs bvs with
+             []     -> () (* definitely nothing wrong *)
+           | extras -> errorf extras)
     in
     let rec add_an_s s b = if b then s ^ "s" else s in
     let rec error place has vs =
-      begin match split (fun v -> member (v, bodyvars)) vs with
-        [], _ ->
-          showInputError report
-            [place; " "; objkind; " "; string_of_name name; " "; has; " ";
-             add_an_s "variable" (List.length vs > 1); " ";
-             liststring2 string_of_term ", " " and " vs;
-             " which ";
-             (if List.length vs =1 then "isn't" else "aren't"); " in the "; wherekind; "."]
-      | _, [] ->
-          showInputError report
-            [place; " "; objkind; " "; string_of_name name; " "; has;
-             " duplicate "; add_an_s "variable" (List.length vs > 1); " ";
-             liststring2 string_of_term ", " " and " vs; "."]
-      | dups, rogues ->
-          showInputError report
-            [place; " "; objkind; " "; string_of_name name; " "; has;
-             " duplicate "; add_an_s "variable" (List.length dups > 1); " ";
-             liststring2 string_of_term ", " " and " dups; ", and also ";
-             add_an_s "variable" (List.length rogues > 1); " ";
-             liststring2 string_of_term ", " " and " rogues;
-             " which aren't in the "; wherekind; "."]
-      end;
+      let place = place() in
+      let has = has() in
+      (match split (fun v -> member (v, bodyvars)) vs with
+         [], _ ->
+           showInputError report
+             [place; " "; objkind; " "; string_of_name name; " "; has; " ";
+              add_an_s "variable" (List.length vs > 1); " ";
+              liststring2 string_of_term ", " " and " vs;
+              " which ";
+              (if List.length vs =1 then "isn't" else "aren't"); " in the "; wherekind; "."]
+       | _, [] ->
+           showInputError report
+             [place; " "; objkind; " "; string_of_name name; " "; has;
+              " duplicate "; add_an_s "variable" (List.length vs > 1); " ";
+              liststring2 string_of_term ", " " and " vs; "."]
+       | dups, rogues ->
+           showInputError report
+             [place; " "; objkind; " "; string_of_name name; " "; has;
+              " duplicate "; add_an_s "variable" (List.length dups > 1); " ";
+              liststring2 string_of_term ", " " and " dups; ", and also ";
+              add_an_s "variable" (List.length rogues > 1); " ";
+              liststring2 string_of_term ", " " and " rogues;
+              " which aren't in the "; wherekind; "."]);
       raise Use_
     in
-    check paramvars (error "parameter list" "includes");
-    check provars
-      (error (add_an_s "proviso" (List.length provisos > 1))
-         (add_an_s "contain" (List.length provisos = 1)))
+    check paramvars (error (fun _ -> implode ["the parameter list ("; 
+                                              string_of_list string_of_paraparam "," params; 
+                                              ") of"]) 
+                           (fun _ -> "includes"));
+    check provars (error (fun _ -> implode [add_an_s "the proviso" (List.length provisos > 1); " "; 
+                                            string_of_list string_of_proviso " AND " provisos;
+                                            " of"])
+                         (fun _ -> add_an_s "contain" (List.length provisos = 1)))
 
 let rec parseParagraph report query =
   let sy = currsymb () in
@@ -732,8 +733,7 @@ and parseRule report axiom =
     let heading = parseRuleHeading true _ISWORD in
     let (antes, conseq) = parseRulebody () in
     let _ =
-      checkvalidruleheading report "rule" "body of the rule" heading antes
-        conseq (fun _ -> [])
+      checkvalidruleheading report "rule" "body of the rule" heading antes conseq (fun _ -> [])
     in
     heading, antes, conseq, axiom
 
@@ -742,24 +742,15 @@ and parseUnnamedRule report nopt axiom =
   let provisos = parseProvisos () in
   let _ = ignore _ISWORD in
   let (antes, conseq) = parseRulebody () in
-  let name =
-    Name
-      (match nopt with
-         Some n -> n
-       | None ->
-           match antes, conseq with
-             [], _ -> string_of_seq conseq
-           | _ ->
-               implode
-                 ["FROM ";
-                  implode
-                    (interpolate " AND " ((string_of_seq <* antes)));
-                  " INFER "; string_of_seq conseq])
+  let name = Name (match nopt with
+                     Some n -> n
+                   | None   -> match antes with
+                                 [] -> string_of_thmbody " " [] conseq
+                               | _  -> string_of_rulebody " " [] antes conseq)
   in
   let heading = RuleHeading (name, params, provisos) in
   let _ =
-    checkvalidruleheading report "rule" "body of the rule" heading antes
-      conseq (fun _ -> [])
+    checkvalidruleheading report "rule" "body of the rule" heading antes conseq (fun _ -> [])
   in
   (heading, antes, conseq, axiom)
 
@@ -813,10 +804,9 @@ and parseMenu report query mproof =
     Mentry (itemname, menukey, item)
   in
   let rec parseentry () =
-    if member (currsymb (), parasymbs) then
-      Menupara (_The (parseParagraph report query))
-    else
-      Menustuff (parsemenucommand())
+    if member (currsymb (), parasymbs) 
+    then Menupara (_The (parseParagraph report query))
+    else Menustuff (parsemenucommand())
   and parsemenucommand () = 
       match currsymb () with
         SHYID "BEFOREENTRY" -> 
@@ -850,9 +840,8 @@ and parseMenu report query mproof =
   let mlabel = name_of_currsymb () in
   let _ = ignore _ISWORD in
   let m =
-    Menu
-      (mproof, mlabel,
-       parseUnsepList (fun s -> member (s, symbs)) (fun _ -> parseentry ()))
+    Menu (mproof, mlabel,
+          parseUnsepList (fun s -> member (s, symbs)) (fun _ -> parseentry ()))
   in
   match currsymb () with
     SHYID "END" -> scansymb (); m
@@ -1023,8 +1012,7 @@ and parseTheorem report =
     let heading = parseRuleHeading true _ISWORD in
     let body = parseSeq () in
     let _ =
-      checkvalidruleheading report "theorem" "body of the theorem" heading
-        [] body (fun _ -> [])
+      checkvalidruleheading report "theorem" "body of the theorem" heading [] body (fun _ -> [])
     in
     Conjecture (heading, body)
 
@@ -1036,14 +1024,14 @@ and parseUnnamedTheorem report nopt =
   let n =
     match nopt with
       Some n -> n
-    | None -> Name (string_of_seq s)
+    | None   -> Name (string_of_seq s)
   in
   let heading = RuleHeading (n, params, provisos) in
   let _ =
-    checkvalidruleheading report "theorem" "body of the theorem" heading
-      [] s (fun _ -> [])
+    checkvalidruleheading report "theorem" "body of the theorem" heading [] s (fun _ -> [])
   in
   Conjecture (heading, s)
+  
 (* PROOF <name> { <params> } { <provisos> } 
                 { FROM <antecedents> } INFER <sequent> 
                 { FORMULAE <numbered formulae> }
@@ -1087,11 +1075,10 @@ and parseProof report stage =
         (* this argument is slowing down proof reading no end - so I lazified it *)
         (fun _ ->
            match fs with
-             None -> termvars tacterm
+             None    -> termvars tacterm
            | Some fs ->
                (* bodyvars from old-style proof *)
-               nj_fold (uncurry2 tmerge) (termvars <* fs)
-                 ((isUnknown <| termvars tacterm)))
+               nj_fold (uncurry2 tmerge) (termvars <* fs) (isUnknown <| termvars tacterm))
     in
     let disproofopt = parsemodel () in
     Proof (n, stage, seq, (givens, params, pros, tac), disproofopt)
@@ -1206,12 +1193,50 @@ and paragraphs_of_file report query s =
                                 try using the file converter that comes with Jape.)\n\n\
                                 (Or, if this is the first time you've run the new version of \
                                 Jape, check that it isn't picking up an unconverted file by \
-                                default. It always goes back to the last file it opened \
-                                in the file dialogue.)"];
+                                default. The file dialogue starts in the last directory \
+                                where you opened a file: it may be prompting you to pick \
+                                up the wrong file.)"];
         error_cleanup (); raise Use_
      | exn -> error_cleanup (); raise exn)
     (* including Use_, at it happens *)
   in cleanup (); r
+  
+(* this is where rules, theorems, tactics and macros get parsed, so this is the right place
+   to generate their parseable representation. Odd, innit?
+   
+   linesep is normally a space, but can be a newline as well (see prooftree.ml).
+ *)
+
+and catelim_string_of_rulebody linesep provisos antes conseq ss =
+  let body = "INFER " :: catelim_separatedstring_of_seq 
+                                   (if linesep="\n" then "\n     " else linesep)
+                                   conseq ss in
+  let antes_body =
+    if null antes then body
+    else 
+      "FROM " :: 
+        catelim_string_of_list (catelim_separatedstring_of_seq 
+                                  (if linesep="\n" then "\n     " else linesep))
+                               (linesep^"AND ") antes 
+          (linesep :: body)
+  in
+  if null provisos then antes_body
+  else
+    "WHERE " ::
+      catelim_string_of_list catelim_string_of_proviso (linesep^"AND ") provisos
+        (linesep :: antes_body)
+
+and catelim_string_of_thmbody linesep provisos seq ss =
+  if null provisos then catelim_separatedstring_of_seq linesep seq ss
+  else catelim_string_of_rulebody linesep provisos [] seq ss
+
+and string_of_rulebody linesep provisos antes conseq =
+  implode (catelim_string_of_rulebody linesep provisos antes conseq [])
+
+and string_of_thmbody linesep provisos seq =
+  implode (catelim_string_of_thmbody linesep provisos seq [])
+  
+(* **************************************** export *********************************** *)
 
 let rec paragraph_of_string report query s =
   let rec getpara () =

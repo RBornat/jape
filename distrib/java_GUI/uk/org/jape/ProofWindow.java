@@ -88,7 +88,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	this.proofnum = proofnum;
 	
 	getContentPane().setLayout(new BorderLayout()); 
-	proofPane = new AnchoredScrollPane();
+	proofPane = new AnchoredScrollPane("proof pane");
 	proofSizeTimer = new Timer(resizeDelay, new ActionListener(){
 	    public void actionPerformed(ActionEvent e) {
 		proofSizeTimer.stop();
@@ -148,6 +148,10 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	setLocation(nextPos());
 	setVisible(true);
     }
+    
+    public int getBarKind() {
+	return JapeMenu.PROOFWINDOW_BAR;
+    }
 
     protected synchronized void deleteWindowListener() {
 	if (windowListener!=null) {
@@ -184,7 +188,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    provisocount = provisoCanvas==null ? 0 : provisoCanvas.getTextSelectionCount();
 
 	try {
-	    JapeMenu.enableItem(true, "Edit", "Copy", proofcount+disproofcount+provisocount==1);
+	    JapeMenu.enableItem(true, "Edit", JapeMenu.COPY, JapeMenu.PROOFWINDOW_BAR, proofcount+disproofcount+provisocount==1);
 	} catch (ProtocolError e) {
 	    Alert.abort("ProofWindow.enableCopy can't find Edit: Copy");
 	}
@@ -220,24 +224,28 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	}
 
 	try {
-	    JapeMenu.enableItem(true, "Edit", "Undo", undoenable);
-	    JapeMenu.enableItem(true, "Edit", "Redo", redoenable);
+	    JapeMenu.enableItem(true, "Edit", "Undo", JapeMenu.PROOFWINDOW_BAR, undoenable);
+	    JapeMenu.enableItem(true, "Edit", "Redo", JapeMenu.PROOFWINDOW_BAR, redoenable);
 	} catch (ProtocolError e) {
 	    Alert.abort("ProofWindow.enableUndo can't find Edit: Undo/Redo");
 	}
 
-	if (Jape.onMacOS) // put the dot in the red button
+	if (Jape.onMacOSX) // put the dot in the red button
 	    getRootPane(). putClientProperty("windowModified",
 			    (proofhistory||disproofhistory) ? Boolean.TRUE : Boolean.FALSE);
     }
 
     public void enableExport() {
 	try {
-	    JapeMenu.enableItem(true, "File", JapeMenu.EXPORT_PROOF, disproofPane!=null);
-	    JapeMenu.enableItem(true, "File", JapeMenu.EXPORT_DISPROOF, disproofPane!=null);
+	    JapeMenu.enableItem(true, "File", JapeMenu.EXPORT_PROOF, JapeMenu.PROOFWINDOW_BAR, disproofPane!=null);
+	    JapeMenu.enableItem(true, "File", JapeMenu.EXPORT_DISPROOF, JapeMenu.PROOFWINDOW_BAR, disproofPane!=null);
 	} catch (ProtocolError e) {
 	    Alert.abort("ProofWindow.enableExport can't find File: Export Proof/Disproof");
 	}
+    }
+    
+    public void enableLemmas() {
+	JapeMenu.enableLemmas(proofCanvas.hasConcSelection());
     }
     
     // pane focus
@@ -458,7 +466,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
     private AnchoredScrollPane ensureProvisoPane() {
 	if (provisoPane==null) {
-	    provisoPane = new AnchoredScrollPane();
+	    provisoPane = new AnchoredScrollPane("proviso pane");
 	    provisoCanvas = new ProvisoCanvas(provisoPane.getViewport(), true);
 	    provisoPane.add(provisoCanvas);
 	    provisoPane.setAnchor(AnchoredScrollPane.ANCHOR_NORTHWEST);
@@ -875,6 +883,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	enableCopy();
 	enableUndo();
 	enableExport();
+	enableLemmas();
     }
     
     public static ProofWindow maybeFocussedWindow() {

@@ -65,7 +65,7 @@ class TextItem extends DisplayItem implements DebugConstants {
     }
 
     public void paint(Graphics g) {
-	if (paint_tracing || fontDebug)
+	if (DebugVars.paint_tracing || fontDebug)
 	    Logger.log.println("painting "+this);
 	for (int i=0; i<components.length; i++) {
 	    TextComponent c = components[i];
