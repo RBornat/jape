@@ -25,88 +25,38 @@
     
 */
 
-import java.awt.AlphaComposite;
 import java.awt.Component;
-import java.awt.Composite;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
 
-import java.awt.image.BufferedImage;
-
+import java.util.Enumeration;
 import java.util.Vector;
 
-public class DragComponent extends Component implements DebugConstants {
-    private AlphaComposite comp;
+public abstract class DragComponent extends Component {
+    private Vector friendv;
     
-    public DragComponent(float opacity) {
-        super();
-        setBackground(Preferences.ProofBackgroundColour);
-        comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity);
-    }
-
-    private Rectangle imagebounds;
-    private Vector includev = new Vector();
-    
-    public void include(Component c) {
-        if (includev.indexOf(c)==-1) {
-            includev.add(c);
-        }
-        if (imagebounds==null)
-            imagebounds = c.getBounds();
-        else
-            imagebounds.add(c.getBounds());
-    }
-
-    private BufferedImage image;
-    
-    public void fixImage() {
-        if (includev.size()==0)
-            Alert.abort("DragComponent.fixImage no items");
-
-        setSize(imagebounds.width, imagebounds.height);
-        image = (BufferedImage)((Component)includev.get(0)).createImage(imagebounds.width, imagebounds.height);
-        Graphics imageGraphics = image.createGraphics();
-        imageGraphics.setClip(0, 0, imagebounds.width, imagebounds.height);
-        imageGraphics.setColor(getBackground());
-        imageGraphics.fillRect(0, 0, imagebounds.width, imagebounds.height);
-        for (int i=0; i<includev.size(); i++) {
-            Component c = (Component)includev.get(i);
-            int deltax = c.getX()-imagebounds.x, deltay = c.getY()-imagebounds.y;
-            imageGraphics.translate(deltax, deltay);
-            if (drag_tracing)
-                System.err.println("fixImage painting "+c+" @ ("+deltax+","+deltay+")");
-            c.paint(imageGraphics);
-            imageGraphics.translate(-deltax, -deltay);
-        }
-        imageGraphics.dispose();
-    }
-
-    public Point getImageLocation() {
-        if (imagebounds==null)
-            Alert.abort("DragComponent.getImageLocation no image");
-
-        return new Point(imagebounds.x, imagebounds.y);
-    }
-    
-    public void paint(Graphics g) {
-        if (image==null)
-            fixImage();
-        if (g instanceof Graphics2D) {
-            Graphics2D g2D = (Graphics2D)g;
-            Composite oldcomp = g2D.getComposite();
-            g2D.setComposite(comp);
-            g.drawImage(image, 0,0, this);
-            g2D.setComposite(oldcomp);
-        }
-        else
-            Alert.abort("DragComponent.paint can't enable transparent drawing");
-    }
-
-    public void moveTo(int x, int y) {
+    public void moveBy(int deltax, int deltay) {
         repaint();
-        setLocation(x,y);
+        movePosition(deltax, deltay);
         repaint();
+        if (friendv!=null)
+            for (int i=0; i<friendv.size(); i++)
+                ((DragComponent)friendv.get(i)).moveBy(deltax, deltay);
+    }
+
+    protected abstract void movePosition(int deltax, int deltay);
+
+    public void addFriend(DragComponent friend) {
+        if (friendv==null)
+            friendv = new Vector();
+        if (friendv.indexOf(friend)==-1)
+            friendv.add(friend);
+    }
+
+    public Enumeration friends() {
+        return friendv==null ? new NoFriends() : friendv.elements();
+    }
+
+    private static class NoFriends implements Enumeration {
+        public boolean hasMoreElements() { return false; }
+        public Object nextElement() { return null; }
     }
 }
