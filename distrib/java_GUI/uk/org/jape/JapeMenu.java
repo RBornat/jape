@@ -95,11 +95,15 @@ public class JapeMenu implements DebugConstants {
 		itemv.insertElementAt(new Sep(),i);
 	}
 	public void removeI(String label) {
+	    // Logger.log.println("JapeMenu.M.removeI "+JapeUtils.enQuote(label)+" from "+this);
 	    int vc = itemv.size();
 	    for (int i=0; i<vc; i++) {
 		Object o = itemv.get(i);
 		if (o instanceof I && ((I)o).label.equals(label)) {
-		    itemv.remove(i); return;
+		    itemv.remove(i); 
+		    // Logger.log.println("menu now "+this);
+		    versionstamp++; // seems to be necessary
+		    return;
 		}
 	    }
 	    Alert.abort("JapeMenu.M.removeI "+JapeUtils.enQuote(label)+" from "+this);
@@ -348,7 +352,7 @@ public class JapeMenu implements DebugConstants {
 	if (DebugVars.menuaction_tracing)
 	    Logger.log.println("JapeMenu.setBar "+JapeUtils.enQuote(w.title)+
 			       " "+stamp+
-			       " ("+versionstamp+"; "+w.getJMenuBar()==null+")");
+			       " ("+versionstamp+"; "+(w.getJMenuBar()==null)+")");
 	if (w.getJMenuBar()==null || stamp<versionstamp) {
 	    if (w instanceof ProofWindow)
 		setJMenuBar(true, w);
@@ -939,6 +943,7 @@ public class JapeMenu implements DebugConstants {
     }
 	
     public static void windowRemoved(String title, JapeWindow w) {
+	// Logger.log.println("JapeMenu.windowRemoved("+JapeUtils.enQuote(title)+","+w+")");
 	windowmenu.removeI(title);
 	if (w instanceof SurrogateWindow && hassurrogate) {
 	    hassurrogate = false; 
