@@ -38,15 +38,20 @@ let mkNotin v = Provisotype.NotinProviso v
 let substdebug = ref false
 let rec substmapdom (vts : (term * term) list) = (fst <* vts)
 let rec substmapran (vts : (term * term) list) = (snd <* vts)
+
 (* varmappedbyq doesn't always take a VAR as its first parameter *)
 (* is that true any more? RB May 95 *)
+
 let rec varmappedbyq facts v vts = varboundbyq facts v (substmapdom vts)
+
 (* the vars in varboundbyq are all VARs, aren't they? But if the proof doesn't
    say so, we don't know so.
  *)
 (* Now we do, because of VariableClass and its friends *)
+
 and varboundbyq facts v vars = existsq (substeqvarsq facts v) vars
 (* varmappedto is None if we can't say, Some v if it doesn't map, Some term if it does *)
+
 let rec varmappedto facts v vts =
   let rec check a1 a2 =
     match a1, a2 with
@@ -59,13 +64,17 @@ let rec varmappedto facts v vts =
     | def, [] -> def
   in
   check (Some v) vts
+
 let rec vtmetacount vts =
   nj_fold (fun (x, y) -> x + y)
     ((fun (v, _) -> if isUnknown v then 1 else 0) <* vts) 0
+
 let rec vtmaps facts vts (v, _) =
   List.exists (fun (v', _) -> qDEF (substeqvarsq facts v v')) vts
+
 let rec vtminus facts vts1 vts2 =
   (not <.> vtmaps facts vts2) <| vts1
+
 let rec vtsplit facts vts bs =
   let rec _S ((v, t), (ys, ns, ms)) =
     let rs = (substeqvarsq facts v <* bs) in
@@ -74,10 +83,10 @@ let rec vtsplit facts vts bs =
     else ys, (v, t) :: ns, ms
   in
   nj_fold _S vts ([], [], [])
-exception Whoops_
-(* moved outside for OCaml *)
+
+exception Whoops_ (* moved outside for OCaml *)
        
-   (* Moving a map through another map. If this works you get a new map *)
+(* Moving a map through another map. If this works you get a new map *)
 let rec plussubstmap facts vtout vtin =
   let vsin = substmapdom vtin in
   match vtsplit facts vtout vsin with
@@ -87,6 +96,7 @@ let rec plussubstmap facts vtout vtin =
            ns)
   | _ -> None
 (* Moving a map through a binder.  If this works you get a new map *)
+
 and restrictsubstmap facts vts bs ss =
   let rec res f r =
     if !substdebug then
@@ -116,6 +126,7 @@ and restrictsubstmap facts vts bs ss =
       res (fun _ -> vtsstring ns) (Some ns)
     else res (fun _ -> "failure cos of unsafeity (sic)") None
   else res (fun _ -> "failure cos of uncertainty") None
+
 and varoccursinq facts v =
   fun _P ->
     let _EF = exterioreqvarsq facts in
@@ -185,6 +196,7 @@ and varoccursinq facts v =
             | Some v -> Some (orq (sofar, v))
     in
     foldterm foldsearch No _P
+
 and simplifySubstAnyway facts vts =
   fun _P ->
     match simplifySubst facts vts _P with
@@ -194,11 +206,13 @@ and simplifySubstAnyway facts vts =
    simplifySubst and simplifysubstmap are partial functions.
    simplifySubst won't deliver a reducible substitution.
 *)
+
 and simpres vts =
   fun _P r ->
     consolereport
       ["simplifySubst "; " "; termstring (Subst (None, true, _P, vts));
        " => "; optionstring termstring r]
+
 and simplifySubst a1 a2 a3 =
   match a1, a2, a3 with
     facts, [], (Subst (_, _, _P', vts') as _P) ->
@@ -254,6 +268,7 @@ and simplifySubst a1 a2 a3 =
           res
             (try Some (registerCollection (k, (se <* es))) with
                Whoops_ -> None)
+
 and simplifysubstmap facts =
   fun _P vts ->
     (* _W detects substitutions in substitutions and takes them out if poss *)
