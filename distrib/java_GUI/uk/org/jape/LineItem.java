@@ -26,7 +26,6 @@
 */
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -43,12 +42,14 @@ public class LineItem extends Component {
                   Math.max(canvas.linethickness, Math.abs(x2-x1)),
                   Math.max(canvas.linethickness, Math.abs(y2-y1)));
         this.x1 = x1-getX(); this.y1 = y1-getY(); this.x2 = x2-getX(); this.y2 = y2-getY();
+        setForeground(Preferences.LineColour);
     }
 
     protected boolean stroked;
     protected int xfrom, yfrom, xto, yto;
 
     protected void prepaint(Graphics g) {
+        g.setColor(getForeground());
         if (g instanceof Graphics2D) {
             BasicStroke stroke = new BasicStroke((float)canvas.linethickness);
             int half = canvas.linethickness/2;
@@ -77,6 +78,6 @@ public class LineItem extends Component {
 
     // default behaviour
     public void paint(Graphics g) {
-        g.setColor(Color.black); prepaint(g); g.drawLine(xfrom, yfrom, xto, yto);
+        prepaint(g); g.drawLine(xfrom, yfrom, xto, yto);
     }
 }
