@@ -39,6 +39,7 @@ interface DebugConstants {
                                 menuaction_tracing       = false,
                                 menubar_tracing          = false,
                                 paint_tracing            = false,
+                                panelempty_tracing       = false,
                                 panellayout_tracing      = false,
                                 panellist_tracing        = false,
                                 protocol_tracing         = false;
