@@ -1071,6 +1071,7 @@
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
+			lineEnding = 0;
 			name = Preferences.java;
 			path = ../../java_GUI/uk/org/jape/Preferences.java;
 			refType = 2;
