@@ -44,7 +44,7 @@ CONJECTUREPANEL "Set Conjectures" IS
 	AND (AßB)ø=AøïBø
 	AND (OBJECT y) INFER <C,D>ÚA¥B ê (äy.<C,y>ÚA¦<y,D>ÚB)
 	AND (A¥B)¥C=A¥(B¥C)
-	
+
 	END
 
 	PREFIXBUTTON Apply IS apply TheoremForwardOrBackward
