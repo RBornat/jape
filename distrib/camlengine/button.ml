@@ -41,7 +41,9 @@ open Name
     
 type name = Name.name
 
+
 let deadServer = Interaction.deadServer
+
 and runningServer = (fun() -> Optionfuns.opt2bool !Japeserver.serverpid)
  
 type button = UndoProofbutton
@@ -64,7 +66,9 @@ type mybutton = MyUndoProof
 			  | MySaveAs
 			  | MyDisprove
 
+
 let buttoncache : (mybutton, bool ref) mapping ref = ref empty
+
 let rec enable (button, state) =
   let rec doit b v =
     let (m, c) =
@@ -98,12 +102,14 @@ let rec enable (button, state) =
   | Savebutton -> doit MySave state
   | SaveAsbutton -> doit MySaveAs state
   | Disprovebutton -> doit MyDisprove state
+
 let (resetfontstuff, setfontstuff, getfontstuff) =
   let fontstuff : string option ref = ref None in
   let rec resetfontstuff () = fontstuff := None
   and setfontstuff stuff = fontstuff := Some stuff
   and getfontstuff () = !fontstuff in
   resetfontstuff, setfontstuff, getfontstuff
+
 
 let rec reloadmenusandpanels markconjecture oplist =
   if runningServer () then
@@ -130,35 +136,28 @@ let rec reloadmenusandpanels markconjecture oplist =
       paneliter
         (fun (panel, kind) ->
            let panelstring = namestring panel in
-           Japeserver.newpanel (panelstring, kind);
+           Japeserver.newpanel panelstring kind;
            panelitemiter panel
              (fun (label, entry) ->
-                Japeserver.panelentry
-                  (panelstring, namestring label, entry);
+                Japeserver.panelentry panelstring (namestring label) entry;
                 if kind = ConjecturePanelkind then
                   match markconjecture label with
                     Some mark ->
-                      Japeserver.markpanelentry panelstring
-                        (namestring label) mark
+                      Japeserver.markpanelentry panelstring entry mark
                   | _ -> ())
-             (fun (name, cmd) ->
-                (* button *)
-                Japeserver.panelbutton
-                  (panelstring, namestring name, cmd))
-             (fun (label, cmd) ->
-                (* checkbox *)
-                Japeserver.panelcheckbox
-                  (panelstring, namestring label, cmd))
-             (fun lcs ->
-                (* radio button *)
-                Japeserver.panelradiobutton
-                  (panelstring,
-                   List.map (fun (n, v) -> namestring n, v) lcs)));
+             (fun (name, cmd) -> (* button *)
+                Japeserver.panelbutton panelstring (namestring name) cmd)
+             (fun (label, cmd) -> (* checkbox *)
+                Japeserver.panelcheckbox panelstring (namestring label) cmd)
+             (fun lcs -> (* radio button *)
+                Japeserver.panelradiobutton panelstring
+                   (List.map (fun (n, v) -> namestring n, v) lcs)));
       Japeserver.mapmenus true;
       let _ = Japeserver.echo "" (* synchronise *) in ()
     with
       Japeserver.DeadServer_ -> deadServer ["WARNING: server broken"]
-let rec markproof proved cmd =
+
+let rec markproof cmd proved =
   (* given parseable name - look in the cmd part of conjecture panels *)
   paneliter
     (function
@@ -166,10 +165,10 @@ let rec markproof proved cmd =
          panelitemiter panel
            (fun (label, entry) ->
               if entry = cmd then
-                Japeserver.markpanelentry (namestring panel)
-                  (namestring label) proved)
+                Japeserver.markpanelentry (namestring panel) entry proved)
            (fun _ -> ()) (fun _ -> ()) (fun _ -> ())
      | panel, _ -> ())
+
 let rec initButtons () =
   let ( -------- ) = Mseparator in
   let rec _E (name, cut, cmd) = Mentry (namefrom name, cut, cmd) in
@@ -190,6 +189,7 @@ let rec initButtons () =
   clearmenusandpanels ();
   addmenu (namefrom "Edit");
   addmenudata (namefrom "Edit") _EditEntries
+
 let rec initFonts () =
   match getfontstuff () with
     Some stuff -> Japeserver.setFonts stuff
