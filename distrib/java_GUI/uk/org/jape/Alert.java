@@ -128,7 +128,7 @@ public class Alert implements DebugConstants {
                                                  "GUI error", 0, Error,
                                                  null, buttons, quit);
         if (reply==0)
-            Logger.crash("GUI error: "+message, 2);
+           Jape.crash("GUI error: "+message);
     }
 
     public static void abort(String message) {

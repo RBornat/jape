@@ -56,7 +56,7 @@ public class Jape implements DebugConstants {
             Reply.sendCOMMAND("quit");
         }
         else
-            Alert.showErrorAlert("The engine isn't responding!");
+            crash("The engine isn't responding!");
     }
 
     public static void dontQuit() {
@@ -67,6 +67,10 @@ public class Jape implements DebugConstants {
         Alert.showAlert(Alert.Info, "Preferences item selected in menu");
     }
     
+	public static void crash(String message) {
+		Logger.crash(message,2);
+	}
+	
     public static boolean onMacOS, onLinux, onSolaris, onWindows;
     public static Rectangle screenBounds;
     public static String defaultUnixEnginePath    = "./jape_engine";
