@@ -46,7 +46,7 @@ public abstract class SelectableProofItem extends TextSelectableProofItem
                                String annottext, String printtext) {
         super(canvas,x,y,fontnum,annottext,printtext);
         this.canvas = canvas;
-        selectionRect = new SelectionRect(canvas.getSelectionHalo(), getBounds());
+        selectionRect = new SelectionRect(canvas.linethickness, getBounds());
         canvas.add(selectionRect);
         addMouseInteractionListener(new MouseInteractionAdapter() {
             public void clicked(byte eventKind, MouseEvent e) {
