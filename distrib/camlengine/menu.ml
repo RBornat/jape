@@ -67,37 +67,37 @@ type pentry = string * string
 
 let str x = x
 
-let rec checkboxstring c =
-  quadruplestring string_of_name string_of_name (pairstring str str ",")
-    (optionstring str) "," c
+let rec string_of_checkbox c =
+  string_of_quadruple string_of_name string_of_name (string_of_pair str str ",")
+    (string_of_option str) "," c
 
-let rec radiobuttonstring r =
-  triplestring string_of_name
-    (bracketedliststring (pairstring string_of_name str ",") ",")
-    (optionstring str) "," r
+let rec string_of_radiobutton r =
+  string_of_triple string_of_name
+    (bracketedstring_of_list (string_of_pair string_of_name str ",") ",")
+    (string_of_option str) "," r
 
-let rec menudatastring =
+let rec string_of_menudata =
   function
     Mseparator      -> "Mseparator"
-  | Mentry me       -> "Mentry " ^ triplestring string_of_name (optionstring str) str "," me
-  | Mcheckbox mc    -> "Mcheckbox " ^ checkboxstring mc
-  | Mradiobutton mr -> "Mradiobutton " ^ radiobuttonstring mr
+  | Mentry me       -> "Mentry " ^ string_of_triple string_of_name (string_of_option str) str "," me
+  | Mcheckbox mc    -> "Mcheckbox " ^ string_of_checkbox mc
+  | Mradiobutton mr -> "Mradiobutton " ^ string_of_radiobutton mr
 
-let rec panelbuttoninsertstring =
+let rec string_of_panelbuttoninsert =
   function
     StringInsert s -> enQuote s
   | LabelInsert    -> "LABEL"
   | CommandInsert  -> "COMMAND"
 
-let rec paneldatastring =
+let rec string_of_paneldata =
   function
-    Pentry pe -> "Pentry " ^ pairstring string_of_name str "," pe
+    Pentry pe -> "Pentry " ^ string_of_pair string_of_name str "," pe
   | Pbutton pb ->
       "Pbutton " ^
-        pairstring string_of_name
-          (bracketedliststring panelbuttoninsertstring ",") "," pb
-  (* | Pcheckbox pc -> "Pcheckbox " ^ checkboxstring pc
-     | Pradiobutton pr -> "Pradiobutton " ^ radiobuttonstring pr
+        string_of_pair string_of_name
+          (bracketedstring_of_list string_of_panelbuttoninsert ",") "," pb
+  (* | Pcheckbox pc -> "Pcheckbox " ^ string_of_checkbox pc
+     | Pradiobutton pr -> "Pradiobutton " ^ string_of_radiobutton pr
    *)
 
 (* Order of insertion no longer exploits the details of mapping implementation.
@@ -158,7 +158,7 @@ let rec addtomenu e es =
     | Mcheckbox (_, var, _, _)   -> Some var
     | Mradiobutton (var, lcs, _) -> Some var
   in
-  if !menudebug then consolereport ["adding "; menudatastring e];
+  if !menudebug then consolereport ["adding "; string_of_menudata e];
   match e with
     Mseparator -> e :: es
   | _          -> addtodata lf vf e es

@@ -57,7 +57,7 @@ type forcedef  = Forcedef.forcedef
 let atoi = Miscellaneous.atoi
 let askChoice = Alert.askChoice
 let base_sequent = Prooftree.Tree.Fmttree.sequent
-let catelim_seqstring = Sequent.catelim_seqstring
+let catelim_string_of_seq = Sequent.catelim_string_of_seq
 let consolereport = Miscellaneous.consolereport
 let drawindisproofpane () = drawinpane Displayfont.DisproofPane
 let getsemanticturnstile = Sequent.getsemanticturnstile
@@ -69,18 +69,18 @@ let matchvars = Match.matchvars
 let mkSeq = Sequent.mkSeq
 let option_remapterm = Match.option_remapterm
 let parseTerm = Termparse.term_of_string
-let pairstring = Stringfuns.pairstring
+let string_of_pair = Stringfuns.string_of_pair
 let seqexplode = Sequent.seqexplode
-let seqstring = Sequent.seqstring
+let string_of_seq = Sequent.string_of_seq
 let seqvars = Sequent.seqvars termvars tmerge
 let showAlert = Alert.showAlert Alert.defaultseverity_alert <.> implode
 let simplifySubst = Substmapfuns.simplifySubst
-let smlseqstring = Sequent.smlseqstring
+let debugstring_of_seq = Sequent.debugstring_of_seq
 let subtree = Prooftree.Tree.Fmttree.followPath
-let triplestring = Stringfuns.triplestring
+let string_of_triple = Stringfuns.string_of_triple
 let uncurry2 = Miscellaneous.uncurry2
-let catelim_pairstring = Stringfuns.catelim_pairstring
-let catelim_triplestring = Stringfuns.catelim_triplestring
+let catelim_string_of_pair = Stringfuns.catelim_string_of_pair
+let catelim_string_of_triple = Stringfuns.catelim_string_of_triple
 
 let ask ss bs def = Alert.ask (Alert.defaultseverity bs) (implode ss) bs def
 
@@ -89,7 +89,7 @@ let offbraket = offbra_as_string, offket_as_string
 let outbraket = outbra_as_string, outket_as_string
 let lockbraket = lockbra_as_string, lockket_as_string
 
-let term2binding t =
+let binding_of_term t =
   match Binding.bindingstructure t with
     Some t' -> Some (registerBinding t')
   | None    -> None
@@ -98,8 +98,8 @@ exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception ParseError_ = Miscellaneous.ParseError_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 
-let rec catelim_intstring i ss = string_of_int i :: ss
-let rec catelim_boolstring b ss = string_of_bool b :: ss
+let rec catelim_string_of_int i ss = string_of_int i :: ss
+let rec catelim_string_of_bool b ss = string_of_bool b :: ss
 
 let disproofdebug = ref false
 
@@ -117,14 +117,14 @@ let rec matchit pat vs t =
   let res = matchvars true (fun v -> member (v, vs)) pat t empty in
   if !matchdebug then
     consolereport
-      ["matchit (disproof) matching "; termstring pat; " ";
-       bracketedliststring
+      ["matchit (disproof) matching "; string_of_term pat; " ";
+       bracketedstring_of_list
          (fun v ->
-            pairstring termstring (idclassstring <.> idclass)
+            string_of_pair string_of_term (string_of_idclass <.> idclass)
               "," (v, v))
          ", " vs;
-       " against "; termstring t; " => ";
-       optionstring (mappingstring termstring termstring) res];
+       " against "; string_of_term t; " => ";
+       string_of_option (string_of_mapping string_of_term string_of_term) res];
   res
 
 let rec isBagClass t =
@@ -174,32 +174,32 @@ let childrenofworld = thrd
 
 type universe = (coord, world) mapping
 
-let catelim_emphstring = stringfn2catelim stringofdisproofemphasis
+let catelim_string_of_emph = catelim_of_stringfn stringofdisproofemphasis
 
-let catelim_coordstring =
-  catelim_pairstring catelim_intstring catelim_intstring ","
+let catelim_string_of_coord =
+  catelim_string_of_pair catelim_string_of_int catelim_string_of_int ","
 
-let catelim_labelstring =
-  catelim_pairstring catelim_emphstring catelim_termstring ","
+let catelim_string_of_label =
+  catelim_string_of_pair catelim_string_of_emph catelim_string_of_term ","
   
-let rec coordstring c = implode (catelim_coordstring c [])
+let rec string_of_coord c = implode (catelim_string_of_coord c [])
 
-let catelim_worldstring =
-  catelim_triplestring 
-    catelim_emphstring
-    (catelim_bracketedliststring catelim_labelstring ",")
-    (catelim_bracketedliststring catelim_coordstring ",") ", "
+let catelim_string_of_world =
+  catelim_string_of_triple 
+    catelim_string_of_emph
+    (catelim_bracketedstring_of_list catelim_string_of_label ",")
+    (catelim_bracketedstring_of_list catelim_string_of_coord ",") ", "
 
-let rec worldstring w = implode (catelim_worldstring w [])
+let rec string_of_world w = implode (catelim_string_of_world w [])
 
-let rec catelim_universestring sep u ss =
+let rec catelim_string_of_universe sep u ss =
   "Universe " ::
-    catelim_mappingstring catelim_coordstring catelim_worldstring
+    catelim_string_of_mapping catelim_string_of_coord catelim_string_of_world
       ("++" ^ sep) u ss
 
-let rec universestring sep u = implode (catelim_universestring sep u [])
+let rec string_of_universe sep u = implode (catelim_string_of_universe sep u [])
 
-let rec universe2list u = List.map (fun (c, (e, ts, cs)) -> c, e, ts, cs) (aslist u)
+let rec list_of_universe u = List.map (fun (c, (e, ts, cs)) -> c, e, ts, cs) (aslist u)
 
 let rec simplestuniverse () = ((0, 0) |-> (Unforced, [], []))
 
@@ -210,8 +210,8 @@ let rec issimplestuniverse u =
 
 let getworld u c =
   try _The ((u <@> c)) with
-    _ -> raise (Catastrophe_ ["(Disproof.getworld) no world at "; coordstring c; 
-                              "; "; universestring "" u])
+    _ -> raise (Catastrophe_ ["(Disproof.getworld) no world at "; string_of_coord c; 
+                              "; "; string_of_universe "" u])
 
 (* world-changing operations don't preserve emphasis *)
 
@@ -229,7 +229,7 @@ let rec addworldlabel u c t =
   match (u <@> c) with
     None ->
       raise
-        (Tacastrophe_ ["(addworldlabel) no world at "; coordstring c; "; "; universestring "" u])
+        (Tacastrophe_ ["(addworldlabel) no world at "; string_of_coord c; "; "; string_of_universe "" u])
   | Some (_, pts, pcs) ->
       let l = Unforced,t in
       if label_member (l, pts) then None
@@ -239,7 +239,7 @@ let rec deleteworldlabel u c t =
   match (u <@> c) with
     None ->
       raise
-        (Tacastrophe_ ["(deleteworldlabel) no world at "; coordstring c; "; "; universestring "" u])
+        (Tacastrophe_ ["(deleteworldlabel) no world at "; string_of_coord c; "; "; string_of_universe "" u])
   | Some (_, pts, pcs) ->
       let l = Unforced,t in
       if not (label_member (l, pts)) then None
@@ -274,7 +274,7 @@ let occurrences : (term * term list) list ref = ref []
 
 let rec isoccurrence t =
   List.exists
-    (opt2bool <.> (fun (occ, occvs) -> matchit occ occvs t))
+    (bool_of_opt <.> (fun (occ, occvs) -> matchit occ occvs t))
     !occurrences
 
 let rec newoccurrence v =
@@ -295,7 +295,7 @@ let rec newoccurrence v =
  *)
 
 let rec nodups t vs patf xs =
-  t, (not <.> opt2bool <.> matchit t vs <.> patf) <| xs
+  t, (not <.> bool_of_opt <.> matchit t vs <.> patf) <| xs
 
 let rec newocc t vs os =
   let rec patf (t, vs) = t in
@@ -330,7 +330,7 @@ let rec addforcedef (t, fd) =
             raise
               (Predicate_
                  ["Semantics must be simple! In the semantic pattern ";
-                  termstring t; ", predicate "; termstring _P;
+                  string_of_term t; ", predicate "; string_of_term _P;
                   " doesn't have bound variables as arguments"])
     in
     let env = mkmap (List.map pvars pbs) in
@@ -338,7 +338,7 @@ let rec addforcedef (t, fd) =
     let (t, fd) = mapterm comp t, mapforcedefterms comp fd in
     let vs = patvars t in
     let (t, fds) = nodups t vs (fun (t', _, _, _) -> t') !forcedefs in
-    let hassubst = opt2bool <.> findinforcedef decodeSubst in
+    let hassubst = bool_of_opt <.> findinforcedef decodeSubst in
     forcedefs := (t, vs, hassubst fd, fd) :: fds;
     occurrences := findoccs fd !occurrences
   with
@@ -375,8 +375,8 @@ and uniquebinders t fd =
     let r = snd (foldl newvar ([], empty) ocvs) in
     if !disproofdebug then
       consolereport
-        ["semantics matched "; termstring t; " and "; forcedefstring fd;
-         "; rewrite with "; mappingstring termstring termstring r];
+        ["semantics matched "; string_of_term t; " and "; string_of_forcedef fd;
+         "; rewrite with "; string_of_mapping string_of_term string_of_term r];
     r
   in
   let rec doit ocvs =
@@ -428,23 +428,23 @@ let rec indiv_fd facts (oc, vs, fd) i =
   if !disproofdebug then begin
       consolereport
         ["indiv_fd ";
-         triplestring termstring (bracketedliststring termstring ",")
-           forcedefstring "," (oc, vs, fd);
-         " "; termstring i; " => "; optionstring forcedefstring r];
+         string_of_triple string_of_term (bracketedstring_of_list string_of_term ",")
+           string_of_forcedef "," (oc, vs, fd);
+         " "; string_of_term i; " => "; string_of_option string_of_forcedef r];
       consolereport
         ["matchit oc vs i => ";
-         optionstring (mappingstring termstring termstring)
+         string_of_option (string_of_mapping string_of_term string_of_term)
            (matchit oc vs i)];
       match matchit oc vs i with
         None     -> ()
       | Some env ->
           consolereport
             ["mapforcedefterms (option_remapterm env) fd => ";
-             forcedefstring
+             string_of_forcedef
                (mapforcedefterms (option_remapterm env) fd)];
           consolereport
             ["mapforcedefterms (option_remapterm env  &~ (somef (dosubst facts))) fd => ";
-             forcedefstring
+             string_of_forcedef
                (mapforcedefterms
                   (
                      (option_remapterm env &~ somef (dosubst facts)))
@@ -512,7 +512,7 @@ let rec unfixedforced facts u =
     in
     let _ =
       if !disproofdebug then
-        consolereport ["evaluating "; coordstring c; "; "; termstring t]
+        consolereport ["evaluating "; string_of_coord c; "; "; string_of_term t]
     in
     let result =
       match semantics facts t with
@@ -523,14 +523,14 @@ let rec unfixedforced facts u =
     in
     if !disproofdebug then
       consolereport
-        ["forced ("; coordstring c; ", "; termstring t; ") => ";
-         pairstring string_of_bool string_of_bool "," result];
+        ["forced ("; string_of_coord c; ", "; string_of_term t; ") => ";
+         string_of_pair string_of_bool string_of_bool "," result];
     result
   in
   ff
 
 let rec seq_forced forced c s =
-  let rec doit e = match element2term e with
+  let rec doit e = match term_of_element e with
                      None   -> false, false
                    | Some t -> forced (c, t)
   in
@@ -567,49 +567,49 @@ type disproofstaterec =
  
 type disproofstate = Disproofstate of disproofstaterec
 
-let catelim_forcedstring =
-  catelim_pairstring catelim_boolstring catelim_boolstring ","
+let catelim_string_of_forced =
+  catelim_string_of_pair catelim_string_of_bool catelim_string_of_bool ","
 
-let rec catelim_Hashtblstring astring bstring sepstr mapstr store ss =
+let rec catelim_string_of_Hashtbl astring bstring sepstr mapstr store ss =
   let mapping = Hashtbl.fold (fun k v kvs -> (k,v)::kvs) store [] in
   "<<:" ::
-    catelim_liststring
+    catelim_string_of_list
       (fun (a, b) ss -> "(" :: astring a (sepstr :: bstring b (")" :: ss)))
       sepstr mapping (":>>" :: ss)
 
 let rec _Hashtblstring a b =
-  catelim2stringfn
-    (catelim_Hashtblstring (stringfn2catelim a) (stringfn2catelim b) "+:+" "|:->")
+  stringfn_of_catelim
+    (catelim_string_of_Hashtbl (catelim_of_stringfn a) (catelim_of_stringfn b) "+:+" "|:->")
 
-let rec catelim_disproofstatestring =
+let rec catelim_string_of_disproofstate =
   fun
     (Disproofstate
        {seq = seq; universe = universe; selected = selected; tiles = tiles;
         forcemap = forcemap; conclusive = conclusive; countermodel = countermodel})
     ss ->
-    let cbs = catelim_bracketedliststring catelim_boolstring "," in
+    let cbs = catelim_bracketedstring_of_list catelim_string_of_bool "," in
     "Disproofstate{seq = " ::
-      catelim_seqstring seq
+      catelim_string_of_seq seq
         (",\nworld = " ::
-           catelim_universestring "" universe
+           catelim_string_of_universe "" universe
              (",\nselected = " ::
-                catelim_bracketedliststring catelim_coordstring ","
+                catelim_bracketedstring_of_list catelim_string_of_coord ","
                   selected
                   (",\ntiles = " ::
-                     catelim_bracketedliststring catelim_termstring ","
+                     catelim_bracketedstring_of_list catelim_string_of_term ","
                        tiles
                        (", forcemap = " ::
-                          catelim_Hashtblstring
-                            (catelim_pairstring catelim_coordstring
-                               catelim_termstring ",")
-                            catelim_forcedstring "+:+" "|:->" forcemap
+                          catelim_string_of_Hashtbl
+                            (catelim_string_of_pair catelim_string_of_coord
+                               catelim_string_of_term ",")
+                            catelim_string_of_forced "+:+" "|:->" forcemap
                             (", conclusive = " ::
-                               catelim_boolstring conclusive
+                               catelim_string_of_bool conclusive
                                  (", countermodel = " ::
-                                    catelim_boolstring countermodel
+                                    catelim_string_of_bool countermodel
                                       ("}" :: ss)))))))
 
-let rec disproofstatestring d = implode (catelim_disproofstatestring d [])
+let rec string_of_disproofstate d = implode (catelim_string_of_disproofstate d [])
 
 let rec disproofstate_seq = fun (Disproofstate {seq = seq}) -> seq
 
@@ -665,7 +665,7 @@ let rec evaldisproofstate facts tree =
        concsbag && null (listsub sameelement baseconcs concs))
     in
     let forcemap = newforcemap () in
-    (* fun mf a v = pairstring coordstring smltermstring "," a^"|->"^(catelim2stringfn catelim_forcedstring) v *)
+    (* fun mf a v = string_of_pair string_of_coord debugstring_of_term "," a^"|->"^(stringfn_of_catelim catelim_string_of_forced) v *)
     let forced = newforcefun forcemap facts universe in
     let countermodel =
       if null selected then false else
@@ -677,14 +677,14 @@ let rec evaldisproofstate facts tree =
          _All (fun x -> x) results)
     in
     let rec realterm t =
-      match term2binding t with
+      match binding_of_term t with
         Some t' -> t'
       | _       -> t
     in
     let rec ivb t =
       let t = realterm t in
-      (* consolereport ["ivb ", smltermstring t, " => ", 
-           optionstring (catelim2stringfn catelim_forcedstring) (forcemap (root <@> t))]; 
+      (* consolereport ["ivb ", debugstring_of_term t, " => ", 
+           string_of_option (stringfn_of_catelim catelim_string_of_forced) (forcemap (root <@> t))]; 
        *)
       try let results = List.map (fun root -> Hashtbl.find forcemap (root, t)) selected in
           fst (if _All fst results then onbraket else offbraket) ^ (if List.exists snd results then fst lockbraket else "")
@@ -692,12 +692,12 @@ let rec evaldisproofstate facts tree =
     in
     let rec ivk t =
       let t = realterm t in
-      (* consolereport ["ivk ", smltermstring t, " => ", string_of_int (forced facts universe root t)]; *)
+      (* consolereport ["ivk ", debugstring_of_term t, " => ", string_of_int (forced facts universe root t)]; *)
       try let results = List.map (fun root -> Hashtbl.find forcemap (root, t)) selected in
           (if List.exists snd results then snd lockbraket else "") ^ snd (if _All fst results then onbraket else offbraket)
       with Not_found -> snd outbraket
     in
-    let seqplan = makeseqplan (elementstring_invischoose ivb ivk) true origin seq in
+    let seqplan = makeseqplan (chooseinvisbracketedstring_of_element ivb ivk) true origin seq in
     Disproofstate
       {seq = seq; selections = selections; seqplan = Some seqplan;
        universe = tint_universe facts forced seqplan selections universe; 
@@ -710,12 +710,12 @@ and tint_universe facts forced (plan, _) (proofsels, textsels) =
               match findfirstplanhit p plan &~~ 
                     (fun plan -> match planinfo plan with
                        ElementClass (e,_) -> Some e
-                     | _ -> None) &~~ element2term
+                     | _ -> None) &~~ term_of_element
               with
                 Some t -> t :: ts
               | _      -> raise (Catastrophe_ 
-                                   ["Disproof.tint_universe can't find element "; posstring p; " in "; 
-                                    bracketedliststring (planstring planclassstring) ";" plan])
+                                   ["Disproof.tint_universe can't find element "; string_of_pos p; " in "; 
+                                    bracketedstring_of_list (debugstring_of_plan string_of_planclass) ";" plan])
            ) 
            (foldr (fun (_,ss) ts ->
                      let rec tsel sels =
@@ -725,7 +725,7 @@ and tint_universe facts forced (plan, _) (proofsels, textsels) =
                        | []            -> ts
                        | _  -> raise (Catastrophe_ 
                                         ["Disproof.tint_universe can't understand text selection "; 
-                                                    bracketedliststring Stringfuns.enQuote ";" ss])
+                                                    bracketedstring_of_list Stringfuns.enQuote ";" ss])
                      in tsel ss
                   ) [] textsels)
            proofsels
@@ -763,7 +763,7 @@ and tint_world facts forced selections bindersels c (e, ls, chs) =
    List.map do_label ls, chs)
 
 and tint_label facts forced bindersels c (_,t) = 
-  ((if _All1 (fun bsel -> match indiv_fd facts bsel t &~~ forcedef2term with
+  ((if _All1 (fun bsel -> match indiv_fd facts bsel t &~~ term_of_forcedef with
                             Some t' -> fst (forced (c,t'))
                           | None    -> false
              ) bindersels 
@@ -778,15 +778,15 @@ let rec alphasort render sel ts =
     (sortunique (fun (s1, _) (s2, _) -> lowercase s1 < lowercase s2)
                 (List.map (fun t -> render t,t) ts))
 
-let tilesort = List.rev <.> alphasort termstring snd
+let tilesort = List.rev <.> alphasort string_of_term snd
 
-let labelsort = alphasort (fun (_,t) ->termstring t) snd 
+let labelsort = alphasort (fun (_,t) ->string_of_term t) snd 
 
-let rec seq2tiles facts seq =
+let rec tiles_of_seq facts seq =
   let (_, _, hyps, _, concs) = my_seqexplode seq in
   (* check for an absence of silliness *)
   let rec existselement f e =
-    match element2term e with
+    match term_of_element e with
       None -> false
     | Some t -> existsterm f t
   in
@@ -797,7 +797,7 @@ let rec seq2tiles facts seq =
               raise
                 (Disproof_
                    ["Forcing semantics can only deal with actual formulae in sequents.";
-                    " Segment variables (e.g. "; elementstring e;
+                    " Segment variables (e.g. "; string_of_element e;
                     ") aren't allowed "; " in disproof sequents."])
             else false)
          (hyps @ concs)
@@ -811,8 +811,8 @@ let rec seq2tiles facts seq =
               if isUnknown t then
                 raise
                   (Disproof_
-                     ["Unknowns (e.g. "; termstring t; " in sequent ";
-                      seqstring seq; ") make disproof somewhat tricky.  Try again when you have resolved the ";
+                     ["Unknowns (e.g. "; string_of_term t; " in sequent ";
+                      string_of_seq seq; ") make disproof somewhat tricky.  Try again when you have resolved the ";
                       " unknown formulae."])
               else false))
         (concs @ hyps)
@@ -827,8 +827,8 @@ let rec seq2tiles facts seq =
                 Some _ ->
                   raise
                     (Disproof_
-                       ["Substitutions (e.g. "; termstring t;
-                        " in sequent "; seqstring seq; ") aren't part of the forcing semantics.  Try again when you have ";
+                       ["Substitutions (e.g. "; string_of_term t;
+                        " in sequent "; string_of_seq seq; ") aren't part of the forcing semantics.  Try again when you have ";
                         " simplified the substitution(s)."])
               | _ -> false))
         (concs @ hyps)
@@ -836,19 +836,19 @@ let rec seq2tiles facts seq =
       ()
   in
   (* find the fringe *)
-  let hypterms = optionfilter element2term hyps in
-  let concterms = optionfilter element2term concs in
+  let hypterms = optionfilter term_of_element hyps in
+  let concterms = optionfilter term_of_element concs in
   let ts = foldl (semanticfringe facts)
              (foldl (semanticfringe facts) [] hypterms) concterms
   in
   (* add occurrence formulae if necessary *)
   let ts =
-    (if List.exists (opt2bool <.> decodeBinding) hypterms ||
-        List.exists (opt2bool <.> decodeBinding) concterms
+    (if List.exists (bool_of_opt <.> decodeBinding) hypterms ||
+        List.exists (bool_of_opt <.> decodeBinding) concterms
      then
        List.map fst 
              ((fun (occ, vs) ->
-                not (List.exists (opt2bool <.> (matchit occ vs)) ts)) <| !occurrences)
+                not (List.exists (bool_of_opt <.> (matchit occ vs)) ts)) <| !occurrences)
      else []) @ ts
   in
   (* eliminate all individuals which don't appear free in the sequent, 
@@ -869,7 +869,7 @@ let rec seq2tiles facts seq =
       in
       List.map (mapterm changevars) ts
 
-let rec disproofstate2model =
+let rec model_of_disproofstate =
   function
     None -> None
   | Some (Disproofstate {seq = seq; universe = universe}) ->
@@ -879,7 +879,7 @@ let rec disproofstate2model =
            (List.map (fun (c, (_, ts, chs)) -> World (Coord c, List.map (fun v->Coord v) chs, List.map snd ts))
               (aslist universe)))
 
-let rec model2disproofstate a1 a2 a3 =
+let rec disproofstate_of_model a1 a2 a3 =
   match a1, a2, a3 with
     facts, tree, None -> None
   | facts, tree, Some (seq, model) ->
@@ -891,7 +891,7 @@ let rec model2disproofstate a1 a2 a3 =
       in
       let utiles = nj_fold (fun (x, y) -> x @ y) (List.map (List.map snd <.> labelsofworld <.> snd) ulist) [] in
       let uvars = nj_fold (uncurry2 tmerge) (List.map variables utiles) [] in
-      let tiles = List.map newoccurrence uvars @ seq2tiles facts seq @ utiles in
+      let tiles = List.map newoccurrence uvars @ tiles_of_seq facts seq @ utiles in
       let minc =
         foldr
           (fun ((_, cy as c), _) (_, miny as minc) ->
@@ -907,9 +907,9 @@ let rec model2disproofstate a1 a2 a3 =
                 if chy <= cy then
                   raise
                     (ParseError_
-                       ["(model2disproofstate) non-ascending link ";
-                        coordstring c; " to "; coordstring ch; " in ";
-                        universestring "" u])
+                       ["(disproofstate_of_model) non-ascending link ";
+                        string_of_coord c; " to "; string_of_coord ch; " in ";
+                        string_of_universe "" u])
                 else
                   match (u <@> ch) with
                     Some (_, chts, _) ->
@@ -918,15 +918,15 @@ let rec model2disproofstate a1 a2 a3 =
                       then
                         raise
                           (ParseError_
-                             ["(model2disproofstate) non-monotonic link ";
-                              coordstring c; " to "; coordstring ch;
-                              " in "; universestring "" u])
+                             ["(disproofstate_of_model) non-monotonic link ";
+                              string_of_coord c; " to "; string_of_coord ch;
+                              " in "; string_of_universe "" u])
                   | None ->
                       raise
                         (ParseError_
-                           ["(model2disproofstate) broken link ";
-                            coordstring c; " to "; coordstring ch; " in ";
-                            universestring "" u]))
+                           ["(disproofstate_of_model) broken link ";
+                            string_of_coord c; " to "; string_of_coord ch; " in ";
+                            string_of_universe "" u]))
              chs)
         ulist;
       Some
@@ -938,7 +938,7 @@ let rec model2disproofstate a1 a2 a3 =
                countermodel = false}))
 
 let rec checkdisproof facts tree disproofopt =
-  match model2disproofstate facts tree disproofopt with
+  match disproofstate_of_model facts tree disproofopt with
     Some (Disproofstate {countermodel = countermodel}) -> countermodel
   | _ -> false
 
@@ -949,7 +949,7 @@ let rec disproof_start facts tree pathopt hyps =
   in
   let rec res s' =
     let (syn, _, hyps, _, concs) = my_seqexplode s' in
-    let tiles = seq2tiles facts s' in
+    let tiles = tiles_of_seq facts s' in
     let seq =
       match getsemanticturnstile syn with
         Some sem -> mkSeq (sem, hyps, concs)
@@ -977,7 +977,7 @@ let rec disproof_start facts tree pathopt hyps =
 let rec newtile =
   fun (Disproofstate {tiles = tiles} as d) t ->
     let indivs t =
-      let varstrings = List.map termstring (variables t) in
+      let varstrings = List.map string_of_term (variables t) in
       let longest =
         foldl (fun long v -> if String.length v > String.length long then v else long)
 	      "" varstrings
@@ -1001,7 +1001,7 @@ let rec newtile =
          (fun t' -> if member (t', tiles) then None else Some t'))
     in
     let rec newoccurrence v =
-      let cs = utf8_explode (termstring v) in
+      let cs = utf8_explode (string_of_term v) in
       let ds = List.rev (takewhile isdigit (List.rev cs)) in
       let stem = utf8_implode (take (List.length cs - List.length ds) cs) in
       let stern = if null ds then 1 else atoi (utf8_implode ds) + 1 in
@@ -1022,9 +1022,9 @@ let rec newtile =
             | vs ->
                 raise
                   (Catastrophe_
-                     ["(newtile) occurrence tile "; termstring t;
+                     ["(newtile) occurrence tile "; string_of_term t;
                       " has termvars ";
-                      bracketedliststring termstring "," vs])
+                      bracketedstring_of_list string_of_term "," vs])
           else
             let rec nlists a1 a2 =
               match a1, a2 with
@@ -1060,9 +1060,9 @@ let rec newtile =
             match possibles with
               [] ->
                 showAlert
-                  ["Can't make a new tile from "; termstring t;
+                  ["Can't make a new tile from "; string_of_term t;
                    ", because you can only use ";
-                   liststring2 termstring ", " " and " occs];
+                   liststring2 string_of_term ", " " and " occs];
                 None
             | [p] -> Some p
             | _ ->
@@ -1070,7 +1070,7 @@ let rec newtile =
                     (askChoice
                        ("Choose your new tile",
                         List.map (fun t -> [t])
-                          (sort (<) (List.map termstring possibles))) 
+                          (sort (<) (List.map string_of_term possibles))) 
                      &~~ (fun i -> Some (List.nth possibles i)))
                 with
                   Failure "nth" -> raise (Catastrophe_ ["(newtile) Failure \"nth\" ..."]))  
@@ -1109,20 +1109,20 @@ let addchildtolink u parent child lfrom lto__ =
   
 let deleteworld =
   fun (Disproofstate {universe = universe; selected = selected} as state) c ->
-    (* consolereport ["deleteworld "; universestring "" universe; " "; coordstring c]; *)
+    (* consolereport ["deleteworld "; string_of_universe "" universe; " "; string_of_coord c]; *)
     match universe <@> c with
       None   -> None (* it wasn't there *)
     | Some _ ->
         (* a garbage-collection job! But actually we just leave the floaters floating ... *)
         let ws = listsub (fun (x,y) -> x=y) (dom universe) [c] in
-        (* consolereport ["dom universe := "; bracketedliststring coordstring ";" ws]; *)
+        (* consolereport ["dom universe := "; bracketedstring_of_list string_of_coord ";" ws]; *)
         match ws with
           [] -> None (* we don't delete the last world *)
         | _  -> let rec doit w =
-                  (* consolereport [coordstring w; " = "; worldstring (getworld universe w)]; *)
+                  (* consolereport [string_of_coord w; " = "; string_of_world (getworld universe w)]; *)
                   let (_, ts, cs) = getworld universe w in
                   let cs' = listsub (fun (x,y) -> x=y) cs [c] in
-                  (* consolereport [" => "; bracketedliststring coordstring ";" cs']; *)
+                  (* consolereport [" => "; bracketedstring_of_list string_of_coord ";" cs']; *)
                   w, (Unforced, ts, cs')
                 in
                 let u' = mkmap (List.map doit ws) in
@@ -1245,9 +1245,9 @@ let moveworldtolink d from to__ lfrom lto__ =
 let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = plan;
                                  universe = universe; tiles = tiles;
                                  selected = selected; forcemap = forcemap}) =
-    (*  let _ = consolereport["showdisproof: seq is "; smlseqstring seq; 
-                          "\nforcemap is "; mappingstring (pairstring coordstring smltermstring ",") 
-                                                          (catelim2stringfn catelim_forcedstring) forcemap
+    (*  let _ = consolereport["showdisproof: seq is "; debugstring_of_seq seq; 
+                          "\nforcemap is "; string_of_mapping (string_of_pair string_of_coord debugstring_of_term ",") 
+                                                          (stringfn_of_catelim catelim_string_of_forced) forcemap
                      ] in
               *)
 
@@ -1255,8 +1255,8 @@ let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = p
       Some(seqplan,seqbox) ->
         begin
           let seqsize = tbSize seqbox in
-          (* let _ = consolereport["seqplan is "; bracketedliststring (planstring planclassstring) "; " seqplan; 
-                                "; and seqbox is "; textboxstring seqbox] in *)
+          (* let _ = consolereport["seqplan is "; bracketedstring_of_list (debugstring_of_plan string_of_planclass) "; " seqplan; 
+                                "; and seqbox is "; string_of_textbox seqbox] in *)
           setseqbox seqsize;
           drawindisproofpane ();
           seqdraw origin seqbox seqplan;
@@ -1266,7 +1266,7 @@ let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = p
                match planinfo plan with
                  ElementClass (el, _) ->
                    let emph =
-                     match element2term el with
+                     match term_of_element el with
                        None -> false
                      | Some t ->
                          try _All (fst <.> (fun root -> Hashtbl.find forcemap (root, t))) selected 
@@ -1275,12 +1275,12 @@ let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = p
                    emphasise (seqelementpos origin seqbox plan) emph
                | _ -> ())
             seqplan;
-          settiles (List.map termstring tiles);
+          settiles (List.map string_of_term tiles);
           setworlds selected
             (List.map 
               (fun (c, e, labels, ws) -> 
-                 c, e=Forced, List.map (fun(e,t) -> e=Forced,termstring t) (labelsort labels), ws)
-                      (universe2list universe));
+                 c, e=Forced, List.map (fun(e,t) -> e=Forced,string_of_term t) (labelsort labels), ws)
+                      (list_of_universe universe));
           forceAllDisproofSelections selections
         end
   | _ -> raise (Catastrophe_ ["Disproof.showdisproof unevaluated disproof state"])

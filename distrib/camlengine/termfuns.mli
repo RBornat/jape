@@ -44,10 +44,10 @@ val isselectionSubst : element -> bool
 val termkind : term -> int
 val termkindmax : int
 val emptycollection : idclass -> term
-val collection2term : term -> term option
-val element2term : element -> term option
-val int2term : int -> term
-val term2int : term -> int
+val term_of_collection : term -> term option
+val term_of_element : element -> term option
+val term_of_int : int -> term
+val int_of_term : term -> int
 (* may raise AtoI_ or Catastrophe_ *)
    
 val mapterm : (term -> term option) -> term -> term
@@ -106,7 +106,7 @@ val explodeCollection : term -> element list
 val augmentCollection : term -> element list -> term option
 (* possibly permanent additions to ease passage to Collection use *)
 val elementnumbers : term -> resnum list
-val resnum2int : resnum -> int
+val int_of_resnum : resnum -> int
 val isProperResnum : resnum -> bool
 val elementnumbered : term -> resnum -> term option
 val collectionkind : term -> idclass option

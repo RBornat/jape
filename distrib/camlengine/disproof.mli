@@ -35,8 +35,8 @@ type forcedef = Forcedef.forcedef
  and model = Forcedef.model
  and universe
 
-val catelim_universestring : string -> universe -> string list -> string list
-val universestring : string -> universe -> string
+val catelim_string_of_universe : string -> universe -> string list -> string list
+val string_of_universe : string -> universe -> string
 
 val simplestuniverse : unit -> universe
 val issimplestuniverse : universe -> bool
@@ -48,7 +48,7 @@ val deleteworldlabel : universe -> int * int -> term -> universe option
 val addforcedef : term * forcedef -> unit
 val clearforcedefs : unit -> unit
 val hasforcedefs : unit -> bool
-(* and when I can work out how to fix termstring ...
+(* and when I can work out how to fix string_of_term ...
    val analyse : term -> world -> string
    val seq_analyse : seq -> world -> string list * string * string list
  *)
@@ -57,8 +57,8 @@ val hasforcedefs : unit -> bool
 
 type disproofstate
 
-val catelim_disproofstatestring : disproofstate -> string list -> string list
-val disproofstatestring : disproofstate -> string
+val catelim_string_of_disproofstate : disproofstate -> string list -> string list
+val string_of_disproofstate : disproofstate -> string
 
 val disproofstate_seq        : disproofstate -> seq
 val disproofstate_selections : disproofstate -> pos list * (pos * string list) list
@@ -92,8 +92,8 @@ val disproof_minimal : disproofstate option -> bool
 
 (* models and disproofstates *)
 
-val disproofstate2model : disproofstate option -> (seq * model) option
-val model2disproofstate : facts -> prooftree -> (seq * model) option 
+val model_of_disproofstate : disproofstate option -> (seq * model) option
+val disproofstate_of_model : facts -> prooftree -> (seq * model) option 
                        -> disproofstate option
 val checkdisproof : facts -> prooftree -> (seq * model) option -> bool
 

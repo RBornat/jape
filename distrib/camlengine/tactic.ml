@@ -60,7 +60,7 @@ let showargasint : (term -> int) option ref = ref None
 let readintasarg : term array option ref = ref None
 let stripextrabag = ref false
 
-let rec catelim_tacticstring sep t tail =
+let rec catelim_string_of_tactic sep t tail =
   let withNLs = String.sub sep 0 1 = "\n" in
   let nextsep = if withNLs then sep ^ "\t" else sep in
   let oneline t =
@@ -78,30 +78,30 @@ let rec catelim_tacticstring sep t tail =
     | _ -> false
   in
   let argsep = if oneline t then " " else nextsep in
-  let tacargstring t tail =
+  let string_of_tacarg t tail =
     let ok =
       function
         SkipTac -> true
       | TermTac (s, []) -> true
       | _ -> false
     in
-    let res = catelim_tacticstring nextsep t in
+    let res = catelim_string_of_tactic nextsep t in
     if ok t then res tail else "(" :: res (")" :: tail)
   in
   let tr f = catelim_interpolate f in
-  let trtacs = tr tacargstring nextsep in
-  let trterms = tr catelim_argstring " " in
+  let trtacs = tr string_of_tacarg nextsep in
+  let trterms = tr catelim_string_of_termarg " " in
   let rec unSEQ =
     function
       SeqTac [t] -> unSEQ t
     | SeqTac ts -> trtacs ts
-    | t -> tacargstring t
+    | t -> string_of_tacarg t
   in
   let rec trpathexpr p tail =
     let trns ns tail =
       match debracket ns with
-        Tup _ as t -> "(" :: catelim_termstring t (")" :: tail)
-      | t -> catelim_termstring t tail
+        Tup _ as t -> "(" :: catelim_string_of_term t (")" :: tail)
+      | t -> catelim_string_of_term t tail
     in
     match p with
       Parent p -> "(PARENT" :: argsep :: trpathexpr p (")" :: tail)
@@ -117,7 +117,7 @@ let rec catelim_tacticstring sep t tail =
   let rec termsNtac a1 a2 =
     match a1, a2 with
       [], tac -> unSEQ tac tail
-    | t :: ts, tac -> catelim_argstring t (argsep :: termsNtac ts tac)
+    | t :: ts, tac -> catelim_string_of_termarg t (argsep :: termsNtac ts tac)
   in
   let tss =
     match t with
@@ -128,9 +128,9 @@ let rec catelim_tacticstring sep t tail =
     | SetgoalTac p -> "GOALPATH" :: argsep :: trpathexpr p tail
     | TheoryAltTac ns ->
         "THEORYALT" :: " " ::
-          catelim_liststring (stringfn2catelim pnstr) " " ns tail
+          catelim_string_of_list (catelim_of_stringfn pnstr) " " ns tail
     | AltTac tacs -> "ALT" :: nextsep :: trtacs tacs tail
-    | SeqTac [t] -> catelim_tacticstring sep t tail
+    | SeqTac [t] -> catelim_string_of_tactic sep t tail
     | SeqTac tacs -> "SEQ" :: nextsep :: trtacs tacs tail
     | WhenTac tacs -> "WHEN" :: nextsep :: trtacs tacs tail
     | RepTac tac -> "DO" :: argsep :: unSEQ tac tail
@@ -146,7 +146,7 @@ let rec catelim_tacticstring sep t tail =
     | FoldTac (s, tacs) ->
         "FOLD " :: pnstr s :: nextsep :: trtacs tacs tail
     | AssignTac (s, term) ->
-        "ASSIGN " :: pnstr s :: " " :: catelim_argstring term tail
+        "ASSIGN " :: pnstr s :: " " :: catelim_string_of_termarg term tail
     | EvalTac terms -> "EVALUATE " :: trterms terms tail
     | AdHocTac terms -> "JAPE " :: trterms terms tail
     | BindArgTac (term, tactic) -> "LETARGSEL " :: termsNtac [term] tactic
@@ -158,7 +158,7 @@ let rec catelim_tacticstring sep t tail =
         "LETGOALPATH " :: parseablestring_of_name name :: argsep ::
           unSEQ tactic tail
     | BindHypTac (term, tactic) -> "LETHYP " :: termsNtac [term] tactic
-    | BindHyp2Tac (t1, t2, tactic) ->
+    | Tac_of_BindHyp (t1, t2, tactic) ->
         "LETHYP2 " :: termsNtac [t1; t2] tactic
     | BindHypsTac (term, tactic) -> "LETHYPS " :: termsNtac [term] tactic
     | BindSubstTac (term, tactic) ->
@@ -186,16 +186,16 @@ let rec catelim_tacticstring sep t tail =
     | BindOccursTac (pt, vt, st, tactic) ->
         "LETOCCURS " :: termsNtac [pt; vt; st] tactic
     | LayoutTac (tactic, layout) ->
-        "LAYOUT " :: treelayoutstring layout :: argsep ::
+        "LAYOUT " :: string_of_treelayout layout :: argsep ::
           unSEQ tactic tail
-    | AssocFlatTac term -> "FLATTEN " :: catelim_argstring term tail
+    | AssocFlatTac term -> "FLATTEN " :: catelim_string_of_termarg term tail
     | MapTac (s, terms) ->
         "MAPTERMS " :: pnstr s :: " " :: trterms terms tail
     | TermTac (s, []) -> pnstr s :: tail
     | TermTac (s, terms) -> pnstr s :: " " :: trterms terms tail
     | SubstTac (s, []) -> pnstr s :: tail
     | SubstTac (s, vts) ->
-        catelim_termstring
+        catelim_string_of_term
           (Subst
              (None, true, Id (None, vid_of_string (pnstr s), FormulaClass),
               (match !showargasint with
@@ -217,7 +217,7 @@ let rec catelim_tacticstring sep t tail =
                    ((fun (v, t) -> v, encodeterm t) <* vts)
                | None -> vts)))
           tail
-    | GivenTac i -> "GIVEN " :: catelim_argstring i tail
+    | GivenTac i -> "GIVEN " :: catelim_string_of_termarg i tail
     | WithArgSelTac tac -> "WITHARGSEL" :: argsep :: unSEQ tac tail
     | WithConcSelTac tac -> "WITHCONCSEL" :: argsep :: unSEQ tac tail
     | WithFormSelTac tac -> "WITHFORMSEL" :: argsep :: unSEQ tac tail
@@ -236,19 +236,19 @@ let rec catelim_tacticstring sep t tail =
     | ReplayTac tac -> "REPLAY" :: argsep :: unSEQ tac tail
     | ContnTac (tac1, tac2) ->
         "WITHCONTINUATION" :: argsep ::
-          tacargstring tac1 (argsep :: unSEQ tac2 tail)
+          string_of_tacarg tac1 (argsep :: unSEQ tac2 tail)
     | AlertTac (m, ps, copt) ->
         "ALERT" :: argsep ::
-          catelim_argstring m
-            (catelim_liststring
-               (catelim_pairstring catelim_termstring
-                  (catelim_tacticstring " ") ", ")
+          catelim_string_of_termarg m
+            (catelim_string_of_list
+               (catelim_string_of_pair catelim_string_of_term
+                  (catelim_string_of_tactic " ") ", ")
                argsep ps
                (match copt with
-                  Some t -> argsep :: tacargstring t tail
+                  Some t -> argsep :: string_of_tacarg t tail
                 | None -> tail))
-    | ExplainTac m -> "EXPLAIN" :: argsep :: catelim_argstring m tail
-    | CommentTac m -> "COMMENT" :: argsep :: catelim_argstring m tail
+    | ExplainTac m -> "EXPLAIN" :: argsep :: catelim_string_of_termarg m tail
+    | CommentTac m -> "COMMENT" :: argsep :: catelim_string_of_termarg m tail
     | UnifyTac terms -> "UNIFY" :: argsep :: trterms terms tail
     | BadUnifyTac (n1, n2, tac) ->
         "BADUNIFY" :: argsep :: parseablestring_of_name n1 :: argsep ::
@@ -263,10 +263,10 @@ let rec catelim_tacticstring sep t tail =
     | UnifyArgsTac -> "UNIFYARGS" :: tail
   in
   tss
-let catelim_tacticstring = catelim_tacticstring " "
-and catelim_tacticstringwithNLs = catelim_tacticstring "\n"
-let tacticstring = catelim2stringfn catelim_tacticstring
-let tacticstringwithNLs = catelim2stringfn catelim_tacticstringwithNLs
+let catelim_string_of_tactic = catelim_string_of_tactic " "
+and catelim_stringwithNLs_of_tactic = catelim_string_of_tactic "\n"
+let string_of_tactic = stringfn_of_catelim catelim_string_of_tactic
+let stringwithNLs_of_tactic = stringfn_of_catelim catelim_stringwithNLs_of_tactic
 let remaptactic env t =
   let _E = remapterm env in
   let rec _Ep =
@@ -324,7 +324,7 @@ let remaptactic env t =
     | AdHocTac tms -> AdHocTac ((_E <* tms))
     | BindConcTac (tm, t) -> BindConcTac (_E tm, _T t)
     | BindHypTac (tm, t) -> BindHypTac (_E tm, _T t)
-    | BindHyp2Tac (tm1, tm2, t) -> BindHyp2Tac (_E tm1, _E tm2, _T t)
+    | Tac_of_BindHyp (tm1, tm2, t) -> Tac_of_BindHyp (_E tm1, _E tm2, _T t)
     | BindHypsTac (tm, t) -> BindHypsTac (_E tm, _T t)
     | BindArgTac (tm, t) -> BindArgTac (_E tm, _T t)
     | BindArgTextTac (s, t) -> BindArgTextTac (s, _T t)
@@ -382,7 +382,7 @@ let mustbeSTR term =
   match debracket term with
     Literal (_, String s) -> s
   | Id (_, v, _) -> string_of_vid v
-  | _ -> raise (TacParseError_ [argstring term; " should be a string"])
+  | _ -> raise (TacParseError_ [string_of_termarg term; " should be a string"])
 
 let maybeSTR term =
   try Some (mustbeSTR term) with
@@ -391,7 +391,7 @@ let maybeSTR term =
 let tacname term =
   try Name (mustbeSTR term) with
     TacParseError_ _ ->
-      raise (TacParseError_ [argstring term; " should be a name"])
+      raise (TacParseError_ [string_of_termarg term; " should be a name"])
 
 let butnottacticform term =
   let name = tacname term in
@@ -443,7 +443,7 @@ let isguard =
   function
     BindConcTac         _ -> true
   | BindHypTac          _ -> true
-  | BindHyp2Tac         _ -> true
+  | Tac_of_BindHyp         _ -> true
   | BindHypsTac         _ -> true
   | BindArgTac          _ -> true
   | BindArgTextTac      _ -> true
@@ -522,7 +522,7 @@ and transTactic tacterm =
       | t ->
               let (n, ts as parts) = explodeForExecute t in
               let f = string_of_name n in
-              let _Bad why = raise (TacParseError_ [termstring t; " -- "; why]) in
+              let _Bad why = raise (TacParseError_ [string_of_term t; " -- "; why]) in
               let rec _Assignments =
                 function
                   []           -> []
@@ -615,13 +615,13 @@ and transTactic tacterm =
                       | [t]    -> AlertTac (m, List.rev rs, Some (transTactic t))
                       | []     -> AlertTac (m, List.rev rs, None)
                       | t :: _ ->
-                          raise (TacParseError_ ["badly formed argument "; termstring t])
+                          raise (TacParseError_ ["badly formed argument "; string_of_term t])
                     in
                     f [] ps
                 | [] -> raise (TacParseError_ ["no arguments"])
               in
               let rec parsegoalexpr t =
-                let err _ = ["path expected after GOALPATH -- found "; termstring t]
+                let err _ = ["path expected after GOALPATH -- found "; string_of_term t]
                 in
                 match explodeApp false t with
                   f, rs ->
@@ -683,7 +683,7 @@ and transTactic tacterm =
               | "LETCONC"          -> mkBind f patbind "pattern" (fun v->BindConcTac v) ts
               | "LETHYP"           -> mkBind f patbind "pattern" (fun v->BindHypTac v) ts
               | "LETHYP2"          ->
-                      mkBind2 f patbind patbind "pattern" "pattern" (fun v->BindHyp2Tac v) ts
+                      mkBind2 f patbind patbind "pattern" "pattern" (fun v->Tac_of_BindHyp v) ts
               | "LETHYPS"          -> mkBind f patbind "pattern" (fun v->BindHypsTac v) ts
               | "LETLHS"           -> mkBind f patbind "pattern" (fun v->BindLHSTac v) ts
               | "LETRHS"           -> mkBind f patbind "pattern" (fun v->BindRHSTac v) ts
@@ -745,17 +745,17 @@ and transTactic tacterm =
                       else TermTac parts
   with
     TacParseError_ ss ->
-      raise (ParseError_ (["Bad tactic: ("; termstring tacterm; ") -- "] @ ss))
+      raise (ParseError_ (["Bad tactic: ("; string_of_term tacterm; ") -- "] @ ss))
   | ParseError_    ss -> raise (ParseError_ ss)
   | Catastrophe_   ss -> raise (Catastrophe_ ss)
   | exn               ->
       raise (ParseError_ ["Unexpected exception in transTactic: "; Printexc.to_string exn])
 
 and transLayout con fmt bopt ts =
-  let fmterr t = ["format string expected in LAYOUT; found "; termstring t] in
+  let fmterr t = ["format string expected in LAYOUT; found "; string_of_term t] in
   let fmt = checkSTR fmterr fmt in
   let nserr t =
-    ["list of subtree indices expected in LAYOUT; found "; termstring (_The bopt)]
+    ["list of subtree indices expected in LAYOUT; found "; string_of_term (_The bopt)]
   in
   let bopt =
     match try__ (checkINTS nserr) bopt with

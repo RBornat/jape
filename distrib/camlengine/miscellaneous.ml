@@ -36,7 +36,7 @@ let atoi s = try Pervasives.int_of_string s with Failure _ -> raise AtoI_
 let rec sum ns = List.fold_left (+) 0 ns
 let rec curry2 f a b = f (a, b)
 let rec uncurry2 f (a, b) = f a b
-let rec refstring f {contents = a} = ("ref(" ^ f a) ^ ")"
+let rec string_of_ref f {contents = a} = ("ref(" ^ f a) ^ ")"
 let rec earlierpair lta ltb (a, b) (a', b') =
   lta a a' || not (lta a' a) && ltb b b' (* this is trying not to use equality ... *)
   

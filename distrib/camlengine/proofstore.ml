@@ -142,8 +142,8 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
           alert
             ["can't add proof of "; parseablestring_of_name name;
              " because it introduces circularity: ";
-             liststring
-               (fun bs -> liststring parseablestring_of_name " uses " bs)
+             string_of_list
+               (fun bs -> string_of_list parseablestring_of_name " uses " bs)
                "; and " cycles];
           false
 
@@ -172,11 +172,11 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     | _ -> None
   in
 
-  let inproofstore = opt2bool <.> proofnamed in
+  let inproofstore = bool_of_opt <.> proofnamed in
 
-  let menu2word _ = "MENU" in
+  let word_of_menu _ = "MENU" in
 
-  let panel2word p =
+  let word_of_panel p =
     match getpanelkind p with
       Some TacticPanelkind     -> "TACTICPANEL"
     | Some ConjecturePanelkind -> "CONJECTUREPANEL"
@@ -209,22 +209,22 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
       in
       let body =
         catelim_prooftree2tactic tree provisos givens
-          (catelim_modelstring disproof ss)
+          (catelim_string_of_model disproof ss)
       in
-      proofstage2word stage :: " " :: parseablestring_of_name name ::
+      word_of_proofstage stage :: " " :: parseablestring_of_name name ::
         (if null params then body
          else
            "\n(" ::
-             catelim_liststring catelim_paraparamstring ", " params
+             catelim_string_of_list catelim_string_of_paraparam ", " params
                (")" :: body))
     in
     List.iter (output_string chan)
       (match place with
          InMenu m ->
-           menu2word m :: " " :: parseablestring_of_name m :: "\n" ::
+           word_of_menu m :: " " :: parseablestring_of_name m :: "\n" ::
              doit ["END\n"]
        | InPanel p ->
-           panel2word p :: " " :: parseablestring_of_name p :: "\n" ::
+           word_of_panel p :: " " :: parseablestring_of_name p :: "\n" ::
              doit ["END\n"]
        | InLimbo -> doit [])
 
@@ -235,7 +235,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
           saveproof chan n Complete tree ((snd <* (fst <| provisos))) givens disproof
       | _ -> ()
     in
-    let names = (opt2bool <.> proofnamed) <| thingnames () in
+    let names = (bool_of_opt <.> proofnamed) <| thingnames () in
     let (sortednames, _) = toposort names (fun n -> proved <| proof_children n)
     in
     revapp show sortednames; allsaved := true

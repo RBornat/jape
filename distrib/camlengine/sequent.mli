@@ -38,17 +38,17 @@ val parseSeq : unit -> seq
 val canstartSeq : symbol -> bool
 val resetsyntaxandturnstiles : unit -> unit
 
-val seqstring : seq -> string
-val seqstring_invisbracketed : bool -> seq -> string
-val smlseqstring : seq -> string
-val elementseqstring : seq -> string
-val catelim_seqstring : seq -> string list -> string list
-val catelim_seqstring_invisbracketed : bool -> seq -> string list -> string list
-val catelim_smlseqstring : seq -> string list -> string list
-val catelim_elementseqstring : seq -> string list -> string list
+val string_of_seq : seq -> string
+val invisbracketedstring_of_seq : bool -> seq -> string
+val debugstring_of_seq : seq -> string
+val elementstring_of_seq : seq -> string
+val catelim_string_of_seq : seq -> string list -> string list
+val catelim_invisbracketedstring_of_seq : bool -> seq -> string list -> string list
+val catelim_debugstring_of_seq : seq -> string list -> string list
+val catelim_elementstring_of_seq : seq -> string list -> string list
 val alwaysshowturnstile : bool ref
 
-val string2sequent : string -> seq
+val sequent_of_string : string -> seq
 val seqexplode : seq -> string * term * term
 val seqvars :
 (term -> 'a list) -> ('a list -> 'a list -> 'a list) -> seq -> 'a list

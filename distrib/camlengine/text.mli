@@ -41,11 +41,12 @@ type textlayout = Textlayout of (pos * font * string) list
  * so a single syllable will have an offset of (0,0).
  *) 
 
-val string2text      : font -> string -> text
+val text_of_string      : font -> string -> text
 val measuretext      : (font -> string -> int * int * int) -> textalign -> text 
                     -> textsize * textlayout
 val textlayoutOffset : textlayout -> pos -> textlayout
-val textalignstring  : textalign -> string
-val syllablestring   : syllable -> string
-val textstring       : text -> string
-val textlayoutstring : textlayout -> string
+
+val string_of_textalign  : textalign -> string
+val string_of_syllable   : syllable -> string
+val string_of_text       : text -> string
+val string_of_textlayout : textlayout -> string

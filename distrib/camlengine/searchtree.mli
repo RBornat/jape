@@ -46,7 +46,7 @@ val scanstatefsm    : ('a -> 'c) -> ('a -> 'a) -> ('c, 'r) fsm -> 'a
                    -> ('r, 'a) searchresult
 val searchfsm       : ('c, 'r) fsm -> 'c list -> ('r, 'c list) searchresult
 
-val catelim_fsmstring : ('c -> string list -> string list)
+val catelim_string_of_fsm : ('c -> string list -> string list)
 					 -> ('r -> string list -> string list) -> ('c, 'r) fsm -> string list
 					 -> string list
 

@@ -47,8 +47,8 @@ let factsdebug = ref false
 
 type facts = proviso list * exterior
 
-let factsstring =
-  pairstring (bracketedliststring provisostring " AND ") exteriorstring ","
+let string_of_facts =
+  string_of_pair (bracketedstring_of_list string_of_proviso " AND ") string_of_exterior ","
 
 let rec facts provisos cxt =
   (provisoactual <* provisos), getexterior cxt
@@ -98,9 +98,9 @@ let rec showvarsq facts v1 v2 name r =
     begin
       let (ps, sb) = facts in
       consolereport
-        [name; " ("; bracketedliststring provisostring "," ps; ",";
-         exteriorstring sb; ") "; smltermstring v1; " "; smltermstring v2;
-         " => "; answerstring r]
+        [name; " ("; bracketedstring_of_list string_of_proviso "," ps; ",";
+         string_of_exterior sb; ") "; debugstring_of_term v1; " "; debugstring_of_term v2;
+         " => "; string_of_answer r]
     end;
   r
 
@@ -178,8 +178,8 @@ let rec substeqvarsq facts v1 v2 =
 let rec eqlistsq a1 a2 a3 =
   match a1, a2, a3 with
     _Q, [], [] -> Yes
-  | _Q, t1 :: t1s, t2 :: t2s ->
-      andalsoq (_Q t1 t2) (fun () -> eqlistsq _Q t1s t2s)
+  | _Q, t1 :: t1s, t2 :: s_of_t ->
+      andalsoq (_Q t1 t2) (fun () -> eqlistsq _Q t1s s_of_t)
   | _Q, _, _ -> No
 (* What this function is deciding is whether there is any substitution for metavariables
       which could make equal ground terms.  It is only used in abstraction (see unify.sml).
@@ -216,10 +216,10 @@ let rec unifyeqtermsq facts t1 t2 =
       andalsoq (unifyeqtermsq facts f1 f2)
         (fun () -> unifyeqtermsq facts a1 a2)
   | Literal (_, k1), Literal (_, k2) -> if k1 = k2 then Yes else No
-  | Tup (_, s1, t1s), Tup (_, s2, t2s) ->
-      if s1 = s2 then unifyeqtlistsq facts t1s t2s else No
-  | Fixapp (_, s1s, t1s), Fixapp (_, s2s, t2s) ->
-      if s1s = s2s then unifyeqtlistsq facts t1s t2s else No
+  | Tup (_, s1, t1s), Tup (_, s2, s_of_t) ->
+      if s1 = s2 then unifyeqtlistsq facts t1s s_of_t else No
+  | Fixapp (_, s1s, t1s), Fixapp (_, s_of_s, s_of_t) ->
+      if s1s = s_of_s then unifyeqtlistsq facts t1s s_of_t else No
   | Binding (_, (bs, ss, us), _, pat),
     Binding (_, (bs', ss', us'), _, pat') ->
       if pat = pat' then

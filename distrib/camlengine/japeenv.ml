@@ -29,14 +29,14 @@ open Mappingfuns
 open Sml
 
 let atoi = Miscellaneous.atoi
-let bracketedliststring = Listfuns.bracketedliststring
+let bracketedstring_of_list = Listfuns.bracketedstring_of_list
 let consolereport = Miscellaneous.consolereport
 let enQuote = Stringfuns.enQuote
 let liststring2 = Listfuns.liststring2
 let member = Listfuns.member
 let string_of_name = Name.string_of_name
 let term_of_string = Termparse.asTactic Termparse.term_of_string
-let termstring = Termstring.termstring
+let string_of_term = Termstring.string_of_term
 
 exception AtoI_ = Miscellaneous.AtoI_
 exception Catastrophe_ = Miscellaneous.Catastrophe_
@@ -64,7 +64,7 @@ type japevarrrec =
   | GuardedJapevar of guardedjapevarrec
 
 let string_of_japevarrec { vals = vals; init = init } =
-  "{vals=" ^ Optionfuns.optionstring (bracketedliststring (fun s->s) ";") vals ^ 
+  "{vals=" ^ Optionfuns.string_of_option (bracketedstring_of_list (fun s->s) ";") vals ^ 
   "; init=" ^ enQuote init ^
   "; set=...; get=...}"
   
@@ -129,13 +129,13 @@ let rec japerefvar vals = basejaperefvar (Some vals)
 let unboundedjapevar = basejapevar None
 let unboundedjaperefvar = basejaperefvar None
 let rec intjapevar v (set, get) =
-  let rec s2i t =
+  let rec i_of_s t =
     try atoi t with
       AtoI_ -> raise (OutOfRange_ "an integer")
   in
-  let i2s : int -> string = string_of_int in
-  basejapevar None (i2s v)
-    ((set <.> s2i), (i2s <.> get))
+  let s_of_i : int -> string = string_of_int in
+  basejapevar None (s_of_i v)
+    ((set <.> i_of_s), (s_of_i <.> get))
 
 let intjaperefvar v r =
   intjapevar v ((fun i -> r := i), (fun () -> !r))
@@ -144,10 +144,10 @@ let on = "true"
 let off = "false"
 
 let booljapevar v (set, get) =
-  let rec s2b t = t = on in
-  let rec b2s v = if v then on else off in
-  basejapevar (Some [on; off]) (b2s v)
-    ((set <.> s2b), (b2s <.> get))
+  let rec b_of_s t = t = on in
+  let rec s_of_b v = if v then on else off in
+  basejapevar (Some [on; off]) (s_of_b v)
+    ((set <.> b_of_s), (s_of_b <.> get))
 
 let booljaperefvar v r =
   booljapevar v ((fun b -> r := b), (fun () -> !r))
@@ -156,7 +156,7 @@ type envval = Envterm of Termtype.term | Envvar of japevar
 
 let string_of_envval v =
   match v with 
-    Envterm t -> termstring t
+    Envterm t -> string_of_term t
   | Envvar  v -> string_of_japevar v
 
 let rec (<@>) env name =
@@ -172,7 +172,7 @@ let rec (<@>) env name =
 
 let set (env, name, value) =
   match Mappingfuns.(<@>) env name with
-    Some (Envvar v) -> setjapevar (v, termstring value)
+    Some (Envvar v) -> setjapevar (v, string_of_term value)
   | _ -> raise NotJapeVar_
 
 let rec checkrange env name settings =
@@ -199,4 +199,4 @@ let ( ||-> ) t var = Mappingfuns.(|->) t (Envvar var)
 
 type japeenv = (Name.name, envval) mapping
 
-let string_of_japeenv = Mappingfuns.mappingstring Name.string_of_name string_of_envval
+let string_of_japeenv = Mappingfuns.string_of_mapping Name.string_of_name string_of_envval

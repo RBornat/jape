@@ -33,7 +33,7 @@ open Stringfuns
 open Optionfuns
 open Sml
 
-let resnum2int = Termtype.resnum2int
+let int_of_resnum = Termtype.int_of_resnum
   
 (* ------------------------------------------ the term store ------------------------------------------ *)
 

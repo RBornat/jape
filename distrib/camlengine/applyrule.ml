@@ -82,7 +82,7 @@ let matchedtarget        = Unify.matchedtarget
 
 let mkTip cxt seq = Prooftree.Tree.mkTip cxt seq Treeformat.Fmt.neutralformat
 
-let prooftree_stepstring = Prooftree.Tree.prooftree_stepstring
+let string_of_prooftree_step = Prooftree.Tree.string_of_prooftree_step
 let rewinf_uVIDs         = Rewinf.rewinf_uVIDs
 let setReason            = Reason.setReason
 let step_label           = Prooftree.Tree.step_label
@@ -167,7 +167,7 @@ type possmatch =
   (info * element list * element list * cxt * seq list) list
 (* cxt   subgoals *)
 
-let showargs = termliststring
+let showargs = string_of_termlist
 (* our sequents have to be pairs of collections *)
 let rec breakside =
   function
@@ -175,7 +175,7 @@ let rec breakside =
   | t ->
       raise
         (Catastrophe_
-           ["breakside in applyrule given side "; smltermstring t])
+           ["breakside in applyrule given side "; debugstring_of_term t])
 (* once we have an answer, give me a proof tree *)
 let rec answer =
   fun
@@ -197,7 +197,7 @@ let rec nonempty =
   | xs -> Some xs
 let rec runfilter e g =
   explain e <.> nonempty <.> filter g
-let showel = smlelementstring termstring
+let showel = debugstring_of_element string_of_term
 let (bymatch : possmatch -> possmatch option) =
   runfilter
     (fun () ->
@@ -217,20 +217,20 @@ let (bymatch : possmatch -> possmatch option) =
            (if r then
               let rec up cxt u =
                 "(" ^ string_of_vid u ^ "," ^
-                      optionstring termstring ((varmap cxt <@> u)) ^
+                      string_of_option string_of_term ((varmap cxt <@> u)) ^
                 ")"
               in
               ["bymatch passing"; step_label how; " ";
-               bracketedliststring (up cxt) "," us; " and ";
-               bracketedliststring (up cxt') "," us]
+               bracketedstring_of_list (up cxt) "," us; " and ";
+               bracketedstring_of_list (up cxt') "," us]
             else
               ["bymatch failing "; step_label how; " "; showargs args;
-               " ("; seqstring conjecture; ") => (";
-               seqstring (rewriteseq cxt conjecture); " ... ";
-               seqstring (rewriteseq cxt' conjecture); ")\n";
-               Cxtstring.varmapstring cxt; "\n";
-               Cxtstring.varmapstring cxt'; "\n";
-               bracketedliststring Termfuns.string_of_vid ";" us]);
+               " ("; string_of_seq conjecture; ") => (";
+               string_of_seq (rewriteseq cxt conjecture); " ... ";
+               string_of_seq (rewriteseq cxt' conjecture); ")\n";
+               Cxtstring.string_of_cxtvarmap cxt; "\n";
+               Cxtstring.string_of_cxtvarmap cxt'; "\n";
+               bracketedstring_of_list Termfuns.string_of_vid ";" us]);
        r)
 let (sameprovisos : possmatch -> possmatch option) =
   runfilter
@@ -250,17 +250,17 @@ let (sameprovisos : possmatch -> possmatch option) =
        if !applydebug > 0 then
          consolereport
            ["bymatch2 looking at "; step_label how; " "; showargs args;
-            " ("; seqstring conjecture; ") => (";
-            liststring visprovisostring " AND " (provisos cxt); " ... ";
-            liststring visprovisostring " AND " (provisos cxt'); ") => ";
+            " ("; string_of_seq conjecture; ") => (";
+            string_of_list string_of_visproviso " AND " (provisos cxt); " ... ";
+            string_of_list string_of_visproviso " AND " (provisos cxt'); ") => ";
             string_of_bool r];
        r)
 (* discriminators *)
 
 let answerstring (Info {conjecture=Seq(st,chs,cgs)}, thinnedL, thinnedR, _, _) = 
-  quadruplestring idclassstring idclassstring 
-      (bracketedliststring (smlelementstring termstring) ",") 
-      (bracketedliststring (smlelementstring termstring) ",") "; " 
+  string_of_quadruple string_of_idclass string_of_idclass 
+      (bracketedstring_of_list (debugstring_of_element string_of_term) ",") 
+      (bracketedstring_of_list (debugstring_of_element string_of_term) ",") "; " 
       (snd_of_3(breakside chs),snd_of_3(breakside cgs),thinnedL,thinnedR)
           
 let rec remdupposs ps =
@@ -292,11 +292,11 @@ let rec offerChoice ps =
   let ps = remdupposs ps in
   let listposs =
     function Info {consequent = c}, _, _, cxt, [] ->
-               [implode [seqstring (rewriteseq cxt c); " solves this goal"]]
+               [implode [string_of_seq (rewriteseq cxt c); " solves this goal"]]
     |        Info {consequent = c}, _, _, cxt, ss ->
-               implode [seqstring (rewriteseq cxt c); " generates subgoal";
+               implode [string_of_seq (rewriteseq cxt c); " generates subgoal";
                         if List.length ss = 1 then " " else "s "] ::
-                       ((seqstring <.> rewriteseq cxt) <* ss)
+                       ((string_of_seq <.> rewriteseq cxt) <* ss)
   in
   let rec numwords n =
     match n with
@@ -456,7 +456,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
     let genSubGoals =
       let rec exp0 ss () =
         "In applying the " :: kind :: " " :: step_label how ::
-          " to the problem sequent " :: seqstring (rewriteseq cxt conjecture) :: ", " :: ss
+          " to the problem sequent " :: string_of_seq (rewriteseq cxt conjecture) :: ", " :: ss
       in
       let rec exp1 sing plur els () =
         let w =
@@ -467,7 +467,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
         exp0
           ["the "; w; " of the "; kind; 
            "'s consequent don't fit the problem. The consequent of the rule is ";
-           seqstring consequent; "."]
+           string_of_seq consequent; "."]
           ()
       in
       let rec unusedprincipal sing plur els () =
@@ -478,8 +478,8 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
         in
         let ts =
           match els with
-            [e] -> elementstring e
-          | _ -> liststring elementstring " and " els
+            [e] -> string_of_element e
+          | _ -> string_of_list string_of_element " and " els
         in
         ["The goal fits the rule, but the rule didn't make use of the ";
          word; " "; ts; " which you selected"]
@@ -494,10 +494,10 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
                       if !applydebug > 0 then
                         consolereport
                           ["usedconc checking ";
-                           bracketedliststring showel ","
+                           bracketedstring_of_list showel ","
                              selconcs;
                            " against ";
-                           bracketedliststring showel ","
+                           bracketedstring_of_list showel ","
                              thRs;
                            " => "; string_of_bool r];
                       r))
@@ -515,9 +515,9 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
                        if !applydebug > 0 then
                          consolereport
                            ["usedhyp checking ";
-                            bracketedliststring showel "," selhyps;
+                            bracketedstring_of_list showel "," selhyps;
                             " against ";
-                            bracketedliststring showel "," thLs;
+                            bracketedstring_of_list showel "," thLs;
                             " => "; string_of_bool r];
                        r)))
         &~
@@ -541,13 +541,13 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
                    explain
                      (exp0
                         ["the goal fits the rule, but the proviso ";
-                         provisostring p; " is violated"])
+                         string_of_proviso p; " is violated"])
                      None
                | ps ->
                    explain
                      (exp0
                         ["the goal fits the rule, but the provisos (variously ";
-                         liststring provisostring " and " ps;
+                         string_of_list string_of_proviso " and " ps;
                          ") are violated"])
                      None
                end
@@ -559,15 +559,15 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
     else
       failwithreason
         ["The rule "; step_label how; " doesn't match the goal ";
-         seqstring conjecture; " because the turnstiles are different"]
+         string_of_seq conjecture; " because the turnstiles are different"]
 let rec showstuff stuff =
-  octuplestring enQuote
-    (pairstring string_of_bool string_of_bool ",")
-    prooftree_stepstring showargs
-    (pairstring (bracketedliststring resnumstring ",")
-       (bracketedliststring resnumstring ",") ",")
-    (bracketedliststring seqstring ",") seqstring
-    (bracketedliststring visprovisostring " AND ") ", " stuff
+  string_of_octuple enQuote
+    (string_of_pair string_of_bool string_of_bool ",")
+    string_of_prooftree_step showargs
+    (string_of_pair (bracketedstring_of_list string_of_resnum ",")
+       (bracketedstring_of_list string_of_resnum ",") ",")
+    (bracketedstring_of_list string_of_seq ",") string_of_seq
+    (bracketedstring_of_list string_of_visproviso " AND ") ", " stuff
 let rec apply checker filter taker selhyps selconcs stuff reason cxt =
   fun (_C, _Cinf) ->
     let
@@ -579,7 +579,7 @@ let rec apply checker filter taker selhyps selconcs stuff reason cxt =
       if !applydebug > 0 then
         consolereport
           ["apply "; step_label how; " "; showstuff stuff; " ";
-           enQuote reason; " "; seqstring _C]
+           enQuote reason; " "; string_of_seq _C]
     in
     let info =
       Info { reason = reason; kind = kind; conjecture = _C; conjectureinf = _Cinf;

@@ -48,12 +48,12 @@ module type Fmt =
      *)         
 
     val treeformatmerge : treeformat * treeformat -> treeformat
-    val treeformatstring : treeformat -> string
+    val string_of_treeformat : treeformat -> string
     val neutralformat : treeformat
 
-    val layout2format :
+    val format_of_layout :
       (term -> string) -> (term -> int list) -> treelayout -> treeformat
-    val format2layouts : treeformat -> treelayout list
+    val layouts_of_format : treeformat -> treelayout list
     (* because of the use of negative numbers in paths to navigate internal cuts, and the 
      * wierd way that the root of an internal cut is addressed (see prooftree.sml), 
      * DON'T DON'T DON'T do manipulations of the list in a FmtPath.
@@ -66,7 +66,7 @@ module type Fmt =
      *)
      
     type fmtpath = FmtPath of int list
-    val fmtpathstring : fmtpath -> string
+    val string_of_fmtpath : fmtpath -> string
   end
 
 module Fmt : Fmt with type treelayout = Treelayout.treelayout
@@ -103,23 +103,23 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
      *)         
 
     let neutralformat = TreeFormat (SimpleFormat, DefaultFormat)
-    let intliststring = bracketedliststring string_of_int ","
-    let nf_string = triplestring string_of_bool enQuote (optionstring intliststring) ","
-    let rec treeformatstring =
+    let string_of_intlist = bracketedstring_of_list string_of_int ","
+    let nf_string = string_of_triple string_of_bool enQuote (string_of_option string_of_intlist) ","
+    let rec string_of_treeformat =
       fun (TreeFormat pair) ->
         "TreeFormat" ^
-          pairstring treeformat_kindstring treeformat_filterstring "," pair
-    and treeformat_kindstring =
+          string_of_pair string_of_treeformat_kind string_of_treeformat_filter "," pair
+    and string_of_treeformat_kind =
       function
         HideRootFormat -> "HideRootFormat"
       | HideCutFormat -> "HideCutFormat"
       | SimpleFormat -> "SimpleFormat"
-    and treeformat_filterstring =
+    and string_of_treeformat_filter =
       function
         DefaultFormat -> "DefaultFormat"
       | RotatingFormat stuff ->
           "RotatingFormat" ^
-            pairstring string_of_int (bracketedliststring nf_string ",") ","
+            string_of_pair string_of_int (bracketedstring_of_list nf_string ",") ","
               stuff
     (* if tf1 is hidden, so is the merge *)
     let rec treeformatmerge =
@@ -150,8 +150,8 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
               RotatingFormat res
         in
         TreeFormat (tfkmerge (tfk1, tfk2), tffmerge (tff1, tff2))
-    let rec layout2format fmtf tnsf l =
-      let rec l2f compress (fmt, tns) =
+    let rec format_of_layout fmtf tnsf l =
+      let rec f_of_l compress (fmt, tns) =
         TreeFormat
           (SimpleFormat,
            RotatingFormat (0, [compress, fmtf fmt, try__ tnsf tns]))
@@ -159,13 +159,13 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
       match l with
         HideRootLayout -> TreeFormat (HideRootFormat, DefaultFormat)
       | HideCutLayout -> TreeFormat (HideCutFormat, DefaultFormat)
-      | CompressedLayout stuff -> l2f true stuff
-      | NamedLayout stuff -> l2f false stuff
+      | CompressedLayout stuff -> f_of_l true stuff
+      | NamedLayout stuff -> f_of_l false stuff
     
-    let ints2term tns = Termstore.registerTup (",", int2term <* tns)
+    let term_of_ints tns = Termstore.registerTup (",", term_of_int <* tns)
     let term_of_string s = Termstore.registerLiteral(Termtype.String s)
 
-    let rec format2layouts =
+    let rec layouts_of_format =
       fun (TreeFormat (tfk, tff) as f) ->
         let rec layout =
           function
@@ -173,7 +173,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
               CompressedLayout (ly s isopt) :: layout nfs
           | (false, s, isopt) :: nfs -> NamedLayout (ly s isopt) :: layout nfs
           | [] -> []
-        and ly s isopt = term_of_string s, try__ ints2term isopt in
+        and ly s isopt = term_of_string s, try__ term_of_ints isopt in
         let ls =
           match tff with
             DefaultFormat -> []
@@ -197,7 +197,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
     type fmtpath = FmtPath of int list
     (* VisPaths, at the present, are still simple lists of non-negative integers ... *)
     
-    let rec fmtpathstring = fun (FmtPath p) -> "FmtPath " ^ bracketedliststring string_of_int "," p
+    let rec string_of_fmtpath = fun (FmtPath p) -> "FmtPath " ^ bracketedstring_of_list string_of_int "," p
   end
 
 (* -------------------------- prooftrees for display, after formatting -------------------------- *)
@@ -206,11 +206,11 @@ module type VisFmt =
   sig
     (* VisPaths, at the present, are still simple lists of non-negative integers ... *)
     type vispath = VisPath of int list
-    val vispathstring : vispath -> string
+    val string_of_vispath : vispath -> string
     type visformat = VisFormat of (bool * bool)
     (* ismultistep, ishiddencut *)
        
-    val visformatstring : visformat -> string
+    val string_of_visformat : visformat -> string
   end
 
 module VisFmt : VisFmt =
@@ -221,10 +221,10 @@ module VisFmt : VisFmt =
     type visformat = VisFormat of (bool * bool)
     (* ismultistep, ishiddencut *)
        
-    let visformatstring  (VisFormat f) =
-	  "VisFormat" ^ pairstring string_of_bool string_of_bool "," f
+    let string_of_visformat  (VisFormat f) =
+	  "VisFormat" ^ string_of_pair string_of_bool string_of_bool "," f
         
     type vispath = VisPath of int list
 
-    let vispathstring (VisPath p) = "VisPath " ^ bracketedliststring string_of_int "," p
+    let string_of_vispath (VisPath p) = "VisPath " ^ bracketedstring_of_list string_of_int "," p
   end

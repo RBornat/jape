@@ -49,7 +49,7 @@ open Termstring
 open Termtype
 
 let consolereport = Miscellaneous.consolereport
-let rewinfstring = Rewinf.rewinfstring
+let string_of_rewinf = Rewinf.string_of_rewinf
 
 let rewritedebug = ref false
 (* the rewrite functions rewrite a term/sequent/proviso, 
@@ -138,9 +138,9 @@ let rec rew_worthwhile subst cxt ri =
 (match rewinf_psig ri, getprovisosig cxt with
   Some si, ci -> si <> ci
 | _ -> false) ||
-List.exists (opt2bool <.> (fun uVID -> (varmap cxt <@> uVID)))
+List.exists (bool_of_opt <.> (fun uVID -> (varmap cxt <@> uVID)))
  (rewinf_uVIDs ri)) ||
-List.exists (opt2bool <.> (fun i -> (resmap cxt <@> i)))
+List.exists (bool_of_opt <.> (fun i -> (resmap cxt <@> i)))
 (rewinf_badres ri)
 (* this is almost f &~ (Some o yes), but types get in the way ... *)
 
@@ -194,8 +194,8 @@ in
 let res = _S t in
 if !rewritedebug then
 consolereport
-  ["rew_Term "; string_of_bool subst; " cxt "; argstring t; " => ";
-   optionstring termstring res];
+  ["rew_Term "; string_of_bool subst; " cxt "; string_of_termarg t; " => ";
+   string_of_option string_of_term res];
 res
 
 and rew_substmap subst cxt vts =
@@ -236,8 +236,8 @@ function
            (* modeifyelement ps <* es *)
            raise
              (Catastrophe_
-                ["rew_elements 2 "; elementstring sv; " ";
-                 bracketedliststring elementstring "," es])
+                ["rew_elements 2 "; string_of_element sv; " ";
+                 bracketedstring_of_list string_of_element "," es])
        | _ -> raise (Catastrophe_ ["rew_elements 3"]))
 | Element (_, (ResUnknown i as r), t) ->
     (* This code, and the type of resmap, are designed to fix a space leak.
@@ -395,7 +395,7 @@ let rec rew_cxt cxt =
   in
   let r = doit false cxt in
   if !rewritedebug then
-    consolereport ["rew_cxt "; cxtstring cxt; " => "; optionstring cxtstring r];
+    consolereport ["rew_cxt "; string_of_cxt cxt; " => "; string_of_option string_of_cxt r];
   r
   (*end rew_cxt*)
   

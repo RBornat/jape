@@ -42,7 +42,7 @@ val interpretpredicates : bool ref
 val matchpredicate :
   bool -> (term -> bool) -> term -> (term * term list) option
 val predicatedebug : bool ref
-val predicatebindingstring :
+val string_of_predicatebinding :
   (term * (term list * term list list) list) list -> string
 
 exception Predicate_ of string list

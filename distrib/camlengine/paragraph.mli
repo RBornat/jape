@@ -67,11 +67,11 @@ and menupara = Menustuff of menudata | Menupara of paragraph
 
 exception Use_
 
-val file2paragraphs :
+val paragraphs_of_file :
   (string list -> unit) ->
     (string list * string * string * int -> bool) -> string ->
     paragraph list
-val string2paragraph :
+val paragraph_of_string :
   (string list -> unit) ->
     (string list * string * string * int -> bool) -> string -> paragraph
 

@@ -40,5 +40,5 @@ type idclass = NoClass
              | BagClass of idclass
              | ListClass of idclass
 
-val catelim_idclassstring : idclass -> string list -> string list
-val idclassstring : idclass -> string
+val catelim_string_of_idclass : idclass -> string list -> string list
+val string_of_idclass : idclass -> string

@@ -40,7 +40,7 @@ type treelayout =
   | NamedLayout of (term * term option)
 (* fmt * list of subtrees to show *)
 
-let rec treelayoutstring =
+let rec string_of_treelayout =
   function
     HideRootLayout -> "HIDEROOT"
   | HideCutLayout -> "HIDECUT"
@@ -52,16 +52,16 @@ let rec treelayoutstring =
   | NamedLayout stuff -> tls stuff
 and tls =
   function
-    fmt, Some tns -> ((termstring fmt ^ " (") ^ termstring tns) ^ ")"
-  | fmt, None -> termstring fmt ^ " ALL"
-let rec smltreelayoutstring =
+    fmt, Some tns -> ((string_of_term fmt ^ " (") ^ string_of_term tns) ^ ")"
+  | fmt, None -> string_of_term fmt ^ " ALL"
+let rec debugstring_of_treelayout =
   function
     HideRootLayout -> "HideRootLayout"
   | HideCutLayout -> "HideCutLayout"
   | CompressedLayout stuff -> "CompressedLayout" ^ stls stuff
   | NamedLayout stuff -> "NamedLayout" ^ stls stuff
 and stls stuff =
-  pairstring smltermstring (optionstring smltermstring) "," stuff
+  string_of_pair debugstring_of_term (string_of_option debugstring_of_term) "," stuff
 let rec remaptreelayout a1 a2 =
   match a1, a2 with
     env, HideRootLayout -> HideRootLayout

@@ -61,7 +61,7 @@ let baseseqsides cxt =
   | NoExterior -> raise (Catastrophe_ ["baseseqsides"])
    
 
-let vv = bracketedliststring visprovisostring " AND "
+let vv = bracketedstring_of_list string_of_visproviso " AND "
 (* just turn a proviso into a list of simpler provisos 
    (function designed for folding over proviso list) 
  *)
@@ -200,8 +200,8 @@ let rec groundedprovisos names provisos =
     let r = diff vs names in
     if !provisodebug then
       consolereport
-        ["isot checking "; termstring t; " against ";
-         termliststring names; " => "; string_of_bool r];
+        ["isot checking "; string_of_term t; " against ";
+         string_of_termlist names; " => "; string_of_bool r];
     r
   in
   let rec isop p =
@@ -215,7 +215,7 @@ let rec groundedprovisos names provisos =
     in
     if !provisodebug then
       consolereport
-        ["isop checking "; provisostring p; " => "; string_of_bool r];
+        ["isop checking "; string_of_proviso p; " => "; string_of_bool r];
     r
   in
   let r =
@@ -240,9 +240,9 @@ let rec groundedprovisos names provisos =
   in
   if !provisodebug then
     consolereport
-      ["groundedprovisos "; termliststring names; " ";
-       bracketedliststring visprovisostring " AND " provisos; " => ";
-       optionstring vv r];
+      ["groundedprovisos "; string_of_termlist names; " ";
+       bracketedstring_of_list string_of_visproviso " AND " provisos; " => ";
+       string_of_option vv r];
   r
 
 let rec expandFreshProviso b (h, g, r, v) left right ps =
@@ -276,10 +276,10 @@ let rec checker cxt (--) ps qs =
         else
           let verdict = _PROVISOq (facts qs' cxt) pp in
           if !provisodebug then
-            consolereport ["Provisofuns.checker "; Cxtstring.cxtstring cxt;
-                           " "; provisostring pp; 
-                           " "; bracketedliststring (provisostring <.> provisoactual) " AND " qs'; 
-                           " => "; answerstring verdict];
+            consolereport ["Provisofuns.checker "; Cxtstring.string_of_cxt cxt;
+                           " "; string_of_proviso pp; 
+                           " "; bracketedstring_of_list (string_of_proviso <.> provisoactual) " AND " qs'; 
+                           " => "; string_of_answer verdict];
           match verdict with
             Yes   -> ch ps qs'
           | No    -> raise (Verifyproviso_ (provisoparent p))
@@ -396,9 +396,9 @@ let rec verifyprovisos cxt =
         ["verifyprovisos "; vv (provisos cxt); " (pros = "; vv pros; ") ";
          " (vis = "; vv vis; ") "; " (invis = "; vv invis; ") ";
          " (fresh = ";
-         bracketedliststring
+         bracketedstring_of_list
            (fun (f, ns) ->
-              pairstring provisostring vv "," (FreshProviso f, ns))
+              string_of_pair string_of_proviso vv "," (FreshProviso f, ns))
            "," fresh;
          ") "; " (unfresh = "; vv unfresh; ") "; " => "; vv ps];
     rewritecxt (withprovisos cxt ps)
@@ -406,7 +406,7 @@ let rec verifyprovisos cxt =
     Verifyproviso_ p ->
       if !provisodebug then
         consolereport
-          ["proviso "; provisostring p; " failed in verifyprovisos"];
+          ["proviso "; string_of_proviso p; " failed in verifyprovisos"];
       raise (Verifyproviso_ p)
 
 let rec checkprovisos cxt =

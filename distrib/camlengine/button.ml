@@ -121,37 +121,37 @@ let rec reloadmenusandpanels markconjecture oplist =
       buttoncache := empty;
       menuiter
         (fun (proofsonly,menu) ->
-           let menustring = string_of_name menu in
-           Japeserver.newmenu proofsonly menustring;
+           let string_of_menu = string_of_name menu in
+           Japeserver.newmenu proofsonly string_of_menu;
            menuitemiter menu
              (fun (label, keyopt, cmd) ->
-                Japeserver.menuentry menustring (string_of_name label) keyopt cmd)
+                Japeserver.menuentry string_of_menu (string_of_name label) keyopt cmd)
              (fun (label, cmd) ->
                 (* checkbox *)
-                Japeserver.menucheckbox menustring (string_of_name label) cmd)
+                Japeserver.menucheckbox string_of_menu (string_of_name label) cmd)
              (fun lcs ->
                 (* radio button *)
                 Japeserver.menuradiobutton
-                   menustring (List.map (fun (label, cmd) -> string_of_name label, cmd) lcs))
-             (fun _ -> Japeserver.menuseparator menustring));
+                   string_of_menu (List.map (fun (label, cmd) -> string_of_name label, cmd) lcs))
+             (fun _ -> Japeserver.menuseparator string_of_menu));
       paneliter
         (fun (panel, kind) ->
-           let panelstring = string_of_name panel in
-           Japeserver.newpanel panelstring kind;
+           let string_of_panel = string_of_name panel in
+           Japeserver.newpanel string_of_panel kind;
            panelitemiter panel
              (fun (label, entry) ->
-                Japeserver.panelentry panelstring (string_of_name label) entry;
+                Japeserver.panelentry string_of_panel (string_of_name label) entry;
                 if kind = ConjecturePanelkind then
                   match markconjecture label with
                     Some mark ->
-                      Japeserver.markpanelentry panelstring entry mark
+                      Japeserver.markpanelentry string_of_panel entry mark
                   | _ -> ())
              (fun (name, cmd) -> (* button *)
-                Japeserver.panelbutton panelstring (string_of_name name) cmd)
+                Japeserver.panelbutton string_of_panel (string_of_name name) cmd)
              (* (fun (label, cmd) -> (* checkbox *)
-                   Japeserver.panelcheckbox panelstring (string_of_name label) cmd)
+                   Japeserver.panelcheckbox string_of_panel (string_of_name label) cmd)
                 (fun lcs -> (* radio button *)
-                   Japeserver.panelradiobutton panelstring
+                   Japeserver.panelradiobutton string_of_panel
                       (List.map (fun (n, v) -> string_of_name n, v) lcs))
               *));
       Japeserver.mapmenus true;

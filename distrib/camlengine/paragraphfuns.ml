@@ -52,17 +52,17 @@ let newcxt = Cxtfuns.newcxt
 let optionfilter = Optionfuns.optionfilter
 let paramvar = Paraparam.paramvar
 let parseablestring_of_name = Name.parseablestring_of_name
-let proofstage2word = Proofstage.proofstage2word
-let provisostring = Proviso.provisostring
+let word_of_proofstage = Proofstage.word_of_proofstage
+let string_of_proviso = Proviso.string_of_proviso
 let provisovars =
   Proviso.provisovars Termfuns.termvars Termfuns.tmerge
-let seqstring = Sequent.seqstring
+let string_of_seq = Sequent.string_of_seq
 let seqvars = Sequent.seqvars Termfuns.termvars Termfuns.tmerge
 let setfontstuff = Button.setfontstuff
 let setmenuentry = Japeserver.menuentry
 (* let setpanelbutton = Japeserver.setpanelbutton *)
-let tacticstring = Tactic.tacticstring
-let termstring = Termstring.termstring
+let string_of_tactic = Tactic.string_of_tactic
+let string_of_term = Termstring.string_of_term
 let thawsaved = Proofstore.thawsaved
 let tickmenuitem = Japeserver.tickmenuitem
 let tmerge = Termfuns.tmerge
@@ -146,7 +146,7 @@ let rec interpret
 	let defval' =
 	  match defval, env <@> var, settings with
 		Some v, _, _ -> v
-	  | _, Some v, s :: _ -> termstring v
+	  | _, Some v, s :: _ -> string_of_term v
 	  | _, _, s :: _ -> s
 	  | _ -> raise (Catastrophe_ [text; " without settings"])
 	in
@@ -156,7 +156,7 @@ let rec interpret
 		  OutOfRange_ range ->
 			report
 			  [text; " settings are ";
-			   bracketedliststring (fun s -> s) ", " settings;
+			   bracketedstring_of_list (fun s -> s) ", " settings;
 			   " - variable "; parseablestring_of_name var;
 			   " can only be set to "; range];
 			raise Use_
@@ -238,7 +238,7 @@ let rec interpret
 	  begin try Japeenv.set (env, name, term) with
 		OutOfRange_ range ->
 		  lreport
-			[" to "; termstring term; " - variable can only be set to ";
+			[" to "; string_of_term term; " - variable can only be set to ";
 			 range]
 	  | NotJapeVar_ ->
 		  lreport [" - it isn't a variable in the environment"]
@@ -336,7 +336,7 @@ let rec interpret
 	  | _ :: _, Some ((Theorem _ as thm), _) ->
 		  report
 			["processing proof of rule "; string_of_name name;
-			 " - found theorem"; thingstring thm;
+			 " - found theorem"; string_of_thing thm;
 			 " stored under that name"];
 		  raise Use_
 	  | _, Some (Rule _, _ as info) -> updateplace info
@@ -351,11 +351,11 @@ let rec interpret
 	  | _, Some (thing, _) ->
 		  report
 			["processing proof of "; string_of_name name; " - found ";
-			 thingstring thing; " stored under that name"];
+			 string_of_thing thing; " stored under that name"];
 		  raise Use_
 	  end;
 	  consolereport
-		["checking "; proofstage2word stage; " "; string_of_name name];
+		["checking "; word_of_proofstage stage; " "; string_of_name name];
 	  (* edit this bit of code to profile the checking bit of proof reload *)
 	  (* profileOn(); *)
 	  let res =
@@ -401,7 +401,7 @@ and interpretParasFrom report query res filenames =
   let r = (try
 			 nj_revfold (interpret report query InLimbo [] [] true)
 			   (nj_fold (fun (x, y) -> x @ y)
-					    ((file2paragraphs report query <.> disQuote) <*
+					    ((paragraphs_of_file report query <.> disQuote) <*
 					    filenames)
 				  [])
 			   res

@@ -135,7 +135,7 @@ let lemmacount = Miscellaneous.lemmacount
 let lacksProof = Proofstore.lacksProof
 let needsProof = Proofstore.needsProof
 let prefixtoReason = Reason.prefixtoReason
-let selection2Subst = Selection.selection2Subst
+let _Subst_of_selection = Selection._Subst_of_selection
 let setComment = Alert.setComment <.> implode
 let setReason = Reason.setReason
 
@@ -143,7 +143,7 @@ let showAlert =
   Alert.showAlert Alert.defaultseverity_alert <.> implode
 
 let symclass = Symbol.symclass
-let subterm2subst = Selection.subterm2subst
+let _SubstOpt_of_subterm = Selection._SubstOpt_of_subterm
 let tactic_of_string = Termparse.tactic_of_string
 let term_of_string = Termparse.term_of_string
 let tickmenuitem = Japeserver.tickmenuitem
@@ -196,12 +196,12 @@ let
    getargs)
   =
   let rec getsides el sopt =
-    try _The ((element2term el &~~ explodebinapp)) with
+    try _The ((term_of_element el &~~ explodebinapp)) with
       _The_ ->
         raise
           (Catastrophe_
-             ["getsides given "; elementstring el; "; ";
-              optionstring sidestring sopt])
+             ["getsides given "; string_of_element el; "; ";
+              string_of_option string_of_side sopt])
   and deside ((el, sopt), ss) =
     let ss' =
       match sopt with
@@ -211,10 +211,10 @@ let
             Left ->
               let revss = List.rev ss in
               List.rev
-                (implode [List.hd revss; " "; opp; " "; termstring right] ::
+                (implode [List.hd revss; " "; opp; " "; string_of_term right] ::
                    List.tl revss)
           | Right ->
-              implode [termstring left; " "; opp; " "; List.hd ss] :: List.tl ss
+              implode [string_of_term left; " "; opp; " "; List.hd ss] :: List.tl ss
           end
       | None -> ss
     in
@@ -306,7 +306,7 @@ let rec evalname env arg =
       | _ ->
           raise
             (Tacastrophe_
-               [string_of_name arg; " evaluates to "; termstring v;
+               [string_of_name arg; " evaluates to "; string_of_term v;
                 " which is not a valid tactic/rule name"])
 (* it would be nice to have tactical arguments, n'est ce pas?
  * OK then, here goes ... 
@@ -460,7 +460,7 @@ let rec make_remark name args =
   let args =
     match args with
       [] -> [""]
-    | _ -> (termstring <* args)
+    | _ -> (string_of_term <* args)
   in
   match thingnamed name with
     None -> respace ("EVALUATE" :: parseablestring_of_name name :: args)
@@ -525,7 +525,7 @@ let rec getapplyinfo name args cxt =
         (Tacastrophe_
            ("in applying " :: parseablestring_of_name name ::
               " to arguments " ::
-              bracketedliststring termstring ", " args :: ": " :: ss))
+              bracketedstring_of_list string_of_term ", " args :: ": " :: ss))
 
 let rec getsubstinfo weaken name argmap cxt =
   try
@@ -539,7 +539,7 @@ let rec getsubstinfo weaken name argmap cxt =
         (Tacastrophe_
            ("in substituting rule/theorem/tactic " ::
               parseablestring_of_name name :: " with argmap " ::
-              bracketedliststring (pairstring termstring termstring ",")
+              bracketedstring_of_list (string_of_pair string_of_term string_of_term ",")
                 ", " argmap ::
               ": " :: ss))
 
@@ -558,14 +558,14 @@ let rec expandstuff name (env, principals, thing) =
         Rule ((_, provisos, antes, conseq), ax) ->
           (if ax then "rule" else "derived rule"), antes, conseq, provisos
       | Theorem (_, provisos, conseq) -> "theorem", [], conseq, provisos
-      | _ -> raise (Catastrophe_ ["expandstuff "; thingstring thing])
+      | _ -> raise (Catastrophe_ ["expandstuff "; string_of_thing thing])
     in
     let hiddenleft = not (null givens) && !autoAdditiveLeft in
     let hiddenright = not (null givens) && !autoAdditiveRight in
     kind, hiddencontexts givens, how, env, principals, antes, conseq,
     provisos
 
-let rec preparestuff2apply stuff =
+let rec apply_of_preparestuff stuff =
   let (kind, hiddens, how, env, principals, antes, conseq, provisos) =
     stuff
   in
@@ -585,8 +585,8 @@ let (apply, resolve, applyorresolve) =
       if !(Applyrule.applydebug) > 0 then
         consolereport
           ["makestep "; step_label how; " ";
-           proofstatestring (!(Applyrule.applydebug) > 1) state; " ";
-           optionstring (pairstring cxtstring prooftreestring ",") resopt]
+           string_of_proofstate (!(Applyrule.applydebug) > 1) state; " ";
+           string_of_option (string_of_pair string_of_cxt string_of_prooftree ",") resopt]
     in
     let r =
       match resopt with
@@ -597,12 +597,12 @@ let (apply, resolve, applyorresolve) =
     if !(Applyrule.applydebug) > 0 then
       consolereport
         ["makestep => ";
-         optionstring (proofstatestring (!(Applyrule.applydebug) > 1)) r];
+         string_of_option (string_of_proofstate (!(Applyrule.applydebug) > 1)) r];
     r
   in
   let rec apply
     checker filter taker selhyps selconcs stuff reason cxt state =
-    let stuff' = preparestuff2apply stuff in
+    let stuff' = apply_of_preparestuff stuff in
     makestep stuff' state
       (Applyrule.apply checker filter taker selhyps selconcs stuff' reason
          cxt (getconjecture state))
@@ -639,7 +639,7 @@ let (apply, resolve, applyorresolve) =
       | _ ->
           raise
             (Catastrophe_
-               ["how in resolve is "; prooftree_stepstring how])
+               ["how in resolve is "; string_of_prooftree_step how])
     in
     let (antes', conseq') = rearrangetoResolve antes conseq in
     let rec doit () =
@@ -687,12 +687,12 @@ let rec doSUBGOAL path =
         begin
           setReason
             ["That subgoal has been solved (SUBGOAL) ";
-             fmtpathstring path];
+             string_of_fmtpath path];
           None
         end
     with
       _ ->
-        setReason ["No such subtree (SUBGOAL) "; fmtpathstring path]; None
+        setReason ["No such subtree (SUBGOAL) "; string_of_fmtpath path]; None
 
 let rec doCOMPLETE f =
   fun
@@ -743,14 +743,14 @@ let rec doCOMPLETE f =
 let rec parseints mess eval ints =
   try
     match debracket (eval ints) with
-      Tup (_, ",", ts) -> (term2int <* ts)
-    | t -> [term2int t]
+      Tup (_, ",", ts) -> (int_of_term <* ts)
+    | t -> [int_of_term t]
   with
     _ ->
       raise
         (Tacastrophe_
            [mess; " must be a tuple of integers; you gave ";
-            termstring ints; " = "; termstring (debracket (eval ints))])
+            string_of_term ints; " = "; string_of_term (debracket (eval ints))])
 (* With the modern prooftree, LAYOUT is a simple assignment to a tip *)
 
 let rec doLAYOUT layout eval action t =
@@ -764,11 +764,11 @@ let rec doLAYOUT layout eval action t =
           raise
             (Tacastrophe_
                ["format in LAYOUT must be string; you gave ";
-                termstring fmt'])
+                string_of_term fmt'])
     in
     let rec f l t =
       let fmt =
-        layout2format parsefmt (parseints "selection in LAYOUT" eval) l
+        format_of_layout parsefmt (parseints "selection in LAYOUT" eval) l
       in
       match t with
         LayoutTac (t', l') ->
@@ -925,8 +925,8 @@ let rec doCUTIN f =
           raise
             (Catastrophe_
                ["resources ";
-                pairstring (smlelementstring termstring)
-                  (smlelementstring termstring) "," (cutconcel, cuthypel);
+                string_of_pair (debugstring_of_element string_of_term)
+                  (debugstring_of_element string_of_term) "," (cutconcel, cuthypel);
                 " in doCUTIN"])
         in
         match cutconcel, cuthypel with
@@ -934,12 +934,12 @@ let rec doCUTIN f =
             if not (isProperResnum rc) || not (isProperResnum rh) then
               bang ()
             else
-              let (nc, nh) = resnum2int rc, resnum2int rh in
+              let (nc, nh) = int_of_resnum rc, int_of_resnum rh in
               if (nc = nh || nc = 0) || nh = 0 then
                 raise
                   (Catastrophe_
                      ["resnums ";
-                      pairstring string_of_int string_of_int "," (nc, nh);
+                      string_of_pair string_of_int string_of_int "," (nc, nh);
                       " in doCUTIN"])
               else nc, nh
         | _ -> bang ()
@@ -962,7 +962,7 @@ let rec doCUTIN f =
       FollowPath_ stuff ->
         showAlert
           ["FollowPath_ in doCUTIN: ";
-           pairstring (fun s -> s) (bracketedliststring string_of_int ",")
+           string_of_pair (fun s -> s) (bracketedstring_of_list string_of_int ",")
              ", " stuff];
         None
 (**********************************************************************
@@ -987,7 +987,7 @@ let rec _CanApply triv name state =
       else
         match
           Applyrule.apply unifyvarious nofilter nofilter [] []
-            (preparestuff2apply (expandstuff name stuff state))
+            (apply_of_preparestuff (expandstuff name stuff state))
             (string_of_name name) cxt (getconjecture state)
         with
           Some rs -> takethelot rs
@@ -1020,7 +1020,7 @@ let rec autoStep a1 a2 a3 =
           let cs = sort (fun (n, _) (n', _) -> nameorder n n') cs in
           let rec showRule (name, (cxt, tree)) =
             string_of_name name ::
-                ((seqstring <.> rewriteseq cxt <.> sequent) <* subtrees tree)
+                ((string_of_seq <.> rewriteseq cxt <.> sequent) <* subtrees tree)
           in
           match
             askChoice
@@ -1036,10 +1036,10 @@ let rec forceUnify a1 a2 =
   match a1, a2 with
     t1 :: t2 :: ts, (Proofstate {cxt = cxt} as state) ->
       let rec showit t =
-        if t = rewrite cxt t then termstring t
+        if t = rewrite cxt t then string_of_term t
         else
-          ((termstring t ^ " (which, because of earlier unifications, is equivalent to ") ^
-             termstring (rewrite cxt t)) ^
+          ((string_of_term t ^ " (which, because of earlier unifications, is equivalent to ") ^
+             string_of_term (rewrite cxt t)) ^
             ")"
       in
       let rec bad reasons =
@@ -1061,7 +1061,7 @@ let rec forceUnify a1 a2 =
       with
         Verifyproviso_ p ->
           badproviso := Some ((t1, t2), p);
-          bad [" because proviso "; provisostring p; " is violated"]
+          bad [" because proviso "; string_of_proviso p; " is violated"]
       end
   | _, state -> Some state
 
@@ -1073,8 +1073,8 @@ let rec doDropUnify ts ss =
     in
     let rec bad reasons =
       setReason
-        ("can't drop " :: bracketedliststring elementstring "," ss ::
-           " into " :: bracketedliststring elementstring "," ts ::
+        ("can't drop " :: bracketedstring_of_list string_of_element "," ss ::
+           " into " :: bracketedstring_of_list string_of_element "," ts ::
            reasons);
       None
     in
@@ -1086,7 +1086,7 @@ let rec doDropUnify ts ss =
       | None -> bad []
     with
       Verifyproviso_ p ->
-        bad [" because proviso "; provisostring p; " is violated"]
+        bad [" because proviso "; string_of_proviso p; " is violated"]
 
 
 let _FINDdebug = ref false
@@ -1096,7 +1096,7 @@ exception Matchinassociativelawstuff_
 let rec binary operator t =
   if !_FINDdebug then
     consolereport
-      ["binary ("; smltermstring operator; ") ("; smltermstring t; ")"];
+      ["binary ("; debugstring_of_term operator; ") ("; debugstring_of_term t; ")"];
   match explodeApp true t with
     f, [l; r] ->
       if f = operator then l, r else raise Matchinassociativelawstuff_
@@ -1105,7 +1105,7 @@ let rec binary operator t =
 let rec fringe operator t =
   if !_FINDdebug then
     consolereport
-      ["fringe ("; smltermstring operator; ") ("; smltermstring t; ")"];
+      ["fringe ("; debugstring_of_term operator; ") ("; debugstring_of_term t; ")"];
   match explodeApp true t with
     (Id _ as f), [] -> [f]
   | (Unknown _ as f), [] -> [f]
@@ -1124,10 +1124,10 @@ let rec associativelaw operator thing =
       let rf = fringe operator rhs in
       if !_FINDdebug then
         consolereport
-          ["assoc "; bracketedliststring paraparamstring ", " params;
-           " ("; termstring term; ") => lf=";
-           bracketedliststring termstring ", " lf; "; rf=";
-           bracketedliststring termstring ", " rf];
+          ["assoc "; bracketedstring_of_list string_of_paraparam ", " params;
+           " ("; string_of_term term; ") => lf=";
+           bracketedstring_of_list string_of_term ", " lf; "; rf=";
+           bracketedstring_of_list string_of_term ", " rf];
       (List.length lf = 3 && lf = rf) && _All (formulageneralisable params) rf
     with
       Matchinassociativelawstuff_ -> false
@@ -1146,7 +1146,7 @@ let rec associativelaw operator thing =
   in
   if !_FINDdebug then
     consolereport
-      ["associativelaw ("; termstring operator; ") ("; thingstring thing;
+      ["associativelaw ("; string_of_term operator; ") ("; string_of_thing thing;
        ")"];
   match thing with
     Theorem (params, [], seq) -> ok params seq
@@ -1176,7 +1176,7 @@ module Assoccache =
                if !_FINDdebug then
                  consolereport
                    ["allrelevantthings()=";
-                    bracketedliststring parseablestring_of_name ", " (relevant <| thingnames ())];
+                    bracketedstring_of_list parseablestring_of_name ", " (relevant <| thingnames ())];
                List.exists (associativelaw (registerId (operator, conOperatorClass)))
                            (allrelevantthings ()) 
              let size = 127 
@@ -1250,7 +1250,7 @@ let rec assocInfo =
       in
       if !_FINDdebug then
         consolereport
-          ["assocInfo ("; smltermstring f; ") = ("; string_of_bool curried;
+          ["assocInfo ("; debugstring_of_term f; ") = ("; string_of_bool curried;
            ", "; string_of_bool lassoc; ")"];
       curried, (if lassoc then _LeftFold else _RightFold) (_MkApp curried f)
   | _ -> raise MatchinAssocInfo
@@ -1260,7 +1260,7 @@ let rec _AssocFlatten pat t =
   let _ =
     if !_FINDdebug then
       consolereport
-        ["_AssocFlatten ("; smltermstring pat; ") ("; smltermstring t; ")"]
+        ["_AssocFlatten ("; debugstring_of_term pat; ") ("; debugstring_of_term t; ")"]
   in
   let rec af1 f c =
     if isassociative f then
@@ -1304,7 +1304,7 @@ let rec _AssocFlatten pat t =
       begin
         if !_FINDdebug then
           consolereport
-            [termstring f; " isn't recognised as associative"];
+            [string_of_term f; " isn't recognised as associative"];
         None
       end
   in
@@ -1314,7 +1314,7 @@ let rec _AssocFlatten pat t =
   | _ ->
       if !_FINDdebug then
         consolereport
-          [termstring pat;
+          [string_of_term pat;
            " isn't a recognisable operator / application"];
       None
 
@@ -1330,8 +1330,8 @@ let rec _UnifyWithExplanation message (s, t) cxt =
   try
     explainfailure
       (fun () ->
-         [message; " couldn't unify term ("; termstring s; ") with (";
-          termstring t; ")."])
+         [message; " couldn't unify term ("; string_of_term s; ") with (";
+          string_of_term t; ")."])
       (
          (
             (unifyterms (s, t) cxt |~~ (fun _ -> unifyterms (t, s) cxt)) &~~
@@ -1339,8 +1339,8 @@ let rec _UnifyWithExplanation message (s, t) cxt =
   with
     Verifyproviso_ p ->
       setReason
-        [message; " terms ("; termstring s; ") and ("; termstring t;
-         ") appeared to unify, but proviso "; provisostring p;
+        [message; " terms ("; string_of_term s; ") and ("; string_of_term t;
+         ") appeared to unify, but proviso "; string_of_proviso p;
          " was violated."];
       None
 type arithKind =
@@ -1411,7 +1411,7 @@ let rec _ARITHMETIC =
         (* When there are more variables, a proviso should be introduced.
            Dunno what to do when the result is negative.
         *)
-        setReason ["EVALUATE couldn't solve arithmetic "; termstring _C];
+        setReason ["EVALUATE couldn't solve arithmetic "; string_of_term _C];
         None
 (**********************************************************************)
 
@@ -1474,11 +1474,11 @@ let rec _Evaluate cxt seq =
           _ARITHMETIC _C cxt (fun (x, y) -> x * y) (fun (x, y) -> x / y) e1 e2 e3 e4
       | "DECIDE", conclusion :: oracle :: args ->
           _DECIDE
-             turnstile cxt _HS conclusion (termstring oracle)
-             (termstring <* args)
+             turnstile cxt _HS conclusion (string_of_term oracle)
+             (string_of_term <* args)
       | _ ->
           setReason
-            ["_Evaluate couldn't recognise judgement "; termstring _C];
+            ["_Evaluate couldn't recognise judgement "; string_of_term _C];
           None
       end
   | Seq
@@ -1488,14 +1488,14 @@ let rec _Evaluate cxt seq =
         "DECIDEBAG", oracle :: args ->
           _DECIDE
              turnstile cxt _HS (registerCollection (idclass, _CS))
-             (termstring oracle) (termstring <* args)
+             (string_of_term oracle) (string_of_term <* args)
       | _ ->
           setReason
-            ["_Evaluate couldn't recognise judgement "; termstring _CONCS];
+            ["_Evaluate couldn't recognise judgement "; string_of_term _CONCS];
           None
       end
   | s ->
-      setReason ["_Evaluate couldn't recognise sequent "; seqstring s];
+      setReason ["_Evaluate couldn't recognise sequent "; string_of_seq s];
       None
 (* non-single conclusion *)
 
@@ -1506,7 +1506,7 @@ let rec doEVAL a1 a2 =
       let seq = findTip tree goal in
       if !tactictracing then
         consolereport
-          ["doEVAL "; cxtstring cxt; " ("; smlseqstring seq; ")"];
+          ["doEVAL "; string_of_cxt cxt; " ("; debugstring_of_seq seq; ")"];
       begin match _Evaluate cxt seq with
         None -> None
       | Some (reason, cxt') ->
@@ -1548,8 +1548,8 @@ let rec _Matches goal (name, thing, lhs as rule) =
     begin
       if !_FOLDdebug then
         consolereport
-          ["_Matches looking at \""; termstring goal; "\" with pattern \"";
-           termstring lhs; "\""];
+          ["_Matches looking at \""; string_of_term goal; "\" with pattern \"";
+           string_of_term lhs; "\""];
       _FIRSTSUBTERM
          (fun goal ->
             match match__ false lhs goal Mappingfuns.empty with
@@ -1570,7 +1570,7 @@ let rec tranformals formals =
       raise
         (Catastrophe_
            ["parameter list (";
-            liststring (termstring <.> paramvar) "," formals;
+            string_of_list (string_of_term <.> paramvar) "," formals;
             ") isn't all names"])
 
 let rec mkenv params args =
@@ -1587,7 +1587,7 @@ let rec mkenvfrommap params argmap =
   let rec mk ((v, t), e) =
     try (e ++ (_The (nameopt_of_term v) |-> t)) with
       _The_ ->
-        raise (Catastrophe_ ["can't happen mkenvfrommap "; termstring v])
+        raise (Catastrophe_ ["can't happen mkenvfrommap "; string_of_term v])
   in
   nj_revfold mk argmap !rootenv
 
@@ -1637,7 +1637,7 @@ let rec unfix_ConcsOf _ConcsOf n =
       if !_FOLDdebug then
         consolereport
           ["_ConcsOf "; string_of_name n; " (=> ";
-           optionstring (thingstring <.> fst)
+           string_of_option (string_of_thing <.> fst)
              (thingnamed n);
            ")"];
       match thingnamed n with
@@ -1665,9 +1665,9 @@ and _ConclusionsofTactic env (spec, l) =
   if !_FOLDdebug then
     consolereport
       ["_ConclusionsofTactic ...";
-       pairstring tacticstring
-         (bracketedliststring
-            (triplestring parseablestring_of_name thingstring termstring ",")
+       string_of_pair string_of_tactic
+         (bracketedstring_of_list
+            (string_of_triple parseablestring_of_name string_of_thing string_of_term ",")
             ",")
          ", " (spec, l)];
   match spec with
@@ -1698,7 +1698,7 @@ let rec _IT () = _The !_THING
 let rec strsep t =
   match debracket t with
     Literal (_, String s) -> s
-  | _ -> termstring t
+  | _ -> string_of_term t
 
 (* bloody OCaml lextax
    0x25 % 
@@ -1709,18 +1709,18 @@ let rec strsep t =
 let rec listf a1 a2 a3 =
   match a1, a2, a3 with
     [], [], r -> List.rev r
-  | [], t :: ts, r -> listf [] ts (" " :: termstring t :: " " :: r)
+  | [], t :: ts, r -> listf [] ts (" " :: string_of_term t :: " " :: r)
   | 0x25 :: 0x6c :: fs, t :: ts, r -> (* %l *)
       listf fs ts
         ((match debracket t with
             Tup (_, ",", [Tup (_, _, ts); sep]) ->
-              liststring termstring (strsep sep) ts
+              string_of_list string_of_term (strsep sep) ts
           | Tup (_, ",", [Tup (_, _, ts); sep1; sep2]) ->
-              liststring2 termstring (strsep sep1) (strsep sep2) ts
-          | _ -> termstring t) ::
+              liststring2 string_of_term (strsep sep1) (strsep sep2) ts
+          | _ -> string_of_term t) ::
            r)
   | 0x25 :: 0x73 :: fs, t :: ts, r -> (* %s *) listf fs ts (message t :: r)
-  | 0x25 :: 0x74 :: fs, t :: ts, r -> listf fs ts (termstring t :: r)
+  | 0x25 :: 0x74 :: fs, t :: ts, r -> listf fs ts (string_of_term t :: r)
   | 0x25 :: f :: fs, ts, r -> listf fs ts (utf8_of_ucode f :: r)
   | [0x25], ts, r -> listf [] ts ("%" :: r)
   | f :: fs, ts, r -> listf fs ts (utf8_of_ucode f :: r)
@@ -1730,7 +1730,7 @@ and message term =
     Tup (_, ",", Literal (_, String format) :: ts) ->
       implode (listf (utf8_explode format) ts [])
   | Literal (_, String s) -> s
-  | _ -> termstring term
+  | _ -> string_of_term term
 
 let message = message
 
@@ -1763,7 +1763,7 @@ let rec doJAPE tryf display env ts =
       with
         BadMatch_ ->
           setReason
-            (["Badly-formed JAPE tactic: "] @ (termstring <* ts));
+            (["Badly-formed JAPE tactic: "] @ (string_of_term <* ts));
           None
     in
     (* function is Term to Integer List *)
@@ -1775,7 +1775,7 @@ let rec doJAPE tryf display env ts =
       | _ -> raise MatchinTtoIL_
     in
     let bang () = 
-      setReason ["Badly-formed tactic: JAPE("; liststring termstring "," ts; ")"];
+      setReason ["Badly-formed tactic: JAPE("; string_of_list string_of_term "," ts; ")"];
       None
     in
     match ts with
@@ -1854,33 +1854,33 @@ let rec doFLATTEN env f =
                       Treeformat.Fmt.neutralformat]
                    ([], []))
                 state
-        | None -> setReason ["Cannot FLATTEN "; termstring f]; None
+        | None -> setReason ["Cannot FLATTEN "; string_of_term f]; None
         end
     | _ -> setReason ["FLATTEN with multiple-conclusion sequent"]; None
 (**********************************************************************)
 
-let rec trace argstring name args =
+let rec trace string_of_termarg name args =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
     if !tactictracing then
       consolereport
-        [parseablestring_of_name name; " "; argstring cxt args;
+        [parseablestring_of_name name; " "; string_of_termarg cxt args;
          match goal with
            None -> ""
          | Some path ->
              (" [[" ^
-                seqstring
+                string_of_seq
                   (rewriteseq cxt (sequent (followPath tree path)))) ^
                "]]"]
 
 let tracewithargs =
   trace
-    (fun cxt -> liststring (argstring <.> rewrite cxt) " ")
+    (fun cxt -> string_of_list (string_of_termarg <.> rewrite cxt) " ")
 
 let tracewithmap =
   trace
     (fun cxt ->
-       bracketedliststring
-         (pairstring termstring (termstring <.> rewrite cxt)
+       bracketedstring_of_list
+         (string_of_pair string_of_term (string_of_term <.> rewrite cxt)
             ",")
          ",")
 
@@ -1893,8 +1893,8 @@ let rec applyBasic
   let reason = make_remark name [] in
   trace
     (fun cxt ->
-       Mappingfuns.mappingstring termstring
-         (termstring <.> rewrite cxt))
+       Mappingfuns.string_of_mapping string_of_term
+         (string_of_term <.> rewrite cxt))
     name env state;
   if currentlyProving name then
     begin
@@ -1948,7 +1948,7 @@ let rec tryApplyOrSubst
                      ((["can't parse expanded macro-tactic ";
                         parseablestring_of_name name; ": "] @
                          ss) @
-                        [".\nExpanded tactic is "; termstring m]))
+                        [".\nExpanded tactic is "; string_of_term m]))
           in
           dispatch display try__ !rootenv(* so we can ASSIGN ??? *)  contn t state
       | argmap, _, _ ->
@@ -1992,12 +1992,12 @@ let rec newpath tacstr eval =
         raise
           (Tacastrophe_
              ["bad path in "; tacstr; ": "; s; "; ";
-              bracketedliststring string_of_int "," ns])
+              bracketedstring_of_list string_of_int "," ns])
 
 let rec dispatchTactic display try__ env contn tactic =
   fun (Proofstate {cxt = cxt} as state) ->
     if !tactictracing then
-      consolereport ["dispatching "; tacticstring tactic];
+      consolereport ["dispatching "; string_of_tactic tactic];
     match tactic with
       SkipTac -> contn (Some state)
     | FailTac -> None
@@ -2068,7 +2068,7 @@ let rec dispatchTactic display try__ env contn tactic =
         contn (stripoption (doBIND tactic display try__ env state))
     | BindHypTac _ ->
         contn (stripoption (doBIND tactic display try__ env state))
-    | BindHyp2Tac _ ->
+    | Tac_of_BindHyp _ ->
         contn (stripoption (doBIND tactic display try__ env state))
     | BindHypsTac _ ->
         contn (stripoption (doBIND tactic display try__ env state))
@@ -2108,7 +2108,7 @@ let rec dispatchTactic display try__ env contn tactic =
           if !tactictracing then
             consolereport
               ["(after evaluation dispatching) ";
-               tacticstring (TermTac (name, args))];
+               string_of_tactic (TermTac (name, args))];
           tryApply display try__ contn name args state
         in
         let rec trynewtac t =
@@ -2121,8 +2121,8 @@ let rec dispatchTactic display try__ env contn tactic =
             ParseError_ ss ->
               raise
                 (Tacastrophe_
-                   (tacticstring tactic :: " evaluates to " ::
-                      termstring t' ::
+                   (string_of_tactic tactic :: " evaluates to " ::
+                      string_of_term t' ::
                       ", which isn't a valid tactic, because " :: ss))
         in
         begin match (env <@> str) with
@@ -2136,9 +2136,9 @@ let rec dispatchTactic display try__ env contn tactic =
                 | _ ->
                     raise
                       (Tacastrophe_
-                         ["argument formula"; termstring t;
+                         ["argument formula"; string_of_term t;
                           " applied to additional arguments ";
-                          liststring termstring ", " args'; " -- you can't make tactics 'on the fly' that way"])
+                          string_of_list string_of_term ", " args'; " -- you can't make tactics 'on the fly' that way"])
                 end
             | [] ->
                 match striparg t with
@@ -2250,7 +2250,7 @@ and trySubst display =
 
 and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs as try__) i 
                      (Proofstate {cxt = cxt; givens = givens} as state) =
-    let i = try term2int i with _ -> raise (Tacastrophe_ ["not an integer"]) in
+    let i = try int_of_term i with _ -> raise (Tacastrophe_ ["not an integer"]) in
     let given =
       try List.nth givens i with
         Failure "nth" ->
@@ -2261,7 +2261,7 @@ and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs
                          | 1 -> ["only one given available"]
                          | n -> ["only "; string_of_int n; " givens available"]))
     in
-    let name = seqstring given in
+    let name = string_of_seq given in
     (* this is the problem! *)
     let (cxt, principals, given) = freshGiven true given cxt in
     let stuff =
@@ -2275,14 +2275,14 @@ and doASSIGN env (s, t) state =
   let t' = eval env t in
   let rec fail ss =
     setReason
-      ("can't ASSIGN (" :: parseablestring_of_name s :: "," :: termstring t ::
+      ("can't ASSIGN (" :: parseablestring_of_name s :: "," :: string_of_term t ::
          ") - " :: ss);
     None
   in
   try Japeenv.set (env, s, t'); resetcaches (); Some state with
     OutOfRange_ range ->
       fail
-        ["argument evaluates to "; termstring t'; "; ";
+        ["argument evaluates to "; string_of_term t'; "; ";
          parseablestring_of_name s; " can only be set to "; range]
   | NotJapeVar_ -> fail ["it isn't a variable in the environment"]
   | ReadOnly_ -> fail ["that variable can't be altered (at the moment)"]
@@ -2370,7 +2370,7 @@ and doUNFOLD name display try__ env contn (tactic, laws) =
               (fun (name, _, term) ->
                  if !_FOLDdebug then
                    consolereport
-                     ["_Matches found \""; termstring term;
+                     ["_Matches found \""; string_of_term term;
                       "\" - now to try "; parseablestring_of_name tactic;
                       " and then "; parseablestring_of_name name];
                  (tryApply display try__ contn tactic [term] &~
@@ -2534,15 +2534,15 @@ and doBIND tac display try__ env =
         begin match pes with
           [pattern, expr] ->
             setReason
-              (s :: " didn't match pattern " :: termstring pattern ::
-                 " to formula " :: termstring expr :: ss)
+              (s :: " didn't match pattern " :: string_of_term pattern ::
+                 " to formula " :: string_of_term expr :: ss)
         | _ ->
             setReason
               (s :: " didn't match patterns " ::
-                 liststring2 termstring ", " " and "
+                 liststring2 string_of_term ", " " and "
                    ((fst <* pes)) ::
                  " to formulae " ::
-                 liststring2 termstring ", " " and "
+                 liststring2 string_of_term ", " " and "
                    ((snd <* pes)) ::
                  ss)
         end;
@@ -2554,7 +2554,7 @@ and doBIND tac display try__ env =
       match
         bindunify bad
           (fun p ->
-             bad [" because proviso "; provisostring p; " was violated."])
+             bad [" because proviso "; string_of_proviso p; " was violated."])
            ((fun (pattern, expr) -> eval env pattern, expr) <* pes)
           namecxt
       with
@@ -2598,7 +2598,7 @@ and doBIND tac display try__ env =
     let rec doublesel spec ishyp s =
       let rec doit ss =
         try
-          let (cxt, t) = selection2Subst true ss cxt in
+          let (cxt, t) = _Subst_of_selection true ss cxt in
           checkBIND s (cxt, env, Some t, spec)
         with
           Selection_ ss -> setReason (s :: " failed: " :: ss); None
@@ -2679,22 +2679,22 @@ and doBIND tac display try__ env =
       let rec unify (pat, expr) =
         bindunify (fun _ -> None) (fun _ -> None) [pat, expr]
       in
-      match subterm2subst unify cxt (eval env pat1) expr with
+      match _SubstOpt_of_subterm unify cxt (eval env pat1) expr with
         None ->
           setReason
-            ["LETOCCURS failed to find pattern"; termstring pat1; " in ";
-             termstring expr];
+            ["LETOCCURS failed to find pattern"; string_of_term pat1; " in ";
+             string_of_term expr];
           None
       | Some (cxt', subst) ->
           let env = newenv cxt' env newformals in
           (* again, no leakage of context *)
-          (* showAlert["bindOccurs got intermediate ", termstring subst]; *)
+          (* showAlert["bindOccurs got intermediate ", string_of_term subst]; *)
           bindThenDispatch "LETOCCURS" cxt env [pat2, subst] tac
     in
-    let rec seqside2term colln =
+    let rec term_of_seqside colln =
       try
         let ts =
-            ((_The <.> element2term) <*
+            ((_The <.> term_of_element) <*
              explodeCollection colln)
         in
         (* I wish I didn't have to know how termparse does it, but I do ... *)
@@ -2716,7 +2716,7 @@ and doBIND tac display try__ env =
       let tipterms =
           ((fun (path, rhss) ->
               path,
-              (_The <* (opt2bool <| (element2term <* rhss)))) <*
+              (_The <* (bool_of_opt <| (term_of_element <* rhss)))) <*
            tiprhss)
       in
       List.concat
@@ -2728,7 +2728,7 @@ and doBIND tac display try__ env =
      * RB 22/viii/00
      *)
     if !tactictracing then
-      consolereport ["doBIND dispatching "; tacticstring tac];
+      consolereport ["doBIND dispatching "; string_of_tactic tac];
     match tac with
       BindConcTac spec ->
         let topt =
@@ -2746,7 +2746,7 @@ and doBIND tac display try__ env =
             setReason ["LETHYP with not exactly one selected hypothesis"];
             None
         end
-    | BindHyp2Tac (pat1, pat2, tac) ->
+    | Tac_of_BindHyp (pat1, pat2, tac) ->
         begin match getselectedhypotheses () with
           Some (_, [Element (_, _, h1); Element (_, _, h2)]) ->
               (
@@ -2767,7 +2767,7 @@ and doBIND tac display try__ env =
                Some
                  (registerTup
                     (",",
-                       (((rewrite cxt <.> _The) <.> element2term) <*
+                       (((rewrite cxt <.> _The) <.> term_of_element) <*
                         hs))),
                spec)
         | _ -> setReason ["LETHYPS with no selected hypothesis/es"]; None
@@ -2786,7 +2786,7 @@ and doBIND tac display try__ env =
     | BindSubstTac spec ->
         let rec doit ss =
           try
-            let (cxt, t) = selection2Subst true ss cxt in
+            let (cxt, t) = _Subst_of_selection true ss cxt in
             checkBIND "LETSUBSTSEL" (cxt, env, Some t, spec)
           with
             Selection_ ss ->
@@ -2826,7 +2826,7 @@ and doBIND tac display try__ env =
           rewriteseq cxt (sequent (followPath tree (getGoalPath goal)))
         with
           Seq (_, hs, _) ->
-            checkBIND "LETLHS" (cxt, env, Some (seqside2term hs), spec)
+            checkBIND "LETLHS" (cxt, env, Some (term_of_seqside hs), spec)
         end
     | BindRHSTac spec ->
         (* LETLHS/RHS don't insist on a tip, nor a single element *)
@@ -2834,7 +2834,7 @@ and doBIND tac display try__ env =
           rewriteseq cxt (sequent (followPath tree (getGoalPath goal)))
         with
           Seq (_, _, cs) ->
-            checkBIND "LETRHS" (cxt, env, Some (seqside2term cs), spec)
+            checkBIND "LETRHS" (cxt, env, Some (term_of_seqside cs), spec)
         end
     | BindGoalTac spec ->
         (* LETGOAL does insist on a tip, and a single term as conclusion *)
@@ -2856,7 +2856,7 @@ and doBIND tac display try__ env =
             checkBIND "LETOPENSUBGOAL"
               (cxt,
                (env ++
-                  (name |-> registerTup (",", (int2term <* ns)))),
+                  (name |-> registerTup (",", (term_of_int <* ns)))),
                Some (rewrite cxt conc), (pat, tac))
         | [] ->
             setReason ["LETOPENSUBGOAL with no unproved conclusions"];
@@ -2901,7 +2901,7 @@ and doBIND tac display try__ env =
         Some
           (dispatchTactic display try__
              ((env ++
-                 (name |-> registerTup (",", (int2term <* ns)))))
+                 (name |-> registerTup (",", (term_of_int <* ns)))))
              nullcontn tac state)
     | BadUnifyTac (n1, n2, tac) ->
         (!badunify &~~
@@ -2923,13 +2923,13 @@ and doBIND tac display try__ env =
               Some
                 (dispatchTactic display try__
                    (env ++ (n1 |-> t1) ++ (n2 |-> t2) ++
-                           (n3 |-> registerLiteral (String (provisostring p))))
+                           (n3 |-> registerLiteral (String (string_of_proviso p))))
                    nullcontn tac state)))
     | t ->
         raise
           (Catastrophe_
              ["(doBind in tacticfuns) WHEN tactic with non-guard arm ";
-              tacticstring t])
+              string_of_tactic t])
 
 and doWHEN ts display try__ env state =
   let rec _W =
@@ -2946,7 +2946,7 @@ and doWHEN ts display try__ env state =
 (* on rules and theorems only, auto-include arguments *)
 
 let firstextend env tac =
-  (*consolereport ["firstextend ("; Japeenv.string_of_japeenv env; ") ("; tacticstring tac; ") ";
+  (*consolereport ["firstextend ("; Japeenv.string_of_japeenv env; ") ("; string_of_tactic tac; ") ";
                  string_of_bool (extensibletac env tac)];*)
   if extensibletac env tac then WithSelectionsTac tac else tac
 
@@ -3013,7 +3013,7 @@ let rec autoTactics display env rules =
         (Proofstate {cxt = cxt; tree = tree; givens = givens; root = root}
            as state) ->
         let rec bad ss =
-          showAlert (ss @ [" during autoTactics "; tacticstring tac]);
+          showAlert (ss @ [" during autoTactics "; string_of_tactic tac]);
           None
         in
         try

@@ -34,11 +34,11 @@ and textbox
 (* build values *)
 val size : int * int -> size (* w,h *)
 val textsize : int * int * int -> textsize (* w, ascent, descent *)
-val textsize2size : textsize -> size
+val size_of_textsize : textsize -> size
 val pos : int * int -> pos (* x,y *)
 val box : pos * size -> box
 val textbox : pos * textsize -> textbox
-val textbox2box : textbox -> box
+val box_of_textbox : textbox -> box
 
 (* take them apart *)
 val sW : size -> int
@@ -103,8 +103,8 @@ val bOffset : box -> pos -> box
 val tbOffset : textbox -> pos -> textbox
 
 (* show me *)
-val posstring : pos -> string
-val sizestring : size -> string
-val textsizestring : textsize -> string
-val boxstring : box -> string
-val textboxstring : textbox -> string
+val string_of_pos: pos -> string
+val string_of_size : size -> string
+val string_of_textsize : textsize -> string
+val string_of_box : box -> string
+val string_of_textbox : textbox -> string

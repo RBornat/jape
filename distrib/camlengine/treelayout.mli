@@ -36,6 +36,6 @@ type treelayout =
   | NamedLayout of (term * term option)
                   (* fmt * list of subtrees to show *)
 
-val treelayoutstring : treelayout -> string
-val smltreelayoutstring : treelayout -> string
+val string_of_treelayout : treelayout -> string
+val debugstring_of_treelayout : treelayout -> string
 val remaptreelayout : (term, term) mapping -> treelayout -> treelayout

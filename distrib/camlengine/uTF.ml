@@ -208,7 +208,7 @@ let of_utfchannel ic =
   in
   of_utfstream reader s
 
-let of_utfNchannel size bigendian ic =
+let stream_of_utfNinchannel size bigendian ic =
   let s = Stream.of_channel ic in
     match size with
       8 -> (
@@ -230,7 +230,7 @@ let of_utfNchannel size bigendian ic =
         of_utfstream (utf32_next bigendian) s)
     | _ -> raise (Miscellaneous.Catastrophe_ ["utf8_of_utfNchannel "; string_of_int size])
 
-let of_utf8string s = 
+let stream_of_utf8string s = 
   of_utfstream utf8_next (Stream.of_string s)
   
 let open_out_utf8 s =
@@ -268,7 +268,7 @@ let utf8_presub s i =
     let rec f j =
       if j<0 then 
         raise (MalformedUTF_ 
-                 ["UTF8 string "; bracketedliststring hexchar "; " (chars_of_string (String.sub s 0 i))])
+                 ["UTF8 string "; bracketedstring_of_list hexchar "; " (chars_of_string (String.sub s 0 i))])
       else (
         let n = utf8width_from_header s.[j] in
         if n>0 then utf8_get s j

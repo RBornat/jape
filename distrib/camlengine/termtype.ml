@@ -48,7 +48,7 @@ and element =
   | Element of (int option * resnum * term)
 and resnum = Nonum | Resnum of int | ResUnknown of int
 
-let rec resnum2int =
+let rec int_of_resnum =
   function
 	Resnum n -> n
   | ResUnknown n -> n

@@ -41,11 +41,11 @@ let (<*) = Listfuns.(<*)
 let (<|) = Listfuns.(<|)
 let clearView = Draw.clearView
 let consolereport = Miscellaneous.consolereport
-let elementstring = Termstring.elementstring
-let elementstring_invisbracketed = Termstring.elementstring_invisbracketed
+let string_of_element = Termstring.string_of_element
+let invisbracketedstring_of_element = Termstring.invisbracketedstring_of_element
 let highlight = Draw.highlight
 let last = Listfuns.last
-let liststring = Listfuns.liststring
+let string_of_list = Listfuns.string_of_list
 let turnstiles = Sequent.syntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
 let viewBox = Draw.viewBox
@@ -118,7 +118,7 @@ let rec subline =
 let rec drawReason a1 a2 =
   match a1, a2 with
     p, None -> ()
-  | p, Some plan -> drawplan planclass2displayclass p plan
+  | p, Some plan -> drawplan displayclass_of_planclass p plan
 
 let rec maketreeplan proof =
   let termfontleading = thrd (fontinfo TermFont) in
@@ -131,10 +131,10 @@ let rec maketreeplan proof =
   let _ = setproofparams Japeserver.TreeStyle linethickness in
   (* do this early, so GUIs are ready for anything *)
 
-  let noreasoninf = string2textinfo ReasonFont "" in
+  let noreasoninf = textinfo_of_string ReasonFont "" in
   let showturnstiles = List.length (turnstiles ()) <> 1 in
   let sequentplan =
-    makeseqplan (elementstring_invisbracketed true) showturnstiles
+    makeseqplan (invisbracketedstring_of_element true) showturnstiles
   in
   let rec _TP t =
     let s = sequent t in
@@ -149,7 +149,7 @@ let rec maketreeplan proof =
     let (reasonsize, _ as reasoninf) =
       match r with
         None -> noreasoninf
-      | Some why -> reason2textinfo why
+      | Some why -> textinfo_of_reason why
     in
     let subh = nj_fold (uncurry2 max) ((tpH <* subps)) 0 in
     let (topbox, suboutline, subplans) =
@@ -224,7 +224,7 @@ let rec maketreeplan proof =
                                None -> None
                              | Some _ ->
                                  let rplan =
-                                   textinfo2plan reasoninf ReasonClass
+                                   plan_of_textinfo reasoninf ReasonClass
                                      (pos (reasonindent, supery + tsA reasonsize))
                                  in Some rplan);
                linespec =
@@ -247,7 +247,7 @@ let rec elinfo plan =
     ElementClass info -> Some info
   | _ -> None
 
-let rec pos2hit pos path =
+let rec hit_of_pos pos path =
   fun
     (Treeplan
        {proofbox = proofbox;
@@ -275,12 +275,12 @@ let rec pos2hit pos path =
         Some (ReasonHit (List.rev path))
       else
         _FIRSTOFN
-           (fun (n, (pos', plan)) -> pos2hit ( (pos +<-+ pos')) (n :: path) plan)
+           (fun (n, (pos', plan)) -> hit_of_pos ( (pos +<-+ pos')) (n :: path) plan)
            subplans
     else None
 
 let rec locateHit pos _ _ (prooforigin, proof, plan) =
-  pos2hit ( (pos +<-+ prooforigin)) [] plan
+  hit_of_pos ( (pos +<-+ prooforigin)) [] plan
 
 let refineSelection = false
 
@@ -288,11 +288,11 @@ let rec notifyselect bposclassopt posclasslist (prooforigin, proof, plan) =
   let rec cleanup test =
     List.iter
       (fun (oldpos, _) ->
-         match pos2hit ( (oldpos +<-+ prooforigin)) [] plan with
+         match hit_of_pos ( (oldpos +<-+ prooforigin)) [] plan with
            Some oldhit ->
              if test (oldpos, oldhit) then highlight oldpos None
          | None ->
-             raise (Catastrophe_ ["notifyselect (treedraw) can't re-identify "; posstring oldpos]))
+             raise (Catastrophe_ ["notifyselect (treedraw) can't re-identify "; string_of_pos oldpos]))
       posclasslist
   in
   match bposclassopt with
@@ -301,7 +301,7 @@ let rec notifyselect bposclassopt posclasslist (prooforigin, proof, plan) =
   | Some (hitpos, _) ->
       (* cancel anything lying around *)
       (* cancel hits in other sequents ... *)
-      match pos2hit ( (hitpos +<-+ prooforigin)) [] plan with
+      match hit_of_pos ( (hitpos +<-+ prooforigin)) [] plan with
         Some (ReasonHit _) ->
           (* only one selection *)
           cleanup (fun (oldpos, _) -> oldpos <> hitpos)
@@ -309,7 +309,7 @@ let rec notifyselect bposclassopt posclasslist (prooforigin, proof, plan) =
           (* clear selections in other sequents *)                    
           cleanup (fun (oldpos, oldhit) -> hitpath oldhit <> hitpath hit)
       | None ->
-          raise (Catastrophe_ ["notifyselect (treedraw) can't identify "; posstring hitpos])
+          raise (Catastrophe_ ["notifyselect (treedraw) can't identify "; string_of_pos hitpos])
 
 (* There is a notion of a 'target' in the proof - the sequent selected for action -
  * which is identified by path, and the tree is always drawn so that the target
@@ -382,7 +382,7 @@ let rec print str goal pos proof plan =
   let rgoal = revgoal goal in
   let out = output_string str in
   let outesc = out <.> String.escaped in
-  let rec outplan p = out "\""; outesc (plan2string p); out "\" " in
+  let rec outplan p = out "\""; outesc (string_of_plan  p); out "\" " in
   let rec outsp n = if n = 0 then () else (out " "; outsp (n - 1)) in
   let rec _D (Treeplan {seqplan = seqplan; reasonplan = reasonplan; linespec = linespec;
                         subplans = subplans; seqbox = seqbox})

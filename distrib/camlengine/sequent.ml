@@ -64,18 +64,18 @@ let trueclass =
 
 let validforms = [bagkind; listkind; formulakind]
 
-let syntaxclassstring =
+let string_of_syntaxclass =
   function
     FormulaClass -> "FORMULA"
   | BagClass FormulaClass -> "BAG"
   | ListClass FormulaClass -> "LIST"
-  | c -> raise (Catastrophe_ ["syntaxclassstring "; unparseidclass c])
+  | c -> raise (Catastrophe_ ["string_of_syntaxclass "; unparseidclass c])
 
-let syntaxstring (kind, hyps, stile, concs) =
+let string_of_syntax (kind, hyps, stile, concs) =
   (match kind with
      Syntactic -> "SEQUENT "
    | Semantic -> "(SEMANTIC)SEQUENT ") ^
-  syntaxclassstring hyps ^ " " ^ stile ^ " " ^ syntaxclassstring concs
+  string_of_syntaxclass hyps ^ " " ^ stile ^ " " ^ string_of_syntaxclass concs
     
 let sequent_descriptions : (kind * idclass * string * idclass) list ref = ref []
 
@@ -115,21 +115,21 @@ let rec parseSeq () =
         raise
           (ParseError_
              ["single formula expected on left-hand side of sequent; saw ";
-              symbolstring (currsymb ())])
+              string_of_symbol (currsymb ())])
     | (_, els), FormulaClass ->
         raise
           (ParseError_
              ["single formula expected on left-hand side of sequent; found ";
-              termstring (Collection (None, listkind, els))])
+              string_of_term (Collection (None, listkind, els))])
     | (None, els), c -> registerCollection (c, els)
     | (Some c', els), c ->
         if c = c' then registerCollection (c, els)
         else
           raise
             (ParseError_
-               [syntaxclassstring c;
+               [string_of_syntaxclass c;
                 " expected on left-hand side of sequent; found ";
-                termstring (Collection (None, c', els))])
+                string_of_term (Collection (None, c', els))])
   in
   let rec parseside =
     function
@@ -164,20 +164,20 @@ let rec parseSeq () =
               raise
                 (ParseError_
                    ["badly formed sequent - "; st; " expected after ";
-                    termstring (formside el)])
+                    string_of_term (formside el)])
           | _, FormulaClass ->
               Seq (st, registerCollection (hypform, []), formside el)
           | _ ->
               raise
                 (ParseError_
                    ["badly formed sequent - "; st; " expected after ";
-                    termstring (Collection (None, hypform, [el]))])
+                    string_of_term (Collection (None, hypform, [el]))])
           end
       | _, (_, els), _ ->
           raise
             (ParseError_
                ["badly formed sequent - some kind of turnstile expected after ";
-                termstring (Collection (None, listkind, els))])
+                string_of_term (Collection (None, listkind, els))])
 
 let canstartSeq = canstartTerm
 
@@ -208,20 +208,20 @@ let rec sqs tf =
     | false, ListClass FormulaClass, FormulaClass ->
         if isemptycollection hs then tf gs ss else default ()
     | _ -> default ()
-let catelim_seqstring = sqs (catelim_collectionstring ", ")
-let catelim_seqstring_invisbracketed b = sqs (catelim_collectionstring_invisbracketed b ", ")
-let catelim_smlseqstring = sqs catelim_smltermstring
-let catelim_elementseqstring =
+let catelim_string_of_seq = sqs (catelim_string_of_collection ", ")
+let catelim_invisbracketedstring_of_seq b = sqs (catelim_invisbracketedstring_of_collection b ", ")
+let catelim_debugstring_of_seq = sqs catelim_debugstring_of_term
+let catelim_elementstring_of_seq =
   sqs
     (function
        Collection (_, _, es) ->
-         catelim_liststring (catelim_smlelementstring catelim_termstring)
+         catelim_string_of_list (catelim_debugstring_of_element catelim_string_of_term)
            ", " es
-     | t -> catelim_termstring t)
-let seqstring = catelim2stringfn catelim_seqstring
-let seqstring_invisbracketed = catelim2stringfn <.> catelim_seqstring_invisbracketed
-let smlseqstring = catelim2stringfn catelim_smlseqstring
-let elementseqstring = catelim2stringfn catelim_elementseqstring
+     | t -> catelim_string_of_term t)
+let string_of_seq = stringfn_of_catelim catelim_string_of_seq
+let invisbracketedstring_of_seq = stringfn_of_catelim <.> catelim_invisbracketedstring_of_seq
+let debugstring_of_seq = stringfn_of_catelim catelim_debugstring_of_seq
+let elementstring_of_seq = stringfn_of_catelim catelim_elementstring_of_seq
 
 let rec seqexplode = fun (Seq s) -> s
 
@@ -240,13 +240,13 @@ fun parseComponent c () =
   | _             => parseTerm()
 *)
   
-let rec string2sequent s = tryparse (fun _ -> parseSeq ()) s
+let rec sequent_of_string s = tryparse (fun _ -> parseSeq ()) s
 let rec seqvars termvars tmerge =
   fun (Seq (st, hs, gs)) -> tmerge (termvars hs) (termvars gs)
 let rec seqVIDs s = orderVIDs ((vid_of_var <* seqvars termvars tmerge s))
 let rec eqseqs =
-  fun (Seq (st1, h1s, g1s), Seq (st2, h2s, g2s)) ->
-    (st1 = st2 && eqterms (h1s, h2s)) && eqterms (g1s, g2s)
+  fun (Seq (st1, h1s, g1s), Seq (st2, s_of_h, s_of_g)) ->
+    (st1 = st2 && eqterms (h1s, s_of_h)) && eqterms (g1s, s_of_g)
 let rec seqmatchvars matchbra ispatvar =
   fun (Seq (stpat, pathyps, patgoals)) ->
     fun (Seq (st, hyps, goals)) env ->
@@ -259,8 +259,8 @@ let rec remapseq env =
   fun (Seq (st, hs, gs)) -> Seq (st, remapterm env hs, remapterm env gs)
 let rec maxseqresnum =
   fun (Seq (st, hs, gs)) ->
-    nj_fold (uncurry2 max) ((resnum2int <* elementnumbers hs))
-      (nj_fold (uncurry2 max) ((resnum2int <* elementnumbers gs)) 0)
+    nj_fold (uncurry2 max) ((int_of_resnum <* elementnumbers hs))
+      (nj_fold (uncurry2 max) ((int_of_resnum <* elementnumbers gs)) 0)
 
 let syntaxes = ref []
 
@@ -287,15 +287,15 @@ let rec describeSeqs ds =
          if not (List.mem description sqds) then
            raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
                                " attempt to declare novel sequent syntax ";
-                               syntaxstring description])
+                               string_of_syntax description])
      | _ -> ());
     match lookupsyntax stile with
       Some (kind, hyps', _, concs' as syn') ->
         if (kind = Syntactic && hyps = hyps') && concs = concs' then ()
         else
           error
-            ["you cannot redeclare "; syntaxstring syn'; " as ";
-             syntaxstring description]
+            ["you cannot redeclare "; string_of_syntax syn'; " as ";
+             string_of_syntax description]
     | None ->
         if member (hyps, validforms) && member (concs, validforms) then
           begin
@@ -306,9 +306,9 @@ let rec describeSeqs ds =
         else
           error
             ["bad syntactic sequent syntax description ";
-             syntaxstring (Syntactic, hyps, stile, concs)]
+             string_of_syntax (Syntactic, hyps, stile, concs)]
   in
-  (* consolereport ["describing ", bracketedliststring show "," ds]; *)
+  (* consolereport ["describing ", bracketedstring_of_list show "," ds]; *)
   List.iter f ds
 
 let rec setsemanticturnstile syn sem =
@@ -338,8 +338,8 @@ let rec setsemanticturnstile syn sem =
             if hyps = hyps' && concs = concs' then !sequent_descriptions
             else
               bad
-                ["you cannot redeclare "; syntaxstring sem'; " as ";
-                 syntaxstring (Semantic, hyps, sem, concs)]
+                ["you cannot redeclare "; string_of_syntax sem'; " as ";
+                 string_of_syntax (Semantic, hyps, sem, concs)]
   in
   let newturnstiles =
     match (!semanticturnstiles <@> syn) with

@@ -157,7 +157,7 @@ let rec lookinIdtree rt cs =
   match searchfsm (rootfsm rt) cs with
     Found (res, _) ->
       if !symboldebug then
-        consolereport [utf8_implode cs; " class "; idclassstring res];
+        consolereport [utf8_implode cs; " class "; string_of_idclass res];
       res
   | NotFound _ ->
       if !symboldebug then
@@ -166,9 +166,9 @@ let rec lookinIdtree rt cs =
             (fun (cs', r, b) ->
                if b && isprefix (fun (x, y) -> x = y) cs' cs then
                  consolereport
-                   ["missed prefix "; utf8_implode cs'; " "; idclassstring r])
+                   ["missed prefix "; utf8_implode cs'; " "; string_of_idclass r])
             (summarisetree !rt);
-          consolereport [utf8_implode cs; " class "; idclassstring NoClass]
+          consolereport [utf8_implode cs; " class "; string_of_idclass NoClass]
         end;
       NoClass
 
@@ -192,7 +192,7 @@ let insertinIdtree what isprefix class__ tree s =
   let rec bang () =
     raise
       (Catastrophe_
-         ["attempt to "; what; " "; idclassstring class__; " \""; s;
+         ["attempt to "; what; " "; string_of_idclass class__; " \""; s;
           "\""])
   in
   match utf8_explode s with
@@ -203,14 +203,14 @@ let insertinIdtree what isprefix class__ tree s =
       (* may be a bad thing *)
       if !symboldebug then
         consolereport
-          ["insertinIdtree "; idclassstring class__; " ";
+          ["insertinIdtree "; string_of_idclass class__; " ";
            string_of_bool isprefix; " "; enQuote s];
       tree :=
         addtotree (fun (x, y) -> x = y) !tree (c :: cs, class__, isprefix)
 
 let rec preclassopt =
   function
-    Some c -> Prestrs ["Some("; idclassstring c; ")"]
+    Some c -> Prestrs ["Some("; string_of_idclass c; ")"]
   | None -> Prestrs ["None"]
 
 let rec pre_SYMBOL s =
@@ -242,7 +242,7 @@ let rec pre_SYMBOL s =
   | STILE s'1 ->  Prestrs ["STILE \""; s'1; "\""]
   | SHYID  s'1 -> Prestrs ["RESERVED-WORD "; s'1]
 
-let smlsymbolstring = pre_implode <.> pre_SYMBOL
+let debugstring_of_symbol = pre_implode <.> pre_SYMBOL
 
 let string_of_associativity a = 
   match a with
@@ -261,10 +261,10 @@ let assoctable  = ref (Hashtbl.create friendlySmallishPrime)
 let lookup string = try Some (Hashtbl.find !symboltable string) with Not_found -> None
 let prio sym = 
   try Hashtbl.find !priotable sym 
-  with Not_found -> raise (Catastrophe_ ["Symbol.prio looking up "; smlsymbolstring sym])
+  with Not_found -> raise (Catastrophe_ ["Symbol.prio looking up "; debugstring_of_symbol sym])
 let assoc sym = 
   try Hashtbl.find !assoctable sym 
-  with Not_found -> raise (Catastrophe_ ["Symbol.assoc looking up "; smlsymbolstring sym])
+  with Not_found -> raise (Catastrophe_ ["Symbol.assoc looking up "; debugstring_of_symbol sym])
   
 let reversemapping = ref (Hashtbl.create 10)
 
@@ -302,7 +302,7 @@ let rec reverselookup symbol =
   | SHYID          s -> s
   | _                -> Hashtbl.find !reversemapping symbol
 
-let symbolstring = reverselookup
+let string_of_symbol = reverselookup
 
 let rec register_op s sym =
   let rec bang s =
@@ -311,15 +311,15 @@ let rec register_op s sym =
   if s = "" then bang "is_EOF";
   let cs = utf8_explode s in
   if List.exists (not <.> ispunct) cs then 
-    bang ("notallpunct "^bracketedliststring (enQuote<.>utf8_of_ucode) ";" cs);
+    bang ("notallpunct "^bracketedstring_of_list (enQuote<.>utf8_of_ucode) ";" cs);
   if !symboldebug then
     consolereport
-      ["register_op "; enQuote s; " "; smlsymbolstring sym];
+      ["register_op "; enQuote s; " "; debugstring_of_symbol sym];
   optree := addtotree (fun (x, y) -> x = y) !optree (cs, sym, false)
 
 let rec deregister_op s sym =
   if !symboldebug then
-    consolereport ["deregister_op "; enQuote s; " "; smlsymbolstring sym];
+    consolereport ["deregister_op "; enQuote s; " "; debugstring_of_symbol sym];
   optree := deletefromtree (fun (x, y) -> x = y) !optree (utf8_explode s, sym, false)
 
 let isop s = ispunct (utf8_sub s 0)
@@ -340,12 +340,12 @@ let delete symbol =
       (try deregister_op oldstring symbol 
        with DeleteFromTree_ -> 
          let string_of_csrb =
-           triplestring (bracketedliststring (fun i -> "0x"^hexstring_of_int i) ",") 
-                        smlsymbolstring string_of_bool ","
+           string_of_triple (bracketedstring_of_list (fun i -> "0x"^hexstring_of_int i) ",") 
+                        debugstring_of_symbol string_of_bool ","
          in
          consolereport 
            ["DeleteFromTree_\n\t"; 
-              pairstring (bracketedliststring string_of_csrb "; ") string_of_csrb "\n\t" 
+              string_of_pair (bracketedstring_of_list string_of_csrb "; ") string_of_csrb "\n\t" 
                  (summarisetree !optree, (utf8_explode oldstring, symbol, false))]
       );
     if hidden symbol then 
@@ -362,9 +362,9 @@ let enter string n a symbol =
   let rec doit () =
     if !symboldebug then
       consolereport ["enter "; enQuote string; 
-                     " "; optionstring string_of_int n;
-                     " "; optionstring string_of_associativity a; 
-                     " ("; smlsymbolstring symbol; ")"];
+                     " "; string_of_option string_of_int n;
+                     " "; string_of_option string_of_associativity a; 
+                     " ("; debugstring_of_symbol symbol; ")"];
     (try delete symbol with Not_found -> ());
     (* Store.update (!symboltable, string, symbol) *)
     Hashtbl.add !symboltable string symbol;
@@ -386,9 +386,9 @@ let enter string n a symbol =
   | Some n, None  , RIGHTFIX   _ -> doit()
   | None  , None  , _            -> doit()
   | _     , _     , _            ->
-      raise (Catastrophe_ ["Symbol.enter ("; optionstring string_of_int n;
-                           ") ("; optionstring string_of_associativity a; 
-                           ") ("; smlsymbolstring symbol; ")"])
+      raise (Catastrophe_ ["Symbol.enter ("; string_of_option string_of_int n;
+                           ") ("; string_of_option string_of_associativity a; 
+                           ") ("; debugstring_of_symbol symbol; ")"])
   
 let commasymbol = INFIX "," (* comma is now an operator, and may we be lucky *)
 
@@ -507,7 +507,7 @@ let checkbadID = checkentry badID
 let carefullyEnter s n a t =
   let bang_redef other ss =
     raise (ParseError_ (ss @ ["redefine the syntactic role of "; enQuote s;
-                              " from "; smlsymbolstring other; " to "; smlsymbolstring t]))
+                              " from "; debugstring_of_symbol other; " to "; debugstring_of_symbol t]))
   in
   let doit () =
     match !syntaxes with
@@ -533,7 +533,7 @@ let carefullyEnter s n a t =
                   raise
                     (ParseError_
                        ["After PUSHSYNTAX "; enQuote sname;
-                        " attempt to define new symbol "; enQuote s; " as "; smlsymbolstring t])
+                        " attempt to define new symbol "; enQuote s; " as "; debugstring_of_symbol t])
               | Some other       , t         ->
                   bang_redef other ["After PUSHSYNTAX "; enQuote sname; " attempt to "]
           with exn -> set_syntax_tables saved_tbls; raise exn);
@@ -643,7 +643,7 @@ let rec scannext () = next (); char ()
 let rec scanop fsm rcs =
   if !symboldebug then 
     consolereport 
-      ["scanop "; bracketedliststring (fun c -> enCharQuote (utf8_of_ucode c)) ";" rcs];
+      ["scanop "; bracketedstring_of_list (fun c -> enCharQuote (utf8_of_ucode c)) ";" rcs];
   match scanfsm (scanwatch scannext) fsm rcs (scanwatch char ()) with
     Found (sy, _) -> sy
   | NotFound rcs' ->
@@ -665,7 +665,7 @@ let rec scanid conf =
   | NotFound rcs -> q rcs None
 
 let rec scanreport s =
-  if !symboldebug then begin consolereport [smlsymbolstring s]; s end
+  if !symboldebug then begin consolereport [debugstring_of_symbol s]; s end
   else s
 
 let rec checkidclass con takeit class__ s =
@@ -786,7 +786,7 @@ let showInputError = showInputError
 
 let rec scansymb () =
   if !symboldebug then
-    consolereport ["scansymb -- peekedsymb is "; bracketedliststring smlsymbolstring ";" !peekedsymb];
+    consolereport ["scansymb -- peekedsymb is "; bracketedstring_of_list debugstring_of_symbol ";" !peekedsymb];
   match !peekedsymb with
     [] -> symb := scan ()
   | sym :: more -> symb := sym; peekedsymb := more
@@ -811,7 +811,7 @@ let rec canstartnovelsymb sy =
 
 let rec currnovelsymb () =
   if !symboldebug then
-    consolereport ["currnovelsymb "; smlsymbolstring !symb];
+    consolereport ["currnovelsymb "; debugstring_of_symbol !symb];
   if canstartnovelsymb !symb then
     let symstr = reverselookup !symb in
     let cs = utf8_explode symstr in
@@ -833,7 +833,7 @@ let rec currnovelsymb () =
   else
     raise
       (ParseError_
-         [symbolstring !symb;
+         [string_of_symbol !symb;
           " can't start a new identifier or operator"])
 
 type savedlex = ucode Stream.t * string * int * symbol * symbol list
@@ -876,7 +876,7 @@ let rec mustseparate =
       let c1 = utf8_presub a1 (String.length a1) in
       let c2 = utf8_sub a2 0 in
       let rec msp c =
-        opt2bool (fsmpos (rootfsm optree) (utf8_explode a1) &~~ (fun t -> fsmpos t [c]))
+        bool_of_opt (fsmpos (rootfsm optree) (utf8_explode a1) &~~ (fun t -> fsmpos t [c]))
       in
       let ms =
         function
@@ -928,7 +928,7 @@ let popSyntax () =
           (SUBSTBRA | SUBSTSEP | SUBSTKET) -> ()
         | _ -> 
             let newsym = 
-              try let s = pushlex "" (of_utf8string str) in
+              try let s = pushlex "" (stream_of_utf8string str) in
                   let r = !symb in
                   next(); 
                   let c = char () in
@@ -937,14 +937,14 @@ let popSyntax () =
                   r
               with ParseError_ _ ->
                      raise (ParseError_ ["After PUSHSYNTAX "; enQuote name; " the string "; enQuote str;
-                                         " is read as "; smlsymbolstring sym;
+                                         " is read as "; debugstring_of_symbol sym;
                                          "; beforehand it would not have been a symbol."]) 
             in
             if newsym<>sym then
               raise (ParseError_ ["After PUSHSYNTAX "; enQuote name; " the string "; enQuote str;
-                                  " is read as "; smlsymbolstring sym;
+                                  " is read as "; debugstring_of_symbol sym;
                                   "; beforehand it would have been "; 
-                                  smlsymbolstring newsym])
+                                  debugstring_of_symbol newsym])
       in
       Hashtbl.iter checksym internal_symT
   | _ -> raise (ParseError_ ["POPSYNTAX: stack empty"])

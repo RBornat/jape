@@ -28,7 +28,7 @@
 open Panelkind
 open Name
  
-val panelbuttoninsertstring : panelbuttoninsert -> string
+val string_of_panelbuttoninsert : panelbuttoninsert -> string
 type menudata =
     Mseparator
   | Mentry       of (name * string option * string)

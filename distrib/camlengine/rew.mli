@@ -59,6 +59,6 @@ val rawinfElements : cxt -> element list * rawinf -> rawinf
 val raw2rew_ : rawinf -> rewinf
 val rewinfCxt : cxt -> rewinf
 val rew_worthwhile : bool -> cxt -> rewinf -> bool
-val rewinfstring : rewinf -> string
+val string_of_rewinf : rewinf -> string
 
 val rewritedebug : bool ref

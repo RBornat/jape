@@ -31,7 +31,7 @@ type displayclass = DisplayHyp
                   | DisplayReason
                   | DisplayPunct
 
-val displayclassstring : displayclass -> string
+val string_of_displayclass : displayclass -> string
 
 (* Useful translation for Japeserver marshalling.
  * Current C/Java/Tk interfaces believe in these integers.
@@ -44,6 +44,6 @@ val displayclassstring : displayclass -> string
  *
  *)
 
-val displayclass2int : displayclass -> int
-val int2displayclass : int -> displayclass
+val int_of_displayclass : displayclass -> int
+val displayclass_of_int : int -> displayclass
 

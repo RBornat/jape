@@ -35,7 +35,7 @@ val anyway : ('a -> 'a option) -> 'a -> 'a
 val failpt : ('a -> 'a option) -> 'a -> 'a
 val findbest : ('a -> 'b option) -> ('b -> 'b -> 'b) -> 'a list -> 'b option
 val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-val opt2bool : 'a option -> bool
+val bool_of_opt : 'a option -> bool
 val optioncompose : ('b -> 'c) * ('a -> 'b option) -> 'a -> 'c option
 val optionfilter : ('a -> 'b option) -> 'a list -> 'b list
 val optionfold : ('a * 'b -> 'b option) -> 'a list -> 'b -> 'b option
@@ -52,8 +52,8 @@ val option_rewrite3 : ('a -> 'a option) -> ('b -> 'b option)
                    -> ('c -> 'c option) -> 'a * 'b * 'c -> ('a * 'b * 'c) option
 val option_rewritelist : ('a -> 'a option) -> 'a list -> 'a list option
 
-val catelim_optionstring : ('a -> string list -> string list) 
+val catelim_string_of_option : ('a -> string list -> string list) 
                         -> 'a option -> string list -> string list
-val optionstring : ('a -> string) -> 'a option -> string
+val string_of_option : ('a -> string) -> 'a option -> string
 
 exception None_

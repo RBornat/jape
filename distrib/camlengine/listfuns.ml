@@ -125,11 +125,11 @@ let rec catelim_interpolate a1 a2 a3 a4 =
   | f, sep, [x], ys -> f x ys
   | f, sep, x :: xs, ys -> f x (sep :: catelim_interpolate f sep xs ys)
 
-let rec catelim2stringfn f x = implode (f x [])
+let rec stringfn_of_catelim f x = implode (f x [])
 
-let rec stringfn2catelim f x ss = f x :: ss
+let rec catelim_of_stringfn f x ss = f x :: ss
 
-let rec catelim_liststring obstring punct =
+let rec catelim_string_of_list obstring punct =
   catelim_interpolate obstring punct
 
 let rec catelim_liststring2 obstring sepn sep2 xs tail =
@@ -140,19 +140,19 @@ let rec catelim_liststring2 obstring sepn sep2 xs tail =
   | x :: xs ->
       obstring x (sepn :: catelim_liststring2 obstring sepn sep2 xs tail)
 
-let rec catelim_bracketedliststring obstring punct xs tail =
-  "[" :: catelim_liststring obstring punct xs ("]" :: tail)
+let rec catelim_bracketedstring_of_list obstring punct xs tail =
+  "[" :: catelim_string_of_list obstring punct xs ("]" :: tail)
 
-let rec liststring obstring punct =
-  catelim2stringfn (catelim_liststring (stringfn2catelim obstring) punct)
+let rec string_of_list obstring punct =
+  stringfn_of_catelim (catelim_string_of_list (catelim_of_stringfn obstring) punct)
 
 let rec liststring2 obstring sepn sep2 =
-  catelim2stringfn
-    (catelim_liststring2 (stringfn2catelim obstring) sepn sep2)
+  stringfn_of_catelim
+    (catelim_liststring2 (catelim_of_stringfn obstring) sepn sep2)
 
-let rec bracketedliststring obstring punct =
-  catelim2stringfn
-    (catelim_bracketedliststring (stringfn2catelim obstring) punct)
+let rec bracketedstring_of_list obstring punct =
+  stringfn_of_catelim
+    (catelim_bracketedstring_of_list (catelim_of_stringfn obstring) punct)
 
 let rec replacenth a1 a2 a3 =
   match a1, a2, a3 with

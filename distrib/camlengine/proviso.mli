@@ -31,7 +31,7 @@ open Provisotype
 type proviso = Provisotype.proviso
  and visproviso
 
-val catelim_provisostring : proviso -> string list -> string list
+val catelim_string_of_proviso : proviso -> string list -> string list
 val earlierproviso : proviso -> proviso -> bool
 val isFreshProviso : proviso -> bool
 val maxprovisoresnum : proviso -> int
@@ -48,9 +48,9 @@ val provisodebug : bool ref
 val provisoparent : visproviso -> proviso
 val provisoresetactual : visproviso -> proviso -> visproviso
 val provisoselfparent : visproviso -> visproviso
-val provisostring : proviso -> string
+val string_of_proviso : proviso -> string
 val provisovars : (term -> 'a) -> ('a -> 'a -> 'a) -> proviso -> 'a
 val provisovisible : visproviso -> bool
-val visprovisostring : visproviso -> string
-val visprovisostring_invisbracketed : bool -> visproviso -> string
-val visprovisostringall : visproviso -> string
+val string_of_visproviso : visproviso -> string
+val invisbracketedstring_of_visproviso : bool -> visproviso -> string
+val detailedstring_of_visproviso : visproviso -> string

@@ -156,13 +156,13 @@ let rec writef s is =
       [], _ -> ()
     | 0x25 :: 0x25 :: f, is -> out "%"; ww_ f is
     | 0x25 :: f, Bool b :: is -> out (if b then "T" else "F"); ww_ f is
-    | 0x25 :: f, Int i :: is -> out (intstring i); ww_ f is
+    | 0x25 :: f, Int i :: is -> out (string_of_int i); ww_ f is
     | 0x25 :: f, Str s :: is -> outs s; ww_ f is
     | c :: cs, is -> out (utf8_of_ucode c); ww_ cs is
   in
   ww_ (utf8_explode s) is
 
-and intstring i = if i < 0 then "-" ^ string_of_int (- i) else string_of_int i
+and string_of_int i = if i < 0 then "-" ^ string_of_int (- i) else string_of_int i
 
 and outs s =
   List.iter
@@ -222,7 +222,7 @@ let rec setFonts stringfromtheory =
 exception Fontinfo_
 
 let rec fontinfo fontn =
-    match askf "FONTINFO %\n" [Int (displayfont2int fontn)] with 
+    match askf "FONTINFO %\n" [Int (int_of_displayfont fontn)] with 
       [asc; desc; lead]  -> asc, desc, lead
     | _ -> raise Fontinfo_
 
@@ -265,7 +265,7 @@ let stringSizeCache : (string*string, int*int*int) Hashtbl.t = Hashtbl.create 25
 exception Measurestring_ of int * string * int list
 
 let rec measurestring font string =
-  let fontnum = displayfont2int font in
+  let fontnum = int_of_displayfont font in
   let fontname = getfontname fontnum in
   try Hashtbl.find stringSizeCache (fontname,string) with
   Not_found -> (
@@ -311,7 +311,7 @@ let rec drawRect box =
   writef "DRAWRECT % % % %\n"
     (List.map fInt [x; y; w; h])
 
-let rec drawinpane pane = writef "DRAWINPANE %\n" [Int (pane2int pane)]
+let rec drawinpane pane = writef "DRAWINPANE %\n" [Int (int_of_pane pane)]
 
 let rec drawstring (font, class__, s, pos) =
   let (x, y) = explodePos pos in
@@ -323,24 +323,24 @@ let rec showAlert s = writef "SETALERT %\n" [Str s]
 let rec drawmeasuredtext class__ lines pos =
   (* : displayclass -> (pos*font*string) list -> pos -> unit *)
   (* consolereport ["drawmeasuredtext ";
-                 displayclassstring class__;
+                 string_of_displayclass class__;
                  " ";
-                 bracketedliststring 
-                    (Stringfuns.triplestring 
-                        posstring displayfontstring Stringfuns.enQuote ",") 
+                 bracketedstring_of_list 
+                    (Stringfuns.string_of_triple 
+                        string_of_pos string_of_displayfont Stringfuns.enQuote ",") 
                     ";\n" lines;
                  " ";
-                 posstring pos]; *)
-  let classn = displayclass2int class__ in
+                 string_of_pos pos]; *)
+  let classn = int_of_displayclass class__ in
   match lines with
     [pos', font, string] ->
-      let fontn = displayfont2int font in
+      let fontn = int_of_displayfont font in
       drawstring (fontn, classn, string, Box.(+->+) pos pos')
   | [] -> ()
   | _  ->
       let dostring (pos, font, s) =
         let (x, y) = explodePos pos in
-        writef "DRAWMT % % % %\n" [Int x; Int y; Int (displayfont2int font); Str s]
+        writef "DRAWMT % % % %\n" [Int x; Int y; Int (int_of_displayfont font); Str s]
       in
       let (x, y) = explodePos pos in
       writef "DRAWMEASUREDTEXT % % % %\n" [Int x; Int y; Int classn; Int (List.length lines)]; 
@@ -351,7 +351,7 @@ let rec procrustes width ellipsis font text =
   (* if stringwidth(text in font) < width then text else [text] cut to width - widthof ...*)
   match
     askf "PROCRUSTES % % % %\n"
-      [Int width; Str ellipsis; Int (displayfont2int font); Str text]
+      [Int width; Str ellipsis; Int (int_of_displayfont font); Str text]
   with
     [n] -> String.sub text 0 n
   | _ -> "Procrustes says 'goodness me'"
@@ -384,7 +384,7 @@ let rec askDangerously_unpatched message doit dont =
     [0] -> None
   | [n] -> Some (n - 1)
   | ns  -> raise (Catastrophe_ ["askDangerously protocol failure ";
-                                bracketedliststring string_of_int ";" ns])
+                                bracketedstring_of_list string_of_int ";" ns])
 
 let rec askCancel_unpatched severity message buttons default =
   let n = ask_unpatched severity message (buttons @ ["Cancel"]) default in
@@ -513,7 +513,7 @@ let rec highlight posn classopt =
   match classopt with
     None -> writef "UNHIGHLIGHT % %\n" [Int x; Int y]
   | Some c ->
-      writef "HIGHLIGHT % % %\n" [Int x; Int y; Int (displayclass2int c)]
+      writef "HIGHLIGHT % % %\n" [Int x; Int y; Int (int_of_displayclass c)]
 
 let rec readHighlight class__ =
   match askf "READHIGHLIGHT %\n" [Int class__] with
@@ -619,8 +619,8 @@ let positioned_textsels id =
                       false
   do () done;
   (* consolereport ["positioned_textsels \""; id; "\" => "; 
-           bracketedliststring (Stringfuns.pairstring posstring 
-                                (bracketedliststring Stringfuns.enQuote ",") ",") "; " !l]; *)
+           bracketedstring_of_list (Stringfuns.string_of_pair string_of_pos 
+                                (bracketedstring_of_list Stringfuns.enQuote ",") ",") "; " !l]; *)
   !l
   
 let rec getProofTextSelections () =
@@ -633,12 +633,12 @@ let rec getProofSelections () =
   while
     let line = readline "GETPROOFSELECTIONS" in
     match ints_of_reply line with
-      [x; y; classn] -> l := (pos (x, y), int2displayclass classn) :: !l; true
+      [x; y; classn] -> l := (pos (x, y), displayclass_of_int classn) :: !l; true
     | _ -> (* consolereport ["getFormulaSelection terminates on "; Stringfuns.enQuote line]; *) 
            false
   do () done;
   (* consolereport ["getFormulaSelection => "; 
-      bracketedliststring (Stringfuns.pairstring posstring displayclassstring ",") "; " !l]; *)
+      bracketedstring_of_list (Stringfuns.string_of_pair string_of_pos string_of_displayclass ",") "; " !l]; *)
   !l
 
 let rec nontrivial_selections line =
@@ -657,7 +657,7 @@ let rec getDisproofSelections () =
            false
   do () done;
   (* consolereport ["getDisproofSelections => "; 
-      bracketedliststring posstring "; " !l]; *)
+      bracketedstring_of_list string_of_pos "; " !l]; *)
   !l
 
 let rec getDisproofTextSelections () =
@@ -724,22 +724,22 @@ let rec setworlds selected worlds =
 exception GetPaneGeometry_ of string
 
 let rec getPaneGeometry pane = 
-    match askf "PANEGEOMETRY %\n" [Int (pane2int pane)] with
+    match askf "PANEGEOMETRY %\n" [Int (int_of_pane pane)] with
       [x; y; w; h] -> box (pos (x, y), size (w, h))
-    | _ -> raise (GetPaneGeometry_ (panestring pane))
+    | _ -> raise (GetPaneGeometry_ (string_of_pane pane))
 
-let rec clearPane pane = writef "CLEARPANE %\n" [Int (pane2int pane)]
+let rec clearPane pane = writef "CLEARPANE %\n" [Int (int_of_pane pane)]
 
 type displaystyle = TreeStyle | BoxStyle
 
-let displaystyle2int d =
+let int_of_displaystyle d =
   match d with
     BoxStyle  -> 0
   | TreeStyle -> 1
 
 let rec setproofparams displaystyle linethicknessval =
   linethickness := linethicknessval;
-  writef "SETPROOFPARAMS % %\n" [Int (displaystyle2int displaystyle); Int linethicknessval]
+  writef "SETPROOFPARAMS % %\n" [Int (int_of_displaystyle displaystyle); Int linethicknessval]
 
 
 

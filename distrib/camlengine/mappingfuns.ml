@@ -100,12 +100,12 @@ let rec formappingpairs (f, mapping) =
 let rec mkmap pairs =
   nj_fold (fun ((a, b), map) -> (map ++ (a |-> b))) pairs empty
 
-let rec catelim_mappingstring astring bstring sep mapping ss =
+let rec catelim_string_of_mapping astring bstring sep mapping ss =
   "<<" ::
-    catelim_liststring
+    catelim_string_of_list
       (fun (a, b) ss -> "(" :: astring a ("|->" :: bstring b (")" :: ss)))
       sep (List.rev mapping) (">>" :: ss)
 
-let rec mappingstring a b =
-  catelim2stringfn
-    (catelim_mappingstring (stringfn2catelim a) (stringfn2catelim b) "++")
+let rec string_of_mapping a b =
+  stringfn_of_catelim
+    (catelim_string_of_mapping (catelim_of_stringfn a) (catelim_of_stringfn b) "++")

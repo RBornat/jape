@@ -27,6 +27,6 @@
 
 open Cxttype
 
-val cxtstring : cxt -> string
-val varmapstring : cxt -> string
-val exteriorstring : exterior -> string
+val string_of_cxt      : cxt -> string
+val string_of_cxtvarmap       : cxt -> string
+val string_of_exterior : exterior -> string

@@ -39,13 +39,25 @@ type term = Termtype.term
 let consolereport = Miscellaneous.consolereport
 
 let bindingdebug = ref false
+
 type bindingdirective = term list * term list * term list * term
+
 let bindingdirectives =
   Array.make (termkindmax + 1) ([] : bindingdirective list)
+  
 let badbindings = Array.make (termkindmax + 1) ([] : term list)
+
 let rec findbadbinding t bbs =
   findfirst (fun bb -> match__ false bb t empty) bbs
+  
 let rec addbindingdirective (bs, ss, us, pat as directive) =
+  consolereport ["Binding.addbindingdirective ";
+                 string_of_quadruple (bracketedstring_of_list string_of_term "; ")
+                                 (bracketedstring_of_list string_of_term "; ")
+                                 (bracketedstring_of_list string_of_term "; ")
+                                 string_of_term
+                                 ", "
+                                 directive];
   let k = termkind pat in
   let bds = Array.get bindingdirectives k in
   let bbs = Array.get badbindings k in
@@ -59,14 +71,15 @@ let rec addbindingdirective (bs, ss, us, pat as directive) =
       | Some _ -> ()
       end;
       if !bindingdebug then
-        let bt = termliststring in
-        let qt = quadruplestring bt bt bt termstring "," in
+        let bt = string_of_termlist in
+        let qt = string_of_quadruple bt bt bt string_of_term "," in
         consolereport
           ["bindings type "; string_of_int k; " are now ";
-           bracketedliststring qt "; " (Array.get bindingdirectives k);
+           bracketedstring_of_list qt "; " (Array.get bindingdirectives k);
            "; and bad bindings type "; string_of_int k; " are ";
            bt (Array.get badbindings k)]
     end
+    
 let rec clearbindingdirectives () =
   let rec mklist n = if n >= 0 then n :: mklist (n - 1) else [] in
   List.iter
@@ -74,6 +87,7 @@ let rec clearbindingdirectives () =
        Array.set bindingdirectives i [];
        Array.set badbindings i [])
     (mklist termkindmax)
+    
 let bindingstructure =
   let rec lookup env x = _The ((env <@> x))
   and matchterm term (bounds, scopes, unscopes, pat) =
@@ -93,7 +107,7 @@ let bindingstructure =
           (((_E <* bounds), (_E <* scopes), (_E <* unscopes)), env,
            pat)
   in
-  let rec bindingstructure t =
+  let rec doit t =
     let k = termkind t in
     match findfirst (matchterm t) (Array.get bindingdirectives k) with
       None ->
@@ -101,10 +115,10 @@ let bindingstructure =
           Some _ ->
             raise
               (ParseError_
-                 [termstring t;
+                 [string_of_term t;
                   " is almost a binding structure, but not quite"])
         | None -> None
         end
     | res -> res
   in
-  bindingstructure
+  doit

@@ -32,26 +32,26 @@ open Draw
 open Displayclass
 
 let comma = Absprooftree.comma
-let elementstring = Termstring.elementstring
+let string_of_element = Termstring.string_of_element
 let explode = Absprooftree.explode
 let turnstile = Absprooftree.turnstile
 
 type planclass =
   ElementClass of (element * displayclass) | PunctClass | ReasonClass
 
-let rec planclassstring =
+let rec string_of_planclass =
   function
-    ElementClass (el, c) -> "ElementClass(\"" ^ elementstring el ^ "\"," ^ displayclassstring c ^ ")"
+    ElementClass (el, c) -> "ElementClass(\"" ^ string_of_element el ^ "\"," ^ string_of_displayclass c ^ ")"
   | PunctClass           -> "PunctClass"
   | ReasonClass          -> "ReasonClass"
 
-let rec planclass2displayclass =
+let rec displayclass_of_planclass =
   function ElementClass (_, i) -> i
   |        PunctClass          -> DisplayPunct
   |        ReasonClass         -> DisplayReason
 
-let rec makeelementplan elementstring c el =
-  element2plan elementstring el (ElementClass (el, c))
+let rec makeelementplan string_of_element c el =
+  plan_of_element string_of_element el (ElementClass (el, c))
 
 (* sequents are drawn
                               C - if lhs empty and rhs a single element
@@ -60,28 +60,28 @@ let rec makeelementplan elementstring c el =
    that knowledge is entirely encapsulated in the makeseqplan function.
  *)
 
-let rec makeseqplan elementstring showturnstiles p seq =
+let rec makeseqplan string_of_element showturnstiles p seq =
   let comma = comma () in
-  let (commasize, _ as comminf) = text2textinfo comma in
-  let mkcommaplan = textinfo2plan comminf PunctClass in
+  let (commasize, _ as comminf) = textinfo_of_text comma in
+  let mkcommaplan = plan_of_textinfo comminf PunctClass in
   let rec makeelementplan c el =
-    element2plan elementstring el (ElementClass (el, c))
+    plan_of_element string_of_element el (ElementClass (el, c))
   in
   let rec rhs cs =
-    things2plans (makeelementplan DisplayConc) mkcommaplan
+    plans_of_things (makeelementplan DisplayConc) mkcommaplan
       (fun _ -> [], emptytextbox) cs
   in
   match explode seq, showturnstiles with
     (st, [], ([c] as cs)), false -> rhs cs p
   | (st, hs, cs), _ ->
       let turnstile = turnstile st in
-      let (turnstilesize, _ as stileinf) = text2textinfo turnstile in
-      let mkstileplan = textinfo2plan stileinf PunctClass in
-      things2plans (makeelementplan DisplayHyp) mkcommaplan
+      let (turnstilesize, _ as stileinf) = textinfo_of_text turnstile in
+      let mkstileplan = plan_of_textinfo stileinf PunctClass in
+      plans_of_things (makeelementplan DisplayHyp) mkcommaplan
         (fun p -> plancons (mkstileplan p) (rhs cs)) hs p
 
 let rec seqdraw p seqbox seqplan =
-  List.iter (drawplan planclass2displayclass (p +->+ tbPos seqbox)) seqplan
+  List.iter (drawplan displayclass_of_planclass (p +->+ tbPos seqbox)) seqplan
 
 let rec seqelementpos p seqbox plan =
   p +->+ tbPos seqbox +->+ tbPos (plantextbox plan)

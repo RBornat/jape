@@ -41,7 +41,7 @@ type thing =
   | Tactic of (paraparam list * tactic)
   | Macro of (paraparam list * term)
 type thingplace = InMenu of name | InPanel of name | InLimbo
-val thingstring : thing -> string
+val string_of_thing : thing -> string
 val freshThingtoapply :
   bool -> name -> cxt -> term list ->
     (cxt * (term, term) mapping * (resnum list * resnum list) * thing)
@@ -79,7 +79,7 @@ val addstructurerule : structurerule -> name -> bool
 val clearstructurerules : unit -> unit
 val isstructurerule : structurerule -> name -> bool
 val wehavestructurerule : structurerule -> string list option -> bool
-val structurerulestring : structurerule -> string
+val string_of_structurerule : structurerule -> string
 val uniqueCut : unit -> name option
 val isRelation : term -> bool
 val numberrule : seq list * seq -> seq list * seq

@@ -56,7 +56,7 @@ let catelim_provisostring_invisbracketed b p tail =
          | true, false -> "HYP"
          | false, true -> "CONC"
          | false, false -> "????") ::
-        "FRESH " :: catelim_termstring_invisbracketed b v tail
+        "FRESH " :: catelim_invisbracketedstring_of_term b v tail
   | UnifiesProviso (t1, t2) ->
       let good =
         List.exists
@@ -66,31 +66,31 @@ let catelim_provisostring_invisbracketed b p tail =
       in
       let easy =
         match t1, t2 with
-          Collection (_, _, e1s), Collection (_, _, e2s) ->
-            good e1s || good e2s
+          Collection (_, _, e1s), Collection (_, _, s_of_e) ->
+            good e1s || good s_of_e
         | Collection (_, _, e1s), _ -> good e1s
-        | _, Collection (_, _, e2s) -> good e2s
+        | _, Collection (_, _, s_of_e) -> good s_of_e
         | _ -> true
       in
       let tstring =
-        if easy then catelim_termOrCollectionstring_invisbracketed b ","
-        else catelim_termstring_invisbracketed b
+        if easy then catelim_invisbracketedstring_of_termOrCollection b ","
+        else catelim_invisbracketedstring_of_term b
       in
       tstring t1 (" UNIFIESWITH " :: tstring t2 tail)
   | NotinProviso (t1, t2) ->
-      catelim_termstring_invisbracketed b t1
-        (" NOTIN " :: catelim_termOrCollectionstring_invisbracketed b "," t2 tail)
+      catelim_invisbracketedstring_of_term b t1
+        (" NOTIN " :: catelim_invisbracketedstring_of_termOrCollection b "," t2 tail)
   | NotoneofProviso (vs, pat, _C) ->
       (* this madness IS used! *)
-      catelim_liststring (catelim_termstring_invisbracketed b) "," vs
+      catelim_string_of_list (catelim_invisbracketedstring_of_term b) "," vs
         (" IN " ::
-           catelim_termstring_invisbracketed b pat
-             (" NOTONEOF " :: catelim_collectionstring_invisbracketed b"," _C tail))
+           catelim_invisbracketedstring_of_term b pat
+             (" NOTONEOF " :: catelim_invisbracketedstring_of_collection b"," _C tail))
 
-let provisostring_invisbracketed = catelim2stringfn <.> catelim_provisostring_invisbracketed
+let provisostring_invisbracketed = stringfn_of_catelim <.> catelim_provisostring_invisbracketed
 
-let catelim_provisostring = catelim_provisostring_invisbracketed false
-let provisostring = catelim2stringfn catelim_provisostring
+let catelim_string_of_proviso = catelim_provisostring_invisbracketed false
+let string_of_proviso = stringfn_of_catelim catelim_string_of_proviso
 
 let rec isFreshProviso =
   function
@@ -114,25 +114,25 @@ let rec provisoresetactual (VisProviso v) actual =
 let rec provisoselfparent (VisProviso v) =
     VisProviso {v with parent=v.actual}
 
-let rec catelim_visprovisostring_invisbracketed b a1 a2 =
+let rec catelim_invisbracketedstring_of_visproviso b a1 a2 =
   match a1, a2 with
     VisProviso {visible = true; actual = p}, tail ->
       catelim_provisostring_invisbracketed b p tail
   | VisProviso {visible = false; actual = p}, tail ->
       "<<" :: catelim_provisostring_invisbracketed b p (">>" :: tail)
-let visprovisostring_invisbracketed = catelim2stringfn <.> catelim_visprovisostring_invisbracketed
+let invisbracketedstring_of_visproviso = stringfn_of_catelim <.> catelim_invisbracketedstring_of_visproviso
 
-let catelim_visprovisostring = catelim_visprovisostring_invisbracketed false
-let visprovisostring = catelim2stringfn catelim_visprovisostring
+let catelim_string_of_visproviso = catelim_invisbracketedstring_of_visproviso false
+let string_of_visproviso = stringfn_of_catelim catelim_string_of_visproviso
 
-let rec catelim_visprovisostringall =
+let rec catelim_detailedstring_of_visproviso =
   fun (VisProviso {visible = visible; parent = parent; actual = actual})
     tail ->
     "{" :: string_of_bool visible :: ", actual=" ::
-      catelim_provisostring actual
-        (", parent=" :: catelim_provisostring parent ("}" :: tail))
+      catelim_string_of_proviso actual
+        (", parent=" :: catelim_string_of_proviso parent ("}" :: tail))
 
-let visprovisostringall = catelim2stringfn catelim_visprovisostringall
+let detailedstring_of_visproviso = stringfn_of_catelim catelim_detailedstring_of_visproviso
 
 let rec stripElement =
   function
@@ -141,7 +141,7 @@ let rec stripElement =
       raise
         (Catastrophe_
            ["stripElement (proviso) called on Segvar ";
-            termstring (mkBag [s])])
+            string_of_term (mkBag [s])])
 let rec checkNOTINvars pname vars =
   List.iter
     (fun t ->
@@ -149,7 +149,7 @@ let rec checkNOTINvars pname vars =
        else
          raise
            (ParseError_
-              [termstring t; " in "; pname; " proviso is neither an identifier nor an unknown variable or constant"]))
+              [string_of_term t; " in "; pname; " proviso is neither an identifier nor an unknown variable or constant"]))
     vars
 
 let rec parseNOTINvars pname =
@@ -162,7 +162,7 @@ let rec parseProvisos () =
     let bad ss = raise (ParseError_ ("in NOTONEOF proviso, " :: ss)) in
     let _ =
       if List.exists (not <.> ismetav) vars then
-        bad ["not all the names "; bracketedliststring termstring ", " vars;
+        bad ["not all the names "; bracketedstring_of_list string_of_term ", " vars;
              " are schematic"]
     in
     let _ = check (SHYID "IN") in
@@ -171,8 +171,8 @@ let rec parseProvisos () =
     let _ =
       if not (subset (vars, varsinpat)) then
         bad
-          ["not all the names "; bracketedliststring termstring ", " vars;
-           " appear in the pattern "; termstring pat]
+          ["not all the names "; bracketedstring_of_list string_of_term ", " vars;
+           " appear in the pattern "; string_of_term pat]
     in
     let _ = check (SHYID "NOTONEOF") in
     let (classopt, els) =
@@ -219,8 +219,8 @@ let rec parseProvisos () =
         in
         let rec bk =
           function
-            [el] -> termstring (mkBag [el])
-          | els -> ("[" ^ termstring (mkBag els)) ^ "]"
+            [el] -> string_of_term (mkBag [el])
+          | els -> ("[" ^ string_of_term (mkBag els)) ^ "]"
         in
         let rec collbad s =
           raise
@@ -254,14 +254,14 @@ let rec parseProvisos () =
             raise
               (ParseError_
                  ["comma, IN, NOTIN or UNIFIESWITH expected after ";
-                  liststring elementstring ", " els; " in provisos"])
+                  string_of_list string_of_element ", " els; " in provisos"])
       else
         raise
           (ParseError_
              ["Proviso -- FRESH.. or HYPFRESH.. or CONCFRESH.. ";
               "or formula UNIFIESWITH formula or ids NOTIN terms or ";
               "var IN pattern NOTONEOF collection -- expected, ";
-              "found "; smlsymbolstring sy])
+              "found "; debugstring_of_symbol sy])
 
 (* function for sorting proviso lists so that they are nice and readable *)
 let rec earlierproviso p1 p2 =
@@ -276,12 +276,12 @@ let rec earlierproviso p1 p2 =
   in
   let rec lin2 =
     function
-      FreshProviso (h, g, r, v) -> [termstring v]
-    | NotinProviso (v, t) -> [termstring v; termstring t]
+      FreshProviso (h, g, r, v) -> [string_of_term v]
+    | NotinProviso (v, t) -> [string_of_term v; string_of_term t]
     | NotoneofProviso (vs, pat, _C) ->
-        nj_fold (fun (v, ss) -> termstring v :: ss) vs
-          [termstring pat; termstring _C]
-    | UnifiesProviso (t, t') -> [termstring t; termstring t']
+        nj_fold (fun (v, ss) -> string_of_term v :: ss) vs
+          [string_of_term pat; string_of_term _C]
+    | UnifiesProviso (t, t') -> [string_of_term t; string_of_term t']
   in
   let n1 = lin1 p1 in
   let n2 = lin1 p2 in
@@ -298,7 +298,7 @@ let rec provisoVIDs p =
   orderVIDs ((vid_of_var <* provisovars termvars tmerge p))
 let rec maxprovisoresnum p =
   let rec f t n =
-    nj_fold (uncurry2 max) ((resnum2int <* elementnumbers t)) n
+    nj_fold (uncurry2 max) ((int_of_resnum <* elementnumbers t)) n
   in
   match p with
     FreshProviso (_, _, _, t) -> f t 0

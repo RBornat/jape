@@ -32,7 +32,7 @@ val sum : int list -> int
 val iter : (int -> 'a) -> int * int -> unit
 val curry2 : ('a * 'b -> 'c) -> 'a -> 'b -> 'c
 val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-val refstring : ('a -> string) -> 'a ref -> string
+val string_of_ref : ('a -> string) -> 'a ref -> string
 val earlierpair :
   ('a -> 'a -> bool) -> ('b -> 'b -> bool) -> ('a * 'b) -> ('a * 'b) -> bool
 (* whether to add context automatically to rule definitions *)

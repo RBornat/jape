@@ -58,7 +58,7 @@ type tactic =
   | AdHocTac of term list
   | BindConcTac of (term * tactic)
   | BindHypTac of (term * tactic)
-  | BindHyp2Tac of (term * term * tactic)
+  | Tac_of_BindHyp of (term * term * tactic)
   | BindHypsTac of (term * tactic)
   | BindArgTac of (term * tactic)
   | BindArgTextTac of (name * tactic)

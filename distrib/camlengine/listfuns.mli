@@ -94,18 +94,18 @@ val toposort : 'a list -> ('a -> 'a list) -> 'a list * 'a list list
  * -> (topological sort (roots first), list of cycles) 
  *)
 
-val liststring : ('a -> string) -> string -> 'a list -> string
+val string_of_list : ('a -> string) -> string -> 'a list -> string
 val liststring2 : ('a -> string) -> string -> string -> 'a list -> string
-val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-val catelim_liststring :
+val bracketedstring_of_list : ('a -> string) -> string -> 'a list -> string
+val catelim_string_of_list :
   ('a -> string list -> string list) -> string -> 'a list ->
     string list -> string list
 val catelim_liststring2 :
   ('a -> string list -> string list) -> string -> string -> 'a list ->
     string list -> string list
-val catelim_bracketedliststring :
+val catelim_bracketedstring_of_list :
   ('a -> string list -> string list) -> string -> 'a list ->
     string list -> string list
-val catelim2stringfn : ('a -> string list -> string list) -> 'a -> string
-val stringfn2catelim : ('a -> string) -> 'a -> string list -> string list
+val stringfn_of_catelim : ('a -> string list -> string list) -> 'a -> string
+val catelim_of_stringfn : ('a -> string) -> 'a -> string list -> string list
 

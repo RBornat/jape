@@ -32,7 +32,7 @@ exception None_
 
 let rec _The = function Some x -> x | None -> raise None_
 
-let rec opt2bool = function Some _ -> true | None -> false
+let rec bool_of_opt = function Some _ -> true | None -> false
 
 let rec try__ a1 a2 =
   match a1, a2 with
@@ -113,12 +113,12 @@ let rec optordefault =
   function
     Some v, _ -> v
   | None, v -> v
-let rec catelim_optionstring catelim_astring aopt ss =
+let rec catelim_string_of_option catelim_astring aopt ss =
   match aopt with
     Some a -> "Some (" :: catelim_astring a (")" :: ss)
   | None -> "None" :: ss
-let rec optionstring astring aopt =
-  implode (catelim_optionstring (fun a ss -> astring a :: ss) aopt [])
+let rec string_of_option astring aopt =
+  implode (catelim_string_of_option (fun a ss -> astring a :: ss) aopt [])
 
 (* save space when rewriting structures *)
 let rec option_rewrite2 fa fb (a, b) =

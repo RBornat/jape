@@ -57,9 +57,9 @@ module type Access =
     val depends : prooftree -> name list
     val findAnyGoal : prooftree -> path option
     val findRightwardsGoal : bool -> prooftree -> path -> path option
-    val fmtstring : fmt -> string
-    val pathstring : path -> string
-    val prooftreestring : prooftree -> string
+    val string_of_fmt : fmt -> string
+    val string_of_path : path -> string
+    val string_of_prooftree : prooftree -> string
   end
 
 module type Tree =
@@ -74,7 +74,7 @@ module type Tree =
       | UnRule of (string * name list)
     (* step name, rule dependencies *)
 
-    val prooftree_stepstring : prooftree_step -> string
+    val string_of_prooftree_step : prooftree_step -> string
     val step_label : prooftree_step -> string
     val step_resolve : prooftree_step -> bool
     val mkTip : cxt -> seq -> treeformat -> treeformat prooftree
@@ -681,47 +681,47 @@ module Tree : Tree with type term = Termtype.term
     let givenssep        = " AND "
     let provisosep       = " AND "
     
-    let rec prooftree_stepstring =
+    let rec string_of_prooftree_step =
       function
         Apply a ->
           "Apply" ^
-            triplestring parseablestring_of_name termliststring string_of_bool "," a
+            string_of_triple parseablestring_of_name string_of_termlist string_of_bool "," a
       | Given g ->
           "Given" ^
-            triplestring (fun s -> s) string_of_int string_of_bool "," g
+            string_of_triple (fun s -> s) string_of_int string_of_bool "," g
       | UnRule u ->
           "Unrule" ^
-            pairstring (fun s -> s) (bracketedliststring parseablestring_of_name ",") "," u
-    let nsstring = bracketedliststring string_of_int ","
-    let rec join_string
+            string_of_pair (fun s -> s) (bracketedstring_of_list parseablestring_of_name ",") "," u
+    let string_of_ns = bracketedstring_of_list string_of_int ","
+    let rec string_of_Join
       tlf subtreesf (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       implode
-        ["Join("; "reason="; why; ", how="; prooftree_stepstring how;
+        ["Join("; "reason="; why; ", how="; string_of_prooftree_step how;
          ", cutnav=";
-         optionstring (pairstring string_of_int string_of_int ",")
+         string_of_option (string_of_pair string_of_int string_of_int ",")
            (cutnav : (int * int) option);
-         ", args="; pairstring termliststring rewinfstring ", " args;
+         ", args="; string_of_pair string_of_termlist string_of_rewinf ", " args;
          ", fmt="; tlf fmt; ", hastipval="; string_of_bool hastipval;
-         ", seq="; pairstring elementseqstring rewinfstring ", " seq;
-         ", subtrees="; pairstring subtreesf rewinfstring ", " trs; ", ress=";
+         ", seq="; string_of_pair elementstring_of_seq string_of_rewinf ", " seq;
+         ", subtrees="; string_of_pair subtreesf string_of_rewinf ", " trs; ", ress=";
          begin
-           let thsstring =
-             bracketedliststring (smlelementstring termstring) ", "
+           let string_of_ths =
+             bracketedstring_of_list (debugstring_of_element string_of_term) ", "
            in
-           pairstring (pairstring thsstring thsstring ", ") rewinfstring ", "
+           string_of_pair (string_of_pair string_of_ths string_of_ths ", ") string_of_rewinf ", "
              ress
          end;
          ")"]
-    let rec prooftreestring tlf t =
+    let rec string_of_prooftree tlf t =
       let rec pft tlf rp t =
-        (nsstring (pathto t @ List.rev rp) ^ " = ") ^
+        (string_of_ns (pathto t @ List.rev rp) ^ " = ") ^
           (match t with
              Tip t ->
-               "Tip" ^ triplestring elementseqstring rewinfstring tlf ", " t
+               "Tip" ^ string_of_triple elementstring_of_seq string_of_rewinf tlf ", " t
            | Join j ->
                implode
                  (interpolate "\n"
-                    (join_string tlf (fun _ -> "... see below ...") j ::
+                    (string_of_Join tlf (fun _ -> "... see below ...") j ::
                        (match decode_cutnav j with
                           NormalNav ts ->
                               ((fun (i, t) -> pft tlf (i :: rp) t) <*
@@ -739,8 +739,8 @@ module Tree : Tree with type term = Termtype.term
       | ("EVALUATE", ts) -> EvalTac ts
       | _ -> raise (Catastrophe_
                ["mkUnRuleTac given "; 
-                pairstring 
-                  (fun s -> s) (bracketedliststring termstring ",") "," u
+                string_of_pair 
+                  (fun s -> s) (bracketedstring_of_list string_of_term ",") "," u
                ])
     
     let rec catelim_prooftree2tactic tree provisos givens tail =
@@ -762,7 +762,7 @@ module Tree : Tree with type term = Termtype.term
             *)
             let args = join_args j in
             let argmap = 
-              try ps|||args with Zip_ -> raise (Catastrophe_ ["params and args won't zip in prooftree2tactic"])
+              try ps|||args with Zip_ -> raise (Catastrophe_ ["params and args won't zip in tactic_of_prooftree"])
             in
             let argmap' = if !autoAdditiveLeft then
                             (match split (function (_,Collection _) -> true | _ -> false) argmap with
@@ -772,7 +772,7 @@ module Tree : Tree with type term = Termtype.term
                             )
                           else argmap
             in res b (SubstTac (n, argmap'))
-        | Given (_, i, b) -> res b (GivenTac (int2term i))
+        | Given (_, i, b) -> res b (GivenTac (term_of_int i))
         | UnRule (r, _) -> mkUnRuleTac (r, join_args j)
       in
       let rec traverse =
@@ -780,7 +780,7 @@ module Tree : Tree with type term = Termtype.term
           Tip t, ts -> NextgoalTac :: ts
         | Join j, ts ->
             let rec tr ts = thisone j :: nj_fold traverse (join_subtrees j) ts in
-            match format2layouts (join_fmt j) with
+            match layouts_of_format (join_fmt j) with
               [] -> tr ts
             | ls ->
                 nj_fold (fun (l, t) -> LayoutTac (t, l)) ls
@@ -848,7 +848,7 @@ module Tree : Tree with type term = Termtype.term
           let body =
             if null hs then () else showargasint := Some lookup;
             let r = "\n" :: shyidforIS :: "\n" ::
-                    catelim_tacticstring (SeqTac (traverse (tree, [])))
+                    catelim_string_of_tactic (SeqTac (traverse (tree, [])))
                       ("\n" :: tail) 
             in showargasint := None; r
           in
@@ -856,27 +856,27 @@ module Tree : Tree with type term = Termtype.term
             if null hs then body
             else
               "\n" :: shyidforFORMULAE :: "\n" ::
-                catelim_liststring
+                catelim_string_of_list
                   (fun (i, t) tail ->
-                     string_of_int i :: " " :: catelim_termstring (comma_enbracket t) tail)
+                     string_of_int i :: " " :: catelim_string_of_term (comma_enbracket t) tail)
                   ",\n"
                   (sortunique intorder ((fun t -> lookup t, t) <* hs))
                   body
           in
           let infer_body =
-            "\n" :: shyidforINFER :: " " :: catelim_seqstring seq hashables_body
+            "\n" :: shyidforINFER :: " " :: catelim_string_of_seq seq hashables_body
           in
           let givens_body =
             if null givens then infer_body
             else
               "\n" :: shyidforFROM :: " " ::
-                catelim_liststring catelim_seqstring givenssep givens
+                catelim_string_of_list catelim_string_of_seq givenssep givens
                   infer_body
           in
           if null provisos then givens_body
           else
             "\n" :: shyidforWHERE :: " " ::
-              catelim_liststring catelim_provisostring provisosep provisos
+              catelim_string_of_list catelim_string_of_proviso provisosep provisos
                 givens_body
         with
           exn -> showargasint := None; raise exn
@@ -901,7 +901,7 @@ module Tree : Tree with type term = Termtype.term
      * the rewinf is much smaller than the sequent.  The same applies elsewhere.
      *)
     let rec updaterewinf cxt rewinf =
-      let (vars, uVIDs, badres, psig) = rew2rawinf rewinf in
+      let (vars, uVIDs, badres, psig) = rawinf_of_rew rewinf in
       let changedres =
         nj_fold
           (fun (i, irs) ->
@@ -947,7 +947,7 @@ module Tree : Tree with type term = Termtype.term
       | None -> x, inf
     let rec getrewinfSeq s cxt seq =
       if !prooftreerewinfdebug then
-        consolereport ["getrewinfSeq "; s; " "; seqstring seq];
+        consolereport ["getrewinfSeq "; s; " "; string_of_seq seq];
       raw2rew_ (rawinfSeq cxt (seq, nullrawinf))
     let rec getrewinfargs cxt = getrewinfList (rawinfTerm cxt)
     let rec getrewinfress cxt = getrewinfPair (rawinfElements cxt)
@@ -958,8 +958,8 @@ module Tree : Tree with type term = Termtype.term
             begin
               if !prooftreerewinfdebug then
                 consolereport
-                  ["rewriting tip "; seqstring seq; "; ";
-                   rewinfstring rewinf];
+                  ["rewriting tip "; string_of_seq seq; "; ";
+                   string_of_rewinf rewinf];
               match rew_Seq true cxt seq with
                 Some seq -> Some (Tip (seq, updaterewinf cxt rewinf, fmt))
               | _ -> None
@@ -986,8 +986,8 @@ module Tree : Tree with type term = Termtype.term
                 begin
                   if !prooftreerewinfdebug then
                     consolereport
-                      ["rewriting join "; seqstring seq; "; ";
-                       rewinfstring seqinf];
+                      ["rewriting join "; string_of_seq seq; "; ";
+                       string_of_rewinf seqinf];
                   rew_stuff cxt (rew_Seq true) s
                 end
               else s
@@ -1008,7 +1008,7 @@ module Tree : Tree with type term = Termtype.term
         if !prooftreedebug then
           consolereport
             ["before rewrite prooftree is ";
-             prooftreestring treeformatstring tree]
+             string_of_prooftree string_of_treeformat tree]
       in
       (* ... end desperation *)
       let tree = anyway (rew_Prooftree cxt) tree in
@@ -1016,15 +1016,15 @@ module Tree : Tree with type term = Termtype.term
       let _ =
         if !prooftreedebug then
           consolereport
-            ["context is "; cxtstring cxt; "\nprooftree is ";
-             prooftreestring treeformatstring tree]
+            ["context is "; string_of_cxt cxt; "\nprooftree is ";
+             string_of_prooftree string_of_treeformat tree]
       in
       let _ =
         if not (null (rewinf_badres inf)) then
           raise
             (Catastrophe_
                ["rewriteProoftree found ResUnknowns ";
-                bracketedliststring string_of_int ", " (rewinf_badres inf)])
+                bracketedstring_of_list string_of_int ", " (rewinf_badres inf)])
       in
       (* don't forget the givens when considering grounded provisos *)
       let tvars =
@@ -1046,10 +1046,10 @@ module Tree : Tree with type term = Termtype.term
       let gvars = nj_fold (uncurry2 tmerge) ((seqvars termvars tmerge <* givens)) [] in
       let cvars = sorteddiff earliervar (rewinf_vars cinf) gvars in
       (* val _ =
-        consolereport ["gvars are ", termliststring gvars, 
-                       "; rewinf_vars cinf are ", termliststring (rewinf_vars cinf), 
-                       "; cvars are ", termliststring cvars,
-                       "; rewinf_vars inf are ", termliststring (rewinf_vars inf)]
+        consolereport ["gvars are ", string_of_termlist gvars, 
+                       "; rewinf_vars cinf are ", string_of_termlist (rewinf_vars cinf), 
+                       "; cvars are ", string_of_termlist cvars,
+                       "; rewinf_vars inf are ", string_of_termlist (rewinf_vars inf)]
        *)
       let usedVIDs =
         orderVIDs (vid_of_var <* mergevars (rewinf_vars inf) cvars)
@@ -1123,7 +1123,7 @@ module Tree : Tree with type term = Termtype.term
       fun (FmtPath ns) fmt' ->
         if !prooftreedebug then
           consolereport
-            ["setting format "; treeformatstring fmt'; " at "; nsstring ns];
+            ["setting format "; string_of_treeformat fmt'; " at "; string_of_ns ns];
         thrd 
           (applytosubtree_ns ns tree
              (function
@@ -1187,10 +1187,10 @@ module Tree : Tree with type term = Termtype.term
                  raise
                    (AlterProof_
                       ["sequents not equal (insertprooftree) -- ";
-                       seqstring (sequent tree); " => ";
-                       seqstring (anyway (rew_Seq true cxt) (sequent tree));
-                       " -- "; seqstring (sequent subtree); " => ";
-                       seqstring
+                       string_of_seq (sequent tree); " => ";
+                       string_of_seq (anyway (rew_Seq true cxt) (sequent tree));
+                       " -- "; string_of_seq (sequent subtree); " => ";
+                       string_of_seq
                          (anyway (rew_Seq true cxt) (sequent subtree))]))
         in
         FmtPath ns, tree
@@ -1238,7 +1238,7 @@ module Tree : Tree with type term = Termtype.term
                 [] ->
                   raise
                     (Catastrophe_
-                       ["no Collection argument for sequent "; seqstring seq])
+                       ["no Collection argument for sequent "; string_of_seq seq])
               | arg :: args ->
                   if isCollection arg then
                     _The (augmentCollection arg els) :: args
@@ -1316,9 +1316,9 @@ module Tree : Tree with type term = Termtype.term
                       if !cuthidingdebug then
                         consolereport
                           ["visibles not HIDEROOTING ";
-                           join_string treeformatstring
-                             (bracketedliststring
-                                (seqstring <.> sequent) ",")
+                           string_of_Join string_of_treeformat
+                             (bracketedstring_of_list
+                                (string_of_seq <.> sequent) ",")
                              j];
                       nohide ()
                     end
@@ -1363,17 +1363,17 @@ module Tree : Tree with type term = Termtype.term
       if !prooftreedebug then
         begin
           let onelevel =
-            bracketedliststring (seqstring <.> sequent) ","
+            bracketedstring_of_list (string_of_seq <.> sequent) ","
           in
-          let ptstring =
-            bracketedliststring
-              (pairstring nsstring (seqstring <.> sequent) ",")
+          let string_of_pt =
+            bracketedstring_of_list
+              (string_of_pair string_of_ns (string_of_seq <.> sequent) ",")
               ", "
           in
           consolereport
             ["visibles "; string_of_bool showall; " ";
-             join_string treeformatstring onelevel j; " => ";
-             pairstring ptstring ptstring ", " res]
+             string_of_Join string_of_treeformat onelevel j; " => ";
+             string_of_pair string_of_pt string_of_pt ", " res]
         end;
       res
     let rec visfn a1 a2 a3 =
@@ -1491,7 +1491,7 @@ module Tree : Tree with type term = Termtype.term
     
     and invisiblereasons proved showall j =
       _The <*
-        (opt2bool <|
+        (bool_of_opt <|
          List.concat
            ((allreasons proved showall <.> snd) <* snd (visibles showall j)))
     
@@ -1627,9 +1627,9 @@ module Tree : Tree with type term = Termtype.term
         let findAnyGoal = optioncompose (fFmtPath, findAnyGoal_ns)
         let rec findRightwardsGoal skip t =
           fun (FmtPath ns) -> try__ fFmtPath (findRightwardsGoal_ns skip t ns)
-        let fmtstring = treeformatstring
-        let pathstring = fmtpathstring
-        let prooftreestring = prooftreestring fmtstring
+        let string_of_fmt = string_of_treeformat
+        let string_of_path = string_of_fmtpath
+        let string_of_prooftree = string_of_prooftree string_of_fmt
       end
     
     module Vistree : Access  with type fmt = visformat
@@ -1694,9 +1694,9 @@ module Tree : Tree with type term = Termtype.term
         let findAnyGoal = optioncompose (fVisPath, findAnyGoal_ns)
         let rec findRightwardsGoal skip t =
           fun (VisPath ns) -> try__ fVisPath (findRightwardsGoal_ns skip t ns)
-        let fmtstring = visformatstring
-        let pathstring = vispathstring
-        let prooftreestring = prooftreestring fmtstring
+        let string_of_fmt = string_of_visformat
+        let string_of_path = string_of_vispath
+        let string_of_prooftree = string_of_prooftree string_of_fmt
       end
   end
 

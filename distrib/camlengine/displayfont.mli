@@ -28,7 +28,7 @@
 type displayfont = TermFont | ReasonFont | ProvisoFont
 
 val allfonts : displayfont list
-val displayfontstring : displayfont -> string
+val string_of_displayfont : displayfont -> string
 
 (* Useful translation for Japeserver marshalling.
  * Current C/Java/Tk interfaces believe in these integers.
@@ -38,12 +38,12 @@ val displayfontstring : displayfont -> string
  *  ProvisoFont = 2
  *
  *)
-val displayfont2int : displayfont -> int
-val int2displayfont : int -> displayfont
+val int_of_displayfont : displayfont -> int
+val displayfont_of_int : int -> displayfont
 
 type pane = ProofPane | DisproofPane
 
-val panestring : pane -> string
+val string_of_pane : pane -> string
 
 (* Useful translation for Japeserver marshalling.
  *
@@ -51,5 +51,5 @@ val panestring : pane -> string
  *  DisproofPane = 1
  *
  *)
-val pane2int : pane -> int
-val int2pane : int -> pane
+val int_of_pane : pane -> int
+val pane_of_int : int -> pane

@@ -38,7 +38,7 @@ type command =
     TextCommand of string list
   | HitCommand of (prooftree * path hit * path sel)
 
-val commandstring : command -> string
+val string_of_command : command -> string
 val terminateGUI : unit -> unit
 val reportGUIdead : string list -> unit
 val setdisplaystyle : string -> unit

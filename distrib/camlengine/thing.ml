@@ -73,56 +73,56 @@ type storedthing =
   | CookedTheorem of ((term list * ruledata) * (term list * ruledata))
 type thingplace = InMenu of name | InPanel of name | InLimbo
 
-let argliststring = termliststring
+let string_of_arglist = string_of_termlist
 
-let mapliststring =
-  bracketedliststring (pairstring termstring termstring ",") ","
+let string_of_maplist =
+  bracketedstring_of_list (string_of_pair string_of_term string_of_term ",") ","
 
-let paramliststring = bracketedliststring paraparamstring ","
+let string_of_paramlist = bracketedstring_of_list string_of_paraparam ","
 
-let provisoliststring =
-  bracketedliststring
-    (pairstring string_of_bool provisostring ",") " AND "
+let string_of_provisolist =
+  bracketedstring_of_list
+    (string_of_pair string_of_bool string_of_proviso ",") " AND "
 
-let rec antecedentliststring heavy =
-  bracketedliststring (if heavy then smlseqstring else seqstring) " AND "
+let rec string_of_antecedentlist heavy =
+  bracketedstring_of_list (if heavy then debugstring_of_seq else string_of_seq) " AND "
 
-let rec consequentstring heavy = if heavy then smlseqstring else seqstring
+let rec string_of_consequent heavy = if heavy then debugstring_of_seq else string_of_seq
 
-let rec ruledatastring heavy r =
-  quadruplestring paramliststring provisoliststring
-    (antecedentliststring heavy) (consequentstring heavy) ", " r
+let rec string_of_ruledata heavy r =
+  string_of_quadruple string_of_paramlist string_of_provisolist
+    (string_of_antecedentlist heavy) (string_of_consequent heavy) ", " r
 
-let rec thmdatastring heavy t =
-  triplestring paramliststring provisoliststring (consequentstring heavy)
+let rec string_of_thmdata heavy t =
+  string_of_triple string_of_paramlist string_of_provisolist (string_of_consequent heavy)
     ", " t
 
-let rec thingstring =
+let rec string_of_thing =
   function
     Rule r ->
       "Rule" ^
-        pairstring (ruledatastring false) string_of_bool
+        string_of_pair (string_of_ruledata false) string_of_bool
           "," r
-  | Theorem t -> "Theorem" ^ thmdatastring false t
-  | Tactic t -> "Tactic" ^ pairstring paramliststring tacticstring ", " t
-  | Macro m -> "Macro" ^ pairstring paramliststring termstring ", " m
+  | Theorem t -> "Theorem" ^ string_of_thmdata false t
+  | Tactic t -> "Tactic" ^ string_of_pair string_of_paramlist string_of_tactic ", " t
+  | Macro m -> "Macro" ^ string_of_pair string_of_paramlist string_of_term ", " m
 
-let rec cookedstring f = pairstring argliststring f ","
+let rec string_of_cooked f = string_of_pair string_of_arglist f ","
 
-let rec doublestring f = pairstring f f ","
+let rec doublestring f = string_of_pair f f ","
 
-let rec storedthingstring =
+let rec string_of_storedthing =
   function
-    Rawthing t -> ("Rawthing(" ^ thingstring t) ^ ")"
+    Rawthing t -> ("Rawthing(" ^ string_of_thing t) ^ ")"
   | CookedRule r ->
       "CookedRule" ^
-        triplestring (cookedstring (ruledatastring false))
-          (cookedstring (ruledatastring false))
+        string_of_triple (string_of_cooked (string_of_ruledata false))
+          (string_of_cooked (string_of_ruledata false))
           string_of_bool "," r
   | CookedTheorem t ->
-      "CookedTheorem" ^ doublestring (cookedstring (ruledatastring false)) t
+      "CookedTheorem" ^ doublestring (string_of_cooked (string_of_ruledata false)) t
 
-let rec thingplacestring =
+let rec string_of_thingplace =
   function
     InMenu s -> "InMenu " ^ string_of_name s
   | InPanel s -> "InPanel" ^ string_of_name s
@@ -226,9 +226,9 @@ let rec numberrule (antes, conseq) =
         | _ ->
             raise
               (Catastrophe_
-                 ["in numberseq argument "; seqstring seq;
-                  " exploded into ("; smltermstring hs; ",";
-                  smltermstring gs; ")"])
+                 ["in numberseq argument "; string_of_seq seq;
+                  " exploded into ("; debugstring_of_term hs; ",";
+                  debugstring_of_term gs; ")"])
   in
   let (n, leftenv, rightenv, conseq') =
     numberseq nj_fold (fun v->ResUnknown v) 1 empty empty conseq
@@ -247,7 +247,7 @@ let rec numberrule (antes, conseq) =
   in
   (* desperation ...
   if !thingdebug then
-    let val p = pairstring (antecedentliststring true) (consequentstring true) "," in
+    let val p = string_of_pair (string_of_antecedentlist true) (string_of_consequent true) "," in
         consolereport ["numberrule ", p (antes,conseq), " => ", p (antes',conseq')]
     end
   else (); 
@@ -291,9 +291,9 @@ let rec numberforapplication n (antes, conseq) =
       | _ ->
           raise
             (Catastrophe_
-               ["in renumberseq argument "; seqstring seq;
-                " exploded into ("; smltermstring hs; ",";
-                smltermstring gs; ")"])
+               ["in renumberseq argument "; string_of_seq seq;
+                " exploded into ("; debugstring_of_term hs; ",";
+                debugstring_of_term gs; ")"])
   in
   let (m, rs, conseq') = renumberseq n conseq in
   let (m, antes') =
@@ -306,15 +306,15 @@ let rec numberforapplication n (antes, conseq) =
   let res = m + 1, rs, antes', conseq' in(* desperation ... 
   if !thingdebug then
     consolereport ["numberforapplication ", string_of_int n, " ",
-      pairstring (antecedentliststring true) (consequentstring true) ", "
+      string_of_pair (string_of_antecedentlist true) (string_of_consequent true) ", "
                  (antes,conseq),
       " => ", 
-      quadruplestring 
+      string_of_quadruple 
         string_of_int 
-        let val p = bracketedliststring resnumstring "," in 
-            pairstring p p ","
+        let val p = bracketedstring_of_list string_of_resnum "," in 
+            string_of_pair p p ","
         end
-        (antecedentliststring true) (consequentstring true) ", "
+        (string_of_antecedentlist true) (string_of_consequent true) ", "
         res
     ]
   else ();
@@ -340,8 +340,8 @@ let rec numberforproof (antes, conseq) =
     | Seq (st, hs, gs) ->
         raise
           (Catastrophe_
-             ["in numberforproof argument "; seqstring conseq;
-              " exploded into ("; smltermstring hs; ","; smltermstring gs;
+             ["in numberforproof argument "; string_of_seq conseq;
+              " exploded into ("; debugstring_of_term hs; ","; debugstring_of_term gs;
               ")"])
   in
   antes, conseq'
@@ -442,22 +442,22 @@ let rec compilepredicates isabstraction env =
 let rec checkarg var arg =
   begin try checkTacticTerm arg with
     Tacastrophe_ ss ->
-      raise (Fresh_ ("argument " :: termstring arg :: " contains " :: ss))
+      raise (Fresh_ ("argument " :: string_of_term arg :: " contains " :: ss))
   end;
   if specialisesto (idclass var, idclass arg) then ()
   else
     raise
       (Fresh_
-         ["argument "; termstring arg; " doesn't fit parameter ";
-          termstring var])
+         ["argument "; string_of_term arg; " doesn't fit parameter ";
+          string_of_term var])
 
 let rec freshc defcon cxt env params args =
   let _F = freshc defcon in
   let rec inextensible c s =
     raise
       (Fresh_
-         ["parameter "; s; " was classified "; idclassstring c;
-          " - you must use a CLASS "; idclassstring c; " identifier"])
+         ["parameter "; s; " was classified "; string_of_idclass c;
+          " - you must use a CLASS "; string_of_idclass c; " identifier"])
   in
   let rec newVID cxt c v =
     let sv = string_of_vid v in
@@ -506,11 +506,11 @@ let rec extraVIDs params args bodyVIDs =
   (* desperation ...
   if !thingdebug then 
     consolereport["bodyVIDs are ", 
-                  bracketedliststring (fn x => x) "," bodyVIDs,
+                  bracketedstring_of_list (fn x => x) "," bodyVIDs,
                   "; paramVIDs are ", 
-                  bracketedliststring (fn x => x) "," (paramVIDs params),
+                  bracketedstring_of_list (fn x => x) "," (paramVIDs params),
                   "; argVIDs are ", 
-                  bracketedliststring (fn x => x) "," argVIDs
+                  bracketedstring_of_list (fn x => x) "," argVIDs
                  ]
    else ();
    ... end desperation *)
@@ -573,7 +573,7 @@ let rec augment el er (conseq, antes, vars) =
                   else
                     raise
                       (BadAdditivity_
-                         ["antecedent "; seqstring s;
+                         ["antecedent "; string_of_seq s;
                           " isn't extensible"])) <*
                antes)
           in
@@ -581,7 +581,7 @@ let rec augment el er (conseq, antes, vars) =
       | None ->
           raise
             (BadAdditivity_
-               ["consequent "; seqstring conseq; " isn't extensible"])
+               ["consequent "; string_of_seq conseq; " isn't extensible"])
     else conseq, antes, vars
   in
   let rec lhs = fun (Seq (_, lhs, _)) -> lhs in
@@ -629,7 +629,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
   in
   let _ =
     if !thingdebug then
-      consolereport ["all_pbs = "; predicatebindingstring all_pbs]
+      consolereport ["all_pbs = "; string_of_predicatebinding all_pbs]
   in
   (* now we have a list of predicates, 
    * each paired with a list of arguments,
@@ -698,14 +698,14 @@ let rec compileR el er (params, provisos, antes, conseq) =
     if !thingdebug then
       consolereport
         ["proofps is ";
-         bracketedliststring (pairstring termstring termstring ",") ", "
+         bracketedstring_of_list (string_of_pair string_of_term string_of_term ",") ", "
            proofps;
          " and env is ";
-         mappingstring termstring
-           (pairstring string_of_bool termliststring ", ")
+         string_of_mapping string_of_term
+           (string_of_pair string_of_bool string_of_termlist ", ")
            env;
          " and applyps is ";
-         bracketedliststring (pairstring termstring termstring ",") ", "
+         bracketedstring_of_list (string_of_pair string_of_term string_of_term ",") ", "
            applyps]
   in
   (* ... end desperation *)
@@ -742,8 +742,8 @@ let rec compileR el er (params, provisos, antes, conseq) =
   let _ =
     if !thingdebug then
       consolereport
-        ["applyantes are "; bracketedliststring seqstring ", " applyantes;
-         " and applyconseq is "; seqstring conseq]
+        ["applyantes are "; bracketedstring_of_list string_of_seq ", " applyantes;
+         " and applyconseq is "; string_of_seq conseq]
   in
   (* augment apply version, if necessary, with Unknown Segvars *)
   let (applyconseq, applyantes, applybodyvars) =
@@ -782,7 +782,7 @@ let rec compilething name thing =
 let relationpats : term list ref = ref []
 
 let rec isRelation t =
-  List.exists (fun p -> opt2bool (match__ false p t empty)) !relationpats
+  List.exists (fun p -> bool_of_opt (match__ false p t empty)) !relationpats
 
 let rec registerRelationpat t =
   (* we assume it's the right shape ... *)
@@ -798,7 +798,7 @@ type structurerule =
   | TransitiveRule
   | ReflexiveRule
 
-let rec structurerulestring sr =
+let rec string_of_structurerule sr =
   match sr with
     CutRule -> "CutRule"
   | LeftWeakenRule -> "LeftWeakenRule"
@@ -843,7 +843,7 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
     goodthing, badthing, thingnamed, thinginfo, addthing, thingnames,
     thingstodo =
   
-  let pst = pairstring storedthingstring thingplacestring "," in
+  let pst = string_of_pair string_of_storedthing string_of_thingplace "," in
   
   let lookup, update, reset, sources, targets =
     let store = Hashtbl.create 127 (* why not? It can only grow :-) *) in
@@ -874,7 +874,7 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
           None
     in
     if !thingdebug then
-      consolereport [" "; string_of_name name; " is "; optionstring pst res];
+      consolereport [" "; string_of_name name; " is "; string_of_option pst res];
     res
   
   and compiledthingnamed name =
@@ -929,9 +929,9 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
     if !thingdebug then
       consolereport
         ["addthing ";
-         triplestring string_of_name thingstring thingplacestring ","
+         string_of_triple string_of_name string_of_thing string_of_thingplace ","
            (name, thing, place);
-         " was "; optionstring pst (lookup name); "; is now ";
+         " was "; string_of_option pst (lookup name); "; is now ";
          pst (newthing, newplace)];
     update name (newthing, newplace)
   
@@ -944,20 +944,20 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
   clearthings, compiledthinginfo, compiledthingnamed, getthing, goodthing,
   badthing, thingnamed, thinginfo, addthing, thingnames, thingstodo
 
-let rec var2param =
+let rec param_of_var =
   function
     Id (_, v, c) -> Ordinaryparam (v, c)
   | Unknown (_, v, c) -> Unknownparam (v, c)
   | t ->
       raise
         (Fresh_
-           ["unknown schematic variable "; termstring t;
+           ["unknown schematic variable "; string_of_term t;
             " in var list in freshRule"])
 
 let rec freshparamstouse vars args params =
   let paramsused =
     allparams params
-      (var2param <* ((isextensibleID <.> string_of_vid <.> vid_of_var) <| vars))
+      (param_of_var <* ((isextensibleID <.> string_of_vid <.> vid_of_var) <| vars))
   in
   let bodyVIDs = orderVIDs ((vid_of_var <* vars)) in
   let ruleVIDs = extraVIDs paramsused args bodyVIDs in
@@ -973,10 +973,10 @@ let rec env4Rule env args cxt defcon (paramsused, ruleVIDs) =
   in
   if !thingdebug then
     consolereport
-      ["applymap "; mappingstring termstring termstring env; " ";
-       termliststring args; " "; "..cxt.. "; "..defcon.. ";
+      ["applymap "; string_of_mapping string_of_term string_of_term env; " ";
+       string_of_termlist args; " "; "..cxt.. "; "..defcon.. ";
        "(..paramsused.., ..ruleVIDs..)"; " => ";
-       pairstring cxtstring (mappingstring termstring termstring) ","
+       string_of_pair string_of_cxt (string_of_mapping string_of_term string_of_term) ","
          res];
   res
 
@@ -987,18 +987,18 @@ let rec instantiateRule env provisos antes conseq =
   (* give args back in the order received, not the mapping order *)
   let res = List.rev (rawaslist env), provisos', antes', conseq' in
   let show =
-    triplestring provisoliststring (antecedentliststring !thingdebugheavy)
-      (consequentstring !thingdebugheavy) ", "
+    string_of_triple string_of_provisolist (string_of_antecedentlist !thingdebugheavy)
+      (string_of_consequent !thingdebugheavy) ", "
   in
   if !thingdebug then
     consolereport
-      ["instantiateRule "; mappingstring termstring termstring env; " ";
-       provisoliststring provisos; " ";
-       antecedentliststring !thingdebugheavy antes; " ";
-       consequentstring !thingdebugheavy conseq; " "; " => ";
-       quadruplestring mapliststring provisoliststring
-         (antecedentliststring !thingdebugheavy)
-         (consequentstring !thingdebugheavy) ", " res];
+      ["instantiateRule "; string_of_mapping string_of_term string_of_term env; " ";
+       string_of_provisolist provisos; " ";
+       string_of_antecedentlist !thingdebugheavy antes; " ";
+       string_of_consequent !thingdebugheavy conseq; " "; " => ";
+       string_of_quadruple string_of_maplist string_of_provisolist
+         (string_of_antecedentlist !thingdebugheavy)
+         (string_of_consequent !thingdebugheavy) ", " res];
   res
 
 let rec freshRule
@@ -1020,11 +1020,11 @@ let rec freshRule
   in
   if !thingdebug then
     consolereport
-      ["freshRule "; termliststring args; " "; "..cxt.. ";
-       ruledatastring !thingdebugheavy (params, provisos, antes, conseq);
-       " "; " => "; mappingstring termstring termstring env; "; ";
-       triplestring mapliststring cxtstring
-         (ruledatastring !thingdebugheavy) ", " res];
+      ["freshRule "; string_of_termlist args; " "; "..cxt.. ";
+       string_of_ruledata !thingdebugheavy (params, provisos, antes, conseq);
+       " "; " => "; string_of_mapping string_of_term string_of_term env; "; ";
+       string_of_triple string_of_maplist string_of_cxt
+         (string_of_ruledata !thingdebugheavy) ", " res];
   res
 
 let rec renumberforuse args antes conseq cxt =
@@ -1055,14 +1055,14 @@ let rec renumberforuse args antes conseq cxt =
 let rec freshRuleshow name af cxt args vars rd res =
   if !thingdebug then
     begin
-      let rec nocxtstring _ = "..cxt.. " in
-      let rnl = bracketedliststring resnumstring "," in
+      let rec nostring_of_cxt _ = "..cxt.. " in
+      let rnl = bracketedstring_of_list string_of_resnum "," in
       consolereport
-        [name; " "; nocxtstring cxt; " "; af args; " ";
-         termliststring vars; " "; ruledatastring !thingdebugheavy rd;
+        [name; " "; nostring_of_cxt cxt; " "; af args; " ";
+         string_of_termlist vars; " "; string_of_ruledata !thingdebugheavy rd;
          " "; " => ";
-         quadruplestring nocxtstring (mappingstring termstring termstring)
-           (pairstring rnl rnl ",") (ruledatastring !thingdebugheavy) ", "
+         string_of_quadruple nostring_of_cxt (string_of_mapping string_of_term string_of_term)
+           (string_of_pair rnl rnl ",") (string_of_ruledata !thingdebugheavy) ", "
            res]
     end;
   res
@@ -1077,7 +1077,7 @@ let rec freshRuletoapply
     env4Rule empty args cxt' registerUnknown
       (freshparamstouse vars args params)
   in
-  freshRuleshow "freshRuletoapply" termliststring cxt args vars rd
+  freshRuleshow "freshRuletoapply" string_of_termlist cxt args vars rd
     (cxt'', env, interesting_resources,
      (params, provisos, antes', conseq'))
 
@@ -1089,7 +1089,7 @@ let rec freshRuletosubst
   let rec bad w n vs =
     raise
       (Fresh_
-         [liststring termstring " and " vs; " "; w; " not schematic "; n;
+         [string_of_list string_of_term " and " vs; " "; w; " not schematic "; n;
           " of the rule/theorem"])
   in
   let _ =
@@ -1112,7 +1112,7 @@ let rec freshRuletosubst
          paramsused argvars,
        ruleVIDs)
   in
-  freshRuleshow "freshRuletosubst" mapliststring cxt argmap vars rd
+  freshRuleshow "freshRuletosubst" string_of_maplist cxt argmap vars rd
     (cxt'', env, interesting_resources,
      (params, provisos, antes', conseq'))
 
@@ -1150,7 +1150,7 @@ let rec rearrangetoResolve antes =
       | t ->
           raise
             (Catastrophe_
-               ["can't happen rearrangetoResolve "; smltermstring t])
+               ["can't happen rearrangetoResolve "; debugstring_of_term t])
     in
     let (lcc, lsvs, lels) = extractsegv lhs in
     let (rcc, rsvs, _) = extractsegv rhs in
@@ -1167,7 +1167,7 @@ let rec rearrangetoResolve antes =
       Seq (st, newlhs, rhs)
     in
     let showrule =
-      pairstring (bracketedliststring seqstring " AND ") seqstring
+      string_of_pair (bracketedstring_of_list string_of_seq " AND ") string_of_seq
         " INFER "
     in
     if !thingdebug then
@@ -1366,16 +1366,16 @@ let rec addstructurerule kind name =
           begin
             let rec myseqstring =
               fun (Seq (_, hs, gs)) ->
-                (smltermstring hs ^ " ") ^ smltermstring gs
+                (debugstring_of_term hs ^ " ") ^ debugstring_of_term gs
             in
             consolereport
               ["checking ";
-               ruledatastring true (params, provs, tops, bottom);
+               string_of_ruledata true (params, provs, tops, bottom);
                " against ";
-               quadruplestring (optionstring termliststring)
-                 (optionstring
-                    (bracketedliststring provisostring " AND "))
-                 (bracketedliststring myseqstring " AND ") myseqstring
+               string_of_quadruple (string_of_option string_of_termlist)
+                 (string_of_option
+                    (bracketedstring_of_list string_of_proviso " AND "))
+                 (bracketedstring_of_list myseqstring " AND ") myseqstring
                  ", " (mparams, mprovs, mtops, mbottom)]
           end;
         begin try
@@ -1446,12 +1446,12 @@ let rec addstructurerule kind name =
        begin match thingnamed name with
          Some
            (Rule
-              ((_, _, [Seq (a1st, a1l, a1r); Seq (a2st, a2l, a2r)],
+              ((_, _, [Seq (a1st, a1l, a1r); Seq (st_of_a, l_of_a, r_of_a)],
                 Seq (cst, cl, cr)), _), _) ->
-           (((a1st = a2st && a2st = cst) && eqterms (a1l, a2l)) &&
-            eqterms (a2l, cl)) &&
+           (((a1st = st_of_a && st_of_a = cst) && eqterms (a1l, l_of_a)) &&
+            eqterms (l_of_a, cl)) &&
            (match
-              collection2term a1r, collection2term a2r, collection2term cr
+              term_of_collection a1r, term_of_collection r_of_a, term_of_collection cr
             with
               Some a1, Some a2, Some ct ->
                 begin match
@@ -1477,7 +1477,7 @@ let rec addstructurerule kind name =
         *)
        match thingnamed name with
          Some (Rule ((_, _, [], Seq (_, _, cr)), _), _) ->
-           begin match collection2term cr with
+           begin match term_of_collection cr with
              Some c ->
                begin match explodebinapp c with
                  Some (x, _, y) -> eqterms (x, y)

@@ -42,12 +42,12 @@ let interpretpredicates = ref false
 let predicatedebug = ref false
 exception Predicate_ of string list
 (* aid for debuggers *)
-let predicatebindingstring =
-  bracketedliststring
-    (pairstring termstring
-       (bracketedliststring
-          (pairstring termliststring
-             (bracketedliststring termliststring ",") ",")
+let string_of_predicatebinding =
+  bracketedstring_of_list
+    (string_of_pair string_of_term
+       (bracketedstring_of_list
+          (string_of_pair string_of_termlist
+             (bracketedstring_of_list string_of_termlist ",") ",")
           ",")
        ", ")
     "; "
@@ -77,8 +77,8 @@ let rec compilepredicate isabstraction env t =
       let _ =
         if !predicatedebug then
           consolereport
-            ["compilepredicate spotted "; termstring pp; "(";
-             termliststring ts; ")"]
+            ["compilepredicate spotted "; string_of_term pp; "(";
+             string_of_termlist ts; ")"]
       in
       let ts = (mapterm (compilepredicate isabstraction env) <* ts) in
       begin match env pp with
@@ -93,8 +93,8 @@ let rec compilepredicate isabstraction env t =
           in
           if !predicatedebug then
             consolereport
-              ["compilepredicate "; termstring pp; "("; termliststring ts;
-               ") => "; optionstring termstring res];
+              ["compilepredicate "; string_of_term pp; "("; string_of_termlist ts;
+               ") => "; string_of_option string_of_term res];
           res
       | None -> raise (Catastrophe_ ["bad env in compilepredicates"])
       end
@@ -124,7 +124,7 @@ let rec findpredicates isabstraction bs (t, pbs) =
            if List.length ts <> List.length ts' then
              raise
                (Predicate_
-                  ["predicate "; termstring pp;
+                  ["predicate "; string_of_term pp;
                    " is used inconsistently: "; "sometimes with ";
                    string_of_int (List.length ts); ", sometimes with ";
                    string_of_int (List.length ts'); " arguments."])

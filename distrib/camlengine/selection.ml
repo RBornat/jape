@@ -31,7 +31,7 @@ open Termstore
 open Termstring
 open Termtype
 
-let bracketedliststring = Listfuns.bracketedliststring
+let bracketedstring_of_list = Listfuns.bracketedstring_of_list
 let consolereport = Miscellaneous.consolereport
 let enQuote = Stringfuns.enQuote
 
@@ -64,13 +64,13 @@ exception ParseError_ = Miscellaneous.ParseError_
 
 (* convert a text selection into a non-reducible substitution *)
 exception Selection_ of string list
-let rec selection2Subst object__ sels cxt =
+let rec _Subst_of_selection object__ sels cxt =
   let original = implode sels in
   let origterm =
     try term_of_string original with
       ParseError_ s ->
         raise
-          (Catastrophe_ (["selection2Subst can't parse original: "; original; " -- "] @ s))
+          (Catastrophe_ (["_Subst_of_selection can't parse original: "; original; " -- "] @ s))
   in
   let (cxt', v) = freshvar object__ cxt in
   let rec splitup =
@@ -81,8 +81,8 @@ let rec selection2Subst object__ sels cxt =
     | _ ->
         raise
           (Catastrophe_
-             ["selection2Subst given even number of strings: ";
-              bracketedliststring enQuote "," sels])
+             ["_Subst_of_selection given even number of strings: ";
+              bracketedstring_of_list enQuote "," sels])
   in
   let (ts, ss) = splitup sels in
   let rec bad s =
@@ -106,7 +106,7 @@ let rec selection2Subst object__ sels cxt =
   in
   let _P =
     try
-      term_of_string (implode (interpolate ((" " ^ termstring v) ^ " ") ts))
+      term_of_string (implode (interpolate ((" " ^ string_of_term v) ^ " ") ts))
     with
       ParseError_ _ -> badsub ()
   in
@@ -137,7 +137,7 @@ let rec selection2Subst object__ sels cxt =
            else "one of your selections")) ^
          " was inside a binding, and involved a possible bound variable capture")
   else badsub ()
-let rec subterm2subst unify cxt pat t =
+let rec _SubstOpt_of_subterm unify cxt pat t =
   let (cxt', v) = freshvar true cxt in
   let rec f hole subt =
     match unify (pat, subt) cxt' with

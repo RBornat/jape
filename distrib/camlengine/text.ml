@@ -33,7 +33,7 @@ open Stringfuns
     
 type font = Displayfont.displayfont
 
-let fontstring = displayfontstring
+let string_of_font = string_of_displayfont
 
 type textalign = FirstLine | MidBlock | LastLine
 
@@ -50,36 +50,36 @@ type textlayout = Textlayout of (pos * font * string) list
 (* Oh, I hate having to write all this.  Why can't the compiler synthesise it
  * for me?
  *)
-let textalignstring =
+let string_of_textalign =
   function FirstLine -> "FirstLine"
   |        MidBlock  -> "MidBlock"
   |        LastLine  -> "LastLine"
 
-let rec syllablestring =
+let rec string_of_syllable =
   function
-    Syllable (i, s) -> "Syllable(" ^ fontstring i ^ "," ^ enQuote s ^ ")"
+    Syllable (i, s) -> "Syllable(" ^ string_of_font i ^ "," ^ enQuote s ^ ")"
   | Gap i           -> "Gap " ^ string_of_int i
   | Linebreak i     -> "Linebreak " ^ string_of_int i
-  | Block (c, sys)  -> "Block(" ^ textalignstring c ^ "," ^
-		                  bracketedliststring syllablestring "," sys ^ ")"
+  | Block (c, sys)  -> "Block(" ^ string_of_textalign c ^ "," ^
+		                  bracketedstring_of_list string_of_syllable "," sys ^ ")"
 
-let textstring =
-  fun (Text sys) -> "Text" ^ bracketedliststring syllablestring "," sys
+let string_of_text =
+  fun (Text sys) -> "Text" ^ bracketedstring_of_list string_of_syllable "," sys
 
-let textlayoutstring =
+let string_of_textlayout =
   fun (Textlayout t) ->
     "TextLayout" ^
-      bracketedliststring
-        (triplestring posstring fontstring enQuote ",") ", " t
+      bracketedstring_of_list
+        (string_of_triple string_of_pos string_of_font enQuote ",") ", " t
 
-let string2text font string = Text [Syllable (font, string)]
+let text_of_string font string = Text [Syllable (font, string)]
 
 (* This function doesn't try to do anything clever with leading or trailing Gaps or
  * Linebreaks.  So don't use them, if you don't want silly things to happen.
  *)
 (* It gives back the string list in the wrong order, but measuretext can rev it if it wants to *)
 let rec textWAD measure c ss sys =
-  let rec pushdown d ((x, y), fontstring) = (x, y + d), fontstring in
+  let rec pushdown d ((x, y), string_of_font) = (x, y + d), string_of_font in
   let rec f a1 a2 a3 a4 a5 a6 =
     match a1, a2, a3, a4, a5, a6 with
       w, a, d, x, ss, []                      -> (w, a, d), ss

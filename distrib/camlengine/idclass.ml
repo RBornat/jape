@@ -36,7 +36,7 @@ type idclass = NoClass
              | BagClass of idclass
              | ListClass of idclass
 
-let rec catelim_idclassstring a1 a2 =
+let rec catelim_string_of_idclass a1 a2 =
   match a1, a2 with
     NoClass      , tail -> "NoClass" :: tail
   | FormulaClass , tail -> "FormulaClass" :: tail
@@ -46,7 +46,7 @@ let rec catelim_idclassstring a1 a2 =
   | StringClass  , tail -> "StringClass" :: tail
   | OperatorClass, tail -> "OperatorClass" :: tail
   | SubstClass   , tail -> "SubstClass" :: tail
-  | BagClass c   , tail -> "BagClass(" :: catelim_idclassstring c (")" :: tail)
-  | ListClass c  , tail -> "ListClass(" :: catelim_idclassstring c (")" :: tail)
+  | BagClass c   , tail -> "BagClass(" :: catelim_string_of_idclass c (")" :: tail)
+  | ListClass c  , tail -> "ListClass(" :: catelim_string_of_idclass c (")" :: tail)
 
-let idclassstring = Listfuns.catelim2stringfn catelim_idclassstring
+let string_of_idclass = Listfuns.stringfn_of_catelim catelim_string_of_idclass

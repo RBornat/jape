@@ -39,7 +39,7 @@ val makeelementplan        : (element -> string) -> displayclass -> element -> p
                           -> planclass plan
 val makeseqplan            : (element -> string) -> bool -> pos -> seq 
                           -> planclass plan list * textbox
-val planclass2displayclass : planclass -> displayclass
-val planclassstring        : planclass -> string
+val displayclass_of_planclass : planclass -> displayclass
+val string_of_planclass        : planclass -> string
 val seqdraw                : pos -> textbox -> planclass plan list -> unit
 val seqelementpos          : pos -> textbox -> planclass plan -> pos

@@ -31,53 +31,53 @@ val enQuote : string -> string
 val enCharQuote : string -> string
 val lowercase : string -> string
 val uppercase : string -> string
-val pairstring :
+val string_of_pair :
   ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-val triplestring :
+val string_of_triple :
   ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
     'a * 'b * 'c -> string
-val quadruplestring :
+val string_of_quadruple :
   ('a -> string) -> ('b -> string) -> ('c -> string) -> ('d -> string) ->
     string -> 'a * 'b * 'c * 'd -> string
-val quintuplestring :
+val string_of_quintuple :
   ('a -> string) -> ('b -> string) -> ('c -> string) -> ('d -> string) ->
     ('e -> string) -> string -> 'a * 'b * 'c * 'd * 'e -> string
-val sextuplestring :
+val string_of_sextuple :
   ('a -> string) -> ('b -> string) -> ('c -> string) -> ('d -> string) ->
     ('e -> string) -> ('f -> string) -> string ->
     'a * 'b * 'c * 'd * 'e * 'f -> string
-val septuplestring :
+val string_of_septuple :
   ('a -> string) -> ('b -> string) -> ('c -> string) -> ('d -> string) ->
     ('e -> string) -> ('f -> string) -> ('g -> string) -> string ->
     'a * 'b * 'c * 'd * 'e * 'f * 'g -> string
-val octuplestring :
+val string_of_octuple :
   ('a -> string) -> ('b -> string) -> ('c -> string) -> ('d -> string) ->
     ('e -> string) -> ('f -> string) -> ('g -> string) ->
     ('h -> string) -> string -> 'a * 'b * 'c * 'd * 'e * 'f * 'g * 'h ->
     string
-val catelim_pairstring :
+val catelim_string_of_pair :
   ('a -> string list -> string list) ->
     ('b -> string list -> string list) -> string -> 'a * 'b ->
     string list -> string list
-val catelim_triplestring :
+val catelim_string_of_triple :
   ('a -> string list -> string list) ->
     ('b -> string list -> string list) ->
     ('c -> string list -> string list) -> string -> 'a * 'b * 'c ->
     string list -> string list
-val catelim_quadruplestring :
+val catelim_string_of_quadruple :
   ('a -> string list -> string list) ->
     ('b -> string list -> string list) ->
     ('c -> string list -> string list) ->
     ('d -> string list -> string list) -> string -> 'a * 'b * 'c * 'd ->
     string list -> string list
-val catelim_quintuplestring :
+val catelim_string_of_quintuple :
   ('a -> string list -> string list) ->
     ('b -> string list -> string list) ->
     ('c -> string list -> string list) ->
     ('d -> string list -> string list) ->
     ('e -> string list -> string list) -> string ->
     'a * 'b * 'c * 'd * 'e -> string list -> string list
-val catelim_sextuplestring :
+val catelim_string_of_sextuple :
   ('a -> string list -> string list) ->
     ('b -> string list -> string list) ->
     ('c -> string list -> string list) ->
@@ -85,7 +85,7 @@ val catelim_sextuplestring :
     ('e -> string list -> string list) ->
     ('f -> string list -> string list) -> string ->
     'a * 'b * 'c * 'd * 'e * 'f -> string list -> string list
-val catelim_septuplestring :
+val catelim_string_of_septuple :
   ('a -> string list -> string list) ->
     ('b -> string list -> string list) ->
     ('c -> string list -> string list) ->
@@ -94,7 +94,7 @@ val catelim_septuplestring :
     ('f -> string list -> string list) ->
     ('g -> string list -> string list) -> string ->
     'a * 'b * 'c * 'd * 'e * 'f * 'g -> string list -> string list
-val catelim_octuplestring :
+val catelim_string_of_octuple :
   ('a -> string list -> string list) ->
     ('b -> string list -> string list) ->
     ('c -> string list -> string list) ->
@@ -104,10 +104,10 @@ val catelim_octuplestring :
     ('g -> string list -> string list) ->
     ('h -> string list -> string list) -> string ->
     'a * 'b * 'c * 'd * 'e * 'f * 'g * 'h -> string list -> string list
-val catelim_arraystring :
+val catelim_string_of_array :
   ('a -> string list -> string list) -> string -> 'a array ->
     string list -> string list
-val arraystring : ('a -> string) -> string -> 'a array -> string
+val string_of_array : ('a -> string) -> string -> 'a array -> string
 
 val quotedstring_of_char : char -> string
 

@@ -50,7 +50,7 @@ let empty = Mappingfuns.empty
 let eqbags = Listfuns.eqbags
 let explain = Tacticfuns.explain
 let getReason = Reason.getReason
-let liststring = Listfuns.liststring
+let string_of_list = Listfuns.string_of_list
 let ( <* ) = Listfuns.( <* )
 let maxprovisoresnum = Proviso.maxprovisoresnum
 let maxtreeresnum = Prooftree.Tree.Fmttree.maxtreeresnum
@@ -60,18 +60,18 @@ let mkTip cxt seq =
   Prooftree.Tree.mkTip cxt seq Treeformat.Fmt.neutralformat
 
 let mkvisproviso = Proviso.mkvisproviso
-let proofstage2word = Proofstage.proofstage2word
+let word_of_proofstage = Proofstage.word_of_proofstage
 let proving = Tacticfuns.proving
 let provisoactual = Proviso.provisoactual
-let provisostring = Proviso.provisostring
+let string_of_proviso = Proviso.string_of_proviso
 let provisovisible = Proviso.provisovisible
 let rewriteproofstate = Proofstate.rewriteproofstate
 let rewriteProoftree = Prooftree.Tree.rewriteProoftree
 let rewriteseq = Rewrite.rewriteseq
 let rootPath = Prooftree.Tree.Fmttree.rootPath
 let sequent = Prooftree.Tree.Fmttree.sequent
-let seqstring = Sequent.seqstring
-let tacticstring = Tactic.tacticstring
+let string_of_seq = Sequent.string_of_seq
+let string_of_tactic = Tactic.string_of_tactic
 let takethelot = Applyrule.takethelot
 let uncurry2 = Miscellaneous.uncurry2
 let ( <| ) = Listfuns.( <| )
@@ -142,7 +142,7 @@ let rec doProof report query env name stage seq (givens, pros, tac) disproofopt 
     let newpros = (provisoactual <* (provisovisible <| provisos cxt)) in
     let rec showpros pros =
       if null pros then "no provisos"
-      else liststring provisostring " AND " pros
+      else string_of_list string_of_proviso " AND " pros
     in
     eqbags (uncurry2 (=)) (pros, newpros) ||
     query
@@ -157,7 +157,7 @@ let rec doProof report query env name stage seq (givens, pros, tac) disproofopt 
   let rec cleanup () =
     applyconjectures := oldapply; proving := oldproving
   in
-  let rec label () = proofstage2word stage in
+  let rec label () = word_of_proofstage stage in
   let rec complain ss =
     report (label () :: " " :: string_of_name name :: " -- " :: ss)
   in
@@ -174,7 +174,7 @@ let rec doProof report query env name stage seq (givens, pros, tac) disproofopt 
             (NoProof_
                ("doesn't seem to be the same theorem (the base sequent "
                   ::
-                  seqstring seq :: " doesn't match) -- " :: getReason ()))
+                  string_of_seq seq :: " doesn't match) -- " :: getReason ()))
       | Some st ->
           (* it seems to be a statement of the theorem *)
           match applyTactic env tac initialstate with

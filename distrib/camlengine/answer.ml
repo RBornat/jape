@@ -30,7 +30,7 @@ open Sml
 type answer = Yes | Maybe | No
 (* Yes > Maybe > No *)
 
-let rec answerstring =
+let rec string_of_answer =
   function
     Yes -> "Yes"
   | No -> "No"
@@ -65,9 +65,9 @@ let rec ifMq test yes no maybe =
     Yes -> yes ()
   | No -> no ()
   | Maybe -> maybe ()
-let rec unit2Yes () = Yes
-let rec unit2No () = No
-let rec unit2Maybe () = Maybe
+let rec _Yes_of_unit () = Yes
+let rec _No_of_unit () = No
+let rec _Maybe_of_unit () = Maybe
 let rec qDEF a =
   match a with
     Yes -> true

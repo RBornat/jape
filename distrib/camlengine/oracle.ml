@@ -38,8 +38,8 @@ let explodeCollection      = Termfuns.explodeCollection
 let isemptycollection      = Termfuns.isemptycollection
 let getfontstuff           = Button.getfontstuff
 let setReason              = Reason.setReason
-let termstring             = Termstring.termstring
-let termOrCollectionstring = Termstring.termOrCollectionstring
+let string_of_term             = Termstring.string_of_term
+let string_of_termOrCollection = Termstring.string_of_termOrCollection
 
 (* probably this ought to use UTF.words *)
 (* bloody OCaml constant lextax.
@@ -124,18 +124,18 @@ let rec readmapping filename =
 
 let emptyCollection = isemptycollection
 
-let rec hypconcstring punct mapped table term =
+let rec string_of_hypconc punct mapped table term =
   let rec translatewith table string =
     implode (List.map (fun c -> Array.get table c) (utf8_explode string)) 
   in
   let rec docollection term =
-    ("(" ^ termOrCollectionstring ((")" ^ punct) ^ "(") term) ^ ")"
+    ("(" ^ string_of_termOrCollection ((")" ^ punct) ^ "(") term) ^ ")"
   in
   match explodeCollection term with
     [] -> ""
   | [_] ->
-      (if mapped then fun ooo -> translatewith table (termstring ooo)
-       else termstring)
+      (if mapped then fun ooo -> translatewith table (string_of_term ooo)
+       else string_of_term)
         term
   | _ ->
       (if mapped then fun ooo -> translatewith table (docollection ooo)
@@ -158,8 +158,8 @@ let rec string_to s t =
 
 let rec createoracle oraclename (store, table, mapped) =
   let trans d s = try Hashtbl.find store s with Not_found -> d in
-  let rec transhyps _HS = hypconcstring (trans ", " "hypjoin") mapped table _HS in
-  let rec transconcs _CS = hypconcstring (trans ", " "concjoin") mapped table _CS in
+  let rec transhyps _HS = string_of_hypconc (trans ", " "hypjoin") mapped table _HS in
+  let rec transconcs _CS = string_of_hypconc (trans ", " "concjoin") mapped table _CS in
   let _TS = trans "|-" "turnstile" in
   let rec turnstile =
     fun _HS ->

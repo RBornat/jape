@@ -29,7 +29,7 @@ open Miscellaneous
 
 type displayclass = DisplayHyp | DisplayConc | DisplayAmbig | DisplayReason | DisplayPunct
 
-let rec displayclassstring =
+let rec string_of_displayclass =
   function
     DisplayHyp -> "DisplayHyp"
   | DisplayConc -> "DisplayConc"
@@ -48,7 +48,7 @@ let rec displayclassstring =
  *
  *)
 
-let rec displayclass2int =
+let rec int_of_displayclass =
   function
     DisplayPunct -> 0
   | DisplayConc -> 1
@@ -56,11 +56,11 @@ let rec displayclass2int =
   | DisplayReason -> 3
   | DisplayAmbig -> 4
 
-let rec int2displayclass =
+let rec displayclass_of_int =
   function
     0 -> DisplayPunct
   | 1 -> DisplayConc
   | 2 -> DisplayHyp
   | 3 -> DisplayReason
   | 4 -> DisplayAmbig
-  | n -> raise (Catastrophe_ ["int2displayclass "; string_of_int n])
+  | n -> raise (Catastrophe_ ["displayclass_of_int "; string_of_int n])

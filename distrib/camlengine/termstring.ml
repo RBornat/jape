@@ -44,93 +44,93 @@ and invisket = offket_as_string
 
 (************** printing out internal structure of term *************)
  
-let rec catelim_resnumstring r tail =
+let rec catelim_string_of_resnum r tail =
   match r with
 	Nonum -> "Nonum" :: tail
   | Resnum r -> "Resnum " :: string_of_int r :: tail
   | ResUnknown r -> "ResUnknown " :: string_of_int r :: tail
-let resnumstring = catelim2stringfn catelim_resnumstring
-let rec dolist f = catelim_bracketedliststring f ","
+let string_of_resnum = stringfn_of_catelim catelim_string_of_resnum
+let rec dolist f = catelim_bracketedstring_of_list f ","
 (* for those who need to know *exactly* what they have got *)
-let rec catelim_smltermstring t tail =
+let rec catelim_debugstring_of_term t tail =
   match t with
 	Id (h, v, c) ->
 	  "Id(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
-		  (",\"" :: string_of_vid v :: "\"," :: idclassstring c :: ")" :: tail)
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
+		  (",\"" :: string_of_vid v :: "\"," :: string_of_idclass c :: ")" :: tail)
   | Unknown (h, v, c) ->
 	  "Unknown(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
-		  (",\"" :: string_of_vid v :: "\"," :: idclassstring c :: ")" :: tail)
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
+		  (",\"" :: string_of_vid v :: "\"," :: string_of_idclass c :: ")" :: tail)
   | App (h, f, a) ->
 	  "App(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
 		  ("," ::
-			 catelim_smltermstring f
-			   ("," :: catelim_smltermstring a (")" :: tail)))
+			 catelim_debugstring_of_term f
+			   ("," :: catelim_debugstring_of_term a (")" :: tail)))
   | Tup (h, s, ts) ->
 	  "Tup(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
 		  ("," :: enQuote s :: "," ::
-			 dolist catelim_smltermstring ts (")" :: tail))
+			 dolist catelim_debugstring_of_term ts (")" :: tail))
   | Literal (h, Number k) ->
 	  "Literal(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
 		  (",Number " :: string_of_int k :: ")" :: tail)
   | Literal (h, String k) ->
 	  "Literal(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
 		  (",String \"" :: k :: "\")" :: tail)
   | Fixapp (h, ss, ts) ->
 	  "Fixapp(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
 		  ("," ::
-			 dolist (stringfn2catelim enQuote) ss
-			   ("," :: dolist catelim_smltermstring ts (")" :: tail)))
+			 dolist (catelim_of_stringfn enQuote) ss
+			   ("," :: dolist catelim_debugstring_of_term ts (")" :: tail)))
   | Subst (h, r, p_, m) ->
 	  "Subst(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
 		  ("," :: string_of_bool r :: "," ::
-			 catelim_smltermstring p_
-			   ("," :: catelim_smlsubstmapstring m (")" :: tail)))
+			 catelim_debugstring_of_term p_
+			   ("," :: catelim_debugstring_of_substmap m (")" :: tail)))
   | Binding (h, (bs, ss, us), _, pat) ->
 	  "Binding(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
 		  (",(" ::
-			 dolist catelim_smltermstring bs
+			 dolist catelim_debugstring_of_term bs
 			   ("," ::
-				  dolist catelim_smltermstring ss
+				  dolist catelim_debugstring_of_term ss
 					("," ::
-					   dolist catelim_smltermstring us
+					   dolist catelim_debugstring_of_term us
 						 (")," :: "...," ::
-							catelim_smltermstring pat (")" :: tail)))))
+							catelim_debugstring_of_term pat (")" :: tail)))))
   | Collection (h, k, es) ->
 	  "Collection(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
-		  ("," :: idclassstring k :: "," ::
-			 dolist (catelim_smlelementstring catelim_smltermstring) es
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
+		  ("," :: string_of_idclass k :: "," ::
+			 dolist (catelim_debugstring_of_element catelim_debugstring_of_term) es
 			   (")" :: tail))
-and catelim_smlsubstmapstring vts =
+and catelim_debugstring_of_substmap vts =
   dolist
 	(fun (v, t) tail ->
 	   "(" ::
-		 catelim_smltermstring v
-		   ("," :: catelim_smltermstring t (")" :: tail)))
+		 catelim_debugstring_of_term v
+		   ("," :: catelim_debugstring_of_term t (")" :: tail)))
 	vts
-and catelim_smlelementstring f e tail =
+and catelim_debugstring_of_element f e tail =
   match e with
 	Segvar (h, ps, v) ->
 	  "Segvar(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
 		  ("," :: dolist f ps (f v (")" :: tail)))
   | Element (h, r, t) ->
 	  "Element(" ::
-		catelim_optionstring (stringfn2catelim string_of_int) h
-		  ("," :: catelim_smlresnumstring r ("," :: f t (")" :: tail)))
-and catelim_smlresnumstring r = catelim_resnumstring r
-let smltermstring = catelim2stringfn catelim_smltermstring
-let rec smlelementstring f =
-  catelim2stringfn (catelim_smlelementstring (stringfn2catelim f))
+		catelim_string_of_option (catelim_of_stringfn string_of_int) h
+		  ("," :: catelim_debugstring_of_resnum r ("," :: f t (")" :: tail)))
+and catelim_debugstring_of_resnum r = catelim_string_of_resnum r
+let debugstring_of_term = stringfn_of_catelim catelim_debugstring_of_term
+let rec debugstring_of_element f =
+  stringfn_of_catelim (catelim_debugstring_of_element (catelim_of_stringfn f))
 
 (******** rebuilding bindings ******************)
 
@@ -146,13 +146,13 @@ let rec remake mapterm (_, (bs, ss, us), env, pat as b) =
 		  raise
 			(Catastrophe_
 			   ["Some("; string_of_int k; ","; string_of_int i; ") in remake ";
-				smltermstring (Binding b)])
+				debugstring_of_term (Binding b)])
 	  | None -> None
 	in
 	mapterm f pat
   with
 	Failure "nth" ->
-	  raise (Catastrophe_ ["Failure \"nth\" in remake "; smltermstring (Binding b)])
+	  raise (Catastrophe_ ["Failure \"nth\" in remake "; debugstring_of_term (Binding b)])
 
 (* ------------------------------------------------------------------------------------- *)
 (* Bernard's pretty-printer in all its glory *)
@@ -162,8 +162,8 @@ exception Matchintermstring_
 (* spurious *)
 
 	(* local versions of mapterm, mapelements, which don't use the termstore *)
-	(* This is mildly more efficient, but really is because I want to use termstring
-	 * to monitor the termstore, and termstring needs to remake bindings, and remake needs
+	(* This is mildly more efficient, but really is because I want to use string_of_term
+	 * to monitor the termstore, and string_of_term needs to remake bindings, and remake needs
 	 * mapterm, and mapterm needs mapelements.
 	 *)
 let rec mapterm f t =
@@ -399,15 +399,15 @@ let rec _T ivb ivk n a t s =
 			  (_OB m)
 			  (_TS1 ivb ivk m ss true ts
 					(quadcolon (_CB m) (ivk t :: s)))
-	  | sy' -> raise (Catastrophe_ ["Matchintermstring_ "; smlsymbolstring sy'])
+	  | sy' -> raise (Catastrophe_ ["Matchintermstring_ "; debugstring_of_symbol sy'])
 	  end
   | Subst (_, _, t, m) ->
 	  ivb t ::
 		_T ivb ivk !substfix false t
 		   (quadcolon
-			 (symbolstring SUBSTBRA)
+			 (string_of_symbol SUBSTBRA)
 			 (_TM ivb ivk m
-				  (quadcolon (symbolstring SUBSTKET) (ivk t :: s))))
+				  (quadcolon (string_of_symbol SUBSTKET) (ivk t :: s))))
   | Binding stuff -> _T ivb ivk n a (remake mapterm stuff) s
   | Collection (_, c, es) ->
 	  ivb t ::
@@ -447,32 +447,32 @@ and _TM ivb ivk vts s =
   let rec expr (v, t) = t in
   let (fst, snd) = if !substsense then var, expr else expr, var in
   _TS ivb ivk (List.map fst vts)
-	  (quadcolon (symbolstring SUBSTSEP) (_TS ivb ivk (List.map snd vts) s))
+	  (quadcolon (string_of_symbol SUBSTSEP) (_TS ivb ivk (List.map snd vts) s))
 
 let nobra   _ = ""
 let noket   _ = ""
 let showbra _ = invisbra
 let showket _ = invisket
 
-let catelim_termstring_invisbracketed b = 
+let catelim_invisbracketedstring_of_term b = 
 	(if b then _T showbra showket else _T nobra noket) 0 false
-let termstring_invisbracketed =
-  catelim2stringfn <.> catelim_termstring_invisbracketed
+let invisbracketedstring_of_term =
+  stringfn_of_catelim <.> catelim_invisbracketedstring_of_term
 
-let catelim_termstring = catelim_termstring_invisbracketed false
-let termstring = catelim2stringfn catelim_termstring
+let catelim_string_of_term = catelim_invisbracketedstring_of_term false
+let string_of_term = stringfn_of_catelim catelim_string_of_term
 
-let rec catelim_termstring_invischoose ivb ivk = _T ivb ivk 0 false
-let rec termstring_invischoose ivb ivk =
-  catelim2stringfn (catelim_termstring_invischoose ivb ivk)
+let rec catelim_chooseinvisbracketedstring_of_term ivb ivk = _T ivb ivk 0 false
+let rec chooseinvisbracketedstring_of_term ivb ivk =
+  stringfn_of_catelim (catelim_chooseinvisbracketedstring_of_term ivb ivk)
 
-let rec catelim_vtsstring vts ss =
+let rec catelim_string_of_vts vts ss =
   quadcolon
-	(symbolstring SUBSTBRA)
-	(_TM nobra nobra vts (quadcolon (symbolstring SUBSTKET) ss))
-let vtsstring = catelim2stringfn catelim_vtsstring
+	(string_of_symbol SUBSTBRA)
+	(_TM nobra nobra vts (quadcolon (string_of_symbol SUBSTKET) ss))
+let string_of_vts = stringfn_of_catelim catelim_string_of_vts
 
-let rec catelim_argstring t ss =
+let rec catelim_string_of_termarg t ss =
   let rec mustbracket t =
 	match t with
 	  Id _ -> false
@@ -489,44 +489,44 @@ let rec catelim_argstring t ss =
 	| _ -> true
   in
   if mustbracket t then
-	quadcolon "(" (catelim_termstring t (quadcolon ")" ss))
-  else catelim_termstring t ss
+	quadcolon "(" (catelim_string_of_term t (quadcolon ")" ss))
+  else catelim_string_of_term t ss
 
-let argstring = catelim2stringfn catelim_argstring
+let string_of_termarg = stringfn_of_catelim catelim_string_of_termarg
 
-let catelim_elementstring_invisbracketed b =
-  catelim_termstring_invisbracketed b <.> stripelement
-let elementstring_invisbracketed =
-  catelim2stringfn <.> catelim_elementstring_invisbracketed
+let catelim_invisbracketedstring_of_element b =
+  catelim_invisbracketedstring_of_term b <.> stripelement
+let invisbracketedstring_of_element =
+  stringfn_of_catelim <.> catelim_invisbracketedstring_of_element
 
-let catelim_elementstring = catelim_elementstring_invisbracketed false
-let elementstring = catelim2stringfn catelim_elementstring
+let catelim_string_of_element = catelim_invisbracketedstring_of_element false
+let string_of_element = stringfn_of_catelim catelim_string_of_element
 
-let rec catelim_elementstring_invischoose ivb ivk =
-  catelim_termstring_invischoose ivb ivk <.> stripelement
-let rec elementstring_invischoose ivb ivk =
-  catelim2stringfn (catelim_elementstring_invischoose ivb ivk)
+let rec catelim_chooseinvisbracketedstring_of_element ivb ivk =
+  catelim_chooseinvisbracketedstring_of_term ivb ivk <.> stripelement
+let rec chooseinvisbracketedstring_of_element ivb ivk =
+  stringfn_of_catelim (catelim_chooseinvisbracketedstring_of_element ivb ivk)
 
-let catelim_collectionstring_invisbracketed b sep t =
+let catelim_invisbracketedstring_of_collection b sep t =
   match t with
 	Collection (_, _, es) -> 
-	  catelim_liststring (catelim_elementstring_invisbracketed b) sep es
-  | _ -> raise (Catastrophe_ ("collectionstring " :: catelim_termstring t []))
-let collectionstring_invisbracketed b sep = 
-  catelim2stringfn (catelim_collectionstring_invisbracketed b sep)
+	  catelim_string_of_list (catelim_invisbracketedstring_of_element b) sep es
+  | _ -> raise (Catastrophe_ ("string_of_collection " :: catelim_string_of_term t []))
+let invisbracketedstring_of_collection b sep = 
+  stringfn_of_catelim (catelim_invisbracketedstring_of_collection b sep)
 
-let catelim_collectionstring = catelim_collectionstring_invisbracketed false
-let collectionstring sep = catelim2stringfn (catelim_collectionstring sep)
+let catelim_string_of_collection = catelim_invisbracketedstring_of_collection false
+let string_of_collection sep = stringfn_of_catelim (catelim_string_of_collection sep)
 
-let rec catelim_termOrCollectionstring_invisbracketed b sep t =
+let rec catelim_invisbracketedstring_of_termOrCollection b sep t =
   match t with
-	Collection _ -> catelim_collectionstring_invisbracketed b sep t
-  | _ -> catelim_termstring_invisbracketed b t
-let rec termOrCollectionstring_invisbracketed b sep =
-  catelim2stringfn (catelim_collectionstring_invisbracketed b sep)
+	Collection _ -> catelim_invisbracketedstring_of_collection b sep t
+  | _ -> catelim_invisbracketedstring_of_term b t
+let rec invisbracketedstring_of_termOrCollection b sep =
+  stringfn_of_catelim (catelim_invisbracketedstring_of_collection b sep)
 
-let catelim_termOrCollectionstring = catelim_termOrCollectionstring_invisbracketed false
-let termOrCollectionstring sep = catelim2stringfn (catelim_collectionstring sep)
+let catelim_string_of_termOrCollection = catelim_invisbracketedstring_of_termOrCollection false
+let string_of_termOrCollection sep = stringfn_of_catelim (catelim_string_of_collection sep)
 
-let termliststring = bracketedliststring termstring ","
-let catelim_termliststring = catelim_bracketedliststring catelim_termstring ","
+let string_of_termlist = bracketedstring_of_list string_of_term ","
+let catelim_string_of_termlist = catelim_bracketedstring_of_list catelim_string_of_term ","

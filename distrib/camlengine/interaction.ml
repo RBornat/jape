@@ -45,28 +45,28 @@ let (&~~) = Optionfuns.(&~~)
 let (|~~) = Optionfuns.(|~~)
 let _The = Optionfuns._The
 let atoi = Miscellaneous.atoi
-let bracketedliststring = Listfuns.bracketedliststring
+let bracketedstring_of_list = Listfuns.bracketedstring_of_list
 let consolereport = Miscellaneous.consolereport
 let dont_rewrite_with_this = Cxtfuns.dont_rewrite_with_this
-let elementstring = Termstring.elementstring
+let string_of_element = Termstring.string_of_element
 let findfirst = Optionfuns.findfirst
 let interpolate = Listfuns.interpolate
 let lowercase = Stringfuns.lowercase
 let member = Listfuns.member
 let numbered = Listfuns.numbered
 let optionfilter = Optionfuns.optionfilter
-let optionstring = Optionfuns.optionstring
+let string_of_option = Optionfuns.string_of_option
 let provisos = Cxtfuns.provisos
 let replaceelement = Termfuns.replaceelement
 let rewritecxt = Rewrite.rewritecxt
 let seektipselection = Miscellaneous.seektipselection
-let selection2Subst = Selection.selection2Subst
+let _Subst_of_selection = Selection._Subst_of_selection
 let setComment = Alert.setComment
 let showAlert = Alert.showAlert Alert.defaultseverity_alert
-let smlelementstring = Termstring.smlelementstring
+let debugstring_of_element = Termstring.debugstring_of_element
 let sort = Listfuns.sort
 let take = Listfuns.take
-let termstring = Termstring.termstring
+let string_of_term = Termstring.string_of_term
 let try__ = Optionfuns.try__
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
@@ -78,15 +78,15 @@ type command =
     TextCommand of string list
   | HitCommand of (prooftree * path hit * path sel)
 
-let rec commandstring =
+let rec string_of_command =
   function
-    TextCommand ws -> "TextCommand" ^ bracketedliststring enQuote ", " ws
+    TextCommand ws -> "TextCommand" ^ bracketedstring_of_list enQuote ", " ws
   | HitCommand hc ->
       "HitCommand" ^
-        triplestring (fun _ -> "....") (hitstring pathstring)
-          (selstring pathstring) "," hc
+        string_of_triple (fun _ -> "....") (string_of_hit string_of_path)
+          (string_of_sel string_of_path) "," hc
 
-let intliststring = bracketedliststring (string_of_int : int -> string) ","
+let string_of_intlist = bracketedstring_of_list (string_of_int : int -> string) ","
 
 let setComment = setComment <.> implode
 
@@ -147,25 +147,25 @@ let rec sortoutSelection state pathkind =
   in
   let prooftextsels = List.map (fun (p, ss) -> p, List.map deinvis ss) prooftextsels in
   let givensel = List.map deinvis givensel in
-  let rec pos2hit pos copt pathkind =
+  let rec hit_of_pos pos copt pathkind =
     match locateHit state pos copt pathkind with
       Some h -> h
     | None   ->
         raise (Catastrophe_
                  ["sortoutSelection (interaction) can't locate ";
-                  posstring pos; ", "; optionstring displayclassstring copt])
+                  string_of_pos pos; ", "; string_of_option string_of_displayclass copt])
   in
-  let rec hit2fhit a1 a2 =
+  let rec fhit_of_hit a1 a2 =
     match a1, a2 with
       s, FormulaHit fh -> fh
     | s, h ->
         raise
           (Catastrophe_
              ["sortoutSelection (interaction) sees "; s; " hit ";
-              hitstring pathstring h])
+              string_of_hit string_of_path h])
   in
   let fhits =
-    List.map (fun (pos, class__) -> pos, pos2hit pos (Some class__) pathkind)
+    List.map (fun (pos, class__) -> pos, hit_of_pos pos (Some class__) pathkind)
              proofsels
   in
   let thits =
@@ -176,8 +176,8 @@ let rec sortoutSelection state pathkind =
               (fun (pos', hit) -> if pos = pos' then Some hit else None)
               fhits
           with
-            Some h -> hit2fhit "textsel" h
-          | None -> hit2fhit "textsel" (pos2hit pos None pathkind)),
+            Some h -> fhit_of_hit "textsel" h
+          | None -> fhit_of_hit "textsel" (hit_of_pos pos None pathkind)),
          strings)
       prooftextsels
   in
@@ -189,9 +189,9 @@ let findDisproofSelections () = Japeserver.getAllDisproofSelections ()
 let rec findSelection state =
   let (fhits, thits, givensel) = sortoutSelection state HitPath in
   (* only path that makes sense for what we are trying to do ... *)
-  let showstrings = bracketedliststring enQuote "," in
-  (* val _ = consolereport ["findSelection sees ", bracketedliststring (hitstring pathstring) "," fhits, "; ",
-                                                   bracketedliststring (pairstring (fhitstring pathstring) showstrings ",") "," thits, "; ",
+  let showstrings = bracketedstring_of_list enQuote "," in
+  (* val _ = consolereport ["findSelection sees ", bracketedstring_of_list (string_of_hit string_of_path) "," fhits, "; ",
+                                                   bracketedstring_of_list (string_of_pair (string_of_fhit string_of_path) showstrings ",") "," thits, "; ",
                                                    showstrings givensel]
    *)
   let (conchits, hyphits, reasonhits) =
@@ -204,7 +204,7 @@ let rec findSelection state =
            raise
              (Catastrophe_
                 ["findSelection (interaction) sees hit ";
-                 hitstring pathstring h]))
+                 string_of_hit string_of_path h]))
       fhits ([], [], [])
   in
   (* it gets too hard not to trust the interface here ... I'm just going to take the hyp interpretation of 
@@ -236,11 +236,11 @@ let rec findSelection state =
                raise
                  (Catastrophe_
                     ["incompatible double hit in findSelection (interaction): ";
-                     pathstring hpath; " ";
-                     smlelementstring termstring hypel; "; ";
-                     pathstring cpath; " ";
-                     pairstring (smlelementstring termstring)
-                       (optionstring sidestring) "," conc]))
+                     string_of_path hpath; " ";
+                     debugstring_of_element string_of_term hypel; "; ";
+                     string_of_path cpath; " ";
+                     string_of_pair (debugstring_of_element string_of_term)
+                       (string_of_option string_of_side) "," conc]))
           hyphits
       in
       Some (FormulaSel (cpath, Some conc, hyps, tcs, ths, givensel))
@@ -273,8 +273,8 @@ let rec findSelection state =
           raise
             (Catastrophe_
                ["invalid hypothesis selections in findSelection (interaction): ";
-                bracketedliststring
-                  (pairstring pathstring (smlelementstring termstring)
+                bracketedstring_of_list
+                  (string_of_pair string_of_path (debugstring_of_element string_of_term)
                      ",")
                   "," hyphits])
         else if !seektipselection && refineSelection state then
@@ -310,7 +310,7 @@ let rec findSelection state =
       raise
         (Catastrophe_
            ["findSelection (interaction) sees too many hits: ";
-            bracketedliststring (hitstring pathstring) "," fhits])
+            bracketedstring_of_list (string_of_hit string_of_path) "," fhits])
 (* when looking for LayoutPath and PrunePath, findSelection is just too fussy.  E.g. if you Prune a 
  * hypothesis selection in boxdraw, the interface changes it to a conclusion selection, and that 
  * confuses findSelection no end.  Perhaps this will improve matters ...
@@ -329,11 +329,11 @@ let rec findLayoutSelection state pathkind =
             raise
               (Catastrophe_
                  ["findLayoutSelection (interaction) sees ";
-                  hitstring pathstring h])
+                  string_of_hit string_of_path h])
   in
   getpath None fhits
 
-let rec formulahit2els where h =
+let rec els_of_formulahit where h =
   match h with
     Some (FormulaHit fh) ->
       begin match fh with
@@ -344,8 +344,8 @@ let rec formulahit2els where h =
   | _ ->
       raise
         (Catastrophe_
-           ["formulahit2els (in "; where; ") can't handle ";
-            optionstring (hitstring pathstring) h])
+           ["els_of_formulahit (in "; where; ") can't handle ";
+            string_of_option (string_of_hit string_of_path) h])
 
 let dropsource : element list ref = ref []
 
@@ -379,7 +379,7 @@ let rec getCommand displayopt =
           (Catastrophe_ ["bad pos in getCommand (interaction): "; text])
   in
   let rec mkclass c =
-    try int2displayclass (atoi c) with
+    try displayclass_of_int (atoi c) with
       _ ->
         raise
           (Catastrophe_ ["bad class in getCommand (interaction): "; text])
@@ -437,12 +437,12 @@ let rec getCommand displayopt =
       getCommand displayopt
   | "DRAGQ" :: x :: y :: _ ->
       dropsource :=
-        formulahit2els "getCommand DRAGQ"
+        els_of_formulahit "getCommand DRAGQ"
           (locateHit (getdisplay ()) (mkpos x y) None HitPath);
       TextCommand ["DRAGQUERY"]
   | "DROP" :: tx :: ty :: sx :: sy :: _ ->
       let rec decode x y =
-        formulahit2els "getCommand DROP"
+        els_of_formulahit "getCommand DROP"
           (locateHit (getdisplay ()) (mkpos x y) None HitPath)
       in
       dropsource := decode sx sy;
@@ -471,10 +471,10 @@ let rec sortprovisos ps =
 
 let rec setProvisos cxt =
   let ps = sortprovisos (provisos cxt) in
-  Japeserver.setProvisos (List.map (Proviso.visprovisostring_invisbracketed true) (filterprovisos ps))
+  Japeserver.setProvisos (List.map (Proviso.invisbracketedstring_of_visproviso true) (filterprovisos ps))
 
 let setGivens givens =
-  Japeserver.setGivens (numbered (List.map (seqstring_invisbracketed true) givens))
+  Japeserver.setGivens (numbered (List.map (invisbracketedstring_of_seq true) givens))
 
 let rec printProvisos outstream cxt =
   let ps = sortprovisos (provisos (rewritecxt cxt)) in
@@ -485,7 +485,7 @@ let rec printProvisos outstream cxt =
       List.iter
         (fun p ->
            output_string outstream
-             (("\"" ^ Proviso.visprovisostring p) ^ "\" ");
+             (("\"" ^ Proviso.string_of_visproviso p) ^ "\" ");
            output_string outstream "\n")
         (filterprovisos ps);
       output_string outstream ")"
@@ -497,7 +497,7 @@ let rec printGivens outstream givens =
       output_string outstream "(GIVEN ";
       List.iter
         (fun g ->
-           output_string outstream (("\"" ^ seqstring g) ^ "\" ");
+           output_string outstream (("\"" ^ string_of_seq g) ^ "\" ");
            output_string outstream "\n")
         gs;
       output_string outstream ")"
@@ -527,7 +527,7 @@ let rec alterTip
   displaystate cxt gpath tree root ((selishyp, selpath, selel), ss) =
   let (wholepath, wholetree) = Prooftree.Tree.makewhole cxt root tree gpath in
   if Prooftree.Tree.Fmttree.validelement selishyp wholetree selel wholepath then
-    let (cxt, subst) = selection2Subst false ss cxt in
+    let (cxt, subst) = _Subst_of_selection false ss cxt in
     let (Seq (st, hs, cs)) =
       try Prooftree.Tree.Fmttree.findTip tree gpath with
         _ -> raise (Catastrophe_ ["findTip failed in alterTip"])
@@ -542,5 +542,5 @@ let rec alterTip
   else
     raise
       (Selection_
-         ["your selection "; pathstring selpath;
-          " wasn't on the path to the goal "; pathstring wholepath])
+         ["your selection "; string_of_path selpath;
+          " wasn't on the path to the goal "; string_of_path wholepath])

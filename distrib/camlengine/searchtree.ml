@@ -86,20 +86,20 @@ let deletefromtree eqr =
 
 let summarisetree (SearchTree (csrbs, _) as t) = csrbs
 
-let rec catelim_fsmstring cf rf t ss =
+let rec catelim_string_of_fsm cf rf t ss =
   match t with
 	Wrong -> "Wrong" :: ss
   | Answer r -> "Answer(" :: rf r (")" :: ss)
   | Prefix (r, t') ->
-	  "Prefix(" :: rf r ("," :: catelim_fsmstring cf rf t' (")" :: ss))
-  | Shift t' -> "Shift(" :: catelim_fsmstring cf rf t' (")" :: ss)
+	  "Prefix(" :: rf r ("," :: catelim_string_of_fsm cf rf t' (")" :: ss))
+  | Shift t' -> "Shift(" :: catelim_string_of_fsm cf rf t' (")" :: ss)
   | Alt _ -> "Alt ..." :: ss
   | Eq (c, t1, t2) ->
 	  "Eq(" ::
 		cf c
 		   ("," ::
-			  catelim_fsmstring cf rf t1
-				("," :: catelim_fsmstring cf rf t2 (")" :: ss)))
+			  catelim_string_of_fsm cf rf t1
+				("," :: catelim_string_of_fsm cf rf t2 (")" :: ss)))
 
 let rootfsm rt =
   match !rt with

@@ -48,12 +48,12 @@ module F
     let abstracttree = AAA.abstracttree
     let consolereport = Miscellaneous.consolereport
     let fmtpath = Prooftree.Tree.viewpathtopath
-    let optionstring = Optionfuns.optionstring
+    let string_of_option = Optionfuns.string_of_option
     let parentPath = Prooftree.Tree.Fmttree.parentPath
-    let posstring = Box.posstring
+    let string_of_pos = Box.string_of_pos
     let rootPath = Prooftree.Tree.Fmttree.rootPath
     let screenpositiondebug = Miscellaneous.screenpositiondebug
-    let textboxstring = Box.textboxstring
+    let string_of_textbox = Box.string_of_textbox
     let tranhitpath = Hit.tranhitpath
     let try__ = Optionfuns.try__
     let vispath = Prooftree.Tree.pathtoviewpath
@@ -76,30 +76,30 @@ module F
     let rec tranfpath state fpath =
          state &~~
          (fun (proof, _, _, _, _, showall, _) -> vispath showall proof fpath)
-    let rec ints2fmtpath f state =
+    let rec fmtpath_of_ints f state =
       let rec tr ns =
         match tranvpath state (VisPath ns) with
           Some fp -> fp
         | _ ->
             raise
               (Catastrophe_
-                 ["ints2fmtpath (displaystyle) can't translate ";
-                  pathstring (VisPath ns)])
+                 ["fmtpath_of_ints (displaystyle) can't translate ";
+                  string_of_path (VisPath ns)])
       in
       f tr
-    let rec fmtpath2ints f state =
+    let rec ints_of_fmtpath f state =
       let rec tr fp =
         match tranfpath state fp with
           Some (VisPath ns) -> ns
         | _ ->
             raise
               (Catastrophe_
-                 ["fmtpath2ints (displaystyle) can't translate ";
-                  Prooftree.Tree.Fmttree.pathstring fp])
+                 ["ints_of_fmtpath (displaystyle) can't translate ";
+                  Prooftree.Tree.Fmttree.string_of_path fp])
       in
       f tr
     let rec locateHit state pos classopt hitkind =
-      try__ (ints2fmtpath tranhitpath state)
+      try__ (fmtpath_of_ints tranhitpath state)
         (ministate state &~~ AAA.Screendraw.locateHit pos classopt hitkind)
     let rec notifyselect state selopt sels =
       match ministate state with
@@ -136,9 +136,9 @@ module F
       let plan = layout (abstracttree vproof) in
       if !screenpositiondebug then
         consolereport
-          ["looking for "; optionstring Prooftree.Tree.Fmttree.pathstring goal;
-           " (in visible proof that's "; optionstring pathstring vgoal;
-           ")"; " target "; optionstring Prooftree.Tree.Fmttree.pathstring target];
+          ["looking for "; string_of_option Prooftree.Tree.Fmttree.string_of_path goal;
+           " (in visible proof that's "; string_of_option string_of_path vgoal;
+           ")"; " target "; string_of_option Prooftree.Tree.Fmttree.string_of_path target];
       match oldstate with
         None ->
           if !screenpositiondebug then
@@ -150,13 +150,13 @@ module F
           let rec doit oldpoint newpoint =
             if !screenpositiondebug then
               consolereport
-                ["gotcha "; posstring oldpoint; "; "; posstring newpoint];
+                ["gotcha "; string_of_pos oldpoint; "; "; string_of_pos newpoint];
             saveanddraw proof (oldpos +->+ oldpoint +<-+ newpoint) 
                         vgoal vproof plan
           in
           let rec findtarget target =
             if !screenpositiondebug then
-              consolereport ["tracking "; optionstring Prooftree.Tree.Fmttree.pathstring target];
+              consolereport ["tracking "; string_of_option Prooftree.Tree.Fmttree.string_of_path target];
             match
               vpath oldshowall oldproof target,
               vpath !showallproofsteps proof target
@@ -199,7 +199,7 @@ module F
       let plan = layout (abstracttree vproof) in
       match targetbox (try__ deVis vgoal) plan with
         Some box ->
-          saveanddraw proof (postoinclude (textbox2box box) plan) vgoal vproof
+          saveanddraw proof (postoinclude (box_of_textbox box) plan) vgoal vproof
             plan
       | None -> refresh proof vgoal vproof plan
     and refreshProof state () =

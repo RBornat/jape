@@ -42,5 +42,5 @@ val unifyeqtermsq : facts -> term -> term -> answer
 
 val factsdebug : bool ref
 
-val factsstring : facts -> string
+val string_of_facts : facts -> string
 

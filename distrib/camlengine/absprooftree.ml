@@ -38,7 +38,7 @@ let explodeCollection = Termfuns.explodeCollection
 let isstructurerule   = Thing.isstructurerule
 let proved            = Proofstore.proved
 let seqexplode        = Sequent.seqexplode
-let symbolstring      = Symbol.symbolstring
+let string_of_symbol      = Symbol.string_of_symbol
 
 type structurerule = Thing.structurerule
  and tree          = Prooftree.Tree.Vistree.prooftree
@@ -70,13 +70,13 @@ let tip tree ns =
   try Some (findTip tree (VisPath ns)) with
     _ -> None
 let comma () =
-  Text [Syllable (TermFont, symbolstring commasymbol ^ " ")]
+  Text [Syllable (TermFont, string_of_symbol commasymbol ^ " ")]
 let turnstile st = Text [Syllable (TermFont, (" " ^ st) ^ " ")]
-let reason2text why = Text [Syllable (ReasonFont, why)]
-let reason2fontNstring why = ReasonFont, why
-let element2text elementstring e =
-  Text [Syllable (TermFont, elementstring e)]
-let term2text termstring t = Text [Syllable (TermFont, termstring t)]
+let text_of_reason why = Text [Syllable (ReasonFont, why)]
+let fontNstring_of_reason why = ReasonFont, why
+let text_of_element string_of_element e =
+  Text [Syllable (TermFont, string_of_element e)]
+let text_of_term string_of_term t = Text [Syllable (TermFont, string_of_term t)]
 let validhyp t el ns = Vistree.validhyp t el (VisPath ns)
 let validconc t el ns = Vistree.validconc t el (VisPath ns)
 let stillopen t = Vistree.stillopen t <.> (fun v->VisPath v)

@@ -77,13 +77,13 @@ type 'a sel =
   | ReasonSel of 'a
 
 val fhitpath : 'a fhit -> 'a option
-val fhitstring : ('a -> string) -> 'a fhit -> string
-val hitkindstring : hitkind -> string
+val string_of_fhit : ('a -> string) -> 'a fhit -> string
+val string_of_hitkind : hitkind -> string
 val hitpath : 'a hit -> 'a option
-val hitstring : ('a -> string) -> 'a hit -> string
+val string_of_hit : ('a -> string) -> 'a hit -> string
 val selpath : 'a sel -> 'a option
-val selstring : ('a -> string) -> 'a sel -> string
-val sidestring : side -> string
+val string_of_sel : ('a -> string) -> 'a sel -> string
+val string_of_side : side -> string
 val tranfhitpath : ('a -> 'b) -> 'a fhit -> 'b fhit
 val tranhitpath : ('a -> 'b) -> 'a hit -> 'b hit
 val transelpath : ('a -> 'b) -> 'a sel -> 'b sel

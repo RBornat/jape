@@ -85,25 +85,25 @@ let box v = Box v
 let textbox v = Textbox v
 
 (* and even let them see them *)
-let rec pairstring ((x : int), (y : int)) =
+let rec string_of_pair ((x : int), (y : int)) =
   ((("(" ^ string_of_int x) ^ ",") ^ string_of_int y) ^ ")"
-let rec triplestring ((w : int), (x : int), (y : int)) =
+let rec string_of_triple ((w : int), (x : int), (y : int)) =
   ((((("(" ^ string_of_int w) ^ ",") ^ string_of_int x) ^ ",") ^ string_of_int y) ^
     ")"
 
-let rec posstring = fun (Pos p) -> "Pos" ^ pairstring p
+let rec string_of_pos= fun (Pos p) -> "Pos" ^ string_of_pair p
 
-let rec sizestring = fun (Size p) -> "Size" ^ pairstring p
+let rec string_of_size = fun (Size p) -> "Size" ^ string_of_pair p
 
-let rec textsizestring = fun (Textsize t) -> "Textsize" ^ triplestring t
+let rec string_of_textsize = fun (Textsize t) -> "Textsize" ^ string_of_triple t
 
-let rec boxstring =
+let rec string_of_box =
   fun (Box (p, s)) ->
-    ((("Box(" ^ posstring p) ^ ",") ^ sizestring s) ^ ")"
+    ((("Box(" ^ string_of_pos p) ^ ",") ^ string_of_size s) ^ ")"
 
-let rec textboxstring =
+let rec string_of_textbox =
   fun (Textbox (p, s)) ->
-    ((("Textbox(" ^ posstring p) ^ ",") ^ textsizestring s) ^ ")"
+    ((("Textbox(" ^ string_of_pos p) ^ ",") ^ string_of_textsize s) ^ ")"
 
 (* One thing we often want to do is to add together two text sizes, as if
  * putting two texts one after the other on the same line.
@@ -134,9 +134,9 @@ let rec ( +|-|+ ) =
     Textbox (Pos (minx, y), Textsize (maxx - minx, y - miny, maxy - y))
 
 (* and we have to convert from textsize to size, textbox to box, but never the other way *)
-let rec textsize2size = fun (Textsize (w, a, d)) -> Size (w, a + d)
+let rec size_of_textsize = fun (Textsize (w, a, d)) -> Size (w, a + d)
 
-let rec textbox2box =
+let rec box_of_textbox =
   fun (Textbox (Pos (x, y), Textsize (w, a, d))) ->
     Box (Pos (x, y - a), Size (w, a + d))
 
@@ -152,14 +152,14 @@ let rec withinY =
 
 let rec within (p, b) = withinX (p, b) && withinY (p, b)
 
-let rec withintb (p, tb) = within (p, textbox2box tb)
+let rec withintb (p, tb) = within (p, box_of_textbox tb)
 
 (* find whether a box is within another box *)
 let rec entirelywithin (b1, b2) =
   within (topleft b1, b2) && within (botright b1, b2)
 
 let rec entirelywithintb (b1, b2) =
-  entirelywithin (textbox2box b1, textbox2box b2)
+  entirelywithin (box_of_textbox b1, box_of_textbox b2)
 
 (* compute enclosing (or enclosed box) with Outset; shifted box with Offset *)
 let rec bOutset =

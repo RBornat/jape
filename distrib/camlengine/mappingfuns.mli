@@ -52,9 +52,9 @@ val rawdom : ('a, 'b) mapping -> 'a list
 val rawran : ('a, 'b) mapping -> 'b list
 val remapping : ('a * 'b -> 'c * 'd) * ('a, 'b) mapping -> ('c, 'd) mapping
 
-val catelim_mappingstring :
+val catelim_string_of_mapping :
   ('a -> string list -> string list) ->
     ('b -> string list -> string list) -> string -> ('a, 'b) mapping ->
     string list -> string list
-val mappingstring :
+val string_of_mapping :
   ('a -> string) -> ('b -> string) -> ('a, 'b) mapping -> string

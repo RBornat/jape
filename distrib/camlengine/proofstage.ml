@@ -28,7 +28,7 @@
 type proofstage  = Complete | InProgress
 type proofstatus = { proved: bool; disproved: bool } (* you can be both, in an unsound logic *)
 
-let rec proofstage2word =
+let rec word_of_proofstage =
   function
     Complete   -> "PROOF"
   | InProgress -> "CURRENTPROOF"

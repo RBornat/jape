@@ -64,7 +64,7 @@ let rec parseidclass prev =
       raise
         (ParseError_
            ["BAG, LIST, FORMULA, VARIABLE, CONSTANT, NUMBER or STRING ";
-            "expected "; prev; " -- found "; symbolstring s])
+            "expected "; prev; " -- found "; string_of_symbol s])
 let rec unparseidclass =
   function
     FormulaClass -> "FORMULA"
@@ -74,4 +74,4 @@ let rec unparseidclass =
   | StringClass -> "STRING"
   | BagClass c -> "BAG " ^ unparseidclass c
   | ListClass c -> "LIST " ^ unparseidclass c
-  | c -> idclassstring c
+  | c -> string_of_idclass c

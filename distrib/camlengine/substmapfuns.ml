@@ -107,8 +107,8 @@ and restrictsubstmap facts vts bs ss =
   let rec res f r =
     if !substdebug then
       consolereport
-        ["restrictsubstmap "; vtsstring vts; " "; termliststring bs; " ";
-         termliststring ss; " => "; f ()];
+        ["restrictsubstmap "; string_of_vts vts; " "; string_of_termlist bs; " ";
+         string_of_termlist ss; " => "; f ()];
     r
   in
   let (ys, ns, ms) = vtsplit facts vts bs in
@@ -129,7 +129,7 @@ and restrictsubstmap facts vts bs ss =
                  (substmapran ns))
             bs)
     then
-      res (fun _ -> vtsstring ns) (Some ns)
+      res (fun _ -> string_of_vts ns) (Some ns)
     else res (fun _ -> "failure cos of unsafeity (sic)") None
   else res (fun _ -> "failure cos of uncertainty") None
 
@@ -148,8 +148,8 @@ and varoccursinq facts v =
         if !substdebug then
           begin
             consolereport
-              ["varoccursinq "; factsstring facts; " "; termstring v; " ";
-               argstring _P; " => "; answerstring r];
+              ["varoccursinq "; string_of_facts facts; " "; string_of_term v; " ";
+               string_of_termarg _P; " => "; string_of_answer r];
             r
           end
         else r
@@ -216,8 +216,8 @@ and simplifySubstAnyway facts vts =
 and simpres vts =
   fun _P r ->
     consolereport
-      ["simplifySubst "; " "; termstring (Subst (None, true, _P, vts));
-       " => "; optionstring termstring r]
+      ["simplifySubst "; " "; string_of_term (Subst (None, true, _P, vts));
+       " => "; string_of_option string_of_term r]
 
 and simplifySubst a1 a2 a3 =
   match a1, a2, a3 with
@@ -309,6 +309,6 @@ and simplifysubstmap facts =
     if !substdebug then
       consolereport
         ["simplifysubstmap "; " ";
-         termstring (Subst (None, true, _P, vts)); " => ";
-         optionstring vtsstring r];
+         string_of_term (Subst (None, true, _P, vts)); " => ";
+         string_of_option string_of_vts r];
     r

@@ -103,7 +103,7 @@ let createdbugfile = Miscellaneous.create_reportfile
       (List.map Proviso.provisoactual (Cxtfuns.provisos cxt))
 *)
 
-let elementstring = Termstring.elementstring
+let string_of_element = Termstring.string_of_element
 let explodeCollection = Termfuns.explodeCollection
 let facts = Facts.facts
 let get_oplist = Symbol.get_oplist
@@ -121,7 +121,7 @@ let initGUI () =
 
 let isCutStep = Prooftree.Tree.isCutStep
 let mkvisproviso = Proviso.mkvisproviso
-let optionstring = Optionfuns.optionstring
+let string_of_option = Optionfuns.string_of_option
 let ( |~ ) = Optionfuns.( |~ )
 let ( |~~ ) = Optionfuns.( |~~ )
 
@@ -138,14 +138,14 @@ let parseTermCOMMAList =
          
 let proofsdone = Runproof.proofsdone
 let provisoactual = Proviso.provisoactual
-let provisostring = Proviso.provisostring
+let string_of_proviso = Proviso.string_of_proviso
 let provisovisible = Proviso.provisovisible
 let sameresource = Termfuns.sameresource
 let seektipselection = Miscellaneous.seektipselection
 let showInputError = Symbol.showInputError
-let string2paragraph = Paragraph.string2paragraph
-let tacticstring = Tactic.tacticstring
-let termstring = Termstring.termstring
+let paragraph_of_string = Paragraph.paragraph_of_string
+let string_of_tactic = Tactic.string_of_tactic
+let string_of_term = Termstring.string_of_term
 let try__ = Optionfuns.try__
 let _The = Optionfuns._The
 let _Title = Version._Title
@@ -280,7 +280,7 @@ let mustredisplay env vals =
     match
 	((nenv <@> s) &~~ (fun n -> Japeenv.(<@>) env n))
     with
-      Some t -> Some (termstring t)
+      Some t -> Some (string_of_term t)
     | None -> None
   in
   let changed s =
@@ -300,7 +300,7 @@ let disproof_finished =
       let res =
         disproofstate_countermodel state && disproofstate_conclusive state
       in
-      (* consolereport ["disproof_finished ", disproofstatestring state, " => ", string_of_int res]; *)
+      (* consolereport ["disproof_finished ", string_of_disproofstate state, " => ", string_of_int res]; *)
       res
   | None -> false
 
@@ -310,8 +310,8 @@ type 'a histrec = { now : 'a; pasts : 'a list; futures : 'a list }
 type 'a hist = Hist of 'a histrec
 
 let string_of_hist f (Hist h) =
-  "Hist{now=" ^ f (h.now) ^ "; pasts=" ^ bracketedliststring f ";" h.pasts ^
-  "; futures=" ^ bracketedliststring f ";" h.futures
+  "Hist{now=" ^ f (h.now) ^ "; pasts=" ^ bracketedstring_of_list f ";" h.pasts ^
+  "; futures=" ^ bracketedstring_of_list f ";" h.futures
 
 type winhistrec = 
       { changed : bool; proofhist : proofstate hist;
@@ -678,13 +678,13 @@ let tryLayout displaystate c pathkind hist =
 
 let recorddisplayvars env =
   try 
-    (fun s -> termstring (_The (Japeenv.(<@>) env s))) <* displayvars
+    (fun s -> string_of_term (_The (Japeenv.(<@>) env s))) <* displayvars
   with
     _The_ ->
       raise
         (Catastrophe_
            ["one or more of ";
-            bracketedliststring string_of_name ", " displayvars;
+            bracketedstring_of_list string_of_name ", " displayvars;
             " isn't set!"])
 
 let setdisplayvars env vals =
@@ -861,7 +861,7 @@ and addproofs
         in
         let state_cxt = selfparentprovisos cxt in
         let facts = facts (provisos state_cxt) state_cxt in
-        let disproof = model2disproofstate facts tree disproofopt in
+        let disproof = disproofstate_of_model facts tree disproofopt in
         Japeserver.openproof heading num;
         Pinf
           {title = name, index; proofnum = num; displayvarsvals = recorddisplayvars env;
@@ -892,7 +892,7 @@ and biggestproofnum name pinfs =
 and endproof num name st dis =
   let proved = isproven st in
   let disproved = disproof_finished dis in
-  Runproof.addproof showAlert uncurried_screenquery name proved st disproved (disproofstate2model dis) &&
+  Runproof.addproof showAlert uncurried_screenquery name proved st disproved (model_of_disproofstate dis) &&
   begin
     Japeserver.closeproof num;
     markproof (parseablestring_of_name name) (proved, disproved);
@@ -915,7 +915,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   in
   let addnewconjecture panel text =
     let text = respace text in
-    let getpara = string2paragraph showAlert uncurried_screenquery in
+    let getpara = paragraph_of_string showAlert uncurried_screenquery in
     let (text, para) =
       (* praps it's just a conjecture *)
       try let t = "THEOREM INFER " ^ text in t, getpara t with
@@ -972,7 +972,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         fun (Pinf {title = t, _; hist = hist}) ->
           let (Proofstate {cxt = cxt; tree = tree; givens = givens}) = winhist_proofnow hist in
           saveproof sfile t Proofstage.InProgress tree (pf (provisos cxt)) givens
-            (disproofstate2model (winhist_disproofnow hist))
+            (model_of_disproofstate (winhist_disproofnow hist))
       in
       Proofstore.saveproofs sfile; List.map f pinfs
     in
@@ -1132,7 +1132,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           addproofs false env [name, withgivens (withcxt state cxt') givens, None] pinfs
         with
           Verifyproviso_ p ->
-            showAlert [kind; " "; string_of_name name; " has unsatisfiable proviso "; provisostring p];
+            showAlert [kind; " "; string_of_name name; " has unsatisfiable proviso "; string_of_proviso p];
             default
       in
       match freshThingtoprove name with
@@ -1194,7 +1194,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       let f, ts = Termfuns.explodeApp false term in
       match Name.nameopt_of_term f with
         Some name -> name, ts
-        | _       -> raise (Catastrophe_ ["name in "; action; " is "; termstring f])
+        | _       -> raise (Catastrophe_ ["name in "; action; " is "; string_of_term f])
     in
     
     let doApply action comm =
@@ -1304,7 +1304,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             (* Evaluate a variable name; construct a string for the interface *)
             let str =
               match Japeenv.(<@>) env (name_of_string name) with
-                Some t -> termstring t
+                Some t -> string_of_term t
               | None -> ""
             in
             Japeserver.showfile ((respace interfacecommand ^ " ") ^ str);
@@ -1410,7 +1410,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                    | []             -> []
                    | _  -> raise (Catastrophe_
 				    ["bad command (odd number of arguments): worldselect ";
-				     bracketedliststring (fun s -> s) "," cs])
+				     bracketedstring_of_list (fun s -> s) "," cs])
                  in
                  Disproof.worldselect d (pair cs))
              disproofmove
@@ -1440,18 +1440,18 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                           if eqseqs (seq, seq') then
                             if issimplestuniverse (disproofstate_universe state)
                             then
-                              (showAlert ["You are already disproving "; seqstring seq];
+                              (showAlert ["You are already disproving "; string_of_seq seq];
                                None)
                             else 
-                            if screenquery ["You are already disproving "; seqstring seq; 
+                            if screenquery ["You are already disproving "; string_of_seq seq; 
                                             " - do you want to wipe clean the world(s) you have built?"]
                                            "Wipe" "Cancel" 1
                             then doit ()
                             else None
                           else 
-                          if screenquery ["You are disproving "; seqstring seq;
+                          if screenquery ["You are disproving "; string_of_seq seq;
                                           " - do you want to replace it with ";
-                                          seqstring seq'; "?"]
+                                          string_of_seq seq'; "?"]
                                          "Replace" "Cancel" 1
                           then doit ()
                           else None
@@ -1578,7 +1578,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                         val dNdm = draganddropmapping cxt
                         fun targets d =
                           nj_fold (fn ((s,t),ts) => 
-                                  if sameresource (s,d) then elementstring t::ts else ts
+                                  if sameresource (s,d) then string_of_element t::ts else ts
                                ) dNdm []
                         fun List.concat (ts:string list,rs) = (listsub op= ts rs)@rs
                     in
@@ -1696,7 +1696,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             then
               (let newstate = doProve name in
                if ts=[] then newstate
-               else processcommand newstate ("apply" :: List.map (tacticstring <.> Tactic.transTactic) ts))
+               else processcommand newstate ("apply" :: List.map (string_of_tactic <.> Tactic.transTactic) ts))
             else default
             
         | "reset", [] ->
@@ -1820,7 +1820,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             else default
             
         | "setfonts", fontnames ->
-            (* let _ = consolereport ["font names now "; bracketedliststring (fun s -> s) "; " fontnames] in *)
+            (* let _ = consolereport ["font names now "; bracketedstring_of_list (fun s -> s) "; " fontnames] in *)
             (Japeserver.setFontNames (List.map Stringfuns.disQuote fontnames); default)
             
         | "closeproof", [nstring] ->
@@ -1897,10 +1897,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     match (!mbcache <@> var) with
       Some r ->
         if !r = setting then ()
-        else begin notify (termstring setting, true); r := setting end
+        else begin notify (string_of_term setting, true); r := setting end
     | None ->
         mbcache := (!mbcache ++ (var |-> ref setting));
-        notify (termstring setting, true)
+        notify (string_of_term setting, true)
   in
   (* for the time being, until there is effective proof/disproof focus, we have too many buttons *)
   let administer displayopt =
@@ -1918,7 +1918,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     (* this is lazy -- see comment above *)
     begin try
       Japeserver.settextselectionmode
-        (termstring
+        (string_of_term
            (_The (Japeenv.(<@>) env (name_of_string "textselectionmode"))))
     with
       None_ ->
@@ -1927,8 +1927,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     (* explicit block so that profiler gives more helpful information *)
     let command = getCommand displayopt in
     setComment [];
-    (* consolereport (("in administer; command is " :: commandstring command) @ [ "; pinfs are ",
-            bracketedliststring (string_of_int:int->string) ","
+    (* consolereport (("in administer; command is " :: string_of_command command) @ [ "; pinfs are ",
+            bracketedstring_of_list (string_of_int:int->string) ","
               ((fn Pinf{proofnum,...}=>proofnum)  <* pinfs)
        ]);
      *)
@@ -1947,17 +1947,17 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                   raise
                     (Catastrophe_
                        ["can't follow selpath (commands): ";
-                        selstring fmtpathstring sel])
+                        string_of_sel string_of_fmtpath sel])
             in
             let trymatch sense p =
               Doubleclick.matchdoubleclick sense (mkSeq p)
             in
             let hypword hs ss =
               match hs with
-                [h] -> "hypothesis " :: elementstring h :: ss
+                [h] -> "hypothesis " :: string_of_element h :: ss
               | _ ->
                   "hypotheses " ::
-                    liststring2 elementstring ", " "and " hs :: ss
+                    liststring2 string_of_element ", " "and " hs :: ss
             in
             let bang f = "double-click is not defined on " :: f () in
             let comm sense ps ss =
@@ -1974,18 +1974,18 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                          [h] ->
                            [st, [], [el]; st, [h], [el]],
                            (fun _ ->
-                              ["conclusion "; elementstring el; " with no selected hypothesis, or with hypothesis ";
-                               elementstring h])
+                              ["conclusion "; string_of_element el; " with no selected hypothesis, or with hypothesis ";
+                               string_of_element h])
                        | _ ->
                            [st, [], [el]],
                            (fun _ ->
-                              ["conclusion "; elementstring el;
+                              ["conclusion "; string_of_element el;
                                " with no selected hypothesis"])
                        end
                    | _ ->
                        [st, hyps, [el]],
                        (fun _ ->
-                          "conclusion " :: elementstring el :: " and " ::
+                          "conclusion " :: string_of_element el :: " and " ::
                             hypword hyps []))
               | HypHit (_, el) ->
                   DClickHyp,
@@ -1997,7 +1997,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                            (fun _ ->
                               hypword hyps
                                 [" with no selected conclusion, or with conclusion ";
-                                 elementstring g])
+                                 string_of_element g])
                        | _ ->
                            [st, hyps, []],
                            (fun _ ->
@@ -2009,12 +2009,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        (fun _ ->
                           hypword hyps
                             [" with selected conclusion ";
-                             elementstring c]))
+                             string_of_element c]))
               | _ -> raise (Catastrophe_ ["ambiguous doubleclick (commands)"])
             in
             (match comm sense seqs errf with
                Some c ->
-                 let c' = [tacticstring c] in
+                 let c' = [string_of_tactic c] in
                  inside c'
                    (fun displaystate ->
                       showproof <.> 
@@ -2028,7 +2028,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               (fun displaystate ->
                  showproof <.> tryLayout displaystate ExpandContractCommand LayoutPath)
 
-        | _ -> raise (Catastrophe_ ["funny hit (commands): "; commandstring command])
+        | _ -> raise (Catastrophe_ ["funny hit (commands): "; string_of_command command])
   in
   (* assignment to displayvars can force redisplay *)
   let nextargs =

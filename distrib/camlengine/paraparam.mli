@@ -37,5 +37,5 @@ type paraparam = Objectparam      of (vid * idclass)
 val paramidbits : paraparam -> vid * idclass
 val paramvar    : paraparam -> term
 
-val catelim_paraparamstring : paraparam -> string list -> string list
-val paraparamstring         : paraparam -> string
+val catelim_string_of_paraparam : paraparam -> string list -> string list
+val string_of_paraparam         : paraparam -> string

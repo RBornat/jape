@@ -48,10 +48,10 @@ let matchdebug = ref false
  
 type matchresult =
   Certain of (term, term) mapping | Uncertain of (term, term) mapping
-let rec matchresultstring =
+let rec string_of_matchresult =
   function
-    Certain e -> "Certain " ^ mappingstring termstring termstring e
-  | Uncertain e -> "Uncertain " ^ mappingstring termstring termstring e
+    Certain e -> "Certain " ^ string_of_mapping string_of_term string_of_term e
+  | Uncertain e -> "Uncertain " ^ string_of_mapping string_of_term string_of_term e
 let rec env =
   function
     Certain e -> e
@@ -65,10 +65,10 @@ let rec ( +++ ) =
 let rec matchtermvars matchbra ispatvar pat term mrs =
   let matchterm = matchtermvars matchbra ispatvar in
   let rec res' s p t rs =
-    let rec mm es = bracketedliststring matchresultstring "," es in
+    let rec mm es = bracketedstring_of_list string_of_matchresult "," es in
     if !matchdebug then
       consolereport
-        [s; "matchterm "; argstring p; " "; argstring t; " "; mm mrs;
+        [s; "matchterm "; string_of_termarg p; " "; string_of_termarg t; " "; mm mrs;
          " => "; mm rs];
     rs
   in
@@ -113,7 +113,7 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
         matchterm tpat tterm mrs
     | _ -> []
   in
-  let rec tc k es = termstring (Collection (None, k, es)) in
+  let rec tc k es = string_of_term (Collection (None, k, es)) in
   (* only temporary *)
                 
   let rec bagmatch epats eterms mrs =

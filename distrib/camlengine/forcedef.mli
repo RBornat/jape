@@ -37,10 +37,10 @@ type forcedef = ForcePrim of term
               | ForceAll of (term * term list * forcedef)
               | ForceSome of (term * term list * forcedef)
 
-val forcedef2term: forcedef -> term option (* really, is it ForcePrim? *)
+val term_of_forcedef: forcedef -> term option (* really, is it ForcePrim? *)
 
-val catelim_forcedefstring : forcedef -> string list -> string list
-val forcedefstring : forcedef -> string
+val catelim_string_of_forcedef : forcedef -> string list -> string list
+val string_of_forcedef : forcedef -> string
 
 val existsinforcedef : (term -> bool) -> forcedef -> bool
 val findinforcedef : (term -> 'a option) -> forcedef -> 'a option
@@ -53,5 +53,5 @@ and world = World of (coordinate * coordinate list * term list)
 
 and model = Model of world list
 
-val catelim_modelstring : (seq * model) option -> string list -> string list
+val catelim_string_of_model : (seq * model) option -> string list -> string list
 val parsemodel : unit -> (seq * model) option

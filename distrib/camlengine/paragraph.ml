@@ -52,11 +52,11 @@ let atoi = Miscellaneous.atoi
 let autoAdditiveLeft = Miscellaneous.autoAdditiveLeft
 let consolereport = Miscellaneous.consolereport
 let enQuote = Stringfuns.enQuote
-let liststring = Listfuns.liststring
-let opt2bool = Optionfuns.opt2bool
+let string_of_list = Listfuns.string_of_list
+let bool_of_opt = Optionfuns.bool_of_opt
 let readintasarg = Tactic.readintasarg
 let stripextrabag = Tactic.stripextrabag
-let tacticstring = Tactic.tacticstring
+let string_of_tactic = Tactic.string_of_tactic
 let _The = Optionfuns._The
 let transTactic = Tactic.transTactic
 let uncurry2 = Miscellaneous.uncurry2
@@ -122,7 +122,7 @@ let rec currsymb_as_name () =
     Some s -> s
   | None   ->
       raise (ParseError_
-               ["Identifier or string expected; found "; smlsymbolstring sy])
+               ["Identifier or string expected; found "; debugstring_of_symbol sy])
 
 let currsymb_as_string = string_of_name <.> currsymb_as_name
 
@@ -197,7 +197,7 @@ and parseformal mustdecl =
     Matchinparseformal s ->
       raise
         (ParseError_
-           ["Expecting "; s; ", found "; smlsymbolstring (currsymb ())])
+           ["Expecting "; s; ", found "; debugstring_of_symbol (currsymb ())])
 
 let rec itisaparamlist () =
   match currsymb () with
@@ -232,7 +232,7 @@ let rec parsenovelsymb message =
   let sy = currnovelsymb () in
   let rec bang () =
     raise
-      (ParseError_ [smlsymbolstring sy; " shouldn't appear "; message])
+      (ParseError_ [debugstring_of_symbol sy; " shouldn't appear "; message])
   in
   match sy with
     ID (s, _) -> scansymb (); s
@@ -255,7 +255,7 @@ let rec parseFixitySYMB () = parsenovelsymb "in a Fixity directive"
 
 let rec acceptpreviousnovelsymb ok message =
   let newsy = currnovelsymb () in
-  if ok newsy then begin scansymb (); symbolstring newsy end
+  if ok newsy then begin scansymb (); string_of_symbol newsy end
   else parsenovelsymb message
 
 let rec parseNUM () =
@@ -263,12 +263,12 @@ let rec parseNUM () =
     NUM n -> scansymb (); atoi n
   | s ->
       raise
-        (ParseError_ ["Expecting a number, found "; smlsymbolstring s])
+        (ParseError_ ["Expecting a number, found "; debugstring_of_symbol s])
 
 let rec parseClassID () =
   match currnovelsymb () with
     ID (s, _) -> scansymb (); s
-  | s -> raise (ParseError_ ["Expecting an identifier, found "; smlsymbolstring s])
+  | s -> raise (ParseError_ ["Expecting an identifier, found "; debugstring_of_symbol s])
 
 let rec processKEYBOARD report query =
   let _ = ignore _ISWORD in
@@ -276,7 +276,7 @@ let rec processKEYBOARD report query =
     parseUnsepList canstartnovelsymb
       (fun _ -> let r = currnovelsymb () in scansymb (); r)
   in
-  set_oplist ((symbolstring <* symbols))
+  set_oplist ((string_of_symbol <* symbols))
 
 let rec processClassDecl report query class__ =
   let rec doit s =
@@ -340,7 +340,7 @@ let processPushSyntax () =
       Symbol.pushSyntax s; Termparse.pushSyntax s; Sequent.pushSyntax s
   | s        ->
       raise
-        (ParseError_ ["PUSHSYNTAX expects a string; found: "; smlsymbolstring s])
+        (ParseError_ ["PUSHSYNTAX expects a string; found: "; debugstring_of_symbol s])
 
 let processPopSyntax () =
   Symbol.popSyntax(); Termparse.popSyntax(); Sequent.popSyntax()
@@ -374,8 +374,8 @@ let rec processSubstfix report query =
     | _ ->
         raise
           (ParseError_
-             ["in SUBSTFIX definition, one of "; termstring t1; " and ";
-              termstring t2;
+             ["in SUBSTFIX definition, one of "; string_of_term t1; " and ";
+              string_of_term t2;
               " must be CLASS VARIABLE, and the other CLASS FORMULA"])
 
 let rec parseUntilSHYID parser__ =
@@ -433,10 +433,10 @@ let rec processBind () =
     raise
       (ParseError_
          ["Component names badly chosen in BIND directive. ";
-          "Bound variables are "; liststring termstring "," vars;
-          "; scopes are "; liststring termstring "," scope;
-          "; names in formula are "; liststring termstring "," varsinbody;
-          "; formula is "; termstring body])
+          "Bound variables are "; string_of_list string_of_term "," vars;
+          "; scopes are "; string_of_list string_of_term "," scope;
+          "; names in formula are "; string_of_list string_of_term "," varsinbody;
+          "; formula is "; string_of_term body])
   else
     addbindingdirective
       (vars, scope, slosh (slosh (varsinbody, vars), scope), body)
@@ -461,19 +461,19 @@ let rec processPatchAlert () =
                        raise
                          (ParseError_
                             ["bracket expected after alert spec in PATCHALERT, found ";
-                             symbolstring (currsymb ())])); r)
+                             string_of_symbol (currsymb ())])); r)
               end
             else
               raise
                 (ParseError_
                    ["comma or bracket expected after button label in PATCHALERT, found ";
-                    symbolstring (currsymb ())])
+                    string_of_symbol (currsymb ())])
         end
     | _ ->
         raise
           (ParseError_
              ["button label expected in PATCHALERT, found ";
-              symbolstring (currsymb ())])
+              string_of_symbol (currsymb ())])
   and parsealertspec _ =
     match currsymb () with
       STRING m ->
@@ -490,7 +490,7 @@ let rec processPatchAlert () =
             (ParseError_
                ["string, HowToSelect, HowToFormulaSelect or HowToDrag \
                                       expected in alert spec, found ";
-                symbolstring s])
+                string_of_symbol s])
         in
         match stringfromsymbol s with
           Some "HowToTextSelect" -> scansymb (); Alert.HowToTextSelect
@@ -524,7 +524,7 @@ let rec processPatchAlert () =
       raise
         (ParseError_
            ["string expected after PATCHALERT, found ";
-            symbolstring (currsymb ())])
+            string_of_symbol (currsymb ())])
 
 let rec parseAntecedents starter =
   let r = parseList starter (fun _ -> parseSeq ()) (SHYID "AND") in 
@@ -558,7 +558,7 @@ let rec parseRadioButton report query con =
         SHYID "END" -> scansymb (); con (var, entries, defval)
       | s           ->
           showInputError report
-            ["found symbol "; smlsymbolstring s;
+            ["found symbol "; debugstring_of_symbol s;
              " in RADIOBUTTON directive - expecting END"];
           raise Use_
 
@@ -600,21 +600,21 @@ let rec checkvalidruleheading report objkind wherekind =
           showInputError report
             [place; " "; objkind; " "; string_of_name name; " "; has; " ";
              add_an_s "variable" (List.length vs > 1); " ";
-             liststring2 termstring ", " " and " vs;
+             liststring2 string_of_term ", " " and " vs;
              " which ";
              (if List.length vs =1 then "isn't" else "aren't"); " in the "; wherekind; "."]
       | _, [] ->
           showInputError report
             [place; " "; objkind; " "; string_of_name name; " "; has;
              " duplicate "; add_an_s "variable" (List.length vs > 1); " ";
-             liststring2 termstring ", " " and " vs; "."]
+             liststring2 string_of_term ", " " and " vs; "."]
       | dups, rogues ->
           showInputError report
             [place; " "; objkind; " "; string_of_name name; " "; has;
              " duplicate "; add_an_s "variable" (List.length dups > 1); " ";
-             liststring2 termstring ", " " and " dups; ", and also ";
+             liststring2 string_of_term ", " " and " dups; ", and also ";
              add_an_s "variable" (List.length rogues > 1); " ";
-             liststring2 termstring ", " " and " rogues;
+             liststring2 string_of_term ", " " and " rogues;
              " which aren't in the "; wherekind; "."]
       end;
       raise Use_
@@ -710,7 +710,7 @@ and processSemanticTurnstileSpec () =
         raise
           (ParseError_
              ["turnstile expected after SEMANTICTURNSTILE: found ";
-              symbolstring sy])
+              string_of_symbol sy])
   in
   let _ = ignore _ISWORD in
   let sem =
@@ -748,13 +748,13 @@ and parseUnnamedRule report nopt axiom =
          Some n -> n
        | None ->
            match antes, conseq with
-             [], _ -> seqstring conseq
+             [], _ -> string_of_seq conseq
            | _ ->
                implode
                  ["FROM ";
                   implode
-                    (interpolate " AND " ((seqstring <* antes)));
-                  " INFER "; seqstring conseq])
+                    (interpolate " AND " ((string_of_seq <* antes)));
+                  " INFER "; string_of_seq conseq])
   in
   let heading = RuleHeading (name, params, provisos) in
   let _ =
@@ -782,7 +782,7 @@ and parseParaList report query =
           raise
             (ParseError_
                ["Error: expecting symbol beginning paragraph; found ";
-                smlsymbolstring sy])
+                debugstring_of_symbol sy])
 
 and parseMenu report query mproof =
   let parastarters =
@@ -831,7 +831,7 @@ and parseMenu report query mproof =
       | SHYID "SEPARATOR" -> scansymb (); Menustuff Mseparator
       | s ->
           showInputError report
-            ["internal error in parseMenu: found "; smlsymbolstring s];
+            ["internal error in parseMenu: found "; debugstring_of_symbol s];
           raise Use_
   in
   let mlabel = currsymb_as_name () in
@@ -846,7 +846,7 @@ and parseMenu report query mproof =
     SHYID "END" -> scansymb (); m
   | s ->
       showInputError report
-        ((["found symbol "; smlsymbolstring s; " in menu description: ";
+        ((["found symbol "; debugstring_of_symbol s; " in menu description: ";
            "expecting one of "] @
             interpolate ", " starters) @
            [" or END"]);
@@ -854,10 +854,10 @@ and parseMenu report query mproof =
 
 and parseConjectureEntry report =
   try match name_of_stringsymbol (currsymb()) with
-        Some _ -> tacticstring (transTactic (asTactic parseTerm EOF))
+        Some _ -> string_of_tactic (transTactic (asTactic parseTerm EOF))
       | None   ->
           raise (ParseError_ ["conjecture name expected in ENTRY; found ";
-                              symbolstring (currsymb())])
+                              string_of_symbol (currsymb())])
   with ParseError_ ss -> showInputError report ss; raise Use_
   
 and parseConjecturePanel report query =
@@ -866,7 +866,7 @@ and parseConjecturePanel report query =
     ["THEOREM"; "THEOREMS"; "DERIVED"; "PROOF"; "CURRENTPROOF"]
 
 and parseTacticEntry report =
-  try tacticstring (transTactic (asTactic parseTerm EOF)) with
+  try string_of_tactic (transTactic (asTactic parseTerm EOF)) with
     ParseError_ ss -> showInputError report ss; raise Use_
 
 and parseTacticPanel report query =
@@ -919,7 +919,7 @@ and parsePanel report query panelkind parseEntry entrystarters parastarters =
                 raise
                   (ParseError_
                      ["command expected after BUTTON, found ";
-                      symbolstring (currsymb ())])
+                      string_of_symbol (currsymb ())])
             | cs -> cs
           in
           Panelstuff (Pbutton (itemname, itemcmd))
@@ -929,7 +929,7 @@ and parsePanel report query panelkind parseEntry entrystarters parastarters =
          | SHYID "CHECKBOX" ->
              scansymb (); Panelstuff (parseCheckBox report query (fun v->Pcheckbox v))
        *)
-      | sy -> raise (Catastrophe_ ["internal error in parsePanel -- "; symbolstring sy])
+      | sy -> raise (Catastrophe_ ["internal error in parsePanel -- "; string_of_symbol sy])
   in
   let plabel = currsymb_as_name () in
   let _ = ignore _ISWORD in
@@ -944,13 +944,13 @@ and parsePanel report query panelkind parseEntry entrystarters parastarters =
     SHYID "END" -> scansymb (); p
   | s ->
       showInputError report
-        ((["error in panel description: found "; smlsymbolstring s;
+        ((["error in panel description: found "; debugstring_of_symbol s;
            ", expecting one of "] @
             interpolate ", " starters) @
            [" or END"]);
       raise Use_
 
-and canstartCommand sy = opt2bool (name_of_stringsymbol sy)
+and canstartCommand sy = bool_of_opt (name_of_stringsymbol sy)
 
 and parseCommand () =
   (* always protected by canstartCommand *)
@@ -961,7 +961,7 @@ and parseCommand () =
     else f
   with
     None_ ->  raise (Catastrophe_ ["name_of_stringsymbol failed in parseCommand, looking at "; 
-                                   symbolstring(currsymb())])
+                                   string_of_symbol(currsymb())])
 
 and parseHitDef sense =
   let pattern = parseSeq () in
@@ -979,10 +979,10 @@ and parseAutoRule sense =
 
 and parseUse report query =
   match currsymb () with
-    STRING s -> File (s, file2paragraphs report query s)
+    STRING s -> File (s, paragraphs_of_file report query s)
   | s ->
       raise
-        (ParseError_ ["USE expects a string; found: "; smlsymbolstring s])
+        (ParseError_ ["USE expects a string; found: "; debugstring_of_symbol s])
 
 and parseTheorems report =
   let n = ref 0 in
@@ -998,7 +998,7 @@ and parseTheorems report =
     SHYID "END" -> scansymb (); t
   | s ->
       showInputError report
-        ["error in THEOREMS description: found "; smlsymbolstring s;
+        ["error in THEOREMS description: found "; debugstring_of_symbol s;
          ", expecting AND or END"];
       raise Use_
 
@@ -1024,7 +1024,7 @@ and parseUnnamedTheorem report nopt =
   let n =
     match nopt with
       Some n -> n
-    | None -> Name (seqstring s)
+    | None -> Name (string_of_seq s)
   in
   let heading = RuleHeading (n, params, provisos) in
   let _ =
@@ -1047,7 +1047,7 @@ and parseProof report stage =
     let pros = parseProvisos () in
     let (givens, seq) = parseRulebody () in
     let _ =
-      consolereport ["reading "; proofstage2word stage; " "; string_of_name n]
+      consolereport ["reading "; word_of_proofstage stage; " "; string_of_name n]
     in
     let fs =
       match currsymb () with
@@ -1069,7 +1069,7 @@ and parseProof report stage =
     let _ = if !autoAdditiveLeft then stripextrabag:= true else () in
     let tac = let r = transTactic tacterm in readintasarg := None; r in
     let _ =
-      checkvalidruleheading report (proofstage2word stage)
+      checkvalidruleheading report (word_of_proofstage stage)
         "body of the conjecture or the body of the proof"
         (RuleHeading (n, params, pros)) givens seq
         (* this argument is slowing down proof reading no end - so I lazified it *)
@@ -1105,7 +1105,7 @@ and parseRules report axiom =
     SHYID "END" -> scansymb (); t
   | s ->
       showInputError report
-        ["error in RULES description: found "; symbolstring s; ", expecting AND or END"];
+        ["error in RULES description: found "; string_of_symbol s; ", expecting AND or END"];
       raise Use_
 
 and parseDerived report =
@@ -1114,7 +1114,7 @@ and parseDerived report =
   | SHYID "RULES" -> scansymb (); parseRules report false
   | sy            ->
       showInputError report
-        ["expecting RULE or RULES after DERIVED: found "; symbolstring sy];
+        ["expecting RULE or RULES after DERIVED: found "; string_of_symbol sy];
       raise Use_
 
 and parseTheory report query =
@@ -1130,8 +1130,8 @@ and parseTheory report query =
     SHYID "END" -> scansymb (); Theory (heading,body)
   | s           ->
       showInputError report
-        ["error in THEORY description: found "; symbolstring s;
-         ", expecting one of "; liststring symbolstring ", " parastarters; " or END"];
+        ["error in THEORY description: found "; string_of_symbol s;
+         ", expecting one of "; string_of_list string_of_symbol ", " parastarters; " or END"];
       raise Use_
 
 and parseFontSpec () = FontSpec (currsymb_as_string ())
@@ -1151,7 +1151,7 @@ and parseStructureRule () =
       if member (s, structurerulestrings) then
         begin scansymb (); StructureRule (s, currsymb_as_name ()) end
       else bang s
-  | sy -> bang (symbolstring sy)
+  | sy -> bang (string_of_symbol sy)
 
 and parseStructure s =
   (* [CUT|IDENTITY|...] [RULE] name; ... *)
@@ -1161,7 +1161,7 @@ and parseStructure s =
     StructureRule (s, currsymb_as_name ())
   else raise (Catastrophe_ ["parseStructure "; s])
 
-and file2paragraphs report query s =
+and paragraphs_of_file report query s =
   let s = makerelative s in
   let ic = 
     try Usefile.open_input_file s 
@@ -1187,7 +1187,7 @@ and file2paragraphs report query s =
          showInputError report ("Catastrophic input error: " :: ss);
          error_cleanup (); raise Use_
      | MalformedUTF_ ss ->
-        showInputError report ["Malformed UTF-8 input: "; liststring (fun s -> s) "" ss;
+        showInputError report ["Malformed UTF-8 input: "; string_of_list (fun s -> s) "" ss;
                                ".\n\n\
                                 Jape now works only with unicode (UTF-8/16/32) files.\n\n\
                                 (Are you perhaps reading a old unconverted non-Unicode file? If so, \
@@ -1201,7 +1201,7 @@ and file2paragraphs report query s =
     (* including Use_, at it happens *)
   in cleanup (); r
 
-let rec string2paragraph report query s =
+let rec paragraph_of_string report query s =
   let rec getpara () =
     match parseParagraph report query with
       Some p -> p
@@ -1209,7 +1209,7 @@ let rec string2paragraph report query s =
         raise
           (ParseError_
              ["Error: expecting paragraph beginning; found ";
-              symbolstring (currsymb ())])
+              string_of_symbol (currsymb ())])
   in
   tryparse (fun _ -> getpara ()) s
 

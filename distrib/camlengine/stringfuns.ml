@@ -51,49 +51,49 @@ let enCharQuote s = "'" ^ s ^ "'"
 let lowercase = String.lowercase
 let uppercase = String.uppercase
 
-let rec catelim_pairstring fa fb sep (a, b) tail =
+let rec catelim_string_of_pair fa fb sep (a, b) tail =
   "(" :: fa a (sep :: fb b (")" :: tail))
-let rec catelim_triplestring fa fb fc sep (a, b, c) tail =
+let rec catelim_string_of_triple fa fb fc sep (a, b, c) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (")" :: tail)))
-let rec catelim_quadruplestring fa fb fc fd sep (a, b, c, d) tail =
+let rec catelim_string_of_quadruple fa fb fc fd sep (a, b, c, d) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (sep :: fd d (")" :: tail))))
-let rec catelim_quintuplestring fa fb fc fd fe sep (a, b, c, d, e) tail =
+let rec catelim_string_of_quintuple fa fb fc fd fe sep (a, b, c, d, e) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (sep :: fd d (sep :: fe e (")" :: tail)))))
-let rec catelim_sextuplestring
+let rec catelim_string_of_sextuple
   fa fb fc fd fe ff sep (a, b, c, d, e, f) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (sep :: fd d (sep :: fe e (sep :: ff f (")" :: tail))))))
-let rec catelim_septuplestring
+let rec catelim_string_of_septuple
   fa fb fc fd fe ff fg sep (a, b, c, d, e, f, g) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (sep ::
          fd d (sep :: fe e (sep :: ff f (sep :: fg g (")" :: tail)))))))
-let rec catelim_octuplestring
+let rec catelim_string_of_octuple
   fa fb fc fd fe ff fg fh sep (a, b, c, d, e, f, g, h) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (sep ::
          fd d (sep :: fe e (sep :: ff f (sep :: fg g (sep :: fh h (")" :: tail))))))))
 
-let s = stringfn2catelim
+let s = catelim_of_stringfn
 
-let rec pairstring fa fb sep =
-  catelim2stringfn (catelim_pairstring (s fa) (s fb) sep)
-let rec triplestring fa fb fc sep =
-  catelim2stringfn (catelim_triplestring (s fa) (s fb) (s fc) sep)
-let rec quadruplestring fa fb fc fd sep =
-  catelim2stringfn
-    (catelim_quadruplestring (s fa) (s fb) (s fc) (s fd) sep)
-let rec quintuplestring fa fb fc fd fe sep =
-  catelim2stringfn
-    (catelim_quintuplestring (s fa) (s fb) (s fc) (s fd) (s fe) sep)
-let rec sextuplestring fa fb fc fd fe ff sep =
-  catelim2stringfn
-    (catelim_sextuplestring (s fa) (s fb) (s fc) (s fd) (s fe) (s ff) sep)
-let rec septuplestring fa fb fc fd fe ff fg sep =
-  catelim2stringfn
-    (catelim_septuplestring (s fa) (s fb) (s fc) (s fd) (s fe) (s ff) (s fg) sep)
-let rec octuplestring fa fb fc fd fe ff fg fh sep =
-  catelim2stringfn
-    (catelim_octuplestring (s fa) (s fb) (s fc) (s fd) (s fe) (s ff) (s fg) (s fh) sep)
+let rec string_of_pair fa fb sep =
+  stringfn_of_catelim (catelim_string_of_pair (s fa) (s fb) sep)
+let rec string_of_triple fa fb fc sep =
+  stringfn_of_catelim (catelim_string_of_triple (s fa) (s fb) (s fc) sep)
+let rec string_of_quadruple fa fb fc fd sep =
+  stringfn_of_catelim
+    (catelim_string_of_quadruple (s fa) (s fb) (s fc) (s fd) sep)
+let rec string_of_quintuple fa fb fc fd fe sep =
+  stringfn_of_catelim
+    (catelim_string_of_quintuple (s fa) (s fb) (s fc) (s fd) (s fe) sep)
+let rec string_of_sextuple fa fb fc fd fe ff sep =
+  stringfn_of_catelim
+    (catelim_string_of_sextuple (s fa) (s fb) (s fc) (s fd) (s fe) (s ff) sep)
+let rec string_of_septuple fa fb fc fd fe ff fg sep =
+  stringfn_of_catelim
+    (catelim_string_of_septuple (s fa) (s fb) (s fc) (s fd) (s fe) (s ff) (s fg) sep)
+let rec string_of_octuple fa fb fc fd fe ff fg fh sep =
+  stringfn_of_catelim
+    (catelim_string_of_octuple (s fa) (s fb) (s fc) (s fd) (s fe) (s ff) (s fg) (s fh) sep)
 
-let rec catelim_arraystring f sep a ss =
+let rec catelim_string_of_array f sep a ss =
   let rec el i ss =
     if i = Array.length a then ss
     else
@@ -102,8 +102,8 @@ let rec catelim_arraystring f sep a ss =
   in
   "Ç" :: el 0 ("È" :: ss)
 
-let rec arraystring f sep =
-  catelim2stringfn (catelim_arraystring (s f) sep)
+let rec string_of_array f sep =
+  stringfn_of_catelim (catelim_string_of_array (s f) sep)
 
 let quotedstring_of_char c = "'" ^ (Char.escaped c) ^ "'"
 

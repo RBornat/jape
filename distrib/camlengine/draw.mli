@@ -58,31 +58,31 @@ val linethickness : int -> int (* font leading to linethickness *)
    
 val setproofparams : Japeserver.displaystyle -> int -> unit (* Tree/BoxStyle, line thickness *)
    
-val planstring : ('a -> string) -> 'a plan -> string (* for debugging *)
-val plan2string : 'a plan -> string (* for external viewing; only works for single-string plans *)
+val debugstring_of_plan : ('a -> string) -> 'a plan -> string 
+val string_of_plan  : 'a plan -> string (* for external viewing; only works for single-string plans *)
    
 val plantextlayout : 'a plan -> textlayout
 val plantextbox : 'a plan -> textbox
 val planinfo : 'a plan -> 'a
 val plantextsize : 'a plan -> textsize
 val planlisttextsize : 'a plan list -> textsize
-val text2textinfo : text -> textsize * textlayout
-val string2textinfo : font -> string -> textsize * textlayout
-val term2textinfo : (term -> string) -> term -> textsize * textlayout
-val element2textinfo : (element -> string) -> element -> textsize * textlayout
-val reason2textinfo : reason -> textsize * textlayout
+val textinfo_of_text : text -> textsize * textlayout
+val textinfo_of_string : font -> string -> textsize * textlayout
+val textinfo_of_term : (term -> string) -> term -> textsize * textlayout
+val textinfo_of_element : (element -> string) -> element -> textsize * textlayout
+val textinfo_of_reason : reason -> textsize * textlayout
 val procrustean_reason2textinfo : int -> reason -> textsize * textlayout
-val textinfo2plan : textsize * textlayout -> 'a -> pos -> 'a plan
-val string2plan : font -> string -> 'a -> pos -> 'a plan
-val element2plan : (element -> string) -> element -> 'a -> pos -> 'a plan
+val plan_of_textinfo : textsize * textlayout -> 'a -> pos -> 'a plan
+val plan_of_string : font -> string -> 'a -> pos -> 'a plan
+val plan_of_element : (element -> string) -> element -> 'a -> pos -> 'a plan
 
 (* for building element lists and the like, with commas in between *)
 val plancons : 'a plan -> (pos -> 'a plan list * textbox) -> 'a plan list * textbox
-val plan2plans : 'a plan -> 'a plan list * textbox
+val plans_of_plan : 'a plan -> 'a plan list * textbox
 
 (* plan modifier *)
 val planOffset : 'a plan -> pos -> 'a plan
-val things2plans :
+val plans_of_things :
   ('b -> pos -> 'a plan) -> (pos -> 'a plan) ->
     (pos -> 'a plan list * textbox) -> 'b list -> pos ->
     'a plan list * textbox
@@ -90,4 +90,4 @@ val things2plans :
 val drawplan : ('a -> displayclass) -> pos -> 'a plan -> unit
 val findfirstplanhit : pos -> 'a plan list -> 'a plan option
 
-val textinfostring : textsize * textlayout -> string
+val string_of_textinfo : textsize * textlayout -> string

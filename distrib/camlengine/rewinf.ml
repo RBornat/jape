@@ -41,7 +41,7 @@ let nullrewinf = Rewinf ([], [], [], None)
 
 let mkrewinf v = Rewinf v
 
-let rec rew2rawinf = fun (Rewinf r) -> r
+let rec rawinf_of_rew = fun (Rewinf r) -> r
 let rec rewinf_vars = fun (Rewinf (vars, _, _, _)) -> vars
 let rec rewinf_uVIDs = fun (Rewinf (_, uVIDs, _, _)) -> uVIDs
 let rec rewinf_badres = fun (Rewinf (_, _, badres, _)) -> badres
@@ -67,11 +67,11 @@ let rec rewinf_adduVIDs =
 let rec rewinf_addbadres =
   fun (Rewinf (vars, uVIDs, badres, psig)) badres' ->
     Rewinf (vars, uVIDs, badres' @ badres, psig)
-let rec rewinfstring =
+let rec string_of_rewinf =
   fun (Rewinf r) ->
     "Rewinf" ^
-      quadruplestring termliststring (bracketedliststring string_of_vid ",")
-        (bracketedliststring string_of_int ",") (optionstring string_of_int) ","
+      string_of_quadruple string_of_termlist (bracketedstring_of_list string_of_vid ",")
+        (bracketedstring_of_list string_of_int ",") (string_of_option string_of_int) ","
         r
 let rec rewinf_merge =
   fun

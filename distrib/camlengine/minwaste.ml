@@ -46,7 +46,7 @@
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 
 let (<*) = Listfuns.(<*)
-let bracketedliststring = Listfuns.bracketedliststring
+let bracketedstring_of_list = Listfuns.bracketedstring_of_list
 let consolereport = Miscellaneous.consolereport
 let drop = Listfuns.drop
 let take = Listfuns.take
@@ -80,7 +80,7 @@ let rec minw w a n =
   (* *)
   let rec showsplit ((ma, mi : int * int), (s : int list)) =
 	((((("((" ^ string_of_int ma) ^ ",") ^ string_of_int mi) ^ "),") ^
-	   bracketedliststring string_of_int "," s) ^
+	   bracketedstring_of_list string_of_int "," s) ^
 	  ")"
   in
   (* *)
@@ -102,7 +102,7 @@ let rec minw w a n =
 		consolereport
 		  ["split ["; string_of_int (j - i); "] "; string_of_int mgs; " [";
 		   string_of_int (n - j); "] ";
-		   bracketedliststring showsplit "," (take 3 ss);
+		   bracketedstring_of_list showsplit "," (take 3 ss);
 		   if List.length ss > 3 then ", ..." else ""]
 	in
 	(* *)
@@ -134,8 +134,8 @@ let rec minw w a n =
 	let _ =
 	  if !minwastedebug then
 		consolereport
-		  ["choose "; bracketedliststring showsplit "," ss; " ";
-		   bracketedliststring showsplit "," ss']
+		  ["choose "; bracketedstring_of_list showsplit "," ss; " ";
+		   bracketedstring_of_list showsplit "," ss']
 	in
 	(* *)
 	if List.exists
@@ -171,7 +171,7 @@ let rec minwaste measurefn w xs =
 		  raise
 			(Catastrophe_
 			   ["minwaste 2: ";
-				bracketedliststring string_of_int "," (n :: ns); "; ";
+				bracketedstring_of_list string_of_int "," (n :: ns); "; ";
 				string_of_int (List.length xs)])
 	| [], [] -> []
 	| [], _ -> raise (Catastrophe_ ["minwaste"])

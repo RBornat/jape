@@ -45,7 +45,7 @@ open UTF
 
 let bracketed = Termtype.bracketed
 let debracket = Termtype.debracket
-let resnum2int = Termtype.resnum2int
+let int_of_resnum = Termtype.int_of_resnum
 let consolereport = Miscellaneous.consolereport
 
 (* --------------------- hack to help binding matches go faster --------------------- *)
@@ -277,7 +277,7 @@ let searchterm g z t =
   | None -> z
 
 let existsterm g t =
-  opt2bool (findterm (fun t -> if g t then Some true else None) t)
+  bool_of_opt (findterm (fun t -> if g t then Some true else None) t)
 (* at present we have a very specialised type hierarchy *)
 (* c1 specialisesto c2 if something of class c1 can, by process of unification
  * and/or instantiation, be made into a thing of class c1.  
@@ -364,16 +364,16 @@ let replaceelement a1 a2 a3 =
             raise
               (Catastrophe_
                  ["replaceelement: collection ";
-                  bracketedliststring (smlelementstring termstring) ","
+                  bracketedstring_of_list (debugstring_of_element string_of_term) ","
                     es;
-                  " doesn't contain "; smlelementstring termstring el])
+                  " doesn't contain "; debugstring_of_element string_of_term el])
       in
       newel, registerCollection (c, rep es)
   | c, el, t ->
       raise
         (Catastrophe_
-           ["replaceelement ("; smltermstring c; ") (";
-            smlelementstring termstring el; ") ("; termstring t; ")"])
+           ["replaceelement ("; debugstring_of_term c; ") (";
+            debugstring_of_element string_of_term el; ") ("; string_of_term t; ")"])
 
 let uniqueVID class__ sortedVIDs extraVIDs vid =
   let str = string_of_vid vid in
@@ -408,12 +408,12 @@ let uniqueVID class__ sortedVIDs extraVIDs vid =
     if symclass str <> class__ then
       raise
         (Catastrophe_
-           ["uniqueVID "; idclassstring class__; " ... "; str;
-            " (which is "; idclassstring (symclass str); ")"])
+           ["uniqueVID "; string_of_idclass class__; " ... "; str;
+            " (which is "; string_of_idclass (symclass str); ")"])
     else u_ vid (if stern_str = "" then 0 else atoi stern_str) sortedVIDs
   else
     raise
-      (Catastrophe_ ["uniqueVID "; idclassstring class__; " ... "; str])
+      (Catastrophe_ ["uniqueVID "; string_of_idclass class__; " ... "; str])
 
 let mergeVIDs = sortedmerge (<)
 
@@ -549,14 +549,14 @@ let isselectionSubst e =
 
 let emptycollection k = registerCollection (k, [])
 
-let element2term =
+let term_of_element =
   function
     Element (_, _, t) -> Some t
   | _ -> None
 
-let collection2term =
+let term_of_collection =
   function
-    Collection (_, _, [el]) -> element2term el
+    Collection (_, _, [el]) -> term_of_element el
   | _ -> None
 (* This function would be simple equality, were it not for the debracketing.
  * Now perhaps the right thing would be a stripbracket function ... but no.
@@ -567,7 +567,7 @@ let collection2term =
 let rec eqterms (t1, t2) =
   let rec fEQs =
     function
-      t1 :: t1s, t2 :: t2s -> eqterms (t1, t2) && fEQs (t1s, t2s)
+      t1 :: t1s, t2 :: s_of_t -> eqterms (t1, t2) && fEQs (t1s, s_of_t)
     | [], [] -> true
     | _ -> false
   in
@@ -578,9 +578,9 @@ let rec eqterms (t1, t2) =
   | App (_, f1, a1), App (_, f2, a2) ->
       eqterms (f1, f2) && eqterms (a1, a2)
   | Literal (_, k1), Literal (_, k2) -> k1 = k2
-  | Tup (_, s1, t1s), Tup (_, s2, t2s) -> s1 = s2 && fEQs (t1s, t2s)
-  | Fixapp (_, ss1, t1s), Fixapp (_, ss2, t2s) ->
-      ss1 = ss2 && fEQs (t1s, t2s)
+  | Tup (_, s1, t1s), Tup (_, s2, s_of_t) -> s1 = s2 && fEQs (t1s, s_of_t)
+  | Fixapp (_, ss1, t1s), Fixapp (_, ss2, s_of_t) ->
+      ss1 = ss2 && fEQs (t1s, s_of_t)
   | Subst (_, _, p1, vts1), Subst (_, _, p2, vts2) ->
       let vts1 = canonicalsubstmap vts1 in
       let vts2 = canonicalsubstmap vts2 in
@@ -606,8 +606,8 @@ let rec eqterms (t1, t2) =
 
 and eqelements eq (e1, e2) =
   match e1, e2 with
-    Segvar (_, p1s, v1), Segvar (_, p2s, v2) ->
-      eqlists eqterms (p1s, p2s) && eq (v1, v2)
+    Segvar (_, p1s, v1), Segvar (_, s_of_p, v2) ->
+      eqlists eqterms (p1s, s_of_p) && eq (v1, v2)
   | Element (_, r1, t1), Element (_, r2, t2) -> eq (t1, t2)
   | _ ->(* ignore resource numbers *)
      false
@@ -653,16 +653,16 @@ let eqalphaterms (t1, t2) =
       (v', n) :: tb -> if v = v' then Some n else (tb <@> v)
     | [] -> None
   in
-  let rec eq t1bs t2bs (t1, t2) =
-    let fEQ = eq t1bs t2bs in
+  let rec eq t1bs bs_of_t (t1, t2) =
+    let fEQ = eq t1bs bs_of_t in
     let rec fEQs =
       function
-        t1 :: t1s, t2 :: t2s -> fEQ (t1, t2) && fEQs (t1s, t2s)
+        t1 :: t1s, t2 :: s_of_t -> fEQ (t1, t2) && fEQs (t1s, s_of_t)
       | [], [] -> true
       | _ -> false
     in
     let doublev () =
-      match (t1bs <@> t1), (t2bs <@> t2) with
+      match (t1bs <@> t1), (bs_of_t <@> t2) with
         Some n1, Some n2 -> n1 = n2
       | None, None -> t1 = t2
       | _ -> false
@@ -675,9 +675,9 @@ let eqalphaterms (t1, t2) =
     | _, Unknown _ -> doublev ()
     | App (_, f1, a1), App (_, f2, a2) -> fEQ (f1, f2) && fEQ (a1, a2)
     | Literal (_, k1), Literal (_, k2) -> k1 = k2
-    | Tup (_, s1, t1s), Tup (_, s2, t2s) -> s1 = s2 && fEQs (t1s, t2s)
-    | Fixapp (_, ss1, t1s), Fixapp (_, ss2, t2s) ->
-        ss1 = ss2 && fEQs (t1s, t2s)
+    | Tup (_, s1, t1s), Tup (_, s2, s_of_t) -> s1 = s2 && fEQs (t1s, s_of_t)
+    | Fixapp (_, ss1, t1s), Fixapp (_, ss2, s_of_t) ->
+        ss1 = ss2 && fEQs (t1s, s_of_t)
     | Subst (_, _, p1, vts1), Subst (_, _, p2, vts2) ->
         let vts1 = canonicalsubstmap vts1 in
         let vts2 = canonicalsubstmap vts2 in
@@ -695,7 +695,7 @@ let eqalphaterms (t1, t2) =
         begin try
           (pat = pat' && fEQs (us, us')) &&
           _All
-            (eq ((bs  ||| ns) @ t1bs) ((bs' ||| ns) @ t2bs))
+            (eq ((bs  ||| ns) @ t1bs) ((bs' ||| ns) @ bs_of_t))
             (ss ||| ss')
         with
           Zip_ -> false
@@ -710,8 +710,8 @@ let eqalphaterms (t1, t2) =
     | _ -> false
   in
   let r = t1 = t2 || eq [] [] (t1, t2) in(* if !eqalphadebug then
-      consolereport["eqalphaterms (", termstring t1, ",",
-                    termstring t2, ") => ", string_of_int r
+      consolereport["eqalphaterms (", string_of_term t1, ",",
+                    string_of_term t2, ") => ", string_of_int r
                    ]
      else ();
    *)
@@ -746,10 +746,10 @@ let termvars t =
  *)
 
 let varbindingsdebug = ref false
-let bcstring = bracketedliststring termliststring ","
-let bcliststring = bracketedliststring bcstring ","
-let varinfstring = pairstring termstring bcliststring ","
-let varbindingsresstring = bracketedliststring varinfstring ","
+let string_of_bc = bracketedstring_of_list string_of_termlist ","
+let string_of_bclist = bracketedstring_of_list string_of_bc ","
+let string_of_varinf = string_of_pair string_of_term string_of_bclist ","
+let string_of_varbindingsres = bracketedstring_of_list string_of_varinf ","
 
 let bvsorder = earlierlist earliervar
 let bcorder = earlierlist bvsorder
@@ -799,10 +799,10 @@ let varbindings t =
       begin match r with
         Some _ ->
           consolereport
-            ["(varbindings) f "; termliststring inners; " ";
-             bracketedliststring termliststring "," outers; " ";
-             pairstring termstring varbindingsresstring "," (t, ps);
-             " => "; optionstring varbindingsresstring r]
+            ["(varbindings) f "; string_of_termlist inners; " ";
+             bracketedstring_of_list string_of_termlist "," outers; " ";
+             string_of_pair string_of_term string_of_varbindingsres "," (t, ps);
+             " => "; string_of_option string_of_varbindingsres r]
       | None -> ()
       end;
     r
@@ -953,10 +953,10 @@ let freevarsfrombindings inf notins =
     let escapers bvs =
       (fun bv -> not (member ((bv, v), notins))) <| bvs
     in
-    let b2 ((bv1s, bv2s), bads) =
+    let b2 ((bv1s, s_of_bv), bads) =
       nj_fold (uncurry2 tmerge)
-        [escapers (sorteddiff earliervar bv1s bv2s);
-         escapers (sorteddiff earliervar bv2s bv1s)]
+        [escapers (sorteddiff earliervar bv1s s_of_bv);
+         escapers (sorteddiff earliervar s_of_bv bv1s)]
         bads
     in
     nj_fold b2 (allpairs bvss) []
@@ -965,15 +965,15 @@ let freevarsfrombindings inf notins =
   (* and there we have it *)
   let r = freevs, domrel in
   (* stuff to persuade ourselves we have it right :-) *)
-  let showin = varinfstring in
+  let showin = string_of_varinf in
   let showout =
-    pairstring termliststring
-      (mappingstring termstring termliststring <.> mkmap) ","
+    string_of_pair string_of_termlist
+      (string_of_mapping string_of_term string_of_termlist <.> mkmap) ","
   in
   if !varbindingsdebug then
     consolereport
-      ["freevarsfrom bindings "; bracketedliststring showin ", " inf; " ";
-       bracketedliststring (pairstring termstring termstring ",") ","
+      ["freevarsfrom bindings "; bracketedstring_of_list showin ", " inf; " ";
+       bracketedstring_of_list (string_of_pair string_of_term string_of_term ",") ","
          notins;
        " => "; showout r];
   r
@@ -985,7 +985,7 @@ let vid_of_var =
   function
     Id (_, v, _) -> v
   | Unknown (_, v, _) -> v
-  | t -> raise (Catastrophe_ ["vid_of_var "; argstring t])
+  | t -> raise (Catastrophe_ ["vid_of_var "; string_of_termarg t])
 
 let termVIDs t = orderVIDs ((vid_of_var <* termvars t))
 
@@ -1002,23 +1002,23 @@ let conVIDs ts =
  * and/or vice-versa? 
  *)
 let simterms (t1, t2) =
-  let rec similar t1subst t1 t2subst t2 =
+  let rec similar t1subst t1 subst_of_t t2 =
     let (t1, t2) = debracket t1, debracket t2 in
-    let sim t1 t2 = similar t1subst t1 t2subst t2 in
-    let sims t1s t2s =
-      try _All (uncurry2 sim) (t1s ||| t2s) with
+    let sim t1 t2 = similar t1subst t1 subst_of_t t2 in
+    let sims t1s s_of_t =
+      try _All (uncurry2 sim) (t1s ||| s_of_t) with
         Zip_ -> false
     in
-    let reverse () = similar t2subst t2 t1subst t1 in
+    let reverse () = similar subst_of_t t2 t1subst t1 in
     let lsub () = t1subst && idclass t1 = VariableClass in
-    let rsub () = t2subst && idclass t2 = VariableClass in
+    let rsub () = subst_of_t && idclass t2 = VariableClass in
     let luni () =
       specialisesto (idclass t1, idclass t2) ||
       t1subst && specialisesto (idclass t1, VariableClass)
     in
     let runi () =
       specialisesto (idclass t2, idclass t1) ||
-      t2subst && specialisesto (idclass t2, VariableClass)
+      subst_of_t && specialisesto (idclass t2, VariableClass)
     in
     if t1 = t2 then true
     else
@@ -1037,16 +1037,16 @@ let simterms (t1, t2) =
       | Subst _, Unknown _ -> reverse ()
       | Subst (_, _, p1, _), Subst (_, _, p2, _) ->
           similar true p1 true p2
-      | Subst (_, _, p1, _), _ -> similar true p1 t2subst t2
+      | Subst (_, _, p1, _), _ -> similar true p1 subst_of_t t2
       | _, Id _ -> reverse ()
       | _, Unknown _ -> reverse ()
       | _, Subst _ -> reverse ()
       | App (_, f1, a1), App (_, f2, a2) -> sim f1 f2 && sim a1 a2
-      | Tup (_, s1, t1s), Tup (_, s2, t2s) -> s1 = s2 && sims t1s t2s
+      | Tup (_, s1, t1s), Tup (_, s2, s_of_t) -> s1 = s2 && sims t1s s_of_t
       | Literal (_, l1), Literal (_, l2) -> l1 = l2
-      | Fixapp (_, ss1, t1s), Fixapp (_, ss2, t2s) ->
+      | Fixapp (_, ss1, t1s), Fixapp (_, ss2, s_of_t) ->
           (* false by now, really, but who cares? *)
-          ss1 = ss2 && sims t1s t2s
+          ss1 = ss2 && sims t1s s_of_t
       | Binding stuff, Binding stuff' ->
           sim (remake mapterm stuff) (remake mapterm stuff')
       | Collection (_, k, _), Collection (_, k', _) -> k = k'
@@ -1089,19 +1089,19 @@ let explodebinapp t =
 
 (* ---------- for export ------------ *)
 
-let int2term (i : int) = registerLiteral (Number i)
+let term_of_int (i : int) = registerLiteral (Number i)
 
-let rec term2int t =
+let rec int_of_term t =
   try
     match debracket t with
       Literal (_, Number n) -> n
     | App (_, Id (_, v, NoClass), t') -> 
-        (match string_of_vid v with "~" -> -term2int t'
+        (match string_of_vid v with "~" -> -int_of_term t'
          |                          _   -> raise (Catastrophe_ []))
     | _ ->(* can happen, and NoClass is important ... *)
-       raise (Catastrophe_ ["term2int"])
+       raise (Catastrophe_ ["int_of_term"])
   with
-    _ -> raise (Catastrophe_ ["term2int "; smltermstring t])
+    _ -> raise (Catastrophe_ ["int_of_term "; debugstring_of_term t])
 
 let enbracket t = registerFixapp (["("; ")"], [t])
 

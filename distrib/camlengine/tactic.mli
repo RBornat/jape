@@ -35,11 +35,11 @@ val tacname : term -> name                  (* or raise ParseError_ *)
 val transTactic : term -> tactic
 val explodeForExecute : term -> name * term list
 
-val tacticstring : tactic -> string         (* the simple, unvarnished string *)
-val tacticstringwithNLs : tactic -> string  (* guess what this one does *)
+val string_of_tactic : tactic -> string         (* the simple, unvarnished string *)
+val stringwithNLs_of_tactic : tactic -> string  (* guess what this one does *)
 
-val catelim_tacticstring : tactic -> string list -> string list
-val catelim_tacticstringwithNLs : tactic -> string list -> string list
+val catelim_string_of_tactic : tactic -> string list -> string list
+val catelim_stringwithNLs_of_tactic : tactic -> string list -> string list
 
 val remaptactic : (term, term) mapping -> tactic -> tactic
 val isguard : tactic -> bool

@@ -68,7 +68,7 @@ let withtarget (Proofstate s) target = Proofstate {s with target = target}
 let withroot (Proofstate s) root = Proofstate {s with root = root}
 
 
-let proofstatestring all =
+let string_of_proofstate all =
   fun
     (Proofstate
        {cxt = cxt;
@@ -79,19 +79,19 @@ let proofstatestring all =
         root = root}) ->
     let showsubtree pathopt tree =
       match all, pathopt with
-        true, Some path -> prooftreestring (followPath tree path)
+        true, Some path -> string_of_prooftree (followPath tree path)
       | _ -> "..."
     in
     implode
-      ["Proofstate{cxt = "; cxtstring cxt; ",\nproof = ";
+      ["Proofstate{cxt = "; string_of_cxt cxt; ",\nproof = ";
        showsubtree (Some (rootPath tree)) tree; ",\ngivens = ";
-       liststring seqstring " AND " givens; ",\ngoal = ";
-       optionstring fmtpathstring goal; " = "; showsubtree goal tree;
-       ",\ntarget = "; optionstring fmtpathstring target; " = ";
+       string_of_list string_of_seq " AND " givens; ",\ngoal = ";
+       string_of_option string_of_fmtpath goal; " = "; showsubtree goal tree;
+       ",\ntarget = "; string_of_option string_of_fmtpath target; " = ";
        showsubtree target tree; ",\nroot = ";
-       optionstring
+       string_of_option
          (fun (rp, _ as r) ->
-            pairstring (showsubtree (Some (rootPath rp))) fmtpathstring
+            string_of_pair (showsubtree (Some (rootPath rp))) string_of_fmtpath
               "," r)
          root;
        "}"]

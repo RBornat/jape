@@ -44,8 +44,8 @@ val symclass : string -> idclass
 exception Symclass_ of string
 val isnumber : string -> bool
 val isextensibleID : string -> bool
-val symbolstring : symbol -> string
-val smlsymbolstring : symbol -> string
+val string_of_symbol : symbol -> string
+val debugstring_of_symbol : symbol -> string
 
 (* aid for prettyprinters *)
 val metachar_as_string : string

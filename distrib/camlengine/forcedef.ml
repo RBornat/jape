@@ -50,23 +50,23 @@ type forcedef =
   | ForceSome of (term * term list * forcedef)
                  (* pat, vars, body: a binder *)
 
-let forcedef2term fd =
+let term_of_forcedef fd =
   match fd with
     ForcePrim t -> Some t
   | _           -> None
   
-let rec catelim_forcedefstring f ss =
+let rec catelim_string_of_forcedef f ss =
   match f with
-    ForcePrim t          -> "FORCE " :: catelim_argstring t ss
-  | ForceBoth (f1, f2)   -> "BOTH (" :: catelim_forcedefstring f1 (") (" :: catelim_forcedefstring f2 (")"::ss))
-  | ForceEither (f1, f2) -> "EITHER (" :: catelim_forcedefstring f1 (") (" :: catelim_forcedefstring f2 (")"::ss))
-  | ForceIf (f1, f2)     -> "IF (" :: catelim_forcedefstring f1 (") (" :: catelim_forcedefstring f2 (")"::ss))
-  | ForceEverywhere f    -> "EVERYWHERE " :: catelim_forcedefstring f ss
-  | ForceNowhere f       -> "NOWHERE " :: catelim_forcedefstring f ss
-  | ForceAll (t, vs, f)  -> "ALL " :: catelim_termstring t (" " :: catelim_forcedefstring f ss)
-  | ForceSome (t, vs, f) -> "SOME " :: catelim_termstring t (" " :: catelim_forcedefstring f ss)
+    ForcePrim t          -> "FORCE " :: catelim_string_of_termarg t ss
+  | ForceBoth (f1, f2)   -> "BOTH (" :: catelim_string_of_forcedef f1 (") (" :: catelim_string_of_forcedef f2 (")"::ss))
+  | ForceEither (f1, f2) -> "EITHER (" :: catelim_string_of_forcedef f1 (") (" :: catelim_string_of_forcedef f2 (")"::ss))
+  | ForceIf (f1, f2)     -> "IF (" :: catelim_string_of_forcedef f1 (") (" :: catelim_string_of_forcedef f2 (")"::ss))
+  | ForceEverywhere f    -> "EVERYWHERE " :: catelim_string_of_forcedef f ss
+  | ForceNowhere f       -> "NOWHERE " :: catelim_string_of_forcedef f ss
+  | ForceAll (t, vs, f)  -> "ALL " :: catelim_string_of_term t (" " :: catelim_string_of_forcedef f ss)
+  | ForceSome (t, vs, f) -> "SOME " :: catelim_string_of_term t (" " :: catelim_string_of_forcedef f ss)
 
-let rec forcedefstring f = implode (catelim_forcedefstring f [])
+let rec string_of_forcedef f = implode (catelim_string_of_forcedef f [])
 
 (* for some reason this went exponential when the body was a function.  
    Don't understand. RB vii/01 
@@ -76,7 +76,7 @@ let rec option_mapforcedefterms f fd =
   let omff = option_mapforcedefterms f in
   let ompair = option_rewrite2 omff omff in
   let omtvsfd = option_rewrite3 omt (option_rewritelist omt) omff in
-  (* val _ = consolereport ["option_mapforcedefterms ", forcedefstring fd] *)
+  (* val _ = consolereport ["option_mapforcedefterms ", string_of_forcedef fd] *)
   let res =
     match fd with
       ForcePrim t -> (omt t &~~ (fSome <.> (fun v->ForcePrim v)))
@@ -95,7 +95,7 @@ let rec option_mapforcedefterms f fd =
     | ForceSome tvsfd ->
         (omtvsfd tvsfd &~~ (fSome <.> (fun v->ForceSome v)))
   in
-  (* consolereport ["option_mapforcedefterms ", forcedefstring fd, " => ", optionstring forcedefstring res]; *)
+  (* consolereport ["option_mapforcedefterms ", string_of_forcedef fd, " => ", string_of_option string_of_forcedef res]; *)
   res
 
 let rec mapforcedefterms f = anyway (option_mapforcedefterms f)
@@ -117,7 +117,7 @@ let rec findinforcedef f fd =
       (findterm f t |~~ (fun _ -> findinforcedef f fd))
 
 let rec existsinforcedef f =
-  opt2bool <.> findinforcedef (fun t -> if f t then Some true else None)
+  bool_of_opt <.> findinforcedef (fun t -> if f t then Some true else None)
 
 (* this ran into trouble when it emerged that it was using ALL as a reserved word, which had
    been previously used in LAYOUT tactics to mean 'display all subtrees'.  On the principle
@@ -140,7 +140,7 @@ let rec parseForceDef () =
   (* there is no operator priority in forcedefs ... *)
   let decodeApp t =
     match explodeApp false t with
-      (f, args) -> (termstring f, args)
+      (f, args) -> (string_of_term f, args)
   in
   let rec tranForceDef t =
     match decodeApp t with
@@ -154,13 +154,13 @@ let rec parseForceDef () =
     | ("IF"     , [f1; f2]) -> ForceIf(tranForceDef f1, tranForceDef f2)
     | _ -> raise (ParseError_ 
            ["FORCE t, EVERYWHERE f, NOWHERE f, ALL pat f, SOME pat f, BOTH f f, EITHER f f "; 
-            "or IF f f expected in FORCEDEF; found "; termstring t
+            "or IF f f expected in FORCEDEF; found "; string_of_term t
            ])
   
   and tranPrim t =
     try checkTacticTerm t; debracket t 
     with Tacastrophe_ ss -> 
-           raise (ParseError_ ("FORCE " :: termstring t :: " contains " :: ss))
+           raise (ParseError_ ("FORCE " :: string_of_term t :: " contains " :: ss))
   
   and tranForceDefBinder pat f = 
     let vs = isVariable <| termvars pat in
@@ -187,7 +187,7 @@ let rec parsemodel () =
           match currsymb () with
             NUM n -> let _ = scansymb () in  atoi n
           | sy ->
-              match symbolstring sy with
+              match string_of_symbol sy with
                 "-" -> let _ = scansymb () in  - parseUnsignedInt "-"
               | "~" -> let _ = scansymb () in  - parseUnsignedInt "~"
               | s -> bang [s]
@@ -197,7 +197,7 @@ let rec parsemodel () =
         and parseUnsignedInt s1 =
           match currsymb () with
             NUM n -> let _ = scansymb () in  atoi n
-          | s2 -> bang [s1; " followed by "; symbolstring s2]
+          | s2 -> bang [s1; " followed by "; string_of_symbol s2]
         in
         let x = parseInt () in
         let y =
@@ -214,13 +214,13 @@ let rec parsemodel () =
             raise
               (ParseError_
                  ["right paren expected after coordinate; found ";
-                  symbolstring sy])
+                  string_of_symbol sy])
         end
     | sy ->
         raise
           (ParseError_
              ["coordinate expected, starting with left paren; found ";
-              symbolstring sy])
+              string_of_symbol sy])
   in
   let rec parseWorlds () =
     match currsymb () with
@@ -257,41 +257,41 @@ let rec parsemodel () =
       end
   | _ -> None
 
-let rec catelim_modelstring a1 a2 =
+let rec catelim_string_of_model a1 a2 =
   match a1, a2 with
     None, ss -> ss
   | Some (seq, Model worlds), ss ->
       let sep = "\n" in
-      let rec catelim_intstring i ss =
+      let rec catelim_string_of_int i ss =
         (string_of_int : int -> string) i :: ss
       in
-      let rec catelim_coordstring =
+      let rec catelim_string_of_coord =
         fun (Coord c) ->
-          catelim_pairstring catelim_intstring catelim_intstring "," c
+          catelim_string_of_pair catelim_string_of_int catelim_string_of_int "," c
       in
-      let rec catelim_worldstring =
+      let rec catelim_string_of_world =
         fun (World (c, chs, ts)) ss ->
           let sep2 = sep ^ "  " in
-          let rec catelim_childrenstring chs ss =
+          let rec catelim_string_of_children chs ss =
             match chs with
               [] -> ss
             | _ ->
                 sep2 :: "CHILDREN" :: " " ::
-                  catelim_liststring catelim_coordstring ", " chs ss
+                  catelim_string_of_list catelim_string_of_coord ", " chs ss
           in
-          let rec catelim_labelsstring ts ss =
+          let rec catelim_string_of_labels ts ss =
             match ts with
               [] -> ss
             | _ ->
                 sep2 :: "LABELS" :: " " ::
-                  catelim_liststring catelim_termstring ", " ts ss
+                  catelim_string_of_list catelim_string_of_term ", " ts ss
           in
           "WORLD" :: " " ::
-            catelim_coordstring c
-              (catelim_childrenstring chs (catelim_labelsstring ts ss))
+            catelim_string_of_coord c
+              (catelim_string_of_children chs (catelim_string_of_labels ts ss))
       in
       "SEMANTICS" :: sep ::
-        catelim_seqstring seq
+        catelim_string_of_seq seq
           (sep ::
-             catelim_liststring catelim_worldstring sep worlds
+             catelim_string_of_list catelim_string_of_world sep worlds
                ("\n" :: ss))

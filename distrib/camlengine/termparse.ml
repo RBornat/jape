@@ -48,7 +48,7 @@ let termparsedebug = ref false
 
 let symbeq : symbol * symbol -> bool = fun (x, y) -> x = y
 
-let rec mkalt sts def s =
+let mkalt sts def s =
   match
 	findfirst (fun (s', t) -> if s = s' then Some t else None) sts
   with
@@ -87,46 +87,46 @@ let popSyntax () =
 let popAllSyntaxes () =
   while !syntaxes<>[] do popSyntax() done
   
-let rec declareOutRightfix braseps ket =
+let declareOutRightfix braseps ket =
   (match !syntaxes with 
      (name, _, _, ors, _) :: _ ->
        if not (mem (braseps, ket) ors) then
          raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
                              " attempt to define novel OUTFIX/RIGHTFIX ";
-                             liststring symbolstring " " (braseps @ [ket])
+                             string_of_list string_of_symbol " " (braseps @ [ket])
                              ])
    | _ -> ());
   outrightfixes := (braseps, ket) :: !outrightfixes;
   outrightfixtree :=
 	addtotree (fun (x, y) -> x = y) !outrightfixtree (braseps, ket, false)
 
-let rec declareLeftMidfix syms =
+let declareLeftMidfix syms =
   (match !syntaxes with 
      (name, _, _, _, lms) :: _ ->
        if not (mem syms lms) then
          raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
                              " attempt to define novel LEFTFIX/MIDFIX ";
-                             liststring symbolstring " " syms])
+                             string_of_list string_of_symbol " " syms])
    | _ -> ());
   leftmidfixes := syms :: !leftmidfixes;
   leftmidfixtree :=
 	addtotree (fun (x, y) -> x = y) !leftmidfixtree (syms, (), false)
 
-let rec resettermparse () =
+let resettermparse () =
   reset_termparse_vars ();
   declareOutRightfix [BRA "("] (KET ")"); (* oh dear this was an sml bug -- what next? *)
   ()
 
-let rec check s =
+let check s =
   if currsymb () = s then scansymb ()
   else
 	raise
 	  (ParseError_
-		 ["Expected "; smlsymbolstring s; ", found "; smlsymbolstring (currsymb ())])
+		 ["Expected "; debugstring_of_symbol s; ", found "; debugstring_of_symbol (currsymb ())])
 
-let rec ignore s = 
+let ignore s = 
   if !termparsedebug then
-    consolereport ["ignore "; smlsymbolstring s; " (currsymb="; smlsymbolstring (currsymb()); ")"];
+    consolereport ["ignore "; debugstring_of_symbol s; " (currsymb="; debugstring_of_symbol (currsymb()); ")"];
   if currsymb () = s then scansymb () else ()
 
 let rec parseUnsepList start f =
@@ -134,14 +134,14 @@ let rec parseUnsepList start f =
     let v = f EOF in v :: parseUnsepList start f 
   else []
 
-let rec parseList start f sep =
+let parseList start f sep =
   if start (currsymb ()) then
 	let rec more () = if currsymb () = sep then (scansymb (); one ()) else []
 	and one () = let v = f sep in v :: more () in
 	one ()
   else []
 
-let rec canstartTerm sy =
+let canstartTerm sy =
   match sy with
 	ID _ -> true
   | UNKNOWN _ -> true
@@ -153,7 +153,7 @@ let rec canstartTerm sy =
   | _ ->(* temporary hack to allow Collection formulae *)
 	 canstartCollectionidclass sy
 
-let rec canstartAtom s =
+let canstartAtom s =
   match s with
 	ID _ -> true
   | UNKNOWN _ -> true
@@ -164,7 +164,7 @@ let rec canstartAtom s =
   | PREFIX _ -> true
   | _ -> false
 
-let rec canstartidentifier s =
+let canstartidentifier s =
   match s with
 	ID _ -> true
   | UNKNOWN _ -> true
@@ -175,20 +175,20 @@ let rec canstartidentifier s =
 let undecl : (string * term -> term) ref =
   ref
 	(fun (s, t) ->
-	   raise (ParseError_ ["unclassified "; s; " "; termstring t]))
+	   raise (ParseError_ ["unclassified "; s; " "; string_of_term t]))
 
 let unvar : (term -> term) ref =
-  ref (fun t -> raise (ParseError_ [termstring t; " is not a variable"]))
+  ref (fun t -> raise (ParseError_ [string_of_term t; " is not a variable"]))
 
 let unclass : (string * term -> term) ref =
   ref
 	(fun (id, t) ->
 	   raise
 		 (ParseError_
-			[unparseidclass (idclass t); " "; id; " "; termstring t;
+			[unparseidclass (idclass t); " "; id; " "; string_of_term t;
 			 " in formula"]))
 
-let rec checkclass (id, t) =
+let checkclass (id, t) =
   match idclass t with
 	BagClass _  -> !unclass (id, t)
   | ListClass _ -> !unclass (id, t)
@@ -219,16 +219,16 @@ let rec parseAtom () =
   | s ->
 	  raise
 		(ParseError_
-		   ["beginning of formula expected, found "; smlsymbolstring s])
+		   ["beginning of formula expected, found "; debugstring_of_symbol s])
 
 and checkAfterBra pre n =
   let sy = currsymb () in
-  let rec checkpre m =
+  let checkpre m =
 	if m < n then
 	  raise
 		(ParseError_
-		   [smlsymbolstring sy; " (priority "; string_of_int m;
-			") found after "; smlsymbolstring pre; " (priority ";
+		   [debugstring_of_symbol sy; " (priority "; string_of_int m;
+			") found after "; debugstring_of_symbol pre; " (priority ";
 			string_of_int n; ")"])
   in
   match sy with
@@ -238,12 +238,12 @@ and checkAfterBra pre n =
 
 and checkAfterKet pre n =
   let sy = currsymb () in
-  let rec checkpre m =
+  let checkpre m =
 	if n < m then
 	  raise
 		(ParseError_
-		   [smlsymbolstring sy; " (priority "; string_of_int m;
-			") found after "; smlsymbolstring pre; " (priority ";
+		   [debugstring_of_symbol sy; " (priority "; string_of_int m;
+			") found after "; debugstring_of_symbol pre; " (priority ";
 			string_of_int n; ")"])
   in
   match sy with
@@ -261,7 +261,7 @@ and parseOutfix bra =
 			  begin match scanfsm (fun _ -> ket) t [] ket with
 				Found (ket', []) ->
 				  check ket';
-				  Some (registerFixapp ((symbolstring <* [bra; ket]), []))
+				  Some (registerFixapp ((string_of_symbol <* [bra; ket]), []))
 			  | _ -> None
 			  end
 		  | _ -> None))
@@ -279,12 +279,12 @@ and parseOutRightfixTail m ts =
   with
 	Found (ket, (ss, ts)) ->
 	  check ket;
-	  ket, registerFixapp ((symbolstring <* rev (ket :: ss)), rev ts)
+	  ket, registerFixapp ((string_of_symbol <* rev (ket :: ss)), rev ts)
   | NotFound (ss, _) ->
 	  raise
 		(ParseError_
-		   ["expected "; liststring symbolstring " or " ss; "; found ";
-			symbolstring (currsymb ())])
+		   ["expected "; string_of_list string_of_symbol " or " ss; "; found ";
+			string_of_symbol (currsymb ())])
 
 and parseLeftfix m bra = putbacksymb bra; parseLeftMidfixTail m []
 
@@ -296,12 +296,12 @@ and parseLeftMidfixTail m ts =
 	  ([], ts)
   with
 	Found (_, (ss, ts)) ->
-	  registerFixapp ((symbolstring <* rev ss), rev ts)
+	  registerFixapp ((string_of_symbol <* rev ss), rev ts)
   | NotFound (ss, _) ->
 	  raise
 		(ParseError_
-		   ["expected "; liststring symbolstring " or " ss; "; found ";
-			symbolstring (currsymb ())])
+		   ["expected "; string_of_list string_of_symbol " or " ss; "; found ";
+			string_of_symbol (currsymb ())])
 
 and treecurr _ = currsymb ()
 
@@ -311,22 +311,22 @@ and treenext m a (sys, ts) =
   s :: sys, t :: ts
 
 and parseVariable () =
-  let rec okv =
+  let okv =
 	function
 	  Id (_, _, VariableClass) as t -> t
 	| Unknown (_, _, VariableClass) as t -> t
 	| Id _ as t -> !unvar t
 	| Unknown _ as t -> !unvar t
-	| t -> raise (ParseError_ [termstring t; " is not a variable"])
+	| t -> raise (ParseError_ [string_of_term t; " is not a variable"])
   in
   okv (parseAtom ())
 
 and parseBRA () =
-  let rec defop s =
+  let defop s =
 	let r = registerId (vid_of_string s, OperatorClass) in
 	scansymb (); check (KET ")"); r
   in
-  let rec defexpr () =
+  let defexpr () =
 	let r =
 	  (let t = parseterm (KET ")") in
 	   match t with
@@ -351,8 +351,8 @@ and parseExpr n a =
   let ( >> ) m n = m > n || m = n && not a in
   let rec pe t =
 	let sy = currsymb () in
-	let rec pq n' a' s down =
-	  let rec nextt a = scansymb (); checkAfterBra sy n'; parseExpr n' a
+	let pq n' a' s down =
+	  let nextt a = scansymb (); checkAfterBra sy n'; parseExpr n' a
 	  in
 	  let rec pts () =
 		if currsymb () = sy then 
@@ -364,7 +364,7 @@ and parseExpr n a =
 			else down (s, nextt (a' = LeftAssoc)))
 	  else t
 	in
-	let rec pr n' down =
+	let pr n' down =
 	  if n' >> n then pe (down n' t) else t
 	in
 	match sy with
@@ -402,7 +402,7 @@ and parseExpr n a =
   pe (parseAtom ())
 
 and parseSubststuff () =
-  let rec parseside b =
+  let parseside b =
 	if b then
 	  parseList canstartidentifier (fun _ -> parseVariable ()) commasymbol
 	else parseList canstartTerm parseterm commasymbol
@@ -418,14 +418,14 @@ and parseSubststuff () =
 	(* Zip_ can't happen *)
 	raise
 	  (ParseError_
-		 ["Substitution "; symbolstring SUBSTBRA;
-		  liststring termstring "," xs; symbolstring SUBSTSEP;
-		  liststring termstring "," ys; symbolstring SUBSTKET;
+		 ["Substitution "; string_of_symbol SUBSTBRA;
+		  string_of_list string_of_term "," xs; string_of_symbol SUBSTSEP;
+		  string_of_list string_of_term "," ys; string_of_symbol SUBSTKET;
 		  " is unbalanced"])
 
 and parseterm fsy =
   if !termparsedebug then
-    consolereport ["parseterm "; smlsymbolstring fsy; " (currsymb="; smlsymbolstring (currsymb()); ")"];
+    consolereport ["parseterm "; debugstring_of_symbol fsy; " (currsymb="; debugstring_of_symbol (currsymb()); ")"];
   if canstartCollectionidclass (currsymb ()) then
 	let c = parseidclass "" in
 	let (_, els) =
@@ -440,16 +440,16 @@ and parseterm fsy =
 
 and parseElementList starter parser__ sep k =
   let kind : idclass option ref = ref k in
-  let rec iscoll c =
+  let iscoll c =
 	match c with
 	  BagClass _ -> true
 	| ListClass _ -> true
 	| _ -> false
   in
-  let rec parseElement sep =
+  let parseElement sep =
 	let rec getSegvar () =
-	  let rec id con s k' =
-		let rec def k = scansymb (); Some ([], con (s, k)) in
+	  let id con s k' =
+		let def k = scansymb (); Some ([], con (s, k)) in
 		match !kind with
 		  Some k ->
 			if k = k' then def k
@@ -495,22 +495,22 @@ and parseTerm sy =
 (* -------------------------------------------------------------------------------- *)
 (*                               the interface functions                            *)
  
-let rec parseBindingpattern () = parseterm EOF
+let parseBindingpattern () = parseterm EOF
 
 (* no binding processing, please ... *)
    
-let rec parseidentifier _ =
-  let rec okv =
+let parseidentifier _ =
+  let okv =
 	function
 	  Id _ as t -> t
 	| Unknown _ as t -> t
-	| t -> raise (ParseError_ [termstring t; " is not an identifier"])
+	| t -> raise (ParseError_ [string_of_term t; " is not an identifier"])
   in
   okv (parseAtom ())
 
 (* for parsing sequents *)
 
-let rec parseCollection k =
+let parseCollection k =
   let (_, els) =
 	parseElementList canstartTerm parseTerm commasymbol (Some k)
   in
@@ -521,7 +521,7 @@ let rec parseCollection k =
  * applications as successive arguments
  *)
 
-let rec parsecurriedarglist _ =
+let parsecurriedarglist _ =
   if canstartTerm (currsymb ()) then
 	let rec flatten a1 a2 =
 	  match a1, a2 with
@@ -531,14 +531,14 @@ let rec parsecurriedarglist _ =
 	flatten (parseTerm (KET ")")) []
   else []
 
-let rec tryparse _R s =
-  let s = pushlex "" (of_utf8string s) in
+let tryparse _R s =
+  let s = pushlex "" (stream_of_utf8string s) in
   let r = 
     (try (let r = _R EOF in check EOF; r) with exn -> poplex s; raise exn)
   in poplex s; r
 
-let rec tryparse_dbug _R p s =
-  let lex_s = pushlex "" (of_utf8string s) in
+let tryparse_dbug _R p s =
+  let lex_s = pushlex "" (stream_of_utf8string s) in
   let r =
     (try
        let _ = consolereport ["tryparse_dbug \""; s; "\""] in
@@ -551,11 +551,11 @@ let rec tryparse_dbug _R p s =
        exn -> poplex lex_s; raise exn)
    in poplex lex_s; r
 
-let rec asTactic f a =
+let asTactic f a =
   let u = !undecl in
   let v = !unvar in
   let c = !unclass in
-  let rec cleanup () = undecl := u; unvar := v; unclass := c in
+  let cleanup () = undecl := u; unvar := v; unclass := c in
   undecl := (fun (_, t) -> t);
   unvar := (fun t -> t);
   unclass := (fun (_, t) -> t);
@@ -564,10 +564,10 @@ let rec asTactic f a =
 	   exn -> cleanup (); raise exn)
   in cleanup (); r
 
-let rec checkTacticTerm t =
-  let rec bang reason t = raise (Tacastrophe_ [reason; " "; termstring t])
+let checkTacticTerm t =
+  let bang reason t = raise (Tacastrophe_ [reason; " "; string_of_term t])
   in
-  let rec badvar =
+  let badvar =
 	function
 	  Id (_, _, class__) as t ->
 		if class__ <> VariableClass then
@@ -579,7 +579,7 @@ let rec checkTacticTerm t =
 		else None
 	| _ -> None
   in
-  let rec badterm =
+  let badterm =
 	function
 	  Id (_, _, class__) as t ->
 		if class__ = NoClass then bang "undeclared variable" t else None
@@ -591,6 +591,6 @@ let rec checkTacticTerm t =
   let _ = findterm badterm t in
   ()
 
-let rec term_of_string s = tryparse parseTerm s
+let term_of_string s = tryparse parseTerm s
 
-let rec tactic_of_string s = tryparse (asTactic parseTerm) s
+let tactic_of_string s = tryparse (asTactic parseTerm) s

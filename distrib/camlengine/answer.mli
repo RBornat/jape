@@ -41,8 +41,8 @@ val qDEFNOT : answer -> bool
 val qUNSURE : answer -> bool
 val takeNo : answer -> answer
 val takeYes : answer -> answer
-val unit2Maybe : unit -> answer
-val unit2No : unit -> answer
-val unit2Yes : unit -> answer
+val _Maybe_of_unit : unit -> answer
+val _No_of_unit : unit -> answer
+val _Yes_of_unit : unit -> answer
 
-val answerstring : answer -> string
+val string_of_answer : answer -> string
