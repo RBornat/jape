@@ -67,7 +67,7 @@ CLEANGUI:       ; (cd $(GUIDIR); $(MAKE) clean Jape.jar)
 #
 #       
 #
-components::    engine GUI examples ;\
+components::    engine GUI examples;\
                   rsync -v -t    $(GUIDIR)/Jape.jar .                       ;\
                   rsync -v -t    $(COMPILEDIR)/$(BUILTENGINE) ./$(DEPLOYEDENGINE)
 
@@ -77,7 +77,8 @@ install:        components; \
 
 clean:          ; rm -f $(BIN)/Jape.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape 
 
-distribution::  ; make components; (cd $(BUILDRESOURCES)/InstallerKit; make bootstrap) ;\
+distribution::  ; make components; \
+                  (cd $(BUILDRESOURCES)/InstallerKit; make bootstrap) ;\
                   (cd $(BUILDRESOURCES); ln -s InstallerKit/bootstrap .; make -f Makefile-java installjape.class);\
                   rm -rf bootstrap; mkdir bootstrap;\
                   rsync -v -t -r $(BUILDRESOURCES)/InstallerKit/bootstrap/ bootstrap/ ;\
@@ -92,6 +93,7 @@ jarfile:        examples; \
                   -splash       $(SPLASH)               \
                   examples                              \
                   -sync $(INSTALLRESOURCES) $(DEPLOYEDENGINE) Jape.jar  
+
 
 
 
