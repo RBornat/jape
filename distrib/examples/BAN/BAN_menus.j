@@ -38,7 +38,7 @@ MENU "Š"
 	ENTRY "PŠQŠ(X+Y) Û PŠQŠX"				IS ForwardOrBackward ForwardCut 0 "PŠQŠ(X+Y) Û PŠQŠX"
 	ENTRY "PŠQŠ(X+Y) Û PŠQŠY"				IS ForwardOrBackward ForwardCut 0 "PŠQŠ(X+Y) Û PŠQŠY"
 	SEPARATOR
-        ENTRY "PŠ(èx.X) Û PŠX[x\\Y]"			IS ForwardOrBackward ForwardCut 0 "PŠ(èx.X) Û PŠX[x\\Y]"
+        ENTRY "PŠ(èx.X(x)) Û PŠX(Y)"			IS ForwardOrBackward ForwardCut 0 "PŠ(èx.X(x)) Û PŠX(Y)"
         ENTRY "PŠQ•X, [PŠ#X] Û PŠQŠX"			IS ForwardOrBackward ForwardCut 1 "PŠ#X, PŠQ•X Û PŠQŠX"
 	ENTRY "PŠQŠX, [PŠQšX] Û PŠX"			IS ForwardOrBackward ForwardCut 1 "PŠQšX, PŠQŠX Û PŠX"
 	SEPARATOR
@@ -118,7 +118,7 @@ MENU "+"
 END
 
 MENU Logic 
-        ENTRY "PŠ(èx.X) Û PŠX[x\\Y]"			IS ForwardOrBackward ForwardCut 0 "PŠ(èx.X) Û PŠX[x\\Y]"
+        ENTRY "PŠ(èx.X(x)) Û PŠX(Y)"			IS ForwardOrBackward ForwardCut 0 "PŠ(èx.X(x)) Û PŠX(Y)"
         SEPARATOR
 	ENTRY hyp
 END

@@ -36,5 +36,5 @@ CUT cut
 RULE weaken(X) IS FROM Y INFER X æ Y
 WEAKEN weaken
 
-RULE "PŠ(èx.X) Û PŠX[x\\Y]"(Y) IS FROM PŠ(èx.X) INFER PŠX[x\Y]
+RULE "PŠ(èx.X(x)) Û PŠX(Y)"(Y,ABSTRACTION X) IS FROM PŠ(èx.X(x)) INFER PŠX(Y)
 
