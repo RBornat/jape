@@ -283,7 +283,7 @@
 			<string>$JAVAROOT/Jape.jar</string>
 		</array>
 		<key>JVMVersion</key>
-		<string>1.4+</string>
+		<string>1.4*</string>
 		<key>MainClass</key>
 		<string>uk.org.jape.Jape</string>
 		<key>Properties</key>
