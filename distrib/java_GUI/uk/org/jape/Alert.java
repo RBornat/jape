@@ -114,6 +114,10 @@ public class Alert implements DebugConstants {
         showAlert(JapeWindow.getTopWindow(), messagekind, message);
     }
 
+    public static void showAlert(Object message) {
+        showAlert(Info, message);
+    }
+
     static String quit="Quit", cont="Continue";
 
     public static void showErrorAlert(String message) {
