@@ -74,13 +74,13 @@ CONJECTUREPANEL "Classical conjectures"
 	THEOREM IS	Â(E¦F) æ ÂEëÂF
 	THEOREM IS	(EçF)ë(FçE)
 	
-	THEOREM IS	Â(äx.ÂR(x)) æ èx.R(x)
-	THEOREM IS	Â(èx.ÂR(x)) æ äx.R(x)
-	THEOREM IS	Â(èx.R(x)) æ äx.ÂR(x)
+	THEOREM IS	Âäx.(ÂR(x)) æ èx.R(x)
+	THEOREM IS	Âèx.(ÂR(x)) æ äx.R(x)
+	THEOREM IS	Âèx.R(x) æ äx.(ÂR(x))
 	
 	THEOREM IS actual j, actual k æ äx.(R(x)çR(j)¦R(k))
 
-	THEOREM IS	actual i, èx.(R(x)ëÂR(x)), Â(èy.ÂR(y)) æ äz.R(z)
+	THEOREM IS	actual i, èx.(R(x)ëÂR(x)), Âèy.(ÂR(y)) æ äz.R(z)
 	
 	BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 END
@@ -157,11 +157,11 @@ CONJECTUREPANEL Conjectures
 	THEOREM IS	äx.R(x)ëäx.S(x) æ äx.(R(x)ëS(x))
 	THEOREM IS	äx.(R(x)ëS(x)) æ äx.R(x)ëäx.S(x)
 	THEOREM IS	actual j, èx.R(x) æ äx.R(x)
-	THEOREM IS	èx.R(x) æ Â(äx.ÂR(x))
-	THEOREM IS	äx.R(x) æ Â(èx.ÂR(x))
-	THEOREM IS	äx.ÂR(x) æ Â(èx.R(x))
-	THEOREM IS	èx.ÂR(x) æ Â(äx.R(x))
-	THEOREM IS	Â(äx.R(x)) æ èx.ÂR(x)
+	THEOREM IS	èx.R(x) æ Âäx.(ÂR(x))
+	THEOREM IS	äx.R(x) æ Âèx.(ÂR(x))
+	THEOREM IS	äx.(ÂR(x)) æ Âèx.R(x)
+	THEOREM IS	èx.(ÂR(x) )æ Âäx.R(x)
+	THEOREM IS	Âäx.R(x) æ èx.(ÂR(x))
 
 	BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 END
