@@ -12,7 +12,7 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
 							(Fail (the hypothesis you formula-selected wasn't a pat formula))
 						)
 					)
-					(GOALPATH G 1)
+					(GOALPATH (SUBGOAL G 1))
 				) 
 				(WITHSUBSTSEL hyp)
 				(GOALPATH G)
@@ -35,12 +35,12 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS
 TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS
 	WHEN	
 		(LETHYPSUBSTSEL _P 
-				cut (LAYOUT () (1) ruleRL thm (WITHSUBSTSEL hyp))
+				cut (LAYOUT "" (1) ruleRL thm (WITHSUBSTSEL hyp))  /* guess at LAYOUT label */
 		)
-		(LETCONCSUBSTSEL _P (LAYOUT () (1) (WITHSUBSTSEL ruleLR) thm))
+		(LETCONCSUBSTSEL _P (LAYOUT "" (1) (WITHSUBSTSEL ruleLR) thm))
 		/* the "second argument" of the rewrite rules has to be B */
-		(LETHYP _P cut (LAYOUT () (1) (ruleRL[B\_P]) thm (WITHHYPSEL hyp)))
-		(LETGOAL _P (LAYOUT () (1) (ruleLR _P) thm))
+		(LETHYP _P cut (LAYOUT "" (1) (ruleRL[B\_P]) thm (WITHHYPSEL hyp)))
+		(LETGOAL _P (LAYOUT "" (1) (ruleLR _P) thm))
 
 MENU "System F«" IS
 	ENTRY "ç-I"	
