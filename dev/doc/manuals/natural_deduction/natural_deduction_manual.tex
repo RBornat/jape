@@ -66,7 +66,7 @@
 
 This manual is a how-to for Jape. Earlier versions contained a good deal of logic teaching. That's been dropped, since now there's a book (Logic for Programmers, OUP) which says it all a good deal better. You will learn about logic by playing with Jape, so I suppose there's still teaching in there.
 
-This document was written on a Mac, and the illustrations are all taken from the MacOS X version of Jape. Other Japes, on Linux, Solaris and Windows, run exactly the same code but the interface may look slightly different. I haven't produced lots of versions of the manual because I think --- rather, I hope --- that those differences in font, in window controls, in the placing of menus and so on, don't really matter. If I'm wrong then I hope somebody will tell me.
+This document was written on a Mac, and the illustrations are all taken from the MacOS X version of Jape. All Japes, on Linux, Solaris, Windows, MacOS X or whereever, run exactly the same code but the interfaces can look slightly different. I haven't produced different versions of the manual because I think --- rather, I hope --- that those differences in fonts, in window controls, in the placing of menus and so on, don't really matter. If I'm wrong then I hope somebody will tell me.
 
 \section*{Jape or NDJape?}
 
@@ -95,6 +95,8 @@ For the rest of it I've been strongly influenced by colleagues at Queen Mary, ma
 
 Jape began as an experiment towards the end of an EPSRC research project on the use of symbolic calculators to teach formal reasoning, joint with Steve Reeves and Doug Goldson at Queen Mary, and Tim O'Shea and Pat Fung at the Open University. A later project, with Pat Fung and James Aczel from the OU, looked at students using Jape; James's insightful summary of their difficulties led to a redesign of the treatment of natural deduction, and directly to this version of the program.
 
+Jape's proof engine was originally written in SML and compiled by SMLNJ, with interfaces for different operating systems written in C, tcl/tk, Python and I can't remember what else. In 2002 I ported the engine to OCaml and wrote a system-independent interface module in Java. I'm grateful to the implementers of all those languages, especially for their decision to provide their software for free. Jape is free too, at http:www.jape.org.uk. 
+
 In what follows the mistakes are all my own.
 
 \chapter{Basics}
@@ -122,9 +124,9 @@ In what follows the mistakes are all my own.
 
 If you don't already have Jape, download it from http://www.jape.org.uk. Install it, following the instructions carefully.
 
-You should have a directory containing Jape, another program called jape\_engine, and a subdirectory called examples. Double-click Jape, and you will see a window like \figref{splashscreen}.\footnote{You may see minor differences. The illustrations in this manual are taken from MacOS X. On Windows and Linux you will see a menu bar in the window and the window title will be Jape. But those things don't matter much, and I won't refer to them again.}
+You should have a directory containing Jape, another program called jape\_engine, and a subdirectory called examples. Double-click Jape, and you will see a window like \figref{splashscreen}.\footnote{You may see minor differences. The illustrations in this manual are taken from MacOS X. On Windows and Linux you will see a menu bar in the window and the window title will be Jape. But those differences don't matter much, so I won't refer to them again.}
 
-Using the Open New Theory command in  the File menu, open examples/natural\_deduction/I2L.jt. You should see several windows containing logical conjectures (claims to be proved), which we call \emph{panels} in Jape. The Conjectures panel should look something like \figref{conjecturespanel} (you will probably have to resize the window to make it look like this). Double-click any line --- or select a line and press the Prove button at the bottom of the panel --- and you're off. You will see a \emph{proof window} like \figref{firstproofwindow}, and off you go!
+Using the Open New Theory command in  the File menu, open examples/natural\_deduction/I2L.jt. You should see several windows containing logical conjectures (claims to be proved), called \emph{panels} in Jape. The Conjectures panel should look something like \figref{conjecturespanel} (you will probably have to resize the window to make it look like this). Double-click any line to begin, or select a line and press the Prove button at the bottom of the panel. You will see a \emph{proof window} like \figref{firstproofwindow}, and off you go!
 
 \begin{figure}
 \centering
@@ -137,7 +139,7 @@ Using the Open New Theory command in  the File menu, open examples/natural\_dedu
 
 When you have made a proof of a conjecture --- no more lines of dots in the proof window --- you can save it: pull down the Edit menu and select Done. The proof window closes, and Jape records the fact that the conjecture is proved, marking its entry in the conjectures panel with a tick in the margin, as illustrated in \figref{provedconjecture}.
 
-Proof of the conjecture has made it a theorem. You can use theorems in your proofs as if they were additional Natural Deduction rules by using the Conjectures panel's Apply button, and you can review 
+Proof of a conjecture makes it a theorem. You can use theorems in your proofs as if they were additional Natural Deduction rules by using the Conjectures panel's Apply button, and you can review 
 their proofs using the Show Proof button.
 
 \section{Saving and restoring your work}
@@ -148,11 +150,11 @@ Jape offers to record your proofs --- saved and unsaved --- when you quit or whe
 
 \subsection{Only reflect}
 
-Jape is designed to be easy to use, which means that the mouse and menu and window stuff don't get in the way of the logic. It's so easy to use that you can have great fun clicking away, `solving' lots of problems without always knowing exactly what you're doing. That's ok, because you are learning while you're having fun, and it means that you can do things for yourself without asking for help. But it's obviously not the whole story.
+Jape is designed to be easy to use, which means that the mouse and menu and window stuff don't get in the way of the logic. It's so easy to use that you can have great fun clicking away, `solving' lots of problems without always knowing exactly what you're doing. That's ok, because you can learn while you're having fun, and you can do things for yourself without asking for help. But it's obviously not the whole story.
 
 Because Jape is easy to use it brings you quickly to a point where you can ask interesting and important questions. The kind of question you are supposed to ask is ``is the logic really supposed to work like \emph{that}?'' If there are experts around you can ask them, but if you are on your own you can still ask yourself. That isn't a daft thing to do: educationalists call it \emph{reflection}, and it's one of the best ways to learn.
 
-Some, perhaps most, logical proofs are hard to believe at first. Some single logical steps are pretty surprising. I hope that you will always read through finished Jape proofs, and ask yourself if you believe them. If there is a surprise, ask yourself: where does the surprise come from? By undoing and redoing steps you can watch the surprise emerge and explain to yourself why it's necessary.
+Some logical proofs are hard to believe at first. Some single logical steps are pretty surprising. I hope that you will always read through finished Jape proofs to see if you can believe them. If there is a surprise, ask yourself: where does the surprise come from? By undoing and redoing steps you can watch the surprise emerge and explain to yourself why it's necessary.
 
 Jape's a kind of machine, and that has disadvantages as well as advantages. The big advantage is that a machine can do formal calculation --- proof and disproof --- perfectly, without mistake. The big disadvantage is that it can't understand anything about what it's doing. Jape doesn't know the difference between a nice proof and a nasty one. Sometimes reflection will show you that there is a shorter or prettier proof than the one you have made. You can always undo your work and try again!
 
@@ -162,14 +164,14 @@ We read proofs top-to-bottom most of the time. Novices, quite reasonably, imagin
 
 Bravery is needed, too, when learning how proof steps work. It's reasonable when playing with an interactive program to first try only steps that make small changes, but eventually you have to try everything. It's just like riding a bike: once you've plucked up courage you can't remember what it felt like to be scared of $|$ elim or $@$ intro or whatever. Just do it!  
 
-\subsection{Making and discharging assumptions}
+\subsection{Never guess an assumption}
 
-A proof is really a \textit{structure} \textit{of deductions}, not a sequence of lines, and its assumption boxes show that structure. Reading a proof from top to bottom, every assumption that is introduced must also be \textit{discharged} by the use of a rule which makes use of the box. Jape guarantees correct use of assumptions by combining introduction and discharge into a single step. So assumptions are introduced (and discharged) by using rules, and the rules that do it --- some forward, some backward --- are labelled in the menus. Jape helps you, in every case, by calculating the assumption that you need: there is \textit{never} a need to guess an assumption.
+A proof is really a \emph{structure of deductions}, not a sequence of lines, and its assumption boxes show that structure. Reading a proof from top to bottom, every assumption that is introduced must also be \emph{discharged} by the use of a rule which makes use of the box. Jape guarantees correct use of assumptions by combining introduction and discharge into a single step. Assumptions are introduced (and discharged) by using rules, and the rules that do it --- some forward, some backward --- are labelled in the menus. Jape helps you, in every case, by calculating the assumption that you need: there is \emph{never} a need to guess an assumption.
 
 \chapter{Gestures: mouse clicks, presses and drags}
 \label{chap:gestures}
 
-Like all interactive programs, Jape accepts instructions through the mouse and the keyboard. Mostly you will use the mouse, to \emph{select} a formula or a subformula in the proof window and then to \emph{command} what to do with your selection using a command from a menu. Most of the ways that Jape uses the mouse are pretty standard.
+Like every other interactive program, Jape accepts instructions through the mouse and the keyboard. Mostly you will use the mouse, to \emph{select} a formula or a subformula in the proof window and then to \emph{command} what to do with your selection using a command from a menu. Most of the ways that Jape uses the mouse are pretty standard.
 
 \begin{figure}
 \centering
@@ -194,11 +196,13 @@ Like all interactive programs, Jape accepts instructions through the mouse and t
 \section{Formula selection}
 \label{sec:formulaselection}
 
-The most common selection is made with a single click (left-click on a multi-button mouse). You click on a formula --- a \emph{hypothesis} above the line of dots or a \emph{conclusion} below the dots --- and Jape highlights your selection with an enclosing red box. If you click on a hypothesis you get a downward-facing box as in \figref{hypothesisselection}; if you click on a conclusion you get an upward-facing box as in \figref{conclusionselection}. You can select both a hypothesis and a conclusion, as in \figref{hypothesisandconclusion}.
+Formula selection is made with a single click (left-click on a multi-button mouse). You click on a formula --- a \emph{hypothesis} above the line of dots or a \emph{conclusion} below the dots --- and Jape highlights your selection with an enclosing red box. If you click on a hypothesis you get a downward-facing box as in \figref{hypothesisselection}; if you click on a conclusion you get an upward-facing box as in \figref{conclusionselection}. You can select both a hypothesis and a conclusion, as in \figref{hypothesisandconclusion}.
 
 Clicking on the background --- a white part of the proof window --- cancels all your selections.
 
-Simple clicks will let you select one conclusion and one hypothesis at a time. Normally a second hypothesis click cancels the first, but if you hold down the Shift key while you click you can select more than one hypothesis, as shown in \figref{multipleselection}. And then, also using the Shift key whilst clicking, you can cancel a selection you've made.
+Simple clicks will let you select one conclusion and one hypothesis at a time. Normally a second hypothesis click cancels the first, but if you hold down the Shift key while you click you can select more than one hypothesis, as shown in \figref{multipleselection}. And then, also using the Shift key whilst clicking, you can cancel individual formula selections.
+
+There is no way of selecting more than one conclusion at a time.
 
 \begin{figure}
 \centering
@@ -218,9 +222,9 @@ Simple clicks will let you select one conclusion and one hypothesis at a time. N
 
 \subsection{Ambiguous formulae click both ways}
 
-In \figref{ambiguousformula} there are two open conclusions on lines 3 and 4 respectively, each preceded by a line of dots to show that there's work to be done. Lines 1 and 2 aren't conclusions, and can only be used as hypotheses to prove lines 3 and 4. Line 5 can't be used at all: it's a proved conclusion. Line 4 can only be proved as a conclusion, because there's nothing below it in the box. But line 3 is ambiguous: it has to be proved, perhaps using lines 1 and 2, and it can be used as a hypothesis to prove line 4. 
+In \figref{ambiguousformula} there are open conclusions on lines 3 and 4, each preceded by a line of dots to show that there's work to be done. Lines 1 and 2 aren't conclusions, and can only be used as hypotheses to prove lines 3 and 4. Line 5 can't be used at all: it's a proved conclusion. Line 4 can only be a conclusion and not a hypothesis, because there's nothing below it in the box. But line 3 is ambiguous: it has to be proved as a conclusion, perhaps using lines 1 and 2, and it can be used as a hypothesis to prove line 4. 
 
-Ambiguous formulae like $F->G$ on line 3 of \figref{ambiguousformula} can be selected in two ways. If you click on the \emph{top half} of the formula you get a box open at the top --- i.e. a conclusion selection --- with a dotted line across the bottom to show you that there is an alternative way to use the formula, as shown in \figref{ambiguousconclusion}. If you click on the \emph{bottom half} you get a box open at the bottom --- i.e. a hypothesis selection --- as shown in \figref{ambiguoushypothesis}.
+Ambiguous formulae like $F->G$ on line 3 of \figref{ambiguousformula} can be selected in two ways. If you click on the \emph{top half} of the formula you get a box open at the top --- i.e. a conclusion selection --- with a dotted line across the bottom, as shown in \figref{ambiguousconclusion}. If you click on the \emph{bottom half} you get a box open at the bottom --- i.e. a hypothesis selection --- with a dotted line across the top, as shown in \figref{ambiguoushypothesis}.
 
 \subsection{Greying-out}
 
@@ -254,7 +258,7 @@ If you hold down the add-a-selection shift key (ctrl on Windows and Linux, comma
 
 Jape restricts subformula selections to well-formed subformulae, as you can discover by experiment. That means that if you option/alt/middle-click on a connective or a quantifier, a whole subformula is highlighted. If you option/alt/middle-click on a name, only that name is highlighted.
 
-Option/alt/middle-clicking or pressing on a new subformula cancels all other subformula selections, unless you hold down the add-a-selection shift key. Option/alt/middle-clicking on the background --- a white part of the proof window --- cancels all your subformula selections.
+Option/alt/middle-clicking or pressing on a new subformula cancels all other subformula selections, unless you hold down the add-a-selection shift key (Command on MacOS, Ctrl on other systems). Option/alt/middle-clicking on the background --- a white part of the proof window --- cancels all your subformula selections.
 
 Formula and subformula selections are independent: you can have one without the other, or both, or neither. Cancelling one kind of selection doesn't cancel the other. 
 
@@ -277,7 +281,7 @@ In the disproof pane --- see \chapref{disproof} --- you can drag formulae, tiles
 \label{fig:forwardmenu}}
 \end{figure}
 
-Because we read proofs forward, top-to-bottom, most proof novices try to make only forward steps. But you need to be able to make backward steps as well, and I've gone to some trouble to force you to recognise the fact. In the Backward menu, shown in \figref{backwardmenu}, the first group of steps above the line work best backwards and the group below that line can be made to work backward if you try hard. The Forward menu, in \figref{forwardmenu}, similarly shows steps that work well forward before ones that work forward only with difficulty. `hyp' is hard to classify, so it appears in both menus.
+Because we read proofs forward, top-to-bottom, forward steps are easiest to understand and most proof novices prefer working forwards. But lots of proofs are difficult working forwards, and some are almost impossibly difficult. To make proofs in Jape you need to be able to make backward steps as well, and I've gone to some trouble to force you to recognise the fact. In the Backward menu, shown in \figref{backwardmenu}, the first group of steps above the line work best backwards and the group below that line can be made to work backward if you try hard. The Forward menu, in \figref{forwardmenu}, similarly shows steps that work well forward before ones that work forward only with difficulty. `hyp' is hard to classify, so it appears in both menus.
 
 To make a step you select one or more formulae and choose a step from the Backward or Forward menu. The selections you need to make depend on the step you choose, and are detailed in the descriptions of the steps in later chapters, but in general for a forward step you must choose a hypothesis and for a backward step an open (unproved) conclusion.
 
@@ -417,8 +421,7 @@ in \figref{velimneedstargetconclusion}. The result of the step (there's quite a 
 
 \section{Making a backward step}
 
-
-Backward steps work on an open conclusion --- a line without a justification, and written just below a line of three dots --- and give it a justification. They may prove it completely, if Jape can find hypotheses to match the antecedents, or the antecedents may become unproved conclusions. For example, \figref{concselectedforbackwardstep} shows an open conclusion selection, and \figref{concselectedforbackwardstepresult} shows the effect of a backward $@$ intro step, where each antecedent has become a new open conclusion. \Figref{concselectedforbackwardstep2} shows the same conclusion selected when there are more hypothesis formulae available, and in \figref{concselectedforbackwardstep2result} only one open conclusion is generated because line 3 matches the antecedent of the $@$ intro step.
+Backward steps work on an open conclusion --- a line without a justification, written just below a line of three dots. They may prove it completely, if Jape can find hypotheses to match the antecedents, or the antecedents may become unproved conclusions. For example, \figref{concselectedforbackwardstep} shows an open conclusion selection, and \figref{concselectedforbackwardstepresult} shows the effect of a backward $@$ intro step, where each antecedent has become a new open conclusion. \Figref{concselectedforbackwardstep2} shows the same conclusion selected when there are more hypothesis formulae available, and in \figref{concselectedforbackwardstep2result} only one open conclusion is generated because line 3 matches the antecedent of the $@$ intro step.
 
 In every case the justification of the step is written next to the selected conclusion, the consequent of the step.
 
@@ -458,7 +461,7 @@ conclusion in the proof, it would be annoying to be told to select
 that to make a backward step. If the only possible target conclusion 
 is on the next line to the hypothesis, it would be annoying to 
 be told to select it when a step needs a target. So in all those 
-cases ND Jape lets you get away without selection, and does the 
+cases Jape lets you get away without selection, and does the 
 obvious thing.
 
 
@@ -742,405 +745,197 @@ Constructive contra backwards is destructive: it throws away whatever conclusion
 
 You can always prove $\top$ as an open conclusion: select it and apply ``truth'' from the Backward menu. And that's all you can do with $\top$: no forward step is possible.
 
+\begin{figure}
+\centering
+\subfigure[before: $@*x.!R(x)$ conclusion selected]{
+  \label{fig:forallintrobackwardsA}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/forallintrobackwardsA}}}}
+\qquad
+\subfigure[after: generalised proof outline introduced, with private variable $i$]{
+  \label{fig:forallintrobackwardsB}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/forallintrobackwardsB}}}}
+\caption{A $@*$ intro step backwards}
+\label{fig:forallintrobackwards}
+\end{figure}
+
+\begin{figure}
+\centering
+\subfigure[before: $@*x.(R(x)@S(x))$ and $\protect\<actual> i$ hypotheses selected]{
+  \label{fig:forallelimforwardsA}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/forallelimforwardsA}}}}
+\qquad
+\subfigure[after: $R(i)@S(i)$ consequent deduced]{
+  \label{fig:forallelimforwardsB}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/forallelimforwardsB}}}}
+\caption{A $@*$ elim step forwards}
+\label{fig:forallelimforwards}
+\end{figure}
+
 \section{$@*$ steps}
+\var{i1,i2}
+$@*$ intro works backwards, $@*$ elim forwards. $@*$ intro is worth using early, because it introduces a variable. The privacy condition on the $@*$ intro step won't usually bother you, because Jape always invents a new variable ($i$, $\<i1>$, $\<i2>$, and so on).
 
-$@*$ intro works backwards, $@*$ elim forwards. You won't usually trip up over the privacy condition on the $@*$ intro step.
+To use $@*$ intro backwards, select an open conclusion $@*x.P(x)$ and choose ``$@*$ intro'' from the Backward menu. Jape builds the outline of the generalised proof, as illustrated in \figref{forallintrobackwards}. 
 
-To use $@*$ intro backwards, select an open conclusion that matches $@*x.P(x)$ and choose ``$@*$ intro'' from the Backward menu. Jape builds the outline of the generalised proof, as shown in \figref{forallintrobackwards}, for example. If your proof contains unknowns then Jape also adds 
-%\newpage
+To use $@*$ elim forwards, you must select a hypothesis $@*x.P(x)$ and also $\<actual> j$, then choose ``$@*$ elim'' from the Forward menu. The effect is illustrated in \figref{forallelimforwards}.
 
-%\begin{center}
-%10. Proof steps with quantifier ({\large $@*$} and {\large $|*$}) rules
+%If your proof attempt contains unknowns then $@*$ intro may generate provisos: see \secref{provisos}.
 
-%
-%\end{center}
+\begin{figure}
+\centering
+\subfigure[before: $|*x.!R(x)$ hypothesis and target conclusion $\bot$ selected]{
+  \label{fig:existselimforwardsA}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/existselimforwardsA}}}}
+\qquad
+\subfigure[after: generalised proof outline introduced, with private variable $i$]{
+  \label{fig:existselimforwardsB}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/existselimforwardsB}}}}
+\caption{An $|*$ elim step forwards}
+\label{fig:existselimforwards}
+\end{figure}
 
-%The $@*$ rules are generalisations of the $@$ rules; the $|*$ 
-%rules are generalisations of the $|$ rules. $@*$ elim works forwards, 
-%$@*$ intro works backwards; $|*$ elim, like $|$ elim, works 
-%forwards and $|*$ intro works backwards. Each of these 
-%rules has something to do with the meta-remark `actual \texttt{<}\textit{name}\texttt{>}' 
-%which guarantees that a particular thing is in the universe.\\
+\begin{figure}
+\centering
+\subfigure[before: $|*x.!R(x)$ conclusion and $\protect\<actual> i$ hypothesis selected]{
+  \label{fig:existsintrobackwardsA}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/existsintrobackwardsA}}}}
+\qquad
+\subfigure[after: $!R(i)$ antecedent deduced]{
+  \label{fig:existsintrobackwardsB}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/existsintrobackwardsB}}}}
+\caption{An $|*$ elim step backwards}
+\label{fig:existsintrobackwards}
+\end{figure}
 
-%
-%\begin{longtable}{|p{2.207in}|p{2.207in}|p{0.043in}|p{0.043in}|}
-%\hline
-%% ROW 1
-%{\raggedright 
-%$\frac{
-%\begin{array}{c}
-%\vdots  \\
-%\forall x\left( P\left( x\right) \right) 
-%\end{array}
-%\quad 
-%\begin{array}{c}
-%\vdots  \\
-%\text{actual } i
-%\end{array}
-%}{P\left( i\right) } \text{ }\forall \text{
-%}\text{e}\text{l}\text{i}\text{m}$
-%} & 
-%{\raggedright 
-%$\frac{\left. 
-%\begin{array}{c}
-%\left[ \text{actual } i\right]  \\
-%\vdots  \\
-%P\left( i\right) 
-%\end{array}
-%\right\} \text{
-%}\text{(}\text{p}\text{r}\text{i}\text{v}\text{a}\text{t}\text{e}\text{
-%}i\text{)}}{\forall x\left( P\left( x\right) \right) } \text{ }\forall
-%\text{ }\text{i}\text{n}\text{t}\text{r}\text{o}$
-%}\\
-%\hline
-%% ROW 2
-%{\raggedright 
-%$\frac{
-%\begin{array}{c}
-%\\
-%\vdots  \\
-%\exists x\left( P\left( x\right) \right) 
-%\end{array}
-%\quad \left. 
-%\begin{array}{c}
-%\left[ \text{actual } i,\text{ } P\left( i\right) \right]  \\
-%\vdots  \\
-%C
-%\end{array}
-%\right\} \text{
-%}\text{(}\text{p}\text{r}\text{i}\text{v}\text{a}\text{t}\text{e}\text{
-%}i\text{)}}{C} \text{ }\exists \text{ }\text{e}\text{l}\text{i}\text{m}$
-%} & 
-%{\raggedright 
-%$\frac{
-%\begin{array}{c}
-%\vdots  \\
-%P\left( i\right) 
-%\end{array}
-%\quad 
-%\begin{array}{c}
-%\vdots  \\
-%\text{actual } i
-%\end{array}
-%}{\exists x\left( P\left( x\right) \right) } \text{ }\exists \text{
-%}\text{i}\text{n}\text{t}\text{r}\text{o}$
-%}\\
-%\hline
-%\end{longtable}
+\section{$|*$ steps}
+$|*$ intro works backwards, $|*$ elim forwards. $|*$ elim is worth using early, because it introduces a variable. The privacy condition on the $|*$ elim step won't usually bother you, because Jape always invents a new variable ($i$, $\<i1>$, $\<i2>$, and so on).
 
-%
-%To use the $@*$ elim rule, point to a universal hypothesis formula 
-%and an `actual \texttt{<}\textit{name}\texttt{>}' hypothesis, and make a forward 
-%step. To use the $@*$ intro rule, point to a universal unproved-conclusion 
-%formula, and make a backward step. To use $|*$ elim, point 
-%to an existence hypothesis and a target conclusion, and make 
-%a forward step. To use $|*$ intro, point to an existence 
-%unproved-conclusion formula and an `actual \texttt{<}\textit{name}\texttt{>}' 
-%hypothesis, and make a backward step.
+To use $|*$ elim forwards, you must select a hypothesis $|*x.P(x)$ and also a target conclusion, and then choose ``$|*$ elim'' from the Forward menu. The justification is written next to the target conclusion, and a generalised proof outline is introduced, as illustrated in \figref{existselimforwards}.
 
-%
-%\textit{Privacy and the NOTIN proviso}
+To use $|*$ intro backwards, you must select a conclusion $|*x.P(x)$ and also a hypothesis $\<actual> j$, and then choose ``$|*$ intro'' from the Backward menu. The effect is illustrated in \figref{existsintrobackwards}.
 
-%
-%Jape can normally enforce the privacy constraint on $@*$ intro 
-%and $|*$ elim just by inventing a name which hasn't already 
-%been used in the proof to use in place of \textit{i}. But if there 
-%are unknowns around, that isn't enough to ensure that assumptions 
-%about \textit{i} aren't somehow manufactured by unification and smuggled 
-%into the hypothesis proof. When that is a danger, Jape imposes 
-%a special side-condition called a \textit{proviso}, and it writes 
-%it in the proviso pane underneath the proof pane.\\
-%If this happens (and it happens very rarely, so it may never 
-%happen to you) you will find that Jape won't make you make steps 
-%--- especially \textit{hyp} or Unify steps --- which you would like to 
-%make. That's because your step would break the privacy constraint 
-%of a $@*$ intro or $|*$ elim step that you took earlier 
-%in the proof. When you come across this difficulty you have to 
-%reconsider your proof strategy: Jape won't relax its guard on 
-%privacy.
-
-%
-%\textbf{{\large 10.1 A trivial example using \textbf{$@*$ elim}}}
-
-%
-%\begin{center}
-%\includegraphics[width=3.097in, height=0.667in]{natural_deduction_manualFig80.pict}
-%\end{center}
-
-%
-
-%Select actual j and $@*$x.(R(x)$->$S(x)) on line 1:
-
-%
-%\begin{center}
-%\includegraphics[width=3.097in, height=0.667in]{natural_deduction_manualFig81.pict}
-%\end{center}
-
-%
-
-%and choose $@*$ elim from the Forward menu, giving
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=3.403in, height=0.917in]{natural_deduction_manualFig82.pict}
-%\caption{natural_deduction_manualFig82.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%(I leave the rest to you...).
-
-%
-%\textbf{{\large 10.2 A simple example using \textbf{$@*$ intro} and \textbf{$@*$ 
-%elim}}}
-
-%
-%\begin{center}
-%\includegraphics[width=3.389in, height=0.667in]{natural_deduction_manualFig83.pict}
-%\end{center}
-
-%
-
-%There isn't an `actual \texttt{<}\textit{name}\texttt{>}' remark anywhere, so 
-%we can't use $@*$ elim. $@*$ intro backwards from line 2 is easy, 
-%on the other hand. Select line 2 and choose the step from the 
-%Backward menu:
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=3.542in, height=1.250in]{natural_deduction_manualFig84.pict}
-%\caption{natural_deduction_manualFig84.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%Rules of thumb tell us to use $->$ intro backwards immediately, 
-%so make that step next (though actually in this case it doesn't 
-%matter whether we do it now or a bit later):
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=3.542in, height=1.833in]{natural_deduction_manualFig85.pict}
-%\caption{natural_deduction_manualFig85.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%Now we can do a $@*$ elim step forward. Select one of the formulae 
-%on line 1, and the remark on line 2:
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=3.542in, height=1.833in]{natural_deduction_manualFig86.pict}
-%\caption{natural_deduction_manualFig86.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%$@*$ elim takes us in the direction we need to go:
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=3.569in, height=2.083in]{natural_deduction_manualFig87.pict}
-%\caption{natural_deduction_manualFig87.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%(I leave the rest to you...)
+%If your proof attempt contains unknowns then $|*$ elim may generate provisos: see \secref{provisos}.
 
 \chapter{Unknowns, hyp and Unify}
 \label{chap:unknowns}
-%\newpage
+\var{B1}
 
-%\begin{center}
-%9. Unknowns, hyp and unify
+When James Aczel looked at novices learning logic with Jape, he pointed out that they found \emph{incomplete steps} quite disconcerting. Incomplete steps are ones that let you leave out important information so that you can fill it in later, when you've discovered what it ought to be. You might be allowed to leave out the variable in an $|*$ intro step, for example, and fill it in later. 
 
-%
-%\end{center}
+Jape uses \emph{unknowns} --- names starting with an underscore, like $\_\<B1>$ --- to stand for formulae which can be filled in later. Even though James persuaded me to eliminate almost all incomplete steps from my treatment of natural deduction, my users pleaded with me to allow some. So it is possible to introduce unknowns into a Jape proof, and because of that it's necessary to know how to get rid of them again.
 
-%It's sometimes convenient to use $|$ intro going forwards. It's 
-%sometimes essential to use $!$ elim going backwards. To 
-%make either of these steps successfully with Jape, you have to 
-%understand the notion of an \textit{unknown}. An unknown is a formula-shaped 
-%hole in a proof, waiting for you to fill it. Jape introduces 
-%an unknown whenever you ask it to make a step and it can't calculate 
-%all the results of the step.
+To understand what follows you have to recognise the distinction between \emph{formula selection} (red box round a conclusion or a hypothesis formula) and \emph{subformula selection} (yellow background behind part or all of a conclusion or hypothesis formula). Note, in particular, that a subformula selection that encompasses a complete formula is \emph{not} the same thing as a formula selection.
 
-%
-%An unknown looks like a formula name preceded by an underscore. 
-%When ND Jape introduces one it will write it as \_B, \_B1 and 
-%so on. An unknown is a placeholder in a proof --- something that 
-%will eventually be replaced by an ordinary formula.
+\begin{figure}
+\centering
+\subfigure[before: $|*x.!R(x)$ hypothesis selected]{
+  \label{fig:orintroforwardsA}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/orintroforwardsA}}}}
+\qquad
+\subfigure[after: unknown $\_\protect\<B1>$ introduced in consequent]{
+  \label{fig:orintroforwardsB}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/orintroforwardsB}}}}
+\caption{An $|$ intro step forwards}
+\label{fig:orintroforwards}
+\end{figure}
 
-%
-%\textbf{{\large 9.1 How to introduce an unknown into your proof}}
+\begin{figure}
+\centering
+\subfigure[before: conclusion is $\bot$]{
+  \label{fig:notelimbackwardsA}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/notelimbackwardsA}}}}
+\qquad
+\subfigure[after: unknown $\_\protect\<B1>$ introduced in antecedents]{
+  \label{fig:notelimbackwardsB}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/notelimbackwardsB}}}}
+\caption{A $!$ elim step backwards}
+\label{fig:notelimbackwards}
+\end{figure}
 
-%
-%The problem isn't how to introduce unknowns, it's how to get rid 
-%of them once they've got into the proof. But to begin, you have 
-%to know how they get in there.\\
+\section{Introducing an unknown}
 
-%
-%\begin{longtable}{|p{1.057in}|p{1.057in}|p{1.057in}|p{1.159in}|p{0.042in}|p{0.042in}|p{0.042in}|p{0.042in}|}
-%\hline
-%% ROW 1
-%{\raggedright 
-%$\frac{
-%\begin{array}{c}
-%\vdots  \\
-%A
-%\end{array}
-%}{A\vee B} \text{ }\vee \text{ }\text{i}\text{n}\text{t}\text{r}\text{o}$
-%} & 
-%{\raggedright 
-%$\frac{
-%\begin{array}{c}
-%\vdots  \\
-%B
-%\end{array}
-%}{A\vee B} \text{ }\vee \text{ }\text{i}\text{n}\text{t}\text{r}\text{o}$
-%} & 
-%{\raggedright 
-%$\frac{
-%\begin{array}{c}
-%\vdots  \\
-%B
-%\end{array}
-%\quad 
-%\begin{array}{c}
-%\vdots  \\
-%\neg B
-%\end{array}
-%}{\bot } \text{ }\neg \text{ }\text{e}\text{l}\text{i}\text{m}$
-%} & 
-%{\raggedright 
-%$\frac{
-%\begin{array}{c}
-%\vdots  \\
-%\bot 
-%\end{array}
-%}{B} \text{ }\text{c}\text{o}\text{n}\text{t}\text{r}\text{a}\text{
-%}\text{(}\text{c}\text{o}\text{n}\text{s}\text{t}\text{r}\text{u}\text{c}\text{t}\text{i}\text{v}\text{e}\text{)}$
-%}\\
-%\hline
-%\end{longtable}
+$|$ elim backwards takes a formula with an $|$ connective and throws away half of it, because from $A$ you can prove $A|B$, and from $B$ you can prove $A|B$. Some obsessively-forward reasoners wanted me to allow $|$ intro forwards, and just to spite them I did: it's there in the Forward menu, under the line. \Figref{orintroforwards} shows how you can deduce $A|\_B$ from $A$ by choosing ``$|$ intro (inventing right)'' from the Forward menu.
 
-%
-%If you are using one of the $|$ intro rules forward, you select 
-%a hypothesis A and make the step. What formula matches \textit{B} 
-%in the rule? If you are using $!$ elim backwards you select 
-%a conclusion $\bot$ and make the step. What formula matches \textit{B} 
-%in the rule? (You can even get an unknown if you use constructive 
-%contra forward in somecircumstances!)
+$!$ elim backwards is another good way to get an unknown, illustrated in \figref{notelimbackwards}. There's only one unknown in the proof, but it occurs twice.
 
-%
-%In each of these cases it is impossible to complete the step 
-%without further information, and therefore ND Jape will make 
-%an incomplete step, using an unknown to match the unmatched formula.
+These are by no means the only way to introduce unknowns into a proof. One very interesting way is to select a conclusion, choose ``Text command'' from the File menu, type ``apply cut'' and press return. You will get an unknown, intermediate between the hypotheses and your conclusion. I leave you to work out how useful that can be.
 
-%
-%Suppose you have the following:
+\begin{figure}
+\centering
+\subfigure[before: conclusion $\bot$ selected, subformula $!R(x)$ selected]{
+  \label{fig:notelimbackwardswithsubformulaA}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/notelimbackwardswithsubformulaA}}}}
+\qquad
+\subfigure[after: $!R(x)$ used in antecedents of $!$ elim]{
+  \label{fig:notelimbackwardswithsubformulaB}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/notelimbackwardswithsubformulaB}}}}
+\caption{A $!$ elim step backwards with subformula selection}
+\label{fig:notelimbackwardswithsubformula}
+\end{figure}
 
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.319in, height=1.903in]{natural_deduction_manualFig68.pict}
-%\caption{natural_deduction_manualFig68.pict about here.}
-%\end{center}
-%\end{figure}
+\section{Avoiding unknowns by subformula selection}
 
-%
-%You want to get $!$E$|$$!$F from line 2, to show 
-%the contradiction you need on line 3. If you select line 2 and 
-%choose ``$|$ intro (invents right)'' from the Forward menu, you 
-%see:
+If you know beforehand what should go in place of the unknown, you can tell Jape what to use at the time you make an $|$ intro or $!$ elim step, by subformula selection (alt/option/middle-press-and-drag over the formula or subformula you want to use). \Figref{notelimbackwardswithsubformula} shows an example: note that the hypothesis is \emph{not} selected, but $!R(x)$ is subformula-selected.
 
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.361in, height=2.153in]{natural_deduction_manualFig69.pict}
-%\caption{natural_deduction_manualFig69.pict about here.}
-%\end{center}
-%\end{figure}
+\begin{figure}
+\centering
+\subfigure[before: subformulae $|*x.!R(x)$ and $\_\protect\<B1>$ selected]{
+  \label{fig:unifyreplacesunknownA}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/unifyreplacesunknownA}}}}
+\qquad
+\subfigure[after: instances of $\_\protect\<B1>$ replaced by $|*x.!R(x)$]{
+  \label{fig:unifyreplacesunknownB}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/unifyreplacesunknownB}}}}
+\caption{Effect of a Unify command}
+\label{fig:unifyreplacesunknown}
+\end{figure}
 
-% 
-%Almost right! \_B1 on line 3 is a placeholder for a formula that 
-%we haven't told Jape about. We intend it to be replaced by $!$F, 
-%but we haven't yet told it that yet.
+\section{Eliminating an unknown with Unify}
 
-%
-%The other way to get an unknown is with $!$ elim used backwards. 
-%Suppose you have
+If you have an unknown in your proof, and a subformula somewhere in the proof which you want to use to replace the unknown, then subformula selection and the ``Unify'' command from the Edit menu will do the job. You subformula-select two or more subformulae which you want to make the same by replacing unknowns (command/control-alt/option/middle-press-and-drag is the gesture you need to make more than one subformula selection). \Figref{unifyreplacesunknown} shows an example. Note that there are no formula selections in \figref{unifyreplacesunknownA}, only subformula selections.
 
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.361in, height=1.000in]{natural_deduction_manualFig70.pict}
-%\caption{natural_deduction_manualFig70.pict about here.}
-%\end{center}
-%\end{figure}
+\begin{figure}
+\centering
+\subfigure[before: hypothesis $!|*x.!R(x)$ and conclusion $!\_\protect\<B1>$ selected]{
+  \label{fig:hypreplacesunknownA}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/hypreplacesunknownA}}}}
+\qquad
+\subfigure[after: instances of $\_\protect\<B1>$ replaced by $|*x.!R(x)$]{
+  \label{fig:hypreplacesunknownB}
+  \parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/hypreplacesunknownB}}}}
+\caption{Effect of \texttt{hyp} on an unknown}
+\label{fig:hypreplacesunknown}
+\end{figure}
 
-%
-%The only sensible step is $!$ elim backwards, and that 
-%gives
+\section{Eliminating an unknown with \texttt{hyp}}
 
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.361in, height=1.653in]{natural_deduction_manualFig71.pict}
-%\caption{natural_deduction_manualFig71.pict about here.}
-%\end{center}
-%\end{figure}
+The \texttt{hyp} step is really just a cloak for the Unify command: make this selected conclusion the same as this selected hypothesis (or these selected hypotheses). For example see \figref{hypreplacesunknown}. Note that making $!|*x.!R(x)$ the same as $!\_\<B1>$ means making $|*x.!R(x)$ the same as $\_\<B1>$.
 
-%
-%There is only one unknown \_B1 in this proof, but it occurs twice. 
-%If we can find a formula to put in its place we will prove the 
-%contradiction. In this case the formula we need happens to be 
-%E$|$$!$E, but we haven't told Jape that yet.
+\begin{figure}
+\centering
+\parbox[b]{250pt}{\centering\includegraphics[scale=0.5]{pics/proofwithproviso}
+\caption{Proof with proviso}
+\label{fig:proofwithproviso}}
+\quad
+\parbox[b]{200pt}{\centering\fbox{\includegraphics[scale=0.5]{pics/disallowedunification}}
+\caption{Preparation for proviso-violating unification}
+\label{fig:disallowedunification}}
+\end{figure}
 
-%
-%\textbf{{\large 9.2 Avoiding unknowns by argument text-selection}}
+\begin{figure}
+\centering
+\includegraphics[scale=0.45]{pics/NOTINerrormessage}
+\caption{Jape's reason for rejecting unification step}
+\label{fig:NOTINerrormessage}
+\end{figure}
 
-%
-%If you know beforehand what should go in place of the unknown, 
-%you can tell Jape what to use at the time you make an $|$ intro 
-%or $!$ elim step. You do it by text-selection (middle-press-and-drag 
-%over the formula or subformula you want to use).
+\section{Provisos and the privacy condition}
+\label{sec:provisos}
 
-%
-%Consider again the problem of making $!$E$|$$!$F 
-%in the example above. Before making the $!$ intro step, 
-%text-select $!$F (hold the middle button down, drag the 
-%mouse over $!$F in line 1, and then release the button). 
-%Also select (left-click) $!$E on line 2. You can do the 
-%selection and the text-selection in either order, and you should 
-%see
+Recall that the $@*$ intro and $|*$ elim steps use a variable --- $i$, $\<i1>$, $\<i2>$, ... --- for use privately within a generalised proof. If a proof attempt doesn't include unknowns, Jape can enforce the privacy condition easily: simply use a variable that isn't in use already, anywhere in the proof. If there are unknowns about, things aren't so simple: Jape has to ensure that you don't unify that unknown with a formula that uses the private variable, because that would violate the privacy condition. 
 
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.319in, height=1.903in]{natural_deduction_manualFig72.pict}
-%\caption{natural_deduction_manualFig72.pict about here.}
-%\end{center}
-%\end{figure}
+\Figref{proofwithproviso} shows what happens when Jape has to invent a variable and there is an unknown in the proof. It must prohibit the possibility that the formula $\_\<B1>$ includes the variable $i$: it does this with the \emph{proviso} ``$i \text{ NOTIN } \_\<B1>$'' in the \emph{proviso pane} below the proof. \Figref{disallowedunification} shows preparation for an attempt to violate the proviso with a Unify command (making $\_\<B1>$, which appears outside the box, the same as $R(i)$ inside the box). \Figref{NOTINerrormessage} shows the error message that Jape generates when you try the unification.
 
-%
-%(Don't select line 1! Don't text-select on line 2! See the Basics 
-%section above if you find it difficult to get just this picture.)\\
-%When ND Jape makes the $|$ intro (invents right) step it will 
-%use the text-selected subformula, instead of inventing an unknown. 
-%Make the step, and you see
-
-%\begin{figure}[htbp]
-%\begin{center}
-%\includegraphics[width=2.319in, height=2.153in]{natural_deduction_manualFig73.pict}
-%\caption{natural_deduction_manualFig73.pict about here.}
-%\end{center}
-%\end{figure}
-
-%
-%Problem solved! This works with $!$ elim as well. But beware! 
-%You don't always know what formula to use, and sometimes you 
-%have to let the proof develop a little before you can decide.
-
-%
-%\textbf{{\large 9.3 Eliminating an unknown with Unify}}
 
 %
 %It's often more convenient to eliminate unknowns after they have 
