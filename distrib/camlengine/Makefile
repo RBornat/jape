@@ -47,12 +47,12 @@ jape.opt: $(CMX) main.cmx;   ocamlopt $(SOURCES) -o jape.opt unix.cmxa $(CMX) ma
 jape.exe: $(CMO) main.cmo;\
           ocamlc $(SOURCES) $(CAMLDEBUG) -custom -o jape.exe unix.cma $(CMO) main.cmo
 
-makejape.bat:: ; rm -f jape.exe ;\
-               (echo cd tmp; make -n jape.exe | egrep -v "Entering|Leaving"; echo cd ..) > ../makejape.bat;\
+makejape.bat:: ;\
+               echo cd tmp                                      >  ../makejape.bat;\
+               make -n jape.exe | egrep -v "Entering|Leaving|up to date"   >> ../makejape.bat;\
+               echo cd ..                                       >> ../makejape.bat;\
                echo NOW RUN makejape.bat ON WINDOZE AND TYPE CR WHEN THROUGH;\
-               read ANSWER;\
-               mv jape.exe ..
-               
+               read ANSWER             
 #
 #
 #
@@ -82,6 +82,7 @@ include .depend
 %.tml : ../engine/%.sig.sml ;\
         camltran ../engine/$*.sig.sml >$*.testml ;\
         mv $*.testml $*.tml
+
 
 
 
