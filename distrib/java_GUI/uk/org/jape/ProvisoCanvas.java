@@ -61,7 +61,7 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
                 }
             }
         }
-        return s;
+        return s==null ? "" : s;
     }
     public Component add(Component c) {
         Alert.abort("ProvisoCanvas.add("+c+")");
