@@ -19,3 +19,6 @@ CONJECTUREPANEL "Conjectures"
 END
 
 USE "sequent_problems.j"
+
+TACTIC Fail(x) IS (SEQ (EXPLAIN x) FAIL)
+

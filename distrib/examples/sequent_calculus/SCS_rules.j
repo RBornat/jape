@@ -35,6 +35,10 @@ RULE	cut(A)	FROM ‚ æ A AND ‚, A æ C 		INFER ‚ æ C
 RULE	thin(A)	FROM ‚ æ B 				INFER ‚, A æ B
 RULE	dup(A)	FROM ‚, A, A æ B 			INFER ‚, A æ B
 
+MENU Tracing IS
+     CHECKBOX tactictracing "Trace" 
+END
+
 MENU Rules IS
 	ENTRY hyp
 	ENTRY cut
@@ -59,10 +63,9 @@ MENU Rules IS
 END
 
 TACTIC  "æë"	IS 
-	ALT	(SEQ "æë(L)" hyp)
-					(SEQ "æë(R)" hyp)
-					(Fail ("æë" does not lead to an immediate conclusion))
-
+	(ALT	(PROVE  "æë(L)"  ( hyp))
+	                     (PROVE  "æë(R)"  ( hyp))
+		(SEQ (EXPLAIN ("æë" does not lead to an immediate conclusion)) (FAIL)))
 MENU Auto
 	TACTIC "Prove this propositional goal"		IS (PROVE Propositional)
 	TACTIC "Prove remaining propositional goals"	IS Propositional
@@ -97,7 +100,7 @@ CONCHIT	BéC	IS "æé"
 CONCHIT	èx.B	IS "æè"  
 CONCHIT	äx.B	IS "æä"  
 
-AUTOMATCH hyp
+/*AUTOMATCH hyp*/
 
 STRUCTURERULE IDENTITY    hyp
 STRUCTURERULE CUT            cut
