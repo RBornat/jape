@@ -60,6 +60,10 @@ public class japeserver {
             Alert.showErrorAlert("The engine isn't responding!");
     }
 
+    public static void dontQuit() {
+        quitsent = false;
+    }
+
     public static void handlePrefs() {
         Alert.showAlert(Alert.Info, "Preferences item selected in menu");
     }
