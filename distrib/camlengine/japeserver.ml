@@ -247,33 +247,33 @@ module M : sig include Server include Alert end
     let (infromserver, outtoserver) = ref stdin, ref stdout
     let running = ref false
     let servername = ref "<no server>"
+    
     let rec stopserver () =
       if !running then
-        begin
-          begin try close_in !infromserver with
-            _ -> ()
-          end;
-          begin try close_out !outtoserver with
-            _ -> ()
-          end;
-          (* System.Unsafe.CInterface.exit 2 *) ()
-        end
+       ((try close_in !infromserver with _ -> ());
+        (try close_out !outtoserver with _ -> ());
+        exit 2)
+
     let rec startserver server args =
       let (iii, ooo) =
-        stopserver (); (stdin, stdout) (* IO.execute_in_env (server, args, System.environ ()) *)
+        stopserver (); 
+        Miscellaneous.M.consolereport ["about to start the server called "; server];
+        Moresys.execute server args
       in
-      (* Import from OPSYS *)
       servername := server;
       infromserver := iii;
       outtoserver := ooo;
       running := true
+    
     and write s = out s; out "\n"; flush ()
     and out s = output_string !outtoserver s
+    
     and flush () =
-      (* try flush !outtoserver with
-        Io s ->
-          output_string (std_err, ("[WARNING: Server " ^ !servername) ^ " died]\n");
-          stopserver () *) Pervasives.flush !outtoserver
+      try Pervasives.flush !outtoserver with
+        exn ->
+          Miscellaneous.M.consolereport ["[WARNING: Server "; !servername; " may have died -- ";
+                                         Printexc.to_string exn; "]\n"];
+          stopserver ()
     let rec visible s = implode (List.map vis (explode s))
     and vis c = if c < " " then "\\" ^ string_of_int (ord c) else c
     let rec front =
@@ -625,14 +625,10 @@ module M : sig include Server include Alert end
       setChoices (query, menu); makeChoice query
     let rec quit () = writef "QUIT\n" []
     let rec dontquit () = writef "DONTQUIT\n" []
-    let toplevelfiletype = 0
-    (* .jt *)
-    let theoryfiletype = 1
-    (* .j  *)
-    let prooffiletype = 2
-    (* .jp *)
-    let dbugfiletype = 3
-    (* whatever you like *)
+    let toplevelfiletype = 0 (* .jt *)
+    let theoryfiletype = 1 (* .j  *)
+    let prooffiletype = 2 (* .jp *)
+    let dbugfiletype = 3 (* whatever you like *)
   
     let rec filetypeToString =
       function

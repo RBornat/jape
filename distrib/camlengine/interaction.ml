@@ -140,7 +140,7 @@ module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
         Japeserver.M.startserver serverpath args;
         if Japeserver.M.idlsignature <> Japeserver.M.getSignature () then
           begin
-            consolereport ["Incompatible japeserver: "; serverpath; "\007\n"];
+            consolereport ["Incompatible japeserver: "; serverpath];
             Japeserver.M.killserver ()
           end
       with
