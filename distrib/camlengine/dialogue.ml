@@ -242,7 +242,7 @@ let defaultenv =
   let rec bjnr r () = bj !r r
   and ujnr r () = Japeenv.unboundedjaperefvar !r r in
   let nonresetpairs =
-    ["termhashing", bjnr Termstore.termhashing;
+    ["termhashing" , bjnr Termstore.termhashing;
      "tacticresult", ujnr Tacticfuns.tacticresult]
   in
   (* make sure we don't re-evaluate pairs every time, because of 
