@@ -126,6 +126,9 @@ AND	INFER Ë(tt1,tt2,tt3).TT » TT{T1,T2,T3/tt1,tt2,tt3}
 AND	INFER Ë(tt1,tt2,tt3,tt4).TT » TT{T1,T2,T3,T4/tt1,tt2,tt3,tt4}
 END
 
+/* a sort of weakening ... */
+RULE weaken WHERE x IN x€S' NOTONEOF C' IS FROM C Ê x:T INFER C,C' Ê x:T
+
 MENU Rules IS	
 	RULE "F G : T"			FROM C Ê F: T1ÁT2 AND C Ê G : T1 	INFER  C Ê F G : T2
 	RULE "˚x.E : T1ÁT2"		FROM C,x€#T1 Ê E:T2 			INFER C Ê ˚x.E : T1ÁT2
@@ -166,6 +169,10 @@ MENU Rules IS
 	
 	ENTRY Auto
 	ENTRY AutoStep
+	
+	SEPARATOR
+	
+	ENTRY weaken
 	
 END
     
@@ -227,6 +234,7 @@ TACTIC Auto IS
 			(LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 , _x4=_E4 in _F end:_T) 
 				letrecrules Auto Auto Auto Auto generalise generalise generalise generalise Auto)
 			(LETGOAL (_E:_T) (JAPE (fail (_E is not a recognisable program formula (Auto)))))
+			(LETGOAL (_T « _S) generalise)
 			(LETGOAL _E (JAPE (fail (_E is not a recognisable judgement (Auto)))))
 			
 TACTIC AutoStep IS
@@ -249,6 +257,7 @@ TACTIC AutoStep IS
 			(LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 in _F end:_T) letrecrules)
 			(LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 , _x4=_E4 in _F end:_T) letrecrules)
 			(LETGOAL (_E:_T) (JAPE (fail (_E is not a recognisable program formula (AutoStep)))))
+			(LETGOAL (_T « _S) generalise)
 			(LETGOAL _E (JAPE (fail (_E is not a recognisable judgement (AutoStep)))))
 			
 AUTOUNIFY "n:num", "s:string", "true:bool", "false:bool"
