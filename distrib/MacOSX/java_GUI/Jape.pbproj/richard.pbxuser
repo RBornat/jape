@@ -15,7 +15,7 @@
 			F5AB83180339F3B701A80116,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 58194720;
+			PBXPerProjectTemplateStateSaveDate = 58279474;
 			"PBXTemplateGeometry-F5314676015831810DCA290F" = {
 				ContentSize = "{685, 434}";
 				LeftSlideOut = {
@@ -136,7 +136,7 @@
 				StatusViewVisible = YES;
 				Template = F5314676015831810DCA290F;
 				ToolbarVisible = YES;
-				WindowLocation = "{8, 300}";
+				WindowLocation = "{7, 352}";
 			};
 			"PBXTemplateGeometry-F5CA7EC9015C08ED0DCA290F" = {
 				ContentSize = "{665, 594}";
@@ -258,7 +258,7 @@
 				StatusViewVisible = NO;
 				Template = F5CA7EC9015C08ED0DCA290F;
 				ToolbarVisible = NO;
-				WindowLocation = "{71, 232}";
+				WindowLocation = "{69, 232}";
 			};
 			"PBXTemplateGeometry-F5CA7ECB015C094F0DCA290F" = {
 				ContentSize = "{668, 621}";
@@ -542,7 +542,7 @@
 					WindowLocation = "{353, 20}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 58194720;
+			PBXWorkspaceStateSaveDate = 58279474;
 		};
 		projectwideBuildSettings = {
 		};
