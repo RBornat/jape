@@ -30,6 +30,7 @@
 // or I don't know what else.
 
 import java.awt.Dimension;
+import java.awt.event.MouseEvent;
 
 public class LocalSettings implements SelectionConstants {
 	
@@ -39,7 +40,7 @@ public class LocalSettings implements SelectionConstants {
     
     public static final boolean aboutMenuItemNeeded = true,
                                 quitMenuItemNeeded  = true,
-                                prefsMenuItemNeeded = true,
+                                prefsMenuItemNeeded = true;
 
     // size of windows
 
