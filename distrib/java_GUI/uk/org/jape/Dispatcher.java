@@ -318,7 +318,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                             list.add(cmd[1]);
                         else
                         if (p.equals("OPERATORSEND")&&len==1)
-                            Jape.setoperators((String[])list.toArray(new String[list.size()]));
+                            TextDialog.setOperators((String[])list.toArray(new String[list.size()]));
                         else
                     
                     // miscellaneous
