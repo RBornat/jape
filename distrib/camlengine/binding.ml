@@ -58,19 +58,24 @@ let string_of_bindingdirective =
                       ", "
 
 let samedirective (bs1, ss1, us1, pat1 as binding1) (bs2, ss2, us2, pat2 as binding2) =
-  let r = binding1 = binding2 ||
-      (match match__ false pat1 pat2 empty with
-         None         -> false
-       | Some mapping -> List.map (List.map (remapterm mapping)) [bs1; ss1; us1] = [bs2; ss2; us2]
-      )
+  (* Basically, do they match. Takes a deal of ingenuity this way, but it's so pretty
+     I couldn't resist it.
+   *)
+  let r = try bool_of_opt 
+                (option_foldl (option_foldr (uncurry2 (match__ false)))
+                              empty
+                              [bs1|||bs2; ss1|||ss2; us1|||us2; [(pat1,pat2)]])
+          with Zip_ -> false
   in
-    (* consolereport [(if r then "equal " else "unequal ");
+    if !bindingdebug then
+      consolereport [(if r then "equal " else "unequal ");
                      string_of_bindingdirective binding1; " ";
-                     string_of_bindingdirective binding2]; *)
+                     string_of_bindingdirective binding2];
     r
     
 let addbindingdirective (bs, ss, us, pat as directive) =
-  (* consolereport ["Binding.addbindingdirective "; string_of_bindingdirective directive]; *)
+  if !bindingdebug then
+    consolereport ["Binding.addbindingdirective "; string_of_bindingdirective directive];
   let k = termkind pat in
   let bds = Array.get bindingdirectives k in
   let bbs = Array.get badbindings k in
