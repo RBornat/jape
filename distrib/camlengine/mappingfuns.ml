@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Mappingfuns =
+module type T =
   sig
     type ('a, 'b) mapping
     (* infixr   9   at
@@ -35,8 +35,7 @@ module type Mappingfuns =
   end
 (* $Id$ *)
 
-module
-  Mappingfuns
+module M
   (AAA :
     sig
       val catelim_liststring :
@@ -46,6 +45,7 @@ module
         ('a -> string list -> string list) -> 'a -> string
       val listsub : ('a * 'b -> bool) -> 'a list -> 'b list -> 'a list
       val member : 'a * 'a list -> bool
+      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
       val set : 'a list -> 'a list
       val seteq : ('a * 'a -> bool) -> 'a list -> 'a list
       val stringfn2catelim :
@@ -53,27 +53,23 @@ module
       val unSOME : 'a option -> 'a
       exception UnSOME_
     end)
-  :
-  Mappingfuns =
+  : T =
   struct
     open AAA
+
     type ('a, 'b) mapping = ('a * 'b) list
-    
-    
-    
-    
-    
+
     let empty = []
-    let isempty = null
+    let isempty xs = xs=[]
     let rec ( |-> ) (a, b) = [a, b]
     let rec ( ++ ) (m, n) = n @ m
     let rec mapped same mapping a =
-      let rec F =
+      let rec ff =
         function
           [] -> None
-        | (x, y) :: mapping -> if same (x, a) then Some y else F mapping
+        | (x, y) :: mapping -> if same (x, a) then Some y else ff mapping
       in
-      F mapping
+      ff mapping
     (* -- [x] is the inverse of ++ x |-> : that is, it deletes only the outermost value of x.
      * --[x,x] deletes two, and so on.
      *) 
@@ -90,37 +86,37 @@ module
         x, [] -> false
       | x, x' :: xs -> x = x' || mem x xs
     let rec lfold f r m =
-      let rec F a1 a2 a3 =
+      let rec ff a1 a2 a3 =
         match a1, a2, a3 with
           dom, r, [] -> r
         | dom, r, (x, y as pair) :: map ->
-            if mem x dom then F (dom, r, map)
-            else F ((x :: dom), f (pair, r), map)
+            if mem x dom then ff dom r map
+            else ff (x :: dom) (f (pair, r)) map
       in
-      F ([], r, m)
+      ff [] r m
     
     let rec remapping (f, mapping) =
       lfold
-        (fun (pair, m) -> ( ++ ) ((fun (x, y) -> ( |-> ) x y) (f pair), m))
+        (fun (pair, m) -> ( ++ ) (( |-> ) (f pair), m))
         empty mapping
     (* dom now gives its result in reverse insertion order, just like rawdom *)
     let rec aslist (m : ('a * 'b) list) =
       seteq (fun ((a, b), (a1, b1)) -> a = a1) m
-    let rec dom m = map sml__hash__1 (aslist m)
-    let rec ran m = map sml__hash__2 (aslist m)
+    let rec dom m = List.map (fun (r,_)->r) (aslist m)
+    let rec ran m = List.map (fun (_,r)->r) (aslist m)
     let rec rawaslist m = m
-    let rec rawdom (m : ('a, 'b) mapping) = map sml__hash__1 m
-    let rec rawran (m : ('a, 'b) mapping) = map sml__hash__2 m
+    let rec rawdom (m : ('a, 'b) mapping) = List.map (fun (r,_)->r) m
+    let rec rawran (m : ('a, 'b) mapping) = List.map (fun (_,r)->r) m
     
     let rec formappingpairs (f, mapping) =
       List.iter (fun d -> f (d, unSOME (at (mapping, d)))) (dom mapping)
     let rec mkmap pairs =
-      fold (fun ((a, b), map) -> ( ++ ) (map, ( |-> ) (a, b))) pairs empty
+      nj_fold (fun ((a, b), map) -> ( ++ ) (map, ( |-> ) (a, b))) pairs empty
     let rec catelim_mappingstring astring bstring sep mapping ss =
       "<<" ::
         catelim_liststring
           (fun (a, b) ss -> "(" :: astring a ("|->" :: bstring b (")" :: ss)))
-          sep (rev mapping) (">>" :: ss)
+          sep (List.rev mapping) (">>" :: ss)
     let rec mappingstring a b =
       catelim2stringfn
         (catelim_mappingstring (stringfn2catelim a) (stringfn2catelim b) "++")

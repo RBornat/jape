@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Idclass =
+module type T =
   sig
     (* SubstClass is for substitutions that are hard to understand 
      * - see fun idclass in term.sml 
@@ -21,15 +21,14 @@ module type Idclass =
   end
 (* $Id$ *)
 
-module
-  idclass
+module M
   (AAA :
     sig
       val catelim2stringfn :
         ('a -> string list -> string list) -> 'a -> string
     end)
   :
-  Idclass =
+  T =
   struct
     open AAA
     type idclass =

@@ -1,19 +1,19 @@
 (* $Id$ *)
 
-module type Listfuns =
+module type T =
   sig
-    (* nonfix All Some;
+    (* nonfix a_l_l s_o_m_e;
        infixr 7 <|;
-       infixr 6 MAP;
+       infixr 6 m_a_p;
        infix  5 </ //;
        infixr 5 doubleslosh />;
-       infix  4 ||| slosh INTER;
-       infixr 4 UNION;
+       infix  4 ||| slosh i_n_t_e_r;
+       infixr 4 u_n_i_o_n;
        infix  0 nonmember member subset;
      *)
  
     val ( <| ) : ('a -> bool) * 'a list -> 'a list
-    val MAP : ('a -> 'b) * 'a list -> 'b list
+    val m_a_p : ('a -> 'b) * 'a list -> 'b list
     val doubleslosh : ('a -> 'b) * ('a -> bool) -> 'a list -> 'b list
     val ( </ ) : ('a * 'b -> 'b) * 'b -> 'a list -> 'b
     val ( /> ) : 'a * ('a * 'b -> 'a) -> 'b list -> 'a
@@ -23,19 +23,20 @@ module type Listfuns =
     exception Zip
     val first : ('a -> bool) -> 'a list -> 'a
     exception First
-    val FIRST : ('a -> bool) -> 'a list -> 'a option
-    val Some : ('a -> bool) -> 'a list -> bool
-    val All : ('a -> bool) -> 'a list -> bool
+    val f_i_r_s_t : ('a -> bool) -> 'a list -> 'a option
+    val s_o_m_e : ('a -> bool) -> 'a list -> bool
+    val a_l_l : ('a -> bool) -> 'a list -> bool
     val member : 'a * 'a list -> bool
     val subset : 'a list * 'a list -> bool
     val nonmember : 'a * 'a list -> bool
     val slosh : 'a list * 'a list -> 'a list
-    val UNION : 'a list * 'a list -> 'a list
-    val INTER : 'a list * 'a list -> 'a list
+    val u_n_i_o_n : 'a list * 'a list -> 'a list
+    val i_n_t_e_r : 'a list * 'a list -> 'a list
     val set : 'a list -> 'a list
-    val seteq : ('a * 'a -> bool) -> 'a list -> 'a list
+    val seteq : ('a -> 'a -> bool) -> 'a list -> 'a list
     val last : 'a list -> 'a
     exception Last_
+    val null : 'a list -> bool
     val take : int -> 'a list -> 'a list
     val drop : int -> 'a list -> 'a list
     val zip : 'a list * 'b list -> ('a * 'b) list
@@ -45,7 +46,6 @@ module type Listfuns =
     (* get ready for change to proper fold semantics *)
     val foldr : ('a -> 'b -> 'b) -> 'b -> 'a list -> 'b
     val foldl : ('b -> 'a -> 'b) -> 'b -> 'a list -> 'b
-    val NJfold : ('a * 'b -> 'b) -> 'a list -> 'b -> 'b
     val isprefix : ('a * 'a -> bool) -> 'a list -> 'a list -> bool
     val extract : ('a -> bool) -> 'a list -> 'a * 'a list
     exception Extract_
@@ -54,20 +54,17 @@ module type Listfuns =
     val catelim_interpolate :
       ('a -> 'b list -> 'b list) -> 'b -> 'a list -> 'b list -> 'b list
     val flatten : 'a list list -> 'a list
-    val split : ('a -> bool) -> 'a list -> 'a list * 'a list
-    (* yess, nos *)
-    val sort : ('a * 'a -> bool) -> 'a list -> 'a list
-    (* given op<, sorts in < order *)
-    val sortandcombine :
-      ('a * 'a -> bool) -> ('a * 'a -> 'a) -> 'a list -> 'a list
+    val split : ('a -> bool) -> 'a list -> 'a list * 'a list (* yess, nos *)
+    val sort : ('a -> 'a -> bool) -> 'a list -> 'a list (* given op<, sorts in < order *)
+    val sortandcombine : ('a -> 'a -> bool) -> ('a * 'a -> 'a) -> 'a list -> 'a list
     val remdups : 'a list -> 'a list
-    val earlierlist : ('a * 'a -> bool) -> 'a list * 'a list -> bool
-    val sortunique : ('a * 'a -> bool) -> 'a list -> 'a list
-    val sorteddiff : ('a * 'a -> bool) -> 'a list -> 'a list -> 'a list
-    val sortedsame : ('a * 'a -> bool) -> 'a list -> 'a list -> 'a list
+    val earlierlist : ('a -> 'a -> bool) -> 'a list * 'a list -> bool
+    val sortunique : ('a -> 'a -> bool) -> 'a list -> 'a list
+    val sorteddiff : ('a -> 'a -> bool) -> 'a list -> 'a list -> 'a list
+    val sortedsame : ('a -> 'a -> bool) -> 'a list -> 'a list -> 'a list
     val sortedmergeandcombine :
-      ('a * 'a -> bool) -> ('a * 'a -> 'a) -> 'a list * 'a list -> 'a list
-    val sortedmerge : ('a * 'a -> bool) -> 'a list * 'a list -> 'a list
+      ('a -> 'a -> bool) -> ('a -> 'a -> 'a) -> 'a list * 'a list -> 'a list
+    val sortedmerge : ('a -> 'a -> bool) -> 'a list * 'a list -> 'a list
     val sortedlistsub : ('a * 'b -> bool) -> 'a list -> 'b list -> 'a list
     val matchbag : ('a -> 'b option) -> 'a list -> ('a * 'b * 'a list) list
     val ( >< ) : 'a list * 'b list -> ('a * 'b) list
@@ -99,35 +96,30 @@ module type Listfuns =
     val catelim2stringfn : ('a -> string list -> string list) -> 'a -> string
     val stringfn2catelim : ('a -> string) -> 'a -> string list -> string list
   end
+
 (* $Id$ *)
 
-module
-  Listfuns
+module M
   (AAA :
     sig
-      val consolereport : string list -> unit
-      val hashlist : ('a -> int) -> 'a list -> int
       val cache :
         string -> ('a * int * 'b -> string) -> int -> ('a -> 'b) ->
           (int -> 'a -> 'b) * (unit -> unit)
       (* function         eval                   reset        *)
+      val consolereport : string list -> unit
+      val hashlist : ('a -> int) -> 'a list -> int
+      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
+      val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
+      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
+      
       exception Catastrophe_ of string list
     end)
-  :
-  Listfuns =
+  : T =
   struct
     open AAA
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    (* ocaml can't deal with local fixity *)
-      
+ 
+    let null = function [] -> true | _ -> false
+          
     exception First exception Zip exception Reduce
     (* Bird-Meertens folding *)
     let rec foldr a1 a2 a3 =
@@ -138,91 +130,87 @@ module
       match a1, a2, a3 with
         f, z, [] -> z
       | f, z, x :: xs -> foldl f (f z x) xs
-    (* old-style folding *)
-    let NJfold = fold
+
     (* <| is infix filter *)
     let rec ( <| ) =
       function
-        P, [] -> []
-      | P, x :: xs -> if P x then x :: ( <| ) (P, xs) else ( <| ) (P, xs)
-    (* MAP is infix map *)
-    let rec MAP =
+        pp, [] -> []
+      | pp, x :: xs -> if pp x then x :: ( <| ) (pp, xs) else ( <| ) (pp, xs)
+    (* m_a_p is infix map *)
+    let rec m_a_p =
       function
         f, [] -> []
-      | f, x :: xs -> f x :: MAP (f, xs)
+      | f, x :: xs -> f x :: m_a_p (f, xs)
     (* ||| is infix zip *)
     let rec ( ||| ) =
       function
         [], [] -> []
       | x :: xs, y :: ys -> (x, y) :: ( ||| ) (xs, ys)
       | _, _ -> raise Zip
-    (* this appears to be map f o filter P *)
-    let rec doubleslosh =
-      fun (f, P) ->
-        let rec F =
-          function
-            [] -> []
-          | x :: xs -> if P x then f x :: F xs else F xs
-        in
-        F
+    (* this appears to be map f o filter pp *)
+    let rec doubleslosh (f, pp) =
+      let rec ff =
+        function
+          [] -> []
+        | x :: xs -> if pp x then f x :: ff xs else ff xs
+      in
+      ff
     (* /> looks like foldl *)
     let rec ( /> ) ((e : 'a), (( ++ ) : 'a * 'b -> 'a)) : 'b list -> 'a =
       (* infix ++; *)
-      let rec F a1 a2 =
+      let rec ff a1 a2 =
         match a1, a2 with
           r, [] -> r
-        | r, x :: xs -> F (( ++ ) (r, x), xs)
+        | r, x :: xs -> ff (( ++ ) (r, x)) xs
       in
-      F e
+      ff e
     (* </ looks like foldr *)
     let rec ( </ ) (( ++ ), e) =
-      (* infix ++; *) let rec F =
+      (* infix ++; *) let rec ff =
         function
           [] -> e
-        | x :: xs -> ( ++ ) (x, F xs)
+        | x :: xs -> ( ++ ) (x, ff xs)
       in
-      F
+      ff
     (* wassis? *)
     let rec ( // ) =
       function
-        ( ++ ), x :: xs -> ( /> ) (x, (fun (x, y) -> ( ++ ) x y)) xs
+        ( ++ ), x :: xs -> ( /> ) (x, ( ++ )) xs
       | ( ++ ), [] -> raise Reduce
     let rec first a1 a2 =
       match a1, a2 with
-        P, [] -> raise First
-      | P, x :: xs -> if P x then x else first P xs
-    let rec FIRST a1 a2 =
+        pp, [] -> raise First
+      | pp, x :: xs -> if pp x then x else first pp xs
+    let rec f_i_r_s_t a1 a2 =
       match a1, a2 with
-        P, [] -> None
-      | P, x :: xs -> if P x then Some x else FIRST (P, xs)
-    let rec Some =
-      fun P xs ->
-        match FIRST (P, xs) with
-          Some _ -> true
-        | None -> false
-    let rec All =
-      fun P xs ->
-        match FIRST ((fun x -> not (P x)), xs) with
-          Some _ -> false
-        | None -> true
-    let rec member = fun (x, S) -> List.exists (fun x' -> x = x') S
-    let rec nonmember = fun (x, S) -> not (member (x, S))
-    let rec INTER = fun (S, T) -> ( <| ) ((fun x -> member (x, S)), T)
-    let rec slosh = fun (S, T) -> ( <| ) ((fun x -> nonmember (x, T)), S)
-    let rec UNION = fun (S, T) -> S @ T
+        pp, [] -> None
+      | pp, x :: xs -> if pp x then Some x else f_i_r_s_t pp xs
+    let rec s_o_m_e pp xs =
+      match f_i_r_s_t pp xs with
+        Some _ -> true
+      | None -> false
+    let rec a_l_l pp xs =
+      match f_i_r_s_t (fun x -> not (pp x)) xs with
+        Some _ -> false
+      | None -> true
+    let rec member (x, sf) = List.exists (fun x' -> x = x') sf
+    let rec nonmember (x, sf) = not (member (x, sf))
+    let rec i_n_t_e_r = fun (sf, tt) -> ( <| ) ((fun x -> member (x, sf)), tt)
+    let rec slosh = fun (sf, tt) -> ( <| ) ((fun x -> nonmember (x, tt)), sf)
+    let rec u_n_i_o_n = fun (sf, tt) -> sf @ tt
     (*
     val set = [] /> (fn (s, e) => if e member s then s else e :: s)
     *)
     
     (* now we get this out in the same order as we gave it ... *)
     let rec seteq eq xs =
-      revfold
+      nj_revfold
         (fun (x, ys) ->
-           if List.exists (fun x' -> eq (x, x')) ys then ys else x :: ys)
+           if List.exists (fun x' -> eq x x') ys then ys else x :: ys)
         xs []
     let rec set (xs : 'a list) =
-      seteq (fun (x, y) -> x = y : 'a * 'a -> bool) xs
-    let rec subset (xs, ys) = All ((fun x -> member (x, ys)), xs)
+      seteq ( = ) xs
+    let rec subset (xs, ys) = a_l_l (fun x -> member (x, ys)) xs
     let rec interpolate a1 a2 =
       match a1, a2 with
         sep, [] -> []
@@ -233,7 +221,7 @@ module
         f, sep, [], ys -> ys
       | f, sep, [x], ys -> f x ys
       | f, sep, x :: xs, ys -> f x (sep :: catelim_interpolate f sep xs ys)
-    let rec catelim2stringfn f x = implode (f x [])
+    let rec catelim2stringfn f x = String.concat "" (f x [])
     let rec stringfn2catelim f x ss = f x :: ss
     let rec catelim_liststring obstring punct =
       catelim_interpolate obstring punct
@@ -300,7 +288,7 @@ module
         f, [] -> raise Extract_
       | f, x :: xs ->
           if f x then x, xs else let (y, ys) = extract f xs in y, x :: ys
-    let rec flatten xss = fold (fun (x, y) -> x @ y) xss []
+    let rec flatten xss = nj_fold (uncurry2 ( @ )) xss []
     let rec split a1 a2 =
       match a1, a2 with
         f, [] -> [], []
@@ -390,11 +378,11 @@ module
       | x1 :: x2 :: xs ->
           let rest = remdups (x2 :: xs) in
           if x1 = x2 then rest else x1 :: rest
-    let rec sortunique ( < ) ooo = remdups (sort (fun (x, y) -> x < y) ooo)
+    let rec sortunique ( < ) ooo = remdups (sort ( < ) ooo)
     let rec earlierlist a1 a2 =
       match a1, a2 with
         ( < ), (x :: xs, y :: ys) ->
-          x < y || not (y < x) && earlierlist (fun (x, y) -> x < y) (xs, ys)
+          x < y || not (y < x) && earlierlist ( < ) (xs, ys)
       | _, ([], []) -> false
       | _, ([], _) -> true
       | _, _ -> false
@@ -404,19 +392,19 @@ module
         ( < ), [], ys -> []
       | ( < ), xs, [] -> xs
       | ( < ), x1 :: xs, y1 :: ys ->
-          if x1 = y1 then sorteddiff (fun (x, y) -> x < y) xs ys
+          if x1 = y1 then sorteddiff ( < ) xs ys
           else if x1 < y1 then
-            x1 :: sorteddiff (fun (x, y) -> x < y) xs (y1 :: ys)
-          else sorteddiff (fun (x, y) -> x < y) (x1 :: xs) ys
+            x1 :: sorteddiff ( < ) xs (y1 :: ys)
+          else sorteddiff ( < ) (x1 :: xs) ys
     (* lists sorted by < or <=; does set or bag intersect accordingly *)
     let rec sortedsame a1 a2 a3 =
       match a1, a2, a3 with
         ( < ), [], ys -> []
       | ( < ), xs, [] -> []
       | ( < ), x1 :: xs, y1 :: ys ->
-          if x1 = y1 then x1 :: sortedsame (fun (x, y) -> x < y) xs ys
-          else if x1 < y1 then sortedsame (fun (x, y) -> x < y) xs (y1 :: ys)
-          else sortedsame (fun (x, y) -> x < y) (x1 :: xs) ys
+          if x1 = y1 then x1 :: sortedsame ( < ) xs ys
+          else if x1 < y1 then sortedsame ( < ) xs (y1 :: ys)
+          else sortedsame ( < ) (x1 :: xs) ys
     (* given sorted by < -- no duplicates -- lists. designed to be folded ... *)
     let rec sortedmergeandcombine ( < ) ( + ) (xs, ys) =
       let rec s a1 a2 =
@@ -430,7 +418,7 @@ module
       in
       s xs ys
     let rec sortedmerge ( < ) (xs, ys) =
-      sortedmergeandcombine (fun (x, y) -> x < y) (fun (x, _) -> x) (xs, ys)
+      sortedmergeandcombine ( < ) (fun x _ -> x) (xs, ys)
     (* this ignores elements of ys after the last one that actually occurs in xs *)
     let rec sortedlistsub eq xs ys =
       let rec g a1 a2 =
@@ -445,26 +433,25 @@ module
         | xs, [] -> xs
       in
       g xs ys
-    (* matchbag P XS = { (x, P x, XS -- [x]) | x<-XS ; x in dom P } *)
+    (* matchbag pp XS = { (x, pp x, XS -- [x]) | x<-XS ; x in dom pp } *)
     
-    let rec matchbag =
-      fun P xs ->
-        let rec match__ a1 a2 a3 =
-          match a1, a2, a3 with
-            r, pre, [] -> r
-          | r, pre, x :: xs ->
-              match P x with
-                Some y -> match__ ((x, y, revapp pre xs) :: r) (x :: pre) xs
-              | None -> match__ r (x :: pre) xs
-        and revapp a1 a2 =
-          match a1, a2 with
-            [], ys -> ys
-          | x :: xs, ys -> revapp xs (x :: ys)
-        in
-        match__ [] [] xs
+    let rec matchbag pp xs =
+      let rec match__ a1 a2 a3 =
+        match a1, a2, a3 with
+          r, pre, [] -> r
+        | r, pre, x :: xs ->
+            match pp x with
+              Some y -> match__ ((x, y, revapp pre xs) :: r) (x :: pre) xs
+            | None -> match__ r (x :: pre) xs
+      and revapp a1 a2 =
+        match a1, a2 with
+          [], ys -> ys
+        | x :: xs, ys -> revapp xs (x :: ys)
+      in
+      match__ [] [] xs
     
     let rec ( >< ) (xs, ys) =
-      flatten (MAP ((fun x -> MAP ((fun y -> x, y), ys)), xs))
+      flatten (m_a_p ((fun x -> m_a_p ((fun y -> x, y), ys)), xs))
     (* this function isn't xs><xs -- (xs,xs): 
      * it's the upper triangle (or the lower one) of the matrix xs><xs, without
      * the diagonal.  So it finds all distinct pairs, not pairing x with x and only
@@ -473,20 +460,20 @@ module
      * the _last_ element of the list appears only as the second of a pair.
      *)
     let rec allpairs xs =
-      sml__hash__2
-        (fold
+      (fun (_, r) -> r)
+        (nj_fold
            (fun (x, (ys, ps)) ->
-              x :: ys, fold (fun (y, ps) -> (x, y) :: ps) ys ps)
+              x :: ys, nj_fold (fun (y, ps) -> (x, y) :: ps) ys ps)
            xs ([], []))
-    (* this function is and (map E (bernardszip (xs,ys))) handle bernardszip_ => false, 
+    (* this function is and (map ee (bernardszip (xs,ys))) handle bernardszip_ => false, 
        but I'm trying to avoid consing ... Is that necessary or even a good idea?
        There's a lot of tupling going on ...
      *)
     let rec eqlists a1 a2 =
       match a1, a2 with
-        E, ([], []) -> true
-      | E, (x :: xs, y :: ys) -> E (x, y) && eqlists E (xs, ys)
-      | E, _ -> false
+        ee, ([], []) -> true
+      | ee, (x :: xs, y :: ys) -> ee (x, y) && eqlists ee (xs, ys)
+      | ee, _ -> false
     let rec numbered xs =
       let rec r a1 a2 =
         match a1, a2 with
@@ -496,7 +483,7 @@ module
       r 0 xs
     (* list subtraction, often faster than the list function slosh *)
     let rec listsub eq xs ys =
-      let rec S a1 a2 =
+      let rec sf a1 a2 =
         match a1, a2 with
           [], ys -> []
         | xs, [] -> xs
@@ -506,30 +493,30 @@ module
                 [] -> []
               | x :: xs -> if eq (x, y) then xs else x :: strip xs
             in
-            S (strip xs, ys)
+            sf (strip xs) ys
       in
-      S (xs, ys)
+      sf xs ys
     let rec eqbags =
-      fun E (xs, ys) -> length xs = length ys && null (listsub E xs ys)
+      fun ee (xs, ys) -> List.length xs = List.length ys && null (listsub ee xs ys)
     (* first attempt at a topological sort: doesn't try to coalesce cycles *)
     let rec toposort roots depf =
       let rec ts visited (root, (order, cycles)) =
         if member (root, visited) then
           let cycle =
-            root :: rev (root :: takewhile (fun x -> x <> root) visited)
+            root :: List.rev (root :: takewhile (fun x -> x <> root) visited)
           in
           order, cycle :: cycles
         else if member (root, order) then order, cycles
         else
           let children = depf root in
           let (order, cycles) =
-            (* revfold to get answer out in children order (whatever it is) *)
-            revfold (ts (root :: visited)) children (order, cycles)
+            (* nj_revfold to get answer out in children order (whatever it is) *)
+            nj_revfold (ts (root :: visited)) children (order, cycles)
           in
           root :: order, cycles
       in
-      (* revfold to get answer out in roots order *)
-      revfold (ts []) roots ([], [])
+      (* nj_revfold to get answer out in roots order *)
+      nj_revfold (ts []) roots ([], [])
     (* This is an implementation of a minimum waste algorithm.  I discovered it in
      * November 1994, but I bet that scholarship would show it is well known 
      * and really old.
@@ -545,7 +532,7 @@ module
            take j xs : drop j splits
 
      * for some j.  
-     * All we need to do is to increase j until we find the 'break point'.
+     * a_l_l we need to do is to increase j until we find the 'break point'.
      *)
     
     (* In this first attempt I've ignored the fact that this is an n^2 algorithm
@@ -561,7 +548,7 @@ module
     let rec minw w a n =
       let rec ma (ma, mi) = ma in
       let rec mi (ma, mi) = mi in
-      let rec combine k m = Integer.max (k, ma m), Integer.min (k, mi m) in
+      let rec combine k m = max (k) (ma m), min (k) (mi m) in
       let rec better m m' = ma m - mi m < ma m' - mi m' in
       (* just look at waste *)
       let rec ok m = ma m <= w in
@@ -571,13 +558,13 @@ module
         else
           match zerosplits (i + 1) with
             ((y1, y2), [k]) :: _ as zs ->
-              let x = Array.get a i in ((x + y1, x + y2), [k + 1]) :: zs
+              let x = Array.get (a) (i) in ((x + y1, x + y2), [k + 1]) :: zs
           | _ -> raise (Catastrophe_ ["zerosplits => []"])
       in
       (* *)
       let rec showsplit ((ma, mi : int * int), (s : int list)) =
-        ((((("((" ^ makestring ma) ^ ",") ^ makestring mi) ^ "),") ^
-           bracketedliststring makestring "," s) ^
+        ((((("((" ^ string_of_int ma) ^ ",") ^ string_of_int mi) ^ "),") ^
+           bracketedliststring string_of_int "," s) ^
           ")"
       in
       (* *)
@@ -591,23 +578,23 @@ module
       
       let rec split i j mgs ss =
         let rec foundone first =
-          first :: split (i + 1) j (mgs - Array.get a i) ss
+          first :: split (i + 1) j (mgs - Array.get (a) (i)) ss
         in
         (* *)
         let _ =
           if !minwastedebug then
             consolereport
-              ["split ["; makestring (j - i); "] "; makestring mgs; " [";
-               makestring (n - j); "] ";
+              ["split ["; string_of_int (j - i); "] "; string_of_int mgs; " [";
+               string_of_int (n - j); "] ";
                bracketedliststring showsplit "," (take 3 ss);
-               if length ss > 3 then ", ..." else ""]
+               if List.length ss > 3 then ", ..." else ""]
         in
         (* *)
         match i = j, j = n, ss with
           true, _, [m, s] -> [combine mgs m, 0 :: s]
         | _, _, [m, s] -> foundone (combine mgs m, j - i :: s)
         | _, false, (m1, s1) :: ((m2, s2) :: _ as ss') ->
-            let h1 = Array.get a j in
+            let h1 = Array.get (a) (j) in
             let m1' = combine mgs m1 in
             let mgs' = mgs + h1 in
             let m2' = combine mgs' m2 in
@@ -620,8 +607,8 @@ module
             raise
               (Catastrophe_
                  ["forgot something or other in minwaste: lengths are ";
-                  makestring (j - i); " _ "; makestring (n - j); " ";
-                  makestring (length ss)])
+                  string_of_int (j - i); " _ "; string_of_int (n - j); " ";
+                  string_of_int (List.length ss)])
       in
       let rec choose ss =
         let ss' = split 0 0 0 ss in
@@ -647,33 +634,33 @@ module
         else choose ss'
       in
       if n <= 1 then [n] else choose (zerosplits 0)
-    let rec minwforcache (w, ns) = minw w (Array.arrayoflist ns) (length ns)
+    let rec minwforcache (w, ns) = minw w (Array.of_list ns) (List.length ns)
     let (minw, resetminwcache) =
       cache "minwaste"
         (fun ((w, ns), hash, rs) ->
-           ((((((((("(" ^ makestring hash) ^ ", ") ^ "(") ^ makestring w) ^
+           ((((((((("(" ^ string_of_int hash) ^ ", ") ^ "(") ^ string_of_int w) ^
                   ",") ^
-                 bracketedliststring makestring "," ns) ^
+                 bracketedliststring string_of_int "," ns) ^
                 " , ") ^
                ") = ") ^
-              bracketedliststring makestring "," rs) ^
+              bracketedliststring string_of_int "," rs) ^
              ")")
         127 minwforcache
     let hash (w, ns) =
-      Bits.xorb (Bits.lshift (w, 2), hashlist (fun i -> i) ns)
+      ((w lsl 2) lxor hashlist (fun i -> i) ns)
     let rec minwaste measurefn w xs =
       let rec recon a1 a2 =
         match a1, a2 with
           n :: ns, xs ->
-            if n <= length xs then take n xs :: recon ns (drop n xs)
+            if n <= List.length xs then take n xs :: recon ns (drop n xs)
             else
               raise
                 (Catastrophe_
                    ["minwaste 2: ";
-                    bracketedliststring makestring "," (n :: ns); "; ";
-                    makestring (length xs)])
+                    bracketedliststring string_of_int "," (n :: ns); "; ";
+                    string_of_int (List.length xs)])
         | [], [] -> []
         | [], _ -> raise (Catastrophe_ ["minwaste"])
       in
-      let wns = w, MAP (measurefn, xs) in recon (minw (hash wns) wns) xs
+      let wns = w, m_a_p (measurefn, xs) in recon (minw (hash wns) wns) xs
   end      

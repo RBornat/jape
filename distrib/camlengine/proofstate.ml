@@ -321,8 +321,8 @@ module
         not (hasTip tree) &&
         not
           (List.exists isUnknown
-             (fold (sortedmerge earliervar)
-                (MAP
+             (nj_fold (sortedmerge earliervar)
+                (m_a_p
                    ((fun ooo -> provisovars (provisoactual ooo)),
                     provisos (rewritecxt cxt)))
                 []))

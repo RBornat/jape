@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Prestring =
+module type T =
   sig
     type prestring =
       BQuote1 of string | BQuote2 of string list | BQuote3 of prestring list
@@ -34,7 +34,7 @@ module type Prestring =
     mldata -pre Pre -prim Pre -string 'BQuote1' -hom 'BQuote3' $*
 *)
 
-module Prestring : Prestring =
+module M : T =
   struct
     type prestring =
       BQuote1 of string | BQuote2 of string list | BQuote3 of prestring list

@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Optionfuns =
+module type T =
   sig
     (* infix andthen ortry
        infixr andthenr ortryr
@@ -39,7 +39,7 @@ module type Optionfuns =
   end
  (*$Id$ *)
 
-module Optionfuns : Optionfuns =
+module M : T =
   struct
     exception UnSOME_
     let rec unSOME =
@@ -138,7 +138,7 @@ module Optionfuns : Optionfuns =
         Some a -> "Some (" :: catelim_astring a (")" :: ss)
       | None -> "None" :: ss
     let rec optionstring astring aopt =
-      implode (catelim_optionstring (fun a ss -> astring a :: ss) aopt [])
+      String.concat "" (catelim_optionstring (fun a ss -> astring a :: ss) aopt [])
     (* save space when rewriting structures *)
     let rec option_rewrite2 fa fb (a, b) =
       match fa a, fb b with
@@ -160,9 +160,9 @@ module Optionfuns : Optionfuns =
     let rec option_rewritelist a1 a2 =
       match a1, a2 with
         f, [] -> None
-      | f, ( :: ) pair ->
+      | f, ( x :: xs) ->
           andthen
             (option_rewrite2 f (option_rewritelist f),
              (fun ooo -> Some ((fun (x, y) -> x :: y) ooo)))
-            pair
+            (x, xs)
   end

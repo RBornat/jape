@@ -243,7 +243,7 @@ module
         catelim_mappingstring catelim_coordstring catelim_worldstring
           ("++" ^ sep) u ss
     let rec universestring sep u = implode (catelim_universestring sep u [])
-    let rec universe2list u = map (fun (c, (ts, cs)) -> c, ts, cs) (aslist u)
+    let rec universe2list u = List.map (fun (c, (ts, cs)) -> c, ts, cs) (aslist u)
     let rec emptyworld () = ( |-> ) ((0, 0), ([], []))
     let rec isemptyworld u =
       match ran u with
@@ -387,7 +387,7 @@ module
                       termstring t; ", predicate "; termstring P;
                       " doesn't have bound variables as arguments"])
         in
-        let env = mkmap (map pvars pbs) in
+        let env = mkmap (List.map pvars pbs) in
         let comp = compilepredicate notabst (fun v -> at (env, v)) in
         let (t, fd) = mapterm comp t, mapforcedefterms comp fd in
         let vs = patvars t in
@@ -418,7 +418,7 @@ module
     (* really this ought to look inside the forcedef, but one step at a time ... *)
     and uniquebinders t fd =
       let rec newoccenv ocvs =
-        let vids = orderVIDs (map vartoVID (variables t)) in
+        let vids = orderVIDs (List.map vartoVID (variables t)) in
         let rec newvar (ocvids, env) ocv =
           let ocvid = vartoVID ocv in
           let ocvid' = uniqueVID VariableClass vids ocvids ocvid in
@@ -427,7 +427,7 @@ module
            else
              ( ++ ) (( |-> ) (ocv, registerId (ocvid', VariableClass)), env))
         in
-        let r = sml__hash__2 (foldl newvar ([], empty) ocvs) in
+        let r = (fun(_,hash2)->hash2) (foldl newvar ([], empty) ocvs) in
         if !disproofdebug then
           consolereport
             ["semantics matched "; termstring t; " and "; forcedefstring fd;
@@ -470,8 +470,8 @@ module
      *)
     let rec unfixedforced facts u =
       let rec ff f (c, t) =
-        let rec labels c = sml__hash__1 (getworld u c) in
-        let rec children c = sml__hash__2 (getworld u c) in
+        let rec labels c = (fun(hash1,_)->hash1) (getworld u c) in
+        let rec children c = (fun(_,hash2)->hash2) (getworld u c) in
         let rec lookup c t = member (t, labels c), true in
         (* emphasis locked *)
                        (* forced logic -- we force evaluation of subformulae because otherwise things go grey which shouldn't *)
@@ -495,8 +495,8 @@ module
             (true, _), (false, _) -> false, false
           | _, _ -> true, false
         in
-        let rec logAll f ooo = foldl logAnd (true, false) (map f ooo) in
-        let rec logExists f ooo = foldl logOr (false, false) (map f ooo) in
+        let rec logAll f ooo = foldl logAnd (true, false) (List.map f ooo) in
+        let rec logExists f ooo = foldl logOr (false, false) (List.map f ooo) in
         let rec indiv_fd (oc, vs, fd) i =
           (* fun remap env t = (* written with andthenr, ortryr, because I don't trust 0.93 with the functional version *)
                                  option_remapterm env t andthenr 
@@ -592,7 +592,7 @@ module
         | Some t -> forced (c, t)
       in
       let (_, _, hyps, _, concs) = my_seqexplode s in
-      map doit hyps, map doit concs
+      List.map doit hyps, List.map doit concs
     (* *********************** interaction states *********************** *)
     
     type disproofstate =
@@ -777,7 +777,7 @@ module
             let forced = memofix forcemap (unfixedforced facts universe) in
             let (hs, cs) = seq_forced forced root seq in
             let countermodel =
-              All (sml__hash__1, hs) && not (List.exists sml__hash__1 cs)
+              a_l_l ((fun(hash1,_)->hash1), hs) && not (List.exists (fun(hash1,_)->hash1) cs)
             in
             Disproofstate
               (let module M =
@@ -829,11 +829,11 @@ module
     exception Disproof_ of string list
     (* sort, eliminating duplicates.  This sort is no longer case sensitive *)
     let rec alphasort sel ts =
-      map sel
+      List.map sel
         (sortunique (fun ((s1, _), (s2, _)) -> lowercase s1 < lowercase s2)
-           (( ||| ) (map termstring ts, ts)))
-    let tilesort ooo = rev (alphasort sml__hash__2 ooo)
-    let labelsort = alphasort sml__hash__1
+           (( ||| ) (List.map termstring ts, ts)))
+    let tilesort ooo = List.rev (alphasort (fun(_,hash2)->hash2) ooo)
+    let labelsort = alphasort (fun(hash1,_)->hash1)
     let rec seq2tiles facts seq =
       let (_, _, hyps, _, concs) = my_seqexplode seq in
       (* check for an absence of silliness *)
@@ -899,7 +899,7 @@ module
         (if List.exists (fun ooo -> opt2bool (decodeBinding ooo)) hypterms ||
             List.exists (fun ooo -> opt2bool (decodeBinding ooo)) concterms
          then
-           map sml__hash__1
+           List.map (fun(hash1,_)->hash1)
              (( <| )
                 ((fun (occ, vs) ->
                     not
@@ -912,7 +912,7 @@ module
        * but if there aren't any such individuals, keep just one
        *)
       let svs = seqvars seq in
-      match ( <| ) (isVariable, NJfold (tmerge, map patvars ts, [])) with
+      match ( <| ) (isVariable, NJfold (tmerge, List.map patvars ts, [])) with
         [] -> ts
       | tvs ->
           let tvs' =
@@ -924,7 +924,7 @@ module
           let rec changevars i =
             if member (i, badvs) then Some (List.hd tvs') else None
           in
-          map (mapterm changevars) ts
+          List.map (mapterm changevars) ts
     let rec disproofstate2model =
       function
         None -> None
@@ -932,7 +932,7 @@ module
           Some
             (seq,
              Model
-               (map (fun (c, (ts, chs)) -> World (Coord c, map Coord chs, ts))
+               (List.map (fun (c, (ts, chs)) -> World (Coord c, List.map Coord chs, ts))
                   (aslist universe)))
     let rec model2disproofstate a1 a2 a3 =
       match a1, a2, a3 with
@@ -941,17 +941,17 @@ module
           let rec coord = fun (Coord c) -> c in
           let (Model worlds) = model in
           let ulist =
-            map (fun (World (c, chs, ts)) -> coord c, (ts, map coord chs))
+            List.map (fun (World (c, chs, ts)) -> coord c, (ts, List.map coord chs))
               worlds
           in
           let utiles =
             NJfold
               ((fun (x, y) -> x @ y),
-               map (fun ooo -> sml__hash__1 (sml__hash__2 ooo)) ulist, [])
+               List.map (fun ooo -> (fun(hash1,_)->hash1) ((fun(_,hash2)->hash2) ooo)) ulist, [])
           in
-          let uvars = NJfold (tmerge, map variables utiles, []) in
+          let uvars = NJfold (tmerge, List.map variables utiles, []) in
           let tiles =
-            (map newoccurrence uvars @ seq2tiles facts seq) @ utiles
+            (List.map newoccurrence uvars @ seq2tiles facts seq) @ utiles
           in
           let minc =
             foldr
@@ -960,7 +960,7 @@ module
               (0, 0) ulist
           in
           let u = mkmap ulist in
-          let ws = map sml__hash__1 ulist in
+          let ws = List.map (fun(hash1,_)->hash1) ulist in
           List.iter
             (fun ((_, cy as c), (ts, chs)) ->
                List.iter
@@ -1071,7 +1071,7 @@ module
     let rec newtile =
       fun (Disproofstate {tiles = tiles} as d) t ->
         let rec indivs t =
-          let varstrings = map termstring (variables t) in
+          let varstrings = List.map termstring (variables t) in
           let longest =
             foldl
               (fun long v ->
@@ -1099,7 +1099,7 @@ module
         in
         let rec newoccurrence v =
           let cs = explode (termstring v) in
-          let ds = rev (takewhile isdigit (rev cs)) in
+          let ds = List.rev (takewhile isdigit (List.rev cs)) in
           let stem = implode (take (length cs - length ds) cs) in
           let stern = if null ds then 1 else atoi (implode ds) + 1 in
           let rec freshtile stem stern =
@@ -1110,7 +1110,7 @@ module
         in
         let (template, tvs) = indivs t in
         let occs = ( <| ) (isoccurrence, tiles) in
-        let occvs = NJfold (tmerge, map variables occs, []) in
+        let occvs = NJfold (tmerge, List.map variables occs, []) in
         if null tvs then None
         else
           andthenr
@@ -1134,15 +1134,15 @@ module
                            i, [] -> [[i]]
                          | i, j :: js ->
                              (i :: j :: js) ::
-                               map (fun js -> j :: js) (insert i js)
+                               List.map (fun js -> j :: js) (insert i js)
                        in
                        NJfold
                          ((fun (x, y) -> x @ y),
                           NJfold
                             ((fun (x, y) -> x @ y),
-                             (map
+                             (List.map
                                 (fun y ->
-                                   (map (fun x -> insert x y) xs :
+                                   (List.map (fun x -> insert x y) xs :
                                     term list list list))
                                 ys :
                               term list list list list),
@@ -1154,7 +1154,7 @@ module
                 let possibles =
                   ( <| )
                     ((fun t -> not (member (t, tiles))),
-                     map
+                     List.map
                        (fun vs ->
                           unSOME
                             (option_remapterm (mkmap (( ||| ) (tvs, vs)))
@@ -1174,9 +1174,9 @@ module
                       andthenr
                         (askChoice
                            ("Choose your new tile",
-                            map (fun t -> [t])
+                            List.map (fun t -> [t])
                               (sort (fun (x, y) -> x < y)
-                                 (map termstring possibles))),
+                                 (List.map termstring possibles))),
                          (fun i -> Some (nth (possibles, i))))
                     with
                       Nth -> raise (Catastrophe_ ["(newtile) Nth ..."])),
@@ -1218,7 +1218,7 @@ module
                   let (ts, cs) = getworld universe w in
                   w, (ts, listsub (fun (x, y) -> x = y) cs [w])
                 in
-                let u' = mkmap (map doit ws) in
+                let u' = mkmap (List.map doit ws) in
                 Some
                   (withdisproofselected
                      (withdisproofuniverse (state, u'),
@@ -1240,7 +1240,7 @@ module
         ( ++ )
           (u, ( |-> ) (from, (ts, listsub (fun (x, y) -> x = y) cs [to__])))
       else u
-    let rec children u c = sml__hash__2 (getworld u c)
+    let rec children u c = (fun(_,hash2)->hash2) (getworld u c)
     let rec parents u c = ( <| ) ((fun p -> member (c, children u p)), dom u)
     let rec moveworld =
       fun (Disproofstate {universe = u; selected = sels} as d) from
@@ -1296,20 +1296,20 @@ module
                     (* it's a new position: swing links from->to *)
                     ( ++ )
                       (mkmap
-                         (map (fun (c, (ts, cs)) -> c, (ts, map swing cs))
+                         (List.map (fun (c, (ts, cs)) -> c, (ts, List.map swing cs))
                             ulist),
                        ( |-> ) (to__, (fromts, fromcs)))
                 | Some (tots, tocs) ->
                     (* it's already there; delete unnecessary ->from links and unite the worlds *)
                     let u =
                       mkmap
-                        (map
+                        (List.map
                            (fun (c, (ts, cs)) ->
                               c,
                               (ts,
                                (if member (to__, cs) then
                                   ( <| ) ((fun c -> c <> from), cs)
-                                else map swing cs)))
+                                else List.map swing cs)))
                            ulist)
                     in
                     domono fromts
@@ -1325,7 +1325,7 @@ module
               let sels =
                 if member (to__, sels) then
                   listsub (fun (x, y) -> x = y) sels [from]
-                else map swing sels
+                else List.map swing sels
               in
               Some (withdisproofselected (withdisproofuniverse (d, u), sels))
     let rec showdisproof =
@@ -1359,18 +1359,18 @@ module
            *)
           match at (forcemap, (root, t)) with
             Some (on, lock) ->
-              sml__hash__1 (if on then onbraket else offbraket) ^
-                (if lock then sml__hash__1 lockbraket else "")
-          | None -> sml__hash__1 outbraket
+              (fun(hash1,_)->hash1) (if on then onbraket else offbraket) ^
+                (if lock then (fun(hash1,_)->hash1) lockbraket else "")
+          | None -> (fun(hash1,_)->hash1) outbraket
         in
         let rec ivk t =
           let t = realterm t in
           (* consolereport ["ivk ", smltermstring t, " => ", makestring (forced facts universe root t)]; *)
           match at (forcemap, (root, t)) with
             Some (on, lock) ->
-              (if lock then sml__hash__2 lockbraket else "") ^
-                sml__hash__2 (if on then onbraket else offbraket)
-          | None -> sml__hash__2 outbraket
+              (if lock then (fun(_,hash2)->hash2) lockbraket else "") ^
+                (fun(_,hash2)->hash2) (if on then onbraket else offbraket)
+          | None -> (fun(_,hash2)->hash2) outbraket
         in
         let (seqplan, seqbox) =
           makeseqplan (elementstring_invischoose ivb ivk) true origin seq
@@ -1380,9 +1380,9 @@ module
         drawindisproofpane ();
         setdisproofseqbox (textbox2box (tbOffset seqbox seqboxpos));
         seqdraw seqboxpos seqbox seqplan;
-        setdisprooftiles (map termstring tiles);
+        setdisprooftiles (List.map termstring tiles);
         setdisproofworlds selected
-          (map (fun (c, labels, ws) -> c, labelsort labels, ws)
+          (List.map (fun (c, labels, ws) -> c, labelsort labels, ws)
              (universe2list universe));
         (* put the emphasis in *)
         List.iter

@@ -322,7 +322,7 @@
         let (st, hs, gs) = explode (sequent t) in
         let subts = subtrees t in
         let newhyps = ttsub hs hyps in
-        let lprins = sml__hash__1 (tree.matched t) in
+        let lprins = (fun(hash1,_)->hash1) (tree.matched t) in
         let rec T hs (n, t) = pt (n :: rp) hs t in
         let rec mkl isid subs =
           !hidereflexivity && isStructureRulenode t ReflexivityRule,
@@ -332,13 +332,13 @@
              andthenr (why, (fun r -> Some (r, lprins, subs))))
         in
         let rec aslines isid =
-          mkl isid (MAP ((fun ooo -> respt (T (hs, ooo))), numbered subts))
+          mkl isid (m_a_p ((fun ooo -> respt (T (hs, ooo))), numbered subts))
         in
         let rec boxpt lines =
           false, BoxPT (RevPath rp, true, innerwords, newhyps, lines)
         in
-        let rec hyps seq = sml__hash__2 (explode seq) in
-        let rec concs seq = sml__hash__3 (explode seq) in
+        let rec hyps seq = (fun(_,hash2)->hash2) (explode seq) in
+        let rec concs seq = (fun(_,_,hash3)->hash3) (explode seq) in
         (* The box transformation is applied to anything which has novel lhs elements.
          * The id transformation (aslines true) is applied when it matches, except when the id
          * is the last line of a box (unless the box introduces a single hypothesis and the rest 
@@ -545,7 +545,7 @@
             struct
               class a =
                 object
-                  val path = rev rp
+                  val path = List.rev rp
                   val layoutpath = None
                   val prunepath = None
                   method path = path
@@ -562,7 +562,7 @@
           Some (why, lprins, subpts) ->
             Some
               (pi, tranreason why, lprins,
-               MAP (dependency tranreason ordinary, subpts))
+               m_a_p (dependency tranreason ordinary, subpts))
         | None -> None
       in
       (* transforming stiles *)
@@ -578,7 +578,7 @@
             element2textinfo e, deadf (opt2bool justopt) mkconcplan pi e
           in
           let dep =
-            LinDep (MAP (mkplan, concs), dostopt stopt, linsubs pi justopt)
+            LinDep (m_a_p (mkplan, concs), dostopt stopt, linsubs pi justopt)
           in
           begin match isid, justopt with
             true, Some (_, [lp], []) -> IdDep (lp, dep)
@@ -593,11 +593,11 @@
             (boxit,
              (string2textinfo ReasonFont sing,
               string2textinfo ReasonFont plur),
-             MAP (mkplan, hs), dependency tranreason ordinary pt')
+             m_a_p (mkplan, hs), dependency tranreason ordinary pt')
       | CutPT (RevPath rp, ch, lpt, rpt, chneeded, tobehidden) ->
-          let rootp = rev rp in
-          let leftp = rev (0 :: rp) in
-          let rightp = rev (1 :: rp) in
+          let rootp = List.rev rp in
+          let leftp = List.rev (0 :: rp) in
+          let rightp = List.rev (1 :: rp) in
           let rec leftdead d con (({path = p} : pathinfo) as pi) el =
             let up =
               (let module M =
@@ -702,7 +702,7 @@
           in
           let (pi, c, e, s, f, st, subs) = List.hd fringe in
           (* that CANNOT go wrong, surely *)
-          let (deadf', tdeps) = fold tprocess fringe (deadf, []) in
+          let (deadf', tdeps) = nj_fold tprocess fringe (deadf, []) in
           (* this certainly should _not_ be generating mktp Left ... I think it should be some kind of
            * DisplayConc ... but for now this will do.
            *)
@@ -740,7 +740,7 @@
       | NoID ->(* we never make a HypID with l=0 *)
          ""
     let rec IDstring cids =
-      liststring (fun x -> x) "," (( <| ) ((fun s -> s <> ""), map Cr cids))
+      liststring (fun x -> x) "," (( <| ) ((fun s -> s <> ""), List.map Cr cids))
     let rec mapn a1 a2 a3 =
       match a1, a2, a3 with
         id, [], hn -> empty
@@ -775,12 +775,12 @@
       | AR of (pos -> reasonplankind plan)
     let rec linearise screenwidth procrustean_reasonW dp =
       let termfontleading =
-        Integer.max (1, sml__hash__3 (fontinfo TermFont))
+        max 1 ((fun(_,_,hash3)->hash3) (fontinfo TermFont))
       in
       let reasonfontleading =
-        Integer.max (1, sml__hash__3 (fontinfo ReasonFont))
+        max 1 ((fun(_,_,hash3)->hash3) (fontinfo ReasonFont))
       in
-      let leading = Integer.max (termfontleading, reasonfontleading) in
+      let leading = max termfontleading (reasonfontleading) in
       let linethickness = draw.linethickness leading in
       let _ = setproofparams "box" linethickness in
       (* done early, so that GUIs can be ready for anything *)
@@ -894,7 +894,7 @@
               in
               let estring = catelim_elementstring e [] in
               let rec measure ooo =
-                sml__hash__1 (measurestring TermFont ooo)
+                (fun(hash1,_)->hash1) (measurestring TermFont ooo)
               in
               let _ =
                 if !boxfolddebug then
@@ -915,7 +915,7 @@
                        sss]
               in
               let sys =
-                MAP ((fun ss -> Syllable (TermFont, implode ss)), sss)
+                m_a_p ((fun ss -> Syllable (TermFont, implode ss)), sss)
               in
               let text =
                 Text
@@ -940,7 +940,7 @@
        *)
        
       (* Construct the elements plan for a single line (relative to p). 
-       * All this function does is put the dots in if there is no justification
+       * a_l_l this function does is put the dots in if there is no justification
        *)
       let rec mkelementsplan mkelps proven p =
         let (elementsplanlist, elementsbox as elementsplan) = mkelps p in
@@ -991,7 +991,7 @@
       in
       let rec ljreasonplan ps box =
         let shift = pos (- tsW (tbSize box), 0) in
-        map (fun p -> planOffset p shift) ps
+        List.map (fun p -> planOffset p shift) ps
       in
       (* make the data structure for a single line, positioned relative to topleftpos *)
       let rec mkLine elf reasonf id topleftpos =
@@ -1095,7 +1095,7 @@
               None -> acc, None
             | Some (pi, rinf, lprins, subdps) ->
                 let lcids =
-                  MAP
+                  m_a_p
                     ((fun lp ->
                         try unSOME (mapped sameresource hypmap lp) with
                           unSOME_ ->
@@ -1108,8 +1108,8 @@
                 let rec dosub (dp, (cids, acc)) =
                   let (cid, acc') = getcid dp acc in cid :: cids, acc'
                 in
-                let (cids', acc') = revfold dosub subdps (rev lcids, acc) in
-                acc', Some (pi, rinf, rev cids')
+                let (cids', acc') = nj_revfold dosub subdps (List.rev lcids, acc) in
+                acc', Some (pi, rinf, List.rev cids')
           in
           (* plan a line: mkp does the content *)
           let rec doconcline mkp needsreason (acc, justinf) =
@@ -1140,8 +1140,8 @@
                        val id = inc id
                        val lines = line :: lines
                        val elbox = ( +||+ ) (elbox, ebox)
-                       val idW = Integer.max (iW, idW)
-                       val reasonW = Integer.max (rW, reasonW)
+                       val idW = max iW (idW)
+                       val reasonW = max rW (reasonW)
                        val assW = assW
                        method id = id
                        method lines = lines
@@ -1173,7 +1173,7 @@
               let concels' =
                 match !foldformulae, wopt with
                   true, Some bestW ->
-                    MAP
+                    m_a_p
                       (foldformula
                          (bestW - 2 * posX (topleft elbox) - commaW),
                        concels)
@@ -1213,11 +1213,11 @@
                     (* more or less *)
                     let mybestW =
                       Integer.max
-                        (2 * tsW (sml__hash__1 (sml__hash__1 words)),
+                        (2 * tsW ((fun(hash1,_)->hash1) ((fun(hash1,_)->hash1) words)),
                          bestW - 2 * posX innerpos)
                     in
                     minwaste measureplan mybestW
-                      (MAP
+                      (m_a_p
                          ((fun (e, inf) -> e, foldformula mybestW inf),
                           hypelis))
               in
@@ -1235,9 +1235,9 @@
                   let (word, hypmap') =
                     match hypelis with
                       [h] ->
-                        sml__hash__1 words,
-                        ( ++ ) (hypmap, ( |-> ) (sml__hash__1 h, LineID id))
-                    | hs -> sml__hash__2 words, ( ++ ) (hypmap, mapn id hs 1)
+                        (fun(hash1,_)->hash1) words,
+                        ( ++ ) (hypmap, ( |-> ) ((fun(hash1,_)->hash1) h, LineID id))
+                    | hs -> (fun(_,hash2)->hash2) words, ( ++ ) (hypmap, mapn id hs 1)
                   in
                   let rec showword p =
                     plan2plans (textinfo2plan word ReasonPunctPlan p)
@@ -1246,7 +1246,7 @@
                     mkLine
                       (things2plans
                          (fun ooo ->
-                            uncurry2 textinfo2plan (sml__hash__2 ooo))
+                            uncurry2 textinfo2plan ((fun(_,hash2)->hash2) ooo))
                          commaf nullf hypelis)
                       showword id (nextpos elbox textleading)
                   in
@@ -1266,9 +1266,9 @@
                              val elbox =
                                if null lines then linebox
                                else ( +||+ ) (elbox, linebox)
-                             val idW = Integer.max (idW, lineidW)
-                             val reasonW = Integer.max (reasonW, linereasonW)
-                             val assW = Integer.max (assW, lineassW)
+                             val idW = max idW (lineidW)
+                             val reasonW = max reasonW (linereasonW)
+                             val assW = max assW (lineassW)
                              method id = id
                              method lines = lines
                              method elbox = elbox
@@ -1281,7 +1281,7 @@
                      new M.a)
               in
               let (hypmap', (Lacc {id = id'} as acc')) =
-                revfold dohypline hyplines (hypmap, startLacc id innerpos)
+                nj_revfold dohypline hyplines (hypmap, startLacc id innerpos)
               in
               let
                 (cid,
@@ -1328,9 +1328,9 @@
                               new M.a) ::
                              lines
                          val elbox = ( +||+ ) (elbox, outerbox)
-                         val idW = Integer.max (idW, idW')
-                         val reasonW = Integer.max (reasonW, reasonW')
-                         val assW = Integer.max (assW, assW')
+                         val idW = idW (idW')
+                         val reasonW = max reasonW (reasonW')
+                         val assW = max assW (assW')
                          method id = id
                          method lines = lines
                          method elbox = elbox
@@ -1381,7 +1381,7 @@
                 (s, f, just') :: ts, acc'
               in
               let (revts, (Lacc {id = id'} as acc')) =
-                revfold phase1 tdeps ([], acc)
+                nj_revfold phase1 tdeps ([], acc)
               in
               (* revts is, of course, backwards ... *)
           
@@ -1405,7 +1405,7 @@
                 in
                 doconcline mkp true (acc, just)
               in
-              let (jd, acc''') = fold phase2 revts (id'', acc'') in
+              let (jd, acc''') = nj_fold phase2 revts (id'', acc'') in
               BoxID (id', jd), acc'''
       in
       (* stuff to do with computing margins and gaps *)
@@ -1494,7 +1494,7 @@
               ["trying again, width "; makestring maxbestW; "; screenwidth ";
                makestring screenwidth]
         in
-        answer (sml__hash__2 (L (Some maxbestW, empty, false, dp, startacc)))
+        answer ((fun(_,hash2)->hash2) (L (Some maxbestW, empty, false, dp, startacc)))
       else answer firstlayout
     (* linearise *)(* desperation ...
     fun IDstring id =
@@ -1506,7 +1506,7 @@
 
     let rec BoxLayout screenwidth t =
       let pt = pretransform (length (turnstiles ()) <> 1) t in
-      let procrustean_reasonW = Integer.max (100, screenwidth / 10) in
+      let procrustean_reasonW = max 100 (screenwidth / 10) in
       let tranreason =
         if !truncatereasons then
           procrustean_reason2textinfo procrustean_reasonW
@@ -1805,7 +1805,7 @@
         in
         let rec blackenthelot () = bg (fun _ -> blacken) in
         let hits =
-          MAP
+          m_a_p
             ((fun (pos, class__) ->
                 try unSOME (locateHit pos (Some class__) HitPath info) with
                   _ ->
@@ -1825,7 +1825,7 @@
                 bracketedliststring (hitstring pathstring) "," hits])
         in
         let (hyps, concs, reasons) =
-          fold
+          nj_fold
             (function
                FormulaHit (HypHit (hpath, hel)), (hs, cs, rs) ->
                  (hpath, hel) :: hs, cs, rs
@@ -1846,7 +1846,7 @@
             (* single reason selection *)
             (* hyps, but no conc *)
             let path =
-              fold
+              nj_fold
                 (fun ((hpath, hel), path) ->
                    if validhyp proof hel path then path else hpath)
                 hs hpath
@@ -2001,7 +2001,7 @@
           findfirst search lines
     let rec samelayout =
       fun (Layout {lines = lines}, Layout {lines = lines'}) -> lines = lines'
-    let defaultpos ooo = sml__hash__1 (defaultpos ooo)
+    let defaultpos ooo = (fun(hash1,_)->hash1) (defaultpos ooo)
   end
 
 (* a bit of desperate debugging ...

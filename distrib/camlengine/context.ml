@@ -392,7 +392,7 @@ module
              in
              new M.a)
     let rec withvisibleprovisos (cxt, ps) =
-      withprovisos (cxt, map (fun p -> mkvisproviso (true, p)) ps)
+      withprovisos (cxt, List.map (fun p -> mkvisproviso (true, p)) ps)
     let rec plusprovisos =
       function
         cxt, [] -> cxt
@@ -463,7 +463,7 @@ module
            in
            new M.a)
     let rec plusvisibleprovisos (cxt, ps) =
-      plusprovisos (cxt, map (fun p -> mkvisproviso (true, p)) ps)
+      plusprovisos (cxt, List.map (fun p -> mkvisproviso (true, p)) ps)
     let nextprovisosig = ref 0
     (* at 1000 contexts/sec, this will last 2^30/1000 = 1M seconds.  Long enough (we are
      * certainly not doing 1K contexts/sec, and when we do, we will undoubtedly have 
@@ -671,7 +671,7 @@ module
         Context {usedVIDs = usedVIDs; outside = Exterior (_, Some r, _)} ->
           plusprovisos
             (cxt',
-             fold
+             nj_fold
                (fun (u, ps) ->
                   mkvisproviso (false, mkNotinProviso (var, u)) :: ps)
                (( <| ) (isUnknown, rewinf_vars r)) []),
@@ -753,7 +753,7 @@ module
                  object
                    val varmap = varmap
                    val resmap = resmap
-                   val provisos = map provisoselfparent ps, ri
+                   val provisos = List.map provisoselfparent ps, ri
                    val provisosig = provisosig
                    val outside = outside
                    val usedVIDs = usedVIDs

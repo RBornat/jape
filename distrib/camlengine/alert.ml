@@ -77,7 +77,7 @@ module
   
     let rec alertpatch s =
       let rec patched (h, a) =
-        if String.length h <= String.length s && substring (s, 0, String.length h) = h then Some a
+        if String.length h <= String.length s && String.sub (s) (0) (String.length h) = h then Some a
         else None
       in
       match findfirst patched !alertpatches with
@@ -100,17 +100,17 @@ module
         raise
           (Catastrophe_
              ["ask bad default \""; m; "\"";
-              bracketedliststring sml__hash__1 "," bs; " "; makestring def])
+              bracketedliststring (fun(hash1,_)->hash1) "," bs; " "; makestring def])
       else
         let i =
-          ask_unpatched (intseverity code) m (map sml__hash__1 bs) def
+          ask_unpatched (intseverity code) m (List.map (fun(hash1,_)->hash1) bs) def
         in
-        try sml__hash__2 (nth (bs, i)) with
+        try (fun(_,hash2)->hash2) (nth (bs, i)) with
           Nth ->
             raise
               (Catastrophe_
                  ["ask bad result \""; m; "\"";
-                  bracketedliststring sml__hash__1 "," bs; " ";
+                  bracketedliststring (fun(hash1,_)->hash1) "," bs; " ";
                   makestring def; " => "; makestring i])
     let rec askCancel code m (bs : (string * 'a) list) c def =
       if null bs then
@@ -119,19 +119,19 @@ module
         raise
           (Catastrophe_
              ["askCancel bad default \""; m; "\"";
-              bracketedliststring sml__hash__1 "," bs; " "; makestring def])
+              bracketedliststring (fun(hash1,_)->hash1) "," bs; " "; makestring def])
       else
         match
-          askCancel_unpatched (intseverity code) m (map sml__hash__1 bs) def
+          askCancel_unpatched (intseverity code) m (List.map (fun(hash1,_)->hash1) bs) def
         with
           Some i ->
-            sml__hash__2
+            (fun(_,hash2)->hash2)
               (try nth (bs, i) with
                  Nth ->
                    raise
                      (Catastrophe_
                         ["ask bad result \""; m; "\"";
-                         bracketedliststring sml__hash__1 "," bs; " ";
+                         bracketedliststring (fun(hash1,_)->hash1) "," bs; " ";
                          makestring def; " => "; makestring i]))
         | None -> c
     let rec askDangerously m (dol, doa) (dontl, donta) cancela =

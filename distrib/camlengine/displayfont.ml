@@ -44,7 +44,7 @@ module Displayfont (AAA : sig exception Catastrophe_ of string list end) :
         0 -> TermFont
       | 1 -> ReasonFont
       | 2 -> ProvisoFont
-      | n -> raise (Catastrophe_ ["int2displayfont "; makestring n])
+      | n -> raise (Catastrophe_ ["int2displayfont "; string_of_int n])
     type pane = ProofPane | DisproofPane
     let rec panestring =
       function
@@ -65,5 +65,5 @@ module Displayfont (AAA : sig exception Catastrophe_ of string list end) :
       function
         0 -> ProofPane
       | 1 -> DisproofPane
-      | n -> raise (Catastrophe_ ["int2pane "; makestring n])
+      | n -> raise (Catastrophe_ ["int2pane "; string_of_int n])
   end

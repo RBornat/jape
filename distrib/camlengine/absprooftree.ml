@@ -74,7 +74,7 @@ module
     let rec allTipConcs tree ns =
       try
         let concs = visprooftree.allTipConcs (followPath tree (VisPath ns)) in
-        map (fun (VisPath cpath, conc) -> ns @ cpath, conc) concs
+        List.map (fun (VisPath cpath, conc) -> ns @ cpath, conc) concs
       with
         FollowPath_ _ -> []
     let rec tip tree ns =

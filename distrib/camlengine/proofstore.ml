@@ -153,7 +153,7 @@ module
         in
         let rec storedprovisos vps =
           let rec unvisproviso b vp = b, provisoactual vp in
-          MAP (unvisproviso true, ( <| ) (provisovisible, vps))
+          m_a_p (unvisproviso true, ( <| ) (provisovisible, vps))
         in
         let rec doit () =
           match givens, thingnamed name with
@@ -257,7 +257,7 @@ module
           match proofnamed n with
             Some (v, tree, provisos, givens, disproof) ->
               saveproof stream n (if v then Proved else Disproved) tree
-                (MAP (sml__hash__2, ( <| ) (sml__hash__1, provisos))) givens
+                (m_a_p ((fun(_,hash2)->hash2), ( <| ) ((fun(hash1,_)->hash1), provisos))) givens
                 disproof
           | _ -> ()
         in
@@ -301,5 +301,5 @@ module
       | name, Macro _ -> false
       | name, Theorem _ -> not (proved name)
     let rec lacksProof name =
-      needsProof name (sml__hash__1 (unSOME (thingnamed name)))
+      needsProof name ((fun(hash1,_)->hash1) (unSOME (thingnamed name)))
   end

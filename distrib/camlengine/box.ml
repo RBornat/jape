@@ -95,12 +95,9 @@ module Box : Box =
      * shan't decide till I have seen what the uses of box, pos and size might be.
      *)
      
-    type size = Size of (int * int)
-    (* w,h *)
-    type textsize = Textsize of (int * int * int)
-    (* w, ascent, descent *)
-    type pos = Pos of (int * int)
-    (* x,y *)
+    type size = Size of (int * int) (* w,h *)
+    type textsize = Textsize of (int * int * int) (* w, ascent, descent *)
+    type pos = Pos of (int * int) (* x,y *)
     type box = Box of (pos * size)
     type textbox = Textbox of (pos * textsize)
     let origin = Pos (0, 0)
@@ -137,16 +134,16 @@ module Box : Box =
     let rec botright =
       fun (Box (p, s)) -> rightby (downby (p, sH s - 1), sW s - 1)
     (* let the poor things make the values *)
-    let pos = Pos
-    let size = Size
-    let textsize = Textsize
-    let box = Box
-    let textbox = Textbox
+    let pos v = Pos v
+    let size v = Size v
+    let textsize v = Textsize v
+    let box v = Box v
+    let textbox v = Textbox v
     (* and even let them see them *)
     let rec pairstring ((x : int), (y : int)) =
-      ((("(" ^ makestring x) ^ ",") ^ makestring y) ^ ")"
+      ((("(" ^ string_of_int x) ^ ",") ^ string_of_int y) ^ ")"
     let rec triplestring ((w : int), (x : int), (y : int)) =
-      ((((("(" ^ makestring w) ^ ",") ^ makestring x) ^ ",") ^ makestring y) ^
+      ((((("(" ^ string_of_int w) ^ ",") ^ string_of_int x) ^ ",") ^ string_of_int y) ^
         ")"
     let rec posstring = fun (Pos p) -> "Pos" ^ pairstring p
     let rec sizestring = fun (Size p) -> "Size" ^ pairstring p
@@ -163,16 +160,16 @@ module Box : Box =
      *)
     let rec ( +-+ ) =
       fun (Textsize (w, a, d), Textsize (w', a', d')) ->
-        Textsize (w + w', Integer.max (a, a'), Integer.max (d, d'))
+        Textsize (w+w', max (a) (a'), max (d) (d'))
     
     (* Given two boxes, we can form the enclosing box of the two *)
     let rec ( +||+ ) =
       fun
         (Box (Pos (x, y), Size (w, h)), Box (Pos (x', y'), Size (w', h'))) ->
-        let minx = Integer.min (x, x') in
-        let maxx = Integer.max (x + w, x' + w') in
-        let miny = Integer.min (y, y') in
-        let maxy = Integer.max (y + h, y' + h') in
+        let minx = min (x) (x') in
+        let maxx = max (x+w) (x'+w') in
+        let miny = min (y) (y') in
+        let maxy = max (y+h) (y'+h') in
         Box (Pos (minx, miny), Size (maxx - minx, maxy - miny))
     
     (* not symmetrical - takes y position from first box, adjusts A, D to fit *)
@@ -180,10 +177,10 @@ module Box : Box =
       fun
         (Textbox (Pos (x, y), Textsize (w, a, d)),
          Textbox (Pos (x', y'), Textsize (w', a', d'))) ->
-        let minx = Integer.min (x, x') in
-        let maxx = Integer.max (x + w, x' + w') in
-        let miny = Integer.min (y - a, y' - a') in
-        let maxy = Integer.max (y + d, y' + d') in
+        let minx = min (x) (x') in
+        let maxx = max (x+w) (x'+w') in
+        let miny = min (y - a) (y' - a') in
+        let maxy = max (y+d) (y'+d') in
         Textbox (Pos (minx, y), Textsize (maxx - minx, y - miny, maxy - y))
     (* and we have to convert from textsize to size, textbox to box, but never the other way *)
     let rec textsize2size = fun (Textsize (w, a, d)) -> Size (w, a + d)

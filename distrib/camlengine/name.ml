@@ -51,7 +51,7 @@ module
           | _ -> raise (ParseError_ [])
         in
         try tryparse parsename s; s with
-          ParseError_ _ -> enQuote (implode (map unescapechar (explode s)))
+          ParseError_ _ -> enQuote (implode (List.map unescapechar (explode s)))
     let rec term2name t =
       match t with
         Id (_, s, _) -> Some (Name s)

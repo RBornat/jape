@@ -24,13 +24,13 @@ module env : env =
       while !p <> String.length s - 1 && Char.code (String.get s (!p)) <> eq do inc p done;
       match !p with
         0 -> s, s
-      | n -> substring (s, 0, n), substring (s, n + 1, String.length s - n - 1)
-    let rec declenv s = env := map split s; !env
+      | n -> String.sub (s) (0) (n), String.sub (s) (n + 1) (String.length s - n - 1)
+    let rec declenv s = env := List.map split s; !env
     let rec fetchenv () =
       match !env with
         [] -> declenv (System.environ ())
       | env -> env
-    let rec currentenv () = map (fun (n, v) -> (n ^ "=") ^ v) (fetchenv ())
+    let rec currentenv () = List.map (fun (n, v) -> (n ^ "=") ^ v) (fetchenv ())
     let rec setenv nv = env := nv :: fetchenv ()
     let rec getenv d s =
       let rec F =
@@ -40,9 +40,9 @@ module env : env =
       in
       F (fetchenv ())
     let rec nodups l =
-      fold
+      nj_fold
         (fun (x, xs) -> if List.exists (fun x' -> x = x') xs then xs else x :: xs)
         l []
-    let rec variables () = nodups (map sml__hash__1 (fetchenv ()))
+    let rec variables () = nodups (List.map (fun(hash1,_)->hash1) (fetchenv ()))
   end
 

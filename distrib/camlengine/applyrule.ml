@@ -223,7 +223,7 @@ module
          subgoals) ->
         cxt,
         mkJoin cxt reason how args conjecture
-          (MAP ((fun ooo -> mkTip cxt (rewriteseq cxt ooo)), subgoals))
+          (m_a_p ((fun ooo -> mkTip cxt (rewriteseq cxt ooo)), subgoals))
           (* rewrite tips here *)
           (thinnedL, thinnedR)
     (* filters *)
@@ -300,15 +300,15 @@ module
         fun (Info {conjecture = Seq (st, chs, cgs)}, thinnedL, thinnedR, _, _)
           (_, thinnedL', thinnedR', _, _) ->
           (thinnedL = thinnedL' ||
-           identical (sml__hash__2 (breakside chs)) (thinnedL, thinnedL')) &&
+           identical ((fun(_,hash2)->hash2) (breakside chs)) (thinnedL, thinnedL')) &&
           (thinnedR = thinnedR' ||
-           identical (sml__hash__2 (breakside cgs)) (thinnedR, thinnedR'))
+           identical ((fun(_,hash2)->hash2) (breakside cgs)) (thinnedR, thinnedR'))
       and identical a1 a2 =
         match a1, a2 with
           BagClass _, (rts, rts') -> eqlists sameresource (rts, rts')
         | _, _ -> false
       in
-      fold (fun (p, ps) -> if List.exists (same p) ps then ps else p :: ps) ps []
+      nj_fold (fun (p, ps) -> if List.exists (same p) ps then ps else p :: ps) ps []
     let rec takefirst =
       function
         [] -> None
@@ -327,7 +327,7 @@ module
             implode
               [seqstring (rewriteseq cxt c); " generates subgoal";
                if length ss = 1 then " " else "s "] ::
-              MAP ((fun ooo -> seqstring (rewriteseq cxt ooo)), ss)
+              m_a_p ((fun ooo -> seqstring (rewriteseq cxt ooo)), ss)
       in
       let rec numwords n =
         match n with
@@ -353,13 +353,13 @@ module
                  ["The "; kind; " "; step_label how; " matches in ";
                   numwords (length ps); " different ways. ";
                   "Select an instance of the "; kind; " from this menu: "],
-               MAP (listposs, ps))
+               m_a_p (listposs, ps))
           with
             None -> failOffering (); None
           | Some n -> succeedOffering (); Some (answer (nth (ps, n)))
     (* this isn't really discriminatory, is it? *)
     
-    let rec takethelot ps = MAP (answer, ps)
+    let rec takethelot ps = m_a_p (answer, ps)
     (**************************************************************************
     ***************************************************************************)
 
@@ -394,7 +394,7 @@ module
               end
           | _ -> None
         in
-        MAP ((fun cxt -> optionfilter (thinned cxt) resnums, cxt), cxts)
+        m_a_p ((fun cxt -> optionfilter (thinned cxt) resnums, cxt), cxts)
     (* obvious analogue of exists *)
     let rec all f ooo = not (List.exists (fun ooo -> not (f ooo)) ooo)
     let rec BnMfilter f xs = ( <| ) (f, xs)
@@ -422,7 +422,7 @@ module
           else ps
         in
         let (impfreshprovisos, newprovisos) =
-          fold
+          nj_fold
             (fun (vp, (ips, nps)) ->
                match provisoactual vp with
                  FreshProviso (_, _, false, _ as f) ->
@@ -442,7 +442,7 @@ module
             in
             let cHs = goodside thinnedL CHs in
             let cGs = goodside thinnedL CGs in
-            fold (fun ((b, i), ps) -> expandfresh b i cHs cGs ps)
+            nj_fold (fun ((b, i), ps) -> expandfresh b i cHs cGs ps)
               impfreshprovisos []
         in
         (* these rewrites are probably necessary to make the tactic stuff work.  Otherwise
@@ -459,20 +459,20 @@ module
          *)
         let rec result subgoals (thinnedL, thinnedR, cxt) =
           (* don't rewrite uHs, uGs, because of 'used' filters above *)
-          info, thinnedL, thinnedR, cxt, MAP (rewriteseq cxt, subgoals)
+          info, thinnedL, thinnedR, cxt, m_a_p (rewriteseq cxt, subgoals)
         in
         (* get rid of alternatives which have the *same* thinners in bag matching 
         fun remdupposs (BagClass _) ps =
           let fun same (ms, _) (ms', _) = 
                 eqlists (fn ((_,t1),(_,t2)) => eqterms (t1,t2)) (ms,ms') 
           in
-              fold (fn (p,ps) => if List.exists (same p) ps then ps else p::ps) ps []
+              nj_fold (fn (p,ps) => if List.exists (same p) ps then ps else p::ps) ps []
           end
         |   remdupposs _            ps = ps
         *)
         
-        let Hkind = sml__hash__2 (breakside Hs) in
-        let Gkind = sml__hash__2 (breakside Gs) in
+        let Hkind = (fun(_,hash2)->hash2) (breakside Hs) in
+        let Gkind = (fun(_,hash2)->hash2) (breakside Gs) in
         let rec checkinclusive js ks =
           all (fun j -> List.exists (fun k -> sameresource (j, k)) ks) js ||
           all (fun k -> List.exists (fun j -> sameresource (j, k)) js) ks
@@ -544,7 +544,7 @@ module
                                  explain (exp1 "hypothesis" "hypotheses" CHs)
                                    (nonempty ooo))
                                 (flatten ooo))
-                             (map
+                             (List.map
                                 (fun (thinnedR, cxt) ->
                                    ( >< )
                                      ([thinnedR],
@@ -581,7 +581,7 @@ module
                        with
                          Verifyproviso_ p -> p :: bads, goods
                      in
-                     match fold doprovisos poss ([], []) with
+                     match nj_fold doprovisos poss ([], []) with
                        bads, [] ->
                          begin match sortunique earlierproviso bads with
                            [p] ->
@@ -600,7 +600,7 @@ module
                          end
                      | _, (_ :: _ as goods) -> Some goods)),
                nonempty)
-              (map (result antecedents) ooo)
+              (List.map (result antecedents) ooo)
         in
         if Cst = st then genSubGoals (plusprovisos (cxt, newprovisos))
         else

@@ -65,7 +65,7 @@ module
       val enQuote : string -> string
       val listsub : ('a * 'b -> bool) -> 'a list -> 'b list -> 'a list
       val member : 'a * 'a list -> bool
-      val MAP : ('a -> 'b) * 'a list -> 'b list
+      val m_a_p : ('a -> 'b) * 'a list -> 'b list
       val systemmenus : string list
       val pairstring :
         ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
@@ -183,7 +183,7 @@ module
           Mseparator -> None
         | Mentry (label, _, _) -> Some [label]
         | Mcheckbox (label, _, _, _) -> Some [label]
-        | Mradiobutton (_, lcs, _) -> Some (MAP (sml__hash__1, lcs))
+        | Mradiobutton (_, lcs, _) -> Some (m_a_p ((fun(hash1,_)->hash1), lcs))
       in
       let rec vf e =
         match e with
@@ -235,7 +235,7 @@ module
       andthenr
         (at (!menus, m),
          (fun ooo ->
-            (fun ooo -> (fun ooo -> Some (tidy ooo)) (rev ooo))
+            (fun ooo -> (fun ooo -> Some (tidy ooo)) (List.rev ooo))
               ((fun (x, y) -> ( ! ) x y) ooo)))
     let rec addpanel k p =
       match at (!panels, p) with
@@ -247,7 +247,7 @@ module
           Pentry (label, _) -> Some [label]
         | Pbutton (label, _) -> Some [label]
         | Pcheckbox (label, _, _, _) -> Some [label]
-        | Pradiobutton (_, lcs, _) -> Some (MAP (sml__hash__1, lcs))
+        | Pradiobutton (_, lcs, _) -> Some (m_a_p ((fun(hash1,_)->hash1), lcs))
       in
       let rec vf e =
         match e with
@@ -275,9 +275,9 @@ module
         Some ({contents = k, _, _} as contents) -> contents := k, empty, []
       | None -> ()
     let rec getpanels () =
-      MAP ((fun (p, {contents = k, _, _}) -> p, k), aslist !panels)
+      m_a_p ((fun (p, {contents = k, _, _}) -> p, k), aslist !panels)
     let rec getpanelkind p ooo =
-      (fun ooo -> andthenr (at (!panels, p), Some) (sml__hash__1 ooo))
+      (fun ooo -> andthenr (at (!panels, p), Some) ((fun(hash1,_)->hash1) ooo))
         ((fun (x, y) -> ( ! ) x y) ooo)
     let rec getpaneldata p =
       andthenr
@@ -286,7 +286,7 @@ module
           fun ooo ->
             Some
               ((fun {contents = k, em, bs} ->
-                  fold (fun ((l, {contents = c}), es) -> Pentry (l, c) :: es)
+                  nj_fold (fun ((l, {contents = c}), es) -> Pentry (l, c) :: es)
                     (aslist em)
                     (match bs, k with
                        [], ConjecturePanelkind ->
@@ -297,7 +297,7 @@ module
                          [Pbutton
                             (applyname,
                              [StringInsert "applygiven"; CommandInsert])]
-                     | _ -> rev bs))
+                     | _ -> List.rev bs))
                  ooo)))
     let rec clearmenusandpanels () = menus := empty; panels := empty
     (***** temporary, for backwards compatibility *****)
@@ -315,7 +315,7 @@ module
             cbf (label, assignvarval var val1)
         | Mradiobutton (var, lcs, _) ->
             (* this will be reset *)
-            rbf (map (fun (label, vval) -> label, assignvarval var vval) lcs)
+            rbf (List.map (fun (label, vval) -> label, assignvarval var vval) lcs)
       in
       if !menudebug then consolereport ["reporting on "; namestring m];
       match getmenudata m with
@@ -330,7 +330,7 @@ module
             cbf (label, assignvarval var val1)
         | Pradiobutton (var, lcs, _) ->
             rbf
-              (MAP ((fun (label, vval) -> label, assignvarval var vval), lcs))
+              (m_a_p ((fun (label, vval) -> label, assignvarval var vval), lcs))
       in
       match getpaneldata p with
         Some es -> List.iter tran es

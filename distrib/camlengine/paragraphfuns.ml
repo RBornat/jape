@@ -145,11 +145,11 @@ module
       | Theory _ -> "Theory"
     let rec entrynames place con (p, es) =
       match p, rulename p with
-        Theory (_, tps), _ -> fold (entrynames place con) tps es
+        Theory (_, tps), _ -> nj_fold (entrynames place con) tps es
       | _, Some n ->(* without the theory name *)
          con n :: es
       | _ -> raise (Catastrophe_ (paragraphid p :: " found in " :: place))
-    (* now designed for revfold, cos it produces japeenv and proofs and buttonfns *)
+    (* now designed for nj_revfold, cos it produces japeenv and proofs and buttonfns *)
     let rec interpret
       report query where params provisos enter
         (paragraph, (env, proofs, buttonfns as res)) =
@@ -210,9 +210,9 @@ module
         env, doit
       in
       let rec processRadioButton env (var, entries, defval) =
-        let settings = MAP (sml__hash__2, entries) in
+        let settings = m_a_p ((fun(_,hash2)->hash2), entries) in
         let (env, _) = newbuttonenv env "RADIOBUTTON" var settings defval in
-        let map = mkmap (MAP ((fun (l, v) -> v, l), entries)) in
+        let map = mkmap (m_a_p ((fun (l, v) -> v, l), entries)) in
         let rec basefn f (v, tf) =
           match atmapping (map, v) with
             Some label -> f (label, tf)
@@ -231,7 +231,7 @@ module
                provisos)
         | ps -> ps
       in
-      let rec visprovisos ps = MAP ((fun p -> true, p), ps) in
+      let rec visprovisos ps = m_a_p ((fun p -> true, p), ps) in
       let rec filterparams vars ps =
         match ps with
           [] -> ( <| ) ((fun p -> member (paramvar p, vars)), params)
@@ -249,7 +249,7 @@ module
           in
           addthing (name, thing, where); res
       | File (_, paras) ->
-          revfold (interpret report query where [] [] enter) paras res
+          nj_revfold (interpret report query where [] [] enter) paras res
       | FontSpec stuff -> setfontstuff stuff; res
       | ForceDef stuff -> addforcedef stuff; res
       | HitDef stuff -> adddoubleclick stuff; res
@@ -306,11 +306,11 @@ module
                 p :: mps
           in
           let (env, buttonfns, mes, mps) =
-            fold process mparas (env, buttonfns, [], [])
+            nj_fold process mparas (env, buttonfns, [], [])
           in
           menu.addmenu mlabel;
           menu.addmenudata mlabel mes;
-          revfold
+          nj_revfold
             (interpret report query (InMenu mlabel) params provisos enter) mps
             (env, proofs, buttonfns)
       | Panel (plabel, pparas, kind) ->
@@ -339,11 +339,11 @@ module
                 p :: pps
           in
           let (env, buttonfns, pes, pps) =
-            fold process pparas (env, buttonfns, [], [])
+            nj_fold process pparas (env, buttonfns, [], [])
           in
           menu.addpanel kind plabel;
           menu.addpaneldata plabel pes;
-          revfold
+          nj_revfold
             (interpret report query (InPanel plabel) params provisos enter)
             pps (env, proofs, buttonfns)
       | StructureRule (stype, rule) ->
@@ -392,7 +392,7 @@ module
           in
           (* profileOff(); *) res
       | RuleDef (RuleHeading (name, params, provisos), top, bottom, axiom) ->
-          let rvs = fold tmerge (MAP (seqvars, top)) (seqvars bottom) in
+          let rvs = nj_fold tmerge (m_a_p (seqvars, top)) (seqvars bottom) in
           let thing =
             Rule
               ((filterparams rvs params,
@@ -403,7 +403,7 @@ module
       | RuleGroup (RuleHeading (name, params, provisos), paras) ->
           addalttactic name paras params where;
           (* in the menu/panel *)
-          revfold
+          nj_revfold
             (interpret report query where (Par params) (Pro provisos) false)
             paras res
       | TacticDef (TacticHeading (name, params), tac) ->
@@ -411,7 +411,7 @@ module
       | Theory (RuleHeading (name, params, provisos), paras) ->
           addalttactic name paras params InLimbo;
           (* not in a menu/panel *)
-          revfold
+          nj_revfold
             (interpret report query where (Par params) (Pro provisos) enter)
             paras res
     and addalttactic name paras params where =
@@ -423,9 +423,9 @@ module
       freezesaved ();
       (* profileOff(); profileReset(); *) (* profileOn(); *)
       (try
-         revfold (interpret report query InLimbo [] [] true)
-           (fold (fun (x, y) -> x @ y)
-              (MAP
+         nj_revfold (interpret report query InLimbo [] [] true)
+           (nj_fold (fun (x, y) -> x @ y)
+              (m_a_p
                  ((fun ooo -> file2paragraphs report query (unQuote ooo)),
                   filenames))
               [])

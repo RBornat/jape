@@ -274,27 +274,27 @@ module
         in
         let terms =
           match class__ with
-            None -> MAP (stripElement, els)
+            None -> m_a_p (stripElement, els)
           | Some k -> [registerCollection (k, els)]
         in
-        MAP (NotinProviso, ( >< ) (vars, terms))
+        m_a_p (NotinProviso, ( >< ) (vars, terms))
       in
       let rec freshp p h g r v = p (h, g, r, v) in
       match currsymb () with
         SHYID "FRESH" ->
-          MAP (freshp FreshProviso true true false, parseNOTINvars "FRESH")
+          m_a_p (freshp FreshProviso true true false, parseNOTINvars "FRESH")
       | SHYID "HYPFRESH" ->
-          MAP
+          m_a_p
             (freshp FreshProviso true false false, parseNOTINvars "HYPFRESH")
       | SHYID "CONCFRESH" ->
-          MAP
+          m_a_p
             (freshp FreshProviso false true false, parseNOTINvars "CONCFRESH")
       | SHYID "IMPFRESH" ->
-          MAP (freshp FreshProviso true true true, parseNOTINvars "FRESH")
+          m_a_p (freshp FreshProviso true true true, parseNOTINvars "FRESH")
       | SHYID "IMPHYPFRESH" ->
-          MAP (freshp FreshProviso true false true, parseNOTINvars "HYPFRESH")
+          m_a_p (freshp FreshProviso true false true, parseNOTINvars "HYPFRESH")
       | SHYID "IMPCONCFRESH" ->
-          MAP
+          m_a_p
             (freshp FreshProviso false true true, parseNOTINvars "CONCFRESH")
       | sy ->
           if canstartTerm sy then
@@ -313,8 +313,8 @@ module
                     " found after collection "; bk els])
             in
             match class__, currsymb () with
-              None, SHYID "NOTIN" -> parseNOTIN (MAP (stripElement, els))
-            | None, SHYID "IN" -> [parseNOTONEOF (MAP (stripElement, els))]
+              None, SHYID "NOTIN" -> parseNOTIN (m_a_p (stripElement, els))
+            | None, SHYID "IN" -> [parseNOTONEOF (m_a_p (stripElement, els))]
             | _, SHYID "NOTIN" -> collbad "NOTIN"
             | _, SHYID "IN" -> collbad "IN"
             | _, SHYID "UNIFIESWITH" ->
@@ -363,7 +363,7 @@ module
           FreshProviso (h, g, r, v) -> [termstring v]
         | NotinProviso (v, t) -> [termstring v; termstring t]
         | NotoneofProviso (vs, pat, C) ->
-            fold (fun (v, ss) -> termstring v :: ss) vs
+            nj_fold (fun (v, ss) -> termstring v :: ss) vs
               [termstring pat; termstring C]
         | UnifiesProviso (t, t') -> [termstring t; termstring t']
       in
@@ -377,16 +377,16 @@ module
       | UnifiesProviso (t1, t2) -> tmerge (termvars t1, termvars t2)
       | NotinProviso (t1, t2) -> tmerge (termvars t1, termvars t2)
       | NotoneofProviso (vs, pat, C) ->
-          fold tmerge (MAP (termvars, vs)) (termvars C)
+          nj_fold tmerge (m_a_p (termvars, vs)) (termvars C)
     let rec provisoVIDs p =
-      orderVIDs (MAP (vartoVID, provisovars termvars tmerge p))
+      orderVIDs (m_a_p (vartoVID, provisovars termvars tmerge p))
     let rec maxprovisoresnum p =
       let rec f t n =
-        fold Integer.max (MAP (resnum2int, elementnumbers t)) n
+        nj_fold max (m_a_p (resnum2int, elementnumbers t)) n
       in
       match p with
         FreshProviso (_, _, _, t) -> f t 0
       | UnifiesProviso (t1, t2) -> f t1 (f t2 0)
       | NotinProviso (v, t) -> f v (f t 0)
-      | NotoneofProviso (vs, pat, C) -> fold (fun (v, n) -> f v n) vs (f C 0)
+      | NotoneofProviso (vs, pat, C) -> nj_fold (fun (v, n) -> f v n) vs (f C 0)
   end

@@ -141,7 +141,7 @@ module
     
     
     
-    let rec MAP (f, xs) = map f xs
+    let rec m_a_p (f, xs) = List.map f xs
     
     
     
@@ -734,7 +734,7 @@ module
               Some (proofsels, givensels) ->
                 (* this should be in interaction.sml *)
                 let (concsels, hypsels) =
-                  fold
+                  nj_fold
                     (function
                        (ConcHit (_, c), ss), (cs, hs) -> (c, ss) :: cs, hs
                      | (HypHit (_, h), ss), (cs, hs) -> cs, (h, ss) :: hs
@@ -941,7 +941,7 @@ module
               Some (withproofhist (hist, append_step phist proof'))))
     let rec recorddisplayvars env =
       try
-        MAP
+        m_a_p
           ((fun s -> termstring (unSOME (japeenv.at (env, s)))), displayvars)
       with
         unSOME_ ->
@@ -1046,7 +1046,7 @@ module
                   savefilename := Some name; doargs args
               | "" :: args -> doargs args
               | name :: args ->
-                  if substring (name, 0, 1) = "-" then [], name :: args
+                  if String.sub (name) (0) (1) = "-" then [], name :: args
                   else let (names, args) = doargs args in name :: names, args
             in
             let (names, args) = doargs args in
@@ -1175,12 +1175,12 @@ module
                new M.a) ::
               pinfs
       in
-      fold f proofs pinfs
+      nj_fold f proofs pinfs
     and biggestproofnum name pinfs =
-      fold
+      nj_fold
         (fun (Pinf {proofnum = proofnum; title = t, index}, (n, i)) ->
-           Integer.max (proofnum, n),
-           (if t = name then Integer.max (index, i) else i))
+           max proofnum (n),
+           (if t = name then max index (i) else i))
         pinfs (0, 0)
     and endproof num name proved st dis =
       runproof.addproof showAlert uncurried_screenquery name proved st
@@ -1257,7 +1257,7 @@ module
       in
       let rec saveproofs newfile =
         let rec doit sfile =
-          let rec pf ps = MAP (provisoactual, ( <| ) (provisovisible, ps)) in
+          let rec pf ps = m_a_p (provisoactual, ( <| ) (provisovisible, ps)) in
           let rec f =
             fun (Pinf {title = t, _; hist = hist}) ->
               let (Proofstate {cxt = cxt; tree = tree; givens = givens}) =
@@ -1266,7 +1266,7 @@ module
               saveproof sfile t InProgress tree (pf (provisos cxt)) givens
                 (disproofstate2model (winhist_disproofnow hist))
           in
-          proofstore.saveproofs sfile; map f pinfs
+          proofstore.saveproofs sfile; List.map f pinfs
         in
         match newfile, !savefilename with
           false, Some s -> writetonamedfile doit s; ()
@@ -1429,7 +1429,7 @@ module
           in
           match freshThingtoprove name with
             Some (Theorem (_, provisos, seq)) ->
-              doit [] seq (MAP (mkvisproviso, provisos)) "theorem"
+              doit [] seq (m_a_p (mkvisproviso, provisos)) "theorem"
           | Some (Rule ((_, provisos, givens, seq), ax)) ->
               if ax then
                 begin
@@ -1438,7 +1438,7 @@ module
                   default
                 end
               else
-                doit givens seq (MAP (mkvisproviso, provisos)) "derived rule"
+                doit givens seq (m_a_p (mkvisproviso, provisos)) "derived rule"
           | Some (Tactic _) ->
               showAlert
                 [namestring name;
@@ -1785,13 +1785,13 @@ module
                            Some
                              (FormulaSel
                                 (_, _, _, concsels, hypsels, givensels)) ->
-                             fold getsels [givensels]
-                               (fold getsels (MAP (sml__hash__2, concsels))
-                                  (fold getsels (MAP (sml__hash__2, hypsels))
+                             nj_fold getsels [givensels]
+                               (nj_fold getsels (m_a_p ((fun(_,hash2)->hash2), concsels))
+                                  (nj_fold getsels (m_a_p ((fun(_,hash2)->hash2), hypsels))
                                      []))
                          | Some (TextSel (proofsels, givensels)) ->
-                             fold getsels [givensels]
-                               (fold getsels (MAP (sml__hash__2, proofsels))
+                             nj_fold getsels [givensels]
+                               (nj_fold getsels (m_a_p ((fun(_,hash2)->hash2), proofsels))
                                   [])
                          | _ -> []
                        in
@@ -1816,7 +1816,7 @@ module
                                   " didn't parse -- " :: es);
                              raise Unify_
                        in
-                       let selargs = MAP (getit, sels) in
+                       let selargs = m_a_p (getit, sels) in
                        if length args + length selargs < 2 then
                          begin
                            showAlert
@@ -1860,7 +1860,7 @@ module
                     default
                 | Some (_, tree, provisos, givens, disproofopt) ->
                     let proofstate =
-                      mkstate (MAP (mkvisproviso, provisos)) givens tree
+                      mkstate (m_a_p (mkvisproviso, provisos)) givens tree
                     in
                     newfocus
                       (env, mbs, DontShow,
@@ -1889,12 +1889,12 @@ module
                         let val dragees = !dropsource
                             val dNdm = draganddropmapping cxt
                             fun targets d =
-                              fold (fn ((s,t),ts) => 
+                              nj_fold (fn ((s,t),ts) => 
                                       if sameresource (s,d) then elementstring t::ts else ts
                                    ) dNdm []
                             fun flatten (ts:string list,rs) = (listsub op= ts rs)@rs
                         in
-                            japeserver.dragtargets (fold flatten (targets MAP dragees) []);
+                            japeserver.dragtargets (nj_fold flatten (targets m_a_p dragees) []);
                             default
                         end
                   )                  
@@ -2090,10 +2090,10 @@ module
                                      (proofstate_givens proof)),
                                 reparentprovisos hist)
                            in
-                           MAP
+                           m_a_p
                              (f, bgs before japeserver.setforegroundfocus ())
                          else
-                           MAP
+                           m_a_p
                              ((fun pinf -> withneedsrefresh (pinf, true)),
                               bgs))
                   | _ -> pinfs
@@ -2105,7 +2105,7 @@ module
             | "saveproofs", [w] ->
                 let newfile = w = "true" in
                 let pinfs' =
-                  MAP
+                  m_a_p
                     ((fun pinf ->
                         withhist
                           (pinf, withchanged (proofinfo_hist pinf, false))),
@@ -2292,7 +2292,7 @@ module
         setComment [];
         (* consolereport (("in administer; command is " :: commandstring command) @ [ "; pinfs are ",
                 bracketedliststring (makestring:int->string) ","
-                  ((fn Pinf{proofnum,...}=>proofnum) MAP pinfs)
+                  ((fn Pinf{proofnum,...}=>proofnum) m_a_p pinfs)
            ]);
          *)
     

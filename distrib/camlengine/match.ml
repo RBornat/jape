@@ -102,7 +102,7 @@ module
       let rec eqt (t1, t2) mrs =
         if eqterms (t1, t2) then mrs
         else if simterms (t1, t2) then
-          MAP
+          m_a_p
             ((function
                 Certain e -> Uncertain e
               | umr -> umr),
@@ -121,7 +121,7 @@ module
             | _ -> None
       in
       let rec matchlist f pats objs mrs =
-        try fold (uncurry2 (uncurry2 f)) (( ||| ) (pats, objs)) mrs with
+        try nj_fold (uncurry2 (uncurry2 f)) (( ||| ) (pats, objs)) mrs with
           Zip -> []
       in
       let listmatch = matchlist matchterm in
@@ -159,7 +159,7 @@ module
               | mrs -> Some mrs
             in
             let rec g (_, mrs, terms) = bagmatch epats terms mrs in
-            res (flatten (MAP (g, matchbag f eterms)))
+            res (flatten (m_a_p (g, matchbag f eterms)))
         | _ -> res []
       in
       if null mrs then []
@@ -222,7 +222,7 @@ module
             let rec f =
               function
                 Segvar (_, ps, v), es ->
-                  let ps' = MAP (RR, ps) in
+                  let ps' = m_a_p (RR, ps) in
                   begin match at (env, v) with
                     Some t ->
                       begin match debracket t with
@@ -237,7 +237,7 @@ module
                   end
               | Element (_, r, t), es -> registerElement (r, RR t) :: es
             in
-            Some (registerCollection (k, fold f es []))
+            Some (registerCollection (k, nj_fold f es []))
         | _ -> None
       in
       option_mapterm R term
@@ -255,14 +255,14 @@ module
           Id _ -> mkid FormulaClass
         | Unknown _ -> mkid FormulaClass
         | App _ -> registerApp (mkid FormulaClass, mkid FormulaClass)
-        | Tup (_, s, ts) -> registerTup (s, MAP (S, ts))
+        | Tup (_, s, ts) -> registerTup (s, m_a_p (S, ts))
         | Literal _ -> t
-        | Fixapp (_, ss, ts) -> registerFixapp (ss, MAP (S, ts))
+        | Fixapp (_, ss, ts) -> registerFixapp (ss, m_a_p (S, ts))
         | Subst (_, r, P, vts) ->
             registerSubst
-              (r, mkid FormulaClass, MAP ((fun (v, t) -> S v, S t), vts))
+              (r, mkid FormulaClass, m_a_p ((fun (v, t) -> S v, S t), vts))
         | Binding (_, vs, _, pat) -> S pat
-        | Collection (_, k, es) -> registerCollection (k, MAP (E, es))
+        | Collection (_, k, es) -> registerCollection (k, m_a_p (E, es))
       and E e =
         match e with
           Segvar (_, ps, v) -> registerSegvar (ps, S v)
@@ -294,10 +294,10 @@ module
     let match3termvars = matchtermvars
     let rec match3term matchbra = match3termvars matchbra ismetav
     let rec matchtermvars matchbra ispatvar pat t envs =
-      fold
+      nj_fold
         (function
            Certain e, es -> e :: es
          | Uncertain e, es -> es)
-        (match3termvars matchbra ispatvar pat t (map Certain envs)) []
+        (match3termvars matchbra ispatvar pat t (List.map Certain envs)) []
     let rec matchterm matchbra = matchtermvars matchbra ismetav
   end

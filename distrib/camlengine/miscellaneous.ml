@@ -9,8 +9,6 @@ sig
     val observe : string list -> unit
     val sum : int list -> int
     val charpred : string -> (string -> bool) * (string * bool -> unit)
-    val explode : string -> char list
-    val implode : char list -> string
     val isdigit : string -> bool
     val islcletter : string -> bool
     val isletter : string -> bool
@@ -57,12 +55,36 @@ sig
     exception Catastrophe_ of string list
     exception ParseError_ of string list
     exception Tacastrophe_ of string list
+
+    val explode : string -> char list
+    val implode : char list -> string
+    val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
+    val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
+
 end
 
 (* $Id$ *)
 
 module M : T =
   struct
+    (* sml functions for caml *)
+    let rec nj_fold f xs z = match xs with [] -> z | x::xs -> nj_fold f xs (f (x,z))
+    let rec nj_revfold f xs z = match xs with [] -> z | x::xs -> f (x, nj_revfold f xs z)
+    
+    let explode s =
+      let len = String.length s in
+      let rec e n = if n=len then [] else String.get s n :: e (n+1) in
+      e 0
+      
+    let implode cs = 
+      let len = List.length cs in
+      let s = String.create len in
+      let rec ii n cs = 
+        match cs with (c::cs) -> (s.[n]<-c; ii (n+1) cs)
+        |             []      -> ()
+      in
+      (ii 0 cs; s) 
+      
     let rec iter f (l, h) =
       if l > h then () else begin f l; iter f (l + 1, h) end
     let rec charpred s =
@@ -159,20 +181,6 @@ module M : T =
        (* this function records a decision NEVER to put printable characters below space 
           (ASCII decimal 32) in a font.
         *)
-    let explode s =
-      let len = String.length s in
-      let rec e n = if n=len then [] else String.get s n :: e (n+1) in
-      e 0
-      
-    let implode cs = 
-      let len = List.length cs in
-      let s = String.create len in
-      let rec ii n cs = 
-        match cs with (c::cs) -> (s.[n]<-c; ii (n+1) cs)
-        |             []      -> ()
-      in
-      (ii 0 cs; s) 
-      
     let invisible_char c = (onbra <= c && c <= outket) || c = lockbra || c = lockket
     let invisible s =
       not (List.exists (fun ooo -> not (invisible_char ooo)) (explode s))

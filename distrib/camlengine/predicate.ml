@@ -37,7 +37,7 @@ module
       val earlierlist : ('a * 'a -> bool) -> 'a list * 'a list -> bool
       val eqbags : ('a * 'a -> bool) -> 'a list * 'a list -> bool
       val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      val MAP : ('a -> 'b) * 'a list -> 'b list
+      val m_a_p : ('a -> 'b) * 'a list -> 'b list
       val member : 'a * 'a list -> bool
       val optionstring : ('a -> string) -> 'a option -> string
       val pairstring :
@@ -100,7 +100,7 @@ module
                 ["compilepredicate spotted "; termstring P; "(";
                  termliststring ts; ")"]
           in
-          let ts = MAP (mapterm (compilepredicate isabstraction env), ts) in
+          let ts = m_a_p (mapterm (compilepredicate isabstraction env), ts) in
           begin match env P with
             Some vs ->
               let res =
@@ -160,23 +160,23 @@ module
       match t with
         Binding (_, (newbs, ss, us), _, _) ->
           Some
-            (fold (NJfoldterm (fp (addbinding newbs bs))) ss
-               (fold (NJfoldterm (fp bs)) us pbs))
+            (nj_fold (NJfoldterm (fp (addbinding newbs bs))) ss
+               (nj_fold (NJfoldterm (fp bs)) us pbs))
       | Subst (_, r, P, vts) ->
           Some
-            (foldterm (fp (addbinding (MAP (sml__hash__1, vts)) bs))
-               (fold (NJfoldterm (fp bs)) (MAP (sml__hash__2, vts)) pbs) P)
+            (foldterm (fp (addbinding (m_a_p ((fun(hash1,_)->hash1), vts)) bs))
+               (nj_fold (NJfoldterm (fp bs)) (m_a_p ((fun(_,hash2)->hash2), vts)) pbs) P)
       | _ ->
           match matchpredicate true isabstraction t with
             Some (P, ts) ->
               Some
-                (insertP (P, (ts, [bs])) (fold (NJfoldterm (fp bs)) ts pbs))
+                (insertP (P, (ts, [bs])) (nj_fold (NJfoldterm (fp bs)) ts pbs))
           | _ -> None
     (* discard zero-arity 'predicates' -- only necessary for arity check *)
     let rec discardzeroarities pbs =
       ( <| )
         ((fun (_, (abss : (term list * 'a) list)) ->
-            List.exists (fun ooo -> (fun ooo -> not (null ooo)) (sml__hash__1 ooo))
+            List.exists (fun ooo -> (fun ooo -> not (null ooo)) ((fun(hash1,_)->hash1) ooo))
               abss),
          pbs)
     (* To make a mapping from predicates to default args we prefer binding variables, if

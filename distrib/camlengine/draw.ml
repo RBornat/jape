@@ -133,14 +133,14 @@ module
     let rec planinfo = fun (Formulaplan (_, _, i)) -> i
     let rec plantextsize p = tbSize (plantextbox p)
     let rec planlisttextsize ps =
-      fold (fun (x, y) -> ( +-+ ) x y) (map plantextsize ps) nulltextsize
+      nj_fold (fun (x, y) -> ( +-+ ) x y) (List.map plantextsize ps) nulltextsize
     let viewBox = japeserver.getProofPane
     let rec clearView () = japeserver.clearProofPane ()
     let highlight = japeserver.highlight
     let drawBox = japeserver.drawRect
     let rec linethickness leading =
       (* width of the lines (box, selection) we draw *)
-      let r = Integer.max ((leading + 2) / 3, 1) in(* consolereport["leading ", makestring leading, "; thickness ", makestring r]; *)
+      let r = max ((leading + 2) / 3) (1) in(* consolereport["leading ", makestring leading, "; thickness ", makestring r]; *)
        r
     let setproofparams = japeserver.setproofparams
     let rec measuretext ta t = text.measuretext japeserver.measurestring ta t
@@ -229,12 +229,12 @@ module
          end
 
        fun s2p mkp hs hclass cs cclass stileinf stileclass comminf commaclass (p,plans,size) =
-         let val (p,hplans,hsize) = mktlp (mkp hclass) hs comminf commaclass (p,rev plans,size)
+         let val (p,hplans,hsize) = mktlp (mkp hclass) hs comminf commaclass (p,List.rev plans,size)
              val (p',stileplan, stilesize) = textinfo2plan stileinf stileclass p
              val (p'',allplans,allsize) = 
                mktlp (mkp cclass) cs comminf commaclass (p',stileplan::hplans,hsize+-+stilesize)
          in
-             (p'',rev allplans,allsize)
+             (p'',List.rev allplans,allsize)
          end
        ;
                          

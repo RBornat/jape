@@ -22,7 +22,7 @@ module
       val bracketedliststring : ('a -> string) -> string -> 'a list -> string
       val consolereport : string list -> unit
       val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      val MAP : ('a -> 'b) * 'a list -> 'b list
+      val m_a_p : ('a -> 'b) * 'a list -> 'b list
       val quadruplestring :
         ('a -> string) -> ('b -> string) -> ('c -> string) ->
           ('d -> string) -> string -> 'a * 'b * 'c * 'd -> string
@@ -97,7 +97,7 @@ module
             in
             let E = lookup mapping in
             Some
-              ((MAP (E, bounds), MAP (E, scopes), MAP (E, unscopes)), env,
+              ((m_a_p (E, bounds), m_a_p (E, scopes), m_a_p (E, unscopes)), env,
                pat)
       in
       let rec bindingstructure t =

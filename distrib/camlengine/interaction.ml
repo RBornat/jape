@@ -237,7 +237,7 @@ module
              strings)
           textsels
       in
-      map sml__hash__2 fhits, thits, givensel
+      map (fun(_,hash2)->hash2) fhits, thits, givensel
     let rec findSelection state =
       let (fhits, thits, givensel) = sortoutSelection state HitPath in
       (* only path that makes sense for what we are trying to do ... *)
@@ -247,7 +247,7 @@ module
                                                        showstrings givensel]
        *)
       let (conchits, hyphits, reasonhits) =
-        fold
+        nj_fold
           (function
              FormulaHit (ConcHit c), (cs, hs, rs) -> c :: cs, hs, rs
            | FormulaHit (HypHit h), (cs, hs, rs) -> cs, h :: hs, rs
@@ -263,7 +263,7 @@ module
        * each ambiguous text selection.
        *)
       let (tcs, ths) =
-        fold
+        nj_fold
           (function
              (AmbigHit (_, (_, h)), ss), (tcs, ths) -> tcs, (h, ss) :: ths
            | (ConcHit (_, c), ss), (tcs, ths) -> (c, ss) :: tcs, ths
@@ -303,13 +303,13 @@ module
            * all hyps) and for boxdraw (which credits each hypothesis with the path to its first occurrence).
            *)
           let path =
-            fold
+            nj_fold
               (fun ((hpath, hypel), path) ->
                  if fmtprooftree.validhyp tree hypel path then path
                  else hpath)
               hs hpath
           in
-          let hypels = map sml__hash__2 hyphits in
+          let hypels = map (fun(_,hash2)->hash2) hyphits in
           let rec ok path =
             not
               (List.exists
