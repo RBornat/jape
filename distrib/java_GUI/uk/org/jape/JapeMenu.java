@@ -364,6 +364,10 @@ public class JapeMenu implements DebugConstants {
              setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, menumask));
 		
         indexMenuItem(filemenu, "Save Proofs As...", new CmdAction("saveproofs true"));
+
+        filemenu.addSep();
+
+        indexMenuItem(filemenu, "Erase theory", new CmdAction("reset"));
         
         if (LocalSettings.quitMenuItemNeeded) {
             filemenu.addSep();
