@@ -70,6 +70,13 @@ CONJECTUREPANEL "Array Programs" IS
     {a[i]=2} (a[i]:=a[i]+1) {a[i]=3}
   THEOREM WHERE DISTINCT a,i IS
     {a[i]=0} (a[i]:=a[i]+1;a[i]:=a[i]+1) {a[i]=2}
+  THEOREM WHERE DISTINCT a,i IS
+    {∃x.(0≤x∧x<length(a) ∧ a[x]=0)}
+        (i:=0)
+    {0≤i∧i<length(a) ∧ ∃x.(i≤x∧x<length(a) ∧ a[x]=0)}
+        while a[i]≠0 do i:=i+1 od
+    {a[i]=0}
+
 END
 
 CONJECTUREPANEL "Useful Lemmas" IS
