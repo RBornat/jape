@@ -142,7 +142,7 @@ public class AnchoredScrollPane extends Container {
                 validate();
             }
         });
-        setanchor(anchor);
+        setAnchor(anchor);
         return c;
     }
 
@@ -154,7 +154,7 @@ public class AnchoredScrollPane extends Container {
         }
     }
     
-    public void setanchor(int anchor) {
+    public void setAnchor(int anchor) {
         /* we don't do anything with the anchor at this point: anchoring is a resizing action */
         switch (anchor) {
             case ANCHOR_NORTH:
