@@ -106,30 +106,30 @@ abstract class CanvasItem {
             
     */
     public void Enter(Point position, int button) { 
-        if (Debugging.itemevents) Report("enter");
+        if (Debugging.canvas_itemevents) Report("enter");
     }
     
     public void Leave(Point position, int button) {
-        if (Debugging.itemevents) Report("leave");
+        if (Debugging.canvas_itemevents) Report("leave");
     }
     
     public void Press(Point position, int button) {
-        if (Debugging.itemevents) Report("press");
+        if (Debugging.canvas_itemevents) Report("press");
     }
     
     public void Release(Point position, int button) {
     }
     
     public void Drag(Point position, int button) {
-        if (Debugging.itemevents) Report("drag");
+        if (Debugging.canvas_itemevents) Report("drag");
     }
     
     public void Hit(Point position, int button) {
-        if (Debugging.itemevents) Report("hit");
+        if (Debugging.canvas_itemevents) Report("hit");
     }
     
     public void Report(String event) {
-        if (Debugging.itemevents) System.err.println(event + " at " + this);
+        if (Debugging.canvas_itemevents) System.err.println(event + " at " + this);
     }
 }
 

@@ -73,12 +73,14 @@ public class PanelWindow extends JapeWindow implements ActionListener {
         cmdv = new Vector();
         buttonv = new Vector();
 
-        this.getContentPane().setLayout(new BorderLayout()); 
-        this.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        getContentPane().setLayout(new BorderLayout()); 
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
         
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-        this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+        
+        pack(); // does that call buttonPanel.pack()??
         
         if (kind==1) { // i.e. a ConjecturePanel
             // has default buttons
@@ -101,7 +103,7 @@ public class PanelWindow extends JapeWindow implements ActionListener {
             entries.addMouseListener(m);
         }
         
-        JapeFont.setComponentFont(entries);
+        JapeFont.setComponentFont(JapeFont.PANELENTRY, entries);
         if (LocalSettings.panelWindowMenus)
             setJMenuBar(new JMenuBar()); // by experiment, seems to be necessary before setVisible
     }
@@ -130,7 +132,7 @@ public class PanelWindow extends JapeWindow implements ActionListener {
         }
         // otherwise a new one
         PanelButton button = new PanelButton(label, cmd);
-        JapeFont.setComponentFont(button);
+        JapeFont.setComponentFont(JapeFont.BUTTON, button);
         button.setActionCommand(label);
         button.addActionListener(this);
         buttonPanel.add(button);

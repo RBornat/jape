@@ -71,7 +71,7 @@ class TextItem extends CanvasItem {
     boolean dragging;       // we're dragging
 
     public void Press(Point position, int button) {
-        if (Debugging.itemevents) Report("press" + charAt(position.x));
+        if (Debugging.canvas_itemevents) Report("press" + charAt(position.x));
         dragging = false;
 
         // Debugging
@@ -81,17 +81,17 @@ class TextItem extends CanvasItem {
     }
     
     public void Release(Point position, int button) {
-        if (Debugging.itemevents) Report("release" + charAt(position.x));
+        if (Debugging.canvas_itemevents) Report("release" + charAt(position.x));
         dragging  = false;
     }
     
     public void Leave(Point position, int button) {
-        if (Debugging.itemevents) Report("leave");
+        if (Debugging.canvas_itemevents) Report("leave");
         dragging = false;
     }
     
     public void Drag(Point position, int button) {    
-        if (Debugging.itemevents) Report("drag" + charAt(position.x));
+        if (Debugging.canvas_itemevents) Report("drag" + charAt(position.x));
         if (button==canvas.TextSelectButton) {
             int currentpos = charAt(position.x);
             if (dragging && currentpos>=0) {
@@ -145,7 +145,7 @@ class TextItem extends CanvasItem {
             
         g.setColor(greyed?canvas.getGreyedColour():canvas.getNormalColour());
         g.drawString(text, position.x+canvas.textInset.width, position.y+bounds.height-bounds.descent);     
-        if (Debugging.baselines)
+        if (Debugging.text_baselines)
             g.drawLine(position.x, position.y+bounds.height-bounds.descent, position.x+bounds.width-1, position.y+bounds.height-bounds.descent);
         if (selected) {
             g.setColor(canvas.getSelectedColour());

@@ -28,24 +28,33 @@
 // the MacOSX version of LocalSettings.  All it does is catch the menu actions from
 // the application menu and divert them to japeserver static methods.
 
+import java.awt.Dimension;
+import java.lang.IllegalStateException;
+
 import com.apple.mrj.*;
 
 public class LocalSettings implements  MRJAboutHandler,
                                        MRJQuitHandler,
                                        MRJPrefsHandler {
-    
+
+    // parameters
+                                           
     public static final boolean panelWindowMenus = true;
     
     public static final boolean aboutMenuItemNeeded = false;
     public static final boolean quitMenuItemNeeded = false;
     public static final boolean prefsMenuItemNeeded = false;
-    
+
+    public static final Dimension proofPanelDefaultSize = new Dimension(200,200);
+
+    // MacOS specific bits
     public void handleAbout() {
         japeserver.handleAbout();
     }
 
-    public void handleQuit() {
+    public void handleQuit() throws IllegalStateException {
         japeserver.handleQuit();
+        throw new IllegalStateException(); // if we return from handleQuit, we didn't exit
     }
     
     public void handlePrefs() {

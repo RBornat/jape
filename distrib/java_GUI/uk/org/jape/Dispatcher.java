@@ -31,20 +31,22 @@ import java.util.*;
 public class Dispatcher extends Thread {
 
     protected BufferedReader in;
-    boolean tracing = false;
     
     public Dispatcher() {
         super("Dispatcher");
         in = new BufferedReader(new InputStreamReader(System.in));
-        if (tracing)
+        if (Debugging.protocol_tracing)
             System.err.println("dispatcher initialised");
     }
 
     private void showcommand(String m, String[] command) {
         System.err.print(m+" [");
-        for (int i=0; i<command.length-1; i++)
-            System.err.print("\""+command[i]+"\" ");
-        System.err.println("\""+command[command.length-1]+"\"]");
+        for (int i=0; i<command.length; i++) {
+            System.err.print("\""+command[i]+"\"");
+            if (i<command.length-1)
+                System.err.print(" ");
+        }
+        System.err.println("]");
     }
     
     public void run() {
@@ -52,10 +54,10 @@ public class Dispatcher extends Thread {
         try {
             while (true) {
                 String line = in.readLine();
-                if (tracing)
+                if (Debugging.protocol_tracing)
                     System.err.println("dispatcher reads "+line);
                 String[] command = japesplit(line);
-                if (tracing) {
+                if (Debugging.protocol_tracing) {
                     showcommand("which is, being translated,", command);
                 }
                 

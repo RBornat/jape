@@ -67,10 +67,8 @@ public class japeserver {
             quitsent = true;
             Reply.sendCOMMAND("quit");
         }
-        else {
-            Alert.showAlert(Alert.Warning, "Quit twice, this time I'm doing it ...");
-            System.exit(0); // should be an alert about this ...
-        }
+        else
+            Alert.showErrorAlert("The engine isn't responding!");
     }
 
     public static void handlePrefs() {

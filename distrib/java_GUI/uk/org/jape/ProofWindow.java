@@ -25,24 +25,48 @@
     
 */
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.JScrollPane;
+import java.awt.Point;
 
 public class ProofWindow extends JapeWindow {
     int proofnum;
     protected static ProofWindow focussedproof = null;
+
+    protected ProofCanvas canvas; // Sun say use JPanel, but for now ...
+    protected JScrollPane proofpane;
     
     public ProofWindow(String title, int proofnum) {
         super(title);
         this.proofnum = proofnum;
-        this.getContentPane().setLayout(null);
-        setJMenuBar(new JMenuBar()); // by experiment, seems to be necessary before setVisible
+
+        getContentPane().setLayout(new BorderLayout()); 
+        canvas = new ProofCanvas();
+        canvas.setSize(LocalSettings.proofPanelDefaultSize);
+        proofpane = new JScrollPane(canvas, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                                            JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        getContentPane().add(proofpane, BorderLayout.CENTER);
+        setBar(); 
+        pack();
         setVisible(true);
         focussedproof = this;
+
+        TextItem t = new TextItem(canvas, new Point(50, 50), "foobaz", 2);
+        t.selected=true;
+        canvas.registerItem(t);
+        t = new TextItem(canvas, new Point(50, 100), "is best for you", 2);
+        t.selected=true;
+        t.greyed=true;
+        canvas.registerItem(t);
+        t = new TextItem(canvas, new Point(50, 150), "on \u22d6 April \u22d7 Thursdays", 2);
+        canvas.registerItem(t);
+        canvas.repaint();
     }
     
     public static ProofWindow spawn(String title, int proofnum) throws ProtocolError {

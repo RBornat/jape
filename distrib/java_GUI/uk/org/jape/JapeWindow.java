@@ -57,18 +57,18 @@ public class JapeWindow extends JFrame {
         return windowv.elements();
     }
     
-    private static void setBar(JapeWindow w) {
-        if (w instanceof ProofWindow || 
-            (w instanceof PanelWindow && LocalSettings.panelWindowMenus) ||
-            w instanceof SurrogateWindow) // the surrogate needs all the menus, till we implement PROOFMENU 
+    protected void setBar() {
+        if (this instanceof ProofWindow || 
+            (this instanceof PanelWindow && LocalSettings.panelWindowMenus) ||
+            this instanceof SurrogateWindow) // the surrogate needs all the menus, till we implement PROOFMENU 
             // even panel windows get a menu on MacOS X
-            japeserver.menus.setBar(w);
+            japeserver.menus.setBar(this);
     }
     
     public static void updateMenuBars() {
         for (Enumeration e = windowv.elements(); e.hasMoreElements(); ) {
             JapeWindow w = (JapeWindow)e.nextElement();
-            setBar(w);
+            w.setBar();
         }
     }
     

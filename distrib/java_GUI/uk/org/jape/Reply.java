@@ -39,20 +39,21 @@ public class Reply {
     synchronized private static void sendmessage() {
         if (clientlistening && messages.size()!=0) {
             String s = (String)messages.remove(0);
-            // System.err.println("sending "+s);
+            if (Debugging.protocol_tracing) System.err.println("sending "+s);
             System.out.println(s);
             clientlistening=false;
         }
     }
     
     synchronized public static void sendCOMMAND(String s) {
-        // System.err.println("queuing "+"COMMAND "+s);
-        messages.add("COMMAND "+s);
+        String m = "COMMAND "+s;
+        if (Debugging.protocol_tracing) System.err.println("queuing "+m);
+        messages.add(m);
         sendmessage();
     }
 
     synchronized public static void reply(String s) throws ProtocolError {
-        // System.err.println("replying "+s);
+        if (Debugging.protocol_tracing) System.err.println("replying "+s);
         if (!clientlistening)
             System.out.println(s);
         else

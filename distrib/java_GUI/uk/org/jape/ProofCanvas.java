@@ -1,60 +1,93 @@
 /* 
     $Id$
-
+    
     Copyright © 2002 Richard Bornat & Bernard Sufrin
-     
+        
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
-
+    
     This file is part of japeserver, which is part of jape.
-
+    
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
-
+    
     Jape is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
-    
+
 */
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.io.*;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.util.Enumeration;
+import java.awt.Graphics;
+import java.util.Hashtable;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.Point;
+import java.awt.Rectangle;
+import javax.swing.Scrollable;
 
 /*
         A basic Jape proof canvas.
 */
 
-public class ProofCanvas extends Canvas
-{    /*
+public class ProofCanvas extends Canvas implements Scrollable {
+
+    public Dimension getPreferredScrollableViewportSize() {
+        return LocalSettings.proofPanelDefaultSize;
+    }
+
+    public int getScrollableUnitIncrement(Rectangle visibleRect,
+                                          int orientation,
+                                          int direction) {
+        return 10; // for now
+    }
+
+    public int getScrollableBlockIncrement(Rectangle visibleRect,
+                                           int orientation,
+                                           int direction) {
+        return 100; // for now
+    }
+
+    public boolean getScrollableTracksViewportWidth() {
+        return false;
+    }
+
+    public boolean getScrollableTracksViewportHeight() {
+        return false;
+    }
+    
+    /*
         Assignment of buttons to functions.
      */
-     static  int HitButton        = 1;
-     static  int TextSelectButton = 2;
+    static  int HitButton        = 1;
+    static  int TextSelectButton = 2;
 
-     public ProofCanvas() { 
-        addMouseListener( 
-            new MouseAdapter() { 
-                public void mousePressed(MouseEvent e) { locate(e); Press(); }
-                public void mouseReleased(MouseEvent e) { locate(e); Release(); }
-            });
-        addMouseMotionListener( 
-            new MouseMotionAdapter() {
-                public void mouseDragged(java.awt.event.MouseEvent e) { locate(e); Drag(); }
-                public void mouseMoved(java.awt.event.MouseEvent e) { locate(e); Move(); }
-            });              
-     } // ProofCanvas()
+    public ProofCanvas() { 
+    addMouseListener( 
+        new MouseAdapter() { 
+            public void mousePressed(MouseEvent e) { locate(e); Press(); }
+            public void mouseReleased(MouseEvent e) { locate(e); Release(); }
+        });
+    addMouseMotionListener( 
+        new MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent e) { locate(e); Drag(); }
+            public void mouseMoved(java.awt.event.MouseEvent e) { locate(e); Move(); }
+        });              
+    } // ProofCanvas()
 
-    //*************** Event-handling mediation between AWT and Items
+//*************** Event-handling mediation between AWT and Items
     
     Point      lastPos;        // location of the last event
     MouseEvent lastEvent;      // the last event itself
@@ -127,7 +160,7 @@ public class ProofCanvas extends Canvas
     }
 
     protected void Press() { 
-        if (Debugging.events) Report("press");
+        if (Debugging.canvas_events) Report("press");
         if (focussedItem!=null) 
             focussedItem.Press(lastPos, lastButton);
     }
@@ -135,7 +168,7 @@ public class ProofCanvas extends Canvas
     protected void Release() {
         if (lastEvent.getClickCount()>1) Hit();
         else {  
-            if (Debugging.events) Report("release");
+            if (Debugging.canvas_events) Report("release");
             if (focussedItem!=null) 
                 focussedItem.Release(lastPos, lastButton);
             else {  
@@ -145,7 +178,7 @@ public class ProofCanvas extends Canvas
     }
     
     protected void Drag() {
-        if (Debugging.events) Report("drag");
+        if (Debugging.canvas_events) Report("drag");
         if (focussedItem!=null) 
            focussedItem.Drag(lastPos, lastButton);
         else {  
@@ -156,11 +189,11 @@ public class ProofCanvas extends Canvas
     /** Report a move -- a no-op, pro-tem. */
     protected void Move() {  
         lastButton = 0; // Correct the virtual button
-        if (Debugging.events) Report("move");
+        if (Debugging.canvas_events) Report("move");
     }
     
     protected void Hit() { 
-        if (Debugging.events) Report("hit");
+        if (Debugging.canvas_events) Report("hit");
         if (focussedItem!=null) 
            focussedItem.Hit(lastPos, lastButton);
     }
@@ -192,7 +225,7 @@ public class ProofCanvas extends Canvas
             if (i.intersects(g)) 
                 i.paint(g);
         }
-        if (Debugging.bbox) {  
+        if (Debugging.canvas_bbox) {  
             Rectangle bbox = computeBounds();
             g.setColor(Color.yellow);
             g.drawRect(bbox.x, bbox.y, bbox.width-1, bbox.height-1);

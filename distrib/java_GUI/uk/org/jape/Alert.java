@@ -52,7 +52,7 @@ public class Alert {
     
     private static JLabel makeLabel(String s) {
         JLabel l = new JLabel(s);
-        JapeFont.setComponentFont(l);
+        JapeFont.setComponentFont(JapeFont.DIALOGLABEL, l);
         return l;
     }
     

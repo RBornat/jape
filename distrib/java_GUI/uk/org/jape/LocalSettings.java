@@ -29,6 +29,8 @@
 // look-and-feel localisation (see for example jape/MacOSX/java_japeserver/LocalSettings.java)
 // or I don't know what else.
 
+import java.awt.Dimension;
+
 public class LocalSettings  {
 	
 	// these overridden in MacOSX LocalSettings
@@ -39,4 +41,5 @@ public class LocalSettings  {
 	public static final boolean quitMenuItemNeeded = true;
 	public static final boolean prefsMenuItemNeeded = true;
 
+        public static final Dimension proofPanelDefaultSize = new Dimension(200,200);
 }

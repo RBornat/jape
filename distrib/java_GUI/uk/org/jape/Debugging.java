@@ -30,9 +30,12 @@
 */
 class Debugging
 {
-        static final public boolean bbox          = false;
-        static final public boolean baselines     = false;
-        static final public boolean events        = false;
-        static final public boolean itemevents    = false;
+    // ProofCanvas tracing
+    static final public boolean canvas_bbox          = false;
+    static final public boolean text_baselines       = false;
+    static final public boolean canvas_events        = false;
+    static final public boolean canvas_itemevents    = false;
+
+    static final public boolean protocol_tracing     = true;
 }
 

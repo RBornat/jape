@@ -270,19 +270,38 @@ public class JapeFont {
         else
             return (Font)o;
     }
-    
-    public static void setComponentFont(Component c) {
-        if (substituteFont!=null) {
-            Font f = c.getFont();
-            if (f==null) 
-                Alert.showErrorAlert("they ain't no font in "+c);
-            else {
-                Font f1 = findsubstitute(f.getStyle(), f.getSize());
-                c.setFont(f1);
-            }
+
+    public static final int MENUENTRY = 0;
+    public static final int DIALOGLABEL = 1;
+    public static final int PROOFPANEL = 2;
+    public static final int PANELENTRY = 3;
+    public static final int BUTTON = 4;
+
+    public static void setComponentFont(int kind, Component c) {
+        switch (kind) {
+            case MENUENTRY:
+            case DIALOGLABEL:
+            case PANELENTRY:
+            case BUTTON:
+                if (substituteFont!=null)
+                    mimicFont(c);
+                // else do nothing
+                break;
+            case PROOFPANEL:
+                // don't know yet
+                break;
+            default:
+                Alert.showErrorAlert("setComponentFont("+kind+","+c);
         }
     }
-    
+
+    private static void mimicFont(Component c) {
+        // use size info from component itself
+        Font f = c.getFont();
+        Font f1 = findsubstitute(f.getStyle(), f.getSize());
+        c.setFont(f1);
+    }
+
     private static boolean codecDone = false;
     
     public static String toUnicode(String s) {

@@ -78,7 +78,7 @@ public class JapeMenu implements ActionListener {
         for (Enumeration ebar = barv.elements(); ebar.hasMoreElements(); ) {
             M m = (M)ebar.nextElement();
             JMenu menu = new JMenu(m.title);
-            JapeFont.setComponentFont(menu.getComponent());
+            JapeFont.setComponentFont(JapeFont.MENUENTRY, menu.getComponent());
             for (Enumeration emenu = m.itemv.elements(); emenu.hasMoreElements(); ) {
                 Object o = emenu.nextElement();
                 if (o instanceof Sep) 
@@ -91,7 +91,7 @@ public class JapeMenu implements ActionListener {
                         item.setAccelerator(i.stroke);
                     if (!i.enabled)
                         item.setEnabled(i.enabled);
-                    JapeFont.setComponentFont(item.getComponent());
+                    JapeFont.setComponentFont(JapeFont.MENUENTRY, item.getComponent());
                     item.addActionListener(this);
                     menu.add(item);
                 }
