@@ -1156,12 +1156,11 @@ let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = til
     in
     let (seqplan, seqbox) = makeseqplan (elementstring_invischoose ivb ivk) true origin seq in
     let seqsize = tbSize seqbox in
-    let _ = consolereport["seqplan is "; bracketedliststring (Draw.planstring planclassstring) "; " seqplan; 
-                          "; and seqbox is "; textboxstring seqbox] in
-    let seqboxpos = pos (- (tsW seqsize / 2), - tsD seqsize) in
+    (* let _ = consolereport["seqplan is "; bracketedliststring (Draw.planstring planclassstring) "; " seqplan; 
+                          "; and seqbox is "; textboxstring seqbox] in *)
+    setdisproofseqbox seqsize;
     drawindisproofpane ();
-    setdisproofseqbox (textbox2box (tbOffset seqbox seqboxpos));
-    seqdraw seqboxpos seqbox seqplan;
+    seqdraw origin seqbox seqplan;
     (* put the emphasis in *)
     List.iter
       (fun plan ->
@@ -1174,7 +1173,7 @@ let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = til
                    try let (v, _) = Hashtbl.find forcemap (root, t) in v
                    with Not_found -> false
              in
-             emphasise (seqelementpos seqboxpos seqbox plan) emph
+             emphasise (seqelementpos origin seqbox plan) emph
          | _ -> ())
       seqplan;
     setdisprooftiles (List.map termstring tiles);
