@@ -21,9 +21,9 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					190,
+					392,
 					20,
-					39,
+					73,
 					43,
 					43,
 					20,
@@ -39,7 +39,7 @@
 				);
 			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFindDataSource = {
-				PBXFileTableDataSourceColumnSortingDirectionKey = -1;
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFindDataSource_LocationID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					314.2974,
@@ -50,7 +50,29 @@
 					PBXFindDataSource_LocationID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 92845993;
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = -1;
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					335,
+					75,
+					20,
+					75,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 93192867;
 			PBXWorkspaceContents = (
 				{
 					PBXProjectWorkspaceModule_StateKey_Rev36 = {
@@ -82,13 +104,9 @@
 			};
 			"PBXWorkspaceContents:PBXConfiguration.PBXModule.PBXNavigatorGroup" = {
 				Split0 = {
-					bookmark = 79DDEF4B0588B82300970206;
+					bookmark = 79910D09058E02AB007FB221;
 					history = (
-						79DDEF480588B82300970206,
-						79DDEF490588B82300970206,
-					);
-					prevStack = (
-						79DDEF4A0588B82300970206,
+						79910D08058E02AB007FB221,
 					);
 				};
 				SplitCount = 1;
@@ -141,7 +159,7 @@
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXNavigatorGroup" = {
 				Frame = "{{0, 0}, {750, 480}}";
-				WindowFrame = "{{38, 418}, {750, 558}}";
+				WindowFrame = "{{15, 439}, {750, 558}}";
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXProjectWorkspaceModule" = {
 				Frame = "{{0, 0}, {836, 334}}";
@@ -158,10 +176,11 @@
 				};
 				WindowFrame = "{{182, 473}, {836, 396}}";
 			};
-			PBXWorkspaceStateSaveDate = 92845993;
+			PBXWorkspaceStateSaveDate = 93192867;
 		};
 		sourceControlManager = 798BBCC505861E6600B5B478;
 		userBuildSettings = {
+			SYMROOT = "/Users/richard/developments/jape build";
 		};
 	};
 	06D05854FF24F2DB11DB9C8B = {
@@ -215,6 +234,7 @@
 			sepNavIntBoundsRect = "{{0, 0}, {824, 6761}}";
 			sepNavSelRange = "{6714, 11}";
 			sepNavVisRect = "{{0, 1781}, {711, 428}}";
+			sepNavWindowFrame = "{{15, 439}, {750, 558}}";
 		};
 	};
 	F59F3D1C033773B101A80116 = {
