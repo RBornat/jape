@@ -29,8 +29,8 @@ public class LineItem extends LineComponent {
 
     protected final JapeCanvas canvas;
 
-    public LineItem(JapeCanvas canvas, int x1, int y1, int x2, int y2) {
-        super(x1, y1, x2, y2, canvas.linethickness);
+    public LineItem(JapeCanvas canvas, int x0, int y0, int x1, int y1) {
+        super(x0, y0, x1, y1, canvas.linethickness);
         this.canvas = canvas;
     }
 }
