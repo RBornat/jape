@@ -22,7 +22,7 @@ sig
     val consolequery : string list * string * string * int -> bool
     val refstring : ('a -> string) -> 'a ref -> string
     val earlierpair :
-      ('a * 'a -> bool) * ('b * 'b -> bool) -> ('a * 'b) * ('a * 'b) -> bool
+      ('a -> 'a -> bool) -> ('b -> 'b -> bool) -> ('a * 'b) -> ('a * 'b) -> bool
     val onbra : char
     val onket : char
     val offbra : char
@@ -114,8 +114,8 @@ module M : T =
     let rec curry2 f a b = f (a, b)
     let rec uncurry2 f (a, b) = f a b
     let rec refstring f {contents = a} = ("ref(" ^ f a) ^ ")"
-    let rec earlierpair (lta, ltb) ((a, b), (a', b')) =
-      lta (a, a') || not (lta (a', a)) && ltb (b, b')
+    let rec earlierpair lta ltb (a, b) (a', b') =
+      lta a a' || not (lta a' a) && ltb b b' (* this is trying not to use equality ... *)
     let lemmacount = ref 0
     (* number of lemmas during THIS proof *)
     let applyconjectures = ref true

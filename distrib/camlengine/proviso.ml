@@ -348,7 +348,7 @@ module M : Provisotype with type vid = Term.Funs.vid
       | NotoneofProviso (vs, pat, _C) ->
           nj_fold (uncurry2 tmerge) ((termvars <* vs)) (termvars _C)
     let rec provisoVIDs p =
-      orderVIDs ((vartoVID <* provisovars termvars tmerge p))
+      orderVIDs ((vid_of_var <* provisovars termvars tmerge p))
     let rec maxprovisoresnum p =
       let rec f t n =
         nj_fold (uncurry2 max) ((resnum2int <* elementnumbers t)) n

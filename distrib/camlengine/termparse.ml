@@ -79,7 +79,7 @@ module M : T with type element = Term.Funs.element
     let rec resettermparse () =
       outrightfixtree := emptysearchtree mkalt;
       leftmidfixtree := emptysearchtree mkalt;
-      declareOutRightfix [BRA "("] (KET ")");
+      declareOutRightfix [BRA "("] (KET ")"); (* oh dear this was an sml bug -- what next? *)
       ()
     let rec check s =
       if currsymb () = s then let _ = scansymb () in ()

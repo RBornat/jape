@@ -338,7 +338,7 @@ module Funs:  Funs with type seq = Type.seq
     let rec string2sequent s = tryparse (fun _ -> parseSeq ()) s
     let rec seqvars termvars tmerge =
       fun (Seq (st, hs, gs)) -> tmerge (termvars hs) (termvars gs)
-    let rec seqVIDs s = orderVIDs ((vartoVID <* seqvars termvars tmerge s))
+    let rec seqVIDs s = orderVIDs ((vid_of_var <* seqvars termvars tmerge s))
     let rec eqseqs =
       fun (Seq (st1, h1s, g1s), Seq (st2, h2s, g2s)) ->
         (st1 = st2 && eqterms (h1s, h2s)) && eqterms (g1s, g2s)

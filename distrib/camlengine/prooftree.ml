@@ -945,7 +945,7 @@ module M :
                        "; rewinf_vars inf are ", termliststring (rewinf_vars inf)]
        *)
       let usedVIDs =
-        orderVIDs (vartoVID <* mergevars (rewinf_vars inf) cvars)
+        orderVIDs (vid_of_var <* mergevars (rewinf_vars inf) cvars)
       in
       withusedVIDs (withresmap (withvarmap (cxt, empty), empty), usedVIDs),
       tree, usedVIDs

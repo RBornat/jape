@@ -1,13 +1,14 @@
 (* $Id$ *)
 
-module type T =
+module type Fmt =
   sig
+    type treelayout and term
+    
     (* the complexity of this datatype, and the shenanigans relating to its translation, are all due to 
      * the need to have a simple interpretation of double-clicking on a reason.  Essentially, we have
      * a round-robin of formats in RotatingFormat and we have a toggle of Hide/Expose.
      * RB 22/xii/99
      *)
-     
     type treeformat = TreeFormat of (treeformat_kind * treeformat_filter)
     and treeformat_kind = HideRootFormat | HideCutFormat | SimpleFormat
     and treeformat_filter =
@@ -24,7 +25,7 @@ module type T =
     val treeformatmerge : treeformat * treeformat -> treeformat
     val treeformatstring : treeformat -> string
     val neutralformat : treeformat
-    type treelayout and term
+
     val layout2format :
       (term -> string) -> (term -> int list) -> treelayout -> treeformat
     val format2layouts : treeformat -> treelayout list
@@ -43,22 +44,19 @@ module type T =
     val fmtpathstring : fmtpath -> string
   end
 
-module type VisFormat =
-  sig
-    (* VisPaths, at the present, are still simple lists of non-negative integers ... *)
-    type vispath = VisPath of int list
-    val vispathstring : vispath -> string
-    type visformat = VisFormat of (bool * bool)
-    (* ismultistep, ishiddencut *)
-       
-    val visformatstring : visformat -> string
-  end
-(* $Id$ *)
-
-module M :
-  sig include TreeFormat include VisFormat end =
+module Fmt : Fmt with type treelayout = Treelayout.M.treelayout
+                  and type term = Term.Funs.term
+=
   struct
-    open Treelayout
+    open Listfuns.M
+    open Optionfuns.M
+    open SML.M
+    open Stringfuns.M
+    open Term.Funs
+    open Treelayout.M
+    
+    type treelayout = Treelayout.M.treelayout
+     and term = Term.Funs.term
     
     (* the complexity of this datatype, and the shenanigans relating to its translation, are all due to 
      * the need to have a simple interpretation of double-clicking on a reason.  Essentially, we have
@@ -80,10 +78,8 @@ module M :
      *)         
 
     let neutralformat = TreeFormat (SimpleFormat, DefaultFormat)
-    let intliststring = bracketedliststring (string_of_int : int -> string) ","
-    let nf_string =
-      triplestring (string_of_int : bool -> string) enQuote
-        (optionstring intliststring) ","
+    let intliststring = bracketedliststring string_of_int ","
+    let nf_string = triplestring string_of_bool enQuote (optionstring intliststring) ","
     let rec treeformatstring =
       fun (TreeFormat pair) ->
         "TreeFormat" ^
@@ -140,7 +136,10 @@ module M :
       | HideCutLayout -> TreeFormat (HideCutFormat, DefaultFormat)
       | CompressedLayout stuff -> l2f true stuff
       | NamedLayout stuff -> l2f false stuff
-    let rec ints2term tns = mkTup ((int2term <* tns))
+    
+    let ints2term tns = Term.Store.registerTup (",", int2term <* tns)
+    let string2term s = Term.Store.registerLiteral(Term.Type.String s)
+
     let rec format2layouts =
       fun (TreeFormat (tfk, tff) as f) ->
         let rec layout =
@@ -159,32 +158,48 @@ module M :
           HideRootFormat -> HideRootLayout :: ls
         | HideCutFormat -> HideCutLayout :: ls
         | SimpleFormat -> ls
-    (* -------------------------- prooftrees for display, after formatting -------------------------- *)
 
-    type visformat = VisFormat of (bool * bool)
-    (* ismultistep, ishiddencut *)
-       
-    let rec visformatstring =
-      fun (VisFormat f) ->
-        "VisFormat" ^ pairstring string_of_int string_of_int "," f
-    (* -------------------------- paths -------------------------- *)
-        
-        (* because of the use of negative numbers in paths to navigate internal cuts, and the 
-         * wierd way that the root of an internal cut is addressed (see prooftree.sml), 
-         * DON'T DON'T DON'T do manipulations of the list in a FmtPath.
-         *
-         * IN PARTICULAR, note that FmtPath [] is NOT NECESSARILY the root path of a tree: use
-         * rootPath to give you the correct path instead.
-         *
-         * The functions parentPath and siblingPath ought to give you the movement you need ...
-         * RB 21/i/00
-         *)
+	(* because of the use of negative numbers in paths to navigate internal cuts, and the 
+	 * wierd way that the root of an internal cut is addressed (see prooftree.sml), 
+	 * DON'T DON'T DON'T do manipulations of the list in a FmtPath.
+	 *
+	 * IN PARTICULAR, note that FmtPath [] is NOT NECESSARILY the root path of a tree: use
+	 * rootPath to give you the correct path instead.
+	 *
+	 * The functions parentPath and siblingPath ought to give you the movement you need ...
+	 * RB 21/i/00
+	 *)
     type fmtpath = FmtPath of int list
     (* VisPaths, at the present, are still simple lists of non-negative integers ... *)
     
+    let rec fmtpathstring = fun (FmtPath p) -> "FmtPath " ^ bracketedliststring string_of_int "," p
+  end
+
+(* -------------------------- prooftrees for display, after formatting -------------------------- *)
+
+module type VisFmt =
+  sig
+    (* VisPaths, at the present, are still simple lists of non-negative integers ... *)
     type vispath = VisPath of int list
-    let rec pathstring_ns (p : int list) =
-      bracketedliststring string_of_int "," p
-    let rec fmtpathstring = fun (FmtPath p) -> "FmtPath " ^ pathstring_ns p
-    let rec vispathstring = fun (VisPath p) -> "VisPath " ^ pathstring_ns p
+    val vispathstring : vispath -> string
+    type visformat = VisFormat of (bool * bool)
+    (* ismultistep, ishiddencut *)
+       
+    val visformatstring : visformat -> string
+  end
+
+module VisFmt : VisFmt =
+  struct
+    open Stringfuns.M
+    open Listfuns.M
+    
+    type visformat = VisFormat of (bool * bool)
+    (* ismultistep, ishiddencut *)
+       
+    let visformatstring  (VisFormat f) =
+	  "VisFormat" ^ pairstring string_of_bool string_of_bool "," f
+        
+    type vispath = VisPath of int list
+
+    let vispathstring (VisPath p) = "VisPath " ^ bracketedliststring string_of_int "," p
   end

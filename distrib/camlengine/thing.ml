@@ -2,16 +2,10 @@
 
 module type T =
   sig
-    type term
-    and vid
-    and idclass
-    and resnum
-    and name
-    and paraparam
-    and proviso
-    and seq
-    and tactic
-    type cxt and ('a, 'b) mapping
+    type term and resnum
+    and name and paraparam and proviso and seq
+    and tactic and cxt and ('a, 'b) mapping
+    
     type thing =
         Rule of
           ((paraparam list * (bool * proviso) list * seq list * seq) * bool)
@@ -19,7 +13,6 @@ module type T =
       | Tactic of (paraparam list * tactic)
       | Macro of (paraparam list * term)
     type thingplace = InMenu of name | InPanel of name | InLimbo
-    exception Fresh_ of string list exception CompileThing_ of string list
     val thingstring : thing -> string
     val freshThingtoapply :
       bool -> name -> cxt -> term list ->
@@ -67,27 +60,58 @@ module type T =
     val thingdebugheavy : bool ref
     val autoAdditiveLeft : bool ref
     val autoAdditiveRight : bool ref
-    val leftcontextname : unit -> string option
+    
+    exception Fresh_ of string list 
+    exception CompileThing_ of string list
   end
 (* $Id$ *)
 
-module M : T =
+module M : T with type term = Term.Type.term 
+			  and type resnum = Term.Type.resnum
+			  and type name = Name.M.name
+			  and type paraparam = Paraparam.M.paraparam
+			  and type proviso = Proviso.M.proviso
+			  and type seq = Sequent.Type.seq
+			  and type tactic = Tactic.Funs.tactic 
+			  and type cxt = Context.Cxt.cxt
+			  and type ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
+=
   struct
-    open Listfuns
-    open Mappingfuns
-    open Optionfuns
-    open Stringfuns
-    open Idclass
-    open Term
-    open Predicate
-    open Match
-    open Paraparam
-    open Proviso
-    open Sequent
-    open Context
-    open Rewrite
+    open Context.Cxt
+    open Context.Cxtstring
+    open Idclass.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Match.M
+    open Miscellaneous.M
+    open Name.M
+    open Optionfuns.M
+    open Paraparam.M
+    open Predicate.M
+    open Proviso.M
+    open Provisofuns.M
+    open Rewrite.Funs
+    open Sequent.Funs
+    open Sequent.Type
+    open SML.M
+    open Stringfuns.M
+    open Symbol.Funs
+    open Tactic.Funs
+    open Term.Funs
+    open Term.Termstring
+    open Term.Type
+    open Term.Store
+    open Termparse.M
     
-    type tactic = tactic and name = name
+    type term = Term.Type.term 
+     and resnum = Term.Type.resnum
+	 and name = Name.M.name
+	 and paraparam = Paraparam.M.paraparam
+	 and proviso = Proviso.M.proviso
+	 and seq = Sequent.Type.seq
+	 and tactic = Tactic.Funs.tactic 
+	 and cxt = Context.Cxt.cxt
+	 and ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
     
     let thingdebug = ref false
     let thingdebugheavy = ref false
@@ -111,7 +135,7 @@ module M : T =
     let paramliststring = bracketedliststring paraparamstring ","
     let provisoliststring =
       bracketedliststring
-        (pairstring (string_of_int : bool -> string) provisostring ",") " AND "
+        (pairstring string_of_bool provisostring ",") " AND "
     let rec antecedentliststring heavy =
       bracketedliststring (if heavy then smlseqstring else seqstring) " AND "
     let rec consequentstring heavy = if heavy then smlseqstring else seqstring
@@ -125,7 +149,7 @@ module M : T =
       function
         Rule r ->
           "Rule" ^
-            pairstring (ruledatastring false) (string_of_int : bool -> string)
+            pairstring (ruledatastring false) string_of_bool
               "," r
       | Theorem t -> "Theorem" ^ thmdatastring false t
       | Tactic t -> "Tactic" ^ pairstring paramliststring tacticstring ", " t
@@ -139,7 +163,7 @@ module M : T =
           "CookedRule" ^
             triplestring (cookedstring (ruledatastring false))
               (cookedstring (ruledatastring false))
-              (string_of_int : bool -> string) "," r
+              string_of_bool "," r
       | CookedTheorem t ->
           "CookedTheorem" ^
             doublestring (cookedstring (ruledatastring false)) t
@@ -156,11 +180,11 @@ module M : T =
     (* This function is about numbering rules, where we want to give resources
      * copied from consequent to antecedent the same number.  E.g. in
      * 
-     *                      X |- P  X |- P->Q
+     *                      X |- _P  X |- _P->Q
      *                      ----------------- (->-E)
      *                             X |- Q
      *
-     * all the elements (P, P->Q, Q) should have distinct numbers, but in
+     * all the elements (_P, _P->Q, Q) should have distinct numbers, but in
      *
      *                     X |- C  X, C |- B
      *                     ----------------- (cut)
@@ -169,9 +193,9 @@ module M : T =
      * the B in the top line should share a resource number with the B in the 
      * bottom line, and in
      *
-     *                    X, Ax.P, P[x\c] |- Q
+     *                    X, Ax._P, _P[x\c] |- Q
      *                    -------------------- (A|-)
-     *                      X, Ax.P |- Q
+     *                      X, Ax._P |- Q
      *
      * the Qs should share a resource number, as should the Ax.Ps.  But 
      * inheritance should only be from bottom to top, so the Cs in the cut don't
@@ -215,7 +239,7 @@ module M : T =
      *)
     let rec numberrule (antes, conseq) =
       let rec numberseq fld =
-        fun R n leftenv rightenv ->
+        fun _R n leftenv rightenv ->
           fun (Seq (st, hs, gs) as seq) ->
             let rec numberel (el, (n, oldenv, newenv, es)) =
               match el with
@@ -226,7 +250,7 @@ module M : T =
                       registerElement (ResUnknown m, t) :: es
                   | None ->
                       n + 1, oldenv, ( ++ ) (newenv, ( |-> ) (t, n)),
-                      registerElement (R n, t) :: es
+                      registerElement (_R n, t) :: es
                   end
               | _ -> n, oldenv, newenv, el :: es
             in
@@ -250,7 +274,7 @@ module M : T =
                       smltermstring gs; ")"])
       in
       let (n, leftenv, rightenv, conseq') =
-        numberseq nj_fold ResUnknown 1 empty empty conseq
+        numberseq nj_fold (fun v->ResUnknown v) 1 empty empty conseq
       in
       let rec rvfld f xs z =
         let (n, old, new__, ys) = nj_revfold f xs z in n, old, new__, List.rev ys
@@ -259,7 +283,7 @@ module M : T =
         nj_fold
           (fun (seq, (n, seqs)) ->
              let (n, _, _, seq') =
-               numberseq rvfld Resnum n leftenv rightenv seq
+               numberseq rvfld (fun v->Resnum v) n leftenv rightenv seq
              in
              n, seq' :: seqs)
           antes (n, [])
@@ -376,8 +400,8 @@ module M : T =
         | _, _ -> true
       in
       match v with
-        Id (_, v, FormulaClass) -> _All (ok (v, FormulaClass), params)
-      | Unknown (_, v, FormulaClass) -> _All (ok (v, FormulaClass), params)
+        Id (_, v, FormulaClass) -> _All (ok (v, FormulaClass)) params
+      | Unknown (_, v, FormulaClass) -> _All (ok (v, FormulaClass)) params
       | _ -> false
     exception Fresh_ of string list exception CompileThing_ of string list
     let autoAdditiveLeft = ref false
@@ -390,22 +414,22 @@ module M : T =
           sort (earlierlist earliervar)
             (foldterm
                (function
-                  Subst (_, _, P, (_ :: _ :: _ as vts)), qs ->
+                  Subst (_, _, _P, (_ :: _ :: _ as vts)), qs ->
                     Some
-                      (nj_fold dmerge
+                      (nj_fold (uncurry2 dmerge)
                          ([sort earliervar ((fst <* vts))] ::
-                            (dbs <* P :: (snd <* vts)))
+                            (dbs <* _P :: (snd <* vts)))
                          qs)
                 | Binding (_, ((_ :: _ :: _ as bs), ss, us), _, _), qs ->
                     Some
-                      (nj_fold dmerge
+                      (nj_fold (uncurry2 dmerge)
                          ([sort earliervar bs] :: (dbs <* ss) @
                             (dbs <* us))
                          qs)
                 | _ -> None)
                [] t)
         in
-        nj_fold dmerge ((seqvars dbs dmerge <* b :: ts)) []
+        nj_fold (uncurry2 dmerge) ((seqvars dbs dmerge <* (b :: ts))) []
       in
       let diffbinders =
         nj_fold (fun (x, y) -> x @ y) ((allpairs <* multibinders)) ps
@@ -414,7 +438,7 @@ module M : T =
        * and now (that I've tried it) also look for Ax.Ay.z
        *)
       let allbinders =
-        nj_fold bmerge ((seqvars varbindings bmerge <* b :: ts)) []
+        nj_fold (uncurry2 bmerge) ((seqvars varbindings bmerge <* (b :: ts))) []
       in
       let skipbinders =
         let rec sks (v, bss) =
@@ -464,15 +488,16 @@ module M : T =
              ["argument "; termstring arg; " doesn't fit parameter ";
               termstring var])
     let rec freshc defcon cxt env params args =
-      let F = freshc defcon in
-      let rec inextensible c v =
+      let _F = freshc defcon in
+      let rec inextensible c s =
         raise
           (Fresh_
-             ["parameter "; v; " was classified "; idclassstring c;
+             ["parameter "; s; " was classified "; idclassstring c;
               " - you must use a CLASS "; idclassstring c; " identifier"])
       in
       let rec newVID cxt c v =
-        if isextensibleID v then freshVID cxt c v else inextensible c v
+        let sv = string_of_vid v in
+        if isextensibleID sv then freshVID cxt c v else inextensible c sv
       in
       let rec extend con bits arg =
         let var = con bits in
@@ -480,10 +505,10 @@ module M : T =
       in
       let rec newname new__ con con' (v, c) vs =
         let (cxt', v') = new__ cxt c v in
-        F (cxt', ( ++ ) (env, ( |-> ) (con (v, c), con' (v', c))), vs, [])
+        _F cxt' (( ++ ) (env, ( |-> ) (con (v, c), con' (v', c)))) vs []
       in
       let rec usearg con vc vs arg args =
-        F (cxt, extend con vc arg, vs, args)
+        _F cxt (extend con vc arg) vs args
       in
       match params, args with
         [], [] -> cxt, env
@@ -492,10 +517,11 @@ module M : T =
       | Ordinaryparam vc :: vs, arg :: args ->
           usearg registerId vc vs arg args
       | Objectparam (v, c) :: vs, [] ->
-          if isextensibleID v then
+          let sv = string_of_vid v in
+          if isextensibleID sv then
             (* trying freshproofvar again *)
             newname freshproofvar registerId fst (v, c) vs
-          else inextensible c v
+          else inextensible c sv
       | Objectparam vc :: vs, arg :: args -> usearg registerId vc vs arg args
       | Unknownparam vc :: vs, [] ->
           newname newVID registerUnknown registerUnknown vc vs
@@ -513,7 +539,7 @@ module M : T =
       in
       let rec ( ++ ) (xs, ys) = mergeVIDs xs ys in
       let argVIDs =
-        nj_fold (fun (x, y) -> ( ++ ) x y) ((termVIDs <* args)) []
+        nj_fold ( ++ ) ((termVIDs <* args)) []
       in
       let rec paramVIDs ps =
         orderVIDs (((fst <*> paramidbits) <* ps))
@@ -541,12 +567,10 @@ module M : T =
            | v1, v2 ->
                fst (paramidbits v1) = fst (paramidbits v2))
           allvs params
-    let rec extraBag () = autoID (BagClass FormulaClass) "extraBag"
-    let rec leftcontextname () =
-      if !autoAdditiveLeft then Some (extraBag ()) else None
+    let rec extraBag_vid () = vid_of_string (autoID (BagClass FormulaClass) "extraBag")
     let rec newvar con class__ (vid, vars) =
-      let vid = uniqueVID class__ ((vartoVID <* vars)) [] vid in
-      let v = con (vid, class__) in v, tmerge ([v], vars)
+      let vid = uniqueVID class__ ((vid_of_var <* vars)) [] vid in
+      let v = con (vid, class__) in v, tmerge [v] vars
     let rec extend a1 a2 =
       match a1, a2 with
         sv, Collection (_, BagClass FormulaClass, es) ->
@@ -559,14 +583,14 @@ module M : T =
             (List.exists
                (function
                   Segvar (_, [], Unknown _) -> true
-                | Segvar (_, [], Id (_, v, _)) -> isextensibleID v
+                | Segvar (_, [], Id (_, v, _)) -> isextensibleID (string_of_vid v)
                 | _ -> false)
                es)
       | _ -> false
     let rec ehb vars c =
       if extensible c then
         let (v, vars) =
-          newvar registerId (BagClass FormulaClass) (extraBag (), vars)
+          newvar registerId (BagClass FormulaClass) (extraBag_vid (), vars)
         in
         let sv = registerSegvar ([], v) in Some (vars, sv, extend sv c)
       else None
@@ -607,7 +631,7 @@ module M : T =
     let rec compileR el er (params, provisos, antes, conseq) =
       let (antes, conseq) = numberrule (antes, conseq) in
       let bodyvars =
-        nj_fold tmerge ((seqvars termvars tmerge <* conseq :: antes)) []
+        nj_fold (uncurry2 tmerge) ((seqvars termvars tmerge <* conseq :: antes)) []
       in
       (* translate predicates *)
       let abstractions =
@@ -649,15 +673,15 @@ module M : T =
        * occurs in any of the predicates it binds.
        *)
       let rec findbinders =
-        fun ((P, abss), ps) ->
+        fun ((_P, abss), ps) ->
           let rec g (ts, bss) =
-            let vs = nj_fold (sortedmerge earliervar) bss [] in
-            ((fun v -> v, P) <* vs)
+            let vs = nj_fold (uncurry2 (sortedmerge earliervar)) bss [] in
+            ((fun v -> v, _P) <* vs)
           in
           List.concat ((g <* abss)) @ ps
       in
       let proofps =
-        sortunique (earlierpair (earliervar, earliervar))
+        sortunique (earlierpair earliervar earliervar)
           (nj_fold findbinders all_pbs [])
       in
       (* for application:
@@ -665,12 +689,12 @@ module M : T =
        * judicious choice of substitution variables.
        *)
       let rec findsubstvars def =
-        fun ((P, abss), (vars, env)) ->
-          match at (env, P) with
+        fun ((_P, abss), (vars, env)) ->
+          match at (env, _P) with
             Some _ -> vars, env
           | None ->
               match findpredicatevars abss with
-                Some bs -> vars, ( ++ ) (env, ( |-> ) (P, (false, bs)))
+                Some bs -> vars, ( ++ ) (env, ( |-> ) (_P, (false, bs)))
               | None ->
                   if def then
                     (* make up names *)
@@ -678,12 +702,12 @@ module M : T =
                     let rec h (_, (vs, vars)) =
                       let (v, vars) =
                         newvar registerId VariableClass
-                          (autoID VariableClass "predVar", vars)
+                          (vid_of_string (autoID VariableClass "predVar"), vars)
                       in
                       v :: vs, vars
                     in
                     let (vs, vars) = nj_fold h ts ([], vars) in
-                    vars, ( ++ ) (env, ( |-> ) (P, (true, vs)))
+                    vars, ( ++ ) (env, ( |-> ) (_P, (true, vs)))
                   else vars, env
       in
       let (applybodyvars, firstenv) =
@@ -694,8 +718,8 @@ module M : T =
       in
       (* now filter out the provisos we don't want any more ... *)
       let applyps =
-           (fun (x, P) ->
-              match at (env, P) with
+           (fun (x, _P) ->
+              match at (env, _P) with
                 Some (false, vs) -> not (member (x, vs))
               | Some (true, _) -> true
               | None ->
@@ -711,7 +735,7 @@ module M : T =
                proofps;
              " and env is ";
              mappingstring termstring
-               (pairstring (string_of_int : bool -> string) termliststring ", ")
+               (pairstring string_of_bool termliststring ", ")
                env;
              " and applyps is ";
              bracketedliststring (pairstring termstring termstring ",") ", "
@@ -719,7 +743,7 @@ module M : T =
       in
       (* ... end desperation *)
       let objparams =
-        mappingfuns.lfold
+        Mappingfuns.M.lfold
           (function
              (_, (true, bs)), vs -> bs @ vs
            | _, vs -> vs)
@@ -732,7 +756,7 @@ module M : T =
       let applyps = findhiddenprovisos (conseq, antes) applyps in
       (* and that's it *)
       let rec makeprovisos ps =
-        ((fun xy -> false, mkNotinProviso xy) <* ps) @ provisos
+        ((fun xy -> false, NotinProviso xy) <* ps) @ provisos
       in
       let
         (proofbodyvars, proofantes, proofconseq, proofprovisos, applybodyvars,
@@ -759,7 +783,7 @@ module M : T =
         augment el er (applyconseq, applyantes, applybodyvars)
       in
       let rec mkvars vs =
-        (isextensibleID <*> vartoVID) <| vs
+        (isextensibleID <*> string_of_vid <*> vid_of_var) <| vs
       in
       (mkvars proofbodyvars, (params, proofprovisos, antes, conseq)),
       (mkvars applybodyvars,
@@ -837,26 +861,31 @@ module M : T =
      * more.
      * We no longer have the extra ref.
      *)
+    (* now we use Hashtbl. RB 9/vii/2002 *)
     let
       (clearthings, compiledthinginfo, compiledthingnamed, getthing,
        goodthing, badthing, thingnamed, thinginfo, addthing, thingnames,
        thingstodo)
       =
       let pst = pairstring storedthingstring thingplacestring ","
-      and (lookup, update, delete, reset, sources, targets) =
-        simplestore "thingstore" (triplestring namestring string_of_int pst ",")
-          127
-      (* why not? It can only grow :-) *)
-      and hash = hashstring <*> namestring in
+      and (lookup, update, reset, sources, targets) =
+        let store = Hashtbl.create 127 (* why not? It can only grow :-) *) in
+        (fun name -> try Some(Hashtbl.find store name) with Not_found -> None), 
+        (fun name thing -> (try Hashtbl.remove store name with Not_found -> ()); 
+                           Hashtbl.add store name thing), 
+        (fun () -> Hashtbl.clear store), 
+        (fun () -> Hashtbl.fold (fun name _ names -> name::names) store []),
+        (fun () -> Hashtbl.fold (fun _ thing things -> thing::things) store [])
+      in
       let rec clearthings () = reset ()
       and compiledthinginfo name =
         let res =
-          match lookup (hash name) name with
+          match lookup name with
             Some (thing, place) as v ->
               begin match thing with
                 Rawthing thing ->
                   let info = compilething name thing, place in
-                  update (hash name) name info; Some info
+                  update name info; Some info
               | _ -> v
               end
           | None ->
@@ -900,7 +929,7 @@ module M : T =
         (* we aren't going to make THAT mistake! *)
         let newthing = compilething name (goodthing thing) in
         let newplace =
-          match lookup (hash name) name with
+          match lookup name with
             Some (_, oldplace) ->
               begin match place with
                 InLimbo -> oldplace
@@ -916,9 +945,9 @@ module M : T =
             ["addthing ";
              triplestring namestring thingstring thingplacestring ","
                (name, thing, place);
-             " was "; optionstring pst (lookup (hash name) name); "; is now ";
+             " was "; optionstring pst (lookup name); "; is now ";
              pst (newthing, newplace)];
-        update (hash name) name (newthing, newplace)
+        update name (newthing, newplace)
       and thingnames () = sources ()
       (* reverse so that we see things in their insertion order *)
       (* now no particular order -- does this matter? *)
@@ -937,15 +966,14 @@ module M : T =
     let rec freshparamstouse vars args params =
       let paramsused =
         allparams params
-          ((var2param <*
-              (isextensibleID <*> vartoVID) <| vars))
+          (var2param <* ((isextensibleID <*> string_of_vid <*> vid_of_var) <| vars))
       in
-      let bodyVIDs = orderVIDs ((vartoVID <* vars)) in
+      let bodyVIDs = orderVIDs ((vid_of_var <* vars)) in
       let ruleVIDs = extraVIDs paramsused args bodyVIDs in
       paramsused, ruleVIDs
     let rec env4Rule env args cxt defcon (paramsused, ruleVIDs) =
       let res =
-        freshc defcon (plususedVIDs (cxt, ruleVIDs)) env paramsused
+        freshc defcon (plususedVIDs cxt ruleVIDs) env paramsused
           (* this should read (take (List.length params) args)
            * .. but that stops me replaying proofs, so for the meantime ...
            *)
@@ -983,7 +1011,7 @@ module M : T =
       env args cxt (params, provisos, antes, conseq) defcon
         (paramsused, ruleVIDs) =
       let (cxt', env) =
-        freshc defcon (plususedVIDs (cxt, ruleVIDs)) env paramsused
+        freshc defcon (plususedVIDs cxt ruleVIDs) env paramsused
           (* this should read (take (List.length params) args)
            * .. but that stops me replaying proofs, so for the meantime ...
            *)
@@ -1026,7 +1054,7 @@ module M : T =
            | arg, (n, args) -> n, arg :: args)
           args (n, [])
       in
-      let cxt = withresnum (cxt, n) in
+      let cxt = withresnum cxt n in
       interesting_resources, args, antes, conseq, cxt
     let rec freshRuleshow name af cxt args vars rd res =
       if !thingdebug then
@@ -1082,7 +1110,7 @@ module M : T =
       let (cxt'', env) =
         env4Rule (mkmap (List.rev ((argvars ||| args)))) [] cxt'
           registerUnknown
-          (listsub (fun (p, v) -> fst (paramidbits p) = vartoVID v)
+          (listsub (fun (p, v) -> fst (paramidbits p) = vid_of_var v)
              paramsused argvars,
            ruleVIDs)
       in
@@ -1214,7 +1242,7 @@ module M : T =
           match a1, a2, a3 with
             true, Collection (_, BagClass FormulaClass, es), cxt ->
               let (cxt, vid) =
-                freshVID cxt (BagClass FormulaClass) (extraBag ())
+                freshVID cxt (BagClass FormulaClass) (extraBag_vid ())
               in
               let sv =
                 registerSegvar
@@ -1257,26 +1285,26 @@ module M : T =
       let lc = ListClass FormulaClass in
       let rec bag es = registerCollection (bc, es) in
       let rec list es = registerCollection (lc, es) in
-      let idB = registerId ("B", fc) in
-      let idC = registerId ("C", fc) in
-      let B = registerElement (Nonum, idB) in
-      let C = registerElement (Nonum, idC) in
-      let idX = registerId ("X", bc) in
-      let idX' = registerId ("X'", bc) in
-      let idY = registerId ("Y", bc) in
-      let idY' = registerId ("Y'", bc) in
-      let X = registerSegvar ([], idX) in
-      let X' = registerSegvar ([], idX') in
-      let Y = registerSegvar ([], idY) in
-      let Y' = registerSegvar ([], idY') in
-      let idL = registerId ("L", lc) in
-      let idL' = registerId ("L'", lc) in
-      let L = registerSegvar ([], idL) in
-      let L' = registerSegvar ([], idL') in
-      let idE = registerId ("E", fc) in
-      let idF = registerId ("F", fc) in
-      let idG = registerId ("G", fc) in
-      let star = registerId ("star", oc) in
+      let idB = registerId (vid_of_string "B", fc) in
+      let idC = registerId (vid_of_string "C", fc) in
+      let elB = registerElement (Nonum, idB) in
+      let elC = registerElement (Nonum, idC) in
+      let idX = registerId (vid_of_string "X", bc) in
+      let idX' = registerId (vid_of_string "X'", bc) in
+      let idY = registerId (vid_of_string "Y", bc) in
+      let idY' = registerId (vid_of_string "Y'", bc) in
+      let svX = registerSegvar ([], idX) in
+      let svX' = registerSegvar ([], idX') in
+      let svY = registerSegvar ([], idY) in
+      let svY' = registerSegvar ([], idY') in
+      let idL = registerId (vid_of_string "L", lc) in
+      let idL' = registerId (vid_of_string "L'", lc) in
+      let svL = registerSegvar ([], idL) in
+      let svL' = registerSegvar ([], idL') in
+      let idE = registerId (vid_of_string "E", fc) in
+      let idF = registerId (vid_of_string "F", fc) in
+      let idG = registerId (vid_of_string "G", fc) in
+      let star = registerId (vid_of_string "star", oc) in
       let rec uncurried e x f =
         registerElement (Nonum, registerApp (x, registerTup (",", [e; f])))
       in
@@ -1369,30 +1397,30 @@ module M : T =
          CutRule ->
            List.exists matchrule
              [Some [idB], Some [],
-              [Seq ("", bag [X], list [B]); Seq ("", bag [X; B], list [C])],
-              Seq ("", bag [X], list [C]);
+              [Seq ("", bag [svX], list [elB]); Seq ("", bag [svX; elB], list [elC])],
+              Seq ("", bag [svX], list [elC]);
               Some [idB], Some [],
-              [Seq ("", bag [X], bag [B; Y]); Seq ("", bag [X; B], bag [Y])],
-              Seq ("", bag [X], bag [Y]);
+              [Seq ("", bag [svX], bag [elB; svY]); Seq ("", bag [svX; elB], bag [svY])],
+              Seq ("", bag [svX], bag [svY]);
               Some [idB], Some [],
-              [Seq ("", bag [X], bag [B; Y]);
-               Seq ("", bag [X'; B], bag [Y'])],
-              Seq ("", bag [X; X'], bag [Y; Y'])]
+              [Seq ("", bag [svX], bag [elB; svY]);
+               Seq ("", bag [svX'; elB], bag [svY'])],
+              Seq ("", bag [svX; svX'], bag [svY; svY'])]
        | LeftWeakenRule ->
            List.exists matchrule
-             [Some [idB], Some [], [Seq ("", bag [X], list [C])],
-              Seq ("", bag [X; B], list [C]);
-              Some [idB], Some [], [Seq ("", bag [X], bag [Y])],
-              Seq ("", bag [X; B], bag [Y])]
+             [Some [idB], Some [], [Seq ("", bag [svX], list [elC])],
+              Seq ("", bag [svX; elB], list [elC]);
+              Some [idB], Some [], [Seq ("", bag [svX], bag [svY])],
+              Seq ("", bag [svX; elB], bag [svY])]
        | RightWeakenRule ->
            List.exists matchrule
-             [Some [idB], Some [], [Seq ("", bag [X], bag [Y])],
-              Seq ("", bag [X], bag [B; Y])]
+             [Some [idB], Some [], [Seq ("", bag [svX], bag [svY])],
+              Seq ("", bag [svX], bag [elB; svY])]
        | IdentityRule ->
            List.exists matchrule
-             [None, None, [], Seq ("", bag [X; B], list [B]);
-              None, None, [], Seq ("", bag [X; B], bag [B; Y]);
-              None, None, [], Seq ("", list [L; B; L'], list [B])]
+             [None, None, [], Seq ("", bag [svX; elB], list [elB]);
+              None, None, [], Seq ("", bag [svX; elB], bag [elB; svY]);
+              None, None, [], Seq ("", list [svL; elB; svL'], list [elB])]
        | TransitiveRule ->
            (* we are looking for something of the form
                 FROM X |- E op F AND X |- F op' G INFER X |- E op'' G

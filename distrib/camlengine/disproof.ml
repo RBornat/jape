@@ -108,7 +108,7 @@ module M : T =
     let rec dosubst facts =
       option_mapterm
            (decodeSubst &~ (fun (_, P, vts) -> simplifySubst facts vts P))
-    let rec patvar t = (isleaf t && isId t) && isextensibleID (vartoVID t)
+    let rec patvar t = (isleaf t && isId t) && isextensibleID (vid_of_var t)
     let rec patvars t = patvar <| termvars t
     let rec matchit pat vs t =
       let res = matchvars true (fun v -> member (v, vs)) pat t empty in
@@ -324,9 +324,9 @@ module M : T =
     (* really this ought to look inside the forcedef, but one step at a time ... *)
     and uniquebinders t fd =
       let rec newoccenv ocvs =
-        let vids = orderVIDs (List.map vartoVID (variables t)) in
+        let vids = orderVIDs (List.map vid_of_var (variables t)) in
         let rec newvar (ocvids, env) ocv =
-          let ocvid = vartoVID ocv in
+          let ocvid = vid_of_var ocv in
           let ocvid' = uniqueVID VariableClass vids ocvids ocvid in
           ocvid' :: ocvids,
           (if ocvid = ocvid' then env

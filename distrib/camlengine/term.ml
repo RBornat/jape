@@ -905,7 +905,7 @@ module type Funs =
 	val earliervar : term -> term -> bool
 	val mergevars : term list -> term list -> term list
 	val termVIDs : term -> vid list
-	val vartoVID : term -> vid
+	val vid_of_var : term -> vid
 	val conVIDs : term list -> vid list
 	val orderVIDs : vid list -> vid list
 	val uniqueVID : idclass -> vid list -> vid list -> vid -> vid
@@ -1863,12 +1863,12 @@ module Funs : Funs with type vid = Type.vid
       r
     let orderVIDs = sortunique (<)
     (* should be identifiertoVID *)
-    let rec vartoVID =
+    let rec vid_of_var =
       function
         Id (_, v, _) -> v
       | Unknown (_, v, _) -> v
-      | t -> raise (Catastrophe_ ["vartoVID "; argstring t])
-    let rec termVIDs t = orderVIDs ((vartoVID <* termvars t))
+      | t -> raise (Catastrophe_ ["vid_of_var "; argstring t])
+    let rec termVIDs t = orderVIDs ((vid_of_var <* termvars t))
     let rec conVIDs ts =
       nj_fold
         (function
