@@ -9,27 +9,6 @@
 
 
 FONTS   "Konstanz"
-SEQUENT IS BAG ц FORMULA 
-
-INFIX   1000    1000    щ
-INFIX   1100    1100    ч
-INFIX   1500    1500    І
-INFIX   1600    1600    ы
-PREFIX                  Т
-INFIX   2000    2000    =, Г, В, ­, <, >
-INFIX   2500    2500    +, -
-INFIX   2600    2600    *, /
-INFIX   2700    2700    ^
-
-LEFTFIX ш .
-LEFTFIX ф .
-
-CLASS    VARIABLE u, v, w, x, y, z
-CLASS    FORMULA A, B, C, D, P, S, T, U, V, W, X, Y, Z
-CONSTANT й
- 
-BIND    x SCOPE P IN ф x . P
-BIND    x SCOPE P IN ш x . P
 
 USE     "equality.j"
 
@@ -39,9 +18,10 @@ INFIXC    2800 2800 Ѕ
 INFIXC    2900 2900 Л, є
 OUTFIX   н о
 
-CLASS FORMULA H, J
+CLASS VARIABLE v
+CLASS FORMULA C, H, J, P
 CONSTANT none, one, IF, true, false, if, sel, pair,
-	 fst,  snd, id, cat, rcat, rev, nil, rev2, fold,
+	 fst,  snd, id, cat, rcat, rev, rev2, fold,
 	 map,  filter, zip, swap 
 
 
@@ -49,21 +29,18 @@ MENU  Rules IS
       SEPARATOR
       
       RULE "цш"(OBJECT xs') WHERE FRESH xs'
-	   FROM  AA[xs\xs']
-	   INFER ш xs . AA
+	   FROM  A[xs\xs']
+	   INFER ш xs . A
 
       RULE "шц"(B,OBJECT xs)
-	   FROM   ш xs . AA
-	   INFER  AA[xs\B]
+	   FROM   ш xs . A
+	   INFER  A[xs\B]
 
 END
 
-RULE    listinduction (B,  OBJECT xs, OBJECT ys, OBJECT x, OBJECT vs) 
-WHERE   FRESH xs, ys, x 
-FROM    AA[vs\nil] 
-AND     AA[vs\нxо] 
-AND     AA[vs\xs], AA[vs\ys] ц AA[vs\xs++ys] 
-INFER   AA[vs \ B]
+RULE listinduction (B,  OBJECT x, OBJECT xs, OBJECT ys, OBJECT v)  WHERE FRESH x, xs, ys IS
+	FROM  A[v\но] AND A[v\нxо] AND A[v\xs], A[v\ys] ц A[v\xs++ys] 
+	INFER  A[v \ B]
 
 THEORY  Function IS
 	RULES	IF
@@ -81,46 +58,44 @@ THEORY  Function IS
 END
 
 MENU    Rules IS
-        SEPARATOR
-        ENTRY "list induction" IS 
-        WHEN 
-        (LETSUBSTSEL 
-         (_Abase[_xvar\_Asel], 
-          listinduction _Asel
-         ),
-         JAPE(fail(Please select an induction formula)))
+	SEPARATOR
+        
+	ENTRY "list induction" IS 
+		WHEN (LETSUBSTSEL (_A, WITHSUBSTSEL(listinduction)),
+         	          JAPE(fail(Please select one or more instances of a sub-formula on which to perform induction))
+         	         )
 END
 
 MENU    Rules IS
         SEPARATOR
-	RULE    BoolCases(B,OBJECT v)
-		FROM  AA[v\true]
-		AND   AA[v\false]
-		INFER AA[v\B]
+	RULE    BoolCases(B,OBJECT x)
+		FROM  A[x\true]
+		AND   A[x\false]
+		INFER A[x\B]
 
 END
 
 THEORY  List IS
 
-	RULE	none IS	none X	= nil
+	RULE	none IS	none X	= но
 	RULE	one	IS	one X	= нXо
 
-	RULE	cat	IS	cat = fold (++) nil
+	RULE	cat	IS	cat = fold (++) но
 
 	RULES	rev
-	ARE	rev nil		= nil
+	ARE	rev но		= но
 	AND	rev нXо		= нX о
 	AND	rev (Xs++Ys)	= rev Ys ++ rev Xs
 	END
 
 	RULES	++
-	ARE	nil++Ys		= Ys
-	AND	Xs++nil		= Xs
+	ARE	но++Ys		= Ys
+	AND	Xs++но		= Xs
 	AND	(Xs++Ys)++ZS	= Xs++(Ys++ZS)
 	END
 
 	RULES	map
-	ARE	map F nil			= nil
+	ARE	map F но			= но
      	AND	map F нXо		= нF Xо
 	AND	map F (Xs++Ys)	= map F Xs ++ map F Ys
 	END
@@ -128,25 +103,25 @@ THEORY  List IS
 	RULE filter IS filter P = cat Ѕ map (if P (one, none))
 
 	RULES	zip
-	ARE	zip(nil, nil)			= nil
+	ARE	zip(но, но)			= но
 	AND	zip(нXо, нYо)			= н(X,Y)о
 	AND  zip(Xs++Xs', Ys++Ys')	= zip (Xs,Ys)++zip(Xs',Ys')
 	END
 
 	RULES fold (OBJECT A, OBJECT B, OBJECT C)
-	ARE	fold F Z nil		= Z
+	ARE	fold F Z но		= Z
 	AND  fold F Z нXо	= X
 	AND  FROM F A (F B C) = F (F A B) C AND F A Z = A AND F Z B = B
 		INFER fold F Z (Xs++Ys)	= F (fold F Z Xs) (fold F Z Ys)
 	END
 
-/*	RULE fold'0 IS fold F Z nil		= Z
+/*	RULE fold'0 IS fold F Z но		= Z
 	RULE fold'1 IS  fold F Z нXо	= X
 	RULE fold'2(OBJECT x, OBJECT y, OBJECT z) WHERE FRESH x,y,z
 		IS  FROM F x (F y z) = F (F x y) z INFER fold F Z (Xs++Ys)	= F (fold F Z Xs) (fold F Z Ys)
 	TACTIC fold IS ALT(fold'1, fold'2, fold'3)
 */
-	RULE rev2 IS rev2 = fold rcat nil Ѕ map one
+	RULE rev2 IS rev2 = fold rcat но Ѕ map one
 	
 	RULE rcat IS rcat Xs Ys = Ys ++ Xs
 	
