@@ -122,29 +122,29 @@ TACTIC rewritehypformula(stepname,rewrite,action,close) IS
             (GOALPATH (RIGHT G)) 
             close)
 
-TACTIC rewriteL2R (rewrite, rev, tac) IS
+TACTIC rewriteL2R (rewrite, rev, tac, label, gclose) IS
     WHEN    
         (LETHYPSUBSTSEL _E 
-            (rewritehypformula tac rewrite 
+            (rewritehypformula label rewrite 
                 (LAYOUT HIDEROOT rev (LAYOUT HIDEROOT tac)) 
                 (WITHSUBSTSEL hyp)))
-        (LETCONCSUBSTSEL _E (LAYOUT tac) (WITHSUBSTSEL rewrite) (LAYOUT HIDEROOT tac))
+        (LETCONCSUBSTSEL _E (LAYOUT label) (WITHSUBSTSEL rewrite) (LAYOUT HIDEROOT tac) gclose)
         (LETHYP _E 
-            (rewritehypformula tac rewrite 
+            (rewritehypformula label rewrite 
                 (LAYOUT HIDEROOT rev«_E/A» (LAYOUT HIDEROOT tac))
                 (WITHHYPSEL hyp)))
-        (LETGOAL _E (LAYOUT tac) rewrite«_E/A» (LAYOUT HIDEROOT tac))
+        (LETGOAL _E (LAYOUT label) rewrite«_E/A» (LAYOUT HIDEROOT tac) gclose)
 
-TACTIC rewriteR2L (rewrite, rev, tac) IS
+TACTIC rewriteR2L (rewrite, rev, tac, label, gclose) IS
     WHEN    
         (LETHYPSUBSTSEL _E 
-            (rewritehypformula tac rewrite (LAYOUT HIDEROOT tac) (WITHSUBSTSEL hyp)))
+            (rewritehypformula label rewrite (LAYOUT HIDEROOT tac) (WITHSUBSTSEL hyp)))
         (LETCONCSUBSTSEL _E 
-            (LAYOUT tac) (WITHSUBSTSEL rewrite) (LAYOUT HIDEROOT rev) (LAYOUT HIDEROOT tac))
+            (LAYOUT label) (WITHSUBSTSEL rewrite) (LAYOUT HIDEROOT rev) (LAYOUT HIDEROOT tac) gclose)
         (LETHYP _E 
-            (rewritehypformula tac (rewrite«_E/B») (LAYOUT HIDEROOT tac) (WITHHYPSEL hyp)))
+            (rewritehypformula label (rewrite«_E/B») (LAYOUT HIDEROOT tac) (WITHHYPSEL hyp)))
         (LETGOAL _E 
-            (LAYOUT tac) rewrite (LAYOUT HIDEROOT rev«_E/B») (LAYOUT HIDEROOT tac))
+            (LAYOUT label) rewrite (LAYOUT HIDEROOT rev«_E/B») (LAYOUT HIDEROOT tac) gclose)
 
 TACTIC symmetry(rule) IS
     WHEN 
