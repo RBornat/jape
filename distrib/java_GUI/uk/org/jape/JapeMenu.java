@@ -169,7 +169,7 @@ public class JapeMenu implements DebugConstants {
             item.setAccelerator(i.stroke);
         if (!i.enabled)
             item.setEnabled(i.enabled);
-        JapeFont.setComponentFont(JapeFont.MENUENTRY, item.getComponent());
+        JapeFont.setComponentFont(item.getComponent(), JapeFont.MENUENTRY);
         item.addActionListener(menuListener);
         if (menuaction_tracing)
             System.err.println("ActionListener on "+i);
@@ -181,7 +181,7 @@ public class JapeMenu implements DebugConstants {
         for (Enumeration ebar = barv.elements(); ebar.hasMoreElements(); ) {
             M m = (M)ebar.nextElement();
             JMenu menu = new JMenu(m.title);
-            JapeFont.setComponentFont(JapeFont.MENUENTRY, menu.getComponent());
+            JapeFont.setComponentFont(menu.getComponent(), JapeFont.MENUENTRY);
             for (int i=0; i<m.size(); i++) {
                 Object o = m.get(i);
                 if (o instanceof RBG) {
