@@ -35,9 +35,9 @@ INFIX		50L		=
 BIND x  SCOPE E IN ˚ x . E
 
 BIND t SCOPE T IN Ë t . T
-BIND t1 t2 SCOPE T IN Ë t1, t2 . T
-BIND t1 t2 t3 SCOPE T IN Ë t1, t2, t3 . T
-BIND t1 t2 t3 t4 SCOPE T IN Ë t1, t2, t3, t4 . T
+BIND t1 t2 SCOPE T IN Ë (t1, t2) . T
+BIND t1 t2 t3 SCOPE T IN Ë (t1, t2, t3 ). T
+BIND t1 t2 t3 t4 SCOPE T IN Ë (t1, t2, t3, t4) . T
 
 OUTFIX [ ]
 OUTFIX  letrec in end
@@ -121,9 +121,9 @@ RULE "C Ê c:T" IS FROM CÊc€S AND S»T INFER CÊc:T
 RULES "S»T" ARE
 	INFER #T » T
 AND	INFER Ëtt.TT » TT{T1/tt}
-AND	INFER Ëtt1,tt2.TT » TT{T1,T2/tt1,tt2}
-AND	INFER Ëtt1,tt2,tt3.TT » TT{T1,T2,T3/tt1,tt2,tt3}
-AND	INFER Ëtt1,tt2,tt3,tt4.TT » TT{T1,T2,T3,T4/tt1,tt2,tt3,tt4}
+AND	INFER Ë(tt1,tt2).TT » TT{T1,T2/tt1,tt2}
+AND	INFER Ë(tt1,tt2,tt3).TT » TT{T1,T2,T3/tt1,tt2,tt3}
+AND	INFER Ë(tt1,tt2,tt3,tt4).TT » TT{T1,T2,T3,T4/tt1,tt2,tt3,tt4}
 END
 
 MENU Rules IS	
@@ -173,9 +173,9 @@ RULE "T«S" IS		FROM C Ê T • #T ë S 	INFER C Ê T « S
 
 RULES "new t•..." (OBJECT t1) WHERE t1 NOTIN C ARE
 	CÊ t1 • #Të Ët1.T 
-AND	CÊ t1 • Ëtt1.T ë Ëtt1,t1.T 
-AND	CÊ t1 • Ëtt1,tt2.T ë Ëtt1,tt2,t1.T 
-AND	CÊ t1 • Ëtt1,tt2,tt3.T ë Ëtt1,tt2,tt3,t1.T 
+AND	CÊ t1 • Ëtt1.T ë Ë(tt1,t1).T 
+AND	CÊ t1 • Ë(tt1,tt2).T ë Ë(tt1,tt2,t1).T 
+AND	CÊ t1 • Ë(tt1,tt2,tt3).T ë Ë(tt1,tt2,tt3,t1).T 
 END
 
 RULE "T1ÁT2•..."	FROM C Ê T1• Sin ë Smid AND C Ê T2 • Smid ë Sout	INFER C Ê T1ÁT2 • Sin ë Sout
