@@ -482,9 +482,9 @@ let rec panelbutton name label cmd =
 let rec selectpanelentry name label =
   writef "SELECTPANELENTRY % %\n" [Str name; Str label]
 
-let rec markpanelentry name label (proved, disproved) =
+let rec markpanelentry name cmd (proved, disproved) =
   writef "MARKPANELENTRY % % % %\n"
-    [Str name; Str label; Bool proved; Bool disproved]
+    [Str name; Str cmd; Bool proved; Bool disproved]
 
 let rec greyen posn =
   let (x, y) = explodePos posn in writef "GREYEN % %\n" [Int x; Int y]

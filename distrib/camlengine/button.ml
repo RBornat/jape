@@ -168,7 +168,7 @@ let rec markproof cmd proved =
          panelitemiter panel
            (fun (label, entry) ->
               if entry = cmd then
-                Japeserver.markpanelentry (namestring panel) entry proved)
+                Japeserver.markpanelentry (namestring panel) cmd proved)
            (fun _ -> ()) (* (fun _ -> ()) (fun _ -> ()) *)
      | panel, _ -> ())
 
