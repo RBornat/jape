@@ -33,28 +33,26 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 public class CircleItem extends OutlineItem implements DebugConstants {
-    public final int x0, y0, radius;
+    public final int x0, y0, innerRadius;
     protected Ellipse2D.Float outline;
     protected final int strokethickness;
 
-    public CircleItem(JapeCanvas canvas, int x0, int y0, int width,
-                      int radius, int strokethickness) {
-        super(canvas, x0, y0, width, width);
-        this.x0 = x0; this.y0 = y0; this.radius=radius; this.strokethickness = strokethickness;
-        outline = new Ellipse2D.Float(strokethickness, strokethickness, 2*radius, 2*radius);
+    public CircleItem(JapeCanvas canvas, int x0, int y0, int innerRadius, int strokethickness) {
+        super(canvas, x0-(innerRadius+strokethickness), y0-(innerRadius+strokethickness),
+              2*(innerRadius+strokethickness), 2*(innerRadius+strokethickness));
+        this.x0 = x0; this.y0 = y0; this.innerRadius=innerRadius;
+        this.strokethickness = strokethickness;
+        outline = new Ellipse2D.Float(strokethickness, strokethickness,
+                                      2*innerRadius, 2*innerRadius);
     }
 
-    public CircleItem(JapeCanvas canvas, int x, int y, int radius, int strokethickness) {
-        this(canvas, x-radius-strokethickness, y-radius-strokethickness,
-                   2*(radius+strokethickness), radius, strokethickness);
-    }
-
-    public CircleItem(JapeCanvas canvas, int x, int y, int radius) {
-        this(canvas, x, y, radius, canvas.linethickness);
+    public CircleItem(JapeCanvas canvas, int x, int y, int innerRadius) {
+        this(canvas, x, y, innerRadius, canvas.linethickness);
     }
 
     public boolean contains(int x, int y) {
-        return (x-x0)*(x-x0)+(y-y0)*(y-y0)<=radius*radius;
+        return (x-innerRadius)*(x-innerRadius)+(y-innerRadius)*(y-innerRadius)
+                        <=innerRadius*innerRadius;
     }
 
     public void paint(Graphics g) {
@@ -74,6 +72,6 @@ public class CircleItem extends OutlineItem implements DebugConstants {
             ((Graphics2D)g).draw(outline);
         }
         else
-            g.drawOval(canvas.linethickness, canvas.linethickness, 2*radius, 2*radius);
+            g.drawOval(canvas.linethickness, canvas.linethickness, 2*innerRadius, 2*innerRadius);
     }
 }
