@@ -1,7 +1,7 @@
 ﻿/* $Id$ */ 
 
 CLASS VARIABLE a b c d e f g h i j k l m n o p q r s t u v w x y z 
-CLASS FORMULA A B C D E F G I J M N  P Q R S T U V 
+CLASS FORMULA A B C D E F G H I J L M N O P Q R S T U V W X Y Z
 CLASS CONSTANT K
 CLASS BAG FORMULA Γ
         
@@ -29,6 +29,7 @@ INFIX   300L    <   >   ≤   ≥   ≠   =
 
 INFIX   400 L   + -
 INFIX   410 L   × ÷
+INFIX   420 R   ↑
 
 PREFIX  1200    ¬
 
