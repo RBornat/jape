@@ -26,6 +26,19 @@
 */
 
 public interface ProtocolConstants {
+    /*  from displayfont.ml:
+        (* Useful translation for Japeserver marshalling.
+        * Current C/Java/Tk interfaces believe in these integers.
+        *
+        *  TermFont = 0
+        *  ReasonFont = 1
+        *  ProvisoFont = 2
+        *
+        *)
+     */
+    
+    public final static byte termFontNum = 0,  reasonFontNum = 1,  provisoFontNum = 2;
+    
     /*  from japeserver.ml:
             match m with
               "subformula" -> 0
