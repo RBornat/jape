@@ -25,6 +25,7 @@
 
   */
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -38,15 +39,18 @@ import javax.swing.Scrollable;
 
 /* A panel to which you can add components at arbitrary positions */
 
-public class KPanel extends JPanel implements Scrollable {
+public class KPanel extends Container {
 
-    KPanel() { super(); super.add(child); setLayout(new KPanelLayout()); }
+    public KPanel() {
+        super(); super.add(child);
+        setLayout(new KPanelLayout());
+    }
 
     protected final Child child = new Child();
 
     public Component add(Component c) {
         child.add(c);
-        child.revalidate();
+        computeBounds();
         return c;
     }
 
@@ -54,7 +58,7 @@ public class KPanel extends JPanel implements Scrollable {
         getLayout().layoutContainer(this);
     }
 
-    public void paintChildren(Graphics g) {
+    public void paint(Graphics g) {
         int x=child.getX(), y=child.getY();
         g.translate(x, y);
         child.paint(g);
@@ -121,49 +125,19 @@ public class KPanel extends JPanel implements Scrollable {
             Dimension size = getSize();
             if (vr.width!=size.width || vr.height!=size.height) {
                 size.width=vr.width; size.height=vr.height;
-                setSize(size); setPreferredSize(size); setMinimumSize(size);
+                setSize(size);
             }
         }
     }
 
-    // implementation of Scrollable interface
-    
-    // Returns the preferred size of the viewport for a view component.
-    public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
-
-    // Components that display logical rows or columns should compute the
-    // scroll increment that will completely expose one new row or column,
-    // depending on the value of orientation.
-    public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
-        return 10; // for now
-    }
-
-    // Components that display logical rows or columns should compute the scroll
-    // increment that will completely expose one block of rows or columns, depending
-    // on the value of orientation.
-    public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
-        return 100; // for now
-    }
-
-    // Return true if a viewport should always force the height of this
-    // Scrollable to match the height of the viewport.
-    public boolean getScrollableTracksViewportHeight() {
-        return false; // has to be false, or else scrollbars don't work (!!)
-    }
-
-    // Return true if a viewport should always force the width of this
-    // Scrollable to match the width of the viewport.
-    public boolean getScrollableTracksViewportWidth() {
-        return false; // has to be false, or else it don't work (!!)
-    }
-
-    protected class Child extends JComponent {
+    protected class Child extends Container {
         Child() { super(); setLayout(new ChildLayout()); }
 
         protected Rectangle visualBounds = new Rectangle(0,0,0,0);
 
         public Rectangle getVisualBounds() {
-            return new Rectangle(visualBounds.x, visualBounds.y, visualBounds.width, visualBounds.height);
+            return new Rectangle(visualBounds.x, visualBounds.y,
+                                 visualBounds.width, visualBounds.height);
         }
 
         public boolean contains(int x, int y) {
@@ -179,7 +153,9 @@ public class KPanel extends JPanel implements Scrollable {
             /* Called by the Container add methods. Layout managers that don't associate
             * strings with their components generally do nothing in this method.
             */
-            public void addLayoutComponent(String s, Component c) { System.err.println("Child addLayoutComponent "+c); }
+            public void addLayoutComponent(String s, Component c) {
+                // System.err.println("Child addLayoutComponent "+c);
+            }
 
             /* Called by the Container remove and removeAll methods. Many layout managers
             * do nothing in this method, relying instead on querying the container for its
@@ -218,17 +194,19 @@ public class KPanel extends JPanel implements Scrollable {
                 Rectangle newBounds=null;
                 int nc = getComponentCount();
                 for (int i=0; i<nc; i++) {
-                    if (newBounds==null)
-                        newBounds = getComponent(i).getBounds();
+                    if (newBounds==null) {
+                        newBounds = new Rectangle();
+                        getComponent(i).getBounds(newBounds);
+                    }
                     else
                         newBounds.add(getComponent(i).getBounds());
                 }
                 if (newBounds==null)
-                    newBounds = new Rectangle(0,0,0,0);
+                    newBounds = new Rectangle();
                 Dimension size = getSize();
                 if (newBounds.width!=size.width || newBounds.height!=size.height) {
                     size.width=newBounds.width; size.height=newBounds.height;
-                    setSize(size); setPreferredSize(size); setMinimumSize(size);
+                    setSize(size);
                 }
                 if (!newBounds.equals(visualBounds)) {
                     visualBounds=newBounds;
