@@ -42,16 +42,19 @@ TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS
 			(LETHYP _P cut (LAYOUT () (1) ruleRL thm (LETGOAL (_P'[_x\_Q])  (WITHHYPSEL(hyp _Q)))))
 			(LETGOAL _P (LAYOUT () (1) (ruleLR _P) thm))
 
-TACTIC "д-I tac" IS "д-I"
-TACTIC "д!-I tac" IS "д!-I"
-TACTIC "и-E tac" IS FOBSS ForwardCut "и-E"
+TACTIC "д-I tac" IS WITHARGSEL "д-I"
+TACTIC "д!-I tac" IS WITHARGSEL "д!-I"
+TACTIC "з-E tac" IS FOB "з-E forward" 0 "з-E"
+TACTIC "л-E tac" IS FOB ForwardUncut 0 "л-E"	
+TACTIC "и-E tac" IS FOBSS ForwardCut 0 "и-E"
+TACTIC "д-E tac" IS FOB ForwardUncut 0 "д-E"
 
 MENU "System F«" IS
 	ENTRY "з-I"	
 	ENTRY "к-I"
 	ENTRY "¦-I"	
-	ENTRY "л-I(L)" IS FOB ForwardCut "л-I(L)"
-	ENTRY "л-I(R)" IS FOB ForwardCut "л-I(R)"
+	ENTRY "л-I(L)" IS FOB ForwardCut 0 "л-I(L)"
+	ENTRY "л-I(R)" IS FOB ForwardCut 0 "л-I(R)"
 	ENTRY "В-I"
 	ENTRY "Щ-I"
 	ENTRY "и-I"
@@ -60,18 +63,18 @@ MENU "System F«" IS
 	
 	SEPARATOR
 	
-	ENTRY "з-E"		IS FOB "з-E forward" "з-E" 
-	ENTRY "к-E(L)"	IS FOB "к-E(L) forward" "к-E(L)" 
-	ENTRY "к-E(R)"	IS FOB "к-E(R) forward" "к-E(R)" 
-	ENTRY "¦-E(L)"	IS FOB ForwardCut "¦-E(L)"
-	ENTRY "¦-E(R)" 	IS FOB ForwardCut "¦-E(R)"
-	ENTRY "л-E"		IS FOB ForwardUncut "л-E"	
-	ENTRY "В-E"		IS FOB ForwardCut "В-E"	
-	ENTRY "Щ-E"		IS FOB ForwardCut "Щ-E"	
+	ENTRY "з-E"		IS "з-E tac" 
+	ENTRY "к-E(L)"	IS FOB "к-E(L) forward" 0 "к-E(L)" 
+	ENTRY "к-E(R)"	IS FOB "к-E(R) forward" 0 "к-E(R)" 
+	ENTRY "¦-E(L)"	IS FOB ForwardCut 0 "¦-E(L)"
+	ENTRY "¦-E(R)" 	IS FOB ForwardCut 0 "¦-E(R)"
+	ENTRY "л-E"		IS "л-E tac"	
+	ENTRY "В-E"		IS FOB ForwardCut 0 "В-E"	
+	ENTRY "Щ-E"		IS FOB ForwardCut 0 "Щ-E"	
 	ENTRY "и-E"		IS "и-E tac"	
-	ENTRY "д-E"		IS FOB ForwardUncut "д-E"
-	ENTRY "д!-E(д)"	IS FOB ForwardCut "д!-E(д)"
-	ENTRY "д!-E(ии)"	IS FOB ForwardCut "д!-E(ии)"
+	ENTRY "д-E"		IS "д-E tac"
+	ENTRY "д!-E(д)"	IS FOB ForwardCut 0 "д!-E(д)"
+	ENTRY "д!-E(ии)"	IS FOB ForwardCut 0 "д!-E(ии)"
 	SEPARATOR
 	ENTRY "A=A"
 	ENTRY hyp		IS hyp
