@@ -14,7 +14,7 @@ INFIX			300L		Ÿ  Ø ê
 INFIX			200R		|~
 INFIX			150R		|Û
 LEFTFIX 		110		è .
-INFIX			100R		|=-
+INFIX			100R		|é
 INFIX			50L		<|
 
 OUTFIX {  }

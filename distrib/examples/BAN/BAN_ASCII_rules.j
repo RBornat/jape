@@ -1,47 +1,47 @@
 /* $Id$ */
 
-RULE "P|=-(Q,P)ÍK, P<|{X}K € P|=-Q|~X" IS FROM P|=-(Q,P)ÍK AND P<|{X}K INFER P|=-Q|~X
-RULE "P|=-QÿK, P<|{X}K¯ € P|=-Q|~X" IS FROM P|=-QÿK AND P<|{X}K¯ INFER P|=-Q|~X
-RULE "P|=-(P,Q)üY, P<|<X>Y € P|=-Q|~X" IS FROM P|=-(P,Q)üY AND P<|<X>Y INFER P|=-Q|~X
-RULE "P|=-#X, P|=-Q|~X € P|=-Q|=-X" IS FROM P|=-#X AND P|=-Q|~X INFER P|=-Q|=-X
-RULE "P|=-Q|€X, P|=-Q|=-X € P|=-X" IS FROM P|=-Q|€X AND P|=-Q|=-X INFER P|=-X
-RULES "P|=-X,  P|=-Y,  ... € P|=-(X,Y,...)" ARE
-	FROM P|=-X AND P|=-Y INFER P|=-(X,Y)
- AND	FROM P|=-X AND P|=-Y AND P|=-Z INFER P|=-(X,Y,Z)
- AND	FROM P|=-W AND P|=-X AND P|=-Y AND P|=-Z INFER P|=-(W,X,Y,Z)
+RULE "P|È(Q,P)ÍK, P<|{X}K € P|ÈQ|~X" IS FROM P|È(Q,P)ÍK AND P<|{X}K INFER P|ÈQ|~X
+RULE "P|ÈQÿK, P<|{X}K¯ € P|ÈQ|~X" IS FROM P|ÈQÿK AND P<|{X}K¯ INFER P|ÈQ|~X
+RULE "P|È(P,Q)üY, P<|<X>Y € P|ÈQ|~X" IS FROM P|È(P,Q)üY AND P<|<X>Y INFER P|ÈQ|~X
+RULE "P|È#X, P|ÈQ|~X € P|ÈQ|ÈX" IS FROM P|È#X AND P|ÈQ|~X INFER P|ÈQ|ÈX
+RULE "P|ÈQ|€X, P|ÈQ|ÈX € P|ÈX" IS FROM P|ÈQ|€X AND P|ÈQ|ÈX INFER P|ÈX
+RULES "P|ÈX,  P|ÈY,  ... € P|È(X,Y,...)" ARE
+	FROM P|ÈX AND P|ÈY INFER P|È(X,Y)
+ AND	FROM P|ÈX AND P|ÈY AND P|ÈZ INFER P|È(X,Y,Z)
+ AND	FROM P|ÈW AND P|ÈX AND P|ÈY AND P|ÈZ INFER P|È(W,X,Y,Z)
 END
-RULES "P|=-(...,X,...) € P|=-X"(X) ARE 
-	FROM P|=-(X,Y) INFER P|=-X
- AND	FROM P|=-(Y,X) INFER P|=-X
- AND	FROM P|=-(X,Y,Z) INFER P|=-X
- AND	FROM P|=-(Z,X,Y) INFER P|=-X
- AND	FROM P|=-(Y,Z,X) INFER P|=-X
- AND	FROM P|=-(X,Y,Z,W) INFER P|=-X
- AND	FROM P|=-(W,X,Y,Z) INFER P|=-X
- AND	FROM P|=-(Z,W,X,Y) INFER P|=-X
- AND	FROM P|=-(Y,Z,W,X) INFER P|=-X
+RULES "P|È(...,X,...) € P|ÈX"(X) ARE 
+	FROM P|È(X,Y) INFER P|ÈX
+ AND	FROM P|È(Y,X) INFER P|ÈX
+ AND	FROM P|È(X,Y,Z) INFER P|ÈX
+ AND	FROM P|È(Z,X,Y) INFER P|ÈX
+ AND	FROM P|È(Y,Z,X) INFER P|ÈX
+ AND	FROM P|È(X,Y,Z,W) INFER P|ÈX
+ AND	FROM P|È(W,X,Y,Z) INFER P|ÈX
+ AND	FROM P|È(Z,W,X,Y) INFER P|ÈX
+ AND	FROM P|È(Y,Z,W,X) INFER P|ÈX
 END
-RULES "P|=-Q|=-(...,X,...) € P|=-Q|=-X"(X) ARE 
-	FROM P|=-Q|=-(X,Y) INFER P|=-Q|=-X
- AND	FROM P|=-Q|=-(Y,X) INFER P|=-Q|=-X
- AND	FROM P|=-Q|=-(X,Y,Z) INFER P|=-Q|=-X
- AND	FROM P|=-Q|=-(Z,X,Y) INFER P|=-Q|=-X
- AND	FROM P|=-Q|=-(Y,Z,X) INFER P|=-Q|=-X
- AND	FROM P|=-Q|=-(X,Y,Z,W) INFER P|=-Q|=-X
- AND	FROM P|=-Q|=-(W,X,Y,Z) INFER P|=-Q|=-X
- AND	FROM P|=-Q|=-(Z,W,X,Y) INFER P|=-Q|=-X
- AND	FROM P|=-Q|=-(Y,Z,W,X) INFER P|=-Q|=-X
+RULES "P|ÈQ|È(...,X,...) € P|ÈQ|ÈX"(X) ARE 
+	FROM P|ÈQ|È(X,Y) INFER P|ÈQ|ÈX
+ AND	FROM P|ÈQ|È(Y,X) INFER P|ÈQ|ÈX
+ AND	FROM P|ÈQ|È(X,Y,Z) INFER P|ÈQ|ÈX
+ AND	FROM P|ÈQ|È(Z,X,Y) INFER P|ÈQ|ÈX
+ AND	FROM P|ÈQ|È(Y,Z,X) INFER P|ÈQ|ÈX
+ AND	FROM P|ÈQ|È(X,Y,Z,W) INFER P|ÈQ|ÈX
+ AND	FROM P|ÈQ|È(W,X,Y,Z) INFER P|ÈQ|ÈX
+ AND	FROM P|ÈQ|È(Z,W,X,Y) INFER P|ÈQ|ÈX
+ AND	FROM P|ÈQ|È(Y,Z,W,X) INFER P|ÈQ|ÈX
 END
-RULES "P|=-Q|~(...,X,...) € P|=-Q|~X"(X) ARE
-	FROM P|=-Q|~(X,Y) INFER P|=-Q|~X
- AND	FROM P|=-Q|~(Y,X) INFER P|=-Q|~X
- AND	FROM P|=-Q|~(X,Y,Z) INFER P|=-Q|~X
- AND	FROM P|=-Q|~(Z,X,Y) INFER P|=-Q|~X
- AND	FROM P|=-Q|~(Y,Z,X) INFER P|=-Q|~X
- AND	FROM P|=-Q|~(X,Y,Z,W) INFER P|=-Q|~X
- AND	FROM P|=-Q|~(W,X,Y,Z) INFER P|=-Q|~X
- AND	FROM P|=-Q|~(Z,W,X,Y) INFER P|=-Q|~X
- AND	FROM P|=-Q|~(Y,Z,W,X) INFER P|=-Q|~X
+RULES "P|ÈQ|~(...,X,...) € P|ÈQ|~X"(X) ARE
+	FROM P|ÈQ|~(X,Y) INFER P|ÈQ|~X
+ AND	FROM P|ÈQ|~(Y,X) INFER P|ÈQ|~X
+ AND	FROM P|ÈQ|~(X,Y,Z) INFER P|ÈQ|~X
+ AND	FROM P|ÈQ|~(Z,X,Y) INFER P|ÈQ|~X
+ AND	FROM P|ÈQ|~(Y,Z,X) INFER P|ÈQ|~X
+ AND	FROM P|ÈQ|~(X,Y,Z,W) INFER P|ÈQ|~X
+ AND	FROM P|ÈQ|~(W,X,Y,Z) INFER P|ÈQ|~X
+ AND	FROM P|ÈQ|~(Z,W,X,Y) INFER P|ÈQ|~X
+ AND	FROM P|ÈQ|~(Y,Z,W,X) INFER P|ÈQ|~X
 END
 RULES "P<|(...,X,...) € P<|X"(X) ARE 
 	FROM P<|(X,Y) INFER P<|X
@@ -55,24 +55,24 @@ RULES "P<|(...,X,...) € P<|X"(X) ARE
  AND	FROM P<|(Y,Z,W,X) INFER P<|X
 END
 RULE "P<|<X>Y € P<|X" IS FROM P<|<X>Y INFER P<|X
-RULE "P|=-(P,Q)ÍK, P<|{X}K € P<|X" IS FROM P|=-(P,Q)ÍK AND P<|{X}K INFER P<|X
-RULE "P|=-PÿK, P<|{X}K € P<|X" IS FROM P|=-PÿK AND P<|{X}K INFER P<|X
-RULE "P|=-Qÿ K, P<|{X}K¯ € P<|X" IS FROM P|=-Qÿ K AND P<|{X}K¯ INFER P<|X
-RULES "P|=-#X € P|=-#(...,X,...)"(X) ARE
-	FROM P|=-#X INFER P|=-#(X,Y)
- AND	FROM P|=-#X INFER P|=-#(Y,X)
- AND	FROM P|=-#X INFER P|=-#(X,Y,Z)
- AND	FROM P|=-#X INFER P|=-#(Z,X,Y)
- AND	FROM P|=-#X INFER P|=-#(Y,Z,X)
- AND	FROM P|=-#X INFER P|=-#(X,Y,Z,W)
- AND	FROM P|=-#X INFER P|=-#(W,X,Y,Z)
- AND	FROM P|=-#X INFER P|=-#(Z,W,X,Y)
- AND	FROM P|=-#X INFER P|=-#(Y,ZW,X)
+RULE "P|È(P,Q)ÍK, P<|{X}K € P<|X" IS FROM P|È(P,Q)ÍK AND P<|{X}K INFER P<|X
+RULE "P|ÈPÿK, P<|{X}K € P<|X" IS FROM P|ÈPÿK AND P<|{X}K INFER P<|X
+RULE "P|ÈQÿ K, P<|{X}K¯ € P<|X" IS FROM P|ÈQÿ K AND P<|{X}K¯ INFER P<|X
+RULES "P|È#X € P|È#(...,X,...)"(X) ARE
+	FROM P|È#X INFER P|È#(X,Y)
+ AND	FROM P|È#X INFER P|È#(Y,X)
+ AND	FROM P|È#X INFER P|È#(X,Y,Z)
+ AND	FROM P|È#X INFER P|È#(Z,X,Y)
+ AND	FROM P|È#X INFER P|È#(Y,Z,X)
+ AND	FROM P|È#X INFER P|È#(X,Y,Z,W)
+ AND	FROM P|È#X INFER P|È#(W,X,Y,Z)
+ AND	FROM P|È#X INFER P|È#(Z,W,X,Y)
+ AND	FROM P|È#X INFER P|È#(Y,ZW,X)
 END
-RULE "P|=-(R,R')ÍK € P|=-(R',R)ÍK" IS FROM P|=-(R,R')ÍK INFER P|=-(R',R)ÍK
-RULE "P|=-Q|=-(R,R')ÍK € P|=-Q|=-(R',R)ÍK" IS FROM P|=-Q|=-(R,R')ÍK INFER P|=-Q|=-(R',R)ÍK
-RULE "P|=-(R,R')üK € P|=-(R',R)üK" IS FROM P|=-(R,R')üK INFER P|=-(R',R)üK
-RULE "P|=-Q|=-(R,R')üK € P|=-Q|=-(R',R)üK" IS FROM P|=-Q|=-(R,R')üK INFER P|=-Q|=-(R',R)üK	
+RULE "P|È(R,R')ÍK € P|È(R',R)ÍK" IS FROM P|È(R,R')ÍK INFER P|È(R',R)ÍK
+RULE "P|ÈQ|È(R,R')ÍK € P|ÈQ|È(R',R)ÍK" IS FROM P|ÈQ|È(R,R')ÍK INFER P|ÈQ|È(R',R)ÍK
+RULE "P|È(R,R')üK € P|È(R',R)üK" IS FROM P|È(R,R')üK INFER P|È(R',R)üK
+RULE "P|ÈQ|È(R,R')üK € P|ÈQ|È(R',R)üK" IS FROM P|ÈQ|È(R,R')üK INFER P|ÈQ|È(R',R)üK	
 
 /* I hope we can use hyp, else a sequent presentation is impossible; I' m sure that we can use cut */
 RULE hyp IS INFER X Ê X
@@ -85,5 +85,5 @@ CUT cut
 RULE weaken(X) IS FROM Y INFER X Ê Y
 WEAKEN weaken
 
-RULE "P|=-Ëx.X(x) € P|=-X(Y)"(Y,ABSTRACTION X) IS FROM P|=-Ëx.X(x) INFER P|=-X(Y)
+RULE "P|ÈËx.X(x) € P|ÈX(Y)"(Y,ABSTRACTION X) IS FROM P|ÈËx.X(x) INFER P|ÈX(Y)
 

@@ -35,78 +35,78 @@ TACTIC ForwardOrBackward (Forward, n, Rule) IS
 	           		)
 		)
    
-MENU "|=-"
+MENU "|È"
 	SEPARATOR
-	ENTRY "P|=-X,  P|=-Y,  ... € P|=-(X,Y,...)"
-	ENTRY "P|=-(...,X,...) € P|=-X"				IS ForwardOrBackward ForwardCut 0 "P|=-(...,X,...) € P|=-X"
-	ENTRY "P|=-Q|=-(...,X,...) € P|=-Q|=-X"			IS ForwardOrBackward ForwardCut 0 "P|=-Q|=-(...,X,...) € P|=-Q|=-X"
+	ENTRY "P|ÈX,  P|ÈY,  ... € P|È(X,Y,...)"
+	ENTRY "P|È(...,X,...) € P|ÈX"				IS ForwardOrBackward ForwardCut 0 "P|È(...,X,...) € P|ÈX"
+	ENTRY "P|ÈQ|È(...,X,...) € P|ÈQ|ÈX"			IS ForwardOrBackward ForwardCut 0 "P|ÈQ|È(...,X,...) € P|ÈQ|ÈX"
 	SEPARATOR
-	ENTRY "P|=-Ëx.X(x) € P|=-X(Y)"			IS ForwardOrBackward ForwardCut 0 "P|=-Ëx.X(x) € P|=-X(Y)"
-	ENTRY "P|=-Q|~X, [P|=-#X] € P|=-Q|=-X"			IS ForwardOrBackward ForwardCut 1 "P|=-#X, P|=-Q|~X € P|=-Q|=-X"
-	ENTRY "P|=-Q|=-X, [P|=-Q|€X] € P|=-X"			IS ForwardOrBackward ForwardCut 1 "P|=-Q|€X, P|=-Q|=-X € P|=-X"
+	ENTRY "P|ÈËx.X(x) € P|ÈX(Y)"			IS ForwardOrBackward ForwardCut 0 "P|ÈËx.X(x) € P|ÈX(Y)"
+	ENTRY "P|ÈQ|~X, [P|È#X] € P|ÈQ|ÈX"			IS ForwardOrBackward ForwardCut 1 "P|È#X, P|ÈQ|~X € P|ÈQ|ÈX"
+	ENTRY "P|ÈQ|ÈX, [P|ÈQ|€X] € P|ÈX"			IS ForwardOrBackward ForwardCut 1 "P|ÈQ|€X, P|ÈQ|ÈX € P|ÈX"
 	SEPARATOR
-	ENTRY "P|=-#X, [P|=-Q|~X] € P|=-Q|=-X"			IS ForwardOrBackward ForwardCut 0 "P|=-#X, P|=-Q|~X € P|=-Q|=-X"
-	ENTRY "P|=-Q|€X, [P|=-Q|=-X] € P|=-X"			IS ForwardOrBackward ForwardCut 0 "P|=-Q|€X, P|=-Q|=-X € P|=-X"
-	ENTRY "P|=-#X, [P|=-Q|~X] € P|=-Q|=-X"			IS ForwardOrBackward ForwardCut 0 "P|=-#X, P|=-Q|~X € P|=-Q|=-X"
-	ENTRY "P|=-Q|~X, [P|=-#X] € P|=-Q|=-X"			IS ForwardOrBackward ForwardCut 1 "P|=-#X, P|=-Q|~X € P|=-Q|=-X"
+	ENTRY "P|È#X, [P|ÈQ|~X] € P|ÈQ|ÈX"			IS ForwardOrBackward ForwardCut 0 "P|È#X, P|ÈQ|~X € P|ÈQ|ÈX"
+	ENTRY "P|ÈQ|€X, [P|ÈQ|ÈX] € P|ÈX"			IS ForwardOrBackward ForwardCut 0 "P|ÈQ|€X, P|ÈQ|ÈX € P|ÈX"
+	ENTRY "P|È#X, [P|ÈQ|~X] € P|ÈQ|ÈX"			IS ForwardOrBackward ForwardCut 0 "P|È#X, P|ÈQ|~X € P|ÈQ|ÈX"
+	ENTRY "P|ÈQ|~X, [P|È#X] € P|ÈQ|ÈX"			IS ForwardOrBackward ForwardCut 1 "P|È#X, P|ÈQ|~X € P|ÈQ|ÈX"
 END
 
 MENU "<|"
-	ENTRY "P<|{X}K, [P|=-(Q,P)ÍK] € P|=-Q|~X"	IS ForwardOrBackward ForwardCut 1 "P|=-(Q,P)ÍK, P<|{X}K € P|=-Q|~X"
-	ENTRY "P<|{X}K¯, [P|=-QÿK] € P|=-Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|=-QÿK, P<|{X}K¯ € P|=-Q|~X"
-	ENTRY " P<|<X>Y, [P|=-(P,Q)üY] € P|=-Q|~X"	IS ForwardOrBackward ForwardCut 1 "P|=-(P,Q)üY, P<|<X>Y € P|=-Q|~X"
+	ENTRY "P<|{X}K, [P|È(Q,P)ÍK] € P|ÈQ|~X"	IS ForwardOrBackward ForwardCut 1 "P|È(Q,P)ÍK, P<|{X}K € P|ÈQ|~X"
+	ENTRY "P<|{X}K¯, [P|ÈQÿK] € P|ÈQ|~X"		IS ForwardOrBackward ForwardCut 1 "P|ÈQÿK, P<|{X}K¯ € P|ÈQ|~X"
+	ENTRY " P<|<X>Y, [P|È(P,Q)üY] € P|ÈQ|~X"	IS ForwardOrBackward ForwardCut 1 "P|È(P,Q)üY, P<|<X>Y € P|ÈQ|~X"
 	SEPARATOR
 	ENTRY "P<|(...,X,...) € P<|X" 				IS ForwardOrBackward ForwardCut 0 "P<|(...,X,...) € P<|X"
 	ENTRY "P<|<X>Y € P<|X" 				IS ForwardOrBackward ForwardCut 0 "P<|<X>Y € P<|X"
-	ENTRY "P<|{X}K, [P|=-(P,Q)ÍK] € P<|X"		IS ForwardOrBackward ForwardCut 1 "P|=-(P,Q)ÍK, P<|{X}K € P<|X"
-	ENTRY "P<|{X}K, [P|=-PÿK] € P<|X"			IS ForwardOrBackward ForwardCut 1 "P|=-PÿK, P<|{X}K € P<|X"
-	ENTRY "P<|{X}K¯, [P|=-Qÿ K] € P<|X"		IS ForwardOrBackward ForwardCut 1 "P|=-Qÿ K, P<|{X}K¯ € P<|X"
+	ENTRY "P<|{X}K, [P|È(P,Q)ÍK] € P<|X"		IS ForwardOrBackward ForwardCut 1 "P|È(P,Q)ÍK, P<|{X}K € P<|X"
+	ENTRY "P<|{X}K, [P|ÈPÿK] € P<|X"			IS ForwardOrBackward ForwardCut 1 "P|ÈPÿK, P<|{X}K € P<|X"
+	ENTRY "P<|{X}K¯, [P|ÈQÿ K] € P<|X"		IS ForwardOrBackward ForwardCut 1 "P|ÈQÿ K, P<|{X}K¯ € P<|X"
 	SEPARATOR
 END
 
 MENU "|~"
-	ENTRY "P|=-Q|~X, [P|=-#X] € P|=-Q|=-X"			IS ForwardOrBackward ForwardCut 1 "P|=-#X, P|=-Q|~X € P|=-Q|=-X"
+	ENTRY "P|ÈQ|~X, [P|È#X] € P|ÈQ|ÈX"			IS ForwardOrBackward ForwardCut 1 "P|È#X, P|ÈQ|~X € P|ÈQ|ÈX"
 	SEPARATOR
-	ENTRY "P|=-Q|~(...,X,...) € P|=-Q|~X"			IS ForwardOrBackward ForwardCut 0 "P|=-Q|~(...,X,...) € P|=-Q|~X"
+	ENTRY "P|ÈQ|~(...,X,...) € P|ÈQ|~X"			IS ForwardOrBackward ForwardCut 0 "P|ÈQ|~(...,X,...) € P|ÈQ|~X"
 	SEPARATOR
-	ENTRY "P<|{X}K, [P|=-(Q,P)ÍK] € P|=-Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|=-(Q,P)ÍK, P<|{X}K € P|=-Q|~X"
-	ENTRY "P<|{X}K¯, [P|=-QÿK] € P|=-Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|=-QÿK, P<|{X}K¯ € P|=-Q|~X"
-	ENTRY "P<|<X>Y, [P|=-(P,Q)üY] € P|=-Q|~X"		IS ForwardOrBackward ForwardCut 1 "P|=-(P,Q)üY, P<|<X>Y € P|=-Q|~X"
+	ENTRY "P<|{X}K, [P|È(Q,P)ÍK] € P|ÈQ|~X"		IS ForwardOrBackward ForwardCut 1 "P|È(Q,P)ÍK, P<|{X}K € P|ÈQ|~X"
+	ENTRY "P<|{X}K¯, [P|ÈQÿK] € P|ÈQ|~X"		IS ForwardOrBackward ForwardCut 1 "P|ÈQÿK, P<|{X}K¯ € P|ÈQ|~X"
+	ENTRY "P<|<X>Y, [P|È(P,Q)üY] € P|ÈQ|~X"		IS ForwardOrBackward ForwardCut 1 "P|È(P,Q)üY, P<|<X>Y € P|ÈQ|~X"
 END
 
 MENU "|€"
-	ENTRY "P|=-Q|€X, [P|=-Q|=-X] € P|=-X"			IS ForwardOrBackward ForwardCut 0 "P|=-Q|€X, P|=-Q|=-X € P|=-X"
+	ENTRY "P|ÈQ|€X, [P|ÈQ|ÈX] € P|ÈX"			IS ForwardOrBackward ForwardCut 0 "P|ÈQ|€X, P|ÈQ|ÈX € P|ÈX"
 END
 
 MENU "ü"
-	ENTRY "P|=-(P,Q)üY, [P<|<X>Y] € P|=-Q|~X"		IS ForwardOrBackward ForwardCut 0 "P|=-(P,Q)üY, P<|<X>Y € P|=-Q|~X"
+	ENTRY "P|È(P,Q)üY, [P<|<X>Y] € P|ÈQ|~X"		IS ForwardOrBackward ForwardCut 0 "P|È(P,Q)üY, P<|<X>Y € P|ÈQ|~X"
 	SEPARATOR
-	ENTRY "P|=-(R,R')üK € P|=-(R',R)üK"			IS ForwardOrBackward ForwardCut 0 "P|=-(R,R')üK € P|=-(R',R)üK"	
-	ENTRY "P|=-Q|=-(R,R')üK € P|=-Q|=-(R',R)üK"		IS ForwardOrBackward ForwardCut 0 "P|=-Q|=-(R,R')üK € P|=-Q|=-(R',R)üK"
+	ENTRY "P|È(R,R')üK € P|È(R',R)üK"			IS ForwardOrBackward ForwardCut 0 "P|È(R,R')üK € P|È(R',R)üK"	
+	ENTRY "P|ÈQ|È(R,R')üK € P|ÈQ|È(R',R)üK"		IS ForwardOrBackward ForwardCut 0 "P|ÈQ|È(R,R')üK € P|ÈQ|È(R',R)üK"
 END
 
 MENU "ÿ"
-	ENTRY "P|=-QÿK, [P<|{X}K¯] € P|=-Q|~X"		IS ForwardOrBackward ForwardCut  0 "P|=-QÿK, P<|{X}K¯ € P|=-Q|~X"
-	ENTRY "P|=-PÿK, [P<|{X}K] € P<|X"			IS ForwardOrBackward ForwardCut 0 "P|=-PÿK, P<|{X}K € P<|X"
-	ENTRY "P|=-Qÿ K, [P<|{X}K¯] € P<|X"			IS ForwardOrBackward ForwardCut 0 "P|=-Qÿ K, P<|{X}K¯ € P<|X"
+	ENTRY "P|ÈQÿK, [P<|{X}K¯] € P|ÈQ|~X"		IS ForwardOrBackward ForwardCut  0 "P|ÈQÿK, P<|{X}K¯ € P|ÈQ|~X"
+	ENTRY "P|ÈPÿK, [P<|{X}K] € P<|X"			IS ForwardOrBackward ForwardCut 0 "P|ÈPÿK, P<|{X}K € P<|X"
+	ENTRY "P|ÈQÿ K, [P<|{X}K¯] € P<|X"			IS ForwardOrBackward ForwardCut 0 "P|ÈQÿ K, P<|{X}K¯ € P<|X"
 END
 
 MENU "Í"
-	ENTRY "P|=-(Q,P)ÍK, [P<|{X}K] € P|=-Q|~X"		IS ForwardOrBackward ForwardCut 0 "P|=-(Q,P)ÍK, P<|{X}K € P|=-Q|~X"
-	ENTRY "P|=-(P,Q)ÍK, [P<|{X}K] € P<|X"		IS ForwardOrBackward ForwardCut 0 "P|=-(P,Q)ÍK, P<|{X}K € P<|X"
+	ENTRY "P|È(Q,P)ÍK, [P<|{X}K] € P|ÈQ|~X"		IS ForwardOrBackward ForwardCut 0 "P|È(Q,P)ÍK, P<|{X}K € P|ÈQ|~X"
+	ENTRY "P|È(P,Q)ÍK, [P<|{X}K] € P<|X"		IS ForwardOrBackward ForwardCut 0 "P|È(P,Q)ÍK, P<|{X}K € P<|X"
 	SEPARATOR
-	ENTRY "P|=-(R,R')ÍK € P|=-(R',R)ÍK"		IS ForwardOrBackward ForwardCut 0 "P|=-(R,R')ÍK € P|=-(R',R)ÍK"
-	ENTRY "P|=-Q|=-(R,R')ÍK € P|=-Q|=-(R',R)ÍK"	IS ForwardOrBackward ForwardCut 0 "P|=-Q|=-(R,R')ÍK € P|=-Q|=-(R',R)ÍK"
+	ENTRY "P|È(R,R')ÍK € P|È(R',R)ÍK"		IS ForwardOrBackward ForwardCut 0 "P|È(R,R')ÍK € P|È(R',R)ÍK"
+	ENTRY "P|ÈQ|È(R,R')ÍK € P|ÈQ|È(R',R)ÍK"	IS ForwardOrBackward ForwardCut 0 "P|ÈQ|È(R,R')ÍK € P|ÈQ|È(R',R)ÍK"
 END
 
 MENU "#"
-	ENTRY "P|=-#X, [P|=-Q|~X] € P|=-Q|=-X"			IS ForwardOrBackward ForwardCut 0 "P|=-#X, P|=-Q|~X € P|=-Q|=-X"
+	ENTRY "P|È#X, [P|ÈQ|~X] € P|ÈQ|ÈX"			IS ForwardOrBackward ForwardCut 0 "P|È#X, P|ÈQ|~X € P|ÈQ|ÈX"
 	SEPARATOR
-	ENTRY "P|=-#X € P|=-#(...,X,...)"				IS ForwardOrBackward ForwardCut 0 "P|=-#X € P|=-#(...,X,...)"
+	ENTRY "P|È#X € P|È#(...,X,...)"				IS ForwardOrBackward ForwardCut 0 "P|È#X € P|È#(...,X,...)"
 END
 
 MENU Logic 
-        ENTRY "P|=-Ëx.X(x) € P|=-X(Y)"				IS ForwardOrBackward ForwardCut 0 "P|=-Ëx.X(x) € P|=-X(Y)"
+        ENTRY "P|ÈËx.X(x) € P|ÈX(Y)"				IS ForwardOrBackward ForwardCut 0 "P|ÈËx.X(x) € P|ÈX(Y)"
         SEPARATOR
 	ENTRY hyp
 END
