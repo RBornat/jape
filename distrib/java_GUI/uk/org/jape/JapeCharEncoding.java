@@ -161,7 +161,7 @@ public class JapeCharEncoding implements DebugConstants {
 //          fatsemicolon                     leq                  subset                subseteq
                   0x227a,                 0x227c,                 0x2208,                 0x2261,
 //              precedes                  preceq                     elt                     eqv
-                  0x2982,                 0x2285,                 0x2283,                 0x2287,
+                  0x2982,                 0x2265,                 0x2283,                 0x2287,
 //              fatcolon                     geq                superset                supseteq
                   0x227c,                 0x227d,                 0x2209,                 0x2259,
 //               follows                  folleq                  notelt                 defines
@@ -175,19 +175,19 @@ public class JapeCharEncoding implements DebugConstants {
 //               diamond                     glb                     cap          up_spear_right
                   0x2308,                 0x230a,                 0x2248,                 0x25b3,
 //              leftceil               leftfloor                approxeq              triangleup
-                  0x2282,                 0x2a64,                 0x228f,                 0x2291,
-//           restrictdom           corestrictdom                   sqsub                 sqsubeq
-                  0x2309,                 0x230b,                 0x00b8,                 0x25bd,
+                  0x22B2,                 0x22B4,                 0x228f,                 0x2291,
+//           restrictdom           corestrictdom  (2a64)           sqsub                 sqsubeq
+                  0x2309,                 0x230b,                 0x00f7,                 0x25bd,
 //             rightceil              rightfloor                division            triangledown
-                  0x2283,                 0x2a65,                 0x2290,                 0x2292,
-//           restrictran           corestrictran                   sqsup                 sqsupeq
+                  0x22B3,                 0x22B5,                 0x2290,                 0x2292,
+//           restrictran           corestrictran  (2a65)           sqsup                 sqsupeq
                   0x2322,                 0x21d1,                 0x219b,                 0x21a6,
 //                append                   upimp                 redleft                  mapsto
-                  0x2260,                 0x22a1,                 0x00ac,                 0x2295,
+                  0x2260,                 0x2395,                 0x00ac,                 0x2295,
 //                   neq               boxsquare              false_that              circleplus
                   0x2323,                 0x21d3,                 0x219a,                 0x2284,
 //             slurbelow                 downimp                redright               notsubset
-                  0x2218,                 0x2afe,                 0x2713,                 0x2297,
+                  0x2218,                 0x2337,                 0x2713,                 0x2297,
 //           circlesmall                 boxthin                    tick             circletimes
                   0x2225,                 0x228e,                 0x2205,                 0x21f8,
 //             doublebar                bagunion                emptyset              partialfun
@@ -430,6 +430,8 @@ public class JapeCharEncoding implements DebugConstants {
     setmap(0xfb01, 0x27e7); // white right square bracket (semantic ket) (301b may be preferable)
     setmap(0xfb02, 0x2229); // intersection
 */
+
+
 
 
 
