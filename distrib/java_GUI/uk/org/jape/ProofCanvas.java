@@ -28,7 +28,7 @@
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
-public class ProofCanvas extends JapeCanvas {
+public class ProofCanvas extends JapeCanvas implements ProtocolConstants, SelectionConstants {
 
     public ProofCanvas() { super(); }
 
@@ -45,13 +45,13 @@ public class ProofCanvas extends JapeCanvas {
             if (c instanceof DisplayItem && c instanceof SelectableItem) {
                 byte selclass;
                 switch (((SelectableItem)c).getSelkind()) {
-                    case SelectionConstants.NoSel    : continue;
-                    case SelectionConstants.HypSel   : selclass = ProtocolConstants.HypTextItem; break;
-                    case SelectionConstants.ConcSel  : selclass = ProtocolConstants.ConcTextItem; break;
-                    case SelectionConstants.ReasonSel: selclass = ProtocolConstants.ReasonTextItem; break;
-                    default                          : Alert.abort("ProofCanvas.getSelections selkind="+
-                                                                   ((SelectableItem)c).getSelkind());
-                                                       selclass=0; // shut up compiler
+                    case NoSel    : continue;
+                    case HypSel   : selclass = HypTextItem; break;
+                    case ConcSel  : selclass = ConcTextItem; break;
+                    case ReasonSel: selclass = ReasonTextItem; break;
+                    default       : Alert.abort("ProofCanvas.getSelections selkind="+
+                                                ((SelectableItem)c).getSelkind());
+                                    selclass=NoSel; // shut up compiler
                 }
                 String s1 = ((DisplayItem)c).idX+" "+((DisplayItem)c).idY+" "+selclass+"\n";
                 if (s==null)

@@ -35,18 +35,16 @@ public class ReasonItem extends SelectableProofItem {
     }
 
     public void clicked(byte eventKind, MouseEvent e) {
-        canvas.killSelections((byte)(SelectionConstants.ReasonSel |
-                                     SelectionConstants.HypSel |
-                                     SelectionConstants.ConcSel));
+        canvas.killSelections((byte)(ReasonSel | HypSel | ConcSel));
         doClick();
     }
 
     private void doClick() {
-        selectionRect.setSelkind(SelectionConstants.ReasonSel);
+        selectionRect.setSelkind(ReasonSel);
     }
 
     public void select(byte selkind) {
-        if (selkind==SelectionConstants.ReasonSel)
+        if (selkind==ReasonSel)
             doClick();
         else
             Alert.abort("ReasonItem.select selkind="+selkind);

@@ -32,7 +32,9 @@ import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.awt.Point;
 
-public abstract class JapeCanvas extends ContainerWithOrigin implements Viewportable {
+public abstract class JapeCanvas extends ContainerWithOrigin
+                                 implements Viewportable,
+                                            SelectionConstants {
 
     protected JapeCanvas() {
         super();
@@ -57,12 +59,12 @@ public abstract class JapeCanvas extends ContainerWithOrigin implements Viewport
     // click on canvas kills selections
     protected void clicked(byte eventKind, MouseEvent e) {
         switch (eventKind) {
-            case SelectionConstants.Selection:
+            case Selection:
                 killSelections((byte)0xFF);
                 break;
-            case SelectionConstants.ExtendedSelection:
-            case SelectionConstants.DisjointSelection:
-            case SelectionConstants.ExtendedDisjointSelection:
+            case ExtendedSelection:
+            case DisjointSelection:
+            case ExtendedDisjointSelection:
                 break;
             default:
                 Alert.abort("JapeCanvas.click eventKind="+eventKind);
@@ -73,12 +75,12 @@ public abstract class JapeCanvas extends ContainerWithOrigin implements Viewport
     protected void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
         if (isClick) {
             switch (eventKind) {
-                case SelectionConstants.TextSelection:
-                case SelectionConstants.ExtendedTextSelection:
+                case TextSelection:
+                case ExtendedTextSelection:
                     killTextSelections(null);
                     break;
-                case SelectionConstants.DisjointTextSelection:
-                case SelectionConstants.ExtendedDisjointTextSelection:
+                case DisjointTextSelection:
+                case ExtendedDisjointTextSelection:
                     break;
                 default:
                     Alert.abort("JapeCanvas.textreleased eventKind="+eventKind);

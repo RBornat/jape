@@ -64,4 +64,16 @@ public interface ProtocolConstants {
                              HypTextItem    = 2,
                              ReasonTextItem = 3,
                              AmbigTextItem  = 4;
+
+    /* from displayfont.mli:
+        (* Useful translation for Japeserver marshalling.
+         *
+         *  ProofPane = 0
+         *  DisproofPane = 1
+         *
+         *)
+        */
+
+    public static final byte ProofPaneNum = 0, DisproofPaneNum = 1;
+    
 }

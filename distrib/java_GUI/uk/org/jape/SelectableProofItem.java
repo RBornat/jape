@@ -25,6 +25,7 @@
 
 */
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -33,7 +34,8 @@ import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 
 public abstract class SelectableProofItem extends TextSelectableItem
-                                          implements SelectableItem {
+                                          implements SelectableItem,
+                                                     ProtocolConstants {
 
     public Color selectionColour = Color.red;
     protected SelectionRect selectionRect;
@@ -56,7 +58,7 @@ public abstract class SelectableProofItem extends TextSelectableItem
     
     protected class SelectionRect extends Component {
         public byte selkind;
-        private final int left = 0, top = 0, right, bottom, selectionthickness;
+        private int left, top, right, bottom, selectionthickness;
 
         SelectionRect() {
             super();
@@ -65,13 +67,16 @@ public abstract class SelectableProofItem extends TextSelectableItem
             bounds.grow(inset,inset);
             setBounds(bounds);
             selectionthickness = canvas.linethickness;
-            right = bounds.width-selectionthickness; bottom = bounds.height-selectionthickness;
             canvas.add(this);
         }
 
         // Java doesn't support wide lines, says the 1.1 docs ...
         protected void paintBox(Graphics g) {
-            g.drawRect(left,top, right,bottom);
+            // drawLine seems to work more nicely ...
+            //g.drawRect(left,top, right,bottom);
+            paintHoriz(g,top);
+            paintHoriz(g,bottom);
+            paintSides(g);
         }
 
         protected void paintSides(Graphics g) {
@@ -96,6 +101,8 @@ public abstract class SelectableProofItem extends TextSelectableItem
             g.drawLine(righthook,y, right,y);
         }
 
+        private boolean stroked;
+        
         public void paint(Graphics g) {
             /*  At present we have two selection styles.  Reasons, and all formulae in tree style,
             are selected by surrounding them with a box.  In box style hyps get a selection
@@ -105,40 +112,53 @@ public abstract class SelectableProofItem extends TextSelectableItem
             dotted line.
             */
 
-            g.setColor(selectionColour);
+            if (selkind!=NoSel) {
+                g.setColor(selectionColour);
 
-            switch (selkind) {
-                case SelectionConstants.NoSel:
-                    break;
+                if (g instanceof Graphics2D) {
+                    BasicStroke stroke = new BasicStroke((float)selectionthickness);
+                    ((Graphics2D)g).setStroke(stroke);
+                    left = top = selectionthickness/2; // experiment
+                    right = getWidth()-(selectionthickness-selectionthickness/2);
+                    bottom = getHeight()-(selectionthickness-selectionthickness/2);
+                    stroked = true;
+                }
+                else {
+                    right = getWidth()-1; bottom = getHeight()-1;
+                    stroked = false;
+                }
 
-                case SelectionConstants.ReasonSel:
-                    paintBox(g); break;
+                switch (selkind) {
+                    case ReasonSel:
+                        paintBox(g); break;
 
-                case SelectionConstants.HypSel:
-                    if (canvas.proofStyle==ProtocolConstants.BoxStyle) {
-                        paintSides(g); paintHoriz(g, top); paintHooks(g, bottom);
-                    }
-                    else 
-                        paintBox(g);
-                    break;
-                    
-                case SelectionConstants.HypSel | SelectionConstants.AmbigSel:
-                    paintSides(g); paintDotted(g, top); paintHooks(g, bottom); break;
+                    case HypSel:
+                        if (canvas.proofStyle==BoxStyle) {
+                            paintSides(g); paintHoriz(g, top); paintHooks(g, bottom);
+                        }
+                        else
+                            paintBox(g);
+                        break;
 
-                case SelectionConstants.ConcSel:
-                    if (canvas.proofStyle==ProtocolConstants.BoxStyle) {
-                        paintSides(g); paintHoriz(g, bottom); paintHooks(g, top);
-                    }
-                    else 
-                        paintBox(g);
-                    break;
-                    
-                case SelectionConstants.ConcSel | SelectionConstants.AmbigSel:
-                    paintSides(g); paintDotted(g, bottom); paintHooks(g, top); break;
-                        
-                default:
-                    Alert.abort("SelectableProofItem.SelectionRect selkind="+selkind);
+                    case HypSel | AmbigSel:
+                        paintSides(g); paintDotted(g, top); paintHooks(g, bottom); break;
+
+                    case ConcSel:
+                        if (canvas.proofStyle==BoxStyle) {
+                            paintSides(g); paintHoriz(g, bottom); paintHooks(g, top);
+                        }
+                        else
+                            paintBox(g);
+                        break;
+
+                    case ConcSel | AmbigSel:
+                        paintSides(g); paintDotted(g, bottom); paintHooks(g, top); break;
+
+                    default:
+                        Alert.abort("SelectableProofItem.SelectionRect selkind="+selkind);
+                }
             }
+
         }
 
         public void setSelkind(byte selkind) {
@@ -146,12 +166,12 @@ public abstract class SelectableProofItem extends TextSelectableItem
         }
         
         public byte getSelkind() {
-            return (byte)(selkind&~SelectionConstants.AmbigSel);
+            return (byte)(selkind&~AmbigSel);
         }
     }
 
     public byte getSelkind() {
-        return (byte)(selectionRect.getSelkind()&~SelectionConstants.AmbigSel);
+        return (byte)(selectionRect.getSelkind()&~AmbigSel);
     }
 
     public boolean selkindOverlaps(byte selmask) {
@@ -159,6 +179,6 @@ public abstract class SelectableProofItem extends TextSelectableItem
     }
 
     public void deselect() {
-        selectionRect.setSelkind(SelectionConstants.NoSel);
+        selectionRect.setSelkind(NoSel);
     }
 }

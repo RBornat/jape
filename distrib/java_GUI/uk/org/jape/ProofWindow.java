@@ -89,17 +89,6 @@ public class ProofWindow extends JapeWindow implements ProtocolConstants {
             throw new ProtocolError("no focussed pane - drawInPane missing?");
     }
 
-    /* from displayfont.mli:
-       (* Useful translation for Japeserver marshalling.
-        *
-        *  ProofPane = 0
-        *  DisproofPane = 1
-        *
-        *)
-     */
-
-    public static final byte ProofPaneNum = 0, DisproofPaneNum = 1;
-
     private static JapeCanvas byte2JapeCanvas(byte pane, String who) throws ProtocolError {
         checkFocussedProofWindow();
         switch (pane) {

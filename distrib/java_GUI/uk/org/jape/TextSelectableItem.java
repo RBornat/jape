@@ -36,7 +36,7 @@ import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.util.Vector;
 
-public class TextSelectableItem extends TextItem {
+public class TextSelectableItem extends TextItem implements SelectionConstants {
     public Color textselectionColour = Color.yellow;
 
     public TextSelectableItem(JapeCanvas canvas, int x, int y, byte fontnum, 
@@ -248,15 +248,15 @@ public class TextSelectableItem extends TextItem {
         
     protected void textpressed(byte eventKind, MouseEvent e) {
         switch (eventKind) {
-            case SelectionConstants.TextSelection:
+            case TextSelection:
                 canvas.killTextSelections(null); // kill everybody's, including mine
-            case SelectionConstants.DisjointTextSelection: // don't kill any text selections?
+            case DisjointTextSelection: // don't kill any text selections?
                 newTextSel(e);
                 break;
                 
-            case SelectionConstants.ExtendedTextSelection:
+            case ExtendedTextSelection:
                 canvas.killTextSelections(this); // kill everybody else's
-            case SelectionConstants.ExtendedDisjointTextSelection:
+            case ExtendedDisjointTextSelection:
                 ensureTextSelectionVars();
                 if (textsels.size()==0)
                     newTextSel(e);

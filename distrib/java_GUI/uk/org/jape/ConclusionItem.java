@@ -35,16 +35,16 @@ public class ConclusionItem extends SelectableProofItem {
     }
 
     public void clicked(byte eventKind, MouseEvent e) {
-        canvas.killSelections((byte)(SelectionConstants.ReasonSel | SelectionConstants.ConcSel));
+        canvas.killSelections((byte)(ReasonSel | ConcSel));
         doClick();
     }
 
     private void doClick() {
-        selectionRect.setSelkind(SelectionConstants.ConcSel);
+        selectionRect.setSelkind(ConcSel);
     }
 
     public void select(byte selkind) {
-        if (selkind==SelectionConstants.ConcSel)
+        if (selkind==ConcSel)
             doClick();
         else
             Alert.abort("ConclusionItem.select selkind="+selkind);

@@ -69,7 +69,8 @@ import java.awt.event.MouseEvent;
     reason for the original design ...
  */
 
-public class MouseInteractionAdapter implements MouseInteractionListener {
+public class MouseInteractionAdapter implements MouseInteractionListener,
+                                                SelectionConstants {
     // you get a click event if you press the mouse at a particular point, move it and then
     // move back to the same point!  Well blow me down: we're not having that.
 
@@ -98,14 +99,14 @@ public class MouseInteractionAdapter implements MouseInteractionListener {
     
     public final void mousePressed(MouseEvent e) {
         eventKind = LocalSettings.mouseDownKind(e);
-        if ((eventKind&SelectionConstants.TextSelMask)!=0)
+        if ((eventKind&TextSelMask)!=0)
             textpressed(eventKind, e);
         else
             pressed(eventKind, e);
     }
     
     public final void mouseReleased(MouseEvent e) {
-        if ((eventKind&SelectionConstants.TextSelMask)!=0)
+        if ((eventKind&TextSelMask)!=0)
             textreleased(eventKind, !dragSeen, e);
         else
         if (dragSeen)
@@ -127,7 +128,7 @@ public class MouseInteractionAdapter implements MouseInteractionListener {
 
     public final void mouseDragged(MouseEvent e) {
         dragSeen = true;
-        if ((eventKind&SelectionConstants.TextSelMask)!=0)
+        if ((eventKind&TextSelMask)!=0)
             textdragged(eventKind, e);
         else
             dragged(eventKind, e);

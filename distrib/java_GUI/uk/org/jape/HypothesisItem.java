@@ -36,14 +36,14 @@ public class HypothesisItem extends SelectableProofItem {
     
     public void clicked(byte eventKind, MouseEvent e) {
         switch (eventKind) {
-            case SelectionConstants.Selection:
-                canvas.killSelections((byte)(SelectionConstants.ReasonSel | SelectionConstants.HypSel));
+            case Selection:
+                canvas.killSelections((byte)(ReasonSel | HypSel));
                 doClick();
                 break;
-            case SelectionConstants.ExtendedSelection:
-            case SelectionConstants.DisjointSelection:
-            case SelectionConstants.ExtendedDisjointSelection:
-                canvas.killSelections(SelectionConstants.ReasonSel);
+            case ExtendedSelection:
+            case DisjointSelection:
+            case ExtendedDisjointSelection:
+                canvas.killSelections(ReasonSel);
                 doClick();
                 break;
             default:
@@ -52,11 +52,11 @@ public class HypothesisItem extends SelectableProofItem {
     }
 
     private void doClick() {
-        selectionRect.setSelkind(SelectionConstants.HypSel);
+        selectionRect.setSelkind(HypSel);
     }
 
     public void select(byte selkind) {
-        if (selkind==SelectionConstants.HypSel)
+        if (selkind==HypSel)
             doClick();
         else
             Alert.abort("HypothesisItem.select selkind="+selkind);
