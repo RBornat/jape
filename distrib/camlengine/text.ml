@@ -105,4 +105,4 @@ let rec measuretext measure c =
     Textlayout (List.map (fun (xy, (f, s)) -> pos xy, f, s) (List.rev ss))
 let rec textlayoutOffset =
   fun (Textlayout ts) pos ->
-    Textlayout (List.map (fun (p, f, s) -> ( +->+ ) (pos, p), f, s) ts)
+    Textlayout (List.map (fun (p, f, s) -> pos +->+ p, f, s) ts)

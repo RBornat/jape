@@ -106,11 +106,9 @@ val listen : unit -> string
 val terminate : unit -> unit
 val closedown : unit -> unit
 val killserver : unit -> unit
-val drawLine : box -> unit
-(* top right to bottom left, staying within the box, 
-                                using linethickness from setproofparams
-                              *)
-val drawRect : box -> unit (* just inside the box, using linethickness from setproofparams *)
+
+val drawLine   : pos -> pos -> unit (* don't extend beyond pos2; use linethickness from setproofparams *)
+val drawRect   : box -> unit        (* stay inside the box; use linethickness from setproofparams *)
 
 val serverpid  : process_id option ref
 val servername : string ref

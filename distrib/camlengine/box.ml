@@ -39,12 +39,12 @@ let nulltextsize = Textsize (0, 0, 0)
 let emptybox = Box (origin, nullsize)
 let emptytextbox = Textbox (origin, nulltextsize)
 
-let rec downby = fun (Pos (x, y), h) -> Pos (x, y + h)
+let rec downby  = fun (Pos (x, y), h) -> Pos (x, y + h)
 let rec rightby = fun (Pos (x, y), w) -> Pos (x + w, y)
-let rec upby = fun (Pos (x, y), h) -> Pos (x, y - h)
-let rec leftby = fun (Pos (x, y), w) -> Pos (x - w, y)
-let rec ( +->+ ) = fun (Pos (x, y), Pos (w, h)) -> Pos (x + w, y + h)
-(* vector add *)
+let rec upby    = fun (Pos (x, y), h) -> Pos (x, y - h)
+let rec leftby  = fun (Pos (x, y), w) -> Pos (x - w, y)
+
+let ( +->+ ) (Pos (x, y)) (Pos (w, h)) = Pos (x + w, y + h) (* vector add *)
 let ( +<-+ ) (Pos (x, y)) (Pos (w, h)) = Pos (x - w, y - h) (* vector subtract *)
    
 let rec posX = fun (Pos (x, y)) -> x

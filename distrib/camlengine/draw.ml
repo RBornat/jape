@@ -205,7 +205,7 @@ let rec planOffset =
     Formulaplan (layout, tbOffset box pos, thing)
 let rec drawplan f p =
   fun (Formulaplan (Textlayout tl, b, info)) ->
-    Japeserver.drawmeasuredtext (f info) tl (( +->+ ) (p, tbPos b))
+    Japeserver.drawmeasuredtext (f info) tl (p +->+ tbPos b)
 let rec findfirstplanhit p =
   findfirst
     (fun pl -> if withintb (p, plantextbox pl) then Some pl else None)

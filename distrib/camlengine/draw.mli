@@ -37,11 +37,14 @@ and reason = Absprooftree.reason
 type 'a plan = Formulaplan of (textlayout * textbox * 'a)
 
 val measuretext : textalign -> text -> textsize * textlayout
+
 val drawinproofpane : unit -> unit
-val drawLine : box -> unit
-val drawBox : box -> unit
+
+val drawLine : pos -> pos -> unit
+val drawBox  : box -> unit
+
 val clearView : unit -> unit
-val viewBox : unit -> box
+val viewBox   : unit -> box
 val highlight : pos -> displayclass option -> unit
 val greyen : pos -> unit
 val blacken : pos -> unit

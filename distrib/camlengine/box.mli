@@ -53,9 +53,9 @@ val tbPos : textbox -> pos
  * that is, topright = topleft rightby width-1, botleft = topleft downby height-1,
  * and botright follows.
  *)
-val topleft : box -> pos
+val topleft  : box -> pos
 val topright : box -> pos
-val botleft : box -> pos
+val botleft  : box -> pos
 val botright : box -> pos
 
 (* operators on these types
@@ -63,15 +63,13 @@ val botright : box -> pos
            withinX withinY within withintb entirelywithin entirelywithintb
 
  *)
-val ( +-+ ) : textsize * textsize -> textsize
-(* as if appending text on a line *)
-val ( +->+ ) : pos * pos -> pos
-(* as if offsetting a position right and down *)
-val ( +<-+ ) : pos -> pos -> pos (* ditto left and up *)
-val ( +||+ ) : box * box -> box
-(* find the bounding box *)
-val ( +|-|+ ) : textbox * textbox -> textbox
-(* find the bounding box - takes y pos of first argument *)
+val ( +-+ ) : textsize * textsize -> textsize (* as if appending text on a line *)
+
+val ( +->+ ) : pos -> pos -> pos              (* as if offsetting a position right and down *)
+val ( +<-+ ) : pos -> pos -> pos              (* ditto left and up *)
+
+val ( +||+ )  : box * box -> box              (* find the bounding box *)
+val ( +|-|+ ) : textbox * textbox -> textbox  (* find the bounding box - takes y pos of first argument *)
  
 val emptybox : box
 val emptytextbox : textbox

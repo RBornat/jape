@@ -272,20 +272,24 @@ let rec setinvischars
   writef "SETINVISCHARS % % % % % % % %\n"
     (List.map (fun s -> Str s) !invischars)
 
-let rec settextselectionmode m = writef "SETTEXTSELECTIONMODE %\n" [Str m]
+let rec settextselectionmode m = 
+  writef "SETTEXTSELECTIONMODE %\n" 
+           [Int (match m with
+                   "subformula" -> 0
+                 | "token"      -> 1
+                 | _ -> raise (Catastrophe_ ["Japeserver.settextselectionmode "; Stringfuns.enQuote m]))]
 
-let rec drawLine box =
-  let (pos, size) = explodeBox box in
-  let (x, y) = explodePos pos in
-  let (w, h) = explodeSize size in
-  writef "DRAWLINE % % % %\n" (List.map fInt [x; y; x + w; y])
+let rec drawLine pos1 pos2 =
+  let (x1, y1) = explodePos pos1 in
+  let (x2, y2) = explodePos pos2 in
+  writef "DRAWLINE % % % %\n" (List.map fInt [!linethickness; x1; y1; x2; y2])
 
 let rec drawRect box =
   let (pos, size) = explodeBox box in
   let (x, y) = explodePos pos in
   let (w, h) = explodeSize size in
   writef "DRAWRECT % % % % %\n"
-    (List.map fInt [!linethickness; x - 1; y - 1; x + w + 1; y + h + 1])
+    (List.map fInt [!linethickness; x; y; w; h])
 
 let rec drawinpane pane = writef "DRAWINPANE %\n" [Int (pane2int pane)]
 
@@ -300,7 +304,7 @@ let rec drawmeasuredtext class__ lines pos =
   match lines with
     [pos', font, string] ->
       let fontn = displayfont2int font in
-      drawstring (fontn, classn, string, Box.( +->+ ) (pos, pos'))
+      drawstring (fontn, classn, string, Box.(+->+) pos pos')
   | [] -> ()
   | _ ->
       raise
