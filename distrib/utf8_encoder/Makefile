@@ -9,7 +9,7 @@
 #             
 #
 
-JAVACOMPILE     = javac -verbose -encoding UTF8 
+JAVACOMPILE     = javac -source 1.4 -target 1.4 -verbose -encoding UTF8 
 
 #
 #

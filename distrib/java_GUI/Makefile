@@ -14,7 +14,7 @@ JAVABUILD       = ./BUILD
 JAVASRC         = .
 JAVA            = $(shell find $(JAVASRC) -name "*.java")
 RESOURCEFILES   = $(shell echo *.jpg *.gif)
-JAVACOMPILE     = javac -encoding UTF8 -verbose -sourcepath $(JAVASRC) -d $(JAVABUILD)
+JAVACOMPILE     = javac -source 1.4 -target 1.4 -encoding UTF8 -verbose -sourcepath $(JAVASRC) -d $(JAVABUILD)
 #
 #
 #
