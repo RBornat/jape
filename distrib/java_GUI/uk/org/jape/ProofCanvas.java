@@ -28,7 +28,7 @@
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
-public class ProofCanvas extends JapeCanvas {
+public class ProofCanvas extends JapeCanvas implements SelectionConstants {
     static final byte BoxStyle = 0,
                       TreeStyle = 1;
 
@@ -39,7 +39,7 @@ public class ProofCanvas extends JapeCanvas {
 
     public ProofCanvas() { super(); }
 
-    protected void selectionMade(SelectableTextItem item, MouseEvent event, byte selkind) {
+    protected void declareSelection(SelectableTextItem item, MouseEvent event, byte selkind) {
         switch (selkind) {
             case HypSel:
                 // policy at present is that HypSel kills all ReasonSels,
@@ -60,10 +60,25 @@ public class ProofCanvas extends JapeCanvas {
         item.select(selkind); 
     }
 
-    protected void textselectionMade(SelectableTextItem item, MouseEvent e) {
-        System.err.println("no ProofCanvas support for text selections yet");
+    protected void declareTextSelection(SelectableTextItem item, byte eventKind) {
+        switch (eventKind) {
+            case TextSelection:
+                // policy is that all text selections are killed, including current selection
+                killTextSelections(null);
+                break;
+            case ExtendedTextSelection:
+                // text selections are killed in other items
+                killTextSelections(item);
+                break;
+            case DisjointTextSelection:
+            case ExtendedDisjointTextSelection:
+                // nothing happens, I think
+                break;
+            default:
+                Alert.abort("ProofCanvas.declareTextSelection eventKind="+eventKind);
+        }
     }
-
+    
     public String getTextSelections() {
         return ""; // for now
     }
