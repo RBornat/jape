@@ -109,8 +109,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                             
                     // FONTINFO not very often
                         if (p.equals("FONTINFO")&&len==2)
-                            Reply.reply(JapeFont.getFontMetrics(
-                                    JapeFont.checkInterfaceFontnum(toByte(cmd[1]))));
+                            Reply.reply(JapeFont.getFontMetrics(JapeFont.checkInterfaceFontnum(toByte(cmd[1]))));
                         else
                         if (p.equals("FONTNAMES")&&len==1)
                             Reply.reply(JapeFont.getFontNames(Reply.stringSep));
@@ -271,8 +270,7 @@ public class Dispatcher extends Thread implements DebugConstants {
                             ProofWindow.getFocussedWindow().worldsStart();
                         else
                         if (p.equals("WORLD")&&len==4)
-                            // for the moment we ignore world colours (cmd[3])
-                            ProofWindow.getFocussedWindow().addWorld(toInt(cmd[1]), toInt(cmd[2]));
+                            ProofWindow.getFocussedWindow().addWorld(toInt(cmd[1]), toInt(cmd[2]), toBool(cmd[3]));
                         else
                         if (p.equals("WORLDLABEL")&&len==4)
                             ProofWindow.getFocussedWindow().addWorldLabel(toInt(cmd[1]), toInt(cmd[2]), cmd[3]);
@@ -282,6 +280,27 @@ public class Dispatcher extends Thread implements DebugConstants {
                         else
                         if (p.equals("WORLDSELECT")&&len==3)
                             ProofWindow.getFocussedWindow().selectWorld(toInt(cmd[1]), toInt(cmd[2]), true);
+                        else
+                        if (p.equals("DISPROOFSELECT")&&len==3)
+                            ProofWindow.getFocussedWindow().forceDisproofSelect(toInt(cmd[1]), toInt(cmd[2]));
+                        else
+                        if (p.equals("DISPROOFTEXTSELPOS")&&len==3) {
+                            list.removeAllElements();
+                            list.add(cmd[1]); list.add(cmd[2]); 
+                        }
+                        else
+                        if (p.equals("DISPROOFTEXTSEL")&&len==2)
+                            list.add(cmd[1]);
+                        else
+                        if (p.equals("DISPROOFTEXTSEL")&&len==1)
+                            list.add("");
+                        else
+                        if (p.equals("DISPROOFTEXTSELDONE")&&len==1) {
+                            int posX = toInt((String)list.remove(0));
+                            int posY = toInt((String)list.remove(0));
+                            ProofWindow.getFocussedWindow().forceDisproofTextSelection(
+                                posX, posY, (String[])list.toArray(new String[list.size()]));
+                        }
                         else
                             
                     // provisos and givens
