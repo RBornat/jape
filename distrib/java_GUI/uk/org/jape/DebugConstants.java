@@ -27,7 +27,7 @@
 
 package uk.org.jape;
 
-interface DebugConstants {
+public interface DebugConstants {
     static final public boolean anchoredpane_tracing     = false,
                                 antialias_tracing        = false,
                                 buttonlayout_tracing     = false,
