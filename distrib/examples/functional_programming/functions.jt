@@ -20,3 +20,6 @@ USE		"functions_rules.j"
 USE		"functions_menus.j"
 
 AUTOMATCH "= reflexive"
+TRANSITIVE  "= transitive"
+REFLEXIVE "= reflexive"
+
