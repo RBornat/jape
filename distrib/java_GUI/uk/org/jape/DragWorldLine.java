@@ -27,7 +27,7 @@
 
 import java.awt.Point;
 
-public class DragWorldLine extends LineComponent {
+public class DragWorldLine extends DragLine {
     public DragWorldLine(WorldItem w, int x, int y, int thickness) {
         this(w.dragCentre(), x, y, thickness);
     }
