@@ -29,6 +29,11 @@
 			children = (
 				01F12F4FFEC8CEF111DB9C8B,
 				F5E5E3BF035EE05E01A80116,
+				10F9BF62FEEDA25E11DB9C8B,
+				F5E5E7C303A79B4201A80116,
+				F5E5E7C603A79B5B01A80116,
+				F5E5E7C703A79B5B01A80116,
+				F5E5E7C803A79B5B01A80116,
 				F515B6050331D98801A80116,
 				F515B6060331D98801A80116,
 				F502FBE7035D88BC01A80116,
@@ -52,6 +57,7 @@
 				F5F50C890394DDCB01A80116,
 				F560AEE6036D799701A80116,
 				F560AEE7036D799701A80116,
+				F5E2B59F03A7982901A80116,
 				F51F6C7F036025C101A80116,
 				F5B9B5BC038B969501A80116,
 				F515B6090331D98801A80116,
@@ -60,7 +66,6 @@
 				F560AEE8036D799701A80116,
 				F57E549C038BB91A01A80116,
 				F528CB2B0307C5B501A80116,
-				10F9BF62FEEDA25E11DB9C8B,
 				F531A7B7033213F801A80116,
 				F52B56B7039D296801A80116,
 				F574B00903968EBA01A80116,
@@ -329,6 +334,7 @@
 				F569E6B5039FC3DF01A80116,
 				F5EC637B03A0B62D01A80116,
 				F5EC637E03A0BF7B01A80116,
+				F5E2B5A003A7982901A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -336,6 +342,10 @@
 		1601BCDEFEEE210811DB9C8B = {
 			buildActionMask = 2147483647;
 			files = (
+				F5E5E7C403A79B4201A80116,
+				F5E5E7C903A79B5B01A80116,
+				F5E5E7CA03A79B5B01A80116,
+				F5E5E7CB03A79B5B01A80116,
 			);
 			isa = PBXJavaArchiveBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1312,6 +1322,7 @@
 				F569E6B6039FC3DF01A80116,
 				F5EC637C03A0B62D01A80116,
 				F5EC637F03A0BF7B01A80116,
+				F5E2B5A103A7982901A80116,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1320,6 +1331,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F5AB83260339F40E01A80116,
+				F5E5E7C503A79B4201A80116,
+				F5E5E7CC03A79B5B01A80116,
+				F5E5E7CD03A79B5B01A80116,
+				F5E5E7CE03A79B5B01A80116,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1627,6 +1642,24 @@
 			settings = {
 			};
 		};
+		F5E2B59F03A7982901A80116 = {
+			isa = PBXFileReference;
+			name = Images.java;
+			path = ../../java_japeserver/Images.java;
+			refType = 2;
+		};
+		F5E2B5A003A7982901A80116 = {
+			fileRef = F5E2B59F03A7982901A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E2B5A103A7982901A80116 = {
+			fileRef = F5E2B59F03A7982901A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		F5E5E3B9035ED1EE01A80116 = {
 			fileRef = F516FFB9031F825B01A80117;
 			isa = PBXBuildFile;
@@ -1671,6 +1704,82 @@
 		};
 		F5E5E3E5035F171101A80116 = {
 			fileRef = F5E5E3E2035F171101A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E5E7C303A79B4201A80116 = {
+			isa = PBXFileReference;
+			name = japelogo.gif;
+			path = ../../java_japeserver/japelogo.gif;
+			refType = 2;
+		};
+		F5E5E7C403A79B4201A80116 = {
+			fileRef = F5E5E7C303A79B4201A80116;
+			isa = PBXBuildFile;
+			settings = {
+				JAVA_ARCHIVE_SUBDIR = "";
+			};
+		};
+		F5E5E7C503A79B4201A80116 = {
+			fileRef = F5E5E7C303A79B4201A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E5E7C603A79B5B01A80116 = {
+			isa = PBXFileReference;
+			name = wastebin_disabled.jpg;
+			path = ../../java_japeserver/wastebin_disabled.jpg;
+			refType = 2;
+		};
+		F5E5E7C703A79B5B01A80116 = {
+			isa = PBXFileReference;
+			name = wastebin_enabled.jpg;
+			path = ../../java_japeserver/wastebin_enabled.jpg;
+			refType = 2;
+		};
+		F5E5E7C803A79B5B01A80116 = {
+			isa = PBXFileReference;
+			name = wastebin_selected.jpg;
+			path = ../../java_japeserver/wastebin_selected.jpg;
+			refType = 2;
+		};
+		F5E5E7C903A79B5B01A80116 = {
+			fileRef = F5E5E7C603A79B5B01A80116;
+			isa = PBXBuildFile;
+			settings = {
+				JAVA_ARCHIVE_SUBDIR = "";
+			};
+		};
+		F5E5E7CA03A79B5B01A80116 = {
+			fileRef = F5E5E7C703A79B5B01A80116;
+			isa = PBXBuildFile;
+			settings = {
+				JAVA_ARCHIVE_SUBDIR = "";
+			};
+		};
+		F5E5E7CB03A79B5B01A80116 = {
+			fileRef = F5E5E7C803A79B5B01A80116;
+			isa = PBXBuildFile;
+			settings = {
+				JAVA_ARCHIVE_SUBDIR = "";
+			};
+		};
+		F5E5E7CC03A79B5B01A80116 = {
+			fileRef = F5E5E7C603A79B5B01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E5E7CD03A79B5B01A80116 = {
+			fileRef = F5E5E7C703A79B5B01A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E5E7CE03A79B5B01A80116 = {
+			fileRef = F5E5E7C803A79B5B01A80116;
 			isa = PBXBuildFile;
 			settings = {
 			};
