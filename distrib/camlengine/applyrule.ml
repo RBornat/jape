@@ -317,7 +317,7 @@ let rec offerChoice ps =
           (implode
              ["The "; kind; " "; step_label how; " matches in ";
               numwords (List.length ps); " different ways. ";
-              "Select an instance of the "; kind; " from this menu: "],
+              "Select one from this list: "],
            (listposs <* ps))
       with
         None -> failOffering (); None
