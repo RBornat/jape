@@ -75,23 +75,9 @@ let rec string_of_japevar v =
 
 let rec guardedjapevar g v =
   GuardedJapevar {guard = g; var = v}
-let rec bad vals = "one of " ^ liststring2 (fun s -> s) ", " " and " vals
-let rec setjapevar =
-  function
-    Japevar {vals = vals; set = set}, v ->
-      begin match vals with
-        Some vals ->
-          if member (v, vals) then set v
-          else raise (OutOfRange_ (bad vals))
-      | None -> set v
-      end
-  | GuardedJapevar {guard = guard; var = var}, v ->
-      if guard () then setjapevar (var, v) else raise ReadOnly_
-let rec resetvar =
-  function
-    Japevar {init = init; set = set} as var -> setjapevar (var, init)
-  | GuardedJapevar {guard = guard; var = var} ->
-      if guard () then resetvar var else raise ReadOnly_
+
+let bad vals = "one of " ^ liststring2 (fun s -> s) ", " " and " vals
+
 let rec getjapevar =
   function
     Japevar {vals = vals; get = get} ->
@@ -102,6 +88,26 @@ let rec getjapevar =
       | None -> v
       end
   | GuardedJapevar {var = var} -> getjapevar var
+
+let rec setjapevar =
+  function
+    Japevar {vals = vals; set = set}, v ->
+      begin match vals with
+        Some vals ->
+          if member (v, vals) then set v
+          else raise (OutOfRange_ (bad vals))
+      | None -> set v
+      end
+  | GuardedJapevar {guard = guard; var = var}, v ->
+      if guard () then setjapevar (var, v) else 
+      try if getjapevar var=v then () else raise ReadOnly_ with _ -> raise ReadOnly_
+
+let rec resetvar =
+  function
+    Japevar {init = init; set = set} as var -> setjapevar (var, init)
+  | GuardedJapevar {guard = guard; var = var} ->
+      if guard () then resetvar var else raise ReadOnly_
+
 let rec japevar_range =
   function
     Japevar {vals = vals} ->
@@ -164,7 +170,7 @@ let rec (<@>) env name =
                (["japeenv can't parse get()=\""; getjapevar v; "\" -- "] @ rs)))
   | None -> None
 
-let rec set (env, name, value) =
+let set (env, name, value) =
   match Mappingfuns.(<@>) env name with
     Some (Envvar v) -> setjapevar (v, termstring value)
   | _ -> raise NotJapeVar_
