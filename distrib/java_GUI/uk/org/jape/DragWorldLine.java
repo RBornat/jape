@@ -43,8 +43,8 @@ public class DragWorldLine extends DragLine {
     public final boolean dragParent;
     
     public void paint(Graphics g) {
-       setForeground((dragParent ? -activey<-endy : -endy<-activey) ? Preferences.LineColour :
-								   Preferences.NoLineColour);
+       setForeground((dragParent ? -activey<-endy : -endy<-activey) ? JapePrefs.LineColour :
+								   JapePrefs.NoLineColour);
 	super.paint(g);
 	    
     }

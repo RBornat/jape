@@ -79,7 +79,7 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
 	view = null; // unnecessary, but it makes me feel better
 	setLayout(new AnchoredScrollPaneLayout());
 	super.add(hsb); super.add(vsb); super.add(viewport);
-	viewport.setBackground(Preferences.ProofBackgroundColour);
+	viewport.setBackground(JapePrefs.ProofBackgroundColour);
 	scrollbarthickness = hsb.getPreferredSize().height;
     }
 

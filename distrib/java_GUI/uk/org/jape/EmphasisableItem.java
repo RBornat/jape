@@ -50,7 +50,7 @@ public class EmphasisableItem extends TextSelectableItem {
 	
 	annoti = printi = 0; 
 	Vector cs = new Vector();
-	computeColourSegs(getannottext(), (char)0, Preferences.TextColour, false, cs, getprintlen());
+	computeColourSegs(getannottext(), (char)0, JapePrefs.TextColour, false, cs, getprintlen());
 	coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
 	if (colourseg_tracing) {
 	    String annottext = getannottext();
@@ -113,9 +113,9 @@ public class EmphasisableItem extends TextSelectableItem {
 
 	public String toString() {
 	    return "ColourSeg[colour="+
-	    (colour==Preferences.OutColour    ? "OutColour"	 :
-	     colour==Preferences.ForcedColour ? "ForcedColour"	 :
-	     colour==Preferences.TextColour   ? "Off/TextColour" :
+	    (colour==JapePrefs.OutColour    ? "OutColour"	 :
+	     colour==JapePrefs.ForcedColour ? "ForcedColour"	 :
+	     colour==JapePrefs.TextColour   ? "Off/TextColour" :
 	     "??"+colour       )+
 	    ", start="+start+
 	    ", end="+end+
@@ -128,9 +128,9 @@ public class EmphasisableItem extends TextSelectableItem {
     protected ColourSeg[] coloursegs;
 
     static Color bra2TextColour(char c) {
-	return  c==AnnotatedTextComponent.onbra	 ?  Preferences.ForcedColour    :
-		c==AnnotatedTextComponent.offbra ?  Preferences.TextColour      :
-		/* c==outbra assumed */		    Preferences.OutColour       ;
+	return  c==AnnotatedTextComponent.onbra	 ?  JapePrefs.ForcedColour    :
+		c==AnnotatedTextComponent.offbra ?  JapePrefs.TextColour      :
+		/* c==outbra assumed */		    JapePrefs.OutColour       ;
     }
 
     private void extendColourSeg(Vector cs, Color colour, int start, int end) {
@@ -202,7 +202,7 @@ public class EmphasisableItem extends TextSelectableItem {
 
 	EmphasisLine(boolean emphasised, int x1, int y1, int width) {
 	    super(EmphasisableItem.this.canvas, x1, y1, x1+width, y1);
-	    setForeground(Preferences.ForcedColour);
+	    setForeground(JapePrefs.ForcedColour);
 	    this.emphasised = emphasised;
 	}
 

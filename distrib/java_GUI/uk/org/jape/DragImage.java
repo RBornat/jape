@@ -44,7 +44,7 @@ public class DragImage extends DragComponent implements DebugConstants {
     
     public DragImage(float opacity) {
 	super();
-	setBackground(Preferences.ProofBackgroundColour);
+	setBackground(JapePrefs.ProofBackgroundColour);
 	comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity);
     }
 

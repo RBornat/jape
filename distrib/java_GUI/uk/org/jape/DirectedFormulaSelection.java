@@ -81,7 +81,7 @@ public class DirectedFormulaSelection extends RectSelection
 	if (DebugVars.paint_tracing)
 	Logger.log.println("painting DirectedFormulaSelection at "+getX()+","+getY());
 
-	setForeground(Preferences.SelectionColour);
+	setForeground(JapePrefs.SelectionColour);
 
 	switch (selectionKind) {
 	case ReasonSel: // painted as a box

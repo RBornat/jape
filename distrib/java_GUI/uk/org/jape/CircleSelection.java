@@ -45,7 +45,7 @@ public class CircleSelection extends CircleItem
 
     public void paint(Graphics g) {
 	if (selected) {
-	    setForeground(Preferences.SelectionColour);
+	    setForeground(JapePrefs.SelectionColour);
 	    super.paint(g);
 	}
     }
