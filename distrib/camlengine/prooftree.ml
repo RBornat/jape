@@ -1244,11 +1244,9 @@ module Tree : Tree with type term = Term.Type.term
             Join
               (why, how, cutnav,
                (match how with
-                  UnRule _ ->
-                    (try augargs args with
-                       _ -> args),
-                    arginf
-                | _ -> augargs args, rewinf_merge (arginf, rewinf)),
+                  UnRule _ -> (try augargs args with _ -> args), arginf
+                | Given  _ -> (try augargs args with _ -> args), arginf (* Given doesn't have args, unfortunately *)
+                | _        -> augargs args, rewinf_merge (arginf, rewinf)),
                fmt, hastipval, (augseq seq, rewinf_merge (seqinf, rewinf)),
                ((aug <* trs), rewinf_merge (trsinf, rewinf)), ress)
       in
