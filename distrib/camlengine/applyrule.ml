@@ -39,7 +39,7 @@ open Name
 open Optionfuns
 open Provisotype (* ok. RB *)
 open Proviso
-open Rewrite.Funs
+open Rewrite
 open Sml
 open Sequent.Funs
 open Sequent.Type

@@ -33,7 +33,7 @@ open Miscellaneous
 open Optionfuns
 open Provisotype (* ok, of course. RB *)
 open Proviso
-open Rewrite.Funs
+open Rewrite
 open Sequent.Type
 open Sml
 open Stringfuns

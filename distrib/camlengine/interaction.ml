@@ -73,7 +73,7 @@ let provisos = Context.Cxt.provisos
 
 let replaceelement = Termfuns.replaceelement
 
-let rewritecxt = Rewrite.Funs.rewritecxt
+let rewritecxt = Rewrite.rewritecxt
 
 let seektipselection = Miscellaneous.seektipselection
 

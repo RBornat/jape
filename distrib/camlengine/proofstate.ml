@@ -28,7 +28,7 @@ open Optionfuns
 open Prooftree.Tree
 open Prooftree.Tree.Fmttree
 open Proviso
-open Rewrite.Funs
+open Rewrite
 open Sequent.Funs
 open Sml
 open Stringfuns

@@ -42,7 +42,7 @@ open Proofstate
 open Prooftree.Tree
 open Prooftree.Tree.Fmttree
 open Proofstore
-open Rewrite.Funs
+open Rewrite
 open Runproof
 open Sequent.Funs
 open Sequent.Type
@@ -212,7 +212,7 @@ let pairs =
    "provisodebug"         , bj                         false        Proviso.provisodebug;
    "rawfmt"               , ajd                                     Prooftree.Tree.rawfmt;
    "reasonstyle"          , sj ["short"; "long"]       "long"       Prooftree.Tree.reasonstyle;
-   "rewritedebug"         , bj                         false        Rewrite.Funs.rewritedebug;
+   "rewritedebug"         , bj                         false        Rewrite.rewritedebug;
    "screenpositiondebug"  , bj                         false        Miscellaneous.screenpositiondebug;
    "seektipselection"     , bj                         true         Miscellaneous.seektipselection;
    "showallproofsteps"    , bj                         false        Prooftree.Tree.showallproofsteps;

@@ -63,7 +63,7 @@ open Optionfuns
 open Provisotype (* ok. RB *)
 open Proviso
 open Provisofuns
-open Rewrite.Funs
+open Rewrite
 open Sml
 open Stringfuns
 open Substmapfuns

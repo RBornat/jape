@@ -196,8 +196,8 @@ module Tree : Tree with type term = Termtype.term
     open Proviso
     open Provisofuns
     open Rewinf
-    open Rewrite.Funs
-    open Rewrite.Rew
+    open Rewrite
+    open Rew
     open Sequent.Funs
     open Sequent.Type
     open Sml

@@ -33,7 +33,7 @@ open Paraparam
 open Predicate
 open Proviso
 open Provisofuns
-open Rewrite.Funs
+open Rewrite
 open Sequent.Funs
 open Sequent.Type
 open Sml
