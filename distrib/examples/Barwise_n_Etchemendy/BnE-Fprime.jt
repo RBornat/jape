@@ -1,5 +1,7 @@
 /* $Id$ */
 
+FONTS "Konstanz"
+
 INITIALISE interpretpredicates true
 
 USE "BnE-Fprime_syntax.j"
