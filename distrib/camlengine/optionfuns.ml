@@ -35,10 +35,10 @@ let _Some x = Some x
 
 let rec bool_of_opt = function Some _ -> true | None -> false
 
-let rec try__ a1 a2 =
-  match a1, a2 with
-    f, Some x -> Some (f x)
-  | f, None -> None
+let rec optf f =
+  function
+    Some x -> Some (f x)
+  | None   -> None
 
 let rec somef f x =
   match f x with

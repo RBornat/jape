@@ -435,7 +435,7 @@ let rec compilepredicates isabstraction env =
   fun (Seq (st, lhs, rhs)) ->
     let f =
       compilepredicate isabstraction
-        (fun t -> try__ (fun (_, vs) -> vs) ((env <@> t)))
+        (fun t -> optf (fun (_, vs) -> vs) ((env <@> t)))
     in
     Seq (st, mapterm f lhs, mapterm f rhs)
 

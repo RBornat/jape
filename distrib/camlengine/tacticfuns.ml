@@ -990,12 +990,10 @@ let rec doCUTIN f =
         set_prooftree_cutnav wholeproof tippath (Some (- l, - r))
       in
       (* tippath is now useless *)
-      try__ (fun s -> nextGoal false (withgoal s goal))
+      optf (fun s -> nextGoal false (withgoal s goal))
         (f (withgoal
               (withtree state'' wholeproof')
-              (Some
-                 (subgoalPath wholeproof' (parentPath wholeproof' path)
-                    [- l]))))
+              (Some (subgoalPath wholeproof' (parentPath wholeproof' path) [-l]))))
     with
       FollowPath_ stuff ->
         showAlert

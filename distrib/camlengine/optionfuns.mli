@@ -51,7 +51,7 @@ val optionmap     : ('a -> 'b option) -> 'a list -> 'b list option
 val optordefault : 'a option * 'a -> 'a
 val somef : ('a -> 'a option) -> 'a -> 'a option
 val stripoption : 'a option option -> 'a option
-val try__ : ('a -> 'b) -> 'a option -> 'b option
+val optf : ('a -> 'b) -> 'a option -> 'b option
 
 (* save space when rewriting structures *)
 val option_rewrite2 : ('a -> 'a option) -> ('b -> 'b option) 

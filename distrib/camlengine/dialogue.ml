@@ -148,7 +148,7 @@ let showInputError = Symbol.showInputError
 let paragraph_of_string = Paragraph.paragraph_of_string
 let string_of_tactic = Tactic.string_of_tactic
 let string_of_term = Termstring.string_of_term
-let try__ = Optionfuns.try__
+let optf = Optionfuns.optf
 let _The = Optionfuns._The
 let _Title = Version._Title
 let uncurry2 = Miscellaneous.uncurry2
@@ -880,7 +880,7 @@ and addproofs
                 end; r);
            hist =
              WinHist {changed = false; proofhist = new_hist (withcxt state (state_cxt));
-                      disproofhist = try__ new_hist disproof};
+                      disproofhist = optf new_hist disproof};
            fromstore = fromstore} :: pinfs
   in
   nj_fold f proofs pinfs
@@ -1285,13 +1285,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "refreshdisplay", [] ->
             begin match pinfs with
-              Pinf
-                {hist =
-                   WinHist
-                     {proofhist =
-                        Hist {now = Proofstate {givens = givens}}}} ::
-              _ ->
-                setGivens givens
+              Pinf {hist = WinHist {proofhist = Hist {now = Proofstate {givens = givens}}}} :: _ 
+                -> setGivens givens
             | _ -> ()
             end;
             env, mbs, ShowBoth, pinfs
@@ -1838,7 +1833,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let proofhist = winhist_proofhist hist in
             let disproofhist = winhist_disproofhist hist in
             let proofstate = hist_now proofhist in
-            let disproof = try__ hist_now disproofhist in
+            let disproof = optf hist_now disproofhist in
             let closed () = newfocus (env, mbs, DontShow, pinfs') in
             let closeOK () = Japeserver.closeproof n; closed() in
             (* a proof can be finished in no steps.  But if it comes from store, we don't
@@ -2069,18 +2064,14 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           else
             begin match showit with
               ShowProof ->
-                doShowProof
-                  (showState displaystate proofstate !autoselect) DontShow
+                doShowProof (showState displaystate proofstate !autoselect) DontShow
             | ShowDisproof ->
-                begin match disproof with
-                  Some d -> Disproof.showdisproof d
-                | None -> Disproof.cleardisproof ()
-                end;
+                (match disproof with
+                   Some d -> Disproof.showdisproof d
+                 | None   -> Disproof.cleardisproof ());
                 env, mbs, DontShow, pinfs
             | ShowBoth ->
-                doShowProof
-                  (showState displaystate proofstate !autoselect)
-                  ShowDisproof
+                doShowProof (showState displaystate proofstate !autoselect) ShowDisproof
             | DontShow -> administer (Some displaystate)
             end
       | [] -> administer None

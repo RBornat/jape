@@ -1381,9 +1381,9 @@ module Tree : Tree with type term = Termtype.term
         f, showall, Tip _ -> None
       | f, showall, Join j -> Some (f showall j)
     let rec visible_subtrees showall =
-      try__ fst <.> joinopt (visibles showall)
+      optf fst <.> joinopt (visibles showall)
     let rec invisible_subtrees showall =
-      try__ snd <.> joinopt (visibles showall)
+      optf snd <.> joinopt (visibles showall)
 
     let rec pathtoviewpath showall t =
       fun (FmtPath ns) ->
@@ -1427,7 +1427,7 @@ module Tree : Tree with type term = Termtype.term
     (* for export *)
     let reasonstyle = ref "long"
     let visible_subtrees showall =
-      try__ (fun pts -> (snd <* pts)) <.> visible_subtrees showall
+      optf (fun pts -> (snd <* pts)) <.> visible_subtrees showall
     let rec visreason proved showall t =
       joinopt (join_visreason proved showall) t
     and join_visreason proved showall j =
@@ -1594,7 +1594,7 @@ module Tree : Tree with type term = Termtype.term
         let rec rePath (ns, x) = FmtPath ns, x
         let rec followPath t = followPath_ns t <.> dePath
         let rec onestep t =
-          try__ rePath <.> onestep_ns t <.> dePath
+          optf rePath <.> onestep_ns t <.> dePath
         let rec fakePath t = fakePath_ns [] t <.> dePath
         let rec pathPrefix t p1 p2 =
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
@@ -1626,7 +1626,7 @@ module Tree : Tree with type term = Termtype.term
         let depends = depends
         let findAnyGoal = optioncompose (fFmtPath, findAnyGoal_ns)
         let rec findRightwardsGoal skip t =
-          fun (FmtPath ns) -> try__ fFmtPath (findRightwardsGoal_ns skip t ns)
+          fun (FmtPath ns) -> optf fFmtPath (findRightwardsGoal_ns skip t ns)
         let string_of_fmt = string_of_treeformat
         let string_of_path = string_of_fmtpath
         let string_of_prooftree = string_of_prooftree string_of_fmt
@@ -1659,7 +1659,7 @@ module Tree : Tree with type term = Termtype.term
         let rec rePath (ns, x) = VisPath ns, x
         let rec followPath t = followPath_ns t <.> dePath
         let rec onestep t =
-          try__ rePath <.> onestep_ns t <.> dePath
+          optf rePath <.> onestep_ns t <.> dePath
         let rec fakePath t = fakePath_ns [] t <.> dePath
         let rec pathPrefix t p1 p2 =
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
@@ -1693,7 +1693,7 @@ module Tree : Tree with type term = Termtype.term
         let depends = depends
         let findAnyGoal = optioncompose (fVisPath, findAnyGoal_ns)
         let rec findRightwardsGoal skip t =
-          fun (VisPath ns) -> try__ fVisPath (findRightwardsGoal_ns skip t ns)
+          fun (VisPath ns) -> optf fVisPath (findRightwardsGoal_ns skip t ns)
         let string_of_fmt = string_of_visformat
         let string_of_path = string_of_vispath
         let string_of_prooftree = string_of_prooftree string_of_fmt

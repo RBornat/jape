@@ -658,9 +658,7 @@ and alignsubsts =
       let m1 = rewritesubstmap cxt m1 in
       let m2 = rewritesubstmap cxt m2 in
       let fs = facts (provisos cxt) cxt in
-      let rec try__ =
-        fun (r1, _P1, m1) ->
-          fun (r2, _P2, m2) ->
+      let rec tryalign (r1, _P1, m1) (r2, _P2, m2) =
             match vtsplit fs m1 (substmapdom m2) with
               ys, (_ :: _ as ns), [] ->
                 let _P1 = rewrite cxt _P1 in
@@ -682,8 +680,8 @@ and alignsubsts =
                 end
             | _ -> None
       in
-        (try__ (r1, _P1, m2) (r2, _P2, m2) |~~
-         (fun _ -> try__ (r2, _P2, m2) (r1, _P1, m1)))
+        (tryalign (r1, _P1, m2) (r2, _P2, m2) |~~
+         (fun _ -> tryalign (r2, _P2, m2) (r1, _P1, m1)))
 and unifycollections kind (e1s, s_of_e) cxt =
   let rec bk f = bracketedstring_of_list f "," in
   let bkels = bk (debugstring_of_element string_of_term) in

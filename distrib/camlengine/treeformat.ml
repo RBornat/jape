@@ -154,7 +154,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
       let rec f_of_l compress (fmt, tns) =
         TreeFormat
           (SimpleFormat,
-           RotatingFormat (0, [compress, fmtf fmt, try__ tnsf tns]))
+           RotatingFormat (0, [compress, fmtf fmt, optf tnsf tns]))
       in
       match l with
         HideRootLayout -> TreeFormat (HideRootFormat, DefaultFormat)
@@ -173,7 +173,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
               CompressedLayout (ly s isopt) :: layout nfs
           | (false, s, isopt) :: nfs -> NamedLayout (ly s isopt) :: layout nfs
           | [] -> []
-        and ly s isopt = term_of_string s, try__ term_of_ints isopt in
+        and ly s isopt = term_of_string s, optf term_of_ints isopt in
         let ls =
           match tff with
             DefaultFormat -> []

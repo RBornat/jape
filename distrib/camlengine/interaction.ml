@@ -68,7 +68,6 @@ let debugstring_of_element = Termstring.debugstring_of_element
 let sort = Listfuns.sort
 let take = Listfuns.take
 let string_of_term = Termstring.string_of_term
-let try__ = Optionfuns.try__
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception Selection_ = Selection.Selection_
@@ -115,16 +114,15 @@ let rec setdisplaystyle s =
 
 let rec getdisplaystyle () = !currentstylename
 
-let rec showProof =
-  fun (DisplayState {showProof = sp}) target goal cxt tree withgoal ->
-    sp tree target (if withgoal then goal else None)
+let showProof (DisplayState d) target goal cxt tree withgoal =
+    d.showProof tree target (if withgoal then goal else None)
 
 let rec showFocussedProof goal cxt tree withgoal =
   match !currentstyle with
     DisplayState {showFocussedProof = sfp} ->
       sfp tree (if withgoal then goal else None)
 
-let rec refreshProof = fun (DisplayState {refreshProof = rp}) -> rp ()
+let refreshProof (DisplayState d) = d.refreshProof ()
 
 let rec locateHit (DisplayState {locateHit = lh}) p class__ kind = (lh p class__ kind : path hit option)
 
@@ -503,26 +501,14 @@ let rec printGivens outstream givens =
         gs;
       output_string outstream ")"
 
-let rec showState displaystate =
-  fun
-    (Proofstate {cxt = cxt; tree = tree; goal = goal; target = target} as
-       state)
-    withgoal ->
-    let ds = showProof displaystate target goal cxt tree withgoal in
-    setProvisos cxt; ds
+let showState displaystate (Proofstate p) withgoal =
+    let ds = showProof displaystate p.target p.goal p.cxt p.tree withgoal in
+    setProvisos p.cxt; ds
 
-let rec printState outstream =
-  fun
-    (Proofstate
-       {cxt = cxt;
-        tree = tree;
-        givens = givens;
-        goal = goal;
-        target = target} as state)
-    withgoal ->
-    printProof outstream target goal cxt tree withgoal;
-    printGivens outstream givens;
-    printProvisos outstream cxt
+let printState outstream (Proofstate p) withgoal =
+    printProof outstream p.target p.goal p.cxt p.tree withgoal;
+    printGivens outstream p.givens;
+    printProvisos outstream p.cxt
 
 let rec alterTip
   displaystate cxt gpath tree root ((selishyp, selpath, selel), ss) =

@@ -752,7 +752,7 @@ and transLayout con fmt bopt ts =
     ["list of subtree indices expected in LAYOUT; found "; string_of_term (_The bopt)]
   in
   let bopt =
-    match try__ (checkINTS nserr) bopt with
+    match optf (checkINTS nserr) bopt with
       Some (Id (_, v, _)) as r -> 
         (match string_of_vid v with
            "ALL" -> None

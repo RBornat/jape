@@ -68,4 +68,4 @@ let rec remaptreelayout a1 a2 =
   | env, HideCutLayout -> HideCutLayout
   | env, CompressedLayout stuff -> CompressedLayout (rmtl env stuff)
   | env, NamedLayout stuff -> NamedLayout (rmtl env stuff)
-and rmtl env (fmt, tns) = remapterm env fmt, try__ (remapterm env) tns
+and rmtl env (fmt, tns) = remapterm env fmt, optf (remapterm env) tns
