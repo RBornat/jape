@@ -86,7 +86,7 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
     }
 
     protected void notifySelectionChange(DisplayItem item) {
-        if (item.getSelected())
+        if (item!=null && item.getSelected())
             notifySelect(item);
         else
             notifyDeselect();
@@ -102,27 +102,6 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
         }
     }
     
-    // not efficient, not in time order
-    public String getTextSelections(String sep) {
-        String s = null;
-        int nc = child.getComponentCount(); // oh dear ...
-        for (int i=0; i<nc; i++) {
-            Component c = child.getComponent(i); // oh dear ...
-            if (c instanceof TextSelectableItem) {
-                TextSelectableItem sti = (TextSelectableItem)c;
-                String s1 = sti.getContextualisedTextSelections();
-                if (s1!=null) {
-                    s1 = sti.idX+Reply.stringSep+sti.idY+Reply.stringSep+s1;
-                    if (s==null)
-                        s=s1;
-                    else
-                        s=s+sep+s1;
-                }
-            }
-        }
-        return s;
-    }
-
     public void killSelections(byte mask) {
         Component[] cs = child.getComponents(); // oh dear ...
         for (int i=0; i<cs.length; i++) {
