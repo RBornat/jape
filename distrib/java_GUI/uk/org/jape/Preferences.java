@@ -79,7 +79,8 @@ public class Preferences {
                 value = Byte.decode(val).byteValue();
             }
             catch (Exception e) {  // should go to GUI, but we mayn't have one yet!
-                Logger.log.println(e + " property name: " + name);
+                if (DebugConstants.preference_tracing)
+                    Logger.log.println(e + " property name: " + name);
             }
         }
             
