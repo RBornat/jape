@@ -33,7 +33,7 @@ import java.awt.Graphics;
 import java.util.HashMap;
 import javax.swing.JLabel;
 
-public class JapeFont {
+public class JapeFont implements ProtocolConstants {
 
     /* ************************
        Ascii -> Unicode translation, for fonts (such as Konstanz) which don't 
@@ -78,11 +78,11 @@ public class JapeFont {
         }
     }
 
-    public static final int MENUENTRY   = 0;
-    public static final int DIALOGLABEL = 1;
-    public static final int PROOFPANEL  = 2;
-    public static final int PANELENTRY  = 3;
-    public static final int PANELBUTTON = 4;
+    public static final int MENUENTRY   = 100,
+                            DIALOGLABEL = 101,
+                            PROOFPANEL  = 102,
+                            PANELENTRY  = 103,
+                            PANELBUTTON = 104;
 
     public static void setComponentFont(Component c, int kind) {
         switch (kind) {
@@ -231,8 +231,6 @@ public class JapeFont {
         *
         *)
      */
-
-    public final static int termFontNum = 0,  reasonFontNum = 1,  provisoFontNum = 2;
 
     public static byte[] interfaceFontSizes =
         new byte[]{ LocalSettings.FormulaFontSize, LocalSettings.ReasonFontSize, LocalSettings.ProvisoFontSize };
