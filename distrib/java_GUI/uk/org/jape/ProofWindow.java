@@ -209,14 +209,34 @@ public class ProofWindow extends JapeWindow implements ProtocolConstants {
         focussedProofWindow.proofCanvas.add(new LineItem(focussedProofWindow.proofCanvas, x1, y1, x2, y2));
     }
 
+    public static void blacken(int x, int y) throws ProtocolError {
+        checkFocussedProofWindow();
+        SelectableProofItem si = focussedProofWindow.proofCanvas.findXY(x,y);
+        if (si==null)
+            throw new ProtocolError("no blackenable item at "+x+","+y);
+        else
+            si.blacken();
+    }
+
+    public static void greyen(int x, int y) throws ProtocolError {
+        checkFocussedProofWindow();
+        SelectableProofItem si = focussedProofWindow.proofCanvas.findXY(x,y);
+        if (si==null)
+            throw new ProtocolError("no greyenable item at "+x+","+y);
+        else
+            si.greyen();
+    }
+
     public static String getSelections() throws ProtocolError {
         checkFocussedProofWindow();
-        return focussedProofWindow.proofCanvas.getSelections();
+        String s = focussedProofWindow.proofCanvas.getSelections("\n");
+        return s==null ? "" : s+"\n";
     }
 
     public static String getTextSelections() throws ProtocolError {
         checkFocussedProofWindow();
-        return focussedProofWindow.proofCanvas.getTextSelections();
+        String s = focussedProofWindow.proofCanvas.getTextSelections("\n");
+        return s==null ? "" : s+"\n";
     }
 
     public static String getGivenTextSelections() throws ProtocolError {
