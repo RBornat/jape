@@ -13,6 +13,9 @@ CONSTANT none, one, IF, true, false, if, sel, pair,
 	 map,  filter, zip, swap,
 	 monoid, length
 
+RULE weaken(A) IS FROM B INFER A ц B
+WEAKEN weaken
+
 RULE listinduction (B,	OBJECT x, OBJECT xs, OBJECT ys, OBJECT v)  WHERE FRESH x, xs, ys IS
 	FROM  A[v\но] AND A[v\нxо] AND A[v\xs], A[v\ys] ц A[v\xs++ys] 
 	INFER  A[v \ B]
@@ -110,7 +113,7 @@ TACTIC	mousebutton3(X)	IS (ALT)
 TACTIC	findbutton(X)	  	IS (ALT)	
 TACTIC	cutbutton(X)	  	IS (ALT)	
 
-TACTIC Auto(foldunfold, dohyp) IS 
+TACTIC Auto(foldunfold, foldunfoldhyp) IS 
 ALT (dohyp foldunfoldhyp)
 	(foldunfold list) 
 	(foldunfold listthms) 
@@ -120,10 +123,9 @@ ALT (dohyp foldunfoldhyp)
 	(foldunfold reflectthms)
 	(FAIL (Cannot find anything to foldunfold) )
 
-TACTIC UnfoldHyp(a) IS UNFOLDHYP a (_A=_B)
-
-TACTIC UnfoldWithAnyHyp IS foldunfoldhyp "Unfold with hypothesis"
-TACTIC FoldWithAnyHyp IS SEQ (foldunfoldhyp "Fold with hypothesis") hyp
+TACTIC DoHyp(T) IS T
+TACTIC UnfoldWithAnyHyp IS UNFOLDHYP "Fold with hypothesis" (_A=_B)
+TACTIC FoldWithAnyHyp IS FOLDHYP "Unfold with hypothesis" (_A=_B)
 
 
 
