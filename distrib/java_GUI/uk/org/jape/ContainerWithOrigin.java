@@ -213,8 +213,10 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
                 if (containerlayout_tracing)
                     System.err.print("; adultsize:="+getWidth()+","+getHeight());
             }
-            if (containerlayout_tracing)
-                System.err.println("]");
+            if (containerlayout_tracing) {
+                System.err.println("]\n"+c);
+                japeserver.showContainer(c, null);
+            }
         }
     }
 
