@@ -35,7 +35,7 @@ import java.awt.Graphics;
 
 class TextItem extends DisplayItem implements DebugConstants {
     protected final TextComponent[] components;
-    protected final int ascent;
+    protected final int ascent, descent;
 
     public TextItem(JapeCanvas canvas, int x, int y, byte fontnum, String text) {
 	this(canvas, x, y, new TextComponent[]{new TextComponent(0, 0, fontnum, text)});
@@ -57,7 +57,7 @@ class TextItem extends DisplayItem implements DebugConstants {
 	    right = Math.max(right, cRight);
 	    bottom = Math.max(bottom, cBottom);
 	}
-	ascent = y-top;
+	ascent = y-top; descent = bottom-y;
 	if (fontDebug)
 	    Logger.log.println(this);
 	setBounds(left, top, right-left, bottom-top);
@@ -83,14 +83,15 @@ class TextItem extends DisplayItem implements DebugConstants {
 	setEnabled(false);
     }
     
-    // this isn't efficient, but that doesn't matter, I think
-    /* public String toString() {
-	return "TextItem["+
-	       "text="+JapeUtils.enQuote(text)+
-	       ", font="+font+
-	       ", dimension="+dimension+
-	       ", "+super.toString()+"]";
-    } */
+    public String toString() {
+	String s = "TextItem["+"components=[";
+	for (int i=0; i<components.length; i++) {
+	    s = s+components[i];
+	    if (i+1<components.length)
+		s = s+"; ";
+	}
+	return s+", ascent="+ascent+", descent="+descent+"], "+super.toString()+"]";
+    }
 }
 
 
