@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Text =
+module type T =
   sig
     type textsize and pos and font
     type textalign = FirstLine | MidBlock | LastLine
@@ -27,8 +27,7 @@ module type Text =
   end
 (* $Id$ *)
 
-module
-  text
+module M
   (AAA :
     sig
       type textsize and pos and font
@@ -43,10 +42,10 @@ module
           'a * 'b * 'c -> string
     end)
   :
-  Text =
+  T =
   struct
     open AAA
-    type textsize = textsize and pos = pos and font = font
+    type textsize = AAA.textsize and pos = AAA.pos and font = AAA.font
     
     type textalign = FirstLine | MidBlock | LastLine
     type syllable =
@@ -67,8 +66,8 @@ module
     let rec syllablestring =
       function
         Syllable (i, s) -> ((("Syllable(" ^ fontstring i) ^ ",") ^ s) ^ ")"
-      | Gap i -> "Gap " ^ makestring i
-      | Linebreak i -> "Linebreak " ^ makestring i
+      | Gap i -> "Gap " ^ string_of_int i
+      | Linebreak i -> "Linebreak " ^ string_of_int i
       | Block (c, sys) ->
           ((("Block(" ^ textalignstring c) ^ ",") ^
              bracketedliststring syllablestring "," sys) ^
@@ -99,30 +98,30 @@ module
             add3 w a d x wad ss' sys
         | w, a, d, x, ss, Linebreak i :: sys ->
             let ((w', a', d'), ss') = f 0 0 0 0 [] sys in
-            let nw = max (w, w') in
+            let nw = max w w' in
             match c with
               FirstLine ->
-                (nw, a, d + i + a' + d'), map (pushdown (d + i + a')) ss' @ ss
+                (nw, a, d + i + a' + d'), List.map (pushdown (d + i + a')) ss' @ ss
             | MidBlock ->
                 let h = a + d + i + a' + d' in
                 let m = h / 2 in
-                let nss = map (pushdown (- (m - a))) ss in
-                let nss' = map (pushdown (h - m - d')) ss' in
+                let nss = List.map (pushdown (- (m - a))) ss in
+                let nss' = List.map (pushdown (h - m - d')) ss' in
                 (nw, h / 2, h - h / 2), nss' @ nss
             | LastLine ->
                 (nw, a + d + i + a', d'),
-                ss' @ map (pushdown (- (d + i + a'))) ss
+                ss' @ List.map (pushdown (- (d + i + a'))) ss
       and add3 w a d x (w', a', d') =
-        f (w + w') (max (a, a')) (max (d, d')) (x + w')
+        f (w + w') (max a a') (max d d') (x + w')
       in
       f 0 0 0 0 ss sys
     let rec measuretext measure c =
       fun (Text sys) ->
         let (wad, ss) = textWAD measure c [] sys in
         textsize wad,
-        Textlayout (map (fun (xy, (f, s)) -> pos xy, f, s) (rev ss))
+        Textlayout (List.map (fun (xy, (f, s)) -> pos xy, f, s) (List.rev ss))
     let rec textlayoutOffset =
       fun (Textlayout ts) pos ->
-        Textlayout (map (fun (p, f, s) -> ( +->+ ) (pos, p), f, s) ts)
+        Textlayout (List.map (fun (p, f, s) -> ( +->+ ) (pos, p), f, s) ts)
   end
 

@@ -96,6 +96,8 @@ module
       val interpolate : 'a -> 'a list -> 'a list
       val catelim2stringfn :
         ('a -> string list -> string list) -> 'a -> string
+	  val explode : string -> char list
+	  val implode : char list -> string
       val stringfn2catelim :
         ('a -> string) -> 'a -> string list -> string list
     end)
@@ -104,14 +106,14 @@ module
   struct
     open AAA
     let rec isQuoted s =
-      substring (s, 0, 1) = "\"" && substring (s, String.length s - 1, 1) = "\""
+      String.sub (s) (0) (1) = "\"" && String.sub (s) (String.length s - 1) (1) = "\""
     let rec unQuote s =
       try
         let size = String.length s in
-        match substring (s, 0, 1) with
+        match String.sub (s) (0) (1) with
           "\"" ->
-            begin match substring (s, size - 1, 1) with
-              "\"" -> substring (s, 1, size - 2)
+            begin match String.sub (s) (size - 1) (1) with
+              "\"" -> String.sub (s) (1) (size - 2)
             | _ -> s
             end
         | _ -> s
@@ -124,32 +126,26 @@ module
       | s ->
           let rec wds =
             function
-              [] -> [""]
-            | [" "] -> [""]
-            | " " :: " " :: cs -> wds (" " :: cs)
-            | " " :: cs -> "" :: wds cs
-            | "\"" :: cs -> let ws = qds cs in ("\"" ^ List.hd ws) :: List.tl ws
-            | c :: cs -> let ws = wds cs in (c ^ List.hd ws) :: List.tl ws
+              [] -> [[]]
+            | [' '] -> [[]]
+            | ' ' :: ' ' :: cs -> wds (' ' :: cs)
+            | ' ' :: cs -> [] :: wds cs
+            | '"' :: cs -> let ws = qds cs in ('"' :: List.hd ws) :: List.tl ws
+            | c :: cs -> let ws = wds cs in (c :: List.hd ws) :: List.tl ws
           and qds =
             function
-              [] -> [""]
-            | ["\""] -> ["\""]
-            | "\"" :: " " :: cs -> qds ("\"" :: cs)
-            | "\"" :: cs -> "\"" :: wds cs
-            | c :: cs -> let ws = qds cs in (c ^ List.hd ws) :: List.tl ws
+              [] -> [[]]
+            | ['"'] -> [['"']]
+            | '"' :: ' ' :: cs -> qds ('"' :: cs)
+            | '"' :: cs -> ['"'] :: wds cs
+            | c :: cs -> let ws = qds cs in (c :: List.hd ws) :: List.tl ws
           in
-          wds (explode s)
-    let respace ooo = implode (interpolate " " ooo)
-    let rec lowercase s =
-      let rec lc c =
-        if 'A' <= c && c <= 'Z' then Char.chr (Char.code c - Char.code 'A' + Char.code 'a') else c
-      in
-      implode (map lc (explode s))
-    let rec uppercase s =
-      let rec uc c =
-        if 'a' <= c && c <= 'z' then Char.chr (Char.code c - Char.code 'a' + Char.code 'A') else c
-      in
-      implode (map uc (explode s))
+          List.map implode (wds (explode s))
+    let respace ws = String.concat " " ws
+    
+    let lowercase = String.lowercase
+    let uppercase = String.uppercase
+
     let rec catelim_pairstring fa fb sep (a, b) tail =
       "(" :: fa a (sep :: fb b (")" :: tail))
     let rec catelim_triplestring fa fb fc sep (a, b, c) tail =
@@ -229,7 +225,7 @@ module
       let rec el i ss =
         if i = Array.length a then ss
         else
-          let rec doit ss = makestring i :: ": " :: f (Array.get a i) ss in
+          let rec doit ss = string_of_int i :: ": " :: f (Array.get a i) ss in
           doit (if i = Array.length a - 1 then ss else sep :: el (i + 1) ss)
       in
       "Ç" :: el 0 ("È" :: ss)

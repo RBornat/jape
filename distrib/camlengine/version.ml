@@ -1,6 +1,5 @@
 (* $Id$ *)
-module Version =
-  struct
+
 (*
   4.1: first public release of version 4.         BAS.
   4.2: boxdraw made much prettier.                BAS.
@@ -15,7 +14,7 @@ module Version =
        Fixed small bug in treedraw                BAS.
   4.6: Added
       JAPE(SUBGOAL...) tactic
-       Made MEMBER and MAP coherent               BAS.
+       Made MEMBER and m_a_p coherent               BAS.
   4.7: Richard's improvements and some fixes
        concerning debracketing                    BAS.
   4.9: Attempt at better online error reporting
@@ -37,6 +36,9 @@ module Version =
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.1  2002/07/03 08:09:08  richard
+     translated, with a few alterations
+
      Revision 10.64.2.1  2002/07/01 16:42:04  richard
      capitalisation changes
 
@@ -226,6 +228,7 @@ module Version =
    *)
    
   
-   let version = "release 5.0b7" let title = "Jape proof engine: " end
+   let version = "release 5.0b7" 
+   let title = "Jape proof engine: "
 
 

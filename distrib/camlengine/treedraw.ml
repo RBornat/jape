@@ -20,7 +20,7 @@ module
       val elementstring_invisbracketed : tree.element -> string
       val liststring : ('a -> string) -> string -> 'a list -> string
       val last : 'a list -> 'a
-      val MAP : ('a -> 'b) * 'a list -> 'b list
+      val m_a_p : ('a -> 'b) * 'a list -> 'b list
       val turnstiles : unit -> string list
       val zip : 'a list * 'b list -> ('a * 'b) list
       exception Catastrophe_ of string list
@@ -62,7 +62,7 @@ module
             reasonplan : planclass plan option; linebox : (bool * box) option;
             subplans : (pos * treeplan) list; linethickness : int >
     let rec shiftoutline indent (ys : outline) =
-      MAP ((fun (l, r) -> l + indent, r + indent), ys)
+      m_a_p ((fun (l, r) -> l + indent, r + indent), ys)
     let rec place subh gap =
       fun
         ((Treeplan {proofbox = proofbox; proofoutline = proofoutline} as
@@ -77,14 +77,14 @@ module
         let rec m3 f xs =
           match xs with
             _ :: _ ->
-              let rec MAX ys zs = MAP (f, zip (ys, zs)) in
+              let rec MAX ys zs = m_a_p (f, zip (ys, zs)) in
               let m2 = MAX (xs, List.tl xs) in
               MAX ((List.hd xs :: m2), (m2 @ [last xs]))
           | _ -> xs
         in
-        let rs = m3 Integer.max (MAP (sml__hash__2, alloutline)) in
-        let ls = m3 Integer.min (MAP (sml__hash__1, proofoutline)) in
-        let offset = fold Integer.max (MAP (fo, zip (rs, ls))) 0 in
+        let rs = m3 (uncurry2 max) (m_a_p ((fun(_,hash2)->hash2), alloutline)) in
+        let ls = m3 (uncurry2 min) (m_a_p ((fun(hash1,_)->hash1), proofoutline)) in
+        let offset = nj_fold (uncurry2 max) (m_a_p (fo, zip (rs, ls))) 0 in
         (* doesn't take account of indentation; bound to be 0 if rs is null *)
         let newpos = pos (offset, subh - sH (bSize proofbox)) in
         let newbox = box (newpos, bSize proofbox) in
@@ -100,10 +100,10 @@ module
         p, None -> ()
       | p, Some plan -> drawplan planclass2displayclass p plan
     let rec maketreeplan proof =
-      let termfontleading = sml__hash__3 (fontinfo TermFont) in
-      let reasonfontleading = sml__hash__3 (fontinfo ReasonFont) in
-      let leading = fold Integer.max [termfontleading; reasonfontleading] 1 in
-      let hspace = Integer.max (20, 10 * leading)
+      let termfontleading = (fun(_,_,hash3)->hash3) (fontinfo TermFont) in
+      let reasonfontleading = (fun(_,_,hash3)->hash3) (fontinfo ReasonFont) in
+      let leading = nj_fold Integer.max [termfontleading; reasonfontleading] 1 in
+      let hspace = max (20) (10 * leading)
       (* was 30,15*leading, seemed a bit excessive *)
       and vspace = leading in
       let linethickness = draw.linethickness leading in
@@ -123,24 +123,24 @@ module
         let thickness =
           if isMulti then 3 * linethickness else linethickness
         in
-        let subps = map TP (subtrees t) in
+        let subps = List.map TP (subtrees t) in
         let (seqplan, seqbox) = sequentplan origin s in
         let (reasonsize, _ as reasoninf) =
           match r with
             None -> noreasoninf
           | Some why -> reason2textinfo why
         in
-        let subh = fold Integer.max (MAP (tpH, subps)) 0 in
+        let subh = nj_fold (uncurry2 max) (m_a_p (tpH, subps)) 0 in
         let (topbox, suboutline, subplans) =
-          revfold (place subh hspace) subps (emptybox, [], [])
+          nj_revfold (place subh hspace) subps (emptybox, [], [])
         in
         let subw = sW (bSize topbox) in
-        let subplans = rev subplans in
+        let subplans = List.rev subplans in
         (* not allowing for subindent below *)
         let reasonw = tsW reasonsize in
         let seqsize = tbSize seqbox in
         let seqw = tsW seqsize in
-        let superw = Integer.max (reasonw, seqw) in
+        let superw = max (reasonw) (seqw) in
         let superh =
           tsH seqsize +
             (match r with
@@ -151,9 +151,9 @@ module
         (* we set the subtrees in if they are narrower than the seq/reason *)
         let (subindent, subplans, suboutline) =
           if superw > subw then
-            let subindent = Integer.max (0, superw - subw) / 2 in
+            let subindent = max (0) (superw - subw) / 2 in
             let subplans =
-              MAP
+              m_a_p
                 ((fun (pos, plan) -> rightby (pos, subindent), plan),
                  subplans)
             in
@@ -162,7 +162,7 @@ module
           else 0, subplans, suboutline
         in
         (* the minimum line cover is halfway between the reason width and the sequent width *)
-        let minlineindent = Integer.max (0, (superw - reasonw) / 3) in
+        let minlineindent = max (0) ((superw - reasonw) / 3) in
         (* if the topbox is wider than the sequent, we try to centre the sequent 
          * within the line
          *)
@@ -173,20 +173,20 @@ module
               let spl = List.hd subplans in
               let spr = last subplans in
               let sublineleft =
-                posX (sml__hash__1 spl) +
-                  sml__hash__1 (subline (sml__hash__2 spl))
+                posX ((fun(hash1,_)->hash1) spl) +
+                  (fun(hash1,_)->hash1) (subline ((fun(_,hash2)->hash2) spl))
               in
               let sublineright =
-                posX (sml__hash__1 spr) +
-                  sml__hash__2 (subline (sml__hash__2 spr))
+                posX ((fun(hash1,_)->hash1) spr) +
+                  (fun(_,hash2)->hash2) (subline ((fun(_,hash2)->hash2) spr))
               in
               let sublinew = sublineright - sublineleft in
               let superindent =
-                Integer.max (0, sublineleft + (sublinew - superw) / 2)
+                max (0) (sublineleft + (sublinew - superw) / 2)
               in
               superindent,
-              Integer.min (sublineleft, superindent + minlineindent),
-              Integer.max (sublineright, superindent + superw - minlineindent)
+              min (sublineleft) (superindent + minlineindent),
+              max (sublineright) (superindent + superw - minlineindent)
         in
         let reasonindent = superindent + (superw - reasonw) / 2 in
         let seqindent = superindent + (superw - seqw) / 2 in
@@ -279,9 +279,9 @@ module
             with
               Some (el, c) ->
                 if c = DisplayHyp then
-                  Some (FormulaHit (HypHit (rev path, el)))
+                  Some (FormulaHit (HypHit (List.rev path, el)))
                 else if c = DisplayConc then
-                  Some (FormulaHit (ConcHit (rev path, (el, None))))
+                  Some (FormulaHit (ConcHit (List.rev path, (el, None))))
                 else None
             | _ -> None
           else if
@@ -291,7 +291,7 @@ module
               Some reasonbox -> withintb (pos, reasonbox)
             | _ -> false
           then
-            Some (ReasonHit (rev path))
+            Some (ReasonHit (List.rev path))
           else
             FIRSTOFN
               ((fun (n, (pos', plan)) ->
@@ -355,7 +355,7 @@ module
     let rec revgoal =
       function
         None -> None
-      | Some path -> Some (rev path)
+      | Some path -> Some (List.rev path)
     let rec elementofclass class__ plan =
       match planinfo plan with
         ElementClass (_, c) -> class__ = c
@@ -506,7 +506,7 @@ module
           if proofbottom >= screenbottom then midp
           else downby (midp, screenbottom - proofbottom)
     let rec samelayout (a, b) = a = b
-    let defaultpos ooo = sml__hash__1 (defaultpos ooo)
+    let defaultpos ooo = (fun(hash1,_)->hash1) (defaultpos ooo)
     (* for export *)
     let rootpos = defaultpos
   end

@@ -63,7 +63,7 @@ module
       module term : sig include Termtype include Termstore include Term end
       module termparse : Termparse
       module match : Match
-      val All : ('a -> bool) -> 'a list -> bool
+      val a_l_l : ('a -> bool) -> 'a list -> bool
       val commasymbol : symbol.symbol
       val consolereport : string list -> unit
       val enQuote : string -> string
@@ -159,7 +159,7 @@ module
             Syntactic, _, _, _ -> true
           | _ -> false),
          !syntaxes)
-    let rec syntacticturnstiles () = MAP (sml__hash__3, syntacticsequents ())
+    let rec syntacticturnstiles () = m_a_p ((fun(_,_,hash3)->hash3), syntacticsequents ())
     let rec describeSeqs ds =
       (* val show = triplestring idclassstring enQuote idclassstring "," *)
       let rec f (hyps, stile, concs) =
@@ -345,7 +345,7 @@ module
     let rec string2sequent s = tryparse (fun _ -> parseSeq ()) s
     let rec seqvars termvars tmerge =
       fun (Seq (st, hs, gs)) -> tmerge (termvars hs, termvars gs)
-    let rec seqVIDs s = orderVIDs (MAP (vartoVID, seqvars termvars tmerge s))
+    let rec seqVIDs s = orderVIDs (m_a_p (vartoVID, seqvars termvars tmerge s))
     let rec eqseqs =
       fun (Seq (st1, h1s, g1s), Seq (st2, h2s, g2s)) ->
         (st1 = st2 && eqterms (h1s, h2s)) && eqterms (g1s, g2s)
@@ -367,6 +367,6 @@ module
       Seq (st, registerCollection (sh, hs), registerCollection (sg, gs))
     let rec maxseqresnum =
       fun (Seq (st, hs, gs)) ->
-        fold Integer.max (MAP (resnum2int, elementnumbers hs))
-          (fold Integer.max (MAP (resnum2int, elementnumbers gs)) 0)
+        nj_fold (uncurry2 max) (m_a_p (resnum2int, elementnumbers hs))
+          (nj_fold (uncurry2 max) (m_a_p (resnum2int, elementnumbers gs)) 0)
   end

@@ -235,7 +235,7 @@ module
     let showargasint : (int -> term -> int) option ref = ref None
     let readintasarg : term array option ref = ref None
     let rec catelim_tacticstring sep t tail =
-      let withNLs = substring (sep, 0, 1) = "\n" in
+      let withNLs = String.sub (sep) (0) (1) = "\n" in
       let nextsep = if withNLs then sep ^ "\t" else sep in
       let rec oneline t =
         match t with
@@ -377,7 +377,7 @@ module
                        let rec encodeterm t =
                          match t with
                            Collection (_, c, es) ->
-                             Collection (None, c, MAP (encodeelement, es))
+                             Collection (None, c, m_a_p (encodeelement, es))
                          | _ ->
                              match hashterm t with
                                Some h -> Literal (None, Number (lookup h t))
@@ -388,7 +388,7 @@ module
                              Element (None, i, encodeterm t)
                          | el -> el
                        in
-                       MAP ((fun (v, t) -> v, encodeterm t), vts)
+                       m_a_p ((fun (v, t) -> v, encodeterm t), vts)
                    | None -> vts)))
               tail
         | GivenTac i -> "GIVEN " :: catelim_argstring i tail
@@ -481,21 +481,21 @@ module
         | ReplayTac t -> ReplayTac (T t)
         | ContnTac (t1, t2) -> ContnTac (T t1, T t2)
         | AssocFlatTac tm -> AssocFlatTac (E tm)
-        | UnifyTac tms -> UnifyTac (MAP (E, tms))
-        | AltTac ts -> AltTac (MAP (T, ts))
-        | SeqTac ts -> SeqTac (MAP (T, ts))
-        | WhenTac ts -> WhenTac (MAP (T, ts))
-        | UnfoldHypTac (s, tms) -> UnfoldHypTac (s, MAP (E, tms))
-        | FoldHypTac (s, tms) -> FoldHypTac (s, MAP (E, tms))
-        | MapTac (s, tms) -> MapTac (s, MAP (E, tms))
-        | TermTac (s, tms) -> TermTac (s, MAP (E, tms))
+        | UnifyTac tms -> UnifyTac (m_a_p (E, tms))
+        | AltTac ts -> AltTac (m_a_p (T, ts))
+        | SeqTac ts -> SeqTac (m_a_p (T, ts))
+        | WhenTac ts -> WhenTac (m_a_p (T, ts))
+        | UnfoldHypTac (s, tms) -> UnfoldHypTac (s, m_a_p (E, tms))
+        | FoldHypTac (s, tms) -> FoldHypTac (s, m_a_p (E, tms))
+        | MapTac (s, tms) -> MapTac (s, m_a_p (E, tms))
+        | TermTac (s, tms) -> TermTac (s, m_a_p (E, tms))
         | SubstTac (s, vts) ->
-            SubstTac (s, MAP ((fun (v, t) -> E v, E t), vts))
-        | UnfoldTac (s, ts) -> UnfoldTac (s, MAP (T, ts))
-        | FoldTac (s, ts) -> FoldTac (s, MAP (T, ts))
+            SubstTac (s, m_a_p ((fun (v, t) -> E v, E t), vts))
+        | UnfoldTac (s, ts) -> UnfoldTac (s, m_a_p (T, ts))
+        | FoldTac (s, ts) -> FoldTac (s, m_a_p (T, ts))
         | AssignTac (s, t) -> AssignTac (s, E t)
-        | EvalTac tms -> EvalTac (MAP (E, tms))
-        | AdHocTac tms -> AdHocTac (MAP (E, tms))
+        | EvalTac tms -> EvalTac (m_a_p (E, tms))
+        | AdHocTac tms -> AdHocTac (m_a_p (E, tms))
         | BindConcTac (tm, t) -> BindConcTac (E tm, T t)
         | BindHypTac (tm, t) -> BindHypTac (E tm, T t)
         | BindHyp2Tac (tm1, tm2, t) -> BindHyp2Tac (E tm1, E tm2, T t)
@@ -523,7 +523,7 @@ module
         | LayoutTac (t, tl) -> LayoutTac (T t, remaptreelayout env tl)
         | AlertTac (m, ps, copt) ->
             AlertTac
-              (E m, MAP ((fun (l, t) -> E l, T t), ps),
+              (E m, m_a_p ((fun (l, t) -> E l, T t), ps),
                (fun ooo -> andthenr (copt, Some) (T ooo)))
         | ExplainTac m -> ExplainTac (E m)
         | CommentTac m -> CommentTac (E m)
@@ -566,7 +566,7 @@ module
       if tacticform name then
         raise (TacParseError_ [namestring name; " used as tactic name"])
       else name
-    (* All tactic applications MUST be Curried.  RB & BS 13/8/93.
+    (* a_l_l tactic applications MUST be Curried.  RB & BS 13/8/93.
      * Outermost brackets are stripped from non-tuple arguments. RB
      *)
     
@@ -598,7 +598,7 @@ module
       | _ -> raise (TacParseError_ (errf t))
     let rec checkINTS errf t =
       match debracket t with
-        Tup (_, ",", ts) as t' -> MAP (checkINT errf, ts); t'
+        Tup (_, ",", ts) as t' -> m_a_p (checkINT errf, ts); t'
       | t -> checkINT errf t
     let rec isguard =
       function
@@ -631,7 +631,7 @@ module
         [] -> SkipTac
       | [t] -> t
       | ts -> SeqTac ts
-    and SEQTAC ts = mkSEQ (MAP (transTactic, ts))
+    and SEQTAC ts = mkSEQ (m_a_p (transTactic, ts))
     and SEQ1TAC a1 a2 =
       match a1, a2 with
         name, [] ->
@@ -663,14 +663,14 @@ module
                                     makestring i])
                           end
                       | Collection (_, c, es) ->
-                          registerCollection (c, MAP (decodeelement, es))
+                          registerCollection (c, m_a_p (decodeelement, es))
                       | _ -> t
                     and decodeelement =
                       function
                         Element (_, i, t) -> registerElement (i, decodeterm t)
                       | el -> el
                     in
-                    MAP ((fun (v, t) -> v, decodeterm t), vts)
+                    m_a_p ((fun (v, t) -> v, decodeterm t), vts)
                 | None -> vts))
         | t ->
             let (n, ts as parts) = explodeForExecute t in
@@ -763,7 +763,7 @@ module
             in
             let rec mkFold a1 a2 =
               match a1, a2 with
-                tac, n :: ts -> tac (tacname n, MAP (transTactic, ts))
+                tac, n :: ts -> tac (tacname n, m_a_p (transTactic, ts))
               | tac, [] ->
                   raise
                     (TacParseError_
@@ -822,8 +822,8 @@ module
             | "FLATTEN" -> AssocFlatTac (debracket (onearg ts))
             | "MAPTERMS" -> MapTac (explodeForExecute (onearg ts))
             | "SEQ" -> SEQTAC ts
-            | "ALT" -> AltTac (MAP (transTactic, ts))
-            | "THEORYALT" -> TheoryAltTac (MAP (butnottacticform, ts))
+            | "ALT" -> AltTac (m_a_p (transTactic, ts))
+            | "THEORYALT" -> TheoryAltTac (m_a_p (butnottacticform, ts))
             | "IF" -> IfTac (SEQ1TAC (f, ts))
             | "DO" -> RepTac (SEQ1TAC (f, ts))
             | "FOLD" -> mkFold FoldTac ts
@@ -839,7 +839,7 @@ module
             | "EVALUATE" -> EvalTac ts
             | "ASSIGN" -> mkSEQ (Assignments ts)
             | "WHEN" ->
-                let tacs = MAP (transTactic, ts) in
+                let tacs = m_a_p (transTactic, ts) in
                 let rec okwhen =
                   function
                     [] -> ()

@@ -90,7 +90,7 @@ module
           (mergevars allvars allvars', mergeVIDs uVIDs uVIDs',
            sortedmerge (fun (x, y) -> x < y) (badres, badres'),
            (match psig, psig' with
-              Some n, Some n' -> Some (Integer.min (n, n'))
+              Some n, Some n' -> Some (min (n) (n'))
             | Some _, None -> psig
             | _ -> psig'))
   end

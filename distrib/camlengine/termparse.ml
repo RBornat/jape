@@ -225,13 +225,13 @@ module
                     Found (ket', []) ->
                       check ket';
                       Some
-                        (registerFixapp (MAP (symbolstring, [bra; ket]), []))
+                        (registerFixapp (m_a_p (symbolstring, [bra; ket]), []))
                   | _ -> None
                   end
               | _ -> None))
       with
         Some t -> t
-      | None -> putbacksymb bra; sml__hash__2 (parseOutRightfixTail 0 [])
+      | None -> putbacksymb bra; (fun(_,hash2)->hash2) (parseOutRightfixTail 0 [])
     and parseRightfix m t =
       let (ket, t) = parseOutRightfixTail m [t] in checkAfterKet ket m; t
     and parseOutRightfixTail m ts =
@@ -241,7 +241,7 @@ module
       with
         Found (ket, (ss, ts)) ->
           check ket;
-          ket, registerFixapp (MAP (symbolstring, rev (ket :: ss)), rev ts)
+          ket, registerFixapp (m_a_p (symbolstring, List.rev (ket :: ss)), List.rev ts)
       | NotFound (ss, _) ->
           raise
             (ParseError_
@@ -255,7 +255,7 @@ module
           ([], ts)
       with
         Found (_, (ss, ts)) ->
-          registerFixapp (MAP (symbolstring, rev ss), rev ts)
+          registerFixapp (m_a_p (symbolstring, List.rev ss), List.rev ts)
       | NotFound (ss, _) ->
           raise
             (ParseError_
@@ -431,7 +431,7 @@ module
           Some ((bs, us, ss), env, pat) ->
             Some
               (registerBinding
-                 ((bs, MAP (doit, us), MAP (doit, ss)), env, pat))
+                 ((bs, m_a_p (doit, us), m_a_p (doit, ss)), env, pat))
         | None -> None
       in
       doit t
@@ -520,7 +520,7 @@ module
             if class__ = NoClass then bang "undeclared variable" t else None
         | Unknown (_, _, class__) as t ->
             if class__ = NoClass then bang "undeclared variable" t else None
-        | Subst (_, _, _, vts) -> findfirst badvar (MAP (sml__hash__1, vts))
+        | Subst (_, _, _, vts) -> findfirst badvar (m_a_p ((fun(hash1,_)->hash1), vts))
         | _ -> None
       in
       findterm badterm t; ()

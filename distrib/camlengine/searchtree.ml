@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Searchtree =
+module type T =
   sig
     type ('c, 'r) searchtree and ('c, 'r) fsm
     val emptysearchtree :
@@ -29,19 +29,18 @@ module type Searchtree =
   end
 (* $Id$ *)
 
-module
-  Searchtree
+module M
   (AAA :
     sig
-      module listfuns : Listfuns
+      module Listfuns : Listfuns.T
       val consolereport : string list -> unit
       exception Catastrophe_ of string list
     end)
   :
-  Searchtree =
+  T =
   struct
     open AAA
-    open listfuns
+    open Listfuns
     
     (* updatable syntax search trees, without backtracking. 
      * The trees have to allow for 'prefix' searching, where there is
@@ -107,7 +106,7 @@ module
         SearchTree (_, Built (_, t)) -> t
       | SearchTree (csrbs, Unbuilt mkalt) ->
           let rec doit csrbs =
-            match split (fun ooo -> null (sml__hash__1 ooo)) csrbs with
+            match split (fun (cs,_,_) -> null cs) csrbs with
               (_, r, true) :: _, qs -> Prefix (r, doit qs)
             | (_, r, _) :: _, [] ->(* because of add/delete above, there is only one r *)
                Answer r
@@ -118,17 +117,17 @@ module
           and doalt a1 a2 a3 =
             match a1, a2, a3 with
               cqs, [], def ->
-                let cts = MAP ((fun (c, csrbs) -> c, doit csrbs), cqs) in
+                let cts = m_a_p ((fun (c, csrbs) -> c, doit csrbs), cqs) in
                 begin match cts with
                   [c, t] -> Eq (c, t, def)
                 | [] -> def
-                | _ -> Alt (mkalt (MAP ((fun (c, t) -> c, Shift t), cts)) def)
+                | _ -> Alt (mkalt (m_a_p ((fun (c, t) -> c, Shift t), cts)) def)
                 end
             | cqs, qs, def ->
-                let c = List.hd (sml__hash__1 (List.hd qs)) in
+                let c = List.hd ((fun(xs,_,_)->xs) (List.hd qs)) in
                 let (sames, diffs) = split (fun (cs, _, _) -> List.hd cs = c) qs in
                 doalt
-                  ((c, MAP ((fun (cs, r, b) -> List.tl cs, r, b), sames)) :: cqs)
+                  ((c, m_a_p ((fun (cs, r, b) -> List.tl cs, r, b), sames)) :: cqs)
                   diffs def
           in
           let t = doit csrbs in rt := SearchTree (csrbs, Built (mkalt, t)); t

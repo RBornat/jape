@@ -68,7 +68,7 @@ module
       val int2term : int -> treelayout.term
       val mkTup : treelayout.term list -> treelayout.term
       val liststring : ('a -> string) -> string -> 'a list -> string
-      val MAP : ('a -> 'b) * 'a list -> 'b list
+      val m_a_p : ('a -> 'b) * 'a list -> 'b list
       val optionstring : ('a -> string) -> 'a option -> string
       val pairstring :
         ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
@@ -153,7 +153,7 @@ module
                       List.exists (fun nf' -> nf = nf') nfs1
                     in
                     let nfs2' = ( <| ) (redundant, nfs2) in
-                    let i2' = Integer.min (i2, length nfs2') in
+                    let i2' = min (i2) (length nfs2') in
                     (if i1 = length nfs1 then i1 + i2' else i1), nfs1 @ nfs2'
               in
               RotatingFormat res
@@ -170,7 +170,7 @@ module
       | HideCutLayout -> TreeFormat (HideCutFormat, DefaultFormat)
       | CompressedLayout stuff -> l2f true stuff
       | NamedLayout stuff -> l2f false stuff
-    let rec ints2term tns = mkTup (MAP (int2term, tns))
+    let rec ints2term tns = mkTup (m_a_p (int2term, tns))
     let rec format2layouts =
       fun (TreeFormat (tfk, tff) as f) ->
         let rec layout =

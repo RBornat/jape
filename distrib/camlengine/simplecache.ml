@@ -18,7 +18,11 @@ module type SimpleCache =
 
     val simplecachedebug : bool ref
   end
-module SimpleCache (AAA : sig val consolereport : string list -> unit end) :
+  
+module SimpleCache (AAA : sig val consolereport : string list -> unit 
+                              val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
+                              val explode : string -> char list
+                          end) :
   SimpleCache =
   struct
     open AAA
@@ -27,10 +31,10 @@ module SimpleCache (AAA : sig val consolereport : string list -> unit end) :
     let simplecachedebug = ref false
     (* for the millennium, better hashing. Well, up to 15 characters will count ... RB 30/xii/99 *)
     let rec hashstring s =
-      fold (fun (c, h) -> Bits.xorb (Bits.lshift (h, 2), ord c)) (explode s) 0
+      nj_fold (fun (c, h) -> (h lsl 2) lxor Char.code c) (explode s) 0
     (* for the millennium, better hashing. Well, up to 15 elements will count ... RB 30/xii/99 *)
     let rec hashlist hashf bs =
-      fold (fun (b, h) -> Bits.xorb (Bits.lshift (h, 2), hashf b)) bs 0
+      nj_fold (fun (b, h) -> (h lsl 2) lxor hashf b) bs 0
     let rec nextprime i =
       let rec isprime k =
         if k * k > i then true else not (i mod k = 0) && isprime (k + 1)
@@ -41,61 +45,60 @@ module SimpleCache (AAA : sig val consolereport : string list -> unit end) :
      *)
     
     let rec insertreport name report =
-      fun H i stuff ->
+      fun hh i stuff ->
         consolereport
-          [name; ": inserting "; report stuff; " at "; makestring i; " (";
-           makestring (List.length (Array.get (!H) i)); ")"]
+          [name; ": inserting "; report stuff; " at "; string_of_int i; " (";
+           string_of_int (List.length (Array.get (!hh) i)); ")"]
     let rec hitreport name report stuff =
       consolereport [name; ": hit "; report stuff]
     let rec insert name report =
-      fun H i stuff ->
-        if !simplecachedebug then insertreport name report H i stuff;
-        Array.set (!H) i (stuff :: Array.get (!H) i)
+      fun hh i stuff ->
+        if !simplecachedebug then insertreport name report hh i stuff;
+        Array.set (!hh) i (stuff :: Array.get (!hh) i)
     let rec blank n = Array.make n []
     let rec rehashall name report =
-      fun H ->
-        let oldn = Array.length !H in
-        let oldH = !H in
+      fun hh ->
+        let oldn = Array.length !hh in
+        let oldH = !hh in
         let i = ref 0 in
         let n = nextprime (2 * oldn + 1) in
         let name' = name ^ " (rehash)" in
-        H := blank n;
+        hh := blank n;
         if !simplecachedebug then
           begin
             let rs = ref [] in
             let i = ref 0 in
             consolereport
-              ["rehashing "; name; " size "; makestring oldn; " => ";
-               makestring n];
+              ["rehashing "; name; " size "; string_of_int oldn; " => ";
+               string_of_int n];
             while !i < oldn do
               rs := List.length (Array.get oldH (!i)) :: !rs; i := !i + 1
             done;
             consolereport
-              (fold (fun (k, ss) -> makestring k :: " " :: ss) !rs [])
+              (nj_fold (fun (k, ss) -> string_of_int k :: " " :: ss) !rs [])
           end;
         while !i < oldn do
           let hs = ref (Array.get oldH (!i)) in
-          while not (null !hs) do
+          while !hs<>[] do
             let (a, hash, b) = List.hd !hs in
-            insert name' report H (hash mod n) (a, hash, b); hs := List.tl !hs
+            insert name' report hh (hash mod n) (a, hash, b); hs := List.tl !hs
           done;
           i := !i + 1
         done
-    let rec data =
-      fun H ->
+    let rec data hh = 
         let i = ref 0 in
         let rs = ref [] in
-        let n = Array.length !H in
-        while !i < n do rs := Array.get (!H) (!i) :: !rs; i := !i + 1 done;
-        fold (fun (x, y) -> x @ y) !rs []
-    let rec sources = fun H () -> map (fun (a, _, _) -> a) (data H)
-    let rec targets = fun H () -> map (fun (a, _, b) -> b) (data H)
+        let n = Array.length !hh in
+        while !i < n do rs := Array.get (!hh) (!i) :: !rs; i := !i + 1 done;
+        nj_fold (fun (x, y) -> x @ y) !rs []
+    let rec sources = fun hh () -> List.map (fun (a, _, _) -> a) (data hh)
+    let rec targets = fun hh () -> List.map (fun (a, _, b) -> b) (data hh)
     let rec simplecache name report k f =
       let k = nextprime k in
-      let H = ref (blank k) in
+      let hh = ref (blank k) in
       let load = ref 0 in
       let rec eval hash a =
-        let i = hash mod Array.length !H in
+        let i = hash mod Array.length !hh in
         let rec ev =
           function
             (a', _, b as h) :: hs ->
@@ -108,21 +111,21 @@ module SimpleCache (AAA : sig val consolereport : string list -> unit end) :
           | [] ->
               let b = f a in
               let stuff = a, hash, b in
-              if !simplecachedebug then insertreport name report H i stuff;
+              if !simplecachedebug then insertreport name report hh i stuff;
               load := !load + 1;
               b, [stuff]
         in
-        let (b, hs) = ev (Array.get (!H) i) in
-        Array.set (!H) i hs;
-        if !load > Array.length !H then rehashall name report H;
+        let (b, hs) = ev (Array.get (!hh) i) in
+        Array.set (!hh) i hs;
+        if !load > Array.length !hh then rehashall name report hh;
         b
       in
-      eval, (fun () -> H := blank k)
+      eval, (fun () -> hh := blank k)
     let rec simplestore name report k =
       let k = nextprime k in
-      let H = ref (blank k) in
+      let hh = ref (blank k) in
       let load = ref 0 in
-      let rec index f hash a = f (hash mod Array.length !H) a in
+      let rec index f hash a = f (hash mod Array.length !hh) a in
       let rec lookup i a =
         let rec find =
           function
@@ -134,7 +137,7 @@ module SimpleCache (AAA : sig val consolereport : string list -> unit end) :
               else find hs
           | [] -> None
         in
-        find (Array.get (!H) i)
+        find (Array.get (!hh) i)
       in
       let rec delete i a =
         let rec del =
@@ -150,10 +153,10 @@ module SimpleCache (AAA : sig val consolereport : string list -> unit end) :
               else h :: del hs
           | [] -> []
         in
-        Array.set (!H) i (del (Array.get (!H) i))
+        Array.set (!hh) i (del (Array.get (!hh) i))
       in
       let rec update hash a b =
-        let i = hash mod Array.length !H in
+        let i = hash mod Array.length !hh in
         let stuff = a, hash, b in
         let rec upd =
           function
@@ -167,13 +170,13 @@ module SimpleCache (AAA : sig val consolereport : string list -> unit end) :
                 end
               else h :: upd hs
           | [] ->
-              if !simplecachedebug then insertreport name report H i stuff;
+              if !simplecachedebug then insertreport name report hh i stuff;
               load := !load + 1;
               [stuff]
         in
-        Array.set (!H) i (upd (Array.get (!H) i));
-        if !load > Array.length !H then rehashall name report H
+        Array.set (!hh) i (upd (Array.get (!hh) i));
+        if !load > Array.length !hh then rehashall name report hh
       in
-      index lookup, update, index delete, (fun () -> H := blank k), sources H,
-      targets H
+      index lookup, update, index delete, (fun () -> hh := blank k), sources hh,
+      targets hh
   end

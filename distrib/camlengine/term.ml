@@ -462,14 +462,14 @@ module
           let mtf = mapterm f in
           match t with
             App (_, f, a) -> App (None, mtf f, mtf a)
-          | Tup (_, s, ts) -> Tup (None, s, MAP (mtf, ts))
-          | Fixapp (_, ss, ts) -> Fixapp (None, ss, MAP (mtf, ts))
+          | Tup (_, s, ts) -> Tup (None, s, m_a_p (mtf, ts))
+          | Fixapp (_, ss, ts) -> Fixapp (None, ss, m_a_p (mtf, ts))
           | Binding (_, (bs, ss, us), env, pat) ->
               Binding
-                (None, (MAP (mtf, bs), MAP (mtf, ss), MAP (mtf, us)), env,
+                (None, (m_a_p (mtf, bs), m_a_p (mtf, ss), m_a_p (mtf, us)), env,
                  pat)
           | Subst (_, r, P, vts) ->
-              Subst (None, r, mtf P, MAP ((fun (v, t) -> mtf v, mtf t), vts))
+              Subst (None, r, mtf P, m_a_p ((fun (v, t) -> mtf v, mtf t), vts))
           | Collection (_, k, es) -> Collection (None, k, mapelements f es)
           | _ -> t
     and mapelements f es =
@@ -480,7 +480,7 @@ module
            Element (None, r, mapterm f t)
       in
       (* yes, it should really be r *)
-      map g es
+      List.map g es
     let rec stripelement =
       function
         Element (_, _, t) -> t
@@ -703,7 +703,7 @@ module
                  (unparseidclass c,
                   quadcolon
                     (" ",
-                     TT (0, true, ",", MAP (stripelement, es),
+                     TT (0, true, ",", m_a_p (stripelement, es),
                          quadcolon (CB 0, ivk t :: s)))))
     and TS ivb ivk ts r =
       match ts with
@@ -732,8 +732,8 @@ module
       let rec var (v, t) = v in
       let rec expr (v, t) = t in
       let (fst, snd) = if !substsense then var, expr else expr, var in
-      TS (ivb, ivk, MAP (fst, vts),
-          quadcolon (symbolstring SUBSTSEP, TS (ivb, ivk, MAP (snd, vts), s)))
+      TS (ivb, ivk, m_a_p (fst, vts),
+          quadcolon (symbolstring SUBSTSEP, TS (ivb, ivk, m_a_p (snd, vts), s)))
     let rec nobra _ = ""
     let catelim_termstring = T (nobra, nobra, 0, false)
     let termstring = catelim2stringfn catelim_termstring
@@ -834,7 +834,7 @@ module
       in
       let rec hashcombine a1 a2 =
         match a1, a2 with
-          Some h1, Some h2 -> Some (Bits.xorb (Bits.lshift (h1, 1), h2))
+          Some h1, Some h2 -> Some ((h1 lsl 1) lxor h2)
         | _, _ -> None
       and hash_tepair f (a, b) = hashcombine (f a) (f b)
       and hash_telist f xs =
@@ -990,14 +990,14 @@ module
       match f (t, z) with
         Some v -> v
       | None ->
-          let rec ff z ts = fold (NJfoldterm f) ts z in
+          let rec ff z ts = nj_fold (NJfoldterm f) ts z in
           match t with
             App (_, f, a) -> ff z [f; a]
           | Tup (_, _, ts) -> ff z ts
           | Fixapp (_, _, ts) -> ff z ts
           | Subst (_, _, P, vts) ->
-              ff (ff z (MAP (sml__hash__2, vts)))
-                 (P :: MAP (sml__hash__1, vts))
+              ff (ff z (m_a_p ((fun(_,hash2)->hash2), vts)))
+                 (P :: m_a_p ((fun(hash1,_)->hash1), vts))
           | Binding (_, (bs, ss, us), _, _) -> ff (ff (ff z us) ss) bs
           | Collection (_, k, es) -> foldelements f z es
           | _ -> z
@@ -1006,10 +1006,10 @@ module
       let rec fe z e =
         match e with
           Element (_, _, t) -> foldterm f z t
-        | Segvar (_, ms, v) -> fold (NJfoldterm f) (v :: ms) z
+        | Segvar (_, ms, v) -> nj_fold (NJfoldterm f) (v :: ms) z
       in
       (* not sure that's right ... *)
-      fold (fun (e, z) -> fe z e) es z
+      nj_fold (fun (e, z) -> fe z e) es z
     let rec findterm g t =
       match g t with
         None ->
@@ -1171,9 +1171,9 @@ module
           begin match idclass t with
             VariableClass ->
               (* ohmygod *) 
-              if All
+              if a_l_l
                    ((fun t -> idclass t = VariableClass),
-                    MAP (sml__hash__2, vts))
+                    m_a_p ((fun(_,hash2)->hash2), vts))
               then
                 VariableClass
               else SubstClass
@@ -1215,8 +1215,8 @@ module
                 smlelementstring termstring el; ") ("; termstring t; ")"])
     let rec uniqueVID class__ sortedVIDs extraVIDs vid =
       let rec rootext vid =
-        let vid' = substring (vid, 0, String.length vid - 1) in
-        let n = substring (vid, String.length vid - 1, 1) in
+        let vid' = String.sub (vid) (0) (String.length vid - 1) in
+        let n = String.sub (vid) (String.length vid - 1) (1) in
         if ((isdigit n && vid' <> "") && isextensibleID vid') &&
            symclass vid' = class__
         then
@@ -1505,10 +1505,10 @@ module
             EQ (P1, P2) && EQvts (vts1, vts2)
         | Binding (_, (bs, ss, us), _, pat),
           Binding (_, (bs', ss', us'), _, pat') ->
-            let ns = MAP (nxb, bs) in
+            let ns = m_a_p (nxb, bs) in
             begin try
               (pat = pat' && EQs (us, us')) &&
-              All
+              a_l_l
                 (eq (( ||| ) (bs, ns) @ t1bs) (( ||| ) (bs', ns) @ t2bs),
                  ( ||| ) (ss, ss'))
             with
@@ -1581,7 +1581,7 @@ module
           if null outers then if null inners then [] else [inners]
           else inners :: outers
         in
-        let dothem = map (doit outers inners) in
+        let dothem = List.map (doit outers inners) in
         let rec v () =
           if canoccurfreein (VariableClass, idclass t) then
             Some (bmerge ([t, [binders]], ps))
@@ -1594,14 +1594,14 @@ module
           | Unknown _ -> v ()
           | Subst (_, _, P, vts) ->
               Some
-                (fold bmerge
-                   (doit2 (MAP (sml__hash__1, vts)) P ::
-                      dothem (MAP (sml__hash__2, vts)))
+                (nj_fold bmerge
+                   (doit2 (m_a_p ((fun(hash1,_)->hash1), vts)) P ::
+                      dothem (m_a_p ((fun(_,hash2)->hash2), vts)))
                    ps)
           | Binding (_, (bs, ss, us), _, _) ->
               Some
-                (fold bmerge (MAP (doit2 bs, ss))
-                   (fold bmerge (dothem us) ps))
+                (nj_fold bmerge (m_a_p (doit2 bs, ss))
+                   (nj_fold bmerge (dothem us) ps))
           | _ -> None
         in
         if !varbindingsdebug then
@@ -1703,33 +1703,33 @@ module
       let rec closed v bc = List.exists (fun bvs -> member (v, bvs)) bc in
       (* step 1 - find all free and semi-free names *)
       let rec freev (v, bcs) = List.exists (fun ooo -> not (closed v ooo)) bcs in
-      let freevs = MAP (sml__hash__1, ( <| ) (freev, inf)) in
+      let freevs = m_a_p ((fun(hash1,_)->hash1), ( <| ) (freev, inf)) in
       (* step 2 - find the dominates relation from all the bindings *)
       let rec domf (v, bcs) =
         let rec truncate bc =
           takewhile (fun bvs -> not (member (v, bvs))) bc
         in
-        let bcs = MAP (truncate, bcs) in
-        let dominators = fold (fun (bc, ds) -> fold tmerge bc ds) bcs [] in
-        MAP ((fun bv -> bv, [v]), dominators)
+        let bcs = m_a_p (truncate, bcs) in
+        let dominators = nj_fold (fun (bc, ds) -> nj_fold tmerge bc ds) bcs [] in
+        m_a_p ((fun bv -> bv, [v]), dominators)
       in
-      let domrel = fold mmerge (MAP (domf, inf)) [] in
+      let domrel = nj_fold mmerge (m_a_p (domf, inf)) [] in
       (* step 3 - find all the pairs of names which occur in bindings
        * both ways round, add to domrel
        *)
       let allbindings =
-        fold (sortedmerge bcorder) (MAP (sml__hash__2, inf)) []
+        nj_fold (sortedmerge bcorder) (m_a_p ((fun(_,hash2)->hash2), inf)) []
       in
       let rec allbpairs bc =
         let vpss =
-          MAP ((fun (us, vs) -> sort vvorder (( >< ) (us, vs))), allpairs bc)
+          m_a_p ((fun (us, vs) -> sort vvorder (( >< ) (us, vs))), allpairs bc)
         in
-        ( <| ) ((fun (x, y) -> x <> y), fold (sortedmerge vvorder) vpss [])
+        ( <| ) ((fun (x, y) -> x <> y), nj_fold (sortedmerge vvorder) vpss [])
       in
       let vps =
-        fold (sortedmerge vvorder) (MAP (allbpairs, allbindings)) []
+        nj_fold (sortedmerge vvorder) (m_a_p (allbpairs, allbindings)) []
       in
-      let rvps = sort vvorder (MAP ((fun (x, y) -> y, x), vps)) in
+      let rvps = sort vvorder (m_a_p ((fun (x, y) -> y, x), vps)) in
       let commonpairs =
         ( <| )
           ((fun (x, y) ->
@@ -1737,7 +1737,7 @@ module
            sortedsame vvorder vps rvps)
       in
       let domrel =
-        fold mmerge (MAP ((fun (x, y) -> [x, [y]; y, [x]]), commonpairs))
+        nj_fold mmerge (m_a_p ((fun (x, y) -> [x, [y]; y, [x]]), commonpairs))
           domrel
       in
       (* step 4 - find pairs of bindings which aren't the same, add their 
@@ -1755,21 +1755,21 @@ module
             let bvclass = idclass bv in
             bvclass <> vclass && canoccurfreein (bvclass, vclass)
           in
-          fold tmerge (MAP ((fun bvs -> ( <| ) (filterbv, bvs)), bc)) []
+          nj_fold tmerge (m_a_p ((fun bvs -> ( <| ) (filterbv, bvs)), bc)) []
         in
-        let bvss = MAP (allbvs, bcs) in
+        let bvss = m_a_p (allbvs, bcs) in
         let rec escapers bvs =
           ( <| ) ((fun bv -> not (member ((bv, v), notins))), bvs)
         in
         let rec b2 ((bv1s, bv2s), bads) =
-          fold tmerge
+          nj_fold tmerge
             [escapers (sorteddiff earliervar bv1s bv2s);
              escapers (sorteddiff earliervar bv2s bv1s)]
             bads
         in
-        fold b2 (allpairs bvss) []
+        nj_fold b2 (allpairs bvss) []
       in
-      let freevs = fold tmerge (MAP (badbindings, inf)) freevs in
+      let freevs = nj_fold tmerge (m_a_p (badbindings, inf)) freevs in
       (* and there we have it *)
       let r = freevs, domrel in
       (* stuff to persuade ourselves we have it right :-) *)
@@ -1792,9 +1792,9 @@ module
         Id (_, v, _) -> v
       | Unknown (_, v, _) -> v
       | t -> raise (Catastrophe_ ["vartoVID "; argstring t])
-    let rec termVIDs t = orderVIDs (MAP (vartoVID, termvars t))
+    let rec termVIDs t = orderVIDs (m_a_p (vartoVID, termvars t))
     let rec conVIDs ts =
-      fold
+      nj_fold
         (function
            Id (_, v, c), vs -> v :: vs
          | _, vs -> vs)
@@ -1809,7 +1809,7 @@ module
         let (t1, t2) = debracket t1, debracket t2 in
         let rec sim t1 t2 = similar t1subst t1 t2subst t2 in
         let rec sims t1s t2s =
-          try All (uncurry2 sim, ( ||| ) (t1s, t2s)) with
+          try a_l_l (uncurry2 sim, ( ||| ) (t1s, t2s)) with
             Zip -> false
         in
         let rec reverse () = similar t2subst t2 t1subst t1 in
@@ -1873,11 +1873,11 @@ module
         | _ -> t, rs
       in
       match curry, unApp (debracket t) [] with
-        true, (f, [Tup (_, ",", rs)]) -> f, MAP (debracket, rs)
+        true, (f, [Tup (_, ",", rs)]) -> f, m_a_p (debracket, rs)
       | _, res -> res
     let rec implodeApp curry (t, args) =
       if curry then registerApp (t, registerTup (",", args))
-      else revfold (fun (r, l) -> registerApp (l, r)) args t
+      else nj_revfold (fun (r, l) -> registerApp (l, r)) args t
     (* find the various ways in which a term can be a binary operation (sigh) *)
     let rec explodebinapp t =
       match debracket t with

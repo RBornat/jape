@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Symboltype =
+module type T =
   sig
     type vid and idclass
     type associativity =
@@ -29,10 +29,10 @@ module type Symboltype =
   end
 (* $Id$ *)
 
-module symboltype (AAA : sig type idclass and vid end) : Symboltype =
+module M (AAA : sig type idclass and vid end) : T =
   struct
     open AAA
-    type idclass = idclass and vid = vid
+    type idclass = AAA.idclass and vid = AAA.vid
     type associativity =
       LeftAssoc | RightAssoc | AssocAssoc | TupleAssoc | CommAssocAssoc
     type symbol =

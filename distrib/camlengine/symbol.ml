@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Symbol =
+module type T =
   sig
     type vid and symbol and associativity and idclass
     val symboldebug : bool ref
@@ -34,7 +34,7 @@ module type Symbol =
     (* for primitive backtracking *)
 
     type savedlex
-    val pushlex : string -> IO.instream -> savedlex
+    val pushlex : string -> char Stream.t -> savedlex
     val poplex : savedlex -> unit
     val showInputError : (string list -> unit) -> string list -> unit
     val resetSymbols : unit -> unit
@@ -62,42 +62,57 @@ module type Symbol =
  * None in the idclass position, and I never enter UNKNOWNs at all.
  *)
  
-module
-  Symbol
+module M
   (AAA :
     sig
-      module prestring : Prestring
-      module idclass : Idclass
-      module searchtree : Searchtree
-      module symboltype : Symboltype
-      module store : store
-      module mappingfuns : Mappingfuns
+      module Prestring : Prestring.T
+      module Idclass : Idclass.T
+      module Symboltype : Symboltype.T
+             with type idclass = Idclass.idclass
+              and type vid = string
+      module Searchtree : Searchtree.T
+      module Store : Store.T
+             with type ran = Symboltype.symbol
+              and type dom = string
+      module Mappingfuns : Mappingfuns.T
+      
       val andthenr : 'a option * ('a -> 'b option) -> 'b option
       val bracketedliststring : ('a -> string) -> string -> 'a list -> string
       val charpred : string -> (string -> bool) * (string * bool -> unit)
       val consolereport : string list -> unit
       val enQuote : string -> string
+      val explode : string -> char list
       val isdigit : string -> bool
       val isprefix : ('a * 'a -> bool) -> 'a list -> 'a list -> bool
       val opt2bool : 'a option -> bool
-      val sortunique : ('a * 'a -> bool) -> 'a list -> 'a list
+      val sortunique : ('a -> 'a -> bool) -> 'a list -> 'a list
       val unSOME : 'a option -> 'a
+      
       exception Catastrophe_ of string list
       exception ParseError_ of string list
-      
-    end)
-  :
-  Symbol =
+      exception UnSOME_
+    end) : T =
+  
   struct
     open AAA
-    open idclass
-    open searchtree
-    open symboltype
-    open prestring
-    open store
-    open IO
-    (* from store.sig.sml *)
+    open Idclass
+    open Searchtree
+    open Symboltype
+    open Prestring
+    open Store
     
+	type idclass = Idclass.idclass
+	type associativity = Symboltype.associativity
+	type symbol = Symboltype.symbol
+	type vid = string
+	
+	(* smlnj 0.93 had no notion of char, only single-character strings.  In this first
+	   porting, I've used caml streams and converted all input to single-character strings.
+	   RB
+	 *)
+    open Stream
+    let explode s = List.map (String.make 1) (AAA.explode s)
+    let implode   = String.concat ""
     
     let symboldebug = ref false
     let appfix_default = 10000
@@ -131,9 +146,9 @@ module
     let (reservedpunct, _) = charpred "(),[]"
     (* for fast-ish lookup of declared operators and identifiers, and for some error reporting *)
     let rec mkalt cts def =
-      let A = Array.make 256 def in
-      let rec lookup c = Array.get A (Char.code c) in
-      List.iter (fun (c, t) -> Array.set A (Char.code c) t) cts; lookup
+      let aa = Array.make 256 def in
+      let rec lookup c = Array.get aa (Char.code (String.get c 1)) in
+      List.iter (fun (c, t) -> Array.set aa (Char.code (String.get c 1)) t) cts; lookup
     let optree : (string, symbol) searchtree ref = ref (emptysearchtree mkalt)
     let idprefixtree : (string, idclass) searchtree ref =
       ref (emptysearchtree mkalt)
@@ -147,10 +162,10 @@ module
         Some ss -> ss
       | None ->
           let ops =
-            map (fun ooo -> implode (sml__hash__1 ooo))
+            List.map (fun ooo -> implode ((fun(r,_,_)->r) ooo))
               (summarisetree !optree)
           in
-          sortunique (fun (x, y) -> x < y : string * string -> bool)
+          sortunique ((<) : string -> string -> bool)
             ((ops @ !decIDheads) @ !decIDtails)
     let rec set_oplist ss = oplist := Some ss
     (* and similar stuff for prefixes of variables  -
@@ -194,20 +209,20 @@ module
       match explode s with
         [] -> bang ()
       | c :: cs ->
-          decIDhead c || bang ();
-          map (fun c -> decIDtail c || bang ()) cs;
+          if decIDhead c then () else bang ();
+          List.iter (fun c -> if decIDtail c then () else bang ()) cs;
           (* may be a bad thing *)
           if !symboldebug then
             consolereport
               ["insertinIdtree "; idclassstring class__; " ";
-               makestring isprefix; " "; s];
+               string_of_bool isprefix; " "; s];
           tree :=
             addtotree (fun (x, y) -> x = y) !tree (c :: cs, class__, isprefix)
-    let FriendlyLargeishPrime = 1231
-    let symboltable = ref (store.new__ FriendlyLargeishPrime)
-    let reversemapping : (symbol, string) mappingfuns.mapping ref =
-      ref mappingfuns.empty
-    let rec lookup string = store.at (!symboltable, string)
+    let friendlyLargeishPrime = 1231
+    let symboltable = ref (Store.new__ friendlyLargeishPrime)
+    let reversemapping : (symbol, string) Mappingfuns.mapping ref =
+      ref Mappingfuns.empty
+    let rec lookup string = Store.at (!symboltable, string)
     exception Symclass_ of string
     (* not spurious *)
       
@@ -239,70 +254,70 @@ module
       | RIGHTFIX (_, s) -> s
       | STILE s -> s
       | SHYID s -> s
-      | _ -> unSOME (mappingfuns.at (!reversemapping, symbol))
+      | _ -> unSOME (Mappingfuns.at (!reversemapping, symbol))
     let rec preclassopt =
       function
         Some c -> BQuote2 ["Some("; idclassstring c; ")"]
       | None -> BQuote2 ["None"]
-    let rec Preassoc a =
+    let rec pre_assoc a =
       match a with
         LeftAssoc -> BQuote1 "LeftAssoc"
       | RightAssoc -> BQuote1 "RightAssoc"
       | AssocAssoc -> BQuote1 "AssocAssoc"
       | TupleAssoc -> BQuote1 "TupleAssoc"
       | CommAssocAssoc -> BQuote1 "CommAssocAssoc"
-    let rec PreSYMBOL s =
+    let rec pre_SYMBOL s =
       match s with
-        ID (S'1, class__) ->
+        ID (s'1, class__) ->
           BQuote3
-            [BQuote1 "ID("; BQuote1 "\""; BQuote1S'1; BQuote1 "\""; Pre_comma;
+            [BQuote1 "ID("; BQuote1 "\""; BQuote1 s'1; BQuote1 "\""; pre__comma;
              preclassopt class__; BQuote1 ")"]
-      | UNKNOWN (S'1, class__) ->
+      | UNKNOWN (s'1, class__) ->
           BQuote3
-            [BQuote1 "UNKNOWN("; BQuote1 "\""; BQuote1S'1; BQuote1 "\"";
-             Pre_comma; preclassopt class__; BQuote1 ")"]
-      | NUM S'1 -> BQuote3 [BQuote1 "NUM "; Prestring S'1]
-      | STRING S'1 -> BQuote3 [BQuote1 "STRING \""; BQuote1S'1; BQuote1 "\""]
-      | BRA S'1 -> BQuote2 ["BRA \""; S'1; "\""]
-      | SEP S'1 -> BQuote2 ["SEP \""; S'1; "\""]
-      | KET S'1 -> BQuote2 ["KET \""; S'1; "\""]
+            [BQuote1 "UNKNOWN("; BQuote1 "\""; BQuote1 s'1; BQuote1 "\"";
+             pre__comma; preclassopt class__; BQuote1 ")"]
+      | NUM s'1 -> BQuote3 [BQuote1 "NUM "; pre_string s'1]
+      | STRING s'1 -> BQuote3 [BQuote1 "STRING \""; BQuote1 s'1; BQuote1 "\""]
+      | BRA s'1 -> BQuote2 ["BRA \""; s'1; "\""]
+      | SEP s'1 -> BQuote2 ["SEP \""; s'1; "\""]
+      | KET s'1 -> BQuote2 ["KET \""; s'1; "\""]
       | SUBSTBRA -> BQuote2 ["SUBSTBRA \""; reverselookup SUBSTBRA; "\""]
       | SUBSTSEP -> BQuote2 ["SUBSTSEP \""; reverselookup SUBSTSEP; "\""]
       | SUBSTKET -> BQuote2 ["SUBSTKET \""; reverselookup SUBSTKET; "\""]
       | EOF -> BQuote1 "EOF"
-      | PREFIX (S'1, S'2) ->
+      | PREFIX (s'1, s'2) ->
           BQuote3
-            [BQuote1 "PREFIX ("; Preint S'1; Pre_comma; BQuote1 "\"";
-             BQuote1S'2; BQuote1 "\")"]
-      | POSTFIX (S'1, S'2) ->
+            [BQuote1 "PREFIX ("; pre_int s'1; pre__comma; BQuote1 "\"";
+             BQuote1 s'2; BQuote1 "\")"]
+      | POSTFIX (s'1, s'2) ->
           BQuote3
-            [BQuote1 "POSTFIX ("; Preint S'1; Pre_comma; BQuote1 "\"";
-             BQuote1S'2; BQuote1 "\")"]
-      | INFIX (S'1, S'2, S'3) ->
-          if S'3 = "," then Pre_comma
+            [BQuote1 "POSTFIX ("; pre_int s'1; pre__comma; BQuote1 "\"";
+             BQuote1 s'2; BQuote1 "\")"]
+      | INFIX (s'1, s'2, s'3) ->
+          if s'3 = "," then pre__comma
           else
             BQuote3
-              [BQuote1 "INFIX("; Preint S'1; Pre_comma; Preassoc S'2;
-               Pre_comma; BQuote1 "\""; BQuote1S'3; BQuote1 "\")"]
-      | INFIXC (S'1, S'2, S'3) ->
+              [BQuote1 "INFIX("; pre_int s'1; pre__comma; pre_assoc s'2;
+               pre__comma; BQuote1 "\""; BQuote1 s'3; BQuote1 "\")"]
+      | INFIXC (s'1, s'2, s'3) ->
           BQuote3
-            [BQuote1 "INFIXC("; Preint S'1; Pre_comma; Preassoc S'2;
-             Pre_comma; BQuote1 "\""; BQuote1S'3; BQuote1 "\")"]
-      | LEFTFIX (S'1, S'2) ->
+            [BQuote1 "INFIXC("; pre_int s'1; pre__comma; pre_assoc s'2;
+             pre__comma; BQuote1 "\""; BQuote1 s'3; BQuote1 "\")"]
+      | LEFTFIX (s'1, s'2) ->
           BQuote3
-            [BQuote1 "LEFTFIX("; Preint S'1; Pre_comma; BQuote1 "\"";
-             BQuote1S'2; BQuote1 "\")"]
-      | MIDFIX (S'1, S'2) ->
+            [BQuote1 "LEFTFIX("; pre_int s'1; pre__comma; BQuote1 "\"";
+             BQuote1 s'2; BQuote1 "\")"]
+      | MIDFIX (s'1, s'2) ->
           BQuote3
-            [BQuote1 "MIDFIX("; Preint S'1; Pre_comma; BQuote1 "\"";
-             BQuote1S'2; BQuote1 "\")"]
-      | RIGHTFIX (S'1, S'2) ->
+            [BQuote1 "MIDFIX("; pre_int s'1; pre__comma; BQuote1 "\"";
+             BQuote1 s'2; BQuote1 "\")"]
+      | RIGHTFIX (s'1, s'2) ->
           BQuote3
-            [BQuote1 "RIGHTFIX("; Preint S'1; Pre_comma; BQuote1 "\"";
-             BQuote1S'2; BQuote1 "\")"]
-      | STILE S'1 -> BQuote2 ["STILE \""; S'1; "\""]
-      | SHYID S'1 -> BQuote2 ["RESERVED-WORD "; S'1]
-    let smlsymbolstring ooo = Preimplode (PreSYMBOL ooo)
+            [BQuote1 "RIGHTFIX("; pre_int s'1; pre__comma; BQuote1 "\"";
+             BQuote1 s'2; BQuote1 "\")"]
+      | STILE s'1 -> BQuote2 ["STILE \""; s'1; "\""]
+      | SHYID s'1 -> BQuote2 ["RESERVED-WORD "; s'1]
+    let smlsymbolstring ooo = pre_implode (pre_SYMBOL ooo)
     let symbolstring = reverselookup
     let rec register_op s sym =
       let rec bang () =
@@ -340,15 +355,15 @@ module
         begin try
           let oldstring = reverselookup symbol in
           if isop oldstring then deregister_op oldstring symbol;
-          if hidden then store.delete (!symboltable, oldstring)
+          if hidden then Store.delete (!symboltable, oldstring)
         with
           UnSOME_ -> ()
         end;
-        store.update (!symboltable, string, symbol);
+        Store.update (!symboltable, string, symbol);
         if hidden then
           reversemapping :=
-            mappingfuns.( ++ )
-              (!reversemapping, mappingfuns.( |-> ) (symbol, string));
+            Mappingfuns.( ++ )
+              (!reversemapping, Mappingfuns.( |-> ) (symbol, string));
         if isop string then register_op string symbol
       in
       match symbol with
@@ -381,30 +396,30 @@ module
               (ParseError_
                  ["Attempt to redefine the syntactic role of BQuote2"; s;
                   "'' to "; smlsymbolstring t])
-    let decVarPrefixes : (idclass, string) mappingfuns.mapping ref =
-      ref mappingfuns.empty
+    let decVarPrefixes : (idclass, string) Mappingfuns.mapping ref =
+      ref Mappingfuns.empty
     let rec declareIdPrefix class__ s =
-      begin match mappingfuns.at (!decVarPrefixes, class__) with
+      begin match Mappingfuns.at (!decVarPrefixes, class__) with
         None ->
           decVarPrefixes :=
-            mappingfuns.( ++ )
-              (!decVarPrefixes, mappingfuns.( |-> ) (class__, s))
+            Mappingfuns.( ++ )
+              (!decVarPrefixes, Mappingfuns.( |-> ) (class__, s))
       | Some _ -> ()
       end;
       insertinIdtree "declareIdPrefix" true class__ idprefixtree s;
       (* no warnings about clashes any more
          case fsmpos (rootfsm idfixedtree) (explode s) of
-           Some t => map ((fn t => s^implode t) o #1) (summarisetree t)
+           Some t => List.map ((fn t => s^implode t) o #1) (summarisetree t)
          | None   => []
       *)
       []
     let rec autoVID class__ prefix =
-      match mappingfuns.at (!decVarPrefixes, class__) with
+      match Mappingfuns.at (!decVarPrefixes, class__) with
         Some s -> s
       | None ->
           (* we just add underscores to prefix till it isn't in the IdPrefix tree *)
           match fsmpos (rootfsm idprefixtree) (explode prefix) with
-            None -> declareIdPrefix class__ prefix; prefix
+            None   -> (let _ = declareIdPrefix class__ prefix in prefix)
           | Some _ -> autoVID class__ (prefix ^ "_")
     let rec declareIdClass class__ s =
       insertinIdtree "declareIdClass" false class__ idfixedtree s;
@@ -422,8 +437,8 @@ module
       let rec enterclass f s = enter (s, f s) in
       let debug = !symboldebug in
       symboldebug := false;
-      symboltable := store.new__ FriendlyLargeishPrime;
-      reversemapping := mappingfuns.empty;
+      symboltable := Store.new__ friendlyLargeishPrime;
+      reversemapping := Mappingfuns.empty;
       optree := emptysearchtree mkalt;
       oplist := None;
       List.iter (fun c -> updateIDhead (c, false)) !decIDheads;
@@ -432,8 +447,8 @@ module
       decIDtails := [];
       idprefixtree := emptysearchtree mkalt;
       idfixedtree := emptysearchtree mkalt;
-      decVarPrefixes := mappingfuns.empty;
-      List.iter (enterclass SHYID)
+      decVarPrefixes := Mappingfuns.empty;
+      List.iter (enterclass (fun s->SHYID s))
         ["ABSTRACTION"; "ALL"; "AND"; "ARE"; "AUTOMATCH"; "AUTOUNIFY"; "BAG";
          "BIND"; "BUTTON"; "CHECKBOX"; "CHILDREN"; "CLASS"; "COMMAND";
          "CONCFRESH"; "CONCHIT"; "CONJECTUREPANEL"; "CONSTANT";
@@ -463,30 +478,33 @@ module
       substfix := substfix_default;
       substsense := substsense_default;
       symboldebug := debug
+    
+    (* probably this can all be simply camlised *)
     let rec escapechar c =
       match c with
         "n" -> "\n"
-      | "r" -> Char.chr 13
+      | "r" -> "\r"
       | "t" -> "\t"
+      (* next two lines not strictly necessary, but worth it for notification value *)
       | "\"" -> "\""
-      | "\\" ->(* this line not strictly necessary, but worth it for notification value *)
-         "\\"
-      | c ->(* ditto *)
-         c
+      | "\\" -> "\\"
+      | c    -> c
     let rec unescapechar c =
       match c with
         "\n" -> "\\n"
       | "\t" -> "\\t"
       | "\"" -> "\\\""
       | "\\" -> "\\\\"
-      | c -> if c = Char.chr 13 then "\\r" else c
+      | "\r" -> "\\r"
+      | c    -> c
+    
     (* I collected all these things into one place, and wrapped them in local, 
      * because these variables form all of the state of the lexer.  
      * Then you can properly set and reset the state, as in tryparse and 
      * other places, with pushlex and poplex.
      * RB 14/xii/94
      *)
-    let lexin = ref stdin
+    let lexin = ref (of_channel stdin)
     let lexinfile = ref ""
     let errout = ref stderr
     let linenum = ref 0
@@ -495,16 +513,16 @@ module
     let rec showInputError f msg =
       let loc =
         if !lexinfile = "" then []
-        else [!lexinfile; " (line "; makestring !linenum; "): "]
+        else [!lexinfile; " (line "; string_of_int !linenum; "): "]
       in
       f (loc @ msg)
-    let rec char () = lookahead !lexin
-    let rec next () = input_char !lexin 1
+    let char () = match peek !lexin with Some c -> String.make 1 c | None -> "" 
+    let next () = try let _ = next !lexin in () with _ -> ()
     let rec scanwhile =
-      fun P rcs con ->
+      fun pp rcs con ->
         let c = char () in
-        if c <> "" && P c then begin next (); scanwhile P (c :: rcs) con end
-        else con (implode (rev rcs))
+        if c <> "" && pp c then (next (); scanwhile pp (c :: rcs) con)
+        else con (implode (List.rev rcs))
     let rec scanwatch f =
       if !symboldebug then
         fun v ->
@@ -516,14 +534,14 @@ module
         Found (sy, _) -> sy
       | NotFound rcs' ->
           if rcs' = [] then let c = char () in next (); checkbadID c
-          else checkbadID (implode (rev rcs'))
+          else checkbadID (implode (List.rev rcs'))
     (* at this point we need backtracking ... *)
                       
 
     let rec scanid conf =
       let rec q rcs classopt =
         scanwhile isIDtail
-          (if null rcs then :: (char (), [], before, next, ()) else rcs)
+          (if rcs=[] then (let r = [char ()] in next (); r) else rcs)
           (conf classopt)
       in
       match
@@ -545,38 +563,38 @@ module
         "" -> scanreport EOF
       | " " -> next (); scan ()
       | "\t" -> next (); scan ()
-      | "\n" -> inc linenum; next (); scan ()
+      | "\n" -> incr linenum; next (); scan ()
       | "(" -> next (); scanreport (BRA "(")
       | ")" ->(* necessary ? - I think so *)
          next (); scanreport (KET ")")
       | "/" ->
           (* "/" must be a punct *)
           next ();
-          begin match char () with
-            "*" ->
-              next ();
-              scanComment (0, !linenum);
-              if !symboldebug then consolereport ["... comment ..."];
-              scan ()
-          | c ->
-              scanreport
-                (match fsmpos (rootfsm optree) ["/"] with
-                   Some t -> scanop t ["/"]
-                 | None -> checkbadID "/")
-          end
+		  begin match char () with
+			"*" ->
+			  next ();
+			  scanComment (0, !linenum);
+			  if !symboldebug then consolereport ["... comment ..."];
+			  scan ()
+		  | c ->
+			  scanreport
+				(match fsmpos (rootfsm optree) ["/"] with
+				   Some t -> scanop t ["/"]
+				 | None -> checkbadID "/")
+		  end
       | "\"" -> next (); scanreport (scanString !linenum [])
       | c ->
           if c = metachar then
             let rec goodunknown class__ s =
-              if isextensibleID s then checkidclass UNKNOWN false class__ s
+              if isextensibleID s then checkidclass (fun s->UNKNOWN s) false class__ s
               else raise (ParseError_ ["non-CLASS unknown "; metachar; s])
             in
-            next ();
-            if isIDhead (char ()) then
-              scanreport (scanid (checkidclass UNKNOWN false))
-            else raise (ParseError_ ["ID expected following "; metachar])
-          else if isIDhead c then scanreport (scanid (checkidclass ID true))
-          else if isdigit c then scanreport (scanwhile isdigit [] NUM)
+            next (); 
+			if isIDhead (char ()) then
+			  scanreport (scanid (checkidclass (fun s->UNKNOWN s) false))
+			else raise (ParseError_ ["ID expected following "; metachar])
+          else if isIDhead c then scanreport (scanid (checkidclass (fun s->ID s) true))
+          else if isdigit c then scanreport (scanwhile isdigit [] (fun s->NUM s))
           else if ispunct c then scanreport (scanop (rootfsm optree) [])
           else raise (Catastrophe_ ["scan can't see class of "; c])
     and scanComment (n, k) =
@@ -584,52 +602,52 @@ module
         "" ->
           raise
             (ParseError_
-               ["End of file inside level "; makestring n;
-                " comment starting on line "; makestring k])
-      | "\n" -> inc linenum; next (); scanComment (n, k)
+               ["End of file inside level "; string_of_int n;
+                " comment starting on line "; string_of_int k])
+      | "\n" -> incr linenum; next (); scanComment (n, k)
       | "*" ->
-          next ();
-          begin match char () with
-            "/" -> next ()
-          | "\n" -> inc linenum; next (); scanComment (n, k)
-          | _ -> scanComment (n, k)
-          end
+          next (); 
+		  begin match char () with
+			"/" -> next ()
+		  | "\n" -> incr linenum; next (); scanComment (n, k)
+		  | _ -> scanComment (n, k)
+		  end
       | "/" ->
-          next ();
-          begin match char () with
-            "*" ->
-              next ();
-              begin try scanComment (n + 1, !linenum) with
-                ParseError_ ss ->
-                  raise
-                    (ParseError_
-                       (ss @
-                          [", within a level "; makestring n;
-                           " comment starting on line"; makestring k]))
-              end;
-              scanComment (n, k)
-          | "\n" -> inc linenum; next (); scanComment (n, k)
-          | _ -> scanComment (n, k)
-          end
+          next (); 
+		  begin match char () with
+			"*" ->
+			  next (); 
+			  begin try scanComment (n + 1, !linenum) with
+				ParseError_ ss ->
+				  raise
+					(ParseError_
+					   (ss @
+						  [", within a level "; string_of_int n;
+						   " comment starting on line"; string_of_int k]))
+			  end;
+			  scanComment (n, k)
+		  | "\n" -> incr linenum; next (); scanComment (n, k)
+		  | _ -> scanComment (n, k)
+		  end
       | _ -> next (); scanComment (n, k)
     and scanString k rcs =
-      match char () before next () with
+      match (let r = char () in next (); r) with
         "" ->
           raise
             (ParseError_
-               ["end of file inside string starting on line "; makestring k])
+               ["end of file inside string starting on line "; string_of_int k])
       | "\n" -> raise (ParseError_ ["end of line inside string"])
-      | "\"" -> STRING (implode (rev rcs))
+      | "\"" -> STRING (implode (List.rev rcs))
       | "\\" ->
           if char () = "\n" then
             begin
-              inc linenum;
+              incr linenum;
               next ();
               while
                 match char () with
                   " " -> true
                 | "\t" -> true
-                | "\n" -> inc linenum; true
+                | "\n" -> incr linenum; true
                 | _ -> false
               do next ()
               done;
@@ -638,10 +656,10 @@ module
                 raise
                   (ParseError_
                      ["expected \\ to restart broken string starting on line ";
-                      makestring k]);
+                      string_of_int k]);
               scanString k rcs
             end
-          else scanString k (escapechar (char () before next ()) :: rcs)
+          else scanString k (escapechar (let r = char () in next (); r) :: rcs)
       | c -> scanString k (c :: rcs)
     let showInputError = showInputError
     let rec scansymb () =
@@ -669,7 +687,7 @@ module
         (* used to be ...
         if ispunct symstr then
            case !peekedsymb of
-             [] => (symb := scanwhile ispunct (rev cs) checkbadID; 
+             [] => (symb := scanwhile ispunct (List.rev cs) checkbadID; 
                     !symb
                    )
            | _    => raise Catastrophe_ ["peeksymb(); currnovelsymb()"]
@@ -678,7 +696,7 @@ module
         match !peekedsymb with
           [] ->
             symb :=
-              scanwhile (fun ooo -> not (isreserved ooo)) (rev cs) checkbadID;
+              scanwhile (fun ooo -> not (isreserved ooo)) (List.rev cs) checkbadID;
             !symb
         | _ -> raise (Catastrophe_ ["peeksymb(); currnovelsymb()"])
       else
@@ -686,17 +704,17 @@ module
           (ParseError_
              [symbolstring !symb;
               " can't start a new identifier or operator"])
-    type savedlex = IO.instream * string * int * symbol * symbol list
+    type savedlex = char Stream.t * string * int * symbol * symbol list
     let rec pushlex name newstream =
       let state = !lexin, !lexinfile, !linenum, !symb, !peekedsymb in
       lexin := newstream;
       lexinfile := name;
       linenum := 1;
       peekedsymb := [];
-      scansymb ();
+      let _ = scansymb () in 
       state
     let rec poplex (lxin, lxinf, lnum, sy, pksy) =
-      close_in !lexin;
+      (* close_in !lexin; -- now user's responsibility *)
       lexin := lxin;
       lexinfile := lxinf;
       linenum := lnum;
@@ -727,14 +745,14 @@ module
             function
               SPACE, _ -> false
             | _, SPACE -> false
-            | PUNCT, _ -> msp (substring (a2, 0, 1))
+            | PUNCT, _ -> msp (String.sub (a2) (0) (1))
             | _, PUNCT -> false
             | RESERVEDPUNCT, _ -> false
             | _, RESERVEDPUNCT -> false
             | _, _ -> true
           in
-          ms (charclass (substring (a1, String.length a1 - 1, 1)),
-              charclass (substring (a2, 0, 1)))
+          ms (charclass (String.sub (a1) (String.length a1 - 1) (1)),
+              charclass (String.sub (a2) (0) (1)))
     let enter = carefullyEnter
     let lookup = checkbadID
     let _ = resetSymbols ()

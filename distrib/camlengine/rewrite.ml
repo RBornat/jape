@@ -128,16 +128,16 @@ module
         | Subst (_, r, P, vts) ->
             let ff = foldterm f in
             let rec fp ((v, t), z) = ff (ff z v) t in
-            Some (ff (fold fp vts (vars, uVIDs, badres, Some n)) P)
+            Some (ff (nj_fold fp vts (vars, uVIDs, badres, Some n)) P)
         | Collection (_, _, es) ->
             let rec g =
               function
-                Segvar (_, ms, t), z -> fold (NJfoldterm f) (t :: ms) z
+                Segvar (_, ms, t), z -> nj_fold (NJfoldterm f) (t :: ms) z
               | Element (_, ResUnknown i, t), z ->
                   foldterm f (vars, uVIDs, i :: badres, psig) t
               | Element (_, _, t), z -> foldterm f z t
             in
-            Some (fold g es z)
+            Some (nj_fold g es z)
         | _ -> None
       in
       foldterm f stuff t
@@ -153,16 +153,16 @@ module
       match p with
         FreshProviso (_, _, _, v) -> RIT (v, stuff)
       | NotinProviso (v, p) -> RIT (v, RIT (p, stuff))
-      | NotoneofProviso (vs, pat, C) -> fold RIT vs (RIT (C, stuff))
+      | NotoneofProviso (vs, pat, C) -> nj_fold RIT vs (RIT (C, stuff))
       | UnifiesProviso (p1, p2) -> RIT (p1, RIT (p2, stuff))
     let rec rawinfElements n (es, stuff) =
       let rec RE (e, stuff) =
         match e with
           Segvar (_, ops, v) ->
-            rawinfTerm n (v, fold (rawinfTerm n) ops stuff)
+            rawinfTerm n (v, nj_fold (rawinfTerm n) ops stuff)
         | Element (_, r, t) -> rawinfresnum (r, rawinfTerm n (t, stuff))
       in
-      fold RE es stuff
+      nj_fold RE es stuff
     let rec rew_worthwhile subst cxt ri =
       (subst &&
        (match rewinf_psig ri, getprovisosig cxt with
@@ -253,7 +253,7 @@ module
               (function
                  Collection (_, _, []) -> []
                | Collection (_, _, es) as c ->
-                   (* modeifyelement ps MAP es *)
+                   (* modeifyelement ps m_a_p es *)
                    raise
                      (Catastrophe_
                         ["rew_elements 2 "; elementstring sv; " ";
@@ -331,7 +331,7 @@ module
           let rec newrewinf n ps =
             Some
               (raw2rew_
-                 (fold (rawinfProviso n) (MAP (provisoactual, ps))
+                 (nj_fold (rawinfProviso n) (m_a_p (provisoactual, ps))
                     nullrawinf))
           in
           let rec yes nextcxt ps =
@@ -359,7 +359,7 @@ module
             if needsit subst cxt inf then
               let rec yes (ss, s) =
                 let raw =
-                  fold (rawinfSeq (getprovisosig cxt)) (s :: ss) nullrawinf
+                  nj_fold (rawinfSeq (getprovisosig cxt)) (s :: ss) nullrawinf
                 in
                 let inf = raw2rew_ raw in
                 let fvinf =
@@ -372,7 +372,7 @@ module
                         bmerge (seqvars varbindings bmerge s, stuff)
                       in
                       let stuff =
-                        fold sv1 ss (bmerge (hbindings, cbindings))
+                        nj_fold sv1 ss (bmerge (hbindings, cbindings))
                       in
                       let ps =
                         optionfilter

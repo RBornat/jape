@@ -242,8 +242,8 @@ module
               let (left, opp, right) = getsides el sopt in
               begin match s with
                 Left ->
-                  let revss = rev ss in
-                  rev
+                  let revss = List.rev ss in
+                  List.rev
                     (implode [List.hd revss; " "; opp; " "; termstring right] ::
                        List.tl revss)
               | Right ->
@@ -278,9 +278,9 @@ module
                       | _ -> false
                     in
                     let rec join ss ss' =
-                      let revss = rev ss in
+                      let revss = List.rev ss in
                       let (_, opp, _) = getsides el (Some Left) in
-                      rev (List.tl revss) @
+                      List.rev (List.tl revss) @
                         implode [List.hd revss; " "; opp; " "; List.hd ss'] :: List.tl ss'
                     in
                     if List.exists otherside csels then
@@ -292,7 +292,7 @@ module
                         pairup csels'
                     else csel :: pairup csels
               in
-              Some (path, MAP (deside, pairup concsels), hypsels, givensels)))
+              Some (path, m_a_p (deside, pairup concsels), hypsels, givensels)))
       and getsingleargsel () =
         match getsidedselectedtext () with
           Some (_, [_, [_; csel; _]], [], []) -> Some csel
@@ -319,12 +319,12 @@ module
                           [")"]))
             in
             Some
-              (MAP
+              (m_a_p
                  (parseit,
                   flatten
                     (getsels gs ::
-                       MAP
-                         ((fun ooo -> getsels (sml__hash__2 ooo)), cs @ hs))))
+                       m_a_p
+                         ((fun ooo -> getsels ((fun(_,hash2)->hash2) ooo)), cs @ hs))))
       in
       getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels,
       getargs
@@ -473,7 +473,7 @@ module
       let args =
         match args with
           [] -> [""]
-        | _ -> MAP (termstring, args)
+        | _ -> m_a_p (termstring, args)
       in
       match thingnamed name with
         None -> respace ("EVALUATE" :: parseablenamestring name :: args)
@@ -484,7 +484,7 @@ module
     (*  --------------------------------------------------------------------- *)
           
     let rec freshenv patterns cxt env =
-      let us = fold (sortedmerge earliervar) (MAP (termvars, patterns)) [] in
+      let us = nj_fold (sortedmerge earliervar) (m_a_p (termvars, patterns)) [] in
       let rec f =
         function
           (Unknown (_, v, c) as u), (us, cxt, env) ->
@@ -494,7 +494,7 @@ module
             ( ++ ) (env, ( |-> ) (uname, registerUnknown (v', c)))
         | _, r -> r
       in
-      fold f us ([], cxt, env)
+      nj_fold f us ([], cxt, env)
     (*  --------------------------------------------------------------------- *)
         
     let rec getGoalPath =
@@ -557,7 +557,7 @@ module
       | _ -> !autoAdditiveLeft, !autoAdditiveRight
     let rec expandstuff name (env, principals, thing) =
       fun (Proofstate {givens = givens}) ->
-        let params = rev (mappingfuns.rawdom env) in
+        let params = List.rev (mappingfuns.rawdom env) in
         (* I hope *)
         let how = prooftree.Apply (name, params, false) in
         let (kind, antes, conseq, provisos) =
@@ -578,8 +578,8 @@ module
       let (argmap, provisos', antes', conseq') =
         instantiateRule env provisos antes conseq
       in
-      kind, hiddens, how, MAP (sml__hash__2, argmap), principals, antes',
-      conseq', MAP (mkvisproviso, provisos')
+      kind, hiddens, how, m_a_p ((fun(_,hash2)->hash2), argmap), principals, antes',
+      conseq', m_a_p (mkvisproviso, provisos')
     let (apply, resolve, applyorresolve) =
       let rec makestep stuff state resopt =
         let (kind, hiddens, how, argmap, principals, antes, conseq, provisos)
@@ -684,7 +684,7 @@ module
     let rec applymethod () = if !tryresolution then applyorresolve else apply
     let rec doALERT tryf message m ps copt state =
       let m = message m in
-      let ps = MAP ((fun (b, t) -> message b, t), ps) in
+      let ps = m_a_p ((fun (b, t) -> message b, t), ps) in
       match ps, copt with
         [], None -> showAlert [m]; Some state
       | [], Some ct -> showAlert [m]; tryf ct state
@@ -754,7 +754,7 @@ module
     let rec parseints mess eval ints =
       try
         match debracket (eval ints) with
-          Tup (_, ",", ts) -> MAP (term2int, ts)
+          Tup (_, ",", ts) -> m_a_p (term2int, ts)
         | t -> [term2int t]
       with
         _ ->
@@ -1001,16 +1001,16 @@ module
             match CanApplyInState (triv, name, state) with
               [] -> cs
             | hypmatches ->
-                fold (fun (match__, cs) -> (name, match__) :: cs) hypmatches
+                nj_fold (fun (match__, cs) -> (name, match__) :: cs) hypmatches
                   cs
           in
-          match fold Applicable rulenames [] with
+          match nj_fold Applicable rulenames [] with
             [] -> None
           | cs ->
               let cs = sort (fun ((n, _), (n', _)) -> nameorder (n, n')) cs in
               let rec showRule (name, (cxt, tree)) =
                 namestring name ::
-                  MAP
+                  m_a_p
                     ((fun ooo ->
                         (fun ooo -> seqstring (rewriteseq cxt ooo))
                           (sequent ooo)),
@@ -1019,7 +1019,7 @@ module
               match
                 askChoice
                   ("Choose a rule from these applicable rules:",
-                   MAP (showRule, cs))
+                   m_a_p (showRule, cs))
               with
                 None -> None
               | Some n ->
@@ -1118,7 +1118,7 @@ module
                " ("; termstring term; ") => lf=";
                bracketedliststring termstring ", " lf; "; rf=";
                bracketedliststring termstring ", " rf];
-          (length lf = 3 && lf = rf) && All (formulageneralisable params, rf)
+          (length lf = 3 && lf = rf) && a_l_l (formulageneralisable params, rf)
         with
           Matchinassociativelawstuff_ -> false
       in
@@ -1154,8 +1154,8 @@ module
           not (currentlyProving name) &&
           (applyAnyway thing || not (needsProof name thing))
     let rec allrelevantthings () =
-      MAP
-        ((fun ooo -> (fun ooo -> sml__hash__1 (unSOME ooo)) (thingnamed ooo)),
+      m_a_p
+        ((fun ooo -> (fun ooo -> (fun(hash1,_)->hash1) (unSOME ooo)) (thingnamed ooo)),
          ( <| ) (relevant, thingnames ()))
     let rec isassociative operator =
       if !FINDdebug then
@@ -1443,7 +1443,7 @@ module
           | "DECIDE", conclusion :: oracle :: args ->
               DECIDE
                 (turnstile, cxt, HS, conclusion, termstring oracle,
-                 MAP (termstring, args))
+                 m_a_p (termstring, args))
           | _ ->
               setReason
                 ["Evaluate couldn't recognise judgement "; termstring C];
@@ -1456,7 +1456,7 @@ module
             "DECIDEBAG", oracle :: args ->
               DECIDE
                 (turnstile, cxt, HS, registerCollection (idclass, CS),
-                 termstring oracle, MAP (termstring, args))
+                 termstring oracle, m_a_p (termstring, args))
           | _ ->
               setReason
                 ["Evaluate couldn't recognise judgement "; termstring CONCS];
@@ -1488,15 +1488,15 @@ module
     let rec appendsubterms t q =
       match t with
         App (_, l, r) -> r :: l :: q
-      | Tup (_, _, ts) -> rev ts @ q
-      | Fixapp (_, _, ts) -> rev ts @ q
-      | Binding (_, (bs, ss, us), _, _) -> (rev ss @ rev us) @ q
+      | Tup (_, _, ts) -> List.rev ts @ q
+      | Fixapp (_, _, ts) -> List.rev ts @ q
+      | Binding (_, (bs, ss, us), _, _) -> (List.rev ss @ List.rev us) @ q
       | _ -> q
     let rec FIRSTSUBTERM f t =
       let rec S a1 a2 =
         match a1, a2 with
           [], [] -> None
-        | [], rear -> S (rev rear, [])
+        | [], rear -> S (List.rev rear, [])
         | t :: front, rear ->
             match f t with
               None -> S (front, appendsubterms t rear)
@@ -1525,7 +1525,7 @@ module
        
     let rec tranformals formals =
       try
-        MAP
+        m_a_p
           ((fun ooo -> (fun ooo -> unSOME (term2name ooo)) (paramvar ooo)),
            formals)
       with
@@ -1550,7 +1550,7 @@ module
           unSOME_ ->
             raise (Catastrophe_ ["can't happen mkenvfrommap "; termstring v])
       in
-      revfold mk argmap !rootenv
+      nj_revfold mk argmap !rootenv
     let rec AQ env term =
       let rec A =
         function
@@ -1591,7 +1591,7 @@ module
           if !FOLDdebug then
             consolereport
               ["ConcsOf "; namestring n; " (=> ";
-               optionstring (fun ooo -> thingstring (sml__hash__1 ooo))
+               optionstring (fun ooo -> thingstring ((fun(hash1,_)->hash1) ooo))
                  (thingnamed n);
                ")"];
           match thingnamed n with
@@ -1625,9 +1625,9 @@ module
              ", " (spec, l)];
       match spec with
         TermTac (name, _) -> ConclusionsofthingNamed (evalname env name, l)
-      | AltTac ts -> fold (ConclusionsofTactic env) ts l
+      | AltTac ts -> nj_fold (ConclusionsofTactic env) ts l
       | TheoryAltTac ns ->
-          fold (fun (n, l) -> ConclusionsofthingNamed (evalname env n, l)) ns
+          nj_fold (fun (n, l) -> ConclusionsofthingNamed (evalname env n, l)) ns
             l
       | _ -> setReason ["Bad FOLD/UNFOLD argument"]; l
     let (realCache, resetconclusioncache) = conclusioncache.cache ConcsOf
@@ -1644,7 +1644,7 @@ module
       | _ -> termstring t
     let rec listf a1 a2 a3 =
       match a1, a2, a3 with
-        [], [], r -> rev r
+        [], [], r -> List.rev r
       | [], t :: ts, r -> listf [] ts (" " :: termstring t :: " " :: r)
       | "%" :: "l" :: fs, t :: ts, r ->
           listf fs ts
@@ -1691,7 +1691,7 @@ module
         let rec adhoceval ooo = rewrite cxt (eval env ooo) in
         let rec Tickmenu on menu label state =
           try
-            let rec U s = substring (s, 1, String.length s - 2) in
+            let rec U s = String.sub (s) (1) (String.length s - 2) in
             let rec V t =
               match adhoceval t with
                 Literal (_, String s) -> U s
@@ -1702,7 +1702,7 @@ module
           with
             BadMatch ->
               setReason
-                (["Badly-formed JAPE tactic: "] @ MAP (termstring, ts));
+                (["Badly-formed JAPE tactic: "] @ m_a_p (termstring, ts));
               None
         in
         (* function is Term to Integer List *)
@@ -1710,12 +1710,12 @@ module
           function
             Literal (_, Number n) -> [n]
           | Tup (_, ",", ts) ->
-              ( </ ) ((fun (x, y) -> x @ y), []) (MAP (TtoIL, ts))
+              ( </ ) ((fun (x, y) -> x @ y), []) (m_a_p (TtoIL, ts))
           | _ -> raise MatchinTtoIL
         in
         match ts with
           [] ->
-            setReason ("Badly-formed JAPE tactic: " :: MAP (termstring, ts));
+            setReason ("Badly-formed JAPE tactic: " :: m_a_p (termstring, ts));
             None
         | t :: _ ->
             match explodeApp true t with
@@ -1741,7 +1741,7 @@ module
                       Id (h, v, c) -> Ordinaryparam (v, c)
                     | _ -> raise MatchinJAPEparam
                   in
-                  let params = MAP (param, args) in
+                  let params = m_a_p (param, args) in
                   addthing
                     (name, Tactic (params, transTactic tactic), InLimbo);
                   (* cleanup(); (*DO ME SOON*)*)
@@ -1865,7 +1865,7 @@ module
               in
               begin match args, tac with
                 _ :: _, TheoryAltTac ns ->
-                  def (AltTac (MAP ((fun n -> con (n, args)), ns))) []
+                  def (AltTac (m_a_p ((fun n -> con (n, args)), ns))) []
               | _ -> def tac args
               end
           | _, _, Macro (formals, m) ->
@@ -1938,7 +1938,7 @@ module
               (fun t -> dispatchTactic display try__ env contn t state) ts
         | TheoryAltTac ns ->
             dispatchTactic display try__ env contn
-              (AltTac (MAP ((fun n -> TermTac (n, [])), ns))) state
+              (AltTac (m_a_p ((fun n -> TermTac (n, [])), ns))) state
         | RepTac t ->
             contn (doDO (dispatchTactic display try__ env nullcontn t) state)
         | IfTac t ->
@@ -1963,7 +1963,7 @@ module
             doFOLD name display try__ env contn (evalname env name, stuff)
               state
         | AssignTac spec -> contn (doASSIGN env spec state)
-        | UnifyTac terms -> contn (forceUnify (MAP (eval env, terms)) state)
+        | UnifyTac terms -> contn (forceUnify (m_a_p (eval env, terms)) state)
         | UnifyArgsTac ->
             andthenr
               (getargs "UNIFYARGS",
@@ -2030,9 +2030,9 @@ module
         | AssocFlatTac t -> contn (doFLATTEN env t state)
         | MapTac (name, args) ->
             doMAPTERMS display try__ contn (evalname env name)
-              (MAP (eval env, args)) state
+              (m_a_p (eval env, args)) state
         | TermTac (str, args) ->
-            let args' = MAP (eval env, args) in
+            let args' = m_a_p (eval env, args) in
             let rec calltac name args =
               if !tactictracing then
                 consolereport
@@ -2080,7 +2080,7 @@ module
             end
         | SubstTac (name, vts) ->
             trySubst display try__ contn (evalname env name)
-              (MAP (evalvt env, vts)) state
+              (m_a_p (evalvt env, vts)) state
         | GivenTac i -> contn (tryGiven display try__ (eval env i) state)
         | WhenTac ts -> contn (doWHEN ts display try__ env state)
         | WithSubstSelTac t ->
@@ -2167,7 +2167,7 @@ module
 
     and tryApply display =
       tryApplyOrSubst dispatchTactic getapplyinfo mkenv
-        (fun (n, args) -> TermTac (n, MAP (quoteterm, args)))(* con *)
+        (fun (n, args) -> TermTac (n, m_a_p (quoteterm, args)))(* con *)
          tracewithargs
         display
     and trySubst display =
@@ -2315,7 +2315,7 @@ module
                    match explodeApp false t with
                      _, [Tup (_, ",", [l; r])] -> Some (name, thing, l)
                    | _ -> None)
-                (fold (ConclusionsofTactic env) laws [])
+                (nj_fold (ConclusionsofTactic env) laws [])
             in
             findfirst
               (andthen
@@ -2342,7 +2342,7 @@ module
                    match explodeApp false t with
                      _, [Tup (_, ",", [l; r])] -> Some (name, thing, t)
                    | _ -> None)
-                (fold (ConclusionsofTactic env) laws [])
+                (nj_fold (ConclusionsofTactic env) laws [])
             in
             findfirst
               (andthen
@@ -2364,7 +2364,7 @@ module
             target = target;
             root = root} as state) ->
         let (_, cxt, env) = freshenv patterns cxt env in
-        let patterns = MAP (eval env, patterns) in
+        let patterns = m_a_p (eval env, patterns) in
         match rewriteseq cxt (getTip tree goal) with
           Seq (_, HS, Collection (_, collc, [Element (_, resn, C)])) ->
             let rec HypMatches =
@@ -2432,7 +2432,7 @@ module
             target = target;
             root = root} as state) ->
         let (_, cxt, env) = freshenv patterns cxt env in
-        let patterns = MAP (eval env, patterns) in
+        let patterns = m_a_p (eval env, patterns) in
         match rewriteseq cxt (getTip tree goal) with
           Seq (_, HS, Collection (_, collc, [Element (_, resn, C)])) ->
             let rec HypMatches =
@@ -2492,9 +2492,9 @@ module
         | _ -> setReason ["UNFOLDHYP with multiple-conclusion sequent"]; None
     and doBIND tac display try__ env =
       fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
-        let matching = sml__hash__1 try__ in
+        let matching = (fun(hash1,_)->hash1) try__ in
         let rec newenv cxt env newformals =
-          fold
+          nj_fold
             (fun (formal, env) ->
                ( ++ )
                  (env,
@@ -2504,7 +2504,7 @@ module
         let rec checkmatching cxt cxt' expr =
           not matching ||
           matchedtarget cxt cxt'
-            (fold
+            (nj_fold
                (function
                   Unknown (_, u, _), uvs -> u :: uvs
                 | _, uvs -> uvs)
@@ -2543,22 +2543,22 @@ module
                 setReason
                   (s :: " didn't match patterns " ::
                      liststring2 termstring ", " " and "
-                       (MAP (sml__hash__1, pes)) ::
+                       (m_a_p ((fun(hash1,_)->hash1), pes)) ::
                      " to formulae " ::
                      liststring2 termstring ", " " and "
-                       (MAP (sml__hash__2, pes)) ::
+                       (m_a_p ((fun(_,hash2)->hash2), pes)) ::
                      ss)
             end;
             None
           in
           let (newformals, namecxt, env) =
-            freshenv (MAP (sml__hash__1, pes)) cxt env
+            freshenv (m_a_p ((fun(hash1,_)->hash1), pes)) cxt env
           in
           match
             bindunify bad
               (fun p ->
                  bad [" because proviso "; provisostring p; " was violated."])
-              (MAP ((fun (pattern, expr) -> eval env pattern, expr), pes))
+              (m_a_p ((fun (pattern, expr) -> eval env pattern, expr), pes))
               namecxt
           with
             None -> None
@@ -2698,7 +2698,7 @@ module
         let rec seqside2term colln =
           try
             let ts =
-              MAP
+              m_a_p
                 ((fun ooo -> unSOME (element2term ooo)),
                  explodeCollection colln)
             in
@@ -2716,20 +2716,20 @@ module
           let tiprhss =
             ( <| )
               ((fun ooo ->
-                  pathPrefix tree (getGoalPath goal) (sml__hash__1 ooo)),
+                  pathPrefix tree (getGoalPath goal) ((fun(hash1,_)->hash1) ooo)),
                allTipConcs tree)
           in
           (* the tips relevant to us, with their paths *)
           let tipterms =
-            MAP
+            m_a_p
               ((fun (path, rhss) ->
                   path,
-                  MAP (unSOME, ( <| ) (opt2bool, MAP (element2term, rhss)))),
+                  m_a_p (unSOME, ( <| ) (opt2bool, m_a_p (element2term, rhss)))),
                tiprhss)
           in
           flatten
-            (MAP
-               ((fun (path, terms) -> MAP ((fun term -> path, term), terms)),
+            (m_a_p
+               ((fun (path, terms) -> m_a_p ((fun term -> path, term), terms)),
                 tipterms))
         in
         (* it would be nice to be able to check if two values match, but I don't know how to do it without using antiquoting, and
@@ -2778,7 +2778,7 @@ module
                    Some
                      (registerTup
                         (",",
-                         MAP
+                         m_a_p
                            ((fun ooo ->
                                (fun ooo -> rewrite cxt (unSOME ooo))
                                  (element2term ooo)),
@@ -2872,7 +2872,7 @@ module
                   (cxt,
                    ( ++ )
                      (env,
-                      ( |-> ) (name, registerTup (",", MAP (int2term, ns)))),
+                      ( |-> ) (name, registerTup (",", m_a_p (int2term, ns)))),
                    Some (rewrite cxt conc), (pat, tac))
             | [] ->
                 setReason ["LETOPENSUBGOAL with no unproved conclusions"];
@@ -2898,8 +2898,8 @@ module
                    Some
                      (registerTup
                         (",",
-                         MAP
-                           ((fun ooo -> rewrite cxt (sml__hash__2 ooo)),
+                         m_a_p
+                           ((fun ooo -> rewrite cxt ((fun(_,hash2)->hash2) ooo)),
                             tips))),
                    spec)
             end
@@ -2920,7 +2920,7 @@ module
               (dispatchTactic display try__
                  (( ++ )
                     (env,
-                     ( |-> ) (name, registerTup (",", MAP (int2term, ns)))))
+                     ( |-> ) (name, registerTup (",", m_a_p (int2term, ns)))))
                  nullcontn tac state)
         | BadUnifyTac (n1, n2, tac) ->
             andthenr
@@ -3077,9 +3077,9 @@ module
             | StopTactic_ -> None
         in
         match
-          fold
+          nj_fold
             (fun ((matching, tac), stateopt) ->
-               fold
+               nj_fold
                  (function
                     goal, Some state' ->
                       ortryr
