@@ -1068,9 +1068,9 @@ let rec autoStep a1 a2 a3 =
               let (name, (cxt, newtree)) = List.nth cs n in
               proofstep cxt newtree state
 
-let rec forceUnify a1 a2 =
-  match a1, a2 with
-    t1 :: t2 :: ts, (Proofstate {cxt = cxt} as state) ->
+let rec forceUnify ts (Proofstate {cxt = cxt} as state) =
+  match ts with
+    t1 :: t2 :: ts ->
       let rec showit t =
         if t = rewrite cxt t then string_of_term t
         else
@@ -1079,9 +1079,7 @@ let rec forceUnify a1 a2 =
             ")"
       in
       let rec bad reasons =
-        setReason
-          ("can't unify " :: showit t1 :: " with " :: showit t2 ::
-             reasons);
+        setReason ("can't unify " :: showit t1 :: " with " :: showit t2 :: reasons);
         None
       in
       badunify := None;
@@ -1099,7 +1097,7 @@ let rec forceUnify a1 a2 =
           badproviso := Some ((t1, t2), p);
           bad [" because proviso "; string_of_proviso p; " is violated"]
       end
-  | _, state -> Some state
+  | _ -> Some state
 
 
 let rec doDropUnify ts ss =
@@ -2050,10 +2048,13 @@ let rec dispatchTactic display try__ env contn tactic =
     | UnifyArgsTac ->
         (getargs "UNIFYARGS" &~~
            (function
-              [t] ->
-                setReason ["UNIFYARGS failed: only one text selection"];
-                None
-            | ts -> contn (forceUnify ts state)))
+              [t] -> let t' = Japeserver.askUnify (string_of_term t) in
+                     if t' ="" then raise StopTactic_ else 
+                     (try Some (term_of_string t')
+                      with ParseError_ ss ->
+                        showAlert ("Your formula didn't parse, because " :: ss); raise StopTactic_) &~~
+                     (fun t' -> contn (forceUnify [t'; t] state))
+            | ts  -> contn (forceUnify ts state)))
     | AdHocTac ts ->
         contn
           (doJAPE (dispatchTactic display try__ env nullcontn) display env
@@ -3013,7 +3014,7 @@ let rec errorcatcher f mess text state =
   | AlterProof_ ss ->
       showAlert ("AlterProof_ error: " :: ss @ [" "; mess ()]); None
   | StopTactic_ -> None
-  | exn -> raise exn
+  | exn         -> raise exn
 (* in case compiler thinks StopTactic_ is a variable ... *)
      
 
