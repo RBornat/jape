@@ -935,4 +935,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
 	enableProofMenuItems();
     }
+    
+    public static void wakeDragSourceIndicators() throws ProtocolError {
+	getFocussedWindow().proofCanvas.wakeDragSourceIndicators();
+    }
 }

@@ -136,6 +136,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    for (int i=0; i<slen; i++)
 				ss[i] = readPoints();
 			    SelectableProofItem.setDragSources(ss);
+			    ProofWindow.wakeDragSourceIndicators();
 			}
 			else
 			if (p=="DRAGTARGETS"&&len==2) {

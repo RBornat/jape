@@ -30,6 +30,7 @@
 		};
 		01F12F4DFEC8CE2211DB9C8B = {
 			children = (
+				7909AA7F07EDEFDF00FC10F3,
 				7935695607EA0804006D0E33,
 				792473B30650EC5700FCFD44,
 				791C734405DCEDE00086E5C6,
@@ -392,6 +393,7 @@
 				792473B50650EC5700FCFD44,
 				79135453067F2BC7002D81A7,
 				7935695707EA0804006D0E33,
+				7909AA8007EDEFDF00FC10F3,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -432,6 +434,27 @@
 //792
 //793
 //794
+		7909AA7F07EDEFDF00FC10F3 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.java;
+			name = DragIndicator.java;
+			path = /Users/richard/cvsdownloads/jape/distrib/java_GUI/uk/org/jape/DragIndicator.java;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		7909AA8007EDEFDF00FC10F3 = {
+			fileRef = 7909AA7F07EDEFDF00FC10F3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7909AA8107EDEFDF00FC10F3 = {
+			fileRef = 7909AA7F07EDEFDF00FC10F3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		79135452067F2BC7002D81A7 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
@@ -2258,6 +2281,7 @@
 				792473B40650EC5700FCFD44,
 				79135454067F2BC7002D81A7,
 				7935695807EA0804006D0E33,
+				7909AA8107EDEFDF00FC10F3,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;

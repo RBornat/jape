@@ -190,4 +190,20 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
 	}
 	return null;
     }
+    
+    public void wakeDragIndicators(int dragNum) {
+	Component[] cs = child.getComponents(); // oh dear ...
+	for (int i=0; i<cs.length; i++) {
+	    if (cs[i] instanceof DragIndicator)
+		((DragIndicator)cs[i]).wake(dragNum);
+	}
+    }
+    
+    public void wakeDragSourceIndicators() {
+	wakeDragIndicators(-1);
+    }
+    
+    public void wakeDragTargetIndicators(int dragNum) {
+	wakeDragIndicators(dragNum);
+    }
 }

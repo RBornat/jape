@@ -57,11 +57,12 @@ public	class SelectableProofItem extends TextSelectableItem
 	addSelectionIndicator(
 	    canvas.proofStyle==BoxStyle ? new DirectedFormulaSelection(this) :
 					  new RectSelection(this));
+	addDragIndicator(new DragIndicator(this));
 	addJapeMouseListener(new JapeMouseAdapter() {
 	    int dragNum;
 	    public void pressed(MouseEvent e) {
 		SelectableProofItem.this.canvas.claimFocus();
-		dragNum = pointIsIn(dragSources, idX, idY);
+		dragNum = getDragNum();
 		if (drag_tracing)
 		    Logger.log.println("looking for drag "+idX+","+idY+"; got "+dragNum);
 		if (dragNum!=-1)
@@ -147,6 +148,7 @@ public	class SelectableProofItem extends TextSelectableItem
 							       e.getY()-starty-offsety,
 							       layeredPane));
 	    formulaImage.repaint();
+	    ((ProofCanvas)canvas).wakeDragTargetIndicators(dragNum);
 	}
 	else {
 	    if (drag_tracing)
@@ -190,29 +192,37 @@ public	class SelectableProofItem extends TextSelectableItem
     
     protected void finishDrag() {
 	layeredPane.remove(formulaImage);
+	((ProofCanvas)canvas).wakeDragSourceIndicators();
     }
     
     /* ******************************** formula as drag target ************************************* */
 
     boolean acceptDrop = false;
 
-    public boolean dragEnter(int dragNum, SelectableProofItem f) {
-	acceptDrop = false;
+    public int getDragNum() {
+	return pointIsIn(dragSources, idX, idY);
+    }
+    
+    public boolean isTarget(int dragNum) {
 	int dropNum = pointIsIn(dragTargets, idX, idY);
 	if (dropNum!=-1) {
 	    /* look for source, target pair */
-	    for (int pair=0; !acceptDrop && pair*2+1<dragMap.length; pair++) {
+	    for (int pair=0; pair*2+1<dragMap.length; pair++) {
 		int[] ss = dragMap[pair*2], ts = dragMap[pair*2+1];
 		for (int si=0; si<ss.length; si++)
 		    if (ss[si]==dragNum) {
 			for (int ti=0; ti<ts.length; ti++)
-			    if (ts[ti]==dropNum) {
-				acceptDrop = true; break;
-			    }
+			    if (ts[ti]==dropNum)
+				return true; 
 			break;
 		    }
 	    }
 	}
+	return false;
+    }
+    
+    public boolean dragEnter(int dragNum, SelectableProofItem f) {
+	acceptDrop = isTarget(dragNum);
 	if (acceptDrop) {
 	    paintTextSels = false;
 	    repaint();

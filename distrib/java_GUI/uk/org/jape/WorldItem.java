@@ -111,7 +111,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     }
 
     public boolean contains(int x, int y) {
-	return indicator!=null ? indicator.contains(x, y) :
+	return selectionIndicator!=null ? selectionIndicator.contains(x, y) :
 				 (x-radius)*(x-radius)+(y-radius)*(y-radius)<=radius*radius;
     }
 

@@ -36,19 +36,19 @@ public class DisplayItem extends Component
     public final int idX, idY;
 
     private boolean selected = false;
-    protected SelectionIndicator indicator = null;
+    protected SelectionIndicator selectionIndicator = null;
     
     protected DisplayItem(JapeCanvas canvas, int x, int y) {
 	super();
 	this.canvas = canvas; this.idX = x; this.idY = y;
     }
 
-    // DisplayItems can have a selection halo; if they have an indicator that defines a halo
+    // DisplayItems can have a selection halo; if they have an selectionIndicator that defines a halo
     protected int selectionHalo = 0;
 
     public boolean contains(int x, int y) {
 	return super.contains(x,y) ||
-		(indicator!=null && indicator.contains(x,y)) ||
+		(selectionIndicator!=null && selectionIndicator.contains(x,y)) ||
 		(selectionHalo>0 && 
 		 x+selectionHalo>=0 && x-selectionHalo<getWidth() &&
 		 y+selectionHalo>=0 && y-selectionHalo<getHeight());
@@ -87,11 +87,11 @@ public class DisplayItem extends Component
 
     private JapeMouseTextAdapter selectionListener = null;
 
-    public void addSelectionIndicator(SelectionIndicator indicator) {
+    public void addSelectionIndicator(SelectionIndicator selectionIndicator) {
 	if (selectionListener!=null)
 	    removeJapeMouseListener(selectionListener);
-	if (this.indicator!=null)
-	    canvas.remove((Component)this.indicator);
+	if (this.selectionIndicator!=null)
+	    canvas.remove((Component)this.selectionIndicator);
 	selectionListener = new JapeMouseTextAdapter() {
 	    public void clicked(byte eventKind, MouseEvent e) {
 		DisplayItem.this.selectionclicked(eventKind, e);
@@ -101,28 +101,37 @@ public class DisplayItem extends Component
 	    }
 	};
 	addJapeMouseListener(selectionListener);
-	this.indicator = indicator;
-	indicator.indicate(this);
-	canvas.add((Component)indicator);
+	this.selectionIndicator = selectionIndicator;
+	selectionIndicator.indicate(this);
+	canvas.add((Component)selectionIndicator);
+    }
+    
+    private DragIndicator dragIndicator = null;
+    
+    public void addDragIndicator(DragIndicator dragIndicator) {
+	if (this.dragIndicator!=null)
+	    canvas.remove((Component)this.dragIndicator);
+	this.dragIndicator = dragIndicator;
+	canvas.add((Component)dragIndicator);
     }
 
     public boolean selectable() {
-	return indicator!=null;
+	return selectionIndicator!=null;
     }
 
     public boolean getSelected() {
-	return indicator!=null && selected;
+	return selectionIndicator!=null && selected;
     }
 
     public void setSelected(boolean selected) {
-	if (indicator!=null && this.selected!=selected) {
+	if (selectionIndicator!=null && this.selected!=selected) {
 	    this.selected = selected;
-	    indicator.indicate(this);
+	    selectionIndicator.indicate(this);
 	}
     }
 
     public void doSelectAction(boolean selected) {
-	if (indicator!=null && this.selected!=selected) {
+	if (selectionIndicator!=null && this.selected!=selected) {
 	    setSelected(selected);
 	    canvas.notifySelectionChange(this);
 	}
