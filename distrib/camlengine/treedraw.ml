@@ -34,7 +34,6 @@ open Sml
 let (&~~) = Optionfuns.(&~~)
 let (<*) = Listfuns.(<*)
 let (<|) = Listfuns.(<|)
-let (|||) = Listfuns.(|||)
 let clearView = Draw.clearView
 let consolereport = Miscellaneous.consolereport
 let elementstring = Term.Termstring.elementstring
@@ -90,14 +89,14 @@ let rec place subh gap =
     let rec m3 f xs =
       match xs with
         _ :: _ ->
-          let rec _MAX ys zs = (f <* (ys|||zs)) in
+          let rec _MAX ys zs = (f <* Listfuns._BMzip ys zs) in
           let m2 = _MAX xs (List.tl xs) in
           _MAX (List.hd xs :: m2) (m2 @ [last xs])
       | _ -> xs
     in
     let rs = m3 (uncurry2 max) ((snd <* alloutline)) in
     let ls = m3 (uncurry2 min) ((fst <* proofoutline)) in
-    let offset = nj_fold (uncurry2 max) ((fo <* (rs|||ls))) 0 in
+    let offset = nj_fold (uncurry2 max) ((fo <* Listfuns._BMzip rs ls)) 0 in
     (* doesn't take account of indentation; bound to be 0 if rs is null *)
     let newpos = pos (offset, subh - sH (bSize proofbox)) in
     let newbox = box (newpos, bSize proofbox) in
