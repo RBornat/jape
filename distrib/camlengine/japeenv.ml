@@ -54,8 +54,19 @@ type japevarrrec =
       { vals : string list option; init : string; set : string -> unit;
         get : unit -> string }
  and guardedjapevarrec = { guard : unit -> bool; var : japevar }
- and japevar = Japevar of japevarrrec
+ and japevar = 
+    Japevar of japevarrrec
   | GuardedJapevar of guardedjapevarrec
+
+let string_of_japevarrec { vals = vals; init = init } =
+  "{vals=" ^ Optionfuns.optionstring (bracketedliststring (fun s->s) ";") vals ^ 
+  "; init=" ^ enQuote init ^
+  "; set=...; get=...}"
+  
+let rec string_of_japevar v =
+  match v with 
+    Japevar r                -> "Japevar " ^ string_of_japevarrec r
+  | GuardedJapevar {var = v} -> "GuardedJapevar {guard=...; var=" ^ string_of_japevar v ^ "}"
 
 let rec guardedjapevar g v =
   GuardedJapevar {guard = g; var = v}
@@ -114,36 +125,45 @@ let rec intjapevar v (set, get) =
   let i2s : int -> string = string_of_int in
   basejapevar None (i2s v)
     ((set <.> s2i), (i2s <.> get))
-let rec intjaperefvar v r =
+
+let intjaperefvar v r =
   intjapevar v ((fun i -> r := i), (fun () -> !r))
+
 let on = "true"
 let off = "false"
-let rec booljapevar v (set, get) =
+
+let booljapevar v (set, get) =
   let rec s2b t = t = on in
   let rec b2s v = if v then on else off in
   basejapevar (Some [on; off]) (b2s v)
     ((set <.> s2b), (b2s <.> get))
-let rec booljaperefvar v r =
+
+let booljaperefvar v r =
   booljapevar v ((fun b -> r := b), (fun () -> !r))
 
 type envval = Envterm of Termtype.term | Envvar of japevar
+
+let string_of_envval v =
+  match v with 
+    Envterm t -> termstring t
+  | Envvar  v -> string_of_japevar v
 
 let rec (<@>) env name =
   match Mappingfuns.(<@>) env name with
     Some (Envterm t) -> Some t
   | Some (Envvar v) ->
-      begin try Some (term_of_string (getjapevar v)) with
-        ParseError_ rs ->
+      (try Some (term_of_string (getjapevar v)) 
+       with ParseError_ rs ->
           raise
             (Catastrophe_
-               (["japeenv can't parse get()=\""; getjapevar v; "\" -- "] @
-                  rs))
-      end
+               (["japeenv can't parse get()=\""; getjapevar v; "\" -- "] @ rs)))
   | None -> None
+
 let rec set (env, name, value) =
   match Mappingfuns.(<@>) env name with
     Some (Envvar v) -> setjapevar (v, termstring value)
   | _ -> raise NotJapeVar_
+
 let rec checkrange env name settings =
   match Mappingfuns.(<@>) env name with
     Some (Envvar v) ->
@@ -167,3 +187,5 @@ let ( |-> ) t t' = Mappingfuns.(|->) t (Envterm t')
 let ( ||-> ) t var = Mappingfuns.(|->) t (Envvar var)
 
 type japeenv = (Name.name, envval) mapping
+
+let string_of_japeenv = Mappingfuns.mappingstring Name.namestring string_of_envval

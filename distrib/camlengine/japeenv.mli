@@ -56,3 +56,4 @@ exception OutOfRange_ of string
 exception NotJapeVar_ 
 exception ReadOnly_
 
+val string_of_japeenv : japeenv -> string
