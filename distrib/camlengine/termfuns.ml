@@ -1067,7 +1067,7 @@ let explodeApp curry t =
   in
   match curry, unApp (debracket t) [] with
     true, (f, [Tup (_, ",", rs)]) -> f, (debracket <* rs)
-  | _, res -> res
+  | _   , res                     -> res
 
 let implodeApp curry (t, args) =
   if curry then registerApp (t, registerTup (",", args))

@@ -377,17 +377,16 @@ let rec withabletac outer env t =
     WithSubstSelTac t ->
       begin match outer with
         WithSubstSelTac _ -> false
-      | _ -> withabletac outer env t
+      | _                 -> withabletac outer env t
       end
-  | WithArgSelTac t -> withabletac outer env t
-  | WithConcSelTac t -> withabletac outer env t
-  | WithHypSelTac t -> withabletac outer env t
-  | WithFormSelTac t -> withabletac outer env t
+  | WithArgSelTac t     -> withabletac outer env t
+  | WithConcSelTac t    -> withabletac outer env t
+  | WithHypSelTac t     -> withabletac outer env t
+  | WithFormSelTac t    -> withabletac outer env t
   | WithSelectionsTac t -> withabletac outer env t
-  | TermTac _ -> extensibletac env t
-  | SubstTac _ -> true
-  | _ ->(* I hope *)
-     false
+  | TermTac _           -> extensibletac env t
+  | SubstTac _          -> true
+  | _                   -> false (* I hope *)
 
 let rec quoteterm t =
   registerApp (registerId (vid_of_string "QUOTE", Idclass.ConstantClass), t)
@@ -2297,10 +2296,12 @@ and doMAPTERMS display try__ contn name args =
         in
         _FIRSTSUBTERM _TryTacOn _C
     | _ -> setReason ["MAPTERMS with multiple-conclusion sequent"]; None
+
 (* this is not the right way to do WithSubst: it ought to take more arguments so that
  * we can build our own pseudo-substitutions.  But a tactic language based on terms
  * is a bit restricted ...
  *)
+
 (* Now it forces you to use the substitution it constructs *)
 
 and doWITHSUBSTSEL display try__ =

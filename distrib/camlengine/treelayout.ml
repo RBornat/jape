@@ -47,7 +47,7 @@ let rec string_of_treelayout =
   | CompressedLayout stuff ->
       begin match tls stuff with
         "\"%s\" ALL" -> "COMPRESS"
-      | s -> "COMPRESS " ^ s
+      | s            -> "COMPRESS " ^ s
       end
   | NamedLayout stuff -> tls stuff
 and tls =
