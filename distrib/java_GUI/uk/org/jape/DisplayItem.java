@@ -90,8 +90,8 @@ public class DisplayItem extends Component
     public void addSelectionIndicator(SelectionIndicator indicator) {
 	if (selectionListener!=null)
 	    removeJapeMouseListener(selectionListener);
-	if (indicator!=null)
-	    canvas.remove((Component)indicator);
+	if (this.indicator!=null)
+	    canvas.remove((Component)this.indicator);
 	selectionListener = new JapeMouseTextAdapter() {
 	    public void clicked(byte eventKind, MouseEvent e) {
 		DisplayItem.this.selectionclicked(eventKind, e);
