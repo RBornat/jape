@@ -98,7 +98,7 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 112546583;
+			PBXPerProjectTemplateStateSaveDate = 113250562;
 			PBXPrepackagedSmartGroups_v2 = (
 				{
 					PBXTransientLocationAtTop = bottom;
@@ -268,11 +268,10 @@
 				{
 					PBXProjectWorkspaceModule_StateKey_Rev39 = {
 						PBXProjectWorkspaceModule_DataSourceSelectionKey_Rev6 = {
-							BoundsStr = "{{0, 0}, {627, 1350}}";
+							BoundsStr = "{{0, 0}, {627, 479}}";
 							Rows = (
-								76,
 							);
-							VisibleRectStr = "{{0, 831}, {627, 479}}";
+							VisibleRectStr = "{{0, 0}, {627, 479}}";
 						};
 						PBXProjectWorkspaceModule_EditorOpen = false;
 						PBXProjectWorkspaceModule_EmbeddedNavigatorGroup = {
@@ -336,7 +335,7 @@
 								);
 								PBXSmartGroupTreeModuleOutlineStateSelectionKey = (
 									(
-										0,
+										5,
 									),
 								);
 								PBXSmartGroupTreeModuleOutlineStateVisibleRectKey = "{{0, 0}, {163, 478}}";
@@ -475,7 +474,7 @@
 					PBXProjectWorkspaceModule_GeometryKey_Rev15 = {
 						PBXProjectWorkspaceModule_RunWindowVisible = true;
 					};
-					RubberWindowFrame = "246 640 822 538 0 0 1600 1178 ";
+					RubberWindowFrame = "64 208 822 538 0 0 1024 746 ";
 				},
 			);
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXBatchFindModule" = {
@@ -485,7 +484,7 @@
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXBuildResultsModule" = {
 				Frame = "{{0, 0}, {774, 422}}";
 				PBXModuleWindowStatusBarHidden = YES;
-				RubberWindowFrame = "543 302 774 443 0 0 1600 1178 ";
+				RubberWindowFrame = "165 145 774 443 0 0 1024 746 ";
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXClassBrowserModule" = {
 				ClassesFrame = "{{0, 0}, {436, 96}}";
@@ -512,12 +511,12 @@
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXDebugCLIModule" = {
 				Frame = "{{0, 0}, {400, 201}}";
 				PBXModuleWindowStatusBarHidden = YES;
-				RubberWindowFrame = "50 1150 400 222 0 0 1600 1178 ";
+				RubberWindowFrame = "50 718 400 222 0 0 1024 746 ";
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXNavigatorGroup" = {
-				Frame = "{{0, 0}, {879, 883}}";
+				Frame = "{{0, 0}, {750, 481}}";
 				PBXModuleWindowStatusBarHidden = YES;
-				RubberWindowFrame = "15 269 879 904 0 0 1600 1178 ";
+				RubberWindowFrame = "61 197 750 502 0 0 1024 746 ";
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXProjectFindModule" = {
 				Frame = "{{0, 0}, {690, 557}}";
@@ -536,7 +535,7 @@
 				PBXModuleWindowStatusBarHidden = YES;
 				RubberWindowFrame = "240 247 745 464 0 0 1600 1178 ";
 			};
-			PBXWorkspaceStateSaveDate = 112546583;
+			PBXWorkspaceStateSaveDate = 113250562;
 		};
 		perUserProjectItems = {
 			79984B9B069342F800E4F55C = 79984B9B069342F800E4F55C;
@@ -582,10 +581,10 @@
 	};
 	79135452067F2BC7002D81A7 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {762, 5656}}";
-			sepNavSelRange = "{7866, 0}";
-			sepNavVisRect = "{{0, 3297}, {711, 449}}";
-			sepNavWindowFrame = "{{15, 439}, {750, 558}}";
+			sepNavIntBoundsRect = "{{0, 0}, {762, 6216}}";
+			sepNavSelRange = "{5019, 0}";
+			sepNavVisRect = "{{0, 2011}, {711, 428}}";
+			sepNavWindowFrame = "{{61, 141}, {750, 558}}";
 		};
 	};
 	791C734405DCEDE00086E5C6 = {
@@ -734,9 +733,9 @@
 	791C736905DCEDE00086E5C6 = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {711, 2240}}";
-			sepNavSelRange = "{3409, 0}";
-			sepNavVisRect = "{{0, 1237}, {711, 449}}";
-			sepNavWindowFrame = "{{38, 15}, {750, 558}}";
+			sepNavSelRange = "{3493, 28}";
+			sepNavVisRect = "{{0, 1237}, {711, 428}}";
+			sepNavWindowFrame = "{{38, 162}, {750, 558}}";
 		};
 	};
 	791C736C05DCEDE00086E5C6 = {
@@ -833,9 +832,9 @@
 	791C738105DCEDE00086E5C6 = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {711, 2408}}";
-			sepNavSelRange = "{5418, 0}";
-			sepNavVisRect = "{{0, 1931}, {711, 449}}";
-			sepNavWindowFrame = "{{38, 418}, {750, 558}}";
+			sepNavSelRange = "{2225, 16}";
+			sepNavVisRect = "{{0, 763}, {711, 449}}";
+			sepNavWindowFrame = "{{15, 439}, {750, 558}}";
 		};
 	};
 	791C738205DCEDE00086E5C6 = {
