@@ -27,11 +27,16 @@
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ButtonGroup;
-import java.util.Enumeration;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -39,9 +44,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.util.Vector;
+import javax.swing.UIManager;
 
 public class JapeMenu implements DebugConstants {
     
@@ -75,6 +78,22 @@ public class JapeMenu implements DebugConstants {
         public void insertSep(int i) {
             if (preSep(i))
                 itemv.insertElementAt(new Sep(),i);
+        }
+        public void removeI(String label) {
+            int vc = itemv.size();
+            for (int i=0; i<vc; i++) {
+                Object o = itemv.get(i);
+                if (o instanceof I && ((I)o).label.equals(label)) {
+                    itemv.remove(i); return;
+                }
+            }
+            Alert.abort("JapeMenu.M.removeI \""+label+"\" from "+this);
+        }
+        public void removeSep(int index) {
+            if (index<itemv.size() && itemv.get(index) instanceof Sep)
+                itemv.remove(index);
+            else
+                Alert.abort("JapeMenu.m.removeSep("+index+") from "+this);
         }
         public I findI(String label) throws ProtocolError {
             int vc = itemv.size();
@@ -210,11 +229,21 @@ public class JapeMenu implements DebugConstants {
     }
     
     protected static TitledMenuBar mkBar(boolean isProofBar) {
+        String RADIO_ICON_KEY = "RadioButtonMenuItem.checkIcon";
+        String CHECK_ICON_KEY = "CheckBoxMenuItem.checkIcon";
+        Object radioIcon = UIManager.get(RADIO_ICON_KEY);
+        Object checkIcon = UIManager.get(CHECK_ICON_KEY);
         TitledMenuBar bar = new TitledMenuBar();
         for (Enumeration ebar = barv.elements(); ebar.hasMoreElements(); ) {
             M m = (M)ebar.nextElement();
             if (!m.proofsonly || isProofBar) {
                 TitledMenu menu = new TitledMenu(m.title);
+                boolean isWindowMenu = m.title.equals("Window");
+                ButtonGroup buttonGroup = isWindowMenu ? new ButtonGroup() : null;
+                if (isWindowMenu && radioIcon!=null && checkIcon!=null) {
+                    // make RadioButtons which look like CheckBoxes
+                    UIManager.put(RADIO_ICON_KEY, checkIcon);
+                }
                 JapeFont.setComponentFont(menu.getComponent(), JapeFont.MENUENTRY);
                 for (int i=0; i<m.size(); i++) {
                     Object o = m.get(i);
@@ -241,8 +270,15 @@ public class JapeMenu implements DebugConstants {
                     if (o instanceof I) {
                         I ii = (I)o;
                         if (isProofBar || !m.title.equals("File") || !ii.label.equals("Close")) {
-                            JMenuItem item = new JMenuItem(ii.label);
-                            mkItem(menu, ii, item);
+                            if (buttonGroup==null) {
+                                JMenuItem item = new JMenuItem(ii.label);
+                                mkItem(menu, ii, item);
+                            }
+                            else {
+                                JRadioButtonMenuItem item = new JRadioButtonMenuItem(ii.label, i==0);
+                                mkItem(menu, ii, item);
+                                buttonGroup.add(item);
+                            }
                         }
                     }
                     else
@@ -251,6 +287,8 @@ public class JapeMenu implements DebugConstants {
                     else
                         Alert.abort("JapeMenu.mkBar sees "+o);
                 }
+                if (isWindowMenu && radioIcon!=null && checkIcon!=null)
+                    UIManager.put(RADIO_ICON_KEY, radioIcon);
                 bar.add(menu);
             }
         }
@@ -329,20 +367,24 @@ public class JapeMenu implements DebugConstants {
     private static boolean append(M menu) {
         barv.add(menu); return true;
     }
-    
+
+    private static M indexMenu(M menu, String label) {
+        menutable.put(label,menu);
+        boolean dummy;
+        if (label.equals("Help"))
+            dummy = append(menu); // Help at the end
+        else
+        if (label.equals("Window"))
+            dummy = insertbefore(menu,"Help") || append(menu); // Window before Help
+        else
+            dummy = insertbefore(menu,"Window") || insertbefore(menu,"Help") || append(menu); // before Window
+        return menu;
+    }        
+
     private static M indexMenu(boolean proofsonly, String label) {
         M menu = (M)menutable.get(label);
         if (menu==null) {
-            menu = new M(proofsonly, label);
-            menutable.put(label,menu);
-            boolean dummy;
-            if (label.equals("Help"))
-                dummy = append(menu); // Help at the end
-            else
-            if (label.equals("Window"))
-                dummy = insertbefore(menu,"Help") || append(menu);
-            else
-               dummy = insertbefore(menu,"Window") || insertbefore(menu,"Help") || append(menu);
+            return indexMenu(new M(proofsonly, label), label);
         }
         return menu;
     }
@@ -483,8 +525,8 @@ public class JapeMenu implements DebugConstants {
 
         addStdFileMenuItems(indexMenu(false, "File"));
         addStdEditMenuItems(indexMenu(true,  "Edit"));
-        if (windowmenu==null)
-            addStdWindowMenuItems(windowmenu = indexMenu(false, "Window"));
+        addStdWindowMenuItems(windowmenu==null ? (windowmenu=indexMenu(false, "Window")) :
+                                                 indexMenu(windowmenu, "Window"));
         addStdHelpMenuItems(indexMenu(false, "Help"));
 
         menusVisible = false;
@@ -503,11 +545,21 @@ public class JapeMenu implements DebugConstants {
         menusVisible = true;
     }
 
+    private static class ActivateWindowAction extends ItemAction {
+        JapeWindow w;
+        public ActivateWindowAction(JapeWindow w) {
+            this.w=w;
+        }
+        public void action() {
+            w.toFront();
+        }
+    }
+
     private static M windowmenu;
     private static boolean hassurrogate=false;
     private static int panelcount=0, proofcount=0;
-    
-    public static void addWindow(String title, JapeWindow w) {
+
+    public static void windowAdded(String title, JapeWindow w) {
         int insertpoint = -1;
         if (w instanceof SurrogateWindow) {
             if (hassurrogate)
@@ -552,10 +604,52 @@ public class JapeMenu implements DebugConstants {
         else
             Alert.abort("JapeMenu.addWindow "+w);
             
-        indexMenuItem(windowmenu, insertpoint==-1?windowmenu.size():insertpoint,
-                        title, new ActivateWindowAction(w));
+        indexMenuItem(windowmenu, insertpoint==-1 ? windowmenu.size() : insertpoint,
+                      title, new ActivateWindowAction(w));
+
+        if (menusVisible)
+            JapeWindow.updateMenuBars();
     }
 
+    public static void windowActivated(String title, JapeWindow w) {
+        try {
+            tickItem(false, "Window", title, true);
+        } catch (ProtocolError e) {
+            Alert.abort("JapeMenu.windowActivated \""+title+"\"; windowmenu="+windowmenu);
+        }
+    }
+        
+    public static void windowRemoved(String title, JapeWindow w) {
+        windowmenu.removeI(title);
+        if (w instanceof SurrogateWindow && hassurrogate) {
+            hassurrogate = false;
+            if (panelcount!=0 || proofcount!=0)
+                windowmenu.removeSep(0);
+        }
+        else
+        if (w instanceof PanelWindowData.PanelWindow && panelcount>0) {
+            panelcount--;
+            if (hassurrogate)
+                windowmenu.removeSep(1);
+            else
+            if (proofcount!=0)
+                windowmenu.removeSep(0);
+        }
+        else
+        if (w instanceof ProofWindow && proofcount>0) {
+            proofcount--;
+            if (hassurrogate || panelcount!=0)
+                windowmenu.removeSep(windowmenu.size()-1);
+        }
+        else
+            Alert.abort("JapeMenu.windowRemoved(\""+title+"\","+windowmenu+
+                        "; hassurrogate="+hassurrogate+
+                        "; panelcount="+panelcount+"; proofcount="+proofcount);
+
+        if (menusVisible)
+            JapeWindow.updateMenuBars();
+    }
+    
     public static void addSeparator(String menuname) throws ProtocolError {
         try {
             M menu = (M)menutable.get(menuname);
