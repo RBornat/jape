@@ -279,6 +279,8 @@ TACTICPANEL Comparison
     RULE IS A≤B ≜ A<B ∨ A=B
     RULE IS A≤B ≜ B≥A
     RULE IS A≤B ≜ ¬(A>B)
+    RULE IS A≤B ≜ A<B+1
+    RULE IS A+1≤B ≜ A<B
     RULE IS A≥B ≜ ¬(A<B)
 /*  RULE "(A;B);C≜A;(B;C)" IS   A;B;C ≜ A;(B;C)
     ENTRY "flatten ;" IS 
