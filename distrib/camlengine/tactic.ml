@@ -442,15 +442,7 @@ and _SEQ1TAC a1 a2 =
 and transTactic tacterm =
   try
 	match debracket tacterm with
-	  Id (_, v, _) -> 
-		(match string_of_vid v with
-		   "SKIP" -> SkipTac
-		 | "FAIL" -> FailTac
-		 | "STOP" -> StopTac
-		 | "NEXTGOAL" -> NextgoalTac
-		 | "UNIFYARGS" -> UnifyArgsTac
-		 | s -> raise (Catastrophe_ ["(transTactic Id) unrecognised tactic "; s]))
-	| Subst (_, _, _P, vts) ->
+	  Subst (_, _, _P, vts) ->
 		SubstTac
 		  (butnottacticform _P,
 		   (match !readintasarg with
@@ -613,16 +605,22 @@ and transTactic tacterm =
 			  | _, [] -> SimplePath (checkINTS err (debracket f))
 			  | _ -> raise (TacParseError_ (err t))
 		in
+		let nullArgTac t =
+		  match ts with
+		    [] -> t
+		  | _  -> _Bad (f^" mustn't be given any arguments")
+		in
 		match f with
-		  "SKIP" -> _Bad "SKIP mustn't be given any arguments"
-		| "FAIL" -> _Bad "FAIL mustn't be given any arguments"
-		| "STOP" -> _Bad "STOP mustn't be given any arguments"
-		| "NEXTGOAL" -> _Bad "NEXTGOAL mustn't be given any arguments"
-		| "GOALPATH" -> SetgoalTac (parsegoalexpr (onearg ts))
-		| "PROVE" -> CompTac (_SEQ1TAC f ts)
-		| "CUTIN" -> CutinTac (_SEQ1TAC f ts)
-		| "JAPE" -> AdHocTac [onearg ts]
-		| "FLATTEN" -> AssocFlatTac (debracket (onearg ts))
+		  "SKIP"      -> nullArgTac SkipTac
+		| "FAIL"      -> nullArgTac FailTac
+		| "STOP"      -> nullArgTac StopTac
+		| "NEXTGOAL"  -> nullArgTac NextgoalTac
+		| "UNIFYARGS" -> nullArgTac UnifyArgsTac
+		| "GOALPATH"  -> SetgoalTac (parsegoalexpr (onearg ts))
+		| "PROVE"     -> CompTac (_SEQ1TAC f ts)
+		| "CUTIN"     -> CutinTac (_SEQ1TAC f ts)
+		| "JAPE"      -> AdHocTac [onearg ts]
+		| "FLATTEN"   -> AssocFlatTac (debracket (onearg ts))
 		| "MAPTERMS" -> MapTac (explodeForExecute (onearg ts))
 		| "SEQ" -> _SEQTAC ts
 		| "ALT" -> AltTac ((transTactic <* ts))
@@ -713,8 +711,7 @@ and transTactic tacterm =
 			mkBind3 f namebind namebind namebind "name" "name" "name"
 			  (fun v->BadProvisoTac v) ts
 		| _ ->
-			if tacticform n then
-			  raise (Catastrophe_ ["(transTactic t is tacticform) unrecognised tactic "; f])
+			if tacticform n then raise (Catastrophe_ ["unrecognised tactic "; f])
 			else TermTac parts
   with
 	TacParseError_ ss ->
