@@ -8,7 +8,7 @@ FONTS "Konstanz"
 INITIALISE displaystyle tree
 
 INFIX   1000    1000    é
-INFIX   1100    1100    ç
+INFIX   1101    1100    ç
 INFIX   1500    1500    ¦
 INFIX   1600    1600    ë
 PREFIX Â
