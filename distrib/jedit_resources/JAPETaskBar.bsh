@@ -1,0 +1,203 @@
+/*
+	Jape task bar implementation.
+	
+	Place this file in the jEdit macros directory.
+	
+	BAS. Oxford, 2004. 
+*/
+
+/*
+	List of unicode strings to be bound to buttons on the task bar. Change ad-lib.
+*/
+String[] unicodeButtons = new String[] 
+{ 	"--Arrows"
+,	"\u2190"	// <-
+,	"\u21e6"	// <=|
+,	"\u2192"	// ->
+,	"\u21e8"	// |=>
+,	"\u2194"	// <->
+,	"\u21a6"	// |->
+,	"\u21d0"	// <=
+,	"\u21d2"	// =>
+,	"\u21d4"	// <=>
+,	"\u21da"	// <===
+,	"\u21db"	// ===>
+,	"\u21dc"	// <~~ ⇜
+,	"\u21dd"	// ~~> ⇝
+,	"--Logic"
+,	"="
+,	"\u2260"	// notequal	≠
+,	"\u2261"	// equiv	≡
+,	"\u2262"	// inequiv	≢
+,	"\u2227"	// and		∧
+,	"\u2228"	// or		∨
+,	"\u2200"	// forall	∀	
+,	"\u2203"	// exists	∃
+,	"\u00ac"	// not		¬
+,	"\u2204"	// notexists	∄
+,	"\u2206"	// Delta	∆
+,	"\u2207"	// Nabla	∇
+,	"\u2223"	// vbar		∣
+,	"\u2225"	// par		∥
+,	"\u223e"	// knot		∾
+,	"\u2258"	// defs		≘
+,	"\u2259"	// defs		≙
+,	"\u225f"	// ?=  		≟
+,	"\u2264"	// <=		≤
+,	"\u2265"	// >=		≥
+,	"\u226a"	// <<		≪
+,	"\u226b"	// >>		≫
+,	"\u00ab"	// Guille 	«
+,	"\u00bb"	// Mots 	»
+,       "--Set Theory"
+,	"\u2205"	// empty	∅
+,	"\u2208"	// element	∈
+,	"\u2209"	// notelement	∉
+,	"\u220b"	// owns		∋
+,	"\u220c"	// notowns	∌
+,	"\u2229"	// intersection	∩
+,	"\u222a"	// union	∪
+,	"\u2282"	// ⊂
+,	"\u2283"	// ⊃
+,	"\u2286"	// ⊆
+,	"\u2287"	// ⊇
+,	"\u2288"	// ⊈
+,	"\u2289"	// ⊉
+,	"\u228e"	// ⊎
+,	"\u228f"	// sqsub ⊏
+,	"\u2290"	// sqsup ⊐
+,	"\u2291"	// sqsubeq ⊑
+,	"\u2292"	// sqsupeq ⊒
+,	"\u2293"	// glb 	⊓
+,	"\u2294"	// lub	⊔
+,	"--Operators"
+,	"\u2295"	// ⊕
+,	"\u2296"	// ⊖
+,	"\u2297"	// ⊗
+,	"\u2298"	// ⊘
+,	"\u2299"	// ⊙
+,	"\u229a"	// ⊚
+,	"\u229b"	// ⊛
+,	"\u22b2"	// <|		⊲
+,	"\u22b3"	// |>		⊳
+,	"\u2218"	// compose	∘
+,	"\u2219"	// bigdot	∙
+,	"\u22c8"	// join		⋈
+,	"\u2191"	// uparrow
+,	"\u2193"	// downarrow
+,	"--Turnstiles"
+,	"\u22a2"	// turnstile	⊢
+,	"\u22a3"	// stileturn	⊣
+,	"\u22a4"	// top		⊤
+,	"\u22a5"	// bottom	⊥
+,	"\u22a8"	// models	⊨
+,	"\u2234"	// therefore	∴
+,	"\u2235"	// so		∵
+,	"\u2237"	// ::		∷
+,	"\u22a9"	// ||-		⊩
+,	"\u22aa"	// |||-		⊪
+,	"\u22ab"	// ||=		⊫
+,	"\u22ac"	// notstile	⊬
+,	"\u22ad"	// notmodels	⊭
+,	"\u22ae"	// /||-		⊮
+,	"\u22af"	// /||=		⊯
+// 	Dingbat stuff
+,	"--Dingbats"
+,	"\u2605"	// 5*		★		
+,	"\u260e"	// phone	☎
+,	"\u261b"	// pointsto	☛
+,	"\u2640"	// female	♀
+,	"\u2642"	// male		♂
+,	"\u2713"	// tick		✓
+,	"\u2714"	// fattick	✔
+,	"\u2716"	// fatcross	✖
+,	"\u2717"	// wavycross	✗
+,	"\u2718"	// wavyfatcross	✘
+,	"\u20ac"	// € Euro
+,	"\u20a4"	// ₤ Sterling
+};
+
+/*
+	Construct a new Jape task bar.
+*/
+Object newJapeTaskBar()
+{   
+    dialog 	= new JFrame("Jape");
+    content   	= Box.createVerticalBox();
+    text        = new JTextField("", 10);
+    out         = new JTextField("", 10);
+    out.setBackground(Color.GRAY);
+    wideRow      = JAPE.grid(0, 2);
+    buttonRow   = null;
+    
+    void dispose()
+    {
+      dialog.dispose();
+    }
+    
+    void newButtonRow()
+    {
+      super.buttonRow = JAPE.grid(0, 8);
+      content.add(buttonRow.panel);
+      content.add(new JSeparator());
+    }
+    
+    JComponent label(String s)
+    { panel = new JPanel();
+      panel.add(new JLabel(s));
+      return panel;
+    }
+    
+    void unicodeIns(String s)
+    { if (s.startsWith("--"))
+      { if (!s.equals("--")) content.add(label(s.substring(2)));
+	newButtonRow();   
+      }
+      else 
+	buttonRow.button(s, JAPE.embedSelectedText(s, ""));
+    }
+        
+    void unicodeInsChar(char s)
+    {
+	 unicodeIns(""+s);
+    }
+    
+    void show(String s)
+    {
+	out.setText(s);
+    }
+    
+    content.add(wideRow.panel);
+    
+    newButtonRow();            
+    for (int i=0; i<unicodeButtons.length; i++) unicodeIns(unicodeButtons[i]); 
+    content.add(label("Greek"));
+    newButtonRow();
+    for (char c='\u03b1'; c<'\u03ca'; c++) { unicodeInsChar((char)(c-32)); }
+    newButtonRow();
+    for (char c='\u03b1'; c<'\u03ca'; c++) { unicodeInsChar(c); }
+    
+    wideRow.panel.add(text);
+    wideRow.button("<tag>",     JAPE.tagSelectedText(text));
+    
+    wideRow.button("/* ... */", JAPE.embedSelectedText("/*", "*/"));
+    wideRow.button("// ...",    JAPE.prefixSelectedLines("\t// "));
+    
+    content.add(out);
+    dialog.setContentPane(content);
+    dialog.pack();
+    dialog.setLocationRelativeTo(view);
+    dialog.setLocation(0, 0);
+    dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    dialog.setVisible(true);
+    return this;
+}
+
+if (global.theJapeTaskBar==void) 
+{  loadJapeLibrary(buffer);   
+   global.theJapeTaskBar=newJapeTaskBar();
+}
+else
+{  global.theJapeTaskBar.dispose();
+   global.theJapeTaskBar=newJapeTaskBar();
+}

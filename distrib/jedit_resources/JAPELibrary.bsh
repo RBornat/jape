@@ -1,0 +1,125 @@
+/*
+	Convenience methods for use in the Jape macros.
+	BAS. Oxford, 2004.
+
+        This file should be deployed in the jEdit startup directory:
+        $HOME/.jedit/startup on Unix-based systems.
+
+*/
+Object newJapeLibrary(buffer)
+{
+	
+	this.buffer=buffer;
+	
+	/*
+	 A grid of components with methods that generate butons, checkboxes, etc.
+	 Each generated component is added to the grid.
+	*/
+        grid(int rows, int cols)
+	{
+	     panel = new JPanel(new GridLayout(rows, cols));
+	     
+	     JButton button(String name, ActionListener listener)
+	     { JButton b = new JButton(name);
+	       panel.add(b);
+	       b.addActionListener(listener);
+	       return b;
+	     }
+	     	     
+	     JCheckBox checkbox(String name, ActionListener listener)
+	     { Button b = new JCheckBox(name);
+	       panel.add(b);
+	       b.addActionListener(listener);
+	       return b;
+	     }
+	     	     
+	     return this;
+	}
+
+	/*
+		An action listener that prefixes the selected lines with the given prefix string.
+	*/
+	ActionListener prefixSelectedLines(String prefix)
+	{   void actionPerformed(e) 
+	    {       textArea = getTextArea();
+		    super.buffer.beginCompoundEdit();
+		    selectedLines = textArea.getSelectedLines();
+		    for(i = 0; i < selectedLines.length; ++i)
+		    {
+			offsetBOL = textArea.getLineStartOffset(selectedLines[i]);
+			textArea.setCaretPosition(offsetBOL);
+			textArea.goToEndOfWhiteSpace(true);
+			text = textArea.getSelectedText();
+			if(text == null) text = "";
+			textArea.setSelectedText(prefix + text);
+		    }
+		    super.buffer.endCompoundEdit();
+	    }    
+	    return this;
+	}
+	
+	/*
+		An action listener that embeds the selected text in
+		the strings textpre and textpost, leaving the cursor
+		just before textpost.
+	*/
+	ActionListener embedSelectedText(String textpre, String textpost)
+	{   void actionPerformed(e) 
+	    { textArea = getTextArea();
+	      selection     = textArea.getSelectedText();
+	      selectedLines = textArea.getSelectedLines();
+	      spansLines = selectedLines!=null && selectedLines.length>1;
+	      textArea.setSelectedText(textpre);
+	      //if (spansLines) textArea.setSelectedText("\n");
+	      if (selection!=null) textArea.setSelectedText(selection);
+	      position = textArea.getCaretPosition();
+	      //if (spansLines) textArea.setSelectedText("\n");
+	      textArea.setSelectedText(textpost);
+	      textArea.setCaretPosition(position);
+	    }    
+	    return this;
+	}
+	
+	/*
+		An action listener that embeds the selected text in an XML
+		tag whose name is specified in the JTextField. The cursor
+		is positioned just before the closing tag.
+	*/
+	ActionListener tagSelectedText(JTextField text)
+	{   void actionPerformed(e) 
+	    { textArea = getTextArea();
+	      tag = text.getText();
+	      if (tag==null) return;
+	      tag = tag.trim();
+	      if (tag.equals("")) return;
+	      textpre  = "<"+tag+">";
+	      textpost = "</"+tag+">";
+	      selection     = textArea.getSelectedText();
+	      selectedLines = textArea.getSelectedLines();
+	      spansLines = selectedLines!=null && selectedLines.length>1;
+	      textArea.setSelectedText(textpre);
+	      //if (spansLines) textArea.setSelectedText("\n");
+	      if (selection!=null) textArea.setSelectedText(selection);
+	      position = textArea.getCaretPosition();
+	      //if (spansLines) textArea.setSelectedText("\n");
+	      textArea.setSelectedText(textpost);
+	      textArea.setCaretPosition(position);
+	    }    
+	    return this;
+	}
+	
+	JEditTextArea getTextArea()
+	{
+	  return jEdit.getActiveView().getEditPane().getTextArea();
+	}
+		
+	// Jape object
+	return this;
+}
+
+void loadJapeLibrary(session)
+{
+  if (global.JAPE==void) global.JAPE=newJapeLibrary(session);
+}
+
+

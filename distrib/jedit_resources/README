@@ -1,0 +1,20 @@
+
+The resources in this directory may be useful if you plan to use
+jEdit to edit Jape theory files.
+
+The JAPETaskBar macro starts a task bar that supports convenient
+insertion of Unicoded (mathematical) material. The palette of
+symbols can very easily be edited to meet a user's needs.
+
+Installation:
+
+        JAPELibrary.bsh -- should be placed in the jedit startup
+        directory
+
+        JAPETaskBar.bsh -- should be placed in (or under) the jedit
+        macro directory
+        
+Bernard Sufrin
+Oxford, 2004.
+
+
