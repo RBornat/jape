@@ -71,16 +71,18 @@ public class japeserver implements DebugConstants {
         Alert.showAlert(Alert.Info, "Preferences item selected in menu");
     }
     
-    public static boolean onMacOS, onLinux;
+    public static boolean onMacOS, onLinux, onSolaris;
     public static Rectangle screenBounds;
     
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
-        onMacOS = notice_MacOSX && System.getProperty("mrj.version")!=null;
-        onLinux = !onMacOS && notice_Linux && System.getProperty("os.name").equals("Linux");
-
-        if (!onMacOS && !onLinux) {
-            System.err.println("os.name="+System.getProperty("os.name")+
+        String osName = System.getProperty("os.name");
+        
+        if (!((onMacOS = notice_MacOSX && System.getProperty("mrj.version")!=null) ||
+              (onLinux = notice_Linux && osName.equals("Linux")) ||
+              (onSolaris = notice_Solaris && osName.equals("SunOS")))) {
+            System.err.println("japeserver.main doesn't recognise OS\n"+
+                               "os.name="+System.getProperty("os.name")+
                                "\nos.arch="+System.getProperty("os.arch")+
                                "\nos.version="+System.getProperty("os.version"));
         }
