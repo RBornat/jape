@@ -16,6 +16,7 @@ MENU Edit IS
   CHECKBOX thingdebug    "trace rule/theorem/tactic store/retrieve"
   SEPARATOR
   CHECKBOX showallprovisos "show all provisos"
+  CHECKBOX showallproofsteps	"show all proof steps"
   CHECKBOX hidecut         "hide cuts"
   CHECKBOX hidehyp         "hide identity lines"
 END
