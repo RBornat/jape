@@ -6,13 +6,13 @@ TACTIC TheoremForwardOrBackward(thm) IS
 CONJECTUREPANEL Conjectures IS 
   PREFIXBUTTON Apply IS apply TheoremForwardOrBackward
 
-  THEOREM "Otway-Rees: S‘({Na,Nc}Kas,{Nb,Nc}Kbs) æ æ SŠA•(Na,Nc)" IS 
+  THEOREM "Otway-Rees: S‘({Na,Nc}Kas,{Nb,Nc}Kbs) æ SŠA•(Na,Nc)" IS 
   		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
   		AŠèk.Sš(A,B)êk, BŠèk.Sš(A,B)êk, AŠèx.SšB•x, BŠèx.SšA•x, 
   		AŠ#Na, BŠ#Nb, AŠ#Nc,
   		S‘({Na,Nc}Kas,{Nb,Nc}Kbs)
   		æ SŠA•(Na,Nc) 
-  THEOREM "Otway-Rees: S‘({Na,Nc}Kas,{Nb,Nc}Kbs) æ æ SŠB•(Nb,Nc)" IS 
+  THEOREM "Otway-Rees: S‘({Na,Nc}Kas,{Nb,Nc}Kbs) æ SŠB•(Nb,Nc)" IS 
   		AŠ(A,S)êKas, SŠ(A,S)êKas, BŠ(B,S)êKbs, SŠ(B,S)êKbs, SŠ(A,B)êKab,
   		AŠèk.Sš(A,B)êk, BŠèk.Sš(A,B)êk, AŠèx.SšB•x, BŠèx.SšA•x, 
   		AŠ#Na, BŠ#Nb, AŠ#Nc,
