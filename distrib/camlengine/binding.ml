@@ -14,37 +14,17 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      module Mappingfuns : Mappingfuns.T
-      module Match : Match.T
-             with type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
-      
-      val bracketedliststring : ('a -> string) -> string -> 'a list -> string
-      val consolereport : string list -> unit
-      val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      val _MAP : ('a -> 'b) * 'a list -> 'b list
-      val quadruplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) ->
-          ('d -> string) -> string -> 'a * 'b * 'c * 'd -> string
-      val unSOME : 'a option -> 'a
-      val termstring : Match.term -> string
-      val termliststring : Match.term list -> string
-      val termkind : Match.term -> int
-      val termkindmax : int
-      (* termkind is term -> 0..termkindmax *)
-       
-      exception ParseError_ of string list
-      
-    end)
-  : T =
+module M : T with type term = Match.M.term =
   struct
-    open AAA
-    open Mappingfuns 
-    open Match
+    open Mappingfuns.M 
+    open Match.M
+    open Term.M (* oh dear *)
+    open Optionfuns.M
+    open Stringfuns.M
+    open Miscellaneous.M
+    open Listfuns.M
     
-    type term = Match.term
+    type term = Match.M.term
     
     let bindingdebug = ref false
     type bindingdirective = term list * term list * term list * term

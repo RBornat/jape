@@ -39,35 +39,19 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      module Listfuns : Listfuns.T
-      module Mappingfuns : Mappingfuns.T
-      module Optionfuns : Optionfuns.T
-      module Idclass : Idclass.T
-      module Term : Term.T
-             with type idclass = Idclass.idclass
-             with type vid = string
-      
-      val consolereport : string list -> unit
-      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      
-      exception Catastrophe_ of string list
-      
-    end)
-  : T =
+module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+              and type term = Term.M.term
+=
   struct
-    open AAA
-    open Listfuns 
-    open Mappingfuns 
-    open Optionfuns 
-    open Term 
-    open Idclass
+    open Miscellaneous.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Optionfuns.M 
+    open Term.M 
+    open Idclass.M
     
-    type ('a, 'b) mapping = ('a, 'b) AAA.Mappingfuns.mapping
-    type term = AAA.Term.term
+    type ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
+    type term = Term.M.term
     
     let matchdebug = ref false
     (* because of matching in provisos, we have to use a discrimination between 

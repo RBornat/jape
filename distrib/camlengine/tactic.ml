@@ -1,7 +1,11 @@
 (* $Id$ *)
 
-module type Tactictype =
+(* Yet another place where I can't use multiple views *)
+
+module type T = sig
+(* module type Tactictype =
   sig
+ *)
     type term and seq and name and treelayout
     type tactic =
         SkipTac
@@ -98,27 +102,6 @@ module type Tactictype =
     val readintasarg : term array option ref
   end
 
-module type T =
-  sig
-    type term and tactic and name
-    type ('a, 'b) mapping
-    val tacname : term -> name
-    (* or raise ParseError_ *)
-    val transTactic : term -> tactic
-    val explodeForExecute : term -> name * term list
-    val tacticstring : tactic -> string
-    (* the simple, unvarnished string *)
-    val tacticstringwithNLs : tactic -> string
-    (* guess what this one does *)
-    val catelim_tacticstring : tactic -> string list -> string list
-    val catelim_tacticstringwithNLs : tactic -> string list -> string list
-    val remaptactic : (term, term) mapping -> tactic -> tactic
-    val isguard : tactic -> bool
-    val showargasint : (int -> term -> int) option ref
-    val readintasarg : term array option ref
-  end
-
-
 (* $Id$ *)
 
 (* some of this stuff is specific to natural deduction
@@ -128,52 +111,30 @@ module type T =
   [[Actually it's all crap, and we need a proper MLish tactic language. BS]]
  *)
 
-module
-  Tactic
-  (AAA :
-    sig
-      module Listfuns : Listfuns.T
-      module Stringfuns : Stringfuns.T
-      module Name : Name.Nametype (* sanctioned. RB *)
-      module Term : (* sig include Termtype include Termstore include Term end *) Term.T
-             with type vid = string
-      module Sequent : Sequent.T
-      module Treelayout : Treelayout.T
-             with type term = Term.term
-              and type ('a,'b) mapping = ('a,'b) Sequent.mapping
-      
-      val andthenr : 'a option * ('a -> 'b option) -> 'b option
-      val atoi : string -> int
-      val consolereport : string list -> unit
-      val _FormulaClass : Term.idclass
-      val interpolate : 'a -> 'a list -> 'a list
-      val remapterm :
-        (Term.term, Term.term) Sequent.mapping -> Term.term -> Term.term
-      val try__ : ('a -> 'b) -> 'a option -> 'b option
-      val unSOME : 'a option -> 'a
-      
-      exception ParseError_ of string list
-      exception Catastrophe_ of string list
-      exception AtoI_
-    end)
-  : Tactictype =
+module M : T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+              and type name = Name.M.name
+              and type term = Term.M.term
+              and type treelayout = Treelayout.M.treelayout
+              and type seq = Sequent.M.seq
+=
   struct
-    open AAA
-    open Listfuns
-    open Stringfuns
-    open Term
-    open Sequent
-    open Name
-    open Treelayout    
+    open Listfuns.M
+    open Stringfuns.M
+    open Term.M
+    open Sequent.M
+    open Name.M
+    open Treelayout.M    
+    open Idclass.M
+    open Match.M
+    open Optionfuns.M
+    open Miscellaneous.M
     
-    type ('a,'b) mapping = ('a,'b) Sequent.mapping
-     and name = Name.name
-     and term = Term.term
-     and treelayout = Treelayout.treelayout
-     and seq = Sequent.seq
+    type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+     and name = Name.M.name
+     and term = Term.M.term
+     and treelayout = Treelayout.M.treelayout
+     and seq = Sequent.M.seq
      
-    (* from optionfuns *)
-    
     type tactic =
         SkipTac
       | FailTac
@@ -394,7 +355,7 @@ module
         | SubstTac (s, vts) ->
             catelim_termstring
               (Subst
-                 (None, true, Id (None, pnstr s, _FormulaClass),
+                 (None, true, Id (None, pnstr s, FormulaClass),
                   (match !showargasint with
                      Some lookup ->
                        let rec encodeterm t =

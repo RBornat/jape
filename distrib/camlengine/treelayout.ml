@@ -17,22 +17,17 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      type term and ('a, 'b) mapping
-      val optionstring : ('a -> string) -> 'a option -> string
-      val pairstring :
-        ('a -> string) -> ('b -> string) -> string -> 'a * 'b -> string
-      val remapterm : (term, term) mapping -> term -> term
-      val smltermstring : term -> string
-      val termstring : term -> string
-      val try__ : ('a -> 'b) -> 'a option -> 'b option
-    end)
-  : T =
+module M : T with type term = Term.M.term 
+              and type ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
+=
   struct
-    open AAA
-    type term = AAA.term and ('a, 'b) mapping = ('a, 'b) AAA.mapping
+    open Match.M
+    open Optionfuns.M
+    open Stringfuns.M
+    open Term.M
+    
+    type term = Term.M.term and ('a, 'b) mapping = ('a, 'b) Mappingfuns.M.mapping
+    
     type treelayout =
         HideRootLayout
       | HideCutLayout

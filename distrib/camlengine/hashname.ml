@@ -1,16 +1,10 @@
 (* $Id$ *)
 
-module M
-  (AAA : sig module Name : Name.T 
-             module Hashstring : Hashtype.T 
-                    with type type__ = string
-         end)
-  : Hashtype.T =
+module M : Hashtype.T with type type__ = Name.M.name =
   struct
-    open AAA
-    open Name
-    type type__ = name
+    open Name.M
+    type type__ = Name.M.name
     let eq : type__ * type__ -> bool = fun (x, y) -> x = y
     let copy x : type__ = x
-    let rec hash (s, n) = Hashstring.hash (namestring s, n)
+    let rec hash (s, n) = Hashstring.M.hash (namestring s, n)
   end

@@ -31,6 +31,7 @@ module M : T =
     open Listfuns.M
     open Miscellaneous.M
     open Stringfuns.M
+    open Optionfuns.M
     
     type idclass = Idclass.M.idclass
     type term = Term.M.term

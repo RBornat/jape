@@ -2,22 +2,18 @@
 
 (* don't import Nametype.  At present only paragraph and tactic are entitled *)
 
-(* but in the blasted OCaml system, I can't hide it so easily.  I'll do it the slow way *)
+(* but in the blasted OCaml system, I can't hide it so easily. *)
 
-module type Nametype = 
+(* module type Nametype = 
   sig 
     type name = Name of string 
-    type term
-    val namestring : name -> string
-    val parseablenamestring : name -> string
-    val nameorder : name * name -> bool
-    val term2name : term -> name option
-    val namefrom : string -> name
   end
+*)
 
 module type T = (* all the stuff that's fit to print *)
   sig
-    type name and term
+    type name = Name of string 
+     and term
     val namestring : name -> string
     val parseablenamestring : name -> string
     val nameorder : name * name -> bool
@@ -26,32 +22,17 @@ module type T = (* all the stuff that's fit to print *)
   end
   
 (* $Id$ *)
-module M
-  (AAA :
-    sig
-      module Symboltype : Symboltype.T
-      module Symbol : Symbol.T
-             with type symbol = Symboltype.symbol
-      module Term : (*Termtype*)Term.T
-             with type vid = string
-      (* sanctioned in name. RB *)
-      module Termparse : Termparse.T
-             with type term = Term.term
-      
-      val enQuote : string -> string
-      
-      exception Catastrophe_ of string list
-      exception ParseError_ of string list
-    end)
-  : (* sig include Nametype include Name end *) Nametype =
+module M : (* sig include Nametype include Name end *) T with type term = Term.M.term 
+=
   struct
-    open AAA
-    open Symboltype 
-    open Symbol 
-    open Term 
-    open Termparse
+    open Miscellaneous.M
+    open Stringfuns.M
+    open Symbol.M 
+    open Symboltype.M 
+    open Term.M 
+    open Termparse.M
     
-    type term = Term.term
+    type term = Term.M.term
     
     (* it is high time we had a datatype of names of things *)
     

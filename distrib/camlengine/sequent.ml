@@ -57,78 +57,38 @@ module type Sequentreset = sig *) val resetsyntaxandturnstiles : unit -> unit (*
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      module Listfuns : Listfuns.T
-      module Optionfuns : Optionfuns.T
-      module Mappingfuns : Mappingfuns.T
-      module Idclass : Idclass.T
-      module Idclassfuns : Idclassfuns.T
-             with type idclass = Idclass.idclass
-      module Symboltype : Symboltype.T
-      module Symbol : Symbol.T
-             with type symbol = Symboltype.symbol
-      module Term : Term.T
-             with type idclass = Idclass.idclass
-              and type vid = Symboltype.vid
-      module Termparse : Termparse.T
-             with type element = Term.element 
-              and type idclass = Idclass.idclass
-              and type symbol = Symboltype.symbol
-              and type term = Term.term
-      module Match : Match.T
-             with type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
-              and type term = Term.term
-      
-      val _All : ('a -> bool) -> 'a list -> bool
-      val commasymbol : Symbol.symbol
-      val consolereport : string list -> unit
-      val enQuote : string -> string
-      val _Error : string list -> 'a
-      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-      val triplestring :
-        ('a -> string) -> ('b -> string) -> ('c -> string) -> string ->
-          'a * 'b * 'c -> string
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      
-      exception Zip
-      exception ParseError_ of string list
-      exception Catastrophe_ of string list
-      
-    end)
-  :
+module M :
   (* sig
 	   include Sequenttype
 	   include Sequentparse
 	   include Sequentreset
 	   include Sequent
-	 end *) T =
+	 end *) T with type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+               and type vid = Symboltype.M.vid
+               and type element = Term.M.element
+               and type idclass = Idclass.M.idclass
+               and type symbol = Symboltype.M.symbol
+               and type term = Term.M.term    
+=
   struct
-    open AAA
-    open Listfuns
-    open Mappingfuns
-    open Idclass
-    open Idclassfuns
-    open Symboltype
-    open Symbol
-    open Term
-    open Termparse
-    open Match
-    open Optionfuns
+    open Miscellaneous.M
+    open Listfuns.M
+    open Mappingfuns.M
+    open Idclass.M
+    open Idclassfuns.M
+    open Symboltype.M
+    open Symbol.M
+    open Term.M
+    open Termparse.M
+    open Match.M
+    open Optionfuns.M
     
-    type ('a,'b) mapping = ('a,'b) Mappingfuns.mapping
-    type vid = Symboltype.vid
-    type element = Term.element
-    type idclass = Idclass.idclass
-    type symbol = Symboltype.symbol
-    type term = Term.term    
-    
-    
-    
-    (* from mappingfuns.sig.sml *)
-    
-    
+    type ('a,'b) mapping = ('a,'b) Mappingfuns.M.mapping
+    type vid = Symboltype.M.vid
+    type element = Term.M.element
+    type idclass = Idclass.M.idclass
+    type symbol = Symboltype.M.symbol
+    type term = Term.M.term    
     
     type seq = Seq of (string * term * term)
     (* stile * left * right; term inherited from match ... *)
@@ -192,7 +152,7 @@ module M
           Some (kind, hyps', _, concs' as syn') ->
             if (kind = Syntactic && hyps = hyps') && concs = concs' then ()
             else
-              _Error
+              error
                 ["you cannot redeclare "; syntaxstring syn'; " as ";
                  syntaxstring (Syntactic, hyps, stile, concs)]
         | None ->
@@ -203,7 +163,7 @@ module M
                 enter (stile, STILE stile)
               end
             else
-              _Error
+              error
                 ["bad syntactic sequent syntax description ";
                  syntaxstring (Syntactic, hyps, stile, concs)]
       in
@@ -211,7 +171,7 @@ module M
       List.iter f ds
     let rec setsemanticturnstile syn sem =
       let rec bad ss =
-        _Error
+        error
           (String.concat "" ["Error in SEMANTICTURNSTILE "; syn; " IS "; sem; ": "] ::
              ss)
       in
@@ -323,7 +283,7 @@ module M
           BagClass FormulaClass as c -> parseCollection c
         | ListClass FormulaClass as c -> parseCollection c
         | FormulaClass -> formside (registerElement (Nonum, parseTerm EOF))
-        | x -> _Error ["internal error parseSeq parseside "; unparseidclass x]
+        | x -> error ["internal error parseSeq parseside "; unparseidclass x]
       in
       match currsymb () with
         STILE st ->

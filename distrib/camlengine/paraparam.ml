@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Paraparam =
+module type T =
   sig
     type vid and idclass and term
     type paraparam =
@@ -16,23 +16,17 @@ module type Paraparam =
   end
 (* $Id$ *)
 
-module
-  Paraparam
-  (AAA :
-    sig
-      type vid and idclass and term
-      val catelim2stringfn :
-        ('a -> string list -> string list) -> 'a -> string
-      val Id : vid * idclass -> term
-      val metachar : string
-      val Unknown : vid * idclass -> term
-      
-    end)
-  :
-  Paraparam =
+module M : T with type vid = Term.M.vid 
+              and type idclass = Idclass.M.idclass 
+              and type term = Term.M.term 
+=
   struct
-    open AAA
-    type vid = vid and idclass = idclass and term = term
+    open Symbol.M
+    open Listfuns.M
+    open Term.M
+    
+    type vid = Term.M.vid and idclass = Idclass.M.idclass and term = Term.M.term
+    
     type paraparam =
         Objectparam of (vid * idclass)
       | Ordinaryparam of (vid * idclass)
@@ -55,9 +49,9 @@ module
       | Abstractionparam vc -> vc
     let rec paramvar p =
       match p with
-        Objectparam vc -> Id vc
-      | Ordinaryparam vc -> Id vc
-      | Unknownparam vc -> Unknown vc
-      | Abstractionparam vc -> Id vc
+        Objectparam vc -> registerId vc
+      | Ordinaryparam vc -> registerId vc
+      | Unknownparam vc -> registerUnknown vc
+      | Abstractionparam vc -> registerId vc
   end
 

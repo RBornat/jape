@@ -1,6 +1,13 @@
 (* $Id$ *)
 
-module type TM0 = 
+(* for the second time, I give up trying to make separate views of the Term module.
+   RB 5/vii/2002
+ *)
+module type T =
+  sig
+    type vid and idclass
+    
+(* module type TM0 = 
   sig
 	type vid = Symboltype.M.vid and idclass = Idclass.M.idclass
 	  (* can't seem to avoid this definiteness here ... or can I? *)
@@ -15,6 +22,7 @@ module TM0 : TM0 =
 module type Termtype = 
   sig
 	open TM0
+*)
 	(* terms now contain hash information. RB 26/i/00 *)
 	type term =
 		Id of (int option * vid * idclass)
@@ -33,7 +41,7 @@ module type Termtype =
 		Segvar of (int option * term list * term)
 	  | Element of (int option * resnum * term)
 	and resnum = Nonum | Resnum of int | ResUnknown of int
-end
+(* end
 	
 module Termtype =
   struct
@@ -61,6 +69,7 @@ module type Termstore =
   sig
 	open TM0
 	open Termtype
+ *)
 	val registerId : vid * idclass -> term
 	val registerUnknown : vid * idclass -> term
 	val registerApp : term * term -> term
@@ -76,12 +85,13 @@ module type Termstore =
 	val registerElement : resnum * term -> element
 	val registerSegvar : term list * term -> element
 	val resettermstore : unit -> unit
-  end
+(*  end
 	   
 module type Term =
   sig
 	open TM0
 	open Termtype
+ *)
 	val isconstant : term -> bool
 	val isId : term -> bool
 	val isUnknown : term -> bool
@@ -216,11 +226,11 @@ module type Term =
 (* $Id$ *)
 
 module M :
-  sig include TM0
+  (* sig include TM0
       include Termtype
 	  include Termstore
 	  include Term 
-  end with type vid = Symboltype.M.vid and type idclass = Idclass.M.idclass
+  end *) T with type vid = Symboltype.M.vid and type idclass = Idclass.M.idclass 
 =
   struct
     open Miscellaneous.M
@@ -243,10 +253,25 @@ module M :
     type vid = Symboltype.M.vid
     type idclass = Idclass.M.idclass
     
-    
     (* terms now contain hash information. RB 26/i/00 *)
     (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
-    include Termtype
+	type term =
+		Id of (int option * vid * idclass)
+	  | Unknown of (int option * vid * idclass)
+	  | App of (int option * term * term)
+	  | Tup of (int option * string * term list)
+	  | Literal of (int option * litcon)
+	  | Fixapp of (int option * string list * term list)
+	  | Subst of (int option * bool * term * (term * term) list)
+	  | Binding of
+		  (int option * (term list * term list * term list) *
+			 (term * (int * int)) list * term)
+	  | Collection of (int option * idclass * element list)
+	and litcon = Number of int | String of string
+	and element =
+		Segvar of (int option * term list * term)
+	  | Element of (int option * resnum * term)
+	and resnum = Nonum | Resnum of int | ResUnknown of int
 
     let rec hashterm =
       function

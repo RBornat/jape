@@ -1,6 +1,6 @@
 (* $Id$ *)
 
-module type Panelkind =
+module type T =
   sig
     type panelkind = TacticPanelkind | ConjecturePanelkind | GivenPanelkind
     type panelbuttoninsert =
@@ -8,7 +8,7 @@ module type Panelkind =
   end
 (* $Id$ *)
 
-module Panelkind : Panelkind =
+module M : T =
   struct
     type panelkind = TacticPanelkind | ConjecturePanelkind | GivenPanelkind
     type panelbuttoninsert =

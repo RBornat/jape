@@ -67,41 +67,25 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      module Listfuns : Listfuns.T
-      module Symboltype : Symboltype.T
-      module Term : (* sig include Termtype include Termstore include Term end *) Term.T
-      module Termparse : Termparse.T
-             with type term = Term.term
-              and type element = Term.element
-              and type symbol = Symboltype.symbol
-              and type idclass = Term.idclass
-      
-      val commasymbol : Termparse.symbol
-      val currsymb : unit -> Termparse.symbol
-      val listclass : Term.idclass
-      val mkBag : Termparse.element list -> Termparse.term
-      val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-      val scansymb : unit -> Termparse.symbol
-      val smlsymbolstring : Termparse.symbol -> string
-      val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-      
-      exception ParseError_ of string list
-      exception Catastrophe_ of string list
-    end)
-  : Provisotype =
+module M : Provisotype with type vid = Term.M.vid
+                        and type term = Term.M.term
+ =
   struct
-    open AAA
-    open Listfuns 
-    open Symboltype 
-    open Term 
-    open Termparse
+    open Listfuns.M 
+    open Symboltype.M 
+    open Term.M 
+    open Termparse.M
+    open Miscellaneous.M
+    open Symbol.M
     
-    type vid = Term.vid
-     and term = Term.term
+    type vid = Term.M.vid
+     and term = Term.M.term
      
+	let mkBag els = 
+	  registerCollection(Idclass.M.BagClass Idclass.M.FormulaClass,els)
+    
+    let listclass = Idclass.M.ListClass Idclass.M.FormulaClass
+    
     let provisodebug = ref false
     
     type proviso =

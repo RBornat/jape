@@ -33,52 +33,27 @@ module type T =
   end
 (* $Id$ *)
 
-module M
-  (AAA :
-    sig
-      module Listfuns : Listfuns.T
-      module Searchtree : Searchtree.T
-      module Idclass : Idclass.T
-      module Symboltype : Symboltype.T
-             with type idclass = Idclass.idclass
-              and type vid = string
-      module Symbol : Symbol.T
-             with type symbol = Symboltype.symbol
-      module Idclassfuns : Idclassfuns.T
-             with type symbol = Symboltype.symbol
-              and type idclass = Idclass.idclass
-      module Term : Term.T
-             with type idclass = Idclass.idclass
-              and type vid = Symboltype.vid
-      module Binding : Binding.T
-             with type term = Term.term
-      
-      val andthenr : 'a option * ('a -> 'b option) -> 'b option
-      val atoi : string -> int
-      val consolereport : string list -> unit
-      val enQuote : string -> string
-      val findfirst : ('a -> 'b option) -> 'a list -> 'b option
-      
-      exception ParseError_ of string list
-      exception Catastrophe_ of string list
-      exception Tacastrophe_ of string list
-    end)
-  : T =
+module M : T with type element = Term.M.element
+              and type idclass = Idclass.M.idclass
+              and type term = Term.M.term
+              and type symbol = Symboltype.M.symbol
+=
   struct
-    open AAA
-    open Listfuns
-    open Searchtree
-    open Symbol
-    open Symboltype
-    open Idclass
-    open Idclassfuns
-    open Term
-    open Binding
+    open Listfuns.M
+    open Searchtree.M
+    open Symbol.M
+    open Symboltype.M
+    open Idclass.M
+    open Idclassfuns.M
+    open Term.M
+    open Binding.M
+    open Optionfuns.M
+    open Miscellaneous.M
     
-    type element = Term.element
-    type idclass = Idclass.idclass
-    type term = Term.term
-    type symbol = Symboltype.symbol
+    type element = Term.M.element
+    type idclass = Idclass.M.idclass
+    type term = Term.M.term
+    type symbol = Symboltype.M.symbol
     
     (* stuff to handle variable leftfix/outfix syntax *)
     let symbeq : symbol * symbol -> bool = fun (x, y) -> x = y
