@@ -25,13 +25,25 @@
     
 */
 
+import java.awt.Graphics;
 import java.awt.Point;
 
 public class DragWorldLine extends DragLine {
-    public DragWorldLine(WorldItem w, int x, int y, int thickness) {
-        this(w.dragCentre(), x, y, thickness);
+    public DragWorldLine(WorldItem w, int x, int y, int thickness, boolean dragParent) {
+        this(w.dragCentre(), x, y, thickness, dragParent);
     }
-    private DragWorldLine(Point endpoint, int x, int y, int thickness) {
+    
+    private DragWorldLine(Point endpoint, int x, int y, int thickness, boolean dragParent) {
         super(x, y, endpoint.x, endpoint.y, thickness);
+        this.dragParent = dragParent;
+    }
+    
+    public final boolean dragParent;
+    
+    public void paint(Graphics g) {
+       setForeground((dragParent ? -activey<-endy : -endy<-activey) ? Preferences.LineColour :
+                                                                   Preferences.NoLineColour);
+        super.paint(g);
+            
     }
 }
