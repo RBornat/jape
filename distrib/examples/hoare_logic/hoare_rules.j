@@ -2,7 +2,7 @@
 
 RULE "tilt" IS {false} tilt {A}
 
-RULE sequence(C) IS FROM { A } F { C } AND  { C } G { B } INFER  { A } (F; G) { B }
+RULE sequence(C) IS FROM { A } F { B } AND  { B } G { C } INFER  { A } (F; G) { C }
 
 /* RULES "Ntuple" ARE 
     FROM {A} B {C} AND {C} D {E} INFER  {A} B {C} D {E} AND
@@ -15,10 +15,10 @@ END */
 
 RULE "Ntuple" IS  FROM A {B} AND {B} C {D} INFER A {B} C {D}
 
-RULE "choice" IS FROM (E→B)∧(¬E→C)∧(E defined) simplifiesto G 
-                  AND {B} F1 {D} 
-                  AND {C} F2 {D} 
-                INFER { G } if E then F1 else F2 fi { D }
+RULE "choice" IS FROM (E→A)∧(¬E→B)∧(E defined) simplifiesto G 
+                  AND {A} F1 {C} 
+                  AND {B} F2 {C} 
+                INFER {G} if E then F1 else F2 fi {C}
 
 RULE "variable-assignment" IS FROM R«E/x»∧(E defined) simplifiesto Q
                               INFER {Q} (x:=E) {R}
@@ -36,9 +36,9 @@ RULE "while"(I, M, OBJECT Km) WHERE FRESH Km IS
       AND {I∧E∧M=Km} F {M<Km}
     INFER { I } while E do F od {I∧¬E}
 
-RULE "consequence(L)" IS FROM A→C AND {C} F {B} INFER {A} F {B}
+RULE "consequence(L)" IS FROM A→B AND {B} F {C} INFER {A} F {C}
 
-RULE "consequence(R)" IS FROM {A} F {C} AND C→B INFER {A} F {B}
+RULE "consequence(R)" IS FROM {A} F {B} AND B→C INFER {A} F {C}
 
 /* to help with arithmetic */
 RULE "obviously0" IS INFER A 
