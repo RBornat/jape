@@ -146,8 +146,7 @@
 //064
 		06D05853FF24F2DB11DB9C8B = {
 			explicitFileType = wrapper.application;
-			fallbackIsa = PBXFileReference;
-			isa = PBXApplicationReference;
+			isa = PBXFileReference;
 			path = Jape.app;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -163,8 +162,6 @@
 //0E3
 //0E4
 		0E20B662001FAFA711DB9C8B = {
-			buildRules = (
-			);
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -177,8 +174,6 @@
 			name = Development;
 		};
 		0E20B663001FAFA711DB9C8B = {
-			buildRules = (
-			);
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
@@ -2343,8 +2338,7 @@
 		};
 		F5AB83170339F3B701A80116 = {
 			explicitFileType = wrapper.application;
-			fallbackIsa = PBXFileReference;
-			isa = PBXApplicationReference;
+			isa = PBXFileReference;
 			path = nonlocalJape.app;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
