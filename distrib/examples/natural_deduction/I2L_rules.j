@@ -10,13 +10,13 @@ TACTIC Fail (x) IS SEQ (ALERT x) STOP
 RULE cut(B) IS FROM B AND B æ C INFER C
 RULE thin(A) IS FROM C INFER A æ C
 
-RULE "ç elim"				IS FROM A AND AçB INFER B
+RULE "ç elim"				IS FROM AçB AND A INFER B
 RULE "¦ elim(L)"			IS FROM A ¦ B INFER A
 RULE "¦ elim(R)"			IS FROM A ¦ B INFER B
 RULE "ë elim"				IS FROM A ë B AND A æ C AND B æ C INFER C
 RULE "Ù elim (classical)"	IS FROM ÂA æ Ù INFER A
 RULE "Ù elim (constructive)"	
-								IS FROM Ù INFER A
+								IS FROM Ù INFER B
 RULE "è elim"(c)			IS FROM èx. A(x) AND c inscope INFER A(c)
 RULE "ä elim"(OBJECT c) WHERE FRESH c AND c NOTIN äx.A(x)
 								IS FROM äx.A(x) AND actual c, A(c) æ C INFER C

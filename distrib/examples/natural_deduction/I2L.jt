@@ -11,6 +11,8 @@ USE "I2L_rules.j"
 USE "I2L_menus.j"
 USE "I2L_problems.j"
 
+INITIALISE outermostbox false
+
 INITIALISE outerassumptionword premise
 INITIALISE outerassumptionplural premises
 INITIALISE innerassumptionword assumption

@@ -573,7 +573,7 @@ TACTIC BadForward3(sel, stepname) IS
 
 TACTIC "Á elim forward" IS
 	WHEN	(LETHYP2 _P (_PÁ_Q) 
-					(Noarg (CUTIN "Á elim" (WITHHYPSEL (hyp _P)) (WITHHYPSEL (hyp (_PÁ_Q)))) "Á elim")
+					(Noarg (CUTIN "Á elim" (WITHHYPSEL (hyp (_PÁ_Q))) (WITHHYPSEL (hyp _P))) "Á elim")
 				)
 				(LETHYP2 _R (_PÁ_Q)
 					("Á elim forward fail"
@@ -584,12 +584,12 @@ TACTIC "Á elim forward" IS
 					("Á elim forward fail" (" Neither of your selections (%t and %t) is of the form AÁB.", _P, _Q))
 				)
 				(LETHYP (_PÁ_Q) 
-					(WHEN (LETGOAL _R (Noarg (CUTIN "Á elim" fstep (WITHHYPSEL hyp)) "Á elim"))
+					(WHEN (LETGOAL _R (Noarg (CUTIN "Á elim" (WITHHYPSEL hyp) fstep) "Á elim"))
 								("Á elim forward fail" (" You only selected %t.", _PÁ_Q))
 					)
 				)
 				(LETLHS (_PÁ_Q)
-					(WHEN (LETGOAL _R (Noarg (ForwardCut 1 "Á elim") "Á elim"))
+					(WHEN (LETGOAL _R (Noarg (ForwardCut 0 "Á elim") "Á elim"))
 								("Á elim forward fail" (" You didn't select anything."))
 					)
 				)
