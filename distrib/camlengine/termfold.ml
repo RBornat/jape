@@ -59,8 +59,9 @@ let rec appflatten t ts =
                     bracketedstring_of_list string_of_term ";\n" ts];
    match t with
      App(_, f, a) ->
-       if isInfixApp t then None else appflatten f (a::ts) |~~ (fun _ -> Some (f::a::ts))
-   | _            -> None (* later we will think about other shapes *)
+       if isJuxtapos t then appflatten f (a::ts) |~~ (fun _ -> Some (f::a::ts))
+                       else None
+   | _            -> None 
  
  let measure font = fst_of_3 <.> Japeserver.measurestring font
  
