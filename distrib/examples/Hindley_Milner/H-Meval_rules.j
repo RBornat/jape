@@ -101,11 +101,11 @@ AND C Ê (=)€(Ët.tÁtÁbool)
 END
 
 RULE "Cºx€S Ê x€S" IS INFER Cºx€S Ê x€S
-RULE "Cºy€... Ê  x€S" WHERE x NOTIN E IS FROM C Ê x€S INFER CºE€S' Ê x€S 
+RULE "Cºy€... Ê  x€S" WHERE x NOTIN E IS FROM C Ê x€S INFER CºE€S1 Ê x€S 
 TACTIC "C Ê x€S" IS ALT "Cºx€S Ê x€S" (SEQ "Cºy€... Ê  x€S" "C Ê x€S")
 
 RULE "Cºc€S Ê c€S" IS INFER Cºc€S Ê c€S
-RULE "Cºy€... Ê  c€S" WHERE c NOTIN E IS FROM C Ê c€S INFER CºE€S' Ê c€S 
+RULE "Cºy€... Ê  c€S" WHERE c NOTIN E IS FROM C Ê c€S INFER CºE€S1 Ê c€S 
 				/* NOTIN still needed in case E is unknown */
 TACTIC "C Ê c€S" IS ALT "Cºc€S Ê c€S" (SEQ "Cºy€... Ê  c€S" "C Ê c€S")
 
@@ -114,17 +114,18 @@ RULE "C Ê c:T" IS FROM CÊc€S AND CÊS»T INFER CÊc:T
 
 RULES "S»T" ARE
 	INFER C Ê ^T » T
-AND	INFER C Ê (Ët.T) » T[t\T']
+AND	INFER C Ê (Ët.T) » T[t\T1]
 AND	INFER C Ê (Ë(t1,t2).T) » T[t1,t2\T1,T2]
 AND	INFER C Ê (Ë(t1,t2,t3).T) » T[t1,t2,t3\T1,T2,T3]
 AND	INFER C Ê (Ë(t1,t2,t3,t4).T) » T[t1,t2,t3,t4\T1,T2,T3,T4]
 END
 
 MENU Rules IS	
-	RULE "F G : T"		FROM C Ê F: TÁT' AND C Ê G : T 	INFER  C Ê F G : T'
+	RULE "F G : T"		FROM C Ê F: T1ÁT2 AND C Ê G : T1 	INFER  C Ê F G : T2
 	RULE "(˚x.E) : T1ÁT2"
 					FROM Cºx€^T1 Ê E:T2 			INFER C Ê (˚x.E) : T1ÁT2
-	RULE "(E,F) : TÙT'"	FROM C Ê E: T AND C Ê F: T'		INFER C Ê (E,F) : TÙT'
+	RULE "(E,F) : T1ÙT2"	
+					FROM C Ê E: T1 AND C Ê F: T2		INFER C Ê (E,F) : T1ÙT2
 	RULE "if E then ET else EF fi : T"
 		FROM C Ê E : bool AND C Ê ET : T AND C Ê EF : T		INFER C Ê if E then ET else EF fi : T
 	ENTRY "let ... : T" IS letrules
@@ -163,11 +164,13 @@ MENU Rules IS
 END
     
 RULE "^T«S" IS			FROM C Ê T • () • Ts AND C Ê (T,Ts) • S		INFER C Ê ^T « S
-RULE "^Tº^T'«SºS'" IS	FROM C Ê ^T«S AND C Ê ^T'«S'				INFER C Ê ^Tº^T'«SºS'
+RULE "T1ºT2«S1ºS2" IS	FROM C Ê T1«S1 AND C Ê T2«S2		INFER C Ê T1ºT2«S1ºS2
 
 RULE "t•..." (OBJECT t) WHERE t NOTIN C AND t NOTIN Ts IS			INFER C Ê t • Ts • (t,Ts)
-RULE "T1ÁT2•..."		FROM C Ê T1• Ts • Ts' AND C Ê T2 • Ts' • Ts''	INFER C Ê T1ÁT2 • Ts • Ts''
-RULE "T1ÙT2•..."		FROM C Ê T1• Ts • Ts' AND C Ê T2 • Ts' • Ts''	INFER C Ê T1Ù T2 • Ts • Ts''
+RULE "T1ÁT2•..."		FROM C Ê T1• Tsin • Tsmid AND C Ê T2 • Tsmid • Tsout	
+														INFER C Ê T1ÁT2 • Tsin • Tsout
+RULE "T1ÙT2•..."		FROM C Ê C Ê T1• Tsin • Tsmid AND C Ê T2 • Tsmid • Tsout	
+														INFER C Ê T1Ù T2 • Tsin • Tsout
 RULE "T•..."												INFER C Ê T • Ts • Ts
 
 RULES"«" ARE
@@ -183,7 +186,7 @@ TACTIC geninduct IS ALT "t•..." (SEQ (MATCH (ALT "T1ÁT2•..." "T1ÙT2•...")) genin
  TACTIC generalise IS
  	 LAYOUT "generalise %s" ()  
 		(ALT	(SEQ "^T«S" geninduct "«")
-			(SEQ "^Tº^T'«SºS'" generalise generalise)
+			(SEQ "T1ºT2«S1ºS2" generalise generalise)
 		)
 
 TACTIC Auto IS
@@ -194,7 +197,7 @@ TACTIC Auto IS
 				)
 			)
 			(LETGOAL (_F _G:_T) "F G : T" Auto Auto)
-			(LETGOAL ((_E,_F):_T) "(E,F) : TÙT'" Auto Auto)
+			(LETGOAL ((_E,_F):_T) "(E,F) : T1ÙT2" Auto Auto)
 			(LETGOAL ((˚_x._E):_T) "(˚x.E) : T1ÁT2" Auto)
 			(LETGOAL (if _E then _ET else _EF fi:_T) "if E then ET else EF fi : T" Auto Auto Auto)
 			(LETGOAL (let _x=_E in _F end:_T) letrules Auto generalise Auto)
@@ -216,7 +219,7 @@ TACTIC AutoStep IS
 				)
 			)
 			(LETGOAL (_F _G:_T) "F G : T")
-			(LETGOAL ((_E,_F):_T) "(E,F) : TÙT'")
+			(LETGOAL ((_E,_F):_T) "(E,F) : T1ÙT2")
 			(LETGOAL ((˚_x._E):_T) "(˚x.E) : T1ÁT2")
 			(LETGOAL (if _E then _ET else _EF fi:_T) "if E then ET else EF fi : T")
 			(LETGOAL (let _x=_E in _F end:_T) letrules)
