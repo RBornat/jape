@@ -35,7 +35,8 @@ RULE "è-E"(B) IS FROM èx.A(x) INFER A(B)
 
 RULE "ä-E"(OBJECT c) WHERE FRESH c AND c NOTIN äx.A(x) IS FROM äx.A(x) AND A(c) æ C INFER C
 
-RULE "ä!-E" IS FROM ä!x.A(x) INFER äx.A(x)
+RULE "ä!-E(1)" IS FROM ä!x.A(x) INFER äx.A(x)
+RULE "ä!-E(2)"(OBJECT y) IS FROM ä!x.A(x) INFER èx.èy.A(x)¦A(y)çx=y
 
 TACTIC ForwardCut(Rule) IS SEQ cut (WITHARGSEL Rule) (WITHHYPSEL hyp)
 
@@ -103,8 +104,8 @@ RULE "Â-I"(B)   IS FROM A æ Ù INFER ÂA
 RULE "Ù-I"	IS FROM P AND ÂP INFER Ù
 RULE "è-I"(OBJECT c) WHERE FRESH c IS FROM A(c) INFER èx .A(x)
 RULE "ä-I"(B)   IS FROM A(B) INFER äx.A(x)
-RULE "ä!-I"(B, OBJECT c) WHERE FRESH c AND c NOTIN äx.A(x) AND c NOTIN B IS 
-	FROM A(B) AND A(c) æ B=c INFER ä!x.A(x)
+RULE "ä!-I"(OBJECT c,OBJECT d) WHERE FRESH c,d AND c,d NOTIN ä!x.A(x) IS 
+	FROM äx.A(x) AND A(c),A(d) æ c=d INFER ä!x.A(x)
 
 RULE "A=A" IS INFER A=A
 RULE hyp(A) IS INFER A æ A
