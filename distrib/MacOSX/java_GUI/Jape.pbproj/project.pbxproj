@@ -100,7 +100,6 @@
 				791C738705DCEDE00086E5C6,
 				791C738805DCEDE00086E5C6,
 				791C738905DCEDE00086E5C6,
-				791C738A05DCEDE00086E5C6,
 				791C738B05DCEDE00086E5C6,
 				791C738C05DCEDE00086E5C6,
 				791C738D05DCEDE00086E5C6,
@@ -1061,15 +1060,6 @@
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
-		791C738A05DCEDE00086E5C6 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.java;
-			name = ExampleFileFilter.java;
-			path = ../../java_GUI/uk/org/jape/ExampleFileFilter.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
 		791C738B05DCEDE00086E5C6 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -1558,12 +1548,6 @@
 		};
 		791C73D805DCEDE10086E5C6 = {
 			fileRef = 791C738905DCEDE00086E5C6;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		791C73D905DCEDE10086E5C6 = {
-			fileRef = 791C738A05DCEDE00086E5C6;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -2196,7 +2180,6 @@
 				791C73D605DCEDE10086E5C6,
 				791C73D705DCEDE10086E5C6,
 				791C73D805DCEDE10086E5C6,
-				791C73D905DCEDE10086E5C6,
 				791C73DA05DCEDE10086E5C6,
 				791C73DB05DCEDE10086E5C6,
 				791C73DC05DCEDE10086E5C6,
