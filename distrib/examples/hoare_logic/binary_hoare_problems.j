@@ -1,0 +1,5 @@
+/* $Id$ */
+
+CONJECTUREPANEL "Programs"  IS
+	THEOREM WHERE i NOTIN x, n, a IS {äj.(0²j<n¦x=a[j])}(i:=0; while x­a[i] do i:=i+1 od){0²i<n¦x=a[i]}
+END
