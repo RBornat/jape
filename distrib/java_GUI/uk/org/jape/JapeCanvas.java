@@ -28,8 +28,10 @@
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.Rectangle;
+import java.awt.Point;
 
-public abstract class JapeCanvas extends ContainerWithOrigin {
+public abstract class JapeCanvas extends ContainerWithOrigin implements Clickable {
 
     static final byte NoSel = 0;
 
@@ -57,5 +59,11 @@ public abstract class JapeCanvas extends ContainerWithOrigin {
             if (c instanceof SelectableTextItem && (((SelectableTextItem)c).selected & selmask) != 0)
                 ((SelectableTextItem)c).select(NoSel);
         }
+    }
+
+    // when the viewport is sized, we want to stretch right across it,
+    // so we get the mouse events.
+    public void declareViewportSize(int width, int height) {
+        super.declareViewportSize(width, height);
     }
 }
