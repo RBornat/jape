@@ -41,9 +41,17 @@ public class Flyback implements ActionListener, MiscellaneousConstants {
     long interval;
     
     public Flyback(DragComponent c, Point start, Point dest) {
+        this(c, start.x, start.y, dest.x, dest.y);
+    }
+
+    public Flyback(DragComponent c, int startx, int starty, Point dest) {
+        this(c, startx, starty, dest.x, dest.y);
+    }
+
+    public Flyback(DragComponent c, int startx, int starty, int destx, int desty) {
         this.c = c;
-        this.lastx = start.x; this.lasty = start.y;
-        this.destx = dest.x; this.desty = dest.y;
+        this.lastx = startx; this.lasty = starty;
+        this.destx = destx; this.desty = desty;
         this.interval = 1000/FlybackFramesPerSecond;
         
         timer = new Timer((int)interval, this);
