@@ -35,7 +35,7 @@ import java.awt.event.MouseEvent;
 import java.awt.Rectangle;
 import java.util.Vector;
 
-public abstract class TextSelectableItem extends TextItem implements SelectionConstants {
+public class TextSelectableItem extends TextItem implements SelectionConstants {
 
     protected final char[] printchars;
     protected final String annottext;
@@ -51,17 +51,16 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
         annotlen = annottext.length();
         addJapeMouseListener(new JapeMouseTextAdapter() {
             public void textpressed(byte eventKind, MouseEvent e) {
-                TextSelectableItem.this.canvas.claimFocus();
                 TextSelectableItem.this.textpressed(eventKind, e);
             }
             public void textdragged(byte eventKind, MouseEvent e) {
                 TextSelectableItem.this.textdragged(eventKind, e);
             }
             public void textreleased(byte eventKind, boolean isClick, MouseEvent e) {
+                TextSelectableItem.this.canvas.claimFocus();
                 TextSelectableItem.this.textreleased(eventKind, isClick, e);
             }
         });
-        selectionHalo = canvas.getSelectionHalo();
     }
 
 
@@ -236,10 +235,12 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
         }
         
         public void paint(Graphics g) {
-            if (paint_tracing)
-                Logger.log.println("painting text selection "+start+","+end);
-            g.setColor(Preferences.TextSelectionColour);
-            g.fillRect(pxstart, 0, pxend-pxstart, getHeight());
+            if (isEnabled()) {
+                if (paint_tracing)
+                    Logger.log.println("painting text selection "+start+","+end);
+                g.setColor(Preferences.TextSelectionColour);
+                g.fillRect(pxstart, 0, pxend-pxstart, getHeight());
+            } // else do nothing
         }
 
         public boolean overlaps(TextSel t) {
@@ -254,23 +255,51 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
     FormulaTree anchor, current;
 
     public void deTextSelect() {
-        if (textsels!=null)
+        if (textsels!=null && textsels.size()!=0) {
             while (textsels.size()!=0) {
                 getTextSel(0).repaint();
                 textsels.remove(0);
             }
-        canvas.getProofWindow().enableCopy();
+            canvas.getProofWindow().enableCopy();
+        }
     }
 
-    public abstract String getTextSelections();
-
-    public String getSingleTextSelection() {
-        if (textsels==null || textsels.size()!=1)
+    public String getContextualisedTextSelections() {
+        if (textsels==null || textsels.size()==0)
             return null;
         else {
-            TextSel t = getTextSel(0);
-            return new String(printchars, t.start, t.end-t.start);
+            StringBuffer b = new StringBuffer(printchars.length+2*textsels.size());
+            int i = 0;
+            for (int j=0; j<textsels.size(); j++) {
+                TextSel t = getTextSel(j);
+                b.append(printchars, i, t.start-i);
+                b.append(Reply.stringSep);
+                b.append(printchars, t.start, t.end-t.start);
+                b.append(Reply.stringSep);
+                i = t.end;
+            }
+            b.append(printchars, i, printchars.length-i);
+            return b.toString();
         }
+    }
+
+    public String getTextSelections() {
+        if (textsels==null || textsels.size()==0)
+            return null;
+        else {
+            StringBuffer b = new StringBuffer(printchars.length+2*textsels.size());
+            for (int j=0; j<textsels.size(); j++) {
+                TextSel t = getTextSel(j);
+                if (j!=0)
+                    b.append(Reply.stringSep);
+                b.append(printchars, t.start, t.end-t.start);
+            }
+            return b.toString();
+        }
+    }
+
+    public String getSingleTextSelection() {
+        return textsels==null || textsels.size()!=1 ?  null : getTextSelections();
     }
     
     public int getTextSelectionCount() {
@@ -359,6 +388,7 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
         }
         currenttextselindex = -1;
         canvas.getProofWindow().enableCopy();
+        canvas.notifyTextSelectionChange(this);
     }
 
     protected void paintTextSels(Graphics g) {
@@ -373,9 +403,12 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
     }
     
     public void paint(Graphics g) {
-        if (paint_tracing)
-            Logger.log.println("painting textselectable item at "+getX()+","+getY());
-        paintTextSels(g); super.paint(g);
+        if (isEnabled()) {
+            if (paint_tracing)
+                Logger.log.println("painting textselectable item at "+getX()+","+getY());
+            paintTextSels(g);             
+        }
+        super.paint(g);
     }
 
     public String toString() {
@@ -395,5 +428,10 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
             s = s+"]";
         }
         return s+", "+super.toString()+"]";
+    }
+    
+    public void greyen() {
+        deTextSelect();
+        super.greyen();
     }
 }
