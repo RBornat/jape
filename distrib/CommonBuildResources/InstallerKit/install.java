@@ -1,11 +1,12 @@
 /**
         $Id$
 
-        Here, in a single class, we define the support for installing
-        jape (or any other application) on any machine on which java
-        is installed. It was designed and written in less than 5
-        hours, so there may be some outstanding things to simplify,
-        but, for the moment, it will do the job we need doing.
+        Here we define the support for installing jape (or any other
+        application) on any machine on which java is installed. It
+        was designed and written in less than a working day, so
+        there may be some aspects of its implementation to simplify,
+        and some aspects of its functionality to enhance, but for
+        the moment it will do the job we need doing.
 
         Our method is to build an (executable) jar file containing
         everything that the application needs, together with a
@@ -35,6 +36,14 @@
 
         This builds a jar called $(TARGET).jar that can be transported anywhere.
 
+        Switches are:
+
+                -splash     <image file>    -- specify the installation splash image
+                -app        "the app name"  -- default is Jape 
+                -onunix     <script file>   -- specify the post-unpack command for Unixoid systems
+                -onwin      <script file>   -- specify the post-unpack command for Windoid systems
+                -class      <class name>    -- specify the post-unpack class to instantiate
+
         It is fairly important that the name of this file is not
         changed, for if it is then the installation process is made a
         little more complicated (see below). We could make it
@@ -42,27 +51,38 @@
 
         WINDOWS/APPLE INSTALL
         ---------------------
-        To install on a Windows (or, I suppose, a Napple) machine, on which java
-        has been properly installed (only the jre is needed, not the whole jdk)
-        just place$(TARGET).jar in the installation folder you have chosen,
-        then doubleclick on it.
 
-        If $(TARGET).jar file has changed its name since it was made,
-        then it's probably better to change it back to the original
-        and double click on it as above. If for some reason you don't
-        want to do that, make a shortcut to the jar file and fix the
-        Windows TARGET property of the shortcut so that it's a command
-        that takes its own  jar file name as its first argument.
+        To install on a Windows (or, I suppose, a Napple) machine,
+        on which java has been properly installed (only the jre
+        is needed, not the whole jdk) just place $(TARGET).jar in
+        the installation folder you have chosen, then doubleclick
+        on it. A control panel appears which gives you the option
+        to install the software. The name of the expected target
+        jar file is displayed: it should be the same as the name
+        of the jar file that was doubleclicked. If not, then the
+        install process will not succeed.
+
+        If $(TARGET).jar file has changed its name since it was
+        made, then the simples way to recover is to change it back
+        to the original and double click on it as above.
         
         UNIXOID INSTALL
         ---------------
+
         To install on a Unixoid machine, on which java has been
-        properly installed, (only the jre is needed, not the whole jdk),
-        just place $(TARGET).jar in the installation folder you have chosen,   
-        then
+        properly installed, (only the jre is needed, not the whole
+        jdk), just place $(TARGET).jar in the installation folder
+        you have chosen, then
+        
                 java -jar $(TARGET).jar
 
-        IF THE $(TARGET).jar file has changed its name (say to
+        A control panel appears which gives you the option
+        to install the software. The name of the expected target
+        jar file is displayed: it should be the same as the name
+        of the jar file that was executed. If not, then the
+        install process will not succeed.
+
+        If the $(TARGET).jar file has changed its name (say to
         foo.jar) since it was made, then
         
                 java -jar foo.jar foo.jar
@@ -94,15 +114,18 @@ import java.util.zip.*;
 public class install implements ActionListener
 { static String 
          packageName        = "bootstrap"
-  ,      bootstrapClassFile = packageName+"/install.class"+" "+packageName+"/install$1.class"
+  ,      packagePath        = "bootstrap"
+  ,      bootstrapClassFile = packagePath+"/install.class"+" "+packagePath+"/install$1.class"
   ,      bootstrapClass     = packageName+".install"
   ,      installerName      = "applicationinstaller"
-  ,      installerSource    = packageName+"/"+installerName + ".java"
-  ,      installerClassFile = packageName+"/"+installerName + ".class"
+  ,      installerSource    = packagePath+"/"+installerName + ".java"
+  ,      installerClassFile = packagePath+"/"+installerName + ".class"
   ,      installerClass     = packageName+"."+installerName
-  ,      manifestName       = packageName+"/"+installerName + ".mf"
+  ,      manifestName       = packagePath+"/"+installerName + ".mf"
   ,      gifFile            = null
   ,      installgifFile     = null
+  ,      propertiesResource = installerName+".properties"
+  ,      propertiesFile     = packagePath+"/"+propertiesResource
   ;
 
   /////////////////////////// CONFIGURE TIME ////////////////////////////
@@ -110,6 +133,7 @@ public class install implements ActionListener
   public static void main(String[] args) throws Exception
   { String       installjar = null;
     StringBuffer resources  = new StringBuffer();
+    Properties   props      = new Properties();
 
     if (args.length>0)
     { 
@@ -123,12 +147,13 @@ public class install implements ActionListener
            { gifFile = param; 
              installgifFile =  packageName + "/" + param;
              resources.append(" " + installgifFile);
+             props.setProperty("-splash", gifFile);
            }
            else
-           {
-             System.err.println("Unknown switch: "+arg+" "+param);
-             System.err.println("Usage: java bootstrap.install [-splash imagefile] target.jar [resource]*");  
-             System.exit(1);
+           { props.setProperty(arg, param);
+             //System.err.println("Unknown switch: "+arg+" "+param);
+             //System.err.println("Usage: java bootstrap.install [-splash imagefile] target.jar [resource]*");  
+             //System.exit(1);
            }
          }
          else
@@ -137,6 +162,10 @@ public class install implements ActionListener
          else
             resources.append(" "+arg);
       }
+      FileOutputStream propfile = new FileOutputStream(propertiesFile);
+      props.store(propfile, "Installer properties");
+      propfile.close();
+      resources.append(" "+propertiesFile);
     }
 
     if ( installjar == null )
@@ -153,7 +182,7 @@ public class install implements ActionListener
        { "package " + packageName + ";"
        , "public class " + installerName
        , "{ public static void main(String[] args)"
-       , "  { new " + bootstrapClass + "(args.length==0?"+quote(installjar)+":args[0], "+quote(gifFile)+"); }"
+       , "  { new " + bootstrapClass + "(args.length==0?"+quote(installjar)+":args[0]); }"
        , "}"
        };
        cat(installerSource, installer);
@@ -166,9 +195,10 @@ public class install implements ActionListener
        boolean ok = execute
        ( new String[]
          { "javac " + installerSource
-         , gifFile==null?"# no install-time icon":("cp "    + gifFile + " " + installgifFile)
+         , gifFile==null?"# no install-time icon":("cp "    + gifFile + " " + packagePath)
          , "jar -cvfm " + installjar + " " + manifestName + " " + installerClassFile + " " + bootstrapClassFile + resources.toString()
-         }
+         },
+         false
        );
 
        if (!ok) 
@@ -189,7 +219,7 @@ public class install implements ActionListener
        out.close();
   }
   
-  public static void echo(InputStream inp) throws Exception
+  public static void echo(InputStream inp, final boolean toProgress) throws Exception
   { final LineNumberReader i = new LineNumberReader(new InputStreamReader(inp));
     new Thread()
     { public void run()
@@ -198,7 +228,10 @@ public class install implements ActionListener
         {
            while ((line = i.readLine()) != null)
            {
-              System.err.println(line);
+              if (toProgress) 
+                 showProgress(line);
+              else
+                 System.err.println(line);
            }
            i.close();
         }
@@ -210,7 +243,11 @@ public class install implements ActionListener
     }.start();
   }
   
-  public static boolean execute(String[] lines)
+  public static boolean execute(String line, boolean toProgress)
+  { return execute(new String[] { line }, toProgress);
+  }
+  
+  public static boolean execute(String[] lines, boolean toProgress)
   {
        Runtime sys = Runtime.getRuntime();
        int     status = 0;
@@ -221,8 +258,8 @@ public class install implements ActionListener
          try 
          {
             Process p = sys.exec(lines[i]);
-            echo(p.getInputStream());
-            echo(p.getErrorStream());
+            echo(p.getInputStream(), toProgress);
+            echo(p.getErrorStream(), toProgress);
             status = p.waitFor();
          }
          catch (Exception exn)
@@ -241,13 +278,30 @@ public class install implements ActionListener
      return tk.getImage(host.getClass().getResource(localname));
   }
 
-  String jarfilename = null;
+  public static Properties getProperties(Object host) 
+  {  Toolkit tk = Toolkit.getDefaultToolkit();
+     Properties p = new Properties();
+     try
+     {
+      p.load(host.getClass().getResourceAsStream(propertiesResource));
+     }
+     catch (Exception exn)
+     {
+       System.err.println(exn);
+     }
+     return p;
+  }
+
+  String     jarfilename = null;
+  Properties prop        = null; 
+  
   static TextArea progress = null;
+  static int length = 0;
 
   public static void showProgress(String l)
   {
-    progress.append(l);
-    progress.append("\n");
+    progress.insert(l+"\n", length);
+    length+=l.length()+1;
   }
 
   public static JPanel column(Component[] cs)
@@ -256,21 +310,26 @@ public class install implements ActionListener
     return r;
   }
 
-  public install(String jarfilename, String giffilename)
-  {  this.jarfilename  = jarfilename;
-     String    caption = "Jape Installer for "+jarfilename;
-     Font      font    = new Font("SansSerif", Font.BOLD, 18);
-     JFrame    frame   = new JFrame(caption);
-     Container content = frame.getContentPane();
-     JButton   install = new JButton("Install Jape in this Folder");
-     JButton   exit    = new JButton("Exit Now");
-     JLabel    label   = new JLabel(caption, SwingConstants.CENTER);
-     progress = new TextArea("Installation Progress\n", 10, 50);
+  public install(String jarfilename)
+  {  this.jarfilename      = jarfilename;
+     prop                  = getProperties(this);
+     String    giffilename = prop.getProperty("-splash");
+     String    appName     = prop.getProperty("-app", "Jape");
+     String    caption     = "Installing "+appName+" from "+jarfilename;
+     Font      font        = new Font("SansSerif", Font.BOLD, 18);
+     JFrame    frame       = new JFrame(caption);
+     Container content     = frame.getContentPane();
+     JButton   install     = new JButton("Install "+appName);
+     JButton   exit        = new JButton("Exit Now");
+     JLabel    label       = new JLabel(caption, SwingConstants.CENTER);
+     progress = new TextArea("", 15, 72);
      install.addActionListener(this);
      exit.addActionListener(this);
      install.setFont(font);
      exit.setFont(font);
      label.setFont(font);
+
+     // prop.list(System.err);
      
      
      if (giffilename!=null)
@@ -294,8 +353,13 @@ public class install implements ActionListener
     if (c.startsWith("Install"))
     { 
        try
-       { 
+       { boolean isWindows = System.getProperty("os.name", "Unix").startsWith("Windows");
          unJar(".", new FileInputStream(jarfilename));
+         String shell = prop.getProperty(isWindows?"-onwin":"-onunix");
+         if (shell!=null)
+         { 
+            execute(shell, true);
+         }
        }
        catch (Exception exn)
        {
@@ -364,6 +428,20 @@ public class install implements ActionListener
 
   
 }
+
+/*
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the  GNU General Public License  as published
+ by the Free Software Foundation; either version 2 of the License,
+ or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+
+*/
 
 
 
