@@ -26,16 +26,9 @@
 */
 
 interface DebugConstants {
-
-    static final public boolean protocol_tracing         = false;
-
-    static final public boolean debugJapeMenu            = false;
-    static final public boolean menuaction_tracing       = false;
-
-    static final public boolean debugTextItem            = false;
-
     static final public boolean containerlayout_tracing  = false;
-    
+    static final public boolean menuaction_tracing       = false;
     static final public boolean panellayout_tracing      = false;
+    static final public boolean protocol_tracing         = false;
 }
 
