@@ -98,10 +98,13 @@ module type Tree =
                       (* showallsteps *)
 
     module Fmttree : Access
-                     with type seq = seq and type name = name
+                     with type fmt = treeformat and type seq = seq and type name = name
                       and type prooftree = treeformat prooftree
-                      and type path = fmtpath
+                      and type path = fmtpath and type element = element
     module Vistree : Access
+                     with type fmt = visformat and type seq = seq and type name = name
+                      and type prooftree = visformat prooftree
+                      and type path = vispath and type element = element
     
     val foldedfmt : string ref (* LAYOUT "" ()    *)
     val filteredfmt : string ref (* LAYOUT "" (...) *)
@@ -1591,7 +1594,15 @@ module Tree : Tree with type term = Term.Type.term
         let pathstring = fmtpathstring
         let prooftreestring = prooftreestring fmtstring
       end
-    module Vistree : Access =
+    
+    module Vistree : Access  with type fmt = visformat
+							 and type path = vispath
+							 and type prooftree = visformat prooftree
+							 and type seq = seq
+							 and type rewinf = rewinf
+							 and type element = element
+							 and type name = name
+    =
       struct
         type fmt = visformat
         and path = vispath

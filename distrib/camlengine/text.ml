@@ -27,7 +27,10 @@ module type T =
   end
 (* $Id$ *)
 
-module M : T =
+module M : T with type textsize = Box.M.textsize 
+              and type pos = Box.M.pos 
+              and type font = Displayfont.M.displayfont
+=
   struct
     open Box.M
     open Miscellaneous.M

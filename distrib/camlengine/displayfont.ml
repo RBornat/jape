@@ -19,6 +19,7 @@ module M : T =
     exception Catastrophe_ = Miscellaneous.M.Catastrophe_
     
     type displayfont = TermFont | ReasonFont | ProvisoFont
+    
     let allfonts = [TermFont; ReasonFont; ProvisoFont]
     let rec displayfontstring =
       function
