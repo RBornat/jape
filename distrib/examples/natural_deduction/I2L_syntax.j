@@ -8,7 +8,7 @@ CLASS FORMULA   A B C
                 R S T
 CLASS BAG FORMULA Γ
 
-CONSTANT ⊥
+CONSTANT ⊥ ⊤
 
 PREFIX  10  actual
 
