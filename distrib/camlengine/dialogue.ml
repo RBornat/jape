@@ -1398,7 +1398,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             disproofstateact
               (fun d -> Disproof.moveworldtolink d (atoi x, atoi y) (atoi x', atoi y')
                                                    (atoi px, atoi py) (atoi cx, atoi cy))
-        
+        | "splitworldlink", [fromx; fromy; tox; toy; newx; newy] ->
+            disproofuniverseact
+              (fun u -> Disproof.splitlink u (atoi fromx, atoi fromy) (atoi tox, atoi toy) (atoi newx, atoi newy))
+
         | "worldselect", cs ->
             disproofstateact
               (fun d ->

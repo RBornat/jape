@@ -73,6 +73,7 @@ val deleteworld     : disproofstate -> int * int -> disproofstate option
 val moveworld       : disproofstate -> int * int -> int * int -> disproofstate option
 val moveworldtolink : disproofstate -> int * int -> int * int -> int * int -> int * int -> disproofstate option
 val newtile         : disproofstate -> term -> disproofstate option
+val splitlink       : universe -> int * int -> int * int -> int * int -> universe option
 val worldselect     : disproofstate -> (int * int) list -> disproofstate option
 
 val evaldisproofstate : facts -> prooftree -> disproofstate -> disproofstate

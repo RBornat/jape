@@ -1153,8 +1153,13 @@ let rec showdisproof (Disproofstate {seq = seq; universe = universe; tiles = til
 
 let cleardisproof () = Japeserver.clearPane Displayfont.DisproofPane
 
+(* this could be a bit more careful, I think: but no matter *)
+let splitlink u from to__ w =
+  if from=w || w=to__ then None else
+  Some (addlink (addlink (deletelink u from to__) from w) w to__)
+  
 (* for export, with slightly altered semantics *)
-let rec deletelink u from to__ =
+let deletelink u from to__ =
   let (ts, cs) = getworld u from in
   if member (to__, cs) then
     Some (u ++ (from |-> (ts, listsub (fun (x,y) -> x=y) cs [to__])))
