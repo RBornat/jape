@@ -106,8 +106,7 @@ CONJECTUREPANEL "Array Programs" IS
             done:=⊤
           fi
       od
-    {0≤m∧m≤i∧i≤j∧j≤n∧n≤length(a)∧
-     ∃yl.(m≤yl∧yl<j∧a[yl]≤p)∧∃yh.(i≤yh∧yh<n∧a[yh]≥p)∧
+    {0≤m∧m≤i∧i≤j∧j≤n∧n≤length(a)∧i<n∧m<j∧
      ∀xl.(m≤xl∧xl<i→a[xl]≤p)∧∀xh.(j≤xh∧xh<n→a[xh]≥p)∧
      (i=j∨(i+1=j∧a[i]=p))}
 END
