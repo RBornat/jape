@@ -226,6 +226,7 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
     }
     
     private KPanel panel;
+    private JScrollPane scrollPane;
     
     public NoneWindowSwing() {
         String yes = "Yes", no = "No";
@@ -247,14 +248,15 @@ public class NoneWindowSwing extends JFrame implements ActionListener {
 
         Container contentPane = getContentPane();
         Rectangle panelBounds = panel.getBounds();
+
+        scrollPane = new JScrollPane(panel);
         
-        contentPane.setLayout(null);
-        contentPane.add(panel);
+        contentPane.add(scrollPane);
         contentPane.doLayout();
 
         // nothing seems to give us a properly-sized window ...
-        setSize(Math.min(500, Math.max(200,panelBounds.x+panelBounds.width+50)),
-                Math.min(400, Math.max(200, panelBounds.y+panelBounds.height+50)));
+        //setSize(Math.min(500, Math.max(200,panelBounds.x+panelBounds.width+50)),
+        //        Math.min(400, Math.max(200, panelBounds.y+panelBounds.height+50)));
 
         System.err.println("window bounds are "+getBounds());
         
