@@ -68,6 +68,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     
     Vector entryv, cmdv, markv; // matches the list line for line
     Vector buttonv;
+    int selectedIndex = -1;
     
     private static final String newLabel       = "New...",
                                 proveLabel     = "Prove",
@@ -128,10 +129,9 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 throw new ProtocolError("no such command");
         else {
             markv.setElementAt(new Mark(proved,disproved) ,i);
-            if (window!=null) {
+            if (window!=null)
                 window.markEntry(i, proved, disproved);
         }
-    }
     }
 
     private static class Mark {
@@ -141,6 +141,19 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         }
     }
 
+    protected void selectEntry(String entry)throws ProtocolError {
+        if (panellist_tracing)
+            Logger.log.println("panel \""+title+"\" selecting "+entry);
+        int i = entryv.indexOf(entry);
+        if (i==-1)
+            throw new ProtocolError("no such entry");
+        else {
+            selectedIndex = i;
+            if (window!=null)
+                window.selectEntry(i);
+        }
+    }
+    
     public static abstract class Insert { }
     public static class StringInsert extends Insert {
         String s;
@@ -310,12 +323,12 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             model = new DefaultListModel();
             list = new JList(model);
             list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            list.setSelectedIndex(0);
             setListFont();
             list.setCellRenderer(new Renderer());
 
             for (int i=0; i<entryv.size(); i++)
                 addEntry((String)entryv.get(i), (Mark)markv.get(i));
+            list.setSelectedIndex(selectedIndex==-1 ? 0 : selectedIndex);
 
             MouseListener m = new MouseAdapter () {
                 public void mouseClicked(MouseEvent e) {
@@ -389,6 +402,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             }
             invalidate();
             repaint();
+            if (list.getSelectedIndex()!=-1)
+                list.ensureIndexIsVisible(list.getSelectedIndex());
         }
         
         public boolean equals(Object o) {
@@ -447,6 +462,11 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             e.mark(proved, disproved);
             repaintCell(i);
             enableButtons();
+        }
+
+        protected void selectEntry(int i) {
+            list.setSelectedIndex(i);
+            list.ensureIndexIsVisible(i);
         }
 
         private void repaintSelection() {
@@ -745,5 +765,9 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     public static void markEntry(String panel, String cmd /* really */,
                                  boolean proved, boolean disproved) throws ProtocolError {
         mustFindPanel(panel).markEntry(cmd, proved, disproved);
+    }
+
+    public static void selectEntry(String panel, String entry) throws ProtocolError {
+        mustFindPanel(panel).selectEntry(entry);
     }
 }
