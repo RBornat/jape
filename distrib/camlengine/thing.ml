@@ -46,7 +46,9 @@ open Term.Type
 open Term.Store
 open Termparse
 
+
 let thingdebug = ref false
+
 let thingdebugheavy = ref false
 (* this is what we deal in *)
 type ruledata = paraparam list * (bool * proviso) list * seq list * seq
@@ -62,22 +64,31 @@ type storedthing =
   | CookedRule of ((term list * ruledata) * (term list * ruledata) * bool)
   | CookedTheorem of ((term list * ruledata) * (term list * ruledata))
 type thingplace = InMenu of name | InPanel of name | InLimbo
+
 let argliststring = termliststring
+
 let mapliststring =
   bracketedliststring (pairstring termstring termstring ",") ","
+
 let paramliststring = bracketedliststring paraparamstring ","
+
 let provisoliststring =
   bracketedliststring
     (pairstring string_of_bool provisostring ",") " AND "
+
 let rec antecedentliststring heavy =
   bracketedliststring (if heavy then smlseqstring else seqstring) " AND "
+
 let rec consequentstring heavy = if heavy then smlseqstring else seqstring
+
 let rec ruledatastring heavy r =
   quadruplestring paramliststring provisoliststring
     (antecedentliststring heavy) (consequentstring heavy) ", " r
+
 let rec thmdatastring heavy t =
   triplestring paramliststring provisoliststring (consequentstring heavy)
     ", " t
+
 let rec thingstring =
   function
     Rule r ->
@@ -87,8 +98,11 @@ let rec thingstring =
   | Theorem t -> "Theorem" ^ thmdatastring false t
   | Tactic t -> "Tactic" ^ pairstring paramliststring tacticstring ", " t
   | Macro m -> "Macro" ^ pairstring paramliststring termstring ", " m
+
 let rec cookedstring f = pairstring argliststring f ","
+
 let rec doublestring f = pairstring f f ","
+
 let rec storedthingstring =
   function
     Rawthing t -> ("Rawthing(" ^ thingstring t) ^ ")"
@@ -100,11 +114,13 @@ let rec storedthingstring =
   | CookedTheorem t ->
       "CookedTheorem" ^
         doublestring (cookedstring (ruledatastring false)) t
+
 let rec thingplacestring =
   function
     InMenu s -> "InMenu " ^ namestring s
   | InPanel s -> "InPanel" ^ namestring s
   | InLimbo -> "InLimbo"
+
 let resnumbase = 1
 (* In numbering resources the number passed in is the next free number.
  * We renumber starting with resnumbase, so no resource will have a smaller
@@ -170,6 +186,7 @@ let resnumbase = 1
 (* we number rules starting from 1, so that seqvars and Nonums can be 
  * described as zeros to the uninitiated
  *)
+
 let rec numberrule (antes, conseq) =
   let rec numberseq fld =
     fun _R n leftenv rightenv ->
@@ -238,6 +255,7 @@ let rec numberrule (antes, conseq) =
  * as zeros to the non-initiate), we adjust the numbering of the new sequent
  * to avoid gaps in the number order
  *)
+
 let rec numberforapplication n (antes, conseq) =
   let rec renumberseq n =
     fun (Seq (st, hs, gs) as seq) ->
@@ -299,6 +317,7 @@ let rec numberforapplication n (antes, conseq) =
  * For the moment we don't know what to do with the antecedents - so we leave
  * them alone.
  *)
+
 let rec numberforproof (antes, conseq) =
   let rec renumberel el =
     match el with
@@ -325,6 +344,7 @@ let rec numberforproof (antes, conseq) =
  * Objectparam or Abstractionparam.
  * Thus you can tell that an associative law is really general.  I think.
  *)
+
 let rec formulageneralisable params v =
   let rec ok a1 a2 =
     match a1, a2 with
@@ -337,6 +357,7 @@ let rec formulageneralisable params v =
   | Unknown (_, v, FormulaClass) -> _All (ok (v, FormulaClass)) params
   | _ -> false
 exception Fresh_ of string list exception CompileThing_ of string list
+
 
 let rec findhiddenprovisos (b, ts) ps =
   (* first look for parallel bindings *)
@@ -397,10 +418,12 @@ let rec findhiddenprovisos (b, ts) ps =
   in
   diffbinders @ skipbinders
 (* designed to be (NJ) folded *)
+
 let rec findpredicatebindings isabstraction =
   fun (Seq (st, lhs, rhs), pbs) ->
     let g = foldterm (findpredicates isabstraction []) in
     g (g pbs lhs) rhs
+
 let rec compilepredicates isabstraction env =
   fun (Seq (st, lhs, rhs)) ->
     let f =
@@ -408,6 +431,7 @@ let rec compilepredicates isabstraction env =
         (fun t -> try__ (fun (_, vs) -> vs) (at (env, t)))
     in
     Seq (st, mapterm f lhs, mapterm f rhs)
+
 let rec checkarg var arg =
   begin try checkTacticTerm arg with
     Tacastrophe_ ss ->
@@ -419,6 +443,7 @@ let rec checkarg var arg =
       (Fresh_
          ["argument "; termstring arg; " doesn't fit parameter ";
           termstring var])
+
 let rec freshc defcon cxt env params args =
   let _F = freshc defcon in
   let rec inextensible c s =
@@ -465,6 +490,7 @@ let rec freshc defcon cxt env params args =
       usearg registerId vc vs arg args
 (* infix -- ++ moved out then deleted for OCaml; hope infixr above will do *)
           
+
 let rec extraVIDs params args bodyVIDs =
   let rec ( -- ) (xs, ys) =
     listsub (fun (x, y) -> x = y : vid * vid -> bool) xs ys
@@ -488,6 +514,7 @@ let rec extraVIDs params args bodyVIDs =
    else ();
    ... end desperation *)
   ( -- ) (bodyVIDs, ( ++ ) (paramVIDs params, argVIDs))
+
 let rec allparams params allvs =
   params @
     listsub
@@ -499,15 +526,19 @@ let rec allparams params allvs =
        | v1, v2 ->
            fst (paramidbits v1) = fst (paramidbits v2))
       allvs params
+
 let rec extraBag_vid () = vid_of_string (autoID (BagClass FormulaClass) "extraBag")
+
 let rec newvar con class__ (vid, vars) =
   let vid = uniqueVID class__ ((vid_of_var <* vars)) [] vid in
   let v = con (vid, class__) in v, tmerge [v] vars
+
 let rec extend a1 a2 =
   match a1, a2 with
     sv, Collection (_, BagClass FormulaClass, es) ->
       registerCollection (BagClass FormulaClass, sv :: es)
   | sv, c -> c
+
 let rec extensible c =
   match c with
     Collection (_, BagClass FormulaClass, es) ->
@@ -519,6 +550,7 @@ let rec extensible c =
             | _ -> false)
            es)
   | _ -> false
+
 let rec ehb vars c =
   if extensible c then
     let (v, vars) =
@@ -527,6 +559,7 @@ let rec ehb vars c =
     let sv = registerSegvar ([], v) in Some (vars, sv, extend sv c)
   else None
 exception BadAdditivity_ of string list
+
 let rec augment el er (conseq, antes, vars) =
   let rec f extendp getside setside (conseq, antes, vars) =
     if extendp then
@@ -560,6 +593,7 @@ let rec augment el er (conseq, antes, vars) =
 (* We don't want to do a lot of work when we apply a rule, so we 
  * compile it the first time it's called for, and use it ever after.
  *)
+
 let rec compileR el er (params, provisos, antes, conseq) =
   let (antes, conseq) = numberrule (antes, conseq) in
   let bodyvars =
@@ -720,6 +754,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
   (mkvars proofbodyvars, (params, proofprovisos, antes, conseq)),
   (mkvars applybodyvars,
    (applyparams, applyprovisos, applyantes, applyconseq))
+
 let rec compilething name thing =
   match thing with
     Rule (r, ax) ->
@@ -743,9 +778,12 @@ let rec compilething name thing =
             (CompileThing_ ("Theorem " :: namestring name :: ": " :: ss))
       end
   | _ -> Rawthing thing
+
 let relationpats : term list ref = ref []
+
 let rec isRelation t =
   List.exists (fun p -> opt2bool (match__ false p t empty)) !relationpats
+
 let rec registerRelationpat t =
   (* we assume it's the right shape ... *)
   if isRelation t then () else relationpats := t :: !relationpats
@@ -759,6 +797,7 @@ type structurerule =
   | IdentityRule
   | TransitiveRule
   | ReflexiveRule
+
 let rec structurerulestring sr =
   match sr with
     CutRule -> "CutRule"
@@ -767,12 +806,17 @@ let rec structurerulestring sr =
   | IdentityRule -> "IdentityRule"
   | TransitiveRule -> "TransitiveRule"
   | ReflexiveRule -> "ReflexiveRule"
+
 let structurerules : (structurerule * name) list ref = ref []
+
 let rec clearstructurerules () = structurerules := []; relationpats := []
+
 let rec erasestructurerule name =
   structurerules := ((fun (_, n) -> n <> name) <| !structurerules)
+
 let rec isstructurerule kind name =
   List.exists (fun (k, n) -> (k, n) = (kind, name)) !structurerules
+
 let rec uniqueCut () =
   match
        (function
@@ -794,13 +838,14 @@ let rec uniqueCut () =
  * We no longer have the extra ref.
  *)
 (* now we use Hashtbl. RB 9/vii/2002 *)
-let
-  (clearthings, compiledthinginfo, compiledthingnamed, getthing,
-   goodthing, badthing, thingnamed, thinginfo, addthing, thingnames,
-   thingstodo)
-  =
-  let pst = pairstring storedthingstring thingplacestring ","
-  and (lookup, update, reset, sources, targets) =
+
+let clearthings, compiledthinginfo, compiledthingnamed, getthing,
+    goodthing, badthing, thingnamed, thinginfo, addthing, thingnames,
+    thingstodo =
+  
+  let pst = pairstring storedthingstring thingplacestring "," in
+  
+  let lookup, update, reset, sources, targets =
     let store = Hashtbl.create 127 (* why not? It can only grow :-) *) in
     (fun name -> try Some(Hashtbl.find store name) with Not_found -> None), 
     (fun name thing -> (try Hashtbl.remove store name with Not_found -> ()); 
@@ -809,7 +854,9 @@ let
     (fun () -> Hashtbl.fold (fun name _ names -> name::names) store []),
     (fun () -> Hashtbl.fold (fun _ thing things -> thing::things) store [])
   in
+  
   let rec clearthings () = reset ()
+  
   and compiledthinginfo name =
     let res =
       match lookup name with
@@ -829,8 +876,10 @@ let
     if !thingdebug then
       consolereport [" "; namestring name; " is "; optionstring pst res];
     res
+  
   and compiledthingnamed name =
     (compiledthinginfo name &~~ (fun (thing, place) -> Some thing))
+  
   and getthing trim name =
     match compiledthinginfo name with
       Some (Rawthing th, place) -> Some (trim th, place)
@@ -840,6 +889,7 @@ let
         (CookedTheorem ((_, (params, provisos, _, conseq)), _), place) ->
         Some (trim (Theorem (params, provisos, conseq)), place)
     | None -> None
+  
   and goodthing =
     function
       Theorem (params, provisos, seq) ->
@@ -849,13 +899,17 @@ let
           ((params, fst <| provisos, antes, conseq), ax)
     | Tactic _ as t -> t
     | Macro _ as m -> m
+  
   and badthing t = t in
+  
   let thingnamed = getthing goodthing
+  
   and thinginfo = getthing badthing in
   (* for _efficiency_, it would be best if we compiled things when they were
    * first used.  For _error reporting_, and for generally making sense, it is
    * best if they are compiled when put into place
    *)
+  
   let rec addthing (name, thing, place) =
     let _ = erasestructurerule name in
     (* we aren't going to make THAT mistake! *)
@@ -880,12 +934,16 @@ let
          " was "; optionstring pst (lookup name); "; is now ";
          pst (newthing, newplace)];
     update name (newthing, newplace)
+  
   and thingnames () = sources ()
   (* reverse so that we see things in their insertion order *)
   (* now no particular order -- does this matter? *)
+  
   and thingstodo () = not (null (sources ())) in
+  
   clearthings, compiledthinginfo, compiledthingnamed, getthing, goodthing,
   badthing, thingnamed, thinginfo, addthing, thingnames, thingstodo
+
 let rec var2param =
   function
     Id (_, v, c) -> Ordinaryparam (v, c)
@@ -895,6 +953,7 @@ let rec var2param =
         (Fresh_
            ["unknown schematic variable "; termstring t;
             " in var list in freshRule"])
+
 let rec freshparamstouse vars args params =
   let paramsused =
     allparams params
@@ -903,6 +962,7 @@ let rec freshparamstouse vars args params =
   let bodyVIDs = orderVIDs ((vid_of_var <* vars)) in
   let ruleVIDs = extraVIDs paramsused args bodyVIDs in
   paramsused, ruleVIDs
+
 let rec env4Rule env args cxt defcon (paramsused, ruleVIDs) =
   let res =
     freshc defcon (plususedVIDs cxt ruleVIDs) env paramsused
@@ -919,6 +979,7 @@ let rec env4Rule env args cxt defcon (paramsused, ruleVIDs) =
        pairstring cxtstring (mappingstring termstring termstring) ","
          res];
   res
+
 let rec instantiateRule env provisos antes conseq =
   let provisos' = ((fun (v, p) -> v, remapproviso env p) <* provisos) in
   let conseq' = remapseq env conseq in
@@ -939,6 +1000,7 @@ let rec instantiateRule env provisos antes conseq =
          (antecedentliststring !thingdebugheavy)
          (consequentstring !thingdebugheavy) ", " res];
   res
+
 let rec freshRule
   env args cxt (params, provisos, antes, conseq) defcon
     (paramsused, ruleVIDs) =
@@ -964,6 +1026,7 @@ let rec freshRule
        triplestring mapliststring cxtstring
          (ruledatastring !thingdebugheavy) ", " res];
   res
+
 let rec renumberforuse args antes conseq cxt =
   (* renumber the sequent *)
   let (n, interesting_resources, antes, conseq) =
@@ -988,6 +1051,7 @@ let rec renumberforuse args antes conseq cxt =
   in
   let cxt = withresnum cxt n in
   interesting_resources, args, antes, conseq, cxt
+
 let rec freshRuleshow name af cxt args vars rd res =
   if !thingdebug then
     begin
@@ -1002,6 +1066,7 @@ let rec freshRuleshow name af cxt args vars rd res =
            res]
     end;
   res
+
 let rec freshRuletoapply
   cxt args vars (params, provisos, antes, conseq as rd) =
   let (interesting_resources, args, antes', conseq', cxt') =
@@ -1015,6 +1080,7 @@ let rec freshRuletoapply
   freshRuleshow "freshRuletoapply" termliststring cxt args vars rd
     (cxt'', env, interesting_resources,
      (params, provisos, antes', conseq'))
+
 let rec freshRuletosubst
   cxt argmap vars (params, provisos, antes, conseq as rd) =
   let _ = List.iter (fun (var, arg) -> checkarg var arg) argmap in
@@ -1049,6 +1115,7 @@ let rec freshRuletosubst
   freshRuleshow "freshRuletosubst" mapliststring cxt argmap vars rd
     (cxt'', env, interesting_resources,
      (params, provisos, antes', conseq'))
+
 let rec fThmaors fR lw rw cxt args vars (params, provisos, _, conseq) =
   let (conseq, _, vars) = augment lw rw (conseq, [], vars) in
   let (cxt, env, resnums, (params, provisos, _, conseq)) =
@@ -1056,8 +1123,10 @@ let rec fThmaors fR lw rw cxt args vars (params, provisos, _, conseq) =
   in
   cxt, env, resnums, (params, provisos, conseq)
 (* mangled the next four lines to fit stupid SMLNJ 109 (I think) *)
+
 let rec freshTheoremtoapply lw rw cxt args vars rulestuff =
   fThmaors freshRuletoapply lw rw cxt args vars rulestuff
+
 let rec freshTheoremtosubst lw rw cxt args vars rulestuff =
   fThmaors freshRuletosubst lw rw cxt args vars rulestuff
 (* 1. This is a hack, to be used until I can work out how to program a general 
@@ -1071,6 +1140,7 @@ let rec freshTheoremtosubst lw rw cxt args vars rulestuff =
  * 4. Once you've used it, don't forget to throw away the left-hand principals (first half
  *    of interesting_resources).
  *)
+
 let rec rearrangetoResolve antes =
   fun (Seq (st, lhs, rhs) as conseq) ->
     let rec extractsegv =
@@ -1105,12 +1175,15 @@ let rec rearrangetoResolve antes =
         ["rearrangetoResolve given "; showrule (antes, conseq);
          "; delivers "; showrule r];
     r
+
 let rec freshRuletoprove (params, provisos, antes, conseq) =
   let (antes, conseq) = numberforproof (antes, conseq) in
   params, provisos, antes, conseq
+
 let rec freshTheoremtoprove stuff =
   let (params, provisos, _, conseq) = freshRuletoprove stuff in
   params, provisos, conseq
+
 let rec wehavestructurerule kind stilesopt =
   let names =
     (snd <* ((fun (k, _) -> k = kind) <| !structurerules))
@@ -1131,6 +1204,7 @@ let rec wehavestructurerule kind stilesopt =
             | _ -> false)
          names
    | _ -> false)
+
 let rec ftaors fR fThm weakenthms name cxt stuff =
   match compiledthingnamed name with
     Some (CookedRule (_, (vars, toapply), ax)) ->
@@ -1149,8 +1223,11 @@ let rec ftaors fR fThm weakenthms name cxt stuff =
       Some (cxt, env, resnums, Theorem t)
   | Some (Rawthing th) -> Some (cxt, empty, ([], []), th)
   | None -> None
+
 let freshThingtoapply = ftaors freshRuletoapply freshTheoremtoapply
+
 let freshThingtosubst = ftaors freshRuletosubst freshTheoremtosubst
+
 let rec compiletoprove (pros, antes, conseq) =
   let ((_, (_, pros', antes', conseq')), _) =
     compileR false false
@@ -1158,6 +1235,7 @@ let rec compiletoprove (pros, antes, conseq) =
   in
   let (antes', conseq') = numberforproof (antes', conseq') in
   pros', antes', conseq'
+
 let rec freshThingtoprove name =
   match compiledthingnamed name with
     Some (CookedRule ((vars, toprove), _, ax)) ->
@@ -1167,6 +1245,7 @@ let rec freshThingtoprove name =
   | Some (Rawthing th) -> Some th
   | None -> None
 (* givens get weakened if required; they get renumbered for use; otherwise untouched *)
+
 let rec freshGiven weaken =
   fun (Seq (st, lhs, rhs) as seq) cxt ->
     (* can't help feeling that extend should be a well-known function ... *)
@@ -1210,6 +1289,7 @@ let rec freshGiven weaken =
       renumberforuse [] [] (Seq (st, unknownres lhs, unknownres rhs)) cxt
     in
     cxt, interesting_resources, conseq
+
 let rec addstructurerule kind name =
   let fc = FormulaClass in
   let oc = OperatorClass in
