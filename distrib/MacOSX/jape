@@ -1,4 +1,0 @@
-#!/bin/sh
-JAPESERVER=../java_japeserver/build/japeserver.app/Contents/MacOS/japeserver
-export JAPESERVER
-../../camlengine/jape "$@"
