@@ -15,8 +15,8 @@
 
         The primary bootstrap unpacks the jar in-situ at the
         installation site, before loading and instantiating a
-        designated secondary bootstrap that should be written in
-        java.
+        designated secondary bootstrap that can be written in
+        java, or (on Unix machines) can be a shell script.
 
         The point of building an executable jar is that some Windows
         java installations will let one execute a jar file by
@@ -42,8 +42,8 @@
                 -app        "the app name"  -- default is Jape
                 -bfont      fontname        -- button font         (default Sanserif-18)
                 -tfont      fontname        -- text feedback font  (default Dialog-12)
-                -onunix     <script file>   -- specify the post-unpack shell command for Unixoid systems
-                                            -- (no corresponding parameter for Windows use -winclass)
+                -onunix     "command"       -- specify the post-unpack shell command for Unixoid systems
+                -onwindows  "command"       -- specify the post-unpack shell command for Windoid systems
                 -winclass   <class name>    -- specify the post-unpack class to load and instantiate (on Windows)
                 -class      <class name>    -- specify the post-unpack class to load and instantiate (on non-Windows)
                 
@@ -121,9 +121,7 @@ public class install implements ActionListener
   ,      packagePath        = "bootstrap"
   ,      bootstrapClassFile = packagePath+"/install.class"+" "+packagePath+"/install$1.class"
   ,      bootstrapClass     = packageName+".install"
-  ,      installerName      = "applicationinstaller"
-  ,      installerSource    = packagePath+"/"+installerName + ".java"
-  ,      installerClassFile = packagePath+"/"+installerName + ".class"
+  ,      installerName      = "install"
   ,      installerClass     = packageName+"."+installerName
   ,      manifestName       = packagePath+"/"+installerName + ".mf"
   ,      gifFile            = null
@@ -135,43 +133,51 @@ public class install implements ActionListener
   /////////////////////////// CONFIGURE TIME ////////////////////////////
   
   public static void main(String[] args) throws Exception
-  { String       installjar = null;
+  { 
+    if (args.length>1)
+      makeInstaller(args);
+    else
+      new install(args.length==1?args[0]:null);
+  }
+
+  public static void makeInstaller(String[] args) throws Exception
+  { 
+    String       installjar = null;
     StringBuffer resources  = new StringBuffer();
     Properties   props      = new Properties();
-
-    if (args.length>0)
-    { 
-      
-      for (int i=0; i<args.length; i++)
-      {
-         String arg=args[i];
-         if (arg.startsWith("-"))
-         { String param = args[++i];
-           if (arg.startsWith("-splash")) 
-           { gifFile = param; 
-             installgifFile =  packageName + "/" + param;
-             resources.append(" " + installgifFile);
-             props.setProperty("-splash", gifFile);
-           }
-           else
-           { props.setProperty(arg, param);
-             //System.err.println("Unknown switch: "+arg+" "+param);
-             //System.err.println("Usage: java bootstrap.install [-splash imagefile] target.jar [resource]*");  
-             //System.exit(1);
-           }
+    for (int i=0; i<args.length; i++)
+    {
+       String arg=args[i];
+       if (arg.startsWith("-"))
+       { String param = args[++i];
+         if (arg.startsWith("-splash")) 
+         { gifFile = param; 
+           installgifFile =  packageName + "/" + param;
+           resources.append(" " + installgifFile);
+           props.setProperty("-splash", gifFile);
          }
          else
-         if (installjar==null && arg.endsWith(".jar")) 
-            installjar = arg;
-         else
-            resources.append(" "+arg);
-      }
-      FileOutputStream propfile = new FileOutputStream(propertiesFile);
-      props.store(propfile, "Installer properties");
-      propfile.close();
-      resources.append(" "+propertiesFile);
+         { 
+           props.setProperty(arg, param);
+         }
+       }
+       else
+       if (installjar==null && arg.endsWith(".jar")) 
+       {
+          installjar = arg;
+          props.setProperty("-jar", installjar);
+       }
+       else
+       {
+          resources.append(" "+arg);
+       }
     }
-
+      
+    FileOutputStream propfile = new FileOutputStream(propertiesFile);
+    props.store(propfile, "Installer properties");
+    propfile.close();
+    resources.append(" "+propertiesFile);
+ 
     if ( installjar == null )
     {
        System.err.println("Usage: java bootstrap.install [-splash imagefile] target.jar [resource]*");  
@@ -179,18 +185,8 @@ public class install implements ActionListener
     }
     else
     {  
-
        System.err.println("[Bootstrap installer building  "+installjar +"]");  
-       
-       String[] installer =
-       { "package " + packageName + ";"
-       , "public class " + installerName
-       , "{ public static void main(String[] args)"
-       , "  { new " + bootstrapClass + "(args.length==0?"+quote(installjar)+":args[0]); }"
-       , "}"
-       };
-       cat(installerSource, installer);
-       
+              
        String[] manifest =
        { "Main-Class: "+installerClass
        };
@@ -198,13 +194,12 @@ public class install implements ActionListener
        
        boolean ok = execute
        ( new String[]
-         { "javac " + installerSource
-         , gifFile==null?"# no install-time icon":("cp "    + gifFile + " " + packagePath)
-         , "jar -cvfm " + installjar + " " + manifestName + " " + installerClassFile + " " + bootstrapClassFile + resources.toString()
+         { gifFile==null?"# no install-time icon":("cp "    + gifFile + " " + packagePath)
+         , "jar -cvfm " + installjar + " " + manifestName + " " + bootstrapClassFile + resources.toString()
          },
          false
        );
-
+ 
        if (!ok) 
        { System.err.println("[Failed to build the installer]");
          System.exit(1);
@@ -315,9 +310,10 @@ public class install implements ActionListener
     return r;
   }
 
-  public install(String jarfilename)
-  {  this.jarfilename      = jarfilename;
-     prop                  = getProperties(this);
+  public install(String filename)
+  {  prop                  = getProperties(this);
+     jarfilename           = filename==null?prop.getProperty("-jar"):filename;
+     
      String    giffilename = prop.getProperty("-splash");
      String    appName     = prop.getProperty("-app", "Jape");
      String    tfont       = prop.getProperty("-tfont", "Monospaced-PLAIN-14");
@@ -367,7 +363,7 @@ public class install implements ActionListener
          boolean isWindows = System.getProperty("os.name", "Unix").startsWith("Windows");
          String  postClass = prop.getProperty(isWindows?"-winclass":"-class");
          unJar(".", new FileInputStream(jarfilename));
-         String shell = prop.getProperty("-onunix");
+         String shell = prop.getProperty(isWindows?"-onwindows":"-onunix");
 
          if (postClass!=null)
          { Class  theClass = Class.forName(postClass);
@@ -376,10 +372,11 @@ public class install implements ActionListener
            showProgress("[Ran "+postClass+" successfully]");
          }
          
-         if (!isWindows && shell!=null)
+         if (shell!=null)
          { 
             execute(shell, true);
          }
+         
        }
        catch (Exception exn)
        {
@@ -463,6 +460,7 @@ public class install implements ActionListener
  General Public License for more details.
 
 */
+
 
 
 
