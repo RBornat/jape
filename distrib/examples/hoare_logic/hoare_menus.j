@@ -90,7 +90,7 @@ TACTIC ".. = B" IS
                             (WITHHYPSEL hyp)
                             fstep)
                         (ALERT ("To use right-to-left equality substitution on a text selection, \
-                                \you must text-select instances of A and a hypothesis \
+                                \you must text-select instances of B and a hypothesis \
                                 \of the form A=B.\n\n\
                                 \You text-selected %t and a hypothesis %t \
                                 \(%t isn't %t ...).", _A, _B=_C, _A, _C)
@@ -346,8 +346,8 @@ TACTICPANEL Comparison
     ENTRY "flatten ;" IS 
         iterateR2L "rewrite≜"  "symmetric≜" (QUOTE (_A;(_B;_C))) "(A;B);C≜A;(B;C)" (Fail "no semicolons to flatten")
  */
-    BUTTON  "A≜…"   IS apply (SEQ (rewriteL2R "rewrite≜"  "symmetric≜"  COMMAND) fstep)
-    BUTTON  "…≜B"   IS apply (SEQ (rewriteR2L "rewrite≜"  "symmetric≜"  COMMAND) fstep)
+    BUTTON  "A≜…"   IS apply rewriteL2R "rewrite≜"  "symmetric≜"  COMMAND COMMAND fstep
+    BUTTON  "…≜B"   IS apply rewriteR2L "rewrite≜"  "symmetric≜"  COMMAND COMMAND fstep
 END
 
 RULE indexR IS FROM E=G INFER (A⊕E↦F)[G]=F
@@ -362,8 +362,8 @@ TACTICPANEL Indexing
     ENTRY "FROM E=G INFER (A⊕E↦F)[G]=F" IS "index(=)"
     ENTRY "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" IS "index(≠)"
 
-    BUTTON  "A≜…"   IS apply rewriteL2R "rewrite="  "symmetric="  COMMAND
-    BUTTON  "…≜B"   IS apply rewriteR2L "rewrite="  "symmetric="  COMMAND
+    BUTTON  "A≜…"   IS apply rewriteL2R "rewrite="  "symmetric="  COMMAND COMMAND fstep
+    BUTTON  "…≜B"   IS apply rewriteR2L "rewrite="  "symmetric="  COMMAND COMMAND fstep
 END
 
 MENU "Edit" IS
