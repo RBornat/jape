@@ -773,18 +773,13 @@ public class JapeMenu implements DebugConstants {
     
     public static void enableItem(boolean focussedonly, String menuname, String label,
                                   boolean enable) throws ProtocolError {
-        if (menuname.equals("Edit") && (label.startsWith("Undo") || label.startsWith("Redo"))) {
-            String suffix = label.indexOf("Proof")!=-1 ? "proof" : "disproof";
-            ProofWindow w = ProofWindow.getFocussedProofWindow();
-            /* if there is no focussed window, then we are probably being told to set it false.
-               Just do what we are told
-             */
-            if (w==null || w.undoSuffix().equals(suffix))
-                label = label.startsWith("Undo") ? "Undo" : "Redo"; 
-            else
-                return;
+        if (menuname.equals("Edit") &&
+            (label.startsWith("Undo") || label.startsWith("Redo")) &&
+            label.indexOf("Step")!=-1) {
+            ProofWindow.setHistoryVar(label.startsWith("Undo"), label.indexOf("Proof")!=-1,
+                                      enable);
         }
-
+        else
         try {
             M menu = ensureMenu(menuname);
             I action =menu.findI(label);
