@@ -2,29 +2,73 @@
  
 CONJECTUREPANEL Conjectures IS 
  
-  THEOREMS "Otway-Rees" ARE 
-  		Sä(A,S)ÍKas, Sä(B,S)ÍKbs, Aä(A,S)ÍKas, Bä(B,S)ÍKbs, 
-  		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), 
-  		Aä#Na, Bä#Nb, Aä#Nc, 
-  		Së({Na+Nc}Kas+{Nb+Nc}Kbs), 
-  		Aë{Na+(A,B)ÍKab+BïNc}Kas, 
-  		Bë({Na+(A,B)ÍKab+BïNc}Kas + {Nb+(A,B)ÍKab+AïNc}Kbs) 
+  THEOREM "Otway-Rees: Së({Na+Nc}Kas+{Nb+Nc}Kbs) Ê Ê SäAï(Na+Nc)" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+  		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëx.SöBïx), Bä(Ëx.SöAïx), 
+  		Aä#Na, Bä#Nb, Aä#Nc,
+  		Së({Na+Nc}Kas+{Nb+Nc}Kbs)
   		Ê SäAï(Na+Nc) 
-  AND	Sä(B,S)ÍKbs, Së({Na+Nc}Kas+{Nb+Nc}Kbs) Ê SäBï(Nb+Nc) 
-  AND	Aä(A,S)ÍKas, Aä(Ëk.Sö(A,B)Ík), Aä#Na, Aë{Na+(A,B)ÍKab+BïNc}Kas Ê Aä(A,B)ÍKab 
-  AND	Bä(B,S)ÍKbs, Bä(Ëk.Sö(A,B)Ík), Bä#Nb, 
-  		Bë({Na+(A,B)ÍKab+BïNc}Kas + {Nb+(A,B)ÍKab+AïNc}Kbs) Ê Bä(A,B)ÍKab 
-  AND	Aä(A,S)ÍKas, Aä(Ëx.SöBïx), Aä#Na, Aä#Nc, Aë{Na+(A,B)ÍKab+ BïNc}Kas Ê AäBäNc 
-  AND	Bä(B,S)ÍKbs, Bä(Ëx.SöAïx), Bä#Nb, Bë({Na+(A,B)ÍKab+BïNc}Kas + {Nb+(A,B)ÍKab+AïNc}Kbs) Ê BäAïNc 
-  END 
+  THEOREM "Otway-Rees: Së({Na+Nc}Kas+{Nb+Nc}Kbs) Ê Ê SäBï(Nb+Nc)" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+  		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëx.SöBïx), Bä(Ëx.SöAïx), 
+  		Aä#Na, Bä#Nb, Aä#Nc,
+ 		Së({Na+Nc}Kas+{Nb+Nc}Kbs) 
+ 		Ê SäBï(Nb+Nc) 
+  THEOREM "Otway-Rees: Aë{Na+(A,B)ÍKab+BïNc}Kas Ê Aä(A,B)ÍKab" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+  		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëx.SöBïx), Bä(Ëx.SöAïx), 
+  		Aä#Na, Bä#Nb, Aä#Nc,
+  		Aë{Na+(A,B)ÍKab+BïNc}Kas 
+  		Ê Aä(A,B)ÍKab
+  THEOREM "Otway-Rees: Bë({Na+(A,B)ÍKab+BïNc}Kas + {Nb+(A,B)ÍKab+AïNc}Kbs) Ê Bä(A,B)ÍKab" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+  		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëx.SöBïx), Bä(Ëx.SöAïx), 
+  		Aä#Na, Bä#Nb, Aä#Nc,
+  		Bë({Na+(A,B)ÍKab+BïNc}Kas + {Nb+(A,B)ÍKab+AïNc}Kbs) 
+  		Ê Bä(A,B)ÍKab 
+  THEOREM "Otway-Rees: Aë{Na+(A,B)ÍKab+ BïNc}Kas Ê AäBäNc" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+  		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëx.SöBïx), Bä(Ëx.SöAïx), 
+  		Aä#Na, Bä#Nb, Aä#Nc,
+		Aë{Na+(A,B)ÍKab+ BïNc}Kas 
+		Ê AäBäNc 
+  THEOREM "Otway-Rees: Bë({Na+(A,B)ÍKab+BïNc}Kas + {Nb+(A,B)ÍKab+AïNc}Kbs) Ê BäAïNc" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+  		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëx.SöBïx), Bä(Ëx.SöAïx), 
+  		Aä#Na, Bä#Nb, Aä#Nc,
+		Bë({Na+(A,B)ÍKab+BïNc}Kas + {Nb+(A,B)ÍKab+AïNc}Kbs) 
+  		Ê BäAïNc 
  
-  THEOREMS "Needham-Schroeder" ARE 
-  		Aä(A,S)ÍKas, Aä(Ëk.Sö#((A,B)Ík)), Aä#Na, Aë{Na+(A,B)ÍKab+#((A,B)ÍKab)+{(A,B)ÍKab}Kbs}Kas Ê Aä#((A,B)ÍKab) 
-  AND	Aä(A,S)ÍKas, Aä(Ëk.Sö(A,B)Ík), Aä#Na, Aä#((A,B)ÍKab), Aë{Na+(A,B)ÍKab+#((A,B)ÍKab)+{(A,B)ÍKab}Kbs}Kas Ê Aä(A,B)ÍKab 
-  AND	BÍ(B,S)ÍKbs, Bä(Ëk.#((A,B)Ík)), Bë{(A,B)ÍKab}Kbs Ê Bä(A,B)ÍKab 
-  AND	Aä#((A,B)ÍKab), Aä(A,B)ÍKab, Aë{Nb+(A,B)ÍKab}Kab Ê AäBä(A,B)ÍKab 
-  AND	Bä(A,B)ÍKab, Bä(Ëk.#((A,B)Ík)), Bë{Nb+(A,B)ÍKab}Kab Ê BäAä(A,B)ÍKab 
-  END 
+  THEOREM "Needham-Schroeder: Aë{Na+(A,B)ÍKab+#((A,B)ÍKab)+{(A,B)ÍKab}Kbs}Kas Ê Aä#((A,B)ÍKab)" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëk.Sö#((A,B)Ík)), 
+		Aä#Na, Bä#Nb, Sä#((A,B)ÍKab), Bä(Ëk.#((A,B)Ík)), 
+  		Aë{Na+(A,B)ÍKab+#((A,B)ÍKab)+{(A,B)ÍKab}Kbs}Kas 
+  		Ê Aä#((A,B)ÍKab) 
+  THEOREM "Needham-Schroeder: Aë{Na+(A,B)ÍKab+#((A,B)ÍKab)+{(A,B)ÍKab}Kbs}Kas Ê Aä(A,B)ÍKab" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëk.Sö#((A,B)Ík)), 
+		Aä#Na, Bä#Nb, Sä#((A,B)ÍKab), Bä(Ëk.#((A,B)Ík)), 
+		Aë{Na+(A,B)ÍKab+#((A,B)ÍKab)+{(A,B)ÍKab}Kbs}Kas 
+		Ê Aä(A,B)ÍKab 
+  THEOREM "Needham-Schroeder: Bë{(A,B)ÍKab}Kbs Ê Bä(A,B)ÍKab" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëk.Sö#((A,B)Ík)), 
+		Aä#Na, Bä#Nb, Sä#((A,B)ÍKab), Bä(Ëk.#((A,B)Ík)), 
+		Bë{(A,B)ÍKab}Kbs 
+		Ê Bä(A,B)ÍKab 
+  THEOREM "Needham-Schroeder: Aë{Nb+(A,B)ÍKab}Kab Ê AäBä(A,B)ÍKab" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëk.Sö#((A,B)Ík)), 
+		Aä#Na, Bä#Nb, Sä#((A,B)ÍKab), Bä(Ëk.#((A,B)Ík)), 
+		Aë{Nb+(A,B)ÍKab}Kab 
+		Ê AäBä(A,B)ÍKab 
+  THEOREM "Needham-Schroeder: Bë{Nb+(A,B)ÍKab}Kab Ê BäAä(A,B)ÍKab" IS 
+  		Aä(A,S)ÍKas, Sä(A,S)ÍKas, Bä(B,S)ÍKbs, Sä(B,S)ÍKbs, Sä(A,B)ÍKab,
+		Aä(Ëk.Sö(A,B)Ík), Bä(Ëk.Sö(A,B)Ík), Aä(Ëk.Sö#((A,B)Ík)), 
+		Aä#Na, Bä#Nb, Sä#((A,B)ÍKab), Bä(Ëk.#((A,B)Ík)), 
+		Bë{Nb+(A,B)ÍKab}Kab 
+		Ê BäAä(A,B)ÍKab 
  
   /* THEOREMS Kerberos ARE 
   		Aë{Ts+(A,B)ÍKab+{Ts,(A,B)ÍKab}Kbs}Kas 
