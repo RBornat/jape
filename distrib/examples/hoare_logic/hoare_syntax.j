@@ -28,7 +28,7 @@ LEFTFIX 180 ∃ .
 INFIX   300L    <   >   ≤   ≥   ≠   =   ≡   ¬≡   
 
 INFIX   400 L   + -
-INFIX   410 L   * div
+INFIX   410 L   × ÷
 
 PREFIX  1200    ¬
 
