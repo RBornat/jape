@@ -2,42 +2,35 @@
 
 module type T =
   sig
-    type fmtpath
-    and proofstate
-    and pos
-    and tactic
-    and japeenv
-    and displaystate
-    and name
-    type term and element and side
+    type path and proofstate and tactic and japeenv and displaystate
+    and name and term and element and side
+    
     val forceUnify : term list -> proofstate -> proofstate option
     val doDropUnify :
       element list -> element list -> proofstate -> proofstate option
     val autoStep : bool -> name list -> proofstate -> proofstate option
     val selections :
-      (fmtpath * (element * side option) option * element list *
+      (path * (element * side option) option * element list *
          ((element * side option) * string list) list *
          (element * string list) list * string list)
         option ref
     val applyLiteralTactic :
-      displaystate option -> japeenv -> string -> proofstate ->
-        proofstate option
+      displaystate option -> japeenv -> string -> proofstate -> proofstate option
     val applyTactic :
-      displaystate option -> japeenv -> tactic -> proofstate ->
-        proofstate option
+      displaystate option -> japeenv -> tactic -> proofstate -> proofstate option
     val autoTactics :
-      displaystate option -> japeenv -> (bool * tactic) list -> proofstate ->
-        proofstate
-    val timestotry : int ref
+      displaystate option -> japeenv -> (bool * tactic) list -> proofstate -> proofstate
     val interruptTactic : unit -> unit
     val resetcaches : unit -> unit
     val explain : string -> string list
-    val FINDdebug : bool ref
-    val FOLDdebug : bool ref
+    
+    val _FINDdebug : bool ref
+    val _FOLDdebug : bool ref
     val proving : name ref
-    val tactictracing : bool ref
-    val tryresolution : bool ref
     val tacticresult : string ref
+    val tactictracing : bool ref
+    val timestotry : int ref
+    val tryresolution : bool ref
   end
 
 
@@ -58,35 +51,111 @@ module type T =
 
 module M : T =
   struct
-    open Applyrule
-    open Context
-    open Japeenv
-    open Listfuns
-    open Match
-    open Name
-    open Optionfuns
-    open Paraparam
-    open Proofstate
-    open Prooftree
-    open Prooftree.Fmtprooftree
-    open Proviso
-    open Rewrite
-    open Sequent
-    open Stringfuns
-    open Tactic
-    open Term
-    open Thing
-    open Treeformat
-    open Unify
+    open Applyrule.M
+    open Context.Cxt
+    open Japeenv.M
+    open Listfuns.M
+    open Match.M
+    open Name.M
+    open Optionfuns.M
+    open Paraparam.M
+    open Proofstate.M
+    open Prooftree.Tree
+    open Prooftree.Tree.Fmttree
+    open Proviso.M
+    open Rewrite.Funs
+    open Sequent.Funs
+    open Stringfuns.M
+    open Tactic.Funs
+    open Term.Funs
+    open Term.Termstring
+    open Thing.M
+    open Treeformat.Fmt
+    open Unify.M
     
-    type pos = pos and displaystate = displaystate and side = side
+    type path
+    and proofstate
+    and tactic
+    and japeenv
+    and displaystate = Interaction.M.displaystate
+    and name
+    type term and element and side
     
+    type conclusions = Conclusions of (name * thing * term) list
+    module Conclusioncache =
+      struct
+        open Hashtbl
+        let store = create 127
+        (* a name -> conclusions hash table *)
+      end
+
+    let rec alterTip =
+	  function
+		Some d -> Interaction.M.alterTip d
+	  | None -> raise (Catastrophe_ ["(tacticfuns) alterTip None"])
+
+    let rec lookupassoc s =
+	  match Symbol.Funs.lookupassoc s with
+		Some (b, Symbol.Type.LeftAssoc) -> Some (b, true)
+	  | Some (b, _                    ) -> Some (b, false)
+	  | None                            -> None
+
+	let sameterms = unifyvarious (* for now *)
+	(* fun sameterms (t1,t2) cxt = 
+	  if eqalphaterms 
+		   (rewrite cxt t1, rewrite cxt t2) 
+	  then Some cxt else None
+	*)
+	
+	let rec showProof =
+	  function
+		Some d -> Interaction.M.showProof d
+	  | None -> raise (Catastrophe_ ["(tacticfuns) showProof None"])
+             
+	let rec refreshProof =
+	  function
+		Some d -> Interaction.M.refreshProof d
+	  | None -> raise (Catastrophe_ ["(tacticfuns) refreshProof None"])
+             
+	let rec askNb m bs = Alert.M.ask (Alert.M.defaultseverity bs) m bs 0
+	let rec askNbc m bs c =
+	  Alert.M.askCancel (Alert.M.defaultseverity bs) m bs c 0
+	
+	let anyCollectionClass = Idclass.M.BagClass Idclass.M.FormulaClass
+	let askChoice = Alert.M.askChoice
+	let applyconjectures = Miscellaneous.M.applyconjectures
+	let applyderivedrules = Miscellaneous.M.applyderivedrules
+	let atoi = Miscellaneous.M.atoi
+	let autoselect = Miscellaneous.M.autoselect
+	let checkprovisos = Provisofuns.M.checkprovisos
+	let conOperatorClass = Idclass.M.OperatorClass
+	let consolereport = Miscellaneous.M.consolereport
+	let getReason = Reason.M.getReason
+	let lemmacount = Miscellaneous.M.lemmacount
+	let lacksProof = Proofstore.M.lacksProof
+	let needsProof = Proofstore.M.needsProof
+	let prefixtoReason = Reason.M.prefixtoReason
+	let selection2Subst = Selection.M.selection2Subst
+	let setComment = Alert.M.setComment <*> implode
+	let setReason = Reason.M.setReason
+	let showAlert =
+	  Alert.M.showAlert Alert.M.defaultseverity_alert <*> implode
+	let symclass = Symbol.Funs.symclass
+	let subterm2subst = Selection.M.subterm2subst
+	let string2tactic = Termparse.M.string2tactic
+	let string2term = Termparse.M.string2term
+	let tickmenuitem = Japeserver.M.tickmenuitem
+	let uncurry2 = Miscellaneous.M.uncurry2
+	let unknownprefix = Symbol.Funs.metachar
+	let verifyprovisos = Provisofuns.M.verifyprovisos
+	let _Oracle = Japeoracle.M._Oracle
+
     (*  --------------------------------------------------------------------- *)
     
     let proving = ref (namefrom "")
     let selections
       :
-      (fmtpath * (element * side option) option * element list *
+      (path * (element * side option) option * element list *
          ((element * side option) * string list) list *
          (element * string list) list * string list)
         option ref =
@@ -271,7 +340,7 @@ module M : T =
       | _ ->(* I hope *)
          false
     let rec quoteterm t =
-      registerApp (registerId ("QUOTE", idclass.ConstantClass), t)
+      registerApp (registerId ("QUOTE", Idclass.M.ConstantClass), t)
     (* and when we extend, we QUOTE the argument to avoid name capture *)
     (* this sees through 'withing', but is careful not to do so twice.  It relies on the fact
      * that we evaluate outside-in.
@@ -956,11 +1025,11 @@ module M : T =
         with
           Verifyproviso_ p ->
             bad [" because proviso "; provisostring p; " is violated"]
-    let FINDdebug = ref false
+    let _FINDdebug = ref false
     (* test if some Theorem/Rule defines an operator as associative *)
     exception Matchinassociativelawstuff_
     let rec binary operator t =
-      if !FINDdebug then
+      if !_FINDdebug then
         consolereport
           ["binary ("; smltermstring operator; ") ("; smltermstring t; ")"];
       match explodeApp true t with
@@ -968,7 +1037,7 @@ module M : T =
           if f = operator then l, r else raise Matchinassociativelawstuff_
       | _ -> raise Matchinassociativelawstuff_
     let rec fringe operator t =
-      if !FINDdebug then
+      if !_FINDdebug then
         consolereport
           ["fringe ("; smltermstring operator; ") ("; smltermstring t; ")"];
       match explodeApp true t with
@@ -985,7 +1054,7 @@ module M : T =
           let (lhs, rhs) = binary eq term in
           let lf = fringe operator lhs in
           let rf = fringe operator rhs in
-          if !FINDdebug then
+          if !_FINDdebug then
             consolereport
               ["assoc "; bracketedliststring paraparamstring ", " params;
                " ("; termstring term; ") => lf=";
@@ -1007,7 +1076,7 @@ module M : T =
             assoc params C
         | _ -> false
       in
-      if !FINDdebug then
+      if !_FINDdebug then
         consolereport
           ["associativelaw ("; termstring operator; ") ("; thingstring thing;
            ")"];
@@ -1029,7 +1098,7 @@ module M : T =
     let rec allrelevantthings () =
         (fst <*> _The <*> thingnamed) <* (relevant <| thingnames ())
     let rec isassociative operator =
-      if !FINDdebug then
+      if !_FINDdebug then
         consolereport
           ["allrelevantthings()=";
            bracketedliststring parseablenamestring ", "
@@ -1089,9 +1158,9 @@ module M : T =
         Id (_, c, _) as f ->
           let (curried, lassoc) =
             try _The (lookupassoc c) with
-              UnSOME_ -> raise MatchinAssocInfo
+              The_ -> raise MatchinAssocInfo
           in
-          if !FINDdebug then
+          if !_FINDdebug then
             consolereport
               ["assocInfo ("; smltermstring f; ") = ("; string_of_int curried;
                ", "; string_of_int lassoc; ")"];
@@ -1100,7 +1169,7 @@ module M : T =
       | _ -> raise MatchinAssocInfo
     let rec AssocFlatten pat t =
       let _ =
-        if !FINDdebug then
+        if !_FINDdebug then
           consolereport
             ["AssocFlatten ("; smltermstring pat; ") ("; smltermstring t; ")"]
       in
@@ -1144,7 +1213,7 @@ module M : T =
           Some (norm t)
         else
           begin
-            if !FINDdebug then
+            if !_FINDdebug then
               consolereport
                 [termstring f; " isn't recognised as associative"];
             None
@@ -1154,7 +1223,7 @@ module M : T =
         (Id (_, c, _) as f), [_; _] -> af1 f c
       | (Id (_, c, _) as f), [] -> af1 f c
       | _ ->
-          if !FINDdebug then
+          if !_FINDdebug then
             consolereport
               [termstring pat;
                " isn't a recognisable operator / application"];
@@ -1211,9 +1280,9 @@ module M : T =
         let rec ArithKind (t : term) : arithKind =
           match t with
             Literal (_, Number i) -> ArithNumber i
-          | Unknown (_, _, idclass.NumberClass) -> ArithVariable (t, false)
-          | Unknown (_, _, idclass.FormulaClass) -> ArithVariable (t, false)
-          | Unknown (_, _, idclass.ConstantClass) -> ArithVariable (t, false)
+          | Unknown (_, _, Idclass.M.NumberClass) -> ArithVariable (t, false)
+          | Unknown (_, _, Idclass.M.FormulaClass) -> ArithVariable (t, false)
+          | Unknown (_, _, Idclass.M.ConstantClass) -> ArithVariable (t, false)
           | App (_, f, t) ->
               if f = neg then
                 match ArithKind t with
@@ -1257,7 +1326,7 @@ module M : T =
     let rec DECIDE (turnstile : string) (cxt : context.cxt) =
       fun (HS : term) ->
         fun (CS : term) (oracle : string) (args : string list) ->
-          match Oracle (turnstile, cxt, HS, CS, oracle, args) with
+          match _Oracle (turnstile, cxt, HS, CS, oracle, args) with
             Some cxt' -> Some ("ORACLE " ^ oracle, cxt')
           | None -> None
     (**********************************************************************)
@@ -1374,13 +1443,13 @@ module M : T =
             | r -> r
       in
       S ([t], [])
-    let FOLDdebug = ref false
+    let _FOLDdebug = ref false
     let rec Matches goal (name, thing, lhs as rule) =
       if currentlyProving name then None
       else if not (applyAnyway thing) && lacksProof name then None
       else
         begin
-          if !FOLDdebug then
+          if !_FOLDdebug then
             consolereport
               ["Matches looking at \""; termstring goal; "\" with pattern \"";
                termstring lhs; "\""];
@@ -1457,7 +1526,7 @@ module M : T =
     and ConcsOf n =
       Conclusions
         begin
-          if !FOLDdebug then
+          if !_FOLDdebug then
             consolereport
               ["ConcsOf "; namestring n; " (=> ";
                optionstring (thingstring <*> fst)
@@ -1484,7 +1553,7 @@ module M : T =
               []
         end
     and ConclusionsofTactic env (spec, l) =
-      if !FOLDdebug then
+      if !_FOLDdebug then
         consolereport
           ["ConclusionsofTactic ...";
            pairstring tacticstring
@@ -2187,7 +2256,7 @@ module M : T =
             findfirst
               ((Matches C &~
                   (fun (name, _, term) ->
-                     if !FOLDdebug then
+                     if !_FOLDdebug then
                        consolereport
                          ["Matches found \""; termstring term;
                           "\" - now to try "; parseablenamestring tactic;

@@ -30,18 +30,18 @@ module type T =
     val try__ : ('a -> 'b) -> 'a option -> 'b option
     val _The : 'a option -> 'a
 
-    exception UnSOME_
+    exception The_
   end
  (*$Id$ *)
 
 module M : T =
   struct
     open SML.M
-    exception UnSOME_
+    exception The_
     let rec _The =
       function
         Some x -> x
-      | None -> raise UnSOME_
+      | None -> raise The_
     let rec try__ a1 a2 =
       match a1, a2 with
         f, Some x -> Some (f x)

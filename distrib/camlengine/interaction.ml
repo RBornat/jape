@@ -2,24 +2,15 @@
 
 module type T =
   sig
-    type 'a prooftree
-    and proofstate
-    and term
-    and 'a hit
-    and 'a fhit
-    and 'a sel
-    and hitkind
-    and pos
-    and cxt
-    and displayclass
-    and displaystate
-    and element
-    and seq
-    and side
-    type treeformat and fmtpath
+    type prooftree and proofstate
+    and 'a hit and 'a sel and hitkind
+    and cxt and displaystate
+    and element and seq and path
+    
     type command =
         TextCommand of string list
-      | HitCommand of (treeformat prooftree * fmtpath hit * fmtpath sel)
+      | HitCommand of (prooftree * path hit * path sel)
+    
     val commandstring : command -> string
     val startServer : string * string list -> unit
     val abandonServer : unit -> unit
@@ -29,17 +20,17 @@ module type T =
     val setdisplaystyle : string -> unit
     val getdisplaystyle : unit -> string
     val showProof :
-      displaystate -> fmtpath option -> fmtpath option -> cxt ->
-        treeformat prooftree -> bool -> displaystate
+      displaystate -> path option -> path option -> cxt ->
+        prooftree -> bool -> displaystate
     val showFocussedProof :
-      fmtpath option -> cxt -> treeformat prooftree -> bool -> displaystate
+      path option -> cxt -> prooftree -> bool -> displaystate
     val refreshProof : displaystate -> unit
     val setProvisos : cxt -> unit
     val setGivens : seq list -> unit
     val showallprovisos : bool ref
     val getCommand : displaystate option -> command
-    val findSelection : displaystate -> fmtpath sel option
-    val findLayoutSelection : displaystate -> hitkind -> fmtpath option
+    val findSelection : displaystate -> path sel option
+    val findLayoutSelection : displaystate -> hitkind -> path option
     (* Drag n drop is moribund, as currently implemented.  Will be redone! *)
     val dropsource : element list ref
     val droptarget : element list ref
@@ -47,59 +38,117 @@ module type T =
     val showState : displaystate -> proofstate -> bool -> displaystate
     val printState : Pervasives.out_channel -> proofstate -> bool -> unit
     val alterTip :
-      displaystate -> cxt -> fmtpath -> treeformat prooftree ->
-        (treeformat prooftree * fmtpath) option ->
-        (bool * fmtpath * element) * string list ->
-        cxt * element * treeformat prooftree
+      displaystate -> cxt -> path -> prooftree ->
+        (prooftree * path) option ->
+        (bool * path * element) * string list ->
+        cxt * element * prooftree
   end
 
 
 
 (* $Id$ *)
 
-module M : T =
+module M : T with type prooftree = Prooftree.Tree.Fmttree.prooftree
+			  and type proofstate = Proofstate.M.proofstate
+			  and type 'a hit = 'a Hit.M.hit
+			  and type 'a sel = 'a Hit.M.sel
+			  and type hitkind = Hit.M.hitkind
+			  and type cxt = Context.Cxt.cxt
+			  and type displaystate = Displaystate.M.displaystate
+			  and type element = Hit.M.element
+			  and type seq = Sequent.Funs.seq
+			  and type path = Prooftree.Tree.Fmttree.path
+=
   struct
-    open Stringfuns
-    open Answer
-    open Box
-    open Sequent
-    open Prooftree
-    open Proofstate
-    open Treeformat
-    open Displayclass
-    open Displayfont
-    open Hit
-    open Displaystate
+    open Answer.M
+    open Box.M
+    open Displayclass.M
+    open Displayfont.M
+    open Displaystate.M
+    open Hit.M
+    open Proofstate.M
+    open Prooftree.Tree.Fmttree
+    open Sequent.Funs
+    open Sequent.Type
+    open SML.M
+    open Stringfuns.M
+    open Treeformat.Fmt
+
+	let ( <| ) = Listfuns.M.( <| )
+	let (&~~) = Optionfuns.M.(&~~)
+	let (|~~) = Optionfuns.M.(|~~)
+	let _The = Optionfuns.M._The
+	let atoi = Miscellaneous.M.atoi
+	let bracketedliststring = Listfuns.M.bracketedliststring
+	let consolereport = Miscellaneous.M.consolereport
+	let dont_rewrite_with_this = Context.Cxt.dont_rewrite_with_this
+	let elementstring = Term.Termstring.elementstring
+	let findfirst = Optionfuns.M.findfirst
+	let interpolate = Listfuns.M.interpolate
+	let invisible = Miscellaneous.M.invisible
+	let lowercase = Stringfuns.M.lowercase
+	let member = Listfuns.M.member
+	let numbered = Listfuns.M.numbered
+	let optionfilter = Optionfuns.M.optionfilter
+	let optionstring = Optionfuns.M.optionstring
+	let provisos = Context.Cxt.provisos
+	let replaceelement = Term.Funs.replaceelement
+	let rewritecxt = Rewrite.Funs.rewritecxt
+	let seektipselection = Miscellaneous.M.seektipselection
+	let selection2Subst = Selection.M.selection2Subst
+	let setComment = Alert.M.setComment
+	let showAlert = Alert.M.showAlert Alert.M.defaultseverity_alert
+	let smlelementstring = Term.Termstring.smlelementstring
+	let sort = Listfuns.M.sort
+	let take = Listfuns.M.take
+	let termstring = Term.Termstring.termstring
+	let try__ = Optionfuns.M.try__
+	
+	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+	exception Selection_ = Selection.M.Selection_
+	exception The_ = Optionfuns.M.The_
     
+    type prooftree = Prooftree.Tree.Fmttree.prooftree
+	 and proofstate = Proofstate.M.proofstate
+	 and 'a hit = 'a Hit.M.hit
+	 and 'a sel = 'a Hit.M.sel
+	 and hitkind = Hit.M.hitkind
+	 and cxt = Context.Cxt.cxt
+	 and displayclass 
+	 and displaystate = Displaystate.M.displaystate
+	 and element = Hit.M.element
+	 and seq = Sequent.Funs.seq
+	 and path = Prooftree.Tree.Fmttree.path
+
     type command =
         TextCommand of string list
-      | HitCommand of (treeformat prooftree * fmtpath hit * fmtpath sel)
+      | HitCommand of (prooftree * path hit * path sel)
     let rec commandstring =
       function
         TextCommand ws -> "TextCommand" ^ bracketedliststring enQuote ", " ws
       | HitCommand hc ->
           "HitCommand" ^
-            triplestring (fun _ -> "....") (hitstring fmtpathstring)
-              (selstring fmtpathstring) "," hc
+            triplestring (fun _ -> "....") (hitstring pathstring)
+              (selstring pathstring) "," hc
     let intliststring = bracketedliststring (string_of_int : int -> string) ","
-    let abandonServer = japeserver.stopserver
-    let killServer = japeserver.killserver
+    let abandonServer = Japeserver.M.stopserver
+    let killServer = Japeserver.M.killserver
     let setComment = setComment <*> implode
     let rec deadServer strings = consolereport strings; abandonServer ()
     let rec startServer (serverpath, args) =
       try
-        (* open Japeserver OCaml no like *) startserver serverpath args;
-        if idlsignature <> getSignature () then
+        Japeserver.M.startserver serverpath args;
+        if Japeserver.M.idlsignature <> Japeserver.M.getSignature () then
           begin
             consolereport ["Incompatible japeserver: "; serverpath; "\007\n"];
-            killserver ()
+            Japeserver.M.killserver ()
           end
       with
         server_input_terminated ->
           deadServer ["Cannot find japeserver: "; serverpath]
-    let rec runningServer () = !(japeserver.running)
-    let treestyle = treedraw.style
-    let boxstyle = boxdraw.style
+    let rec runningServer () = !(Japeserver.M.running)
+    let treestyle = Displaystyle.Treestyle.style
+    let boxstyle = Displaystyle.Boxstyle.style
     let currentstyle = ref treestyle
     let currentstylename = ref "tree"
     let rec proofStyle s =
@@ -121,7 +170,7 @@ module M : T =
     let rec refreshProof = fun (DisplayState {refreshProof = rp}) -> rp ()
     let rec locateHit =
       fun (DisplayState {locateHit = lh}) p class__ kind ->
-        (lh p class__ kind : fmtpath hit option)
+        (lh p class__ kind : path hit option)
     let rec notifyselect =
       fun (DisplayState {notifyselect = nsel}) bpcopt sels ->
         (nsel bpcopt sels : unit)
@@ -133,13 +182,13 @@ module M : T =
           pp outstream tree target (if withgoal then goal else None)
     (* one way of telling that I have the interface and datatypes wrong is all these blasted Catastrophe_ exceptions ... *)
     let rec sortoutSelection state pathkind =
-      let (fsels, textsels, givensel) = japeserver.getAllSelections () in
+      let (fsels, textsels, givensel) = Japeserver.M.getAllSelections () in
       (* remove invisbra/kets from any text selections we see *)
       let rec deinvis s =
         implode ((fun c -> not (invisible c)) <| explode s)
       in
-      let textsels = map (fun (p, ss) -> p, map deinvis ss) textsels in
-      let givensel = map deinvis givensel in
+      let textsels = List.map (fun (p, ss) -> p, List.map deinvis ss) textsels in
+      let givensel = List.map deinvis givensel in
       let rec pos2hit pos copt pathkind =
         match locateHit state pos copt pathkind with
           Some h -> h
@@ -156,14 +205,14 @@ module M : T =
             raise
               (Catastrophe_
                  ["sortoutSelection (interaction) sees "; s; " hit ";
-                  hitstring fmtpathstring h])
+                  hitstring pathstring h])
       in
       let fhits =
-        map (fun (pos, class__) -> pos, pos2hit pos (Some class__) pathkind)
+        List.map (fun (pos, class__) -> pos, pos2hit pos (Some class__) pathkind)
           fsels
       in
       let thits =
-        map
+        List.map
           (fun (pos, strings) ->
              (match
                 findfirst
@@ -175,13 +224,13 @@ module M : T =
              strings)
           textsels
       in
-      map snd fhits, thits, givensel
+      List.map snd fhits, thits, givensel
     let rec findSelection state =
       let (fhits, thits, givensel) = sortoutSelection state HitPath in
       (* only path that makes sense for what we are trying to do ... *)
       let showstrings = bracketedliststring enQuote "," in
-      (* val _ = consolereport ["findSelection sees ", bracketedliststring (hitstring fmtpathstring) "," fhits, "; ",
-                                                       bracketedliststring (pairstring (fhitstring fmtpathstring) showstrings ",") "," thits, "; ",
+      (* val _ = consolereport ["findSelection sees ", bracketedliststring (hitstring pathstring) "," fhits, "; ",
+                                                       bracketedliststring (pairstring (fhitstring pathstring) showstrings ",") "," thits, "; ",
                                                        showstrings givensel]
        *)
       let (conchits, hyphits, reasonhits) =
@@ -194,7 +243,7 @@ module M : T =
                raise
                  (Catastrophe_
                     ["findSelection (interaction) sees hit ";
-                     hitstring fmtpathstring h]))
+                     hitstring pathstring h]))
           fhits ([], [], [])
       in
       (* it gets too hard not to trust the interface here ... I'm just going to take the hyp interpretation of 
@@ -219,16 +268,16 @@ module M : T =
         [cpath, conc], _, [] ->
           (* we have a definite conclusion path, which we are going to _trust_, and hang the consequences *)
           let hyps =
-            map
+            List.map
               (fun (hpath, hypel) ->
-                 if fmtprooftree.validhyp tree hypel cpath then hypel
+                 if Prooftree.Tree.Fmttree.validhyp tree hypel cpath then hypel
                  else
                    raise
                      (Catastrophe_
                         ["incompatible double hit in findSelection (interaction): ";
-                         fmtpathstring hpath; " ";
+                         pathstring hpath; " ";
                          smlelementstring termstring hypel; "; ";
-                         fmtpathstring cpath; " ";
+                         pathstring cpath; " ";
                          pairstring (smlelementstring termstring)
                            (optionstring sidestring) "," conc]))
               hyphits
@@ -243,15 +292,15 @@ module M : T =
           let path =
             nj_fold
               (fun ((hpath, hypel), path) ->
-                 if fmtprooftree.validhyp tree hypel path then path
+                 if Prooftree.Tree.Fmttree.validhyp tree hypel path then path
                  else hpath)
               hs hpath
           in
-          let hypels = map snd hyphits in
+          let hypels = List.map snd hyphits in
           let rec ok path =
             not
               (List.exists
-                 (not  <*> (fun el -> fmtprooftree.validhyp tree el path))
+                 (not  <*> (fun el -> Prooftree.Tree.Fmttree.validhyp tree el path))
                  hypels)
           in
           (* now, because we don't have a definite conclusion path, we have to see if we can refine the path we 
@@ -264,13 +313,13 @@ module M : T =
                 (Catastrophe_
                    ["invalid hypothesis selections in findSelection (interaction): ";
                     bracketedliststring
-                      (pairstring fmtpathstring (smlelementstring termstring)
+                      (pairstring pathstring (smlelementstring termstring)
                          ",")
                       "," hyphits])
             else if !seektipselection && refineSelection state then
               (* is there a single conclusion above us, and are all our hypotheses still valid at that point? *)
               match
-                fmtprooftree.allTipPaths (fmtprooftree.followPath tree path)
+                Prooftree.Tree.Fmttree.allTipPaths (Prooftree.Tree.Fmttree.followPath tree path)
               with
                 [cpath] -> if ok cpath then cpath else path
               | [] -> path
@@ -300,7 +349,7 @@ module M : T =
           raise
             (Catastrophe_
                ["findSelection (interaction) sees too many hits: ";
-                bracketedliststring (hitstring fmtpathstring) "," fhits])
+                bracketedliststring (hitstring pathstring) "," fhits])
     (* when looking for LayoutPath and PrunePath, findSelection is just too fussy.  E.g. if you Prune a 
      * hypothesis selection in boxdraw, the interface changes it to a conclusion selection, and that 
      * confuses findSelection no end.  Perhaps this will improve matters ...
@@ -318,7 +367,7 @@ module M : T =
                 raise
                   (Catastrophe_
                      ["findLayoutSelection (interaction) sees ";
-                      hitstring fmtpathstring h])
+                      hitstring pathstring h])
       in
       getpath None fhits
     let rec formulahit2els where h =
@@ -333,7 +382,7 @@ module M : T =
           raise
             (Catastrophe_
                ["formulahit2els (in "; where; ") can't handle ";
-                optionstring (hitstring fmtpathstring) h])
+                optionstring (hitstring pathstring) h])
     let dropsource : element list ref = ref []
     let droptarget : element list ref = ref []
     (*
@@ -349,10 +398,10 @@ module M : T =
     *)
       
     let rec getCommand displayopt =
-      let text = japeserver.listen () in
+      let text = Japeserver.M.listen () in
       let rec getdisplay () =
         try _The displayopt with
-          UnSOME_ ->
+          The_ ->
             raise
               (Catastrophe_
                  ["no display in getCommand (interaction): "; text])
@@ -417,11 +466,11 @@ module M : T =
                   DisplayReason ->
                     (function
                       _, DisplayReason -> true
-                    | pos, _ -> japeserver.highlight pos None; false)
+                    | pos, _ -> Japeserver.M.highlight pos None; false)
                 | _ ->
                     (function
                       pos, DisplayReason ->
-                        japeserver.highlight pos None; false
+                        Japeserver.M.highlight pos None; false
                     | _ -> true)) <|
                parseselections others
           in
@@ -450,23 +499,23 @@ module M : T =
           getCommand displayopt
     let showallprovisos = ref false
     let rec filterprovisos ps =
-      if !showallprovisos then ps else proviso.provisovisible <| ps
+      if !showallprovisos then ps else Proviso.M.provisovisible <| ps
     let rec sortprovisos ps =
       sort
-        (fun (p1, p2) ->
-           let b1 = proviso.provisovisible p1 in
-           let b2 = proviso.provisovisible p2 in
-           not b1 && b2 ||
-           b1 = b2 &&
-           proviso.earlierproviso
-             (proviso.provisoactual p1, proviso.provisoactual p2))
+        (fun p1 p2 ->
+           let b1 = Proviso.M.provisovisible p1 in
+           let b2 = Proviso.M.provisovisible p2 in
+           (not b1 && b2) ||
+           (b1 = b2 &&
+			Proviso.M.earlierproviso
+			  (Proviso.M.provisoactual p1) (Proviso.M.provisoactual p2)))
         ps
     let rec setProvisos cxt =
       let ps = sortprovisos (provisos cxt) in
-      japeserver.setProvisos
-        (ProvisoFont, map proviso.visprovisostring (filterprovisos ps))
+      Japeserver.M.setProvisos
+        (ProvisoFont, List.map Proviso.M.visprovisostring (filterprovisos ps))
     let rec setGivens givens =
-      japeserver.setGivens (numbered (map seqstring givens))
+      Japeserver.M.setGivens (numbered (List.map seqstring givens))
     let rec printProvisos outstream cxt =
       let ps = sortprovisos (provisos (rewritecxt cxt)) in
       match ps with
@@ -476,7 +525,7 @@ module M : T =
           List.iter
             (fun p ->
                output_string outstream
-                 (("\"" ^ proviso.visprovisostring p) ^ "\" ");
+                 (("\"" ^ Proviso.M.visprovisostring p) ^ "\" ");
                output_string outstream "\n")
             (filterprovisos ps);
           output_string outstream ")"
@@ -512,11 +561,11 @@ module M : T =
         printProvisos outstream cxt
     let rec alterTip
       displaystate cxt gpath tree root ((selishyp, selpath, selel), ss) =
-      let (wholepath, wholetree) = makewhole cxt root tree gpath in
-      if fmtprooftree.validelement selishyp wholetree selel wholepath then
+      let (wholepath, wholetree) = Prooftree.Tree.makewhole cxt root tree gpath in
+      if Prooftree.Tree.Fmttree.validelement selishyp wholetree selel wholepath then
         let (cxt, subst) = selection2Subst false ss cxt in
         let (Seq (st, hs, cs)) =
-          try fmtprooftree.findTip tree gpath with
+          try Prooftree.Tree.Fmttree.findTip tree gpath with
             _ -> raise (Catastrophe_ ["findTip failed in alterTip"])
         in
         let (newel, side) =
@@ -524,11 +573,11 @@ module M : T =
         in
         (* safety first: we use a dummy context in replaceTip *) 
         cxt, newel,
-        replaceTip dont_rewrite_with_this gpath tree
+        Prooftree.Tree.replaceTip dont_rewrite_with_this gpath tree
           (Seq (if selishyp then st, side, cs else st, hs, side))
       else
         raise
           (Selection_
-             ["your selection "; fmtpathstring selpath;
-              " wasn't on the path to the goal "; fmtpathstring wholepath])
+             ["your selection "; pathstring selpath;
+              " wasn't on the path to the goal "; pathstring wholepath])
   end

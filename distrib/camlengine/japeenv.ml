@@ -4,9 +4,8 @@
 
 module type T =
   sig
-    type term and japevar and japeenv
-    type name
-    exception OutOfRange_ of string exception NotJapeVar_ exception ReadOnly_
+    type term and japevar and japeenv and name
+    
     val japevar :
       string list -> string -> (string -> unit) * (unit -> string) -> japevar
     val japerefvar : string list -> string -> string ref -> japevar
@@ -30,16 +29,38 @@ module type T =
     val at : japeenv * name -> term option
     val set : japeenv * name * term -> unit
     val checkrange : japeenv -> name -> string list -> unit
+
+    exception OutOfRange_ of string 
+    exception NotJapeVar_ 
+    exception ReadOnly_
   end
-(* $Id$ *)
 
 module M : T =
   struct
-    open Mappingfuns
+    open Mappingfuns.M
+    open SML.M
     
-    type name = name
+    type term = Term.Funs.term
+    and name = Name.M.name
     
-    exception OutOfRange_ of string exception NotJapeVar_ exception ReadOnly_
+	let atoi = Miscellaneous.M.atoi
+	let bracketedliststring = Listfuns.M.bracketedliststring
+	let consolereport = Miscellaneous.M.consolereport
+	let enQuote = Stringfuns.M.enQuote
+	let liststring2 = Listfuns.M.liststring2
+	let member = Listfuns.M.member
+	let namestring = Name.M.namestring
+	let string2term = Termparse.M.asTactic Termparse.M.string2term
+	let termstring = Term.Termstring.termstring
+	
+	exception AtoI_ = Miscellaneous.M.AtoI_
+	exception Catastrophe_ = Miscellaneous.M.Catastrophe_
+	exception ParseError_ = Miscellaneous.M.ParseError_
+    
+    exception OutOfRange_ of string 
+    exception NotJapeVar_ 
+    exception ReadOnly_
+    
     (* Because of problems with changing syntax, which means that identifiers
      * don't always have the same class, japevars actually work with strings. 
      * This means a certain amount of translation, but what the hell.
@@ -49,25 +70,15 @@ module M : T =
      * And don't, please, put anything but japevars in the top-level environment.
      *)
      
-    type japevar =
-        Japevar of
-          < vals : string list option; init : string; set : string -> unit;
-            get : unit -> string >
-      | GuardedJapevar of < guard : unit -> bool; var : japevar >
+    type japevarrrec =
+          { vals : string list option; init : string; set : string -> unit;
+            get : unit -> string }
+     and guardedjapevarrec = { guard : unit -> bool; var : japevar }
+     and japevar = Japevar of japevarrrec
+      | GuardedJapevar of guardedjapevarrec
+    
     let rec guardedjapevar g v =
-      GuardedJapevar
-        (let module M =
-           struct
-             class a =
-               object
-                 val guard = g
-                 val var = v
-                 method guard = guard
-                 method var = var
-               end
-           end
-         in
-         new M.a)
+      GuardedJapevar {guard = g; var = v}
     let rec bad vals = "one of " ^ liststring2 (fun s -> s) ", " " and " vals
     let rec setjapevar =
       function
@@ -106,23 +117,7 @@ module M : T =
           if guard () then japevar_range var else []
     let rec basejapevar valsopt v (set, get) =
       let var =
-        Japevar
-          (let module M =
-             struct
-               class a =
-                 object
-                   val vals = valsopt
-                   val init = v
-                   val set = set
-                   val get = get
-                   method vals = vals
-                   method init = init
-                   method set = set
-                   method get = get
-                 end
-             end
-           in
-           new M.a)
+        Japevar{vals = valsopt; init = v; set = set; get = get}
       in
       setjapevar (var, v); var
     let rec basejaperefvar valsopt v r =
@@ -152,7 +147,7 @@ module M : T =
       booljapevar v ((fun b -> r := b), (fun () -> !r))
     type envval = Envterm of term | Envvar of japevar
     let rec at (env, name) =
-      match mappingfuns.at (env, name) with
+      match Mappingfuns.M.at (env, name) with
         Some (Envterm t) -> Some t
       | Some (Envvar v) ->
           begin try Some (string2term (getjapevar v)) with
@@ -164,11 +159,11 @@ module M : T =
           end
       | None -> None
     let rec set (env, name, value) =
-      match mappingfuns.at (env, name) with
+      match Mappingfuns.M.at (env, name) with
         Some (Envvar v) -> setjapevar (v, termstring value)
       | _ -> raise NotJapeVar_
     let rec checkrange env name settings =
-      match mappingfuns.at (env, name) with
+      match Mappingfuns.M.at (env, name) with
         Some (Envvar v) ->
           let asyouwere =
             try Some (getjapevar v) with
@@ -183,9 +178,11 @@ module M : T =
             exn -> reset (); raise exn
           end
       | _ -> raise NotJapeVar_
-    let rec ( |-> ) (t, t') = mappingfuns.( |-> ) (t, Envterm t')
     
-    let rec ( ||-> ) (t, var) = mappingfuns.( |-> ) (t, Envvar var)
+    let (++) = (++)
+    let empty = empty
+    let ( |-> ) (t, t') = Mappingfuns.M.( |-> ) (t, Envterm t')
+    let ( ||-> ) (t, var) = Mappingfuns.M.( |-> ) (t, Envvar var)
+    
     type japeenv = (name, envval) mapping
-    type term = term
   end

@@ -2086,7 +2086,7 @@ module M : T =
       let rec domb (var, notify) =
         let setting =
           try _The (japeenv.at (env, var)) with
-            UnSOME_ ->
+            The_ ->
               raise
                 (Catastrophe_
                    ["domb error: variable "; namestring var;
@@ -2117,7 +2117,7 @@ module M : T =
             (termstring
                (_The (japeenv.at (env, namefrom "textselectionmode"))))
         with
-          UnSOME_ ->
+          The_ ->
             raise (Catastrophe_ ["textselectionmode not in environment"])
         end;
         (* explicit block so that profiler gives more helpful information *)
