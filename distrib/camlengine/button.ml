@@ -114,7 +114,6 @@ let (resetfontstuff, setfontstuff, getfontstuff) =
   and getfontstuff () = !fontstuff in
   resetfontstuff, setfontstuff, getfontstuff
 
-
 let rec reloadmenusandpanels markconjecture oplist =
     try
       (* was freshmenus... *)
@@ -194,17 +193,4 @@ let rec initButtons () =
 let rec initFonts () =
   match getfontstuff () with
     Some stuff -> Japeserver.setFonts stuff
-  | None -> ()
-
-
-
-
-
-
-
-
-
-
-
-
-
+  | None       -> ()

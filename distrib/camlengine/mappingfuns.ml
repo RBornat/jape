@@ -47,7 +47,7 @@ let rec mapped same mapping a =
   in
   ff mapping
 (* -- [x] is the inverse of ++ x |-> : that is, it deletes only the outermost value of x.
- * --[x,x] deletes two, and so on.
+ * -- [x,x] deletes two, and so on.
  *) 
 
 let rec ( -- ) xs ys =

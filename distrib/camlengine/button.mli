@@ -41,10 +41,14 @@ type button = UndoProofbutton
             | Disprovebutton
 
 val enable : button * bool -> unit
+
 val reloadmenusandpanels : (name -> (bool*bool) option) -> string list -> unit
+
 val markproof : string -> (bool * bool) -> unit (* now marks proofs and disproofs *)
+
 val initButtons : unit -> unit
-val initFonts : unit -> unit
-val getfontstuff : unit -> string option
-val setfontstuff : string -> unit
+val initFonts   : unit -> unit
+
+val getfontstuff   : unit -> string option
+val setfontstuff   : string -> unit
 val resetfontstuff : unit -> unit
