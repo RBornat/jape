@@ -25,23 +25,31 @@
     
 */
 
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 
 public class DisproofCanvas extends JapeCanvas implements ProtocolConstants, SelectionConstants {
+
+    public DisproofCanvas(Container viewport, boolean scrolled) {
+        super(viewport, scrolled);
+    }
+
     public String getSelections(String sep) {
         Alert.abort("DisproofCanvas.getSelections");
         return ""; // shut up compiler
     }
+    
     public String getTextSelections(String sep) {
         Alert.abort("DisproofCanvas.getTextSelections");
         return ""; // shut up compiler
     }
 
-    // somehow or other this tells me what the coordinates mean ...
-    
-    protected Rectangle sequentBounds;
-    
-    public void setSequentBox(int x, int y, int width, int height) {
-        sequentBounds = new Rectangle(x, y, width, height);
+    public void setSequentBox(int width, int ascent, int descent) {
+        setViewOrigin(0, -ascent);
+    }
+
+    public Dimension getPreferredSize() {
+        return getSize();
     }
 }
