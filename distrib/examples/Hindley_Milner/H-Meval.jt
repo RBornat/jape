@@ -1,8 +1,0 @@
-/* $Id$ */
-
-INITIALISE applyconjectures false
-INITIALISE tryresolution false
-INITIALISE displaystyle box
-
-USE "H-Meval_rules.j"
-USE "H-Meval_problems.j"
