@@ -2,7 +2,6 @@
 #       Make the bootstrap installer classes
 #
 bootstrap: install.java; rm -rf bootstrap; mkdir bootstrap; javac -d . install.java
-
 #
 #       Test 'em
 #
@@ -35,6 +34,7 @@ test4: ; java bootstrap.install Makefile* install.java
 #
 #
 clean:  ; rm -rf test bootstrap test*.jar
+
 
 
 
