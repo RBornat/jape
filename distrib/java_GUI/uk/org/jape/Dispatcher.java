@@ -83,6 +83,10 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    Reply.reply(JapeFont.measure("", 
 					      JapeFont.checkInterfaceFontnum(toByte(cmd[1]))));
 			else
+			if (p=="PROCRUSTES"&&len==5)
+			    Reply.reply(JapeFont.procrustes(toInt(cmd[1]), cmd[2], cmd[3],
+					      JapeFont.checkInterfaceFontnum(toByte(cmd[4]))));
+			else
 			if (p=="DRAWSTRING"&&len==6)
 			    ProofWindow.getFocussedWindow().drawstring(
 				toInt(cmd[1]), toInt(cmd[2]),       // x, y
