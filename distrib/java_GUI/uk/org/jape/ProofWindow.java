@@ -277,7 +277,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, Selection
         ProofWindow proof = findProof(proofnum);
         proof.removeWindowListener(proof.windowListener); // Linux gives us spurious events otherwise
         proof.windowListener = null;
-        closeWindow(proof);
+        proof.closeWindow();
         focusv.remove(focusv.indexOf(proof));
         reportFocus();
     }
