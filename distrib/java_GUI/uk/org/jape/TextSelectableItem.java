@@ -1,7 +1,7 @@
 /*
     $Id$
     
-    Copyright © 2003 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-4 Richard Bornat & Bernard Sufrin
     
     richard@bornat.me.uk
     sufrin@comlab.ox.ac.uk
@@ -213,7 +213,8 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 
     public class TextSel {
         public int start, end, pxstart, pxend;
-        
+        private int startgap = 0, endgap = 0;
+		
         public TextSel(FormulaTree f) { init(f); }
         
         public void reset(FormulaTree f) { repaint(); init(f); }
@@ -243,13 +244,13 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
                 if (paint_tracing)
                     Logger.log.println("painting text selection "+start+","+end);
                 g.setColor(Preferences.TextSelectionColour);
-                g.fillRect(pxstart, 0, pxend-pxstart, getHeight());
+                g.fillRect(pxstart+startgap, 0, pxend-pxstart-endgap, getHeight());
             } // else do nothing
         }
 
-        /* I have decided that two things overlap if they touch ... */
+        /* Overlap doesn't include touching */
 		public boolean overlaps(TextSel t) {
-            return t!=null && t!=this && (t.end<this.start || this.end<t.start);
+            return t!=null && t!=this && t.end>this.start && this.end>t.start;
         }
 
         public String toString() {
@@ -448,10 +449,16 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
                 TextSel t = getTextSel(i);
                 if (t.overlaps(current))
                     textsels.remove(i);
-                else
+				else
                     i++;
             }
         }
+		for (int i=0; i<textsels.size()-1; i++) {
+			TextSel t1 = getTextSel(i), t2 = getTextSel(i+1);
+			t1.endgap = t2.startgap = (t1.end==t2.start ? 1 : 0);
+		}
+		if (textsels.size()!=0)
+			getTextSel(0).startgap = getTextSel(textsels.size()-1).endgap = 0;
         repaint();
         currenttextselindex = -1;
         canvas.getProofWindow().enableCopy();
