@@ -25,6 +25,14 @@
     
 */
 
+/* The wastebin_*.jpg files included with Jape derive initially from a clipping (trash_can_02)
+   served up by Apple's AppleWorks in 2002. So far as I could tell they were in
+   the public domain. I tweaked them a little (dimensions, aspect ratio, colour) 
+   to include them in Jape. I intend the results to be covered by the GPL.
+   
+   Richard Bornat
+ */
+ 
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
