@@ -246,12 +246,13 @@ public class JapeCharEncoding implements DebugConstants {
                     case '\r':
                         ignoreLF=true;
                         return inbuf.toString();
+
                     case '\n':
                         if (ignoreLF)
                             ignoreLF=false;
                         else
                             return inbuf.toString();
-                        break;
+                        break; // thank you, Bernard!
                         
                     case -1:
                         ignoreLF=false; // a little unnecessary, but it makes me feel more comfortable
@@ -259,6 +260,7 @@ public class JapeCharEncoding implements DebugConstants {
                             throw new EOFException();
                         else
                             return inbuf.toString();
+
                     default:
                         ignoreLF=false;
                         if (encoding==null) {
