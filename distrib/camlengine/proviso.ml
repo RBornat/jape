@@ -47,7 +47,7 @@ type proviso = Provisotype.proviso
 
 let provisodebug = ref false
 
-let catelim_provisostring_invisbracketed b p tail =
+let catelim_invisbracketedstring_of_proviso b p tail =
   match p with
     FreshProviso (h, g, r, v) ->
       (if r then "IMP" else "") ::
@@ -86,16 +86,19 @@ let catelim_provisostring_invisbracketed b p tail =
         (" IN " ::
            catelim_invisbracketedstring_of_term b pat
              (" NOTONEOF " :: catelim_invisbracketedstring_of_collection b"," _C tail))
+  | DistinctProviso vs ->
+      "DISTINCT " ::
+         catelim_string_of_list (catelim_invisbracketedstring_of_term b) ", " vs tail
+  
+let invisbracketedstring_of_proviso = stringfn_of_catelim <.> catelim_invisbracketedstring_of_proviso
 
-let provisostring_invisbracketed = stringfn_of_catelim <.> catelim_provisostring_invisbracketed
-
-let catelim_string_of_proviso = catelim_provisostring_invisbracketed false
+let catelim_string_of_proviso = catelim_invisbracketedstring_of_proviso false
 let string_of_proviso = stringfn_of_catelim catelim_string_of_proviso
 
 let rec isFreshProviso =
   function
     FreshProviso _ -> true
-  | _ -> false
+  | _              -> false
 
 type visrec = { visible : bool; parent : proviso; actual : proviso }
 type visproviso = VisProviso of visrec
@@ -117,9 +120,9 @@ let rec provisoselfparent (VisProviso v) =
 let rec catelim_invisbracketedstring_of_visproviso b a1 a2 =
   match a1, a2 with
     VisProviso {visible = true; actual = p}, tail ->
-      catelim_provisostring_invisbracketed b p tail
+      catelim_invisbracketedstring_of_proviso b p tail
   | VisProviso {visible = false; actual = p}, tail ->
-      "<<" :: catelim_provisostring_invisbracketed b p (">>" :: tail)
+      "<<" :: catelim_invisbracketedstring_of_proviso b p (">>" :: tail)
 let invisbracketedstring_of_visproviso = stringfn_of_catelim <.> catelim_invisbracketedstring_of_visproviso
 
 let catelim_string_of_visproviso = catelim_invisbracketedstring_of_visproviso false
@@ -142,14 +145,15 @@ let rec stripElement =
         (Catastrophe_
            ["stripElement (proviso) called on Segvar ";
             string_of_term (mkBag [s])])
-let rec checkNOTINvars pname vars =
+
+let checkNOTINvars pname vars =
   List.iter
     (fun t ->
-       if (isId t || isVariable t) || isconstant t then ()
+       if isVariable t || isconstant t then ()
        else
          raise
            (ParseError_
-              [string_of_term t; " in "; pname; " proviso is neither an identifier nor an unknown variable or constant"]))
+              [string_of_term t; " in "; pname; " proviso is not a variable or constant"]))
     vars
 
 let rec parseNOTINvars pname =
@@ -160,20 +164,16 @@ let rec parseNOTINvars pname =
 let rec parseProvisos () =
   let rec parseNOTONEOF vars =
     let bad ss = raise (ParseError_ ("in NOTONEOF proviso, " :: ss)) in
-    let _ =
-      if List.exists (not <.> ismetav) vars then
-        bad ["not all the names "; bracketedstring_of_list string_of_term ", " vars;
-             " are schematic"]
-    in
+    if List.exists (not <.> ismetav) vars then
+      bad ["not all the names "; bracketedstring_of_list string_of_term ", " vars;
+             " are schematic"];
     let _ = check (SHYID "IN") in
     let pat = parseBindingpattern () in
     let varsinpat = ismetav <| termvars pat in
-    let _ =
-      if not (subset (vars, varsinpat)) then
-        bad
-          ["not all the names "; bracketedstring_of_list string_of_term ", " vars;
-           " appear in the pattern "; string_of_term pat]
-    in
+    if not (subset (vars, varsinpat)) then
+      bad
+        ["not all the names "; bracketedstring_of_list string_of_term ", " vars;
+         " appear in the pattern "; string_of_term pat];
     let _ = check (SHYID "NOTONEOF") in
     let (classopt, els) =
       parseElementList canstartTerm parseTerm commasymbol None
@@ -201,17 +201,19 @@ let rec parseProvisos () =
   let rec freshp p h g r v = p (h, g, r, v) in
   match currsymb () with
     SHYID "FRESH" ->
-      freshp (fun v->FreshProviso v) true true false <* parseNOTINvars "FRESH"
+      freshp _FreshProviso true true false <* parseNOTINvars "FRESH"
   | SHYID "HYPFRESH" ->
-      freshp (fun v->FreshProviso v) true false false <* parseNOTINvars "HYPFRESH"
+      freshp _FreshProviso true false false <* parseNOTINvars "HYPFRESH"
   | SHYID "CONCFRESH" ->
-      freshp (fun v->FreshProviso v) false true false <* parseNOTINvars "CONCFRESH"
+      freshp _FreshProviso false true false <* parseNOTINvars "CONCFRESH"
   | SHYID "IMPFRESH" ->
-      (freshp (fun v->FreshProviso v) true true true <* parseNOTINvars "FRESH")
+      (freshp _FreshProviso true true true <* parseNOTINvars "FRESH")
   | SHYID "IMPHYPFRESH" ->
-      (freshp (fun v->FreshProviso v) true false true <* parseNOTINvars "HYPFRESH")
+      (freshp _FreshProviso true false true <* parseNOTINvars "HYPFRESH")
   | SHYID "IMPCONCFRESH" ->
-      freshp (fun v->FreshProviso v) false true true <* parseNOTINvars "CONCFRESH"
+      freshp _FreshProviso false true true <* parseNOTINvars "CONCFRESH"
+  | SHYID "DISTINCT" ->
+      [DistinctProviso (parseNOTINvars "DISTINCT")]
   | sy ->
       if canstartTerm sy then
         let (class__, els) =
@@ -260,48 +262,127 @@ let rec parseProvisos () =
           (ParseError_
              ["Proviso -- FRESH.. or HYPFRESH.. or CONCFRESH.. ";
               "or formula UNIFIESWITH formula or ids NOTIN terms or ";
+              "DISTINCT ids or ";
               "var IN pattern NOTONEOF collection -- expected, ";
               "found "; debugstring_of_symbol sy])
 
 (* function for sorting proviso lists so that they are nice and readable *)
-let rec earlierproviso p1 p2 =
+let earlierproviso p1 p2 =
   let rec lin1 =
     function
       FreshProviso (h, g, r, v) ->
         (if h then 10 else 0) + (if g then 20 else 0) +
           (if r then 40 else 0)
-    | NotinProviso (v, t) -> 300
-    | NotoneofProviso (vs, pat, _C) -> 400
-    | UnifiesProviso (t, t') -> 500
+    | DistinctProviso vs            -> 300
+    | NotinProviso (v, t)           -> 400
+    | NotoneofProviso (vs, pat, _C) -> 500
+    | UnifiesProviso (t, t')        -> 600
   in
   let rec lin2 =
     function
-      FreshProviso (h, g, r, v) -> [string_of_term v]
-    | NotinProviso (v, t) -> [string_of_term v; string_of_term t]
+      FreshProviso (h, g, r, v)     -> [string_of_term v]
+    | DistinctProviso vs            -> string_of_term <* vs
+    | NotinProviso (v, t)           -> [string_of_term v; string_of_term t]
     | NotoneofProviso (vs, pat, _C) ->
         nj_fold (fun (v, ss) -> string_of_term v :: ss) vs
-          [string_of_term pat; string_of_term _C]
-    | UnifiesProviso (t, t') -> [string_of_term t; string_of_term t']
+                [string_of_term pat; string_of_term _C]
+    | UnifiesProviso (t, t')        -> [string_of_term t; string_of_term t']
   in
   let n1 = lin1 p1 in
   let n2 = lin1 p2 in
   n1 < n2 ||
   n1 = n2 && earlierlist (<) (lin2 p1) (lin2 p2)
-let rec provisovars termvars tmerge p =
+
+let provisovars termvars tmerge p =
   match p with
-    FreshProviso (_, _, _, t) -> termvars t
-  | UnifiesProviso (t1, t2) -> tmerge (termvars t1) (termvars t2)
-  | NotinProviso (t1, t2) -> tmerge (termvars t1) (termvars t2)
-  | NotoneofProviso (vs, pat, _C) ->
-      nj_fold (uncurry2 tmerge) ((termvars <* vs)) (termvars _C)
-let rec provisoVIDs p =
+    FreshProviso (_, _, _, t)     -> termvars t
+  | UnifiesProviso (t1, t2)       -> tmerge (termvars t1) (termvars t2)
+  | NotinProviso (t1, t2)         -> tmerge (termvars t1) (termvars t2)
+  | DistinctProviso vs            -> nj_fold (uncurry2 tmerge) (termvars <* vs) []
+  | NotoneofProviso (vs, pat, _C) -> nj_fold (uncurry2 tmerge) (termvars <* vs) (termvars _C)
+
+let provisoVIDs p =
   orderVIDs ((vid_of_var <* provisovars termvars tmerge p))
-let rec maxprovisoresnum p =
+
+let maxprovisoresnum p =
   let rec f t n =
     nj_fold (uncurry2 max) ((int_of_resnum <* elementnumbers t)) n
   in
   match p with
-    FreshProviso (_, _, _, t) -> f t 0
-  | UnifiesProviso (t1, t2) -> f t1 (f t2 0)
-  | NotinProviso (v, t) -> f v (f t 0)
-  | NotoneofProviso (vs, pat, _C) -> nj_fold (fun (v, n) -> f v n) vs (f _C 0)
+    FreshProviso (_, _, _, t)     -> f t 0
+  | UnifiesProviso (t1, t2)       -> f t1 (f t2 0)
+  | NotinProviso (v, t)           -> f v (f t 0)
+  | DistinctProviso vs            -> nj_fold (uncurry2 f) vs 0
+  | NotoneofProviso (vs, pat, _C) -> nj_fold (uncurry2 f) vs (f _C 0)
+
+(* make DISTINCT out of several NOTINs and vice-versa; 
+   make a single FRESH out of several
+ *)
+
+let expandProvisos ps =
+  let ep p ps = 
+    match p with
+      DistinctProviso vs -> 
+        let rec dp = 
+          function 
+            []    -> ps
+          | v::vs -> foldr (fun v' ps -> NotinProviso(v,v')::ps) (dp vs) vs
+        in dp vs
+    | p -> p :: ps
+  in
+  foldr ep [] ps
+
+let compressProvisos ps =
+  let ps = expandProvisos ps in
+  (* filter out the variable NOTINs and try to put them into groups *)
+  (* I'm sure this is a standard algorithm -- is it paths? *)
+  let xys, xts, others =
+    foldl (fun (xys, xts, others) ->
+             function (NotinProviso(v,t)) ->
+                         if isVariable t then [v;t]::xys, xts, others
+                                   else xys, (v,t)::xts, others
+           |          p -> xys, xts, p::others) 
+          ([],[],[]) ps
+  in
+  (* remove duplication *)
+  let xys = sortunique (earlierlist earliervar) (sort earliervar <* xys) in
+  let names = foldl tmerge [] xys in
+  (* make all subsets *)
+  let rec subsets =
+    function 
+      [] -> [[]]
+    | x :: xs -> 
+        let xss = subsets xs in
+        foldr (fun xs xss -> (x::xs)::xss) xss xss
+  in
+  let rec supported =
+    let rec ok x =
+      function 
+        []     -> true
+      | x'::xs -> List.mem [x;x'] xys && ok x xs
+    in
+    function
+      []    -> true
+    | [x]   -> true
+    | x::xs -> ok x xs && supported xs
+  in
+  let sets = (fun xs -> List.length xs>=2 && supported xs) <| subsets names in
+  let sets = sort (fun xs ys -> List.length xs>List.length ys) sets in
+  let rec comb =
+    function 
+      []        -> []
+    | xs :: xss -> xs :: comb ((fun xs' -> sorteddiff earliervar xs' xs != []) <| xss)
+  in
+  let distincts = _DistinctProviso <* comb sets in 
+  (* One day I'll try to join the xts into larger groups *)
+  (* and do something about FreshProviso *)
+  distincts @ (_NotinProviso <* xts) @ others
+  
+let doVisProvisos f ps =
+  let vis, invis = split (fun (VisProviso p) -> p.visible) ps in
+  let vis = f (provisoactual <* vis) in
+  let invis = f (provisoactual <* invis) in
+  (curry2 mkvisproviso true <* vis) @ (curry2 mkvisproviso false <* invis)
+
+let compressVisProvisos = doVisProvisos compressProvisos
+let expandVisProvisos = doVisProvisos expandProvisos
