@@ -678,18 +678,14 @@ let rec tickmenuitem (menu, label, b) =
   writef "TICKMENUITEM % % %\n"
     [Str menu; Str label; Bool b]
 
-exception GetGeometry_
+exception GetPaneGeometry_ of string
 
-let rec getGeometry pane =
-    match askf "%PANEGEOMETRY\n" [Str pane] with
+let rec getPaneGeometry pane = 
+    match askf "PANEGEOMETRY %\n" [Int (Displayfont.pane2int pane)] with
       [x; y; w; h] -> box (pos (x, y), size (w, h))
-    | _ -> raise GetGeometry_
+    | _ -> raise (GetPaneGeometry_ (Displayfont.panestring pane))
 
-let rec getProofPane () = getGeometry "PROOF"
-let rec getDisproofPane () = getGeometry "DISPROOF"
-
-let rec clearProofPane () = writef "CLEARPROOFPANE\n" []
-let rec clearDisproofPane () = writef "CLEARDISPROOFPANE\n" []
+let rec clearPane pane = writef "CLEARPANE %\n" [Int (Displayfont.pane2int pane)]
 
 let rec emphasise pos b =
   let (x, y) = explodePos pos in

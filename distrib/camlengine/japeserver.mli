@@ -132,10 +132,8 @@ val setGivens : (int * string) list -> unit (* numbered givens *)
 val quit     : unit -> unit
 val dontquit : unit -> unit
 
-val getProofPane      : unit -> box
-val getDisproofPane   : unit -> box
-val clearProofPane    : unit -> unit
-val clearDisproofPane : unit -> unit
+val getPaneGeometry   : Displayfont.pane -> box
+val clearPane         : Displayfont.pane -> unit
 
 (* To make findSelection (interaction.sml) work properly, and to get consistent results from tactics that
  * interpret the answers, getAllSelections should return its answers in time-click order.

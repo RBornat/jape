@@ -1086,7 +1086,7 @@ let rec showdisproof =
              emphasise (seqelementpos seqboxpos seqbox plan) emph
          | _ -> ())
       seqplan
-let cleardisproof = clearDisproofPane
+let cleardisproof () = Japeserver.clearPane Displayfont.DisproofPane
 (* for export, with slightly altered semantics *)
 let rec deletelink u from to__ =
   let (ts, cs) = getworld u from in

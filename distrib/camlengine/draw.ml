@@ -87,8 +87,8 @@ let rec planinfo = fun (Formulaplan (_, _, i)) -> i
 let rec plantextsize p = tbSize (plantextbox p)
 let rec planlisttextsize ps =
   nj_fold ( +-+ ) (List.map plantextsize ps) nulltextsize
-let viewBox = Japeserver.getProofPane
-let rec clearView () = Japeserver.clearProofPane ()
+let viewBox () = Japeserver.getPaneGeometry Displayfont.ProofPane
+let rec clearView () = Japeserver.clearPane Displayfont.ProofPane
 let highlight = Japeserver.highlight
 let drawBox = Japeserver.drawRect
 let rec linethickness leading =
