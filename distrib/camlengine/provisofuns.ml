@@ -177,6 +177,11 @@ let rec _PROVISOq facts p =
   match p with
     FreshProviso _      -> (* can occur in a derived rule *) Maybe
   | NotinProviso (v, t) -> notq (varoccursinq facts v t)
+  | DistinctProviso vs -> 
+      let rec dp = function []    -> Yes
+                   |        v::vs -> andalsoq (notq (existsq (varoccursinq facts v) vs)) 
+                                              (fun _ -> dp vs)
+      in dp vs              
   | NotoneofProviso _   -> Maybe
   | UnifiesProviso (_P1, _P2) ->
       if eqterms (_P1, _P2) then Yes
@@ -209,8 +214,9 @@ let rec groundedprovisos names provisos =
   let rec isop p =
     let r =
       match p with
-        FreshProviso (_, _, _, v) -> ismetav v && isot v
-      | NotinProviso (v, t) -> ismetav v && isot v || isot t
+        FreshProviso (_, _, _, v)     -> ismetav v && isot v
+      | NotinProviso (v, t)           -> ismetav v && isot v || isot t
+      | DistinctProviso vs            -> not (List.exists (not <.> isot) vs)
       | NotoneofProviso (vs, pat, _C) ->
           not (List.exists (not <.> isot) vs) || isot _C
       | UnifiesProviso (_P1, _P2) -> isot _P1 && isot _P2
@@ -427,8 +433,9 @@ let rec checkprovisos cxt =
 let rec remapproviso env p =
   let _T = remapterm env in
   match p with
-    FreshProviso (h, g, r, v) -> FreshProviso (h, g, r, _T v)
-  | NotinProviso (v, t) -> NotinProviso (_T v, _T t)
+    FreshProviso (h, g, r, v)     -> FreshProviso (h, g, r, _T v)
+  | NotinProviso (v, t)           -> NotinProviso (_T v, _T t)
+  | DistinctProviso vs            -> DistinctProviso (_T <* vs)
   | NotoneofProviso (vs, pat, _C) ->
       NotoneofProviso ((_T <* vs), _T pat, _T _C)
   | UnifiesProviso (_P1, _P2) -> UnifiesProviso (_T _P1, _T _P2)
