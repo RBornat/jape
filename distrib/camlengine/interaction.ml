@@ -115,12 +115,12 @@ let rec setdisplaystyle s =
 let rec getdisplaystyle () = !currentstylename
 
 let showProof (DisplayState d) target goal cxt tree withgoal =
-    d.showProof tree target (if withgoal then goal else None)
+    d.showProof tree (Draw.viewBox()) target (if withgoal then goal else None)
 
 let rec showFocussedProof goal cxt tree withgoal =
   match !currentstyle with
     DisplayState {showFocussedProof = sfp} ->
-      sfp tree (if withgoal then goal else None)
+      sfp tree (Draw.viewBox()) (if withgoal then goal else None)
 
 let refreshProof (DisplayState d) = d.refreshProof ()
 
