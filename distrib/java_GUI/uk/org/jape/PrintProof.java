@@ -49,7 +49,6 @@ public class PrintProof {
     static void printProof(ProofWindow w) {
         PrinterJob job = PrinterJob.getPrinterJob();
         ensureDefaultPage(job);
-        w.cockeyed = false;
         w.whattoprint = BOTH;
         job.setPrintable(w, defaultPage);
         if (job.printDialog()) {
@@ -69,8 +68,9 @@ public class PrintProof {
 
         w.whattoprint = what;
         ProofWindow.PrintSize printSize = w.getPrintSize();
+        boolean cockeyed = printSize.printWidth>printSize.printHeight;
 
-        if ((w.cockeyed = printSize.printWidth>printSize.printHeight)) {
+        if (cockeyed) {
             paper.setSize((double)printSize.printHeight, (double)printSize.printWidth);
             paper.setImageableArea((double)0.0, (double)0.0,
                                    (double)printSize.printHeight, (double)printSize.printWidth);
@@ -81,8 +81,8 @@ public class PrintProof {
         }
         page.setPaper(paper);
 
-        if (w.cockeyed) {
-            page.setOrientation(page.LANDSCAPE); // I think this is a bug ...
+        if (cockeyed) {
+            page.setOrientation(page.LANDSCAPE); // I think this is a bug ... and I have to do it here
         } 
         
         job.setPrintable(w, page);
