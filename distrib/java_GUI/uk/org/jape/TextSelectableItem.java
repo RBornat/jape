@@ -258,15 +258,21 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
                 getTextSel(0).repaint();
                 textsels.remove(0);
             }
+        canvas.getProofWindow().enableCopy();
     }
 
     public abstract String getTextSelections();
 
+    public int getTextSelectionCount() {
+        return textsels==null ? 0 : textsels.size();
+    }
+    
     private void ensureTextSelectionVars() {
         if (formulae==null) {
             annoti = printi = 0;
             formulae = computeFormulaTree((char)0);
             textsels = new Vector(1);
+            canvas.getProofWindow().enableCopy();
         }
     }
 
@@ -283,6 +289,7 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
                 break;
         textsels.add(i, new TextSel(anchor));
         currenttextselindex = i;
+        canvas.getProofWindow().enableCopy();
     }
         
     protected void textpressed(byte eventKind, MouseEvent e) {
@@ -341,6 +348,7 @@ public abstract class TextSelectableItem extends TextItem implements SelectionCo
                 i++;
         }
         currenttextselindex = -1;
+        canvas.getProofWindow().enableCopy();
     }
 
     protected void paintTextSels(Graphics g) {
