@@ -64,7 +64,7 @@ let rec term2name t =
   | Literal (_, String s) -> Some (Name s)
   | _ -> None
 
-(* this is better than unQuote, because it parses the string *)
+(* this is better than disQuote, because it parses the string *)
 let rec namefrom s =
   try
     match tryparse parseTerm s with
