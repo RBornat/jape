@@ -25,241 +25,214 @@
 
 *)
 
+open Listfuns
+open Miscellaneous
 open Sml
+open Stringfuns
 
-exception Malformed_
+type ucode = int
 
-(* it appears that OCaml allows you to write ranges of characters in a match, 
-   but not ranges of integers. Very odd, and a right pain.
- *)
- 
+let uEOF = -1
+
+let hexchar c = enCharQuote ("x" ^ fixedwidth_hexstring_of_int 2 (Char.code c))
+let hex4 n = "0x" ^ fixedwidth_hexstring_of_int 4 n
+let hex8 n = "0x" ^ fixedwidth_hexstring_of_int 8 n
+
+exception MalformedUTF_ of string list
+
 let check_808f c =
   match c with
     '\x80'..'\x8f' -> Char.code c land 0x3f
-  | _              -> raise Malformed_
+  | _              -> raise (MalformedUTF_ [hexchar c])
 
 let check_809f c =
   match c with
     '\x80'..'\x9f' -> Char.code c land 0x3f
-  | _              -> raise Malformed_
+  | _              -> raise (MalformedUTF_ [hexchar c])
 
 let check_80bf c =
   match c with
     '\x80'..'\xbf' -> Char.code c land 0x3f
-  | _              -> raise Malformed_
+  | _              -> raise (MalformedUTF_ [hexchar c])
 
 let check_90bf c =
   match c with
     '\x90'..'\xbf' -> Char.code c land 0x3f
-  | _              -> raise Malformed_
+  | _              -> raise (MalformedUTF_ [hexchar c])
 
 let check_a0bf c =
   match c with
     '\xa0'..'\xbf' -> Char.code c land 0x3f
-  | _              -> raise Malformed_
+  | _              -> raise (MalformedUTF_ [hexchar c])
   
-let get_utf8 s =
-  let n1 = Char.code (Stream.next s) in
-  try
-    let twobyte f = 
-      let n2 = f (Stream.next s) in
-      ((n1 land 0x1f) lsl 6) lor n2 in
-    let threebyte f = 
-      let n2 = f (Stream.next s) in
-      let n3 = check_80bf (Stream.next s) in
-      ((((n1 land 0x0f) lsl 6) lor n2) lsl 6) lor n3 in
-    let fourbyte f = 
-      let n2 = f (Stream.next s) in
-      let n3 = check_80bf (Stream.next s) in
-      let n4 = check_80bf (Stream.next s) in      
-      ((((((n1 land 0x07) lsl 6) lor n2) lsl 6) lor n3) lsl 6) lor n4 in
-    match n1 with
-      | n when 0x00<=n && n<=0x7f ->
-          n1
-      | n when 0xc2<=n && n<=0xdf ->
-          twobyte check_80bf
-      | 0xe0 ->
-          threebyte check_a0bf
-      | n when (0xe1<=n && n<=0xec) || (0xee<=n && n<=0xef) ->
-          threebyte check_80bf
-      | 0xed ->
-          threebyte check_809f
-      | 0xf0 ->
-          fourbyte check_90bf
-      | n when 0xf1<=n && n<=0xf3 ->
-          fourbyte check_80bf
-      | 0xf4 ->
-          fourbyte check_808f
-      | _ -> 
-          raise Malformed_
-  with
-    Stream.Failure -> raise Malformed_
+let utf8_next next =
+  try let n0 = Char.code (next 0) in
+      try
+        let twobyte f = 
+          let n1 = f (next 1) in
+          ((n0 land 0x1f) lsl 6) lor n1 in
+        let threebyte f = 
+          let n1 = f (next 1) in
+          try let n2 = check_80bf (next 2) in
+              ((((n0 land 0x0f) lsl 6) lor n1) lsl 6) lor n2 
+          with Stream.Failure   -> raise (MalformedUTF_ [hexchar (Char.chr n1); " EOF"])
+             | MalformedUTF_ ss -> raise (MalformedUTF_ (hexchar (Char.chr n1) :: " " :: ss))
+        in
+        let fourbyte f = 
+          let n1 = f (next 1) in
+          try let n2 = check_80bf (next 2) in
+              try let n3 = check_80bf (next 3) in      
+                  ((((((n0 land 0x07) lsl 6) lor n1) lsl 6) lor n2) lsl 6) lor n3 
+              with MalformedUTF_ ss -> raise (MalformedUTF_ (hexchar (Char.chr n2) :: " " :: ss))
+          with Stream.Failure   -> raise (MalformedUTF_ [hexchar (Char.chr n1); " EOF"])
+             | MalformedUTF_ ss -> raise (MalformedUTF_ (hexchar (Char.chr n1) :: " " :: ss))
+        in
+        match n0 with
+          | n when 0x00<=n && n<=0x7f ->
+              n0
+          | n when 0xc2<=n && n<=0xdf ->
+              twobyte check_80bf
+          | 0xe0 ->
+              threebyte check_a0bf
+          | n when (0xe1<=n && n<=0xec) || (0xee<=n && n<=0xef) ->
+              threebyte check_80bf
+          | 0xed ->
+              threebyte check_809f
+          | 0xf0 ->
+              fourbyte check_90bf
+          | n when 0xf1<=n && n<=0xf3 ->
+              fourbyte check_80bf
+          | 0xf4 ->
+              fourbyte check_808f
+          | _ -> 
+              raise (MalformedUTF_ [])
+      with
+        Stream.Failure   -> raise (MalformedUTF_ [hexchar (Char.chr n0); " EOF"])
+      | MalformedUTF_ ss -> raise (MalformedUTF_ (hexchar (Char.chr n0) :: " " :: ss))
+  with 
+    MalformedUTF_ ss -> raise (MalformedUTF_ ("UTF8 " :: ss))
 
-let get16_be s = 
-  let n1 = Char.code (Stream.next s) in
-  try let n2 = Char.code (Stream.next s) in
-      (n1 lsl 8) lor n2
-  with Stream.Failure -> raise Malformed_
-  
-let get16_le s = 
-  let n2 = Char.code (Stream.next s) in
+let next16_be s = 
+  let n0 = Char.code (Stream.next s) in
   try let n1 = Char.code (Stream.next s) in
-      (n1 lsl 8) lor n2
-  with Stream.Failure -> raise Malformed_
-
-let get_utf16 next16 s =
-  match next16 s with
-    m when 0x0000<=m && m<=0xd7ff -> 
-      m
-  | m1 when 0xd800<=m1 && m1<=0xdbff ->
-      (try
-         match next16 s with 
-            m2 when 0xdc00<=m2 && m2<=0xdfff -> (
-              match (((m1 land 0x3ff) lsl 10) lor (m2 land 0x3ff)) + 0x10000 with
-                m when (0x0000<=m && m<=0xd7ff) || (0xe000<=m && m<=0x10ffff) ->
-                  m
-              | _ ->
-                  raise Malformed_)
-          | _ ->
-              raise Malformed_
-       with 
-         Stream.Failure -> raise Malformed_)
-   | _ -> raise Malformed_
-
-let get32_be s = 
-  let n1 = get16_be s in
-  try let n2 = get16_be s in
-      (n1 lsl 16) lor n2
-  with Stream.Failure -> raise Malformed_
+      (n0 lsl 8) lor n1
+  with Stream.Failure -> raise (MalformedUTF_ [hexchar (Char.chr n0); " EOF"])
   
-let get32_le s = 
-  let n2 = get16_le s in
-  try let n1 = get16_le s in
-      (n1 lsl 16) lor n2
-  with Stream.Failure -> raise Malformed_
+let next16_le s = 
+  let n1 = Char.code (Stream.next s) in
+  try let n0 = Char.code (Stream.next s) in
+      (n0 lsl 8) lor n1
+  with Stream.Failure -> raise (MalformedUTF_ [hexchar (Char.chr n1); " EOF"])
 
-let get_utf32 next32 s =
-  match next32 s with
-    m when (0x0000<=m && m<=0xd7ff) || (0xe000<=m && 0xe000<=0x10ffff) -> m
-  | _                                                                  -> raise Malformed_
+let utf16_next next16 s =
+  try match next16 s with
+        m when 0x0000<=m && m<=0xd7ff -> 
+          m
+      | m1 when 0xd800<=m1 && m1<=0xdbff ->
+          (try
+             match next16 s with 
+                m2 when 0xdc00<=m2 && m2<=0xdfff -> (
+                  match (((m1 land 0x3ff) lsl 10) lor (m2 land 0x3ff)) + 0x10000 with
+                    m when (0x0000<=m && m<=0xd7ff) || (0xe000<=m && m<=0x10ffff) ->
+                      m
+                  | m ->
+                      raise (MalformedUTF_ [hex4 m1; " "; hex4 m2; " => "; hex8 m; " -- no such code point"]))
+              | m2 ->
+                  raise (MalformedUTF_ [hex4 m1; " "; hex4 m2])
+           with 
+             Stream.Failure -> raise (MalformedUTF_ [hex4 m1; " EOF"]))
+       | m1 -> raise (MalformedUTF_ [hex4 m1])
+  with 
+    MalformedUTF_ ss -> raise (MalformedUTF_ ("UTF16 " :: ss))
+
+let next32_be s = 
+  let n0 = next16_be s in
+  try let n1 = next16_be s in
+      (n0 lsl 16) lor n1
+  with Stream.Failure   -> raise (MalformedUTF_ [hex4 n0; " EOF"])
+     | MalformedUTF_ ss -> raise (MalformedUTF_ (hex4 n0 :: " " :: ss))
+  
+let next32_le s = 
+  let n1 = next16_le s in
+  try let n0 = next16_le s in
+      (n0 lsl 16) lor n1
+  with Stream.Failure   -> raise (MalformedUTF_ [hex4 n1; " EOF"])
+     | MalformedUTF_ ss -> raise (MalformedUTF_ (hex4 n1 :: " " :: ss))
+
+let utf32_next next32 s =
+  try match next32 s with
+        m when (0x0000<=m && m<=0xd7ff) || (0xe000<=m && 0xe000<=0x10ffff) -> 
+          m
+      | m                                                                  -> 
+          raise (MalformedUTF_ ["UTF32 "; hex8 m; " -- no such code point"])
+  with 
+    MalformedUTF_ ss -> raise (MalformedUTF_ ("UTF32 " :: ss))
 
 (************************************)
 
-let utf8_of_int m =
-  if 0x00<=m && m<=0x07f then
-       [Char.chr m]
-  else
-  if 0x80<=m && m<=0x7ff then (
-       let y = m lsr 6 in
-       let x = m land 0x3f in
-       [Char.chr (y lor 0xc0); Char.chr (x lor 0x80)])
-  else
-  if (0x800<=m && m<=0xdfff) || (0xe0000<=m && 0xe0000<=0xffff) then (
-       let x = m land 0x3f in
-       let y = (m lsr 6) land 0x3f in
-       let z = m lsr 12 in
-       [Char.chr (z lor 0xe0); Char.chr (y lor 0x80); Char.chr (x lor 0x80)])
-   else
-   if 0x10000<=m && m<=0x10ffff then (
-       let x = m land 0x3f in
-       let y = (m lsr 6) land 0x3f in
-       let z = (m lsr 12) land 0x3f in
-       let u = m lsr 18 in
-       [Char.chr (u lor 0xf0); Char.chr (z lor 0x80);
-        Char.chr (y lor 0x80); Char.chr (x lor 0x80)])
-   else
-       raise Malformed_
-      
-let split16 m cs = 
-  Char.chr(m lsr 8) :: Char.chr(m land 0xff) :: cs
-    
-let utf16_of_int m =
-  if (0x0000<=m && m<=0xd7ff) || (0xe000<=m && 0xe000<=0xffff) then 
-       split16 m []
-  else
-  if 0x10000<=m && m<=0x10ffff then (
-       let x = m land 0x3ff in
-       let y = (m - 0x10000) lsr 10 in
-       split16 (0xd800 lor y) (split16 (0xdc00 lor x) []))
-   else 
-       raise Malformed_
+let utf8_get s i = 
+  if i=String.length s then uEOF else
+  utf8_next (fun j -> try s.[i+j] with _ -> raise Stream.Failure)
+let utf8_next s = utf8_next (fun _ -> Stream.next s)
 
-let utf32_of_int m =
-  if (0x0000<=m && m<=0xd7ff) || (0xe000<=m && 0xe000<=0x10ffff) then 
-    split16 (m lsr 16) (split16 (m land 0xffff) [])
-  else raise Malformed_
-
-(*******************************)
-
-let next_utf8 = get_utf8
-let next_utf16 bigendian = 
-  get_utf16 (if bigendian then get16_be else get16_le)
-let next_utf32 bigendian = 
-  get_utf32 (if bigendian then get32_be else get32_le)
-
-(* this is slow, but I don't think it's going to be used much *)
-let utf16_of_int bigendian =
-  if bigendian then utf16_of_int else (List.rev <.> utf16_of_int)
-let utf32_of_int bigendian =
-  if bigendian then utf32_of_int else (List.rev <.> utf32_of_int)
+let utf16_next bigendian = 
+  utf16_next (if bigendian then next16_be else next16_le)
+let utf32_next bigendian = 
+  utf32_next (if bigendian then next32_be else next32_le)
 
 (*****************************)
 
-type ustream = { mutable utf8 : char list }
+let of_utfstream reader s =
+  Stream.from (fun _ -> try Some(reader s) with Stream.Failure -> None)
 
-let utf8stream s unext = 
-  let ustr = { utf8 = [] } in
-  Stream.from 
-    (fun _ ->
-       try Some (match ustr.utf8 with
-                   [] -> let i = unext s in
-                         (match utf8_of_int i with
-                            [c]      -> c
-                          | (c::cs') -> ustr.utf8<-cs'; c
-                          | _        -> raise (Miscellaneous.Catastrophe_
-                                                ["utf8_of_int "; Stringfuns.hexstring_of_int i; " = []"]))
-                  | (c::cs') -> ustr.utf8<-cs'; c
-                 ) with Stream.Failure -> None) 
+let utf_stdin = of_utfstream utf8_next (Stream.of_channel stdin)
 
 let rec njunk n s =
   if n>0 then (Stream.junk s; njunk (n-1) s)
   
-let utf8_of_utfchannel ic =
+let of_utfchannel ic =
   let s = Stream.of_channel ic in
   (* look for BOM; without a BOM default is UTF8 *)
-  match Stream.npeek 4 s with 
-    ['\x00'; '\x00'; '\xfe'; '\xff'] -> njunk 4 s; utf8stream s (next_utf32 true)
-  | ['\xff'; '\xfe'; '\x00'; '\x00'] -> njunk 4 s; utf8stream s (next_utf32 false)
-  | cs ->
-      match Listfuns.take 3 cs with 
-        ['\xef'; '\xbb'; '\xbf'] -> njunk 3 s; s
-      | _ -> 
-          match Listfuns.take 2 cs with
-            ['\xfe'; '\xff'] -> njunk 2 s; utf8stream s (next_utf16 true)
-          | ['\xff'; '\xfe'] -> njunk 2 s; utf8stream s (next_utf16 false)
-          | _                -> s
+  let reader = 
+    match Stream.npeek 4 s with 
+      ['\x00'; '\x00'; '\xfe'; '\xff'] -> njunk 4 s; utf32_next true
+    | ['\xff'; '\xfe'; '\x00'; '\x00'] -> njunk 4 s; utf32_next false
+    | cs ->
+        match take 3 cs with 
+          ['\xef'; '\xbb'; '\xbf'] -> njunk 3 s; utf8_next
+        | _ -> 
+            match take 2 cs with
+              ['\xfe'; '\xff'] -> njunk 2 s; utf16_next true
+            | ['\xff'; '\xfe'] -> njunk 2 s; utf16_next false
+            | _                -> utf8_next
+  in
+  of_utfstream reader s
 
-let utf8_of_utfNchannel size bigendian ic =
+let of_utfNchannel size bigendian ic =
   let s = Stream.of_channel ic in
     match size with
       8 -> (
-        match Stream.npeek 3 s with
-          ['\xef'; '\xbb'; '\xbf'] -> njunk 3 s; s
-        | _                        -> s)
+        (match Stream.npeek 3 s with
+           ['\xef'; '\xbb'; '\xbf'] -> njunk 3 s
+         | _                        -> ());
+        of_utfstream utf8_next s)
     | 16 -> (
-        let s' = utf8stream s (next_utf16 bigendian) in
-        match bigendian, Stream.npeek 2 s with
-          true , ['\xfe'; '\xff'] -> njunk 2 s; s'
-        | false, ['\xff'; '\xfe'] -> njunk 2 s; s'
-        | _                       -> s')
+        (match bigendian, Stream.npeek 2 s with
+           true , ['\xfe'; '\xff'] -> njunk 2 s
+         | false, ['\xff'; '\xfe'] -> njunk 2 s
+         | _                       -> ());
+        of_utfstream (utf16_next bigendian) s)
     | 32 -> (
-        let s' = utf8stream s (next_utf32 bigendian) in
-        match bigendian, Stream.npeek 4 s with
-          true , ['\x00'; '\x00'; '\xfe'; '\xff'] -> njunk 4 s; s'
-        | false, ['\xff'; '\xfe'; '\x00'; '\x00'] -> njunk 4 s; s'
-        | _                       -> s')
+        (match bigendian, Stream.npeek 4 s with
+           true , ['\x00'; '\x00'; '\xfe'; '\xff'] -> njunk 4 s
+         | false, ['\xff'; '\xfe'; '\x00'; '\x00'] -> njunk 4 s
+         | _                       -> ());
+        of_utfstream (utf32_next bigendian) s)
     | _ -> raise (Miscellaneous.Catastrophe_ ["utf8_of_utfNchannel "; string_of_int size])
 
+let of_utf8string s = 
+  of_utfstream utf8_next (Stream.of_string s)
+  
 let open_out_utf8 s =
   let ic = open_out s in
   output_string ic Miscellaneous.utf8BOM;
@@ -278,81 +251,173 @@ let _ = for i=0x00 to 0x7f do utf8_widths.(i)<-1 done;
 let utf8width_from_header c =
   utf8_widths.(Char.code c)
   
-let utf8_junk s =
-  match Stream.peek s with
-    Some c -> 
-      let n = utf8width_from_header c in
-      if n>0 then njunk n s
-             else raise Malformed_
-  | None   -> ()
-  
-let utf8_peek s = 
-  match Stream.peek s with
-    Some c -> 
-      let n = utf8width_from_header c in
-      if n>0 then Some (Sml.string_of_chars (Stream.npeek n s))
-             else raise Malformed_
-  | None   -> None
-
 let utf8_explode s =
   let lim = String.length s in
   let rec f i =
-    if i=lim then [] else (
+    if i=lim then [] else
       let n = utf8width_from_header s.[i] in
-      if n>0 then (
-        let str = String.create n in
-        for j = 0 to n-1 do str.[j]<-s.[i+j] done;
-        str :: f (i+n))
-      else raise Malformed_)
+      utf8_get s i :: f (i+n)
   in
   f 0 
 
 let utf8_sub s i =
-  if i = String.length s then "" else (
-    let n = utf8width_from_header s.[i] in
-    if n>0 then (
-      let str = String.create n in
-      for j = 0 to n-1 do str.[j]<-s.[i+j] done;
-      str)
-    else raise Malformed_)
+  if i = String.length s then uEOF else utf8_get s i
 
 let utf8_presub s i =
-  if i=0 then "" else 
-    try let rec f i =
-          let n = utf8width_from_header s.[i] in
-          if n>0 then (
-            let str = String.create n in
-            for j = 0 to n-1 do str.[j]<-s.[i+j] done;
-            str)
-          else f (i-1)
-        in
-          f (i-1)
-    with _ -> raise Malformed_
+  if i=0 then uEOF else 
+    let rec f j =
+      if j<0 then 
+        raise (MalformedUTF_ 
+                 ["UTF8 string "; bracketedliststring hexchar "; " (chars_of_string (String.sub s 0 i))])
+      else (
+        let n = utf8width_from_header s.[j] in
+        if n>0 then utf8_get s j
+        else f (j-1))    
+      in
+      f (i-1)
+
+(**********************************************)
+  
+let utf8_of_ucode m cs =
+  if m = uEOF then cs else
+  if 0x00<=m && m<=0x07f then
+       Char.chr m :: cs
+  else
+  if 0x80<=m && m<=0x7ff then (
+       let y = m lsr 6 in
+       let x = m land 0x3f in
+       Char.chr (y lor 0xc0) :: Char.chr (x lor 0x80) :: cs)
+  else
+  if (0x800<=m && m<=0xdfff) || (0xe0000<=m && 0xe0000<=0xffff) then (
+       let x = m land 0x3f in
+       let y = (m lsr 6) land 0x3f in
+       let z = m lsr 12 in
+       Char.chr (z lor 0xe0) :: Char.chr (y lor 0x80) :: Char.chr (x lor 0x80) :: cs)
+   else
+   if 0x10000<=m && m<=0x10ffff then (
+       let x = m land 0x3f in
+       let y = (m lsr 6) land 0x3f in
+       let z = (m lsr 12) land 0x3f in
+       let u = m lsr 18 in
+       Char.chr (u lor 0xf0) :: Char.chr (z lor 0x80) ::
+       Char.chr (y lor 0x80) :: Char.chr (x lor 0x80) :: cs)
+   else
+       raise (MalformedUTF_ ["int "; hex8 m; " -- no such code point"])
+
+let utf8_implode ns =
+   string_of_chars (List.fold_right utf8_of_ucode ns [])
+
+let utf8_of_ucode m = string_of_chars (utf8_of_ucode m [])
+
+let utf8width_from_ucode m =
+  if 0x00<=m && m<=0x07f then 1 else 
+  if 0x80<=m && m<=0x7ff then 2 else
+  if (0x800<=m && m<=0xdfff) || (0xe0000<=m && 0xe0000<=0xffff) then 3 else
+  if 0x10000<=m && m<=0x10ffff then 4 else
+    raise (MalformedUTF_ ["utf8_width_from_ucode "; hex8 m; " -- no such code point"])
 
 (**********************************************)
 
+(* all this because char constants aren't proper ints in patterns. Hard to read or what? *)
+
+(* 0x20 = ' '
+   0x22 = '"'
+ *)
 let rec words =
   function
     "" -> []
-  | s ->
-      let rec wds =
-        function
-          [] -> [[]]
-        | [" "] -> [[]]
-        | " " :: " " :: cs -> wds (" " :: cs)
-        | " " :: cs -> [] :: wds cs
-        | "\"" :: cs -> let ws = qds cs in ("\"" :: List.hd ws) :: List.tl ws
-        | c :: cs -> let ws = wds cs in (c :: List.hd ws) :: List.tl ws
-      and qds =
-        function
-          [] -> [[]]
-        | ["\""] -> [["\""]]
-        | "\"" :: " " :: cs -> qds ("\"" :: cs)
-        | "\"" :: cs -> ["\""] :: wds cs
-        | c :: cs -> let ws = qds cs in (c :: List.hd ws) :: List.tl ws
-      in
-      List.map implode (wds (utf8_explode s))
+  | s  -> let rec wds =
+            function
+              [] -> [[]]
+            | [0x20] -> [[]]
+            | 0x20 :: 0x20 :: cs -> wds (0x20 :: cs)
+            | 0x20 :: cs -> [] :: wds cs
+            | 0x22 :: cs -> let ws = qds cs in (0x22 :: List.hd ws) :: List.tl ws
+            | c :: cs -> let ws = wds cs in (c :: List.hd ws) :: List.tl ws
+          and qds =
+            function
+              [] -> [[]]
+            | [0x22] -> [[0x22]]
+            | 0x22 :: 0x20 :: cs -> qds (0x22 :: cs)
+            | 0x22 :: cs -> [0x22] :: wds cs
+            | c :: cs -> let ws = qds cs in (c :: List.hd ws) :: List.tl ws
+          in
+          List.map utf8_implode (wds (utf8_explode s))
 
 let respace ws = String.concat " " ws
+
+(**********************************************)
+
+let charpred s =
+  let v = Hashtbl.create (String.length s * 2) in
+  String.iter (fun c -> Hashtbl.add v (Char.code c) true) s;
+  (fun c -> try Hashtbl.find v c with Not_found -> false),
+  (fun (c, b) -> Hashtbl.add v c b)
+
+let (islcletter, _) = charpred "abcdefghijklmnopqrstuvwxyz"
+let (isucletter, _) = charpred "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+let rec isletter c = islcletter c || isucletter c
+
+(**********************************************)
+
+(* this collection avoids low characters which might be useful *)
+(* 0 is NUL; can't appear in a C string, so don't use *)
+let onbra = 0x01  (* SOH *)
+let onket = 0x02  (* STX *)
+let offbra = 0x03 (* ETX *)
+let offket = 0x04 (* EOT *)
+let outbra = 0x05 (* ENQ *)
+let outket = 0x06 (* ACK *)
+   (* 7 is bell
+      8 is backspace
+      9 is tab
+      10 is lf
+      11 is vt
+      12 is ff
+      13 is cr
+    *)
+let lockbra = 0x14 (* SO *)
+let lockket = 0x15 (* SI *)
+
+let onbra_as_string = "\x01"  (* SOH *)
+let onket_as_string = "\x02"  (* STX *)
+let offbra_as_string = "\x03" (* ETX *)
+let offket_as_string = "\x04" (* EOT *)
+let outbra_as_string = "\x05" (* ENQ *)
+let outket_as_string = "\x06" (* ACK *)
+   (* 7 is bell
+      8 is backspace
+      9 is tab
+      10 is lf
+      11 is vt
+      12 is ff
+      13 is cr
+    *)
+let lockbra_as_string = "\x14" (* SO *)
+let lockket_as_string = "\x15" (* SI *)
+
+let invisibles = Array.make 0x20 false
+
+let _ = invisibles.(onbra)<-true;
+        invisibles.(onket)<-true;
+        invisibles.(offbra)<-true;
+        invisibles.(offket)<-true;
+        invisibles.(outbra)<-true;
+        invisibles.(outket)<-true;
+        invisibles.(lockbra)<-true;
+        invisibles.(lockket)<-true
+   
+(* this function records a decision NEVER to put printable characters below space 
+   (ASCII decimal 32) in a font.
+ *)
+let invisible_ucode c = try invisibles.(c) with _ -> false
+let invisible_string s = 
+  let lim = String.length s in
+  let rec f i = i=lim || (invisible_ucode (utf8_get s i) (* won't be true if width 0 *) && 
+                          f (i+utf8width_from_header s.[i])) in
+  f 0
+
+
+let (isdigit, _) = charpred "0123456789"
 
 
