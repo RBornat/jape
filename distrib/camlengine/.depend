@@ -193,9 +193,11 @@ japeenv.cmo: listfuns.cmi mappingfuns.cmi miscellaneous.cmi name.cmi sml.cmi \
 japeenv.cmx: listfuns.cmx mappingfuns.cmx miscellaneous.cmx name.cmx sml.cmx \
     stringfuns.cmx term.cmx termparse.cmx japeenv.cmi 
 japeserver.cmo: box.cmi displayclass.cmi displayfont.cmi listfuns.cmi \
-    miscellaneous.cmi moresys.cmi panelkind.cmo sml.cmi japeserver.cmi 
+    miscellaneous.cmi moresys.cmi panelkind.cmo sml.cmi stringfuns.cmi \
+    japeserver.cmi 
 japeserver.cmx: box.cmx displayclass.cmx displayfont.cmx listfuns.cmx \
-    miscellaneous.cmx moresys.cmx panelkind.cmx sml.cmx japeserver.cmi 
+    miscellaneous.cmx moresys.cmx panelkind.cmx sml.cmx stringfuns.cmx \
+    japeserver.cmi 
 listfuns.cmo: miscellaneous.cmi sml.cmi listfuns.cmi 
 listfuns.cmx: miscellaneous.cmx sml.cmx listfuns.cmi 
 main.cmo: dialogue.cmi 
