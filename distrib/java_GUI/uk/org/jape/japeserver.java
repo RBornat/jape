@@ -114,7 +114,7 @@ public class japeserver implements DebugConstants {
     }
 
     // service functions to do with containers
-    
+
     public static void showContainer(Container pane, String prefix) {
         for (int i=0; i<pane.getComponentCount(); i++) {
             Component c = pane.getComponent(i);
@@ -123,6 +123,11 @@ public class japeserver implements DebugConstants {
             if (c instanceof Container)
                 showContainer((Container)c, label);
         }
+    }
+
+    public static void showContainer(Container pane) {
+        System.err.println(pane);
+        showContainer(pane, null);
     }
 
     public static Component findTargetAt(Class target, Component c, int x, int y) {
