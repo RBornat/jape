@@ -84,7 +84,7 @@ val string_of_termlist         : term list -> string
 val catelim_string_of_termlist : term list -> string list -> string list
 
 val isInfixApp   : term -> (string * int * Symbol.associativity * term * term) option
-val isJuxtapos   : term -> bool
+val isJuxtapos   : term -> (term * term) option
 
 val stripelement : element -> term (* before printing only *)
 

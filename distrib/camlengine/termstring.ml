@@ -253,21 +253,21 @@ let opname f =
 let isJuxtapos t =
   let opsymb = opname &~ (_Some <.> lookup) in
   match t with
-    App (_, (App (_, f, _)), _) ->
-      (match opsymb f with
-         Some (INFIXC  _) -> false
-       | _                -> true)
-  | App (_, f, arg) ->
+    App (_, (App (_, f', _) as f), a) ->
+      (match opsymb f' with
+         Some (INFIXC  _) -> None
+       | _                -> Some(f,a))
+  | App (_, f, a) ->
       (match opsymb f with
          Some (INFIX   _) -> 
-           (match arg, !debracketapplications, debracket arg with 
-              Tup (_, ",", [_; _]), _, _      -> false
-            | _, true, Tup (_, ",", [a1; a2]) -> false
-            | _, _, _                         -> true)
-       | Some (PREFIX  _) -> false
-       | Some (POSTFIX _) -> false
-       | _                -> true)
-  | _ -> false
+           (match a, !debracketapplications, debracket a with 
+              Tup (_, ",", [_; _]), _, _    -> None
+            | _, true, Tup (_, ",", [_; _]) -> None
+            | _, _, _                       -> Some(f,a))
+       | Some (PREFIX  _) -> None
+       | Some (POSTFIX _) -> None
+       | _                -> Some(f,a))
+  | _ -> None
 
 (* test if a formula will be printed as infix *)
 let isInfixApp t =
