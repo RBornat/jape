@@ -15,17 +15,17 @@
 			F5AB83180339F3B701A80116,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 60701303;
-			"PBXTemplateGeometry-F5CA7EC8015C06940DCA290F" = {
-				ContentSize = "{705, 569}";
+			PBXPerProjectTemplateStateSaveDate = 60702033;
+			"PBXTemplateGeometry-F5CA7ECA015C09360DCA290F" = {
+				ContentSize = "{656, 537}";
 				LeftSlideOut = {
 					Collapsed = NO;
-					Frame = "{{0, 0}, {705, 569}}";
+					Frame = "{{0, 0}, {656, 537}}";
 					Split0 = {
 						Collapsed = NO;
-						Frame = "{{0, 0}, {705, 569}}";
+						Frame = "{{0, 0}, {656, 537}}";
 						Split0 = {
-							Frame = "{{0, 0}, {705, 569}}";
+							Frame = "{{0, 0}, {656, 537}}";
 						};
 						SplitCount = 1;
 						Tab0 = {
@@ -64,16 +64,16 @@
 							LauncherConfigVersion = 7;
 						};
 						Tab1 = {
-							Frame = "{{0, 0}, {522, 208}}";
+							Frame = "{{0, 0}, {664, 208}}";
 							LauncherConfigVersion = 3;
 							Runner = {
-								Frame = "{{0, 0}, {522, 208}}";
+								Frame = "{{0, 0}, {664, 208}}";
 							};
 						};
 						Tab2 = {
-							BuildMessageFrame = "{{0, 0}, {809, 410}}";
-							BuildTranscriptFrame = "{{0, 419}, {809, 119}}";
-							Frame = "{{0, 0}, {807, 536}}";
+							BuildMessageFrame = "{{0, 0}, {666, 43}}";
+							BuildTranscriptFrame = "{{0, 52}, {666, 0}}";
+							Frame = "{{0, 0}, {664, 50}}";
 						};
 						Tab3 = {
 							Frame = "{{0, 0}, {612, 295}}";
@@ -83,12 +83,12 @@
 					};
 					SplitCount = 1;
 					Tab0 = {
-						Frame = "{{0, 0}, {300, 533}}";
+						Frame = "{{0, 0}, {313, 531}}";
 						GroupTreeTableConfiguration = (
 							TargetStatusColumn,
 							18,
 							MainColumn,
-							267,
+							280,
 						);
 					};
 					Tab1 = {
@@ -112,7 +112,7 @@
 						Frame = "{{0, 0}, {200, 100}}";
 					};
 					Tab3 = {
-						Frame = "{{0, 0}, {222, 536}}";
+						Frame = "{{0, 0}, {200, 557}}";
 						TargetTableConfiguration = (
 							ActiveObject,
 							16,
@@ -127,15 +127,15 @@
 							enabledColumn,
 							31,
 						);
-						Frame = "{{0, 0}, {250, 528}}";
+						Frame = "{{0, 0}, {250, 100}}";
 					};
 					TabCount = 5;
 					TabsVisible = NO;
 				};
 				StatusViewVisible = NO;
-				Template = F5CA7EC8015C06940DCA290F;
-				ToolbarVisible = YES;
-				WindowLocation = "{11, 217}";
+				Template = F5CA7ECA015C09360DCA290F;
+				ToolbarVisible = NO;
+				WindowLocation = "{202, 215}";
 			};
 			PBXWorkspaceContents = (
 				{
@@ -472,7 +472,7 @@
 					WindowLocation = "{498, 77}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 60701303;
+			PBXWorkspaceStateSaveDate = 60702033;
 		};
 		perUserProjectItems = {
 			F57184F0039E3C2601A80116 = F57184F0039E3C2601A80116;
