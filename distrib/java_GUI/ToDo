@@ -24,10 +24,6 @@ DROPEND
 HOWTO
 LOADFONT
 MAKECHOICE
-PANELCHECKBOX
-PANELRADIOBUTTON
-PANELRADIOBUTTONPART
-PANELRADIOBUTTONEND
 POINTSIZE
 PROCRUSTES
 READHIGHLIGHT
@@ -35,23 +31,21 @@ SELECTPANELENTRY
 SETALERT
 SETCHOICELINE
 SETCOMMENT
-SETORIGIN
-SETPANELBUTTON
 SHOWFILE
 SHOWPROVISOLINE
 TERMINATE
 
 Protocol out:
 
-DRAGQ
-DROP
+DRAGQ (moribund)
+DROP  (moribund)
 
-Unused commands (many are issued by hand from Text Command window, so no big deal):
+Unused commands (many are designed to be issued by hand from Text Command window, so no big deal):
 
 "apply", comm
 "applygiven", args
 "assign", name :: value
-"refreshdisplay", []
+"refreshdisplay", [] (ought to be dead)
 "steps", quota
 "steps", []
 "tellinterface", name :: interfacecommand
@@ -59,27 +53,15 @@ Unused commands (many are issued by hand from Text Command window, so no big dea
 "deleteworldlabel", [cx; cy; s]
 "deleteworldlink", [fromx; fromy; tox; toy]
 "deleteworld", [cx; cy]
-"worldselect", cs
-"disprove", []
-"unify", stuff
 "saveengine", name
-"done", []
-"showproof", stuff
 "print", [path]
 "quitnow", []
-"dragquery", []
-"dropcommand", []
-"backtrack", _
-"prune", []
-"collapse", []
+"dragquery", []  (moribund)
+"dropcommand", [] (moribund)
 "hideroot", []
 "exposeparent", []
 "hidecut", []
-"layout", _
 "addnewconjecture", panel :: text
-"prove", comm
-"reset", []
-"reset;reload", [] 
 "profile", ["on"]
 "profile", ["off"]
 "profile", ["reset"]
@@ -87,10 +69,5 @@ Unused commands (many are issued by hand from Text Command window, so no big dea
 "profile", ["report"; filename]
 "fonts_reset", []
 "showfile", [filename]
-"saveproofs", [w]
-"quit", []
-"setfocus", [nstring]
-"setfonts", fontnames
-"closeproof", [nstring]
 "createdbugfile", []
 "closedbugfile", []
