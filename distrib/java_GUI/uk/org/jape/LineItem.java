@@ -33,4 +33,8 @@ public class LineItem extends LineComponent {
         super(x0, y0, x1, y1, canvas.linethickness);
         this.canvas = canvas;
     }
+
+    public void addJapeMouseListener(JapeMouseAdapter a) {
+        addMouseListener(a); addMouseMotionListener(a);
+    }
 }
