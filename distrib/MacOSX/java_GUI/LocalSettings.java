@@ -29,8 +29,9 @@
 
 import com.apple.mrj.MRJAboutHandler;
 import com.apple.mrj.MRJApplicationUtils;
-import com.apple.mrj.MRJQuitHandler;
+import com.apple.mrj.MRJOpenDocumentHandler;
 import com.apple.mrj.MRJPrefsHandler;
+import com.apple.mrj.MRJQuitHandler;
 
 import java.awt.Dimension;
 
@@ -38,7 +39,10 @@ import java.awt.event.MouseEvent;
 
 import java.lang.IllegalStateException;
 
-public class LocalSettings implements MRJAboutHandler, MRJQuitHandler, MRJPrefsHandler,
+import java.io.File;
+
+public class LocalSettings implements MRJAboutHandler, MRJOpenDocumentHandler,
+                                      MRJQuitHandler, MRJPrefsHandler,
                                       SelectionConstants {
     // focus in panel windows
                                           
@@ -106,18 +110,23 @@ public class LocalSettings implements MRJAboutHandler, MRJQuitHandler, MRJPrefsH
         japeserver.handleAbout();
     }
 
-    public void handleQuit() throws IllegalStateException {
-        japeserver.handleQuit();
-        throw new IllegalStateException(); // if we return from handleQuit, we didn't exit
+    public void handleOpenFile(File f) {
+        JapeMenu.doOpenFile(f.toString());
     }
     
     public void handlePrefs() {
         japeserver.handlePrefs();
     }
     
+    public void handleQuit() throws IllegalStateException {
+        japeserver.handleQuit();
+        throw new IllegalStateException(); // if we return from handleQuit, we didn't exit
+    }
+
     public LocalSettings() {
         MRJApplicationUtils.registerAboutHandler(this);
         MRJApplicationUtils.registerQuitHandler(this);
         MRJApplicationUtils.registerPrefsHandler(this);
+        MRJApplicationUtils.registerOpenDocumentHandler(this);
     }
 }

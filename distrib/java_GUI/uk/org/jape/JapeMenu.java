@@ -373,12 +373,16 @@ public class JapeMenu implements DebugConstants {
                             "Copy Proof doesn't work yet -- but Print does (in the File menu)");
         }
     }
+
+    public static void doOpenFile(String file) {
+        if (file.length()!=0)
+            Reply.sendCOMMAND("use \""+file+"\"");
+        
+    }
     
     private static class OpenFileAction extends ItemAction {
         public void action (JapeWindow w) {
-             String file = FileChooser.newOpenDialog("theories, logic files and proofs", "jt", "j", "jp");
-             if (file.length()!=0)
-                 Reply.sendCOMMAND("use \""+file+"\"");
+             doOpenFile(FileChooser.newOpenDialog("theories, logic files and proofs", "jt", "j", "jp"));
         }
     
     }
