@@ -31,8 +31,9 @@ import java.awt.Dimension;
 
 public class DisproofCanvas extends JapeCanvas {
 
-    public DisproofCanvas(Container viewport, boolean scrolled) {
+    public DisproofCanvas(Container viewport, boolean scrolled, int linethickness) {
         super(viewport, scrolled);
+        setlinethickness(linethickness);
     }
 
     public String getSelections(String sep) {
