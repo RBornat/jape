@@ -458,6 +458,33 @@ public class JapeMenu implements DebugConstants {
         }
     }
     
+    private static class ExportAction extends ItemAction {
+        public void action(JapeWindow w) {
+            if (w instanceof ProofWindow)
+                Export.export((ProofWindow)w, PrintProof.BOTH);
+            else
+                Alert.abort("ExportAction on non-proof window");
+        }
+    }
+	
+    private static class ExportDisproofAction extends ItemAction {
+        public void action(JapeWindow w) {
+            if (w instanceof ProofWindow)
+                Export.export((ProofWindow)w, PrintProof.DISPROOF);
+            else
+                Alert.abort("ExportDisproofAction on non-proof window");
+        }
+    }
+	
+    private static class ExportProofAction extends ItemAction {
+        public void action(JapeWindow w) {
+            if (w instanceof ProofWindow)
+                Export.export((ProofWindow)w, PrintProof.PROOF);
+            else
+                Alert.abort("ExportProofAction on non-proof window");
+        }
+    }
+	
     private static class FontSizesAction extends ItemAction {
         public void action (JapeWindow w) {
             JapeFont.runFontSizesDialog();
@@ -494,24 +521,6 @@ public class JapeMenu implements DebugConstants {
 
     }
 
-    private static class UndoAction extends ItemAction {
-        public void action(JapeWindow w) {
-            if (w instanceof ProofWindow)
-                Reply.sendCOMMAND("undo_"+((ProofWindow)w).undoSuffix());
-            else
-                Alert.abort("UndoAction not in ProofWindow");
-        }
-    }
-
-    private static class RedoAction extends ItemAction {
-        public void action(JapeWindow w) {
-            if (w instanceof ProofWindow)
-                Reply.sendCOMMAND("redo_"+((ProofWindow)w).undoSuffix());
-            else
-                Alert.abort("RedoAction not in ProofWindow");
-        }
-    }
-
     private static class PrefsAction extends ItemAction {
         public void action(JapeWindow w) { Jape.handlePrefs(); }
     }
@@ -529,33 +538,15 @@ public class JapeMenu implements DebugConstants {
         }
     }
 
-    private static class ExportAction extends ItemAction {
+    private static class RedoAction extends ItemAction {
         public void action(JapeWindow w) {
             if (w instanceof ProofWindow)
-                Export.export((ProofWindow)w, PrintProof.BOTH);
+                Reply.sendCOMMAND("redo_"+((ProofWindow)w).undoSuffix());
             else
-                Alert.abort("ExportAction on non-proof window");
+                Alert.abort("RedoAction not in ProofWindow");
         }
     }
-
-    private static class ExportDisproofAction extends ItemAction {
-        public void action(JapeWindow w) {
-            if (w instanceof ProofWindow)
-                Export.export((ProofWindow)w, PrintProof.DISPROOF);
-            else
-                Alert.abort("ExportDisproofAction on non-proof window");
-        }
-    }
-
-    private static class ExportProofAction extends ItemAction {
-        public void action(JapeWindow w) {
-            if (w instanceof ProofWindow)
-                Export.export((ProofWindow)w, PrintProof.PROOF);
-            else
-                Alert.abort("ExportProofAction on non-proof window");
-        }
-    }
-
+	
     private static class ShowWindowAction extends ItemAction {
         JFrame w;
         public ShowWindowAction(JFrame w) {
@@ -566,7 +557,21 @@ public class JapeMenu implements DebugConstants {
             w.toFront();
         }
     }
-
+	
+    private static class TextCommandAction extends ItemAction {
+        public void action(JapeWindow w) { TextDialog.runTextCommandDialog(); }
+    }
+	
+	
+    private static class UndoAction extends ItemAction {
+        public void action(JapeWindow w) {
+            if (w instanceof ProofWindow)
+                Reply.sendCOMMAND("undo_"+((ProofWindow)w).undoSuffix());
+            else
+                Alert.abort("UndoAction not in ProofWindow");
+        }
+    }
+	
     private static class QuitAction extends ItemAction {
         public void action(JapeWindow w) { Jape.handleQuit(); }
     }
@@ -659,8 +664,12 @@ public class JapeMenu implements DebugConstants {
 
         indexMenuItem(filemenu, "Erase theory", new CmdAction("reset"));
 
+        filemenu.addSep();
+		
+        indexMenuItem(filemenu, "Text Command", new TextCommandAction());
+		
         // separator implicit before these ...
-
+		
         indexMenuItem(filemenu, PAGE_SETUP, new PageSetupAction()).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P,
                                                   menumask+java.awt.Event.SHIFT_MASK));
