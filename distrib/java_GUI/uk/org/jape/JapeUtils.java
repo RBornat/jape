@@ -66,4 +66,8 @@ public class JapeUtils {
 
         return null; // all else has failed
     }
+
+    public static String trueTitle(String title) {
+        return (Jape.onMacOS ? JapeCharEncoding.trueUnicode(title) : title);
+    }
 }
