@@ -409,20 +409,9 @@ let rec getCommand displayopt =
        * here (belt and braces).
        * RB 30/viii/00
        *)
+      (* Now I'm sure that the GUI gets it right :-), I just take what I'm given RB 29/x/02 *)
       let class__ = mkclass c in
-      let sels =
-           (match class__ with
-              DisplayReason ->
-                (function
-                  _, DisplayReason -> true
-                | pos, _ -> Japeserver.highlight pos None; false)
-            | _ ->
-                (function
-                  pos, DisplayReason ->
-                    Japeserver.highlight pos None; false
-                | _ -> true)) <|
-           parseselections others
-      in
+      let sels = parseselections others in
       notifyselect (getdisplay ()) (Some (mkpos x y, class__)) sels;
       getCommand displayopt
   | "DESELECT" :: sels ->
