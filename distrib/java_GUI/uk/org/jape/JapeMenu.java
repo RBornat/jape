@@ -6,6 +6,7 @@
 //  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
 //
 
+import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
@@ -17,14 +18,14 @@ public class JapeMenu implements  ActionListener {
     private Hashtable menutable, actiontable;
     
     // Declarations for menus
-    static final JMenuBar mainMenuBar = new JMenuBar();
+    private static final JMenuBar mainMenuBar = new JMenuBar();
 
-    abstract class JapeMenuItem extends JMenuItem {
+    private abstract class JapeMenuItem extends JMenuItem {
         JapeMenuItem(String label) { super(label); } // but don't use me, of course (daft language)
         public abstract void action();
     }
     
-    class DummyAction extends JapeMenuItem {
+    private class DummyAction extends JapeMenuItem {
         String s;
         DummyAction (String label, String s) {
             super(label);
@@ -35,7 +36,7 @@ public class JapeMenu implements  ActionListener {
         }
     }
     
-    class CmdAction extends JapeMenuItem {
+    private class CmdAction extends JapeMenuItem {
         String cmd;
         CmdAction (String label, String cmd) {
             super(label);
@@ -44,6 +45,18 @@ public class JapeMenu implements  ActionListener {
         public void action () {
              Reply.sendCOMMAND(cmd);
         }
+    }
+    
+    private class OpenFileAction extends JapeMenuItem {
+        OpenFileAction (String label) {
+            super(label);
+        }
+        public void action () {
+             String file = FileChooser.newOpenDialog("theories, logic files and proofs", "jt", "j", "jp");
+             if (file.length()!=0)
+                Reply.sendCOMMAND("use "+file);
+        }
+    
     }
     
     private void indexMenu(String label) {
@@ -62,18 +75,19 @@ public class JapeMenu implements  ActionListener {
         return action;
     }
     
+    private int menumask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    
     public void addStdFileMenuItems() {
-        indexMenuItem("File", new DummyAction("New", "File: New")).
-            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.Event.META_MASK));
-
-        indexMenuItem("File", new DummyAction("Open...", "File: Open...")).
-            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.Event.META_MASK));
+        indexMenuItem("File", new OpenFileAction("Open...")).
+            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, menumask));
 		
+        indexMenuItem("File", new CmdAction("Open new theory...", "reset;reload"));
+
         indexMenuItem("File", new DummyAction("Close", "File: Close")).
-             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.Event.META_MASK));
+             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, menumask));
 		
         indexMenuItem("File", new DummyAction("Save", "File: Save")).
-             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.Event.META_MASK));
+             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, menumask));
 		
         indexMenuItem("File", new DummyAction("Save As...", "File: Save As..."));
 		
@@ -83,23 +97,23 @@ public class JapeMenu implements  ActionListener {
 	
     public void addStdEditMenuItems() {
         indexMenuItem("Edit", new DummyAction("Undo", "Edit: Undo")).
-            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.Event.META_MASK));
+            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, menumask));
         
         ((JMenu)menutable.get("Edit")).addSeparator();
 
         indexMenuItem("Edit", new DummyAction("Cut", "Edit: Cut")).
-            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.Event.META_MASK));
+            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, menumask));
 
         indexMenuItem("Edit", new DummyAction("Copy", "Edit: Copy")).
-            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.Event.META_MASK));
+            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, menumask));
 
         indexMenuItem("Edit", new DummyAction("Paste", "Edit: Paste")).
-            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, java.awt.Event.META_MASK));
+            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, menumask));
 
         indexMenuItem("Edit", new DummyAction("Clear", "Edit: Clear"));
 
         indexMenuItem("Edit", new DummyAction("Select All", "Edit: Select All")).
-            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.Event.META_MASK));
+            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, menumask));
 
         mainMenuBar.add((JMenu)menutable.get("Edit"));
     }

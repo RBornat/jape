@@ -51,6 +51,11 @@ public class Dispatcher extends Thread {
                         String p = command[0];
                         int len = command.length;
                         
+                    // GET means client is listening
+                        if (p.equals("GET")&&len==1)
+                            Reply.openchannel();
+                        else
+                    
                     // ASK is for alerts
                         if (p.equals("ASKSTART")&&len==1)
                             list = new Vector();
@@ -62,11 +67,16 @@ public class Dispatcher extends Thread {
                             Alert.newAlert(list, toInt(command[1]), command[2], toInt(command[3]));
                         else
                     
-                    // GET means client is listening
-                        if (p.equals("GET")&&len==1)
-                            Reply.openchannel();
+                    // file choosing
+                        if (p.equals("READFILENAME")&&len==3)
+                            Reply.reply(FileChooser.newOpenDialog(command[1], command[2]));
                         else
-                    
+                        
+                    // font setting
+                        if (p.equals("SETFONTS")&&len==2)
+                            Font.setfont(command[1]);
+                        else
+                        
                     // INVISCHARS are the way we describe syntactic structure
                         if(p.equals("SETINVISCHARS")&&len==9)
                             boss.setinvischars(
@@ -124,6 +134,34 @@ public class Dispatcher extends Thread {
         }
     }
 
+/* 
+./jape.opt
+Jape proof engine: release 5.0b7 [/Users/richard/cvsdownloads/jape/jape/java_japeserver/MacOSX/build/japeserver.app/Contents/MacOS/japeserver]
+
+**** dispatcher doesn't understand (3) NEWMENU Edit "Edit"
+japeserver initialised
+ENABLEMENUITEM "Edit" "Disprove" false failed
+kCGErrorFailure : CGTranslateCTM is obsolete; use CGContextTranslateCTM instead.
+[OPENING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L.jt"]
+[OPENING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_syntax.j"]
+[CLOSING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_syntax.j"]
+[OPENING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_rules.j"]
+[CLOSING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_rules.j"]
+[OPENING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_menus.j"]
+[CLOSING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_menus.j"]
+[OPENING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_problems.j"]
+[CLOSING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_problems.j"]
+[OPENING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_disproof.j"]
+[CLOSING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L_disproof.j"]
+[CLOSING "/Users/richard/cvsdownloads/jape/jape/examples/natural_deduction/I2L.jt"]
+**** dispatcher doesn't understand (2) SETFONTS "Konstanz"
+**** dispatcher doesn't understand (1) EMPTYMENUSANDPANELS
+**** dispatcher doesn't understand (3) NEWMENU Backward
+**** dispatcher doesn't understand (3) NEWPANEL Invalid\040conjectures 1
+**** dispatcher doesn't understand (4) PANELENTRY Invalid\040conjectures E�(F�G)\040�\040(E�F)�G \"E�(F�G)\040�\040(E�F)�G\"
+**** dispatcher doesn't understand (4) PANELBUTTON Invalid\040conjectures Apply \040apply\040TheoremForwardOrBackward\040%-%COMMAND%-%
+
+*/
     private String[] japesplit(String line) {
         // split a line encoded in the japeserver obol form.
         Vector result = new Vector();
