@@ -40,8 +40,10 @@ let rec catelim_forcedefstring f ss =
   | ForceAll (t, vs, f) ->
       "ALL " :: catelim_termstring t (" " :: catelim_forcedefstring f ss)
   | ForceSome (t, vs, f) ->
-      "Some " :: catelim_termstring t (" " :: catelim_forcedefstring f ss)
+      "SOME " :: catelim_termstring t (" " :: catelim_forcedefstring f ss)
+
 let rec forcedefstring f = implode (catelim_forcedefstring f [])
+
 (* for some reason this went exponential when the body was a function.  
    Don't understand. RB vii/01 
  *)
@@ -73,7 +75,9 @@ let rec option_mapforcedefterms f fd =
   in
   (* consolereport ["option_mapforcedefterms ", forcedefstring fd, " => ", optionstring forcedefstring res]; *)
   res
+
 let rec mapforcedefterms f = anyway (option_mapforcedefterms f)
+
 let rec findinforcedef f fd =
   let rec findinpair (fd1, fd2) =
     (findinforcedef f fd1 |~~ (fun _ -> findinforcedef f fd2))
@@ -90,8 +94,10 @@ let rec findinforcedef f fd =
       (findterm f t |~~ (fun _ -> findinforcedef f fd))
   | ForceSome (t, _, fd) ->
       (findterm f t |~~ (fun _ -> findinforcedef f fd))
+
 let rec existsinforcedef f =
   opt2bool <*> findinforcedef (fun t -> if f t then Some true else None)
+
 let rec parseForceDef () =
   (* there is no operator priority in forcedefs ... *)
   let f =
@@ -101,7 +107,7 @@ let rec parseForceDef () =
         let _ = scansymb () in  ForceEverywhere (parseForceDef ())
     | SHYID "NOWHERE" -> let _ = scansymb () in  ForceNowhere (parseForceDef ())
     | SHYID "ALL" -> let _ = scansymb () in  ForceAll (parseForceDefBinder ())
-    | SHYID "Some" -> let _ = scansymb () in  ForceSome (parseForceDefBinder ())
+    | SHYID "SOME" -> let _ = scansymb () in  ForceSome (parseForceDefBinder ())
     | BRA "(" ->
         let _ = scansymb () in 
         ForceBracket
@@ -115,7 +121,7 @@ let rec parseForceDef () =
     | sy ->
         raise
           (ParseError_
-             ["FORCE, EVERYWHERE, NOWHERE, ALL, Some or bracket expected in ";
+             ["FORCE, EVERYWHERE, NOWHERE, ALL, SOME or bracket expected in ";
               "FORCE definition; found "; symbolstring sy])
   in
   match currsymb () with
@@ -123,6 +129,7 @@ let rec parseForceDef () =
   | SHYID "OR" -> let _ = scansymb () in  ForceOr (f, parseForceDef ())
   | SHYID "IMPLIES" -> let _ = scansymb () in  ForceImplies (f, parseForceDef ())
   | _ -> f
+
 and parseForceDefBinder () =
   let t = parseTerm EOF in
   let vs = isVariable <| termvars t in
@@ -130,12 +137,17 @@ and parseForceDefBinder () =
   if List.exists (not <*> isextensibleId) vs then
     raise
       (ParseError_
-         ["ALL and Some must use CLASS VARIABLE identifiers to describe individuals"])
+         ["ALL and SOME must use CLASS VARIABLE identifiers to describe individuals"])
   else t, vs, f
+
 (* now also includes the disproof universe bit of shared proofs *)
+
 type coordinate = Coord of (int * int)
+
 type world = World of (coordinate * coordinate list * term list)
+
 type model = Model of world list
+
 let rec parsemodel () =
   let rec parseCoord () =
     match currsymb () with
@@ -214,6 +226,7 @@ let rec parsemodel () =
       | worlds -> Some (seq, Model worlds)
       end
   | _ -> None
+
 let rec catelim_modelstring a1 a2 =
   match a1, a2 with
     None, ss -> ss
