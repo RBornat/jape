@@ -39,6 +39,7 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
             super.add(c, 0);
         else
             super.add(c);
+        c.repaint();
         return c;
     }
 
