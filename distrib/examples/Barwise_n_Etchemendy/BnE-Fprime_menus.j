@@ -42,6 +42,9 @@ TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS
 			(LETHYP _P cut (LAYOUT () (1) ruleRL thm (LETGOAL (_P'[_x\_Q])  (WITHHYPSEL(hyp _Q)))))
 			(LETGOAL _P (LAYOUT () (1) (ruleLR _P) thm))
 
+TACTIC "ä-I tac" IS "ä-I"
+TACTIC "è-E tac" IS FOBSS ForwardCut "è-E"
+
 MENU "System F«" IS
 	ENTRY "ç-I"	
 	ENTRY "ê-I"
@@ -51,7 +54,7 @@ MENU "System F«" IS
 	ENTRY "Â-I"
 	ENTRY "Ù-I"
 	ENTRY "è-I"
-	ENTRY "ä-I"
+	ENTRY "ä-I" IS "ä-I tac"
 	
 	SEPARATOR
 	
@@ -63,7 +66,7 @@ MENU "System F«" IS
 	ENTRY "ë-E"		IS FOB ForwardUncut "ë-E"	
 	ENTRY "Â-E"		IS FOB ForwardCut "Â-E"	
 	ENTRY "Ù-E"		IS FOB ForwardCut "Ù-E"	
-	ENTRY "è-E"		IS FOBSS ForwardCut "è-E"	
+	ENTRY "è-E"		IS "è-E tac"	
 	ENTRY "ä-E"		IS FOB ForwardUncut "ä-E"
 	SEPARATOR
 	ENTRY "A=A"
