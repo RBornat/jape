@@ -25,19 +25,20 @@
     
 */
 
-// the MacOSX version of LocalSettings.  All it does is catch the menu actions from
-// the application menu and divert them to japeserver static methods.
+// the MacOSX version of LocalSettings.
 
 import java.awt.Dimension;
 import java.lang.IllegalStateException;
 
 import com.apple.mrj.*;
+import java.awt.event.MouseEvent;
 
-public class LocalSettings implements  MRJAboutHandler,
-                                       MRJQuitHandler,
-                                       MRJPrefsHandler {
+public class LocalSettings implements MRJAboutHandler,
+                                      MRJQuitHandler,
+                                      MRJPrefsHandler,
+                                      SelectionConstants {
 
-    // parameters
+    // parameters to do with menus
                                            
     public static final boolean panelWindowMenus = true;
     
@@ -45,7 +46,31 @@ public class LocalSettings implements  MRJAboutHandler,
     public static final boolean quitMenuItemNeeded = false;
     public static final boolean prefsMenuItemNeeded = false;
 
+    // size of windows
+
     public static final Dimension proofPanelDefaultSize = new Dimension(200,200);
+
+    // size of fonts
+
+    public static final byte formulaSize = 14,
+                             reasonSize  = 11,
+                             provisoSize = 11;
+
+    // what a mouseDown means: see SelectionConstants
+    
+    public static byte mouseDownKind(MouseEvent e) {
+        byte kind = 0;
+        if (e.isShiftDown()) kind |= ExtendedSelection; // +1
+        if (e.isMetaDown())  kind |= DisjointSelection; // +2
+        if (e.isAltDown())   kind |= TextSelection;     // +4
+        System.err.println("LocalSettings.mouseDownKind shift="+e.isShiftDown()+
+                           " meta="+e.isMetaDown()+
+                           " alt="+e.isAltDown()+
+                           " => "+kind);
+        return kind;
+    }
+
+    /* ********************************************************************** */
 
     // MacOS specific bits
     public void handleAbout() {

@@ -31,15 +31,34 @@
 
 import java.awt.Dimension;
 
-public class LocalSettings  {
+public class LocalSettings implements SelectionConstants {
 	
-	// these overridden in MacOSX LocalSettings
-        
-        public static final boolean panelWindowMenus = false;
-        
-	public static final boolean aboutMenuItemNeeded = true;
-	public static final boolean quitMenuItemNeeded = true;
-	public static final boolean prefsMenuItemNeeded = true;
+    // parameters to do with menus
+                                           
+    public static final boolean panelWindowMenus = false;
+    
+    public static final boolean aboutMenuItemNeeded = true,
+                                quitMenuItemNeeded  = true,
+                                prefsMenuItemNeeded = true,
 
-        public static final Dimension proofPanelDefaultSize = new Dimension(200,200);
+    // size of windows
+
+    public static final Dimension proofPanelDefaultSize = new Dimension(200,200);
+
+    // size of fonts
+
+    public static final byte formulaSize = 18,
+                             reasonSize  = 14,
+                             provisoSize = 14;
+
+    // what a mouseDown means: see SelectionConstants
+    // this stands until people tell me better.
+
+    public static byte mouseDownKind(MouseEvent e) {
+        byte kind = 0;
+        if (e.isShiftDown()) kind |= ExtendedSelection; // +1
+        if (e.isMetaDown())  kind |= DisjointSelection; // +2
+        if (e.isAltDown())   kind |= TextSelection;     // +4
+        return kind;
+    }
 }
