@@ -31,207 +31,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.util.HashMap;
 import javax.swing.JLabel;
-import java.util.Vector;
 
 public class JapeFont {
-    public static TextDimension measure(JLabel l, String s) {
-        FontMetrics m = l.getFontMetrics(l.getFont());
-        return new TextDimension(m.stringWidth(s), m.getMaxAscent(), m.getMaxDescent());
-    }
-    
-    static class Fold {
-        private String s;
-        private FontMetrics m;
-        private char[] cs;
-        private int spacewidth;
-        private Vector ws;
-        
-        private class W { 
-            int i; int j; int width; int spacing;
-            W(int i, int j, int width, int spacing) { 
-                this.i=i; this.j=j; this.width=width; this.spacing=spacing;
-            }
-            public String toString() {
-                return "W[i="+i+",j="+j+",width="+width+",spacing="+spacing+"]";
-            }
-        }
-        
-        private F fold;
-        int constraint;
-        
-        Fold(FontMetrics m, String s, int constraint) {
-            this.s = s;
-            cs = s.toCharArray();
-            spacewidth = m.charWidth(' ');
-            ws=new Vector();
-            // it's good enough to use word lengths
-            for (int i=0; i<cs.length; ) {
-                int j;
-                for (j=i; j<cs.length && cs[j]!=' '; j++);
-                int w = m.charsWidth(cs,i,j-i);
-                if (w>constraint) {
-                    // look for places to split a long word
-                    for (int i1=i; i1<j; ) {
-                        int j1;
-                        for (j1=i1; j1<j && j1<i1+constraint && cs[j1]!=',' && cs[j1]!=';'; j1++);
-                        if (j1<j) {
-                            j1++;
-                            // System.err.print(ws.size()+": part-word \""+new String(cs,i1,j1-i1)+"\" ");
-                            ws.add(new W(i1, j1, m.charsWidth(cs,i1,j1-i1), 0));
-                            // System.err.println(ws.get(ws.size()-1));
-                        }
-                        else {
-                            w=m.charsWidth(cs,i1,j1-i1);
-                            i=i1; // add spacing to the last bit
-                        }
-                        i1=j1;
-                    }
-                }
-                int j0=j;
-                for ( ; j<cs.length && cs[j]==' '; j++);
-                // System.err.print(ws.size()+": word \""+new String(cs,i,j0-i)+"\" ");
-                ws.add(new W(i, j0, w, m.charsWidth(cs,j0,j-j0)));
-                // System.err.println(ws.get(ws.size()-1));
-                i=j;
-            }
-            fold = new F(0, ws.size(), null);
-            report();
-        }
-        
-        public int height, width;
 
-        private void report() {
-            height = fold.height; width = fold.maxwidth; 
-        }
-
-        public void split() {
-            fold = fold.split(); report();
-        }
-        
-        public String[] reportSplit() {
-            Vector v = new Vector();
-            fold.reportSplit(v);
-            return ((String[])v.toArray(new String[v.size()]));
-        }
-
-        private class F implements Cloneable {
-            private int i, j; // words from i..j-1, of course
-            private int height, width, maxwidth, waste;
-            private F next;
-            
-            public String toString() {
-                return  super.toString()+": F[i="+i+",j="+j+",height="+height+",width="+width+",maxwidth="+maxwidth+",waste="+waste+",next="+next+"]";
-            }
-            
-            F(int i, int j, F next) { 
-                this.i=i; this.j=j; this.next=next;
-                measurewidth(); measurewaste(); smooth();
-            }
-            
-            // a deep copy, to make in-place modifications possible
-            protected F clone(F f) {
-                return f==null ? null : (F)f.clone();
-            }
-            
-            public Object clone() {
-                F f = null; // shut up compiler
-                try { 
-                     f = (F)super.clone();  
-                } catch (Exception e) {  
-                    System.err.println("can't clone "+this); 
-                    System.exit(2); 
-                }
-                f.next=clone(f.next);
-                return f;
-            }
-            
-            private void measurewidth() {
-                width=0;
-                for (int i1=i; i1<j; i1++) {
-                    width+=((W)ws.get(i1)).width;
-                    if (i1+1<j)
-                    	width+=((W)ws.get(i1)).spacing;
-                }
-            }
-            
-            private void measurewaste() {
-                if (next==null) {
-                    height=1; maxwidth=width; waste=0;
-                }
-                else {
-                    waste = width<next.maxwidth ? Math.max(next.waste,next.maxwidth-width) : 
-                                                  next.waste+width-next.maxwidth;
-                    maxwidth=Math.max(width,next.maxwidth); 
-                    height = next.height+1;
-                }
-            }
-            
-            private void take() {
-                int ww = ((W)ws.get(j)).width;
-                next.i++; next.measurewidth(); next.measurewaste(); next.smooth();
-                j++; measurewidth(); measurewaste();
-                // System.err.println("after take "+this);
-            }
-            
-            private void give() {
-                int ww = ((W)ws.get(j-1)).width;
-                next.i--; next.measurewidth(); next.measurewaste(); next.smooth();
-                j--; measurewidth(); measurewaste();
-                // System.err.println("after give "+this);
-            }
-            
-            // Oh I wish I could think of a fast undo ...
-            private void smooth() {
-                if (next!=null) {
-                    if (width<next.maxwidth)
-                        while (width<next.maxwidth && next!=null && next.i+1<next.j) {
-                            int oldwaste = waste;
-                            take();
-                            if (waste>oldwaste) {
-                                give(); break;
-                            }
-                        }
-                    else // sort of repeated -- sorry
-                        while (width>next.maxwidth && next!=null && i+1<j) {
-                            int oldwaste = waste;
-                            give();
-                            if (waste>oldwaste) {
-                                take(); break;
-                            }
-                        }
-                    // System.err.println("smooth done");
-                }
-            }
-            
-            // the split algorithm puts some of the onus on the garbage collector ...
-            public F split() {
-                F f = i+1<j	  ? new F(i,i+1,new F(i+1,j,clone(next))) :
-                      next!=null  ? new F(i,j,next.split()) : 
-                                    this;
-                return f.maxwidth<maxwidth ? f : this;
-            }
-            
-            public void reportSplit(Vector v) {
-                int start = ((W)ws.get(i)).i, end = ((W)ws.get(j-1)).j;
-                // System.err.println(v.size()+": from "+i+"("+start+") to "+(j-1)+"("+end+")"+" width="+width+", maxwidth="+maxwidth+", waste="+waste);
-                v.add(new String(cs,start,end-start));
-                if (next!=null)
-                    next.reportSplit(v);
-            }
-        }
-    }
-
-    public static String[] minwaste(Component c, String s, int width) {
-        Fold f = new Fold (c.getFontMetrics(c.getFont()), s, width);
-        while (f.width>width) {
-            int oldwidth = f.width;
-            f.split();
-            if (f.width==oldwidth)
-                break;
-        }
-        return f.reportSplit();
-    }
-    
     /* ************************
        Ascii -> Unicode translation, for fonts (such as Konstanz) which don't 
        have a proper Unicode encoding.
@@ -323,8 +125,6 @@ public class JapeFont {
     }
     
     private static String tran(PosIntHashMap table, String s) {
-        /* return "\u21d2\u22b8\u2297\u2ae0\u2227\u297e\u2295\u2192\u27db\u2ADF\u0393\u2261\u22A2\u2200\u22A7\u2194\u2228\u039B\u223C\u22A9\u222A\u00D7\u2135\u22C3\u2286\u2AE2\u25C1\u21dd\u2907\u21CC\u21a6\u2292\u22a5\u25a1\u25aa\u2283\u03bb\u225c\u03a4\u214b\u2203\u2234\u27e6\u2208\u27da\u27e7\u2229"; */
-/* */
         codecDone = true;
         if (table==null) 
             return s;
@@ -387,9 +187,12 @@ public class JapeFont {
         setmap(0x00DA, 0x2135); // aleph (alef?)
         setmap(0x00DC, 0x22C3); // n-ary union
         setmap(0x00DF, 0x2286); // subset or equal
+        setmap(0x00E3, 0x27E8); // sequence bra
         setmap(0x00E4, 0x2AE2); // triple-bar turnstile
         setmap(0x00EB, 0x25C1); // white left-pointing triangle
-        setmap(0x00EF, 0x21dd); // rightwards squiggle arrow (*** should be turnstile with tilde as horizontal)
+        setmap(0x00EF, 0x21DD); // rightwards squiggle arrow (*** should be turnstile with tilde as horizontal)
+        setmap(0x00F1, 0x27E9); // sequence ket
+        setmap(0x00F5, 0x21D0); // leftwards double arrow
         setmap(0x00F6, 0x2907); // rightwards double arrow from bar
         setmap(0x00FC, 0x21CC); // RIGHTWARDS HARPOON OVER LEFTWARDS HARPOON
         setmap(0x00ff, 0x21a6); // rightwards single arrow from bar (maps to)
@@ -410,7 +213,74 @@ public class JapeFont {
         setmap(0xfb01, 0x27e7); // white right square bracket (semantic ket) (301b may be preferable)
         setmap(0xfb02, 0x2229); // intersection
     }
+
+    /* from the jape code (displayfont.ml)
+       (* Useful translation for Japeserver marshalling.
+        * Current C/Java/Tk interfaces believe in these integers.
+        *
+        *  TermFont = 0
+        *  ReasonFont = 1
+        *  ProvisoFont = 2
+        *
+        *)
+     */
+
+    public final static int termFontNum = 0,  reasonFontNum = 1,  provisoFontNum = 2;
+    public static byte[] interfaceFontSizes = new byte[]{ 14, 11, 11 };
+    private static Font[] interfaceFonts;
+
+    private static void checkInterfaceFontNum(int font) throws ProtocolError {
+        if (font<termFontNum || font>provisoFontNum)
+            throw (new ProtocolError("font "+font+" out of range"));
+    }
     
+    private static void initInterfaceFonts() {
+        codecDone = true;
+        if (interfaceFonts==null) {
+            codecDone = true;
+            interfaceFonts = new Font[3];
+            for (int i=termFontNum; i<=provisoFontNum; i++)
+                interfaceFonts[i] = substituteFont==null ? new Font("sanserif", Font.PLAIN, interfaceFontSizes[i]) :
+                                                           findsubstitute(Font.PLAIN, interfaceFontSizes[i]);
+        }
+    }
+
+    private static FontMetrics[] interfaceMetrics;
+
+    private static void initInterfaceMetrics() {
+        if (interfaceMetrics==null) {
+            initInterfaceFonts();
+            interfaceMetrics = new FontMetrics[3];
+            JLabel l = new JLabel();
+            for (int i=termFontNum; i<=provisoFontNum; i++) {
+                interfaceMetrics[i] = l.getFontMetrics(interfaceFonts[i]);
+            }
+        }
+    }
+
+    public static TextDimension measure(JLabel l, String s) {
+        FontMetrics m = l.getFontMetrics(l.getFont());
+        return new TextDimension(m.stringWidth(s), m.getMaxAscent(), m.getMaxDescent());
+    }
+
+    public static TextDimension measure(String s, int font) throws ProtocolError {
+        initInterfaceMetrics();
+        checkInterfaceFontNum(font);
+        return new TextDimension(interfaceMetrics[font].stringWidth(s),
+                                 interfaceMetrics[font].getMaxAscent(),
+                                 interfaceMetrics[font].getMaxDescent());
+    }
+
+    public static FontMetrics fontinfo(int font) throws ProtocolError {
+        initInterfaceMetrics();
+        checkInterfaceFontNum(font);
+        return interfaceMetrics[font];
+    }
+
+    public static Font getFont(int font) throws ProtocolError {
+        checkInterfaceFontNum(font);
+        return interfaceFonts[font];
+    }
     public static void setfont(String name) throws ProtocolError {
         if (codecDone)
             throw (new ProtocolError("too late!"));
