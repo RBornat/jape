@@ -65,7 +65,7 @@ public class Reply implements DebugConstants {
         flushmessages();
     }
     
-    public static void sendCOMMAND(String s) {
+    synchronized public static void sendCOMMAND(String s) {
         send("COMMAND "+s);
     }
 
