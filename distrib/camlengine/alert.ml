@@ -18,14 +18,20 @@ type alertspec =
   | HowToTextSelect
   | HowToFormulaSelect
   | HowToDrag
-type alertseverity = StopNow | Decide | ReadThis
-let rec defaultseverity bs = if List.length bs <= 1 then StopNow else Decide
-let defaultseverity_alert = StopNow
+
+type alertseverity = Info | Warning | Error | Question
+
+let rec defaultseverity bs = if List.length bs <= 1 then Warning else Question
+
+let defaultseverity_alert = Warning
+
 let rec intseverity =
   function
-    StopNow -> 2
-  | Decide -> 1
-  | ReadThis -> 0
+    Info     -> 0
+  | Warning  -> 1
+  | Error    -> 2
+  | Question -> 3
+  
 let alertpatches : (string * alertspec) list ref = ref []
 (* kept in inverse lexical order, so that "abcd" comes before "abc" *)
 
@@ -37,7 +43,9 @@ let rec alertpatch s =
   match findfirst patched !alertpatches with
     Some (Alert ("", bs, def)) -> Some (Alert (s, bs, def))
   | aopt -> aopt
+
 let rec resetalertpatches () = alertpatches := []
+
 let rec patchalert (h, a) =
   let rec f =
     function
@@ -48,6 +56,7 @@ let rec patchalert (h, a) =
     | [] -> [h, a]
   in
   alertpatches := f !alertpatches
+
 let rec ask code m (bs : (string * 'a) list) def =
   if null bs then raise (Catastrophe_ ["ask no buttons \""; m; "\""])
   else if def < 0 || def >= List.length bs then
@@ -66,6 +75,7 @@ let rec ask code m (bs : (string * 'a) list) def =
              ["ask bad result \""; m; "\"";
               bracketedliststring fst "," bs; " ";
               string_of_int def; " => "; string_of_int i])
+
 let rec askCancel code m (bs : (string * 'a) list) c def =
   if null bs then
     raise (Catastrophe_ ["askCancel no buttons \""; m; "\""])
@@ -88,6 +98,7 @@ let rec askCancel code m (bs : (string * 'a) list) c def =
                      bracketedliststring fst "," bs; " ";
                      string_of_int def; " => "; string_of_int i]))
     | None -> c
+
 let rec askDangerously m (dol, doa) (dontl, donta) cancela =
   match askDangerously_unpatched m dol dontl with
     Some 0 -> doa
@@ -96,17 +107,18 @@ let rec askDangerously m (dol, doa) (dontl, donta) cancela =
   | Some i ->
       raise (Catastrophe_ ["askDangerously_unpatched => "; string_of_int i])
 (* we allow the user to patch an alert *)
+
 let rec showAlert code s =
   let rec display code s = ask code s ["OK", ()] 0 in
   let rec patch code aopt =
     match aopt with
       None -> ()
     | Some (Alert (m, bs, def)) ->
-        let code' = if List.length bs > 1 then Decide else code in
-        patch ReadThis (ask code' m bs def)
-    | Some HowToTextSelect -> display ReadThis (howtoTextSelect ())
-    | Some HowToFormulaSelect -> display ReadThis (howtoFormulaSelect ())
-    | Some HowToDrag -> display ReadThis (howtoDrag ())
+        let code' = if List.length bs > 1 then Question else code in
+        patch Info (ask code' m bs def)
+    | Some HowToTextSelect -> display Info (howtoTextSelect ())
+    | Some HowToFormulaSelect -> display Info (howtoFormulaSelect ())
+    | Some HowToDrag -> display Info (howtoDrag ())
   in
   match alertpatch s with
     None -> display code s
