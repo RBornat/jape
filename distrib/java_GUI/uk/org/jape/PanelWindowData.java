@@ -434,12 +434,10 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     protected static PanelWindowData findPanel(String title, boolean musthave) throws ProtocolError {
         for (int i=0; i<panelv.size(); i++) {
             PanelWindowData panel = (PanelWindowData)panelv.get(i);
-            System.err.println("checking "+title+" against "+panel.title);
             if (panel.title.equals(title))
                 return panel;
         }
 
-        System.err.println("didn't find "+title);
         if (musthave)
             throw new ProtocolError("before NEWPANEL");
         else
@@ -458,7 +456,6 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
             // it ain't there
             PanelWindowData panel = new PanelWindowData(title, kind);
             panelv.add(panel);
-            System.err.println("added "+title);
             return panel;
         }
     }
