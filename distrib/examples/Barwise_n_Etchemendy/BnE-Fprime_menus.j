@@ -70,8 +70,8 @@ MENU "System F«" IS
 	ENTRY "Щ-E"		IS FOB ForwardCut "Щ-E"	
 	ENTRY "и-E"		IS "и-E tac"	
 	ENTRY "д-E"		IS FOB ForwardUncut "д-E"
-	ENTRY "д!-E(1)"	IS FOB ForwardCut "д!-E(1)"
-	ENTRY "д!-E(2)"	IS FOB ForwardCut "д!-E(2)"
+	ENTRY "д!-E(д)"	IS FOB ForwardCut "д!-E(д)"
+	ENTRY "д!-E(ии)"	IS FOB ForwardCut "д!-E(ии)"
 	SEPARATOR
 	ENTRY "A=A"
 	ENTRY hyp		IS hyp
