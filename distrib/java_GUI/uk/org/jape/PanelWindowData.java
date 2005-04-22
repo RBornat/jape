@@ -59,6 +59,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -292,7 +293,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     public class PanelWindow extends JapeWindow implements ActionListener {
 
 	private final DefaultListModel model;
-	private JList list;
+	private final JList list;
 	private JScrollPane scrollPane;
 	private ButtonPane buttonPane;
 
@@ -474,9 +475,13 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 	    enableButtons();
 	}
 
-	protected void selectEntry(int i) {
+	protected void selectEntry(final int i) {
 	    list.setSelectedIndex(i);
-	    list.ensureIndexIsVisible(i);
+	    SwingUtilities.invokeLater(new Runnable(){
+		public void run() {
+		    list.ensureIndexIsVisible(i);
+		}
+	    });
 	}
 
 	private void repaintSelection() {
