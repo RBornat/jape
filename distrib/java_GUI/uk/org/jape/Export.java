@@ -71,31 +71,31 @@ public class Export {
 		Alert.showAlert(Jape.onMacOSX ? "this MacOS X system can't make pdf files!" : 
 					       "your Java system doesn't seem able to produce PostScript");
 	    } else
-		try {
-		    /* Create a file for the exported postscript */
-		    String outputFileName = FileChooser.newSaveDialog(
-				"Save "+(what == PrintProof.BOTH  ? "image"	  :
-					 what == PrintProof.PROOF ? "proof image" :
-								    "disproof image"),
-				 new String[]{Jape.onMacOSX ? "pdf" : "ps"});	  
-		    if (outputFileName.equals(""))
-			return;
+	    try {
+		/* Create a file for the exported postscript */
+		String outputFileName = FileChooser.newSaveDialog(
+			    "Save "+(what == PrintProof.BOTH  ? "image"	  :
+				     what == PrintProof.PROOF ? "proof image" :
+								"disproof image"),
+			     new String[]{Jape.onMacOSX ? "pdf" : "ps"});	  
+		if (outputFileName.equals(""))
+		    return;
 
-		    FileOutputStream fos = new FileOutputStream(outputFileName);
-		    /* Create a Stream printer for Postscript */
-		    StreamPrintService sps = factories[0].getPrintService(fos);
-		    /* Create and call a Print Job */
-		    DocPrintJob pj = sps.createPrintJob();
-		    PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
-		    w.whattoprint = what;
-		    Doc doc = new SimpleDoc(w, flavor, null);
-		    pj.print(doc, aset);
-		    fos.close();
-		} catch (PrintException pe) {
-		    Alert.showAlert("ExportPic "+pe);
-		} catch (IOException ie) {
-		    Alert.showAlert("ExportPic "+ie);
-		}
+		FileOutputStream fos = new FileOutputStream(outputFileName);
+		/* Create a Stream printer for Postscript */
+		StreamPrintService sps = factories[0].getPrintService(fos);
+		/* Create and call a Print Job */
+		DocPrintJob pj = sps.createPrintJob();
+		PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+		w.whattoprint = what;
+		Doc doc = new SimpleDoc(w, flavor, null);
+		pj.print(doc, aset);
+		fos.close();
+	    } catch (PrintException pe) {
+		Alert.showAlert("ExportPic "+pe);
+	    } catch (IOException ie) {
+		Alert.showAlert("ExportPic "+ie);
+	    }
 	}
     }
 }
