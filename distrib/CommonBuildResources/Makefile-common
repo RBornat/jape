@@ -93,15 +93,36 @@ distribution::  ; make encoder; make components; \
 examples:       ; ln -s ../../examples .
 
 
+AT="@"
 jarfile:        examples ; buildinstaller Install$(OS)jape.jar                  \
                 -app            "Jape"                                          \
                 -splash         $(SPLASH)                                       \
                 -splashside     North   \
                 -installdir     Jape    \
+                -autoinstall    Jape    \
+                -unixrun        "java -jar %JAR% -engine %INSTALL%/jape_engine \"$$$(AT)\"" \
                 $(AFTERINSTALL)         \
                 $(ENCODERESOURCES)      \
                 $(INSTALLRESOURCES)     \
                 $(DEPLOYEDENGINE)       \
                 examples Jape.jar                    
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=======
+>>>>>>> 1.20
 
