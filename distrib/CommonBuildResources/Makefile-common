@@ -106,23 +106,3 @@ jarfile:        examples ; buildinstaller Install$(OS)jape.jar                  
                 $(INSTALLRESOURCES)     \
                 $(DEPLOYEDENGINE)       \
                 examples Jape.jar                    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=======
->>>>>>> 1.20
-
