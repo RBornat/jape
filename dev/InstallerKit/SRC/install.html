@@ -166,7 +166,23 @@ The following command turns on maximal monitoring at install-time, which can be 
    -autojar      <I>filename</I>        -- (optional) the name of the jar 
                                     (default is <I>appname</I><code>.jar</code> as set by <code>-autoinstall</code>)
                                     <I>(The named jar file is shipped automatically)</I>
-   -autocmd      <I>on or off</I>       -- (optional: default on) (Windows) if off, then construct a shortcut directly to the jar
+</PRE>
+        Arguments to the following switches are subject to the substitutions described later.
+<PRE>
+                                    
+   -autocmd      <I>filename</I>        -- (optional) (Windows) if specified, is the name of a command file that will
+                                    run the jar; otherwise we construct a shortcut directly to the jar.
+   -autowork     <I>filename</I>        -- (optional) (Windows) if specified, is the name of the working directory in which the
+                                    application will open.
+   -explore      <I>command</I>         -- (optional) (Windows) command run in windows when the installation has finished.
+</PRE>
+        Arguments to the following switches are subject to the substitutions described later, as well
+        as having %JAR% replaced by the aboslute path to the jar file
+<PRE>   
+   -windowsrun   <I>command</I>         -- (optional) (Windows)  The windows command used to run the program.
+                                    (default) javaw.exe -jar "%JAR%" %*%
+   -unixrun      <I>command</I>         -- (optional) (Unix)     The shell command used to run the program.
+                                    (default) exec java -jar "%JAR%" "$@"
 </PRE>
 
 <H2>
@@ -174,8 +190,7 @@ The following command turns on maximal monitoring at install-time, which can be 
 </H2>
 <P>
         Up to 20 shortcuts can be installed by using the following switches. In the descriptions below <I>n</I>
-        is a number between 1 and 20. All the arguments to these switches 
-        are subject to a kind of environment substitution, as detailed below
+        is a number between 1 and 20. Arguments are subject to the substitutions described later.
 </P>
 <PRE>
         -shortcut<I>n</I>  <I>filename</I>    Install a shortcut with the given <I>filename</I>
@@ -191,9 +206,9 @@ The remaining shortcut-modifying switches are optional
         -comment<I>n</I>   <I>text</I>        Associate the text with the shortcut as a comment
 </PRE>
 
-<H3>
+<H2>
 Substitutions
-</H3>
+</H2>
 <PRE>
         %INSTALL%               -- the installation folder
         %DESKTOP-COMMON%        -- the common desktop folder
@@ -357,5 +372,6 @@ arrangements have to be made to delete these. The appropriate switches are:
 $Id$
 </PRE>
         
+
 
 

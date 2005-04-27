@@ -19,10 +19,12 @@ public class installertest
     String name = System.getProperty("user.name");
     String home = System.getProperty("user.home");
     String dir = System.getProperty("user.dir");
+    String app = System.getProperty("application.home");
     StringBuffer props = new StringBuffer();
     props.append("Name: "+name+"\n");
     props.append("Home: "+home+"\n");
     props.append("Dir:  "+dir+"\n");
+    props.append("App:  "+app+"\n");
     for (int i=0; i<args.length; i++)
         props.append("Arg:  "+args[i]+"\n");
     props.append("URL:  "+installertest.class.getResource(installertest.class.getName()+".class")+"\n");
@@ -39,5 +41,6 @@ public class installertest
     frame.setVisible(true);
   }
 }
+
 
 

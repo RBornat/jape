@@ -655,8 +655,10 @@ public class install implements ActionListener
 
   /** Ameliorates quotation hell -- perhaps! */
   public static String quoteArg(String val)
-  {
+  { if (val==null) return null;
+    // Normalize quotes
     val   = val.replace('\'', '"');
+    // Embed an argument with spaces but no quotes in quotes
     val   = (
               ((val.indexOf(' ') < 0) || (val.indexOf('"') >= 0)) ? val
                                                                   : (
@@ -664,6 +666,7 @@ public class install implements ActionListener
                                                                     + "\""
                                                                   )
             );
+    // Remove any doubled-up quotes (shouldnae happen!)
     while (val.indexOf("\"\"") >= 0)
       val = substFor("\"\"", "\"", val);
 
@@ -764,11 +767,14 @@ public class install implements ActionListener
   }
 
   String          jarFileName      = null;
+  String          jarPath          = null;
+  File            install          = null;
   String          installDirName   = null;
   String          installDirSuffix = null;
   String          appName          = null;
   static TextArea progress         = null;
   static int      length           = 0;
+  
 
   static void showProgress(String l)
   {
@@ -877,7 +883,7 @@ public class install implements ActionListener
   }
 
   final JButton    exit;
-  final JButton    install;
+  final JButton    installBut;
   JCheckBox        desktop         = null;
   final JTextField installDirField = new JTextField();
   final Properties props;
@@ -905,7 +911,7 @@ public class install implements ActionListener
                                     "Choose Installation Folder"
                                    )
                  );
-    install = new JButton(props.getProperty("-installbutton", "Install"));
+    installBut = new JButton(props.getProperty("-installbutton", "Install"));
     JLabel label = new JLabel(props.getProperty("-label", "Install to: "));
     autoInstall = props.getProperty("-autoinstall");
     if (autoInstall != null)
@@ -928,10 +934,10 @@ public class install implements ActionListener
     exit.setActionCommand("Exit:");
     exit.setFont(bFont);
     exit.setRolloverEnabled(true);
-    install.addActionListener(this);
-    install.setActionCommand("Install:");
-    install.setFont(bFont);
-    install.setRolloverEnabled(true);
+    installBut.addActionListener(this);
+    installBut.setActionCommand("Install:");
+    installBut.setFont(bFont);
+    installBut.setRolloverEnabled(true);
     try
     {
       installDirField.setText(new File(installDirName).getCanonicalPath());
@@ -1002,7 +1008,7 @@ public class install implements ActionListener
             col(new Component[]
                 {
                   choose,
-                  install,
+                  installBut,
                   exit
                 }
                ),
@@ -1118,9 +1124,9 @@ public class install implements ActionListener
     {
       s   = substFor("%DESKTOP-COMMON%", HOME, s);
       s   = substFor("%PROGRAMS-COMMON%", "/usr/local/bin/", s);
-      s   = substFor("%DESKTOP%", HOME + File.separator + "DESKTOP", s);
+      s   = substFor("%DESKTOP%", HOME + File.separator + "Desktop", s);
       s   = substFor("%PROGRAMS%", HOME + File.separator + "bin", s);
-      s   = substFor("%DOCUMENTS%", HOME + File.separator + "DOCUMENTS", s);
+      s   = substFor("%DOCUMENTS%", HOME + File.separator + "Documents", s);
       s   = substFor(
                      "%PROGRAM-FILES%",
                      HOME + File.separator + "PROGRAMFILES",
@@ -1128,7 +1134,8 @@ public class install implements ActionListener
                     );
     }
 
-    s   = substFor("%INSTALL%", INSTALL, s);
+    s   = substFor("%INSTALL%", install.getAbsolutePath(), s);
+    s   = substFor("%JAR%", jarPath, s);
     s   = s.replace(File.separatorChar, '/');
     s   = substFor("//", "/", s);
     s   = s.replace('/', File.separatorChar);
@@ -1138,6 +1145,34 @@ public class install implements ActionListener
   public String postSubstProperty(String propname)
   {
     return postSubst(props.getProperty(propname));
+  }
+  
+  public String postSubstPathProperty(String propname)
+  {
+    String s = postSubst(props.getProperty(propname));
+    if (s==null) return null;
+    return toPath(s);
+  }
+  
+  public String postSubstCommandProperty(String propname)
+  {
+    String s = props.getProperty(propname);
+    if (s==null) return null;
+    return toCommand(s);
+  }
+  
+  public static String toPath(String s)
+  { return new File(s).getAbsolutePath();
+  }
+  
+  public String toCommand(String source)
+  { StringBuilder t = new StringBuilder();
+    boolean first = true;
+    for (Iterator it = new Command(source).iterator(); it.hasNext(); )
+    { t.append(quoteArg((postSubst((String) it.next()))));
+      t.append(" ");
+    }
+    return t.toString().substring(0, t.length()-1);
   }
 
   public String linkToString(JShellLink l)
@@ -1153,7 +1188,7 @@ public class install implements ActionListener
 
   public void Install()
   {
-    install.setEnabled(false);
+    installBut.setEnabled(false);
     if (desktop != null)
       desktop.setEnabled(false);
 
@@ -1171,23 +1206,38 @@ public class install implements ActionListener
       INSTALL          = installDirName.replace('\\', '/');
       if (!INSTALL.endsWith("/"))
         INSTALL += "/";
+      
+      String autoJar     = props.getProperty("-autojar");
+      String autoIcon    = props.getProperty("-autoicon");
+      String autoComment = props.getProperty("-comment");
+      String autoCmd     = props.getProperty("-autocmd");
+      String autoWork    = props.getProperty("-autodir");
+      
+      install = new File(INSTALL).getAbsoluteFile();
+      
+      jarPath = autoJar!=null 
+              ? new File(install, autoJar).getAbsolutePath()
+              : "NOAUTOJARSPECIFIED";
 
       unJar(
             installDirName,
             new FileInputStream(jarFileName),
             true
            );
+           
+
+
       // DO NOT USE SUBSTITUTION UNTIL AFTER THIS POINT
+      
       String shell       =
-        postSubstProperty(isWindows ? "-cmdwindows" : "-cmdunix");
+        postSubstCommandProperty(isWindows ? "-cmdwindows" : "-cmdunix");
+      
       String shell1      =
-        postSubstProperty(isWindows ? "-cmdwindows1" : "-cmdunix1");
-      String autoJar     = props.getProperty("-autojar");
-      String autoIcon    = props.getProperty("-autoicon");
-      String autoComment = props.getProperty("-comment");
-      String autoCmd     = props.getProperty("-autocmd");
-      String autoWork    = props.getProperty("-autodir");
-      String explore     = postSubstProperty("-explore");
+        postSubstCommandProperty(isWindows ? "-cmdwindows1" : "-cmdunix1");
+      
+      String explore     = 
+        postSubstCommandProperty("-explore");
+      
       if (postClass != null)
       {
         Class theClass = Class.forName(postClass);
@@ -1199,11 +1249,12 @@ public class install implements ActionListener
 
       if (isWindows && (autoInstall != null))
       {
-        File   install = new File(INSTALL).getAbsoluteFile();
-        String jarPath = new File(install, autoJar).getAbsolutePath();
+        String windowsrun = postSubstCommandProperty("-windowsrun");
         String cmdPath =
           new File(install, autoInstall + ".cmd").getAbsolutePath();
-        String cmdText = "javaw.exe -jar \"" + jarPath + "\" %*%";
+        String cmdText = windowsrun==null 
+                       ? "javaw.exe -jar \"" + jarPath + "\" %*%" 
+                       : windowsrun;
         if (autoCmd != null)
           makeFile(autoCmd, cmdText);
 
@@ -1258,12 +1309,12 @@ public class install implements ActionListener
       {
         for (int i = 1; i <= 20; i++)
         {
-          String     shortcut = postSubstProperty("-shortcut" + i);
+          String     shortcut = postSubstPathProperty("-shortcut" + i);
           String     comment = postSubstProperty("-comment" + i);
-          String     args    = postSubstProperty("-args" + i);
-          String     path    = postSubstProperty("-to" + i);
-          String     dir     = postSubstProperty("-dir" + i);
-          String     icon    = postSubstProperty("-icon" + i);
+          String     args    = postSubstCommandProperty("-args" + i);
+          String     path    = postSubstPathProperty("-to" + i);
+          String     dir     = postSubstPathProperty("-dir" + i);
+          String     icon    = postSubstPathProperty("-icon" + i);
           JShellLink cut     = new JShellLink();
           if (shortcut != null)
             try
@@ -1284,13 +1335,13 @@ public class install implements ActionListener
                 cut.setPath(path);
 
               if (args != null)
-                cut.setArguments(quoteArg(args));
+                cut.setArguments(args);
 
               if (dir != null)
                 showProgress(dir);
 
               if (dir != null)
-                cut.setWorkingDirectory(unQuoteArg(dir));
+                cut.setWorkingDirectory((dir));
               else
                 cut.setWorkingDirectory("");
 
@@ -1317,10 +1368,11 @@ public class install implements ActionListener
 
       if (!isWindows && (autoInstall != null))
       {
-        File   install = new File(INSTALL).getAbsoluteFile();
-        String jarPath = new File(install, autoJar).getAbsolutePath();
         String cmdPath = new File(install, autoInstall).getAbsolutePath();
-        String cmdText = "exec java -jar -server \"" + jarPath + "\" \"$@\"";
+        String unixrun = postSubstCommandProperty("-unixrun");
+        String cmdText = unixrun==null 
+                       ? "exec java -jar -server \"" + jarPath + "\" \"$@\"" 
+                       : unixrun;
         showProgress("[Making Shortcut]");
         installedOK   = installedOK && makeFile(cmdPath, cmdText);
         installedOK =
@@ -1708,5 +1760,35 @@ public class install implements ActionListener
       }
     }
   }
+  
+  public static class Command extends StreamTokenizer 
+  { public Command(String s) 
+    { super(new StringReader(s)); 
+      resetSyntax();
+      whitespaceChars('\000', ' ');
+      wordChars('!', '/');
+      wordChars('0', '9');
+      wordChars('?', '~');
+      wordChars('=', '=');
+      ordinaryChar('"');
+      ordinaryChar('\'');
+      quoteChar('"');
+      quoteChar('\'');
+      try
+      {
+        while (nextToken() != TT_EOF) symbols.add(sval);
+      }
+      catch (IOException ex) {}
+      System.err.println(symbols);
+    }
+  
+    Vector symbols = new Vector ();
+  
+    public Iterator iterator() { return symbols.iterator(); }
+  }
 }
+
+
+
+
 

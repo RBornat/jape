@@ -26,7 +26,8 @@
        <javac srcdir   = "${SRC}" 
               destdir  = "${BUILD}"
               debug    = "true"
-              source   = "1.4"> 
+              source   = "1.4"
+              target   = "1.4"> 
           <include name="*.java"/>
        </javac>
    </target>
@@ -88,10 +89,10 @@
    <!-- ********************** TEST ******************** -->
 
    <target  name        = "test" 
-            depends     = "xInstallerTest" 
+            depends     = "InstallerTest" 
             description = "Test locally">
             <delete dir="${INSTALLTEST}"/>
-            <java fork="true" jar="${BUILD}/xInstallerTest.jar"></java>
+            <java fork="true" jar="${BUILD}/InstallerTest.jar"></java>
    </target>
    
    <target  name        = "test2" 
@@ -103,11 +104,11 @@
    
    <target  name        = "shiptest"
             description = "Ship the test to the ftp site"
-            depends     = "xInstallerTest">
+            depends     = "InstallerTest">
             <exec os         = "Linux,SunOS"
                   executable = "rsync">
                   <arg line="-ve ssh"/>
-                  <arg file="${BUILD}/xInstallerTest.jar"/>
+                  <arg file="${BUILD}/InstallerTest.jar"/>
                   <arg line="eclectic:/users/ftp/pub/Packages/JAPE/OBOL"/>
             </exec>
    </target>
@@ -130,30 +131,31 @@
            </jar>
    </target>
 
-   <target name        = "xInstallerTest" 
+   <target name        = "InstallerTest" 
            depends     = "installertest,bootstrap,buildinstaller"
-           description = "Make the xInstallerTest installer" 
+           description = "Make the InstallerTest installer" 
            >
       <java jar="${BUILD}/buildinstaller.jar" fork="true" dir="${BUILD}">
-         <arg value="xInstallerTest.jar"/>
+         <arg value="InstallerTest.jar"/>
          <arg value="-debug"/>
          <arg file="${SRC}/install.html"/>
          <arg line="-cmdwindows         'explorer %INSTALL%'"/>
-         <arg line="-cmdwindows1        'explorer %INSTALL%install.html'"/>
+         <arg line="-cmdwindows1        'explorer %INSTALL%/install.html'"/>
          <arg line="-app                'Installer Kit Test'"/>
          <arg value="-splash"/>         <arg file="${TEST}/installertest.png"/>
          <arg line="-splashside         North"/>
          <arg line="-label              'Install to: '"/>
          <arg line="-cmdunix            'echo  %PROGRAMS%'"/>
+         <arg line="-unixrun            'java -Dapplication.home=%INSTALL% -jar %JAR%'"/>
          <arg line="-autoinstall        foo"/>
          <arg line="-autojar            installertest"/>
          <arg line="-class              postinstall"/>
          <arg value="-autoicon"/>       <arg file="${TEST}/installertest.ico"/>
          <arg line="-shortcut1          '%DESKTOP%/Test Package Program Starter'"/>
          <arg line="-to1                javaw.exe"/>
-         <arg value="-args1"/>          <arg value="-jar '%INSTALL%/xInstallerTest.jar'"/>
-         <arg value="-dir1"/>           <arg value="%INSTALL%/"/>
-         <arg line="-icon1              %INSTALL%/installertest.ico"/>
+         <arg value="-args1"/>          <arg value="-jar '%INSTALL%/InstallerTest.jar'"/>
+         <arg value="-dir1"/>           <arg value="%INSTALL%"/>
+         <arg value="-icon1"/>          <arg value="%INSTALL%/installertest.ico"/>
          <arg line="-comment1           'The installer test program'"/>
          <arg line="-shortcut2          '%DESKTOP%/Test Package'"/>
          <arg line="-to2                %INSTALL%"/>
@@ -164,7 +166,7 @@
    
    <target name        = "InstallerTest2" 
            depends     = "installertest,bootstrap,buildinstaller"
-           description = "Make the xInstallerTest installer (using classes not jars)" 
+           description = "Make the InstallerTest installer (using classes not jars)" 
            >
       <delete file="${BUILD}/buildinstaller.jar"/>
       <java classname="org.jape.bootstrap.install" fork="true" dir="${BUILD}">
@@ -184,7 +186,7 @@
          <arg value="-autoicon"/>       <arg file="${TEST}/installertest.ico"/>
          <arg line="-shortcut1          '%DESKTOP%/Test Package Program Starter'"/>
          <arg line="-to1                javaw.exe"/>
-         <arg value="-args1"/>          <arg value="-jar '%INSTALL%/xInstallerTest.jar'"/>
+         <arg value="-args1"/>          <arg value="-jar '%INSTALL%/InstallerTest.jar'"/>
          <arg value="-dir1"/>           <arg value="%INSTALL%/"/>
          <arg line="-icon1              %INSTALL%/installertest.ico"/>
          <arg line="-comment1           'The installer test program'"/>
@@ -195,6 +197,10 @@
       </java>
    </target>
 </project>
+
+
+
+
 
 
 
