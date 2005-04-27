@@ -31,8 +31,8 @@ DEPLOYEDENGINE=jape_engine
 #       SPLASH               -- splash-image for the installer
 #
 #
-AFTERINSTALL=-cmdunix "sh %INSTALL%/installjape.sh %INSTALL%"
-INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX $(BUILDRESOURCES)/installjape.sh 
+AFTERINSTALL=-cmdunix "chmod +x %INSTALL%/jape_engine"
+INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX
 ENCODERESOURCES=$(ENCODEDIR)/README_encoder.txt $(ENCODEDIR)/encoder.jar
 SPLASH=$(BUILDRESOURCES)/InstallerKit/japesplash.png
 APP=jape
@@ -94,15 +94,17 @@ examples:       ; ln -s ../../examples .
 
 
 AT="@"
-jarfile:        examples ; buildinstaller Install$(OS)jape.jar                  \
-                -app            "Jape"                                          \
-                -splash         $(SPLASH)                                       \
-                -splashside     North   \
-                -installdir     Jape    \
-                -autoinstall    Jape    \
-                -unixrun        "java -jar %JAR% -engine %INSTALL%/jape_engine \"$$$(AT)\"" \
+jarfile:        examples ; buildinstaller Install$(OS)jape.jar                                  \
+                -app            "Jape"                                                          \
+                -splash         $(SPLASH)                                                       \
+                -splashside     North                                                           \
+                -installdir     Jape                                                            \
+                -autoinstall    Jape                                                            \
+                -unixrun        "java  -jar %JAR% -engine %INSTALL%/jape_engine \"$$$(AT)\""    \
+                -windowsrun     "javaw -jar %JAR% -engine %INSTALL%/jape_engine"                \
                 $(AFTERINSTALL)         \
                 $(ENCODERESOURCES)      \
                 $(INSTALLRESOURCES)     \
                 $(DEPLOYEDENGINE)       \
                 examples Jape.jar                    
+
