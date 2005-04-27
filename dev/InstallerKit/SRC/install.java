@@ -881,6 +881,16 @@ public class install implements ActionListener
 
     return r;
   }
+  
+  static String[] splitCmd(String cmd)
+  { String[] result = new String[2];
+    int sp = cmd.indexOf(' ');
+    if (sp==0) 
+       { result[0]=cmd; result[1]=null; }
+    else
+       { result[0]=cmd.substring(0, sp); result[1]=cmd.substring(sp+1); }
+    return result;
+  }
 
   final JButton    exit;
   final JButton    installBut;
@@ -1255,6 +1265,7 @@ public class install implements ActionListener
         String cmdText = windowsrun==null 
                        ? "javaw.exe -jar \"" + jarPath + "\" %*%" 
                        : windowsrun;
+        
         if (autoCmd != null)
           makeFile(autoCmd, cmdText);
 
@@ -1264,14 +1275,16 @@ public class install implements ActionListener
                                                   INSTALL,
                                                   autoWork
                                                  );
+        String[] cmdargs = splitCmd(cmdText);
+        
         JShellLink link = null;
         try
         {
           link = new JShellLink();
           link.setFolder(INSTALL);
           link.setName(autoInstall);
-          link.setPath("javaw.exe");
-          link.setArguments("-jar \"" + jarPath + "\"");
+          link.setPath(cmdargs[0]);
+          link.setArguments(cmdargs[1]);
           link.setWorkingDirectory(autoWork);
           link.setDescription((autoComment != null) ? autoComment : appName);
           if (autoIcon != null)
@@ -1782,6 +1795,7 @@ public class install implements ActionListener
     public Iterator iterator() { return symbols.iterator(); }
   }
 }
+
 
 
 
