@@ -1770,16 +1770,11 @@ public class install implements ActionListener
       wordChars('0', '9');
       wordChars('?', '~');
       wordChars('=', '=');
-      ordinaryChar('"');
-      ordinaryChar('\'');
-      quoteChar('"');
-      quoteChar('\'');
       try
       {
         while (nextToken() != TT_EOF) symbols.add(sval);
       }
       catch (IOException ex) {}
-      System.err.println(symbols);
     }
   
     Vector symbols = new Vector ();
@@ -1787,6 +1782,7 @@ public class install implements ActionListener
     public Iterator iterator() { return symbols.iterator(); }
   }
 }
+
 
 
 

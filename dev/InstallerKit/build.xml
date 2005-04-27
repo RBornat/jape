@@ -146,7 +146,7 @@
          <arg line="-splashside         North"/>
          <arg line="-label              'Install to: '"/>
          <arg line="-cmdunix            'echo  %PROGRAMS%'"/>
-         <arg line="-unixrun            'java -Dapplication.home=%INSTALL% -jar %JAR%'"/>
+         <arg line="-unixrun            'java -Dapplication.home=%INSTALL% -jar %JAR% &quot;$@&quot;'"/>
          <arg line="-autoinstall        foo"/>
          <arg line="-autojar            installertest"/>
          <arg line="-class              postinstall"/>
@@ -197,6 +197,7 @@
       </java>
    </target>
 </project>
+
 
 
 
