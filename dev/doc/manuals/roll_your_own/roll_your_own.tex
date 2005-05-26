@@ -17,12 +17,12 @@
 
 \usepackage{ucs}
 \usepackage[utf8x]{inputenc}
-\newcommand{\textGamma}{$\Gamma$}
-\newcommand{\textDelta}{$\Delta$}
-\newcommand{\textalpha}{$\alpha$}
-\newcommand{\textbeta}{$\beta$}
-\newcommand{\textlambda}{$\lambda$}
-\DeclareUnicodeCharacter {8870}{$|-$}
+\newcommand{\textGamma}{\ensuremath{\Gamma}}
+\newcommand{\textDelta}{\ensuremath{\Delta}}
+\newcommand{\textalpha}{\ensuremath{\alpha}}
+\newcommand{\textbeta}{\ensuremath{\beta}}
+\newcommand{\textlambda}{\ensuremath{\lambda}}
+\DeclareUnicodeCharacter {8870}{\ensuremath{|-}}
 
 \textwidth = 6.5 in
 \textheight = 9 in
@@ -96,9 +96,14 @@
 
 \newcommand{\hstrut}[1]{\rule{#1}{0pt}}
 \newcommand{\vstrut}[1]{\rule{0pt}{#1}}
+
 \newcommand{\tab}{\hstrut{10pt}}
 
-\includeonly{sets}
+\newenvironment{japeish}{\begin{quote}\tt\small}{\end{quote}}
+\newenvironment{ruletab}[1]{\renewcommand{\arraystretch}{3.0}\begin{center}\begin{tabular}{#1}}%
+                           {\end{tabular}\end{center}}
+
+\includeonly{funcprog}
 
 \begin{document}
 \maketitle
