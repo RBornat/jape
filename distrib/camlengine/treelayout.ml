@@ -50,22 +50,22 @@ let rec string_of_treelayout =
       | s            -> "COMPRESS " ^ s
       end
   | NamedLayout stuff -> tls stuff
-and tls =
+and tls fmt =
   function
-    fmt, Some tns -> ((string_of_term fmt ^ " (") ^ string_of_term tns) ^ ")"
-  | fmt, None -> string_of_term fmt ^ " ALL"
+    Some tns -> ((string_of_term fmt ^ " (") ^ string_of_term tns) ^ ")"
+  | None     -> string_of_term fmt ^ " ALL"
 let rec debugstring_of_treelayout =
   function
-    HideRootLayout -> "HideRootLayout"
-  | HideCutLayout -> "HideCutLayout"
+    HideRootLayout         -> "HideRootLayout"
+  | HideCutLayout          -> "HideCutLayout"
   | CompressedLayout stuff -> "CompressedLayout" ^ stls stuff
-  | NamedLayout stuff -> "NamedLayout" ^ stls stuff
+  | NamedLayout stuff      -> "NamedLayout" ^ stls stuff
 and stls stuff =
   string_of_pair debugstring_of_term (string_of_option debugstring_of_term) "," stuff
-let rec remaptreelayout a1 a2 =
-  match a1, a2 with
-    env, HideRootLayout -> HideRootLayout
-  | env, HideCutLayout -> HideCutLayout
-  | env, CompressedLayout stuff -> CompressedLayout (rmtl env stuff)
-  | env, NamedLayout stuff -> NamedLayout (rmtl env stuff)
+let rec remaptreelayout env =
+  function
+    HideRootLayout         -> HideRootLayout
+  | HideCutLayout          -> HideCutLayout
+  | CompressedLayout stuff -> CompressedLayout (rmtl env stuff)
+  | NamedLayout stuff      -> NamedLayout (rmtl env stuff)
 and rmtl env (fmt, tns) = remapterm env fmt, optf (remapterm env) tns
