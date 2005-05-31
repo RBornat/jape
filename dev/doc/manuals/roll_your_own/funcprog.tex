@@ -1,7 +1,7 @@
 \chapter{Encoding equational reasoning in functional programs}
 \label{chap:funcprog}
 
-Previous chapters have dealt with the encoding of logics which are variations, more or less, on the sequent calculus. This chapter describes Bernard Sufrin's treatment of a very different logic (I helped with some of the underlying mechanisms, but it's Bernard's ideas and Bernard's implementation). The problem here is to control a large number of equations used to reason about functional-programming formulae, and to present an interface which makes it look as if equational reasoning is taking place, despite the Gentzen tree in the background. The treatment is distributed in \texttt{examples/functional\_programming}.
+Previous chapters have dealt with the encoding of logics which are variations, more or less, on the sequent calculus. This chapter describes Bernard Sufrin's treatment of a very different logic (I helped with some of the underlying mechanisms and messed up some of the details, but it's Bernard's ideas and Bernard's encoding). The problem here is to control a large number of equations used to reason about functional-programming formulae, and to present an interface which makes it look as if equational reasoning is taking place, despite the Gentzen tree in the background. The treatment is distributed in \texttt{examples/functional\_programming}.
 
 The master file (\texttt{functions.jt}) defines the shape of a sequent, allows rules to be stated additively, without repetition of the context Γ, and defines the \texttt{Fail} tactic:
 \begin{japeish}
@@ -29,35 +29,33 @@ INFIX       260L    * / \\
 INFIX       270L    \textasciicircum \\
 \end{quote}
 
-Reading from the bottom, Bernard defines some binary arithmetical operators, all left-associative, then the priority of juxtaposition and substitution. The syntax of substitution is slightly variable in Jape: you can specify the bracketing symbols and the separating symbol as well as defining whether the variables come before the names or vice-versa. The spaces between symbols and names are essential to delimit the various components of the syntactic form. Bernard chose to make \textit{formula} \{ \textit{variables} \textbackslash\; \textit{formulae} \} the syntax of a substitution form, because that liberates square brackets for use in their conventional r\^{o}le in functional programming as list brackets.\footnote{He would also have reversed the order of formulae and variables had he not already used the `/' operator for arithmetic division.}
+Reading from the bottom, Bernard defines some binary arithmetical operators, all left-associative, then the priority of juxtaposition and substitution. The syntax of substitution is slightly variable in Jape: you can specify the bracketing symbols and the separating symbol as well as defining whether the variables come before the names or vice-versa. The spaces between symbols and names are essential to delimit the various components of the syntactic form. Bernard chose to make \textit{formula} \{ \textit{variables} \textbackslash\; \textit{formulae} \} the syntax of a substitution form, because that liberates square brackets for use in their conventional r\^{o}le in functional programming as list brackets (and I think he would also have reversed the order of formulae and variables had he not already used the `/' operator for arithmetic division).
 
 Then there is a perfectly normal definition of an identity rule:
 \begin{japeish}
 RULE hyp IS A ⊢ A \\
 IDENTITY hyp
 \end{japeish}
-There follow the basic rules of equality. Because Jape doesn't yet have any treatment of families of rules, Bernard can only give a tuple-equality rule for a fixed finite number of tuple sizes, and he restricts himself to pairs\footnote{But see the treatment of BAN logic in \chapref{BAN}.}:\\
+There follow the basic rules of equality. Because Jape doesn't yet have any treatment of families of rules, Bernard can only give a tuple-equality rule for a fixed finite number of tuple sizes, and he restricts himself to pairs:\footnote{But see the treatment of BAN logic in \chapref{BAN}.}
 
 \begin{ruletab}{|l|l|}
 \hline
 % ROW 1
-$\infer[\reason{$=\;\operatorname{reflexive}$}]
+$\infer[\reason{$=$ reflexive}]
        {\Gamma  |- X=X}
        {}$
 & 
-$\infer[\reason{$
-\;=\,\operatorname{transitive}$}]
+$\infer[\reason{$=$ transitive}]
        {\Gamma  |- X=Z}
        {\Gamma  |- X=Y\quad \Gamma  |- Y=Z}$
 \\
 \hline
 % ROW 2
-$\infer[\reason{$=\,\operatorname{symmetric}$}]
+$\infer[\reason{$=$ symmetric}]
        {\Gamma  |- Y=X}
        {\Gamma  |- X=Y}$
 & 
-$\infer[\reason{$
-\;=\,(,)$}]
+$\infer[\reason{$(,)=$}]
        {\Gamma  |- (X0,X1)=(Y0,Y1)}
        {\Gamma  |- X0=X1\quad \Gamma  |- Y0=Y1}$
 \\
@@ -65,14 +63,16 @@ $\infer[\reason{$
 \end{ruletab}
 
 
-Although most of these rules can be derived from `= reflexive' plus the rewrite rules given below, it is convenient to have them available directly (and in any case, at the time this encoding was developed, Jape couldn't prove derived rules with antecedents). In Japeish the rules are:
+In Japeish the rules are:
 \begin{japeish}
 RULE "= reflexive"          IS                                  INFER X = X\\
 RULE "= transitive"(Y)      IS FROM X = Y AND Y = Z             INFER X = Z\\
 RULE "= symmetric"          IS FROM X = Y                       INFER Y = X\\
 RULE "(,)="                 IS FROM X0=X1 AND Y0=Y1 INFER (X0, Y0) = (X1, Y1)
 \end{japeish}
-Extensionality rules are straightforward but because each implicitly incorporates a step of generalisation, it's necessary to include \textsc{fresh} provisos:
+Although most of these rules can be derived from `= reflexive' plus the rewrite rules given below, it is convenient to have them available directly (and in any case, at the time this encoding was developed, Jape couldn't prove derived rules with antecedents). 
+
+Extensionality rules are straightforward, but because each implicitly incorporates a step of generalisation, it's necessary to include \textsc{fresh} provisos:
 
 \begin{ruletab}{|l|l|}
 \hline
@@ -91,7 +91,8 @@ $\infer[\reason{(\textsc{fresh} $x$, $y$) ext2}]
 The Japeish version uses \textsc{object} parameters so that the rules, normally used backwards, introduce new identifiers rather than unknowns:
 \begin{japeish}
 RULE ext (OBJECT x) WHERE FRESH x IS FROM  F x = G x INFER F = G\\
-RULE ext2(OBJECT x, OBJECT y) WHERE FRESH x, y IS FROM  F (x, y) = G (x,y)     INFER F = G
+RULE ext2(OBJECT x, OBJECT y)  WHERE FRESH x, y\\
+\tab IS FROM  F (x, y) = G (x,y)  INFER F = G
 \end{japeish}
 And that, so far as this encoding is concerned, is where the simple bit ends.
 
@@ -122,25 +123,22 @@ The problem formula which matches $AA(X)$ or $AA(Y)$ will itself be an equation 
 
 In principle, and in practice, it is possible to use the rewrite rule by providing (by subformula selection) just the argument corresponding to $X$ in the \texttt{rewrite} rule or $Y$ in the \texttt{rewritebackwards} rule: Jape will search for instances of that argument on the right-hand side of the problem sequent and, in effect, construct a substitution which it unifies with $\_A\{x\backslash\_X\}$ or $\_A\{x\backslash\_Y\}$. That process finds every instance of the argument formula in the right-hand side of the problem sequent, and sometimes that is just what is required.
 
-When we want finer control, which we do when working under direct user control rather than via a search controlled by a tactic, we use the \textsc{letsubstsel} and \textsc{withsubstsel} tacticals. The basis of the technique which we use in encoding equational reasoning with functional programs is exemplified by the following fragment
+When we want finer control, which we often do when working under direct user control rather than via a search controlled by a tactic, we use the \textsc{letsubstsel} and \textsc{withsubstsel} tacticals. The basis of the technique which we use in encoding equational reasoning with functional programs is exemplified by the following fragment
 \begin{japeish}
-WHEN (LETSUBSTSEL \_A (WITHSUBSTSEL rewrite))
+WHEN (LETSUBSTSEL \_A\{\_x\textbackslash \_B\} ... (WITHSUBSTSEL rewrite) ...)
 \end{japeish}
 
 \textsc{Letsubstsel} \textit{pattern} \textit{tactic} \dots  is a guarded tactic whose guard succeeds if:
 \begin{itemize}
-\item the user has made at least one text-selection;
-\item all text-selections are of identical subformulae $E$ within the same formula $F$ in the current goal sequent;
-\item it is possible to construct a substitution form $F'\{v\backslash E\}$, with fresh variable $v$, such that $F'\{v\backslash E\}$ reduces to $F$ in the presence of the proviso $v$ \textsc{notin} $F$;
+\item the user has made one or more subformula selections;
+\item all those selections are of identical subformulae $E$ within the same formula $F$ in the current goal sequent;
+\item it is possible to construct a substitution form $F'\{v\backslash E\}$, with fresh variable $v$, such that $F'\{v\backslash E\}$ reduces to $F$ in the presence of the proviso $v$ \textsc{notin} $F$ (this could fail if, for example, you've selected a subformula including a variable $z$ inside a quantified formula with bound variable $z$);
 \item \textit{pattern} unifies with $F'\{v\backslash E\}$, without simplifying the substitution unless it is unified with a non-substitution form.
 \end{itemize}
 
+The first three conditions make sure that the user's subformula selection can be viewed as describing the result of a substitution. The fourth allows the tactics inside \textsc{letsubstsel} to see what the user is up to. If all four conditions are satisfied, the sequence \textit{tactic} \dots  is executed within the context created by the unification of \textit{pattern} with $F'\{v\backslash E\}$. Jape's unification mechanism normally simplifies substitutions whenever it comes across them, so this seems a bit daft, but there is a little more trickery here. The substitution form $F'\{v\backslash E\}$ is specially marked so that it is not simplified during the unification process unless it is matched with a non-substitution form: the effect is that it will be unified by structure-matching with a substitution form in \textit{pattern}, if one is provided. In the fragment above, for example, $\_A$ would be unified with $F'$, $\_x$ with $v$, and $\_B$ with $E$. That is, \textsc{letsubstsel} lets you see the substitution formula that the user implicitly constructs with their subformula selections.
 
-If all four conditions are satisfied, the sequence \textit{tactic} \dots  is executed within the context created by the unification of \textit{pattern} with $F'\{v\backslash E\}$ . The substitution form $F'\{v\backslash E\}$ is specially marked so that it is not simplified during the unification process unless it is matched with a non-substitution form: the effect is that it will be unified by structure-matching with a substitution form in \textit{pattern}, if one is provided.
-
-$F'\{v\backslash E\}$ is equivalent to the original formula $F$, and if it isn't used immediately in a unification it is simplified out of existence: that's the reason that we have to have both \textsc{letsubstsel}, to check if we can make the substitution form at all, and then \textsc{withsubstsel,} to make it again and to use it immediately in a rule application.
-
-\textsc{Withsubstsel} \textit{tactic} \dots is a tactic which requires that the first three of the \textsc{letsubstsel} conditions are satisfied and, if they are, it applies the sequence \textit{tactic} \dots to a copy of the problem sequent in which formula $F$ has been replaced by $F'\{\_{}v\backslash E\}$, this time using a fresh unknown $\_v$ to facilitate unification with the consequent of a rule which uses a corresponding \textsc{object} parameter. As before, the substitution form $F'\{\_v\backslash E\}$ is specially marked so that it can be unified component-by-component with a corresponding substitution form in the consequent of a rule, and it's eliminated very easily by simplification, so the first rule of \textit{tactic} \dots  is usually the only one that gets a bite at it.
+That's not enough, though, because we'd like to use exactly the same substitution in the base of the rewrite rules, unifying $\_X$ or $\_Y$ with the user's $E$, $\_A$ with the user's $F'$, and $\_x$ with $v$. That's what \textsc{withsubstsel} is for: it presents the rule-matching process with a version of the target sequent in which $F$ has been replaced by $F'\{v\backslash E\}$ and it marks that substitution so that it isn't always automatically simplified. The effect is what we want: a rule step that uses the particular substitution the user described.
 
 The effect of all this machinery is that it is possible for a user to specify, simply by text-selecting them, the instances of a subformula $X$ which are to be replaced by $Y$, working backwards with the rewrite rule --- or $Y$ with $X$, working backwards with rewritebackwards. Based on that bit of magic, a great deal becomes possible.
 
@@ -244,7 +242,7 @@ The rest of the proof is straightforward. It remains to explain how all this is 
 The lethypfind and letconcfind tacticals allow the user to rebracket a formula. lethypfind (\textit{old},\textit{new}) \textit{tactic... tactic} succeeds if
 
 
-{\textbullet}\tab the user has made a single text-selection in a hypothesis formula, dividing it in effect into \textit{before}, \textit{middle} and \textit{after} texts;
+{\textbullet}\tab the user has made a single subformula selection in a hypothesis formula, dividing it in effect into \textit{before}, \textit{middle} and \textit{after} texts;
 
 
 {\textbullet}\tab the hypothesis formula unifies with the pattern \textit{old};
