@@ -1,31 +1,21 @@
-<?xml version="1.0"?>
+<?xml version = '1.0' encoding = 'UTF-8' ?>
 <!-- 
         $Id$ 
--->
-<project name ="Tr" default ="jar">
-        <target  name           = "compile" 
-                 description    = "Compile the tr program">
-            <javac srcdir   = "." 
-                   debug    = "true"> 
-               <include name="**/*.java"/>
-            </javac> 
-        </target>
-        <target  name        = "jar" 
-                 depends     = "compile" 
-                 description = "Make the Tr jar file" >
-                 
-            <jar basedir  ="." 
-                 destfile ="./tr.jar"
-                 index    ="off">
-
-               <manifest>
-                 <attribute name="Main-Class" value="tr"/>
-               </manifest>
-               
-               <include name = "**/*.class"/>
-               <include name = "**/tr.html"/>
-               <include name = "**/tr.java"/>
-               
-           </jar>
-        </target>
+--><project name="Tr" default="jar" >
+<!--Tr is a simplified variant of sed
+-->  <target name="compile" description="Compile the tr program" >
+    <javac srcdir="." debug="true" >
+      <include name="**/*.java" />
+    </javac>
+  </target>
+  <target depends="compile" name="jar" description="Make the Tr jar file" >
+    <jar basedir="." destfile="./tr.jar" index="off" >
+      <manifest>
+        <attribute value="tr" name="Main-Class" />
+      </manifest>
+      <include name="**/*.class" />
+      <include name="**/tr.html" />
+      <include name="**/tr.java" />
+    </jar>
+  </target>
 </project>
