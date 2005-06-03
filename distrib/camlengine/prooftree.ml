@@ -222,14 +222,10 @@ module Tree : Tree with type term = Termtype.term
     let showallproofsteps = ref false
     let hideuselesscuts = ref false
     let cuthidingdebug = ref false
-    let foldedfmt = ref "{%s}"
-    (* LAYOUT "" ()    *)
-    and filteredfmt = ref "%s"
-    (* LAYOUT "" (...) *)
-    and unfilteredfmt = ref "%s"
-    (* LAYOUT ""       *)
-    and rawfmt = ref "[%s]"
-    (* when named layouts are exhausted by doubleclicking *)
+    let foldedfmt = ref "{%s}"      (* LAYOUT "" ()    *)
+    and filteredfmt = ref "%s"      (* LAYOUT "" (...) *)
+    and unfilteredfmt = ref "%s"    (* LAYOUT ""       *)
+    and rawfmt = ref "[%s]"         (* when named layouts are exhausted by doubleclicking *)
        
     type prooftree_step =
         Apply of (name * term list * bool)
@@ -1441,8 +1437,8 @@ module Tree : Tree with type term = Termtype.term
       joinopt (join_visreason proved showall) t
     and join_visreason proved showall j =
       let shortnames = !reasonstyle = "short" in
-      let rec rprintf cs f =
-        (* doesn't evaluate f() until it's needed *)
+      let rec rprintf cs t =
+        (* doesn't evaluate t() until it's needed *)
         (* bloody OCaml constant syntax.
            0x25 %
            0x73 s
@@ -1450,10 +1446,11 @@ module Tree : Tree with type term = Termtype.term
         let rec rpr =
           function
             [] -> []
-          | 0x25 :: 0x73 :: cs -> (* %s *)
-              let ss = f () in ss @ rprintf cs (fun () -> ss)
-          | 0x25 :: c :: cs    -> UTF.utf8_of_ucode c :: rpr cs
-          | c :: cs            -> UTF.utf8_of_ucode c :: rpr cs
+          | 0x25 (* % *) :: 0x73 (* s *) :: cs -> 
+              let ss = t () in ss @ rprintf cs (fun () -> ss)
+          | 0x25 (* % *) :: c            :: cs -> UTF.utf8_of_ucode c :: rpr cs
+          | [0x25]                             -> rpr []
+          | c :: cs                            -> UTF.utf8_of_ucode c :: rpr cs
         in
         rpr cs
       in
@@ -1478,8 +1475,11 @@ module Tree : Tree with type term = Termtype.term
            if step_resolve (join_how j) then "Resolve " :: default_reason ()
            else default_reason ()
          else
+           (* for some reason this put the default reason in the justification. I took it out
+              again ... RB 31.05.2005
+            *)
            let invisf () =
-             interpolate "," (implode (default_reason ()) :: invisiblereasons proved showall j)
+             interpolate "," ( (* implode (default_reason ()) :: *) invisiblereasons proved showall j)
            in
            let f (TreeFormat (_, fmt)) =
              match fmt with
