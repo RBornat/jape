@@ -116,7 +116,11 @@ TACTICPANEL "Definitions"
 END
 
 TACTIC UnfoldL(rule) IS
-    WHEN (LETSUBSTSEL (_A{_x\_F}=_B) "= transitive" (LAYOUT "Unfold %s" () (rewriteLR{X,AA,x\_F,_A,_x})) rule)
+    WHEN 
+        (LETSUBSTSEL (_A{_x\_F}=_B) 
+            "= transitive" 
+            (LAYOUT "Unfold %s" () (rewriteLR{X,AA,x\_F,_A,_x})) 
+            rule)
         (Fail "UnfoldL didn't find a substitution")
 
 TACTIC UnfoldR(rule) IS
@@ -132,8 +136,11 @@ TACTIC UnfoldR(rule) IS
         (Fail "UnfoldR didn't find a substitution")
 
 TACTIC FoldL(rule) IS
-    WHEN (LETSUBSTSEL (_A{_x\_F}=_B) "= transitive" 
-                (LAYOUT "Fold %s" () (rewriteRL{Y,AA,x\_F,_A,_x})) rule)
+    WHEN 
+        (LETSUBSTSEL (_A{_x\_F}=_B) 
+            "= transitive" 
+            (LAYOUT "Fold %s" () (rewriteRL{Y,AA,x\_F,_A,_x})) 
+            rule)
         (Fail "FoldL didn't find a substitution")
 
 TACTIC FoldR(rule) IS
@@ -149,25 +156,31 @@ TACTIC FoldR(rule) IS
         (Fail "FoldR didn't find a substitution")
 
 MENU Edit
+    RADIOBUTTON textselectionmode IS
+        "Subformula selection"  IS subformula
+    AND "Token selection"       IS token
+    INITIALLY subformula
+    END
+        
     RADIOBUTTON displaystyle IS
-        "Box display style" IS box
+        "Box display style"     IS box
     AND "Tree display style"    IS tree
     INITIALLY box
     END
         
     RADIOBUTTON autoselect IS
-        "Automatic goal selection" IS true
-    AND "Manual goal selection" IS false
+        "Automatic goal selection"  IS true
+    AND "Manual goal selection"     IS false
     INITIALLY true
     END
 
     RADIOBUTTON applyconjectures IS
-        "Apply both conjectures and theorems" IS true
-    AND "Apply only theorems " IS false
+        "Apply both conjectures and theorems"   IS true
+    AND "Apply only theorems "                  IS false
     INITIALLY false
     END
 
-    CHECKBOX  hidetransitivity"transformational style" INITIALLY false
+    CHECKBOX hidetransitivity "transformational style" INITIALLY false
 END
 
 CONJECTUREPANEL "Conjectures" IS
@@ -296,13 +309,13 @@ CONSTANT ASSOCEQ
 
 RULE    rewriteEquation(X, X', Y, Y') IS
 FROM    ASSOCEQ (X, X')
-AND ASSOCEQ (Y, Y') 
+AND     ASSOCEQ (Y, Y') 
 AND X'=Y'
 INFER   X=Y
 
 RULE    rewriteHypotheticalEquation(X, X', Y, Y') IS
 FROM    ASSOCEQ (X, X')
-AND ASSOCEQ (Y, Y') 
+AND     ASSOCEQ (Y, Y') 
 AND X'=Y'⊢ P
 INFER   X=Y ⊢ P
 
