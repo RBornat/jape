@@ -765,20 +765,49 @@ let rec parseints mess eval ints =
 
 let rec doLAYOUT layout eval action t =
   fun (Proofstate {tree = tree; goal = goal} as state) ->
+    let parseSTR t =
+      match debracket t with
+        Id (_, v, _)          -> string_of_vid v
+      | Literal (_, String s) -> s
+      | _ -> raise (Tacastrophe_ ["label string expected in LAYOUT, found "; string_of_term t])
+    in
+    let rec parsetuplefmt cs ts rs =
+        (* bloody OCaml constant syntax.
+           0x25 %
+           0x73 s
+           0x74 t
+         *)
+      match cs with
+        [] -> String.concat "" (List.rev rs)
+      | 0x25 (* % *) :: 0x73 (* s *) :: cs -> 
+          (match ts with
+             t::ts ->
+               parsetuplefmt cs ts
+               ((match debracket t with
+                   Id(_, v, _)          -> string_of_vid v
+                 | Literal(_, String s) -> s 
+                 | _ -> raise (Tacastrophe_ ["in format in LAYOUT \"%s\" matches argument "; 
+                                             string_of_term t])) :: rs)
+           | [] ->  parsetuplefmt cs ts ("(missing argument for %%s)" :: rs))
+      | 0x25 (* % *) :: 0x74 (* t *) :: cs -> 
+          (match ts with
+             t::ts -> parsetuplefmt cs ts (string_of_term t :: rs)
+           | []    -> parsetuplefmt cs ts ("(missing argument for %%t)" :: rs))
+      | 0x25 (* % *) :: c :: cs -> parsetuplefmt cs ts (UTF.utf8_of_ucode c :: rs)
+      | [0x25]                  -> parsetuplefmt [] ts rs
+      | c :: cs                 -> parsetuplefmt cs ts (UTF.utf8_of_ucode c :: rs)
+    in
     let rec parsefmt fmt =
       let fmt' = eval fmt in
       match debracket fmt' with
-        Id (_, v, _) -> string_of_vid v
+        Id (_, v, _)          -> string_of_vid v
       | Literal (_, String s) -> s
-      | _ ->
-          raise
-            (Tacastrophe_
-               ["format in LAYOUT must be string; you gave ";
-                string_of_term fmt'])
+      | Tup(_, ",", t :: ts)  -> parsetuplefmt (UTF.utf8_explode (parseSTR t)) ts []
+      | _ -> raise (Tacastrophe_ ["format in LAYOUT must be string or non-empty tuple of strings; \
+                                  you gave "; string_of_term fmt'])
     in
     let rec f l t =
-      let fmt =
-        format_of_layout parsefmt (parseints "selection in LAYOUT" eval) l
+      let fmt = format_of_layout parsefmt (parseints "selection in LAYOUT" eval) l
       in
       match t with
         LayoutTac (t', l') ->
@@ -1105,6 +1134,7 @@ let rec doDropUnify target sources (Proofstate {cxt = cxt} as state) =
         bad [" because proviso "; string_of_proviso p; " is violated"]
 
 let _FINDdebug = ref false
+
 (* test if some Theorem/Rule defines an operator as associative *)
 exception Matchinassociativelawstuff_
 
@@ -1161,10 +1191,9 @@ let rec associativelaw operator thing =
   in
   if !_FINDdebug then
     consolereport
-      ["associativelaw ("; string_of_term operator; ") ("; string_of_thing thing;
-       ")"];
+      ["associativelaw ("; string_of_term operator; ") ("; string_of_thing thing; ")"];
   match thing with
-    Theorem (params, [], seq) -> ok params seq
+    Theorem (params, [], seq)       -> ok params seq
   | Rule ((params, [], [], seq), _) -> ok params seq
   | _ -> false
 
@@ -1712,9 +1741,9 @@ let rec listf a1 a2 a3 =
            r)
   | 0x25 :: 0x73 :: fs, t :: ts, r -> (* %s *) listf fs ts (message t :: r)
   | 0x25 :: 0x74 :: fs, t :: ts, r -> listf fs ts (string_of_term t :: r)
-  | 0x25 :: f :: fs, ts, r -> listf fs ts (utf8_of_ucode f :: r)
-  | [0x25], ts, r -> listf [] ts ("%" :: r)
-  | f :: fs, ts, r -> listf fs ts (utf8_of_ucode f :: r)
+  | 0x25 :: f    :: fs, ts, r -> listf fs ts (utf8_of_ucode f :: r)
+  | [0x25]            , ts, r -> listf [] ts r
+  | f :: fs           , ts, r -> listf fs ts (utf8_of_ucode f :: r)
 
 and message term =
   match debracket term with
