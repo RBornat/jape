@@ -215,7 +215,7 @@ let defaultenv =
      "matchdebug"           , bj                         false        Match.matchdebug;
      "menudebug"            , bj                         false        Menu.menudebug;
      "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
-     "multiassumptionline"      , bj                         true         Boxdraw.multiassumptionline;
+     "multiassumptionline"  , bj                         true         Boxdraw.multiassumptionline;
      "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
      "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
