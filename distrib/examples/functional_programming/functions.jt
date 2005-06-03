@@ -9,7 +9,7 @@
 
 SEQUENT IS BAG ⊢ FORMULA
 
-INITIALISE autoAdditiveLeft true
+INITIALISE autoAdditiveLeft  true
 
 TACTIC Fail (x) IS SEQ (ALERT x) STOP
 
