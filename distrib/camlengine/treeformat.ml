@@ -47,9 +47,9 @@ module type Fmt =
      *       and we show all children without hiderooting
      *)         
 
-    val treeformatmerge : treeformat * treeformat -> treeformat
+    val treeformatmerge      : treeformat * treeformat -> treeformat
     val string_of_treeformat : treeformat -> string
-    val neutralformat : treeformat
+    val neutralformat        : treeformat
 
     val format_of_layout :
       (term -> string) -> (term -> int list) -> treelayout -> treeformat
@@ -105,22 +105,26 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
     let neutralformat = TreeFormat (SimpleFormat, DefaultFormat)
     let string_of_intlist = bracketedstring_of_list string_of_int ","
     let nf_string = string_of_triple string_of_bool enQuote (string_of_option string_of_intlist) ","
+    
     let rec string_of_treeformat =
       fun (TreeFormat pair) ->
         "TreeFormat" ^
           string_of_pair string_of_treeformat_kind string_of_treeformat_filter "," pair
+    
     and string_of_treeformat_kind =
       function
         HideRootFormat -> "HideRootFormat"
-      | HideCutFormat -> "HideCutFormat"
-      | SimpleFormat -> "SimpleFormat"
+      | HideCutFormat  -> "HideCutFormat"
+      | SimpleFormat   -> "SimpleFormat"
+    
     and string_of_treeformat_filter =
       function
-        DefaultFormat -> "DefaultFormat"
+        DefaultFormat        -> "DefaultFormat"
       | RotatingFormat stuff ->
           "RotatingFormat" ^
             string_of_pair string_of_int (bracketedstring_of_list nf_string ",") ","
               stuff
+    
     (* if tf1 is hidden, so is the merge *)
     let rec treeformatmerge =
       fun (TreeFormat (tfk1, tff1), TreeFormat (tfk2, tff2)) ->
@@ -150,6 +154,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
               RotatingFormat res
         in
         TreeFormat (tfkmerge (tfk1, tfk2), tffmerge (tff1, tff2))
+    
     let rec format_of_layout fmtf tnsf l =
       let rec f_of_l compress (fmt, tns) =
         TreeFormat
@@ -157,32 +162,31 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
            RotatingFormat (0, [compress, fmtf fmt, optf tnsf tns]))
       in
       match l with
-        HideRootLayout -> TreeFormat (HideRootFormat, DefaultFormat)
-      | HideCutLayout  -> TreeFormat (HideCutFormat, DefaultFormat)
+        HideRootLayout         -> TreeFormat (HideRootFormat, DefaultFormat)
+      | HideCutLayout          -> TreeFormat (HideCutFormat, DefaultFormat)
       | CompressedLayout stuff -> f_of_l true stuff
-      | NamedLayout stuff -> f_of_l false stuff
+      | NamedLayout stuff      -> f_of_l false stuff
     
     let term_of_ints tns = Termstore.registerTup (",", term_of_int <* tns)
     let term_of_string s = Termstore.registerLiteral(Termtype.String s)
 
-    let rec layouts_of_format =
-      fun (TreeFormat (tfk, tff) as f) ->
-        let rec layout =
-          function
-            (true, s, isopt) :: nfs ->
-              CompressedLayout (ly s isopt) :: layout nfs
-          | (false, s, isopt) :: nfs -> NamedLayout (ly s isopt) :: layout nfs
-          | [] -> []
-        and ly s isopt = term_of_string s, optf term_of_ints isopt in
-        let ls =
-          match tff with
-            DefaultFormat -> []
-          | RotatingFormat (i, nfs) -> layout (drop i nfs @ take i nfs)
-        in
-        match tfk with
-          HideRootFormat -> HideRootLayout :: ls
-        | HideCutFormat -> HideCutLayout :: ls
-        | SimpleFormat -> ls
+    let rec layouts_of_format (TreeFormat (tfk, tff) as f) =
+      let rec layout =
+        function
+          (true, s, isopt) :: nfs ->
+            CompressedLayout (ly s isopt) :: layout nfs
+        | (false, s, isopt) :: nfs -> NamedLayout (ly s isopt) :: layout nfs
+        | [] -> []
+      and ly s isopt = term_of_string s, optf term_of_ints isopt in
+      let ls =
+        match tff with
+          DefaultFormat -> []
+        | RotatingFormat (i, nfs) -> layout (drop i nfs @ take i nfs)
+      in
+      match tfk with
+        HideRootFormat -> HideRootLayout :: ls
+      | HideCutFormat -> HideCutLayout :: ls
+      | SimpleFormat -> ls
 
     (* because of the use of negative numbers in paths to navigate internal cuts, and the 
      * wierd way that the root of an internal cut is addressed (see prooftree.sml), 
