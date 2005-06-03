@@ -417,8 +417,12 @@ let badLayout () =
   raise
     (TacParseError_
        ["Syntax is LAYOUT fmt (subtrees) tactic; \
-        fmt can be () or s or (s,s); \
-        s can be string, id, unknown or number"])
+        fmt can be HIDEROOT, or HIDECUT, or COMPRESS label subtrees, or just label subtrees; \
+        label can be an str or a non-empty bracketed tuple of strs where \
+        an str can be a string, an identifier, an unknown or a number;
+        subtrees must be a bracketed tuple of numbers or the word ALL. \n\n\
+        It's possible to stop after label, in which case ALL is assumed; \
+        it's possible to stop after COMPRESS, in which case \"%s\" ALL is assumed."])
 
 let checkNAME errf t =
   (* suitable for a place where a single name will do *)
@@ -750,8 +754,8 @@ and transTactic tacterm =
       raise (ParseError_ ["Unexpected exception in transTactic: "; Printexc.to_string exn])
 
 and transLayout con fmt bopt ts =
-  let fmterr t = ["format string expected in LAYOUT; found "; string_of_term t] in
-  let fmt = checkSTR fmterr fmt in
+  (* let fmterr t = ["format string expected in LAYOUT; found "; string_of_term t] in
+     let fmt = checkSTR fmterr fmt in *)
   let nserr t =
     ["list of subtree indices expected in LAYOUT; found "; string_of_term (_The bopt)]
   in
