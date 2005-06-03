@@ -186,7 +186,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	    }
 	    /* we have a hit, but in token selection mode we have to go further */
 	    if (tokenSelection() && f.tokens.length!=0) {
-		Logger.log.println("in pixel2subformula TokenSelectionMode "+px+" "+f);
+		// Logger.log.println("in pixel2subformula TokenSelectionMode "+px+" "+f);
 		/* we're looking for the best token at this level .. */
 		for (i=0; i<f.tokens.length; i++)
 		    if (f.tokens[i].pxstart<=px && px<f.tokens[i].pxend)
@@ -196,8 +196,8 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		return null; // shut up compiler
 	    }
 	    else {
-		if (tokenSelection() && f.children.length!=0)
-		    Logger.log.println("??missed in pixel2subformula TokenSelectionMode "+px+" "+f);
+		// if (tokenSelection() && f.children.length!=0)
+		//     Logger.log.println("??missed in pixel2subformula TokenSelectionMode "+px+" "+f);
 		return f;
 	    }
 	}
