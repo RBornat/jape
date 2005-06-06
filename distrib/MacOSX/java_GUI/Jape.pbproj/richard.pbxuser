@@ -98,7 +98,7 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 139759184;
+			PBXPerProjectTemplateStateSaveDate = 139768282;
 			PBXPrepackagedSmartGroups_v2 = (
 				{
 					PBXTransientLocationAtTop = bottom;
@@ -546,24 +546,7 @@
 				PBXModuleWindowStatusBarHidden = YES;
 				RubberWindowFrame = "240 247 745 464 0 0 1600 1178 ";
 			};
-			PBXWorkspaceStateSaveDate = 139759184;
-		};
-		perUserProjectItems = {
-			798E55B9085492A400C288E1 = 798E55B9085492A400C288E1;
-			798E55BA085492A400C288E1 = 798E55BA085492A400C288E1;
-			798E55BC0854942500C288E1 = 798E55BC0854942500C288E1;
-			798E55BD0854945F00C288E1 = 798E55BD0854945F00C288E1;
-			798E55BE0854945F00C288E1 = 798E55BE0854945F00C288E1;
-			798E55BF0854945F00C288E1 = 798E55BF0854945F00C288E1;
-			798E55C30854963600C288E1 = 798E55C30854963600C288E1;
-			798E55C40854964700C288E1 = 798E55C40854964700C288E1;
-			798E55C50854969F00C288E1 = 798E55C50854969F00C288E1;
-			798E55CA085497F700C288E1 = 798E55CA085497F700C288E1;
-			798E55CD0854997B00C288E1 = 798E55CD0854997B00C288E1;
-			798E55CE08549A0500C288E1 = 798E55CE08549A0500C288E1;
-			798E55CF0854A52C00C288E1 = 798E55CF0854A52C00C288E1;
-			798E55D20854A6AF00C288E1 = 798E55D20854A6AF00C288E1;
-			798E55D50854A6C100C288E1 = 798E55D50854A6C100C288E1;
+			PBXWorkspaceStateSaveDate = 139768282;
 		};
 		sourceControlManager = 798BBCC505861E6600B5B478;
 		userBuildSettings = {
@@ -1110,150 +1093,6 @@
 		wantsCodeCompletionPlaceholdersInserted = 1;
 		wantsCodeCompletionTabCompletes = 1;
 		wantsIndex = 1;
-	};
-	798E55B9085492A400C288E1 = {
-		fRef = 791C738F05DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		rLen = 3;
-		rLoc = 6272;
-		rType = 0;
-	};
-	798E55BA085492A400C288E1 = {
-		fRef = 791C738F05DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = try;
-		rLen = 3;
-		rLoc = 6272;
-		rType = 0;
-		vrLen = 745;
-		vrLoc = 6214;
-	};
-	798E55BC0854942500C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-	};
-	798E55BD0854945F00C288E1 = {
-		fRef = 791C738F05DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = try;
-		rLen = 3;
-		rLoc = 6272;
-		rType = 0;
-		vrLen = 745;
-		vrLoc = 6214;
-	};
-	798E55BE0854945F00C288E1 = {
-		fRef = 791C738F05DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = try;
-		rLen = 3;
-		rLoc = 6272;
-		rType = 0;
-		vrLen = 745;
-		vrLoc = 6214;
-	};
-	798E55BF0854945F00C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = internalX;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-		vrLen = 938;
-		vrLoc = 1445;
-	};
-	798E55C30854963600C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = internalX;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-		vrLen = 938;
-		vrLoc = 1445;
-	};
-	798E55C40854964700C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = internalX;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-		vrLen = 938;
-		vrLoc = 1445;
-	};
-	798E55C50854969F00C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = internalX;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-		vrLen = 938;
-		vrLoc = 1445;
-	};
-	798E55CA085497F700C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = internalX;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-		vrLen = 938;
-		vrLoc = 1445;
-	};
-	798E55CD0854997B00C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = internalX;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-		vrLen = 938;
-		vrLoc = 1445;
-	};
-	798E55CE08549A0500C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = internalX;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-		vrLen = 938;
-		vrLoc = 1445;
-	};
-	798E55CF0854A52C00C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = internalX;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-		vrLen = 938;
-		vrLoc = 1445;
-	};
-	798E55D20854A6AF00C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = internalX;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-		vrLen = 938;
-		vrLoc = 1445;
-	};
-	798E55D50854A6C100C288E1 = {
-		fRef = 791C736205DCEDE00086E5C6;
-		isa = PBXTextBookmark;
-		name = internalX;
-		rLen = 9;
-		rLoc = 1964;
-		rType = 0;
-		vrLen = 938;
-		vrLoc = 1445;
 	};
 	79A31803064BF8EF0096C4DA = {
 		uiCtxt = {
