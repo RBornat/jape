@@ -566,7 +566,12 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
     }
 
     protected void textdragged(byte eventKind, MouseEvent e) {
-	FormulaTree sel = pixel2Subformula(formulae,getTextPoint(e));
+	FormulaTree sel = pixel2Subformula(formulae, getTextPoint(e));
+	if (sel==null) {
+	    Alert.showErrorAlert("textdragged null sel "+getTextPoint(e)+"\n"+
+				 "formulae="+formulae);
+	}
+	if (anchor==null) anchor=sel; // vain attempt to stop exception below
 	TextSel t = getTextSel(currenttextselindex);
 	if (tokenSelection()) {
 	    //if (sel!=t.other) {
@@ -575,7 +580,14 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	    //}
 	} 
 	else {
-	    sel = enclosingSubformula(anchor, sel);
+	    try {
+		sel = enclosingSubformula(anchor, sel);
+	    } catch (Exception exn) {
+		Alert.showErrorAlert("textdragged "+exn.getMessage()+"\n"+
+				     "anchor="+anchor+";\n"+
+				     "sel="+sel);
+		return;
+	    }
 	    //if (sel!=current) {
 		t.reset(sel);
 		current = sel;
