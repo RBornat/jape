@@ -132,7 +132,7 @@ discursive account of the theory is given in that paper.
                (LETGOAL (⟦ _k⟧_S →* _T) Identity)
                (LETGOAL (⟦~_k⟧_S →* _T) Identity)
                (LETGOAL (⟦√  ⟧_S →* _T) Identity)
-               (LETGOAL (⟦_E ⟧_S →* ⟦_E'⟧_S') Transitive (LAYOUT "%s" () Step SmallStep))))
+               (LETGOAL (⟦_E ⟧_S →* ⟦_E'⟧_S') Transitive (LAYOUT "%h" () Step SmallStep))))
     TACTIC Steps()
     (ALT
          (WHEN (LETGOAL (⟦ _k⟧_S →* _T) Identity)

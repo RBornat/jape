@@ -315,7 +315,7 @@ END /* PANEL */
     END
     TACTIC  RewriteWith(hyprewriterule, rewriterule, thm) IS
     (ALT
-      (LAYOUT "rewrite %s" (1)
+      (LAYOUT "rewrite %h" (1)
     (WHEN
       (LETHYPSUBSTSEL  _p (WITHSUBSTSEL hyprewriterule) thm)
       (LETCONCSUBSTSEL _p (WITHSUBSTSEL rewriterule) thm)

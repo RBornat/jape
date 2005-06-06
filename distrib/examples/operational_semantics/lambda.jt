@@ -60,7 +60,7 @@ discursive account of the theory is given in that paper.
         CHECKBOX  showallprovisos "Show all provisos" INITIALLY true
      END
     TACTIC TransitiveStep(rule)
-    (WHEN (LETGOAL (_E →* _T) Transitive (LAYOUT "%s" () Step rule))
+    (WHEN (LETGOAL (_E →* _T) Transitive (LAYOUT "%h" () Step rule))
           (LETGOAL (_E →  _T) rule))
     TACTIC Finished()
     (WHEN (LETGOAL (_num        →* _T) Identity)
