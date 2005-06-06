@@ -116,44 +116,44 @@ TACTICPANEL "Definitions"
 END
 
 TACTIC UnfoldL(rule) IS
-    WHEN 
+    (WHEN 
         (LETSUBSTSEL (_A{_x\_F}=_B) 
             "= transitive" 
-            (LAYOUT "Unfold %s" () (rewriteLR{X,AA,x\_F,_A,_x})) 
+            (LAYOUT "Unfold %h" () (rewriteLR{X,AA,x\_F,_A,_x})) 
             rule)
-        (Fail "UnfoldL didn't find a substitution")
+        (Fail "UnfoldL didn't find a substitution"))
 
 TACTIC UnfoldR(rule) IS
-    WHEN 
+    (WHEN 
         (LETSUBSTSEL (_A=_B{_x\_F}) 
             (LETGOALPATH G
                 "= transitive" 
                 (GOALPATH (SUBGOAL G 1)) 
-                (LAYOUT "Fold %s" () (rewriteRL{X,AA,x\_F,_B,_x})) 
+                (LAYOUT "Fold %h" () (rewriteRL{X,AA,x\_F,_B,_x})) 
                 rule
             )
         )
-        (Fail "UnfoldR didn't find a substitution")
+        (Fail "UnfoldR didn't find a substitution"))
 
 TACTIC FoldL(rule) IS
-    WHEN 
+    (WHEN 
         (LETSUBSTSEL (_A{_x\_F}=_B) 
             "= transitive" 
-            (LAYOUT "Fold %s" () (rewriteRL{Y,AA,x\_F,_A,_x})) 
+            (LAYOUT "Fold %h" () (rewriteRL{Y,AA,x\_F,_A,_x})) 
             rule)
-        (Fail "FoldL didn't find a substitution")
+        (Fail "FoldL didn't find a substitution"))
 
 TACTIC FoldR(rule) IS
-    WHEN 
+    (WHEN 
         (LETSUBSTSEL (_A=_B{_x\_F}) 
             (LETGOALPATH G
                 "= transitive" 
                 (GOALPATH (SUBGOAL G 1)) 
-                (LAYOUT "Unfold %s" () (rewritesmalLR{Y,AA,x\_F,_B,_x}))
+                (LAYOUT "Unfold %h" () (rewritesmalLR{Y,AA,x\_F,_B,_x}))
                 rule
             )
         )
-        (Fail "FoldR didn't find a substitution")
+        (Fail "FoldR didn't find a substitution"))
 
 MENU Edit
     RADIOBUTTON textselectionmode IS
@@ -345,7 +345,7 @@ WHEN (LETARGSEL _A (FoldTheSel _A tac))
     
 TACTIC UnfoldTheSel(sel, tac) IS
 ALT (SEQ  (FindSelection sel) 
-      (LAYOUT "Fold using %s" (1) 
+      (LAYOUT "Fold using %h" (1) 
           /* Try to rewrite the selected term if it's possible.
              If the tree has been *changed* by FindSelection,
              then it may not be possible, so just rewrite
@@ -359,7 +359,7 @@ ALT (SEQ  (FindSelection sel)
 
 TACTIC FoldTheSel(sel, tac) IS
 ALT (SEQ (FindSelection sel) 
-     (LAYOUT "Unfold using %s" (1) 
+     (LAYOUT "Unfold using %h" (1) 
           /* See the Unfold ... tactic for an explanation */
           (ALT (WITHSUBSTSEL rewritebackwards) (rewritebackwards sel))
           tac))
