@@ -74,10 +74,17 @@ MENU Unfolding IS
  */
 END
 
-TACTIC UNFOLDWITH1(rule1)        IS (LAYOUT "Unfold" () rule1) 
-TACTIC UNFOLDWITH2(rule1, arg)   IS (LAYOUT "Unfold" () (rule1 arg)) 
-TACTIC FOLDWITH1(rule1)          IS (LAYOUT "Fold" () "= symmetric" rule1) 
-TACTIC FOLDWITH2(rule1, arg)     IS (LAYOUT "Fold" () "= symmetric" (rule1 arg))
+TACTIC UNFOLDWITH1(rule1)        IS (LAYOUT "Unfold %s" () rule1) 
+TACTIC UNFOLDWITH2(rule1, arg)   IS 
+    /* override any layout set by rule1 */
+    (LETGOALPATH G 
+        (rule1 arg) 
+        (LETGOALPATH G1
+            (GOALPATH G) 
+            (LAYOUT "Unfold %h" ()) 
+            (GOALPATH G1)))
+TACTIC FOLDWITH1(rule1)          IS (LAYOUT "Fold %h" () "= symmetric" rule1) 
+TACTIC FOLDWITH2(rule1, arg)     IS (LAYOUT "Fold %h" () "= symmetric" (rule1 arg))
 TACTIC USEHYPORRULE(rule)        IS (WHEN (LETHYP _H (WITHHYPSEL hyp)) (ALT hyp rule))
 
 /* 
@@ -92,11 +99,11 @@ TACTIC FunApply(rule) IS (rule)
 
 TACTIC FunRecurse(continue, rule) IS 
        (ALT (continue rule)
-            (SEQ FunctionOperator (continue rule))
-            (SEQ FunctionOperand  (continue rule))
-            (SEQ LeftPair         (continue rule))
-            (SEQ RightPair        (continue rule))
-            (SEQ Singleton        (continue rule)))
+            (LAYOUT "%h" () FunctionOperator (continue rule))
+            (LAYOUT "%h" ()  FunctionOperand  (continue rule))
+            (LAYOUT "%h" ()  LeftPair         (continue rule))
+            (LAYOUT "%h" ()  RightPair        (continue rule))
+            (LAYOUT "%h" ()  Singleton        (continue rule)))
             
 TACTIC FunSearch1(rule) IS (FunRecurse FunApply rule)
 TACTIC FunSearch2(rule) IS (FunRecurse FunSearch1 rule)
@@ -132,37 +139,37 @@ TACTIC UnfoldHypWithOptionalSelectionLHS() IS
                (Fail "Cannot use the selected hypothesis to unfold on the LHS"))))
 
 TACTIC UnfoldL(rule) IS
-(WHEN 
-      (LETSUBSTSEL (_A{_x\_F}=_B)       /* Rewrite the selection */
-        "= transitive" 
-        (LAYOUT "Unfold %s" () 
+    (WHEN 
+        (LETSUBSTSEL (_A{_x\_F}=_B)       /* Rewrite the selection */
+            "= transitive" 
+            (LAYOUT "Unfold %h" () 
                 (rewriteLR{X,AA,x\_F,_A,_x}) 
                 (USEHYPORRULE rule)))
-      
-     (LETCONCFIND (_XOLD=_YOLD, _XNEW=_YNEW)
-       (LETGOALPATH G
-         "= transitive" 
-         (ALT 
-          (LAYOUT "Associativity" (2)
-             (associativity _XNEW _XOLD) EVALUATE)
-          (LETARGSEL _XSEL (Fail ("%s isn't a subterm", _XSEL))))))
-     
-     (LETHYP (_A=_B)  /* Use selected hypothesis to rewrite everywhere */
-              (LETCONC (_X=_Y)
-                       "= transitive" 
-                       (ALT
-                         (LAYOUT "Unfold using hyp" (1) (rewriteLR{X\_A}) (WITHHYPSEL hyp))
-                         (Fail "Cannot use the selected hypothesis to unfold on the LHS"))))
-                       
-      (LETGOAL (_A=_B)                      /* No selection: a little automation */
-       (LETGOALPATH G
-        "= transitive"
+    
+    (LETCONCFIND (_XOLD=_YOLD, _XNEW=_YNEW)
+        (LETGOALPATH G
+            "= transitive" 
+            (ALT 
+                (LAYOUT "Associativity" (2)
+                    (associativity _XNEW _XOLD) EVALUATE)
+                (LETARGSEL _XSEL (Fail ("%s isn't a subterm", _XSEL))))))
+    
+    (LETHYP (_A=_B)  /* Use selected hypothesis to rewrite everywhere */
+        (LETCONC (_X=_Y)
+            "= transitive" 
+            (ALT
+                (LAYOUT "Unfold using hyp" (1) (rewriteLR{X\_A}) (WITHHYPSEL hyp))
+                (Fail "Cannot use the selected hypothesis to unfold on the LHS"))))
+    
+    (LETGOAL (_A=_B)                      /* No selection: a little automation */
+        (LETGOALPATH G
+            "= transitive"
         (ALT (UNFOLDWITH1 rule)             /* Close with the rule */
              (UNFOLDWITH2 FunSearch4 rule)  /* Close by rewriting inside the formula */
              (Fail "Nothing obvious to unfold on the LHS"))
         (GOALPATH (SUBGOAL G 1))))
-      
-      (Fail (Cannot unfold because there is no equation)))
+    
+    (Fail (Cannot unfold LHS because there is no equation)))
 
 RULE    associativity(Y, Y') IS
 FROM    ASSOCEQ (Y, Y') 
@@ -170,46 +177,46 @@ INFER   Y'=Y
 
 
 TACTIC UnfoldR(rule) IS
-(WHEN 
-      (LETSUBSTSEL (_A=_B{_x\_F}) 
-          (LETGOALPATH G
-            "= transitive" 
-            (GOALPATH (SUBGOAL G 1)) 
-            (LAYOUT "Fold" () 
+    (WHEN 
+        (LETSUBSTSEL (_A=_B{_x\_F}) 
+            (LETGOALPATH G
+                "= transitive" 
+                (GOALPATH (SUBGOAL G 1)) 
+                (LAYOUT "Fold %h (0)" () 
                     (rewriteRL{X,AA,x\_F,_B,_x}) 
                     (USEHYPORRULE rule))))
                     
-      (LETCONCFIND (_XOLD=_YOLD, _XNEW=_YNEW)
-       (LETGOALPATH G
-         "= transitive" (GOALPATH (SUBGOAL G 1))
-         (ALT 
-          (LAYOUT "Associativity" (2)
-             (associativity _YOLD _YNEW) EVALUATE)
-          (LETARGSEL _XSEL (Fail ("%s isn't a subterm", _XSEL))))))
+        (LETCONCFIND (_XOLD=_YOLD, _XNEW=_YNEW)
+            (LETGOALPATH G
+                "= transitive" (GOALPATH (SUBGOAL G 1))
+                (ALT 
+                    (LAYOUT "Associativity" (2)
+                        (associativity _YOLD _YNEW) EVALUATE)
+                    (LETARGSEL _XSEL (Fail ("%s isn't a subterm", _XSEL))))))
 
-      (LETHYP (_A=_B)  /* Use selected hypothesis to rewrite everywhere */
-              (LETCONC (_X=_Y)
-                 (LETGOALPATH G
-                       "= transitive" 
-                       (GOALPATH (SUBGOAL G 1))
-                       (ALT (LAYOUT "Fold using hyp" (1) (rewriteRL{X\_A}) (WITHHYPSEL hyp))
-                            (Fail "Cannot use the selected hypothesis to unfold on the RHS")))))
+        (LETHYP (_A=_B)  /* Use selected hypothesis to rewrite everywhere */
+            (LETCONC (_X=_Y)
+                (LETGOALPATH G
+                    "= transitive" 
+                    (GOALPATH (SUBGOAL G 1))
+                    (ALT (LAYOUT "Fold using hyp" (1) (rewriteRL{X\_A}) (WITHHYPSEL hyp))
+                         (Fail "Cannot use the selected hypothesis to unfold on the RHS")))))
                        
-      (LETGOAL (_A=_B)                         /* No selection */
-        (LETGOALPATH G
-          "= transitive"
-          (GOALPATH (SUBGOAL G 1)) 
-          (ALT (FOLDWITH1 rule)            /* Close with the rule */
-               (FOLDWITH2 FunSearch4 rule) /* Close by rewriting inside operand */
-               (Fail "Nothing obvious to unfold on the RHS"))))
+        (LETGOAL (_A=_B)                         /* No selection */
+            (LETGOALPATH G
+                "= transitive"
+                (GOALPATH (SUBGOAL G 1)) 
+                (ALT (FOLDWITH1 rule)            /* Close with the rule */
+                     (FOLDWITH2 FunSearch4 rule) /* Close by rewriting inside operand */
+                     (Fail "Nothing obvious to unfold on the RHS"))))
       
-      (Fail (Cannot unfold because there is no equation)))
+      (Fail (Cannot unfold RHS because there is no equation)))
 
 TACTIC FoldL(rule) IS
 (WHEN 
         (LETSUBSTSEL (_A{_x\_F}=_B) 
                 "= transitive" 
-            (LAYOUT "Fold" ()
+            (LAYOUT "Fold %h (1)" ()
                     (rewriteRL{Y,AA,x\_F,_A,_x})
                     (USEHYPORRULE rule)))
                     
@@ -222,7 +229,7 @@ TACTIC FoldR(rule) IS
           (LETGOALPATH G
                 "= transitive" 
         (GOALPATH (SUBGOAL G 1)) 
-        (LAYOUT "Unfold" ()
+        (LAYOUT "Unfold %h" ()
                 (rewriteLR{Y,AA,x\_F,_B,_x}) 
                 (USEHYPORRULE rule))))
                 
