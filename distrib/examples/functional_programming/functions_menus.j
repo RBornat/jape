@@ -291,7 +291,7 @@ TACTIC FindSelection IS
     text selection a proper subterm of the term it's
     in.
 */
-(WHEN 
+WHEN 
  (LETHYPFIND (_XOLD=_YOLD, _XNEW=_YNEW)
    (ALT 
      (LAYOUT "Associativity" (2)
@@ -302,8 +302,6 @@ TACTIC FindSelection IS
     (LAYOUT "Associativity" (2)
       (rewriteEquation _XOLD _XNEW _YOLD _YNEW) EVALUATE EVALUATE)
     (LETARGSEL _XSEL (Fail ("%s isn't a subterm", _XSEL)))))
-)
-
 
 CONSTANT ASSOCEQ
 
