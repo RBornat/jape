@@ -1284,7 +1284,6 @@ let rec rator t =
 
 exception MatchinAssocInfo (* spurious *)
    
-
 let rec assocInfo =
   function
     Id (_, c, _) as f ->
@@ -1875,6 +1874,7 @@ let rec doFLATTEN env f =
         | None -> setReason ["Cannot FLATTEN "; string_of_term f]; None
         end
     | _ -> setReason ["FLATTEN with multiple-conclusion sequent"]; None
+    
 (**********************************************************************)
 
 let rec trace string_of_termarg name args =
