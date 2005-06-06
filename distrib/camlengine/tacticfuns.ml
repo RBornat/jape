@@ -1572,7 +1572,7 @@ let rec appendsubterms t q =
 let rec _FIRSTSUBTERM f t =
   let rec _S a1 a2 =
     match a1, a2 with
-      [], [] -> None
+      [], []   -> None
     | [], rear -> _S (List.rev rear) []
     | t :: front, rear ->
         match f t with
