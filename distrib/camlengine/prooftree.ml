@@ -133,11 +133,11 @@ module type Tree =
                       and type path = vispath and type element = element
                       and type rewinf = rewinf
     
-    val foldedfmt : string ref (* LAYOUT "" ()    *)
-    val filteredfmt : string ref (* LAYOUT "" (...) *)
-    val unfilteredfmt : string ref (* LAYOUT ""       *)
-    val rawfmt : string ref
-    (* when named layouts are exhausted by doubleclicking *)
+    val foldedfmt     : string ref (* LAYOUT "" ()    *)
+    val filteredfmt   : string ref  (* LAYOUT "" (...) *)
+    val unfilteredfmt : string ref  (* LAYOUT ""       *)
+    val rawfmt        : string ref  (* when named layouts are exhausted by doubleclicking *)
+    val nohidefmt     : string ref  (* when there's nothing hidden *)
        
     val showallproofsteps : bool ref
     val hideuselesscuts : bool ref
@@ -226,6 +226,7 @@ module Tree : Tree with type term = Termtype.term
     and filteredfmt = ref "%s"      (* LAYOUT "" (...) *)
     and unfilteredfmt = ref "%s"    (* LAYOUT ""       *)
     and rawfmt = ref "[%s]"         (* when named layouts are exhausted by doubleclicking *)
+    and nohidefmt = ref "()"        (* when there's nothing hidden *)
        
     type prooftree_step =
         Apply of (name * term list * bool)
@@ -1431,29 +1432,15 @@ module Tree : Tree with type term = Termtype.term
     (* **************************************** export **************************************** *)
     
     let reasonstyle = ref "long"
+    
     let visible_subtrees showall =
       optf (fun pts -> (snd <* pts)) <.> visible_subtrees showall
+    
     let rec visreason proved showall t =
       joinopt (join_visreason proved showall) t
+    
     and join_visreason proved showall j =
       let shortnames = !reasonstyle = "short" in
-      let rec rprintf cs t =
-        (* doesn't evaluate t() until it's needed *)
-        (* bloody OCaml constant syntax.
-           0x25 %
-           0x73 s
-         *)
-        let rec rpr =
-          function
-            [] -> []
-          | 0x25 (* % *) :: 0x73 (* s *) :: cs -> 
-              let ss = t () in ss @ rprintf cs (fun () -> ss)
-          | 0x25 (* % *) :: c            :: cs -> UTF.utf8_of_ucode c :: rpr cs
-          | [0x25]                             -> rpr []
-          | c :: cs                            -> UTF.utf8_of_ucode c :: rpr cs
-        in
-        rpr cs
-      in
       let rec justify name =
         if shortnames then [string_of_name name]
         else
@@ -1470,6 +1457,26 @@ module Tree : Tree with type term = Termtype.term
         | Apply (n, _, _) -> justify n
         | UnRule (s, _)   -> [s]
       in
+      let rec rprintf cs invis def =
+        (* doesn't evaluate invis() or def() until it's needed *)
+        (* bloody OCaml constant syntax.
+           0x25 %
+           0x68 h
+           0x73 s
+         *)
+        let rec rpr =
+          function
+            [] -> []
+          | 0x25 (* % *) :: 0x68 (* h *) :: cs -> 
+              let ss = invis () in ss @ rprintf cs (fun () -> ss) def
+          | 0x25 (* % *) :: 0x73 (* s *) :: cs -> 
+              let ss = def () in ss @ rprintf cs invis (fun () -> ss)
+          | 0x25 (* % *) :: c            :: cs -> UTF.utf8_of_ucode c :: rpr cs
+          | [0x25]                             -> rpr []
+          | c :: cs                            -> UTF.utf8_of_ucode c :: rpr cs
+        in
+        rpr cs
+      in
       implode
         (if showall then
            if step_resolve (join_how j) then "Resolve " :: default_reason ()
@@ -1481,19 +1488,21 @@ module Tree : Tree with type term = Termtype.term
            let invisf () =
              interpolate "," ( (* implode (default_reason ()) :: *) invisiblereasons proved showall j)
            in
+           let nohidf () = [!nohidefmt]
+           in
            let f (TreeFormat (_, fmt)) =
              match fmt with
                RotatingFormat (i, nfs) ->
-                 (try let (fmt, strf) =
-                        match List.nth nfs i with
-                          _, "", Some [] -> !foldedfmt, invisf
-                        | _, "", Some _  -> !filteredfmt, invisf
-                        | _, "", None    -> !unfilteredfmt, default_reason
-                        | _, s , Some _  -> s, invisf
-                        | _, s , None    -> s, default_reason
-                      in
-                      rprintf (UTF.utf8_explode fmt) strf
-                 with Failure "nth" -> rprintf (UTF.utf8_explode !rawfmt) default_reason)
+                 let (fmt, invis) =
+                   (try match List.nth nfs i with
+                          _, "", Some [] -> !foldedfmt    , invisf
+                        | _, "", Some _  -> !filteredfmt  , invisf
+                        | _, "", None    -> !unfilteredfmt, nohidf
+                        | _, s , Some _  -> s             , invisf
+                        | _, s , None    -> s             , nohidf
+                    with Failure "nth" -> !rawfmt, nohidf)
+                 in
+                 rprintf (UTF.utf8_explode fmt) invis default_reason
              | _ -> default_reason ()
            in
            f (join_fmt j))
