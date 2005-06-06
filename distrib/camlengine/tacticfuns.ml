@@ -2645,14 +2645,13 @@ and doBIND tac display try__ env =
       let rec doit selpath selel ss =
         match ss with
           [b; middle; a] ->
-            let newtext = (((b ^ "(") ^ middle) ^ ")") ^ a in
-            let oldtext = (b ^ middle) ^ a in
+            let newtext = b ^ "(" ^ middle ^ ")" ^ a in
+            let oldtext = b ^ middle ^ a in
             let rec pe ss =
               raise
                 (ParseError_
                    ([tacname; ": the term ("; newtext;
-                     ") can't be parsed."] @
-                      ss))
+                     ") can't be parsed."] @  ss))
             in
             let midterm =
               try term_of_string middle with
@@ -2663,23 +2662,20 @@ and doBIND tac display try__ env =
                 ParseError_ ss -> pe ss
             in
             let oldterm =
-              try term_of_string ((b ^ middle) ^ a) with
+              try term_of_string (b ^ middle ^ a) with
                 ParseError_ ss ->
                   raise
                     (Catastrophe_
                        ([tacname; " -- can't parse original term ";
-                         oldtext; " -- "] @
-                          ss))
+                         oldtext; " -- "] @ ss))
             in
-            if eqterms (oldterm, newterm) then(* Succeed, but don't change the state *)
+            if eqterms (oldterm, newterm) then (* Succeed, but don't change the state *)
              Some (Some state)
             else
               checkBIND tacname
-                (cxt, env, Some (registerTup (",", [oldterm; newterm])),
-                 spec)
+                (cxt, env, Some (registerTup (",", [oldterm; newterm])), spec)
         | _ ->
-            setReason
-              [tacname; ": there should be just a single selection"];
+            setReason [tacname; ": there should be just a single selection"];
             None
       in
       match getunsidedselectedtext (), ishyptactic with
