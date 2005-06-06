@@ -59,17 +59,17 @@ TACTIC Flatten IS
             (Fail (Please select something to find))
 */
 
-TACTIC Unfold(x) IS LAYOUT "Fold %s" (1) (UNFOLD rewrite x)
+TACTIC Unfold(x) IS LAYOUT "Fold %h" (1) (UNFOLD rewrite x)
 
 TACTIC UnfoldOneSel(x) IS
-    WHEN    (LETSUBSTSEL _A (LAYOUT "Fold %s" (1) (WITHSUBSTSEL rewrite)) x)
+    WHEN    (LETSUBSTSEL _A (LAYOUT "Fold %h" (1) (WITHSUBSTSEL rewrite)) x)
             (LETARGSEL _A (Fail (The formula you selected (_A) is not a proper subformula)))
             (Fail (Please text-select an expression))
         
-TACTIC Fold(x) IS LAYOUT "Unfold %s" (1) (FOLD rewritebackwards x)
+TACTIC Fold(x) IS LAYOUT "Unfold %h" (1) (FOLD rewritebackwards x)
 
 TACTIC FoldOneSel(x) IS
-    WHEN    (LETSUBSTSEL    _A (LAYOUT "Unfold %s" (1) (WITHSUBSTSEL rewritebackwards)) x)
+    WHEN    (LETSUBSTSEL    _A (LAYOUT "Unfold %h" (1) (WITHSUBSTSEL rewritebackwards)) x)
             (LETARGSEL _A (Fail (The formula you selected (_A) is not a proper subformula)))
             (Fail (Please text-select an expression))
 
