@@ -1488,11 +1488,11 @@ module Tree : Tree with type term = Termtype.term
            let invisf () =
              interpolate "," ( (* implode (default_reason ()) :: *) invisiblereasons proved showall j)
            in
-           let nohidf () = [!nohidefmt]
-           in
            let f (TreeFormat (_, fmt)) =
              match fmt with
                RotatingFormat (i, nfs) ->
+                 let nohidf () = [!nohidefmt]
+                 in
                  let (fmt, invis) =
                    (try match List.nth nfs i with
                           _, "", Some [] -> !foldedfmt    , invisf
