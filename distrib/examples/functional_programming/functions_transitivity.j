@@ -158,7 +158,7 @@ TACTIC UnfoldL(rule) IS
         (LETCONC (_X=_Y)
             "= transitive" 
             (ALT
-                (LAYOUT "Unfold using hyp" (1) (rewriteLR{X\_A}) (WITHHYPSEL hyp))
+                (LAYOUT "Unfold" ALL (rewriteLR{X\_A}) (WITHHYPSEL hyp))
                 (Fail "Cannot use the selected hypothesis to unfold on the LHS"))))
     
     (LETGOAL (_A=_B)                      /* No selection: a little automation */
@@ -199,7 +199,7 @@ TACTIC UnfoldR(rule) IS
                 (LETGOALPATH G
                     "= transitive" 
                     (GOALPATH (SUBGOAL G 1))
-                    (ALT (LAYOUT "Fold using hyp" (1) (rewriteRL{X\_A}) (WITHHYPSEL hyp))
+                    (ALT (LAYOUT "Fold" ALL (rewriteRL{X\_A}) (WITHHYPSEL hyp))
                          (Fail "Cannot use the selected hypothesis to unfold on the RHS")))))
                        
         (LETGOAL (_A=_B)                         /* No selection */
@@ -216,7 +216,7 @@ TACTIC FoldL(rule) IS
 (WHEN 
         (LETSUBSTSEL (_A{_x\_F}=_B) 
                 "= transitive" 
-            (LAYOUT "Fold %h (1)" ()
+            (LAYOUT "Fold %h" ()
                     (rewriteRL{Y,AA,x\_F,_A,_x})
                     (USEHYPORRULE rule)))
                     
