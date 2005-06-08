@@ -146,30 +146,30 @@ TACTIC UnfoldL(rule) IS
                 (rewriteLR{X,AA,x\_F,_A,_x}) 
                 (USEHYPORRULE rule)))
     
-    (LETCONCFIND (_XOLD=_YOLD, _XNEW=_YNEW)
-        (LETGOALPATH G
-            "= transitive" 
-            (ALT 
-                (LAYOUT "Associativity" (2)
-                    (associativity _XNEW _XOLD) EVALUATE)
-                (LETARGSEL _XSEL (Fail ("%s isn't a subterm", _XSEL))))))
-    
-    (LETHYP (_A=_B)  /* Use selected hypothesis to rewrite everywhere */
-        (LETCONC (_X=_Y)
-            "= transitive" 
-            (ALT
-                (LAYOUT "Unfold" ALL (rewriteLR{X\_A}) (WITHHYPSEL hyp))
-                (Fail "Cannot use the selected hypothesis to unfold on the LHS"))))
-    
-    (LETGOAL (_A=_B)                      /* No selection: a little automation */
-        (LETGOALPATH G
-            "= transitive"
-        (ALT (UNFOLDWITH1 rule)             /* Close with the rule */
-             (UNFOLDWITH2 FunSearch4 rule)  /* Close by rewriting inside the formula */
-             (Fail "Nothing obvious to unfold on the LHS"))
-        (GOALPATH (SUBGOAL G 1))))
-    
-    (Fail (Cannot unfold LHS because there is no equation)))
+        (LETCONCFIND (_XOLD=_YOLD, _XNEW=_YNEW)
+            (LETGOALPATH G
+                "= transitive" 
+                (ALT 
+                    (LAYOUT "Associativity" (2)
+                        (associativity _XNEW _XOLD) EVALUATE)
+                    (LETARGSEL _XSEL (Fail ("%s isn't a subterm", _XSEL))))))
+        
+        (LETHYP (_A=_B)  /* Use selected hypothesis to rewrite everywhere */
+            (LETCONC (_X=_Y)
+                "= transitive" 
+                (ALT
+                    (LAYOUT "Unfold" ALL (rewriteLR{X\_A}) (WITHHYPSEL hyp))
+                    (Fail "Cannot use the selected hypothesis to unfold on the LHS"))))
+        
+        (LETGOAL (_A=_B)                      /* No selection: a little automation */
+            (LETGOALPATH G
+                "= transitive"
+            (ALT (UNFOLDWITH1 rule)             /* Close with the rule */
+                 (UNFOLDWITH2 FunSearch4 rule)  /* Close by rewriting inside the formula */
+                 (Fail "Nothing obvious to unfold on the LHS"))
+            (GOALPATH (SUBGOAL G 1))))
+        
+        (Fail (Cannot unfold LHS because there is no equation)))
 
 RULE    associativity(Y, Y') IS
 FROM    ASSOCEQ (Y, Y') 
