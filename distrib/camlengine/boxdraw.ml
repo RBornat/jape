@@ -33,6 +33,8 @@
         (and here it is May 1998 and we're still at it ...)
         
         (and now September 1999 ... how long can this go on?)
+        
+        (till June 2005 at least!)
 
 *)
 
@@ -163,14 +165,13 @@ let outerassumptionplural = ref "assumptions"
 let innerassumptionword = ref "assumption"
 let innerassumptionplural = ref "assumptions"
 let multiassumptionline = ref true
-let boxlineformat = ref "R (A) N: |"
-(* "N: |R A" is going to be the default *)
+let boxlineformat = ref "R (A) N: |"        (* "N: |R A" is going to be the default *)
 let boxlinedressright = ref true
 let rec ttsub hs hs' = listsub sameresource hs hs'
+
 (* This collection of classes will do for experimental purposes, but it won't last for ever *)
 
-let stileclass = DisplayPunct
-(* for now ... *)
+let stileclass = DisplayPunct               (* for now ... *)
 
    (* new treatment of tree transformation: multi-stage treatment of cuts, hyps, transivity
     * and reflexivity.  This treatment doesn't sit very well with the treatment of layout, but
@@ -192,6 +193,7 @@ let rec explodedconc cs =
 
 let my_hitstring = string_of_hit string_of_path
 let my_selstring = string_of_sel string_of_path
+
 
 (*********************** Drawing transitive stacks *****************************
  * 
@@ -234,8 +236,8 @@ let my_selstring = string_of_sel string_of_path
  * isn't a transitivity step and isn't an immediate closing rule: that is, it has
  * a substantive subproof.  Then we can display that entire subproof before the
  * transitive stack, with the usual greying-out mechanism to stop it being
- * appealed to in the wrong places.  (If we implement the cut-splicing mechanism
- * of the FACS paper, we could actually move the subproof and make it available to
+ * appealed to in the wrong places.  (If I implement the cut-splicing mechanism
+ * of the FACS paper, I could actually move the subproof and make it available to
  * the whole stack, but that's not yet possible and it isn't part of the display
  * mechanism in any case.)
  * 
@@ -270,6 +272,7 @@ let my_selstring = string_of_sel string_of_path
  *)
  
 (*********************** Step 1: find out what to do at each node of the tree ***************)
+
 (* We don't have a special node for identity rules, because those nodes are treated differently in 
  * 'normal' and 'transitive' dependency transformation: it's done with a boolean in LinPT
  * at this stage.  We don't any longer try to find out which kind of cut we have: that's done
@@ -281,9 +284,7 @@ let my_selstring = string_of_sel string_of_path
  * with them gives me a headache.  For the moment, therefore, it doesn't matter how we treat them.
  *)
     
-type revpath = RevPath of int list
-(* no more uncertainty *)
-
+type revpath = RevPath of int list          (* no more uncertainty *)
    
 type normalpt =
     LinPT of
@@ -390,6 +391,7 @@ let rec pretransform prefixwithstile t =
   | ptr -> ptr
 
 (******** Step 2: compute class of each element, element texts and sizes, and paths ********)
+
 (* In order to deal with cut dependencies properly, we refine the notion of path.
  * When we point to a formula we may want to 
  *     (a) treat it as a hypothesis, conclusion or ambig (path)
@@ -406,7 +408,7 @@ let rec pretransform prefixwithstile t =
  * It's incomplete (I haven't taken account of Cut nodes yet).
  *)
 
- (* The info which we keep in the drawing plans *)
+(* The info which we keep in the drawing plans *)
 type pathinfo = { path : int list; layoutpath : int list option; prunepath : int list option }
 (* include paths in the plan information -- it makes interpreting clicks so much easier *)
 type elementplankind =
@@ -517,6 +519,7 @@ and string_of_dependency d =
       "TranDep" ^
         string_of_triple (string_of_option string_of_textinfo) string_of_elementinfo_of_plan
           (bracketedstring_of_list string_of_trandep ",") "," t
+
 (* A conclusion line can be dead (have a reason next to it) or live (have no
  * reason yet).  If it's dead, it may sometimes be the left-hand conclusion of a
  * cut, and therefore should be treated as a hypothesis line.  If it's live, it
@@ -667,7 +670,7 @@ let rec dependency tranreason deadf pt =
       TranDep (st, (textinfo_of_term e, deadf' true (mktp Left) pi c), tdeps)
 (* dependency *)
 
-   (****************** Final step: put everything in place, with line numbers ******************)
+(****************** Final step: put everything in place, with line numbers ******************)
    
 let rec _RR id = id + 1
 let rec dec id = id - 1
@@ -682,12 +685,11 @@ type cID =
     LineID of lineID
   | BoxID of (lineID * lineID)
   | HypID of (lineID * int)
-  | NoID
-(* for cut lines which we wish to hide *)
+  | NoID                        (* for cut lines which we wish to hide *)
 
-   (* This function produces a single piece of text as its result, which makes it a bit
-    * difficult to split it across lines.  Oh well, one day.
-    *)
+(* This function produces a single piece of text as its result, which makes it a bit
+   difficult to split it across lines.  Oh well, one day.
+ *)
 
 let _IDr = (string_of_int : lineID -> string)
 
@@ -751,12 +753,8 @@ type token =
   | AR of (pos -> reasonplankind plan)
 
 let rec linearise screenwidth procrustean_reasonW dp =
-  let termfontleading =
-    max 1 (thrd (fontinfo TermFont))
-  in
-  let reasonfontleading =
-    max 1 (thrd (fontinfo ReasonFont))
-  in
+  let termfontleading = max 1 (thrd (fontinfo TermFont)) in
+  let reasonfontleading = max 1 (thrd (fontinfo ReasonFont)) in
   let leading = max termfontleading (reasonfontleading) in
   let linethickness = Draw.linethickness leading in
   let _ = setproofparams Japeserver.BoxStyle linethickness in
@@ -765,14 +763,11 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let textleading = (3 * leading + 1) / 2 in (* space between text lines *)
   let boxvspace = 4*linethickness in         (* space between box and the stuff inside *)
   let boxhspace = 3*linethickness in         (* ditto *)
-  let boxleading = textleading in
-  (* space between box and next line *)
-  let reasongap = boxhspace in
-  (* gap between rightmost stuff and reasons *)
-  let sidescreengap = leading in
-  (* pretty-space at the left of the screen *)                
-
-  let transindent = 5 * leading in
+  let boxleading = textleading in            (* space between box and next line *)
+  let reasongap = boxhspace in               (* gap between rightmost stuff and reasons *)
+  let sidescreengap = leading in             (* pretty-space at the left of the screen *)                
+  let transindent = 5 * leading in           (* indentation of <op> RHS lines *)
+  
   let (commasize, _ as comminf) = textinfo_of_text (Absprooftree.comma ()) in
   let commaW = tsW commasize in
   
@@ -870,9 +865,10 @@ let rec linearise screenwidth procrustean_reasonW dp =
                             w (stripelement e), 
           epi
   in
+  
   (*************** the engine room ******************************: 
-   * given a line number, a list of elements and reason information,
-   * make the various plans required to place things on the screen
+     Given a line number, a list of elements and reason information,
+     make the various plans required to place things on the screen
    *)
    
   (* Construct the elements plan for a single line (relative to p). 
@@ -1172,7 +1168,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
           in
           (* revts is, of course, backwards ... *)
       
-      (* put in the beginning of the transitive game (forgot this for a time ...) *)
+          (* put in the beginning of the transitive game (forgot this for a time ...) *)
           let rec sourceline p =
             stprefix stopt
               (plans_of_plan <.> uncurry2 plan_of_textinfo terminf)
@@ -1183,7 +1179,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             let rec mkp p =
               let splan =
                 plan_of_textinfo s ElementPunctPlan
-                  (rightby (p, transindent))
+                  (rightby (p, 2*transindent)) (* a little more indentation looks a bit better. RB 8.6.2005 *)
               in
               plancons splan
                    (plans_of_plan <.> uncurry2 plan_of_textinfo f <.> 
