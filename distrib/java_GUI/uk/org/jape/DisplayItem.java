@@ -150,7 +150,7 @@ public class DisplayItem extends Component
 		case Selection:
 		    break;
 		default:
-		    Alert.abort("DisplayItem.selectionclicked selected event="+eventKind);
+		    Alert.showErrorAlert("DisplayItem.selectionclicked selected event="+eventKind);
 	    }
 	}
 	else {
@@ -166,7 +166,7 @@ public class DisplayItem extends Component
 		    doSelectAction(true);
 		    break;
 		default:
-		    Alert.abort("DisplayItemSelectionAdapter.clicked not selected event="+eventKind);
+		    Alert.showErrorAlert("DisplayItemSelectionAdapter.clicked not selected event="+eventKind);
 	    }
 	}
     }
@@ -181,7 +181,7 @@ public class DisplayItem extends Component
 		canvas.doHitAction(this);
 		break;
 	    default:
-		Alert.abort("DisplayItem.selectiondoubleclicked event="+eventKind);
+		Alert.showErrorAlert("DisplayItem.selectiondoubleclicked event="+eventKind);
 	}
     }
 }
