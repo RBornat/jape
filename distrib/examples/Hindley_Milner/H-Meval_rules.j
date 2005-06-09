@@ -21,10 +21,10 @@ INFIX       100R    →
 LEFTFIX 75      ∀ .
 PREFIX  75      # /* now we have control over the priority of prefix operators ... */
 INFIX       55L         • ◁
-INFIX       50L     :  ⇒ « »
+INFIX       50L     :  ⇒ ≺ ≻
 
 INFIXC  140L        + -
-INFIXC  120R        ∴
+INFIXC  120R        ::
 INFIXC  100L        == /* we need to use this because we also have let f = ... */
 LEFTFIX 75      λ .
 INFIX       50L     =
@@ -57,42 +57,42 @@ SEQUENT IS LIST ⊢ FORMULA
 
 RULES letrules ARE
     FROM C ⊢ E : T1 
-    AND C ⊢ T1«S1 
+    AND C ⊢ T1≺S1 
     AND C,x⇒S1 ⊢ F:T    
     INFER C ⊢ let x=E in F end : T
 AND FROM C ⊢ E1 : T1 AND C ⊢ E2 : T2 
-    AND C ⊢ T1«S1 AND C ⊢ T2«S2 
+    AND C ⊢ T1≺S1 AND C ⊢ T2≺S2 
     AND C,x1⇒S1,x2⇒S2 ⊢ F:T
     INFER C ⊢ let x1=E1 , x2=E2 in F end : T
 AND FROM C ⊢ E1 : T1 AND C ⊢ E2 : T2 AND C ⊢ E3 : T3
-    AND C ⊢ T1«S1 AND C ⊢ T2«S2 AND C ⊢ T3«S3 
+    AND C ⊢ T1≺S1 AND C ⊢ T2≺S2 AND C ⊢ T3≺S3 
     AND C,x1⇒S1,x2⇒S2,x3⇒S3 ⊢ F:T
     INFER C ⊢ let x1=E1 , x2=E2 , x3=E3 in F end : T
 AND FROM C ⊢ E1 : T1 AND C ⊢ E2 : T2 AND C ⊢ E3 : T3 AND C ⊢ E4 : T4
-    AND C ⊢ T1«S1 AND C ⊢ T2«S2 AND C ⊢ T3«S3 AND C ⊢ T4«S4
+    AND C ⊢ T1≺S1 AND C ⊢ T2≺S2 AND C ⊢ T3≺S3 AND C ⊢ T4≺S4
     AND C,x1⇒S1,x2⇒S2,x3⇒S3,x4⇒S4 ⊢ F:T
     INFER C ⊢ let x1=E1 , x2=E2 , x3=E3 , x4=E4 in F end : T
 END
 
 RULES letrecrules ARE
     FROM C,x⇒#T1 ⊢ E:T1 
-    AND C ⊢ T1«S1 
+    AND C ⊢ T1≺S1 
     AND C,x⇒S1 ⊢ F:T    
     INFER C ⊢ letrec x=E in F end : T
 AND FROM C,x1⇒#T1,x2⇒#T2 ⊢ E1 : T1 AND C,x1⇒#T1,x2⇒#T2 ⊢ E2 : T2 
-    AND C ⊢ T1«S1 AND C ⊢ T2«S2 
+    AND C ⊢ T1≺S1 AND C ⊢ T2≺S2 
     AND C,x1⇒S1,x2⇒S2 ⊢ F:T 
     INFER C ⊢ letrec x1=E1 , x2=E2 in F end : T
 AND FROM C,x1⇒#T1,x2⇒#T2,x3⇒#T3 ⊢ E1 : T1 AND C,x1⇒#T1,x2⇒#T2,x3⇒#T3 ⊢ E2 : T2
     AND C,x1⇒#T1,x2⇒#T2,x3⇒#T3 ⊢ E3 : T3
-    AND C ⊢ T1«S1 AND C ⊢ T2«S2 AND C ⊢ T3«S3 
+    AND C ⊢ T1≺S1 AND C ⊢ T2≺S2 AND C ⊢ T3≺S3 
     AND C,x1⇒S1,x2⇒S2,x3⇒S3 ⊢ F:T
     INFER C ⊢ letrec x1=E1 , x2=E2 , x3=E3 in F end : T
 AND FROM C,x1⇒#T1,x2⇒#T2,x3⇒#T3,x4⇒#T4 ⊢ E1 : T1 
     AND C,x1⇒#T1,x2⇒#T2,x3⇒#T3,x4⇒#T4 ⊢ E2 : T2
     AND C,x1⇒#T1,x2⇒#T2,x3⇒#T3,x4⇒#T4 ⊢ E3 : T3 
     AND C,x1⇒#T1,x2⇒#T2,x3⇒#T3,x4⇒#T4 ⊢ E4 : T4
-    AND C ⊢ T1«S1 AND C ⊢ T2«S2 AND C ⊢ T3«S3 AND C ⊢ T4«S4
+    AND C ⊢ T1≺S1 AND C ⊢ T2≺S2 AND C ⊢ T3≺S3 AND C ⊢ T4≺S4
     AND C,x1⇒S1,x2⇒S2,x3⇒S3,x4⇒S4 ⊢ F:T
     INFER C ⊢ letrec x1=E1 , x2=E2 , x3=E3 , x4=E4 in F end : T
 END
@@ -100,7 +100,7 @@ END
 RULES constants ARE
     C ⊢ hd⇒∀tt.[tt]→tt
 AND C ⊢ tl⇒∀tt.[tt]→[tt]
-AND C ⊢ (∴)⇒∀tt.tt→[tt]→[tt]
+AND C ⊢ (::)⇒∀tt.tt→[tt]→[tt]
 AND C ⊢ nil⇒∀tt.[tt]
 AND C ⊢ (+)⇒#num→num→num
 AND C ⊢ (-)⇒#num→num→num
@@ -113,15 +113,15 @@ RULE "C ⊢ c⇒S" WHERE c IN c⇒S' NOTONEOF C' IS INFER C,c⇒S,C' ⊢ c⇒S
 IDENTITY "C ⊢ x⇒S"
 IDENTITY "C ⊢ c⇒S"
 
-RULE "C ⊢ x:T" IS FROM C⊢x⇒S AND S»T INFER C⊢x:T
-RULE "C ⊢ c:T" IS FROM C⊢c⇒S AND S»T INFER C⊢c:T
+RULE "C ⊢ x:T" IS FROM C⊢x⇒S AND S≻T INFER C⊢x:T
+RULE "C ⊢ c:T" IS FROM C⊢c⇒S AND S≻T INFER C⊢c:T
 
-RULES "S»T" ARE
-    INFER #T » T
-AND INFER ∀tt.TT » TT{T1/tt}
-AND INFER ∀(tt1,tt2).TT » TT{T1,T2/tt1,tt2}
-AND INFER ∀(tt1,tt2,tt3).TT » TT{T1,T2,T3/tt1,tt2,tt3}
-AND INFER ∀(tt1,tt2,tt3,tt4).TT » TT{T1,T2,T3,T4/tt1,tt2,tt3,tt4}
+RULES "S≻T" ARE
+    INFER #T ≻ T
+AND INFER ∀tt.TT ≻ TT{T1/tt}
+AND INFER ∀(tt1,tt2).TT ≻ TT{T1,T2/tt1,tt2}
+AND INFER ∀(tt1,tt2,tt3).TT ≻ TT{T1,T2,T3/tt1,tt2,tt3}
+AND INFER ∀(tt1,tt2,tt3,tt4).TT ≻ TT{T1,T2,T3,T4/tt1,tt2,tt3,tt4}
 END
 
 /* a sort of weakening ... */
@@ -138,18 +138,14 @@ MENU Rules IS
     
     TACTIC "x:T" IS
         SEQ
-            (ALT    (LAYOUT "C(x)⇒S; S»T" () "C ⊢ x:T" "C ⊢ x⇒S") 
-                (LAYOUT "C(c)⇒S; S»T" ()  "C ⊢ c:T" "C ⊢ c⇒S")
-                (LAYOUT "constant" () "C ⊢ c:T" constants)
-                (WHEN
+            (ALT (LAYOUT "C(x)⇒S; S≻T" () "C ⊢ x:T" "C ⊢ x⇒S") 
+                 (LAYOUT "C(c)⇒S; S≻T" ()  "C ⊢ c:T" "C ⊢ c⇒S")
+                 (LAYOUT "constant" () "C ⊢ c:T" constants)
+                 (WHEN
                     (LETGOAL (_E:_T)
-                        (Fail (x:T can only be applied to either variables or constants: you chose _E))
-                    )
-                    (LETGOAL _E (Fail (conclusion _E is not a ' formula:type ' judgement))
-                    )
-                )
-            ) 
-            "S»T"
+                        (Fail (x:T can only be applied to either variables or constants: you chose _E)))
+                    (LETGOAL _E (Fail (conclusion _E is not a ' formula:type ' judgement))))) 
+            "S≻T"
     
     SEPARATOR
     
@@ -174,7 +170,7 @@ MENU Rules IS
     
 END
     
-RULE "T«S" IS       FROM C ⊢ T • #T ◁ S     INFER C ⊢ T « S
+RULE "T≺S" IS       FROM C ⊢ T • #T ◁ S     INFER C ⊢ T ≺ S
 
 RULES "new t•..." (OBJECT t1) WHERE t1 NOTIN C ARE
     C⊢ t1 • #T                ◁ ∀t1.T 
@@ -195,10 +191,10 @@ TACTIC geninduct IS
         "new t•..."
         "same T•..."
 
-TACTIC generalise IS LAYOUT "generalise" ()  "T«S" geninduct
+TACTIC generalise IS LAYOUT "generalise" ()  "T≺S" geninduct
 
 TACTIC genstep IS 
-    ALT "T«S" 
+    ALT "T≺S" 
         (MATCH "T1→T2•...") 
         (MATCH "T1×T2•...") 
         (MATCH "[T]•...") 
@@ -233,7 +229,7 @@ TACTIC Auto IS
             (LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 , _x4=_E4 in _F end:_T) 
                 letrecrules Auto Auto Auto Auto generalise generalise generalise generalise Auto)
             (LETGOAL (_E:_T) (Fail (_E is not a recognisable program formula (Auto))))
-            (LETGOAL (_T « _S) generalise)
+            (LETGOAL (_T ≺ _S) generalise)
             (LETGOAL _E (Fail (_E is not a recognisable judgement (Auto))))
             
 TACTIC AutoStep IS
@@ -256,7 +252,7 @@ TACTIC AutoStep IS
             (LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 in _F end:_T) letrecrules)
             (LETGOAL (letrec _x1=_E1 , _x2=_E2 , _x3=E3 , _x4=_E4 in _F end:_T) letrecrules)
             (LETGOAL (_E:_T) (Fail (_E is not a recognisable program formula (AutoStep))))
-            (LETGOAL (_T « _S) generalise)
+            (LETGOAL (_T ≺ _S) generalise)
             (LETGOAL _E (Fail (_E is not a recognisable judgement (AutoStep))))
             
 AUTOUNIFY "n:num", "s:string", "true:bool", "false:bool"

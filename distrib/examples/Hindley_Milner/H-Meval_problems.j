@@ -22,10 +22,10 @@ CONJECTUREPANEL Conjectures
     THEOREM INFER C ⊢ letrec f = let g = λx.f x in g end in f end : _T
     /* the next one won't typecheck ... */
     THEOREM INFER C ⊢ letrec f = let g = λx.x f in g end in f end : _T
-    THEOREM INFER C ⊢ letrec map = λf.λxs.if xs==nil then nil else f (hd xs)∴map f (tl xs) fi in map end : _T
-    THEOREM INFER C ⊢ letrec map = λf.λxs.if xs==nil then nil else f (hd xs)∴map f (tl xs) fi , 
+    THEOREM INFER C ⊢ letrec map = λf.λxs.if xs==nil then nil else f (hd xs)::map f (tl xs) fi in map end : _T
+    THEOREM INFER C ⊢ letrec map = λf.λxs.if xs==nil then nil else f (hd xs)::map f (tl xs) fi , 
                            f = λx.x+x
-                  in map f (0∴1∴2∴nil)
+                  in map f (0::1::2::nil)
                   end : _T
     DERIVED RULE FROM C ⊢ x:Tx INFER C ⊢ let f = λx.λy.x in f 3 end : _T
     DERIVED RULE FROM C ⊢ E:TE INFER C ⊢ let f = λx.λy.E in f 3 end : _T
