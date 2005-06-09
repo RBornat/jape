@@ -66,7 +66,7 @@ CONJECTUREPANEL "Derived Rules for Set Operators" IS
 END
 
 TACTICPANEL "Definitions" IS
-    RULE IS A¬∈B ≜ ¬(A∈B)
+    RULE IS A∉B ≜ ¬(A∈B)
     RULE IS Ø ≜ {}
     RULE (OBJECT x) IS EQ ≜ {x|x=x}
     RULE (OBJECT x) IS {A} ≜ {x|x=A}
@@ -77,8 +77,8 @@ TACTICPANEL "Definitions" IS
     RULE (OBJECT y) IS A=B ≜ (∀y.y∈A↔y∈B)
     RULE (OBJECT y) IS A∪B ≜ { y | y∈A∨y∈B }
     RULE (OBJECT y) IS A∩B ≜ { y | y∈A∧y∈B }
-    RULE (OBJECT y) IS A-B ≜ { y | y∈A∧y¬∈B }
-    RULE (OBJECT y) IS A⁻¹ ≜ {y | y¬∈A}
+    RULE (OBJECT y) IS A-B ≜ { y | y∈A∧y∉B }
+    RULE (OBJECT y) IS A⁻¹ ≜ {y | y∉A}
     RULE (OBJECT x, OBJECT y) IS ∪∪(C) ≜ { x | ∃y. x∈y∧y∈C }
     RULE (OBJECT x, OBJECT y) IS ∩∩(C) ≜ { x | ∀y. y∈C→x∈y }
     RULE (OBJECT x) IS Pow(A) ≜ { x | x⊆A }

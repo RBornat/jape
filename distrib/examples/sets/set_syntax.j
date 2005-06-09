@@ -12,7 +12,7 @@ INFIX           700L            ∪ ∩ -
 INFIX           720L            •
 INFIX           740L            ×
 INFIX           600L            ⊆
-INFIX           500L            ∈ ¬∈
+INFIX           500L            ∈ ∉
 /* highest priority PREFIX 450 ¬ in BnE-Fprime_syntax.j */
 
 OUTFIX < >

@@ -13,7 +13,7 @@ CONJECTUREPANEL "Set Conjectures" IS
     AND Ø⊆A
     AND C∈A∪B↔C∈A∨C∈B
     AND C∈A∩B↔C∈A∧C∈B
-    AND C∈A-B↔C∈A∧C¬∈B
+    AND C∈A-B↔C∈A∧C∉B
     AND A∪B=B∪A
     AND A∩B=B∩A
     AND (A∪B)∪C=A∪(B∪C)
