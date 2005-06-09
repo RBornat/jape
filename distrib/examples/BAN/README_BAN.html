@@ -1,41 +1,37 @@
 <h1>Font problems in BAN logic encoding</h1>
 <p>
-Some of the characters used in the BAN logic encoding aren't in widely-available Unicode fonts, and one of them ('says' -- looks a bit like |~) doesn't correspond a single Unicode glyph. This has a severe effect in Linux, Solaris and Windows, and a mild effect in MacOS X (but watch this space :-)).
+Some of the characters used in the BAN.jt encoding aren't in widely-available Unicode fonts. All the machines Bernard and I have tested are missing or not correctly displaying at least the symbols used in the first four menus (believes, sees, says, and whatever the bar-with-double-arrow is called). That's true even when using  the best Unicode fonts we can find (see below), and on all the platforms we know about: Linux, Windows, Solaris and MacOS X.
 </p>
-<h1>BAN on Linux, Solaris and Windows</h1>
-<p>All the machines we have used are missing or not correctly displaying at least the symbols used in the first four menus (believes, sees, says, and whatever the
-bar-with-double-arrow is called).
-</p>
-
-<h1>BAN on MacOS X</h1>
 
 <p>
-The panels and menus in MacOS X Jape at present use the Konstanz font used in
-MacOS (Classic) Jape, so they work properly.  The menu and window <i>titles</i>
-are rendered in Unicode, however, and that means that the first four menu titles at least (believes, sees, says, and whatever the
-bar-with-double-arrow is called) look a bit wonky. (If you're missing more than that, OpenType fonts with lots of characters are available semi-piratically on the web: we aren't telling you where ...)
+On MacOS X (which I know best because that's where I develop Jape) at least two of the glyphs are garbled, and font-fall-through somehow makes lines appear below their designated position.
 </p>
 
-<h1>So when are we going to fix it?</h1>
+<h1>So when am I going to fix it?</h1>
 
 <p>
-These problems won't be permanently fixed until there is a widely available freeware
-universal Unicode font.  One's coming, we believe, from ESSTIX.  Watch the
+These problems won't be properly fixed until there is a widely available freeware Unicode font with full glyph coverage.  My hopes are pinned on the STIX font (see <a href="http://www.stixfonts.org/">their home page</a> for information on their progress -- but beware! they are two years behind their first promise of completion).  Watch the
 skies!
 </p>
 
 <h1>How about a workaround?</h1>
 
 <p>
-If you are desperate to work in BAN logic on <b><i>Linux</i></b> or <b><i>Solaris</i></b>, the v5 distribution of Jape, available from <a href="http://users.comlab.ox.ac.uk/bernard.sufrin/jape.html">the Oxford Jape site</a> still works fine. If you need to work in <b><i>Windows</i></b>, we've included a BAN_ASCII.jt encoding that uses multi-character sequences to represent the BAN glyphs (but look out: proofs you produce with it won't be readable under the normal BAN encoding). 'Believes' is |=-; 'sees' is <|; 'says' is |~; and the other thing is |=>.</p>
+BAN_ASCII.jt uses multi-character sequences to represent the BAN glyphs. Proofs you produce with it won't be readable under the normal BAN encoding (but if you ask, I guess I could produce a translator at short notice). 'Believes' is |=-; 'sees' is <|; 'says' is |~; and the other thing is |=>.</p>
 
-<h1>Email us!</h1>
+<h1>What's the best Unicode font, then?</h1>
 
 <p>
-If the BAN_ASCII encoding is still a bit too rich for your machine, send a screenshot to <a href="mailto:bugs@www.jape.org.uk">bugs@www.jape.org.uk</a>, and we'll go the extra mile for you. But no complaints about split infinitives, if you want a helpful reply.</p>
+The best I know for Jape purposes is distributed by Microsoft and it's called Lucida Sans Unicode. It is sometimes available on the web (Google lsansuni.ttf). If you have Windows you probably already have it. Otherwise, even if you download it, you need a Windows license, or perhaps an old Word license or two would do. Let conscience be your guide; roll on STIX to wash away our sins.
+</p>
+
+<h1>Email me!</h1>
+
+<p>
+If the BAN_ASCII encoding is still a bit too rich for your machine, send a screenshot to <a href="mailto:bugs@www.jape.org.uk">bugs@www.jape.org.uk</a>, and I'll go the extra mile for you. But no complaints about split infinitives, if you want a helpful reply.</p>
 
 Richard Bornat
-23.ii.2003
+9.vi.2005
 
 
 
