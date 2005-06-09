@@ -15,18 +15,6 @@
 \definecolor{magenta}{cmyk}{0,1,0,0}
 \definecolor{halfgrey}{gray}{0.5}
 
-\usepackage{ucs}
-\usepackage[utf8x]{inputenc}
-\usepackage[T1]{fontenc}
-\newcommand{\textGamma}{\ensuremath{\Gamma}}
-\newcommand{\textDelta}{\ensuremath{\Delta}}
-\newcommand{\textalpha}{\ensuremath{\alpha}}
-\newcommand{\textbeta}{\ensuremath{\beta}}
-\newcommand{\textlambda}{\ensuremath{\lambda}}
-\DeclareUnicodeCharacter {8614}{\ensuremath{|->}}
-\DeclareUnicodeCharacter {8870}{\ensuremath{|-}}
-\DeclareUnicodeCharacter {9665}{\ensuremath{\triangleleft}}
-
 \textwidth = 6.5 in
 \textheight = 9 in
 \oddsidemargin = 0.0 in
@@ -59,6 +47,8 @@
        }
 
 \mathlig{->}{\rightarrow}
+\mathlig{=>}{\Rightarrow}
+\mathlig{|->}{\mapsto}
 \mathlig{|-}{\vdash}
 \mathlig{|=}{\vDash}
 \mathlig{|*}{\exists}
@@ -67,6 +57,7 @@
 \mathlig{@*}{\forall}
 \mathlig{@}{\land}
 \mathlig{<->}{\leftrightarrow}
+\mathlig{<|}{\triangleleft}
 
 \mathlig{++}{\mathbin{+\!\,+}}
 \mathlig{--}{\mathbin{-\!\,-}}
@@ -77,6 +68,25 @@
 
 \reservestyle{\textword}{\text}
 \textword{true,false}
+
+% BAN symbols
+\def\believes{\mathrel\mid\joinrel\equiv}
+\def\oncesaid{\mathrel\mid\joinrel\sim}
+\def\sees{\mathrel\triangleleft}
+\def\hasjurisdictionover{\mathrel\mid\joinrel\Rightarrow}
+\def\fresh{\#}
+
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\newcommand{\textGamma}{\ensuremath{\Gamma}}
+\newcommand{\textDelta}{\ensuremath{\Delta}}
+\newcommand{\textalpha}{\ensuremath{\alpha}}
+\newcommand{\textbeta}{\ensuremath{\beta}}
+\newcommand{\textlambda}{\ensuremath{\lambda}}
+\DeclareUnicodeCharacter {8614}{\ensuremath{|->}}
+\DeclareUnicodeCharacter {8870}{\ensuremath{|-}}
+\DeclareUnicodeCharacter {9665}{\ensuremath{\triangleleft}}
 
 \newcommand{\eqnref}[1]{(\ref{eqn:#1})}
 \newcommand{\figref}[1]{figure \ref{fig:#1}}
