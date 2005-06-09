@@ -12,8 +12,7 @@ In its time this was the most ambitious use of Japeish so far to produce a slick
 
 This is contained in the files \texttt{examples/Barwise\_n\_Etchemendy/BnE-Fprime.jt} and the files that it invokes; it is derived from the logic $F'$ in ``\emph{The Language of First-Order Logic}'' by Barwise and Etchemendy. It is very similar to the encoding described in \chapref{ItL} above, with the addition of rules for a bi-implication operator, a falsity constant, equality, and a unique-existence operator:\\
 
-{\small
-\begin{tabular}{|l|l|l|} 
+\begin{ruletab}{|l|l|l|} 
 \hline
 % ROW 1
 $\infer[\reason{$<->-I$}]
@@ -50,13 +49,13 @@ $\infer[\reason{(\textsc{fresh} $c$, $c$ \textsc{notin} B) $|*\text{!} -E$}]
 $\infer[\reason{$|*\text{!}-E$}]
        {\Gamma  |-|*x.A}
        {\Gamma  |-|*\text{!}x.A}$\\
-\hline \end{tabular}}
+\hline 
+\end{ruletab}
 
 
 plus a pair of rewrite rules for each of the bi-implication and equality operators:
 
-{\small
-\begin{tabular}{|l|l|} 
+\begin{ruletab}{|l|l|} 
 \hline
 % ROW 1
 $\infer[\reason{$rewrite\,<->\,$}]
@@ -76,7 +75,7 @@ $\infer[\reason{$rewrite\,=\,$}]
        {\Gamma |- P[v\backslash B]}
        {\Gamma  |- A=B\quad \Gamma  |- P[v\backslash A]}$ \\
 \hline 
-\end{tabular}}
+\end{ruletab}
 
 
 These are encoded, completely straightforwardly, in the file \texttt{examples/Barwise\_n\_Etchemendy/BnE-Fprime\_rules.j}. The rules are inserted into the menu as
@@ -116,146 +115,142 @@ END
 \end{quote}
 
 Here \texttt{fob} is essentially the tactic \texttt{ForwardOrBackward} of \chapref{ItL}, \texttt{ForwardCut} and \texttt{ForwardUncut} are also as described there, and the entries for bi-implication use the tactics
-
-TACTIC "\'{I}-E(L) forward"(Z) IS "\'{I}-E forward" "\'{I}-E(L)"\\
-TACTIC "\'{I}-E(R) forward"(Z) IS "\'{I}-E forward" "\'{I}-E(R)"
-
-TACTIC "\'{I}-E forward"(rule) IS\\
-\tab WHEN\tab (LETHYP (\_A\'{I}\_B) (ForwardCut2 rule))\\
+\begin{japeish}
+TACTIC "↔-E(L) forward"(Z) IS "↔-E forward" "↔-E(L)" \\
+TACTIC "↔-E(R) forward"(Z) IS "↔-E forward" "↔-E(R)"\\
+\\
+TACTIC "↔-E forward"(rule) IS\\
+\tab WHEN (LETHYP (\_A↔\_B) (ForwardCut2 rule))\\
 \tab \tab (LETHYP \_A (ForwardCut rule))\\
 \tab \tab (JAPE(fail(what's this in rule forward?)))
-
+\end{japeish}
 
 Using the rewrite rules is, as we have seen in \chapref{funcprog}, a little more complicated. The Substitution menu is
-
-MENU "Substitution"\\
-\tab ENTRY "A$<->$\dots "\tab IS ForwardSubst "rewrite $<->$ $\ll$" "rewrite $<->$ $\gg$" ($<->$)\\
-\tab ENTRY "\dots $<->$B"\tab IS ForwardSubst "rewrite $<->$ $\gg$" "rewrite $<->$ $\ll$" ($<->$)\\
-\tab ENTRY "A=\dots "\tab IS ForwardSubst "rewrite = $\ll$" "rewrite = $\gg$" (=)\\
-\tab ENTRY "\dots =B"\tab IS ForwardSubst "rewrite = $\gg$" "rewrite = $\ll$" (=)\\
+\begin{japeish}
+MENU "Substitution" \\
+\tab ENTRY "A↔\dots"     IS ForwardSubst "rewrite ↔ «" "rewrite ↔ »" (↔) \\
+\tab ENTRY "\dots↔B"     IS ForwardSubst "rewrite ↔ »" "rewrite ↔ «" (↔) \\
+\tab ENTRY "A=\dots"     IS ForwardSubst "rewrite = «" "rewrite = »" (=) \\
+\tab ENTRY "\dots=B"     IS ForwardSubst "rewrite = »" "rewrite = «" (=) \\
 END
+\end{japeish}
 
+The ForwardSubst tactic extends the techniques of \chapref{funcprog} to allow rewriting in forward as well as backward reasoning style. We require that the user must subformula-select some subformula and also may select a hypothesis which is to be used as $A=B$ or $A<->B$ in the rule. The tactic is rather subtle:\footnote{You might wonder whether the complexity of this tactic programming doesn't undermine the claim that Jape is simple and easy to program. Well, yes it does. But I now realise that while encoding the rules of a logic in Jape and arranging them in menus is straightforward and transparent, the work required to hide parts of proofs or to achieve concise effects by hiding gestures is programming, and programming is always potentially intricate.} it's given a left-to-right rewrite rule \textit{ruleLR}, a right-to-left rewrite rule \textit{ruleRL}, and a pattern \textit{pat} which it uses in error alerts. Note how the menu entries alternate the use of the rewrite rules to get the correct rewriting effect when working either forward or backwards.
 
-The ForwardSubst tactic extends the techniques of \chapref{funcprog} to allow rewriting in forward as well as backward reasoning style. We require that the user must text-select some subformula and also may select a hypothesis which is to be used as \textit{A}=\textit{B} or \textit{A}\ensuremath{\leftrightarrow}\textit{B} in the rule. The tactic is rather subtle\footnote{Perhaps, at this point, you might begin to wonder whether the complexity of our tactic programming doesn't undermine the claim that Jape is simple and easy to program. Our answer is twofold: first, this is work in progress, it is much simpler than it used to be, and that we are still working on it. But second, we now realise that while encoding the rules of a logic in Jape and arranging them in menus is straightforward and transparent, the work required to hide parts of proofs or to achieve concise effects by hiding gestures is programming, and programming is always potentially intricate.}: it's given a left-to-right rewrite rule \textit{ruleLR}, a right-to-left rewrite rule \textit{ruleRL}, and a pattern \textit{pat} which it uses in error alerts. Note how the menu entries alternate the use of the rewrite rules to get the correct rewriting effect when working either forward or backwards.
-
+\begin{japeish}
 TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS\\
-\tab WHEN\tab (LETHYPSUBSTSEL \_P \\
+\tab WHEN \\
+\tab \tab (LETHYPSUBSTSEL \_P \\
 \tab \tab \tab cut\\
 \tab \tab \tab ruleRL \\
-\tab \tab \tab (WHEN\tab (LETHYP \_Q \\
-\tab \tab \tab \tab \tab (ALT\tab (WITHHYPSEL hyp) \\
+\tab \tab \tab (WHEN \\
+\tab \tab \tab \tab (LETHYP \_Q \\
+\tab \tab \tab \tab \tab (ALT (WITHHYPSEL hyp) \\
 \tab \tab \tab \tab \tab \tab (FAIL (the hypothesis you formula-selected wasn't a pat formula))))\\
 \tab \tab \tab \tab (JAPE (SUBGOAL 1))) \\
 \tab \tab \tab (WITHSUBSTSEL hyp))\\
 \tab \tab (LETCONCSUBSTSEL \_P\\
 \tab \tab \tab (WITHSUBSTSEL ruleLR)\\
-\tab \tab \tab (WHEN\tab (LETHYP\_Q \\
-\tab \tab \tab \tab \tab (ALT\tab (WITHHYPSEL hyp) \\
+\tab \tab \tab (WHEN \\
+\tab \tab \tab \tab (LETHYP\_Q \\
+\tab \tab \tab \tab \tab (ALT (WITHHYPSEL hyp) \\
 \tab \tab \tab \tab \tab \tab (FAIL(the hypothesis you formula-selected wasn't a pat formula))))\\
 \tab \tab \tab \tab SKIP))\\
 \tab \tab (JAPE (fail(please text-select one or more instances of a sub-formula to replace)))
+\end{japeish}
 
+\textsc{lethypsubstsel} \textit{pattern tactic...} succeeds when the user's subformula-selections describe a substitution in a hypothesis (left-hand side) formula; \textsc{letconcsubstsel} succeeds when they describe a substitution in a conclusion (right-hand side). Working backwards with letconcsubstsel the tactic is fairly straightforward: it applies ruleLR (one of the argument rewrite rules) on the substution formula that the user has defined, and then, if the user has selected a hypothesis, tries to unify it with the conclusion of the first antecedent of the rewrite. Working forwards it makes a cut, applies ruleRL (the other rewrite rule, which will do its work in the opposite direction to ruleLR) and then either applies the user's selected hypothesis (alt...) or skips the first antecedent (jape(subgoal 1)) and then does \textsc{withsubstsel} hyp, which uses the user's original subformula-selection to construct a substitution in the current problem sequent, and also does an automatic \textsc{withhypsel} on it, so that the hyp is bound to make use of that hypothesis\.footnote{It seems reasonable that withsubstsel should include an automatic withhyp/withconcsel, because if the newly-constructed hypothesis isn't to be used, why was it constructed?} The automatic \textsc{withhypsel} enables us, as in this example, to distinguish between two selected hypotheses: the one selected for application as an equality, and the one subformula-selected for rewriting.\footnote{The encoding uses the out-of-date terminology `text selection', because it was written before subformula selection was implemented, when all you could do was select character sequences.}
 
-lethypsubstsel \textit{pattern tactic...} succeeds when the user's text-selections describe a substitution in a hypothesis (left-hand side) formula; letconcsubstsel succeeds when they describe a substitution in a conclusion (right-hand side) formula.\\
-Working backwards with letconcsubstsel the tactic is fairly straightforward: it applies ruleLR (one of the argument rewrite rules) on the substution formula that the user has defined, and then, if the user has selected a hypothesis, tries to unify it with the conclusion of the first antecedent of the rewrite.
+\section{Syntax of set operations}
 
+Apart from the various operators, which have been encoded in the obvious way, the only important syntactic feature of this encoding is the treatment of \emph{set abstractions}. Jape's parser-generator isn't very sophisticated, so I had to make some drastic simplifications.
 
-Working forwards it does a \texttt{Cut} and then applies ruleRL (the other rewrite rule, which will do its work in the opposite direction to ruleLR) and then either applies the user's selected hypothesis (alt...) or skips the first antecedent (jape(subgoal 1)) and then does withsubstsel \texttt{hyp}, which uses the user's original text-selection to construct a substitution in the current problem sequent, and also does an automatic withhypsel on it, so that the \texttt{hyp} is bound to make use of that hypothesis\footnote{It seems reasonable that withsubstsel should include an automatic withhyp/withconcsel, because if the newly-constructed hypothesis isn't to be used, why was it constructed?}. The automatic withhypsel enables us, as in this example, to distinguish between two selected hypotheses: the one selected for application as an equality, and the one text-selected for rewriting.
+The form of a set abstraction, in this encoding, is $\{ \mathit{variable} | \mathit{formula} \}$, and the occurrence of the variable to the left of the bar is a binding occurrence; I also allow $\{ \texttt{<}\mathit{variable},\mathit{variable}\texttt{>} | \mathit{formula} \}$. I include, therefore, in \texttt{set\_syntax.j}
+\begin{japeish}
+CLASS VARIABLE u v w \\
+CONSTANT Ø ⊥ U EQ \\
+\\
+PREFIX  1000            Pow \\
+PREFIX  800             ∪∪ ∩∩ \\
+POSTFIX 800             ⁻¹ \\
+INFIX           700L            ∪ ∩ - \\
+INFIX           720L            • \\
+INFIX           740L            × \\
+INFIX           600L            ⊆ \\
+INFIX           500L            ∈ ∉ \\
+\\
+OUTFIX < > \\
+OUTFIX { } \\
+OUTFIX { | } \\
+ \\
+BIND y SCOPE P IN { y | P } \\
+BIND x y SCOPE P IN { <x,y> | P }
+\end{japeish}
+The priority numbers chosen are higher than the priority of any operator in \texttt{BnE-Fprime\_syntax.j}, and otherwise have no particular significance. 
 
+Given the \textsc{outfix} and \textsc{bind} directives above, together with the standard interpretation of comma as a zero-priority associative operator, the encoding recognises the following formula-shapes:
+\begin{description}
+\item[$\{\,\}$] the empty set;
+\item[$\{ \mathit{formula} \}$] a singleton set;
+\item[$\{ \mathit{formula},\dots,\mathit{formula} \}$] a literal description of a set;
+\item[$\{ \mathit{variable} \mid \mathit{formula} \}$] a set abstraction;
+\item[$\{ <\!\mathit{variable}, \mathit{variable}\!> \mid \mathit{formula} \}$] an abstraction of a set of pairs.
+\end{description}
+Allowing set brackets with or without the vertical bar is a trick of which I was once ashamed.
 
-\textbf{6.2\tab Syntax of set operations}
+\section{The axiomatic presentation of naive set theory}
 
-
-Apart from the various operators, which have been encoded in the obvious way, the only important syntactic feature of this encoding is the treatment of set abstractions. Jape's parser-generator isn't very sophisticated at present, so we have made some drastic simplifications.\\
-The form of a set abstraction, in this encoding, is \{ \textit{variable} {\textbar} \textit{formula} \}, and the occurrence of the variable to the left of the bar is a binding occurrence; we also allow \{ \texttt{<}\textit{variable},\textit{variable}\texttt{>} {\textbar} \textit{formula} \}. We include, therefore, in set\_syntax.j
-
-CLASS VARIABLE u v w\\
-CONSTANT {\O} \"{Y} U EQ
-
-PREFIX\tab 1000\tab Pow\\
-PREFIX\tab 800\tab \^{O}\^{O} flfl\\
-POSTFIX\tab 800\tab \={}\\
-INFIX\tab 700L\tab \^{O} fl -\\
-INFIX\tab 720L\tab {\textbullet}\\
-INFIX\tab 740L\tab $\times$\\
-INFIX\tab 600L\tab {\ss}\\
-INFIX\tab 500L\tab / ¬/\\
-OUTFIX \texttt{<} \texttt{>}\\
-OUTFIX \{ {\textbar} \}
-
-BIND y SCOPE P IN \{ y {\textbar} P \}\\
-BIND x y SCOPE P IN \{ \texttt{<}x,y\texttt{>} {\textbar} P \}
-
-
-The priority numbers chosen are higher than the priority of any operator in BnE-Fprime\_syntax.j, and otherwise have no particular significance. We misuse the linear logic \={} symbol as our representation of set negation, but we do use it as a postfix operator\footnote{Putting a smiley face here, in Windings font, adds about 300k bytes to the PostScript version of this file. Consider yourself smiled at.}.
-
-
-Given the outfix and bind directives above, together with the standard interpretation of comma as a zero-priority associative operator, we allow the following as formulae:
-
-\{\}\tab which we interpret as the empty set;\\
-\{ \textit{formula} \}\tab which we interpret as a singleton set;\\
-\{ \textit{formula},..., \textit{formula} \}\tab which we interpret as a literal description of a set;\\
-\{ \textit{variable} {\textbar} \textit{formula} \}\tab which we interpret as a set abstraction;\\
-\{ \texttt{<}\textit{variable}, \textit{variable}\texttt{>} {\textbar} \textit{formula} \}\tab which we interpret as a set abstraction, a set of pairs.
-
-
-Allowing set brackets with and without the vertical bar is a trick of which we are slightly ashamed. In future we hope that these shapes of formulae, and more, will be recognised by a more principled parser.
-
-
-\textbf{6.3\tab The axiomatic presentation of naive set theory}
-
-
-We first observe, just to get it out of the way, that this encoding of set theory does not attempt to avoid Russell's paradox. Schmidt's treatment was based on G\"{o}del-Bernays set theory and had a judgement ``Set{\nobreakspace}\textit{A}'', which we have not carried forward into our treatment, principally because our client didn't want us to.
-
+We first observe, just to get it out of the way, that this encoding of set theory does not attempt to avoid Russell's paradox (see \texttt{sets\_russell.j}). Schmidt's treatment was based on G\"{o}del-Bernays set theory and had a judgement ``Set $A$'', which I didn't duplicate, principally because my client didn't want me to.
 
 The axioms of comprehension and extension in this naive treatment are
-
-
-comprehension: $@*P.|*A.x\in A<->P(x)$ \\
-extension: $@*A,B.\,A=B<->(@*x.x\in A<->x\in B)$
-
-
-
-Of course the axiom of comprehension, stated as above, isn't first order, but that doesn't bother Jape. We haven't yet found a way to incorporate comprehension as a single rule, just because of the existence operator, and so we have followed Schmidt and incorporated it as two rules for each of our set-abstraction forms:\\
-
-
-\begin{tabular}{|p{0.886in}|p{0.912in}|p{1.249in}|p{1.276in}|p{0.044in}|p{0.044in}|p{0.044in}|p{0.044in}|} \hline
+\begin{description}
+\item[comprehension] $@*P.|*A.x\in A<->P(x)$;
+\item[extension] $@*A,B.\,A=B<->(@*x.x\in A<->x\in B)$
+\end{description}
+Comprehension isn't first order, but it's encoded in rules which are implicitly-quantified schemata so that's ok. I couldn't find a way to incorporate comprehension as a single rule, because of the existence operator, and so I followed Schmidt and incorporated it as two rules for each of the set-abstraction forms:
+\begin{ruletab}{|l|l|} 
+\hline
 % ROW 1
-{\raggedright $\infer
-       {\Gamma  |- A\in \left\{ y \mid P\left( y\right) \right\} }
-       {\Gamma  |- P\left( A\right) }$ } & 
-{\raggedright $\infer
-       {\Gamma |- P\left( A\right) }
-       {\Gamma  |- A\in \left\{ y|P\left( y\right) \right\} } $ } & 
-{\raggedright $\infer
-       {\Gamma  |- \left\langle A,B\right\rangle \in \left\{ \left\langle y,z\right\rangle |P\left( y,z\right) \right\} }
-       {\Gamma  |- P\left( A,B\right) }$ } & 
-{\raggedright $\infer
-       {\Gamma  |- P\left( A,B\right) }
-       {\Gamma  |- \left\langle A,B\right\rangle \in \left\{ \left\langle y,z\right\rangle |P\left( y,z\right) \right\} }$ }\\
-\hline \end{tabular}
+$\infer
+       {\Gamma  |- A\in \{ y \mid P( y) \} }
+       {\Gamma  |- P(A) }$ 
+& 
+$\infer
+       {\Gamma |- P(A) }
+       {\Gamma  |- A\in \{ y \mid P( y) \} } $
+\\
+\hline 
+$\infer
+       {\Gamma  |- <\! A,B\!> \in \{ <\!y,z\!>  \mid P(y,z) \} }
+       {\Gamma  |- P(A,B) }$ 
+& 
+$\infer
+       {\Gamma  |- P(A,B) }
+       {\Gamma  |- <\! A,B\!> \in \{ <\! y,z\!>  \mid P( y,z) \} }$
+\\
+\hline 
+\end{ruletab}
 
-
-The rules are encoded as a couple of alts
-
-RULES "abstraction-I"(A, OBJECT y,OBJECT z) ARE \\
-\tab FROM P(A) INFER A/\{ y {\textbar} P(y) \}\\
-AND\tab FROM P(A,B) INFER \texttt{<}A,B\texttt{>}/\{ \texttt{<}y,z\texttt{>} {\textbar} P(y,z) \}\\
-END\\
-RULES "abstraction-E"(A, OBJECT y, OBJECT z) ARE\\
-\tab FROM A/\{ y {\textbar} P(y) \} INFER P(A) \\
-AND\tab FROM \texttt{<}A,B\texttt{>}/\{ \texttt{<}y,z\texttt{>} {\textbar} P(y,z) \} INFER P(A,B)\\
+The rules are encoded as a couple of \textsc{alt}s
+\begin{japeish}
+RULES "abstraction-I"(A, OBJECT y,OBJECT z) ARE  \\
+\tab \tab FROM P(A) INFER A∈{ y | P(y) } \\
+\tab AND FROM P(A,B) INFER <A,B>∈{ <y,z> | P(y,z) } \\
+END \\
+RULES "abstraction-E"(A, OBJECT y, OBJECT z) ARE \\
+\tab \tab FROM A∈{ y | P(y) } INFER P(A)  \\
+\tab AND FROM <A,B>∈{ <y,z> | P(y,z) } INFER P(A,B) \\
 END
-
-
+\end{japeish}
+(\texttt{BnE-Fprime.jt} sets \texttt{interpretpredicates} true, so $P(A)$ is really shorthand for a substitution).
 and are incorporated into the SetOps menu in the usual way
-
+\begin{japeish}
 ENTRY "abstraction-I" IS FSSOB ForwardCutwithSubstSel "abstraction-I"\\
 ENTRY "abstraction-E" IS FOBSS ForwardCut "abstraction-E"
+\end{japeish}
 
-
-The fobss and fssob tactics are each a variation of the fob tactic, requiring that the user makes a text selection when reasoning backward (fobss) or forward (fssob):
-
+The \textsc{fobss} and \textsc{fssob} tactics are each a variation of the \textsc{fob} tactic, requiring that the user makes a text selection when reasoning backward (\textsc{fobss}) or forward (\textsc{fssob}):
+\begin{japeish}
 TACTIC FOBSS (Forward, Rule) IS \\
 \tab WHEN\tab (LETHYP \_P\\
 \tab \tab \tab (ALT\tab (Forward Rule)\\
@@ -269,123 +264,134 @@ TACTIC FOBSS (Forward, Rule) IS \\
 \tab \tab \tab \tab \tab (JAPE(failgivingreason(Rule is not applicable to conclusion ' \_Q '\\
 \tab \tab \tab \tab \tab \tab \tab \tab \tab \tab with substitution ' \_P '))))))\\
 \tab \tab (ALT\tab (WITHSELECTIONS Rule)\\
-\tab \tab \tab (JAPE(failgivingreason(Rule is not applicable to that conclusion))))
-
+\tab \tab \tab (JAPE(failgivingreason(Rule is not applicable to that conclusion)))) \\
+\\
 TACTIC FSSOB (Forward, Rule) IS \\
 \tab WHEN\tab (LETHYPSUBSTSEL \_P (Forward Rule)) \\
 \tab \tab (ALT\tab (WITHSELECTIONS Rule)\\
 \tab \tab \tab (WHEN\tab (LETARGSEL \_P\\
 \tab \tab \tab \tab \tab (JAPE(failgivingreason(Rule is not applicable with argument ' \_P '))))\\
-\tab \tab \tab \tab (JAPE(failgivingreason(Rule is not applicable)))))
-
+\tab \tab \tab \tab (JAPE(failgivingreason(Rule is not applicable))))) \\
+\\
 TACTIC ForwardCutwithSubstSel(Rule) IS\\
 \tab SEQ\tab cut \\
 \tab \tab (WHEN\tab (LETSUBSTSEL \_A Rule (WITHSUBSTSEL hyp))\\
 \tab \tab \tab \tab (JAPE (fail(please text-select one or more instances of a sub-formula))))
+\end{japeish}
 
+I incorporate extension as an axiomatic definition. I don't include the outer quantification, as rules are implicitly-quantified schemata. It's encoded in the Definitions panel (see below) as
+\begin{japeish}
+RULE (OBJECT y) IS A=B ≜ (∀y.y∈A↔y∈B)
+\end{japeish}
+When we use this rule we will normally do so with a rewrite: replace some subformula which matches one side or other of the definition, closing the first antecedent of the rewrite with an instance of the definition. But we don't want to see the particular instance of the axiom as part of the proof: just as in the functional programming example, it is best referred to in the justification of the rewrite step, and otherwise hidden from view.
 
-We can incorporate extension, however, as an axiomatic definition. We don't include the outer quantification, as our rules are schemata. The rule is
+I include the rule as part of a Definitions panel, and have two buttons on the panel which allow left-to-right and right-to-left rewriting. As with the Substitution menu, switching the rewrite rules around in the tactics associated with each button allows forward or backward rewriting, The panel definition is in \texttt{BnE-Fprime\_menus.j}:
+\begin{japeish}
+TACTICPANEL "Definitions" IS \\
+\tab RULE INFER A≠B ≜ ¬(A=B) \\
+\tab  \\
+\tab BUTTON "A≜…" IS apply ForwardSubstHiding "rewrite ≜ «" "rewrite ≜ »"  COMMAND \\
+\tab BUTTON "…≜B" IS apply ForwardSubstHiding "rewrite ≜ »" "rewrite ≜ «"  COMMAND \\
+END
+\end{japeish}
 
-
-$\infer{A=B |- @*y.y\in A<->y\in B}
-       {}$
-
-encoded as\footnote{It's obvious from this example that Jape needs a simple way of expressing rules whose name is just the consequent of the rule. It will have it, one day.}
-
-RULE (OBJECT y) IS INFER A=B \~{} (∀y.y/A$<->$y/B)
-
-
-When we use this rule we will normally do so with a rewrite: replace some subformula which matches one side or other of the definition, closing the first antecedent of the rewrite with an instance of the axiomatic definition above. But we don't want to see the particular instance of the axiom as part of the proof: just as in the functional programming example, it is best referred to in the justification of the rewrite step, and otherwise hidden from view.
-
-
-We include the rule as part of a Definitions panel, then, and have two buttons on the panel which allow left-to-right and right-to-left rewriting. As with the Substitution menu, switching the rewrite rules around in the tactics associated with each button allows forward or backward rewriting:
-
-PREFIXBUTTON "A\~{}\dots " IS apply ForwardSubstHiding "rewrite \~{} $\ll$" "rewrite \~{} $\gg$"\\
-PREFIXBUTTON "\dots \~{}B" IS apply ForwardSubstHiding "rewrite \~{} $\gg$" "rewrite \~{} $\ll$"
-
-
-The tactic ForwardSubstHiding is rather subtle, because it allows the user to rewrite
-
-
-{\textbullet}\tab either a hypothesis or a conclusion;\\
-{\textbullet}\tab after text-selecting a number of instances of a subformula, just those instances;\\
-{\textbullet}\tab without text-selecting, the whole hypothesis or conclusion.
-
+The tactic ForwardSubstHiding allows the user to rewrite
+\begin{itemize}
+\item either a hypothesis or a conclusion;
+\item after subformula-selecting a number of instances of a subformula, just those instances;
+\item without subformula-selecting, the whole hypothesis or conclusion.
+\end{itemize}
 
 In fact it is only forward rewriting without text selection that is more subtle than what we have already seen.
+\begin{japeish}
+TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS \\
+\tab WHEN     \\
+\tab \tab (LETHYPSUBSTSEL \_P  cut (LAYOUT thm (1) ruleRL thm (WITHSUBSTSEL hyp))) \\
+\tab \tab (LETCONCSUBSTSEL \_P (LAYOUT thm (1) (WITHSUBSTSEL ruleLR) thm)) \\
+\tab \tab /* the "second argument" of the rewrite rules has to be B */ \\
+\tab \tab (LETHYP \_P cut (LAYOUT thm (1) (ruleRL[B{\textbackslash}\_P]) thm (WITHHYPSEL hyp))) \\
+\tab \tab (LETGOAL \_P (LAYOUT thm (1) (ruleLR \_P) thm)) \\
+\end{japeish}
+The first alternative is activated when the user has subformula-selected in a hypothesis: it cuts, uses one of the rewrite rules, closes the first antecedent with the theorem, and the second using the subformula-selection that the user made. The second alternative is activated when there is a subformula-selection in a conclusion: it uses the other rewrite rule followed by the theorem. The last alternative is activated when there is no recognisable subformula-selection and no hypothesis selection: it activates the same rewrite rule as the second alternative, but gives it the whole conclusion formula instead of the user's text selection: that is a particularly easy `abstraction' for the substitution-unifier to resolve, and the effect is to unify the whole consequent with the left- or the right-hand side of the theorem, depending on the particular rewrite rule that is used.
 
-TACTIC ForwardSubstHiding (ruleLR, ruleRL, thm) IS\\
-\tab WHEN\tab (LETHYPSUBSTSEL \_P cut (LAYOUT () (1) ruleRL thm (WITHSUBSTSEL hyp)))\\
-\tab \tab (LETCONCSUBSTSEL \_P (LAYOUT () (1) (WITHSUBSTSEL ruleLR) thm))\\
-\tab \tab (LETHYP \_P cut (LAYOUT () (1)\tab ruleRL thm \\
-\tab \tab \tab (LETGOAL (\_P'[\_v{\textbackslash}\_Q]) (WITHHYPSEL(hyp \_Q)))))\\
-\tab \tab (LETGOAL \_P (LAYOUT () (1) (ruleLR \_P) thm))
+The third alternative is the tricky one. It calls the same rewrite rule as the first alternative, but gives it the selected hypothesis as argument $B$. The rule has to be something like
+\begin{japeish}
+RULE "rewrite ≜ «" (A) IS FROM A≜B AND P(B) INFER P(A)
+\end{japeish}
+But the instantiation says nothing about $A$, so that rule will necessarily succeed by deferred unification of $\_P'[v{\backslash}\_A]$ with the conclusion. Then it closes the first antecedent of the rewrite with the theorem which has to match $A≜B$ and therefore tells it what $\_A$ is: but we still don't know $\_P'$. After the theorem is applied, the second antecedent of the rewrite step will be $\_P'[v{\backslash}B]$: using hyp we unify that with $\_P$, which is $B$, and the effect is just like the fourth alternative (and surely I ought to have written the fourth alternative as
+\begin{japeish}
+(LETGOAL \_P (LAYOUT thm (1) (ruleLR[A{\textbackslash}\_P]) thm))
+\end{japeish}
+--- but it was composed in the days before you could write that kind of rule application, and I didn't think to update it).
 
+Each of the entries in the Definitions panel is intended to be used as a two-way rewrite rule, using the buttons as described above. Note that I've had to include definitions of negated operators like ≠ and ∉ in terms of negated formulae.\footnote{I always wanted to do this sort of thing by `definitional equality', where you write $A!=B$ and Jape interprets it as $¬(A=B$) but still displays what you wrote. I never managed it.}. The set additions are defined in \texttt{set\_menus.j}; the \textsc{object} qualifiers are for convenience, so that you don't get too many unknowns in your proof:\footnote{Nowadays Jape can use alpha-conversion of binding forms when unifying, so the fresh variables don't really get in the way.}
+\begin{japeish}
+TACTICPANEL "Definitions" IS \\
+\tab RULE IS A∉B ≜ ¬(A∈B) \\
+\tab RULE IS Ø ≜ \{\} \\
+\tab RULE (OBJECT x) IS EQ ≜ \{x|x=x\} \\
+\tab RULE (OBJECT x) IS \{A\} ≜ \{x|x=A\} \\
+\tab RULE (OBJECT x) IS \{A,B\} ≜ \{x|x=A∨x=B\} \\
+\tab RULE (OBJECT x) IS \{A,B,C\} ≜ \{x|x=A∨x=B∨x=C\} \\
+\tab RULE (OBJECT x) IS \{A,B,C,D\} ≜ \{x|x=A∨x=B∨x=C∨x=D\} \\
+\tab RULE (OBJECT y) IS A⊆B ≜ (∀y.y∈A→y∈B) \\
+\tab RULE (OBJECT y) IS A=B ≜ (∀y.y∈A↔y∈B) \\
+\tab RULE (OBJECT y) IS A∪B ≜ \{ y | y∈A∨y∈B \} \\
+\tab RULE (OBJECT y) IS A∩B ≜ \{ y | y∈A∧y∈B \} \\
+\tab RULE (OBJECT y) IS A-B ≜ \{ y | y∈A∧y∉B \} \\
+\tab RULE (OBJECT y) IS A⁻¹ ≜ \{y | y∉A\} \\
+\tab RULE (OBJECT x, OBJECT y) IS ∪∪(C) ≜ \{ x | ∃y. x∈y∧y∈C \} \\
+\tab RULE (OBJECT x, OBJECT y) IS ∩∩(C) ≜ \{ x | ∀y. y∈C→x∈y \} \\
+\tab RULE (OBJECT x) IS Pow(A) ≜ \{ x | x⊆A \} \\
+\tab RULE (OBJECT x, OBJECT y) IS A×B ≜ \{ <x,y>  | x∈A∧y∈B \} \\
+\tab RULE (OBJECT x, OBJECT y, OBJECT z) IS A•B ≜ \{ <x,z> | ∃y.<x,y>∈A∧<y,z>∈B \} \\
+END
+\end{japeish}
 
-The first alternative in the when is activated when the user has text-selected in a hypothesis: it cuts, uses one of the rewrite rules, closes the first antecedent with the theorem, and the second using the text-selection that the user made. The second alternative is activated when there is a text-selection in a conclusion: it uses the other rewrite rule followed by the theorem. The last alternative is activated when there is no recognisable text-selection\footnote{Actually, and unfortunately, when there is no \textit{valid} text selection.} and no hypothesis selection: it activates the same rewrite rule as the second alternative, but gives it the whole conclusion formula instead of the user's text selection: that is a particularly easy `abstraction' for the substitution-unifier to resolve, and the effect is to unify the whole consequent with the left- or the right-hand side of the theorem, depending on the particular rewrite rule that is used.\\
-The third alternative is the tricky one. It calls the same rewrite rule as the first alternative, but gives it nothing to work on, so that rule will necessarily succeed by deferred unification of the consequent of the rewrite with the conclusion. Then it closes the first antecedent of the rewrite with the theorem: that alters the consequent of the rewrite, but won't introduce enough constant material to enable the deferred unification to be resolved. Somehow we have to unify the selected hypothesis with one side or other of the theorem, just as in the fourth alternative. The trick is to realise that after the theorem is applied, the second antecedent of the rewrite step will be a substitution: we take the substituting formula from that substitution and, using \texttt{hyp}, unify that with the whole substitution and the originally-selected hypothesis. The effect is like magic: the whole of the selected hypothesis is unified with one side or the other of the theorem, just as in the fourth alternative\footnote{It's quite a clever bit of tactic programming, and that's the problem. In the future we hope to be able to allow \textit{either} of the formulae --- \textit{A} or \textit{B} --- in the rewrite rule to be provided as argument.}.
+\begin{figure}[htbp]
+\centering
+\includegraphics[scale=0.5]{pics/sets/axiomaticwasteful}
+\caption{Beginning of a proof using logical rules and axiomatic definitions}
+\label{fig:sets:axiomaticwasteful}
+\end{figure}
 
+\section{The non-axiomatic rules}
 
-Each of the entries in the Definitions panel is intended to be used as a two-way rewrite rule, using the buttons above. One entry in the Definitions panel is given in BnE-Fprime\_menus.j (where also the buttons are defined):
-
-RULE IS A\ensuremath{\neq}B \~{} ¬(A=B)
-
-
-This definition makes it unnecessary to have rules for \ensuremath{\neq}\footnote{In the future we hope to be able to handle this sort of definition by `definitional equality', where you write \textit{A}\ensuremath{\neq}\textit{B} and Jape interprets it as ¬(\textit{A}=\textit{B}) but displays it as \textit{A}\ensuremath{\neq}\textit{B}; compare the treatment of ¬\textit{A} as equivalent to \textit{A}$->$\"{Y} in many treatments of the intuitionistic sequent calculus, which we also can't handle at the moment as transparently as we would wish.}. The others are in set\_menus.j:
-
-RULE IS A¬/B \~{} ¬(A/B)\\
-RULE IS {\O} \~{} \{\}\\
-RULE (OBJECT x) IS EQ \~{} \{x{\textbar}x=x\}\\
-RULE (OBJECT x) IS \{A\} \~{} \{x{\textbar}x=A\}\\
-RULE (OBJECT x) IS \{A,B\} \~{} \{x{\textbar}x=A∧x=B\}\\
-RULE (OBJECT x) IS \{A,B,C\} \~{} \{x{\textbar}x=A∧x=B∧x=C\}\\
-RULE (OBJECT x) IS \{A,B,C,D\} \~{} \{x{\textbar}x=A∧x=B∧x=C∧x=D\}\\
-RULE (OBJECT y) IS A{\ss}B \~{} (∀y.y/A→y/B)\\
-RULE (OBJECT y) IS A=B \~{} (∀y.y/A$<->$y/B)\\
-RULE (OBJECT y) IS A\^{O}B \~{} \{ y {\textbar} y/A∧y/B \}\\
-RULE (OBJECT y) IS AflB \~{} \{ y {\textbar} y/A∧y/B \}\\
-RULE (OBJECT y) IS A-B \~{} \{ y {\textbar} y/A∧y¬/B \}\\
-RULE (OBJECT y) IS A\={} \~{} \{y {\textbar} y¬/A\}\\
-RULE (OBJECT x, OBJECT y) IS \^{O}\^{O}(C) \~{} \{ x {\textbar} ∃y. x/y∧y/C \}\\
-RULE (OBJECT x, OBJECT y) IS flfl(C) \~{} \{ x {\textbar} ∀y. y/C→x/y \}\\
-RULE (OBJECT x) IS Pow(A) \~{} \{ x {\textbar} x{\ss}A \}\\
-RULE (OBJECT x, OBJECT y) IS A$\times$B \~{} \{ \texttt{<}x,y\texttt{>} {\textbar} x/A∧y/B \}\\
-RULE (OBJECT x, OBJECT y, OBJECT z) IS A{\textbullet}B \~{} \{ \texttt{<}x,z\texttt{>} {\textbar} ∃y.\texttt{<}x,y\texttt{>}/A∧\texttt{<}y,z\texttt{>}/B \}
-
-
-\textbf{6.4\tab The non-axiomatic rules}
-
-
-A proof using the axioms will typically introduce and then eliminate logical connectives. Here is the beginning of such an axiomatic proof:
-
-\begin{figure}[htbp] \begin{center} \includegraphics[width=3.111in, height=3.792in]{oldpics/Roll_your_own_v3_2+Fig46} \caption{Fig46} \end{center} \end{figure}
-
-It is clear that there will be lots of repetitive applications of \ensuremath{\forall}-E, \ensuremath{\forall}-I, $->$-E, $->$-I, and similar logical rules during this proof. It is clear that there could be introduction and elimination rules for each of the set operators. These are the ones relevant to the proof above:\\
-
-
-\begin{tabular}{|p{1.457in}|p{1.457in}|p{1.457in}|p{0.043in}|p{0.043in}|p{0.043in}|} \hline
+A proof using the axioms will typically introduce and then eliminate logical connectives. \Figref{sets:axiomaticwasteful} shows the beginning of such a proof. It is clear that there will be lots of repetitive applications of ∀-E, ∀-I, →-E, →-I, and similar logical rules during this proof. It is clear that there could be introduction and elimination rules for each of the set operators. These are the ones relevant to the proof above:
+\begin{ruletab}{|l|l|l|} 
+\hline
 % ROW 1
-{\raggedright $\infer[\reason{$(\operatorname{FRESH}\;c)\;\subseteq -I$}]
+$\infer[\reason{$(\operatorname{FRESH}\;c)\;\subseteq -I$}]
        {\Gamma  |- A\subseteq B}
-       {\Gamma,c\in A |- c\in B}$ } & {\raggedright $\infer[\reason{$\subseteq -E$}]
+       {\Gamma,c\in A |- c\in B}$ 
+& 
+$\infer[\reason{$\subseteq -E$}]
        {\Gamma |- C\subseteq B}
-       {\Gamma  |- C\in A\quad \Gamma  |- A\subseteq B}$ } & {\raggedright }\\
+       {\Gamma  |- C\in A\quad \Gamma  |- A\subseteq B}$
+& \\
 \hline
 % ROW 2
-{\raggedright $\infer[\reason{$=-I$}]
+$\infer[\reason{$=-I$}]
        {\Gamma |- A=B}
-       {\Gamma  |- A\subseteq B\quad \Gamma  |- B\subseteq A}$ } & {\raggedright $\infer[\reason{$=-E(L)$}]
+       {\Gamma  |- A\subseteq B\quad \Gamma  |- B\subseteq A}$
+& 
+$\infer[\reason{$=-E(L)$}]
        {\Gamma  |- A\subseteq B}
-       {\Gamma  |- A=B}$ } & {\raggedright $\infer[\reason{$=-E(R)$}]
+       {\Gamma  |- A=B}$
+& 
+$\infer[\reason{$=-E(R)$}]
        {\Gamma  |- B\subseteq A}
-       {\Gamma  |- A=B}$ }\\
-\hline \end{tabular}
+       {\Gamma  |- A=B}$ \\
+\hline 
+\end{ruletab}
+\Figref{sets:derivedeconomical} shows the proof completed using these rules, rather than the axiomatic definitions. Somewhat simpler! The rules are encoded in the obvious way in \texttt{set\_menus.j}. They are described as \textsc{derived rule}, because they can be proved from the axioms, and in \figref{sets:derivedeconomical} as conjectured rules, because no proof of them had been provided when that proof was made.
 
-and here is the proof completed using these rules, rather than the axiomatic definitions:
+\begin{figure}[htbp]
+\centering
+\includegraphics[scale=0.5]{pics/sets/derivedeconomical}
+\caption{A proof using derived rules}
+\label{fig:sets:derivedeconomical}
+\end{figure}
 
-\begin{figure}[htbp] \begin{center} \includegraphics[width=2.292in, height=2.403in]{oldpics/Roll_your_own_v3_2+Fig47} \caption{Fig47} \end{center} \end{figure}
 
-
-Somewhat simpler! The rules are encoded in the obvious way\footnote{Jape is currently unequipped to allow the user to prove derived rules from the axioms. We intend that in the near future it should permit it --- the mechanism we have for proving theorem schemata is almost all that we need.} and likewise organised into a menu.\\
-Naturally we regret that Jape cannot yet deal with proofs of derived rules such as these.
  

@@ -17,12 +17,15 @@
 
 \usepackage{ucs}
 \usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
 \newcommand{\textGamma}{\ensuremath{\Gamma}}
 \newcommand{\textDelta}{\ensuremath{\Delta}}
 \newcommand{\textalpha}{\ensuremath{\alpha}}
 \newcommand{\textbeta}{\ensuremath{\beta}}
 \newcommand{\textlambda}{\ensuremath{\lambda}}
+\DeclareUnicodeCharacter {8614}{\ensuremath{|->}}
 \DeclareUnicodeCharacter {8870}{\ensuremath{|-}}
+\DeclareUnicodeCharacter {9665}{\ensuremath{\triangleleft}}
 
 \textwidth = 6.5 in
 \textheight = 9 in
@@ -65,6 +68,9 @@
 \mathlig{@}{\land}
 \mathlig{<->}{\leftrightarrow}
 
+\mathlig{++}{\mathbin{+\!\,+}}
+\mathlig{--}{\mathbin{-\!\,-}}
+
 \reservestyle{\word}{\operatorname}
 
 \reservestyle{\var}{\mathit}
@@ -101,9 +107,9 @@
 
 \newenvironment{japeish}{\begin{quote}\tt\small}{\end{quote}}
 \newenvironment{ruletab}[1]{\renewcommand{\arraystretch}{3.0}\begin{center}\begin{tabular}{#1}}%
-                           {\end{tabular}\end{center}}
+{\end{tabular}\end{center}}
 
-\includeonly{funcprog}
+\includeonly{BAN}
 
 \begin{document}
 \maketitle
