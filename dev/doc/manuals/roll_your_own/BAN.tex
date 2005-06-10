@@ -236,41 +236,48 @@ RULES "P|≡(...,X,...) ⇒ P|≡X"(X) ARE \\
 END
 \end{japeish}
 
-The second group gives an interesting forward proof problem. We would like to be able to select an item of a tuple and pick it out using one of these rules. To do so we need to be able to search the collection. Since our forward proof steps are all sequences ``\textit{cut; rule; select subgoal; hyp}'' we have to make sure on the second step that we select the right rule. We don't have a very good mechanism for that in our tactic language at present. The best we have come up with is a sort of automatic backtracking using \textsc{withcontinuation}.
+The second group gives an interesting forward proof problem. I would like to be able to select an item of a tuple and pick it out using one of these rules. To do so I need to be able to search the collection. Since forward proof steps are all sequences ``\textit{cut; rule; select subgoal; hyp}'' I have to be sure on the second step to select the right rule. The \textsc{alt} corresponding to the \textsc{rules} declaration above isn't very helpful. Jape matches the conclusion of a rule against the tip of a tree, and all the rules have the same conclusion, so it's not possible to choose between them by rule-matching. I could write a special \textsc{alt}, but that would be tedious. So instead (sigh!) I invented a new mechanism: \textsc{withcontinuation}.
 
+\textsc{withcontinuation} \textit{tactic}$_{0}$ \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$ sets the sequence \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$ as a continuation, and runs \textit{tactic}$_{0}$. If \textit{tactic}$_{0}$ is an \textsc{alt}, or ends with an \textsc{alt}, it will add that continuation to each of its alternatives. The effect is that an alternative won't succeed unless the continuation \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$ succeeds as well. If \textit{tactic}$_{0}$ doesn't end with an \textsc{alt}, then the effect is the same as \textsc{seq} \textit{tactic}$_{0}$ \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$. Forward step tactics all use \textsc{withcontinuation}:
+\begin{japeish}
+TACTIC ForwardCut (n,Rule) \\
+\tab SEQ cut (ForwardUncut n Rule) \\
+ \\
+TACTIC ForwardUncut (n,Rule) \\
+\tab (LETGOALPATH G  \\
+\tab \tab (WITHCONTINUATION (WITHARGSEL Rule) (GOALPATH (SUBGOAL G n)) (WITHHYPSEL hyp)) \\
+\tab \tab (GOALPATH G)  \\
+\tab \tab NEXTGOAL)
+\end{japeish}
+(the \textsc{goalpath} dance is to ensure that the next selected step isn't always far away from the tree that the \textsc{alt} built).
 
-\textsc{withcontinuation} \textit{tactic}$_{0}$ \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$ sets the sequence \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$ as a continuation, and runs \textit{tactic}$_{0}$. If \textit{tactic}$_{0}$ is an \textsc{alt}, or ends with an \textsc{alt}, it will add that continuation to each of its alternatives. The effect is that an alternative won't succeed unless the continuation \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$ succeeds as well. If \textit{tactic}$_{0}$ doesn't end with an \textsc{alt}, then the effect is the same as \textsc{seq} \textit{tactic}$_{0}$ \textit{tactic}$_{1}$... \textit{tactic}$_{\textit{n}}$. We make our forward step tactics use \textsc{withcontinuation}:
-
-TACTIC ForwardCut (n,Rule)\\
-\tab SEQ cut (WITHCONTINUATION (WITHARGSEL Rule) (JAPE (SUBGOAL n)) (WITHHYPSEL hyp))\\
-TACTIC ForwardUncut (n,Rule)\\
-\tab WITHCONTINUATION (WITHARGSEL Rule) (JAPE (SUBGOAL n)) (WITHHYPSEL hyp)
-
-
-Then we include in the \"{a} menu
-
-ENTRY "P\"{a}Q\"{a}(...,X,...) $=>$ P\"{a}Q\"{a}X"\\
-\tab IS ForwardOrBackward ForwardCut 0 "P\"{a}Q\"{a}(...,X,...) $=>$ P\"{a}Q\"{a}X"
-
-
+Then we include in the |≡ menu, for example
+\begin{japeish}
+ENTRY "P|≡(...,X,...) ⇒ P|≡X"             IS ForwardOrBackward ForwardCut 0 "P|≡(...,X,...) ⇒ P|≡X"
+\end{japeish}
 and Bob's your uncle.
 
+\begin{figure}
+\centering
+\includegraphics{scale=0.5}{pics/BAN/NSexample1}
+\caption{A proof with folded assumption lines}
+\label{fig:BAN:NSexample1}
+\end{figure}
 
-\textbf{{\large 9.3\tab Conjectures with long assumption lists}}
-
-
-On educational grounds we thought it best to include lots of assumptions in each conjecture, simply because the problem for novices is to decide which assumptions are relevant and how. This makes very long conjectures. For example, one of the conjectures about the Needham-Schroeder protocol is
-
-{\small THEOREM "Needham-Schroeder: A$\triangleleft$\{Na,(A,B)$<->$Kab,\#((A,B)$<->$Kab),\{(A,B)$<->$Kab\}Kbs\}Kas ⊦ A\"{a}(A,B)$<->$Kab" IS  \\
-\tab \tab A\"{a}(A,S)$<->$Kas, S\"{a}(A,S)$<->$Kas, B\"{a}(B,S)$<->$Kbs, S\"{a}(B,S)$<->$Kbs, S\"{a}(A,B)$<->$Kab,\\
-\tab \tab A\"{a}(∀k.S\"{o}(A,B)$<->$k), B\"{a}(∀k.S\"{o}(A,B)$<->$k), A\"{a}(∀k.S\"{o}\#((A,B)$<->$k)), \\
-\tab \tab A\"{a}\#Na, B\"{a}\#Nb, S\"{a}\#((A,B)$<->$Kab), B\"{a}(∀k.\#((A,B)$<->$k)), \\
-\tab \tab A$\triangleleft$\{Na,(A,B)$<->$Kab,\#((A,B)$<->$Kab),\{(A,B)$<->$Kab\}Kbs\}Kas \\
-\tab \tab ⊦ A\"{a}(A,B)$<->$Kab}
+\section{Conjectures with long assumption lists}
 
 
-Jape automatically folds long assumption lists in a box display to fit the proof window. The proof of this conjecture, in a moderately-sized window, is
+On educational grounds I thought it best to include lots of assumptions in each conjecture, simply because the problem for novices is to decide which assumptions are relevant and how. This makes very long conjectures. For example, one of the conjectures about the Needham-Schroeder protocol is
+\begin{japeish}
+THEOREM "Needham-Schroeder: A<|{Na,(A,B)↔Kab,\#((A,B)↔Kab),{(A,B)↔Kab}Kbs}Kas ⊢ A|≡\#((A,B)↔Kab)" IS \\
+\tab A|≡(A,S)↔Kas, S|≡(A,S)↔Kas, B|≡(B,S)↔Kbs, S|≡(B,S)↔Kbs, S|≡(A,B)↔Kab,\\
+\tab A|≡(∀k.S|⇒(A,B)↔k), B|≡(∀k.S|⇒(A,B)↔k), A|≡(∀k.S|⇒\#((A,B)↔k)), \\
+\tab A|≡\#Na, B|≡\#Nb, S|≡\#((A,B)↔Kab), B|≡(∀k.\#((A,B)↔k)), \\
+\tab A<|{Na,(A,B)↔Kab,\#((A,B)↔Kab),{(A,B)↔Kab}Kbs}Kas \\
+\tab ⊢ A|≡\#((A,B)↔Kab)
+\end{japeish}
+Expressed as a single line this would be several screensfull.
 
-\begin{figure}[htbp] \begin{center} \includegraphics[width=6.736in, height=2.986in]{oldpics/Roll_your_own_v3_2+Fig49} \caption{Fig49} \end{center} \end{figure}
+Jape automatically folds long assumption lists in a box-and-line proof to fit the proof window (you can turn this off, if you must, by setting \texttt{foldassumptionlines} false). The proof of this conjecture, in a moderately-sized window, is shown in \figref{BAN:NSexample1}.
 
  
