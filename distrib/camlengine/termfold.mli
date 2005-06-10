@@ -32,7 +32,7 @@
 
 val termfold : font -> int -> int -> int (* font, pre, inter, post leading *)
             -> int -> term               (* width, term *)
-            -> textsize * textlayout
+            -> bool * (textsize * textlayout)
 
 val termfolddebug : bool ref
 

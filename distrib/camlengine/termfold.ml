@@ -118,8 +118,8 @@ let rec infixprioflatten n mustbra t ts =
      Draw.measuretext MidBlock text
    in
    let default () =
-     let sss = minwaste measure w tstring in
-     mkTextInfo sss
+     let ss = minwaste measure w tstring in
+     List.length ss!=1, mkTextInfo ss
    in
    let tryfold ts tts default =
      let rec starts xs ys =
@@ -186,7 +186,7 @@ let rec infixprioflatten n mustbra t ts =
      let ss = List.map implode sss in
      let folded = minwaste measure w ss in
      let (size, _ as r) = mkTextInfo folded in
-     if Box.tsW size<=w then r else default()
+     if Box.tsW size<=w then (true, r) else default()
    in
    match appflatten t [] with
      Some ts -> 
@@ -245,7 +245,7 @@ let rec infixprioflatten n mustbra t ts =
 *)
 
 module FoldCache = Cache.F(struct type dom = string * font * int * int * int * int * term
-                                  type ran = textsize * textlayout
+                                  type ran = bool * (textsize * textlayout)
                                   let eval = termfold
                                   let size = 251
                            end)
