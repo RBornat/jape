@@ -140,7 +140,7 @@ let textsize_of_textlayout (Textlayout ts) =
   textsize_of_textbox box
 
 let rec textinfo_procrustes w p (size, Textlayout ts as inf) =
-  if tsW size<=w then inf else
+  if not !Miscellaneous.truncatereasons || tsW size<=w then false, inf else
   let ellipsis = "..." in
   let crusty (p', f, text) =
     let w' = w - (posX p' - posX p) in
@@ -154,8 +154,8 @@ let rec textinfo_procrustes w p (size, Textlayout ts as inf) =
                 (fun _ -> crust ts' &~~ (fun ts'' -> Some (t::ts'')))
   in
   match crust ts with
-    None     -> inf
-  | Some ts' -> let layout' = Textlayout ts' in textsize_of_textlayout layout', layout'
+    None     -> false, inf
+  | Some ts' -> let layout' = Textlayout ts' in true, (textsize_of_textlayout layout', layout')
   
   (* let (rf, rs) = fontNstring_of_reason r in
   textinfo_of_string rf (Japeserver.procrustes w " ..." rf rs) *)

@@ -40,9 +40,11 @@ val outerassumptionplural : string ref
 val innerassumptionword : string ref
 val innerassumptionplural : string ref
 
-val multiassumptionline : bool ref
-
 val boxlinedressright : bool ref
 
 val boxseldebug  : bool ref
 val boxfolddebug : bool ref
+
+val formulaefolded        : bool ref
+val assumptionlinesfolded : bool ref
+val reasonstruncated      : bool ref

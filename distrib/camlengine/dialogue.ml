@@ -43,6 +43,7 @@ open Invisibles
 open Japeenv
 open Listfuns
 open Mappingfuns
+open Miscellaneous
 open Name
 open Proofstate
 open Prooftree.Tree
@@ -61,10 +62,6 @@ open UTF
 
 (* this is the remains of a huge sml functor argument *)
 
-exception AtoI_ = Miscellaneous.AtoI_
-exception Catastrophe_ = Miscellaneous.Catastrophe_
-exception ParseError_ = Miscellaneous.ParseError_
-exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 exception None_ = Optionfuns.None_
 exception Use_ = Paragraph.Use_
 exception Verifyproviso_ = Provisofuns.Verifyproviso_
@@ -93,14 +90,8 @@ let ( &~~ ) = Optionfuns.( &~~ )
 let ( |~ ) = Optionfuns.( |~ )
 let ( |~~ ) = Optionfuns.( |~~ )
 let _Some = Optionfuns._Some
-let atoi = Miscellaneous.atoi
-let autoselect = Miscellaneous.autoselect
-let autoAdditiveLeft = Miscellaneous.autoAdditiveLeft
-let autoAdditiveRight = Miscellaneous.autoAdditiveRight
 let clearbindingdirectives = Binding.clearbindingdirectives
 let closedbugfile = Miscellaneous.close_reportfile
-let consolereport = Miscellaneous.consolereport
-let consolequery = Miscellaneous.consolequery
 let createdbugfile = Miscellaneous.create_reportfile
 
 let draganddropmapping cxt = 
@@ -112,7 +103,6 @@ let explodeCollection = Termfuns.explodeCollection
 let facts = Facts.facts
 let get_oplist = Symbol.get_oplist
 let findfirst = Optionfuns.findfirst
-let givenMenuTactic = Miscellaneous.givenMenuTactic
        
 let initGUI () =
   (Japeserver.setinvischars 
@@ -145,7 +135,6 @@ let provisoactual = Proviso.provisoactual
 let string_of_proviso = Proviso.string_of_proviso
 let provisovisible = Proviso.provisovisible
 let sameresource = Termfuns.sameresource
-let seektipselection = Miscellaneous.seektipselection
 let showInputError = Symbol.showInputError
 let string_of_element = Termstring.string_of_element
 let string_of_tactic = Tactic.string_of_tactic
@@ -153,7 +142,6 @@ let string_of_term = Termstring.string_of_term
 let _The = Optionfuns._The
 let _Title = Version._Title
 let tmerge = Termfuns.tmerge
-let uncurry2 = Miscellaneous.uncurry2
 let _Version = Version._Version
 let verifyprovisos = Provisofuns.verifyprovisos
 
@@ -182,12 +170,12 @@ let defaultenv =
   let pairs =
     ["alwaysshowturnstile"  , bj                         false        Sequent.alwaysshowturnstile;
      "applyautotactics"     , bj                         true         Tacticfuns.applyautotactics;
-     "applyconjectures"     , bj                         true         Miscellaneous.applyconjectures;
+     "applyconjectures"     , bj                         true         applyconjectures;
      "applydebug"           , ij                         0            Applyrule.applydebug;
-     "applyderivedrules"    , bj                         true         Miscellaneous.applyderivedrules;
-     "autoAdditiveLeft"     , tparam (bj                 false        Miscellaneous.autoAdditiveLeft);
+     "applyderivedrules"    , bj                         true         applyderivedrules;
+     "autoAdditiveLeft"     , tparam (bj                 false        autoAdditiveLeft);
      "autoAdditiveRight"    , tparam (bj                 false        Miscellaneous.autoAdditiveRight);
-     "autoselect"           , bj                         false        Miscellaneous.autoselect;
+     "autoselect"           , bj                         false        autoselect;
      "bindingdebug"         , bj                         false        Binding.bindingdebug;
      "boxfolddebug"         , bj                         false        Boxdraw.boxfolddebug;
      "boxlinedressright"    , bj                         true         Boxdraw.boxlinedressright;
@@ -200,10 +188,11 @@ let defaultenv =
      "factsdebug"           , bj                         false        Facts.factsdebug;
      "filteredfmt"          , ajd                                     Prooftree.Tree.filteredfmt;
      "FINDdebug"            , bj                         false        Tacticfuns._FINDdebug;
+     "foldassumptionlines"  , bj                         true         foldassumptionlines;
      "FOLDdebug"            , bj                         false        Tacticfuns._FOLDdebug;
      "foldedfmt"            , ajd                                     Prooftree.Tree.foldedfmt;
-     "foldformulae"         , bj                         false        Miscellaneous.foldformulae; (* default false, till non-Mac GUIs catch up *)
-     "givenMenuTactic"      , aj                         "GIVEN"      Miscellaneous.givenMenuTactic;
+     "foldformulae"         , bj                         true         foldformulae; 
+     "givenMenuTactic"      , aj                         "GIVEN"      givenMenuTactic;
      "hidecut"              , bj                         true         Boxdraw.hidecut;
      "hidehyp"              , bj                         true         Boxdraw.hidehyp;
      "hidereflexivity"      , bj                         true         Boxdraw.hidereflexivity;
@@ -215,7 +204,6 @@ let defaultenv =
      "matchdebug"           , bj                         false        Match.matchdebug;
      "menudebug"            , bj                         false        Menu.menudebug;
      "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
-     "multiassumptionline"  , bj                         true         Boxdraw.multiassumptionline;
      "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
      "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
@@ -228,8 +216,8 @@ let defaultenv =
      "rawfmt"               , ajd                                     Prooftree.Tree.rawfmt;
      "reasonstyle"          , sj ["short"; "long"]       "long"       Prooftree.Tree.reasonstyle;
      "rewritedebug"         , bj                         false        Rewrite.rewritedebug;
-     "screenpositiondebug"  , bj                         false        Miscellaneous.screenpositiondebug;
-     "seektipselection"     , bj                         true         Miscellaneous.seektipselection;
+     "screenpositiondebug"  , bj                         false        screenpositiondebug;
+     "seektipselection"     , bj                         true         seektipselection;
      "showallproofsteps"    , bj                         false        Prooftree.Tree.showallproofsteps;
      "showallprovisos"      , bj                         false        Interaction.showallprovisos;
      "substdebug"           , bj                         false        Substmapfuns.substdebug;
@@ -237,10 +225,10 @@ let defaultenv =
      "tactictracing"        , bj                         false        Tacticfuns.tactictracing;
      "termfolddebug"        , bj                         false        Termfold.termfolddebug;
      "termparsedebug"       , bj                         false        Termparse.termparsedebug;
-     "textselectionmode"    , sj ["subformula"; "token"] "subformula" Miscellaneous.textselectionmode;
+     "textselectionmode"    , sj ["subformula"; "token"] "subformula" textselectionmode;
      "thingdebug"           , bj                         false        Thing.thingdebug;
      "thingdebugheavy"      , bj                         false        Thing.thingdebugheavy;
-     "truncatereasons"      , bj                         false        Miscellaneous.truncatereasons;
+     "truncatereasons"      , bj                         false        truncatereasons;
      "tryresolution"        , bj                         true         Tacticfuns.tryresolution;
      "unfilteredfmt"        , ajd                                     Prooftree.Tree.unfilteredfmt;
      "unifydebug"           , bj                         false        Unify.unifydebug;
@@ -272,7 +260,7 @@ let displaynames =
              
 let boxdisplaynames =
   ["boxlinedressright"; "foldformulae"; "hidecut"; "hidehyp"; "hidetransitivity";
-   "hidereflexivity"; "hideuselesscuts"; "multiassumptionline"]
+   "hidereflexivity"; "hideuselesscuts"; "foldassumptionlines"]
        
 let displayvars = List.map Name.name_of_string (displaynames @ boxdisplaynames)
 
@@ -994,7 +982,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   let writetonamedfile action filename =
     try
       let sfile = try Usefile.open_output_file (disQuote filename) with exn -> raise (Io exn) in
-      output_string sfile Miscellaneous.utf8BOM;
+      output_string sfile utf8BOM;
       action sfile; close_out sfile; true
     with
       Io exn -> showAlert ["Cannot write file "; filename; " ("; Printexc.to_string exn; ")"]; false
@@ -1892,10 +1880,19 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               showAlert ["GUI protocol error: setfocus "; nstring; " with no proof windows"];
               default)
         
-        | "windowresized", [] ->
-            if !Miscellaneous.foldformulae && Interaction.getdisplaystyle()="box" then 
-              processcommand thisstate ["refreshdisplay"]
-            else default
+        | "windowwidened", [n] ->
+            (* if a window gets narrower, then we have to redraw if we have one of the
+               relevant variables set. If it gets wider, then we only have to redraw if
+               boxdraw tells us that it did something with that variable.
+             *)
+            (let redraw v vr = v && (n=="0" || vr) in
+             if Interaction.getdisplaystyle()="box" &&
+                (redraw !foldformulae !Boxdraw.formulaefolded ||
+                 redraw !foldassumptionlines !Boxdraw.assumptionlinesfolded ||
+                 redraw !truncatereasons !Boxdraw.reasonstruncated)
+             then 
+               processcommand thisstate ["refreshdisplay"]
+             else default)
             
         | "setfonts", fontnames ->
             (* let _ = consolereport ["font names now "; bracketedstring_of_list (fun s -> s) "; " fontnames] in *)

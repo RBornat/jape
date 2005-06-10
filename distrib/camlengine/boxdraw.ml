@@ -131,6 +131,7 @@ let term_of_element = Termfuns.term_of_element
 let enQuote = Stringfuns.enQuote
 let explodebinapp = Termfuns.explodebinapp
 let findfirst = Optionfuns.findfirst
+let foldassumptionlines = Miscellaneous.foldassumptionlines
 let foldformulae = Miscellaneous.foldformulae
 let isRelation = Thing.isRelation
 let string_of_pair = Stringfuns.string_of_pair
@@ -164,10 +165,13 @@ let outerassumptionword = ref "assumption"
 let outerassumptionplural = ref "assumptions"
 let innerassumptionword = ref "assumption"
 let innerassumptionplural = ref "assumptions"
-let multiassumptionline = ref true
 let boxlineformat = ref "R (A) N: |"        (* "N: |R A" is going to be the default *)
 let boxlinedressright = ref true
 let rec ttsub hs hs' = listsub sameresource hs hs'
+
+let assumptionlinesfolded = ref false
+let formulaefolded = ref false
+let reasonstruncated = ref false
 
 (* This collection of classes will do for experimental purposes, but it won't last for ever *)
 
@@ -294,10 +298,10 @@ type normalpt =
       (revpath * bool * (string * string) * element list * normalpt)
   | CutPT of (revpath * element * normalpt * normalpt * bool * bool)
   | TransitivityPT of (element * normalpt * normalpt)
-(* no revpath needed in transitivity node, because all you ever see is the tips;
- * cuts need a revpath because of the various things that can be done by
- * pointing to subtrees
- *)
+    (* no revpath needed in transitivity node, because all you ever see is the tips;
+     * cuts need a revpath because of the various things that can be done by
+     * pointing to subtrees
+     *)
 
 let rec pretransform prefixwithstile t =
   let innerwords = !innerassumptionword, !innerassumptionplural in
@@ -770,11 +774,14 @@ let rec linearise screenwidth procrustean_reasonW dp =
   
   let (commasize, _ as comminf) = textinfo_of_text (Absprooftree.comma ()) in
   let commaW = tsW commasize in
-  
   let minreasonW = 5*commaW in
 
   let (dotssize, _ as dotsinf) = textinfo_of_string ReasonFont ". . ." in
   
+  assumptionlinesfolded := false;
+  formulaefolded := false;
+  reasonstruncated := false;
+
   (* In formatting a line, we recognise four elements: 
    *   line number N
    *   assertion   
@@ -861,9 +868,11 @@ let rec linearise screenwidth procrustean_reasonW dp =
             | ElementPunctPlan                ->
                 raise (Catastrophe_ ["foldformula ElementPunctPlan"])
           in
-          Termfold.termfold TermFont textleading termfontleading textleading
-                            w (stripelement e), 
-          epi
+          let folded, inf =
+            Termfold.termfold TermFont textleading termfontleading textleading
+                              w (stripelement e) in
+          formulaefolded := !formulaefolded || folded;
+          inf, epi
   in
   
   (*************** the engine room ******************************: 
@@ -1066,7 +1075,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
           in
           let hyplines =
             let single h = [h] in
-            match !multiassumptionline, wopt with
+            match !foldassumptionlines, wopt with
               false, None -> single <* hypelis
             | true , None -> [hypelis] (* first pass - just put them all on one line *)
             | _, Some bestW -> (* We make a proper 'minimum waste' split of the assumption line *)
@@ -1074,8 +1083,10 @@ let rec linearise screenwidth procrustean_reasonW dp =
                 let mybestW = max (2 * tsW (fst (fst words))) (bestW - 2 * posX innerpos) in
                 let doit (e,inf) = e, if !foldformulae then foldformula mybestW inf else inf in
                 let donehyps = doit <* hypelis in
-                if !multiassumptionline then
-                  minwaste measureplan mybestW donehyps
+                if !foldassumptionlines then
+                  (let hs' = minwaste measureplan mybestW donehyps in
+                   assumptionlinesfolded := !assumptionlinesfolded || List.length hs'<>1;
+                   hs')
                 else
                   single <* donehyps
           in
@@ -1120,8 +1131,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
           cid',
           Lacc {id = id'';
                 acclines = 
-                  FitchBox {outerbox = outerbox; boxlines = innerlines; boxed = boxed} 
-                    :: accrec.acclines;
+                  FitchBox {outerbox = outerbox; boxlines = innerlines; boxed = boxed} :: accrec.acclines;
                 elbox = ( +||+ ) (accrec.elbox, outerbox); idW = max accrec.idW idW';
                 reasonW = max accrec.reasonW (reasonW'); assW = max accrec.assW assW'; 
                 lastmulti = false }
@@ -1237,7 +1247,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
   in
   (* body of linearise *)
   if extras lines idW reasonW + boxW elbox > screenwidth &&
-     (!foldformulae || assW = boxW elbox)
+     (!foldformulae || (!foldassumptionlines && assW = boxW elbox))
   then
     (* we have a picture which is too wide, and might be made less wide *)
     let maxbestW = screenwidth - extras lines idW procrustean_reasonW in
@@ -1257,11 +1267,13 @@ let rec linearise screenwidth procrustean_reasonW dp =
       | ReasonDesc (pi, why, cids) -> 
           let reasonplan = line.reasonplan in
           let w = availableW - (tsW (textsize_of_planlist reasonplan) - tsW (fst why)) in
-          let why' = textinfo_procrustes (max minreasonW w) origin why in
+          let trunc, why' = textinfo_procrustes (max minreasonW w) origin why in
+          reasonstruncated := !reasonstruncated || trunc;
           {line with reasonplan = realignreasonplan (mkreasonplan (Some (pi, why', cids)) origin)}
       | ReasonWord why ->
-          let why' = textinfo_procrustes (max minreasonW availableW) origin why in
-          {line with reasonplan = realignreasonplan (showword why' origin)}
+          let trunc, why' = textinfo_procrustes (max minreasonW availableW) origin why in
+          reasonstruncated := !reasonstruncated || trunc;
+         {line with reasonplan = realignreasonplan (showword why' origin)}
     in
     let rec reline f =
       match f with 

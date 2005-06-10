@@ -72,7 +72,7 @@ val textinfo_of_string : font -> string -> textsize * textlayout
 val textinfo_of_term : (term -> string) -> term -> textsize * textlayout
 val textinfo_of_element : (element -> string) -> element -> textsize * textlayout
 val textinfo_of_reason : reason -> textsize * textlayout
-val textinfo_procrustes : int -> pos -> textsize * textlayout -> textsize * textlayout
+val textinfo_procrustes : int -> pos -> textsize * textlayout -> bool * (textsize * textlayout)
 val plan_of_textinfo : textsize * textlayout -> 'a -> pos -> 'a plan
 val plan_of_string : font -> string -> 'a -> pos -> 'a plan
 val plan_of_element : (element -> string) -> element -> 'a -> pos -> 'a plan

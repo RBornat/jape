@@ -50,6 +50,7 @@ let applyderivedrules = ref true (* whether to allow application of derived rule
 let autoselect = ref true    (* whether to highlight 'next goal' when printing proofs *)
 let givenMenuTactic = ref "" (* tactic to use when the interface says applygiven *)
  
+let foldassumptionlines = ref false (* whether to fold long lines in boxdraw *)
 let foldformulae = ref false (* whether to fold long lines in boxdraw *)
 let truncatereasons = ref false (* whether to shorten reasons in boxdraw *)
   
