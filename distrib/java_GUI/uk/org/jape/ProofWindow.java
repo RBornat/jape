@@ -72,7 +72,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
     protected AnchoredScrollPane proofPane;
     protected ProofCanvas proofCanvas;
-    protected Timer proofSizeTimer;
+    protected WTimer proofSizeTimer;
     protected final int resizeDelay = 500;
     protected DisproofPane disproofPane; // more complicated than the others
     protected AnchoredScrollPane provisoPane;
@@ -89,10 +89,10 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	
 	getContentPane().setLayout(new BorderLayout()); 
 	proofPane = new AnchoredScrollPane("proof pane");
-	proofSizeTimer = new Timer(resizeDelay, new ActionListener(){
+	proofSizeTimer = new WTimer(resizeDelay, new ActionListener(){
 	    public void actionPerformed(ActionEvent e) {
 		proofSizeTimer.stop();
-		Reply.sendCOMMAND("windowresized");;
+		Reply.sendCOMMAND("windowwidened "+((proofSizeTimer.oldwidth<proofPane.getWidth()) ? "1" : "0"));
 	    } 
 	});
 	proofPane.addComponentListener(new ComponentAdapter(){
@@ -104,8 +104,10 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 		    else
 		    if (proofSizeTimer.isRunning())
 			proofSizeTimer.restart();
-		    else
+		    else {
+			proofSizeTimer.oldwidth = proofPane.getWidth();
 			proofSizeTimer.start();
+		    }
 		}
 	    } 
 	});
@@ -147,6 +149,13 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	setSize(LocalSettings.DefaultProofWindowSize);
 	setLocation(nextPos());
 	setVisible(true);
+    }
+    
+    protected class WTimer extends Timer {
+	int oldwidth;
+	WTimer(int i, ActionListener a) {
+	    super(i,a);
+	}
     }
     
     public int getBarKind() {
