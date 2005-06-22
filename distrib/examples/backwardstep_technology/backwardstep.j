@@ -43,21 +43,35 @@ MACRO BackwardOnly (pattern, action, stepname, shape, explain) IS
 
 TACTIC BackwardOnly2 (stepname, action, explain) IS 
     WHEN   
-       (LETHYP _Ah 
+       (LETHYPS _Ahs 
            (WHEN    
-               (LETCONC _Ac (BackwardOnly3 stepname action explain _Ah _Ac ", selecting"))
+               (LETCONC _Ac (BackwardOnly3 stepname action explain _Ahs _Ac ", selecting"))
                (LETRHS _Ac  /* can't fail */
-                   (BackwardOnly3 stepname action explain _Ah _Ac " from"))))
+                   (BackwardOnly3 stepname action explain _Ahs _Ac " from"))))
        (WITHSELECTIONS action)
-/* oh for a binding mechanism other than tactic application ... */
-    
 
-TACTIC BackwardOnly3 (stepname, action, explain, _Ah, _Ac, stuff) IS /* Oh for tactic nesting ... */
-    ALERT   ("You asked for a backward step with the %s rule%s the conclusion %s, \
-             \but you also selected the hypothesis %s. \
+/* oh for a binding mechanism other than tactic application ... */
+
+TACTIC BackwardOnly3 (stepname, action, explain, _Ahs, _Ac, stuff) IS /* Oh for tactic nesting ... */
+    WHEN
+        (LETHYP _Ah /* only one */
+            (BackwardOnly3single stepname action explain _Ah _Ac stuff))
+       (BackwardOnly3multiple stepname action explain _Ahs _Ac stuff)
+
+TACTIC BackwardOnly3single (stepname, action, explain, _Ah, _Ac, stuff) IS 
+    ALERT   ("You asked for a backward step with the %s rule%s the conclusion %t, \
+             \but you also selected the hypothesis %t. \
              \\n\nThe %s rule %s. \
-             \ \n\nDo you want to go on with the backward step from %s -- ignoring %s?", 
+             \ \n\nDo you want to go on with the backward step from %t, ignoring the hypothesis %t?", 
             stepname, stuff,  _Ac, _Ah, stepname, explain, _Ac, _Ah)
+            ("Backward", action) ("Cancel", STOP)
+
+TACTIC BackwardOnly3multiple (stepname, action, explain, _Ahs, _Ac, stuff) IS /* Oh for tactic nesting ... */
+    ALERT   ("You asked for a backward step with the %s rule%s the conclusion %t, \
+             \but you also selected the hypotheses %l. \
+             \\n\nThe %s rule %s. \
+             \ \n\nDo you want to go on with the backward step from %s, ignoring those hypotheses?", 
+            stepname, stuff,  _Ac, (_Ahs, ", ", " and "), stepname, explain, _Ac)
             ("Backward", action) ("Cancel", STOP)
 
 MACRO BackwardOnlyDouble (pattern1, pattern2, action, stepname, shapes, explain) IS
