@@ -26,10 +26,7 @@
 *)
 
 
-(*
- * Now ANY alert can be patched. ANY of them, from ANYWHERE. RB 19/x/99 
- *
- *)
+(* Now ANY alert can be patched. ANY of them, from ANYWHERE. RB 19/x/99 *)
 
 open Japeserver
 open Optionfuns
@@ -62,18 +59,28 @@ let rec intseverity =
 let alertpatches : (string * alertspec) list ref = ref []
 (* kept in inverse lexical order, so that "abcd" comes before "abc" *)
 
-let rec alertpatch s =
+let patchalertdebug = ref false
+
+let rec alertpatched s =
+  if !patchalertdebug then 
+    consolereport ["alertpatched checking "; Stringfuns.enQuote s];
   let rec patched (h, a) =
-    if String.length h <= String.length s && String.sub s 0 (String.length h) = h then Some a
-    else None
+    let r = if String.length h <= String.length s && String.sub s 0 (String.length h) = h 
+            then Some a else None
+    in
+    if !patchalertdebug then
+      consolereport ["    checked "; Stringfuns.enQuote h; " => "; string_of_bool (bool_of_opt r)];
+    r
   in
   match findfirst patched !alertpatches with
     Some (Alert ("", bs, def)) -> Some (Alert (s, bs, def))
-  | aopt -> aopt
+  | aopt                       -> aopt
 
 let rec resetalertpatches () = alertpatches := []
 
 let rec patchalert (h, a) =
+  if !patchalertdebug then 
+    consolereport ["patchalert patching "; h];
   let rec f =
     function
       (h', a' as p) :: ps ->
@@ -130,23 +137,24 @@ let rec askDangerously m (dol, doa) (dontl, donta) cancela =
   match askDangerously_unpatched m dol dontl with
     Some 0 -> doa
   | Some 1 -> donta
-  | None -> cancela
+  | None   -> cancela
   | Some i ->
       raise (Catastrophe_ ["askDangerously_unpatched => "; string_of_int i])
+
 (* we allow the user to patch an alert *)
 
 let rec showAlert code s =
   let rec display code s = ask code s ["OK", ()] 0 in
   let rec patch code aopt =
     match aopt with
-      None -> ()
+      None                      -> ()
     | Some (Alert (m, bs, def)) ->
         let code' = if List.length bs > 1 then Question else code in
         patch Info (ask code' m bs def)
-    | Some HowToTextSelect -> display Info (howtoTextSelect ())
+    | Some HowToTextSelect    -> display Info (howtoTextSelect ())
     | Some HowToFormulaSelect -> display Info (howtoFormulaSelect ())
-    | Some HowToDrag -> display Info (howtoDrag ())
+    | Some HowToDrag          -> display Info (howtoDrag ())
   in
-  match alertpatch s with
+  match alertpatched s with
     None -> display code s
   | aopt -> patch code aopt

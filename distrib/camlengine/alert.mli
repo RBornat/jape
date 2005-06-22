@@ -61,6 +61,7 @@ val askChoice : string * string list list -> int option
 val defaultseverity       : 'a list -> alertseverity
 val defaultseverity_alert : alertseverity
 val patchalert            : string * alertspec -> unit
+val patchalertdebug       : string ref
 val resetalertpatches     : unit -> unit
 val setComment            : string -> unit (* this demoted to a thing which sets a comment line *)
 val showAlert             : alertseverity -> string -> unit (* this just pops up a window *)
