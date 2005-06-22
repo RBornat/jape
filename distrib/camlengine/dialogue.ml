@@ -207,6 +207,7 @@ let defaultenv =
      "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
      "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
+     "patchalertdebug"      , bj                         false        Alert.patchalertdebug;
      "predicatedebug"       , bj                         false        Predicate.predicatedebug;
      "profiling"            , Japeenv.booljapevar        false        (profileswitcher, profilereader);
      "prooftreedebug"       , bj                         false        Prooftree.Tree.prooftreedebug;
@@ -2051,14 +2052,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        | _ ->
                            [st, [], [el]],
                            (fun _ ->
-                              ["conclusion "; string_of_element el;
-                               " with no selected hypothesis"])
+                              ["conclusion "; string_of_element el; " with no selected hypothesis"])
                        end
                    | _ ->
                        [st, hyps, [el]],
                        (fun _ ->
-                          "conclusion " :: string_of_element el :: " and " ::
-                            hypword hyps []))
+                          "conclusion " :: string_of_element el :: " and " :: hypword hyps []))
               | HypHit (_, el) ->
                   DClickHyp,
                   (match concopt with
