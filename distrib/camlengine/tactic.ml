@@ -230,16 +230,13 @@ let rec catelim_string_of_tactic sep t tail =
     | ContnTac (tac1, tac2) ->
         "WITHCONTINUATION" :: argsep ::
           sepstring_of_tacarg tac1 (argsep :: unSEQ tac2 tail)
-    | AlertTac (m, ps, copt) ->
+    | AlertTac (m, ps) ->
         "ALERT" :: argsep ::
           catelim_string_of_termarg m
             (catelim_string_of_list
                (catelim_string_of_pair catelim_string_of_term
                   (catelim_string_of_tactic " ") ", ")
-               argsep ps
-               (match copt with
-                  Some t -> argsep :: sepstring_of_tacarg t tail
-                | None -> tail))
+               argsep ps tail)
     | ExplainTac m -> "EXPLAIN" :: argsep :: catelim_string_of_termarg m tail
     | CommentTac m -> "COMMENT" :: argsep :: catelim_string_of_termarg m tail
     | UnifyTac terms -> "UNIFY" :: argsep :: trterms terms tail
@@ -354,10 +351,7 @@ let remaptactic env t =
     | BindOccursTac (pt, vt, st, t) ->
         BindOccursTac (_E pt, _E vt, _E st, _T t)
     | LayoutTac (t, tl) -> LayoutTac (_T t, remaptreelayout env tl)
-    | AlertTac (m, ps, copt) ->
-        AlertTac
-          (_E m, ((fun (l, t) -> _E l, _T t) <* ps),
-           ((copt &~~ (_Some <.> _T))))
+    | AlertTac (m, ps)  -> AlertTac (_E m, ((fun (l, t) -> _E l, _T t) <* ps))
     | ExplainTac m -> ExplainTac (_E m)
     | CommentTac m -> CommentTac (_E m)
     | BadUnifyTac (n1, n2, t) -> BadUnifyTac (n1, n2, _T t)
@@ -611,8 +605,7 @@ and transTactic tacterm =
                     let rec f rs =
                       function
                         Tup (_, ",", [l; t]) :: ps -> f ((l, transTactic t) :: rs) ps
-                      | [t]    -> AlertTac (m, List.rev rs, Some (transTactic t))
-                      | []     -> AlertTac (m, List.rev rs, None)
+                      | []     -> AlertTac (m, List.rev rs)
                       | t :: _ ->
                           raise (TacParseError_ ["badly formed argument "; string_of_term t])
                     in

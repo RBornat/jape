@@ -99,7 +99,7 @@ type tactic =
   | ResolveTac of tactic
   | ReplayTac of tactic
   | ContnTac of (tactic * tactic)
-  | AlertTac of (term * (term * tactic) list * tactic option)
+  | AlertTac of (term * (term * tactic) list)
   | ExplainTac of term
   | CommentTac of term
   | BadUnifyTac of (name * name * tactic)

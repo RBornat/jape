@@ -692,15 +692,12 @@ let (apply, resolve, applyorresolve) =
 
 let rec applymethod () = if !tryresolution then applyorresolve else apply
 
-let rec doALERT tryf message m ps copt state =
+let rec doALERT tryf message m ps state =
   let m = message m in
   let ps = ((fun (b, t) -> message b, t) <* ps) in
-  match ps, copt with
-    [], None -> showAlert [m]; Some state
-  | [], Some ct -> showAlert [m]; tryf ct state
-  | _, None ->(* not sure we need this one ... *)
-     tryf (askNb m ps) state
-  | _, Some ct -> tryf (askNbc m ps ct) state
+  match ps with
+    [] -> showAlert [m]; Some state
+  | _  -> tryf (askNb m ps) state
 
 let rec doSUBGOAL path =
   fun (Proofstate {tree = tree} as state) ->
@@ -2236,11 +2233,11 @@ let rec dispatchTactic display try__ env contn tactic =
         setReason [message (rewrite cxt (eval env m))]; Some state
     | CommentTac m ->
         setComment [message (rewrite cxt (eval env m))]; Some state
-    | AlertTac (m, ps, copt) ->
+    | AlertTac (m, ps) ->
         contn
           (doALERT (dispatchTactic display try__ env nullcontn)
              (message <.> rewrite cxt <.> eval env)
-             m ps copt state)
+             m ps state)
     | NextgoalTac -> contn (Some (nextGoal true state))
     | SetgoalTac p ->
         contn (Some (withgoal state (Some (newpath "GOALPATH" (eval env) state p))))
