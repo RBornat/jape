@@ -33,17 +33,12 @@ import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
 
-import com.apple.mrj.MRJFileUtils;
-
 import java.awt.Dimension;
 
 import java.awt.event.MouseEvent;
 
-import java.lang.IllegalStateException;
-
-import java.io.File;
-
 public class LocalSettings implements SelectionConstants {
+    
     // focus in panel windows
                                           
     public static final boolean showPanelWindowFocus = true;
@@ -67,7 +62,7 @@ public class LocalSettings implements SelectionConstants {
     public static final byte 	FormulaFontSize     = 18,
                                 NonFormulaFontSize  = 14;
 
-    public static final String fontStyle = "sanserif";
+    // public static final String fontStyle = "sanserif";
 
     // spacing of tiles
     
