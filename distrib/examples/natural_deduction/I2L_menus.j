@@ -1,4 +1,28 @@
-﻿/* $Id$ */
+﻿/*
+    $Id$
+
+    Copyright (C) 2000-5 Richard Bornat
+     
+        richard@bornat.me.uk
+
+    This file is part of the I2L logic encoding, distributed with jape.
+
+    Jape is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    Jape is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with jape; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    (or look at http://www.gnu.org).
+
+*/
 
 /* ******************** remains of the old 'choose by selection' mechanism, which is dead but may fly again ******************** */
 
@@ -6,15 +30,10 @@ TACTIC ForwardOrBackward (Forward, n, Rule) IS
     WHEN    (LETHYP _Ah 
                 (ALT    (Forward n Rule)
                     (WHEN   (LETARGSEL _B  (Fail (Rule is not applicable to hypothesis ' _Ah ' with argument ' _B ')))
-                                (Fail (Rule is not applicable to hypothesis ' _Ah '))
-                    )
-                )
-            )
+                                (Fail (Rule is not applicable to hypothesis ' _Ah ')))))
             (ALT    (WITHSELECTIONS Rule)
                 (WHEN   (LETARGSEL _Ah (Fail (Rule is not applicable with argument ' _Ah ')))
-                    (Fail (Rule is not applicable))
-                )
-            )
+                    (Fail (Rule is not applicable))))
 
 /* ******************** tactics to apply rules pseudo-forwards ******************** */
 
@@ -22,21 +41,23 @@ TACTIC ForwardCut (n,rule)
     CUTIN (ForwardUncut n rule)
 
 TACTIC ForwardUncut (n,Rule)
-    WHEN    (LETHYP _Ah 
-            (LETGOALPATH G (WITHARGSEL Rule) (GOALPATH (SUBGOAL G n)) (WITHHYPSEL hyp) (GOALPATH G) NEXTGOAL)
-        )
+    WHEN    
+        (LETHYP _Ah 
+            (LETGOALPATH G (WITHARGSEL Rule) (GOALPATH (SUBGOAL G n)) (WITHHYPSEL hyp) (GOALPATH G) NEXTGOAL))
         /* If LETHYP fails at this point, we had better have a singleton LHS.*/
         (LETLHS _Ah
             (LETGOALPATH G 
                 (WITHARGSEL Rule) 
                 (GOALPATH (SUBGOAL G n)) 
                 (LETGOAL _Ag 
-                    (ALT (UNIFY _Ag _Ah) (Fail ("Error in I2L Jape (can't unify lhs %t with rhs %t in ForwardUncut). Tell Richard.", _Ah, _Ag)))
+                    (ALT (UNIFY _Ag _Ah) 
+                         (Fail ("Error in I2L Jape (can't unify lhs %t with rhs %t in ForwardUncut). Tell Richard Bornat.", 
+                                _Ah, _Ag)))
                     (ANY hyp)
                 ) 
                 (GOALPATH G) 
                 NEXTGOAL))
-        (Fail "Error in I2L Jape (ForwardUncut falls through). Tell Richard.")
+        (Fail "Error in I2L Jape (ForwardUncut falls through). Tell Richard Bornat.")
 
 /* ******************** tactics to deal with variables in quantification rules ******************** */
 
@@ -51,9 +72,7 @@ TACTIC "∀ elim forward" IS
                         \also a pseudo-assumption of the form actual i. You didn't select any hypotheses, but the \
                         \current conclusion is %t, which could be used to make a ∀ intro step backwards.\
                         \\nDid you perhaps mean to make a backward step with ∀ intro?", ∀_x._A)
-                        ("OK",STOP) ("Huh?",SEQ Explainhypothesisandconclusionwords STOP)
-                )
-            )
+                        ("OK",STOP) ("Huh?",SEQ Explainhypothesisandconclusionwords STOP)))
             ("∀ elim forward moan" "You didn't select any hypotheses")
             
 TACTIC "∀ elim forward step" (P, i) IS
@@ -125,22 +144,25 @@ TACTIC Noarg (rule, stepname) IS
     WHEN    
         (LETARGTEXT arg 
             (ALERT  
-                ("The %s rule doesn't need an argument, but you text-selected %s. \
-                 \Do you want to go on with the step, ignoring the text-selection?", stepname, arg)
-                 ("OK", rule) ("Cancel", STOP)))
+                ("The %s rule doesn't need an argument, but you subformula-selected %s. \
+                 \Do you want to go on with the step, ignoring the subformula selection?", 
+                 stepname, arg)
+                ("OK", rule) ("Cancel", STOP)))
         (LETMULTIARG args 
             (ALERT  
-                ("The %s rule doesn't need an argument, but you text-selected %l. \
-                 \Do you want to go on with the step, ignoring all the text-selections?", stepname, (args, ", ", " and "))
-                 ("OK", rule) ("Cancel", STOP)))
+                ("The %s rule doesn't need an argument, but you subformula-selected %l. \
+                 \Do you want to go on with the step, ignoring all the subformula selections?", 
+                 stepname, (args, ", ", " and "))
+                ("OK", rule) ("Cancel", STOP)))
         rule
 
 TACTIC SingleorNoarg (rule, stepname) IS 
     WHEN    (LETARGSEL _A (WITHARGSEL rule))
             (LETMULTIARG _As 
                 (ALERT  ("The %s rule can accept a single argument. You text-selected %l, which is more than \
-                         \it can deal with. Cancel some or all of your text selections and try again.", stepname, _As)
-                         ("OK", STOP)))
+                         \it can deal with. Cancel some or all of your text selections and try again.", 
+                         stepname, _As)
+                        ("OK", STOP)))
             rule
 
 /* ******************** tactics for rules that only work backwards ******************** */
@@ -162,8 +184,8 @@ TACTIC BackwardWithHyp (gpattern, action, stepname, shape) IS
                 (ALT 
                     (ComplainBackwardConc gpattern stepname shape)
                     (ComplainBackwardNoGoal gpattern stepname shape)
-                    (Fail   ("Error in I2L Jape (no error message in BackwardWithHyp [%t] %s [%t]). Tell Richard.",gpattern,stepname,shape))
-                )
+                    (Fail ("Error in I2L Jape (no error message in BackwardWithHyp [%t] %s [%t]). Tell Richard Bornat.",
+                           gpattern,stepname,shape)))
 
 /* ******************** special one for hyp ******************** */
 
@@ -178,15 +200,9 @@ TACTIC "try hyp" (Ph, Pg, mess) IS
                             ("Huh?", (ALERT "The proviso i NOTIN _B (for example) appears when the unknown _B occurs both inside \
                                                     \AND outside the scope box for i. It means that nothing unified with _B can contain \
                                                     \the variable i, because that would produce an occurrence of i outside its scope box."
-                                                    ("OK", STOP)
-                                        )
-                            )
-                ) 
-            )
-        )
+                                                    ("OK", STOP))))))
         (ALT (WITHHYPSEL hyp)   
-            (ALERT "I2L Jape error (hyp failed in hyptac). Tell Richard" ("OK", STOP))
-        )
+            (Fail "I2L Jape error (hyp failed in hyptac). Tell Richard Bornat"))
 
 TACTIC hyptac IS
     WHEN    (LETHYP _Ah /* demand hypothesis selection to avoid multi-hyp messages ... */
@@ -194,32 +210,20 @@ TACTIC hyptac IS
                         (LETOPENSUBGOAL G _Ag 
                             /* shall we just do it if we can? */
                             (GOALPATH G) 
-                            ("try hyp" _Ah _Ag  ("%t and %t (the only relevant unproved conclusion) don't unify", _Ah, _Ag))
-                        )
+                            ("try hyp" _Ah _Ag  ("%t and %t (the only relevant unproved conclusion) don't unify", _Ah, _Ag)))
                         (LETOPENSUBGOALS _Ags
                             (ALERT  ("Please select one of the unproved conclusions %l to unify with the hypothesis %t.", 
-                                    (_Ags, ", ", " or "), _Ah) ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
-                            )
-                        )
+                                    (_Ags, ", ", " or "), _Ah) ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )))
                         (ALERT  ("There aren't any unproved conclusions relevant to the hypothesis %t.", _Ah)
-                                ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
-                        )
-                )
-            )
+                                ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP ))))
             (LETGOAL _Ac 
                 (WHEN   (LETLHS ()
                             (ALERT  ("You can't use hyp to prove %t, because there aren't any relevant hypotheses.", _Ac)
-                                    ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
-                            )
-                        )
+                                    ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )))
                         (ALERT  ("Please select a hypothesis to unify with the conclusion %s.", _Ac)
-                                ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
-                        )
-                )
-            )
+                                ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP ))))
             (ALERT  "To use hyp, you have to select a conclusion and a hypothesis. You didn't select anything"
-                    ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP )
-            )
+                    ("OK", STOP) ("Huh?", SEQ Explainhypothesisandconclusionwords STOP ))
                 
 /* ******************** the Backward menu ******************** */
 
@@ -255,12 +259,9 @@ MENU Backward IS
                 (ALERT  ("To make a backward step with ¬ elim you don't have to select any hypotheses. \
                         \You selected %t and %t, which would fit a forward step. Since it works better \
                         \that way, would you like to use ¬ elim going forward?", _A, ¬_A)
-                        ("Forward", "¬ elim forward") ("Cancel", STOP)
-                )
-            )
+                        ("Forward", "¬ elim forward") ("Cancel", STOP)))
             (LETHYP (¬_A) 
-                (BackwardWithHyp ⊥ (Noarg (SEQ ("¬ elim") fstep (WITHHYPSEL (hyp (¬_A)))) "¬ elim") "¬ elim" "⊥")
-            )
+                (BackwardWithHyp ⊥ (Noarg (SEQ ("¬ elim") fstep (WITHHYPSEL (hyp (¬_A)))) "¬ elim") "¬ elim" "⊥"))
             (BackwardOnlyC ⊥ (SEQ (SingleorNoarg "¬ elim" "¬ elim") fstep fstep) "¬ elim" "⊥")
     
     SEPARATOR
@@ -271,26 +272,29 @@ END
 TACTIC "∧ intro backward" IS
     WHEN    (LETGOAL (_A∧_B) /* bound to work, surely? */
                 "∧ intro" fstep fstep   )
-            (ALERT "∧ intro backward tactic failed. Tell Richard.")
+            (Fail "∧ intro backward tactic failed. Tell Richard Bornat.")
                 
 /* ******************** special one for rules which don't care about hypothesis shape ******************** */
 
 TACTIC "∨ introforward" (rule) IS
     WHEN    (LETHYP _A (ForwardCut 0 (LAYOUT "∨ intro" (0) (WITHARGSEL rule))))
-        (ComplainForwardNoHyp "∨ intro" "" "")
+            (ComplainForwardNoHyp "∨ intro" "" "")
 
 TACTIC "∧ intro forward" IS
-    WHEN    (LETHYP2 _A _B
+    WHEN    
+        (LETHYP2 _A _B
             (ALERT
                 ("∧ intro going forward is visually ambiguous – that is, it can be carried out either way round. \
                  \\nDo you want to\n\
                  \\n(a)    Make %t∧%t, or \
                  \\n(b)    Make %t∧%t.", _A, _B, _B, _A)
-                 ("(a)",    (CUTIN  
+                 ("(a)",    
+                    (CUTIN  
                         "∧ intro" [A,B \ _A,_B]  
                         (ANY (WITHHYPSEL (MATCH (hyp _A)))) 
                         (ANY (WITHHYPSEL (MATCH (hyp _B))))))
-                 ("(b)",    (CUTIN 
+                 ("(b)",    
+                    (CUTIN 
                         "∧ intro" [ A,B \ _B,_A ] 
                         (ANY (WITHHYPSEL (MATCH (hyp _B))))
                         (ANY (WITHHYPSEL (MATCH (hyp _A))))))
@@ -313,62 +317,43 @@ TACTIC "∧ intro forward" IS
                 \You didn’t select any at all.")
                 ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))
 
-/* TACTIC "∧ intro forward(L)"(arg) IS 
-    ForwardCut 0 ("∧ intro" [ B \ arg ] )
-
-TACTIC "∧ intro forward(R)"(arg) IS 
-    ForwardCut 0 ("∧ intro" [ A \ arg ] )
-*/
-
 /* this tactic is so horrible gesturally that even though it works I've taken it out of the Forward menu, and commented it out.
 
 TACTIC "∃ intro forward" IS
-    WHEN    (LETHYP (actual _i)
-                (WHEN
-                    (LETHYPSUBSTSEL (_P [ _x \ _i1 ] ) 
-                        ("∃ intro forward checkvar" _i _i1) 
-                        ("∃ intro forward complain" 
-                            (" (you only selected actual %t)", _i) 
-                            (" (as you did). Sorry to be so fussy, but please click on %t and try again", _P [ _x \ _i1 ] )
-                        )
-                    )
-                    ("∃ intro forward checktextsel" (" (you only selected actual %t)", _i))
+    WHEN    
+        (LETHYP (actual _i)
+            (WHEN
+                (LETHYPSUBSTSEL (_P [ _x \ _i1 ] ) 
+                    ("∃ intro forward checkvar" _i _i1) 
+                    ("∃ intro forward complain" 
+                        (" (you only selected actual %t)", _i) 
+                        (" (as you did). Sorry to be so fussy, but please click on %t and try again", _P [ _x \ _i1 ] )))
+                ("∃ intro forward checktextsel" (" (you only selected actual %t)", _i))))
+        (LETHYP _A
+            ("∃ intro forward checktextsel" (" (you selected %t)", _A)))
+        (LETHYP2 (actual _i) _A
+            (WHEN
+                (LETHYPSUBSTSEL (_P [ _x \ _i1 ] )
+                    ("∃ intro forward checksamehyp" _A (_P [ _x \ _i1 ] ) _i1)
+                    ("∃ intro forward checkvar" _i _i1) 
+                    ("∃ intro forward doit" _A _x _i1 )
                 )
-            )
-            (LETHYP _A
-                ("∃ intro forward checktextsel" (" (you selected %t)", _A))
-            )
-            (LETHYP2 (actual _i) _A
-                (WHEN
-                    (LETHYPSUBSTSEL (_P [ _x \ _i1 ] )
-                        ("∃ intro forward checksamehyp" _A (_P [ _x \ _i1 ] ) _i1)
-                        ("∃ intro forward checkvar" _i _i1) 
-                        ("∃ intro forward doit" _A _x _i1 )
-                    )
-                    ("∃ intro forward checktextsel" " (as you did)")
-                )
-            )
-            (LETHYPS _As
-                ("∃ intro forward checktextsel" (" (you selected %l)", _As))
-            )
-            ("∃ intro forward checktextsel" " (you didn't select any hypotheses)")
+                ("∃ intro forward checktextsel" " (as you did)")))
+        (LETHYPS _As
+            ("∃ intro forward checktextsel" (" (you selected %l)", _As)))
+        ("∃ intro forward checktextsel" " (you didn't select any hypotheses)")
 
 TACTIC "∃ intro forward checktextsel" (varstuff) IS
     WHEN    (LETHYPSUBSTSEL (_P [ _x \ _i1 ] ) 
-                ("∃ intro forward complain" varstuff " (as you did)")
-            )
+                ("∃ intro forward complain" varstuff " (as you did)"))
             (LETHYPSUBSTSEL (_P [ _x \ _B ] ) 
-                ("∃ intro forward complain" varstuff (" (your text-selection %t isn't a variable)", _B))
-            )
+                ("∃ intro forward complain" varstuff (" (your text-selection %t isn't a variable)", _B)))
             (LETSUBSTSEL (_P [ _x \ _B ] ) 
-                ("∃ intro forward complain" varstuff (" (your text-selection %t isn't in a hypothesis)", _B))
-            )
+                ("∃ intro forward complain" varstuff (" (your text-selection %t isn't in a hypothesis)", _B)))
             (LETARGTEXT i
-                ("∃ intro forward complain" varstuff (" (your text-selection %s isn't a subformula)", i))
-            )
+                ("∃ intro forward complain" varstuff (" (your text-selection %s isn't a subformula)", i)))
             (SEQ
-                ("∃ intro forward complain" varstuff (" (you didn't text-select anything, or you text-selected several different things)"))
-            )
+                ("∃ intro forward complain" varstuff (" (you didn't text-select anything, or you text-selected several different things)")))
 
 MACRO "∃ intro forward checksamehyp" (h, sel, i) IS
     WHEN    (LETMATCH h sel SKIP)
@@ -386,8 +371,7 @@ TACTIC "∃ intro forward complain"(varstuff, selstuff) IS
         (ALERT  ("To make an ∃ intro step forward you have to select an assumption like actual i and also \
                 \a hypothesis formula in its scope%s,\
                 \and text-select instances of the variable in that formula%s.",
-                varstuff, selstuff)
-        )
+                varstuff, selstuff))
         STOP
                 
  */
@@ -399,11 +383,9 @@ TACTIC BadForward (pattern, stepname, shape) IS
 
 MACRO BadForward2(pattern, stepname, shape, stuff) IS
     WHEN    (LETHYP pattern /* right hypothesis, other things wrong */ 
-                BadForward3 pattern stepname shape stuff
-            )
+                (BadForward3 pattern stepname shape stuff)) /* this looks wrong. RB 20.vi.2005 */
             (LETHYP _Ah /* wrong hypothesis, other things wrong as well */
-                (ComplainForwardWrongHyp stepname shape _Ah)
-            )
+                (ComplainForwardWrongHyp stepname shape _Ah))
             /* no hypothesis at all -- just complain about that */
             (ComplainForwardNoHyp stepname stuff "")
 
@@ -412,15 +394,11 @@ TACTIC BadForward3(sel, stepname) IS
                 (ALERT  ("There is more than one unproved conclusion (formula below a line of dots) \
                         \associated with the hypothesis %t. \
                         \\nSelect one of them (%l) before you make a forward step.", sel, (_Ags, ", ", " or "))
-                        ("OK", SKIP) ("Huh?", ExplainHypMulti stepname sel _Ags)
-                )
-            )
+                        ("OK", SKIP) ("Huh?", ExplainHypMulti stepname sel _Ags)))
             (LETOPENSUBGOAL G _Ag
-                (ALERT ("Single subgoal in BadForward3. Error in I2LJape -- tell Richard."))
-            )
+                (Fail ("Single subgoal in BadForward3. Error in I2LJape -- tell Richard Bornat.")))
             (ALERT  ("There are no unproved conclusions associated with the hypothesis %t.", sel)
-                        ("OK", SKIP) ("Huh?",  ExplainDeadHyp stepname sel)
-            )
+                        ("OK", SKIP) ("Huh?",  ExplainDeadHyp stepname sel))
 
 /* ******************** the Forward menu ******************** */
 
@@ -523,7 +501,7 @@ TACTIC "targeted forward" (action, stepname) IS
     WHEN        
         (LETHYP _Ah ("targeted forward 2" action stepname _Ah))
         (LETLHS _Ah ("targeted forward 2" action stepname _Ah))
-        (Fail ("Error in I2LJape (targeted forward falls through). Tell Richard."))
+        (Fail ("Error in I2LJape (targeted forward falls through). Tell Richard Bornat."))
 
 TACTIC "targeted forward 2"(action, stepname, hyp) IS
     WHEN    
@@ -594,12 +572,16 @@ END
 /* really, this is a product of the stupid notion that LETMULTIARGS doesn't match one ... oh well, fix it another day */
 TACTIC DOunify IS
   ALT UNIFYARGS
-      (BADUNIFY X Y (ALERT ("%t and %t don't unify, because the formula structures don't match.", X, Y) ("OK", STOP)))
-      (BADMATCH X Y (ALERT ("%t and %t don't unify, because to do so would change the proof (you shouldn't see this message).", X, Y) ("OK", STOP)))
+      (BADUNIFY X Y 
+        (ALERT  ("%t and %t don't unify, because the formula structures don't match.", X, Y) 
+                ("OK", STOP)))
+      (BADMATCH X Y 
+        (ALERT  ("%t and %t don't unify, because to do so would change the proof (you shouldn't see this message).", X, Y) 
+                ("OK", STOP)))
       (BADPROVISO X Y P 
-          (ALERT ("%t and %t don't unify, because to do so would smuggle a variable out of its scope \
+        (ALERT  ("%t and %t don't unify, because to do so would smuggle a variable out of its scope \
                    \(see the proviso %s in the proviso pane).", X, Y, P)
-                   ("OK", STOP) ("Huh?", SEQ Explainprovisos STOP)))
+                ("OK", STOP) ("Huh?", SEQ Explainprovisos STOP)))
 
 TACTIC I2Lunify IS
     WHEN    
