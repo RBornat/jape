@@ -30,20 +30,20 @@
 		};
 		01F12F4DFEC8CE2211DB9C8B = {
 			children = (
-				7909AA7F07EDEFDF00FC10F3,
-				7935695607EA0804006D0E33,
 				792473B30650EC5700FCFD44,
 				791C734405DCEDE00086E5C6,
+				791C734B05DCEDE00086E5C6,
+				791C734D05DCEDE00086E5C6,
+				7909AA7F07EDEFDF00FC10F3,
+				791C734C05DCEDE00086E5C6,
+				7935695607EA0804006D0E33,
+				791C734E05DCEDE00086E5C6,
 				791C734505DCEDE00086E5C6,
-				791C734605DCEDE00086E5C6,
+				791C734A05DCEDE00086E5C6,
 				791C734705DCEDE00086E5C6,
+				791C734605DCEDE00086E5C6,
 				791C734805DCEDE00086E5C6,
 				791C734905DCEDE00086E5C6,
-				791C734A05DCEDE00086E5C6,
-				791C734B05DCEDE00086E5C6,
-				791C734C05DCEDE00086E5C6,
-				791C734D05DCEDE00086E5C6,
-				791C734E05DCEDE00086E5C6,
 				791C734F05DCEDE00086E5C6,
 				791C735005DCEDE00086E5C6,
 				791C735105DCEDE00086E5C6,
@@ -311,7 +311,6 @@
 		1601BCDCFEEE210811DB9C8B = {
 			buildActionMask = 2147483647;
 			files = (
-				F515B6190331DA6801A80116,
 				791C73E205DCEDE10086E5C6,
 				791C73E305DCEDE10086E5C6,
 				791C73E405DCEDE10086E5C6,
@@ -394,6 +393,7 @@
 				79135453067F2BC7002D81A7,
 				7935695707EA0804006D0E33,
 				7909AA8007EDEFDF00FC10F3,
+				794FC84F08697A34009A3D44,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -439,9 +439,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			name = DragIndicator.java;
-			path = /Users/richard/cvsdownloads/jape/distrib/java_GUI/uk/org/jape/DragIndicator.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../java_GUI/uk/org/jape/DragIndicator.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		7909AA8007EDEFDF00FC10F3 = {
 			fileRef = 7909AA7F07EDEFDF00FC10F3;
@@ -460,9 +460,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			name = LemmaDialog.java;
-			path = /Users/richard/cvsdownloads/jape/distrib/java_GUI/uk/org/jape/LemmaDialog.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../java_GUI/uk/org/jape/LemmaDialog.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		79135453067F2BC7002D81A7 = {
 			fileRef = 79135452067F2BC7002D81A7;
@@ -535,9 +535,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			name = LocalSettings.java;
-			path = ../../java_GUI/uk/org/jape/LocalSettings.java;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
+			path = /Users/richard/cvsdownloads/jape/distrib/java_GUI/uk/org/jape/LocalSettings.java;
+			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		791C734B05DCEDE00086E5C6 = {
 			fileEncoding = 30;
@@ -1121,9 +1121,9 @@
 			lastKnownFileType = sourcecode.java;
 			lineEnding = 0;
 			name = JapePrefs.java;
-			path = /Users/richard/cvsdownloads/jape/distrib/java_GUI/uk/org/jape/JapePrefs.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../java_GUI/uk/org/jape/JapePrefs.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		791C738E05DCEDE00086E5C6 = {
 			fileEncoding = 30;
@@ -2135,9 +2135,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			name = FormulaTarget.java;
-			path = /Users/richard/cvsdownloads/jape/distrib/java_GUI/uk/org/jape/FormulaTarget.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../java_GUI/uk/org/jape/FormulaTarget.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		7935695707EA0804006D0E33 = {
 			fileRef = 7935695607EA0804006D0E33;
@@ -2151,14 +2151,20 @@
 			settings = {
 			};
 		};
+		794FC84F08697A34009A3D44 = {
+			fileRef = F515B6180331DA6801A80116;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		79A31803064BF8EF0096C4DA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.java;
 			name = TextComponent.java;
-			path = /Users/richard/cvsdownloads/jape/distrib/java_GUI/uk/org/jape/TextComponent.java;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../java_GUI/uk/org/jape/TextComponent.java;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		79A31804064BF8EF0096C4DA = {
 			fileRef = 79A31803064BF8EF0096C4DA;
@@ -2189,12 +2195,6 @@
 			path = LocalSettings.java;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
-		};
-		F515B6190331DA6801A80116 = {
-			fileRef = F515B6180331DA6801A80116;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F5AB83120339F3B701A80116 = {
 			buildActionMask = 2147483647;
