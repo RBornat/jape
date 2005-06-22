@@ -33,8 +33,8 @@ package uk.org.jape;
 
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
-import java.util.Properties;
-import java.io.FileInputStream;
+// import java.util.Properties;
+// import java.io.FileInputStream;
 
 public class LocalSettings implements SelectionConstants {
 
@@ -98,9 +98,9 @@ public class LocalSettings implements SelectionConstants {
     
     public static final boolean UnicodeWindowTitles = false;
 
-    // where to find settings, we think
+    /* // where to find settings, we think
 
-    public static final String PrefsFilename = System.getProperty("jape.settings");
+    public static final String PrefsFilename = System.getProperty("jape.settings"); */
 }
 
 
