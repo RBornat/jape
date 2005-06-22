@@ -481,6 +481,7 @@ let rec processPatchAlert () =
           (ParseError_
              ["button label expected in PATCHALERT, found ";
               string_of_symbol (currsymb ())])
+  
   and parsealertspec _ =
     match currsymb () with
       STRING m ->
@@ -500,21 +501,23 @@ let rec processPatchAlert () =
                 string_of_symbol s])
         in
         match stringfromsymbol s with
-          Some "HowToTextSelect" -> scansymb (); Alert.HowToTextSelect
-        | Some "HowToFormulaSelect" ->
-            scansymb (); Alert.HowToFormulaSelect
-        | Some "HowToDrag" -> scansymb (); Alert.HowToDrag
-        | _ -> bang ()
+          Some "HowToTextSelect"    -> scansymb (); Alert.HowToTextSelect
+        | Some "HowToFormulaSelect" -> scansymb (); Alert.HowToFormulaSelect
+        | Some "HowToDrag"          -> scansymb (); Alert.HowToDrag
+        | _                         -> bang ()
+  
   and parsebuttonspecs () =
     parseUnsepList
       (function
          BRA "(" -> true
        | _ -> false)
       parsebuttonspec
+  
   and parsedefaultindex () =
     match currsymb () with
       NUM s -> scansymb (); atoi s
     | _ -> 0
+  
   in
   match currsymb () with
     STRING h ->
