@@ -501,10 +501,11 @@ let rec processPatchAlert () =
                 string_of_symbol s])
         in
         match stringfromsymbol s with
-          Some "HowToTextSelect"    -> scansymb (); Alert.HowToTextSelect
-        | Some "HowToFormulaSelect" -> scansymb (); Alert.HowToFormulaSelect
-        | Some "HowToDrag"          -> scansymb (); Alert.HowToDrag
-        | _                         -> bang ()
+          Some "HowToFormulaSelect"     -> scansymb (); Alert.HowToFormulaSelect
+        | Some "HowToTextSelect"        -> scansymb (); Alert.HowToTextSelect
+        | Some "HowToDragFormulae"      -> scansymb (); Alert.HowToDragFormulae
+        | Some "HowToDragDisproofStuff" -> scansymb (); Alert.HowToDragDisproofStuff
+        | _                             -> bang ()
   
   and parsebuttonspecs () =
     parseUnsepList
