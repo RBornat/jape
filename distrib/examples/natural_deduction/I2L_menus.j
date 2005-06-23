@@ -159,10 +159,10 @@ TACTIC Noarg (rule, stepname) IS
 TACTIC SingleorNoarg (rule, stepname) IS 
     WHEN    (LETARGSEL _A (WITHARGSEL rule))
             (LETMULTIARG _As 
-                (ALERT  ("The %s rule can accept a single argument. You text-selected %l, which is more than \
-                         \it can deal with. Cancel some or all of your text selections and try again.", 
+                (ALERT  ("The %s rule can accept a single argument. You subformula-selected %l, which is more than \
+                         \it can deal with. Cancel some or all of your subformula selections and try again.", 
                          stepname, _As)
-                        ("OK", STOP)))
+                        ("OK", STOP) ("Huh?", (SHOWHOWTO "TextSelect"))))
             rule
 
 /* ******************** tactics for rules that only work backwards ******************** */
@@ -347,21 +347,21 @@ TACTIC "∃ intro forward checktextsel" (varstuff) IS
     WHEN    (LETHYPSUBSTSEL (_P [ _x \ _i1 ] ) 
                 ("∃ intro forward complain" varstuff " (as you did)"))
             (LETHYPSUBSTSEL (_P [ _x \ _B ] ) 
-                ("∃ intro forward complain" varstuff (" (your text-selection %t isn't a variable)", _B)))
+                ("∃ intro forward complain" varstuff (" (your subformula-selection %t isn't a variable)", _B)))
             (LETSUBSTSEL (_P [ _x \ _B ] ) 
-                ("∃ intro forward complain" varstuff (" (your text-selection %t isn't in a hypothesis)", _B)))
+                ("∃ intro forward complain" varstuff (" (your subformula-selection %t isn't in a hypothesis)", _B)))
             (LETARGTEXT i
-                ("∃ intro forward complain" varstuff (" (your text-selection %s isn't a subformula)", i)))
+                ("∃ intro forward complain" varstuff (" (your subformula-selection %s isn't a subformula)", i)))
             (SEQ
-                ("∃ intro forward complain" varstuff (" (you didn't text-select anything, or you text-selected several different things)")))
+                ("∃ intro forward complain" varstuff (" (you didn't subformula-select anything, or you subformula-selected several different things)")))
 
 MACRO "∃ intro forward checksamehyp" (h, sel, i) IS
     WHEN    (LETMATCH h sel SKIP)
-            ("∃ intro forward complain" " (as you did)" (" (your text selection %t isn't inside the hypothesis %t)", i, h))
+            ("∃ intro forward complain" " (as you did)" (" (your subformula selection %t isn't inside the hypothesis %t)", i, h))
 
 MACRO "∃ intro forward checkvar"(i,j) IS
     WHEN    (LETMATCH i j SKIP)
-            ("∃ intro forward complain" (" (you selected actual %t)",i) (" (you text-selected instance(s) of %t, which doesn't match %t)", j, i))
+            ("∃ intro forward complain" (" (you selected actual %t)",i) (" (you subformula-selected instance(s) of %t, which doesn't match %t)", j, i))
 
 MACRO "∃ intro forward doit" (P1,x1,i1) IS
     (CUTIN "∃ intro" (WITHSUBSTSEL hyp) (WITHHYPSEL (hyp (actual i1))))
@@ -370,8 +370,9 @@ TACTIC "∃ intro forward complain"(varstuff, selstuff) IS
     SEQ
         (ALERT  ("To make an ∃ intro step forward you have to select an assumption like actual i and also \
                 \a hypothesis formula in its scope%s,\
-                \and text-select instances of the variable in that formula%s.",
-                varstuff, selstuff))
+                \and subformula-select instances of the variable in that formula%s.",
+                varstuff, selstuff)
+                ("OK", SKIP) ("Huh?" (SHOWHOWTO "TextSelect")))
         STOP
                 
  */
@@ -551,17 +552,13 @@ PATCHALERT "double-click is not defined"
     "Double-clicking a formula doesn't mean anything in I2L Jape: you have to select (single-click) and \
     \then choose a step from the Backward or Forward menu."
     ("OK")
-    
+
+// I can no longer find the code that generated this alert, but I've left the patch just in case
+
 PATCHALERT "You double-clicked on a used hypothesis or a proved conclusion"
     "Double-clicking a formula doesn't mean anything in I2L Jape: you have to select (single-click) and \
     \then choose a step from the Backward or Forward menu."
     ("OK")
-
-PATCHALERT "To make an ∃ intro step forward"
-    ("OK") ("Huh?", HowToTextSelect)
-
-PATCHALERT "The ¬ elim step can accept a single argument" 
-    ("OK") ("Huh?", HowToTextSelect)
     
 /* ******************** and we do our own (careful) unification ******************** */
 
@@ -587,9 +584,6 @@ TACTIC I2Lunify IS
     WHEN    
         (LETMULTIARG _As DOunify)
         (LETARGSEL _A DOunify)    
-        (SEQ (ALERT "To use Unify, you must text-select at least one formula.") STOP)
-
-/* this hack to get at HowToTextSelect from within a tactic -- I must do this properly asap */
-PATCHALERT "To use Unify, "
-    ("OK") ("Huh?", HowToTextSelect)
-
+        (SEQ (ALERT "To use Unify, you must subformula-select at least one formula."
+                    ("OK", SKIP) ("Huh?", (SHOWHOWTO "TextSelect")))
+             STOP)
