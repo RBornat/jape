@@ -72,7 +72,7 @@ public class Reply implements DebugConstants {
 	outputln(s);
     }
     else
-	throw new ProtocolError("replying "+JapeUtils.enQuote(s)+" while client is not expecting reply");
+	throw new ProtocolError("replying "+JapeUtils.enQuote(s)+" while engine is not expecting reply");
     }
 
     synchronized private static void outputln(String s) {
