@@ -237,6 +237,7 @@ let rec catelim_string_of_tactic sep t tail =
                (catelim_string_of_pair catelim_string_of_term
                   (catelim_string_of_tactic " ") ", ")
                argsep ps tail)
+    | ShowHowToTac s -> "SHOWHOWTO" :: argsep :: catelim_string_of_termarg s tail
     | ExplainTac m -> "EXPLAIN" :: argsep :: catelim_string_of_termarg m tail
     | CommentTac m -> "COMMENT" :: argsep :: catelim_string_of_termarg m tail
     | UnifyTac terms -> "UNIFY" :: argsep :: trterms terms tail
@@ -352,6 +353,7 @@ let remaptactic env t =
         BindOccursTac (_E pt, _E vt, _E st, _T t)
     | LayoutTac (t, tl) -> LayoutTac (_T t, remaptreelayout env tl)
     | AlertTac (m, ps)  -> AlertTac (_E m, ((fun (l, t) -> _E l, _T t) <* ps))
+    | ShowHowToTac s  -> ShowHowToTac (_E s)
     | ExplainTac m -> ExplainTac (_E m)
     | CommentTac m -> CommentTac (_E m)
     | BadUnifyTac (n1, n2, t) -> BadUnifyTac (n1, n2, _T t)
@@ -372,7 +374,7 @@ let tacticform i =
       "LETHYP2"; "LETHYPS"; "LETHYPFIND"; "LETHYPSUBSTSEL"; "LETLISTMATCH"; 
       "LETMATCH"; "LETMULTIARG"; "LETOCCURS"; "LETSUBSTSEL"; "MAPTERMS"; 
       "MATCH"; "NEXTGOAL"; "PROVE"; "REPLAY"; "RESOLVE"; "SAMEPROVISOS"; 
-      "SEQ"; "SIMPLEAPPLY"; "SKIP"; "STOP"; "THEORYALT"; "UNFOLD"; 
+      "SEQ"; "SHOWHOWTO"; "SIMPLEAPPLY"; "SKIP"; "STOP"; "THEORYALT"; "UNFOLD"; 
       "UNFOLDHYP"; "UNIFY"; "UNIQUE"; "WHEN"; "WITHARGSEL"; "WITHCONCSEL";
       "WITHCONTINUATION"; "WITHFORMSEL"; "WITHHYPSEL"; "WITHSELECTIONS";
       "WITHSUBSTSEL"; "BADUNIFY"; "BADMATCH"; "BADPROVISO"; "UNIFYARGS"])
@@ -726,6 +728,7 @@ and transTactic tacterm =
                                        ["must have exactly one name/number argument!"])
                       end
               | "ALERT"            -> mkAlert ts
+              | "SHOWHOWTO"        -> ShowHowToTac (onearg ts)
               | "EXPLAIN"          -> ExplainTac (onearg ts)
               | "COMMENT"          -> CommentTac (onearg ts)
               | "BADUNIFY"         ->

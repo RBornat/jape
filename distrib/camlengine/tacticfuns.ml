@@ -2238,6 +2238,8 @@ let rec dispatchTactic display try__ env contn tactic =
           (doALERT (dispatchTactic display try__ env nullcontn)
              (message <.> rewrite cxt <.> eval env)
              m ps state)
+    | ShowHowToTac s -> 
+         (Alert.showHowTo (message (eval env s)); contn (Some state))
     | NextgoalTac -> contn (Some (nextGoal true state))
     | SetgoalTac p ->
         contn (Some (withgoal state (Some (newpath "GOALPATH" (eval env) state p))))

@@ -100,6 +100,7 @@ type tactic =
   | ReplayTac of tactic
   | ContnTac of (tactic * tactic)
   | AlertTac of (term * (term * tactic) list)
+  | ShowHowToTac of term
   | ExplainTac of term
   | CommentTac of term
   | BadUnifyTac of (name * name * tactic)
