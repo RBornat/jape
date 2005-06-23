@@ -27,9 +27,10 @@
 
 type alertspec =
     Alert of (string * (string * alertspec option) list * int)
-  | HowToTextSelect
   | HowToFormulaSelect
-  | HowToDrag
+  | HowToTextSelect
+  | HowToDragFormulae
+  | HowToDragDisproofStuff
 
 type alertseverity = Info | Warning | Error | Question
 
@@ -60,9 +61,11 @@ val askChoice : string * string list list -> int option
 
 val defaultseverity       : 'a list -> alertseverity
 val defaultseverity_alert : alertseverity
+
 val patchalert            : string * alertspec -> unit
-val patchalertdebug       : string ref
+val patchalertdebug       : bool ref
 val resetalertpatches     : unit -> unit
+
 val setComment            : string -> unit (* this demoted to a thing which sets a comment line *)
 val showAlert             : alertseverity -> string -> unit (* this just pops up a window *)
-
+val showHowTo             : string -> unit

@@ -39,10 +39,11 @@ let setComment = Japeserver.setComment
 
 type alertspec =
     Alert of (string * (string * alertspec option) list * int)
-  | HowToTextSelect
   | HowToFormulaSelect
-  | HowToDrag
-
+  | HowToTextSelect
+  | HowToDragFormulae
+  | HowToDragDisproofStuff
+  
 type alertseverity = Info | Warning | Error | Question
 
 let rec defaultseverity bs = if List.length bs <= 1 then Warning else Question
@@ -151,10 +152,16 @@ let rec showAlert code s =
     | Some (Alert (m, bs, def)) ->
         let code' = if List.length bs > 1 then Question else code in
         patch Info (ask code' m bs def)
-    | Some HowToTextSelect    -> display Info (howtoTextSelect ())
-    | Some HowToFormulaSelect -> display Info (howtoFormulaSelect ())
-    | Some HowToDrag          -> display Info (howtoDrag ())
+    | Some HowToTextSelect        -> showHowTo "TextSelect"
+    | Some HowToFormulaSelect     -> showHowTo "FormulaSelect"
+    | Some HowToDragFormulae      -> showHowTo "DragFormulae"
+    | Some HowToDragDisproofStuff -> showHowTo "DragDisproofStuff"
   in
   match alertpatched s with
     None -> display code s
   | aopt -> patch code aopt
+
+and showHowTo s =
+  match Japeserver.howToText s with
+    "" -> raise (Tacastrophe_ ["Alert.showHowTo doesn't understand"; Stringfuns.enQuote s])
+  | s' -> showAlert Info s'
