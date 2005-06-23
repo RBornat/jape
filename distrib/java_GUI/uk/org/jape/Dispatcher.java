@@ -455,6 +455,9 @@ public class Dispatcher extends Thread implements DebugConstants {
 			if (p=="VERSION"&&len==2)
 			    AboutBox.setVersion(cmd[1]);
 			else
+			if (p=="HOWTOTEXT"&&len==2)
+			    Reply.reply(Jape.howTo(cmd[1]));
+			else
 			    Alert.showErrorAlert("dispatcher doesn't understand ("+len+") "+line);
 		    } // if (cmd.length!=0)
 		} catch (ProtocolError e) {
