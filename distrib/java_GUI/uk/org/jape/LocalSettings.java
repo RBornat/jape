@@ -27,14 +27,15 @@
 
 package uk.org.jape;
 
-// this class, which can be replaced by a platform-specific version to aid 
-// look-and-feel localisation (see for example jape/MacOSX/java_japeserver/LocalSettings.java)
-// or I don't know what else.
+// The Jape GUI is compiled individually for each kind of OS. This isn't too much of a 
+// hardship, because you have to build the engines individually. The makefile can then choose
+// which copy of LocalSettings to link into the mix. There are three in the uk/org/jape directory,
+// for Solaris, Linux and Windows. There's another in distrib/MacOSX/java_GUI for Mac OS X (and,
+// wouldn't you know, that's the one that stops it all being done with loadClass or whatever).
+// RB 22.vi.2005
 
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
-// import java.util.Properties;
-// import java.io.FileInputStream;
 
 public class LocalSettings implements SelectionConstants {
 
@@ -97,10 +98,6 @@ public class LocalSettings implements SelectionConstants {
     // window titling
     
     public static final boolean UnicodeWindowTitles = false;
-
-    /* // where to find settings, we think
-
-    public static final String PrefsFilename = System.getProperty("jape.settings"); */
 }
 
 
