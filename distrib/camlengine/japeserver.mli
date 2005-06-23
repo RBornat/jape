@@ -201,9 +201,8 @@ val setproofparams : displaystyle -> int -> unit
                (*    tree/box        linethickness *)
 
 (* interface-specific help information *)
-val howtoTextSelect : unit -> string
-val howtoFormulaSelect : unit -> string
-val howtoDrag : unit -> string
+val howToText : string -> string
+
 (* nascent variable mirroring *)
 val settextselectionmode : string -> unit
 

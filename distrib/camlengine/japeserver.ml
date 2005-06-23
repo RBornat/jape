@@ -203,8 +203,8 @@ and out8 c =
   (*consolereport ["mks8 ", string_of_int c, " => ", r];*)
   out r
 
-let rec askf s is = writef s is; ints_of_reply (readline s)
-let rec ask s = out s; out "\n"; readline s
+let intlist_of_ask s is = writef s is; ints_of_reply (readline s)
+let string_of_ask  s is = writef s is; readline s
 
 let rec listen () = writef "GET\n" []; readline "GET"
 let rec terminateGUI () = writef "TERMINATE\n" []
@@ -242,13 +242,13 @@ let rec setFonts stringfromtheory =
 exception Fontinfo_
 
 let rec fontinfo fontn =
-    match askf "FONTINFO %\n" [Int (int_of_displayfont fontn)] with 
+    match intlist_of_ask "FONTINFO %\n" [Int (int_of_displayfont fontn)] with 
       [asc; desc; lead]  -> asc, desc, lead
     | _ -> raise Fontinfo_
 
 let rec getPointSize n =
   (* actually it's font height, and it isn't used *)
-  match askf "POINTSIZE %\n" [Int n] with
+  match intlist_of_ask "POINTSIZE %\n" [Int n] with
     [n] -> n
   | _   -> output_string stderr "[POINTSIZE FAILS]\n"; 0
 
@@ -291,7 +291,7 @@ let rec measurestring font string =
   try Hashtbl.find stringSizeCache (fontname,string) with
   Not_found -> (
     let wad = 
-      match askf "STRINGSIZE % %\n" [Int fontnum; Str (printable string)] with
+      match intlist_of_ask "STRINGSIZE % %\n" [Int fontnum; Str (printable string)] with
         [width; asc; desc] -> width, asc, desc
       | ns                 -> raise (Measurestring_ (fontnum, printable string, ns))
     in
@@ -388,9 +388,7 @@ let procrustes width ellipsis font text =
        trunc
      ))
 
-let howtoTextSelect    () = ask "HOWTO textselect"
-let howtoFormulaSelect () = ask "HOWTO formulaselect"
-let howtoDrag          () = ask "HOWTO drag"
+let howToText s = string_of_ask "HOWTOTEXT %\n" [Str s]
 
 (***************)
 
@@ -404,14 +402,14 @@ let rec ask_unpatched severity message buttons default =
   writef "ASKSTART\n" [];
   List.iter (fun but -> writef "ASKBUTTON %\n" [Str but]) buttons;
   match
-    askf "ASKNOW % % %\n" [Int severity; Str message; Int default]
+    intlist_of_ask "ASKNOW % % %\n" [Int severity; Str message; Int default]
   with
     [n] -> n
   | _   -> raise (Catastrophe_ ["ask protocol failure"])
 
 let rec askDangerously_unpatched message doit dont =
   match
-    askf "ASKDANGEROUSLY % % %\n" [Str message; Str doit; Str dont]
+    intlist_of_ask "ASKDANGEROUSLY % % %\n" [Str message; Str doit; Str dont]
   with
     [0] -> None
   | [n] -> Some (n - 1)
@@ -552,7 +550,7 @@ let rec highlight posn classopt =
       writef "HIGHLIGHT % % %\n" [Int x; Int y; Int (int_of_displayclass c)]
 
 let rec readHighlight class__ =
-  match askf "READHIGHLIGHT %\n" [Int class__] with
+  match intlist_of_ask "READHIGHLIGHT %\n" [Int class__] with
     [x; y] -> Some (pos (x, y))
   | _ -> None
 
@@ -578,7 +576,7 @@ let displayProvisos ps =
 let rec showfile filename = writef "SHOWFILE %\n" [Str filename]
 
 let rec makeChoice heading =
-  match askf "MAKECHOICE %\n" [Str heading] with
+  match intlist_of_ask "MAKECHOICE %\n" [Str heading] with
     [0] -> None
   | [n] -> Some (n - 1)
   | _   -> None
@@ -788,7 +786,7 @@ let rec setworlds selected worlds =
 exception GetPaneGeometry_ of string
 
 let rec getPaneGeometry pane = 
-    match askf "PANEGEOMETRY %\n" [Int (int_of_pane pane)] with
+    match intlist_of_ask "PANEGEOMETRY %\n" [Int (int_of_pane pane)] with
       [x; y; w; h] -> box (pos (x, y), size (w, h))
     | _ -> raise (GetPaneGeometry_ (string_of_pane pane))
 
