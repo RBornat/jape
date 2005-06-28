@@ -1,11 +1,11 @@
 ﻿/*
     $Id$
 
-    Copyright (C) 2004 Richard Bornat
+    Copyright (C) 2004-5 Richard Bornat
      
         richard@bornat.me.uk
 
-    This file is part of the jape examples distribution, which is part of jape.
+    This file is part of the Hoare logic example distribution, which is part of jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ LEFTFIX 180 ∃ .
 
 INFIX   300L    <   >   ≤   ≥   ≠   =  
 
-INFIX   350L    :
+/* INFIX   350L    : */
 
 INFIX   400 L   + -
 INFIX   410 L   × ÷
