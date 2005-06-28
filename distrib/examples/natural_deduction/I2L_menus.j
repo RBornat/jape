@@ -536,7 +536,8 @@ ALERT   "Variables are introduced into a proof by ∀ intro and/or ∃ elim. The
         \as a special pseudo-assumption actual i (this is Jape's version of scope-boxing; it uses variable \
         \names i, i1, and so on as appropriate). \
         \\n\nYou have to select one of these pseudo-assumptions each time you make a ∀ elim or ∃ intro step.\
-        \\n\nThe box enclosing actual ... is the scope of the variable. If there are unknowns in your proof, \
+        \\n\n\
+        \The box enclosing actual ... is the scope of the variable. If there are unknowns in your proof, \
         \Jape will protect the scope box \
         \by putting a proviso such as i NOTIN _B in the Provisos pane .  If you try to \
         \break the scope using hyp or Unify then Jape will stop you, quoting the proviso."
@@ -549,16 +550,16 @@ TACTIC Explainprovisos IS
 /* ******************** we don't like some of the automatic alerts ******************** */
 
 PATCHALERT "double-click is not defined" 
-    "Double-clicking a formula doesn't mean anything in I2L Jape: you have to select (single-click) and \
-    \then choose a step from the Backward or Forward menu."
-    ("OK")
+    "Double-clicking a formula doesn't mean anything in I2L Jape: you have to select a formula \
+    \(single-click) and then choose a step from the Backward or Forward menu."
+    ("OK") ("Huh?", HowToFormulaSelect)
 
-// I can no longer find the code that generated this alert, but I've left the patch just in case
+/* I can no longer find the code that generated this alert, but I've left the patch just in case */
 
 PATCHALERT "You double-clicked on a used hypothesis or a proved conclusion"
-    "Double-clicking a formula doesn't mean anything in I2L Jape: you have to select (single-click) and \
-    \then choose a step from the Backward or Forward menu."
-    ("OK")
+    "Double-clicking a formula doesn't mean anything in I2L Jape: you have to select a formula \
+    \(single-click) and then choose a step from the Backward or Forward menu."
+    ("OK") ("Huh?", HowToFormulaSelect)
     
 /* ******************** and we do our own (careful) unification ******************** */
 
