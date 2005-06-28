@@ -1,11 +1,11 @@
 ﻿/*
     $Id$
 
-    Copyright (C) 2004 Richard Bornat
+    Copyright (C) 2004-5 Richard Bornat
      
         richard@bornat.me.uk
 
-    This file is part of the jape examples distribution, which is part of jape.
+    This file is part of the Hoare logic example distribution, which is part of jape.
 
     Jape is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,10 +27,9 @@
 RULE "arith_var" IS INFER A∧(x computes) simplifiesto A
 RULE "arith_const" IS INFER A∧(K computes) simplifiesto A
 
-RULES "arith_single" ARE
+RULE "arith_single" IS
     FROM E∧(A computes) simplifiesto F
     INFER E∧(¬A computes) simplifiesto F
-END
 
 RULES "arith_double" ARE
     FROM E∧(A computes) simplifiesto F AND 
@@ -95,7 +94,7 @@ RULE "arith_index" IS
     INFER E∧(a[F] computes) simplifiesto I
 
 TACTIC simpl IS
-  SEQ (LAYOUT HIDEROOT)
+  LAYOUT HIDEROOT
       (ALT (LETGOAL (_E∧(_x computes) simplifiesto _F)
               (UNIFY _F _E) (MATCH "arith_var"))
            (LETGOAL (_E∧(_K computes) simplifiesto _F)
