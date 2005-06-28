@@ -1886,7 +1886,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                relevant variables set. If it gets wider, then we only have to redraw if
                boxdraw tells us that it did something with that variable.
              *)
-            (let redraw v vr = v && (n=="0" || vr) in
+            (let redraw v vr = v && (n="0" || vr) in
              if Interaction.getdisplaystyle()="box" &&
                 (redraw !foldformulae !Boxdraw.formulaefolded ||
                  redraw !foldassumptionlines !Boxdraw.assumptionlinesfolded ||
