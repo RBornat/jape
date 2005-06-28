@@ -1,8 +1,34 @@
-﻿RULE "skip" IS {A} skip {A}
+﻿/*
+    $Id$
+
+    Copyright (C) 2004-5 Richard Bornat
+     
+        richard@bornat.me.uk
+
+    This file is part of the Hoare logic example distribution, which is part of jape.
+
+    Jape is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    Jape is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with jape; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    (or look at http://www.gnu.org).
+
+*/
+
+RULE "skip" IS {A} skip {A}
 
 RULE "tilt" IS {⊥} tilt {A}
 
-RULE sequence(C) IS FROM { A } F { B } AND  { B } G { C } INFER  { A } (F; G) { C }
+RULE sequence(C) IS FROM {A} F {B} AND  {B} G {C} INFER  {A} (F;G) {C}
 
 /* RULES "Ntuple" ARE 
     FROM {A} B {C} AND {C} D {E} INFER  {A} B {C} D {E} AND
