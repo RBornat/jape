@@ -29,9 +29,9 @@ package uk.org.jape;
 
 // The Jape GUI is compiled individually for each kind of OS. This isn't too much of a 
 // hardship, because you have to build the engines individually. The makefile can then choose
-// which copy of LocalSettings to link into the mix. There are three in the uk/org/jape directory,
-// for Solaris, Linux and Windows. There's another in distrib/MacOSX/java_GUI for Mac OS X (and,
-// wouldn't you know, that's the one that stops it all being done with loadClass or whatever).
+// which copy of LocalSettings to link into the mix. But Solaris, Linux and Windows are all 
+// so similar that they share this file. Mac OS X is dealt with in 
+// distrib/MacOSX/java_GUI/LocalSettings.java. 
 // RB 22.vi.2005
 
 import java.awt.Dimension;
@@ -98,6 +98,32 @@ public class LocalSettings implements SelectionConstants {
     // window titling
     
     public static final boolean UnicodeWindowTitles = false;
+    
+    public static final String howToFormulaSelect =
+	"Formula selection is done with a single left-button click of the mouse.";
+    
+    public static final String howToTextSelect =
+	"Subformula selection is done by pressing and dragging " +
+	"with the mouse's middle button " +
+	"(if you haven't got a middle button, hold down the " +
+	"Alt key and use the left button). " +
+	"You can modify an existing selection if you hold down the shift " +
+	"key. The Control key (CTRL) lets you make multiple " +
+	"subformula selections.";
+    
+    public static final String howToDragFormulae =
+	"You drag a draggable (blue box) formula by pressing " +
+	"(not clicking) the mouse's left button over it, holding "+
+	"still for a brief interval, " +
+	"and then moving the mouse while still holding the button down.";
+    
+    public static final String howToDragDisproofStuff =
+	"You drag a thing by pressing (not clicking) the mouse's left button " +
+	"over it, holding still for a brief interval, " +
+	"and then moving the mouse while still holding its button down. " + 
+	"If you use the middle button, you drag a duplicate copy " +
+	"(if you haven't got a middle button, hold down the Alt key and use " +
+	"the left button).";
 }
 
 
