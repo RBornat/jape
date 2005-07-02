@@ -177,8 +177,7 @@ TACTIC "∧ intro*"  IS
         (LETGOAL (_P∧_Q)  
             (LAYOUT COMPRESS "∧ intro") 
             "∧ intro" "∧ intro*" 
-            (LETMATCH _G tacticresult "∧ intro*" (ASSIGN tacticresult _G)) /* take leftmost GOALPATH */
-        )
+            (LETMATCH _G tacticresult "∧ intro*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
 TACTIC "sequence*"  IS
@@ -186,15 +185,14 @@ TACTIC "sequence*"  IS
         (LETGOAL ({_A} (_C1; _C2) {_B})  
             (LAYOUT COMPRESS "sequence") 
             "sequence" "sequence*" 
-            (LETMATCH _G tacticresult "sequence*" (ASSIGN tacticresult _G)) /* take leftmost GOALPATH */
-        )
+            (LETMATCH _G tacticresult "sequence*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
 TACTIC "Ntuple*"  IS
     ALT   
         (LAYOUT COMPRESS "Ntuple" ALL
             "Ntuple" "Ntuple*" 
-            (LETMATCH _G tacticresult "Ntuple*" (ASSIGN tacticresult _G)))
+            (LETMATCH _G tacticresult "Ntuple*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
 TACTIC "NtupleInner*"  IS
@@ -202,8 +200,7 @@ TACTIC "NtupleInner*"  IS
         (LETGOAL ({_A}(_B{_C}_D){_E})  
             (LAYOUT COMPRESS "NtupleInner") 
             "NtupleInner" "NtupleInner*" 
-            (LETMATCH _G tacticresult "NtupleInner*" (ASSIGN tacticresult _G)) /* take leftmost GOALPATH */
-        )
+            (LETMATCH _G tacticresult "NtupleInner*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
 /* multiple compressed forward steps are harder still */
@@ -255,9 +252,10 @@ TACTIC obviouslytac IS
 MENU Backward IS
     BEFOREENTRY "∧ intro"
     ENTRY "∧ intro (all at once)" 
-                    IS BackwardOnlyC (QUOTE (_A∧_B)) 
-                                     (Noarg "∧ intro*" "∧ intro") 
-                                     "∧ intro" "A∧B"
+                    IS SEQ (BackwardOnlyC (QUOTE (_A∧_B)) 
+                                          (Noarg "∧ intro*" "∧ intro") 
+                                          "∧ intro" "A∧B")
+                           (GOALPATH tacticresult)
     RENAMEENTRY "∧ intro" "∧ intro (one step)"
 END
 
@@ -279,15 +277,17 @@ MENU Programs
                                     "tilt"
                                     "{A}tilt{B}"
     ENTRY "sequence"    
-                    IS BackwardOnlyA (QUOTE ({_A} (_C1; _C2) {_B}))
-                                    (Noarg "sequence*" "sequence")
-                                    "sequence"
-                                    "{A}(C1;C2){B}"
-    ENTRY "Ntuple"  IS BackwardOnlyDouble (QUOTE (_A{_B}_C{_D})) (QUOTE ({_A}(_B{_C}_D){_E}))
-                                    (Noarg "Ntuple*" "Ntuple")
-                                    "Ntuple"
-                                    "A{B}C{D} or {A}(B{C}D){E}"
-                                    "only makes sense backwards."
+                    IS SEQ (BackwardOnlyA (QUOTE ({_A} (_C1; _C2) {_B}))
+                                          (Noarg "sequence*" "sequence")
+                                          "sequence"
+                                          "{A}(C1;C2){B}")
+                           (GOALPATH tacticresult)
+    ENTRY "Ntuple"  IS SEQ (BackwardOnlyDouble (QUOTE (_A{_B}_C{_D})) (QUOTE ({_A}(_B{_C}_D){_E}))
+                                               (Noarg "Ntuple*" "Ntuple")
+                                               "Ntuple"
+                                               "A{B}C{D} or {A}(B{C}D){E}"
+                                               "only makes sense backwards.")
+                           (GOALPATH tacticresult)
     ENTRY "variable-assignment" 
                     IS BackwardOnlyA (QUOTE ({_A} (_x := _E) {_B}))
                                     (Noarg (perhapsconsequenceL (SEQ "variable-assignment" simpl)))
