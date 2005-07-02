@@ -57,7 +57,7 @@ RULE "array-element-assignment" IS
       AND C∧(F computes) simplifiesto D
     INFER {D} (a[E]:=F) {B}
 
-RULE "while"(I, M, OBJECT Km) WHERE FRESH Km IS
+RULE "while"(I, M, OBJECT Km) WHERE FRESH Km AND Km NOTIN M IS
      FROM ⊤∧(E computes) simplifiesto G
       AND I→G 
       AND {I∧E} F {I}
