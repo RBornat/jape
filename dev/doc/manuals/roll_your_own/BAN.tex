@@ -257,27 +257,26 @@ ENTRY "P|≡(...,X,...) ⇒ P|≡X"             IS ForwardOrBackward ForwardCut 
 \end{japeish}
 and Bob's your uncle.
 
-\begin{figure}
-\centering
-\includegraphics{scale=0.5}{pics/BAN/NSexample1}
-\caption{A proof with folded assumption lines}
-\label{fig:BAN:NSexample1}
-\end{figure}
-
 \section{Conjectures with long assumption lists}
 
-
-On educational grounds I thought it best to include lots of assumptions in each conjecture, simply because the problem for novices is to decide which assumptions are relevant and how. This makes very long conjectures. For example, one of the conjectures about the Needham-Schroeder protocol is
+On educational grounds I thought it best to include lots of assumptions in each conjecture, because the problem for novices is to decide which assumptions are relevant and how they can be used. This makes very long conjectures. For example, one of the conjectures about the Needham-Schroeder protocol is
 \begin{japeish}
-THEOREM "Needham-Schroeder: A<|{Na,(A,B)↔Kab,\#((A,B)↔Kab),{(A,B)↔Kab}Kbs}Kas ⊢ A|≡\#((A,B)↔Kab)" IS \\
+THEOREM "Needham-Schroeder: A<|\{Na,(A,B)↔Kab,\#((A,B)↔Kab),\{(A,B)↔Kab\}Kbs\}Kas ⊢ A|≡\#((A,B)↔Kab)" IS \\
 \tab A|≡(A,S)↔Kas, S|≡(A,S)↔Kas, B|≡(B,S)↔Kbs, S|≡(B,S)↔Kbs, S|≡(A,B)↔Kab,\\
 \tab A|≡(∀k.S|⇒(A,B)↔k), B|≡(∀k.S|⇒(A,B)↔k), A|≡(∀k.S|⇒\#((A,B)↔k)), \\
 \tab A|≡\#Na, B|≡\#Nb, S|≡\#((A,B)↔Kab), B|≡(∀k.\#((A,B)↔k)), \\
-\tab A<|{Na,(A,B)↔Kab,\#((A,B)↔Kab),{(A,B)↔Kab}Kbs}Kas \\
+\tab A<|\{Na,(A,B)↔Kab,\#((A,B)↔Kab),\{(A,B)↔Kab\}Kbs\}Kas \\
 \tab ⊢ A|≡\#((A,B)↔Kab)
 \end{japeish}
-Expressed as a single line this would be several screensfull.
+Expressed as a single line this would be several screens wide.
 
-Jape automatically folds long assumption lists in a box-and-line proof to fit the proof window (you can turn this off, if you must, by setting \texttt{foldassumptionlines} false). The proof of this conjecture, in a moderately-sized window, is shown in \figref{BAN:NSexample1}.
+Jape automatically folds long assumption lists in a box-and-line proof to fit the proof window (you can turn this off, if you must, by setting \texttt{foldassumptionlines} false). The proof of this conjecture, in a moderately-sized window, is shown in \figref{BAN:NSexample1}. It can also fold long formulae, but that isn't exploited in this encoding.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{pics/BAN/NSexample1}
+\caption{A proof with a folded assumption line}
+\label{fig:BAN:NSexample1}
+\end{figure}
 
  
