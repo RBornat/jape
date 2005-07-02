@@ -1056,9 +1056,7 @@ and parseProof report stage =
     let params = parseformals true in
     let pros = parseProvisos () in
     let (givens, seq) = parseRulebody () in
-    let _ =
-      consolereport ["reading "; word_of_proofstage stage; " "; string_of_name n]
-    in
+    consolereport ["reading "; word_of_proofstage stage; " "; string_of_name n];
     let fs =
       match currsymb () with
         SHYID "FORMULAE" ->
