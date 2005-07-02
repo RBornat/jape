@@ -86,6 +86,7 @@
 \newcommand{\textlambda}{\ensuremath{\lambda}}
 \DeclareUnicodeCharacter {8614}{\ensuremath{|->}}
 \DeclareUnicodeCharacter {8870}{\ensuremath{|-}}
+\DeclareUnicodeCharacter {8871}{\ensuremath{|=}}
 \DeclareUnicodeCharacter {9665}{\ensuremath{\triangleleft}}
 
 \newcommand{\eqnref}[1]{(\ref{eqn:#1})}
@@ -116,10 +117,12 @@
 \newcommand{\tab}{\hstrut{10pt}}
 
 \newenvironment{japeish}{\begin{quote}\tt\small}{\end{quote}}
+\newcommand{\textj}[1]{{\tt\small{#1}}}
+
 \newenvironment{ruletab}[1]{\renewcommand{\arraystretch}{3.0}\begin{center}\begin{tabular}{#1}}%
 {\end{tabular}\end{center}}
 
-\includeonly{BAN}
+\includeonly{paraformlang}
 
 \begin{document}
 \maketitle
@@ -136,6 +139,7 @@
 \include{HindleyMilner}
 \include{BAN}
 \include{I2L}
+\include{Kripke}
 \include{Hoare}
 
 \appendix
