@@ -1539,8 +1539,8 @@ module Tree : Tree with type term = Termtype.term
             in
             let lps =
               nj_fold (uncurry2 (sortedmerge earlierresource))
-                ((fst <* lpsNsubts'))
-                (sort earlierresource (fst (fst ress)))
+                      ((fst <* lpsNsubts'))
+                      (sort earlierresource (fst (fst ress)))
             in
             let subts' = (snd <* lpsNsubts') in
             let hidecut =
@@ -1562,7 +1562,7 @@ module Tree : Tree with type term = Termtype.term
                        (match
                           concs (sequent t1),
                           listsub sameresource (hyps (sequent t2))
-                            (hyps (fst seq))
+                                               (hyps (fst seq))
                         with
                           [cc], [ch] ->
                             not
@@ -1571,17 +1571,16 @@ module Tree : Tree with type term = Termtype.term
                         | _ -> false)
                    | _ -> false)
             in
-            lps,
-            Join
-              (_The (visreason proved showall it), how, None, args,
-               VisFormat (join_multistep j viss, hidecut), tshaveTip subts',
-               seq, (subts', snd subts), ress)
+            lps, Join (_The (visreason proved showall it), how, None, args,
+                       VisFormat (join_multistep j viss, hidecut), tshaveTip subts',
+                       seq, (subts', snd subts), ress)
       in
       visp t
     (* for export *)
     
     let rec visproof proved showall hideuselesscuts =
       snd <.> tranproof proved showall hideuselesscuts
+    
     (* there surely ought to be a way to make these structures into one -- I suppose functors inside functors
      * ain't SML.
      *)
