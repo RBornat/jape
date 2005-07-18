@@ -887,22 +887,22 @@ let rec linearise screenwidth procrustean_reasonW dp =
     let (elementsplanlist, elementsbox as elementsplan) = mkelps p in
     if proven then elementsplan
     else
-      let elementspos = tbPos elementsbox in
-      let elementssize = textsize_of_textbox elementsbox in
+      let elementspos = tbP elementsbox in
+      let elementssize = tbS elementsbox in
       let dotspos =
         pos
-          (posX elementspos,
-           posY elementspos - tsA elementssize - textleading -
+          (posX elementspos)
+          (posY elementspos - tsA elementssize - textleading -
              tsD dotssize)
       in
       let dotsplan = plan_of_textinfo dotsinf ElementPunctPlan dotspos in
       let allsize =
-        textsize_of_textbox (( +|-|+ ) (elementsbox, textbox (dotspos, dotssize)))
+        tbS (elementsbox +|-|+  (textbox dotspos dotssize))
       in
       dotsplan :: elementsplanlist,
       textbox
-        (elementspos,
-         textsize (tsW allsize, tsA allsize - textleading, tsD allsize))
+        elementspos
+        (textsize (tsW allsize) (tsA allsize - textleading) (tsD allsize))
   in
            
   (* make the plan for a single reason, relative to p *)
@@ -917,19 +917,19 @@ let rec linearise screenwidth procrustean_reasonW dp =
                ReasonPunctPlan
            in
            if !boxlinedressright then
-             plancons (reasonf p)
-               (fun p -> plancons (reasonspacef p) (plans_of_plan <.> antesf))
+             planfollowedby (reasonf p)
+               (fun p -> planfollowedby (reasonspacef p) (plans_of_plan <.> antesf))
            else if null cids then plans_of_plan (reasonf p)
            else
-             plancons (lantesparenf p)
+             planfollowedby (lantesparenf p)
                (fun p ->
-                  plancons (antesf p)
-                    (fun p -> plancons (rantesparenf p) (plans_of_plan <.> reasonf))))
+                  planfollowedby (antesf p)
+                    (fun p -> planfollowedby (rantesparenf p) (plans_of_plan <.> reasonf))))
         in
           rplan, rbox, ReasonDesc (pi, why, cids)
   in
   let rec ljreasonplan ps box =
-    let shift = pos (- tsW (textsize_of_textbox box), 0) in
+    let shift = pos (- tsW (tbS box)) 0 in
     (* consolereport ["Boxdraw.ljreasonplan "; 
                    "(ps = "; bracketedstring_of_list (debugstring_of_plan string_of_reasonplankind) "; " ps; " )";
                    "(box = "; Box.string_of_textbox box; " )";
@@ -952,23 +952,21 @@ let rec linearise screenwidth procrustean_reasonW dp =
      * baseline is originY; then we make bigelementsbox to say where the elements really are
      *)
     let (elementsplan, elementsbox) = elf origin in
-    let elementssize = textsize_of_textbox elementsbox in
+    let elementssize = tbS elementsbox in
     let (idsize, _ as idinfo) = textinfo_of_string ReasonFont (_IDr id) in
     let idplan =
-      plan_of_textinfo idinfo DisplayPunct (rightby (origin, - tsW idsize))
+      plan_of_textinfo idinfo DisplayPunct (rightby origin (- tsW idsize))
     in
     (* this is right justified *)
     let (reasonplan, reasonbox, reason) = reasonf origin in
-    let reasonsize = textsize_of_textbox reasonbox in
-    let linesize = ( +-+ ) (( +-+ ) (elementssize, reasonsize), idsize) in
+    let reasonsize = tbS reasonbox in
+    let linesize = elementssize +-+ reasonsize +-+ idsize in
     (* just to get A, _D *)
-    let bigelementspos = downby (topleftpos, tsA linesize) in
+    let bigelementspos = downby topleftpos (tsA linesize) in
     let bigsize =
-      textsize
-        (tsW elementssize + posX (tbPos elementsbox), tsA linesize,
-         tsD linesize)
+      textsize (tsW elementssize + posX (tbP elementsbox)) (tsA linesize) (tsD linesize)
     in
-    let bigelementsbox = textbox (bigelementspos, bigsize) in
+    let bigelementsbox = textbox bigelementspos bigsize in
     FitchLine
       {lineID = id; elementsbox = bigelementsbox; idplan = idplan; elementsplan = elementsplan; 
        reasonplan = alignreasonplan reasonplan reasonbox;
@@ -976,12 +974,12 @@ let rec linearise screenwidth procrustean_reasonW dp =
     box_of_textbox bigelementsbox, tsW idsize, tsW reasonsize
   in
   let rec startLacc id pos =
-    Lacc {id = id; acclines = []; elbox = box (pos, nullsize); 
+    Lacc {id = id; acclines = []; elbox = box pos nullsize; 
           idW = 0; reasonW = 0; assW = 0; lastmulti = false}
   in
   let rec nextpos b leading lastmulti thismulti =
     if isemptybox b then topleft b 
-    else downby (botleft b, (if lastmulti || thismulti then 2*leading else leading + 1))
+    else downby (botleft b) (if lastmulti || thismulti then 2*leading else leading + 1)
   in
   (* idok is what to do if you are an IdDep -- 
    *   true means disappear if you like;
@@ -1027,13 +1025,13 @@ let rec linearise screenwidth procrustean_reasonW dp =
             (nextpos elbox textleading lastmulti multi)
         in
         id,
-        Lacc {id = _RR id; acclines = line :: lines; elbox = ( +||+ ) (elbox, ebox);
+        Lacc {id = _RR id; acclines = line :: lines; elbox = elbox +||+ ebox;
               idW = max iW (idW); reasonW = max rW (reasonW); assW = assW; lastmulti=multi}
       in
       (* info to prefix a line with a turnstile *)
       let rec stprefix stopt restf p =
         match stopt with
-          Some st -> plancons (plan_of_textinfo st ElementPunctPlan p) restf
+          Some st -> planfollowedby (plan_of_textinfo st ElementPunctPlan p) restf
         | _ -> restf p
       in
       match dp with
@@ -1068,7 +1066,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
               let hindent = linethickness + boxhspace in
               let vindent = linethickness + boxvspace in
               topleftpos, hindent, vindent,
-              topleftpos +->+ pos (hindent, vindent)
+              topleftpos +->+ pos hindent vindent
             else
               let topleftpos = nextpos accrec.elbox textleading accrec.lastmulti false in
               topleftpos, 0, 0, topleftpos
@@ -1109,7 +1107,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             in
             hypmap',
             Lacc {id = _RR haccrec.id; acclines = line :: haccrec.acclines;
-                  elbox = if null haccrec.acclines then linebox else ( +||+ ) (haccrec.elbox, linebox);
+                  elbox = if null haccrec.acclines then linebox else haccrec.elbox +||+ linebox;
                   idW = max haccrec.idW lineidW; reasonW = max haccrec.reasonW linereasonW;
                   assW = max haccrec.assW lineassW; lastmulti = false}
           in
@@ -1120,7 +1118,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                           idW = idW'; reasonW = reasonW'; assW = assW'})
             = _L wopt hypmap' false dp acc'
           in
-          let outerbox = bOutset innerbox (size (hindent, vindent)) in
+          let outerbox = bOutset innerbox (size hindent vindent) in
           let cid' =
             match cid with
               LineID jd     -> BoxID (accrec.id, jd)
@@ -1132,7 +1130,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
           Lacc {id = id'';
                 acclines = 
                   FitchBox {outerbox = outerbox; boxlines = innerlines; boxed = boxed} :: accrec.acclines;
-                elbox = ( +||+ ) (accrec.elbox, outerbox); idW = max accrec.idW idW';
+                elbox = accrec.elbox +||+ outerbox; idW = max accrec.idW idW';
                 reasonW = max accrec.reasonW (reasonW'); assW = max accrec.assW assW'; 
                 lastmulti = false }
       | CutDep (ldp, cutel, rdp, tobehidden) ->
@@ -1189,11 +1187,11 @@ let rec linearise screenwidth procrustean_reasonW dp =
             let rec mkp p =
               let splan =
                 plan_of_textinfo s ElementPunctPlan
-                  (rightby (p, 2*transindent)) (* a little more indentation looks a bit better. RB 8.6.2005 *)
+                  (rightby p (2*transindent)) (* a little more indentation looks a bit better. RB 8.6.2005 *)
               in
-              plancons splan
+              planfollowedby splan
                    (plans_of_plan <.> uncurry2 plan_of_textinfo f <.> 
-                    (fun p' -> rightby (p', transindent)))
+                    (fun p' -> rightby p transindent))
             in
             doconcline mkp true (acc, just) false
           in
@@ -1342,11 +1340,11 @@ let rec draw goalopt p proof =
       match line with
         FitchLine {elementsplan = elementsplan; elementsbox = elementsbox; 
                    idplan = idplan; reasonplan = reasonplan} ->
-          let pdraw = p +->+ tbPos elementsbox in
+          let pdraw = p +->+ tbP elementsbox in
           let rec emp gpath plan =
             (* (Elementplan((el,siopt),_,class,elbox)) = *)
-            let rec dohigh () = highlight (tbPos (textbox_of_plan plan) +->+ pdraw) (Some DisplayConc) in
-            let rec dogrey () = greyen (tbPos (textbox_of_plan plan) +->+ pdraw) in
+            let rec dohigh () = highlight (tbP (textbox_of_plan plan) +->+ pdraw) (Some DisplayConc) in
+            let rec dogrey () = greyen (tbP (textbox_of_plan plan) +->+ pdraw) in
             let rec doconc path = if gpath = path then dohigh () else dogrey () in
             
             match info_of_plan plan with
@@ -1380,14 +1378,14 @@ let rec draw goalopt p proof =
             | _ -> raise (Catastrophe_ ["emp in _D "; debugstring_of_plan string_of_elementplankind plan])
           in
           let y = posY pdraw in
-          let idpos = pos (idx, y) in
+          let idpos = pos idx y in
           drawplan (fun i -> i) idpos idplan;
           drawplan (fun i -> i) idpos colonplan;
           List.iter (drawplan elementplanclass pdraw) elementsplan;
           (* consolereport ["drawing reasonplan "; 
                          bracketedstring_of_list (debugstring_of_plan string_of_reasonplankind) "; " reasonplan;
-                         " at pos "; Box.string_of_pos (pos (reasonx, y))]; *)
-          List.iter (drawplan reasonplanclass (pos (reasonx, y))) reasonplan;
+                         " at pos "; Box.string_of_pos (pos reasonx y)]; *)
+          List.iter (drawplan reasonplanclass (pos reasonx y)) reasonplan;
           begin match goalopt with
             Some gpath -> List.iter (emp gpath) elementsplan
           | None -> ()
@@ -1395,7 +1393,7 @@ let rec draw goalopt p proof =
       | FitchBox {outerbox = outerbox; boxlines = lines; boxed = boxed} ->
           if boxed then drawBox (bOffset outerbox p); List.iter (_D p) lines
     in
-    drawinproofpane (); List.iter (_D (rightby (p, bodymargin))) lines
+    drawinproofpane (); List.iter (_D (rightby p bodymargin)) lines
 
 let rec print str goalopt p proof =
   fun (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
@@ -1432,7 +1430,7 @@ let rec print str goalopt p proof =
           revapp (_D p) lines;
           if boxed then out ")\n"
     in
-    revapp (_D (rightby (p, bodymargin))) lines
+    revapp (_D (rightby p bodymargin)) lines
 
 let couldbe path = function
                      Some truepath -> truepath
@@ -1471,8 +1469,8 @@ let hit_of_pos p (Layout {lines = lines; bodymargin = bodymargin; reasonmargin =
               Some (FormulaHit (AmbigHit (cp up, hp dn)))
           | ElementPunctPlan -> None
         in
-        if withintb (p, elementsbox) then
-          findfirstplanhit (p +<-+ tbPos elementsbox) elementsplan 
+        if withintb p elementsbox then
+          findfirstplanhit (p +<-+ tbP elementsbox) elementsplan 
           &~~ (_Some <.> info_of_plan) 
           &~~ decodeplan
         else
@@ -1481,17 +1479,17 @@ let hit_of_pos p (Layout {lines = lines; bodymargin = bodymargin; reasonmargin =
                match info_of_plan reason with
                  ReasonPlan pi ->
                    if withintb
-                        (p +<-+ pos (reasonmargin - bodymargin, posY (tbPos elementsbox)),
-                         textbox_of_plan reason)
+                        (p +<-+ pos (reasonmargin - bodymargin) (posY (tbP elementsbox)))
+                        (textbox_of_plan reason)
                    then
                      Some (ReasonHit (answerpath hitkind pi))
                    else None
                | _ -> None)
             reasonplan
     | FitchBox {outerbox = outerbox; boxlines = lines} ->
-        if withinY (p, outerbox) then findfirst (_H p) lines else None
+        if withinY p outerbox then findfirst (_H p) lines else None
   in
-  findfirst (_H (rightby (p, -bodymargin))) lines
+  findfirst (_H (rightby p (-bodymargin))) lines
 
 let allFormulaHits pos (Layout {lines = lines; bodymargin = bodymargin}) =
   let targetpath =
@@ -1517,10 +1515,10 @@ let allFormulaHits pos (Layout {lines = lines; bodymargin = bodymargin}) =
     in
     match l with
       FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
-        List.fold_left (oneel (pos +->+ tbPos elementsbox)) rs elementsplan
+        List.fold_left (oneel (pos +->+ tbP elementsbox)) rs elementsplan
     | FitchBox {boxlines = boxlines} -> allts pos rs boxlines
   in
-  allts (rightby (pos, bodymargin)) [] lines
+  allts (rightby pos bodymargin) [] lines
   
 let rec locateHit pos classopt hitkind (p, proof, layout) =
   hit_of_pos ((pos +<-+ p)) layout hitkind &~~
@@ -1547,7 +1545,7 @@ let locateElement locel (p, proof, (Layout {lines = lines; bodymargin = bodymarg
         let locplan ps (Formulaplan (_, textbox, c)) =
           let f (pi, el, pl) ps =
             if sameresource (el, locel) then 
-              ((p +->+ tbPos elementsbox) +->+ tbPos textbox)::ps
+              ((p +->+ tbP elementsbox) +->+ tbP textbox)::ps
             else ps
           in
           match c with 
@@ -1560,7 +1558,7 @@ let locateElement locel (p, proof, (Layout {lines = lines; bodymargin = bodymarg
         Listfuns.foldl (locate p) ps lines
         (* oddly, no offset: see _D if you don't believe me *)
   in
-  Listfuns.foldl (locate (rightby (p,bodymargin))) [] lines
+  Listfuns.foldl (locate (rightby p bodymargin)) [] lines
 
 (* Greyening and blackening is now (cross fingers) simplified, at least during selection.
  * We get told when a selection is made (Some(pos, class)) or cancelled (None),
@@ -1592,16 +1590,16 @@ let rec notifyselect posclassopt posclasslist =
         match line with
           FitchLine
             {elementsbox = elementsbox; elementsplan = elementsplan} ->
-            let p' = p +->+ tbPos elementsbox in
+            let p' = p +->+ tbP elementsbox in
             List.iter
               (fun plan ->
                  if iselementkind (info_of_plan plan) then
-                   emp plan (p' +->+ tbPos (textbox_of_plan plan)))
+                   emp plan (p' +->+ tbP (textbox_of_plan plan)))
               elementsplan
         | FitchBox {outerbox = outerbox; boxlines = lines} ->
             List.iter (reemphasise p) lines
       in
-      List.iter (reemphasise (rightby (proofpos, bodymargin))) lines
+      List.iter (reemphasise (rightby proofpos bodymargin)) lines
     in
     let rec blackenthelot () = bg (fun _ -> blacken) in
     let hits =
@@ -1711,7 +1709,7 @@ let defaultpos screen (Layout {bodybox = bodybox; bodymargin = bodymargin;
     (* because there is now a single GUI implementation, and because selections are essentially
        outsets of 2*linethickness, I leave that much space below the proof
      *)
-    upby (rightby (botleft screen, sidescreengap), sH (bSize bodybox)+2*linethickness)
+    upby (rightby (botleft screen) sidescreengap) (sH (bSize bodybox)+2*linethickness)
     +<-+ prooforigin,
     screen, prooforigin
 
@@ -1719,7 +1717,7 @@ let rec rootpos viewport (Layout {lines = lines}) =
     (* position of last line in proof, first in lines *)
     let rec p =
       function
-        FitchLine {elementsbox = elementsbox} -> Some (tbPos elementsbox)
+        FitchLine {elementsbox = elementsbox} -> Some (tbP elementsbox)
       | FitchBox {boxlines = lines}           -> findfirst p lines
     in
     match findfirst p lines with
@@ -1729,7 +1727,7 @@ let rec rootpos viewport (Layout {lines = lines}) =
 let rec postoinclude screen box 
                      (Layout {bodymargin = bodymargin; sidescreengap = sidescreengap} as layout) =
     let (defpos, screen, prooforigin) = defaultpos screen layout in
-    let otherdefpos = rightby (topleft screen, sidescreengap) +<-+ prooforigin
+    let otherdefpos = rightby (topleft screen) sidescreengap +<-+ prooforigin
     in
     (*
     consolereport ["postoinclude: defpos ", string_of_pos defpos, " screen ", string_of_box screen, 
@@ -1742,9 +1740,9 @@ let rec postoinclude screen box
                   ];
     *)
     (* prefer SW corner alignment *)
-    if entirelywithin (bOffset box defpos, screen) then defpos
+    if entirelywithin (bOffset box defpos) screen then defpos
     else if(* or NW corner alignment *) 
-     entirelywithin (bOffset box otherdefpos, screen) then
+     entirelywithin (bOffset box otherdefpos) screen then
       otherdefpos
     else
       (* find p such that bOffset box p is in the middle of the screen:
@@ -1752,10 +1750,10 @@ let rec postoinclude screen box
        * that is, choose p = midp +<-+ bPos Box.
        * I hope.
        *)
-        (downby
-           (rightby (bPos screen, bodymargin),
-            (sH (bSize screen) - sH (bSize box)) / 2)
-         +<-+ bPos box)
+      (downby
+         (rightby (bPos screen) bodymargin)
+         ((sH (bSize screen) - sH (bSize box)) / 2)
+       +<-+ bPos box)
 
 let rec layout viewport proof = _BoxLayout (sW (bSize viewport)) proof
 
@@ -1791,7 +1789,7 @@ let targetbox pos target layout =
         | FitchBox {boxlines = lines} -> findfirst (search pos) lines 
                                          (* oddly, no offset: see _D if you don't believe me *)
       in
-      findfirst (search (rightby (pos, bodymargin))) lines
+      findfirst (search (rightby pos bodymargin)) lines
 
 let rec samelayout =
   fun (Layout {lines = lines}, Layout {lines = lines'}) -> lines = lines'
