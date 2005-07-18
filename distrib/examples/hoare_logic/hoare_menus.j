@@ -372,28 +372,90 @@ TACTIC boundednesstac IS
            \\n\nYou don't appear to have done that ..." 
            ("OK", STOP))
 
+RULE IS A=B≜B=A
+RULE IS A=B≜¬(A≠B)
+RULE IS A≠B≜B≠A
+RULE IS A≠B≜¬(A=B)
+RULE IS A<B≜B>A
+RULE IS A≤B≜A<B ∨ A=B
+RULE IS A≤B≜B≥A
+RULE IS A≤B≜¬(A>B)
+/* RULE IS A≤B≜A<B+1
+RULE IS A+1≤B≜A<B */
+RULE IS A≥B≜¬(A<B)
+/* RULE IS A≥B≜A>B-1
+   RULE IS A-1≥B≜A>B */
+
+/* I've found a way to run multi-arg tactics from a panel ... */
 TACTICPANEL Comparison
-    RULE IS A=B ≜ B=A
-    RULE IS A=B ≜ ¬(A≠B)
-    RULE IS A≠B ≜ B≠A
-    RULE IS A≠B ≜ ¬(A=B)
-    RULE IS A<B ≜ B>A
-    RULE IS A≤B ≜ A<B ∨ A=B
-    RULE IS A≤B ≜ B≥A
-    RULE IS A≤B ≜ ¬(A>B)
-    /* RULE IS A≤B ≜ A<B+1
-    RULE IS A+1≤B ≜ A<B */
-    RULE IS A≥B ≜ ¬(A<B)
-    /*RULE IS A≥B ≜ A>B-1
-    RULE IS A-1≥B ≜ A>B */
-/*  RULE "(A;B);C≜A;(B;C)" IS   A;B;C ≜ A;(B;C)
+    ENTRY "A=B≜B=A"       IS  rwComparison "A=B≜B=A"      "A=B"   (QUOTE (_A=_B))  "B=A"      (QUOTE (_B=_A)) 
+    ENTRY "A=B≜¬(A≠B)"  IS  rwComparison "A=B≜¬(A≠B)" "A=B"   (QUOTE (_A=_B))  "¬(A≠B)" (QUOTE (¬(_A≠_B))) 
+    ENTRY "A≠B≜B≠A"     IS  rwComparison "A≠B≜B≠A"    "A≠B"  (QUOTE (_A≠_B)) "B≠A"     (QUOTE (_B≠_A)) 
+    ENTRY "A≠B≜¬(A=B)"  IS  rwComparison "A≠B≜¬(A=B)" "A≠B"  (QUOTE (_A≠_B))  "¬(A=B)" (QUOTE (¬(_A=_B))) 
+    ENTRY "A<B≜B>A"       IS  rwComparison "A<B≜B>A"      "A<B"   (QUOTE (_A<_B))  "B>A"      (QUOTE (_B>_A)) 
+    ENTRY "A≤B≜A<B∨A=B" IS  rwComparison "A≤B≜A<B∨A=B" "A≤B" (QUOTE (_A≤_B)) "A<B∨A=B" (QUOTE (_A<_B∨_A=_B)) 
+    ENTRY "A≤B≜B≥A"     IS  rwComparison "A≤B≜B≥A"     "A≤B" (QUOTE (_A≤_B))  "B≥A"    (QUOTE (_B≥_A)) 
+    ENTRY "A≤B≜¬(A>B)"  IS  rwComparison "A≤B≜¬(A>B)" "A≤B"  (QUOTE (_A≤_B))  "¬(A>B)" (QUOTE (¬(_A>_B))) 
+    ENTRY "A≥B≜¬(A<B)"  IS  rwComparison "A≥B≜¬(A<B)" "A≥B"  (QUOTE (_A≥_B))  "¬(A<B)" (QUOTE (¬(_A<_B))) 
+/*  RULE "(A;B);C≜A;(B;C)" IS   A;B;C≜A;(B;C)
     ENTRY "flatten ;" IS 
         iterateR2L "rewrite≜"  "symmetric≜" (QUOTE (_A;(_B;_C))) "(A;B);C≜A;(B;C)" (Fail "no semicolons to flatten")
  */
-    BUTTON  "A≜…"   IS apply rewriteL2R "rewrite≜"  "symmetric≜"  COMMAND COMMAND fstep
-    BUTTON  "…≜B"   IS apply rewriteR2L "rewrite≜"  "symmetric≜"  COMMAND COMMAND fstep
+    BUTTON  "A  ≜ …"   IS apply COMMAND "rwLeft≜"
+    BUTTON  "… ≜ B"   IS apply COMMAND "rwRight≜"
 END
 
+TACTIC rwComparison (rule, lshape, lpat, rshape, rpat, macro) IS
+  macro rule rule lshape lpat rshape rpat
+  
+MACRO "rwLeft≜" (rule, label, lshape, lpat, rshape, rpat) IS
+  rwMenu (rewriteL2R "rewrite≜"  "symmetric≜" rule label fstep) label "left to right" lshape lpat
+  
+MACRO "rwRight≜" (rule, label, lshape, lpat, rshape, rpat) IS
+  rwMenu (rewriteR2L "rewrite≜"  "symmetric≜" rule label fstep) label "right to left" rshape rpat
+  
+MACRO rwMenu (tac, label, dir, shape, pat) IS
+  WHEN
+    (LETHYPSUBSTSEL pat tac)
+    (LETHYPSUBSTSEL _A
+        (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                \You subformula-selected %t, which isn't of the right form.", 
+                label, dir, shape, _A)
+               ("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
+    (LETCONCSUBSTSEL pat tac)
+    (LETHYPSUBSTSEL _A
+        (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                \You subformula-selected %t, which isn't of the right form.", 
+                label, dir, shape, _A)
+               ("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
+    (LETARGSEL _A
+        (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                \You managed (using token selection, perhaps?) to select %t, which isn't a subformula.", 
+                label, dir, shape, _A)
+               ("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
+    (LETMULTIARG _A
+        (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                \You subformula-selected %l.\
+                \\n\n\
+                \Multiple identical subformula selections are allowed, but your \
+                \selections weren't identical (or, if they are identical, they aren't subformulae!).", 
+                label, dir, shape, (_A, ", ", " and "))
+               ("OK", STOP)))
+    (LETHYP pat tac)
+    (LETHYP _A
+        (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                \You selected the hypothesis %t, which is of the wrong form.", label, dir, shape, _A)
+               ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)))
+    (LETCONC pat tac)
+    (LETCONC _A
+        (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                \You selected the conclusion %t, which is of the wrong form.", label, dir, shape, _A)
+               ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)))
+    (LETGOAL pat tac)
+    (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+            \You didn't select or subformula-select anything", label, dir, shape)
+           ("OK", STOP) ("Huh?", SEQ (SHOWHOWTO "FormulaSelect") (SHOWHOWTO "TextSelect")))
+           
 RULE indexR IS FROM E=G INFER (A⊕E↦F)[G]=F
 RULE indexL IS FROM E≠G INFER (A⊕E↦F)[G]=A[G]
 
@@ -404,13 +466,24 @@ TACTIC "index(≠)" IS
     SEQ indexL fstep
 
 TACTICPANEL Indexing
-    ENTRY "FROM E=G INFER (A⊕E↦F)[G]=F" IS "index(=)"
-    ENTRY "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" IS "index(≠)"
+    ENTRY "FROM E=G INFER (A⊕E↦F)[G]=F" IS 
+        rwIndex "FROM E=G INFER (A⊕E↦F)[G]=F" "(A⊕E↦F)[G]" (QUOTE ((_A⊕_E↦_F)[_G])) "F" (QUOTE _F) "index(=)"
+    ENTRY "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" IS 
+        rwIndex "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" "(A⊕E↦F)[G]" (QUOTE ((_A⊕_E↦_F)[_G])) "A[G]" (QUOTE (_A[_G])) "index(≠)"
 
-    BUTTON  "A≜…"   IS apply rewriteL2R "rewrite="  "symmetric="  COMMAND COMMAND fstep
-    BUTTON  "…≜B"   IS apply rewriteR2L "rewrite="  "symmetric="  COMMAND COMMAND fstep
+    BUTTON  "A = …"   IS apply COMMAND "rwLeft="
+    BUTTON  "… = B"   IS apply COMMAND "rwRight="
 END
 
+TACTIC rwIndex (label, lshape, lpat, rshape, rpat, tac, macro) IS
+  macro tac label lshape lpat rshape rpat
+  
+MACRO "rwLeft=" (tac, label, lshape, lpat, rshape, rpat) IS
+  rwMenu (rewriteL2R "rewrite="  "symmetric=" tac label fstep) label "left to right" lshape lpat
+  
+MACRO "rwRight=" (tac, label, lshape, lpat, rshape, rpat) IS
+  rwMenu (rewriteR2L "rewrite="  "symmetric=" tac label fstep) label "right to left" rshape rpat
+  
 MENU "Edit" IS
   SEPARATOR
   CHECKBOX boxlinedressright "Justifications on right"
