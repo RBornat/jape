@@ -191,34 +191,34 @@ let rec parsemodel () =
   let rec parseCoord () =
     match currsymb () with
       BRA "(" ->
-        let _ = scansymb () in 
+        scansymb ();
         let rec parseInt () =
           match currsymb () with
-            NUM n -> let _ = scansymb () in  atoi n
+            NUM n -> (scansymb ();  atoi n)
           | sy ->
               match string_of_symbol sy with
-                "-" -> let _ = scansymb () in  - parseUnsignedInt "-"
-              | "~" -> let _ = scansymb () in  - parseUnsignedInt "~"
+                "-" -> (scansymb ();  - parseUnsignedInt "-")
+              | "~" -> (scansymb ();  - parseUnsignedInt "~")
               | s -> bang [s]
         and bang ss =
           raise
             (ParseError_ ("number expected in coordinate; found " :: ss))
         and parseUnsignedInt s1 =
           match currsymb () with
-            NUM n -> let _ = scansymb () in  atoi n
+            NUM n -> (scansymb (); atoi n)
           | s2 -> bang [s1; " followed by "; string_of_symbol s2]
         in
         let x = parseInt () in
         let y =
           if currsymb () = commasymbol then
-            begin let _ = scansymb () in  parseInt () end
+            (scansymb ();  parseInt ())
           else
             raise
               (ParseError_
                  ["comma expected after x value in world coordinate"])
         in
         begin match currsymb () with
-          KET ")" -> let _ = scansymb () in  Coord (x, y)
+          KET ")" -> (scansymb ();  Coord (x, y))
         | sy ->
             raise
               (ParseError_
@@ -234,23 +234,21 @@ let rec parsemodel () =
   let rec parseWorlds () =
     match currsymb () with
       SHYID "WORLD" ->
-        let _ = scansymb () in 
+        scansymb (); 
         let c = parseCoord () in
         let chs =
           match currsymb () with
             SHYID "CHILDREN" ->
-              let _ = scansymb () in 
-              parseList
-                (function
-                   BRA "(" -> true
-                 | _ -> false)
-                (fun _ -> parseCoord ()) commasymbol
+              (scansymb (); 
+               parseList
+                 (function BRA "(" -> true | _ -> false)
+                 (fun _ -> parseCoord ()) commasymbol)
           | _ -> []
         in
         let ts =
           match currsymb () with
             SHYID "LABELS" ->
-              let _ = scansymb () in  parseList canstartTerm parseTerm commasymbol
+              (scansymb ();  parseList canstartTerm parseTerm commasymbol)
           | _ -> []
         in
         World (c, chs, ts) :: parseWorlds ()
@@ -258,12 +256,11 @@ let rec parsemodel () =
   in
   match currsymb () with
     SHYID "SEMANTICS" ->
-      let _ = scansymb () in 
-      let seq = parseSeq () in
-      begin match parseWorlds () with
-        [] -> raise (ParseError_ ["empty disproof description"])
-      | worlds -> Some (seq, Model worlds)
-      end
+      (scansymb (); 
+       let seq = parseSeq () in
+       (match parseWorlds () with
+         [] -> raise (ParseError_ ["empty disproof description"])
+       | worlds -> Some (seq, Model worlds)))
   | _ -> None
 
 let rec catelim_string_of_model a1 a2 =
