@@ -36,14 +36,15 @@ import java.util.Vector;
 
 public class Reply implements DebugConstants {
     public static final String stringSep = "\u0091"; // what separates parts of multi-string replies
+    public static final char eolAlt      = '\u0092'; // end of line, instead of \n
     
     private static Vector messages = new Vector();
     private static boolean enginelistening = false;
     
     synchronized public static boolean openchannel() {
-    enginelistening = true;
-    flushmessages();
-    return enginelistening;
+	enginelistening = true;
+	flushmessages();
+	return enginelistening;
     }
 
     synchronized private static void flushmessages() {
