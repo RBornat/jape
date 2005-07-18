@@ -186,8 +186,8 @@ module F
                    targetbox origin (optf deVis path) plan
                  with
                    Some oldbox, Some box -> 
-                     if intersects (box_of_textbox oldbox,viewport) (* it was visible *)
-                     then doit (tbPos oldbox) (tbPos box)
+                     if intersects (box_of_textbox oldbox) viewport (* it was visible *)
+                     then doit (tbP oldbox) (tbP box)
                      else handleinvis ()
                  | _                     -> retry target)
             | _ ->  (* one of the boxes wasn't there *)
@@ -212,7 +212,7 @@ module F
                        bracketedstring_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
                        "; viewport="; string_of_box viewport]; *)
             let newts = allFormulaHits oldpos plan in
-            let acceptable f ts = (fun (tbox, _) -> f (box_of_textbox tbox,viewport)) <| ts in
+            let acceptable f ts = (fun (tbox, _) -> f (box_of_textbox tbox) viewport) <| ts in
             (* consolereport ["acceptable intersects oldts="; 
                    bracketedstring_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" 
                                            (acceptable intersects oldts)]; *)
@@ -239,7 +239,7 @@ module F
                        | inners -> process inners |~~ (fun _ -> process grazers))
                 with
                   None              -> bad()
-                | Some(oldbox, box) -> doit (tbPos oldbox) (tbPos box)
+                | Some(oldbox, box) -> doit (tbP oldbox) (tbP box)
           in
           findtarget target
     
