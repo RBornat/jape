@@ -37,7 +37,7 @@ type planclass = ElementClass of (element * displayclass)
 
 val makeelementplan        : (element -> string) -> displayclass -> element -> pos 
                           -> planclass plan
-val makeseqplan            : (element -> string) -> bool -> pos -> seq 
+val makeseqplan            : int -> (element -> string) -> bool -> pos -> seq 
                           -> planclass plan list * textbox
 val displayclass_of_planclass : planclass -> displayclass
 val string_of_planclass        : planclass -> string
