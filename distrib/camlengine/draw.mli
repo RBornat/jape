@@ -77,16 +77,21 @@ val plan_of_textinfo : textsize * textlayout -> 'a -> pos -> 'a plan
 val plan_of_string : font -> string -> 'a -> pos -> 'a plan
 val plan_of_element : (element -> string) -> element -> 'a -> pos -> 'a plan
 
-(* for building element lists and the like, with commas in between *)
-val plancons : 'a plan -> (pos -> 'a plan list * textbox) -> 'a plan list * textbox
+val planfollowedby : 'a plan -> (pos -> 'a plan list * textbox) -> 'a plan list * textbox
 val plans_of_plan : 'a plan -> 'a plan list * textbox
 
 (* plan modifier *)
 val planOffset : 'a plan -> pos -> 'a plan
-val plans_of_things :
-  ('b -> pos -> 'a plan) -> (pos -> 'a plan) ->
-    (pos -> 'a plan list * textbox) -> 'b list -> pos ->
-    'a plan list * textbox
+
+(* for building element lists and the like, with commas in between *)
+val nextright_of_plan : 'a plan -> pos
+val plancons : 'a plan -> 'a plan list * textbox -> 'a plan list * textbox
+val planunwind  : 'a plan list * textbox -> 'a plan list -> 'a plan list * textbox
+val planfold : ('a -> pos -> 'b plan) -> (pos -> 'b plan) ->
+               pos * textbox * 'b plan list -> 'a list -> pos * textbox * 'b plan list
+val plans_of_things : ('a -> pos -> 'b plan) -> (pos -> 'b plan) 
+                   -> (pos -> 'b plan list * textbox) -> 'a list -> pos 
+                   -> 'b plan list * textbox
 
 val drawplan : ('a -> displayclass) -> pos -> 'a plan -> unit
 val findfirstplanhit : pos -> 'a plan list -> 'a plan option
