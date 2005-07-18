@@ -573,12 +573,10 @@ let rec showstuff stuff =
 let rec apply checker filter taker selhyps selconcs stuff reason cxt =
   fun (_C, _Cinf) ->
     let (kind, hiddencontexts, how, args, principals, antes, conseq, provs) = stuff in
-    let _ =
-      if !applydebug > 0 then
-        consolereport
-          ["apply "; step_label how; " "; showstuff stuff; " ";
-           enQuote reason; " "; string_of_seq _C]
-    in
+    if !applydebug > 0 then
+      consolereport
+        ["apply "; step_label how; " "; showstuff stuff; " ";
+         enQuote reason; " "; string_of_seq _C];
     let info =
       Info { reason = reason; kind = kind; conjecture = _C; conjectureinf = _Cinf;
              cxt = cxt; args = args; provisos = provs; antecedents = antes;
