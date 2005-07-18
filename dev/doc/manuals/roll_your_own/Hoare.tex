@@ -130,6 +130,7 @@ I wanted to use a couple of encodings, or partial encodings, that had been devel
 
 \textj{hoare.jt} contains, therefore, a couple of uses of \textsc{push}/\textsc{popsyntax}. Provided that the `calling' encoding defines all the operators of the `called' encoding, and with the same meaning in each case (e.g. ∧ is \textsc{infix} in both), the ordering of priorities doesn't matter: formulae will be read and printed (outside the \textsc{push}/\textsc{popsyntax} bracketing) using the `calling' theory's definitions.
 
+In loading the I2L encoding, I took the opportunity to change the treatment of quantifiers. Hoare logic quantifies only over integers: \textj{I2L\_integer\_quantifiers.j} replaces `actual' with `integer' and also acknowledges that you can provide a subformula
 \section{Rules}
 
 Skip and tilt (tilt isn't in the menus):
