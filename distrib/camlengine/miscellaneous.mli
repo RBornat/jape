@@ -32,6 +32,9 @@ val sum : int list -> int
 val iter : (int -> 'a) -> int * int -> unit
 val curry2 : ('a * 'b -> 'c) -> 'a -> 'b -> 'c
 val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
+val curry3 : ('a * 'b *'c -> 'd) -> 'a -> 'b -> 'c -> 'd
+val uncurry3 : ('a -> 'b -> 'c -> 'd) -> 'a * 'b * 'c -> 'd
+val swapargs : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
 val string_of_ref : ('a -> string) -> 'a ref -> string
 val earlierpair :
   ('a -> 'a -> bool) -> ('b -> 'b -> bool) -> ('a * 'b) -> ('a * 'b) -> bool
@@ -45,7 +48,8 @@ val applyderivedrules : bool ref   (* derived rules allowed in proofs *)
 val autoselect : bool ref          (* show 'goal' when printing proofs *)
 val givenMenuTactic : string ref   (* what to use when the interface says applygiven *)
 val foldassumptionlines : bool ref (* whether to fold long lines in boxdraw *)
-val foldformulae : bool ref        (* whether to fold long lines in boxdraw *)
+val foldformulae        : bool ref (* whether to fold long formulae in boxdraw *)
+val foldsequents        : bool ref (* whether to fold sequents in treedraw *)
 val truncatereasons : bool ref     (* whether to shorten reasons in boxdraw *)
 val seektipselection : bool ref    (* look for a tip to work on in boxdraw *)
 val textselectionmode : string ref (* how to press-and-drag over text *)
@@ -59,8 +63,9 @@ exception Tacastrophe_ of string list
 
 val create_reportfile : string -> unit
 val close_reportfile : unit -> unit
+
 val consolereport : string list -> unit
-val consolequery : string list * string * string * 'a -> bool
+val consolequery  : string list * string * string * 'a -> bool
 
 exception Error_
 val error : string list -> 'a

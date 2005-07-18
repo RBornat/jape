@@ -34,8 +34,15 @@ exception AtoI_
 
 let atoi s = try Pervasives.int_of_string s with Failure _ -> raise AtoI_
 let rec sum ns = List.fold_left (+) 0 ns
+
 let rec curry2 f a b = f (a, b)
 let rec uncurry2 f (a, b) = f a b
+
+let rec curry3 f a b c = f (a, b, c)
+let rec uncurry3 f (a, b, c) = f a b c
+
+let swapargs f a b = f b a
+
 let rec string_of_ref f {contents = a} = ("ref(" ^ f a) ^ ")"
 let rec earlierpair lta ltb (a, b) (a', b') =
   lta a a' || not (lta a' a) && ltb b b' (* this is trying not to use equality ... *)
@@ -51,7 +58,8 @@ let autoselect = ref true    (* whether to highlight 'next goal' when printing p
 let givenMenuTactic = ref "" (* tactic to use when the interface says applygiven *)
  
 let foldassumptionlines = ref false (* whether to fold long lines in boxdraw *)
-let foldformulae = ref false (* whether to fold long lines in boxdraw *)
+let foldformulae = ref false (* whether to fold long formulae in boxdraw *)
+let foldsequents = ref false (* whether to fold sequents in treedraw *)
 let truncatereasons = ref false (* whether to shorten reasons in boxdraw *)
   
 let seektipselection = ref true (* whether to look for a tip to work on in boxdraw *)
