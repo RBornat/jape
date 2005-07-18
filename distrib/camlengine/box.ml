@@ -32,7 +32,9 @@
  * I can't decide whether the two sorts of size ought to be compatible - I 
  * shan't decide till I have seen what the uses of box, pos and size might be.
  *)
- 
+
+let (<.>) = Sml.(<.>)
+
 type size = Size of (int * int) (* w,h *)
 type textsize = Textsize of (int * int * int) (* w, ascent, descent *)
 type pos = Pos of (int * int) (* x,y *)
@@ -46,76 +48,76 @@ let nulltextsize = Textsize (0, 0, 0)
 let emptybox = Box (origin, nullsize)
 let emptytextbox = Textbox (origin, nulltextsize)
 
-let rec downby  = fun (Pos (x, y), h) -> Pos (x, y + h)
-let rec rightby = fun (Pos (x, y), w) -> Pos (x + w, y)
-let rec upby    = fun (Pos (x, y), h) -> Pos (x, y - h)
-let rec leftby  = fun (Pos (x, y), w) -> Pos (x - w, y)
+let downby  (Pos (x, y)) h = Pos (x, y + h)
+let rightby (Pos (x, y)) w = Pos (x + w, y)
+let upby    (Pos (x, y)) h = Pos (x, y - h)
+let leftby  (Pos (x, y)) w = Pos (x - w, y)
 
 let ( +->+ ) (Pos (x, y)) (Pos (w, h)) = Pos (x + w, y + h) (* vector add *)
 let ( +<-+ ) (Pos (x, y)) (Pos (w, h)) = Pos (x - w, y - h) (* vector subtract *)
    
-let rec posX = fun (Pos (x, y)) -> x
-let rec posY = fun (Pos (x, y)) -> y
+let posX (Pos (x, y)) = x
+let posY (Pos (x, y)) = y
 
-let rec sW = fun (Size (w, h)) -> w
-let rec sH = fun (Size (w, h)) -> h
+let sW (Size (w, h)) = w
+let sH (Size (w, h)) = h
 
-let rec tsW = fun (Textsize (w, a, d)) -> w
-let rec tsH = fun (Textsize (w, a, d)) -> a + d
-let rec tsA = fun (Textsize (w, a, d)) -> a
-let rec tsD = fun (Textsize (w, a, d)) -> d
+let tsW (Textsize (w, a, d)) = w
+let tsH (Textsize (w, a, d)) = a + d
+let tsA (Textsize (w, a, d)) = a
+let tsD (Textsize (w, a, d)) = d
 
-let rec bPos = fun (Box (p, s)) -> p
-let rec tbPos = fun (Textbox (p, s)) -> p
-let rec bSize = fun (Box (p, s)) -> s
-let rec textsize_of_textbox = fun (Textbox (p, s)) -> s
+let bPos (Box (p, s)) = p
+let bSize (Box (p, s)) = s
+
+let tbP (Textbox (p, s)) = p
+let tbS (Textbox (p, s)) = s
+let tbH = tsH <.> tbS
+let tbW = tsW <.> tbS
 
 (* topleft, topright, botleft, botright: all positions within the box. Hence the -1s *)
-let topleft = bPos
-let rec topright = fun (Box (p, s)) -> rightby (p, sW s - 1)
-let rec botleft = fun (Box (p, s)) -> downby (p, sH s - 1)
-let rec botright =
-  fun (Box (p, s)) -> rightby (downby (p, sH s - 1), sW s - 1)
+let topleft               = bPos
+let topright (Box (p, s)) = rightby p (sW s - 1)
+let botleft  (Box (p, s)) = downby  p (sH s - 1)
+let botright (Box (p, s)) = rightby (downby p (sH s - 1)) (sW s - 1)
 
 (* let the poor things make the values *)
-let pos v = Pos v
-let size v = Size v
-let textsize v = Textsize v
-let box v = Box v
-let textbox v = Textbox v
+let pos x y = Pos (x,y)
+let size w h = Size (w,h)
+let textsize w a d = Textsize (w,a,d)
+let box pos size = Box (pos,size)
+let textbox pos textsize = Textbox (pos, textsize)
 
 (* and even let them see them *)
-let rec string_of_pair ((x : int), (y : int)) =
-  ((("(" ^ string_of_int x) ^ ",") ^ string_of_int y) ^ ")"
-let rec string_of_triple ((w : int), (x : int), (y : int)) =
-  ((((("(" ^ string_of_int w) ^ ",") ^ string_of_int x) ^ ",") ^ string_of_int y) ^
-    ")"
+let rec string_of_xy = Stringfuns.string_of_pair string_of_int string_of_int ","
+let rec string_of_wxy = Stringfuns.string_of_triple string_of_int string_of_int string_of_int ","
 
-let rec string_of_pos= fun (Pos p) -> "Pos" ^ string_of_pair p
+let rec string_of_pos (Pos p) = "Pos" ^ string_of_xy p
 
-let rec string_of_size = fun (Size p) -> "Size" ^ string_of_pair p
+let rec string_of_size (Size p) = "Size" ^ string_of_xy p
 
-let rec string_of_textsize = fun (Textsize t) -> "Textsize" ^ string_of_triple t
+let rec string_of_textsize (Textsize t) = "Textsize" ^ string_of_wxy t
 
-let rec string_of_box =
-  fun (Box (p, s)) ->
-    ((("Box(" ^ string_of_pos p) ^ ",") ^ string_of_size s) ^ ")"
+let string_of_box (Box b) =
+    "Box" ^ Stringfuns.string_of_pair string_of_pos string_of_size "," b
 
-let rec string_of_textbox =
-  fun (Textbox (p, s)) ->
-    ((("Textbox(" ^ string_of_pos p) ^ ",") ^ string_of_textsize s) ^ ")"
+let string_of_textbox (Textbox tb) =
+    "Textbox" ^ Stringfuns.string_of_pair string_of_pos string_of_textsize "," tb
 
-(* One thing we often want to do is to add together two text sizes, as if
+let rec isemptybox b = let s = bSize b in sW s = 0 && sH s = 0
+let rec isemptytextbox tb = let ts = tbS tb in tsW ts = 0 && tsH ts = 0
+
+(* add together two text sizes, as if
  * putting two texts one after the other on the same line.
  *)
-let rec ( +-+ ) =
-  fun (Textsize (w, a, d), Textsize (w', a', d')) ->
+let ( +-+ ) (Textsize (w, a, d)) (Textsize (w', a', d')) =
     Textsize (w+w', max a a', max d d')
 
-(* Given two boxes, we can form the enclosing box of the two *)
-let rec ( +||+ ) =
-  fun
-    (Box (Pos (x, y), Size (w, h)), Box (Pos (x', y'), Size (w', h'))) ->
+(* form the enclosing box *)
+let ( +||+ ) (Box (Pos (x, y), Size (w, h)) as b) 
+             (Box (Pos (x', y'), Size (w', h')) as b') =
+  if w=0 && h=0 then b' else
+  if w'=0 && h'=0 then b else
     let minx = min x x' in
     let maxx = max (x+w) (x'+w') in
     let miny = min y y' in
@@ -123,65 +125,58 @@ let rec ( +||+ ) =
     Box (Pos (minx, miny), Size (maxx - minx, maxy - miny))
 
 (* not symmetrical - takes y position from first box, adjusts A, D to fit *)
-let rec ( +|-|+ ) =
-  fun
-    (Textbox (Pos (x, y), Textsize (w, a, d)),
-     Textbox (Pos (x', y'), Textsize (w', a', d'))) ->
+(* unless either box is empty ... *)
+let ( +|-|+ ) (Textbox (Pos (x, y), Textsize (w, a, d)) as b)
+              (Textbox (Pos (x', y'), Textsize (w', a', d')) as b') =
+  if w=0 && a+d=0 then b' else
+  if w'=0 && a'+d'=0 then b else
     let minx = min x x' in
     let maxx = max (x+w) (x'+w') in
-    let miny = min (y - a) (y' - a') in
+    let miny = min (y-a) (y'-a') in
     let maxy = max (y+d) (y'+d') in
     Textbox (Pos (minx, y), Textsize (maxx - minx, y - miny, maxy - y))
 
-(* and we have to convert from textsize to size, textbox to box, but never the other way *)
-let rec size_of_textsize = fun (Textsize (w, a, d)) -> Size (w, a + d)
+(* and convert from textsize to size, textbox to box, but never the other way *)
+let size_of_textsize (Textsize (w, a, d)) = Size (w, a + d)
 
-let rec box_of_textbox =
-  fun (Textbox (Pos (x, y), Textsize (w, a, d))) ->
+let box_of_textbox (Textbox (Pos (x, y), Textsize (w, a, d))) =
     Box (Pos (x, y - a), Size (w, a + d))
 
 (* find whether a position is within a box *)
-let rec withinX =
-  fun ((Pos (x, y) as p), Box ((Pos (x', y') as p'), Size (w', h'))) ->
+let withinX (Pos (x, y) as p) (Box ((Pos (x', y') as p'), Size (w', h'))) =
     x' <= x && x < x' + w'
 
 (* note x<x'+w: x'+w is outside the box *)
-let rec withinY =
-  fun ((Pos (x, y) as p), Box ((Pos (x', y') as p'), Size (w', h'))) ->
+let withinY (Pos (x, y) as p) (Box ((Pos (x', y') as p'), Size (w', h'))) =
     y' <= y && y < y' + h'
 
-let rec within (p, b) = withinX (p, b) && withinY (p, b)
+let within p b = withinX p b && withinY p b
 
-let rec withintb (p, tb) = within (p, box_of_textbox tb)
+let withintb p tb = within p (box_of_textbox tb)
 
 (* find whether a box is within another box *)
-let rec entirelywithin (b1, b2) =
-  within (topleft b1, b2) && within (botright b1, b2)
+let entirelywithin b1 b2 =
+  within (topleft b1) b2 && within (botright b1) b2
 
-let intersects (Box(Pos(x1,y1),Size(w1,h1)),Box(Pos(x2,y2),Size(w2,h2))) =
+let intersects (Box(Pos(x1,y1),Size(w1,h1))) (Box(Pos(x2,y2),Size(w2,h2))) =
   x1<x2+w2 && x2<x1+w1 && y1<y2+h2 && y2<y1+h1
   
-let entirelywithintb (b1, b2) =
-  entirelywithin (box_of_textbox b1, box_of_textbox b2)
+let entirelywithintb b1 b2 =
+  entirelywithin (box_of_textbox b1) (box_of_textbox b2)
 
 (* compute enclosing (or enclosed box) with Outset; shifted box with Offset *)
-let rec bOutset =
-  fun (Box (Pos (x, y), Size (w, h))) ->
-    fun (Size (wa, ha)) ->
+let bOutset (Box (Pos (x, y), Size (w, h))) 
+            (Size (wa, ha)) =
       Box (Pos (x - wa, y - ha), Size (w + wa * 2, h + ha * 2))
 
-let rec tbOutset =
-  fun (Textbox (Pos (x, y), Textsize (w, a, d))) ->
-    fun (Textsize (wa, aa, da)) ->
+let tbOutset (Textbox (Pos (x, y), Textsize (w, a, d)))
+             (Textsize (wa, aa, da)) =
       Textbox (Pos (x - wa, y), Textsize (w + wa * 2, a + aa, d + da))
 
-let rec bOffset =
-  fun (Box (Pos (x, y), size)) ->
-    fun (Pos (xa, ya)) -> Box (Pos (x + xa, y + ya), size)
+let bOffset (Box (Pos (x, y), size)) (Pos (xa, ya)) = Box (Pos (x + xa, y + ya), size)
 
-let rec tbOffset =
-  fun (Textbox (Pos (x, y), textsize)) ->
-    fun (Pos (xa, ya)) -> Textbox (Pos (x + xa, y + ya), textsize)
+let tbOffset (Textbox (Pos (x, y), textsize)) (Pos (xa, ya)) =
+  Textbox (Pos (x + xa, y + ya), textsize)
+  
+let nextright_of_textbox tb = rightby (tbP tb) (tsW (tbS tb))
 
-let rec isemptybox b = let s = bSize b in sW s = 0 && sH s = 0
-let rec isemptytextbox tb = let ts = textsize_of_textbox tb in tsW ts = 0 && tsH ts = 0
