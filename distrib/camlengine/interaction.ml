@@ -367,7 +367,7 @@ let rec getCommand displayopt =
              ["no display in getCommand (interaction): "; text])
   in
   let rec mkpos x y =
-    try pos (atoi x, atoi y) with
+    try pos (atoi x) (atoi y) with
       _ ->
         raise
           (Catastrophe_ ["bad pos in getCommand (interaction): "; text])
