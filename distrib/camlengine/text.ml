@@ -109,9 +109,9 @@ let rec textWAD measure c ss sys =
   f 0 0 0 0 ss sys
 
 let measuretext measure c (Text sys) =
-    let (wad, ss) = textWAD (uncurry2 measure) c [] sys in
-    textsize wad,
-    Textlayout (List.map (fun (xy, (f, s)) -> pos xy, f, s) (List.rev ss))
+    let ((w,a,d), ss) = textWAD (uncurry2 measure) c [] sys in
+    textsize w a d,
+    Textlayout (List.map (fun ((x,y), (f, s)) -> pos x y, f, s) (List.rev ss))
 
 let textlayoutOffset (Textlayout ts) pos =
     Textlayout (List.map (fun (p, f, s) -> pos +->+ p, f, s) ts)
