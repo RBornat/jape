@@ -456,7 +456,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    AboutBox.setVersion(cmd[1]);
 			else
 			if (p=="HOWTOTEXT"&&len==2)
-			    Reply.reply(Jape.howTo(cmd[1]));
+			    Reply.reply(multiLine(Jape.howTo(cmd[1])));
 			else
 			    Alert.showErrorAlert("dispatcher doesn't understand ("+len+") "+line);
 		    } // if (cmd.length!=0)
@@ -615,6 +615,17 @@ public class Dispatcher extends Thread implements DebugConstants {
 	    Alert.showErrorAlert("readInts can't see int array in "+line);
 	    return new int[0];
 	}
+    }
+    
+    // insert a count of number of newlines to interpolate
+    public String multiLine(String s) {
+	int i = 0;
+	int count = 0;
+	int j = 0;
+	while ((j=s.indexOf('\n', i))!=-1) {
+	    count++; i=j+1;
+	}
+	return count + "\n" + s;
     }
 }
 
