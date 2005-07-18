@@ -26,3 +26,5 @@
 *)
 
 include Screendraw.T
+
+(* val sequentsfolded : bool ref *)

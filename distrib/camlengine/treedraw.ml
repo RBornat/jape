@@ -41,15 +41,16 @@ let (<*) = Listfuns.(<*)
 let (<|) = Listfuns.(<|)
 let _Some = Optionfuns._Some
 let consolereport = Miscellaneous.consolereport
-let string_of_element = Termstring.string_of_element
-let invisbracketedstring_of_element = Termstring.invisbracketedstring_of_element
+let foldsequents = Miscellaneous.foldsequents
 let highlight = Draw.highlight
+let invisbracketedstring_of_element = Termstring.invisbracketedstring_of_element
 let last = Listfuns.last
 let sameresource = Termfuns.sameresource
+let string_of_element = Termstring.string_of_element
 let string_of_list = Listfuns.string_of_list
 let turnstiles = Sequent.getsyntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
-       
+
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 
 (* we have a new way of putting trees next to each other, so that they are as 
@@ -62,14 +63,13 @@ exception Catastrophe_ = Miscellaneous.Catastrophe_
  * because proofboxes can overlap.  Luckily the findfirst coding still works (phew!)
  *)
 
-type outline = (int * int) list
-(* L, R boundaries *)
+type outline = (int * int) list (* L, R boundaries *)
        
 type treeplanrec =
       { proofbox     : box; 
         proofoutline : outline;
         seqplan      : planclass plan list; 
-        seqbox       : textbox;
+        seqbox       : textbox; (* now there's a Lehmann-style assumption: single-line sequents! *)
         reasonplan   : planclass plan option; 
         linespec     : (bool * pos * pos) option;
         subplans     : (pos * treeplan) list; linethickness : int }
@@ -78,13 +78,14 @@ and treeplan = Treeplan of treeplanrec
 
 type layout = treeplan
 
+(* let sequentsfolded  = ref false (* result variable, in case anybody cares *) *)
+
 let rec shiftoutline indent (ys : outline) =
   ((fun (l, r) -> l + indent, r + indent) <* ys)
 
-let rec place subh gap =
-  fun
-    ((Treeplan {proofbox = proofbox; proofoutline = proofoutline} as
-        plan), (topbox, alloutline, sps)) ->
+let place subh gap 
+          ((Treeplan {proofbox = proofbox; proofoutline = proofoutline} as plan), 
+           (topbox, alloutline, sps)) =
     let rec fo (r, l) = r + gap - l in
     let rec oz a1 a2 a3 =
       match a1, a2, a3 with
@@ -104,17 +105,17 @@ let rec place subh gap =
     let ls = m3 (uncurry2 min) ((fst <* proofoutline)) in
     let offset = nj_fold (uncurry2 max) ((fo <* Listfuns._BMzip rs ls)) 0 in
     (* doesn't take account of indentation; bound to be 0 if rs is null *)
-    let newpos = pos (offset, subh - sH (bSize proofbox)) in
-    let newbox = box (newpos, bSize proofbox) in
-    (if null alloutline then newbox else ( +||+ ) (topbox, newbox)),
+    let newpos = pos offset (subh - sH (bSize proofbox)) in
+    let newbox = box newpos (bSize proofbox) in
+    (if null alloutline then newbox else topbox +||+ newbox),
     oz offset alloutline proofoutline, (newpos, plan) :: sps
 
 let rec tpH = fun (Treeplan {proofbox = proofbox}) -> sH (bSize proofbox)
-(* from a treeplan, find (x1,x2) of the sequent that underpins it *)
 
+(* from a treeplan, find (x1,x2) of the sequent that underpins it *)
 let rec subline =
   fun (Treeplan {seqbox = seqbox}) ->
-    let x1 = posX (tbPos seqbox) in x1, x1 + tsW (textsize_of_textbox seqbox)
+    let x1 = posX (tbP seqbox) in x1, x1 + tsW (tbS seqbox)
 
 let rec drawReason a1 a2 =
   match a1, a2 with
@@ -124,19 +125,20 @@ let rec drawReason a1 a2 =
 let rec maketreeplan viewport proof =
   let termfontleading = thrd (fontinfo TermFont) in
   let reasonfontleading = thrd (fontinfo ReasonFont) in
-  let leading = nj_fold (uncurry2 max) [termfontleading; reasonfontleading] 1 in
-  let hspace = max 20 (10 * leading)
-  (* was 30,15*leading, seemed a bit excessive *)
+  let leading = List.fold_left max 1 [termfontleading; reasonfontleading] in
+  let hspace = max 20 (10 * leading) (* was 30,15*leading: seemed a bit excessive *)
   and vspace = leading in
   let linethickness = Draw.linethickness leading in
-  let _ = setproofparams Japeserver.TreeStyle linethickness in
-  (* do this early, so GUIs are ready for anything *)
+  
+  setproofparams Japeserver.TreeStyle linethickness; (* do this early, so GUIs are ready for anything *)
 
   let noreasoninf = textinfo_of_string ReasonFont "" in
   let showturnstiles = List.length (turnstiles ()) <> 1 in
   let sequentplan =
-    makeseqplan (invisbracketedstring_of_element true) showturnstiles
+    makeseqplan (if !foldsequents then leading else 0) 
+                (invisbracketedstring_of_element true) showturnstiles
   in
+  
   let rec _TP t =
     let s = sequent t in
     let r = reason t in
@@ -160,7 +162,7 @@ let rec maketreeplan viewport proof =
     let subplans = List.rev subplans in
     (* not allowing for subindent below *)
     let reasonw = tsW reasonsize in
-    let seqsize = textsize_of_textbox seqbox in
+    let seqsize = tbS seqbox in
     let seqw = tsW seqsize in
     let superw = max reasonw seqw in
     let superh =
@@ -175,8 +177,7 @@ let rec maketreeplan viewport proof =
       if superw > subw then
         let subindent = max 0 (superw - subw) / 2 in
         let subplans =
-            ((fun (pos, plan) -> rightby (pos, subindent), plan) <*
-             subplans)
+            ((fun (pos, plan) -> rightby pos subindent, plan) <* subplans)
         in
         let suboutline = shiftoutline subindent suboutline in
         subindent, subplans, suboutline
@@ -211,13 +212,13 @@ let rec maketreeplan viewport proof =
     in
     let reasonindent = superindent + (superw - reasonw) / 2 in
     let seqindent = superindent + (superw - seqw) / 2 in
-    let subbox = box (pos (subindent, posY origin), bSize topbox) in
+    let subbox = box (pos subindent (posY origin)) (bSize topbox) in
     let superbox =
-      box (pos (superindent, supery), size (superw, superh))
+      box (pos superindent supery) (size superw superh)
     in
     let seqoutline = superindent, superindent + superw in
-    Treeplan { proofbox = ( +||+ ) (subbox, superbox); seqplan = seqplan;
-               seqbox = textbox (pos (seqindent, supery + superh - tsD seqsize), seqsize);
+    Treeplan { proofbox = subbox +||+ superbox; seqplan = seqplan;
+               seqbox = textbox (pos seqindent (supery + superh - tsD seqsize)) seqsize;
                proofoutline = (match r with
                                  None -> [seqoutline]
                                | _ -> seqoutline :: (sublineleft, sublineright) :: suboutline);
@@ -226,12 +227,12 @@ let rec maketreeplan viewport proof =
                              | Some _ ->
                                  let rplan =
                                    plan_of_textinfo reasoninf ReasonClass
-                                     (pos (reasonindent, supery + tsA reasonsize))
+                                     (pos reasonindent (supery + tsA reasonsize))
                                  in Some rplan);
                linespec =
                  if reasonw = 0 then None
-                 else Some (isMulti, pos (sublineleft, supery - vspace - linethickness),
-                                     pos (sublineright, supery - vspace - linethickness));
+                 else Some (isMulti, pos sublineleft (supery - vspace - linethickness),
+                                     pos sublineright (supery - vspace - linethickness));
                subplans = subplans; linethickness = linethickness }
   in
   _TP proof
@@ -251,9 +252,9 @@ let rec elinfo plan =
 let rec hit_of_pos pos path
                    (Treeplan {proofbox = proofbox; seqplan = seqplan; seqbox = seqbox; 
                               reasonplan = reasonplan; subplans = subplans}) =
-  if within (pos, proofbox) then
-    if withintb (pos, seqbox) then
-      match findfirstplanhit ( (pos +<-+ tbPos seqbox)) seqplan &~~ elinfo with
+  if within pos proofbox then
+    if withintb pos seqbox then
+      match findfirstplanhit ( (pos +<-+ tbP seqbox)) seqplan &~~ elinfo with
         Some (el, c) ->
           if c = DisplayHyp then
             Some (FormulaHit (HypHit (List.rev path, el)))
@@ -263,7 +264,7 @@ let rec hit_of_pos pos path
       | _ -> None
     else if
       match reasonplan &~~ (_Some <.> textbox_of_plan) with
-        Some reasonbox -> withintb (pos, reasonbox)
+        Some reasonbox -> withintb pos reasonbox
       | _              -> false
     then
       Some (ReasonHit (List.rev path))
@@ -286,7 +287,7 @@ let locateElement locel (prooforigin, proof, plan) =
         match c with
           ElementClass(el,_) ->
             if sameresource(el,locel) then
-              (p +->+ tbPos seqbox +->+ tbPos textbox) :: ps
+              (p +->+ tbP seqbox +->+ tbP textbox) :: ps
             else ps
         | PunctClass  -> ps
         | ReasonClass -> ps
@@ -306,7 +307,7 @@ let allFormulaHits prooforigin p =
       | _                            -> rs 
     in
     allchilds 0 revpath pos p.subplans 
-                (List.fold_left (oneel (pos +->+ tbPos p.seqbox)) rs p.seqplan)
+                (List.fold_left (oneel (pos +->+ tbP p.seqbox)) rs p.seqplan)
   and allchilds n revpath pos ps rs =
     match ps with
       [] -> rs
@@ -385,7 +386,7 @@ let rec draw goal pos proof (Treeplan {linethickness = linethickness} as plan) =
         let p2 = p2 +->+ p in
         if isMulti then
           begin
-            drawLine (upby (p1, 2 * linethickness)) (upby (p2, 2*linethickness));
+            drawLine (upby p1 (2 * linethickness)) (upby p2 (2*linethickness));
             drawLine p1 p2
           end
         else drawLine p1 p2
@@ -463,13 +464,13 @@ let rec targetbox pos path plan =
 
 let rec defaultpos screen (Treeplan {seqbox=seqbox; linethickness=linethickness}) =
     let screensize = bSize screen in
-    let seqpos = tbPos seqbox in
-    let seqsize = textsize_of_textbox seqbox in
+    let seqpos = tbP seqbox in
+    let seqsize = tbS seqbox in
     (* put the base sequent in the middle of the bottom of the screen *)
     (* with enough space below it to allow for the way that the GUI makes selections *)
       (downby
-         (rightby (bPos screen, (sW screensize - tsW seqsize) / 2),
-          sH screensize - tsD seqsize - 1 - 2*linethickness)
+         (rightby (bPos screen) ((sW screensize - tsW seqsize) / 2))
+         (sH screensize - tsD seqsize - 1 - 2*linethickness)
       +<-+ seqpos),
     screen
 
@@ -479,7 +480,7 @@ let rec postoinclude viewport box =
   fun (Treeplan {proofbox = proofbox} as layout) ->
     let (defpos, screen) = defaultpos viewport layout in
     (* prefer a centred proof *)
-    if entirelywithin (bOffset box defpos, screen) then defpos
+    if entirelywithin (bOffset box defpos) screen then defpos
     else
       (* get it in the middle of the screen, but try to keep the bottom
        * of the proof at the bottom of the screen.  
@@ -493,14 +494,14 @@ let rec postoinclude viewport box =
       let boxsize = bSize box in
       let midp =
           (rightby
-             (downby (bPos screen, (sH screensize - sH boxsize) / 2),
-              (sW screensize - sW boxsize) / 2)
+             (downby (bPos screen) ((sH screensize - sH boxsize) / 2))
+             ((sW screensize - sW boxsize) / 2)
            +<-+ bPos box)
       in
       let screenbottom = posY screenpos + sH screensize in
       let proofbottom = posY proofpos + posY midp + sH proofsize in
       if proofbottom >= screenbottom then midp
-      else downby (midp, screenbottom - proofbottom)
+      else downby midp (screenbottom - proofbottom)
 
 let rec samelayout (a, b) = a = b
 
