@@ -174,7 +174,7 @@ let defaultenv =
      "applydebug"           , ij                         0            Applyrule.applydebug;
      "applyderivedrules"    , bj                         true         applyderivedrules;
      "autoAdditiveLeft"     , tparam (bj                 false        autoAdditiveLeft);
-     "autoAdditiveRight"    , tparam (bj                 false        Miscellaneous.autoAdditiveRight);
+     "autoAdditiveRight"    , tparam (bj                 false        autoAdditiveRight);
      "autoselect"           , bj                         false        autoselect;
      "bindingdebug"         , bj                         false        Binding.bindingdebug;
      "boxfolddebug"         , bj                         false        Boxdraw.boxfolddebug;
@@ -192,6 +192,7 @@ let defaultenv =
      "FOLDdebug"            , bj                         false        Tacticfuns._FOLDdebug;
      "foldedfmt"            , ajd                                     Prooftree.Tree.foldedfmt;
      "foldformulae"         , bj                         true         foldformulae; 
+     "foldsequents"         , bj                         true         foldsequents; 
      "givenMenuTactic"      , aj                         "GIVEN"      givenMenuTactic;
      "hidecut"              , bj                         true         Boxdraw.hidecut;
      "hidehyp"              , bj                         true         Boxdraw.hidehyp;
@@ -262,8 +263,11 @@ let displaynames =
 let boxdisplaynames =
   ["boxlinedressright"; "foldformulae"; "hidecut"; "hidehyp"; "hidetransitivity";
    "hidereflexivity"; "hideuselesscuts"; "foldassumptionlines"]
-       
-let displayvars = List.map Name.name_of_string (displaynames @ boxdisplaynames)
+
+let treedisplaynames =
+  ["foldsequents"]
+  
+let displayvars = List.map Name.name_of_string (displaynames @ boxdisplaynames @ treedisplaynames)
 
 let mustredisplay env vals =
   let dispenv =
@@ -283,7 +287,10 @@ let mustredisplay env vals =
     lookup s <> (nenv <@> s &~~ (fun n -> dispenv <@> n))
   in
   List.exists changed displaynames ||
-  lookup "displaystyle" = Some "box" && List.exists changed boxdisplaynames
+  (match lookup "displaystyle" with
+     Some "box"  -> List.exists changed boxdisplaynames
+   | Some "tree" -> List.exists changed treedisplaynames
+   | _           -> false)
          
 let profileOn = (* Profile.profileOn *) (fun _ -> ())
 let profileOff = (* Profile.profileOff *) (fun _ -> ())
@@ -2136,7 +2143,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                     let targety = snd (List.hd tps) in
                     let spslow = Listfuns.takewhile (fun (x,y) -> y>targety) sps in
                     let sps = if null spslow then sps else [List.hd (List.rev spslow)] in
-                    (e, Box.pos <* sps)
+                    (e, uncurry2 Box.pos <* sps)
                   in
                   Japeserver.draginfo (sourcefilter <* s2pos) t2pos dNdmapping));
             env, mbs, show,
