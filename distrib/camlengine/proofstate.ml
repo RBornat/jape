@@ -94,7 +94,8 @@ let string_of_proofstate all (Proofstate {cxt = cxt; tree = tree; givens = given
 let prunestate goal =
   fun (Proofstate {cxt = cxt; tree = tree} as state) ->
     let (goal', tree') = truncateprooftree cxt goal tree in
-    withtree (withtarget (withgoal state (Some goal')) (Some goal')) tree'
+    withtree (withtarget (withgoal state (Some goal')) (Some goal')) 
+             (set_prooftree_fmt tree' goal' neutralformat)
 
 let nextusefulgoal skip t path =
   (findRightwardsGoal skip t path |~~ (fun _ -> findAnyGoal t))
