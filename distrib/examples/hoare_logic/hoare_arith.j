@@ -24,14 +24,14 @@
 
 */
 
-RULE "arith_var" IS INFER A∧(x computes) simplifiesto A
-RULE "arith_const" IS INFER A∧(K computes) simplifiesto A
+RULE "simpl_var" IS INFER A∧(x computes) simplifiesto A
+RULE "simpl_const" IS INFER A∧(K computes) simplifiesto A
 
-RULE "arith_single" IS
+RULE "simpl_single" IS
     FROM E∧(A computes) simplifiesto F
     INFER E∧(¬A computes) simplifiesto F
 
-RULES "arith_double" ARE
+RULES "simpl_double" ARE
     FROM E∧(A computes) simplifiesto F AND 
          F∧(B computes) simplifiesto G 
     INFER E∧(A → B computes) simplifiesto G
@@ -76,7 +76,7 @@ AND FROM E∧(A computes) simplifiesto F AND
     INFER E∧(A ↑ B computes) simplifiesto G
 END
 
-RULES "arith_div" ARE
+RULES "simpl_div" ARE
     FROM E∧(A computes) simplifiesto F AND 
          F∧(B computes) simplifiesto G AND 
          G∧B≠0 equivto H
@@ -87,7 +87,7 @@ AND FROM E∧(A computes) simplifiesto F AND
     INFER E∧(A mod B computes) simplifiesto H
 END
 
-RULE "arith_index" IS
+RULE "simpl_index" IS
      FROM E∧(F computes) simplifiesto G AND 
           G∧0≤F equivto H             AND
           H∧F<length(a) equivto I
@@ -96,23 +96,30 @@ RULE "arith_index" IS
 TACTIC simpl IS
   LAYOUT HIDEROOT
       (ALT (LETGOAL (_E∧(_x computes) simplifiesto _F)
-              (UNIFY _F _E) (MATCH "arith_var"))
+              (UNIFY _F _E) (MATCH "simpl_var"))
            (LETGOAL (_E∧(_K computes) simplifiesto _F)
-              (UNIFY _F _E) (MATCH "arith_const"))
-          (SEQ (MATCH "arith_index") simpl equiv equiv)
-          (SEQ (MATCH "arith_single") simpl)
-          (SEQ (MATCH "arith_double") simpl simpl)
-          (SEQ (MATCH "arith_div") simpl simpl equiv))
+              (UNIFY _F _E) (MATCH "simpl_const"))
+           (SEQ (MATCH "simpl_index") simpl equiv equiv)
+           (SEQ (MATCH "simpl_single") simpl)
+           (SEQ (MATCH "simpl_double") simpl simpl)
+           (SEQ (MATCH "simpl_div") simpl simpl equiv)
+           "simpl_default")
 
-RULE "arith_defin_var" IS INFER A∧(x defined) simplifiesto A
-RULE "arith_defin_const" IS INFER A∧(K defined) simplifiesto A
+RULES "simpl_default" ARE 
+    ⊤∧A simplifiesto A
+AND A∧⊤ simplifiesto A
+AND A simplifiesto A
+END
 
-RULES "arith_defin_single" ARE
+RULE "defin_var" IS INFER A∧(x defined) simplifiesto A
+RULE "defin_const" IS INFER A∧(K defined) simplifiesto A
+
+RULES "defin_single" ARE
     FROM E∧(A defined) simplifiesto F
     INFER E∧(¬A defined) simplifiesto F
 END
 
-RULES "arith_defin_double" ARE
+RULES "defin_double" ARE
     FROM E∧(A defined) simplifiesto F AND 
          F∧(B defined) simplifiesto G 
     INFER E∧(A → B defined) simplifiesto G
@@ -163,35 +170,38 @@ AND FROM E∧(A defined) simplifiesto F AND
     INFER E∧(A mod B defined) simplifiesto G
 END
 
-RULE "arith_defin_index" IS
+RULE "defin_index" IS
      FROM E∧0≤F equivto H             AND
           H∧F<length(a) equivto I
     INFER E∧(a[F] defined) simplifiesto I
 
 TACTIC defin IS
-  SEQ (LAYOUT HIDEROOT)
+  LAYOUT HIDEROOT
       (ALT (LETGOAL (_E∧(_x defined) simplifiesto _F)
-              (UNIFY _F _E) (MATCH "arith_defin_var"))
+              (UNIFY _F _E) (MATCH "defin_var"))
            (LETGOAL (_E∧(_K defined) simplifiesto _F)
-              (UNIFY _F _E) (MATCH "arith_defin_const"))
-          (SEQ (MATCH "arith_defin_index") equiv equiv)
-          (SEQ (MATCH "arith_defin_single") defin)
-          (SEQ (MATCH "arith_defin_double") defin defin))
+              (UNIFY _F _E) (MATCH "defin_const"))
+          (SEQ (MATCH "defin_index") equiv equiv)
+          (SEQ (MATCH "defin_single") defin)
+          (SEQ (MATCH "defin_double") defin defin)
+          "simpl_default")
 
 TACTIC equiv IS 
-  SEQ (LAYOUT HIDEROOT (ALT (SEQ "arith_dup" conjoinstac) SKIP))
-      (LAYOUT HIDEROOT (ALT "true_equiv" "equiv_default"))
+  SEQ (LAYOUT HIDEROOT (ALT (SEQ "equiv_dup" conjoinstac) SKIP))
+      (LAYOUT HIDEROOT 
+        (ALT (LETGOAL (⊤∧_A equivto _B) (UNIFY _B _A) (MATCH "equiv_trueL"))
+             (LETGOAL (_A∧⊤ equivto _B) (UNIFY _B _A) (MATCH "equiv_trueR"))
+             "equiv_default"))
 
-RULE "arith_dup" IS 
+RULE "equiv_dup" IS 
    FROM E conjoins F AND E equivto G 
   INFER E∧F equivto G
 
-DERIVED RULE "arith_true" IS ⊤∧A equivto A
+DERIVED RULE "equiv_trueL" IS ⊤∧A equivto A
+DERIVED RULE "equiv_trueR" IS A∧⊤ equivto A
+
 DERIVED RULE "equiv_default" IS A equivto A
 
-TACTIC "true_equiv" IS
-  (LETGOAL (⊤∧_A equivto _B) (UNIFY _B _A) (MATCH "arith_true"))
-    
 TACTIC maybetrueimpl IS
   ALT (SEQ (LAYOUT HIDEROOT (MATCH "→ intro")) (LAYOUT HIDEROOT (MATCH "truth")))
       SKIP
