@@ -520,10 +520,8 @@ let rec unfixedforced facts u =
                                                | None     -> false, false)
                                             (labelterms c)
     in
-    let _ =
-      if !disproofdebug then
-        consolereport ["evaluating "; string_of_coord c; "; "; string_of_term t]
-    in
+    if !disproofdebug then
+      consolereport ["evaluating "; string_of_coord c; "; "; string_of_term t];
     let result =
       match semantics facts t with
         None    -> (match decodeBracketed t with
@@ -707,7 +705,8 @@ let rec evaldisproofstate facts tree =
           (if List.exists snd results then snd lockbraket else "") ^ snd (if all fst results then onbraket else offbraket)
       with Not_found -> snd outbraket
     in
-    let seqplan = makeseqplan (chooseinvisbracketedstring_of_element ivb ivk) true origin seq in
+    let seqplan = makeseqplan 0 (chooseinvisbracketedstring_of_element ivb ivk) true origin seq 
+    in
     Disproofstate
       {seq = seq; selections = selections; seqplan = Some seqplan;
        universe = tint_universe facts forced seqplan selections universe; 
@@ -802,51 +801,49 @@ let rec tiles_of_seq facts seq =
       None -> false
     | Some t -> existsterm f t
   in
-  let _ =
-    if List.exists
-         (fun e ->
-            if issegvar e then
+  if List.exists
+       (fun e ->
+          if issegvar e then
+            raise
+              (Disproof_
+                 ["Forcing semantics can only deal with actual formulae in sequents.";
+                  " Segment variables (e.g. "; string_of_element e;
+                  ") aren't allowed "; " in disproof sequents."])
+          else false)
+       (hyps @ concs)
+  then
+    ()
+  else if
+    (* can't happen *)
+    List.exists
+      (existselement
+         (fun t ->
+            if isUnknown t then
               raise
                 (Disproof_
-                   ["Forcing semantics can only deal with actual formulae in sequents.";
-                    " Segment variables (e.g. "; string_of_element e;
-                    ") aren't allowed "; " in disproof sequents."])
-            else false)
-         (hyps @ concs)
-    then
-      ()
-    else if
-      (* can't happen *)
-      List.exists
-        (existselement
-           (fun t ->
-              if isUnknown t then
+                   ["Unknowns (e.g. "; string_of_term t; " in sequent ";
+                    string_of_seq seq; ") make disproof somewhat tricky.  Try again when you have resolved the ";
+                    " unknown formulae."])
+            else false))
+      (concs @ hyps)
+  then
+    ()
+  else if
+    (* can't happen *)
+    List.exists
+      (existselement
+         (fun t ->
+            match decodeSubst t with
+              Some _ ->
                 raise
                   (Disproof_
-                     ["Unknowns (e.g. "; string_of_term t; " in sequent ";
-                      string_of_seq seq; ") make disproof somewhat tricky.  Try again when you have resolved the ";
-                      " unknown formulae."])
-              else false))
-        (concs @ hyps)
-    then
-      ()
-    else if
-      (* can't happen *)
-      List.exists
-        (existselement
-           (fun t ->
-              match decodeSubst t with
-                Some _ ->
-                  raise
-                    (Disproof_
-                       ["Substitutions (e.g. "; string_of_term t;
-                        " in sequent "; string_of_seq seq; ") aren't part of the forcing semantics.  Try again when you have ";
-                        " simplified the substitution(s)."])
-              | _ -> false))
-        (concs @ hyps)
-    then
-      ()
-  in
+                     ["Substitutions (e.g. "; string_of_term t;
+                      " in sequent "; string_of_seq seq; ") aren't part of the forcing semantics.  Try again when you have ";
+                      " simplified the substitution(s)."])
+            | _ -> false))
+      (concs @ hyps)
+  then
+    ();
   (* find the fringe *)
   let hypterms = optionfilter term_of_element hyps in
   let concterms = optionfilter term_of_element concs in
@@ -1257,18 +1254,18 @@ let moveworldtolink d from to__ lfrom lto__ =
 let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = plan;
                                  universe = universe; tiles = tiles;
                                  selected = selected; forcemap = forcemap}) =
-    (*  let _ = consolereport["showdisproof: seq is "; debugstring_of_seq seq; 
+    (*  consolereport["showdisproof: seq is "; debugstring_of_seq seq; 
                           "\nforcemap is "; string_of_mapping (string_of_pair string_of_coord debugstring_of_term ",") 
                                                           (stringfn_of_catelim catelim_string_of_forced) forcemap
-                     ] in
+                     ];
               *)
 
     match plan with
       Some(seqplan,seqbox) ->
         begin
-          let seqsize = textsize_of_textbox seqbox in
-          (* let _ = consolereport["seqplan is "; bracketedstring_of_list (debugstring_of_plan string_of_planclass) "; " seqplan; 
-                                "; and seqbox is "; string_of_textbox seqbox] in *)
+          let seqsize = tbS seqbox in
+          (* consolereport["seqplan is "; bracketedstring_of_list (debugstring_of_plan string_of_planclass) "; " seqplan; 
+                                "; and seqbox is "; string_of_textbox seqbox]; *)
           setseqbox seqsize;
           drawindisproofpane ();
           seqdraw origin seqbox seqplan;
