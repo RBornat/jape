@@ -388,7 +388,15 @@ let procrustes width ellipsis font text =
        trunc
      ))
 
-let howToText s = string_of_ask "HOWTOTEXT %\n" [Str s]
+let howToText s = 
+  match intlist_of_ask "HOWTOTEXT %\n" [Str s] with
+    [n] ->
+      let rec get n =
+        let s = readline "multiLine" in
+        if n=0 then s else s ^ "\n" ^ get (n-1)
+      in
+      get n
+  | _ -> raise (Catastrophe_ ["multiLine protocol failure (HOWTOTEXT)"])
 
 (***************)
 
@@ -551,7 +559,7 @@ let rec highlight posn classopt =
 
 let rec readHighlight class__ =
   match intlist_of_ask "READHIGHLIGHT %\n" [Int class__] with
-    [x; y] -> Some (pos (x, y))
+    [x; y] -> Some (pos x y)
   | _ -> None
 
 let forceAllDisproofSelections (sels, textsels) = 
@@ -644,7 +652,7 @@ let positioned_textsels id =
   while
     let line = readline id in
     match strings_of_reply line with
-      x :: y :: ss -> l := (pos (atoi x, atoi y), ss) :: !l; true
+      x :: y :: ss -> l := (pos (atoi x) (atoi y), ss) :: !l; true
     | _            -> (* consolereport ["textselections terminate with "; Stringfuns.enQuote line]; *)
                       false
   do () done;
@@ -663,7 +671,7 @@ let rec getProofSelections () =
   while
     let line = readline "GETPROOFSELECTIONS" in
     match ints_of_reply line with
-      [x; y; classn] -> l := (pos (x, y), displayclass_of_int classn) :: !l; true
+      [x; y; classn] -> l := (pos x y, displayclass_of_int classn) :: !l; true
     | _ -> (* consolereport ["getFormulaSelection terminates on "; Stringfuns.enQuote line]; *) 
            false
   do () done;
@@ -682,7 +690,7 @@ let rec getDisproofSelections () =
   while
     let line = readline "GETDISPROOFSELECTIONS" in
     match ints_of_reply line with
-      [x; y] -> l := pos (x, y) :: !l; true
+      [x; y] -> l := pos x y :: !l; true
     | _ -> (* consolereport ["getDisproofSelections terminates on "; Stringfuns.enQuote line]; *) 
            false
   do () done;
@@ -787,7 +795,7 @@ exception GetPaneGeometry_ of string
 
 let rec getPaneGeometry pane = 
     match intlist_of_ask "PANEGEOMETRY %\n" [Int (int_of_pane pane)] with
-      [x; y; w; h] -> box (pos (x, y), size (w, h))
+      [x; y; w; h] -> box (pos x y) (size w h)
     | _ -> raise (GetPaneGeometry_ (string_of_pane pane))
 
 let rec clearPane pane = writef "CLEARPANE %\n" [Int (int_of_pane pane)]
