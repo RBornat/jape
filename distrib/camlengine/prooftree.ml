@@ -238,12 +238,11 @@ module Tree : Tree with type term = Termtype.term
 * may or may not be an optimisation ...
 *)
     type 'a prooftree =
-        Tip of (seq * rewinf * 'a)
-      | Join of
-          (string * prooftree_step * (int * int) option *
-             (term list * rewinf) * 'a * bool * (seq * rewinf) *
-             ('a prooftree list * rewinf) *
-             ((element list * element list) * rewinf))
+        Tip  of (seq * rewinf * 'a)
+      | Join of (string * prooftree_step * (int * int) option *
+                   (term list * rewinf) * 'a * bool * (seq * rewinf) *
+                   ('a prooftree list * rewinf) *
+                   ((element list * element list) * rewinf))
     (* resources consumed - elements that 
        matched hypotheses and conclusions
        when the rule was applied.  This information is 
@@ -285,15 +284,13 @@ module Tree : Tree with type term = Termtype.term
       (why, how, cutnav, args, fmt, hastipval, seq, trs, (ress, rewinf)) =
       ress
     
-    let rec withsubtrees
-      ((why, how, cutnav, args, fmt, hastipval, seq, _, ress), ts) =
+    let withsubtrees (why, how, cutnav, args, fmt, hastipval, seq, _, ress) ts =
       why, how, cutnav, args, fmt, hastipval, seq, ts, ress
-    let rec withhastipval
-      ((why, how, cutnav, args, fmt, _, seq, trs, ress), hastipval) =
+    let withhastipval (why, how, cutnav, args, fmt, _, seq, trs, ress) hastipval =
       why, how, cutnav, args, fmt, hastipval, seq, trs, ress
-    let rec withfmt
-      ((why, how, cutnav, args, _, hastipval, seq, trs, ress), fmt) =
+    let withfmt (why, how, cutnav, args, _, hastipval, seq, trs, ress) fmt =
       why, how, cutnav, args, fmt, hastipval, seq, trs, ress
+      
     let rec step_label =
       function
         Apply (n, _, _) -> parseablestring_of_name n
@@ -1084,9 +1081,7 @@ module Tree : Tree with type term = Termtype.term
               else join_subtrees_rewinf j
             in
             let t' =
-              Join
-                (withhastipval
-                   (withsubtrees (j, (subts, subinf)), tshaveTip subts))
+              Join (withhastipval (withsubtrees j (subts, subinf)) (tshaveTip subts))
             in
             let nextinf = infchanged && subinf <> join_subtrees_rewinf j in
             nextinf, ns, t'
@@ -1531,52 +1526,78 @@ module Tree : Tree with type term = Termtype.term
         function
           Tip (seq, rewinf, _) ->
             [], Tip (seq, rewinf, VisFormat (false, false))
-        | Join (why, how, cutnav, args, fmt, htv, seq, subts, ress as j) as
-            it ->
+        | Join (why, how, cutnav, args, fmt, htv, seq, subts, ress as j) as it ->
             let (viss, _) = visibles showall j in
-            let lpsNsubts' =
-              ((visp <.> snd) <* viss)
-            in
-            let lps =
-              nj_fold (uncurry2 (sortedmerge earlierresource))
-                      ((fst <* lpsNsubts'))
-                      (sort earlierresource (fst (fst ress)))
+            let lpsNsubts' = (visp <.> snd) <* viss in
+            let lps = nj_fold (uncurry2 (sortedmerge earlierresource))
+                              (fst <* lpsNsubts')
+                              (sort earlierresource (fst (fst ress)))
             in
             let subts' = (snd <* lpsNsubts') in
-            let hidecut =
-              (not showall && isCutjoin j) &&
-              (match fmt with
-                 TreeFormat (HideCutFormat, _) -> true
-               | _ ->
-                   match subts with
-                     [t1; t2], _ ->
-                       (* if we have a cut whose left subtree has been HIDEROOTED away, we can't 
-                        * allow the HIDEROOT or we would generate an assumption box.  
-                        * But we would like to hide them, so we have to try to hide the cut.
-                        * Note that visibles doesn't reshape cuts.
-                        *)
-                       (match joinopt join_fmt t1 with
-                          Some (TreeFormat (HideRootFormat, _)) -> true
-                        | _ -> false) ||
-                       hideuselesscuts &&
-                       (match
-                          concs (sequent t1),
-                          listsub sameresource (hyps (sequent t2))
-                                               (hyps (fst seq))
-                        with
-                          [cc], [ch] ->
-                            not
-                              (hasTip t2 ||
-                               List.exists (fun el -> sameresource (el, ch)) lps)
-                        | _ -> false)
-                   | _ -> false)
+            let hidecut, subts'' =
+              (* I refuse to hide a cut whose formula is used (i.e. is in
+                 lps. To begin with, I'm going to try to spot it's happened.
+               *)
+              let yup  = true,  subts' in
+              let nope = false, subts' in
+              if showall || not(isCutjoin j) then nope else
+                let newhyps subt = listsub sameresource (hyps (sequent subt)) (hyps (fst seq)) in
+                let usedresource r = List.exists (curry2 sameresource r) lps in
+                let checkdangerous s =
+                  match subts with
+                    [t1; t2], _ ->
+                      (match newhyps t2 with
+                         [ch] ->
+                           if usedresource ch then 
+                             ((* consolereport ["spotted one ("; s; "): "; string_of_element ch]; *)
+                              true)
+                           else false
+                       | _ -> false (* can't see rhs formula ... *))
+                  | _ -> false (* can't see both sides of the cut ... *)
+                in
+                match fmt with
+                  TreeFormat (HideCutFormat, _) -> if checkdangerous "HIDECUT" then nope else yup
+                | _ ->
+                    match subts with
+                      [t1; t2], _ ->
+                        (* if we have a cut whose left subtree has been HIDEROOTED away, we can't 
+                         * allow the HIDEROOT or we would generate an assumption box.  
+                         * But we would like to hide them, so we have to try to hide the cut.
+                         * Note that visibles doesn't reshape cuts.
+                         *)
+                        (match joinopt join_fmt t1 with
+                           Some (TreeFormat (HideRootFormat, _)) -> 
+                             if checkdangerous "left HIDEROOT" then
+                               (* can we reconstruct the left subtree? *)
+                               match subts' with 
+                                 [s1; s2] ->
+                                  (match t1 with
+                                     Tip _ -> (* can't happen *) 
+                                       ((* consolereport ["but t1 is a Tip!"]; *) yup)
+                                   | Join j' -> 
+                                       ((* consolereport ["fixing the problem"]; *)
+                                        false, [Join (withfmt (withsubtrees j' ([s1], snd subts)) 
+                                                              (VisFormat (false,false))); s2]))
+                               | _ -> (* can't happen *)
+                                   ((* consolereport ["but there are "; string_of_int (List.length subts'); " subts"]; *)
+                                    yup (* there aren't two subts ... *))
+                             else yup
+                         | _ -> 
+                             if hideuselesscuts then
+                               (match concs (sequent t1), newhyps t2 with
+                                  [cc], [ch] -> if hasTip t2 || usedresource ch then nope else yup
+                                | _          -> nope)
+                             else
+                               nope)
+                    | _ -> nope
             in
             lps, Join (_The (visreason proved showall it), how, None, args,
-                       VisFormat (join_multistep j viss, hidecut), tshaveTip subts',
-                       seq, (subts', snd subts), ress)
+                       VisFormat (join_multistep j viss, hidecut), tshaveTip subts'',
+                       seq, (subts'', snd subts), ress)
       in
       visp t
-    (* for export *)
+    
+    (* ******************************* for export ********************************* *)
     
     let rec visproof proved showall hideuselesscuts =
       snd <.> tranproof proved showall hideuselesscuts
