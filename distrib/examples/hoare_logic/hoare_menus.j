@@ -101,7 +101,7 @@ TACTIC "A = .." IS
                         \You didn't select a hypothesis")
                        ("OK", STOP))))
         (ALERT ("Please select a conclusion and an equality hypothesis")
-               ("OK", STOP))
+               ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords))
 
 TACTIC ".. = B" IS
     WHEN
@@ -165,7 +165,7 @@ TACTIC ".. = B" IS
                         \You didn't select a hypothesis")
                        ("OK", STOP))))
         (ALERT ("Please select a conclusion and an equality hypothesis")
-               ("OK", STOP))
+               ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords))
 
 /* At present I can't see how to write a general AssocBackwards tactic, cos the environments
    keep getting muddled up. Passing (QUOTE (_A∧_B)) as an argument doesn't hack it: I'd need to
