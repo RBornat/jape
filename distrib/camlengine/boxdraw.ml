@@ -331,18 +331,18 @@ let rec pretransform prefixwithstile t =
     in
     let rec hyps seq = snd_of_3 (Absprooftree.explode seq) in
     let rec concs seq = thrd (Absprooftree.explode seq) in
-    (* The box transformation is applied to anything which has novel lhs elements.
-     * The id transformation (aslines true) is applied when it matches, except when the id
-     * is the last line of a box (unless the box introduces a single hypothesis and the rest 
-     * of the box is a single id line which matches that hypothesis).
-     * But because it is impossible (cut transformation) to see just when a hypothesis 
-     * appears at the end of a box, we do the checks about last line later.
-     *)
+                        (* The box transformation is applied to anything which has novel lhs elements.
+                         * The id transformation (aslines true) is applied when it matches, except when the id
+                         * is the last line of a box (unless the box introduces a single hypothesis and the rest 
+                         * of the box is a single id line which matches that hypothesis).
+                         * But because it is impossible (cut transformation) to see just when a hypothesis 
+                         * appears at the end of a box, we do the checks about last line later.
+                         *)
     match
       newhyps, !hidehyp && isStructureRulenode t IdentityRule, lprins, gs
     with
-      [], true, _, _ -> false, respt (aslines true)
-    | _ :: _, true, _, _ -> boxpt (respt (aslines true))
+      []    , true,  _, _ -> false, respt (aslines true)
+    | _ :: _, true,  _, _ -> boxpt (respt (aslines true))
     | _ :: _, false, _, _ -> boxpt (respt (pt rp hs t))
     | _ ->
         (* not an Id or a box ... *)
@@ -1036,10 +1036,9 @@ let rec linearise screenwidth procrustean_reasonW dp =
       in
       match dp with
         IdDep (el, lindep) ->
-          if idok ||
-             (match mapped sameresource hypmap el with
-                Some (LineID id') -> accrec.id = _RR id'
-              | _                 -> false)
+          if idok || (match mapped sameresource hypmap el with
+                        Some (LineID id') -> accrec.id = _RR id'
+                      | _                 -> false)
           then
             getIdDep el
           else _L wopt hypmap false lindep acc
