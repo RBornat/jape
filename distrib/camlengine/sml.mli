@@ -33,8 +33,8 @@ val fst_of_3 : ('a * 'b * 'c) -> 'a
 val fst_of_6 : ('a * 'b * 'c * 'd * 'e * 'f) -> 'a
 val fst_of_7 : ('a * 'b * 'c * 'd * 'e * 'f * 'g) -> 'a
 val implode : string list -> string
-val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
-val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a
+val nj_fold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a      (* a variant of fold_right for uncurried f *)
+val nj_revfold : ('b * 'a -> 'a) -> 'b list -> 'a -> 'a   (* a variant of fold_left for uncurried f *)
 val null : 'a list -> bool
 val ord : string -> int
 val ordof : string -> int -> int

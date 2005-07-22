@@ -29,8 +29,10 @@
 
 let (<.>) f g x = f (g x)
 
+(* a variant of fold_right for uncurried f *)
 let rec nj_fold f xs z = 
   match xs with [] -> z | x::xs -> f (x, nj_fold f xs z)
+(* a variant of fold_left for uncurried f *)
 let rec nj_revfold f xs z = 
   match xs with [] -> z | x::xs -> nj_revfold f xs (f (x,z))
 
