@@ -111,12 +111,9 @@ val isProperResnum : resnum -> bool
 val elementnumbered : term -> resnum -> term option
 val collectionkind : term -> idclass option
 val replaceelement : term -> element -> term -> element * term
-val eqelements : (term * term -> bool) -> element * element -> bool
-(* takes no notice of resource numbers *)
-val sameresource : element * element -> bool
-(* only looks at resource numbers *)
-val earlierresource : element -> element -> bool
-(* only looks at resource numbers *)
+val eqelements : (term * term -> bool) -> element * element -> bool (* takes no notice of resource numbers *)
+val sameresource : element * element -> bool (* only looks at resource numbers *)
+val earlierresource : element -> element -> bool (* only looks at resource numbers *)
 
 val explodeApp : bool -> term -> term * term list
 val implodeApp : bool -> term * term list -> term
