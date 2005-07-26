@@ -433,7 +433,7 @@ let rec resetSymbols () =
   if !symboldebug then  consolereport ["defining SHYIDs"];
   List.iter (fun s -> enter s None None (SHYID s))
     ["ABSTRACTION"; "AND"; "ARE"; "AUTOMATCH"; "AUTOUNIFY"; 
-     "BAG"; "BEFOREBUTTON"; "BEFOREENTRY"; "BIND"; "BUTTON"; 
+     "BAG"; (* "BEFOREBUTTON"; *) "BEFOREENTRY"; "BIND"; "BUTTON"; 
      "CHECKBOX"; "CHILDREN"; "CLASS"; "COMMAND";
         "CONCFRESH"; "CONCHIT"; "CONJECTUREPANEL"; "CONSTANT";
         "CURRENTPROOF"; "CUT"; 
