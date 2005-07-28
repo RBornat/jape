@@ -1176,7 +1176,7 @@ public class install implements ActionListener
   }
   
   public String toCommand(String source)
-  { StringBuilder t = new StringBuilder();
+  { StringBuffer t = new StringBuffer(); /* was StringBuilder t = new StringBuilder(); but Java 1.4 no like */
     boolean first = true;
     for (Iterator it = new Command(source).iterator(); it.hasNext(); )
     { t.append(quoteArg((postSubst((String) it.next()))));
