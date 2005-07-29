@@ -56,6 +56,22 @@ public class install implements ActionListener
   static String  bootPath           = "bootstrap";
   static String  installerName      = "install";
   static String  tempPath           = System.getProperty("java.io.tmpdir");
+  static
+  { try
+    { String date = new Date().toString().replace(' ', '-').replace(':','-');
+      File tempDir = new File (new File (tempPath), "installer-"+date);
+      if (!tempDir.mkdir())
+      { System.err.println("[WARNING: cannot create "+tempDir+"]\n");
+        System.exit(1);
+      }
+      else
+         tempPath = tempDir.getPath();
+    }
+    catch (Exception ex)
+    { ex.printStackTrace();
+      System.exit(1);
+    }
+  }
   static String  WINDLL             = "jshortcut.dll";
   static String  manifestName       = tempPath + "/" + installerName + ".mf";
   static String  SplashImage        = null;
@@ -123,6 +139,7 @@ public class install implements ActionListener
     {
       System.err.println("BuildInstaller: $Revision$ ");
       makeInstaller(args);
+      try { delete (new File(tempPath)); } catch (Exception ex) {}
     }
     else
     {
@@ -781,10 +798,10 @@ public class install implements ActionListener
     if (l == null)
       l = "null";
 
-    if (progress!=null) {
-        progress.insert(l + "\n", length);
-        length += (l.length() + 1);
-        progress.setCaretPosition(length);
+    if (progress !=null) 
+    { progress.insert(l + "\n", length);
+      length += (l.length() + 1);
+      progress.setCaretPosition(length);
     }
   }
 
@@ -1267,7 +1284,6 @@ public class install implements ActionListener
         String cmdText = windowsrun==null 
                        ? "javaw.exe -jar \"" + jarPath + "\" %*%" 
                        : windowsrun;
-        
         if (autoCmd != null)
           makeFile(autoCmd, cmdText);
 
@@ -1463,6 +1479,7 @@ public class install implements ActionListener
   public void Exit()
   {
     System.err.println("[EXITING]");
+    try { delete (new File(tempPath)); } catch (Exception ex) {}
     if (installedOK)
     {
       System.err.println("[CLEANING UP: " + INSTALL + "]");
@@ -1785,11 +1802,16 @@ public class install implements ActionListener
       wordChars('0', '9');
       wordChars('?', '~');
       wordChars('=', '=');
+      ordinaryChar('"');
+      ordinaryChar('\'');
+      quoteChar('"');
+      quoteChar('\'');
       try
       {
         while (nextToken() != TT_EOF) symbols.add(sval);
       }
       catch (IOException ex) {}
+      System.err.println(symbols);
     }
   
     Vector symbols = new Vector ();
