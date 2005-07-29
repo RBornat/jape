@@ -94,7 +94,7 @@ examples:       ; ln -s ../../examples .
 
 
 AT="@"
-jarfile:        examples ; buildinstaller Install$(OS)jape.jar                                  \
+jarfile:        examples ; java -jar ../../CommonBuildResources/buildinstaller.jar Install$(OS)jape.jar                                  \
                 -app            "Jape"                                                          \
                 -splash         $(SPLASH)                                                       \
                 -splashside     North                                                           \
