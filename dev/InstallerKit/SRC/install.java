@@ -781,9 +781,11 @@ public class install implements ActionListener
     if (l == null)
       l = "null";
 
-    progress.insert(l + "\n", length);
-    length += (l.length() + 1);
-    progress.setCaretPosition(length);
+    if (progress!=null) {
+        progress.insert(l + "\n", length);
+        length += (l.length() + 1);
+        progress.setCaretPosition(length);
+    }
   }
 
   static JComponent row(Component[] cs)
