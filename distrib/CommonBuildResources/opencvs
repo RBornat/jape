@@ -1,0 +1,4 @@
+#!/bin/tcsh
+#usage: opencvs <user>
+setenv CVS_RSH ssh
+setenv CVSROOT :ext:$1@cvs.sourceforge.net:/cvsroot/jape
