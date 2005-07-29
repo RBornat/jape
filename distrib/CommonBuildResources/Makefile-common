@@ -34,7 +34,7 @@ DEPLOYEDENGINE=jape_engine
 AFTERINSTALL=-cmdunix "chmod +x %INSTALL%/jape_engine"
 INSTALLRESOURCES=$(BUILDRESOURCES)/README-UNIX
 ENCODERESOURCES=$(ENCODEDIR)/README_encoder.txt $(ENCODEDIR)/encoder.jar
-SPLASH=$(BUILDRESOURCES)/InstallerKit/japesplash.png
+SPLASH=$(BUILDRESOURCES)/japesplash.png
 APP=jape
 #
 #
