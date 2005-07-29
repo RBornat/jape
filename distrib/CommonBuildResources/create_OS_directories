@@ -5,7 +5,7 @@
 for os in Linux Windows Solaris ; 
   do \
   { mkdir ../${os}Jape ../${os}Jape/build
-    ln -s ../../CommonBuildResources/${os}/Makefile ../${os}Jape/build/Makefile
+    cp ../../CommonBuildResources/${os}/Makefile ../${os}Jape/build
     ln -s ../../examples ../${os}Jape/build/examples ; } ; \
 done
 
