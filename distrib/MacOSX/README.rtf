@@ -1,0 +1,94 @@
+{\rtf1\mac\ansicpg10000\cocoartf102
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;\f1\fswiss\fcharset77 Helvetica-Bold;\f2\fswiss\fcharset77 Helvetica-Oblique;
+}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh9000\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\fs24 \cf0 Readme for jape v7_d4.  (You can discover the precise version by looking at the Jape splash screen, or it's in the console window, on the first line.)\
+\
+
+\f1\b 1. What's different?\
+\
+
+\f0\b0 Very very nasty bug fixed in the proof engine. Basically, you could violate the privacy proviso in quantifier rules in the natural deduction encoding. \
+\
+Treatment of drag and drop in multiplicative sequent systems restored.\
+\
+
+\f1\b 2. Beware!
+\f0\b0 \
+\
+Usual moans.\
+\
+2.1. This is beta, or perhaps alpha, software: it isn't complete, and it will have bugs.\
+\
+2.2. Please, please, please report bugs, deficiencies, infelicities and moans to bugs@jape.org.uk (or, if that address is temporarily down, to richard@bornat.me.uk).\
+\
+2.3. I developed it and run it on the latest up-to-date Mac OS X (10.3.8 at present, and whatever Java Software update gives me). If it doesn't work for you on a less modern system, please let me know.\
+\
+2.4 It still needs Lucida Sans Unicode (see below), but there are stirrings of life on the STIX fonts home page, so maybe when my book comes out it will all be sorted.\
+\
+
+\f1\b 3. Installation\
+\
+
+\f0\b0 3.1 Copy folders jape and examples anywhere you like. The application Jape and the file jape_engine 
+\f2\i must
+\f0\i0  be in the same folder in order to run.\
+\
+
+\f1\b 4. Font installation\
+\
+
+\f0\b0 4.1 Jape runs straight out of the box using the fonts which come with OS X. But because of a bug (which I've reported) it's impossible to lay out the proof or conjectures windows accurately if you just use those fonts. Lines sometimes droop below the baseline! And no available font has all the glyphs we need.\
+\
+4.2 The baseline-droop problem is fixed by using a font which includes all the glyphs Jape needs. Unfortunately there isn't a public domain font which I can distribute. However, if you Google for lsansuni.ttf you will find lots of hits. I got my copy from John Wells's unicode font site at UCL. Get a copy and put it in /Library/Fonts (or in ~/Library/Fonts if you want to keep other users of your machine pure of accusations of internet piracy).\
+\
+4.3 The not-enough-glyphs problem still shows up in BAN.jt. There's supposed to be a public domain font from STIX which includes all the Unicode glyphs (yes, I know!). It was due 'in 2003: till the happy day it arrives, you will have to use BAN_ASCII.jt, with my apologies.\
+\
+4.3a (Actually the encoder program I distribute -- see the utf8_encoder folder -- fixes some of the problems in BAN, and by the time you read this it may have fixed some more.)\
+\
+
+\f1\b 5. Launching\
+
+\f0\b0  \
+5.1 Jape is launched from the GUI (the Jape application) rather than the engine (jape_engine).  \
+\
+5.2 You start it by double-clicking Jape, or by dragging a .jt file onto Jape, or by double-clicking a .jt file (I think: let me know if it works for you or not).\
+\
+
+\f1\b 6. Editing examples files\
+
+\f0\b0 \
+Unicode editing ought to be easy on Mac OS X: long term support for funny fonts, font fall-through implemented so that even if your font doesn't have the turnstile glyph, 
+\f2\i some
+\f0\i0  font has it, so you can see it even if you are editing in Courier and think you are looking at ASCII. But there's many a slip ...\
+\
+First of all you must have a decent Unicode font (see above). But you've already done that, cos you can't run Jape without it.\
+\
+The best text editor that I know for OS X is BBEdit, but for reasons that BareBones won't/can't really explain to me it has problems with Lucida Sans Unicode. If I drop a unicoded example file (with BOM) onto BBEdit on my machine it comes up in Osaka font, which is fine because it does font fall-through and I see 
+\f2\i most
+\f0\i0  of the glyphs. Change to Lucida Sans Unicode (it's near the bottom of the fonts menu on my machine) and the glyphs all disappear! Oh dear. But BBEdit at least does the BOM trickery right.\
+\
+TextEdit is better: it shows all the glyphs and it works well with Lucida Sans Unicode, but it doesn't have any search facility and, oddly, it will recognise and respect a BOM on input but it won't write one on output. Still, at least it's still UTF-8 when you've finished.\
+\
+The best editor, so far as appearance, respecting BOMs and the like is concerned, is XCode. Drop your examples files on XCode (it's free from Apple, provided you are prepared to 'register as a developer' -- i.e. give them your email and a password -- but it takes an age to download). It reads and writes BOMs properly, so far as I can tell. It shows you all the glyphs in whatever font. Only oddity is that the files I have created in XCode have come out in UTF-16. Jape deals with that, but it confuses CVS mightily. Oh well: at least the encoder I distribute translates the files.\
+\
+Actually the TeXShop editor gets Unicode fallthrough right. Ho hum.\
+\
+No doubt this situation will improve. If the STIX font (when it ever appears) is properly compatible with OS X, maybe BBEdit will start working again. It all seems mighty silly to me.\
+\
+
+\f1\b 7. Feedback
+\f0\b0 \
+\
+7.1. Please mail me lots (see 2.2 above).\
+\
+7.2 If it doesn't work for you, it doesn't work. Tell me (I don't say please -- just do it!).\
+\
+7.3 If it doesn't do what you want it to, tell me.\
+\
+Richard Bornat, 23/iii/2005.\
+\
+}
