@@ -947,18 +947,27 @@
 		797479F5088E9AEB001565A1 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEPLOYMENT_LOCATION = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
+				SKIP_INSTALL = YES;
 			};
 			name = Development;
 		};
 		797479F6088E9AEB001565A1 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEPLOYMENT_LOCATION = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
+				SKIP_INSTALL = YES;
 			};
 			name = Deployment;
 		};
 		797479F7088E9AEB001565A1 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEPLOYMENT_LOCATION = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
+				SKIP_INSTALL = YES;
 			};
 			name = Default;
 		};
