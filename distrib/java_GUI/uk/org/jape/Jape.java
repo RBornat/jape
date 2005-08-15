@@ -74,7 +74,7 @@ public class Jape implements DebugConstants {
     public static boolean onMacOSX, onLinux, onSolaris, onWindows, onUnix;
     public static Rectangle screenBounds;
     public static String defaultUnixEnginePath	  = "./jape_engine";
-    public static String defaultWindowsEnginePath = ".\\jape.exe" ;
+    public static String defaultWindowsEnginePath = ".\\jape.exe"  ;
     
     public static void main(String args[]) {
 	// since platform independence seems not yet to have been achieved ...
@@ -136,8 +136,8 @@ public class Jape implements DebugConstants {
 	    }
 	    else
 		engineCmd.add(args[i]);
-       }
-
+	}
+	
 	new Engine((String[])engineCmd.toArray(new String[engineCmd.size()]));
 
 	Logger.init();
