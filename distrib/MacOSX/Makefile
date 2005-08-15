@@ -11,7 +11,7 @@ run:         ; open Development/Jape.app
 
 engine:      ; cd $(ENGINESOURCE); make jape_engine.opt; cp jape_engine.opt jape_engine
 
-GUI:         ; cd $(SERVERSOURCE); xcodebuild -target $(XCODETARGET) SYMROOT=.. OBJROOT=..
+GUI:         ; cd $(SERVERSOURCE); xcodebuild -target $(XCODETARGET) -configuration Development SYMROOT=.. OBJROOT=..
 
 symlink:     ; cd Development; rm -f jape_engine; ln -s ../../camlengine/jape_engine
 
@@ -19,4 +19,4 @@ clean:       ; $(MAKE) engineclean GUIclean
 
 engineclean: ; cd $(ENGINESOURCE); $(MAKE) clean
 
-GUIclean:    ; cd $(SERVERSOURCE); xcodebuild -target $(XCODETARGET) clean SYMROOT=.. OBJROOT=..
+GUIclean:    ; cd $(SERVERSOURCE); xcodebuild -target $(XCODETARGET) -configuration Development clean SYMROOT=.. OBJROOT=..
