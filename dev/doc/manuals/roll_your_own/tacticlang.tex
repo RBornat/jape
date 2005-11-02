@@ -14,7 +14,7 @@ Since version 3.0, tactic applications are written in `curried' style: \textit{v
 When a named tactic is applied to arguments, a new environment is created by zipping together tactic parameters and supplied arguments. If there are too few arguments, the remaining parameters are ignored. When a name is evaluated which doesn't have a value in the current environment, the name itself is taken as the result.
 
 
-\textbf{{\large B.1\tab Tactic verbs}}
+\section{Tactic verbs}
 
 
 \textsc{alt} \textit{tactic}... \textit{tactic}: try each of the tactics in turn, until one is found that succeeds. If none succeeds, \textsc{alt} fails.
@@ -139,7 +139,7 @@ In addition to all those there are two that can occur inside a \textit{formula} 
 \textsc{quote} ( \textit{formula} ): nothing inside \textit{formula} is liable to `evaluation' unless it is \textsc{antiquote}d.
 
 
-\textbf{{\large B.2\tab The `current problem sequent', the `goal' and the `target'}}
+\section{The `current problem sequent', the `goal' and the `target'}
 
 
 When you start a proof there is only one problem sequent. When you apply a rule with two antecedents, there are two to choose from. When you are well into a proof, there may be many.
@@ -151,7 +151,7 @@ Each time Jape makes a proof step (by application of a rule or in a small number
 The current problem sequent is called the `goal'; the problem sequent from which we moved to the current one because application of a rule succeeded is called the `target' (not a very good name, `target', but that's the way it is).
 
 
-\textbf{{\large B.3\tab Guarded and binding tactics}}
+\section{Guarded and binding tactics}
 
 
 Jape's tactic language is `eager' --- whether it should be so continues to be a matter of debate --- with backtracking on failure. If a tactic fails, then the enclosing tactic either fails, or if it is an \textsc{alt}, tries another alternative starting from the state in which it first applied the sub-tactic that failed. That sort of backtracking search is fine sometimes, but not always. It can be modified --- slightly --- by \textsc{withcontinuation}.

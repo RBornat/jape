@@ -1,7 +1,7 @@
 \chapter{Encoding Hoare logic}
 \label{chap:Hoare}
 
-This was always the target. I haven't solved the obvious arithmetic problem, nor even linked up to a finite arithmetic oracle (help welcome!), but I went some way to make it easy to use. It's in \textj{examples/hoare\_logic} in \textj{hoare.jt}. It's closely tied to the treatment in my book (Proof and Disproof in Formal Logic, OUP, to be published August 2005).
+This was always the target. I haven't solved the obvious arithmetic problem, nor even linked up to a finite arithmetic oracle (help welcome!), but I went some way to make it easy to use. It's in \textj{examples/hoare\_logic} in \textj{hoare.jt}. It's closely tied to the treatment in my book (Proof and Disproof in Formal Logic, OUP, published July 2005).
 
 \section{Syntax (\textsc{hoare\_syntax.j})}
 
@@ -19,7 +19,7 @@ CONSTANT mod length \\
 CONSTANT ⊥ ⊤
 \end{japeish}
 
-\textj{simplifiesto}, \textj{equivto}, \textj{conjoins} and \textj{dependson} are operators used in the simplification of array-assignment preconditions (\secref{Hoare:arrayassignment}). The treatment of quantifiers comes from the natural deduction encoding of \chapref{I2L}, but`integer is used in place of actual; I have to define actual as well because of the requirements of \textsc{pushsyntax} (\secref{Hoare:pushsyntax}). \textj{computes} and \textj{defines} are used in the treatment of definedness (\secref{definedness}).
+\textj{simplifiesto}, \textj{equivto}, \textj{conjoins} and \textj{dependson} are operators used in the simplification of array-assignment preconditions (\secref{Hoare:arrayelementassignment}). The treatment of quantifiers comes from the natural deduction encoding of \chapref{I2L}, but`integer is used in place of actual; I have to define actual as well because of the requirements of \textsc{pushsyntax} (\secref{Hoare:pushsyntax}). \textj{computes} and \textj{defines} are used in the treatment of definedness (\secref{Hoare:definedness}).
 \begin{japeish}
 INFIX   5L  ≜ /* equals def */ \\
 INFIX   5L  simplifiesto equivto conjoins dependson /* see hoare\_arith.j */ \\
@@ -34,7 +34,7 @@ INFIX 10 L ; \\
 INFIX 12 L :=
 \end{japeish}
 
-Circleplus and mapsto are used in the treatment of array assignment (\secref{I2L:arrayassignment}).
+Circleplus and mapsto are used in the treatment of array assignment (\secref{Hoare:arrayelementassignment}).
 \begin{japeish}
 INFIX 50 L ⊕ /* circle plus */ \\
 INFIX 60 L ↦ /* maps to */
@@ -124,7 +124,7 @@ was parsed properly, but I couldn't. It's parsed, currently, as
 There is no solution to this problem: it's inherent in Jape's simple-minded bottom-up priority-based parser generator. Put \textsc{justfix} high, and it gets \textj{a[i]:=7} right. Put it low, and it would get \textj{\{Q\} x:=E \{R\}} right. I thought that bracketing array element expressions would be unbearable, so I chose high. You have to bracket single assignments, and sequences, to avoid the consequential problem with triples. Conditionals and loops have built-in brackets, so they are automatically ok.
 
 \subsection{\textsc{pushsyntax}}
-\label{Hoare:pushsyntax}
+\label{sec:Hoare:pushsyntax}
 
 I wanted to use a couple of encodings, or partial encodings, that had been developed before. However these things each have their own syntax, and in particular their own hierarchy of operator priorities. Aligning yourself with one previously-defined hierarchy may be painful, but is possible. Aligning yourself with two may be impossible.
 
@@ -160,8 +160,9 @@ RULE "consequence(R)" IS FROM \{A\} F \{B\} AND B→C INFER \{A\} F \{C\}
 
 After that it gets interesting.
 
-\subsection{Variable assignment and simplifiesto}
+\subsection{Variable assignment, definedness and simplifiesto}
 \label{sec:Hoare:simplifiesto}
+\label{sec:Hoare:definedness}
 
 In my book the assignment axiom is $ \{(E \text{ computes}) @ A_{E}^{x}\}\, x:=E \,\{A\}$, where $E \text{ computes}$ is supposed to pick out problems like division / remaindering by zero and array element misaddressing. I wanted to do the same thing in Jape: $x+1 \text{ computes}$, for example, is just $\<true>$, and should vanish from the proof. So I implemented some tactical machinery.
 
@@ -312,6 +313,7 @@ perhapsconsequenceL (SEQ "choice" simpl fstep fstep)
 \end{japeish}
 
 \subsection{Array-element assignment}
+\label{sec:Hoare:arrayelementassignment}
 
 Array-element assignment is similar to variable assignment, but it generates a more intricate treatment of computes:
 \begin{japeish}

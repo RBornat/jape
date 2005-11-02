@@ -2,7 +2,7 @@
 \label{appx:GUIlang}
 
 
-\textbf{{\large C.1\tab The command language}}
+\section{The command language}
 
 
 Jape communicates with its graphical interface in a language of `words', space separated unless they are enquoted "...". You may want to attach commands to buttons, you may want to include commands as entries in \textsc{tacticpanel}s, and you can type commands into the system --- on the Mac into the Text Command box, on X into the command window --- so here goes with a description. I've divided it into two: the ones you might want to use, and the arcana.
@@ -11,14 +11,17 @@ Jape communicates with its graphical interface in a language of `words', space s
 Note that the language described here is \textit{ad hoc} and subject to change without notice or any sign of visible regret on the part of the implementors. Be warned.
 
 
-\textit{Commands you might want to use}
+\subsection{Commands you might want to use}
 
 
-addnewconjecture \textit{panelname} \textit{conjecture}: this command is sent by the New\dots  button in a conjecture panel, after the user has typed the conjecture into a dialogue box.\\
+addnewconjecture \textit{panelname} \textit{conjecture}: this command is sent by the New\dots  button in a conjecture panel, after the user has typed the conjecture into a dialogue box.
+
 apply \textit{tacticexpression}: this command is used a lot: it is the way that menus and panels apply tactics. Don't forget that a rule name is a tactic expression.
 
 
-assign \textit{name} \textit{value}: the way that Jape's environment variables (q.v. below) are given values.\\
+assign \textit{name} \textit{value}: the way that Jape's environment variables (q.v. below) are given values.
+
+
 backtrack: command sent by the Backtrack button in the Edit menu.
 
 
@@ -31,27 +34,36 @@ collapse: the way that the Hide/Show detail entry in the Edit menu does its work
 createdbugfile: create a file, using the normal file selection dialogue, and redirect diagnostic input into it. There's a stack of these dbug files.
 
 
-layout: has the same effect as double-clicking on the justification of the selected sequent.\\
+layout: has the same effect as double-clicking on the justification of the selected sequent.
+
 lemma \textit{panelname} \textit{conjecture}: synonym for addnewconjecture above.
 
 
-print \textit{filename}: generates a listing of the currently-focussed proof in \textit{filename}, in a form suitable for LaTeX processing.\\
+print \textit{filename}: generates a listing of the currently-focussed proof in \textit{filename}, in a form suitable for LaTeX processing.
+
 proof finished: (two words) how the Done entry (on the Mac) and the proof finished entry (on UNIX) in the Edit menu does its work.
 
 
-prove \textit{conjecturename}: how the Prove button in a conjecture panel does its work.\\
-prune: how the Prune entry in the Edit menu does its work.\\
-QUIT: kill the proof engine, after asking whether the user wants to save any proofs.\\
-redo: how the Redo entry in the Edit menu does its work.\\
+prove \textit{conjecturename}: how the Prove button in a conjecture panel does its work.
+
+prune: how the Prune entry in the Edit menu does its work.
+
+QUIT: kill the proof engine, after asking whether the user wants to save any proofs.
+
+redo: how the Redo entry in the Edit menu does its work.
+
 refreshdisplay: clear the currently-focussed proof window and redraw the proof it contains.
 
 
 reset: how the Reset entry (on the Mac) and the ?? entry (on UNIX) in the Edit menu do their work. On the Mac the Reset entry can be greyed-out even though some syntax definitions have been accepted: in that case typing the reset command to a Text Command window can be helpful.
 
 
-reset;reload: (no spaces, all one `word' with a semicolon in the middle!) how the Load New Theory entry in the File menu does its work.\\
-showproof \textit{conjecturename}: how the Show Proof button on a conjecture panel does its work; opens a window with a proof of \textit{conjecturename} in it, if there is one in the proof store.\\
-saveengine \textit{filename}: saves the current proof engine, with all its settings, in a file. Useful for creating pre-initialised engines\\
+reset;reload: (no spaces, all one `word' with a semicolon in the middle!) how the Load New Theory entry in the File menu does its work.
+
+showproof \textit{conjecturename}: how the Show Proof button on a conjecture panel does its work; opens a window with a proof of \textit{conjecturename} in it, if there is one in the proof store.
+
+saveengine \textit{filename}: saves the current proof engine, with all its settings, in a file. Useful for creating pre-initialised engines
+
 steps: display the value of the internal variable `timestotry' in an alert dialogue. See steps \textit{n} below.
 
 
@@ -79,38 +91,46 @@ version: display the current version information of the Jape engine in an alert 
 cd \textit{path}: changes the default directory used by the proof engine. Only works in the UNIX implementations; don't use if you don't know what it does.
 
 
-closeproof \textit{n}: absolutely not to be used.\\
-DRAGQUERY: part of the drag-and-drop interface; don't use it.\\
+closeproof \textit{n}: absolutely not to be used.
+
+DRAGQUERY: part of the drag-and-drop interface; don't use it.
+
 DROPCOMMAND: part of the drag-and-drop interface; don't use it.
 
 
 fonts\_reset: command sent by the graphics interface when its fonts are altered. Triggers all sorts of cache mangling, but otherwise harmless.
 
 
-HITCOMMAND \textit{comm}: absolutely not to be used.\\
+HITCOMMAND \textit{comm}: absolutely not to be used.
+
 NOHITCOMMAND \textit{comm}: absolutely not to be used.
 
 
 profile [ on {\textbar} off {\textbar} reset {\textbar} report \textit{filename} ]: one of the mechanisms with which we debug the proof engine. Only works in specially-instrumented proof engines under \textsc{unix}.
 
 
-quit: kill the proof engine without asking any questions.\\
-saveproofs \textit{word}: absolutely not to be used.\\
-setfocus \textit{n}: absolutely not to be used.\\
-showfile \textit{filename}: possibly obsolete.\\
+quit: kill the proof engine without asking any questions.
+
+saveproofs \textit{word}: absolutely not to be used.
+
+setfocus \textit{n}: absolutely not to be used.
+
+showfile \textit{filename}: possibly obsolete.
+
 \textit{emptyword}: ignored.
 
 
-\textbf{{\large C.2\tab Variables and the default environment}}
+\section{Variables and the default environment}
 
 
 Jape has a number of `environment variables' which can be used to modify its behaviour, and can currently be set by the \textsc{assign} tactic, by the assign command and by \textsc{initialise, radiobutton} and \textsc{checkbox} directives in the paragraph language. Some of them are of general use; some are horrid debugging switches of interest only to the implementors. Variables can be set from menus and panels: see the various files like `autoselect\_entry' which are distributed with Jape and put entries in the Edit menu.
 
 
-\textit{Useful variables}
+\subsection{Useful variables}
 
 
-Variables whose default value is marked with an asterisk are parameters: their value can be altered only if the rule/tactic/conjecture store is empty.\\
+Variables whose default value is marked with an asterisk are parameters: their value can be altered only if the rule/tactic/conjecture store is empty.
+
 
 
 \begin{tabular}{|p{1.034in}|p{0.635in}|p{0.717in}|p{2.114in}|} \hline
@@ -167,7 +187,7 @@ Variables whose default value is marked with an asterisk are parameters: their v
 \hline \end{tabular}
 
 
-\textit{Adding your own variables}
+\subsection{Adding your own variables}
 
 
 You can invent your own environment variables and assign them values. In particular you can define a variable in a \textsc{radiobutton} or \textsc{checkbox} directive, give the range of possible values that it can take, and allow the user to control that variable. See, for example, the way that the functional programming encoding controls searching by using variables whose values are the names of tactics.
@@ -176,7 +196,7 @@ You can invent your own environment variables and assign them values. In particu
 There are at present few ways in which the value of a variable can be used, once set. But watch this space for developments, including at least a form of case-expression value analysis in the tactic language.
 
 
-\textit{Debugging variables}
+\subsection{Debugging variables}
 
 
 Jape has a number of debugging variables. Setting any of them to true makes it print lots of stuff on the console (which on the Mac is hidden, and needs secret knowledge to find). The variables currently used are

@@ -986,7 +986,7 @@ and parseInitialise () =
 and parseAutoRule sense =
   AutoRule
     (sense,
-       (transTactic <* parseList canstartTerm (asTactic parseTerm) commasymbol))
+       (transTactic <* parseUnsepList canstartTerm (asTactic parseTerm)))
 
 and parseUse report query =
   match currsymb () with
