@@ -365,9 +365,7 @@ let rec interpret
       (* edit this bit of code to profile the checking bit of proof reload *)
       (* profileOn(); *)
       let res =
-        match
-          doProof report query env name stage seq (givens, provisos, tac)
-            disproofopt
+        match doProof report query env name stage seq (givens, provisos, tac) disproofopt
         with
           Some r -> env, r :: proofs, buttonfns
         | None -> res

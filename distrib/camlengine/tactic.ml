@@ -519,7 +519,7 @@ and transTactic tacterm =
             if !stripextrabag then
               match split (function (_,Collection _) -> true | _ -> false) vts with
                 ([_], oks) -> (* if not (exists (existsterm isUnknown) (#2 MAP vts)) then oks else vts *)
-                              oks (* it can't be slower, even it it contains unknowns *)
+                              oks (* it can't be slower, even if it contains unknowns *)
               | _          -> vts
             else vts
           in

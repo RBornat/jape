@@ -1244,14 +1244,15 @@ let rec freshThingtoprove name =
       Some (Theorem (freshTheoremtoprove toprove))
   | Some (Rawthing th) -> Some th
   | None -> None
-(* givens get weakened if required; they get renumbered for use; otherwise untouched *)
+
+(* givens get weakened if required; otherwise untouched (not even seriously renumbered for use) *)
 
 let rec freshGiven weaken =
   fun (Seq (st, lhs, rhs) as seq) cxt ->
     (* can't help feeling that extend should be a well-known function ... *)
-    let rec extend a1 a2 a3 =
-      match a1, a2, a3 with
-        true, Collection (_, BagClass FormulaClass, es), cxt ->
+    let rec extend doit side cxt =
+      match doit, side with
+        true, Collection (_, BagClass FormulaClass, es) ->
           let (cxt, vid) =
             freshVID cxt (BagClass FormulaClass) (extraBag_vid ())
           in
@@ -1260,33 +1261,27 @@ let rec freshGiven weaken =
               ([], registerUnknown (vid, BagClass FormulaClass))
           in
           cxt, registerCollection (BagClass FormulaClass, sv :: es)
-      | _, t, cxt -> cxt, t
+      | _, t -> cxt, t
     in
     let (cxt, lhs) =
-      extend
-        (weaken && wehavestructurerule LeftWeakenRule (Some [st; st])) lhs
-        cxt
+      extend (weaken && wehavestructurerule LeftWeakenRule (Some [st; st])) 
+             lhs cxt
     in
     let (cxt, rhs) =
-      extend
-        (weaken && wehavestructurerule RightWeakenRule (Some [st; st]))
+      extend (weaken && wehavestructurerule RightWeakenRule (Some [st; st]))
         rhs cxt
     in
     let rec unknownres =
       function
         Collection (_, cc, els) ->
           registerCollection
-            (cc,
-               ((function
-                   Element (_, Resnum r, t) ->
-                     registerElement (ResUnknown r, t)
-                 | el -> el) <*
-                els))
+            (cc, ((function Element (_, Resnum r, t) -> registerElement (ResUnknown r, t)
+                   |        el                       -> el) <* els))
       | t -> t
     in
     (* can't happen *)
     let (interesting_resources, _, _, conseq, cxt) =
-      renumberforuse [] [] (Seq (st, unknownres lhs, unknownres rhs)) cxt
+      renumberforuse [] [] (Seq (st, (* unknownres *) lhs, (* unknownres *) rhs)) cxt
     in
     cxt, interesting_resources, conseq
 

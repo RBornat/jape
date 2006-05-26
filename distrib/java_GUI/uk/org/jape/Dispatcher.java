@@ -1,6 +1,10 @@
 /* 
     $Id$
 
+	Version modified by Stefano Mannino (Stefano.Mannino@scienze.studenti.unige.it) 
+	on 2006/02/01 in order to fix the bug detailed in the "SETCHOICE bug" mail sent on 2006/02/01
+	to bugs@jape.org.uk
+
     Copyright © 2003-5 Richard Bornat & Bernard Sufrin
      
 	richard@bornat.me.uk
@@ -35,6 +39,12 @@ import java.io.IOException;
 import java.util.Vector;
 
 public class Dispatcher extends Thread implements DebugConstants {
+
+	//[Mannino]: added variables currentChoice and currentChoiceText
+	//[Mannino]: it may be also possible to define these variables in the
+	//[Mannino]: ChoiceDialog.Choice class but it requires a deeper code modify.
+	private int currentChoice;
+	private String currentChoiceText;
 
     public Dispatcher() {
 	super("Dispatcher");
@@ -182,11 +192,21 @@ public class Dispatcher extends Thread implements DebugConstants {
 			if (p=="CLEARCHOICES"&&len==1)
 			    ChoiceDialog.clearChoices();
 			else
-			if (p=="SETCHOICE"&&len==3)
-			    ChoiceDialog.setChoice(cmd[1], toInt(cmd[2]));
+			if (p=="SETCHOICE"&&len==3) {
+				//[Mannino]: modified the handling of the "SETCHOICE len=3" case
+				if (0!=currentChoice)ChoiceDialog.setChoice(currentChoiceText,currentChoice);
+				currentChoice=toInt(cmd[2]); currentChoiceText=cmd[1];
+				}
 			else
-			if (p=="MAKECHOICE"&&len==2)
+			if (p=="SETCHOICE"&&len==2) //[Mannino]: added the handling of the "SETCHOICE len=2" case
+				currentChoiceText+=cmd[1];
+			else
+			if (p=="MAKECHOICE"&&len==2){
+				//[Mannino]: modified the handling of the "MAKECHOICE len=2" case
+				if (0!=currentChoice)ChoiceDialog.setChoice(currentChoiceText,currentChoice);
 			    Reply.reply(ChoiceDialog.makeChoice(cmd[1]));
+				currentChoice=0;
+			}
 			else
 			if (p=="SETALERT"&&len==2)
 			    Alert.showErrorAlert(cmd[1]);

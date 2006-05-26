@@ -249,6 +249,10 @@ public abstract class JapeWindow extends JFrame {
 	return windowList.findWindow(title);
     }
 
+    public static ProofWindow findProofWindow(int proofnum) {
+	return windowList.findProofWindow(proofnum);
+    }
+    
     public static JapeWindow getTopWindow() {
 	return windowList.getTopWindow();
     }

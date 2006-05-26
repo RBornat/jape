@@ -9,7 +9,7 @@ all:         ; $(MAKE) engine GUIclean GUI symlink
 
 run:         ; open Development/Jape.app
 
-engine:      ; cd $(ENGINESOURCE); make jape_engine.opt; cp jape_engine.opt jape_engine
+engine:      ; cd $(ENGINESOURCE); make jape_engine
 
 GUI:         ; cd $(SERVERSOURCE); xcodebuild -target $(XCODETARGET) -configuration Development SYMROOT=.. OBJROOT=..
 

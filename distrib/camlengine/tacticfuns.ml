@@ -85,7 +85,7 @@ let rec alterTip =
 
 let rec lookupassoc s =
   match Symbol.lookupassoc s with
-    Some (b, Symboltype.LeftAssoc) -> Some (b, true)
+    Some (b, Symboltype.LeftAssoc ) -> Some (b, true)
   | Some (b, _                    ) -> Some (b, false)
   | None                            -> None
 

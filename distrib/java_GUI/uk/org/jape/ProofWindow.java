@@ -859,7 +859,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     }
 
     private static ProofWindow findProof(int proofnum) throws ProtocolError {
-	ProofWindow w = windowList.findProofWindow(proofnum);
+	ProofWindow w = JapeWindow.findProofWindow(proofnum);
 	if (w==null)
 	    throw new ProtocolError("no proof numbered "+proofnum);
 	return w;

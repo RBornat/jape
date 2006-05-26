@@ -131,7 +131,7 @@ let rec addproof report query name proved =
 exception NoProof_ of string list
 (* moved out for OCaml *)
 
-let rec doProof report query env name stage seq (givens, pros, tac) disproofopt =
+let doProof report query env name stage seq (givens, pros, tac) disproofopt =
   (* ReplayTac now does all the work of setting up the parameters for a replay *)
   let tac = mkReplayTac tac in
   let (pros', givens, seq) = compiletoprove (pros, givens, seq) in
@@ -166,15 +166,17 @@ let rec doProof report query env name stage seq (givens, pros, tac) disproofopt 
       applyconjectures := true;
       proving := name_of_string "";
       proofsdone := true;
+      (* apply the new theorem / rule to the version we already have, to see if it matches.
+         Because we don't care _how_ it matches, use ANY
+       *)
       match
-        applyLiteralTactic env (parseablestring_of_name name) initialstate
+        applyLiteralTactic env ("ANY " ^ parseablestring_of_name name) initialstate
       with
         None ->
           raise
             (NoProof_
                ("doesn't seem to be the same theorem (the base sequent "
-                  ::
-                  string_of_seq seq :: " doesn't match) -- " :: getReason ()))
+                  :: string_of_seq seq :: " doesn't match) -- " :: getReason ()))
       | Some st ->
           (* it seems to be a statement of the theorem *)
           match applyTactic env tac initialstate with
