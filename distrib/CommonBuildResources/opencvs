@@ -2,4 +2,4 @@
 #usage: source opencvs <user>
 #but does that work with any other shell?
 setenv CVS_RSH ssh
-setenv CVSROOT :ext:$1@cvs.sourceforge.net:/cvsroot/jape
+setenv CVSROOT :ext:$1@jape.cvs.sourceforge.net:/cvsroot/jape
