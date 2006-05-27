@@ -1245,7 +1245,7 @@ let rec freshThingtoprove name =
   | Some (Rawthing th) -> Some th
   | None -> None
 
-(* givens get weakened if required; otherwise untouched (not even seriously renumbered for use) *)
+(* givens get weakened if required; they get renumbered for use; otherwise untouched *)
 
 let rec freshGiven weaken =
   fun (Seq (st, lhs, rhs) as seq) cxt ->
@@ -1281,7 +1281,7 @@ let rec freshGiven weaken =
     in
     (* can't happen *)
     let (interesting_resources, _, _, conseq, cxt) =
-      renumberforuse [] [] (Seq (st, (* unknownres *) lhs, (* unknownres *) rhs)) cxt
+      renumberforuse [] [] (Seq (st, unknownres lhs, unknownres rhs)) cxt
     in
     cxt, interesting_resources, conseq
 
