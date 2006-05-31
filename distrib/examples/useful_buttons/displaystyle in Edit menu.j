@@ -21,4 +21,10 @@ MENU Edit IS
     
     CHECKBOX hidetransitivity     "hide transitive steps"
     CHECKBOX hidereflexivity      "hide reflexive steps"
+    
+    SEPARATOR
+    
+    CHECKBOX foldsequents         "fold sequents in tree display"
+    CHECKBOX foldassumptionlines  "fold assumption lines in box display"
+    CHECKBOX foldformulae         "fold formulae in box display"
 END
