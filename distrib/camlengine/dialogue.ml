@@ -1598,9 +1598,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
              with
                Unify_ -> default)
 
-        | "saveengine", name :: _ ->
+        (* | "saveengine", name :: _ -> NO LONGER IMPLEMENTED; don't know how to do it in Caml
             outside c
-              (fun () -> (* saverunning env mbs (disQuote name); *) default)
+              (fun () -> saverunning env mbs (disQuote name); default) *)
 
         | "done", [] ->
             begin match pinfs with
