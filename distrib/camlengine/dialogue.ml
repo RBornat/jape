@@ -968,8 +968,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               (["Cannot parse new conjecture "; text; " -- "] @
                  (if rs = rs' then rs
                   else
-                    "\n\nTrying to read it as a sequent gave the error Ô" :: 
-                      (rs @ "Õ.\n\nTrying to read it as a line of Japeish gave the error Ô" :: (rs' @ ["Õ."]))));
+                    "\n\nTrying to read it as a sequent gave the error " :: UTF.utf8LSQUOTE ::
+                      (rs @ UTF.utf8RSQUOTE :: 
+                       ".\n\nTrying to read it as a line of Japeish gave the error " :: UTF.utf8LSQUOTE ::
+                       (rs' @ [UTF.utf8RSQUOTE; "."]))));
             raise AddConjecture_
       in
       defineconjecture panel text
@@ -2193,6 +2195,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         env, mbs, DontShow, pinfs
     | Japeserver.DeadGUI_ as exn -> raise exn
     | QuitJape as exn -> raise exn
+    | UTF.MalformedUTF_ ss -> showAlert ["Malformed UTF ("; string_of_list (fun s -> s) "" ss; ") in commands"];
+        env, mbs, DontShow, pinfs
     | exn ->
         showAlert
           ["unexpected exception "; Printexc.to_string exn; " in commands"];
