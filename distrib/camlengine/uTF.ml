@@ -316,6 +316,9 @@ let utf8width_from_ucode m =
   if (0x800<=m && m<=0xdfff) || (0xe0000<=m && 0xe0000<=0xffff) then 3 else
   if 0x10000<=m && m<=0x10ffff then 4 else
     raise (MalformedUTF_ ["utf8_width_from_ucode "; hex8 m; " -- no such code point"])
+    
+let utf8LSQUOTE = utf8_of_ucode 0x2018
+let utf8RSQUOTE = utf8_of_ucode 0x2019
 
 (**********************************************)
 

@@ -64,3 +64,6 @@ val isdigit    : ucode -> bool
 val islcletter : ucode -> bool
 val isletter   : ucode -> bool
 val isucletter : ucode -> bool
+
+val utf8LSQUOTE : string
+val utf8RSQUOTE : string
