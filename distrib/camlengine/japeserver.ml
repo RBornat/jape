@@ -124,7 +124,7 @@ let rec readlines s =
  
 let rec nn_ =
   function
-    dash :: ds when dash=Char.code '-' -> - dd_ 0 ds
+    dash :: ds when dash=Char.code '-' -> - (dd_ 0 ds)
   | ds                                 -> dd_ 0 ds
 
 and dd_ a1 a2 =
@@ -188,9 +188,9 @@ let rec writef s is =
 and outs s =
   List.iter
     (function
-       sp when sp=Char.code ' ' -> out8 sp
-     | nl when nl=Char.code '\n' -> out "\\n"
-     | dq when dq=Char.code '\"' -> out "\\\""
+       sp    when    sp=Char.code ' '  -> out8 sp
+     | nl    when    nl=Char.code '\n' -> out "\\n"
+     | dq    when    dq=Char.code '\"' -> out "\\\""
      | slosh when slosh=Char.code '\\' -> out "\\\\"
      | c -> if c < 32 then out8 c else out (utf8_of_ucode c))
     (utf8_explode s)

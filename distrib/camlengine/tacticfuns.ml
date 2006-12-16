@@ -1736,10 +1736,10 @@ let rec listf a1 a2 a3 =
           | _ -> string_of_term t) ::
            r)
   | 0x25 :: 0x73 :: fs, t :: ts, r -> (* %s *) listf fs ts (message t :: r)
-  | 0x25 :: 0x74 :: fs, t :: ts, r -> listf fs ts (string_of_term t :: r)
-  | 0x25 :: f    :: fs, ts, r -> listf fs ts (utf8_of_ucode f :: r)
-  | [0x25]            , ts, r -> listf [] ts r
-  | f :: fs           , ts, r -> listf fs ts (utf8_of_ucode f :: r)
+  | 0x25 :: 0x74 :: fs, t :: ts, r -> (* %t *) listf fs ts (string_of_term t :: r)
+  | 0x25 :: f    :: fs, ts,      r -> listf fs ts (utf8_of_ucode f :: r)
+  | [0x25]            , ts,      r -> listf [] ts r
+  | f :: fs           , ts,      r -> listf fs ts (utf8_of_ucode f :: r)
 
 and message term =
   match debracket term with
