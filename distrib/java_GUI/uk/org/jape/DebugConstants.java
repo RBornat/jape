@@ -40,7 +40,6 @@ public interface DebugConstants {
 				geometry_tracing	 = false,
 				image_tracing		 = false,
 				makeMessage_tracing	 = false,
-				measure_debug		 = false,
 				menubar_tracing		 = false,
 				osDebug			 = false,
 				panelempty_tracing	 = false,

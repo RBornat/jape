@@ -38,7 +38,8 @@ public class DebugVars {
 			  loopback_tracing    = false,
 			  printdialog_tracing = false,
 			  containerlayout_tracing = false,
-			  paint_tracing       = false;
+			  paint_tracing       = false,
+			  measure_tracing     = false;
 
     public static void runDebugSettingsDialog() {
 	String [] buttons = { "OK", "Cancel" };
@@ -48,14 +49,16 @@ public class DebugVars {
 	    new JCheckBox("trace System.err loopback"),		 // 2
 	    new JCheckBox("trace print dialog actions"),	 // 3
 	    new JCheckBox("trace container layout actions"),     // 4
-	    new JCheckBox("trace painting")			 // 4
+	    new JCheckBox("trace painting"),			 // 5
+	    new JCheckBox("trace font measuring")		 // 6
 	};
 	tracing[0].setSelected(protocol_tracing);
 	tracing[1].setSelected(menuaction_tracing);
 	tracing[2].setSelected(loopback_tracing);
 	tracing[3].setSelected(printdialog_tracing);
 	tracing[4].setSelected(containerlayout_tracing);
-	tracing[4].setSelected(paint_tracing);
+	tracing[5].setSelected(paint_tracing);
+	tracing[6].setSelected(measure_tracing);
 	int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), tracing,
 						 "Debug settings", 0,
 						 JOptionPane.PLAIN_MESSAGE,
@@ -67,6 +70,7 @@ public class DebugVars {
 	    printdialog_tracing	 = tracing[3].isSelected();
 	    containerlayout_tracing = tracing[4].isSelected();
 	    paint_tracing        = tracing[5].isSelected();
+	    measure_tracing      = tracing[6].isSelected();
 
 	}
     }
