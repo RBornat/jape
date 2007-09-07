@@ -155,7 +155,7 @@ let
           if !termhashing then 
             let h = hashApp f a in cacheterm (App (Some h, f, a))
           else App (None, f, a)
-        and registerTup (s, ts as sts) =
+        and registerTup (s, ts (* as sts *)) =
           if !termhashing then
             let h = hashTup s ts in cacheterm (Tup (Some h, s, ts))
           else Tup (None, s, ts)
