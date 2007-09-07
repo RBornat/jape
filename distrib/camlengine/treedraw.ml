@@ -406,7 +406,7 @@ let rec draw goal pos proof (Treeplan {linethickness = linethickness} as plan) =
   drawinproofpane (); _D plan pos []
 
 let rec print str goal pos proof plan =
-  let rgoal = revgoal goal in
+  (* let rgoal = revgoal goal in *)
   let out = output_string str in
   let outesc = out <.> String.escaped in
   let rec outplan p = out "\""; outesc (string_of_plan  p); out "\" " in

@@ -595,7 +595,7 @@ let rec catelim_string_of_disproofstate =
        {seq = seq; universe = universe; selected = selected; tiles = tiles;
         forcemap = forcemap; conclusive = conclusive; countermodel = countermodel})
     ss ->
-    let cbs = catelim_bracketedstring_of_list catelim_string_of_bool "," in
+    (* unused let cbs = catelim_bracketedstring_of_list catelim_string_of_bool "," in *)
     "Disproofstate{seq = " ::
       catelim_string_of_seq seq
         (",\nworld = " ::
@@ -908,7 +908,7 @@ let rec disproofstate_of_model a1 a2 a3 =
           (0, 0) ulist
       in
       let u = mkmap ulist in
-      let ws = List.map fst ulist in
+      (* unused let ws = List.map fst ulist in *)
       List.iter
         (fun ((_, cy as c), (_, ts, chs)) ->
            List.iter

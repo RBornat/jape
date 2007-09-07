@@ -438,7 +438,7 @@ let badsel ss = showAlert ss; raise (Applycommand_ None)
  *)
 let pointToSequent
   displaystate env comm
-    (target, concopt, hyps, csels, hsels, givensel as fsel) =
+    (target, concopt, hyps, csels, hsels, givensel (* as fsel *)) =
   fun (Proofstate {tree = tree} as state) ->
     try
       let doit path =
@@ -1107,19 +1107,20 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         env, mbs, showit, withhist pinf hist :: pinfs
   in
   
-  let outside c f =
-    match pinfs with
-      [] -> f ()
-    | _ ->
-        let n = List.length pinfs in
-        showAlert
-          [if n = 1 then "There is a proof "
-           else ("there are " ^ string_of_int (List.length pinfs)) ^ " proofs";
-           " in progress. You must close ";
-           if n = 1 then "it" else "them"; " before the command \"";
-           respace c; "\" can be executed."];
-        default
-  in
+  (* unused, amazingly!
+	 let outside c f =
+	   match pinfs with
+		 [] -> f ()
+	   | _ ->
+		   let n = List.length pinfs in
+		   showAlert
+			 [if n = 1 then "There is a proof "
+			  else ("there are " ^ string_of_int (List.length pinfs)) ^ " proofs";
+			  " in progress. You must close ";
+			  if n = 1 then "it" else "them"; " before the command \"";
+			  respace c; "\" can be executed."];
+		   default
+	 in *)
   
   (* this idea, which is an attempt to kickstart undo on disproofs, is ridiculously inelegant.
      I think I need to think ...
@@ -1134,11 +1135,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       Some hist -> Some (ShowDisproof, hist)
     | None      -> None
   in
-  let showboth =
-    function
-      Some hist -> Some (ShowBoth, hist)
-    | None      -> None
-  in
+  (* unused 
+     let showboth =
+	   function
+		 Some hist -> Some (ShowBoth, hist)
+	   | None      -> None
+	 in *)
   
   let rec processcommand  (env, mbs, (showit : showstate), 
                            (pinfs : proofinfo list) as thisstate) c =
@@ -1388,7 +1390,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                let (env, ps, mbs) =
                  doUse showAlert uncurried_screenquery (env, [], mbs) files
                in
-               let proofsfound = !proofsdone || not (null ps) in
+               (* unused let proofsfound = !proofsdone || not (null ps) in *)
                if oldfontstuff <> getfontstuff () then initFonts ();
                Japeserver.emptymenusandpanels (!autoAdditiveLeft && List.length (getsyntacticturnstiles())=1);
                reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
@@ -1820,7 +1822,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        let f pinf =
                          let hist = proofinfo_hist pinf in
                          let proof = winhist_proofnow hist in
-                         let disproof = winhist_disproofnow hist in
+                         (* unused let disproof = winhist_disproofnow hist in *)
                          Japeserver.setbackgroundfocus
                            (proofinfo_proofnum pinf);
                          withhist

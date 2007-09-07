@@ -893,7 +893,7 @@ and parseGivenPanel report query =
 
 and parsePanel report query panelkind parseEntry entrystarters parastarters =
   let starters = entrystarters @ parastarters in
-  let entrysymbs = (_SHYID <* entrystarters) in
+  (* let entrysymbs = (_SHYID <* entrystarters) in *)
   let parasymbs = (_SHYID <* parastarters) in
   let symbs = (_SHYID <* starters) in
   let rec parseentry () =
@@ -996,7 +996,7 @@ and parseUse report query =
         (ParseError_ ["USE expects a string; found: "; debugstring_of_symbol s])
 
 and parseTheorems report =
-  let n = ref 0 in
+  (* let n = ref 0 in *)
   let (RuleHeading (name, formals, provisos) as p) =
     parseRuleHeading true _AREWORD
   in

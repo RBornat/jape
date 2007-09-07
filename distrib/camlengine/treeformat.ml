@@ -170,7 +170,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
     let term_of_ints tns = Termstore.registerTup (",", term_of_int <* tns)
     let term_of_string s = Termstore.registerLiteral(Termtype.String s)
 
-    let rec layouts_of_format (TreeFormat (tfk, tff) as f) =
+    let rec layouts_of_format (TreeFormat (tfk, tff) (* as f *)) =
       let rec layout =
         function
           (true, s, isopt) :: nfs ->

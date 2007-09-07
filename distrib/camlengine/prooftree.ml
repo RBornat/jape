@@ -939,7 +939,7 @@ module Tree : Tree with type term = Termtype.term
     let rec getrewinfress cxt = getrewinfPair (rawinfElements cxt)
     let rec rew_Prooftree a1 a2 =
       match a1, a2 with
-        cxt, (Tip (seq, rewinf, fmt) as t) ->
+        cxt, (Tip (seq, rewinf, fmt) (* as t *)) ->
           if rew_worthwhile true cxt rewinf then
             begin
               if !prooftreerewinfdebug then
@@ -960,7 +960,7 @@ module Tree : Tree with type term = Termtype.term
           let rts = rew_worthwhile true cxt tsinf in
           let rress = rew_worthwhile true cxt ressinf in
           if ((ra || rs) || rts) || rress then
-            let rec fst (x, _) = x in
+            (* let rec fst (x, _) = x in *)
             let a =
               if ra then
                 rew_stuff cxt

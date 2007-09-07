@@ -252,7 +252,7 @@ let rec interpret
       let rec tacentry name =
         MCdata (Mentry (name, None, "apply " ^ parseablestring_of_name name))
       in
-      let rec processcommand (mp, (env, buttonfns, mcs, mps as res)) =
+      let rec processcommand (mp, (env, buttonfns, mcs, mps (* as res *))) =
         match mp with
           Menustuff c ->
             (match c with 
@@ -331,8 +331,7 @@ let rec interpret
   | StructureRule (stype, rule) ->
       addstructurerule report query stype rule; res
   | Proof
-      (name, stage, seq, (givens, params, provisos, tac), disproofopt as
-         p) ->
+      (name, stage, seq, (givens, params, provisos, tac), disproofopt (* as p *)) ->
       let rec updateplace (thing, oldplace) =
         if where <> oldplace && where <> InLimbo then
           addthing (name, thing, where)

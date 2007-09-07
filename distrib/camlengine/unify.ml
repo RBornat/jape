@@ -1348,7 +1348,7 @@ let rec dropunify (target, sources) cxt =
                bracketedstring_of_list string_of_cxt "," cxts)
   in
   match target with
-    Segvar (_, ops, (Unknown (_, u, tc) as v)) ->
+    Segvar (_, ops, (Unknown (_, u, tc) (* as v *))) ->
       begin match tc, sources with
         _, [] -> Some cxt
       | ListClass fc, [source] ->

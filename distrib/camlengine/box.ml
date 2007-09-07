@@ -143,11 +143,11 @@ let box_of_textbox (Textbox (Pos (x, y), Textsize (w, a, d))) =
     Box (Pos (x, y - a), Size (w, a + d))
 
 (* find whether a position is within a box *)
-let withinX (Pos (x, y) as p) (Box ((Pos (x', y') as p'), Size (w', h'))) =
+let withinX (Pos (x, y) (* as p *)) (Box ((Pos (x', y') (* as p' *)), Size (w', h'))) =
     x' <= x && x < x' + w'
 
 (* note x<x'+w: x'+w is outside the box *)
-let withinY (Pos (x, y) as p) (Box ((Pos (x', y') as p'), Size (w', h'))) =
+let withinY (Pos (x, y) (* as p *)) (Box ((Pos (x', y') (* as p'*) ), Size (w', h'))) =
     y' <= y && y < y' + h'
 
 let within p b = withinX p b && withinY p b

@@ -388,7 +388,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
         antecedents = antecedents;
         cxt = cxt;
         provisos = provisos;
-        principals = resnumLs, resnumRs as principals;
+        principals = resnumLs, resnumRs (* as principals *);
         selhyps = selhyps;
         selconcs = selconcs} as info) ->
     let rec expandfresh b (h, g, r, v as f) left right ps =
@@ -523,7 +523,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
         &~
         (fun poss ->
            let rec doprovisos
-             ((thinnedR, (thinnedL, cxt) as pos), (bads, goods)) =
+             ((thinnedR, (thinnedL, cxt) (* as pos *)), (bads, goods)) =
              try
                bads,
                (thinnedL, thinnedR,

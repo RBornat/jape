@@ -77,14 +77,14 @@ let addtotree eqr (SearchTree (csrbs, status) as t) (cs, r, isprefix as info) =
 exception DeleteFromTree_
 
 let deletefromtree eqr =
-  fun (SearchTree (csrbs, status) as t) (cs, r, isprefix as info) ->
+  fun (SearchTree (csrbs, status) (* as t *)) (cs, r, isprefix as info) ->
     if List.exists (same eqr info) csrbs then
       SearchTree (diff cs <| csrbs, Unbuilt (mkalt status))
     else raise DeleteFromTree_
 
 (* give list of items in tree and what they index *)
 
-let summarisetree (SearchTree (csrbs, _) as t) = csrbs
+let summarisetree (SearchTree (csrbs, _)) = csrbs
 
 let rec catelim_string_of_fsm cf rf t ss =
   match t with
