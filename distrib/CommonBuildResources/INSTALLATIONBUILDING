@@ -1,84 +1,49 @@
-What you need to do to build an installation for a particular machine/os.
 $Id$
-Jape Associates. 
-December 2002.
 
-1. BACKGROUND
+HOW TO BUILD JAPE FOR A PARTICULAR MACHINE
 
-RELEVANT STATIC DIRECTORY STRUCTURE FOR Jape 6 with Java GUI
+1. Be on some kind of Unix box to start with (Linux, OS X, Solaris) 
+	EVEN if you want to build a Windows Jape. Sorry about that: we haven't got round to automating the build on Windows.
 
-+jape
-|
-+-+camlengine
-|   -- OCAML sources for the proof engine
-|
-+-+CommonBuildResources 
-| |   -- common make files, common distribution technology sources,
-| |   -- common README files, Licenses, etc.
-| |
-| +-+Linux
-| |   -- OS-specific Make that expects to be used from ../LinuxJape/build
-| |
-| +-+Solaris
-| |   -- OS-specific Make that expects to be used from ../SolarisJape/build
-| |
-| +-+Windows
-|     -- OS-specific Make that expects to be used from ../WindowsJape/build
-|
-+-+examples
-|   -- various directories containing theories
-| 
-+-+java_japeserver
-    -- Java sources for the GUI
+2. Get hold of a jape source distribution (jape.source.v<something>.tgz). Unpack it.
 
-TEMPORARY STRUCTURE THAT CAN BE REMOVED AND REBUILT AS NECESSARY 
-FROM CommonBuildResources BY
-     FOREACH OS IN Linux Solaris Windows
-     DO      mkdir ../$(OS)Jape ../$(OS)Jape/build
-             cp    $(OS)/Make ../$(OS)Jape/build 
-             cd    ../$(OS)Jape/build
-             ln -s ../../examples .
-     DONE
+3. To build a Linux version, make sure you've got OCaml and Java.
 
-     or running
+	cd jape.source/LinuxJape/build
+	make distribution
 
-        CommonBuildResources/buildbuild.sh
- 
-     from the top-level distrib directory
+-- it will build installLinuxJape.jar. Double-click that and follow the prompts to install jape in a directory of your choice.
 
-+-+SolarisJape
-| +-+build
-|
-+-+WindowsJape
-| +-+build
-|
-+-+LinuxJape
-  +-+build
+4. To build a Solaris version, just as Linux but SolarisJape/build instead of LinuxJape/build
 
-THE FOLLOWING DIRECTORIES HAVE YET TO BE INCORPORATED INTO THE BUILD SYSTEM
-+-+MacOS
-+-+MacOSX
+5. To build an OS X version, make sure you've got XCode, Java and OCaml installed. 
 
+	cd jape.source/MacOSX
+	make 
+	
+-- XCode will make Jape.app somewhere (the blasted thing keeps changing where it puts is) and OCaml will make jape.engine in jape.source/camlengine. Move or copy those files into some folder somewhere, double-click Jape.app and off you go.
 
-2. Rebuild and populate the abovementioned $(OS)Jape structures
+6. To build a WindowsJape
 
-3a. FROM A SOLARIS MACHINE IN THE jape DIRECTORY
-    cd SolarisJape/build
-    make distribution
-    -- this completes without intervention, leaving you with SolarisJape.jar
-   
-3b. FROM A LINUX MACHINE IN THE jape DIRECTORY
-    cd LinuxJape/build
-    make distribution
-    -- this completes without intervention, leaving you with LinuxJape.jar
+	cd jape.source/WindowsJape/build
+	make distribution
+	
+-- which will build makejape.bat in that directory, and then invite you to complete the job on a Windows box which can see this filestore. 
 
-3c. FROM A UNIX (Solaris or Linux) MACHINE IN THE jape DIRECTORY (AT OXFORD)
-    cd WindowsJape/build
-    make distribution
-    -- this completes with just one intervention -- namely the
-       execution of a build file on a windows machine
-       connected to the same filestore, leaving you with WindowsJape.jar
-    
+6a. Somehow get your box to export its filestore to Windows (on OS X I do this by enabling Windows sharing, which gives me a network address; then on the Windows box I go to My Computer, and under the Tools menu click Map a Network Drive; then I fill in the info and I can do what follows.
+
+6b. The Windows box MUST have OCaml installed, and Microsoft Visual Studio. Run the tool (part of Visual Studio) which starts a Visual Studio command prompt (you can't do it from a normal DOS prompt cos the paths aren't set up right). Then, supposing in step b you got the Z drive
+
+	z:
+	cd jape.source/WindowsJape/build
+	makejape.bat
+	
+6c. After some time the OCaml compilation will complete. Go back to the Unix box, and press the return key. The process will complete and leave you with installWindowsJape.jar. Somehow put that on a Windows box which has a Java (not Microsoft's broken version, please), double-click it and follows the prompts to install Jape in a directory of your choice.
+
+Richard Bornat
+7/ix/2007
+
+Credits: Bernard Sufrin built most of the installation technology (i.e. the Linux/Windows/Solaris bits); Richard Bornat built the OS X bit and did a bit of maintenance on the rest.
 
 
 
