@@ -556,11 +556,11 @@ let try_negnum s =
      badstart s
   
 let asTactic f a =
-  let old_unclass = !undecl in
+  let old_undecl = !undecl in
   let old_unvar = !unvar in
   let old_unclass = !unclass in
   let old_unstart = !unstart in
-  let cleanup () = undecl := old_unclass; unvar := old_unvar; 
+  let cleanup () = undecl := old_undecl; unvar := old_unvar; 
                    unclass := old_unclass; unstart := old_unstart 
   in
   undecl := (fun _ t -> t);
