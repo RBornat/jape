@@ -191,9 +191,9 @@ let findDisproofSelections () = Japeserver.getAllDisproofSelections ()
 let rec findSelection state =
   let (fhits, thits, givensel) = sortoutSelection state HitPath in
   (* only path that makes sense for what we are trying to do ... *)
-  let showstrings = bracketedstring_of_list enQuote "," in
-  (* val _ = consolereport ["findSelection sees ", bracketedstring_of_list (string_of_hit string_of_path) "," fhits, "; ",
-                                                   bracketedstring_of_list (string_of_pair (string_of_fhit string_of_path) showstrings ",") "," thits, "; ",
+  (* let showstrings = bracketedstring_of_list enQuote "," in
+     let _ = consolereport ["findSelection sees "; bracketedstring_of_list (string_of_hit string_of_path) "," fhits, "; ";
+                                                   bracketedstring_of_list (string_of_pair (string_of_fhit string_of_path) showstrings ",") "," thits, "; ";
                                                    showstrings givensel]
    *)
   let (conchits, hyphits, reasonhits) =

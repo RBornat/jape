@@ -113,7 +113,7 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
         matchterm tpat tterm mrs
     | _ -> []
   in
-  let rec tc k es = string_of_term (Collection (None, k, es)) in
+  (* let rec tc k es = string_of_term (Collection (None, k, es)) in *)
   (* only temporary *)
                 
   let rec bagmatch epats eterms mrs =
