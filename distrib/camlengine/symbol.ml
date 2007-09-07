@@ -412,7 +412,7 @@ let enterStdSymbols () =
   substsense := substsense_default
 
 let rec resetSymbols () =
-  let enterclass f s = enter s (f s) in
+  (* let enterclass f s = enter s (f s) in *)
   let debug = !symboldebug in
   symboldebug := false;
   (* symboltable := Store.new__ friendlyLargeishPrime *)
@@ -618,9 +618,23 @@ let rec showInputError f msg =
   f (loc @ msg)
 
 (* get utf8 items; translate 85, 2028 and 2029 into Unix newline *)
-
+(* also translate \r\n into \n; even translate \r into \n in case there are any
+   old Macistas out there still breathing.
+   And, thanks to Bernard, do the same with \n\r (sigh).
+ *)
+ 
 let char () = match peek !lexin with 
-                Some 0x85   -> Char.code '\n'
+                Some ret when ret = Char.code '\r' ->
+                  (match npeek 2 !lexin with
+                     [ret; nl] when ret = Char.code '\r' && nl = Char.code '\n' ->
+                        (junk !lexin; Char.code '\n')
+                   | _ -> Char.code '\n')
+              | Some nl when nl = Char.code '\n' ->
+                  (match npeek 2 !lexin with
+                     [nl; ret] when ret = Char.code '\r' && nl = Char.code '\n' ->
+                        (junk !lexin; Char.code '\n')
+                   | _ -> Char.code '\n')
+              | Some 0x85   -> Char.code '\n'
               | Some 0x2028 -> Char.code '\n'
               | Some 0x2029 -> Char.code '\n'
               | Some i      -> i
@@ -705,16 +719,17 @@ let rec scan () =
   | dquote when dquote=Char.code '"' -> next (); scanreport (scanString !linenum [])
   | c ->
       if c = metachar then
-        let rec goodunknown class__ s =
-          if isextensibleID s then 
-            checkidclass (fun sc->UNKNOWN sc) false class__ s
-          else 
-            raise (ParseError_ ["non-CLASS unknown "; utf8_of_ucode metachar; s])
-        in
-        next (); 
-        if isIDhead (char ()) then
-          scanreport (scanid (checkidclass (fun sc->UNKNOWN sc) false))
-        else raise (ParseError_ ["ID expected following "; utf8_of_ucode metachar])
+        (* unused
+		   let rec goodunknown class__ s =
+			 if isextensibleID s then 
+			   checkidclass (fun sc->UNKNOWN sc) false class__ s
+			 else 
+			   raise (ParseError_ ["non-CLASS unknown "; utf8_of_ucode metachar; s])
+		   in *)
+        ( next (); 
+		  if isIDhead (char ()) then
+			scanreport (scanid (checkidclass (fun sc->UNKNOWN sc) false))
+		  else raise (ParseError_ ["ID expected following "; utf8_of_ucode metachar]))
       else if isIDhead c then scanreport (scanid (checkidclass (fun sc->ID sc) true))
       else if isdigit c then scanreport (scanwhile isdigit [] (fun s->NUM s))
       else if ispunct c then scanreport (scanop (rootfsm optree) [])
