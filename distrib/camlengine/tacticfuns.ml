@@ -365,7 +365,7 @@ let rec extensibletac env tac =
           begin match thingnamed name' with
             Some (Rule _, _) -> true
           | Some (Theorem _, _) -> true
-          | Some (Tactic (params, TheoryAltTac _), _) as r ->
+          | Some (Tactic (params, TheoryAltTac _), _) ->
               List.length args < List.length params
           | _ -> false
           end
@@ -545,10 +545,10 @@ let rec getSubtree parent goalopt =
 
 *)
 
-let rec getcxt = fun (Proofstate {cxt = cxt} as state) -> cxt
+let rec getcxt = fun (Proofstate {cxt = cxt}) -> cxt
 
 let rec getconjecture =
-  fun (Proofstate {goal = goal; tree = tree} as state) ->
+  fun (Proofstate {goal = goal; tree = tree}) ->
     let (seq, rewinf, _) =
       Prooftree.Tree.Fmttree.getTip tree (getGoalPath goal)
     in
@@ -638,6 +638,7 @@ let (apply, resolve, applyorresolve) =
     makestep stuff' state
       (Applyrule.apply checker filter taker selhyps selconcs stuff' reason
          cxt (getconjecture state))
+  
   and resolve checker filter taker selhyps selconcs stuff reason cxt state =
     (* We are actually going to do this with some care. 
      * Is there a cut tactic? Is there left weaken? Can we rearrange the rule?
@@ -656,8 +657,8 @@ let (apply, resolve, applyorresolve) =
     let rec check r sts words ok =
       if wehavestructurerule r sts then ok ()
       else if wehavestructurerule r None then
-        fail ["there is no "; words; " rule"]
-      else fail ["there is no "; words; " rule which fits the conclusion"]
+        fail ["there is no "; words; " rule which fits the conclusion"]
+      else fail ["there is no "; words; " rule"]
     in
     let how' =
       match how with
@@ -862,11 +863,11 @@ let rec doANY
 let rec doRESOLVE
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, checker, resolve, filter, taker, selhyps, selconcs
+
 (* sameterms is identity (but see newjape.sml);
    apply (no fancy resolution);
    takefirst (because proof recording doesn't identify resources)
 *)
-
 let rec doREPLAY
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, sameterms, apply, filter, takefirst, selhyps, selconcs
@@ -1307,9 +1308,9 @@ let rec _AssocFlatten pat t =
       let (curry, mkExp) = assocInfo f in
       let rec flatFringe t =
         match explodeApp false t with
-          (Id (_, c', _) as g), [t1; t2] ->
+          (Id (_, c', _)), [t1; t2] ->
             if curry && c = c' then flatFringe t1 @ flatFringe t2 else [t]
-        | (Id (_, c', _) as g), [Tup (_, ",", [t1; t2])] ->
+        | (Id (_, c', _)), [Tup (_, ",", [t1; t2])] ->
             if not curry && c = c' then flatFringe t1 @ flatFringe t2
             else [t]
         | _ -> [t]
@@ -1580,7 +1581,7 @@ let rec _FIRSTSUBTERM f t =
 
 let _FOLDdebug = ref false
 
-let rec _Matches goal (name, thing, lhs as rule) =
+let rec _Matches goal (name, thing, lhs) =
   if currentlyProving name then None
   else if not (applyAnyway thing) && lacksProof name then None
   else
@@ -1875,7 +1876,7 @@ let rec doFLATTEN env f =
 (**********************************************************************)
 
 let rec trace string_of_termarg name args =
-  fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
+  fun (Proofstate {cxt = cxt; goal = goal; tree = tree}) ->
     if !tactictracing then
       consolereport
         [parseablestring_of_name name; " "; string_of_termarg cxt args;
@@ -1903,7 +1904,7 @@ let rec nullcontn s = s
 
 let rec applyBasic
   name (env, _, thing as stuff)
-    (matching, checker, ruler, filter, taker, selhyps, selconcs as try__)
+    (matching, checker, ruler, filter, taker, selhyps, selconcs (* as try__ *))
     cxt state =
   let reason = make_remark name [] in
   trace
@@ -1990,7 +1991,7 @@ let rec tryApplyOrSubst
         contn (applyBasic name stuff try__ cxt state)
 
 let rec newpath tacstr eval =
-  fun (Proofstate {tree = tree} as state) p ->
+  fun (Proofstate {tree = tree}) p ->
     let rec simple ns = parseints (" path in " ^ tacstr) eval ns in
     let rec mkpath =
       function
@@ -2268,7 +2269,7 @@ and trySubst display =
     tracewithmap display
 
 
-and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs as try__) i 
+and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs (* as try__ *)) i 
                      (Proofstate {cxt = cxt; givens = givens} as state) =
     let i = try int_of_term i with _ -> raise (Tacastrophe_ ["not an integer"]) in
     let given =
@@ -2423,7 +2424,7 @@ and doFOLD name display try__ env contn (tactic, laws) =
 
 and doFOLDHYP name display try__ env contn (tactic, patterns) =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens; 
-                   target = target; root = root} as state) ->
+                   target = target; root = root} (* as state *)) ->
     let (_, cxt, env, patterns) = freshenv patterns cxt env in
     let patterns = (eval env <* patterns) in
     match rewriteseq cxt (getTip tree goal) with
@@ -2467,7 +2468,7 @@ and doFOLDHYP name display try__ env contn (tactic, patterns) =
 
 and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
-                   target = target; root = root} as state) ->
+                   target = target; root = root} (* as state *)) ->
     let (_, cxt, env, patterns) = freshenv patterns cxt env in
     let patterns = (eval env <* patterns) in
     match rewriteseq cxt (getTip tree goal) with
@@ -2652,10 +2653,11 @@ and doBIND tac display try__ env =
                    ([tacname; ": the term ("; newtext;
                      ") can't be parsed."] @  ss))
             in
-            let midterm =
-              try term_of_string middle with
-                ParseError_ ss -> pe ss
-            in
+            (* unused
+			   let midterm =
+				 try term_of_string middle with
+				   ParseError_ ss -> pe ss
+			   in *)
             let newterm =
               try term_of_string newtext with
                 ParseError_ ss -> pe ss
@@ -3031,7 +3033,7 @@ let rec applyLiteralTactic display env text state =
 
 let rec autoTactics display env rules (Proofstate {tree = tree; goal = oldgoal} as state) =
   let rec tryone matching tac goal
-                 (Proofstate {cxt = cxt; tree = tree; givens = givens; root = root} as state) =
+                 (Proofstate {cxt = cxt; tree = tree; givens = givens; root = root} (* as state *)) =
     let rec bad ss =
       showAlert (ss @ [" during autoTactics "; string_of_tactic tac]);
       None
@@ -3051,9 +3053,9 @@ let rec autoTactics display env rules (Proofstate {tree = tree; goal = oldgoal} 
     with
       Catastrophe_ ss -> bad ("Catastrophic error: " :: ss)
     | Tacastrophe_ ss -> bad ("Error in tactic: " :: ss)
-    | ParseError_ ss -> bad ("Parse error: " :: ss)
-    | AlterProof_ ss -> bad ("AlterProof_ error: " :: ss)
-    | StopTactic_ -> None
+    | ParseError_  ss -> bad ("Parse error: " :: ss)
+    | AlterProof_  ss -> bad ("AlterProof_ error: " :: ss)
+    | StopTactic_     -> None
   in
   match
     nj_fold
@@ -3061,19 +3063,16 @@ let rec autoTactics display env rules (Proofstate {tree = tree; goal = oldgoal} 
          nj_fold
            (function
               goal, Some state' ->
-                (tryone matching tac goal state' |~~
-                   (fun _ -> Some state'))
+                (tryone matching tac goal state' |~~ (fun _ -> Some state'))
             | goal, None -> tryone matching tac goal state)
-           (allTipPaths
-              (match stateopt with
-                 Some (Proofstate {tree = tree'}) -> tree'
-               | None -> tree))
+           (allTipPaths (match stateopt with
+						   Some (Proofstate {tree = tree'}) -> tree'
+						 | None -> tree))
            stateopt)
       rules None
   with
-    Some (Proofstate {tree = tree'} as state') ->
+    Some (Proofstate {tree = tree'} as state') -> (* round again *)
       autoTactics display env rules
         (nextGoal false (withgoal state' oldgoal))
-  | None ->(* round again *)
-     state
+  | None -> state
 
