@@ -233,7 +233,7 @@ function
     rew_ _RT v
       (function
          Collection (_, _, []) -> []
-       | Collection (_, _, es) as c ->
+       | Collection (_, _, es) ->
            (* modeifyelement ps <* es *)
            raise
              (Catastrophe_
