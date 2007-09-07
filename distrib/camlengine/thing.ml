@@ -559,6 +559,7 @@ let rec ehb vars c =
     in
     let sv = registerSegvar ([], v) in Some (vars, sv, extend sv c)
   else None
+
 exception BadAdditivity_ of string list
 
 let rec augment el er (conseq, antes, vars) =
@@ -567,15 +568,13 @@ let rec augment el er (conseq, antes, vars) =
       match ehb vars (getside conseq) with
         Some (vars, sv, side) ->
           let antes =
-            ((fun s ->
-                  let side = getside s in
-                  if extensible side then setside s (extend sv side)
-                  else
-                    raise
-                      (BadAdditivity_
-                         ["antecedent "; string_of_seq s;
-                          " isn't extensible"])) <*
-               antes)
+            ((fun s -> let side = getside s in
+					   if extensible side then setside s (extend sv side)
+					   else
+						 raise
+						   (BadAdditivity_
+							  ["antecedent "; string_of_seq s; " isn't extensible"]))
+             <* antes)
           in
           setside conseq side, antes, vars
       | None ->
@@ -591,6 +590,7 @@ let rec augment el er (conseq, antes, vars) =
   let (conseq, antes, vars) = f el lhs setlhs (conseq, antes, vars) in
   let (conseq, antes, vars) = f er rhs setrhs (conseq, antes, vars) in
   conseq, antes, vars
+
 (* We don't want to do a lot of work when we apply a rule, so we 
  * compile it the first time it's called for, and use it ever after.
  *)
@@ -772,6 +772,11 @@ let rec compilething name thing =
   | Theorem (params, provisos, bot) ->
       begin try
         CookedTheorem (compileR false false (params, provisos, [], bot))
+        	(* autoAdditiveLeft/Right doesn't really apply to theorems, because they are
+        	   applied in what's called a 'resolve' step (see tacticfuns.ml) provided
+        	   there's a leftweaken and a cut. This is daft, and a hangover from 
+        	   Bernard's days. But it isn't clear that it can be fixed.
+        	 *)
       with
         CompileThing_ ss ->
           raise
@@ -800,12 +805,12 @@ type structurerule =
 
 let rec string_of_structurerule sr =
   match sr with
-    CutRule -> "CutRule"
-  | LeftWeakenRule -> "LeftWeakenRule"
+    CutRule         -> "CutRule"
+  | LeftWeakenRule  -> "LeftWeakenRule"
   | RightWeakenRule -> "RightWeakenRule"
-  | IdentityRule -> "IdentityRule"
-  | TransitiveRule -> "TransitiveRule"
-  | ReflexiveRule -> "ReflexiveRule"
+  | IdentityRule    -> "IdentityRule"
+  | TransitiveRule  -> "TransitiveRule"
+  | ReflexiveRule   -> "ReflexiveRule"
 
 let structurerules : (structurerule * name) list ref = ref []
 
@@ -816,6 +821,212 @@ let rec erasestructurerule name =
 
 let rec isstructurerule kind name =
   List.exists (fun (k, n) -> (k, n) = (kind, name)) !structurerules
+
+(* to make addstructurerule and addthing mutually recursive (because of need to 
+   preserve structureruleity when proofs are reloaded), it's necessary to add a couple of 
+   parameters: ctn_ is compiledthingnamed; tn_ is thingnamed.
+ *)
+let rec addstructurerule ctn_ tn_ kind name =
+  let fc = FormulaClass in
+  (* unused let oc = OperatorClass in *)
+  let bc = BagClass FormulaClass in
+  let lc = ListClass FormulaClass in
+  let rec bag es = registerCollection (bc, es) in
+  let rec list es = registerCollection (lc, es) in
+  let idB = registerId (vid_of_string "B", fc) in
+  let idC = registerId (vid_of_string "C", fc) in
+  let elB = registerElement (Nonum, idB) in
+  let elC = registerElement (Nonum, idC) in
+  let idX = registerId (vid_of_string "X", bc) in
+  let idX' = registerId (vid_of_string "X'", bc) in
+  let idY = registerId (vid_of_string "Y", bc) in
+  let idY' = registerId (vid_of_string "Y'", bc) in
+  let svX = registerSegvar ([], idX) in
+  let svX' = registerSegvar ([], idX') in
+  let svY = registerSegvar ([], idY) in
+  let svY' = registerSegvar ([], idY') in
+  let idL = registerId (vid_of_string "L", lc) in
+  let idL' = registerId (vid_of_string "L'", lc) in
+  let svL = registerSegvar ([], idL) in
+  let svL' = registerSegvar ([], idL') in
+  (* let idE = registerId (vid_of_string "E", fc) in
+	 let idF = registerId (vid_of_string "F", fc) in
+	 let idG = registerId (vid_of_string "G", fc) in
+	 let star = registerId (vid_of_string "star", oc) in
+	 let rec uncurried e x f =
+	   registerElement (Nonum, registerApp (x, registerTup (",", [e; f])))
+	 in
+	 let rec curried e x f =
+	   registerElement (Nonum, registerApp (registerApp (x, e), f))
+	 in *)
+  let rec ispatvar v =
+    member (v, [idB; idC; idX; idX'; idY; idY'; idL; idL'])
+  in
+  let match__ = matchvars false ispatvar in
+  let rec seqmatch =
+    fun (Seq (_, phs, pcs)) ->
+      fun (Seq (st, hs, cs)) ->
+        seqmatchvars false ispatvar (Seq (st, phs, pcs))
+          (Seq (st, hs, cs))
+  in
+  (* this function checks that a rule is exactly as we want it to be, used currently
+   * for cut and weakening rules, whose properties we exploit both in appearance 
+   * transformations (cut) and in automatic transformations (cut, weakening in 
+   * resolution steps -- oh, how I wish we could do that by tactic, so it left
+   * the engine). Other checks - 
+   * currently on transitivity and reflexivity - are more casual, because those
+   * rules only have appearance transformations.  Identity could be more casual as
+   * well, I guess, but it works at present so leave it alone.
+   * RB 21/v/98
+   *)
+  (* the descriptions below assume that single-formula sides of sequents
+   * are parsed as Lists.
+   * It will work provided match rigorously matches structure 
+   * (Segvar to Segvar, Element to Element) and doesn't try to 
+   * be too clever about what bags mean.
+   * Some blah means we must have just these parameters / provisos 
+   * (cos we apply the rule automatically sometimes, e.g. cut and weaken); 
+   * None means we don't care.
+   * Actually I don't think we care about the parameters, ever, but time
+   * will tell.
+   * RB 31/vii/96.
+   *)
+  (* the check was failing because of the ismetav check in match. Fixed by
+   * parameterising ismetav in match ...
+   *)
+  let rec matchrule (mparams, mprovs, mtops, mbottom) =
+    match ctn_ name with
+      Some (CookedRule (_, (_, (params, provs, tops, bottom)), _) (* as r *)) ->
+        (* take the 'toapply' version, just in case *)
+        if !thingdebug then
+          begin
+            let rec myseqstring =
+              fun (Seq (_, hs, gs)) ->
+                (debugstring_of_term hs ^ " ") ^ debugstring_of_term gs
+            in
+            consolereport
+              ["checking ";
+               string_of_ruledata true (params, provs, tops, bottom);
+               " against ";
+               string_of_quadruple (string_of_option string_of_termlist)
+                 (string_of_option
+                    (bracketedstring_of_list string_of_proviso " AND "))
+                 (bracketedstring_of_list myseqstring " AND ") myseqstring
+                 ", " (mparams, mprovs, mtops, mbottom)]
+          end;
+        begin try
+          match
+            (match mparams with
+                Some mparams ->
+                  option_njfold (uncurry2 (uncurry2 match__))
+                    (mparams ||| ((registerId <.> paramidbits) <* params))
+                    empty
+              | None -> Some empty)
+            &~~
+            option_njfold (uncurry2 (uncurry2 seqmatch)) ((mtops ||| tops))
+            &~~
+            seqmatch mbottom bottom
+          with
+            Some env ->
+              begin match mprovs with
+                Some mprovs ->
+                  eqbags (fun (x, y) -> x = y : proviso * proviso -> bool)
+                    ((remapproviso env <* mprovs),
+                     (snd <* provs))
+              | None -> true
+              end
+          | _ -> false
+        with
+          Zip_ -> false
+        end
+    | _ -> false
+  in
+  (match kind with
+     CutRule ->
+       List.exists matchrule
+         [Some [idB], Some [],
+          [Seq ("", bag [svX], list [elB]); Seq ("", bag [svX; elB], list [elC])],
+          Seq ("", bag [svX], list [elC]);
+          Some [idB], Some [],
+          [Seq ("", bag [svX], bag [elB; svY]); Seq ("", bag [svX; elB], bag [svY])],
+          Seq ("", bag [svX], bag [svY]);
+          Some [idB], Some [],
+          [Seq ("", bag [svX], bag [elB; svY]);
+           Seq ("", bag [svX'; elB], bag [svY'])],
+          Seq ("", bag [svX; svX'], bag [svY; svY'])]
+   | LeftWeakenRule ->
+       List.exists matchrule
+         [Some [idB], Some [], [Seq ("", bag [svX], list [elC])],
+          Seq ("", bag [svX; elB], list [elC]);
+          Some [idB], Some [], [Seq ("", bag [svX], bag [svY])],
+          Seq ("", bag [svX; elB], bag [svY])]
+   | RightWeakenRule ->
+       List.exists matchrule
+         [Some [idB], Some [], [Seq ("", bag [svX], bag [svY])],
+          Seq ("", bag [svX], bag [elB; svY])]
+   | IdentityRule ->
+       List.exists matchrule
+         [None, None, [], Seq ("", bag [svX; elB], list [elB]);
+          None, None, [], Seq ("", bag [svX; elB], bag [elB; svY]);
+          None, None, [], Seq ("", list [svL; elB; svL'], list [elB])]
+   | TransitiveRule ->
+       (* we are looking for something of the form
+            FROM X |- E op F AND X |- F op' G INFER X |- E op'' G
+          where we don't care what X is, provided it's the same in all three places,
+          and we don't care what the ops are. We don't care about parameters, 
+          provisos, any of that stuff.  all that really matters is that 
+          E, F and G should be arranged like that - transitively, cuttishly.
+          I guess the stiles have to be the same as well.
+          RB 21/v/98
+        *)
+       begin match tn_ name with
+         Some
+           (Rule
+              ((_, _, [Seq (a1st, a1l, a1r); Seq (st_of_a, l_of_a, r_of_a)],
+                Seq (cst, cl, cr)), _), _) ->
+           (((a1st = st_of_a && st_of_a = cst) && eqterms (a1l, l_of_a)) &&
+            eqterms (l_of_a, cl)) &&
+           (match
+              term_of_collection a1r, term_of_collection r_of_a, term_of_collection cr
+            with
+              Some a1, Some a2, Some ct ->
+                begin match
+                  explodebinapp a1, explodebinapp a2, explodebinapp ct
+                with
+                  Some (a, _, b), Some (c, _, d), Some (e, _, f) ->
+                    ((eqterms (a, e) && eqterms (d, f)) &&
+                     eqterms (b, c)) &&
+                    begin registerRelationpat ct; true end
+                | _ -> false
+                end
+            | _ -> false)
+       | _ -> false
+       end
+   | ReflexiveRule ->
+       (* we are looking for INFER X |- E * E; as with transitivity we don't care what
+        * the lhs is.  I guess the stile should be the same as the transitivity rule, but
+        * there's no effective way to check that (memo: make boxdraw do it)
+        * RB 21/v/98
+        *)
+       (* No it doesn't matter what the stile is, cos we only hide reflexivities inside
+        * transitivies.  RB 1/vii/98
+        *)
+       match tn_ name with
+         Some (Rule ((_, _, [], Seq (_, _, cr)), _), _) ->
+           begin match term_of_collection cr with
+             Some c ->
+               begin match explodebinapp c with
+                 Some (x, _, y) -> eqterms (x, y)
+               | _ -> false
+               end
+           | _ -> false
+           end
+       | _ -> false) &&
+  begin
+    erasestructurerule name;
+    structurerules := (kind, name) :: !structurerules;
+    true
+  end
 
 let rec uniqueCut () =
   match
@@ -911,29 +1122,37 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
    *)
   
   let rec addthing (name, thing, place) =
-    let _ = erasestructurerule name in
-    (* we aren't going to make THAT mistake! *)
-    let newthing = compilething name (goodthing thing) in
-    let newplace =
-      match lookup name with
-        Some (_, oldplace) ->
-          begin match place with
-            InLimbo -> oldplace
-          | _ -> place
-          end
-      | None -> place
-    in
-    (* here is where we ought to check other stuff that depends 
-     * on this thing ...
-     *)
-    if !thingdebug then
-      consolereport
-        ["addthing ";
-         string_of_triple string_of_name string_of_thing string_of_thingplace ","
-           (name, thing, place);
-         " was "; string_of_option pst (lookup name); "; is now ";
-         pst (newthing, newplace)];
-    update name (newthing, newplace)
+    match findfirst (fun (k,n as pair) -> if n=name then Some pair else None) !structurerules with
+      Some (kind,_) ->
+        (erasestructurerule name; addthing (name, thing, place);
+         if not(addstructurerule compiledthingnamed thingnamed kind name) then 
+         	Alert.showAlert Alert.Warning 
+         		("STRUCTURERULE "^string_of_structurerule kind^" "^string_of_name name^
+         		 " cancelled by definition "^string_of_thing thing)
+         else ()
+        )
+    | None ->
+		let newthing = compilething name (goodthing thing) in
+		let newplace =
+		  match lookup name with
+			Some (_, oldplace) ->
+			  begin match place with
+				InLimbo -> oldplace
+			  | _ -> place
+			  end
+		  | None -> place
+		in
+		(* here is where we ought to check other stuff that depends 
+		 * on this thing ...
+		 *)
+		if !thingdebug then
+		  consolereport
+			["addthing ";
+			 string_of_triple string_of_name string_of_thing string_of_thingplace ","
+			   (name, thing, place);
+			 " was "; string_of_option pst (lookup name); "; is now ";
+			 pst (newthing, newplace)];
+		update name (newthing, newplace)
   
   and thingnames () = sources ()
   (* reverse so that we see things in their insertion order *)
@@ -941,8 +1160,8 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
   
   and thingstodo () = not (null (sources ())) in
   
-  clearthings, compiledthinginfo, compiledthingnamed, getthing, goodthing,
-  badthing, thingnamed, thinginfo, addthing, thingnames, thingstodo
+	clearthings, compiledthinginfo, compiledthingnamed, getthing, goodthing,
+	badthing, thingnamed, thinginfo, addthing, thingnames, thingstodo
 
 let rec param_of_var =
   function
@@ -986,10 +1205,10 @@ let rec instantiateRule env provisos antes conseq =
   let antes' = (remapseq env <* antes) in
   (* give args back in the order received, not the mapping order *)
   let res = List.rev (rawaslist env), provisos', antes', conseq' in
-  let show =
-    string_of_triple string_of_provisolist (string_of_antecedentlist !thingdebugheavy)
-      (string_of_consequent !thingdebugheavy) ", "
-  in
+  (* let show =
+	   string_of_triple string_of_provisolist (string_of_antecedentlist !thingdebugheavy)
+		 (string_of_consequent !thingdebugheavy) ", "
+	 in *)
   if !thingdebug then
     consolereport
       ["instantiateRule "; string_of_mapping string_of_term string_of_term env; " ";
@@ -1185,9 +1404,7 @@ let rec freshTheoremtoprove stuff =
   params, provisos, conseq
 
 let rec wehavestructurerule kind stilesopt =
-  let names =
-    (snd <* ((fun (k, _) -> k = kind) <| !structurerules))
-  in
+  let names = (snd <* ((fun (k, _) -> k = kind) <| !structurerules)) in
   let rec getstile = fun (Seq (st, _, _)) -> st in
   not (null names) &&
   (match stilesopt with
@@ -1196,9 +1413,7 @@ let rec wehavestructurerule kind stilesopt =
        List.exists
          (fun name ->
             match compiledthingnamed name with
-              Some
-                (CookedRule
-                   (_, (_, (params, provs, tops, bottom)), ax)) ->
+              Some (CookedRule(_, (_, (params, provs, tops, bottom)), ax)) ->
                 ((ax || !applyderivedrules) && cst = getstile bottom) &&
                 eqlists (fun (x, y) -> x = y) ((getstile <* tops), asts)
             | _ -> false)
@@ -1248,7 +1463,7 @@ let rec freshThingtoprove name =
 (* givens get weakened if required; they get renumbered for use; otherwise untouched *)
 
 let rec freshGiven weaken =
-  fun (Seq (st, lhs, rhs) as seq) cxt ->
+  fun (Seq (st, lhs, rhs) (* as seq *)) cxt ->
     (* can't help feeling that extend should be a well-known function ... *)
     let rec extend doit side cxt =
       match doit, side with
@@ -1285,204 +1500,5 @@ let rec freshGiven weaken =
     in
     cxt, interesting_resources, conseq
 
-let rec addstructurerule kind name =
-  let fc = FormulaClass in
-  let oc = OperatorClass in
-  let bc = BagClass FormulaClass in
-  let lc = ListClass FormulaClass in
-  let rec bag es = registerCollection (bc, es) in
-  let rec list es = registerCollection (lc, es) in
-  let idB = registerId (vid_of_string "B", fc) in
-  let idC = registerId (vid_of_string "C", fc) in
-  let elB = registerElement (Nonum, idB) in
-  let elC = registerElement (Nonum, idC) in
-  let idX = registerId (vid_of_string "X", bc) in
-  let idX' = registerId (vid_of_string "X'", bc) in
-  let idY = registerId (vid_of_string "Y", bc) in
-  let idY' = registerId (vid_of_string "Y'", bc) in
-  let svX = registerSegvar ([], idX) in
-  let svX' = registerSegvar ([], idX') in
-  let svY = registerSegvar ([], idY) in
-  let svY' = registerSegvar ([], idY') in
-  let idL = registerId (vid_of_string "L", lc) in
-  let idL' = registerId (vid_of_string "L'", lc) in
-  let svL = registerSegvar ([], idL) in
-  let svL' = registerSegvar ([], idL') in
-  let idE = registerId (vid_of_string "E", fc) in
-  let idF = registerId (vid_of_string "F", fc) in
-  let idG = registerId (vid_of_string "G", fc) in
-  let star = registerId (vid_of_string "star", oc) in
-  let rec uncurried e x f =
-    registerElement (Nonum, registerApp (x, registerTup (",", [e; f])))
-  in
-  let rec curried e x f =
-    registerElement (Nonum, registerApp (registerApp (x, e), f))
-  in
-  let rec ispatvar v =
-    member (v, [idB; idC; idX; idX'; idY; idY'; idL; idL'])
-  in
-  let match__ = matchvars false ispatvar in
-  let rec seqmatch =
-    fun (Seq (_, phs, pcs)) ->
-      fun (Seq (st, hs, cs)) ->
-        seqmatchvars false ispatvar (Seq (st, phs, pcs))
-          (Seq (st, hs, cs))
-  in
-  (* this function checks that a rule is exactly as we want it to be, used currently
-   * for cut and weakening rules, whose properties we exploit both in appearance 
-   * transformations (cut) and in automatic transformations (cut, weakening in 
-   * resolution steps -- oh, how I wish we could do that by tactic, so it left
-   * the engine). Other checks - 
-   * currently on transitivity and reflexivity - are more casual, because those
-   * rules only have appearance transformations.  Identity could be more casual as
-   * well, I guess, but it works at present so leave it alone.
-   * RB 21/v/98
-   *)
-  (* the descriptions below assume that single-formula sides of sequents
-   * are parsed as Lists.
-   * It will work provided match rigorously matches structure 
-   * (Segvar to Segvar, Element to Element) and doesn't try to 
-   * be too clever about what bags mean.
-   * Some blah means we must have just these parameters / provisos 
-   * (cos we apply the rule automatically sometimes, e.g. cut and weaken); 
-   * None means we don't care.
-   * Actually I don't think we care about the parameters, ever, but time
-   * will tell.
-   * RB 31/vii/96.
-   *)
-  (* the check was failing because of the ismetav check in match. Fixed by
-   * parameterising ismetav in match ...
-   *)
-  let rec matchrule (mparams, mprovs, mtops, mbottom) =
-    match compiledthingnamed name with
-      Some (CookedRule (_, (_, (params, provs, tops, bottom)), _) as r) ->
-        (* take the 'toapply' version, just in case *)
-        if !thingdebug then
-          begin
-            let rec myseqstring =
-              fun (Seq (_, hs, gs)) ->
-                (debugstring_of_term hs ^ " ") ^ debugstring_of_term gs
-            in
-            consolereport
-              ["checking ";
-               string_of_ruledata true (params, provs, tops, bottom);
-               " against ";
-               string_of_quadruple (string_of_option string_of_termlist)
-                 (string_of_option
-                    (bracketedstring_of_list string_of_proviso " AND "))
-                 (bracketedstring_of_list myseqstring " AND ") myseqstring
-                 ", " (mparams, mprovs, mtops, mbottom)]
-          end;
-        begin try
-          match
-            (match mparams with
-                Some mparams ->
-                  option_njfold (uncurry2 (uncurry2 match__))
-                    (mparams ||| ((registerId <.> paramidbits) <* params))
-                    empty
-              | None -> Some empty)
-            &~~
-            option_njfold (uncurry2 (uncurry2 seqmatch)) ((mtops ||| tops))
-            &~~
-            seqmatch mbottom bottom
-          with
-            Some env ->
-              begin match mprovs with
-                Some mprovs ->
-                  eqbags (fun (x, y) -> x = y : proviso * proviso -> bool)
-                    ((remapproviso env <* mprovs),
-                     (snd <* provs))
-              | None -> true
-              end
-          | _ -> false
-        with
-          Zip_ -> false
-        end
-    | _ -> false
-  in
-  (match kind with
-     CutRule ->
-       List.exists matchrule
-         [Some [idB], Some [],
-          [Seq ("", bag [svX], list [elB]); Seq ("", bag [svX; elB], list [elC])],
-          Seq ("", bag [svX], list [elC]);
-          Some [idB], Some [],
-          [Seq ("", bag [svX], bag [elB; svY]); Seq ("", bag [svX; elB], bag [svY])],
-          Seq ("", bag [svX], bag [svY]);
-          Some [idB], Some [],
-          [Seq ("", bag [svX], bag [elB; svY]);
-           Seq ("", bag [svX'; elB], bag [svY'])],
-          Seq ("", bag [svX; svX'], bag [svY; svY'])]
-   | LeftWeakenRule ->
-       List.exists matchrule
-         [Some [idB], Some [], [Seq ("", bag [svX], list [elC])],
-          Seq ("", bag [svX; elB], list [elC]);
-          Some [idB], Some [], [Seq ("", bag [svX], bag [svY])],
-          Seq ("", bag [svX; elB], bag [svY])]
-   | RightWeakenRule ->
-       List.exists matchrule
-         [Some [idB], Some [], [Seq ("", bag [svX], bag [svY])],
-          Seq ("", bag [svX], bag [elB; svY])]
-   | IdentityRule ->
-       List.exists matchrule
-         [None, None, [], Seq ("", bag [svX; elB], list [elB]);
-          None, None, [], Seq ("", bag [svX; elB], bag [elB; svY]);
-          None, None, [], Seq ("", list [svL; elB; svL'], list [elB])]
-   | TransitiveRule ->
-       (* we are looking for something of the form
-            FROM X |- E op F AND X |- F op' G INFER X |- E op'' G
-          where we don't care what X is, provided it's the same in all three places,
-          and we don't care what the ops are. We don't care about parameters, 
-          provisos, any of that stuff.  all that really matters is that 
-          E, F and G should be arranged like that - transitively, cuttishly.
-          I guess the stiles have to be the same as well.
-          RB 21/v/98
-        *)
-       begin match thingnamed name with
-         Some
-           (Rule
-              ((_, _, [Seq (a1st, a1l, a1r); Seq (st_of_a, l_of_a, r_of_a)],
-                Seq (cst, cl, cr)), _), _) ->
-           (((a1st = st_of_a && st_of_a = cst) && eqterms (a1l, l_of_a)) &&
-            eqterms (l_of_a, cl)) &&
-           (match
-              term_of_collection a1r, term_of_collection r_of_a, term_of_collection cr
-            with
-              Some a1, Some a2, Some ct ->
-                begin match
-                  explodebinapp a1, explodebinapp a2, explodebinapp ct
-                with
-                  Some (a, _, b), Some (c, _, d), Some (e, _, f) ->
-                    ((eqterms (a, e) && eqterms (d, f)) &&
-                     eqterms (b, c)) &&
-                    begin registerRelationpat ct; true end
-                | _ -> false
-                end
-            | _ -> false)
-       | _ -> false
-       end
-   | ReflexiveRule ->
-       (* we are looking for INFER X |- E * E; as with transitivity we don't care what
-        * the lhs is.  I guess the stile should be the same as the transitivity rule, but
-        * there's no effective way to check that (memo: make boxdraw do it)
-        * RB 21/v/98
-        *)
-       (* No it doesn't matter what the stile is, cos we only hide reflexivities inside
-        * transitivies.  RB 1/vii/98
-        *)
-       match thingnamed name with
-         Some (Rule ((_, _, [], Seq (_, _, cr)), _), _) ->
-           begin match term_of_collection cr with
-             Some c ->
-               begin match explodebinapp c with
-                 Some (x, _, y) -> eqterms (x, y)
-               | _ -> false
-               end
-           | _ -> false
-           end
-       | _ -> false) &&
-  begin
-    erasestructurerule name;
-    structurerules := (kind, name) :: !structurerules;
-    true
-  end
+(* for export *)
+let addstructurerule = addstructurerule compiledthingnamed thingnamed
