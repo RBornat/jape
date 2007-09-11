@@ -367,6 +367,7 @@ module Tree : Tree with type term = Termtype.term
             | Given _         -> rest
       in
       sortunique nameorder (nj_fold d [tree] [])
+    
     (* -------------------------- navigation with int lists -------------------------- *)
         
     exception FollowPath_ of (string * int list) exception FindTip_
