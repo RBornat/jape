@@ -68,7 +68,7 @@ let tickmenuitem = Japeserver.tickmenuitem
 let tmerge = Termfuns.tmerge
 let uncurry2 = Miscellaneous.uncurry2
 let disQuote = Stringfuns.disQuote
-let _VALFROM = Termparse.asTactic Termparse.term_of_string
+(* let _VALFROM = Termparse.asTactic Termparse.term_of_string *)
 
 (* let profileOff = Profile.profileOff
    let profileOn = Profile.profileOn
@@ -173,7 +173,7 @@ let rec interpret
         NotJapeVar_ ->
           (env ++ (var ||-> japerefvar settings defval' (ref "")))
     in
-    Japeenv.set (env', var, _VALFROM defval'); env', defval'
+    Japeenv.stringset env' var defval'; env', defval'
   in
   let rec processCheckBox env (var, label, (vval1, vval2), defvalopt) =
     let (env, _) =
@@ -235,7 +235,7 @@ let rec interpret
         report ("can't INITIALISE " :: parseablestring_of_name name :: ss);
         raise Use_
       in
-      begin try Japeenv.set (env, name, term) with
+      begin try Japeenv.termset env name term with
         OutOfRange_ range ->
           lreport
             [" to "; string_of_term term; " - variable can only be set to ";

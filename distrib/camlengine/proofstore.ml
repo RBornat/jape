@@ -238,20 +238,12 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     let names = (bool_of_opt <.> proofnamed) <| thingnames () in
     let (sortednames, _) = toposort names (fun n -> proved <| proof_children n)
     in
-    (* I thought of doing this -- record the values of applyconjectures etc.
+    (* I thought of doing this -- record the values of applyconjecture 
        in the proof file. But it's not a good idea. The old idea of turning
        applyconjectures true when reloading a proof is the right thing.
-	   let showvar chan (name,val) =
-		 output_string chan "INITIALISE "; 
-		 output_string chan name; 
-		 output_char chan ' '; 
-		 output_string chan val;
-		 output_char chan '\n'
-	   in
-	   List.map (showvar chan) [("applyconjectures"        , string_of_bool !applyconjectures);
-								("applyconjecturedrules"   , string_of_bool !applyconjecturedrules);
-								("applyconjecturedtheorems", string_of_bool !applyconjecturedtheorems)];
-	   output_char chan '\n'; *)
+	   output_string chan "INITIALISE applyconjectures "; 
+	   output_string chan !applyconjectures;
+	   output_string chan "\n\n"; *)
     revapp show sortednames; allsaved := true
     
   in

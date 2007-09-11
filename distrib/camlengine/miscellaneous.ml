@@ -52,9 +52,7 @@ let autoAdditiveLeft  = ref false
 let autoAdditiveRight = ref false
     
 let lemmacount = ref 0 (* number of lemmas during THIS proof *)
-let applyconjectures = ref false (* whether to allow application of conjectures *)
-let applyconjecturedrules = ref false (* whether to allow application of conjectured rules *)
-let applyconjecturedtheorems = ref false (* whether to allow application of conjectured theorems *)
+let applyconjectures = ref "none" (* whether to allow application of conjectures *)
 let autoselect = ref true    (* whether to highlight 'next goal' when printing proofs *)
 let givenMenuTactic = ref "" (* tactic to use when the interface says applygiven *)
  

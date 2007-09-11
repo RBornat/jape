@@ -171,10 +171,8 @@ let defaultenv =
     ["alwaysshowturnstile"  , bj                         false        Sequent.alwaysshowturnstile;
      "applyautotactics"     , bj                         true         Tacticfuns.applyautotactics;
      (* these next three now default false. 11/ix/2007 *)
-     "applyconjectures"     , bj                         false        applyconjectures;
-     "applyconjecturedrules", bj                         false        applyconjecturedrules;
-     "applyconjecturedtheorems"
-                            , bj                         false        applyconjecturedtheorems;
+     "applyconjectures"     , sj ["none"; "all"; "rules"; "theorems"]
+     													 "none"		  applyconjectures;
      "applydebug"           , ij                         0            Applyrule.applydebug;
      "autoAdditiveLeft"     , tparam (bj                 false        autoAdditiveLeft);
      "autoAdditiveRight"    , tparam (bj                 false        autoAdditiveRight);
@@ -699,8 +697,7 @@ let recorddisplayvars env =
             " isn't set!"])
 
 let setdisplayvars env vals =
-  List.iter (fun (s, v) -> Japeenv.set (env, s, parseTactic v))
-    ((displayvars ||| vals))
+  List.iter (fun (s, v) -> Japeenv.stringset env s v) ((displayvars ||| vals))
 
 (* proofmove doesn't set changed *)
 let proofmove =
@@ -1298,7 +1295,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "assign", name :: value ->
             (try
               let value = parseTactic (respace value) in
-              Japeenv.set (env, name_of_string name, value);
+              Japeenv.termset env (name_of_string name) value;
               resetcaches ();
               default
             with
@@ -1790,12 +1787,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             else default
 
         | "profile", ["on"] ->
-            Japeenv.set (env, name_of_string "profiling", parseTactic "true");
+            Japeenv.stringset env (name_of_string "profiling") "true";
             (* achieves profileOn(), I hope *)
             default
 
         | "profile", ["off"] ->
-            Japeenv.set (env, name_of_string "profiling", parseTactic "false");
+            Japeenv.stringset env (name_of_string "profiling") "false";
             (* achieves profileOff(), I hope *)
             default
 

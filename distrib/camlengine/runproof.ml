@@ -136,8 +136,6 @@ let doProof report query env name stage seq (givens, pros, tac) disproofopt =
   let tac = mkReplayTac tac in
   let (pros', givens, seq) = compiletoprove (pros, givens, seq) in
   let cxt = withprovisos newcxt (mkvisproviso <* pros') in
-  (* because applyconjectures trumps applyconjecturedrules and applyconjecturedtheorems,
-     it's enough to change one variable *)
   let oldapply = !applyconjectures in
   let oldproving = !proving in
   let rec checkfinalprovisos cxt =
@@ -157,7 +155,8 @@ let doProof report query env name stage seq (givens, pros, tac) disproofopt =
   in
   let initialstate = startstate env (provisos cxt) givens seq in
   let rec cleanup () =
-    applyconjectures := oldapply; proving := oldproving
+    Japeenv.stringset env (name_of_string "applyconjectures") oldapply;
+    proving := oldproving
   in
   let rec label () = word_of_proofstage stage in
   let rec complain ss =
@@ -165,7 +164,7 @@ let doProof report query env name stage seq (givens, pros, tac) disproofopt =
   in
   let rec checkproof () =
     try
-      applyconjectures := true;
+      Japeenv.stringset env (name_of_string "applyconjectures") "all";
       proving := name_of_string "";
       proofsdone := true;
       (* apply the new theorem / rule to the version we already have, to see if it matches.

@@ -123,8 +123,6 @@ let rec askNbc m bs c =
 let anyCollectionClass = Idclass.BagClass Idclass.FormulaClass
 let askChoice = Alert.askChoice
 let applyconjectures = Miscellaneous.applyconjectures
-let applyconjecturedrules = Miscellaneous.applyconjecturedrules
-let applyconjecturedtheorems = Miscellaneous.applyconjecturedtheorems
 let atoi = Miscellaneous.atoi
 let autoAdditiveLeft = Miscellaneous.autoAdditiveLeft
 let autoAdditiveRight = Miscellaneous.autoAdditiveRight
@@ -1198,8 +1196,8 @@ let rec associativelaw operator thing =
 
 let rec applyAnyway thing =
   match thing with
-    Rule _    -> !applyconjectures || !applyconjecturedrules
-  | Theorem _ -> !applyconjectures || !applyconjecturedtheorems
+    Rule _    -> !applyconjectures="all" || !applyconjectures="rules"
+  | Theorem _ -> !applyconjectures="all" || !applyconjectures="theorems"
   | _         -> false
 
 let rec relevant name =
@@ -2300,7 +2298,7 @@ and doASSIGN env (s, t) state =
          ") - " :: ss);
     None
   in
-  try Japeenv.set (env, s, t'); resetcaches (); Some state with
+  try Japeenv.termset env s t'; resetcaches (); Some state with
     OutOfRange_ range ->
                    fail ["argument evaluates to "; string_of_term t'; "; ";
                          parseablestring_of_name s; " can only be set to "; range]

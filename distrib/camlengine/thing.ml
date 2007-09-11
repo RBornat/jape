@@ -1414,7 +1414,8 @@ let rec wehavestructurerule kind stilesopt =
          (fun name ->
             match compiledthingnamed name with
               Some (CookedRule(_, (_, (params, provs, tops, bottom)), ax)) ->
-                ((ax || !applyconjectures || !applyconjecturedrules) && cst = getstile bottom) &&
+                (ax || !applyconjectures="all" || !applyconjectures="rules") && 
+                cst = getstile bottom &&
                 eqlists (fun (x, y) -> x = y) ((getstile <* tops), asts)
             | _ -> false)
          names

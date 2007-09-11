@@ -55,7 +55,8 @@ val ( ||-> ) : name -> japevar -> japeenv
 val (<@>)      : japeenv -> name -> term option
 val checkrange : japeenv -> name -> string list -> unit
 val empty      : japeenv
-val set        : japeenv * name * term -> unit
+val termset    : japeenv -> name -> term -> unit
+val stringset  : japeenv -> name -> string -> unit
 
 exception OutOfRange_ of string 
 exception NotJapeVar_ 

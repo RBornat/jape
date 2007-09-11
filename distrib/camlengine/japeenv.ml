@@ -168,10 +168,12 @@ let rec (<@>) env name =
           raise (Catastrophe_ (["japeenv can't parse get()=\""; getjapevar v; "\" -- "] @ rs)))
   | None -> None
 
-let set (env, name, value) =
+let stringset env name s=
   match Mappingfuns.(<@>) env name with
-    Some (Envvar v) -> setjapevar (v, string_of_term value)
-  | _ -> raise NotJapeVar_
+    Some (Envvar v) -> setjapevar (v, s)
+  | _               -> raise NotJapeVar_
+
+let termset env name t = stringset env name (string_of_term t)
 
 let rec checkrange env name settings =
   match Mappingfuns.(<@>) env name with
