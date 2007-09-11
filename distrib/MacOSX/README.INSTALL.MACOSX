@@ -5,7 +5,7 @@
 3. In the directory where you found this file (japesource/MacOSX):
    
    make all 
-   -- builds the engine, the application (in MacOSX/java_GUI/build) and a symlink
+   -- builds the engine, the application (in MacOSX/Development) and a symlink
       so that it can talk to the engine
 
    make run
