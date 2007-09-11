@@ -42,19 +42,20 @@ val earlierpair :
 val autoAdditiveLeft  : bool ref
 val autoAdditiveRight : bool ref
     
-val lemmacount : int ref           (* number of lemmas during THIS proof *)
-val applyconjectures : bool ref    (* conjectures allowed in proofs *)
-val applyderivedrules : bool ref   (* derived rules allowed in proofs *)
-val autoselect : bool ref          (* show 'goal' when printing proofs *)
-val givenMenuTactic : string ref   (* what to use when the interface says applygiven *)
-val foldassumptionlines : bool ref (* whether to fold long lines in boxdraw *)
-val foldformulae        : bool ref (* whether to fold long formulae in boxdraw *)
-val foldsequents        : bool ref (* whether to fold sequents in treedraw *)
-val truncatereasons : bool ref     (* whether to shorten reasons in boxdraw *)
-val seektipselection : bool ref    (* look for a tip to work on in boxdraw *)
-val textselectionmode : string ref (* how to press-and-drag over text *)
-val tryresolution : bool ref       (* cut with antecedents of theorems in desperation *)
-val resolvepossible : bool ref     (* resolution is a possibility in the current match *)
+val lemmacount : int ref                (* number of lemmas during THIS proof *)
+val applyconjectures : bool ref         (* conjectures allowed in proofs *)
+val applyconjecturedtheorems : bool ref (* conjectured theorems allowed in proofs *)
+val applyconjecturedrules : bool ref    (* conjectured rules allowed in proofs *)
+val autoselect : bool ref               (* show 'goal' when printing proofs *)
+val givenMenuTactic : string ref        (* what to use when the interface says applygiven *)
+val foldassumptionlines : bool ref      (* whether to fold long lines in boxdraw *)
+val foldformulae        : bool ref      (* whether to fold long formulae in boxdraw *)
+val foldsequents        : bool ref      (* whether to fold sequents in treedraw *)
+val truncatereasons : bool ref          (* whether to shorten reasons in boxdraw *)
+val seektipselection : bool ref         (* look for a tip to work on in boxdraw *)
+val textselectionmode : string ref      (* how to press-and-drag over text *)
+val tryresolution : bool ref            (* cut with antecedents of theorems in desperation *)
+val resolvepossible : bool ref          (* resolution is a possibility in the current match *)
 
 val screenpositiondebug : bool ref
 exception Catastrophe_ of string list

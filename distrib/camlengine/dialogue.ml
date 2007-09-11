@@ -170,9 +170,12 @@ let defaultenv =
   let pairs =
     ["alwaysshowturnstile"  , bj                         false        Sequent.alwaysshowturnstile;
      "applyautotactics"     , bj                         true         Tacticfuns.applyautotactics;
-     "applyconjectures"     , bj                         true         applyconjectures;
+     (* these next three now default false. 11/ix/2007 *)
+     "applyconjectures"     , bj                         false        applyconjectures;
+     "applyconjecturedrules", bj                         false        applyconjecturedrules;
+     "applyconjecturedtheorems"
+                            , bj                         false        applyconjecturedtheorems;
      "applydebug"           , ij                         0            Applyrule.applydebug;
-     "applyderivedrules"    , bj                         true         applyderivedrules;
      "autoAdditiveLeft"     , tparam (bj                 false        autoAdditiveLeft);
      "autoAdditiveRight"    , tparam (bj                 false        autoAdditiveRight);
      "autoselect"           , bj                         false        autoselect;
