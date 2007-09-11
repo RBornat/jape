@@ -136,6 +136,8 @@ let doProof report query env name stage seq (givens, pros, tac) disproofopt =
   let tac = mkReplayTac tac in
   let (pros', givens, seq) = compiletoprove (pros, givens, seq) in
   let cxt = withprovisos newcxt (mkvisproviso <* pros') in
+  (* because applyconjectures trumps applyconjecturedrules and applyconjecturedtheorems,
+     it's enough to change one variable *)
   let oldapply = !applyconjectures in
   let oldproving = !proving in
   let rec checkfinalprovisos cxt =
