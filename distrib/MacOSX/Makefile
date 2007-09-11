@@ -7,6 +7,8 @@ XCODETARGET=Jape
 
 all:         ; $(MAKE) engine GUIclean GUI symlink
 
+OSXuniversal: ; cd $(ENGINESOURCE); $(MAKE) OSXuniversal
+
 run:         ; open Development/Jape.app
 
 engine:      ; cd $(ENGINESOURCE); make jape_engine
