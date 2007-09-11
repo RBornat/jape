@@ -123,7 +123,8 @@ let rec askNbc m bs c =
 let anyCollectionClass = Idclass.BagClass Idclass.FormulaClass
 let askChoice = Alert.askChoice
 let applyconjectures = Miscellaneous.applyconjectures
-let applyderivedrules = Miscellaneous.applyderivedrules
+let applyconjecturedrules = Miscellaneous.applyconjecturedrules
+let applyconjecturedtheorems = Miscellaneous.applyconjecturedtheorems
 let atoi = Miscellaneous.atoi
 let autoAdditiveLeft = Miscellaneous.autoAdditiveLeft
 let autoAdditiveRight = Miscellaneous.autoAdditiveRight
@@ -1197,16 +1198,15 @@ let rec associativelaw operator thing =
 
 let rec applyAnyway thing =
   match thing with
-    Rule _ -> !applyderivedrules
-  | Theorem _ -> !applyconjectures
-  | _ -> false
+    Rule _    -> !applyconjectures || !applyconjecturedrules
+  | Theorem _ -> !applyconjectures || !applyconjecturedtheorems
+  | _         -> false
 
 let rec relevant name =
   match thingnamed name with
-    None -> false
-  | Some (thing, _) ->
-      not (currentlyProving name) &&
-      (applyAnyway thing || not (needsProof name thing))
+    None            -> false
+  | Some (thing, _) -> not (currentlyProving name) &&
+					   (applyAnyway thing || not (needsProof name thing))
 
 let rec allrelevantthings () =
     (fst <.> _The <.> thingnamed) <* (relevant <| thingnames ())
