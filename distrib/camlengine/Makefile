@@ -57,14 +57,14 @@ OSXuniversal:: ;\
 	mv jape_engine.opt jape_engine_i386; \
 	echo now install the powerpc version of ocaml and press return; \
 	read ANSWER; \
-	lipo -info ocamlopt.opt; \
+	lipo -info /usr/local/bin/ocamlopt.opt; \
 	echo if the previous line says ppc, press return -- otherwise start again; \
 	read ANSWER; \
 	make clean; \
 	make ARCH='-ccopt "-arch ppc"' jape_engine.opt; \
 	mv jape_engine.opt jape_engine_ppc; \
-	lifo jape_engine_i386 jape_engine_ppc -create -output jape_engine; \
-	lifo -info jape_engine
+	lipo jape_engine_i386 jape_engine_ppc -create -output jape_engine; \
+	lipo -info jape_engine
 	
 #
 #############################################################################
