@@ -42,8 +42,7 @@ to complete the job on a Windows box which can see this filestore.
 6a. Somehow get your box to export its filestore to Windows (on OS X I
 do this by enabling Windows sharing, which gives me a network address;
 then on the Windows box I go to My Computer, and under the Tools menu
-click Map a Network Drive; then I fill in the info and I can do what
-follows.
+click Map a Network Drive; then I fill in the info).
 
 6b. The Windows box MUST have OCaml installed, and Microsoft Visual
 Studio. Run the tool (part of Visual Studio) which starts a Visual
