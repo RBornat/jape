@@ -175,9 +175,9 @@ MENU Edit
     END
 
     RADIOBUTTON applyconjectures IS
-        "Apply both conjectures and theorems"   IS true
-    AND "Apply only theorems "                  IS false
-    INITIALLY false
+        "Apply both conjectures and theorems"   IS all
+    AND "Apply only theorems "                  IS none
+    INITIALLY none
     END
 
     CHECKBOX hidetransitivity "transformational style" INITIALLY false

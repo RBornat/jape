@@ -1,6 +1,6 @@
 ﻿/* $Id$ */
 
-INITIALISE applyconjectures false
+INITIALISE applyconjectures none
 INITIALISE tryresolution false
 INITIALISE displaystyle tree
 

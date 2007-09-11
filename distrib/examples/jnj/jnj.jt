@@ -180,10 +180,12 @@ END
     INITIALLY
         true
 
-    CHECKBOX applyconjectures
-        "Unproven theorems may be applied"
-    INITIALLY
-        false
+    RADIOBUTTON applyconjectures
+        "Unproven theorems may be applied" IS all
+    AND "Only proven theorems may be applied" IS none
+    INITIALLY all
+    END
+
     RADIOBUTTON ElimRuleBackward
         "Forbid backward use of elimination rules" IS ElimRuleBackwardNo
     AND "Permit backward use of elimination rules" IS ElimRuleBackwardYes

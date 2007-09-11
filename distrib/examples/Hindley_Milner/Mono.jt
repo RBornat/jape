@@ -207,9 +207,9 @@
           END
           
           RADIOBUTTON applyconjectures IS
-                   "Allow Conjectures as rules" IS true
-          AND      "Use only Theorems as rules" IS false
-          INITIALLY false
+                   "Allow Conjectures as rules" IS all
+          AND      "Use only Theorems as rules" IS none
+          INITIALLY none
           END
         END
 

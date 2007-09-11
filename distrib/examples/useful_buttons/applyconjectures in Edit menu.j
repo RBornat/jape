@@ -1,5 +1,7 @@
 ﻿/* $Id$ */
 
-MENU Edit IS
-    CHECKBOX applyconjectures "Apply conjectures as theorems"
-END
+    RADIOBUTTON applyconjectures
+        "Apply conjectures as theorems" IS all
+    AND "Apply only proven theorems"    IS none
+    END
+
