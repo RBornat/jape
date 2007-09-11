@@ -229,7 +229,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
        | InLimbo -> doit [])
 
   and saveproofs chan =
-    let rec show n =
+    let show n =
       match proofnamed n with
         Some (proved, tree, provisos, givens, disproved, disproof) ->
           saveproof chan n Complete tree ((snd <* (fst <| provisos))) givens disproof
@@ -238,6 +238,20 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     let names = (bool_of_opt <.> proofnamed) <| thingnames () in
     let (sortednames, _) = toposort names (fun n -> proved <| proof_children n)
     in
+    (* I thought of doing this -- record the values of applyconjectures etc.
+       in the proof file. But it's not a good idea. The old idea of turning
+       applyconjectures true when reloading a proof is the right thing.
+	   let showvar chan (name,val) =
+		 output_string chan "INITIALISE "; 
+		 output_string chan name; 
+		 output_char chan ' '; 
+		 output_string chan val;
+		 output_char chan '\n'
+	   in
+	   List.map (showvar chan) [("applyconjectures"        , string_of_bool !applyconjectures);
+								("applyconjecturedrules"   , string_of_bool !applyconjecturedrules);
+								("applyconjecturedtheorems", string_of_bool !applyconjecturedtheorems)];
+	   output_char chan '\n'; *)
     revapp show sortednames; allsaved := true
     
   in
@@ -273,9 +287,9 @@ let thmLacksProof = not <.> proved
 let rec needsProof a1 a2 =
   match a1, a2 with
     name, Rule (_, ax) -> not ax || not (proved name)
-  | name, Tactic _ -> false
-  | name, Macro _ -> false
-  | name, Theorem _ -> not (proved name)
+  | name, Tactic _     -> false
+  | name, Macro _      -> false
+  | name, Theorem _    -> not (proved name)
 
 let rec lacksProof name =
   needsProof name (fst (_The (thingnamed name)))
