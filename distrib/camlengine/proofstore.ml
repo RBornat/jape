@@ -278,7 +278,7 @@ let thmLacksProof = not <.> proved
 
 let rec needsProof a1 a2 =
   match a1, a2 with
-    name, Rule (_, ax) -> not ax || not (proved name)
+    name, Rule (_, ax) -> not (ax || proved name)
   | name, Tactic _     -> false
   | name, Macro _      -> false
   | name, Theorem _    -> not (proved name)
