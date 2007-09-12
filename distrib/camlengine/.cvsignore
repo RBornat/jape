@@ -2,7 +2,6 @@
 *.cmo
 *.cmx
 *.o
+_build/*
 jape_engine
-jape_engine.opt
-jape_engine_i386
-jape_engine_ppc
+_log
