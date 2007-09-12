@@ -620,7 +620,7 @@ let rec showInputError f msg =
 (* get utf8 items; translate 85, 2028 and 2029 into Unix newline *)
 (* also translate \r\n into \n; even translate \r into \n in case there are any
    old Macistas out there still breathing.
-   And, thanks to Bernard, do the same with \n\r (sigh).
+   But I refuse to do the same with \n\r (sigh).
  *)
  
 let char () = match peek !lexin with 
@@ -629,11 +629,11 @@ let char () = match peek !lexin with
                      [ret; nl] when ret = Char.code '\r' && nl = Char.code '\n' ->
                         (junk !lexin; Char.code '\n')
                    | _ -> Char.code '\n')
-              | Some nl when nl = Char.code '\n' ->
+              (* | Some nl when nl = Char.code '\n' ->
                   (match npeek 2 !lexin with
                      [nl; ret] when ret = Char.code '\r' && nl = Char.code '\n' ->
                         (junk !lexin; Char.code '\n')
-                   | _ -> Char.code '\n')
+                   | _ -> Char.code '\n') *)
               | Some 0x85   -> Char.code '\n'
               | Some 0x2028 -> Char.code '\n'
               | Some 0x2029 -> Char.code '\n'
