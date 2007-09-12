@@ -21,16 +21,16 @@
 
 #CAMLDEBUG=-g
 CAMLDEBUG = 
-ARCH = 
-#-ccopt "-arch ppc"
+oCOMPILE = ocamlopt
+oLOAD = ocamlopt
 
 %.cmi : %.mli;          ocamlc $(CAMLDEBUG) -c $<
 
 %.cmo : %.ml;           ocamlc $(CAMLDEBUG) -c $<
 
-%.cmx : %.ml;           ocamlopt $(ARCH) -c $<
+%.cmx : %.ml;           $(oCOMPILE) -c $<
 
-%.sig : %.ml %.cmo;     ocamlc $(ARCH) $(CAMLDEBUG) -c -i $< >$*.sig
+%.sig : %.ml %.cmo;     ocamlc $(CAMLDEBUG) -c -i $< >$*.sig
         
 
 CMO = sml.cmo moresys.cmo fix.cmo cache.cmo miscellaneous.cmo reason.cmo answer.cmo prestring.cmo listfuns.cmo version.cmo optionfuns.cmo mappingfuns.cmo stringfuns.cmo uTF.cmo invisibles.cmo minwaste.cmo box.cmo displayfont.cmo text.cmo idclass.cmo searchtree.cmo symbol.cmo idclassfuns.cmo termtype.cmo termstring.cmo termstore.cmo termfuns.cmo predicate.cmo match.cmo binding.cmo termparse.cmo seqtype.cmo sequent.cmo name.cmo treelayout.cmo tactic.cmo provisotype.cmo proviso.cmo paraparam.cmo panelkind.cmo menu.cmo displayclass.cmo japeserver.cmo alert.cmo doubleclick.cmo forcedef.cmo usefile.cmo proofstage.cmo paragraph.cmo rewinf.cmo cxttype.cmo cxtstring.cmo cxtfuns.cmo cxtprovisos.cmo cxtexterior.cmo facts.cmo substmapfuns.cmo rew.cmo rewrite.cmo provisofuns.cmo thing.cmo unify.cmo treeformat.cmo prooftree.cmo proofstore.cmo proofstate.cmo applyrule.cmo absprooftree.cmo hit.cmo draw.cmo seqdraw.cmo termfold.cmo treedraw.cmo boxdraw.cmo displaystate.cmo displaystyle.cmo selection.cmo disproof.cmo interaction.cmo japeenv.cmo env.cmo button.cmo oracle.cmo tacticfuns.cmo runproof.cmo paragraphfuns.cmo dialogue.cmo
@@ -40,30 +40,28 @@ CMX = $(CMO:.cmo=.cmx)
 # Obsolete: we'll use compiled code
 # jape_engine:     $(CMO) main.cmo;   ocamlc $(SOURCES) $(CAMLDEBUG) -custom -o jape_engine unix.cma $(CMO) main.cmo
 #
-jape_engine:     jape_engine.opt; ln -f jape_engine.opt jape_engine
-jape_engine.opt: $(CMX) main.cmx;   ocamlopt $(ARCH) $(SOURCES) -o jape_engine.opt unix.cmxa $(CMX) main.cmx
+jape_engine:     $(CMX) main.cmx; $(oLOAD) $(SOURCES) -o jape_engine unix.cmxa $(CMX) main.cmx
 
 #############################################################################
 #
-# For universal engines on OS X
+# For universal engines on OS X -- only on an Intel box.
+# Requirements: ppc library in oPPCLIB, compiler in oPPCCOMPILER
+#     (set that up by loading the ppc OCaml, copying the relevant files, then
+#      loading the Intel OCaml. It works!)
 #
 
+oPPCCOMPILER=/usr/local/bin/ocamloptppc
+oPPCLIB=/usr/local/lib/ocamlppc
+
 OSXuniversal:: ;\
-	lipo -info /usr/local/bin/ocamlopt.opt; \
-	echo if the previous line says i386, press return -- otherwise ctrl-C, install the intel version of ocaml, and start again; \
-	read ANSWER; \
 	make clean; \
-	make jape_engine.opt; \
-	mv jape_engine.opt jape_engine_i386; \
-	echo now install the powerpc version of ocaml and press return; \
-	read ANSWER; \
-	lipo -info /usr/local/bin/ocamlopt.opt; \
-	echo if the previous line says ppc, press return -- otherwise start again; \
-	read ANSWER; \
+	make jape_engine; \
+	mv jape_engine jape_engine_i386; \
 	make clean; \
-	make ARCH='-ccopt "-arch ppc"' jape_engine.opt; \
-	mv jape_engine.opt jape_engine_ppc; \
+	make oCOMPILE=$(oPPCCOMPILER) oLOAD='$(oPPCCOMPILER) -ccopt "-arch ppc" -nostdlib -I $(oPPCLIB)' jape_engine; \
+	mv jape_engine jape_engine_ppc; \
 	lipo jape_engine_i386 jape_engine_ppc -create -output jape_engine; \
+	rm jape_engine_i386 jape_engine_ppc; \
 	lipo -info jape_engine
 	
 #
