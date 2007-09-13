@@ -1,0 +1,6 @@
+
+v7_d5: new treatment of applyconjectures (possible values are now none,
+all, rules,  theorems). First version with OS X universal binary.
+Improved description of how to build Windows binaries.
+
+v7_d5_1: bugfix. Now will apply derived rules.
