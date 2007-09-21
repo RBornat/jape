@@ -159,17 +159,17 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   and proved n =
     match proofnamed n with
       Some (proved,_, _, _, _,_) -> proved
-    | _ -> false
+    | _                          -> false
 
   and disproved n =
     match proofnamed n with
       Some (_, _, _, _,disproved,_) -> disproved
-    | _ -> false
+    | _                             -> false
 
   and provedordisproved n =
     match proofnamed n with
       Some (proved, _, _, _,disproved,_) -> Some (proved,disproved)
-    | _ -> None
+    | _                                  -> None
   in
 
   let inproofstore = bool_of_opt <.> proofnamed in
@@ -241,9 +241,9 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     (* I thought of doing this -- record the values of applyconjecture 
        in the proof file. But it's not a good idea. The old idea of turning
        applyconjectures true when reloading a proof is the right thing.
-	   output_string chan "INITIALISE applyconjectures "; 
-	   output_string chan !applyconjectures;
-	   output_string chan "\n\n"; *)
+       output_string chan "INITIALISE applyconjectures "; 
+       output_string chan !applyconjectures;
+       output_string chan "\n\n"; *)
     revapp show sortednames; allsaved := true
     
   in

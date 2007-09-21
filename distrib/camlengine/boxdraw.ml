@@ -805,45 +805,45 @@ let rec linearise screenwidth procrustean_reasonW dp =
    *) 
    
   (* and it's unused ...
-	 let rec formatplan
-	   assplan numplan reasonplan antesplan (idW, assW, reasonW) =
-	   let rec ispunct c = not (member (c, ["N"; "R"; "A"])) in
-	   let rec splitwhile f xs = takewhile f xs, dropwhile f xs in
-	   let rec pf cs =
-		 plan_of_textinfo (textinfo_of_string ReasonFont (implode cs))
-	   in
-	   let rec getelements cs =
-		 match splitwhile ispunct cs with
-		   pre, "N" :: cs' ->
-			 S (pf pre DisplayPunct) :: Num :: getelements cs'
-		 | pre, "A" :: cs' ->
-			 begin match splitwhile ispunct cs' with
-			   sep, "R" :: cs'' ->
-				 S (pf pre DisplayPunct) :: AR (pf sep ReasonPunctPlan) ::
-				   getelements cs''
-			 | _ -> raise (Catastrophe_ ("A not followed by R in " :: cs))
-			 end
-		 | pre, "R" :: cs' ->
-			 begin match splitwhile ispunct cs' with
-			   sep, "A" :: cs'' ->
-				 S (pf pre DisplayPunct) :: RA (pf sep ReasonPunctPlan) ::
-				   getelements cs''
-			 | _ -> raise (Catastrophe_ ("R not followed by A in " :: cs))
-			 end
-		 | post, [] -> [S (pf post DisplayPunct)]
-		 | _ -> raise (Catastrophe_ ("getelement (boxdraw) can't parse " :: cs))
-	   in
-	   let fs = explode !boxlineformat in
-	   let rec notsep c = c <> "\n" in
-	   let (ls, rs) =
-		 takewhile notsep fs,
-		 (match dropwhile notsep fs with
-			[] -> raise (Catastrophe_ ["no separator in boxlineformat "; !boxlineformat])
-		  | _ :: rs -> rs)
-	   in
-	   (* let (ltokens, rtokens) = getelements ls, getelements rs in *)
-	   ()
-	 in *)
+     let rec formatplan
+       assplan numplan reasonplan antesplan (idW, assW, reasonW) =
+       let rec ispunct c = not (member (c, ["N"; "R"; "A"])) in
+       let rec splitwhile f xs = takewhile f xs, dropwhile f xs in
+       let rec pf cs =
+         plan_of_textinfo (textinfo_of_string ReasonFont (implode cs))
+       in
+       let rec getelements cs =
+         match splitwhile ispunct cs with
+           pre, "N" :: cs' ->
+             S (pf pre DisplayPunct) :: Num :: getelements cs'
+         | pre, "A" :: cs' ->
+             begin match splitwhile ispunct cs' with
+               sep, "R" :: cs'' ->
+                 S (pf pre DisplayPunct) :: AR (pf sep ReasonPunctPlan) ::
+                   getelements cs''
+             | _ -> raise (Catastrophe_ ("A not followed by R in " :: cs))
+             end
+         | pre, "R" :: cs' ->
+             begin match splitwhile ispunct cs' with
+               sep, "A" :: cs'' ->
+                 S (pf pre DisplayPunct) :: RA (pf sep ReasonPunctPlan) ::
+                   getelements cs''
+             | _ -> raise (Catastrophe_ ("R not followed by A in " :: cs))
+             end
+         | post, [] -> [S (pf post DisplayPunct)]
+         | _ -> raise (Catastrophe_ ("getelement (boxdraw) can't parse " :: cs))
+       in
+       let fs = explode !boxlineformat in
+       let rec notsep c = c <> "\n" in
+       let (ls, rs) =
+         takewhile notsep fs,
+         (match dropwhile notsep fs with
+            [] -> raise (Catastrophe_ ["no separator in boxlineformat "; !boxlineformat])
+          | _ :: rs -> rs)
+       in
+       (* let (ltokens, rtokens) = getelements ls, getelements rs in *)
+       ()
+     in *)
   let colonplan = plan_of_string ReasonFont ": " DisplayPunct origin in
   let colonsize = textsize_of_plan colonplan in
   let reasonspacef =
@@ -1335,10 +1335,10 @@ let rec draw goalopt p proof =
     let reasonx = posX p + reasonmargin in
     (* unused
        let samepath path =
-		 function
-		   None          -> false
-		 | Some goalpath -> path = goalpath
-	   in *)
+         function
+           None          -> false
+         | Some goalpath -> path = goalpath
+       in *)
     let rec _D p line =
       match line with
         FitchLine {elementsplan = elementsplan; elementsbox = elementsbox; 
@@ -1403,10 +1403,10 @@ let rec print str goalopt p proof =
                bodymargin = bodymargin; reasonmargin = reasonmargin}) ->
     (* unused
        let rec samepath a1 a2 =
-		 match a1, a2 with
-		   path, None -> false
-		 | path, Some goalpath -> path = goalpath
-	   in *)
+         match a1, a2 with
+           path, None -> false
+         | path, Some goalpath -> path = goalpath
+       in *)
     let out = output_string str in
     let outesc = out <.> String.escaped in
     let rec outplan p = out "\""; outesc (string_of_plan  p); out "\" " in
@@ -1497,11 +1497,11 @@ let hit_of_pos p (Layout {lines = lines; bodymargin = bodymargin; reasonmargin =
 
 let allFormulaHits pos (Layout {lines = lines; bodymargin = bodymargin}) =
   (* unused
-	 let targetpath =
-	   function
-		 ElementPlan ({path = path}, _, ConcPlan) -> Some path
-	   | _ -> None
-	 in *)
+     let targetpath =
+       function
+         ElementPlan ({path = path}, _, ConcPlan) -> Some path
+       | _ -> None
+     in *)
   let cp = cp HitPath in
   let hp = hp HitPath in
   let rec allts pos rs ls = 

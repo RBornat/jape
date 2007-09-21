@@ -720,16 +720,16 @@ let rec scan () =
   | c ->
       if c = metachar then
         (* unused
-		   let rec goodunknown class__ s =
-			 if isextensibleID s then 
-			   checkidclass (fun sc->UNKNOWN sc) false class__ s
-			 else 
-			   raise (ParseError_ ["non-CLASS unknown "; utf8_of_ucode metachar; s])
-		   in *)
+           let rec goodunknown class__ s =
+             if isextensibleID s then 
+               checkidclass (fun sc->UNKNOWN sc) false class__ s
+             else 
+               raise (ParseError_ ["non-CLASS unknown "; utf8_of_ucode metachar; s])
+           in *)
         ( next (); 
-		  if isIDhead (char ()) then
-			scanreport (scanid (checkidclass (fun sc->UNKNOWN sc) false))
-		  else raise (ParseError_ ["ID expected following "; utf8_of_ucode metachar]))
+          if isIDhead (char ()) then
+            scanreport (scanid (checkidclass (fun sc->UNKNOWN sc) false))
+          else raise (ParseError_ ["ID expected following "; utf8_of_ucode metachar]))
       else if isIDhead c then scanreport (scanid (checkidclass (fun sc->ID sc) true))
       else if isdigit c then scanreport (scanwhile isdigit [] (fun s->NUM s))
       else if ispunct c then scanreport (scanop (rootfsm optree) [])

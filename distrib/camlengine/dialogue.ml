@@ -172,7 +172,7 @@ let defaultenv =
      "applyautotactics"     , bj                         true         Tacticfuns.applyautotactics;
      (* these next three now default false. 11/ix/2007 *)
      "applyconjectures"     , sj ["none"; "all"; "rules"; "theorems"]
-     													 "none"		  applyconjectures;
+                                                         "none"       applyconjectures;
      "applydebug"           , ij                         0            Applyrule.applydebug;
      "autoAdditiveLeft"     , tparam (bj                 false        autoAdditiveLeft);
      "autoAdditiveRight"    , tparam (bj                 false        autoAdditiveRight);
@@ -1108,19 +1108,19 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   in
   
   (* unused, amazingly!
-	 let outside c f =
-	   match pinfs with
-		 [] -> f ()
-	   | _ ->
-		   let n = List.length pinfs in
-		   showAlert
-			 [if n = 1 then "There is a proof "
-			  else ("there are " ^ string_of_int (List.length pinfs)) ^ " proofs";
-			  " in progress. You must close ";
-			  if n = 1 then "it" else "them"; " before the command \"";
-			  respace c; "\" can be executed."];
-		   default
-	 in *)
+     let outside c f =
+       match pinfs with
+         [] -> f ()
+       | _ ->
+           let n = List.length pinfs in
+           showAlert
+             [if n = 1 then "There is a proof "
+              else ("there are " ^ string_of_int (List.length pinfs)) ^ " proofs";
+              " in progress. You must close ";
+              if n = 1 then "it" else "them"; " before the command \"";
+              respace c; "\" can be executed."];
+           default
+     in *)
   
   (* this idea, which is an attempt to kickstart undo on disproofs, is ridiculously inelegant.
      I think I need to think ...
@@ -1137,10 +1137,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   in
   (* unused 
      let showboth =
-	   function
-		 Some hist -> Some (ShowBoth, hist)
-	   | None      -> None
-	 in *)
+       function
+         Some hist -> Some (ShowBoth, hist)
+       | None      -> None
+     in *)
   
   let rec processcommand  (env, mbs, (showit : showstate), 
                            (pinfs : proofinfo list) as thisstate) c =
