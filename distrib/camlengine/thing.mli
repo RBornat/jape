@@ -43,12 +43,12 @@ type thing =
 type thingplace = InMenu of name | InPanel of name | InLimbo
 
 val string_of_thing : thing -> string
-val freshThingtoapply : bool -> name -> cxt -> term list
+val freshThingtoapply : bool -> name -> cxt -> term list -> (name -> bool)
                      -> (cxt * (term, term) mapping * (resnum list * resnum list) * thing) option
-val freshThingtosubst : bool -> name -> cxt -> (term * term) list 
+val freshThingtosubst : bool -> name -> cxt -> (term * term) list -> (name -> bool) 
                      -> (cxt * (term, term) mapping * (resnum list * resnum list) * thing) option
 val freshThingtoprove : name -> thing option
-val freshGiven : bool -> seq -> cxt -> cxt * (resnum list * resnum list) * seq
+val freshGiven : bool -> seq -> cxt -> (name -> bool) -> cxt * (resnum list * resnum list) * seq
 val rearrangetoResolve : seq list -> seq -> seq list * seq
 val instantiateRule : (term, term) mapping -> (bool * proviso) list -> seq list -> seq
                    -> (term * term) list * (bool * proviso) list * seq list * seq
@@ -72,7 +72,7 @@ type structurerule = CutRule
 val addstructurerule : structurerule -> name -> bool
 val clearstructurerules : unit -> unit
 val isstructurerule : structurerule -> name -> bool
-val wehavestructurerule : structurerule -> string list option -> bool
+val wehavestructurerule : structurerule -> string list option -> (name -> bool) -> bool
 val string_of_structurerule : structurerule -> string
 val uniqueCut : unit -> name option
 
