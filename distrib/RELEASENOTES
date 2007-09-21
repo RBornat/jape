@@ -4,3 +4,5 @@ all, rules,  theorems). First version with OS X universal binary.
 Improved description of how to build Windows binaries.
 
 v7_d5_1: bugfix. Now will apply derived rules.
+
+v7_d5_1a: bugfix. Now will really apply derived rules.
