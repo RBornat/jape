@@ -569,11 +569,11 @@ let rec augment el er (conseq, antes, vars) =
         Some (vars, sv, side) ->
           let antes =
             ((fun s -> let side = getside s in
-					   if extensible side then setside s (extend sv side)
-					   else
-						 raise
-						   (BadAdditivity_
-							  ["antecedent "; string_of_seq s; " isn't extensible"]))
+                       if extensible side then setside s (extend sv side)
+                       else
+                         raise
+                           (BadAdditivity_
+                              ["antecedent "; string_of_seq s; " isn't extensible"]))
              <* antes)
           in
           setside conseq side, antes, vars
@@ -772,11 +772,11 @@ let rec compilething name thing =
   | Theorem (params, provisos, bot) ->
       begin try
         CookedTheorem (compileR false false (params, provisos, [], bot))
-        	(* autoAdditiveLeft/Right doesn't really apply to theorems, because they are
-        	   applied in what's called a 'resolve' step (see tacticfuns.ml) provided
-        	   there's a leftweaken and a cut. This is daft, and a hangover from 
-        	   Bernard's days. But it isn't clear that it can be fixed.
-        	 *)
+            (* autoAdditiveLeft/Right doesn't really apply to theorems, because they are
+               applied in what's called a 'resolve' step (see tacticfuns.ml) provided
+               there's a leftweaken and a cut. This is daft, and a hangover from 
+               Bernard's days. But it isn't clear that it can be fixed.
+             *)
       with
         CompileThing_ ss ->
           raise
@@ -850,15 +850,15 @@ let rec addstructurerule ctn_ tn_ kind name =
   let svL = registerSegvar ([], idL) in
   let svL' = registerSegvar ([], idL') in
   (* let idE = registerId (vid_of_string "E", fc) in
-	 let idF = registerId (vid_of_string "F", fc) in
-	 let idG = registerId (vid_of_string "G", fc) in
-	 let star = registerId (vid_of_string "star", oc) in
-	 let rec uncurried e x f =
-	   registerElement (Nonum, registerApp (x, registerTup (",", [e; f])))
-	 in
-	 let rec curried e x f =
-	   registerElement (Nonum, registerApp (registerApp (x, e), f))
-	 in *)
+     let idF = registerId (vid_of_string "F", fc) in
+     let idG = registerId (vid_of_string "G", fc) in
+     let star = registerId (vid_of_string "star", oc) in
+     let rec uncurried e x f =
+       registerElement (Nonum, registerApp (x, registerTup (",", [e; f])))
+     in
+     let rec curried e x f =
+       registerElement (Nonum, registerApp (registerApp (x, e), f))
+     in *)
   let rec ispatvar v =
     member (v, [idB; idC; idX; idX'; idY; idY'; idL; idL'])
   in
@@ -1126,33 +1126,33 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
       Some (kind,_) ->
         (erasestructurerule name; addthing (name, thing, place);
          if not(addstructurerule compiledthingnamed thingnamed kind name) then 
-         	Alert.showAlert Alert.Warning 
-         		("STRUCTURERULE "^string_of_structurerule kind^" "^string_of_name name^
-         		 " cancelled by definition "^string_of_thing thing)
+            Alert.showAlert Alert.Warning 
+                ("STRUCTURERULE "^string_of_structurerule kind^" "^string_of_name name^
+                 " cancelled by definition "^string_of_thing thing)
          else ()
         )
     | None ->
-		let newthing = compilething name (goodthing thing) in
-		let newplace =
-		  match lookup name with
-			Some (_, oldplace) ->
-			  begin match place with
-				InLimbo -> oldplace
-			  | _ -> place
-			  end
-		  | None -> place
-		in
-		(* here is where we ought to check other stuff that depends 
-		 * on this thing ...
-		 *)
-		if !thingdebug then
-		  consolereport
-			["addthing ";
-			 string_of_triple string_of_name string_of_thing string_of_thingplace ","
-			   (name, thing, place);
-			 " was "; string_of_option pst (lookup name); "; is now ";
-			 pst (newthing, newplace)];
-		update name (newthing, newplace)
+        let newthing = compilething name (goodthing thing) in
+        let newplace =
+          match lookup name with
+            Some (_, oldplace) ->
+              begin match place with
+                InLimbo -> oldplace
+              | _ -> place
+              end
+          | None -> place
+        in
+        (* here is where we ought to check other stuff that depends 
+         * on this thing ...
+         *)
+        if !thingdebug then
+          consolereport
+            ["addthing ";
+             string_of_triple string_of_name string_of_thing string_of_thingplace ","
+               (name, thing, place);
+             " was "; string_of_option pst (lookup name); "; is now ";
+             pst (newthing, newplace)];
+        update name (newthing, newplace)
   
   and thingnames () = sources ()
   (* reverse so that we see things in their insertion order *)
@@ -1160,8 +1160,8 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
   
   and thingstodo () = not (null (sources ())) in
   
-	clearthings, compiledthinginfo, compiledthingnamed, getthing, goodthing,
-	badthing, thingnamed, thinginfo, addthing, thingnames, thingstodo
+    clearthings, compiledthinginfo, compiledthingnamed, getthing, goodthing,
+    badthing, thingnamed, thinginfo, addthing, thingnames, thingstodo
 
 let rec param_of_var =
   function
@@ -1206,9 +1206,9 @@ let rec instantiateRule env provisos antes conseq =
   (* give args back in the order received, not the mapping order *)
   let res = List.rev (rawaslist env), provisos', antes', conseq' in
   (* let show =
-	   string_of_triple string_of_provisolist (string_of_antecedentlist !thingdebugheavy)
-		 (string_of_consequent !thingdebugheavy) ", "
-	 in *)
+       string_of_triple string_of_provisolist (string_of_antecedentlist !thingdebugheavy)
+         (string_of_consequent !thingdebugheavy) ", "
+     in *)
   if !thingdebug then
     consolereport
       ["instantiateRule "; string_of_mapping string_of_term string_of_term env; " ";
@@ -1403,7 +1403,7 @@ let rec freshTheoremtoprove stuff =
   let (params, provisos, _, conseq) = freshRuletoprove stuff in
   params, provisos, conseq
 
-let rec wehavestructurerule kind stilesopt =
+let rec wehavestructurerule kind stilesopt proved =
   let names = (snd <* ((fun (k, _) -> k = kind) <| !structurerules)) in
   let rec getstile = fun (Seq (st, _, _)) -> st in
   not (null names) &&
@@ -1414,14 +1414,14 @@ let rec wehavestructurerule kind stilesopt =
          (fun name ->
             match compiledthingnamed name with
               Some (CookedRule(_, (_, (params, provs, tops, bottom)), ax)) ->
-                (ax || !applyconjectures="all" || !applyconjectures="rules") && 
+                (ax || proved name || !applyconjectures="all" || !applyconjectures="rules") && 
                 cst = getstile bottom &&
                 eqlists (fun (x, y) -> x = y) ((getstile <* tops), asts)
             | _ -> false)
          names
    | _ -> false)
 
-let rec ftaors fR fThm weakenthms name cxt stuff =
+let rec ftaors fR fThm weakenthms name cxt stuff proved =
   match compiledthingnamed name with
     Some (CookedRule (_, (vars, toapply), ax)) ->
       let (cxt, env, resnums, r) = fR cxt stuff vars toapply in
@@ -1431,9 +1431,9 @@ let rec ftaors fR fThm weakenthms name cxt stuff =
       let (cxt, env, resnums, t) =
         fThm
           (weakenthms &&
-           wehavestructurerule LeftWeakenRule (Some [st; st]))
+           wehavestructurerule LeftWeakenRule (Some [st; st]) proved)
           (weakenthms &&
-           wehavestructurerule RightWeakenRule (Some [st; st]))
+           wehavestructurerule RightWeakenRule (Some [st; st]) proved)
           cxt stuff vars toapply
       in
       Some (cxt, env, resnums, Theorem t)
@@ -1463,43 +1463,42 @@ let rec freshThingtoprove name =
 
 (* givens get weakened if required; they get renumbered for use; otherwise untouched *)
 
-let rec freshGiven weaken =
-  fun (Seq (st, lhs, rhs) (* as seq *)) cxt ->
-    (* can't help feeling that extend should be a well-known function ... *)
-    let rec extend doit side cxt =
-      match doit, side with
-        true, Collection (_, BagClass FormulaClass, es) ->
-          let (cxt, vid) =
-            freshVID cxt (BagClass FormulaClass) (extraBag_vid ())
-          in
-          let sv =
-            registerSegvar
-              ([], registerUnknown (vid, BagClass FormulaClass))
-          in
-          cxt, registerCollection (BagClass FormulaClass, sv :: es)
-      | _, t -> cxt, t
-    in
-    let (cxt, lhs) =
-      extend (weaken && wehavestructurerule LeftWeakenRule (Some [st; st])) 
-             lhs cxt
-    in
-    let (cxt, rhs) =
-      extend (weaken && wehavestructurerule RightWeakenRule (Some [st; st]))
-        rhs cxt
-    in
-    let rec unknownres =
-      function
-        Collection (_, cc, els) ->
-          registerCollection
-            (cc, ((function Element (_, Resnum r, t) -> registerElement (ResUnknown r, t)
-                   |        el                       -> el) <* els))
-      | t -> t
-    in
-    (* can't happen *)
-    let (interesting_resources, _, _, conseq, cxt) =
-      renumberforuse [] [] (Seq (st, unknownres lhs, unknownres rhs)) cxt
-    in
-    cxt, interesting_resources, conseq
+let rec freshGiven weaken (Seq (st, lhs, rhs) (* as seq *)) cxt proved =
+  (* can't help feeling that extend should be a well-known function ... *)
+  let rec extend doit side cxt =
+	match doit, side with
+	  true, Collection (_, BagClass FormulaClass, es) ->
+		let (cxt, vid) =
+		  freshVID cxt (BagClass FormulaClass) (extraBag_vid ())
+		in
+		let sv =
+		  registerSegvar
+			([], registerUnknown (vid, BagClass FormulaClass))
+		in
+		cxt, registerCollection (BagClass FormulaClass, sv :: es)
+	| _, t -> cxt, t
+  in
+  let (cxt, lhs) =
+	extend (weaken && wehavestructurerule LeftWeakenRule (Some [st; st]) proved) 
+		   lhs cxt
+  in
+  let (cxt, rhs) =
+	extend (weaken && wehavestructurerule RightWeakenRule (Some [st; st]) proved)
+	  rhs cxt
+  in
+  let rec unknownres =
+	function
+	  Collection (_, cc, els) ->
+		registerCollection
+		  (cc, ((function Element (_, Resnum r, t) -> registerElement (ResUnknown r, t)
+				 |        el                       -> el) <* els))
+	| t -> t
+  in
+  (* can't happen *)
+  let (interesting_resources, _, _, conseq, cxt) =
+	renumberforuse [] [] (Seq (st, unknownres lhs, unknownres rhs)) cxt
+  in
+  cxt, interesting_resources, conseq
 
 (* for export *)
 let addstructurerule = addstructurerule compiledthingnamed thingnamed
