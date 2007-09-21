@@ -55,13 +55,9 @@ oPPCLIB=/usr/local/lib/ocamlppc
 
 OSXuniversal:: ;\
 	make clean; \
-	make jape_engine; \
-	mv jape_engine jape_engine_i386; \
-	make clean; \
-	make oCOMPILE=$(oPPCCOMPILER) oLOAD='$(oPPCCOMPILER) -ccopt "-arch ppc" -nostdlib -I $(oPPCLIB)' jape_engine; \
-	mv jape_engine jape_engine_ppc; \
-	lipo jape_engine_i386 jape_engine_ppc -create -output jape_engine; \
-	rm jape_engine_i386 jape_engine_ppc; \
+	ocamlbuild -build-dir _buildi386 -lib unix -no-links main.native; \
+	ocamlbuild -build-dir _buildppc -lib unix -ocamlopt '$(oPPCCOMPILER) -ccopt "-arch ppc" -nostdlib -I $(oPPCLIB)' -no-links main.native; \
+	lipo _buildi386/main.native _buildppc/main.native -create -output jape_engine; \
 	lipo -info jape_engine
 	
 #
@@ -102,7 +98,7 @@ makejape.bat:: ;\
 #
 #############################################################################
 
-clean:;                 rm -f *.cmi *.cmo *.cmx *.o
+clean:;                 rm -fr *.cmi *.cmo *.cmx *.o _build* _log *.native
         
 depend: .depend;        ocamldep *.mli *.ml >.depend
         
