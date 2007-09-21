@@ -555,7 +555,7 @@ let rec getconjecture =
 
 let rec getapplyinfo name args cxt =
   try
-    match freshThingtoapply true name cxt args with
+    match freshThingtoapply true name cxt args Proofstore.proved with
       Some (cxt', env, principals, thing) ->
         cxt', (env, principals, thing)
     | None -> raise (Tacastrophe_ ["Nothing named: "; string_of_name name])
@@ -569,7 +569,7 @@ let rec getapplyinfo name args cxt =
 
 let rec getsubstinfo weaken name argmap cxt =
   try
-    match freshThingtosubst weaken name cxt argmap with
+    match freshThingtosubst weaken name cxt argmap Proofstore.proved with
       Some (cxt', env, principals, thing) ->
         cxt', (env, principals, thing)
     | None -> raise (Tacastrophe_ ["Nothing named: "; string_of_name name])
@@ -654,8 +654,8 @@ let (apply, resolve, applyorresolve) =
       None
     in
     let rec check r sts words ok =
-      if wehavestructurerule r sts then ok ()
-      else if wehavestructurerule r None then
+      if wehavestructurerule r sts Proofstore.proved then ok ()
+      else if wehavestructurerule r None Proofstore.proved then
         fail ["there is no "; words; " rule which fits the conclusion"]
       else fail ["there is no "; words; " rule"]
     in
@@ -1204,7 +1204,7 @@ let rec relevant name =
   match thingnamed name with
     None            -> false
   | Some (thing, _) -> not (currentlyProving name) &&
-					   (applyAnyway thing || not (needsProof name thing))
+                       (applyAnyway thing || not (needsProof name thing))
 
 let rec allrelevantthings () =
     (fst <.> _The <.> thingnamed) <* (relevant <| thingnames ())
@@ -2282,7 +2282,7 @@ and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs
     in
     let name = string_of_seq given in
     (* this is the problem! *)
-    let (cxt, principals, given) = freshGiven true given cxt in
+    let (cxt, principals, given) = freshGiven true given cxt Proofstore.proved in
     let stuff =
       "given", hiddencontexts givens, Prooftree.Tree.Given (name, i, false),
       Mappingfuns.empty, principals, [], given, []
@@ -2652,10 +2652,10 @@ and doBIND tac display try__ env =
                      ") can't be parsed."] @  ss))
             in
             (* unused
-			   let midterm =
-				 try term_of_string middle with
-				   ParseError_ ss -> pe ss
-			   in *)
+               let midterm =
+                 try term_of_string middle with
+                   ParseError_ ss -> pe ss
+               in *)
             let newterm =
               try term_of_string newtext with
                 ParseError_ ss -> pe ss
@@ -3064,8 +3064,8 @@ let rec autoTactics display env rules (Proofstate {tree = tree; goal = oldgoal} 
                 (tryone matching tac goal state' |~~ (fun _ -> Some state'))
             | goal, None -> tryone matching tac goal state)
            (allTipPaths (match stateopt with
-						   Some (Proofstate {tree = tree'}) -> tree'
-						 | None -> tree))
+                           Some (Proofstate {tree = tree'}) -> tree'
+                         | None -> tree))
            stateopt)
       rules None
   with
