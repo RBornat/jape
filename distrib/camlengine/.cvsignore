@@ -2,6 +2,5 @@
 *.cmo
 *.cmx
 *.o
-_build/*
 jape_engine
 _log
