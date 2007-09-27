@@ -43,7 +43,7 @@
 
 %\reservestyle{\word}{\operatorname}
 \newcommand{\reason}[1]{\scalebox{0.7}{#1}}
-\newcommand{\picscale}{0.6}
+\renewcommand{\picscale}{0.6}
 
 \newenvironment{japeish}{\begin{quote}\tt\small}{\end{quote}}
 \newcommand{\textj}[1]{{\tt\small{#1}}}
@@ -67,7 +67,7 @@ One strand of work which bore fruit was the support for `box and line' proofs, a
 
 \section{Tree and box display}
 
-Jape's first logic encoding was a single-conclusion intuitionistic sequent calculus, with the rules shown in \tabref{SCS}. This is, as Mark Dawson pointed out in the thesis~\cite{Dawsonthesis} which inspired us in the early days of Jape, an `all-introduction' calculus: at each step a rule reduces either a hypothesis (left-side) or a conclusion (right-side) formula at a tip of a tree of sequents, generating new tips or (with axioms hyp and ⊥⊢) closing the tip. It's then natural to build tree proofs step by step like the partial attempt in \figref{firsttree}, working backwards from the target sequent towards the tips of the final proof tree.
+Jape's first logic encoding was a single-conclusion intuitionistic sequent calculus, with the rules shown in \tabref{SCS}. This is, as Mark Dawson pointed out in the thesis~\cite{Dawsonthesis1990,DawsonGenericlogicenvironment1992} which inspired us in the early days of Jape, an `all-introduction' calculus: at each step a rule reduces either a hypothesis (left-side) or a conclusion (right-side) formula at a tip of a tree of sequents, generating new tips or (with axioms hyp and ⊥⊢) closing the tip. It's then natural to build tree proofs step by step like the partial attempt in \figref{firsttree}, working backwards from the target sequent towards the tips of the final proof tree.
 
 \begin{table}[t]
 \footnotesize
