@@ -74,7 +74,8 @@ Jape's first logic encoding was a single-conclusion intuitionistic sequent calcu
 \centering
 \caption{The rules of the single-conclusion intuitionistic sequent calculus}
 \label{tab:SCS}
-\vstrut{20pt}
+\vstrut{10pt}\\
+\fbox{\parbox{400pt}{
 $\infer[\reason{hyp}]
        {\Gamma,A |- A }
        {}$ 
@@ -160,6 +161,7 @@ $\infer[\reason{weaken ⊦}]
 $\infer[\reason{contract ⊦}]
        {\Gamma,A |- C }
        {\Gamma,A,A |- C }$
+}}
 %\\
 %\vstrut{40pt}
 %$\infer[\reason{(fresh $m$) ⊦∀}]
@@ -459,7 +461,7 @@ TACTIC ForwardUncut (n,rule)
 The mechanism of \secref{firstforwardstepsconfig} looks good, and in \figref{forwardstep1} it is good, but in general it isn't good enough. There are two problems: 
 \begin{itemize}
 \item bifurcated proofs; 
-\item and conclusion lines.
+\item conclusion lines.
 \end{itemize}
 
 Consider, for example, \figref{bifurcated1}, produced by a single application of ∧ intro. In the box display it appears that a forward step of ∧ elim(L) will extract $F@G$, and then another couple of ∧ elims will extract $F$ for line 2 and $G$ for line 3. But from the tree it's clear that this is impossible: we have to apply a cut at one or other tip, and so we have to extract $F@G$ twice, once in each subproof. Provers are driven to plan to complete forward steps before backward steps, a burden they ought not to have to bear. Hiding \textj{cut}s alone doesn't do the job. 
