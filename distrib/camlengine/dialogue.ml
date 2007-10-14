@@ -763,13 +763,11 @@ let doUse = Paragraphfuns.interpretParasFrom
    textselectionstyle -- it's not a big deal.  I don't even try to cache it ...
    RB 3.vii.01
  *)
-exception Matchinmain_ exception Exit_
-exception AddConjecture_
-(* moved out for OCaml *)
-exception Unify_
-(* moved out for OCaml *)
-exception Matchinbacktrack_
-(* moved out for OCaml *)
+exception Matchinmain_ 
+exception Exit_
+exception AddConjecture_        (* moved out for OCaml *)
+exception Unify_                (* moved out for OCaml *)
+exception Matchinbacktrack_     (* moved out for OCaml *)
    
 let rec main a1 a2 =
   match a1, a2 with
@@ -929,12 +927,13 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   let getpara = paragraph_of_string showAlert uncurried_screenquery in
 
   let defineconjecture panel text =
-    let ispanel, novel, paratext = match parseablestring_of_name panel with
-                                      "" -> false, false, text
-                                    | p  -> let exists = 
-                                              List.exists (fun (panelname,_) -> panelname=panel) (Menu.getpanels()) 
-                                            in 
-                                            true, not exists, ("CONJECTUREPANEL " ^ p ^ " IS " ^ text ^ " END")
+    let ispanel, novel, paratext = 
+        match parseablestring_of_name panel with
+            "" -> false, false, text
+          | p  -> let exists = 
+                    List.exists (fun (panelname,_) -> panelname=panel) (Menu.getpanels()) 
+                  in 
+                  true, not exists, ("CONJECTUREPANEL " ^ p ^ " IS " ^ text ^ " END")
     in
     (* consolereport ["para is "; paratext]; *)
     try 
@@ -958,7 +957,14 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     let getpara = paragraph_of_string showAlert uncurried_screenquery in
     try
       let text =
-        (* praps it's just a conjecture *)
+        if (try String.sub text 0 8 with _ -> "") = "THEOREM " then
+          try let _ = getpara text in text with
+          ParseError_ rs ->
+            showAlert (["Cannot parse new conjecture "; text; " -- "; UTF.utf8LSQUOTE] @ 
+                       rs @ [UTF.utf8RSQUOTE; "."]);
+            raise AddConjecture_
+        else
+        (* praps it's just a sequent *)
         try let t = "THEOREM IS " ^ text in let _ = getpara t in t 
         with ParseError_ rs ->
         (* praps it has params and stuff *)
