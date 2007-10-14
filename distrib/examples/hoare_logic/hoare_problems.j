@@ -29,45 +29,45 @@ CONSTANT pass fail
 CONJECTUREPANEL "Variable Programs"  IS
   THEOREM IS 
     {i=2} (i:=i+1) {i=3}
-  THEOREM WHERE i NOTIN j,t AND j NOTIN t IS 
+  THEOREM WHERE DISTINCT i,j,t IS 
     {i=Ki∧j=Kj} (t:=i; i:=j; j:=t) {i=Kj∧j=Ki}
-  THEOREM WHERE i NOTIN j IS 
+  THEOREM WHERE DISTINCT i,j IS 
     {i=Ki∧j=Kj} (i:=j; j:=i) {i=Kj∧j=Ki}
   THEOREM WHERE DISTINCT i,j,k IS
     {⊤} if j>k then i:=j else i:= k fi {(j≥k→i=j)∧(k≥j→i=k)}
-  THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
+  THEOREM WHERE DISTINCT i,j,k IS
     {j=Kj∧k=Kk} if j>k then i:=j else i:= k fi {j=Kj∧k=Kk∧(j>k→i=Kj)∧(k≥j→i=Kk)}
-  THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
+  THEOREM WHERE DISTINCT i,j,k IS
     {j=Kj∧k=Kk} if j≥k then i:=j else i:= k fi {j=Kj∧k=Kk∧(j≥k→i=Kj)∧(k≥j→i=Kk)}
-  THEOREM WHERE i NOTIN r IS 
+  THEOREM WHERE DISTINCT i,r IS 
     {i=Ki} if i≥40 then r:=pass else r:=fail fi {i=Ki∧(i<40→r=fail)∧(i≥40→r=pass)}
-  THEOREM (OBJECT x) WHERE i NOTIN n IS
+  THEOREM (OBJECT x) WHERE DISTINCT i,n IS
     {n≥2} 
       (i:=2)
     {2≤i∧i≤n∧∀x.(2≤x ∧ x<i → n mod x ≠0)}
       while n mod i ≠ 0 do i:=i+1 od 
     {2≤i∧i≤n∧∀x.(2≤x ∧ x<i → n mod x ≠0) ∧ n mod i = 0}
-  THEOREM WHERE i NOTIN prime,n AND prime NOTIN n IS
+  THEOREM WHERE DISTINCT i,prime,n IS
     {2≤i∧i≤n∧∀x.(2≤x ∧ x<i → n mod x ≠0) ∧ n mod i = 0}
       (prime := i=n)
     {prime ↔¬(∃y.(2≤y∧y<n∧n mod y = 0))}
-  THEOREM WHERE i NOTIN prime,n AND prime NOTIN n IS
+  THEOREM WHERE DISTINCT i,prime,n IS
     {2≤i∧i≤n∧∀x.(2≤x ∧ x<i → n mod x ≠0) ∧ n mod i = 0}
       (prime := i=n)
     {prime ↔∀y.(2≤y∧y<n → n mod y ≠ 0)}
-  THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
+  THEOREM WHERE DISTINCT i,j,k IS
     {i=Ki∧j=Kj∧i≥0}
       (k:=0) 
     {i≥0 ∧ k+i×j=Ki×Kj}
       while i≠0 do k:=k+j; i:=i-1 od
     {k=Ki×Kj}
-  THEOREM WHERE i NOTIN j,kq,kr AND j NOTIN kq,kr AND kq NOTIN kr IS
+  THEOREM WHERE DISTINCT i,j,kq,kr IS
     {i=Ki∧j=Kj∧i≥0∧j>0}
       (kq:=0; kr:=i)
     {j=Kj∧j>0∧kr≥0∧kq×j+kr=Ki}
       while kr≥j do kr:=kr-j; kq:=kq+1 od
     {kq×Kj+kr=Ki∧0≤kr∧kr<Kj}
-  THEOREM WHERE i NOTIN j,k AND j NOTIN k IS
+  THEOREM WHERE DISTINCT i,j,k IS
     {i=Ki∧j=Kj∧i≥0}
       (k:=0)
     {i≥0 ∧ k+i×j=Ki×Kj}
@@ -76,7 +76,7 @@ CONJECTUREPANEL "Variable Programs"  IS
          i:=i÷2; j:=j×2
        od
     {k=Ki×Kj}
-  THEOREM WHERE i NOTIN j,kq,kc,kr AND j NOTIN kq,kc,kr AND kq NOTIN kc,kr AND kc NOTIN kr IS
+  THEOREM WHERE DISTINCT i,j,kq,kc,kr IS
     {i=Ki ∧ j=Kj ∧ i≥0 ∧ j>0} 
       (kq:=0; kr:=i; kc:=0)
     {j=Kj×2↑kc ∧ j>0 ∧ kq×j+kr=Ki ∧ 0≤kr}
