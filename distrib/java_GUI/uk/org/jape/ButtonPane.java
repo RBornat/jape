@@ -36,6 +36,7 @@ import javax.swing.JButton;
 
 // a sort of FlowLayout panel, but one which works.
 
+@SuppressWarnings("serial")
 public class ButtonPane extends Container implements DebugConstants {
 
     public ButtonPane() {
@@ -49,7 +50,7 @@ public class ButtonPane extends Container implements DebugConstants {
 
     public void addButton(JButton button) {
 	if (Jape.onMacOSX)
-	    button.putClientProperty("JButton.buttonType", "toolbar");
+	    button.putClientProperty("JButton.buttonType", "bevel");
 	add(button);
     }
 
@@ -110,7 +111,6 @@ public class ButtonPane extends Container implements DebugConstants {
 		    Logger.log.println("preferredButtonPanelSize");
 		Dimension d = getComponent(0).getPreferredSize();
 		int leading = leading(d);
-		int buttonheight = d.height;
 		int packedwidth = leading;
 		int buttoncount = getComponentCount();
 
