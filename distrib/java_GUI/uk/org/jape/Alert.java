@@ -28,13 +28,9 @@
 package uk.org.jape;
 
 import java.awt.Component;
-import java.awt.Container;
-
-import java.util.Vector;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 public class Alert implements DebugConstants {
     // oh the ceaseless dance of interface conversions ..
@@ -133,7 +129,7 @@ public class Alert implements DebugConstants {
 
     public static void abort(String message) {
 	String[] buttons = { quit };
-	int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), makeMessage(message),
+	JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), makeMessage(message),
 						 "GUI disaster", 0, Error,
 						 null, buttons, quit);
 	Logger.crash("GUI disaster: "+message, 2);

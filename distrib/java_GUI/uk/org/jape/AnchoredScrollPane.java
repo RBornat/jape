@@ -48,9 +48,9 @@ import javax.swing.JScrollBar;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
 
+@SuppressWarnings("serial")
 public class AnchoredScrollPane extends Container implements DebugConstants {
     private Component view;
-    private Rectangle viewBounds;
     private Container viewport;
     private JScrollBar vsb, hsb;
     public final int scrollbarthickness;
