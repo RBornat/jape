@@ -28,28 +28,27 @@
 package uk.org.jape;
 
 import java.awt.BasicStroke;
-import java.awt.Component;
-import java.awt.geom.Ellipse2D;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.geom.Ellipse2D;
 
+@SuppressWarnings("serial")
 public class CircleItem extends OutlineItem implements DebugConstants {
-    public final int x0, y0, innerRadius;
+    public final int xcentre, ycentre, innerRadius;
     protected Ellipse2D.Float outline;
     protected final int strokethickness;
 
-    public CircleItem(JapeCanvas canvas, int x0, int y0, int innerRadius, int strokethickness) {
-	super(canvas, x0-(innerRadius+strokethickness), y0-(innerRadius+strokethickness),
+    public CircleItem(JapeCanvas canvas, int xcentre, int ycentre, int innerRadius, int strokethickness) {
+	super(canvas, xcentre-(innerRadius+strokethickness), ycentre-(innerRadius+strokethickness),
 	      2*(innerRadius+strokethickness), 2*(innerRadius+strokethickness));
-	this.x0 = x0; this.y0 = y0; this.innerRadius=innerRadius;
+	this.xcentre = xcentre; this.ycentre = ycentre; this.innerRadius=innerRadius;
 	this.strokethickness = strokethickness;
 	outline = new Ellipse2D.Float(strokethickness, strokethickness,
 				      2*innerRadius, 2*innerRadius);
     }
 
-    public CircleItem(JapeCanvas canvas, int x, int y, int innerRadius) {
-	this(canvas, x, y, innerRadius, canvas.linethickness);
+    public CircleItem(JapeCanvas canvas, int xcentre, int ycentre, int innerRadius) {
+	this(canvas, xcentre, ycentre, innerRadius, canvas.linethickness);
     }
 
     public boolean contains(int x, int y) {
