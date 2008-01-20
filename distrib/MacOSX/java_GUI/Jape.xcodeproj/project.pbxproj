@@ -22,7 +22,7 @@
 			productName = Jape;
 			productReference = 06D05853FF24F2DB11DB9C8B /* Jape.app */;
 			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
 <plist version=\"1.0\">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
@@ -71,7 +71,7 @@
 			<string>$JAVAROOT/Jape.jar</string>
 		</array>
 		<key>JVMVersion</key>
-		<string>1.4*</string>
+		<string>1.5</string>
 		<key>MainClass</key>
 		<string>uk.org.jape.Jape</string>
 		<key>Properties</key>
@@ -112,7 +112,7 @@
 			productName = nonlocalJape;
 			productReference = F5AB83170339F3B701A80116 /* nonlocalJape.app */;
 			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
 <plist version=\"1.0\">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
@@ -342,7 +342,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		06D05853FF24F2DB11DB9C8B /* Jape.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = Jape.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		06D05853FF24F2DB11DB9C8B /* Jape.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; path = Jape.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		10F9BF62FEEDA25E11DB9C8B /* Jape.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Jape.icns; sourceTree = SOURCE_ROOT; };
 		7909AA7F07EDEFDF00FC10F3 /* DragIndicator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = DragIndicator.java; path = ../../java_GUI/uk/org/jape/DragIndicator.java; sourceTree = SOURCE_ROOT; };
 		79135452067F2BC7002D81A7 /* LemmaDialog.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LemmaDialog.java; path = ../../java_GUI/uk/org/jape/LemmaDialog.java; sourceTree = SOURCE_ROOT; };
@@ -816,8 +816,8 @@
 				GENERATE_PROFILING_CODE = YES;
 				JAVA_COMPILER = /usr/bin/javac;
 				JAVA_COMPILER_DEPRECATED_WARNINGS = YES;
-				JAVA_COMPILER_SOURCE_VERSION = 1.4;
-				JAVA_COMPILER_TARGET_VM_VERSION = 1.4;
+				JAVA_COMPILER_SOURCE_VERSION = 1.5;
+				JAVA_COMPILER_TARGET_VM_VERSION = 1.5;
 				JAVA_ONLY = YES;
 				JAVA_SOURCE_SUBDIR = .;
 				PRODUCT_NAME = Jape;
@@ -902,7 +902,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEPLOYMENT_LOCATION = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.3;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				SKIP_INSTALL = YES;
 			};
 			name = Development;
