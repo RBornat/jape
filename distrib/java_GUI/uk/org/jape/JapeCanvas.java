@@ -29,12 +29,7 @@ package uk.org.jape;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.Rectangle;
-import java.awt.Point;
-
 import java.lang.reflect.Method;
 
 public abstract class JapeCanvas extends ContainerWithOrigin
@@ -77,13 +72,12 @@ public abstract class JapeCanvas extends ContainerWithOrigin
 	this.linethickness = linethickness;
 	int nc = child.getComponentCount();
 	if (nc>0) {
-	    Class [] params = new Class[] { Integer.class };
 	    Object [] args = new Object[] { new Integer(linethickness) };
 	    for (int i=0; i<nc; i++) {
 		Component c = child.getComponent(i);
-		Class cl = c.getClass();
+		Class<? extends Component> cl = c.getClass();
 		try {
-		    Method m = cl.getMethod("setlinethickness", params);
+		    Method m = cl.getMethod("setlinethickness", Integer.class);
 		    try {
 			m.invoke(c, args);
 		    } catch (java.lang.IllegalAccessException e) {
