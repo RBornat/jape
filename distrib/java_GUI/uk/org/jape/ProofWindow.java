@@ -30,41 +30,29 @@ package uk.org.jape;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Rectangle;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-
 import java.awt.geom.AffineTransform;
-
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
-
-import java.util.Enumeration;
 import java.util.Vector;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+@SuppressWarnings("serial")
 public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolConstants,
 						       SelectionConstants,
 						       Printable {
@@ -750,11 +738,6 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	}
     }
 
-    private void checkFocussedCanvas() throws ProtocolError {
-	if (focussedCanvas==null)
-	    throw new ProtocolError("no focussed pane - drawInPane missing?");
-    }
-
     private SelectableProofItem findProofSelectableXY(int x, int y) throws ProtocolError {
 	SelectableProofItem si = proofCanvas.findSelectable(x,y);
 	if (si==null)
@@ -794,7 +777,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     private static FocusManager focusManager = new FocusManager();
 
     private static class FocusManager {
-	private Vector focusv = new Vector();
+	private Vector<ProofWindow> focusv = new Vector<ProofWindow>();
 
 	public synchronized ProofWindow maybeFocussedWindow() {
 	    if (focusv.size()==0)

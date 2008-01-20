@@ -28,51 +28,46 @@
 package uk.org.jape;
 
 import java.awt.Component;
-import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import java.lang.reflect.Method;
+import java.util.Vector;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.Spring;
 import javax.swing.SpringLayout;
-
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
-import java.util.Vector;
-
 public class LemmaDialog {
     
-    private static void addLabel(Vector items, String label) {
+    private static void addLabel(Vector<JComponent> items, String label) {
 	JLabel[] ms = ChoiceDialog.wrap(label);
 	for (int i=0; i<ms.length; i++)
 	    items.add(ms[i]);
     }
     
+    @SuppressWarnings("serial")
     public static String runLemmaDialog(String druleString, String thmString,
 				      String[] panels, String[] provisos) 
 		throws ProtocolError {
-	Vector items = new Vector();
+	Vector<JComponent> items = new Vector<JComponent>();
 	int labelcount = 0;
 	
 	/* *********************** theorem or derived rule **********************************/
@@ -250,11 +245,11 @@ public class LemmaDialog {
 		}
 	    });
 	    enableButtons("",dialog);
-	    dialog.show();
+	    dialog.setVisible(true);
 	}
 	else
 	    while (true) {
-		dialog.show();
+		dialog.setVisible(true);
 		Object selectedValue = pane.getValue();
 		String panelName = panelList.getSelectedItem().toString();
 		if (selectedValue!=null && options[0].equals(selectedValue) &&

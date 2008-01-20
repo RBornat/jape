@@ -27,6 +27,7 @@
 
 package uk.org.jape;
 
+@SuppressWarnings("serial")
 public class ControlWindow extends SurrogateWindow {
     public ControlWindow() {
 	super("Jape Control"); // let's give the user a clue when the window is closed

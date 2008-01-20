@@ -33,11 +33,9 @@ import java.util.Vector;
 
 public class MinWaste {
     static class Fold {
-	private String s;
-	private FontMetrics m;
 	private char[] cs;
 	private int spacewidth;
-	private Vector ws;
+	private Vector<W> ws;
 
 	private class W {
 	    int i; int j; int width; int spacing;
@@ -53,10 +51,9 @@ public class MinWaste {
 	int constraint;
 
 	Fold(FontMetrics m, String s, int constraint) {
-	    this.s = s;
 	    cs = s.toCharArray();
 	    spacewidth = m.charWidth(' ');
-	    ws=new Vector();
+	    ws=new Vector<W>();
 	    // break on spaces, commas, semicolons or otherwise on tab-sized chunks
 	    for (int i=0; i<cs.length; ) {
 		int j;
@@ -101,7 +98,7 @@ public class MinWaste {
 	}
 
 	public String[] reportSplit() {
-	    Vector v = new Vector();
+	    Vector<String> v = new Vector<String>();
 	    fold.reportSplit(v);
 	    return ((String[])v.toArray(new String[v.size()]));
 	}
@@ -202,8 +199,8 @@ public class MinWaste {
 		    return f.maxwidth<maxwidth ? f : this;
 		}
 
-		public void reportSplit(Vector v) {
-		    int start = ((W)ws.get(i)).i, end = ((W)ws.get(j-1)).j;
+		public void reportSplit(Vector<String> v) {
+		    int start = (ws.get(i)).i, end = (ws.get(j-1)).j;
 		    // Logger.log.println(v.size()+": from "+i+"("+start+") to "+(j-1)+"("+end+")"+" width="+width+", maxwidth="+maxwidth+", waste="+waste);
 		    v.add(new String(cs,start,end-start));
 		    if (next!=null)

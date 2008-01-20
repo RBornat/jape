@@ -30,10 +30,7 @@ package uk.org.jape;
 /* Apparently FileDialog looks better than JFileChooser in MacOS X Aqua, and may look better in Windows. */
 
 import java.awt.FileDialog;
-import java.awt.Frame;
-
 import java.io.File;
-import java.io.FilenameFilter;
 
 import javax.swing.JFileChooser;
 

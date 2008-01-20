@@ -31,6 +31,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 
+@SuppressWarnings("serial")
 public class DisproofCanvas extends JapeCanvas {
 
     public DisproofCanvas(Container viewport, boolean scrolled, int linethickness) {

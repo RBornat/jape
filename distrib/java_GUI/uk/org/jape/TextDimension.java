@@ -29,6 +29,7 @@ package uk.org.jape;
 
 import java.awt.Dimension;
 
+@SuppressWarnings("serial")
 public class TextDimension extends Dimension {
     int ascent, descent;
 

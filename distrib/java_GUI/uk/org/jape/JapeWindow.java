@@ -27,18 +27,14 @@
 
 package uk.org.jape;
 
-import java.awt.Font;
 import java.awt.Point;
-
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-
 import java.util.Enumeration;
 import java.util.Vector;
 
 import javax.swing.JFrame;
-import javax.swing.JMenuBar;
 
 public abstract class JapeWindow extends JFrame {
 
@@ -75,7 +71,7 @@ public abstract class JapeWindow extends JFrame {
     }
     
     private static class WindowList {
-	private static Vector windowv = new Vector();
+	private static Vector<JapeWindow> windowv = new Vector<JapeWindow>();
 	
 	public synchronized String stringOfWindowv() {
 	    String s = "[";
@@ -166,14 +162,14 @@ public abstract class JapeWindow extends JFrame {
 	}
 
 	protected synchronized void updateMenuBars() {
-	    for (Enumeration e = windowv.elements(); e.hasMoreElements(); ) {
+	    for (Enumeration<JapeWindow> e = windowv.elements(); e.hasMoreElements(); ) {
 		JapeWindow w = (JapeWindow)e.nextElement();
 		w.setBar();
 	    }
 	}
 
 	protected synchronized void iter(WindowAction a) {
-	    for (Enumeration e = windowv.elements(); e.hasMoreElements(); ) {
+	    for (Enumeration<JapeWindow> e = windowv.elements(); e.hasMoreElements(); ) {
 		a.action((JapeWindow)e.nextElement());
 	    }
 	}

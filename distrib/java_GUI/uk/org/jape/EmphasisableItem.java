@@ -32,6 +32,7 @@ import java.awt.Graphics;
 
 import java.util.Vector;
 
+@SuppressWarnings("serial")
 public class EmphasisableItem extends TextSelectableItem {
 
     protected EmphasisLine emphasisLine;
@@ -49,7 +50,7 @@ public class EmphasisableItem extends TextSelectableItem {
 	addSelectionIndicator(new RectSelection(this));
 	
 	annoti = printi = 0; 
-	Vector cs = new Vector();
+	Vector<ColourSeg> cs = new Vector<ColourSeg>();
 	computeColourSegs(getannottext(), (char)0, JapePrefs.TextColour, false, cs, getprintlen());
 	coloursegs = (ColourSeg[])cs.toArray(new ColourSeg[cs.size()]);
 	if (colourseg_tracing) {
@@ -133,7 +134,7 @@ public class EmphasisableItem extends TextSelectableItem {
 		/* c==outbra assumed */		    JapePrefs.OutColour       ;
     }
 
-    private void extendColourSeg(Vector cs, Color colour, int start, int end) {
+    private void extendColourSeg(Vector<ColourSeg> cs, Color colour, int start, int end) {
 	if (cs.size()!=0) {
 	    ColourSeg cseg = (ColourSeg)cs.lastElement();
 	    if (cseg.colour.equals(colour) && cseg.end==start) {
@@ -145,7 +146,7 @@ public class EmphasisableItem extends TextSelectableItem {
     }
 
     protected void computeColourSegs(String annottext, char expectedket, 
-				     Color colour, boolean locked, Vector cs,
+				     Color colour, boolean locked, Vector<ColourSeg> cs,
 				     int printlen) {
 	int i0 = printi;
 	char c;

@@ -27,17 +27,10 @@
 
 package uk.org.jape;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
-
-import java.io.File;
-
 import java.util.Vector;
 
 public class Jape implements DebugConstants {
@@ -120,8 +113,8 @@ public class Jape implements DebugConstants {
 	
 	JapeMenu.initMenuBar();
 
-	LocalSettings l = new LocalSettings();
-	Vector engineCmd = new Vector();
+	new LocalSettings();
+	Vector<String> engineCmd = new Vector<String>();
 	engineCmd.add(onWindows ? defaultWindowsEnginePath : defaultUnixEnginePath);
 
 	// all args (except for -engine <path>) sent to engine.

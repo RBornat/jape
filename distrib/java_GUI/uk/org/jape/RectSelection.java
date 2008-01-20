@@ -30,6 +30,7 @@ package uk.org.jape;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
+@SuppressWarnings("serial")
 public class RectSelection extends RectItem
 			implements SelectionIndicator {
 

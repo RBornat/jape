@@ -29,21 +29,16 @@ package uk.org.jape;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.Writer;
-
 import java.util.Vector;
 
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -105,7 +100,7 @@ public class Logger {
     static {
 	class Queue {
 	    // the world's worst queue
-	    Vector q = new Vector();
+	    Vector<byte[]> q = new Vector<byte[]>();
 	    public synchronized void enqueue(byte[] buf) {
 		q.add(buf); notifyAll();
 	    }
@@ -286,6 +281,7 @@ public class Logger {
 	    System.err.println("Straightout error interface (not diverted to window)");
     }
 
+    @SuppressWarnings("serial")
     public static class LogWindow extends JapeWindow {
 	public LogWindow() {
 	    super("Jape console log");

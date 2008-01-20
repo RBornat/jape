@@ -29,18 +29,16 @@ package uk.org.jape;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
+@SuppressWarnings("serial")
 public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarget {
 
     protected RenderingHints renderingHints;

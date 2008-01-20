@@ -38,8 +38,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.LayoutManager;
 import java.awt.Point;
-import java.awt.Rectangle;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -47,9 +45,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.DefaultListModel;
@@ -60,7 +55,6 @@ import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -69,8 +63,10 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
     protected int kind;
     PanelWindow window;
     
-    Vector entryv, cmdv, markv; // matches the list line for line
-    Vector buttonv;
+    Vector<String> entryv;
+    Vector<String> cmdv;
+    Vector<Mark> markv; // matches the list line for line
+    Vector<PanelButton> buttonv;
     int selectedIndex = -1;
     
     private static final String newLabel       = "New...",
@@ -81,10 +77,10 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 	this.title = title; this.kind = kind;
 	window = null;
 
-	entryv = new Vector();
-	cmdv = new Vector();
-	markv = new Vector();
-	buttonv = new Vector();
+	entryv = new Vector<String>();
+	cmdv = new Vector<String>();
+	markv = new Vector<Mark>();
+	buttonv = new Vector<PanelButton>();
 	
 	if (kind==ConjecturePanelKind) { 
 	    // has default buttons
@@ -183,6 +179,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 	}
     }
 
+    @SuppressWarnings("serial")
     class InsertButton extends PanelButton {
 	private Insert[] inserts;
 	InsertButton(String label, Insert[] inserts) {
@@ -212,6 +209,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 	}
     }
 
+    @SuppressWarnings("serial")
     class NewButton extends PanelButton {
 	public NewButton() {
 	    super(newLabel);
@@ -290,6 +288,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
        3. Make panels look different -- different title style? smaller title bar?
      */
  
+    @SuppressWarnings("serial")
     public class PanelWindow extends JapeWindow implements ActionListener {
 
 	private final DefaultListModel model;
@@ -422,7 +421,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 					      super.equals(o);
 	}
 
-	protected class Entry extends Component {
+	@SuppressWarnings("serial")
+    protected class Entry extends Component {
 	    private String s;
 	    public String prefix;
 	    private TextDimension td; // changes when fonts change
@@ -701,7 +701,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
      **********************************************************************************************/
 
-    private static Vector panelv = new Vector();
+    private static Vector<PanelWindowData> panelv = new Vector<PanelWindowData>();
     
     public static PanelWindowData spawn (String title, int kind) throws ProtocolError {
 	PanelWindowData p = findPanel(title);

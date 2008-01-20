@@ -27,17 +27,11 @@
 
 package uk.org.jape;
 
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
-
 import java.awt.datatransfer.StringSelection;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -67,11 +61,11 @@ public class JapeMenu implements DebugConstants {
 
     private static int versionstamp = 0;
     
-    private static Vector barv = new Vector(); // of Ms
+    private static Vector<M> barv = new Vector<M>(); // of Ms
     
     protected static class M {
 	final int barKinds; final String title;
-	protected final Vector itemv=new Vector(); // of Is and Seps and RBGs and CBs
+	protected final Vector<MO> itemv=new Vector<MO>(); // of Is and Seps and RBGs and CBs
 	M(String title, int barKinds) { 
 	    this.barKinds=barKinds; this.title=title; 
 	}
@@ -251,6 +245,7 @@ public class JapeMenu implements DebugConstants {
 	menu.add(item);
     }
 
+    @SuppressWarnings("serial")
     protected static class TitledMenuBar extends JMenuBar {
 	public TitledMenuBar() { super(); }
 	public TitledMenu getMenu(String title) {
@@ -264,6 +259,7 @@ public class JapeMenu implements DebugConstants {
 	}
     }
 
+    @SuppressWarnings("serial")
     protected static class TitledMenu extends JMenu {
 	public TitledMenu(String title) { super(title); }
 	public JMenuItem getItem(String s) {
@@ -304,7 +300,7 @@ public class JapeMenu implements DebugConstants {
 	Object checkIcon = UIManager.get(CHECK_ICON_KEY);
 	TitledMenuBar bar = new TitledMenuBar();
 	ActionListener listener = new MenuItemListener(w);
-	for (Enumeration ebar = barv.elements(); ebar.hasMoreElements(); ) {
+	for (Enumeration<M> ebar = barv.elements(); ebar.hasMoreElements(); ) {
 	    M m = (M)ebar.nextElement();
 	    if ((m.barKinds & barKind)!=0) {
 		TitledMenu menu = new TitledMenu(m.title);
@@ -419,7 +415,8 @@ public class JapeMenu implements DebugConstants {
     // I need dictionaries from menu titles to Ms and item keys to Is: 
     // hashtables are overkill, but there you go -- so much of Java is.
     
-    private static Hashtable menutable, itemtable;
+    private static Hashtable<String, M> menutable;
+    private static Hashtable<String, I> itemtable;
 
     private static M ensureMenu(String menuname) throws ProtocolError {
 	M menu = (M)menutable.get(menuname);
@@ -552,16 +549,6 @@ public class JapeMenu implements DebugConstants {
 	}
     }
 
-    private static class HideWindowAction extends ItemAction {
-	JFrame w;
-	public HideWindowAction(JFrame w) {
-	    super(); this.w=w;
-	}
-	public void action(Window ignore) {
-	    w.setVisible(false);
-	}
-    }
-
     private static class OpenFileAction extends ItemAction {
 	public void action (Window w) {
 	    doOpenFile(chooseFile());
@@ -666,6 +653,7 @@ public class JapeMenu implements DebugConstants {
     private static M indexMenu(M menu, String label) {
 	versionstamp++;
 	menutable.put(label,menu);
+	@SuppressWarnings("unused")
 	boolean dummy;
 	if (label.equals("Help"))
 	    dummy = append(menu); // Help at the end
@@ -878,9 +866,9 @@ public class JapeMenu implements DebugConstants {
 
     public static void initMenuBar() {
 	// this is the reset action, too
-	menutable = new Hashtable(20,(float)0.5);
-	itemtable = new Hashtable(100,(float)0.5);
-	barv = new Vector();
+	menutable = new Hashtable<String, M>(20,(float)0.5);
+	itemtable = new Hashtable<String, I>(100,(float)0.5);
+	barv = new Vector<M>();
 
 	addStdFileMenuItems(indexMenu("File", UNDIALOG_BARS));
 	addStdEditMenuItems(indexMenu("Edit", EDIT_BARS));
@@ -1213,10 +1201,10 @@ public class JapeMenu implements DebugConstants {
 	    });
     }
     
-    private static Vector recentFiles = null;
+    private static Vector<String> recentFiles = null;
 	
     public static void setRecentFiles(String recent, boolean rebuildMenus) {
-	recentFiles = new Vector();
+	recentFiles = new Vector<String>();
 	int i=0, j;
 	while ((j=recent.indexOf("\n", i))!=-1) {
 	    String next = recent.substring(i, j);

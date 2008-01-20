@@ -30,6 +30,7 @@ package uk.org.jape;
 import java.awt.event.MouseEvent;
 import java.awt.Component;
 
+@SuppressWarnings("serial")
 public class DisplayItem extends Component
 		      implements SelectionConstants {
     public final JapeCanvas canvas;

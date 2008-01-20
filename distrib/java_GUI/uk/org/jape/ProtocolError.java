@@ -27,6 +27,7 @@
 
 package uk.org.jape;
 
+@SuppressWarnings("serial")
 public class ProtocolError extends Exception {
     ProtocolError(String s) { super(s); }
     ProtocolError() { super(); }

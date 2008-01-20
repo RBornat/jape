@@ -33,6 +33,7 @@ import java.awt.FontMetrics;
 
 import java.awt.event.MouseEvent;
 
+@SuppressWarnings("serial")
 public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
 
     public ProvisoCanvas(Container viewport, boolean scrolled) {

@@ -28,6 +28,7 @@
 package uk.org.jape;
 import java.awt.Component;
 
+@SuppressWarnings("serial")
 public class OutlineItem extends Component {
 
     public final JapeCanvas canvas;

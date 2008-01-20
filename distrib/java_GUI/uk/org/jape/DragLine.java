@@ -27,6 +27,7 @@
 
 package uk.org.jape;
 
+@SuppressWarnings("serial")
 public class DragLine extends LineComponent {
     protected final int endx, endy;
     protected int activex, activey;

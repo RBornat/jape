@@ -31,13 +31,9 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Insets;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
 import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.Rectangle;
-import javax.swing.Scrollable;
 
 /*  A Container to which you can add components at arbitrary positions
 
@@ -62,6 +58,7 @@ import javax.swing.Scrollable;
     paint is involved too.
  */
 
+@SuppressWarnings("serial")
 public class ContainerWithOrigin extends Container implements DebugConstants {
 
     protected final Container viewport;
@@ -84,13 +81,11 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     // essentially, the origin!
     
     public Point getOrigin() {
-	Rectangle v = viewport.getBounds();
 	computeBounds();
 	return new Point(-child.getX()-getX(), -child.getY()-getY());
     }
     
     public void setOrigin(int x, int y) {
-	Rectangle v = viewport.getBounds();
 	computeBounds();
 	setLocation(-child.getX()-x, -child.getY()-y);
 	if (DebugVars.containerlayout_tracing)
@@ -235,7 +230,6 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 		    Logger.log.print("; adultpos:="+getX()+","+getY()+
 				     ", childpos:="+child.getX()+","+child.getY());
 	    }
-	    Dimension size = getSize();
 	    if (vcw!=getWidth() || vch!=getHeight()) {
 		setSize(vcw, vch);
 		if (DebugVars.containerlayout_tracing)
@@ -248,7 +242,8 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 	}
     }
 
-    protected class Child extends Container {
+    @SuppressWarnings("serial")
+	protected class Child extends Container {
 	Child() { super(); setLayout(new ChildLayout()); }
 
 	protected Rectangle visualBounds = new Rectangle(0,0,0,0);

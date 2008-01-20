@@ -33,7 +33,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 public abstract class DragComponent extends Component {
-    private Vector friendv;
+    private Vector<DragComponent> friendv;
     
     public void moveBy(int deltax, int deltay) {
 	repaint();
@@ -41,24 +41,24 @@ public abstract class DragComponent extends Component {
 	repaint();
 	if (friendv!=null)
 	    for (int i=0; i<friendv.size(); i++)
-		((DragComponent)friendv.get(i)).moveBy(deltax, deltay);
+		(friendv.get(i)).moveBy(deltax, deltay);
     }
 
     protected abstract void movePosition(int deltax, int deltay);
 
     public void addFriend(DragComponent friend) {
 	if (friendv==null)
-	    friendv = new Vector();
+	    friendv = new Vector<DragComponent>();
 	if (friendv.indexOf(friend)==-1)
 	    friendv.add(friend);
     }
 
-    public Enumeration friends() {
+    public Enumeration<DragComponent> friends() {
 	return friendv==null ? new NoFriends() : friendv.elements();
     }
 
-    private static class NoFriends implements Enumeration {
+    private static class NoFriends implements Enumeration<DragComponent> {
 	public boolean hasMoreElements() { return false; }
-	public Object nextElement() { return null; }
+	public DragComponent nextElement() { return null; }
     }
 }

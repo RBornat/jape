@@ -27,12 +27,9 @@
 
 package uk.org.jape;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 
+@SuppressWarnings("serial")
 class TextItem extends DisplayItem implements DebugConstants {
     protected final TextComponent[] components;
     protected final int ascent, descent;

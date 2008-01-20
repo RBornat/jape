@@ -32,13 +32,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.LayoutManager;
-import java.awt.Toolkit;
-
 import java.awt.event.MouseEvent;
-
-import java.awt.image.ImageObserver;
 
 import javax.swing.JFrame;
 
@@ -46,6 +41,7 @@ import javax.swing.JFrame;
 // if you use BorderLayout to give lots of space to the worldPane.
 // So I do it by steam (again; sigh!). BoxLayout doesn't even work for the tile canvas ...
 
+@SuppressWarnings("serial")
 public class DisproofPane extends Container implements DebugConstants,
 						       SelectionConstants {
     final AnchoredScrollPane worldPane;
@@ -58,6 +54,7 @@ public class DisproofPane extends Container implements DebugConstants,
 
     public final WasteBin wasteBin;
     
+    @SuppressWarnings("serial")
     public DisproofPane(JFrame window, int linethickness) {
 	super();
 	this.window = window; this.linethickness = linethickness;

@@ -27,6 +27,7 @@
 
 package uk.org.jape;
 
+@SuppressWarnings("serial")
 public class LineItem extends LineComponent {
 
     protected final JapeCanvas canvas;

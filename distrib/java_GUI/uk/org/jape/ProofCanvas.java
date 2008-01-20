@@ -32,6 +32,7 @@ import java.awt.Container;
 
 import javax.swing.JFrame;
 
+@SuppressWarnings("serial")
 public class ProofCanvas extends JapeCanvas implements ProtocolConstants, SelectionConstants {
 
     public final JFrame window; // for the draggers and droppers
@@ -65,7 +66,6 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
     }
 
     protected String getSelection(Component c) {
-	byte selclass;
 	if (c instanceof SelectableProofItem && ((SelectableProofItem)c).getSelected()) {
 	    SelectableProofItem item = (SelectableProofItem)c;
 	    return (item.idX+" "+item.idY+" "+

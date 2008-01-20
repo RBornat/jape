@@ -27,6 +27,7 @@
 
 package uk.org.jape;
 
+@SuppressWarnings("serial")
 public class WorldSelection extends CircleSelection {
 
     private final WorldItem world;

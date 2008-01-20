@@ -27,16 +27,11 @@
 
 package uk.org.jape;
 
-import java.awt.Component;
-import java.util.Enumeration;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.Rectangle;
 import java.util.Vector;
 
+@SuppressWarnings("serial")
 public class TextSelectableItem extends TextItem implements SelectionConstants {
 
     protected final AnnotatedTextComponent[] components;
@@ -120,7 +115,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
     // annoti, printi, annotlen are variables in TextItem
     protected FormulaTree computeFormulaTree(String annottext, char expectedket, int printlen) {
 	int i0 = printi, i1=printi;
-	Vector cs = new Vector(), ts = new Vector();
+	Vector<FormulaTree> cs = new Vector<FormulaTree>(), ts = new Vector<FormulaTree>();
 	char c;
 	while (annoti<annotlen) {
 	    c = annottext.charAt(annoti++);
@@ -156,7 +151,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	return computeFormulaTreeResult(i0, cs, ts);
     }
 
-    protected FormulaTree computeFormulaTreeResult(int i0, Vector cs, Vector ts) {
+    protected FormulaTree computeFormulaTreeResult(int i0, Vector<FormulaTree> cs, Vector<FormulaTree> ts) {
 	if (cs!=null && cs.size()==1 && (ts==null || ts.size()==0)) {
 	    FormulaTree child = (FormulaTree)cs.get(0);
 	    if (child.start==i0 && child.end==printi)
@@ -165,9 +160,9 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 
 	return new FormulaTree(i0, printi, 
 			       cs==null ? new FormulaTree[0] : 
-			                  (FormulaTree[])cs.toArray(new FormulaTree[cs.size()]),
+			                  cs.toArray(new FormulaTree[cs.size()]),
 			       ts==null ? new FormulaTree[0] :
-			                  (FormulaTree[])ts.toArray(new FormulaTree[ts.size()]));
+			                  ts.toArray(new FormulaTree[ts.size()]));
     }
     
     protected boolean tokenSelection() {
@@ -333,7 +328,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	}
     }
 
-    public Vector textsels;
+    public Vector<TextSel> textsels;
     private int currenttextselindex = -1;
     FormulaTree anchor, current;
 
@@ -430,7 +425,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	if (formulae==null) {
 	    annoti = printi = 0;
 	    formulae = computeFormulaTree(getannottext(), (char)0, getprintlen());
-	    textsels = new Vector(1);
+	    textsels = new Vector<TextSel>(1);
 	    canvas.getProofWindow().enableCopy();
 	}
     }

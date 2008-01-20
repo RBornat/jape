@@ -38,7 +38,7 @@ import javax.swing.filechooser.FileFilter;
 public class JapeFileFilter extends FileFilter implements FilenameFilter {
 
     protected String description;
-    protected Vector pats = new Vector();
+    protected Vector<Pattern> pats = new Vector<Pattern>();
     
     public JapeFileFilter(String description) {
 	super();

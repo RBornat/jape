@@ -39,6 +39,7 @@ import java.util.Vector;
 
 import java.awt.image.BufferedImage;
 
+@SuppressWarnings("serial")
 public class DragImage extends DragComponent implements DebugConstants {
     private AlphaComposite comp;
     
@@ -49,7 +50,7 @@ public class DragImage extends DragComponent implements DebugConstants {
     }
 
     private Rectangle imagebounds;
-    private Vector includev = new Vector();
+    private Vector<Component> includev = new Vector<Component>();
     
     public void include(Component c) {
 	if (includev.indexOf(c)==-1) {

@@ -30,9 +30,9 @@ package uk.org.jape;
 import java.awt.BasicStroke;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 
 // LineComponents can be dragged
+@SuppressWarnings("serial")
 public class LineComponent extends DragComponent implements DebugConstants {
     // but if you drag them, you must override this method
     protected void movePosition(int deltax, int deltay) {

@@ -27,6 +27,7 @@
 
 package uk.org.jape;
 
+@SuppressWarnings("serial")
 public class MenuHolder extends SurrogateWindow {
     public MenuHolder() {
 	super("menu holder");

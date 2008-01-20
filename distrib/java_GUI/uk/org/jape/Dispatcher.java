@@ -32,11 +32,11 @@
 package uk.org.jape;
 
 import java.awt.Point;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.Vector;
+
+import uk.org.jape.MiscellaneousConstants.IntString;
+import uk.org.jape.PanelWindowData.Insert;
 
 public class Dispatcher extends Thread implements DebugConstants {
 
@@ -63,7 +63,10 @@ public class Dispatcher extends Thread implements DebugConstants {
     }
 
     public void run() {
-	Vector list = new Vector(); 
+	Vector<String> stringlist = new Vector<String>();
+	Vector<IntString> givenlist = new Vector<IntString>();
+	Vector<Insert> insertlist = new Vector<Insert>();
+        Vector<String[]> radiobuttonlist = new Vector<String[]>();
 	try {
 	    while (true) {
 		String line = Engine.fromEngine().readLine();
@@ -77,7 +80,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 			String p = cmd[0].intern();
 			int len = cmd.length;
 			
-		    // GET means client is listening
+			// GET means client is listening
 			if (p=="GET"&&len==1) {
 			    if (Reply.openchannel()) {
 				JapeWindow.ensureMenusAvailable();
@@ -177,13 +180,13 @@ public class Dispatcher extends Thread implements DebugConstants {
 
 		    // ASK is for alerts
 			if (p=="ASKSTART"&&len==1)
-			    list.removeAllElements();
+			    stringlist.removeAllElements();
 			else
 			if (p=="ASKBUTTON"&&len==2)
-			    list.add(cmd[1]);
+			    stringlist.add(cmd[1]);
 			else
 			if (p=="ASKNOW"&&len==4)
-			    Reply.reply(Alert.ask(((String[])list.toArray(new String[list.size()])),
+			    Reply.reply(Alert.ask(((String[])stringlist.toArray(new String[stringlist.size()])),
 						  toInt(cmd[1]), cmd[2], toInt(cmd[3])));
 			else
 			if (p=="ASKDANGEROUSLY"&&len==4)
@@ -273,14 +276,14 @@ public class Dispatcher extends Thread implements DebugConstants {
 			}
 			else
 			if (p=="MENURADIOBUTTON"&&len==1)
-			    list.removeAllElements();
+			    radiobuttonlist.removeAllElements();
 			else
 			if (p=="MENURADIOBUTTONPART"&&len==3)
-			    list.add(new String[] { cmd[1], cmd[2] });
+			    radiobuttonlist.add(new String[] { cmd[1], cmd[2] });
 			else
 			if (p=="MENURADIOBUTTONEND"&&len==3)
 			    JapeMenu.addRadioButtonGroup(cmd[1], 
-				 (String[][])list.toArray(new String[list.size()][]),
+				 (String[][])radiobuttonlist.toArray(new String[radiobuttonlist.size()][]),
 				 toInt(cmd[2]));
 			else
 			if (p=="MENUCHECKBOX"&&len==5)
@@ -301,26 +304,26 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    PanelWindowData.addEntry(cmd[1], cmd[2], cmd[3]);
 			else
 			if (p=="PANELBUTTON"&&len==3) {
-			    list.removeAllElements();
-			    list.add(cmd[1]);
-			    list.add(cmd[2]);
+			    stringlist.removeAllElements();
+			    stringlist.add(cmd[1]);
+			    stringlist.add(cmd[2]);
+                            insertlist.removeAllElements();
 			}
 			else
 			if (p=="PANELBUTTONINSERT"&&len==3) {
 			    switch (toInt(cmd[1])) {
-			      case 0: list.add(new PanelWindowData.StringInsert(cmd[2])); break;
-			      case 1: list.add(new PanelWindowData.LabelInsert()); break;
-			      case 2: list.add(new PanelWindowData.CommandInsert()); break;
+			      case 0: insertlist.add(new PanelWindowData.StringInsert(cmd[2])); break;
+			      case 1: insertlist.add(new PanelWindowData.LabelInsert()); break;
+			      case 2: insertlist.add(new PanelWindowData.CommandInsert()); break;
 			      default: throw new ProtocolError(toInt(cmd[1])+" should be 0, 1 or 2");
 			    }
 			}
 			else
 			if (p=="PANELBUTTONEND"&&len==1) {
-			    String panel = (String)list.remove(0);
-			    String entry = (String)list.remove(0);
+			    String panel = (String)stringlist.remove(0);
+			    String entry = (String)stringlist.remove(0);
 			    PanelWindowData.addButton(panel, entry, 
-				((PanelWindowData.Insert[])list.toArray(
-						new PanelWindowData.Insert[list.size()])));
+				(insertlist.toArray(new PanelWindowData.Insert[insertlist.size()])));
 			}
 			else
 			if (p=="MARKPANELENTRY"&&len==5)
@@ -358,13 +361,13 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    ProofWindow.getFocussedWindow().emphasise(toInt(cmd[1]), toInt(cmd[2]), toBool(cmd[3]));
 			else
 			if (p=="TILESSTART"&&len==1)
-			    list.removeAllElements();
+			    stringlist.removeAllElements();
 			else
 			if (p=="TILE"&&len==2)
-			    list.add(cmd[1]);
+			    stringlist.add(cmd[1]);
 			else
 			if (p=="TILESEND"&&len==1)
-			    ProofWindow.getFocussedWindow().setDisproofTiles((String[])list.toArray(new String[list.size()]));
+			    ProofWindow.getFocussedWindow().setDisproofTiles((String[])stringlist.toArray(new String[stringlist.size()]));
 			else
 			if (p=="WORLDSSTART"&&len==1)
 			    ProofWindow.getFocussedWindow().worldsStart();
@@ -385,21 +388,21 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    ProofWindow.getFocussedWindow().forceDisproofSelect(toInt(cmd[1]), toInt(cmd[2]));
 			else
 			if (p=="DISPROOFTEXTSELPOS"&&len==3) {
-			    list.removeAllElements();
-			    list.add(cmd[1]); list.add(cmd[2]); 
+			    stringlist.removeAllElements();
+			    stringlist.add(cmd[1]); stringlist.add(cmd[2]); 
 			}
 			else
 			if (p=="DISPROOFTEXTSEL"&&len==2)
-			    list.add(cmd[1]);
+			    stringlist.add(cmd[1]);
 			else
 			if (p=="DISPROOFTEXTSEL"&&len==1)
-			    list.add("");
+			    stringlist.add("");
 			else
 			if (p=="DISPROOFTEXTSELDONE"&&len==1) {
-			    int posX = toInt((String)list.remove(0));
-			    int posY = toInt((String)list.remove(0));
+			    int posX = toInt((String)stringlist.remove(0));
+			    int posY = toInt((String)stringlist.remove(0));
 			    ProofWindow.getFocussedWindow().forceDisproofTextSelection(
-				posX, posY, (String[])list.toArray(new String[list.size()]));
+				posX, posY, (String[])stringlist.toArray(new String[stringlist.size()]));
 			}
 			else
 			    
@@ -411,15 +414,14 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    ProofWindow.getFocussedWindow().showProvisoLine(cmd[1]);
 			else
 			if (p=="CLEARGIVENS"&&len==1)
-			    list.removeAllElements();
+			    givenlist.removeAllElements();
 			else
 			if (p=="GIVEN"&&len==3)
-			    list.add(new MiscellaneousConstants.IntString(toInt(cmd[1]), cmd[2]));
+			    givenlist.add(new MiscellaneousConstants.IntString(toInt(cmd[1]), cmd[2]));
 			else
 			if (p=="SETGIVENS"&&len==1)
 			    ProofWindow.getFocussedWindow().setGivens(
-				(MiscellaneousConstants.IntString[])
-				    list.toArray(new  MiscellaneousConstants.IntString[list.size()]));
+				givenlist.toArray(new  MiscellaneousConstants.IntString[givenlist.size()]));
 			else
 
 		    // selections of various kinds
@@ -441,13 +443,13 @@ public class Dispatcher extends Thread implements DebugConstants {
 			
 		    // OPERATOR .. deal with the keyboard in some dialogue boxes
 			if (p=="OPERATORSBEGIN"&&len==1)
-			    list.removeAllElements();
+			    stringlist.removeAllElements();
 			else
 			if (p=="OPERATOR"&&len==2)
-			    list.add(cmd[1]);
+			    stringlist.add(cmd[1]);
 			else
 			if (p=="OPERATORSEND"&&len==1)
-			    TextDialog.setOperators((String[])list.toArray(new String[list.size()]));
+			    TextDialog.setOperators((String[])stringlist.toArray(new String[stringlist.size()]));
 			else
 		    
 		    // miscellaneous
@@ -507,7 +509,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 	return japesplit(Engine.fromEngine().readLine());
     }
 	// split a line encoded in the obol form.
-	Vector result = new Vector();
+	Vector<String> result = new Vector<String>();
 	StringBuffer buf = new StringBuffer();
 	boolean dbquote=false;
 	int len = line.length();
@@ -562,14 +564,6 @@ public class Dispatcher extends Thread implements DebugConstants {
 	} catch (Exception e) {
 	    throw new ProtocolError (JapeUtils.enQuote(s)+" can't be read as an integer");
 	}
-    }
-
-    private short toShort(String s) throws ProtocolError {
-	int i = toInt(s);
-	if (Short.MIN_VALUE<=i && i<=Short.MAX_VALUE)
-	    return (short)i;
-	else
-	    throw new ProtocolError (JapeUtils.enQuote(s)+" outside range of Java short");
     }
 
     private byte toByte(String s) throws ProtocolError {

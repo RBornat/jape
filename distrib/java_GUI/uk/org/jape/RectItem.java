@@ -28,10 +28,10 @@
 package uk.org.jape;
 
 import java.awt.BasicStroke;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
+@SuppressWarnings("serial")
 public class RectItem extends OutlineItem implements DebugConstants {
     
     public RectItem(JapeCanvas canvas, int x, int y, int w, int h) {

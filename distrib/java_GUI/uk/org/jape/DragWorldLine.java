@@ -30,6 +30,7 @@ package uk.org.jape;
 import java.awt.Graphics;
 import java.awt.Point;
 
+@SuppressWarnings("serial")
 public class DragWorldLine extends DragLine {
     public DragWorldLine(WorldItem w, int x, int y, int thickness, boolean dragParent) {
 	this(w.dragCentre(), x, y, thickness, dragParent);
