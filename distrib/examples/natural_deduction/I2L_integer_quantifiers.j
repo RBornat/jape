@@ -81,7 +81,7 @@ TACTIC "∃ intro backward unselected goal" (A) IS
 
 TACTIC "∃ intro backward hypcheck" (action, gmess) IS
     WHEN    
-        (LETHYP (actual _i) (action _i)) /* the right hypothesis - hoorah! */
+        (LETHYP (integer _i) (action _i)) /* the right hypothesis - hoorah! */
         (LETHYP _A /* the wrong hypothesis */
             ("∃ intro backward selection moan" ("%s you selected the hypothesis %t instead.", gmess, _A)))
         (LETHYPS _As /* more than one */
