@@ -29,19 +29,17 @@ package uk.org.jape;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Graphics;
 import java.awt.Point;
-
 import java.awt.event.MouseEvent;
 
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-
 import javax.swing.border.Border;
-import javax.swing.BorderFactory;
 
+@SuppressWarnings("serial")
 public class Tile extends JLabel implements DebugConstants, MiscellaneousConstants {
     final String text;
     private Container layeredPane;
@@ -102,8 +100,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
     protected int startx, starty, lastx, lasty;
     private boolean firstDrag;
     private TileImage tileImage;
-    private Class targetClass;
-
+    
     protected void pressed(MouseEvent e) { // doesn't matter what keys are pressed
 	if (drag_tracing)
 	    Logger.log.print("mouse pressed on tile "+text+" at "+e.getX()+","+e.getY()+
@@ -116,7 +113,6 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
     protected void dragged(MouseEvent e) {
 	if (firstDrag) {
 	    firstDrag = false;
-	    targetClass = TileTarget.class;
 	    over = null;
 	    if (tileImage==null)
 		tileImage = new TileImage();
@@ -135,13 +131,16 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
 	    if (drag_tracing)
 		Logger.log.println("; dragged tile now at "+tileImage.getX()+","+tileImage.getY());
 	    Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-	    TileTarget target = (TileTarget)JapeUtils. findTargetAt(targetClass, contentPane, p.x, p.y);
-	    if (target!=over) {
-		if (over!=null) {
-		    over.dragExit(Tile.this); over=null;
-		}
-		if (target!=null && target.dragEnter(Tile.this))
-		    over = target;
+	    Component target = contentPane.findComponentAt(p);
+	    if (target!=null && target instanceof TileTarget) {
+	        TileTarget ttarget = (TileTarget)target;
+	        if (ttarget!=over) {
+	            if (over!=null) {
+	                over.dragExit(Tile.this); over=null;
+	            }
+	            if (ttarget!=null && ttarget.dragEnter(Tile.this))
+	                over = ttarget;
+	        }   
 	    }
 	}
 	lastx = e.getX(); lasty = e.getY();

@@ -28,6 +28,7 @@
 package uk.org.jape;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
 
@@ -37,6 +38,7 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
 
+@SuppressWarnings("serial")
 public class WorldConnector extends LineItem implements SelectionConstants, WorldTarget {
     public WorldCanvas canvas;
     public final WorldItem from, to;
@@ -144,7 +146,6 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
     private int startx, starty, lastx, lasty;
     private boolean firstDrag;
     private DragWorldLine dragLine, other;
-    private Class targetClass;
     private LineTarget over;
 
     private void pressed(MouseEvent e) {
@@ -154,7 +155,6 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
     protected void dragged(MouseEvent e) {
 	if (firstDrag) {
 	    firstDrag = false;
-	    targetClass = LineTarget.class;
 	    over = null;
 	    Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), layeredPane);
 	    dragLine = new DragWorldLine(from, p.x, p.y, canvas.linethickness, false);
@@ -174,13 +174,16 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 	    if (drag_tracing)
 		Logger.log.println("; dragged line now at "+dragLine.activex+","+dragLine.activey);
 	    Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-	    LineTarget target = (LineTarget)JapeUtils. findTargetAt(targetClass, contentPane, p.x, p.y);
-	    if (target!=over) {
-		if (over!=null) {
-		    over.dragExit(this); over=null;
-		}
-		if (target!=null && target.dragEnter(this))
-		    over = target;
+	    Component target = contentPane.findComponentAt(p);
+	    if (target!=null && target instanceof LineTarget) {
+	        LineTarget ltarget = (LineTarget)target;
+	        if (ltarget!=over) {
+	            if (over!=null) {
+	                over.dragExit(this); over=null;
+	            }
+	            if (ltarget!=null && ltarget.dragEnter(this))
+	                over = ltarget;
+	        }   
 	    }
 	}
 	lastx = e.getX(); lasty = e.getY();

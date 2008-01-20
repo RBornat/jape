@@ -27,21 +27,14 @@
 
 package uk.org.jape;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
-
 import java.awt.event.MouseEvent;
-
 import java.awt.geom.Ellipse2D;
-
-import java.awt.image.BufferedImage;
-
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -49,6 +42,7 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
 
+@SuppressWarnings("serial")
 public class WorldItem extends DisplayItem implements DebugConstants, MiscellaneousConstants,
 						      SelectionConstants,
 						      LineTarget, LabelTarget, WorldTarget,
@@ -63,9 +57,9 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     public final int x0, y0, radius, labelgap;
     private int labelx;
-    private Vector labelv = new Vector(), // labels attached to me
-		   fromv  = new Vector(), // lines which lead from me
-		   tov	  = new Vector(); // lines which lead to me
+    private Vector<Component> labelv = new Vector<Component>(), // labels attached to me
+		   fromv  = new Vector<Component>(), // lines which lead from me
+		   tov	  = new Vector<Component>(); // lines which lead to me
     
     public WorldItem(WorldCanvas canvas, JFrame window, int x, int y) {
 	super(canvas, x, y);
@@ -210,7 +204,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	return true;
     }
 
-    private boolean acceptDrag(Object o) {
+    /* private boolean acceptDrag(Object o) {
 	if (o instanceof Tile)
 	    return novelLabel((String)((Tile)o).text);
 	else
@@ -221,7 +215,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	    return novelLabel((String)((WorldLabel)o).text);
 	else
 	    return false;
-    }
+    } */
 
     private boolean dragEnter(boolean ok) { 
 	if (ok) { 
@@ -293,9 +287,10 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     
     /* ****************************** world as drag source ****************************** */
 
-    private int startx, starty, lastx, lasty, offsetx, offsety, centreoffsetx, centreoffsety;
+    private int startx, starty, lastx, lasty, offsetx, offsety;
     private boolean firstDrag;
 
+    @SuppressWarnings("serial")
     protected class WorldImage extends DragImage {
 	public final byte dragKind;
 	public WorldImage(byte dragKind) {
@@ -311,8 +306,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     private WorldImage worldImage;
     private WorldTarget over;
-    private Class targetClass;
-
+    
     private void setDrageesVisible(boolean state) {
 	this.setVisible(state); selectionRing.setVisible(state);
 	for (int i=0; i<labelv.size(); i++)
@@ -344,12 +338,10 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     public void dragged(byte dragKind, MouseEvent e) {
 	if (firstDrag) {
 	    firstDrag = false;
-	    targetClass = WorldTarget.class;
 	    over = null;
 	    worldImage = new WorldImage(dragKind);
 	    Point p = worldImage.getImageLocation();
 	    offsetx = getX()-p.x; offsety = getY()-p.y;
-	    centreoffsetx = offsetx+radius; centreoffsety = offsety+radius;
 	    layeredPane.add(worldImage, JLayeredPane.DRAG_LAYER);
 	    worldImage.setLocation(
 		SwingUtilities.convertPoint(this, e.getX()-startx-offsetx,
@@ -384,14 +376,17 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	}
 	    
 	Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-	WorldTarget target = (WorldTarget)JapeUtils. findTargetAt(targetClass, contentPane, p.x, p.y);
-	if (target!=over) {
-	    if (over!=null) {
-		over.dragExit(dragKind, WorldItem.this); over=null;
-	    }
-	    if (target!=null && target.dragEnter(dragKind, WorldItem.this))
-		over = target;
-	}
+	Component target = contentPane.findComponentAt(p);
+        if (target!=null && target instanceof WorldTarget) {
+            WorldTarget wtarget = (WorldTarget)target;
+            if (wtarget!=over) {
+                if (over!=null) {
+                    over.dragExit(dragKind, this); over=null;
+                }
+                if (wtarget!=null && wtarget.dragEnter(dragKind, this))
+                    over = wtarget;
+            }   
+        }
 	lastx = e.getX(); lasty = e.getY();
     }
 
@@ -418,7 +413,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     protected void finishDrag() {
 	layeredPane.remove(worldImage);
-	for (Enumeration e = worldImage.friends(); e.hasMoreElements(); )
+	for (Enumeration<DragComponent> e = worldImage.friends(); e.hasMoreElements(); )
 	    layeredPane.remove((DragWorldLine)e.nextElement());
 	layeredPane.repaint();
 	canvas.wasteBin.setEnabled(true);

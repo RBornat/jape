@@ -27,18 +27,16 @@
 
 package uk.org.jape;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
 import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
 
+@SuppressWarnings("serial")
 public	class SelectableProofItem extends TextSelectableItem
 			       implements ProtocolConstants, MiscellaneousConstants, 
                                           FormulaTarget {
@@ -116,9 +114,10 @@ public	class SelectableProofItem extends TextSelectableItem
     
     /* ******************************** formula as drag source ************************************* */
     
-    private int startx, starty, lastx, lasty, offsetx, offsety, centreoffsetx, centreoffsety;
+    private int startx, starty, lastx, lasty, offsetx, offsety;
     private boolean firstDrag;
 
+    @SuppressWarnings("serial")
     protected class FormulaImage extends DragImage {
 	public FormulaImage() {
 	    super(Transparent); 
@@ -129,8 +128,7 @@ public	class SelectableProofItem extends TextSelectableItem
     
     private FormulaImage formulaImage;
     private FormulaTarget over;
-    private Class targetClass;
-
+    
     private void pressed(int dragNum, MouseEvent e) {
 	startx = e.getX(); starty = e.getY(); firstDrag = true;
     }
@@ -138,7 +136,6 @@ public	class SelectableProofItem extends TextSelectableItem
     public void dragged(int dragNum, MouseEvent e) {
 	if (firstDrag) {
 	    firstDrag = false;
-	    targetClass = FormulaTarget.class;
 	    over = null;
 	    formulaImage = new FormulaImage();
 	    Point p = formulaImage.getImageLocation();
@@ -160,13 +157,16 @@ public	class SelectableProofItem extends TextSelectableItem
 	}
 	
 	Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-	FormulaTarget target = (FormulaTarget)JapeUtils. findTargetAt(targetClass, contentPane, p.x, p.y);
-	if (target!=over) {
-	    if (over!=null) {
-		over.dragExit(SelectableProofItem.this); over=null;
-	    }
-	    if (target!=null && target.dragEnter(dragNum, SelectableProofItem.this))
-		over = target;
+	Component target = contentPane.findComponentAt(p);
+	if (target!=null && target instanceof FormulaTarget) {
+	    FormulaTarget ftarget = (FormulaTarget)target;
+	    if (ftarget!=over) {
+	        if (over!=null) {
+	            over.dragExit(this); over=null;
+	        }
+	        if (ftarget!=null && ftarget.dragEnter(dragNum, this))
+	            over = ftarget;
+	    }	
 	}
 	lastx = e.getX(); lasty = e.getY();
     }

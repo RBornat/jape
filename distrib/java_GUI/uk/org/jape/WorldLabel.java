@@ -27,6 +27,7 @@
 
 package uk.org.jape;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -37,6 +38,7 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
 
+@SuppressWarnings("serial")
 public class WorldLabel extends TextItem implements MiscellaneousConstants {
     protected final WorldCanvas canvas;
     protected final WorldItem world;
@@ -77,6 +79,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
 	});
     }
 
+    @SuppressWarnings("serial")
     class LabelImage extends DragImage {
 	public LabelImage() {
 	    super(Transparent);
@@ -87,7 +90,6 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
     private int startx, starty, lastx, lasty;
     private boolean firstDrag;
     private LabelImage labelImage;
-    private Class targetClass;
     private LabelTarget over;
     
     private void pressed(byte dragKind, MouseEvent e) {
@@ -97,7 +99,6 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
     protected void dragged(byte dragKind, MouseEvent e) {
 	if (firstDrag) {
 	    firstDrag = false;
-	    targetClass = LabelTarget.class;
 	    over = null;
 	    if (labelImage==null)
 		labelImage = new LabelImage();
@@ -120,14 +121,17 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
 	    if (drag_tracing)
 		Logger.log.println("; dragged label now at "+labelImage.getX()+","+labelImage.getY());
 	    Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-	    LabelTarget target = (LabelTarget)JapeUtils. findTargetAt(targetClass, contentPane, p.x, p.y);
-	    if (target!=over) {
-		if (over!=null) {
-		    over.dragExit(world, text); over=null;
-		}
-		if (target!=null && target.dragEnter(world, text))
-		    over = target;
-	    }
+	    Component target = contentPane.findComponentAt(p);
+	        if (target!=null && target instanceof LabelTarget) {
+	            LabelTarget ltarget = (LabelTarget)target;
+	            if (ltarget!=over) {
+	                if (over!=null) {
+	                    over.dragExit(world, text); over=null;
+	                }
+	                if (ltarget!=null && ltarget.dragEnter(world, text))
+	                    over = ltarget;
+	            }   
+	        }
 	}
 	lastx = e.getX(); lasty = e.getY();
     }
