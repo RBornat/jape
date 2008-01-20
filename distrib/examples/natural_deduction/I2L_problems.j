@@ -98,9 +98,7 @@ CONJECTUREPANEL "Classical conjectures"
     THEOREM IS  ¬∀x.¬R(x) ⊢ ∃y.R(y)
     THEOREM IS  ¬∀x.R(x) ⊢ ∃y.¬R(y)
 
-    THEOREM IS actual j, actual k ⊢ ∃x.(R(x)→R(j)∧R(k))
-
-    THEOREM IS  actual i, ∀x.(R(x)∨¬R(x)), ¬∀y.¬R(y) ⊢ ∃z.R(z)
+    THEOREM IS  actual j, actual k ⊢ ∃x.(R(x)→R(j)∧R(k))
 
     BUTTON Apply IS apply TheoremForwardOrBackward COMMAND
 END
