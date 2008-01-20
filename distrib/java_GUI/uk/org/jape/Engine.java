@@ -35,17 +35,17 @@ import java.io.UnsupportedEncodingException;
 
 public class Engine implements DebugConstants {
     private static Process engine;
-    private static Engine  self;
     private static BufferedReader fromEngine, logEngine;
     private static BufferedWriter toEngine;
     
     public Engine (String[] cmd) {
 	super();
 	try {
+	    // System.out.println(System.getProperty("user.dir"));
 	    engine = Runtime.getRuntime().exec(cmd);
-	    self = this;
 	} catch (Exception exn) {
-	    String s = "can't start proof engine (exception "+exn+")\ncmd =[";
+	    String s = "can't start proof engine in directory "+System.getProperty("user.dir")+
+	               " (exception "+exn+")\ncmd =[";
 	    for (int i=0; i<cmd.length; i++) {
 		s = s+JapeUtils.enQuote(cmd[i]);
 		if (i+1<cmd.length)
