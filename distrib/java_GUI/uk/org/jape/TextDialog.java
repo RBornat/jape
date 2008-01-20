@@ -27,11 +27,13 @@
 
 package uk.org.jape;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.GridLayout;
-import java.awt.Insets;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -91,28 +93,36 @@ public class TextDialog {
     }
 
     public static String runTextDialog(String title, String oldText, String message) {
-	final JTextField textField = new JTextField(oldText);
-	JapeFont.setComponentFont(textField, JapeFont.TEXTINPUT);
-	class OperatorButtonListener implements ActionListener {
-	    public void actionPerformed(ActionEvent newEvent) {
-		try {
-		    int caret = textField.getCaretPosition(),
-		        selstart = textField.getSelectionStart(),
-		    selend = textField.getSelectionEnd();
-		    
-		    if (selstart<selend) {
-			// imitate a text editor, sigh!
-			textField.getDocument().remove(selstart, selend-selstart);
-			caret = selstart;
-		    }
-		    textField.getDocument().insertString(caret,
-							 newEvent.getActionCommand(), null);
-		    textField.requestFocus();
-		} catch (Exception exn) {
-		    Alert.abort("Button "+newEvent.getActionCommand()+" threw exception "+exn);
-		}
-	    }
-	}
+        final JTextField textField = new JTextField(oldText);
+        JapeFont.setComponentFont(textField, JapeFont.TEXTINPUT);
+        if (oldText!=null){
+            textField.setSelectionStart(0);
+            textField.setSelectionEnd(oldText.length());
+            // Logger.log.println("new window");
+        }
+        class OperatorButtonListener implements ActionListener {
+            public void actionPerformed(ActionEvent newEvent) {
+                String s = newEvent.getActionCommand();
+                try {
+                    int caret = textField.getCaretPosition(),
+                    selstart = textField.getSelectionStart(),
+                    selend = textField.getSelectionEnd();
+
+                    // Logger.log.println("selection is "+selstart+","+selend);
+                    if (selstart<selend) {
+                        // imitate a text editor, sigh!
+                        textField.getDocument().remove(selstart, selend-selstart);
+                        caret = selstart;
+                    }
+                    textField.getDocument().insertString(caret, s, null);
+                    // Logger.log.println("selection now "+selstart+","+selend);
+                    textField.requestFocusInWindow();
+                    // Logger.log.println("selection should be "+newcaret+","+newcaret+" is in fact "+textField.getSelectionStart()+","+textField.getSelectionEnd());
+                } catch (Exception exn) {
+                    Alert.abort("Button "+s+" threw exception "+exn);
+                }
+            }
+        }
 	OperatorButtonListener buttonPaneListener = new OperatorButtonListener();
 	JPanel display = new JPanel();
 	display.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
@@ -122,8 +132,8 @@ public class TextDialog {
 	display.add(textField);
 	if (operators!=null) {
 	    ButtonPane buttonPane = new ButtonPane();
-	    for (int i=0; i<operators.length; i++) {
-		JButton button = new JButton(operators[i]);
+	    for (String o: operators) {
+		JButton button = new JButton(o);
 		button.addActionListener(buttonPaneListener);
 		JapeFont.setComponentFont(button, JapeFont.TEXTINPUT);
 		buttonPane.addButton(button);
@@ -134,21 +144,56 @@ public class TextDialog {
 
 	// in order to get the text focus in the text field when we start, it's
 	// necessary to run JOptionPane by hand.  Code based on the Sun 1.3.1 docs.
+        // And then lots of pragmatic stuff to make it give the focus from the OK 
+        // button (which gets it by default) and give it to the text field.
 	String [] options = { "OK", "Cancel" };
-	JOptionPane pane = new JOptionPane(display, JOptionPane.PLAIN_MESSAGE, 0,
+        final JOptionPane pane = new JOptionPane(display, JOptionPane.PLAIN_MESSAGE, 0,
 					   null, options, options[0]);
 	// pane.set.Xxxx(...); // Configure
-	JDialog dialog = pane.createDialog(JapeWindow.getTopWindow(), title);
+	final JDialog dialog = pane.createDialog(JapeWindow.getTopWindow(), title);
 	dialog.addWindowListener(new WindowAdapter() {
 	    public void windowActivated(WindowEvent e) {
-		// Logger.log.println("dialog windowActivated");
-		textField.requestFocus();
-	    }
-	});
+                for (Component c: pane.getComponents()){
+                    // pragmatically, it is in a JPanel 
+                    if (c instanceof JPanel) {
+                        for (Component c1: ((Container)c).getComponents()){
+                            if (c1 instanceof JButton && ((JButton)c1).getText().equals("OK")) {
+                                ((JButton)c1).addFocusListener(new FocusAdapter(){
+                                    Boolean first = true;
+                                    public void focusGained(FocusEvent e){
+                                        if (first) {
+                                            first = false;
+                                            textField.requestFocusInWindow();
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+	if (Jape.onMacOSX && System.getProperty("java.vm.version").startsWith("1.5.0_")) {
+	    textField.addFocusListener(new FocusAdapter(){
+	        Boolean first = true, atend = false;
+	        public void focusLost(FocusEvent e) {
+	            // for some reason it loses the focus once ...
+	            atend = !first && textField.getSelectionEnd()==textField.getText().length();
+	            // Logger.log.println("focus lost "+first+" "+atend);
+	            first = false;
+	        }
+	        public void focusGained(FocusEvent e) {
+	            if (atend) {
+	                // Logger.log.println("resetting selection to end of "+textField.getText());
+	                textField.setSelectionStart(textField.getSelectionEnd());
+	            }
+	        }
+	    });}
 	
-	JapeMenu.setDialogMenuBar(JapeMenu.TEXTDIALOGWINDOW_BAR|JapeMenu.DIALOGWINDOW_BAR, 
-				  dialog, title);
-	dialog.show();
+        JapeMenu.setDialogMenuBar(JapeMenu.TEXTDIALOGWINDOW_BAR|JapeMenu.DIALOGWINDOW_BAR, 
+                                  dialog, title);
+	dialog.setVisible(true);
 	
 	Object selectedValue = pane.getValue();
 	/* int reply = JOptionPane.CLOSED_OPTION;
