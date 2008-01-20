@@ -31,13 +31,10 @@ import java.awt.Canvas;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-
-import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.JComboBox;
@@ -67,16 +64,30 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	PanelEntryFontSize  = JapePrefs.getProp("PanelEntryFontSize",    PanelButtonFontSize),
 	LogWindowFontSize   = JapePrefs.getProp("LogWindowFontSize",     LocalSettings.NonFormulaFontSize);
 
-    public static final String
-	FontName =
-	    JapePrefs.getProp("fonts.family", Jape.onMacOSX ? "LucidaSansUnicode" : "SansSerif");
-
-    private static final Font baseFont = new Font(FontName, Font.PLAIN, 1);
+    public static class BaseFont {
+        private static String FontFamily =
+            JapePrefs.getProp("FontFamily", Jape.onMacOSX && JapeUtils.isIn("Lucida Sans Unicode", GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()) ? "Lucida Sans Unicode" : "SansSerif");
+        public static String getFontFamily() {
+            return FontFamily;
+        }static 
+        public void setFontFamily(String family) {
+            FontFamily = family;
+            JapePrefs.putProp("FontFamily", family);
+            BaseFont = newBaseFont(family);
+        }
+        private static Font BaseFont = newBaseFont(FontFamily);
+        public static Font getBaseFont() {
+            return BaseFont;
+        }
+        private static Font newBaseFont(String family) {
+            return new Font(FontFamily, Font.PLAIN, 1);
+        }
+    }
 
     public static final int[] normalsizes = { 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 72 };
 
-    private static Vector initsizes(int size) {
-	Vector sizes = new Vector(normalsizes.length);
+    private static Vector<Integer> initsizes(int size) {
+	Vector<Integer> sizes = new Vector<Integer>(normalsizes.length);
 	boolean included = false;
 	for (int i=0; i<normalsizes.length; i++) {
 	    if (!included && size<=normalsizes[i]) {
@@ -91,27 +102,36 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	return sizes;
     }
 
-    private static class SI {
+    private static class SizeSelector {
 	final JLabel label; final int size;
 	JComboBox comboBox;
-	SI(String label, int size) {
+	SizeSelector(String label, int size) {
 	    this.label = new JLabel(label); this.size = size;
-	    Vector sizes = initsizes(size);
+	    Vector<Integer> sizes = initsizes(size);
 	    comboBox = new JComboBox(sizes);
 	    for (int j=0; j<sizes.size(); j++)
-		if (((Integer)sizes.get(j)).intValue()==size) {
+		if (sizes.get(j).intValue()==size) {
 		    comboBox.setSelectedIndex(j); break;
 		}
 	}
     }
 	
+    private static void addLabelledComboBox(JPanel panel, GridBagLayout gridbag, 
+            JLabel label, GridBagConstraints labelconstraints, 
+            JComboBox comboBox, GridBagConstraints comboconstraints) {
+        gridbag.setConstraints(label, labelconstraints);
+        panel.add(label);
+        gridbag.setConstraints(comboBox, comboconstraints);
+        panel.add(comboBox);
+
+    }
     public static void runFontSizesDialog() {
 	String [] buttons = { "OK", "Cancel" };
-	SI [] entries = {
-	    new SI("Formula font size"	     , FormulaFontSize	 ), // 0
-	    new SI("Reason/Proviso font size", ReasonFontSize	 ), // 1
-	    new SI("Panel font size"	     , PanelEntryFontSize), // 2
-	    new SI("Log window font size"    , LogWindowFontSize )  // 3
+	SizeSelector [] fontSizes = {
+	    new SizeSelector("Formula font size"       , FormulaFontSize   ), // 0
+	    new SizeSelector("Reason/Proviso font size", ReasonFontSize	   ), // 1
+	    new SizeSelector("Panel font size"	       , PanelEntryFontSize), // 2
+	    new SizeSelector("Log window font size"    , LogWindowFontSize )  // 3
 	};
 	JPanel panel = new JPanel();
 	GridBagLayout gridbag = new GridBagLayout();
@@ -131,11 +151,18 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	comboconstraints.anchor = GridBagConstraints.WEST;
 	comboconstraints.insets = new Insets(0, 5, 5, 0);
 
-	for (int i=0; i<entries.length; i++) {
-	    gridbag.setConstraints(entries[i].label, labelconstraints);
-	    panel.add(entries[i].label);
-	    gridbag.setConstraints(entries[i].comboBox, comboconstraints);
-	    panel.add(entries[i].comboBox);
+	String [] fontFamilies = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+	JComboBox fontBox = new JComboBox(fontFamilies);
+	for (int i=0; i<fontFamilies.length; i++) 
+	    if (fontFamilies[i].startsWith(BaseFont.getFontFamily())) {
+	        fontBox.setSelectedIndex(i);
+	        break;
+	    }
+	        
+	addLabelledComboBox(panel, gridbag, new JLabel("Font name"), labelconstraints, fontBox, comboconstraints);
+	
+	for (int i=0; i<fontSizes.length; i++) {
+	    addLabelledComboBox(panel, gridbag, fontSizes[i].label, labelconstraints, fontSizes[i].comboBox, comboconstraints);
 	}
 	
 	int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), panel,
@@ -144,9 +171,16 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 						 null, buttons, buttons[0]);
 	if (reply==0) {
 	    boolean interfaceChanged = false;
-	    for (int i=0; i<entries.length; i++) {
-		int selectedvalue = ((Integer)entries[i].comboBox.getSelectedItem()).intValue();
-		if (selectedvalue!=entries[i].size) {
+	    String family = (String)fontBox.getSelectedItem();
+	    if (family!=BaseFont.getFontFamily()) {
+	        BaseFont.setFontFamily(family);
+	        PanelWindowData.font_reset();
+	        Logger.font_reset();
+	        interfaceChanged = true;
+	    }
+	    for (int i=0; i<fontSizes.length; i++) {
+	        int selectedvalue = ((Integer)fontSizes[i].comboBox.getSelectedItem()).intValue();
+		if (selectedvalue!=fontSizes[i].size) {
 		    switch (i) {
 			case 0:
 			    FormulaFontSize = (byte)selectedvalue;
@@ -218,7 +252,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	
     private static void mimicFont(Component c, int size) {
 	Font f = c.getFont();
-	if (!FontName.equals(f.getName()) || f.getSize()!=size) {
+	if (!BaseFont.getFontFamily().equals(f.getName()) || f.getSize()!=size) {
 	    if (size>mimics.length) {
 		Font mimics1[] = new Font[size+1];
 		for (int i = 0; i<mimics.length; i++)
@@ -227,8 +261,10 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 		    mimics1[i] = null;
 		mimics = mimics1;
 	    }
-	    if (mimics[size]==null)
-		mimics[size] = deriveFont(baseFont, f.getStyle(), size);
+	    if (mimics[size]==null 
+	            || !mimics[size].getName().equals(BaseFont.getFontFamily()) 
+	            || mimics[size].getStyle()!=f.getStyle())
+	        mimics[size] = deriveFont(BaseFont.getBaseFont(), f.getStyle(), size);
 	    c.setFont(mimics[size]);
 	}
     }
@@ -238,8 +274,6 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 
     private static void initInterfaceFonts() {
 	if (interfaceFonts==null) {
-	    codecDone = true;
-
 	    if (fontDebug) {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
@@ -257,9 +291,9 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	    }
 
 	    if (fontDebug)
-		Logger.log.println("base font "+baseFont);
+		Logger.log.println("base font "+BaseFont.getBaseFont());
 
-	    setInterfaceFonts(baseFont);
+	    setInterfaceFonts(BaseFont.getBaseFont());
 	}
     }
     
@@ -286,8 +320,6 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	return fontnum;
     }
 
-    private static boolean codecDone;
-    
     private static FontMetrics[] interfaceMetrics;
 
     private static void initInterfaceMetrics() {
