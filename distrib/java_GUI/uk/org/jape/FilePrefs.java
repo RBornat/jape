@@ -29,9 +29,6 @@ package uk.org.jape;
 
 import java.io.File;
 
-import java.util.Vector;
-
-
 public class FilePrefs {
     
     private static final String lastOpenDirKey  = "LastOpenedDirectory",
