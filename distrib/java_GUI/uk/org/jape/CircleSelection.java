@@ -29,6 +29,7 @@ package uk.org.jape;
 
 import java.awt.Graphics;
 
+@SuppressWarnings("serial")
 public class CircleSelection extends CircleItem
 			  implements SelectionIndicator {
 

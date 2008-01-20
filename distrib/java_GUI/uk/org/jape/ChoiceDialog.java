@@ -28,25 +28,23 @@
 package uk.org.jape;
 
 import java.awt.Component;
-import java.awt.Container;
-
 import java.awt.event.MouseEvent;
-
 import java.util.Vector;
 
-import javax.swing.BoxLayout;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.ListCellRenderer;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 
 public class ChoiceDialog {
 
-    private static class Choice extends JPanel {
+    @SuppressWarnings("serial")
+	private static class Choice extends JPanel {
 	final int n, nlines;
 	Choice(String str, int n) {
 	    JLabel[] m = wrap(str);
@@ -67,8 +65,8 @@ public class ChoiceDialog {
     static class Renderer implements ListCellRenderer {
     public Component getListCellRendererComponent(JList list, Object value, int index,
 			      boolean isSelected, boolean cellHasFocus) {
-	Logger.log.println("rendering "+value+" at index "+index+
-		   " isSelected "+isSelected+" cellHasFocus "+cellHasFocus);
+	// Logger.log.println("rendering "+value+" at index "+index+
+	// 	   " isSelected "+isSelected+" cellHasFocus "+cellHasFocus);
 	JapeUtils.showContainer((Choice)value);
 	Choice e = (Choice)value;
 	if (isSelected) {
@@ -83,7 +81,7 @@ public class ChoiceDialog {
     }
     }
     
-    private static Vector list = new Vector();
+    private static Vector<Choice> list = new Vector<Choice>();
     
     static JLabel[] wrap(String s, int width) {
 	JLabel[] result;
