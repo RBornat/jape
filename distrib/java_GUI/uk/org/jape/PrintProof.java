@@ -108,7 +108,7 @@ public class PrintProof {
 	    Logger.log.println("setPaper succeeded");
 
 	if (cockeyed) {
-	    page.setOrientation(page.LANDSCAPE); // I think this is a bug ... and I have to do it here
+	    page.setOrientation(PageFormat.LANDSCAPE); // I think this is a bug ... and I have to do it here
 	} 
 	if (DebugVars.printdialog_tracing)
 	    Logger.log.println("orientation set "+cockeyed);
