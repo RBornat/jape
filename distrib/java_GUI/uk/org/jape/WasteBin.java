@@ -38,10 +38,9 @@ package uk.org.jape;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Toolkit;
-
 import java.awt.image.ImageObserver;
 
+@SuppressWarnings("serial")
 public class WasteBin extends Component implements DebugConstants,
 						   LineTarget, LabelTarget, WorldTarget {
     private static Image enabled_image, selected_image, disabled_image,
@@ -244,7 +243,7 @@ public class WasteBin extends Component implements DebugConstants,
 	    Alert.abort("label drop into waste bin when not selected");
     }
     
-    // LineTarget
+    // WorldTarget
     public boolean dragEnter(WorldConnector l) { return dragEnter(); }
     public void dragExit(WorldConnector l) { dragExit(); }
     public void drop(WorldConnector l) {
