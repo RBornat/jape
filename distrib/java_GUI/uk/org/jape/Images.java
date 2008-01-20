@@ -29,8 +29,6 @@ package uk.org.jape;
 
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.Component;
-import java.awt.Label;
 
 /*
     Because we now are a package, it's not a good idea to load our images
