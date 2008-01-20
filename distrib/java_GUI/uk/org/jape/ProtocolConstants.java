@@ -93,7 +93,7 @@ public interface ProtocolConstants {
 
     /* from japeserver.ml:
 	match panelkind with
-	TacticPanelkind	    -> "0"
+	  TacticPanelkind     -> "0"
 	| ConjecturePanelkind -> "1"
 	| GivenPanelkind      -> "2"
     */
