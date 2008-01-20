@@ -95,25 +95,6 @@ public class JapeUtils {
 	    showShortContainer(pane,null);
     }
 
-    public static Component findTargetAt(Class target, Component c, int x, int y) {
-	if (c.isVisible() && c.contains(x,y)) {
-	    if (c instanceof Container) {
-		Container c1 = (Container) c;
-		int ncs = c1.getComponentCount();
-		for (int i=0; i<ncs; i++) {
-		    Component c2 = c1.getComponent(i);
-		    if ((c2=findTargetAt(target, c2, x-c2.getX(), y-c2.getY()))!=null)
-			return c2;
-		}
-	    }
-	    // no child fits: will we do?
-	    if (target.isInstance(c))
-		return c;
-	}
-
-	return null; // all else has failed
-    }
-
     public static boolean isIn(Object thing, Object[] things) {
 	for (int i=0; i<things.length; i++)
 	    if (things[i].equals(thing))
