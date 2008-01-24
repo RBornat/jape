@@ -89,7 +89,7 @@ END
 
 RULE "simpl_index" IS
      FROM E∧(F computes) simplifiesto G AND 
-          G∧0≤F equivto H             AND
+          G∧0≤F equivto H               AND
           H∧F<length(a) equivto I
     INFER E∧(a[F] computes) simplifiesto I
 
@@ -197,10 +197,10 @@ RULE "equiv_dup" IS
    FROM E conjoins F AND E equivto G 
   INFER E∧F equivto G
 
-DERIVED RULE "equiv_trueL" IS ⊤∧A equivto A
-DERIVED RULE "equiv_trueR" IS A∧⊤ equivto A
+/* DERIVED */ RULE "equiv_trueL" IS ⊤∧A equivto A
+/* DERIVED */ RULE "equiv_trueR" IS A∧⊤ equivto A
 
-DERIVED RULE "equiv_default" IS A equivto A
+/* DERIVED */ RULE "equiv_default" IS A equivto A
 
 TACTIC maybetrueimpl IS
   ALT (SEQ (LAYOUT HIDEROOT (MATCH "→ intro")) (LAYOUT HIDEROOT (MATCH "truth")))
