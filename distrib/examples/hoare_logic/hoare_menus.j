@@ -467,9 +467,9 @@ TACTIC "index(≠)" IS
 
 TACTICPANEL Indexing
     ENTRY "FROM E=G INFER (A⊕E↦F)[G]=F" IS 
-        rwIndex "FROM E=G INFER (A⊕E↦F)[G]=F" "(A⊕E↦F)[G]" (QUOTE ((_A⊕_E↦_F)[_G])) "F" (QUOTE _F) "index(=)"
+        rwIndex "FROM E=G INFER (A⊕E↦F)[G]=F" "(A⊕E↦F)[G]" (QUOTE (_B«(_A⊕_E↦_F)[_G]/_xx»)) "F" (QUOTE _F) "index(=)"
     ENTRY "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" IS 
-        rwIndex "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" "(A⊕E↦F)[G]" (QUOTE ((_A⊕_E↦_F)[_G])) "A[G]" (QUOTE (_A[_G])) "index(≠)"
+        rwIndex "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" "(A⊕E↦F)[G]" (QUOTE (_B«(_A⊕_E↦_F)[_G]/_xx»)) "A[G]" (QUOTE (_A[_G])) "index(≠)"
 
     BUTTON  "A = …"   IS apply COMMAND "rwLeft="
     BUTTON  "… = B"   IS apply COMMAND "rwRight="
