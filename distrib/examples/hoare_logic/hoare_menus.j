@@ -381,11 +381,11 @@ RULE IS A<B≜B>A
 RULE IS A≤B≜A<B ∨ A=B
 RULE IS A≤B≜B≥A
 RULE IS A≤B≜¬(A>B)
-/* RULE IS A≤B≜A<B+1
-RULE IS A+1≤B≜A<B */
+RULE IS A≤B≜A<B+1
+RULE IS A+1≤B≜A<B
 RULE IS A≥B≜¬(A<B)
-/* RULE IS A≥B≜A>B-1
-   RULE IS A-1≥B≜A>B */
+RULE IS A≥B≜A>B-1
+RULE IS A-1≥B≜A>B
 
 /* I've found a way to run multi-arg tactics from a panel ... */
 TACTICPANEL Comparison
@@ -397,7 +397,11 @@ TACTICPANEL Comparison
     ENTRY "A≤B≜A<B∨A=B" IS  rwComparison "A≤B≜A<B∨A=B" "A≤B" (QUOTE (_A≤_B)) "A<B∨A=B" (QUOTE (_A<_B∨_A=_B)) 
     ENTRY "A≤B≜B≥A"     IS  rwComparison "A≤B≜B≥A"     "A≤B" (QUOTE (_A≤_B))  "B≥A"    (QUOTE (_B≥_A)) 
     ENTRY "A≤B≜¬(A>B)"  IS  rwComparison "A≤B≜¬(A>B)" "A≤B"  (QUOTE (_A≤_B))  "¬(A>B)" (QUOTE (¬(_A>_B))) 
+    ENTRY "A≤B≜A<B+1"  IS  rwComparison "A≤B≜A<B+1" "A≤B"  (QUOTE (_A≤_B))  "A<B+1" (QUOTE (_A<_B+1))
+    ENTRY "A+1≤B≜A<B"  IS  rwComparison "A+1≤B≜A<B" "A+1≤B"  (QUOTE (_A+1≤_B))  "A<B" (QUOTE (_A<_B))
     ENTRY "A≥B≜¬(A<B)"  IS  rwComparison "A≥B≜¬(A<B)" "A≥B"  (QUOTE (_A≥_B))  "¬(A<B)" (QUOTE (¬(_A<_B))) 
+    ENTRY "A≥B≜A>B-1"  IS  rwComparison "A≥B≜A>B-1" "A≥B"  (QUOTE (_A≥_B))  "A>B-1" (QUOTE (_A>_B-1)) 
+    ENTRY "A-1≥B≜A>B"  IS  rwComparison "A-1≥B≜A>B" "A-1≥B"  (QUOTE (_A-1≥_B))  "A>B" (QUOTE (_A>_B)) 
 /*  RULE "(A;B);C≜A;(B;C)" IS   A;B;C≜A;(B;C)
     ENTRY "flatten ;" IS 
         iterateR2L "rewrite≜"  "symmetric≜" (QUOTE (_A;(_B;_C))) "(A;B);C≜A;(B;C)" (Fail "no semicolons to flatten")
