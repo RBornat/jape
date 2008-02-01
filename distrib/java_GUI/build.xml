@@ -5,7 +5,6 @@
     
     <target name="clean">
         <delete dir="build"/>
-        <delete dir="../MacOSX/java_GUI/build"/>
     </target>
 
     <target name="OSXcompile">
@@ -68,7 +67,7 @@
     </target>
     
     <target name="OSXapp" depends="OSXcompile,OSXjar">
-        <jarbundler dir="."
+        <jarbundler dir="build"
                     name="Jape"
                     mainclass="uk.org.jape.Jape"
                     jar="build/jar/OSX/Jape.jar"
@@ -88,7 +87,7 @@
 
     <target name="OSXrun" depends="OSXapp">
         <exec executable="open">
-        <arg value="./Jape.app"/>
+        <arg value="build/Jape.app"/>
         </exec>
     </target>
 
