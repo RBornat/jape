@@ -79,6 +79,7 @@
             <javaproperty name="apple.awt.showGrowBox"      value="true"/>
             <javaproperty name="apple.awt.antialiasing"     value="true"/>
             <javaproperty name="apple.awt.rendering"        value="quality"/>
+            <javaproperty name="uk.org.jape.AppPackage"     value="$APP_PACKAGE"/>
         </jarbundler>
             
         <delete file="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
