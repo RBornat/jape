@@ -32,6 +32,8 @@ INITIALISE innerassumptionword assumption
 INITIALISE innerassumptionplural assumptions
 
 INITIALISE seektipselection false
+
+INITIALISE multihypsel true
  
 MENU Edit
     SEPARATOR
