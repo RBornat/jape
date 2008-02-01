@@ -1,24 +1,24 @@
 #
 # $Id$
 #
-SERVERSOURCE=java_GUI
+GUISOURCE=../java_GUI
 ENGINESOURCE=../camlengine
-XCODETARGET=Jape
 
-all:         ; $(MAKE) engine GUIclean GUI symlink
+local:	 ; 	$(MAKE) engineclean engine GUIclean GUI
 
+release:	 ; 	$(MAKE) engineclean OSXuniversal GUIclean GUI
+				
 OSXuniversal: ; cd $(ENGINESOURCE); $(MAKE) OSXuniversal
 
-run:         ; open Development/Jape.app
+run:         ; open Jape.app
 
 engine:      ; cd $(ENGINESOURCE); make jape_engine
 
-GUI:         ; cd $(SERVERSOURCE); xcodebuild -target $(XCODETARGET) -configuration Development SYMROOT=.. OBJROOT=..
+GUI:         ; 	(cd $(GUISOURCE); ant OSXapp); \
+				rm -fr Jape.app; mv $(GUISOURCE)/build/Jape.app .
 
-symlink:     ; cd Development; rm -f jape_engine; ln -s ../../camlengine/jape_engine
-
-clean:       ; $(MAKE) engineclean GUIclean
+clean:       ; $(MAKE) engineclean GUIclean; rm -fr Jape.app
 
 engineclean: ; cd $(ENGINESOURCE); $(MAKE) clean
 
-GUIclean:    ; cd $(SERVERSOURCE); xcodebuild -target $(XCODETARGET) -configuration Development clean SYMROOT=.. OBJROOT=..
+GUIclean:    ; cd $(GUISOURCE); ant clean
