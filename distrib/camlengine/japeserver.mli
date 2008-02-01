@@ -205,6 +205,7 @@ val howToText : string -> string
 
 (* nascent variable mirroring *)
 val settextselectionmode : string -> unit
+val setmultihypsel       : string -> unit
 
 val setComment : string -> unit
 (* this demoted to a thing which sets a comment line *)

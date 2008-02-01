@@ -313,12 +313,21 @@ let rec setinvischars
   writef "SETINVISCHARS % % % % % % % %\n"
     (List.map (fun s -> Str s) !invischars)
 
+(* these are idleness formalised. See comment in dialogue.ml *)
+
 let rec settextselectionmode m = 
   writef "SETTEXTSELECTIONMODE %\n" 
            [Int (match m with
                    "subformula" -> 0
                  | "token"      -> 1
                  | _ -> raise (Catastrophe_ ["Japeserver.settextselectionmode "; Stringfuns.enQuote m]))]
+
+let rec setmultihypsel m = 
+  writef "SETMULTIHYPSEL %\n" 
+           [Bool (match m with
+                   "true"  -> true
+                 | "false" -> false
+                 | _ -> raise (Catastrophe_ ["Japeserver.multihypsel "; Stringfuns.enQuote m]))]
 
 let rec drawLine pos1 pos2 =
   let (x1, y1) = explodePos pos1 in
