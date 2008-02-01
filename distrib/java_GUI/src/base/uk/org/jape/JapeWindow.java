@@ -47,8 +47,6 @@ public abstract class JapeWindow extends JFrame {
 	public JapeWindow(final String title, int proofnum) {
 		super((LocalSettings.UnicodeWindowTitles || proofnum<0) ? title :
 			("Proof #"+proofnum));
-		Logger.log.println("setting up window: title \""+title+"\", proofnum "+proofnum+
-				"; LocalSettings.UnicodeWindowTitles="+LocalSettings.UnicodeWindowTitles);
 		this.title=title; // ignoring whatever else may happen outside, this is a uid
 		windowList.addToWindowv(this);
 		windowListener = new WindowAdapter() {
