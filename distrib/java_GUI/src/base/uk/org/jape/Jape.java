@@ -66,14 +66,14 @@ public class Jape implements DebugConstants {
     
     public static boolean onMacOSX, onLinux, onSolaris, onWindows, onUnix;
     public static Rectangle screenBounds;
-    public static String defaultUnixEnginePath	  = "./jape_engine";
+    public static String defaultUnixEnginePath    = "./jape_engine";
     public static String defaultWindowsEnginePath = ".\\jape.exe"  ;
     
     public static void main(String args[]) {
 	// since platform independence seems not yet to have been achieved ...
 	String osName = System.getProperty("os.name");
 	
-	onMacOSX = notice_MacOSX && System.getProperty("mrj.version")!=null;
+	onMacOSX = notice_MacOSX && osName.equals("Mac OS X");
 	onLinux = notice_Linux && osName.equals("Linux");
 	onSolaris = notice_Solaris && osName.equals("SunOS");
 	onWindows = osName.startsWith("Windows");
@@ -82,7 +82,7 @@ public class Jape implements DebugConstants {
 	
 	if (!(onMacOSX || onLinux  || onSolaris	|| onWindows)) {
 	    Logger.log.println("Jape.main doesn't recognise OS\n"+
-			       "os.name="+System.getProperty("os.name")+
+			       "os.name=\""+System.getProperty("os.name")+"\""+
 			       "\nos.arch="+System.getProperty("os.arch")+
 			       "\nos.version="+System.getProperty("os.version"));
 	}
@@ -115,7 +115,7 @@ public class Jape implements DebugConstants {
 
 	new LocalSettings();
 	Vector<String> engineCmd = new Vector<String>();
-	engineCmd.add(onWindows ? defaultWindowsEnginePath : defaultUnixEnginePath);
+	engineCmd.add(onWindows ? defaultWindowsEnginePath : onMacOSX ? System.getProperty("uk.org.jape.AppPackage")+"/Contents/Engine/"+defaultUnixEnginePath : defaultUnixEnginePath);
 
 	// all args (except for -engine <path>) sent to engine.
 	
