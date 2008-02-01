@@ -23,8 +23,8 @@ jape_engine:: ;\
 	ocamlbuild -lib unix -no-links main.native; \
 	cp _build/main.native jape_engine
 
-jape_exe::	;\
-	ocamlbuild -classic-display -build-dir _windows -lib unix -no-links main.native; \
+jape.exe::	;\
+	ocamlbuild -classic-display -lib unix -no-links main.native; \
 	cp _build/main.native jape.exe
 	
 #############################################################################
