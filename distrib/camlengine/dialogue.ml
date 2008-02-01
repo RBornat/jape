@@ -206,6 +206,7 @@ let defaultenv =
      "matchdebug"           , bj                         false        Match.matchdebug;
      "menudebug"            , bj                         false        Menu.menudebug;
      "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
+     "multihypsel" 			, bj						 false		  Miscellaneous.multihypsel;
      "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
      "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
@@ -760,8 +761,12 @@ let doUse = Paragraphfuns.interpretParasFrom
    We need a mechanism to allow variables in the engine to be mirrored in the GUI, or
    else to allow the user to assign values to variables in the GUI through the engine.
    We don't have one yet, but since there is only one variable involved --
-   textselectionstyle -- it's not a big deal.  I don't even try to cache it ...
+   textselectionmode -- it's not a big deal.  I don't even try to cache it ...
    RB 3.vii.01
+ *)
+(* Now there are two variables: textselectionmode and multihypsel. I'm still too
+   lazy to set up a mechanism. Sorry.
+   RB 28.i.08
  *)
 exception Matchinmain_ 
 exception Exit_
@@ -2009,14 +2014,20 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
        Disprovebutton    , not (null pinfs) && hasforcedefs ()];
     List.iter domb mbs;
     (* this is lazy -- see comment above *)
-    begin try
+    (try
       Japeserver.settextselectionmode
         (string_of_term
            (_The (Japeenv.(<@>) env (name_of_string "textselectionmode"))))
     with
       None_ ->
-        raise (Catastrophe_ ["textselectionmode not in environment"])
-    end;
+        raise (Catastrophe_ ["textselectionmode not in environment"]));
+    (try
+      Japeserver.setmultihypsel
+        (string_of_term
+           (_The (Japeenv.(<@>) env (name_of_string "multihypsel"))))
+    with
+      None_ ->
+        raise (Catastrophe_ ["textselectionmode not in environment"]));
     (* explicit block so that profiler gives more helpful information *)
     let command = getCommand displayopt in
     setComment [];
