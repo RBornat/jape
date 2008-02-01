@@ -472,7 +472,10 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    Jape.dontQuit();
 			else
 			if (p=="SETTEXTSELECTIONMODE"&&len==2)
-			    ProofWindow.setTextSelectionMode(toByte(cmd[1]));
+				ProofWindow.setTextSelectionMode(toByte(cmd[1]));
+			else
+			if (p=="SETMULTIHYPSEL"&&len==2)
+				ProofCanvas.setMultiHypSel(toBool(cmd[1]));
 			else
 			if (p=="VERSION"&&len==2)
 			    AboutBox.setVersion(cmd[1]);
