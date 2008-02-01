@@ -46,28 +46,6 @@ let swapargs f a b = f b a
 let rec string_of_ref f {contents = a} = ("ref(" ^ f a) ^ ")"
 let rec earlierpair lta ltb (a, b) (a', b') =
   lta a a' || not (lta a' a) && ltb b b' (* this is trying not to use equality ... *)
-  
-(* whether to add context automatically to rule definitions *)
-let autoAdditiveLeft  = ref false
-let autoAdditiveRight = ref false
-    
-let lemmacount = ref 0 (* number of lemmas during THIS proof *)
-let applyconjectures = ref "none" (* whether to allow application of conjectures *)
-let autoselect = ref true    (* whether to highlight 'next goal' when printing proofs *)
-let givenMenuTactic = ref "" (* tactic to use when the interface says applygiven *)
- 
-let foldassumptionlines = ref false (* whether to fold long lines in boxdraw *)
-let foldformulae = ref false (* whether to fold long formulae in boxdraw *)
-let foldsequents = ref false (* whether to fold sequents in treedraw *)
-let truncatereasons = ref false (* whether to shorten reasons in boxdraw *)
-  
-let seektipselection = ref true (* whether to look for a tip to work on in boxdraw *)
-  
-let textselectionmode = ref "subformula"
-let screenpositiondebug = ref true
-
-let tryresolution = ref true
-let resolvepossible = ref false
 
 exception Catastrophe_ of string list
 exception ParseError_ of string list
@@ -115,3 +93,36 @@ let rec consolequery (message, yes, no, def) =
   
 exception Error_
 let rec error strings = consolereport strings; raise Error_
+
+(* ********************************* settings variables ********************************* *)
+
+let applyconjectures = ref "none" (* whether to allow application of conjectures and derived rules -- 
+										  permitted values "all", "none", "rules", "theorems" 
+								   *)
+
+(* whether to add context automatically to rule definitions *)
+let autoAdditiveLeft  = ref false
+let autoAdditiveRight = ref false
+
+let autoselect = ref true    (* whether to highlight 'next goal' when printing proofs *)
+    
+let givenMenuTactic = ref "" (* tactic to use when the interface says applygiven *)
+ 
+let foldassumptionlines = ref false (* whether to fold long lines in boxdraw *)
+let foldformulae = ref false (* whether to fold long formulae in boxdraw *)
+let foldsequents = ref false (* whether to fold sequents in treedraw *)
+  
+let lemmacount = ref 0 (* number of lemmas during THIS proof *)
+
+let multihypsel = ref false (* can select more than one hypothesis, if true *)
+
+let resolvepossible = ref false
+
+let screenpositiondebug = ref true
+let seektipselection = ref true (* whether to look for a tip to work on in boxdraw *)
+  
+let textselectionmode = ref "subformula"
+let truncatereasons = ref false (* whether to shorten reasons in boxdraw *)
+
+let tryresolution = ref true
+
