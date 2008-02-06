@@ -7,9 +7,6 @@ ENCODEDIR=../../utf8_encoder
 ENGINEDIR=../../camlengine
 RESOURCES=../CommonBuildResources
 BUILDRESOURCES=../../CommonBuildResources
-COMPILEDIR=./tmp
-SOURCES=-I ../../../ocamlengine
-SERVERSCRIPT=exec java -jar japeserver.jar
 
 ##################################################################
 #
@@ -40,7 +37,7 @@ APP=jape
 #
 ##################################################################
 
-all:   ; $(MAKE) components distribution
+all: distribution
 
 #
 #       Multiarchitecture/OS engine build is safest if compilations are in separate directories
@@ -51,35 +48,26 @@ all:   ; $(MAKE) components distribution
 #       Technique: synchronize source files in the compile directory, then compile
 #       
 #
-engine:         ; rsync -v -t --exclude="*.cm*" \
-                        $(ENGINEDIR)/Makefile   \
-                        $(ENGINEDIR)/.depend    \
-                        $(ENGINEDIR)/*.ml*  $(COMPILEDIR);\
-                  (cd $(COMPILEDIR); make $(ENGINETARGET))
+engine:         ; cd $(ENGINEDIR); make $(ENGINETARGET) OS=$(OS)
                
-cleanengine:    ; rm -f $(COMPILEDIR)/.depend;\
-                  rm -f $(COMPILEDIR)/*;\
-                  (cd $(COMPILEDIR); rm -f $(BUILTENGINE) $(DEPLOYEDENGINE) $(ENGINETARGET));\
-                  make engine
+cleanengine:    ; cd $(ENGINEDIR); make clean $(ENGINETARGET) OS=$(OS)
 
 #
 #       Java is compile-once, run anywhere, so we can make the GUI in one place
 #
-GUI:            ; (cd $(GUIDIR); $(MAKE) Jape.jar)
-CLEANGUI:       ; (cd $(GUIDIR); $(MAKE) clean Jape.jar)
+GUI:            ; (cd $(GUIDIR); ant Jape.jar)
+CLEANGUI:       ; (cd $(GUIDIR); ant clean Jape.jar)
 
 #
 #       ditto the encoder
 #
 encoder:            ; (cd $(ENCODEDIR); $(MAKE) encoder.jar)
-cleanencoder:       ; (cd $(GUIDIR); $(MAKE) clean)
+cleanencoder:       ; (cd $(ENCODEDIR); $(MAKE) clean encoder.jar)
 
 #
 #       
 #
-components::    engine GUI examples;\
-                  rsync -v -t    $(GUIDIR)/Jape.jar .                       ;\
-                  rsync -v -t    $(COMPILEDIR)/$(BUILTENGINE) ./$(DEPLOYEDENGINE)
+components::    engine GUI
 
 install:        components; \
                   rsync -v -t    $(BUILDRESOURCES)/installjape.sh . ;\
@@ -90,11 +78,8 @@ clean:          ; rm -rf tmp; rm -f $(BIN)/Jape.jar $(BIN)/*.gif $(BIN)/*.jpg $(
 distribution::  ; make encoder; make components; \
                   make jarfile
 
-examples:       ; ln -s ../../examples .
-
-
 AT="@"
-jarfile:        examples ; java -jar ../../CommonBuildResources/buildinstaller.jar Install$(OS)jape.jar                                  \
+jarfile:        ; java -jar ../../CommonBuildResources/buildinstaller.jar Install$(OS)jape.jar                                  \
                 -app            "Jape"                                                          \
                 -splash         $(SPLASH)                                                       \
                 -splashside     North                                                           \
@@ -106,5 +91,5 @@ jarfile:        examples ; java -jar ../../CommonBuildResources/buildinstaller.j
                 $(ENCODERESOURCES)      \
                 $(INSTALLRESOURCES)     \
                 $(DEPLOYEDENGINE)       \
-                examples Jape.jar                    
+                ../../examples $(GUIDIR)/build/jar/standard/Jape.jar                    
 
