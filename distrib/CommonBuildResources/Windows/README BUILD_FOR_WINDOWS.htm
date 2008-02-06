@@ -1,0 +1,91 @@
+﻿<p>
+Jape can now be built on a standalone Windows machine. Hurrah! I <i>think</i> the result is a nice fast Jape, but do tell me if it isn't.
+</p>
+
+<p>
+It wasn't easy to make it all work, and it's not perfectly easy to use. Basically, I had to get the Unix build mechanism to work in Windows. The result is a bit Unix-geeky. I've written this note for (what I imagine to be) the average Windows geek. If you have problems, you can always use the normal binary distribution.
+</p>
+
+<ol>
+	<li>You will need Sun Java (not the Microsoft Java). If you don't know which version you have, in a command prompt (DOS) window type
+	<p>
+	<code>      java -version</code>
+	<p>
+	The last line of the response should start "Java Hotspot(TM) Client": I think that's indicative of Sun Java. If you have the wrong version, get the right one from <a href="http://java.sun.com">Sun</a>.</li>
+	
+	<li>You will need Ocaml. Get the latest release from <a href="http://caml.inria.fr/ocaml">INRIA</a>: you need the the MinGW version of the binary distribution for Windows (<i>not</i> the Cygwin version, surprisingly; <i>not</i> the Microsoft native version either). Install it where it wants to go, which is C:\Program Files\Objective Caml.</li>
+	
+	<li>You will need cygwin, a package that lets you do Unix-y things on Windows. This takes a bit of work and some slightly geeky interaction.
+	<ol type="a">
+	    <li>Get setup.exe from <a href="http://cygwin.com">cygwin.com</a> and run it. Choose a nice place for it to squirrel its stuff away -- I put the root directory in C:\cygwin and its cache files in My Documents\cygwin -- and pick a local mirror for speed (there's a list in <a href="http://cygwin.com/mirrors.html">cygwin.com/mirrors.html</a>, which includes places in .uk and elsewhere that aren't on the official list).</li>
+	    
+	    <li>Let it install the default collection of stuff (i.e keep pressing the "Next>" button). It takes a little time and quite a bit of bandwidth.</li>
+	    
+	    <li>Now run setup.exe again, and this time when you get to the list of packages click the View button till the word to its right says Full. You should see a list of packages like this:
+	    <p>
+	    <embed width=900 height=400 type="image/tiff" src="setup.tiff">
+	    </li>
+	    
+	    <li>Scroll down and click (just once for each package) the funny circle thing left of the word 'Skip' against the following packages
+	    <ul>
+	        <li>binutils: the GNU assembler, linker and binary utilities</li>
+	        <li>gcc-core: C compiler</li>
+	        <li>make: the GNU version of the 'make' utility</li>
+	        <li>rsync: fast remote file transfer program</li>
+        </ul></li>
+	    
+	    <li>(I <i>think</i> that's all you need in addition to the stuff cygwin gives you by default, but I didn't keep proper records. My profuse apologies if I forgot something, and if I did please email <a href="mailto:richard@bornat.me.uk">richard@bornat.me.uk</a> to enlighten me.)</li>
+    </ol></li>
+    
+    <li>For the rest of the job, you need to understand how Windows hosts cygwin, and how cygwin sees its host. If you've put cygwin where I recommended, you will have C:\cygwin\bin, C:\cygwin\lib, C:\cygwin\home, and so on. Cygwin sees that directory as /, so there is /bin, /lib, /home, and so on.
+    
+    <p>There's an especially important directory called /cygdrive. /cygdrive/c (with a lower case c) is C:; /cygdrive/a is A:; and so on.</p></li>
+    
+    <li>You will need Apache Ant. Don't get it from cygwin: their version is a bit elderly. Get it from <a href="http://ant.apache.org">Apache</a>. Unpack it and drag the root directory (ant, which contains its own bin and lib and goodness knows what else) into C:\cygwin\bin .</li>
+    
+    <li>Now you have to be geeky. You must edit a file in your home directory in cygwin so that cygwin can find ant, ant can find itself, and ant can find Java.
+    <ol type="a">
+	    <li>The file is called .bashrc (note that the filename starts with a dot), and it's easy to find -- mine is in C:\cygwin\home\Administrator -- but it has <b>Unix linefeeds</b>, not Windows cr-lfs at the end of lines. So you can't edit it with your usual Windows editors (not even notepad, unless you are rather ingenious).</li>
+	    
+	    <li>Start a cygwin shell window (it's probably put a nice black-and-green icon for it on your desktop -- see the icon top right in the 'select packages' illustration above).</li>
+	    
+	    <li>Take a copy of .bashrc, just to be safe: in the shell window type
+	    <p><code>cp .bashrc foodle</code></p></li>
+	    
+	    <li>Change to the WindowsJape directory in the jape source you downloaded, and in which you found this file. Type
+	    <p><code>cd /cygdrive/&lt;somewhere&gt;/jape.source/WindowsJape</code></p></li>
+	    <li>Now, in that directory, type
+	    <p><code>bash enlighten</code></p>
+	    This will add the following lines to <code>~/.bashrc</code>:
+        <p>
+	        <code>export PATH="$PATH:/bin/ant/bin"</code><br>
+	        <code>export ANTHOME="/bin/ant"</code><br>
+	        <code>export JAVA_HOME="/cygdrive/c/Program Files/Java/jdk1.6.0_03</code>"
+	    <p>
+	    (it may not give you the exact same JAVA_HOME line, because it looks at your java installation to find out what to say).</li>
+	    <li>This will <b><i>not work</i></b> if you don't put your ant in the right place: it has to be in /bin. Type
+	    <p><code>ant -version</code></p>
+	    to check that all is well: it should say something starting "Apache Ant version ...". If it doesn't, either ant is in the wrong place, or you didn't type the write bash line, or something. If all else fails, put back the original .bashrc with
+	    <p><code>cp ~/foodle ~/.bashrc</code></p></li>
+	    and start again.
+	    </li>
+    </ol></li>
+    
+    <li>Now you are ready to do the actual build. In your WindowsJape directory type
+    <p><code>make all</code></p>
+    and it should, after some thrashing around, build a file called InstallWindowsJape.jar.</li>
+    
+    <li>And that's it: you've done it. Double-click InstallWindowsJape.jar, follow the prompts.</li>
+    
+    <li>What could go wrong? Well, for me, these things went wrong while I was debugging the mechanism:
+    <ul type="circle">
+	    <li>I didn't edit my .bashrc file properly, got Windows cr-lfs in it instead of Unix lfs, and when I started a cygwin shell I got lots of complaints about returns.</li>
+	    <li>I didn't load enough packages, and the build failed saying something like 'as is not a command in ....' or 'bash: make: command not found'</li>
+	    <li>It couldn't find ant because I'd set the wrong ANTHOME, or put an underscore in the name, or something.</li>
+	    <li>It couldn't find JAVA_HOME (ant complains it can't find tools.jar, typically). Again, check that you've done exactly the right thing in your .bashrc.</li>
+    </ul>
+    Otherwise it's been plain sailing (apart from the hassle of setting all this up, finding an editor I could bear to use, etc.). And if you're not a geek: yes, it isn't straightforward. But why aren't you using the binary distribution, then?</li>
+</ol>
+Richard Bornat<br>
+<a href="mailto:richard@bornat.me.uk">richard@bornat.me.uk</a><br>
+6/ii/2008
