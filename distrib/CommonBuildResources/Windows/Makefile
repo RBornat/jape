@@ -15,8 +15,6 @@ OS=Windows
 # Override the default targets (See Makefile-common for explanation)
 #
 ENGINETARGET=jape.exe
-BUILTENGINE=jape.exe
-DEPLOYEDENGINE=jape.exe
 
 #
 #       Send the icon, the README, and the specialised code in the jar
