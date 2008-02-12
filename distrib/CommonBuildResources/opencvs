@@ -1,5 +1,5 @@
-#!/bin/tcsh
+#!/bin/bash
 #usage: source opencvs <user>
-#but does that work with any other shell?
-setenv CVS_RSH ssh
-setenv CVSROOT :ext:$1@jape.cvs.sourceforge.net:/cvsroot/jape
+#ONLY works with bash
+export CVS_RSH=ssh
+export CVSROOT=:ext:$1@jape.cvs.sourceforge.net:/cvsroot/jape
