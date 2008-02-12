@@ -1,8 +1,5 @@
 <project>
 
-    <taskdef name="jarbundler" 
-         classname="net.sourceforge.jarbundler.JarBundler" />
-    
     <target name="clean">
         <delete dir="build"/>
     </target>
@@ -29,16 +26,16 @@
     
     <target name="basejar">
         <mkdir dir="build/jar"/>
-        <jar destfile="build/jar/Jape.jar" 
+        <jar destfile="build/jar/base.jar" 
              basedir="extras"
              includes = "**/*.jpg **/*.gif"
              >
         </jar>
     </target>
     
-    <target name="OSXjar" depends="basejar,OSXcompile">
+    <target name="OSX.jar" depends="basejar,OSXcompile">
         <mkdir dir="build/jar/OSX"/>
-        <copy file="build/jar/Jape.jar" tofile="build/jar/OSX/Jape.jar"/>
+        <copy file="build/jar/base.jar" tofile="build/jar/OSX/Jape.jar"/>
         <jar destfile="build/jar/OSX/Jape.jar" 
              basedir="build/classes/OSX"
              includes = "**/*.class"
@@ -51,9 +48,9 @@
         </jar>
     </target>
     
-    <target name="standardjar" depends="basejar,standardcompile">
+    <target name="Jape.jar" depends="basejar,standardcompile">
         <mkdir dir="build/jar/standard"/>
-        <copy file="build/jar/Jape.jar" tofile="build/jar/standard/Jape.jar"/>
+        <copy file="build/jar/base.jar" tofile="build/jar/standard/Jape.jar"/>
         <jar destfile="build/jar/standard/Jape.jar" 
              basedir="build/classes/standard"
              includes = "**/*.class"
@@ -66,43 +63,8 @@
         </jar>
     </target>
     
-    <!-- ../camlengine/jape_engine must be built before Jape.app -->
-    
-    <target name="OSXapp" depends="OSXcompile,OSXjar">
-        <jarbundler dir="build"
-                    name="Jape"
-                    mainclass="uk.org.jape.Jape"
-                    jar="build/jar/OSX/Jape.jar"
-                    shortname="Jape"
-                    >
-            <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
-            <javaproperty name="apple.awt.showGrowBox"      value="true"/>
-            <javaproperty name="apple.awt.antialiasing"     value="true"/>
-            <javaproperty name="apple.awt.rendering"        value="quality"/>
-            <javaproperty name="uk.org.jape.AppPackage"     value="$APP_PACKAGE"/>
-        </jarbundler>
-            
-        <delete file="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
-        <exec executable="ln">
-            <arg line="-s /System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub"/>
-            <arg value="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
-        </exec>
-        <mkdir dir="build/Jape.app/Contents/Engine"/>
-        <copy file="../camlengine/jape_engine" tofile="build/Jape.app/Contents/Engine/jape_engine"/>
-        <exec executable="chmod">
-            <arg value="755"/>
-            <arg value="build/Jape.app/Contents/Engine/jape_engine"/>
-        </exec>
-    </target>
-
-    <target name="standardrun" depends="standardjar">
+    <target name="run" depends="Jape.jar">
         <java jar="build/jar/standard/Jape.jar" fork="true"/>
-    </target>
-
-    <target name="OSXrun" depends="OSXapp">
-        <exec executable="open">
-        <arg value="build/Jape.app"/>
-        </exec>
     </target>
 
 </project>
