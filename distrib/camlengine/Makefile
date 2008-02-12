@@ -18,15 +18,31 @@
 #       Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #       (or look at http://www.gnu.org).
 #
+BUILDDIR=_build$(OS)
 
 jape_engine:: ;\
-	ocamlbuild -lib unix -no-links main.native; \
-	cp _build/main.native jape_engine
+	ocamlbuild -build-dir $(BUILDDIR) -lib unix -no-links main.native; \
+	rm -f $(BUILDDIR)/jape_engine; ln -s $(BUILDDIR)/main.native $(BUILDDIR)/jape_engine
 
+# can't do ln -s on windoze, cos symbolic links only half work on Cygwin
 jape.exe::	;\
-	ocamlbuild -classic-display -lib unix -no-links main.native; \
-	cp _build/main.native jape.exe
+	ocamlbuild.native -classic-display -build-dir $(BUILDDIR) -lib unix -no-links \
+		-ocamlopt ocamlopt.opt -ocamlc ocamlc.opt main.native; \
+	cp $(BUILDDIR)/main.native $(BUILDDIR)/jape.exe
 	
+#############################################################################
+#
+# this doesn't really work at present ... because all the old make stuff has been stripped away.
+# I preserve it in case my suspicion that the MinGW port runs slowly proves true.
+#
+
+makejape.bat:: ;\
+   echo cd tmp                                                 >  ../makejape.bat;\
+   make -n jape.exe | egrep -v "Entering|Leaving|up to date"   >> ../makejape.bat;\
+   echo cd ..                                                  >> ../makejape.bat;\
+   echo NOW RUN makejape.bat ON WINDOZE AND TYPE CR WHEN THROUGH;\
+   read ANSWER             
+
 #############################################################################
 #
 # For universal engines on OS X -- only on an Intel box.
@@ -40,13 +56,15 @@ oPPCLIB=/usr/local/lib/ocamlppc
 
 OSXuniversal:: ;\
 	make clean; \
-	ocamlbuild -build-dir _buildi386 -lib unix -no-links main.native; \
-	ocamlbuild -build-dir _buildppc -lib unix -ocamlopt '$(oPPCCOMPILER) -ccopt "-arch ppc" -nostdlib -I $(oPPCLIB)' -no-links main.native; \
-	lipo _buildi386/main.native _buildppc/main.native -create -output jape_engine; \
-	lipo -info jape_engine
+	ocamlbuild -build-dir _build$(OS)/i386 -lib unix -no-links main.native; \
+	ocamlbuild -build-dir _build$(OS)/ppc -lib unix -ocamlopt '$(oPPCCOMPILER) -ccopt "-arch ppc" -nostdlib -I $(oPPCLIB)' -no-links main.native; \
+	lipo _build$(OS)/i386/main.native _build$(OS)/ppc/main.native -create -output _build$(OS)/jape_engine; \
+	lipo -info _build$(OS)/jape_engine
 	
 #
 #############################################################################
 
-clean:;                 rm -fr _build* _log *.native jape_engine jape.exe
+clean:;                 rm -fr _build$(OS)
+cleanall:;				rm -fr _build* _log
+
         
