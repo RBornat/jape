@@ -8,17 +8,16 @@ local:	 ; 	$(MAKE) engineclean engine GUIclean GUI
 
 release:	 ; 	$(MAKE) engineclean OSXuniversal GUIclean GUI
 				
-OSXuniversal: ; cd $(ENGINESOURCE); $(MAKE) OSXuniversal
+OSXuniversal: ; cd $(ENGINESOURCE); $(MAKE) OSXuniversal OS=OSX
 
-run:         ; open Jape.app
+run:         ; open build/Jape.app
 
-engine:      ; cd $(ENGINESOURCE); make jape_engine
+engine:      ; cd $(ENGINESOURCE); make jape_engine OS=OSX
 
-GUI:         ; 	(cd $(GUISOURCE); ant OSXapp); \
-				rm -fr Jape.app; mv $(GUISOURCE)/build/Jape.app .
+GUI:         ; 	(cd $(GUISOURCE); ant OSX.jar); ant Jape.app
 
-clean:       ; $(MAKE) engineclean GUIclean; rm -fr Jape.app
+clean:       ; $(MAKE) engineclean GUIclean
 
-engineclean: ; cd $(ENGINESOURCE); $(MAKE) clean
+engineclean: ; cd $(ENGINESOURCE); $(MAKE) clean OS=OSX
 
-GUIclean:    ; cd $(GUISOURCE); ant clean
+GUIclean:    ; ant clean; cd $(GUISOURCE); ant clean
