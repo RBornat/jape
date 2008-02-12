@@ -1,0 +1,44 @@
+<project>
+    <!-- ../camlengine/_buildOSX/jape_engine must be built before Jape.app (see makefile) -->
+    
+    <taskdef name="jarbundler" 
+         classname="net.sourceforge.jarbundler.JarBundler" />
+    
+    <target name="Jape.app">
+        <mkdir dir="build"/>
+        <jarbundler dir="build"
+                    name="Jape"
+                    mainclass="uk.org.jape.Jape"
+                    jar="../java_GUI/build/jar/OSX/Jape.jar"
+                    shortname="Jape"
+                    >
+            <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+            <javaproperty name="apple.awt.showGrowBox"      value="true"/>
+            <javaproperty name="apple.awt.antialiasing"     value="true"/>
+            <javaproperty name="apple.awt.rendering"        value="quality"/>
+            <javaproperty name="uk.org.jape.AppPackage"     value="$APP_PACKAGE"/>
+        </jarbundler>
+            
+        <delete file="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
+        <exec executable="ln">
+            <arg line="-s /System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub"/>
+            <arg value="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
+        </exec>
+        <mkdir dir="build/Jape.app/Contents/Engine"/>
+        <copy file="../camlengine/_buildOSX/jape_engine" tofile="build/Jape.app/Contents/Engine/jape_engine"/>
+        <exec executable="chmod">
+            <arg value="755"/>
+            <arg value="build/Jape.app/Contents/Engine/jape_engine"/>
+        </exec>
+    </target>
+    
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+    
+    <target name="run">
+        <exec executable="open">
+            <arg value="build/Jape.app"/>
+        </exec>
+    </target>
+</project>
