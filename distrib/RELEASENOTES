@@ -6,3 +6,5 @@ Improved description of how to build Windows binaries.
 v7_d5_1: bugfix. Now will apply derived rules.
 
 v7_d5_1a: bugfix. Now will really apply derived rules.
+
+v7_d6: bugfixes (Hoare logic now improved to deal with a[E] computes properly; multihypsel variable stops multiple selections except in theories than can understand them). New build system for OSX, Windows. Java brought up to 1.5 standard. Runs a bit better on Leopard.
