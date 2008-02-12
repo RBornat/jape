@@ -7,8 +7,8 @@
 3. In the directory where you found this file (japesource/MacOSX):
    
    make local 
-   -- builds the engine and the GUI interface, bundles them together and puts them in this directory 
-      as Jape.app
+   -- builds the engine and the GUI interface, bundles them together and puts them in 
+        ./build/Jape.app
 
    make run
    -- to try it out. If it works, move Jape where you like
@@ -23,7 +23,7 @@
     oPPCCOMPILER=/usr/local/bin/ocamloptppc
     oPPCLIB=/usr/local/lib/ocamlppc
 
-4c. Then make universal will do the business and give you a universal Jape.app.
+4c. Then make release will do the business and give you a universal ./build/Jape.app.
 
 Richard Bornat
 richard@bornat.me.uk
