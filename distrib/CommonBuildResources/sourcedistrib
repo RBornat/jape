@@ -2,7 +2,8 @@
 # usage: source opencvs; sourcedistrib <tag>
 rm -fr jape.source jape.source.$1.tgz
 cvs export -r $1 -d jape.source distrib
-(cd jape.source/CommonBuildResources; bash create_OS_directories; rm -fr create_OS_directories sourcedistrib Linux Windows Solaris)
+(cd jape.source/CommonBuildResources; bash create_OS_directories; rm -fr create_OS_directories Linux Windows Solaris)
+mv -f jape.source/CommonBuildResources/sourcedistrib newsourcedistrib
 (cd jape.source/CommonBuildResources/InstallerKit; ant buildinstaller; mv BUILD/buildinstaller.jar ..; ant clean)
-(cd jape.source/MacOSX; rm macdistrib)
+mv -f jape.source/MacOSX/macdistrib newmacdistrib
 tar cvzf jape.source.$1.tgz jape.source
