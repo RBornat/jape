@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/bash
 # usage: macdistrib <tag>
 # given a jape.source directory (see sourcedistrib in CommonBuildResources), 
 # builds jape_<tag> distribution, which you have to pack up using DiskUtility (sorry)
