@@ -1,0 +1,71 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww12620\viewh14000\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 1. Get the developer tools (from Apple or from a CD).
+\
+\
+\pard\tx426\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li1320\fi-820\ql\qnatural\pardirnatural
+\cf0 1a. Make sure ant (installed by the developer tools) is known to the shell (and why Apple doesn't do this, I don't know). I added the following lines to ~/.profile:\
+\pard\tx426\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li1320\fi-400\ql\qnatural\pardirnatural
+\cf0 \
+
+\f1 ## ant variables added by richard 13/ii/2008 start\
+## Do not remove the previous line\
+PATH="$PATH:/usr/share/ant/bin"\
+export PATH\
+ANTHOME="/usr/share/ant"\
+export ANTHOME\
+JAVA_HOME="/Library/Java/Home"\
+export JAVA_HOME\
+## Do not remove the next line\
+## ant variables added by richard 13/ii/2008 end
+\f0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \
+2. Get the latest OCaml (at time of writing, 3.10).\
+\
+3. In the directory where you found this file (japesource/MacOSX):\
+   \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\fi660\ql\qnatural\pardirnatural
+\cf0    
+\f1 make local 
+\f0 \
+   -- builds the engine and the GUI interface, bundles them together and puts them in \
+        ./build/Jape.app\
+\
+   
+\f1 make run
+\f0 \
+   -- to try it out. If it works, move build/Jape.app where you like\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \
+4. If you want to make a version that runs on PowerPC and on Intel, you have to do a bit more.
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\fi820\ql\qnatural\pardirnatural
+\cf0 4a. You have to be running on an Intel Mac, and you need two copies of Ocaml, as follows.\
+\
+4b. First install the PPC Ocaml (it will overwrite the one you already have, if any, but don't worry).\
+\
+4c. Squirrel away two parts of it:\
+\
+		
+\f1 mv /usr/local/bin/ocamlopt /usr/local/bin/ocamloptppc\
+		mv /usr/local/lib/ocaml /usr/local/lib/ocamlppc
+\f0 \
+\
+4d. Now install the Intel OCaml. \
+\
+4e. 
+\f1 make release
+\f0  will now do the business and give you a universal ./build/Jape.app.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \
+Richard Bornat\
+richard@bornat.me.uk\
+1st February 2008\
+}
