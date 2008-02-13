@@ -5,7 +5,7 @@
 (cd jape.source/MacOSX; make release)
 (cd jape.source/utf8_encoder; make)
 rm -fr jape_$1 jape_$1.dmg
-mkdir jape_$1 jape_$1/jape jape_$1/utf8_encoder
+mkdir jape_$1 jape_$1/utf8_encoder
 # rsync -l because Jape.app includes a symbolic link (recommended by jarbundler.jar docs)
 rsync -rlvt jape.source/MacOSX/{build/Jape.app,README.INSTALL.MACOSX} jape_$1
 rsync -rvt jape.source/examples jape.source/MacOSX/\ README.rtf jape_$1
