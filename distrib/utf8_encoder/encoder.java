@@ -15,7 +15,7 @@ $Id$
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.regex.*;
+// import java.util.regex.*;
 import java.util.*;
 
 public class encoder {
@@ -168,7 +168,7 @@ public class encoder {
       
     public static String translateLine(String line, String[] tr, boolean l2r, int linenum) { 
 	StringBuffer buf = new StringBuffer();
-	int line_i=0, buf_i=0;
+	int line_i=0, /* buf_i=0 */;
 	int line_lim=line.length(), tr_lim=tr.length;
 	int source = l2r ? 0 : 1, dest = 1-source;
 	
