@@ -11,6 +11,7 @@
             sourcepath=""
             srcdir="src/base:src/OSX"
             destdir="build/classes/OSX"
+            source="1.5"
         />
     </target>
 
@@ -21,6 +22,7 @@
             sourcepath=""
             srcdir="src/base:src/standard"
             destdir="build/classes/standard"
+            source="1.5"
         />
     </target>
     
