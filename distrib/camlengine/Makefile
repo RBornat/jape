@@ -22,7 +22,7 @@ BUILDDIR=_build$(OS)
 
 jape_engine:: ;\
 	ocamlbuild -build-dir $(BUILDDIR) -lib unix -no-links main.native; \
-	rm -f $(BUILDDIR)/jape_engine; ln -s $(BUILDDIR)/main.native $(BUILDDIR)/jape_engine
+	rm -f $(BUILDDIR)/jape_engine; ln -s main.native $(BUILDDIR)/jape_engine
 
 # can't do ln -s on windoze, cos symbolic links only half work on Cygwin
 jape.exe::	;\
