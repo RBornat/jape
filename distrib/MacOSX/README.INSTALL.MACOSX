@@ -1,0 +1,30 @@
+1. Get the developer tools (from Apple or from a CD).
+1a. Make sure 'ant' is on your exec path: on my machine, in Leopard, I found it in /usr/share/ant, 
+    so I had to add /usr/share/ant/bin to my PATH.
+
+2. Get the latest OCaml (at time of writing, 3.10).
+
+3. In the directory where you found this file (japesource/MacOSX):
+   
+   make local 
+   -- builds the engine and the GUI interface, bundles them together and puts them in 
+        ./build/Jape.app
+
+   make run
+   -- to try it out. If it works, move Jape where you like
+
+4. If you want to make a version that runs on PowerPC and on Intel, you have to do a bit more.
+4a. First, you have to be running on an Intel Mac.
+4b. Next, you have to get two copies of OCaml. The instructions in the engine makefile say:
+    # For universal engines on OS X -- only on an Intel box.
+    # Requirements: ppc library in oPPCLIB, compiler in oPPCCOMPILER
+    #     (set that up by loading the ppc OCaml, copying the relevant files, then
+    #      loading the Intel OCaml. It works!)
+    oPPCCOMPILER=/usr/local/bin/ocamloptppc
+    oPPCLIB=/usr/local/lib/ocamlppc
+
+4c. Then make release will do the business and give you a universal ./build/Jape.app.
+
+Richard Bornat
+richard@bornat.me.uk
+1st February 2008
