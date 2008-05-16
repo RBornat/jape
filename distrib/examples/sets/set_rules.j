@@ -4,10 +4,12 @@ RULES "abstraction-I"(A, OBJECT y,OBJECT z) ARE
         FROM P(A) INFER A∈{ y | P(y) }
     AND FROM P(A,B) INFER <A,B>∈{ <y,z> | P(y,z) }
 END
+
 RULES "abstraction-E"(A, OBJECT y, OBJECT z) ARE
         FROM A∈{ y | P(y) } INFER P(A) 
     AND FROM <A,B>∈{ <y,z> | P(y,z) } INFER P(A,B)
 END
+
 DERIVED RULE "⊆-I(c)"(OBJECT c) WHERE FRESH c IS FROM c∈A ⊢ c∈B INFER A⊆B
 DERIVED RULE "⊆-I(<c,d>)"(OBJECT c,OBJECT d) WHERE FRESH c,d IS FROM <c,d>∈A ⊢ <c,d>∈B INFER A⊆B
 DERIVED RULE "=-I" IS FROM A⊆B AND B⊆A INFER A=B
@@ -26,8 +28,8 @@ DERIVED RULE "(-)-E(L)" IS FROM C∈A-B INFER C∈A
 DERIVED RULE "(-)-E(R)" IS FROM C∈A-B INFER C∉B
 DERIVED RULE "⁻¹-E" IS FROM C∈A⁻¹ INFER ¬(C∈A)
     
-DERIVED RULE "Ø-E" IS FROM A∈Ø INFER ⊥
-DERIVED RULE "A∈U" IS INFER A∈U
+RULE "Ø-E" IS FROM A∈Ø INFER ⊥
+RULE "A∈U" IS INFER A∈U
 
 DERIVED RULE "singleton" IS INFER A∈{B} ↔ A=B
 
