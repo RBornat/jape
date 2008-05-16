@@ -61,8 +61,8 @@ CONJECTUREPANEL "Derived Rules for Set Operators" IS
     ENTRY "(-)-E(R)"
     ENTRY "⁻¹-E"
         
-    ENTRY "Ø-E"
-    ENTRY "A∈U"
+    /*ENTRY "Ø-E"
+    ENTRY "A∈U"*/
 END
 
 TACTICPANEL "Definitions" IS
