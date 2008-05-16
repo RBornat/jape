@@ -11,6 +11,7 @@
                     mainclass="uk.org.jape.Jape"
                     jar="../java_GUI/build/jar/OSX/Jape.jar"
                     shortname="Jape"
+                    icon="java_GUI/Jape.icns"
                     >
             <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
             <javaproperty name="apple.awt.showGrowBox"      value="true"/>
