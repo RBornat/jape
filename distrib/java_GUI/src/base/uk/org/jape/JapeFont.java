@@ -123,8 +123,8 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         panel.add(label);
         gridbag.setConstraints(comboBox, comboconstraints);
         panel.add(comboBox);
-
     }
+    
     public static void runFontSizesDialog() {
 	String [] buttons = { "OK", "Cancel" };
 	SizeSelector [] fontSizes = {
