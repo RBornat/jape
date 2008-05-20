@@ -574,7 +574,8 @@ TACTIC DOunify IS
         (ALERT  ("%t and %t don't unify, because the formula structures don't match.", X, Y) 
                 ("OK", STOP)))
       (BADMATCH X Y 
-        (ALERT  ("%t and %t don't unify, because to do so would change the proof (you shouldn't see this message).", X, Y) 
+        (ALERT  ("%t and %t don't unify, because to do so would change the proof \
+                 \(if you see this message, tell Richard Bornat).", X, Y) 
                 ("OK", STOP)))
       (BADPROVISO X Y P 
         (ALERT  ("%t and %t don't unify, because to do so would smuggle a variable out of its scope \
