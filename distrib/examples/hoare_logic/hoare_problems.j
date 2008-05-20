@@ -24,6 +24,31 @@
 
 */
 
+TACTIC TheoremForward (thm) IS CUTIN (ALT thm (RESOLVE thm))
+
+TACTIC TheoremForwardOrBackward(thm) IS
+    WHEN    
+        (LETHYP _A 
+            (ALT    (TheoremForward (WITHHYPSEL (WITHARGSEL thm)))))
+        (LETHYPS _As
+            (Fail ("At present Jape can't deal with multiple hypothesis selections when applying theorems. Sorry.\
+                    \\nCancel all but one of them and try again.")))
+        (LETGOAL _A
+            (ALT (WITHARGSEL thm) 
+                (RESOLVE (WITHARGSEL thm)) 
+                (TheoremForward (WITHARGSEL thm))
+                (Fail   "Theorem application failed -- tell Richard Bornat")))
+        (LETOPENSUBGOAL G _A 
+            (Fail ("Error in I2L Jape (open subgoal in TheoremForwardOrBackward). Tell Richard Bornat.")))
+        (LETOPENSUBGOALS _As
+            (ALERT  ("There is more than one unproved conclusion in the proof. Please select one – \
+                        \or select a hypothesis – to show \
+                        \Jape where to apply the theorem.")
+                    ("OK", STOP) 
+                    ("Huh?", Explainhypothesisandconclusionwords)))
+        (ALERT  "The proof is finished -- there are no unproved conclusions left."
+                ("OK", STOP) 
+                ("Huh?", Explainunprovedconclusionwords))
 CONSTANT pass fail
 
 CONJECTUREPANEL "Variable Programs"  IS
@@ -146,4 +171,5 @@ CONJECTUREPANEL "Useful Lemmas" IS
     ∀x.(A≤x∧x<B→P(x)), P(B) ⊢ ∀x.(A≤x∧x<B+1→P(x))
   THEOREM WHERE x NOTIN A, B IS
     P(A-1), ∀x.(A≤x∧x<B→P(x)) ⊢ ∀x.(A-1≤x∧x<B→P(x))
+  BUTTON Apply IS apply (TheoremForwardOrBackward COMMAND)
 END
