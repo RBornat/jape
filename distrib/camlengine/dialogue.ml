@@ -220,6 +220,7 @@ let defaultenv =
      "rawfmt"               , ajd                                     Prooftree.Tree.rawfmt;
      "reasonstyle"          , sj ["short"; "long"]       "long"       Prooftree.Tree.reasonstyle;
      "rewritedebug"         , bj                         false        Rewrite.rewritedebug;
+     "selectiondebug"       , bj                         false        selectiondebug;
      "screenpositiondebug"  , bj                         false        screenpositiondebug;
      "seektipselection"     , bj                         true         seektipselection;
      "showallproofsteps"    , bj                         false        Prooftree.Tree.showallproofsteps;
@@ -417,6 +418,7 @@ let mbcache : (name, term ref) mapping ref = ref empty
 let apply_cleanup () = selections := None
 
 exception Applycommand_ of proofstate option
+
 let docommand displaystate env target comm =
   fun (Proofstate {cxt = cxt; tree = tree; givens = givens} as state) ->
     let r =
@@ -424,8 +426,8 @@ let docommand displaystate env target comm =
          withroot
            (withtarget (withgoal state (Some target)) (Some target)) (None)
        in
-       applyLiteralTactic (Some displaystate) env (respace comm)
-         state)
+       applyLiteralTactic (Some displaystate) env (respace comm) state
+      )
     in apply_cleanup (); r
 
 let badsel ss = showAlert ss; raise (Applycommand_ None)
@@ -438,10 +440,71 @@ let badsel ss = showAlert ss; raise (Applycommand_ None)
  * backward mode.  It means that the user (tactic programmer) must guard against things
  * like acting at a non-tip conclusion, but that's possible now.
  *)
-let pointToSequent
-  displaystate env comm
-    (target, concopt, hyps, csels, hsels, givensel (* as fsel *)) =
-  fun (Proofstate {tree = tree} as state) ->
+
+(* and all this leads (surprise, surprise!) to problems. Especially with LETHYPSUBSTSEL.
+ * It should fail if you make a text selection which is not on the path to whatever conclusion
+ * you are working towards -- but then, what should the logic encoder (the tactic programmer)
+ * do? At present we assume that if LETHYPSUBSTSEL fails, either you didn't text-select anything
+ * or it wasn't in a hypothesis. The sort of thing you have to write is this (from hoare_problems.j)
+ 
+	  MACRO rwMenu (tac, label, dir, shape, pat) IS
+	   WHEN
+		 (LETHYPSUBSTSEL pat tac)
+		 (LETHYPSUBSTSEL (_BÇ_A/_xxÈ)
+			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+					 \You subformula-selected %t, which isn't of the right form.", 
+					 label, dir, shape, _A)
+					("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
+		 (LETCONCSUBSTSEL pat tac)
+		 (LETCONCSUBSTSEL (_BÇ_A/_xxÈ)
+			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+					 \You subformula-selected %t, which isn't of the right form.", 
+					 label, dir, shape, _A)
+					("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
+		 (LETARGSEL _A
+			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+					 \You managed (using token selection, perhaps?) to select %t, which isn't a subformula.", 
+					 label, dir, shape, _A)
+					("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
+		 (LETMULTIARG _A
+			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+					 \You subformula-selected %l.\
+					 \\n\n\
+					 \Multiple identical subformula selections are allowed, but your \
+					 \selections weren't identical (or, if they are identical, they aren't subformulae!).", 
+					 label, dir, shape, (_A, ", ", " and "))
+					("OK", STOP)))
+		 (LETHYP pat tac)
+		 (LETHYP _A
+			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+					 \You selected the hypothesis %t, which is of the wrong form.", label, dir, shape, _A)
+					("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)))
+		 (LETCONC pat tac)
+		 (LETCONC _A
+			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+					 \You selected the conclusion %t, which is of the wrong form.", label, dir, shape, _A)
+					("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)))
+		 (LETGOAL pat tac)
+		 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+				 \You didn't select or subformula-select anything", label, dir, shape)
+				("OK", STOP) ("Huh?", SEQ (SHOWHOWTO "FormulaSelect") (SHOWHOWTO "TextSelect")))
+ 
+  * What's happening is that we try LETHYPSUBSTSEL on 'pat'; if it succeeds we go ahead. If it fails,
+  * we try to see if we have another kind of substitution selected, then we do the same with
+  * LETCONCSUBSTSEL, then we try LETARGSEL to see if it isn't a subformula (can happen!) then 
+  * LETMULTIARG, and in each case we've sort of diagnosed the problem. If all that fails, we 
+  * go round again with LETHYP and LETCONC and LETGOAL (can't remember the difference between
+  * the last two!) and finally say that you obviously didn't select anything, so there's a problem.
+  *
+  * Now if we don't police text selections properly, LETHYPSUBSTSEL can succeed on a non-selected
+  * hypothesis. But if we do police them a bit more, it can fail because it's on the wrong path,
+  * and then the sort of error diagnostic above fails. Hmmm. Don't know what to do.
+  * RB 20/v/2008
+  *)
+  
+let pointToSequent displaystate env comm
+                   (target, concopt, hyps, csels, hsels, givensel (* as fsel *))
+                   (Proofstate {tree = tree} as state) =
     try
       let doit path =
         selections :=
@@ -453,35 +516,44 @@ let pointToSequent
         else
           match concopt with
             None ->
-              begin match
+              (match
                    (fun (path, _) ->
                       pathPrefix tree target path &&
-                      not
-                        (List.exists
-                           (fun hypel -> not (validhyp tree hypel path))
-                           hyps)) <|
-                   allTipConcs tree
+                      not (List.exists (fun hypel -> not (validhyp tree hypel path)) hyps))
+                   <| allTipConcs tree
               with
                 [path, _] -> doit path
               | [] ->
-                  badsel
-                    ["that is a dead hypothesis -- there are no unproved \
-                                         conclusions to which it is relevant."]
+                  badsel ["that is a dead hypothesis -- there are no unproved \
+											  conclusions to which it is relevant."]
               | _ ->
-                  badsel
-                    ["there is more than one unproved conclusion which \
-                                          corresponds to that hypothesis - you must \
-                                          select one of them as well as the hypothesis."]
-              end
+                  badsel ["there is more than one unproved conclusion which \
+											   corresponds to that hypothesis - you must \
+											   select one of them as well as the hypothesis."]
+              )
           | Some _ -> badsel ["that conclusion is already proved."]
       else doit target
     with
       Applycommand_ sopt -> apply_cleanup (); sopt
     | exn -> apply_cleanup (); raise exn
 
-let nohitcommand displaystate env textselopt comm done__ =
-  fun (Proofstate {cxt = cxt; tree = tree} as state) ->
+(* no hit -- i.e. no path to work with -- but we might hope to find one in the text selections *)
+
+let nohitcommand displaystate env textselopt comm done__ 
+                 (Proofstate {cxt = cxt; tree = tree} as state) =
     try
+      let textsels = 
+        match textselopt with
+          Some (proofsels, givensels) ->
+            (* this should be in Interaction *)
+            Some(nj_fold
+				   (function
+					  (ConcHit  (cp, c)     , ss), (cs, hs, gs) -> (cp, c, ss) :: cs, hs, gs
+					| (HypHit   (hp, h)     , ss), (cs, hs, gs) -> cs, (hp, h, ss) :: hs, gs
+					| (AmbigHit (_, (hp, h)), ss), (cs, hs, gs) -> cs, (hp, h, ss) :: hs, gs)
+				   proofsels ([], [], givensels))
+	    | None -> None
+	  in
       let target =
         match !seektipselection, allTipConcs tree with
           _, [path, _] -> path
@@ -494,28 +566,44 @@ let nohitcommand displaystate env textselopt comm done__ =
             badsel
               [if done__ () then "The proof is finished!"
                else "There are no remaining unproved conclusions!"]
-        | _ -> rootPath tree
+        | _ -> 
+            (* Here we go. I'm going to try to pick up a path from what I'm given. *)
+            (match textsels with
+               Some([cp,_,_],[],_) -> cp
+             | Some([],[hp,_,_],_) -> hp
+             | _ -> rootPath tree (* which is probably the wrong thing entirely *))
       in
+	   if !selectiondebug then
+		 consolereport ["inside nohitcommand with target "; string_of_path target; 
+						"; allTipConcs says "; 
+						  bracketedstring_of_list 
+							(string_of_pair string_of_path 
+							  (bracketedstring_of_list string_of_element ";") ",") ";" (allTipConcs tree);
+						"; rootPath says "; string_of_path (rootPath tree)];
       selections :=
-        begin match textselopt with
-          Some (proofsels, givensels) ->
-            (* this should be in Interaction.sml *)
-            let (concsels, hypsels) =
-              nj_fold
-                (function
-                   (ConcHit (_, c), ss), (cs, hs) -> (c, ss) :: cs, hs
-                 | (HypHit (_, h), ss), (cs, hs) -> cs, (h, ss) :: hs
-                 | (AmbigHit (_, (_, h)), ss), (cs, hs) ->
-                     cs, (h, ss) :: hs)
-                proofsels ([], [])
-            in
-            Some (target, None, [], concsels, hypsels, givensels)
-        | None -> None
-        end;
+        (match textsels with 
+           Some (concsels, hypsels, givensels) -> Some (target, None, [], concsels, hypsels, givensels)
+         | None                                -> None)
+      ;
+	  if !selectiondebug then
+		consolereport ["selections now ";
+		  string_of_option 
+			(string_of_sextuple
+			   string_of_path 
+			   (string_of_option (string_of_pair string_of_element (string_of_option string_of_side) ","))
+			   (bracketedstring_of_list string_of_element ";")
+			   (bracketedstring_of_list 
+				 (string_of_triple string_of_path
+								   (string_of_pair string_of_element (string_of_option string_of_side) ",")
+								   (bracketedstring_of_list enQuote ";") ",") ";")
+			   (bracketedstring_of_list 
+				 (string_of_triple string_of_path string_of_element (bracketedstring_of_list enQuote ";") ",") ";")
+			   (bracketedstring_of_list enQuote ";") ","
+			) !selections];
       docommand displaystate env target comm state
     with
       Applycommand_ sopt -> apply_cleanup (); sopt
-    | exn -> apply_cleanup (); raise exn
+    | exn                -> apply_cleanup (); raise exn
     
 (* local *)
 let foldstuff = false, "", Some []
@@ -1281,8 +1369,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       match findSelection displaystate with
         Some (FormulaSel (_, _, _, concsels, hypsels, givensels)) ->
           nj_fold getsels [givensels]
-            (nj_fold getsels ((snd <* concsels))
-               (nj_fold getsels ((snd <* hypsels)) []))
+            (nj_fold getsels ((thrd <* concsels))
+               (nj_fold getsels ((thrd <* hypsels)) []))
       | Some (TextSel (proofsels, givensels)) ->
           nj_fold getsels [givensels]
             (nj_fold getsels ((snd <* proofsels)) [])
