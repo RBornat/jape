@@ -62,6 +62,7 @@ let provisos = Cxtfuns.provisos
 let replaceelement = Termfuns.replaceelement
 let rewritecxt = Rewrite.rewritecxt
 let seektipselection = Miscellaneous.seektipselection
+let selectiondebug = Miscellaneous.selectiondebug
 let _Subst_of_selection = Selection._Subst_of_selection
 let setComment = Alert.setComment
 let showAlert = Alert.showAlert Alert.defaultseverity_alert
@@ -191,11 +192,12 @@ let findDisproofSelections () = Japeserver.getAllDisproofSelections ()
 let rec findSelection state =
   let (fhits, thits, givensel) = sortoutSelection state HitPath in
   (* only path that makes sense for what we are trying to do ... *)
-  (* let showstrings = bracketedstring_of_list enQuote "," in
-     let _ = consolereport ["findSelection sees "; bracketedstring_of_list (string_of_hit string_of_path) "," fhits, "; ";
-                                                   bracketedstring_of_list (string_of_pair (string_of_fhit string_of_path) showstrings ",") "," thits, "; ";
-                                                   showstrings givensel]
-   *)
+  if !selectiondebug then (
+     let showstrings = bracketedstring_of_list enQuote "," in
+     consolereport ["findSelection sees "; bracketedstring_of_list (string_of_hit string_of_path) "," fhits; "; ";
+										   bracketedstring_of_list (string_of_pair (string_of_fhit string_of_path) showstrings ",") "," thits; "; ";
+										   showstrings givensel]
+  );
   let (conchits, hyphits, reasonhits) =
     nj_fold
       (function
@@ -212,9 +214,9 @@ let rec findSelection state =
   let (tcs, ths) =
     nj_fold
       (function
-         (AmbigHit (_, (_, h)), ss), (tcs, ths) -> tcs, (h, ss) :: ths
-       | (ConcHit (_, c), ss), (tcs, ths) -> (c, ss) :: tcs, ths
-       | (HypHit (_, h), ss), (tcs, ths) -> tcs, (h, ss) :: ths)
+         (AmbigHit (_, (p, h)), ss), (tcs, ths) -> tcs, (p, h, ss) :: ths
+       | (ConcHit (p, c), ss), (tcs, ths) -> (p, c, ss) :: tcs, ths
+       | (HypHit (p, h), ss), (tcs, ths) -> tcs, (p, h, ss) :: ths)
       thits ([], [])
   in
   let tree =
@@ -300,13 +302,14 @@ let rec findSelection state =
   | [], [], [] ->
       begin match thits, givensel with
         [], [] -> None
-      | _ -> Some (TextSel (thits, givensel))
+      | _      -> Some (TextSel (thits, givensel))
       end
   | _ ->
       raise
         (Catastrophe_
            ["findSelection (interaction) sees too many hits: ";
             bracketedstring_of_list (string_of_hit string_of_path) "," fhits])
+
 (* when looking for LayoutPath and PrunePath, findSelection is just too fussy.  E.g. if you Prune a 
  * hypothesis selection in boxdraw, the interface changes it to a conclusion selection, and that 
  * confuses findSelection no end.  Perhaps this will improve matters ...
@@ -501,8 +504,7 @@ let printState outstream (Proofstate p) withgoal =
     printGivens outstream p.givens;
     printProvisos outstream p.cxt
 
-let rec alterTip
-  displaystate cxt gpath tree root ((selishyp, selpath, selel), ss) =
+let rec alterTip displaystate cxt gpath tree root ((selishyp, selpath, selel), ss) =
   let (wholepath, wholetree) = Prooftree.Tree.makewhole cxt root tree gpath in
   if Prooftree.Tree.Fmttree.validelement selishyp wholetree selel wholepath then
     let (cxt, subst) = _Subst_of_selection false ss cxt in
