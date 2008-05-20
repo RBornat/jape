@@ -57,6 +57,7 @@ val truncatereasons          : bool ref   (* whether to shorten reasons in boxdr
 val tryresolution            : bool ref   (* cut with antecedents of theorems in desperation *)
 
 val screenpositiondebug : bool ref
+val selectiondebug : bool ref
 exception Catastrophe_ of string list
 exception ParseError_ of string list
 exception Tacastrophe_ of string list

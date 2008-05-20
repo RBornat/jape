@@ -120,6 +120,7 @@ let resolvepossible = ref false
 
 let screenpositiondebug = ref true
 let seektipselection = ref true (* whether to look for a tip to work on in boxdraw *)
+let selectiondebug = ref true
   
 let textselectionmode = ref "subformula"
 let truncatereasons = ref false (* whether to shorten reasons in boxdraw *)
