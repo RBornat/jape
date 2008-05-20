@@ -390,16 +390,16 @@ RULE IS A-1≥B≜A>B
 /* I've found a way to run multi-arg tactics from a panel ... */
 TACTICPANEL Comparison
     ENTRY "A=B≜B=A"     IS  rwComparison "A=B≜B=A"      "A=B"   (QUOTE (_C«_A=_B/_xx»))  "B=A"      (QUOTE (_C«_B=_A/_xx»)) 
-    ENTRY "A=B≜¬(A≠B)"  IS  rwComparison "A=B≜¬(A≠B)" "A=B"   (QUOTE (_C«_A=_B/_xx»))  "¬(A≠B)" (QUOTE (_C«¬(_A≠_B/_xx»))) 
+    ENTRY "A=B≜¬(A≠B)"  IS  rwComparison "A=B≜¬(A≠B)" "A=B"   (QUOTE (_C«_A=_B/_xx»))  "¬(A≠B)" (QUOTE (_C«¬(_A≠_B)/_xx»)) 
     ENTRY "A≠B≜B≠A"     IS  rwComparison "A≠B≜B≠A"    "A≠B"  (QUOTE (_C«_A≠_B/_xx»)) "B≠A"     (QUOTE (_C«_B≠_A/_xx»)) 
-    ENTRY "A≠B≜¬(A=B)"  IS  rwComparison "A≠B≜¬(A=B)" "A≠B"  (QUOTE (_C«_A≠_B/_xx»))  "¬(A=B)" (QUOTE (_C«¬(_A=_B/_xx»))) 
+    ENTRY "A≠B≜¬(A=B)"  IS  rwComparison "A≠B≜¬(A=B)" "A≠B"  (QUOTE (_C«_A≠_B/_xx»))  "¬(A=B)" (QUOTE (_C«¬(_A=_B)/_xx»)) 
     ENTRY "A<B≜B>A"     IS  rwComparison "A<B≜B>A"      "A<B"   (QUOTE (_C«_A<_B/_xx»))  "B>A"      (QUOTE (_C«_B>_A/_xx»)) 
     ENTRY "A≤B≜A<B∨A=B" IS  rwComparison "A≤B≜A<B∨A=B" "A≤B" (QUOTE (_C«_A≤_B/_xx»)) "A<B∨A=B" (QUOTE (_C«_A<_B∨_A=_B/_xx»)) 
     ENTRY "A≤B≜B≥A"     IS  rwComparison "A≤B≜B≥A"     "A≤B" (QUOTE (_C«_A≤_B/_xx»))  "B≥A"    (QUOTE (_C«_B≥_A/_xx»)) 
-    ENTRY "A≤B≜¬(A>B)"  IS  rwComparison "A≤B≜¬(A>B)" "A≤B"  (QUOTE (_C«_A≤_B/_xx»))  "¬(A>B)" (QUOTE (_C«¬(_A>_B/_xx»))) 
+    ENTRY "A≤B≜¬(A>B)"  IS  rwComparison "A≤B≜¬(A>B)" "A≤B"  (QUOTE (_C«_A≤_B/_xx»))  "¬(A>B)" (QUOTE (_C«¬(_A>_B)/_xx»)) 
     ENTRY "A≤B≜A<B+1"   IS  rwComparison "A≤B≜A<B+1" "A≤B"  (QUOTE (_C«_A≤_B/_xx»))  "A<B+1" (QUOTE (_C«_A<_B+1/_xx»))
     ENTRY "A+1≤B≜A<B"   IS  rwComparison "A+1≤B≜A<B" "A+1≤B"  (QUOTE (_C«_A+1≤_B/_xx»))  "A<B" (QUOTE (_C«_A<_B/_xx»))
-    ENTRY "A≥B≜¬(A<B)"  IS  rwComparison "A≥B≜¬(A<B)" "A≥B"  (QUOTE (_C«_A≥_B/_xx»))  "¬(A<B)" (QUOTE (_C«¬(_A<_B/_xx»))) 
+    ENTRY "A≥B≜¬(A<B)"  IS  rwComparison "A≥B≜¬(A<B)" "A≥B"  (QUOTE (_C«_A≥_B/_xx»))  "¬(A<B)" (QUOTE (_C«¬(_A<_B)/_xx»)) 
     ENTRY "A≥B≜A>B-1"   IS  rwComparison "A≥B≜A>B-1" "A≥B"  (QUOTE (_C«_A≥_B/_xx»))  "A>B-1" (QUOTE (_C«_A>_B-1/_xx»)) 
     ENTRY "A-1≥B≜A>B"   IS  rwComparison "A-1≥B≜A>B" "A-1≥B"  (QUOTE (_C«_A-1≥_B/_xx»))  "A>B" (QUOTE (_C«_A>_B/_xx»)) 
 /*  RULE "(A;B);C≜A;(B;C)" IS   A;B;C≜A;(B;C)
@@ -422,13 +422,13 @@ MACRO "rwRight≜" (rule, label, lshape, lpat, rshape, rpat) IS
 MACRO rwMenu (tac, label, dir, shape, pat) IS
   WHEN
     (LETHYPSUBSTSEL pat tac)
-    (LETHYPSUBSTSEL _A
+    (LETHYPSUBSTSEL (_B«_A/_xx»)
         (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
                 \You subformula-selected %t, which isn't of the right form.", 
                 label, dir, shape, _A)
                ("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
     (LETCONCSUBSTSEL pat tac)
-    (LETHYPSUBSTSEL _A
+    (LETCONCSUBSTSEL (_B«_A/_xx»)
         (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
                 \You subformula-selected %t, which isn't of the right form.", 
                 label, dir, shape, _A)
@@ -472,9 +472,9 @@ TACTIC "index(≠)" IS
 
 TACTICPANEL Indexing
     ENTRY "FROM E=G INFER (A⊕E↦F)[G]=F" IS 
-        rwIndex "FROM E=G INFER (A⊕E↦F)[G]=F" "(A⊕E↦F)[G]" (QUOTE (_B«(_A⊕_E↦_F)[_G]/_xx»)) "F" (QUOTE _F) "index(=)"
+        rwIndex "FROM E=G INFER (A⊕E↦F)[G]=F" "(A⊕E↦F)[G]" (QUOTE (_B«(_A⊕_E↦_F)[_G]/_xx»)) "F" (QUOTE (_B«_F/_xx»)) "index(=)"
     ENTRY "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" IS 
-        rwIndex "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" "(A⊕E↦F)[G]" (QUOTE (_B«(_A⊕_E↦_F)[_G]/_xx»)) "A[G]" (QUOTE (_A[_G])) "index(≠)"
+        rwIndex "FROM E≠G INFER (A⊕E↦F)[G]=A[G]" "(A⊕E↦F)[G]" (QUOTE (_B«(_A⊕_E↦_F)[_G]/_xx»)) "A[G]" (QUOTE (_B«_A[_G]/_xx»)) "index(≠)"
 
     BUTTON  "A = …"   IS apply COMMAND "rwLeft="
     BUTTON  "… = B"   IS apply COMMAND "rwRight="
