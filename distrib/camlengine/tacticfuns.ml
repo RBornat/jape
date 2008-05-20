@@ -157,13 +157,14 @@ let _Oracle = Oracle._Oracle
 
 let proving = ref (name_of_string "")
 
-let selections
-  :
-  (path * (element * side option) option * element list *
-     ((element * side option) * string list) list *
-     (element * string list) list * string list)
-    option ref =
-  ref None
+let selections: (path *                                                     (* to sequent *)
+                 (element * side option) option *                           (* conclusion *)
+                 element list *                                             (* hypotheses *)
+				 (path * (element * side option) * string list) list *      (* conclusion text *)
+				 (path * element * string list) list *                      (* hypotheses text *)
+				 string list                                                (* givens *)
+				) option ref 
+		= ref None
 
 let rec getselectedconclusion () =
   (!selections &~~
@@ -193,10 +194,7 @@ let badproviso : ((term * term) * proviso) option ref = ref None
 exception StopTactic_
 exception Time'sUp_ of proofstate option
 
-let
-  (getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels,
-   getargs)
-  =
+let (getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels, getargs) =
   let rec getsides el sopt =
     try _The ((term_of_element el &~~ explodebinapp)) with
       _The_ ->
@@ -204,7 +202,8 @@ let
           (Catastrophe_
              ["getsides given "; string_of_element el; "; ";
               string_of_option string_of_side sopt])
-  and deside ((el, sopt), ss) =
+  
+  and deside (p, (el, sopt), ss) =
     let ss' =
       match sopt with
         Some s ->
@@ -220,16 +219,18 @@ let
           end
       | None -> ss
     in
-    el, ss'
+    p, el, ss'
   in
+  
   let rec getsidedselectedtext () =
     match !selections with
-      Some (path, _, _, concsels, hypsels, givensels) ->
-        Some (path, concsels, hypsels, givensels)
-    | None -> None
+      Some (path, _, _, concsels, hypsels, givensels) -> Some (path, concsels, hypsels, givensels)
+    | _ -> None
+  
   (* get the selectedtext as if sides didn't come into it.  The problem is that we may have
      selections on both sides of a formula that has been split into two lines.  Otherwise it's easy.
    *)
+   
   and getunsidedselectedtext () =
     (getsidedselectedtext () &~~
        (fun (path, concsels, hypsels, givensels) ->
@@ -237,11 +238,11 @@ let
             function
               [] -> []
             | [csel] -> [csel]
-            | ((_, None), _ as csel) :: csels -> csel :: pairup csels
-            | ((el, Some side), ss as csel) :: csels ->
+            | (_, (_, None), _ as csel) :: csels -> csel :: pairup csels
+            | (p, (el, Some side), ss as csel) :: csels ->
                 let rec otherside =
                   function
-                    (el', Some side'), _ ->
+                    _, (el', Some side'), _ ->
                       sameresource (el, el') && side <> side'
                   | _ -> false
                 in
@@ -252,8 +253,8 @@ let
                     implode [List.hd revss; " "; opp; " "; List.hd ss'] :: List.tl ss'
                 in
                 if List.exists otherside csels then
-                  let (((_, _), ss'), csels') = extract otherside csels in
-                  ((el, None),
+                  let ((p, (_, _), ss'), csels') = extract otherside csels in
+                  (p, (el, None),
                    (match side with
                       Left -> join ss ss'
                     | Right -> join ss' ss)) ::
@@ -261,16 +262,19 @@ let
                 else csel :: pairup csels
           in
           Some (path, (deside <* pairup concsels), hypsels, givensels)))
+  
   and getsingleargsel () =
     match getsidedselectedtext () with
-      Some (_, [_, [_; csel; _]], [], []) -> Some csel
-    | Some (_, [], [_, [_; hsel; _]], []) -> Some hsel
-    | Some (_, [], [], [_; gsel; _]) -> Some gsel
-    | _ -> None
+      Some (_, [_, _, [_; csel; _]], [], []) -> Some csel
+    | Some (_, [], [_, _, [_; hsel; _]], []) -> Some hsel
+    | Some (_, [], [], [_; gsel; _])         -> Some gsel
+    | _                                      -> None
+  
   and getsels =
     function
       x :: y :: zs -> y :: getsels zs
-    | _ -> []
+    | _            -> []
+  
   and getargs str =
     match getunsidedselectedtext () with
       Some (_, [], [], []) ->
@@ -282,18 +286,15 @@ let
             ParseError_ ss ->
               raise
                 (ParseError_
-                   ("Your text selection \"" :: s ::
-                      "\" doesn't parse (" :: ss @
-                      [")"]))
+                   ("Your text selection \"" :: s :: "\" doesn't parse (" :: ss @ [")"]))
         in
         Some
              (parseit <*
               List.concat
                 (getsels gs ::
-                     ((getsels <.> snd) <* (cs @ hs))))
+                     ((getsels <.> thrd) <* (cs @ hs))))
   in
-  getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels,
-  getargs
+  getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels, getargs
 
 let rec selparsefail sel ss =
   "Your text selection doesn't parse (" :: ss @
@@ -409,9 +410,9 @@ let rec extendwithselection env tac =
   | Some arg, WithHypSelTac t -> WithHypSelTac (extendwithselection env t)
   | Some arg, WithFormSelTac t ->
       WithFormSelTac (extendwithselection env t)
-  | _ ->(* WithSelectionsTac -- clearly not, it includes WithArgSel
-     * WithArgSel -- clearly not
-     *)
+  | _ -> (* WithSelectionsTac -- clearly not, it includes WithArgSel
+          * WithArgSel -- clearly not
+          *)
      tac
 (*  --------------------------------------------------------------------- *)
 
@@ -1121,7 +1122,7 @@ let rec doDropUnify target sources (Proofstate {cxt = cxt} as state) =
     in
     try
       match dropunify (target, sources) cxt &~~ 
-            (_Some <.> verifyprovisos) &~~ 
+            (_Some <.> verifyprovisos)      &~~ 
             simplifydeferred
       with
         Some cxt' -> Some (withcxt state cxt')
@@ -2322,17 +2323,16 @@ and doMAPTERMS display try__ contn name args =
 
 (* Now it forces you to use the substitution it constructs *)
 
-and doWITHSUBSTSEL display try__ =
-  fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
-                   target = target; root = root})
-    tacfun ->
+and doWITHSUBSTSEL display try__
+				   (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
+								target = target; root = root})
+                   tacfun =
     match getunsidedselectedtext (), goal with
       Some (path, concsels, hypsels, givensel), Some g ->
         let rec doit ishyp selel selss =
           try
             let (cxt', newel, tree') =
-              alterTip display cxt g tree root
-                ((ishyp, path, selel), selss)
+              alterTip display cxt g tree root ((ishyp, path, selel), selss)
             in
             let alteredstate =
               Proofstate
@@ -2355,9 +2355,9 @@ and doWITHSUBSTSEL display try__ =
               setReason ("WITHSUBSTSEL failed: " :: ss); None
         in
         begin match concsels, hypsels with
-          [cel, css], [] ->(* we ignore givensel *)
-           doit false cel css
-        | [], [hel, hss] -> doit true hel hss
+          [cp, cel, css], [] -> (* we ignore givensel *) 
+                                doit false cel css
+        | [], [hp, hel, hss] -> doit true hel hss
         | [], [] ->
             setReason
               ["WITHSUBSTSEL applied without a proof text selection"];
@@ -2613,7 +2613,7 @@ and doBIND tac display try__ env =
 
     let rec checkBIND s (cxt, env, selectionopt, (pattern, tac)) =
       match selectionopt with
-        None -> setReason ["no selection for "; s]; None
+        None      -> setReason ["no selection for "; s]; None
       | Some expr -> bindThenDispatch s cxt env [pattern, expr] tac
     in
     let rec doublesel spec ishyp s =
@@ -2625,13 +2625,13 @@ and doBIND tac display try__ env =
           Selection_ ss -> setReason (s :: " failed: " :: ss); None
       in
       match getunsidedselectedtext (), ishyp with
-        Some (_, [_, css], _, _), false -> doit css
+        Some (_, [_, _, css], _, _), false -> doit css
       | Some (_, [], _, _), false ->
           setReason [s; " failed -- no selected conclusion text"]; None
       | Some (_, _, _, _), false ->
           setReason [s; " failed -- too much selected conclusion text"];
           None
-      | Some (_, _, [_, hss], _), true -> doit hss
+      | Some (_, _, [_, _, hss], _), true -> doit hss
       | Some (_, _, [], _), true ->
           setReason [s; " failed -- no selected hypothesis text"]; None
       | Some (_, _, _, _), true ->
@@ -2677,13 +2677,13 @@ and doBIND tac display try__ env =
             setReason [tacname; ": there should be just a single selection"];
             None
       in
-      match getunsidedselectedtext (), ishyptactic with
-        Some (path, [cel, css], [], _), false -> doit path cel css
-      | Some (path, [cel, css], [], _), true ->
+      match getunsidedselectedtext(), ishyptactic with
+        Some (path, [_, cel, css], [], _), false -> doit path cel css
+      | Some (path, [_, cel, css], [], _), true ->
           setReason [tacname; ": selection was made in a conclusion"];
           None
-      | Some (path, [], [hel, hss], _), true -> doit path hel hss
-      | Some (path, [], [hel, hss], _), false ->
+      | Some (path, [], [_, hel, hss], _), true -> doit path hel hss
+      | Some (path, [], [_, hel, hss], _), false ->
           setReason [tacname; ": selection was made in a hypothesis"];
           None
       | _ ->
@@ -2823,8 +2823,8 @@ and doBIND tac display try__ env =
               setReason ("LETSUBSTSEL failed: " :: ss); None
         in
         begin match getunsidedselectedtext () with
-          Some (_, [_, css], [], _) -> doit css
-        | Some (_, [], [_, hss], _) -> doit hss
+          Some (_, [_, _, css], [], _) -> doit css
+        | Some (_, [], [_, _, hss], _) -> doit hss
         | Some (_, [], [], _) ->
             setReason ["LETSUBSTSEL failed: no proof text selections"];
             None
@@ -2837,9 +2837,9 @@ and doBIND tac display try__ env =
     | BindMatchTac (pat, term, tac) ->
         bindThenDispatch "LETMATCH" cxt env [pat, eval env term] tac
     | BindOccursTac      spec -> bindOccurs spec
-    | BindSubstInHypTac  spec -> doublesel spec true "LETHYPSUBSTSEL"
+    | BindSubstInHypTac  spec -> doublesel spec true  "LETHYPSUBSTSEL"
     | BindSubstInConcTac spec -> doublesel spec false "LETCONCSUBSTSEL"
-    | BindFindHypTac     spec -> findsel spec true "LETHYPFIND"
+    | BindFindHypTac     spec -> findsel spec true  "LETHYPFIND"
     | BindFindConcTac    spec -> findsel spec false "LETCONCFIND"
     | BindMultiArgTac    spec ->
         (getargs "LETMULTIARG" &~~
