@@ -37,11 +37,13 @@ open Hit
 val forceUnify  : term list -> proofstate -> proofstate option
 val doDropUnify : element -> element list -> proofstate -> proofstate option
 val autoStep    : bool -> name list -> proofstate -> proofstate option
-val selections  :
-  (path * (element * side option) option * element list *
-     ((element * side option) * string list) list *
-     (element * string list) list * string list)
-    option ref
+val selections  : (path * 
+                   (element * side option) option * 
+                   element list *
+                   (path * (element * side option) * string list) list *
+                   (path * element * string list) list * 
+                   string list)
+                  option ref
 val applyLiteralTactic :
   displaystate option -> japeenv -> string -> proofstate -> proofstate option
 val applyTactic :
