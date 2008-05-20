@@ -26,6 +26,8 @@
 *)
 
 open Sml
+
+let (<*) = Listfuns.(<*)
     
 type element = Termtype.element
 
@@ -38,28 +40,35 @@ let string_of_triple        = Stringfuns.string_of_triple
 let string_of_sextuple      = Stringfuns.string_of_sextuple
 
 type side = Left | Right
+
 type 'a hit = FormulaHit of 'a fhit | ReasonHit of 'a
+
 and 'a fhit =
     ConcHit of ('a * (element * side option))
   | HypHit of ('a * element)
   | AmbigHit of (('a * (element * side option)) * ('a * element))
+
 type hitkind = HitPath | PrunePath | LayoutPath
+
 type 'a sel =
     FormulaSel of
       ('a * (element * side option) option * element list *
-         ((element * side option) * string list) list *
-         (element * string list) list * string list)
+         ('a * (element * side option) * string list) list *
+         ('a * element * string list) list * string list)
   | TextSel of (('a fhit * string list) list * string list)
   | ReasonSel of 'a
+
 let rec fhitpath =
   function
     ConcHit (p, _) -> Some p
-  | HypHit (p, _) -> Some p
-  | AmbigHit _ -> None
+  | HypHit  (p, _) -> Some p
+  | AmbigHit _     -> None
+
 let rec hitpath =
   function
     FormulaHit h -> fhitpath h
   | ReasonHit p -> Some p
+
 let rec selpath =
   function
     FormulaSel f -> Some (fst_of_6 f)
@@ -72,32 +81,39 @@ let rec selpath =
       | _ -> None
       end
   | ReasonSel p -> Some p
-let rec tranfhitpath a1 a2 =
-  match a1, a2 with
-    f, ConcHit (p, c) -> ConcHit (f p, c)
-  | f, HypHit (p, h) -> HypHit (f p, h)
-  | f, AmbigHit ((p1, s1), (p2, s2)) -> AmbigHit ((f p1, s1), (f p2, s2))
-let rec tranhitpath a1 a2 =
-  match a1, a2 with
-    f, FormulaHit h -> FormulaHit (tranfhitpath f h)
-  | f, ReasonHit p -> ReasonHit (f p)
-let rec transelpath a1 a2 =
-  match a1, a2 with
-    f, FormulaSel (p, c, hs, tc, ths, tg) ->
-      FormulaSel (f p, c, hs, tc, ths, tg)
-  | f, TextSel (ths, tg) ->
+
+let rec tranfhitpath f hit =
+  match hit with
+    ConcHit  (p, c)               -> ConcHit (f p, c)
+  | HypHit   (p, h)               -> HypHit (f p, h)
+  | AmbigHit ((p1, s1), (p2, s2)) -> AmbigHit ((f p1, s1), (f p2, s2))
+
+let rec tranhitpath f hit =
+  match hit with
+    FormulaHit h -> FormulaHit (tranfhitpath f h)
+  | ReasonHit  p -> ReasonHit (f p)
+
+let rec transelpath f sel =
+  let f3 ts = (fun (p, a, b) -> (f p, a, b)) <* ts in 
+  match sel with
+    FormulaSel (p, c, hs, tcs, ths, tg) -> FormulaSel (f p, c, hs, f3 tcs, f3 ths, tg)
+  | TextSel    (ths, tg)                ->
       TextSel (List.map (fun (th, ss) -> tranfhitpath f th, ss) ths, tg)
-  | f, ReasonSel p -> ReasonSel (f p)
+  | ReasonSel  p                       -> ReasonSel (f p)
+
 let rec string_of_side =
   function
     Left -> "Left"
   | Right -> "Right"
+
 let rec string_of_hitkind =
   function
     HitPath -> "HitPath"
   | PrunePath -> "PrunePath"
   | LayoutPath -> "LayoutPath"
+
 let string_of_elsi = string_of_pair string_of_element (string_of_option string_of_side) ","
+
 let rec string_of_fhit string_of_path s =
   let string_of_pelsi = string_of_pair string_of_path string_of_elsi "," in
   let string_of_pel = string_of_pair string_of_path string_of_element "," in
@@ -105,20 +121,23 @@ let rec string_of_fhit string_of_path s =
     ConcHit pc -> "ConcHit" ^ string_of_pelsi pc
   | HypHit ph -> "HypHit" ^ string_of_pel ph
   | AmbigHit pch -> "AmbigHit" ^ string_of_pair string_of_pelsi string_of_pel "," pch
+
 let rec string_of_hit a1 a2 =
   match a1, a2 with
     string_of_path, FormulaHit h ->
       ("FormulaHit(" ^ string_of_fhit string_of_path h) ^ ")"
   | string_of_path, ReasonHit p -> ("ReasonHit(" ^ string_of_path p) ^ ")"
+
 let sstring = bracketedstring_of_list (fun s -> s) ","
+
 let rec string_of_sel a1 a2 =
   match a1, a2 with
     string_of_path, FormulaSel f ->
       "FormulaSel" ^
         string_of_sextuple string_of_path (string_of_option string_of_elsi)
           (bracketedstring_of_list string_of_element ",")
-          (bracketedstring_of_list (string_of_pair string_of_elsi sstring ",") ",")
-          (bracketedstring_of_list (string_of_pair string_of_element sstring ",") ",")
+          (bracketedstring_of_list (string_of_triple string_of_path string_of_elsi sstring ",") ",")
+          (bracketedstring_of_list (string_of_triple string_of_path string_of_element sstring ",") ",")
           sstring "," f
   | string_of_path, TextSel t ->
       "TextSel" ^

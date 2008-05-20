@@ -70,9 +70,12 @@ type hitkind = HitPath | PrunePath | LayoutPath
 
 type 'a sel =
     FormulaSel of
-      ('a * (element * side option) option * element list *
-         ((element * side option) * string list) list *
-         (element * string list) list * string list)
+      ('a * 
+       (element * side option) option * 
+       element list *
+       ('a * (element * side option) * string list) list *
+       ('a * element * string list) list * 
+       string list)
   | TextSel of (('a fhit * string list) list * string list)
   | ReasonSel of 'a
 
