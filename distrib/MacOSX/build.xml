@@ -20,11 +20,13 @@
             <javaproperty name="uk.org.jape.AppPackage"     value="$APP_PACKAGE"/>
         </jarbundler>
             
+        <!-- next bit deleted for 10.5 release 2
         <delete file="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
         <exec executable="ln">
             <arg line="-s /System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub"/>
             <arg value="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
         </exec>
+         -->
         <mkdir dir="build/Jape.app/Contents/Engine"/>
         <copy file="../camlengine/_buildOSX/jape_engine" tofile="build/Jape.app/Contents/Engine/jape_engine"/>
         <exec executable="chmod">
