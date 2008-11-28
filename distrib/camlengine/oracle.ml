@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -232,9 +232,12 @@ let rec resetoracle () =
     ((fun (name, ({kill_or = kill_or} : oraclerec)) -> kill_or ()),
      !mappings)
 
-let rec _Oracle (turnstile : string) (cxt : Cxttype.cxt) =
-  fun (_HS : term) ->
-    fun (_CS : term) (oracle : string) (args : string list) ->
+let rec _Oracle (turnstile : string) 
+                (cxt : Cxttype.cxt)
+                (_HS : term) 
+                (_CS : term) 
+                (oracle : string) 
+                (args : string list) =
       let oracle = disQuote oracle in
       match getmapping oracle with
         (Some

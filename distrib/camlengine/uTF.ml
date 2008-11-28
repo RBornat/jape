@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -34,7 +34,7 @@ type ucode = int
 
 let uEOF = -1
 
-let hexchar c = enCharQuote ("x" ^ fixedwidth_hexstring_of_int 2 (Char.code c))
+let hexstring_of_char c = enCharQuote ("x" ^ fixedwidth_hexstring_of_int 2 (Char.code c))
 let hex4 n = "0x" ^ fixedwidth_hexstring_of_int 4 n
 let hex8 n = "0x" ^ fixedwidth_hexstring_of_int 8 n
 
@@ -43,27 +43,27 @@ exception MalformedUTF_ of string list
 let check_808f c =
   match c with
     '\x80'..'\x8f' -> Char.code c land 0x3f
-  | _              -> raise (MalformedUTF_ [hexchar c])
+  | _              -> raise (MalformedUTF_ [hexstring_of_char c])
 
 let check_809f c =
   match c with
     '\x80'..'\x9f' -> Char.code c land 0x3f
-  | _              -> raise (MalformedUTF_ [hexchar c])
+  | _              -> raise (MalformedUTF_ [hexstring_of_char c])
 
 let check_80bf c =
   match c with
     '\x80'..'\xbf' -> Char.code c land 0x3f
-  | _              -> raise (MalformedUTF_ [hexchar c])
+  | _              -> raise (MalformedUTF_ [hexstring_of_char c])
 
 let check_90bf c =
   match c with
     '\x90'..'\xbf' -> Char.code c land 0x3f
-  | _              -> raise (MalformedUTF_ [hexchar c])
+  | _              -> raise (MalformedUTF_ [hexstring_of_char c])
 
 let check_a0bf c =
   match c with
     '\xa0'..'\xbf' -> Char.code c land 0x3f
-  | _              -> raise (MalformedUTF_ [hexchar c])
+  | _              -> raise (MalformedUTF_ [hexstring_of_char c])
   
 let utf8_next next =
   try let n0 = Char.code (next 0) in
@@ -75,17 +75,17 @@ let utf8_next next =
           let n1 = f (next 1) in
           try let n2 = check_80bf (next 2) in
               ((((n0 land 0x0f) lsl 6) lor n1) lsl 6) lor n2 
-          with Stream.Failure   -> raise (MalformedUTF_ [hexchar (Char.chr n1); " EOF"])
-             | MalformedUTF_ ss -> raise (MalformedUTF_ (hexchar (Char.chr n1) :: " " :: ss))
+          with Stream.Failure   -> raise (MalformedUTF_ [hexstring_of_char (Char.chr n1); " EOF"])
+             | MalformedUTF_ ss -> raise (MalformedUTF_ (hexstring_of_char (Char.chr n1) :: " " :: ss))
         in
         let fourbyte f = 
           let n1 = f (next 1) in
           try let n2 = check_80bf (next 2) in
               try let n3 = check_80bf (next 3) in      
                   ((((((n0 land 0x07) lsl 6) lor n1) lsl 6) lor n2) lsl 6) lor n3 
-              with MalformedUTF_ ss -> raise (MalformedUTF_ (hexchar (Char.chr n2) :: " " :: ss))
-          with Stream.Failure   -> raise (MalformedUTF_ [hexchar (Char.chr n1); " EOF"])
-             | MalformedUTF_ ss -> raise (MalformedUTF_ (hexchar (Char.chr n1) :: " " :: ss))
+              with MalformedUTF_ ss -> raise (MalformedUTF_ (hexstring_of_char (Char.chr n2) :: " " :: ss))
+          with Stream.Failure   -> raise (MalformedUTF_ [hexstring_of_char (Char.chr n1); " EOF"])
+             | MalformedUTF_ ss -> raise (MalformedUTF_ (hexstring_of_char (Char.chr n1) :: " " :: ss))
         in
         match n0 with
           | n when 0x00<=n && n<=0x7f ->
@@ -107,8 +107,8 @@ let utf8_next next =
           | _ -> 
               raise (MalformedUTF_ [])
       with
-        Stream.Failure   -> raise (MalformedUTF_ [hexchar (Char.chr n0); " EOF"])
-      | MalformedUTF_ ss -> raise (MalformedUTF_ (hexchar (Char.chr n0) :: " " :: ss))
+        Stream.Failure   -> raise (MalformedUTF_ [hexstring_of_char (Char.chr n0); " EOF"])
+      | MalformedUTF_ ss -> raise (MalformedUTF_ (hexstring_of_char (Char.chr n0) :: " " :: ss))
   with 
     MalformedUTF_ ss -> raise (MalformedUTF_ ("UTF8 " :: ss))
 
@@ -116,13 +116,13 @@ let next16_be s =
   let n0 = Char.code (Stream.next s) in
   try let n1 = Char.code (Stream.next s) in
       (n0 lsl 8) lor n1
-  with Stream.Failure -> raise (MalformedUTF_ [hexchar (Char.chr n0); " EOF"])
+  with Stream.Failure -> raise (MalformedUTF_ [hexstring_of_char (Char.chr n0); " EOF"])
   
 let next16_le s = 
   let n1 = Char.code (Stream.next s) in
   try let n0 = Char.code (Stream.next s) in
       (n0 lsl 8) lor n1
-  with Stream.Failure -> raise (MalformedUTF_ [hexchar (Char.chr n1); " EOF"])
+  with Stream.Failure -> raise (MalformedUTF_ [hexstring_of_char (Char.chr n1); " EOF"])
 
 let utf16_next next16 s =
   try match next16 s with
@@ -269,7 +269,7 @@ let utf8_presub s i =
     let rec f j =
       if j<0 then 
         raise (MalformedUTF_ 
-                 ["UTF8 string "; bracketedstring_of_list hexchar "; " (chars_of_string (String.sub s 0 i))])
+                 ["UTF8 string "; bracketedstring_of_list hexstring_of_char "; " (chars_of_string (String.sub s 0 i))])
       else (
         let n = utf8width_from_header s.[j] in
         if n>0 then utf8_get s j

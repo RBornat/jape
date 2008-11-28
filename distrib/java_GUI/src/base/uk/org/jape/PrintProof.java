@@ -58,6 +58,8 @@ public class PrintProof {
     
     static void printProof(ProofWindow w) {
 	final PrinterJob job = PrinterJob.getPrinterJob();
+        if (DebugVars.printdialog_tracing)
+            Logger.log.println("printProof PrinterJob succeeded "+job);
 	ensureDefaultPage(job);
 	w.whattoprint = BOTH;
 	job.setPrintable(w, defaultPage);
@@ -66,10 +68,16 @@ public class PrintProof {
 	    new Runnable() {
 	       public void run() {
 		   try {
-		       job.print();
+                       if (job.printDialog()) {
+                           if (DebugVars.printdialog_tracing)
+                               Logger.log.println("printProof setPrintable done -- starting printDialog");
+                           job.print();
+                           if (DebugVars.printdialog_tracing)
+                               Logger.log.println("printProof job.print done");
+                       }
 		   } catch (Exception ex) {
 		       ex.printStackTrace();
-		       Alert.showAlert(Alert.Warning, "print job failed -- see log window");
+		       Alert.showAlert(Alert.Warning, "printProof print job failed -- see log window");
 		   }
 	       }
 	    });
@@ -78,40 +86,41 @@ public class PrintProof {
     static void printTichy(ProofWindow w, int what) {
 	final PrinterJob job = PrinterJob.getPrinterJob();
 	if (DebugVars.printdialog_tracing)
-	    Logger.log.println("PrinterJob succeeded "+job);
+	    Logger.log.println("printTichy PrinterJob constructed "+job);
 	PageFormat page = new PageFormat();
 	if (DebugVars.printdialog_tracing)
-	    Logger.log.println("PageFormat succeeded "+page);
+	    Logger.log.println("printTichy PageFormat constructed "+page);
 	Paper paper = new Paper();
 	if (DebugVars.printdialog_tracing)
-	    Logger.log.println("Paper succeeded "+paper);
+	    Logger.log.println("printTichy Paper constructed "+paper);
 
 	w.whattoprint = what;
 	ProofWindow.PrintSize printSize = w.getPrintSize();
 	if (DebugVars.printdialog_tracing)
-	    Logger.log.println("got printSize "+printSize);
-	boolean cockeyed = printSize.printWidth>printSize.printHeight;
+	    Logger.log.println("printTichy got printSize "+printSize);
+	@SuppressWarnings("unused")
+        boolean cockeyed = printSize.printWidth>printSize.printHeight;
 
-	if (cockeyed) {
+	/* if (cockeyed) {
 	    paper.setSize((double)printSize.printHeight, (double)printSize.printWidth);
 	    paper.setImageableArea((double)0.0, (double)0.0,
 				   (double)printSize.printHeight, (double)printSize.printWidth);
-	} else {
+	} else */ {
 	    paper.setSize((double)printSize.printWidth, (double)printSize.printHeight);
 	    paper.setImageableArea((double)0.0, (double)0.0,
 				   (double)printSize.printWidth, (double)printSize.printHeight);
 	}
 	if (DebugVars.printdialog_tracing)
-	    Logger.log.println("paper sizes set");
+	    Logger.log.println("printTichy paper sizes set");
 	page.setPaper(paper);
 	if (DebugVars.printdialog_tracing)
-	    Logger.log.println("setPaper succeeded");
+	    Logger.log.println("printTichy setPaper succeeded");
 
-	if (cockeyed) {
+	/* if (cockeyed) {
+	    if (DebugVars.printdialog_tracing)
+	        Logger.log.println("printTichy LANDSCAPE set (cockeyed)");
 	    page.setOrientation(PageFormat.LANDSCAPE); // I think this is a bug ... and I have to do it here
-	} 
-	if (DebugVars.printdialog_tracing)
-	    Logger.log.println("orientation set "+cockeyed);
+	} */
 	
 	job.setPrintable(w, page);
 	if (DebugVars.printdialog_tracing)
@@ -126,19 +135,19 @@ public class PrintProof {
 		   try {
 		       if (job.printDialog()) {
 			   if (DebugVars.printdialog_tracing)
-			       Logger.log.println("setPrintable done -- starting printDialog");
+			       Logger.log.println("printTichy setPrintable done -- starting printDialog");
 			   job.print();
 			   if (DebugVars.printdialog_tracing)
-			       Logger.log.println("job.print done");
+			       Logger.log.println("printTichy job.print done");
 		       }
 		   } catch (Exception ex) {
 		       ex.printStackTrace(Logger.log);
-		       Alert.showAlert(Alert.Warning, "print job failed -- see log");
+		       Alert.showAlert(Alert.Warning, "printTichy print job failed -- see log");
 		   }
 		   // desperate attempt to stop print dialogs doing stupid things
 		   // job.setPrintable(null,null); 
 		   if (DebugVars.printdialog_tracing)
-			Logger.log.println("printing done");				       
+			Logger.log.println("printTichy printing done");				       
 	       }
 	    });
     }

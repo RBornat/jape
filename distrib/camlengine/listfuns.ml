@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -113,17 +113,17 @@ let rec subset (xs, ys) = all (fun x -> member (x, ys)) xs
 
 let _INTER xs ys = (fun y -> member (y, xs)) <| ys
 
-let rec interpolate a1 a2 =
-  match a1, a2 with
-    sep, [] -> []
-  | sep, [s] -> [s]
-  | sep, s1 :: ss -> s1 :: sep :: interpolate sep ss
+let rec interpolate sep ss =
+  match ss with
+    [] -> []
+  | [s] -> [s]
+  | s1 :: ss -> s1 :: sep :: interpolate sep ss
 
-let rec catelim_interpolate a1 a2 a3 a4 =
-  match a1, a2, a3, a4 with
-    f, sep, [], ys -> ys
-  | f, sep, [x], ys -> f x ys
-  | f, sep, x :: xs, ys -> f x (sep :: catelim_interpolate f sep xs ys)
+let rec catelim_interpolate f sep xs ys =
+  match xs,ys with
+    [], ys -> ys
+  | [x], ys -> f x ys
+  | x :: xs, ys -> f x (sep :: catelim_interpolate f sep xs ys)
 
 let rec stringfn_of_catelim f x = implode (f x [])
 
@@ -154,11 +154,12 @@ let rec bracketedstring_of_list obstring punct =
   stringfn_of_catelim
     (catelim_bracketedstring_of_list (catelim_of_stringfn obstring) punct)
 
-let rec replacenth a1 a2 a3 =
-  match a1, a2, a3 with
-    x :: xs, 0, y -> y :: xs
-  | x :: xs, n, y -> x :: replacenth xs (n - 1) y
-  | [], _, _ -> []
+let rec replacenth xs n y =
+  match xs, n with
+    x :: xs, 0 -> y :: xs
+  | x :: xs, n -> x :: replacenth xs (n - 1) y
+  | []     , _ -> []
+
 exception Last_
 
 let rec last =

@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -284,6 +284,7 @@ let rec whatever f cxt t =
   match f cxt t with
     None -> Some (cxt, t)
   | r -> r
+
 (* class used to call subststep, but now it doesn't.  The reason is that subststep
  * can force an alpha-conversion; this looks awful if a formula is only being unified
  * with an unknown, as for example on the rhs of a left rule.  So now we defer subststep
@@ -294,6 +295,7 @@ let rec class__ cxt t =
     Unknown (_, v, _) ->
       ((varmap cxt <@> v) &~~ whatever class__ cxt)
   | _ -> if bracketed t then whatever class__ cxt (debracket t) else None
+
 (* was debracket (simplifySubstAnyway (facts (rewrittenprovisos cxt) cxt) m _P) *)
 (* now a single-step simplifier, in an attempt to speed-up failing unifications.
  * RB 16/8/93
@@ -371,18 +373,24 @@ and subststep cxt =
         ["subststep rewriting "; string_of_term (registerSubst s); " => ";
          string_of_option (string_of_pair string_of_cxt string_of_term ",") r];
     r
+
 let rec assign (v, c) t cxt =
   if not (specialisesto (c, idclass t)) || occurs cxt v t then None
   else Some (plusvarmap cxt ((v |-> t)))
+
 let rec reb origv origt t =
   match bracketed origt, bracketed origv with
     true, true -> reb (debracket origv) (debracket origt) t
   | false, true -> enbracket t
   | _ -> t
+
 let rec simp cxt t = _The (whatever class__ cxt t)
+
 type defers = DeferAssignment | DeferAlignment | DeferSimplification
+
 let rec pp tts =
   bracketedstring_of_list (string_of_pair string_of_term string_of_term "<@>") "," tts
+
 let rec ppc dds =
   bracketedstring_of_list
     (string_of_pair
@@ -392,6 +400,7 @@ let rec ppc dds =
         | DeferSimplification -> "DeferSimplification")
        (string_of_pair string_of_term string_of_term ",") ",")
     ", " dds
+
 let rec unify a1 a2 a3 a4 =
   match a1, a2, a3, a4 with
     [], [], _, cxt -> Some cxt
@@ -1265,6 +1274,7 @@ and checkdeferred (t1, t2) cxt =
     then
       [cxt]
     else simplifydeferred pros cxt
+
 and doUnify (t1, t2) cxt =
   if !unifydebug then
     consolereport
@@ -1280,6 +1290,7 @@ and doUnify (t1, t2) cxt =
               ["fails -- \n("; debugstring_of_term t1; ","; debugstring_of_term t2;
                ");\n"; string_of_cxt cxt]));
   r
+
 (* function to help sequent (and Collection) unification *)
 and unifyv (t1, t2) cxt =
   let (cxt, t1) = simp cxt t1 in
@@ -1291,6 +1302,7 @@ and unifyv (t1, t2) cxt =
       match doUnify (t1, t2) cxt with
         Some cxt -> [cxt]
       | None -> []
+
 let rec unifyterms (t1, t2) cxt =
   let r = doUnify (t1, t2) cxt in
   let r' =
@@ -1308,8 +1320,10 @@ let rec unifyterms (t1, t2) cxt =
     | _ -> ()
     end;
   r'
+
 let unifytermsandcheckprovisos pair =
   (doUnify pair &~ checkprovisos)
+
 let rec unifyvarious pair cxt =
   List.concat ((checkdeferred pair <* unifyv pair cxt))
 

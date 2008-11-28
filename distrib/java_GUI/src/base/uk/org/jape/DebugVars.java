@@ -36,7 +36,7 @@ public class DebugVars {
     public static boolean protocol_tracing    = false,
 			  menuaction_tracing  = false,
 			  loopback_tracing    = false,
-			  printdialog_tracing = false,
+			  printdialog_tracing = true,
 			  containerlayout_tracing = false,
 			  paint_tracing       = false,
 			  measure_tracing     = false;

@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -46,6 +46,7 @@ let rec mapped same mapping a =
     | (x, y) :: mapping -> if same (x, a) then Some y else ff mapping
   in
   ff mapping
+
 (* -- [x] is the inverse of ++ x |-> : that is, it deletes only the outermost value of x.
  * -- [x,x] deletes two, and so on.
  *) 

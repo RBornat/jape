@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -120,13 +120,13 @@ let string_of_option = Optionfuns.string_of_option
 let paragraph_of_string = Paragraph.paragraph_of_string
 
 let parseCurriedArgList =
-  Termparse.tryparse (fun _ -> Termparse.parsecurriedarglist ())
+  Symbol.tryparse (fun _ -> Termparse.parsecurriedarglist ())
   
 let parseTactic = Termparse.asTactic Termparse.term_of_string
 let parseTerm = Termparse.term_of_string
 
 let parseTermCOMMAList =
-  Termparse.tryparse
+  Symbol.tryparse
     (fun _ -> Termparse.parseList Termparse.canstartTerm Termparse.parseTerm
                                   Symbol.commasymbol)
          

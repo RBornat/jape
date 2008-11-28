@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -41,4 +41,4 @@ type idclass = NoClass
              | ListClass of idclass
 
 val catelim_string_of_idclass : idclass -> string list -> string list
-val string_of_idclass : idclass -> string
+val string_of_idclass         : idclass -> string

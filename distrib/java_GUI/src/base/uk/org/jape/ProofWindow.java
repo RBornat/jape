@@ -402,7 +402,12 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	AffineTransform trans = g2D.getTransform();
 	
 	if (scale<1.0) {
-	    Logger.log.println("scaling printing to "+scale);
+	       if (DebugVars.printdialog_tracing) {
+	            Logger.log.println("imageableWidth="+pf.getImageableWidth()+"; printWidth="+printSize.printWidth+"; scalex="+scalex+
+	                    "\nimageableHeight="+pf.getImageableHeight()+"; printHeight="+printSize.printHeight+"; scaley="+scaley+
+	                    "\nscaling printing to "+scale);
+	       }
+
 	    g2D.scale(scale, scale);
 	}
 

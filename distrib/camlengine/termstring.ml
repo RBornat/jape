@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -50,8 +50,11 @@ let rec catelim_string_of_resnum r tail =
     Nonum -> "Nonum" :: tail
   | Resnum r -> "Resnum " :: string_of_int r :: tail
   | ResUnknown r -> "ResUnknown " :: string_of_int r :: tail
+
 let string_of_resnum = stringfn_of_catelim catelim_string_of_resnum
+
 let rec dolist f = catelim_bracketedstring_of_list f ","
+
 (* for those who need to know *exactly* what they have got *)
 let rec catelim_debugstring_of_term t tail =
   match t with
@@ -111,6 +114,7 @@ let rec catelim_debugstring_of_term t tail =
           ("," :: string_of_idclass k :: "," ::
              dolist (catelim_debugstring_of_element catelim_debugstring_of_term) es
                (")" :: tail))
+
 and catelim_debugstring_of_substmap vts =
   dolist
     (fun (v, t) tail ->
@@ -118,6 +122,7 @@ and catelim_debugstring_of_substmap vts =
          catelim_debugstring_of_term v
            ("," :: catelim_debugstring_of_term t (")" :: tail)))
     vts
+
 and catelim_debugstring_of_element f e tail =
   match e with
     Segvar (h, ps, v) ->
@@ -128,8 +133,11 @@ and catelim_debugstring_of_element f e tail =
       "Element(" ::
         catelim_string_of_option (catelim_of_stringfn string_of_int) h
           ("," :: catelim_debugstring_of_resnum r ("," :: f t (")" :: tail)))
+
 and catelim_debugstring_of_resnum r = catelim_string_of_resnum r
+
 let debugstring_of_term = stringfn_of_catelim catelim_debugstring_of_term
+
 let rec debugstring_of_element f =
   stringfn_of_catelim (catelim_debugstring_of_element (catelim_of_stringfn f))
 
@@ -291,6 +299,7 @@ let isInfixApp t =
   
 (* this function will probably produce stupid results if the language includes
  * operators with identical priorities but differing associativity.
+ *(But in that case we have ambiguity anyway, so who cares? RB 14/xi/2008)
  *)
 (* I tried to write this without disfiguring it with parameters ivb & ivk, then I realised
  * that the compiler would put them in anyway.  So it's ugly, but not obviously more 
@@ -299,7 +308,7 @@ let isInfixApp t =
  *)
 let rec _T ivb ivk n a t s =
   (* a isn't associativity, it's mustbracket if equal priority *)
-  let rec mustbracket b a m = if n > m || n = m && a then b else "" in
+  let mustbracket b a m = if n > m || n = m && a then b else "" in
   let _OB = mustbracket "(" a in
   let _CB = mustbracket ")" a in
   let _OBprefix = mustbracket "(" false in
@@ -339,8 +348,8 @@ let rec _T ivb ivk n a t s =
   let rec _TT n b sep ts s =
     let rec _TT' =
       function
-        [] -> s
-      | [t] -> _T ivb ivk n b t s
+        []      -> s
+      | [t]     -> _T ivb ivk n b t s
       | t :: ts -> _T ivb ivk n b t (tricolon sep (_TT' ts))
     in
     _TT' ts
@@ -348,19 +357,14 @@ let rec _T ivb ivk n a t s =
   match t with
     Id (_, v, _) ->
       let sv = string_of_vid v in
+      let id_as_op () =
+        ivb t :: quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
+      in
       (match lookup sv with
-        INFIX _ ->
-          ivb t ::
-            quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
-      | INFIXC _ ->
-          ivb t ::
-            quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
-      | PREFIX _ ->
-          ivb t ::
-            quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
-      | POSTFIX _ ->
-          ivb t ::
-            quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
+        INFIX   _ -> id_as_op ()
+      | INFIXC  _ -> id_as_op ()
+      | PREFIX  _ -> id_as_op ()
+      | POSTFIX _ -> id_as_op ()
       | _ -> ivb t :: quadcolon sv (ivk t :: s))
   | Unknown (_, v, _) -> ivb t :: quadcolon (metachar_as_string ^ (string_of_vid v)) (ivk t :: s)
   | App (_, (App (_, f, arg1) as l), arg2) ->
@@ -460,22 +464,25 @@ let rec _T ivb ivk n a t s =
                 " "
                 (_TT 0 true "," (List.map stripelement es)
                      (quadcolon (_CB 0) (ivk t :: s)))))
+
 and _TS ivb ivk ts r =
   match ts with
-    [] -> r
-  | [t] -> _T ivb ivk 0 true t r
+    []      -> r
+  | [t]     -> _T ivb ivk 0 true t r
   | t :: ts ->
       _T ivb ivk 0 true t (quadcolon "," (_TS ivb ivk ts r))
+
 and _TS1 ivb ivk m seps b ts s =
   match seps, ts with
     [ket], [] -> quadcolon ket s
-  | [], [] ->(* special case for empty tuples *)
-     s
+  | []   , [] ->(* special case for empty tuples *)
+                s
   | sep :: seps, t :: ts ->
       (* normal case when as many seps as terms *)
       _T ivb ivk m b t
          (quadcolon sep (_TS1 ivb ivk m seps b ts s))
   | _ -> quadcolon "???_TS1???" s
+
 and _TS2 ivb ivk m seps b ts s =
   match seps, ts with
     [], [t] -> _T ivb ivk m b t s
@@ -483,6 +490,7 @@ and _TS2 ivb ivk m seps b ts s =
       _T ivb ivk m b t
          (quadcolon sep (_TS2 ivb ivk m seps b ts s))
   | _ -> quadcolon "???_TS2???" s
+
 and _TM ivb ivk vts s =
   let rec var (v, t) = v in
   let rec expr (v, t) = t in

@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -38,6 +38,7 @@ val swapargs : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
 val string_of_ref : ('a -> string) -> 'a ref -> string
 val earlierpair :
   ('a -> 'a -> bool) -> ('b -> 'b -> bool) -> ('a * 'b) -> ('a * 'b) -> bool
+
 (* whether to add context automatically to rule definitions *)
 val autoAdditiveLeft  : bool ref
 val autoAdditiveRight : bool ref

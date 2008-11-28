@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -50,3 +50,39 @@ let rec catelim_string_of_idclass a1 a2 =
   | ListClass c  , tail -> "ListClass(" :: catelim_string_of_idclass c (")" :: tail)
 
 let string_of_idclass = Listfuns.stringfn_of_catelim catelim_string_of_idclass
+
+exception ParseIdclass_ of string
+
+(* this is NOT efficient, and I don't care. RB 26/xi/2008 *)
+let idclass_of_string s =
+	let rec idwords cs w ws =
+		let combine w ws =
+			match w with
+				| [] -> ws
+				| _  -> Sml.string_of_chars (List.rev w) :: ws
+		in
+		match cs with
+			| [] -> List.rev (combine w ws)
+			| '('::cs -> idwords cs [] ("("::combine w ws) 
+			| ')'::cs -> idwords cs [] (")"::combine w ws) 
+			| c::cs -> idwords cs (c::w) ws
+	in
+	let rec idclass_of_rest ws = 
+		match List.rev ws with
+			| ")" :: ws' -> idclass_of_words (List.rev ws')
+			| _ -> raise (ParseIdclass_ s)
+	and idclass_of_words ws =
+		match ws with
+			| ["NoClass"]  -> NoClass
+		  | ["FormulaClass"]  -> FormulaClass
+		  | ["VariableClass"]  -> VariableClass
+		  | ["ConstantClass"]  -> ConstantClass
+		  | ["NumberClass"]  -> NumberClass
+		  | ["StringClass"]  -> StringClass
+		  | ["OperatorClass"]  -> OperatorClass
+		  | ["SubstClass"]  -> SubstClass
+		  | "BagClass" :: "(" :: ws -> BagClass(idclass_of_rest ws)
+		  | "ListClass" :: "(" :: ws -> ListClass(idclass_of_rest ws)
+			| _ -> raise (ParseIdclass_ s)
+	in
+	idclass_of_words (idwords (Sml.chars_of_string s) [] [])
