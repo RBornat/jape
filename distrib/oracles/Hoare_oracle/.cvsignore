@@ -1,0 +1,7 @@
+*.cmi
+*.cmo
+*.cmx
+*.o
+*.paths
+*.project
+*.native
