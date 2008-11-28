@@ -562,9 +562,8 @@ let rec blacken posn =
 let rec highlight posn classopt =
   let (x, y) = explodePos posn in
   match classopt with
-    None -> writef "UNHIGHLIGHT % %\n" [Int x; Int y]
-  | Some c ->
-      writef "HIGHLIGHT % % %\n" [Int x; Int y; Int (int_of_displayclass c)]
+    None   -> writef "UNHIGHLIGHT % %\n" [Int x; Int y]
+  | Some c -> writef "HIGHLIGHT % % %\n" [Int x; Int y; Int (int_of_displayclass c)]
 
 let rec readHighlight class__ =
   match intlist_of_ask "READHIGHLIGHT %\n" [Int class__] with
