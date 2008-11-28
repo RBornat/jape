@@ -75,7 +75,7 @@ let rec (|~) f g x =
 let rec optioncompose (f, g) x =
   match g x with
     Some y -> Some (f y)
-  | None -> None
+  | None   -> None
 
 let rec optionmap f  =
   function
