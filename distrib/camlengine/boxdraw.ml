@@ -1312,7 +1312,7 @@ let rec _BoxLayout screenwidth t =
  * because it is on the autoselect path), greyen and deselect all other conclusions,
  * greyen all hypotheses except those available in its lhs.
  *
- * 2. When selecting a hypothesis, greyen all conclusions except those which use this
+ * 2. When selecting a hypothesis, greyen all conclusions except those which could use this
  * hypothesis, and all hypotheses which aren't available in the same lhs as this one,
  * somewhere in the Absprooftree.
  *
@@ -1530,17 +1530,14 @@ let rec locateHit pos classopt hitkind (p, proof, layout) =
   (_Some <.> 
    (function
        FormulaHit (AmbigHit (up, dn)) as h ->
-         begin match classopt with
-           Some DisplayConc -> FormulaHit (ConcHit up)
-         | Some DisplayHyp -> FormulaHit (HypHit dn)
-         | None -> h
-         | _ ->
-             raise
-               (Catastrophe_
-                  ["locateHit (boxdraw) finds "; string_of_hit string_of_path h;
-                   ", given classopt ";
-                   string_of_option string_of_displayclass classopt])
-         end
+         (match classopt with
+			Some DisplayConc -> FormulaHit (ConcHit up)
+		  | Some DisplayHyp -> FormulaHit (HypHit dn)
+		  | None -> h
+		  | _ -> raise (Catastrophe_
+						  ["locateHit (boxdraw) finds "; string_of_hit string_of_path h;
+						   ", given classopt ";
+						   string_of_option string_of_displayclass classopt]))
      | h -> h))
      
 let locateElement locel (p, proof, (Layout {lines = lines; bodymargin = bodymargin})) = 
@@ -1585,11 +1582,14 @@ let locateElement locel (p, proof, (Layout {lines = lines; bodymargin = bodymarg
  * with a single click.
  * RB 29/viii/00
  *) 
-
-let rec notifyselect posclassopt posclasslist =
-  fun
-    (proofpos, proof,
-     (Layout {lines = lines; bodymargin = bodymargin} (* unused as plan *)) as info) ->
+(* it's still possible to switch conclusions with a single click, but alternative conclusions aren't
+ * highlighted any more. RB 28/xi/2008 
+ *)
+let rec notifyselect 
+          posclassopt 
+          posclasslist
+          ((proofpos, proof,
+             (Layout {lines = lines; bodymargin = bodymargin} (* unused as plan *)) as info) as stuff) =
     let rec bg emp =
       let rec reemphasise p line =
         match line with
@@ -1606,19 +1606,20 @@ let rec notifyselect posclassopt posclasslist =
       in
       List.iter (reemphasise (rightby proofpos bodymargin)) lines
     in
-    let rec blackenthelot () = bg (fun _ -> blacken) in
-    let hits =
-         (fun (pos, class__) ->
-            try _The (locateHit pos (Some class__) HitPath info) with
-              _ ->
-                raise
-                  (Catastrophe_
-                     ["notifyselect (boxdraw) can't identify ";
-                      string_of_pair string_of_pos string_of_displayclass ","
-                        (pos, class__)])) <*
-         (match posclassopt with
-            None -> posclasslist
-          | Some hc -> hc :: posclasslist)
+    let blacken_desel pos = (blacken pos; highlight pos None) in
+    let rec blackenthelot () = 
+      (* blacken and deselect everything -- simplifies what a click on a greyed formula means *)
+      bg (fun _ -> blacken_desel) 
+    in
+    let findHit (pos, class__) =
+            try _The (locateHit pos (Some class__) HitPath info) 
+            with _ -> raise (Catastrophe_ ["notifyselect (boxdraw) can't identify ";
+										   string_of_pair string_of_pos string_of_displayclass ","
+	  										 (pos, class__)])
+    in
+    let hits = findHit <* (match posclassopt with
+							 None    -> posclasslist
+						   | Some hc -> hc :: posclasslist)
     in
     let rec bang s =
       raise
@@ -1641,60 +1642,77 @@ let rec notifyselect posclassopt posclasslist =
       not (List.exists (fun (_, hel) -> not (validhyp proof hel path)) hyps)
     in
     match hyps, concs, reasons with
-      [], [], [] -> blackenthelot ()
-    | [], [], [_] ->(* no selection *)
-       blackenthelot ()
-    | (hpath, _) :: hs, [], [] ->
-        (* single reason selection *)
-        (* hyps, but no conc *)
-        let path =
-          nj_fold
-            (fun ((hpath, hel), path) ->
-               if validhyp proof hel path then path else hpath)
+      [], [], []  -> blackenthelot () (* no selection *)
+    | [], [], [_] -> blackenthelot () (* single reason selection *)
+    | (hpath, hel) :: hs, [], [] -> (* hyps, but no conc *)
+        let path = 
+          (* find the lowest point in the tree at which all selected hypotheses are valid *)
+          (* and make sure the path we clicked is the winner *)
+          List.fold_right (fun (hpath', hel') hpath ->
+					         if validhyp proof hel' hpath then hpath else 
+					         if validhyp proof hel hpath' then hpath' else hpath)
             hs hpath
         in
-        let rec emp plan =
-          let rec blackhyp (({path = hpath} : pathinfo), el, _) =
-            validhyp proof el path || okhyps hyps hpath
-          in
-          let rec blackconc (({path = cpath} : pathinfo), _, _) =
-            stillopen proof cpath && okhyps hyps cpath
-          in
-          if match info_of_plan plan with
-               ElementPlan (_, _, HypPlan as inf) -> blackhyp inf
-             | ElementPlan inf -> blackconc inf
-             | AmbigElementPlan (up, down) -> blackconc up || blackhyp down
-             | ElementPunctPlan -> (* oh this is a can of worms! *) true
-          then
-            (* can't happen *) blacken
-          else greyen
-        in
-        bg emp
-    | _, [cpath, _], [] ->
-        (* conc selection gives definite position *)
         let hyps =
-          (fun (_, hel) -> validhyp proof hel cpath) <| hyps
-        in
-        let rec emp plan =
-          let rec blackhyp (({path = hpath} : pathinfo), el, _) =
-            validhyp proof el cpath
+          (* filter out rogue hypotheses *)
+		  (fun (_, hel) -> validhyp proof hel path) <| hyps        
+		in
+		let emp plan =
+          let blackhyp (({path = hpath} : pathinfo), el, _) =
+            validhyp proof el path || okhyps hyps hpath 
           in
-          let rec blackconc (({path = cpath'} : pathinfo), _, _) =
-            stillopen proof cpath' && okhyps hyps cpath'
+          let blackconc (({path = cpath} : pathinfo), el, _) =
+            stillopen proof cpath && okhyps hyps cpath 
           in
-          if match info_of_plan plan with
-               ElementPlan (_, _, HypPlan as inf) -> blackhyp inf
-             | ElementPlan inf -> blackconc inf
-             | AmbigElementPlan (up, down) ->
-                 blackconc up || blackhyp down
-             | ElementPunctPlan ->(* oh this is a can of worms! *)
-                true
-          then
-            (* can't happen *)
-            blacken
-          else greyen
+          match info_of_plan plan with
+			ElementPlan (_, _, HypPlan as inf) -> if blackhyp inf then blacken else greyen
+		  | ElementPlan inf                    -> if blackconc inf then blacken_desel else greyen
+		  | AmbigElementPlan (up, down)        -> if blackhyp down then blacken else
+												  if blackconc up then blacken_desel else 
+												  greyen  (* oh this is a can of worms! *)
+		  | ElementPunctPlan                   -> blacken (* can't happen *)
         in
         bg emp
+    | _, [cpath, cel], [] -> (* conc selection gives definite position *)
+        (* but beware! If we actually clicked on a hypothesis which isn't valid on the cpath,
+         * we want to select that hypothesis and deselect the conclusion. Oh dear.
+         *)
+         if (match posclassopt &~~ (_Some <.> findHit) with
+               Some(FormulaHit(HypHit(hpath,hel))) ->
+                 validhyp proof hel cpath
+             | _ -> true)
+         then
+           (* the case when we made a valid hyp selection or a conc selection *)
+           ((* let hyps =
+			  (fun (_, hel) -> validhyp proof hel cpath) <| hyps
+			in *)
+			let emp plan =
+			  let blackhyp (({path = hpath} : pathinfo), el, _) =
+				validhyp proof el cpath
+			  in
+			  let blackconc (({path = cpath'} : pathinfo), _, _) =
+				cpath=cpath' (* only blackens one conclusion *)
+				             (* was stillopen proof cpath' && okhyps hyps cpath' *)
+			  in
+			  if match info_of_plan plan with
+				   ElementPlan (_, _, HypPlan as inf) -> blackhyp inf
+				 | ElementPlan inf                    -> blackconc inf
+				 | AmbigElementPlan (up, down)        -> blackhyp down || blackconc up (* oh this is a can of worms! *)
+				 | ElementPunctPlan                   -> true (* can't happen *)
+			  then blacken
+			  else greyen
+			in
+			if stillopen proof cpath 
+			  then bg emp 
+			  else blackenthelot())
+	     else
+	       (* the case when it is an invalid hyp selection *)
+	       notifyselect posclassopt
+						((fun pc ->
+							match findHit pc with
+							  FormulaHit(ConcHit _) -> false 
+							| _                     -> true  ) <| posclasslist)
+						stuff
     | _, _ :: _, _ -> bang "more than one ConcHit"
     | _, _, _ :: _ -> bang "more than one ReasonHit"
 
