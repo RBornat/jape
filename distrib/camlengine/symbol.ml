@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -642,8 +642,7 @@ let char () = match peek !lexin with
 
 let next () = junk !lexin
 
-let rec scanwhile =
-  fun pp rcs con ->
+let rec scanwhile pp rcs con =
     let c = char () in
     if c <> uEOF && pp c then (next (); scanwhile pp (c :: rcs) con)
     else con (utf8_implode (List.rev rcs))
@@ -869,6 +868,36 @@ let rec poplex (lxin, lxinf, lnum, sy, pksy) =
   linenum := lnum;
   symb := sy;
   peekedsymb := pksy
+
+let check s =
+  if currsymb () = s then scansymb ()
+  else
+    raise
+      (ParseError_
+         ["Expected "; debugstring_of_symbol s; ", found "; debugstring_of_symbol (currsymb ())])
+
+let ignore s = 
+  if currsymb () = s then scansymb () else ()
+
+let tryparse _R s =
+  let s = pushlex "" (stream_of_utf8string s) in
+  let r = 
+    (try (let r = _R EOF in check EOF; r) with exn -> poplex s; raise exn)
+  in poplex s; r
+
+let tryparse_dbug _R p s =
+  let lex_s = pushlex "" (stream_of_utf8string s) in
+  let r =
+    (try
+       let _ = consolereport ["tryparse_dbug \""; s; "\""] in
+       let r = _R EOF in
+       consolereport ["tryparse_dbug found "; p r];
+       check EOF;
+       consolereport ["tryparse_dbug EOF ok"];
+       r
+     with
+       exn -> poplex lex_s; raise exn)
+   in poplex lex_s; r
 
 (* some aid for pretty-printers *)
 

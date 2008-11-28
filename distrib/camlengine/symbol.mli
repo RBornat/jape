@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -60,9 +60,15 @@ val canstartnovelsymb : symbol -> bool
 val peeksymb : unit -> symbol
 val putbacksymb : symbol -> unit (* for primitive backtracking *)
 
+val check : symbol -> unit
+val ignore : symbol -> unit
+
 type savedlex
 val pushlex : string -> ucode Stream.t -> savedlex
 val poplex  : savedlex -> unit
+
+val tryparse : (symbol -> 'a) -> string -> 'a
+val tryparse_dbug : (symbol -> 'a) -> ('a -> string) -> string -> 'a
 
 val pushSyntax     : string -> unit
 val popSyntax      : unit -> unit
