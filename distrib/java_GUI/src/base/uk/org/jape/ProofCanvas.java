@@ -35,183 +35,183 @@ import javax.swing.JFrame;
 @SuppressWarnings("serial")
 public class ProofCanvas extends JapeCanvas implements ProtocolConstants, SelectionConstants {
 
-	public final JFrame window; // for the draggers and droppers
+    public final JFrame window; // for the draggers and droppers
 
-	public ProofCanvas(JFrame window, Container viewport, boolean scrolled) { 
-		super(viewport, scrolled); 
-		this.window = window;
-	}
+    public ProofCanvas(JFrame window, Container viewport, boolean scrolled) { 
+        super(viewport, scrolled); 
+        this.window = window;
+    }
 
-	public byte proofStyle;
+    public byte proofStyle;
 
-	protected void claimFocus() {
-		getProofWindow().claimProofFocus();
-	}
+    protected void claimFocus() {
+        getProofWindow().claimProofFocus();
+    }
 
-	// these are not yet coming out in time order ...
-	// not yet efficient
-	public String getSelections(String sep) {
-		String s = null;
-		int nc = child.getComponentCount(); // oh dear ...
-		for (int i=0; i<nc; i++) {
-			String s1 = getSelection(child.getComponent(i)); // oh dear ...
-			if (s1!=null) {
-				if (s==null)
-					s=s1;
-				else
-					s=s+sep+s1;
-			}
-		}
-		return s; 
-	}
+    // these are not yet coming out in time order ...
+    // not yet efficient
+    public String getSelections(String sep) {
+        String s = null;
+        int nc = child.getComponentCount(); // oh dear ...
+        for (int i=0; i<nc; i++) {
+            String s1 = getSelection(child.getComponent(i)); // oh dear ...
+            if (s1!=null) {
+                if (s==null)
+                    s=s1;
+                else
+                    s=s+sep+s1;
+            }
+        }
+        return s; 
+    }
 
-	protected String getSelection(Component c) {
-		if (c instanceof SelectableProofItem && ((SelectableProofItem)c).getSelected()) {
-			SelectableProofItem item = (SelectableProofItem)c;
-			return (item.idX+" "+item.idY+" "+
-					protocolSelClass("getSelection", item.getSelectionKind()));
-		}
-		else
-			return null;
-	}
+    protected String getSelection(Component c) {
+        if (c instanceof SelectableProofItem && ((SelectableProofItem)c).getSelected()) {
+            SelectableProofItem item = (SelectableProofItem)c;
+            return (item.idX+" "+item.idY+" "+
+                    protocolSelClass("getSelection", item.getSelectionKind()));
+        }
+        else
+            return null;
+    }
 
-	protected boolean hasConcSelection() {
-		int nc = child.getComponentCount(); // oh dear ...
-		for (int i=0; i<nc; i++) {
-			Component c = child.getComponent(i); // oh dear ...
-			if (c instanceof SelectableProofItem) {
-				SelectableProofItem item = (SelectableProofItem) c;
-				if (item.getSelected() && item.getSelectionKind()==ConcSel)
-					return true;
-			}
-		}
-		return false;
-	}
+    protected boolean hasConcSelection() {
+        int nc = child.getComponentCount(); // oh dear ...
+        for (int i=0; i<nc; i++) {
+            Component c = child.getComponent(i); // oh dear ...
+            if (c instanceof SelectableProofItem) {
+                SelectableProofItem item = (SelectableProofItem) c;
+                if (item.getSelected() && item.getSelectionKind()==ConcSel)
+                    return true;
+            }
+        }
+        return false;
+    }
 
-	protected void notifySelect(DisplayItem d) {
-		String s = "SELECT "+getSelection(d);
-		int nc = child.getComponentCount(); // oh dear ...
-		for (int i=0; i<nc; i++) {
-			Component c = child.getComponent(i); // oh dear ...
-			if (c!=d) {
-				String s1 = getSelection(c);
-				if (s1!=null)
-					s = s+" "+s1;
-			}
-		}
-		Reply.send(s);
-		getProofWindow().enableLemmas();
-	}
+    protected void notifySelect(DisplayItem d) {
+        String s = "SELECT "+getSelection(d);
+        int nc = child.getComponentCount(); // oh dear ...
+        for (int i=0; i<nc; i++) {
+            Component c = child.getComponent(i); // oh dear ...
+            if (c!=d) {
+                String s1 = getSelection(c);
+                if (s1!=null)
+                    s = s+" "+s1;
+            }
+        }
+        Reply.send(s);
+        getProofWindow().enableLemmas();
+    }
 
-	protected void notifyDeselect() {
-		String s = getSelections(" ");
-		Reply.send("DESELECT"+(s==null ? "" : " "+s));
-		getProofWindow().enableLemmas();
-	}
+    protected void notifyDeselect() {
+        String s = getSelections(" ");
+        Reply.send("DESELECT"+(s==null ? "" : " "+s));
+        getProofWindow().enableLemmas();
+    }
 
-	protected void notifySelectionChange(DisplayItem item) {
-		if (item!=null && item.getSelected())
-			notifySelect(item);
-		else
-			notifyDeselect();
-	}
+    protected void notifySelectionChange(DisplayItem item) {
+        if (item!=null && item.getSelected())
+            notifySelect(item);
+        else
+            notifyDeselect();
+    }
 
-	protected byte protocolSelClass(String id, byte selclass) {
-		switch (selclass) {
-		case HypSel	  : return HypTextItem;
-		case ConcSel  : return ConcTextItem;
-		case ReasonSel: return ReasonTextItem;
-		default	  : Alert.abort("ProofCanvas."+id+" selkind="+selclass);
-		return PunctTextItem; // shut up compiler
-		}
-	}
+    protected byte protocolSelClass(String id, byte selclass) {
+        switch (selclass) {
+            case HypSel   : return HypTextItem;
+            case ConcSel  : return ConcTextItem;
+            case ReasonSel: return ReasonTextItem;
+            default	  : Alert.abort("ProofCanvas."+id+" selkind="+selclass);
+                            return PunctTextItem; // shut up compiler
+        }
+    }
 
-	public void killSelections(byte mask) {
-		Component[] cs = child.getComponents(); // oh dear ...
-		for (int i=0; i<cs.length; i++) {
-			if (cs[i] instanceof SelectableProofItem &&
-					(((SelectableProofItem)cs[i]).getSelectionKind() & mask)!=0) {
-				((SelectableProofItem)cs[i]).setSelected(false);
-			}
-		}
-	}
+    public void killSelections(byte mask) {
+        Component[] cs = child.getComponents(); // oh dear ...
+        for (int i=0; i<cs.length; i++) {
+            if (cs[i] instanceof SelectableProofItem &&
+                    (((SelectableProofItem)cs[i]).getSelectionKind() & mask)!=0) {
+                ((SelectableProofItem)cs[i]).setSelected(false);
+            }
+        }
+    }
 
-	protected void doSelectAction(DisplayItem di) {
-		if (di instanceof SelectableProofItem) {
-			SelectableProofItem item = (SelectableProofItem) di;
-			switch (item.getSelectionKind()) {
-			case ReasonSel:
-				killAllSelections();
-				break;
-			case HypSel:
-				killSelections((byte)(HypSel | ReasonSel));
-				break;
-			case ConcSel:
-				killSelections((byte)(ConcSel | ReasonSel));
-				break;
-			default:
-				Alert.abort("ProofCanvas.doSelectAction("+di+");");
-			}
-		}
-	}
+    protected void doSelectAction(DisplayItem di) {
+        if (di instanceof SelectableProofItem) {
+            SelectableProofItem item = (SelectableProofItem) di;
+            switch (item.getSelectionKind()) {
+                case ReasonSel:
+                    killAllSelections();
+                    break;
+                case HypSel:
+                    killSelections((byte)(HypSel | ReasonSel));
+                    break;
+                case ConcSel:
+                    killSelections((byte)(ConcSel | ReasonSel));
+                    break;
+                default:
+                    Alert.abort("ProofCanvas.doSelectAction("+di+");");
+            }
+        }
+    }
 
-	protected static boolean multihypsel;
-	
-	public static void setMultiHypSel(boolean b) {
-		multihypsel = b;
-	}
-	
-	protected void doExtendSelectAction(DisplayItem di) {
-		if (di instanceof SelectableProofItem) {
-			SelectableProofItem item = (SelectableProofItem) di;
-			switch (item.getSelectionKind()) {
-			case ReasonSel:
-			case ConcSel: // only one at a time
-				doSelectAction(di);
-				break;
-			case HypSel: // several allowed, if the user permits it
-				if (!multihypsel)
-					doSelectAction(di);
-				break;
-			default:
-				Alert.abort("ProofCanvas.doExtendSelectAction("+di+");");
-			}
-		}
-	}
+    protected static boolean multihypsel;
 
-	protected void doHitAction(DisplayItem di) {
-		if (di instanceof SelectableProofItem)
-			Reply.send("ACT "+di.idX+" "+di.idY+" "+
-					protocolSelClass("notifyHit",
-							((SelectableProofItem)di).getSelectionKind()));
-		else
-			Alert.abort("ProofCanvas.notifyHit di="+di);
-	}
+    public static void setMultiHypSel(boolean b) {
+        multihypsel = b;
+    }
 
-	public SelectableProofItem findSelectable(int x, int y) {
-		int nc = child.getComponentCount(); // oh dear ...
-		for (int i=0; i<nc; i++) {
-			Component c = child.getComponent(i); // oh dear ...
-			if (c instanceof SelectableProofItem &&
-					((SelectableProofItem)c).idX==x && ((SelectableProofItem)c).idY==y)
-				return (SelectableProofItem)c;
-		}
-		return null;
-	}
+    protected void doExtendSelectAction(DisplayItem di) {
+        if (di instanceof SelectableProofItem) {
+            SelectableProofItem item = (SelectableProofItem) di;
+            switch (item.getSelectionKind()) {
+                case ReasonSel:
+                case ConcSel: // only one at a time
+                    doSelectAction(di);
+                    break;
+                case HypSel: // several allowed, if the user permits it
+                    if (!multihypsel)
+                        doSelectAction(di);
+                    break;
+                default:
+                    Alert.abort("ProofCanvas.doExtendSelectAction("+di+");");
+            }
+        }
+    }
 
-	public void wakeDragIndicators(int dragNum) {
-		Component[] cs = child.getComponents(); // oh dear ...
-		for (int i=0; i<cs.length; i++) {
-			if (cs[i] instanceof DragIndicator)
-				((DragIndicator)cs[i]).wake(dragNum);
-		}
-	}
+    protected void doHitAction(DisplayItem di) {
+        if (di instanceof SelectableProofItem)
+            Reply.send("ACT "+di.idX+" "+di.idY+" "+
+                    protocolSelClass("notifyHit",
+                            ((SelectableProofItem)di).getSelectionKind()));
+        else
+            Alert.abort("ProofCanvas.notifyHit di="+di);
+    }
 
-	public void wakeDragSourceIndicators() {
-		wakeDragIndicators(-1);
-	}
+    public SelectableProofItem findSelectable(int x, int y) {
+        int nc = child.getComponentCount(); // oh dear ...
+        for (int i=0; i<nc; i++) {
+            Component c = child.getComponent(i); // oh dear ...
+            if (c instanceof SelectableProofItem &&
+                    ((SelectableProofItem)c).idX==x && ((SelectableProofItem)c).idY==y)
+                return (SelectableProofItem)c;
+        }
+        return null;
+    }
 
-	public void wakeDragTargetIndicators(int dragNum) {
-		wakeDragIndicators(dragNum);
-	}
+    public void wakeDragIndicators(int dragNum) {
+        Component[] cs = child.getComponents(); // oh dear ...
+        for (int i=0; i<cs.length; i++) {
+            if (cs[i] instanceof DragIndicator)
+                ((DragIndicator)cs[i]).wake(dragNum);
+        }
+    }
+
+    public void wakeDragSourceIndicators() {
+        wakeDragIndicators(-1);
+    }
+
+    public void wakeDragTargetIndicators(int dragNum) {
+        wakeDragIndicators(dragNum);
+    }
 }
