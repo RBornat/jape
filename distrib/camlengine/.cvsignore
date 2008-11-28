@@ -2,5 +2,7 @@
 *.cmo
 *.cmx
 *.o
+*.paths
+*.project
 jape_engine
 _log
