@@ -64,7 +64,7 @@ OSXuniversal:: ;\
 #
 #############################################################################
 
-clean:;                 rm -fr _build$(OS)
-cleanall:;				rm -fr _build* _log
+clean:;                 rm -fr _build$(OS) *.native
+cleanall:;				rm -fr _build* _log *.native
 
         
