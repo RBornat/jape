@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -28,8 +28,6 @@
 open Symbol
 open Termtype
 
-val check : symbol -> unit
-val ignore : symbol -> unit
 val canstartTerm : symbol -> bool
 val canstartidentifier : symbol -> bool
 val parseVariable : unit -> term
@@ -43,8 +41,6 @@ val parseElementList :
 val parseList : (symbol -> bool) -> (symbol -> 'a) -> symbol -> 'a list
 val parseUnsepList : (symbol -> bool) -> (symbol -> 'a) -> 'a list
 val parsecurriedarglist : unit -> term list
-val tryparse : (symbol -> 'a) -> string -> 'a
-val tryparse_dbug : (symbol -> 'a) -> ('a -> string) -> string -> 'a
 val asTactic : ('a -> term) -> 'a -> term
 (* parse with no notice of name classification, non-vars allowed in Substs *)
 val checkTacticTerm : term -> unit

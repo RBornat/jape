@@ -1,7 +1,7 @@
 (*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -117,17 +117,10 @@ let resettermparse () =
   declareOutRightfix [BRA "("] (KET ")"); (* oh dear this was an sml bug -- what next? *)
   ()
 
-let check s =
-  if currsymb () = s then scansymb ()
-  else
-    raise
-      (ParseError_
-         ["Expected "; debugstring_of_symbol s; ", found "; debugstring_of_symbol (currsymb ())])
-
 let ignore s = 
   if !termparsedebug then
     consolereport ["ignore "; debugstring_of_symbol s; " (currsymb="; debugstring_of_symbol (currsymb()); ")"];
-  if currsymb () = s then scansymb () else ()
+  Symbol.ignore s
 
 let rec parseUnsepList start f =
   if start (currsymb ()) then 
