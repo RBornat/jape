@@ -1074,15 +1074,15 @@ let rec newtile =
                    sentencestring_of_list string_of_term ", " " and " occs];
                 None
             | [p] -> Some p
-            | _ ->
-                try
-                    (askChoice
-                       ("Choose your new tile",
-                        List.map (fun t -> [t])
-                          (sort (<) (List.map string_of_term possibles))) 
-                     &~~ (fun i -> Some (List.nth possibles i)))
-                with
-                  Failure "nth" -> raise (Catastrophe_ ["(newtile) Failure \"nth\" ..."]))  
+            | _ -> askChoice
+	                   ("Choose your new tile",
+	                    List.map (fun t -> [t])
+	                      (sort (<) (List.map string_of_term possibles))) 
+                     &~~ (fun i -> Some (try List.nth possibles i with
+                  												Invalid_argument "List.nth" | Failure "nth" -> 
+																						raise (Catastrophe_ ["(newtile) nth [";
+																										string_of_list string_of_term ";" possibles;
+																										"] "; string_of_int i]))))
          &~~
          (fun tile ->
             Some (withdisprooftiles d (tilesort (tile :: tiles)))))
