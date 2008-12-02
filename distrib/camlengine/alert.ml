@@ -100,16 +100,18 @@ let rec ask code m (bs : (string * 'a) list) def =
          ["ask bad default \""; m; "\"";
           bracketedstring_of_list fst "," bs; " "; string_of_int def])
   else
-    let i =
-      ask_unpatched (intseverity code) m (List.map fst bs) def
-    in
-    try snd (List.nth bs i) with
-      Failure "nth" ->
-        raise
-          (Catastrophe_
-             ["ask bad result \""; m; "\"";
-              bracketedstring_of_list fst "," bs; " ";
-              string_of_int def; " => "; string_of_int i])
+    let i = ask_unpatched (intseverity code) m (List.map fst bs) def in
+    if i<0 then 
+			raise (Catastrophe_ ["ask window closed \""; m; "\"";
+							              bracketedstring_of_list fst "," bs; " ";
+							              string_of_int def; " => "; string_of_int i]) 
+		else (try snd (List.nth bs i)
+				  with Failure "nth" ->
+				        raise
+				          (Catastrophe_
+				             ["ask bad result \""; m; "\"";
+				              bracketedstring_of_list fst "," bs; " ";
+				              string_of_int def; " => "; string_of_int i]))
 
 let rec askCancel code m (bs : (string * 'a) list) c def =
   if null bs then
@@ -124,26 +126,26 @@ let rec askCancel code m (bs : (string * 'a) list) c def =
       askCancel_unpatched (intseverity code) m (List.map fst bs) def
     with
       Some i ->
-        snd 
-          (try List.nth bs i with
-             Failure "nth" ->
-               raise
-                 (Catastrophe_
-                    ["ask bad result \""; m; "\"";
-                     bracketedstring_of_list fst "," bs; " ";
-                     string_of_int def; " => "; string_of_int i]))
+				if i<0 then c (* Java close window is reported as -1, means Cancel *) 
+        else snd (try List.nth bs i with
+			             Failure "nth" ->
+			               raise
+			                 (Catastrophe_
+			                    ["ask bad result \""; m; "\"";
+			                     bracketedstring_of_list fst "," bs; " ";
+			                     string_of_int def; " => "; string_of_int i]))
     | None -> c
 
 let rec askDangerously m (dol, doa) (dontl, donta) cancela =
   match askDangerously_unpatched m dol dontl with
-    Some 0 -> doa
-  | Some 1 -> donta
-  | None   -> cancela
+    Some 0  -> doa
+  | Some 1  -> donta
+  | None    -> cancela
+	| Some -1 -> cancela (* it can happen if alerts are closed *)
   | Some i ->
       raise (Catastrophe_ ["askDangerously_unpatched => "; string_of_int i])
 
 (* we allow the user to patch an alert *)
-
 let rec showAlert code s =
   let rec display code s = ask code s ["OK", ()] 0 in
   let rec patch code aopt =
