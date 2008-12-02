@@ -42,7 +42,6 @@ public class DebugVars {
 			  measure_tracing     = false;
 
     public static void runDebugSettingsDialog() {
-	String [] buttons = { "OK", "Cancel" };
 	JCheckBox [] tracing = {
 	    new JCheckBox("trace engine/GUI protocol messages"), // 0
 	    new JCheckBox("trace menu activity"),		 // 1
@@ -59,11 +58,10 @@ public class DebugVars {
 	tracing[4].setSelected(containerlayout_tracing);
 	tracing[5].setSelected(paint_tracing);
 	tracing[6].setSelected(measure_tracing);
-	int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), tracing,
-						 "Debug settings", 0,
-						 JOptionPane.PLAIN_MESSAGE,
-						 null, buttons, buttons[0]);
-	if (reply==0) {
+	int reply = JOptionPane.showConfirmDialog(JapeWindow.getTopWindow(), tracing, "Debug settings", 
+	                                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+	if (reply==JOptionPane.OK_OPTION) {
 	    protocol_tracing	 = tracing[0].isSelected();
 	    menuaction_tracing	 = tracing[1].isSelected();
 	    loopback_tracing	 = tracing[2].isSelected();
