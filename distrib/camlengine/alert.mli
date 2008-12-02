@@ -34,7 +34,7 @@ type alertspec =
 
 type alertseverity = Info | Warning | Error | Question
 
-val ask : alertseverity -> string -> (string * 'a) list -> int       -> 'a
+val ask : alertseverity -> string -> (string * 'a) list -> int       -> 'a 
                         (* message   buttons  actions      defaultindex  result   *)
 
 val askCancel :
