@@ -42,19 +42,21 @@ import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 
 public class Export {
-    static String[]  buttons = new String [] { "OK", "Shut up: I know" };
+    static String[]  buttons = new String [] { "OK", "Cancel", "Shut up: I know" };
     
     public static void export(ProofWindow w, int what) {
 	if (Jape.onMacOSX) {
 	    if (JapePrefs.getProp("ExpertMacOSXExport", 0)==0) {
-		int q = Alert.query(w, buttons, Alert.Info,
+		int q = Alert.myShowOptionDialog(w, buttons, Alert.Info,
 				    (what == PrintProof.BOTH ? JapeMenu.EXPORT :
 				     what == PrintProof.PROOF ? JapeMenu.EXPORT_PROOF :
 				     JapeMenu.EXPORT_DISPROOF)+
 				    " doesn't work properly on MacOS X yet.  Sorry!\n"+
 				    "You have to go through a Print dialog: just hit 'Save as PDF' or 'Preview'",
 				    0);
-		if (q==1)
+		if (q==1) return;
+		else
+		if (q==2)
 		    JapePrefs.putProp("ExpertMacOSXExport", 1);
 	    }
 	    PrintProof.printTichy(w, what);
