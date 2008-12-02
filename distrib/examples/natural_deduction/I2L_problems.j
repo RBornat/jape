@@ -104,30 +104,30 @@ CONJECTUREPANEL "Classical conjectures"
 END
   
 CONJECTUREPANEL Conjectures
-    THEOREM IS  E, E→F ⊢ F
-    THEOREM IS  E→F, F→G, E ⊢ G
-    THEOREM IS  E→(F→G), E→F, E ⊢ G
-    THEOREM IS  E→F, F→G ⊢ E→G
-    THEOREM IS  E→(F→G) ⊢ F→(E→G)
-    THEOREM IS  E→(F→G) ⊢ (E→F)→(E→G)
-    THEOREM IS  E ⊢ F→E
-    THEOREM IS  ⊢ E→(F→E)
-    THEOREM IS  E→F ⊢ (F→G)→(E→G)
-    THEOREM IS  E→(F→(G→H)) ⊢ G→(F→(E→H))
-    THEOREM IS  ⊢ (E→(F→G))→((E→F)→(E→G))
-    THEOREM IS  (E→F)→G ⊢ E→(F→G)
-
     THEOREM IS  E, F ⊢ E∧F
     THEOREM IS  E∧F ⊢ E
     THEOREM IS  E∧F ⊢ F
     THEOREM IS  E∧(F∧G) ⊢ (E∧F)∧G
     THEOREM IS  (E∧F)∧G ⊢ E∧(F∧G)
 
+    THEOREM IS  E, E→F ⊢ F
+    THEOREM IS  E→F, F→G, E ⊢ G
+    THEOREM IS  E→(F→G), E→F, E ⊢ G
+    THEOREM IS  E→F, F→G ⊢ E→G
+    THEOREM IS  E→F→G ⊢ F→E→G
+    THEOREM IS  E→F→G ⊢ (E→F)→(E→G)
+    THEOREM IS  E ⊢ F→E
+    THEOREM IS  ⊢ E→F→E
+    THEOREM IS  E→F ⊢ (F→G)→E→G
+    THEOREM IS  E→F→G→H ⊢ G→F→E→H
+    THEOREM IS  ⊢ (E→F→G)→(E→F)→E→G
+    THEOREM IS  (E→F)→G ⊢ E→F→G
+
     THEOREM IS  E∧F ⊢ E→F
     THEOREM IS  (E→F)∧(E→G) ⊢ E→(F∧G)
     THEOREM IS  E→(F∧G) ⊢ (E→F)∧(E→G)
-    THEOREM IS  E→(F→G) ⊢ (E∧F)→G
-    THEOREM IS  (E∧F)→G ⊢ E→(F→G)
+    THEOREM IS  E→F→G ⊢ (E∧F)→G
+    THEOREM IS  (E∧F)→G ⊢ E→F→G
     THEOREM IS  (E→F)→G ⊢ (E∧F)→G
     THEOREM IS  E∧(F→G) ⊢ (E→F)→G
 
@@ -142,22 +142,20 @@ CONJECTUREPANEL Conjectures
     THEOREM IS  (E∨F)∨G ⊢ E∨(F∨G)
 
     THEOREM IS  E∧(F∨G) ⊢ (E∧F)∨(E∧G)
-    THEOREM IS  (E∧F)∨(E∧G) ⊢ E∧(F∨G)
-    THEOREM IS  E∨(F∧G) ⊢ (E∨F)∧(E∨G)
-    THEOREM IS  (E∨F)∧(E∨G) ⊢ E∨(F∧G)
+    THEOREM IS  E∧F∨E∧G ⊢ E∧(F∨G)
+    THEOREM IS  E∨F∧G ⊢ (E∨F)∧(E∨G)
+    THEOREM IS  (E∨F)∧(E∨G) ⊢ E∨F∧G
 
-    THEOREM IS  (E→G)∧(F→G) ⊢ (E∨F)→G
-    THEOREM IS  (E∨F)→G ⊢ (E→G)∧(F→G)
+    THEOREM IS  (E→G)∧(F→G) ⊢ E∨F→G
+    THEOREM IS  E∨F→G ⊢ (E→G)∧(F→G)
 
-    THEOREM IS  E ⊢ E∧⊤ /* E |- E & top */
-    THEOREM IS  E∧⊤ ⊢E /* E & top |- E */
-    
-    THEOREM IS  E ⊢ E∨⊤ /* E |- E v top */
+    THEOREM IS  E ⊢ E∧⊤ 
+    THEOREM IS  E∧⊤ ⊢E 
+    THEOREM IS  E ⊢ E∨⊤ 
 
-    THEOREM IS  E ⊢ E∨⊥ /* E |- E v bot */
-    THEOREM IS  E∨⊥ ⊢E /* E v bot |- E */
-    
-    THEOREM IS  E∧⊥ ⊢ E /* E & bot |- E */
+    THEOREM IS  E ⊢ E∨⊥ 
+    THEOREM IS  E∨⊥ ⊢E 
+    THEOREM IS  E∧⊥ ⊢ E 
 
     THEOREM IS  E ⊢ ¬¬E
     THEOREM IS  ¬E ⊢ E→F
