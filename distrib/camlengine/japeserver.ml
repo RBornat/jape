@@ -421,7 +421,7 @@ let rec ask_unpatched severity message buttons default =
   match
     intlist_of_ask "ASKNOW % % %\n" [Int severity; Str message; Int default]
   with
-    [n] -> n
+    [n] -> n (* warning: can be -1 if the interface doesn't stop Windoze users closing alerts *)
   | _   -> raise (Catastrophe_ ["ask protocol failure"])
 
 let rec askDangerously_unpatched message doit dont =
@@ -429,13 +429,13 @@ let rec askDangerously_unpatched message doit dont =
     intlist_of_ask "ASKDANGEROUSLY % % %\n" [Str message; Str doit; Str dont]
   with
     [0] -> None
-  | [n] -> Some (n - 1)
+  | [n] -> if n<0 then None else Some (n - 1)
   | ns  -> raise (Catastrophe_ ["askDangerously protocol failure ";
                                 bracketedstring_of_list string_of_int ";" ns])
 
 let rec askCancel_unpatched severity message buttons default =
   let n = ask_unpatched severity message (buttons @ ["Cancel"]) default in
-  if n = List.length buttons then None else Some n
+  if n<0 || n = List.length buttons then None else Some n
 
 let rec echo s = s
 
