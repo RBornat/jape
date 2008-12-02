@@ -160,8 +160,9 @@ let rec remake mapterm (_, (bs, ss, us), env, pat as b) =
     in
     mapterm f pat
   with
-    Failure "nth" ->
-      raise (Catastrophe_ ["Failure \"nth\" in remake "; debugstring_of_term (Binding b)])
+    Invalid_argument "List.nth" | Failure "nth" ->
+      raise (Catastrophe_ ["Invalid_argument \"List.nth\" | Failure \"nth\" in remake "; 
+                                debugstring_of_term (Binding b)])
 
 (* ------------------------------------------------------------------------------------- *)
 (* Bernard's pretty-printer in all its glory *)
