@@ -456,7 +456,7 @@ let rec targetbox pos path plan =
               let (sp, s) = List.nth subplans n in
               _P ns s (pos +->+ sp)
             with
-              Failure "nth" -> None
+              Invalid_argument "List.nth" | Failure "nth" -> None
   in
   match path with
     Some route -> _P route plan pos
