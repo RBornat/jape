@@ -186,7 +186,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    stringlist.add(cmd[1]);
 			else
 			if (p=="ASKNOW"&&len==4)
-			    Reply.reply(Alert.ask(((String[])stringlist.toArray(new String[stringlist.size()])),
+			    Reply.reply(Alert.myShowOptionDialog(((String[])stringlist.toArray(new String[stringlist.size()])),
 						  toInt(cmd[1]), cmd[2], toInt(cmd[3])));
 			else
 			if (p=="ASKDANGEROUSLY"&&len==4)
