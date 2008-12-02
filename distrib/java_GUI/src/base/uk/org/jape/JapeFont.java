@@ -126,7 +126,6 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     }
     
     public static void runFontSizesDialog() {
-	String [] buttons = { "OK", "Cancel" };
 	SizeSelector [] fontSizes = {
 	    new SizeSelector("Formula font size"       , FormulaFontSize   ), // 0
 	    new SizeSelector("Reason/Proviso font size", ReasonFontSize	   ), // 1
@@ -165,11 +164,11 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	    addLabelledComboBox(panel, gridbag, fontSizes[i].label, labelconstraints, fontSizes[i].comboBox, comboconstraints);
 	}
 	
-	int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), panel,
-						 "Font sizes", 0,
-						 JOptionPane.PLAIN_MESSAGE,
-						 null, buttons, buttons[0]);
-	if (reply==0) {
+	int reply = JOptionPane.showConfirmDialog(JapeWindow.getTopWindow(), panel, 
+	                                            "Font sizes", JOptionPane.OK_CANCEL_OPTION, 
+	                                            JOptionPane.PLAIN_MESSAGE);
+
+	if (reply==JOptionPane.OK_OPTION) {
 	    boolean interfaceChanged = false;
 	    String family = (String)fontBox.getSelectedItem();
 	    if (family!=BaseFont.getFontFamily()) {
