@@ -255,7 +255,7 @@ public class LemmaDialog {
 		if (selectedValue!=null && options[0].equals(selectedValue) &&
 		    panelName.equals(""))
 		    Alert.showAlert("You must give a panel name (or press Cancel). Try again!\n\n"+
-				    "(If I knew how to grey out the OK button, I would do it.)");
+				    "(If I knew how to grey out the OK button till there's a panel name, I would do it.)");
 		else
 		    break;
 	    }
