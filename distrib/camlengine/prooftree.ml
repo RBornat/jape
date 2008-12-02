@@ -425,10 +425,9 @@ module Tree : Tree with type term = Termtype.term
       | why, how, _, args, fmt, hastipval, seq, (ts, rewinf), ress ->
           (* this is what makes the tip path work *)
           match path with
-            n :: ns ->
-              begin try go n (List.nth ts n) ns with
-                Failure "nth" -> raise (FollowPath_ ("out of range", path))
-              end
+            n :: ns -> go n (try List.nth ts n with
+                							Invalid_argument "List.nth" | Failure "nth" -> 
+																raise (FollowPath_ ("out of range", path))) ns
           | [] -> stop ()
     let rec pathto t =
       match t with
@@ -458,10 +457,9 @@ module Tree : Tree with type term = Termtype.term
           end
       | Join (_, _, _, _, _, _, _, (ts, _), _) ->
           match path with
-            n :: ns ->
-              begin try Some (ns, List.nth ts n) with
-                Failure "nth" -> raise (FollowPath_ ("onestep out of range", path))
-              end
+            n :: ns -> Some (ns, (try List.nth ts n with
+	                									Invalid_argument "List.nth" | Failure "nth" -> 
+																			raise (FollowPath_ ("onestep out of range", path))))
           | [] -> None
     let rec fakePath_ns rf t ns =
       match t with
@@ -1354,7 +1352,7 @@ module Tree : Tree with type term = Termtype.term
                        hideroots (Some fmt) false inouts
                    | fmt -> hideroots (Some fmt) (isCutjoin j) (pts, [])
                with
-                 Failure "nth" -> default ())
+                 Invalid_argument "List.nth" | Failure "nth" -> default ())
           | _ -> hideroots None (isCutjoin j) (pts, [])
       in
       if !prooftreedebug then
@@ -1419,7 +1417,7 @@ module Tree : Tree with type term = Termtype.term
                     try
                       let (ns', t) = List.nth ts n in _P ns (rev1 ns' rns) t
                     with
-                      Failure "nth" -> None))
+                      Invalid_argument "List.nth" | Failure "nth" -> None))
           | [], rns, t -> Some (FmtPath (rev1 rns (pathto t)))
         in
         _P ns [] t
@@ -1495,7 +1493,7 @@ module Tree : Tree with type term = Termtype.term
                         | _, "", None    -> !unfilteredfmt, nohidf
                         | _, s , Some _  -> s             , invisf
                         | _, s , None    -> s             , nohidf
-                    with Failure "nth" -> !rawfmt, nohidf)
+                    with Invalid_argument "List.nth" | Failure "nth" -> !rawfmt, nohidf)
                  in
                  rprintf (UTF.utf8_explode fmt) invis default_reason
              | _ -> default_reason ()
