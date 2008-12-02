@@ -29,6 +29,10 @@ package uk.org.jape;
 
 import java.awt.Component;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -123,6 +127,7 @@ public class Alert implements DebugConstants {
 	int reply = JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), makeMessage(message),
 						 "GUI error", 0, Error,
 						 null, buttons, quit);
+	// -1 means, in effect, continue (i.e. cancel)
 	if (reply==0)
 	   Jape.crash("GUI error: "+message);
     }
@@ -132,19 +137,50 @@ public class Alert implements DebugConstants {
 	JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), makeMessage(message),
 						 "GUI disaster", 0, Error,
 						 null, buttons, quit);
+	// window close doesn't matter
 	Logger.crash("GUI disaster: "+message, 2);
     }
 
     // this doesn't deal with fonts yet ... I think we have to make a Component (sigh)
-    public static int query(Component parent, String[] buttons, int messageKind,
+    public static int myShowOptionDialog(Component parent, String[] buttons, int messageKind,
 			     String message, int defaultbutton) {
-	return JOptionPane.showOptionDialog(parent, makeMessage(message), null, 0, messageKind,
-					    null, buttons, buttons[defaultbutton]);
+	/* if the buttons are either just OK or include Cancel, we take window closure 
+	 * (Windoze, sigh) as Cancel. Otherwise we stop closure and put an explanatory 
+	 * dialog message on the window-close button.
+	 */
+        
+        // if it's just OK ...
+        if (buttons.length==1 && buttons[0].equalsIgnoreCase("OK")) {
+            JOptionPane.showMessageDialog(parent,makeMessage(message),null,messageKind);
+            return 0;
+        }
+
+        // if it has Cancel ...
+        int hascancel = -1;
+        for (int j=0; j<buttons.length; j++)
+            if (buttons[j].equals("Cancel")) 
+                hascancel=j;
+        
+        if (hascancel>=0) {
+            int i = JOptionPane.showOptionDialog(parent, makeMessage(message), null, 0, messageKind,
+                    null, buttons, buttons[defaultbutton]);
+            return i==JOptionPane.CLOSED_OPTION ? hascancel : i;
+        }
+        
+        // otherwise we do it the slow way
+        return nonCancellableDialog(parent,message,messageKind,buttons,defaultbutton,
+                    "Please don't press the close button: press one of the buttons "+stringOfButtons(buttons,0),
+                    "Please read this explanation.\n\n"+
+                    "The dialog you tried to close asks you to make a choice. "+
+                    "Jape can't proceed until you choose.\n\n"+
+                    "You make your choice by pressing one of the buttons "+stringOfButtons(buttons,0)+
+                    " -- closing the window isn't a choice, so the close button doesn't work.\n\n"+
+                    "And it doesn't work on this window, either.");
     }
     
-    public static int ask(String[] buttons, int severity, String message, int defaultbutton)
+    public static int myShowOptionDialog(String[] buttons, int severity, String message, int defaultbutton)
 				 throws ProtocolError {
-	int result = query(JapeWindow.getTopWindow(), buttons, messagekind(severity),
+	int result = myShowOptionDialog(JapeWindow.getTopWindow(), buttons, messagekind(severity),
 			   message, defaultbutton);
 	/* Logger.log.println("Alert.ask; message="+JapeUtils.enQuote(message)+
 			   "; buttons="+JapeUtils.stringOfArray(buttons, ",", true)+
@@ -153,11 +189,52 @@ public class Alert implements DebugConstants {
 	return result;
     }
 
+    public static int nonCancellableDialog(Component parent, String message, final int messageKind, 
+            String[] buttons, int defaultbutton, final String altmessage1, final String altmessage2) {
+        final JOptionPane pane = new JOptionPane(makeMessage(message), messageKind, 0, 
+                null, buttons, buttons[defaultbutton]);
+        final JDialog dialog = pane.createDialog(parent, null);
+        dialog.setContentPane(pane);
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        if (altmessage1!=null) {
+            dialog.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent we) {
+                    nonCancellableDialog(dialog, altmessage1, messageKind, new String[]{"OK"}, 
+                            0, altmessage2, null);
+                }
+            });
+        }
+        dialog.setVisible(true);
+        
+        Object selectedValue = pane.getValue();
+        for (int i=0; i<buttons.length; i++)
+            if (buttons[i].equals(selectedValue))
+                return i;
+        
+        // oh bugger: can't happen
+        abort("nonCancellableDialog returns "+selectedValue+" with "+buttons.length+" buttons");
+        return 0; // really won't happen
+    }
+    
+    public static String stringOfButtons(String[] buttons, int i) {
+        if (i<0 || i>=buttons.length)
+            return "";
+        else
+        if (i==buttons.length-1)
+            return "\""+buttons[i]+"\"";
+        else
+        if (i==buttons.length-2)
+            return "\""+buttons[i]+"\" and \""+buttons[i+1]+"\"";
+        else
+            return "\""+buttons[i]+"\", "+stringOfButtons(buttons,i+1);
+    }
     public static final int OK	   = 0,
 			    Cancel = 1;
 
     public static int askOKCancel(Component parent, String message) {
-	return query(parent, new String[] { "OK", "Cancel"}, Question, message, 0);
+	int q = JOptionPane.showConfirmDialog(parent, makeMessage(message), null, 
+	                JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+	return q==JOptionPane.OK_OPTION ? OK : Cancel;
     }
 
     public static int askOKCancel(String message) {
@@ -171,9 +248,15 @@ public class Alert implements DebugConstants {
 						 null, buttons, doit);
 	// in reply 0 means Cancel, 1 means doit, 2 means don't
 	switch (reply) {
-	    case 0 : return 1;
-	    case 1 : return 0;
-	    default: return reply;
+            case 1 : // cancel
+            case JOptionPane.CLOSED_OPTION: // window closed
+                     return 0;
+	    case 0 : // doit
+	             return 1;
+            case 2 : // dont
+                     return 2;
+            default: // can't happen
+                     return 0;
 	}
     }
 }
