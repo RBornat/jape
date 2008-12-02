@@ -2273,7 +2273,7 @@ and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs
     let i = try int_of_term i with _ -> raise (Tacastrophe_ ["not an integer"]) in
     let given =
       try List.nth givens i with
-        Failure "nth" ->
+        Invalid_argument "List.nth" | Failure "nth" ->
           raise (Tacastrophe_
                    (if i < 0 then ["negative index"]
                     else match List.length givens with
