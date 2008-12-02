@@ -215,26 +215,28 @@ val askLemma : string -> string -> string list -> string list
            (*  drule     thm       panels         provisos    *)
             -> (bool * string option * string * string list) option
              (* isthm  name            panel    provisos      *)
-val ask_unpatched : int -> string -> string list -> int -> int
-(* severity 0/1/2    message   buttons     default   which one was pressed, indexed from 0*)
+
+val ask_unpatched : int -> string -> string list -> int -> int 
+      (* severity 0/1/2    message   buttons     default   which button was pressed, indexed from 0 *)
+			(*                                                   -1 means window closed (equivalent to Cancel) *)
 
 val askCancel_unpatched :
-  int -> string -> string list -> int -> int option
+              int -> string -> string list -> int -> int option
 (* severity 0/1/2    message   buttons      default  Some button (counting from 0) or None for Cancel 
  *             set default = length buttons to choose Cancel
  *)
 
 val askDangerously_unpatched : string -> string -> string -> int option
-(* message   Do        Don't     Some button (counting from 0) or None for Cancel
- * special version of ask_cancel, with Do as default, and
- * the buttons in "Do/Don't" positions -- like this
- * 
- * ICON
- * ICON                    message
- * ICON 
- * 
- * Don't                Cancel  Do
- *)
+														(* message   Do        Don't     Some button (counting from 0) or None for Cancel
+														 * special version of ask_cancel, with Do as default, and
+														 * the buttons in "Do/Don't" positions -- like this
+														 * 
+														 * ICON
+														 * ICON                    message
+														 * ICON 
+														 * 
+														 * Don't                Cancel  Do
+														 *)
 
 val askChoice : string * string list list -> int option
 

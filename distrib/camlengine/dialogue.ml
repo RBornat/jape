@@ -1165,16 +1165,19 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         finished (winhist_proofnow hist) (winhist_disproofnow hist)
     | [] -> false
   in
-  let resetable () =(* eggstolay, wormstoscratch, ... *)
-   thingstodo () || saveable () in
+  
+	let resetable () =  (* eggstolay, wormstoscratch, ... *)
+   										thingstodo () || saveable () 
+	in
+ 
   let askSave action y n cancel =
     Alert.askDangerously
       (implode ["Save your proofs before "; action; "?"])
       ("Save", (fun () -> saveproofs false; y))
       ("Don't save", (fun () -> n)) (fun () -> cancel) ()
   in
-  
-  let askResettheory anyway =
+
+	  let askResettheory anyway =
     if resetable () then
       if needssaving () then
         askSave "erasing the current theory" true true false

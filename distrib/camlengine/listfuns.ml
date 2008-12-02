@@ -59,8 +59,8 @@ let rec doubleslosh (f, pp) =
     | x :: xs -> if pp x then f x :: ff xs else ff xs
   in
   ff
-(* /> looks like foldl *)
 
+(* /> looks like foldl *)
 let rec ( /> ) ((e : 'a), (( ++ ) : 'a * 'b -> 'a)) : 'b list -> 'a =
   (* infix ++; *)
   let rec ff a1 a2 =
@@ -69,8 +69,8 @@ let rec ( /> ) ((e : 'a), (( ++ ) : 'a * 'b -> 'a)) : 'b list -> 'a =
     | r, x :: xs -> ff (( ++ ) (r, x)) xs
   in
   ff e
-(* </ looks like foldr *)
 
+(* </ looks like foldr *)
 let rec ( </ ) (( ++ ), e) =
   (* infix ++; *) let rec ff =
     function
@@ -78,13 +78,12 @@ let rec ( </ ) (( ++ ), e) =
     | x :: xs -> ( ++ ) (x, ff xs)
   in
   ff
-(* wassis? *)
 
+(* wassis? *)
 let rec ( // ) =
   function
     ( ++ ), x :: xs -> ( /> ) (x, ( ++ )) xs
   | ( ++ ), [] -> raise Reduce
-
 
 let all f = not <.> List.exists (not <.> f)
 let all1 f xs = all f xs && not (null xs)
@@ -167,8 +166,8 @@ let rec last =
     [x] -> x
   | _ :: xs -> last xs
   | [] -> raise Last_
-(* these things revised to Bird-Meertens standards - no Failure "nth" here! *)
 
+(* these things revised to Bird-Meertens standards - no Invalid_argument "List.nth" | Failure "nth" here! *)
 let rec take a1 a2 =
   match a1, a2 with
     0, xs -> []
