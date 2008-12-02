@@ -60,6 +60,8 @@ val utf8_implode : ucode list -> string
 
 val charpred   : string -> (ucode -> bool) * (ucode * bool -> unit)
 
+val njunk : int -> 'a Stream.t -> unit
+
 val isdigit    : ucode -> bool
 val islcletter : ucode -> bool
 val isletter   : ucode -> bool
