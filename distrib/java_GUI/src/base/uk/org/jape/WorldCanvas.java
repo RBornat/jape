@@ -1,7 +1,7 @@
 /* 
     $Id$
 
-    Copyright © 2003-5 Richard Bornat & Bernard Sufrin
+    Copyright Â© 2003-8 Richard Bornat & Bernard Sufrin
      
 	richard@bornat.me.uk
 	sufrin@comlab.ox.ac.uk

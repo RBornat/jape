@@ -3,7 +3,7 @@
 /* 
     $Id$
 
-    Copyright © 2003-5 Richard Bornat & Bernard Sufrin
+    Copyright Â© 2003-8 Richard Bornat & Bernard Sufrin
      
 	richard@bornat.me.uk
 	sufrin@comlab.ox.ac.uk
@@ -44,7 +44,7 @@ public class AboutBox {
 	     (guiversion==null ? ",\n" : ", ") + "working with Jape proof engine version "+engineversion)+
 	    ".\n\n"+
 	    
-	    "Jape engine and GUI copyright © 2003-5 Richard Bornat & Bernard Sufrin.\n\n"+
+	    "Jape engine and GUI copyright Â© 2003-8 Richard Bornat & Bernard Sufrin.\n\n"+
 	    
 	    "Jape is free software; you can redistribute it and/or modify it under\n"+
 	    "the terms of the GNU General Public License as published by the Free\n"+
