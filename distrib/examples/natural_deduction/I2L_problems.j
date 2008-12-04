@@ -67,8 +67,8 @@ CONJECTUREPANEL "Invalid conjectures"
     THEOREM IS E ⊢ E∧F
     THEOREM IS E∨F ⊢ E∧F
 
-    THEOREM IS  E∨⊤ ⊢E /* E v top |- E */
-    THEOREM IS  E ⊢ E∧⊥ /* E |- E v bot */
+    THEOREM IS  E∨⊤ ⊢E 
+    THEOREM IS  E ⊢ E∧⊥ 
     
     THEOREM IS R(j), ∀x.(R(x)→S(x)) ⊢ S(j)
     THEOREM IS ∀x.R(x)→∀y.S(y) ⊢ ∀z.(R(z)→S(z))
