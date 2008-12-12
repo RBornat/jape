@@ -31,7 +31,7 @@ import java.awt.Dimension;
 
 @SuppressWarnings("serial")
 public class TextDimension extends Dimension {
-    int ascent, descent;
+    final int ascent, descent;
 
     public TextDimension(int width, int ascent, int descent) { 
 	super(width, ascent+descent);
