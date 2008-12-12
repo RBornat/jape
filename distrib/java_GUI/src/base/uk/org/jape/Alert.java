@@ -28,6 +28,7 @@
 package uk.org.jape;
 
 import java.awt.Component;
+import java.awt.Dimension;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -71,15 +72,21 @@ public class Alert implements DebugConstants {
     }
     
     // this is where we will eventually handle aspect ratio
-    private static Object makeMessage(Object o) {
+    // and here we go ...
+    // if x*y = A, and we want x/y to be 4/3 (like an old TV), then
+    // x = sqrt(4*A/3). Hmm.
+    
+    // this method makes a message with a maximum width as given
+    
+    private static Object makeMessage(Object o, int maxwidth) {
 	if (o instanceof String) {
 	    String s = (String)o;
 	    int nli;
 	    JLabel[] result;
 	    
 	    if ((nli=s.indexOf('\n'))!=-1) {
-		JLabel[] first = (JLabel[])makeMessage(s.substring(0,nli));
-		JLabel[] second = (JLabel[])makeMessage(s.substring(nli+1));
+		JLabel[] first = (JLabel[])makeMessage(s.substring(0,nli),maxwidth);
+		JLabel[] second = (JLabel[])makeMessage(s.substring(nli+1),maxwidth);
 		result = new JLabel[first.length+second.length];
 		for (int i=0; i<first.length; i++)
 		    result[i]=first[i];
@@ -89,8 +96,8 @@ public class Alert implements DebugConstants {
 	    else {
 		JLabel l = makeLabel(s);
 		TextDimension m = JapeFont.measure(l, s);
-		if (m.width>Jape.screenBounds.width*2/3) {
-		    String[] split = MinWaste.minwaste(l, s, Jape.screenBounds.width*4/10);
+		if (m.width>maxwidth) {
+		    String[] split = MinWaste.minwaste(l, s, maxwidth);
 		    result = new JLabel[split.length];
 		    for (int i=0; i<split.length; i++)
 			result[i] = makeLabel(split[i]);
@@ -107,6 +114,57 @@ public class Alert implements DebugConstants {
 	    return o;
     }
 
+    private static Dimension measureJLabels(JLabel[] labels) {
+        int height = 0, width = 0;
+        for (JLabel lab : labels) {
+            TextDimension m = JapeFont.measure(lab, lab.getText());
+            height += m.height;
+            if (width<m.width) width = m.width;
+        }
+        return new Dimension(width,height);
+    }
+    
+    // chosen by experiment. Looks better than 4/3.
+    static final double idealratio = (double)16.0/(double)9.0;
+    
+    private static Object makeMessage(Object o) {
+        int maxwidth = Jape.screenBounds.width*2/3;
+        Object r = makeMessage(o,maxwidth);
+        if (r instanceof JLabel[]) {
+            JLabel[] labels = (JLabel[]) r;
+            Dimension d = measureJLabels(labels);
+            int idealwidth = (int)(Math.sqrt((double)d.height*(double)d.width*idealratio));
+
+            if (idealwidth<d.width) {
+                // try aspect ratio adjustment
+                // (really it should be aspect ratio of the window, but that's too hard)
+                // because we have lots of time (it's an alert window, for goodness sake!)
+                // do it by binary search
+                int left = idealwidth, right = d.width;
+
+                // debugging statements cos I wanted to watch it work :-)
+                /* Logger.log.println("tried "+maxwidth+
+                        " ratio "+((double)d.width/(double)d.height)+
+                        " (should be "+idealratio+")"); */
+                for (int mid = (left+right/2); left!=right; mid = (left+right)/2) {
+                    labels = (JLabel[]) makeMessage(o, mid);
+                    d = measureJLabels(labels);
+                    /* Logger.log.println("tried left "+left+" right "+right+" mid "+mid+
+                            " ratio "+((double)d.width/(double)d.height)+
+                            " (should be "+idealratio+")"); */
+                    if ((double)d.width/(double)d.height<idealratio)
+                        left = mid+1;
+                    else
+                        right = mid;
+                }
+            }
+
+            return labels;
+        }
+        else
+            return r;
+    }
+    
     public static void showAlert(Component parent, int messagekind, Object message) {
 	// I don't think this needs invokeLater ...
 	JOptionPane.showMessageDialog(parent,makeMessage(message),null,messagekind);
@@ -145,7 +203,7 @@ public class Alert implements DebugConstants {
     public static int myShowOptionDialog(Component parent, String[] buttons, int messageKind,
 			     String message, int defaultbutton) {
 	/* if the buttons are either just OK or include Cancel, we take window closure 
-	 * (Windoze, sigh) as Cancel. Otherwise we stop closure and put an explanatory 
+	 * (Java, sigh) as Cancel. Otherwise we stop closure and put an explanatory 
 	 * dialog message on the window-close button.
 	 */
         
