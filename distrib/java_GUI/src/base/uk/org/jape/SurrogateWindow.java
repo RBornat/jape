@@ -56,7 +56,7 @@ public abstract class SurrogateWindow extends JapeWindow {
 	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 	panel.setBackground(Color.white);
 	panel.add(Box.createVerticalGlue());
-	JLabel logo = new JLabel("Â© Richard Bornat and Bernard Sufrin 1991-2005", logoIcon, JLabel.CENTER);
+	JLabel logo = new JLabel("© Richard Bornat and Bernard Sufrin 1991-2008", logoIcon, JLabel.CENTER);
 	logo.setVerticalTextPosition(SwingConstants.BOTTOM);
 	logo.setHorizontalTextPosition(SwingConstants.CENTER);
         logo.setAlignmentX(Component.CENTER_ALIGNMENT);
