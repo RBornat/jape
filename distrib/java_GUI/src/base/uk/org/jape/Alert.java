@@ -114,13 +114,34 @@ public class Alert implements DebugConstants {
 	    return o;
     }
 
-    private static Dimension measureJLabels(JLabel[] labels) {
+    // some constants (not too critical) to make it possible to do window aspect ratio
+    static final int OSXiconmargin = 20, OSXiconwidth = 64, OSXiconheight = 64, 
+                     OSXrightmargin = 15, OSXtopmargin = 15, OSXbuttonsEtcmargin = 45,
+                     
+                     iconleftmargin = 12, iconwidth = 32, iconrightmargin = 12,
+                     iconheight = 32, topmargin = 12, rightmargin = 12, 
+                     buttonsEtcmargin = 45;
+    
+   private static Dimension measureAspect(JLabel[] labels) {
         int height = 0, width = 0;
         for (JLabel lab : labels) {
             TextDimension m = JapeFont.measure(lab, lab.getText());
             height += m.height;
             if (width<m.width) width = m.width;
         }
+        
+        // convert to window dimensions
+        if (Jape.onMacOSX) { 
+            width += OSXiconmargin+OSXiconwidth+OSXiconmargin+OSXrightmargin;
+            if (height<OSXiconheight) height = OSXiconheight;
+            height += OSXtopmargin+OSXbuttonsEtcmargin;
+        }
+        else {
+            width += iconleftmargin+iconwidth+iconrightmargin+rightmargin;
+            if (height<iconheight) height = iconheight;
+            height += topmargin+buttonsEtcmargin;
+        }
+        
         return new Dimension(width,height);
     }
     
@@ -132,7 +153,7 @@ public class Alert implements DebugConstants {
         Object r = makeMessage(o,maxwidth);
         if (r instanceof JLabel[]) {
             JLabel[] labels = (JLabel[]) r;
-            Dimension d = measureJLabels(labels);
+            Dimension d = measureAspect(labels);
             int idealwidth = (int)(Math.sqrt((double)d.height*(double)d.width*idealratio));
 
             if (idealwidth<d.width) {
@@ -148,7 +169,7 @@ public class Alert implements DebugConstants {
                         " (should be "+idealratio+")"); */
                 for (int mid = (left+right/2); left!=right; mid = (left+right)/2) {
                     labels = (JLabel[]) makeMessage(o, mid);
-                    d = measureJLabels(labels);
+                    d = measureAspect(labels);
                     /* Logger.log.println("tried left "+left+" right "+right+" mid "+mid+
                             " ratio "+((double)d.width/(double)d.height)+
                             " (should be "+idealratio+")"); */
