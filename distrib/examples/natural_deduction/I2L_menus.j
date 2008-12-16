@@ -84,7 +84,7 @@ TACTIC "∀ elim forward step" (P, i) IS
 
 TACTIC "∀ elim forward moan" (extra) IS
     ALERT   ("To make a ∀ elim step forward, you must select a hypothesis of the form ∀x.A, and \
-            \also a pseudo-assumption of the form actual i.%s",extra)
+            \also a pseudo-assumption of the form actual i. %s",extra)
             ("OK", STOP) ("Huh?", SEQ Explainvariables STOP)
 
 TACTIC "∃ elim forward" IS
@@ -120,7 +120,7 @@ TACTIC "∃ intro backward step" (i) IS
 
 TACTIC "∃ intro backward selection moan" (stuff) IS
     ALERT   ("To make an ∃ intro step backwards, you have to use a conclusion of the form \
-            \∃x.A, and select a pseudo-assumption of the form actual i.%s", stuff)
+            \∃x.A, and select a pseudo-assumption of the form actual i. %s", stuff)
             ("OK", STOP) ("Huh?", SEQ Explainvariables STOP)
 
 TACTIC "∃ intro backward hypcheck" (action, gmess) IS
