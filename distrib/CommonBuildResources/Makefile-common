@@ -41,20 +41,19 @@ all: distribution
 #       
 #
 engine:         ; cd $(ENGINEDIR); make $(ENGINETARGET) OS=$(OS)
-               
-cleanengine:    ; cd $(ENGINEDIR); make clean $(ENGINETARGET) OS=$(OS)
+cleanengine:    ; cd $(ENGINEDIR); make clean OS=$(OS)
 
 #
 #       Java is compile-once, run anywhere, so we can make the GUI in one place
 #
 GUI:            ; (cd $(GUIDIR); ant Jape.jar)
-CLEANGUI:       ; (cd $(GUIDIR); ant clean Jape.jar)
+cleanGUI:       ; (cd $(GUIDIR); ant clean)
 
 #
 #       ditto the encoder
 #
 encoder:            ; (cd $(ENCODEDIR); $(MAKE) encoder.jar)
-cleanencoder:       ; (cd $(ENCODEDIR); $(MAKE) clean encoder.jar)
+cleanencoder:       ; (cd $(ENCODEDIR); $(MAKE) clean)
 
 #
 #       
@@ -65,7 +64,7 @@ install:        components; \
                   rsync -v -t    $(BUILDRESOURCES)/installjape.sh . ;\
                   sh installjape.sh
 
-clean:          ; rm -rf tmp; rm -f $(BIN)/Jape.jar $(BIN)/*.gif $(BIN)/*.jpg $(BIN)/jape 
+clean::          cleanengine cleanGUI cleanencoder
 
 distribution::  ; make encoder; make components; \
                   make jarfile
