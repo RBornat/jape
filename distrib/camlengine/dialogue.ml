@@ -189,7 +189,6 @@ let defaultenv =
      "factsdebug"           , bj                         false        Facts.factsdebug;
      "filteredfmt"          , ajd                                     Prooftree.Tree.filteredfmt;
      "FINDdebug"            , bj                         false        Tacticfuns._FINDdebug;
-     "multiassumptionlines" , bj                         true         multiassumptionlines;
      "FOLDdebug"            , bj                         false        Tacticfuns._FOLDdebug;
      "foldedfmt"            , ajd                                     Prooftree.Tree.foldedfmt;
      "foldformulae"         , bj                         true         foldformulae; 
@@ -206,7 +205,8 @@ let defaultenv =
      "matchdebug"           , bj                         false        Match.matchdebug;
      "menudebug"            , bj                         false        Menu.menudebug;
      "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
-     "multihypsel" 			    , bj						             false		     Miscellaneous.multihypsel;
+     "multiassumptionlines" , bj                         true         multiassumptionlines;
+     "multihypsel" 			, bj						 false		  Miscellaneous.multihypsel;
      "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
      "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
@@ -645,6 +645,7 @@ let leftCutParent tree path =
         Some parentpath
       else None
   | _ -> None
+
 type layoutcommand = BacktrackCommand
                    | PruneCommand
                    | HideShowCommand

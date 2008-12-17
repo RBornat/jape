@@ -168,8 +168,8 @@ let rec remake mapterm (_, (bs, ss, us), env, pat as b) =
 (* Bernard's pretty-printer in all its glory *)
      
 let debracketapplications = ref false
-exception Matchintermstring_
-(* spurious *)
+
+exception Matchintermstring_     (* spurious *)
 
     (* local versions of mapterm, mapelements, which don't use the termstore *)
     (* This is mildly more efficient, but really is because I want to use string_of_term
@@ -254,9 +254,9 @@ and insertspace =
 
 let opname f =
   match f, !debracketapplications, debracket f with
-    Id (_, v, _), _, _    -> Some (string_of_vid v)
-  | _, true, Id (_, v, _) -> Some (string_of_vid v)
-  | _                     -> None
+    Id (_, v, _), _   , _            -> Some (string_of_vid v)
+  | _           , true, Id (_, v, _) -> Some (string_of_vid v)
+  | _                                -> None
 
 (* test if a formula will be printed as a juxtaposition *)
 let isJuxtapos t =
@@ -270,9 +270,9 @@ let isJuxtapos t =
       (match opsymb f with
          Some (INFIX   _) -> 
            (match a, !debracketapplications, debracket a with 
-              Tup (_, ",", [_; _]), _, _    -> None
-            | _, true, Tup (_, ",", [_; _]) -> None
-            | _, _, _                       -> Some(f,a))
+              Tup (_, ",", [_; _]), _   , _                    -> None
+            | _                   , true, Tup (_, ",", [_; _]) -> None
+            | _                                                -> Some(f,a))
        | Some (PREFIX  _) -> None
        | Some (POSTFIX _) -> None
        | _                -> Some(f,a))

@@ -133,7 +133,7 @@ module type Tree =
                       and type path = vispath and type element = element
                       and type rewinf = rewinf
     
-    val foldedfmt     : string ref (* LAYOUT "" ()    *)
+    val foldedfmt     : string ref  (* LAYOUT "" ()    *)
     val filteredfmt   : string ref  (* LAYOUT "" (...) *)
     val unfilteredfmt : string ref  (* LAYOUT ""       *)
     val rawfmt        : string ref  (* when named layouts are exhausted by doubleclicking *)
@@ -222,8 +222,8 @@ module Tree : Tree with type term = Termtype.term
     let showallproofsteps = ref false
     let hideuselesscuts = ref false
     let cuthidingdebug = ref false
-    let foldedfmt = ref "{%s}"      (* LAYOUT "" ()    *)
-    and filteredfmt = ref "%s"      (* LAYOUT "" (...) *)
+    let foldedfmt     = ref "{%s}"  (* LAYOUT "" ()    *)
+    and filteredfmt   = ref "%s"    (* LAYOUT "" (...) *)
     and unfilteredfmt = ref "%s"    (* LAYOUT ""       *)
     and rawfmt = ref "[%s]"         (* when named layouts are exhausted by doubleclicking *)
     and nohidefmt = ref "()"        (* when there's nothing hidden *)
