@@ -412,7 +412,7 @@ let explodeForExecute t =
 let badLayout () =
   raise
     (TacParseError_
-       ["Syntax is LAYOUT fmt (subtrees) tactic; \
+       ["Syntax is LAYOUT fmt tactic; \
         fmt can be HIDEROOT, or HIDECUT, or COMPRESS label subtrees, or just label subtrees; \
         label can be an str or a non-empty bracketed tuple of strs where \
         an str can be a string, an identifier, an unknown or a number;
