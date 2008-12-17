@@ -24,6 +24,6 @@
 
 */
 
-INITIALISE foldassumptionlines false
+INITIALISE multiassumptionlines false
 
 USE "I2L.jt"

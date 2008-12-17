@@ -108,9 +108,9 @@ let autoselect = ref true    (* whether to highlight 'next goal' when printing p
     
 let givenMenuTactic = ref "" (* tactic to use when the interface says applygiven *)
  
-let foldassumptionlines = ref false (* whether to fold long lines in boxdraw *)
-let foldformulae = ref false (* whether to fold long formulae in boxdraw *)
-let foldsequents = ref false (* whether to fold sequents in treedraw *)
+let multiassumptionlines = ref true (* whether to have more than one assumption/premise per line in boxdraw *)
+let foldformulae = ref false        (* whether to fold long formulae in boxdraw *)
+let foldsequents = ref false        (* whether to fold sequents in treedraw *)
   
 let lemmacount = ref 0 (* number of lemmas during THIS proof *)
 

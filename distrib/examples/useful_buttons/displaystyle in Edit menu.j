@@ -24,7 +24,7 @@ MENU Edit IS
     
     SEPARATOR
     
-    CHECKBOX foldsequents         "fold sequents in tree display"
-    CHECKBOX foldassumptionlines  "fold assumption lines in box display"
-    CHECKBOX foldformulae         "fold formulae in box display"
+    CHECKBOX foldsequents         "fold long sequents in tree display"
+    CHECKBOX multiassumptionlines "multiple assumptions per line in box display"
+    CHECKBOX foldformulae         "fold long formulae in box display"
 END

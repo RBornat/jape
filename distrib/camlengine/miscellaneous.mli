@@ -46,7 +46,7 @@ val autoAdditiveRight : bool ref
 val applyconjectures         : string ref (* conjectures allowed in proofs *)
 val autoselect               : bool ref   (* show 'goal' when printing proofs *)
 val givenMenuTactic          : string ref (* what to use when the interface says applygiven *)
-val foldassumptionlines      : bool ref   (* whether to fold long lines in boxdraw *)
+val multiassumptionlines     : bool ref   (* whether to have more than one assumption/premise per line in boxdraw *)
 val foldformulae             : bool ref   (* whether to fold long formulae in boxdraw *)
 val foldsequents             : bool ref   (* whether to fold sequents in treedraw *)
 val lemmacount               : int ref    (* number of lemmas during THIS proof *)

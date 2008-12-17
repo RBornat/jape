@@ -131,7 +131,7 @@ let term_of_element = Termfuns.term_of_element
 let enQuote = Stringfuns.enQuote
 let explodebinapp = Termfuns.explodebinapp
 let findfirst = Optionfuns.findfirst
-let foldassumptionlines = Miscellaneous.foldassumptionlines
+let multiassumptionlines = Miscellaneous.multiassumptionlines
 let foldformulae = Miscellaneous.foldformulae
 let isRelation = Thing.isRelation
 let string_of_pair = Stringfuns.string_of_pair
@@ -1075,7 +1075,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
           in
           let hyplines =
             let single h = [h] in
-            match !foldassumptionlines, wopt with
+            match !multiassumptionlines, wopt with
               false, None -> single <* hypelis
             | true , None -> [hypelis] (* first pass - just put them all on one line *)
             | _, Some bestW -> (* We make a proper 'minimum waste' split of the assumption line *)
@@ -1083,7 +1083,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                 let mybestW = max (2 * tsW (fst (fst words))) (bestW - 2 * posX innerpos) in
                 let doit (e,inf) = e, if !foldformulae then foldformula mybestW inf else inf in
                 let donehyps = doit <* hypelis in
-                if !foldassumptionlines then
+                if !multiassumptionlines then
                   (let hs' = minwaste measureplan mybestW donehyps in
                    assumptionlinesfolded := !assumptionlinesfolded || List.length hs'<>1;
                    hs')
@@ -1247,7 +1247,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
   in
   (* body of linearise *)
   if extras lines idW reasonW + boxW elbox > screenwidth &&
-     (!foldformulae || (!foldassumptionlines && assW = boxW elbox))
+     (!foldformulae || (!multiassumptionlines && assW = boxW elbox))
   then
     (* we have a picture which is too wide, and might be made less wide *)
     let maxbestW = screenwidth - extras lines idW procrustean_reasonW in

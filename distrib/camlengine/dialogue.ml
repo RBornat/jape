@@ -189,7 +189,7 @@ let defaultenv =
      "factsdebug"           , bj                         false        Facts.factsdebug;
      "filteredfmt"          , ajd                                     Prooftree.Tree.filteredfmt;
      "FINDdebug"            , bj                         false        Tacticfuns._FINDdebug;
-     "foldassumptionlines"  , bj                         true         foldassumptionlines;
+     "multiassumptionlines" , bj                         true         multiassumptionlines;
      "FOLDdebug"            , bj                         false        Tacticfuns._FOLDdebug;
      "foldedfmt"            , ajd                                     Prooftree.Tree.foldedfmt;
      "foldformulae"         , bj                         true         foldformulae; 
@@ -265,7 +265,7 @@ let displaynames =
              
 let boxdisplaynames =
   ["boxlinedressright"; "foldformulae"; "hidecut"; "hidehyp"; "hidetransitivity";
-   "hidereflexivity"; "hideuselesscuts"; "foldassumptionlines"]
+   "hidereflexivity"; "hideuselesscuts"; "multiassumptionlines"]
 
 let treedisplaynames =
   ["foldsequents"]
@@ -2002,7 +2002,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             (let redraw v vr = v && (n="0" || vr) in
              if Interaction.getdisplaystyle()="box" &&
                 (redraw !foldformulae !Boxdraw.formulaefolded ||
-                 redraw !foldassumptionlines !Boxdraw.assumptionlinesfolded ||
+                 redraw !multiassumptionlines !Boxdraw.assumptionlinesfolded ||
                  redraw !truncatereasons !Boxdraw.reasonstruncated)
              then 
                processcommand thisstate ["refreshdisplay"]
