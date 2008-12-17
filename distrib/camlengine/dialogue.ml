@@ -206,7 +206,7 @@ let defaultenv =
      "matchdebug"           , bj                         false        Match.matchdebug;
      "menudebug"            , bj                         false        Menu.menudebug;
      "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
-     "multihypsel" 			, bj						 false		  Miscellaneous.multihypsel;
+     "multihypsel" 			    , bj						             false		     Miscellaneous.multihypsel;
      "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
      "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
