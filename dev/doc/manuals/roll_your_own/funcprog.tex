@@ -316,7 +316,7 @@ RULE rewriteHypotheticalEquation(X, X', Y, Y', OBJECT x) IS\\
 \tab FROM ASSOCEQ (X, X') AND ASSOCEQ (Y, Y') AND X'=Y'⊦ P INFER X=Y ⊦ P
 \end{japeish}
 
-The built-in tactic \textsc{evaluate}, applied to \textsc{assoceq}($E$, $F$), flattens $E$ and $F$ --- that is, removes any internal bracketing, reducing them to a canonical left- or right-associative version as appropriate --- using any relevant theorems / rules / conjectures about associativity, and succeeds if the flattened versions are identical. Each of these rules therefore replaces an equation with a provably equivalent equation. The use of layout in FindSelection hides this internal working and gives Associativity as the justification for the step.
+The built-in tactic \textsc{evaluate}, applied to \textsc{assoceq}($E$, $F$), flattens $E$ and $F$ --- that is, removes any internal bracketing, reducing them to a canonical left- or right-associative version as appropriate --- using any relevant theorems / rules / conjectures about associativity, and succeeds if the flattened versions are identical. Each of these rules therefore replaces an equation with a provably equivalent equation. The use of \textsc{layout} in FindSelection hides this internal working and gives Associativity as the justification for the step.
 
 The reverse operation is provided by \textsc{flatten}. The menu and panel entries index the Flatten tactic (see equality\_menus.j)
 \begin{japeish}

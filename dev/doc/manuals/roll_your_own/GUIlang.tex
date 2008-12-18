@@ -133,58 +133,105 @@ Variables whose default value is marked with an asterisk are parameters: their v
 
 
 
-\begin{tabular}{|p{1.034in}|p{0.635in}|p{0.717in}|p{2.114in}|} \hline
-% ROW 1
-{\raggedright \textit{name}} & {\raggedright \textit{values}} & {\raggedright \textit{default value}} & {\raggedright \textit{effect}}\\
+\begin{longtable}{|l|p{2cm}|l|p{2.5in}|} \hline
+\textit{name} & \textit{values} & \textit{default value} & \textit{effect}\endhead
+\multicolumn{4}{l}{(continued on next page)}\endfoot
+\multicolumn{4}{l}{}\endlastfoot
 \hline
-% ROW 2
-{\raggedright applyconjectures} & {\raggedright true, false} & {\raggedright false} & {\raggedright when true, allow conjectures (unproved theorems) to be applied as rules.}\\
+
+{\raggedright alwaysshowturnstile} & {\raggedright true, false} & {\raggedright false} & {\raggedright In tree display, include a turnstile in a sequent even when there are no premises.}\\
 \hline
-% ROW 3
+
+{\raggedright applyconjectures} & {\raggedright all, none, theorems, rules} & {\raggedright none} & {\raggedright control use of unproved theorems and derived rules -- `all' means use freely; `none' means use never; `theorems' means use unproved theorems but not derived rules; `rules' means use unproved derived rules but not theorems.}\\
+\hline
+
 {\raggedright autoAdditiveLeft} & {\raggedright true, false} & {\raggedright false*} & {\raggedright when true, any rule whose consequent and antecedents all have a bag on their left-hand sides is augmented by the addition of a bag variable (e.g. \ensuremath{\Gamma}) to the left-hand side of every consequent and antecedent which doesn't already have one.}\\
 \hline
-% ROW 4
+
 {\raggedright autoAdditiveRight} & {\raggedright true, false} & {\raggedright false*} & {\raggedright as autoAdditiveLeft, except that it applies to right-hand sides}\\
 \hline
-% ROW 5
+
 {\raggedright autoselect} & {\raggedright true, false} & {\raggedright false} & {\raggedright when true, select the conclusion of the current problem sequent each time a proof is displayed.}\\
 \hline
-% ROW 6
-{\raggedright collapsedfmt} & {\raggedright any string} & {\raggedright "[\%s...]"} & {\raggedright the string used to control the way that a justification is displayed for a subtree shown in `collapsed' form --- for example, after using Hide/Show Subproof on an uncollapsed subtree.}\\
+
+{\raggedright boxlinedressright} & {\raggedright true, false} & {\raggedright true} & {\raggedright Show boxes with line numbers on the left, justifications on the right. (Can't remember what happens if set false \dots)}\\
 \hline
-% ROW 7
-{\raggedright displaystyle} & {\raggedright box, tree} & {\raggedright tree} & {\raggedright selects the display mechanism used to show a proof. Each proof may have an individual setting of this variable. When a new proof is started, its displaystyle is taken from the currently-focussed proof.}\\
+
+{\raggedright debracketapplications} & {\raggedright true, false} & {\raggedright false} & {\raggedright Affects the way some formulae are printed. Don't ask, try (because I can't remember \dots)!}\\
 \hline
-% ROW 8
-{\raggedright hiddenfmt} & {\raggedright any string} & {\raggedright "\{\%s\}"} & {\raggedright the string used to control the way that a justification is displayed for a subtree produced by the layout tactical in `hidden' form. This string is over-ridden if \textit{string1} is provided in the layout tactical.}\\
+
+%{\raggedright collapsedfmt} & {\raggedright any string} & {\raggedright "[\%s...]"} & {\raggedright the string used to control the way that a justification is displayed for a subtree shown in `collapsed' form --- for example, after using Hide/Show Subproof on an uncollapsed subtree.}\\
+%\hline
+
+{\raggedright displaystyle} & {\raggedright box, tree} & {\raggedright tree} & {\raggedright selects the display mechanism used to show a proof. Each proof has an individual setting of this variable. When a new proof is started, its displaystyle is taken from the currently-focussed proof.}\\
 \hline
-% ROW 9
-{\raggedright hidecut} & {\raggedright true, false} & {\raggedright true} & {\raggedright hide the application of cut rules in box display.}\\
+
+filteredfmt & any string & "\%s" & Something to do with \textsc{layout}. Can't remember otherwise. Sorry.\\ \hline
+
+{\raggedright foldedfmt} & {\raggedright any string} & {\raggedright "\{\%s\}"} & {\raggedright the string used to control the way that a justification is displayed for a subtree produced by the \textsc{layout} tactical in `folded' form. This string is over-ridden if \textit{label} is provided in the \textsc{layout} tactical.}\\
 \hline
-% ROW 10
-{\raggedright hidehyp} & {\raggedright true, false} & {\raggedright true} & {\raggedright hide the application of identity rules in box display.}\\
+
+foldformulae & true, false & true & Fold long formulae (which would make the proof wider than the screen) in box display to take up more than one line. Not done very intelligently -- just split between tokens with a `minimum waste' algorithm.\\ \hline
+
+foldsequents & true, false & true & Fold long sequents (which would make the proof wider than the screen) in tree display. Can't recall the algorithm at time of writing.\\ \hline
+
+%{\raggedright collapsedfmt} & {\raggedright any string} & {\raggedright "[\%s...]"} & {\raggedright the string used to control the way that a justification is displayed for a subtree shown in `collapsed' form --- for example, after using Hide/Show Subproof on an uncollapsed subtree.}\\
+%\hline
+
+givenMenuTactic & any tactic name & "GIVEN" & the tactic that is run when the GUI says applygiven -- i.e. when the user applys one of the entries in a Given panel.\\ \hline
+
+{\raggedright hidecut} & {\raggedright true, false} & {\raggedright true} & {\raggedright hide the application of cut rules (those declared by \textsc{structurerule cut}) in box display.}\\
 \hline
-% ROW 11
-{\raggedright interpretpredicates} & {\raggedright true, false} & {\raggedright false*} & {\raggedright on instantiating a rule, interpret juxtapositions as predicate applications; translate them into substitution forms, add new object parameters and invisible provisos.}\\
+
+{\raggedright hidehyp} & {\raggedright true, false} & {\raggedright true} & hide the application of identity rules (those declared by \textsc{structurerule identity}) in box display.\\
 \hline
-% ROW 12
+
+hidereflexivity & true, false & true & hide the application of reflexivity rules (those declared by \textsc{reflexive}) in box display.\\
+\hline
+
+hidetransitivity & true, false & true & hide the application of reflexivity rules (those declared by \textsc{transitive}) in box display.\\
+\hline
+
+hideuselesscuts & true, false & false & hide the result of cut steps that introduce hypotheses that are never used in box display.\\ \hline
+
+innerassumptionplural & any string & "assumptions" & justification to use, in box display, on first line of a box if it contains more than one assumption.\\ \hline
+
+innerassumptionword & any string & "assumption" & justification to use, in box display, on first line of a box if it contains only one assumption.\\ \hline
+
+interpretpredicates & true, false & false* & on instantiating a rule, interpret predicate-resembling juxtapositions as predicate applications; translate them into substitution forms, adding new object parameters and invisible provisos.\\
+\hline
+
+multiassumptionlines & true, false & true & Allow more than one assumption on the same line in box display. \\ \hline
+
+multihypsel & true, false & false & Allow the user to select (with shift-click or the like) more than one hypothesis at a time. (There seems no need for a corresponding mechanism for conclusions.).\\ \hline
+
+outerassumptionplural & any string & "assumptions" & justification to use, in box display, on first line of a proof if it contains more than one assumption. (Often changed to "premises".)\\ \hline
+
+outerassumptionword & any string & "assumption" & justification to use, in box display, on first line of a proof if it contains only one assumption. (Often changed to "premise".)\\ \hline
+
 {\raggedright outermostbox} & {\raggedright true, false} & {\raggedright true} & {\raggedright when true, draw an outermost box in box display when proving a conjecture which has hypothesis formulae.}\\
 \hline
-% ROW 13
-{\raggedright showallproofsteps} & {\raggedright true, false} & {\raggedright true} & {\raggedright (misnamed --- should be showhiddenproofsteps) when true, show proof steps hidden by layout tacticals.}\\
+
+rawfmt & any string & "{[}\%s{]}"  & Something to do with \textsc{layout}. Can't remember otherwise. Sorry.\\ \hline
+
+reasonstyle & "short", "long" & "long" & controls display of justifications in box display.\\ \hline
+
+seektipselection & true, false & true & demand that the user selects a tip when applying a rule. Set false in the natural deduction encoding to allow all kinds of fancy forward steps (I think that's right).\\ \hline
+
+{\raggedright showallproofsteps} & {\raggedright true, false} & {\raggedright true} & {\raggedright (misnamed --- should be showhiddenproofsteps) when true, show proof steps hidden by \textsc{layout} tacticals.}\\
 \hline
 % ROW 14
 {\raggedright showallprovisos} & {\raggedright true, false} & {\raggedright false} & {\raggedright (misnamed --- should be showhiddenprovisos) when true, show hidden provisos, marked as \texttt{<}proviso\texttt{>}.}\\
 \hline
-% ROW 15
+
+truncatereasons & true, false & false & probably does something with justifications in box and/or tree display.\\ \hline
+
 {\raggedright tryresolution} & {\raggedright true, false} & {\raggedright true} & {\raggedright apply theorems and antecedent-free rules in `resolution' style if the conclusions of the consequent match but the hypotheses don't.}\\
 \hline
 % ROW 16
-{\raggedright uncollapsedfmt} & {\raggedright any string} & {\raggedright "\%s"} & {\raggedright string that controls the display of a subtree that was once collapsed and is now reinflated.}\\
+{\raggedright unfilteredfmt} & {\raggedright any string} & {\raggedright "\%s"} & {\raggedright string that controls the display of a subtree that was once collapsed and is now reinflated. Or something. Part of the \textsc{layout} fog of forgetting.}\\
 \hline
-% ROW 17
-{\raggedright unhiddenfmt} & {\raggedright any string} & {\raggedright "[\%s]"} & {\raggedright string that controls the display of a subtree produced by the layout tactical and displayed in `normal' form. This string is over-ridden if \textit{string2} is provided in the layout tactical.}\\
-\hline \end{tabular}
+\end{longtable}
 
 
 \subsection{Adding your own variables}
@@ -199,11 +246,6 @@ There are at present few ways in which the value of a variable can be used, once
 \subsection{Debugging variables}
 
 
-Jape has a number of debugging variables. Setting any of them to true makes it print lots of stuff on the console (which on the Mac is hidden, and needs secret knowledge to find). The variables currently used are
+Jape has a number of debugging variables. Setting any of them to true makes it print lots of stuff on the console. You can find out what they do by experiment and/or by reading the source code.
 
-
-applydebug, bindingdebug, factsdebug, FINDdebug, FOLDdebug, matchdebug, prooftreedebug, rewritedebug, substdebug, symboldebug, tactictracing, thingdebug, unifydebug, eqalphadebug, varbindingsdebug
-
-
-In this manual we don't explain or admit what these variables do or don't do or how best to use them. Good luck to you if you try to find out.
  
