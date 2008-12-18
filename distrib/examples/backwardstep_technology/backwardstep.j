@@ -1,7 +1,7 @@
 ﻿/*
     $Id$
 
-    Copyright (C) 2003-4 Richard Bornat
+    Copyright (C) 2003-8 Richard Bornat
      
         richard@bornat.me.uk
 
