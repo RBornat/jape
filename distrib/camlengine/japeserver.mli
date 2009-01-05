@@ -178,9 +178,7 @@ val blacken : pos -> unit
 val toplevelfiletype : int  (* .jt *)
 val theoryfiletype   : int  (* .j  *)
 val prooffiletype    : int  (* .jp *)
-   
-val dbugfiletype : int
-(* whatever you like *)
+val dbugfiletype     : int  (* whatever you like *)
    
 (* In the following calls, 
  *   string is a message to put in the dialogue box,
