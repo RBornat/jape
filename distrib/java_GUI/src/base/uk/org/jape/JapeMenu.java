@@ -471,7 +471,8 @@ public class JapeMenu implements DebugConstants {
     private static class CopyProofAction extends ItemAction {
 	public void action (Window w) {
 	    Alert.showAlert(Alert.Info,
-			    "Copy Proof doesn't work yet -- but Export (see File menu) can make a pdf file");
+			    "Copy Proof doesn't work yet -- but Export (see File menu) can make a "+
+			    (Jape.onMacOSX ? "pdf" : "PostScript (ps)")+" file");
 	}
     }
 
