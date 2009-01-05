@@ -32,15 +32,11 @@ import java.io.File;
 public class FilePrefs {
     
     private static final String lastOpenDirKey  = "LastOpenedDirectory",
-				lastSavedDirKey = "LastSavedDirectory",
+				lastSavedFileKey = "LastSavedFile",
 				recentFilesKey  = "RecentFiles";
     
     public static void setLastOpenedDir(File path) { 
 	JapePrefs.prefs.put(lastOpenDirKey, path.toString());
-    }
-    
-    public static void setLastSavedDir(File path) { 
-	JapePrefs.prefs.put(lastSavedDirKey, path.toString());
     }
     
     public static File nextOpen() {
@@ -63,8 +59,16 @@ public class FilePrefs {
 	    return new File(lastdir);
     }
     
-    public static File nextSave() {
-	String lastdir = JapePrefs.prefs.get(lastSavedDirKey, null);
+    public static void setLastSave(String path, String extension) { 
+        JapePrefs.prefs.put(lastSavedFileKey+"."+extension, path);
+        JapePrefs.prefs.put(lastSavedFileKey, path);
+    }
+    
+   /* please don't use null extensions ... */
+    public static File getLastSave(String extension) {
+	String lastdir = JapePrefs.prefs.get(lastSavedFileKey+"."+extension, null);
+	if (lastdir==null)
+	    lastdir = JapePrefs.prefs.get(lastSavedFileKey, null);
 	return lastdir==null ? nextOpen() : new File(lastdir);
     }
     
