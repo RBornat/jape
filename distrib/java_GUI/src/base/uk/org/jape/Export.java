@@ -2,7 +2,7 @@
     $Id$
 
     Copyright © 2003-8 Richard Bornat & Bernard Sufrin
-     
+
 	richard@bornat.me.uk
 	sufrin@comlab.ox.ac.uk
 
@@ -22,8 +22,8 @@
     along with Jape; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     (or look at http://www.gnu.org).
-    
-*/
+
+ */
 
 package uk.org.jape;
 
@@ -41,64 +41,70 @@ import javax.print.StreamPrintServiceFactory;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 
-public class Export {
-    static String[]  buttons = new String [] { "OK", "Cancel", "Shut up: I know" };
-    
-    public static void export(ProofWindow w, int what) {
-	if (Jape.onMacOSX) {
-	    if (JapePrefs.getProp("ExpertMacOSXExport", 0)==0) {
-		int q = Alert.myShowOptionDialog(w, buttons, Alert.Info,
-				    (what == PrintProof.BOTH ? JapeMenu.EXPORT :
-				     what == PrintProof.PROOF ? JapeMenu.EXPORT_PROOF :
-				     JapeMenu.EXPORT_DISPROOF)+
-				    " doesn't work properly on MacOS X yet.  Sorry!\n"+
-				    "You have to go through a Print dialog: just hit 'Save as PDF' or 'Preview'",
-				    0);
-		if (q==1) return;
-		else
-		if (q==2)
-		    JapePrefs.putProp("ExpertMacOSXExport", 1);
-	    }
-	    PrintProof.printTichy(w, what);
-	} else  {
-	    /* Use the pre-defined flavor for a Printable from an InputStream */
-	    DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
-	    /* Specify the type of the output stream */
-	    String psMimeType = (/*Jape.onMacOSX ? DocFlavor.BYTE_ARRAY.PDF : */
-						DocFlavor.BYTE_ARRAY.POSTSCRIPT).getMimeType();
-	    /* Locate factory which can export a GIF image stream as Postscript */
-	    StreamPrintServiceFactory[] factories =
-		StreamPrintServiceFactory.lookupStreamPrintServiceFactories(flavor, psMimeType);
-	    if (factories.length == 0) {
-		Alert.showAlert(/*Jape.onMacOSX ? "this MacOS X system can't make pdf files!" : */
-					       "your Java system doesn't seem able to produce PostScript");
-	    } else
-	    try {
-		/* Create a file for the exported postscript */
-		String outputFileName = FileChooser.newSaveDialog(
-			    "Save "+(what == PrintProof.BOTH  ? "image"	  :
-				     what == PrintProof.PROOF ? "proof image" :
-								"disproof image"),
-			     new String[]{/*Jape.onMacOSX ? "pdf" : */ "ps"});	  
-		if (outputFileName.equals(""))
-		    return;
+import javax.swing.JFrame;
 
-		FileOutputStream fos = new FileOutputStream(outputFileName);
-		/* Create a Stream printer for Postscript */
-		StreamPrintService sps = factories[0].getPrintService(fos);
-		/* Create and call a Print Job */
-		DocPrintJob pj = sps.createPrintJob();
-		PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
-		w.whattoprint = what;
-		Doc doc = new SimpleDoc(w, flavor, null);
-		pj.print(doc, aset);
-		fos.close();
-	    } catch (PrintException pe) {
-		Alert.showAlert("ExportPic "+pe);
-	    } catch (IOException ie) {
-		Alert.showAlert("ExportPic "+ie);
-	    }
-	}
+public class Export {
+    static String[]  buttons = new String [] { "Create pdf", "Create ps", "Always create pdf" };
+
+    public static void export(ProofWindow w, int what) {
+        /* improved hack to use OS X print dialog */
+        if (Jape.onMacOSX) {
+            boolean usePrintDialog = true;
+            if (JapePrefs.getProp("ExpertMacOSXExport2", 0)==0) {
+                int q = Alert.myShowOptionDialog(w, buttons, Alert.Info,
+                        "By default, "+
+                        (what == PrintProof.BOTH ? JapeMenu.EXPORT :
+                            what == PrintProof.PROOF ? JapeMenu.EXPORT_PROOF :
+                                JapeMenu.EXPORT_DISPROOF)+
+                                " produces PostScript (ps) files.  The OS X Print dialog can produce a pdf (using 'Save as PDF' or 'Preview').",
+                                0);
+                if (q==1) usePrintDialog = false;
+                else
+                    if (q==2)
+                        JapePrefs.putProp("ExpertMacOSXExport2", 1);
+            }
+            if (usePrintDialog) {
+                PrintProof.printTichy(w, what);
+                return;
+            }
+        } 
+
+        /* Default: use the pre-defined flavor for a Printable from an InputStream */
+        DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
+        /* Specify the type of the output stream */
+        String psMimeType = (DocFlavor.BYTE_ARRAY.POSTSCRIPT).getMimeType();
+        /* Locate factory which can export a GIF image stream as Postscript */
+        StreamPrintServiceFactory[] factories =
+            StreamPrintServiceFactory.lookupStreamPrintServiceFactories(flavor, psMimeType);
+        if (factories.length == 0) {
+            Alert.showAlert("your Java system doesn't seem able to produce PostScript");
+        } else
+            try {
+                /* Create a file for the exported postscript */
+                String outputFileName = FileChooser.newSaveDialog(
+                        "Save "+(what == PrintProof.BOTH  ? "image"  :
+                            what == PrintProof.PROOF ? "proof image" :
+                        "disproof image"),
+                        ((JFrame)w).getTitle(),
+                        "ps");	  
+                if (outputFileName.equals(""))
+                    return;
+
+                FileOutputStream fos = new FileOutputStream(outputFileName);
+                /* Create a Stream printer for Postscript */
+                StreamPrintService sps = factories[0].getPrintService(fos);
+                /* Create and call a Print Job */
+                DocPrintJob pj = sps.createPrintJob();
+                PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+                w.whattoprint = what;
+                Doc doc = new SimpleDoc(w, flavor, null);
+                pj.print(doc, aset);
+                fos.close();
+            } catch (PrintException pe) {
+                Alert.showAlert("ExportPic "+pe);
+            } catch (IOException ie) {
+                Alert.showAlert("ExportPic "+ie);
+            }
     }
 }
 
