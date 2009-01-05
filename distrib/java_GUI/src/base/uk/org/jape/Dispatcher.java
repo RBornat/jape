@@ -234,7 +234,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    Reply.reply(FileChooser.newOpenDialog(cmd[1], cmd[2]));
 			else
 			if (p=="WRITEFILENAME"&&len==3)
-			    Reply.reply(FileChooser.newSaveDialog(cmd[1], cmd[2]));
+			    Reply.reply(FileChooser.newSaveDialog(cmd[1], null, cmd[2]));
 			else
 			    
 		    // font setting
