@@ -472,7 +472,7 @@ public class JapeMenu implements DebugConstants {
 	public void action (Window w) {
 	    Alert.showAlert(Alert.Info,
 			    "Copy Proof doesn't work yet -- but Export (see File menu) can make a "+
-			    (Jape.onMacOSX ? "pdf" : "PostScript (ps)")+" file");
+			    (Jape.onMacOSX ? "pdf or ps" : "PostScript (ps)")+" file");
 	}
     }
 
