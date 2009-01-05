@@ -20,16 +20,7 @@ prompts to install jape in a directory of your choice.
 4. To build a Solaris version, just as Linux but SolarisJape/build
 instead of LinuxJape/build
 
-5. To build an OS X version, make sure you've got XCode, Java and OCaml
-installed.
-
-	cd jape.source/MacOSX 
-	make
-
--- XCode will make Jape.app somewhere (the blasted thing keeps changing
-where it puts is) and OCaml will make jape.engine in
-jape.source/camlengine. Move or copy those files into some folder
-somewhere, double-click Jape.app and off you go.
+5. To build an OS X version, see jape.source/MacOSX/README_BUILD_MACOSX_JAPE.rtf
 
 6. To build a WindowsJape
 
