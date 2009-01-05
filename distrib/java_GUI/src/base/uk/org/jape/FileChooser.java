@@ -85,53 +85,46 @@ public class FileChooser /* implements FilenameFilter */ {
 	return result;
     }
 
-    public static String newSaveDialog(String message, String [] extension) {
+    /* extension shouldn't be empty, because it confuses FilePrefs */
+    public static String newSaveDialog(String message, String suggestion, String extension) {
 	JapeFileFilter filter = new JapeFileFilter(message);
-	for (int i=0; i<extension.length; i++)
-	    filter.addExtension(extension[i]);
+	filter.addExtension(extension);
 	
-	String result = "";
+	File saveFile = FilePrefs.getLastSave(extension);
+	File saveDir = saveFile.isDirectory() ? saveFile : saveFile.getParentFile();
+	String saveName = saveFile.isDirectory() ? (suggestion == null ? "Untitled" : suggestion)+"."+extension :
+	                  suggestion == null ? saveFile.getName() : suggestion+"."+extension;
 	
 	if (Jape.onMacOSX) { // use AWT
 	    FileDialog d = new FileDialog(JapeWindow.getTopWindow(), message, FileDialog.SAVE);
-	    d.setDirectory(FilePrefs.nextOpen().toString());
+            d.setDirectory(saveDir.getPath());
+            d.setFile(saveName);
 	    d.setFilenameFilter(filter);
 	    d.setVisible(true);
 	    String file = d.getFile();
 	    String dir = d.getDirectory();
 	    d.dispose();
-	    if (file!=null && dir!=null) {
-		File fdir = new File(dir);
-		FilePrefs.setLastSavedDir(fdir);
-		result = (new File(dir,file)).toString();
-	    }
-	    else
-		return "";
+	    saveFile = file!=null && dir!=null ? new File(dir,file) : null;
 	} 
 	else { // use Swing
-	    JFileChooser chooser = new JFileChooser(FilePrefs.nextSave());
+	    JFileChooser chooser = new JFileChooser(saveDir);
+	    chooser.setSelectedFile(new File(saveName));
 	    chooser.setFileFilter(filter);
+	    
 	    int returnVal = chooser.showSaveDialog(null);
 	    File selected  =  chooser.getSelectedFile();
-	    if (returnVal==JFileChooser.APPROVE_OPTION) {
-		File dir = selected.getParentFile();
-		if (dir!=null) FilePrefs.setLastSavedDir(dir);
-		result = selected.toString();
-	    } 
+	    if (returnVal==JFileChooser.APPROVE_OPTION)
+		saveFile = selected;
 	    else
-		return "";
+                saveFile = null;
 	}
 	
-	FilePrefs.recordRecentFile(result);
-	return result;
-    }
-
-    public static String newSaveDialog(String message) {
-	return newSaveDialog(message, new String[]{});
-    }
-
-    public static String newSaveDialog(String message, String extension) {
-	return newSaveDialog(message, new String[]{extension});
+        if (saveFile!=null) {
+            FilePrefs.setLastSave(saveFile.getPath(), extension);
+            return saveFile.getPath(); 
+        }
+        else
+            return "";
     }
 }
 
