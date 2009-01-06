@@ -44,26 +44,20 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.swing.JFrame;
 
 public class Export {
-    static String[]  buttons = new String [] { "Create pdf", "Create ps", "Always create pdf" };
+    static String[]  buttons = new String [] { "pdf", "ps" };
 
     public static void export(ProofWindow w, int what) {
         /* improved hack to use OS X print dialog */
         if (Jape.onMacOSX) {
             boolean usePrintDialog = true;
-            if (JapePrefs.getProp("ExpertMacOSXExport2", 0)==0) {
-                int q = Alert.myShowOptionDialog(w, buttons, Alert.Info,
-                        "By default, "+
-                        (what == PrintProof.BOTH ? JapeMenu.EXPORT :
-                            what == PrintProof.PROOF ? JapeMenu.EXPORT_PROOF :
-                                JapeMenu.EXPORT_DISPROOF)+
-                                " produces PostScript (ps) files.  The OS X Print dialog can produce a pdf (using 'Save as PDF' or 'Preview').",
-                                0);
-                if (q==1) usePrintDialog = false;
-                else
-                    if (q==2)
-                        JapePrefs.putProp("ExpertMacOSXExport2", 1);
-            }
-            if (usePrintDialog) {
+            int q = Alert.myShowOptionDialog(w, buttons, Alert.Info,
+                    "By default, "+
+                    (what == PrintProof.BOTH ? JapeMenu.EXPORT :
+                        what == PrintProof.PROOF ? JapeMenu.EXPORT_PROOF :
+                            JapeMenu.EXPORT_DISPROOF)+
+                            " produces PostScript (ps) files.  The OS X Print dialog can produce a pdf (using 'Save as PDF' or 'Preview').",
+                            0);
+            if (q==0) {
                 PrintProof.printTichy(w, what);
                 return;
             }
