@@ -79,22 +79,16 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 
     private static final int wobble = 3;
     
+    
     public boolean contains(int x, int y) {
-	if (-wobble<=x && x<getWidth()+wobble && -wobble<=y && y<getHeight()+wobble) {
-	    if (x0==x1)
-		return Math.abs(x-x0)<=wobble; // vertical
-	    else
-	    if (y0==y1)
-		return	Math.abs(y-y0)<=wobble; // horizontal
-	    else {
-		float a = y1-y0, b = x0-x1, c = a*x0+b*y0;
-		float dx = x-(c-b*y)/a, dy = y-(c-a*x)/b;
-		return	Math.abs(dx)<=wobble ||	 Math.abs(dy)<=wobble ||
-			dx*dx*dy*dy/(dx*dx+dy*dy)<=wobble*wobble;
-	    }
-	}
-	else
-	    return false;
+        Point xy = new Point(x,y);
+        int width = getWidth(), height = getHeight();
+        double dist = 
+            // which diagonal are we?
+            (x0<=x1 && y0<=y1) || (x1<=x0 && y1<=y0) ? 
+                    JapeUtils.pointToLineDistance(xy, new Point(0,0), new Point(width, height)) :
+                    JapeUtils.pointToLineDistance(xy, new Point(0,height), new Point(width, 0));
+        return dist<(double)wobble;
     }
 
     private boolean draghighlight;
@@ -106,11 +100,11 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 	    if (draghighlight) {
 		previousColour = getForeground();
 		setForeground(JapePrefs.SelectionColour);
-		canvas.imageRepaint(); repaint();
+		repaint();
 	    }
 	    else {
 		setForeground(previousColour);
-		canvas.imageRepaint(); repaint();
+		repaint();
 	    }
 	}
     }
@@ -131,10 +125,8 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 
     public void drop(byte dragKind, WorldItem w, int x, int y) {
 	if (draghighlight) {
-	    Reply.sendCOMMAND((dragKind==MoveWorldDrag ? "moveworldtolink" : "addworldtolink")+
-			      " "+w.idX+" "+w.idY+
-			      " "+(x+getX())+" "+(-(y+getY()))+
-			      " "+from.idX+" "+from.idY+" "+to.idX+" "+to.idY);
+	    Reply.sendCOMMAND(dragKind==MoveWorldDrag ? "moveworldtolink" : "addworldtolink",
+			      w.idX, w.idY, x+getX(), -(y+getY()), from.idX, from.idY, to.idX, to.idY);
 	    dragExit();
 	}
 	else
@@ -185,6 +177,10 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 	                over = ltarget;
 	        }   
 	    }
+	    else
+	    if (over!=null) {
+                over.dragExit(this); over=null;
+            }
 	}
 	lastx = e.getX(); lasty = e.getY();
     }
@@ -212,6 +208,6 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 
     public void setVisible(boolean visible) {
 	super.setVisible(visible);
-	canvas.imageRepaint(); repaint();
+	repaint();
     }
 }
