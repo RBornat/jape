@@ -69,9 +69,9 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 	Vector<PanelButton> buttonv;
 	int selectedIndex = -1;
 
-	private static final String newLabel       = "New...",
-	proveLabel     = "Prove",
-	showproofLabel = "Show Proof";
+	private static final String newLabel           = "New...",
+	                            proveLabel         = "Prove",
+	                            showproofLabel     = "Show Proof";
 
 	public PanelWindowData(String title, int kind) {
 		this.title = title; this.kind = kind;
@@ -337,26 +337,27 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 			list.setSelectedIndex(selectedIndex==-1 ? 0 : selectedIndex);
 
 			MouseListener m = new MouseAdapter () {
-				public void mouseClicked(MouseEvent e) {
-					int index = list.locationToIndex(e.getPoint());
-					if (e.getClickCount()==2) {
-						if (kind==ConjecturePanelKind && 0<=index && index<model.size())
-							// double-click means "prove this one"
-							Reply.sendCOMMAND("proveconjecture "+cmdv.get(index));
-					}
-					else
-						if (Jape.onLinux || Jape.onSolaris) {
-							// workaround for JList bug?
-							// probably the test ought to be on the L&F, but this might work
-							int oldsel = list.getSelectedIndex();
-							if (oldsel==index)
-								repaintCell(index);
-							else {
-								list.setSelectedIndex(index);
-								repaintCell(oldsel); repaintCell(index);
-							}
-						}
-				}
+			    public void mouseClicked(MouseEvent e) {
+			        int index = list.locationToIndex(e.getPoint());
+			        if (e.getClickCount()==2) {
+			            if (kind==ConjecturePanelKind && 0<=index && index<model.size()) {
+			                // double-click means "prove this one"
+			                Reply.sendCOMMAND("proveconjecture", cmdv.get(index));
+			            }
+			        }
+			        else
+			            if (Jape.onLinux || Jape.onSolaris) {
+			                // workaround for JList bug?
+			                // probably the test ought to be on the L&F, but this might work
+			                int oldsel = list.getSelectedIndex();
+			                if (oldsel==index)
+			                    repaintCell(index);
+			                else {
+			                    list.setSelectedIndex(index);
+			                    repaintCell(oldsel); repaintCell(index);
+			                }
+			            }
+			    }
 			};
 			list.addMouseListener(m);
 
