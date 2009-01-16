@@ -97,43 +97,47 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
     }
 
     protected void dragged(byte dragKind, MouseEvent e) {
-	if (firstDrag) {
-	    firstDrag = false;
-	    over = null;
-	    if (labelImage==null)
-		labelImage = new LabelImage();
-	    layeredPane.add(labelImage, JLayeredPane.DRAG_LAYER);
-	    labelImage.setLocation(SwingUtilities.convertPoint(this, e.getX()-startx,
-							      e.getY()-starty, layeredPane));
-	    if (drag_tracing)
-		Logger.log.println("; dragged label at "+labelImage.getX()+","+labelImage.getY());
-	    labelImage.repaint();
-	    if (dragKind==MoveLabelDrag) {
-		setVisible(false); canvas.forcerepaint();
-	    }
-	    else
-		canvas.wasteBin.setEnabled(false);
-	}
-	else {
-	    if (drag_tracing)
-		Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
-	    labelImage.moveBy(e.getX()-lastx, e.getY()-lasty);
-	    if (drag_tracing)
-		Logger.log.println("; dragged label now at "+labelImage.getX()+","+labelImage.getY());
-	    Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
-	    Component target = contentPane.findComponentAt(p);
-	        if (target!=null && target instanceof LabelTarget) {
-	            LabelTarget ltarget = (LabelTarget)target;
-	            if (ltarget!=over) {
-	                if (over!=null) {
-	                    over.dragExit(world, text); over=null;
-	                }
-	                if (ltarget!=null && ltarget.dragEnter(world, text))
-	                    over = ltarget;
-	            }   
-	        }
-	}
-	lastx = e.getX(); lasty = e.getY();
+        if (firstDrag) {
+            firstDrag = false;
+            over = null;
+            if (labelImage==null)
+                labelImage = new LabelImage();
+            layeredPane.add(labelImage, JLayeredPane.DRAG_LAYER);
+            labelImage.setLocation(SwingUtilities.convertPoint(this, e.getX()-startx,
+                    e.getY()-starty, layeredPane));
+            if (drag_tracing)
+                Logger.log.println("; dragged label at "+labelImage.getX()+","+labelImage.getY());
+            labelImage.repaint();
+            if (dragKind==MoveLabelDrag) {
+                setVisible(false); canvas.forcerepaint();
+            }
+            else
+                canvas.wasteBin.setEnabled(false);
+        }
+        else {
+            if (drag_tracing)
+                Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
+            labelImage.moveBy(e.getX()-lastx, e.getY()-lasty);
+            if (drag_tracing)
+                Logger.log.println("; dragged label now at "+labelImage.getX()+","+labelImage.getY());
+            Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
+            Component target = contentPane.findComponentAt(p);
+            if (target!=null && target instanceof LabelTarget) {
+                LabelTarget ltarget = (LabelTarget)target;
+                if (ltarget!=over) {
+                    if (over!=null) {
+                        over.dragExit(world, text); over=null;
+                    }
+                    if (ltarget!=null && ltarget.dragEnter(world, text))
+                        over = ltarget;
+                }   
+            }
+            else
+            if (over!=null) {
+                over.dragExit(world, text); over=null;
+            }
+        }
+        lastx = e.getX(); lasty = e.getY();
     }
 
     protected void released(final byte dragKind, MouseEvent e) {
