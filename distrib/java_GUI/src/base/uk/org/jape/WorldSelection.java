@@ -37,7 +37,7 @@ public class WorldSelection extends CircleSelection {
 	this.world = world;
     }
 
-    public void repaint() {
+    /* public void repaint() {
 	world.canvas.imageRepaint();
-    }
+    } */
 }
