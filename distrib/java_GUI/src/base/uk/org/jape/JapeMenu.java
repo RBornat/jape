@@ -573,7 +573,7 @@ public class JapeMenu implements DebugConstants {
 
     public static void doOpenFile(String file) {
 	if (file.length()!=0)
-	    Reply.sendCOMMAND("use "+JapeUtils.enQuote(file)+"");
+	    Reply.sendCOMMAND("use", file);
 
     }
 

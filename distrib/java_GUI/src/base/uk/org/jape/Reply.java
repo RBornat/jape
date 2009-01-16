@@ -63,11 +63,60 @@ public class Reply implements DebugConstants {
 	    flushmessages();
     }
     
-    synchronized public static void sendCOMMAND(String s) {
-	send("COMMAND "+s);
+    /* 
+     * In sendCOMMAND, string arguments must be quoted. If they seem to be quoted, I don't quote again
+     */
+    
+    private static String argQuote(String s) {
+        if (s==null || JapeUtils.isQuoted(s))
+            return s;
+        else
+            return JapeUtils.enQuote(s);
+    }
+    
+    synchronized public static void sendCOMMAND(String c) {
+        send("COMMAND "+c);
     }
 
-    synchronized public static void reply(String s) throws ProtocolError {
+    synchronized public static void sendCOMMAND(String c, int i) {
+        send("COMMAND "+c+" "+i);
+    }
+
+    public static void sendCOMMAND(String c, int i1, int i2) {
+        send("COMMAND "+c+" "+i1+" "+i2);
+    }
+
+    public static void sendCOMMAND(String c, int i1, int i2, int i3, int i4) {
+        send("COMMAND "+c+" "+i1+" "+i2+" "+i3+" "+i4);
+    }
+
+    public static void sendCOMMAND(String c, int i1, int i2, int i3, int i4, 
+            int i5, int i6) {
+        send("COMMAND "+c+" "+i1+" "+i2+" "+i3+" "+i4+" "+i5+" "+i6);
+    }
+
+    public static void sendCOMMAND(String c, int i1, int i2, int i3, int i4, 
+            int i5, int i6, int i7, int i8) {
+        send("COMMAND "+c+" "+i1+" "+i2+" "+i3+" "+i4+" "+i5+" "+i6+" "+i7+" "+i8);
+    }
+    
+   public static void sendCOMMAND(String c, String s) {
+        send("COMMAND "+c+" "+argQuote(s));        
+    }
+    
+   public static void sendCOMMAND(String c, String s1, String s2) {
+        send("COMMAND "+c+" "+argQuote(s1)+" "+argQuote(s2));        
+    }
+
+   public static void sendCOMMAND(String c, int i1, int i2, String s) {
+       send("COMMAND "+c+" "+i1+" "+i2+" "+argQuote(s));
+   }
+
+   public static void sendCOMMAND(String c, int i1, int i2, int i3, int i4, String s) {
+       send("COMMAND "+c+" "+i1+" "+i2+" "+i3+" "+i4+" "+argQuote(s));
+   }
+
+   synchronized public static void reply(String s) throws ProtocolError {
     if (!enginelistening) {
 	if (DebugVars.protocol_tracing) Logger.log.println("GUI replies "+s);
 	outputln(s);

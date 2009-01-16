@@ -155,7 +155,7 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
 	tspi.addJapeMouseListener( new JapeMouseAdapter() {
 	    public void doubleclicked(MouseEvent e) {
 		getProofWindow().claimProofFocus();
-		Reply.sendCOMMAND("applygiven "+giveni);
+		Reply.sendCOMMAND("applygiven", giveni);
 	    }
 	});
     }

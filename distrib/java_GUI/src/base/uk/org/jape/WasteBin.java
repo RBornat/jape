@@ -221,7 +221,7 @@ public class WasteBin extends Component implements DebugConstants,
     public void drop(byte dragKind, WorldItem w, int x, int y) {
 	if (selected) {
 	    if (dragKind==SelectionConstants.MoveWorldDrag)
-		Reply.sendCOMMAND("deleteworld "+w.idX+" "+w.idY);
+		Reply.sendCOMMAND("deleteworld", w.idX, w.idY);
 	    setSelected(false);
 	}
 	else
@@ -234,7 +234,7 @@ public class WasteBin extends Component implements DebugConstants,
     public void drop(byte dragKind, WorldItem w, String label) {
 	if (selected) {
 	    if (dragKind==SelectionConstants.MoveLabelDrag)
-		Reply.sendCOMMAND("deleteworldlabel "+w.idX+" "+w.idY+" "+JapeUtils.enQuote(label));
+		Reply.sendCOMMAND("deleteworldlabel", w.idX, w.idY, label);
 	    else
 		Alert.abort("label drop into waste bin when not MoveLabelDrag");
 	    setSelected(false);
@@ -248,8 +248,7 @@ public class WasteBin extends Component implements DebugConstants,
     public void dragExit(WorldConnector l) { dragExit(); }
     public void drop(WorldConnector l) {
 	if (selected) {
-	    Reply.sendCOMMAND("deleteworldlink "+l.from.idX+" "+l.from.idY+" "+
-			      l.to.idX+" "+l.to.idY);
+	    Reply.sendCOMMAND("deleteworldlink",l.from.idX, l.from.idY, l.to.idX, l.to.idY);
 	    setSelected(false);
 	}
 	else

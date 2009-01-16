@@ -80,7 +80,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	proofSizeTimer = new WTimer(resizeDelay, new ActionListener(){
 	    public void actionPerformed(ActionEvent e) {
 		proofSizeTimer.stop();
-		Reply.sendCOMMAND("windowwidened "+((proofSizeTimer.oldwidth<proofPane.getWidth()) ? "1" : "0"));
+		Reply.sendCOMMAND("windowwidened", proofSizeTimer.oldwidth<proofPane.getWidth() ? "1" : "0");
 	    } 
 	});
 	proofPane.addComponentListener(new ComponentAdapter(){
@@ -111,7 +111,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	windowListener = new WindowAdapter() {
 	    public void windowClosing(WindowEvent e) {
 		if (windowListener!=null)
-		    Reply.sendCOMMAND("closeproof "+proofnum);
+		    Reply.sendCOMMAND("closeproof", proofnum);
 		else
 		    Logger.log.println("ProofWindow.windowListener late windowClosing "+JapeUtils.enQuote(
 				       title )+"; "+e);
@@ -176,7 +176,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     }
 
     public void closeProof() {
-	Reply.sendCOMMAND("closeproof "+proofnum);
+	Reply.sendCOMMAND("closeproof",proofnum);
     }
 
     public void enableCopy() {
@@ -817,7 +817,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
 	public synchronized void reportFocus() {
 	    if (focusv.size()!=0)
-		Reply.sendCOMMAND("setfocus "+((ProofWindow)focusv.get(0)).proofnum);
+		Reply.sendCOMMAND("setfocus", ((ProofWindow)focusv.get(0)).proofnum);
 	}
 
 	public synchronized void makeReady() {
