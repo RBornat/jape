@@ -68,52 +68,38 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
     // It is worth demanding good antialiasing when drawing blobs, rings, diagonal lines.
     // The text can come along for the ride.
 
-    // Since antialiasing may be expensive, I construct an image in a buffer and blit it
-    // into the canvas when needed.  It's rebuilt only when the component population changes
-    // or when we do drag-under highlighting.
+    // I no longer attempt to 'optimise' image drawing. Processor cycles are cheap
 
     BufferedImage image;
     Graphics imageGraphics;
-    private boolean imageRepaint = true;
 
-    public void imageRepaint() {
-	if (worldpaint_tracing)
-	    Logger.log.println("WorldCanvas.imageRepaint");
-	imageRepaint = true;
-    } // ho ho!
-    
     public Component add(Component c) {
 	if (worldpaint_tracing)
 	    Logger.log.println("WorldCanvas adding "+c);
-	imageRepaint = true;
 	return super.add(c);
     }
 
     public Component add(Component c, int index) {
 	if (worldpaint_tracing)
 	    Logger.log.println("WorldCanvas adding "+c+" at "+index);
-	imageRepaint = true;
 	return super.add(c, index);
     }
 
     public void remove(Component c) {
 	if (worldpaint_tracing)
 	    Logger.log.println("WorldCanvas removing "+c);
-	imageRepaint = true;
 	super.remove(c);
     }
 
     public void removeAll() {
 	if (worldpaint_tracing)
 	    Logger.log.println("WorldCanvas removeAll");
-	imageRepaint = true;
 	super.removeAll();
     }
 
     public void forcerepaint() {
 	if (worldpaint_tracing)
 	    Logger.log.println("WorldCanvas forcerepaint");
-	imageRepaint = true;
 	repaint();
     }
 
@@ -122,8 +108,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
     public void paint(Graphics g) {
 	if (worldpaint_tracing) 
 	    Logger.log.println("painting WorldCanvas "+getWidth()+","+getHeight());
-	if (imageRepaint) {
-	    imageRepaint = false;
+	if (/*imageRepaint*/true) {
 	    int width = getWidth(), height = getHeight();
 	    // if the image changes size, we need a new buffer
 	    if (image==null || image.getWidth()!=width || image.getHeight()!=height) {
@@ -257,8 +242,8 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
     /* ****************************** canvas as drop target ****************************** */
     
     public void drop(byte dragKind, WorldItem w, int x, int y) {
-	Reply.sendCOMMAND((dragKind==MoveWorldDrag ? "moveworld" : "addworld")+
-			    " "+w.idX+" "+w.idY+" "+(x-child.getX())+" "+(-(y-child.getY())));
+	Reply.sendCOMMAND(dragKind==MoveWorldDrag ? "moveworld" : "addworld",
+			    w.idX, w.idY, x-child.getX(), -(y-child.getY()));
     }
 
  /* // Called when a drag operation has encountered the DropTarget.
