@@ -49,7 +49,6 @@ public class Export {
     public static void export(ProofWindow w, int what) {
         /* improved hack to use OS X print dialog */
         if (Jape.onMacOSX) {
-            boolean usePrintDialog = true;
             int q = Alert.myShowOptionDialog(w, buttons, Alert.Info,
                     "By default, "+
                     (what == PrintProof.BOTH ? JapeMenu.EXPORT :
