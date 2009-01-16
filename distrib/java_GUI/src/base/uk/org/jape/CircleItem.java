@@ -44,7 +44,7 @@ public class CircleItem extends OutlineItem implements DebugConstants {
 	this.xcentre = xcentre; this.ycentre = ycentre; this.innerRadius=innerRadius;
 	this.strokethickness = strokethickness;
 	outline = new Ellipse2D.Float(strokethickness, strokethickness,
-				      2*innerRadius, 2*innerRadius);
+				      2*innerRadius-strokethickness, 2*innerRadius-strokethickness);
     }
 
     public CircleItem(JapeCanvas canvas, int xcentre, int ycentre, int innerRadius) {
