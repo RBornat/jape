@@ -168,6 +168,10 @@ public	class SelectableProofItem extends TextSelectableItem
 	            over = ftarget;
 	    }	
 	}
+	else
+	if (over!=null) {
+            over.dragExit(this); over=null;
+        } 
 	lastx = e.getX(); lasty = e.getY();
     }
     
