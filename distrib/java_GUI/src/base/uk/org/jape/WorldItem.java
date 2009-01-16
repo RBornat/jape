@@ -57,9 +57,9 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 
     public final int x0, y0, radius, labelgap;
     private int labelx;
-    private Vector<Component> labelv = new Vector<Component>(), // labels attached to me
-		   fromv  = new Vector<Component>(), // lines which lead from me
-		   tov	  = new Vector<Component>(); // lines which lead to me
+    private Vector<WorldLabel>     labelv = new Vector<WorldLabel>(); // labels attached to me
+    private Vector<WorldConnector> fromv  = new Vector<WorldConnector>(), // lines which lead from me
+		                   tov	  = new Vector<WorldConnector>(); // lines which lead to me
     
     public WorldItem(WorldCanvas canvas, JFrame window, int x, int y) {
 	super(canvas, x, y);
@@ -69,6 +69,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	this.x0 = x; this.y0 = -y;
 	this.radius = canvas.worldRadius();
 	setBounds(x0-radius, y0-radius, 2*radius, 2*radius);
+	
+	Logger.log.println("WorldItem x0 "+x0+" y0 "+y0+" radius "+radius);
 
 	selectionRing = new WorldSelection(this);
 	addSelectionIndicator(selectionRing);
@@ -86,7 +88,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	    private byte clickKind, dragKind;
 	    public void clicked(MouseEvent e) {
 		if (clickKind==WorldClick)
-		    Reply.sendCOMMAND("worldselect "+idX+" "+idY);
+		    Reply.sendCOMMAND("worldselect", idX, idY);
 	    }
 	    public void pressed(MouseEvent e) {
 		WorldItem.this.canvas.claimFocus();
@@ -172,7 +174,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	    setForeground(forced ? JapePrefs.ForcedSelectionColour : JapePrefs.SelectionColour);
 	    if (worldpaint_tracing)
 		Logger.log.println("highlighting world");
-	    canvas.imageRepaint(); repaint();
+	    repaint();
 	}
 	else
 	    if (!state && draghighlight) {
@@ -180,7 +182,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 		setForeground(oldForeground);
 		if (worldpaint_tracing)
 		    Logger.log.println("de-highlighting world");
-		canvas.imageRepaint(); repaint();
+		repaint();
 	    }
     }
 
@@ -191,7 +193,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	    this.forced = forced;
 	    setForeground(isEnabled() ? (forced ? JapePrefs.ForcedColour : JapePrefs.WorldColour) :
 					JapePrefs.OutColour);
-	    canvas.imageRepaint(); repaint();
+	    repaint();
 	}
     }
 
@@ -236,9 +238,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     public void dragExit(WorldConnector l) { dragExit(); }
     public void drop(WorldConnector l) {
 	if (draghighlight) {
-	    Reply.sendCOMMAND("splitworldlink "+l.from.idX+" "+l.from.idY+
-					    " "+l.to.idX+" "+l.to.idY+
-					    " "+idX+" "+idY);
+	    Reply.sendCOMMAND("splitworldlink", l.from.idX, l.from.idY, l.to.idX, l.to.idY,
+					    idX, idY);
 	    setDragHighlight(false);
 	}
 	else
@@ -251,9 +252,9 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     public void drop(byte dragKind, WorldItem w, String label) {
 	if (draghighlight) {
 	    if (dragKind==MoveLabelDrag)
-		Reply.sendCOMMAND("moveworldlabel "+w.idX+" "+w.idY+" "+idX+" "+idY+" "+JapeUtils.enQuote(label));
+		Reply.sendCOMMAND("moveworldlabel", w.idX, w.idY, idX, idY, label);
 	    else
-		Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+JapeUtils.enQuote(label));
+		Reply.sendCOMMAND("addworldlabel", idX, idY, label);
 	    setDragHighlight(false);
 	}
 	else
@@ -265,7 +266,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     public void dragExit(Tile t) { dragExit(); }
     public void drop(Tile t) {
 	if (draghighlight) {
-	    Reply.sendCOMMAND("addworldlabel "+idX+" "+idY+" "+JapeUtils.enQuote(t.text));
+	    Reply.sendCOMMAND("addworldlabel", idX, idY, t.text);
 	    setDragHighlight(false);
 	}
 	else
@@ -279,13 +280,13 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     public void dragExit(byte dragKind, WorldItem w) { dragExit(); }
     public void drop(byte dragKind, WorldItem w, int x, int y) {
 	if (draghighlight)
-	    Reply.sendCOMMAND((dragKind==MoveWorldDrag ? "moveworld" : "addworld")+
-			      " "+w.idX+" "+w.idY+" "+idX+" "+idY);
+	    Reply.sendCOMMAND(dragKind==MoveWorldDrag ? "moveworld" : "addworld",
+			      w.idX, w.idY, idX, idY);
 	else
 	    Alert.abort("world drop on non-accepting world");
     }
     
-    /* ****************************** world as drag source ****************************** */
+    /* ****************************** world as drag item ****************************** */
 
     private int startx, starty, lastx, lasty, offsetx, offsety;
     private boolean firstDrag;
@@ -386,6 +387,10 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
                 if (wtarget!=null && wtarget.dragEnter(dragKind, this))
                     over = wtarget;
             }   
+        }
+        else 
+        if (over!=null) {
+            over.dragExit(dragKind, this); over=null;
         }
 	lastx = e.getX(); lasty = e.getY();
     }
