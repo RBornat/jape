@@ -114,7 +114,7 @@ public class Jape implements DebugConstants {
 	JapeMenu.initMenuBar();
 
 	new LocalSettings();
-	Vector<String> engineCmd = new Vector<String>();
+	final Vector<String> engineCmd = new Vector<String>();
 	engineCmd.add(onWindows ? defaultWindowsEnginePath : onMacOSX ? System.getProperty("uk.org.jape.AppPackage")+"/Contents/Engine/"+defaultUnixEnginePath : defaultUnixEnginePath);
 
 	// all args (except for -engine <path>) sent to engine.
@@ -130,13 +130,17 @@ public class Jape implements DebugConstants {
 	    else
 		engineCmd.add(args[i]);
 	}
-	
-	new Engine((String[])engineCmd.toArray(new String[engineCmd.size()]));
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new Engine((String[])engineCmd.toArray(new String[engineCmd.size()]));
 
-	Logger.init();
-	
-	if (tracing)
-	    Logger.log.println("GUI initialised");
+                Logger.init();
+                
+                if (tracing)
+                    Logger.log.println("GUI initialised");
+            }
+        });
+
     }
     
     static String howTo(String what) {
