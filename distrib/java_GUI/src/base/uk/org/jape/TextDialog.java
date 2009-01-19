@@ -70,7 +70,7 @@ public class TextDialog {
 					     "Type a new conjecture for the "+panel+" panel");
 	if (newConjecture!=null) {
 	    lastConjecture = newConjecture;
-	    Reply.sendCOMMAND("addnewconjecture", panel, newConjecture);
+	    Reply.sendCOMMAND("addnewconjecture "+JapeUtils.enQuote(panel)+" "+newConjecture); /* argument must not be quoted */
 	}
     }
     
