@@ -166,7 +166,10 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 	    if (drag_tracing)
 		Logger.log.println("; dragged line now at "+dragLine.activex+","+dragLine.activey);
 	    Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
+	    /* if I knew how to make this polymorphic in Java, I would */
 	    Component target = contentPane.findComponentAt(p);
+	    if (target instanceof ContainerWithOrigin.Child)
+	        target = target.getParent();
 	    if (target!=null && target instanceof LineTarget) {
 	        LineTarget ltarget = (LineTarget)target;
 	        if (ltarget!=over) {

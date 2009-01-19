@@ -131,7 +131,10 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
 	    if (drag_tracing)
 		Logger.log.println("; dragged tile now at "+tileImage.getX()+","+tileImage.getY());
 	    Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
+	    /* if I knew how to make this polymorphic in Java, I would */
 	    Component target = contentPane.findComponentAt(p);
+	    if (target instanceof ContainerWithOrigin.Child)
+	        target = target.getParent();
 	    if (target!=null && target instanceof TileTarget) {
 	        TileTarget ttarget = (TileTarget)target;
 	        if (ttarget!=over) {

@@ -70,8 +70,6 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	this.radius = canvas.worldRadius();
 	setBounds(x0-radius, y0-radius, 2*radius, 2*radius);
 	
-	Logger.log.println("WorldItem x0 "+x0+" y0 "+y0+" radius "+radius);
-
 	selectionRing = new WorldSelection(this);
 	addSelectionIndicator(selectionRing);
 
@@ -377,7 +375,10 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	}
 	    
 	Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
+	/* if I knew how to make this polymorphic in Java, I would */
 	Component target = contentPane.findComponentAt(p);
+	if (target instanceof ContainerWithOrigin.Child)
+	    target = target.getParent();
         if (target!=null && target instanceof WorldTarget) {
             WorldTarget wtarget = (WorldTarget)target;
             if (wtarget!=over) {

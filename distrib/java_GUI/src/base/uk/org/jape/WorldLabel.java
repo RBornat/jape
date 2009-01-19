@@ -121,7 +121,10 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
             if (drag_tracing)
                 Logger.log.println("; dragged label now at "+labelImage.getX()+","+labelImage.getY());
             Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
+            /* if I knew how to make this polymorphic in Java, I would */
             Component target = contentPane.findComponentAt(p);
+            if (target instanceof ContainerWithOrigin.Child)
+                target = target.getParent();
             if (target!=null && target instanceof LabelTarget) {
                 LabelTarget ltarget = (LabelTarget)target;
                 if (ltarget!=over) {

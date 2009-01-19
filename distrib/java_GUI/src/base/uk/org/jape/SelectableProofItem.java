@@ -157,7 +157,10 @@ public	class SelectableProofItem extends TextSelectableItem
 	}
 	
 	Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
+        /* if I knew how to make this polymorphic in Java, I would */
 	Component target = contentPane.findComponentAt(p);
+        if (target instanceof ContainerWithOrigin.Child)
+            target = target.getParent();
 	if (target!=null && target instanceof FormulaTarget) {
 	    FormulaTarget ftarget = (FormulaTarget)target;
 	    if (ftarget!=over) {
