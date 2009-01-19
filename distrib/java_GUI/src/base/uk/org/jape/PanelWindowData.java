@@ -342,7 +342,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 			        if (e.getClickCount()==2) {
 			            if (kind==ConjecturePanelKind && 0<=index && index<model.size()) {
 			                // double-click means "prove this one"
-			                Reply.sendCOMMAND("proveconjecture", cmdv.get(index));
+			                Reply.sendCOMMAND("proveconjecture "+cmdv.get(index)); /* argument must not be quoted */
 			            }
 			        }
 			        else
