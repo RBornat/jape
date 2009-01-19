@@ -94,9 +94,9 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     }
 
     // if we are the only thing in a viewport, we get the mouse events.
+    // I don't know how to parse this, but it works so I'm leaving it alone.
     public boolean contains(int x, int y) {
-	return viewport.getComponentCount()==1 && viewport.getComponent(0)==this
-	    || super.contains(x,y);
+	return viewport.getComponentCount()==1 && viewport.getComponent(0)==this || super.contains(x,y);
     }
 
     // since we are in a viewport, we tell you what the viewport sees
@@ -243,7 +243,7 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     }
 
     @SuppressWarnings("serial")
-	protected class Child extends Container {
+    protected class Child extends Container {
 	Child() { super(); setLayout(new ChildLayout()); }
 
 	protected Rectangle visualBounds = new Rectangle(0,0,0,0);
