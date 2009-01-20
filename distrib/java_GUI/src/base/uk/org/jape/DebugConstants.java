@@ -34,7 +34,6 @@ public interface DebugConstants {
 				colourseg_tracing	 = false,
 				containerrepaint_tracing = false,
 				disprooflayout_tracing	 = false,
-				drag_tracing		 = false,
 				encoding_tracing	 = false,
 				fontDebug		 = false,
 				geometry_tracing	 = false,

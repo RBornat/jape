@@ -33,13 +33,14 @@ import javax.swing.JOptionPane;
 public class DebugVars {
     public static final boolean showDebugVars = true;
 
-    public static boolean protocol_tracing    = false,
-			  menuaction_tracing  = false,
-			  loopback_tracing    = false,
-			  printdialog_tracing = true,
+    public static boolean protocol_tracing        = false,
+			  menuaction_tracing      = false,
+			  loopback_tracing        = false,
+			  printdialog_tracing     = false,
 			  containerlayout_tracing = false,
-			  paint_tracing       = false,
-			  measure_tracing     = false;
+			  paint_tracing           = false,
+			  measure_tracing         = false,
+			  drag_tracing            = false;
 
     public static void runDebugSettingsDialog() {
 	JCheckBox [] tracing = {
@@ -49,7 +50,8 @@ public class DebugVars {
 	    new JCheckBox("trace print dialog actions"),	 // 3
 	    new JCheckBox("trace container layout actions"),     // 4
 	    new JCheckBox("trace painting"),			 // 5
-	    new JCheckBox("trace font measuring")		 // 6
+            new JCheckBox("trace font measuring"),               // 6
+            new JCheckBox("trace drag-and-drop")                 // 7
 	};
 	tracing[0].setSelected(protocol_tracing);
 	tracing[1].setSelected(menuaction_tracing);
@@ -57,19 +59,20 @@ public class DebugVars {
 	tracing[3].setSelected(printdialog_tracing);
 	tracing[4].setSelected(containerlayout_tracing);
 	tracing[5].setSelected(paint_tracing);
-	tracing[6].setSelected(measure_tracing);
+        tracing[6].setSelected(measure_tracing);
+        tracing[7].setSelected(drag_tracing);
 	int reply = JOptionPane.showConfirmDialog(JapeWindow.getTopWindow(), tracing, "Debug settings", 
 	                                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
 	if (reply==JOptionPane.OK_OPTION) {
-	    protocol_tracing	 = tracing[0].isSelected();
-	    menuaction_tracing	 = tracing[1].isSelected();
-	    loopback_tracing	 = tracing[2].isSelected();
-	    printdialog_tracing	 = tracing[3].isSelected();
+	    protocol_tracing	    = tracing[0].isSelected();
+	    menuaction_tracing	    = tracing[1].isSelected();
+	    loopback_tracing	    = tracing[2].isSelected();
+	    printdialog_tracing	    = tracing[3].isSelected();
 	    containerlayout_tracing = tracing[4].isSelected();
-	    paint_tracing        = tracing[5].isSelected();
-	    measure_tracing      = tracing[6].isSelected();
-
+	    paint_tracing           = tracing[5].isSelected();
+            measure_tracing         = tracing[6].isSelected();
+            drag_tracing            = tracing[7].isSelected();
 	}
     }
 }
