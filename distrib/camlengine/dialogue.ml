@@ -972,7 +972,7 @@ and addproofs
                   displayGivens givens;
                   displayProvisos cxt;
                   match disproof with
-                    None -> ()
+                    None   -> ()
                   | Some d -> Disproof.showdisproof d
                 end; r);
            hist =
@@ -1587,7 +1587,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                       let doit () = Some (disproofmove hist disproof') in
                       let seq' = disproofstate_seq disproof' in
                       match winhist_disproofnow hist with
-                        None -> doit ()
+                        None       -> doit ()
                       | Some state ->
                           let seq = disproofstate_seq state in
                           if eqseqs (seq, seq') then

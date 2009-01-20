@@ -80,8 +80,8 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
 		Tile.this.released(e);
 	    }
 	};
-	addMouseListener(mil);
-	addMouseMotionListener(mil);
+        addMouseListener(mil);
+        addMouseMotionListener(mil);
     }
 
     public ProofWindow getProofWindow() {
