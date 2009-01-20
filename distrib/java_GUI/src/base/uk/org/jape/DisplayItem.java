@@ -30,6 +30,8 @@ package uk.org.jape;
 import java.awt.event.MouseEvent;
 import java.awt.Component;
 
+import javax.swing.event.MouseInputListener;
+
 @SuppressWarnings("serial")
 public class DisplayItem extends Component
 		      implements SelectionConstants {
@@ -78,15 +80,15 @@ public class DisplayItem extends Component
 	repaint();
     }
     
-    public void addJapeMouseListener(JapeMouseAdapter a) {
-	addMouseListener(a); addMouseMotionListener(a);
+    public void addMouseInputListener(MouseInputListener a) {
+        addMouseListener(a); addMouseMotionListener(a); 
     }
 
     public void removeJapeMouseListener(JapeMouseAdapter a) {
 	removeMouseListener(a); removeMouseMotionListener(a);
     }
 
-    private JapeMouseTextAdapter selectionListener = null;
+    protected JapeMouseTextAdapter selectionListener = null;
 
     public void addSelectionIndicator(SelectionIndicator selectionIndicator) {
 	if (selectionListener!=null)
@@ -101,7 +103,7 @@ public class DisplayItem extends Component
 		DisplayItem.this.selectiondoubleclicked(eventKind, e);
 	    }
 	};
-	addJapeMouseListener(selectionListener);
+	addMouseInputListener(selectionListener);
 	this.selectionIndicator = selectionIndicator;
 	selectionIndicator.indicate(this);
 	canvas.add((Component)selectionIndicator);

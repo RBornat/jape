@@ -152,7 +152,7 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
     }
 
     private void mkGivenLine(TextSelectableItem tspi, final int giveni) {
-	tspi.addJapeMouseListener( new JapeMouseAdapter() {
+	tspi.addMouseInputListener( new JapeMouseAdapter() {
 	    public void doubleclicked(MouseEvent e) {
 		getProofWindow().claimProofFocus();
 		Reply.sendCOMMAND("applygiven", giveni);

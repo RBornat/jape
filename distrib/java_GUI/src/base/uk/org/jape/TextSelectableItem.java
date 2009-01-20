@@ -48,7 +48,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
     public TextSelectableItem(JapeCanvas canvas, int x, int y, AnnotatedTextComponent[] components) {
 	super(canvas,x,y,components);
 	this.components = components;
-	addJapeMouseListener(new JapeMouseTextAdapter() {
+	addMouseInputListener(new JapeMouseTextAdapter() {
 	    public void textpressed(byte eventKind, MouseEvent e) {
 		TextSelectableItem.this.textpressed(eventKind, e);
 	    }

@@ -55,7 +55,7 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 	
 	from.registerFrom(this); to.registerTo(this);
 	
-	addJapeMouseListener(new JapeMouseAdapter() {
+	addMouseInputListener(new JapeMouseAdapter() {
 	    private boolean noticeDrag;
 	    public void pressed(MouseEvent e) {
 		WorldConnector.this.canvas.claimFocus();

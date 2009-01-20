@@ -57,7 +57,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
 	this.forced = forced;
 	this.text = text;
 
-	addJapeMouseListener(new JapeMouseAdapter() {
+	addMouseInputListener(new JapeMouseAdapter() {
 	    private boolean noticeDrag;
 	    private byte dragKind;
 	    public void pressed(MouseEvent e) {

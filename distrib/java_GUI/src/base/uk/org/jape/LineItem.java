@@ -27,6 +27,8 @@
 
 package uk.org.jape;
 
+import javax.swing.event.MouseInputListener;
+
 @SuppressWarnings("serial")
 public class LineItem extends LineComponent {
 
@@ -37,7 +39,7 @@ public class LineItem extends LineComponent {
 	this.canvas = canvas;
     }
 
-    public void addJapeMouseListener(JapeMouseAdapter a) {
-	addMouseListener(a); addMouseMotionListener(a);
+    public void addMouseInputListener(MouseInputListener a) {
+	addMouseListener(a); addMouseMotionListener(a); 
     }
 }

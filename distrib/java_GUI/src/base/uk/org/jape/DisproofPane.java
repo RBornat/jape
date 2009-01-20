@@ -36,6 +36,7 @@ import java.awt.LayoutManager;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JFrame;
+import javax.swing.event.MouseInputListener;
 
 // BoxLayout doesn't work for laying out this thing,
 // if you use BorderLayout to give lots of space to the worldPane.
@@ -93,7 +94,7 @@ public class DisproofPane extends Container implements DebugConstants,
 	};
 	seqView.add(seqCanvas);
 
-	addJapeMouseListener(new JapeMouseTextAdapter() {
+	addMouseInputListener(new JapeMouseTextAdapter() {
 	    public void clicked(byte eventKind, MouseEvent e) {
 		if (eventKind==Selection && aroundSequent(e)) {
 		    seqCanvas.killAllSelections();
@@ -109,8 +110,8 @@ public class DisproofPane extends Container implements DebugConstants,
 	});
     }
 
-    public void addJapeMouseListener(JapeMouseAdapter a) {
-	addMouseListener(a); addMouseMotionListener(a);
+    public void addMouseInputListener(MouseInputListener a) {
+        addMouseListener(a); addMouseMotionListener(a); 
     }
 
     private boolean aroundSequent(MouseEvent e) {

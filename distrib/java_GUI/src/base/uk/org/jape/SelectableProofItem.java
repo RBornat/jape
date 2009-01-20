@@ -56,7 +56,7 @@ public	class SelectableProofItem extends TextSelectableItem
 	    canvas.proofStyle==BoxStyle ? new DirectedFormulaSelection(this) :
 					  new RectSelection(this));
 	addDragIndicator(new DragIndicator(this));
-	addJapeMouseListener(new JapeMouseAdapter() {
+	addMouseInputListener(new JapeMouseAdapter() {
 	    int dragNum;
 	    public void pressed(MouseEvent e) {
 		SelectableProofItem.this.canvas.claimFocus();
