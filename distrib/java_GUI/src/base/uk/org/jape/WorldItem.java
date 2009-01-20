@@ -82,12 +82,19 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	labelx = selectionRing.getX()+selectionRing.getWidth()+canvas.linethickness;
 	labelgap = 4*canvas.linethickness;
 
-	addJapeMouseListener(new JapeMouseAdapter() {
+        if (selectionListener!=null)
+            removeJapeMouseListener(selectionListener); // because otherwise we get two indicators ....
+        
+	addMouseInputListener(new JapeMouseAdapter() {
 	    private byte clickKind, dragKind;
-	    public void clicked(MouseEvent e) {
-		if (clickKind==WorldClick)
-		    Reply.sendCOMMAND("worldselect", idX, idY);
-	    }
+            public void clicked(MouseEvent e) {
+                WorldItem.this.selectionclicked(LocalSettings.mouseDownTextItemMeans(e), e); // that which was removed
+                if (clickKind==WorldClick)
+                    Reply.sendCOMMAND("worldselect", idX, idY);
+            }
+            public void doubleclicked(MouseEvent e) {
+                WorldItem.this.selectiondoubleclicked(LocalSettings.mouseDownTextItemMeans(e), e); // that which was removed
+            }
 	    public void pressed(MouseEvent e) {
 		WorldItem.this.canvas.claimFocus();
 		dragKind = LocalSettings.mousePressWorldItemMeans(e);
