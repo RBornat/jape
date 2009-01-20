@@ -29,7 +29,9 @@ package uk.org.jape;
 
 import java.awt.event.MouseEvent;
 
-public class JapeMouseAdapter implements JapeMouseListener,
+import javax.swing.event.MouseInputListener;
+
+public class JapeMouseAdapter implements JapeMouseListener, MouseInputListener,
 					 SelectionConstants {
     /*
 	void mouseClicked(MouseEvent e)
@@ -52,17 +54,37 @@ public class JapeMouseAdapter implements JapeMouseListener,
 
     private int x, y, wobble;
     private boolean significantWobble() { return wobble>3; } // a bit of wobble allowed, esp. for laptops
+    private boolean recording=false;
+    private static final boolean chasing_drag_events=false;
 
-    public final void mouseClicked(MouseEvent e) { }
+    public final void mouseClicked(MouseEvent e) { 
+        if (chasing_drag_events && recording)
+            Logger.log.println((Object)this+" click missed"); 
+    }
     public final void mouseEntered(MouseEvent e) { }
     public final void mouseExited(MouseEvent e) { }
     
     public final void mousePressed(MouseEvent e) {
+        if (chasing_drag_events) {
+            if (!recording)
+                Logger.log.println((Object)this+" pressed seen"); 
+            else
+                Logger.log.println((Object)this+" pressed again while recording");
+
+            recording = true;
+        }
 	x=e.getX(); y=e.getY(); wobble=0;
 	pressed(e);
     }
     
     public final void mouseReleased(MouseEvent e) {
+        if (chasing_drag_events) {
+            if (recording)
+                Logger.log.println((Object)this+" released seen wobble "+wobble+" click count "+e.getClickCount());
+            else
+                Logger.log.println((Object)this+" released seen without press");
+            recording = false;
+        }
 	if (significantWobble())
 	    released(e);
 	else
@@ -82,10 +104,19 @@ public class JapeMouseAdapter implements JapeMouseListener,
 
     public final void mouseDragged(MouseEvent e) {
 	wobble = Math.max(wobble, Math.abs(e.getX()-x)+Math.abs(e.getY()-y));
+	if (chasing_drag_events) {
+	    if (recording)
+	        Logger.log.println((Object)this+" dragged seen wobble "+wobble);
+	    else
+	        Logger.log.println((Object)this+" dragged without recording");
+	}
 	dragged(significantWobble(), e);
     }
 
-    public final void mouseMoved(MouseEvent e) { }
+    public final void mouseMoved(MouseEvent e) { 
+        if (chasing_drag_events && recording)
+            Logger.log.println((Object)this+" move missed"); 
+    }
 
     public void pressed(MouseEvent e) { }
     public void dragged(boolean significantWobble, MouseEvent e) { }
