@@ -306,15 +306,15 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     private WorldImage worldImage;
     private WorldTarget over;
     
-    private void setDrageesVisible(boolean state) {
-	this.setVisible(state); selectionRing.setVisible(state);
-	for (int i=0; i<labelv.size(); i++)
-	    ((WorldLabel)labelv.get(i)).setVisible(state);
-	for (int i=0; i<fromv.size(); i++)
-	    ((WorldConnector)fromv.get(i)).setVisible(state);
-	for (int i=0; i<tov.size(); i++)
-	    ((WorldConnector)tov.get(i)).setVisible(state);
-	canvas.forcerepaint();
+    private void setDrageesVisible(boolean show) {
+        this.setVisible(show); selectionRing.setVisible(show);
+        for (int i=0; i<labelv.size(); i++)
+            labelv.get(i).setVisible(show);
+        for (int i=0; i<fromv.size(); i++)
+            fromv.get(i).setVisible(show);
+        for (int i=0; i<tov.size(); i++)
+            tov.get(i).setVisible(show);
+        canvas.forcerepaint();
     }
 
     public Point dragCentre() {
@@ -336,6 +336,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     
     public void dragged(byte dragKind, MouseEvent e) {
 	if (firstDrag) {
+            if (DebugVars.drag_tracing)
+                Logger.log.print("starting world drag at "+e.getX()+","+e.getY());
 	    firstDrag = false;
 	    over = null;
 	    worldImage = new WorldImage(dragKind);
@@ -366,38 +368,51 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 		canvas.wasteBin.setEnabled(false);
 	}
 	else {
-	    if (drag_tracing)
+	    if (DebugVars.drag_tracing)
 		Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
 	    int deltax = e.getX()-lastx, deltay = e.getY()-lasty;
 	    worldImage.moveBy(deltax, deltay);
-	    if (drag_tracing)
+	    if (DebugVars.drag_tracing)
 		Logger.log.println("; dragged world now at "+worldImage.getX()+","+worldImage.getY());
 	}
 	    
 	Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
 	/* if I knew how to make this polymorphic in Java, I would */
 	Component target = contentPane.findComponentAt(p);
-	if (target instanceof ContainerWithOrigin.Child)
+	if (DebugVars.drag_tracing)
+	    Logger.log.println("target originally "+target);
+	if (target instanceof ContainerWithOrigin.Child) {
 	    target = target.getParent();
-        if (target!=null && target instanceof WorldTarget) {
-            WorldTarget wtarget = (WorldTarget)target;
-            if (wtarget!=over) {
-                if (over!=null) {
-                    over.dragExit(dragKind, this); over=null;
-                }
-                if (wtarget!=null && wtarget.dragEnter(dragKind, this))
-                    over = wtarget;
-            }   
-        }
-        else 
-        if (over!=null) {
-            over.dragExit(dragKind, this); over=null;
-        }
+	    if (DebugVars.drag_tracing)
+	        Logger.log.println("(now the child) "+target);
+	}
+	if (target!=null && target instanceof WorldTarget) {
+	    WorldTarget wtarget = (WorldTarget)target;
+	    if (wtarget!=over) {
+	        if (DebugVars.drag_tracing)
+	            Logger.log.println("(a new target) ");
+	        if (over!=null) {
+	            over.dragExit(dragKind, this); over=null;
+	        }
+	        if (wtarget!=null && wtarget.dragEnter(dragKind, this))
+	            over = wtarget;
+	    }
+	    else
+	    if (DebugVars.drag_tracing)
+	        Logger.log.println("(an old target) ");
+	}
+	else {
+	    if (DebugVars.drag_tracing)
+	        Logger.log.println("(not a target) ");
+	    if (over!=null) {
+	        over.dragExit(dragKind, this); over=null;
+	    }
+	}
 	lastx = e.getX(); lasty = e.getY();
     }
 
     protected void released(final byte dragKind, MouseEvent e) {
-	if (drag_tracing)
+	if (DebugVars.drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged world at "+worldImage.getX()+","+worldImage.getY());
 	if (over==null)
