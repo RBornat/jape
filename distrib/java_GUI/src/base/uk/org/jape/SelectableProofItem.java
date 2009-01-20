@@ -61,7 +61,7 @@ public	class SelectableProofItem extends TextSelectableItem
 	    public void pressed(MouseEvent e) {
 		SelectableProofItem.this.canvas.claimFocus();
 		dragNum = getDragNum();
-		if (drag_tracing)
+		if (DebugVars.drag_tracing)
 		    Logger.log.println("looking for drag "+idX+","+idY+"; got "+dragNum);
 		if (dragNum!=-1)
 		    SelectableProofItem.this.pressed(dragNum, e);
@@ -148,11 +148,11 @@ public	class SelectableProofItem extends TextSelectableItem
 	    ((ProofCanvas)canvas).wakeDragTargetIndicators(dragNum);
 	}
 	else {
-	    if (drag_tracing)
+	    if (DebugVars.drag_tracing)
 		Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
 	    int deltax = e.getX()-lastx, deltay = e.getY()-lasty;
 	    formulaImage.moveBy(deltax, deltay);
-	    if (drag_tracing)
+	    if (DebugVars.drag_tracing)
 		Logger.log.println("; dragged formula now at "+formulaImage.getX()+","+formulaImage.getY());
 	}
 	
@@ -179,7 +179,7 @@ public	class SelectableProofItem extends TextSelectableItem
     }
     
     protected void released(int dragNum, MouseEvent e) {
-	if (drag_tracing)
+	if (DebugVars.drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged formula at "+formulaImage.getX()+","+formulaImage.getY());
 	if (over==null)
@@ -273,7 +273,7 @@ public	class SelectableProofItem extends TextSelectableItem
 	for (int i=0; i<es.length; i++) {
 	    Point[] e = es[i];
 	    for (int j=0; j<e.length; j++) {
-		if (drag_tracing)
+		if (DebugVars.drag_tracing)
 		    Logger.log.println("["+i+","+j+"]=="+e[j].x+","+e[j].y);
 		if (e[j].x==x && e[j].y==y)
 		    return i;

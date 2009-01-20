@@ -102,7 +102,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
     private TileImage tileImage;
     
     protected void pressed(MouseEvent e) { // doesn't matter what keys are pressed
-	if (drag_tracing)
+	if (DebugVars.drag_tracing)
 	    Logger.log.print("mouse pressed on tile "+text+" at "+e.getX()+","+e.getY()+
 			     " insets="+getInsets());
 	startx = lastx = e.getX(); starty = lasty = e.getY(); firstDrag = true; // in case of drag
@@ -119,16 +119,16 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
 	    layeredPane.add(tileImage, JLayeredPane.DRAG_LAYER);
 	    tileImage.setLocation(SwingUtilities.convertPoint(this, e.getX()-startx,
 							      e.getY()-starty, layeredPane));
-	    if (drag_tracing)
+	    if (DebugVars.drag_tracing)
 		Logger.log.println("; dragged tile at "+tileImage.getX()+","+tileImage.getY());
 	    tileImage.repaint();
 	    wasteBin.setEnabled(false);
 	}
 	else {
-	    if (drag_tracing)
+	    if (DebugVars.drag_tracing)
 		Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
 	    tileImage.moveBy(e.getX()-lastx, e.getY()-lasty);
-	    if (drag_tracing)
+	    if (DebugVars.drag_tracing)
 		Logger.log.println("; dragged tile now at "+tileImage.getX()+","+tileImage.getY());
 	    Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
 	    /* if I knew how to make this polymorphic in Java, I would */
@@ -154,7 +154,7 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
     }
 
     protected void released(MouseEvent e) {
-	if (drag_tracing)
+	if (DebugVars.drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged tile at "+tileImage.getX()+","+tileImage.getY());
 	if (over==null)

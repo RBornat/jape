@@ -105,7 +105,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
             layeredPane.add(labelImage, JLayeredPane.DRAG_LAYER);
             labelImage.setLocation(SwingUtilities.convertPoint(this, e.getX()-startx,
                     e.getY()-starty, layeredPane));
-            if (drag_tracing)
+            if (DebugVars.drag_tracing)
                 Logger.log.println("; dragged label at "+labelImage.getX()+","+labelImage.getY());
             labelImage.repaint();
             if (dragKind==MoveLabelDrag) {
@@ -115,10 +115,10 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
                 canvas.wasteBin.setEnabled(false);
         }
         else {
-            if (drag_tracing)
+            if (DebugVars.drag_tracing)
                 Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
             labelImage.moveBy(e.getX()-lastx, e.getY()-lasty);
-            if (drag_tracing)
+            if (DebugVars.drag_tracing)
                 Logger.log.println("; dragged label now at "+labelImage.getX()+","+labelImage.getY());
             Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
             /* if I knew how to make this polymorphic in Java, I would */
@@ -144,7 +144,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
     }
 
     protected void released(final byte dragKind, MouseEvent e) {
-	if (drag_tracing)
+	if (DebugVars.drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged label at "+labelImage.getX()+","+labelImage.getY());
 	if (over==null)

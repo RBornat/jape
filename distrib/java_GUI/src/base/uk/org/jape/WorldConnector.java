@@ -154,16 +154,16 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 	    dragLine.addFriend(other);
 	    layeredPane.add(dragLine, JLayeredPane.DRAG_LAYER);
 	    layeredPane.add(other, JLayeredPane.DRAG_LAYER);
-	    if (drag_tracing)
+	    if (DebugVars.drag_tracing)
 		Logger.log.println("; dragged line at "+dragLine.activex+","+dragLine.activey);
 	    dragLine.repaint();
 	    setVisible(false);
 	}
 	else {
-	    if (drag_tracing)
+	    if (DebugVars.drag_tracing)
 		Logger.log.print("mouse dragged to "+e.getX()+","+e.getY());
 	    dragLine.moveBy(e.getX()-lastx, e.getY()-lasty);
-	    if (drag_tracing)
+	    if (DebugVars.drag_tracing)
 		Logger.log.println("; dragged line now at "+dragLine.activex+","+dragLine.activey);
 	    Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), contentPane);
 	    /* if I knew how to make this polymorphic in Java, I would */
@@ -189,7 +189,7 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
     }
 
     protected void released(MouseEvent e) {
-	if (drag_tracing)
+	if (DebugVars.drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged line at "+dragLine.activex+","+dragLine.activey);
 	if (over==null)
