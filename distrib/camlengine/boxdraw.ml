@@ -35,6 +35,8 @@
         (and now September 1999 ... how long can this go on?)
         
         (till June 2005 at least!)
+        
+        (and on till May 2009)
 
 *)
 
@@ -56,7 +58,7 @@
  * hypothesis.
  * 
  * This was already a fairly large module, though not a particularly complicated
- * algorithm.  It got a lot worse when I modified it to treat cut nodes specially.
+ * algorithm.  It got bigger when I modified it to treat cut nodes specially.
  * Some cut nodes couldn't be specially treated, because of deficiencies of the
  * click-to-select UI mechanism we were using; those that could be dealt with fell into
  * two categories.  I decided what to do with a cut line by drawing the
@@ -457,16 +459,17 @@ let rec string_of_pathinfo
 let rec string_of_elementplankind pk =
   (* how I HATE having to write these *)
   match pk with
-    ElementPlan pi -> "ElementPlan" ^ string_of_elementplaninf pi
-  | AmbigElementPlan pair ->
-      "AmbigElementPlan" ^
-        string_of_pair string_of_elementplaninf string_of_elementplaninf "," pair
-  | ElementPunctPlan -> "ElementPunctPlan"
+    ElementPlan      pi   -> "ElementPlan" ^ string_of_elementplaninf pi
+  | AmbigElementPlan pair -> "AmbigElementPlan" ^
+                                string_of_pair string_of_elementplaninf string_of_elementplaninf "," pair
+  | ElementPunctPlan      -> "ElementPunctPlan"
+
 and string_of_elementkind ek =
   match ek with
-    ConcPlan -> "ConcPlan"
-  | HypPlan -> "HypPlan"
+    ConcPlan      -> "ConcPlan"
+  | HypPlan       -> "HypPlan"
   | TranPlan side -> "TranPlan " ^ string_of_side side
+
 and string_of_elementplaninf epi =
   string_of_triple string_of_pathinfo string_of_element string_of_elementkind "," epi
   
@@ -1035,7 +1038,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
       let rec stprefix stopt restf p =
         match stopt with
           Some st -> planfollowedby (plan_of_textinfo st ElementPunctPlan p) restf
-        | _ -> restf p
+        | _       -> restf p
       in
       match dp with
         IdDep (el, lindep) ->
@@ -1173,8 +1176,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             let (acc', just') = dolinsubs hypmap acc just in
             (s, f, just') :: ts, acc'
           in
-          let (revts, (Lacc {id = id'} as acc')) =
-            nj_revfold phase1 tdeps ([], acc)
+          let (revts, (Lacc {id = id'} as acc')) = nj_revfold phase1 tdeps ([], acc) 
           in
           (* revts is, of course, backwards ... *)
       
@@ -1193,12 +1195,13 @@ let rec linearise screenwidth procrustean_reasonW dp =
               in
               planfollowedby splan
                    (plans_of_plan <.> uncurry2 plan_of_textinfo f <.> 
-                    (fun p' -> rightby p transindent))
+                    (fun p' -> rightby p' transindent))
             in
             doconcline mkp true (acc, just) false
           in
           let (jd, acc''') = nj_fold phase2 revts (id'', acc'') in
           BoxID (id', jd), acc'''
+  (* end let _L *)
   in
   (* stuff to do with computing margins and gaps *)
   (* One day boxlineformat will tell us in detail how to show a line.
