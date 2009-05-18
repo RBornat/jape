@@ -80,11 +80,10 @@ let rec debugstring_of_plan f =
 let rec string_of_plan  =
   function
     Formulaplan (Textlayout [_, _, s], _, _) -> s
-  | p ->
-      raise
-        (Catastrophe_
-           ["multisyllable text in string_of_plan  -- ";
-            debugstring_of_plan (fun _ -> "...") p])
+  | p -> raise
+            (Catastrophe_
+               ["multisyllable text in string_of_plan  -- ";
+                debugstring_of_plan (fun _ -> "...") p])
 
 let textlayout_of_plan = fun (Formulaplan (tl, _, _)) -> tl
 
