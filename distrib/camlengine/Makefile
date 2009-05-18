@@ -1,7 +1,12 @@
 #
 #       $Id$
 #
-#       This file is part of the jape proof engine, which is part of jape.
+#       Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
+#    
+#       richard@bornat.me.uk
+#       sufrin@comlab.ox.ac.uk
+#
+#       This file is part of the Jape source distribution.
 #       
 #       Jape is free software; you can redistribute it and/or modify
 #       it under the terms of the GNU General Public License as published by
@@ -18,11 +23,18 @@
 #       Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #       (or look at http://www.gnu.org).
 #
+
 BUILDDIR=_build$(OS)
 
+# for folks who don't have ocamlbuild, do it the old way
+
 jape_engine:: ;\
-	ocamlbuild -build-dir $(BUILDDIR) -lib unix -no-links main.native; \
-	rm -f $(BUILDDIR)/jape_engine; ln -s main.native $(BUILDDIR)/jape_engine
+	if [[ `which ocamlbuild` == "" ]]; then \
+		make -f LegacyMakefile jape_engine; \
+	else \
+		ocamlbuild -build-dir $(BUILDDIR) -lib unix -no-links main.native; \
+		rm -f $(BUILDDIR)/jape_engine; ln -s main.native $(BUILDDIR)/jape_engine ;\
+	fi
 
 # can't do ln -s on windoze, cos symbolic links only half work on Cygwin
 jape.exe::	;\
@@ -30,19 +42,6 @@ jape.exe::	;\
 		-ocamlopt ocamlopt.opt -ocamlc ocamlc.opt main.native; \
 	cp $(BUILDDIR)/main.native $(BUILDDIR)/jape.exe
 	
-#############################################################################
-#
-# this doesn't really work at present ... because all the old make stuff has been stripped away.
-# I preserve it in case my suspicion that the MinGW port runs slowly proves true.
-#
-
-makejape.bat:: ;\
-   echo cd tmp                                                 >  ../makejape.bat;\
-   make -n jape.exe | egrep -v "Entering|Leaving|up to date"   >> ../makejape.bat;\
-   echo cd ..                                                  >> ../makejape.bat;\
-   echo NOW RUN makejape.bat ON WINDOZE AND TYPE CR WHEN THROUGH;\
-   read ANSWER             
-
 #############################################################################
 #
 # For universal engines on OS X -- only on an Intel box.
@@ -64,7 +63,7 @@ OSXuniversal:: ;\
 #
 #############################################################################
 
-clean:;                 rm -fr _build$(OS) *.native
+clean:;                 rm -fr _build$(OS) *.native *.cmi *.cmo *.cmx *.o jape_engine
 cleanall:;				rm -fr _build* _log *.native
 
         
