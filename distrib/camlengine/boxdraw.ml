@@ -129,26 +129,28 @@ let measurestring = Japeserver.measurestring
 
 let consolereport = Miscellaneous.consolereport
 let cuthidingdebug = Prooftree.Tree.cuthidingdebug
-let term_of_element = Termfuns.term_of_element
 let enQuote = Stringfuns.enQuote
 let explodebinapp = Termfuns.explodebinapp
 let findfirst = Optionfuns.findfirst
-let multiassumptionlines = Miscellaneous.multiassumptionlines
 let foldformulae = Miscellaneous.foldformulae
+let idf = fun x -> x
 let isRelation = Thing.isRelation
+let multiassumptionlines = Miscellaneous.multiassumptionlines
 let string_of_pair = Stringfuns.string_of_pair
 let string_of_path = Listfuns.bracketedstring_of_list string_of_int ","
 let string_of_quadruple = Stringfuns.string_of_quadruple
-let string_of_reason = (fun s -> s)
+let string_of_reason = idf
 let screenpositiondebug = Miscellaneous.screenpositiondebug
 let string_of_seq = Sequent.string_of_seq
 let sameresource = Termfuns.sameresource
 let string_of_textbox = Box.string_of_textbox
 let string_of_triple = Stringfuns.string_of_triple
+let term_of_element = Termfuns.term_of_element
 let truncatereasons = Miscellaneous.truncatereasons
 let turnstiles = Sequent.getsyntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
 let _The = Optionfuns._The
+let (<?>) = Miscellaneous.(<?>)
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 
@@ -710,7 +712,7 @@ let rec _Cr =
      ""
 
 let rec _IDstring cids =
-  string_of_list (fun x -> x) "," ((fun s -> s <> "") <| List.map _Cr cids)
+  string_of_list idf "," ((fun s -> s <> "") <| List.map _Cr cids)
 
 let rec mapn a1 a2 a3 =
   match a1, a2, a3 with
@@ -1194,8 +1196,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                   (rightby p (2*transindent)) (* a little more indentation looks a bit better. RB 8.6.2005 *)
               in
               planfollowedby splan
-                   (plans_of_plan <.> uncurry2 plan_of_textinfo f <.> 
-                    (fun p' -> rightby p' transindent))
+                   (plans_of_plan <.> uncurry2 plan_of_textinfo f <.> (rightby <?> transindent))
             in
             doconcline mkp true (acc, just) false
           in
@@ -1385,8 +1386,8 @@ let rec draw goalopt p proof =
           in
           let y = posY pdraw in
           let idpos = pos idx y in
-          drawplan (fun i -> i) idpos idplan;
-          drawplan (fun i -> i) idpos colonplan;
+          drawplan idf idpos idplan;
+          drawplan idf idpos colonplan;
           List.iter (drawplan elementplanclass pdraw) elementsplan;
           (* consolereport ["drawing reasonplan "; 
                          bracketedstring_of_list (debugstring_of_plan string_of_reasonplankind) "; " reasonplan;
