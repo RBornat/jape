@@ -42,6 +42,7 @@ let rec curry3 f a b c = f (a, b, c)
 let rec uncurry3 f (a, b, c) = f a b c
 
 let swapargs f a b = f b a
+let (<?>) f a b = f b a (* so that I can write f <?> b *)
 
 let rec string_of_ref f {contents = a} = ("ref(" ^ f a) ^ ")"
 let rec earlierpair lta ltb (a, b) (a', b') =

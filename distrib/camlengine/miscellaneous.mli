@@ -29,12 +29,14 @@ val atoi : string -> int
 exception AtoI_
 val sum : int list -> int
 
-val iter : (int -> 'a) -> int * int -> unit
-val curry2 : ('a * 'b -> 'c) -> 'a -> 'b -> 'c
+val iter     : (int -> 'a) -> int * int -> unit
+val curry2   : ('a * 'b -> 'c) -> 'a -> 'b -> 'c
 val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-val curry3 : ('a * 'b *'c -> 'd) -> 'a -> 'b -> 'c -> 'd
+val curry3   : ('a * 'b *'c -> 'd) -> 'a -> 'b -> 'c -> 'd
 val uncurry3 : ('a -> 'b -> 'c -> 'd) -> 'a * 'b * 'c -> 'd
 val swapargs : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
+val (<?>)    : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
+
 val string_of_ref : ('a -> string) -> 'a ref -> string
 val earlierpair :
   ('a -> 'a -> bool) -> ('b -> 'b -> bool) -> ('a * 'b) -> ('a * 'b) -> bool
