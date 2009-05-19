@@ -156,13 +156,8 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	    Logger.log.println("painting WorldItem at "+getX()+","+getY());
 	g.setColor(getForeground());
 	if (g instanceof Graphics2D) {
-	    if (antialias_tracing) {
-		Logger.log.print("blob hints "+((Graphics2D)g).getRenderingHints());
-		if (Jape.onMacOSX)
-		    Logger.log.println(" hwaccel "+System.getProperty("com.apple.hwaccel"));
-		else
-		    Logger.log.println();
-	    }
+	    if (antialias_tracing) 
+		Logger.log.println("blob hints "+((Graphics2D)g).getRenderingHints());
 	    ((Graphics2D)g).fill(outline);
 	}
 	else
