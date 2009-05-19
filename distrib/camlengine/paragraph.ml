@@ -60,6 +60,7 @@ let stripextrabag = Tactic.stripextrabag
 let _The = Optionfuns._The
 let transTactic = Tactic.transTactic
 let uncurry2 = Miscellaneous.uncurry2
+let idf = fun x -> x
 
 exception ParseError_  = Miscellaneous.ParseError_
 exception Catastrophe_ = Miscellaneous.Catastrophe_
@@ -1194,7 +1195,7 @@ and paragraphs_of_file report query s =
          showInputError report ("Catastrophic input error: " :: ss);
          error_cleanup (); raise Use_
      | MalformedUTF_ ss ->
-        showInputError report ["Malformed UTF-8 input: "; string_of_list (fun s -> s) "" ss;
+        showInputError report ["Malformed UTF-8 input: "; string_of_list idf "" ss;
                                ".\n\n\
                                 Jape now works only with unicode (UTF-8/16/32) files.\n\n\
                                 (Are you perhaps reading a old unconverted non-Unicode file? If so, \

@@ -28,6 +28,7 @@
 open Sml
 
 let (<*) = Listfuns.(<*)
+let idf  = fun x -> x
     
 type element = Termtype.element
 
@@ -128,7 +129,7 @@ let rec string_of_hit a1 a2 =
       ("FormulaHit(" ^ string_of_fhit string_of_path h) ^ ")"
   | string_of_path, ReasonHit p -> ("ReasonHit(" ^ string_of_path p) ^ ")"
 
-let sstring = bracketedstring_of_list (fun s -> s) ","
+let sstring = bracketedstring_of_list idf ","
 
 let rec string_of_sel a1 a2 =
   match a1, a2 with

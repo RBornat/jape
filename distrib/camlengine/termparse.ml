@@ -557,7 +557,7 @@ let asTactic f a =
                    unclass := old_unclass; unstart := old_unstart 
   in
   undecl := (fun _ t -> t);
-  unvar := (fun t -> t);
+  unvar := (fun x -> x);
   unclass := (fun _ t -> t);
   unstart := try_negnum;
   let r =  (try f a with exn -> cleanup (); raise exn)

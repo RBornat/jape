@@ -62,6 +62,7 @@ let catelim_string_of_seq = Sequent.catelim_string_of_seq
 let consolereport = Miscellaneous.consolereport
 let drawindisproofpane () = drawinpane Displayfont.DisproofPane
 let getsemanticturnstile = Sequent.getsemanticturnstile
+let idf = fun x -> x
 let isdigit = isdigit
 let isextensibleID = Symbol.isextensibleID
 let lowercase = Stringfuns.lowercase
@@ -682,7 +683,7 @@ let rec evaldisproofstate facts tree =
                                              all fst hs && not (List.exists fst cs)
                                 ) selected
          in
-         all (fun x -> x) results)
+         all idf results)
     in
     let rec realterm t =
       match binding_of_term t with

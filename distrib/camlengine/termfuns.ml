@@ -45,6 +45,7 @@ open UTF
 
 let bracketed = Termtype.bracketed
 let debracket = Termtype.debracket
+let idf = fun x -> x
 let int_of_resnum = Termtype.int_of_resnum
 let consolereport = Miscellaneous.consolereport
 
@@ -262,7 +263,7 @@ let findhole g t =
         end
     | res -> res
   in
-  fh (fun t -> t) t
+  fh idf t
 
 let searchterm g z t =
   match findterm g t with

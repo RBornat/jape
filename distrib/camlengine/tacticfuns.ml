@@ -68,6 +68,7 @@ open Treeformat.Fmt
 open Unify
 open UTF
 
+let idf = fun x -> x
 let tryresolution = Miscellaneous.tryresolution
 let resolvepossible = Miscellaneous.resolvepossible 
 let applyautotactics = ref true
@@ -1009,7 +1010,7 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
   with
     FollowPath_ stuff ->
       showAlert ["FollowPath_ in doCUTIN: ";
-                 string_of_pair (fun s -> s) (bracketedstring_of_list string_of_int ",")
+                 string_of_pair idf (bracketedstring_of_list string_of_int ",")
                    ", " stuff];
       None
 

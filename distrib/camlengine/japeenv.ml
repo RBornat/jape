@@ -32,11 +32,12 @@ let atoi = Miscellaneous.atoi
 let bracketedstring_of_list = Listfuns.bracketedstring_of_list
 let consolereport = Miscellaneous.consolereport
 let enQuote = Stringfuns.enQuote
-let sentencestring_of_list = Listfuns.sentencestring_of_list
+let idf = fun x -> x
 let member = Listfuns.member
+let sentencestring_of_list = Listfuns.sentencestring_of_list
 let string_of_name = Name.string_of_name
-let term_of_string = Termparse.asTactic Termparse.term_of_string
 let string_of_term = Termstring.string_of_term
+let term_of_string = Termparse.asTactic Termparse.term_of_string
 
 exception AtoI_ = Miscellaneous.AtoI_
 exception Catastrophe_ = Miscellaneous.Catastrophe_
@@ -76,7 +77,7 @@ let rec string_of_japevar v =
 let rec guardedjapevar g v =
   GuardedJapevar {guard = g; var = v}
 
-let bad vals = "one of " ^ sentencestring_of_list (fun s -> s) ", " " and " vals
+let bad vals = "one of " ^ sentencestring_of_list idf ", " " and " vals
 
 let rec getjapevar =
   function

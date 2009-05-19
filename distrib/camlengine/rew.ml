@@ -49,6 +49,7 @@ open Termstring
 open Termtype
 
 let consolereport = Miscellaneous.consolereport
+let idf = fun x -> x
 let string_of_rewinf = Rewinf.string_of_rewinf
 
 let rewritedebug = ref false
@@ -376,7 +377,7 @@ let rec rew_cxt cxt =
           in
           match
             rew_2 (option_rewritelist (rew_Seq subst cxt)) ss
-              (rew_Seq subst cxt) s (fun p -> p)
+              (rew_Seq subst cxt) s idf
           with
             Some r -> yes r
           | None -> updatesig ()

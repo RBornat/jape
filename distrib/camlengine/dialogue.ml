@@ -65,7 +65,9 @@ open UTF
 exception None_ = Optionfuns.None_
 exception Use_ = Paragraph.Use_
 exception Verifyproviso_ = Provisofuns.Verifyproviso_
-       
+
+let idf = fun x -> x
+
 let resetallcachesandvariables () =
   Alert.resetalertpatches ();
   Binding.clearbindingdirectives ();
@@ -1563,7 +1565,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                    | []             -> []
                    | _  -> raise (Catastrophe_
                                     ["bad command (odd number of arguments): worldselect ";
-                                     bracketedstring_of_list (fun s -> s) "," cs])
+                                     bracketedstring_of_list idf "," cs])
                  in
                  Disproof.worldselect d (pair cs))
              disproofmove
@@ -1628,7 +1630,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        let stile = match Sequent.getsyntacticturnstiles() with
                                      [s] -> s
                                    | ss -> raise (Catastrophe_ ["makelemma with choice of turnstile ";
-                                                                bracketedstring_of_list (fun s -> s) "; " ss])
+                                                                bracketedstring_of_list idf "; " ss])
                        in
                        let druleString, thmString =
                          if not(!autoAdditiveLeft) then
@@ -1652,7 +1654,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                           None                                 -> default
                         | Some (isThm, lemma, panel, provisos) -> 
                             let provisotext = if provisos=[] then "" 
-                                              else ("WHERE " ^ string_of_list (fun s -> s) " AND " provisos)
+                                              else ("WHERE " ^ string_of_list idf " AND " provisos)
                             in
                             let nametext = (match lemma with None -> "" | Some n -> enQuote n) in
                             let text = if isThm then ("THEOREM " ^ nametext ^ " " ^ provisotext ^ " IS " ^ thmString)
@@ -1665,7 +1667,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                                      (if tsels!=[] then 
                                         [" (and you must not text-select anything! -- ";
                                          "you text-selected ";
-                                         sentencestring_of_list (fun s -> s) ", " " and " tsels;
+                                         sentencestring_of_list idf ", " " and " tsels;
                                          ")."]
                                       else 
                                         ["."]));
@@ -2010,7 +2012,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
              else default)
             
         | "setfonts", fontnames ->
-            (* let _ = consolereport ["font names now "; bracketedstring_of_list (fun s -> s) "; " fontnames] in *)
+            (* let _ = consolereport ["font names now "; bracketedstring_of_list idf "; " fontnames] in *)
             (Japeserver.setFontNames (List.map Stringfuns.disQuote fontnames); default)
             
         | "closeproof", [nstring] ->
@@ -2306,7 +2308,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         env, mbs, DontShow, pinfs
     | Japeserver.DeadGUI_ as exn -> raise exn
     | QuitJape as exn -> raise exn
-    | UTF.MalformedUTF_ ss -> showAlert ["Malformed UTF ("; string_of_list (fun s -> s) "" ss; ") in commands"];
+    | UTF.MalformedUTF_ ss -> showAlert ["Malformed UTF ("; string_of_list idf "" ss; ") in commands"];
         env, mbs, DontShow, pinfs
     | exn ->
         showAlert

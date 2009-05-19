@@ -45,6 +45,7 @@ let consolereport = Miscellaneous.consolereport
 let empty = Mappingfuns.empty
 let enQuote = Stringfuns.enQuote
 let freezesaved = Proofstore.freezesaved
+let idf = fun x -> x
 let isQuoted = Stringfuns.isQuoted
 let mkmap = Mappingfuns.mkmap
 let string_of_name = Name.string_of_name
@@ -156,7 +157,7 @@ let rec interpret
           OutOfRange_ range ->
             report
               [text; " settings are ";
-               bracketedstring_of_list (fun s -> s) ", " settings;
+               bracketedstring_of_list idf ", " settings;
                " - variable "; parseablestring_of_name var;
                " can only be set to "; range];
             raise Use_

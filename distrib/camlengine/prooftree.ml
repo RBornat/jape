@@ -210,6 +210,7 @@ module Tree : Tree with type term = Termtype.term
      and rewinf = Rewinf.rewinf
       
     let consolereport = Miscellaneous.consolereport
+    let idf = fun x -> x
     
     (* -------------------------------------------------------------------------------- *)
               
@@ -556,7 +557,7 @@ module Tree : Tree with type term = Termtype.term
                 else None   , f ns
           in
           let rec go n subt ns = check (shs subt ns) (fun ns -> n :: ns) in
-          let rec skip (l, r, tl, tr) ns = check (shs tr ns) (fun ns -> ns) in
+          let rec skip (l, r, tl, tr) ns = check (shs tr ns) idf in
           match t with
             Tip _ ->
               if null path then topres ()
@@ -683,10 +684,10 @@ module Tree : Tree with type term = Termtype.term
             string_of_triple parseablestring_of_name string_of_termlist string_of_bool "," a
       | Given g ->
           "Given" ^
-            string_of_triple (fun s -> s) string_of_int string_of_bool "," g
+            string_of_triple idf string_of_int string_of_bool "," g
       | UnRule u ->
           "Unrule" ^
-            string_of_pair (fun s -> s) (bracketedstring_of_list parseablestring_of_name ",") "," u
+            string_of_pair idf (bracketedstring_of_list parseablestring_of_name ",") "," u
     
     let string_of_ns = bracketedstring_of_list string_of_int ","
     
@@ -739,7 +740,7 @@ module Tree : Tree with type term = Termtype.term
       | _ -> raise (Catastrophe_
                ["mkUnRuleTac given "; 
                 string_of_pair 
-                  (fun s -> s) (bracketedstring_of_list string_of_term ",") "," u
+                  idf (bracketedstring_of_list string_of_term ",") "," u
                ])
     
     let step_argmap ps args =
