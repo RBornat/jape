@@ -241,6 +241,8 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
 
     /* ****************************** canvas as drop target ****************************** */
     
+    // if I knew how to deal with drags the official way, I would.
+    
     public void drop(byte dragKind, WorldItem w, int x, int y) {
 	Reply.sendCOMMAND(dragKind==MoveWorldDrag ? "moveworld" : "addworld",
 			    w.idX, w.idY, x-child.getX(), -(y-child.getY()));

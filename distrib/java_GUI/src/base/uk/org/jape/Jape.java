@@ -143,6 +143,29 @@ public class Jape implements DebugConstants {
 
     }
     
+    /* *********************************** orphaned drags cause all sorts of problems ***********************************************/
+    
+    // deal with orphaned drags, which otherwise muck things up proper
+    // on Mac OS X you get an orphaned drag if you touch the scroll ball during a drag. V annoying.
+    
+    private static RegisteredDrag dragee = null;
+    
+    public static RegisteredDrag getRegisteredDrag() {
+        return dragee;
+    }
+        
+    public static void registerDrag(RegisteredDrag rd) {
+        dragee = rd;
+    }
+    
+    public static void deregisterDrag(RegisteredDrag rd) {
+        if (dragee!=rd)
+            Alert.showErrorAlert("deregisterDrag from "+rd+" when dragee "+dragee);
+        dragee = null;
+    }
+    
+   /* ************************************************* howto do stuff messages ****************************************************/
+    
     static String howTo(String what) {
 	if (what.equals("FormulaSelect"))
 	    return LocalSettings.howToFormulaSelect +

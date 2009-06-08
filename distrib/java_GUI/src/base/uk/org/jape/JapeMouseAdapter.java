@@ -85,8 +85,13 @@ public class JapeMouseAdapter implements JapeMouseListener, MouseInputListener,
                 Logger.log.println((Object)this+" released seen without press");
             recording = false;
         }
+        // we have a released event -- but is it mine?
+        RegisteredDrag dragee = Jape.getRegisteredDrag();
+        if (dragee!=null)
+            dragee.released(e); // which will go to me if it's me that's being dragged.
+        else
 	if (significantWobble())
-	    released(e);
+	        released(e);
 	else
 	if (e.getClickCount()==2)
 	    doubleclicked(e);

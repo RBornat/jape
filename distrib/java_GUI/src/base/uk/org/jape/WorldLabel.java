@@ -96,10 +96,18 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
 	startx = e.getX(); starty = e.getY(); firstDrag = true;
     }
 
-    protected void dragged(byte dragKind, MouseEvent e) {
+    private RegisteredDrag dragee;
+    
+    protected void dragged(final byte dragKind, MouseEvent e) {
         if (firstDrag) {
             firstDrag = false;
             over = null;
+            dragee = new RegisteredDrag(){
+                public void released(MouseEvent re) {
+                    WorldLabel.this.released(dragKind, re);
+                }
+            };
+            Jape.registerDrag(dragee);
             if (labelImage==null)
                 labelImage = new LabelImage();
             layeredPane.add(labelImage, JLayeredPane.DRAG_LAYER);
@@ -144,6 +152,7 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
     }
 
     protected void released(final byte dragKind, MouseEvent e) {
+        Jape.deregisterDrag(dragee); 
 	if (DebugVars.drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged label at "+labelImage.getX()+","+labelImage.getY());

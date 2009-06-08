@@ -144,10 +144,18 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 	startx = e.getX(); starty = e.getY(); firstDrag = true;
     }
 
+    private RegisteredDrag dragee;
+    
     protected void dragged(MouseEvent e) {
 	if (firstDrag) {
 	    firstDrag = false;
 	    over = null;
+	    dragee = new RegisteredDrag(){
+	        public void released(MouseEvent re) {
+	            WorldConnector.this.released(re);
+	        }
+	    };
+	    Jape.registerDrag(dragee);
 	    Point p = SwingUtilities.convertPoint(this, e.getX(), e.getY(), layeredPane);
 	    dragLine = new DragWorldLine(from, p.x, p.y, canvas.linethickness, false);
 	    other = new DragWorldLine(to, p.x, p.y, canvas.linethickness, true);
@@ -189,6 +197,7 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
     }
 
     protected void released(MouseEvent e) {
+        Jape.deregisterDrag(dragee);
 	if (DebugVars.drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged line at "+dragLine.activex+","+dragLine.activey);

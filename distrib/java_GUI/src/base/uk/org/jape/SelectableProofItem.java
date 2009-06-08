@@ -133,9 +133,17 @@ public	class SelectableProofItem extends TextSelectableItem
 	startx = e.getX(); starty = e.getY(); firstDrag = true;
     }
     
-    public void dragged(int dragNum, MouseEvent e) {
+    private RegisteredDrag dragee = null;
+    
+    public void dragged(final int dragNum, MouseEvent e) {
 	if (firstDrag) {
 	    firstDrag = false;
+	    dragee = new RegisteredDrag(){
+	        public void released(MouseEvent re) {
+	            SelectableProofItem.this.released(dragNum, re);
+	        }
+	    };
+	    Jape.registerDrag(dragee);
 	    over = null;
 	    formulaImage = new FormulaImage();
 	    Point p = formulaImage.getImageLocation();
@@ -179,6 +187,7 @@ public	class SelectableProofItem extends TextSelectableItem
     }
     
     protected void released(int dragNum, MouseEvent e) {
+        Jape.deregisterDrag(dragee);
 	if (DebugVars.drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged formula at "+formulaImage.getX()+","+formulaImage.getY());

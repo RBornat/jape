@@ -336,11 +336,19 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	startx = e.getX(); starty = e.getY(); firstDrag = true;
     }
     
-    public void dragged(byte dragKind, MouseEvent e) {
+    private RegisteredDrag dragee = null;
+    
+    public void dragged(final byte dragKind, MouseEvent e) {
 	if (firstDrag) {
             if (DebugVars.drag_tracing)
                 Logger.log.print("starting world drag at "+e.getX()+","+e.getY());
 	    firstDrag = false;
+	    dragee = new RegisteredDrag(){
+	        public void released(MouseEvent re){
+	            WorldItem.this.released(dragKind, re);
+	        }
+	    };
+	    Jape.registerDrag(dragee);
 	    over = null;
 	    worldImage = new WorldImage(dragKind);
 	    Point p = worldImage.getImageLocation();
@@ -414,6 +422,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     }
 
     protected void released(final byte dragKind, MouseEvent e) {
+        Jape.deregisterDrag(dragee); 
 	if (DebugVars.drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged world at "+worldImage.getX()+","+worldImage.getY());

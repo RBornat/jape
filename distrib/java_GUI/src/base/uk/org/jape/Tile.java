@@ -109,11 +109,18 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
     }
 
     private TileTarget over;
-
+    private RegisteredDrag dragee = null;
+    
     protected void dragged(MouseEvent e) {
 	if (firstDrag) {
 	    firstDrag = false;
-	    over = null;
+	    dragee = new RegisteredDrag(){
+	        public void released(MouseEvent re) {
+	            Tile.this.released(re);
+	        }
+	    };
+	    Jape.registerDrag(dragee);
+	    over = null; 
 	    if (tileImage==null)
 		tileImage = new TileImage();
 	    layeredPane.add(tileImage, JLayeredPane.DRAG_LAYER);
@@ -139,21 +146,23 @@ public class Tile extends JLabel implements DebugConstants, MiscellaneousConstan
 	        TileTarget ttarget = (TileTarget)target;
 	        if (ttarget!=over) {
 	            if (over!=null) {
-	                over.dragExit(Tile.this); over=null;
+	                over.dragExit(Tile.this); 
+	                over=null;
 	            }
 	            if (ttarget!=null && ttarget.dragEnter(Tile.this))
 	                over = ttarget;
 	        }   
 	    }
-	    else
+	    else 
 	    if (over!=null) {
-                over.dragExit(Tile.this); over=null;
-            }
+	        over.dragExit(Tile.this); over=null;
+	    }
 	}
 	lastx = e.getX(); lasty = e.getY();
     }
 
     protected void released(MouseEvent e) {
+        Jape.deregisterDrag(dragee); 
 	if (DebugVars.drag_tracing)
 	    Logger.log.println("mouse released at "+e.getX()+","+e.getY()+
 			       "; dragged tile at "+tileImage.getX()+","+tileImage.getY());
