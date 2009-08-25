@@ -136,6 +136,7 @@ public class TextDialog {
 		button.addActionListener(buttonPaneListener);
 		JapeFont.setComponentFont(button, JapeFont.TEXTINPUT);
 		buttonPane.addButton(button);
+		button.setFocusable(false);
 	    }
 	    buttonPane.doLayout();
 	    display.add(buttonPane);
