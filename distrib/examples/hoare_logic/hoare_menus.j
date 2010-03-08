@@ -41,6 +41,8 @@ TACTIC perhapsconsequenceLR (tac) IS
            (SEQ "consequence(L)" fstep
                 "consequence(R)" (trueforward tac) fstep)
 
+/* left-to-right equality substitution -- i.e. given A=B, and instances of A, change them to B */
+
 TACTIC "A = .." IS
     WHEN
         (LETCONCSUBSTSEL (_E«_A/_xx»)
@@ -57,16 +59,16 @@ TACTIC "A = .." IS
                                 \of the form A=B.\n\n\
                                 \You text-selected %t and a hypothesis %t \
                                 \(%t isn't %t ...).", _A, _B=_C, _A, _B)
-                               ("OK", STOP))))
+                               ("OK", STOP) ("Huh?", Explainlefttorighttextselection))))
                 (LETHYPS _Bs
                     (ALERT ("To use equality substitution with a text selection \
                             \you must select a single hypothesis of the form A=B.\n\n\
                             \You selected %l.", (_Bs, ", ", " and "))
-                           ("OK", STOP)))
+                           ("OK", STOP) ("Huh?", Explainlefttorighttextselection)))
                 (ALERT ("To use equality substitution you must select a single \
                         \hypothesis of the form A=B.\n\n\
                         \You didn't select a hypothesis at all.")
-                       ("OK", STOP))))
+                       ("OK", STOP) ("Huh?", Explainlefttorighttextselection))))
         (LETGOAL _A
             (WHEN
                 (LETHYP (_xx=_B)
@@ -79,27 +81,27 @@ TACTIC "A = .." IS
                         (ALERT ("You are asking to rewrite %t using equality %t, left-to-right.\n\n\
                                 \But since %t doesn't occur in %t, there doesn't seem \
                                 \much point ...", _A, _xx=_B, _xx, _A)
-                               ("OK", STOP))))
+                               ("OK", STOP) ("Huh?", Explainlefttorighttextselection))))
                 (LETHYP (_B=_xx)
                     (ALERT ("To use left-to-right equality substitution without a text selection \
                             \you must select a single hypothesis of the form x=A.\n\n\
                             \You selected %t, which might work right-to-left.\n\n\
                             \Do you want to try right-to-left?", _B=_xx)
-                           ("Right to Left", "... = B") ("Cancel", STOP)))
+                           ("Right to Left", ".. = B") ("Cancel", STOP) ("Huh?", Explainlefttorighttextselection)))
                 (LETHYP (_B=_C)
                     (ALERT ("To use left-to-right equality substitution without a text selection \
                             \you must select a single hypothesis of the form x=A.\n\n\
                             \You selected %t (%t isn't a variable; neither is %t ...).", _B=_C, _B, _C)
-                           ("OK", STOP)))
+                           ("OK", STOP) ("Huh?", Explainlefttorighttextselection)))
                 (LETHYPS _Bs
                     (ALERT ("To use left-to-right equality substitution without a text selection \
                             \you must select a single hypothesis of the form x=A.\n\n\
                             \You selected %l.", (_Bs, ", ", " and "))
-                           ("OK", STOP)))
+                           ("OK", STOP) ("Huh?", Explainlefttorighttextselection)))
                 (ALERT ("To use equality substitution you must select a single \
                         \hypothesis of the form A=B.\n\n\
                         \You didn't select a hypothesis")
-                       ("OK", STOP))))
+                       ("OK", STOP) ("Huh?", Explainlefttorighttextselection))))
         (ALERT ("Please select a conclusion and an equality hypothesis")
                ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords))
 
@@ -120,16 +122,16 @@ TACTIC ".. = B" IS
                                 \of the form A=B.\n\n\
                                 \You text-selected %t and a hypothesis %t \
                                 \(%t isn't %t ...).", _A, _B=_C, _A, _C)
-                               ("OK", STOP))))
+                               ("OK", STOP) ("Huh?", Explainrighttolefttextselection))))
                 (LETHYPS _Bs
                     (ALERT ("To use equality substitution with a text selection \
                             \you must select a single hypothesis of the form A=B.\n\n\
                             \You selected %l.", (_Bs, ", ", " and "))
-                           ("OK", STOP)))
+                           ("OK", STOP) ("Huh?", Explainrighttolefttextselection)))
                 (ALERT ("To use equality substitution with a text selection \
                         \you must select a single hypothesis of the form A=B.\n\n\
                         \You didn't select a hypothesis at all.")
-                       ("OK", STOP))))
+                       ("OK", STOP) ("Huh?", Explainrighttolefttextselection))))
         (LETGOAL _A
             (WHEN
                 (LETHYP (_B=_xx)
@@ -143,30 +145,56 @@ TACTIC ".. = B" IS
                         (ALERT ("You are asking to rewrite %t using equality %t, right-to-left.\n\n\
                                 \But since %t doesn't occur in %t, there doesn't seem \
                                 \much point ...", _A, _B=_xx, _xx, _A)
-                               ("OK", STOP))))
+                               ("OK", STOP) ("Huh?", Explainrighttolefttextselection))))
                 (LETHYP (_xx=_B)
                     (ALERT ("To use right-to-left equality substitution without a text selection \
                             \you must select a single hypothesis of the form A=x.\n\n\
                             \You selected %t, which might work left-to-right.\n\n\
                             \Do you want to try left-to-right?", _xx=_B)
-                           ("Left to right", "A = ..") ("Cancel", STOP)))
+                           ("Left to right", "A = ..") ("Cancel", STOP) ("Huh?", Explainrighttolefttextselection)))
                 (LETHYP (_B=_C)
                     (ALERT ("To use right-to-leftequality-substitution without a text selection \
                             \you must select a single hypothesis of the form A=x.\n\n\
                             \You selected %t (%t isn't a variable; neither is %t ...).", _B=_C, _C, _B)
-                           ("OK", STOP)))
+                           ("OK", STOP) ("Huh?", Explainrighttolefttextselection)))
                 (LETHYPS _Bs
                     (ALERT ("To use right-to-left equality substitution without a text selection \
                             \you must select a single hypothesis of the form A=x.\n\n\
                             \You selected %l.", (_Bs, ", ", " and "))
-                           ("OK", STOP)))
+                           ("OK", STOP) ("Huh?", Explainrighttolefttextselection)))
                 (ALERT ("To use equality substitution you must select a single \
                         \hypothesis of the form A=B.\n\n\
                         \You didn't select a hypothesis")
-                       ("OK", STOP))))
+                       ("OK", STOP) ("Huh?", Explainrighttolefttextselection))))
         (ALERT ("Please select a conclusion and an equality hypothesis")
                ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords))
 
+/* one day this will be in explain_technology */
+
+TACTIC Explainlefttorighttextselection IS
+    ExplainThenStop(
+        "1. If you have a hypothesis of the form x=something and a conclusion with xs in it, \
+        \you can select (single-click) the hypothesis and the conclusion and use A=.. to \
+        \replace all the xs with somethings.\n\
+        \1a. If you text-select some of the xs then only they will be replaced by somethings.\n\n\
+        \2. If you have a hypothesis of the form something=stuff and a conclusion with somethings in it, \
+        \you can select (single-click) the hypothesis and the conclusion, and text-select the \
+        \somethings you want to replace, and then A=.. will replace the somethings by stuffs.\n\n\
+        \3. If you want to do it the other way around, try ..=B."
+    )
+    
+TACTIC Explainrighttolefttextselection IS
+    ExplainThenStop(
+        "1. If you have a hypothesis of the form something=x and a conclusion with xs in it, \
+        \you can select (single-click) the hypothesis and the conclusion and use ..=B to \
+        \replace all the xs with somethings.\n\
+        \1a. If you text-select some of the xs then only they will be replaced by somethings.\n\n\
+        \2. If you have a hypothesis of the form stuff=something and a conclusion with somethings in it, \
+        \you can select (single-click) the hypothesis and the conclusion, and text-select the \
+        \somethings you want to replace, and then ..=B will replace the somethings by stuffs.\n\n\
+        \3. If you want to do it the other way around, try A=..."
+    )
+    
 /* At present I can't see how to write a general AssocBackwards tactic, cos the environments
    keep getting muddled up. Passing (QUOTE (_A∧_B)) as an argument doesn't hack it: I'd need to
    pass a function which had its own environment. And that's a bridge too far, this week.
