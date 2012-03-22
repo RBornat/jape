@@ -1,7 +1,7 @@
 /* 
     $Id$
 
-    Copyright Â© 2003-8 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-8 Richard Bornat & Bernard Sufrin
      
 	richard@bornat.me.uk
 	sufrin@comlab.ox.ac.uk
@@ -41,6 +41,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+@SuppressWarnings("serial")
 public abstract class SurrogateWindow extends JapeWindow {
     static final String message = "Jape!";
     // private Font font = new Font("serif", Font.ITALIC+Font.BOLD, 36);
