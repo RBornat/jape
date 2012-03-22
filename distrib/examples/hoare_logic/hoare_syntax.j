@@ -48,9 +48,6 @@ INFIX   100R    → ↔ /* implies, iff */
 INFIX   120L    ∨
 INFIX   140L    ∧
 
-LEFTFIX 180 ∀ .
-LEFTFIX 180 ∃ .
-
 INFIX   300L    <   >   ≤   ≥   ≠   =  
 
 /* INFIX   350L    : */
@@ -58,6 +55,9 @@ INFIX   300L    <   >   ≤   ≥   ≠   =
 INFIX   400 L   + -
 INFIX   410 L   × ÷
 INFIX   420 R   ↑
+
+LEFTFIX 1200 ∀ .
+LEFTFIX 1200 ∃ . /* same as ¬, to allow ¬∀, ¬∃ */
 
 PREFIX  1200    ¬
 
