@@ -165,6 +165,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 	public static class LabelInsert extends Insert { }
 	public static class CommandInsert extends Insert { }
 
+	@SuppressWarnings("serial")
 	protected static abstract class PanelButton extends JButton {
 		String label;
 		PanelButton(String label) {
@@ -422,7 +423,6 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 				super.equals(o);
 		}
 
-		@SuppressWarnings("serial")
 		protected class Entry extends Component {
 			private String s;
 			public String prefix;

@@ -36,6 +36,7 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 
+@SuppressWarnings("serial")
 public abstract class JapeWindow extends JFrame {
 
 	final String title;

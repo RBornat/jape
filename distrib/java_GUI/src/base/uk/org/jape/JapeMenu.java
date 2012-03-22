@@ -304,8 +304,8 @@ public class JapeMenu implements DebugConstants {
 	    M m = (M)ebar.nextElement();
 	    if ((m.barKinds & barKind)!=0) {
 		TitledMenu menu = new TitledMenu(m.title);
-		boolean isWindowMenu = LocalSettings.windowMenuItemsTicked && 
-		                       m.title.equals("Window");
+		boolean isWindowMenu = (LocalSettings.windowMenuItemsTicked && 
+		                        m.title.equals("Window"));
 		ButtonGroup buttonGroup = isWindowMenu ? new ButtonGroup() : null;
 		if (isWindowMenu && radioIcon!=null && checkIcon!=null) {
 		    // make RadioButtons which look like CheckBoxes
@@ -1086,7 +1086,7 @@ public class JapeMenu implements DebugConstants {
 		    if (jmi!=null)
 			jmi.setEnabled(enable);
 		    else
-		    if (true || DebugVars. menuaction_tracing)
+		    if (true || DebugVars.menuaction_tracing)
 			Logger.log.println("no item "+label+" in menu "+menuname+" in window "+w);
 		}
 		else

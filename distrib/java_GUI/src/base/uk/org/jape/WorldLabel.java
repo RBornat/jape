@@ -79,7 +79,6 @@ public class WorldLabel extends TextItem implements MiscellaneousConstants {
 	});
     }
 
-    @SuppressWarnings("serial")
     class LabelImage extends DragImage {
 	public LabelImage() {
 	    super(Transparent);

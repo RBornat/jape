@@ -117,7 +117,6 @@ public	class SelectableProofItem extends TextSelectableItem
     private int startx, starty, lastx, lasty, offsetx, offsety;
     private boolean firstDrag;
 
-    @SuppressWarnings("serial")
     protected class FormulaImage extends DragImage {
 	public FormulaImage() {
 	    super(Transparent); 

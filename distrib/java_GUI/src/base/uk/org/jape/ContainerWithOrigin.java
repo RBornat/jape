@@ -242,7 +242,6 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 	}
     }
 
-    @SuppressWarnings("serial")
     protected class Child extends Container {
 	Child() { super(); setLayout(new ChildLayout()); }
 

@@ -32,6 +32,7 @@ import java.awt.Component;
 import java.util.Enumeration;
 import java.util.Vector;
 
+@SuppressWarnings("serial")
 public abstract class DragComponent extends Component {
     private Vector<DragComponent> friendv;
     

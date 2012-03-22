@@ -291,7 +291,6 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
     private int startx, starty, lastx, lasty, offsetx, offsety;
     private boolean firstDrag;
 
-    @SuppressWarnings("serial")
     protected class WorldImage extends DragImage {
 	public final byte dragKind;
 	public WorldImage(byte dragKind) {

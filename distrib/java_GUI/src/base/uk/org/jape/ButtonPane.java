@@ -77,11 +77,13 @@ public class ButtonPane extends Container implements DebugConstants {
 	public void addLayoutComponent(String s, Component c) { }
 
 	/* Adds the specified component to the layout, using the specified constraint object. */
+	@SuppressWarnings("unused")
 	public void addLayoutComponent(Component comp, Object constraints) { }
 
 	/* Invalidates the layout, indicating that if the layout manager has cached information
 	 * it should be discarded.
 	 */
+	@SuppressWarnings("unused")
 	public void invalidateLayout(Container pane) { } // we don't cache
 
 	private int leading(Dimension d) { return d.height/5; } // empirical

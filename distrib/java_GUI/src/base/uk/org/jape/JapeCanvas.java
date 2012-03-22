@@ -32,6 +32,7 @@ import java.awt.Container;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Method;
 
+@SuppressWarnings("serial")
 public abstract class JapeCanvas extends ContainerWithOrigin
 				 implements SelectionConstants {
 

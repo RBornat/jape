@@ -37,6 +37,7 @@ import java.awt.Dimension;
 
 import java.awt.event.MouseEvent;
 
+@SuppressWarnings("deprecation") // really? RB 22/03/2012
 public class LocalSettings implements SelectionConstants {
     
     // focus in panel windows

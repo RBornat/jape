@@ -30,11 +30,8 @@ package uk.org.jape;
 @SuppressWarnings("serial")
 public class WorldSelection extends CircleSelection {
 
-    private final WorldItem world;
-    
     WorldSelection(WorldItem world) {
 	super(world);
-	this.world = world;
     }
 
     /* public void repaint() {

@@ -203,6 +203,7 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
     }
 
     /* this is where the anchor policy bites */
+    @SuppressWarnings("unused")
     public void setBounds(int x, int y, int w, int h) {
 	if (view!=null) { 
 	    Point viewPos = view.getLocation();
