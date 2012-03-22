@@ -72,10 +72,9 @@ let rec drawinproofpane () = Japeserver.drawinpane proofpane
 
 type 'a plan = Formulaplan of (textlayout * textbox * 'a)
 
-let rec debugstring_of_plan f =
+let rec debugstring_of_plan f = (* was string_of_plan  *)
   fun (Formulaplan plan) ->
     "Formulaplan" ^ string_of_triple string_of_textlayout string_of_textbox f "," plan
-(* was string_of_plan  *)
 
 let rec string_of_plan  =
   function
@@ -201,9 +200,11 @@ let rec planfold thingf sepf (p, tb, plans as res) =
     |        thing :: things ->
                let thingplan = thingf thing p in
                let sepplan = sepf (nextright_of_plan thingplan)  in
-               planfold thingf sepf (nextright_of_plan sepplan, 
+               planfold thingf sepf 
+                (nextright_of_plan sepplan, 
                tb +|-|+ textbox_of_plan thingplan +|-|+ textbox_of_plan sepplan,
-               sepplan :: thingplan :: plans) things
+                 sepplan :: thingplan :: plans) 
+                things
 
 let plans_of_things thingf sepf moref things p  =
   let p', _, stuff = planfold thingf sepf (p, emptytextbox, []) things in
