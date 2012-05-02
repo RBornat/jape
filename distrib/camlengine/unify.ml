@@ -124,7 +124,7 @@ let rec abstract orig map term ps cxt =
     if !unifydebug then
       consolereport
         ["addunification ";
-         string_of_pair string_of_term string_of_term "<@>" (t1, t2)];
+         string_of_pair diag_string_of_term diag_string_of_term "<@>" (t1, t2)];
     newunifications := (t1, t2) :: !newunifications
   in
   let rec addproviso p =
@@ -147,8 +147,8 @@ let rec abstract orig map term ps cxt =
   let rec showAres m =
     fun _P r ->
       consolereport
-        ["_Abstract cxt "; string_of_vts m; " "; string_of_term _P; " => ";
-         string_of_option (fun (cxt, t) -> "cxt'," ^ string_of_term t) r]
+        ["_Abstract cxt "; string_of_vts m; " "; diag_string_of_term _P; " => ";
+         string_of_option (fun (cxt, t) -> "cxt'," ^ diag_string_of_term t) r]
   in
   let rec _Abstract a1 a2 a3 =
     match a1, a2, a3 with
@@ -280,6 +280,7 @@ let rec abstract orig map term ps cxt =
         end
       else doit ()
   | _ -> doit ()
+
 let rec whatever f cxt t =
   match f cxt t with
     None -> Some (cxt, t)
@@ -370,8 +371,8 @@ and subststep cxt =
     in
     if !unifydebug then
       consolereport
-        ["subststep rewriting "; string_of_term (registerSubst s); " => ";
-         string_of_option (string_of_pair string_of_cxt string_of_term ",") r];
+        ["subststep rewriting "; diag_string_of_term (registerSubst s); " => ";
+         string_of_option (string_of_pair string_of_cxt diag_string_of_term ",") r];
     r
 
 let rec assign (v, c) t cxt =
@@ -389,7 +390,7 @@ let rec simp cxt t = _The (whatever class__ cxt t)
 type defers = DeferAssignment | DeferAlignment | DeferSimplification
 
 let rec pp tts =
-  bracketedstring_of_list (string_of_pair string_of_term string_of_term "<@>") "," tts
+  bracketedstring_of_list (string_of_pair diag_string_of_term diag_string_of_term "<@>") "," tts
 
 let rec ppc dds =
   bracketedstring_of_list
@@ -398,14 +399,14 @@ let rec ppc dds =
           DeferAlignment -> "DeferAlignment"
         | DeferAssignment -> "DeferAssignment"
         | DeferSimplification -> "DeferSimplification")
-       (string_of_pair string_of_term string_of_term ",") ",")
+       (string_of_pair diag_string_of_term diag_string_of_term ",") ",")
     ", " dds
 
 let rec unify a1 a2 a3 a4 =
   match a1, a2, a3, a4 with
-    [], [], _, cxt -> Some cxt
+    [], [] , _    , cxt -> Some cxt
   | [], dds, false, cxt -> unifycleverly dds [] cxt
-  | [], dds, true, cxt -> unify ((snd <* dds)) [] false cxt
+  | [], dds, true , cxt -> unify ((snd <* dds)) [] false cxt
   | (t1orig, orig_of_t) :: tts, dds, progress, cxt ->
       let (cxt, t1) = simp cxt t1orig in
       let (cxt, t2) = simp cxt orig_of_t in
@@ -425,10 +426,8 @@ let rec unify a1 a2 a3 a4 =
           Unknown (_, v1, c1), Unknown (_, v2, c2) ->
             if v1 = v2 && c1 = c2 then success cxt
             else
-                (
-                   (assign (v1, c1) (reb t1orig orig_of_t t2) cxt |~~
-                    (fun _ ->
-                       assign (v2, c2) (reb orig_of_t t1orig t1) cxt)) &~~
+                ((assign (v1, c1) (reb t1orig orig_of_t t2) cxt |~~
+                    (fun _ -> assign (v2, c2) (reb orig_of_t t1orig t1) cxt)) &~~
                  success)
         | Unknown (_, v1, c1), _ ->
             begin match assign (v1, c1) (reb t1orig orig_of_t t2) cxt with
@@ -514,6 +513,7 @@ let rec unify a1 a2 a3 a4 =
                         (plusvisibleprovisos cxt [UnifiesProviso (t1, t2)])
             else None
         | _ -> None
+      
       and alignbindings ((b1s, s1s, u1s), (s_of_b, s_of_s, s_of_u)) cxt =
         let rec newb ((v1, v2), (cxt, alls, m1, m2, es)) =
           let v1 = rewrite cxt v1 in
@@ -548,6 +548,7 @@ let rec unify a1 a2 a3 a4 =
         extras @ ((news1s @ u1s) ||| (s_of_news @ s_of_u))
       in
       doit t1 t2 cxt
+
 (* This function used to be desperation, but now ....  .
    We could be into multiple possible unifications here.
    I only look for the first one.
@@ -600,6 +601,7 @@ and unifycleverly tts dds cxt =
                ["unifycleverly "; ppc (tt :: tts); " "; ppc dds])
       end
   | [] -> lastditch dds [] cxt
+
 and lastditch tts dds cxt =
   if !unifydebug then
     consolereport
@@ -691,16 +693,17 @@ and alignsubsts =
       in
         (tryalign (r1, _P1, m2) (r2, _P2, m2) |~~
          (fun _ -> tryalign (r2, _P2, m2) (r1, _P1, m1)))
+
 and unifycollections kind (e1s, s_of_e) cxt =
   let rec bk f = bracketedstring_of_list f "," in
-  let bkels = bk (debugstring_of_element string_of_term) in
+  let bkels = bk (debugstring_of_element diag_string_of_term) in
   let rec ures ((r1, t1), (r2, t2)) cxt =
     let rec rval =
       function
         (ResUnknown i as r), t ->
           begin match (resmap cxt <@> i) with
             Some (r, t) -> rval (r, t)
-          | None -> r, t
+          | None        -> r, t
           end
       | p -> p
     in
@@ -708,18 +711,17 @@ and unifycollections kind (e1s, s_of_e) cxt =
     let (r2, t2) = rval (r2, t2) in
     match r1, r2 with
       Nonum, _ -> Some cxt
-    | _, Nonum ->(* can't stop it *)
-       Some cxt
+    | _, Nonum -> Some cxt (* can't stop it *)
     | ResUnknown i1, ResUnknown i2 ->
         (* can't stop it *)
         if i1 = i2 then Some cxt
         else Some (plusresmap cxt ((i1 |-> (r2, t2))))
-    | ResUnknown i1, _ -> Some (plusresmap cxt ((i1 |-> (r2, t2))))
-    | _, ResUnknown _ -> ures ((r2, t2), (r1, t1)) cxt
+    | ResUnknown i1, _   -> Some (plusresmap cxt ((i1 |-> (r2, t2))))
+    | _, ResUnknown _    -> ures ((r2, t2), (r1, t1)) cxt
     | Resnum _, Resnum _ -> if r1 = r2 then Some cxt else None
   in
   (* even the blasted list unifier needs to know the true shape of its collection 
-   * now ... so we find the shape of the whole list, every time.  Oh dear.
+   * ... so we find the shape of the whole list, every time.  Oh dear.
    *)
   let rec collclass cxt es =
     let rec expand (e, (cxt, es)) =
@@ -1074,6 +1076,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
     | _, true, None, true -> maybedef (e1s, s_of_e)
     | _ -> dive ()
   in
+  
   let rec unifylists (e1s, s_of_e) cxt =
     let rec res rs =
       if !unifydebug then
@@ -1136,7 +1139,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
           let rec simsv =
             function
               Segvar (_, ps', Unknown _) -> ps = ps'
-            | _ -> false
+            | _                          -> false
           in
           ps, e :: takewhile simsv es, dropwhile simsv es
       | es -> [], [], es
@@ -1146,7 +1149,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
     let rec def ps svs es es' =
       res (List.concat ((ul svs es <* allsplits ps cxt es')))
     in
-    match List.length svh1s, List.length s_of_svh with
+    (match List.length svh1s, List.length s_of_svh with
       0, 0 ->
         (* the easy case *)
         begin match e1s, s_of_e with
@@ -1158,15 +1161,16 @@ and unifycollections kind (e1s, s_of_e) cxt =
                     unify [t1, t2] [] false)
                with
                  Some cxt -> unifylists (e1s, s_of_e) cxt
-               | None -> [])
+               | None     -> [])
         | el1 :: e1s, el2 :: s_of_e ->
             res (if el1 = el2 then unifylists (e1s, s_of_e) cxt else [])
         | _ -> res []
         end
     | l1, l2 ->
         if l1 <> 1 && l2 = 1 || l1 = 0 then def s_of_p s_of_svh s_of_tl e1s
-        else(* prefer s_of_e *)
+        else (* prefer s_of_e *)
          def p1s svh1s tl1s s_of_e
+    )
   in
   let rec res cs =
     if !unifydebug then
@@ -1182,8 +1186,8 @@ and unifycollections kind (e1s, s_of_e) cxt =
       raise
         (Catastrophe_
            ["unifycollections ("; string_of_idclass kind; ") (";
-            string_of_term (registerCollection (kind, e1s)); ",";
-            string_of_term (registerCollection (kind, s_of_e)); ")"])
+            diag_string_of_term (registerCollection (kind, e1s)); ",";
+            diag_string_of_term (registerCollection (kind, s_of_e)); ")"])
 and simplifydeferred pros cxt =
   (* cxt, provisos already rewritten *)
   let _ =
@@ -1278,12 +1282,12 @@ and checkdeferred (t1, t2) cxt =
 and doUnify (t1, t2) cxt =
   if !unifydebug then
     consolereport
-      ["** start doUnify"; string_of_pair string_of_term string_of_term "," (t1, t2);
+      ["** start doUnify"; string_of_pair diag_string_of_term diag_string_of_term "," (t1, t2);
        " "; string_of_cxt cxt];
   let r = unify [t1, t2] [] false cxt in
   if !unifydebug then
     consolereport
-      (["doUnify("; string_of_term t1; ","; string_of_term t2; ") "] @
+      (["doUnify("; diag_string_of_term t1; ","; diag_string_of_term t2; ") "] @
          (match r with
             Some cxt -> ["succeeds "; string_of_cxt cxt]
           | _ ->
@@ -1340,8 +1344,8 @@ let rec dropunify (target, sources) cxt =
       (Catastrophe_
          ["bad call of dropunify ("; mess; ") -- arguments ";
           string_of_pair
-            (debugstring_of_element string_of_term)
-            (bracketedstring_of_list (debugstring_of_element string_of_term) "; ") 
+            (debugstring_of_element diag_string_of_term)
+            (bracketedstring_of_list (debugstring_of_element diag_string_of_term) "; ") 
             ", " (target, sources)])
   in
   let checkout tc sc =
