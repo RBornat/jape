@@ -27,7 +27,10 @@
 
 open Termtype
 
+val termstringdebug : bool ref
+
 val string_of_term                      : term -> string
+val diag_string_of_term                 : term -> string
 val invisbracketedstring_of_term        : bool -> term -> string (* first arg sets bracketing *)
 val chooseinvisbracketedstring_of_term  : (term -> string) -> (term -> string) -> term -> string
 

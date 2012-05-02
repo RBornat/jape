@@ -43,6 +43,8 @@ open UTF
 let invisbra = offbra_as_string
 and invisket = offket_as_string
 
+let termstringdebug = ref false
+
 (************** printing out internal structure of term *************)
  
 let rec catelim_string_of_resnum r tail =
@@ -513,7 +515,9 @@ let invisbracketedstring_of_term =
   stringfn_of_catelim <.> catelim_invisbracketedstring_of_term
 
 let catelim_string_of_term = catelim_invisbracketedstring_of_term false
-let string_of_term = stringfn_of_catelim catelim_string_of_term
+let rec string_of_term = stringfn_of_catelim catelim_string_of_term
+let rec diag_string_of_term t = (if !termstringdebug then debugstring_of_term 
+                                                     else string_of_term) t
 
 let rec catelim_chooseinvisbracketedstring_of_term ivb ivk = 
   _T ivb ivk 0 false
