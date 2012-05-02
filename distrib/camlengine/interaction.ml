@@ -194,9 +194,11 @@ let rec findSelection state =
   (* only path that makes sense for what we are trying to do ... *)
   if !selectiondebug then (
      let showstrings = bracketedstring_of_list enQuote "," in
-     consolereport ["findSelection sees "; bracketedstring_of_list (string_of_hit string_of_path) "," fhits; "; ";
-										   bracketedstring_of_list (string_of_pair (string_of_fhit string_of_path) showstrings ",") "," thits; "; ";
-										   showstrings givensel]
+     consolereport ["findSelection sees "; 
+        bracketedstring_of_list (string_of_hit string_of_path) "," fhits; "; ";
+	bracketedstring_of_list 
+	        (string_of_pair (string_of_fhit string_of_path) showstrings ",") "," thits; "; ";
+	showstrings givensel]
   );
   let (conchits, hyphits, reasonhits) =
     nj_fold
