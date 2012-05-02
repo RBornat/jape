@@ -91,13 +91,13 @@ let rec lookupassoc s =
   | None                            -> None
 
 (* sameterms is used by doREPLAY (i.e. ReplayTac).  We want identity, so
-why on earth won't identity do?  Well, the answer is that even when
-replaying we have to unify ResUnknowns.  But since we do want
-identity, we surely can insist that the term mapping comes back the same.
-*)
+   why on earth won't identity do?  Well, the answer is that even when
+   replaying we have to unify ResUnknowns.  But since we do want
+   identity, we surely can insist that the term mapping comes back the same.
+ *)
 (* we should be using unifyvariousEQ, but because of a fault in the recording of
-GIVEN steps, we have to use unifyvarious.
-*)
+   GIVEN steps, we have to use unifyvarious.
+ *)
 
 let sameterms = unifyvarious
 (* fun sameterms (t1,t2) cxt = 
