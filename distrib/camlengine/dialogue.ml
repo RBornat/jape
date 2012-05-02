@@ -185,7 +185,8 @@ let defaultenv =
      "boxseldebug"          , bj                         false        Boxdraw.boxseldebug;
      "cuthidingdebug"       , bj                         false        Prooftree.Tree.cuthidingdebug;
      "debracketapplications", bj                         false        Termstring.debracketapplications;
-     "displaystyle"         , jv ["box"; "tree"]         "tree"       (Interaction.setdisplaystyle, Interaction.getdisplaystyle);
+     "displaystyle"         , jv ["box"; "tree"]         "tree"       (Interaction.setdisplaystyle, 
+      								       Interaction.getdisplaystyle);
      "disproofdebug"        , bj                         false        Disproof.disproofdebug;
      "eqalphadebug"         , bj                         false        Termfuns.eqalphadebug;
      "factsdebug"           , bj                         false        Facts.factsdebug;
@@ -208,7 +209,7 @@ let defaultenv =
      "menudebug"            , bj                         false        Menu.menudebug;
      "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
      "multiassumptionlines" , bj                         true         multiassumptionlines;
-     "multihypsel" 			, bj						 false		  Miscellaneous.multihypsel;
+     "multihypsel" 	    , bj			 false	      Miscellaneous.multihypsel;
      "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
      "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
@@ -232,6 +233,7 @@ let defaultenv =
      "tactictracing"        , bj                         false        Tacticfuns.tactictracing;
      "termfolddebug"        , bj                         false        Termfold.termfolddebug;
      "termparsedebug"       , bj                         false        Termparse.termparsedebug;
+     "termstringdebug"      , bj                         false        Termstring.termstringdebug;
      "textselectionmode"    , sj ["subformula"; "token"] "subformula" textselectionmode;
      "thingdebug"           , bj                         false        Thing.thingdebug;
      "thingdebugheavy"      , bj                         false        Thing.thingdebugheavy;
@@ -1043,7 +1045,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         if novel then
           reloadmenusandpanels Proofstore.provedordisproved (get_oplist ())
         else
-          Japeserver.panelentry (string_of_name panel) (string_of_name name) (parseablestring_of_name name);
+          Japeserver.panelentry (string_of_name panel) 
+          			(string_of_name name) (parseablestring_of_name name);
         Japeserver.selectpanelentry (string_of_name panel) (string_of_name name)
     with 
       Use_ -> ()
@@ -1072,7 +1075,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                   else
                     "\n\nTrying to read it as a sequent gave the error " :: UTF.utf8LSQUOTE ::
                       (rs @ UTF.utf8RSQUOTE :: 
-                       ".\n\nTrying to read it as a line of Japeish gave the error " :: UTF.utf8LSQUOTE ::
+                       ".\n\nTrying to read it as a line of Japeish gave the error " :: 
+                       UTF.utf8LSQUOTE ::
                        (rs' @ [UTF.utf8RSQUOTE; "."]))));
             raise AddConjecture_
       in
@@ -1169,8 +1173,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     | [] -> false
   in
   
-	let resetable () =  (* eggstolay, wormstoscratch, ... *)
-   										thingstodo () || saveable () 
+	let resetable () =  (* eggstolay, wormstoscratch, ... *) thingstodo () || saveable () 
 	in
  
   let askSave action y n cancel =
