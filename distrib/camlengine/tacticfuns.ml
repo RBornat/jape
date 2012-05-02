@@ -268,10 +268,10 @@ let (getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels, get
     match getsidedselectedtext () with
       Some (_, [_, _, [_; csel; _]], [], []) -> Some csel
     | Some (_, [], [_, _, [_; hsel; _]], []) -> Some hsel
-    | Some (_, [], [], [_; gsel; _])         -> Some gsel
+    | Some (_, [], [], [gsel])               -> Some gsel
     | _                                      -> None
   
-  and getsels =
+  and getsels = (* selections (not givensels) are before :: sel :: middle :: sel :: ... *)
     function
       x :: y :: zs -> y :: getsels zs
     | _            -> []
@@ -289,11 +289,9 @@ let (getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels, get
                 (ParseError_
                    ("Your text selection \"" :: s :: "\" doesn't parse (" :: ss @ [")"]))
         in
-        Some
-             (parseit <*
+        Some (parseit <*
               List.concat
-                (getsels gs ::
-                     ((getsels <.> thrd) <* (cs @ hs))))
+                (gs :: ((getsels <.> thrd) <* (cs @ hs))))
   in
   getsidedselectedtext, getunsidedselectedtext, getsingleargsel, getsels, getargs
 

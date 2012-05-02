@@ -1370,6 +1370,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     in
     
     let get_textselections displaystate =
+      (* it looks like selections are before :: sel :: sep :: sel :: ... -- hence getsels *)
+      (* but that's not true of the givensel(s), which are just the selected text(s) *)
       let rec getsels = 
         function
           x :: y :: zs, gs -> y :: getsels (zs, gs)
@@ -1377,12 +1379,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       in
       match findSelection displaystate with
         Some (FormulaSel (_, _, _, concsels, hypsels, givensels)) ->
-          nj_fold getsels [givensels]
-            (nj_fold getsels ((thrd <* concsels))
-               (nj_fold getsels ((thrd <* hypsels)) []))
+             nj_fold getsels ((thrd <* concsels))
+               (nj_fold getsels ((thrd <* hypsels)) givensels)
       | Some (TextSel (proofsels, givensels)) ->
-          nj_fold getsels [givensels]
-            (nj_fold getsels ((snd <* proofsels)) [])
+             nj_fold getsels (snd <* proofsels) givensels
       | _ -> []
     in
 
