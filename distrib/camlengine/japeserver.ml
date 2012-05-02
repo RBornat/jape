@@ -320,7 +320,8 @@ let rec settextselectionmode m =
            [Int (match m with
                    "subformula" -> 0
                  | "token"      -> 1
-                 | _ -> raise (Catastrophe_ ["Japeserver.settextselectionmode "; Stringfuns.enQuote m]))]
+                 | _ -> raise (Catastrophe_ ["Japeserver.settextselectionmode "; 
+                                             Stringfuns.enQuote m]))]
 
 let rec setmultihypsel m = 
   writef "SETMULTIHYPSEL %\n" 

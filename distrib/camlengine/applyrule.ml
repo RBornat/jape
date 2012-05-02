@@ -168,6 +168,7 @@ type possmatch =
 (* cxt   subgoals *)
 
 let showargs = string_of_termlist
+
 (* our sequents have to be pairs of collections *)
 let rec breakside =
   function
@@ -176,6 +177,7 @@ let rec breakside =
       raise
         (Catastrophe_
            ["breakside in applyrule given side "; debugstring_of_term t])
+
 (* once we have an answer, give me a proof tree *)
 let rec answer =
   fun
@@ -188,16 +190,23 @@ let rec answer =
       ((mkTip cxt <.>rewriteseq cxt) <* subgoals)
       (* rewrite tips here *)
       (thinnedL, thinnedR)
+
 (* filters *)
+
 let nofilter r = Some r
+
 let filter = List.filter
+
 let rec nonempty =
   function
     [] -> None
   | xs -> Some xs
+
 let rec runfilter e g =
   explain e <.> nonempty <.> filter g
+
 let showel = debugstring_of_element string_of_term
+
 let (bymatch : possmatch -> possmatch option) =
   runfilter
     (fun () ->
@@ -232,6 +241,7 @@ let (bymatch : possmatch -> possmatch option) =
                Cxtstring.string_of_cxtvarmap cxt'; "\n";
                bracketedstring_of_list Termfuns.string_of_vid ";" us]);
        r)
+
 let (sameprovisos : possmatch -> possmatch option) =
   runfilter
     (fun () ->
@@ -280,14 +290,17 @@ let rec remdupposs ps =
     | _, _ -> false
   in
   nj_fold (fun (p, ps) -> if List.exists (same p) ps then ps else p :: ps) ps []
+
 let rec takefirst =
   function
     [] -> None
   | p :: ps -> Some (answer p)
+
 let rec takeonlyone ps =
   match remdupposs ps with
     [p] -> Some (answer p)
   | _ -> failwithreason ["the rule matched the goal in more than one way"]
+
 let rec offerChoice ps =
   let ps = remdupposs ps in
   let listposs =

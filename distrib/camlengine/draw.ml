@@ -202,7 +202,7 @@ let rec planfold thingf sepf (p, tb, plans as res) =
                let sepplan = sepf (nextright_of_plan thingplan)  in
                planfold thingf sepf 
                 (nextright_of_plan sepplan, 
-               tb +|-|+ textbox_of_plan thingplan +|-|+ textbox_of_plan sepplan,
+                 tb +|-|+ textbox_of_plan thingplan +|-|+ textbox_of_plan sepplan,
                  sepplan :: thingplan :: plans) 
                 things
 
