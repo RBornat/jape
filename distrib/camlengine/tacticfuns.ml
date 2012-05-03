@@ -835,13 +835,11 @@ let rec doWITHHYPSEL try__ =
 
 let rec doMATCH
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  true, checker, ruler, (bymatch &~ filter), taker, selhyps,
-  selconcs
+  true, checker, ruler, (bymatch &~ filter), taker, selhyps, selconcs
 
 let rec doSAMEPROVISOS
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  matching, checker, ruler, (sameprovisos &~ filter), taker,
-  selhyps, selconcs
+  matching, checker, ruler, (sameprovisos &~ filter), taker, selhyps, selconcs
 
 let rec doSIMPLEAPPLY
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
@@ -863,7 +861,7 @@ let rec doRESOLVE
   (matching, checker, ruler, filter, taker, selhyps, selconcs) =
   matching, checker, resolve, filter, taker, selhyps, selconcs
 
-(* sameterms is identity (but see newjape.sml);
+(* sameterms was identity, but see comment above -- now it's unifyvarious;
    apply (no fancy resolution);
    takefirst (because proof recording doesn't identify resources)
 *)
