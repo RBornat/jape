@@ -540,10 +540,8 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
              try
                bads,
                (thinnedL, thinnedR,
-                verifyprovisos
-                  (plusprovisos cxt
-                     (impprovisos thinnedL thinnedR))) ::
-                 goods
+                verifyprovisos 
+                  (plusprovisos cxt (impprovisos thinnedL thinnedR))) :: goods
              with
                Verifyproviso_ p -> p :: bads, goods
            in
@@ -589,12 +587,11 @@ let rec apply checker filter taker selhyps selconcs stuff reason cxt =
     if !applydebug > 0 then
       consolereport
         ["apply "; step_label how; " "; showstuff stuff; " ";
-         enQuote reason; " "; string_of_seq _C];
+         enQuote reason; " "; string_of_seq _C; " "; Cxtstring.string_of_cxt cxt];
     let info =
       Info { reason = reason; kind = kind; conjecture = _C; conjectureinf = _Cinf;
              cxt = cxt; args = args; provisos = provs; antecedents = antes;
              consequent = conseq; how = how; principals = principals;
              selhyps = selhyps; selconcs = selconcs }
     in
-       subGoalsOfRule checker hiddencontexts info &~~
-       (filter &~ taker)
+       subGoalsOfRule checker hiddencontexts info &~~ (filter &~ taker)
