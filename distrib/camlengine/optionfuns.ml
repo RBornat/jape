@@ -110,7 +110,7 @@ let rec findfirst f =
     []      -> None
   | x :: xs -> match f x with
                  None -> findfirst f xs
-               | t -> t
+               | t    -> t
 
 let rec findbest f best =
   function
@@ -124,18 +124,18 @@ let rec findbest f best =
 
 let rec stripoption =
   function
-    None -> None
+    None   -> None
   | Some x -> x
 
 let rec optordefault =
   function
     Some v, _ -> v
-  | None, v -> v
+  | None  , v -> v
 
 let rec catelim_string_of_option catelim_astring aopt ss =
   match aopt with
     Some a -> "Some (" :: catelim_astring a (")" :: ss)
-  | None -> "None" :: ss
+  | None   -> "None" :: ss
 let rec string_of_option astring aopt =
   implode (catelim_string_of_option (fun a ss -> astring a :: ss) aopt [])
 
