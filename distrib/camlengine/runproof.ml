@@ -131,10 +131,10 @@ let rec addproof report query name proved =
 exception NoProof_ of string list
 (* moved out for OCaml *)
 
-let doProof report query env name stage seq (givens, pros, tac) disproofopt =
+let doProof report query env name stage seq (params, givens, pros, tac) disproofopt =
   (* ReplayTac now does all the work of setting up the parameters for a replay *)
   let tac = mkReplayTac tac in
-  let (pros', givens, seq) = compiletoprove (pros, givens, seq) in
+  let (pros', givens, seq) = compiletoprove (params, pros, givens, seq) in
   let cxt = withprovisos newcxt (mkvisproviso <* pros') in
   let oldapply = !applyconjectures in
   let oldproving = !proving in

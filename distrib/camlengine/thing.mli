@@ -52,7 +52,7 @@ val freshGiven : bool -> seq -> cxt -> (name -> bool) -> cxt * (resnum list * re
 val rearrangetoResolve : seq list -> seq -> seq list * seq
 val instantiateRule : (term, term) mapping -> (bool * proviso) list -> seq list -> seq
                    -> (term * term) list * (bool * proviso) list * seq list * seq
-val compiletoprove : proviso list * seq list * seq -> (bool * proviso) list * seq list * seq
+val compiletoprove : paraparam list * proviso list * seq list * seq -> (bool * proviso) list * seq list * seq
 val formulageneralisable : paraparam list -> term -> bool
 
 val addthing : name * thing * thingplace -> unit

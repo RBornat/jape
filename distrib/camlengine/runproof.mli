@@ -29,6 +29,7 @@ open Cxttype
 open Forcedef
 open Japeenv
 open Name
+open Paraparam
 open Proofstage
 open Proofstate
 open Proviso
@@ -45,6 +46,6 @@ val addproof   : (string list -> unit) ->
 val doProof :
   (string list -> unit) ->
     (string list * string * string * int -> bool) -> japeenv -> name ->
-    proofstage -> seq -> seq list * proviso list * tactic ->
+    proofstage -> seq -> paraparam list * seq list * proviso list * tactic ->
     (seq * model) option ->
     (name * proofstate * (seq * model) option) option

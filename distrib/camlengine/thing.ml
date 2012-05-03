@@ -596,6 +596,15 @@ let rec augment el er (conseq, antes, vars) =
  *)
 
 let rec compileR el er (params, provisos, antes, conseq) =
+  if !thingdebug then
+    consolereport ["compileR "; string_of_bool el; " "; string_of_bool er; " ";
+                   string_of_quadruple
+                     string_of_paramlist
+                     string_of_provisolist
+                     (bracketedstring_of_list string_of_seq " AND ")
+                     string_of_seq
+                     ", "
+                     (params, provisos, antes, conseq)];
   let (antes, conseq) = numberrule (antes, conseq) in
   let bodyvars =
     nj_fold (uncurry2 tmerge) ((seqvars termvars tmerge <* conseq :: antes)) []
@@ -605,13 +614,13 @@ let rec compileR el er (params, provisos, antes, conseq) =
     nj_fold
       (function
          Abstractionparam vc, vcs -> vc :: vcs
-       | _, vcs -> vcs)
+       | _,                   vcs -> vcs)
       params []
   in
   let rec isabstraction =
     function
       Id (_, v, c) -> member ((v, c), abstractions)
-    | _ -> false
+    | _            -> false
   in
   let conseq_pbs =
     try
@@ -766,7 +775,8 @@ let rec compilething name thing =
         | BadAdditivity_ ss ->
             raise
               (CompileThing_
-                 ("the autoAdditive mechanism can't be used with rule/theorem " :: string_of_name name :: " because " :: ss))
+                 ("the autoAdditive mechanism can't be used with rule/theorem " :: 
+                  string_of_name name :: " because " :: ss))
       in
       CookedRule (r1, r2, ax)
   | Theorem (params, provisos, bot) ->
@@ -1444,10 +1454,10 @@ let freshThingtoapply = ftaors freshRuletoapply freshTheoremtoapply
 
 let freshThingtosubst = ftaors freshRuletosubst freshTheoremtosubst
 
-let rec compiletoprove (pros, antes, conseq) =
+let rec compiletoprove (params, pros, antes, conseq) =
   let ((_, (_, pros', antes', conseq')), _) =
     compileR false false
-      ([], ((fun p -> true, p) <* pros), antes, conseq)
+      (params, ((fun p -> true, p) <* pros), antes, conseq)
   in
   let (antes', conseq') = numberforproof (antes', conseq') in
   pros', antes', conseq'
