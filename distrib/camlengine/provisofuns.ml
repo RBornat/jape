@@ -190,6 +190,13 @@ let rec _PROVISOq facts p =
          orelse termoccursin (debracket _P1) _P2 then No
       else *)  Maybe
 
+(* I suspect that groundedprovisos identifies provisos that don't have 
+   anything to do with 'names'. It appears to give you Some ps iff ps are those
+   provisos which are grounded, and the rest must be thrown away. So None means
+   don't change anything. It's called from prooftree when rewriting a proof tree.
+   RB 2012
+ *)
+
 (* the list of names must be sorted, which it will be if it comes out of termvars *)
 (* because of hidden provisos, this thing now gets a visproviso list *)
 (* iso means isolated, I think; so isot is an isolated term, isop an isolated proviso *)
@@ -233,8 +240,7 @@ let rec groundedprovisos names provisos =
       match split (isop <.> provisoactual) provisos with
         [], _ -> None
       | _, [] -> Some [] (* we kept them all *)
-      | isos, uses ->
-          (* we threw them all away *)
+      | isos, uses -> (* we threw them all away *)
           match
             groundedprovisos
               (nj_fold (uncurry2 tmerge)
@@ -253,9 +259,8 @@ let rec groundedprovisos names provisos =
        string_of_option vv r];
   r
 
-(* I don't know what groundedprovisos does any more, so I'm not touching it. This is useful
-   when fabricating lemmas
- *)
+(* This is useful when fabricating lemmas *)
+
 let relevantprovisos seq ps =
   let lemmavars = Sequent.seqvars termvars tmerge seq in
   (fun p -> Listfuns.sorteddiff earliervar (provisovars termvars tmerge p) lemmavars=[]) <| ps
@@ -278,23 +283,30 @@ let rec (--) xs ys =
 
 (* We find out which provisos from the set ps are independent of the set qs.
  * If op-- is the function above, p is deleted from the set qs before we start,
- * but there are other things we might want to do ...
+ * but there are other things we might want to do ... it's called with mm below
  *)
 
 let rec checker cxt (--) ps qs =
   let rec ch a1 a2 =
+    if !provisodebug then
+      consolereport ["Provisofuns.checker.ch"; 
+                     " "; bracketedstring_of_list string_of_visproviso  " AND " a1; 
+                     " "; bracketedstring_of_list string_of_visproviso  " AND " a2];
     match a1, a2 with
       [], qs -> []
     | p :: ps, qs ->
         let pp = provisoactual p in
-        let qs' = (qs -- p) in
-        if List.exists (fun q' -> pp = provisoactual q') qs' then ch ps qs' (* ?? *)
+        let qs' = (qs -- p) in (* check p against the _other_ provisos, 
+                                  when (--) is (--). Ok, but why would you _not_ do this?.
+                                *)
+        if List.exists (fun q' -> pp = provisoactual q') qs' 
+        then ch ps qs' (* discard p if there is a proviso in qs' which differs only in visibility *)
         else
           let verdict = _PROVISOq (facts qs' cxt) pp in
           if !provisodebug then
             consolereport ["Provisofuns.checker "; Cxtstring.string_of_cxt cxt;
-                           " "; string_of_proviso pp; 
-                           " "; bracketedstring_of_list (string_of_proviso <.> provisoactual) " AND " qs'; 
+                           " "; string_of_visproviso p; 
+                           " "; bracketedstring_of_list string_of_visproviso  " AND " qs'; 
                            " => "; string_of_answer verdict];
           match verdict with
             Yes   -> ch ps qs'
@@ -303,6 +315,24 @@ let rec checker cxt (--) ps qs =
   in
   ch ps qs
 
+(* remdups deals with consecutive items only. This does everything, and is parameterised too.
+   It discards things left-to-right -- i.e. it keeps the rightmost instance
+ *)
+
+let rec remalldups eq ps =
+  let rec rad ps =
+    match ps with
+      []      -> None
+    | p :: ps -> if List.exists (fun p' -> eq p p') ps then Some(anyway rad ps)
+                 else rad ps &~~ (fun ps' -> Some(p::ps'))
+  in
+    anyway rad ps
+    
+(* verifyprovisos appears to give back a minimal list of provisos that aren't trivially true
+   or dependent on each other. If it finds a violated proviso it raises Verifyproviso_.
+   RB 2012
+ *)
+ 
 (* The correct interpretation of a FRESH proviso is given by expandFreshProviso above.  
  * But elsewhere -- see exterioreqvarsq -- I have taken FRESH to mean: doesn't appear 
  * free in the base sequent.  That second interpretation applies when proving theorems:
@@ -313,7 +343,6 @@ let rec checker cxt (--) ps qs =
  * So now I use the restrictive version in verifyprovisos.
  * RB 20/i/00
  *)
-
 
 let rec verifyprovisos cxt =
   try
@@ -350,7 +379,8 @@ let rec verifyprovisos cxt =
     in
     let pros =
       let ps = unfresh @ invis in
-      let simpleps = nj_fold (simplifyProviso (facts ps cxt)) ps [] in
+      let simpleps = remalldups (fun p p' -> provisoactual p = provisoactual p') 
+                                (nj_fold (simplifyProviso (facts ps cxt)) ps []) in
       let _ =
         if !provisodebug then consolereport ["simpleps = "; vv simpleps]
       in
