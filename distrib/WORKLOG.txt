@@ -62,8 +62,18 @@ dear. Not looking forward to that.
 I hope the multi-window interface is standard Java. If not
 then I know not what to do.
 
+==
+
+TODO: fix installation-builing instructions in CommonBuildResources 
+DONE: don't forget to cvs up -A to free sticky tags when restarting at the trunk
+
 --
 
 $Log$
+Revision 1.2  2012/05/07 13:24:23  bernardsufrin
+Added -kkv
+
+
+
 
 

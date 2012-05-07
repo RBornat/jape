@@ -1,0 +1,10 @@
+$Id$
+
+If you are planning to BUILD an installation (most people don't need to)
+then read CommonBuildResources/INSTALLATIONBUILDING first.
+
+MacOSX builders can go straight to MacOSX/README_BUILD_MACOS.rtf; you
+might wonder hy that text is in .rtf form. So do I.
+ 
+
+
