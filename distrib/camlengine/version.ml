@@ -1,7 +1,6 @@
 (*
     $Id$
-
-    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-12 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -61,6 +60,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.16  2008/11/28 11:12:54  rbornat
+     I _think_ all I did was to update the copyright notice, but there may have been some cosmetic changes.
+
      Revision 1.15  2004/05/27 09:38:20  richard
      gettin ridda them tabs
 
@@ -305,5 +307,6 @@
                          Sml.string_of_chars (List.map (function '_' -> '.' | c -> c) cs)
    let _Version = get_version versionstring
    let _Title = "Jape proof engine "
+
 
 
