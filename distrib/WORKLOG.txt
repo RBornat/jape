@@ -1,0 +1,69 @@
+7/5/2012 started: Bernard Sufrin
+
+Suggestions Richard Bornat made in early May 2012 (21 years after we started Jape)
+
+Since you want to do some modifications. All except 2 are
+Java things: I think it would be a brave person who looked
+at the engine, and I don't recommend it. Though I wouldn't
+mind if you do.
+
+1. The most annoying thing I noticed is a focus problem.
+When you click on a panel button, the window focus shifts
+from the proof to the panel. It _definitely_ shouldn't. (In
+fact in the pre-Java Mac implementation, clicking on a panel
+to get it to the front of panels didn't give it focus, but I
+don't imagine that Java could do that.)
+
+2. cvs -r has stopped working (doesn't instantiate tags in
+AboutBox.java). So it all needs switching to svn or git. You
+will find, I think, that your old ssh key still works at
+sourceforge ...
+
+There will be lots of Java-ish things you might like to
+propose for us to discuss. I think a tabbed interface would
+be a mistake, because you wouldn't be able to look at proofs
+side by side. But certainly
+
+3. When you open a window it should be the same size as the
+last proof window: every other app does this, so should Jape
+
+4. It doesn't do modern scrolling in the proof window (third
+button stuff and the like)
+
+4a. something deep inside Jape seems to make the proof
+migrate up the window sometimes. I hunted it for weeks and
+now I have given up. If you fix scrolling it would be nice
+to be able to drag the proof around even if it all fits in
+the window
+
+5. Those .jp.txt extensions seem to be forced by some bit of
+Java, which won't take no for an answer
+
+6. Sizing of .ps/.pdf could be fixed. I'm embarrassed by the
+code, which will probably quickly and clearly reveal to you
+my ignorance and misunderstanding of the Java mechanisms for
+printing.
+
+--
+
+Panels originallly were floating windows. They were
+permanently above the proof windows in the Z order, they had
+smaller borders and different borders so you could tell they
+were different. None of that seemed possible in the Mac Java
+stuff, which I'm still using at present. Java I think does
+the Windoze thing: it has floating panels if you go for a
+single-window interface.
+
+another thing: I understand that from Java 7 it all goes
+over to Oracle, so the Mac hacks that I did will have to
+drop out and new Java hacks will have to be inserted. Oh
+dear. Not looking forward to that.
+
+I hope the multi-window interface is standard Java. If not
+then I know not what to do.
+
+--
+
+$ Log: $
+
+
