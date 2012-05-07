@@ -3,7 +3,7 @@
 /* 
     $Id$
 
-    Copyright © 2003-8 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-12 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -106,4 +106,5 @@ public class AboutBox {
             return "(engine) "+engineversion;
     }
 }
+
 

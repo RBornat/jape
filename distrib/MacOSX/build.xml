@@ -12,6 +12,7 @@
                     jar="../java_GUI/build/jar/OSX/Jape.jar"
                     shortname="Jape"
                     icon="java_GUI/Jape.icns"
+                    version="7.8"
                     >
             <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
             <javaproperty name="apple.awt.showGrowBox"      value="true"/>
@@ -45,3 +46,4 @@
         </exec>
     </target>
 </project>
+
