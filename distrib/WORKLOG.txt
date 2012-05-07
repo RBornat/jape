@@ -64,6 +64,6 @@ then I know not what to do.
 
 --
 
-$ Log: $
+$Log$
 
 
