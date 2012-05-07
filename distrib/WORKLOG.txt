@@ -67,6 +67,11 @@ then I know not what to do.
 TODO: fix installation-builing instructions in CommonBuildResources 
 DONE: don't forget to cvs up -A to free sticky tags when restarting at the trunk
 
+==
+
+DONE: added makedmg command to MacOSX directory
+      updated macdistrib and " README.rtf" in MacOSX directory
+
 --
 
 $Log$

@@ -1,10 +1,10 @@
-{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \paperw11900\paperh16840\margl1440\margr1440\vieww19580\viewh14580\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
 
-\f0\fs24 \cf0 Readme for jape v7_d6  (and some later versions: you can discover the precise version by looking at the Jape splash screen, or it's in the console window, on the first line).\
+\f0\fs24 \cf0 Readme for jape v7_d9  (and some later versions: you can discover the precise version by looking at the Jape splash screen, or it's in the console window, on the first line).\
 \
 
 \b 1. What's different?\
@@ -12,11 +12,12 @@
 
 \b0 Logic encodings have to declare their intention to allow multiple hypothesis selection (and at present only natural deduction and Hoare logic do that, so you can now only make single hypothesis selections in all other encodings).\
 \
-Universal engine (Intel and PowerPC) hidden away in the Jape application bundle.\
+It has proven too difficult to maintain the technology needed to produce Universal binaries; we now do only Intel binaries. \
+Jape works on Snow Leopard and Lion on intel machines, and may well work on Mountain Lion  (we would be interested to know).\
+\
 \
 Some reorganisation of code so that it's possible to develop with Eclipse.\
 \
-Now works on Leopard, with Java 1.5.\
 \
 Some minor bugs fixed in the Hoare logic encoding.\
 \
@@ -28,37 +29,27 @@ Usual moans.\
 \
 2.1. It will have bugs. Life is like that. But it doesn't have many bugs ...\
 \
-2.2. Please, please, please report bugs, deficiencies, infelicities and moans to bugs@jape.org.uk (or, if that address is temporarily down, to richard@bornat.me.uk).\
+2.2. Please, please, please report bugs, deficiencies, infelicities and moans to richard@bornat.me.uk\
 \
-2.3. I developed it and run it on the latest up-to-date Mac OS X (10.5.1 at present, and whatever Java Software update gives me). If it doesn't work for you on a less modern system, please let me know.\
-\
-2.4 It still needs Lucida Sans Unicode (see below), but STIX fonts are live (if in beta) and with a bit of coding who knows we might even be able to use them.\
+2.3. We develop and run on the latest Mac OS X on intel hardware. If it doesn't work for you on a less modern system, please let us know.\
 \
 
 \b 3. Installation\
 \
 
-\b0 3.1 Copy the application and the examples folder anywhere you like. The engine is now part of the application, so that's all you have to do.\
-\
-3.2 Anybody want to give me a tutorial on how to build a self-installing version?\
+\b0 3.1 Copy the application and the examples folder anywhere you like.\
 \
 
 \b 4. Font installation\
 \
 
-\b0 4.1 Jape runs straight out of the box using the fonts which come with OS X. But because of a bug (which I reported 
-\i ages
-\i0  ago) it's impossible to lay out the proof or conjectures windows accurately if you just use those fonts. Lines sometimes droop below the baseline! And no available font has all the glyphs we need.\
-\
-4.2 The baseline-droop problem is fixed by using a font which includes all the glyphs Jape needs. Unfortunately there isn't a public domain font which I can distribute. However, if you Google for lsansuni.ttf you will find lots of hits. I got my copy from John Wells's unicode font site at UCL. Get a copy and put it in /Library/Fonts (or in ~/Library/Fonts if you want to keep other users of your machine pure of accusations of internet piracy).\
-\
-4.3 The not-enough-glyphs problem still shows up in BAN.jt. The STIX fonts fix the problem, but I still have to overcome the fact that they have ludicrous ascent/descent figures.\
+\b0 4.1 Jape runs straight out of the box using the fonts which come with OS X. These days many available fonts have all the glyphs we need.\
 \
 
 \b 5. Launching\
 
 \b0  \
-5 Double-click Jape, or drag a .jt file onto Jape, or double-click a .jt file.  \
+5.1 Double-click Jape, then use the File menu to open a theory (.jt) file. (We are working on reconstituting the appropriate behaviour when you drop a theory file on a Jape icon)\
 \
 
 \b 6. Editing examples files\
@@ -86,10 +77,12 @@ No doubt this situation will improve. It all seems mighty silly to me.\
 \
 7.1. Please mail me lots (see 2.2 above).\
 \
-7.2 If it doesn't work for you, it doesn't work. Tell me (I don't say please -- just do it!).\
+7.2 If it doesn't work for you, it doesn't work. Tell Richard (I don't say please -- just do it!).\
 \
-7.3 If it doesn't do what you want it to, tell me.\
+7.3 If it doesn't do what you want it to, tell Richard.\
 \
 Richard Bornat, 1/ii/2008.\
+then\
+Bernard Sufrin, 7/v/2012\
 \
 }

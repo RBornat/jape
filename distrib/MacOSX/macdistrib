@@ -1,16 +1,26 @@
 #!/bin/bash
 # usage: macdistrib <tag>
-# given a jape.source directory (see sourcedistrib in CommonBuildResources), 
+# Run from MacOSX 
 # builds jape_<tag> distribution, which you have to pack up using DiskUtility (sorry)
-(cd jape.source/MacOSX; make release)
-(cd jape.source/utf8_encoder; make)
+
+make release
+
+(cd ../utf8_encoder; make)
+
 rm -fr jape_$1 jape_$1.dmg
 mkdir jape_$1 jape_$1/utf8_encoder
+
 # rsync -l because Jape.app includes a symbolic link (recommended by jarbundler.jar docs)
-rsync -rlvt jape.source/MacOSX/{build/Jape.app,README.INSTALL.MACOSX} jape_$1
-rsync -rvt jape.source/examples jape.source/MacOSX/\ README.rtf jape_$1
-rsync -rvt jape.source/utf8_encoder/{encoder.jar,README_encoder.txt} jape_$1/utf8_encoder
-rsync -rvt jape.source/CommonBuildResources/License.txt jape_$1
+
+rsync -rlvt build/Jape.app jape_$1
+rsync -rvt  ../examples \ README.rtf jape_$1
+rsync -rvt  ../utf8_encoder/{encoder.jar,README_encoder.txt} jape_$1/utf8_encoder
+rsync -rvt  ..//CommonBuildResources/License.txt jape_$1
+
+sh makedmg jape_$1
+
+
+
 
 
 

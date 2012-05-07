@@ -1,0 +1,7 @@
+#
+#       make a disk image from $1
+#
+hdiutil create -ov -puppetstrings -srcfolder $1 -format UDZO -volname $1 $1.dmg
+hdiutil internet-enable -verbose -yes $1.dmg
+
+
