@@ -4,15 +4,22 @@ HOW TO BUILD JAPE FOR A PARTICULAR MACHINE
 
 1. Be on some kind of Unix box to start with (Linux, OS X, Solaris) EVEN
 if you want to build a Windows Jape. Sorry about that: we haven't got
-round to automating the build on Windows.
+round to automating the build on Windows. 
 
-2. Get hold of a jape source distribution
-(jape.source.v<something>.tgz). Unpack it.
+Make sure you've got OCaml, ant, and Java.
 
-3. To build a Linux version, make sure you've got OCaml and Java.
+2. Get hold of a jape source distribution from the sourceforge
+jape project (checkout the distrib repository from jape 
+into a directory of your choosing -- call it $D hereafter)
 
-	cd jape.source/LinuxJape/build 
-	make distribution
+2a. cd $D/distrib
+    sh CommonBuildResources/buildbuild.sh
+    make buildinstaller.jar
+
+3. To build a Linux version
+
+        cd $D/distrib/LinuxJape/build 
+        make distribution
 
 -- it will build installLinuxJape.jar. Double-click that and follow the
 prompts to install jape in a directory of your choice.
@@ -20,12 +27,12 @@ prompts to install jape in a directory of your choice.
 4. To build a Solaris version, just as Linux but SolarisJape/build
 instead of LinuxJape/build
 
-5. To build an OS X version, see jape.source/MacOSX/README_BUILD_MACOSX_JAPE.rtf
+5. To build an OS X version, see $D/distrib/MacOSX/README_BUILD_MACOSX_JAPE.rtf
 
 6. To build a WindowsJape
 
-	cd jape.source/WindowsJape/build 
-	make distribution
+        cd $D/distrib/WindowsJape/build 
+        make distribution
 
 -- which will build makejape.bat in that directory, and then invite you
 to complete the job on a Windows box which can see this filestore.
@@ -41,9 +48,9 @@ Studio command prompt (you can't do it from a normal DOS prompt cos the
 paths aren't set up right). Then, supposing in step b you got the Z
 drive
 
-	z: 
-	cd jape.source/WindowsJape/build 
-	makejape.bat
+        z: 
+        cd $D/distrib/WindowsJape/build 
+        makejape.bat
 
 6c. After some time the OCaml compilation will complete. Go back to the
 Unix box, and press the return key. The process will complete and leave
@@ -52,10 +59,12 @@ has a Java (not Microsoft's broken version, please), double-click it and
 follows the prompts to install Jape in a directory of your choice.
 
 Richard Bornat 7/ix/2007
+Bernard Sufrin 7/v/2012
 
 Credits: Bernard Sufrin built most of the installation technology (i.e.
 the Linux/Windows/Solaris bits); Richard Bornat built the OS X bit and
 did a bit of maintenance on the rest.
+
 
 
 
