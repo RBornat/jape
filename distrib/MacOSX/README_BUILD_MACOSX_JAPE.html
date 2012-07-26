@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!-- $id:$ -->
+
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Style-Type" content="text/css"/>
+  <title>How to build Jape on Mac OS X.</title>
+</head>
+
+<body>
+
+<h1>How to build Jape on Mac OS X. (July 2012)</h1>
+
+
+<p >Currently we build OS/X Jape on Snow Leopard or Lion,
+and use OCaml 3.12 (or so).  We build Linux Jape with the
+same Ocaml version, but on a Linux machine.</p>
+
+
+
+<h2> If you want to build Jape yourself</h2>
+
+
+<p >1. Install the developer tools (get them from Apple or from a CD).</p>
+
+
+<p >1a. Make sure ant (installed by the developer tools) is
+known to the shell (and why Apple doesn't do this, I don't
+know). I added the following lines to <tt>~/.profile</tt>:</p>
+
+
+<tt><pre>
+        ## ant variables added by richard 13/ii/2008 start
+        ## Do not remove the previous line
+        
+        PATH="$PATH:/usr/share/ant/bin"
+        export PATH
+        ANTHOME="/usr/share/ant"
+        export ANTHOME
+        JAVA_HOME="/Library/Java/Home"
+        export JAVA_HOME
+        
+        ## Do not remove the next line
+        ## ant variables added by richard 13/ii/2008 end
+</pre></tt>
+
+
+
+<p >2. Install the latest OCaml to build the jape ‘engine’ (at time of writing, Jape is built using ocaml 3.12</p>
+
+
+<p >3. Get jarbundler, an ant task, to put the parts
+together and make a Mac OS X application. It's on
+sourceforge but the latest version is always available from
+the developer at <a href="http://informagen.com/JarBundler/">http://informagen.com/JarBundler/</a>.
+Follow the instructions and put <tt>jarbundler-?.?.?.jar</tt> in
+<tt>/usr/share/ant/lib</tt>.</p>
+
+<p >4. In the directory where you found this file (<tt>...../distrib/MacOSX</tt>):
+
+
+<pre>
+        <tt>make local</tt> 
+</pre>
+
+builds the engine and the GUI interface, bundles them together and puts them in <tt>./build/Jape.app</tt>
+
+<pre>
+        <tt>make run</tt> 
+</pre>
+lets you try it out. If it works, move <tt>build/Jape.app</tt> where you like, or if you want to
+construct a disk image (together with examples), run
+
+<pre>
+        <tt>sh macdistrib</tt> 
+</pre>
+
+which makes <tt>jape.<i>version</i>.dmg</tt>.
+</p>
+
+<br/><hr width="60%"/><br/>
+
+<h2>PowerPC Macs</h2>
+
+<p >If you want to make a version that runs on PowerPC and
+on Intel, you have to do a bit more, and you will have to
+find an OS/X PPC
+Ocaml that will run on your Intel machine. We ourselves
+have more or less abandoned building for PPC OS/X, since their OS
+didn't get past Leopard (10.5).</p>
+
+
+<p >5a. You have to be running on an Intel Mac, and you need two copies of Ocaml, as follows.</p>
+
+
+
+<p >5b. First install the PPC Ocaml (it will overwrite the one you already have, if any, but don't worry).</p>
+
+
+<p >5c. Squirrel away two parts of it:</p>
+
+<tt><pre>
+        sudo mv /usr/local/bin/ocamlopt /usr/local/bin/ocamloptppc
+        sudo mv /usr/local/lib/ocaml /usr/local/lib/ocamlppc
+</tt></pre>
+
+
+<p >5d. Now install the Intel OCaml.
+
+
+<tt><pre>
+        make release
+</tt></pre> 
+
+will now do the business and give you a universal ./build/Jape.app.</p>
+
+<br/><hr width="60%"/><br/>
+
+
+<h2>Contact</h2>
+<p>Build originally documented by Richard Bornat (<tt>richard@bornat.me.uk</tt>), 11th March 2009; 
+subsequently edited by Bernard Sufrin (@ <tt>cs ox ac uk</tt>), late July 2012</p>
+
+</body>
+</html>
+

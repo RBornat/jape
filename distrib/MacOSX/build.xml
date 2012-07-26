@@ -19,6 +19,11 @@
             <javaproperty name="apple.awt.antialiasing"     value="true"/>
             <javaproperty name="apple.awt.rendering"        value="quality"/>
             <javaproperty name="uk.org.jape.AppPackage"     value="$APP_PACKAGE"/>
+            <documenttype name="Jape Theory"
+                                extensions= "jt,j,jp" 
+                                ostypes=    "****" 
+                                iconfile=   "java_GUI/Jape.icns"
+                                role=       "None"/>
         </jarbundler>
             
         <!-- next bit deleted for 10.5 release 2
@@ -46,5 +51,6 @@
         </exec>
     </target>
 </project>
+
 
 

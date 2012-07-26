@@ -8,11 +8,12 @@
         <mkdir dir="build/classes"/>
         <mkdir dir="build/classes/OSX"/>
         <javac 
+            deprecation="on"
             sourcepath=""
             srcdir="src/base:src/OSX"
             destdir="build/classes/OSX"
             source="1.5"
-        	target="1.5"
+                target="1.5"
         />
     </target>
 
@@ -20,11 +21,12 @@
         <mkdir dir="build/classes"/>
         <mkdir dir="build/classes/standard"/>
         <javac 
+            deprecation="on"
             sourcepath=""
             srcdir="src/base:src/standard"
             destdir="build/classes/standard"
             source="1.5"
-        	target="1.5"
+                target="1.5"
         />
     </target>
     
@@ -72,3 +74,4 @@
     </target>
 
 </project>
+

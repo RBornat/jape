@@ -2,7 +2,7 @@
 
 Suggestions Richard Bornat made in early May 2012 (21 years after we started Jape)
 
-Since you want to do some modifications. All except 2 are
+«Since you want to do some modifications. All except 2 are
 Java things: I think it would be a brave person who looked
 at the engine, and I don't recommend it. Though I wouldn't
 mind if you do.
@@ -42,11 +42,11 @@ Java, which won't take no for an answer
 6. Sizing of .ps/.pdf could be fixed. I'm embarrassed by the
 code, which will probably quickly and clearly reveal to you
 my ignorance and misunderstanding of the Java mechanisms for
-printing.
+printing.»
 
 --
 
-Panels originallly were floating windows. They were
+«Panels originallly were floating windows. They were
 permanently above the proof windows in the Z order, they had
 smaller borders and different borders so you could tell they
 were different. None of that seemed possible in the Mac Java
@@ -60,7 +60,33 @@ drop out and new Java hacks will have to be inserted. Oh
 dear. Not looking forward to that.
 
 I hope the multi-window interface is standard Java. If not
-then I know not what to do.
+then I know not what to do.»
+
+-- (BS)
+
+«
+THOUGHT 1:
+  I'd like to systematize release numbers. We presently have
+  a scheme that I really don't understand, and if it is to
+  persist we need to work out another way of automagically
+  generating patch numbers for the distribution. If we used
+  subversion this would be easy, since we could just use the
+  largest repository index to show where all the files came
+  from.
+    
+THOUGHT 2:
+  Users don't give a flying fart about release numbers. 
+  How about
+  
+        MAJOR.date@date.time
+        
+  * It gives us  handle on where to look for the sources when something goes wrong. 
+  * It lets a user know if what s/he's using is up to date.
+  * It lets us make more than one release on a given day.
+  * It lets us associate semantic information with a relese.
+  
+  What more could one want? (This is not a rhetorical question)
+»
 
 ==
 
@@ -72,11 +98,24 @@ DONE: don't forget to cvs up -A to free sticky tags when restarting at the trunk
 DONE: added makedmg command to MacOSX directory
       updated macdistrib and " README.rtf" in MacOSX directory
 
+==
+
+DONE: fixed mac application bundler so that it makes .j and .jt files open
+      with jape automatically, and gives such files kind "Jape Theory"
+      
+      removed oddly-named, oddly-constructed " README.rtf" and replaced it 
+      with README.html
+      
+      26 July 2012 (BS)      
 --
 
 $Log$
+Revision 1.4  2012/05/07 22:35:57  bernardsufrin
+Can now generate a dmg for distribution from the command line
+
 Revision 1.2  2012/05/07 13:24:23  bernardsufrin
 Added -kkv
+
 
 
 

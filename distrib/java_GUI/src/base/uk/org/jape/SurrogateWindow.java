@@ -1,10 +1,10 @@
 /* 
     $Id$
 
-    Copyright © 2003-8 Richard Bornat & Bernard Sufrin
+    Copyright ï¿½ 2003-8 Richard Bornat & Bernard Sufrin
      
-	richard@bornat.me.uk
-	sufrin@comlab.ox.ac.uk
+        richard@bornat.me.uk
+        sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -48,52 +48,53 @@ public abstract class SurrogateWindow extends JapeWindow {
     private ImageIcon logoIcon = new ImageIcon(Images.getImage("japelogo.gif"));
 
     public SurrogateWindow(String title) {
-	super(title);
-	int hextra = 60, vextra = 60;
-	Container pane = getContentPane();
-	pane.setBackground(Color.white);
-	JPanel panel = new JPanel();
-	pane.add(panel,BorderLayout.CENTER);
-	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-	panel.setBackground(Color.white);
-	panel.add(Box.createVerticalGlue());
-	JLabel logo = new JLabel("© Richard Bornat and Bernard Sufrin 1991-2008", logoIcon, JLabel.CENTER);
-	logo.setVerticalTextPosition(SwingConstants.BOTTOM);
-	logo.setHorizontalTextPosition(SwingConstants.CENTER);
+        super(title);
+        int hextra = 60, vextra = 60;
+        Container pane = getContentPane();
+        pane.setBackground(Color.white);
+        JPanel panel = new JPanel();
+        pane.add(panel,BorderLayout.CENTER);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Color.white);
+        panel.add(Box.createVerticalGlue());
+        JLabel logo = new JLabel("\u00A9 Richard Bornat and Bernard Sufrin 1991-2012", logoIcon, JLabel.CENTER);
+        logo.setVerticalTextPosition(SwingConstants.BOTTOM);
+        logo.setHorizontalTextPosition(SwingConstants.CENTER);
         logo.setAlignmentX(Component.CENTER_ALIGNMENT);
-	panel.add(logo);
-	panel.add(Box.createVerticalGlue());
-	String version = AboutBox.getVersion();
-	if (version!=null) {
-	    vextra += 20;
-	    JLabel vlabel = new JLabel("Version "+version, JLabel.CENTER);
-	    vlabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-	    panel.add(vlabel);
-	    panel.add(Box.createVerticalGlue());
-	}
-	JLabel link = new JLabel("Freeware under GPL licence: see www.jape.org.uk", JLabel.CENTER);
+        panel.add(logo);
+        panel.add(Box.createVerticalGlue());
+        String version = AboutBox.getVersion();
+        if (version!=null) {
+            vextra += 20;
+            JLabel vlabel = new JLabel("Version "+version, JLabel.CENTER);
+            vlabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            panel.add(vlabel);
+            panel.add(Box.createVerticalGlue());
+        }
+        JLabel link = new JLabel("Freeware under GPL licence: see www.jape.org.uk", JLabel.CENTER);
         link.setAlignmentX(Component.CENTER_ALIGNMENT);
-	panel.add(link); // It ought to be in the middle ...
-	panel.add(Box.createVerticalGlue());
-	pack();
-	setSize(getWidth()+hextra, getHeight()+vextra);
-	setBar(); // by experiment, seems to be necessary before setVisible
-		  // no setVisible here ...
+        panel.add(link); // It ought to be in the middle ...
+        panel.add(Box.createVerticalGlue());
+        pack();
+        setSize(getWidth()+hextra, getHeight()+vextra);
+        setBar(); // by experiment, seems to be necessary before setVisible
+                  // no setVisible here ...
 
-	setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-	addWindowListener(new WindowAdapter() {
-	    public void windowClosing(WindowEvent e) {
-		SurrogateWindow.this.windowCloser();
-	    }
-	});
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                SurrogateWindow.this.windowCloser();
+            }
+        });
     }
 
     public int getBarKind() {
-	return JapeMenu.OTHERWINDOW_BAR;
+        return JapeMenu.OTHERWINDOW_BAR;
     }
     
     protected boolean servesAsControl() { return false; }
 
     protected abstract void windowCloser();
 }
+
 

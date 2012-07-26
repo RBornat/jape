@@ -13,11 +13,12 @@ mkdir jape_$1 jape_$1/utf8_encoder
 # rsync -l because Jape.app includes a symbolic link (recommended by jarbundler.jar docs)
 
 rsync -rlvt build/Jape.app jape_$1
-rsync -rvt  ../examples \ README.rtf jape_$1
+rsync -rvt  ../examples README.html jape_$1
 rsync -rvt  ../utf8_encoder/{encoder.jar,README_encoder.txt} jape_$1/utf8_encoder
 rsync -rvt  ..//CommonBuildResources/License.txt jape_$1
 
 sh makedmg jape_$1
+
 
 
 
