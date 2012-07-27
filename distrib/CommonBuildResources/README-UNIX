@@ -1,14 +1,13 @@
 Unix (Solaris and Linux) Jape installation
 ==========================================
 
-March 2005 (Revision 3)
-=======================
+Revised Late July 2012: $Id$
 
 
 Dependencies
 ------------
 
-        A functioning java (1.4 or later) system
+        A functioning java (1.5 or later) system
 
         A Bourne or Bourne-again shell
 
@@ -77,7 +76,7 @@ What to do
 4. Please let us know that you've succeeded (or failed) by sending a short
    message of triumph (or despair) to
 
-        japeinstall@jape.org.uk
+        japeinstall@japeforall.org.uk
 
    In case of despair, please send a log of your installation session and
    the attempted run of jape.
@@ -85,14 +84,12 @@ What to do
 Gestures in jape
 ----------------
 
-Being quad-platform, Jape is now beginning to conform to user
-interface standards.
-
 <letftclick> formula selection
 <shift-leftclick> add a formula selection, or to cancel an existing selection.
 
 <middleclick> text selection
 <shift-middleclick> extend an existing text selection
 <control-middleclick> add a text selection
+
 
 

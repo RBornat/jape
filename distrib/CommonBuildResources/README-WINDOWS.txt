@@ -1,6 +1,8 @@
 Windows (2K and XP) Jape installation
 =====================================
 
+$Id$
+
 March 2005 (Revision 4)
 =======================
 
@@ -8,7 +10,7 @@ March 2005 (Revision 4)
 You will need
 -------------
 
-        A functioning java (1.4 or later) system. Sun's standard jre
+        A functioning java (1.5 or later) system. Sun's standard jre
         for windows (available at www.javasoft.com) is good enough --
         you don't need the java development kit.
 
@@ -85,7 +87,7 @@ What to do
 5. Please let us know that you've succeeded (or failed) by sending a short
    message of triumph (or despair) to
 
-        japeinstall@jape.org.uk
+        japeinstall@japeforall.org.uk
 
    In case of despair, please send a log of your installation session and
    the attempted run of jape.        
@@ -93,8 +95,6 @@ What to do
    
 Gestures in jape
 ----------------
-
-Jape is now beginning to conform to common user interface standards.
 
 <letftclick>            formula selection
 <shift-leftclick>       add a formula selection, or to cancel an existing selection.
@@ -106,6 +106,7 @@ Jape is now beginning to conform to common user interface standards.
 Control-Z               -- undo one proof step
 Shift-Control-Z         -- redo last undone proof step
 Control-D               -- finish completed proof
+
 
 
 
