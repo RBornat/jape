@@ -1,4 +1,5 @@
-README file for text encoding
+README file for text encoding 
+$Id$
 
 1. Background
 
@@ -14,13 +15,13 @@ glyphs.
 
 Working in these fonts meant that Jape could draw the symbols it needed
 on the screen. On the Mac it was easy to use editors like BBEdit with
-the special fonts, and edit in those fonts. On Linux and on Windows it
-was never so easy (you may well ask why) and Bernard's inspired hackery,
-though it produced many generations of specially-crafted editors, never
-seemed to survive more than a couple of versions of python or whatever.
+the special fonts, and edit in those fonts. For Unix and Windows Bernard
+built a couple of editors in Python that edited in these encosings
+I never used them so I can't comment on their utility, but Bernard 
+swore by them and used them for all his other editing as well.
 
 Special fonts were nice, but they were the dickens to work with in Latex
-or whatever. I always knew that one day I'd have to change to Unicode.
+or whatever. We always knew that one day we'd have to change to Unicode.
 
 2. On to Unicode
 
@@ -46,26 +47,26 @@ your java implementation supports).
 It's a command-line program (but you can get the source and hack it if
 you want to change that).
 
-	java -jar encoderjar inputfile
+        java -jar encoderjar inputfile
 
 will translate inputfile from Konstanz and output it on the console in
 UTF-8.
 
-	java -jar encoderjar -I Konstanz inputfile
+        java -jar encoderjar -I Konstanz inputfile
 
 will do precisely the same thing.
 
-	java -jar encoderjar -I K inputfile -O U8 outputfile
+        java -jar encoderjar -I K inputfile -O U8 outputfile
 
 will do the same translation and put the result in outputfile.
 
-	java -jar encoderjar -I L inputfile
+        java -jar encoderjar -I L inputfile
 
 will translate from Laura and put the UTF-8 result on the console.
 
 And so on:
 
-	java -jar encoderjar -help
+        java -jar encoderjar -help
 
 will tell you all the things you can do, and list the encodings you can
 use.
@@ -117,3 +118,4 @@ and of course it doesn't multiply BOMs!).
 -----------------------
 
 Richard Bornat 13th April 2004
+
