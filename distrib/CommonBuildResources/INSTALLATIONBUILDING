@@ -14,7 +14,7 @@ into a directory of your choosing -- call it $D hereafter)
 
 2a. cd $D/distrib
     sh CommonBuildResources/buildbuild.sh
-    make buildinstaller.jar
+    (cd CommonBuildResources/; make buildinstaller.jar)
 
 3. To build a Linux version
 
@@ -27,7 +27,7 @@ prompts to install jape in a directory of your choice.
 4. To build a Solaris version, just as Linux but SolarisJape/build
 instead of LinuxJape/build
 
-5. To build an OS X version, see $D/distrib/MacOSX/README_BUILD_MACOSX_JAPE.rtf
+5. To build an OS X version, see $D/distrib/MacOSX/README_BUILD_MACOSX_JAPE.html
 
 6. To build a WindowsJape
 
@@ -64,6 +64,7 @@ Bernard Sufrin 7/v/2012
 Credits: Bernard Sufrin built most of the installation technology (i.e.
 the Linux/Windows/Solaris bits); Richard Bornat built the OS X bit and
 did a bit of maintenance on the rest.
+
 
 
 

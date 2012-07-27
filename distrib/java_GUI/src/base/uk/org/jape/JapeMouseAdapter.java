@@ -3,8 +3,8 @@
 
     Copyright © 2003-8 Richard Bornat & Bernard Sufrin
      
-	richard@bornat.me.uk
-	sufrin@comlab.ox.ac.uk
+        richard@bornat.me.uk
+        sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -32,21 +32,21 @@ import java.awt.event.MouseEvent;
 import javax.swing.event.MouseInputListener;
 
 public class JapeMouseAdapter implements JapeMouseListener, MouseInputListener,
-					 SelectionConstants {
+                                         SelectionConstants {
     /*
-	void mouseClicked(MouseEvent e)
-	    Invoked when the mouse has been clicked on a component.
-	void mouseEntered(MouseEvent e)
-	    Invoked when the mouse enters a component.
-	void mouseExited(MouseEvent e)
-	    Invoked when the mouse exits a component.
-	void mousePressed(MouseEvent e)
-	    Invoked when a mouse button has been pressed on a component.
-	void mouseReleased(MouseEvent e)
-	    Invoked when a mouse button has been released on a component.
+        void mouseClicked(MouseEvent e)
+            Invoked when the mouse has been clicked on a component.
+        void mouseEntered(MouseEvent e)
+            Invoked when the mouse enters a component.
+        void mouseExited(MouseEvent e)
+            Invoked when the mouse exits a component.
+        void mousePressed(MouseEvent e)
+            Invoked when a mouse button has been pressed on a component.
+        void mouseReleased(MouseEvent e)
+            Invoked when a mouse button has been released on a component.
 
-	All reasonable, except that (experimentally) mouseClicked seems to
-	mean mouseReleased in the same place as mousePressed ...
+        All reasonable, except that (experimentally) mouseClicked seems to
+        mean mouseReleased in the same place as mousePressed ...
      */
 
     // you get a click event if you press the mouse at a particular point, move it and then
@@ -61,8 +61,9 @@ public class JapeMouseAdapter implements JapeMouseListener, MouseInputListener,
         if (chasing_drag_events && recording)
             Logger.log.println((Object)this+" click missed"); 
     }
-    public final void mouseEntered(MouseEvent e) { }
-    public final void mouseExited(MouseEvent e) { }
+    
+    public void mouseEntered(MouseEvent e) { }
+    public void mouseExited(MouseEvent e) { }
     
     public final void mousePressed(MouseEvent e) {
         if (chasing_drag_events) {
@@ -73,8 +74,8 @@ public class JapeMouseAdapter implements JapeMouseListener, MouseInputListener,
 
             recording = true;
         }
-	x=e.getX(); y=e.getY(); wobble=0;
-	pressed(e);
+        x=e.getX(); y=e.getY(); wobble=0;
+        pressed(e);
     }
     
     public final void mouseReleased(MouseEvent e) {
@@ -90,32 +91,32 @@ public class JapeMouseAdapter implements JapeMouseListener, MouseInputListener,
         if (dragee!=null)
             dragee.released(e); // which will go to me if it's me that's being dragged.
         else
-	if (significantWobble())
-	        released(e);
-	else
-	if (e.getClickCount()==2)
-	    doubleclicked(e);
-	else
-	    clicked(e);
+        if (significantWobble())
+                released(e);
+        else
+        if (e.getClickCount()==2)
+            doubleclicked(e);
+        else
+            clicked(e);
     }
 
     /*
-	void mouseDragged(MouseEvent e)
-	    Invoked when a mouse button is pressed on a component and then dragged.
-	void mouseMoved(MouseEvent e)
-	    Invoked when the mouse button has been moved on a component
-	    (with no buttons no down).
-	*/
+        void mouseDragged(MouseEvent e)
+            Invoked when a mouse button is pressed on a component and then dragged.
+        void mouseMoved(MouseEvent e)
+            Invoked when the mouse button has been moved on a component
+            (with no buttons no down).
+        */
 
     public final void mouseDragged(MouseEvent e) {
-	wobble = Math.max(wobble, Math.abs(e.getX()-x)+Math.abs(e.getY()-y));
-	if (chasing_drag_events) {
-	    if (recording)
-	        Logger.log.println((Object)this+" dragged seen wobble "+wobble);
-	    else
-	        Logger.log.println((Object)this+" dragged without recording");
-	}
-	dragged(significantWobble(), e);
+        wobble = Math.max(wobble, Math.abs(e.getX()-x)+Math.abs(e.getY()-y));
+        if (chasing_drag_events) {
+            if (recording)
+                Logger.log.println((Object)this+" dragged seen wobble "+wobble);
+            else
+                Logger.log.println((Object)this+" dragged without recording");
+        }
+        dragged(significantWobble(), e);
     }
 
     public final void mouseMoved(MouseEvent e) { 
@@ -129,3 +130,4 @@ public class JapeMouseAdapter implements JapeMouseListener, MouseInputListener,
     public void clicked(MouseEvent e) { }
     public void doubleclicked(MouseEvent e) { }
 }
+
