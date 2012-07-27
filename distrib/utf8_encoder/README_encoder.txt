@@ -1,6 +1,9 @@
 README file for text encoding 
 $Id$
 
+0. Unless you have been using Jape forever and made some theories
+in the old Konstanz or Laura encodings you needn't bother with this.
+
 1. Background
 
 Jape used to use custom 8-bit fonts, exploiting the 128 characters coded
