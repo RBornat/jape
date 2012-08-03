@@ -1,15 +1,13 @@
 ﻿/* $Id$ */
 
-INITIALISE applyconjectures none
-INITIALISE tryresolution false
+INITIALISE applyconjectures     none
+INITIALISE tryresolution        false
+INITIALISE foldsequents         false
+INITIALISE multiassumptionlines false
 
-MENU "Edit"
-    RADIOBUTTON displaystyle IS
-        "Box display"   IS box
-    AND "Tree display"  IS tree
-    INITIALLY tree
-    END
-END
+USE "../useful_buttons/displaystyle in Edit menu.j"
+USE "../useful_buttons/autoselect in Edit menu.j"
+USE "../useful_buttons/applyconjectures in Edit menu.j"
 
 USE "SCS_rules.j"
 
@@ -23,5 +21,6 @@ END
 USE "sequent_problems.j"
 
 TACTIC Fail(x) IS (SEQ (EXPLAIN x) FAIL)
+
 
 
