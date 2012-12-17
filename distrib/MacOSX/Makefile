@@ -24,10 +24,12 @@
 #
 GUISOURCE=../java_GUI
 ENGINESOURCE=../camlengine
+UNSIGN=build/Jape.app/Contents/MacOS/JavaApplicationStub
 
-local:   ;      $(MAKE) engineclean engine GUIclean GUI
 
-release:         ;      $(MAKE) engineclean engine GUIclean GUI
+local:   ;      $(MAKE) engineclean engine GUIclean GUI; ruby ./macunsign $(UNSIGN)
+
+release: ;      $(MAKE) engineclean engine GUIclean GUI; ruby ./macunsign $(UNSIGN)
 
 universalrelease:         ;      $(MAKE) engineclean OSXuniversal GUIclean GUI
                                 
@@ -44,4 +46,5 @@ clean:       ; $(MAKE) engineclean GUIclean
 engineclean: ; cd $(ENGINESOURCE); $(MAKE) clean OS=OSX
 
 GUIclean:    ; ant clean; cd $(GUISOURCE); ant clean
+
 
