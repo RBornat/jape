@@ -186,7 +186,7 @@ let defaultenv =
      "cuthidingdebug"       , bj                         false        Prooftree.Tree.cuthidingdebug;
      "debracketapplications", bj                         false        Termstring.debracketapplications;
      "displaystyle"         , jv ["box"; "tree"]         "tree"       (Interaction.setdisplaystyle, 
-      								       Interaction.getdisplaystyle);
+                                                                       Interaction.getdisplaystyle);
      "disproofdebug"        , bj                         false        Disproof.disproofdebug;
      "eqalphadebug"         , bj                         false        Termfuns.eqalphadebug;
      "factsdebug"           , bj                         false        Facts.factsdebug;
@@ -209,7 +209,7 @@ let defaultenv =
      "menudebug"            , bj                         false        Menu.menudebug;
      "minwastedebug"        , bj                         false        Minwaste.minwastedebug;
      "multiassumptionlines" , bj                         true         multiassumptionlines;
-     "multihypsel" 	    , bj			 false	      Miscellaneous.multihypsel;
+     "multihypsel"          , bj                         false        Miscellaneous.multihypsel;
      "outerassumptionplural", ajd                                     Boxdraw.outerassumptionplural;
      "outerassumptionword"  , ajd                                     Boxdraw.outerassumptionword;
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
@@ -451,47 +451,47 @@ let badsel ss = showAlert ss; raise (Applycommand_ None)
  * do? At present we assume that if LETHYPSUBSTSEL fails, either you didn't text-select anything
  * or it wasn't in a hypothesis. The sort of thing you have to write is this (from hoare_problems.j)
  
-	  MACRO rwMenu (tac, label, dir, shape, pat) IS
-	   WHEN
-		 (LETHYPSUBSTSEL pat tac)
-		 (LETHYPSUBSTSEL (_BÇ_A/_xxÈ)
-			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
-					 \You subformula-selected %t, which isn't of the right form.", 
-					 label, dir, shape, _A)
-					("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
-		 (LETCONCSUBSTSEL pat tac)
-		 (LETCONCSUBSTSEL (_BÇ_A/_xxÈ)
-			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
-					 \You subformula-selected %t, which isn't of the right form.", 
-					 label, dir, shape, _A)
-					("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
-		 (LETARGSEL _A
-			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
-					 \You managed (using token selection, perhaps?) to select %t, which isn't a subformula.", 
-					 label, dir, shape, _A)
-					("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
-		 (LETMULTIARG _A
-			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
-					 \You subformula-selected %l.\
-					 \\n\n\
-					 \Multiple identical subformula selections are allowed, but your \
-					 \selections weren't identical (or, if they are identical, they aren't subformulae!).", 
-					 label, dir, shape, (_A, ", ", " and "))
-					("OK", STOP)))
-		 (LETHYP pat tac)
-		 (LETHYP _A
-			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
-					 \You selected the hypothesis %t, which is of the wrong form.", label, dir, shape, _A)
-					("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)))
-		 (LETCONC pat tac)
-		 (LETCONC _A
-			 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
-					 \You selected the conclusion %t, which is of the wrong form.", label, dir, shape, _A)
-					("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)))
-		 (LETGOAL pat tac)
-		 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
-				 \You didn't select or subformula-select anything", label, dir, shape)
-				("OK", STOP) ("Huh?", SEQ (SHOWHOWTO "FormulaSelect") (SHOWHOWTO "TextSelect")))
+          MACRO rwMenu (tac, label, dir, shape, pat) IS
+           WHEN
+                 (LETHYPSUBSTSEL pat tac)
+                 (LETHYPSUBSTSEL (_Bï¿½_A/_xxï¿½)
+                         (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                                         \You subformula-selected %t, which isn't of the right form.", 
+                                         label, dir, shape, _A)
+                                        ("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
+                 (LETCONCSUBSTSEL pat tac)
+                 (LETCONCSUBSTSEL (_Bï¿½_A/_xxï¿½)
+                         (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                                         \You subformula-selected %t, which isn't of the right form.", 
+                                         label, dir, shape, _A)
+                                        ("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
+                 (LETARGSEL _A
+                         (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                                         \You managed (using token selection, perhaps?) to select %t, which isn't a subformula.", 
+                                         label, dir, shape, _A)
+                                        ("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
+                 (LETMULTIARG _A
+                         (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                                         \You subformula-selected %l.\
+                                         \\n\n\
+                                         \Multiple identical subformula selections are allowed, but your \
+                                         \selections weren't identical (or, if they are identical, they aren't subformulae!).", 
+                                         label, dir, shape, (_A, ", ", " and "))
+                                        ("OK", STOP)))
+                 (LETHYP pat tac)
+                 (LETHYP _A
+                         (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                                         \You selected the hypothesis %t, which is of the wrong form.", label, dir, shape, _A)
+                                        ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)))
+                 (LETCONC pat tac)
+                 (LETCONC _A
+                         (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                                         \You selected the conclusion %t, which is of the wrong form.", label, dir, shape, _A)
+                                        ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)))
+                 (LETGOAL pat tac)
+                 (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
+                                 \You didn't select or subformula-select anything", label, dir, shape)
+                                ("OK", STOP) ("Huh?", SEQ (SHOWHOWTO "FormulaSelect") (SHOWHOWTO "TextSelect")))
  
   * What's happening is that we try LETHYPSUBSTSEL on 'pat'; if it succeeds we go ahead. If it fails,
   * we try to see if we have another kind of substitution selected, then we do the same with
@@ -529,11 +529,11 @@ let pointToSequent displaystate env comm
                 [path, _] -> doit path
               | [] ->
                   badsel ["that is a dead hypothesis -- there are no unproved \
-											  conclusions to which it is relevant."]
+                                                                                          conclusions to which it is relevant."]
               | _ ->
                   badsel ["there is more than one unproved conclusion which \
-											   corresponds to that hypothesis - you must \
-											   select one of them as well as the hypothesis."]
+                                                                                           corresponds to that hypothesis - you must \
+                                                                                           select one of them as well as the hypothesis."]
               )
           | Some _ -> badsel ["that conclusion is already proved."]
       else doit target
@@ -551,13 +551,13 @@ let nohitcommand displaystate env textselopt comm done__
           Some (proofsels, givensels) ->
             (* this should be in Interaction *)
             Some(nj_fold
-				   (function
-					  (ConcHit  (cp, c)     , ss), (cs, hs, gs) -> (cp, c, ss) :: cs, hs, gs
-					| (HypHit   (hp, h)     , ss), (cs, hs, gs) -> cs, (hp, h, ss) :: hs, gs
-					| (AmbigHit (_, (hp, h)), ss), (cs, hs, gs) -> cs, (hp, h, ss) :: hs, gs)
-				   proofsels ([], [], givensels))
-	    | None -> None
-	  in
+                                   (function
+                                          (ConcHit  (cp, c)     , ss), (cs, hs, gs) -> (cp, c, ss) :: cs, hs, gs
+                                        | (HypHit   (hp, h)     , ss), (cs, hs, gs) -> cs, (hp, h, ss) :: hs, gs
+                                        | (AmbigHit (_, (hp, h)), ss), (cs, hs, gs) -> cs, (hp, h, ss) :: hs, gs)
+                                   proofsels ([], [], givensels))
+            | None -> None
+          in
       let target =
         match !seektipselection, allTipConcs tree with
           _, [path, _] -> path
@@ -577,33 +577,33 @@ let nohitcommand displaystate env textselopt comm done__
              | Some([],[hp,_,_],_) -> hp
              | _ -> rootPath tree (* which is probably the wrong thing entirely *))
       in
-	   if !selectiondebug then
-		 consolereport ["inside nohitcommand with target "; string_of_path target; 
-						"; allTipConcs says "; 
-						  bracketedstring_of_list 
-							(string_of_pair string_of_path 
-							  (bracketedstring_of_list string_of_element ";") ",") ";" (allTipConcs tree);
-						"; rootPath says "; string_of_path (rootPath tree)];
+           if !selectiondebug then
+                 consolereport ["inside nohitcommand with target "; string_of_path target; 
+                                                "; allTipConcs says "; 
+                                                  bracketedstring_of_list 
+                                                        (string_of_pair string_of_path 
+                                                          (bracketedstring_of_list string_of_element ";") ",") ";" (allTipConcs tree);
+                                                "; rootPath says "; string_of_path (rootPath tree)];
       selections :=
         (match textsels with 
            Some (concsels, hypsels, givensels) -> Some (target, None, [], concsels, hypsels, givensels)
          | None                                -> None)
       ;
-	  if !selectiondebug then
-		consolereport ["selections now ";
-		  string_of_option 
-			(string_of_sextuple
-			   string_of_path 
-			   (string_of_option (string_of_pair string_of_element (string_of_option string_of_side) ","))
-			   (bracketedstring_of_list string_of_element ";")
-			   (bracketedstring_of_list 
-				 (string_of_triple string_of_path
-								   (string_of_pair string_of_element (string_of_option string_of_side) ",")
-								   (bracketedstring_of_list enQuote ";") ",") ";")
-			   (bracketedstring_of_list 
-				 (string_of_triple string_of_path string_of_element (bracketedstring_of_list enQuote ";") ",") ";")
-			   (bracketedstring_of_list enQuote ";") ","
-			) !selections];
+          if !selectiondebug then
+                consolereport ["selections now ";
+                  string_of_option 
+                        (string_of_sextuple
+                           string_of_path 
+                           (string_of_option (string_of_pair string_of_element (string_of_option string_of_side) ","))
+                           (bracketedstring_of_list string_of_element ";")
+                           (bracketedstring_of_list 
+                                 (string_of_triple string_of_path
+                                                                   (string_of_pair string_of_element (string_of_option string_of_side) ",")
+                                                                   (bracketedstring_of_list enQuote ";") ",") ";")
+                           (bracketedstring_of_list 
+                                 (string_of_triple string_of_path string_of_element (bracketedstring_of_list enQuote ";") ",") ";")
+                           (bracketedstring_of_list enQuote ";") ","
+                        ) !selections];
       docommand displaystate env target comm state
     with
       Applycommand_ sopt -> apply_cleanup (); sopt
@@ -1046,7 +1046,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           reloadmenusandpanels Proofstore.provedordisproved (get_oplist ())
         else
           Japeserver.panelentry (string_of_name panel) 
-          			(string_of_name name) (parseablestring_of_name name);
+                                (string_of_name name) (parseablestring_of_name name);
         Japeserver.selectpanelentry (string_of_name panel) (string_of_name name)
     with 
       Use_ -> ()
@@ -1173,8 +1173,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     | [] -> false
   in
   
-	let resetable () =  (* eggstolay, wormstoscratch, ... *) thingstodo () || saveable () 
-	in
+        let resetable () =  (* eggstolay, wormstoscratch, ... *) thingstodo () || saveable () 
+        in
  
   let askSave action y n cancel =
     Alert.askDangerously
@@ -1183,7 +1183,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       ("Don't save", (fun () -> n)) (fun () -> cancel) ()
   in
 
-	  let askResettheory anyway =
+          let askResettheory anyway =
     if resetable () then
       if needssaving () then
         askSave "erasing the current theory" true true false
@@ -2313,6 +2313,10 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     | QuitJape as exn -> raise exn
     | UTF.MalformedUTF_ ss -> showAlert ["Malformed UTF ("; string_of_list idf "" ss; ") in commands"];
         env, mbs, DontShow, pinfs
+    | FindTip_ -> 
+            showAlert ["A conclusion should be selected; and none is."];
+            env, mbs, DontShow, pinfs
+
     | exn ->
         showAlert
           ["unexpected exception "; Printexc.to_string exn; " in commands"];
@@ -2327,4 +2331,5 @@ and start () =
   initButtons ();
   main (defaultenv (), [], []) (Array.to_list Sys.argv, []); (* empty environment ... ?? *)
   ()
+
 
