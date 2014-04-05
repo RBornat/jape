@@ -44,7 +44,7 @@ public class AboutBox {
              (guiversion==null ? ",\n" : ", ") + "working with Jape proof engine version "+engineversion)+
             ".\n\n"+
             
-            "Jape engine and GUI copyright © 2003-12 Richard Bornat & Bernard Sufrin.\n\n"+
+            "Jape engine and GUI copyright © 2003-14 Richard Bornat & Bernard Sufrin.\n\n"+
             
             "Jape is free software; you can redistribute it and/or modify it under\n"+
             "the terms of the GNU General Public License as published by the Free\n"+
@@ -106,5 +106,6 @@ public class AboutBox {
             return "(engine) "+engineversion;
     }
 }
+
 
 
