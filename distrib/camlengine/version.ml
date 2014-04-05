@@ -24,7 +24,7 @@
 
 *)
 
-(*
+(* THESE ARE OLD RECORDS
   4.1: first public release of version 4.         BAS.
   4.2: boxdraw made much prettier.                BAS.
   4.3: removed infix to allow compilation by
@@ -60,6 +60,9 @@
   (* experimental comment 
      $Name$
      $Log$
+     Revision 1.17  2012/05/07 15:53:31  bernardsufrin
+     Tickled version.ml copyright
+
      Revision 1.16  2008/11/28 11:12:54  rbornat
      I _think_ all I did was to update the copyright notice, but there may have been some cosmetic changes.
 
@@ -307,6 +310,7 @@
                          Sml.string_of_chars (List.map (function '_' -> '.' | c -> c) cs)
    let _Version = get_version versionstring
    let _Title = "Jape proof engine "
+
 
 
 
