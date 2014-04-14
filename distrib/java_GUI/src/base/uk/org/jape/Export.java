@@ -3,8 +3,8 @@
 
     Copyright © 2003-8 Richard Bornat & Bernard Sufrin
 
-	richard@bornat.me.uk
-	sufrin@comlab.ox.ac.uk
+        richard@bornat.me.uk
+        sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -54,8 +54,8 @@ public class Export {
                     (what == PrintProof.BOTH ? JapeMenu.EXPORT :
                         what == PrintProof.PROOF ? JapeMenu.EXPORT_PROOF :
                             JapeMenu.EXPORT_DISPROOF)+
-                            " produces PostScript (ps) files.  The OS X Print dialog can produce a pdf (using 'Save as PDF' or 'Preview').",
-                            0);
+                            " produces a PostScript (ps) file of the proof.\nSelecting pdf here will invoke the OS/X print dialogue -- the Print menu entry is a more convenient way of doing this",
+                            1);
             if (q==0) {
                 PrintProof.printTichy(w, what);
                 return;
@@ -79,7 +79,7 @@ public class Export {
                             what == PrintProof.PROOF ? "proof image" :
                         "disproof image"),
                         ((JFrame)w).getTitle(),
-                        "ps");	  
+                        "ps");    
                 if (outputFileName.equals(""))
                     return;
 
@@ -100,6 +100,7 @@ public class Export {
             }
     }
 }
+
 
 
 

@@ -30,14 +30,15 @@ package uk.org.jape;
 @SuppressWarnings("serial")
 public class MenuHolder extends SurrogateWindow {
     public MenuHolder() {
-        super("menu holder");
+        super("Jape (menu)");
     }
 
     protected void windowCloser() {
         Alert.showAlert(Alert.Info, "This window is only here so that the File and Windows "+
                         "menus show in the title bar.\n\n"+
-                        "It will disappear as soon as you have any panels or proof windows "+
+                        "It will disappear as soon as you have loaded a theory and have panels or proof windows "+
                         "(and reappear whenever there are none).");
     }
 }
+
 
