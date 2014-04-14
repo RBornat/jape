@@ -310,8 +310,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                                 public void windowClosing(WindowEvent e) {
                                         Alert.showAlert(PanelWindow.this, Alert.Info,
                                                         new String[] {
-                                                        "You can't close a Jape panel: it's needed!",
-                                                        "(and if only I knew how to grey out the close button ...)"
+                                                        "This kind of Jape window cannot be closed until you leave Jape."
                                         });
                                 }
                                 public void windowActivated(WindowEvent e) {
@@ -798,4 +797,5 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 mustFindPanel(panel).selectEntry(entry);
         }
 }
+
 
