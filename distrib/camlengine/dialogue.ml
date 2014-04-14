@@ -2155,7 +2155,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let hypword hs ss =
               match hs with
                 [h] -> "hypothesis " :: string_of_element h :: ss
-              | _   -> "hypotheses " ::  sentencestring_of_list string_of_element ", " "and " hs :: ss
+              | _   -> "hypotheses " ::  sentencestring_of_list string_of_element ", " " and " hs :: ss
             in
             let bang f = "double-click is not defined on " :: f () in
             let comm sense ps ss =
@@ -2331,5 +2331,6 @@ and start () =
   initButtons ();
   main (defaultenv (), [], []) (Array.to_list Sys.argv, []); (* empty environment ... ?? *)
   ()
+
 
 
