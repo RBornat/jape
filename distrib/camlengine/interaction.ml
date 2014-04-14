@@ -196,9 +196,9 @@ let rec findSelection state =
      let showstrings = bracketedstring_of_list enQuote "," in
      consolereport ["findSelection sees "; 
         bracketedstring_of_list (string_of_hit string_of_path) "," fhits; "; ";
-	bracketedstring_of_list 
-	        (string_of_pair (string_of_fhit string_of_path) showstrings ",") "," thits; "; ";
-	showstrings givensel]
+        bracketedstring_of_list 
+                (string_of_pair (string_of_fhit string_of_path) showstrings ",") "," thits; "; ";
+        showstrings givensel]
   );
   let (conchits, hyphits, reasonhits) =
     nj_fold
@@ -398,10 +398,12 @@ let rec getCommand displayopt =
             Some s ->
               HitCommand (_The (storedProof (getdisplay ())), h, s)
           | None ->
-              raise
+              (* raise
                 (Catastrophe_
                    ["getCommand (interaction) sees hit but not selection: ";
-                    text])
+                    text]) *)
+                showAlert("You double-clicked on a greyed out formula\n(this has no effect)");
+                getCommand displayopt             
           end
       | None ->
           raise
@@ -526,3 +528,4 @@ let rec alterTip displaystate cxt gpath tree root ((selishyp, selpath, selel), s
       (Selection_
          ["your selection "; string_of_path selpath;
           " wasn't on the path to the goal "; string_of_path wholepath])
+
