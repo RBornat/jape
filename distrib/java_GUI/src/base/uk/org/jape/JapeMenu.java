@@ -471,7 +471,7 @@ public class JapeMenu implements DebugConstants {
     private static class CopyProofAction extends ItemAction {
         public void action (Window w) {
             Alert.showAlert(Alert.Info,
-                            "Copy Proof doesn't work yet -- but Export (see File menu) can make a "+
+                            "Copy Proof doesn't do anything yet. Export (see File menu) can make a "+
                             (Jape.onMacOSX ? "pdf or ps" : "PostScript (ps)")+" file");
         }
     }
@@ -509,7 +509,7 @@ public class JapeMenu implements DebugConstants {
             else
                 Alert.abort("CopyAsciiAction on non-proof window");
         }
-    } */
+    } */ 
 
     private static class DebugSettingsAction extends ItemAction {
         public void action (Window w) {
@@ -616,6 +616,15 @@ public class JapeMenu implements DebugConstants {
     
     private static class TextCommandAction extends ItemAction {
         public void action(Window w) { TextDialog.runTextCommandDialog(); }
+    }
+    
+    private static class TacticCommandAction extends ItemAction {
+        public void action(Window w) { 
+            if (w instanceof ProofWindow)
+                TextDialog.runTacticCommandDialog();
+            else
+                Alert.abort("You can't apply a tactic from a non-proof window");
+        }
     }
     
     
@@ -755,7 +764,7 @@ public class JapeMenu implements DebugConstants {
         
         indexMenuItem(filemenu, "Font Sizes ...", new FontSizesAction());
         if (DebugVars.showDebugVars) {
-            indexMenuItem(filemenu, "Debug Settings ...", new DebugSettingsAction());
+            indexMenuItem(filemenu, "Debug Log Settings ...", new DebugSettingsAction());
         }
         
         if (LocalSettings.quitMenuItemNeeded) {
@@ -773,7 +782,18 @@ public class JapeMenu implements DebugConstants {
         indexMenuItem(editmenu, "Redo", new RedoAction(), PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z,
                                                   menumask+java.awt.Event.SHIFT_MASK));
+        
+        editmenu.addSep(PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/);
 
+        indexMenuItem(editmenu, "Apply tactic", new TacticCommandAction(), PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/).
+            setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T,
+                                                  menumask));
+
+        if (lemmasAllowed) {
+            editmenu.addSep(PROOFWINDOW_BAR);
+            indexMenuItem(editmenu, MAKE_LEMMA, new MakeLemmaAction(), PROOFWINDOW_BAR);
+        }
+        
         editmenu.addSep(PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/);
 
         indexMenuItem(editmenu, "Cut", new UnimplementedAction("Edit: Cut"), TEXTDIALOGWINDOW_BAR).
@@ -799,10 +819,6 @@ public class JapeMenu implements DebugConstants {
             indexMenuItem(editmenu, "Preferences...", new PrefsAction(), ALL_BARS);
         }
         
-        if (lemmasAllowed) {
-            editmenu.addSep(PROOFWINDOW_BAR);
-            indexMenuItem(editmenu, MAKE_LEMMA, new MakeLemmaAction(), PROOFWINDOW_BAR);
-        }
     }
 
     private static void addStdWindowMenuItems(M windowmenu) {
@@ -823,10 +839,17 @@ public class JapeMenu implements DebugConstants {
         }
     }
     
+    /* This is a first, bad, approximation: we should have tooltips! */
+    
     private static void addStdHelpMenuItems(M helpmenu) {
-        indexMenuItem(helpmenu, "No help yet",
-                      new AlertAction("GUI doesn't have any help available yet.\n\nSorry."),
-                      ALL_BARS);
+        if (Jape.onMacOSX)
+           indexMenuItem(helpmenu, "Explain help",
+                         new AlertAction("Type terms in the Search box at the top of the help menu.\nTheory-specific help may be available in proof windows."),
+                         ALL_BARS);
+        else
+           indexMenuItem(helpmenu, "Explain help",
+                        new AlertAction("There is no generic help for the interface; but theory-specific help may be available in proof windows."),
+                        ALL_BARS);
     }
     
     public static void newMenu(String s, int barKinds) throws ProtocolError {
@@ -1269,5 +1292,6 @@ public class JapeMenu implements DebugConstants {
         return menu;
     }
 }
+
 
 
