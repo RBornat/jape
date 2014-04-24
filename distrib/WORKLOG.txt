@@ -106,15 +106,44 @@ DONE: fixed mac application bundler so that it makes .j and .jt files open
       removed oddly-named, oddly-constructed " README.rtf" and replaced it 
       with README.html
       
-      26 July 2012 (BS)      
+      26 July 2012 (BS)  
+      
+DONE: 
+      Changed help menus to make the theory-specific ones useable.
+      Added CMD/CTRL-t to open a tactic execution window
+      Added CMD/CTRL-e to export a proof (OS/X suggests ps, but offers pdf)
+      Transformed a couple of Catastrophic error reports into
+      meaningful remarks that a user can understand.
+      
+TODO:
+      Somebody needs to write proper help menus for the distributed theories.
+      
+      OS/X PDF generation generates a complete page; it shouldn't.
+      PS generation generates postscript without a bounding box (probably for the
+      same reason as the above). This means that it is tedious to generate diagrams
+      that will be used in texts.
+      
+      It would also be helpful to generate latex, or something trivially latexable,
+      for (at least) the boxed style, and perhaps the tree style.
+      
+      
+      23 April 2012 (BS)    
 --
 
 $Log$
+Revision 1.5  2012/07/26 20:38:43  bernardsufrin
+1. changed and extended README documentation
+(from rtf to html)
+2. Added notes to WORKLOG.txt
+3. Fixed OS/X Jape.app build parameters to map .j .jt files to jape
+4. Started to get the public copyright notices correct.
+
 Revision 1.4  2012/05/07 22:35:57  bernardsufrin
 Can now generate a dmg for distribution from the command line
 
 Revision 1.2  2012/05/07 13:24:23  bernardsufrin
 Added -kkv
+
 
 
 
