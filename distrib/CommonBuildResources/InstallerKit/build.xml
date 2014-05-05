@@ -10,9 +10,11 @@
 
    <property name="BUILD"        location="BUILD"/>
    <property name="SRC"          location="SRC"/>
-   <property name="JSHORTCUT"    value="jshortcut-0_4"/>
+   <property name="JSHORTCUT"    value="jshortcut-0.4-oberzalek"/>
    <property name="SHELLINK"     location="${JSHORTCUT}.jar"/>
-   <property name="WINDLL"       value="jshortcut.dll"/>
+   <property name="WINDLLX"       value="jshortcut_x86.dll"/>
+   <property name="WINDLLY"       value="jshortcut_amd64.dll"/>
+   <property name="WINDLLZ"       value="jshortcut_ia64.dll"/>
    <property name="TEST"         location="TEST"/>
    <property name="INSTALLTEST"  value="INSTALLTESTFOLDER"/>
 
@@ -26,8 +28,8 @@
        <javac srcdir   = "${SRC}" 
               destdir  = "${BUILD}"
               debug    = "true"
-              source   = "1.4"
-              target   = "1.4"> 
+              source   = "1.7"
+              target   = "1.7"> 
           <include name="*.java"/>
        </javac>
    </target>
@@ -43,7 +45,7 @@
                   </manifest>
                   <include name = "org/**/*.class" />
                   <include name = "net/**/*.*" />
-                  <include name = "jshortcut.dll"/>
+                  <include name = "jshortcut*.dll"/>
            </jar>
    </target>
 
@@ -74,10 +76,12 @@
             <unjar src="${SHELLINK}"  dest="${BUILD}">
                 <patternset>
                    <include name="**/JShellLink.class"/>
-                   <include name="**/${WINDLL}"/>
+                   <include name="**/${WINDLLX}"/>
+                   <include name="**/${WINDLLY}"/>
+                   <include name="**/${WINDLLZ}"/>
                </patternset>
             </unjar>
-            <copy tofile="${BUILD}/${WINDLL}" file="${BUILD}/${JSHORTCUT}/${WINDLL}"/>
+            
    </target>
       
    <target  name        = "clean" 
@@ -119,7 +123,7 @@
             <javac srcdir   = "${TEST}" 
                    destdir  = "${BUILD}"
                    debug    = "true"
-                   source   = "1.4"> 
+                   > 
                    <include name="**/*.java"/>
             </javac>
             <jar    basedir  ="${BUILD}" 
@@ -197,3 +201,4 @@
       </java>
    </target>
 </project>
+

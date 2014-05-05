@@ -32,7 +32,10 @@ instead of LinuxJape/build
 5. To build an OS X version, see $D/distrib/MacOSX/README_BUILD_MACOSX_JAPE.html
 
 Richard Bornat 7/ix/2007
-Bernard Sufrin 30/vii/2012
+Bernard Sufrin 30/vii/2012 
+
+** Builds with ocaml 4.01 on both OS/X and Ubuntu 13.04 -- BS 5/iv/2014
+
 
 Credits: Richard built the OS X bit and engineered the self-contained
 Windows build. Bernard built the Unix build system (and a horribly
@@ -43,6 +46,7 @@ maintenance on the rest.
 History: 
 
   BS: Removed ancient Oxford-specific Windows build material (30/vii/2012).
+
 
 
 
