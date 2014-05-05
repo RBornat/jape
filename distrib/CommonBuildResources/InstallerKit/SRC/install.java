@@ -72,7 +72,9 @@ public class install implements ActionListener
       System.exit(1);
     }
   }
-  static String  WINDLL             = "jshortcut.dll";
+  static String  WINDLLX             = "jshortcut_x86.dll";
+  static String  WINDLLY             = "jshortcut_amd64.dll";
+  static String  WINDLLZ             = "jshortcut_ia64.dll";
   static String  manifestName       = tempPath + "/" + installerName + ".mf";
   static String  SplashImage        = null;
   static String  propertiesResource = installerName + ".properties";
@@ -216,7 +218,7 @@ public class install implements ActionListener
         Represents a set of paths
      </P>
    */
-  static class FileSet extends TreeSet
+  static class FileSet extends TreeSet<String>
   {
     public void append(String name)
     {
@@ -529,7 +531,15 @@ public class install implements ActionListener
          DUMMY.packagePath()
         );
         jar.add(
-                new File(WINDLL),   // add the .dll file 
+                new File(WINDLLX),   // add the .dll file 
+                new File(bootPath)  // ... to the bootstrap path
+               );
+        jar.add(
+                new File(WINDLLY),   // add the .dll file 
+                new File(bootPath)  // ... to the bootstrap path
+               );
+        jar.add(
+                new File(WINDLLZ),   // add the .dll file 
                 new File(bootPath)  // ... to the bootstrap path
                );
       }
@@ -548,7 +558,15 @@ public class install implements ActionListener
 
         // 3. Add the DLL -- we know it's in the Jar because we put it there
         jar.add(
-                new URL(fromJar(WINDLL)),
+                new URL(fromJar(WINDLLX)),
+                new File(bootPath)
+               );
+        jar.add(
+                new URL(fromJar(WINDLLY)),
+                new File(bootPath)
+               );
+        jar.add(
+                new URL(fromJar(WINDLLZ)),
                 new File(bootPath)
                );
       }
@@ -1542,9 +1560,12 @@ public class install implements ActionListener
     {
       String name   = entry.getName();
       String prefix = rootPath;
+      String WINDLLARCH = "jshortcut_" + System.getProperty("os.arch") + ".dll";
+      String WINDLL     = "jshortcut.dll";
+      String JSHORTCUT  = "jshortcut_";
 
       // Special cases
-      if (name.endsWith(WINDLL))
+      if (name.endsWith(WINDLLARCH))
       {
         prefix = tempPath;
         System.setProperty("JSHORTCUT_HOME", prefix);
@@ -1552,7 +1573,7 @@ public class install implements ActionListener
         if (progress)
           showProgress(name + " ==> " + prefix + File.separator + name);
       }
-      else if (name.startsWith("META-INF"))
+      else if (name.startsWith("META-INF") || name.startsWith(JSHORTCUT))
         continue;
       else if (progress)
         showProgress(name);
@@ -1587,7 +1608,7 @@ public class install implements ActionListener
   /////////////////////////// JAR PACKING ////////////////////////////
   public static class Jar
   {
-    static HashSet dirs = new HashSet();
+    static HashSet<String> dirs = new HashSet<String>();
 
     public void addDirs(String path) throws IOException
     {
@@ -1814,11 +1835,12 @@ public class install implements ActionListener
       System.err.println(symbols);
     }
   
-    Vector symbols = new Vector ();
+    Vector<String> symbols = new Vector<String> ();
   
     public Iterator iterator() { return symbols.iterator(); }
   }
 }
+
 
 
 
