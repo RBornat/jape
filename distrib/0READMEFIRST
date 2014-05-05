@@ -5,7 +5,14 @@ then read CommonBuildResources/INSTALLATIONBUILDING first.
 
 MacOSX builders can go straight to MacOSX/README_BUILD_MACOS.html. You
 might wonder why that text used to be in .rtf form. So did I.
+
+Bernard -> Bernard: on Spartacus you can build the GUI in Linux, then
+switch to the Win7 VM to do the engine build before building
+the distribution jar. I've not bothered to automate the entire
+Windows build, though it may only require me to install ant and javac 
+in Win7. 
  
+
 
 
 
