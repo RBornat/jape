@@ -55,14 +55,14 @@ let rec failpt f x =
     Some y -> failpt f y
   | None -> x
 
-let rec (&~~) v g =
+let (&~~) v g =
   match v with 
-    None    -> None
+  | None    -> None
   | Some v' -> g v'
 
 let rec (|~~) v g =
   match v with
-    None -> g ()
+  | None -> g ()
   | v    -> v
 
 let rec (&~) f g x = f x &~~ g
@@ -79,48 +79,40 @@ let rec optioncompose (f, g) x =
 
 let rec optionmap f  =
   function
-    []      -> Some []
+  | []      -> Some []
   | x :: xs -> f x &~~ (fun x -> (optionmap f xs &~~ (fun xs -> Some (x::xs))))
   
-let rec optionfilter a1 a2 =
-  match a1, a2 with
-    f, [] -> []
-  | f, x :: xs ->
-      match f x with
-        Some x' -> x' :: optionfilter f xs
-      | None -> optionfilter f xs
+let rec optionfilter f = function
+  | []      -> []
+  | x :: xs -> match f x with
+               | Some x' -> x' :: optionfilter f xs
+               | None    -> optionfilter f xs
       
-let rec option_foldl f z =
-  function
-    []      -> Some z
+let rec option_foldl f z = function
+  | []      -> Some z
   | x :: xs -> f z x &~~ (fun z' -> option_foldl f z' xs) 
   
-let rec option_foldr f z =
-  function
-    []      -> Some z
+let rec option_foldr f z = function
+  | []      -> Some z
   | x :: xs -> option_foldr f z xs &~~ f x
   
-let rec option_njfold f =
-  function
-    []      -> _Some
+let rec option_njfold f = function
+  | []      -> _Some
   | x :: xs -> option_njfold f xs &~ (Miscellaneous.curry2 f) x
 
-let rec findfirst f =
-  function
-    []      -> None
+let rec findfirst f = function
+  | []      -> None
   | x :: xs -> match f x with
                  None -> findfirst f xs
                | t    -> t
 
-let rec findbest f best =
-  function
-    []      -> None
+let rec findbest f best = function
+  | []      -> None
   | x :: xs -> match f x with
-                 None -> findbest f best xs
-               | Some y1 ->
-                   match findbest f best xs with
-                     None    -> Some y1
-                   | Some y2 -> Some (best y1 y2)
+               | None    -> findbest f best xs
+               | Some y1 -> match findbest f best xs with
+                            | None    -> Some y1
+                            | Some y2 -> Some (best y1 y2)
 
 let rec stripoption =
   function
@@ -136,6 +128,7 @@ let rec catelim_string_of_option catelim_astring aopt ss =
   match aopt with
     Some a -> "Some (" :: catelim_astring a (")" :: ss)
   | None   -> "None" :: ss
+
 let rec string_of_option astring aopt =
   implode (catelim_string_of_option (fun a ss -> astring a :: ss) aopt [])
 

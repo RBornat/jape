@@ -156,9 +156,12 @@ let
             let h = hashApp f a in cacheterm (App (Some h, f, a))
           else App (None, f, a)
         and registerTup (s, ts (* as sts *)) =
-          if !termhashing then
-            let h = hashTup s ts in cacheterm (Tup (Some h, s, ts))
-          else Tup (None, s, ts)
+          (* singleton tuples are an abomination *)
+          match ts with
+          | [t] -> t
+          | _   -> if !termhashing then
+                     let h = hashTup s ts in cacheterm (Tup (Some h, s, ts))
+                   else Tup (None, s, ts)
         and registerLiteral l =
           if !termhashing then
             let h = hashLiteral l in cacheterm(Literal (Some h, l))

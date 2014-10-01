@@ -363,8 +363,9 @@ let rec formulageneralisable params v =
     Id (_, v, FormulaClass) -> all (ok (v, FormulaClass)) params
   | Unknown (_, v, FormulaClass) -> all (ok (v, FormulaClass)) params
   | _ -> false
-exception Fresh_ of string list exception CompileThing_ of string list
 
+exception Fresh_ of string list 
+exception CompileThing_ of string list
 
 let rec findhiddenprovisos (b, ts) ps =
   (* first look for parallel bindings *)
@@ -617,9 +618,8 @@ let rec compileR el er (params, provisos, antes, conseq) =
        | _,                   vcs -> vcs)
       params []
   in
-  let rec isabstraction =
-    function
-      Id (_, v, c) -> member ((v, c), abstractions)
+  let isabstraction = function
+    | Id (_, v, c) -> member ((v, c), abstractions)
     | _            -> false
   in
   let conseq_pbs =
@@ -670,7 +670,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
         Some _ -> vars, env
       | None ->
           match findpredicatevars abss with
-            Some bs -> vars, (env ++ (_P |-> (false, bs)))
+          | Some bs -> vars, (env ++ (_P |-> (false, bs)))
           | None ->
               if def then
                 (* make up names *)
@@ -769,7 +769,7 @@ let rec compilething name thing =
     Rule (r, ax) ->
       let (r1, r2) =
         try compileR !autoAdditiveLeft !autoAdditiveRight r with
-          CompileThing_ ss ->
+        | CompileThing_ ss ->
             raise
               (CompileThing_ ("Rule " :: string_of_name name :: ": " :: ss))
         | BadAdditivity_ ss ->
@@ -788,7 +788,7 @@ let rec compilething name thing =
                Bernard's days. But it isn't clear that it can be fixed.
              *)
       with
-        CompileThing_ ss ->
+      | CompileThing_ ss ->
           raise
             (CompileThing_ ("Theorem " :: string_of_name name :: ": " :: ss))
       end
@@ -1476,37 +1476,37 @@ let rec freshThingtoprove name =
 let rec freshGiven weaken (Seq (st, lhs, rhs) (* as seq *)) cxt proved =
   (* can't help feeling that extend should be a well-known function ... *)
   let rec extend doit side cxt =
-	match doit, side with
-	  true, Collection (_, BagClass FormulaClass, es) ->
-		let (cxt, vid) =
-		  freshVID cxt (BagClass FormulaClass) (extraBag_vid ())
-		in
-		let sv =
-		  registerSegvar
-			([], registerUnknown (vid, BagClass FormulaClass))
-		in
-		cxt, registerCollection (BagClass FormulaClass, sv :: es)
-	| _, t -> cxt, t
+    match doit, side with
+      true, Collection (_, BagClass FormulaClass, es) ->
+        let (cxt, vid) =
+          freshVID cxt (BagClass FormulaClass) (extraBag_vid ())
+        in
+        let sv =
+          registerSegvar
+            ([], registerUnknown (vid, BagClass FormulaClass))
+        in
+        cxt, registerCollection (BagClass FormulaClass, sv :: es)
+    | _, t -> cxt, t
   in
   let (cxt, lhs) =
-	extend (weaken && wehavestructurerule LeftWeakenRule (Some [st; st]) proved) 
-		   lhs cxt
+    extend (weaken && wehavestructurerule LeftWeakenRule (Some [st; st]) proved) 
+           lhs cxt
   in
   let (cxt, rhs) =
-	extend (weaken && wehavestructurerule RightWeakenRule (Some [st; st]) proved)
-	  rhs cxt
+    extend (weaken && wehavestructurerule RightWeakenRule (Some [st; st]) proved)
+      rhs cxt
   in
   let rec unknownres =
-	function
-	  Collection (_, cc, els) ->
-		registerCollection
-		  (cc, ((function Element (_, Resnum r, t) -> registerElement (ResUnknown r, t)
-				 |        el                       -> el) <* els))
-	| t -> t
+    function
+      Collection (_, cc, els) ->
+        registerCollection
+          (cc, ((function Element (_, Resnum r, t) -> registerElement (ResUnknown r, t)
+                 |        el                       -> el) <* els))
+    | t -> t
   in
   (* can't happen *)
   let (interesting_resources, _, _, conseq, cxt) =
-	renumberforuse [] [] (Seq (st, unknownres lhs, unknownres rhs)) cxt
+    renumberforuse [] [] (Seq (st, unknownres lhs, unknownres rhs)) cxt
   in
   cxt, interesting_resources, conseq
 

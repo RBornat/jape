@@ -167,11 +167,11 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
             if k = k' then
               res' "(ListClass) " pat term
                 (matchlist matchelement es es' mrs)
-            else res' "??(1) " pat term []
+            else res' "?? (1) " pat term []
         | BagClass k, BagClass k' ->
             if k = k' then bagmatch es es' mrs
-            else res' "??(2) " pat term []
-        | _ -> res' "??(3) " pat term []
+            else res' "?? (2) " pat term []
+        | _ -> res' "?? (3) " pat term []
         end
     | _ -> res' "?? " pat term []
 (* Ok, this is the point at which I really begin to see why we ought to 

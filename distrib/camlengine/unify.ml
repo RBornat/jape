@@ -90,7 +90,7 @@ let rec freshalphavar cxt c v =
         Catastrophe_ _ -> raise (Catastrophe_ ss)
 let rec occurs cxt v t =
   match t with
-    Id _ -> false
+  | Id _ -> false
   | Unknown (_, v', _) ->
       v = v' ||
       (match (varmap cxt <@> v') with
@@ -109,14 +109,15 @@ let rec occurs cxt v t =
   | Collection (_, _, es) ->
       let rec occurse =
         function
-          Segvar (_, _, t) -> occurs cxt v t
+        | Segvar  (_, _, t) -> occurs cxt v t
         | Element (_, _, t) -> occurs cxt v t
       in
       List.exists occurse es
-exception MatchinAbstract_
-(* spurious exception to shut compiler up *)
-   (* for useful abstraction, m and _P must have been rewritten *)
-let rec abstract orig map term ps cxt =
+
+exception MatchinAbstract_ (* spurious exception to shut compiler up *)
+
+(* for useful abstraction, map (m) and orig (_P) must have been rewritten *)
+let abstract orig map term ps cxt =
   let newprovisos : proviso list ref = ref [] in
   let newunifications : (term * term) list ref = ref [] in
   let realmapdom = substmapdom ((fun (v, t) -> v <> t) <| map) in
@@ -144,140 +145,139 @@ let rec abstract orig map term ps cxt =
           Some (cxt, _P)
       | Yes -> None
   in
-  let rec showAres m =
-    fun _P r ->
-      consolereport
-        ["_Abstract cxt "; string_of_vts m; " "; diag_string_of_term _P; " => ";
-         string_of_option (fun (cxt, t) -> "cxt'," ^ diag_string_of_term t) r]
+  let rec showAres m _P r =
+    consolereport
+      ["_Abstract cxt "; string_of_vts m; " "; diag_string_of_term _P; " => ";
+       string_of_option (fun (cxt, t) -> "cxt'," ^ diag_string_of_term t) r]
   in
-  let rec _Abstract a1 a2 a3 =
-    match a1, a2, a3 with
-      cxt, [], _P ->
+  let rec _Abstract cxt m _P =
+    match m with
+    | [] ->
         let r = Some (cxt, _P) in if !unifydebug then showAres [] _P r; r
-    | cxt, m, _P ->
-        let rec _Ares r = if !unifydebug then showAres m _P r; r in
-        let rec match__ a1 a2 =
-          match a1, a2 with
-            f, [] -> f ()
-          | f, (v, t) :: vts ->
+    | _  ->
+        if !unifydebug then 
+          consolereport
+            ["_Abstract cxt "; string_of_vts m; " "; diag_string_of_term _P;
+             " begins"
+            ];
+        let _Ares r = if !unifydebug then showAres m _P r; r in
+        let rec match__ f = function
+          | []            -> f ()
+          | (v, t) :: vts ->
               match unifyeqtermsq (facts (ourprovisos ()) cxt) _P t with
-                Yes -> _Ares (Some (cxt, reb _P t v))
+              | Yes   -> _Ares (Some (cxt, reb _P t v))
               | Maybe -> match__ defermatch vts
-              | No -> match__ f vts
-        and reb =
-          fun _P t v ->
-            match bracketed _P, bracketed v with
-              true, true -> reb (debracket _P) (debracket t) v
-            | true, _ -> enbracket v
-            | _ -> v
+              | No    -> match__ f vts
+        and reb _P t v =
+          match bracketed _P, bracketed v with
+          | true, true -> reb (debracket _P) (debracket t) v
+          | true, _ -> enbracket v
+          | _ -> v
         and defermatch () =
           let prefix = vid_of_string (autoID FormulaClass "abst") in
           let (cxt', vid') = freshVID cxt FormulaClass prefix in
           let var' = registerUnknown (vid', FormulaClass) in
           let subst = registerSubst (true, var', map) in
           begin match _P with
-            Unknown _ -> addunification (_P, subst)
-          | _ -> addproviso (UnifiesProviso (_P, subst))
+          | Unknown _ -> addunification (_P, subst)
+          | _         -> addproviso (UnifiesProviso (_P, subst))
           end;
           _Ares (Some (cxt', var'))
         and _Afold m (t, (cxt, ts)) =
           match _Abstract cxt m t with
-            Some (cxt', t') -> Some (cxt', t' :: ts)
-          | _ -> None
-        and analyse =
-          fun _P ->
-            match _P with
-              Id _ -> _Ares (okname cxt _P m)
-            | Unknown (_, vid, c) ->
-                begin match
-                  varmappedbyq (facts (ourprovisos ()) cxt) _P m
-                with
-                  No -> _Ares (Some (cxt, _P))
-                | Maybe ->
-                    let (cxt', vid') = freshVID cxt c vid in
-                    let var' = registerUnknown (vid', c) in
-                    let subst = registerSubst (true, var', map) in
-                    addunification (_P, subst); _Ares (Some (cxt', subst))
-                | Yes -> _Ares None
-                end
-            | App (_, f, a) ->
-                  (option_njfold (_Afold m) [f; a] (cxt, []) &~~
-                   (function
-                      cxt, [f; a] -> _Ares (Some (cxt, registerApp (f, a)))
-                    | _ -> raise MatchinAbstract_))
-            | Tup (_, sep, ts) ->
-                     (option_njfold (_Afold m) ts (cxt, []) &~~
-                      (fun (cxt, ts') ->
-                         _Ares (Some (cxt, registerTup (sep, ts'))))) |~~
-                   (fun _ -> _Ares None)
-            | Literal _ -> _Ares (Some (cxt, _P))
-            | Fixapp (_, bras, ts) ->
-                     (option_njfold (_Afold m) ts (cxt, []) &~~
-                      (fun (cxt, ts) ->
-                         Some (cxt, registerFixapp (bras, ts)))) |~~
-                   (fun _ -> _Ares None)
-            | Binding (_, (bs, ss, us), env, pat) ->
-                begin match
-                  restrictsubstmap (facts (ourprovisos ()) cxt) m bs ss
-                with
-                  Some m' ->
-                      (
-                         (option_njfold (_Afold m) us (cxt, []) &~~
-                          (fun (cxt, us') ->
-                               (
-                                  (option_njfold (_Afold m') ss (cxt, []) &~~
-                                   (fun (cxt, ss') ->
-                                      Some
-                                        (cxt,
-                                         registerBinding
-                                           ((bs, ss', us'), env, pat)))) |~~
-                                (fun _ -> _Ares None)))) |~~
-                       (fun _ -> _Ares None))
-                | None -> defermatch ()
-                end
-            | Subst (_, r, _P', m') ->
-                let vs' = substmapdom m' in
-                let ts' = substmapran m' in
-                let fs = facts (ourprovisos ()) cxt in
-                begin match vtsplit fs m vs' with
-                  ys, ns, [] ->
-                    (option_njfold (_Afold m) ts' (cxt, []) 
-                     &~~
-                     (fun (cxt, ts'') ->
-                          (_Abstract cxt
-                                 ((vs'@substmapdom ns)|||(vs'@substmapran ns)) _P' 
-                           &~~
-                           (fun (cxt, _P'') ->
-                              Some (cxt, registerSubst (r, _P'', (substmapdom m'|||ts''))))
-                          ) 
-                          |~~ (fun _ -> _Ares None)
-                     ) 
-                    ) |~~ (fun _ -> _Ares None)
-                | _ -> defermatch ()
-                end
-            | Collection _ -> _Ares None
-        in
-        match__ (fun () -> analyse _P) m
+          | Some (cxt', t') -> Some (cxt', t' :: ts)
+          | _               -> None
+        and analyse m _P =
+          match _P with
+          | Id _                -> _Ares (okname cxt _P m)
+          | Unknown (_, vid, c) ->
+              (match varmappedbyq (facts (ourprovisos ()) cxt) _P m with
+               | No    -> _Ares (Some (cxt, _P))
+               | Maybe ->
+                   let (cxt', vid') = freshVID cxt c vid in
+                   let var' = registerUnknown (vid', c) in
+                   let subst = registerSubst (true, var', map) in
+                   addunification (_P, subst); 
+                   _Ares (Some (cxt', subst))
+               | Yes   -> _Ares None
+              )
+          | App (_, f, a) ->
+                (option_njfold (_Afold m) [f; a] (cxt, []) &~~
+                 (function
+                  | cxt, [f; a] -> _Ares (Some (cxt, registerApp (f, a)))
+                  | _           -> raise MatchinAbstract_))
+          | Tup (_, sep, ts) ->
+              (option_njfold (_Afold m) ts (cxt, []) &~~
+               (fun (cxt, ts') ->
+                  _Ares (Some (cxt, registerTup (sep, ts'))))
+              ) |~~ (fun _ -> _Ares None)
+          | Literal _ -> _Ares (Some (cxt, _P))
+          | Fixapp (_, bras, ts) ->
+                   (option_njfold (_Afold m) ts (cxt, []) &~~
+                    (fun (cxt, ts) ->
+                       Some (cxt, registerFixapp (bras, ts)))) |~~
+                 (fun _ -> _Ares None)
+          | Binding (_, (bs, ss, us), env, pat) ->
+              begin match
+                restrictsubstmap (facts (ourprovisos ()) cxt) m bs ss
+              with
+                Some m' ->
+                    (
+                       (option_njfold (_Afold m) us (cxt, []) &~~
+                        (fun (cxt, us') ->
+                             (
+                                (option_njfold (_Afold m') ss (cxt, []) &~~
+                                 (fun (cxt, ss') ->
+                                    Some
+                                      (cxt,
+                                       registerBinding
+                                         ((bs, ss', us'), env, pat)))) |~~
+                              (fun _ -> _Ares None)))) |~~
+                     (fun _ -> _Ares None))
+              | None -> defermatch ()
+              end
+          | Subst (_, r, _P', m') ->
+              let vs' = substmapdom m' in
+              let ts' = substmapran m' in
+              let fs = facts (ourprovisos ()) cxt in
+              begin match vtsplit fs m vs' with
+                ys, ns, [] ->
+                  (option_njfold (_Afold m) ts' (cxt, []) 
+                   &~~
+                   (fun (cxt, ts'') ->
+                        (_Abstract cxt
+                               ((vs'@substmapdom ns)|||(vs'@substmapran ns)) _P' 
+                         &~~
+                         (fun (cxt, _P'') ->
+                            Some (cxt, registerSubst (r, _P'', (substmapdom m'|||ts''))))
+                        ) 
+                        |~~ (fun _ -> _Ares None)
+                   ) 
+                  ) |~~ (fun _ -> _Ares None)
+              | _ -> defermatch ()
+              end
+          | Collection _ -> _Ares None
+      in
+      match__ (fun () -> analyse m _P) m
   in
   let rec doit () =
     match _Abstract cxt map term with
-      Some (cxt, term) -> Some (cxt, term, !newprovisos, !newunifications)
-    | _ -> None
+    | Some (cxt, term) -> Some (cxt, term, !newprovisos, !newunifications)
+    | _                -> None
   in
   match orig with
-    Unknown (_, v, _) ->
+  | Unknown (_, v, _) ->
       if occurs cxt v term then
-        begin
-          if !unifydebug then
-            consolereport
-              ["making ";
-               string_of_proviso
-                 (UnifiesProviso
-                    (registerSubst (true, orig, map), term))];
-          Some
-            (cxt, orig,
-             [UnifiesProviso (registerSubst (true, orig, map), term)], [])
-        end
+        (if !unifydebug then
+           consolereport
+             ["making "; string_of_proviso
+                           (UnifiesProviso
+                              (registerSubst (true, orig, map), term))
+             ];
+         Some
+           (cxt, orig,
+            [UnifiesProviso (registerSubst (true, orig, map), term)], [])
+        )
       else doit ()
   | _ -> doit ()
 
@@ -483,21 +483,20 @@ let rec unify a1 a2 a3 a4 =
             | None -> defer DeferSimplification cxt
             end
         | Subst (_, true, _P1, m1), _ ->
-            begin match subststep cxt (true, _P1, m1) with
-              Some (cxt, t1) -> doit t1 t2 cxt
-            | None ->
-                let cxt = rewritecxt cxt in
-                let _P1 = rewrite cxt _P1 in
-                let m1 = rewritesubstmap cxt m1 in
-                match
-                  abstract (debracket _P1) m1 (rewrite cxt t2)
-                    (provisos cxt) cxt
-                with
-                  Some (cxt, _P2, ps, ms) ->
-                    unify (ms @ (_P1, _P2) :: tts) dds true
-                      (plusvisibleprovisos cxt ps)
-                | _ -> None
-            end
+            (match subststep cxt (true, _P1, m1) with
+             | Some (cxt, t1) -> doit t1 t2 cxt
+             | None ->
+                 let cxt = rewritecxt cxt in
+                 let _P1 = rewrite cxt _P1 in
+                 let m1 = rewritesubstmap cxt m1 in
+                 match abstract (debracket _P1) m1 (rewrite cxt t2)
+                                (provisos cxt) cxt
+                 with
+                   Some (cxt, _P2, ps, ms) ->
+                     unify (ms @ (_P1, _P2) :: tts) dds true
+                       (plusvisibleprovisos cxt ps)
+                 | _ -> None
+            )
         | _, Subst _ -> doit t2 t1 cxt
         | Collection (_, k1, es1), Collection (_, k2, es2) ->
             if k1 = k2 then
@@ -676,12 +675,12 @@ and alignsubsts =
                 let _P2 = rewrite cxt _P2 in
                 begin match
                   abstract (debracket _P1)
-                    (
-                       (substmapdom m2 @ substmapdom ns |||
-                        substmapdom m2 @ substmapran ns))
-                    _P2 (provisos cxt) cxt
+                           (substmapdom m2 @ substmapdom ns |||
+                            substmapdom m2 @ substmapran ns
+                           )
+                           _P2 (provisos cxt) cxt
                 with
-                  Some (cxt, _P2', ps, ms) ->
+                | Some (cxt, _P2', ps, ms) ->
                     Some
                       (plusvisibleprovisos cxt ps,
                        ms @

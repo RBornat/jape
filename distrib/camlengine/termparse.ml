@@ -329,10 +329,9 @@ and parseBRA () =
   | INFIXC s  -> defop s
   | POSTFIX s -> defop s
   | PREFIX s  -> if peeksymb () = KET ")" then defop s else defexpr ()
-  | sy ->
-      if sy = KET ")" then
-        (scansymb (); enbracket (registerTup (",", [])))
-      else defexpr ()
+  | sy        -> if sy = KET ")" then
+				   (scansymb (); enbracket (registerTup (",", [])))
+				 else defexpr ()
 
 (* here a is not an associativity, it is 'left operator gets it' *)
 
@@ -357,7 +356,7 @@ and parseExpr n a =
       if n' >> n then pe (down n' t) else t
     in
     match sy with
-      INFIX s ->
+    | INFIX s ->
         pq (prio sy) (assoc sy) s
            (fun (s, t') ->
               registerApp
