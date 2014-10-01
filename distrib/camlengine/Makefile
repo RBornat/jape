@@ -29,19 +29,26 @@ BUILDDIR=_build$(OS)
 # for folks who don't have ocamlbuild, do it the old way
 
 jape_engine:: ;\
-	if [[ `which ocamlbuild` == "" ]]; then \
-		make -f LegacyMakefile jape_engine; \
-	else \
-		ocamlbuild -build-dir $(BUILDDIR) -lib unix -no-links main.native; \
-		rm -f $(BUILDDIR)/jape_engine; ln -s main.native $(BUILDDIR)/jape_engine ;\
-	fi
+        if [ `which ocamlbuild` == "" ]; then \
+                make -f LegacyMakefile jape_engine; \
+        else \
+                ocamlbuild -build-dir $(BUILDDIR) -lib unix -no-links main.native; \
+                rm -f $(BUILDDIR)/jape_engine; ln -s main.native $(BUILDDIR)/jape_engine ;\
+        fi
 
-# can't do ln -s on windoze, cos symbolic links only half work on Cygwin
-jape.exe::	;\
-	ocamlbuild.native -classic-display -build-dir $(BUILDDIR) -lib unix -no-links \
-		-ocamlopt ocamlopt.opt -ocamlc ocamlc.opt main.native; \
-	cp $(BUILDDIR)/main.native $(BUILDDIR)/jape.exe
-	
+# can't do ln -s on windoze/cygwin
+# jape.exe::      ;\
+#         ocamlbuild -classic-display -build-dir $(BUILDDIR) -lib unix -no-links \
+#                  main.byte; \
+#         cp $(BUILDDIR)/main.byte $(BUILDDIR)/jape.exe
+
+# windows ocaml 4.01 cannot do this (reports ''inconsistent assumptions''); but 4.00 works fine
+jape.exe::      ;\
+        ocamlbuild.native -classic-display -build-dir $(BUILDDIR) \
+               -lib unix -no-links \
+               main.native; \
+        cp $(BUILDDIR)/main.native $(BUILDDIR)/jape.exe
+        
 #############################################################################
 #
 # For universal engines on OS X -- only on an Intel box.
@@ -54,16 +61,20 @@ oPPCCOMPILER=/usr/local/bin/ocamloptppc
 oPPCLIB=/usr/local/lib/ocamlppc
 
 OSXuniversal:: ;\
-	make clean; \
-	ocamlbuild -build-dir _build$(OS)/i386 -lib unix -no-links main.native; \
-	ocamlbuild -build-dir _build$(OS)/ppc -lib unix -ocamlopt '$(oPPCCOMPILER) -ccopt "-arch ppc" -nostdlib -I $(oPPCLIB)' -no-links main.native; \
-	lipo _build$(OS)/i386/main.native _build$(OS)/ppc/main.native -create -output _build$(OS)/jape_engine; \
-	lipo -info _build$(OS)/jape_engine
-	
+        make clean; \
+        ocamlbuild -build-dir _build$(OS)/i386 -lib unix -no-links main.native; \
+        ocamlbuild -build-dir _build$(OS)/ppc -lib unix -ocamlopt '$(oPPCCOMPILER) -ccopt "-arch ppc" -nostdlib -I $(oPPCLIB)' -no-links main.native; \
+        lipo _build$(OS)/i386/main.native _build$(OS)/ppc/main.native -create -output _build$(OS)/jape_engine; \
+        lipo -info _build$(OS)/jape_engine
+        
 #
 #############################################################################
 
 clean:;                 rm -fr _build$(OS) *.native *.cmi *.cmo *.cmx *.o jape_engine
-cleanall:;				rm -fr _build* _log *.native
+cleanall:;                              rm -fr _build* _log *.native
 
         
+
+
+
+
