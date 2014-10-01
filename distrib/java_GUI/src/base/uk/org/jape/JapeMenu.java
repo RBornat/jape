@@ -1102,7 +1102,7 @@ public class JapeMenu implements DebugConstants {
         }
     
     private static void doEnableItem(JapeWindow w, String menuname, String label, boolean enable) {
-        if (w!=null) {
+      if (w!=null) {
             TitledMenuBar bar = (TitledMenuBar)w.getJMenuBar();
             if (bar!=null) {
                 TitledMenu tm = bar.getMenu(menuname);
