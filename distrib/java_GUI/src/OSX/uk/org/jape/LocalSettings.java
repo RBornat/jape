@@ -109,6 +109,7 @@ public class LocalSettings implements SelectionConstants {
         appl.addApplicationListener(new ApplicationAdapter() {
             public void handleAbout(ApplicationEvent evt) {
                 System.err.println("JAPE ABOUT: ");
+                evt.setHandled(true);
                 Jape.handleAbout();
             }
             
@@ -162,4 +163,5 @@ public class LocalSettings implements SelectionConstants {
         "hold down the alt (option) key throughout the gesture, you drag a " +
         "duplicate copy.";
 }
+
 

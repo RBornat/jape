@@ -1,27 +1,23 @@
 #!/bin/bash
-# usage: macdistrib <tag>
+# usage: macdistrib7 <tag>
 # Run from MacOSX 
-# builds jape_<tag> distribution from build/Jape.app and examples
-DIR=jape_$1
+# builds jape-java1.7_<tag> distribution
+DIR=jape-java1.7_$1
 
 echo Making $DIR distribution for Java 1.7
 
-make release
+make release7
 
 rm -fr $DIR $DIR.dmg
-mkdir $DIR
+mkdir jape_$1
 
 # rsync -l because Jape.app includes a symbolic link (recommended by jarbundler.jar docs)
 
-rsync -rlvt build/Jape.app $DIR
+rsync -rlvt build1.7/Jape.app $DIR
 rsync -rvt  ../examples README.html $DIR
 rsync -rvt  ..//CommonBuildResources/License.txt $DIR
 
 sh makedmg $DIR
-
-
-
-
 
 
 

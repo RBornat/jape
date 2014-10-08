@@ -24,27 +24,30 @@
 #
 GUISOURCE=../java_GUI
 ENGINESOURCE=../camlengine
-UNSIGN=build/Jape.app/Contents/MacOS/JavaApplicationStub
 
+local:   ;      $(MAKE) engineclean engine GUIclean GUI6
+release: ;      $(MAKE) engineclean engine GUIclean GUI6                              
+run:     ;      open build/Jape.app
 
-local:   ;      $(MAKE) engineclean engine GUIclean GUI; ruby ./macunsign $(UNSIGN)
-
-release: ;      $(MAKE) engineclean engine GUIclean GUI; ruby ./macunsign $(UNSIGN)
-
-universalrelease:         ;      $(MAKE) engineclean OSXuniversal GUIclean GUI
-                                
-OSXuniversal: ; cd $(ENGINESOURCE); $(MAKE) OSXuniversal OS=OSX
-
-run:         ; open build/Jape.app
+local7:   ;      $(MAKE) engineclean engine GUIclean GUI7
+release7: ;      $(MAKE) engineclean engine GUIclean GUI7                              
+run7:     ;      open build/Jape7.app
 
 engine:      ; cd $(ENGINESOURCE); make jape_engine OS=OSX
 
-GUI:         ;  (cd $(GUISOURCE); ant OSX.jar); ant Jape.app
+GUI:         ;  export JAVA_HOME=`/usr/libexec/java_home -v 1.6` ; (cd $(GUISOURCE); echo `pwd`; ant OSX.jar); ant Jape.app
+
+GUI7:        ;  export JAVA_HOME=`/usr/libexec/java_home -v 1.7` ; (cd $(GUISOURCE); echo `pwd`; ant OSX.jar); ant Jape-1.7.app
+GUI6:        ;  export JAVA_HOME=`/usr/libexec/java_home -v 1.6` ; (cd $(GUISOURCE); echo `pwd`; ant OSX.jar); ant Jape.app
 
 clean:       ; $(MAKE) engineclean GUIclean
 
 engineclean: ; cd $(ENGINESOURCE); $(MAKE) clean OS=OSX
 
 GUIclean:    ; ant clean; cd $(GUISOURCE); ant clean
+guiclean:    ; ant clean; cd $(GUISOURCE); ant clean
+
+
+
 
 
