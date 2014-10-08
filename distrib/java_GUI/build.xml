@@ -2,6 +2,7 @@
 
     <target name="clean">
         <delete dir="build"/>
+        <delete dir="build1.7"/>
     </target>
 
     <target name="OSXcompile">
@@ -9,12 +10,18 @@
         <mkdir dir="build/classes/OSX"/>
         <javac 
             deprecation="on"
-            sourcepath=""
+            includeantruntime="false"
+            sourcepath="."
             srcdir="src/base:src/OSX"
             destdir="build/classes/OSX"
-            source="1.5"
-                target="1.5"
-        />
+        >
+        
+        <classpath>
+         <pathelement location="appleeawt.jar"/>
+        </classpath>
+        
+        </javac>
+        
     </target>
 
     <target name="standardcompile">
@@ -25,8 +32,6 @@
             sourcepath=""
             srcdir="src/base:src/standard"
             destdir="build/classes/standard"
-            source="1.5"
-                target="1.5"
         />
     </target>
     
@@ -74,4 +79,8 @@
     </target>
 
 </project>
+
+
+
+
 

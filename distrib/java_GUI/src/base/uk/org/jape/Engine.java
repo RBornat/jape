@@ -3,8 +3,8 @@
 
     Copyright © 2003-8 Richard Bornat & Bernard Sufrin
      
-	richard@bornat.me.uk
-	sufrin@comlab.ox.ac.uk
+        richard@bornat.me.uk
+        sufrin@comlab.ox.ac.uk
 
     This file is part of the Jape GUI, which is part of Jape.
 
@@ -39,54 +39,58 @@ public class Engine implements DebugConstants {
     private static BufferedWriter toEngine;
     
     public Engine (String[] cmd) {
-	super();
-	try {
-	    // System.out.println(System.getProperty("user.dir"));
-	    engine = Runtime.getRuntime().exec(cmd);
-	} catch (Exception exn) {
-	    String s = "can't start proof engine in directory "+System.getProperty("user.dir")+
-	               " (exception "+exn+")\ncmd =[";
-	    for (int i=0; i<cmd.length; i++) {
-		s = s+JapeUtils.enQuote(cmd[i]);
-		if (i+1<cmd.length)
-		    s = s+", ";
-	    }
-	    Alert.abort(s+"]");
-	    engine = null; // shut up compiler
-	}
+        super();
+        String apn = new java.io.File(".").getAbsoluteFile().toString();
+        // Alert.abort(apn);
+        try {
+            // System.out.println(System.getProperty("user.dir"));
+            engine = Runtime.getRuntime().exec(cmd);
+        } catch (Exception exn) {
+            String s = "can't start proof engine in directory "+System.getProperty("user.dir")+
+                       " (exception "+exn+")\ncmd =[";
+            for (int i=0; i<cmd.length; i++) {
+                s = s+JapeUtils.enQuote(cmd[i]);
+                if (i+1<cmd.length)
+                    s = s+", ";
+            }
+            s=s+"("+apn+")";
+            Alert.abort(s+"]");
+            engine = null; // shut up compiler
+        }
 
-	try {
-	    fromEngine = new BufferedReader(new InputStreamReader(engine.getInputStream(), "UTF-8"));
-	    toEngine = new BufferedWriter(new OutputStreamWriter(engine.getOutputStream(), "UTF-8"));
-	    logEngine = new BufferedReader(new InputStreamReader(engine.getErrorStream(), "UTF-8"));
-	} catch (UnsupportedEncodingException e) {
-	    Alert.abort("We don't support encoding "+JapeUtils.enQuote("UTF-8"));
-	}
+        try {
+            fromEngine = new BufferedReader(new InputStreamReader(engine.getInputStream(), "UTF-8"));
+            toEngine = new BufferedWriter(new OutputStreamWriter(engine.getOutputStream(), "UTF-8"));
+            logEngine = new BufferedReader(new InputStreamReader(engine.getErrorStream(), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            Alert.abort("We don't support encoding "+JapeUtils.enQuote("UTF-8"));
+        }
 
-	Thread engineLogger = new Logger.StreamLog("engine log", new EngineLog());
-	engineLogger.start();
-	new Dispatcher().start();
+        Thread engineLogger = new Logger.StreamLog("engine log", new EngineLog());
+        engineLogger.start();
+        new Dispatcher().start();
     }
     
     public static BufferedReader fromEngine() {
-	return fromEngine;
+        return fromEngine;
     }
     public static BufferedWriter toEngine() {
-	return toEngine;
+        return toEngine;
     }
     public static BufferedReader logEngine() {
-	return logEngine;
+        return logEngine;
     }
     
     class EngineLog implements Logger.LineReader {
-	public String readLine() {
-	    try {
-		return logEngine.readLine();
-	    } catch (Exception exn) {
-		return null;
-	    }
-	}
+        public String readLine() {
+            try {
+                return logEngine.readLine();
+            } catch (Exception exn) {
+                return null;
+            }
+        }
     }
 }
+
 
 

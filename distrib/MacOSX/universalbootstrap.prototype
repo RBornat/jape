@@ -1,0 +1,26 @@
+#!/bin/sh
+#/usr/bin/osascript -e "display notification \"Starting bootstrap\" with title \"Jape\" "
+JAVAVERSION=1.7
+if /usr/libexec/java_home -Fv $JAVAVERSION
+then 
+   JAVA_HOME="$(/usr/libexec/java_home -v $JAVAVERSION)"
+   #/usr/bin/osascript -e "display notification \"using Java $JAVA_HOME.\" with title \"Jape\" "
+else
+   /usr/bin/osascript -e "display notification \"needs Java $JAVAVERSION to be installed.\" with title \"Jape\" "
+   exit
+fi
+WHERE="$(dirname "$0")"
+PACKAGE="$WHERE/../../"
+RESOURCES="$PACKAGE/Contents/Resources"
+JAVA="$PACKAGE/Contents/Java"
+"$JAVA_HOME/bin/java" \
+            "-Dapple.laf.useScreenMenuBar=true" \
+            "-Duk.org.jape.AppPackage=$PACKAGE" \
+            "-Xdock:icon=$RESOURCES/Jape.icns" \
+            "-Xdock:name=Jape" \
+            -jar "$JAVA/Jape.jar"
+
+
+
+
+

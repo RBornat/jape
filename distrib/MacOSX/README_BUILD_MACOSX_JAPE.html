@@ -59,7 +59,7 @@ the developer at <a href="http://informagen.com/JarBundler/">http://informagen.c
 Follow the instructions and put <tt>jarbundler-?.?.?.jar</tt> in
 <tt>/usr/share/ant/lib</tt>.</p>
 
-<p >4. In the directory where you found this file (<tt>...../distrib/MacOSX</tt>):
+<p >4. <i>If you only have Apple's Java 1.6 </i>: In the directory where you found this file (<tt>...../distrib/MacOSX</tt>):
 
 
 <pre>
@@ -81,51 +81,40 @@ construct a disk image (together with examples), run
 which makes <tt>jape_<i>version</i>.dmg</tt>.
 </p>
 
-<br/><hr width="60%"/><br/>
+<p>
+<i>If you only have Oracle's Java 1.7 </i>
+<pre>
+        <tt>make local7</tt> 
+</pre>
 
-<h2>PowerPC Macs</h2>
+builds the engine and the GUI interface, bundles them together and puts them in <tt>./build1.7/Jape.app</tt>
 
-<p >If you want to make a version that runs on PowerPC and
-on Intel, you have to do a bit more, and you will have to
-find an OS/X PPC
-Ocaml that will run on your Intel machine. We ourselves
-have more or less abandoned building for PPC OS/X, since their OS
-didn't get past Leopard (10.5).</p>
+<pre>
+        <tt>make run7</tt> 
+</pre>
+lets you try it out. If it works, move <tt>build7/Jape.app</tt> where you like, or if you want to
+construct a disk image (together with examples), run
+<pre>
+        <tt>sh macdistrib7</tt> <i>version</i>
+</pre>
 
-
-<p >5a. You have to be running on an Intel Mac, and you need two copies of Ocaml, as follows.</p>
-
-
-
-<p >5b. First install the PPC Ocaml (it will overwrite the one you already have, if any, but don't worry).</p>
-
-
-<p >5c. Squirrel away two parts of it:</p>
-
-<tt><pre>
-        sudo mv /usr/local/bin/ocamlopt /usr/local/bin/ocamloptppc
-        sudo mv /usr/local/lib/ocaml /usr/local/lib/ocamlppc
-</tt></pre>
+which makes <tt>jape-java1.7_<i>version</i>.dmg</tt>.
+</p>
 
 
-<p >5d. Now install the Intel OCaml.
-
-
-<tt><pre>
-        make release
-</tt></pre> 
-
-will now do the business and give you a universal ./build/Jape.app.</p>
 
 <br/><hr width="60%"/><br/>
+
+
 
 
 <h2>Contact</h2>
 <p>Build originally documented by Richard Bornat (<tt>richard@bornat.me.uk</tt>), 11th March 2009; 
-subsequently edited by Bernard Sufrin (@ <tt>cs ox ac uk</tt>), late July 2012 and early April 2014</p>
+subsequently edited by Bernard Sufrin (@ <tt>cs ox ac uk</tt>), late July 2012 and early April and October 2014</p>
 
 </body>
 </html>
+
 
 
 
