@@ -31,7 +31,7 @@ run:     ;      open build/Jape.app
 
 local7:   ;      $(MAKE) engineclean engine GUIclean GUI7
 release7: ;      $(MAKE) engineclean engine GUIclean GUI7                              
-run7:     ;      open build/Jape7.app
+run7:     ;      open build1.7/Jape.app
 
 engine:      ; cd $(ENGINESOURCE); make jape_engine OS=OSX
 
@@ -46,6 +46,7 @@ engineclean: ; cd $(ENGINESOURCE); $(MAKE) clean OS=OSX
 
 GUIclean:    ; ant clean; cd $(GUISOURCE); ant clean
 guiclean:    ; ant clean; cd $(GUISOURCE); ant clean
+
 
 
 

@@ -1,12 +1,22 @@
 #!/bin/sh
-#/usr/bin/osascript -e "display notification \"Starting bootstrap\" with title \"Jape\" "
+#
+# This script, installed in Jape.app/Contents/MacOS/, starts Jape
+# on OS/X  10.7 providing a suitable java runtime environment has
+# been installed; otherwise it notifies the user or logs the problem.
+#
+# We assume that all OS/X versions  10.7 have /usr/libexec/java_home,
+# /usr/bin/osascript and /usr/bin/logger but we do not require these
+# OS/X versions all to have a notification subsystem (10.7 doesn't)
+#
 JAVAVERSION=1.7
 if /usr/libexec/java_home -Fv $JAVAVERSION
 then 
    JAVA_HOME="$(/usr/libexec/java_home -v $JAVAVERSION)"
    #/usr/bin/osascript -e "display notification \"using Java $JAVA_HOME.\" with title \"Jape\" "
 else
-   /usr/bin/osascript -e "display notification \"needs Java $JAVAVERSION to be installed.\" with title \"Jape\" "
+   # Either there is no java at all, or the installed version isn't right for the compiled GUI
+   /usr/bin/osascript -e "display notification \"needs Java $JAVAVERSION to be installed.\" with title \"Jape\" " ||\
+   /usr/bin/logger "Jape needs Java $JAVAVERSION (or an equivalent) to be installed." 
    exit
 fi
 WHERE="$(dirname "$0")"
@@ -19,6 +29,7 @@ JAVA="$PACKAGE/Contents/Java"
             "-Xdock:icon=$RESOURCES/Jape.icns" \
             "-Xdock:name=Jape" \
             -jar "$JAVA/Jape.jar"
+
 
 
 
