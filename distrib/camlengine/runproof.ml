@@ -45,7 +45,6 @@ let checkdisproof cxt =
   Disproof.checkdisproof (Facts.facts (Cxtfuns.provisos cxt) cxt)
 
 let compiletoprove = Thing.compiletoprove
-let consolereport = Miscellaneous.consolereport
 let empty = Mappingfuns.empty
 let eqbags = Listfuns.eqbags
 let explain = Tacticfuns.explain

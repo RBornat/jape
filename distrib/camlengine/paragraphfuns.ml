@@ -216,7 +216,7 @@ let rec interpret
     | ps -> ps
   in
   match paragraph with
-    AutoRule (sense, commands) ->
+  | AutoRule (sense, commands) ->
       List.iter (fun com -> addautorule (sense, com)) commands; res
   | Conjecture (RuleHeading (name, params, provisos), sequent) ->
       let svs = seqvars sequent in
@@ -230,7 +230,7 @@ let rec interpret
       nj_revfold (interpret report query where [] [] enter) paras res
   | FontSpec stuff -> setfontstuff stuff; res
   | ForceDef stuff -> addforcedef stuff; res
-  | HitDef stuff -> adddoubleclick stuff; res
+  | HitDef stuff   -> adddoubleclick stuff; res
   | InitVar (name, term) ->
       let rec lreport ss =
         report ("can't INITIALISE " :: parseablestring_of_name name :: ss);
