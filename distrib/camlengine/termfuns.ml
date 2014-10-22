@@ -100,18 +100,18 @@ let collectionkind =
 (* ------------------------------ generic functions on terms and elements ------------------------------ *)
 
 (* These functions mop up after you have picked out the things of
-* interest with a special argument function (Some for caught, None for ignored).  
-* They go right through bindings and substitutions - unless the argument function catches that.
-* In fact they will even rewrite bindings, so watch out!
-*)
+ * interest with a special argument function (Some for caught, None for ignored).  
+ * They go right through bindings and substitutions - unless the argument function catches that.
+ * In fact they will even rewrite bindings, so watch out!
+ *)
 let rec option_mapterm f t =
   (f t |~~
    (fun _ ->
       let mtff = option_mapterm f in
       let mtfl = option_rewritelist mtff in
       match t with
-        Id _ -> None
-      | Unknown _ -> None
+        Id _          -> None
+      | Unknown _     -> None
       | App (_, f, a) ->
             (option_rewrite2 mtff mtff (f, a) &~~
              (_Some <.> registerApp))
@@ -139,7 +139,7 @@ and option_mapelement a1 a2 =
       (option_mapterm f v &~~ (fun v' -> Some (registerSegvar (ps, v'))))
   | f, Element (_, r, t) ->
       (option_mapterm f t &~~ (fun t' -> Some (registerElement (r, t'))))
-(* yes, it should really be r *)
+            (* yes, it should really be r *)
 
 and option_mapelements f = option_rewritelist (option_mapelement f)
 

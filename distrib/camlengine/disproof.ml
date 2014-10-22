@@ -269,36 +269,35 @@ let moveworldlabel u w c t =
 type definition = term * term list * bool * forcedef
 (* lhs, args, hassubst, rhs *)
    
-   (* for 'occurrence' read 'individual', I think: things like actual i and so on *)
+(* for 'occurrence' read 'individual', I think: things like actual i and so on *)
 
 let forcedefs : definition list ref = ref []
 
-let occurrences : (term * term list) list ref = ref []
-(* occurrence forms *)
-   
+let occurrences : (term * term list) list ref = ref [] (* occurrence forms *)
 
+let string_of_occurrences = 
+  bracketedstring_of_list 
+    (string_of_pair string_of_term (bracketedstring_of_list string_of_term ";") ",")
+    "; "
+    
 let rec isoccurrence t =
   List.exists
     (bool_of_opt <.> (fun (occ, occvs) -> matchit occ occvs t))
     !occurrences
 
 let rec newoccurrence v =
-  match
-       (function
-          t, [v] -> true
-        | _ -> false) <|
-       !occurrences
+  match (function | t, [_] -> true
+                  | _      -> false
+        ) <| !occurrences
   with
-    (occ, [occv]) :: _ ->
-      _The (option_remapterm ((v |-> occv)) occ)
+  | (occ, [occv]) :: _ ->
+      _The (option_remapterm (occv |-> v) occ)
   | _ ->
-      raise
-        (Catastrophe_
-           ["(newoccurrence) no single-variable occurrence forms recorded"])
+      raise (Catastrophe_ ["(newoccurrence) no single-variable occurrence forms recorded"])
+
 (* filters out previous versions of t -- so we only keep actual i, for example,
    instead of actual i, actual j, actual k etc.
  *)
-
 let rec nodups t vs patf xs =
   t, (not <.> bool_of_opt <.> matchit t vs <.> patf) <| xs
 
@@ -889,10 +888,10 @@ let rec model_of_disproofstate =
            (List.map (fun (c, (_, ts, chs)) -> World (Coord c, List.map (fun v->Coord v) chs, List.map snd ts))
               (aslist universe)))
 
-let rec disproofstate_of_model a1 a2 a3 =
-  match a1, a2, a3 with
-    facts, tree, None -> None
-  | facts, tree, Some (seq, model) ->
+let rec disproofstate_of_model facts tree disproofopt =
+  match disproofopt with
+    None              -> None
+  | Some (seq, model) ->
       let rec coord = fun (Coord c) -> c in
       let (Model worlds) = model in
       let ulist =
@@ -1076,14 +1075,14 @@ let rec newtile =
                 None
             | [p] -> Some p
             | _ -> askChoice
-	                   ("Choose your new tile",
-	                    List.map (fun t -> [t])
-	                      (sort (<) (List.map string_of_term possibles))) 
+                       ("Choose your new tile",
+                        List.map (fun t -> [t])
+                          (sort (<) (List.map string_of_term possibles))) 
                      &~~ (fun i -> Some (try List.nth possibles i with
-                  												Invalid_argument "List.nth" | Failure "nth" -> 
-																						raise (Catastrophe_ ["(newtile) nth [";
-																										string_of_list string_of_term ";" possibles;
-																										"] "; string_of_int i]))))
+                                                                Invalid_argument "List.nth" | Failure "nth" -> 
+                                                                                        raise (Catastrophe_ ["(newtile) nth [";
+                                                                                                        string_of_list string_of_term ";" possibles;
+                                                                                                        "] "; string_of_int i]))))
          &~~
          (fun tile ->
             Some (withdisprooftiles d (tilesort (tile :: tiles)))))

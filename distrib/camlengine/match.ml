@@ -174,6 +174,7 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
         | _ -> res' "?? (3) " pat term []
         end
     | _ -> res' "?? " pat term []
+
 (* Ok, this is the point at which I really begin to see why we ought to 
  * distinguish Id/Unknown from everything else.  We use remapterm to alter
  * names (or we might do so :-)) and also to change a pattern into an instance.
@@ -181,45 +182,47 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
  * RB 8/x/96
  *)
 let rec option_remapterm env term =
-  let rec _Rvar v =
-    match (env <@> v) with
-      None -> v
-    | Some t -> t
+  let _Rvar v = match (env <@> v) with
+                | None   -> v
+                | Some t -> t
   in
   let rec _R =
     function
-      Id _ as v -> (env <@> v)
-    | Unknown _ as v -> (env <@> v)
+    | Id _ as v             -> (env <@> v)
+    | Unknown _ as v        -> (env <@> v)
     | Collection (_, k, es) ->
         let _RR = mapterm _R in
         let rec f =
           function
-            Segvar (_, ps, v), es ->
+          | Segvar (_, ps, v), es ->
               let ps' = (_RR <* ps) in
-              begin match (env <@> v) with
-                Some t ->
-                  begin match debracket t with
-                    Collection (_, k', es') ->
-                      if k = k' then es' @ es
-                      else raise (Catastrophe_ ["remapterm Collection 1"])
-                  | Id _ -> registerSegvar (ps', t) :: es
-                  | Unknown _ -> registerSegvar (ps', t) :: es
-                  | _ -> raise (Catastrophe_ ["remapterm Collection 2"])
-                  end
-              | None -> registerSegvar (ps', v) :: es
-              end
+              (match (env <@> v) with
+               | Some t ->
+                   (match debracket t with
+                    | Collection (_, k', es') ->
+                        if k = k' then es' @ es
+                        else raise (Catastrophe_ ["remapterm Collection 1"])
+                    | Id _ -> registerSegvar (ps', t) :: es
+                    | Unknown _ -> registerSegvar (ps', t) :: es
+                    | _ -> raise (Catastrophe_ ["remapterm Collection 2"])
+                   )
+               | None -> registerSegvar (ps', v) :: es
+              )
           | Element (_, r, t), es -> registerElement (r, _RR t) :: es
         in
         Some (registerCollection (k, nj_fold f es []))
     | _ -> None
   in
   option_mapterm _R term
+
 let rec remapterm env = anyway (option_remapterm env)
+
 (* convert a pattern into the most general form that will match it with the coarsest
  * punctuation - e.g. convert forall (x,y) . x+y into forall _P . Q
  * This is used in bindingstructure to check if a term provided by a user could be 
  * a failed attempt to make a binding structure.
  *)
+
 let rec simplepat term =
   let idnum = ref 0 in
   let rec mkid c = 
