@@ -52,6 +52,9 @@ module type Access =
     val subtrees : prooftree -> prooftree list
     val sequent : prooftree -> seq
     val rule : prooftree -> name option
+    val params : prooftree -> Termtype.term list option
+    val args : prooftree -> Termtype.term list
+    val stepprovisos : prooftree -> (bool * Proviso.proviso) list option
     val thinned : prooftree -> element list * element list
     val format : prooftree -> fmt
     val depends : prooftree -> name list
@@ -69,10 +72,10 @@ module type Tree =
     and vispath and cxt and thing and proviso and rewinf
     
     type prooftree_step =
-        Apply of (name * term list * bool) (* bool is 'isresolution step'. RB 9.iii.2005 *)
-      | Given of (string * int * bool) (* bool is 'isresolution step'. RB 9.iii.2005 *)
-      | UnRule of (string * name list)
-                  (* step name, rule dependencies *)
+      | Apply of (name * term list * bool) (* bool is 'isresolution step'. RB 9.iii.2005 *)
+      | Given of (string * int * bool)     (* bool is 'isresolution step'. RB 9.iii.2005 *)
+      | UnRule of (string   * name list)
+                (* step name  rule dependencies *)
 
     val string_of_prooftree_step : prooftree_step -> string
     val step_label : prooftree_step -> string
@@ -80,8 +83,8 @@ module type Tree =
     val mkTip : cxt -> seq -> treeformat -> treeformat prooftree
     val mkJoin :
       cxt -> string -> prooftree_step -> term list -> treeformat -> seq ->
-        treeformat prooftree list -> element list * element list ->
-        treeformat prooftree
+             treeformat prooftree list -> element list * element list ->
+             treeformat prooftree
     val get_prooftree_fmt : treeformat prooftree -> fmtpath -> treeformat
     val set_prooftree_fmt :
       treeformat prooftree -> fmtpath -> treeformat -> treeformat prooftree
@@ -108,8 +111,7 @@ module type Tree =
     val deepest_samehyps : treeformat prooftree -> fmtpath -> fmtpath
     val isCutStep : treeformat prooftree -> fmtpath -> bool
     val catelim_prooftree2tactic :
-      treeformat prooftree -> proviso list -> seq list -> string list ->
-        string list
+      treeformat prooftree -> proviso list -> seq list -> string list -> string list
     val visproof :
       (name -> bool) -> bool -> bool -> treeformat prooftree ->
         visformat prooftree
@@ -230,58 +232,63 @@ module Tree : Tree with type term = Termtype.term
     and nohidefmt = ref "()"        (* when there's nothing hidden *)
        
     type prooftree_step =
-        Apply of (name * term list * bool)
+      | Apply of (name * term list * bool)
       | Given of (string * int * bool)
-      | UnRule of (string * name list)
-    (* step name, rule dependencies *)
+      | UnRule of (string * name list)       (* step name, rule dependencies *)
 
 (* the 'hastipval' optimisation, added to stop exponential behaviour when traversing the tree, 
 * may or may not be an optimisation ...
 *)
     type 'a prooftree =
-        Tip  of (seq * rewinf * 'a)
-      | Join of (string * prooftree_step * (int * int) option *
-                   (term list * rewinf) * 'a * bool * (seq * rewinf) *
-                   ('a prooftree list * rewinf) *
-                   ((element list * element list) * rewinf))
-    (* resources consumed - elements that 
-       matched hypotheses and conclusions
-       when the rule was applied.  This information is 
-       essential for the boxdraw display module; it 
-       isn't possible to get it from the rule and its 
-       arguments
-     *) 
+      | Tip  of (seq * rewinf * 'a)
+      | Join of (string                                     * (* why *)
+                 prooftree_step                             * (* how *)
+                 (int * int) option                         * (* cutnav *)
+                 (term list * rewinf)                       * (* args *)
+                 'a                                         * (* fmt *)
+                 bool                                       * (* hastipval *)
+                 (seq * rewinf)                             * (* seq *)
+                 ('a prooftree list * rewinf)               * (* trs *)
+                 ((element list * element list) * rewinf)     (* ress *)
+                )
+                   (* ress: resources consumed - elements that 
+                      matched hypotheses and conclusions
+                      when the rule was applied.  This information is 
+                      essential for the boxdraw display module; it 
+                      isn't possible to get it from the rule and its 
+                      arguments
+                    *) 
 
 (* some functions to extract things from trees, because otherwise I get confused. RB *)
 
-    let rec join_why
+    let join_why
       (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       why
-    let rec join_how
+    let join_how
       (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       how
-    let rec join_cutnav
+    let join_cutnav
       (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       cutnav
-    let rec join_args
+    let join_args
       (why, how, cutnav, (args, rewinf), fmt, hastipval, seq, trs, ress) =
       args
-    let rec join_fmt
+    let join_fmt
       (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       fmt
-    let rec join_hastip
+    let join_hastip
       (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       hastipval
-    let rec join_seq
+    let join_seq
       (why, how, cutnav, args, fmt, hastipval, (seq, rewinf), trs, ress) =
       seq
-    let rec join_subtrees
+    let join_subtrees
       (why, how, cutnav, args, fmt, hastipval, seq, (trs, rewinf), ress) =
       trs
-    let rec join_subtrees_rewinf
+    let join_subtrees_rewinf
       (why, how, cutnav, args, fmt, hastipval, seq, (trs, rewinf), ress) =
       rewinf
-    let rec join_thinned
+    let join_thinned
       (why, how, cutnav, args, fmt, hastipval, seq, trs, (ress, rewinf)) =
       ress
     
@@ -292,78 +299,73 @@ module Tree : Tree with type term = Termtype.term
     let withfmt (why, how, cutnav, args, _, hastipval, seq, trs, ress) fmt =
       why, how, cutnav, args, fmt, hastipval, seq, trs, ress
       
-    let rec step_label =
-      function
-        Apply (n, _, _) -> parseablestring_of_name n
+    let step_label = function
+      | Apply (n, _, _) -> parseablestring_of_name n
       | Given (s, _, _) -> s
       | UnRule (s, _)   -> s
-    let rec step_resolve =
-      function
-        Apply (_, _, b) -> b
+    let step_resolve = function
+      | Apply (_, _, b) -> b
       | Given (_, _, b) -> b
       | _               -> false
-    let rec rewinfProoftree =
-      function
-        Tip (seq, rewinf, fmt) -> rewinf
+    let rewinfProoftree = function
+      | Tip (seq, rewinf, fmt) -> rewinf
       | Join (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) ->
           rewinf_merge (snd args, rewinf_merge (snd seq, rewinf_merge (snd trs, snd ress)))
-    let rec tip_seq (seq, rewinf, hastipval) = seq
-    let joinopt a1 a2 =
-      match a1, a2 with
-        f, Tip _  -> None
-      | f, Join j -> Some (f j)
-    let howrule =
-      function
-        Apply (r, _, _) -> Some r
+    let tip_seq (seq, rewinf, hastipval) = seq
+    let joinopt f = function 
+      | Tip _  -> None
+      | Join j -> Some (f j)
+    let howrule = function 
+      | Apply (r, _, _) -> Some r
       | _               -> None
-    let rule =
-      function
-        Tip _  -> None
+    let howparams = function 
+      | Apply (_, ps, _) -> Some ps
+      | _                -> None
+    let rule = function 
+      | Tip _  -> None
       | Join j -> howrule (join_how j)
+    let params = function
+      | Tip _  -> None
+      | Join j -> howparams (join_how j)
+    let args = function 
+      | Tip _  -> []
+      | Join j -> join_args j
     let ruleprovisos name = 
       match thinginfo name with
-        Some (Rule ((_, provisos, _, _), _), _) -> provisos
+      | Some (Rule ((_, provisos, _, _), _), _) -> provisos
       | Some (Theorem (_, provisos, _), _)      -> provisos
-      | _ -> raise (Catastrophe_ ["prooftree.ruleprovisos can't find thing named ";
-                                  string_of_name name])
-    let howprovisos =
-      howrule &~ (_Some <.> ruleprovisos)
-    let stepprovisos =
-      rule &~ (_Some <.> ruleprovisos)
-    let rec thinned =
-      function
-        Join j -> join_thinned j
-      | _ -> [], []
-    let rec isTip =
-      function
-        Tip _ -> true
+      | _                                       -> 
+          raise (Catastrophe_ ["prooftree.ruleprovisos can't find thing named ";
+                               string_of_name name])
+    let howprovisos = howrule &~ (_Some <.> ruleprovisos)
+    let stepprovisos = rule &~ (_Some <.> ruleprovisos)
+    let thinned = function 
+      | Join j -> join_thinned j
+      | _      -> [], []
+    let isTip = function
+      | Tip _ -> true
       | _ -> false
-    let rec hasTip =
-      function
-        Tip _ -> true
+    let hasTip = function
+      | Tip _  -> true
       | Join j -> join_hastip j
-    let rec tshaveTip ts =
+    let tshaveTip ts =
       nj_fold (fun (a, b) -> a || b) ((hasTip <* ts)) false
-    let rec subtrees =
-      function
-        Tip _ -> []
+    let subtrees = function
+      | Tip _ -> []
       | Join j -> join_subtrees j
-    let rec sequent =
-      function
-        Tip t -> tip_seq t
+    let sequent = function
+      | Tip t -> tip_seq t
       | Join j -> join_seq j
-    let rec format =
-      function
-        Tip (_, _, fmt) -> fmt
+    let rec format = function
+      | Tip (_, _, fmt) -> fmt
       | Join j -> join_fmt j
     let rec depends tree =
-      let rec d =
-        function
-          Tip _, ds -> ds
+      let rec d = function
+        | Tip _, ds -> ds
         | Join j, ds ->
             let rest = nj_fold d (join_subtrees j) ds in
             match join_how j with
-              UnRule (_, ss)  -> ss @ rest
+            | UnRule (_, ss)  -> ss @ rest
             | Apply (n, _, _) -> n :: rest
             | Given _         -> rest
       in
@@ -427,8 +429,8 @@ module Tree : Tree with type term = Termtype.term
           (* this is what makes the tip path work *)
           match path with
             n :: ns -> go n (try List.nth ts n with
-                							Invalid_argument "List.nth" | Failure "nth" -> 
-																raise (FollowPath_ ("out of range", path))) ns
+                                            Invalid_argument "List.nth" | Failure "nth" -> 
+                                                                raise (FollowPath_ ("out of range", path))) ns
           | [] -> stop ()
     let rec pathto t =
       match t with
@@ -459,8 +461,8 @@ module Tree : Tree with type term = Termtype.term
       | Join (_, _, _, _, _, _, _, (ts, _), _) ->
           match path with
             n :: ns -> Some (ns, (try List.nth ts n with
-	                									Invalid_argument "List.nth" | Failure "nth" -> 
-																			raise (FollowPath_ ("onestep out of range", path))))
+                                                        Invalid_argument "List.nth" | Failure "nth" -> 
+                                                                            raise (FollowPath_ ("onestep out of range", path))))
           | [] -> None
     let rec fakePath_ns rf t ns =
       match t with
@@ -526,7 +528,7 @@ module Tree : Tree with type term = Termtype.term
     (* Find the deepest parent of a particular node which has the same hypotheses.
      * I check on the way back down, because it is more efficient, and actually it is the only right thing to do!
      * Note that a FRESH proviso in effect introduces a var hypothesis, so we don't go past a rule which has a
-     * FRESH proviso, if we have the same hypotheses.
+     * FRESH proviso, even though we have the same hypotheses.
      *
      * At least that's what I _think_ it's doing. RB 9.iii.2005
      *)
@@ -677,9 +679,8 @@ module Tree : Tree with type term = Termtype.term
     let givenssep        = " AND "
     let provisosep       = " AND "
     
-    let rec string_of_prooftree_step =
-      function
-        Apply a ->
+    let rec string_of_prooftree_step = function
+      | Apply a ->
           "Apply" ^
             string_of_triple parseablestring_of_name string_of_termlist string_of_bool "," a
       | Given g ->
@@ -691,25 +692,24 @@ module Tree : Tree with type term = Termtype.term
     
     let string_of_ns = bracketedstring_of_list string_of_int ","
     
-    let rec string_of_Join
-      tlf subtreesf (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
+    let rec string_of_Join tlf subtreesf (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       implode
         ["Join("; "reason="; why; ", how="; string_of_prooftree_step how;
          ", cutnav=";
          string_of_option (string_of_pair string_of_int string_of_int ",")
-           (cutnav : (int * int) option);
+                          (cutnav : (int * int) option);
          ", args="; string_of_pair string_of_termlist string_of_rewinf ", " args;
          ", fmt="; tlf fmt; ", hastipval="; string_of_bool hastipval;
          ", seq="; string_of_pair elementstring_of_seq string_of_rewinf ", " seq;
          ", subtrees="; string_of_pair subtreesf string_of_rewinf ", " trs; ", ress=";
-         begin
-           let string_of_ths =
-             bracketedstring_of_list (debugstring_of_element string_of_term) ", "
-           in
-           string_of_pair (string_of_pair string_of_ths string_of_ths ", ") string_of_rewinf ", "
-             ress
-         end;
-         ")"]
+         (let string_of_ths =
+            bracketedstring_of_list (debugstring_of_element string_of_term) ", "
+          in
+          string_of_pair (string_of_pair string_of_ths string_of_ths ", ") string_of_rewinf ", "
+                         ress
+         );
+         ")"
+        ]
     
     let rec string_of_prooftree tlf t =
       let rec pft tlf rp t =
@@ -768,15 +768,15 @@ module Tree : Tree with type term = Termtype.term
       (* a proof as an executable tactic *)
       let seq = sequent tree in
       let rec thisone j =
-        let rec res b t = if b then ResolveTac t else t in
+        let res b t = if b then ResolveTac t else t in
         match join_how j with
-          Apply (n, ps, b) -> res b (SubstTac (n, step_argmap ps (join_args j)))
+        | Apply (n, ps, b) -> res b (SubstTac (n, step_argmap ps (join_args j)))
         | Given (_, i, b)  -> res b (GivenTac (term_of_int i))
         | UnRule (r, _)    -> mkUnRuleTac (r, join_args j)
       in
       let rec traverse =
         function
-          Tip t, ts -> NextgoalTac :: ts
+        | Tip t, ts -> NextgoalTac :: ts
         | Join j, ts ->
             let rec tr ts = thisone j :: nj_fold traverse (join_subtrees j) ts in
             match layouts_of_format (join_fmt j) with
@@ -792,7 +792,7 @@ module Tree : Tree with type term = Termtype.term
         | Join j, hs ->
             let rec catalogue =
               function
-                Collection (_, _, els), hs ->
+              | Collection (_, _, els), hs ->
                   nj_fold
                     (function
                        Element (_, _, t), hs -> catalogue (t, hs)
@@ -800,15 +800,11 @@ module Tree : Tree with type term = Termtype.term
                     els hs
               | arg, hs ->
                   match hashterm arg with
-                    Some h -> arg :: hs
-                  | None ->
-                      if existsterm
-                           (function
-                              Literal (_, Number _) -> true
-                            | _ -> false)
-                           arg
-                      then
-                        raise Can'tHash_
+                  | Some h -> arg :: hs
+                  | None   ->
+                      if existsterm (function | Literal (_, Number _) -> true | _ -> false)
+                                    arg
+                      then raise Can'tHash_
                       else hs
             in
             nj_fold hashables (join_subtrees j)
@@ -1061,10 +1057,9 @@ module Tree : Tree with type term = Termtype.term
       let args = (rewrite cxt <* args) in
       let seq = rewriteseq cxt seq in
       let ress = anyway (rew_ress cxt) ress in
-      Join
-        (why, how, None, (args, getrewinfargs cxt args), fmt, tshaveTip tops,
-         (seq, getrewinfSeq "mkJoin" cxt seq),
-         (tops, getrewinfProoftreeList tops), (ress, getrewinfress cxt ress))
+      Join (why, how, None, (args, getrewinfargs cxt args), fmt, tshaveTip tops,
+            (seq, getrewinfSeq "mkJoin" cxt seq),
+            (tops, getrewinfProoftreeList tops), (ress, getrewinfress cxt ress))
     exception AlterProof_ of string list
     let rec applytosubtree_ns path t f =
       let rec ans () =
@@ -1523,7 +1518,7 @@ module Tree : Tree with type term = Termtype.term
     let rec tranproof proved showall hideuselesscuts t =
       let rec visp =
         function
-          Tip (seq, rewinf, _) ->
+        | Tip (seq, rewinf, _) ->
             [], Tip (seq, rewinf, VisFormat (false, false))
         | Join (why, how, cutnav, args, fmt, htv, seq, subts, ress as j) as it ->
             let (viss, _) = visibles showall j in
@@ -1631,6 +1626,9 @@ module Tree : Tree with type term = Termtype.term
         let subtrees = subtrees
         let sequent = sequent
         let rule = rule
+        let params = params
+        let args = args
+        let stepprovisos = stepprovisos
         let thinned = thinned
         let format = format
         let depends = depends
@@ -1693,11 +1691,13 @@ module Tree : Tree with type term = Termtype.term
           fVisPath <.> siblingPath_ns t (dePath path)
         let subgoalPath t path =
           fVisPath <.> subgoalPath_ns t (dePath path)
-        let rec reason proved = joinopt join_why
-        (* doesn't make use of proved, because it's already happened... *)
+        let rec reason proved = joinopt join_why (* doesn't make use of proved, because it's already happened... *)
         let subtrees = subtrees
         let sequent = sequent
         let rule = rule
+        let params = params
+        let args = args
+        let stepprovisos = rule &~ (_Some <.> ruleprovisos)
         let thinned = thinned
         let format = format
         let depends = depends

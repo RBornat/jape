@@ -139,7 +139,7 @@ val listen       : unit -> string
 val terminateGUI : unit -> unit
 
 val drawLine   : pos -> pos -> unit (* don't extend beyond pos2; use linethickness from setproofparams *)
-val drawRect   : box -> unit        (* stay inside the box; use linethickness from setproofparams *)
+val drawRect   : box -> string -> unit (* stay inside the box; use linethickness from setproofparams *)
 
 exception DeadGUI_
 

@@ -337,29 +337,29 @@ let rec interpret
         if where <> oldplace && where <> InLimbo then
           addthing (name, thing, where)
       in
-      begin match givens, thingnamed name with
-        [], Some (Theorem _, _ as info) -> updateplace info
-      | _ :: _, Some ((Theorem _ as thm), _) ->
-          report
-            ["processing proof of rule "; string_of_name name;
-             " - found theorem"; string_of_thing thm;
-             " stored under that name"];
-          raise Use_
-      | _, Some (Rule _, _ as info) -> updateplace info
-      | [], None ->
-          addthing
-            (name, Theorem (params, visprovisos provisos, seq), where)
-      | _ :: _, None ->
-          addthing
-            (name,
-             Rule ((params, visprovisos provisos, givens, seq), false),
-             where)
-      | _, Some (thing, _) ->
-          report
-            ["processing proof of "; string_of_name name; " - found ";
-             string_of_thing thing; " stored under that name"];
-          raise Use_
-      end;
+      (match givens, thingnamed name with
+	   | [], Some (Theorem _, _ as info) -> updateplace info
+	   | _ :: _, Some ((Theorem _ as thm), _) ->
+		   report
+			 ["processing proof of rule "; string_of_name name;
+			  " - found theorem"; string_of_thing thm;
+			  " stored under that name"];
+		   raise Use_
+	   | _, Some (Rule _, _ as info) -> updateplace info
+	   | [], None ->
+		   addthing
+			 (name, Theorem (params, visprovisos provisos, seq), where)
+	   | _ :: _, None ->
+		   addthing
+			 (name,
+			  Rule ((params, visprovisos provisos, givens, seq), false),
+			  where)
+	   | _, Some (thing, _) ->
+		   report
+			 ["processing proof of "; string_of_name name; " - found ";
+			  string_of_thing thing; " stored under that name"];
+		   raise Use_
+      );
       consolereport
         ["checking "; word_of_proofstage stage; " "; string_of_name name];
       (* edit this bit of code to profile the checking bit of proof reload *)

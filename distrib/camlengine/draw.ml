@@ -72,17 +72,14 @@ let rec drawinproofpane () = Japeserver.drawinpane proofpane
 
 type 'a plan = Formulaplan of (textlayout * textbox * 'a)
 
-let rec debugstring_of_plan f = (* was string_of_plan  *)
+let debugstring_of_plan f = (* was string_of_plan  *)
   fun (Formulaplan plan) ->
     "Formulaplan" ^ string_of_triple string_of_textlayout string_of_textbox f "," plan
 
-let rec string_of_plan  =
-  function
-    Formulaplan (Textlayout [_, _, s], _, _) -> s
-  | p -> raise
-            (Catastrophe_
-               ["multisyllable text in string_of_plan  -- ";
-                debugstring_of_plan (fun _ -> "...") p])
+let string_of_plan = function
+  | Formulaplan (Textlayout [_, _, s], _, _) -> s
+  | p -> raise (Catastrophe_ ["multisyllable text in string_of_plan  -- ";
+                              debugstring_of_plan (fun _ -> "...") p])
 
 let textlayout_of_plan = fun (Formulaplan (tl, _, _)) -> tl
 
@@ -98,32 +95,33 @@ let textsize_of_planlist ps = tbS (textbox_of_planlist ps)
   
 let viewBox () = Japeserver.getPaneGeometry Displayfont.ProofPane
 
-let rec clearView () = Japeserver.clearPane Displayfont.ProofPane
+let clearView () = Japeserver.clearPane Displayfont.ProofPane
 
 let highlight = Japeserver.highlight
 
 let drawBox = Japeserver.drawRect
 
-let rec linethickness leading =
+let linethickness leading =
   (* width of the lines (box, selection) we draw *)
-  let r = max ((leading + 2) / 3) 1 in(* consolereport["leading ", string_of_int leading, "; thickness ", string_of_int r]; *)
-   r
+  let r = max ((leading + 2) / 3) 1 in
+  (* consolereport["leading ", string_of_int leading, "; thickness ", string_of_int r]; *)
+  r
 
 let setproofparams = Japeserver.setproofparams
 
-let rec measuretext ta t = Text.measuretext Japeserver.measurestring ta t
+let measuretext ta t = Text.measuretext Japeserver.measurestring ta t
 (* note fixed alignment, so don't use for folded/multiline texts *)
 
 let textinfo_of_text = measuretext FirstLine
 
-let rec mktextinfo f = textinfo_of_text <.> f
+let mktextinfo f = textinfo_of_text <.> f
 
-let rec textinfo_of_string f = mktextinfo (text_of_string f)
+let textinfo_of_string f = mktextinfo (text_of_string f)
 
-let rec textinfo_of_element string_of_element =
+let textinfo_of_element string_of_element =
   mktextinfo (text_of_element string_of_element)
 
-let rec textinfo_of_term string_of_term = mktextinfo (text_of_term string_of_term)
+let textinfo_of_term string_of_term = mktextinfo (text_of_term string_of_term)
 
 let textinfo_of_reason = mktextinfo text_of_reason
 
@@ -154,13 +152,13 @@ let rec textinfo_procrustes w p (size, Textlayout ts as inf) =
   (* let (rf, rs) = fontNstring_of_reason r in
   textinfo_of_string rf (Japeserver.procrustes w " ..." rf rs) *)
 
-let rec plan_of_textinfo (size, layout) info p =
+let plan_of_textinfo (size, layout) info p =
   Formulaplan (layout, textbox p size, info)
 
-let rec plan_of_string font s info p =
+let plan_of_string font s info p =
   plan_of_textinfo (textinfo_of_string font s) info p
 
-let rec plan_of_element ef element info p =
+let plan_of_element ef element info p =
   plan_of_textinfo (textinfo_of_element ef element) info p
 (* I'd much rather say val plan_of_element = plan_of_textinfo o textinfo_of_element, but
  * I seem to remember that SML 109 can't cope.
@@ -193,28 +191,26 @@ let planunwind tail stuff =
   let plancons' stuff plan = plancons plan stuff in
   List.fold_left plancons' tail stuff
              
-let rec planfold thingf sepf (p, tb, plans as res) =
-    function []              -> res
-    |        [thing]         -> let plan = thingf thing p in
-                                nextright_of_plan plan, tb +|-|+ textbox_of_plan plan, plan :: plans
-    |        thing :: things ->
-               let thingplan = thingf thing p in
-               let sepplan = sepf (nextright_of_plan thingplan)  in
-               planfold thingf sepf 
-                (nextright_of_plan sepplan, 
-                 tb +|-|+ textbox_of_plan thingplan +|-|+ textbox_of_plan sepplan,
-                 sepplan :: thingplan :: plans) 
-                things
+let rec planfold thingf sepf (p, tb, plans as res) = function 
+  | []              -> res
+  | [thing]         -> let plan = thingf thing p in
+                       nextright_of_plan plan, tb +|-|+ textbox_of_plan plan, plan :: plans
+  | thing :: things -> let thingplan = thingf thing p in
+                       let sepplan = sepf (nextright_of_plan thingplan)  in
+                       planfold thingf sepf 
+                        (nextright_of_plan sepplan, 
+                         tb +|-|+ textbox_of_plan thingplan +|-|+ textbox_of_plan sepplan,
+                         sepplan :: thingplan :: plans) 
+                        things
 
 let plans_of_things thingf sepf moref things p  =
   let p', _, stuff = planfold thingf sepf (p, emptytextbox, []) things in
   planunwind (moref p') stuff
     
-let rec drawplan f p =
-  fun (Formulaplan (Textlayout tl, b, info)) ->
-    Japeserver.drawmeasuredtext (f info) tl (p +->+ tbP b)
+let drawplan f p (Formulaplan (Textlayout tl, b, info)) =
+  Japeserver.drawmeasuredtext (f info) tl (p +->+ tbP b)
 
-let rec findfirstplanhit p =
+let findfirstplanhit p =
   findfirst (fun pl -> if withintb p (textbox_of_plan pl) then Some pl else None)
 
 let string_of_textinfo = string_of_pair string_of_textsize string_of_textlayout ","

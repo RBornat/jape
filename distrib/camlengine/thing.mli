@@ -35,7 +35,7 @@ open Cxttype
 open Mappingfuns
 
 type thing =
-    Rule    of ((paraparam list * (bool * proviso) list * seq list * seq) * bool)
+  | Rule    of ((paraparam list * (bool * proviso) list * seq list * seq) * bool)
   | Theorem of (paraparam list * (bool * proviso) list * seq)
   | Tactic  of (paraparam list * tactic)
   | Macro   of (paraparam list * term)

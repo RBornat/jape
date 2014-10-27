@@ -62,13 +62,13 @@ let thingdebugheavy = ref false
 type ruledata = paraparam list * (bool * proviso) list * seq list * seq
 type thmdata = paraparam list * (bool * proviso) list * seq
 type thing =
-    Rule of (ruledata * bool)
+  | Rule of (ruledata * bool)
   | Theorem of thmdata
   | Tactic of (paraparam list * tactic)
   | Macro of (paraparam list * term)
 (* this is what we store *)
 type storedthing =
-    Rawthing of thing
+  | Rawthing of thing
   | CookedRule of ((term list * ruledata) * (term list * ruledata) * bool)
   | CookedTheorem of ((term list * ruledata) * (term list * ruledata))
 type thingplace = InMenu of name | InPanel of name | InLimbo
@@ -519,14 +519,13 @@ let rec extraVIDs params args bodyVIDs =
 
 let rec allparams params allvs =
   params @
-    listsub
-      (function
-         Unknownparam v1, Unknownparam v2 ->
-           fst v1 = fst v2
-       | Unknownparam v1, _ -> false
-       | _, Unknownparam v2 -> false
-       | v1, v2 ->
-           fst (paramidbits v1) = fst (paramidbits v2))
+    listsub (function
+             | Unknownparam v1, Unknownparam v2 ->
+                 fst v1 = fst v2
+             | Unknownparam v1, _ -> false
+             | _, Unknownparam v2 -> false
+             | v1, v2 ->
+                 fst (paramidbits v1) = fst (paramidbits v2))
       allvs params
 
 let rec extraBag_vid () = vid_of_string (autoID (BagClass FormulaClass) "extraBag")
@@ -806,7 +805,7 @@ let rec registerRelationpat t =
  * addthing
  *)
 type structurerule =
-    CutRule
+  | CutRule
   | LeftWeakenRule
   | RightWeakenRule
   | IdentityRule
@@ -1126,11 +1125,11 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
   let thingnamed = getthing goodthing
   
   and thinginfo = getthing badthing in
+  
   (* for _efficiency_, it would be best if we compiled things when they were
    * first used.  For _error reporting_, and for generally making sense, it is
    * best if they are compiled when put into place
    *)
-  
   let rec addthing (name, thing, place) =
     match findfirst (fun (k,n as pair) -> if n=name then Some pair else None) !structurerules with
       Some (kind,_) ->
@@ -1296,8 +1295,7 @@ let rec freshRuleshow name af cxt args vars rd res =
     end;
   res
 
-let rec freshRuletoapply
-  cxt args vars (params, provisos, antes, conseq as rd) =
+let rec freshRuletoapply cxt args vars (params, provisos, antes, conseq as rd) =
   let (interesting_resources, args, antes', conseq', cxt') =
     renumberforuse args antes conseq cxt
   in
@@ -1358,6 +1356,7 @@ let rec freshTheoremtoapply lw rw cxt args vars rulestuff =
 
 let rec freshTheoremtosubst lw rw cxt args vars rulestuff =
   fThmaors freshRuletosubst lw rw cxt args vars rulestuff
+
 (* 1. This is a hack, to be used until I can work out how to program a general 
  *    resolution step as a tactic -- in particular, beware of 2a.
  * 2. It always succeeds, even if there are no lhs formulae which might make it useful,
@@ -1369,7 +1368,6 @@ let rec freshTheoremtosubst lw rw cxt args vars rulestuff =
  * 4. Once you've used it, don't forget to throw away the left-hand principals (first half
  *    of interesting_resources).
  *)
-
 let rec rearrangetoResolve antes =
   fun (Seq (st, lhs, rhs) as conseq) ->
     let rec extractsegv =

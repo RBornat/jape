@@ -34,6 +34,7 @@ val hidereflexivity : bool ref
 
 val outermostbox : bool ref
 val showrelations : bool ref
+val showboxfreshvs : bool ref
 
 val outerassumptionword : string ref
 val outerassumptionplural : string ref

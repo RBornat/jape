@@ -414,7 +414,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
       nj_fold
         (fun (vp, (ips, nps)) ->
            match provisoactual vp with
-             FreshProviso (_, _, false, _ as f) ->
+           | FreshProviso (_, _, false, _ as f) ->
                ips, expandfresh (provisovisible vp) f _CHs _CGs nps
            | FreshProviso (_, _, true, _ as i) ->
                (provisovisible vp, i) :: ips, nps

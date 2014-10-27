@@ -586,10 +586,9 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 			   String text) throws ProtocolError {
 	JapeFont.checkInterfaceFontnum(fontnum);
 	drawstring(x, y, kind, 
-		   kind==PunctTextItem ? 
-		    new TextComponent[]{new TextComponent(0, 0, fontnum, text)} : 
-		    new AnnotatedTextComponent[]{
-			new AnnotatedTextComponent(0, 0, fontnum, text)});
+		   kind==PunctTextItem ? new TextComponent[]{new TextComponent(0, 0, fontnum, text)} : 
+		                         new AnnotatedTextComponent[]{
+		                                   new AnnotatedTextComponent(0, 0, fontnum, text)});
    }
     
     public void drawstring(int x, int y, byte kind, 
@@ -638,8 +637,8 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     }
 	
 	
-    public void drawRect(int x, int y, int w, int h) {
-	proofCanvas.add(new RectItem(proofCanvas, x, y, w, h));
+    public void drawRect(int x, int y, int w, int h, String s) {
+	proofCanvas.add(new RectItem(proofCanvas, x, y, w, h, s));
     }
 
     public void drawLine(int x1, int y1, int x2, int y2) {

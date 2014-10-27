@@ -32,11 +32,12 @@
 
 open Termtype
 
-type proviso = FreshProviso of (bool * bool * bool * term)
-             | UnifiesProviso of (term * term)
-             | NotinProviso of (term * term)
-             | NotoneofProviso of (term list * term * term)
-             | DistinctProviso of term list
+type proviso = 
+  | FreshProviso of (bool * bool * bool * term)
+  | UnifiesProviso of (term * term)
+  | NotinProviso of (term * term)
+  | NotoneofProviso of (term list * term * term)
+  | DistinctProviso of term list
 
 (* Meaning of provisos at present :
    FreshProviso (h, g, r, v)     : Variable v doesn't occur free in hypotheses (if h), 
@@ -51,8 +52,8 @@ type proviso = FreshProviso of (bool * bool * bool * term)
  *)
                       
 
-let _FreshProviso bbbt = FreshProviso bbbt
-let _UnifiesProviso tt = UnifiesProviso tt
-let _NotinProviso vt = NotinProviso vt
-let _DistinctProviso vs = DistinctProviso vs
+let _FreshProviso bbbt      = FreshProviso bbbt
+let _UnifiesProviso tt      = UnifiesProviso tt
+let _NotinProviso vt        = NotinProviso vt
+let _DistinctProviso vs     = DistinctProviso vs
 let _NotoneofProviso vspatc = NotoneofProviso vspatc

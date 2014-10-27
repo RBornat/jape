@@ -63,11 +63,11 @@ let rec parseablestring_of_name =
 
 let rec nameopt_of_term t =
   match t with
-    Id (_, v, _)          -> Some (Name (string_of_vid v))
+  | Id (_, v, _)          -> Some (Name (string_of_vid v))
   | Unknown (_, v, _)     -> Some (Name (metachar_as_string ^ string_of_vid v))
   | Literal (_, Number s) -> Some (Name (string_of_int s))
   | Literal (_, String s) -> Some (Name s)
-  | _ -> None
+  | _                     -> None
 
 (* this is better than disQuote, because it parses the string *)
 let rec name_of_string s =

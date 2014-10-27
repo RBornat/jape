@@ -38,7 +38,7 @@ let string_of_font = string_of_displayfont
 type textalign = FirstLine | MidBlock | LastLine
 
 type syllable =
-    Syllable of (font * string)
+  | Syllable of (font * string)
   | Gap of int
   | Linebreak of int
   | Block of (textalign * syllable list)

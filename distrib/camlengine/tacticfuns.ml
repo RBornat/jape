@@ -161,11 +161,11 @@ let proving = ref (name_of_string "")
 let selections: (path *                                                     (* to sequent *)
                  (element * side option) option *                           (* conclusion *)
                  element list *                                             (* hypotheses *)
-				 (path * (element * side option) * string list) list *      (* conclusion text *)
-				 (path * element * string list) list *                      (* hypotheses text *)
-				 string list                                                (* givens *)
-				) option ref 
-		= ref None
+                 (path * (element * side option) * string list) list *      (* conclusion text *)
+                 (path * element * string list) list *                      (* hypotheses text *)
+                 string list                                                (* givens *)
+                ) option ref 
+        = ref None
 
 let rec getselectedconclusion () =
   (!selections &~~
@@ -985,12 +985,13 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
                      with None_ -> raise (Catastrophe_ ["tacticfuns.doCUTIN can't make term of ";
                                                         debugstring_of_element string_of_term cuthypel])
     in
-    let provisos' = (function (true, false, v) -> 
-                                Provisotype.NotinProviso(v,cuthypterm) 
-                     |        (b, r, v) -> 
-                                (showAlert["doCUTIN sees fresh name "; 
-                                           string_of_triple string_of_bool string_of_bool string_of_term "," (b,r,v)];
-                                 Provisotype.NotinProviso(v,cuthypterm))) <* freshnames
+    let provisos' = 
+     (function | (true, false, v) -> 
+                   Provisotype.NotinProviso(v,cuthypterm) 
+               | (b, r, v) -> 
+                   (showAlert["doCUTIN sees fresh name "; 
+                              string_of_triple string_of_bool string_of_bool string_of_term "," (b,r,v)];
+                    Provisotype.NotinProviso(v,cuthypterm))) <* freshnames
     in
     let cxt''' = plusvisibleprovisos cxt'' provisos' in
     let (_, wholeproof) =
@@ -1613,10 +1614,9 @@ let rec mkenv params args =
   let formals = tranformals params in
   let rec mkenv' a1 a2 =
     match a1, a2 with
-      f :: fs, v :: vs -> ((f |-> v) ++ mkenv' fs vs)
-    | _, _ -> !rootenv
+    | f :: fs, v :: vs -> ((f |-> v) ++ mkenv' fs vs)
+    | _, _ -> !rootenv (* filth, by Richard *)
   in
-  (* filth, by Richard *)
   mkenv' formals args
 
 let rec mkenvfrommap params argmap =
@@ -1920,26 +1920,21 @@ let rec applyBasic
   else
     ruler checker filter taker selhyps selconcs
       (expandstuff name stuff state) reason cxt state
+
 (* because this is generic it has to be outside the loop, 
  * and given dispatchTactic as an argument 
  *)
-
-let rec tryApplyOrSubst
-  dispatch getit mke con trace display try__ contn name args =
-  fun
-    (Proofstate
-       {cxt = cxt;
-        tree = tree;
-        givens = givens;
-        goal = goal;
-        target = target;
-        root = root} as state) ->
+let tryApplyOrSubst dispatch getit mke con trace display try__ contn name args 
+                    (Proofstate{cxt = cxt; tree = tree; givens = givens;
+                                goal = goal; target = target; root = root
+                               } as state
+                    ) =
     checkTimer state;
     (* warning: this causes a loop in autoTactics if timesbeingtried=0 *)
     (* if isproven state then Some state else -- removed because it is confusing error-message tactics *)
     let (cxt, stuff) = getit name args cxt in
     match stuff with
-      _, _, Tactic (formals, tac) ->
+    | _, _, Tactic (formals, tac) ->
         let rec def tac args =
           trace name args state;
           dispatch display try__ (mke formals args) contn tac state
@@ -1970,7 +1965,7 @@ let rec tryApplyOrSubst
           in
           let rec wholepath path =
             match root, path with
-              Some (_, rpath), Some (FmtPath pns) ->
+            | Some (_, rpath), Some (FmtPath pns) ->
                 Some (subgoalPath wholetree rpath pns)
             | _ -> path
           in
@@ -2168,7 +2163,7 @@ let rec dispatchTactic display try__ env contn tactic =
         end
     | SubstTac (name, vts) ->
         trySubst display try__ contn (evalname env name)
-          ((evalvt env <* vts)) state
+                 ((evalvt env <* vts)) state
     | GivenTac i -> contn (tryGiven display try__ (eval env i) state)
     | WhenTac ts -> contn (doWHEN ts display try__ env state)
     | WithSubstSelTac t ->
@@ -2261,9 +2256,8 @@ and tryApply display =
 
 
 and trySubst display =
-  tryApplyOrSubst dispatchTactic (getsubstinfo true) mkenvfrommap (fun v->SubstTac v)
-    tracewithmap display
-
+  tryApplyOrSubst dispatchTactic (getsubstinfo true) mkenvfrommap (fun v -> SubstTac v)
+                  tracewithmap display
 
 and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs (* as try__ *)) i 
                      (Proofstate {cxt = cxt; givens = givens} as state) =
@@ -2321,8 +2315,8 @@ and doMAPTERMS display try__ contn name args =
 (* Now it forces you to use the substitution it constructs *)
 
 and doWITHSUBSTSEL display try__
-				   (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
-								target = target; root = root})
+                   (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
+                                target = target; root = root})
                    tacfun =
     match getunsidedselectedtext (), goal with
       Some (path, concsels, hypsels, givensel), Some g ->

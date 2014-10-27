@@ -118,13 +118,13 @@ fun (Seq (st, _Hs, _Gs), stuff) ->
 let _RIT = rawinfTerm n in _RIT (_Hs, _RIT (_Gs, stuff))
 
 let rec rawinfProviso n (p, stuff) =
-let _RIT = rawinfTerm n in
-match p with
-  FreshProviso (_, _, _, v)     -> _RIT (v, stuff)
-| NotinProviso (v, p)           -> _RIT (v, _RIT (p, stuff))
-| DistinctProviso vs            -> nj_fold _RIT vs stuff
-| NotoneofProviso (vs, pat, _C) -> nj_fold _RIT vs (_RIT (_C, stuff))
-| UnifiesProviso (p1, p2)       -> _RIT (p1, _RIT (p2, stuff))
+  let _RIT = rawinfTerm n in
+  match p with
+  | FreshProviso (_, _, _, v)     -> _RIT (v, stuff)
+  | NotinProviso (v, p)           -> _RIT (v, _RIT (p, stuff))
+  | DistinctProviso vs            -> nj_fold _RIT vs stuff
+  | NotoneofProviso (vs, pat, _C) -> nj_fold _RIT vs (_RIT (_C, stuff))
+  | UnifiesProviso (p1, p2)       -> _RIT (p1, _RIT (p2, stuff))
 
 let rec rawinfElements n (es, stuff) =
 let rec _RE (e, stuff) =
@@ -283,7 +283,7 @@ let rec rew_Seq subst cxt =
 let rec rew_Proviso subst cxt p =
   let _RT = rew_Term subst cxt in
   match p with
-    FreshProviso (h, g, r, v)     ->
+  | FreshProviso (h, g, r, v)     ->
       rew_ _RT v (fun v -> FreshProviso (h, g, r, v))
   | NotinProviso vp               -> rew_ (rew_Pair _RT) vp (fun v->NotinProviso v)
   | DistinctProviso vs            -> rew_ (option_rewritelist _RT) vs (fun v->DistinctProviso v)

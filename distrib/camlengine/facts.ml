@@ -124,18 +124,17 @@ let rec exterioreqvarsq facts v1 v2 =
             begin match facts with
               ps, Exterior (_, _, Some {fvs=fvs; vmap=vmap; bhfvs=bhfvs; bcfvs=bcfvs}) ->
                 let rec checkfresh () =
-                  if List.exists
-                       (function
-                          FreshProviso (h, g, _, v') ->
-                            let rec ok v =
-                              h && member (v, bhfvs) ||
-                              g && member (v, bcfvs)
-                            in
-                            v1 = v' && ok v2 || v2 = v' && ok v1
-                        | _ -> false)
-                       ps
-                  then
-                    No
+                  if List.exists (function
+                                  | FreshProviso (h, g, _, v') ->
+                                      let rec ok v =
+                                        h && member (v, bhfvs) ||
+                                        g && member (v, bcfvs)
+                                      in
+                                      v1 = v' && ok v2 || v2 = v' && ok v1
+                                  | _ -> false
+                                 )
+                                 ps
+                  then No
                   else Maybe
                 in
                 if member (v1, fvs) && member (v2, fvs) then checkfresh ()

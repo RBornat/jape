@@ -82,8 +82,10 @@ let rec remapping (f, mapping) =
     empty mapping
 (* dom now gives its result in reverse insertion order, just like rawdom *)
 
-let rec aslist (m : ('a * 'b) list) =
+let aslist (m : ('a * 'b) list) =
   seteq (fun (a, b) (a1, b1) -> a = a1) m
+  
+let fromlist m = m
 
 let rec dom m = List.map (fun (r,_)->r) (aslist m)
 

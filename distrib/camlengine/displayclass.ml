@@ -31,11 +31,11 @@ type displayclass = DisplayHyp | DisplayConc | DisplayAmbig | DisplayReason | Di
 
 let rec string_of_displayclass =
   function
-    DisplayHyp -> "DisplayHyp"
-  | DisplayConc -> "DisplayConc"
-  | DisplayAmbig -> "DisplayAmbig"
+    DisplayHyp    -> "DisplayHyp"
+  | DisplayConc   -> "DisplayConc"
+  | DisplayAmbig  -> "DisplayAmbig"
   | DisplayReason -> "DisplayReason"
-  | DisplayPunct -> "DisplayPunct"
+  | DisplayPunct  -> "DisplayPunct"
 
 (* Useful translation for Japeserver marshalling.
  * Current C/Java/Tk interfaces believe in these integers.
@@ -50,11 +50,11 @@ let rec string_of_displayclass =
 
 let rec int_of_displayclass =
   function
-    DisplayPunct -> 0
-  | DisplayConc -> 1
-  | DisplayHyp -> 2
+    DisplayPunct  -> 0
+  | DisplayConc   -> 1
+  | DisplayHyp    -> 2
   | DisplayReason -> 3
-  | DisplayAmbig -> 4
+  | DisplayAmbig  -> 4
 
 let rec displayclass_of_int =
   function

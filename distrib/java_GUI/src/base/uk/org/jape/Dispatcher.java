@@ -121,10 +121,16 @@ public class Dispatcher extends Thread implements DebugConstants {
 			if (p=="DRAWMEASUREDTEXTEND"&&len==1)
 			    ProofWindow.getFocussedWindow().endMeasuredText();
 			else
-			if (p=="DRAWRECT"&&len==5)
+			if (p=="DRAWRECT"&&len==6)
 			    ProofWindow.getFocussedWindow().drawRect(toInt(cmd[1]), toInt(cmd[2]), // x, y
-						 toInt(cmd[3]), toInt(cmd[4])); // w, h
+                    						     toInt(cmd[3]), toInt(cmd[4]), // w, h
+                    						     cmd[5]);                      // s
 			else
+	                if (p=="DRAWRECT"&&len==5) // can come in with a blank string
+                            ProofWindow.getFocussedWindow().drawRect(toInt(cmd[1]), toInt(cmd[2]), // x, y
+                                                                     toInt(cmd[3]), toInt(cmd[4]), // w, h
+                                                                     "");                          // s
+                        else
 			if (p=="DRAWLINE"&&len==5)
 			    ProofWindow.getFocussedWindow().drawLine(toInt(cmd[1]), toInt(cmd[2]), // x, y
 						 toInt(cmd[3]), toInt(cmd[4])); // w, h

@@ -69,18 +69,17 @@ class TextItem extends DisplayItem implements DebugConstants {
             TextComponent c = components[i];
             g.setFont(c.font);
             // This to avoid update madness. It's not expensive.
-            if (isButton)
-            { java.awt.Rectangle r = new java.awt.Rectangle(c.offX, c.offY, c.dimension.width, ascent+c.dimension.descent);
-              if (hovering)
-              {
-                g.setColor(JapePrefs.ButtonHoverColour);
-                g.drawRect(r.x, r.y,  r.width-1, r.height-1);
-                g.drawRect(r.x+1, r.y+1, r.width-3, r.height-3);
-              }
-              else 
-              { g.setColor(JapePrefs.ButtonBackgroundColour);
-                g.fillRect(r.x, r.y, r.width-1, r.height-1);
-              }
+            if (isButton) { 
+                java.awt.Rectangle r = new java.awt.Rectangle(c.offX, c.offY, c.dimension.width, ascent+c.dimension.descent);
+                if (hovering) {
+                    g.setColor(JapePrefs.ButtonHoverColour);
+                    g.drawRect(r.x, r.y,  r.width-1, r.height-1);
+                    g.drawRect(r.x+1, r.y+1, r.width-3, r.height-3);
+                }
+                else { 
+                    g.setColor(JapePrefs.ButtonBackgroundColour);
+                    g.fillRect(r.x, r.y, r.width-1, r.height-1);
+                }
             }            
             g.setColor(isEnabled() ? getForeground() : JapePrefs.GreyTextColour);
             g.drawString(c.printtext, c.offX, ascent+c.offY);
