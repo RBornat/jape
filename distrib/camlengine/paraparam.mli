@@ -31,8 +31,7 @@ open Idclass
 type paraparam = Objectparam      of (vid * idclass)
                | Ordinaryparam    of (vid * idclass)
                | Unknownparam     of (vid * idclass)
-               | Abstractionparam of (vid * idclass)
-                 (* ABSTRACTION P *) (* means treat as shorthand for substitution RB *)
+               | Abstractionparam of (vid * idclass) (* ABSTRACTION P -- means treat as shorthand for substitution RB *)
 
 val paramidbits : paraparam -> vid * idclass
 val paramvar    : paraparam -> term

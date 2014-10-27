@@ -118,10 +118,9 @@ let rec readlines s =
   | n -> readline s :: readlines s (n-1)
 ;;
 
-(* this is a strange bit of code.  I _think_ it converts a space-separated list of numbers
+(* this is a strange bit of code.  I _think_ it converts a space-separated sequence of numbers
    into a list of numbers.
  *)
- 
 let rec nn_ =
   function
     dash :: ds when dash=Char.code '-' -> - (dd_ 0 ds)
@@ -170,29 +169,34 @@ let _Int v  = Int  v
 let _Str v  = Str  v
 
 (* 0x25 = '%' *)
-let rec writef s is =
+let rec writef orig_s orig_is =
   let signedstring_of_int i = if i < 0 then "-" ^ string_of_int (- i) else string_of_int i in
+  let bad message =
+    raise (Catastrophe_ ["Japeserver.writef "; message; " "; enQuote orig_s; " ";
+                         bracketedstring_of_list string_of__ITEM ";" orig_is])
+  in
   let rec ww_ cs is =
     match cs, is with
-      [], [] -> ()
-    | [], _  -> raise (Catastrophe_ ["Japeserver.writef "; enQuote s; 
-                                     bracketedstring_of_list string_of__ITEM ";" is])
-    | 0x25 :: 0x25 :: f, is           -> out "%"; ww_ f is
-    | 0x25 :: f,         Bool b :: is -> out (if b then "T" else "F"); ww_ f is
-    | 0x25 :: f,         Int i  :: is -> out (signedstring_of_int i); ww_ f is
-    | 0x25 :: f,         Str s  :: is -> outs s; ww_ f is
-    | c :: cs,                     is -> out (utf8_of_ucode c); ww_ cs is
+    | []                , []           -> ()
+    | []                , _            -> bad "too many items"
+    | 0x25 :: 0x25 :: cs, is           -> out (utf8_of_ucode 0x25); ww_ cs is
+    | 0x25 :: cs,         Bool b :: is -> out (if b then "T" else "F"); ww_ cs is
+    | 0x25 :: cs,         Int i  :: is -> out (signedstring_of_int i); ww_ cs is
+    | 0x25 :: cs,         Str s  :: is -> outs s; ww_ cs is
+    | 0x25 :: cs,                   [] -> bad "too few items"
+    | c    :: cs,                   is -> out (utf8_of_ucode c); ww_ cs is
   in
-  ww_ (utf8_explode s) is
+  ww_ (utf8_explode orig_s) orig_is
 
 and outs s =
   List.iter
     (function
-       sp    when    sp=Char.code ' '  -> out8 sp
+     | sp    when    sp=Char.code ' '  -> out8 sp
      | nl    when    nl=Char.code '\n' -> out "\\n"
      | dq    when    dq=Char.code '\"' -> out "\\\""
      | slosh when slosh=Char.code '\\' -> out "\\\\"
-     | c -> if c < 32 then out8 c else out (utf8_of_ucode c))
+     | c -> if c < 32 then out8 c else out (utf8_of_ucode c)
+    )
     (utf8_explode s)
 
 and out8 c =
@@ -268,15 +272,16 @@ let setFontNames fs =
      fontnames := Array.of_list fs
 
 let rec getfontname n =
-  try Array.get !fontnames n with
-  Invalid_argument _ -> (
-    if length !fontnames = 0 then (* we never initialised it *) (
-      writef "FONTNAMES\n" [];
-      let fs = strings_of_reply (readline "FONTNAMES") in 
-      setFontNames fs; getfontname n )
-    else
-      raise (Catastrophe_ ["Japeserver.getfontname can't decode fontnumber "; string_of_int n])
-  )
+  try Array.get !fontnames n 
+  with Invalid_argument _ -> 
+        (if length !fontnames = 0 then (* we never initialised it *) (
+           writef "FONTNAMES\n" [];
+           let fs = strings_of_reply (readline "FONTNAMES") in 
+           setFontNames fs; getfontname n )
+         else
+           raise (Catastrophe_ ["Japeserver.getfontname can't decode fontnumber "; 
+                                string_of_int n])
+       )
   
 open Hashtbl
 
@@ -288,16 +293,16 @@ exception Measurestring_ of int * string * int list
 let rec measurestring font string =
   let fontnum = int_of_displayfont font in
   let fontname = getfontname fontnum in
-  try Hashtbl.find stringSizeCache (fontname,string) with
-  Not_found -> (
-    let wad = 
-      match intlist_of_ask "STRINGSIZE % %\n" [Int fontnum; Str (printable string)] with
-        [width; asc; desc] -> width, asc, desc
-      | ns                 -> raise (Measurestring_ (fontnum, printable string, ns))
-    in
-    Hashtbl.add stringSizeCache (fontname,string) wad;
-    wad
-  )
+  try Hashtbl.find stringSizeCache (fontname,string) 
+  with Not_found -> 
+    (let wad = 
+       match intlist_of_ask "STRINGSIZE % %\n" [Int fontnum; Str (printable string)] with
+       | [width; asc; desc] -> width, asc, desc
+       | ns                 -> raise (Measurestring_ (fontnum, printable string, ns))
+     in
+     Hashtbl.add stringSizeCache (fontname,string) wad;
+     wad
+   )
 
 let rec loadFont (fontn, name) =
   writef "LOADFONT % %\n" [Int fontn; Str name]
@@ -326,28 +331,30 @@ let rec settextselectionmode m =
 let rec setmultihypsel m = 
   writef "SETMULTIHYPSEL %\n" 
            [Bool (match m with
-                   "true"  -> true
-                 | "false" -> false
-                 | _ -> raise (Catastrophe_ ["Japeserver.multihypsel "; Stringfuns.enQuote m]))]
+                  | "true"  -> true
+                  | "false" -> false
+                  | _ -> raise (Catastrophe_ ["Japeserver.multihypsel "; Stringfuns.enQuote m])
+                 )
+           ]
 
 let rec drawLine pos1 pos2 =
   let (x1, y1) = explodePos pos1 in
   let (x2, y2) = explodePos pos2 in
   writef "DRAWLINE % % % %\n" (List.map _Int [x1; y1; x2; y2])
 
-let rec drawRect box =
+let rec drawRect box s =
   let (pos, size) = explodeBox box in
   let (x, y) = explodePos pos in
   let (w, h) = explodeSize size in
-  writef "DRAWRECT % % % %\n"
-    (List.map _Int [x; y; w; h])
+  writef "DRAWRECT % % % % %\n"
+         [Int x; Int y; Int w; Int h; Str s]
 
 let rec drawinpane pane = writef "DRAWINPANE %\n" [Int (int_of_pane pane)]
 
 let rec drawstring (font, class__, s, pos) =
   let (x, y) = explodePos pos in
   writef "DRAWSTRING % % % % %\n"
-    [Int x; Int y; Int font; Int class__; Str s]
+         [Int x; Int y; Int font; Int class__; Str s]
 
 let rec showAlert s = writef "SETALERT %\n" [Str s]
 

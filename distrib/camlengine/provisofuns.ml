@@ -175,7 +175,7 @@ let rec deferrable cxt (t1, t2) =
 
 let rec _PROVISOq facts p =
   match p with
-    FreshProviso _      -> (* can occur in a derived rule *) Maybe
+  | FreshProviso _      -> (* can occur in a derived rule *) Maybe
   | NotinProviso (v, t) -> notq (varoccursinq facts v t)
   | DistinctProviso vs -> 
       let rec dp = function []    -> Yes
@@ -221,7 +221,7 @@ let rec groundedprovisos names provisos =
   let rec isop p =
     let r =
       match p with
-        FreshProviso (_, _, _, v)     -> ismetav v && isot v
+      | FreshProviso (_, _, _, v)     -> ismetav v && isot v
       | NotinProviso (v, t)           -> ismetav v && isot v || isot t
       | DistinctProviso vs            -> not (List.exists (not <.> isot) vs)
       | NotoneofProviso (vs, pat, _C) ->
@@ -373,8 +373,8 @@ let rec verifyprovisos cxt =
       nj_fold
         (fun (p, (fs, us)) ->
            match provisoactual p with
-             FreshProviso f -> let ns = efp f in (f, ns) :: fs, ns @ us
-           | _ -> fs, p :: us)
+           | FreshProviso f -> let ns = efp f in (f, ns) :: fs, ns @ us
+           | _              -> fs, p :: us)
         vis ([], [])
     in
     let pros =
@@ -405,12 +405,12 @@ let rec verifyprovisos cxt =
         let rec def () = checker cxt mm pros news in
         let rec push f ps =
           if List.exists
-               ((function FreshProviso (_, _, _, v') -> v = v' | _ -> false) <.> provisoactual)
+               ((function | FreshProviso (_, _, _, v') -> v = v' | _ -> false) <.> provisoactual)
                ps
           then
             (fun vp ->
                match provisoactual vp with
-                 FreshProviso (h', g', r', v') ->
+               | FreshProviso (h', g', r', v') ->
                    if v = v' then
                      mkvisproviso (true, FreshProviso (h || h', g || g', r && r', v))
                    else vp
@@ -463,7 +463,7 @@ let rec checkprovisos cxt =
 let rec remapproviso env p =
   let _T = remapterm env in
   match p with
-    FreshProviso (h, g, r, v)     -> FreshProviso (h, g, r, _T v)
+  | FreshProviso (h, g, r, v)     -> FreshProviso (h, g, r, _T v)
   | NotinProviso (v, t)           -> NotinProviso (_T v, _T t)
   | DistinctProviso vs            -> DistinctProviso (_T <* vs)
   | NotoneofProviso (vs, pat, _C) ->

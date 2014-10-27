@@ -33,9 +33,16 @@ import java.awt.Graphics2D;
 
 @SuppressWarnings("serial")
 public class RectItem extends OutlineItem implements DebugConstants {
+    private String s;
     
+    public RectItem(JapeCanvas canvas, int x, int y, int w, int h, String s) {
+        super(canvas, x, y, w, h);
+        this.s = s;
+    }
+
     public RectItem(JapeCanvas canvas, int x, int y, int w, int h) {
-	super(canvas, x, y, w, h);
+        super(canvas, x, y, w, h);
+        this.s = null;
     }
 
     protected int left, top, right, bottom;

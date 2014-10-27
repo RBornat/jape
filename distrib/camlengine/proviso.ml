@@ -49,7 +49,7 @@ let provisodebug = ref false
 
 let catelim_invisbracketedstring_of_proviso b p tail =
   match p with
-    FreshProviso (h, g, r, v) ->
+  | FreshProviso (h, g, r, v) ->
       (if r then "IMP" else "") ::
         (match h, g with
            true, true -> ""
@@ -95,10 +95,8 @@ let invisbracketedstring_of_proviso = stringfn_of_catelim <.> catelim_invisbrack
 let catelim_string_of_proviso = catelim_invisbracketedstring_of_proviso false
 let string_of_proviso = stringfn_of_catelim catelim_string_of_proviso
 
-let rec isFreshProviso =
-  function
-    FreshProviso _ -> true
-  | _              -> false
+let rec isFreshProviso = function | FreshProviso _ -> true
+                                  | _              -> false
 
 type visrec = { visible : bool; parent : proviso; actual : proviso }
 type visproviso = VisProviso of visrec
@@ -270,7 +268,7 @@ let rec parseProvisos () =
 let earlierproviso p1 p2 =
   let rec lin1 =
     function
-      FreshProviso (h, g, r, v) ->
+    | FreshProviso (h, g, r, v) ->
         (if h then 10 else 0) + (if g then 20 else 0) +
           (if r then 40 else 0)
     | DistinctProviso vs            -> 300
@@ -280,7 +278,7 @@ let earlierproviso p1 p2 =
   in
   let rec lin2 =
     function
-      FreshProviso (h, g, r, v)     -> [string_of_term v]
+    | FreshProviso (h, g, r, v)     -> [string_of_term v]
     | DistinctProviso vs            -> string_of_term <* vs
     | NotinProviso (v, t)           -> [string_of_term v; string_of_term t]
     | NotoneofProviso (vs, pat, _C) ->
@@ -295,7 +293,7 @@ let earlierproviso p1 p2 =
 
 let provisovars termvars tmerge p =
   match p with
-    FreshProviso (_, _, _, t)     -> termvars t
+  | FreshProviso (_, _, _, t)     -> termvars t
   | UnifiesProviso (t1, t2)       -> tmerge (termvars t1) (termvars t2)
   | NotinProviso (t1, t2)         -> tmerge (termvars t1) (termvars t2)
   | DistinctProviso vs            -> nj_fold (uncurry2 tmerge) (termvars <* vs) []
@@ -309,7 +307,7 @@ let maxprovisoresnum p =
     nj_fold (uncurry2 max) ((int_of_resnum <* elementnumbers t)) n
   in
   match p with
-    FreshProviso (_, _, _, t)     -> f t 0
+  | FreshProviso (_, _, _, t)     -> f t 0
   | UnifiesProviso (t1, t2)       -> f t1 (f t2 0)
   | NotinProviso (v, t)           -> f v (f t 0)
   | DistinctProviso vs            -> nj_fold (uncurry2 f) vs 0

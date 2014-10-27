@@ -63,10 +63,9 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
 
   and proofnamed name =
     match thinginfo name, (!proofs <@> name) with
-      Some (Theorem (_, provisos, seq), _), Some (v, tree, _, disproved, disproof) ->
+    | Some (Theorem (_, provisos, seq), _)          , Some (v, tree, _, disproved, disproof) ->
         Some (v, tree, provisos, [], disproved, disproof)
-    | Some (Rule ((_, provisos, givens, seq), _), _),
-      Some (v, tree, _, disproved, disproof) ->
+    | Some (Rule ((_, provisos, givens, seq), _), _), Some (v, tree, _, disproved, disproof) ->
         Some (v, tree, provisos, givens, disproved, disproof)
     | _ -> None
 
@@ -209,7 +208,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
       in
       let body =
         catelim_prooftree2tactic tree provisos givens
-          (catelim_string_of_model disproof ss)
+          						 (catelim_string_of_model disproof ss)
       in
       word_of_proofstage stage :: " " :: parseablestring_of_name name ::
         (if null params then body
@@ -255,7 +254,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
 let rec thingswithproofs triv =
      (fun n ->
         match thingnamed n with
-          None -> false
+        | None -> false
         | Some (Tactic _, _) -> false
         | Some (Macro _, _) -> false
         | Some (Rule (_, ax), _) -> not ax && (triv || proved n)

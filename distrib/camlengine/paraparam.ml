@@ -36,15 +36,13 @@ type vid = Termtype.vid
 type paraparam = Objectparam      of (vid * idclass)
                | Ordinaryparam    of (vid * idclass)
                | Unknownparam     of (vid * idclass)
-               | Abstractionparam of (vid * idclass)
-
-(* ABSTRACTION P *) (*huh?*)
+               | Abstractionparam of (vid * idclass) (* ABSTRACTION P *)
  
 let rec catelim_string_of_paraparam p tail =
   match p with
-    Objectparam (v, _) -> "OBJECT " :: string_of_vid v :: tail
-  | Ordinaryparam (v, _) -> string_of_vid v :: tail
-  | Unknownparam (v, _) -> metachar_as_string :: string_of_vid v :: tail
+  | Objectparam (v, _)      -> "OBJECT " :: string_of_vid v :: tail
+  | Ordinaryparam (v, _)    -> string_of_vid v :: tail
+  | Unknownparam (v, _)     -> metachar_as_string :: string_of_vid v :: tail
   | Abstractionparam (v, _) -> "ABSTRACTION " :: string_of_vid v :: tail
 
 let string_of_paraparam = stringfn_of_catelim catelim_string_of_paraparam
@@ -58,8 +56,7 @@ let rec paramidbits p =
 
 let rec paramvar p =
   match p with
-    Objectparam vc -> registerId vc
+  | Objectparam vc -> registerId vc
   | Ordinaryparam vc -> registerId vc
   | Unknownparam vc -> registerUnknown vc
   | Abstractionparam vc -> registerId vc
-

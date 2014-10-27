@@ -228,6 +228,7 @@ let defaultenv =
      "seektipselection"     , bj                         true         seektipselection;
      "showallproofsteps"    , bj                         false        Prooftree.Tree.showallproofsteps;
      "showallprovisos"      , bj                         false        Interaction.showallprovisos;
+     "showboxfreshvs"       , bj                         true         Boxdraw.showboxfreshvs;
      "substdebug"           , bj                         false        Substmapfuns.substdebug;
      "symboldebug"          , bj                         false        Symbol.symboldebug;
      "tactictracing"        , bj                         false        Tacticfuns.tactictracing;
