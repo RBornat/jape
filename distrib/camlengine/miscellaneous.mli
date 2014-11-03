@@ -59,8 +59,10 @@ val textselectionmode        : string ref (* how to press-and-drag over text *)
 val truncatereasons          : bool ref   (* whether to shorten reasons in boxdraw *)
 val tryresolution            : bool ref   (* cut with antecedents of theorems in desperation *)
 
+val disproofdebug       : bool ref
 val screenpositiondebug : bool ref
-val selectiondebug : bool ref
+val selectiondebug      : bool ref
+
 exception Catastrophe_ of string list
 exception ParseError_ of string list
 exception Tacastrophe_ of string list

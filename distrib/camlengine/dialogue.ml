@@ -187,7 +187,7 @@ let defaultenv =
      "debracketapplications", bj                         false        Termstring.debracketapplications;
      "displaystyle"         , jv ["box"; "tree"]         "tree"       (Interaction.setdisplaystyle, 
                                                                        Interaction.getdisplaystyle);
-     "disproofdebug"        , bj                         false        Disproof.disproofdebug;
+     "disproofdebug"        , bj                         false        Miscellaneous.disproofdebug;
      "eqalphadebug"         , bj                         false        Termfuns.eqalphadebug;
      "factsdebug"           , bj                         false        Facts.factsdebug;
      "filteredfmt"          , ajd                                     Prooftree.Tree.filteredfmt;

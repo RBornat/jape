@@ -47,13 +47,13 @@ type forcedef = ForceAlways
               | ForceIf of (forcedef * forcedef)
               | ForceEverywhere of forcedef
               | ForceNowhere of forcedef
-              | ForceAll of (term * term list * forcedef)
+              | ForceAll  of (term * term list * forcedef)
               | ForceSome of (term * term list * forcedef)
                             (* pat   vars        body: a binder *)
 
 let term_of_forcedef fd =
   match fd with
-    ForcePrim t -> Some t
+  | ForcePrim t -> Some t
   | _           -> None
   
 let rec catelim_string_of_forcedef f ss =
@@ -64,44 +64,46 @@ let rec catelim_string_of_forcedef f ss =
   | ForceBoth (f1, f2)   -> "BOTH (" :: catelim_string_of_forcedef f1 (") (" :: catelim_string_of_forcedef f2 (")"::ss))
   | ForceEither (f1, f2) -> "EITHER (" :: catelim_string_of_forcedef f1 (") (" :: catelim_string_of_forcedef f2 (")"::ss))
   | ForceIf (f1, f2)     -> "IF (" :: catelim_string_of_forcedef f1 (") (" :: catelim_string_of_forcedef f2 (")"::ss))
-  | ForceEverywhere f    -> "EVERYWHERE " :: catelim_string_of_forcedef f ss
-  | ForceNowhere f       -> "NOWHERE " :: catelim_string_of_forcedef f ss
-  | ForceAll (t, vs, f)  -> "ALL " :: catelim_string_of_term t (" " :: catelim_string_of_forcedef f ss)
-  | ForceSome (t, vs, f) -> "SOME " :: catelim_string_of_term t (" " :: catelim_string_of_forcedef f ss)
+  | ForceEverywhere f    -> "EVERYWHERE (" :: catelim_string_of_forcedef f (")"::ss)
+  | ForceNowhere f       -> "NOWHERE (" :: catelim_string_of_forcedef f (")"::ss)
+  | ForceAll (t, vs, f)  -> "ALL (" :: catelim_string_of_term t (") (" :: catelim_string_of_forcedef f (")"::ss))
+  | ForceSome (t, vs, f) -> "SOME (" :: catelim_string_of_term t (") (" :: catelim_string_of_forcedef f (")"::ss))
 
 let rec string_of_forcedef f = implode (catelim_string_of_forcedef f [])
 
-(* for some reason this went exponential when the body was a function.  
-   Don't understand. RB vii/01 
- *)
+let rec option_mapforcedef f fd =
+  let omff = option_mapforcedef f in
+  let ompair = option_rewrite2 omff omff in
+  let omtvsfd = option_rewrite3 (fun v -> None) (fun v -> None) omff in
+  match f fd with
+  | Some _ as result -> result
+  | None             ->
+      match fd with
+      | ForceAlways         
+      | ForceNever          
+      | ForcePrim         _ -> None
+      | ForceBoth      pair -> ompair pair &~~ (_Some <.> (fun v->ForceBoth v))
+      | ForceEither    pair -> ompair pair &~~ (_Some <.> (fun v->ForceEither v))
+      | ForceIf        pair -> ompair pair &~~ (_Some <.> (fun v->ForceIf v))
+      | ForceEverywhere  fd -> omff fd &~~ (_Some <.> (fun v->ForceEverywhere v))
+      | ForceNowhere     fd -> omff fd &~~ (_Some <.> (fun v->ForceNowhere v))
+      | ForceAll      tvsfd -> omtvsfd tvsfd &~~ (_Some <.> (fun v->ForceAll v))
+      | ForceSome     tvsfd -> omtvsfd tvsfd &~~ (_Some <.> (fun v->ForceSome v))
+
+let mapforcedef f = anyway (option_mapforcedef f)
+
 let rec option_mapforcedefterms f fd =
   let omt = option_mapterm f in
   let omff = option_mapforcedefterms f in
-  let ompair = option_rewrite2 omff omff in
   let omtvsfd = option_rewrite3 omt (option_rewritelist omt) omff in
-  (* val _ = consolereport ["option_mapforcedefterms ", string_of_forcedef fd] *)
-  let res =
+  let fdf fd = 
     match fd with
-      ForceAlways -> None
-    | ForceNever  -> None
-    | ForcePrim t -> (omt t &~~ (_Some <.> (fun v->ForcePrim v)))
-    | ForceBoth pair ->
-        (ompair pair &~~ (_Some <.> (fun v->ForceBoth v)))
-    | ForceEither pair ->
-        (ompair pair &~~ (_Some <.> (fun v->ForceEither v)))
-    | ForceIf pair ->
-        (ompair pair &~~ (_Some <.> (fun v->ForceIf v)))
-    | ForceEverywhere fd' ->
-        (omff fd' &~~ (_Some <.> (fun v->ForceEverywhere v)))
-    | ForceNowhere fd' ->
-        (omff fd' &~~ (_Some <.> (fun v->ForceNowhere v)))
-    | ForceAll tvsfd ->
-        (omtvsfd tvsfd &~~ (_Some <.> (fun v->ForceAll v)))
-    | ForceSome tvsfd ->
-        (omtvsfd tvsfd &~~ (_Some <.> (fun v->ForceSome v)))
+    | ForcePrim         t -> omt t &~~ (_Some <.> (fun v->ForcePrim v))
+    | ForceAll      tvsfd -> omtvsfd tvsfd &~~ (_Some <.> (fun v->ForceAll v))
+    | ForceSome     tvsfd -> omtvsfd tvsfd &~~ (_Some <.> (fun v->ForceSome v))
+    | _                   -> None
   in
-  (* consolereport ["option_mapforcedefterms ", string_of_forcedef fd, " => ", string_of_option string_of_forcedef res]; *)
-  res
+  option_mapforcedef fdf fd
 
 let rec mapforcedefterms f = anyway (option_mapforcedefterms f)
 

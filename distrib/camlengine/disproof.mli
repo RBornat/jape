@@ -104,4 +104,3 @@ exception Disproof_ of string list
 
 val showdisproof : disproofstate -> unit
 val cleardisproof : unit -> unit
-val disproofdebug : bool ref

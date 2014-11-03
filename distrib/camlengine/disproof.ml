@@ -52,6 +52,8 @@ open Termstore
 open Termstring
 open UTF
 
+let disproofdebug = Miscellaneous.disproofdebug
+
 type forcedef  = Forcedef.forcedef
  and model     = Forcedef.model
 
@@ -102,8 +104,6 @@ exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 
 let rec catelim_string_of_int i ss = string_of_int i :: ss
 let rec catelim_string_of_bool b ss = string_of_bool b :: ss
-
-let disproofdebug = ref false
 
 let sameelement = eqelements eqterms
 
@@ -355,19 +355,22 @@ let rec clearforcedefs () = forcedefs := []; occurrences := []
 let rec hasforcedefs () = not (null !forcedefs)
 
 (* matching a formula against the definitions *)
-
 let rec semantics facts t =
-  findfirst
-    (fun (pat, vs, hassubst, fd) -> (matchit pat vs t &~~ (fun env -> Some (env, hassubst, fd))))
-    !forcedefs
-  &~~
-  (fun (env, hassubst, fd) ->
-     let fd' = mapforcedefterms (option_remapterm env) (uniquebinders t fd) in
-     Some (if hassubst then mapforcedefterms (dosubst facts) fd' else fd'))
+  let r = 
+    findfirst
+      (fun (pat, vs, hassubst, fd) -> (matchit pat vs t &~~ (fun env -> Some (env, hassubst, fd))))
+      !forcedefs
+    &~~
+    (fun (env, hassubst, fd) ->
+       let fd' = mapforcedefterms (option_remapterm env) (uniquebinders t fd) in
+       Some (if hassubst then mapforcedefterms (dosubst facts) fd' else fd'))
+  in
+  if !disproofdebug then
+    consolereport ["semantics "; string_of_term t; " = "; string_of_option string_of_forcedef r];
+  r
   
 (* avoid variable capture in semantics function *)
-(* really this ought to look inside the forcedef, but one step at a time ... *)
-
+(* and it has to look inside the forcedef *)
 and uniquebinders t fd =
   let rec newoccenv ocvs =
     let vids = orderVIDs (List.map vid_of_var (variables t)) in
@@ -381,20 +384,27 @@ and uniquebinders t fd =
     let r = snd (foldl newvar ([], empty) ocvs) in
     if !disproofdebug then
       consolereport
-        ["semantics matched "; string_of_term t; " and "; string_of_forcedef fd;
-         "; rewrite with "; string_of_mapping string_of_term string_of_term r];
+        ["newoccenv "; bracketedstring_of_list string_of_term ";" ocvs; 
+         " = "; string_of_mapping string_of_term string_of_term r];
     r
   in
   let rec doit ocvs =
-    mapforcedefterms (option_remapterm (newoccenv ocvs)) fd
+    mapforcedefterms (option_remapterm (newoccenv ocvs))
   in
-  match fd with
-    ForceAll (_, ocvs, _)  -> doit ocvs
-  | ForceSome (_, ocvs, _) -> doit ocvs
-  | _                      -> fd
+  let rec stopcap fd =
+    match fd with
+    | ForceAll (_, ocvs, _)  -> Some (doit ocvs fd)
+    | ForceSome (_, ocvs, _) -> Some (doit ocvs fd)
+    | _                      -> None
+  in
+  let r = mapforcedef stopcap fd in
+  if !disproofdebug then
+    consolereport
+      ["uniquebinders "; string_of_term t; " "; string_of_forcedef fd;
+       " = "; string_of_forcedef r];
+  r
   
 (* finding the subformulae which aren't semantically defined. Designed to be foldl'd *)
-
 let rec semanticfringe facts ts t =
   (* for efficiency's sake, tf does it the wrong way round: a failing search backed up
      with a check for bracketing. But I guess that one day somebody might say that 
@@ -431,43 +441,43 @@ let rec indiv_fd facts (oc, vs, fd) i =
   let r =
        matchit oc vs i &~~
        (fun env ->
-          Some (mapforcedefterms (option_remapterm env &~ somef (dosubst facts)) fd))
+          Some (mapforcedefterms (option_remapterm env &~ somef (dosubst facts)) fd)
+       )
   in
-  if !disproofdebug then begin
-      consolereport
-        ["indiv_fd ";
-         string_of_triple string_of_term (bracketedstring_of_list string_of_term ",")
-           string_of_forcedef "," (oc, vs, fd);
-         " "; string_of_term i; " => "; string_of_option string_of_forcedef r];
-      consolereport
-        ["matchit oc vs i => ";
-         string_of_option (string_of_mapping string_of_term string_of_term)
-           (matchit oc vs i)];
-      match matchit oc vs i with
-        None     -> ()
-      | Some env ->
-          consolereport
-            ["mapforcedefterms (option_remapterm env) fd => ";
-             string_of_forcedef
-               (mapforcedefterms (option_remapterm env) fd)];
-          consolereport
-            ["mapforcedefterms (option_remapterm env  &~ (somef (dosubst facts))) fd => ";
-             string_of_forcedef
-               (mapforcedefterms
-                  (
-                     (option_remapterm env &~ somef (dosubst facts)))
-                  fd)]
-  end;
+  if !disproofdebug then
+    (consolereport
+       ["indiv_fd ";
+        string_of_triple string_of_term (bracketedstring_of_list string_of_term ",")
+          string_of_forcedef "," (oc, vs, fd);
+        " "; string_of_term i; " => "; string_of_option string_of_forcedef r];
+     consolereport
+       ["matchit oc vs i => ";
+        string_of_option (string_of_mapping string_of_term string_of_term)
+          (matchit oc vs i)];
+     match matchit oc vs i with
+     | None     -> ()
+     | Some env ->
+         consolereport
+           ["mapforcedefterms (option_remapterm env) fd => ";
+            string_of_forcedef
+              (mapforcedefterms (option_remapterm env) fd)];
+         consolereport
+           ["mapforcedefterms (option_remapterm env  &~ (somef (dosubst facts))) fd => ";
+            string_of_forcedef
+              (mapforcedefterms
+                 (option_remapterm env &~ somef (dosubst facts))
+                 fd
+              )
+           ]
+    );
   r
     
-
 (* is it forced? *)
 (* rewritten to be memoised, both for 'efficiency' and for de-emphasising irrelevant subformulae
    -- i.e. quantified subformulae. Should also be useful when it comes to highlighting worlds 
    which force a formula.
  *)
-
-let rec unfixedforced facts u =
+let unfixedforced facts u =
   let rec ff f (c, t) =
     let labelterms = List.map snd <.> labelsofworld <.> getworld u in
     let children = childrenofworld <.> getworld u in
@@ -478,22 +488,22 @@ let rec unfixedforced facts u =
      *)
     let rec logNot =
       function
-        true, _ -> false, false
+      | true, _ -> false, false
       | _       -> true , false
     in
     let rec logAnd a1 a2 =
       match a1, a2 with
-        (true, _), (true, _) -> true , false
+      | (true, _), (true, _) -> true , false
       | _        , _         -> false, false
     in
     let rec logOr a1 a2 =
       match a1, a2 with
-        (false, _), (false, _) -> false, false
+      | (false, _), (false, _) -> false, false
       | _         , _          -> true , false
     in
     let rec logImp a1 a2 =
       match a1, a2 with
-        (true, _), (false, _) -> false, false
+      | (true, _), (false, _) -> false, false
       | _        , _          -> true , false
     in 
     let rec logAll f = foldl logAnd (true, false) <.> List.map f in
@@ -501,7 +511,7 @@ let rec unfixedforced facts u =
     
     let rec interp fd c =
       match fd with
-        ForceAlways            -> true, false
+      | ForceAlways            -> true, false
       | ForceNever             -> false, false
       | ForcePrim t'           -> f (c, t')
       | ForceBoth (fd1, fd2)   -> logAnd (interp fd1 c) (interp fd2 c)
@@ -511,13 +521,15 @@ let rec unfixedforced facts u =
       | ForceNowhere fd'       -> logAnd (logNot (interp fd' c)) (logAll (interp fd) (children c))
       | ForceAll tvsfd         -> logAll (fun lab ->
                                             match indiv_fd facts tvsfd lab with
-                                              Some fd' -> interp fd' c
-                                            | None     -> true, false)
+                                            | Some fd' -> interp fd' c
+                                            | None     -> true, false
+                                         )
                                          (labelterms c)
       | ForceSome tvsfd        -> logExists (fun lab ->
                                                match indiv_fd facts tvsfd lab with
-                                                 Some fd' -> interp fd' c
-                                               | None     -> false, false)
+                                               | Some fd' -> interp fd' c
+                                               | None     -> false, false
+                                            )
                                             (labelterms c)
     in
     if !disproofdebug then
@@ -525,8 +537,9 @@ let rec unfixedforced facts u =
     let result =
       match semantics facts t with
         None    -> (match decodeBracketed t with
-                     Some t' -> f (c, t')
-                   | None    -> lookup c t)
+                    | Some t' -> f (c, t')
+                    | None    -> lookup c t
+                   )
       | Some fd -> interp fd c
     in
     if !disproofdebug then
@@ -539,7 +552,7 @@ let rec unfixedforced facts u =
 
 let rec seq_forced forced c s =
   let rec doit e = match term_of_element e with
-                     None   -> false, false
+                   | None   -> false, false
                    | Some t -> forced (c, t)
   in
   let (_, _, hyps, _, concs) = my_seqexplode s in
@@ -662,15 +675,17 @@ let rec evaldisproofstate facts tree =
   fun (Disproofstate {seq = seq; selections = selections; universe = universe; selected = selected; tiles = tiles}) ->
     let (basestyle, hypsbag, basehyps, concsbag, baseconcs) = my_seqexplode (base_sequent tree) in
     let (style, _, hyps, _, concs) = my_seqexplode seq in
-    let conclusive =
-      ((match getsemanticturnstile basestyle with
-          Some semstyle -> semstyle = style
-        | None -> basestyle = style) &&
-       (* since styles are equal, so is baggishness *)
-       (eqlists sameelement (basehyps, hyps) ||
-        hypsbag && null (listsub sameelement basehyps hyps))) &&
-      (eqlists sameelement (baseconcs, concs) ||
-       concsbag && null (listsub sameelement baseconcs concs))
+    let conclusive = ((match getsemanticturnstile basestyle with
+                       | Some semstyle -> semstyle = style
+                       | None          -> basestyle = style
+                      ) &&
+                      (* since styles are equal, so is baggishness *)
+                      (eqlists sameelement (basehyps, hyps) ||
+                       hypsbag && null (listsub sameelement basehyps hyps)
+                      )
+                     ) &&
+                     (eqlists sameelement (baseconcs, concs) ||
+                      concsbag && null (listsub sameelement baseconcs concs))
     in
     let forcemap = newforcemap () in
     (* fun mf a v = string_of_pair string_of_coord debugstring_of_term "," a^"|->"^(stringfn_of_catelim catelim_string_of_forced) v *)
@@ -680,13 +695,15 @@ let rec evaldisproofstate facts tree =
         (* evaluate everything everywhere -- no short cuts *)
         (let results = List.map (fun root -> let (hs, cs) = seq_forced forced root seq in
                                              all fst hs && not (List.exists fst cs)
-                                ) selected
+                                ) 
+                                selected
          in
-         all idf results)
+         all idf results
+        )
     in
     let rec realterm t =
       match binding_of_term t with
-        Some t' -> t'
+      | Some t' -> t'
       | _       -> t
     in
     let rec ivb t =
@@ -711,7 +728,8 @@ let rec evaldisproofstate facts tree =
       {seq = seq; selections = selections; seqplan = Some seqplan;
        universe = tint_universe facts forced seqplan selections universe; 
        tiles = tiles; selected = selected;
-       forcemap = forcemap; conclusive = conclusive; countermodel = countermodel}
+       forcemap = forcemap; conclusive = conclusive; countermodel = countermodel
+      }
 
 and tint_universe facts forced (plan, _) (proofsels, textsels) =
   let selections =
@@ -848,7 +866,8 @@ let rec tiles_of_seq facts seq =
   let hypterms = optionfilter term_of_element hyps in
   let concterms = optionfilter term_of_element concs in
   let ts = foldl (semanticfringe facts)
-             (foldl (semanticfringe facts) [] hypterms) concterms
+                 (foldl (semanticfringe facts) [] hypterms) 
+                 concterms
   in
   (* add occurrence formulae if necessary *)
   let ts =
@@ -1025,67 +1044,65 @@ let rec newtile =
     let occvs = nj_fold (uncurry2 tmerge) (List.map variables occs) [] in
     if null tvs then None
     else
-        ((if member (t, occs) then
-            match variables t with
-              [v] -> newoccurrence v
-            | vs ->
-                raise
-                  (Catastrophe_
-                     ["(newtile) occurrence tile "; string_of_term t;
-                      " has termvars ";
-                      bracketedstring_of_list string_of_term "," vs])
-          else
-            let rec nlists a1 a2 =
-              match a1, a2 with
-                xs, 0 -> ([[]] : term list list)
-              | (xs : term list), n ->
-                 (let ys : term list list = nlists xs (n - 1) in
-                   let rec insert a1 a2 =
-                     match a1, a2 with
-                       i, [] -> [[i]]
-                     | i, j :: js ->
-                         (i :: j :: js) ::
-                           List.map (fun js -> j :: js) (insert i js)
-                   in
-                   nj_fold (fun (x, y) -> x @ y)
-                      (nj_fold (fun (x, y) -> x @ y)
-                         (List.map
-                            (fun y ->
-                               (List.map (fun x -> insert x y) xs : term list list list))
-                            ys : term list list list list)
-                         [])
-                      [] : term list list)
-            in
-            let args = set (nlists occvs (List.length tvs)) in
-            let possibles =
-                (fun t -> not (member (t, tiles))) <|
-                 List.map
-                   (fun vs ->
-                      _The
-                        (option_remapterm (mkmap ((tvs ||| vs)))
-                           template))
-                   args
-            in
-            match possibles with
-              [] ->
-                showAlert
-                  ["Can't make a new tile from "; string_of_term t;
-                   ", because you can only use ";
-                   sentencestring_of_list string_of_term ", " " and " occs];
-                None
-            | [p] -> Some p
-            | _ -> askChoice
-                       ("Choose your new tile",
-                        List.map (fun t -> [t])
-                          (sort (<) (List.map string_of_term possibles))) 
-                     &~~ (fun i -> Some (try List.nth possibles i with
-                                                                Invalid_argument "List.nth" | Failure "nth" -> 
-                                                                                        raise (Catastrophe_ ["(newtile) nth [";
-                                                                                                        string_of_list string_of_term ";" possibles;
-                                                                                                        "] "; string_of_int i]))))
-         &~~
-         (fun tile ->
-            Some (withdisprooftiles d (tilesort (tile :: tiles)))))
+      ((if member (t, occs) then
+          match variables t with
+          | [v] -> newoccurrence v
+          | vs ->
+              raise
+                (Catastrophe_
+                   ["(newtile) occurrence tile "; string_of_term t;
+                    " has termvars ";
+                    bracketedstring_of_list string_of_term "," vs])
+        else
+          let rec nlists a1 a2 =
+            match a1, a2 with
+            | xs, 0 -> ([[]] : term list list)
+            | (xs : term list), n ->
+               (let ys : term list list = nlists xs (n - 1) in
+                 let rec insert a1 a2 =
+                   match a1, a2 with
+                     i, [] -> [[i]]
+                   | i, j :: js ->
+                       (i :: j :: js) ::
+                         List.map (fun js -> j :: js) (insert i js)
+                 in
+                 nj_fold (fun (x, y) -> x @ y)
+                    (nj_fold (fun (x, y) -> x @ y)
+                       (List.map
+                          (fun y ->
+                             (List.map (fun x -> insert x y) xs : term list list list))
+                          ys : term list list list list)
+                       [])
+                    [] : term list list)
+          in
+          let args = set (nlists occvs (List.length tvs)) in
+          let possibles =
+              (fun t -> not (member (t, tiles))) <|
+               List.map (fun vs -> _The (option_remapterm (mkmap ((tvs ||| vs))) template))
+                        args
+          in
+          match possibles with
+          | []  -> showAlert ["Can't make a new tile from "; string_of_term t;
+                              ", because you can only use ";
+                              sentencestring_of_list string_of_term ", " " and " occs
+                             ];
+                   None
+          | [p] -> Some p
+          | _   -> 
+            let pairs = List.map (fun t -> t, string_of_term t) possibles in
+            let pairs = sort (fun (_,s1) (_,s2) -> s1<s2) pairs in 
+            askChoice ("Choose your new tile", List.map (fun t -> [t]) (List.map snd pairs)) 
+            &~~ (fun i -> Some (try fst (List.nth pairs i)
+                                with Invalid_argument "List.nth" | Failure "nth" -> 
+                                  raise (Catastrophe_ ["(newtile) nth [";
+                                                  string_of_list snd ";" pairs;
+                                                  "] "; string_of_int i]
+                                        )
+                               )
+                 )
+       ) &~~
+       (fun tile -> Some (withdisprooftiles d (tilesort (tile :: tiles))))
+      )
 
 let rec addlink u (_, fromy as from) (_, to__y as to__) =
   let (_, ts, cs) = getworld u from in
