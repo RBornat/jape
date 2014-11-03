@@ -55,7 +55,7 @@ let rec catelim_string_of_resnum r tail =
 
 let string_of_resnum = stringfn_of_catelim catelim_string_of_resnum
 
-let rec dolist f = catelim_bracketedstring_of_list f ","
+let rec dolist f = catelim_bracketedstring_of_list f ";"
 
 (* for those who need to know *exactly* what they have got *)
 let rec catelim_debugstring_of_term t tail =
@@ -556,7 +556,7 @@ let rec chooseinvisbracketedstring_of_element ivb ivk =
 
 let catelim_invisbracketedstring_of_collection b sep t =
   match t with
-    Collection (_, _, es) -> 
+  | Collection (_, _, es) -> 
       catelim_string_of_list (catelim_invisbracketedstring_of_element b) sep es
   | _ -> raise (Catastrophe_ ("string_of_collection " :: catelim_string_of_term t []))
 let invisbracketedstring_of_collection b sep = 
@@ -567,7 +567,7 @@ let string_of_collection sep = stringfn_of_catelim (catelim_string_of_collection
 
 let rec catelim_invisbracketedstring_of_termOrCollection b sep t =
   match t with
-    Collection _ -> catelim_invisbracketedstring_of_collection b sep t
+  | Collection _ -> catelim_invisbracketedstring_of_collection b sep t
   | _ -> catelim_invisbracketedstring_of_term b t
 let rec invisbracketedstring_of_termOrCollection b sep =
   stringfn_of_catelim (catelim_invisbracketedstring_of_collection b sep)
@@ -575,5 +575,5 @@ let rec invisbracketedstring_of_termOrCollection b sep =
 let catelim_string_of_termOrCollection = catelim_invisbracketedstring_of_termOrCollection false
 let string_of_termOrCollection sep = stringfn_of_catelim (catelim_string_of_collection sep)
 
-let string_of_termlist = bracketedstring_of_list string_of_term ","
-let catelim_string_of_termlist = catelim_bracketedstring_of_list catelim_string_of_term ","
+let string_of_termlist = bracketedstring_of_list string_of_term ";"
+let catelim_string_of_termlist = catelim_bracketedstring_of_list catelim_string_of_term ";"

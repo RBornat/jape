@@ -666,8 +666,8 @@ let rec compileR el er (params, provisos, antes, conseq) =
   let rec findsubstvars def =
     fun ((_P, abss), (vars, env)) ->
       match (env <@> _P) with
-        Some _ -> vars, env
-      | None ->
+      | Some _ -> vars, env
+      | None   ->
           match findpredicatevars abss with
           | Some bs -> vars, (env ++ (_P |-> (false, bs)))
           | None ->
@@ -695,7 +695,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
   let applyps =
        (fun (x, _P) ->
           match (env <@> _P) with
-            Some (false, vs) -> not (member (x, vs))
+          | Some (false, vs) -> not (member (x, vs))
           | Some (true, _) -> true
           | None ->
               raise (Catastrophe_ ["bad env in filter predicateps"])) <|
@@ -760,9 +760,18 @@ let rec compileR el er (params, provisos, antes, conseq) =
   let rec mkvars vs =
     (isextensibleID <.> string_of_vid <.> vid_of_var) <| vs
   in
-  (mkvars proofbodyvars, (params, proofprovisos, antes, conseq)),
-  (mkvars applybodyvars, (applyparams, applyprovisos, applyantes, applyconseq))
-
+  let res = (mkvars proofbodyvars, (params, proofprovisos, antes, conseq)),
+            (mkvars applybodyvars, (applyparams, applyprovisos, applyantes, applyconseq))
+  in
+  if !thingdebug then
+    consolereport ["compileR returns "; 
+                   string_of_pair (string_of_cooked (string_of_ruledata false)) 
+                                  (string_of_cooked (string_of_ruledata false))
+                                  ", "
+                                  res
+                  ];
+  res
+  
 let rec compilething name thing =
   match thing with
     Rule (r, ax) ->
