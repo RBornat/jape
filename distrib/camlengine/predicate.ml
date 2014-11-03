@@ -59,7 +59,6 @@ let string_of_predicatebinding =
 (* but we need PredicateClass ... *)
 (* Experimenting with demanding round brackets in predicate applications ... *)
 
-
 let matchpredicate all isabstraction t =
   match t with
     App (_, (Id (_, _, c) as pp), (Fixapp (_, ["("; ")"], _) as arg)) ->
@@ -84,27 +83,36 @@ let rec compilepredicate isabstraction env t =
     (fun (pp, ts) ->
        if !predicatedebug then
          consolereport
-           ["compilepredicate spotted "; string_of_term pp; "(";
-            string_of_termlist ts; ")"];
+           ["compilepredicate "; string_of_term t; " spotted "; string_of_term pp; "(";
+            string_of_termlist ts; ")"
+           ];
        let ts = (mapterm (compilepredicate isabstraction env) <* ts) in
        match env pp with
        | Some vs ->
            let res =
-             Some (if vs = ts then pp
+             Some (let t = match ts with
+                           | [t] -> t
+                           | ts  -> registerTup (",", ts)
+                   in
+                   try registerSubst (true, pp, [List.hd vs, t])
+                   with Failure "hd" -> 
+                          raise (Catastrophe_ ["Failure \"hd\" in compilepredicates"])
+                   (*
+                   if vs = ts then pp
                    else
-                     let t = match ts with
-                             | [t] -> t
-                             | ts  -> registerTup (",", ts)
-                     in
-                     try registerSubst (true, pp, [List.hd vs, t])
-                     with Failure "hd" -> 
-                            raise (Catastrophe_ ["Failure \"hd\" in compilepredicates"])
-                  )
+                     try registerSubst (true, pp, (vs ||| ts)) with
+                       Zip_ ->
+                         raise (Catastrophe_ ["Zip_ in compilepredicates"])
+                    *)
+            )
            in
            if !predicatedebug then
              consolereport
-               ["compilepredicate "; string_of_term pp; "("; string_of_termlist ts;
-                ") => "; string_of_option string_of_term res];
+               ["compilepredicate "; "..env..";
+                " "; string_of_term t;
+                " => Some ("; string_of_term pp; "("; string_of_termlist ts;
+                ")) => "; string_of_option string_of_term res
+               ];
            res
        | None -> raise (Catastrophe_ ["bad env in compilepredicates"])
     )

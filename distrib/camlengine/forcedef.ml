@@ -71,6 +71,9 @@ let rec catelim_string_of_forcedef f ss =
 
 let rec string_of_forcedef f = implode (catelim_string_of_forcedef f [])
 
+(* for some reason this goes exponential when the body is a function (i.e. f fd |~~ etc).  
+   Didn't understand vii/01; still don't understand x/14. RB 
+ *)
 let rec option_mapforcedef f fd =
   let omff = option_mapforcedef f in
   let ompair = option_rewrite2 omff omff in
