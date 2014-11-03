@@ -67,7 +67,7 @@ public class ChoiceDialog {
                                 boolean isSelected, boolean cellHasFocus) {
                         // Logger.log.println("rendering "+value+" at index "+index+
                         //         " isSelected "+isSelected+" cellHasFocus "+cellHasFocus);
-                        JapeUtils.showContainer((Choice)value);
+                        // JapeUtils.showContainer((Choice)value);
                         Choice e = (Choice)value;
                         if (isSelected) {
                                 e.setBackground(list.getSelectionBackground());
