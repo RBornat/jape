@@ -48,6 +48,7 @@ val string_of_forcedef : forcedef -> string
 
 val existsinforcedef : (term -> bool) -> forcedef -> bool
 val findinforcedef : (term -> 'a option) -> forcedef -> 'a option
+val mapforcedef : (forcedef -> forcedef option) -> forcedef -> forcedef
 val mapforcedefterms : (term -> term option) -> forcedef -> forcedef
 val parseForceDef : unit -> forcedef
 

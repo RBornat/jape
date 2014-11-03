@@ -128,3 +128,5 @@ let truncatereasons = ref false (* whether to shorten reasons in boxdraw *)
 
 let tryresolution = ref true
 
+let disproofdebug = ref false
+

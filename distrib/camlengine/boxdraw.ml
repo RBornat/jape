@@ -326,36 +326,10 @@ let rec pretransform prefixwithstile t =
     let newhyps = ttsub hs hyps in
     let fvs =
       if !showboxfreshvs then
-        ((* find out what the rule is, and if it has provisos, if they are FRESH provisos,
-            and instantiate those FRESH provisos. If any.
-          *)
-         match stepprovisos t with
-         | Some provisos -> 
-             let freshvs = 
-               List.fold_left 
-                 (fun vs -> (function (_, Provisotype.FreshProviso (_, _, _, v)) -> v::vs
-                             |        _                                          -> vs
-                            )
-                 )
-                 []
-                 provisos
-             in
-             if null freshvs then []
-             else
-               (let formals = _The (params t) in
-                let env = 
-                  try Mappingfuns.fromlist (formals ||| args t)
-                  with _ -> raise (Catastrophe_ ["formals are "; bracketedstring_of_list string_of_term ";" formals;
-                                                 "; args are "; bracketedstring_of_list string_of_term ";" (args t);
-                                                 "; freshvs are "; bracketedstring_of_list string_of_term ";" freshvs])
-                in
-                (fun v -> _The (env <@> v)) <* freshvs
-               )
-         | _ -> []
-        )
+        [] (* watch this space *)
       else []
     in
-    (* let newfreshvs = listsub (fun (x,y) -> x=y) fvs freshvs in *)
+    let newfreshvs = listsub (fun (x,y) -> x=y) fvs freshvs in
     let lprins = fst (Absprooftree.matched t) in
     let _T hs (n, t) = pt (n :: rp) hs fvs t in
     let mkl isid subs =
@@ -384,7 +358,7 @@ let rec pretransform prefixwithstile t =
      * appears at the end of a box, we do the checks about last line later.
      *)
     match
-      null newhyps (* && null newfreshvs *), 
+      null newhyps && null newfreshvs, 
       !hidehyp && isStructureRulenode t IdentityRule
       (* , lprins, gs *)
     with
