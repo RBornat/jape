@@ -92,7 +92,7 @@ let rec member (x, sf) = List.mem x sf
 let rec nonmember (x, sf) = not (member (x, sf))
 
 (* slosh (was \) is list subtract *)
-let rec slosh = fun (sf, tt) -> (fun x -> nonmember (x, tt)) <| sf
+let slosh (sf, tt) = (fun x -> nonmember (x, tt)) <| sf
 
 (*
 val set = [] /> (fn (s, e) => if e member s then s else e :: s)
@@ -371,12 +371,11 @@ let rec sortedlistsub eq xs ys =
 (* matchbag pp XS = { (x, pp x, XS -- [x]) | x<-XS ; x in dom pp } *)
 
 let rec matchbag pp xs =
-  let rec match__ a1 a2 a3 =
-    match a1, a2, a3 with
-      r, pre, [] -> r
-    | r, pre, x :: xs ->
+  let rec match__ r pre = function
+    | []      -> r
+    | x :: xs ->
         match pp x with
-          Some y -> match__ ((x, y, revapp pre xs) :: r) (x :: pre) xs
+        | Some y -> match__ ((x, y, revapp pre xs) :: r) (x :: pre) xs
         | None -> match__ r (x :: pre) xs
   and revapp a1 a2 =
     match a1, a2 with

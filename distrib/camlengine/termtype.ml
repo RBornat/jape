@@ -42,10 +42,13 @@ type term =
       (int option * (term list * term list * term list) *
          (term * (int * int)) list * term)
   | Collection of (int option * idclass * element list)
+
 and litcon = Number of int | String of string
+
 and element =
-    Segvar of (int option * term list * term)
+  | Segvar of (int option * term list * term)
   | Element of (int option * resnum * term)
+
 and resnum = Nonum | Resnum of int | ResUnknown of int
 
 let rec int_of_resnum =

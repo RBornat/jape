@@ -832,12 +832,12 @@ let rec string_of_structurerule sr =
 
 let structurerules : (structurerule * name) list ref = ref []
 
-let rec clearstructurerules () = structurerules := []; relationpats := []
+let clearstructurerules () = structurerules := []; relationpats := []
 
 let rec erasestructurerule name =
   structurerules := ((fun (_, n) -> n <> name) <| !structurerules)
 
-let rec isstructurerule kind name =
+let isstructurerule kind name =
   List.exists (fun (k, n) -> (k, n) = (kind, name)) !structurerules
 
 (* to make addstructurerule and addthing mutually recursive (because of need to 
