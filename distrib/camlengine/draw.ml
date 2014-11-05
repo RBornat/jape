@@ -160,9 +160,6 @@ let plan_of_string font s info p =
 
 let plan_of_element ef element info p =
   plan_of_textinfo (textinfo_of_element ef element) info p
-(* I'd much rather say val plan_of_element = plan_of_textinfo o textinfo_of_element, but
- * I seem to remember that SML 109 can't cope.
- *)
  
 let planOffset (Formulaplan (layout, box, thing)) pos =
     Formulaplan (layout, tbOffset box pos, thing)
