@@ -93,7 +93,7 @@ and menupara = Menustuff of menucommand | Menupara of paragraph
 
 exception Use_ (* so-called because it is normally raised by a bad USE "file" *)
        
-   (************************************************************************************)
+(************************************************************************************)
    
 let rec name_of_stringsymbol sy =
   let rec ok v = Some (Name v) in
@@ -449,6 +449,25 @@ let rec processBind () =
     addbindingdirective
       (vars, scope, slosh (slosh (varsinbody, vars), scope), body)
 
+let scopehyps : (term list * term) list ref = ref []
+
+let addScopeHypPattern vs t = scopehyps := (vs,t)::!scopehyps
+
+let clearScopeHyps () = scopehyps := []
+
+let isScopeHyp t = 
+  Optionfuns.findfirst 
+    (fun (vs,pat) -> Match.matchvars false (fun v -> List.mem v vs) pat t Mappingfuns.empty) 
+    !scopehyps 
+
+let processScopeHyp () =
+  let vars =
+    parseUnsepList canstartidentifier (fun _ -> parseVariable ())
+  in
+  ignore (SHYID "IN");
+  let body = parseTerm EOF in
+  addScopeHypPattern vars body
+  
 let rec processPatchAlert () =
   let rec parsebuttonspec _ =
     scansymb ();
@@ -456,27 +475,26 @@ let rec processPatchAlert () =
     match currsymb () with
       STRING b ->
         scansymb ();
-        begin match currsymb () with
-          KET ")" -> scansymb (); b, None
-        | s ->
-            if s = commasymbol then
-              begin
-                scansymb ();
-                (let r = b, Some (parsealertspec ()) in
-                  (match currsymb () with
-                     KET ")" -> scansymb ()
-                   | s ->
-                       raise
-                         (ParseError_
-                            ["bracket expected after alert spec in PATCHALERT, found ";
-                             string_of_symbol (currsymb ())])); r)
-              end
-            else
-              raise
-                (ParseError_
-                   ["comma or bracket expected after button label in PATCHALERT, found ";
-                    string_of_symbol (currsymb ())])
-        end
+        (match currsymb () with
+		 | KET ")" -> scansymb (); b, None
+		 | s ->
+			 if s = commasymbol then
+			   (scansymb ();
+				(let r = b, Some (parsealertspec ()) in
+				  (match currsymb () with
+					 KET ")" -> scansymb ()
+				   | s ->
+					   raise
+						 (ParseError_
+							["bracket expected after alert spec in PATCHALERT, found ";
+							 string_of_symbol (currsymb ())])); r)
+			   )
+			 else
+			   raise
+				 (ParseError_
+					["comma or bracket expected after button label in PATCHALERT, found ";
+					 string_of_symbol (currsymb ())])
+        )
     | _ ->
         raise
           (ParseError_
@@ -682,9 +700,10 @@ let rec parseParagraph report query =
   | SHYID "RIGHTWEAKEN"     -> scansymb (); Some (parseStructure "RIGHTWEAKEN")
   | SHYID "RULE"            -> scansymb (); Some (RuleDef (parseRule report true))
   | SHYID "RULES"           -> scansymb (); Some (parseRules report true)
-  | SHYID "STRING"          -> scansymb (); processClassDecl report query StringClass; more ()
+  | SHYID "SCOPEHYP"		-> scansymb (); processScopeHyp (); more ()
   | SHYID "SEMANTICTURNSTILE" -> scansymb (); processSemanticTurnstileSpec (); more ()
   | SHYID "SEQUENT"         -> scansymb (); processSequentSpec (); more ()
+  | SHYID "STRING"          -> scansymb (); processClassDecl report query StringClass; more ()
   | SHYID "STRUCTURERULE"   -> scansymb (); Some (parseStructureRule ())
   | SHYID "SUBSTFIX"        -> scansymb (); processSubstfix report query; more ()
   | SHYID "TACTIC"          -> let h = scansymb (); parseTacticHeading _ISWORD in

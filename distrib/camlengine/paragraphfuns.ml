@@ -79,13 +79,13 @@ let disQuote = Stringfuns.disQuote
 let rec addstructurerule report query stype rule =
   let thingtype =
     match stype with
-      "CUT" -> CutRule
-    | "WEAKEN" -> LeftWeakenRule
-    | "LEFTWEAKEN" -> LeftWeakenRule
+    | "CUT"         -> CutRule
+    | "WEAKEN"      -> LeftWeakenRule
+    | "LEFTWEAKEN"  -> LeftWeakenRule
     | "RIGHTWEAKEN" -> RightWeakenRule
-    | "IDENTITY" -> IdentityRule
-    | "TRANSITIVE" -> TransitiveRule
-    | "REFLEXIVE" -> ReflexiveRule
+    | "IDENTITY"    -> IdentityRule
+    | "TRANSITIVE"  -> TransitiveRule
+    | "REFLEXIVE"   -> ReflexiveRule
     | _ -> raise (Catastrophe_ ["bad structure rule type "; stype])
   in
   if Thing.addstructurerule thingtype rule then ()
