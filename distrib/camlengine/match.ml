@@ -42,25 +42,28 @@ type ('a, 'b) mapping = ('a, 'b) Mappingfuns.mapping
 type term = Termtype.term
 
 let matchdebug = ref false
+
 (* because of matching in provisos, we have to use a discrimination between 
  * certainty and uncertainty
  *)
- 
 type matchresult =
   Certain of (term, term) mapping | Uncertain of (term, term) mapping
+
 let rec string_of_matchresult =
   function
-    Certain e -> "Certain " ^ string_of_mapping string_of_term string_of_term e
+  | Certain e -> "Certain " ^ string_of_mapping string_of_term string_of_term e
   | Uncertain e -> "Uncertain " ^ string_of_mapping string_of_term string_of_term e
+
 let rec env =
   function
-    Certain e -> e
+  | Certain e -> e
   | Uncertain e -> e
 
 let rec ( +++ ) =
   function
-    Certain e, e' -> Certain ((e ++ e'))
+  | Certain e, e' -> Certain ((e ++ e'))
   | Uncertain e, e' -> Uncertain ((e ++ e'))
+
 (* because of bag matching this is now mr list -> mr list *)
 let rec matchtermvars matchbra ispatvar pat term mrs =
   let matchterm = matchtermvars matchbra ispatvar in
@@ -77,9 +80,9 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
     if eqterms (t1, t2) then mrs
     else if simterms (t1, t2) then
          (function
-            Certain e -> Uncertain e
-          | umr -> umr) <*
-         mrs
+          | Certain e -> Uncertain e
+          | umr -> umr
+         ) <* mrs
     else []
   in
   let rec bindvar v t mr =
@@ -141,10 +144,10 @@ let rec matchtermvars matchbra ispatvar pat term mrs =
       (if matchbra then pat else debracket pat),
       (if matchbra then term else debracket term)
     with
-      (Id _ as v), _ ->
-        res
-          (if ispatvar v then optionfilter (bindvar v term) mrs
-           else eqt (v, term) mrs)
+    | (Id _ as v), _ ->
+        res (if ispatvar v then optionfilter (bindvar v term) mrs
+             else eqt (v, term) mrs
+            )
     | (Unknown _ as v), _ -> res (optionfilter (bindvar v term) mrs)
     | App (_, f, a), App (_, f', a') ->
         res (matchterm a a' (matchterm f f' mrs))
@@ -255,7 +258,7 @@ let rec simplepat term =
 let rec matchvars matchbra ispatvar pat term mr =
   let rec best mrs =
     match mrs with
-      (Certain e as mr) :: _ -> Some mr
+    | (Certain e as mr) :: _ -> Some mr
     | mr :: mrs -> (best mrs |~~ (fun _ -> Some mr))
     | [] -> None
   in
@@ -276,7 +279,9 @@ let rec match3term matchbra = match3termvars matchbra ismetav
 let rec matchtermvars matchbra ispatvar pat t envs =
   nj_fold
     (function
-       Certain e, es -> e :: es
-     | Uncertain e, es -> es)
+     | Certain e, es -> e :: es
+     | Uncertain e, es -> es
+    )
     (match3termvars matchbra ispatvar pat t (List.map (fun v->Certain v) envs)) []
+
 let rec matchterm matchbra = matchtermvars matchbra ismetav

@@ -208,7 +208,7 @@ and mapelements f es =
 
 let rec stripelement =
   function
-    Element (_, _, t)      -> t
+  | Element (_, _, t)      -> t
   | Segvar (_, [], v)      -> v
   | Segvar (_, p :: ps, v) ->
       App (None, p, stripelement (Segvar (None, ps, v)))
