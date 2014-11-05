@@ -81,3 +81,9 @@ val catelim_string_of_thmbody : string (* linesep *) -> proviso list -> seq
                              -> string list -> string list
 val string_of_rulebody : string (* linesep *) -> proviso list -> seq list -> seq -> string
 val string_of_thmbody : string (* linesep *) -> proviso list -> seq -> string
+
+val clearScopeHyps : unit -> unit
+
+val isScopeHyp : term -> (term,term) Mappingfuns.mapping option
+
+
