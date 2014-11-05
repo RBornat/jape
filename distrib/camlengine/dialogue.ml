@@ -86,7 +86,8 @@ let resetallcachesandvariables () =
   Termstore.resettermstore ();
   Termparse.resettermparse ();
   Thing.clearthings ();
-  Thing.clearstructurerules ()
+  Thing.clearstructurerules ();
+  Paragraph.clearScopeHyps()
          
 let ( &~~ ) = Optionfuns.( &~~ )
 let ( |~ ) = Optionfuns.( |~ )
