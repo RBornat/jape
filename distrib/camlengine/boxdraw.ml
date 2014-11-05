@@ -167,10 +167,12 @@ let showrelations = ref true
 let showboxfreshvs = ref true
 let boxseldebug = ref false
 let boxfolddebug = ref false
+
 let outerassumptionword = ref "assumption"
 let outerassumptionplural = ref "assumptions"
 let innerassumptionword = ref "assumption"
 let innerassumptionplural = ref "assumptions"
+
 let boxlineformat = ref "R (A) N: |"        (* "N: |R A" is going to be the default *)
 let boxlinedressright = ref true
 let rec ttsub hs hs' = listsub sameresource hs hs'
@@ -301,7 +303,7 @@ type normalpt =
       (revpath * bool * element list * string option *
          (reason * element list * normalpt list) option)
   | BoxPT of
-      (revpath * bool * (string * string) * string list * element list * normalpt)
+      (revpath * bool * (string * string) * element list * normalpt)
   | CutPT of (revpath * element * normalpt * normalpt * bool * bool)
   | TransitivityPT of (element * normalpt * normalpt)
     (* no revpath needed in transitivity node, because all you ever see is the tips;
@@ -315,23 +317,16 @@ let rec pretransform prefixwithstile t =
   (* pt gives back isreflexive * normalpt -- isreflexive is used in transitivity. *)
   
   let respt (r, pt) = pt in
-  let rec pt rp hyps freshvs t =
+  let rec pt rp hyps t =
     (* consolereport ["pt "; bracketedstring_of_list string_of_int ";" rp; 
                    " "; bracketedstring_of_list string_of_element ";" hyps;
-                   " "; bracketedstring_of_list string_of_term ";" freshvs;
                    " "; string_of_seq (sequent t)]; *)
     let why = reason t in
     let (st, hs, gs) = Absprooftree.explode (sequent t) in
     let subts = subtrees t in
     let newhyps = ttsub hs hyps in
-    let fvs =
-      if !showboxfreshvs then
-        [] (* watch this space *)
-      else []
-    in
-    let newfreshvs = listsub (fun (x,y) -> x=y) fvs freshvs in
     let lprins = fst (Absprooftree.matched t) in
-    let _T hs (n, t) = pt (n :: rp) hs fvs t in
+    let _T hs (n, t) = pt (n :: rp) hs t in
     let mkl isid subs =
       !hidereflexivity && isStructureRulenode t ReflexiveRule,
       LinPT
@@ -342,10 +337,9 @@ let rec pretransform prefixwithstile t =
     let rec aslines isid =
       mkl isid ((respt <.> _T hs) <* numbered subts)
     in
-    let boxpt freshvs lines =
-      (* consolereport ["boxpt with freshvs="; bracketedstring_of_list string_of_term ";" freshvs; 
-                     "; newhyps="; bracketedstring_of_list string_of_element ";" newhyps]; *)
-      false, BoxPT (RevPath rp, true, innerwords, string_of_term <* freshvs, newhyps, lines)
+    let boxpt lines =
+      (* consolereport ["boxpt with newhyps="; bracketedstring_of_list string_of_element ";" newhyps]; *)
+      false, BoxPT (RevPath rp, true, innerwords, newhyps, lines)
     in
     let rec hyps seq = snd_of_3 (Absprooftree.explode seq) in
     let rec concs seq = thrd (Absprooftree.explode seq) in
@@ -358,13 +352,13 @@ let rec pretransform prefixwithstile t =
      * appears at the end of a box, we do the checks about last line later.
      *)
     match
-      null newhyps && null newfreshvs, 
+      null newhyps, 
       !hidehyp && isStructureRulenode t IdentityRule
       (* , lprins, gs *)
     with
     | true , true  -> false, respt (aslines true)
-    | false, true  -> boxpt fvs (respt (aslines true))
-    | false, false -> boxpt fvs (respt (pt rp hs fvs t))
+    | false, true  -> boxpt (respt (aslines true))
+    | false, false -> boxpt (respt (pt rp hs t))
     | _            ->
         ((* not an Id or a box ... *)
          (* The cut transformation applies to cut nodes in which
@@ -392,12 +386,12 @@ let rec pretransform prefixwithstile t =
          | _ ->
              ((* multi-conc cut: useful for resolution but not for this display transform *)
               (* not an Id or a box or a cut ... *) 
-                            (* The transitivity transformation applies to all transitivity nodes E=F, F=G.
-                             * Reflexivity nodes, within transitivity stacks, are deleted here.
-                             * I thought of having a special transitive stack datatype, but because of 
-                             * reflexivity, you can't be quite sure you have a transitive stack at this point.
-                             * I guess layout might make a difference too.
-                             *)
+              (* The transitivity transformation applies to all transitivity nodes E=F, F=G.
+               * Reflexivity nodes, within transitivity stacks, are deleted here.
+               * I thought of having a special transitive stack datatype, but because of 
+               * reflexivity, you can't be quite sure you have a transitive stack at this point.
+               * I guess layout might make a difference too.
+               *)
               match
                 !hidetransitivity && isStructureRulenode t TransitiveRule,
                 gs, subts
@@ -412,9 +406,9 @@ let rec pretransform prefixwithstile t =
              )
         )
   in
-  match respt (pt [] [] [] t) with
-    BoxPT (pi, _, _, freshvs, hs, ptr) ->
-      BoxPT (pi, !outermostbox, outerwords, freshvs, hs, ptr)
+  match respt (pt [] [] t) with
+    BoxPT (pi, _, _, hs, ptr) ->
+      BoxPT (pi, !outermostbox, outerwords, hs, ptr)
   | ptr -> ptr
 
 (******** Step 2: compute class of each element, element texts and sizes, and paths ********)
@@ -500,7 +494,7 @@ type elinfo = element * elementinfo_of_plan
 type wordp = textinfo * textinfo
 type dependency =
   | LinDep of (elementinfo_of_plan list * textinfo option * reasoninfo)
-  | BoxDep of (bool * (textinfo * textinfo) * textinfo list * elinfo list * dependency)
+  | BoxDep of (bool * (textinfo * textinfo) * elinfo list * dependency)
   | IdDep of (element * dependency)
   | CutDep of (dependency * element * dependency * bool)
   | TranDep of (textinfo option * elementinfo_of_plan * trandep list)
@@ -530,9 +524,8 @@ and string_of_dependency d =
           (string_of_option string_of_textinfo) string_of_reasoninfo "," l
   | BoxDep d ->
       "BoxDep" ^
-        string_of_quintuple string_of_bool
+        string_of_quadruple string_of_bool
           (string_of_pair string_of_textinfo string_of_textinfo ",")
-          (bracketedstring_of_list string_of_textinfo ";")
           (bracketedstring_of_list string_of_elinfo ";") string_of_dependency "," d
   | IdDep i -> "IdDep" ^ string_of_pair string_of_element string_of_dependency "," i
   | CutDep c ->
@@ -597,14 +590,13 @@ let rec dependency tranreason deadf pt =
         true, Some (_, [lp], []) -> IdDep (lp, dep)
       | _ -> dep
       end
-  | BoxPT (rp, boxit, (sing, plur), freshvs, hs, pt') ->
+  | BoxPT (rp, boxit, (sing, plur), hs, pt') ->
       let pi = ordinarypi rp in
       let rec mkplan e =
         e, (textinfo_of_element e, ElementPlan (pi, e, HypPlan))
       in
       BoxDep (boxit,
               (textinfo_of_string ReasonFont sing, textinfo_of_string ReasonFont plur),
-              textinfo_of_string ReasonFont <* freshvs,
               mkplan <* hs, 
               dependency tranreason ordinary pt'
              )
@@ -750,7 +742,6 @@ type fitchlinerec =
       }
         
 type fitchboxrec = { outerbox   : box; 
-                     freshvs    : textinfo list;
                      boxlines   : fitchstep list; 
                      boxed      : bool 
                    }
@@ -1087,7 +1078,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             doconcline mkp true (dolinsubs hypmap acc justopt) (List.length concels'>1)
           in
           LineID id', acc'
-      | BoxDep (boxed, hypdescwords, freshvs, hypelis, dp) ->
+      | BoxDep (boxed, hypdescwords, hypelis, dp) ->
           let (topleftpos, hindent, vindent, innerpos) =
             if boxed then
               let topleftpos = nextpos accrec.elbox boxleading accrec.lastmulti false in
@@ -1099,28 +1090,38 @@ let rec linearise screenwidth procrustean_reasonW dp =
               let topleftpos = nextpos accrec.elbox textleading accrec.lastmulti false in
               topleftpos, 0, 0, topleftpos
           in
+          let isScopeElinfo = bool_of_opt <.> Paragraph.isScopeHyp <.> stripelement <.> fst in
           let hyplines =
             let single h = [h] in
+            let scopes, norms = List.partition isScopeElinfo hypelis in
             match !multiassumptionlines, wopt with
-              false, None       -> single <* hypelis
-            | true , None       -> [hypelis] (* first pass - just put them all on one line *)
+            | false, None       -> single <* scopes, single <* norms
+            | true , None       -> [scopes],[norms] (* first pass - just put them all on one line *)
             | _    , Some bestW -> (* We make a proper 'minimum waste' split of the assumption line *)
                 let rec measureplan (_, ((size, _), _)) = tsW size + commaW (* more or less *) in
                 let mybestW = max (2 * tsW (fst (fst hypdescwords))) (bestW - 2 * posX innerpos) in
                 let doit (e,inf) = e, if !foldformulae then foldformula mybestW inf else inf in
-                let donehyps = doit <* hypelis in
-                if !multiassumptionlines then
-                  (let hs' = minwaste measureplan mybestW donehyps in
-                   assumptionlinesfolded := !assumptionlinesfolded || List.length hs'<>1;
-                   hs')
-                else
-                  single <* donehyps
+                let foldline hypelis =
+                  let donehyps = doit <* hypelis in
+                  if !multiassumptionlines then
+                    (let hs' = minwaste measureplan mybestW donehyps in
+                     assumptionlinesfolded := !assumptionlinesfolded || List.length hs'<>1;
+                     hs'
+                    )
+                  else
+                    single <* donehyps
+                in
+                foldline scopes, foldline norms
           in
-          let dohypline (hypelis, (hypmap, Lacc haccrec)) =
+          let dohypline numbered (hypelis, (hypmap, Lacc haccrec)) =
+            let descword word elinfo =
+              if isScopeElinfo elinfo then textinfo_of_string ReasonFont "" else word
+            in
             let (word, hypmap') =
               match hypelis with
-                [h] -> fst hypdescwords, (hypmap ++ (fst h |-> LineID haccrec.id))
-              | hs  -> snd hypdescwords, (hypmap ++ mapn haccrec.id hs 1)
+              | [h]         -> descword (fst hypdescwords) h, (hypmap ++ (fst h |-> LineID haccrec.id))
+              | h::_ as hs  -> descword (snd hypdescwords) h, (hypmap ++ mapn haccrec.id hs 1)
+              | []          -> fst hypdescwords, hypmap (* can't happen *)
             in
             let (line, linebox, lineidW, linereasonW) =
               mkLine
@@ -1130,17 +1131,20 @@ let rec linearise screenwidth procrustean_reasonW dp =
             in
             let lineassW =
               match hypelis with
-                [_] -> 0
+              | [_] -> 0
               | _   -> sW (bSize linebox) + 2 * posX innerpos
             in
             hypmap',
             Lacc {id = _RR haccrec.id; acclines = line :: haccrec.acclines;
                   elbox = if null haccrec.acclines then linebox else haccrec.elbox +||+ linebox;
                   idW = max haccrec.idW lineidW; reasonW = max haccrec.reasonW linereasonW;
-                  assW = max haccrec.assW lineassW; lastmulti = false}
+                  assW = max haccrec.assW lineassW; lastmulti = false
+                 }
           in
           let (hypmap', (Lacc {id = id'} as acc')) =
-            nj_revfold dohypline hyplines (hypmap, startLacc accrec.id innerpos)
+            let scopes, norms = hyplines in
+            let hypmap, lacc = nj_revfold (dohypline false) scopes (hypmap, startLacc accrec.id innerpos) in
+            nj_revfold (dohypline true) norms (hypmap, lacc)
           in
           let (cid, Lacc {id = id''; acclines = innerlines; elbox = innerbox;
                           idW = idW'; reasonW = reasonW'; assW = assW'})
@@ -1158,7 +1162,6 @@ let rec linearise screenwidth procrustean_reasonW dp =
           Lacc {id = id'';
                 acclines = 
                   FitchBox {outerbox = outerbox; 
-                            freshvs  = freshvs; 
                             boxlines = innerlines; 
                             boxed    = boxed
                            } 
@@ -1421,10 +1424,7 @@ let rec draw goalopt p proof =
            | Some gpath -> List.iter (emp gpath) elementsplan
            | None -> ()
           )
-      | FitchBox {outerbox = outerbox; boxlines = lines; boxed = boxed; freshvs = freshvs} ->
-          (* consolereport ["drawing a box "; string_of_bool boxed; " with freshvs ";
-                         bracketedstring_of_list string_of_textinfo "; " freshvs;
-                         " "; enQuote (string_of_list string_of_textinfo ", " freshvs)]; *)
+      | FitchBox {outerbox = outerbox; boxlines = lines; boxed = boxed} ->
           if boxed then drawBox (bOffset outerbox p) "" (* for now *); 
           List.iter (_D p) lines;
     in
@@ -1457,17 +1457,13 @@ let rec print str goalopt p proof =
           out "(BECAUSE ";
           List.iter outplan reasonplan;
           out "))\n"
-      | FitchBox {outerbox = outerbox; boxlines = lines; boxed = boxed; freshvs = freshvs} ->
+      | FitchBox {outerbox = outerbox; boxlines = lines; boxed = boxed} ->
           (* DO THIS STUFF LATER
           case goalopt of 
             Some gpath => List.iter (emp gpath) elementsplan
           | None       => ()
           *)
-          if boxed then 
-            (out "(BOX (";
-             out (string_of_list string_of_textinfo ", " freshvs);
-             out ")\n"
-            );
+          if boxed then out "(BOX\n";
           revapp (_D p) lines;
           if boxed then out ")\n"
     in
