@@ -269,7 +269,7 @@ let utf8_presub s i =
     let rec f j =
       if j<0 then 
         raise (MalformedUTF_ 
-                 ["UTF8 string "; bracketedstring_of_list hexstring_of_char "; " (chars_of_string (String.sub s 0 i))])
+                 ["UTF8 string "; bracketed_string_of_list hexstring_of_char "; " (chars_of_string (String.sub s 0 i))])
       else (
         let n = utf8width_from_header s.[j] in
         if n>0 then utf8_get s j

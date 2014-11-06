@@ -120,7 +120,7 @@ let rec matchit pat vs t =
   if !matchdebug then
     consolereport
       ["matchit (disproof) matching "; string_of_term pat; " ";
-       bracketedstring_of_list
+       bracketed_string_of_list
          (fun v ->
             string_of_pair string_of_term (string_of_idclass <.> idclass)
               "," (v, v))
@@ -273,11 +273,18 @@ type definition = term * term list * bool * forcedef
 
 let forcedefs : definition list ref = ref []
 
+let string_of_definition = 
+  Stringfuns.string_of_quadruple string_of_term
+                                 (bracketed_string_of_list string_of_term ";")
+                                 string_of_bool
+                                 string_of_forcedef
+                                 ","
+                      
 let occurrences : (term * term list) list ref = ref [] (* occurrence forms *)
 
 let string_of_occurrences = 
-  bracketedstring_of_list 
-    (string_of_pair string_of_term (bracketedstring_of_list string_of_term ";") ",")
+  bracketed_string_of_list 
+    (string_of_pair string_of_term (bracketed_string_of_list string_of_term ";") ",")
     "; "
     
 let rec isoccurrence t =
@@ -350,23 +357,38 @@ let rec addforcedef (t, fd) =
   with
     Predicate_ ss -> raise (ParseError_ ss)
 
-let rec clearforcedefs () = forcedefs := []; occurrences := []
+let clearforcedefs () = forcedefs := []; occurrences := []
 
-let rec hasforcedefs () = not (null !forcedefs)
+let hasforcedefs () = not (null !forcedefs)
 
 (* matching a formula against the definitions *)
 let rec semantics facts t =
   let r = 
-    findfirst
-      (fun (pat, vs, hassubst, fd) -> (matchit pat vs t &~~ (fun env -> Some (env, hassubst, fd))))
-      !forcedefs
+    (let r = 
+       findfirst
+         (fun (pat, vs, hassubst, fd) -> (matchit pat vs t &~~ (fun env -> Some (env, hassubst, fd))))
+         !forcedefs
+     in
+     if !disproofdebug then
+       consolereport ["semantics findfirst "; string_of_term t; " => "; 
+         string_of_option (string_of_triple (string_of_mapping string_of_term string_of_term) 
+                                            string_of_bool 
+                                            string_of_forcedef 
+                                            ","
+                          ) 
+                          r;
+                     " with forcedefs "; bracketed_string_of_list string_of_definition ";" !forcedefs];
+     r
+     )
     &~~
     (fun (env, hassubst, fd) ->
        let fd' = mapforcedefterms (option_remapterm env) (uniquebinders t fd) in
        Some (if hassubst then mapforcedefterms (dosubst facts) fd' else fd'))
   in
   if !disproofdebug then
-    consolereport ["semantics "; string_of_term t; " = "; string_of_option string_of_forcedef r];
+    consolereport ["semantics "; string_of_term t; " = "; string_of_option string_of_forcedef r;
+                   " with forcedefs "; bracketed_string_of_list string_of_definition ";" !forcedefs
+                  ];
   r
   
 (* avoid variable capture in semantics function *)
@@ -384,7 +406,7 @@ and uniquebinders t fd =
     let r = snd (foldl newvar ([], empty) ocvs) in
     if !disproofdebug then
       consolereport
-        ["newoccenv "; bracketedstring_of_list string_of_term ";" ocvs; 
+        ["newoccenv "; bracketed_string_of_list string_of_term ";" ocvs; 
          " = "; string_of_mapping string_of_term string_of_term r];
     r
   in
@@ -413,13 +435,14 @@ let rec semanticfringe facts ts t =
    *)
   let rec tf ts t =
     match semantics facts t with
-      None    -> (match decodeBracketed t with
-                    Some t' -> tf ts t'
-                  | None    -> t :: ts)
+    | None    -> (match decodeBracketed t with
+                  | Some t' -> tf ts t'
+                  | None    -> t :: ts
+                 )
     | Some fd -> ff ts fd
   and ff ts fd =
     match fd with
-      ForceAlways          -> ts
+    | ForceAlways          -> ts
     | ForceNever           -> ts
     | ForcePrim       t    -> tf ts t
     | ForceBoth       pair -> pf ts pair
@@ -447,7 +470,7 @@ let rec indiv_fd facts (oc, vs, fd) i =
   if !disproofdebug then
     (consolereport
        ["indiv_fd ";
-        string_of_triple string_of_term (bracketedstring_of_list string_of_term ",")
+        string_of_triple string_of_term (bracketed_string_of_list string_of_term ",")
           string_of_forcedef "," (oc, vs, fd);
         " "; string_of_term i; " => "; string_of_option string_of_forcedef r];
      consolereport
@@ -742,7 +765,7 @@ and tint_universe facts forced (plan, _) (proofsels, textsels) =
                 Some t -> t :: ts
               | _      -> raise (Catastrophe_ 
                                    ["Disproof.tint_universe can't find element "; string_of_pos p; " in "; 
-                                    bracketedstring_of_list (debugstring_of_plan string_of_planclass) ";" plan])
+                                    bracketed_string_of_list (debugstring_of_plan string_of_planclass) ";" plan])
            ) 
            (foldr (fun (_,ss) ts ->
                      let rec tsel sels =
@@ -752,7 +775,7 @@ and tint_universe facts forced (plan, _) (proofsels, textsels) =
                        | []            -> ts
                        | _  -> raise (Catastrophe_ 
                                         ["Disproof.tint_universe can't understand text selection "; 
-                                                    bracketedstring_of_list Stringfuns.enQuote ";" ss])
+                                                    bracketed_string_of_list Stringfuns.enQuote ";" ss])
                      in tsel ss
                   ) [] textsels)
            proofsels
@@ -769,7 +792,7 @@ and tint_universe facts forced (plan, _) (proofsels, textsels) =
   let bindersels =
     optionfilter (fun t -> let rec isbinder fd =
                              match fd with
-                               ForceAlways         -> None
+                             | ForceAlways         -> None
                              | ForceNever          -> None
                              | ForcePrim _         -> None
                              | ForceBoth _         -> None
@@ -811,30 +834,23 @@ let tilesort = List.rev <.> alphasort string_of_term snd
 
 let labelsort = alphasort (fun (_,t) ->string_of_term t) snd 
 
-let rec tiles_of_seq facts seq =
+let tiles_of_seq facts seq =
   let (_, _, hyps, _, concs) = my_seqexplode seq in
-  (* check for an absence of silliness *)
-  let rec existselement f e =
+  (* first check for an absence of silliness *)
+  let rec iterelement f e =
     match term_of_element e with
-      None -> false
-    | Some t -> existsterm f t
+    | None   -> ()
+    | Some t -> iterterm f t
   in
-  if List.exists
-       (fun e ->
-          if issegvar e then
-            raise
-              (Disproof_
-                 ["Forcing semantics can only deal with actual formulae in sequents.";
-                  " Segment variables (e.g. "; string_of_element e;
-                  ") aren't allowed "; " in disproof sequents."])
-          else false)
-       (hyps @ concs)
-  then
-    ()
-  else if
-    (* can't happen *)
-    List.exists
-      (existselement
+  List.iter
+    (fun e ->
+       if issegvar e then
+         raise
+           (Disproof_
+              ["Forcing semantics can only deal with actual formulae in sequents.";
+               " Segment variables (e.g. "; string_of_element e;
+               ") aren't allowed "; " in disproofs."]);
+       iterelement
          (fun t ->
             if isUnknown t then
               raise
@@ -842,26 +858,24 @@ let rec tiles_of_seq facts seq =
                    ["Unknowns (e.g. "; string_of_term t; " in sequent ";
                     string_of_seq seq; ") make disproof somewhat tricky.  Try again when you have resolved the ";
                     " unknown formulae."])
-            else false))
-      (concs @ hyps)
-  then
-    ()
-  else if
-    (* can't happen *)
-    List.exists
-      (existselement
+         )
+         e;
+       iterelement
          (fun t ->
             match decodeSubst t with
-              Some _ ->
+            | Some _ ->
                 raise
                   (Disproof_
                      ["Substitutions (e.g. "; string_of_term t;
-                      " in sequent "; string_of_seq seq; ") aren't part of the forcing semantics.  Try again when you have ";
+                      " in sequent "; string_of_seq seq; ") aren't part of the \
+                      forcing semantics.  Try again when you have ";
                       " simplified the substitution(s)."])
-            | _ -> false))
-      (concs @ hyps)
-  then
-    ();
+            | _ -> ()
+         )
+         e
+    )
+    (hyps @ concs)
+  ;
   (* find the fringe *)
   let hypterms = optionfilter term_of_element hyps in
   let concterms = optionfilter term_of_element concs in
@@ -883,20 +897,25 @@ let rec tiles_of_seq facts seq =
    * but if there aren't any such individuals, keep just one
    *)
   let svs = seqvars seq in
-  match isVariable <| nj_fold (uncurry2 tmerge) (List.map patvars ts) [] with
-    []  -> ts
-  | tvs ->
-      let tvs' =
-        match (fun i -> member (i, svs)) <| tvs with
-          [] -> [List.hd tvs]
-        | vs -> vs
-      in
-      let badvs = listsub (fun (x,y) -> x=y) tvs tvs' in
-      let rec changevars i =
-        if member (i, badvs) then Some (List.hd tvs') else None
-      in
-      List.map (mapterm changevars) ts
-
+  let result = 
+    match isVariable <| nj_fold (uncurry2 tmerge) (List.map patvars ts) [] with
+    | []  -> ts
+    | tvs -> let tvs' =
+               match (fun i -> member (i, svs)) <| tvs with
+               | [] -> [List.hd tvs]
+               | vs -> vs
+             in
+             let badvs = listsub (fun (x,y) -> x=y) tvs tvs' in
+             let rec changevars i =
+               if member (i, badvs) then Some (List.hd tvs') else None
+             in
+             List.map (mapterm changevars) ts
+  in
+  consolereport ["tiles_of_seq ... "; string_of_seq seq; " = ";
+                 bracketed_string_of_list string_of_term ";" result
+                ];
+  result
+  
 let rec model_of_disproofstate =
   function
     None -> None
@@ -909,7 +928,7 @@ let rec model_of_disproofstate =
 
 let rec disproofstate_of_model facts tree disproofopt =
   match disproofopt with
-    None              -> None
+  | None              -> None
   | Some (seq, model) ->
       let rec coord = fun (Coord c) -> c in
       let (Model worlds) = model in
@@ -970,12 +989,12 @@ let rec checkdisproof facts tree disproofopt =
     Some (Disproofstate {countermodel = countermodel}) -> countermodel
   | _ -> false
 
-let rec disproof_start facts tree pathopt hyps =
+let disproof_start facts tree pathopt hyps =
   let rec replace_hyps s hyps =
     let (style, _, _, _, concs) = my_seqexplode s in
     mkSeq (style, hyps, concs)
   in
-  let rec res s' =
+  let res s' =
     let (syn, _, hyps, _, concs) = my_seqexplode s' in
     let tiles = tiles_of_seq facts s' in
     let seq =
@@ -1052,7 +1071,7 @@ let rec newtile =
                 (Catastrophe_
                    ["(newtile) occurrence tile "; string_of_term t;
                     " has termvars ";
-                    bracketedstring_of_list string_of_term "," vs])
+                    bracketed_string_of_list string_of_term "," vs])
         else
           let rec nlists a1 a2 =
             match a1, a2 with
@@ -1141,14 +1160,14 @@ let deleteworld =
     | Some _ ->
         (* a garbage-collection job! But actually we just leave the floaters floating ... *)
         let ws = listsub (fun (x,y) -> x=y) (dom universe) [c] in
-        (* consolereport ["dom universe := "; bracketedstring_of_list string_of_coord ";" ws]; *)
+        (* consolereport ["dom universe := "; bracketed_string_of_list string_of_coord ";" ws]; *)
         match ws with
           [] -> None (* we don't delete the last world *)
         | _  -> let rec doit w =
                   (* consolereport [string_of_coord w; " = "; string_of_world (getworld universe w)]; *)
                   let (_, ts, cs) = getworld universe w in
                   let cs' = listsub (fun (x,y) -> x=y) cs [c] in
-                  (* consolereport [" => "; bracketedstring_of_list string_of_coord ";" cs']; *)
+                  (* consolereport [" => "; bracketed_string_of_list string_of_coord ";" cs']; *)
                   w, (Unforced, ts, cs')
                 in
                 let u' = mkmap (List.map doit ws) in
@@ -1281,7 +1300,7 @@ let showdisproof (Disproofstate {seq = seq; selections = selections; seqplan = p
       Some(seqplan,seqbox) ->
         begin
           let seqsize = tbS seqbox in
-          (* consolereport["seqplan is "; bracketedstring_of_list (debugstring_of_plan string_of_planclass) "; " seqplan; 
+          (* consolereport["seqplan is "; bracketed_string_of_list (debugstring_of_plan string_of_planclass) "; " seqplan; 
                                 "; and seqbox is "; string_of_textbox seqbox]; *)
           setseqbox seqsize;
           drawindisproofpane ();

@@ -51,9 +51,9 @@ let findbadbinding t bbs =
   findfirst (fun bb -> match__ false bb t empty) bbs
 
 let string_of_bindingdirective =
-  string_of_quadruple (bracketedstring_of_list string_of_term "; ")
-                      (bracketedstring_of_list string_of_term "; ")
-                      (bracketedstring_of_list string_of_term "; ")
+  string_of_quadruple (bracketed_string_of_list string_of_term "; ")
+                      (bracketed_string_of_list string_of_term "; ")
+                      (bracketed_string_of_list string_of_term "; ")
                       string_of_term
                       ", "
 
@@ -93,7 +93,7 @@ let addbindingdirective (bs, ss, us, pat as directive) =
         let qt = string_of_quadruple bt bt bt string_of_term "," in
         consolereport
           ["bindings type "; string_of_int k; " are now ";
-           bracketedstring_of_list qt "; " (Array.get bindingdirectives k);
+           bracketed_string_of_list qt "; " (Array.get bindingdirectives k);
            "; and bad bindings type "; string_of_int k; " are ";
            bt (Array.get badbindings k)]
     end

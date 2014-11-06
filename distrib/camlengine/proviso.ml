@@ -163,14 +163,14 @@ let rec parseProvisos () =
   let rec parseNOTONEOF vars =
     let bad ss = raise (ParseError_ ("in NOTONEOF proviso, " :: ss)) in
     if List.exists (not <.> ismetav) vars then
-      bad ["not all the names "; bracketedstring_of_list string_of_term ", " vars;
+      bad ["not all the names "; bracketed_string_of_list string_of_term ", " vars;
              " are schematic"];
     let _ = check (SHYID "IN") in
     let pat = parseBindingpattern () in
     let varsinpat = ismetav <| termvars pat in
     if not (subset (vars, varsinpat)) then
       bad
-        ["not all the names "; bracketedstring_of_list string_of_term ", " vars;
+        ["not all the names "; bracketed_string_of_list string_of_term ", " vars;
          " appear in the pattern "; string_of_term pat];
     let _ = check (SHYID "NOTONEOF") in
     let (classopt, els) =

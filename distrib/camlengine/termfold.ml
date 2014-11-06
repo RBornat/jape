@@ -56,7 +56,7 @@ let termfolddebug = ref false
 let rec appflatten t ts =
    if !termfolddebug then
      consolereport ["appflatten tries ("; debugstring_of_term t; ") ";
-                    bracketedstring_of_list string_of_term ";\n" ts];
+                    bracketed_string_of_list string_of_term ";\n" ts];
    isJuxtapos t &~~ (fun (f,a) -> appflatten f (a::ts) |~~ (fun _ -> Some (f::a::ts)))
 
 let renderprio n mustbra t = 
@@ -68,7 +68,7 @@ let rec infixnameflatten name t ts =
    if !termfolddebug then
      consolereport ["infixnameflatten tries "; Stringfuns.enQuote name; 
                     " ("; debugstring_of_term t; ") ";
-                    bracketedstring_of_list (bracketedstring_of_list invisQuote ";") "; " ts];
+                    bracketed_string_of_list (bracketed_string_of_list invisQuote ";") "; " ts];
    isInfixApp t &~~
    (fun (name', prio, assoc, a1, a2) ->
       if name=name' then
@@ -91,7 +91,7 @@ let rec infixprioflatten n mustbra t ts =
    if !termfolddebug then
      consolereport ["infixprioflatten tries "; string_of_int n; " "; string_of_bool mustbra; 
                     " ("; debugstring_of_term t; ") ";
-                    bracketedstring_of_list (bracketedstring_of_list invisQuote ";") "; " ts];
+                    bracketed_string_of_list (bracketed_string_of_list invisQuote ";") "; " ts];
    isInfixApp t &~~
    (fun (_, n', assoc, a1, a2) ->
       if n'>n || (n'=n && not mustbra) then
@@ -132,9 +132,9 @@ let rec infixprioflatten n mustbra t ts =
        if !termfolddebug then
          consolereport 
            ["matchup tries "; 
-            bracketedstring_of_list invisQuote ";" t;
+            bracketed_string_of_list invisQuote ";" t;
             "\n";
-            bracketedstring_of_list invisQuote ";" tts];
+            bracketed_string_of_list invisQuote ";" tts];
        let rec getstart tt1 tts' =
          match tts' with 
            [] -> raise (Catastrophe_ ["Termfold.tryfold.matchup fails"])
@@ -156,11 +156,11 @@ let rec infixprioflatten n mustbra t ts =
        if !termfolddebug then
          consolereport 
            ["split tries "; 
-            bracketedstring_of_list
-              (bracketedstring_of_list invisQuote ";")
+            bracketed_string_of_list
+              (bracketed_string_of_list invisQuote ";")
               ";" ts;
             " ";
-            bracketedstring_of_list invisQuote ";" tts];
+            bracketed_string_of_list invisQuote ";" tts];
        match ts, tts with
          []      , []   -> []
        | (t::ts'), _::_ ->
@@ -168,18 +168,18 @@ let rec infixprioflatten n mustbra t ts =
            if !termfolddebug then
              consolereport 
                ["matchup gives "; 
-                bracketedstring_of_list invisQuote ";" tt1;
+                bracketed_string_of_list invisQuote ";" tt1;
                 ",\n";
-                bracketedstring_of_list invisQuote ";" tts'];
+                bracketed_string_of_list invisQuote ";" tts'];
            tt1 :: split ts' tts'
        | _ -> 
            consolereport 
              ["Termfold.tryfold.split failed on "; 
-              bracketedstring_of_list
-                (bracketedstring_of_list invisQuote ";")
+              bracketed_string_of_list
+                (bracketed_string_of_list invisQuote ";")
                 ";" ts;
               " ";
-              bracketedstring_of_list invisQuote ";" tts];
+              bracketed_string_of_list invisQuote ";" tts];
               raise (Catastrophe_ ["Termfold.tryfold.split failed"])
      in
      let sss = split ts tts in
@@ -193,7 +193,7 @@ let rec infixprioflatten n mustbra t ts =
        if !termfolddebug then
          consolereport ["termfold splits "; Stringfuns.enQuote (string_of_term t);
                         " into "; 
-                        bracketedstring_of_list (Stringfuns.enQuote <.> string_of_term) 
+                        bracketed_string_of_list (Stringfuns.enQuote <.> string_of_term) 
                                                 "\n" ts];
        tryfold (List.map renderargs ts) tstring default
    | _ -> 
@@ -219,7 +219,7 @@ let rec infixprioflatten n mustbra t ts =
           if !boxfolddebug then
             consolereport
               ["folding ";
-               bracketedstring_of_list
+               bracketed_string_of_list
                  (fun s -> string_of_pair string_of_int enQuote "," (measure s, s))
                  ", " estring];
           let sss = minwaste measure w estring in
@@ -227,7 +227,7 @@ let rec infixprioflatten n mustbra t ts =
             consolereport
               ["width is "; string_of_int w; ";\nformula folded to ";
                string_of_int (List.length sss); " lines: ";
-               bracketedstring_of_list (fun ss -> enQuote (implode ss)) ", "
+               bracketed_string_of_list (fun ss -> enQuote (implode ss)) ", "
                  sss];
           let sys = (fun ss -> Syllable (TermFont, implode ss)) <* sss in
           let text =

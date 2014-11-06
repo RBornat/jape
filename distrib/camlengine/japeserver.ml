@@ -173,7 +173,7 @@ let rec writef orig_s orig_is =
   let signedstring_of_int i = if i < 0 then "-" ^ string_of_int (- i) else string_of_int i in
   let bad message =
     raise (Catastrophe_ ["Japeserver.writef "; message; " "; enQuote orig_s; " ";
-                         bracketedstring_of_list string_of__ITEM ";" orig_is])
+                         bracketed_string_of_list string_of__ITEM ";" orig_is])
   in
   let rec ww_ cs is =
     match cs, is with
@@ -363,7 +363,7 @@ let rec drawmeasuredtext class__ lines pos =
   (* consolereport ["drawmeasuredtext ";
                  string_of_displayclass class__;
                  " ";
-                 bracketedstring_of_list 
+                 bracketed_string_of_list 
                     (Stringfuns.string_of_triple 
                         string_of_pos string_of_displayfont Stringfuns.enQuote ",") 
                     ";\n" lines;
@@ -439,7 +439,7 @@ let rec askDangerously_unpatched message doit dont =
     [0] -> None
   | [n] -> if n<0 then None else Some (n - 1)
   | ns  -> raise (Catastrophe_ ["askDangerously protocol failure ";
-                                bracketedstring_of_list string_of_int ";" ns])
+                                bracketed_string_of_list string_of_int ";" ns])
 
 let rec askCancel_unpatched severity message buttons default =
   let n = ask_unpatched severity message (buttons @ ["Cancel"]) default in
@@ -673,8 +673,8 @@ let positioned_textsels id =
                       false
   do () done;
   (* consolereport ["positioned_textsels \""; id; "\" => "; 
-           bracketedstring_of_list (Stringfuns.string_of_pair string_of_pos 
-                                (bracketedstring_of_list Stringfuns.enQuote ",") ",") "; " !l]; *)
+           bracketed_string_of_list (Stringfuns.string_of_pair string_of_pos 
+                                (bracketed_string_of_list Stringfuns.enQuote ",") ",") "; " !l]; *)
   !l
   
 let rec getProofTextSelections () =
@@ -692,7 +692,7 @@ let rec getProofSelections () =
            false
   do () done;
   (* consolereport ["getFormulaSelection => "; 
-      bracketedstring_of_list (Stringfuns.string_of_pair string_of_pos string_of_displayclass ",") "; " !l]; *)
+      bracketed_string_of_list (Stringfuns.string_of_pair string_of_pos string_of_displayclass ",") "; " !l]; *)
   !l
 
 let rec nontrivial_selections line =
@@ -711,7 +711,7 @@ let rec getDisproofSelections () =
            false
   do () done;
   (* consolereport ["getDisproofSelections => "; 
-      bracketedstring_of_list string_of_pos "; " !l]; *)
+      bracketed_string_of_list string_of_pos "; " !l]; *)
   !l
 
 let rec getDisproofTextSelections () =

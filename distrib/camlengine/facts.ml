@@ -48,7 +48,7 @@ let factsdebug = ref false
 type facts = proviso list * exterior
 
 let string_of_facts =
-  string_of_pair (bracketedstring_of_list string_of_proviso " AND ") string_of_exterior ","
+  string_of_pair (bracketed_string_of_list string_of_proviso " AND ") string_of_exterior ","
 
 let rec facts provisos cxt =
   (provisoactual <* provisos), getexterior cxt
@@ -99,7 +99,7 @@ let rec showvarsq facts v1 v2 name r =
     begin
       let (ps, sb) = facts in
       consolereport
-        [name; " ("; bracketedstring_of_list string_of_proviso "," ps; ",";
+        [name; " ("; bracketed_string_of_list string_of_proviso "," ps; ",";
          string_of_exterior sb; ") "; debugstring_of_term v1; " "; debugstring_of_term v2;
          " => "; string_of_answer r]
     end;

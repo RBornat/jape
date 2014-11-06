@@ -60,6 +60,7 @@ val findterm : (term -> 'a option) -> term -> 'a option
 val findhole : ((term -> term) -> term -> 'a option) -> term -> 'a option
 val searchterm : (term -> 'a option) -> 'a -> term -> 'a
 val existsterm : (term -> bool) -> term -> bool
+val iterterm : (term->unit) -> term -> unit
 (* functions to give access to the innards of a term without giving away the whole type *)
 val decodeSubst : term -> (bool * term * (term * term) list) option
 (* gives r, p_, vts *)

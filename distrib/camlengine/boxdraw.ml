@@ -137,7 +137,7 @@ let idf = fun x -> x
 let isRelation = Thing.isRelation
 let multiassumptionlines = Miscellaneous.multiassumptionlines
 let string_of_pair = Stringfuns.string_of_pair
-let string_of_path = Listfuns.bracketedstring_of_list string_of_int ","
+let string_of_path = Listfuns.bracketed_string_of_list string_of_int ","
 let string_of_quadruple = Stringfuns.string_of_quadruple
 let string_of_quintuple = Stringfuns.string_of_quintuple
 let string_of_reason = idf
@@ -318,8 +318,8 @@ let rec pretransform prefixwithstile t =
   
   let respt (r, pt) = pt in
   let rec pt rp hyps t =
-    (* consolereport ["pt "; bracketedstring_of_list string_of_int ";" rp; 
-                   " "; bracketedstring_of_list string_of_element ";" hyps;
+    (* consolereport ["pt "; bracketed_string_of_list string_of_int ";" rp; 
+                   " "; bracketed_string_of_list string_of_element ";" hyps;
                    " "; string_of_seq (sequent t)]; *)
     let why = reason t in
     let (st, hs, gs) = Absprooftree.explode (sequent t) in
@@ -338,13 +338,12 @@ let rec pretransform prefixwithstile t =
       mkl isid ((respt <.> _T hs) <* numbered subts)
     in
     let boxpt lines =
-      (* consolereport ["boxpt with newhyps="; bracketedstring_of_list string_of_element ";" newhyps]; *)
+      (* consolereport ["boxpt with newhyps="; bracketed_string_of_list string_of_element ";" newhyps]; *)
       false, BoxPT (RevPath rp, true, innerwords, newhyps, lines)
     in
     let rec hyps seq = snd_of_3 (Absprooftree.explode seq) in
     let rec concs seq = thrd (Absprooftree.explode seq) in
-    (* The box transformation is applied to anything which has novel lhs elements
-     * or which binds a new fresh name.
+    (* The box transformation is applied to anything which has novel lhs elements.
      * The id transformation (aslines true) is applied when it matches, except when the id
      * is the last line of a box (unless the box introduces a single hypothesis and the rest 
      * of the box is a single id line which matches that hypothesis).
@@ -513,20 +512,20 @@ let rec string_of_trandep t =
 and string_of_reasoninfo r =
   string_of_option
     (string_of_quadruple string_of_pathinfo string_of_textinfo
-       (bracketedstring_of_list string_of_element ",")
-       (bracketedstring_of_list string_of_dependency ",") ",")
+       (bracketed_string_of_list string_of_element ",")
+       (bracketed_string_of_list string_of_dependency ",") ",")
     r
 and string_of_dependency d =
   match d with
     LinDep l ->
       "LinDep" ^
-        string_of_triple (bracketedstring_of_list string_of_elementinfo_of_plan ",")
+        string_of_triple (bracketed_string_of_list string_of_elementinfo_of_plan ",")
           (string_of_option string_of_textinfo) string_of_reasoninfo "," l
   | BoxDep d ->
       "BoxDep" ^
         string_of_quadruple string_of_bool
           (string_of_pair string_of_textinfo string_of_textinfo ",")
-          (bracketedstring_of_list string_of_elinfo ";") string_of_dependency "," d
+          (bracketed_string_of_list string_of_elinfo ";") string_of_dependency "," d
   | IdDep i -> "IdDep" ^ string_of_pair string_of_element string_of_dependency "," i
   | CutDep c ->
       "CutDep" ^
@@ -535,7 +534,7 @@ and string_of_dependency d =
   | TranDep t ->
       "TranDep" ^
         string_of_triple (string_of_option string_of_textinfo) string_of_elementinfo_of_plan
-          (bracketedstring_of_list string_of_trandep ",") "," t
+          (bracketed_string_of_list string_of_trandep ",") "," t
 
 (* A conclusion line can be dead (have a reason next to it) or live (have no
  * reason yet).  If it's dead, it may sometimes be the left-hand conclusion of a
@@ -632,7 +631,7 @@ let rec dependency tranreason deadf pt =
                   raise
                     (Catastrophe_
                        ["transitive line ";
-                        bracketedstring_of_list string_of_element "," concs])
+                        bracketed_string_of_list string_of_element "," concs])
             in
             (pi, c, e, textinfo_of_string TermFont s, f, dostopt stopt,
              linsubs pi justopt) ::
@@ -951,12 +950,12 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let rec ljreasonplan ps box =
     let shift = pos (- tsW (tbS box)) 0 in
     (* consolereport ["Boxdraw.ljreasonplan "; 
-                   "(ps = "; bracketedstring_of_list (debugstring_of_plan string_of_reasonplankind) "; " ps; " )";
+                   "(ps = "; bracketed_string_of_list (debugstring_of_plan string_of_reasonplankind) "; " ps; " )";
                    "(box = "; Box.string_of_textbox box; " )";
                    "(shift = "; Box.string_of_pos shift; " )"]; *)
     let r = List.map (fun p -> planOffset p shift) ps in
     (* consolereport ["shifted to "; 
-                   bracketedstring_of_list (debugstring_of_plan string_of_reasonplankind) "; " r]; *)
+                   bracketed_string_of_list (debugstring_of_plan string_of_reasonplankind) "; " r]; *)
     r
   in
   let alignreasonplan reasonplan reasonbox =
@@ -1096,7 +1095,12 @@ let rec linearise screenwidth procrustean_reasonW dp =
             let scopes, norms = List.partition isScopeElinfo hypelis in
             match !multiassumptionlines, wopt with
             | false, None       -> single <* scopes, single <* norms
-            | true , None       -> [scopes],[norms] (* first pass - just put them all on one line *)
+            | true , None       -> 
+               (* first pass - just put them all on one line *)
+               let foldline hypelis = 
+                 if null hypelis then [] else [hypelis]
+               in
+               foldline scopes,foldline norms
             | _    , Some bestW -> (* We make a proper 'minimum waste' split of the assumption line *)
                 let rec measureplan (_, ((size, _), _)) = tsW size + commaW (* more or less *) in
                 let mybestW = max (2 * tsW (fst (fst hypdescwords))) (bestW - 2 * posX innerpos) in
@@ -1121,7 +1125,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
               match hypelis with
               | [h]         -> descword (fst hypdescwords) h, (hypmap ++ (fst h |-> LineID haccrec.id))
               | h::_ as hs  -> descword (snd hypdescwords) h, (hypmap ++ mapn haccrec.id hs 1)
-              | []          -> fst hypdescwords, hypmap (* can't happen *)
+              | []          -> raise (Catastrophe_ ["null hypelis in Boxdraw.dohypline"])
             in
             let (line, linebox, lineidW, linereasonW) =
               mkLine
@@ -1143,6 +1147,12 @@ let rec linearise screenwidth procrustean_reasonW dp =
           in
           let (hypmap', (Lacc {id = id'} as acc')) =
             let scopes, norms = hyplines in
+            (* consolereport ["here it is: scopes ="; 
+                   bracketed_string_of_list (bracketed_string_of_list string_of_elinfo ";") ";" scopes;
+                   "; norms=";
+                   bracketed_string_of_list (bracketed_string_of_list string_of_elinfo ";") ";" norms
+                  ];
+             *)
             let hypmap, lacc = nj_revfold (dohypline false) scopes (hypmap, startLacc accrec.id innerpos) in
             nj_revfold (dohypline true) norms (hypmap, lacc)
           in
@@ -1417,7 +1427,7 @@ let rec draw goalopt p proof =
           drawplan idf idpos colonplan;
           List.iter (drawplan elementplanclass pdraw) elementsplan;
           (* consolereport ["drawing reasonplan "; 
-                         bracketedstring_of_list (debugstring_of_plan string_of_reasonplankind) "; " reasonplan;
+                         bracketed_string_of_list (debugstring_of_plan string_of_reasonplankind) "; " reasonplan;
                          " at pos "; Box.string_of_pos (pos reasonx y)]; *)
           List.iter (drawplan reasonplanclass (pos reasonx y)) reasonplan;
           (match goalopt with
@@ -1658,7 +1668,7 @@ let rec notifyselect
       raise
         (Catastrophe_
            ["notifyselect (boxdraw) sees "; s; " in ";
-            bracketedstring_of_list (string_of_hit string_of_path) "," hits])
+            bracketed_string_of_list (string_of_hit string_of_path) "," hits])
     in
     let (hyps, concs, reasons) =
       nj_fold
@@ -1865,17 +1875,17 @@ in
     consolereport
     ["BL ", string_of_int lastline, 
      " ", string_of_mapping string_of_element _IDstring hypmapin,
-     " ", bracketedstring_of_list string_of_element "," hyps, 
+     " ", bracketed_string_of_list string_of_element "," hyps, 
      "; sequent=", string_of_seq (sequent t),
-     "; hs=", bracketedstring_of_list string_of_element "," hs, 
-     "; gs=", bracketedstring_of_list string_of_element "," gs, 
+     "; hs=", bracketed_string_of_list string_of_element "," hs, 
+     "; gs=", bracketed_string_of_list string_of_element "," gs, 
      "; reason=", string_of_option string_of_reason (reason t),
      "; id=", string_of_int id,
-     "; cids=", bracketedstring_of_list _IDstring "," cids,
+     "; cids=", bracketed_string_of_list _IDstring "," cids,
      "; rpath=", string_of_path rpath,
      "; hypmap=", string_of_mapping string_of_element _IDstring hypmap,
-     "; thinnedL=", bracketedstring_of_list string_of_element "," thinnedL,
-     "; prinids=", bracketedstring_of_list _IDstring "," prinids
+     "; thinnedL=", bracketed_string_of_list string_of_element "," thinnedL,
+     "; prinids=", bracketed_string_of_list _IDstring "," prinids
      ]
 end
 *)

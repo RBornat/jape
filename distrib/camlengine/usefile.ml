@@ -28,7 +28,7 @@
 open Sml
 open UTF
 
-let bracketedstring_of_list = Listfuns.bracketedstring_of_list
+let bracketed_string_of_list = Listfuns.bracketed_string_of_list
 let consolereport = Miscellaneous.consolereport
 
 (* this is the Unix version ... Linux and MacOS X ok; 

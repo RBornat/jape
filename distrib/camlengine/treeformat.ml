@@ -103,7 +103,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
      *)         
 
     let neutralformat = TreeFormat (SimpleFormat, DefaultFormat)
-    let string_of_intlist = bracketedstring_of_list string_of_int ","
+    let string_of_intlist = bracketed_string_of_list string_of_int ","
     let nf_string = string_of_triple string_of_bool enQuote (string_of_option string_of_intlist) ","
     
     let rec string_of_treeformat =
@@ -122,7 +122,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
         DefaultFormat        -> "DefaultFormat"
       | RotatingFormat stuff ->
           "RotatingFormat" ^
-            string_of_pair string_of_int (bracketedstring_of_list nf_string ",") ","
+            string_of_pair string_of_int (bracketed_string_of_list nf_string ",") ","
               stuff
     
     (* if tf1 is hidden, so is the merge *)
@@ -201,7 +201,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
     type fmtpath = FmtPath of int list
     (* VisPaths, at the present, are still simple lists of non-negative integers ... *)
     
-    let rec string_of_fmtpath = fun (FmtPath p) -> "FmtPath " ^ bracketedstring_of_list string_of_int "," p
+    let rec string_of_fmtpath = fun (FmtPath p) -> "FmtPath " ^ bracketed_string_of_list string_of_int "," p
   end
 
 (* -------------------------- prooftrees for display, after formatting -------------------------- *)
@@ -230,5 +230,5 @@ module VisFmt : VisFmt =
         
     type vispath = VisPath of int list
 
-    let string_of_vispath (VisPath p) = "VisPath " ^ bracketedstring_of_list string_of_int "," p
+    let string_of_vispath (VisPath p) = "VisPath " ^ bracketed_string_of_list string_of_int "," p
   end

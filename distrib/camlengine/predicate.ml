@@ -45,11 +45,11 @@ exception Predicate_ of string list
 
 (* aid for debuggers *)
 let string_of_predicatebinding =
-  bracketedstring_of_list
+  bracketed_string_of_list
     (string_of_pair string_of_term
-       (bracketedstring_of_list
+       (bracketed_string_of_list
           (string_of_pair string_of_termlist
-             (bracketedstring_of_list string_of_termlist ",") ",")
+             (bracketed_string_of_list string_of_termlist ",") ",")
           ",")
        ", ")
     "; "
@@ -90,11 +90,17 @@ let rec compilepredicate isabstraction env t =
        match env pp with
        | Some vs ->
            let res =
+             (* in order to avoid bugs when reading back proofs with relations, this
+                code gives you stuff like P[x\(x,y)]. This seems to work. But that means
+                it also gives you back P[x\x], which is confusing to some other things.
+                So we outlaw that .. let's hope not in an infinite regress.
+              *)
              Some (let t = match ts with
                            | [t] -> t
                            | ts  -> registerTup (",", ts)
                    in
-                   try registerSubst (true, pp, [List.hd vs, t])
+                   try if eqterms (List.hd vs,t) then pp
+                       else registerSubst (true, pp, [List.hd vs, t])
                    with Failure "hd" -> 
                           raise (Catastrophe_ ["Failure \"hd\" in compilepredicates"])
                    (*

@@ -68,7 +68,7 @@ let rec ( +++ ) =
 let rec matchtermvars matchbra ispatvar pat term mrs =
   let matchterm = matchtermvars matchbra ispatvar in
   let rec res' s p t rs =
-    let rec mm es = bracketedstring_of_list string_of_matchresult "," es in
+    let rec mm es = bracketed_string_of_list string_of_matchresult "," es in
     if !matchdebug then
       consolereport
         [s; "matchterm "; string_of_termarg p; " "; string_of_termarg t; " "; mm mrs;

@@ -315,7 +315,7 @@ let rec describeSeqs ds =
             ["bad syntactic sequent syntax description ";
              string_of_syntax (Syntactic, hyps, stile, concs)]
   in
-  (* consolereport ["describing ", bracketedstring_of_list show "," ds]; *)
+  (* consolereport ["describing ", bracketed_string_of_list show "," ds]; *)
   List.iter f ds
 
 let rec setsemanticturnstile syn sem =

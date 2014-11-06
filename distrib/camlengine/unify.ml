@@ -390,10 +390,10 @@ let rec simp cxt t = _The (whatever class__ cxt t)
 type defers = DeferAssignment | DeferAlignment | DeferSimplification
 
 let rec pp tts =
-  bracketedstring_of_list (string_of_pair diag_string_of_term diag_string_of_term "<@>") "," tts
+  bracketed_string_of_list (string_of_pair diag_string_of_term diag_string_of_term "<@>") "," tts
 
 let rec ppc dds =
-  bracketedstring_of_list
+  bracketed_string_of_list
     (string_of_pair
        (function
           DeferAlignment -> "DeferAlignment"
@@ -694,7 +694,7 @@ and alignsubsts =
          (fun _ -> tryalign (r2, _P2, m2) (r1, _P1, m1)))
 
 and unifycollections kind (e1s, s_of_e) cxt =
-  let rec bk f = bracketedstring_of_list f "," in
+  let rec bk f = bracketed_string_of_list f "," in
   let bkels = bk (debugstring_of_element diag_string_of_term) in
   let rec ures ((r1, t1), (r2, t2)) cxt =
     let rec rval =
@@ -1196,7 +1196,7 @@ and simplifydeferred pros cxt =
     if !unifydebug then
       consolereport
         ["simplifydeferred "; string_of_cxt cxt; " => ";
-         bracketedstring_of_list string_of_cxt ", " r];
+         bracketed_string_of_list string_of_cxt ", " r];
     r
   in
   let rec dodefer (t1, t2 as pair) cxt =
@@ -1344,7 +1344,7 @@ let rec dropunify (target, sources) cxt =
          ["bad call of dropunify ("; mess; ") -- arguments ";
           string_of_pair
             (debugstring_of_element diag_string_of_term)
-            (bracketedstring_of_list (debugstring_of_element diag_string_of_term) "; ") 
+            (bracketed_string_of_list (debugstring_of_element diag_string_of_term) "; ") 
             ", " (target, sources)])
   in
   let checkout tc sc =
@@ -1362,7 +1362,7 @@ let rec dropunify (target, sources) cxt =
     | []    -> None
     | cxts  ->
         bad ("multiple answers -- " ^
-               bracketedstring_of_list string_of_cxt "," cxts)
+               bracketed_string_of_list string_of_cxt "," cxts)
   in
   match target with
     Segvar (_, ops, (Unknown (_, u, tc) (* as v *))) ->

@@ -503,11 +503,11 @@ let rec make_remark name args =
 
 let freshenv patterns cxt env =
   (* consolereport ["before evaluation patterns are "; 
-                 bracketedstring_of_list string_of_term ";" patterns; 
+                 bracketed_string_of_list string_of_term ";" patterns; 
                  " in env "; Japeenv.string_of_japeenv env]; *)
   let patterns = List.map (evalq env) patterns in
   (* consolereport ["after evaluation patterns are "; 
-                 bracketedstring_of_list string_of_term ";" patterns]; *)
+                 bracketed_string_of_list string_of_term ";" patterns]; *)
   let us = nj_fold (uncurry2 (sortedmerge earliervar)) ((termvars <* patterns)) [] in
   let rec f =
     function
@@ -565,7 +565,7 @@ let rec getapplyinfo name args cxt =
         (Tacastrophe_
            ("in applying " :: parseablestring_of_name name ::
               " to arguments " ::
-              bracketedstring_of_list string_of_term ", " args :: ": " :: ss))
+              bracketed_string_of_list string_of_term ", " args :: ": " :: ss))
 
 let rec getsubstinfo weaken name argmap cxt =
   try
@@ -579,7 +579,7 @@ let rec getsubstinfo weaken name argmap cxt =
         (Tacastrophe_
            ("in substituting rule/theorem/tactic " ::
               parseablestring_of_name name :: " with argmap " ::
-              bracketedstring_of_list (string_of_pair string_of_term string_of_term ",")
+              bracketed_string_of_list (string_of_pair string_of_term string_of_term ",")
                 ", " argmap ::
               ": " :: ss))
 
@@ -1007,7 +1007,7 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
   with
     FollowPath_ stuff ->
       showAlert ["FollowPath_ in doCUTIN: ";
-                 string_of_pair idf (bracketedstring_of_list string_of_int ",")
+                 string_of_pair idf (bracketed_string_of_list string_of_int ",")
                    ", " stuff];
       None
 
@@ -1113,7 +1113,7 @@ let rec forceUnify ts (Proofstate {cxt = cxt} as state) =
 let rec doDropUnify target sources (Proofstate {cxt = cxt} as state) =
     if !tactictracing then consolereport ["** start doDropUnify"];
     let rec bad reasons =
-      setReason ("can't drop " :: bracketedstring_of_list string_of_element "," sources ::
+      setReason ("can't drop " :: bracketed_string_of_list string_of_element "," sources ::
                  " into " :: string_of_element target ::
                  reasons);
       None
@@ -1165,10 +1165,10 @@ let rec associativelaw operator thing =
       let rf = fringe operator rhs in
       if !_FINDdebug then
         consolereport
-          ["assoc "; bracketedstring_of_list string_of_paraparam ", " params;
+          ["assoc "; bracketed_string_of_list string_of_paraparam ", " params;
            " ("; string_of_term term; ") => lf=";
-           bracketedstring_of_list string_of_term ", " lf; "; rf=";
-           bracketedstring_of_list string_of_term ", " rf];
+           bracketed_string_of_list string_of_term ", " lf; "; rf=";
+           bracketed_string_of_list string_of_term ", " rf];
       (List.length lf = 3 && lf = rf) && all (formulageneralisable params) rf
     with
       Matchinassociativelawstuff_ -> false
@@ -1215,7 +1215,7 @@ module Assoccache =
                if !_FINDdebug then
                  consolereport
                    ["allrelevantthings()=";
-                    bracketedstring_of_list parseablestring_of_name ", " (relevant <| thingnames ())];
+                    bracketed_string_of_list parseablestring_of_name ", " (relevant <| thingnames ())];
                List.exists (associativelaw (registerId (operator, conOperatorClass)))
                            (allrelevantthings ()) 
              let size = 127 
@@ -1679,7 +1679,7 @@ and _ConclusionsofTactic env (spec, l) =
     consolereport
       ["_ConclusionsofTactic ...";
        string_of_pair string_of_tactic
-         (bracketedstring_of_list
+         (bracketed_string_of_list
             (string_of_triple parseablestring_of_name string_of_thing string_of_term ",")
             ",")
          ", " (spec, l)];
@@ -1891,7 +1891,7 @@ let tracewithargs =
 let tracewithmap =
   trace
     (fun cxt ->
-       bracketedstring_of_list
+       bracketed_string_of_list
          (string_of_pair string_of_term (string_of_term <.> rewrite cxt)
             ",")
          ",")
@@ -1998,7 +1998,7 @@ let rec newpath tacstr eval =
         raise
           (Tacastrophe_
              ["bad path in "; tacstr; ": "; s; "; ";
-              bracketedstring_of_list string_of_int "," ns])
+              bracketed_string_of_list string_of_int "," ns])
 
 let rec dispatchTactic display try__ env contn tactic =
   fun (Proofstate {cxt = cxt} as state) ->
