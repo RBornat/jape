@@ -32,7 +32,7 @@ let idf  = fun x -> x
     
 type element = Termtype.element
 
-let bracketedstring_of_list = Listfuns.bracketedstring_of_list
+let bracketed_string_of_list = Listfuns.bracketed_string_of_list
 let string_of_element       = Termstring.debugstring_of_element Termstring.string_of_term
 let optionmap               = Optionfuns.optionmap
 let string_of_option        = Optionfuns.string_of_option
@@ -129,21 +129,21 @@ let rec string_of_hit a1 a2 =
       ("FormulaHit(" ^ string_of_fhit string_of_path h) ^ ")"
   | string_of_path, ReasonHit p -> ("ReasonHit(" ^ string_of_path p) ^ ")"
 
-let sstring = bracketedstring_of_list idf ","
+let sstring = bracketed_string_of_list idf ","
 
 let rec string_of_sel a1 a2 =
   match a1, a2 with
     string_of_path, FormulaSel f ->
       "FormulaSel" ^
         string_of_sextuple string_of_path (string_of_option string_of_elsi)
-          (bracketedstring_of_list string_of_element ",")
-          (bracketedstring_of_list (string_of_triple string_of_path string_of_elsi sstring ",") ",")
-          (bracketedstring_of_list (string_of_triple string_of_path string_of_element sstring ",") ",")
+          (bracketed_string_of_list string_of_element ",")
+          (bracketed_string_of_list (string_of_triple string_of_path string_of_elsi sstring ",") ",")
+          (bracketed_string_of_list (string_of_triple string_of_path string_of_element sstring ",") ",")
           sstring "," f
   | string_of_path, TextSel t ->
       "TextSel" ^
         string_of_pair
-          (bracketedstring_of_list
+          (bracketed_string_of_list
              (string_of_pair (string_of_fhit string_of_path) sstring ",") ",")
           sstring "," t
   | string_of_path, ReasonSel p -> ("ReasonSel(" ^ string_of_path p) ^ ")"

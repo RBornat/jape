@@ -688,9 +688,9 @@ module Tree : Tree with type term = Termtype.term
             string_of_triple idf string_of_int string_of_bool "," g
       | UnRule u ->
           "Unrule" ^
-            string_of_pair idf (bracketedstring_of_list parseablestring_of_name ",") "," u
+            string_of_pair idf (bracketed_string_of_list parseablestring_of_name ",") "," u
     
-    let string_of_ns = bracketedstring_of_list string_of_int ","
+    let string_of_ns = bracketed_string_of_list string_of_int ","
     
     let rec string_of_Join tlf subtreesf (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
       implode
@@ -703,7 +703,7 @@ module Tree : Tree with type term = Termtype.term
          ", seq="; string_of_pair elementstring_of_seq string_of_rewinf ", " seq;
          ", subtrees="; string_of_pair subtreesf string_of_rewinf ", " trs; ", ress=";
          (let string_of_ths =
-            bracketedstring_of_list (debugstring_of_element string_of_term) ", "
+            bracketed_string_of_list (debugstring_of_element string_of_term) ", "
           in
           string_of_pair (string_of_pair string_of_ths string_of_ths ", ") string_of_rewinf ", "
                          ress
@@ -740,7 +740,7 @@ module Tree : Tree with type term = Termtype.term
       | _ -> raise (Catastrophe_
                ["mkUnRuleTac given "; 
                 string_of_pair 
-                  idf (bracketedstring_of_list string_of_term ",") "," u
+                  idf (bracketed_string_of_list string_of_term ",") "," u
                ])
     
     let step_argmap ps args =
@@ -1006,7 +1006,7 @@ module Tree : Tree with type term = Termtype.term
           raise
             (Catastrophe_
                ["rewriteProoftree found ResUnknowns ";
-                bracketedstring_of_list string_of_int ", " (rewinf_badres inf)])
+                bracketed_string_of_list string_of_int ", " (rewinf_badres inf)])
       in
       (* don't forget the givens when considering grounded provisos *)
       let tvars = tmerge (rewinf_vars inf) (match exteriorinf cxt with
@@ -1311,7 +1311,7 @@ module Tree : Tree with type term = Termtype.term
                     (if !cuthidingdebug then
                        consolereport ["visibles not HIDEROOTING ";
                                       string_of_Join string_of_treeformat
-                                                     (bracketedstring_of_list
+                                                     (bracketed_string_of_list
                                                         (string_of_seq <.> sequent) ",")
                                                      j];
                      nohide ())
@@ -1353,10 +1353,10 @@ module Tree : Tree with type term = Termtype.term
       in
       if !prooftreedebug then
         (let onelevel =
-           bracketedstring_of_list (string_of_seq <.> sequent) ","
+           bracketed_string_of_list (string_of_seq <.> sequent) ","
          in
          let string_of_pt =
-           bracketedstring_of_list
+           bracketed_string_of_list
              (string_of_pair string_of_ns (string_of_seq <.> sequent) ",")
              ", "
          in

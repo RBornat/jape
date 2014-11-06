@@ -61,15 +61,15 @@ let rec string_of_syllable =
   | Gap i           -> "Gap " ^ string_of_int i
   | Linebreak i     -> "Linebreak " ^ string_of_int i
   | Block (c, sys)  -> "Block(" ^ string_of_textalign c ^ "," ^
-                          bracketedstring_of_list string_of_syllable "," sys ^ ")"
+                          bracketed_string_of_list string_of_syllable "," sys ^ ")"
 
 let string_of_text =
-  fun (Text sys) -> "Text" ^ bracketedstring_of_list string_of_syllable "," sys
+  fun (Text sys) -> "Text" ^ bracketed_string_of_list string_of_syllable "," sys
 
 let string_of_textlayout =
   fun (Textlayout t) ->
     "TextLayout" ^
-      bracketedstring_of_list
+      bracketed_string_of_list
         (string_of_triple string_of_pos string_of_font enQuote ",") ", " t
 
 let text_of_string font string = Text [Syllable (font, string)]

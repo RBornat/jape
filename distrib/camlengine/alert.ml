@@ -98,19 +98,19 @@ let rec ask code m (bs : (string * 'a) list) def =
     raise
       (Catastrophe_
          ["ask bad default \""; m; "\"";
-          bracketedstring_of_list fst "," bs; " "; string_of_int def])
+          bracketed_string_of_list fst "," bs; " "; string_of_int def])
   else
     let i = ask_unpatched (intseverity code) m (List.map fst bs) def in
     if i<0 then 
 			raise (Catastrophe_ ["ask window closed \""; m; "\"";
-							              bracketedstring_of_list fst "," bs; " ";
+							              bracketed_string_of_list fst "," bs; " ";
 							              string_of_int def; " => "; string_of_int i]) 
 		else (try snd (List.nth bs i)
 				  with Failure "nth" ->
 				        raise
 				          (Catastrophe_
 				             ["ask bad result \""; m; "\"";
-				              bracketedstring_of_list fst "," bs; " ";
+				              bracketed_string_of_list fst "," bs; " ";
 				              string_of_int def; " => "; string_of_int i]))
 
 let rec askCancel code m (bs : (string * 'a) list) c def =
@@ -120,7 +120,7 @@ let rec askCancel code m (bs : (string * 'a) list) c def =
     raise
       (Catastrophe_
          ["askCancel bad default \""; m; "\"";
-          bracketedstring_of_list fst "," bs; " "; string_of_int def])
+          bracketed_string_of_list fst "," bs; " "; string_of_int def])
   else
     match
       askCancel_unpatched (intseverity code) m (List.map fst bs) def
@@ -132,7 +132,7 @@ let rec askCancel code m (bs : (string * 'a) list) c def =
 			               raise
 			                 (Catastrophe_
 			                    ["ask bad result \""; m; "\"";
-			                     bracketedstring_of_list fst "," bs; " ";
+			                     bracketed_string_of_list fst "," bs; " ";
 			                     string_of_int def; " => "; string_of_int i]))
     | None -> c
 

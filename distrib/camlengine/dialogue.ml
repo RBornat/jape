@@ -322,8 +322,8 @@ type 'a histrec = { now : 'a; pasts : 'a list; futures : 'a list }
 type 'a hist = Hist of 'a histrec
 
 let string_of_hist f (Hist h) =
-  "Hist{now=" ^ f (h.now) ^ "; pasts=" ^ bracketedstring_of_list f ";" h.pasts ^
-  "; futures=" ^ bracketedstring_of_list f ";" h.futures
+  "Hist{now=" ^ f (h.now) ^ "; pasts=" ^ bracketed_string_of_list f ";" h.pasts ^
+  "; futures=" ^ bracketed_string_of_list f ";" h.futures
 
 type winhistrec = 
       { changed : bool; proofhist : proofstate hist;
@@ -582,9 +582,9 @@ let nohitcommand displaystate env textselopt comm done__
            if !selectiondebug then
                  consolereport ["inside nohitcommand with target "; string_of_path target; 
                                                 "; allTipConcs says "; 
-                                                  bracketedstring_of_list 
+                                                  bracketed_string_of_list 
                                                         (string_of_pair string_of_path 
-                                                          (bracketedstring_of_list string_of_element ";") ",") ";" (allTipConcs tree);
+                                                          (bracketed_string_of_list string_of_element ";") ",") ";" (allTipConcs tree);
                                                 "; rootPath says "; string_of_path (rootPath tree)];
       selections :=
         (match textsels with 
@@ -597,14 +597,14 @@ let nohitcommand displaystate env textselopt comm done__
                         (string_of_sextuple
                            string_of_path 
                            (string_of_option (string_of_pair string_of_element (string_of_option string_of_side) ","))
-                           (bracketedstring_of_list string_of_element ";")
-                           (bracketedstring_of_list 
+                           (bracketed_string_of_list string_of_element ";")
+                           (bracketed_string_of_list 
                                  (string_of_triple string_of_path
                                                                    (string_of_pair string_of_element (string_of_option string_of_side) ",")
-                                                                   (bracketedstring_of_list enQuote ";") ",") ";")
-                           (bracketedstring_of_list 
-                                 (string_of_triple string_of_path string_of_element (bracketedstring_of_list enQuote ";") ",") ";")
-                           (bracketedstring_of_list enQuote ";") ","
+                                                                   (bracketed_string_of_list enQuote ";") ",") ";")
+                           (bracketed_string_of_list 
+                                 (string_of_triple string_of_path string_of_element (bracketed_string_of_list enQuote ";") ",") ";")
+                           (bracketed_string_of_list enQuote ";") ","
                         ) !selections];
       docommand displaystate env target comm state
     with
@@ -789,7 +789,7 @@ let recorddisplayvars env =
       raise
         (Catastrophe_
            ["one or more of ";
-            bracketedstring_of_list string_of_name ", " displayvars;
+            bracketed_string_of_list string_of_name ", " displayvars;
             " isn't set!"])
 
 let setdisplayvars env vals =
@@ -1011,7 +1011,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     let n = atoi nstring in
     try extract (fun (Pinf {proofnum = proofnum}) -> n = proofnum) pinfs
     with Extract_ -> raise (Catastrophe_ ["Dialogue.findproof can't find proof "; nstring; " in pinfs ";
-                                          bracketedstring_of_list string_of_proofinfo "; " pinfs])
+                                          bracketed_string_of_list string_of_proofinfo "; " pinfs])
   in
   
   let newfocus (env, mbs, showit, (pinfs : proofinfo list) as state) =
@@ -1570,7 +1570,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                    | []             -> []
                    | _  -> raise (Catastrophe_
                                     ["bad command (odd number of arguments): worldselect ";
-                                     bracketedstring_of_list idf "," cs])
+                                     bracketed_string_of_list idf "," cs])
                  in
                  Disproof.worldselect d (pair cs))
              disproofmove
@@ -1617,12 +1617,22 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                           else None
                     in
                     match findSelection displaystate with
-                      Some (FormulaSel (path, _, hyps, _, _, _)) ->
-                        process_disproof (disproof_start facts_now
-                                            (proofstate_tree proof) (Some path) hyps)
+                    | Some (FormulaSel (path, _, hyps, _, _, _)) ->
+                        process_disproof 
+                          (disproof_start facts_now
+                                          (proofstate_tree proof) 
+                                          (Some path) 
+                                          hyps
+                          )
                     | _ ->
-                        process_disproof (disproof_start facts_now
-                                            (proofstate_tree proof) None [])))
+                        process_disproof 
+                          (disproof_start facts_now
+                                          (proofstate_tree proof) 
+                                          None 
+                                          []
+                          )
+                 )
+              )
         
         (* ******************* proof stuff ************************)
         
@@ -1635,7 +1645,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                        let stile = match Sequent.getsyntacticturnstiles() with
                                      [s] -> s
                                    | ss -> raise (Catastrophe_ ["makelemma with choice of turnstile ";
-                                                                bracketedstring_of_list idf "; " ss])
+                                                                bracketed_string_of_list idf "; " ss])
                        in
                        let druleString, thmString =
                          if not(!autoAdditiveLeft) then
@@ -2017,7 +2027,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
              else default)
             
         | "setfonts", fontnames ->
-            (* let _ = consolereport ["font names now "; bracketedstring_of_list idf "; " fontnames] in *)
+            (* let _ = consolereport ["font names now "; bracketed_string_of_list idf "; " fontnames] in *)
             (Japeserver.setFontNames (List.map Stringfuns.disQuote fontnames); default)
             
         | "closeproof", [nstring] ->
@@ -2131,7 +2141,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     let command = getCommand displayopt in
     setComment [];
     (* consolereport (("in administer; command is " :: string_of_command command) @ [ "; pinfs are ",
-            bracketedstring_of_list (string_of_int:int->string) ","
+            bracketed_string_of_list (string_of_int:int->string) ","
               ((fn Pinf{proofnum,...}=>proofnum)  <* pinfs)
        ]);
      *)

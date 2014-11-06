@@ -575,5 +575,5 @@ let rec invisbracketedstring_of_termOrCollection b sep =
 let catelim_string_of_termOrCollection = catelim_invisbracketedstring_of_termOrCollection false
 let string_of_termOrCollection sep = stringfn_of_catelim (catelim_string_of_collection sep)
 
-let string_of_termlist = bracketedstring_of_list string_of_term ";"
+let string_of_termlist = bracketed_string_of_list string_of_term ";"
 let catelim_string_of_termlist = catelim_bracketedstring_of_list catelim_string_of_term ";"

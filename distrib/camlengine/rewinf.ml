@@ -70,8 +70,8 @@ let rec rewinf_addbadres =
 let rec string_of_rewinf =
   fun (Rewinf r) ->
     "Rewinf" ^
-      string_of_quadruple string_of_termlist (bracketedstring_of_list string_of_vid ",")
-        (bracketedstring_of_list string_of_int ",") (string_of_option string_of_int) ","
+      string_of_quadruple string_of_termlist (bracketed_string_of_list string_of_vid ",")
+        (bracketed_string_of_list string_of_int ",") (string_of_option string_of_int) ","
         r
 let rec rewinf_merge =
   fun

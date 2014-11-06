@@ -76,16 +76,16 @@ type thingplace = InMenu of name | InPanel of name | InLimbo
 let string_of_arglist = string_of_termlist
 
 let string_of_maplist =
-  bracketedstring_of_list (string_of_pair string_of_term string_of_term ",") ","
+  bracketed_string_of_list (string_of_pair string_of_term string_of_term ",") ","
 
-let string_of_paramlist = bracketedstring_of_list string_of_paraparam ","
+let string_of_paramlist = bracketed_string_of_list string_of_paraparam ","
 
 let string_of_provisolist =
-  bracketedstring_of_list
+  bracketed_string_of_list
     (string_of_pair string_of_bool string_of_proviso ",") " AND "
 
 let rec string_of_antecedentlist heavy =
-  bracketedstring_of_list (if heavy then debugstring_of_seq else string_of_seq) " AND "
+  bracketed_string_of_list (if heavy then debugstring_of_seq else string_of_seq) " AND "
 
 let rec string_of_consequent heavy = if heavy then debugstring_of_seq else string_of_seq
 
@@ -311,7 +311,7 @@ let rec numberforapplication n (antes, conseq) =
       " => ", 
       string_of_quadruple 
         string_of_int 
-        let val p = bracketedstring_of_list string_of_resnum "," in 
+        let val p = bracketed_string_of_list string_of_resnum "," in 
             string_of_pair p p ","
         end
         (string_of_antecedentlist true) (string_of_consequent true) ", "
@@ -507,11 +507,11 @@ let rec extraVIDs params args bodyVIDs =
   (* desperation ...
   if !thingdebug then 
     consolereport["bodyVIDs are ", 
-                  bracketedstring_of_list (fn x => x) "," bodyVIDs,
+                  bracketed_string_of_list (fn x => x) "," bodyVIDs,
                   "; paramVIDs are ", 
-                  bracketedstring_of_list (fn x => x) "," (paramVIDs params),
+                  bracketed_string_of_list (fn x => x) "," (paramVIDs params),
                   "; argVIDs are ", 
-                  bracketedstring_of_list (fn x => x) "," argVIDs
+                  bracketed_string_of_list (fn x => x) "," argVIDs
                  ]
    else ();
    ... end desperation *)
@@ -601,7 +601,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
                    string_of_quadruple
                      string_of_paramlist
                      string_of_provisolist
-                     (bracketedstring_of_list string_of_seq " AND ")
+                     (bracketed_string_of_list string_of_seq " AND ")
                      string_of_seq
                      ", "
                      (params, provisos, antes, conseq)];
@@ -706,14 +706,14 @@ let rec compileR el er (params, provisos, antes, conseq) =
     if !thingdebug then
       consolereport
         ["proofps is ";
-         bracketedstring_of_list (string_of_pair string_of_term string_of_term ",") ", "
+         bracketed_string_of_list (string_of_pair string_of_term string_of_term ",") ", "
            proofps;
          " and env is ";
          string_of_mapping string_of_term
            (string_of_pair string_of_bool string_of_termlist ", ")
            env;
          " and applyps is ";
-         bracketedstring_of_list (string_of_pair string_of_term string_of_term ",") ", "
+         bracketed_string_of_list (string_of_pair string_of_term string_of_term ",") ", "
            applyps]
   in
   (* ... end desperation *)
@@ -750,7 +750,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
   let _ =
     if !thingdebug then
       consolereport
-        ["applyantes are "; bracketedstring_of_list string_of_seq ", " applyantes;
+        ["applyantes are "; bracketed_string_of_list string_of_seq ", " applyantes;
          " and applyconseq is "; string_of_seq conseq]
   in
   (* augment apply version, if necessary, with Unknown Segvars *)
@@ -928,8 +928,8 @@ let rec addstructurerule ctn_ tn_ kind name =
                " against ";
                string_of_quadruple (string_of_option string_of_termlist)
                  (string_of_option
-                    (bracketedstring_of_list string_of_proviso " AND "))
-                 (bracketedstring_of_list myseqstring " AND ") myseqstring
+                    (bracketed_string_of_list string_of_proviso " AND "))
+                 (bracketed_string_of_list myseqstring " AND ") myseqstring
                  ", " (mparams, mprovs, mtops, mbottom)]
           end;
         begin try
@@ -1293,7 +1293,7 @@ let rec freshRuleshow name af cxt args vars rd res =
   if !thingdebug then
     begin
       let rec nostring_of_cxt _ = "..cxt.. " in
-      let rnl = bracketedstring_of_list string_of_resnum "," in
+      let rnl = bracketed_string_of_list string_of_resnum "," in
       consolereport
         [name; " "; nostring_of_cxt cxt; " "; af args; " ";
          string_of_termlist vars; " "; string_of_ruledata !thingdebugheavy rd;
@@ -1403,7 +1403,7 @@ let rec rearrangetoResolve antes =
       Seq (st, newlhs, rhs)
     in
     let showrule =
-      string_of_pair (bracketedstring_of_list string_of_seq " AND ") string_of_seq
+      string_of_pair (bracketed_string_of_list string_of_seq " AND ") string_of_seq
         " INFER "
     in
     if !thingdebug then

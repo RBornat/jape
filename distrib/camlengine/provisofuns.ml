@@ -61,7 +61,7 @@ let baseseqsides cxt =
   | NoExterior -> raise (Catastrophe_ ["baseseqsides"])
    
 
-let vv = bracketedstring_of_list string_of_visproviso " AND "
+let vv = bracketed_string_of_list string_of_visproviso " AND "
 (* just turn a proviso into a list of simpler provisos 
    (function designed for folding over proviso list) 
  *)
@@ -255,7 +255,7 @@ let rec groundedprovisos names provisos =
   if !provisodebug then
     consolereport
       ["groundedprovisos "; string_of_termlist names; " ";
-       bracketedstring_of_list string_of_visproviso " AND " provisos; " => ";
+       bracketed_string_of_list string_of_visproviso " AND " provisos; " => ";
        string_of_option vv r];
   r
 
@@ -290,8 +290,8 @@ let rec checker cxt (--) ps qs =
   let rec ch a1 a2 =
     if !provisodebug then
       consolereport ["Provisofuns.checker.ch"; 
-                     " "; bracketedstring_of_list string_of_visproviso  " AND " a1; 
-                     " "; bracketedstring_of_list string_of_visproviso  " AND " a2];
+                     " "; bracketed_string_of_list string_of_visproviso  " AND " a1; 
+                     " "; bracketed_string_of_list string_of_visproviso  " AND " a2];
     match a1, a2 with
       [], qs -> []
     | p :: ps, qs ->
@@ -306,7 +306,7 @@ let rec checker cxt (--) ps qs =
           if !provisodebug then
             consolereport ["Provisofuns.checker "; Cxtstring.string_of_cxt cxt;
                            " "; string_of_visproviso p; 
-                           " "; bracketedstring_of_list string_of_visproviso  " AND " qs'; 
+                           " "; bracketed_string_of_list string_of_visproviso  " AND " qs'; 
                            " => "; string_of_answer verdict];
           match verdict with
             Yes   -> ch ps qs'
@@ -442,7 +442,7 @@ let rec verifyprovisos cxt =
         ["verifyprovisos "; vv (provisos cxt); " (pros = "; vv pros; ") ";
          " (vis = "; vv vis; ") "; " (invis = "; vv invis; ") ";
          " (fresh = ";
-         bracketedstring_of_list
+         bracketed_string_of_list
            (fun (f, ns) ->
               string_of_pair string_of_proviso vv "," (FreshProviso f, ns))
            "," fresh;

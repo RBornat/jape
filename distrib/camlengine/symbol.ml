@@ -315,7 +315,7 @@ let rec register_op s sym =
   if s = "" then bang "is_EOF";
   let cs = utf8_explode s in
   if List.exists (not <.> ispunct) cs then 
-    bang ("notallpunct "^bracketedstring_of_list (enQuote<.>utf8_of_ucode) ";" cs);
+    bang ("notallpunct "^bracketed_string_of_list (enQuote<.>utf8_of_ucode) ";" cs);
   if !symboldebug then
     consolereport
       ["register_op "; enQuote s; " "; debugstring_of_symbol sym];
@@ -344,12 +344,12 @@ let delete symbol =
       (try deregister_op oldstring symbol 
        with DeleteFromTree_ -> 
          let string_of_csrb =
-           string_of_triple (bracketedstring_of_list (fun i -> "0x"^hexstring_of_int i) ",") 
+           string_of_triple (bracketed_string_of_list (fun i -> "0x"^hexstring_of_int i) ",") 
                         debugstring_of_symbol string_of_bool ","
          in
          consolereport 
            ["DeleteFromTree_\n\t"; 
-              string_of_pair (bracketedstring_of_list string_of_csrb "; ") string_of_csrb "\n\t" 
+              string_of_pair (bracketed_string_of_list string_of_csrb "; ") string_of_csrb "\n\t" 
                  (summarisetree !optree, (utf8_explode oldstring, symbol, false))]
       );
     if hidden symbol then 
@@ -660,7 +660,7 @@ let rec scannext () = next (); char ()
 let rec scanop fsm rcs =
   if !symboldebug then 
     consolereport 
-      ["scanop "; bracketedstring_of_list (fun c -> enCharQuote (utf8_of_ucode c)) ";" rcs];
+      ["scanop "; bracketed_string_of_list (fun c -> enCharQuote (utf8_of_ucode c)) ";" rcs];
   match scanfsm (scanwatch scannext) fsm rcs (scanwatch char ()) with
     Found (sy, _) -> sy
   | NotFound rcs' ->
@@ -804,7 +804,7 @@ let showInputError = showInputError
 
 let rec scansymb () =
   if !symboldebug then
-    consolereport ["scansymb -- peekedsymb is "; bracketedstring_of_list debugstring_of_symbol ";" !peekedsymb];
+    consolereport ["scansymb -- peekedsymb is "; bracketed_string_of_list debugstring_of_symbol ";" !peekedsymb];
   match !peekedsymb with
     [] -> symb := scan ()
   | sym :: more -> symb := sym; peekedsymb := more

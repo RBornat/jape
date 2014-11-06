@@ -149,7 +149,7 @@ let rec sentencestring_of_list obstring sepn sep2 =
   stringfn_of_catelim
     (catelim_sentencestring_of_list (catelim_of_stringfn obstring) sepn sep2)
 
-let rec bracketedstring_of_list obstring punct =
+let rec bracketed_string_of_list obstring punct =
   stringfn_of_catelim
     (catelim_bracketedstring_of_list (catelim_of_stringfn obstring) punct)
 

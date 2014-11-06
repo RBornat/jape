@@ -239,7 +239,7 @@ function
            raise
              (Catastrophe_
                 ["rew_elements 2 "; string_of_element sv; " ";
-                 bracketedstring_of_list string_of_element "," es])
+                 bracketed_string_of_list string_of_element "," es])
        | _ -> raise (Catastrophe_ ["rew_elements 3"]))
 | Element (_, (ResUnknown i as r), t) ->
     (* This code, and the type of resmap, are designed to fix a space leak.

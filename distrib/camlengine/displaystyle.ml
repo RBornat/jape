@@ -47,7 +47,7 @@ module F
     let (|~~) = Optionfuns.(|~~)
     let (<|)  = Listfuns.(<|)
     let abstracttree = AAA.abstracttree
-    let bracketedstring_of_list = Listfuns.bracketedstring_of_list
+    let bracketed_string_of_list = Listfuns.bracketed_string_of_list
     let consolereport = Miscellaneous.consolereport
     let findfirst = Optionfuns.findfirst
     let fmtpath = Prooftree.Tree.viewpathtopath
@@ -205,16 +205,16 @@ module F
             | None -> default()
           and default () = findtarget (Some (rootPath proof))
           and handleinvis () =
-            (* let string_of_path = bracketedstring_of_list string_of_int ";" in
+            (* let string_of_path = bracketed_string_of_list string_of_int ";" in
                let string_of_hit = string_of_fhit string_of_path in *)
             let oldts = allFormulaHits oldpos oldplan in
             (* consolereport ["Boxdraw.showProof.handleinvis oldpos="; string_of_pos oldpos; "; oldts=";
-                       bracketedstring_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
+                       bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
                        "; viewport="; string_of_box viewport]; *)
             let newts = allFormulaHits oldpos plan in
             let acceptable f ts = (fun (tbox, _) -> f (box_of_textbox tbox) viewport) <| ts in
             (* consolereport ["acceptable intersects oldts="; 
-                   bracketedstring_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" 
+                   bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" 
                                            (acceptable intersects oldts)]; *)
             let bad() =
                consolereport ["We have a problem: Displaystyle.handleinvis can't find a visible path"];
@@ -222,9 +222,9 @@ module F
             in
             let process ts = (* bloody hell, N^2. Oh well. *)
               (* consolereport ["Boxdraw.showProof.handleinvis.process ";
-                       bracketedstring_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" ts;
+                       bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" ts;
                        "; newts = ";
-                       bracketedstring_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" newts]; *)
+                       bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" newts]; *)
               findfirst 
                 (fun (oldbox, hit) -> 
                   findfirst (fun (box, hit') -> if hit=hit' then Some (oldbox, box) else None)

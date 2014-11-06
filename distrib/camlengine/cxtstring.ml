@@ -56,7 +56,7 @@ let string_of_exterior =
   | Exterior e ->
       "Exterior" ^
         string_of_triple
-          (string_of_pair (bracketedstring_of_list string_of_seq " AND ") string_of_seq ",")
+          (string_of_pair (bracketed_string_of_list string_of_seq " AND ") string_of_seq ",")
           (string_of_option string_of_rewinf)
           (string_of_option string_of_fvinf)
           ", " e
@@ -82,8 +82,8 @@ let string_of_cxt =
        "resmap=";
        string_of_mapping pint (string_of_pair string_of_resnum string_of_term ",") resmap;
        ", "; "provisos=(";
-       bracketedstring_of_list detailedstring_of_visproviso " AND " ps; ",";
+       bracketed_string_of_list detailedstring_of_visproviso " AND " ps; ",";
        string_of_option string_of_rewinf inf; "), "; "provisosig=";
        string_of_int provisosig; ", "; "outside="; string_of_exterior outside;
-       ", "; "usedVIDs="; bracketedstring_of_list pid "," usedVIDs; ", ";
+       ", "; "usedVIDs="; bracketed_string_of_list pid "," usedVIDs; ", ";
        "nextresnum="; string_of_int nextresnum; "}"]

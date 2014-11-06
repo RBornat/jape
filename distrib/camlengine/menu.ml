@@ -69,7 +69,7 @@ let rec string_of_checkbox c =
 
 let rec string_of_radiobutton r =
   string_of_triple string_of_name
-    (bracketedstring_of_list (string_of_pair string_of_name str ",") ",")
+    (bracketed_string_of_list (string_of_pair string_of_name str ",") ",")
     (string_of_option str) "," r
 
 let rec string_of_menudata =
@@ -97,7 +97,7 @@ let rec string_of_paneldata =
   | Pbutton pb ->
       "Pbutton " ^
         string_of_pair string_of_name
-          (bracketedstring_of_list string_of_panelbuttoninsert ",") "," pb
+          (bracketed_string_of_list string_of_panelbuttoninsert ",") "," pb
 
 (* Order of insertion no longer exploits the details of mapping implementation.
  * There is a lot of silliness in what follows, which attempts to keep things

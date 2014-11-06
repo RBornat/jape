@@ -230,8 +230,8 @@ let (bymatch : possmatch -> possmatch option) =
                 ")"
               in
               ["bymatch passing"; step_label how; " ";
-               bracketedstring_of_list (up cxt) "," us; " and ";
-               bracketedstring_of_list (up cxt') "," us]
+               bracketed_string_of_list (up cxt) "," us; " and ";
+               bracketed_string_of_list (up cxt') "," us]
             else
               ["bymatch failing "; step_label how; " "; showargs args;
                " ("; string_of_seq conjecture; ") => (";
@@ -239,7 +239,7 @@ let (bymatch : possmatch -> possmatch option) =
                string_of_seq (rewriteseq cxt' conjecture); ")\n";
                Cxtstring.string_of_cxtvarmap cxt; "\n";
                Cxtstring.string_of_cxtvarmap cxt'; "\n";
-               bracketedstring_of_list Termfuns.string_of_vid ";" us]);
+               bracketed_string_of_list Termfuns.string_of_vid ";" us]);
        r)
 
 let (sameprovisos : possmatch -> possmatch option) =
@@ -269,8 +269,8 @@ let (sameprovisos : possmatch -> possmatch option) =
 
 let answerstring (Info {conjecture=Seq(st,chs,cgs)}, thinnedL, thinnedR, _, _) = 
   string_of_quadruple string_of_idclass string_of_idclass 
-      (bracketedstring_of_list (debugstring_of_element string_of_term) ",") 
-      (bracketedstring_of_list (debugstring_of_element string_of_term) ",") "; " 
+      (bracketed_string_of_list (debugstring_of_element string_of_term) ",") 
+      (bracketed_string_of_list (debugstring_of_element string_of_term) ",") "; " 
       (snd_of_3(breakside chs),snd_of_3(breakside cgs),thinnedL,thinnedR)
           
 let rec remdupposs ps =
@@ -507,10 +507,10 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
                       if !applydebug > 0 then
                         consolereport
                           ["usedconc checking ";
-                           bracketedstring_of_list showel ","
+                           bracketed_string_of_list showel ","
                              selconcs;
                            " against ";
-                           bracketedstring_of_list showel ","
+                           bracketed_string_of_list showel ","
                              thRs;
                            " => "; string_of_bool r];
                       r))
@@ -528,9 +528,9 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
                        if !applydebug > 0 then
                          consolereport
                            ["usedhyp checking ";
-                            bracketedstring_of_list showel "," selhyps;
+                            bracketed_string_of_list showel "," selhyps;
                             " against ";
-                            bracketedstring_of_list showel "," thLs;
+                            bracketed_string_of_list showel "," thLs;
                             " => "; string_of_bool r];
                        r)))
         &~
@@ -576,10 +576,10 @@ let rec showstuff stuff =
   string_of_octuple enQuote
     (string_of_pair string_of_bool string_of_bool ",")
     string_of_prooftree_step showargs
-    (string_of_pair (bracketedstring_of_list string_of_resnum ",")
-       (bracketedstring_of_list string_of_resnum ",") ",")
-    (bracketedstring_of_list string_of_seq ",") string_of_seq
-    (bracketedstring_of_list string_of_visproviso " AND ") ", " stuff
+    (string_of_pair (bracketed_string_of_list string_of_resnum ",")
+       (bracketed_string_of_list string_of_resnum ",") ",")
+    (bracketed_string_of_list string_of_seq ",") string_of_seq
+    (bracketed_string_of_list string_of_visproviso " AND ") ", " stuff
 
 let rec apply checker filter taker selhyps selconcs stuff reason cxt =
   fun (_C, _Cinf) ->

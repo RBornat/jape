@@ -176,29 +176,30 @@ and foldelements f z es =
 
 let rec findterm g t =
   match g t with
-    None ->
+  | None ->
       let fx = findfirst (findterm g) in
-      begin match t with
-        App (_, f, a) -> fx [f; a]
-      | Tup (_, s, ts) -> fx ts
-      | Fixapp (_, ss, ts) -> fx ts
-      | Binding (_, (bs, ss, us), _, _) ->
-          ((fx bs |~~ (fun _ -> fx ss)) |~~ (fun _ -> fx us))
-      | Subst (_, r, p_, vts) ->
-          (findterm g p_ |~~
-             (fun _ -> findfirst (fun (v, t) -> fx [v; t]) vts))
-      | Collection (_, k, es) ->
-          let fe =
-            function
-              Element (_, _, t) -> findterm g t
-            | Segvar (_, ms, v) -> findfirst (findterm g) (v :: ms)
-          in
-          (* not sure that's right *)
-          findfirst fe es
-      | _ -> None
-      end
+      (match t with
+       | App (_, f, a) -> fx [f; a]
+       | Tup (_, s, ts) -> fx ts
+       | Fixapp (_, ss, ts) -> fx ts
+       | Binding (_, (bs, ss, us), _, _) ->
+           ((fx bs |~~ (fun _ -> fx ss)) |~~ (fun _ -> fx us))
+       | Subst (_, r, p_, vts) ->
+           (findterm g p_ |~~
+              (fun _ -> findfirst (fun (v, t) -> fx [v; t]) vts))
+       | Collection (_, k, es) ->
+           let fe = function
+             | Element (_, _, t) -> findterm g t
+             | Segvar (_, ms, v) -> findfirst (findterm g) (v :: ms)
+           in
+           (* not sure that's right *)
+           findfirst fe es
+       | _ -> None
+      )
   | v -> v
-  
+
+let iterterm f t = let _ = findterm (fun t -> f t; None) t in ()
+
 (* what on earth does findhole do?  Some very clever person must have written this ... *)
 (* well, it gets used in selection.ml to find occurrences of a subterm *)
 (* omygod I begin to see. The horror, the horror! 
@@ -272,6 +273,7 @@ let searchterm g z t =
 
 let existsterm g t =
   bool_of_opt (findterm (fun t -> if g t then Some true else None) t)
+
 (* at present we have a very specialised type hierarchy *)
 (* c1 specialisesto c2 if something of class c1 can, by process of unification
  * and/or instantiation, be made into a thing of class c1.  
@@ -358,7 +360,7 @@ let replaceelement a1 a2 a3 =
             raise
               (Catastrophe_
                  ["replaceelement: collection ";
-                  bracketedstring_of_list (debugstring_of_element string_of_term) ","
+                  bracketed_string_of_list (debugstring_of_element string_of_term) ","
                     es;
                   " doesn't contain "; debugstring_of_element string_of_term el])
       in
@@ -743,10 +745,10 @@ let termvars t =
  *)
 
 let varbindingsdebug = ref false
-let string_of_bc = bracketedstring_of_list string_of_termlist ","
-let string_of_bclist = bracketedstring_of_list string_of_bc ","
+let string_of_bc = bracketed_string_of_list string_of_termlist ","
+let string_of_bclist = bracketed_string_of_list string_of_bc ","
 let string_of_varinf = string_of_pair string_of_term string_of_bclist ","
-let string_of_varbindingsres = bracketedstring_of_list string_of_varinf ","
+let string_of_varbindingsres = bracketed_string_of_list string_of_varinf ","
 
 let bvsorder = earlierlist earliervar
 let bcorder = earlierlist bvsorder
@@ -797,7 +799,7 @@ let varbindings t =
         Some _ ->
           consolereport
             ["(varbindings) f "; string_of_termlist inners; " ";
-             bracketedstring_of_list string_of_termlist "," outers; " ";
+             bracketed_string_of_list string_of_termlist "," outers; " ";
              string_of_pair string_of_term string_of_varbindingsres "," (t, ps);
              " => "; string_of_option string_of_varbindingsres r]
       | None -> ()
@@ -969,8 +971,8 @@ let freevarsfrombindings inf notins =
   in
   if !varbindingsdebug then
     consolereport
-      ["freevarsfrom bindings "; bracketedstring_of_list showin ", " inf; " ";
-       bracketedstring_of_list (string_of_pair string_of_term string_of_term ",") ","
+      ["freevarsfrom bindings "; bracketed_string_of_list showin ", " inf; " ";
+       bracketed_string_of_list (string_of_pair string_of_term string_of_term ",") ","
          notins;
        " => "; showout r];
   r
@@ -1132,7 +1134,7 @@ let decodeBinding =
 
 let decodeBracketed =
   function
-    Fixapp (_, ["("; ")"], [t]) -> Some t
+  | Fixapp (_, ["("; ")"], [t]) -> Some t
   | _                           -> None
 
 let string_of_vid = string_of_vid

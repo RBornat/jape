@@ -29,7 +29,7 @@ open Mappingfuns
 open Sml
 
 let atoi = Miscellaneous.atoi
-let bracketedstring_of_list = Listfuns.bracketedstring_of_list
+let bracketed_string_of_list = Listfuns.bracketed_string_of_list
 let consolereport = Miscellaneous.consolereport
 let enQuote = Stringfuns.enQuote
 let idf = fun x -> x
@@ -65,7 +65,7 @@ type japevarrrec =
   | GuardedJapevar of guardedjapevarrec
 
 let string_of_japevarrec { vals = vals; init = init } =
-  "{vals=" ^ Optionfuns.string_of_option (bracketedstring_of_list (fun s->s) ";") vals ^ 
+  "{vals=" ^ Optionfuns.string_of_option (bracketed_string_of_list (fun s->s) ";") vals ^ 
   "; init=" ^ enQuote init ^
   "; set=...; get=...}"
   

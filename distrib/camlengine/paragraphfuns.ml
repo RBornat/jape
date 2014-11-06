@@ -157,7 +157,7 @@ let rec interpret
           OutOfRange_ range ->
             report
               [text; " settings are ";
-               bracketedstring_of_list idf ", " settings;
+               bracketed_string_of_list idf ", " settings;
                " - variable "; parseablestring_of_name var;
                " can only be set to "; range];
             raise Use_

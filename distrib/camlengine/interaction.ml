@@ -47,7 +47,7 @@ let (&~~) = Optionfuns.(&~~)
 let (|~~) = Optionfuns.(|~~)
 let _The = Optionfuns._The
 let atoi = Miscellaneous.atoi
-let bracketedstring_of_list = Listfuns.bracketedstring_of_list
+let bracketed_string_of_list = Listfuns.bracketed_string_of_list
 let consolereport = Miscellaneous.consolereport
 let dont_rewrite_with_this = Cxtfuns.dont_rewrite_with_this
 let string_of_element = Termstring.string_of_element
@@ -82,13 +82,13 @@ type command =
 
 let rec string_of_command =
   function
-    TextCommand ws -> "TextCommand" ^ bracketedstring_of_list enQuote ", " ws
+    TextCommand ws -> "TextCommand" ^ bracketed_string_of_list enQuote ", " ws
   | HitCommand hc ->
       "HitCommand" ^
         string_of_triple (fun _ -> "....") (string_of_hit string_of_path)
           (string_of_sel string_of_path) "," hc
 
-let string_of_intlist = bracketedstring_of_list (string_of_int : int -> string) ","
+let string_of_intlist = bracketed_string_of_list (string_of_int : int -> string) ","
 
 let setComment = setComment <.> implode
 
@@ -193,10 +193,10 @@ let rec findSelection state =
   let (fhits, thits, givensel) = sortoutSelection state HitPath in
   (* only path that makes sense for what we are trying to do ... *)
   if !selectiondebug then (
-     let showstrings = bracketedstring_of_list enQuote "," in
+     let showstrings = bracketed_string_of_list enQuote "," in
      consolereport ["findSelection sees "; 
-        bracketedstring_of_list (string_of_hit string_of_path) "," fhits; "; ";
-        bracketedstring_of_list 
+        bracketed_string_of_list (string_of_hit string_of_path) "," fhits; "; ";
+        bracketed_string_of_list 
                 (string_of_pair (string_of_fhit string_of_path) showstrings ",") "," thits; "; ";
         showstrings givensel]
   );
@@ -273,7 +273,7 @@ let rec findSelection state =
           raise
             (Catastrophe_
                ["invalid hypothesis selections in findSelection (interaction): ";
-                bracketedstring_of_list
+                bracketed_string_of_list
                   (string_of_pair string_of_path (debugstring_of_element string_of_term)
                      ",")
                   "," hyphits])
@@ -310,7 +310,7 @@ let rec findSelection state =
       raise
         (Catastrophe_
            ["findSelection (interaction) sees too many hits: ";
-            bracketedstring_of_list (string_of_hit string_of_path) "," fhits])
+            bracketed_string_of_list (string_of_hit string_of_path) "," fhits])
 
 (* when looking for LayoutPath and PrunePath, findSelection is just too fussy.  E.g. if you Prune a 
  * hypothesis selection in boxdraw, the interface changes it to a conclusion selection, and that 

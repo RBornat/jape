@@ -31,7 +31,7 @@ open Termstore
 open Termstring
 open Termtype
 
-let bracketedstring_of_list = Listfuns.bracketedstring_of_list
+let bracketed_string_of_list = Listfuns.bracketed_string_of_list
 let consolereport = Miscellaneous.consolereport
 let enQuote = Stringfuns.enQuote
 
@@ -82,7 +82,7 @@ let rec _Subst_of_selection object__ sels cxt =
         raise
           (Catastrophe_
              ["_Subst_of_selection given even number of strings: ";
-              bracketedstring_of_list enQuote "," sels])
+              bracketed_string_of_list enQuote "," sels])
   in
   let (ts, ss) = splitup sels in
   let rec bad s =
