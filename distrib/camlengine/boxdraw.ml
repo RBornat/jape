@@ -1077,7 +1077,16 @@ let rec linearise screenwidth procrustean_reasonW dp =
             doconcline mkp true (dolinsubs hypmap acc justopt) (List.length concels'>1)
           in
           LineID id', acc'
-      | BoxDep (boxed, hypdescwords, hypelis, dp) ->
+      | BoxDep (boxed, hypdescwords, hypelis, dp (* as stuff *)) ->
+          (* 
+             consolereport ["BoxDep "; string_of_quadruple string_of_bool
+                                                           (string_of_pair string_of_textinfo string_of_textinfo ",")
+                                                           (bracketed_string_of_list string_of_elinfo ";")
+                                                           string_of_dependency
+                                                           ", "
+                                                           stuff
+                        ];
+           *)
           let (topleftpos, hindent, vindent, innerpos) =
             if boxed then
               let topleftpos = nextpos accrec.elbox boxleading accrec.lastmulti false in
@@ -1106,14 +1115,16 @@ let rec linearise screenwidth procrustean_reasonW dp =
                 let mybestW = max (2 * tsW (fst (fst hypdescwords))) (bestW - 2 * posX innerpos) in
                 let doit (e,inf) = e, if !foldformulae then foldformula mybestW inf else inf in
                 let foldline hypelis =
-                  let donehyps = doit <* hypelis in
-                  if !multiassumptionlines then
-                    (let hs' = minwaste measureplan mybestW donehyps in
-                     assumptionlinesfolded := !assumptionlinesfolded || List.length hs'<>1;
-                     hs'
+                  if null hypelis then [] else
+                    (let donehyps = doit <* hypelis in
+                     if !multiassumptionlines then
+                       (let hs' = minwaste measureplan mybestW donehyps in
+                        assumptionlinesfolded := !assumptionlinesfolded || List.length hs'<>1;
+                        hs'
+                       )
+                     else
+                       single <* donehyps
                     )
-                  else
-                    single <* donehyps
                 in
                 foldline scopes, foldline norms
           in
@@ -1121,7 +1132,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             let descword word elinfo =
               if isScopeElinfo elinfo then textinfo_of_string ReasonFont "" else word
             in
-            let (word, hypmap') =
+            let word, hypmap' =
               match hypelis with
               | [h]         -> descword (fst hypdescwords) h, (hypmap ++ (fst h |-> LineID haccrec.id))
               | h::_ as hs  -> descword (snd hypdescwords) h, (hypmap ++ mapn haccrec.id hs 1)
@@ -1147,11 +1158,12 @@ let rec linearise screenwidth procrustean_reasonW dp =
           in
           let (hypmap', (Lacc {id = id'} as acc')) =
             let scopes, norms = hyplines in
-            (* consolereport ["here it is: scopes ="; 
-                   bracketed_string_of_list (bracketed_string_of_list string_of_elinfo ";") ";" scopes;
-                   "; norms=";
-                   bracketed_string_of_list (bracketed_string_of_list string_of_elinfo ";") ";" norms
-                  ];
+            (*
+               consolereport ["here it is: scopes ="; 
+                      bracketed_string_of_list (bracketed_string_of_list string_of_elinfo ";") ";" scopes;
+                      "; norms=";
+                      bracketed_string_of_list (bracketed_string_of_list string_of_elinfo ";") ";" norms
+                     ];
              *)
             let hypmap, lacc = nj_revfold (dohypline false) scopes (hypmap, startLacc accrec.id innerpos) in
             nj_revfold (dohypline true) norms (hypmap, lacc)

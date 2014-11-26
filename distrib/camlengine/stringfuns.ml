@@ -29,10 +29,10 @@ open Miscellaneous
 open Listfuns
 open Sml
 
-let rec isQuoted s =
+let isQuoted s =
   String.sub s 0 1 = "\"" && String.sub s (String.length s - 1) 1 = "\""
 
-let rec disQuote s =
+let disQuote s =
   try
     let size = String.length s in
     match String.sub s 0 1 with
@@ -54,58 +54,58 @@ let enCharQuote s =
 let lowercase = String.lowercase
 let uppercase = String.uppercase
 
-let rec catelim_string_of_pair fa fb sep (a, b) tail =
+let catelim_string_of_pair fa fb sep (a, b) tail =
   "(" :: fa a (sep :: fb b (")" :: tail))
-let rec catelim_string_of_triple fa fb fc sep (a, b, c) tail =
+let catelim_string_of_triple fa fb fc sep (a, b, c) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (")" :: tail)))
-let rec catelim_string_of_quadruple fa fb fc fd sep (a, b, c, d) tail =
+let catelim_string_of_quadruple fa fb fc fd sep (a, b, c, d) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (sep :: fd d (")" :: tail))))
-let rec catelim_string_of_quintuple fa fb fc fd fe sep (a, b, c, d, e) tail =
+let catelim_string_of_quintuple fa fb fc fd fe sep (a, b, c, d, e) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (sep :: fd d (sep :: fe e (")" :: tail)))))
-let rec catelim_string_of_sextuple
+let catelim_string_of_sextuple
   fa fb fc fd fe ff sep (a, b, c, d, e, f) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (sep :: fd d (sep :: fe e (sep :: ff f (")" :: tail))))))
-let rec catelim_string_of_septuple
+let catelim_string_of_septuple
   fa fb fc fd fe ff fg sep (a, b, c, d, e, f, g) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (sep ::
          fd d (sep :: fe e (sep :: ff f (sep :: fg g (")" :: tail)))))))
-let rec catelim_string_of_octuple
+let catelim_string_of_octuple
   fa fb fc fd fe ff fg fh sep (a, b, c, d, e, f, g, h) tail =
   "(" :: fa a (sep :: fb b (sep :: fc c (sep ::
          fd d (sep :: fe e (sep :: ff f (sep :: fg g (sep :: fh h (")" :: tail))))))))
 
 let s = catelim_of_stringfn
 
-let rec string_of_pair fa fb sep =
+let string_of_pair fa fb sep =
   stringfn_of_catelim (catelim_string_of_pair (s fa) (s fb) sep)
-let rec string_of_triple fa fb fc sep =
+let string_of_triple fa fb fc sep =
   stringfn_of_catelim (catelim_string_of_triple (s fa) (s fb) (s fc) sep)
-let rec string_of_quadruple fa fb fc fd sep =
+let string_of_quadruple fa fb fc fd sep =
   stringfn_of_catelim
     (catelim_string_of_quadruple (s fa) (s fb) (s fc) (s fd) sep)
-let rec string_of_quintuple fa fb fc fd fe sep =
+let string_of_quintuple fa fb fc fd fe sep =
   stringfn_of_catelim
     (catelim_string_of_quintuple (s fa) (s fb) (s fc) (s fd) (s fe) sep)
-let rec string_of_sextuple fa fb fc fd fe ff sep =
+let string_of_sextuple fa fb fc fd fe ff sep =
   stringfn_of_catelim
     (catelim_string_of_sextuple (s fa) (s fb) (s fc) (s fd) (s fe) (s ff) sep)
-let rec string_of_septuple fa fb fc fd fe ff fg sep =
+let string_of_septuple fa fb fc fd fe ff fg sep =
   stringfn_of_catelim
     (catelim_string_of_septuple (s fa) (s fb) (s fc) (s fd) (s fe) (s ff) (s fg) sep)
-let rec string_of_octuple fa fb fc fd fe ff fg fh sep =
+let string_of_octuple fa fb fc fd fe ff fg fh sep =
   stringfn_of_catelim
     (catelim_string_of_octuple (s fa) (s fb) (s fc) (s fd) (s fe) (s ff) (s fg) (s fh) sep)
 
-let rec catelim_string_of_array f sep a ss =
+let catelim_string_of_array f sep a ss =
   let rec el i ss =
     if i = Array.length a then ss
     else
-      let rec doit ss = string_of_int i :: ": " :: f (Array.get a i) ss in
+      let doit ss = string_of_int i :: ": " :: f (Array.get a i) ss in
       doit (if i = Array.length a - 1 then ss else sep :: el (i + 1) ss)
   in
   "Ç" :: el 0 ("È" :: ss)
 
-let rec string_of_array f sep =
+let string_of_array f sep =
   stringfn_of_catelim (catelim_string_of_array (s f) sep)
 
 let quotedstring_of_char c = "'" ^ (Char.escaped c) ^ "'"
