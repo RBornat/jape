@@ -1155,6 +1155,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         true
     | _ -> false
   in
+  
   let disproofredoable () =
     match pinfs with
       Pinf
@@ -1164,9 +1165,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         true
     | _ -> false
   in
+  
   let finished proof disproof =
     isproven proof || disproof_finished disproof
   in
+  
   let finishable () =
     match pinfs with
       pinf :: _ ->
@@ -1175,8 +1178,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     | [] -> false
   in
   
-        let resetable () =  (* eggstolay, wormstoscratch, ... *) thingstodo () || saveable () 
-        in
+  let resetable () =  (* eggstolay, wormstoscratch, ... *) thingstodo () || saveable () 
+  in
  
   let askSave action y n cancel =
     Alert.askDangerously
@@ -2109,6 +2112,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         mbcache := (!mbcache ++ (var |-> ref setting));
         notify (string_of_term setting, true)
   in
+  
   (* for the time being, until there is effective proof/disproof focus, we have too many buttons *)
   let administer displayopt =
     List.iter Button.enable
