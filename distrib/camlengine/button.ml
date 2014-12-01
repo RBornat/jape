@@ -46,7 +46,6 @@ open Name
     
 type name = Name.name
 
-
 let reportGUIdead = Interaction.reportGUIdead
 
 type button = UndoProofbutton
@@ -63,7 +62,7 @@ type mybutton = MyUndoProof
               | MyRedoProof
               | MyUndoDisproof
               | MyRedoDisproof
-              | MyDone
+              | MyFinished
               | MyReset
               | MySave
               | MySaveAs
@@ -80,28 +79,28 @@ let rec enable (button, state) =
   let rec doit b v =
     let (m, c, proofsonly) =
       match b with
-        MyUndoProof    -> "Edit", "Undo Proof Step", true
+      | MyUndoProof    -> "Edit", "Undo Proof Step", true
       | MyRedoProof    -> "Edit", "Redo Proof Step", true
       | MyUndoDisproof -> "Edit", "Undo Disproof Step", true
       | MyRedoDisproof -> "Edit", "Redo Disproof Step", true
-      | MyDone         -> "Edit", "Done", true
+      | MyFinished     -> "Edit", "Done", true
       | MyReset        -> "File", "Erase theory", false
       | MySave         -> "File", "Save Proofs", false
       | MySaveAs       -> "File", "Save Proofs As...", false
       | MyDisprove     -> "Edit", "Disprove", true
     in
     if match (!buttoncache <@> b) with
-         Some r -> if !r = state then false else begin r := state; true end
+       | Some r -> if !r = state then false else begin r := state; true end
        | None   -> buttoncache := (!buttoncache ++ (b |-> ref state)); true
     then
       Japeserver.enablemenuitem proofsonly m c state
   in
   match button with
-    UndoProofbutton    -> doit MyUndoProof state
+  | UndoProofbutton    -> doit MyUndoProof state
   | RedoProofbutton    -> doit MyRedoProof state
   | UndoDisproofbutton -> doit MyUndoDisproof state
   | RedoDisproofbutton -> doit MyRedoDisproof state
-  | Finishedbutton     -> doit MyDone state
+  | Finishedbutton     -> doit MyFinished state
   | Resetbutton        -> doit MyReset state
   | Savebutton         -> doit MySave state
   | SaveAsbutton       -> doit MySaveAs state
