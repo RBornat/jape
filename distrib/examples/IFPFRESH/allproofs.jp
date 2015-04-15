@@ -1,0 +1,44 @@
+﻿CONJECTUREPANEL TwoVars
+PROOF "var i, ∀x.(P(f(x,x))→P(f(x,j))), ¬P(f(i,j)) ⊢ ¬∀x.P(f(x,x))"
+INFER var i,
+     ∀x.(P(f(x,x))→P(f(x,j))),
+     ¬P(f(i,j))
+     ⊢ ¬∀x.P(f(x,x))
+FORMULAE
+0 P(f(i,j)),
+1 ¬P(f(i,j)),
+2 P(f(i,i)),
+3 P(f(i,i))→P(f(i,j)),
+4 ⊥,
+5 ∀x.(P(f(x,x))→P(f(x,j))),
+6 i,
+7 P(f(x,x))→P(f(x,j)),
+8 x,
+9 ∀x.P(f(x,x)),
+10 P(f(x,x)),
+11 var i 
+IS
+SEQ ("¬ intro"[A\9]) (cut[B,C\2,4]) ("∀ elim"[T,P,x\6,10,8]) (hyp[A\9]) (cut[B,C\3,4]) ("∀ elim"[T,P,x\6,7,8]) (hyp[A\5]) (cut[B,C\0,4]) ("→ elim"[A,B\2,0]) (hyp[A\3]) (hyp[A\2]) ("¬ elim"[B\0]) (hyp[A\1]) (hyp[A\0])
+END
+CONJECTUREPANEL TwoVars
+PROOF "var i, ∀x.(P(x*x)→P(x*j)), ¬P(i*j) ⊢ ¬∀x.P(x*x)"
+INFER var i,
+     ∀x.(P(x*x)→P(x*j)),
+     ¬P(i*j)
+     ⊢ ¬∀x.P(x*x)
+FORMULAE
+0 P(i*j),
+1 ¬P(i*j),
+2 P(i*i),
+3 P(i*i)→P(i*j),
+4 ⊥,
+5 ∀x.(P(x*x)→P(x*j)),
+6 i,
+7 P(x*x)→P(x*j),
+8 x,
+9 ∀x.P(x*x),
+10 P(x*x),
+11 var i 
+IS
+SEQ ("¬ intro"[A\9]) (cut[B,C\2,4]) ("∀ elim"[T,P,x\6,10,8]) (hyp[A\9]) (cut[B,C\3,4]) ("∀ elim"[T,P,x\6,7,8]) (hyp[A\5]) (cut[B,C\0,4]) ("→ elim"[A,B\2,0]) (hyp[A\3]) (hyp[A\2]) ("¬ elim"[B\0]) (hyp[A\1]) (hyp[A\0])
+END
