@@ -1,0 +1,120 @@
+/*
+        Introduction to Formal Proof, Oxford, 2014
+*/
+INITIALISE foldsequents         false
+INITIALISE multiassumptionlines false
+INITIALISE foldformulae         false
+INITIALISE outermostbox false
+
+INITIALISE outerassumptionword   premiss
+INITIALISE outerassumptionplural premisses
+INITIALISE innerassumptionword   assumption
+INITIALISE innerassumptionplural assumptions
+INITIALISE seektipselection false
+INITIALISE multihypsel true
+
+USE "IFP_syntax.j"
+USE "IFP_rules.j"
+USE "IFP_style_menus.j"
+USE "IFP_tactics.j"
+
+/* Establish an order for the menus */
+MENU Rules IS END
+MENU "[Rules]" IS END
+MENU "Quantifier Rules" IS END
+
+USE "IFP_intro_conjectures.j"
+
+KEYBOARD ↔ → ∧ ∨ ¬ ⊥ ⊤ ∀ ∃ ⊢ /* ⊧*/
+
+MENU "[Rules]" IS
+   ENTRY hyp   
+   ENTRY "⊥ elim" 
+
+SEPARATOR
+
+   ENTRY "→ intro"          
+   ENTRY "∧ intro"          
+   ENTRY "∨ intro(L)"    
+   ENTRY "∨ intro(R)"   
+   ENTRY "↔ intro"          
+
+SEPARATOR
+
+
+   ENTRY "→ elim"    
+   ENTRY "∧ elim(L)" 
+   ENTRY "∧ elim(R)" 
+   ENTRY "∨ elim"    
+   ENTRY "↔ elim(L)"   
+   ENTRY "↔ elim(R)"   
+
+SEPARATOR
+   
+   ENTRY "¬ intro"     
+   ENTRY "¬ elim"   
+   ENTRY "¬¬ elim"     
+
+SEPARATOR
+SEPARATOR
+
+   ENTRY cut 
+   ENTRY thin
+   
+SEPARATOR
+SEPARATOR
+  ENTRY "⊤ intro"
+  ENTRY "⊤ elim"
+
+END
+
+MENU "Quantifier Rules" IS
+
+   ENTRY "∀ intro" IS (WITHSELECTIONS   "∀ intro")  
+   ENTRY "∃ intro" IS (WITHSELECTIONS   "∃ intro")  
+   
+SEPARATOR
+                          
+   ENTRY "∀ elim"  IS (WITHSELECTIONS   "∀ elim")                        
+   ENTRY "∃ elim"  IS (WITHSELECTIONS   "∃ elim")
+   
+END
+
+MENU "= Rules" IS
+   ENTRY "= intro"
+   ENTRY "= elim"
+   SEPARATOR
+   ENTRY "= elim (select t1=t2) (text-select t1 in Φ(t1) to cut with Φ(t2))" IS 
+         ForwardEqElim
+END
+
+
+/************************** Double-clicking *********************/               
+USE "IFP_hits.j"
+
+/************************** Derived Rules **********************/
+MENU "Rules" IS
+   SEPARATOR
+   SEPARATOR
+   RULE "RAA (derived)" IS FROM ¬A ⊢ ⊥ INFER A
+   RULE "∧⊢  (derived)" IS FROM A , B ⊢ C INFER A∧B ⊢ C
+   RULE "¬¬⊢ (derived)" IS FROM B ⊢ C INFER ¬¬B ⊢ C
+END
+   /* DERIVED */
+   RULE "∀⊢"(T)  IS FROM P(T)  ⊢ C INFER ∀x . P(x) ⊢ C
+
+
+TACTIC ResolveOrTheorem (thm) IS (ALT (ApplyOrResolve thm) (TheoremForwardOrBackward thm))
+TACTIC ApplyOrResolve   (thm) IS (WITHHYPSEL (ALT thm (RESOLVE thm)))
+
+
+
+
+
+
+
+
+
+
+
+
