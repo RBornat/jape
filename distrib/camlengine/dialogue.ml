@@ -936,9 +936,8 @@ and startcommands env mbs proofs =
   setComment [];
   commands (env, mbs, DontShow, addproofs false env proofs [])
 
-and addproofs
-  fromstore env (proofs : (name * proofstate * (seq * model) option) list)
-    (pinfs : proofinfo list) =
+and addproofs fromstore env (proofs : (name * proofstate * (seq * model) option) list)
+                            (pinfs : proofinfo list) =
   let f =
     fun
       ((name,
@@ -950,11 +949,21 @@ and addproofs
       if n <> 0 &&
          not
            (screenquery
-              [if n = 1 then "There is already a proof of "
-               else ("There are already " ^ string_of_int n) ^ " proofs of ";
+              [(if n = 1 
+                then "There is already a " ^ (if fromstore then " new " else "") ^ "proof of "
+                else "There are already " 
+                     ^ string_of_int n 
+                     ^ (if fromstore then " new " else "") 
+                     ^ " proofs of "
+               );
                string_of_name name;
-               " in progress - do you want to add another?"]
-              "Add" "Cancel" 1)
+               " in progress - do you want to ";
+               (if fromstore then "show the stored proof too?" else "add another?")
+              ]
+              (if fromstore then "Show" else "Add")
+              "Cancel" 
+              1
+           )
       then
         pinfs
       else
