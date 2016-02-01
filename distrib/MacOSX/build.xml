@@ -71,7 +71,7 @@
         
     
     <target name="Jape.app"
-            description="Build the application as for java 1.6 using appbundler to make the structure">
+            description="Build the application as for java 1.6 using JarBundler-2.5.0 to make the structure and universalJavaApplicationStub to launch it">
         <mkdir dir="build"/>
         <jarbundler dir="build"
                     name="Jape"
@@ -79,7 +79,9 @@
                     jar="../java_GUI/build/jar/OSX/Jape.jar"
                     shortname="Jape"
                     icon="Jape.icns"
-                    version="7"
+                    stubfile="universalJavaApplicationStub"
+                    useJavaXKey="true"
+                    version="${guiversion}"
                     >
             
             <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
@@ -101,9 +103,10 @@
             <arg value="build/Jape.app/Contents/Engine/jape_engine"/>
         </exec>
         
-        <exec executable="./macunsign">
-            <arg value="${launcherApple}"/>
-        </exec>
+        <!-- <exec executable="./macunsign">
+                 <arg value="${launcherApple}"/>
+             </exec>
+        -->
         
     </target>
     
