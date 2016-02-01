@@ -1,3 +1,4 @@
+version.ml
 *.cmi
 *.cmo
 *.cmx

@@ -25,15 +25,22 @@
 GUISOURCE=../java_GUI
 ENGINESOURCE=../camlengine
 
-local:   ;      $(MAKE) engineclean engine GUIclean GUI6
-release: ;      $(MAKE) engineclean engine GUIclean GUI6                              
+local:   ;      $(MAKE) engineclean GUIclean version engine GUI6
+release: ;      $(MAKE) engineclean GUIclean version engine GUI6                              
 run:     ;      open build/Jape.app
 
-local7:   ;      $(MAKE) engineclean engine GUIclean GUI7
-release7: ;      $(MAKE) engineclean engine GUIclean GUI7                              
+local7:   ;      $(MAKE) engineclean GUIclean version engine GUI7
+release7: ;      $(MAKE) engineclean GUIclean version engine GUI7                              
 run7:     ;      open build1.7/Jape.app
 
 engine:      ; cd $(ENGINESOURCE); make jape_engine OS=OSX
+version:     ; export MAJOR=`git describe --tags --always --abbrev=0`; \
+               export MINOR=`git rev-list $$MAJOR.. --count`; \
+               (cd $(ENGINESOURCE); echo let version=\"$$MAJOR.$$MINOR\" >version.ml); \
+               (cd $(GUISOURCE)/src/base/uk/org/jape; \
+                echo package uk.org.jape\; public class Version { static final String guiversion =\"$$MAJOR.$$MINOR\"\; } >Version.java \
+               )
+
 
 GUI:         ;  export JAVA_HOME=`/usr/libexec/java_home -v 1.6` ; (cd $(GUISOURCE); echo `pwd`; ant OSX.jar); ant Jape.app
 
