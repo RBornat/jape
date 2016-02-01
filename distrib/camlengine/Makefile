@@ -28,7 +28,7 @@ BUILDDIR=_build$(OS)
 
 # for folks who don't have ocamlbuild, do it the old way
 
-jape_engine:: ;\
+jape_engine:: version;\
         if [ `which ocamlbuild` == "" ]; then \
                 make -f LegacyMakefile jape_engine; \
         else \
@@ -38,13 +38,17 @@ jape_engine:: ;\
 
 
 # windows ocaml 4.01 cannot do this (reports ''inconsistent assumptions''); but 4.02 and 4.00 work fine
-jape.exe::      ;\
+jape.exe::     version ;\
         ocamlbuild.native -classic-display -build-dir $(BUILDDIR) \
                -lib unix -no-links \
                main.native; \
         cp $(BUILDDIR)/main.native $(BUILDDIR)/jape.exe
-        
-clean:;                 rm -fr _build$(OS) *.native *.cmi *.cmo *.cmx *.o jape_engine
-cleanall:;              rm -fr _build* _log *.native
+
+version: ;              export MAJOR=`git describe --tags --always --abbrev=0`; \
+                        export MINOR=`git rev-list $$MAJOR.. --count`; \
+                        echo let version=\"$$MAJOR.$$MINOR\" >version.ml
+
+clean:;                 rm -fr _build$(OS)  version.ml *.native *.cmi *.cmo *.cmx *.o jape_engine *.native
+cleanall:;              rm -fr _build* _log version.ml *.native *.cmi *.cmo *.cmx *.o jape_engine *.native
 
 

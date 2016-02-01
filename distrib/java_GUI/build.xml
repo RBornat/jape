@@ -2,7 +2,7 @@
 
     <target name="clean">
         <delete dir="build"/>
-        <delete dir="build1.7"/>
+        <delete file="src/base/uk/org/jape/Version.java"/>
     </target>
 
     <target name="OSXcompile">
@@ -33,6 +33,15 @@
             srcdir="src/base:src/standard"
             destdir="build/classes/standard"
         />
+    </target>
+
+    <target name="version">
+        <echo file="src/base/uk/org/jape/Version.java">
+            package uk.org.jape; 
+            public class Version { 
+                static final String guiversion ="${guiversion}"; 
+            }
+        </echo>
     </target>
     
     <target name="basejar">
