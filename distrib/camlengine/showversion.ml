@@ -1,4 +1,4 @@
 (* $Id$ *)
 
-Printf.printf "%s\n" Version._Version;;
+Printf.printf "%s\n" Version.version;;
 

@@ -1,7 +1,7 @@
 // needs GPL info in the dialog.
 
 /* 
-    $Id$
+    $Id: AboutBox.java,v 1.7 2014/04/17 15:53:14 bernardsufrin Exp $
 
     Copyright © 2003-12 Richard Bornat & Bernard Sufrin
      
@@ -30,13 +30,11 @@
 package uk.org.jape;
 
 public class AboutBox {
-    protected static String engineversion = null, 
-                            nameversion   = "$Name:  $",
-                            dateversion   = "$Date: 2014/04/17 15:53:14 $";
+    protected static String engineversion = null;
     
     // for the moment we do something dead simple ...
     public static void showAboutBox() {
-        String guiversion = getGUIVersion();
+        String guiversion = Version.guiversion;
         Alert.showAlert(Alert.Plain, 
             "This is the platform-independent GUI for the Jape proof calculator"+
             (guiversion==null ? "" : ",\nversion "+guiversion)+
@@ -44,7 +42,7 @@ public class AboutBox {
              (guiversion==null ? ",\n" : ", ") + "working with Jape proof engine version "+engineversion)+
             ".\n\n"+
             
-            "Jape engine and GUI copyright © 2003-14 Richard Bornat & Bernard Sufrin.\n\n"+
+            "Jape engine and GUI copyright © 2003-16 Richard Bornat & Bernard Sufrin.\n\n"+
             
             "Jape is free software; you can redistribute it and/or modify it under\n"+
             "the terms of the GNU General Public License as published by the Free\n"+
@@ -61,40 +59,12 @@ public class AboutBox {
                         );
     }
     
-    public static void setVersion(String _version) {
-        engineversion = _version;
-    }
-    
-    private static String parseVersion(String s) {
-        int n = s.length();
-        int i = s.indexOf(' ');
-        if (i==-1) return null;
-        
-        i++;
-        while (i<n) {
-            char c=s.charAt(i);
-            if (c==' ' || 'a'<=c && c<='z' || 'A'<=c&&c<='z' || c=='_' || c=='$') i++;
-            else break;
-        }
-        if (i==n) return null;
-        
-        int j=i;
-        while (j<n) {
-            char c=s.charAt(j);
-            if (c==' ' || c=='$' ) break;
-            else j++;
-        }
-        
-        return s.substring(i,j).replace('_','.');
-    }
-    
-    private static String getGUIVersion() {
-        String guiversion = parseVersion(nameversion);
-        return guiversion==null?  parseVersion(dateversion) : guiversion;
+    public static void setEngineVersion(String version) {
+        engineversion = version;
     }
     
     public static String getVersion() {
-        String guiversion = getGUIVersion();
+        String guiversion = Version.guiversion;
         
         if (engineversion!=null && guiversion!=null)
             return engineversion.equals(guiversion) ? engineversion : 

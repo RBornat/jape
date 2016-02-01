@@ -1,5 +1,5 @@
 /* 
-    $Id$
+    $Id: Dispatcher.java,v 1.5 2014/10/27 16:20:37 rbornat Exp $
 
 	Version modified by Stefano Mannino (Stefano.Mannino@scienze.studenti.unige.it) 
 	on 2006/02/01 in order to fix the bug detailed in the "SETCHOICE bug" mail sent on 2006/02/01
@@ -484,7 +484,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 				ProofCanvas.setMultiHypSel(toBool(cmd[1]));
 			else
 			if (p=="VERSION"&&len==2)
-			    AboutBox.setVersion(cmd[1]);
+			    AboutBox.setEngineVersion(cmd[1]);
 			else
 			if (p=="HOWTOTEXT"&&len==2)
 			    Reply.reply(multiLine(Jape.howTo(cmd[1])));

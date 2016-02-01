@@ -143,9 +143,7 @@ let string_of_element = Termstring.string_of_element
 let string_of_tactic = Tactic.string_of_tactic
 let string_of_term = Termstring.string_of_term
 let _The = Optionfuns._The
-let _Title = Version._Title
 let tmerge = Termfuns.tmerge
-let _Version = Version._Version
 let verifyprovisos = Provisofuns.verifyprovisos
 
 let profiling = ref false (* see below *)
@@ -889,7 +887,7 @@ let rec main a1 a2 =
               else let (names, args) = doargs args in name :: names, args
         in
         let (names, args) = doargs args in
-        consolereport [_Title; _Version; "\n"];
+        consolereport ["Jape proof engine "; Version.version; "\n"];
         begin
           let (env, proofs, mbs) =
             try
@@ -898,7 +896,7 @@ let rec main a1 a2 =
               ParseError_ m -> showInputError showAlert m; (env, proofs, mbs)
             | Use_          -> (env, proofs, mbs) (* already reported, we hope *)
           in
-          Japeserver.sendVersion (_Version);
+          Japeserver.sendVersion (Version.version);
           initGUI ();
           reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
           mbcache := empty;
@@ -1522,7 +1520,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                ParseError_ rs -> showAlert rs; default
              | Use_ -> default)
 
-        | "version", [] -> showAlert [_Title; _Version]; default
+        | "version", [] -> showAlert ["Jape proof engine "; Version.version]; default
         
         (* ********************* the disproof commands ************************* *)
 
