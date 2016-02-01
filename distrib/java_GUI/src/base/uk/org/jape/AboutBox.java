@@ -31,8 +31,8 @@ package uk.org.jape;
 
 public class AboutBox {
     protected static String engineversion = null, 
-                            nameversion   = "$Name$",
-                            dateversion   = "$Date$";
+                            nameversion   = "$Name:  $",
+                            dateversion   = "$Date: 2014/04/17 15:53:14 $";
     
     // for the moment we do something dead simple ...
     public static void showAboutBox() {

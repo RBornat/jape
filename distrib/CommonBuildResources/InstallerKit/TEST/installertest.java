@@ -2,9 +2,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 /**
- * $Revision$
- * $Date$
- * $Name$
+ * $Revision: 1.1 $
+ * $Date: 2005/07/29 15:04:06 $
+ * $Name:  $
 */
 
 public class installertest

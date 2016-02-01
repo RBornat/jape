@@ -26,13 +26,13 @@
 
    
   
-   let versionstring = "$Name$" 
+   let versionstring = "$Name:  $" 
    let rec get_version s =
      let cs = Sml.chars_of_string s in
      let cs = Listfuns.dropwhile (function ' ' -> false | _ -> true) cs in
      let cs = Listfuns.dropwhile (fun c -> 'a'<=c && c<='z' || 'A'<=c&&c<='z') (List.tl cs) in
      let cs = Listfuns.takewhile (function ' ' -> false | '$' -> false | _ -> true) cs in
-     if Sml.null cs then get_version "$Date$" else
+     if Sml.null cs then get_version "$Date: 2015/04/15 15:44:15 $" else
                          Sml.string_of_chars (List.map (function '_' -> '.' | c -> c) cs)
    let _Version = get_version versionstring
    let _Title = "Jape proof engine "
