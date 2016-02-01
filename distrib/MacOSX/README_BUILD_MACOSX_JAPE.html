@@ -14,8 +14,8 @@
 <h1>How to build Jape on Mac OS X. July 2012 (and April 2014)</h1>
 
 
-<p >Currently we build OS/X Jape on Snow Leopard or Lion,
-and use OCaml 3.12 (and OCaml (4.01.0)).  We build Linux Jape with the
+<p >Currently we build OS/X Jape on Mavericks or Yosemite (or sometimes even Lion!),
+and use OCaml 4.01.0).  We build Linux Jape with the
 same Ocaml version, but on a Linux machine.</p>
 
 
@@ -23,7 +23,9 @@ same Ocaml version, but on a Linux machine.</p>
 <h2> If you want to build Jape yourself</h2>
 
 
-<p >1. Install the developer tools (get them from Apple or from a CD).</p>
+<p >1. Install the developer tools (get them from Apple or from a CD; these days I think you
+have to get them by installing Xcode and then asking Xcode to install them). You will also
+need git, if it isn't in the developer tools.</p>
 
 
 <p >1a. Make sure ant (installed by the developer tools) is
@@ -52,15 +54,28 @@ know). I added the following lines to <tt>~/.profile</tt>:</p>
 Jape is built using ocaml 4.01.0; but has been known to build with ocaml 3.12)</p>
 
 
-<p >3. Get jarbundler, an ant task, to put the parts
-together and make a Mac OS X application. It's on
-sourceforge but the latest version is always available from
-the developer at <a href="http://informagen.com/JarBundler/">http://informagen.com/JarBundler/</a>.
-Follow the instructions and put <tt>jarbundler-?.?.?.jar</tt> in
-<tt>/usr/share/ant/lib</tt>.</p>
+<p>4. You will need Java 1.6 or 1.7. We <i>think</i> our build system is ok with either. </p>
 
-<p >4. <i>If you only have Apple's Java 1.6 </i>: In the directory where you found this file (<tt>...../distrib/MacOSX</tt>):
+<p >4. Get the latest Jarbundler, an ant task, to put the parts
+together and make a Mac OS X application. It's a new development, to deal with the problems
+of different versions of Java and non-cooperation of Oracle and Apple. You can get it 
+from git:
 
+<pre>
+        <tt>git clone https://github.com/tofi86/Jarbundler.git</tt> 
+</pre>
+
+In the Jarbundler directory which git builds, say 
+
+<pre>
+        <tt>ant jar</tt> 
+</pre>
+
+and put <tt>jarbundler-?.?.?.jar</tt> in the ant library
+<tt>/usr/share/ant/lib</tt>. Delete any previous versions (if there are any).
+</p>
+
+<p >In the directory where you found this file (<tt>...../distrib/MacOSX</tt>):
 
 <pre>
         <tt>make local</tt> 
@@ -71,37 +86,8 @@ builds the engine and the GUI interface, bundles them together and puts them in 
 <pre>
         <tt>make run</tt> 
 </pre>
-lets you try it out. If it works, move <tt>build/Jape.app</tt> where you like, or if you want to
-construct a disk image (together with examples), run
-
-<pre>
-        <tt>sh macdistrib</tt> <i>version</i>
-</pre>
-
-which makes <tt>jape_<i>version</i>.dmg</tt>.
+lets you try it out. If it works, move <tt>build/Jape.app</tt> where you like.
 </p>
-
-<p>
-<i>If you only have Oracle's Java 1.7 </i>: you will need <i>appbundler</i>, an ant task which you can get from Oracle; put it where you put the <i>jarbundler</i> task (see 3 above). Then
-<pre>
-        <tt>make local7</tt> 
-</pre>
-
-builds the engine and the GUI interface, bundles them together and puts them in <tt>./build1.7/Jape.app</tt>
-
-<pre>
-        <tt>make run7</tt> 
-</pre>
-lets you try it out. If it works, move <tt>build7/Jape.app</tt> where you like, or if you want to
-construct a disk image (together with examples), run
-<pre>
-        <tt>sh macdistrib7</tt> <i>version</i>
-</pre>
-
-which makes <tt>jape-java1.7_<i>version</i>.dmg</tt>.
-</p>
-
-
 
 <br/><hr width="60%"/><br/>
 
@@ -110,7 +96,8 @@ which makes <tt>jape-java1.7_<i>version</i>.dmg</tt>.
 
 <h2>Contact</h2>
 <p>Build originally documented by Richard Bornat (<tt>richard@bornat.me.uk</tt>), 11th March 2009; 
-subsequently edited by Bernard Sufrin (@ <tt>cs ox ac uk</tt>), late July 2012 and early April and October 2014</p>
+subsequently edited by Bernard Sufrin (@ <tt>cs ox ac uk</tt>), late July 2012 and early April and October 2014. And 
+then edited again by Richard Bornat in January 2016.</p>
 
 </body>
 </html>
