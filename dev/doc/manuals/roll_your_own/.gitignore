@@ -2,3 +2,7 @@
 *.log
 *.toc
 *.texshop
+*.fls
+*.fdb_latexmk
+roll_your_own.pdf
+*.synctex.gz
