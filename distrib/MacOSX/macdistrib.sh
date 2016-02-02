@@ -30,14 +30,7 @@ rsync -rvt  $MANUALS/roll_your_own/roll_your_own.pdf \
             $MANUALS/natural_deduction/natural_deduction_manual.pdf \
             $MANUALS/forward_reasoning/forward_reasoning.pdf \
             $MANUALS/disproof_howto/disproof_howto.pdf \
-            $DIR.dir
+            $DIR.dir/manuals
 
 sh makedmg $DIR
-
-
-
-
-
-
-
-
+rm -fr $DIR.dir
