@@ -1,3 +1,4 @@
+%!TEX TS-program = pdflatexmk
 \documentclass[11pt]{article}
 \usepackage{graphicx}
 \DeclareGraphicsRule{.tiff}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tiff`.png}
@@ -50,7 +51,7 @@ At any point during a proof attempt you can invoke `Disprove' from the Edit menu
 
 \begin{figure}
 \begin{center}
-\includegraphics[scale=0.6]{pics/firstexample.tiff}
+\includegraphics[scale=0.6]{pics/firstexample.png}
 \caption{The start of a disproof attempt}
 \label{fig:firstexample}
 \end{center}
@@ -237,6 +238,6 @@ This isn't enough in general. You would like to be able to see those instantiati
 
 \section*{How to complain}
 
-If Jape doesn't work for you, it doesn't work. It's best to send your tales of woe to bugs@jape.org.uk. One day there'll be a mechanism to let you see other people's messages, but at the moment it's a private conversation.
+If Jape doesn't work for you, it doesn't work. It's best to send your tales of woe to richard@bornat.me.uk (we lost control of jape.org.uk to a domain sitter). One day there'll be a mechanism to let you see other people's messages, but at the moment it's a private conversation.
 
 \end{document} 
