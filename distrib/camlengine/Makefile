@@ -44,9 +44,7 @@ jape.exe::     version ;\
                main.native; \
         cp $(BUILDDIR)/main.native $(BUILDDIR)/jape.exe
 
-version: ;              export MAJOR=`git describe --tags --always --abbrev=0`; \
-                        export MINOR=`git rev-list $$MAJOR.. --count`; \
-                        echo let version=\"$$MAJOR.$$MINOR\" >version.ml
+version: ;              echo let version=\"`../CommonBuildResources/version.sh`\" >version.ml
 
 clean:;                 rm -fr _build$(OS)  version.ml *.native *.cmi *.cmo *.cmx *.o jape_engine *.native
 cleanall:;              rm -fr _build* _log version.ml *.native *.cmi *.cmo *.cmx *.o jape_engine *.native

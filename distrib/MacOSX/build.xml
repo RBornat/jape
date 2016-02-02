@@ -81,7 +81,7 @@
                     icon="Jape.icns"
                     stubfile="universalJavaApplicationStub"
                     useJavaXKey="true"
-                    version="${guiversion}"
+                    version="${appversion}"
                     >
             
             <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>

@@ -53,7 +53,7 @@
         </jar>
     </target>
     
-    <target name="OSX.jar" depends="basejar,OSXcompile">
+    <target name="OSX.jar" depends="version,basejar,OSXcompile">
         <mkdir dir="build/jar/OSX"/>
         <copy file="build/jar/base.jar" tofile="build/jar/OSX/Jape.jar"/>
         <jar destfile="build/jar/OSX/Jape.jar" 
@@ -68,7 +68,7 @@
         </jar>
     </target>
     
-    <target name="Jape.jar" depends="basejar,standardcompile">
+    <target name="Jape.jar" depends="version,basejar,standardcompile">
         <mkdir dir="build/jar/standard"/>
         <copy file="build/jar/base.jar" tofile="build/jar/standard/Jape.jar"/>
         <jar destfile="build/jar/standard/Jape.jar" 

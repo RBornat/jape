@@ -31,10 +31,9 @@ run:     ;      open build/Jape.app
 
 engine:      ; cd $(ENGINESOURCE); make jape_engine OS=OSX
 
-GUI:         ;  (cd $(GUISOURCE); echo `pwd`; make version; ant OSX.jar); \
-                export MAJOR=`git describe --tags --always --abbrev=0`; \
-                export MINOR=`git rev-list $$MAJOR.. --count`; \
-                ant Jape.app -Dguiversion=$$MAJOR.$$MINOR
+GUI:         ;  export JAPEVERSION=`../CommonBuildResources/version.sh`; \
+                (cd $(GUISOURCE); echo `pwd`; ant -Dguiversion=$$JAPEVERSION OSX.jar); \
+                ant Jape.app -Dappversion=$$JAPEVERSION
 
 clean:       ; $(MAKE) engineclean GUIclean
 

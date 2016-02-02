@@ -1,6 +1,3 @@
-#
-# $Id$
-#
 
 GUIDIR=../../java_GUI
 ENCODEDIR=../../utf8_encoder
@@ -46,7 +43,8 @@ cleanengine:    ; cd $(ENGINEDIR); make clean OS=$(OS)
 #
 #       Java is compile-once, run anywhere, so we can make the GUI in one place
 #
-GUI:            ; (cd $(GUIDIR); make version; ant Jape.jar)
+GUI:            ; export JAPEVERSION=`./version.sh`; \
+                  (cd $(GUIDIR); ant -Dguiversion=$JAPEVERSION Jape.jar)
 cleanGUI:       ; (cd $(GUIDIR); ant clean)
 
 #
