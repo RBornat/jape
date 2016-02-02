@@ -1,2 +1,6 @@
 *.aux
 *.log
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+disproof_howto.pdf
