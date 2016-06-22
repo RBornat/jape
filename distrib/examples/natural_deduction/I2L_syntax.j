@@ -28,7 +28,7 @@ CLASS VARIABLE  x y z
                 i j k
 CLASS FORMULA   A B C D  
                 E F G H  
-                P  
+                P Q 
                 R S T
 CLASS BAG FORMULA Γ
 
