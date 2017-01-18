@@ -32,8 +32,8 @@ run:     ;      open build/Jape.app
 engine:      ; cd $(ENGINESOURCE); make jape_engine OS=OSX
 
 GUI:         ;  export JAPEVERSION=`../CommonBuildResources/version.sh`; \
-                (cd $(GUISOURCE); echo `pwd`; ant -Dguiversion=$$JAPEVERSION OSX.jar); \
-                ant Jape.app -Dappversion=$$JAPEVERSION
+                (cd $(GUISOURCE); echo `pwd`; ant -Dguiversion='"'$$JAPEVERSION'"' OSX.jar); \
+                ant Jape.app -Dappversion='"'$$JAPEVERSION'"'
 
 clean:       ; $(MAKE) engineclean GUIclean
 
