@@ -1115,7 +1115,7 @@ public class JapeMenu implements DebugConstants {
                         Logger.log.println("no item "+label+" in menu "+menuname+" in window "+w);
                 }
                 else
-                if (DebugVars. menuaction_tracing)
+                if (DebugVars.menuaction_tracing)
                     Logger.log.println("no menu "+menuname+" in window "+w);
             }
         }
