@@ -15,10 +15,6 @@ import java.util.*;
       This is free software. Do what you want with it.
 </p>
 
-<pre>
-$Id$        
-</pre>
-
 */
 
 public class tr

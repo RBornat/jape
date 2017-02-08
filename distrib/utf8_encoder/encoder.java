@@ -7,10 +7,6 @@
       This is free software. Do what you want with it.
 </p>
 
-<pre>
-$Id$	 
-</pre>
-
 */
 
 import java.io.*;

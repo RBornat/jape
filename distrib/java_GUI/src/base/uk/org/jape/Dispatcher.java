@@ -1,11 +1,9 @@
 /* 
-    $Id: Dispatcher.java,v 1.5 2014/10/27 16:20:37 rbornat Exp $
-
 	Version modified by Stefano Mannino (Stefano.Mannino@scienze.studenti.unige.it) 
 	on 2006/02/01 in order to fix the bug detailed in the "SETCHOICE bug" mail sent on 2006/02/01
 	to bugs@jape.org.uk
 
-    Copyright © 2003-8 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-17 Richard Bornat & Bernard Sufrin
      
 	richard@bornat.me.uk
 	sufrin@comlab.ox.ac.uk

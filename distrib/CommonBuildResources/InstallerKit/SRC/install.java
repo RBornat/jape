@@ -1,3 +1,6 @@
+// contains Revision tags: should be changed. See version.ml in engine, version.java
+// in GUI, and stuff in various build/make files. RB 08/02/2017
+
 // The package name may be changed ad lib; the code self-adjusts
 package org.jape.bootstrap;
 
@@ -22,11 +25,9 @@ import java.util.zip.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-
 /**
    Bootstrap class for installer-generator and installer.
    @Author Bernard Sufrin
-   @Revision $Revision$
    <H2>Licence:</H2>
    <P>
     This program is free software; you can redistribute it and/or modify
@@ -40,9 +41,6 @@ import javax.swing.border.*;
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details.
    </P>
-   <PRE>
-   $Id$
-   </PRE>
  */
 public class install implements ActionListener
 {

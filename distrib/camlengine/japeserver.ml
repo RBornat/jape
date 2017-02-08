@@ -1,7 +1,5 @@
 (*
-    $Id$
-
-    Copyright (C) 2003-8 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-17 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -30,8 +28,6 @@
         Bernard Sufrin,
         Oxford July 1993 et.seq, up to January 2002 
 
-        $Id$
-
 *)
 
 open Array
@@ -58,9 +54,6 @@ type box = Box.box
 let consolereport = Miscellaneous.consolereport
 let enQuote = Stringfuns.enQuote
 let string_of_element = Termstring.string_of_element
-
-let version =
-  "$Id$"
 
 (* Fit Richard's box adt back to into his earlier concrete form *)
 let rec explodeBox box = bPos box, bSize box

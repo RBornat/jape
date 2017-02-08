@@ -1,4 +1,3 @@
-/* $Id$ */
 
 %{ (* A parser for Jape's Hoare logic encoding *) 
 		open Parsetree

@@ -1,9 +1,5 @@
-// needs GPL info in the dialog.
-
 /* 
-    $Id: AboutBox.java,v 1.7 2014/04/17 15:53:14 bernardsufrin Exp $
-
-    Copyright © 2003-12 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-17 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
