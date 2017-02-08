@@ -9,69 +9,8 @@
     <taskdef name="jarbundler" 
          classname="net.sourceforge.jarbundler.JarBundler" />
       
-    <target name="Jape-1.7.app" 
-            description="Build the application for java 1.7 using appbundler to make the structure">
-    
-    <taskdef name="bundleapp"
-                 classpath= "${appbundler.jar}" 
-                 classname= "com.oracle.appbundler.AppBundlerTask"/>
-        <mkdir dir="build1.7"/>   
-        <bundleapp  outputdirectory= "build1.7" 
-                    name=           "Jape"
-                    displayname=    "Jape"
-                    mainclassname=  "uk.org.jape.Jape"
-                    identifier=     "uk.org.jape.Jape"
-                    icon=           "Jape.icns"
-                    copyright=       "${ant.project.name} ${builddate} ${copyright}"
-                    shortversion=   "${version}"
-                    >
-          
-          <classpath file="../java_GUI/build/jar/OSX/Jape.jar"/>
-    
-    
-          <!-- This packages the entire runtime (>100mb) -->
-          
-            <!-- <runtime dir="${env.JAVA_HOME}"/> -->
-            <!--
-          
-            <option value="-Dapple.laf.useScreenMenuBar=true"/>
-            <option value="-Dapple.laf.useScreenMenuBar=true"/>
-            <option value="-Dapple.awt.showGrowBox=true"/>
-            <option value="-Dapple.awt.antialiasing=true"/>
-            <option value="-Dapple.awt.rendering=quality"/>
-            
-            -->
-            <option value="-Duk.org.jape.AppPackage=$APP_PACKAGE"/> 
-            
-           
-            
-          <!-- -->
-                    
-        </bundleapp>
-        
-        <mkdir dir="build1.7/Jape.app/Contents/Engine"/>
-        <copy overwrite="true"
-              file="Info.plist.prototype" 
-              tofile="build1.7/Jape.app/Contents/Info.plist"/>
-        <copy file="universalbootstrap.prototype"
-              tofile="build1.7/Jape.app/Contents/MacOS/universalbootstrap"/>       
-        <exec executable="chmod">
-            <arg value="755"/>
-            <arg value="build1.7/Jape.app/Contents/MacOS/universalbootstrap"/>
-        </exec>
-        <copy file="../camlengine/_buildOSX/jape_engine" 
-              tofile="build1.7/Jape.app/Contents/Engine/jape_engine"/>
-        <exec executable="chmod">
-            <arg value="755"/>
-            <arg value="build1.7/Jape.app/Contents/Engine/jape_engine"/>
-        </exec>
-        
-        
-      </target>
-        
-    
     <target name="Jape.app"
-            description="Build the application as for java 1.6 using JarBundler-2.5.0 to make the structure and universalJavaApplicationStub to launch it">
+            description="Build the application using JarBundler-2.5.0 to make the structure and universalJavaApplicationStub to launch it">
         <mkdir dir="build"/>
         <jarbundler dir="build"
                     name="Jape"
@@ -112,7 +51,7 @@
     
     <target name="clean">
         <delete dir="build"/>
-        <delete dir="build1.7"/>
+        <!-- <delete dir="build1.7"/> -->
     </target>
     
 </project>
