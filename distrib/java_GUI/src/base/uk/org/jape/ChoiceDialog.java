@@ -115,8 +115,8 @@ public class ChoiceDialog {
 
         private static class ListSelectionListener extends JapeMouseAdapter {
                 public void doubleclicked(MouseEvent e) {
-                        JList list = (JList)e.getSource();
-                        int index = list.locationToIndex(e.getPoint());
+                        // JList list = (JList)e.getSource();
+                        // int index = list.locationToIndex(e.getPoint());
                         // Alert.showAlert(list.getModel().getElementAt(index).toString());
                         Alert.showAlert("(Press OK in the \"Choose a match\" window to accept the choice you made).");
                 }

@@ -33,6 +33,7 @@ import java.awt.Graphics2D;
 
 @SuppressWarnings("serial")
 public class RectItem extends OutlineItem implements DebugConstants {
+    @SuppressWarnings("unused")
     private String s;
     
     public RectItem(JapeCanvas canvas, int x, int y, int w, int h, String s) {
