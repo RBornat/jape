@@ -114,7 +114,8 @@ public abstract class JapeCanvas extends ContainerWithOrigin
 	    case ExtendedDisjointSelection:
 		break;
 	    default:
-	        Alert.showErrorAlert("JapeCanvas.click eventKind="+eventKind);
+	        // this appears to happen, and to cause no problems. So no more alerts.
+	        // Alert.showErrorAlert("JapeCanvas.click eventKind="+eventKind);
 	}
     }
 
