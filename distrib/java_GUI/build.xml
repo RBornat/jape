@@ -10,6 +10,8 @@
         <mkdir dir="build/classes/OSX"/>
         <javac 
             deprecation="on"
+            debug="on"
+            debuglevel="source,lines"
             includeantruntime="false"
             sourcepath="."
             srcdir="src/base:src/OSX"
@@ -29,6 +31,8 @@
         <mkdir dir="build/classes/standard"/>
         <javac 
             deprecation="on"
+            debug="on"
+            debuglevel="source,lines"
             sourcepath=""
             srcdir="src/base:src/standard"
             destdir="build/classes/standard"
