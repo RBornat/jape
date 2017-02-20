@@ -118,8 +118,8 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     public Component add(Component c) {
         child.add(c);
         computeBounds();
-        c.repaint();
-        viewport.validate();
+        // c.repaint();
+        // viewport.validate();
         if (DebugVars.containerlayout_tracing)
             Logger.log.println("ContainerWithOrigin.add("+c+
                                ");\ncontainer origin now "+JapeUtils.shortStringOfRectangle(getViewGeometry()));
@@ -129,8 +129,8 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     public Component add(Component c, int index) {
         child.add(c, index);
         computeBounds();
-        c.repaint();
-        viewport.validate();
+        // c.repaint();
+        // viewport.validate();
         if (DebugVars.containerlayout_tracing)
             Logger.log.println("ContainerWithOrigin.add("+c+","+index+
                                ");\ncontainer origin now "+JapeUtils.shortStringOfRectangle(getViewGeometry()));
@@ -138,10 +138,10 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     }
 
     public void remove(Component c) {
-        c.repaint();
+        // c.repaint();
         child.remove(c);
         computeBounds();
-        viewport.validate();
+        // viewport.validate();
         if (DebugVars.containerlayout_tracing)
             Logger.log.println("ContainerWithOrigin.remove("+c+
                                "); container origin now "+JapeUtils.shortStringOfRectangle(getViewGeometry()));

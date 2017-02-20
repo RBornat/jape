@@ -510,6 +510,10 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
 	if (disproofPane!=null)
 	    disproofPane.makeReady();
+	
+	proofPane.validate();
+	proofPane.repaint();
+	
     }
 
     private JapeCanvas byte2JapeCanvas(byte pane) throws ProtocolError {
@@ -785,7 +789,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    if (focusv.size()==0)
 		return null;
 	    else
-		return (ProofWindow)focusv.get(0);
+		return focusv.get(0);
 	}
 
 	private synchronized void insertInfocusv(ProofWindow w) {
@@ -814,17 +818,17 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 
 	public synchronized void reportFocus() {
 	    if (focusv.size()!=0)
-		Reply.sendCOMMAND("setfocus", ((ProofWindow)focusv.get(0)).proofnum);
+		Reply.sendCOMMAND("setfocus", (focusv.get(0)).proofnum);
 	}
 
 	public synchronized void makeReady() {
 	    for (int i = 0; i<focusv.size(); i++)
-		((ProofWindow)focusv.get(i)).makeWindowReady();
+		(focusv.get(i)).makeWindowReady();
 	}
 	
 	public synchronized void deleteAllWindowListeners() {
 	    for (int i = 0; i<focusv.size(); i++)
-		((ProofWindow)focusv.get(i)).deleteWindowListener();
+		(focusv.get(i)).deleteWindowListener();
 	}
     }
 

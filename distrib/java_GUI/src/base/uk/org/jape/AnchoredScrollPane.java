@@ -83,7 +83,7 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
           }
         );
         viewport = new Container() {
-            public void validate() { setScrollBarValues(); }
+            // public void validate() { setScrollBarValues(); super.validate(); }
             public void paint(Graphics g) {
                 if (DebugVars.paint_tracing) {
                     Logger.log.println("painting viewport in AnchoredScrollPane "+id);
@@ -195,9 +195,9 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
         this.anchor = anchor;
     }
 
-    public boolean isValidateRoot() { return true; }
+    // public boolean isValidateRoot() { return true; }
 
-    public void validate() { setScrollBarValues(); }
+    // public void validate() { setScrollBarValues(); super.validate(); }
 
     public void setScrollBarValues() {
         if (view==null) {
@@ -317,7 +317,7 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
             vsb.setBounds(sparewidth, 0, scrollbarthickness, spareheight);
             hsb.setBounds(0, spareheight, sparewidth, scrollbarthickness);
             viewport.setBounds(0, 0, sparewidth, spareheight);
-            validate();
+            setScrollBarValues();
         }
     }
 }
