@@ -102,11 +102,11 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 
     private static class SizeSelector {
 	final JLabel label; final int size;
-	JComboBox comboBox;
+	JComboBox<Integer> comboBox;
 	SizeSelector(String label, int size) {
 	    this.label = new JLabel(label); this.size = size;
 	    Vector<Integer> sizes = initsizes(size);
-	    comboBox = new JComboBox(sizes);
+	    comboBox = new JComboBox<Integer>(sizes);
 	    for (int j=0; j<sizes.size(); j++)
 		if (sizes.get(j).intValue()==size) {
 		    comboBox.setSelectedIndex(j); break;
@@ -116,7 +116,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	
     private static void addLabelledComboBox(JPanel panel, GridBagLayout gridbag, 
             JLabel label, GridBagConstraints labelconstraints, 
-            JComboBox comboBox, GridBagConstraints comboconstraints) {
+            JComboBox<?> comboBox, GridBagConstraints comboconstraints) {
         gridbag.setConstraints(label, labelconstraints);
         panel.add(label);
         gridbag.setConstraints(comboBox, comboconstraints);
@@ -149,7 +149,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	comboconstraints.insets = new Insets(0, 5, 5, 0);
 
 	String [] fontFamilies = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-	JComboBox fontBox = new JComboBox(fontFamilies);
+	JComboBox<String> fontBox = new JComboBox<String>(fontFamilies);
 	for (int i=0; i<fontFamilies.length; i++) 
 	    if (fontFamilies[i].startsWith(BaseFont.getFontFamily())) {
 	        fontBox.setSelectedIndex(i);

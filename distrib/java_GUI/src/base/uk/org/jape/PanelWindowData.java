@@ -292,8 +292,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
         @SuppressWarnings("serial")
         public class PanelWindow extends JapeWindow implements ActionListener {
 
-                private final DefaultListModel model;
-                private final JList list;
+                private final DefaultListModel<Entry> model;
+                private final JList<Entry> list;
                 private JScrollPane scrollPane;
                 private ButtonPane buttonPane;
 
@@ -326,8 +326,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                         Container contentPane = getContentPane();
                         contentPane.setLayout(new PanelWindowLayout());
 
-                        model = new DefaultListModel();
-                        list = new JList(model);
+                        model = new DefaultListModel<Entry>();
+                        list = new JList<Entry>(model);
                         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                         setListFont();
                         list.setCellRenderer(new Renderer());
@@ -407,9 +407,8 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                         buttonPane.doLayout();
                         setListFont();
                         for (int i=0; i<model.size(); i++) {
-                                Object e = model.getElementAt(i);
-                                if (e instanceof Entry)
-                                        ((Entry)e).font_reset();
+                                Entry e = model.getElementAt(i);
+                                e.font_reset();
                         }
                         invalidate();
                         repaint();
@@ -484,7 +483,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 }
 
                 protected void markEntry(int i, boolean proved, boolean disproved) {
-                        Entry e = (Entry)model.elementAt(i);
+                        Entry e = model.elementAt(i);
                         e.mark(proved, disproved);
                         repaintCell(i);
                         enableButtons();
@@ -506,13 +505,13 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 private void repaintCell(int index) {
                         if (0<=index && index<model.size()) {
                                 Point p = list.indexToLocation(index);
-                                Dimension d = ((Entry)model.elementAt(index)).getPreferredSize();
+                                Dimension d = (model.elementAt(index)).getPreferredSize();
                                 list.repaint(p.x, p.y, d.width, d.height);
                         }
                 }
 
-                class Renderer implements ListCellRenderer {
-                        public Component getListCellRendererComponent(JList list, Object value, int index,
+                class Renderer implements ListCellRenderer<Entry> {
+                        public Component getListCellRendererComponent(JList<? extends Entry> list, Entry value, int index,
                                         boolean isSelected, boolean cellHasFocus) {
                                 Entry e = (Entry)value;
                                 e.selectedBackground = list.getSelectionBackground();
@@ -561,7 +560,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                                 for (int i=0; i<buttonv.size(); i++) {
                                         PanelButton b = (PanelButton)buttonv.get(i);
                                         if (kind==ConjecturePanelKind && b.label.equals(showproofLabel))
-                                                b.setEnabled(((Entry)model.get(index)).marked);
+                                                b.setEnabled((model.get(index)).marked);
                                         else
                                                 b.setEnabled(true);
                                 }

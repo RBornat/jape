@@ -53,7 +53,6 @@ public class DisproofPane extends Container implements DebugConstants,
 
     public final WasteBin wasteBin;
     
-    @SuppressWarnings("serial")
     public DisproofPane(JFrame window, int linethickness) {
 	super();
 	this.window = window; this.linethickness = linethickness;

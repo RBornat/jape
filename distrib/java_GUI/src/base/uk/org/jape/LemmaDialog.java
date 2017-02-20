@@ -128,7 +128,7 @@ public class LemmaDialog {
 	panelshow[0] = "";
 	System.arraycopy(panels, 0, panelshow, 1, panels.length);
 	
-	final JComboBox panelList = new JComboBox(panelshow);
+	final JComboBox<String> panelList = new JComboBox<String>(panelshow);
 	panelList.setEditable(true);
 	
 	items.add(panelList);

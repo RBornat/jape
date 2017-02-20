@@ -60,8 +60,8 @@ public class ChoiceDialog {
                 }
         }
 
-        static class Renderer implements ListCellRenderer {
-                public Component getListCellRendererComponent(JList list, Object value, int index,
+        static class Renderer implements ListCellRenderer<Choice> {
+                public Component getListCellRendererComponent(JList<? extends Choice> list, Choice value, int index,
                                 boolean isSelected, boolean cellHasFocus) {
                         // Logger.log.println("rendering "+value+" at index "+index+
                         //         " isSelected "+isSelected+" cellHasFocus "+cellHasFocus);
@@ -130,7 +130,7 @@ public class ChoiceDialog {
 
         static int makeChoice(String message) {
                 Choice[] choices = (Choice[])list.toArray(new Choice[list.size()]);
-                JList choicelist = new JList(choices);
+                JList<Choice> choicelist = new JList<Choice>(choices);
                 JScrollPane sp = new JScrollPane(choicelist);
 
                 int i, nlines;
