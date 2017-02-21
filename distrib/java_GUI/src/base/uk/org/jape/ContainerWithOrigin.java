@@ -148,10 +148,10 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
     }
 
     public void removeAll() {
-        child.repaint();
+        // child.repaint();
         child.removeAll();
         computeBounds();
-        viewport.validate();
+        // viewport.validate();
         if (DebugVars.containerlayout_tracing)
             Logger.log.println("ContainerWithOrigin.removeAll("+
                                "); container origin now "+JapeUtils.shortStringOfRectangle(getViewGeometry()));
