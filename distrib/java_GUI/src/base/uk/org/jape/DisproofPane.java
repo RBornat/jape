@@ -79,7 +79,7 @@ public class DisproofPane extends Container implements DebugConstants,
 	add(tileCanvas);
 
 	seqView = new Container() {
-	    public void validate() { }
+	    // public void validate() { } surely not needed?
 	    public Dimension getPreferredSize() { return getSize(); }
 	    public Dimension getMinimumSize() { return getSize(); }
 	};
@@ -286,7 +286,7 @@ public class DisproofPane extends Container implements DebugConstants,
 		Logger.log.println("disproof layout "+pane); JapeUtils.showContainer(pane, null); 
 	    }
 	    
-	    pane.repaint();
+	    // pane.repaint();
 	}
     }
     
