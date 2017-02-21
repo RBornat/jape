@@ -80,7 +80,7 @@ This document was written on a Mac, and the illustrations are all taken from the
 
 This manual is really about how Jape, which is capable of working with many different logics, has been made to deal with Natural Deduction as described in my book. Instead of talking about what `Jape' does when dealing with $->$ formulae, I should really talk about what `Jape loaded with the I2L encoding' does. But that's such a mouthful that I just talk as if there is only one Jape, and all it does is Natural Deduction.
 
-If you're interested there's a manual on the website (http://www.jape.org.uk) which tells you how to roll your own logic encodings. Best of luck.
+If you're interested there's a manual on the website (http://www.japeforall.org.uk) which tells you how to roll your own logic encodings. Best of luck.
 
 \section*{Differences from the book}
 \begin{itemize}
@@ -93,17 +93,17 @@ So far as I know, these are the only significant differences.
 
 If Jape doesn't work for you, it isn't working, and if it isn't working I'd like to hear about it. 
 
-Please send any comments, thoughts, complaints or whatever to bugs at jape dot org dot uk.\footnote{That's an email address written in perhaps-fool-the-spambots notation. Please read it carefully.} I'll do my best to reply quickly and if your message is of general interest I'll put it up on the website (with your permission, and hiding your email address from the spambots at least). 
+Please send any comments, thoughts, complaints or whatever to me (see title page for email address). I'll do my best to reply quickly and if your message is of general interest I'll put it up on the website (with your permission, and hiding your email address from the spambots at least). 
 
 \section*{Acknowledgements}
 
-I designed and built Jape between 1991 and 2002 whilst I was at Queen Mary College, University of London, and I've continued to develop it at Middlesex University since. For the first four years or so I worked closely with Bernard Sufrin of the Computer Laboratory, Oxford University. Bernard's design insights were crucial and without him Jape wouldn't exist or be half as good as it is. His program architecture, which he worked out in the first few months of our collaboration, is still in place even though Jape has been rebuilt more than once. He still works with me on producing the Windows, Linux and Solaris distributions.
+I designed and built Jape between 1991 and 2002 whilst I was at Queen Mary College, University of London, working with Bernard Sufrin of the Bernard Sufrin of the Computer Laboratory, Oxford University. I've continued to develop it at Middlesex University since. Bernard worked on the implementation with me for the first four years or so. That doesn't describe all he did: his design insights were crucial and without him Jape wouldn't exist or be half as good as it is. His program architecture, which he worked out in the first few months of our collaboration, is still in place even though Jape has been rebuilt from the ground up more than once. He still produces the Jape distributions and running the www.japeforall.org.uk website.
 
 For the rest of it I've been strongly influenced by colleagues at Queen Mary, many of whom have made seminal suggestions which have improved Jape. In alphabetical order I single out Jules Bean, John Bell, Peter Burton, Keith Clarke, Adam Eppendahl, David Pym, Graem Ringwood, Mike Samuels, Paul Taylor and Graham White. 
 
 Jape began as an experiment towards the end of an EPSRC research project on the use of symbolic calculators to teach formal reasoning, joint with Steve Reeves and Doug Goldson at Queen Mary, and Tim O'Shea and Pat Fung at the Open University. A later project, with Pat Fung and James Aczel from the OU, looked at students using Jape; James's insightful summary of their difficulties led to a redesign of the treatment of natural deduction, and directly to this version of the program.
 
-Jape's proof engine was originally written in SML and compiled by SMLNJ, with interfaces for different operating systems written in C, tcl/tk, Python and I can't remember what else. In 2002 I ported the engine to OCaml and wrote a system-independent interface module in Java. I'm grateful to the implementers of all those languages, especially for their decision to provide their software for free. Jape is free too, at http:www.jape.org.uk. 
+Jape's proof engine was originally written in SML and compiled by SMLNJ, with interfaces for different operating systems written in C, tcl/tk, Python and I can't remember what else. In 2002 I ported the engine to OCaml and wrote a system-independent interface module in Java. I'm grateful to the implementers of all those languages, especially for their decision to provide their software for free. Jape is free too, at http:www.japeforall.org.uk. 
 
 \tableofcontents
 
@@ -131,9 +131,9 @@ Jape's proof engine was originally written in SML and compiled by SMLNJ, with in
 
 \section{Getting started}
 
-If you don't already have Jape, download it from http://www.jape.org.uk. Install it, following the instructions carefully.
+If you don't already have Jape, download it from http://www.japeforall.org.uk. Install it, following the instructions carefully.
 
-You should have a directory containing Jape, another program called jape\_engine, and a subdirectory called examples. Double-click Jape, and you will see a window like \figref{splashscreen}.\footnote{You may see minor differences. The illustrations in this manual are taken from MacOS X. On Windows and Linux you will see a menu bar in the window and the window title will be Jape. But those differences don't matter much, so I won't refer to them again.}
+You should have a directory containing the Jape application and a subdirectory called examples. Double-click Jape, and you will see a window like \figref{splashscreen}.\footnote{You may see minor differences. The illustrations in this manual are taken from MacOS X. On Windows and Linux you will see a menu bar in the window and the window title will be Jape. But those differences don't matter much, so I won't refer to them again.}
 
 Using the Open New Theory command in  the File menu, open examples/natural\_deduction/I2L.jt. You should see several windows containing logical conjectures (claims to be proved), called \emph{panels} in Jape. The Conjectures panel should look something like \figref{conjecturespanel} (you will probably have to resize the window to make it look like this). Double-click any line to begin, or select a line and press the Prove button at the bottom of the panel. You will see a \emph{proof window} like \figref{firstproofwindow}, and off you go!
 
@@ -960,7 +960,7 @@ My encoding of natural deduction in Jape deals with disproof by allowing you to 
 
 Jape shows you what is going on by underlining and colouring formulae and subformulae in the sequent and by colouring blobs on the screen. This chapter should, therefore, be read in colour rather than in monochrome.\footnote{I am aware that use of colour means that some people can't use Jape as easily as others. This is only the tip of a nasty iceberg: Jape uses a visual presentation to make it easier to understand proof and disproof, and that excludes many people with reduced visual acuity from using it at all.
 
-Contrary to some propaganda, these problems aren't easy to overcome. But I'd love to try, and I'd love to hear from anybody who has suggestions to make, advice to offer, technical information to share, guinea-piggery to volunteer, whatever. Messages to bugs at jape dot org dot uk, as usual.}
+Contrary to some propaganda, these problems aren't easy to overcome. But I'd love to try, and I'd love to hear from anybody who has suggestions to make, advice to offer, technical information to share, guinea-piggery to volunteer, whatever. Messages to me at the title page address, as usual.}
 
 \begin{figure}
 \centering
@@ -1240,7 +1240,11 @@ If you make a mistake, like leaving out a dot or a bracket in a crucial spot, or
 
 \section{Problems getting started}
 
-Jape has to be in a directory along with jape\_engine. The examples can be anywhere you like. That's all you need to know.
+On MacOS / OS X your security settings may stop you running Jape, saying it comes from a unknown developer. There's a way round this: ctrl-click Jape, choose Open from the little menu that appears, and say Open on the alert window that comes up. After that it can be double-clicked as normal.
+
+On Windows and Linux Bernard distributes an `installation jar' -- a bundle of stuff that distributes itself round your filestore. To get Jape and the examples you have to \emph{double-click} it. If asked, open in with java, not jar. Don't unpack it: that doesn't work.
+
+The Jape app can be put anywhere you like. The examples can be anywhere you like. 
 
 If you installed Jape and it won't start properly, throw it all away and install it again. This time follow the instructions \emph{precisely}. Then it will work.
 
