@@ -105,7 +105,7 @@ public class JapeMenu implements DebugConstants {
                     return;
                 }
             }
-            Alert.abort("JapeMenu.M.removeI "+JapeUtils.enQuote(label)+" from "+this);
+            Alert.guiAbort("JapeMenu.M.removeI "+JapeUtils.enQuote(label)+" from "+this);
         }
         public void removeSep(int index) {
             if (index<itemv.size() && itemv.get(index) instanceof Sep)
@@ -356,7 +356,7 @@ public class JapeMenu implements DebugConstants {
                         if (mo instanceof Sep)
                             menu.addSeparator();
                         else
-                            Alert.abort("JapeMenu.mkBar sees "+mo);
+                            Alert.guiAbort("JapeMenu.mkBar sees "+mo);
                     }
                 }
                 if (isWindowMenu && radioIcon!=null && checkIcon!=null)
@@ -454,7 +454,7 @@ public class JapeMenu implements DebugConstants {
             if (w instanceof ProofWindow)
                 ((ProofWindow)w).closeProof();
             else
-                Alert.abort("CloseProofAction on non-proof window");
+                Alert.guiAbort("CloseProofAction on non-proof window");
         }
     }
 
@@ -483,7 +483,7 @@ public class JapeMenu implements DebugConstants {
                         setContents(new StringSelection(s),null);
             }
             else
-                Alert.abort("CopyUnicodeAction on non-proof window");
+                Alert.guiAbort("CopyUnicodeAction on non-proof window");
         }
     }
 
@@ -520,7 +520,7 @@ public class JapeMenu implements DebugConstants {
             if (w instanceof ProofWindow)
                 Export.export((ProofWindow)w, PrintProof.BOTH);
             else
-                Alert.abort("ExportAction on non-proof window");
+                Alert.guiAbort("ExportAction on non-proof window");
         }
     }
     
@@ -529,7 +529,7 @@ public class JapeMenu implements DebugConstants {
             if (w instanceof ProofWindow)
                 Export.export((ProofWindow)w, PrintProof.DISPROOF);
             else
-                Alert.abort("ExportDisproofAction on non-proof window");
+                Alert.guiAbort("ExportDisproofAction on non-proof window");
         }
     }
     
@@ -538,7 +538,7 @@ public class JapeMenu implements DebugConstants {
             if (w instanceof ProofWindow)
                 Export.export((ProofWindow)w, PrintProof.PROOF);
             else
-                Alert.abort("ExportProofAction on non-proof window");
+                Alert.guiAbort("ExportProofAction on non-proof window");
         }
     }
     
@@ -588,7 +588,7 @@ public class JapeMenu implements DebugConstants {
             if (w instanceof ProofWindow)
                 PrintProof.printProof((ProofWindow)w);
             else
-                Alert.abort("PrintProofAction on non-proof window");
+                Alert.guiAbort("PrintProofAction on non-proof window");
         }
     }
     
@@ -597,7 +597,7 @@ public class JapeMenu implements DebugConstants {
             if (w instanceof ProofWindow)
                 Reply.sendCOMMAND("redo_"+((ProofWindow)w).undoSuffix());
             else
-                Alert.abort("RedoAction not in ProofWindow");
+                Alert.guiAbort("RedoAction not in ProofWindow");
         }
     }
     
@@ -621,7 +621,7 @@ public class JapeMenu implements DebugConstants {
             if (w instanceof ProofWindow)
                 TextDialog.runTacticCommandDialog();
             else
-                Alert.abort("You can't apply a tactic from a non-proof window");
+                Alert.guiAbort("You can't apply a tactic from a non-proof window");
         }
     }
     
@@ -631,7 +631,7 @@ public class JapeMenu implements DebugConstants {
             if (w instanceof ProofWindow)
                 Reply.sendCOMMAND("undo_"+((ProofWindow)w).undoSuffix());
             else
-                Alert.abort("UndoAction not in ProofWindow");
+                Alert.guiAbort("UndoAction not in ProofWindow");
         }
     }
     
@@ -833,7 +833,7 @@ public class JapeMenu implements DebugConstants {
             else
             if (o instanceof Sep) { }
             else
-                Alert.abort("JapeMenu.addStdWindowMenuItems sees "+o);
+                Alert.guiAbort("JapeMenu.addStdWindowMenuItems sees "+o);
         }
     }
     
@@ -922,7 +922,7 @@ public class JapeMenu implements DebugConstants {
             try {
                 enableItem(true, "Edit", MAKE_LEMMA, JapeMenu.PROOFWINDOW_BAR, enable);
             } catch (ProtocolError e) {
-                Alert.abort("JapeMenu.enableLemmas can't");
+                Alert.guiAbort("JapeMenu.enableLemmas can't");
             }       
         }
     }
@@ -978,7 +978,7 @@ public class JapeMenu implements DebugConstants {
     public static void windowAdded(String title, JapeWindow w) {
         if (w instanceof SurrogateWindow) {
             if (hassurrogate)
-                Alert.abort("JapeMenu.addWindow two surrogates");
+                Alert.guiAbort("JapeMenu.addWindow two surrogates");
             else {
                 hassurrogate = true;
                 indexMenuItem(windowmenu, 0, title, (ItemAction)new ActivateWindowAction(w));
@@ -1008,7 +1008,7 @@ public class JapeMenu implements DebugConstants {
         else
         if (w instanceof Logger.LogWindow) {
             if (haslog)
-                Alert.abort("JapeMenu.addWindow two console logs");
+                Alert.guiAbort("JapeMenu.addWindow two console logs");
             else {
                 haslog = true;
                 indexMenuItem(windowmenu, windowmenu.size(), title,
@@ -1016,7 +1016,7 @@ public class JapeMenu implements DebugConstants {
             }
         }
         else
-            Alert.abort("JapeMenu.addWindow "+w);
+            Alert.guiAbort("JapeMenu.addWindow "+w);
 
         if (menusVisible)
             JapeWindow.updateMenuBars();
@@ -1032,7 +1032,7 @@ public class JapeMenu implements DebugConstants {
             try {
                 tickItem(false, "Window", title, ALL_BARS, true);
             } catch (ProtocolError e) {
-                Alert.abort("JapeMenu.windowActivated "+JapeUtils.enQuote(title)+"; windowmenu="+windowmenu);
+                Alert.guiAbort("JapeMenu.windowActivated "+JapeUtils.enQuote(title)+"; windowmenu="+windowmenu);
             }
         }
     }
@@ -1062,7 +1062,7 @@ public class JapeMenu implements DebugConstants {
             windowmenu.removeSep(windowmenu.size()-1);
         }
         else
-            Alert.abort("JapeMenu.windowRemoved("+JapeUtils.enQuote(title)+","+windowmenu+
+            Alert.guiAbort("JapeMenu.windowRemoved("+JapeUtils.enQuote(title)+","+windowmenu+
                         "; hassurrogate="+hassurrogate+
                         "; panelcount="+panelcount+"; proofcount="+proofcount);
 

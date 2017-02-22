@@ -80,7 +80,7 @@ public	class SelectableProofItem extends TextSelectableItem
 			selectionKind==this.selectionKind)
 	    this.selectionKind = selectionKind;
 	else
-	    Alert.abort("SelectableProofItem.setSelectionKind("+selectionKind+")"+
+	    Alert.guiAbort("SelectableProofItem.setSelectionKind("+selectionKind+")"+
 			"; ambiguous="+ambiguous+"; selectionKind="+this.selectionKind);
     }
 
@@ -257,7 +257,7 @@ public	class SelectableProofItem extends TextSelectableItem
 	    Reply.send("DROP "+f.idX+" "+f.idY+" "+idX+" "+idY);
 	}
 	else
-	    Alert.abort("formula drop on non-accepting world");
+	    Alert.guiAbort("formula drop on non-accepting world");
     }
 
     public void paint(Graphics g) {

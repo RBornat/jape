@@ -96,7 +96,7 @@ public abstract class JapeWindow extends JFrame {
 						", "+stringOfWindowv());
 			int i = windowv.indexOf(w);
 			if (i==-1)
-				Alert.abort("untoppable window "+w.title);
+				Alert.guiAbort("untoppable window "+w.title);
 			else {
 				windowv.remove(i);
 				windowv.insertElementAt(w,0);
@@ -111,7 +111,7 @@ public abstract class JapeWindow extends JFrame {
 						", "+stringOfWindowv());
 			int i = windowv.indexOf(w);
 			if (i==-1)
-				Alert.abort("unremovable window "+w.title);
+				Alert.guiAbort("unremovable window "+w.title);
 			else
 				windowv.remove(i);
 			if (windowv_tracing)

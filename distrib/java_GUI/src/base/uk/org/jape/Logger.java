@@ -329,6 +329,11 @@ public class Logger {
 	}
     }
 
+    public static void showLogWindow() {
+        if (logWindow==null) init();
+        logWindow.setVisible(true);
+    }
+    
     public static void crash(String message, int val) {
 	if (diverted) {
 	    System.err.flush();

@@ -103,7 +103,7 @@ implements SelectionConstants {
                     break;
 
                 default:
-                    Alert.abort("DirectedFormulaSelection selectionKind="+selectionKind);
+                    Alert.guiAbort("DirectedFormulaSelection selectionKind="+selectionKind);
             }
         }
     }

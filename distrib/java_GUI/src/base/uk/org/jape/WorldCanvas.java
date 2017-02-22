@@ -151,12 +151,12 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
     }
     
     public String getSelections(String sep) {
-	Alert.abort("WorldCanvas.getSelections");
+	Alert.guiAbort("WorldCanvas.getSelections");
 	return null; // shut up compiler
     }
     
     public String getTextSelections(String sep) {
-	Alert.abort("WorldCanvas.getTextSelections");
+	Alert.guiAbort("WorldCanvas.getTextSelections");
 	return null; // shut up compiler
     }
 
@@ -190,7 +190,7 @@ public class WorldCanvas extends JapeCanvas implements DebugConstants, WorldTarg
 	    else
 		return w;
 	} catch (ProtocolError e) {
-	    Alert.abort("WorldCanvas.ensureWorld error "+e.getMessage());
+	    Alert.guiAbort("WorldCanvas.ensureWorld error "+e.getMessage());
 	    return null; // shut up compiler
 	}
     }

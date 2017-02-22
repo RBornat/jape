@@ -164,18 +164,18 @@ public class EmphasisableItem extends TextSelectableItem {
 			extendColourSeg(cs, colour, i0, printi); return;
 		    }
 		    else
-			Alert.abort("TextItem.computeColourSegs saw "+(int)c+
+			Alert.guiAbort("TextItem.computeColourSegs saw "+(int)c+
 				    ", expected "+(int)expectedket);
 		}
 	    else
 		printi++;
 	}
 	if (expectedket!=0)
-	    Alert.abort(this+": computeColourSegs exhausted text, "+
+	    Alert.guiAbort(this+": computeColourSegs exhausted text, "+
 			", expected "+(int)expectedket);
 
 	if (printi!=printlen)
-	    Alert.abort(this+": text is "+printlen+
+	    Alert.guiAbort(this+": text is "+printlen+
 			" chars, but computeColourSegs thinks it's "+printi);
 
 	extendColourSeg(cs, colour, i0, printi);

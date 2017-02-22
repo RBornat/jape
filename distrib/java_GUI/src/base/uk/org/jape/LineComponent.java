@@ -34,7 +34,7 @@ import java.awt.Graphics2D;
 public class LineComponent extends DragComponent implements DebugConstants {
     // but if you drag them, you must override this method
     protected void movePosition(int deltax, int deltay) {
-	Alert.abort("dragging line without overriding movePosition");
+	Alert.guiAbort("dragging line without overriding movePosition");
     }
     
     protected int x0, y0, x1, y1, thickness;

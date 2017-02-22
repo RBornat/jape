@@ -107,7 +107,7 @@ public class Jape implements DebugConstants {
             screenBounds = gc[0].getBounds(); // I hope and truly believe that 0 is the default
         }
         else
-            Alert.abort("no GraphicsConfiguration!");
+            Alert.guiAbort("no GraphicsConfiguration!");
         
         JapeMenu.initMenuBar();
 
@@ -124,7 +124,7 @@ public class Jape implements DebugConstants {
                if (i<args.length)
                    engineCmd.setElementAt(args[i],0);
                else
-                   Alert.abort("-engine switch needs path argument");
+                   Alert.guiAbort("-engine switch needs path argument");
             }
             else
                 engineCmd.add(args[i]);

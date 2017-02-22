@@ -223,7 +223,7 @@ public class WasteBin extends Component implements DebugConstants,
 	    setSelected(false);
 	}
 	else
-	    Alert.abort("world drop into waste bin when not selected");
+	    Alert.guiAbort("world drop into waste bin when not selected");
     }
     
     // LabelTarget
@@ -234,11 +234,11 @@ public class WasteBin extends Component implements DebugConstants,
 	    if (dragKind==SelectionConstants.MoveLabelDrag)
 		Reply.sendCOMMAND("deleteworldlabel", w.idX, w.idY, label);
 	    else
-		Alert.abort("label drop into waste bin when not MoveLabelDrag");
+		Alert.guiAbort("label drop into waste bin when not MoveLabelDrag");
 	    setSelected(false);
 	}
 	else
-	    Alert.abort("label drop into waste bin when not selected");
+	    Alert.guiAbort("label drop into waste bin when not selected");
     }
     
     // WorldTarget
@@ -250,6 +250,6 @@ public class WasteBin extends Component implements DebugConstants,
 	    setSelected(false);
 	}
 	else
-	    Alert.abort("line drop into waste bin when not selected");
+	    Alert.guiAbort("line drop into waste bin when not selected");
     }
 }

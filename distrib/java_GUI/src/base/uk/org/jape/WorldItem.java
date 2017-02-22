@@ -241,7 +241,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	    setDragHighlight(false);
 	}
 	else
-	    Alert.abort("line drop on non-accepting world");
+	    Alert.guiAbort("line drop on non-accepting world");
     }
     
     // LabelTarget
@@ -256,7 +256,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	    setDragHighlight(false);
 	}
 	else
-	    Alert.abort("label drop on non-accepting world");
+	    Alert.guiAbort("label drop on non-accepting world");
     }
     
     // TileTarget
@@ -268,7 +268,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	    setDragHighlight(false);
 	}
 	else
-	    Alert.abort("tile drop on non-accepting world");
+	    Alert.guiAbort("tile drop on non-accepting world");
     }
     
     // WorldTarget
@@ -281,7 +281,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 	    Reply.sendCOMMAND(dragKind==MoveWorldDrag ? "moveworld" : "addworld",
 			      w.idX, w.idY, idX, idY);
 	else
-	    Alert.abort("world drop on non-accepting world");
+	    Alert.guiAbort("world drop on non-accepting world");
     }
     
     /* ****************************** world as drag item ****************************** */
@@ -368,7 +368,7 @@ public class WorldItem extends DisplayItem implements DebugConstants, Miscellane
 		    addLine(this, false);
 		    break;
 		default:
-		    Alert.abort("WorldItem.dragged dragKind="+dragKind);
+		    Alert.guiAbort("WorldItem.dragged dragKind="+dragKind);
 	    }
 	    if (dragKind==MoveWorldDrag &&
 		(canvas.worldCount()==1 || (getSelected() && canvas.worldSelectionCount()==1)))

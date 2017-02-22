@@ -209,13 +209,17 @@ public class Alert implements DebugConstants {
 	   Jape.crash("GUI error: "+message);
     }
 
-    public static void abort(String message) {
-	String[] buttons = { quit };
-	JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), makeMessage(message),
-						 "GUI disaster", 0, Error,
-						 null, buttons, quit);
-	// window close doesn't matter
-	Logger.crash("GUI disaster: "+message, 2);
+    public static void abort(String title, String message) {
+        String[] buttons = { quit };
+        JOptionPane.showOptionDialog(JapeWindow.getTopWindow(), makeMessage(message),
+                                                 title, 0, Error,
+                                                 null, buttons, quit);
+        // window close doesn't matter
+        Logger.crash("disaster "+title+": "+message, 2);
+    }
+    
+    public static void guiAbort(String message) {
+        abort("GUI disaster", message);
     }
 
     // this doesn't deal with fonts yet ... I think we have to make a Component (sigh)
@@ -289,7 +293,7 @@ public class Alert implements DebugConstants {
                 return i;
         
         // oh bugger: can't happen
-        abort("nonCancellableDialog returns "+selectedValue+" with "+buttons.length+" buttons");
+        guiAbort("nonCancellableDialog returns "+selectedValue+" with "+buttons.length+" buttons");
         return 0; // really won't happen
     }
     

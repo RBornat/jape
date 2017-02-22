@@ -46,7 +46,7 @@ public class ProvisoCanvas extends JapeCanvas implements ProtocolConstants {
     }
 
     public String getSelections(String sep) {
-        Alert.abort("ProvisoCanvas.getSelections");
+        Alert.guiAbort("ProvisoCanvas.getSelections");
         return null; // shut up compiler
     }
     

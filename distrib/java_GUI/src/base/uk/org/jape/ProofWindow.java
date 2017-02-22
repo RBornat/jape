@@ -185,7 +185,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	try {
 	    JapeMenu.enableItem(true, "Edit", JapeMenu.COPY, JapeMenu.PROOFWINDOW_BAR, proofcount+disproofcount+provisocount==1);
 	} catch (ProtocolError e) {
-	    Alert.abort("ProofWindow.enableCopy can't find Edit: Copy");
+	    Alert.guiAbort("ProofWindow.enableCopy can't find Edit: Copy");
 	}
 	
 	/*  try {
@@ -222,7 +222,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    JapeMenu.enableItem(true, "Edit", "Undo", JapeMenu.PROOFWINDOW_BAR, undoenable);
 	    JapeMenu.enableItem(true, "Edit", "Redo", JapeMenu.PROOFWINDOW_BAR, redoenable);
 	} catch (ProtocolError e) {
-	    Alert.abort("ProofWindow.enableUndo can't find Edit: Undo/Redo");
+	    Alert.guiAbort("ProofWindow.enableUndo can't find Edit: Undo/Redo");
 	}
 
 	if (Jape.onMacOSX) // put the dot in the red button
@@ -236,7 +236,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    JapeMenu.enableItem(true, "File", JapeMenu.EXPORT, JapeMenu.PROOFWINDOW_BAR, disproofPane!=null);
 	    JapeMenu.enableItem(true, "File", JapeMenu.EXPORT_DISPROOF, JapeMenu.PROOFWINDOW_BAR, disproofPane!=null);
 	} catch (ProtocolError e) {
-	    Alert.abort("ProofWindow.enableExport can't find File: Export/Export Disproof");
+	    Alert.guiAbort("ProofWindow.enableExport can't find File: Export/Export Disproof");
 	}
     }
     
@@ -442,7 +442,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    case TreeStyle:
 		proofPane.setAnchor(AnchoredScrollPane.ANCHOR_SOUTH); break;
 	    default:
-		Alert.abort("ProofWindow.initProofCanvas style="+style);
+		Alert.guiAbort("ProofWindow.initProofCanvas style="+style);
 	}
 	proofPane.validate(); proofPane.repaint();
 	focussedCanvas = proofCanvas; // really?
@@ -799,7 +799,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	private synchronized boolean setTopInfocusv(ProofWindow w) {
 	    int i = focusv.indexOf(w);
 	    if (i==-1)
-		Alert.abort("unfocussable proof "+w.title);
+		Alert.guiAbort("unfocussable proof "+w.title);
 	    else
 		if (i!=0) {
 		    focusv.remove(i);
@@ -811,7 +811,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	private synchronized void removeFromfocusv(ProofWindow w) {
 	    int i = focusv.indexOf(w);
 	    if (i==-1)
-		Alert.abort("unremovable proof "+w.title);
+		Alert.guiAbort("unremovable proof "+w.title);
 	    else
 		focusv.remove(i);
 	}

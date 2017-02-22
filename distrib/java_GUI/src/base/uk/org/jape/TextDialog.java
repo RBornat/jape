@@ -96,7 +96,7 @@ public class TextDialog {
             else
                 Reply.reply(""); 
         } catch (ProtocolError e) {
-            Alert.abort("TextDialog.runUnifyDialog can't reply");
+            Alert.guiAbort("TextDialog.runUnifyDialog can't reply");
         }   
     }
 
@@ -127,7 +127,7 @@ public class TextDialog {
                     textField.requestFocusInWindow();
                     // Logger.log.println("selection should be "+newcaret+","+newcaret+" is in fact "+textField.getSelectionStart()+","+textField.getSelectionEnd());
                 } catch (Exception exn) {
-                    Alert.abort("Button "+s+" threw exception "+exn);
+                    Alert.guiAbort("Button "+s+" threw exception "+exn);
                 }
             }
         }

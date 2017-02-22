@@ -207,7 +207,7 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 			    else
 				JapePrefs.putProp("LogWindowFontSize", LogWindowFontSize);
 			    Logger.font_reset(); break;
-			default: Alert.abort("runFontSizesDialog switch sees "+i);
+			default: Alert.guiAbort("runFontSizesDialog switch sees "+i);
 		    }
 		    
 		}

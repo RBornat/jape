@@ -128,7 +128,7 @@ public class WorldConnector extends LineItem implements SelectionConstants, Worl
 	    dragExit();
 	}
 	else
-	    Alert.abort("world drop on non-accepting line");
+	    Alert.guiAbort("world drop on non-accepting line");
     }
 
     /* ****************************** line as drag source ****************************** */

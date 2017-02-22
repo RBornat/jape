@@ -119,7 +119,7 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
             case HypSel   : return HypTextItem;
             case ConcSel  : return ConcTextItem;
             case ReasonSel: return ReasonTextItem;
-            default	  : Alert.abort("ProofCanvas."+id+" selkind="+selclass);
+            default	  : Alert.guiAbort("ProofCanvas."+id+" selkind="+selclass);
                             return PunctTextItem; // shut up compiler
         }
     }
@@ -148,7 +148,7 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
                     killSelections((byte)(ConcSel | ReasonSel));
                     break;
                 default:
-                    Alert.abort("ProofCanvas.doSelectAction("+di+");");
+                    Alert.guiAbort("ProofCanvas.doSelectAction("+di+");");
             }
         }
     }
@@ -172,7 +172,7 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
                         doSelectAction(di);
                     break;
                 default:
-                    Alert.abort("ProofCanvas.doExtendSelectAction("+di+");");
+                    Alert.guiAbort("ProofCanvas.doExtendSelectAction("+di+");");
             }
         }
     }
@@ -183,7 +183,7 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
                     protocolSelClass("notifyHit",
                             ((SelectableProofItem)di).getSelectionKind()));
         else
-            Alert.abort("ProofCanvas.notifyHit di="+di);
+            Alert.guiAbort("ProofCanvas.notifyHit di="+di);
     }
 
     public SelectableProofItem findSelectable(int x, int y) {

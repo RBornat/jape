@@ -64,7 +64,7 @@ public class DragImage extends DragComponent implements DebugConstants {
     
     public void fixImage() {
 	if (includev.size()==0)
-	    Alert.abort("DragImage.fixImage no items");
+	    Alert.guiAbort("DragImage.fixImage no items");
 
 	setSize(imagebounds.width, imagebounds.height);
 	image = (BufferedImage)((Component)includev.get(0)).createImage(imagebounds.width, imagebounds.height);
@@ -86,7 +86,7 @@ public class DragImage extends DragComponent implements DebugConstants {
 
     public Point getImageLocation() {
 	if (imagebounds==null)
-	    Alert.abort("DragImage.getImageLocation no image");
+	    Alert.guiAbort("DragImage.getImageLocation no image");
 
 	return new Point(imagebounds.x, imagebounds.y);
     }
@@ -102,7 +102,7 @@ public class DragImage extends DragComponent implements DebugConstants {
 	    g2D.setComposite(oldcomp);
 	}
 	else
-	    Alert.abort("DragImage.paint can't enable transparent drawing");
+	    Alert.guiAbort("DragImage.paint can't enable transparent drawing");
     }
 
     protected void movePosition(int deltax, int deltay) {

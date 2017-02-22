@@ -106,7 +106,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 	    else
 		return width+JapeFont.charsWidth(c.printchars, 0, i, c.fontnum);
 	}
-	Alert.abort("TextSelectableItem.pxval runs out of characters");
+	Alert.guiAbort("TextSelectableItem.pxval runs out of characters");
 	return 0; // shut up compiler
     }
     
@@ -130,18 +130,18 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		if (c==expectedket)
 		    return computeFormulaTreeResult(i0, cs, ts);
 		else
-		    Alert.abort("computeFormulaTree saw "+(int)c+", expected "+(int)expectedket);
+		    Alert.guiAbort("computeFormulaTree saw "+(int)c+", expected "+(int)expectedket);
 	    }
 	    else
 		printi++;
 	}
 	
 	if (expectedket!=0)
-	    Alert.abort(this+": computeFormulaTree exhausted text, "+
+	    Alert.guiAbort(this+": computeFormulaTree exhausted text, "+
 			", expected "+(int)expectedket);
 
 	if (printi!=printlen)
-	    Alert.abort(this+": text is "+printlen+
+	    Alert.guiAbort(this+": text is "+printlen+
 			" chars, but computeFormulaTree thinks it's "+printi);
 
 	if (i1!=printi && cs.size()!=0)
@@ -184,7 +184,7 @@ public class TextSelectableItem extends TextItem implements SelectionConstants {
 		for (i=0; i<f.tokens.length; i++)
 		    if (f.tokens[i].pxstart<=px && px<f.tokens[i].pxend)
 			return f.tokens[i];
-		Alert.abort("TextSelectableItem.pixel2Subformula("+px+
+		Alert.guiAbort("TextSelectableItem.pixel2Subformula("+px+
 			    ") lost in "+f);
 		return null; // shut up compiler
 	    }

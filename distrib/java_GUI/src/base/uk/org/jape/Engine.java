@@ -52,7 +52,7 @@ public class Engine implements DebugConstants {
                     s = s+", ";
             }
             s=s+"("+apn+")";
-            Alert.abort(s+"]");
+            Alert.guiAbort(s+"]");
             engine = null; // shut up compiler
         }
 
@@ -61,7 +61,7 @@ public class Engine implements DebugConstants {
             toEngine = new BufferedWriter(new OutputStreamWriter(engine.getOutputStream(), "UTF-8"));
             logEngine = new BufferedReader(new InputStreamReader(engine.getErrorStream(), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            Alert.abort("We don't support encoding "+JapeUtils.enQuote("UTF-8"));
+            Alert.guiAbort("We don't support encoding "+JapeUtils.enQuote("UTF-8"));
         }
 
         Thread engineLogger = new Logger.StreamLog("engine log", new EngineLog());

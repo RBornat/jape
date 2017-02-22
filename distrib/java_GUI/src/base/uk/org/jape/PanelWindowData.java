@@ -234,7 +234,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
         protected void addButton(String label, Insert[] inserts, boolean isDefault) {
                 if (isDefaultButton(label)!=isDefault)
-                        Alert.abort("PanelWindowData.addButton "+JapeUtils.enQuote(label)+" isDefault="+isDefault+
+                        Alert.guiAbort("PanelWindowData.addButton "+JapeUtils.enQuote(label)+" isDefault="+isDefault+
                                         " isDefaultButton(...)="+isDefaultButton(label));
                 // if there already is such a button, just change its inserts
                 PanelButton button = findButton(label);
@@ -242,7 +242,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                         if (button instanceof InsertButton)
                                 ((InsertButton)button).setInserts(inserts);
                         else
-                                Alert.abort("PanelWindowData.addButton with inserts finds "+button);
+                                Alert.guiAbort("PanelWindowData.addButton with inserts finds "+button);
                         return;
                 }
                 // otherwise a new one
@@ -544,7 +544,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                                         return;
                                 }
                         }
-                        Alert.abort("PanelWindow.actionPerformed: no button "+JapeUtils.enQuote(key)+
+                        Alert.guiAbort("PanelWindow.actionPerformed: no button "+JapeUtils.enQuote(key)+
                                         " in panel "+this.title);
                 }
 
