@@ -242,3 +242,5 @@ val getfontname : font -> string
 
 val draginfo : (element * pos list) list -> (element * pos list) list 
             -> (element list * element list) list -> unit
+            
+val dropdead : unit -> unit (* for when the engine wants to crash *)

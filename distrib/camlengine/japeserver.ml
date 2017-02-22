@@ -203,8 +203,9 @@ and out8 c =
 let intlist_of_ask s is = writef s is; ints_of_reply (readline s)
 let string_of_ask  s is = writef s is; readline s
 
-let rec listen () = writef "GET\n" []; readline "GET"
-let rec terminateGUI () = writef "TERMINATE\n" []
+let listen () = writef "GET\n" []; readline "GET"
+let terminateGUI () = writef "TERMINATE\n" []
+let dropdead () = writef "ENGINECRASHED\n" []; exit(2)
 
 (*  Local to the interface *)
 

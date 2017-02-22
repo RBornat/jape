@@ -86,6 +86,14 @@ public class Dispatcher extends Thread implements DebugConstants {
 			    }
 			}
 			else
+			if (p=="ENGINECRASHED"&&len==1) {
+			    Logger.showLogWindow();
+			    Alert.abort("Proof engine crash", "The Jape proof engine has crashed.\n\n"+
+			                "See Jape console log for details.\n\n"+
+			                "Please report (with details) to Richard Bornat (richard@bornat.me.uk)."
+			            );
+			}
+			else
 
 		    // string passing happens a lot, so put it early
 			if (p=="STRINGSIZE"&&len==3)
