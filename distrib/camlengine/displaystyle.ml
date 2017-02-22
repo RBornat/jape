@@ -220,7 +220,7 @@ module F
                        bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
                        "; viewport="; string_of_box viewport]; 
                Japeserver.dropdead(); (* doesn't return *)
-               default()
+               default() (* would cause an infinite recursion, if it happened *) 
             in
             let process ts = (* bloody hell, N^2. Oh well. *)
               (* consolereport ["Boxdraw.showProof.handleinvis.process ";
