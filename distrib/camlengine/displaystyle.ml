@@ -203,8 +203,8 @@ module F
             | None -> default()
           and default () = findtarget (Some (rootPath proof))
           and handleinvis () =
-            (* let string_of_path = bracketed_string_of_list string_of_int ";" in
-               let string_of_hit = string_of_fhit string_of_path in *)
+            let string_of_path = bracketed_string_of_list string_of_int ";" in
+            let string_of_hit = string_of_fhit string_of_path in
             let oldts = allFormulaHits oldpos oldplan in
             (* consolereport ["Boxdraw.showProof.handleinvis oldpos="; string_of_pos oldpos; "; oldts=";
                        bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
@@ -216,6 +216,10 @@ module F
                                            (acceptable intersects oldts)]; *)
             let bad() =
                consolereport ["We have a problem: Displaystyle.handleinvis can't find a visible path"];
+               consolereport ["oldpos="; string_of_pos oldpos; "; oldts=";
+                       bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
+                       "; viewport="; string_of_box viewport]; 
+               Japeserver.dropdead(); (* doesn't return *)
                default()
             in
             let process ts = (* bloody hell, N^2. Oh well. *)
