@@ -30,8 +30,17 @@
 package uk.org.jape;
 
 import java.awt.Point;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Vector;
+
+import javax.swing.JOptionPane;
 
 import uk.org.jape.MiscellaneousConstants.IntString;
 import uk.org.jape.PanelWindowData.Insert;
@@ -87,11 +96,30 @@ public class Dispatcher extends Thread implements DebugConstants {
 			}
 			else
 			if (p=="ENGINECRASHED"&&len==1) {
-			    Logger.showLogWindow();
-			    Alert.abort("Proof engine crash", "The Jape proof engine has crashed.\n\n"+
-			                "See Jape console log for details.\n\n"+
-			                "Please report (with details) to Richard Bornat (richard@bornat.me.uk)."
+			    Alert.showAlert(JOptionPane.ERROR_MESSAGE, 
+			                "The Jape proof engine has crashed.\n\n"+
+			                "The next window will ask where to store the contents of the"
+			                + " Jape console log, so you can report the crash.\n\n"+
+			                "Please report it (with the contents of the log) to "
+			                + "Richard Bornat (richard@bornat.me.uk)."
 			            );
+                            DateFormat df = new SimpleDateFormat("yyyy-MM-dd 'at' HH-mm-ss z");
+                            Date dateobj = new Date();
+                            String logFileName = FileChooser.newSaveDialog(
+                                    "Save console log", 
+                                    ("Jape console log "+df.format(dateobj)), 
+                                    "txt"
+                                );
+                            if (logFileName!=null) {
+                                try {
+                                    Writer writer = new BufferedWriter(new OutputStreamWriter(
+                                            new FileOutputStream(logFileName), "utf-8"));
+                                    writer.write(Logger.getText());
+                                    writer.close();
+                                } finally { }
+                            }
+                            
+                            System.exit(2);
 			}
 			else
 

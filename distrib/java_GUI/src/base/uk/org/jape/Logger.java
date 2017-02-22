@@ -44,6 +44,8 @@ public class Logger {
     private static final boolean divertToWindow = true;
     
     private static final JTextArea textArea = new JTextArea("", 24, 80);
+    
+    public static String getText() { return textArea.getText(); }
 
     private static class ScreenWriter extends Writer {
 	// for the moment, the minimum
