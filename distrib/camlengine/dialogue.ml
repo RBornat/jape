@@ -2057,14 +2057,23 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                re-record it unless you've developed it.
              *)
             if finished proofstate disproof then
-              if  not fromstore ||
-                  (not (null (hist_pasts proofhist)) && isproven proofstate) ||
-                  (match disproofhist with 
-                     Some d -> not (null (hist_pasts d)) && disproof_finished disproof 
-                   | None   -> false) 
+              if (not fromstore) ||
+                 (not (null (hist_pasts proofhist)) && isproven proofstate) ||
+                 (match disproofhist with 
+                  | Some d -> not (null (hist_pasts d)) && disproof_finished disproof 
+                  | None   -> false
+                 )
               then
+                let saywhat, sayisare, sayitthem =
+                  match isproven proofstate, disproof_finished disproof with
+                  | true, true -> "proof and disproof", "are", "them"
+                  | true, _    -> "proof"             , "is" , "it"
+                  | _          -> "disproof"          , "is" , "it"
+                in
                 Alert.askDangerously
-                  ("The proof of " ^ string_of_name t ^ " is complete - do you want to record it?")
+                  ("The " ^ saywhat ^ " of " ^ string_of_name t ^ " " ^ sayisare 
+                   ^" complete - do you want to record " ^ sayitthem ^ "?"
+                  )
                   ("Record", (fun () -> if endproof n t proofstate disproof 
                                         then closed() else default))
                   ("Don't record", closeOK)
