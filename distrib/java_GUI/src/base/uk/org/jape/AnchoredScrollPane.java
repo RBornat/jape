@@ -83,7 +83,6 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
           }
         );
         viewport = new Container() {
-            // public void validate() { setScrollBarValues(); super.validate(); }
             public void paint(Graphics g) {
                 if (DebugVars.paint_tracing) {
                     Logger.log.println("painting viewport in AnchoredScrollPane "+id);
@@ -194,10 +193,6 @@ public class AnchoredScrollPane extends Container implements DebugConstants {
         }
         this.anchor = anchor;
     }
-
-    // public boolean isValidateRoot() { return true; }
-
-    // public void validate() { setScrollBarValues(); super.validate(); }
 
     public void setScrollBarValues() {
         if (view==null) {
