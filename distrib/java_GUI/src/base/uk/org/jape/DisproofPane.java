@@ -79,7 +79,6 @@ public class DisproofPane extends Container implements DebugConstants,
 	add(tileCanvas);
 
 	seqView = new Container() {
-	    // public void validate() { } surely not needed?
 	    public Dimension getPreferredSize() { return getSize(); }
 	    public Dimension getMinimumSize() { return getSize(); }
 	};

@@ -485,8 +485,6 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    mainSplitPane.setPreferredSize(paneSize);
 	    mainSplitPane.setSize(paneSize);
 	    getContentPane().add(mainSplitPane, BorderLayout.CENTER);
-	    // mainSplitPane.validate();
-	    // mainSplitPane.repaint();
 	}
 	if (provisoPanePending) {
 	    provisoPanePending = false;
@@ -504,8 +502,6 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    subSplitPane.setResizeWeight(1.0);
 	    subSplitPane.setPreferredSize(paneSize);
 	    subSplitPane.setSize(paneSize);
-	    // subSplitPane.validate();
-	    // subSplitPane.repaint();
 	}
 
 	if (disproofPane!=null)
