@@ -108,9 +108,9 @@ let ascii_chars = "0123456789abcdef"
 
 let pre_Ascii s =
   Sml.implode (List.map (fun c -> if Char.code c<=0x7f then String.make 1 c else 
-                                    let s = String.create 4 in
-                                    s.[0]<-'\\'; s.[1]<-'x';
-                                    s.[2]<-ascii_chars.[Char.code c lsr 4];
-                                    s.[3]<-ascii_chars.[Char.code c land 0xf];
-                                    s)
+                                    string_of_chars ['\\'; 'x'; 
+                                                           ascii_chars.[Char.code c lsr 4];
+                                                           ascii_chars.[Char.code c land 0xf]
+                                                    ]
+                        )
                         (Sml.chars_of_string s))
