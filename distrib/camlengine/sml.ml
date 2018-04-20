@@ -43,16 +43,16 @@ let explode = List.map (String.make 1) <.> chars_of_string
 
 let implode = String.concat ""
 
-(* let string_of_chars = implode <.> String.make 1 *)
-let string_of_chars cs = 
-  let len = List.length cs in
-  let s = String.create len in
-  let rec ii n cs = 
-    match cs with (c::cs) -> (s.[n]<-c; ii (n+1) cs)
-    |             []      -> ()
-  in
-  (ii 0 cs; s) 
-  
+let string_of_chars = implode <.> List.map (String.make 1)
+(* let string_of_chars cs = 
+   let len = List.length cs in
+   let s = String.create len in
+   let rec ii n cs = 
+     match cs with (c::cs) -> (s.[n]<-c; ii (n+1) cs)
+     |             []      -> ()
+   in
+   (ii 0 cs; s) 
+ *)  
 let fst_of_3 (a,b,c) = a
 let snd_of_3 (a,b,c) = b
 let thrd (a,b,c) = c
