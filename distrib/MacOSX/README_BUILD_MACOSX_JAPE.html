@@ -11,11 +11,11 @@
 
 <body>
 
-<h1>How to build Jape on Mac OS X. July 2012 (and April 2014)</h1>
+<h1>How to build Jape on MacOS (April 2018)</h1>
 
 
-<p >Currently we build OS/X Jape on Mavericks or Yosemite (or sometimes even Lion!),
-and use OCaml 4.01.0).  We build Linux Jape with the
+<p >Currently we build MacOS Jape on Sierra and High Sierra,
+and use OCaml 4.06.0 and Java 1.7 or 1.8.  We build Linux Jape with the
 same Ocaml version, but on a Linux machine.</p>
 
 
@@ -23,12 +23,12 @@ same Ocaml version, but on a Linux machine.</p>
 <h2> If you want to build Jape yourself</h2>
 
 
-<p >1. Install the developer tools (get them from Apple or from a CD; these days I think you
+<p >1. Install the developer tools (get them from Apple; these days I think you
 have to get them by installing Xcode and then asking Xcode to install them). You will also
 need git, if it isn't in the developer tools.</p>
 
 
-<p >1a. Make sure ant (installed by the developer tools) is
+<p >2. Make sure ant (installed by the developer tools) is
 known to the shell (and why Apple doesn't do this, I don't
 know). I added the following lines to <tt>~/.profile</tt>:</p>
 
@@ -50,32 +50,17 @@ know). I added the following lines to <tt>~/.profile</tt>:</p>
 
 
 
-<p >2. Install the latest OCaml to build the jape ‘engine’ (at time of writing, in April 2014, 
-Jape is built using ocaml 4.01.0; but has been known to build with ocaml 3.12)</p>
+<p >3. You will need OCaml to build the jape ‘engine’ (at time of writing, in April 2018, 
+Jape is built using ocaml 4.06.0; but has been known to build with ocaml 3.12)</p>
 
 
-<p>4. You will need Java 1.6 or 1.7. We <i>think</i> our build system is ok with either. </p>
+<p>3. You will need Java 1.7 or 1.8. Our build system is ok with either. </p>
 
-<p >4. Get the latest Jarbundler, an ant task, to put the parts
-together and make a Mac OS X application. It's a new development, to deal with the problems
-of different versions of Java and non-cooperation of Oracle and Apple. You can get it 
-from git:
-
-<pre>
-        <tt>git clone https://github.com/tofi86/Jarbundler.git</tt> 
-</pre>
-
-In the Jarbundler directory which git builds, say 
-
-<pre>
-        <tt>ant jar</tt> 
-</pre>
-
-and put <tt>jarbundler-?.?.?.jar</tt> in the ant library
-<tt>/usr/share/ant/lib</tt>. Delete any previous versions (if there are any).
+<p>4. Put jarbundler-3.3.0-forjape.jar, an ant task, stored in the directory where you found this file (<tt>...../distrib/MacOSX</tt>), in the ant library
+<tt>/usr/share/ant/lib</tt> (or whereever your ant library is). Delete any previous jarbundler versions.
 </p>
 
-<p >In the directory where you found this file (<tt>...../distrib/MacOSX</tt>):
+<p>5. In the directory where you found this file (<tt>...../distrib/MacOSX</tt>):
 
 <pre>
         <tt>make local</tt> 
@@ -97,7 +82,7 @@ lets you try it out. If it works, move <tt>build/Jape.app</tt> where you like.
 <h2>Contact</h2>
 <p>Build originally documented by Richard Bornat (<tt>richard@bornat.me.uk</tt>), 11th March 2009; 
 subsequently edited by Bernard Sufrin (@ <tt>cs ox ac uk</tt>), late July 2012 and early April and October 2014. And 
-then edited again by Richard Bornat in January 2016.</p>
+then edited again by Richard Bornat in January 2016 and April 2018.</p>
 
 </body>
 </html>
