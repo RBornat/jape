@@ -1,5 +1,9 @@
 <project>
 
+    <condition property="eawtjar" value="appleeawt_8.jar" else="appleeawt_7.jar">
+        <equals arg1="${ant.java.version}" arg2="1.8" forcestring="true"/>
+    </condition>
+
     <target name="clean">
         <delete dir="build"/>
         <delete file="src/base/uk/org/jape/Version.java"/>
@@ -19,7 +23,7 @@
         >
         
         <classpath>
-         <pathelement location="appleeawt.jar"/>
+         <pathelement location="${eawtjar}"/>
         </classpath>
         
         </javac>

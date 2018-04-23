@@ -7,10 +7,10 @@
     <property environment="env" />
 
     <taskdef name="jarbundler" 
-         classname="net.sourceforge.jarbundler.JarBundler" />
+         classname="com.ultramixer.jarbundler.JarBundler" />
       
     <target name="Jape.app"
-            description="Build the application using JarBundler-2.5.0 to make the structure and universalJavaApplicationStub to launch it">
+            description="Build the application using JarBundler 3.3.0-forjape to make the structure and universalJavaApplicationStub to launch it">
         <mkdir dir="build"/>
         <jarbundler dir="build"
                     name="Jape"
