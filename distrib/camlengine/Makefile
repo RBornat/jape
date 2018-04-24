@@ -38,15 +38,20 @@ jape_engine:: version;\
 
 
 # windows ocaml 4.01 cannot do this (reports ''inconsistent assumptions''); but 4.02 and 4.00 work fine
-jape.exe::     version ;\
+jape.exe::     windowsversion ;\
         ocamlbuild.native -classic-display -build-dir $(BUILDDIR) \
                -lib unix -no-links \
                main.native; \
         cp $(BUILDDIR)/main.native $(BUILDDIR)/jape.exe
 
+# for Unix machines
 version: ;              echo let version=\"`../CommonBuildResources/version.sh`\" >version.ml
+
+# for Windows on the assumption that a Unix build already happened
+windowsversion:         version.ml ; echo "Re-using existing version.ml"
 
 clean:;                 rm -fr _build$(OS)  version.ml *.native *.cmi *.cmo *.cmx *.o jape_engine *.native
 cleanall:;              rm -fr _build* _log version.ml *.native *.cmi *.cmo *.cmx *.o jape_engine *.native
+
 
 
