@@ -26,23 +26,19 @@
 
 BUILDDIR=_build$(OS)
 
-# for folks who don't have ocamlbuild, do it the old way
+# you must have ocamlbuild nowadays
 
 jape_engine:: version;\
-        if [ `which ocamlbuild` == "" ]; then \
-                make -f LegacyMakefile jape_engine; \
-        else \
-                ocamlbuild -build-dir $(BUILDDIR) -lib unix -no-links main.native; \
-                rm -f $(BUILDDIR)/jape_engine; ln -s main.native $(BUILDDIR)/jape_engine ;\
-        fi
+              ocamlbuild -build-dir $(BUILDDIR) -lib unix -no-links main.native; \
+              rm -f $(BUILDDIR)/jape_engine; ln -s main.native $(BUILDDIR)/jape_engine ;\
 
 
 # windows ocaml 4.01 cannot do this (reports ''inconsistent assumptions''); but 4.02 and 4.00 work fine
 jape.exe::     windowsversion ;\
-        ocamlbuild.native -classic-display -build-dir $(BUILDDIR) \
-               -lib unix -no-links \
-               main.native; \
-        cp $(BUILDDIR)/main.native $(BUILDDIR)/jape.exe
+               ocamlbuild.native -classic-display -build-dir $(BUILDDIR) \
+                      -lib unix -no-links \
+                      main.native; \
+               cp $(BUILDDIR)/main.native $(BUILDDIR)/jape.exe
 
 # for Unix machines
 version: ;              echo let version=\"`../CommonBuildResources/version.sh`\" >version.ml
