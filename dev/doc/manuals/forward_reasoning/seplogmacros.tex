@@ -1,0 +1,145 @@
+\usepackage{graphicx}
+\usepackage{amssymb, amsmath}
+\usepackage{proof} 
+\usepackage{stmaryrd}
+\input{mapsto}
+
+\usepackage[ligature,reserved]{semantic}
+
+\reservestyle{\word}{\operatorname}
+
+\reservestyle{\bracket}{\mathsf}
+\bracket{if[if\;],then[\;then\;],nlthen[then\;],else[\;else\;],nlelse[else\;],elsf[\;elsf\;],nlelsf[elsf\;],fi[\;fi],nlfi[fi],
+	while[while\;],do[\;do\;],nldo[do\;],od[\;od],nlod[od],
+	untildo[do\;],until[\;until\;],nluntil[until\;]}
+\bracket{let[let\;],letand[\;and\;],local[local\;],in[\;in\;],ni[\;ni]}
+\bracket{with[with\;],when[\;when\;],}
+\bracket{resource[resource\;]}
+
+\reservestyle{\predicate}{\mathrm}
+\predicate{P,V}
+
+\reservestyle{\instruction}{\mathrm}
+\instruction{skip}
+
+\reservestyle{\constructor}{\mathsf}
+
+\reservestyle{\var}{\mathit}
+
+\reservestyle{\const}{\mathrm}
+\const{nil,true,false}
+
+\reservestyle{\bconst}{\mathbf}
+\bconst{emp,emph[emp_{h}],emps[emp_{s}]}
+
+\DeclareMathOperator{\new}{new}
+\DeclareMathOperator{\dispose}{dispose}
+\DeclareMathOperator{\notop}{not}
+\DeclareMathOperator{\invop}{bitinv}
+
+% mathligs must be arranged in reverse prefix order
+\mathlig{--*}{\mathbin{-\!\circledast}}
+\mathlig{-*}{\mathbin{-\!\!\star}}
+\mathlig{*}{\star}
+\mathlig{|->}{\mapsto}
+\mathlig{||-}{\Vdash}
+\mathlig{|-}{\vdash}
+\mathlig{|=}{\vDash}
+\mathlig{|*}{\exists}
+\mathlig{[|}{\llbracket} % stmaryrd open semantic bracket
+\mathlig{|]}{\rrbracket} % stmaryrd close semantic bracket
+\mathlig{|}{\lor}
+\mathlig{@**}{\forall\circledast} % iterated separating conjunction
+\mathlig{@*}{\forall}
+\mathlig{@+}{\oplus}
+\mathlig{@@@@}{@}
+\mathlig{@}{\land}
+\mathlig{/->}{\hookrightarrow}
+\mathlig{->}{\rightarrow}
+\mathlig{=>}{\Rightarrow}
+\mathlig{!/->}{\not\hookrightarrow}
+\mathlig{!=>}{\not\Rightarrow}
+\mathlig{!=}{\neq}
+\mathlig{!|-}{\not\vdash}
+\mathlig{!||-}{\not\Vdash}
+\mathlig{!|=}{\not\,\vDash}
+\mathlig{!|*}{\neg\exists}%necessary before !|
+\mathlig{!|}{\not\!\lor}
+\mathlig{!@*}{\neg\forall}%necessary before !@
+\mathlig{!@}{\not\!\!\land}
+\mathlig{!}{\neg}
+\mathlig{>=}{\geq}
+\mathlig{>->}{\rightarrowtail}
+\mathlig{~>}{\rightsquigarrow}
+\mathlig{~<>}{\leftrightsquigarrow}
+\mathlig{~<}{\leftsquigarrow}
+\mathlig{<->}{\leftrightarrow}
+\mathlig{<=>}{\iff}
+\mathlig{<=}{\leq}
+
+\newcommand {\singl}[1]{\langle #1 \rangle}
+\newcommand {\mtseq}{\singl{\,}}
+%
+% To make arrays within math environments
+%
+\newcommand {\cols}[1][*{50}{l}]{\begin{array}{#1}}
+\newcommand {\sloc}{\end{array}}
+\newcommand {\defin}{\cols[rcl]}
+\newcommand {\nifed}{\sloc}
+\newcommand {\BRA}[1][*{50}{l}]{\left(\cols[#1]}
+\newcommand {\KET}{\sloc\right)}
+\newcommand {\BRACE}[1][*{50}{l}]{\left\{\cols[#1]}
+\newcommand {\ECARB}{\sloc\right\}}
+\newcommand {\LANG}[1][*{50}{l}]{\left\langle\cols[#1]}
+\newcommand {\GNAL}{\sloc\right\rangle}
+\newcommand {\FRAME}[1][l]{\text{Framed:}\left\langle\begin{array}{#1}}
+\newcommand {\EMARF}{\end{array}\right\rangle}
+
+\mathlig{++}{\mathbin{+\!\,+}}
+\mathlig{--}{\mathbin{-\!\,-}}
+
+\newcommand{\assert}[1]{\left\{ #1 \right\}}
+\newcommand{\Assert}[1]{\BRACE #1 \ECARB}
+
+\newcommand{\pre}[1]{\assert{#1}\,}
+\newcommand{\Pre}[1]{\Assert{#1}\,}
+\newcommand{\post}[1]{\,\assert{#1}}
+\newcommand{\Post}[1]{\,\Assert{#1}}
+\newcommand{\mida}[1]{\,\assert{#1}\,}
+\newcommand{\Mida}[1]{\,\Assert{#1}\,}
+
+\newcommand{\eqnlabel}[1]{\label{eqn:#1}}
+\newcommand{\eqnref}[1]{(\ref{eqn:#1})}
+\newcommand{\figlabel}[1]{\label{fig:#1}}
+\newcommand{\figref}[1]{figure \ref{fig:#1}}
+\newcommand{\Figref}[1]{Figure \ref{fig:#1}}
+\newcommand{\seclabel}[1]{\label{sec:#1}}
+\newcommand{\secref}[1]{section \ref{sec:#1}}
+\newcommand{\Secref}[1]{Section \ref{sec:#1}}
+\newcommand{\tablabel}[1]{\label{tab:#1}}
+\newcommand{\tabref}[1]{table \ref{tab:#1}}
+\newcommand{\Tabref}[1]{Table \ref{tab:#1}}
+\newcommand{\deflabel}[1]{\label{def:#1}}
+\newcommand{\defref}[1]{definition \ref{def:#1}}
+\newcommand{\Defref}[1]{lemma \ref{def:#1}}
+\newcommand{\lemlabel}[1]{\label{lem:#1}}
+\newcommand{\lemref}[1]{lemma \ref{lem:#1}}
+\newcommand{\Lemref}[1]{Lemma \ref{lem:#1}}
+
+\newenvironment{progindent}{\quad\cols}{\sloc}
+
+\newcommand{\hstrut}[1]{\rule{#1}{0pt}}
+\newcommand{\vstrut}[1]{\rule{0pt}{#1}}
+
+\newcommand{\vgap}[1]{\vstrut{#1} \\}
+
+\newcommand{\eqnscale}{0.8}
+\newcommand{\reasonscale}{0.8}
+\newcommand{\picscale}{0.8}
+
+\newcommand{\seqn}[1]{\begin{equation}\scalebox{\eqnscale}{$#1$}\end{equation}}
+
+\newcommand{\inferR}[3][]{\infer[\scalebox{\reasonscale}{$#1$}]{#2}{#3}}
+\newcommand{\eqdef}{\stackrel{\text{\tiny def}}{=}}
+
+ 
