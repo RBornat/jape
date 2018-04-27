@@ -3,15 +3,21 @@
     
     <property name="copyright"       value="Copyright &#xa9; Richard Bornat and Bernard Sufrin"/>
     <property name="launcherApple"   value="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
+    <property name="jarbundlerpath"  value="jarbundler-3.3.0-forjape.jar"/>
     
     <property environment="env" />
 
-    <taskdef name="jarbundler" 
-         classname="com.ultramixer.jarbundler.JarBundler" />
+    
       
     <target name="Jape.app"
             description="Build the application using JarBundler 3.3.0-forjape to make the structure and universalJavaApplicationStub to launch it">
-        <mkdir dir="build"/>
+           <echo message="Jar bundler path ${jarbundlerpath}"/>
+           <taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler" >
+                 <classpath>
+                   <pathelement location="${jarbundlerpath}"/>
+                 </classpath>
+           </taskdef>        
+           <mkdir dir="build"/>
         <jarbundler dir="build"
                     name="Jape"
                     mainclass="uk.org.jape.Jape"
@@ -55,6 +61,7 @@
     </target>
     
 </project>
+
 
 
 
