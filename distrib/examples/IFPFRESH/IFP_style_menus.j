@@ -1,5 +1,5 @@
 /*
-        $Id$
+        $Id: IFP_style_menus.j 631 2014-05-30 13:22:08Z sufrin $
 */
 
 UMENU "Proof Style"

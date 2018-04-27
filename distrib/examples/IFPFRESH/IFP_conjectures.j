@@ -79,10 +79,17 @@ CONJECTUREPANEL Conjectures
     THEOREM IS  ∃x.(R(x)∨S(x)) ⊢ ∃y.R(y)∨∃z.S(z)
 
     THEOREM IS ∀x.(x=0∨x=1), ∃x.R(x), ¬R(1) ⊢ R(0)
+    
+    THEOREM IS (∃ x . T(x)) → (∀ x . (P(x)→T(x))),
+               (∃ x . Ph(x)) → (∀ x . (T(x)→Ph(x)))
+               ⊢
+               (∃x . (T(x) ∧ Ph(x))) → (∀ x . (P(x)→Ph(x)))
+               
 
     BUTTON Apply    IS apply ResolveOrTheorem COMMAND
     
 END
+
 
 
 
