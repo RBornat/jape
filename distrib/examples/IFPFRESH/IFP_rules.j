@@ -1,5 +1,5 @@
 /*
-        $Id$
+        $Id: IFP_rules.j 671 2015-04-16 10:29:30Z sufrin $
 */
 
 /*
@@ -62,10 +62,12 @@ CUT             cut
 WEAKEN          thin
 AUTOMATCH       hyp
 
-/* and the scope formula */
-SCOPEHYP x IN fresh x
+/*      and the ''formula'' used in the presentation of FRESH */
+SCOPEHYP        x IN fresh x
 
 /* ---------------- */
+
+
 
 
 
