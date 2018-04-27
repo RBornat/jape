@@ -1,5 +1,5 @@
 ﻿/*
-        $Id$
+        $Id: IFP_syntax.j 647 2014-09-30 16:51:20Z sufrin $
 */
 
 CLASS VARIABLE  x y z
