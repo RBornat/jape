@@ -1,4 +1,4 @@
-/* $Id$
+/* $Id: IFP_derived.j 642 2014-06-03 18:10:20Z sufrin $
    Opportunity to do proofs of derived rules, that we have introduced in the
    regular rules menu as honest-to-god rules.
 */
