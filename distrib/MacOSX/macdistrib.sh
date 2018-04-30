@@ -8,7 +8,7 @@ DOC=jape_manuals_$VERSION
 #
 MANUALS=../../dev/doc/manuals
 HERE=`pwd`
-SYNCMANUALSTO=$HERE/$DIR/manuals
+SYNCMANUALSTO=$HERE/$DIR.dir/manuals
 
 echo Making $DIR distribution
 
@@ -29,5 +29,6 @@ cp ../../License.txt $DIR.dir/GPLv2.0.txt
 
 sh makedmg $DIR
 rm -fr $DIR.dir
+
 
 
