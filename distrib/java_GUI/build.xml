@@ -47,7 +47,7 @@
         <echo file="src/base/uk/org/jape/Version.java">
             package uk.org.jape; 
             public class Version { 
-                static final String guiversion ="${guiversion}"; 
+                static final String guiversion = ${guiversion}; 
             }
         </echo>
     </target>
@@ -96,6 +96,7 @@
     </target>
 
 </project>
+
 
 
 
