@@ -3,6 +3,23 @@
     <condition property="eawtjar" value="appleeawt_8.jar" else="appleeawt_7.jar">
         <equals arg1="${ant.java.version}" arg2="1.8" forcestring="true"/>
     </condition>
+    
+    <!-- Target machine and source language.
+         This is to avoid inheriting target JVM from the ant runtime context.
+         For the moment (2018) we want to compile code compatible with
+         1.7 (some people still have that) yet still capable of running
+         on recent JVMs.
+    --> 
+    <property name="targetJVM"  value="1.7" /> 
+    <property name="sourceJava" value="1.7" /> 
+    
+    <!-- Use environment to acquire JAPE version: too many differences in behaviour of
+         shell+make between Linux and OS/X to do this by passing a -D parameter to ant.
+    -->
+    <property environment="environment"/> 
+    <condition property="GUIVERSION" value="${environment.JAPEVERSION}" else="JAPE VERSION UNSPECIFIED">
+     <isset property="environment.JAPEVERSION"/>
+    </condition>
 
     <target name="clean">
         <delete dir="build"/>
@@ -13,6 +30,8 @@
         <mkdir dir="build/classes"/>
         <mkdir dir="build/classes/OSX"/>
         <javac 
+            source = "${sourceJava}"
+            target = "${targetJVM}"
             deprecation="on"
             debug="on"
             debuglevel="source,lines"
@@ -34,6 +53,8 @@
         <mkdir dir="build/classes"/>
         <mkdir dir="build/classes/standard"/>
         <javac 
+            source = "${sourceJava}"
+            target = "${targetJVM}"
             deprecation="on"
             debug="on"
             debuglevel="source,lines"
@@ -47,7 +68,7 @@
         <echo file="src/base/uk/org/jape/Version.java">
             package uk.org.jape; 
             public class Version { 
-                static final String guiversion = ${guiversion}; 
+                static final String guiversion = "${GUIVERSION}"; 
             }
         </echo>
     </target>
@@ -96,6 +117,7 @@
     </target>
 
 </project>
+
 
 
 
