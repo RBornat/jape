@@ -27,6 +27,7 @@
                     stubfile="universalJavaApplicationStub"
                     useJavaXKey="true"
                     version="${appversion}"
+                    jvmversion="1.6+"
                     >
             
             <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
