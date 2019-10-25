@@ -10,8 +10,8 @@
          1.7 (some people still have that) yet still capable of running
          on recent JVMs.
     --> 
-    <property name="targetJVM"  value="1.7" /> 
-    <property name="sourceJava" value="1.7" /> 
+    <property name="targetJVM"  value="9" /> 
+    <property name="sourceJava" value="9" /> 
     
     <!-- Use environment to acquire JAPE version: too many differences in behaviour of
          shell+make between Linux and OS/X to do this by passing a -D parameter to ant.
