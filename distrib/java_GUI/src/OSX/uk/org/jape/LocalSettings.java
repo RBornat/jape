@@ -119,7 +119,7 @@ public class LocalSettings implements SelectionConstants {
             JapeMenu.doOpenFiles(e.getFiles());
         });
 
-        /*        Application appl = Application.getApplication();
+/*        Application appl = Application.getApplication();
           appl.addApplicationListener(new ApplicationAdapter() {
             public void handleAbout(ApplicationEvent evt) {
                 System.err.println("JAPE ABOUT: ");
