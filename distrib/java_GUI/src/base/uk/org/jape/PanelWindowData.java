@@ -1,5 +1,5 @@
 /* 
-        Copyright © 2003-17 Richard Bornat & Bernard Sufrin
+        Copyright © 2003-19 Richard Bornat & Bernard Sufrin
 
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk

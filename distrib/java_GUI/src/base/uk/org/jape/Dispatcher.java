@@ -3,7 +3,7 @@
 	on 2006/02/01 in order to fix the bug detailed in the "SETCHOICE bug" mail sent on 2006/02/01
 	to bugs@jape.org.uk
 
-    Copyright © 2003-17 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-19 Richard Bornat & Bernard Sufrin
      
 	richard@bornat.me.uk
 	sufrin@comlab.ox.ac.uk
