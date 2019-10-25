@@ -1,14 +1,8 @@
 <project>
 
-    <condition property="eawtjar" value="appleeawt_8.jar" else="appleeawt_7.jar">
-        <equals arg1="${ant.java.version}" arg2="1.8" forcestring="true"/>
-    </condition>
-    
     <!-- Target machine and source language.
-         This is to avoid inheriting target JVM from the ant runtime context.
-         For the moment (2018) we want to compile code compatible with
-         1.7 (some people still have that) yet still capable of running
-         on recent JVMs.
+         There is a split between Java 8 and Java 9. This is a build file for
+         Java 9 and up. Sorry.
     --> 
     <property name="targetJVM"  value="9" /> 
     <property name="sourceJava" value="9" /> 
@@ -40,11 +34,6 @@
             srcdir="src/base:src/OSX"
             destdir="build/classes/OSX"
         >
-        
-        <classpath>
-         <pathelement location="${eawtjar}"/>
-        </classpath>
-        
         </javac>
         
     </target>
