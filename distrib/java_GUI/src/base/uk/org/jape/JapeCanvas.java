@@ -71,7 +71,7 @@ public abstract class JapeCanvas extends ContainerWithOrigin
 	this.linethickness = linethickness;
 	int nc = child.getComponentCount();
 	if (nc>0) {
-	    Object [] args = new Object[] { new Integer(linethickness) };
+	    Object [] args = new Object[] { Integer.valueOf(linethickness) };
 	    for (int i=0; i<nc; i++) {
 		Component c = child.getComponent(i);
 		Class<? extends Component> cl = c.getClass();
