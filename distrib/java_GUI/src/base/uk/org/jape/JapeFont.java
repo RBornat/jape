@@ -90,13 +90,13 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	for (int i=0; i<normalsizes.length; i++) {
 	    if (!included && size<=normalsizes[i]) {
 		if (size!=normalsizes[i])
-		    sizes.add(new Integer(size));
+		    sizes.add(Integer.valueOf(size));
 		included = true;
 	    }
-	    sizes.add(new Integer(normalsizes[i]));
+	    sizes.add(Integer.valueOf(normalsizes[i]));
 	}
 	if (!included)
-	    sizes.add(new Integer(size));
+	    sizes.add(Integer.valueOf(size));
 	return sizes;
     }
 
