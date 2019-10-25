@@ -25,17 +25,12 @@
 
 package uk.org.jape;
 
-// the MacOSX version of LocalSettings.
+// the macOS version of LocalSettings.
 
-import com.apple.eawt.Application;
-import com.apple.eawt.ApplicationAdapter;
-import com.apple.eawt.ApplicationEvent;
-
+import java.awt.Desktop;
 import java.awt.Dimension;
-
 import java.awt.event.MouseEvent;
 
-@SuppressWarnings("deprecation") // really? RB 22/03/2012
 public class LocalSettings implements SelectionConstants {
     
     // focus in panel windows
@@ -103,41 +98,61 @@ public class LocalSettings implements SelectionConstants {
 
     public LocalSettings() { }
     static {
-        Application appl = Application.getApplication();
-        appl.addApplicationListener(new ApplicationAdapter() {
+        Desktop desktop = Desktop.getDesktop();
+        
+        desktop.setAboutHandler(e -> {
+            System.err.println("JAPE ABOUT: ");
+            // evt.setHandled(true);
+            Jape.handleAbout();
+        });
+        desktop.setPreferencesHandler(e -> {
+            System.err.println("JAPE PREFS: ");
+            Jape.handlePrefs();
+        });
+        desktop.setQuitHandler((e,r) -> {
+            System.err.println("JAPE CLOSE APPLICATION: ");
+            Jape.handleQuit();
+            // Jape.crash("The engine isn't responding!"); // if we return from handleQuit, we didn't exit
+        });
+        desktop.setOpenFileHandler(e -> {
+            System.err.print("JAPE OPEN FILES: "+e.getFiles());
+            JapeMenu.doOpenFiles(e.getFiles());
+        });
+
+        /*        Application appl = Application.getApplication();
+          appl.addApplicationListener(new ApplicationAdapter() {
             public void handleAbout(ApplicationEvent evt) {
                 System.err.println("JAPE ABOUT: ");
                 evt.setHandled(true);
                 Jape.handleAbout();
-            }
+            } 
             
             public void handleOpenFile(ApplicationEvent evt) {
                 System.err.println("JAPE OPEN FILE: "+evt.getFilename());
                 JapeMenu.doOpenFile(evt.getFilename());
-            }
+            } 
             
             public void handleOpenApplication(ApplicationEvent evt) {
                 System.err.println("JAPE OPEN APPLICATION: ");
-            }
+            } 
 
             public void handlePreferences(ApplicationEvent evt) {
                 System.err.println("JAPE PREFS: ");
                 Jape.handlePrefs();
-            }
+            } 
             public void handleQuit(ApplicationEvent evt) {
                 System.err.println("JAPE CLOSE APPLICATION: ");
                 Jape.handleQuit();
                 // Jape.crash("The engine isn't responding!"); // if we return from handleQuit, we didn't exit
-            }
-        });
+            } */
     }
     
     public static final String howToFormulaSelect =
-        "Formula selection on Mac OS X is done with a single click " +
+        "Formula selection on macOS is done with a single click " +
         "(with a two- or three-button mouse, it's a left-button click).";
     
     public static final String howToTextSelect =
-        "Subformula selection on Mac OS X is done by holding down the " +
+        "Subformula selection on macOS is done by holding down the " +
         "alt (option) key while pressing and dragging over a formula. " +
         "You can modify an existing selection by holding down the shift " +
         "key. The command key (apple, propellor) lets you make multiple " +
@@ -148,13 +163,13 @@ public class LocalSettings implements SelectionConstants {
         "use the middle button.)";
     
     public static final String howToDragFormulae =
-        "On Mac OS X you drag a draggable (blue box) formula by pressing " +
+        "On macOS you drag a draggable (blue box) formula by pressing " +
         "(not clicking) the mouse over it, holding still for a brief interval, " +
         "and then moving the mouse while still holding its button down. " + 
         "(With a two- or three-button mouse, use the left button.)";
     
     public static final String howToDragDisproofStuff =
-        "On Mac OS X you drag a thing by pressing " +
+        "On macOS you drag a thing by pressing " +
         "(not clicking) the mouse over it, holding still for a brief interval, " +
         "and then moving the mouse while still holding its button down. " + 
         "(With a two- or three-button mouse, use the left button.) If you " +
