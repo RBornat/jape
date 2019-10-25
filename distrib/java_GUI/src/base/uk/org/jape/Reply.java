@@ -98,11 +98,18 @@ public class Reply implements DebugConstants {
         send("COMMAND "+c+" "+i1+" "+i2+" "+i3+" "+i4+" "+i5+" "+i6+" "+i7+" "+i8);
     }
     
-   public static void sendCOMMAND(String c, String s) {
+    public static void sendCOMMAND(String c, String s) {
         send("COMMAND "+c+" "+argQuote(s));        
     }
     
-   public static void sendCOMMAND(String c, String s1, String s2) {
+    public static void sendCOMMAND(String c, String[] ss) {
+        String uc = "COMMAND "+c;
+        for (int i=0; i<ss.length; i++)
+            uc = uc+" "+argQuote(ss[i]);
+        send(uc);        
+    }
+    
+    public static void sendCOMMAND(String c, String s1, String s2) {
         send("COMMAND "+c+" "+argQuote(s1)+" "+argQuote(s2));        
     }
 
