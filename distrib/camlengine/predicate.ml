@@ -99,8 +99,8 @@ let rec compilepredicate isabstraction env t =
                    in
                    try if eqterms (List.hd vs,t) then pp
                        else registerSubst (true, pp, [List.hd vs, t])
-                   with Failure "hd" -> 
-                          raise (Catastrophe_ ["Failure \"hd\" in compilepredicates"])
+                   with Failure _ as exn -> 
+                          raise (Catastrophe_ [Printexc.to_string exn; " in compilepredicates"])
                    (*
                    if vs = ts then pp
                    else

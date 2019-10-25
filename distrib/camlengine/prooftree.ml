@@ -426,9 +426,8 @@ module Tree : Tree with type term = Termtype.term
       | why, how, _, args, fmt, hastipval, seq, (ts, rewinf), ress ->
           (* this is what makes the tip path work *)
           match path with
-            n :: ns -> go n (try List.nth ts n with
-                                            Invalid_argument "List.nth" | Failure "nth" -> 
-                                                                raise (FollowPath_ ("out of range", path))) ns
+            n :: ns -> go n (try Listfuns.guardednth ts n with
+                                            Listfuns.Bad_nth -> raise (FollowPath_ ("out of range", path))) ns
           | [] -> stop ()
     let rec pathto t =
       match t with
@@ -458,9 +457,8 @@ module Tree : Tree with type term = Termtype.term
           end
       | Join (_, _, _, _, _, _, _, (ts, _), _) ->
           match path with
-            n :: ns -> Some (ns, (try List.nth ts n with
-                                                        Invalid_argument "List.nth" | Failure "nth" -> 
-                                                                            raise (FollowPath_ ("onestep out of range", path))))
+            n :: ns -> Some (ns, (try Listfuns.guardednth ts n with
+                                                        Listfuns.Bad_nth -> raise (FollowPath_ ("onestep out of range", path))))
           | [] -> None
     let rec fakePath_ns rf t ns =
       match t with
@@ -1333,7 +1331,7 @@ module Tree : Tree with type term = Termtype.term
         else
           match join_fmt j with
             TreeFormat (_, RotatingFormat (i, nfs)) ->
-              (try match List.nth nfs i with
+              (try match Listfuns.guardednth nfs i with
                      _, _, Some which as fmt ->
                        let inouts =
                          nj_fold
@@ -1346,7 +1344,7 @@ module Tree : Tree with type term = Termtype.term
                        hideroots (Some fmt) false inouts
                    | fmt -> hideroots (Some fmt) (isCutjoin j) (pts, [])
                with
-                 Invalid_argument "List.nth" | Failure "nth" -> default ())
+                 Listfuns.Bad_nth -> default ())
           | _ -> hideroots None (isCutjoin j) (pts, [])
       in
       if !prooftreedebug then
@@ -1409,9 +1407,9 @@ module Tree : Tree with type term = Termtype.term
               (visible_subtrees showall t &~~
                  (fun ts ->
                     try
-                      let (ns', t) = List.nth ts n in _P ns (rev1 ns' rns) t
+                      let (ns', t) = Listfuns.guardednth ts n in _P ns (rev1 ns' rns) t
                     with
-                      Invalid_argument "List.nth" | Failure "nth" -> None))
+                      Listfuns.Bad_nth -> None))
           | [], rns, t -> Some (FmtPath (rev1 rns (pathto t)))
         in
         _P ns [] t
@@ -1481,13 +1479,13 @@ module Tree : Tree with type term = Termtype.term
                  let nohidf () = [!nohidefmt]
                  in
                  let (fmt, invis) =
-                   (try match List.nth nfs i with
+                   (try match Listfuns.guardednth nfs i with
                           _, "", Some [] -> !foldedfmt    , invisf
                         | _, "", Some _  -> !filteredfmt  , invisf
                         | _, "", None    -> !unfilteredfmt, nohidf
                         | _, s , Some _  -> s             , invisf
                         | _, s , None    -> s             , nohidf
-                    with Invalid_argument "List.nth" | Failure "nth" -> !rawfmt, nohidf)
+                    with Listfuns.Bad_nth -> !rawfmt, nohidf)
                  in
                  rprintf (UTF.utf8_explode fmt) invis default_reason
              | _ -> default_reason ()

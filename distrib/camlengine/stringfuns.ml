@@ -51,8 +51,8 @@ let enQuote s =
 let enCharQuote s = 
   "'" ^ implode (List.map (fun s -> if s="'" then "\\'" else s) (explode s)) ^ "'"
 
-let lowercase = String.lowercase
-let uppercase = String.uppercase
+let lowercase = String.lowercase_ascii
+let uppercase = String.uppercase_ascii
 
 let catelim_string_of_pair fa fb sep (a, b) tail =
   "(" :: fa a (sep :: fb b (")" :: tail))
