@@ -30,8 +30,11 @@ import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.ButtonGroup;
@@ -575,6 +578,18 @@ public class JapeMenu implements DebugConstants {
 
     }
 
+    public static void doOpenFiles(List<File> files) {
+        // take the non-empty ones ...
+        List<String> ss = new ArrayList<String>();
+        for (File f: files) {
+            String s = f.toString();
+            if (s.length()!=0)
+                ss.add(s);
+        }
+        if (ss.size()!=0)
+            Reply.sendCOMMAND("use",(String[])ss.toArray());
+    }
+
     private static class PrefsAction extends ItemAction {
         public void action(Window w) { Jape.handlePrefs(); }
     }
@@ -746,7 +761,7 @@ public class JapeMenu implements DebugConstants {
         
         indexMenuItem(filemenu, "Page Setup...", new PageSetupAction(), PROOFWINDOW_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P,
-                                                  menumask+java.awt.Event.SHIFT_MASK));
+                                                  menumask+java.awt.event.ActionEvent.SHIFT_MASK));
         indexMenuItem(filemenu, "Print...", new PrintProofAction(), PROOFWINDOW_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, menumask));
 
@@ -779,7 +794,7 @@ public class JapeMenu implements DebugConstants {
 
         indexMenuItem(editmenu, "Redo", new RedoAction(), PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z,
-                                                  menumask+java.awt.Event.SHIFT_MASK));
+                                                  menumask+java.awt.event.ActionEvent.SHIFT_MASK));
         
         editmenu.addSep(PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/);
 
@@ -802,7 +817,7 @@ public class JapeMenu implements DebugConstants {
 
         indexMenuItem(editmenu, "Copy Proof", new CopyProofAction(), PROOFWINDOW_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C,
-                                                  menumask+java.awt.Event.ALT_MASK));
+                                                  menumask+java.awt.event.ActionEvent.ALT_MASK));
         
         indexMenuItem(editmenu, "Paste", new UnimplementedAction("Edit: Paste"), TEXTDIALOGWINDOW_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, menumask));
@@ -1099,6 +1114,7 @@ public class JapeMenu implements DebugConstants {
                                 KeyStroke.getKeyStroke((int)code.charAt(0), menumask));
         }
     
+    @SuppressWarnings("unused")
     private static void doEnableItem(JapeWindow w, String menuname, String label, boolean enable) {
       if (w!=null) {
             TitledMenuBar bar = (TitledMenuBar)w.getJMenuBar();
@@ -1184,6 +1200,7 @@ public class JapeMenu implements DebugConstants {
         menu.add(cb);
     }
     
+    @SuppressWarnings("unused")
     private static void doTickItem(JapeWindow w, String menuname, String label, boolean state) {
         if (w!=null) {
             TitledMenuBar bar = (TitledMenuBar)w.getJMenuBar();
@@ -1289,6 +1306,7 @@ public class JapeMenu implements DebugConstants {
         
         return menu;
     }
+
 }
 
 
