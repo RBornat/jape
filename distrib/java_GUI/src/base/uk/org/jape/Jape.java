@@ -71,7 +71,7 @@ public class Jape implements DebugConstants {
         // since platform independence seems not yet to have been achieved ...
         String osName = System.getProperty("os.name");
         
-        onMacOSX = notice_MacOSX && osName.equals("Mac OS X");
+        onMacOSX = notice_MacOSX && osName.equals("Mac OS X"); // checked by RB 2019/10/25
         onLinux = notice_Linux && osName.equals("Linux");
         onSolaris = notice_Solaris && osName.equals("SunOS");
         onWindows = osName.startsWith("Windows");
