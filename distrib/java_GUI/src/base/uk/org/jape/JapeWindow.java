@@ -43,7 +43,8 @@ public abstract class JapeWindow extends JFrame {
 		this(title, -1);
 	}
 
-	public JapeWindow(final String title, int proofnum) {
+	@SuppressWarnings("unused")
+        public JapeWindow(final String title, int proofnum) {
 		super((LocalSettings.UnicodeWindowTitles || proofnum<0) ? title :
 			("Proof #"+proofnum));
 		this.title=title; // ignoring whatever else may happen outside, this is a uid
@@ -184,7 +185,8 @@ public abstract class JapeWindow extends JFrame {
 
 	private final static boolean windowv_tracing = false;
 
-	private String titleForMenu(int proofnum) {
+	@SuppressWarnings("unused")
+    private String titleForMenu(int proofnum) {
 		return LocalSettings.UnicodeWindowTitles || proofnum<0 ? title : proofnum+":"+title;
 	}
 

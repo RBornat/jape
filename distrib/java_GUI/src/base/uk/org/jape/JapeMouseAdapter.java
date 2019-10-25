@@ -55,6 +55,7 @@ public class JapeMouseAdapter implements JapeMouseListener, MouseInputListener,
     private boolean recording=false;
     private static final boolean chasing_drag_events=false;
 
+    @SuppressWarnings("unused")
     public final void mouseClicked(MouseEvent e) { 
         if (chasing_drag_events && recording)
             Logger.log.println((Object)this+" click missed"); 
@@ -117,6 +118,7 @@ public class JapeMouseAdapter implements JapeMouseListener, MouseInputListener,
         dragged(significantWobble(), e);
     }
 
+    @SuppressWarnings("unused")
     public final void mouseMoved(MouseEvent e) { 
         if (chasing_drag_events && recording)
             Logger.log.println((Object)this+" move missed"); 
