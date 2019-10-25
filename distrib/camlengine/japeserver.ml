@@ -77,7 +77,7 @@ let deadGUI () =
 (* if the server is dead, this will definitely cause a problem *)
 let flush s =
   try flush outtoGUI 
-  with Sys_error("Broken pipe") -> deadGUI()
+  with Sys_error _ -> deadGUI()
   |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.flush "; s];
               deadGUI()
 
@@ -86,7 +86,7 @@ let out s =
      has crashed, could generate a broken pipe signal
    *)
   try output_string outtoGUI s 
-  with Sys_error("Broken pipe") -> deadGUI()
+  with Sys_error _ -> deadGUI()
   |    exn -> consolereport [Printexc.to_string exn; " in Japeserver.out "];
               deadGUI()
 

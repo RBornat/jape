@@ -148,9 +148,9 @@ let rec remake mapterm (_, (bs, ss, us), env, pat as b) =
     let emap = mkmap env in
     let rec f t =
       match (emap <@> t) with
-        Some (1, i) -> Some (List.nth bs i)
-      | Some (2, i) -> Some (List.nth ss i)
-      | Some (3, i) -> Some (List.nth us i)
+        Some (1, i) -> Some (Listfuns.guardednth bs i)
+      | Some (2, i) -> Some (Listfuns.guardednth ss i)
+      | Some (3, i) -> Some (Listfuns.guardednth us i)
       | Some (k, i) ->
           raise
             (Catastrophe_
@@ -160,8 +160,8 @@ let rec remake mapterm (_, (bs, ss, us), env, pat as b) =
     in
     mapterm f pat
   with
-    Invalid_argument "List.nth" | Failure "nth" ->
-      raise (Catastrophe_ ["Invalid_argument \"List.nth\" | Failure \"nth\" in remake "; 
+    Listfuns.Bad_nth ->
+      raise (Catastrophe_ ["Bad_nth in remake "; 
                                 debugstring_of_term (Binding b)])
 
 (* ------------------------------------------------------------------------------------- *)
