@@ -591,7 +591,7 @@ public class JapeMenu implements DebugConstants {
     }
 
     private static class PrefsAction extends ItemAction {
-        public void action(Window w) { Jape.handlePrefs(); }
+        public void action(Window w) { PreferencesDialog.handlePrefs(); }
     }
 
     private static class PageSetupAction extends ItemAction {
@@ -726,7 +726,7 @@ public class JapeMenu implements DebugConstants {
         return i;
     }
     
-    private static int menumask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    private static int menumask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(); // deprecated in java 10+, but we are 9
     
     public static void addStdFileMenuItems(M filemenu) {
         if (LocalSettings.aboutMenuItemNeeded) {
@@ -773,17 +773,20 @@ public class JapeMenu implements DebugConstants {
                                                   menumask));
         indexMenuItem(filemenu, EXPORT_DISPROOF, new ExportDisproofAction(), PROOFWINDOW_BAR);
 
-        filemenu.addSep();
-        
-        indexMenuItem(filemenu, "Font Sizes ...", new FontSizesAction());
-        if (DebugVars.showDebugVars) {
-            indexMenuItem(filemenu, "Debug Log Settings ...", new DebugSettingsAction());
-        }
-        
-        if (LocalSettings.quitMenuItemNeeded) {
+        if (!Jape.onMacOSX) {
             filemenu.addSep();
-            indexMenuItem(filemenu, "Quit", new QuitAction());
+        
+            indexMenuItem(filemenu, "Font Sizes ...", new FontSizesAction());
+            if (DebugVars.showDebugVars) {
+                indexMenuItem(filemenu, "Debug Log Settings ...", new DebugSettingsAction());
+            }
+            
+            if (LocalSettings.quitMenuItemNeeded) {
+                filemenu.addSep();
+                indexMenuItem(filemenu, "Quit", new QuitAction());
+            }
         }
+
     }
     
     public static void addStdEditMenuItems(M editmenu) {

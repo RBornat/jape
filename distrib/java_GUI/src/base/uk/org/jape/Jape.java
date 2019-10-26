@@ -54,11 +54,7 @@ public class Jape implements DebugConstants {
         quitsent = false;
     }
 
-    public static void handlePrefs() {
-        Alert.showAlert(Alert.Info, "Preferences item selected in menu");
-    }
-    
-    public static void crash(String message) {
+        public static void crash(String message) {
         Logger.crash(message,2);
     }
     

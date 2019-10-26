@@ -107,7 +107,7 @@ public class LocalSettings implements SelectionConstants {
         });
         desktop.setPreferencesHandler(e -> {
             System.err.println("JAPE PREFS: ");
-            Jape.handlePrefs();
+            PreferencesDialog.handlePrefs();
         });
         desktop.setQuitHandler((e,r) -> {
             System.err.println("JAPE CLOSE APPLICATION: ");
