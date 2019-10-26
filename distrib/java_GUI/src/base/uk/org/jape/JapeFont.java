@@ -123,102 +123,119 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
         panel.add(comboBox);
     }
     
+    @SuppressWarnings("serial")
+    public static class FontPanel extends JPanel {
+        public final SizeSelector [] fontSizes;
+        public final GridBagLayout gridbag;
+        public final JComboBox<String> fontBox;
+        
+        FontPanel() {
+            fontSizes = new SizeSelector [4];
+            fontSizes[0] = new SizeSelector("Formula font size"       , FormulaFontSize   );
+            fontSizes[1] = new SizeSelector("Reason/Proviso font size", ReasonFontSize    );
+            fontSizes[2] = new SizeSelector("Panel font size"         , PanelEntryFontSize);
+            fontSizes[3] = new SizeSelector("Log window font size"    , LogWindowFontSize );
+
+            
+            gridbag = new GridBagLayout();
+            setLayout(gridbag);
+            
+            GridBagConstraints labelconstraints = new GridBagConstraints(),
+                    comboconstraints = new GridBagConstraints();
+
+            labelconstraints.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            labelconstraints.fill = GridBagConstraints.NONE;      //reset to default
+            labelconstraints.anchor = GridBagConstraints.EAST;
+            labelconstraints.weightx = 0.0;                       //reset to default
+
+            comboconstraints.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            comboconstraints.fill = GridBagConstraints.NONE;
+            comboconstraints.weightx = 1.0;
+            comboconstraints.anchor = GridBagConstraints.WEST;
+            comboconstraints.insets = new Insets(0, 5, 5, 0);
+
+            String [] fontFamilies = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+
+            fontBox = new JComboBox<String>(fontFamilies);
+            for (int i=0; i<fontFamilies.length; i++) 
+                if (fontFamilies[i].startsWith(BaseFont.getFontFamily())) {
+                    fontBox.setSelectedIndex(i);
+                    break;
+                }
+
+            addLabelledComboBox(this, gridbag, new JLabel("Font name"), labelconstraints, fontBox, comboconstraints);
+
+            for (int i=0; i<fontSizes.length; i++) {
+                addLabelledComboBox(this, gridbag, fontSizes[i].label, labelconstraints, fontSizes[i].comboBox, comboconstraints);
+            }
+        }
+
+    }
+        
     public static void runFontSizesDialog() {
-	SizeSelector [] fontSizes = {
-	    new SizeSelector("Formula font size"       , FormulaFontSize   ), // 0
-	    new SizeSelector("Reason/Proviso font size", ReasonFontSize	   ), // 1
-	    new SizeSelector("Panel font size"	       , PanelEntryFontSize), // 2
-	    new SizeSelector("Log window font size"    , LogWindowFontSize )  // 3
-	};
-	JPanel panel = new JPanel();
-	GridBagLayout gridbag = new GridBagLayout();
-	panel.setLayout(gridbag);
-
-	GridBagConstraints labelconstraints = new GridBagConstraints(),
-			   comboconstraints = new GridBagConstraints();
-
-	labelconstraints.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-	labelconstraints.fill = GridBagConstraints.NONE;      //reset to default
-	labelconstraints.anchor = GridBagConstraints.EAST;
-	labelconstraints.weightx = 0.0;			      //reset to default
-
-	comboconstraints.gridwidth = GridBagConstraints.REMAINDER;     //end row
-	comboconstraints.fill = GridBagConstraints.NONE;
-	comboconstraints.weightx = 1.0;
-	comboconstraints.anchor = GridBagConstraints.WEST;
-	comboconstraints.insets = new Insets(0, 5, 5, 0);
-
-	String [] fontFamilies = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-	JComboBox<String> fontBox = new JComboBox<String>(fontFamilies);
-	for (int i=0; i<fontFamilies.length; i++) 
-	    if (fontFamilies[i].startsWith(BaseFont.getFontFamily())) {
-	        fontBox.setSelectedIndex(i);
-	        break;
-	    }
-	        
-	addLabelledComboBox(panel, gridbag, new JLabel("Font name"), labelconstraints, fontBox, comboconstraints);
-	
-	for (int i=0; i<fontSizes.length; i++) {
-	    addLabelledComboBox(panel, gridbag, fontSizes[i].label, labelconstraints, fontSizes[i].comboBox, comboconstraints);
-	}
+        FontPanel panel = new FontPanel();
 	
 	int reply = JOptionPane.showConfirmDialog(JapeWindow.getTopWindow(), panel, 
 	                                            "Font sizes", JOptionPane.OK_CANCEL_OPTION, 
 	                                            JOptionPane.PLAIN_MESSAGE);
 
-	if (reply==JOptionPane.OK_OPTION) {
-	    boolean interfaceChanged = false;
-	    String family = (String)fontBox.getSelectedItem();
-	    if (family!=BaseFont.getFontFamily()) {
-	        BaseFont.setFontFamily(family);
-	        PanelWindowData.font_reset();
-	        Logger.font_reset();
-	        interfaceChanged = true;
-	    }
-	    for (int i=0; i<fontSizes.length; i++) {
-	        int selectedvalue = ((Integer)fontSizes[i].comboBox.getSelectedItem()).intValue();
-		if (selectedvalue!=fontSizes[i].size) {
-		    switch (i) {
-			case 0:
-			    FormulaFontSize = (byte)selectedvalue;
-			    if (FormulaFontSize==LocalSettings.FormulaFontSize)
-				JapePrefs.putProp("FormulaFontSize", null);
-			    else
-				JapePrefs.putProp("FormulaFontSize", FormulaFontSize);
-			    interfaceChanged = true; break;
-			case 1:
-			    ReasonFontSize = ProvisoFontSize = (byte)selectedvalue;
-			    if (ReasonFontSize==LocalSettings.NonFormulaFontSize)
-				JapePrefs.putProp("ReasonFontSize", null);
-			    else
-				JapePrefs.putProp("ReasonFontSize", ReasonFontSize);
-			    interfaceChanged = true; break;
-			case 2:
-			    PanelButtonFontSize = PanelEntryFontSize = (byte)selectedvalue;
-			    if (PanelButtonFontSize==LocalSettings.NonFormulaFontSize)
-				JapePrefs.putProp("PanelButtonFontSize", null);
-			    else
-				JapePrefs.putProp("PanelButtonFontSize", PanelButtonFontSize);
-			    PanelWindowData.font_reset(); break;
-			case 3:
-			    LogWindowFontSize = (byte)selectedvalue;
-			    if (LogWindowFontSize==LocalSettings.NonFormulaFontSize)
-				JapePrefs.putProp("LogWindowFontSize", null);
-			    else
-				JapePrefs.putProp("LogWindowFontSize", LogWindowFontSize);
-			    Logger.font_reset(); break;
-			default: Alert.guiAbort("runFontSizesDialog switch sees "+i);
-		    }
-		    
-		}
-	    }
-	    if (interfaceChanged) {
-		interfaceFonts = null; interfaceMetrics = null;
-		Reply.sendCOMMAND("fonts_reset");
-	    }
-	}
+	if (reply==JOptionPane.OK_OPTION) 
+	    actUpon(panel);
     }
     
+    public static void actUpon(FontPanel panel) {
+
+        boolean interfaceChanged = false;
+        String family = (String)panel.fontBox.getSelectedItem();
+        if (family!=BaseFont.getFontFamily()) {
+            BaseFont.setFontFamily(family);
+            PanelWindowData.font_reset();
+            Logger.font_reset();
+            interfaceChanged = true;
+        }
+        for (int i=0; i<panel.fontSizes.length; i++) {
+            int selectedvalue = ((Integer)panel.fontSizes[i].comboBox.getSelectedItem()).intValue();
+            if (selectedvalue!=panel.fontSizes[i].size) {
+                switch (i) {
+                    case 0:
+                        FormulaFontSize = (byte)selectedvalue;
+                        if (FormulaFontSize==LocalSettings.FormulaFontSize)
+                            JapePrefs.putProp("FormulaFontSize", null);
+                        else
+                            JapePrefs.putProp("FormulaFontSize", FormulaFontSize);
+                        interfaceChanged = true; break;
+                    case 1:
+                        ReasonFontSize = ProvisoFontSize = (byte)selectedvalue;
+                        if (ReasonFontSize==LocalSettings.NonFormulaFontSize)
+                            JapePrefs.putProp("ReasonFontSize", null);
+                        else
+                            JapePrefs.putProp("ReasonFontSize", ReasonFontSize);
+                        interfaceChanged = true; break;
+                    case 2:
+                        PanelButtonFontSize = PanelEntryFontSize = (byte)selectedvalue;
+                        if (PanelButtonFontSize==LocalSettings.NonFormulaFontSize)
+                            JapePrefs.putProp("PanelButtonFontSize", null);
+                        else
+                            JapePrefs.putProp("PanelButtonFontSize", PanelButtonFontSize);
+                        PanelWindowData.font_reset(); break;
+                    case 3:
+                        LogWindowFontSize = (byte)selectedvalue;
+                        if (LogWindowFontSize==LocalSettings.NonFormulaFontSize)
+                            JapePrefs.putProp("LogWindowFontSize", null);
+                        else
+                            JapePrefs.putProp("LogWindowFontSize", LogWindowFontSize);
+                        Logger.font_reset(); break;
+                    default: Alert.guiAbort("runFontSizesDialog switch sees "+i);
+                }
+                
+            }
+        }
+        if (interfaceChanged) {
+            interfaceFonts = null; interfaceMetrics = null;
+            Reply.sendCOMMAND("fonts_reset");
+        }
+    
+    }
     public static void setComponentFont(Component c, int kind) {
 	switch (kind) {
 	    case MENUENTRY  : 
