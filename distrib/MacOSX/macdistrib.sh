@@ -21,8 +21,7 @@ mkdir $DIR.dir
 # rsync -l because Jape.app includes a symbolic link (recommended by jarbundler.jar docs)
 rsync -rlvt build/Jape.app $DIR.dir
 rsync -rvt  ../examples README.html $DIR.dir
-rsync -rvt  ../CommonBuildResources/License.txt $DIR.dir
-cp ../../License.txt $DIR.dir/GPLv2.0.txt
+rsync -rvt  licences $DIR.dir
 
 # make and sync the manuals
 (cd $MANUALS; make SYNCTO=$SYNCMANUALSTO syncmanuals)
