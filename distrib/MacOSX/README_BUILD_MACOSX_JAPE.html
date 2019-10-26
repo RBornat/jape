@@ -11,11 +11,11 @@
 
 <body>
 
-<h1>How to build Jape on MacOS (April 2018)</h1>
+<h1>How to build Jape on MacOS (April 2018; updated October 2019)</h1>
 
 
 <p >Currently we build MacOS Jape on Sierra and High Sierra,
-and use OCaml 4.06.0 and Java 1.7 or 1.8.  We build Linux Jape with the
+and use OCaml 4.07.0 and Java 1.7, 1.8, 1.11 or 1.13.  We build Linux Jape with the
 same Ocaml version, but on a Linux machine.</p>
 
 
@@ -50,11 +50,16 @@ know). I added the following lines to <tt>~/.profile</tt>:</p>
 
 
 
-<p >3. You will need OCaml to build the jape ‘engine’ (at time of writing, in April 2018, 
-Jape is built using ocaml 4.06.0; but has been known to build with ocaml 3.12)</p>
+<p >3. You will need OCaml to build the jape ‘engine’ (at time of writing, in October 2019, 
+Jape is built using ocaml 4.07.0; but has been known to build with ocaml 3.12)</p>
 
 
-<p>3. You will need Java 1.7 or 1.8. Our build system is ok with either. </p>
+<p>3. You will need Java 1.7, 1.8, 1.11 or 1.13. Our build
+system is ok with any of these; but beware that
+a <tt>Jape.app</tt> made with 1.7 or 1.8 may not interoperate with the very latest
+OS/X (there have been so many since High Sierra).  1.9 may
+work for you (we haven't tried).</p>
+
 
 <p>4. Put jarbundler-3.3.0-forjape.jar, an ant task, stored in the directory where you found this file (<tt>...../distrib/MacOSX</tt>), in the ant library
 <tt>/usr/share/ant/lib</tt> (or whereever your ant library is). Delete any previous jarbundler versions.
@@ -81,11 +86,12 @@ lets you try it out. If it works, move <tt>build/Jape.app</tt> where you like.
 
 <h2>Contact</h2>
 <p>Build originally documented by Richard Bornat (<tt>richard@bornat.me.uk</tt>), 11th March 2009; 
-subsequently edited by Bernard Sufrin (@ <tt>cs ox ac uk</tt>), late July 2012 and early April and October 2014. And 
-then edited again by Richard Bornat in January 2016 and April 2018.</p>
+subsequently edited by Richard and by Bernard Sufrin (@ <tt>cs ox ac uk</tt>).
+</p>
 
 </body>
 </html>
+
 
 
 
