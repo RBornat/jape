@@ -52,7 +52,9 @@ public class Export {
                     (what == PrintProof.BOTH ? JapeMenu.EXPORT :
                         what == PrintProof.PROOF ? JapeMenu.EXPORT_PROOF :
                             JapeMenu.EXPORT_DISPROOF)+
-                            " produces a PostScript (ps) file of the proof.\nSelecting pdf here will invoke the OS/X print dialogue -- the Print menu entry is a more convenient way of doing this",
+                            " produces a PostScript (ps) file of the proof.\n" +
+                            "Selecting pdf here will invoke the OS/X print dialogue " +
+                            "-- the Print menu entry is a more convenient way of doing this",
                             1);
             if (q==0) {
                 PrintProof.printTichy(w, what);
