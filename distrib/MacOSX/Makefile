@@ -26,7 +26,7 @@ GUISOURCE=../java_GUI
 ENGINESOURCE=../camlengine
 
 local:   ;      $(MAKE) engine GUI
-release: ;      $(MAKE) enginclean GUIclean engine GUI                              
+release: ;      $(MAKE) engineclean GUIclean engine GUI                              
 run:     ;      open build/Jape.app
 
 engine:      ; cd $(ENGINESOURCE); make jape_engine OS=OSX
