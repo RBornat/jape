@@ -51,7 +51,21 @@ public class AboutBox {
                         
             "You should have received a copy of the GNU General Public License with Jape;\n"+
             "if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,\n"+
-            "Boston, MA  02111-1307, USA (or visit http://www.gnu.org)."
+            "Boston, MA  02111-1307, USA (or visit http://www.gnu.org)."+
+            
+            (Jape.onMacOSX ? 
+                    "\n\n"+
+                    "macOS Jape.app incorporates:\n"+
+                    "    jarbundler 3.3.0\n"+
+                    "        Copyright © 2015, UltraMixer Digital Audio Solutions <info@ultramixer.com>\n"+
+                    "              and Seth J. Morabito <sethm@loomcom.com>,\n"+
+                    "        licensed under Apache License v2.0\n"+
+                    "    universalApplicationStub 3.0.4\n"+
+                    "        Copyright © 2014-2018 Tobias Fischer,\n"+
+                    "        licensed under MIT license."
+             : ""
+            )
+
                         );
     }
     
