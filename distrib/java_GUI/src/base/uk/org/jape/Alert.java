@@ -313,9 +313,15 @@ public class Alert implements DebugConstants {
 			    Cancel = 1;
 
     public static int askOKCancel(Component parent, String message) {
-	int q = JOptionPane.showConfirmDialog(parent, makeMessage(message), null, 
-	                JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-	return q==JOptionPane.OK_OPTION ? OK : Cancel;
+        int q = JOptionPane.showConfirmDialog(parent, makeMessage(message), null, 
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        return q==JOptionPane.OK_OPTION ? OK : Cancel;
+    }
+    
+    public static int askOKCancel(Component parent, Component component) {
+        int q = JOptionPane.showConfirmDialog(parent, component, null, 
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        return q==JOptionPane.OK_OPTION ? OK : Cancel;
     }
 
     public static int askOKCancel(String message) {
