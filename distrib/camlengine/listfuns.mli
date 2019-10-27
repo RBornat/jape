@@ -1,5 +1,5 @@
 (*
-    Copyright (C) 2003-17 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-19 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -65,6 +65,8 @@ val isprefix : ('a * 'a -> bool) -> 'a list -> 'a list -> bool
 val extract : ('a -> bool) -> 'a list -> 'a * 'a list
 exception Extract_
 val replacenth : 'a list -> int -> 'a -> 'a list
+val guardednth : 'a list -> int -> 'a
+exception Bad_nth
 val interpolate : 'a -> 'a list -> 'a list
 val catelim_interpolate :
   ('a -> 'b list -> 'b list) -> 'b -> 'a list -> 'b list -> 'b list

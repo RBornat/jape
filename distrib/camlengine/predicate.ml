@@ -1,5 +1,5 @@
 (*
-    Copyright (C) 2003-17 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-19 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -99,8 +99,8 @@ let rec compilepredicate isabstraction env t =
                    in
                    try if eqterms (List.hd vs,t) then pp
                        else registerSubst (true, pp, [List.hd vs, t])
-                   with Failure "hd" -> 
-                          raise (Catastrophe_ ["Failure \"hd\" in compilepredicates"])
+                   with Failure _ as exn -> 
+                          raise (Catastrophe_ [Printexc.to_string exn; " in compilepredicates"])
                    (*
                    if vs = ts then pp
                    else

@@ -1,5 +1,5 @@
 (*
-    Copyright (C) 2003-17 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-19 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -1109,8 +1109,8 @@ let rec newtile =
             let pairs = List.map (fun t -> t, string_of_term t) possibles in
             let pairs = sort (fun (_,s1) (_,s2) -> s1<s2) pairs in 
             askChoice ("Choose your new tile", List.map (fun t -> [t]) (List.map snd pairs)) 
-            &~~ (fun i -> Some (try fst (List.nth pairs i)
-                                with Invalid_argument "List.nth" | Failure "nth" -> 
+            &~~ (fun i -> Some (try fst (Listfuns.guardednth pairs i)
+                                with Listfuns.Bad_nth -> 
                                   raise (Catastrophe_ ["(newtile) nth [";
                                                   string_of_list snd ";" pairs;
                                                   "] "; string_of_int i]

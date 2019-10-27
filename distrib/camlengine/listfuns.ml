@@ -1,5 +1,5 @@
 (*
-    Copyright (C) 2003-17 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-19 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -157,6 +157,11 @@ let rec replacenth xs n y =
   | x :: xs, n -> x :: replacenth xs (n - 1) y
   | []     , _ -> []
 
+exception Bad_nth
+
+let rec guardednth xs n =
+  try List.nth xs n with Invalid_argument _ 
+                       | Failure          _ -> raise Bad_nth
 exception Last_
 
 let rec last =

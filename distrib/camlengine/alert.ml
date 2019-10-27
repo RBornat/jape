@@ -1,5 +1,5 @@
 (*
-    Copyright (C) 2003-17 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-19 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -103,8 +103,8 @@ let rec ask code m (bs : (string * 'a) list) def =
 			raise (Catastrophe_ ["ask window closed \""; m; "\"";
 							              bracketed_string_of_list fst "," bs; " ";
 							              string_of_int def; " => "; string_of_int i]) 
-		else (try snd (List.nth bs i)
-				  with Failure "nth" ->
+		else (try snd (Listfuns.guardednth bs i)
+				  with Listfuns.Bad_nth ->
 				        raise
 				          (Catastrophe_
 				             ["ask bad result \""; m; "\"";
@@ -125,8 +125,8 @@ let rec askCancel code m (bs : (string * 'a) list) c def =
     with
       Some i ->
 				if i<0 then c (* Java close window is reported as -1, means Cancel *) 
-        else snd (try List.nth bs i with
-			             Failure "nth" ->
+        else snd (try Listfuns.guardednth bs i with
+			             Listfuns.Bad_nth ->
 			               raise
 			                 (Catastrophe_
 			                    ["ask bad result \""; m; "\"";

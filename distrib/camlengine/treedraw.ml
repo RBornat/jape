@@ -1,5 +1,5 @@
 (*
-    Copyright (C) 2003-17 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-19 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -451,10 +451,10 @@ let rec targetbox pos path plan =
           [] -> None
         | _ ->
             try
-              let (sp, s) = List.nth subplans n in
+              let (sp, s) = Listfuns.guardednth subplans n in
               _P ns s (pos +->+ sp)
             with
-              Invalid_argument "List.nth" | Failure "nth" -> None
+              Listfuns.Bad_nth -> None
   in
   match path with
     Some route -> _P route plan pos
