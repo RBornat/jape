@@ -1,5 +1,5 @@
 /* 
-    Copyright © 2003-17 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-19 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -55,7 +55,7 @@ public abstract class SurrogateWindow extends JapeWindow {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(Color.white);
         panel.add(Box.createVerticalGlue());
-        JLabel logo = new JLabel("\u00A9 Richard Bornat and Bernard Sufrin 1991-2017", logoIcon, JLabel.CENTER);
+        JLabel logo = new JLabel((Jape.onMacOSX ? "" : "\u00A9 Richard Bornat and Bernard Sufrin 1991-2019"), logoIcon, JLabel.CENTER);
         logo.setVerticalTextPosition(SwingConstants.BOTTOM);
         logo.setHorizontalTextPosition(SwingConstants.CENTER);
         logo.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -71,7 +71,7 @@ public abstract class SurrogateWindow extends JapeWindow {
         }
         JLabel link = new JLabel("Freeware under GPL licence: see www.jape.org.uk", JLabel.CENTER);
         link.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(link); // It ought to be in the middle ...
+        if (!Jape.onMacOSX) panel.add(link); // It ought to be in the middle ...
         panel.add(Box.createVerticalGlue());
         pack();
         setSize(getWidth()+hextra, getHeight()+vextra);

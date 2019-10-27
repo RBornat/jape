@@ -1,5 +1,5 @@
 /* 
-    Copyright © 2003-17 Richard Bornat & Bernard Sufrin
+    Copyright © 2003-19 Richard Bornat & Bernard Sufrin
      
 	richard@bornat.me.uk
 	sufrin@comlab.ox.ac.uk
@@ -49,7 +49,7 @@ public class Alert implements DebugConstants {
 	  case 1 : return Warning;
 	  case 2 : return Error;
 	  case 3 : return Question;
-	  default: throw new ProtocolError(severity+" should be message severity (0:info, 1:warning, 2:error, 3: question)");
+	  default: throw new ProtocolError(severity+" should be message severity (0:info, 1:warning, 2:error, 3:question)");
 	}
     }
     
@@ -313,9 +313,15 @@ public class Alert implements DebugConstants {
 			    Cancel = 1;
 
     public static int askOKCancel(Component parent, String message) {
-	int q = JOptionPane.showConfirmDialog(parent, makeMessage(message), null, 
-	                JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-	return q==JOptionPane.OK_OPTION ? OK : Cancel;
+        int q = JOptionPane.showConfirmDialog(parent, makeMessage(message), null, 
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        return q==JOptionPane.OK_OPTION ? OK : Cancel;
+    }
+    
+    public static int askOKCancel(Component parent, Component component) {
+        int q = JOptionPane.showConfirmDialog(parent, component, null, 
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        return q==JOptionPane.OK_OPTION ? OK : Cancel;
     }
 
     public static int askOKCancel(String message) {

@@ -1,5 +1,5 @@
 /* 
-        Copyright © 2003-17 Richard Bornat & Bernard Sufrin
+        Copyright © 2003-19 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -54,11 +54,7 @@ public class Jape implements DebugConstants {
         quitsent = false;
     }
 
-    public static void handlePrefs() {
-        Alert.showAlert(Alert.Info, "Preferences item selected in menu");
-    }
-    
-    public static void crash(String message) {
+        public static void crash(String message) {
         Logger.crash(message,2);
     }
     
@@ -71,7 +67,7 @@ public class Jape implements DebugConstants {
         // since platform independence seems not yet to have been achieved ...
         String osName = System.getProperty("os.name");
         
-        onMacOSX = notice_MacOSX && osName.equals("Mac OS X");
+        onMacOSX = notice_MacOSX && osName.equals("Mac OS X"); // checked by RB 2019/10/25
         onLinux = notice_Linux && osName.equals("Linux");
         onSolaris = notice_Solaris && osName.equals("SunOS");
         onWindows = osName.startsWith("Windows");
