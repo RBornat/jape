@@ -35,6 +35,7 @@
             <javaproperty name="apple.awt.antialiasing"     value="true"/>
             <javaproperty name="apple.awt.rendering"        value="quality"/>
             <javaproperty name="uk.org.jape.AppPackage"     value="$APP_PACKAGE"/>
+            <javaproperty name="NSHighResolutionCapable"    value="true"/>
             <documenttype name="Jape Theory"
                                 extensions= "jt,j,jp" 
                                 ostypes=    "****" 
