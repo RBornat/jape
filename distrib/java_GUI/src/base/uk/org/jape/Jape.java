@@ -133,6 +133,10 @@ public class Jape implements DebugConstants {
                 
                 if (tracing)
                     Logger.log.println("GUI initialised");
+                
+                    java.util.Properties props = System.getProperties();
+                    props.list(System.err);
+
             }
         });
 
