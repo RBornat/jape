@@ -47,7 +47,7 @@ public class LocalSettings implements SelectionConstants {
     public static final boolean panelWindowMenus      = true,
                                 aboutMenuItemNeeded   = false,
                                 quitMenuItemNeeded    = false,
-                                prefsMenuItemNeeded   = false,
+                                prefsMenuItemNeeded   = true, // because in java 8 we don't see a Preferences menu item ...
                                 windowMenuItemsTicked = true,
                                 hideSurrogateWindow   = true;
 
