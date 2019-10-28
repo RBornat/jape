@@ -773,20 +773,10 @@ public class JapeMenu implements DebugConstants {
                                                   menumask));
         indexMenuItem(filemenu, EXPORT_DISPROOF, new ExportDisproofAction(), PROOFWINDOW_BAR);
 
-        if (!Jape.onMacOSX) {
+        if (LocalSettings.prefsMenuItemNeeded) {
             filemenu.addSep();
-        
-            indexMenuItem(filemenu, "Font Sizes ...", new FontSizesAction());
-            if (DebugVars.showDebugVars) {
-                indexMenuItem(filemenu, "Debug Log Settings ...", new DebugSettingsAction());
-            }
-            
-            if (LocalSettings.quitMenuItemNeeded) {
-                filemenu.addSep();
-                indexMenuItem(filemenu, "Quit", new QuitAction());
-            }
+            indexMenuItem(filemenu, "Preferences...", new PrefsAction(), ALL_BARS);
         }
-
     }
     
     public static void addStdEditMenuItems(M editmenu) {
@@ -829,12 +819,6 @@ public class JapeMenu implements DebugConstants {
 
         indexMenuItem(editmenu, "Select All", new UnimplementedAction("Edit: Select All"), TEXTDIALOGWINDOW_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, menumask));
-        
-        if (LocalSettings.prefsMenuItemNeeded) {
-            editmenu.addSep();
-            indexMenuItem(editmenu, "Preferences...", new PrefsAction(), ALL_BARS);
-        }
-        
     }
 
     private static void addStdWindowMenuItems(M windowmenu) {
