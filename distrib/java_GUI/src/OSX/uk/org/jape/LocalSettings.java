@@ -1,5 +1,5 @@
 /* 
-        Copyright © 2003-17 Richard Bornat & Bernard Sufrin
+        Copyright © 2003-19 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -133,11 +133,11 @@ public class LocalSettings implements SelectionConstants {
     }
     
     public static final String howToFormulaSelect =
-        "Formula selection on Mac OS X is done with a single click " +
+        "Formula selection on macOS is done with a single click " +
         "(with a two- or three-button mouse, it's a left-button click).";
     
     public static final String howToTextSelect =
-        "Subformula selection on Mac OS X is done by holding down the " +
+        "Subformula selection on macOS is done by holding down the " +
         "alt (option) key while pressing and dragging over a formula. " +
         "You can modify an existing selection by holding down the shift " +
         "key. The command key (apple, propellor) lets you make multiple " +
@@ -148,13 +148,13 @@ public class LocalSettings implements SelectionConstants {
         "use the middle button.)";
     
     public static final String howToDragFormulae =
-        "On Mac OS X you drag a draggable (blue box) formula by pressing " +
+        "On macOS you drag a draggable (blue box) formula by pressing " +
         "(not clicking) the mouse over it, holding still for a brief interval, " +
         "and then moving the mouse while still holding its button down. " + 
         "(With a two- or three-button mouse, use the left button.)";
     
     public static final String howToDragDisproofStuff =
-        "On Mac OS X you drag a thing by pressing " +
+        "On macOS you drag a thing by pressing " +
         "(not clicking) the mouse over it, holding still for a brief interval, " +
         "and then moving the mouse while still holding its button down. " + 
         "(With a two- or three-button mouse, use the left button.) If you " +
