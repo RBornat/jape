@@ -1,133 +1,20 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title>Jape Readme</title> 
-</head>
-<body>
-
-<h1>Jape Readme</h1>
-
-<p>Readme for jape v7_d9 (and some later
-versions: you can discover the precise version by looking at
-the Jape splash screen, or it's in the console window, on
-the first line).</p> 
-
-<p><b>1. What's different?</b></p> 
-
-<p>Logic encodings have to declare their
-intention to allow multiple hypothesis selection (and at
-present only natural deduction and Hoare logic do that, so
-you can now only make single hypothesis selections in all
-other encodings).</p> 
-
-<p>It has proven too difficult to maintain the
-technology needed to produce Universal binaries; we now do
-only Intel binaries.<span
-class="Apple-converted-space"></span></p> <p>Jape
-works on Snow Leopard and Lion on intel machines, and may
-well work on Mountain Lion (we would be interested to
-know).</p>  
-
-<p>Some reorganisation of code so that it's
-possible to develop with Eclipse.</p> 
-
-<p>Some minor bugs fixed in the Hoare logic
-encoding.</p> 
-
-<p><b>2. Beware!</b></p> 
-
-<p>Usual moans.</p> 
-
-<p>2.1. It will have bugs. Life is like that. But
-it doesn't have many bugs ...</p> 
-
-<p>2.2. Please, please, please report bugs,
-deficiencies, infelicities and moans to
-richard@bornat.me.uk</p> 
-
-<p>2.3. We develop and run on the latest Mac OS X
-on intel hardware. If it doesn't work for you on a less
-modern system, please let us know.</p> 
-
-<p><b>3. Installation</b></p> 
-
-<p>3.1 Copy the application and the examples
-folder anywhere you like.</p> 
-
-<p><b>4. Font installation</b></p> 
-
-<p>4.1 Jape runs straight out of the box using
-the fonts which come with OS X. These days many available
-fonts have all the glyphs we need.</p> 
-
-<p><b>5. Launching</b></p>
-
-<p>5.1 Double-click Jape, then use the File menu
-to open a theory (.jt) file. (We are working on
-reconstituting the appropriate behaviour when you drop a
-theory file on a Jape icon)</p> 
-
-<p><b>6. Editing examples files</b></p> 
-
-<p>Unicode editing ought to be easy on Mac OS X:
-long term support for funny fonts, font fall-through
-implemented so that even if your font doesn't have the
-turnstile glyph, <i>some</i> font has it, so you can see it
-even if you are editing in Courier and think you are looking
-at ASCII. But there's many a slip ...</p> 
-
-<p>First of all you must have a decent Unicode
-font (see above). But you've already done that, cos you
-can't run Jape without it.</p> 
-
-<p>The best text editor that I know for OS X is
-BBEdit: it's not free, but it works and it writes the
-(unnecessary but very useful) Unicode BOM at the front of
-the file.</p> 
-
-<p>TextEdit is free and it works well with Lucida
-Sans Unicode, but it doesn't have any search facility.
-Oddly, it will recognise and respect a BOM on input but it
-won't write one on output. Still, at least it's still UTF-8
-when you've finished.</p> 
-
-<p>The best editor, so far as appearance,
-respecting BOMs and the like is concerned, is XCode. Drop
-your examples files on XCode (it's free from Apple, provided
-you are prepared to 'register as a developer' -- i.e. give
-them your email and a password -- but it takes an age to
-download). It reads and writes BOMs properly, so far as I
-can tell. It shows you all the glyphs in whatever font. Only
-oddity is that the files I have created in XCode have come
-out in UTF-16. Jape deals with that, but it confuses CVS
-mightily. Oh well: at least the encoder I distribute
-translates the files.</p> 
-
-<p>Actually the TeXShop editor gets Unicode
-fallthrough right. Ho hum.</p> 
-
-<p>No doubt this situation will improve. It all
-seems mighty silly to me.</p> 
-
-<p><b>7. Feedback</b></p> 
-
-<p>7.1. Please mail Richard lots (see 2.2 above).</p>
-
-
-<p>7.2 If it doesn't work for you, it doesn't
-work. Tell Richard (I don't say please -- just do it!).</p>
-
-
-<p>7.3 If it doesn't do what you want it to, tell
-Richard.</p> 
-
-
-<p>Richard Bornat, 1/ii/2008.</p>
-<p>Bernard Sufrin, 7/v/2012</p>
-
-
-</body>
-</html>
-
+<h1>README for Jape 9.0.*</h1>
+<p>(The Jape version is shown in the Jape splash screen -- the window which comes up when you start Jape.)</p>
+<h2>Installation</h2>
+<p>Copy Jape.app and the examples folder wherever you like.</p>
+<h2>Running Jape</h2>
+<p>The first time you run Jape, you will find that double-clicking it doesn't work, because we (Richard Bornat and Bernard Sufrin) haven't registered as Apple developers. So Ctrl-press on it, and choose Open from the pop-up menu, and say you trust us.</p>
+<p>After that you can just double-click Jape to run it.</p>
+<h2>Choose a font</h2>
+<p>In the distant past there were few fonts that included lots of Unicode characters like the ones that Jape uses for logical connectives. So we found one that seemed to be free(-ish) called <em>Lucida Sans Unicode</em>, and we recommended people to download it. But it wasn't as free as we thought (it belongs to Microsoft), and it isn't in modern distributions of macOS. And in any case it was a sans-serif font, so it doesn't show the difference between 1 (digit 1) and l (lower-case L) very well.</p>
+<p>So when you start Jape, go to Preferences in the Jape menu and choose a nice font. On my machine I quite like Cambria Math, but YMMV. Jape will, of course, remember what you choose.</p>
+<h2>Choose a theory</h2>
+<p>At present you have to open a theory file (.jt extension) through Jape's File menu (File&gt;Open... or File&gt;Open new theory...). The examples directory contains lots of example theories. The one I use in the Proof and Disproof book is <code>examples/natural_deduction/I2L.jt</code> .</p>
+<h2>Have fun</h2>
+<p>The point of Jape is to enable you to play in logic or play with logic. The examples directory contains logic encodings ('theories') that Bernard Sufrin and I have made. The github repository contains manuals in case you want to play with an encoding of your own.</p>
+<h2>That book</h2>
+<p>Oxford University Press let me put a <a href="https://homepages.phonecoop.coop/randj/richard/books/ProofandDisproof.pdf">version online</a>.</p>
+<h2>Complaints</h2>
+<p>To richard@bornat.me.uk</p>
+<p>Richard Bornat
+2019/12/04</p>
