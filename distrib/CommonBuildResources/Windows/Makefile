@@ -19,7 +19,7 @@ ENGINETARGET=jape.exe
 #
 #       Send the icon, the README, and the specialised code in the jar
 #
-INSTALLRESOURCES=$(BUILDRESOURCES)/README-WINDOWS.txt           \
+INSTALLRESOURCES=$(BUILDRESOURCES)/Windows/README-WINDOWS.txt           \
                  -autoicon $(BUILDRESOURCES)/japeicon.ico
 
 

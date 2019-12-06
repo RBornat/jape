@@ -1,18 +1,14 @@
-Windows (2K and XP) Jape installation
-=====================================
+Windows Jape installation
+=========================
 
-$Id$
-
-March 2005 (Revision 4)
-=======================
+Revised December 2019
 
 
 You will need
 -------------
 
-        A functioning java (1.5 or later) system. Sun's standard jre
-        for windows (available at www.javasoft.com) is good enough --
-        you don't need the java development kit.
+        A functioning java (9 or later) system. Oracle's standard jre
+        is good enough -- you don't need the java development kit.
 
 License
 -------
@@ -61,7 +57,7 @@ What to do
    1. If you don't have java installed then this
    will not work. Do whatever you need to do to get java installed
    and on your path. You don't need the whole jdk, just the java
-   runtime environment (jre -- obtainable from www.javasoft.com)
+   runtime environment (jre -- obtainable from oracle.com)
 
    2. If you have installed software (such as WinRAR) that has
    registered .jar files for opening itself, then you will have
@@ -72,7 +68,7 @@ What to do
    equivalent to executing the following command on a command line
    from the Jape installation directory:
 
-        javaw -jar Jape.jar -engine jape.exe examples
+        java -jar Jape.jar -engine jape.exe examples
 
    If you have trouble with the shortcut then try this as a last resort.
 
@@ -87,7 +83,7 @@ What to do
 5. Please let us know that you've succeeded (or failed) by sending a short
    message of triumph (or despair) to
 
-        japeinstall@japeforall.org.uk
+        richard@bornat.me.uk
 
    In case of despair, please send a log of your installation session and
    the attempted run of jape.        
