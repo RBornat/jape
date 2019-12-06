@@ -101,7 +101,7 @@ let rec readmapping filename =
          match line with
            [] -> ()
          | "ASCII" :: wd :: (wd2 :: _ as wds) ->
-             let n = try Pervasives.int_of_string wd with Failure _ -> ordof wd 0 in
+             let n = try Stdlib.int_of_string wd with Failure _ -> ordof wd 0 in
              mapped := true;
              if 1 <= n && n <= 255 then Array.set table n (respace wds)
          | wd :: wds ->
@@ -148,7 +148,7 @@ let rec line_from s =
   !r
 
 let rec flush s =
-  try Pervasives.flush s with
+  try Stdlib.flush s with
     _ -> consolereport ["[Flush]"]
 let rec string_to s t =
   try output_string s t with
