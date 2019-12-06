@@ -46,9 +46,9 @@ public interface DebugConstants {
 				printlayout_tracing	 = false,
 				worldpaint_tracing	 = false;
 
-    static final public boolean notice_Linux		 = true,
+    static final public boolean 
+                notice_Linux		 = true,
 				notice_MacOSX		 = true,
-				notice_Solaris		 = true,
 				notice_Windows		 = true;
     
     static final public boolean englyph_prep = true;

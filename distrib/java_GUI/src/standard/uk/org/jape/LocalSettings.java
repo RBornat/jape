@@ -27,7 +27,7 @@ package uk.org.jape;
 
 // The Jape GUI is compiled individually for each kind of OS. This isn't too much of a 
 // hardship, because you have to build the engines individually. The makefile can then choose
-// which copy of LocalSettings to link into the mix. But Solaris, Linux and Windows are all 
+// which copy of LocalSettings to link into the mix. But Linux and Windows are 
 // so similar that they share this file. Mac OS X is dealt with in 
 // distrib/MacOSX/java_GUI/LocalSettings.java. 
 // RB 22.vi.2005
