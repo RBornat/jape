@@ -30,7 +30,7 @@ let rec iter f (l, h) =
 
 exception AtoI_
 
-let atoi s = try Pervasives.int_of_string s with Failure _ -> raise AtoI_
+let atoi s = try Stdlib.int_of_string s with Failure _ -> raise AtoI_
 let rec sum ns = List.fold_left (+) 0 ns
 
 let rec curry2 f a b = f (a, b)

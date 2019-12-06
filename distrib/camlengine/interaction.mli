@@ -57,7 +57,7 @@ val dropsource : element option ref
 val droptarget : element option ref
 val setComment : string list -> unit
 val showState : displaystate -> proofstate -> bool -> displaystate
-val printState : Pervasives.out_channel -> proofstate -> bool -> unit
+val printState : Stdlib.out_channel -> proofstate -> bool -> unit
 val alterTip : displaystate -> cxt -> path -> prooftree
             -> (prooftree * path) option -> (bool * path * element) * string list
             -> cxt * element * prooftree
