@@ -346,7 +346,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                                     }
                                 }
                                 else
-                                    if (Jape.onLinux || Jape.onSolaris) {
+                                    if (Jape.onLinux) {
                                         // workaround for JList bug?
                                         // probably the test ought to be on the L&F, but this might work
                                         int oldsel = list.getSelectedIndex();
