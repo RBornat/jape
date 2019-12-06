@@ -1,4 +1,0 @@
-#!/bin/bash
-echo export PATH=\"\$PATH:/bin/ant/bin\" >>~/.bashrc
-echo export ANTHOME=\"/bin/ant\" >>~/.bashrc
-echo export JAVA_HOME=\"$(which javac | sed 's/\/bin\/javac//')\" >>~/.bashrc

@@ -1,5 +1,0 @@
-#!/bin/bash
-#usage: source opencvs <user>
-#ONLY works with bash
-export CVS_RSH=ssh
-export CVSROOT=:ext:$1@jape.cvs.sourceforge.net:/cvsroot/jape
