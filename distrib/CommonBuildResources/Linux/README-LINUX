@@ -1,15 +1,15 @@
-Unix (Solaris and Linux) Jape installation
-==========================================
+Linux Jape installation
+=======================
 
-Revised Late July 2012: $Id$
+Revised December 2019
 
 
 Dependencies
 ------------
 
-        A functioning java (1.5 or later) system
-
-        A Bourne or Bourne-again shell
+        An Oracle Java (9 or later)
+        
+        A Bourne (sh) or Bourne-again (bash) shell
 
 License
 -------
@@ -33,16 +33,14 @@ License
 What to do
 ----------
 
-[In what follows $(OS) is either Solaris or Linux]
+0. Download the  InstallLinuxjape.jar file. **DO NOT DOUBLE-CLICK IT** (that unpacks
+   it, and you want to execute it in the next step).
 
-0. Download the  Install$(OS)jape.jar file there
+1. From a terminal window execute the jar file with
 
-1. From an X window terminal in that directory unpack the
-   distribution jar file in Jape's home with
+        java -jar InstallLinuxjape.jar
 
-        java -jar Install$(OS)jape.jar
-
-   This will start executing the interactive java installer.
+   This will start the interactive java installer.
    
    The installer brings up a Splash Screen on which there are
    three buttons and a log window. 
@@ -63,8 +61,8 @@ What to do
    detritus from the bootstrap files that were generated during the
    installation.
 
-   TROUBLESHOOTING: If you don't have java installed, and the java
-   command on your path, then this will not work. Do whatever you
+   TROUBLESHOOTING: If you don't have java installed, and/or the java
+   command is not on your path, then this will not work. Do whatever you
    need to do to get java installed and on your path. You don't need
    the whole jdk, just the java runtime environment.
 
@@ -76,7 +74,7 @@ What to do
 4. Please let us know that you've succeeded (or failed) by sending a short
    message of triumph (or despair) to
 
-        japeinstall@japeforall.org.uk
+        richard@bornat.me.uk
 
    In case of despair, please send a log of your installation session and
    the attempted run of jape.
