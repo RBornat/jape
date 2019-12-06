@@ -54,7 +54,7 @@
     </target>
 
     <target name="version">
-        <echo file="src/base/uk/org/jape/Version.java">
+        <echo force="true" file="src/base/uk/org/jape/Version.java">
             package uk.org.jape; 
             public class Version { 
                 static final String guiversion = "${GUIVERSION}"; 
