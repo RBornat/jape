@@ -38,7 +38,7 @@
         
     </target>
 
-    <target name="standardcompile">
+    <target name="standardcompile" depends="version">
         <mkdir dir="build/classes"/>
         <mkdir dir="build/classes/standard"/>
         <javac 
@@ -54,6 +54,9 @@
     </target>
 
     <target name="version">
+	<delete quiet="true" file="build/classes/standard/uk/org/jape/Version.class"> </delete>
+	<delete quiet="true" file="build/classes/standard/uk/org/jape/AboutBox.class"> </delete>
+
         <echo force="true" file="src/base/uk/org/jape/Version.java">
             package uk.org.jape; 
             public class Version { 
