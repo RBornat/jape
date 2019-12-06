@@ -25,6 +25,8 @@
 
 package uk.org.jape;
 
+import javax.swing.JOptionPane;
+
 @SuppressWarnings("serial")
 public class MenuHolder extends SurrogateWindow {
     public MenuHolder() {
@@ -32,13 +34,12 @@ public class MenuHolder extends SurrogateWindow {
         super(Jape.onMacOSX ? "Jape" : "Jape (menu)");
     }
 
-    protected void windowCloser() {
-        if (Alert.askOKCancel("Quit Jape?") == Alert.OK) Jape.handleQuit();
-/*      Alert.showAlert(Alert.Info, "This window is only here so that the File and Windows "+
-                        "menus show in the title bar.\n\n"+
-                        "It will disappear as soon as you have loaded a theory and have panels or proof windows "+
-                        "(and reappear whenever there are none).");
-                        */
+    protected void windowCloser() { /* must be same code as ControlWindow */
+        Object[] options = { "Quit", "Cancel" };
+        if (JOptionPane.showOptionDialog(this, "Quit Jape?", null,
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+                    null, options, options[0])==0)
+            Jape.handleQuit();
     }
 }
 

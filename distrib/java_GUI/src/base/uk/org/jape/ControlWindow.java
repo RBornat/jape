@@ -25,6 +25,8 @@
 
 package uk.org.jape;
 
+import javax.swing.JOptionPane;
+
 @SuppressWarnings("serial")
 public class ControlWindow extends SurrogateWindow {
     public ControlWindow() {
@@ -34,7 +36,10 @@ public class ControlWindow extends SurrogateWindow {
     }
 
     protected void windowCloser() {
-	if (Alert.askOKCancel(ControlWindow.this, "Quit Jape?")==Alert.OK)
+        Object[] options = { "Quit", "Cancel" };
+        if (JOptionPane.showOptionDialog(this, "Quit Jape?", null,
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+                    null, options, options[0])==0)
 	    Jape.handleQuit();
     }
 }
