@@ -27,71 +27,113 @@ open Termtype
 
 val termstringdebug : bool ref
 
-val string_of_term                      : term -> string
-val diag_string_of_term                 : term -> string
-val invisbracketedstring_of_term        : bool -> term -> string (* first arg sets bracketing *)
-val chooseinvisbracketedstring_of_term  : (term -> string) -> (term -> string) -> term -> string
+val string_of_term : term -> string
 
-val catelim_string_of_term                     : term -> string list -> string list
-val catelim_invisbracketedstring_of_term       : bool -> term -> string list -> string list
-val catelim_chooseinvisbracketedstring_of_term : (term -> string) -> (term -> string) -> term
-                                              -> string list -> string list
+val diag_string_of_term : term -> string
 
-val catelim_invisbracketedstring_of_prioterm : bool -> int -> bool (* invis, prio, mustbra *)
-                                            -> term -> string list -> string list
+val invisbracketedstring_of_term : bool -> term -> string
 
-val string_of_termarg               : term -> string
+(* first arg sets bracketing *)
+
+val chooseinvisbracketedstring_of_term :
+  (term -> string) -> (term -> string) -> term -> string
+
+val catelim_string_of_term : term -> string list -> string list
+
+val catelim_invisbracketedstring_of_term :
+  bool -> term -> string list -> string list
+
+val catelim_chooseinvisbracketedstring_of_term :
+  (term -> string) -> (term -> string) -> term -> string list -> string list
+
+val catelim_invisbracketedstring_of_prioterm :
+  bool ->
+  int ->
+  bool (* invis, prio, mustbra *) ->
+  term ->
+  string list ->
+  string list
+
+val string_of_termarg : term -> string
+
 val invisbracketedstring_of_termarg : bool -> term -> string
 
-val catelim_string_of_termarg               : term -> string list -> string list
-val catelim_invisbracketedstring_of_termarg : bool -> term -> string list -> string list
-val catelim_invisbracketedstring_of_termfun : bool -> term -> string list -> string list
+val catelim_string_of_termarg : term -> string list -> string list
 
-val debugstring_of_term         : term -> string
+val catelim_invisbracketedstring_of_termarg :
+  bool -> term -> string list -> string list
+
+val catelim_invisbracketedstring_of_termfun :
+  bool -> term -> string list -> string list
+
+val debugstring_of_term : term -> string
+
 val catelim_debugstring_of_term : term -> string list -> string list
 
-val string_of_vts         : (term * term) list -> string
+val string_of_vts : (term * term) list -> string
+
 val catelim_string_of_vts : (term * term) list -> string list -> string list
 
 (* bracketed for use as args in curried functions *)
-val string_of_collection               : string -> term -> string
+val string_of_collection : string -> term -> string
+
 val invisbracketedstring_of_collection : bool -> string -> term -> string
 
-val catelim_string_of_collection               : string -> term -> string list -> string list
-val catelim_invisbracketedstring_of_collection : bool -> string -> term -> string list -> string list
+val catelim_string_of_collection : string -> term -> string list -> string list
+
+val catelim_invisbracketedstring_of_collection :
+  bool -> string -> term -> string list -> string list
 
 (* for those who don't want to see the details *)
-val string_of_termOrCollection               : string -> term -> string
+val string_of_termOrCollection : string -> term -> string
+
 val invisbracketedstring_of_termOrCollection : bool -> string -> term -> string
 
-val catelim_string_of_termOrCollection               : string -> term -> string list -> string list
-val catelim_invisbracketedstring_of_termOrCollection : bool -> string -> term -> string list -> string list
+val catelim_string_of_termOrCollection :
+  string -> term -> string list -> string list
 
-val string_of_element                     : element -> string
-val invisbracketedstring_of_element       : bool -> element -> string
-val chooseinvisbracketedstring_of_element : (term -> string) -> (term -> string) -> element -> string
+val catelim_invisbracketedstring_of_termOrCollection :
+  bool -> string -> term -> string list -> string list
 
-val catelim_string_of_element               : element -> string list -> string list
-val catelim_invisbracketedstring_of_element : bool -> element -> string list -> string list
+val string_of_element : element -> string
 
-val debugstring_of_element         : (term -> string) -> element -> string
-val catelim_debugstring_of_element : (term -> string list -> string list) -> element 
-                                  -> string list -> string list
+val invisbracketedstring_of_element : bool -> element -> string
 
-val string_of_resnum         : resnum -> string
+val chooseinvisbracketedstring_of_element :
+  (term -> string) -> (term -> string) -> element -> string
+
+val catelim_string_of_element : element -> string list -> string list
+
+val catelim_invisbracketedstring_of_element :
+  bool -> element -> string list -> string list
+
+val debugstring_of_element : (term -> string) -> element -> string
+
+val catelim_debugstring_of_element :
+  (term -> string list -> string list) -> element -> string list -> string list
+
+val string_of_resnum : resnum -> string
+
 val catelim_string_of_resnum : resnum -> string list -> string list
 
-val string_of_termlist         : term list -> string
+val string_of_termlist : term list -> string
+
 val catelim_string_of_termlist : term list -> string list -> string list
 
-val isInfixApp   : term -> (string * int * Symbol.associativity * term * term) option
-val isJuxtapos   : term -> (term * term) option
+val isInfixApp :
+  term -> (string * int * Symbol.associativity * term * term) option
+
+val isJuxtapos : term -> (term * term) option
 
 val stripelement : element -> term (* before printing only *)
 
 val debracketapplications : bool ref
 
 (* this is internals showing.  Sorry. RB *)
-val remake : ((term -> term option) -> term -> 'a)
-          -> int option * (term list * term list * term list) *
-             (term * (int * int)) list * term -> 'a 
+val remake :
+  ((term -> term option) -> term -> 'a) ->
+  int option
+  * (term list * term list * term list)
+  * (term * (int * int)) list
+  * term ->
+  'a

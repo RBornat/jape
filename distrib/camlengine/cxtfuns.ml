@@ -24,7 +24,6 @@
 *)
 
 open Cxttype
-
 open Mappingfuns
 open Rewinf
 open Proviso
@@ -35,88 +34,113 @@ open Listfuns
 
 let _NotinProviso = Provisotype._NotinProviso
 
-let varmap = fun (Context {varmap = varmap}) -> varmap
-let resmap = fun (Context {resmap = resmap}) -> resmap
-let provisos = fun (Context {provisos = ps, _}) -> ps
-let usedVIDs = fun (Context {usedVIDs = usedVIDs}) -> usedVIDs
-let nextresnum = fun (Context {nextresnum = nextresnum}) -> nextresnum
+let varmap (Context { varmap }) = varmap
 
-let withvarmap =
-  fun (Context cxt) map -> Context {cxt with varmap=map}
-let plusvarmap =
-  fun (Context ({varmap=varmap} as cxt)) map -> 
-    Context {cxt with varmap = (varmap ++ map)}
-let withresmap =
-  fun (Context cxt) map -> Context {cxt with resmap=map}
-let plusresmap =
-  fun (Context ({resmap=resmap} as cxt)) map -> 
-    Context {cxt with resmap = (resmap ++ map)}
+let resmap (Context { resmap }) = resmap
+
+let provisos (Context { provisos = ps, _ }) = ps
+
+let usedVIDs (Context { usedVIDs }) = usedVIDs
+
+let nextresnum (Context { nextresnum }) = nextresnum
+
+let withvarmap (Context cxt) map = Context { cxt with varmap = map }
+
+let plusvarmap (Context ({ varmap } as cxt)) map =
+  Context { cxt with varmap = varmap ++ map }
+
+let withresmap (Context cxt) map = Context { cxt with resmap = map }
+
+let plusresmap (Context ({ resmap } as cxt)) map =
+  Context { cxt with resmap = resmap ++ map }
+
 let withprovisos c ps =
-  match c, ps with
-    (Context ({provisos=provisos; provisosig=provisosig} as cxt)), [] -> 
-       Context {cxt with provisos = [], Some nullrewinf;
-                                 provisosig = match provisos with
-                                                [], _ -> provisosig
-                                              | _     -> provisosig + 1}
-  | (Context ({provisosig=provisosig} as cxt)), ps -> 
-       Context {cxt with provisos = ps, None;
-                                provisosig = provisosig + 1}
+  match (c, ps) with
+  | Context ({ provisos; provisosig } as cxt), [] ->
+      Context
+        {
+          cxt with
+          provisos = ([], Some nullrewinf);
+          provisosig =
+            (match provisos with [], _ -> provisosig | _ -> provisosig + 1);
+        }
+  | Context ({ provisosig } as cxt), ps ->
+      Context { cxt with provisos = (ps, None); provisosig = provisosig + 1 }
+
 let withvisibleprovisos cxt ps =
   withprovisos cxt (List.map (fun p -> mkvisproviso (true, p)) ps)
+
 let plusprovisos c ps =
-  match c, ps with
-    cxt, [] -> cxt
-  | (Context ({provisos = ps, _; provisosig = provisosig} as cxt)), ps' ->
-      Context {cxt with provisos = ps' @ ps, None;
-                        provisosig = provisosig + 1}
+  match (c, ps) with
+  | cxt, [] -> cxt
+  | Context ({ provisos = ps, _; provisosig } as cxt), ps' ->
+      Context
+        { cxt with provisos = (ps' @ ps, None); provisosig = provisosig + 1 }
 
 let plusvisibleprovisos cxt ps =
   plusprovisos cxt (List.map (fun p -> mkvisproviso (true, p)) ps)
-let withexterior =
-  fun (Context cxt) s ->
-    Context {cxt with outside = Exterior (s, None, None)}
-let withusedVIDs =
-  fun (Context cxt) vs ->
-    Context {cxt with usedVIDs = vs}
-let plususedVIDs =
-  fun (Context ({usedVIDs = usedVIDs} as cxt)) vs ->
-    Context {cxt with usedVIDs = mergeVIDs usedVIDs vs}
-let freshVID =
-  fun (Context {usedVIDs = usedVIDs} as cxt) class__ v ->
-    let v' = uniqueVID class__ usedVIDs [] v in
-    plususedVIDs cxt [v'], v'
+
+let withexterior (Context cxt) s =
+  Context { cxt with outside = Exterior (s, None, None) }
+
+let withusedVIDs (Context cxt) vs = Context { cxt with usedVIDs = vs }
+
+let plususedVIDs (Context ({ usedVIDs } as cxt)) vs =
+  Context { cxt with usedVIDs = mergeVIDs usedVIDs vs }
+
+let freshVID (Context { usedVIDs } as cxt) class__ v =
+  let v' = uniqueVID class__ usedVIDs [] v in
+  (plususedVIDs cxt [ v' ], v')
+
 (* if this function is applied when the base sequent hasn't been rewritten,
  * it isn't very useful.  But it can happen sometimes, when you are just
  * making freshRule to find out something about the rule.
-*)
+ *)
 let freshproofvar cxt class__ v =
-  let (cxt', v') = freshVID cxt class__ v in
+  let cxt', v' = freshVID cxt class__ v in
   let var = registerId (v', class__) in
   match cxt' with
-    Context {usedVIDs = usedVIDs; outside = Exterior (_, Some r, _)} ->
-      plusprovisos cxt'
-        (nj_fold
-           (fun (u, ps) ->
-              mkvisproviso (false, _NotinProviso (var, u)) :: ps)
-           (isUnknown <| rewinf_vars r) []),
-      var
-  | _ -> cxt', var
-let withresnum =
-  fun (Context cxt) num ->
-    Context {cxt with nextresnum = num}
+  | Context { usedVIDs; outside = Exterior (_, Some r, _) } ->
+      ( plusprovisos cxt'
+          (nj_fold
+             (fun (u, ps) -> mkvisproviso (false, _NotinProviso (var, u)) :: ps)
+             (isUnknown <| rewinf_vars r)
+             []),
+        var )
+  | _ -> (cxt', var)
+
+let withresnum (Context cxt) num = Context { cxt with nextresnum = num }
+
 let freshresnum cxt =
-  let n = nextresnum cxt in withresnum cxt (n + 1), n
+  let n = nextresnum cxt in
+  (withresnum cxt (n + 1), n)
+
 let newcxt =
-  Context {varmap = empty; resmap = empty; provisos = [], Some nullrewinf;
-           provisosig = 0; outside = NoExterior; usedVIDs = [];
-           nextresnum = 1}
-let selfparentprovisos =
-  fun (Context ({provisos = ps, ri} as cxt)) ->
-    Context {cxt with provisos = List.map provisoselfparent ps, ri}
+  Context
+    {
+      varmap = empty;
+      resmap = empty;
+      provisos = ([], Some nullrewinf);
+      provisosig = 0;
+      outside = NoExterior;
+      usedVIDs = [];
+      nextresnum = 1;
+    }
+
+let selfparentprovisos (Context ({ provisos = ps, ri } as cxt)) =
+  Context { cxt with provisos = (List.map provisoselfparent ps, ri) }
+
 (* this context is provided so that you can get a neutral reading of rewinf from some
  * formula that you haven't rewritten, or don't know has been rewritten
  *)
 let dont_rewrite_with_this =
-  Context {varmap = empty; resmap = empty; provisos = [], Some nullrewinf;
-           provisosig = -463; outside = NoExterior; usedVIDs = [];
-           nextresnum = -999}
+  Context
+    {
+      varmap = empty;
+      resmap = empty;
+      provisos = ([], Some nullrewinf);
+      provisosig = -463;
+      outside = NoExterior;
+      usedVIDs = [];
+      nextresnum = -999;
+    }

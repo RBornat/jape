@@ -24,54 +24,91 @@
 *)
 
 val atoi : string -> int
+
 exception AtoI_
+
 val sum : int list -> int
 
-val iter     : (int -> 'a) -> int * int -> unit
-val curry2   : ('a * 'b -> 'c) -> 'a -> 'b -> 'c
+val iter : (int -> 'a) -> int * int -> unit
+
+val curry2 : ('a * 'b -> 'c) -> 'a -> 'b -> 'c
+
 val uncurry2 : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-val curry3   : ('a * 'b *'c -> 'd) -> 'a -> 'b -> 'c -> 'd
+
+val curry3 : ('a * 'b * 'c -> 'd) -> 'a -> 'b -> 'c -> 'd
+
 val uncurry3 : ('a -> 'b -> 'c -> 'd) -> 'a * 'b * 'c -> 'd
+
 val swapargs : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
-val (<?>)    : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
+
+val ( <?> ) : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
 
 val string_of_ref : ('a -> string) -> 'a ref -> string
+
 val earlierpair :
-  ('a -> 'a -> bool) -> ('b -> 'b -> bool) -> ('a * 'b) -> ('a * 'b) -> bool
+  ('a -> 'a -> bool) -> ('b -> 'b -> bool) -> 'a * 'b -> 'a * 'b -> bool
 
 (* whether to add context automatically to rule definitions *)
-val autoAdditiveLeft  : bool ref
-val autoAdditiveRight : bool ref
-    
-val applyconjectures         : string ref (* conjectures allowed in proofs *)
-val autoselect               : bool ref   (* show 'goal' when printing proofs *)
-val givenMenuTactic          : string ref (* what to use when the interface says applygiven *)
-val multiassumptionlines     : bool ref   (* whether to have more than one assumption/premise per line in boxdraw *)
-val foldformulae             : bool ref   (* whether to fold long formulae in boxdraw *)
-val foldsequents             : bool ref   (* whether to fold sequents in treedraw *)
-val lemmacount               : int ref    (* number of lemmas during THIS proof *)
-val multihypsel				 : bool ref   (* allows multiple hypothesis selections *)
-val resolvepossible          : bool ref   (* resolution is a possibility in the current match *)
-val seektipselection         : bool ref   (* look for a tip to work on in boxdraw *)
-val textselectionmode        : string ref (* how to press-and-drag over text *)
-val truncatereasons          : bool ref   (* whether to shorten reasons in boxdraw *)
-val tryresolution            : bool ref   (* cut with antecedents of theorems in desperation *)
+val autoAdditiveLeft : bool ref
 
-val disproofdebug       : bool ref
+val autoAdditiveRight : bool ref
+
+val applyconjectures : string ref (* conjectures allowed in proofs *)
+
+val autoselect : bool ref (* show 'goal' when printing proofs *)
+
+val givenMenuTactic : string ref
+
+(* what to use when the interface says applygiven *)
+
+val multiassumptionlines : bool ref
+
+(* whether to have more than one assumption/premise per line in boxdraw *)
+
+val foldformulae : bool ref (* whether to fold long formulae in boxdraw *)
+
+val foldsequents : bool ref (* whether to fold sequents in treedraw *)
+
+val lemmacount : int ref (* number of lemmas during THIS proof *)
+
+val multihypsel : bool ref (* allows multiple hypothesis selections *)
+
+val resolvepossible : bool ref
+
+(* resolution is a possibility in the current match *)
+
+val seektipselection : bool ref (* look for a tip to work on in boxdraw *)
+
+val textselectionmode : string ref (* how to press-and-drag over text *)
+
+val truncatereasons : bool ref (* whether to shorten reasons in boxdraw *)
+
+val tryresolution : bool ref
+
+(* cut with antecedents of theorems in desperation *)
+
+val disproofdebug : bool ref
+
 val screenpositiondebug : bool ref
-val selectiondebug      : bool ref
+
+val selectiondebug : bool ref
 
 exception Catastrophe_ of string list
+
 exception ParseError_ of string list
+
 exception Tacastrophe_ of string list
 
 val create_reportfile : string -> unit
+
 val close_reportfile : unit -> unit
 
 val consolereport : string list -> unit
-val consolequery  : string list * string * string * 'a -> bool
+
+val consolequery : string list * string * string * 'a -> bool
 
 exception Error_
+
 val error : string list -> 'a
 
 val utf8BOM : string

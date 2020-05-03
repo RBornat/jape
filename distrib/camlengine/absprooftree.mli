@@ -23,36 +23,66 @@
 
 *)
 
-type tree          = Prooftree.Tree.Vistree.prooftree
- and structurerule = Thing.structurerule
- and font          = Displayfont.displayfont
- and sequent       = Seqtype.seq
- and reason
- and text          = Text.text
- and term          = Termtype.term
- and element       = Termtype.element
- and proviso       = Proviso.proviso
- and paraparam     = Paraparam.paraparam
+type tree = Prooftree.Tree.Vistree.prooftree
+
+and structurerule = Thing.structurerule
+
+and font = Displayfont.displayfont
+
+and sequent = Seqtype.seq
+
+and reason
+
+and text = Text.text
+
+and term = Termtype.term
+
+and element = Termtype.element
+
+and proviso = Proviso.proviso
+
+and paraparam = Paraparam.paraparam
 
 val allTipConcs : tree -> int list -> (int list * element list) list
+
 val comma : unit -> text
+
 val text_of_element : (element -> string) -> element -> text
+
 val explode : sequent -> string * element list * element list
+
 val isStructureRulenode : tree -> structurerule -> bool
+
 val ishiddencut : tree -> bool
+
 val ismultistep : tree -> bool
+
 val matched : tree -> element list * element list
+
 val reason : tree -> reason option
+
 val fontNstring_of_reason : reason -> font * string
+
 val text_of_reason : reason -> text
+
 val sequent : tree -> sequent
-val params : tree -> term list option 
-val args : tree -> term list 
+
+val params : tree -> term list option
+
+val args : tree -> term list
+
 val stepprovisos : tree -> (bool * proviso) list option
+
 val stillopen : tree -> int list -> bool
+
 val subtrees : tree -> tree list
+
 val text_of_term : (term -> string) -> term -> text
+
 val tip : tree -> int list -> sequent option
+
 val turnstile : string -> text
+
 val validconc : tree -> element -> int list -> bool
+
 val validhyp : tree -> element -> int list -> bool

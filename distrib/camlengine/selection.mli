@@ -27,7 +27,12 @@ open Cxttype
 open Termtype
 
 val _Subst_of_selection : bool -> string list -> cxt -> cxt * term
+
 val _SubstOpt_of_subterm :
-  (term * term -> cxt -> cxt option) -> cxt -> term -> term -> (cxt * term) option
+  (term * term -> cxt -> cxt option) ->
+  cxt ->
+  term ->
+  term ->
+  (cxt * term) option
 
 exception Selection_ of string list

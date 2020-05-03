@@ -26,6 +26,7 @@
 type displayfont = TermFont | ReasonFont | ProvisoFont
 
 val allfonts : displayfont list
+
 val string_of_displayfont : displayfont -> string
 
 (* Useful translation for Japeserver marshalling.
@@ -37,6 +38,7 @@ val string_of_displayfont : displayfont -> string
  *
  *)
 val int_of_displayfont : displayfont -> int
+
 val displayfont_of_int : int -> displayfont
 
 type pane = ProofPane | DisproofPane
@@ -50,4 +52,5 @@ val string_of_pane : pane -> string
  *
  *)
 val int_of_pane : pane -> int
+
 val pane_of_int : int -> pane

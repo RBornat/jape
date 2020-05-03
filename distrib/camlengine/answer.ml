@@ -26,72 +26,73 @@
 open Sml
 
 type answer = Yes | Maybe | No
+
 (* Yes > Maybe > No *)
 
-let rec string_of_answer =
-  function
-    Yes -> "Yes"
+let rec string_of_answer = function
+  | Yes -> "Yes"
   | No -> "No"
   | Maybe -> "Maybe"
+
 (* slightly simplified versions of orq, andq, existsq and allq.  RB 5/i/93 *)
 (* orq is max *)
-let rec orq =
-  function
-    Yes, _ -> Yes
+let rec orq = function
+  | Yes, _ -> Yes
   | No, x -> x
   | Maybe, Yes -> Yes
   | Maybe, _ -> Maybe
+
 (* andq is min *)
-let rec andq =
-  function
-    No, _ -> No
+let rec andq = function
+  | No, _ -> No
   | Yes, x -> x
   | Maybe, No -> No
   | Maybe, _ -> Maybe
-let rec notq =
-  function
-    Yes -> No
-  | No -> Yes
-  | Maybe -> Maybe
+
+let rec notq = function Yes -> No | No -> Yes | Maybe -> Maybe
+
 let rec ifq a1 a2 a3 =
-  match a1, a2, a3 with
-    Yes, t, _ -> t
+  match (a1, a2, a3) with
+  | Yes, t, _ -> t
   | No, _, e -> e
   | Maybe, _, _ -> Maybe
+
 let rec ifMq test yes no maybe =
-  match test with
-    Yes -> yes ()
-  | No -> no ()
-  | Maybe -> maybe ()
+  match test with Yes -> yes () | No -> no () | Maybe -> maybe ()
+
 let rec _Yes_of_unit () = Yes
+
 let rec _No_of_unit () = No
+
 let rec _Maybe_of_unit () = Maybe
-let rec qDEF a =
-  match a with
-    Yes -> true
-  | _ -> false
+
+let rec qDEF a = match a with Yes -> true | _ -> false
+
 let qDEFNOT = qDEF <.> notq
-let rec qUNSURE =
-  function
-    Maybe -> true
-  | _ -> false
+
+let rec qUNSURE = function Maybe -> true | _ -> false
+
 let rec orelseq a1 a2 =
-  match a1, a2 with
-    Yes, _ -> Yes
+  match (a1, a2) with
+  | Yes, _ -> Yes
   | No, b -> b ()
   | Maybe, b -> orq (b (), Maybe)
+
 let andalsoq a1 a2 =
-  match a1, a2 with
-    Yes  , b -> b ()
-  | No   , _ -> No
+  match (a1, a2) with
+  | Yes, b -> b ()
+  | No, _ -> No
   | Maybe, b -> andq (b (), Maybe)
-let rec existsq f  =
-  function
-    []      -> No
+
+let rec existsq f = function
+  | [] -> No
   | x :: xs -> orelseq (f x) (fun _ -> existsq f xs)
+
 let rec allq a1 a2 =
-  match a1, a2 with
-    f, [] -> Yes
+  match (a1, a2) with
+  | f, [] -> Yes
   | f, x :: xs -> andalsoq (f x) (fun _ -> allq f xs)
+
 let rec takeYes a = orq (a, Maybe)
+
 let rec takeNo a = andq (No, Maybe)

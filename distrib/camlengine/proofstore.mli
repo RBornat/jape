@@ -23,7 +23,6 @@
 
 *)
 
-
 open Cxttype
 open Forcedef
 open Name
@@ -33,34 +32,70 @@ open Proviso
 open Seqtype
 open Thing
 
-val saveable    : unit -> bool
-val saved       : unit -> bool
-val freezesaved : unit -> unit
-val thawsaved   : unit -> unit
+val saveable : unit -> bool
 
-val saveproof  : out_channel -> name -> proofstage -> prooftree 
-             -> proviso list -> seq list -> (seq * model) option -> unit
+val saved : unit -> bool
+
+val freezesaved : unit -> unit
+
+val thawsaved : unit -> unit
+
+val saveproof :
+  out_channel ->
+  name ->
+  proofstage ->
+  prooftree ->
+  proviso list ->
+  seq list ->
+  (seq * model) option ->
+  unit
+
 val saveproofs : out_channel -> unit
 
-val proved            : name -> bool
-val disproved         : name -> bool
+val proved : name -> bool
+
+val disproved : name -> bool
+
 val provedordisproved : name -> (bool * bool) option
 
-val proofnamed : name ->
-                 (bool * prooftree * (bool * proviso) list * seq list * bool * (seq * model) option) option
+val proofnamed :
+  name ->
+  ( bool
+  * prooftree
+  * (bool * proviso) list
+  * seq list
+  * bool
+  * (seq * model) option )
+  option
 
-val addproof : (string list -> unit) ->                          (* alert *)
-               (string list * string * string * int -> bool) ->  (* query *)
-               name -> bool -> prooftree -> seq list -> cxt ->   (* name proved proof givens cxt *)
-               bool -> (seq * model) option -> bool              (* disproved disproof -> success *)
+val addproof :
+  (string list -> unit) ->
+  (* alert *)
+  (string list * string * string * int -> bool) ->
+  (* query *)
+  name ->
+  bool ->
+  prooftree ->
+  seq list ->
+  cxt ->
+  (* name proved proof givens cxt *)
+  bool ->
+  (seq * model) option ->
+  bool
 
-val clearproofs      : unit -> unit
-val proofnames       : unit -> name list
+(* disproved disproof -> success *)
 
-val thingswithproofs      : bool -> name list
+val clearproofs : unit -> unit
+
+val proofnames : unit -> name list
+
+val thingswithproofs : bool -> name list
+
 val namedthingswithproofs : bool -> name list -> name list
 
 (* bad naming here *)
-val needsProof    : name -> thing -> bool
-val lacksProof    : name -> bool
+val needsProof : name -> thing -> bool
+
+val lacksProof : name -> bool
+
 val thmLacksProof : name -> bool

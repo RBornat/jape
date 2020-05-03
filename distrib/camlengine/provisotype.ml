@@ -30,7 +30,7 @@
 
 open Termtype
 
-type proviso = 
+type proviso =
   | FreshProviso of (bool * bool * bool * term)
   | UnifiesProviso of (term * term)
   | NotinProviso of (term * term)
@@ -48,10 +48,13 @@ type proviso =
                                    variables vs don't occur in the places indicated
                                    by pat.
  *)
-                      
 
-let _FreshProviso bbbt      = FreshProviso bbbt
-let _UnifiesProviso tt      = UnifiesProviso tt
-let _NotinProviso vt        = NotinProviso vt
-let _DistinctProviso vs     = DistinctProviso vs
+let _FreshProviso bbbt = FreshProviso bbbt
+
+let _UnifiesProviso tt = UnifiesProviso tt
+
+let _NotinProviso vt = NotinProviso vt
+
+let _DistinctProviso vs = DistinctProviso vs
+
 let _NotoneofProviso vspatc = NotoneofProviso vspatc

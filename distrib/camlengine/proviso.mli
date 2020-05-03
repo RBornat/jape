@@ -27,37 +27,58 @@ open Termtype
 open Provisotype
 
 type proviso = Provisotype.proviso
- and visproviso
+
+and visproviso
 
 val earlierproviso : proviso -> proviso -> bool
+
 val isFreshProviso : proviso -> bool
+
 val maxprovisoresnum : proviso -> int
+
 val mkparentedvisproviso : proviso -> bool * proviso -> visproviso
+
 val mkvisproviso : bool * proviso -> visproviso
+
 val parseProvisos : unit -> proviso list
-    (* yes, really a proviso list - it has to translate x,y NOTIN A, B into
-     * x NOTIN A AND x NOTIN B AND y NOTIN A AND y NOTIN B; similarly
-     * FRESH and all its derivatives. (But maybe this isn't a good idea ...)
-     *)
+
+(* yes, really a proviso list - it has to translate x,y NOTIN A, B into
+ * x NOTIN A AND x NOTIN B AND y NOTIN A AND y NOTIN B; similarly
+ * FRESH and all its derivatives. (But maybe this isn't a good idea ...)
+ *)
 val provisoVIDs : proviso -> vid list
+
 val provisoactual : visproviso -> proviso
+
 val provisodebug : bool ref
+
 val provisoparent : visproviso -> proviso
+
 val provisoresetactual : visproviso -> proviso -> visproviso
+
 val provisoselfparent : visproviso -> visproviso
-val provisovars : (term -> 'a list) -> ('a list -> 'a list -> 'a list) -> proviso -> 'a list
+
+val provisovars :
+  (term -> 'a list) -> ('a list -> 'a list -> 'a list) -> proviso -> 'a list
+
 val provisovisible : visproviso -> bool
 
 val catelim_string_of_proviso : proviso -> string list -> string list
+
 val string_of_proviso : proviso -> string
+
 val invisbracketedstring_of_proviso : bool -> proviso -> string
 
 val string_of_visproviso : visproviso -> string
+
 val detailedstring_of_visproviso : visproviso -> string
+
 val invisbracketedstring_of_visproviso : bool -> visproviso -> string
 
 val expandProvisos : proviso list -> proviso list
+
 val compressProvisos : proviso list -> proviso list
 
 val expandVisProvisos : visproviso list -> visproviso list
+
 val compressVisProvisos : visproviso list -> visproviso list

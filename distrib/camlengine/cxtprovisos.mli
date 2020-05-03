@@ -28,6 +28,9 @@ open Proviso
 open Rewinf
 
 val getprovisos : cxt -> visproviso list * rewinf option
+
 val setprovisos : cxt -> visproviso list * rewinf option -> cxt
+
 val getprovisosig : cxt -> int
+
 val incprovisosig : cxt -> cxt

@@ -37,35 +37,36 @@
         BAS
 *)
 
-open Menu 
+open Menu
 open Mappingfuns
 open Panelkind
 open Name
-    
+
 type name = Name.name
 
 let reportGUIdead = Interaction.reportGUIdead
 
-type button = UndoProofbutton
-            | RedoProofbutton
-            | UndoDisproofbutton
-            | RedoDisproofbutton
-            | Finishedbutton
-            | Resetbutton
-            | Savebutton
-            | SaveAsbutton
-            | Disprovebutton
+type button =
+  | UndoProofbutton
+  | RedoProofbutton
+  | UndoDisproofbutton
+  | RedoDisproofbutton
+  | Finishedbutton
+  | Resetbutton
+  | Savebutton
+  | SaveAsbutton
+  | Disprovebutton
 
-type mybutton = MyUndoProof
-              | MyRedoProof
-              | MyUndoDisproof
-              | MyRedoDisproof
-              | MyFinished
-              | MyReset
-              | MySave
-              | MySaveAs
-              | MyDisprove
-
+type mybutton =
+  | MyUndoProof
+  | MyRedoProof
+  | MyUndoDisproof
+  | MyRedoDisproof
+  | MyFinished
+  | MyReset
+  | MySave
+  | MySaveAs
+  | MyDisprove
 
 let buttoncache : (mybutton, bool ref) mapping ref = ref empty
 
@@ -75,119 +76,130 @@ let buttoncache : (mybutton, bool ref) mapping ref = ref empty
  *)
 let rec enable (button, state) =
   let rec doit b v =
-    let (m, c, proofsonly) =
+    let m, c, proofsonly =
       match b with
-      | MyUndoProof    -> "Edit", "Undo Proof Step", true
-      | MyRedoProof    -> "Edit", "Redo Proof Step", true
-      | MyUndoDisproof -> "Edit", "Undo Disproof Step", true
-      | MyRedoDisproof -> "Edit", "Redo Disproof Step", true
-      | MyFinished     -> "Edit", "Done", true
-      | MyReset        -> "File", "Erase theory", false
-      | MySave         -> "File", "Save Proofs", false
-      | MySaveAs       -> "File", "Save Proofs As...", false
-      | MyDisprove     -> "Edit", "Disprove", true
+      | MyUndoProof -> ("Edit", "Undo Proof Step", true)
+      | MyRedoProof -> ("Edit", "Redo Proof Step", true)
+      | MyUndoDisproof -> ("Edit", "Undo Disproof Step", true)
+      | MyRedoDisproof -> ("Edit", "Redo Disproof Step", true)
+      | MyFinished -> ("Edit", "Done", true)
+      | MyReset -> ("File", "Erase theory", false)
+      | MySave -> ("File", "Save Proofs", false)
+      | MySaveAs -> ("File", "Save Proofs As...", false)
+      | MyDisprove -> ("Edit", "Disprove", true)
     in
-    if match (!buttoncache <@> b) with
-       | Some r -> if !r = state then false else begin r := state; true end
-       | None   -> buttoncache := (!buttoncache ++ (b |-> ref state)); true
-    then
-      Japeserver.enablemenuitem proofsonly m c state
+    if
+      match !buttoncache <@> b with
+      | Some r ->
+          if !r = state then false
+          else (
+            r := state;
+            true )
+      | None ->
+          buttoncache := !buttoncache ++ (b |-> ref state);
+          true
+    then Japeserver.enablemenuitem proofsonly m c state
   in
   match button with
-  | UndoProofbutton    -> doit MyUndoProof state
-  | RedoProofbutton    -> doit MyRedoProof state
+  | UndoProofbutton -> doit MyUndoProof state
+  | RedoProofbutton -> doit MyRedoProof state
   | UndoDisproofbutton -> doit MyUndoDisproof state
   | RedoDisproofbutton -> doit MyRedoDisproof state
-  | Finishedbutton     -> doit MyFinished state
-  | Resetbutton        -> doit MyReset state
-  | Savebutton         -> doit MySave state
-  | SaveAsbutton       -> doit MySaveAs state
-  | Disprovebutton     -> doit MyDisprove state
+  | Finishedbutton -> doit MyFinished state
+  | Resetbutton -> doit MyReset state
+  | Savebutton -> doit MySave state
+  | SaveAsbutton -> doit MySaveAs state
+  | Disprovebutton -> doit MyDisprove state
 
-let (resetfontstuff, setfontstuff, getfontstuff) =
+let resetfontstuff, setfontstuff, getfontstuff =
   let fontstuff : string option ref = ref None in
   let rec resetfontstuff () = fontstuff := None
   and setfontstuff stuff = fontstuff := Some stuff
   and getfontstuff () = !fontstuff in
-  resetfontstuff, setfontstuff, getfontstuff
+  (resetfontstuff, setfontstuff, getfontstuff)
 
 let rec reloadmenusandpanels markconjecture oplist =
-    try
-      (* was freshmenus... *)
-      Japeserver.sendOperators oplist;
-      buttoncache := empty;
-      menuiter
-        (fun (proofsonly,menu) ->
-           let string_of_menu = string_of_name menu in
-           Japeserver.newmenu proofsonly string_of_menu;
-           menuitemiter menu
-             (fun proofsonly label keyopt cmd ->
-                Japeserver.menuentry string_of_menu proofsonly (string_of_name label) keyopt cmd)
-             (fun proofsonly label cmd ->
-                (* checkbox *)
-                Japeserver.menucheckbox string_of_menu proofsonly (string_of_name label) cmd)
-             (fun proofsonly lcs ->
-                (* radio button *)
-                Japeserver.menuradiobutton
-                   string_of_menu proofsonly (List.map (fun (label, cmd) -> string_of_name label, cmd) lcs))
-             (Japeserver.menuseparator string_of_menu));
-      paneliter
-        (fun (panel, kind) ->
-           let string_of_panel = string_of_name panel in
-           Japeserver.newpanel string_of_panel kind;
-           panelitemiter panel
-             (fun (label, entry) ->
-                Japeserver.panelentry string_of_panel (string_of_name label) entry;
-                if kind = ConjecturePanelkind then
-                  match markconjecture label with
-                    Some mark ->
-                      Japeserver.markpanelentry string_of_panel entry mark
-                  | _ -> ())
-             (fun (name, cmd) -> (* button *)
-                Japeserver.panelbutton string_of_panel (string_of_name name) cmd)
-             (* (fun (label, cmd) -> (* checkbox *)
-                   Japeserver.panelcheckbox string_of_panel (string_of_name label) cmd)
-                (fun lcs -> (* radio button *)
-                   Japeserver.panelradiobutton string_of_panel
-                      (List.map (fun (n, v) -> string_of_name n, v) lcs))
-              *));
-      Japeserver.mapmenus true;
-      let _ = Japeserver.echo "" (* synchronise *) in ()
-    with
-      Japeserver.DeadGUI_ -> reportGUIdead ["WARNING: server broken"]
+  try
+    (* was freshmenus... *)
+    Japeserver.sendOperators oplist;
+    buttoncache := empty;
+    menuiter (fun (proofsonly, menu) ->
+        let string_of_menu = string_of_name menu in
+        Japeserver.newmenu proofsonly string_of_menu;
+        menuitemiter menu
+          (fun proofsonly label keyopt cmd ->
+            Japeserver.menuentry string_of_menu proofsonly
+              (string_of_name label) keyopt cmd)
+          (fun proofsonly label cmd ->
+            (* checkbox *)
+            Japeserver.menucheckbox string_of_menu proofsonly
+              (string_of_name label) cmd)
+          (fun proofsonly lcs ->
+            (* radio button *)
+            Japeserver.menuradiobutton string_of_menu proofsonly
+              (List.map (fun (label, cmd) -> (string_of_name label, cmd)) lcs))
+          (Japeserver.menuseparator string_of_menu));
+    paneliter (fun (panel, kind) ->
+        let string_of_panel = string_of_name panel in
+        Japeserver.newpanel string_of_panel kind;
+        panelitemiter panel
+          (fun (label, entry) ->
+            Japeserver.panelentry string_of_panel (string_of_name label) entry;
+            if kind = ConjecturePanelkind then
+              match markconjecture label with
+              | Some mark ->
+                  Japeserver.markpanelentry string_of_panel entry mark
+              | _ -> ())
+          (fun (name, cmd) ->
+            (* button *)
+            Japeserver.panelbutton string_of_panel (string_of_name name) cmd)
+        (* (fun (label, cmd) -> (* checkbox *)
+              Japeserver.panelcheckbox string_of_panel (string_of_name label) cmd)
+           (fun lcs -> (* radio button *)
+              Japeserver.panelradiobutton string_of_panel
+                 (List.map (fun (n, v) -> string_of_name n, v) lcs))
+        *));
+    Japeserver.mapmenus true;
+    let _ = Japeserver.echo "" (* synchronise *) in
+    ()
+  with Japeserver.DeadGUI_ -> reportGUIdead [ "WARNING: server broken" ]
 
 let rec markproof cmd proved =
   (* given parseable name - look in the cmd part of conjecture panels *)
-  paneliter
-    (function
-       panel, ConjecturePanelkind ->
-         panelitemiter panel
-           (fun (label, entry) ->
-              if entry = cmd then
-                Japeserver.markpanelentry (string_of_name panel) cmd proved)
-           (fun _ -> ()) (* (fun _ -> ()) (fun _ -> ()) *)
-     | panel, _ -> ())
+  paneliter (function
+    | panel, ConjecturePanelkind ->
+        panelitemiter panel
+          (fun (label, entry) ->
+            if entry = cmd then
+              Japeserver.markpanelentry (string_of_name panel) cmd proved)
+          (fun _ -> ())
+        (* (fun _ -> ()) (fun _ -> ()) *)
+    | panel, _ -> ())
 
 let rec initButtons () =
   let ( -------- ) = Mseparator in
   let rec _E (name, cut, cmd) = Mentry (name_of_string name, cut, cmd) in
   let _EditEntries =
-    [( -------- );
-     _E ("Backtrack", None, "backtrack");
-     _E ("Prune", None, "prune"); 
-     ( -------- );
-     _E ("Unify", None, "unify"); 
-     ( -------- );
-     _E ("Hide/Show subproof", None, "collapse");
-     _E ("Expand/Contract detail", None, "layout"); 
-     ( -------- );
-     _E ("Done", Some "D", "done"); ]
+    [
+      ( -------- );
+      _E ("Backtrack", None, "backtrack");
+      _E ("Prune", None, "prune");
+      ( -------- );
+      _E ("Unify", None, "unify");
+      ( -------- );
+      _E ("Hide/Show subproof", None, "collapse");
+      _E ("Expand/Contract detail", None, "layout");
+      ( -------- );
+      _E ("Done", Some "D", "done");
+    ]
   in
   clearmenusandpanels ();
-  addmenu true (name_of_string "Edit"); (* this isn't necessary ... *)
-  addmenudata true (name_of_string "Edit") (List.map (fun e -> MCdata e) _EditEntries)
+  addmenu true (name_of_string "Edit");
+  (* this isn't necessary ... *)
+  addmenudata true (name_of_string "Edit")
+    (List.map (fun e -> MCdata e) _EditEntries)
 
 let rec initFonts () =
   match getfontstuff () with
-    Some stuff -> Japeserver.setFonts stuff
-  | None       -> ()
+  | Some stuff -> Japeserver.setFonts stuff
+  | None -> ()

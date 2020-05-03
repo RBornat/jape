@@ -25,11 +25,10 @@
 
 open Termtype
 
-type sexpr = 
-	| Sexpr of sexpr list 
-	| Atom of string 
-	| StringAtom of string (* translated -- e.g. \n is newline *)
+type sexpr = Sexpr of sexpr list | Atom of string | StringAtom of string
+
+(* translated -- e.g. \n is newline *)
 
 val catelim_sexprstring_of_term : term -> string list -> string list
-val sexprstring_of_term         : term -> string
 
+val sexprstring_of_term : term -> string

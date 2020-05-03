@@ -23,10 +23,12 @@
 
 *)
 
-type proofstage  = Complete | InProgress
-type proofstatus = { proved: bool; disproved: bool } (* you can be both, in an unsound logic *)
+type proofstage = Complete | InProgress
 
-let rec word_of_proofstage =
-  function
-    Complete   -> "PROOF"
+type proofstatus = { proved : bool; disproved : bool }
+
+(* you can be both, in an unsound logic *)
+
+let rec word_of_proofstage = function
+  | Complete -> "PROOF"
   | InProgress -> "CURRENTPROOF"

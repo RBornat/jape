@@ -27,10 +27,12 @@ open Termtype
 
 type name = Nametype.name
 
-val nameorder           : name -> name -> bool
+val nameorder : name -> name -> bool
 
-val name_of_string          : string -> name
-val string_of_name          : name -> string
+val name_of_string : string -> name
+
+val string_of_name : name -> string
+
 val parseablestring_of_name : name -> string
-val nameopt_of_term         : term -> name option
 
+val nameopt_of_term : term -> name option

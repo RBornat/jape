@@ -30,73 +30,88 @@ open Termstring
 open Termtype
 
 let bracketed_string_of_list = Listfuns.bracketed_string_of_list
+
 let consolereport = Miscellaneous.consolereport
+
 let enQuote = Stringfuns.enQuote
 
 let rec freshvar object__ cxt =
   let class__ = Idclass.VariableClass in
   let prefix = Symbol.autoID class__ "subst" in
-  let (cxt', vid) = Cxtfuns.freshVID cxt class__ (vid_of_string prefix) in
-  cxt',
-  (if object__ then registerId else registerUnknown)
-    (vid, class__)
+  let cxt', vid = Cxtfuns.freshVID cxt class__ (vid_of_string prefix) in
+  (cxt', (if object__ then registerId else registerUnknown) (vid, class__))
 
 let rec indistinct cxt =
- not <.> Answer.qDEFNOT <.>
- Miscellaneous.uncurry2
-      (Facts.substeqvarsq (Facts.facts (Cxtfuns.provisos cxt) cxt))
+  not <.> Answer.qDEFNOT
+  <.> Miscellaneous.uncurry2
+        (Facts.substeqvarsq (Facts.facts (Cxtfuns.provisos cxt) cxt))
 
 let interpolate = Listfuns.interpolate
+
 let ( <* ) = Listfuns.( <* )
+
 let member = Listfuns.member
+
 let _NotinProviso = Provisotype._NotinProviso
+
 let plusvisibleprovisos = Cxtfuns.plusvisibleprovisos
+
 let rewrite = Rewrite.rewrite
+
 let simplifySubstAnyway = Substmapfuns.simplifySubstAnyway
+
 let sort = Listfuns.sortunique earliervar
+
 let term_of_string = Termparse.term_of_string
+
 let ( <| ) = Listfuns.( <| )
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
+
 exception ParseError_ = Miscellaneous.ParseError_
 
 (* convert a text selection into a non-reducible substitution *)
 exception Selection_ of string list
+
 let rec _Subst_of_selection object__ sels cxt =
   let original = implode sels in
   let origterm =
-    try term_of_string original with
-      ParseError_ s ->
-        raise
-          (Catastrophe_ (["_Subst_of_selection can't parse original: "; original; " -- "] @ s))
+    try term_of_string original
+    with ParseError_ s ->
+      raise
+        (Catastrophe_
+           ( [ "_Subst_of_selection can't parse original: "; original; " -- " ]
+           @ s ))
   in
-  let (cxt', v) = freshvar object__ cxt in
-  let rec splitup =
-    function
-      [s] -> [s], []
+  let cxt', v = freshvar object__ cxt in
+  let rec splitup = function
+    | [ s ] -> ([ s ], [])
     | t1 :: s1 :: ts ->
-        let (ts', ss') = splitup ts in t1 :: ts', s1 :: ss'
+        let ts', ss' = splitup ts in
+        (t1 :: ts', s1 :: ss')
     | _ ->
         raise
           (Catastrophe_
-             ["_Subst_of_selection given even number of strings: ";
-              bracketed_string_of_list enQuote "," sels])
+             [
+               "_Subst_of_selection given even number of strings: ";
+               bracketed_string_of_list enQuote "," sels;
+             ])
   in
-  let (ts, ss) = splitup sels in
+  let ts, ss = splitup sels in
   let rec bad s =
     raise
       (Selection_
-         (s :: " - you split the formula up thus: " ::
-            interpolate "; " ((enQuote <* sels))))
+         ( s :: " - you split the formula up thus: "
+         :: interpolate "; " (enQuote <* sels) ))
   in
   let rec badsub () =
     bad
-      (if List.length ss = 1 then "the selection you made wasn't a subformula"
-       else "the selections you made weren't all subformulae")
+      ( if List.length ss = 1 then "the selection you made wasn't a subformula"
+      else "the selections you made weren't all subformulae" )
   in
   let ss' =
-    try (term_of_string <* ss) with
-      ParseError_ _ -> bad "your selection(s) didn't parse"
+    try term_of_string <* ss
+    with ParseError_ _ -> bad "your selection(s) didn't parse"
   in
   let _ =
     if List.exists (fun t -> not (eqterms (t, List.hd ss'))) (List.tl ss') then
@@ -105,13 +120,12 @@ let rec _Subst_of_selection object__ sels cxt =
   let _P =
     try
       term_of_string (implode (interpolate ((" " ^ string_of_term v) ^ " ") ts))
-    with
-      ParseError_ _ -> badsub ()
+    with ParseError_ _ -> badsub ()
   in
-  let m = [v, List.hd ss'] in
+  let m = [ (v, List.hd ss') ] in
   let res = registerSubst (false, _P, m) in
-  let pvs = ((fun v' -> v, v') <* termvars origterm) in
-  let extraps = (_NotinProviso <* (indistinct cxt <| pvs)) in
+  let pvs = (fun v' -> (v, v')) <* termvars origterm in
+  let extraps = _NotinProviso <* (indistinct cxt <| pvs) in
   let cxt'' = plusvisibleprovisos cxt' extraps in
   let rec check t =
     let _E = List.exists (fun b -> v = b) in
@@ -121,28 +135,28 @@ let rec _Subst_of_selection object__ sels cxt =
     if t = v then Some (List.hd ss')
     else
       match t with
-        Binding (_, (bs, ss, us), env, pat) ->
-          if _E bs then bb () else None
-      | Subst (_, r, _P, vts) ->
-          if _E ((fst <* vts)) then bb () else None
+      | Binding (_, (bs, ss, us), env, pat) -> if _E bs then bb () else None
+      | Subst (_, r, _P, vts) -> if _E (fst <* vts) then bb () else None
       | _ -> None
   in
-  if eqterms (rewrite cxt'' res, origterm) then cxt'', res
+  if eqterms (rewrite cxt'' res, origterm) then (cxt'', res)
   else if eqterms (mapterm check _P, origterm) then
     bad
-      (("you can't make the substitution you want because " ^
-          (if List.length ss = 1 then "your selection"
-           else "one of your selections")) ^
-         " was inside a binding, and involved a possible bound variable capture")
+      ( ( "you can't make the substitution you want because "
+        ^
+        if List.length ss = 1 then "your selection"
+        else "one of your selections" )
+      ^ " was inside a binding, and involved a possible bound variable capture"
+      )
   else badsub ()
 
 let _SubstOpt_of_subterm unify cxt pat t =
-  let (cxt', v) = freshvar true cxt in
+  let cxt', v = freshvar true cxt in
   let rec f hole subt =
     match unify (pat, subt) cxt' with
-      Some cxt'' ->
+    | Some cxt'' ->
         (* we have found a match, but there may be binding problems *)
-        let t' = registerSubst (false, hole v, [v, rewrite cxt'' subt]) in
+        let t' = registerSubst (false, hole v, [ (v, rewrite cxt'' subt) ]) in
         if eqterms (rewrite cxt'' t', t) then Some (cxt'', t') else None
     | None -> None
   in

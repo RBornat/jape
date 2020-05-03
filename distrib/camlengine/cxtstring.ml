@@ -24,7 +24,6 @@
 *)
 
 open Cxttype
-
 open Listfuns
 open Sequent
 open Stringfuns
@@ -35,26 +34,36 @@ open Mappingfuns
 open Sml
 open Proviso
 
-type cxt      = Cxttype.cxt
- and exterior = Cxttype.exterior
- and fvinf    = Cxttype.fvinf
- 
-let string_of_fvinf {avs=avs; fvs=fvs; vmap=vmap; bhfvs=bhfvs; bcfvs=bcfvs} =
-  Sml.implode ["{avs="  ; string_of_termlist avs;
-               "; fvs=" ; string_of_termlist fvs;
-               "; vmap="; string_of_mapping string_of_term string_of_termlist vmap;
-               "; bhfvs="; string_of_termlist bhfvs;
-               "; bcfvs="; string_of_termlist bcfvs;
-               "}"]
-               
- 
-let string_of_exterior =
-  function
-    NoExterior -> "NoExterior"
+type cxt = Cxttype.cxt
+
+and exterior = Cxttype.exterior
+
+and fvinf = Cxttype.fvinf
+
+let string_of_fvinf { avs; fvs; vmap; bhfvs; bcfvs } =
+  Sml.implode
+    [
+      "{avs=";
+      string_of_termlist avs;
+      "; fvs=";
+      string_of_termlist fvs;
+      "; vmap=";
+      string_of_mapping string_of_term string_of_termlist vmap;
+      "; bhfvs=";
+      string_of_termlist bhfvs;
+      "; bcfvs=";
+      string_of_termlist bcfvs;
+      "}";
+    ]
+
+let string_of_exterior = function
+  | NoExterior -> "NoExterior"
   | Exterior e ->
-      "Exterior" ^
-        string_of_triple
-          (string_of_pair (bracketed_string_of_list string_of_seq " AND ") string_of_seq ",")
+      "Exterior"
+      ^ string_of_triple
+          (string_of_pair
+             (bracketed_string_of_list string_of_seq " AND ")
+             string_of_seq ",")
           (string_of_option string_of_rewinf)
           (string_of_option string_of_fvinf)
           ", " e
@@ -63,25 +72,46 @@ let pint = string_of_int
 
 let pid = Termfuns.string_of_vid
 
-let string_of_cxtvarmap = fun (Context {varmap=varmap}) -> string_of_mapping pid string_of_term varmap
+let string_of_cxtvarmap (Context { varmap }) =
+  string_of_mapping pid string_of_term varmap
 
-let string_of_cxt =
-  fun
+let string_of_cxt
     (Context
-       {varmap = varmap;
-        resmap = resmap;
+      {
+        varmap;
+        resmap;
         provisos = ps, inf;
-        provisosig = provisosig;
-        outside = outside;
-        usedVIDs = usedVIDs;
-        nextresnum = nextresnum}) ->
-    implode
-      ["Context{"; "varmap="; string_of_mapping pid string_of_term varmap; ", ";
-       "resmap=";
-       string_of_mapping pint (string_of_pair string_of_resnum string_of_term ",") resmap;
-       ", "; "provisos=(";
-       bracketed_string_of_list detailedstring_of_visproviso " AND " ps; ",";
-       string_of_option string_of_rewinf inf; "), "; "provisosig=";
-       string_of_int provisosig; ", "; "outside="; string_of_exterior outside;
-       ", "; "usedVIDs="; bracketed_string_of_list pid "," usedVIDs; ", ";
-       "nextresnum="; string_of_int nextresnum; "}"]
+        provisosig;
+        outside;
+        usedVIDs;
+        nextresnum;
+      }) =
+  implode
+    [
+      "Context{";
+      "varmap=";
+      string_of_mapping pid string_of_term varmap;
+      ", ";
+      "resmap=";
+      string_of_mapping pint
+        (string_of_pair string_of_resnum string_of_term ",")
+        resmap;
+      ", ";
+      "provisos=(";
+      bracketed_string_of_list detailedstring_of_visproviso " AND " ps;
+      ",";
+      string_of_option string_of_rewinf inf;
+      "), ";
+      "provisosig=";
+      string_of_int provisosig;
+      ", ";
+      "outside=";
+      string_of_exterior outside;
+      ", ";
+      "usedVIDs=";
+      bracketed_string_of_list pid "," usedVIDs;
+      ", ";
+      "nextresnum=";
+      string_of_int nextresnum;
+      "}";
+    ]

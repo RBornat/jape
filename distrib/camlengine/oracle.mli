@@ -26,5 +26,7 @@
 open Termtype
 open Cxttype
 
-val _Oracle : string -> cxt -> term -> term -> string -> string list -> cxt option
+val _Oracle :
+  string -> cxt -> term -> term -> string -> string list -> cxt option
+
 val resetoracle : unit -> unit

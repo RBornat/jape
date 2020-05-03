@@ -26,27 +26,45 @@
 type ucode = UTF.ucode
 
 val onbra : ucode
+
 val onket : ucode
+
 val offbra : ucode
+
 val offket : ucode
+
 val outbra : ucode
+
 val outket : ucode
+
 val lockbra : ucode
+
 val lockket : ucode
 
 val onbra_as_string : string
+
 val onket_as_string : string
+
 val offbra_as_string : string
+
 val offket_as_string : string
+
 val outbra_as_string : string
+
 val outket_as_string : string
+
 val lockbra_as_string : string
+
 val lockket_as_string : string
 
 val isInvisibleString : string -> bool
-val isInvisibleBra    : string -> bool
-val isInvisibleKet    : string -> bool
-val isInvisibleUcode  : ucode -> bool
+
+val isInvisibleBra : string -> bool
+
+val isInvisibleKet : string -> bool
+
+val isInvisibleUcode : ucode -> bool
 
 val showInvisibleChar : char -> string
+
 val showInvisibleString : string -> string

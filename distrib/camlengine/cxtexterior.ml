@@ -24,11 +24,11 @@
 *)
 
 open Cxttype
- 
-let setexterior (Context cxt) s = Context {cxt with outside = s}
 
-let getexterior = fun (Context {outside = outside}) -> outside
+let setexterior (Context cxt) s = Context { cxt with outside = s }
 
-let exteriorinf =
-  function (Context {outside=NoExterior})        -> None
-  |        (Context {outside=Exterior(_,inf,_)}) -> inf
+let getexterior (Context { outside }) = outside
+
+let exteriorinf = function
+  | Context { outside = NoExterior } -> None
+  | Context { outside = Exterior (_, inf, _) } -> inf

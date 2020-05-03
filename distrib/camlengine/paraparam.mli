@@ -23,16 +23,21 @@
 
 *)
 
-open Termtype 
+open Termtype
 open Idclass
 
-type paraparam = Objectparam      of (vid * idclass)
-               | Ordinaryparam    of (vid * idclass)
-               | Unknownparam     of (vid * idclass)
-               | Abstractionparam of (vid * idclass) (* ABSTRACTION P -- means treat as shorthand for substitution RB *)
+type paraparam =
+  | Objectparam of (vid * idclass)
+  | Ordinaryparam of (vid * idclass)
+  | Unknownparam of (vid * idclass)
+  | Abstractionparam of (vid * idclass)
+
+(* ABSTRACTION P -- means treat as shorthand for substitution RB *)
 
 val paramidbits : paraparam -> vid * idclass
-val paramvar    : paraparam -> term
+
+val paramvar : paraparam -> term
 
 val catelim_string_of_paraparam : paraparam -> string list -> string list
-val string_of_paraparam         : paraparam -> string
+
+val string_of_paraparam : paraparam -> string

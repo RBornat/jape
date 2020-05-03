@@ -27,12 +27,11 @@ exception Catastrophe_ = Miscellaneous.Catastrophe_
 
 type displayfont = TermFont | ReasonFont | ProvisoFont
 
-let allfonts = [TermFont; ReasonFont; ProvisoFont]
+let allfonts = [ TermFont; ReasonFont; ProvisoFont ]
 
-let rec string_of_displayfont =
-  function 
-    TermFont    -> "TermFont"
-  | ReasonFont  -> "ReasonFont"
+let rec string_of_displayfont = function
+  | TermFont -> "TermFont"
+  | ReasonFont -> "ReasonFont"
   | ProvisoFont -> "ProvisoFont"
 
 (* Useful translation for Japeserver marshalling.
@@ -44,24 +43,21 @@ let rec string_of_displayfont =
  *
  *)
 
-let rec int_of_displayfont =
-  function
-    TermFont    -> 0
-  | ReasonFont  -> 1
+let rec int_of_displayfont = function
+  | TermFont -> 0
+  | ReasonFont -> 1
   | ProvisoFont -> 2
 
-let rec displayfont_of_int =
-  function
-    0 -> TermFont
+let rec displayfont_of_int = function
+  | 0 -> TermFont
   | 1 -> ReasonFont
   | 2 -> ProvisoFont
-  | n -> raise (Catastrophe_ ["displayfont_of_int "; string_of_int n])
+  | n -> raise (Catastrophe_ [ "displayfont_of_int "; string_of_int n ])
 
 type pane = ProofPane | DisproofPane
 
-let rec string_of_pane =
-  function
-    ProofPane    -> "ProofPane"
+let rec string_of_pane = function
+  | ProofPane -> "ProofPane"
   | DisproofPane -> "DisproofPane"
 
 (* Useful translation for Japeserver marshalling.
@@ -70,13 +66,9 @@ let rec string_of_pane =
  *  DisproofPane = 1
  *
  *)
-let rec int_of_pane =
-  function
-    ProofPane    -> 0
-  | DisproofPane -> 1
+let rec int_of_pane = function ProofPane -> 0 | DisproofPane -> 1
 
-let rec pane_of_int =
-  function
-    0 -> ProofPane
+let rec pane_of_int = function
+  | 0 -> ProofPane
   | 1 -> DisproofPane
-  | n -> raise (Catastrophe_ ["pane_of_int "; string_of_int n])
+  | n -> raise (Catastrophe_ [ "pane_of_int "; string_of_int n ])

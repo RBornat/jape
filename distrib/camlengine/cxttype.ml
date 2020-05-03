@@ -23,7 +23,7 @@
 
 *)
 
-open Seqtype 
+open Seqtype
 open Rewinf
 open Termtype
 open Mappingfuns
@@ -52,20 +52,26 @@ open Proviso
  *       
  *)
 
-type fvinf = {avs:  term list;
-              fvs:  term list;
-              vmap: (term, term list) mapping;
-              bhfvs: term list;
-              bcfvs: term list}
+type fvinf = {
+  avs : term list;
+  fvs : term list;
+  vmap : (term, term list) mapping;
+  bhfvs : term list;
+  bcfvs : term list;
+}
 
 type exterior =
-    NoExterior
+  | NoExterior
   | Exterior of ((seq list * seq) * rewinf option * fvinf option)
 
-type cxtrec = 
-      { varmap : (vid, term) mapping;
-        resmap : (int, (resnum * term)) mapping;
-        provisos : visproviso list * rewinf option; provisosig : int;
-        outside : exterior; usedVIDs : vid list; nextresnum : int }
+type cxtrec = {
+  varmap : (vid, term) mapping;
+  resmap : (int, resnum * term) mapping;
+  provisos : visproviso list * rewinf option;
+  provisosig : int;
+  outside : exterior;
+  usedVIDs : vid list;
+  nextresnum : int;
+}
 
 type cxt = Context of cxtrec

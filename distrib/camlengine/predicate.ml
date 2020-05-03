@@ -23,7 +23,7 @@
 
 *)
 
-open Idclass 
+open Idclass
 open Termtype
 open Termstore
 open Termstring
@@ -37,6 +37,7 @@ open Sml
 let consolereport = Miscellaneous.consolereport
 
 let interpretpredicates = ref false
+
 let predicatedebug = ref false
 
 exception Predicate_ of string list
@@ -47,7 +48,8 @@ let string_of_predicatebinding =
     (string_of_pair string_of_term
        (bracketed_string_of_list
           (string_of_pair string_of_termlist
-             (bracketed_string_of_list string_of_termlist ",") ",")
+             (bracketed_string_of_list string_of_termlist ",")
+             ",")
           ",")
        ", ")
     "; "
@@ -59,67 +61,73 @@ let string_of_predicatebinding =
 
 let matchpredicate all isabstraction t =
   match t with
-    App (_, (Id (_, _, c) as pp), (Fixapp (_, ["("; ")"], _) as arg)) ->
-      if !interpretpredicates && c = FormulaClass || isabstraction pp then
+  | App (_, (Id (_, _, c) as pp), (Fixapp (_, [ "("; ")" ], _) as arg)) ->
+      if (!interpretpredicates && c = FormulaClass) || isabstraction pp then
         Some
-          (pp,
-           (match debracket arg with
-            | Tup (_, ",", ts) -> ts
-            | arg              -> [arg]))
+          ( pp,
+            match debracket arg with Tup (_, ",", ts) -> ts | arg -> [ arg ] )
       else None
   | Id (_, v, c) ->
-      if all &&
-         (!interpretpredicates && c = FormulaClass || isabstraction t)
-      then
-        Some (t, [])
+      if all && ((!interpretpredicates && c = FormulaClass) || isabstraction t)
+      then Some (t, [])
       else None
   | _ -> None
 
 (* given a mapping from names to lists of variables, translate predicates into substitutions *)
 let rec compilepredicate isabstraction env t =
-  matchpredicate false isabstraction t &~~
-    (fun (pp, ts) ->
-       if !predicatedebug then
-         consolereport
-           ["compilepredicate "; string_of_term t; " spotted "; string_of_term pp; "(";
-            string_of_termlist ts; ")"
-           ];
-       let ts = (mapterm (compilepredicate isabstraction env) <* ts) in
-       match env pp with
-       | Some vs ->
-           let res =
-             (* in order to avoid bugs when reading back proofs with relations, this
-                code gives you stuff like P[x\(x,y)]. This seems to work. But that means
-                it also gives you back P[x\x], which is confusing to some other things.
-                So we outlaw that .. let's hope not in an infinite regress.
-              *)
-             Some (let t = match ts with
-                           | [t] -> t
-                           | ts  -> registerTup (",", ts)
-                   in
-                   try if eqterms (List.hd vs,t) then pp
-                       else registerSubst (true, pp, [List.hd vs, t])
-                   with Failure _ as exn -> 
-                          raise (Catastrophe_ [Printexc.to_string exn; " in compilepredicates"])
-                   (*
+  matchpredicate false isabstraction t &~~ fun (pp, ts) ->
+  if !predicatedebug then
+    consolereport
+      [
+        "compilepredicate ";
+        string_of_term t;
+        " spotted ";
+        string_of_term pp;
+        "(";
+        string_of_termlist ts;
+        ")";
+      ];
+  let ts = mapterm (compilepredicate isabstraction env) <* ts in
+  match env pp with
+  | Some vs ->
+      let res =
+        (* in order to avoid bugs when reading back proofs with relations, this
+           code gives you stuff like P[x\(x,y)]. This seems to work. But that means
+           it also gives you back P[x\x], which is confusing to some other things.
+           So we outlaw that .. let's hope not in an infinite regress.
+        *)
+        Some
+          (let t = match ts with [ t ] -> t | ts -> registerTup (",", ts) in
+           try
+             if eqterms (List.hd vs, t) then pp
+             else registerSubst (true, pp, [ (List.hd vs, t) ])
+           with Failure _ as exn ->
+             raise
+               (Catastrophe_ [ Printexc.to_string exn; " in compilepredicates" ])
+           (*
                    if vs = ts then pp
                    else
                      try registerSubst (true, pp, (vs ||| ts)) with
                        Zip_ ->
                          raise (Catastrophe_ ["Zip_ in compilepredicates"])
-                    *)
-            )
-           in
-           if !predicatedebug then
-             consolereport
-               ["compilepredicate "; "..env..";
-                " "; string_of_term t;
-                " => Some ("; string_of_term pp; "("; string_of_termlist ts;
-                ")) => "; string_of_option string_of_term res
-               ];
-           res
-       | None -> raise (Catastrophe_ ["bad env in compilepredicates"])
-    )
+                    *))
+      in
+      if !predicatedebug then
+        consolereport
+          [
+            "compilepredicate ";
+            "..env..";
+            " ";
+            string_of_term t;
+            " => Some (";
+            string_of_term pp;
+            "(";
+            string_of_termlist ts;
+            ")) => ";
+            string_of_option string_of_term res;
+          ];
+      res
+  | None -> raise (Catastrophe_ [ "bad env in compilepredicates" ])
 
 (* find predicates, record their arguments and the bindings which enclose them.
    Produces a list of predicates, each paired with a list of arguments, each
@@ -136,59 +144,66 @@ let rec findpredicates isabstraction bs (t, pbs) =
     sortedmerge earliervar (sort earliervar newbs) bs
   in
   let rec insertinlist eq f k kvs =
-    let rec g =
-      function
-        [] -> [k, f []]
+    let rec g = function
+      | [] -> [ (k, f []) ]
       | (k', v') :: kvs ->
           if eq (k, k') then (k, f v') :: kvs else (k', v') :: g kvs
     in
     g kvs
   in
-  let rec inserttbs =
-    fun pp ((ts : term list), bs) ->
-      insertinlist
-        (fun (ts, ts') ->
-           if List.length ts <> List.length ts' then
-             raise
-               (Predicate_
-                  ["predicate "; string_of_term pp;
-                   " is used inconsistently: "; "sometimes with ";
-                   string_of_int (List.length ts); ", sometimes with ";
-                   string_of_int (List.length ts'); " arguments."]
-              )
-           else ts = ts')
-        (fun bs' -> sortedmerge (earlierlist earliervar) bs bs') ts
+  let rec inserttbs pp ((ts : term list), bs) =
+    insertinlist
+      (fun (ts, ts') ->
+        if List.length ts <> List.length ts' then
+          raise
+            (Predicate_
+               [
+                 "predicate ";
+                 string_of_term pp;
+                 " is used inconsistently: ";
+                 "sometimes with ";
+                 string_of_int (List.length ts);
+                 ", sometimes with ";
+                 string_of_int (List.length ts');
+                 " arguments.";
+               ])
+        else ts = ts')
+      (fun bs' -> sortedmerge (earlierlist earliervar) bs bs')
+      ts
   in
-  let rec insertP =
-    fun ((pp : term), tbs) ->
-      insertinlist (fun (x, y) -> x = y)
-        (fun tbss -> inserttbs pp tbs tbss) pp
+  let rec insertP ((pp : term), tbs) =
+    insertinlist (fun (x, y) -> x = y) (fun tbss -> inserttbs pp tbs tbss) pp
   in
   let fp = findpredicates isabstraction in
   match t with
   | Binding (_, (newbs, ss, us), _, _) ->
       Some
-        (nj_fold (nj_foldterm (fp (addbinding newbs bs))) ss
+        (nj_fold
+           (nj_foldterm (fp (addbinding newbs bs)))
+           ss
            (nj_fold (nj_foldterm (fp bs)) us pbs))
   | Subst (_, r, pp, vts) ->
       Some
-        (foldterm (fp (addbinding ((fst <* vts)) bs))
-           (nj_fold (nj_foldterm (fp bs)) ((snd <* vts)) pbs) pp)
+        (foldterm
+           (fp (addbinding (fst <* vts) bs))
+           (nj_fold (nj_foldterm (fp bs)) (snd <* vts) pbs)
+           pp)
   | _ ->
-      matchpredicate true isabstraction t &~~
-        (fun (pp, ts) ->
-           Some (insertP (pp, (ts, [bs])) (nj_fold (nj_foldterm (fp bs)) ts pbs))
-        )
+      matchpredicate true isabstraction t &~~ fun (pp, ts) ->
+      Some (insertP (pp, (ts, [ bs ])) (nj_fold (nj_foldterm (fp bs)) ts pbs))
 
 (* discard zero-arity 'predicates' -- only necessary for arity check *)
 let discardzeroarities pbs =
-  (fun (_, (abss : (term list * 'a) list)) -> List.exists (not <.> null <.> fst) abss) <| pbs
+  (fun (_, (abss : (term list * 'a) list)) ->
+    List.exists (not <.> null <.> fst) abss)
+  <| pbs
 
 (* To make a mapping from predicates to default args we prefer binding variables, if
  * suitable examples can be found.
  *)
 let findpredicatevars abss =
-  findfirst (fun (ts, bss) ->
-               if List.exists (fun bs -> eqbags eqterms (ts, bs)) bss then Some ts
-               else None)
-            abss
+  findfirst
+    (fun (ts, bss) ->
+      if List.exists (fun bs -> eqbags eqterms (ts, bs)) bss then Some ts
+      else None)
+    abss

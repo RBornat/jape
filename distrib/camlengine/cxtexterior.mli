@@ -26,5 +26,7 @@ open Cxttype
 open Rewinf
 
 val setexterior : cxt -> exterior -> cxt
+
 val getexterior : cxt -> exterior
+
 val exteriorinf : cxt -> rewinf option

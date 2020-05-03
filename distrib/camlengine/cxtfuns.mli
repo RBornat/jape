@@ -29,32 +29,54 @@ open Termtype
 open Mappingfuns
 open Proviso
 open Idclass
-                  
+
 val newcxt : cxt
+
 val dont_rewrite_with_this : cxt
+
 (* interrogation functions *)
 val varmap : cxt -> (vid, term) mapping
-val resmap : cxt -> (int, (resnum * term)) mapping
+
+val resmap : cxt -> (int, resnum * term) mapping
+
 val provisos : cxt -> visproviso list
+
 val usedVIDs : cxt -> vid list
+
 val nextresnum : cxt -> int
+
 (* assignment functions *)
 val withvarmap : cxt -> (vid, term) mapping -> cxt
-val withresmap : cxt -> (int, (resnum * term)) mapping -> cxt
+
+val withresmap : cxt -> (int, resnum * term) mapping -> cxt
+
 val withprovisos : cxt -> visproviso list -> cxt
+
 val withvisibleprovisos : cxt -> proviso list -> cxt
+
 val withusedVIDs : cxt -> vid list -> cxt
-val withexterior : cxt -> (seq list * seq) -> cxt
+
+val withexterior : cxt -> seq list * seq -> cxt
+
 val withresnum : cxt -> int -> cxt
+
 (* augmentation functions *)
 val plusvarmap : cxt -> (vid, term) mapping -> cxt
-val plusresmap : cxt -> (int, (resnum * term)) mapping -> cxt
+
+val plusresmap : cxt -> (int, resnum * term) mapping -> cxt
+
 val plusprovisos : cxt -> visproviso list -> cxt
+
 val plusvisibleprovisos : cxt -> proviso list -> cxt
+
 val plususedVIDs : cxt -> vid list -> cxt
+
 (* 'side-effecting' functions *)
 val freshVID : cxt -> idclass -> vid -> cxt * vid
+
 val freshproofvar : cxt -> idclass -> vid -> cxt * term
+
 val freshresnum : cxt -> cxt * int
+
 (* normalising functions *)
 val selfparentprovisos : cxt -> cxt

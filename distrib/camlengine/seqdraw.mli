@@ -29,15 +29,26 @@ open Draw
 open Seqtype
 open Termtype
 
-type planclass = ElementClass of (element * displayclass) 
-               | PunctClass
-               | ReasonClass
+type planclass =
+  | ElementClass of (element * displayclass)
+  | PunctClass
+  | ReasonClass
 
-val makeelementplan        : (element -> string) -> displayclass -> element -> pos 
-                          -> planclass plan
-val makeseqplan            : int -> (element -> string) -> bool -> pos -> seq 
-                          -> planclass plan list * textbox
+val makeelementplan :
+  (element -> string) -> displayclass -> element -> pos -> planclass plan
+
+val makeseqplan :
+  int ->
+  (element -> string) ->
+  bool ->
+  pos ->
+  seq ->
+  planclass plan list * textbox
+
 val displayclass_of_planclass : planclass -> displayclass
-val string_of_planclass        : planclass -> string
-val seqdraw                : pos -> textbox -> planclass plan list -> unit
-val seqelementpos          : pos -> textbox -> planclass plan -> pos
+
+val string_of_planclass : planclass -> string
+
+val seqdraw : pos -> textbox -> planclass plan list -> unit
+
+val seqelementpos : pos -> textbox -> planclass plan -> pos

@@ -23,43 +23,72 @@
 
 *)
 
-val (&~) : ('a -> 'b option) -> ('b -> 'c option) -> 'a -> 'c option  (* andthen  *)
-val (&~~) : 'a option -> ('a -> 'b option) -> 'b option               (* andthenr *)
-val (|~) : ('a -> 'b option) -> ('a -> 'b option) -> 'a -> 'b option  (* ortry    *)
-val (|~~) : 'a option -> (unit -> 'a option) -> 'a option             (* ortryr   *)
+val ( &~ ) : ('a -> 'b option) -> ('b -> 'c option) -> 'a -> 'c option
 
-val _The  : 'a option -> 'a                              (* _The None raises None_ *)
-val _Some : 'a -> 'a option                              (* Some as a function *)
+(* andthen  *)
+
+val ( &~~ ) : 'a option -> ('a -> 'b option) -> 'b option (* andthenr *)
+
+val ( |~ ) : ('a -> 'b option) -> ('a -> 'b option) -> 'a -> 'b option
+
+(* ortry    *)
+
+val ( |~~ ) : 'a option -> (unit -> 'a option) -> 'a option (* ortryr   *)
+
+val _The : 'a option -> 'a
+
+(* _The None raises None_ *)
+
+val _Some : 'a -> 'a option
+
+(* Some as a function *)
 
 val anyway : ('a -> 'a option) -> 'a -> 'a
+
 val failpt : ('a -> 'a option) -> 'a -> 'a
 
-val findbest  : ('a -> 'b option) -> ('b -> 'b -> 'b) -> 'a list -> 'b option
+val findbest : ('a -> 'b option) -> ('b -> 'b -> 'b) -> 'a list -> 'b option
+
 val findfirst : ('a -> 'b option) -> 'a list -> 'b option
 
 val bool_of_opt : 'a option -> bool
 
 val optioncompose : ('b -> 'c) * ('a -> 'b option) -> 'a -> 'c option
-val optionfilter  : ('a -> 'b option) -> 'a list -> 'b list
-val option_foldl  : ('b -> 'a -> 'b option) -> 'b -> 'a list -> 'b option
-val option_foldr  : ('a -> 'b -> 'b option) -> 'b -> 'a list -> 'b option
-val option_njfold : ('a * 'b  -> 'b option) -> 'a list -> 'b -> 'b option
-val optionmap     : ('a -> 'b option) -> 'a list -> 'b list option
+
+val optionfilter : ('a -> 'b option) -> 'a list -> 'b list
+
+val option_foldl : ('b -> 'a -> 'b option) -> 'b -> 'a list -> 'b option
+
+val option_foldr : ('a -> 'b -> 'b option) -> 'b -> 'a list -> 'b option
+
+val option_njfold : ('a * 'b -> 'b option) -> 'a list -> 'b -> 'b option
+
+val optionmap : ('a -> 'b option) -> 'a list -> 'b list option
 
 val optordefault : 'a option * 'a -> 'a
+
 val somef : ('a -> 'a option) -> 'a -> 'a option
+
 val stripoption : 'a option option -> 'a option
+
 val optf : ('a -> 'b) -> 'a option -> 'b option
 
 (* save space when rewriting structures *)
-val option_rewrite2 : ('a -> 'a option) -> ('b -> 'b option) 
-                   -> 'a * 'b -> ('a * 'b) option
-val option_rewrite3 : ('a -> 'a option) -> ('b -> 'b option) 
-                   -> ('c -> 'c option) -> 'a * 'b * 'c -> ('a * 'b * 'c) option
+val option_rewrite2 :
+  ('a -> 'a option) -> ('b -> 'b option) -> 'a * 'b -> ('a * 'b) option
+
+val option_rewrite3 :
+  ('a -> 'a option) ->
+  ('b -> 'b option) ->
+  ('c -> 'c option) ->
+  'a * 'b * 'c ->
+  ('a * 'b * 'c) option
+
 val option_rewritelist : ('a -> 'a option) -> 'a list -> 'a list option
 
-val catelim_string_of_option : ('a -> string list -> string list) 
-                        -> 'a option -> string list -> string list
+val catelim_string_of_option :
+  ('a -> string list -> string list) -> 'a option -> string list -> string list
+
 val string_of_option : ('a -> string) -> 'a option -> string
 
 exception None_

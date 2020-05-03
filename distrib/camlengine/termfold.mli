@@ -23,14 +23,22 @@
 
 *)
 
- type font = Text.font
- and term = Termtype.term
- and textsize = Box.textsize
- and textlayout = Draw.textlayout
+type font = Text.font
 
-val termfold : font -> int -> int -> int (* font, pre, inter, post leading *)
-            -> int -> term               (* width, term *)
-            -> bool * (textsize * textlayout)
+and term = Termtype.term
+
+and textsize = Box.textsize
+
+and textlayout = Draw.textlayout
+
+val termfold :
+  font ->
+  int ->
+  int ->
+  int (* font, pre, inter, post leading *) ->
+  int ->
+  term (* width, term *) ->
+  bool * (textsize * textlayout)
 
 val termfolddebug : bool ref
 

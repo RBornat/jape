@@ -29,10 +29,11 @@ type font = Displayfont.displayfont
 
 type textalign = FirstLine | MidBlock | LastLine
 
-type syllable = Syllable of (font * string)
-              | Gap of int
-              | Linebreak of int
-              | Block of (textalign * syllable list)
+type syllable =
+  | Syllable of (font * string)
+  | Gap of int
+  | Linebreak of int
+  | Block of (textalign * syllable list)
 
 type text = Text of syllable list
 
@@ -40,14 +41,22 @@ type textlayout = Textlayout of (pos * font * string) list
 
 (* Offset positions are relative to a baseline of (0,0), 
  * so a single syllable will have an offset of (0,0).
- *) 
+ *)
 
-val text_of_string   : font -> string -> text
-val measuretext      : (font -> string -> int * int * int) -> textalign -> text 
-                    -> textsize * textlayout
+val text_of_string : font -> string -> text
+
+val measuretext :
+  (font -> string -> int * int * int) ->
+  textalign ->
+  text ->
+  textsize * textlayout
+
 val textlayoutOffset : textlayout -> pos -> textlayout
 
-val string_of_textalign  : textalign -> string
-val string_of_syllable   : syllable -> string
-val string_of_text       : text -> string
+val string_of_textalign : textalign -> string
+
+val string_of_syllable : syllable -> string
+
+val string_of_text : text -> string
+
 val string_of_textlayout : textlayout -> string

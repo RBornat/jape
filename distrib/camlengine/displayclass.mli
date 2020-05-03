@@ -23,11 +23,12 @@
 
 *)
 
-type displayclass = DisplayHyp
-                  | DisplayConc
-                  | DisplayAmbig
-                  | DisplayReason
-                  | DisplayPunct
+type displayclass =
+  | DisplayHyp
+  | DisplayConc
+  | DisplayAmbig
+  | DisplayReason
+  | DisplayPunct
 
 val string_of_displayclass : displayclass -> string
 
@@ -43,5 +44,5 @@ val string_of_displayclass : displayclass -> string
  *)
 
 val int_of_displayclass : displayclass -> int
-val displayclass_of_int : int -> displayclass
 
+val displayclass_of_int : int -> displayclass

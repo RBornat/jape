@@ -27,6 +27,7 @@ open Sml
 open UTF
 
 let bracketed_string_of_list = Listfuns.bracketed_string_of_list
+
 let consolereport = Miscellaneous.consolereport
 
 (* this is the Unix version ... Linux and MacOS X ok; 
@@ -34,63 +35,54 @@ let consolereport = Miscellaneous.consolereport
    and normalize filenames according to OS just before opening
 *)
 
-let normalizePath filename = 
-if Sys.os_type="Win32" 
-then 
-   (* 0x2f = '/'
-      0x5c = '\\'
+let normalizePath filename =
+  if Sys.os_type = "Win32" then
+    (* 0x2f = '/'
+       0x5c = '\\'
     *)
-   let sloshify = function 0x2f->0x5c | c -> c in 
-   utf8_implode (List.map sloshify (utf8_explode filename))
-else filename
+    let sloshify = function 0x2f -> 0x5c | c -> c in
+    utf8_implode (List.map sloshify (utf8_explode filename))
+  else filename
 
 let pathStem path =
-  (* Remove the stern of a path 
+  (* Remove the stern of a path
      Path separator is immaterial so we can mix unix/windows-style paths
      in source files.
   *)
-   (* 0x2f = '/'
-      0x5c = '\\'
-    *)
-  let rec removestern =
-  function
-    | []          -> [Char.code '.'; Char.code '/']
-    | 0x2f  :: xs -> 0x2f  :: xs
-    | 0x5c :: xs  -> 0x5c :: xs  
-    | x :: xs     -> removestern xs
+  (* 0x2f = '/'
+     0x5c = '\\'
+  *)
+  let rec removestern = function
+    | [] -> [ Char.code '.'; Char.code '/' ]
+    | 0x2f :: xs -> 0x2f :: xs
+    | 0x5c :: xs -> 0x5c :: xs
+    | x :: xs -> removestern xs
   in
-    utf8_implode (List.rev (removestern (List.rev (utf8_explode path))))
- 
-let open_input_file  filename = open_in  (normalizePath filename)
+  utf8_implode (List.rev (removestern (List.rev (utf8_explode path))))
+
+let open_input_file filename = open_in (normalizePath filename)
 
 let open_output_file filename = open_out (normalizePath filename)
 
 (* It's not good enough ... we ought to parse the strings. RB 3/i/2002 *)
 
-let usestack = ref (if Sys.os_type="Win32" then [] else ["./"])
+let usestack = ref (if Sys.os_type = "Win32" then [] else [ "./" ])
 
 let isabsolute path =
-if Sys.os_type="Win32" then (
-  try
-    String.index path ':'  < String.index path '\\'
-  with
-    Not_found -> false)
-else (try path.[0]='/' with _ -> false)
+  if Sys.os_type = "Win32" then
+    try String.index path ':' < String.index path '\\' with Not_found -> false
+  else try path.[0] = '/' with _ -> false
 
 let makerelative s =
-  if isabsolute s then s else
-  match !usestack with
-  | []     -> s
-  | top::_ -> top ^ s
+  if isabsolute s then s
+  else match !usestack with [] -> s | top :: _ -> top ^ s
 
-let rec startusing path =
-  usestack := pathStem path :: !usestack
+let rec startusing path = usestack := pathStem path :: !usestack
 
 exception Matchinstopusing (* spurious *)
 
 let rec stopusing () =
   match !usestack with
-    [path] -> ()
+  | [ path ] -> ()
   | path :: paths -> usestack := paths
   | _ -> raise Matchinstopusing
-

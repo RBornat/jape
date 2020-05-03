@@ -27,9 +27,12 @@ open Cxttype
 open Termtype
 open Seqtype
 
-val rewrite         : cxt -> term -> term
-val rewriteseq      : cxt -> seq -> seq
+val rewrite : cxt -> term -> term
+
+val rewriteseq : cxt -> seq -> seq
+
 val rewritesubstmap : cxt -> (term * term) list -> (term * term) list
-val rewritecxt      : cxt -> cxt (* for updating provisos and BaseSeq *)
+
+val rewritecxt : cxt -> cxt (* for updating provisos and BaseSeq *)
 
 val rewritedebug : bool ref

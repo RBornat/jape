@@ -23,13 +23,18 @@
 
 *)
 
-type seq   = Seqtype.seq
+type seq = Seqtype.seq
+
 and tactic = Tactictype.tactic
-and term   = Termtype.term
+
+and term = Termtype.term
 
 type dclick = DClickHyp | DClickConc
 
 val adddoubleclick : dclick * tactic * seq -> unit
+
 val deldoubleclick : dclick * seq -> unit
+
 val cleardoubleclicks : unit -> unit
+
 val matchdoubleclick : dclick -> seq -> tactic option

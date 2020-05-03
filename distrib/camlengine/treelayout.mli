@@ -28,12 +28,15 @@ open Mappingfuns
 
 (* everything you can say in a LAYOUT tactic *)
 type treelayout =
-    HideRootLayout
+  | HideRootLayout
   | HideCutLayout
   | CompressedLayout of (term * term option)
-  | NamedLayout      of (term * term option)
-                      (* fmt    list of subtrees to show *)
+  | NamedLayout of (term * term option)
+
+(* fmt    list of subtrees to show *)
 
 val string_of_treelayout : treelayout -> string
+
 val debugstring_of_treelayout : treelayout -> string
+
 val remaptreelayout : (term, term) mapping -> treelayout -> treelayout

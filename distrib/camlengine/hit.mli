@@ -42,11 +42,11 @@ open Termtype
 type 'a hit = FormulaHit of 'a fhit | ReasonHit of 'a
 
 and 'a fhit =
-    ConcHit of ('a * (element * side option))
+  | ConcHit of ('a * (element * side option))
   | HypHit of ('a * element)
   | AmbigHit of (('a * (element * side option)) * ('a * element))
 
-and side = Left | Right 
+and side = Left | Right
 
 (* In box display at least, a single displayed element may play more than one 
  * role. hitkind (should perhaps be hitpathkind) allows us to choose which we want.
@@ -64,27 +64,37 @@ type hitkind = HitPath | PrunePath | LayoutPath
  * Text selections are rolled up into formula selections, because why not?
  *
  * We distinguish 'text selection only' selections.
- *) 
+ *)
 
 type 'a sel =
-    FormulaSel of
-      ('a * 
-       (element * side option) option * 
-       element list *
-       ('a * (element * side option) * string list) list *
-       ('a * element * string list) list * 
-       string list)
+  | FormulaSel of
+      ( 'a
+      * (element * side option) option
+      * element list
+      * ('a * (element * side option) * string list) list
+      * ('a * element * string list) list
+      * string list )
   | TextSel of (('a fhit * string list) list * string list)
   | ReasonSel of 'a
 
 val fhitpath : 'a fhit -> 'a option
+
 val string_of_fhit : ('a -> string) -> 'a fhit -> string
+
 val string_of_hitkind : hitkind -> string
+
 val hitpath : 'a hit -> 'a option
+
 val string_of_hit : ('a -> string) -> 'a hit -> string
+
 val selpath : 'a sel -> 'a option
+
 val string_of_sel : ('a -> string) -> 'a sel -> string
+
 val string_of_side : side -> string
+
 val tranfhitpath : ('a -> 'b) -> 'a fhit -> 'b fhit
+
 val tranhitpath : ('a -> 'b) -> 'a hit -> 'b hit
+
 val transelpath : ('a -> 'b) -> 'a sel -> 'b sel

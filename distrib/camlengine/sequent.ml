@@ -23,8 +23,7 @@
 
 *)
 
-open Seqtype 
-
+open Seqtype
 open Idclass
 open Idclassfuns
 open Listfuns
@@ -39,12 +38,14 @@ open Termfuns
 open Termstore
 open Termstring
 open Termtype
-open Termparse    
+open Termparse
 
 let error = Miscellaneous.error
 
 let bagkind = BagClass FormulaClass
+
 and listkind = ListClass FormulaClass
+
 and formulakind = FormulaClass
 
 type kind = Syntactic | Semantic
@@ -55,132 +56,137 @@ type kind = Syntactic | Semantic
  * I keep forgetting ....
  * RB 17/x/1996
  *)
-let trueclass =
-  function
-    FormulaClass -> listkind
-  | c            -> c
+let trueclass = function FormulaClass -> listkind | c -> c
 
-let validforms = [bagkind; listkind; formulakind]
+let validforms = [ bagkind; listkind; formulakind ]
 
-let string_of_syntaxclass =
-  function
-    FormulaClass -> "FORMULA"
+let string_of_syntaxclass = function
+  | FormulaClass -> "FORMULA"
   | BagClass FormulaClass -> "BAG"
   | ListClass FormulaClass -> "LIST"
-  | c -> raise (Catastrophe_ ["string_of_syntaxclass "; unparseidclass c])
+  | c -> raise (Catastrophe_ [ "string_of_syntaxclass "; unparseidclass c ])
 
 let string_of_syntax (kind, hyps, stile, concs) =
-  (match kind with
-     Syntactic -> "SEQUENT "
-   | Semantic -> "(SEMANTIC)SEQUENT ") ^
-  string_of_syntaxclass hyps ^ " " ^ stile ^ " " ^ string_of_syntaxclass concs
-    
+  (match kind with Syntactic -> "SEQUENT " | Semantic -> "(SEMANTIC)SEQUENT ")
+  ^ string_of_syntaxclass hyps ^ " " ^ stile ^ " "
+  ^ string_of_syntaxclass concs
+
 let sequent_descriptions : (kind * idclass * string * idclass) list ref = ref []
 
 let semanticturnstiles : (string, string) mapping ref = ref empty
 
 let rec syntacticsequents () =
-     (function
-        Syntactic, _, _, _ -> true
-      | _                  -> false) <| !sequent_descriptions
+  (function Syntactic, _, _, _ -> true | _ -> false) <| !sequent_descriptions
 
-let rec getsyntacticturnstiles () = ((fun(_,_,stile,_)->stile) <* syntacticsequents ())
+let rec getsyntacticturnstiles () =
+  (fun (_, _, stile, _) -> stile) <* syntacticsequents ()
 
 let rec lookupsyntax stilestring =
   findfirst
-    (fun (_, _, stile, _ as syn) ->
-       if stile = stilestring then Some syn else None)
+    (fun ((_, _, stile, _) as syn) ->
+      if stile = stilestring then Some syn else None)
     !sequent_descriptions
 
 let rec lookupSTILE st =
   match lookupsyntax st with
-    Some syn -> syn
-  | None -> raise (Catastrophe_ ["couldn't find syntax for "; st])
+  | Some syn -> syn
+  | None -> raise (Catastrophe_ [ "couldn't find syntax for "; st ])
 
-let rec getsemanticturnstile syn = (!semanticturnstiles <@> syn)
+let rec getsemanticturnstile syn = !semanticturnstiles <@> syn
 
 let rec resetsyntaxandturnstiles () =
-  sequent_descriptions := []; semanticturnstiles := empty
+  sequent_descriptions := [];
+  semanticturnstiles := empty
 
 let rec parseSeq () =
-  let rec formside el =
-    registerCollection (trueclass FormulaClass, [el])
-  in
+  let rec formside el = registerCollection (trueclass FormulaClass, [ el ]) in
   let rec conformside (found, c) =
-    match found, c with
-      (None, [el]), FormulaClass -> formside el
+    match (found, c) with
+    | (None, [ el ]), FormulaClass -> formside el
     | (_, []), FormulaClass ->
         raise
           (ParseError_
-             ["single formula expected on left-hand side of sequent; saw ";
-              string_of_symbol (currsymb ())])
+             [
+               "single formula expected on left-hand side of sequent; saw ";
+               string_of_symbol (currsymb ());
+             ])
     | (_, els), FormulaClass ->
         raise
           (ParseError_
-             ["single formula expected on left-hand side of sequent; found ";
-              string_of_term (Collection (None, listkind, els))])
+             [
+               "single formula expected on left-hand side of sequent; found ";
+               string_of_term (Collection (None, listkind, els));
+             ])
     | (None, els), c -> registerCollection (c, els)
     | (Some c', els), c ->
         if c = c' then registerCollection (c, els)
         else
           raise
             (ParseError_
-               [string_of_syntaxclass c;
-                " expected on left-hand side of sequent; found ";
-                string_of_term (Collection (None, c', els))])
+               [
+                 string_of_syntaxclass c;
+                 " expected on left-hand side of sequent; found ";
+                 string_of_term (Collection (None, c', els));
+               ])
   in
-  let rec parseside =
-    function
-      BagClass FormulaClass as c -> parseCollection c
+  let rec parseside = function
+    | BagClass FormulaClass as c -> parseCollection c
     | ListClass FormulaClass as c -> parseCollection c
     | FormulaClass -> formside (registerElement (Nonum, parseTerm EOF))
-    | x -> error ["internal error parseSeq parseside "; unparseidclass x]
+    | x -> error [ "internal error parseSeq parseside "; unparseidclass x ]
   in
   match currsymb () with
-    STILE st ->
+  | STILE st ->
       (* we can sometimes start with a stile ... *)
-      let (_, hypform, _, concform) = lookupSTILE st in
+      let _, hypform, _, concform = lookupSTILE st in
       if hypform = formulakind then
         raise
           (ParseError_
-             ["badly formed sequent - lhs formula missing before "; st])
+             [ "badly formed sequent - lhs formula missing before "; st ])
       else
         let _ = scansymb () in
         Seq (st, conformside ((None, []), hypform), parseside concform)
-  | _ ->
-      let first =
-        parseElementList canstartTerm parseTerm commasymbol None
-      in
-      match currsymb (), first, syntacticsequents () with
-        STILE st, _, _ ->
-          let (_, hypform, _, concform) = lookupSTILE st in
+  | _ -> (
+      let first = parseElementList canstartTerm parseTerm commasymbol None in
+      match (currsymb (), first, syntacticsequents ()) with
+      | STILE st, _, _ ->
+          let _, hypform, _, concform = lookupSTILE st in
           let _ = scansymb () in
           Seq (st, conformside (first, hypform), parseside concform)
-      | _, (None, [el]), [_, hypform, st, concform] ->
-          begin match hypform, concform with
-            FormulaClass, _ ->
+      | _, (None, [ el ]), [ (_, hypform, st, concform) ] -> (
+          match (hypform, concform) with
+          | FormulaClass, _ ->
               raise
                 (ParseError_
-                   ["badly formed sequent - "; st; " expected after ";
-                    string_of_term (formside el)])
+                   [
+                     "badly formed sequent - ";
+                     st;
+                     " expected after ";
+                     string_of_term (formside el);
+                   ])
           | _, FormulaClass ->
               Seq (st, registerCollection (hypform, []), formside el)
           | _ ->
               raise
                 (ParseError_
-                   ["badly formed sequent - "; st; " expected after ";
-                    string_of_term (Collection (None, hypform, [el]))])
-          end
+                   [
+                     "badly formed sequent - ";
+                     st;
+                     " expected after ";
+                     string_of_term (Collection (None, hypform, [ el ]));
+                   ]) )
       | _, (_, els), _ ->
           raise
             (ParseError_
-               ["badly formed sequent - some kind of turnstile expected after ";
-                string_of_term (Collection (None, listkind, els))])
+               [
+                 "badly formed sequent - some kind of turnstile expected after ";
+                 string_of_term (Collection (None, listkind, els));
+               ]) )
 
 let canstartSeq = canstartTerm
 
 let rec mkSeq (st, hs, gs) =
-  let (_, hypform, _, concform) = lookupSTILE st in
+  let _, hypform, _, concform = lookupSTILE st in
   let sh = trueclass hypform in
   let sg = trueclass concform in
   Seq (st, registerCollection (sh, hs), registerCollection (sg, gs))
@@ -189,44 +195,50 @@ let alwaysshowturnstile = ref false
 
 let rec sqs linesep tf (Seq (st, hs, gs)) ss =
   let rec default () =
-    let tail =
-      st :: " " :: (if isemptycollection gs then ss else tf gs ss)
-    in
+    let tail = st :: " " :: (if isemptycollection gs then ss else tf gs ss) in
     if isemptycollection hs then tail else tf hs (linesep :: tail)
   in
-  let (stkind, hypform, _, concform) = lookupSTILE st in
+  let stkind, hypform, _, concform = lookupSTILE st in
   match
-    (!alwaysshowturnstile || stkind <> Syntactic) ||
-    List.length (syntacticsequents ()) <> 1,
-    hypform, concform
+    ( (!alwaysshowturnstile || stkind <> Syntactic)
+      || List.length (syntacticsequents ()) <> 1,
+      hypform,
+      concform )
   with
-    false, BagClass FormulaClass, FormulaClass ->
+  | false, BagClass FormulaClass, FormulaClass ->
       if isemptycollection hs then tf gs ss else default ()
   | false, ListClass FormulaClass, FormulaClass ->
       if isemptycollection hs then tf gs ss else default ()
   | _ -> default ()
 
-let catelim_string_of_seq = 
-  sqs " " (catelim_string_of_collection ", ")
-let catelim_invisbracketedstring_of_seq b = 
-  sqs " " (catelim_invisbracketedstring_of_collection b ", ") 
+let catelim_string_of_seq = sqs " " (catelim_string_of_collection ", ")
+
+let catelim_invisbracketedstring_of_seq b =
+  sqs " " (catelim_invisbracketedstring_of_collection b ", ")
+
 let catelim_debugstring_of_seq = sqs " " catelim_debugstring_of_term
+
 let catelim_separatedstring_of_seq linesep =
-  sqs linesep (catelim_string_of_collection (","^linesep))
+  sqs linesep (catelim_string_of_collection ("," ^ linesep))
 
 let catelim_elementstring_of_seq =
   sqs " " (function
-             Collection (_, _, es) ->
-               catelim_string_of_list (catelim_debugstring_of_element catelim_string_of_term)
-                 ", " es
-           | t -> catelim_string_of_term t)
-     
+    | Collection (_, _, es) ->
+        catelim_string_of_list
+          (catelim_debugstring_of_element catelim_string_of_term)
+          ", " es
+    | t -> catelim_string_of_term t)
+
 let string_of_seq = stringfn_of_catelim catelim_string_of_seq
-let invisbracketedstring_of_seq = stringfn_of_catelim <.> catelim_invisbracketedstring_of_seq
+
+let invisbracketedstring_of_seq =
+  stringfn_of_catelim <.> catelim_invisbracketedstring_of_seq
+
 let debugstring_of_seq = stringfn_of_catelim catelim_debugstring_of_seq
+
 let elementstring_of_seq = stringfn_of_catelim catelim_elementstring_of_seq
 
-let rec seqexplode = fun (Seq s) -> s
+let rec seqexplode (Seq s) = s
 
 (* 
 fun parseComponent c () =
@@ -242,118 +254,143 @@ fun parseComponent c () =
   | ID(s,Some c0) => if c=c0 then (Id(s,c) before scansymb()) else parseTerm()
   | _             => parseTerm()
 *)
-  
+
 let rec sequent_of_string s = tryparse (fun _ -> parseSeq ()) s
 
-let rec seqvars termvars tmerge =
-  fun (Seq (st, hs, gs)) -> tmerge (termvars hs) (termvars gs)
-let rec seqVIDs s = orderVIDs ((vid_of_var <* seqvars termvars tmerge s))
+let rec seqvars termvars tmerge (Seq (st, hs, gs)) =
+  tmerge (termvars hs) (termvars gs)
 
-let rec eqseqs =
-  fun (Seq (st1, h1s, g1s), Seq (st2, s_of_h, s_of_g)) ->
-    (st1 = st2 && eqterms (h1s, s_of_h)) && eqterms (g1s, s_of_g)
-let rec seqmatchvars matchbra ispatvar =
-  fun (Seq (stpat, pathyps, patgoals)) ->
-    fun (Seq (st, hyps, goals)) env ->
-      if stpat <> st then None
-      else
-        (matchvars matchbra ispatvar pathyps hyps env &~~
-           matchvars matchbra ispatvar patgoals goals)
+let rec seqVIDs s = orderVIDs (vid_of_var <* seqvars termvars tmerge s)
+
+let rec eqseqs (Seq (st1, h1s, g1s), Seq (st2, s_of_h, s_of_g)) =
+  (st1 = st2 && eqterms (h1s, s_of_h)) && eqterms (g1s, s_of_g)
+
+let rec seqmatchvars matchbra ispatvar (Seq (stpat, pathyps, patgoals))
+    (Seq (st, hyps, goals)) env =
+  if stpat <> st then None
+  else
+    matchvars matchbra ispatvar pathyps hyps env
+    &~~ matchvars matchbra ispatvar patgoals goals
+
 let rec seqmatch matchbra = seqmatchvars matchbra ismetav
-let rec remapseq env =
-  fun (Seq (st, hs, gs)) -> Seq (st, remapterm env hs, remapterm env gs)
-let rec maxseqresnum =
-  fun (Seq (st, hs, gs)) ->
-    nj_fold (uncurry2 max) ((int_of_resnum <* elementnumbers hs))
-      (nj_fold (uncurry2 max) ((int_of_resnum <* elementnumbers gs)) 0)
+
+let rec remapseq env (Seq (st, hs, gs)) =
+  Seq (st, remapterm env hs, remapterm env gs)
+
+let rec maxseqresnum (Seq (st, hs, gs)) =
+  nj_fold (uncurry2 max)
+    (int_of_resnum <* elementnumbers hs)
+    (nj_fold (uncurry2 max) (int_of_resnum <* elementnumbers gs) 0)
 
 let syntaxes = ref []
 
-let pushSyntax name = 
-  syntaxes := (name, !sequent_descriptions, !semanticturnstiles, !alwaysshowturnstile) :: !syntaxes;
+let pushSyntax name =
+  syntaxes :=
+    (name, !sequent_descriptions, !semanticturnstiles, !alwaysshowturnstile)
+    :: !syntaxes;
   resetsyntaxandturnstiles ()
 
 let popSyntax () =
   match !syntaxes with
-    (_, sqds, sems, show) :: sys ->
-      sequent_descriptions := sqds; semanticturnstiles := sems;
+  | (_, sqds, sems, show) :: sys ->
+      sequent_descriptions := sqds;
+      semanticturnstiles := sems;
       alwaysshowturnstile := show;
       syntaxes := sys
-  | _ -> raise (ParseError_ ["sequent popSyntax stack empty"])
+  | _ -> raise (ParseError_ [ "sequent popSyntax stack empty" ])
 
 let popAllSyntaxes () =
-  while !syntaxes<>[] do popSyntax () done
+  while !syntaxes <> [] do
+    popSyntax ()
+  done
 
 let rec describeSeqs ds =
   let rec f (hyps, stile, concs) =
     let description = (Syntactic, hyps, stile, concs) in
-    (match !syntaxes with 
-       (name, sqds, _, _) :: _ ->
-         if not (List.mem description sqds) then
-           raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
-                               " attempt to declare novel sequent syntax ";
-                               string_of_syntax description])
-     | _ -> ());
+    ( match !syntaxes with
+    | (name, sqds, _, _) :: _ ->
+        if not (List.mem description sqds) then
+          raise
+            (ParseError_
+               [
+                 "After PUSHSYNTAX ";
+                 Stringfuns.enQuote name;
+                 " attempt to declare novel sequent syntax ";
+                 string_of_syntax description;
+               ])
+    | _ -> () );
     match lookupsyntax stile with
-      Some (kind, hyps', _, concs' as syn') ->
+    | Some ((kind, hyps', _, concs') as syn') ->
         if (kind = Syntactic && hyps = hyps') && concs = concs' then ()
         else
           error
-            ["you cannot redeclare "; string_of_syntax syn'; " as ";
-             string_of_syntax description]
+            [
+              "you cannot redeclare ";
+              string_of_syntax syn';
+              " as ";
+              string_of_syntax description;
+            ]
     | None ->
-        if member (hyps, validforms) && member (concs, validforms) then
-          begin
-            (* consolereport ["accepting ", show syn]; *)
-            sequent_descriptions := description :: !sequent_descriptions;
-            enter stile None None (STILE stile)
-          end
+        if member (hyps, validforms) && member (concs, validforms) then (
+          (* consolereport ["accepting ", show syn]; *)
+          sequent_descriptions := description :: !sequent_descriptions;
+          enter stile None None (STILE stile) )
         else
           error
-            ["bad syntactic sequent syntax description ";
-             string_of_syntax (Syntactic, hyps, stile, concs)]
+            [
+              "bad syntactic sequent syntax description ";
+              string_of_syntax (Syntactic, hyps, stile, concs);
+            ]
   in
   (* consolereport ["describing ", bracketed_string_of_list show "," ds]; *)
   List.iter f ds
 
 let rec setsemanticturnstile syn sem =
-  (match !syntaxes with 
-     (name, _, sems, _) :: _ ->
-       if sems<@>syn <> (Some sem) then
-         raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
-                             " attempt to declare novel turnstile pair ";
-                             syn; " "; sem])
-   | _ -> ());
+  ( match !syntaxes with
+  | (name, _, sems, _) :: _ ->
+      if sems <@> syn <> Some sem then
+        raise
+          (ParseError_
+             [
+               "After PUSHSYNTAX ";
+               Stringfuns.enQuote name;
+               " attempt to declare novel turnstile pair ";
+               syn;
+               " ";
+               sem;
+             ])
+  | _ -> () );
   let rec bad ss =
     error
-      (implode ["Error in SEMANTICTURNSTILE "; syn; " IS "; sem; ": "] ::
-         ss)
+      (implode [ "Error in SEMANTICTURNSTILE "; syn; " IS "; sem; ": " ] :: ss)
   in
   let newsyntaxes =
     match lookupsyntax syn with
-      None -> bad [syn; " is not a turnstile"]
-    | Some (Semantic, hyps, _, concs) ->
-        bad [syn; " is a semantic turnstile"]
-    | Some (Syntactic, hyps, _, concs) ->
+    | None -> bad [ syn; " is not a turnstile" ]
+    | Some (Semantic, hyps, _, concs) -> bad [ syn; " is a semantic turnstile" ]
+    | Some (Syntactic, hyps, _, concs) -> (
         match lookupsyntax sem with
-          None -> (Semantic, hyps, sem, concs) :: !sequent_descriptions
-        | Some (Syntactic, _, _, _) ->
-            bad [sem; " is a syntactic turnstile"]
-        | Some (Semantic, hyps', _, concs' as sem') ->
+        | None -> (Semantic, hyps, sem, concs) :: !sequent_descriptions
+        | Some (Syntactic, _, _, _) -> bad [ sem; " is a syntactic turnstile" ]
+        | Some ((Semantic, hyps', _, concs') as sem') ->
             if hyps = hyps' && concs = concs' then !sequent_descriptions
             else
               bad
-                ["you cannot redeclare "; string_of_syntax sem'; " as ";
-                 string_of_syntax (Semantic, hyps, sem, concs)]
+                [
+                  "you cannot redeclare ";
+                  string_of_syntax sem';
+                  " as ";
+                  string_of_syntax (Semantic, hyps, sem, concs);
+                ] )
   in
   let newturnstiles =
-    match (!semanticturnstiles <@> syn) with
-      None ->
+    match !semanticturnstiles <@> syn with
+    | None ->
         enter sem None None (STILE sem);
-        (!semanticturnstiles ++ (syn |-> sem))
+        !semanticturnstiles ++ (syn |-> sem)
     | Some sem' ->
         if sem = sem' then !semanticturnstiles
-        else bad ["semantic turnstile for "; syn; " is "; sem']
+        else bad [ "semantic turnstile for "; syn; " is "; sem' ]
   in
-  sequent_descriptions := newsyntaxes; semanticturnstiles := newturnstiles
-      
+  sequent_descriptions := newsyntaxes;
+  semanticturnstiles := newturnstiles

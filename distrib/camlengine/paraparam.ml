@@ -29,25 +29,29 @@ open Termfuns
 open Termstore
 
 type vid = Termtype.vid
- and idclass = Idclass.idclass
 
-type paraparam = Objectparam      of (vid * idclass)
-               | Ordinaryparam    of (vid * idclass)
-               | Unknownparam     of (vid * idclass)
-               | Abstractionparam of (vid * idclass) (* ABSTRACTION P *)
- 
+and idclass = Idclass.idclass
+
+type paraparam =
+  | Objectparam of (vid * idclass)
+  | Ordinaryparam of (vid * idclass)
+  | Unknownparam of (vid * idclass)
+  | Abstractionparam of (vid * idclass)
+
+(* ABSTRACTION P *)
+
 let rec catelim_string_of_paraparam p tail =
   match p with
-  | Objectparam (v, _)      -> "OBJECT " :: string_of_vid v :: tail
-  | Ordinaryparam (v, _)    -> string_of_vid v :: tail
-  | Unknownparam (v, _)     -> metachar_as_string :: string_of_vid v :: tail
+  | Objectparam (v, _) -> "OBJECT " :: string_of_vid v :: tail
+  | Ordinaryparam (v, _) -> string_of_vid v :: tail
+  | Unknownparam (v, _) -> metachar_as_string :: string_of_vid v :: tail
   | Abstractionparam (v, _) -> "ABSTRACTION " :: string_of_vid v :: tail
 
 let string_of_paraparam = stringfn_of_catelim catelim_string_of_paraparam
 
 let rec paramidbits p =
   match p with
-    Objectparam vc -> vc
+  | Objectparam vc -> vc
   | Ordinaryparam vc -> vc
   | Unknownparam vc -> vc
   | Abstractionparam vc -> vc

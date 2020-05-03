@@ -23,26 +23,33 @@
 
 *)
 
-type box          = Box.box
- and displayclass = Displayclass.displayclass
- and element      = Termtype.element
- and 'a hit       = 'a Hit.hit
- and hitkind      = Hit.hitkind
- and path         = Prooftree.Tree.Fmttree.path
- and pos          = Box.pos
- and prooftree    = Prooftree.Tree.Fmttree.prooftree
+type box = Box.box
 
-type displaystaterec =
-      { showProof         : prooftree -> box -> path option -> path option -> displaystate;
-        showFocussedProof : prooftree -> box -> path option -> displaystate;
-        refreshProof      : unit -> unit;
-        printProof        : out_channel -> prooftree -> path option -> path option -> unit;
-        locateHit         : pos -> displayclass option -> hitkind -> path hit option;
-        locateElement     : element -> pos list;
-        refineSelection   : bool;
-        notifyselect      : (pos * displayclass) option -> (pos * displayclass) list -> unit;
-        storedProof       : unit -> prooftree option }
+and displayclass = Displayclass.displayclass
 
- and displaystate = DisplayState of displaystaterec
+and element = Termtype.element
 
+and 'a hit = 'a Hit.hit
 
+and hitkind = Hit.hitkind
+
+and path = Prooftree.Tree.Fmttree.path
+
+and pos = Box.pos
+
+and prooftree = Prooftree.Tree.Fmttree.prooftree
+
+type displaystaterec = {
+  showProof : prooftree -> box -> path option -> path option -> displaystate;
+  showFocussedProof : prooftree -> box -> path option -> displaystate;
+  refreshProof : unit -> unit;
+  printProof : out_channel -> prooftree -> path option -> path option -> unit;
+  locateHit : pos -> displayclass option -> hitkind -> path hit option;
+  locateElement : element -> pos list;
+  refineSelection : bool;
+  notifyselect :
+    (pos * displayclass) option -> (pos * displayclass) list -> unit;
+  storedProof : unit -> prooftree option;
+}
+
+and displaystate = DisplayState of displaystaterec

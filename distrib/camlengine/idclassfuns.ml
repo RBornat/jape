@@ -23,8 +23,8 @@
 
 *)
 
-open Symboltype 
-open Symbol 
+open Symboltype
+open Symbol
 open Idclass
 open Miscellaneous
 open Listfuns
@@ -36,40 +36,60 @@ open Listfuns
 
 let rec canstartidclass sy =
   member
-    (sy,
-     [SHYID "FORMULA"; SHYID "VARIABLE"; SHYID "CONSTANT"; SHYID "NUMBER";
-      SHYID "STRING"; SHYID "BAG"; SHYID "LIST"])
+    ( sy,
+      [
+        SHYID "FORMULA";
+        SHYID "VARIABLE";
+        SHYID "CONSTANT";
+        SHYID "NUMBER";
+        SHYID "STRING";
+        SHYID "BAG";
+        SHYID "LIST";
+      ] )
 
-let rec canstartCollectionidclass sy =
-  member (sy, [SHYID "BAG"; SHYID "LIST"])
+let rec canstartCollectionidclass sy = member (sy, [ SHYID "BAG"; SHYID "LIST" ])
 
 let rec parseidclass prev =
   match currsymb () with
-    SHYID "FORMULA" -> let _ = scansymb () in FormulaClass
-  | SHYID "VARIABLE" -> let _ = scansymb () in VariableClass
-  | SHYID "CONSTANT" -> let _ = scansymb () in ConstantClass
-  | SHYID "NUMBER" -> let _ = scansymb () in NumberClass
-  | SHYID "STRING" -> let _ = scansymb () in StringClass
+  | SHYID "FORMULA" ->
+      let _ = scansymb () in
+      FormulaClass
+  | SHYID "VARIABLE" ->
+      let _ = scansymb () in
+      VariableClass
+  | SHYID "CONSTANT" ->
+      let _ = scansymb () in
+      ConstantClass
+  | SHYID "NUMBER" ->
+      let _ = scansymb () in
+      NumberClass
+  | SHYID "STRING" ->
+      let _ = scansymb () in
+      StringClass
   | SHYID "BAG" ->
       let _ = scansymb () in
       BagClass
-        (if canstartidclass (currsymb ()) then parseidclass "BAG"
-         else FormulaClass)
+        ( if canstartidclass (currsymb ()) then parseidclass "BAG"
+        else FormulaClass )
   | SHYID "LIST" ->
       let _ = scansymb () in
       ListClass
-        (if canstartidclass (currsymb ()) then parseidclass "List"
-         else FormulaClass)
+        ( if canstartidclass (currsymb ()) then parseidclass "List"
+        else FormulaClass )
   | s ->
       raise
         (ParseError_
-           ["BAG, LIST, FORMULA, VARIABLE, CONSTANT, NUMBER or STRING ";
-            "expected "; prev; " -- found "; string_of_symbol s])
+           [
+             "BAG, LIST, FORMULA, VARIABLE, CONSTANT, NUMBER or STRING ";
+             "expected ";
+             prev;
+             " -- found ";
+             string_of_symbol s;
+           ])
 
 (* this is deliberately not string_of_idclass -- because of the SHYID implications *)
-let rec unparseidclass =
-  function
-    FormulaClass -> "FORMULA"
+let rec unparseidclass = function
+  | FormulaClass -> "FORMULA"
   | VariableClass -> "VARIABLE"
   | ConstantClass -> "CONSTANT"
   | NumberClass -> "NUMBER"
@@ -81,23 +101,38 @@ let rec unparseidclass =
 (* this is the inverse of string_of_idclass (and it is kind to people who use unparseidclass) *)
 let rec idclass_of_string prev =
   match currsymb () with
-    SHYID "FORMULA" -> let _ = scansymb () in FormulaClass
-  | SHYID "VARIABLE" -> let _ = scansymb () in VariableClass
-  | SHYID "CONSTANT" -> let _ = scansymb () in ConstantClass
-  | SHYID "NUMBER" -> let _ = scansymb () in NumberClass
-  | SHYID "STRING" -> let _ = scansymb () in StringClass
+  | SHYID "FORMULA" ->
+      let _ = scansymb () in
+      FormulaClass
+  | SHYID "VARIABLE" ->
+      let _ = scansymb () in
+      VariableClass
+  | SHYID "CONSTANT" ->
+      let _ = scansymb () in
+      ConstantClass
+  | SHYID "NUMBER" ->
+      let _ = scansymb () in
+      NumberClass
+  | SHYID "STRING" ->
+      let _ = scansymb () in
+      StringClass
   | SHYID "BAG" ->
       let _ = scansymb () in
       BagClass
-        (if canstartidclass (currsymb ()) then parseidclass "BAG"
-         else FormulaClass)
+        ( if canstartidclass (currsymb ()) then parseidclass "BAG"
+        else FormulaClass )
   | SHYID "LIST" ->
       let _ = scansymb () in
       ListClass
-        (if canstartidclass (currsymb ()) then parseidclass "List"
-         else FormulaClass)
+        ( if canstartidclass (currsymb ()) then parseidclass "List"
+        else FormulaClass )
   | s ->
       raise
         (ParseError_
-           ["BAG, LIST, FORMULA, VARIABLE, CONSTANT, NUMBER or STRING ";
-            "expected "; prev; " -- found "; string_of_symbol s])
+           [
+             "BAG, LIST, FORMULA, VARIABLE, CONSTANT, NUMBER or STRING ";
+             "expected ";
+             prev;
+             " -- found ";
+             string_of_symbol s;
+           ])

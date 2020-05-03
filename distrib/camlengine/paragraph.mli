@@ -40,24 +40,27 @@ type ruleheading = RuleHeading of (name * paraparam list * proviso list)
 type tacticheading = TacticHeading of (name * paraparam list)
 
 type paragraph =
-    AutoRule      of (bool * tactic list)
-  | Conjecture    of (ruleheading * seq)
-  | File          of (string * paragraph list)
-  | FontSpec      of string
-  | ForceDef      of (term * forcedef)
-  | HitDef        of (dclick * tactic * seq)
-  | InitVar       of (name * term)
-  | MacroDef      of (tacticheading * term)
-  | Menu          of (bool * name * menupara list)
-  | Panel         of (name * panelpara list * panelkind)
-  | Proof         of (name * proofstage * seq *
-                       (seq list * paraparam list * proviso list * tactic) *
-                       (seq * model) option)
-  | RuleDef       of (ruleheading * seq list * seq * bool)
-  | RuleGroup     of (ruleheading * paragraph list)
+  | AutoRule of (bool * tactic list)
+  | Conjecture of (ruleheading * seq)
+  | File of (string * paragraph list)
+  | FontSpec of string
+  | ForceDef of (term * forcedef)
+  | HitDef of (dclick * tactic * seq)
+  | InitVar of (name * term)
+  | MacroDef of (tacticheading * term)
+  | Menu of (bool * name * menupara list)
+  | Panel of (name * panelpara list * panelkind)
+  | Proof of
+      ( name
+      * proofstage
+      * seq
+      * (seq list * paraparam list * proviso list * tactic)
+      * (seq * model) option )
+  | RuleDef of (ruleheading * seq list * seq * bool)
+  | RuleGroup of (ruleheading * paragraph list)
   | StructureRule of (string * name)
-  | TacticDef     of (tacticheading * tactic)
-  | Theory        of (ruleheading * paragraph list)
+  | TacticDef of (tacticheading * tactic)
+  | Theory of (ruleheading * paragraph list)
 
 and panelpara = Panelstuff of paneldata | Panelpara of paragraph
 
@@ -67,21 +70,32 @@ exception Use_
 
 val paragraphs_of_file :
   (string list -> unit) ->
-    (string list * string * string * int -> bool) -> string ->
-    paragraph list
+  (string list * string * string * int -> bool) ->
+  string ->
+  paragraph list
+
 val paragraph_of_string :
   (string list -> unit) ->
-    (string list * string * string * int -> bool) -> string -> paragraph
+  (string list * string * string * int -> bool) ->
+  string ->
+  paragraph
 
-val catelim_string_of_rulebody : string (* linesep *) -> proviso list -> seq list -> seq
-                              -> string list -> string list
-val catelim_string_of_thmbody : string (* linesep *) -> proviso list -> seq
-                             -> string list -> string list
-val string_of_rulebody : string (* linesep *) -> proviso list -> seq list -> seq -> string
+val catelim_string_of_rulebody :
+  string (* linesep *) ->
+  proviso list ->
+  seq list ->
+  seq ->
+  string list ->
+  string list
+
+val catelim_string_of_thmbody :
+  string (* linesep *) -> proviso list -> seq -> string list -> string list
+
+val string_of_rulebody :
+  string (* linesep *) -> proviso list -> seq list -> seq -> string
+
 val string_of_thmbody : string (* linesep *) -> proviso list -> seq -> string
 
 val clearScopeHyps : unit -> unit
 
-val isScopeHyp : term -> (term,term) Mappingfuns.mapping option
-
-
+val isScopeHyp : term -> (term, term) Mappingfuns.mapping option

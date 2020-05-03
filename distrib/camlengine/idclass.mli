@@ -27,16 +27,18 @@
  * - see function idclass in term.sml 
  *)
 
-type idclass = NoClass
-             | FormulaClass
-             | VariableClass
-             | ConstantClass
-             | NumberClass
-             | StringClass
-             | OperatorClass
-             | SubstClass
-             | BagClass of idclass
-             | ListClass of idclass
+type idclass =
+  | NoClass
+  | FormulaClass
+  | VariableClass
+  | ConstantClass
+  | NumberClass
+  | StringClass
+  | OperatorClass
+  | SubstClass
+  | BagClass of idclass
+  | ListClass of idclass
 
 val catelim_string_of_idclass : idclass -> string list -> string list
-val string_of_idclass         : idclass -> string
+
+val string_of_idclass : idclass -> string

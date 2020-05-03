@@ -26,28 +26,34 @@
 open Seqtype
 open Termtype
 
-type forcedef = ForceAlways
-              | ForceNever
-              | ForcePrim of term
-              | ForceBoth of (forcedef * forcedef)
-              | ForceEither of (forcedef * forcedef)
-              | ForceIf of (forcedef * forcedef)
-              | ForceEverywhere of forcedef
-              | ForceNowhere of forcedef
-              | ForceAll of (term * term list * forcedef)
-              | ForceSome of (term * term list * forcedef)
-                            (* pat   vars        body: a binder *)
+type forcedef =
+  | ForceAlways
+  | ForceNever
+  | ForcePrim of term
+  | ForceBoth of (forcedef * forcedef)
+  | ForceEither of (forcedef * forcedef)
+  | ForceIf of (forcedef * forcedef)
+  | ForceEverywhere of forcedef
+  | ForceNowhere of forcedef
+  | ForceAll of (term * term list * forcedef)
+  | ForceSome of (term * term list * forcedef)
 
+(* pat   vars        body: a binder *)
 
-val term_of_forcedef: forcedef -> term option (* really, is it ForcePrim? *)
+val term_of_forcedef : forcedef -> term option (* really, is it ForcePrim? *)
 
 val catelim_string_of_forcedef : forcedef -> string list -> string list
+
 val string_of_forcedef : forcedef -> string
 
 val existsinforcedef : (term -> bool) -> forcedef -> bool
+
 val findinforcedef : (term -> 'a option) -> forcedef -> 'a option
+
 val mapforcedef : (forcedef -> forcedef option) -> forcedef -> forcedef
+
 val mapforcedefterms : (term -> term option) -> forcedef -> forcedef
+
 val parseForceDef : unit -> forcedef
 
 type coordinate = Coord of (int * int)
@@ -57,4 +63,5 @@ and world = World of (coordinate * coordinate list * term list)
 and model = Model of world list
 
 val catelim_string_of_model : (seq * model) option -> string list -> string list
+
 val parsemodel : unit -> (seq * model) option

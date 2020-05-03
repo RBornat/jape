@@ -28,22 +28,28 @@ open Name
 open Termtype
 open Tactictype
 
-val tacname : term -> name                  (* or raise ParseError_ *)
+val tacname : term -> name (* or raise ParseError_ *)
 
 val transTactic : term -> tactic
+
 val explodeForExecute : term -> name * term list
 
-val string_of_tactic        : tactic -> string (* the simple, unvarnished string *)
-val argstring_of_tactic     : tactic -> string (* with brackets if necessary *)
+val string_of_tactic : tactic -> string (* the simple, unvarnished string *)
+
+val argstring_of_tactic : tactic -> string (* with brackets if necessary *)
+
 val stringwithNLs_of_tactic : tactic -> string (* guess what this one does *)
 
 val catelim_string_of_tactic : tactic -> string list -> string list
+
 val catelim_stringwithNLs_of_tactic : tactic -> string list -> string list
 
 val remaptactic : (term, term) mapping -> tactic -> tactic
+
 val isguard : tactic -> bool
 
-val showargasint  : (term -> int) option ref
-val readintasarg  : term array option ref
-val stripextrabag : bool ref
+val showargasint : (term -> int) option ref
 
+val readintasarg : term array option ref
+
+val stripextrabag : bool ref

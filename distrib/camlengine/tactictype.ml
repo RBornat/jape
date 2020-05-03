@@ -29,12 +29,15 @@
  *)
 
 type term = Termtype.term
- and seq  = Seqtype.seq
- and name = Nametype.name
- and treelayout = Treelayout.treelayout
- 
+
+and seq = Seqtype.seq
+
+and name = Nametype.name
+
+and treelayout = Treelayout.treelayout
+
 type tactic =
-    SkipTac
+  | SkipTac
   | FailTac
   | StopTac
   | NextgoalTac
@@ -105,8 +108,9 @@ type tactic =
   | BadMatchTac of (name * name * tactic)
   | BadProvisoTac of (name * name * name * tactic)
   | UnifyArgsTac
+
 and pathexpr =
-    Parent of pathexpr
+  | Parent of pathexpr
   | LeftSibling of pathexpr
   | RightSibling of pathexpr
   | Subgoal of (pathexpr * term)

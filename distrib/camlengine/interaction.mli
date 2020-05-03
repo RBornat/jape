@@ -33,32 +33,64 @@ open Termtype
 open Seqtype
 
 type command =
-    TextCommand of string list
+  | TextCommand of string list
   | HitCommand of (prooftree * path hit * path sel)
 
 val string_of_command : command -> string
+
 val terminateGUI : unit -> unit
+
 val reportGUIdead : string list -> unit
+
 val setdisplaystyle : string -> unit
+
 val getdisplaystyle : unit -> string
-val showProof : displaystate -> path option -> path option -> cxt -> prooftree 
-             -> bool -> displaystate
+
+val showProof :
+  displaystate ->
+  path option ->
+  path option ->
+  cxt ->
+  prooftree ->
+  bool ->
+  displaystate
+
 val showFocussedProof : path option -> cxt -> prooftree -> bool -> displaystate
+
 val refreshProof : displaystate -> unit
+
 val displayProvisos : cxt -> unit
+
 val displayGivens : seq list -> unit
+
 val showallprovisos : bool ref
+
 val getCommand : displaystate option -> command
+
 val findSelection : displaystate -> path sel option
+
 val findLayoutSelection : displaystate -> hitkind -> path option
-val findDisproofSelections: unit -> pos list * (pos * string list) list
+
+val findDisproofSelections : unit -> pos list * (pos * string list) list
+
 (* Drag n drop is moribund, as currently implemented.  Will be redone! *)
 val dropsource : element option ref
+
 val droptarget : element option ref
+
 val setComment : string list -> unit
+
 val showState : displaystate -> proofstate -> bool -> displaystate
+
 val printState : Stdlib.out_channel -> proofstate -> bool -> unit
-val alterTip : displaystate -> cxt -> path -> prooftree
-            -> (prooftree * path) option -> (bool * path * element) * string list
-            -> cxt * element * prooftree
+
+val alterTip :
+  displaystate ->
+  cxt ->
+  path ->
+  prooftree ->
+  (prooftree * path) option ->
+  (bool * path * element) * string list ->
+  cxt * element * prooftree
+
 val locateElement : displaystate -> element -> pos list

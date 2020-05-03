@@ -23,19 +23,23 @@
 
 *)
 
-type idclass = Idclass.idclass 
+type idclass = Idclass.idclass
 
 type associativity =
-  LeftAssoc | RightAssoc | AssocAssoc | TupleAssoc | CommAssocAssoc
+  | LeftAssoc
+  | RightAssoc
+  | AssocAssoc
+  | TupleAssoc
+  | CommAssocAssoc
 
 type symbol =
-    ID       of (string * idclass option)
-  | UNKNOWN  of (string * idclass option)
-  | NUM      of string
-  | STRING   of string
-  | BRA      of string
-  | SEP      of string
-  | KET      of string
+  | ID of (string * idclass option)
+  | UNKNOWN of (string * idclass option)
+  | NUM of string
+  | STRING of string
+  | BRA of string
+  | SEP of string
+  | KET of string
   | SUBSTBRA
   | SUBSTKET
   | SUBSTSEP
@@ -43,15 +47,15 @@ type symbol =
   (* If we are to have syntaxes within syntaxes -- e.g. hoare.jt subsyntaxing
      natural deduction -- then operators can't have priorities inside them.
      Nor even associativities. Oh bottoms.
-     Curriedness (INFIX/INFIXC) survives for the moment, cos I've forgotten 
+     Curriedness (INFIX/INFIXC) survives for the moment, cos I've forgotten
      what it's for.
-   *)
-  | PREFIX   of string
-  | POSTFIX  of string
-  | INFIX    of string
-  | INFIXC   of string
-  | LEFTFIX  of string
-  | MIDFIX   of string
+  *)
+  | PREFIX of string
+  | POSTFIX of string
+  | INFIX of string
+  | INFIXC of string
+  | LEFTFIX of string
+  | MIDFIX of string
   | RIGHTFIX of string
-  | STILE    of string
-  | SHYID    of string
+  | STILE of string
+  | SHYID of string

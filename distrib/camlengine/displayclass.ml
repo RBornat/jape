@@ -25,15 +25,19 @@
 
 open Miscellaneous
 
-type displayclass = DisplayHyp | DisplayConc | DisplayAmbig | DisplayReason | DisplayPunct
+type displayclass =
+  | DisplayHyp
+  | DisplayConc
+  | DisplayAmbig
+  | DisplayReason
+  | DisplayPunct
 
-let rec string_of_displayclass =
-  function
-    DisplayHyp    -> "DisplayHyp"
-  | DisplayConc   -> "DisplayConc"
-  | DisplayAmbig  -> "DisplayAmbig"
+let rec string_of_displayclass = function
+  | DisplayHyp -> "DisplayHyp"
+  | DisplayConc -> "DisplayConc"
+  | DisplayAmbig -> "DisplayAmbig"
   | DisplayReason -> "DisplayReason"
-  | DisplayPunct  -> "DisplayPunct"
+  | DisplayPunct -> "DisplayPunct"
 
 (* Useful translation for Japeserver marshalling.
  * Current C/Java/Tk interfaces believe in these integers.
@@ -46,19 +50,17 @@ let rec string_of_displayclass =
  *
  *)
 
-let rec int_of_displayclass =
-  function
-    DisplayPunct  -> 0
-  | DisplayConc   -> 1
-  | DisplayHyp    -> 2
+let rec int_of_displayclass = function
+  | DisplayPunct -> 0
+  | DisplayConc -> 1
+  | DisplayHyp -> 2
   | DisplayReason -> 3
-  | DisplayAmbig  -> 4
+  | DisplayAmbig -> 4
 
-let rec displayclass_of_int =
-  function
-    0 -> DisplayPunct
+let rec displayclass_of_int = function
+  | 0 -> DisplayPunct
   | 1 -> DisplayConc
   | 2 -> DisplayHyp
   | 3 -> DisplayReason
   | 4 -> DisplayAmbig
-  | n -> raise (Catastrophe_ ["displayclass_of_int "; string_of_int n])
+  | n -> raise (Catastrophe_ [ "displayclass_of_int "; string_of_int n ])

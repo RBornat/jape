@@ -23,4 +23,5 @@
 
 *)
 
+;;
 Dialogue.start ()

@@ -26,34 +26,40 @@
 open Sml
 
 type prestring =
-  Prestr of string | Prestrs of string list | Prepres of prestring list
+  | Prestr of string
+  | Prestrs of string list
+  | Prepres of prestring list
 
 let pre_string s = Prestr s
-let pre__comma   = Prestr ", "
-let pre__nil     = Prepres []
-let pre__space   = Prestr " "
+
+let pre__comma = Prestr ", "
+
+let pre__nil = Prepres []
+
+let pre__space = Prestr " "
 
 (*  Primitive preprinters *)
 
 let rec pre_int (i : int) = Prestr (string_of_int i)
+
 let rec pre_real (r : float) = Prestr (string_of_float r)
+
 let rec pre_unit () = Prestr "()"
+
 let rec pre_bool (b : bool) = Prestr (string_of_bool b)
 
 (*  Built-in constructors *)
 
 let pre_option a1 a2 =
-  match a1, a2 with
-    f, None   -> Prestr "None"
-  | f, Some x -> Prepres [Prestr "Some("; f x; Prestr ")"]
+  match (a1, a2) with
+  | f, None -> Prestr "None"
+  | f, Some x -> Prepres [ Prestr "Some("; f x; Prestr ")" ]
 
 let pre_array f a =
   let s = Array.length a in
   let rec p n =
     if n = s then []
-    else
-      f (Array.get a n) ::
-        (if n + 1 = s then pre__nil else pre__space) :: p (n + 1)
+    else f a.(n) :: (if n + 1 = s then pre__nil else pre__space) :: p (n + 1)
   in
   Prepres (p 0)
 
@@ -62,55 +68,59 @@ let pre_vector f a =
   let rec p n =
     if n = s then []
     else
-      Prepres [pre_int n; Prestr ":"; f (Array.get a n)] ::
-        (if n + 1 = s then pre__nil else pre__comma) :: p (n + 1)
+      Prepres [ pre_int n; Prestr ":"; f a.(n) ]
+      :: (if n + 1 = s then pre__nil else pre__comma)
+      :: p (n + 1)
   in
-  Prepres [Prestr "["; Prepres (p 0); Prestr "]"]
+  Prepres [ Prestr "["; Prepres (p 0); Prestr "]" ]
 
 exception Matchinpre_Comma (* spurious *)
 
 let rec pre_Comma a1 a2 =
-  match a1, a2 with
-    f, [] -> Prepres []
-  | f, [x] -> Prepres [f x]
-  | f, x :: xs ->
+  match (a1, a2) with
+  | f, [] -> Prepres []
+  | f, [ x ] -> Prepres [ f x ]
+  | f, x :: xs -> (
       match pre_Comma f xs with
-        Prepres ps -> Prepres (f x :: pre__comma :: ps)
-      | _ -> raise Matchinpre_Comma
+      | Prepres ps -> Prepres (f x :: pre__comma :: ps)
+      | _ -> raise Matchinpre_Comma )
 
-let pre_Tuple f xs =
-  Prepres [Prestr "("; pre_Comma f xs; Prestr ")"]
+let pre_Tuple f xs = Prepres [ Prestr "("; pre_Comma f xs; Prestr ")" ]
 
-let pre_Set f xs = Prepres [Prestr "{"; pre_Comma f xs; Prestr "}"]
+let pre_Set f xs = Prepres [ Prestr "{"; pre_Comma f xs; Prestr "}" ]
 
-let pre_List f xs =
-  Prepres [Prestr "["; pre_Comma f xs; Prestr "]"]
+let pre_List f xs = Prepres [ Prestr "["; pre_Comma f xs; Prestr "]" ]
 
-let pre_list f xs =
-  Prepres [Prestr "["; pre_Comma f xs; Prestr "]"]
+let pre_list f xs = Prepres [ Prestr "["; pre_Comma f xs; Prestr "]" ]
 
 let pre_implode p =
-  let rec _I (p,ss) =
+  let rec _I (p, ss) =
     match p with
-      Prestr s -> s :: ss
+    | Prestr s -> s :: ss
     | Prestrs sl -> sl @ ss
     | Prepres ps -> nj_fold _I ps ss
   in
-  implode (_I (p,[]))
+  implode (_I (p, []))
 
 let rec pre_app a1 a2 =
-  match a1, a2 with
-    p, Prestr s   -> p s
+  match (a1, a2) with
+  | p, Prestr s -> p s
   | p, Prestrs ss -> List.iter p ss
   | p, Prepres ps -> List.iter (pre_app p) ps
 
 let ascii_chars = "0123456789abcdef"
 
 let pre_Ascii s =
-  Sml.implode (List.map (fun c -> if Char.code c<=0x7f then String.make 1 c else 
-                                    string_of_chars ['\\'; 'x'; 
-                                                           ascii_chars.[Char.code c lsr 4];
-                                                           ascii_chars.[Char.code c land 0xf]
-                                                    ]
-                        )
-                        (Sml.chars_of_string s))
+  Sml.implode
+    (List.map
+       (fun c ->
+         if Char.code c <= 0x7f then String.make 1 c
+         else
+           string_of_chars
+             [
+               '\\';
+               'x';
+               ascii_chars.[Char.code c lsr 4];
+               ascii_chars.[Char.code c land 0xf];
+             ])
+       (Sml.chars_of_string s))

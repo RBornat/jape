@@ -26,24 +26,35 @@
 include Screendraw.T
 
 val hidecut : bool ref
+
 val hidehyp : bool ref
+
 val hidetransitivity : bool ref
+
 val hidereflexivity : bool ref
 
 val outermostbox : bool ref
+
 val showrelations : bool ref
+
 val showboxfreshvs : bool ref
 
 val outerassumptionword : string ref
+
 val outerassumptionplural : string ref
+
 val innerassumptionword : string ref
+
 val innerassumptionplural : string ref
 
 val boxlinedressright : bool ref
 
-val boxseldebug  : bool ref
+val boxseldebug : bool ref
+
 val boxfolddebug : bool ref
 
-val formulaefolded        : bool ref
+val formulaefolded : bool ref
+
 val assumptionlinesfolded : bool ref
-val reasonstruncated      : bool ref
+
+val reasonstruncated : bool ref

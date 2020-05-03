@@ -29,9 +29,11 @@ open Mappingfuns
 open Tactic
 open Optionfuns
 
-type seq = Seqtype.seq 
- and tactic = Tactictype.tactic 
- and term = Termtype.term
+type seq = Seqtype.seq
+
+and tactic = Tactictype.tactic
+
+and term = Termtype.term
 
 let seqmatch = seqmatch false
 
@@ -41,11 +43,10 @@ type doubleclickdef = dclick * tactic * seq
 
 let doubleclickdefs : doubleclickdef list ref = ref []
 
-let rec adddoubleclick (b, s, seq as p) =
-  let rec insert =
-    function
-      [] -> [p]
-    | (b', _, seq' as p') :: doubleclicks ->
+let rec adddoubleclick ((b, s, seq) as p) =
+  let rec insert = function
+    | [] -> [ p ]
+    | ((b', _, seq') as p') :: doubleclicks ->
         if b = b' && eqseqs (seq, seq') then p :: doubleclicks
         else p' :: insert doubleclicks
   in
@@ -53,8 +54,8 @@ let rec adddoubleclick (b, s, seq as p) =
 
 let rec deldoubleclick (b, seq) =
   doubleclickdefs :=
-      ((fun (b', _, seq') -> b <> b' || not (eqseqs (seq, seq'))) <|
-       !doubleclickdefs)
+    (fun (b', _, seq') -> b <> b' || not (eqseqs (seq, seq')))
+    <| !doubleclickdefs
 
 let rec cleardoubleclicks () = doubleclickdefs := []
 
@@ -62,7 +63,7 @@ let rec matchdoubleclick sense seq =
   let rec match1 (sense', action', seq') =
     if sense = sense' then
       match seqmatch seq' seq empty with
-        Some env -> Some (remaptactic env action')
+      | Some env -> Some (remaptactic env action')
       | None -> None
     else None
   in
