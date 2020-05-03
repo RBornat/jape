@@ -30,7 +30,7 @@ let bracketed_string_of_list = Listfuns.bracketed_string_of_list
 let consolereport = Miscellaneous.consolereport
 
 (* this is the Unix version ... Linux and MacOS X ok; 
-   Windoze needs '\\' so we stay in the world of unix filenames 
+   Windows needs '\\' so we stay in the world of unix filenames 
    and normalize filenames according to OS just before opening
 *)
 
