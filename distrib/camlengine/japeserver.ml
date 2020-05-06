@@ -1,3 +1,4 @@
+(** japeserver.ml contains code which enabled communication between the Java frontend and the OCaml theorem prover down a pipe. *)
 (*
     Copyright (C) 2003-19 Richard Bornat & Bernard Sufrin
      
