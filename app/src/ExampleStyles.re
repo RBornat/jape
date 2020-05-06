@@ -36,4 +36,11 @@ let style = {j|
     border: 1px solid black;
     border-radius: 5px;
   }
+  input.proveTheorem {
+    padding: 10px 15px;
+    border-radius: 3px;
+    font-size: 100%;
+    background-color: #fffff8;
+    border: 1px solid black;
+  }
 |j};
