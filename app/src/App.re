@@ -9,12 +9,11 @@ let app = () => {
       </div>
     </div>
     <div className="theoremEditor">
-      // the user inputs theorems into here
-        <textarea
-          value=currentTheorem
-          onChange={e => setCurrentTheorem(ReactEvent.Form.target(e)##value)}
-        />
-        <input type_="submit" value="Prove me ->" className="proveTheorem"/>
-      </div>
+      <textarea
+        value=currentTheorem
+        onChange={e => setCurrentTheorem(ReactEvent.Form.target(e)##value)}
+      />
+      <input type_="submit" value="Prove me ->" className="proveTheorem" />
+    </div>
   </div>;
 };

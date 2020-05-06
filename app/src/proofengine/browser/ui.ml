@@ -1,0 +1,1 @@
+(** Binds between Jape's Java bridge and React's components. *)

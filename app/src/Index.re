@@ -24,7 +24,4 @@ let makeContainer = text => {
   content;
 };
 
-ReactDOMRe.render(
-  <App.app/>,
-  makeContainer("Jape theorem prover"),
-);
+ReactDOMRe.render(<App.app />, makeContainer("Jape theorem prover"));
