@@ -34,7 +34,7 @@
  * UTF-8 encoded Unicode chars won't confuse it. 
  *)
 
-let showchar c = implode ["'"; String.escaped (String.make 1 c); "'"])
+let showchar c = implode ["'"; String.escaped (String.make 1 c); "'"]
 
 let isblank c = member c [' '; '\n'; '\r'; '\t']
 
@@ -57,7 +57,7 @@ let lexescape s =
 	  | 'b' ::_ -> junk s; '\b'
 	  | ' ' ::_ -> junk s; ' '
 	  | [c;h0;h1] when c='x' && ishexdigit h0 && ishexdigit h1 -> 
-				njunk 3 s; Char.chr ((hexval h0)*16+hexval h1))
+				njunk 3 s; Char.chr ((hexval h0)*16+hexval h1)
 	  | [d0;d1;d2] when isdecdigit d0 && isdecdigit d1 && isdecdigit d2 -> 
 				njunk 3 s; Char.chr ((decval d0)*10+decval d1)+decval d2
 	  | c::cs when c='x' || isdecdigit c  -> 
