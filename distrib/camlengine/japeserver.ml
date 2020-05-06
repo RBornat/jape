@@ -276,9 +276,9 @@ let rec getSignature () = ""
 
 (* By default all drawing takes place in the front window.
  * When fonts change, background windows have to be refreshed.
- * The following allow the engine temporarily to redirect
+ * The following allows the engine temporarily to redirect
  * drawing to a background window.  If canbackgroundfocus is false,
- * it won't do such a thing.
+ * it won't do this.
  *)
 
 let canbackgroundfocus = true
