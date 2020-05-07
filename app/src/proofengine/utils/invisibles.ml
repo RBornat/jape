@@ -25,6 +25,9 @@
 
 (* this collection avoids low characters which might be useful *)
 (* 0 is NUL; can't appear in a C string, so don't use *)
+
+open Listfuns
+
 let onbra = 0x01 (* SOH *)
 
 let onket = 0x02 (* STX *)
@@ -94,8 +97,8 @@ let isInvisibleString s =
   let lim = String.length s in
   let rec f i =
     i = lim
-    || isInvisibleUcode (utf8_get s i)
-       (* won't be true if width 0 *) && f (i + utf8width_from_header s.[i])
+    || isInvisibleUcode (UTF.utf8_get s i)
+       (* won't be true if width 0 *) && f (i + UTF.utf8width_from_header s.[i])
   in
   f 0
 
@@ -120,4 +123,4 @@ let showInvisibleChar c =
   | c -> String.make 1 c
 
 let showInvisibleString =
-  implode <.> List.map showInvisibleChar <.> chars_of_string
+  Sml.implode Sml.(<.>) List.map showInvisibleChar Sml.(<.>) chars_of_string
