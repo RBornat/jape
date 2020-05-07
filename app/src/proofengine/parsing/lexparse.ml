@@ -34,9 +34,12 @@
  * UTF-8 encoded Unicode chars won't confuse it. 
  *)
 
+open Sml
+open Listfuns
+
 let showchar c = implode ["'"; String.escaped (String.make 1 c); "'"]
 
-let isblank c = member c [' '; '\n'; '\r'; '\t']
+let isblank c = Listfuns.member (c, [' '; '\n'; '\r'; '\t'])
 
 let check s c = 
 	match Stream.peek s with

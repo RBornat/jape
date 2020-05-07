@@ -23,11 +23,6 @@
 
 *)
 
-open Sml
-open UTF
-
-type ucode = UTF.ucode
-
 (* this collection avoids low characters which might be useful *)
 (* 0 is NUL; can't appear in a C string, so don't use *)
 let onbra = 0x01 (* SOH *)
