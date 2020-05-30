@@ -1033,12 +1033,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     (* consolereport ["para is "; paratext]; *)
     try 
       let _ = (Paragraphfuns.interpret showAlert uncurried_screenquery [] []
-                  (env, [], []) (getpara paratext) :
+                  (env, [], []) (getpara env paratext) :
                   japeenv * (name * proofstate * (seq * model) option) list *
                             (name * (string * bool -> unit)) list)
       in
       if ispanel then
-        let name = Paragraphfuns.conjecturename (getpara text) in
+        let name = Paragraphfuns.conjecturename (getpara env text) in
         if novel then
           reloadmenusandpanels Proofstore.provedordisproved (get_oplist ())
         else
@@ -1054,17 +1054,17 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     try
       let text =
         if (try String.sub text 0 8 with _ -> "") = "THEOREM " then
-          try let _ = getpara text in text with
+          try let _ = getpara env text in text with
           ParseError_ rs ->
             showAlert (["Cannot parse new conjecture "; text; " -- "; UTF.utf8LSQUOTE] @ 
                        rs @ [UTF.utf8RSQUOTE; "."]);
             raise AddConjecture_
         else
         (* praps it's just a sequent *)
-        try let t = "THEOREM IS " ^ text in let _ = getpara t in t 
+        try let t = "THEOREM IS " ^ text in let _ = getpara env t in t 
         with ParseError_ rs ->
         (* praps it has params and stuff *)
-        try let t = "THEOREM " ^ text in let _ = getpara t in t
+        try let t = "THEOREM " ^ text in let _ = getpara env t in t
         with ParseError_ rs' ->
             showAlert
               (["Cannot parse new conjecture "; text; " -- "] @

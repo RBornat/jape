@@ -693,9 +693,9 @@ let rec checkvalidruleheading report objkind wherekind =
                                             " of"])
                          (fun _ -> add_an_s "contain" (List.length provisos = 1)))
 
-let rec parseParagraph report query =
+let rec parseParagraph report query env =
   let sy = currsymb () in
-  let rec more () = parseParagraph report query in
+  let rec more () = parseParagraph report query env in
   match sy with
     SHYID "AUTOMATCH"       -> scansymb (); Some (parseAutoRule true)
   | SHYID "AUTOUNIFY"       -> scansymb (); Some (parseAutoRule false)
@@ -703,7 +703,7 @@ let rec parseParagraph report query =
   | SHYID "CONCHIT"         -> scansymb (); Some (parseHitDef DClickConc)
   | SHYID "CONSTANT"        -> scansymb (); processClassDecl report query ConstantClass; more ()
   | SHYID "CLASS"           -> scansymb (); processCLASS report query; more ()
-  | SHYID "CONJECTUREPANEL" -> scansymb (); Some (parseConjecturePanel report query)
+  | SHYID "CONJECTUREPANEL" -> scansymb (); Some (parseConjecturePanel report query env)
   | SHYID "CURRENTPROOF"    -> scansymb (); Some (parseProof report InProgress)
   | SHYID "CUT"             -> scansymb (); Some (parseStructure "CUT")
   | SHYID "DERIVED"         -> scansymb (); Some (parseDerived report)
@@ -711,19 +711,19 @@ let rec parseParagraph report query =
   | SHYID "FONTS"           -> scansymb (); Some (parseFontSpec ())
   | SHYID "FORCEDEF"        -> scansymb (); Some (parseForceDefSpec ())
   | SHYID "FORMULA"         -> raise (ParseError_ ["FORMULA without CLASS is meaningless"])
-  | SHYID "GIVENPANEL"      -> scansymb (); Some (parseGivenPanel report query)
+  | SHYID "GIVENPANEL"      -> scansymb (); Some (parseGivenPanel report query env)
   | SHYID "HYPHIT"          -> scansymb (); Some (parseHitDef DClickHyp)
   | SHYID "IDENTITY"        -> scansymb (); Some (parseStructure "IDENTITY")
   | SHYID "INFIX"           -> scansymb (); processInfix (fun v->INFIX v); more ()
   | SHYID "INFIXC"          -> scansymb (); processInfix (fun v->INFIXC v); more ()
-  | SHYID "INITIALISE"      -> scansymb (); Some (parseInitialise ())
+  | SHYID "INITIALISE"      -> scansymb (); processInitialise report env; more ()
   | SHYID "JUXTFIX"         -> scansymb (); appfix := parseNUM (); more ()
   | SHYID "KEYBOARD"        -> scansymb (); processKEYBOARD report query; more ()
   | SHYID "LEFTFIX"         -> scansymb (); processLeftMidfix (fun v->LEFTFIX v); more ()
   | SHYID "LEFTWEAKEN"      -> scansymb (); Some (parseStructure "LEFTWEAKEN")
   | SHYID "MACRO"           -> let h = scansymb (); parseTacticHeading _ISWORD in
                                Some (MacroDef (h, asTactic parseTerm EOF))
-  | SHYID "MENU"            -> scansymb (); Some (parseMenu report query true)
+  | SHYID "MENU"            -> scansymb (); Some (parseMenu report query env true)
   | SHYID "MIDFIX"          -> scansymb (); processLeftMidfix (fun v->MIDFIX v); more ()
   | SHYID "NUMBER"          -> scansymb (); processClassDecl report query NumberClass; more ()
   | SHYID "OUTFIX"          -> scansymb (); processOutfix (); more ()
@@ -746,13 +746,13 @@ let rec parseParagraph report query =
   | SHYID "SUBSTFIX"        -> scansymb (); processSubstfix report query; more ()
   | SHYID "TACTIC"          -> let h = scansymb (); parseTacticHeading _ISWORD in
                                Some (TacticDef (h, transTactic (asTactic parseTerm EOF)))
-  | SHYID "TACTICPANEL"     -> scansymb (); Some (parseTacticPanel report query)
+  | SHYID "TACTICPANEL"     -> scansymb (); Some (parseTacticPanel report query env)
   | SHYID "THEOREM"         -> scansymb (); Some (parseTheorem report)
   | SHYID "THEOREMS"        -> scansymb (); Some (parseTheorems report)
-  | SHYID "THEORY"          -> scansymb (); Some (parseTheory report query)
+  | SHYID "THEORY"          -> scansymb (); Some (parseTheory report query env)
   | SHYID "TRANSITIVE"      -> scansymb (); Some (parseStructure "TRANSITIVE")
-  | SHYID "UMENU"           -> scansymb (); Some (parseMenu report query false)
-  | SHYID "USE"             -> scansymb (); Some (let r = parseUse report query in scansymb (); r)
+  | SHYID "UMENU"           -> scansymb (); Some (parseMenu report query env false)
+  | SHYID "USE"             -> scansymb (); Some (let r = parseUse report query env in scansymb (); r)
   | SHYID "VARIABLE"        -> scansymb (); processClassDecl report query VariableClass; more ()
   | SHYID "WEAKEN"          -> scansymb (); Some (parseStructure "WEAKEN")
   | _                       -> None
@@ -831,9 +831,9 @@ and parseRulebody () =
       (antes, parseSeq ())
   | _ -> ignore (SHYID "INFER"); ([], parseSeq ())
 
-and parseParaList report query =
-  match parseParagraph report query with
-    Some p -> p :: parseParaList report query
+and parseParaList report query env =
+  match parseParagraph report query env with
+    Some p -> p :: parseParaList report query env
   | None ->
       match currsymb () with
         SHYID "END" -> scansymb (); []
@@ -844,7 +844,7 @@ and parseParaList report query =
                ["Error: expecting symbol beginning paragraph; found ";
                 debugstring_of_symbol sy])
 
-and parseMenu report query mproof =
+and parseMenu report query env mproof =
   let parastarters =
     ["RULE"; "RULES"; "DERIVED"; "TACTIC"; "THEOREM"; "THEOREMS";
      "THEORY"; "PROOF"; "CURRENTPROOF"]
@@ -874,8 +874,9 @@ and parseMenu report query mproof =
   in
   let rec parseentry () =
     if member (currsymb (), parasymbs) 
-    then Menupara (_The (parseParagraph report query))
+    then Menupara (_The (parseParagraph report query env))
     else Menustuff (parsemenucommand())
+  
   and parsemenucommand () = 
       match currsymb () with
         SHYID "BEFOREENTRY" -> 
@@ -887,6 +888,7 @@ and parseMenu report query mproof =
           let oldname = name_of_currsymb() in
           MCrename (oldname, name_of_currsymb())
       | _ -> MCdata (parsesimpleentry())
+  
   and parsesimpleentry () = 
       match currsymb () with
         SHYID "ENTRY" ->
@@ -930,8 +932,8 @@ and parseConjectureEntry report =
                               string_of_symbol (currsymb())])
   with ParseError_ ss -> showInputError report ss; raise Use_
   
-and parseConjecturePanel report query =
-  parsePanel report query ConjecturePanelkind parseConjectureEntry
+and parseConjecturePanel report query env =
+  parsePanel report query env ConjecturePanelkind parseConjectureEntry
     ["ENTRY"; "BUTTON" (*; "RADIOBUTTON"; "CHECKBOX"*)]
     ["THEOREM"; "THEOREMS"; "DERIVED"; "PROOF"; "CURRENTPROOF"]
 
@@ -939,24 +941,24 @@ and parseTacticEntry report =
   try argstring_of_tactic (transTactic (asTactic parseTerm EOF)) with
     ParseError_ ss -> showInputError report ss; raise Use_
 
-and parseTacticPanel report query =
-  parsePanel report query TacticPanelkind parseTacticEntry
+and parseTacticPanel report query env =
+  parsePanel report query env TacticPanelkind parseTacticEntry
     ["ENTRY"; "BUTTON" (*; "RADIOBUTTON"; "CHECKBOX"*)]
     ["THEORY"; "RULE"; "RULES"; "DERIVED"; "TACTIC"; "THEOREM";
      "THEOREMS"; "PROOF"; "CURRENTPROOF"]
 
-and parseGivenPanel report query =
-  parsePanel report query GivenPanelkind parseTacticEntry
+and parseGivenPanel report query env =
+  parsePanel report query env GivenPanelkind parseTacticEntry
     ["BUTTON" (*; "RADIOBUTTON"; "CHECKBOX"*)] []
 
-and parsePanel report query panelkind parseEntry entrystarters parastarters =
+and parsePanel report query env panelkind parseEntry entrystarters parastarters =
   let starters = entrystarters @ parastarters in
   (* let entrysymbs = (_SHYID <* entrystarters) in *)
   let parasymbs = (_SHYID <* parastarters) in
   let symbs = (_SHYID <* starters) in
   let rec parseentry () =
     if member (currsymb (), parasymbs) then
-      Panelpara (_The (parseParagraph report query))
+      Panelpara (_The (parseParagraph report query env))
     else
       match currsymb () with
         SHYID "ENTRY" ->
@@ -1037,18 +1039,32 @@ and parseHitDef sense =
   let action = ignore _ISWORD; transTactic (asTactic parseTerm EOF) in
   HitDef (sense, action, pattern)
 
-and parseInitialise () =
+and processInitialise report env =
   let name = name_of_currsymb () in
-  let value = asTactic parseTerm EOF in InitVar (name, value)
+  let term = asTactic parseTerm EOF in 
+  (* InitVar (name, value) -- was the way; now we do it right here. Why not? *)
+      let rec lreport ss =
+        report ("can't INITIALISE " :: parseablestring_of_name name :: ss);
+        raise Use_
+      in
+      begin try Japeenv.termset env name term 
+            with
+            | Japeenv.OutOfRange_ range ->
+                lreport [" to "; string_of_term term; " - variable can only be set to "; range]
+            | Japeenv.NotJapeVar_ ->
+                lreport [" - it isn't a variable in the environment"]
+            | Japeenv.ReadOnly_ ->
+                lreport [" - it can't be altered, given the state of other stored values"]
+      end
 
 and parseAutoRule sense =
   AutoRule
     (sense,
        (transTactic <* parseUnsepList canstartTerm (asTactic parseTerm)))
 
-and parseUse report query =
+and parseUse report query env =
   match currsymb () with
-    STRING s -> File (s, paragraphs_of_file report query s)
+    STRING s -> File (s, paragraphs_of_file report query env s)
   | s ->
       raise
         (ParseError_ ["USE expects a string; found: "; debugstring_of_symbol s])
@@ -1182,14 +1198,14 @@ and parseDerived report =
         ["expecting RULE or RULES after DERIVED: found "; string_of_symbol sy];
       raise Use_
 
-and parseTheory report query =
+and parseTheory report query env =
   let starters =
     ["RULE"; "RULES"; "TACTIC"; "THEOREM"; "THEOREMS"; "THEORY"]
   in
   let parastarters = (_SHYID <* starters) in
   let heading = parseRuleHeading true _ISWORD in
   let body = parseUnsepList (fun s -> member (s, parastarters))
-                            (fun _ -> _The (parseParagraph report query))
+                            (fun _ -> _The (parseParagraph report query env))
   in
   match currsymb () with
     SHYID "END" -> scansymb (); Theory (heading,body)
@@ -1226,7 +1242,7 @@ and parseStructure s =
     StructureRule (s, name_of_currsymb ())
   else raise (Catastrophe_ ["parseStructure "; s])
 
-and paragraphs_of_file report query s =
+and paragraphs_of_file report query env s =
   let s = makerelative s in
   let ic = 
     try Usefile.open_input_file s 
@@ -1246,7 +1262,7 @@ and paragraphs_of_file report query s =
   in
   consolereport ["[OPENING \""; Usefile.normalizePath s; "\"]"];
   let r = 
-    (try parseParaList report query with
+    (try parseParaList report query env with
        ParseError_ m -> showInputError report m; error_cleanup (); raise Use_
      | Catastrophe_ ss ->
          showInputError report ("Catastrophic input error: " :: ss);
@@ -1306,9 +1322,9 @@ and string_of_thmbody linesep provisos seq =
   
 (* **************************************** export *********************************** *)
 
-let rec paragraph_of_string report query s =
+let rec paragraph_of_string report query env s =
   let rec getpara () =
-    match parseParagraph report query with
+    match parseParagraph report query env with
       Some p -> p
     | None ->
         raise

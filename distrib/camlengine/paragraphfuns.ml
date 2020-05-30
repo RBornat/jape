@@ -225,7 +225,7 @@ let rec interpret
   | ForceDef stuff -> addforcedef stuff; res
   | HitDef stuff   -> adddoubleclick stuff; res
   | InitVar (name, term) ->
-      let rec lreport ss =
+      let lreport ss =
         report ("can't INITIALISE " :: parseablestring_of_name name :: ss);
         raise Use_
       in
@@ -392,12 +392,12 @@ and addalttactic name paras params where =
     (name, Tactic (params, TheoryAltTac (optionfilter rulename paras)),
      where)
 
-and interpretParasFrom report query res filenames =
+and interpretParasFrom report query (env, proofs, buttonfuns as res) filenames =
   freezesaved ();
   let r = (try
              nj_revfold (interpret report query InLimbo [] [] true)
                (nj_fold (fun (x, y) -> x @ y)
-                        ((paragraphs_of_file report query <.> disQuote) <*
+                        ((paragraphs_of_file report query env <.> disQuote) <*
                         filenames)
                   [])
                res
