@@ -90,7 +90,47 @@ and panelpara = Panelstuff of paneldata | Panelpara of paragraph
 and menupara = Menustuff of menucommand | Menupara of paragraph
 
 exception Use_ (* so-called because it is normally raised by a bad USE "file" *)
-       
+
+let string_of_tactic = Tactic.string_of_tactic
+
+let rec string_of_paragraph p =
+  match p with
+  | AutoRule           (b,  ts) -> Printf.sprintf "AutoRule (%B,%s)" b (bracketed_string_of_list string_of_tactic ";" ts)
+  | Conjecture        (rh, seq) -> Printf.sprintf "Conjecture (%s,%s)" (string_of_ruleheading rh) (string_of_seq seq)
+  | File             (s, paras) -> Printf.sprintf "File %s ****\n%s\n****" (enQuote s) (string_of_list string_of_paragraph "\n" paras)
+  | FontSpec                  s -> Printf.sprintf "FontSpec %s" (enQuote s)
+  | ForceDef             (t,fd) -> Printf.sprintf "ForceDef (%s,%s)" (string_of_term t) (string_of_forcedef fd)
+  | HitDef         (dc, t, seq) -> Printf.sprintf "HitDef (%s,%s,%s)" (Doubleclick.string_of_dclick dc) (string_of_tactic t) (string_of_seq seq)
+  | InitVar              (n, t) -> Printf.sprintf "InitVar (%s,%s)" (Name.string_of_name n) (string_of_term t)
+  | MacroDef            (th, t) -> Printf.sprintf "MacroDef (%s,%s)" (string_of_tacticheading th) (string_of_term t)
+  | Menu             (b, n, mps) -> Printf.sprintf "Menu (%B,%s,%s)" b (Name.string_of_name n) (bracketed_string_of_list string_of_menupara ";" mps)
+  | Panel           (n, pps, pk) -> Printf.sprintf "Panel (%s,%s,%s)" (Name.string_of_name n) (bracketed_string_of_list string_of_panelpara ";" pps) (string_of_panelkind pk)
+  | Proof                      _ -> "Proof ..."
+  | RuleDef   (rh, seqs, seq, b) -> Printf.sprintf "RuleDef (%s,%s,%s,%B)" (string_of_ruleheading rh) (bracketed_string_of_list string_of_seq ";" seqs) (string_of_seq seq) b
+  | RuleGroup        (rh, paras) -> Printf.sprintf "RuleGroup (%s,%s)" (string_of_ruleheading rh) (bracketed_string_of_list string_of_paragraph ";" paras)
+  | StructureRule          (s,n) -> Printf.sprintf "StructureRule (%s,%s)" s (Name.string_of_name n)
+  | TacticDef        (th,tactic) -> Printf.sprintf "TacticDef (%s,%s)" (string_of_tacticheading th) (string_of_tactic tactic)
+  | Theory           (rh, paras) -> Printf.sprintf "Theory (%s,%s)" (string_of_ruleheading rh) (bracketed_string_of_list string_of_paragraph ";" paras)
+
+and string_of_ruleheading = function
+  RuleHeading (n, paraparams, provisos) ->
+    Printf.sprintf "RuleHeading (%s,%s,%s)" (Name.string_of_name n) 
+                                            (bracketed_string_of_list Paraparam.string_of_paraparam ";" paraparams) 
+                                            (bracketed_string_of_list Proviso.string_of_proviso ";" provisos)
+                                         
+and string_of_tacticheading = function
+  TacticHeading (n, paraparams) ->
+    Printf.sprintf "TacticHeading (%s,%s)" (Name.string_of_name n) 
+                                           (bracketed_string_of_list Paraparam.string_of_paraparam ";" paraparams) 
+
+and string_of_panelpara = function
+  | Panelstuff paneldata -> Printf.sprintf "Panelstuff (%s)" (string_of_paneldata paneldata)
+  | Panelpara  paragraph -> Printf.sprintf "Panelpara (%s)" (string_of_paragraph paragraph)
+  
+and string_of_menupara = function
+  | Menustuff menucommand -> Printf.sprintf "Menustuff (%s)" (string_of_menucommand menucommand)
+  | Menupara  paragraph   -> Printf.sprintf "Menupara (%s)" (string_of_paragraph paragraph)
+  
 (************************************************************************************)
    
 let rec name_of_stringsymbol sy =
@@ -676,9 +716,9 @@ let rec parseParagraph report query =
   | SHYID "IDENTITY"        -> scansymb (); Some (parseStructure "IDENTITY")
   | SHYID "INFIX"           -> scansymb (); processInfix (fun v->INFIX v); more ()
   | SHYID "INFIXC"          -> scansymb (); processInfix (fun v->INFIXC v); more ()
+  | SHYID "INITIALISE"      -> scansymb (); Some (parseInitialise ())
   | SHYID "JUXTFIX"         -> scansymb (); appfix := parseNUM (); more ()
   | SHYID "KEYBOARD"        -> scansymb (); processKEYBOARD report query; more ()
-  | SHYID "INITIALISE"      -> scansymb (); Some (parseInitialise ())
   | SHYID "LEFTFIX"         -> scansymb (); processLeftMidfix (fun v->LEFTFIX v); more ()
   | SHYID "LEFTWEAKEN"      -> scansymb (); Some (parseStructure "LEFTWEAKEN")
   | SHYID "MACRO"           -> let h = scansymb (); parseTacticHeading _ISWORD in
@@ -1225,7 +1265,9 @@ and paragraphs_of_file report query s =
         error_cleanup (); raise Use_
      | exn -> error_cleanup (); raise exn)
     (* including Use_, at it happens *)
-  in cleanup (); r
+  in cleanup (); 
+     consolereport["paragraphs_of_file "; s; " = "; bracketed_string_of_list string_of_paragraph ";" r; "\n"];
+     r
   
 (* this is where rules, theorems, tactics and macros get parsed, so this is the right place
    to generate their parseable representation. Odd, innit?

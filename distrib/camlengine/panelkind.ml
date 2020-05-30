@@ -26,3 +26,9 @@
 type panelkind = TacticPanelkind | ConjecturePanelkind | GivenPanelkind
 
 type panelbuttoninsert = StringInsert of string | LabelInsert | CommandInsert
+
+let string_of_panelkind = function
+  | TacticPanelkind     -> "TacticPanelkind"
+  | ConjecturePanelkind -> "ConjecturePanelkind" 
+  | GivenPanelkind      -> "GivenPanelkind"
+  

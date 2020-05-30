@@ -72,3 +72,5 @@ val panelitemiter : name -> (name * string -> unit)
                          -> unit
 
 val string_of_panelbuttoninsert : panelbuttoninsert -> string
+val string_of_paneldata : paneldata -> string
+val string_of_menucommand : menucommand -> string

@@ -41,6 +41,10 @@ type doubleclickdef = dclick * tactic * seq
 
 let doubleclickdefs : doubleclickdef list ref = ref []
 
+let string_of_dclick = function
+  | DClickHyp   -> "DClickHyp"
+  | DClickConc  -> "DClickConc"
+  
 let rec adddoubleclick (b, s, seq as p) =
   let rec insert =
     function
