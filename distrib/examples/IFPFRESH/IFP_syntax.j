@@ -2,6 +2,8 @@
         $Id: IFP_syntax.j 647 2014-09-30 16:51:20Z sufrin $
 */
 
+INITIALISE utpecua true
+
 CLASS VARIABLE  x y z
                 i j k
 CLASS FORMULA   A B C D  
@@ -19,7 +21,7 @@ INFIX   100R    →
 INFIX   120L    ∨
 INFIX   140L    ∧
 
-PREFIX  200 ¬
+PREFIX  400 ¬
 
 LEFTFIX 200 ∀ .
 LEFTFIX 200 ∃ .
