@@ -109,7 +109,7 @@
    <target  name        = "shiptest"
             description = "Ship the test to the ftp site"
             depends     = "xInstallerTest">
-            <exec os         = "Linux,SunOS"
+            <exec os         = "Linux"
                   executable = "rsync">
                   <arg line="-ve ssh"/>
                   <arg file="${BUILD}/xInstallerTest.jar"/>
