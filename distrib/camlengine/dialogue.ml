@@ -144,11 +144,6 @@ let _The = Optionfuns._The
 let tmerge = Termfuns.tmerge
 let verifyprovisos = Provisofuns.verifyprovisos
 
-let profiling = ref false (* see below *)
-let profileswitcher b =
-  profiling := b (* ; if b then Profile.profileOn () else Profile.profileOff () *)
-let profilereader () = !profiling
-       
 let thingguard = not <.> thingstodo
 let tparam = Japeenv.guardedjapevar thingguard
 
@@ -212,7 +207,6 @@ let defaultenv =
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
      "patchalertdebug"      , bj                         false        Alert.patchalertdebug;
      "predicatedebug"       , bj                         false        Predicate.predicatedebug;
-     "profiling"            , Japeenv.booljapevar        false        (profileswitcher, profilereader);
      "prooftreedebug"       , bj                         false        Prooftree.Tree.prooftreedebug;
      "prooftreedebugheavy"  , bj                         false        Prooftree.Tree.prooftreedebugheavy;
      "prooftreerewinfdebug" , bj                         false        Prooftree.Tree.prooftreerewinfdebug;
@@ -298,11 +292,6 @@ let mustredisplay env vals =
    | Some "tree" -> List.exists changed treedisplaynames
    | _           -> false)
          
-let profileOn = (* Profile.profileOn *) (fun _ -> ())
-let profileOff = (* Profile.profileOff *) (fun _ -> ())
-let profileReset = (* Profile.reset *) (fun _ -> ())
-let profileReport = (* Profile.report *) (fun _ -> ())
-
 let disproof_finished =
   function
     Some state ->
@@ -1915,31 +1904,6 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               | None   -> default
             else default
 
-        | "profile", ["on"] ->
-            Japeenv.stringset env (name_of_string "profiling") "true";
-            (* achieves profileOn(), I hope *)
-            default
-
-        | "profile", ["off"] ->
-            Japeenv.stringset env (name_of_string "profiling") "false";
-            (* achieves profileOff(), I hope *)
-            default
-
-        | "profile", ["reset"] -> profileReset (); default
-
-        | "profile", ["report"] ->
-            begin match
-              Japeserver.writeFileName "Profile output to:"
-                Japeserver.dbugfiletype
-            with
-              Some s -> let _ = (writetonamedfile profileReport s : bool) in ()
-            | None -> ()
-            end;
-            default
-
-        | "profile", ["report"; filename] ->
-            let _ = (writetonamedfile profileReport filename : bool) in default
-
         | "fonts_reset", [] ->
             (* needs to do disproof as well *)
             Japeserver.resetfontnames ();
@@ -2156,7 +2120,6 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     with
       None_ ->
         raise (Catastrophe_ ["textselectionmode not in environment"]));
-    (* explicit block so that profiler gives more helpful information *)
     let command = getCommand displayopt in
     setComment [];
     (* consolereport (("in administer; command is " :: string_of_command command) @ [ "; pinfs are ",
