@@ -393,14 +393,14 @@ let rec interpret
       nj_revfold
         (interpret report query where (_Par params) (_Pro provisos) enter)
         paras res
+
 and addalttactic name paras params where =
   addthing
     (name, Tactic (params, TheoryAltTac (optionfilter rulename paras)),
      where)
-(* edit comments in this function to profile the whole proof reload operation *)
+
 and interpretParasFrom report query res filenames =
   freezesaved ();
-  (* profileOff(); profileReset(); *) (* profileOn(); *)
   let r = (try
              nj_revfold (interpret report query InLimbo [] [] true)
                (nj_fold (fun (x, y) -> x @ y)
@@ -410,15 +410,17 @@ and interpretParasFrom report query res filenames =
                res
            with
              Catastrophe_ ss ->
-               (* profileOff(); *) report ("Catastrophic error: " :: ss); thawsaved (); raise Use_
-           | CompileThing_ ss ->(* profileOff(); *)  report ss; thawsaved (); raise Use_
-           | exn ->(* profileOff(); *)  thawsaved (); raise exn)
+               report ("Catastrophic error: " :: ss); thawsaved (); raise Use_
+           | CompileThing_ ss -> report ss; thawsaved (); raise Use_
+           | exn -> thawsaved (); raise exn
+          )
     (* including Use_ *)
-in (* profileOff(); *)  (thawsaved ()); r
+  in thawsaved (); r
+  
 let rec conjecturename =
   function
     Conjecture (RuleHeading (name, _, _), _) -> name
-  | _ -> raise Use_
+  | _                                        -> raise Use_
 
 let interpret report query params provisos res paragraph = (* for export *)
   interpret report query InLimbo params provisos true (paragraph, res)
