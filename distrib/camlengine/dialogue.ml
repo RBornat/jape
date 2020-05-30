@@ -239,6 +239,7 @@ let defaultenv =
      "tryresolution"        , bj                         true         Tacticfuns.tryresolution;
      "unfilteredfmt"        , ajd                                     Prooftree.Tree.unfilteredfmt;
      "unifydebug"           , bj                         false        Unify.unifydebug;
+     "utpecua"              , bj                         false        Termparse.utpecua;
      "varbindingsdebug"     , bj                         false        Termfuns.varbindingsdebug]
   in
   let rec bjnr r () = bj !r r

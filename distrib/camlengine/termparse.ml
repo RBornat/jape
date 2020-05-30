@@ -184,6 +184,8 @@ let checkclass (id, t) =
   | ListClass _ -> !unclass id t
   | _ -> t
 
+let utpecua = ref false (* un train peut en cacher un autre *)
+
 (* moved from let block for OCaml *)
   
 let rec parseAtom () =
@@ -211,7 +213,7 @@ let rec parseAtom () =
 and checkAfterBra pre n =
   let sy = currsymb () in
   let checkpre m =
-    if m < n then
+    if m < n && not (!utpecua) then
       raise
         (ParseError_
            [debugstring_of_symbol sy; " (priority "; string_of_int m;
@@ -219,14 +221,14 @@ and checkAfterBra pre n =
             string_of_int n; ")"])
   in
   match sy with
-    PREFIX  _ -> checkpre (prio sy)
+  | PREFIX  _ -> checkpre (prio sy)
   | LEFTFIX _ -> checkpre (prio sy)
-  | _ -> ()
+  | _         -> ()
 
 and checkAfterKet pre n =
   let sy = currsymb () in
   let checkpre m =
-    if n < m then
+    if n < m && not (!utpecua) then
       raise
         (ParseError_
            [debugstring_of_symbol sy; " (priority "; string_of_int m;
@@ -234,9 +236,9 @@ and checkAfterKet pre n =
             string_of_int n; ")"])
   in
   match sy with
-    INFIX  _ -> checkpre (prio sy)
+  | INFIX  _ -> checkpre (prio sy)
   | INFIXC _ -> checkpre (prio sy)
-  | _ -> if canstartAtom sy then checkpre !appfix
+  | _        -> if canstartAtom sy then checkpre !appfix
 
 and parseOutfix bra =
   (* check for empty bracketed form first *)
@@ -375,7 +377,7 @@ and parseExpr n a =
         else t
     | RIGHTFIX _ -> pr (prio sy) parseRightfix
     | MIDFIX   _ -> pr (prio sy) parseMidfix
-    | SUBSTBRA ->
+    | SUBSTBRA   ->
         if !substfix >> n then
           let t = registerSubst (true, t, parseSubststuff ()) in
           checkAfterKet SUBSTKET !substfix; pe t
