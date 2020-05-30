@@ -33,3 +33,5 @@ val adddoubleclick : dclick * tactic * seq -> unit
 val deldoubleclick : dclick * seq -> unit
 val cleardoubleclicks : unit -> unit
 val matchdoubleclick : dclick -> seq -> tactic option
+
+val string_of_dclick : dclick -> string
