@@ -69,11 +69,6 @@ let uncurry2 = Miscellaneous.uncurry2
 let disQuote = Stringfuns.disQuote
 (* let _VALFROM = Termparse.asTactic Termparse.term_of_string *)
 
-(* let profileOff = Profile.profileOff
-   let profileOn = Profile.profileOn
-   let profileReset = Profile.reset
- *)
-
 let rec addstructurerule report query stype rule =
   let thingtype =
     match stype with
@@ -360,8 +355,6 @@ let rec interpret
       );
       consolereport
         ["checking "; word_of_proofstage stage; " "; string_of_name name];
-      (* edit this bit of code to profile the checking bit of proof reload *)
-      (* profileOn(); *)
       let res =
         match doProof report query env name stage seq 
                       (params, givens, provisos, tac) disproofopt
@@ -369,7 +362,7 @@ let rec interpret
           Some r -> env, r :: proofs, buttonfns
         | None -> res
       in
-      (* profileOff(); *) res
+      res
   | RuleDef (RuleHeading (name, params, provisos), top, bottom, axiom) ->
       let rvs = nj_fold (uncurry2 tmerge) ((seqvars <* top)) (seqvars bottom) in
       let thing =
