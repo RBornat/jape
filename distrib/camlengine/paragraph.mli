@@ -67,11 +67,11 @@ exception Use_
 
 val paragraphs_of_file :
   (string list -> unit) ->
-    (string list * string * string * int -> bool) -> string ->
-    paragraph list
+    (string list * string * string * int -> bool) -> 
+    Japeenv.japeenv -> string -> paragraph list
 val paragraph_of_string :
   (string list -> unit) ->
-    (string list * string * string * int -> bool) -> string -> paragraph
+    (string list * string * string * int -> bool) -> Japeenv.japeenv -> string -> paragraph
 
 val catelim_string_of_rulebody : string (* linesep *) -> proviso list -> seq list -> seq
                               -> string list -> string list
