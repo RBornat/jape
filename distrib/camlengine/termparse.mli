@@ -55,4 +55,3 @@ val popSyntax      : unit -> unit
 val popAllSyntaxes : unit -> unit
 
 val termparsedebug : bool ref
-val utpecua : bool ref

@@ -180,11 +180,9 @@ let unstart : (symbol -> term) ref = ref badstart
 
 let checkclass (id, t) =
   match idclass t with
-    BagClass _  -> !unclass id t
+  | BagClass _  -> !unclass id t
   | ListClass _ -> !unclass id t
-  | _ -> t
-
-let utpecua = ref false (* un train peut en cacher un autre *)
+  | _           -> t
 
 (* moved from let block for OCaml *)
   
