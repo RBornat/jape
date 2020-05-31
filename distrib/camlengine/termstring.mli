@@ -95,3 +95,5 @@ val debracketapplications : bool ref
 val remake : ((term -> term option) -> term -> 'a)
           -> int option * (term list * term list * term list) *
              (term * (int * int)) list * term -> 'a 
+
+val utpecua : bool ref

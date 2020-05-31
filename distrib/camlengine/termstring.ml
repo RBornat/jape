@@ -43,6 +43,8 @@ and invisket = offket_as_string
 
 let termstringdebug = ref false
 
+let utpecua = ref false (* un train peut en cacher un autre *)
+
 (************** printing out internal structure of term *************)
  
 let rec catelim_string_of_resnum r tail =
@@ -300,7 +302,7 @@ let isInfixApp t =
   
 (* this function will probably produce stupid results if the language includes
  * operators with identical priorities but differing associativity.
- *(But in that case we have ambiguity anyway, so who cares? RB 14/xi/2008)
+ * (But in that case we have ambiguity anyway, so who cares? RB 14/xi/2008)
  *)
 (* I tried to write this without disfiguring it with parameters ivb & ivk, then I realised
  * that the compiler would put them in anyway.  So it's ugly, but not obviously more 
@@ -417,7 +419,7 @@ let rec _T ivb ivk n a t s =
       ivb t :: quadcolon (("\"" ^ k) ^ "\"") (ivk t :: s)
   | Fixapp (_, ss, ts) ->
       begin match lookup (List.hd ss) with
-        BRA _ ->
+      | BRA _ ->
           ivb t ::
             quadcolon
               (List.hd ss) (_TS1 ivb ivk 0 (List.tl ss) false ts (ivk t :: s))
