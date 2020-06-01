@@ -2,7 +2,7 @@
         $Id: IFP_syntax.j 647 2014-09-30 16:51:20Z sufrin $
 */
 
-INITIALISE utpecua true
+INITIALISE utpecua true /** avoid spurious syntax-check */
 
 CLASS VARIABLE  x y z
                 i j k
@@ -38,6 +38,7 @@ SEQUENT IS BAG ⊢ FORMULA
 
 INITIALISE autoAdditiveLeft     true /* allow rules to be stated without an explicit left context */
 INITIALISE interpretpredicates  true /* allow predicate syntax ... */
+
 
 
 
