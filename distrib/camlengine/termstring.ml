@@ -43,7 +43,7 @@ and invisket = offket_as_string
 
 let termstringdebug = ref false
 
-let utpecua = ref false (* un train peut en cacher un autre *)
+let utpecua = ref true (* un train peut en cacher un autre *)
 
 (************** printing out internal structure of term *************)
  
