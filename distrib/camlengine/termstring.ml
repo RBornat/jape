@@ -49,8 +49,8 @@ let utpecua = ref false (* un train peut en cacher un autre *)
  
 let rec catelim_string_of_resnum r tail =
   match r with
-    Nonum -> "Nonum" :: tail
-  | Resnum r -> "Resnum " :: string_of_int r :: tail
+  | Nonum        -> "Nonum" :: tail
+  | Resnum     r -> "Resnum " :: string_of_int r :: tail
   | ResUnknown r -> "ResUnknown " :: string_of_int r :: tail
 
 let string_of_resnum = stringfn_of_catelim catelim_string_of_resnum
@@ -180,13 +180,13 @@ exception Matchintermstring_     (* spurious *)
      *)
 let rec mapterm f t =
   match f t with
-    Some t' -> t'
+  | Some t' -> t'
   | None ->
       let mtf = mapterm f in
       match t with
-        App (_, f, a) -> App (None, mtf f, mtf a)
-      | Tup (_, s, ts) -> Tup (None, s, (mtf <* ts))
-      | Fixapp (_, ss, ts) -> Fixapp (None, ss, (mtf <* ts))
+      | App         (_, f, a) -> App (None, mtf f, mtf a)
+      | Tup        (_, s, ts) -> Tup (None, s, (mtf <* ts))
+      | Fixapp    (_, ss, ts) -> Fixapp (None, ss, (mtf <* ts))
       | Binding (_, (bs, ss, us), env, pat) ->
           Binding
             (None, ((mtf <* bs), (mtf <* ss), (mtf <* us)), env,
@@ -194,14 +194,14 @@ let rec mapterm f t =
       | Subst (_, r, p_, vts) ->
           Subst (None, r, mtf p_, (fun (v, t) -> mtf v, mtf t) <* vts)
       | Collection (_, k, es) -> Collection (None, k, mapelements f es)
-      | _ -> t
+      | _                     -> t
 
 and mapelements f es =
   let rec g =
     function
-      Segvar (_, ps, v) -> Segvar (None, ps, mapterm f v)
-    | Element (_, r, t) ->(* not really satisfactory *)
-       Element (None, r, mapterm f t)
+    | Segvar (_, ps, v) -> Segvar (None, ps, mapterm f v)
+    | Element (_, r, t) -> (* not really satisfactory *)
+                           Element (None, r, mapterm f t)
   in
   (* yes, it should really be r *)
   List.map g es
@@ -217,15 +217,19 @@ let rec stripelement =
 
 let rec firstatom =
   function
-    [] -> ""
+  | []       -> ""
   | "" :: ss -> firstatom ss
-  | s :: ss -> if isInvisibleString s then firstatom ss else s
-(* now with priority exactly like :: *)
+  | s  :: ss -> if isInvisibleString s then firstatom ss else s
 
-(* triplecolon strips out blank strings, then puts a space _before and after_ things that 
+(* OCaml gave ::: and :::: priority lower than :: (SML let us give them priorities) 
+   and left-associative (not like ::). So they have to be named functions. Sorry.
+ *)
+
+(* tricolon strips out blank strings, then puts a space _before and after_ things that 
  * must be separated. It's used for infix operators.
  *)
-(* ""   tricolon atoms = atoms -- never happens *)
+(* "" ::: atoms = atoms -- never happens *)
+
 let rec tricolon a b =
   match a,b with
     atom, [] -> [atom]
@@ -234,11 +238,12 @@ let rec tricolon a b =
       if mustseparate (atom, firstatom rest) then
         " " :: atom :: " " :: rest
       else atom :: rest
-(* quadruplecolon strips out blank strings, removes double spaces, puts spaces in between
+
+(* quadcolon strips out blank strings, removes double spaces, puts spaces in between
  * atoms that must be separated.
  * Because _T is now properly cat-eliminated, we can't fold quadcolon into the result as we used to.
- * So we have to use it in place of quadcolon, almost everywhere.
  *)
+ 
 let rec quadcolon a b =
   match a, b with
     "", atoms -> atoms
@@ -248,6 +253,7 @@ let rec quadcolon a b =
       (* a bit of overkill? *)
       if mustseparate (atom, firstatom rest) then atom :: insertspace rest
       else atom :: rest
+
 and insertspace =
   function
     r :: rs as rest ->
