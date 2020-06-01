@@ -239,6 +239,8 @@ let rec tricolon a b =
         " " :: atom :: " " :: rest
       else atom :: rest
 
+let (<:::>) = tricolon (* use with care for readability *)
+
 (* quadcolon strips out blank strings, removes double spaces, puts spaces in between
  * atoms that must be separated.
  * Because _T is now properly cat-eliminated, we can't fold quadcolon into the result as we used to.
@@ -260,6 +262,8 @@ and insertspace =
       if r = invisket then r :: insertspace rs else " " :: rest
   | [] -> [" "]
 
+let (<::::>) = quadcolon (* use with care for readability *)
+
 let opname f =
   match f, !debracketapplications, debracket f with
     Id (_, v, _), _   , _            -> Some (string_of_vid v)
@@ -270,7 +274,7 @@ let opname f =
 let isJuxtapos t =
   let opsymb = opname &~ (_Some <.> lookup) in
   match t with
-    App (_, (App (_, f', _) as f), a) ->
+  | App (_, (App (_, f', _) as f), a) ->
       (match opsymb f' with
          Some (INFIXC  _) -> None
        | _                -> Some(f,a))
@@ -290,7 +294,7 @@ let isJuxtapos t =
 let isInfixApp t =
   let opsymb = opname &~ (fun name -> Some(name,lookup name)) in
   match t with
-    App (_, (App (_, f, a1)), a2) ->
+  | App (_, (App (_, f, a1)), a2) ->
       (match opsymb f with
          Some (name, (INFIXC _ as sy)) -> Some (name, prio sy, assoc sy, a1, a2)
        | _                             -> None)
@@ -315,205 +319,174 @@ let isInfixApp t =
  * inefficient.
  * RB 25/6/2001
  *)
-let rec _T ivb ivk n a t s =
-  (* a isn't associativity, it's mustbracket if equal priority *)
-  let mustbracket b a m = if n > m || n = m && a then b else "" in
+(* Given low-priority LEFTFIX and/or RIGHTFIX, we put in too many brackets. This is an attempt
+   to fix that. RB 01/06/2020
+ *)
+(* ivb and ivk put in invisible brackets;
+   nl and nr are the priority of symbols to left and right (needed for LEFTFIX, RIGHTFIX);
+   a isn't associativity, it's mustbracket if equal priority;
+   t is the term;
+   s is the strings that follow (should be ss, n'est ce pas?)
+ *)
+let rec _T ivb ivk nl nr a t s = 
+  let mbn a m n = n > m || n = m && a in
+  let mb a m =  mbn a m nl || mbn a m nr in (* the normal case *)
+  let mustbracket b a m = if mb a m then b else "" in
   let _OB = mustbracket "(" a in
   let _CB = mustbracket ")" a in
-  let _OBprefix = mustbracket "(" false in
-  let _CBprefix = mustbracket ")" false in
-  let rec _TAP f arg s =
-    quadcolon
-      (_OB !appfix)
-      (_T ivb ivk !appfix false f
-          (_T ivb ivk !appfix true arg (quadcolon (_CB !appfix) s)))
+  let _Bns m = if mb a m then 0, 0 else nl, nr in
+  let _OBprefix m = if mbn a m nr then "(" else "" in
+  let _CBprefix m = if mbn a m nr then ")" else "" in
+  let _Bprefixns m = if mbn a m nr then 0, 0 else nl, nr in
+  let _OBpostfix m = if mbn a m nl then "(" else "" in
+  let _CBpostfix m = if mbn a m nl then ")" else "" in
+  let _Bpostfixns m = if mbn a m nl then 0, 0 else nl, nr in
+  let rec _TAP f arg s = (* must be function application, surely *)
+     let nl, nr = _Bns !appfix in
+    _OB !appfix <::::> _T ivb ivk nl !appfix false f (_T ivb ivk !appfix nr true arg (_CB !appfix <::::> s))
   in
-  let rec tip_ n' assoc arg1 f arg2 s =
-    quadcolon
-      (_OB n')
-      (let afterf =
-         _T ivb ivk n' (assoc <> RightAssoc) arg2
-            (quadcolon (_CB n') s)
-       in
-       _T ivb ivk n' (assoc <> LeftAssoc) arg1
-          (tricolon f afterf))
+  let rec tip_ m assoc arg1 f arg2 s = (* I think this is doing infix *)
+    let nl, nr = _Bns m in
+    let afterf = _T ivb ivk m nr (assoc <> RightAssoc) arg2 (_CB m <::::> s) in
+    _OB m <::::> _T ivb ivk nl m (assoc <> LeftAssoc) arg1 (f <:::> afterf)
   in
   let rec _TFA sy f t s =
     match sy with
-      PREFIX name ->
+    | PREFIX  name  ->
+        (* we need to bracket PREFIX only according to nr *)
         let m = prio sy in
-        quadcolon
-          (_OBprefix m)
-          (quadcolon
-             name (_T ivb ivk m false t (quadcolon (_CBprefix m) s)))
+        let nl, nr = _Bprefixns m in
+        _OBprefix m <::::> (name <::::> _T ivb ivk m nr false t (_CBprefix m <::::> s))
     | POSTFIX name ->
+        (* we need to bracket POSTFIX only according to nl *)
         let m = prio sy in
-        quadcolon
-          (_OB m)
-          (_T ivb ivk m false t
-              (quadcolon name (quadcolon (_CB m) s)))
-    | _ -> _TAP f t s
+        let nl, nr = _Bpostfixns m in
+        _OBpostfix m <::::> _T ivb ivk nl m false t (name <::::> (_CBpostfix m <::::> s))
+    | _            -> _TAP f t s
   in
-  let rec _TT n b sep ts s =
-    let rec _TT' =
-      function
-        []      -> s
-      | [t]     -> _T ivb ivk n b t s
-      | t :: ts -> _T ivb ivk n b t (tricolon sep (_TT' ts))
-    in
-    _TT' ts
+  let rec _TT nl nsep nr b sep ts s = (* doing tuples, surely *)
+    match ts with
+    | []      -> s
+    | [t]     -> _T ivb ivk nl nr b t s
+    | t :: ts -> _T ivb ivk nl nsep b t (sep  <::::> _TT nsep nsep nr b sep ts s)
   in
   match t with
-    Id (_, v, _) ->
+  | Id (_, v, _) ->
       let sv = string_of_vid v in
-      let id_as_op () =
-        ivb t :: quadcolon "(" (quadcolon sv (quadcolon ")" (ivk t :: s)))
-      in
       (match lookup sv with
-        INFIX   _ -> id_as_op ()
-      | INFIXC  _ -> id_as_op ()
-      | PREFIX  _ -> id_as_op ()
-      | POSTFIX _ -> id_as_op ()
-      | _ -> ivb t :: quadcolon sv (ivk t :: s))
-  | Unknown (_, v, _) -> ivb t :: quadcolon (metachar_as_string ^ (string_of_vid v)) (ivk t :: s)
+       | INFIX   _ 
+       | INFIXC  _ 
+       | PREFIX  _ 
+       | POSTFIX _ -> ivb t :: ("(" <::::> (sv <::::> (")" <::::> (ivk t :: s))))
+       | _         -> ivb t :: (sv <::::> (ivk t :: s))
+      )
+  | Unknown (_, v, _) -> ivb t :: (metachar_as_string ^ (string_of_vid v) <::::> (ivk t :: s))
   | App (_, (App (_, f, arg1) as l), arg2) ->
-      begin match
-        opname f &~~
-        (fun name ->
-           match lookup name with
-             INFIXC _ as sy' ->
-               Some (ivb t :: tip_ (prio sy') (assoc sy') arg1 name arg2 (ivk t :: s))
-           | _ -> None)
-      with
-        Some r -> r
-      | _      -> ivb t :: _TAP l arg2 (ivk t :: s)
-      end
+      (match opname f &~~ (fun name -> match lookup name with
+                                       | INFIXC _ as sy' ->
+                                           Some (ivb t :: tip_ (prio sy') (assoc sy') arg1 name arg2 (ivk t :: s))
+                                       | _               -> None
+                          )
+       with
+       | Some r -> r
+       | _      -> ivb t :: _TAP l arg2 (ivk t :: s)
+      )
   | App (_, f, arg) ->
-      begin match
-        opname f &~~
-        (fun name ->
-           match lookup name with
-             INFIX _ as sy' ->
-               let m = prio sy' in
-               let a = assoc sy' in 
-               begin match
-                 arg, !debracketapplications, debracket arg
-               with
-                 Tup (_, ",", [arg1; arg2]), _, _ ->
-                   Some (ivb t :: tip_ m a arg1 name arg2 (ivk t :: s))
-               | _, true, Tup (_, ",", [arg1; arg2]) ->
-                   Some (ivb t :: tip_ m a arg1 name arg2 (ivk t :: s))
-               | _ -> None
-               end
-           | sy -> Some (ivb t :: _TFA sy f arg (ivk t :: s)))
-      with
-        Some r -> r
-      | None   -> ivb t :: _TAP f arg (ivk t :: s)
-      end
+      (match opname f &~~ (fun name -> match lookup name with
+                                       | INFIX _ as sy' ->
+                                           let m = prio sy' in
+                                           let a = assoc sy' in 
+                                           (match arg, !debracketapplications, debracket arg with
+                                            | Tup (_, ",", [arg1; arg2]), _, _ ->
+                                                Some (ivb t :: tip_ m a arg1 name arg2 (ivk t :: s))
+                                            | _, true, Tup (_, ",", [arg1; arg2]) ->
+                                                Some (ivb t :: tip_ m a arg1 name arg2 (ivk t :: s))
+                                            | _ -> None
+                                           )
+                                       | sy -> Some (ivb t :: _TFA sy f arg (ivk t :: s))
+                          )
+       with
+       | Some r -> r
+       | None   -> ivb t :: _TAP f arg (ivk t :: s)
+      )
   | Tup (_, sep, ts) ->
-      let n' =
-        match lookup sep with
-          INFIX _ as sy' -> prio sy'
-        | _              -> 0
+      let m = match lookup sep with
+              | INFIX _ as sy' -> prio sy'
+              | _              -> 0
       in
-      ivb t ::
-        quadcolon
-          (_OB n') (_TT n' true sep ts (quadcolon (_CB n') (ivk t :: s)))
+      let nl, nr = _Bns m in 
+      ivb t :: (_OB m <::::> _TT nl m nr true sep ts (quadcolon (_CB m) (ivk t :: s)))
   | Literal (_, Number k) ->(* take in the brackets as well ... *)
-     ivb t :: quadcolon (string_of_int k) (ivk t :: s)
+     ivb t :: (string_of_int k <::::> (ivk t :: s))
   | Literal (_, String k) ->
-      ivb t :: quadcolon (("\"" ^ k) ^ "\"") (ivk t :: s)
+      ivb t :: ("\"" ^ k ^ "\"" <::::> (ivk t :: s))
   | Fixapp (_, ss, ts) ->
-      begin match lookup (List.hd ss) with
-      | BRA _ ->
-          ivb t ::
-            quadcolon
-              (List.hd ss) (_TS1 ivb ivk 0 (List.tl ss) false ts (ivk t :: s))
-      | LEFTFIX _ as sy' ->
-          let m = prio sy' in
-          ivb t ::
-            quadcolon
-              (_OBprefix m)
-              (quadcolon
-                 (List.hd ss)
-                  (_TS2
-                     ivb ivk m (List.tl ss) true ts
-                     (quadcolon (_CBprefix m) (ivk t :: s))))
-      | MIDFIX _ as sy' ->
-          let m = prio sy' in
-          ivb t ::
-            quadcolon
-              (_OB m)
-              (_TS2 ivb ivk m ss true ts
-                    (quadcolon (_CB m) (ivk t :: s)))
-      | RIGHTFIX _ as sy' ->
-          let m = prio sy' in
-          ivb t ::
-            quadcolon
-              (_OB m)
-              (_TS1 ivb ivk m ss true ts
-                    (quadcolon (_CB m) (ivk t :: s)))
-      | sy' -> raise (Catastrophe_ ["Matchintermstring_ "; debugstring_of_symbol sy'])
-      end
+      (match lookup (List.hd ss) with
+       | BRA _ ->
+           ivb t :: (List.hd ss <::::> _TS1 ivb ivk 0 0 0 (List.tl ss) false ts (ivk t :: s))
+       | LEFTFIX _ as sy' ->
+           let m = prio sy' in
+           (* we need to bracket LEFTFIX only according to nr *)
+           let nl, nr = _Bprefixns m in
+           ivb t ::
+             (_OBprefix m <::::>
+               (List.hd ss <::::> _TS2 ivb ivk nl m nr (List.tl ss) true ts (_CBprefix m <::::> (ivk t :: s))))
+       | MIDFIX _ as sy' ->
+           let m = prio sy' in
+           let nl, nr = _Bns m in
+           ivb t :: (_OB m <::::> _TS2 ivb ivk nl m nr ss true ts (_CB m <::::> (ivk t :: s)))
+       | RIGHTFIX _ as sy' ->
+           let m = prio sy' in
+           (* we need to bracket RIGHTFIX only according to nl *)
+           let nl, nr = _Bpostfixns m in
+           ivb t :: (_OB m <::::> _TS1 ivb ivk nl m 0 ss true ts (_CB m <::::> (ivk t :: s)))
+       | sy'               -> raise (Catastrophe_ ["Matchintermstring_ "; debugstring_of_symbol sy'])
+      )
   | Subst (_, _, t, m) ->
       ivb t ::
-        _T ivb ivk !substfix false t
-           (quadcolon
-             (string_of_symbol SUBSTBRA)
-             (_TM ivb ivk m
-                  (quadcolon (string_of_symbol SUBSTKET) (ivk t :: s))))
-  | Binding stuff -> _T ivb ivk n a (remake mapterm stuff) s
+        _T ivb ivk nl !substfix false t
+           (string_of_symbol SUBSTBRA <::::> _TM ivb ivk m (string_of_symbol SUBSTKET <::::> (ivk t :: s)))
+  | Binding stuff -> _T ivb ivk nl nr a (remake mapterm stuff) s
   | Collection (_, c, es) ->
-      ivb t ::
-        quadcolon
-          (_OB 0)
-          (quadcolon
-             (unparseidclass c)
-             (quadcolon
-                " "
-                (_TT 0 true "," (List.map stripelement es)
-                     (quadcolon (_CB 0) (ivk t :: s)))))
+      let nl, nr = if mb a 0 then 0, 0 else nl, nr in 
+      ivb t :: 
+        (_OB 0 <::::> 
+           (unparseidclass c <::::> (" " <::::> _TT nl 0 nr true "," (List.map stripelement es) (_CB 0 <::::> (ivk t :: s)))))
 
-and _TS ivb ivk ts r =
+and _TS1 ivb ivk nl m nr seps b ts s = (* this does a list of terms with separators, priority m, nl to the left, nr to the right *)
+  match seps, ts with
+  | [ket]      , []  when nr<>0    
+                         -> (Printf.sprintf "???_TS1 %d???" nr) <::::> (ket <:::> s)
+  | [ket]      , []      -> ket <:::> s
+  | []         , []      -> s 
+  | sep :: seps, t :: ts -> _T ivb ivk nl m b t (sep <::::> _TS1 ivb ivk m m nr seps b ts s)
+  | _                    -> "???_TS1???" <::::> s
+
+and _TS2 ivb ivk nl m nr seps b ts s =
+  match seps, ts with
+    []         , [t]     -> _T ivb ivk nl nr b t s
+  | sep :: seps, t :: ts ->  _T ivb ivk nl m b t (sep <::::> _TS2 ivb ivk m m nr seps b ts s)
+  | _                    -> quadcolon "???_TS2???" s
+
+and _TS ivb ivk ts r = (* this thing does the stuff inside SUBSTBRA, SUBSTKET *)
   match ts with
     []      -> r
-  | [t]     -> _T ivb ivk 0 true t r
-  | t :: ts ->
-      _T ivb ivk 0 true t (quadcolon "," (_TS ivb ivk ts r))
-
-and _TS1 ivb ivk m seps b ts s =
-  match seps, ts with
-    [ket], [] -> quadcolon ket s
-  | []   , [] ->(* special case for empty tuples *)
-                s
-  | sep :: seps, t :: ts ->
-      (* normal case when as many seps as terms *)
-      _T ivb ivk m b t
-         (quadcolon sep (_TS1 ivb ivk m seps b ts s))
-  | _ -> quadcolon "???_TS1???" s
-
-and _TS2 ivb ivk m seps b ts s =
-  match seps, ts with
-    [], [t] -> _T ivb ivk m b t s
-  | sep :: seps, t :: ts ->
-      _T ivb ivk m b t
-         (quadcolon sep (_TS2 ivb ivk m seps b ts s))
-  | _ -> quadcolon "???_TS2???" s
+  | [t]     -> _T ivb ivk 0 0 true t r
+  | t :: ts -> _T ivb ivk 0 0 true t (","  <::::> _TS ivb ivk ts r)
 
 and _TM ivb ivk vts s =
   let rec var (v, t) = v in
   let rec expr (v, t) = t in
   let (fst, snd) = if !substsense then var, expr else expr, var in
-  _TS ivb ivk (List.map fst vts)
-      (quadcolon (string_of_symbol SUBSTSEP) (_TS ivb ivk (List.map snd vts) s))
+  _TS ivb ivk (List.map fst vts) (string_of_symbol SUBSTSEP <::::> _TS ivb ivk (List.map snd vts) s)
 
 let nobra   _ = ""
 let noket   _ = ""
 let showbra _ = invisbra
 let showket _ = invisket
 
-let catelim_invisbracketedstring_of_prioterm b = 
-  if b then _T showbra showket else _T nobra noket
+let catelim_invisbracketedstring_of_prioterm b n = 
+  if b then _T showbra showket n n else _T nobra noket n n
  
 let catelim_invisbracketedstring_of_term b = 
   catelim_invisbracketedstring_of_prioterm b 0 false
@@ -525,15 +498,11 @@ let rec string_of_term = stringfn_of_catelim catelim_string_of_term
 let rec diag_string_of_term t = (if !termstringdebug then debugstring_of_term 
                                                      else string_of_term) t
 
-let rec catelim_chooseinvisbracketedstring_of_term ivb ivk = 
-  _T ivb ivk 0 false
-let rec chooseinvisbracketedstring_of_term ivb ivk =
-  stringfn_of_catelim (catelim_chooseinvisbracketedstring_of_term ivb ivk)
+let rec catelim_chooseinvisbracketedstring_of_term ivb ivk = _T ivb ivk 0 0 false
+let rec chooseinvisbracketedstring_of_term ivb ivk = stringfn_of_catelim (catelim_chooseinvisbracketedstring_of_term ivb ivk)
 
 let rec catelim_string_of_vts vts ss =
-  quadcolon
-    (string_of_symbol SUBSTBRA)
-    (_TM nobra nobra vts (quadcolon (string_of_symbol SUBSTKET) ss))
+  string_of_symbol SUBSTBRA <::::> _TM nobra nobra vts (string_of_symbol SUBSTKET <::::> ss)
 let string_of_vts = stringfn_of_catelim catelim_string_of_vts
 
 let catelim_invisbracketedstring_of_termfun b =
