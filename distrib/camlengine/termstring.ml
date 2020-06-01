@@ -448,7 +448,7 @@ let rec _T ivb ivk nl nr a t s =
            (string_of_symbol SUBSTBRA <::::> _TM ivb ivk m (string_of_symbol SUBSTKET <::::> (ivk t :: s)))
   | Binding stuff -> _T ivb ivk nl nr a (remake mapterm stuff) s
   | Collection (_, c, es) ->
-      let nl, nr = if mb a 0 then 0, 0 else nl, nr in 
+      let nl, nr = _Bns 0 in 
       ivb t :: 
         (_OB 0 <::::> 
            (unparseidclass c <::::> (" " <::::> _TT nl 0 nr true "," (List.map stripelement es) (_CB 0 <::::> (ivk t :: s)))))
