@@ -2,8 +2,6 @@
         $Id: IFP_syntax.j 647 2014-09-30 16:51:20Z sufrin $
 */
 
-INITIALISE utpecua true /** avoid spurious syntax-check */
-
 CLASS VARIABLE  x y z
                 i j k
 CLASS FORMULA   A B C D  
