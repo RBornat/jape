@@ -33,7 +33,7 @@ open Sml
  *)
 
 type ('c, 'r) fsm =
-    Wrong
+  | Wrong
   | Answer of 'r
   | Prefix of ('r * ('c, 'r) fsm)
   | Shift of ('c, 'r) fsm
@@ -42,7 +42,9 @@ type ('c, 'r) fsm =
 (* cheapo alt *)
 
 type ('c, 'r) status =
-  Unbuilt of ('c, 'r) mkalt | Built of (('c, 'r) mkalt * ('c, 'r) fsm)
+  | Unbuilt of ('c, 'r) mkalt 
+  | Built of (('c, 'r) mkalt * ('c, 'r) fsm)
+
 and ('c, 'r) mkalt =
   ('c * ('c, 'r) fsm) list -> ('c, 'r) fsm -> 'c -> ('c, 'r) fsm
 
@@ -52,10 +54,9 @@ type ('c, 'r) searchtree =
 
 let emptysearchtree f = SearchTree ([], Unbuilt f)
 
-let mkalt =
-  function
-    Built (f, _) -> f
-  | Unbuilt f    -> f
+let mkalt = function
+            | Built (f, _) -> f
+            | Unbuilt f    -> f
 
 let same eqr (cs, r, isprefix) (cs', r', b) =
   (cs = cs' && eqr (r, r')) && isprefix = b
@@ -86,7 +87,7 @@ let summarisetree (SearchTree (csrbs, _)) = csrbs
 
 let rec catelim_string_of_fsm cf rf t ss =
   match t with
-    Wrong -> "Wrong" :: ss
+  | Wrong -> "Wrong" :: ss
   | Answer r -> "Answer(" :: rf r (")" :: ss)
   | Prefix (r, t') ->
       "Prefix(" :: rf r ("," :: catelim_string_of_fsm cf rf t' (")" :: ss))
@@ -152,16 +153,15 @@ let rec fsmpos t cs =
 let scanfsm next t rcs c =
   let rec scan t rcs c =
     match t with
-      Answer r       -> Found (r, rcs)
+    | Answer r       -> Found (r, rcs)
     | Wrong          -> NotFound rcs
-    | Prefix (r, t') -> (
-        match scan t' rcs c with
-          NotFound _ -> Found (r, rcs)
-        | res        -> res)
+    | Prefix (r, t') -> (match scan t' rcs c with
+                         | NotFound _ -> Found (r, rcs)
+                         | res        -> res
+                        )
     | Shift t'      -> scan t' (c :: rcs) (next ())
     | Alt f         -> scan (f c) rcs c
-    | Eq (c', y, n) ->
-        if c = c' then scan y (c :: rcs) (next ()) else scan n rcs c
+    | Eq (c', y, n) -> if c = c' then scan y (c :: rcs) (next ()) else scan n rcs c
   in
   scan t rcs c
 
@@ -172,17 +172,15 @@ let scanfsm next t rcs c =
 let scanstatefsm curr move t state =
   let rec scan t state =
     match t with
-      Answer r -> Found (r, state)
-    | Wrong -> NotFound state
-    | Prefix (r, t') ->
-        begin match scan t' state with
-          NotFound s -> Found (r, s)
-        | res -> res
-        end
-    | Shift t' -> scan t' (move state)
-    | Alt f -> scan (f (curr state)) state
-    | Eq (c', y, n) ->
-        if curr state = c' then scan y (move state) else scan n state
+    | Answer r       -> Found (r, state)
+    | Wrong          -> NotFound state
+    | Prefix (r, t') -> (match scan t' state with
+                         | NotFound s -> Found (r, s)
+                         | res -> res
+                        )
+    | Shift t'      -> scan t' (move state)
+    | Alt f         -> scan (f (curr state)) state
+    | Eq (c', y, n) -> if curr state = c' then scan y (move state) else scan n state
   in
   scan t state
 
@@ -191,16 +189,14 @@ let scanstatefsm curr move t state =
 let searchfsm t cs =
   let rec search t rcs cs =
     match t, cs with
-      Answer r, [] -> Found (r, rcs)
-    | Prefix (r, t'), _ ->
-        begin match search t' rcs cs with
-          NotFound _ -> Found (r, rcs)
-        | res -> res
-        end
-    | Shift t', c :: cs' -> search t' (c :: rcs) cs'
-    | Alt f, c :: _ -> search (f c) rcs cs
-    | Eq (c', y, n), c :: cs' ->
-        if c = c' then search y (c :: rcs) cs' else search n rcs cs
-    | _ -> NotFound rcs
+    | Answer r      , []        -> Found (r, rcs)
+    | Prefix (r, t'), _         -> (match search t' rcs cs with
+                                    | NotFound _ -> Found (r, rcs)
+                                    | res -> res
+                                   )
+    | Shift t'      , c :: cs' -> search t' (c :: rcs) cs'
+    | Alt f         , c :: _   -> search (f c) rcs cs
+    | Eq (c', y, n) , c :: cs' -> if c = c' then search y (c :: rcs) cs' else search n rcs cs
+    | _                        -> NotFound rcs
   in
   search t [] cs
