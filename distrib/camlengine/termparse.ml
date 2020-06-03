@@ -47,11 +47,9 @@ let termparsedebug = ref false
 let symbeq : symbol * symbol -> bool = fun (x, y) -> x = y
 
 let mkalt sts def s =
-  match
-    findfirst (fun (s', t) -> if s = s' then Some t else None) sts
-  with
-    Some t -> t
-  | None -> def
+  match findfirst (fun (s', t) -> if s = s' then Some t else None) sts with
+  | Some t -> t
+  | None   -> def
 
 let outrightfixtree : (symbol, symbol) searchtree ref =
   ref (emptysearchtree mkalt)
@@ -100,12 +98,13 @@ let declareOutRightfix braseps ket =
 
 let declareLeftMidfix syms =
   (match !syntaxes with 
-     (name, _, _, _, lms) :: _ ->
+   | (name, _, _, _, lms) :: _ ->
        if not (mem syms lms) then
          raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
                              " attempt to define novel LEFTFIX/MIDFIX ";
                              string_of_list string_of_symbol " " syms])
-   | _ -> ());
+   | _ -> ()
+  );
   leftmidfixes := syms :: !leftmidfixes;
   leftmidfixtree :=
     addtotree (fun (x, y) -> x = y) !leftmidfixtree (syms, (), false)
@@ -278,11 +277,8 @@ and parseLeftfix m bra = putbacksymb bra; parseLeftMidfixTail m []
 and parseMidfix m t = parseLeftMidfixTail m [t]
 
 and parseLeftMidfixTail m ts =
-  match
-    scanstatefsm treecurr (treenext m true) (rootfsm leftmidfixtree)
-      ([], ts)
-  with
-    Found (_, (ss, ts)) ->
+  match scanstatefsm treecurr (treenext m true) (rootfsm leftmidfixtree) ([], ts) with
+  | Found (_, (ss, ts)) ->
       registerFixapp ((string_of_symbol <* rev ss), rev ts)
   | NotFound (ss, _) ->
       raise
