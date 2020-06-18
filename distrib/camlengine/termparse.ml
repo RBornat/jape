@@ -259,9 +259,7 @@ and parseRightfix m t =
   let (ket, t) = parseOutRightfixTail m [t] in checkAfterKet ket m; t
 
 and parseOutRightfixTail m ts =
-  match
-    scanstatefsm treecurr (treenext m false) (rootfsm outrightfixtree)
-      ([], ts)
+  match scanstatefsm treecurr (treenext m false) (rootfsm outrightfixtree) ([], ts)
   with
     Found (ket, (ss, ts)) ->
       check ket;

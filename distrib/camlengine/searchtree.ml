@@ -102,11 +102,11 @@ let rec catelim_string_of_fsm cf rf t ss =
 
 let rootfsm rt =
   match !rt with
-    SearchTree (_, Built (_, t)) -> t
+  | SearchTree (_, Built (_, t)) -> t
   | SearchTree (csrbs, Unbuilt mkalt) ->
       let rec doit csrbs =
         match split (fun (cs,_,_) -> null cs) csrbs with
-          (_, r, true) :: _, qs -> Prefix (r, doit qs)
+        | (_, r, true) :: _, qs -> Prefix (r, doit qs)
         | (_, r, _) :: _, [] ->(* because of add/delete above, there is only one r *)
            Answer r
         | [], [] ->(* because of add/delete above, there is only one r *)
@@ -115,7 +115,7 @@ let rootfsm rt =
         | _, qs -> doalt [] qs Wrong
       and doalt a1 a2 a3 =
         match a1, a2, a3 with
-          cqs, [], def ->
+        | cqs, [], def ->
             let cts = ((fun (c, csrbs) -> c, doit csrbs) <* cqs) in
             begin match cts with
               [c, t] -> Eq (c, t, def)
@@ -139,13 +139,12 @@ type ('r, 's) searchresult = Found of ('r * 's) | NotFound of 's
 
 let rec fsmpos t cs =
   match t, cs with
-    _, [] -> Some t
-  | Prefix (_, t'), _ -> fsmpos t' cs
-  | Shift t', c :: cs' -> fsmpos t' cs'
-  | Alt f, c :: _ -> fsmpos (f c) cs
-  | Eq (c', y, n), c :: cs' ->
-      if c = c' then fsmpos y cs' else fsmpos n cs
-  | _ -> None
+  | _             , []       -> Some t
+  | Prefix (_, t'), _        -> fsmpos t' cs
+  | Shift t'      , c :: cs' -> fsmpos t' cs'
+  | Alt f         , c :: _   -> fsmpos (f c) cs
+  | Eq (c', y, n) , c :: cs' -> if c = c' then fsmpos y cs' else fsmpos n cs
+  | _                        -> None
 
 (* a scan function *)
 (* result includes reverse of ''cs scanned *)
@@ -176,7 +175,7 @@ let scanstatefsm curr move t state =
     | Wrong          -> NotFound state
     | Prefix (r, t') -> (match scan t' state with
                          | NotFound s -> Found (r, s)
-                         | res -> res
+                         | res        -> res
                         )
     | Shift t'      -> scan t' (move state)
     | Alt f         -> scan (f (curr state)) state
