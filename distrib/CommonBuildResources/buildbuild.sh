@@ -4,7 +4,7 @@
 #
 #       Expects to be run from the top-level jape directory
 #
-JAPES="Linux Solaris Windows"
+JAPES="Linux Windows"
 for jape in $JAPES
 do
     mkdir ${jape}Jape ${jape}Jape/build
