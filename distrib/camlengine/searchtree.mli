@@ -39,9 +39,9 @@ val rootfsm         : ('c, 'r) searchtree ref -> ('c, 'r) fsm
 val fsmpos          : ('c, 'r) fsm -> 'c list -> ('c, 'r) fsm option
 
 val scanfsm         : (unit -> 'c) -> ('c, 'r) fsm -> 'c list -> 'c 
-                   -> ('r, 'c list) searchresult
-val scanstatefsm    : ('a -> 'c) -> ('a -> 'a) -> ('c, 'r) fsm -> 'a 
-                   -> ('r, 'a) searchresult
+                            -> ('r, 'c list) searchresult
+val scanstatefsm    : ('a -> 'c) -> (bool -> 'a -> 'a) -> ('c, 'r) fsm -> 'a 
+                            -> ('r, 'a) searchresult
 val searchfsm       : ('c, 'r) fsm -> 'c list -> ('r, 'c list) searchresult
 
 val catelim_string_of_fsm : ('c -> string list -> string list)
