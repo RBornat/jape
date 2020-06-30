@@ -1282,7 +1282,7 @@ and paragraphs_of_file report query env s =
      | exn -> error_cleanup (); raise exn)
     (* including Use_, at it happens *)
   in cleanup (); 
-     consolereport["paragraphs_of_file "; s; " = "; bracketed_string_of_list string_of_paragraph ";" r; "\n"];
+     (* consolereport["paragraphs_of_file "; s; " = "; bracketed_string_of_list string_of_paragraph ";" r; "\n"]; *)
      r
   
 (* this is where rules, theorems, tactics and macros get parsed, so this is the right place
