@@ -12,6 +12,7 @@ INITIALISE foldformulae true
     of unbound type variables before installing functions
     in the environment.
 */
+TACTIC Fail (x) IS SEQ (ALERT x) STOP
 
 USE "H-Meval_rules.j"
 USE "H-Meval_problems.j"
