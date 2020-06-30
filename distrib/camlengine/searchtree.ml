@@ -38,8 +38,7 @@ type ('c, 'r) fsm =
   | Prefix of ('r * ('c, 'r) fsm)
   | Shift of ('c, 'r) fsm
   | Alt of ('c -> ('c, 'r) fsm)
-  | Eq of ('c * ('c, 'r) fsm * ('c, 'r) fsm)
-(* cheapo alt *)
+  | Eq of ('c * ('c, 'r) fsm * ('c, 'r) fsm)    (* cheapo alt *)
 
 type ('c, 'r) status =
   | Unbuilt of ('c, 'r) mkalt 
@@ -87,18 +86,15 @@ let summarisetree (SearchTree (csrbs, _)) = csrbs
 
 let rec catelim_string_of_fsm cf rf t ss =
   match t with
-  | Wrong -> "Wrong" :: ss
-  | Answer r -> "Answer(" :: rf r (")" :: ss)
-  | Prefix (r, t') ->
-      "Prefix(" :: rf r ("," :: catelim_string_of_fsm cf rf t' (")" :: ss))
-  | Shift t' -> "Shift(" :: catelim_string_of_fsm cf rf t' (")" :: ss)
-  | Alt _ -> "Alt ..." :: ss
-  | Eq (c, t1, t2) ->
-      "Eq(" ::
-        cf c
-           ("," ::
-              catelim_string_of_fsm cf rf t1
-                ("," :: catelim_string_of_fsm cf rf t2 (")" :: ss)))
+  | Wrong          -> "Wrong" :: ss
+  | Answer r       -> "Answer(" :: rf r (")" :: ss)
+  | Prefix (r, t') -> "Prefix(" :: rf r ("," :: catelim_string_of_fsm cf rf t' (")" :: ss))
+  | Shift t'       -> "Shift(" :: catelim_string_of_fsm cf rf t' (")" :: ss)
+  | Alt _          -> "Alt ..." :: ss
+  | Eq (c, t1, t2) -> "Eq(" ::
+                        cf c
+                           ("," :: catelim_string_of_fsm cf rf t1
+                                     ("," :: catelim_string_of_fsm cf rf t2 (")" :: ss)))
 
 let rootfsm rt =
   match !rt with
