@@ -33,9 +33,9 @@ INFIX       50L     =
 BIND x  SCOPE E IN λ x . E
 
 BIND t SCOPE T IN ∀ t . T
-BIND t1 t2 SCOPE T IN ∀ (t1, t2) . T
-BIND t1 t2 t3 SCOPE T IN ∀ (t1, t2, t3 ). T
-BIND t1 t2 t3 t4 SCOPE T IN ∀ (t1, t2, t3, t4) . T
+BIND t1 t2 SCOPE T IN ∀ t1, t2 . T
+BIND t1 t2 t3 SCOPE T IN ∀ t1, t2, t3 . T
+BIND t1 t2 t3 t4 SCOPE T IN ∀ t1, t2, t3, t4 . T
 
 OUTFIX [ ]
 OUTFIX  letrec in end
@@ -47,8 +47,8 @@ BIND x1 x2          SCOPE F IN let x1=E1 , x2=E2 in F end
 BIND x1 x2 x3       SCOPE F IN let x1=E1 , x2=E2 , x3=E3 in F end
 BIND x1 x2 x3 x4    SCOPE F IN let x1=E1 , x2=E2 , x3=E3 , x4=E4 in F end
 
-BIND x          SCOPE E F           IN letrec x = E in F end
-BIND x1 x2      SCOPE E1 E2  F      IN letrec x1=E1 , x2=E2 in F end
+BIND x              SCOPE E F           IN letrec x = E in F end
+BIND x1 x2          SCOPE E1 E2  F      IN letrec x1=E1 , x2=E2 in F end
 BIND x1 x2 x3       SCOPE E1 E2  E3 F   IN letrec x1=E1 , x2=E2 , x3=E3 in F end
 BIND x1 x2 x3 x4    SCOPE E1 E2 E3 E4 F IN letrec x1=E1 , x2=E2 , x3=E3 , x4=E4 in F end
 
@@ -119,9 +119,9 @@ RULE "C ⊢ c:T" IS FROM C⊢c⇒S AND S≻T INFER C⊢c:T
 RULES "S≻T" ARE
     INFER #T ≻ T
 AND INFER ∀tt.TT ≻ TT{T1/tt}
-AND INFER ∀(tt1,tt2).TT ≻ TT{T1,T2/tt1,tt2}
-AND INFER ∀(tt1,tt2,tt3).TT ≻ TT{T1,T2,T3/tt1,tt2,tt3}
-AND INFER ∀(tt1,tt2,tt3,tt4).TT ≻ TT{T1,T2,T3,T4/tt1,tt2,tt3,tt4}
+AND INFER ∀tt1,tt2.TT ≻ TT{T1,T2/tt1,tt2}
+AND INFER ∀tt1,tt2,tt3.TT ≻ TT{T1,T2,T3/tt1,tt2,tt3}
+AND INFER ∀tt1,tt2,tt3,tt4.TT ≻ TT{T1,T2,T3,T4/tt1,tt2,tt3,tt4}
 END
 
 /* a sort of weakening ... */
@@ -174,9 +174,9 @@ RULE "T≺S" IS       FROM C ⊢ T • #T ◁ S     INFER C ⊢ T ≺ S
 
 RULES "new t•..." (OBJECT t1) WHERE t1 NOTIN C ARE
     C⊢ t1 • #T                ◁ ∀t1.T 
-AND C⊢ t1 • ∀tt1.T           ◁ ∀(tt1,t1).T 
-AND C⊢ t1 • ∀(tt1,tt2).T     ◁ ∀(tt1,tt2,t1).T 
-AND C⊢ t1 • ∀(tt1,tt2,tt3).T ◁ ∀(tt1,tt2,tt3,t1).T 
+AND C⊢ t1 • ∀tt1.T           ◁ ∀tt1,t1.T 
+AND C⊢ t1 • ∀tt1,tt2.T     ◁ ∀tt1,tt2,t1.T 
+AND C⊢ t1 • ∀tt1,tt2,tt3.T ◁ ∀tt1,tt2,tt3,t1.T 
 END
 
 RULE "T1→T2•..."    FROM C ⊢ T1• Sin ◁ Smid AND C ⊢ T2 • Smid ◁ Sout    INFER C ⊢ T1→T2 • Sin ◁ Sout
