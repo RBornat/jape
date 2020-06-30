@@ -255,4 +255,7 @@ TACTIC AutoStep IS
             (LETGOAL (_T ≺ _S) generalise)
             (LETGOAL _E (Fail (_E is not a recognisable judgement (AutoStep))))
             
-AUTOUNIFY "n:num" "s:string" "true:bool" "false:bool"
+AUTOUNIFY "n:num" 
+AUTOUNIFY "s:string" 
+AUTOUNIFY "true:bool" 
+AUTOUNIFY "false:bool"

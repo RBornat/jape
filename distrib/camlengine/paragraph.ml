@@ -1060,7 +1060,7 @@ and processInitialise report env =
 and parseAutoRule sense =
   AutoRule
     (sense,
-       (transTactic <* parseUnsepList canstartTerm (asTactic parseTerm)))
+       (transTactic <* parseUnsepList canstartTerm (asTactic parseTerm))) (* parseUnsepList doesn't work, because it takes the first tactic and parses the rest as its arguments ... *)
 
 and parseUse report query env =
   match currsymb () with
