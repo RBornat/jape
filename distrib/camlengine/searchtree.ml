@@ -165,6 +165,18 @@ let scanfsm next t rcs c =
 (* this result includes state *)
 
 let scanstatefsm curr move t state =
+  (* t is the tree after Shift. Is it possibly an accepting state? 
+     Doesn't do well with Alt ...
+   *)
+  let rec maybelast t =
+    match t with
+    | Wrong         -> false
+    | Answer _  
+    | Prefix _      -> true
+    | Shift _       -> false (* can't happen *)
+    | Alt _         -> false (* they all seem to be Shifts ... see mkalt *)
+    | Eq (_, _, t') -> maybelast t' (* it _might_ be an accepting state ... *)
+  in
   let rec scan t state =
     match t with
     | Answer r       -> Found (r, state)
@@ -173,9 +185,9 @@ let scanstatefsm curr move t state =
                          | NotFound s -> Found (r, s)
                          | res        -> res
                         )
-    | Shift t'      -> scan t' (move state)
+    | Shift t'      -> scan t' (move (maybelast t') state)
     | Alt f         -> scan (f (curr state)) state
-    | Eq (c', y, n) -> if curr state = c' then scan y (move state) else scan n state
+    | Eq (c', y, n) -> if curr state = c' then scan y (move (maybelast y) state) else scan n state
   in
   scan t state
 
