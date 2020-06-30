@@ -255,11 +255,11 @@ and parseOutfix bra =
     Some t -> t
   | None -> putbacksymb bra (* can this be right? *); snd (parseOutRightfixTail 0 [])
 
-and parseRightfix m t =
-  let (ket, t) = parseOutRightfixTail m [t] in checkAfterKet ket m; t
+and parseRightfix m t = (* m is irrelevant *)
+  let (ket, t) = parseOutRightfixTail 0 [t] in checkAfterKet ket m; t
 
-and parseOutRightfixTail m ts =
-  match scanstatefsm treecurr (treenext m false) (rootfsm outrightfixtree) ([], ts)
+and parseOutRightfixTail m ts = (* m is irrelevant *)
+  match scanstatefsm treecurr (fun _ -> treenext 0 false) (* ignore maybelast *) (rootfsm outrightfixtree) ([], ts)
   with
   | Found (ket, (ss, ts)) ->
       check ket;
@@ -275,7 +275,10 @@ and parseLeftfix m bra = putbacksymb bra; parseLeftMidfixTail m []
 and parseMidfix m t = parseLeftMidfixTail m [t]
 
 and parseLeftMidfixTail m ts =
-  match scanstatefsm treecurr (treenext m true) (rootfsm leftmidfixtree) ([], ts) with
+  let tn m a maybelast =
+    uncurry2 treenext (if maybelast then m,a else 0,false)
+  in
+  match scanstatefsm treecurr (tn m true) (rootfsm leftmidfixtree) ([], ts) with
   | Found (_, (ss, ts)) ->
       registerFixapp ((string_of_symbol <* rev ss), rev ts)
   | NotFound (ss, _) ->
@@ -329,6 +332,8 @@ and parseBRA () =
 (* here a is not an associativity, it is 'left operator gets it' *)
 
 and parseExpr n a =
+  if !termparsedebug then
+    consolereport ["parseExpr "; string_of_int n; " "; string_of_bool a; " (currsymb="; debugstring_of_symbol (currsymb()); ")"];
   let ( >> ) m n = m > n || m = n && not a in
   let rec pe t =
     let sy = currsymb () in
