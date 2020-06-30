@@ -244,12 +244,12 @@ and parseOutfix bra =
        (fun t ->
           match currsymb () with
             KET _ as ket ->
-              begin match scanfsm (fun _ -> ket) t [] ket with
-                Found (ket', []) ->
-                  check ket';
-                  Some (registerFixapp ((string_of_symbol <* [bra; ket]), []))
+              (match scanfsm (fun _ -> ket) t [] ket with
+               | Found (ket', []) ->
+                   check ket';
+                   Some (registerFixapp ((string_of_symbol <* [bra; ket]), []))
               | _ -> None
-              end
+             )
           | _ -> None))
   with
     Some t -> t
@@ -261,7 +261,7 @@ and parseRightfix m t =
 and parseOutRightfixTail m ts =
   match scanstatefsm treecurr (treenext m false) (rootfsm outrightfixtree) ([], ts)
   with
-    Found (ket, (ss, ts)) ->
+  | Found (ket, (ss, ts)) ->
       check ket;
       ket, registerFixapp ((string_of_symbol <* rev (ket :: ss)), rev ts)
   | NotFound (ss, _) ->
@@ -311,13 +311,14 @@ and parseBRA () =
     let r =
       (let t = parseterm (KET ")") in
        match t with
-         Collection _             as t' -> t'
+       | Collection _             as t' -> t'
        | Id (_, _, OperatorClass) as t' -> t'
-       | _                              -> enbracket t)
+       | _                              -> enbracket t
+      )
     in check (KET ")"); r
   in
   match currsymb () with
-    INFIX  s  -> defop s
+  | INFIX  s  -> defop s
   | INFIXC s  -> defop s
   | POSTFIX s -> defop s
   | PREFIX s  -> if peeksymb () = KET ")" then defop s else defexpr ()
