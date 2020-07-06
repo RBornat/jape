@@ -62,7 +62,7 @@ open UTF
 
 exception None_ = Optionfuns.None_
 exception Use_ = Paragraph.Use_
-exception Verifyproviso_ = Provisofuns.Verifyproviso_
+exception Verifyproviso = Provisofuns.Verifyproviso
 
 let idf = fun x -> x
 
@@ -1275,7 +1275,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           env, mbs, DontShow,
           addproofs false env [name, withgivens (withcxt state cxt') givens, None] pinfs
         with
-          Verifyproviso_ p ->
+          Verifyproviso p ->
             showAlert [kind; " "; string_of_name name; " has unsatisfiable proviso "; string_of_proviso p];
             default
       in
