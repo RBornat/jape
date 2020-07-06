@@ -40,4 +40,4 @@ val verifyprovisos : cxt -> cxt
 
 val draganddropmapping: proviso list -> (element list * element list) list
 
-exception Verifyproviso_ of proviso
+exception Verifyproviso of proviso

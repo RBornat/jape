@@ -270,7 +270,7 @@ let rec expandFreshProviso b (h, g, r, v) left right ps =
      | (false, side), ps -> ps)
     [h, left; g, right] ps
 
-exception Verifyproviso_ of proviso
+exception Verifyproviso of proviso
 
 (* take out the first occurrence *)
 
@@ -308,7 +308,7 @@ let rec checker cxt (--) ps qs =
                            " => "; string_of_answer verdict];
           match verdict with
             Yes   -> ch ps qs'
-          | No    -> raise (Verifyproviso_ (provisoparent p))
+          | No    -> raise (Verifyproviso (provisoparent p))
           | Maybe -> p :: ch ps qs (* qs not qs', cos qs is the database you are verifying against *)
   in
   ch ps qs
@@ -327,7 +327,7 @@ let rec remalldups eq ps =
     anyway rad ps
     
 (* verifyprovisos appears to give back a minimal list of provisos that aren't trivially true
-   or dependent on each other. If it finds a violated proviso it raises Verifyproviso_.
+   or dependent on each other. If it finds a violated proviso it raises Verifyproviso.
    RB 2012
  *)
  
@@ -421,7 +421,7 @@ let rec verifyprovisos cxt =
         if r then
           (* IMPFRESH - check if news are needed *)
           let news' = try checker cxt mm news pros 
-                      with Verifyproviso_ _ -> news
+                      with Verifyproviso _ -> news
           in
           if null news' then
             (* we have the lot: just say FRESH *)
@@ -447,17 +447,17 @@ let rec verifyprovisos cxt =
          ") "; " (unfresh = "; vv unfresh; ") "; " => "; vv ps];
     rewritecxt (withprovisos cxt ps)
   with
-    Verifyproviso_ p ->
+    Verifyproviso p ->
       if !provisodebug then
         consolereport
           ["proviso "; string_of_proviso p; " failed in verifyprovisos"];
-      raise (Verifyproviso_ p)
+      raise (Verifyproviso p)
 
 let rec checkprovisos cxt =
   try Some (verifyprovisos cxt) with
-    Verifyproviso_ _ -> None
-(* this is for renaming provisos when a rule/theorem is instantiated *)
+    Verifyproviso _ -> None
 
+(* this is for renaming provisos when a rule/theorem is instantiated *)
 let rec remapproviso env p =
   let _T = remapterm env in
   match p with

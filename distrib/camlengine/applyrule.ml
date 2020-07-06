@@ -57,7 +57,7 @@ let resolvepossible = Miscellaneous.resolvepossible
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
-exception Verifyproviso_ = Provisofuns.Verifyproviso_
+exception Verifyproviso = Provisofuns.Verifyproviso
       
 type prooftree      = Prooftree.Tree.Fmttree.prooftree
  and prooftree_step = Prooftree.Tree.prooftree_step
@@ -541,7 +541,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
                 verifyprovisos 
                   (plusprovisos cxt (impprovisos thinnedL thinnedR))) :: goods
              with
-               Verifyproviso_ p -> p :: bads, goods
+               Verifyproviso p -> p :: bads, goods
            in
            match nj_fold doprovisos poss ([], []) with
              bads, [] ->

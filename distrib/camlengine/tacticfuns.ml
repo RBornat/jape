@@ -74,7 +74,7 @@ let applyautotactics = ref true
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 exception ParseError_  = Miscellaneous.ParseError_
 exception Selection_   = Selection.Selection_
-exception Verifyproviso_ = Provisofuns.Verifyproviso_
+exception Verifyproviso = Provisofuns.Verifyproviso
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
          
 let rec alterTip =
@@ -1102,7 +1102,7 @@ let rec forceUnify ts (Proofstate {cxt = cxt} as state) =
            Some cxt' -> forceUnify (t2 :: ts) (withcxt state cxt')
          | None -> badunify := Some (t1, t2); bad []
        with
-         Verifyproviso_ p ->
+         Verifyproviso p ->
            badproviso := Some ((t1, t2), p);
            bad [" because proviso "; string_of_proviso p; " is violated"]) 
   | _ -> Some state
@@ -1124,7 +1124,7 @@ let rec doDropUnify target sources (Proofstate {cxt = cxt} as state) =
         Some cxt' -> Some (withcxt state cxt')
       | None      -> bad []
     with
-      Verifyproviso_ p ->
+      Verifyproviso p ->
         bad [" because proviso "; string_of_proviso p; " is violated"]
 
 let _FINDdebug = ref false
@@ -1373,7 +1373,7 @@ let rec _UnifyWithExplanation message (s, t) cxt =
             (unifyterms (s, t) cxt |~~ (fun _ -> unifyterms (t, s) cxt)) &~~
           (_Some <.> verifyprovisos)))
   with
-    Verifyproviso_ p ->
+    Verifyproviso p ->
       setReason
         [message; " terms ("; string_of_term s; ") and ("; string_of_term t;
          ") appeared to unify, but proviso "; string_of_proviso p;
@@ -2539,7 +2539,7 @@ and doBIND tac display try__ env =
                     bad [" because the match changed the formula"]
                   end
               with
-                Verifyproviso_ p -> badproviso := Some (pe, p); badp p
+                Verifyproviso p -> badproviso := Some (pe, p); badp p
     in
     
     let bind s cxt env pes =
