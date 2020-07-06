@@ -26,24 +26,23 @@
 open Cxttype
 
 (* for now, provisosigs are ints *)
-let getprovisos = fun (Context {provisos = provisos}) -> provisos
+let getprovisos (Context {provisos = provisos}) = provisos
 (* this function used by rewrite, which is manipulating the provisosig intelligently *)
-let setprovisos =
-fun (Context cxt) ps ->
-Context {cxt with provisos = ps}
-let getprovisosig =
-fun (Context {provisosig = provisosig}) -> provisosig
+let setprovisos (Context cxt) ps = Context {cxt with provisos = ps}
+
+let getprovisosig (Context {provisosig = provisosig}) = provisosig
 let nextprovisosig = ref 0
 (* at 1000 contexts/sec, this will last 2^30/1000 = 1M seconds.  Long enough (we are
-* certainly not doing 1K contexts/sec, and when we do, we will undoubtedly have 
-* 64-bit desktop machines).
-* RB 14/viii/97
-*)
-let incprovisosig =
-fun (Context cxt) ->
-let bang () =
-  raise (Miscellaneous.Catastrophe_ ["STOP, STOP, STOP!!!! too many contexts!!!!"])
-in
-(try incr nextprovisosig with _ -> bang ());
-if !nextprovisosig <= 0 then bang () else ();
-Context {cxt with provisosig = !nextprovisosig}
+ * certainly not doing 1K contexts/sec, and when we do, we will undoubtedly have 
+ * 64-bit desktop machines).
+ * RB 14/viii/97
+ * And here in 2020 we do indeed have 64-bit machines, so this will last 2^62/1000 =
+ * 2^52 seconds. Which is a very long time indeed.
+ *)
+let incprovisosig (Context cxt) =
+  let bang () =
+    raise (Miscellaneous.Catastrophe_ ["STOP, STOP, STOP!!!! too many contexts!!!!"])
+  in
+  (try incr nextprovisosig with _ -> bang ());
+  if !nextprovisosig <= 0 then bang () else ();
+  Context {cxt with provisosig = !nextprovisosig}
