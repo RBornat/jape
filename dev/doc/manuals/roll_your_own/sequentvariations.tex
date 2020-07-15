@@ -57,11 +57,11 @@ END
 Encoding of the rules is then straightforward in \texttt{MSC\_LF.j}:
 \begin{quote}\tt\small
 RULE    "⊢∀"(OBJECT m) WHERE FRESH m\\
-\tab                    FROM Γ, var m ⊢ A(m),∆                    INFER Γ ⊢ ∀x.A(x),∆\\
-RULE    "∀⊢"(B)   FROM Γ, A(B) ⊢ ∆ AND Γ ⊢ B inscope      INFER Γ,∀x.A(x) ⊢ ∆\\
-RULE    "⊢∃"(B)   FROM Γ ⊢ A(B),∆ AND Γ ⊢ B inscope       INFER Γ ⊢ ∃x.A(x),∆\\
+\tab                    FROM Γ, var m ⊢ A(m),Δ                    INFER Γ ⊢ ∀x.A(x),Δ\\
+RULE    "∀⊢"(B)   FROM Γ, A(B) ⊢ Δ AND Γ ⊢ B inscope      INFER Γ,∀x.A(x) ⊢ Δ\\
+RULE    "⊢∃"(B)   FROM Γ ⊢ A(B),Δ AND Γ ⊢ B inscope       INFER Γ ⊢ ∃x.A(x),Δ\\
 RULE    "∃⊢"(OBJECT m) WHERE FRESH m\\
-\tab                    FROM  Γ, var m, A(m) ⊢ ∆                  INFER Γ, ∃x.A(x) ⊢ ∆\\
+\tab                    FROM  Γ, var m, A(m) ⊢ Δ                  INFER Γ, ∃x.A(x) ⊢ Δ\\
 \end{quote}
 I would like inscope judgements to behave like side conditions, displayed when they are a problem and hidden when they are satisfied. But they aren't provisos, because they relate a particular context and a particular formula.
 
@@ -116,7 +116,7 @@ Under this encoding, \figref{LF} showsthe progress of a proof in which the varia
 \end{figure}
 
 
-\Figref{LFbad} shows the progress of an attempt to prove $@*x.P(x)|-|*y.P(y)$, which isn't a theorem in this logic (though it is in the logic of \chapref{sequentcalculus}. It doesn't matter what you unify with $\_B$: the side conditions won't go away, and you can't make a theorem.
+\Figref{LFbad} shows the progress of an attempt to prove $@*x.P(x)|-|*y.P(y)$, which isn't a theorem in this logic (though it is in the logic of \chapref{sequentcalculus}). It doesn't matter what you unify with $\_B$: the side conditions won't go away, and you can't make a theorem.
 
 \subsection{Caveat}
 
@@ -156,10 +156,10 @@ $\infer[\reason{→⊦}]
 \section{The intuitionistic multiple-conclusion sequent calculus}
 
 The rules of the intuitionistic multiple-conclusion sequent calculus aren't simply additive, but they use little more than specialised weakening. The calculus is just that of \chapref{sequentcalculus}, with different definitions of a few rules, shown in \tabref{IMCSrules}. These are defined in the file \texttt{IMCS.j}, which you can load after \texttt{MCS.jt} (and \begin{quote}\tt\small
-RULE    "⊢¬"        FROM Γ,A ⊢                  INFER Γ ⊢ ¬A,∆\\
-RULE    "¬⊢"        FROM Γ ⊢ A                  INFER Γ,¬A ⊢ ∆\\
-RULE    "⊢→"        FROM Γ,A ⊢ B                INFER Γ ⊢ A→B,∆\\
-RULE    "→⊢"        FROM Γ ⊢ A AND Γ,B ⊢ ∆   INFER Γ,A→B ⊢ ∆
+RULE    "⊢¬"        FROM Γ,A ⊢                  INFER Γ ⊢ ¬A,Δ\\
+RULE    "¬⊢"        FROM Γ ⊢ A                  INFER Γ,¬A ⊢ Δ\\
+RULE    "⊢→"        FROM Γ,A ⊢ B                INFER Γ ⊢ A→B,Δ\\
+RULE    "→⊢"        FROM Γ ⊢ A AND Γ,B ⊢ Δ   INFER Γ,A→B ⊢ Δ
 \end{quote}
 These definitions make it impossible to prove Pierce's law (see \figref{IMCSPeirce}), as you would expect.
 
@@ -210,11 +210,11 @@ $\infer[\reason{cut}]
 The logic is just the normal multiple-conclusion calculus, with all of the branching rules written in multiplicative style; for maximum effect I chose an axiom rule which doesn't ignore unmatched conclusions. See \tabref{MMCSrules} for the altered rules. These rules are defined in MMCS.j, ready to be loaded after MCS.jt:
 \begin{quote}\tt\small
 RULE    axiom(A)                                    INFER A ⊢ A\\
-RULE    "⊢∧"        FROM Γ1 ⊢ A,∆1 AND Γ2 ⊢ B,∆2        INFER Γ1,Γ2 ⊢ A∧B,∆1,∆2\\
-RULE    "∨⊢"        FROM Γ1,A ⊢ ∆1 AND Γ2,B ⊢ ∆2        INFER Γ1,Γ2,A∨B ⊢ ∆1,∆2\\
-RULE    "→⊢"        FROM Γ1 ⊢ A,∆1 AND Γ2,B ⊢ ∆2        INFER Γ1,Γ2,A→B ⊢ ∆1,∆2\\
-RULE    "⊢≡"        FROM Γ1 ⊢ A→B,∆1 AND Γ2 ⊢ B→A,∆2  INFER Γ1,Γ2 ⊢ A≡B,∆1,∆2\\
-RULE    cut(A)        FROM Γ1 ⊢ A,∆1 AND Γ2,A ⊢ ∆2        INFER Γ1,Γ2 ⊢ ∆1,∆2
+RULE    "⊢∧"        FROM Γ1 ⊢ A,Δ1 AND Γ2 ⊢ B,Δ2        INFER Γ1,Γ2 ⊢ A∧B,Δ1,Δ2\\
+RULE    "∨⊢"        FROM Γ1,A ⊢ Δ1 AND Γ2,B ⊢ Δ2        INFER Γ1,Γ2,A∨B ⊢ Δ1,Δ2\\
+RULE    "→⊢"        FROM Γ1 ⊢ A,Δ1 AND Γ2,B ⊢ Δ2        INFER Γ1,Γ2,A→B ⊢ Δ1,Δ2\\
+RULE    "⊢≡"        FROM Γ1 ⊢ A→B,Δ1 AND Γ2 ⊢ B→A,Δ2  INFER Γ1,Γ2 ⊢ A≡B,Δ1,Δ2\\
+RULE    cut(A)        FROM Γ1 ⊢ A,Δ1 AND Γ2,A ⊢ Δ2        INFER Γ1,Γ2 ⊢ Δ1,Δ2
 \end{quote}
 
 Since I have redefined cut, I have to redeclare its r\^{o}le to Jape:

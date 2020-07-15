@@ -1,3 +1,4 @@
+% !TEX root = roll_your_own.tex
 \chapter{Equational reasoning about functional programs}
 \label{chap:funcprog}
 
@@ -577,7 +578,7 @@ $\infer[\reason{$=$ reflexive}]
 \begin{figure}
 \begin{center}
 \includegraphics[scale=0.5]{pics/funcprog/revrev=idtransitively}
-\caption{A proof of $\protect\<rev>\bullet\protect\<rev>=\protect\<id>$ exploiting transitivity and reflexitivity}
+\caption{A proof of $\protect\<rev>\bullet\protect\<rev>=\protect\<id>$ exploiting transitivity and reflexivity}
 \label{fig:funcprog:revrev=idtransitively}
 \end{center}
 \end{figure}
@@ -590,7 +591,7 @@ $\infer[\reason{$=$ reflexive}]
 \end{center}
 \end{figure}
 
-\Chapref{ItL} shows that you can make a box-and-line version of a tree by recognising instances of hyp, and make it more powerful by recognising instances of cut. The same can be done with transitivity and reflexivity, producing proofs much more like the ones that equality-reasoners like to deal with. For example, \figref{funcprog:revrev= idtransitively} shows a proof that $\<rev>\bullet\<rev>=\<id>$. Apart from details of layout, the steps on lines 1-3, 4-6, 8-12 and 13-16 look just like the equational proofs in Bird and Wadler. Much of the trickery is hiding of transitive and reflexive equality steps, and the same proof with that part of its machinery exposed is shown in \figref{funcprog:revrev=idtransitivelyrevealed}.
+\Chapref{ItL} shows that you can make a box-and-line version of a tree by recognising instances of hyp, and make it more powerful by recognising instances of cut. The same can be done with transitivity and reflexivity, producing proofs much more like the ones that equality-reasoners like to deal with. For example, \figref{funcprog:revrev=idtransitively} shows a proof that $\<rev>\bullet\<rev>=\<id>$. Apart from details of layout, the steps on lines 1-3, 4-6, 8-12 and 13-16 look just like the equational proofs in Bird and Wadler. Much of the trickery is hiding of transitive and reflexive equality steps, and the same proof with that part of its machinery exposed is shown in \figref{funcprog:revrev=idtransitivelyrevealed}.
 
 Proofs like that are made by working on one side or the other of an equality. Jape needs to know that it's equality we care about. \texttt{functions.jt} already contains declarations of the rules:
 \begin{japeish}

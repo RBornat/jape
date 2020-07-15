@@ -1,3 +1,4 @@
+% !TEX root = roll_your_own.tex
 \chapter{Encoding axiomatic set theory}
 \label{chap:sets}
 
@@ -324,7 +325,7 @@ But the instantiation says nothing about $A$, so that rule will necessarily succ
 \end{japeish}
 --- but it was composed in the days before you could write that kind of rule application, and I didn't think to update it).
 
-Each of the entries in the Definitions panel is intended to be used as a two-way rewrite rule, using the buttons as described above. Note that I've had to include definitions of negated operators like ≠ and ∉ in terms of negated formulae.\footnote{I always wanted to do this sort of thing by `definitional equality', where you write $A!=B$ and Jape interprets it as $¬(A=B$) but still displays what you wrote. I never managed it.}. The set additions are defined in \texttt{set\_menus.j}; the \textsc{object} qualifiers are for convenience, so that you don't get too many unknowns in your proof:\footnote{Nowadays Jape can use alpha-conversion of binding forms when unifying, so the fresh variables don't really get in the way.}
+Each of the entries in the Definitions panel is intended to be used as a two-way rewrite rule, using the buttons as described above. Note that I've had to include definitions of negated operators like ≠ and ∉ in terms of negated formulae.\footnote{I always wanted to do this sort of thing by `definitional equality', where you write $A$!=$B$ and Jape interprets it as $¬(A=B$) but still displays what you wrote. I never managed it.}. The set additions are defined in \texttt{set\_menus.j}; the \textsc{object} qualifiers are for convenience, so that you don't get too many unknowns in your proof:\footnote{Nowadays Jape can use alpha-conversion of binding forms when unifying, so the fresh variables don't really get in the way.}
 \begin{japeish}
 TACTICPANEL "Definitions" IS \\
 \tab RULE IS A∉B ≜ ¬(A∈B) \\

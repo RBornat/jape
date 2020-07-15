@@ -80,17 +80,48 @@
 \def\fresh{\#}
 
 \usepackage{ucs}
-\usepackage[utf8x]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage[utf8,utf8x]{inputenc} % pragmatically, I seem to need both ...
 \newcommand{\textGamma}{\ensuremath{\Gamma}}
 \newcommand{\textDelta}{\ensuremath{\Delta}}
 \newcommand{\textalpha}{\ensuremath{\alpha}}
 \newcommand{\textbeta}{\ensuremath{\beta}}
 \newcommand{\textlambda}{\ensuremath{\lambda}}
-\DeclareUnicodeCharacter {8614}{\ensuremath{|->}}
-\DeclareUnicodeCharacter {8870}{\ensuremath{|-}}
-\DeclareUnicodeCharacter {8871}{\ensuremath{|=}}
-\DeclareUnicodeCharacter {9665}{\ensuremath{\triangleleft}}
+\DeclareUnicodeCharacter{00AC}{\ensuremath{\neg}}
+\DeclareUnicodeCharacter{00B9}{\ensuremath{^{1}}}
+\DeclareUnicodeCharacter{0393}{\ensuremath{\Gamma}}
+\DeclareUnicodeCharacter{0394}{\ensuremath{\Delta}}
+\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
+\DeclareUnicodeCharacter{03BB}{\ensuremath{\lambda}}
+\DeclareUnicodeCharacter{207B}{\ensuremath{^{-}}}
+\DeclareUnicodeCharacter{2194}{\ensuremath{\leftrightarrow}}
+\DeclareUnicodeCharacter{21CC}{\ensuremath{\rightleftharpoons}}
+\DeclareUnicodeCharacter{21A6}{\ensuremath{|->}}
+\DeclareUnicodeCharacter{21D2}{\ensuremath{\Rightarrow}}
+\DeclareUnicodeCharacter{2200}{\ensuremath{\forall}}
+\DeclareUnicodeCharacter{2203}{\ensuremath{\exists}}
+\DeclareUnicodeCharacter{2208}{\ensuremath{\in}}
+\DeclareUnicodeCharacter{2209}{\ensuremath{\not\in}}
+\DeclareUnicodeCharacter{2227}{\ensuremath{\land}}
+\DeclareUnicodeCharacter{2228}{\ensuremath{\lor}}
+\DeclareUnicodeCharacter{2229}{\ensuremath{\cap}}
+\DeclareUnicodeCharacter{222A}{\ensuremath{\cup}}
+\DeclareUnicodeCharacter{225C}{\ensuremath{\triangleq}}
+\DeclareUnicodeCharacter{2260}{\ensuremath{\neq}}
+\DeclareUnicodeCharacter{2261}{\ensuremath{\equiv}}
+\DeclareUnicodeCharacter{2264}{\ensuremath{\neq}}
+\DeclareUnicodeCharacter{227A}{\ensuremath{\prec}}
+\DeclareUnicodeCharacter{227B}{\ensuremath{\succ}}
+\DeclareUnicodeCharacter{2286}{\ensuremath{\subseteq}}
+\DeclareUnicodeCharacter{2265}{\ensuremath{\geq}}
+\DeclareUnicodeCharacter{2295}{\ensuremath{\oplus}}
+\DeclareUnicodeCharacter{2297}{\ensuremath{\otimes}}
+\DeclareUnicodeCharacter{22A2}{\ensuremath{|-}}
+\DeclareUnicodeCharacter{22A4}{\ensuremath{\top}}
+\DeclareUnicodeCharacter{22A5}{\ensuremath{\bot}}
+\DeclareUnicodeCharacter{22A6}{\ensuremath{|-}}
+\DeclareUnicodeCharacter{22A7}{\ensuremath{|=}}
+\DeclareUnicodeCharacter{25C1}{\ensuremath{\triangleleft}}
 
 \newcommand{\eqnref}[1]{(\ref{eqn:#1})}
 \newcommand{\figref}[1]{figure \ref{fig:#1}}
