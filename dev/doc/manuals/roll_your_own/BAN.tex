@@ -1,4 +1,4 @@
-
+% !TEX root = roll_your_own.tex
 \chapter{Encoding BAN logic}
 \label{chap:BAN}
 
@@ -8,7 +8,7 @@ Burroughs-Abadi-Needham (BAN) logic is a logic of authentication-protocols. It's
 
 The syntax of the logic is very simple, although it includes a number of novel operators, most of which are in Unicode (though I never found a glyph for |$\sim$). I had to linearise some of the notation: for example, $A\overset{K}{<->}B$ ($A$ and $B$ share private key $K$) became $( A,B)<->K$ and $\{ X\}_{K}$ ($X$ encrypted by $K$) is now $\{X\}K$. Otherwise, I hope, I faithfully described the syntax, even if I had to guess at the syntactic hierarchy of operators.
 
-In \texttt{examples/BAN} there are two versions of the encoding: \texttt{BAN.jt} for those who have a appropriate Unicode font available, and \texttt{BAN\_ASCII.jt} for those who are prepared to put up with multi-character approximations. They are intended to be identical up to representations of the operators. The examples in this chapter are taken from the ASCII version, because even I don't have a proper Unicode font yet.
+In \texttt{examples/BAN} there are two versions of the encoding: \texttt{BAN.jt} for those who have an appropriate Unicode font available, and \texttt{BAN\_ASCII.jt} for those who are prepared to put up with multi-character approximations. They are intended to be identical up to representations of the operators. The examples in this chapter are taken from the ASCII version, because even I don't have a proper Unicode font yet.
 
 From \texttt{BAN\_ASCII\_syntax.jt}:
 \begin{japeish}

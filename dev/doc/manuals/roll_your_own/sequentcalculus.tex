@@ -1,3 +1,4 @@
+% !TEX root = roll_your_own.tex
 \chapter{Encoding the Sequent Calculus}
 \label{chap:sequentcalculus}
 
@@ -148,10 +149,10 @@ INITIALISE displaystyle tree
 \end{quote}
 This ensures that juxtapositions are interpreted as predicate application, and that we see the proofs as trees.
 
-We use names starting with A, B, C, D, P, Q, R and S in rules and conjectures to stand for any formula; we use names starting with u, v, w, x, y, z. m or n to stand for any variable. Names starting with Γ or Δ stand for bags (multisets) of formulae\footnote{Note that now there are no commas in these lists of identifier prefixes: I have eliminated use of comma as a separator in the paragraph language. See \appxref{paraformlang} for more details}.
+We use names starting with A, B, C, D, P, Q, R and S in rules and conjectures to stand for any formula; we use names starting with u, v, w, x, y, z, m or n to stand for any variable. Names starting with Γ or Δ stand for bags (multisets) of formulae\footnote{Note that now there are no commas in these lists of identifier prefixes: I have eliminated use of comma as a separator in the paragraph language. See \appxref{paraformlang} for more details}.
 
 \begin{quote}\tt\small
-CLASS BAG Γ ∆ \\
+CLASS BAG Γ Δ \\
 CLASS FORMULA A B C D P Q R S \\
 CLASS VARIABLE u v w x y z m n
 \end{quote}
@@ -188,7 +189,7 @@ Working from the bottom, this defines substitution forms as the most binding, th
 
 Note that the leftfix patterns don't constrain you to write ∀\textit{variable}.\textit{formula}: that comes later.
 
-Because there is no closing bracket, formulae constructed with \textsc{leftfix} bracketing are liable to have a visually ambiguous interpretation, so Jape demands that \textsc{leftfix}-brackets aren't used like ordinary brackets: that is, you can't write things like $f1@@*x.f2@f3$ : you have to write instead either $f1@(@*x.f2@f3) $ or $f1@(@*x.f2) @f3$ .
+Because there is no closing bracket, formulae constructed with \textsc{leftfix} bracketing are liable to have a visually ambiguous interpretation. Jape used to demand that \textsc{leftfix}-brackets aren't used like ordinary brackets: that is, you couldn't write things like $f1@@*x.f2@f3$ : you had to write instead $f1@(@*x.f2@f3)$ (to show that you didn't accidentally mean $f1@(@*x.f2) @f3$). Nowadays (under pressure from Bernard) it no longer insists on that bracketing, but you can restore the original behaviour by setting the variable \texttt{utpecua} to \texttt{false}.
 
 The binding structures are given by pattern:
 \begin{quote}\tt\small
@@ -222,28 +223,28 @@ Nearly everything is optional, but you have to put in enough reserved words to m
 
 The rules are:
 \begin{quote}\tt\small
-RULE    axiom(A)                                        INFER Γ,A ⊢ A,∆\\
-RULE    "⊢∧"        FROM Γ ⊢ A,∆ AND Γ ⊢ B,∆    INFER Γ ⊢ A∧B,∆\\
-RULE    "∧⊢"        FROM Γ,A,B ⊢ ∆                INFER Γ,A∧B ⊢ ∆\\
-RULE    "⊢∨"        FROM Γ ⊢ A,B,∆                 INFER Γ ⊢ A∨B,∆\\
-RULE    "∨⊢"        FROM Γ,A ⊢ ∆ AND Γ,B ⊢ ∆    INFER Γ,A∨B ⊢ ∆\\
-RULE    "⊢¬"        FROM Γ,A ⊢ ∆                   INFER Γ ⊢ ¬A,∆\\
-RULE    "¬⊢"        FROM Γ ⊢ A,∆                   INFER Γ,¬A ⊢ ∆\\
-RULE    "⊢→"        FROM Γ,A ⊢ B,∆                 INFER Γ ⊢ A→B,∆\\
-RULE    "→⊢"        FROM Γ ⊢ A,∆ AND Γ,B ⊢ ∆    INFER Γ,A→B ⊢ ∆\\
-RULE    "⊢≡"        FROM Γ ⊢ A→B,∆ AND Γ ⊢ B→A,∆    INFER Γ ⊢ A≡B,∆\\
-RULE    "≡⊢"        FROM Γ, A→B, B→A ⊢ ∆         INFER Γ,A≡B ⊢ ∆\\
+RULE    axiom(A)                                        INFER Γ,A ⊢ A,Δ\\
+RULE    "⊢∧"        FROM Γ ⊢ A,Δ AND Γ ⊢ B,Δ    INFER Γ ⊢ A∧B,Δ\\
+RULE    "∧⊢"        FROM Γ,A,B ⊢ Δ                INFER Γ,A∧B ⊢ Δ\\
+RULE    "⊢∨"        FROM Γ ⊢ A,B,Δ                 INFER Γ ⊢ A∨B,Δ\\
+RULE    "∨⊢"        FROM Γ,A ⊢ Δ AND Γ,B ⊢ Δ    INFER Γ,A∨B ⊢ Δ\\
+RULE    "⊢¬"        FROM Γ,A ⊢ Δ                   INFER Γ ⊢ ¬A,Δ\\
+RULE    "¬⊢"        FROM Γ ⊢ A,Δ                   INFER Γ,¬A ⊢ Δ\\
+RULE    "⊢→"        FROM Γ,A ⊢ B,Δ                 INFER Γ ⊢ A→B,Δ\\
+RULE    "→⊢"        FROM Γ ⊢ A,Δ AND Γ,B ⊢ Δ    INFER Γ,A→B ⊢ Δ\\
+RULE    "⊢≡"        FROM Γ ⊢ A→B,Δ AND Γ ⊢ B→A,Δ    INFER Γ ⊢ A≡B,Δ\\
+RULE    "≡⊢"        FROM Γ, A→B, B→A ⊢ Δ         INFER Γ,A≡B ⊢ Δ\\
 RULE    "⊢∀"(OBJECT m) WHERE FRESH m\\
-\tab                     FROM Γ ⊢ A(m),∆                INFER Γ ⊢ ∀x.A(x),∆\\
-RULE    "∀⊢"(B)     FROM Γ, A(B) ⊢ ∆               INFER Γ,∀x.A(x) ⊢ ∆\\
-RULE    "⊢∃"(B)     FROM Γ ⊢ A(B),∆                INFER Γ ⊢ ∃x.A(x),∆\\
+\tab                     FROM Γ ⊢ A(m),Δ                INFER Γ ⊢ ∀x.A(x),Δ\\
+RULE    "∀⊢"(B)     FROM Γ, A(B) ⊢ Δ               INFER Γ,∀x.A(x) ⊢ Δ\\
+RULE    "⊢∃"(B)     FROM Γ ⊢ A(B),Δ                INFER Γ ⊢ ∃x.A(x),Δ\\
 RULE    "∃⊢"(OBJECT m) WHERE FRESH m\\
-\tab                     FROM  Γ,A(m) ⊢ ∆               INFER Γ, ∃x.A(x) ⊢ ∆\\
-RULE    cut(A)  FROM Γ ⊢ A,∆ AND Γ,A ⊢ ∆          INFER Γ ⊢ ∆\\
-RULE    "weaken⊢"(A)    FROM Γ ⊢ ∆                  INFER Γ,A ⊢ ∆\\
-RULE    "⊢weaken"(A)    FROM Γ ⊢ ∆                  INFER Γ ⊢ A,∆\\
-RULE    "contract⊢"(A)  FROM Γ, A, A ⊢ ∆            INFER Γ, A ⊢ ∆\\
-RULE    "⊢contract"(A)  FROM Γ ⊢ A,A,∆              INFER Γ ⊢ A,∆
+\tab                     FROM  Γ,A(m) ⊢ Δ               INFER Γ, ∃x.A(x) ⊢ Δ\\
+RULE    cut(A)  FROM Γ ⊢ A,Δ AND Γ,A ⊢ Δ          INFER Γ ⊢ Δ\\
+RULE    "weaken⊢"(A)    FROM Γ ⊢ Δ                  INFER Γ,A ⊢ Δ\\
+RULE    "⊢weaken"(A)    FROM Γ ⊢ Δ                  INFER Γ ⊢ A,Δ\\
+RULE    "contract⊢"(A)  FROM Γ, A, A ⊢ Δ            INFER Γ, A ⊢ Δ\\
+RULE    "⊢contract"(A)  FROM Γ ⊢ A,A,Δ              INFER Γ ⊢ A,Δ
 \end{quote}
 
 The structural rules are given their proper r\^{o}les:

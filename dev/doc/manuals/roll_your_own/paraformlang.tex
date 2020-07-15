@@ -1,3 +1,4 @@
+% !TEX root = roll_your_own.tex
 \chapter{The paragraph and formula languages}
 \label{appx:paraformlang}
 
@@ -306,7 +307,7 @@ The latter form of rule is well-suited to backwards reasoning. The effect is to 
 
 \subsection{The meaning of provisos in \textsc{rule} and \textsc{theorem} directives}
 
-Provisos are side conditions. At present we have a small number of built-in provisos, listed in section ??. All the forms of \textsc{fresh} provisos are automatically translated into a collection of \textsc{notin} provisos --- one for each unmatched hypothesis and/or conclusion as appropriate.
+Provisos are side conditions. At present we have a small number of built-in provisos, listed in \secref{basics:provisos}. All the forms of \textsc{fresh} provisos are automatically translated into a collection of \textsc{notin} provisos --- one for each unmatched hypothesis and/or conclusion as appropriate.
 
 Each time a rule is applied, its provisos are added to the set which is displayed in the bottom pane of the proof window. At the end of each proof step, that set of provisos is checked, and if any proviso is violated, the proof step is cancelled (memo to implementers: change the proof engine so that this is more obviously the way that things happen ...). At the same time provisos which are satisfied are deleted from the set. The ones that are left are those whose status can't be decided, because of the presence of unknowns, substitution forms or names over which the conjecture being proved is quantified.
 
@@ -323,7 +324,7 @@ If the consequent of a theorem matches a problem sequent, but in so doing it doe
 There is a facility to use a sort of resolution step when applying a theorem. If a theorem's conclusion(s) match but its hypotheses don't, and if there is a declared \textsc{cut} rule, then it would be possible to use a sequence of cuts to introduce the necessary extra hypotheses. In those circumstances Jape can introduce an antecedent for each of the hypotheses, and label the step with the name of the theorem. This feature is turned on and off by assigning to \textj{tryresolution} (see \appxref{GUIlang}). The effect is that if you have both right-weakening and cut, we treat a theorem $H_{1},...,H_{n}  |- C$ as equivalent to the rule $\infer{\Gamma  |- C}{\Gamma  |- H_{1} & ... & \Gamma  |- H_{n} } $ provided that $\Gamma,H_{1},...,H_{n}  |- C$ is a theorem; if you have cut but not right-weakening, we treat it as equivalent to $\infer{\Gamma  |- C} {\Gamma  |- H_{1} & \Gamma,H_{1}  |- H_{2} & ... & \Gamma,H_{1},...,H_{n-1}  |- H_{n} }$ with the same proviso.
 
 \subsection{The meaning of \textsc{structurerule} directives}
-
+\label{sec:paraformlang:structurerules}
 It is necessary for the application of conjectures as rules, and for the proper operation of the box display mechanism, for Jape to be informed of the presence of certain kinds of structural rules in the logic. The rules we cater for are the various kinds of identity (hypothesis, axiom), cut and weakening rules.
 
 \begin{description}

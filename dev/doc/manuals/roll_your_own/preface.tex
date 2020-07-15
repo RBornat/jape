@@ -1,3 +1,4 @@
+% !TEX root = roll_your_own.tex
 \chapter*{Preface}
 
 Jape is a lightweight, uncommitted, transparent proof calculator. It's designed to present an excellent graphical interface and a very short and shallow `learning curve' to all its users, whether novices learning how to make formal proofs or experts --- logicians, teachers, sofware engineers, practitioners of any kind --- describing inference systems. This manual is directed at people who have experimented with one or more of the inference systems distributed with Jape and now want to develop something of their own, or those who just want to understand what it is that Bernard Sufrin and I have done in our own encodings.
@@ -30,7 +31,7 @@ Because of its architecture and detail internal design, some things which you mi
 \item Jape can't handle sequents in which one side is an optional single formula.
 \item Jape has no treatment of definitional equality (syntactic equivalence), so you have to handle it with rules and inference steps.
 \item Jape has a long-standing problem in that it can't encode `families of rules'. Bernard employed considerable ingenuity to allow you to encode finite collections of slightly different rules, but that's the nearest you'll get.
-\item Jape's parser generator is horribly complicated, but extremely limited.
+\item Jape's parser generator is horribly complicated, but awfully limited.
 \item I never quite reached modal logic, and now I never will.
 \item Separation logic is right out of the question.
 \end{itemize}
