@@ -1,0 +1,163 @@
+/* Aristotle according to von Plato, modified by Roy Dyckhoff.
+   Transcribed by RB, 07/2020
+ */
+
+INITIALISE autoAdditiveLeft true
+INITIALISE displaystyle box
+INITIALISE outermostbox false
+
+INITIALISE outerassumptionword premise
+INITIALISE innerassumptionword assumption
+
+INITIALISE multiassumptionlines false
+
+INITIALISE hidecut true
+INITIALISE hidehyp true
+
+INITIALISE multihypsel true
+
+CLASS VARIABLE P S M X Y               /* TERM, really */
+CLASS FORMULA A B C
+
+PREFIX 100 ∏⁺ ∏⁻ ∑⁺ ∑⁻
+POSTFIX 50 *
+
+KEYBOARD IS ∏⁺ ∏⁻ ∑⁺ ∑⁻ *
+
+SEQUENT IS BAG ⊢ FORMULA
+
+RULE hyp IS INFER A ⊢ A
+RULE cut(B) IS FROM B AND B ⊢ C INFER C
+
+STRUCTURERULE IDENTITY   hyp
+STRUCTURERULE CUT        cut
+
+AUTOMATCH hyp
+
+TACTIC Fail (x) IS SEQ (ALERT x) STOP
+
+TACTIC ForwardCut (n,rule)
+    SEQ cut (ForwardUncut n rule)
+
+TACTIC ForwardUncut (n,rule)
+    (LETGOALPATH G (WITHHYPSEL rule) (GOALPATH (SUBGOAL G n)) (WITHHYPSEL hyp) (GOALPATH G) NEXTGOAL)
+
+TACTIC ForwardOrBackward (Forward, n, rule) IS 
+    WHEN    
+        (LETHYP _A 
+            (ALT    
+                (Forward n rule)
+                (WHEN   
+                    (LETARGSEL _B 
+                        (Fail (rule is not applicable to assumption ' _A ' with argument ' _B ')))
+                    (Fail (rule is not applicable to assumption ' _A ')))))
+        (LETHYP2 _A _B
+            (ALT    
+                (Forward n rule)
+                (WHEN   
+                    (LETARGSEL _C 
+                        (Fail (rule is not applicable to assumptions ' _A ' and ' _B ' with argument ' _C ')))
+                    (Fail (rule is not applicable to assumptions ' _A ' and ' _B ')))))
+        (ALT    
+            (WITHSELECTIONS rule)
+            (WHEN   
+                (LETARGSEL _C
+                    (Fail (rule is not applicable with argument ' _C ')))
+                (Fail (rule is not applicable))))
+    
+
+RULES IP(B) ARE /* WHERE the hypothesis is discharged exactly once ... */
+     FROM ∏⁺(S,P) ⊢ B AND B* INFER ∑⁻(S,P)  
+ AND FROM ∏⁻(S,P) ⊢ B AND B* INFER ∑⁺(S,P)  
+ AND FROM ∑⁺(S,P) ⊢ B AND B* INFER ∏⁻(S,P)  
+ AND FROM ∑⁻(S,P) ⊢ B AND B* INFER ∏⁺(S,P) 
+ AND FROM A*      ⊢ B AND B* INFER A  
+END
+
+RULE vp1 IS FROM ∏⁺(P,S) INFER ∑⁺(S,P)
+RULE vp2 IS FROM ∏⁻(P,S) INFER ∏⁻(S,P)
+RULE Barbara(M) IS FROM ∏⁺(M,P) AND ∏⁺(S,M) INFER ∏⁺(S,P)
+RULE vp4(M)  IS FROM ∏⁻(M,P) AND ∏⁺(S,M) INFER ∏⁻(S,P)
+
+TACTIC "Barbara-tac" IS
+  WHEN (LETHYP2 (∏⁺(_M,_P)) (∏⁺(_S,_M))
+          (SEQ cut (WITHHYPSEL (Barbara(_M))) (WITHHYPSEL (hyp (∏⁺(_M,_P)))) (WITHHYPSEL (hyp (∏⁺(_S,_M)))))
+       )
+       (LETHYP2 (∏⁺(_S,_M) (∏⁺(_M,_P)))
+          (SEQ cut (WITHHYPSEL (Barbara(_M))) (WITHHYPSEL (hyp (∏⁺(_M,_P)))) (WITHHYPSEL (hyp (∏⁺(_S,_M)))))
+       )
+       (LETHYP2 _A _B
+          (Fail (Barbara is not applicable to the hypotheses _A and _B))
+       )
+       (LETGOAL (∏⁺(_S,_P))
+          (WHEN (LETHYP (∏⁺(_M,_P))
+                   (SEQ cut (Barbara(_M)) (WITHHYPSEL (hyp (∏⁺(_M,_P)))))
+                )
+                (LETHYP (∏⁺(_S,_M))
+                   (SEQ cut (Barbara(_M)) SKIP (WITHHYPSEL (hyp (∏⁺(_S,_M)))))
+                )
+                (LETHYP _A
+                   (Fail (Barbara is not applicable to the goal ∏⁺(_S,_P) and hypothesis _A))
+                )
+                (Barbara)
+          )
+       )
+       (LETGOAL _A
+          (Fail (Barbara does not infer the goal _A))
+       )
+       (Fail (Barbara-tac out of alternatives))
+       
+
+RULES contra ARE
+      FROM ∏⁺(S,P) INFER ∑⁻(S,P)*
+  AND FROM ∏⁻(S,P) INFER ∑⁺(S,P)*      
+  AND FROM ∑⁺(S,P) INFER ∏⁻(S,P)*
+  AND FROM ∑⁻(S,P) INFER ∏⁺(S,P)*
+END
+
+RULES ccontra ARE
+      FROM ∑⁻(S,P)* INFER ∏⁺(S,P)
+  AND FROM ∑⁺(S,P)* INFER ∏⁻(S,P)      
+  AND FROM ∏⁻(S,P)* INFER ∑⁺(S,P)
+  AND FROM ∏⁺(S,P)* INFER ∑⁻(S,P)
+END
+  
+RULES equiv ARE
+      FROM ∏⁻(S,P) INFER ∏⁻(P,S)
+  AND FROM ∑⁺(S,P) INFER ∑⁺(P,S)
+END
+
+TACTIC "contra-tac" IS 
+  (LAYOUT HIDEROOT contra)
+  
+MENU Rules IS
+  ENTRY "(vp1) ∏⁺(P,S) ⇒ ∑⁺(S,P)"                       IS vp1
+  ENTRY "(vp2, conversion) ∏⁻(P,S) ⇒ ∏⁻(S,P)"           IS vp2
+  ENTRY "(Barbara) ∏⁺(M,P), ∏⁺(S,M) ⇒ ∏⁺(S,P)"     IS "Barbara-tac"
+  ENTRY "(vp4, Celarent) ∏⁻(M,P), ∏⁺(S,M) ⇒ ∏⁻(S,P)"    IS vp4
+
+  SEPARATOR
+  
+  RULE "(rd1, subaltern) ∏⁺(S,P) ⇒ ∑⁺(S,P)" IS FROM ∏⁺(S,P) INFER ∑⁺(S,P)
+  RULE "(rd2, subaltern) ∏⁻(S,P) ⇒ ∑⁻(S,P)" IS FROM ∏⁻(S,P) INFER ∑⁻(S,P)
+  RULE "(rd3, conversion) ∑⁺(P,S) ⇒ ∑⁺(S,P)" IS FROM ∑⁺(P,S) INFER ∑⁺(S,P)
+  RULE "(rd4, conversion) ∏⁻(S,P) ⇒ ∏⁻(P,S)" IS FROM  ∏⁻(S,P) INFER ∏⁻(P,S)
+
+  SEPARATOR
+  
+  ENTRY contra IS "contra-tac"
+  
+  SEPARATOR
+  
+  ENTRY IP IS (LAYOUT "IP" ALL IP)
+  
+  SEPARATOR
+  
+  ENTRY hyp
+  
+  
+END
+
+CONJECTUREPANEL "Syllogisms"
+  THEOREM "Bocardo: ∑⁻(M,P), ∏⁺(M,S) ⊢ ∑⁻(S,P)" IS ∑⁻(M,P), ∏⁺(M,S) ⊢ ∑⁻(S,P)
+END
