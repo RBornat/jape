@@ -12,7 +12,8 @@ INITIALISE innerassumptionword assumption
 INITIALISE multiassumptionlines false
 
 INITIALISE hidecut true
-INITIALISE hidehyp true
+INITIALISE hidehyp false
+INITIALISE hidehypprev true
 
 INITIALISE multihypsel true
 
