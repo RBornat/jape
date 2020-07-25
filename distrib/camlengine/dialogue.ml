@@ -262,7 +262,7 @@ let displaynames =
    "truncatereasons"] 
              
 let boxdisplaynames =
-  ["boxlinedressright"; "foldformulae"; "hidecut"; "hidehyp"; "hidetransitivity";
+  ["boxlinedressright"; "foldformulae"; "hidecut"; "hidehyp"; "hidehypprev"; "hidetransitivity";
    "hidereflexivity"; "hideuselesscuts"; "multiassumptionlines"]
 
 let treedisplaynames =
