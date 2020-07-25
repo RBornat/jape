@@ -25,18 +25,19 @@
 
 include Screendraw.T
 
-val hidecut : bool ref
-val hidehyp : bool ref
+val hidecut          : bool ref
+val hidehyp          : bool ref
+val hidehypprev      : bool ref
 val hidetransitivity : bool ref
-val hidereflexivity : bool ref
+val hidereflexivity  : bool ref
 
-val outermostbox : bool ref
-val showrelations : bool ref
+val outermostbox   : bool ref
+val showrelations  : bool ref
 val showboxfreshvs : bool ref
 
-val outerassumptionword : string ref
+val outerassumptionword   : string ref
 val outerassumptionplural : string ref
-val innerassumptionword : string ref
+val innerassumptionword   : string ref
 val innerassumptionplural : string ref
 
 val boxlinedressright : bool ref

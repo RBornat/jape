@@ -191,6 +191,7 @@ let defaultenv =
      "givenMenuTactic"      , aj                         "GIVEN"      givenMenuTactic;
      "hidecut"              , bj                         true         Boxdraw.hidecut;
      "hidehyp"              , bj                         true         Boxdraw.hidehyp;
+     "hidehypprev"          , bj                         false        Boxdraw.hidehypprev;
      "hidereflexivity"      , bj                         true         Boxdraw.hidereflexivity;
      "hidetransitivity"     , bj                         false        Boxdraw.hidetransitivity;
      "hideuselesscuts"      , bj                         false        Prooftree.Tree.hideuselesscuts;
@@ -288,7 +289,7 @@ let mustredisplay env vals =
   in
   List.exists changed displaynames ||
   (match lookup "displaystyle" with
-     Some "box"  -> List.exists changed boxdisplaynames
+   | Some "box"  -> List.exists changed boxdisplaynames
    | Some "tree" -> List.exists changed treedisplaynames
    | _           -> false)
          

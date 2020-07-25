@@ -155,10 +155,10 @@ exception Catastrophe_ = Miscellaneous.Catastrophe_
 
 let textinfo_of_element = textinfo_of_element (invisbracketedstring_of_element true)
 let textinfo_of_term = textinfo_of_term (invisbracketedstring_of_term true)
-let outermostbox = ref true
-(* set true to imitate previous boxdraw behaviour *)
+let outermostbox = ref true (* set true to imitate previous boxdraw behaviour *)
 let hidecut = ref true
 let hidehyp = ref true
+let hidehypprev = ref false
 let hidetransitivity = ref true
 let hidereflexivity = ref true
 let showrelations = ref true
@@ -297,7 +297,7 @@ let my_selstring = string_of_sel string_of_path
 type revpath = RevPath of int list          (* no more uncertainty *)
    
 type normalpt =
-    LinPT of
+  | LinPT of
       (revpath * bool * element list * string option *
          (reason * element list * normalpt list) option)
   | BoxPT of
@@ -327,10 +327,9 @@ let rec pretransform prefixwithstile t =
     let _T hs (n, t) = pt (n :: rp) hs t in
     let mkl isid subs =
       !hidereflexivity && isStructureRulenode t ReflexiveRule,
-      LinPT
-        (RevPath rp, isid, gs,
-         (if prefixwithstile then Some st else None),
-         (why &~~ (fun r -> Some (r, lprins, subs))))
+      LinPT (RevPath rp, isid, gs,
+             (if prefixwithstile then Some st else None),
+             (why &~~ (fun r -> Some (r, lprins, subs))))
     in
     let rec aslines isid =
       mkl isid ((respt <.> _T hs) <* numbered subts)
@@ -348,9 +347,10 @@ let rec pretransform prefixwithstile t =
      * But because it is impossible (cut transformation) to see just when a hypothesis 
      * appears at the end of a box, we do the checks about last line later.
      *)
+    (* the hidehyp / hidehypprev stuff is now in _L below. RB 07/2020 *)
     match
       null newhyps, 
-      !hidehyp && isStructureRulenode t IdentityRule
+      (* !hidehyp && *) isStructureRulenode t IdentityRule
       (* , lprins, gs *)
     with
     | true , true  -> false, respt (aslines true)
@@ -404,7 +404,7 @@ let rec pretransform prefixwithstile t =
         )
   in
   match respt (pt [] [] t) with
-    BoxPT (pi, _, _, hs, ptr) ->
+  | BoxPT (pi, _, _, hs, ptr) ->
       BoxPT (pi, !outermostbox, outerwords, hs, ptr)
   | ptr -> ptr
 
@@ -584,8 +584,8 @@ let rec dependency tranreason deadf pt =
         LinDep ((mkplan <* concs), dostopt stopt, linsubs pi justopt)
       in
       begin match isid, justopt with
-        true, Some (_, [lp], []) -> IdDep (lp, dep)
-      | _ -> dep
+      | true, Some (_, [lp], []) -> IdDep (lp, dep)
+      | _                        -> dep
       end
   | BoxPT (rp, boxit, (sing, plur), hs, pt') ->
       let pi = ordinarypi rp in
@@ -696,7 +696,7 @@ type lineID = int
  *)
 (* perhaps C stands for Citation? *)
 type cID =
-    LineID of lineID
+  | LineID of lineID
   | BoxID of (lineID * lineID)
   | HypID of (lineID * int)
   | NoID                        (* for cut lines which we wish to hide *)
@@ -709,12 +709,12 @@ let _IDr = (string_of_int : lineID -> string)
 
 let rec _Cr =
   function
-    LineID l -> _IDr l
+  | LineID l     -> _IDr l
   | BoxID (s, f) -> (_IDr s ^ "-") ^ _IDr f
-  | HypID (l, n) ->(* we never make a BoxID with s=f *)
-     (_IDr l ^ ".") ^ string_of_int n
-  | NoID ->(* we never make a HypID with l=0 *)
-     ""
+  | HypID (l, n) -> (* we never make a BoxID with s=f *)
+                    (_IDr l ^ ".") ^ string_of_int n
+  | NoID         -> (* we never make a HypID with l=0 *)
+                    ""
 
 let rec _IDstring cids =
   string_of_list idf "," ((fun s -> s <> "") <| List.map _Cr cids)
@@ -1052,10 +1052,13 @@ let rec linearise screenwidth procrustean_reasonW dp =
         | _       -> restf p
       in
       match dp with
-        IdDep (el, lindep) ->
-          if idok || (match mapped sameresource hypmap el with
-                        Some (LineID id') -> accrec.id = _RR id'
-                      | _                 -> false)
+      | IdDep (el, lindep) -> (* this is where we now decide whether to hide identity lines. RB 07/2020 *)
+          let is_prev () = match mapped sameresource hypmap el with
+                           | Some (LineID id') -> accrec.id = _RR id'
+                           | _                 -> false
+          in
+          if (idok && (!hidehyp || (!hidehypprev && is_prev ()))) || 
+             ((!hidehyp || !hidehypprev) && is_prev ())
           then
             getIdDep el
           else _L wopt hypmap false lindep acc
