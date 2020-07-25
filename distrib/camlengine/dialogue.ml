@@ -271,18 +271,13 @@ let treedisplaynames =
 let displayvars = List.map Name.name_of_string (displaynames @ boxdisplaynames @ treedisplaynames)
 
 let mustredisplay env vals =
-  let dispenv =
-    mkmap (displayvars ||| vals)
-  in
-  let nenv =
-    mkmap (List.map (fun n -> Name.string_of_name n, n) displayvars)
-  in
-  let lookup s =
-    match
-        ((nenv <@> s) &~~ (fun n -> Japeenv.(<@>) env n))
-    with
-      Some t -> Some (string_of_term t)
-    | None -> None
+  let dispenv = mkmap (displayvars ||| vals) in
+  let nenv = mkmap (List.map (fun n -> Name.string_of_name n, n) displayvars) in
+  let lookup s = match
+                     ((nenv <@> s) &~~ (fun n -> Japeenv.(<@>) env n))
+                 with
+                   Some t -> Some (string_of_term t)
+                 | None -> None
   in
   let changed s =
     lookup s <> (nenv <@> s &~~ (fun n -> dispenv <@> n))
@@ -291,7 +286,8 @@ let mustredisplay env vals =
   (match lookup "displaystyle" with
    | Some "box"  -> List.exists changed boxdisplaynames
    | Some "tree" -> List.exists changed treedisplaynames
-   | _           -> false)
+   | _           -> false
+  )
          
 let disproof_finished =
   function
