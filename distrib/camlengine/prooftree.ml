@@ -1091,17 +1091,14 @@ module Tree : Tree with type term = Termtype.term
           joinstep go ans skip j path
     let rec get_prooftree_fmt tree =
       fun (FmtPath ns) -> format (followPath_ns tree ns)
-    let rec set_prooftree_fmt tree =
-      fun (FmtPath ns) fmt' ->
+    let rec set_prooftree_fmt tree (FmtPath ns) fmt' =
         if !prooftreedebug then
-          consolereport
-            ["setting format "; string_of_treeformat fmt'; " at "; string_of_ns ns];
+          consolereport ["setting format "; string_of_treeformat fmt'; " at "; string_of_ns ns];
         thrd 
           (applytosubtree_ns ns tree
              (function
-                Join (why, how, cutnav, args, fmt, htv, seq, ts, ress) ->
-                  false,
-                  Join (why, how, cutnav, args, fmt', htv, seq, ts, ress)
+              | Join (why, how, cutnav, args, fmt, htv, seq, ts, ress) ->
+                  false, Join (why, how, cutnav, args, fmt', htv, seq, ts, ress)
               | Tip (seq, rewinf, fmt) -> false, Tip (seq, rewinf, fmt')))
     let rec get_prooftree_cutnav tree =
       fun (FmtPath ns) ->
