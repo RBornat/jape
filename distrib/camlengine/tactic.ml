@@ -421,32 +421,32 @@ let badLayout () =
 let checkNAME errf t =
   (* suitable for a place where a single name will do *)
   match debracket t with
-    Id      _ as t -> t
+  | Id      _ as t -> t
   | Unknown _ as t -> t
   | t              -> raise (TacParseError_ (errf t))
 
 let checkSTR errf t =
   match debracket t with
-    Id      _ as t -> t
+  | Id      _ as t -> t
   | Unknown _ as t -> t
   | Literal _ as t -> t
   | t              -> raise (TacParseError_ (errf t))
 
 let checkINT errf t =
   match debracket t with
-    Id                  _ as t -> t
+  | Id                  _ as t -> t
   | Unknown             _ as t -> t
   | Literal (_, Number _) as t -> t
   | _                          -> raise (TacParseError_ (errf t))
 
 let checkINTS errf t =
   match debracket t with
-    Tup (_, ",", ts) as t' -> let _ = List.map (checkINT errf) ts in t'
+  | Tup (_, ",", ts) as t' -> let _ = List.map (checkINT errf) ts in t'
   | t                      -> checkINT errf t
 
 let isguard =
   function
-    BindConcTac         _ -> true
+  | BindConcTac         _ -> true
   | BindHypTac          _ -> true
   | BindHyp2Tac         _ -> true
   | BindHypsTac         _ -> true
@@ -572,20 +572,18 @@ and transTactic tacterm =
               let namebind n = tacname n in
               let mkLayout =
                 function
-                  []           -> badLayout ()
+                | []           -> badLayout ()
                 | fmt :: stuff ->
                         let lyt con fmt = 
                           function []       -> transLayout con fmt None []
                           |        ns :: ts -> transLayout con fmt (Some ns) ts
                         in
                         match maybeSTR fmt, stuff with
-                          Some "HIDEROOT", ts ->
-                                LayoutTac (_SEQTAC ts, HideRootLayout)
-                        | Some "HIDECUT", ts -> LayoutTac (_SEQTAC ts, HideCutLayout)
+                        | Some "HIDEROOT", ts        -> LayoutTac (_SEQTAC ts, HideRootLayout)
+                        | Some "HIDECUT" , ts        -> LayoutTac (_SEQTAC ts, HideCutLayout)
                         | Some "COMPRESS", fmt :: ts -> lyt (fun v->CompressedLayout v) fmt ts
-                        | Some "COMPRESS", ts ->
-                                lyt (fun v->CompressedLayout v) (registerLiteral (String "%s")) ts
-                        | _, ts -> lyt (fun v -> NamedLayout v) fmt ts
+                        | Some "COMPRESS", ts        -> lyt (fun v->CompressedLayout v) (registerLiteral (String "%s")) ts
+                        | _              , ts        -> lyt (fun v -> NamedLayout v) fmt ts
               in
               let mkFold tac =
                 function
@@ -621,8 +619,7 @@ and transTactic tacterm =
                        Some "PARENT" , [r]     -> Parent (parsegoalexpr r)
                      | Some "LEFT"   , [r]     -> LeftSibling (parsegoalexpr r)
                      | Some "RIGHT"  , [r]     -> RightSibling (parsegoalexpr r)
-                     | Some "SUBGOAL", [r; ns] ->
-                             Subgoal (parsegoalexpr r, checkINTS err (debracket ns))
+                     | Some "SUBGOAL", [r; ns] -> Subgoal (parsegoalexpr r, checkINTS err (debracket ns))
                      | Some "HYPROOT", [r]     -> HypRoot (parsegoalexpr r)
                      | _             , []      -> SimplePath (checkINTS err (debracket f))
                      | _                       -> raise (TacParseError_ (err t)))
@@ -755,11 +752,11 @@ and transLayout con fmt bopt ts =
   in
   let bopt =
     match optf (checkINTS nserr) bopt with
-      Some (Id (_, v, _)) as r -> 
-        (match string_of_vid v with
-           "ALL" -> None
-         | _     -> r)
-    | r -> r
+    | Some (Id (_, v, _)) as r -> (match string_of_vid v with
+                                   | "ALL" -> None
+                                   | _     -> r
+                                  )
+    | r                        -> r
   in
   LayoutTac (_SEQTAC ts, con (fmt, bopt))
   
