@@ -376,27 +376,27 @@ let rec evalstr2 env arg =
 
 let rec extensibletac env tac =
   match tac with
-    TermTac (name, args) ->
-      begin match evalstr2 env name with
-        Argstring name' ->
-          begin match thingnamed name' with
-            Some (Rule _, _) -> true
-          | Some (Theorem _, _) -> true
-          | Some (Tactic (params, TheoryAltTac _), _) ->
-              List.length args < List.length params
-          | _ -> false
-          end
-      | Argterm t -> false
-      end
+  | TermTac (name, args) ->
+      (match evalstr2 env name with
+       | Argstring name' ->
+           (match thingnamed name' with
+            | Some (Rule _, _) -> true
+            | Some (Theorem _, _) -> true
+            | Some (Tactic (params, TheoryAltTac _), _) ->
+                List.length args < List.length params
+            | _ -> false
+           )
+       | Argterm t -> false
+      )
   | _ -> false
 
 let rec withabletac outer env t =
   match t with
-    WithSubstSelTac t ->
-      begin match outer with
-        WithSubstSelTac _ -> false
-      | _                 -> withabletac outer env t
-      end
+  | WithSubstSelTac t ->
+      (match outer with
+       | WithSubstSelTac _ -> false
+       | _                 -> withabletac outer env t
+      )
   | WithArgSelTac t     -> withabletac outer env t
   | WithConcSelTac t    -> withabletac outer env t
   | WithHypSelTac t     -> withabletac outer env t
@@ -404,6 +404,7 @@ let rec withabletac outer env t =
   | WithSelectionsTac t -> withabletac outer env t
   | TermTac _           -> extensibletac env t
   | SubstTac _          -> true
+  | LayoutTac (t,l)     -> withabletac outer env t (* why not? *)
   | _                   -> false (* I hope *)
 
 let rec quoteterm t =
@@ -2017,8 +2018,7 @@ let rec dispatchTactic display try__ env contn tactic =
         contn
           (doREPEAT1 (dispatchTactic display try__ env nullcontn t) state)
     | LayoutTac (t, l) ->
-        doLAYOUT l (eval env) (dispatchTactic display try__ env contn) t
-          state
+        doLAYOUT l (eval env) (dispatchTactic display try__ env contn) t state
     | CompTac t ->
         doCOMPLETE (dispatchTactic display try__ env contn t) state
     | EvalTac ts -> contn (doEVAL ts state)
