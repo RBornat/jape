@@ -579,12 +579,11 @@ let rec showstuff stuff =
     (bracketed_string_of_list string_of_seq ",") string_of_seq
     (bracketed_string_of_list string_of_visproviso " AND ") ", " stuff
 
-let rec apply checker filter taker selhyps selconcs stuff reason cxt =
-  fun (_C, _Cinf) ->
+let rec applyrule checker filter taker selhyps selconcs stuff reason cxt (_C, _Cinf) =
     let (kind, hiddencontexts, how, args, principals, antes, conseq, provs) = stuff in
     if !applydebug > 0 then
       consolereport
-        ["apply "; step_label how; " "; showstuff stuff; " ";
+        ["applyrule "; step_label how; " "; showstuff stuff; " ";
          enQuote reason; " "; string_of_seq _C; " "; Cxtstring.string_of_cxt cxt];
     let info =
       Info { reason = reason; kind = kind; conjecture = _C; conjectureinf = _Cinf;
