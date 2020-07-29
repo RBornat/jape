@@ -41,9 +41,9 @@ val failOfferingDo : (unit -> unit) -> unit
 val succeedOfferingDo : (unit -> unit) -> unit
 
 (* apply is now the only matcher:  
- * args are checker, filter, taker, selhyps, selconcs, name, stuff, reason, conjecture, cxt
+ * args are checker, filter, taker, selhyps, selconcs, name, stuff, reason, cxt, conjecture
  *)
-val apply :
+val applyrule :
   (term * term -> cxt -> cxt list) -> (possmatch -> possmatch option) ->
     (possmatch -> 'a option) -> element list -> element list ->
     string * (bool * bool) * prooftree_step * term list *

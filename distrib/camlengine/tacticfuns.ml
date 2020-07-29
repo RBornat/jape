@@ -153,6 +153,26 @@ let _Oracle = Oracle._Oracle
 
 (*  --------------------------------------------------------------------- *)
 
+type checkertype = term * term -> cxt -> cxt list
+type filtertype = Applyrule.possmatch -> Applyrule.possmatch option
+type 'a takertype = Applyrule.possmatch -> 'a option
+type stufftype = string * (bool * bool) * prooftree_step * (term, term) Mappingfuns.mapping * 
+                 (resnum list * resnum list) * seq list * seq * (bool * proviso) list
+
+type 'a applytype = checkertype -> filtertype -> 'a takertype ->
+                    element list -> element list -> stufftype -> 
+                    string -> cxt -> proofstate -> proofstate option
+                    
+type 'a tryrec = {matching : bool;
+                  checker  : checkertype;
+                  ruler    : 'a applytype;
+                  filter   : filtertype;
+                  taker    : 'a takertype;
+                  selhyps  : element list;
+                  selconcs : element list
+                 }
+
+(*  --------------------------------------------------------------------- *)
 
 let proving = ref (name_of_string "")
 
@@ -633,7 +653,7 @@ let (apply, resolve, applyorresolve) =
   let rec apply checker filter taker selhyps selconcs stuff reason cxt state =
     let stuff' = apply_of_preparestuff stuff in
     makestep stuff' state
-      (Applyrule.apply checker filter taker selhyps selconcs stuff' reason
+      (Applyrule.applyrule checker filter taker selhyps selconcs stuff' reason
          cxt (getconjecture state))
   
   and resolve checker filter taker selhyps selconcs stuff reason cxt state =
@@ -816,54 +836,34 @@ let rec doLAYOUT layout eval action t =
         raise (Catastrophe_ ("AlterProof_ in LAYOUT: " :: ss))
 
 let rec doWITHCONCSEL try__ =
-  match getselectedconclusion (), try__ with
-    Some (_, c),
-    (matching, checker, ruler, filter, taker, selhyps, selconcs) ->
-      matching, checker, ruler, filter, taker, selhyps, c :: selconcs
-  | _ -> try__
+  match getselectedconclusion () with
+  | Some (_, c) -> {try__ with selconcs = c :: try__.selconcs}
+  | _           -> try__
 
 let rec doWITHHYPSEL try__ =
-  match getselectedhypotheses (), try__ with
-    Some (_, hs),
-    (matching, checker, ruler, filter, taker, selhyps, selconcs) ->
-      matching, checker, ruler, filter, taker, hs @ selhyps, selconcs
-  | _ -> try__
+  match getselectedhypotheses () with
+  | Some (_, hs) -> {try__ with selhyps = hs @ try__.selhyps}
+  | _            -> try__
 
-let rec doMATCH
-  (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  true, checker, ruler, (bymatch &~ filter), taker, selhyps, selconcs
+let rec doMATCH try__ = {try__ with matching = true; filter = (bymatch &~ try__.filter)}
 
-let rec doSAMEPROVISOS
-  (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  matching, checker, ruler, (sameprovisos &~ filter), taker, selhyps, selconcs
+let rec doSAMEPROVISOS try__ = {try__ with filter = (sameprovisos &~ try__.filter)}
 
-let rec doSIMPLEAPPLY
-  (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  matching, checker, apply, filter, taker, selhyps, selconcs
+let rec doSIMPLEAPPLY try__ = {try__ with ruler = apply}
 
-let rec doAPPLYORRESOLVE
-  (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  matching, checker, applyorresolve, filter, taker, selhyps, selconcs
+let rec doAPPLYORRESOLVE try__ = {try__ with ruler = applyorresolve}
 
-let rec doUNIQUE
-  (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  matching, checker, ruler, filter, takeonlyone, selhyps, selconcs
+let rec doUNIQUE try__ = {try__ with taker = takeonlyone}
 
-let rec doANY
-  (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  matching, checker, ruler, filter, takefirst, selhyps, selconcs
+let rec doANY try__ = {try__ with taker = takefirst}
 
-let rec doRESOLVE
-  (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  matching, checker, resolve, filter, taker, selhyps, selconcs
+let rec doRESOLVE try__ = {try__ with ruler = resolve}
 
 (* sameterms was identity, but see comment above -- now it's unifyvarious;
    apply (no fancy resolution);
    takefirst (because proof recording doesn't identify resources)
 *)
-let rec doREPLAY
-  (matching, checker, ruler, filter, taker, selhyps, selconcs) =
-  matching, sameterms, apply, filter, takefirst, selhyps, selconcs
+let rec doREPLAY try__ = {try__ with checker=sameterms; ruler=apply; taker=takefirst}
 
 (* semantics: keep applying a tactic till it fails, you run out of time, 
  * or there is nothing more to do in the state.  Catch exceptions and 
@@ -1028,7 +1028,7 @@ let rec _CanApply triv name state =
       if needsProof name thing then []
       else
         match
-          Applyrule.apply unifyvarious nofilter nofilter [] []
+          Applyrule.applyrule unifyvarious nofilter nofilter [] []
             (apply_of_preparestuff (expandstuff name stuff state))
             (string_of_name name) cxt (getconjecture state)
         with
@@ -1698,8 +1698,6 @@ let rec resetcaches () = resetconclusioncache (); resetassociativecache ()
 
 (**********************************************************************)
 
-
-
 let _THING = (ref None : term option ref)
 
 let rec _IT () = _The !_THING
@@ -1895,8 +1893,8 @@ let tracewithmap =
 let rec nullcontn s = s
 
 let rec applyBasic
-  name (env, _, thing as stuff)
-    (matching, checker, ruler, filter, taker, selhyps, selconcs (* as try__ *))
+  name (env, _, thing as stuff) 
+    {checker=checker; ruler=ruler; filter=filter; taker=taker; selhyps=selhyps; selconcs=selconcs} (* as try__ *)
     cxt state =
   let reason = make_remark name [] in
   trace
@@ -1915,7 +1913,7 @@ let rec applyBasic
     begin setReason [parseablestring_of_name name; " is unproved"]; None end
   else
     ruler checker filter taker selhyps selconcs
-      (expandstuff name stuff state) reason cxt state
+          (expandstuff name stuff state) reason cxt state
 
 (* because this is generic it has to be outside the loop, 
  * and given dispatchTactic as an argument 
@@ -2001,7 +1999,7 @@ let rec dispatchTactic display try__ env contn tactic =
     if !tactictracing then
       consolereport ["dispatching "; string_of_tactic tactic];
     match tactic with
-      SkipTac -> contn (Some state)
+    | SkipTac -> contn (Some state)
     | FailTac -> None
     | StopTac -> raise StopTactic_
     | SeqTac ts ->
@@ -2115,8 +2113,7 @@ let rec dispatchTactic display try__ env contn tactic =
         let rec calltac name args =
           if !tactictracing then
             consolereport
-              ["(after evaluation dispatching) ";
-               string_of_tactic (TermTac (name, args))];
+              ["(after evaluation dispatching) "; string_of_tactic (TermTac (name, args))];
           tryApply display try__ contn name args state
         in
         let rec trynewtac t =
@@ -2255,8 +2252,8 @@ and trySubst display =
   tryApplyOrSubst dispatchTactic (getsubstinfo true) mkenvfrommap (fun v -> SubstTac v)
                   tracewithmap display
 
-and tryGiven display (matching, checker, ruler, filter, taker, selhyps, selconcs (* as try__ *)) i 
-                     (Proofstate {cxt = cxt; givens = givens} as state) =
+and tryGiven display {checker=checker; ruler=ruler; filter=filter; taker=taker; selhyps=selhyps; selconcs=selconcs} (* as try__ *) 
+                     i (Proofstate {cxt = cxt; givens = givens} as state) =
     let i = try int_of_term i with _ -> raise (Tacastrophe_ ["not an integer"]) in
     let given =
       try Listfuns.guardednth givens i with
@@ -2326,16 +2323,10 @@ and doWITHSUBSTSEL display try__
                 {cxt = cxt'; tree = tree'; givens = givens; goal = goal;
                  target = target; root = root}
             in
-            tacfun
-              (match try__ with
-                 matching, checker, ruler, filter, taker, selhyps,
-                 selconcs ->
-                   if ishyp then
-                     matching, checker, ruler, filter, taker, [newel],
-                     selconcs
-                   else
-                     matching, checker, ruler, filter, taker, selhyps,
-                     [newel])
+            tacfun 
+              (if ishyp then {try__ with selhyps=[newel]}
+                        else {try__ with selconcs=[newel]}
+              )
               alteredstate
           with
             Selection_ ss ->
@@ -2497,7 +2488,7 @@ and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
 
 and doBIND tac display try__ env =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
-    let matching = fst_of_7 try__ in
+    let matching = try__.matching in
     let rec newenv cxt env newformals =
       nj_fold
         (fun (formal, env) ->
@@ -2980,7 +2971,7 @@ let rec runTactic display env try__ tac =
 
 let rec applyTactic display env tac state =
   runTactic display env
-    (false, unifyvarious, applymethod (), nofilter, offerChoice, [], [])
+    {matching=false; checker=unifyvarious; ruler=applymethod (); filter=nofilter; taker=offerChoice; selhyps=[]; selconcs=[]}
     (firstextend env tac) state
 
 let rec applyLiteralTac display env try__ text state =
@@ -3006,7 +2997,7 @@ let rec errorcatcher f mess text state =
 let rec applyLiteralTactic display env text state =
   errorcatcher
     (applyLiteralTac display env
-       (false, unifyvarious, applymethod (), nofilter, offerChoice, [], [])
+       {matching=false; checker=unifyvarious; ruler=applymethod (); filter=nofilter; taker=offerChoice; selhyps=[]; selconcs=[]}
        text)
     (fun () -> "during tactic " ^ text) (fun () -> text) state
     
@@ -3025,9 +3016,9 @@ let rec autoTactics display env rules (Proofstate {tree = tree; goal = oldgoal} 
     in
     try match
           runTactic display env
-            (matching, unifyvarious, apply,
-             (if matching then (bymatch &~ sameprovisos) else nofilter),
-             takefirst, [], [])
+            {matching=matching; checker=unifyvarious; ruler=apply;
+             filter=(if matching then (bymatch &~ sameprovisos) else nofilter);
+             taker=takefirst; selhyps=[]; selconcs=[]}
             tac
             (Proofstate
                {cxt = cxt; tree = tree; givens = givens; root = root;
@@ -3036,7 +3027,7 @@ let rec autoTactics display env rules (Proofstate {tree = tree; goal = oldgoal} 
         None        -> None
       | Some state' -> if time'sUp () then None else Some state'
     with
-      Catastrophe_ ss -> bad ("Catastrophic error: " :: ss)
+    | Catastrophe_ ss -> bad ("Catastrophic error: " :: ss)
     | Tacastrophe_ ss -> bad ("Error in tactic: " :: ss)
     | ParseError_  ss -> bad ("Parse error: " :: ss)
     | AlterProof_  ss -> bad ("AlterProof_ error: " :: ss)
