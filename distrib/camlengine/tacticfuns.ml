@@ -762,7 +762,7 @@ let rec doLAYOUT layout eval action t =
   fun (Proofstate {tree = tree; goal = goal} as state) ->
     let parseSTR t =
       match debracket t with
-        Id (_, v, _)          -> string_of_vid v
+      | Id (_, v, _)          -> string_of_vid v
       | Literal (_, String s) -> s
       | _ -> raise (Tacastrophe_ ["label string expected in LAYOUT, found "; string_of_term t])
     in
@@ -773,13 +773,13 @@ let rec doLAYOUT layout eval action t =
            0x74 t
          *)
       match cs with
-        [] -> String.concat "" (List.rev rs)
+      | [] -> String.concat "" (List.rev rs)
       | 0x25 (* % *) :: 0x73 (* s *) :: cs -> 
           (match ts with
              t::ts ->
                parsetuplefmt cs ts
                ((match debracket t with
-                   Id(_, v, _)          -> string_of_vid v
+                 | Id(_, v, _)          -> string_of_vid v
                  | Literal(_, String s) -> s 
                  | _ -> raise (Tacastrophe_ ["in format in LAYOUT \"%s\" matches argument "; 
                                              string_of_term t])) :: rs)
@@ -795,24 +795,22 @@ let rec doLAYOUT layout eval action t =
     let rec parsefmt fmt =
       let fmt' = eval fmt in
       match debracket fmt' with
-        Id (_, v, _)          -> string_of_vid v
+      | Id (_, v, _)          -> string_of_vid v
       | Literal (_, String s) -> s
       | Tup(_, ",", t :: ts)  -> parsetuplefmt (UTF.utf8_explode (parseSTR t)) ts []
-      | _ -> raise (Tacastrophe_ ["format in LAYOUT must be string or non-empty tuple of strings; \
-                                  you gave "; string_of_term fmt'])
+      | _                     -> raise (Tacastrophe_ ["format in LAYOUT must be string or non-empty tuple of strings; \
+                                                       you gave "; string_of_term fmt'])
     in
     let rec f l t =
-      let fmt = format_of_layout parsefmt (parseints "selection in LAYOUT" eval) l
-      in
+      let fmt = format_of_layout parsefmt (parseints "selection in LAYOUT" eval) l in
       match t with
-        LayoutTac (t', l') ->
-          let (fmt', tac) = f l' t' in treeformatmerge (fmt, fmt'), tac
-      | _ -> fmt, t
+      | LayoutTac (t', l') -> let (fmt', tac) = f l' t' in 
+                              treeformatmerge (fmt, fmt'), tac
+      | _                  -> fmt, t
     in
     let (fmt, tac) = f layout t in
     try
-      action tac
-        (withtree state (set_prooftree_fmt tree (getGoalPath goal) fmt))
+      action tac (withtree state (set_prooftree_fmt tree (getGoalPath goal) fmt))
     with
       AlterProof_ ss ->
         raise (Catastrophe_ ("AlterProof_ in LAYOUT: " :: ss))
