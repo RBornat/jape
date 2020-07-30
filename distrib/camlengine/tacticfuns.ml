@@ -370,6 +370,7 @@ let rec evalstr2 env arg =
   match (env <@> arg) with
     None -> Argstring arg
   | Some t -> striparg t
+
 (* we only extend things which actually are named rules or theorems 
    -- or collections of rules in TheoryAlts which don't yet have enough args ...
  *)
@@ -402,9 +403,21 @@ let rec withabletac outer env t =
   | WithHypSelTac t     -> withabletac outer env t
   | WithFormSelTac t    -> withabletac outer env t
   | WithSelectionsTac t -> withabletac outer env t
-  | TermTac _           -> extensibletac env t
+  | TermTac (name,_)    -> (match evalstr2 env name with
+                            | Argstring name' ->
+                                (match thingnamed name' with
+                                 | Some (Rule _, _)             -> true
+                                 | Some (Theorem _, _)          -> true
+                                 | Some (Tactic (params, t), _) -> withabletac outer env t
+                                 | _                            -> false
+                                )
+                            | Argterm t -> false
+                           )
+
   | SubstTac _          -> true
   | LayoutTac (t,l)     -> withabletac outer env t (* why not? *)
+  | TheoryAltTac _      -> true (* because they are all rule names, I think ... *)
+  | AltTac ts           -> List.for_all (withabletac outer env) ts
   | _                   -> false (* I hope *)
 
 let rec quoteterm t =
