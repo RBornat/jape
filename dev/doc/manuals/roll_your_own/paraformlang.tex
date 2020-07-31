@@ -23,9 +23,13 @@ In this description I use [... {\textbar} ... ] to describe alternatives, \{ ...
 
 \item[\textsc{are}] separator.
 
-\item[\textsc{automatch} \textit{tacticname ... tacticname}] at the end of each proof step, run the tactics (usually they are rules) specified over each open tip of the tree, but only allow them to work by `matching' --- that is, don't allow any unknowns in the tree to change as a result of running the tactic (see also \textsc{match} in the tactic language).
+\item[\textsc{automatch} %\textit{tacticname ... tacticname}] 
+\textit{tactic}] at the end of each proof step, run the %tactics (usually they are rules) 
+tactic (usually a rule) over each open tip of the tree, but only allow %them 
+it to work by `matching' --- that is, don't allow any unknowns in the tree to change as a result (see also \textsc{match} in the tactic language). (\textsc{automatch} is supposed to work with a space-separated sequence of tactics, and it used to, but at present it doesn't. )
 
-\item[\textsc{autounify} \textit{tacticname ... tacticname}] same as \textsc{automatch} but without the restriction on working by `matching'. This directive is less used than \textsc{automatch}, chiefly because it is easy to make automatic steps which make large and/or unexpected and/or unhelpful changes to a proof. But sometimes it is the right thing: see for example the way that the Hindley-Milner algorithm encodings use \textsc{autounify} to determine the type of constants.
+\item[\textsc{autounify} %\textit{tacticname ... tacticname}] 
+\textit{tactic}] same as \textsc{automatch} but without the restriction on working by `matching'. This directive is less used than \textsc{automatch}, chiefly because it is easy to make automatic steps which make large and/or unexpected and/or unhelpful changes to a proof. But sometimes it is the right thing: see for example the way that the Hindley-Milner algorithm encodings use \textsc{autounify} to determine the type of constants. (\textsc{autounify} is supposed to work with a space-separated sequence of tactics, and it used to, but at present it doesn't. )
 
 \item[\textsc{bag \{} \texttt{<}kind\texttt{>} \textsc{\}} \textit{names}] see \secref{paraformlang:flexisyntax}.
 
