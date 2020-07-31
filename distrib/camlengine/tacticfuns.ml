@@ -368,7 +368,7 @@ let rec striparg t =
 
 let rec evalstr2 env arg =
   match (env <@> arg) with
-    None -> Argstring arg
+  | None -> Argstring arg
   | Some t -> striparg t
 
 (* we only extend things which actually are named rules or theorems 
@@ -392,10 +392,15 @@ let rec extensibletac env tac =
   | _ -> false
 
 let rec withabletac outer env t =
+  let nope s = 
+    if !tactictracing then 
+      consolereport ["unwithabletac "; string_of_tactic outer; " .. "; string_of_tactic t; "("; s; ")"];
+    false
+  in
   match t with
   | WithSubstSelTac t ->
       (match outer with
-       | WithSubstSelTac _ -> false
+       | WithSubstSelTac _ -> nope "WithSubstSelTac/WithSubstSelTac"
        | _                 -> withabletac outer env t
       )
   | WithArgSelTac t     -> withabletac outer env t
@@ -409,16 +414,18 @@ let rec withabletac outer env t =
                                  | Some (Rule _, _)             -> true
                                  | Some (Theorem _, _)          -> true
                                  | Some (Tactic (params, t), _) -> withabletac outer env t
-                                 | _                            -> false
+                                 | _                            -> nope "not Rule/Theorem/Tactic"
                                 )
-                            | Argterm t -> false
+                            | Argterm t -> nope "Argterm"
                            )
 
   | SubstTac _          -> true
   | LayoutTac (t,l)     -> withabletac outer env t (* why not? *)
   | TheoryAltTac _      -> true (* because they are all rule names, I think ... *)
   | AltTac ts           -> List.for_all (withabletac outer env) ts
-  | _                   -> false (* I hope *)
+  | SeqTac [t]          -> withabletac outer env t
+  | SeqTac (SkipTac::ts) -> withabletac outer env (SeqTac ts)
+  | _                   -> nope "??" (* I hope *)
 
 let rec quoteterm t =
   registerApp (registerId (vid_of_string "QUOTE", Idclass.ConstantClass), t)
