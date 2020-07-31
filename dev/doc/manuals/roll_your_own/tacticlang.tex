@@ -21,6 +21,7 @@ When a named tactic is applied to arguments, a new environment is created by zip
 \begin{description}
 \item[\textsc{alt} \textit{tactic}... \textit{tactic}] try each of the tactics in turn, until one is found that succeeds. If none succeeds, \textsc{alt} fails.
 
+\item [\textsc{any} \textit{tactic}] if \textit{tactic} applies a rule which can succeed in more than one way, select one of them without asking the user. Used when replaying proofs and in some automated proof steps (usually in conjunction with \textsc{match hyp}).
 
 \item [\textsc{applyorresolve} \textit{tactic}] rules applied by \textit{tactic} will be tried first normally, where both hypotheses and conclusions must match, and then `by resolution' where only conclusions need match and extra antecedents are inserted to prove each of the hypotheses. The `resolution' step requires that the logic have a \textsc{cut} structure rule.
 
