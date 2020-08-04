@@ -17,6 +17,8 @@ INITIALISE hidehypprev true
 
 INITIALISE multihypsel true
 
+INITIALISE seektipselection false       /* yes, we are going to use CUTIN */
+
 CLASS VARIABLE P S M X Y               /* TERM, really */
 CLASS FORMULA A B C
 
@@ -40,34 +42,19 @@ TACTIC "hyp-quiet2"(A) IS (LAYOUT " " () (hyp A))
 
 TACTIC Fail (x) IS SEQ (ALERT x) STOP
 
-TACTIC ForwardCut (n,rule)
-    SEQ cut (ForwardUncut n rule)
-
-TACTIC ForwardUncut (n,rule)
-    (LETGOALPATH G (WITHHYPSEL rule) (GOALPATH (SUBGOAL G n)) (WITHHYPSEL "hyp-quiet") (GOALPATH G) NEXTGOAL)
+TACTIC ForwardCut (n,rule) /* only applied with single hypothesis selection */
+  CUTIN   
+    (LETGOALPATH G
+      rule
+      (GOALPATH (SUBGOAL G n))
+      (WITHHYPSEL "hyp-quiet")
+    )
 
 TACTIC ForwardOrBackward (Forward, n, rule) IS 
-    WHEN    
-        (LETHYP _A 
-            (ALT    
-                (Forward n rule)
-                (WHEN   
-                    (LETARGSEL _B 
-                        (Fail (rule is not applicable to assumption ' _A ' with argument ' _B ')))
-                    (Fail (rule is not applicable to assumption ' _A ')))))
-        (LETHYP2 _A _B
-            (ALT    
-                (Forward n rule)
-                (WHEN   
-                    (LETARGSEL _C 
-                        (Fail (rule is not applicable to assumptions ' _A ' and ' _B ' with argument ' _C ')))
-                    (Fail (rule is not applicable to assumptions ' _A ' and ' _B ')))))
-        (ALT    
-            (WITHSELECTIONS rule)
-            (WHEN   
-                (LETARGSEL _C
-                    (Fail (rule is not applicable with argument ' _C ')))
-                (Fail (rule is not applicable))))
+  WHEN (LETHYP _A 
+          (WHEN (LETCONC _B (WITHSELECTIONS rule) (WITHHYPSEL "hyp-quiet"))
+                (Forward n rule)))
+       (WITHSELECTIONS rule)
     
 
 RULES IP(B) ARE /* WHERE the hypothesis is discharged exactly once ... */
@@ -81,71 +68,30 @@ END
 RULE vp1 IS FROM ∏⁺(P,S) INFER ∑⁺(S,P)
 RULE vp2 IS FROM ∏⁻(P,S) INFER ∏⁻(S,P)
 RULE Barbara(M) IS FROM ∏⁺(M,P) AND ∏⁺(S,M) INFER ∏⁺(S,P)
-RULE Celarent(M)  IS FROM ∏⁻(M,P) AND ∏⁺(S,M) INFER ∏⁻(S,P)
+RULE Celarent(M) IS FROM ∏⁻(M,P) AND ∏⁺(S,M) INFER ∏⁻(S,P)
 
-TACTIC "Barbara-quiet"(M) IS (LAYOUT " " ALL (Barbara(M)))
-
-TACTIC "Barbara-tac" IS
-  WHEN (LETHYP2 (∏⁺(_M,_P)) (∏⁺(_S,_M))
-          (WHEN (LETCONC (∏⁺(_S,_P))
-                   (WITHHYPSEL ("Barbara-quiet"(_M))) (WITHHYPSEL ("hyp-quiet2" (∏⁺(_M,_P)))) (WITHHYPSEL ("hyp-quiet2" (∏⁺(_S,_M))))
-                )
-                (SEQ cut (WITHHYPSEL ("Barbara-quiet"(_M))) (WITHHYPSEL ("hyp-quiet2" (∏⁺(_M,_P)))) (WITHHYPSEL ("hyp-quiet2" (∏⁺(_S,_M)))))
+MACRO "Syllogism-step" (rule, hpat1, hpat2, mpat) IS
+  SEQ (LAYOUT " " ALL (rule mpat)) (WITHHYPSEL ("hyp-quiet2" (hpat1))) (WITHHYPSEL ("hyp-quiet2" (hpat2)))
+  
+MACRO "Syllogism-tac" (rule, hpat1, hpat2, mpat, cpat) IS
+  WHEN (LETHYP2 hpat1 hpat2
+          (WHEN (LETCONC _A ("Syllogism-step" rule hpat1 hpat2 mpat))
+                (CUTIN ("Syllogism-step" rule hpat1 hpat2 mpat))
           )
-       )
-       (LETHYP2 (∏⁺(_S,_M) (∏⁺(_M,_P)))
-          (SEQ cut (WITHHYPSEL ("Barbara-quiet"(_M))) (WITHHYPSEL ("hyp-quiet2" (∏⁺(_M,_P)))) (WITHHYPSEL ("hyp-quiet2" (∏⁺(_S,_M)))))
        )
        (LETHYP2 _A _B
-          (Fail (Barbara is not applicable to the hypotheses _A and _B))
+          (Fail ("%t is not applicable to the hypotheses %t and %t", rule, _A, _B))
        )
-       (LETGOAL (∏⁺(_S,_P))
-          (WHEN (LETHYP (∏⁺(_M,_P))
-                   (SEQ cut ("Barbara-quiet"(_M)) (WITHHYPSEL ("hyp-quiet2" (∏⁺(_M,_P)))))
-                )
-                (LETHYP (∏⁺(_S,_M))
-                   (SEQ cut ("Barbara-quiet"(_M)) SKIP (WITHHYPSEL ("hyp-quiet2" (∏⁺(_S,_M)))))
-                )
-                (LETHYP _A
-                   (Fail (Barbara is not applicable to the goal ∏⁺(_S,_P) and hypothesis _A))
-                )
-                (Barbara)
+       (LETGOAL cpat
+          (WHEN (LETHYP hpat1 (LAYOUT " " ALL (rule mpat)) (WITHHYPSEL ("hyp-quiet2" (hpat1))))
+                (LETHYP hpat2 (LAYOUT " " ALL (rule mpat)) SKIP (WITHHYPSEL ("hyp-quiet2" (hpat2))))
+                (LETHYP _A (Fail ("%t is not applicable to the goal %t and hypothesis %t", rule, cpat, _A)))
+                (LAYOUT " " ALL rule)
           )
        )
-       (LETGOAL _A
-          (Fail (Barbara does not infer the goal _A))
-       )
-       (Fail (Barbara-tac out of alternatives))
+       (LETGOAL _A (Fail ("%t does not infer the goal %t", rule, _A)))
+       (Fail "can't happen: Syllogism-tac out of alternatives")
        
-TACTIC "Celarent-tac" IS
-  WHEN (LETHYP2 (∏⁻(_M,_P)) (∏⁺(_S,_M))
-          (SEQ cut (WITHHYPSEL (Celarent(_M))) (WITHHYPSEL ("hyp-quiet2" (∏⁻(_M,_P)))) (WITHHYPSEL ("hyp-quiet2" (∏⁺(_S,_M)))))
-       )
-       (LETHYP2 (∏⁺(_S,_M) (∏⁻(_M,_P)))
-          (SEQ cut (WITHHYPSEL (Celarent(_M))) (WITHHYPSEL ("hyp-quiet2" (∏⁻(_M,_P)))) (WITHHYPSEL ("hyp-quiet2" (∏⁺(_S,_M)))))
-       )
-       (LETHYP2 _A _B
-          (Fail (Celarent is not applicable to the hypotheses _A and _B))
-       )
-       (LETGOAL (∏⁻(_S,_P))
-          (WHEN (LETHYP (∏⁻(_M,_P))
-                   (SEQ cut (Celarent(_M)) (WITHHYPSEL ("hyp-quiet2" (∏⁻(_M,_P)))))
-                )
-                (LETHYP (∏⁺(_S,_M))
-                   (SEQ cut (Celarent(_M)) SKIP (WITHHYPSEL ("hyp-quiet2" (∏⁺(_S,_M)))))
-                )
-                (LETHYP _A
-                   (Fail (Celarent is not applicable to the goal ∏⁻(_S,_P) and hypothesis _A))
-                )
-                (Celarent)
-          )
-       )
-       (LETGOAL _A
-          (Fail (Celarent does not infer the goal _A))
-       )
-       (Fail (Celarent-tac out of alternatives))
-       
-
 RULES contra ARE
       FROM ∏⁺(S,P) INFER ∑⁻(S,P)*
   AND FROM ∏⁻(S,P) INFER ∑⁺(S,P)*      
@@ -165,14 +111,20 @@ RULES equiv ARE
   AND FROM ∑⁺(S,P) INFER ∑⁺(P,S)
 END
 
-TACTIC "contra-tac" IS 
-  (LAYOUT HIDEROOT contra)
-  
+RULES subaltern ARE
+      FROM ∏⁺(S,P) INFER ∑⁺(S,P)
+  AND FROM ∏⁻(S,P) INFER ∑⁻(S,P)
+END
+
+TACTIC "contra-tac" IS LAYOUT HIDEROOT contra
+
+AUTOMATCH "contra-tac"
+
 MENU Rules IS
-  ENTRY "(vp1) ∏⁺(P,S) ⇒ ∑⁺(S,P)"               IS vp1
-  ENTRY "(vp2, conversion) ∏⁻(P,S) ⇒ ∏⁻(S,P)"   IS vp2
-  ENTRY "(Barbara) ∏⁺(M,P), ∏⁺(S,M) ⇒ ∏⁺(S,P)"  IS "Barbara-tac"
-  ENTRY "(Celarent) ∏⁻(M,P), ∏⁺(S,M) ⇒ ∏⁻(S,P)" IS "Celarent-tac"
+  ENTRY "(vp1) ∏⁺(P,S) ⇒ ∑⁺(S,P)"               IS ForwardOrBackward ForwardCut 0 (LAYOUT " " ALL vp1)
+  ENTRY "(vp2, conversion) ∏⁻(P,S) ⇒ ∏⁻(S,P)"   IS ForwardOrBackward ForwardCut 0 (LAYOUT " " ALL vp2)
+  ENTRY "(Barbara) ∏⁺(M,P), ∏⁺(S,M) ⇒ ∏⁺(S,P)"  IS "Syllogism-tac" Barbara (∏⁺(_M,_P)) (∏⁺(_S,_M)) _M (∏⁺(_S,_P))
+  ENTRY "(Celarent) ∏⁻(M,P), ∏⁺(S,M) ⇒ ∏⁻(S,P)" IS "Syllogism-tac" Celarent (∏⁻(_M,_P)) (∏⁺(_S,_M)) _M (∏⁻(_S,_P))
 
   SEPARATOR
   
@@ -184,7 +136,22 @@ MENU Rules IS
   SEPARATOR
   
   ENTRY contra IS "contra-tac"
+  ENTRY "equiv (∏⁻,∑⁺)" IS WHEN (LETHYP (∏⁻(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT " " ALL equiv'0)))
+                                (LETHYP (∑⁺(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT " " ALL equiv'1)))
+                                (LETHYP _A (Fail ("equiv is not applicable to hypothesis %t", _A)))
+                                (LETGOAL (∏⁻(_P,_S)) (LAYOUT " " ALL equiv'0))
+                                (LETGOAL (∑⁺(_P,_S)) (LAYOUT " " ALL equiv'1))
+                                (LETGOAL _A (Fail ("equiv is not applicable to goal %t", _A)))
+                                (Fail "can't happen: equiv entry out of alternatives")
   
+  ENTRY "subaltern (∏⁺⇒∑⁺,∏⁻⇒∑⁻)" IS WHEN (LETHYP (∏⁺(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT " " ALL subaltern'0)))
+                                          (LETHYP (∏⁻(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT " " ALL subaltern'1)))
+                                          (LETHYP _A (Fail ("subaltern is not applicable to hypothesis %t", _A)))
+                                          (LETGOAL (∑⁺(_S,_P)) (LAYOUT " " ALL subaltern'0))
+                                          (LETGOAL (∑⁻(_S,_P)) (LAYOUT " " ALL subaltern'1))
+                                          (LETGOAL _A (Fail ("subaltern is not applicable to goal %t", _A)))
+                                          (Fail "can't happen: subaltern entry out of alternatives")
+
   SEPARATOR
   
   ENTRY IP IS (LAYOUT " " ALL IP)
@@ -194,12 +161,29 @@ MENU Rules IS
   ENTRY hyp IS (WHEN (LETHYP _A ("hyp-quiet2" _A))
                      ("hyp-quiet")
                )
-  
-  
 END
 
 CONJECTUREPANEL "Syllogisms"
-  THEOREM "Bocardo: ∑⁻(M,P), ∏⁺(M,S) ⊢ ∑⁻(S,P)" IS ∑⁻(M,P), ∏⁺(M,S) ⊢ ∑⁻(S,P)
-  THEOREM "Baroco : ∏⁺(P,M), ∑⁻(S,M) ⊢ ∑⁻(S,P)" IS ∏⁺(P,M), ∑⁻(S,M) ⊢ ∑⁻(S,P)
-  THEOREM "Disamis: ∑⁺(M,P), ∏⁺(M,S) ⊢ ∑⁺(S,P)" IS ∑⁺(M,P), ∏⁺(M,S) ⊢ ∑⁺(S,P)
+  THEOREM   "Bocardo: ∑⁻(M,P), ∏⁺(M,S) ⊢ ∑⁻(S,P)" IS ∑⁻(M,P), ∏⁺(M,S) ⊢ ∑⁻(S,P)
+  THEOREM   "Baroco : ∏⁺(P,M), ∑⁻(S,M) ⊢ ∑⁻(S,P)" IS ∏⁺(P,M), ∑⁻(S,M) ⊢ ∑⁻(S,P)
+  THEOREM   "Disamis: ∑⁺(M,P), ∏⁺(M,S) ⊢ ∑⁺(S,P)" IS ∑⁺(M,P), ∏⁺(M,S) ⊢ ∑⁺(S,P)
+  THEOREM   "Festino: ∏⁻(P,M), ∑⁺(S,M) ⊢ ∑⁻(S,P)" IS ∏⁻(P,M), ∑⁺(S,M) ⊢ ∑⁻(S,P)
+  THEOREM   "Calemes: ∏⁺(P,M), ∏⁻(M,S) ⊢ ∏⁻(S,P)" IS ∏⁺(P,M), ∏⁻(M,S) ⊢ ∏⁻(S,P)
+  THEOREM  "Fresison: ∏⁻(P,M), ∑⁺(M,S) ⊢ ∑⁻(S,P)" IS ∏⁻(P,M), ∑⁺(M,S) ⊢ ∑⁻(S,P)
+  THEOREM   "Dimatis: ∑⁺(P,M), ∏⁺(M,S) ⊢ ∑⁺(S,P)" IS ∑⁺(P,M), ∏⁺(M,S) ⊢ ∑⁺(S,P)
+  THEOREM "Camestres: ∏⁺(P,M), ∏⁻(S,M) ⊢ ∏⁻(S,P)" IS ∏⁺(P,M), ∏⁻(S,M) ⊢ ∏⁻(S,P)
+  THEOREM   "Ferison: ∏⁻(M,P), ∑⁺(M,S) ⊢ ∑⁻(S,P)" IS ∏⁻(M,P), ∑⁺(M,S) ⊢ ∑⁻(S,P)
+  THEOREM     "Darii: ∏⁺(M,P), ∑⁺(S,M) ⊢ ∑⁺(S,P)" IS ∏⁺(M,P), ∑⁺(S,M) ⊢ ∑⁺(S,P)
+  THEOREM    "Cesare: ∏⁻(P,M), ∏⁺(S,M) ⊢ ∏⁻(S,P)" IS ∏⁻(P,M), ∏⁺(S,M) ⊢ ∏⁻(S,P)
+  THEOREM    "Datisi: ∏⁺(M,P), ∑⁺(M,S) ⊢ ∑⁺(S,P)" IS ∏⁺(M,P), ∑⁺(M,S) ⊢ ∑⁺(S,P)
+  THEOREM     "Ferio: ∏⁻(M,P), ∑⁺(S,M) ⊢ ∑⁻(S,P)" IS ∏⁻(M,P), ∑⁺(S,M) ⊢ ∑⁻(S,P)
+  THEOREM   "Bamalip: ∏⁺(P,M), ∏⁺(M,S) ⊢ ∑⁺(S,P)" IS ∏⁺(P,M), ∏⁺(M,S) ⊢ ∑⁺(S,P)
+  THEOREM   "Calemos: ∏⁺(P,M), ∏⁻(M,S) ⊢ ∑⁻(S,P)" IS ∏⁺(P,M), ∏⁻(M,S) ⊢ ∑⁻(S,P)
+  THEOREM    "Fesapo: ∏⁻(P,M), ∏⁺(M,S) ⊢ ∑⁻(S,P)" IS ∏⁻(P,M), ∏⁺(M,S) ⊢ ∑⁻(S,P)
+  THEOREM   "Barbari: ∏⁺(M,P), ∏⁺(S,M) ⊢ ∑⁺(S,P)" IS ∏⁺(M,P), ∏⁺(S,M) ⊢ ∑⁺(S,P)
+  THEOREM  "Felapton: ∏⁻(M,P), ∏⁺(M,S) ⊢ ∑⁻(S,P)" IS ∏⁻(M,P), ∏⁺(M,S) ⊢ ∑⁻(S,P)
+  THEOREM "Camestros: ∏⁺(P,M), ∏⁻(S,M) ⊢ ∑⁻(S,P)" IS ∏⁺(P,M), ∏⁻(S,M) ⊢ ∑⁻(S,P)
+  THEOREM  "Celaront: ∏⁻(M,P), ∏⁺(S,M) ⊢ ∑⁻(S,P)" IS ∏⁻(M,P), ∏⁺(S,M) ⊢ ∑⁻(S,P)
+  THEOREM   "Darapti: ∏⁺(M,P), ∏⁺(M,S) ⊢ ∑⁺(S,P)" IS ∏⁺(M,P), ∏⁺(M,S) ⊢ ∑⁺(S,P)
+  THEOREM    "Cesaro: ∏⁻(P,M), ∏⁺(S,M) ⊢ ∑⁻(S,P)" IS ∏⁻(P,M), ∏⁺(S,M) ⊢ ∑⁻(S,P)
 END
