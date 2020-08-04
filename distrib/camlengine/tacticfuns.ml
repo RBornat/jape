@@ -2073,57 +2073,32 @@ let rec dispatchTactic display try__ env contn tactic =
              ts state)
     | CutinTac t ->
         contn (doCUTIN (dispatchTactic display try__ env contn t) state)
-    | BindLHSTac _ ->
-        (* deciphering of the binding tactics now occurs in only one place, at the cost
-           of stripoption. RB 1/iii/94
-         *)
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindRHSTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindGoalTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindGoalPathTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindOpenSubGoalTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindOpenSubGoalsTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindConcTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindHypTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindHyp2Tac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindHypsTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindArgTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindArgTextTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindSubstTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindSubstInConcTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindSubstInHypTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindMultiArgTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindFindHypTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindFindConcTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindTuplistTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindMatchTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BindOccursTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BadUnifyTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BadMatchTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
-    | BadProvisoTac _ ->
-        contn (stripoption (doBIND tactic display try__ env state))
+    
+    | BindLHSTac _              (* deciphering of the binding tactics now occurs in only one place, at the cost *)
+    | BindRHSTac _              (* of stripoption. RB 1/iii/94 *)
+    | BindGoalTac _ 
+    | BindGoalPathTac _ 
+    | BindOpenSubGoalTac _ 
+    | BindOpenSubGoalsTac _ 
+    | BindConcTac _ 
+    | BindHypTac _ 
+    | BindHyp2Tac _ 
+    | BindHypsTac _ 
+    | BindArgTac _ 
+    | BindArgTextTac _ 
+    | BindSubstTac _ 
+    | BindSubstInConcTac _ 
+    | BindSubstInHypTac _ 
+    | BindMultiArgTac _ 
+    | BindFindHypTac _ 
+    | BindFindConcTac _ 
+    | BindTuplistTac _ 
+    | BindMatchTac _ 
+    | BindOccursTac _ 
+    | BadUnifyTac _ 
+    | BadMatchTac _ 
+    | BadProvisoTac _              -> contn (stripoption (doBIND tactic display try__ env state))
+    
     | AssocFlatTac t -> contn (doFLATTEN env t state)
     | MapTac (name, args) ->
         doMAPTERMS display try__ contn (evalname env name)
@@ -2745,7 +2720,7 @@ and doBIND tac display try__ env =
     if !tactictracing then
       consolereport ["doBIND dispatching "; string_of_tactic tac];
     match tac with
-      BindConcTac spec ->
+    | BindConcTac spec ->
         let topt =
           (getselectedconclusion () &~~
              (function
@@ -2959,12 +2934,11 @@ and doBIND tac display try__ env =
 and doWHEN ts display try__ env state =
   let rec _W =
     function
-      [] -> None
-    | [t] -> dispatchTactic display try__ env nullcontn t state
-    | t :: ts ->
-        match doBIND t display try__ env state with
-          None -> _W ts
-        | Some x -> x
+    | []      -> None
+    | [t]     -> dispatchTactic display try__ env nullcontn t state
+    | t :: ts -> match doBIND t display try__ env state with
+                 | None -> _W ts
+                 | Some x -> x
   in
   _W ts
   
