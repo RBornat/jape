@@ -581,8 +581,8 @@ and transTactic tacterm =
                         match maybeSTR fmt, stuff with
                         | Some "HIDEROOT", ts        -> LayoutTac (_SEQTAC ts, HideRootLayout)
                         | Some "HIDECUT" , ts        -> LayoutTac (_SEQTAC ts, HideCutLayout)
-                        | Some "COMPRESS", fmt :: ts -> lyt (fun v->CompressedLayout v) fmt ts
-                        | Some "COMPRESS", ts        -> lyt (fun v->CompressedLayout v) (registerLiteral (String "%s")) ts
+                        | Some "COMPRESS", fmt :: ts -> lyt (fun v -> CompressedLayout v) fmt ts
+                        | Some "COMPRESS", ts        -> lyt (fun v -> CompressedLayout v) (registerLiteral (String "%s")) ts
                         | _              , ts        -> lyt (fun v -> NamedLayout v) fmt ts
               in
               let mkFold tac =

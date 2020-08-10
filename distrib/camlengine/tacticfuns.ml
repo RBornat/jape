@@ -799,8 +799,7 @@ let rec parseints mess eval ints =
 
 (* With the modern prooftree, LAYOUT is a simple assignment to a tip *)
 
-let rec doLAYOUT layout eval action t =
-  fun (Proofstate {tree = tree; goal = goal} as state) ->
+let rec doLAYOUT layout eval action t (Proofstate {tree = tree; goal = goal} as state) =
     let parseSTR t =
       match debracket t with
       | Id (_, v, _)          -> string_of_vid v
