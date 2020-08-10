@@ -197,6 +197,7 @@ let defaultenv =
      "hideuselesscuts"      , bj                         false        Prooftree.Tree.hideuselesscuts;
      "innerassumptionplural", ajd                                     Boxdraw.innerassumptionplural;
      "innerassumptionword"  , ajd                                     Boxdraw.innerassumptionword;
+     "innerboxes"           , bj                         true         Boxdraw.innerboxes;
      "interpretpredicates"  , tparam (bj                 false        Predicate.interpretpredicates);
      "matchdebug"           , bj                         false        Match.matchdebug;
      "menudebug"            , bj                         false        Menu.menudebug;
