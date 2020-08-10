@@ -32,6 +32,7 @@ val hidetransitivity : bool ref
 val hidereflexivity  : bool ref
 
 val outermostbox   : bool ref
+val innerboxes     : bool ref
 val showrelations  : bool ref
 val showboxfreshvs : bool ref
 

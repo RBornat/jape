@@ -156,6 +156,7 @@ exception Catastrophe_ = Miscellaneous.Catastrophe_
 let textinfo_of_element = textinfo_of_element (invisbracketedstring_of_element true)
 let textinfo_of_term = textinfo_of_term (invisbracketedstring_of_term true)
 let outermostbox = ref true (* set true to imitate previous boxdraw behaviour *)
+let innerboxes = ref true
 let hidecut = ref true
 let hidehyp = ref true
 let hidehypprev = ref false
@@ -297,11 +298,9 @@ let my_selstring = string_of_sel string_of_path
 type revpath = RevPath of int list          (* no more uncertainty *)
    
 type normalpt =
-  | LinPT of
-      (revpath * bool * element list * string option *
-         (reason * element list * normalpt list) option)
-  | BoxPT of
-      (revpath * bool * (string * string) * element list * normalpt)
+  | LinPT of (revpath * bool * element list * string option *
+                (reason * element list * normalpt list) option)
+  | BoxPT of (revpath * bool * (string * string) * element list * normalpt)
   | CutPT of (revpath * element * normalpt * normalpt * bool * bool)
   | TransitivityPT of (element * normalpt * normalpt)
     (* no revpath needed in transitivity node, because all you ever see is the tips;
@@ -336,7 +335,7 @@ let rec pretransform prefixwithstile t =
     in
     let boxpt lines =
       (* consolereport ["boxpt with newhyps="; bracketed_string_of_list string_of_element ";" newhyps]; *)
-      false, BoxPT (RevPath rp, true, innerwords, newhyps, lines)
+      false, BoxPT (RevPath rp, !innerboxes, innerwords, newhyps, lines)
     in
     let rec hyps seq = snd_of_3 (Absprooftree.explode seq) in
     let rec concs seq = thrd (Absprooftree.explode seq) in
