@@ -34,6 +34,7 @@ USE "Syllogisms rules.j"
 INITIALISE autoAdditiveLeft true
 INITIALISE displaystyle box
 INITIALISE outermostbox false
+INITIALISE innerboxes false
 
 INITIALISE outerassumptionword " assumption"
 INITIALISE innerassumptionword " (contradictory) assumption"
