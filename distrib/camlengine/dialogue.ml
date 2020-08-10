@@ -598,15 +598,15 @@ let nohitcommand displaystate env textselopt comm done__
 (* local *)
 let foldstuff = false, "", Some []
 
-let defaultfolded = RotatingFormat (0, [foldstuff])
+let defaultfolded = RotatingFilter (0, [foldstuff])
 
 let rotateFormat =
   function
-    tfk, DefaultFormat -> Some (tfk, defaultfolded)
-  | tfk, RotatingFormat (i, nfs) ->
+  | tfk, DefaultFilter -> Some (tfk, defaultfolded)
+  | tfk, RotatingFilter (i, nfs) ->
       Some
         (tfk,
-         RotatingFormat ((if i >= List.length nfs then 0 else i + 1), nfs))
+         RotatingFilter ((if i >= List.length nfs then 0 else i + 1), nfs))
 
 let getfmt mess tree path =
   try
@@ -653,15 +653,15 @@ let doLayout command =
     | HideShowCommand ->
         getfmt (fun () -> "can't hide subproofs there") tree path 
         &~~
-        (function tfk, RotatingFormat (i, nfs) ->
+        (function tfk, RotatingFilter (i, nfs) ->
            (findfirst
               (fun (i, nf) -> if nf = foldstuff then Some i else None)
               (numbered nfs) &~~
             (fun i' ->
-               Some (tfk, RotatingFormat ((if i = i' then i + 1 else i'), nfs)))) 
+               Some (tfk, RotatingFilter ((if i = i' then i + 1 else i'), nfs)))) 
            |~~
-           (fun _ -> Some (tfk, RotatingFormat (0, foldstuff :: nfs)))
-         | tfk, DefaultFormat -> Some (tfk, defaultfolded)) 
+           (fun _ -> Some (tfk, RotatingFilter (0, foldstuff :: nfs)))
+         | tfk, DefaultFilter -> Some (tfk, defaultfolded)) 
          &~~
          (fun fmt' ->
             Some (false, withtree state (set_prooftree_fmt tree path (TreeFormat fmt'))))
@@ -670,7 +670,7 @@ let doLayout command =
           (fun () -> raise (Catastrophe_ ["getLayout sees EXPAND/CONTRACT on a Tip!!!"]))
           tree path 
         &~~
-        (function  _, DefaultFormat as fmt ->
+        (function  _, DefaultFilter as fmt ->
            if null (subtrees (followPath tree path)) then
               (showAlert ["no point double-clicking that -- it doesn't have any subproofs"];
                None)

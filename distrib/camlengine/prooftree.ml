@@ -1309,7 +1309,7 @@ module Tree : Tree with type term = Termtype.term
                                                      j];
                      nohide ())
                   else r
-              | TreeFormat (_, RotatingFormat (i, nfs)) ->
+              | TreeFormat (_, RotatingFilter (i, nfs)) ->
                   if try
                        match fmt, List.nth nfs i with
                          Some (true, s, _), (true, s', _) -> s = s'
@@ -1327,7 +1327,7 @@ module Tree : Tree with type term = Termtype.term
         if showall then default ()
         else
           match join_fmt j with
-            TreeFormat (_, RotatingFormat (i, nfs)) ->
+            TreeFormat (_, RotatingFilter (i, nfs)) ->
               (try match Listfuns.guardednth nfs i with
                      _, _, Some which as fmt ->
                        let inouts =
@@ -1472,7 +1472,7 @@ module Tree : Tree with type term = Termtype.term
            in
            let f (TreeFormat (_, fmt)) =
              match fmt with
-               RotatingFormat (i, nfs) ->
+               RotatingFilter (i, nfs) ->
                  let nohidf () = [!nohidefmt]
                  in
                  let (fmt, invis) =

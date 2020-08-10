@@ -494,8 +494,7 @@ type dependency =
   | IdDep of (element * dependency)
   | CutDep of (dependency * element * dependency * bool)
   | TranDep of (textinfo option * elementinfo_of_plan * trandep list)
-and reasoninfo =
-  (pathinfo * textinfo * element list * dependency list) option
+and reasoninfo = (pathinfo * textinfo * element list * dependency list) option
 and trandep = textinfo * elementinfo_of_plan * reasoninfo
 (*   op         formula        *)
 
@@ -579,13 +578,11 @@ let rec dependency tranreason deadf pt =
       let rec mkplan e =
         textinfo_of_element e, deadf (bool_of_opt justopt) mkconcplan pi e
       in
-      let dep =
-        LinDep ((mkplan <* concs), dostopt stopt, linsubs pi justopt)
-      in
-      begin match isid, justopt with
-      | true, Some (_, [lp], []) -> IdDep (lp, dep)
-      | _                        -> dep
-      end
+      let dep = LinDep ((mkplan <* concs), dostopt stopt, linsubs pi justopt) in
+      (match isid, justopt with
+       | true, Some (_, [lp], []) -> IdDep (lp, dep)
+       | _                        -> dep
+      )
   | BoxPT (rp, boxit, (sing, plur), hs, pt') ->
       let pi = ordinarypi rp in
       let rec mkplan e =
@@ -1014,7 +1011,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
        *)
       let rec dolinsubs hypmap acc justopt =
         match justopt with
-          None -> acc, None
+        | None -> acc, None
         | Some (pi, rinf, lprins, subdps) ->
             let lcids =
               (fun lp ->
@@ -1064,7 +1061,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
       | LinDep (concels, stopt, justopt) ->
           let concels' =
             match !foldformulae, wopt with
-              true, Some bestW ->
+            | true, Some bestW ->
                    foldformula (bestW - 2 * posX (topleft accrec.elbox) - commaW) <* concels
             | _ -> concels
           in
