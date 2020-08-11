@@ -28,7 +28,7 @@ open Mappingfuns
 
 (* everything you can say in a LAYOUT tactic *)
 type treelayout =
-    HideRootLayout
+  | HideRootLayout
   | HideCutLayout
   | CompressedLayout of (term * term option)
   | NamedLayout      of (term * term option)
