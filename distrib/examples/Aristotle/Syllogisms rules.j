@@ -39,12 +39,12 @@ TACTIC ForwardCut (n,rule) /* only applied with single hypothesis selection */
     (LETGOALPATH G
       rule
       (GOALPATH (SUBGOAL G n))
-      (WITHHYPSEL "hyp-quiet")
+      (WITHHYPSEL hyp)
     )
 
 TACTIC ForwardOrBackward (Forward, n, rule) IS 
   WHEN (LETHYP _A 
-          (WHEN (LETCONC _B (WITHSELECTIONS rule) (WITHHYPSEL "hyp-quiet"))
+          (WHEN (LETCONC _B (WITHSELECTIONS rule) (WITHHYPSEL hyp))
                 (Forward n rule)))
        (WITHSELECTIONS rule)
     
