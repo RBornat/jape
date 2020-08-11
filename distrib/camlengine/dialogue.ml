@@ -195,6 +195,7 @@ let defaultenv =
      "hidereflexivity"      , bj                         true         Boxdraw.hidereflexivity;
      "hidetransitivity"     , bj                         false        Boxdraw.hidetransitivity;
      "hideuselesscuts"      , bj                         false        Prooftree.Tree.hideuselesscuts;
+     "hidewhy"              , bj                         false        Boxdraw.hidewhy;
      "innerassumptionplural", ajd                                     Boxdraw.innerassumptionplural;
      "innerassumptionword"  , ajd                                     Boxdraw.innerassumptionword;
      "innerboxes"           , bj                         true         Boxdraw.innerboxes;
