@@ -464,7 +464,7 @@ module Tree : Tree with type term = Termtype.term
     let rec search opt n = (opt &~~ (fun ns -> Some (n :: ns)))
     let rec _F =
       function
-        [] -> None
+      | [] -> None
       | (n, t) :: nts -> (search (_G t) n |~~ (fun _ -> _F nts))
     and _G t =
       match t with
@@ -1422,7 +1422,7 @@ module Tree : Tree with type term = Termtype.term
          *)
         let rec rpr =
           function
-            [] -> []
+          | [] -> []
           | 0x25 (* % *) :: 0x68 (* h *) :: cs -> 
               let ss = invis () in ss @ rprintf cs (fun () -> ss) def
           | 0x25 (* % *) :: 0x73 (* s *) :: cs -> 
