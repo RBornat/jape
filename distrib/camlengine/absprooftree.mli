@@ -43,6 +43,7 @@ val ishiddencut : tree -> bool
 val ismultistep : tree -> bool
 val matched : tree -> element list * element list
 val reason : tree -> reason option
+val reason_of_string : string -> reason
 val fontNstring_of_reason : reason -> font * string
 val text_of_reason : reason -> text
 val sequent : tree -> sequent

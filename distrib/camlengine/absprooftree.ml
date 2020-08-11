@@ -103,7 +103,11 @@ let ismultistep t =
 let ishiddencut t =
   match format t with VisFormat (_, b) -> b
 
-let reason = reason proved
+let reason = reason proved  (* VisTree.reason, I think (and hope). Plucks out Some j.why from Join j, None from Tip.
+                               'proved' is ignored, because (says VisTree) it's already happened. RB 08/2020
+                             *)
+
+let reason_of_string s = s (* because the type reason is hidden *)
 
 let stepparamsprovisos t = 
   match rule t with
