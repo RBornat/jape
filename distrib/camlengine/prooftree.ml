@@ -239,16 +239,18 @@ module Tree : Tree with type term = Termtype.term
 *)
     type 'a prooftree =
       | Tip  of (seq * rewinf * 'a)
-      | Join of (string                                     * (* why *)
-                 prooftree_step                             * (* how *)
-                 (int * int) option                         * (* cutnav *)
-                 (term list * rewinf)                       * (* args *)
-                 'a                                         * (* fmt *)
-                 bool                                       * (* hastipval *)
-                 (seq * rewinf)                             * (* seq *)
-                 ('a prooftree list * rewinf)               * (* trs *)
-                 ((element list * element list) * rewinf)     (* ress *)
-                )
+      | Join of 'a joinrec
+      
+    and 'a joinrec = {why       : string;
+                      how       : prooftree_step;
+                      cutnav    : (int * int) option;
+                      args      : (term list * rewinf);
+                      fmt       : 'a;
+                      hastipval : bool;
+                      seq       : (seq * rewinf);
+                      trs       : ('a prooftree list * rewinf);
+                      ress      : ((element list * element list) * rewinf)
+                   }
                    (* ress: resources consumed - elements that 
                       matched hypotheses and conclusions
                       when the rule was applied.  This information is 
@@ -259,43 +261,16 @@ module Tree : Tree with type term = Termtype.term
 
 (* some functions to extract things from trees, because otherwise I get confused. RB *)
 
-    let join_why
-      (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
-      why
-    let join_how
-      (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
-      how
-    let join_cutnav
-      (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
-      cutnav
-    let join_args
-      (why, how, cutnav, (args, rewinf), fmt, hastipval, seq, trs, ress) =
-      args
-    let join_fmt
-      (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
-      fmt
-    let join_hastip
-      (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
-      hastipval
-    let join_seq
-      (why, how, cutnav, args, fmt, hastipval, (seq, rewinf), trs, ress) =
-      seq
-    let join_subtrees
-      (why, how, cutnav, args, fmt, hastipval, seq, (trs, rewinf), ress) =
-      trs
-    let join_subtrees_rewinf
-      (why, how, cutnav, args, fmt, hastipval, seq, (trs, rewinf), ress) =
-      rewinf
-    let join_thinned
-      (why, how, cutnav, args, fmt, hastipval, seq, trs, (ress, rewinf)) =
-      ress
+    let join_args j = fst j.args
+    let join_hastip j = j.hastipval
+    let join_seq j = fst j.seq
+    let join_subtrees j = fst j.trs
+    let join_subtrees_rewinf j = snd j.trs
+    let join_thinned j = fst j.ress
     
-    let withsubtrees (why, how, cutnav, args, fmt, hastipval, seq, _, ress) ts =
-      why, how, cutnav, args, fmt, hastipval, seq, ts, ress
-    let withhastipval (why, how, cutnav, args, fmt, _, seq, trs, ress) hastipval =
-      why, how, cutnav, args, fmt, hastipval, seq, trs, ress
-    let withfmt (why, how, cutnav, args, _, hastipval, seq, trs, ress) fmt =
-      why, how, cutnav, args, fmt, hastipval, seq, trs, ress
+    let withsubtrees j ts = {j with trs=ts}
+    let withhastipval j hastipval = {j with hastipval=hastipval}
+    let withfmt j fmt = {j with fmt=fmt}
       
     let step_label = function
       | Apply (n, _, _) -> parseablestring_of_name n
@@ -307,8 +282,8 @@ module Tree : Tree with type term = Termtype.term
       | _               -> false
     let rewinfProoftree = function
       | Tip (seq, rewinf, fmt) -> rewinf
-      | Join (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) ->
-          rewinf_merge (snd args, rewinf_merge (snd seq, rewinf_merge (snd trs, snd ress)))
+      | Join j                 ->
+          rewinf_merge (snd j.args, rewinf_merge (snd j.seq, rewinf_merge (snd j.trs, snd j.ress)))
     let tip_seq (seq, rewinf, hastipval) = seq
     let joinopt f = function 
       | Tip _  -> None
@@ -321,10 +296,10 @@ module Tree : Tree with type term = Termtype.term
       | _                -> None
     let rule = function 
       | Tip _  -> None
-      | Join j -> howrule (join_how j)
+      | Join j -> howrule j.how
     let params = function
       | Tip _  -> None
-      | Join j -> howparams (join_how j)
+      | Join j -> howparams j.how
     let args = function 
       | Tip _  -> []
       | Join j -> join_args j
@@ -356,13 +331,13 @@ module Tree : Tree with type term = Termtype.term
       | Join j -> join_seq j
     let rec format = function
       | Tip (_, _, fmt) -> fmt
-      | Join j -> join_fmt j
+      | Join j -> j.fmt
     let rec depends tree =
       let rec d = function
         | Tip _, ds -> ds
         | Join j, ds ->
             let rest = nj_fold d (join_subtrees j) ds in
-            match join_how j with
+            match j.how with
             | UnRule (_, ss)  -> ss @ rest
             | Apply (n, _, _) -> n :: rest
             | Given _         -> rest
@@ -404,65 +379,57 @@ module Tree : Tree with type term = Termtype.term
         NormalNav of 'a prooftree list
       | CutNav of (int * int * 'a prooftree * 'a prooftree)
     let rec decode_cutnav j =
-      match j with
-        why, how, Some (l, r), args, fmt, hastipval, seq, ([tl; tr], rewinf),
-        ress ->
-          CutNav (l, r, tl, tr)
-      | why, how, _, args, fmt, hastipval, seq, (ts, rewinf), ress ->
-          NormalNav ts
+      match j.cutnav, j.trs with
+      | Some (l, r), ([tl; tr], rewinf) -> CutNav (l, r, tl, tr)
+      | _          , (ts, rewinf)       -> NormalNav ts
     (* I've tried to make this fast *)
     let rec joinstep go stop skip j path =
-      match j with
-        why, how, Some (l, r), args, fmt, hastipval, seq, ([tl; tr], rewinf),
-        ress ->
+      match j.cutnav, j.trs with
+      | Some (l, r), ([tl; tr], rewinf) ->
           begin match path with
-            n :: ns ->
+          | n :: ns ->
               if n = l then go n tl ns
               else if n = r then
                 if null ns then stop () else joinstep go stop skip j ns
               else skip (l, r, tl, tr) path
           | [] -> skip (l, r, tl, tr) path
           end
-      | why, how, _, args, fmt, hastipval, seq, (ts, rewinf), ress ->
+      |_, (ts, rewinf)->
           (* this is what makes the tip path work *)
           match path with
-            n :: ns -> go n (try Listfuns.guardednth ts n with
+          | n :: ns -> go n (try Listfuns.guardednth ts n with
                                             Listfuns.Bad_nth -> raise (FollowPath_ ("out of range", path))) ns
           | [] -> stop ()
     let rec pathto t =
       match t with
-        Join
-          (why, how, Some (l, r), args, fmt, hastipval, seq, (ts, rewinf),
-           ress) ->
-          [r]
-      | _ -> []
+        Join {cutnav=Some(l,r);} -> [r]
+      | _                        -> []
     let rec followPath_ns t ns =
       match t with
-        Tip _ -> if null ns then t else raise (FollowPath_ ("at tip", ns))
+      | Tip _ -> if null ns then t else raise (FollowPath_ ("at tip", ns))
       | Join j ->
           joinstep (fun _ -> followPath_ns) (fun _ -> t)
             (fun (l, r, tl, tr) -> followPath_ns tr) j ns
     let rec onestep_ns t path =
       match t with
-        Tip _ ->
+      | Tip _ ->
           if null path then None
           else raise (FollowPath_ ("onestep at tip", path))
-      | Join (_, _, Some (l, r), _, _, _, _, ([tl; tr], _), _) ->
-          begin match path with
-            n :: ns ->
-              if n = l then Some (ns, tl)
-              else if n = r then Some (ns, tr)
-              else Some (path, tr)
-          | [] -> Some (path, tr)
-          end
-      | Join (_, _, _, _, _, _, _, (ts, _), _) ->
+      | Join {cutnav=Some (l, r); trs=([tl; tr], _);} ->
+          (match path with
+           | n :: ns -> if n = l then Some (ns, tl)
+                        else if n = r then Some (ns, tr)
+                        else Some (path, tr)
+           | []      -> Some (path, tr)
+          )
+      | Join {trs=(ts,_)} ->
           match path with
-            n :: ns -> Some (ns, (try Listfuns.guardednth ts n with
+          | n :: ns -> Some (ns, (try Listfuns.guardednth ts n with
                                                         Listfuns.Bad_nth -> raise (FollowPath_ ("onestep out of range", path))))
           | [] -> None
     let rec fakePath_ns rf t ns =
       match t with
-        Tip _ ->
+      | Tip _ ->
           if null ns then List.rev rf else raise (FollowPath_ ("at tip", ns))
       | Join j ->
           joinstep (fun n -> fakePath_ns (n :: rf)) (fun _ -> List.rev rf)
@@ -478,7 +445,7 @@ module Tree : Tree with type term = Termtype.term
           ns, (Tip _ as t), tips -> (List.rev ns, t) :: tips
         | ns, Join j, tips ->
             match decode_cutnav j with
-              NormalNav ts ->
+            | NormalNav ts ->
                 nj_fold (fun ((n, t), tips) -> moretips (n :: ns) t tips)
                   (numbered ts) tips
             | CutNav (l, r, tl, tr) ->
@@ -504,7 +471,7 @@ module Tree : Tree with type term = Termtype.term
         Tip _ -> Some []
       | Join j ->
           match decode_cutnav j with
-            NormalNav ts -> _F (numbered ts)
+          | NormalNav ts -> _F (numbered ts)
           | CutNav (l, r, tl, tr) -> (search (_G tl) l |~~ (fun _ -> _G tr))
     let findAnyGoal_ns = _G
     let rec findRightwardsGoal_ns skip t path =
@@ -515,7 +482,7 @@ module Tree : Tree with type term = Termtype.term
             (search (findRightwardsGoal_ns skip subt ns) n |~~
                (fun _ ->
                   match decode_cutnav j with
-                    NormalNav ts -> _F (drop (n + 1) (numbered ts))
+                  | NormalNav ts -> _F (drop (n + 1) (numbered ts))
                   | CutNav (l, r, tl, tr) -> _G tr))
           in
           joinstep go (fun _ -> _G t)
@@ -539,7 +506,7 @@ module Tree : Tree with type term = Termtype.term
           in
           let rec check a1 a2 =
             match a1, a2 with
-              (None   , ns), f -> None, f ns
+            | (None   , ns), f -> None, f ns
             | (Some hs, ns), f ->
                 let (Seq (_, hs', _)) = sequent t in
                 if (match hs, hs' with
@@ -598,7 +565,7 @@ module Tree : Tree with type term = Termtype.term
               (search (f t ns) n |~~
                  (fun _ ->
                     match decode_cutnav j with
-                      NormalNav ts ->
+                    | NormalNav ts ->
                         if left then
                           if n = 0 then badLeft () else Some [n - 1]
                         else if n + 1 >= List.length ts then badRight ()
@@ -653,7 +620,7 @@ module Tree : Tree with type term = Termtype.term
         explodeCollection (if ishyp then hs else cs)
       in
       try isin (elements (followPath_ns proof ns)) with
-        _ -> false
+      | _ -> false
     let validhyp_ns = validelement_ns true
     let validconc_ns = validelement_ns false
     let rec stillopen_ns proof ns =
@@ -662,7 +629,7 @@ module Tree : Tree with type term = Termtype.term
           Tip _ -> true
         | _ -> false
       with
-        _ -> false
+      | _ -> false
     
     (* -------------------------- printing proof trees -------------------------- *)
         
@@ -688,23 +655,23 @@ module Tree : Tree with type term = Termtype.term
     
     let string_of_ns = bracketed_string_of_list string_of_int ","
     
-    let rec string_of_Join tlf subtreesf (why, how, cutnav, args, fmt, hastipval, seq, trs, ress) =
+    let rec string_of_Join tlf subtreesf j =
       implode
-        ["Join("; "reason="; why; ", how="; string_of_prooftree_step how;
-         ", cutnav=";
-         string_of_option (string_of_pair string_of_int string_of_int ",")
-                          (cutnav : (int * int) option);
-         ", args="; string_of_pair string_of_termlist string_of_rewinf ", " args;
-         ", fmt="; tlf fmt; ", hastipval="; string_of_bool hastipval;
-         ", seq="; string_of_pair elementstring_of_seq string_of_rewinf ", " seq;
-         ", subtrees="; string_of_pair subtreesf string_of_rewinf ", " trs; ", ress=";
+        ["Join{"; "reason="; j.why; "; how="; string_of_prooftree_step j.how;
+         "; cutnav="; string_of_option (string_of_pair string_of_int string_of_int ",") j.cutnav;
+         "; args="; string_of_pair string_of_termlist string_of_rewinf ", " j.args;
+         "; fmt="; tlf j.fmt; 
+         "; hastipval="; string_of_bool j.hastipval;
+         "; seq="; string_of_pair elementstring_of_seq string_of_rewinf ", " j.seq;
+         "; subtrees="; string_of_pair subtreesf string_of_rewinf ", " j.trs; 
+         "; j.ress=";
          (let string_of_ths =
             bracketed_string_of_list (debugstring_of_element string_of_term) ", "
           in
           string_of_pair (string_of_pair string_of_ths string_of_ths ", ") string_of_rewinf ", "
-                         ress
+                         j.ress
          );
-         ")"
+         "}"
         ]
     
     let rec string_of_prooftree tlf t =
@@ -718,7 +685,7 @@ module Tree : Tree with type term = Termtype.term
                  (interpolate "\n"
                     (string_of_Join tlf (fun _ -> "... see below ...") j ::
                        (match decode_cutnav j with
-                          NormalNav ts ->
+                        | NormalNav ts ->
                               ((fun (i, t) -> pft tlf (i :: rp) t) <*
                                numbered ts)
                         | CutNav (l, r, tl, tr) ->
@@ -731,7 +698,7 @@ module Tree : Tree with type term = Termtype.term
        
     let mkUnRuleTac u =
       match u with
-        ("FLATTEN", [t]) -> AssocFlatTac t
+      | ("FLATTEN", [t]) -> AssocFlatTac t
       | ("EVALUATE", ts) -> EvalTac ts
       | _ -> raise (Catastrophe_
                ["mkUnRuleTac given "; 
@@ -755,7 +722,7 @@ module Tree : Tree with type term = Termtype.term
       in
       if !autoAdditiveLeft then
         (match split (function (_,Collection _) -> true | _ -> false) argmap with
-           ([_], oks) -> (* if not (List.exists (existsterm isUnknown) args) then oks else argmap *)
+         | ([_], oks) -> (* if not (List.exists (existsterm isUnknown) args) then oks else argmap *)
                          oks (* it can't be slower, even if it contains unknowns ... *)
          | _          -> argmap)
       else argmap
@@ -765,7 +732,7 @@ module Tree : Tree with type term = Termtype.term
       let seq = sequent tree in
       let rec thisone j =
         let res b t = if b then ResolveTac t else t in
-        match join_how j with
+        match j.how with
         | Apply (n, ps, b) -> res b (SubstTac (n, step_argmap ps (join_args j)))
         | Given (_, i, b)  -> res b (GivenTac (term_of_int i))
         | UnRule (r, _)    -> mkUnRuleTac (r, join_args j)
@@ -775,8 +742,8 @@ module Tree : Tree with type term = Termtype.term
         | Tip t, ts -> NextgoalTac :: ts
         | Join j, ts ->
             let rec tr ts = thisone j :: nj_fold traverse (join_subtrees j) ts in
-            match layouts_of_format (join_fmt j) with
-              [] -> tr ts
+            match layouts_of_format (j.fmt) with
+            | [] -> tr ts
             | ls ->
                 nj_fold (fun (l, t) -> LayoutTac (t, l)) ls
                   (SeqTac (tr [])) ::
@@ -804,7 +771,7 @@ module Tree : Tree with type term = Termtype.term
                       else hs
             in
             nj_fold hashables (join_subtrees j)
-              (match join_how j with
+              (match j.how with
                  Apply (_, ps, _) -> nj_fold catalogue (join_args j) hs
                | _ -> hs)
       in
@@ -944,9 +911,11 @@ module Tree : Tree with type term = Termtype.term
             end
           else None
       | cxt,
-        Join
-          (why, how, cutnav, (args, argsinf as a), fmt, hastipval,
-           (seq, seqinf as s), (ts, tsinf as t), (ress, ressinf as res)) ->
+        Join j ->
+          let (args, argsinf) = j.args in
+          let (seq, seqinf) = j.seq in
+          let (ts, tsinf) = j.trs in
+          let (ress, ressinf) = j.ress in
           let ra = rew_worthwhile true cxt argsinf in
           let rs = rew_worthwhile true cxt seqinf in
           let rts = rew_worthwhile true cxt tsinf in
@@ -956,8 +925,8 @@ module Tree : Tree with type term = Termtype.term
             let a =
               if ra then
                 rew_stuff cxt
-                  (fun cxt -> option_rewritelist (rew_Term true cxt)) a
-              else a
+                  (fun cxt -> option_rewritelist (rew_Term true cxt)) j.args
+              else j.args
             in
             let s =
               if rs then
@@ -966,18 +935,18 @@ module Tree : Tree with type term = Termtype.term
                     consolereport
                       ["rewriting join "; string_of_seq seq; "; ";
                        string_of_rewinf seqinf];
-                  rew_stuff cxt (rew_Seq true) s
+                  rew_stuff cxt (rew_Seq true) j.seq
                 end
-              else s
+              else j.seq
             in
             let t =
               if rts then
                 rew_stuff cxt
-                  (fun cxt -> option_rewritelist (rew_Prooftree cxt)) t
-              else t
+                  (fun cxt -> option_rewritelist (rew_Prooftree cxt)) j.trs
+              else j.trs
             in
-            let res = if rress then rew_stuff cxt rew_ress res else res in
-            Some (Join (why, how, cutnav, a, fmt, hastipval, s, t, res))
+            let res = if rress then rew_stuff cxt rew_ress j.ress else j.ress in
+            Some (Join {j with args=a; seq=s; trs=t; ress=res})
           else None
     let rec rewriteProoftree givens grounded cxt tree =
       let cxt = rewritecxt cxt in
@@ -1053,9 +1022,16 @@ module Tree : Tree with type term = Termtype.term
       let args = (rewrite cxt <* args) in
       let seq = rewriteseq cxt seq in
       let ress = anyway (rew_ress cxt) ress in
-      Join (why, how, None, (args, getrewinfargs cxt args), fmt, tshaveTip tops,
-            (seq, getrewinfSeq "mkJoin" cxt seq),
-            (tops, getrewinfProoftreeList tops), (ress, getrewinfress cxt ress))
+      Join {why         = why; 
+            how         = how; 
+            cutnav      = None;
+            args        = (args, getrewinfargs cxt args); 
+            fmt         = fmt; 
+            hastipval   = tshaveTip tops;
+            seq         = (seq, getrewinfSeq "mkJoin" cxt seq);
+            trs         = (tops, getrewinfProoftreeList tops);
+            ress        = (ress, getrewinfress cxt ress)
+           }
     exception AlterProof_ of string list
     let rec applytosubtree_ns path t f =
       let rec ans () =
@@ -1081,7 +1057,7 @@ module Tree : Tree with type term = Termtype.term
             let (infchanged, ns, subt) = applytosubtree_ns ns subt f in
             res infchanged (n :: ns)
               (match decode_cutnav j with
-                 NormalNav sts -> take n sts @ subt :: drop (n + 1) sts
+               | NormalNav sts -> take n sts @ subt :: drop (n + 1) sts
                | CutNav (l, r, tl, tr) -> [subt; tr])
           in
           let rec skip (l, r, tl, tr) ns =
@@ -1097,13 +1073,13 @@ module Tree : Tree with type term = Termtype.term
         thrd 
           (applytosubtree_ns ns tree
              (function
-              | Join (why, how, cutnav, args, fmt, htv, seq, ts, ress) ->
-                  false, Join (why, how, cutnav, args, fmt', htv, seq, ts, ress)
-              | Tip (seq, rewinf, fmt) -> false, Tip (seq, rewinf, fmt')))
+              | Join j                 -> false, Join {j with fmt=fmt'}
+              | Tip (seq, rewinf, fmt) -> false, Tip (seq, rewinf, fmt'))
+             )
     let rec get_prooftree_cutnav tree =
       fun (FmtPath ns) ->
         match followPath_ns tree ns with
-          Join j -> join_cutnav j
+          Join j -> j.cutnav
         | Tip _ -> raise FindTip_
     (* or should it be FollowPath_ ? *)
 
@@ -1112,18 +1088,15 @@ module Tree : Tree with type term = Termtype.term
         thrd 
           (applytosubtree_ns ns tree
              (function
-                Join (why, how, _, args, fmt, htv, seq, ts, ress) ->
-                  if match cutnav, ts with
-                       None, _ -> true
+                Join j ->
+                  if match cutnav, j.trs with
+                       None  , _           -> true
                      | Some _, ([_; _], _) -> true
-                     | _ -> false
+                     | _                   -> false
                   then
-                    false,
-                    Join (why, how, cutnav, args, fmt, htv, seq, ts, ress)
+                    false, Join {j with cutnav=cutnav}
                   else
-                    raise
-                      (AlterProof_
-                         ["cutnav applied to obviously non-cut node"])
+                    raise (AlterProof_ ["cutnav applied to obviously non-cut node"])
               | Tip _ -> raise (AlterProof_ ["cutnav applied to tip"])))
     let rec truncateprooftree cxt =
       fun (FmtPath ns) tree ->
@@ -1132,7 +1105,7 @@ module Tree : Tree with type term = Termtype.term
             (function
                Join j ->
                  let t' =
-                   mkTip cxt (rewriteseq cxt (join_seq j)) (join_fmt j)
+                   mkTip cxt (rewriteseq cxt (join_seq j)) (j.fmt)
                  in
                  true, t'
              | tip -> false, tip)
@@ -1204,11 +1177,14 @@ module Tree : Tree with type term = Termtype.term
       in
       let rec aug names =
         function
-          Tip (seq, inf, fmt) ->
+        | Tip (seq, inf, fmt) ->
             Tip (augseq seq, rewinf_merge (inf, rewinf), fmt), names (* Tips have no FRESH provisos, I'm sure *)
-        | Join (why, how, cutnav, (args, arginf), fmt, hastipval, (seq, seqinf), (trs, trsinf), ress) ->
+        | Join j              ->
+            let (args, arginf) = j.args in
+            let (seq, seqinf) = j.seq in
+            let (trs, trsinf) = j.trs in
             let names' =
-              match how with
+              match j.how with
                 Apply(n,ps,b) ->
                   let provisos = 
                     Optionfuns.optionfilter (function (b, Provisotype.FreshProviso(true,_,r,v)) -> Some (b,r,v) | _ -> None) 
@@ -1224,7 +1200,7 @@ module Tree : Tree with type term = Termtype.term
             in
             let rec augargs =
               function
-                [] -> 
+              | [] -> 
                   raise (Catastrophe_ ["no Collection argument for sequent "; string_of_seq seq])
               | arg :: args ->
                   if isCollection arg then
@@ -1233,14 +1209,14 @@ module Tree : Tree with type term = Termtype.term
             in
             let trs', names'' = List.fold_right (fun t (ts,ns) -> let t',ns' = aug ns t in (t'::ts, ns')) 
                                                 trs ([],names'@names) in
-            Join
-              (why, how, cutnav,
-               (match how with
-                  UnRule _ -> (try augargs args with _ -> args), arginf
-                | Given  _ -> (try augargs args with _ -> args), arginf (* Given doesn't have args, unfortunately *)
-                | _        -> augargs args, rewinf_merge (arginf, rewinf)),
-               fmt, hastipval, (augseq seq, rewinf_merge (seqinf, rewinf)),
-               (trs', rewinf_merge (trsinf, rewinf)), ress), names''
+            Join {j with args=(match j.how with
+                               | UnRule _ -> (try augargs args with _ -> args), arginf
+                               | Given  _ -> (try augargs args with _ -> args), arginf (* Given doesn't have args, unfortunately *)
+                               | _        -> augargs args, rewinf_merge (arginf, rewinf)
+                              );
+                         seq=(augseq seq, rewinf_merge (seqinf, rewinf));
+                         trs=(trs', rewinf_merge (trsinf, rewinf))
+                 }, names''
       in
       aug [] tree
     
@@ -1261,23 +1237,21 @@ module Tree : Tree with type term = Termtype.term
             Some name -> isCutRule name
           | None -> false
         with
-          _ -> false
+        | _ -> false
     let rec isCutjoin j =
-      match join_how j with
+      match j.how with
         Apply (r, _, _) -> isCutRule r
       | _ -> false
     
     (* ---------------------- translating trees and paths -------------------------- *)
 
-    let rec join_fmtNsubts j = join_fmt j, join_subtrees j
+    let rec join_fmtNsubts j = j.fmt, join_subtrees j
     let fmtNsubts = joinopt join_fmtNsubts
     
     let pathedsubtrees =
       function
-        why, how, Some (l, r), args, fmt, hastipval, seq, ([tl; tr], rewinf), ress ->
-          [[l], tl; [], tr]
-      | why, how, _, args, fmt, hastipval, seq, (ts, rewinf), ress ->
-          (fun (i, t) -> [i], t) <* numbered ts
+      | {cutnav=Some (l, r); trs=([tl; tr], rewinf)} ->  [[l], tl; [], tr]
+      | {                    trs=(ts, rewinf)      } ->  (fun (i, t) -> [i], t) <* numbered ts
     
     let rec visibles showall j =
       let pts = pathedsubtrees j in
@@ -1295,7 +1269,7 @@ module Tree : Tree with type term = Termtype.term
           match t with
             Tip _  -> nohide ()
           | Join j ->
-              match join_fmt j with
+              match j.fmt with
                 TreeFormat (HideRootFormat, _) ->
                   let r = hr true j in
                   (* cut steps keep their shape, else they don't mean anything *)
@@ -1315,7 +1289,7 @@ module Tree : Tree with type term = Termtype.term
                          Some (true, s, _), (true, s', _) -> s = s'
                        | _ -> false
                      with
-                       _ -> false
+                     | _ -> false
                   then
                     hr false j
                   else nohide ()
@@ -1326,10 +1300,10 @@ module Tree : Tree with type term = Termtype.term
       let res =
         if showall then default ()
         else
-          match join_fmt j with
+          match j.fmt with
             TreeFormat (_, RotatingFilter (i, nfs)) ->
               (try match Listfuns.guardednth nfs i with
-                     _, _, Some which as fmt ->
+                   | _, _, Some which as fmt ->
                        let inouts =
                          nj_fold
                            (fun ((i, (_, t as pt)), (ins, outs)) ->
@@ -1395,12 +1369,12 @@ module Tree : Tree with type term = Termtype.term
       fun (VisPath ns) ->
         let rec rev1 a1 a2 =
           match a1, a2 with
-            [], ys -> ys
+          | [], ys -> ys
           | x :: xs, ys -> rev1 xs (x :: ys)
         in
         let rec _P a1 a2 a3 =
           match a1, a2, a3 with
-            n :: ns, rns, t ->
+          | n :: ns, rns, t ->
               (visible_subtrees showall t &~~
                  (fun ts ->
                     try
@@ -1434,8 +1408,8 @@ module Tree : Tree with type term = Termtype.term
           | _ -> [string_of_name name]
       in
       let rec default_reason () =
-        match join_how j with
-          Given _         -> [join_why j]
+        match j.how with
+          Given _         -> [j.why]
         | Apply (n, _, _) -> justify n
         | UnRule (s, _)   -> [s]
       in
@@ -1461,7 +1435,7 @@ module Tree : Tree with type term = Termtype.term
       in
       implode
         (if showall then
-           if step_resolve (join_how j) then "Resolve " :: default_reason ()
+           if step_resolve (j.how) then "Resolve " :: default_reason ()
            else default_reason ()
          else
            (* for some reason this put the default reason in the justification. I took it out
@@ -1477,7 +1451,7 @@ module Tree : Tree with type term = Termtype.term
                  in
                  let (fmt, invis) =
                    (try match Listfuns.guardednth nfs i with
-                          _, "", Some [] -> !foldedfmt    , invisf
+                        | _, "", Some [] -> !foldedfmt    , invisf
                         | _, "", Some _  -> !filteredfmt  , invisf
                         | _, "", None    -> !unfilteredfmt, nohidf
                         | _, s , Some _  -> s             , invisf
@@ -1487,7 +1461,7 @@ module Tree : Tree with type term = Termtype.term
                  rprintf (UTF.utf8_explode fmt) invis default_reason
              | _ -> default_reason ()
            in
-           f (join_fmt j))
+           f (j.fmt))
     
     and invisiblereasons proved showall j =
       _The <*
@@ -1503,7 +1477,7 @@ module Tree : Tree with type term = Termtype.term
              List.concat ((allreasons proved showall <* join_subtrees j)))
     
     let rec join_multistep j vissubts =
-      step_resolve (join_how j) || List.exists (fun (ns, _) -> List.length ns > 1) vissubts
+      step_resolve (j.how) || List.exists (fun (ns, _) -> List.length ns > 1) vissubts
       
     let hyps = explodeCollection <.> snd_of_3 <.> seqexplode
     let concs = explodeCollection <.> thrd <.> seqexplode
@@ -1513,26 +1487,26 @@ module Tree : Tree with type term = Termtype.term
         function
         | Tip (seq, rewinf, _) ->
             [], Tip (seq, rewinf, VisFormat (false, false))
-        | Join (why, how, cutnav, args, fmt, htv, seq, subts, ress as j) as it ->
+        | Join j as it ->
             let (viss, _) = visibles showall j in
             let lpsNsubts' = (visp <.> snd) <* viss in
             let lps = nj_fold (uncurry2 (sortedmerge earlierresource))
                               (fst <* lpsNsubts')
-                              (sort earlierresource (fst (fst ress)))
+                              (sort earlierresource (fst (fst j.ress)))
             in
             let subts' = (snd <* lpsNsubts') in
             let hidecut =
               if showall || not(isCutjoin j) then false else
-                let newhyps subt = listsub sameresource (hyps (sequent subt)) (hyps (fst seq)) in
+                let newhyps subt = listsub sameresource (hyps (sequent subt)) (hyps (fst j.seq)) in
                 let usedresource r = List.exists (curry2 sameresource r) lps in
-                match fmt with
-                  TreeFormat (HideCutFormat, _) -> true
-                | _ ->
-                    match subts with
-                      [t1; t2], _ ->
+                match j.fmt with
+                | TreeFormat (HideCutFormat, _) -> true
+                | _                             ->
+                    match j.trs with
+                    | [t1; t2], _ ->
                         let hideablecut () = 
                           not (hasTip t2) && (match newhyps t2 with
-                                                [ch] -> not (usedresource ch)
+                                              | [ch] -> not (usedresource ch)
                                               | _    -> false (* why not? *))
                         in
                         (* visibles doesn't allow HIDEROOT just above a cut. (Really, it ought to 
@@ -1542,18 +1516,21 @@ module Tree : Tree with type term = Termtype.term
                            _Unless_ it's a cut that unveils the conclusion: those are usually closed
                            by hyp, and need to stay visible.
                          *)
-                        (match joinopt join_fmt t1 with
+                        (match joinopt (fun j -> j.fmt) t1 with
                            Some (TreeFormat (HideRootFormat, _)) -> 
-                             (match newhyps t2, concs (fst seq) with 
-                               [ch], [c] ->
+                             (match newhyps t2, concs (fst j.seq) with 
+                             | [ch], [c] ->
                                  not (eqelements eqterms (ch, c))
                               | _ -> false (* why not? *))
                          | _ -> hideuselesscuts && hideablecut())
                     | _ -> false
             in
-            lps, Join (_The (visreason proved showall it), how, None, args,
-                       VisFormat (join_multistep j viss, hidecut), tshaveTip subts',
-                       seq, (subts', snd subts), ress)
+            lps, Join {j with why=_The (visreason proved showall it);
+                              cutnav = None;
+                              fmt    = VisFormat (join_multistep j viss, hidecut);
+                              hastipval = tshaveTip subts';
+                              trs       = (subts', snd j.trs)
+                      }
       in
       visp t
     
@@ -1684,7 +1661,7 @@ module Tree : Tree with type term = Termtype.term
           fVisPath <.> siblingPath_ns t (dePath path)
         let subgoalPath t path =
           fVisPath <.> subgoalPath_ns t (dePath path)
-        let rec reason proved = joinopt join_why (* doesn't make use of proved, because it's already happened... *)
+        let rec reason proved = joinopt (fun j -> j.why) (* doesn't make use of proved, because it's already happened... *)
         let subtrees = subtrees
         let sequent = sequent
         let rule = rule
