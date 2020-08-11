@@ -157,6 +157,7 @@ let textinfo_of_element = textinfo_of_element (invisbracketedstring_of_element t
 let textinfo_of_term = textinfo_of_term (invisbracketedstring_of_term true)
 let outermostbox = ref true (* set true to imitate previous boxdraw behaviour *)
 let innerboxes = ref true
+let hidewhy = ref false
 let hidecut = ref true
 let hidehyp = ref true
 let hidehypprev = ref false
@@ -318,7 +319,10 @@ let rec pretransform prefixwithstile t =
     (* consolereport ["pt "; bracketed_string_of_list string_of_int ";" rp; 
                    " "; bracketed_string_of_list string_of_element ";" hyps;
                    " "; string_of_seq (sequent t)]; *)
-    let why = reason t in
+    let why = match !hidewhy, reason t with
+              | true, Some _ -> Some (reason_of_string "")
+              | _   , r      -> r
+    in
     let (st, hs, gs) = Absprooftree.explode (sequent t) in
     let subts = subtrees t in
     let newhyps = ttsub hs hyps in
@@ -481,7 +485,7 @@ and string_of_elementplaninf epi =
   
 let string_of_reasonplankind pk =
   match pk with
-    ReasonPlan pi   -> "ReasonPlan " ^ string_of_pathinfo pi
+  | ReasonPlan pi   -> "ReasonPlan " ^ string_of_pathinfo pi
   | ReasonPunctPlan -> "ReasonPunctPlan"
   
 type textinfo = textsize * textlayout
@@ -513,7 +517,7 @@ and string_of_reasoninfo r =
     r
 and string_of_dependency d =
   match d with
-    LinDep l ->
+  | LinDep l ->
       "LinDep" ^
         string_of_triple (bracketed_string_of_list string_of_elementinfo_of_plan ",")
           (string_of_option string_of_textinfo) string_of_reasoninfo "," l
@@ -921,7 +925,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
   (* make the plan for a single reason, relative to p *)
   let rec mkreasonplan reason p =
     match reason with
-      None                 -> [], emptytextbox, NoReason
+    | None                 -> [], emptytextbox, NoReason
     | Some (pi, why, cids) ->
         let rplan, rbox =
           (let reasonf = plan_of_textinfo why (ReasonPlan pi) in
@@ -1011,7 +1015,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
        *)
       let rec dolinsubs hypmap acc justopt =
         match justopt with
-        | None -> acc, None
+        | None                            -> acc, None
         | Some (pi, rinf, lprins, subdps) ->
             let lcids =
               (fun lp ->
@@ -1205,7 +1209,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
           in
           let (cutelid, acc') =
             match tobehidden, ldp with
-              true, LinDep (_, _, Some just) ->
+            | true, LinDep (_, _, Some just) ->
                 begin match just with
                   _, _, [el], [] -> getIdDep el
                 | _, _, [], [IdDep (el, _)] -> getIdDep el
@@ -1314,7 +1318,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
         alignreasonplan reasonplan reasonbox
       in
       match line.reason with
-        NoReason -> line
+      | NoReason -> line
       | ReasonDesc (pi, why, cids) -> 
           let reasonplan = line.reasonplan in
           let w = availableW - (tsW (textsize_of_planlist reasonplan) - tsW (fst why)) in

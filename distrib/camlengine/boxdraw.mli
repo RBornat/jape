@@ -30,6 +30,7 @@ val hidehyp          : bool ref
 val hidehypprev      : bool ref
 val hidetransitivity : bool ref
 val hidereflexivity  : bool ref
+val hidewhy          : bool ref
 
 val outermostbox   : bool ref
 val innerboxes     : bool ref
