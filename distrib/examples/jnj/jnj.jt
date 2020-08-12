@@ -9,8 +9,6 @@
     implementation of Jape is given in the
     companion paper ``Using JnJ in Unix Jape''.
 
-    $Id$
-
     (Brought up to date for Jape 6 in January 2003)
 */
     SEQUENT IS BAG ⊢ FORMULA
