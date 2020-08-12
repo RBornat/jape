@@ -312,9 +312,11 @@ type normalpt =
 let rec pretransform prefixwithstile t =
   let innerwords = !innerassumptionword, !innerassumptionplural in
   let outerwords = !outerassumptionword, !outerassumptionplural in
+  
   (* pt gives back isreflexive * normalpt -- isreflexive is used in transitivity. *)
   
   let respt (r, pt) = pt in
+  
   let rec pt rp hyps t =
     (* consolereport ["pt "; bracketed_string_of_list string_of_int ";" rp; 
                    " "; bracketed_string_of_list string_of_element ";" hyps;
@@ -710,10 +712,10 @@ let _IDr = (string_of_int : lineID -> string)
 let rec _Cr =
   function
   | LineID l     -> _IDr l
-  | BoxID (s, f) -> (_IDr s ^ "-") ^ _IDr f
-  | HypID (l, n) -> (* we never make a BoxID with s=f *)
-                    (_IDr l ^ ".") ^ string_of_int n
-  | NoID         -> (* we never make a HypID with l=0 *)
+  | BoxID (s, f) -> if !innerboxes then (_IDr s ^ "-") ^ _IDr f     (* we never make a BoxID with s=f *)
+                                   else _IDr f
+  | HypID (l, n) -> (_IDr l ^ ".") ^ string_of_int n                (* we never make a HypID with l=0 *)
+  | NoID         -> 
                     ""
 
 let rec _IDstring cids =
