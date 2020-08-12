@@ -613,9 +613,7 @@ let getfmt mess tree path =
   try
     let subproof = followPath tree path in
     if isTip subproof then
-      begin
-        showAlert [mess (); " -- it's not a proved conclusion."]; None
-      end
+        (showAlert [mess (); " -- it's not a proved conclusion."]; None)
     else
       match format subproof with
       | TreeFormat tf -> Some tf
@@ -695,36 +693,34 @@ let doLayout command =
           | FollowPath_ stuff ->
               showAlert ["FollowPath_ in HIDEROOT?? "]; None
         in
-        begin match leftCutParent tree path with
-        | Some _ ->
-            begin match
-              visible_subtrees !showallproofsteps (followPath tree path)
-            with
-            | Some [_] -> hideit ()
-            | _ ->
-                showAlert
-                  ["don't hide that conclusion: it's a cut hypothesis"];
-                None
-            end
-        | None -> hideit ()
-        end
+        (match leftCutParent tree path with
+         | Some _ ->
+             (match visible_subtrees !showallproofsteps (followPath tree path) with
+             | Some [_] -> hideit ()
+             | _ ->
+                 showAlert
+                   ["don't hide that conclusion: it's a cut hypothesis"];
+                 None
+             )
+         | None -> hideit ()
+        )
     | ExposeParentCommand ->
-        begin match parent tree path with
-        | None ->
-            showAlert
-              ["that's the root of the proof -- it doesn't have a parent!"];
-            None
-        | Some parentpath ->
-            match get_prooftree_fmt tree parentpath with
-            | TreeFormat (HideRootFormat, tff) ->
-                Some
-                  (false,
-                   withtree
-                     state
-                      (set_prooftree_fmt tree parentpath
-                        (TreeFormat (SimpleFormat, tff))))
-            | _ -> showAlert ["the parent isn't hidden!"]; None
-        end
+        (match parent tree path with
+         | None ->
+             showAlert
+               ["that's the root of the proof -- it doesn't have a parent!"];
+             None
+         | Some parentpath ->
+             match get_prooftree_fmt tree parentpath with
+             | TreeFormat (HideRootFormat, tff) ->
+                 Some
+                   (false,
+                    withtree
+                      state
+                       (set_prooftree_fmt tree parentpath
+                         (TreeFormat (SimpleFormat, tff))))
+             | _ -> showAlert ["the parent isn't hidden!"]; None
+         )
     | HideCutCommand ->
         match leftCutParent tree path with
         | None ->
@@ -857,43 +853,40 @@ exception Matchinbacktrack_     (* moved out for OCaml *)
 let rec main a1 a2 =
   match a1, a2 with
   | (env, proofs, mbs), (path :: args, _) ->
-      begin try
-        let rec doargs =
-          function
-          | [] -> [], []
-          | "-" :: args -> [], args
-          | "-tree" :: args ->
-              Interaction.setdisplaystyle "tree"; doargs args
-          | "-box" :: args ->
-              Interaction.setdisplaystyle "box"; doargs args
-          | "-proofs" :: name :: args ->
-              savefilename := Some name; doargs args
-          | "" :: args -> doargs args
-          | name :: args ->
-              if String.sub name 0 1 = "-" then [], name :: args
-              else let (names, args) = doargs args in name :: names, args
-        in
-        let (names, args) = doargs args in
-        consolereport ["Jape proof engine "; Version.version; "\n"];
-        begin
-          let (env, proofs, mbs) =
-            try
-              doUse showAlert uncurried_screenquery (env, proofs, mbs) names
-            with
-            | ParseError_ m -> showInputError showAlert m; (env, proofs, mbs)
-            | Use_          -> (env, proofs, mbs) (* already reported, we hope *)
-          in
-          Japeserver.sendVersion (Version.version);
-          initGUI ();
-          reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
-          mbcache := empty;
-          rundialogue env mbs proofs
-        end;
-        ()
-      with
-      | Exit_ -> ()
-      | Japeserver.DeadGUI_ -> ()
-      end
+      (try let rec doargs =
+             function
+             | [] -> [], []
+             | "-" :: args -> [], args
+             | "-tree" :: args ->
+                 Interaction.setdisplaystyle "tree"; doargs args
+             | "-box" :: args ->
+                 Interaction.setdisplaystyle "box"; doargs args
+             | "-proofs" :: name :: args ->
+                 savefilename := Some name; doargs args
+             | "" :: args -> doargs args
+             | name :: args ->
+                 if String.sub name 0 1 = "-" then [], name :: args
+                 else let (names, args) = doargs args in name :: names, args
+           in
+           let (names, args) = doargs args in
+           consolereport ["Jape proof engine "; Version.version; "\n"];
+           let (env, proofs, mbs) =
+             try
+               doUse showAlert uncurried_screenquery (env, proofs, mbs) names
+             with
+             | ParseError_ m -> showInputError showAlert m; (env, proofs, mbs)
+             | Use_          -> (env, proofs, mbs) (* already reported, we hope *)
+           in
+           Japeserver.sendVersion (Version.version);
+           initGUI ();
+           reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
+           mbcache := empty;
+           rundialogue env mbs proofs;
+           ()
+       with
+       | Exit_ -> ()
+       | Japeserver.DeadGUI_ -> ()
+      )
   | _, _ -> raise Matchinmain_
 
 
@@ -966,19 +959,19 @@ and addproofs fromstore env (proofs : (name * proofstate * (seq * model) option)
         Pinf
           {title = name, index; proofnum = num; displayvarsvals = recorddisplayvars env;
            needsrefresh = false;
-           displaystate =
-             (let r = showFocussedProof goal cxt tree !autoselect in
-                begin
-                  displayGivens givens;
-                  displayProvisos cxt;
-                  match disproof with
-                  | None   -> ()
-                  | Some d -> Disproof.showdisproof d
-                end; r);
-           hist =
-             WinHist {changed = false; proofhist = new_hist (withcxt state (state_cxt));
-                      disproofhist = optf new_hist disproof};
-           fromstore = fromstore} :: pinfs
+           displaystate = (let r = showFocussedProof goal cxt tree !autoselect in
+                           displayGivens givens;
+                           displayProvisos cxt;
+                           (match disproof with
+                            | None   -> ()
+                            | Some d -> Disproof.showdisproof d
+                           ); 
+                           r
+                          );
+           hist =         WinHist {changed = false; proofhist = new_hist (withcxt state (state_cxt));
+                                   disproofhist = optf new_hist disproof};
+           fromstore =    fromstore
+          } :: pinfs
   in
   nj_fold f proofs pinfs
 
@@ -993,11 +986,10 @@ and endproof num name st dis =
   let proved = isproven st in
   let disproved = disproof_finished dis in
   Runproof.addproof showAlert uncurried_screenquery name proved st disproved (model_of_disproofstate dis) &&
-  begin
-    Japeserver.closeproof num true;
-    markproof (parseablestring_of_name name) (proved, disproved);
-    true
-  end
+          (Japeserver.closeproof num true;
+           markproof (parseablestring_of_name name) (proved, disproved);
+           true
+          )
 
 and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisstate) =
   
@@ -1189,7 +1181,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       else
         anyway ||
         screenquery ["Erase the current theory?"] "Erase" "Cancel" 1
-    else begin reset (); true end
+    else (reset (); true)
   in
   
   let doResettheory () =
@@ -1283,10 +1275,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           doit [] seq (mkvisproviso <* provisos) "theorem"
       | Some (Rule ((_, provisos, givens, seq), ax)) ->
           if ax then
-            begin
-              showAlert [string_of_name name; " is a rule, not a conjecture or a derived rule"];
-              default
-            end
+            (showAlert [string_of_name name; " is a rule, not a conjecture or a derived rule"];
+             default
+            )
           else
             doit givens seq (mkvisproviso <* provisos) "derived rule"
       | Some (Tactic _) ->
@@ -1441,11 +1432,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                     (fun _ -> showAlert ["nothing to redo!"]; None)))
 
         | "refreshdisplay", [] ->
-            begin match pinfs with
-            | Pinf {hist = WinHist {proofhist = Hist {now = Proofstate {givens = givens}}}} :: _ 
-                -> displayGivens givens
-            | _ -> ()
-            end;
+            (match pinfs with
+             | Pinf {hist = WinHist {proofhist = Hist {now = Proofstate {givens = givens}}}} :: _ 
+                 -> displayGivens givens
+             | _ -> ()
+            );
             env, mbs, ShowBoth, pinfs
 
         | "steps", quota :: _ -> timestotry := atoi quota; default
@@ -1724,35 +1715,35 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
               (fun () -> saverunning env mbs (disQuote name); default) *)
 
         | "done", [] ->
-            begin match pinfs with
-            | [] -> showAlert ["Not in a proof"]; default
-            | Pinf {title = t, _; proofnum = proofnum; hist = hist} ::
-              pinfs' ->
-                let proof = winhist_proofnow hist in
-                let disproof = winhist_disproofnow hist in
-                if finished proof disproof then
-                  if endproof proofnum t proof disproof
-                  then
-                    newfocus (env, mbs, DontShow, pinfs')
-                  else default
-                else begin showAlert ["Not finished yet!"]; default end
-            end
+            (match pinfs with
+             | [] -> showAlert ["Not in a proof"]; default
+             | Pinf {title = t, _; proofnum = proofnum; hist = hist} ::
+               pinfs' ->
+                 let proof = winhist_proofnow hist in
+                 let disproof = winhist_disproofnow hist in
+                 if finished proof disproof then
+                   if endproof proofnum t proof disproof
+                   then
+                     newfocus (env, mbs, DontShow, pinfs')
+                   else default
+                 else (showAlert ["Not finished yet!"]; default)
+            )
 
         | "showproof", stuff ->
             let name = name_of_string (respace stuff) in
-            begin match proofnamed name with
-            | None ->
-                showAlert ["No stored proof of "; string_of_name name];
-                default
-            | Some (_, tree, provisos, givens, _, disproofopt) ->
-                let proofstate =
-                  mkstate ((mkvisproviso <* provisos)) givens tree
-                in
-                newfocus
-                  (env, mbs, DontShow,
-                   addproofs true env [name, proofstate, disproofopt]
-                     pinfs)
-            end
+            (match proofnamed name with
+             | None ->
+                 showAlert ["No stored proof of "; string_of_name name];
+                 default
+             | Some (_, tree, provisos, givens, _, disproofopt) ->
+                 let proofstate =
+                   mkstate ((mkvisproviso <* provisos)) givens tree
+                 in
+                 newfocus
+                   (env, mbs, DontShow,
+                    addproofs true env [name, proofstate, disproofopt]
+                      pinfs)
+            )
 
         | "print", [path] ->
             inside c
@@ -1955,7 +1946,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                 (fun () -> Japeserver.quit (); raise QuitJape)
                 (fun () -> Japeserver.quit (); raise QuitJape)
                 (fun () -> Japeserver.dontquit (); default) ()
-            else begin Japeserver.quit (); raise QuitJape end
+            else (Japeserver.quit (); raise QuitJape)
 
         | "setfocus", [nstring] ->
             if not (null pinfs) then (
@@ -2085,7 +2076,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     match (!mbcache <@> var) with
     | Some r ->
         if !r = setting then ()
-        else begin notify (string_of_term setting, true); r := setting end
+        else (notify (string_of_term setting, true); r := setting)
     | None ->
         mbcache := (!mbcache ++ (var |-> ref setting));
         notify (string_of_term setting, true)
@@ -2161,17 +2152,17 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                   DClickConc,
                   (match hyps with
                    | [] ->
-                       begin match explodeCollection hs with
-                       | [h] ->
-                           [st, [], [el]; st, [h], [el]],
-                           (fun _ ->
-                              ["conclusion "; string_of_element el; " with no selected hypothesis, or with hypothesis ";
-                               string_of_element h])
-                       | _ ->
-                           [st, [], [el]],
-                           (fun _ ->
-                              ["conclusion "; string_of_element el; " with no selected hypothesis"])
-                       end
+                       (match explodeCollection hs with
+                        | [h] ->
+                            [st, [], [el]; st, [h], [el]],
+                            (fun _ ->
+                               ["conclusion "; string_of_element el; " with no selected hypothesis, or with hypothesis ";
+                                string_of_element h])
+                        | _ ->
+                            [st, [], [el]],
+                            (fun _ ->
+                               ["conclusion "; string_of_element el; " with no selected hypothesis"])
+                       )
                    | _ ->
                        [st, hyps, [el]],
                        (fun _ ->
@@ -2180,19 +2171,19 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                   DClickHyp,
                   (match concopt with
                    | None ->
-                       begin match explodeCollection gs with
-                       | [g] ->
-                           [st, hyps, []; st, hyps, [g]],
-                           (fun _ ->
-                              hypword hyps
-                                [" with no selected conclusion, or with conclusion ";
-                                 string_of_element g])
-                       | _ ->
-                           [st, hyps, []],
-                           (fun _ ->
-                              hypword hyps
-                                [" with no selected conclusion"])
-                       end
+                       (match explodeCollection gs with
+                        | [g] ->
+                            [st, hyps, []; st, hyps, [g]],
+                            (fun _ ->
+                               hypword hyps
+                                 [" with no selected conclusion, or with conclusion ";
+                                  string_of_element g])
+                        | _ ->
+                            [st, hyps, []],
+                            (fun _ ->
+                               hypword hyps
+                                 [" with no selected conclusion"])
+                       )
                    | Some (c, _) ->
                        [st, hyps, [c]],
                        (fun _ ->
@@ -2280,18 +2271,18 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                displayProvisos cxt; r)
               ShowDisproof
           else
-            begin match showit with
-            | ShowProof ->
-                doShowProof cxt (showState displaystate proofstate !autoselect) DontShow
-            | ShowDisproof ->
-                (match disproof with
-                 | Some d -> Disproof.showdisproof d
-                 | None   -> Disproof.cleardisproof ());
-                env, mbs, DontShow, pinfs
-            | ShowBoth ->
-                doShowProof cxt (showState displaystate proofstate !autoselect) ShowDisproof
-            | DontShow -> administer (Some displaystate)
-            end
+            (match showit with
+             | ShowProof ->
+                 doShowProof cxt (showState displaystate proofstate !autoselect) DontShow
+             | ShowDisproof ->
+                 (match disproof with
+                  | Some d -> Disproof.showdisproof d
+                  | None   -> Disproof.cleardisproof ());
+                 env, mbs, DontShow, pinfs
+             | ShowBoth ->
+                 doShowProof cxt (showState displaystate proofstate !autoselect) ShowDisproof
+             | DontShow -> administer (Some displaystate)
+            )
       | [] -> administer None
     with
     | Catastrophe_ ss ->
