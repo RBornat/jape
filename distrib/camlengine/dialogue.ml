@@ -265,7 +265,7 @@ let displaynames =
              
 let boxdisplaynames =
   ["boxlinedressright"; "foldformulae"; "hidecut"; "hidehyp"; "hidehypprev"; "hidetransitivity";
-   "hidereflexivity"; "hideuselesscuts"; "multiassumptionlines"]
+   "hidereflexivity"; "hideuselesscuts"; "multiassumptionlines"; "outermostbox"; "innerboxes"; "hidewhy"]
 
 let treedisplaynames =
   ["foldsequents"]
