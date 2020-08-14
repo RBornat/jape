@@ -41,8 +41,8 @@ When a named tactic is applied to arguments, a new environment is created by zip
 \item [\textsc{flatten} \textit{formula}] `flattens out' all subformulae of \textit{formula} in the conclusion of the current problem sequent by rewriting according to the rules of associativity. It's based on the same machinery as \textsc{assoceq}; see \textsc{evaluate} above and \chapref{funcprog}.
 
 
-\item [\textsc{fold} \textit{rulename} \textit{tactic}] Automatically `folds' collections of rules. See \chapref{funcprog} above.\\
-\item [\textsc{foldhyp} \textit{pattern tactic}] Automatically `folds' hypotheses. See \chapref{funcprog} above.\\
+\item [\textsc{fold} \textit{rulename} \textit{tactic}] Automatically `folds' collections of rules. See \chapref{funcprog} above.
+\item [\textsc{foldhyp} \textit{pattern tactic}] Automatically `folds' hypotheses. See \chapref{funcprog} above.
 \item [\textsc{if} \textit{tactic}] run \textit{tactic}, but succeed even if it fails.
 
 
@@ -124,7 +124,7 @@ In every case the tactics are run to produce a tree, part of which is then shown
 \item [\textsc{theoryalt} ] generated internally, and used when a particular mechanism, used only in the functional programming encoding, is searching for and caching rules. It's all rather horrid and extremely \textit{ad hoc}, and no further details will ever be released.
 
 
-\item [\textsc{unfold} \textit{rulename tactic}] see \textsc{fold} above.\\
+\item [\textsc{unfold} \textit{rulename tactic}] see \textsc{fold} above.
 \item [\textsc{unfoldhyp} \textit{formula tactic}] see \textsc{foldhyp} above.
 
 

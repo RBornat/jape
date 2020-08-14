@@ -319,7 +319,7 @@ Each time a rule is applied, its provisos are added to the set which is displaye
 
 A conjecture is stated as a rule without antecedents. Normally the first thing you do with a conjecture is to try to prove it. If that proof is successful, you can store it in the proof store and it will appear in the conjecture panel as a proved theorem. The provisos of a proved theorem are those given in the statement of the conjecture, plus any which arise and aren't satisfied during the proof.
 
-Jape will normally refuse to apply a conjecture until it is proved, but you can tell it not to be so cautious if you wish by setting \textj{applyconjectures} true.
+Jape will normally refuse to apply a conjecture until it is proved, but you can tell it not to be so cautious if you wish by setting \textj{applyconjectures} \texttt{none} (or \texttt{rules}, if you want to apply unproved derived rules).
 
 If the consequent of a theorem matches a problem sequent, but in so doing it doesn't use up all the hypotheses and conclusion formulae of the problem, then Jape is cautious. If the logic you are using has a declared \textsc{leftweaken} rule and there are too many hypotheses, then you could have first eliminated the extra hypotheses by applications of that rule, and then the theorem would have exactly used up all the remaining ones; similarly if it has a declared \textsc{rightweaken} rule and there are too many conclusions. But unless all that applies, the theorem will be said to be inapplicable.
 
