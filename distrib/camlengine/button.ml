@@ -133,22 +133,22 @@ let rec reloadmenusandpanels markconjecture oplist =
              (Japeserver.menuseparator string_of_menu));
       paneliter
         (fun (panel, kind) ->
-           let string_of_panel = string_of_name panel in
-           Japeserver.newpanel string_of_panel kind;
+           let panelstring = string_of_name panel in
+           Japeserver.newpanel panelstring kind;
            panelitemiter panel
              (fun (label, entry) ->
-                Japeserver.panelentry string_of_panel (string_of_name label) entry;
+                Japeserver.panelentry panelstring (string_of_name label) entry;
                 if kind = ConjecturePanelkind then
-                    Some mark ->
-                      Japeserver.markpanelentry string_of_panel entry mark
                   match markconjecture (name_of_string entry) with
+                  | Some mark ->
+                      Japeserver.markpanelentry panelstring entry mark
                   | _ -> ())
              (fun (name, cmd) -> (* button *)
-                Japeserver.panelbutton string_of_panel (string_of_name name) cmd)
+                Japeserver.panelbutton panelstring (string_of_name name) cmd)
              (* (fun (label, cmd) -> (* checkbox *)
-                   Japeserver.panelcheckbox string_of_panel (string_of_name label) cmd)
+                   Japeserver.panelcheckbox panelstring (string_of_name label) cmd)
                 (fun lcs -> (* radio button *)
-                   Japeserver.panelradiobutton string_of_panel
+                   Japeserver.panelradiobutton panelstring
                       (List.map (fun (n, v) -> string_of_name n, v) lcs))
               *));
       Japeserver.mapmenus true;
