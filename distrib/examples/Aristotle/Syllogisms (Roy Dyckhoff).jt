@@ -1,0 +1,108 @@
+/*
+    Copyright (C) 2020 Richard Bornat
+     
+        richard@bornat.me.uk
+
+    This file is part of the Aristotleian deductive logic encoding, distributed with jape.
+
+    Jape is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    Jape is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with jape; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    (or look at http://www.gnu.org).
+
+*/
+
+/* Roy Dyckhoff's contradiction-free attack on syllogisms.
+   Encoded by RB, 07/2020
+ */
+
+USE "Syllogisms syntax.j"
+USE "Syllogisms rules.j"
+USE "Syllogisms conjectures.j"
+
+INITIALISE autoAdditiveLeft true
+INITIALISE applyconjectures none
+
+INITIALISE displaystyle box
+INITIALISE outermostbox false
+
+INITIALISE hidecut true
+INITIALISE hidehyp true
+
+INITIALISE multihypsel true
+
+AUTOMATCH hyp
+
+RULES conversion ARE
+      FROM ∑⁺(S,P) INFER ∑⁺(P,S)
+  AND FROM ∏⁻(S,P) INFER ∏⁻(P,S)
+END
+
+RULES subaltern ARE
+      FROM ∏⁺(S,P) INFER ∑⁺(S,P)
+  AND FROM ∏⁻(S,P) INFER ∑⁻(S,P)
+END
+
+RULE Barbara(M)  IS FROM ∏⁺(M,P) AND ∏⁺(S,M) INFER ∏⁺(S,P)
+RULE Celarent(M) IS FROM ∏⁻(M,P) AND ∏⁺(S,M) INFER ∏⁻(S,P)
+RULE Bocardo(M)  IS FROM ∑⁻(M,P) AND ∏⁺(M,S) INFER ∑⁻(S,P)
+RULE Baroco(M)   IS FROM ∏⁺(P,M) AND ∑⁻(S,M) INFER ∑⁻(S,P)
+RULE Disamis(M)  IS FROM ∑⁺(M,P) AND ∏⁺(M,S) INFER ∑⁺(S,P)
+RULE Festino(M)  IS FROM ∏⁻(P,M) AND ∑⁺(S,M) INFER ∑⁻(S,P)
+
+MENU Rules IS
+
+  ENTRY "(B1, subaltern) ∏⁺(S,P) ⇒ ∑⁺(S,P)"    IS ForwardOrBackward ForwardCut 0 (LAYOUT B1 ALL subaltern'0)
+  ENTRY "(B2, subaltern) ∏⁻(S,P) ⇒ ∑⁻(S,P)"    IS ForwardOrBackward ForwardCut 0 (LAYOUT B2 ALL subaltern'1)
+  ENTRY "(B3, conversion) ∑⁺(S,P) ⇒ ∑⁺(P,S)"   IS ForwardOrBackward ForwardCut 0 (LAYOUT B3 ALL conversion'0)
+  ENTRY "(B4, conversion) ∏⁻(P,S) ⇒ ∏⁻(S,P)"   IS ForwardOrBackward ForwardCut 0 (LAYOUT B4 ALL conversion'1)
+
+  SEPARATOR
+  
+  ENTRY "(Barbara)  ∏⁺(M,P), ∏⁺(S,M) ⇒ ∏⁺(S,P)" IS "Syllogism-tac" Barbara  (∏⁺(_M,_P)) (∏⁺(_S,_M)) _M (∏⁺(_S,_P))
+  ENTRY "(Celarent) ∏⁻(M,P), ∏⁺(S,M) ⇒ ∏⁻(S,P)" IS "Syllogism-tac" Celarent (∏⁻(_M,_P)) (∏⁺(_S,_M)) _M (∏⁻(_S,_P))
+  ENTRY "(Bocardo)  ∑⁻(M,P), ∏⁺(M,S) ⇒ ∑⁻(S,P)" IS "Syllogism-tac" Bocardo  (∑⁻(_M,_P)) (∏⁺(_M,_S)) _M (∑⁻(_S,_P))
+  ENTRY "(Baroco)   ∏⁺(P,M), ∑⁻(S,M) ⇒ ∑⁻(S,P)" IS "Syllogism-tac" Baroco   (∏⁺(_P,_M)) (∑⁻(_S,_M)) _M (∑⁻(_S,_P))
+  ENTRY "(Disamis)  ∑⁺(M,P), ∏⁺(M,S) ⇒ ∑⁺(S,P)" IS "Syllogism-tac" Disamis  (∑⁺(_M,_P)) (∏⁺(_M,_S)) _M (∑⁺(_S,_P))
+  ENTRY "(Festino)  ∏⁻(P,M), ∑⁺(S,M) ⇒ ∑⁻(S,P)" IS "Syllogism-tac" Festino  (∏⁻(_P,_M)) (∑⁺(_S,_M)) _M (∑⁻(_S,_P))
+
+  SEPARATOR
+  
+  ENTRY "subaltern (∏⁺⇒∑⁺,∏⁻⇒∑⁻)" IS WHEN (LETHYP (∏⁺(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT B1 ALL subaltern'0)))
+                                          (LETHYP (∏⁻(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT B2 ALL subaltern'1)))
+                                          (LETHYP _A (Fail ("subaltern is not applicable to antecedent %t", _A)))
+                                          (LETGOAL (∑⁺(_S,_P)) (LAYOUT B1 ALL subaltern'0))
+                                          (LETGOAL (∑⁻(_S,_P)) (LAYOUT B2 ALL subaltern'1))
+                                          (LETGOAL _A (Fail ("subaltern is is not applicable to consequent %t", _A)))
+
+  ENTRY "conversion (∏⁻,∑⁺)" IS WHEN (LETHYP (∑⁺(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT B3 ALL conversion'0)))
+                                     (LETHYP (∏⁻(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT B4 ALL conversion'1)))
+                                     (LETHYP _A (Fail ("conversion is not applicable to antecedent %t", _A)))
+                                     (LETGOAL (∑⁺(_P,_S)) (LAYOUT B3 ALL conversion'0))
+                                     (LETGOAL (∏⁻(_P,_S)) (LAYOUT B4 ALL conversion'1))
+                                     (LETGOAL _A (Fail ("conversion is not applicable to consequent %t", _A)))
+  
+  SEPARATOR
+  
+  ENTRY hyp IS WHEN (LETHYP _A (hyp _A))
+                    hyp
+END
+
+MENU Edit
+  RADIOBUTTON displaystyle
+       "tree style"  IS tree
+  AND  "box style"   IS box
+  INITIALLY box
+  END
+END
+

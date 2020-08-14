@@ -1,6 +1,4 @@
 /*
-    $Id$
-
     Copyright (C) 2020 Richard Bornat
      
         richard@bornat.me.uk

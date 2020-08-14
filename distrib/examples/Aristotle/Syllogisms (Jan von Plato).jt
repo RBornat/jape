@@ -1,0 +1,131 @@
+/*
+    Copyright (C) 2020 Richard Bornat
+     
+        richard@bornat.me.uk
+
+    This file is part of the Aristotleian deductive logic encoding, distributed with jape.
+
+    Jape is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    Jape is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with jape; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    (or look at http://www.gnu.org).
+
+*/
+
+/* Aristotle's deductive logic according to von Plato.
+   Encoded by RB, 07/2020
+ */
+
+USE "Syllogisms syntax.j"
+USE "Syllogisms rules.j"
+USE "Syllogisms conjectures.j"
+
+INITIALISE autoAdditiveLeft true
+INITIALISE applyconjectures none
+
+INITIALISE displaystyle box
+INITIALISE outermostbox false
+INITIALISE innerboxes false
+
+INITIALISE outerassumptionword " assumption"
+INITIALISE innerassumptionword " (contradictory) assumption"
+
+INITIALISE multiassumptionlines false
+
+INITIALISE hidecut true
+INITIALISE hidehyp false
+INITIALISE hidehypprev true
+INITIALISE hidewhy true
+
+INITIALISE multihypsel true
+
+AUTOMATCH hyp
+
+RULE vp1 IS FROM ∏⁺(P,S) INFER ∑⁺(S,P)
+RULE vp2 IS FROM ∏⁻(P,S) INFER ∏⁻(S,P)
+
+DERIVED RULE vp3 IS FROM ∏⁻(P,S) INFER ∑⁻(S,P)
+DERIVED RULE vp4 IS FROM ∑⁺(P,S) INFER ∑⁺(S,P)
+
+RULE Barbara(M) IS FROM ∏⁺(M,P) AND ∏⁺(S,M) INFER ∏⁺(S,P)
+RULE Celarent(M) IS FROM ∏⁻(M,P) AND ∏⁺(S,M) INFER ∏⁻(S,P)
+
+RULES contra ARE
+      FROM ∏⁺(S,P) INFER ∑⁻(S,P)*
+  AND FROM ∏⁻(S,P) INFER ∑⁺(S,P)*      
+  AND FROM ∑⁺(S,P) INFER ∏⁻(S,P)*
+  AND FROM ∑⁻(S,P) INFER ∏⁺(S,P)*
+END
+
+TACTIC "contra-tac" IS LAYOUT HIDEROOT contra
+
+AUTOMATCH "contra-tac"
+
+MENU Rules IS
+  ENTRY "(vp1, subaltern) ∏⁺(P,S) ⇒ ∑⁺(S,P)"    IS ForwardOrBackward ForwardCut 0 vp1
+  ENTRY "(vp2, conversion) ∏⁻(P,S) ⇒ ∏⁻(S,P)"   IS ForwardOrBackward ForwardCut 0 vp2
+  ENTRY "(Barbara) ∏⁺(M,P), ∏⁺(S,M) ⇒ ∏⁺(S,P)"  IS "Syllogism-tac" Barbara (∏⁺(_M,_P)) (∏⁺(_S,_M)) _M (∏⁺(_S,_P))
+  ENTRY "(Celarent) ∏⁻(M,P), ∏⁺(S,M) ⇒ ∏⁻(S,P)" IS "Syllogism-tac" Celarent (∏⁻(_M,_P)) (∏⁺(_S,_M)) _M (∏⁻(_S,_P))
+
+  SEPARATOR
+  
+  ENTRY contra IS "contra-tac"
+
+  ENTRY "conversion (∏⁻,∑⁺)" IS WHEN (LETHYP (∏⁻(_P,_S)) (ForwardOrBackward ForwardCut 0 vp2))
+                                     (LETHYP (∑⁺(_P,_S)) (ForwardOrBackward ForwardCut 0 vp4))
+                                     (LETHYP _A (Fail ("conversion is not applicable to antecedent %t", _A)))
+                                     (LETGOAL (∏⁻(_S,_P)) vp2)
+                                     (LETGOAL (∑⁺(_S,_P)) vp4)
+                                     (LETGOAL _A (Fail ("conversion is not applicable to consequent %t", _A)))
+  
+  ENTRY "subaltern (∏⁺⇒∑⁺,∏⁻⇒∑⁻)" IS WHEN (LETHYP (∏⁺(_P,_S)) (ForwardOrBackward ForwardCut 0 vp1))
+                                          (LETHYP (∏⁻(_S,_P)) (ForwardOrBackward ForwardCut 0 vp3))
+                                          (LETHYP _A (Fail ("subaltern is not applicable to antecedent %t", _A)))
+                                          (LETGOAL (∑⁺(_S,_P)) vp1)
+                                          (LETGOAL (∑⁻(_S,_P)) vp3)
+                                          (LETGOAL _A (Fail ("subaltern is not applicable to consequent %t", _A)))
+
+  SEPARATOR
+  
+  ENTRY IP IS IP
+  
+  SEPARATOR
+  
+  ENTRY hyp IS WHEN (LETHYP _A (hyp _A))
+                    hyp
+END
+
+PATCHALERT "vp3 is unproved"
+           "The subaltern rule ∏⁻(P,S) ⇒ ∑⁻(S,P), which you need for the step \
+            \you chose, is unproved. It's vp3 in the Derived Rules panel. Prove it \
+            \before you use it. (It's easier to prove in Natural Deduction style.)"
+            ("OK")
+
+PATCHALERT "vp4 is unproved"
+           "The conversion rule ∑⁺(P,S) ⇒ ∑⁺(S,P), which you need for the step \
+            \you chose, is unproved. It's vp4 in the Derived Rules panel. Prove it \
+            \before you use it. (It's easier to prove in Natural Deduction style.)"
+            ("OK")
+
+MENU Edit
+  RADIOBUTTON displaystyle
+       "Natural deduction style"  IS tree
+  AND  "Aristotle style"          IS box
+  INITIALLY box
+  END
+END
+
+CONJECTUREPANEL "Derived Rules" IS
+  ENTRY "(vp3, subaltern) FROM ∏⁻(P,S) INFER ∑⁻(S,P)" IS vp3
+  ENTRY "(vp4, conversion) FROM ∑⁺(P,S) INFER ∑⁺(S,P)" IS vp4
+END
