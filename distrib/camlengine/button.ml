@@ -139,9 +139,9 @@ let rec reloadmenusandpanels markconjecture oplist =
              (fun (label, entry) ->
                 Japeserver.panelentry string_of_panel (string_of_name label) entry;
                 if kind = ConjecturePanelkind then
-                  match markconjecture label with
                     Some mark ->
                       Japeserver.markpanelentry string_of_panel entry mark
+                  match markconjecture (name_of_string entry) with
                   | _ -> ())
              (fun (name, cmd) -> (* button *)
                 Japeserver.panelbutton string_of_panel (string_of_name name) cmd)
