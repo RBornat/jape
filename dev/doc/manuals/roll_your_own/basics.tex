@@ -90,7 +90,7 @@ The proviso $\<E1>$ \textsc{unifieswith} $\<E2>$ is internally generated. It all
 
 \section{Conjectures and theorems}
 
-We allow the user to state a conjecture using the \textsc{theorem} directive.\footnote{Bernard and I had rows over this notation. I wanted to emphasise that it's a conjecture till it's proved; he wanted to emphasise that it is theorems, after all, that you are trying to prove. I still think I was righter than he was.} A proved conjecture becomes a theorem and can then be applied as a derived rule. If the state variable \texttt{applyconjectures} is set to $\<true>$ then unproved conjectures can be applied as well.
+We allow the user to state a conjecture using the \textsc{theorem} directive.\footnote{Bernard and I had rows over this notation. I wanted to emphasise that it's a conjecture till it's proved; he wanted to emphasise that it is theorems, after all, that you are trying to prove. I still think I was righter than he was.} A proved conjecture becomes a theorem and can then be applied as a derived rule. If the state variable \texttt{applyconjectures} is set to theorems, or to all, then unproved conjectures can be applied as well.
 
 The \textsc{theorem} directive gives the name of a conjecture and its sequent, and it may also include provisos which will be enforced both during the proof of the conjecture and whenever the theorem is applied. It is possible to define a theorem without giving a name, in which case the sequent itself is used as the name. The \textsc{theorems} directive allows you to state a collection of conjectures, and will give each its own sequent as a name. For example, the SCS.jt file defines a conjecture called \textit{contradiction}
 \begin{quote}

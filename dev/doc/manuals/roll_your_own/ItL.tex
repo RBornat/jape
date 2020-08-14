@@ -553,7 +553,7 @@ AUTOMATCH "inscope"
 
 We don't want novices to apply a conjecture until it is proved, and we don't want the engine to use a resolution step unless a tactic commands it:
 \begin{quote}\tt\small
-INITIALISE applyconjectures false\\
+INITIALISE applyconjectures none\\
 INITIALISE tryresolution false
 \end{quote}
 The display style should be box-and-line, and we want to control the naming of assumptions: the outermost assumption should be ``premise'', plural ``premises'' (the \texttt{innerassumption} settings look like a hangover from an earlier version of Jape, as those are the defaults anyway):

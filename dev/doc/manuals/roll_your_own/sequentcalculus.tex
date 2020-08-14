@@ -408,7 +408,7 @@ The first section adds a number of propositional theorems to the tactic store, e
 Jape has a number of variables which control parts of its operation --- for a complete list see \appxref{GUIlang}. In our encoding of the sequent calculus we have decided not to allow conjectures to be applied as theorems, not to allow theorems to be applied `resolution' style, generating antecedents if all their hypotheses don't match, and to display our proofs as Gentzen trees. The initialisations are:
 
 \begin{quote}\tt\small
-INITIALISE applyconjectures false\\
+INITIALISE applyconjectures none\\
 INITIALISE tryresolution false\\
 INITIALISE displaystyle tree
 \end{quote}
