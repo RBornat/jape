@@ -1,6 +1,4 @@
 /*
-    $Id$
-
     Copyright (C) 2020 Richard Bornat
      
         richard@bornat.me.uk
@@ -56,3 +54,25 @@ RULES IP(B) ARE /* WHERE the hypothesis is discharged exactly once ... */
  AND FROM ∑⁻(S,P) ⊢ B AND B* INFER ∏⁺(S,P) 
 END
 
+MACRO "Syllogism-step" (rule, hpat1, hpat2, mpat) IS
+  SEQ (rule mpat) (WITHHYPSEL (hyp (hpat1))) (WITHHYPSEL (hyp (hpat2)))
+  
+MACRO "Syllogism-tac" (rule, hpat1, hpat2, mpat, cpat) IS
+  WHEN (LETHYP2 hpat1 hpat2
+          (WHEN (LETCONC _A ("Syllogism-step" rule hpat1 hpat2 mpat))
+                (CUTIN ("Syllogism-step" rule hpat1 hpat2 mpat))
+          )
+       )
+       (LETHYP2 _A _B
+          (Fail ("%t is not applicable to the hypotheses %t and %t", rule, _A, _B))
+       )
+       (LETGOAL cpat
+          (WHEN (LETHYP hpat1 (rule mpat) (WITHHYPSEL (hyp (hpat1))))
+                (LETHYP hpat2 (rule mpat) SKIP (WITHHYPSEL (hyp (hpat2))))
+                (LETHYP _A (Fail ("%t is not applicable to the goal %t and hypothesis %t", rule, cpat, _A)))
+                rule
+          )
+       )
+       (LETGOAL _A (Fail ("%t does not infer the goal %t", rule, _A)))
+       (Fail "can't happen: Syllogism-tac out of alternatives")
+       
