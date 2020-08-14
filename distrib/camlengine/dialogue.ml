@@ -1717,8 +1717,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "done", [] ->
             (match pinfs with
              | [] -> showAlert ["Not in a proof"]; default
-             | Pinf {title = t, _; proofnum = proofnum; hist = hist} ::
-               pinfs' ->
+             | Pinf {title = t, _; proofnum = proofnum; hist = hist} :: pinfs' ->
                  let proof = winhist_proofnow hist in
                  let disproof = winhist_disproofnow hist in
                  if finished proof disproof then
