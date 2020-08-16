@@ -15,111 +15,115 @@ Note that the language described here is \textit{ad hoc} and subject to change w
 \subsection{Commands you might want to use}
 
 
-addnewconjecture \textit{panelname} \textit{conjecture}: this command is sent by the New\dots  button in a conjecture panel, after the user has typed the conjecture into a dialogue box.
+\begin{description}
+\item[addnewconjecture \textit{panelname} \textit{conjecture}]: this command is sent by the New\dots  button in a conjecture panel, after the user has typed the conjecture into a dialogue box.
 
-apply \textit{tacticexpression}: this command is used a lot: it is the way that menus and panels apply tactics. Don't forget that a rule name is a tactic expression.
-
-
-assign \textit{name} \textit{value}: the way that Jape's environment variables (q.v. below) are given values.
+\item[apply \textit{tacticexpression}]: this command is used a lot: it is the way that menus and panels apply tactics. Don't forget that a rule name is a tactic expression.
 
 
-backtrack: command sent by the Backtrack button in the Edit menu.
+\item[assign \textit{name} \textit{value}]: the way that Jape's environment variables (q.v. below) are given values.
 
 
-closedbugfile: close the top dbug file on the stack of such files (see createdbugfile below); redirect diagnostic output to the file below, or to the console if the stack is empty.
+\item[backtrack]: command sent by the Backtrack button in the Edit menu.
 
 
-collapse: the way that the Hide/Show detail entry in the Edit menu does its work.
+\item[closedbugfile]: close the top dbug file on the stack of such files (see createdbugfile below); redirect diagnostic output to the file below, or to the console if the stack is empty.
 
 
-createdbugfile: create a file, using the normal file selection dialogue, and redirect diagnostic input into it. There's a stack of these dbug files.
+\item[collapse]: the way that the Hide/Show detail entry in the Edit menu does its work.
 
 
-layout: has the same effect as double-clicking on the justification of the selected sequent.
-
-lemma \textit{panelname} \textit{conjecture}: synonym for addnewconjecture above.
+\item[createdbugfile]: create a file, using the normal file selection dialogue, and redirect diagnostic input into it. There's a stack of these dbug files.
 
 
-print \textit{filename}: generates a listing of the currently-focussed proof in \textit{filename}, in a form suitable for LaTeX processing.
+\item[layout]: has the same effect as double-clicking on the justification of the selected sequent.
 
-proof finished: (two words) how the Done entry (on the Mac) and the proof finished entry (on UNIX) in the Edit menu does its work.
-
-
-prove \textit{conjecturename}: how the Prove button in a conjecture panel does its work.
-
-prune: how the Prune entry in the Edit menu does its work.
-
-QUIT: kill the proof engine, after asking whether the user wants to save any proofs.
-
-redo: how the Redo entry in the Edit menu does its work.
-
-refreshdisplay: clear the currently-focussed proof window and redraw the proof it contains.
+\item[lemma \textit{panelname} \textit{conjecture}]: synonym for addnewconjecture above.
 
 
-reset: how the Reset entry (on the Mac) and the ?? entry (on UNIX) in the Edit menu do their work. On the Mac the Reset entry can be greyed-out even though some syntax definitions have been accepted: in that case typing the reset command to a Text Command window can be helpful.
+\item[print \textit{filename}]: generates a listing of the currently-focussed proof in \textit{filename}, in a form suitable for LaTeX processing.
+
+\item[proof finished]: (two words) how the Done entry (on the Mac) and the proof finished entry (on UNIX) in the Edit menu does its work.
 
 
-reset;reload: (no spaces, all one `word' with a semicolon in the middle!) how the Load New Theory entry in the File menu does its work.
+\item[prove \textit{conjecturename}]: how the Prove button in a conjecture panel does its work.
 
-showproof \textit{conjecturename}: how the Show Proof button on a conjecture panel does its work; opens a window with a proof of \textit{conjecturename} in it, if there is one in the proof store.
+\item[prune]: how the Prune entry in the Edit menu does its work.
+
+\item[QUIT]: kill the proof engine, after asking whether the user wants to save any proofs.
+
+\item[redo]: how the Redo entry in the Edit menu does its work.
+
+\item[refreshdisplay]: clear the currently-focussed proof window and redraw the proof it contains.
+
+
+\item[reset]: how the Reset entry (on the Mac) and the ?? entry (on UNIX) in the Edit menu do their work. On the Mac the Reset entry can be greyed-out even though some syntax definitions have been accepted: in that case typing the reset command to a Text Command window can be helpful.
+
+
+\item[reset;reload]: (no spaces, all one `word' with a semicolon in the middle!) how the Load New Theory entry in the File menu does its work.
+
+\item[showproof \textit{conjecturename}]: how the Show Proof button on a conjecture panel does its work; opens a window with a proof of \textit{conjecturename} in it, if there is one in the proof store.
 
 % no longer implemented ... saveengine \textit{filename}: saves the current proof engine, with all its settings, in a file. Useful for creating pre-initialised engines
 
-steps: display the value of the internal variable `timestotry' in an alert dialogue. See steps \textit{n} below.
+\item[steps]: display the value of the internal variable `timestotry' in an alert dialogue. See steps \textit{n} below.
 
 
-steps \textit{n}: set the value of the internal variable `timestotry' to the integer \textit{n}. This variable will, in the near future, be part of the default environment (q.v. below). The value of the variable controls the number of steps that Jape will allow in a single tactic application before failing with the message ``Time ran out''.
+\item[steps \textit{n}]: set the value of the internal variable `timestotry' to the integer \textit{n}. This variable will, in the near future, be part of the default environment (q.v. below). The value of the variable controls the number of steps that Jape will allow in a single tactic application before failing with the message ``Time ran out''.
 
 
-tellinterface \textit{variablename word word....}: send the current value of the variable \textit{variablename} to the interface, prefixed by the command \textit{word....}.
+\item[tellinterface \textit{variablename word word....}]: send the current value of the variable \textit{variablename} to the interface, prefixed by the command \textit{word....}.
 
 
-undo: the way that the Undo entry in the Edit menu and/or the Undo key do their work.
+\item[undo]: the way that the Undo entry in the Edit menu and/or the Undo key do their work.
 
 
-unify \textit{formulae}: Unify the given formulae and all of the user's text-selections. The way that the Unify button does its work.
+\item[unify \textit{formulae}]: Unify the given formulae and all of the user's text-selections. The way that the Unify button does its work.
 
 
-use \textit{filenames}: open each of the files named, read and execute the Japeish text they contain. The way that proof files are loaded and a new encodings or a modification to the current encoding is interpreted
+\item[use \textit{filenames}]: open each of the files named, read and execute the Japeish text they contain. The way that proof files are loaded and a new encodings or a modification to the current encoding is interpreted
 
 
-version: display the current version information of the Jape engine in an alert dialogue.
+\item[version]: display the current version information of the Jape engine in an alert dialogue.
 
+\end{description}
 
 \subsubsection{Arcana}
 
 
-cd \textit{path}: changes the default directory used by the proof engine. Only works in the UNIX implementations; don't use if you don't know what it does.
+\begin{description}
+\item[cd \textit{path}]: changes the default directory used by the proof engine. Only works in the UNIX implementations; don't use if you don't know what it does.
 
 
-closeproof \textit{n}: absolutely not to be used.
+\item[closeproof \textit{n}]: absolutely not to be used.
 
-DRAGQUERY: part of the drag-and-drop interface; don't use it.
+\item[DRAGQUERY]: part of the drag-and-drop interface; don't use it.
 
-DROPCOMMAND: part of the drag-and-drop interface; don't use it.
-
-
-fonts\_reset: command sent by the graphics interface when its fonts are altered. Triggers all sorts of cache mangling, but otherwise harmless.
+\item[DROPCOMMAND]: part of the drag-and-drop interface; don't use it.
 
 
-HITCOMMAND \textit{comm}: absolutely not to be used.
-
-NOHITCOMMAND \textit{comm}: absolutely not to be used.
+\item[fonts\_reset]: command sent by the graphics interface when its fonts are altered. Triggers all sorts of cache mangling, but otherwise harmless.
 
 
-profile [ on {\textbar} off {\textbar} reset {\textbar} report \textit{filename} ]: one of the mechanisms with which we debug the proof engine. Only works in specially-instrumented proof engines under \textsc{unix}.
+\item[HITCOMMAND \textit{comm}]: absolutely not to be used.
+
+\item[NOHITCOMMAND \textit{comm}]: absolutely not to be used.
 
 
-quit: kill the proof engine without asking any questions.
+\item[profile {[} on {\textbar} off {\textbar} reset {\textbar} report \textit{filename} {]}]: one of the mechanisms with which we debug the proof engine. Only works in specially-instrumented proof engines under \textsc{unix}.
 
-saveproofs \textit{word}: absolutely not to be used.
 
-setfocus \textit{n}: absolutely not to be used.
+\item[quit]: kill the proof engine without asking any questions.
 
-showfile \textit{filename}: possibly obsolete.
+\item[saveproofs \textit{word}]: absolutely not to be used.
 
-\textit{emptyword}: ignored.
+\item[setfocus \textit{n}]: absolutely not to be used.
 
+\item[showfile \textit{filename}]: possibly obsolete.
+
+\item[\textit{emptyword}]: ignored.
+
+\end{description}
 
 \section{Variables and the default environment}
 
