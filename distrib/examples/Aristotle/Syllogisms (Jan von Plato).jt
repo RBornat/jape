@@ -71,6 +71,15 @@ TACTIC "contra-tac" IS LAYOUT HIDEROOT contra
 
 AUTOMATCH "contra-tac"
 
+RULE dcontra IS FROM A INFER A**
+
+TACTIC remstar IS 
+  WHEN (LETGOAL (_A*) (LAYOUT HIDEROOT dcontra))
+       SKIP
+       
+TACTIC dogiven(i) IS SEQ remstar (GIVEN i)
+
+INITIALISE givenMenuTactic dogiven
 MENU Rules IS
   ENTRY "(vp1, subaltern) ∏⁺(P,S) ⇒ ∑⁺(S,P)"    IS ForwardOrBackward ForwardCut 0 vp1
   ENTRY "(vp2, conversion) ∏⁻(P,S) ⇒ ∏⁻(S,P)"   IS ForwardOrBackward ForwardCut 0 vp2
@@ -97,7 +106,7 @@ MENU Rules IS
 
   SEPARATOR
   
-  ENTRY IP IS IP
+  ENTRY IP IS (LAYOUT "IP" ALL IP)
   
   SEPARATOR
   
