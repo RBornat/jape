@@ -669,35 +669,36 @@ and transTactic tacterm =
                                 else _Bad "WHEN must be given guarded tactics"
                       in
                       okwhen tacs; WhenTac tacs
-              | "LETCONC"          -> mkBind f patbind "pattern" (fun v->BindConcTac v) ts
-              | "LETHYP"           -> mkBind f patbind "pattern" (fun v->BindHypTac v) ts
-              | "LETHYP2"          ->
-                      mkBind2 f patbind patbind "pattern" "pattern" (fun v->BindHyp2Tac v) ts
-              | "LETHYPS"          -> mkBind f patbind "pattern" (fun v->BindHypsTac v) ts
-              | "LETLHS"           -> mkBind f patbind "pattern" (fun v->BindLHSTac v) ts
-              | "LETRHS"           -> mkBind f patbind "pattern" (fun v->BindRHSTac v) ts
-              | "LETGOAL"          -> mkBind f patbind "pattern" (fun v->BindGoalTac v) ts
-              | "LETGOALPATH"      -> mkBind f namebind "name" (fun v->BindGoalPathTac v) ts
-              | "LETOPENSUBGOAL"   ->
-                      mkBind2 f namebind patbind "name" "pattern" (fun v->BindOpenSubGoalTac v)
-                              ts
-              | "LETOPENSUBGOALS"  ->
-                      mkBind f patbind "pattern" (fun v->BindOpenSubGoalsTac v) ts
-              | "LETARGSEL"        -> mkBind f patbind "pattern" (fun v->BindArgTac v) ts
-              | "LETARGTEXT"       -> mkBind f namebind "name" (fun v->BindArgTextTac v) ts
-              | "LETSUBSTSEL"      -> mkBind f patbind "pattern" (fun v->BindSubstTac v) ts
-              | "LETHYPSUBSTSEL"   ->
-                      mkBind f patbind "pattern" (fun v->BindSubstInHypTac v) ts
+              
+              | "LETARGSEL"        -> mkBind f patbind  "pattern" (fun v->BindArgTac v) ts
+              | "LETARGTEXT"       -> mkBind f namebind "name"    (fun v->BindArgTextTac v) ts
+              | "LETCONC"          -> mkBind f patbind  "pattern" (fun v->BindConcTac v) ts
+              | "LETCONCFIND"      -> mkBind f patbind  "pattern" (fun v->BindFindConcTac v) ts
               | "LETCONCSUBSTSEL"  ->
                       mkBind f patbind "pattern" (fun v->BindSubstInConcTac v) ts
-              | "LETMULTIARG"      -> mkBind f patbind "pattern" (fun v->BindMultiArgTac v) ts
-              | "LETHYPFIND"       -> mkBind f patbind "pattern" (fun v->BindFindHypTac v) ts
-              | "LETCONCFIND"      -> mkBind f patbind "pattern" (fun v->BindFindConcTac v) ts
+              | "LETGOAL"          -> mkBind f patbind  "pattern" (fun v->BindGoalTac v) ts
+              | "LETGOALPATH"      -> mkBind f namebind "name"    (fun v->BindGoalPathTac v) ts
+              | "LETHYP"           -> mkBind f patbind  "pattern" (fun v->BindHypTac v) ts
+              | "LETHYP2"          ->
+                      mkBind2 f patbind patbind "pattern" "pattern" (fun v->BindHyp2Tac v) ts
+              | "LETHYPS"          -> mkBind f patbind  "pattern" (fun v->BindHypsTac v) ts
+              | "LETHYPFIND"       -> mkBind f patbind  "pattern" (fun v->BindFindHypTac v) ts
+              | "LETHYPSUBSTSEL"   ->
+                      mkBind f patbind "pattern" (fun v->BindSubstInHypTac v) ts
+              | "LETLHS"           -> mkBind f patbind  "pattern"  (fun v->BindLHSTac v) ts
               | "LETLISTMATCH"          -> 
                    mkBind3 f patbind patbind valbind "car-pattern" "cdr-pattern" "expr" (fun v -> BindTuplistTac v) ts
-              | "LETMATCH"         -> mkBind2 f patbind valbind "pattern" "expr" (fun v -> BindMatchTac v) ts
+              | "LETMATCH"         -> 
+                   mkBind2 f patbind valbind "pattern" "expr" (fun v -> BindMatchTac v) ts
+              | "LETMULTIARG"      -> mkBind f patbind  "pattern" (fun v->BindMultiArgTac v) ts
+              | "LETRHS"           -> mkBind f patbind  "pattern" (fun v->BindRHSTac v) ts
               | "LETOCCURS"        -> 
                    mkBind3 f valbind valbind patbind "subexpr" "expr" "substitution expr" (fun v -> BindOccursTac v) ts
+              | "LETOPENSUBGOAL"   ->
+                   mkBind2 f namebind patbind "name" "p attern" (fun v->BindOpenSubGoalTac v) ts
+              | "LETOPENSUBGOALS"  -> mkBind f patbind  "pattern" (fun v->BindOpenSubGoalsTac v) ts
+              | "LETSUBSTSEL"      -> mkBind f patbind  "pattern" (fun v->BindSubstTac v) ts
+              
               | "LAYOUT"           -> mkLayout ts
               | "MATCH"            -> MatchTac (_SEQ1TAC f ts)
               | "SAMEPROVISOS"     -> SameProvisosTac (_SEQ1TAC f ts)
