@@ -17,214 +17,214 @@ At the time of writing the complete list of reserved words is
 In this description I use [... {\textbar} ... ] to describe alternatives, \{ ... \} to describe optional components, and ellipsis to denote optional repetition. I've used $|-$ as an entailment symbol: you choose the actual symbol in a \textsc{sequent} directive (see \secref{paraformlang:flexisyntax}).
 
 \begin{description}
-\item[\textsc{abstraction}] decorates a parameter in a \textsc{rule} or \textsc{theorem} directive. When the rule is instantiated, applications of this parameter to arguments are translated into substitutions, with a substitution variable which is made an \textsc{object} parameter of the rule. The effect is to simulate predicate notation with that parameter.
+\item[\textsc{abstraction}]: decorates a parameter in a \textsc{rule} or \textsc{theorem} directive. When the rule is instantiated, applications of this parameter to arguments are translated into substitutions, with a substitution variable which is made an \textsc{object} parameter of the rule. The effect is to simulate predicate notation with that parameter.
 
-\item[\textsc{and}] separator.
+\item[\textsc{and}]: separator.
 
-\item[\textsc{are}] separator.
+\item[\textsc{are}]: separator.
 
 \item[\textsc{automatch} %\textit{tacticname ... tacticname}] 
-\textit{tactic}] at the end of each proof step, run the %tactics (usually they are rules) 
+\textit{tactic}]: at the end of each proof step, run the %tactics (usually they are rules) 
 tactic (usually a rule) over each open tip of the tree, but only allow %them 
 it to work by `matching' --- that is, don't allow any unknowns in the tree to change as a result (see also \textsc{match} in the tactic language). (\textsc{automatch} is supposed to work with a space-separated sequence of tactics, and it used to, but at present it doesn't. )
 
 \item[\textsc{autounify} %\textit{tacticname ... tacticname}] 
-\textit{tactic}] same as \textsc{automatch} but without the restriction on working by `matching'. This directive is less used than \textsc{automatch}, chiefly because it is easy to make automatic steps which make large and/or unexpected and/or unhelpful changes to a proof. But sometimes it is the right thing: see for example the way that the Hindley-Milner algorithm encodings use \textsc{autounify} to determine the type of constants. (\textsc{autounify} is supposed to work with a space-separated sequence of tactics, and it used to, but at present it doesn't. )
+\textit{tactic}]: same as \textsc{automatch} but without the restriction on working by `matching'. This directive is less used than \textsc{automatch}, chiefly because it is easy to make automatic steps which make large and/or unexpected and/or unhelpful changes to a proof. But sometimes it is the right thing: see for example the way that the Hindley-Milner algorithm encodings use \textsc{autounify} to determine the type of constants. (\textsc{autounify} is supposed to work with a space-separated sequence of tactics, and it used to, but at present it doesn't. )
 
-\item[\textsc{bag \{} \texttt{<}kind\texttt{>} \textsc{\}} \textit{names}] see \secref{paraformlang:flexisyntax}.
+\item[\textsc{bag \{} \texttt{<}kind\texttt{>} \textsc{\}} \textit{names}]: see \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{beforeentry} \textit{label} \textsc{entry}] inserts an entry into a menu at a particular point.
+\item[\textsc{beforeentry} \textit{label} \textsc{entry}]: inserts an entry into a menu at a particular point.
 
-\item[\textsc{bind} \textit{variable ... variable} \textsc{scope} \textit{name ... name} \textsc{in} \textit{formula}] see \secref{paraformlang:flexisyntax}.
+\item[\textsc{bind} \textit{variable ... variable} \textsc{scope} \textit{name ... name} \textsc{in} \textit{formula}]: see \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{button} \textit{label} \{ \textsc{is} \} \textit{command}] allows you to attach a command to a label in a menu or a button on a panel (see \appxref{GUIlang}).
+\item[\textsc{button} \textit{label} \{ \textsc{is} \} \textit{command}]: allows you to attach a command to a label in a menu or a button on a panel (see \appxref{GUIlang}).
 
-\item[\textsc{checkbox} \textit{variable label} \{ \textsc{initially [} true {\textbar} false \textsc{]} \}] a checkbox is created associated with the named variable. If the variable doesn't exist in Jape's default environment this directive declares it, and its range of values will be true and false; if it exists, those must already be its range. The initial value, if included, is immediately assigned to the variable.
+\item[\textsc{checkbox} \textit{variable label} \{ \textsc{initially [} true {\textbar} false \textsc{]} \}]: a checkbox is created associated with the named variable. If the variable doesn't exist in Jape's default environment this directive declares it, and its range of values will be true and false; if it exists, those must already be its range. The initial value, if included, is immediately assigned to the variable.
 
 In a menu, \textit{label} appears ticked or unticked according to whether or not the value of \textit{variable} is true or false; in a panel you see a proper user-interface checkbox with that label.
 
-\item[\textsc{children}] see \textsc{world}. 
+\item[\textsc{children}]: see \textsc{world}. 
 
-\item[\textsc{class}  \texttt{<}kind\texttt{>} \textit{names}] see \secref{paraformlang:flexisyntax}.
+\item[\textsc{class}  \texttt{<}kind\texttt{>} \textit{names}]: see \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{command}] in a panel button description, replaced by the command of the selected entry.
+\item[\textsc{command}]: in a panel button description, replaced by the command of the selected entry.
 
-\item[\textsc{concfresh} \textit{variable}] proviso that \textit{variable} doesn't occur free in any right-hand-side formula of the consequent of a proof step. See \textsc{fresh}.
+\item[\textsc{concfresh} \textit{variable}]: proviso that \textit{variable} doesn't occur free in any right-hand-side formula of the consequent of a proof step. See \textsc{fresh}.
 
-\item[\textsc{conchit} \{ \{ \textit{formula1} \} |- \} \textit{formula2} \textsc{is} \textit{tactic}] if the user double-clicks on a right-hand-side formula matching \textit{formula2} then run \textit{tactic}. If \textit{formula1} also appears, then either the sequent must have a single left-hand-side formula matching it, or the user must also have selected a left-hand-side formula matching it. See also \textsc{hyphit}.
+\item[\textsc{conchit} \{ \{ \textit{formula1} \} |- \} \textit{formula2} \textsc{is} \textit{tactic}]: if the user double-clicks on a right-hand-side formula matching \textit{formula2} then run \textit{tactic}. If \textit{formula1} also appears, then either the sequent must have a single left-hand-side formula matching it, or the user must also have selected a left-hand-side formula matching it. See also \textsc{hyphit}.
 
-\item[\textsc{conjecturepanel} \textit{name} \{ \textsc{is} \} {[} \textit{entry} {\textbar} \textit{button} {]}* \textsc{end}] build a panel of conjectures. Each \textit{entry} is one of \textsc{theorem, theorems, derived rule, proof, currentproof} (the last two in saved-proof files); each \textit{button} is either \textsc{entry} or \textsc{button}. Entries add to the list of conjectures in the panel. 
+\item[\textsc{conjecturepanel} \textit{name} \{ \textsc{is} \} {[} \textit{entry} {\textbar} \textit{button} {]}* \textsc{end}]: build a panel of conjectures. Each \textit{entry} is one of \textsc{theorem, theorems, derived rule, proof, currentproof} (the last two in saved-proof files); each \textit{button} is either \textsc{entry} or \textsc{button}. Entries add to the list of conjectures in the panel. 
 
 In addition to the buttons explicitly described, every conjecture panel always has ``New\dots'', ``Prove'' and ``Show Proof'' buttons, and if there isn't a description of an ``Apply'' button then one is added as if you had written ``\textsc{button} Apply \textsc{is} apply \textsc{command}''. Like \textsc{menu}, a panel description can be divided into sections, and the complete description is just the concatenation of the various parts.
 
-\item[\textsc{constant} \textit{name ... name}] the \textit{name}s are defined to have the syntactic class \textsc{constant}. See \secref{paraformlang:flexisyntax}.
+\item[\textsc{constant} \textit{name ... name}]: the \textit{name}s are defined to have the syntactic class \textsc{constant}. See \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{currentproof} \textit{name sequent} \{ \textsc{where} \textit{provisos} \} \{ \textsc{formulae} \textit{formulae} \} \textsc{is} \textit{tactic}] same as \textsc{proof}, except that the proof of \textit{sequent} built by \textit{tactic} need not be complete, is not recorded in the proof store, and is displayed on the screen.
+\item[\textsc{currentproof} \textit{name sequent} \{ \textsc{where} \textit{provisos} \} \{ \textsc{formulae} \textit{formulae} \} \textsc{is} \textit{tactic}]: same as \textsc{proof}, except that the proof of \textit{sequent} built by \textit{tactic} need not be complete, is not recorded in the proof store, and is displayed on the screen.
 
-\item[\textsc{cut} \textit{rulename}] synonym for \textsc{structurerule} \textsc{cut}; see \secref{paraformlang:structurerules}.
+\item[\textsc{cut} \textit{rulename}]: synonym for \textsc{structurerule} \textsc{cut}; see \secref{paraformlang:structurerules}.
 
-\item[\textsc{derived}] used in \textsc{derived rule} to specify a rule that needs proof.
+\item[\textsc{derived}]: used in \textsc{derived rule} to specify a rule that needs proof.
 
-\item[\textsc{distinct} \textit{variable, ..., variable}] synonym for lots of \textsc{notin} provisos. Used, especially, to shorten proof display of provisos.
+\item[\textsc{distinct} \textit{variable, ..., variable}]: synonym for lots of \textsc{notin} provisos. Used, especially, to shorten proof display of provisos.
 
-\item[\textsc{disproof}] obsolete; see \textsc{currentproof} and \textsc{proof}.
+\item[\textsc{disproof}]: obsolete; see \textsc{currentproof} and \textsc{proof}.
 
-\item[\textsc{end}] closer in lots of directives.
+\item[\textsc{end}]: closer in lots of directives.
 
-\item[\textsc{entry} \textit{name} \{ \{ \textsc{is} \} \textit{tactic} \} \{ \textsc{menukey} \textit{letter} \}] describes an entry in a menu or in the list of a panel. May only appear as part of a \textsc{menu} or \textsc{panel} directive; \textsc{menukey} is permitted when part of a \textsc{menu} directive. The label is \textit{name}; if the \textit{tactic} component is omitted then the tactic expression \textit{name} is used; if the \textsc{menukey} component is included then \textit{letter} is used as the `command key' of that label. When the label is selected in a menu, the command ``apply \textit{tactic}'' is transmitted to the proof engine; when the label is selected in a panel, there is no effect until a \textsc{button} is pressed.
+\item[\textsc{entry} \textit{name} \{ \{ \textsc{is} \} \textit{tactic} \} \{ \textsc{menukey} \textit{letter} \}]: describes an entry in a menu or in the list of a panel. May only appear as part of a \textsc{menu} or \textsc{panel} directive; \textsc{menukey} is permitted when part of a \textsc{menu} directive. The label is \textit{name}; if the \textit{tactic} component is omitted then the tactic expression \textit{name} is used; if the \textsc{menukey} component is included then \textit{letter} is used as the `command key' of that label. When the label is selected in a menu, the command ``apply \textit{tactic}'' is transmitted to the proof engine; when the label is selected in a panel, there is no effect until a \textsc{button} is pressed.
 
-\item[\textsc{fonts} \textit{name}] Obsolete.
+\item[\textsc{fonts} \textit{name}]: Obsolete.
 
-\item[\textsc{forcedef} \textit{formula} {[}\textsc{is}{]} \textit{forcing\_definition}] Part of the way that Kripke semantics is described. See \textj{I2L\_disproof.j}.
+\item[\textsc{forcedef} \textit{formula} {[}\textsc{is}{]} \textit{forcing\_definition}]: Part of the way that Kripke semantics is described. See \textj{I2L\_disproof.j}.
 
-\item[\textsc{formula} \textit{name ... name}] the \textit{name}s are declared to be in the syntactic class \textsc{formula}. See \secref{paraformlang:flexisyntax}.
+\item[\textsc{formula} \textit{name ... name}]: the \textit{name}s are declared to be in the syntactic class \textsc{formula}. See \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{formulae}] separator in \textsc{proof} and \textsc{currentproof}.
+\item[\textsc{formulae}]: separator in \textsc{proof} and \textsc{currentproof}.
 
-\item[\textsc{fresh} \textit{variable}] proviso in a rule or theorem. \textit{Variable} mustn't appear free in any hypothesis or conclusion of the sequent to which the rule or theorem is applied. This proviso is translated into \textsc{notin} provisos for each of the formulae of that sequent.
+\item[\textsc{fresh} \textit{variable}]: proviso in a rule or theorem. \textit{Variable} mustn't appear free in any hypothesis or conclusion of the sequent to which the rule or theorem is applied. This proviso is translated into \textsc{notin} provisos for each of the formulae of that sequent.
 
-\item[\textsc{from}] separator.
+\item[\textsc{from}]: separator.
 
-\item[\textsc{givenpanel}] you can make panels of `given' antecedents when proving derived rules.
+\item[\textsc{givenpanel}]: you can make panels of `given' antecedents when proving derived rules.
 
-\item[\textsc{hypfresh} \textit{variable}] \textit{variable} doesn't occur free in any hypothesis of the problem sequent. See \textsc{fresh.}
+\item[\textsc{hypfresh} \textit{variable}]: \textit{variable} doesn't occur free in any hypothesis of the problem sequent. See \textsc{fresh.}
 
-\item[\textsc{hyphit} \textit{formula1} |- \{ \textit{formula}2 \} \textsc{is} \textit{tactic}] if the user double-clicks on a left-hand-side \textit{formula}1 then run \textit{tactic}. If \textit{formula}2 appears then either the sequent must have a single right-hand side which matches \textit{formula}2, or the user must also select a right-hand-side formula matching \textit{formula}2 in order for \textit{tactic} to fire.
+\item[\textsc{hyphit} \textit{formula1} |- \{ \textit{formula}2 \} \textsc{is} \textit{tactic}]: if the user double-clicks on a left-hand-side \textit{formula}1 then run \textit{tactic}. If \textit{formula}2 appears then either the sequent must have a single right-hand side which matches \textit{formula}2, or the user must also select a right-hand-side formula matching \textit{formula}2 in order for \textit{tactic} to fire.
 
-\item[\textsc{identity} \textit{rulename}] synonym for \textsc{structurerule} \textsc{identity}; see \secref{paraformlang:structurerules}.
+\item[\textsc{identity} \textit{rulename}]: synonym for \textsc{structurerule} \textsc{identity}; see \secref{paraformlang:structurerules}.
 
-\item[\textsc{in}] connective in binding directive.
+\item[\textsc{in}]: connective in binding directive.
 
-\item[\textsc{impconcfresh}, \textsc{impfresh}, \textsc{imphypfresh}] something internal to do with the processing of \textsc{fresh} provisos. I can't remember what they do; I hope you never see one.
+\item[\textsc{impconcfresh}, \textsc{impfresh}, \textsc{imphypfresh}]: something internal to do with the processing of \textsc{fresh} provisos. I can't remember what they do; I hope you never see one.
 
-\item[\textsc{ infer }] connective in \textsc{rule} directive.
+\item[\textsc{ infer }]: connective in \textsc{rule} directive.
 
-\item[\textsc{infix} \textit{precedence} \textsc{[} L {\textbar} R {\textbar} T \textsc{]} \textit{operatorname ... operatorname}] the names are declared to be infix binary operators with the given precedence; L means left-associative, R right-associative, T tupling. Instances of formulae such as \textit{A} \textit{op} \textit{B} are then treated internally as if they were `uncurried' function applications --- that is, as if you had written (\textit{op})(\textit{A},\textit{B}). Note no commas. See \secref{paraformlang:flexisyntax}.
+\item[\textsc{infix} \textit{precedence} \textsc{[} L {\textbar} R {\textbar} T \textsc{]} \textit{operatorname ... operatorname}]: the names are declared to be infix binary operators with the given precedence; L means left-associative, R right-associative, T tupling. Instances of formulae such as \textit{A} \textit{op} \textit{B} are then treated internally as if they were `uncurried' function applications --- that is, as if you had written (\textit{op})(\textit{A},\textit{B}). Note no commas. See \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{infixc} \textit{precedence} \textsc{[} L {\textbar} R {\textbar} T \textsc{]} \textit{operatorname ... operatorname}] similar to \textsc{infix}, but parsed `curried' so that \textit{A} \textit{op} \textit{B} is then treated internally as if you had written (\textit{op}) \textit{A} \textit{B}.
+\item[\textsc{infixc} \textit{precedence} \textsc{[} L {\textbar} R {\textbar} T \textsc{]} \textit{operatorname ... operatorname}]: similar to \textsc{infix}, but parsed `curried' so that \textit{A} \textit{op} \textit{B} is then treated internally as if you had written (\textit{op}) \textit{A} \textit{B}.
 
-\item[\textsc{initially}] part of the \textsc{radiobutton} and \textsc{checkbox} directives.
+\item[\textsc{initially}]: part of the \textsc{radiobutton} and \textsc{checkbox} directives.
 
-\item[\textsc{initialise} \textit{variablename} \textit{value}] the variable named is assigned the value given. See the discussion of variables in \appxref{GUIlang}.
+\item[\textsc{initialise} \textit{variablename} \textit{value}]: the variable named is assigned the value given. See the discussion of variables in \appxref{GUIlang}.
 
-\item[\textsc{is}] connective, often omitted.
+\item[\textsc{is}]: connective, often omitted.
 
-\item[\textsc{judgement}] Obsolete.
+\item[\textsc{judgement}]: Obsolete.
 
-\item[\textsc{juxtfix} \textit{precedence}] defines syntactic precedence of juxtaposition: see \secref{paraformlang:flexisyntax}.
+\item[\textsc{juxtfix} \textit{precedence}]: defines syntactic precedence of juxtaposition: see \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{keyboard} \textit{symbol} ... \textit{symbol}] defines the symbols to be included on the on-screen keyboard in appropriate input windows (Unify, Text Command, etc.). In the absence of a \textsc{keyboard} directive, you get all the symbols that don't appear on the average real keyboard, in no particular order.
+\item[\textsc{keyboard} \textit{symbol} ... \textit{symbol}]: defines the symbols to be included on the on-screen keyboard in appropriate input windows (Unify, Text Command, etc.). In the absence of a \textsc{keyboard} directive, you get all the symbols that don't appear on the average real keyboard, in no particular order.
 
-\item[\textsc{label}] in a panel button description, insert the label of the selected entry. Cf. \textsc{command}.
+\item[\textsc{label}]: in a panel button description, insert the label of the selected entry. Cf. \textsc{command}.
 
-\item[\textsc{labels}] part of the notation used to define Kripke trees in saved proofs/disproofs.
+\item[\textsc{labels}]: part of the notation used to define Kripke trees in saved proofs/disproofs.
 
-\item[\textsc{leftfix} \textit{precedence} \textit{bra} \{ \textit{punct}1 \textit{... punctN} \}] defines bracketed form which misses a closing bracket. See \secref{paraformlang:flexisyntax}.
+\item[\textsc{leftfix} \textit{precedence} \textit{bra} \{ \textit{punct}1 \textit{... punctN} \}]: defines bracketed form which misses a closing bracket. See \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{leftweaken} \textit{rulename}] synonym for \textsc{structurerule} \textsc{leftweaken}; see \secref{paraformlang:structurerules}.
+\item[\textsc{leftweaken} \textit{rulename}]: synonym for \textsc{structurerule} \textsc{leftweaken}; see \secref{paraformlang:structurerules}.
 
-\item[\textsc{list \texttt{<}}kind\textsc{\texttt{>}} \textit{names}] the names are declared to be in the syntactic class \textsc{list}; see \secref{paraformlang:flexisyntax}.
+\item[\textsc{list \texttt{<}}kind\textsc{\texttt{>}} \textit{names}]: the names are declared to be in the syntactic class \textsc{list}; see \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{macro}] a variant of \textsc{tactic}. A \textsc{macro}'s arguments aren't evaluated; they are useful mostly because you can pass patterns like \_A=\_B as arguments.
+\item[\textsc{macro}]: a variant of \textsc{tactic}. A \textsc{macro}'s arguments aren't evaluated; they are useful mostly because you can pass patterns like \_A=\_B as arguments.
 
-\item[\textsc{menu} \textit{name} \textsc{is} \textit{entry ... entry} \textsc{end}] the effect of the entries (which can be \textsc{rule, rules, derived rule, tactic, theorem, theorems, theory, proof, currentproof, entry, button, radiobutton, checkbox} or \textsc{separator)} are added to the menu named \textit{name}. \textsc{menu} directives for the same menu are accumulated in sequence, and need not be given all in one place.
+\item[\textsc{menu} \textit{name} \textsc{is} \textit{entry ... entry} \textsc{end}]: the effect of the entries (which can be \textsc{rule, rules, derived rule, tactic, theorem, theorems, theory, proof, currentproof, entry, button, radiobutton, checkbox} or \textsc{separator)} are added to the menu named \textit{name}. \textsc{menu} directives for the same menu are accumulated in sequence, and need not be given all in one place.
 
-\item[\textsc{menukey} \textit{letter}] part of the \textsc{entry} directive when used inside a \textsc{menu} description.
+\item[\textsc{menukey} \textit{letter}]: part of the \textsc{entry} directive when used inside a \textsc{menu} description.
 
 \item[\textsc{midfix} \textit{priority} \textit{symbol} ... \textit{symbol}]\! like \textsc{leftfix} and \textsc{rightfix}, but without an opening or closing bracket, only separators.
  
-\item[\textit{name} \textsc{notin} \textit{formula}] a proviso that \textit{name} must not occur free in \textit{formula}. Often generated as the result of a \textsc{fresh, hypfresh} or \textsc{concfresh} proviso; sometimes included in its own right.
+\item[\textit{name} \textsc{notin} \textit{formula}]: a proviso that \textit{name} must not occur free in \textit{formula}. Often generated as the result of a \textsc{fresh, hypfresh} or \textsc{concfresh} proviso; sometimes included in its own right.
 
-\item[\textsc{number} \textit{name ... name}] the \textit{name}s are declared to be in the syntactic class \textsc{number}. See \secref{paraformlang:flexisyntax}.
+\item[\textsc{number} \textit{name ... name}]: the \textit{name}s are declared to be in the syntactic class \textsc{number}. See \secref{paraformlang:flexisyntax}.
 
 \item[\textsc{notoneof}]: directive is \textit{variable} \textsc{in} \textit{pattern} \textsc{notoneof} \textit{listformula}. It's a terrible hack, used (so far only in) the Hindley-Milner encoding to try to implement an environment stack in the context (oh dear!). Example:
 \begin{japeish}
 RULE "C ⊢ x⇒S" WHERE x IN x⇒S' NOTONEOF C' IS INFER C,x⇒S,C' ⊢ x⇒S
 \end{japeish}
 
-\item[\textsc{object} \textit{name}] decorates a parameter in a \textsc{rule} or \textsc{theorem} directive. When the rule is instantiated, the parameter is replaced by a newly-minted variable rather than an unknown (e.g. x rather than \_x), unless this default assignment is overridden by provision of an argument formula.
+\item[\textsc{object} \textit{name}]: decorates a parameter in a \textsc{rule} or \textsc{theorem} directive. When the rule is instantiated, the parameter is replaced by a newly-minted variable rather than an unknown (e.g. x rather than \_x), unless this default assignment is overridden by provision of an argument formula.
 
-\item[\textsc{outfix} \textit{bra} \{ \textit{punct1} ... \textit{punctN} \} \textit{ket}] bracketed form with optional internal separators; see \secref{paraformlang:flexisyntax}.
+\item[\textsc{outfix} \textit{bra} \{ \textit{punct1} ... \textit{punctN} \} \textit{ket}]: bracketed form with optional internal separators; see \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{patchalert}] for overriding alert messages. See \chapref{Hoare}.
+\item[\textsc{patchalert}]: for overriding alert messages. See \chapref{Hoare}.
 
-\item[\textsc{popsyntax}] see \textsc{pushsyntax}.
+\item[\textsc{popsyntax}]: see \textsc{pushsyntax}.
 
-\item[\textsc{pushsyntax} \textit{syntax definitions} \textsc{popsyntax}] It's possible to inherit  syntactic descriptions by enclosing them in \textsc{pushsyntax} / \textsc{popsyntax} brackets. The outer syntax must express all the symbols of the inner, but not necessarily with the same syntactic priorities.
+\item[\textsc{pushsyntax} \textit{syntax definitions} \textsc{popsyntax}]: It's possible to inherit  syntactic descriptions by enclosing them in \textsc{pushsyntax} / \textsc{popsyntax} brackets. The outer syntax must express all the symbols of the inner, but not necessarily with the same syntactic priorities.
 
-\item[\textsc{postfix} \textit{precedence operator ... operator}] postfix operators; see \secref{paraformlang:flexisyntax}.
+\item[\textsc{postfix} \textit{precedence operator ... operator}]: postfix operators; see \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{prefix} \textit{precedence operator ... operator}] prefix operators; see \secref{paraformlang:flexisyntax}.
+\item[\textsc{prefix} \textit{precedence operator ... operator}]: prefix operators; see \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{proof} \textit{name sequent} \{ \textsc{where} \textit{provisos} \} \{ \textsc{formulae} \textit{formulae} \} \textsc{is} \textit{tactic}] generated when you save proofs. \textit{Sequent} (together with \textit{provisos} if present) is a statement of the conjecture named \textit{name}, and \textit{tactic}, when run, will produce a proof of that conjecture. \textit{Formulae}, if present, are a numbered list of the formulae that occur in \textit{tactic}, provided to reduce the size of the directive and thus the cost of reading it all in (really!). If it all works out: if \textit{sequent} unifies with the statement of conjecture \textit{name}, if \textit{tactic} produces a completed proof without introducing any additional unifications or inventing more or less provisos, then the resulting proof is stored under \textit{name} in the proof store.
+\item[\textsc{proof} \textit{name sequent} \{ \textsc{where} \textit{provisos} \} \{ \textsc{formulae} \textit{formulae} \} \textsc{is} \textit{tactic}]: generated when you save proofs. \textit{Sequent} (together with \textit{provisos} if present) is a statement of the conjecture named \textit{name}, and \textit{tactic}, when run, will produce a proof of that conjecture. \textit{Formulae}, if present, are a numbered list of the formulae that occur in \textit{tactic}, provided to reduce the size of the directive and thus the cost of reading it all in (really!). If it all works out: if \textit{sequent} unifies with the statement of conjecture \textit{name}, if \textit{tactic} produces a completed proof without introducing any additional unifications or inventing more or less provisos, then the resulting proof is stored under \textit{name} in the proof store.
 
-\item[\textsc{radiobutton} \textit{variablename} \{ \textsc{is} \} \textit{label} \{ \textsc{is} \} \textit{value} \{ \textsc{and} \textit{label} \{ \textsc{is} \} \textit{value} \}* \{ \textsc{initially} \textit{value} \} \textsc{end}] a radio button with the list of labels given is associated with the named variable. If that variable doesn't exist it is declared by this directive, and its range of possible values is those given here; if it does exist the values given here must be in its range. If an initial value is given, the variable is assigned that value immediately.
+\item[\textsc{radiobutton} \textit{variablename} \{ \textsc{is} \} \textit{label} \{ \textsc{is} \} \textit{value} \{ \textsc{and} \textit{label} \{ \textsc{is} \} \textit{value} \}* \{ \textsc{initially} \textit{value} \} \textsc{end}]: a radio button with the list of labels given is associated with the named variable. If that variable doesn't exist it is declared by this directive, and its range of possible values is those given here; if it does exist the values given here must be in its range. If an initial value is given, the variable is assigned that value immediately.
 
 In a menu a radio button is shown as a sequence of labels, one of which is ticked according to the value of the variable. Currently you can't put a radio button in a panel (sorry).%; in a panel it is a proper Macintosh-style radio button.
 
-\item[\textsc{reflexive} \textit{rule name}] declares r\^ole of a rule. Rule must be of the form A \textit{op} A.
+\item[\textsc{reflexive} \textit{rule name}]: declares r\^ole of a rule. Rule must be of the form A \textit{op} A.
 
-\item[\textsc{renameentry} \textit{oldlabel} \textit{newlabel}] change the labelling in a menu.
+\item[\textsc{renameentry} \textit{oldlabel} \textit{newlabel}]: change the labelling in a menu.
 
-\item[\textsc{rightfix} \textit{precedence} \{ \textit{punct}1 ... \textit{punctN} \} \textit{ket}] defines bracketed form with closing bracket but no opening bracket. See \secref{paraformlang:flexisyntax}.
+\item[\textsc{rightfix} \textit{precedence} \{ \textit{punct}1 ... \textit{punctN} \} \textit{ket}]: defines bracketed form with closing bracket but no opening bracket. See \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{rightweaken}] synonym for \textsc{structurerule} \textsc{rightweaken}; see \secref{paraformlang:structurerules}.
+\item[\textsc{rightweaken}]: synonym for \textsc{structurerule} \textsc{rightweaken}; see \secref{paraformlang:structurerules}.
 
-\item[\textsc{rule} \textit{rule}] definition of a rule. Puts a \textit{rule} into the tactic store with name \textit{name}; if it appears inside a \textsc{menu} or \textsc{panel} definition then the effect is also of \textsc{entry} \textit{name} \textsc{is} \textit{name}. See \secref{paraformlang:rulestacticsconjectures}.
+\item[\textsc{rule} \textit{rule}]: definition of a rule. Puts a \textit{rule} into the tactic store with name \textit{name}; if it appears inside a \textsc{menu} or \textsc{panel} definition then the effect is also of \textsc{entry} \textit{name} \textsc{is} \textit{name}. See \secref{paraformlang:rulestacticsconjectures}.
 
-\item[\textsc{rules} \textit{name} \{ ( \textit{params} ) \} \{ \textsc{where} \textit{provisos} \} \textsc{are} \textit{rule1} \textsc{and ... and} \textit{ruleN} \textsc{end}] definition of a number of rules, organised automatically into an \textsc{alt} tactic.
+\item[\textsc{rules} \textit{name} \{ ( \textit{params} ) \} \{ \textsc{where} \textit{provisos} \} \textsc{are} \textit{rule1} \textsc{and ... and} \textit{ruleN} \textsc{end}]: definition of a number of rules, organised automatically into an \textsc{alt} tactic.
 
 Each \textit{rule} is an unnamed rule definition (see \secref{paraformlang:rulestacticsconjectures}); each is considered to be qualified by \textit{params} and \textit{provisos} from the head of the directive, filtered according to the names that occur in each rule (that is, if a particular parameter doesn't occur in a rule, you don't get that parameter declaration with that rule, and you don't get any provisos that mention it). The rules are entered into the tactic store under the names \textit{name'1 ... name'N}; at the same time a tactic \textsc{alt} \textit{name'1 ... name'N} is entered under \textit{name}.
 
 If it occurs in a \textsc{menu} or a \textsc{panel} directive, \textsc{rules} \textit{name ...} has the effect also of \textsc{entry} \textit{name}: several rules are defined, but only one entry appears.
 
-\item[\textsc{scope}] part of the \textsc{bind} directive.
+\item[\textsc{scope}]: part of the \textsc{bind} directive.
 
-\item[\textsc{semantics}] see \textsc{world} (I'll add more here soon).
+\item[\textsc{semantics}]: see \textsc{world} (I'll add more here soon).
 
-\item[\textsc{semanticturnstile} \textsc{entailssymbol} \textsc{semanticturnstile}] defines the semantic turnstile associated with a particular entails symbol (syntactic turnstile).
+\item[\textsc{semanticturnstile} \textsc{entailssymbol} \textsc{semanticturnstile}]: defines the semantic turnstile associated with a particular entails symbol (syntactic turnstile).
 
-\item[\textsc{separator}] used in the definition of a \textsc{menu}, gives a division between entries. %On a panel, probably has no effect.
+\item[\textsc{separator}]: used in the definition of a \textsc{menu}, gives a division between entries. %On a panel, probably has no effect.
 
-\item[\textsc{sequent is} {[} \textsc{bag} {\textbar} \textsc{list} {\textbar} \textsc{formula} {]} |- {[} \textsc{bag} {\textbar} \textsc{list} {\textbar} \textsc{formula} {]}] definition of sequent syntax. |- is declared as the entails symbol. See \secref{paraformlang:flexisyntax}.
+\item[\textsc{sequent is} {[} \textsc{bag} {\textbar} \textsc{list} {\textbar} \textsc{formula} {]} |- {[} \textsc{bag} {\textbar} \textsc{list} {\textbar} \textsc{formula} {]}]: definition of sequent syntax. |- is declared as the entails symbol. See \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{string} \textit{name ... name}] names defined to be in syntactic class \textsc{string}; see \secref{paraformlang:flexisyntax}.
+\item[\textsc{string} \textit{name ... name}]: names defined to be in syntactic class \textsc{string}; see \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{structurerule} {[} \textsc{cut} {\textbar} \textsc{identity} {\textbar} \textsc{leftweaken} {\textbar} \textsc{rightweaken} {\textbar} \textsc{weaken} {]} \textsc{is} \textit{name}] the rule called \textit{name} is defined to have a particular property. See \secref{paraformlang:structurerules}.
+\item[\textsc{structurerule} {[} \textsc{cut} {\textbar} \textsc{identity} {\textbar} \textsc{leftweaken} {\textbar} \textsc{rightweaken} {\textbar} \textsc{weaken} {]} \textsc{is} \textit{name}]: the rule called \textit{name} is defined to have a particular property. See \secref{paraformlang:structurerules}.
 
-\item[\textsc{substfix} \textit{precedence} \{ \textit{bra fst sep snd ket} \}] defines the syntactic precedence of substitution forms and, optionally, their appearance as well. See \secref{paraformlang:flexisyntax}.
+\item[\textsc{substfix} \textit{precedence} \{ \textit{bra fst sep snd ket} \}]: defines the syntactic precedence of substitution forms and, optionally, their appearance as well. See \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{tactic} \textit{name} \{ ( \textit{name1}, \dots, \textit{nameN} ) \} \{ \textsc{is} \} \textit{tactic}] puts a tactic with name \textit{name} and parameters \textit{name1}, \dots, \textit{nameN} into the tactic store. If it appears inside a \textsc{menu} or \textsc{panel} definition then the effect is also of \textsc{entry} \textit{name}.%; in a \textsc{tacticpanel} it has the effect of \textsc{entry} \textit{name} \textsc{is} apply \textit{name}. 
+\item[\textsc{tactic} \textit{name} \{ ( \textit{name1}, \dots, \textit{nameN} ) \} \{ \textsc{is} \} \textit{tactic}]: puts a tactic with name \textit{name} and parameters \textit{name1}, \dots, \textit{nameN} into the tactic store. If it appears inside a \textsc{menu} or \textsc{panel} definition then the effect is also of \textsc{entry} \textit{name}.%; in a \textsc{tacticpanel} it has the effect of \textsc{entry} \textit{name} \textsc{is} apply \textit{name}. 
 See \secref{paraformlang:rulestacticsconjectures}.
 
-\item[\textsc{tacticpanel} \textit{name} \{ \textsc{is} \} \textsc{[} \textit{entry} {\textbar} \textit{button} \textsc{]}* \textsc{end}] very like \textsc{conjecturepanel}, except that there are no extra buttons and no default buttons and each entry labels a command, rule or tactic rather than a conjecture. %Tactics, rules and conjectures included in a \textsc{tacticpanel} description are associated with the command ``apply \textit{name}'' where \textit{name} is the name of the tactic, rule or conjecture.
+\item[\textsc{tacticpanel} \textit{name} \{ \textsc{is} \} \textsc{[} \textit{entry} {\textbar} \textit{button} \textsc{]}* \textsc{end}]: very like \textsc{conjecturepanel}, except that there are no extra buttons and no default buttons and each entry labels a command, rule or tactic rather than a conjecture. %Tactics, rules and conjectures included in a \textsc{tacticpanel} description are associated with the command ``apply \textit{name}'' where \textit{name} is the name of the tactic, rule or conjecture.
 
-\item[\textsc{theorem} \textit{conjecture}] puts a conjecture into the tactic store. Jape's conjectures are always `theorem schemata', in the sense that they stand for any substitution-instance of the theorem's sequent. See \secref{paraformlang:rulestacticsconjectures}.
+\item[\textsc{theorem} \textit{conjecture}]: puts a conjecture into the tactic store. Jape's conjectures are always `theorem schemata', in the sense that they stand for any substitution-instance of the theorem's sequent. See \secref{paraformlang:rulestacticsconjectures}.
 
-\item[\textsc{theorems} \textit{name} \{ \textit{params} \} \{ \textsc{where} \textit{provisos} \} \textsc{are} \textit{theorem1} \textsc{and} ... \textsc{and} \textit{theoremN} \textsc{end}] define a collection of conjectures which are organised into an \textsc{alt} tactic.
+\item[\textsc{theorems} \textit{name} \{ \textit{params} \} \{ \textsc{where} \textit{provisos} \} \textsc{are} \textit{theorem1} \textsc{and} ... \textsc{and} \textit{theoremN} \textsc{end}]: define a collection of conjectures which are organised into an \textsc{alt} tactic.
 
 Each \textit{theorem} is an unnamed conjecture (see \secref{paraformlang:rulestacticsconjectures}); each theorem is added to the tactic store prefixed by \textit{params} and \textit{provisos} in the same way as in the \textsc{rules} directive; at the same time a tactic \textsc{alt} \textit{theorem1 \dots theoremN} is added to the tactic store under \textit{name}. If included in a menu or panel description, an \textsc{entry} is created for each conjecture. The effect is to define a number of conjectures with evocative names, and to allow searching of the collection if desired. See also \textsc{theorem}.
 
-\item[\textsc{theory} \textit{name} \{ \textsc{is} \} \textit{directive ... directive} \textsc{end}] the directives may be \textsc{rule, rules, tactic, theorem, theorems} or \textsc{theory}; an \textsc{alt} tactic is made of the various directives and added to the tactic store under \textit{name}. If \textsc{theory} occurs in a menu or panel description, the effect is as if the directives occurred separately (that is, Jape does not add an entry corresponding to the overall \textsc{alt} tactic).
+\item[\textsc{theory} \textit{name} \{ \textsc{is} \} \textit{directive ... directive} \textsc{end}]: the directives may be \textsc{rule, rules, tactic, theorem, theorems} or \textsc{theory}; an \textsc{alt} tactic is made of the various directives and added to the tactic store under \textit{name}. If \textsc{theory} occurs in a menu or panel description, the effect is as if the directives occurred separately (that is, Jape does not add an entry corresponding to the overall \textsc{alt} tactic).
 
-\item[\textsc{transitive}] like \textsc{reflexive} (I'll put more here soon).
+\item[\textsc{transitive}]: like \textsc{reflexive} (I'll put more here soon).
 
-\item[\textsc{umenu}] for the life of me I can't remember.
+\item[\textsc{umenu}]: for the life of me I can't remember.
      
-\item[\textit{formula}\textsc{unifieswith} \textit{formula}] a proviso which requires that the two formulae should unify. Used to delay unification when difficult substitutions get in the way.
+\item[\textit{formula}\textsc{unifieswith} \textit{formula}]: a proviso which requires that the two formulae should unify. Used to delay unification when difficult substitutions get in the way.
 
 
-\item[\textit{collection} \textsc{unifieswith} \textit{collection}] a proviso which helps when contexts are split. See \chapref{sequentvariations}.
+\item[\textit{collection} \textsc{unifieswith} \textit{collection}]: a proviso which helps when contexts are split. See \chapref{sequentvariations}.
 
-\item[\textsc{use} ``\textit{filename}''] same effect as C's \#include ``\textit{filename}''.
+\item[\textsc{use} ``\textit{filename}'']: same effect as C's \#include ``\textit{filename}''.
 
-\item[\textsc{variable} \textit{name ... name}] names defined to be of syntactic class \textsc{variable}; see \secref{paraformlang:flexisyntax}.
+\item[\textsc{variable} \textit{name ... name}]: names defined to be of syntactic class \textsc{variable}; see \secref{paraformlang:flexisyntax}.
 
-\item[\textsc{weaken}] synonym for \textsc{leftweaken}.
+\item[\textsc{weaken}]: synonym for \textsc{leftweaken}.
 
-\item[\textsc{where}] prefixes a list of proviso declarations.
+\item[\textsc{where}]: prefixes a list of proviso declarations.
 
-\item[\textsc{world}] something to do with Kripke trees. When I remember anything about it, I'll come back and fill this in.
+\item[\textsc{world}]: something to do with Kripke trees. When I remember anything about it, I'll come back and fill this in.
 
 \end{description}
  
@@ -332,29 +332,29 @@ There is a facility to use a sort of resolution step when applying a theorem. If
 It is necessary for the application of conjectures as rules, and for the proper operation of the box display mechanism, for Jape to be informed of the presence of certain kinds of structural rules in the logic. The rules we cater for are the various kinds of identity (hypothesis, axiom), cut and weakening rules.
 
 \begin{description}
-\item[\textsc{cut}] declares a `cut' rule. Applications of the rule will normally be hidden in the box display mode of Jape. This directive is required before Jape will properly interpret \textj{tryresolution} (see \appxref{GUIlang}). Cut rules have to be one of the following forms: 
+\item[\textsc{cut}]: declares a `cut' rule. Applications of the rule will normally be hidden in the box display mode of Jape. This directive is required before Jape will properly interpret \textj{tryresolution} (see \appxref{GUIlang}). Cut rules have to be one of the following forms: 
 \begin{itemize}
 \item $(B) \textsc{ from } \Gamma |- B \textsc{ and } \Gamma, B |- C \textsc{ infer } \Gamma |- C$; 
 \item $(B) \textsc{ from } \Gamma |- B, \Delta \textsc{ and } \Gamma, B |- \Delta \textsc{ infer } \Gamma |- \Delta$;
 \item $(B) \textsc{ from } \Gamma |- B, \Delta \textsc{ and } \Theta, B |- \Pi \textsc{ infer } \Gamma, \Theta |- \Delta, \Pi$.
 \end{itemize}
 
-\item[identity] declares an `identity' rule. Instances of the application of this rule are normally hidden in box display mode. Allowable forms are:
+\item[identity]: declares an `identity' rule. Instances of the application of this rule are normally hidden in box display mode. Allowable forms are:
 \begin{itemize}
 \item $\Gamma, B |- B$;
 \item $\Gamma, B |- B, \Delta$
 \item $\Gamma, B, \Delta |- B$.
 \end{itemize}
 
-\item[leftweaken] declares a `left weakening' rule. Essential if Jape is to be able to apply theorems which don't have enough hypotheses to match the whole of the problem sequent. Valid forms are:
+\item[leftweaken]: declares a `left weakening' rule. Essential if Jape is to be able to apply theorems which don't have enough hypotheses to match the whole of the problem sequent. Valid forms are:
 \begin{itemize}
 \item $(B) \textsc{ from } \Gamma |- C \textsc{ infer } \Gamma, B |- C$;
 \item $(B) \textsc{ from } \Gamma |- \Delta \textsc{ infer } \Gamma, B |- \Delta$.
 \end{itemize}
 
-\item[rightweaken] similar to \textsc{leftweaken}, and plays a similar r\^{o}le in theorem application. The only allowable form of the rule is $(B) \textsc{ from } \Gamma |- \Delta \textsc{ infer } \Gamma |- B, \Delta$
+\item[rightweaken]: similar to \textsc{leftweaken}, and plays a similar r\^{o}le in theorem application. The only allowable form of the rule is $(B) \textsc{ from } \Gamma |- \Delta \textsc{ infer } \Gamma |- B, \Delta$
 
-\item[weaken] see \textsc{leftweaken}.
+\item[weaken]: see \textsc{leftweaken}.
 
 \end{description}
 
@@ -425,15 +425,15 @@ The rules of a logic are written in terms of various symbols --- logical operato
 Jape recognises four distinct kinds of symbol:
 
 \begin{description}
-\item[identifiers,] which are rather like programming language identifiers or mathematical variable names: sequences of characters which start with an alphabetic character and optionally continue with any sequence of alphabetic and/or numeric characters and/or primes (\textsc{ascii} single quotes). Actually Jape's identifiers can start with any defined sequence of characters, given in a \textsc{class} directive, though some choices --- like using commas or arithmetic operator characters --- may be more confusing than useful.
+\item[identifiers], which are rather like programming language identifiers or mathematical variable names: sequences of characters which start with an alphabetic character and optionally continue with any sequence of alphabetic and/or numeric characters and/or primes (\textsc{ascii} single quotes). Actually Jape's identifiers can start with any defined sequence of characters, given in a \textsc{class} directive, though some choices --- like using commas or arithmetic operator characters --- may be more confusing than useful.
 
-\item[unknowns,] which are are written as an underscore followed by an identifier.
+\item[unknowns], which are are written as an underscore followed by an identifier.
 
-\item[numbers,] which are sequences of numeric characters.
+\item[numbers], which are sequences of numeric characters.
 
-\item[strings,] which start with an \textsc{ascii} double-quote, continue with any sequence of characters not including newline or double-quote, and end with an \textsc{ascii} double-quote.
+\item[strings], which start with an \textsc{ascii} double-quote, continue with any sequence of characters not including newline or double-quote, and end with an \textsc{ascii} double-quote.
 
-\item[special symbols,] which are user-defined sequences of characters containing anything other than Jape's reserved characters. Everything else goes, though some choices --- like using primes or commas inside a special symbol --- may be more confusing than useful. Special symbols are defined in \textsc{infix, prefix, postfix, leftfix} and \textsc{outfix} directives.
+\item[special symbols], which are user-defined sequences of characters containing anything other than Jape's reserved characters. Everything else goes, though some choices --- like using primes or commas inside a special symbol --- may be more confusing than useful. Special symbols are defined in \textsc{infix, prefix, postfix, leftfix} and \textsc{outfix} directives.
 \end{description}
 
 Special symbols are always used as constants, and usually as operators or some kind of brackets, and they are defined implicitly by including them in various kinds of syntactic definitions. Identifiers can also be used as operators or brackets, by using them in just the same kind of syntactic definition.
