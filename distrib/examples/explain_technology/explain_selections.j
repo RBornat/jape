@@ -123,11 +123,11 @@ TACTIC ComplainForwardNoHyp (fpat, stepname, shape, extra) IS
                   ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))
 
 TACTIC ComplainForwardExtraHyps (fpat, stepname, shape, allhyps, testhyps) IS
-   WHEN (LETLISTMATCH fpat _Hs testhyps
+   WHEN (LETTUPLE fpat _Hs testhyps
             (ALERT ("To make a forward step with %s you must select a hypothesis of the form %s. \
                     \\nYou selected more than that: %l.", frule, shape, (allhyps, ", ", " and "))
                    ("OK", STOP)))
-        (LETLISTMATCH _H1 _Hs testhyps
+        (LETTUPLE _H1 _Hs testhyps
             (ComplainForwardExtraHyps fpat stepname shape allhyps _Hs))
         (ALERT ("To make a forward step with %s you must select a hypothesis of the form %s. \
                     \\nYou selected more than one hypothesis -- %l -- but none of them matched %s.", 

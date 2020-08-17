@@ -47,7 +47,7 @@ TACTIC "A = .." IS
             (WHEN
                 (LETHYP (_B=_C)
                     (WHEN
-                        (LETMATCH (ANTIQUOTE _A) _B
+                        (LETUNIFY (ANTIQUOTE _A) _B
                             (LAYOUT "equality-substitution")
                             (WITHSUBSTSEL "rewrite=")
                             (WITHHYPSEL hyp)
@@ -109,7 +109,7 @@ TACTIC ".. = B" IS
             (WHEN
                 (LETHYP (_B=_C)
                     (WHEN
-                        (LETMATCH (ANTIQUOTE _A) _C
+                        (LETUNIFY (ANTIQUOTE _A) _C
                             (LAYOUT "equality-substitution")
                             (WITHSUBSTSEL "rewrite=")
                             (LAYOUT HIDEROOT "symmetric=")
@@ -203,7 +203,7 @@ TACTIC "∧ intro*"  IS
         (LETGOAL (_P∧_Q)  
             (LAYOUT COMPRESS "∧ intro") 
             "∧ intro" "∧ intro*" 
-            (LETMATCH _G tacticresult "∧ intro*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
+            (LETUNIFY _G tacticresult "∧ intro*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
 TACTIC "sequence*"  IS
@@ -211,14 +211,14 @@ TACTIC "sequence*"  IS
         (LETGOAL ({_A} (_C1; _C2) {_B})  
             (LAYOUT COMPRESS "sequence") 
             "sequence" "sequence*" 
-            (LETMATCH _G tacticresult "sequence*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
+            (LETUNIFY _G tacticresult "sequence*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
 TACTIC "Ntuple*"  IS
     ALT   
         (LAYOUT COMPRESS "Ntuple" ALL
             "Ntuple" "Ntuple*" 
-            (LETMATCH _G tacticresult "Ntuple*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
+            (LETUNIFY _G tacticresult "Ntuple*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
 TACTIC "NtupleInner*"  IS
@@ -226,20 +226,20 @@ TACTIC "NtupleInner*"  IS
         (LETGOAL ({_A}(_B{_C}_D){_E})  
             (LAYOUT COMPRESS "NtupleInner") 
             "NtupleInner" "NtupleInner*" 
-            (LETMATCH _G tacticresult "NtupleInner*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
+            (LETUNIFY _G tacticresult "NtupleInner*" (ASSIGN tacticresult _G))) /* take leftmost GOALPATH */
         (trueforward (QUOTE (LETGOALPATH G (ASSIGN tacticresult G))))
 
 /* multiple compressed forward steps are harder still */
 
 TACTIC "∧ elim* step"(P, rule, H) IS
     WHEN    
-        (LETMATCH (_P∧_Q)  P  
+        (LETUNIFY (_P∧_Q)  P  
             (CUTIN (LAYOUT HIDEROOT) rule (LETGOAL _A (UNIFY _A H) hyp)))
         (CUTIN (LAYOUT "∧ elim") rule (LETGOAL _A (UNIFY _A H) hyp))
 
 TACTIC "∧ elim*"(P)  IS
     WHEN    
-        (LETMATCH (_P∧_Q)  P    
+        (LETUNIFY (_P∧_Q)  P    
             ("∧ elim* step" _P  "∧ elim(L)" P) 
             ("∧ elim*" _P) 
             ("∧ elim* step" _Q  "∧ elim(R)" P) 
@@ -249,15 +249,15 @@ TACTIC "∧ elim*"(P)  IS
 TACTIC obviouslytac IS
   WHEN
     (LETHYPS _A 
-      (LETLISTMATCH _A1 _B _A /* must work ... */
+      (LETTUPLE _A1 _B _A /* must work ... */
         (WHEN   
-          (LETLISTMATCH _B1 _C _B 
+          (LETTUPLE _B1 _C _B 
             (WHEN
-              (LETLISTMATCH _C1 _D _C 
+              (LETTUPLE _C1 _D _C 
                 (WHEN 
-                  (LETLISTMATCH _D1 _E _D 
+                  (LETTUPLE _D1 _E _D 
                     (WHEN
-                      (LETLISTMATCH _E1 _F _E 
+                      (LETTUPLE _E1 _F _E 
                         (ALERT 
                             ("Unfortunately, Jape is set up to recognise only up to \
                              \four ‘obvious’ links. You selected too many (%l).\n\n\

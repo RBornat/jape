@@ -354,11 +354,11 @@ TACTIC "∃ intro forward checktextsel" (varstuff) IS
                 ("∃ intro forward complain" varstuff (" (you didn't subformula-select anything, or you subformula-selected several different things)")))
 
 MACRO "∃ intro forward checksamehyp" (h, sel, i) IS
-    WHEN    (LETMATCH h sel SKIP)
+    WHEN    (LETUNIFY h sel SKIP)
             ("∃ intro forward complain" " (as you did)" (" (your subformula selection %t isn't inside the hypothesis %t)", i, h))
 
 MACRO "∃ intro forward checkvar"(i,j) IS
-    WHEN    (LETMATCH i j SKIP)
+    WHEN    (LETUNIFY i j SKIP)
             ("∃ intro forward complain" (" (you selected actual %t)",i) (" (you subformula-selected instance(s) of %t, which doesn't match %t)", j, i))
 
 MACRO "∃ intro forward doit" (P1,x1,i1) IS
@@ -516,7 +516,7 @@ TACTIC "targeted forward 2"(action, stepname, hyp) IS
 MACRO "targeted forward single"(action, stepname, path, selhyp, ogoal) IS
     LETGOALPATH G1
         (WHEN 
-                (LETMATCH path G1 action) /* just do it, it's the next line */
+                (LETUNIFY path G1 action) /* just do it, it's the next line */
                 (ALERT  ("The %s step needs a target conclusion to work towards. \
                             \There's only one unproved conclusion (%t) which is relevant to the hypothesis %t \
                             \which you selected.\

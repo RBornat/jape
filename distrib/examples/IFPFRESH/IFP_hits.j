@@ -114,11 +114,11 @@ TACTIC NotNotElimHit
                  /* We cannot simply say: (LETGOAL (_B) ...) here.
                     The LET forms introduce NEW pattern variables,
                     so we need to check that the goal is the hyp
-                    with a (LETMATCH _B _G ...)
+                    with a (LETUNIFY _B _G ...)
                  */
                  /* (ALERT ("Goal is %s |- %s", _B, _G)) */
                  /* Goal same as hyp: just apply the rule */ 
-                     (LETMATCH _G _B ("¬¬ elim"[B\_B])))
+                     (LETUNIFY _G _B ("¬¬ elim"[B\_B])))
                  /* Goal distinct from hyp: cut with _B, then apply the rule */
                      (SEQ (cut[B\_B]) ("¬¬ elim"[B\_B]) (WITHHYPSEL (hyp)))))
       (Fail "¬¬ elim cannot be used forwards or backwards here")
