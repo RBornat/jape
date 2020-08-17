@@ -74,43 +74,42 @@ and \textit{antes} is a possibly-empty bracketed tuple of numbers or the word \t
 
 In every case the tactics are run to produce a tree, part of which is then shown. \textsc{hideroot} shows the tree without its root (and, I think, works properly if there are several antecedents); \textsc{hidecut} hides the root iff it's a \textsc{cut} step; the others show the tree with some of its antecedents hidden. Antecedents are numbered from 0, so if \textit{antes} is (1,3), for example, only the second and fourth antecedents will be shown. By double-clicking on the justification produced by \textsc{layout} it's possible to toggle between various different displays of the tree -- essentially between `hidden' and `full' form. There are various variables, with names ending with `fmt' (see variable table below) which affect what happens with this tactical. (I wish I'd documented the thing when I still understood it, and I promise to update this if and when I ever understand it again.)
 
-\item [\textsc{letargsel} \textit{pattern tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has made a \textit{single} text selection, parse that text and unify it with \textit{pattern}; then proceed as normal for a binding tactic.
-\item [\textsc{letargtext} \textit{name tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has made a \textit{single} text selection, unify that text with \textit{name}; then proceed as normal for a binding tactic.
+\item [Various \textsc{let} ... \textit{tactic... tactic} tacticals] all of which use `matching' (specialised unification, see `binding tactic' below). All of them are `guarded tactics' which can be used in \textsc{when}. In each case, if the match succeeds, proceed with \textit{tactic... tactic}; otherwise fail. \vspace{-25pt}
 
-\item [\textsc{letconc} \textit{pattern tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has formula-selected a conclusion, unify it with \textit{pattern}; then proceed as normal for a binding tactic.
+\begin{description}\item[] \item [\textsc{letargsel} \textit{pattern tactic... tactic}]: if the user has made a \textit{single} text selection, parse that text and match it with \textit{pattern}; 
 
-\item [\textsc{letconcfind} \textit{pattern tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has made a single text selection \textit{fs} in a conclusion formula \textit{C} so that \textit{C} consists of \textit{f1} followed by \textit{fs} followed by \textit{f2}, if the text \textit{f1} (\textit{fs}) \textit{f2} is a parseable formula, and if the formula (\textit{C}, \textit{f1} (\textit{fs}) \textit{f2}) unifies with \textit{pattern}, then: if \textit{C} is not structurally the same formula as \textit{f1} (\textit{fs}) \textit{f2} proceed as normal for a binding tactic; if they are the same formula, succeed silently, without running the sequence \textit{tactic... tactic}.
+\item [\textsc{letargtext} \textit{name tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has made a \textit{single} text selection, bind the text to \textit{name}; 
 
+\item [\textsc{letconc} \textit{pattern tactic... tactic}]: if the user has formula-selected a conclusion, match it with \textit{pattern}; 
+
+\item [\textsc{letconcfind} \textit{pattern tactic... tactic}]: if the user has made a single text selection \textit{f} in a conclusion formula \textit{C} so that \textit{C} consists of \textit{f1} followed by \textit{f} followed by \textit{f2}, if the text \textit{f1} (\textit{f}) \textit{f2} is a parseable formula, and if the formula (\textit{C}, \textit{f1} (\textit{f}) \textit{f2}) matches \textit{pattern}, then: if \textit{C} is not structurally the same formula as \textit{f1} (\textit{f}) \textit{f2} succeed; if it is the same, succeed silently, without running the sequence \textit{tactic... tactic}.
 
 \item [\textsc{letconcsubstsel} \textit{pattern tactic... tactic}]: like \textsc{letsubstsel} (q.v. below) except that the text-selection must be made in a conclusion (right-hand side) formula.
 
-\item [\textsc{letgoal} \textit{pattern tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the current problem sequent has a single conclusion formula, unify it with \textit{pattern}; then proceed as normal for a binding tactic.
+\item [\textsc{letgoal} \textit{pattern tactic... tactic}]: if the current problem sequent has a single conclusion formula, match it with \textit{pattern}; 
 
-\item [\textsc{letgoalpath}  \textit{name tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). Bind the path to the current goal with \textit{name}; then proceed as normal for a binding tactic.
-\item [\textsc{lethyp} \textit{pattern tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has formula-selected a hypothesis formula, unify it with \textit{pattern}; then proceed as normal for a binding tactic.
-\item [\textsc{lethyp2} \textit{pattern1 pattern2 tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has formula-selected two hypothesis formulae, unify them with \textit{pattern1} and \textit{pattern2} (order of selection irrelevant); then proceed as normal for a binding tactic.
-\item [\textsc{lethyps} \textit{pattern tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has formula-selected one or more hypothesis formulae, unify them, as a tuple, with \textit{pattern}; then proceed as normal for a binding tactic.
-
-
-\item [\textsc{lethypfind} \textit{pattern tactic... tactic}]: just like \textsc{letconcfind} (q.v. above), except that the single text-selection must be made in a hypothesis formula.
-
-\item [\textsc{lethypsubstsel} \textit{pattern tactic... tactic}]: like \textsc{letsubstsel} (q.v. below) except that the text-selection must be made in a hypothesis formula of the current problem sequent.
-
-\item[\textsc{letlhs, letrhs}]: stuff to do with transitive reasoning. Will document when I find out what they do.
-
-\item[\textsc{letlistmatch}]: ??
-
-\item [\textsc{letmatch} \textit{pat1 pat2} \textit{tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If \textit{pat1} matches with \textit{pat2} (note: matches not unifies -- see \textsc{letunify}), proceed as normal for a binding tactic.
+\item [\textsc{letgoalpath}  \textit{name tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). Bind the path to the current goal with \textit{name}; 
+\item [\textsc{lethyp} \textit{pattern tactic... tactic}]: if the user has formula-selected a single hypothesis formula, unify it with \textit{pattern}; 
+\item [\textsc{lethyp2} \textit{pattern1 pattern2 tactic... tactic}]: If the user has formula-selected two hypothesis formulae, match them with \textit{pattern1} and \textit{pattern2} (order of selection irrelevant -- Jape tries both ways, if necessary); 
+\item [\textsc{lethyps} \textit{pattern tactic... tactic}]: if the user has formula-selected one or more hypothesis formulae, match them, as a tuple, with \textit{pattern}; 
 
 
-\item [\textsc{letmultisel} \textit{pattern tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). Unify all the user's text-selections, expressed as a tuple of formulae, with \textit{pattern}; then proceed as normal for a binding tactic.
+\item [\textsc{lethypfind} \textit{pattern tactic... tactic}]: just like \textsc{letconcfind} (q.v. above), except that the single text-selection must be made in a hypothesis formula;
 
-\item [\textsc{letoccurs}]: ??
+\item [\textsc{lethypsubstsel} \textit{pattern tactic... tactic}]: like \textsc{letsubstsel} (q.v. below) except that the text-selection must be made in a hypothesis formula of the current problem sequent;
 
-\item [\textsc{letsubstsel} \textit{pattern tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If the user has made a number of text selections within a single formula, each an instance of an identical sub-formula, convert that to a substitution (see chapter 1) and unify it with \textit{pattern}; then proceed as normal for a binding tactic.
+\item[\textsc{letlhs, letrhs}]: stuff to do with transitive reasoning. Will document when I find out what they do;
 
-\item [\textsc{letunify} \textit{pat1 pat2} \textit{tactic... tactic}]: One of the `guarded tactics' for use in \textsc{when}; also a `binding tactic' (see below). If \textit{pat1} unifies with \textit{pat2} (note: unifies not matches -- see \textsc{letmatch}), proceed as normal for a binding tactic.
+\item[\textsc{letlistmatch}]: ??;
 
+\item [\textsc{letmatch} \textit{pat1 pat2} \textit{tactic... tactic}]: match \textit{pat1} with \textit{pat2};
+
+
+\item [\textsc{letmultisel} \textit{pattern tactic... tactic}]: ; match all the user's text-selections, expressed as a tuple of formulae, with \textit{pattern}; ;
+\item [\textsc{letoccurs}]: ??;
+
+\item [\textsc{letsubstsel} \textit{pattern tactic... tactic}]: if the user has made a number of text selections within a single formula, each an instance of an identical sub-formula, convert the formula to a substitution (see chapter 1) and match it with \textit{pattern}; 
+\end{description}
 
 
 \item [\textsc{mapterms} \textit{tactic}]: if the current problem sequent has a conclusion which is a single formula, try to apply \textit{tactic} (which is probably some sort of rewrite rule) to each of the structural subformulae of that conclusion formula.
@@ -146,7 +145,7 @@ In every case the tactics are run to produce a tree, part of which is then shown
 \item [\textsc{unique} \textit{tactic}]: run \textit{tactic} so that any rules it applies are required to succeed in only one way (i.e. prevents application of those rules from offering the user a choice of alternative matches). Used in proof reloading.
 
 
-\item [\textsc{when} \textit{guardedtactic}.... \textit{guardedtactic tactic}]: try each of the guarded tactics in turn until one is found whose guard unifies, then run the tactics it guards; if none of the guards succeeds, run the final alternative \textit{tactic}. The guarded tactics must each be one of the \textsc{let...} variety: see `guarded and binding tactics' below.
+\item [\textsc{when} \textit{guardedtactic}.... \textit{guardedtactic tactic}]: try each of the guarded tactics in turn until one is found whose guard unifies, then run the tactics it guards; if none of the guards succeeds, run the final alternative \textit{tactic}. The guarded tactics must each be one of the \textsc{let...} variety: see \textsc{LET...} tacticals above, and `guarded and binding tactics' below.
 
 
 \item [\textsc{withargsel} \textit{tactic}]: run \textit{tactic}, giving it as argument the current text-selection, provided that there is only a single text selection and it parses properly as a formula. Fails if there is a single text selection but it can't be parsed.
@@ -201,6 +200,6 @@ Jape's tactic language is `eager' --- whether it should be so continues to be a 
 The \textsc{when} tactical takes `guarded tactics' and applies them carefully, accepting the result of the first one of them whose guard succeeds. Note that the whole guarded tactic may fail after its guard has succeeded, and in that case \textsc{when} won't backtrack, it will simply fail.
 
 
-Each of the guarded tacticals --- they are all called \textsc{let...} --- takes a \textit{pattern} and a \textit{tactic} sequence. The \textit{pattern} is unified with (in some cases matched against) something: if that succeeds then the environment is updated to reflect that unification. Roughly speaking you can assume, when unifying, that unknowns in \textit{pattern} will be added to the environment as parameters corresponding to the stuff they unified with, and if they are used again in the tactic sequence, they will be replaced by that same stuff. You don't have to worry that the unknowns you use might already appear in the unification context: Jape invents new ones, based on the ones you use, so that the effects of a successful binding tactic never leak into the unification context used in proof steps.
+Each of the guarded tacticals --- they are all called \textsc{let...} --- takes a \textit{pattern} and a \textit{tactic} sequence. The \textit{pattern} is `matched' with something -- i.e. unified with the condition that \emph{the proof tree isn't changed}. If matching succeeds then the environment is updated to reflect the matching. Roughly speaking you can assume, when matching, that unknowns in \textit{pattern} will be added to the environment as parameters corresponding to the stuff they unified with, and if they are used again in the tactic sequence, they will be replaced by that same stuff. You don't have to worry that the unknowns you use might already appear in the unification context: Jape invents new ones so that the effects of a successful binding never leak into the unification context used in proof steps (though you can force it to using \textsc{unify}, if you wish).
 
  
