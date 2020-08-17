@@ -74,7 +74,7 @@ and \textit{antes} is a possibly-empty bracketed tuple of numbers or the word \t
 
 In every case the tactics are run to produce a tree, part of which is then shown. \textsc{hideroot} shows the tree without its root (and, I think, works properly if there are several antecedents); \textsc{hidecut} hides the root iff it's a \textsc{cut} step; the others show the tree with some of its antecedents hidden. Antecedents are numbered from 0, so if \textit{antes} is (1,3), for example, only the second and fourth antecedents will be shown. By double-clicking on the justification produced by \textsc{layout} it's possible to toggle between various different displays of the tree -- essentially between `hidden' and `full' form. There are various variables, with names ending with `fmt' (see variable table below) which affect what happens with this tactical. (I wish I'd documented the thing when I still understood it, and I promise to update this if and when I ever understand it again.)
 
-\item [Various \textsc{let} ... \textit{tactic... tactic} tacticals] all of which use `matching' (specialised unification, see `binding tactic' below). All of them are `guarded tactics' which can be used in \textsc{when}. In each case, if the match succeeds, proceed with \textit{tactic... tactic}; otherwise fail. \vspace{-25pt}
+\item [Various \textsc{let} ... \textit{tactic... tactic} tacticals] most of which use `matching' (specialised unification, see `binding tactic' below), though \textsc{letunify}, \textsc{lettuple} and \textsc{letoccurs} use simple unification. All of them are `guarded tactics' which can be used in \textsc{when}. In each case, if the match succeeds, proceed with \textit{tactic... tactic}; otherwise fail. \vspace{-25pt}
 
 \begin{description}\item[] \item [\textsc{letargsel} \textit{pattern tactic... tactic}]: if the user has made a \textit{single} text selection, parse that text and match it with \textit{pattern}; 
 
@@ -98,11 +98,11 @@ In every case the tactics are run to produce a tree, part of which is then shown
 
 \item [\textsc{lethypsubstsel} \textit{pattern tactic... tactic}]: like \textsc{letsubstsel} (q.v. below) except that the text-selection must be made in a hypothesis formula of the current problem sequent;
 
-\item[\textsc{letlhs, letrhs}]: stuff to do with transitive reasoning. Will document when I find out what they do;
+\item[\textsc{letlhs, letrhs}]: ??;
 
-\item[\textsc{letlistmatch}]: ??;
+\item[\textsc{lettuple} \textit{pat1 patrest pattup tactic ... tactic}]: if \textit{pattup} is a non-empty tuple formula then unify (not `match') \textit{pat1} with its first element and \textit{patrest} with a tuple of the rest of its elements;
 
-\item [\textsc{letmatch} \textit{pat1 pat2} \textit{tactic... tactic}]: match \textit{pat1} with \textit{pat2};
+\item [\textsc{letunify} \textit{pat1 pat2} \textit{tactic... tactic}]: unify (not `match') \textit{pat1} with \textit{pat2};
 
 
 \item [\textsc{letmultisel} \textit{pattern tactic... tactic}]: ; match all the user's text-selections, expressed as a tuple of formulae, with \textit{pattern}; ;
