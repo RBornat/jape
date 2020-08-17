@@ -2083,7 +2083,7 @@ let rec dispatchTactic display try__ env contn tactic =
     | BindFindHypTac _ 
     | BindFindConcTac _ 
     | BindTuplistTac _ 
-    | BindMatchTac _ 
+    | BindUnifyTac _ 
     | BindOccursTac _ 
     | BadUnifyTac _ 
     | BadMatchTac _ 
@@ -2482,16 +2482,16 @@ and doBIND tac display try__ env =
         newformals env
     in
     
-    let checkmatching cxt cxt' expr =
-      matchedtarget cxt cxt'
-        (nj_fold
-           (function
-            | Unknown (_, u, _), uvs -> u :: uvs
-            | _, uvs -> uvs)
-           (termvars expr) [])
-    in
-    
-    let rec bindunify bad badp =
+    let rec actualBindunify bymatch bad badp =
+      let checkmatching cxt cxt' expr =
+        not bymatch ||
+        matchedtarget cxt cxt'
+          (nj_fold
+             (function
+              | Unknown (_, u, _), uvs -> u :: uvs
+              | _                , uvs -> uvs)
+             (termvars expr) [])
+      in
       function
       | []                     -> _Some
       | (_, expr as pe) :: pes ->
@@ -2505,14 +2505,14 @@ and doBIND tac display try__ env =
               try
                 let _ = (verifyprovisos cxt' : cxt) in
                 if checkmatching cxt cxt' expr then
-                  bindunify bad badp pes cxt'
+                  actualBindunify bymatch bad badp pes cxt'
                 else
                   (badmatch := Some pe; bad [" because the match changed the formula"])
               with
               | Verifyproviso p -> badproviso := Some (pe, p); badp p
     in
     
-    let bind s cxt env pes =
+    let actualBind bymatch s cxt env pes =
       let rec bad ss =
         (match pes with
          | [pattern, expr] ->
@@ -2531,7 +2531,7 @@ and doBIND tac display try__ env =
       in
       let (newformals, namecxt, env, pes) = freshenv_pes pes cxt env in
       match
-        bindunify bad
+        actualBindunify bymatch bad
           (fun p ->
              bad [" because proviso "; string_of_proviso p; " was violated."])
            ((fun (pattern, expr) -> eval env pattern, expr) <* pes) (* eval? really?? *)
@@ -2546,30 +2546,17 @@ and doBIND tac display try__ env =
          Some (namecxt, newenv cxt' env newformals)
     in
     
-    let rec bindThenDispatch s cxt env pes tac =
-      (bind s cxt env pes &~~
+    let bind = actualBind true in (* i.e. use match *)
+    
+    let rec actualBindThenDispatch bymatch s cxt env pes tac =
+      (actualBind bymatch s cxt env pes &~~
          (fun (cxt', env') ->
             Some
-              (dispatchTactic display try__ env' nullcontn tac
-                 (withcxt state cxt'))))
+              (dispatchTactic display try__ env' nullcontn tac (withcxt state cxt'))))
     in
-    (*
-          fun matchterms pattern value cxt =
-          let fun VtoT vmap = 
-                Mappingfuns.remapping
-                  ((fn (i, t) => (Unknown(_,i,symclass i), t)), vmap)
-              fun TtoV tmap = 
-                Mappingfuns.remapping
-                  ((fn (Unknown(_,i,_), t) => (i, t) | _ => raise MatchinTtoV), 
-                   tmap
-                  )
-          in
-              case match pattern value (VtoT (varmap cxt)) of
-                   Some tmap => Some(cxt withvarmap (TtoV tmap))
-              |    None      => None
-          end
-    *)
-
+    
+    let bindThenDispatch = actualBindThenDispatch true in (* i.e. use match *)
+    
     let rec checkBIND s (cxt, env, selectionopt, (pattern, tac)) =
       match selectionopt with
       | None      -> setReason ["no selection for "; s]; None
@@ -2656,7 +2643,7 @@ and doBIND tac display try__ env =
       let (newformals, cxt, env, pats) = freshenv [pat1] cxt env in
       let pat1 = List.hd pats in (* easiest way to shut up the complaint about matching [pat1] above *)
       let rec unify (pat, expr) =
-        bindunify (fun _ -> None) (fun _ -> None) [pat, expr]
+        actualBindunify false (fun _ -> None) (fun _ -> None) [pat, expr]
       in
       match _SubstOpt_of_subterm unify cxt (eval env pat1) expr with
       | None ->
@@ -2668,7 +2655,7 @@ and doBIND tac display try__ env =
           let env = newenv cxt' env newformals in
           (* again, no leakage of context *)
           (* showAlert["bindOccurs got intermediate ", string_of_term subst]; *)
-          bindThenDispatch "LETOCCURS" cxt env [pat2, subst] tac
+          actualBindThenDispatch false "LETOCCURS" cxt env [pat2, subst] tac
     in
     
     let rec term_of_seqside colln =
@@ -2750,16 +2737,16 @@ and doBIND tac display try__ env =
                 spec)
          | _ -> setReason ["LETHYPS with no selected hypothesis/es"]; None
         )
-    (* and therefore LETLISTMATCH actually takes tuples apart, amongst endless confusion about
+    (* and therefore LETTUPLE actually takes tuples apart, amongst endless confusion about
        brackets, which I don't know how to dispel
      *)
     | BindTuplistTac (pat1, pat2, tup, tac) ->
         (match eval env tup with
          | Tup(_, ",", t::ts) ->
-             bind "LETLISTMATCH" cxt env [pat1, t; pat2, registerTup (",", ts)] &~~
-                (fun (cxt', env') -> bindThenDispatch "LETLISTMATCH" cxt' env' [] tac) 
-         | Tup(_, ",", []) -> setReason ["LETLISTMATCH given empty tuple"]; None
-         | _ as t          -> setReason ["LETLISTMATCH can't match non-tuple "; string_of_term t]; None
+             bind "LETTUPLE" cxt env [pat1, t; pat2, registerTup (",", ts)] &~~
+                (fun (cxt', env') -> bindThenDispatch "LETTUPLE" cxt' env' [] tac) 
+         | Tup(_, ",", []) -> setReason ["LETTUPLE given empty tuple"]; None
+         | _ as t          -> setReason ["LETTUPLE can't match non-tuple "; string_of_term t]; None
         )
     | BindArgTac spec ->
         (match getsingleargsel () with
@@ -2791,8 +2778,8 @@ and doBIND tac display try__ env =
              None
          | None -> setReason ["LETSUBSTSEL failed: no selections"]; None
         )
-    | BindMatchTac (pat, term, tac) ->
-        bindThenDispatch "LETMATCH" cxt env [pat, eval env term] tac
+    | BindUnifyTac (pat, term, tac) ->
+        actualBindThenDispatch false "LETUNIFY" cxt env [pat, eval env term] tac
     | BindOccursTac      spec -> bindOccurs spec
     | BindSubstInHypTac  spec -> doublesel spec true  "LETHYPSUBSTSEL"
     | BindSubstInConcTac spec -> doublesel spec false "LETCONCSUBSTSEL"

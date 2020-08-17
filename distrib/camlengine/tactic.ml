@@ -170,10 +170,10 @@ let rec catelim_string_of_tactic sep t tail =
         "LETHYPFIND " :: termsNtac [term] tactic
     | BindFindConcTac (term, tactic) ->
         "LETCONCFIND " :: termsNtac [term] tactic
-    | BindMatchTac (pterm, vterm, tactic) ->
-        "LETMATCH " :: termsNtac [pterm; vterm] tactic
+    | BindUnifyTac (pterm, vterm, tactic) ->
+        "LETUNIFY " :: termsNtac [pterm; vterm] tactic
     | BindTuplistTac (carterm, cdrterm, tupterm, tactic) ->
-        "LETLISTMATCH " :: termsNtac [carterm; cdrterm; tupterm] tactic
+        "LETTUPLE " :: termsNtac [carterm; cdrterm; tupterm] tactic
     | BindOccursTac (pt, vt, st, tactic) ->
         "LETOCCURS " :: termsNtac [pt; vt; st] tactic
     | LayoutTac (tactic, layout) ->
@@ -346,7 +346,7 @@ let remaptactic env t =
     | BindFindHypTac (tm, t) -> BindFindHypTac (_E tm, _T t)
     | BindFindConcTac (tm, t) -> BindFindConcTac (_E tm, _T t)
     | BindTuplistTac (carpat, cdrpat, expr, t) -> BindTuplistTac (_E carpat, _E cdrpat, _E expr, _T t)
-    | BindMatchTac (ptm, vtm, t) -> BindMatchTac (_E ptm, _E vtm, _T t)
+    | BindUnifyTac (ptm, vtm, t) -> BindUnifyTac (_E ptm, _E vtm, _T t)
     | BindOccursTac (pt, vt, st, t) ->
         BindOccursTac (_E pt, _E vt, _E st, _T t)
     | LayoutTac (t, tl) -> LayoutTac (_T t, remaptreelayout env tl)
@@ -369,8 +369,8 @@ let tacticform i =
       "FOLDHYP"; "GIVEN"; "GOALPATH"; "IF"; "IMPLICIT"; "JAPE"; "LAYOUT";
       "LETARGSEL"; "LETCONC"; "LETCONCFIND"; "LETCONCSUBSTSEL"; "LETGOAL";
       "LETGOALPATH"; "LETOPENSUBGOAL"; "LETOPENSUBGOALS"; "LETHYP";
-      "LETHYP2"; "LETHYPS"; "LETHYPFIND"; "LETHYPSUBSTSEL"; "LETLISTMATCH"; 
-      "LETMATCH"; "LETMULTIARG"; "LETOCCURS"; "LETSUBSTSEL"; "MAPTERMS"; 
+      "LETHYP2"; "LETHYPS"; "LETHYPFIND"; "LETHYPSUBSTSEL"; "LETTUPLE"; 
+      "LETUNIFY"; "LETMULTIARG"; "LETOCCURS"; "LETSUBSTSEL"; "MAPTERMS"; 
       "MATCH"; "NEXTGOAL"; "PROVE"; "REPLAY"; "RESOLVE"; "SAMEPROVISOS"; 
       "SEQ"; "SHOWHOWTO"; "SIMPLEAPPLY"; "SKIP"; "STOP"; "THEORYALT"; "UNFOLD"; 
       "UNFOLDHYP"; "UNIFY"; "UNIQUE"; "WHEN"; "WITHARGSEL"; "WITHCONCSEL";
@@ -464,7 +464,7 @@ let isguard =
   | BindOpenSubGoalsTac _ -> true
   | BindFindHypTac      _ -> true
   | BindFindConcTac     _ -> true
-  | BindMatchTac        _ -> true
+  | BindUnifyTac        _ -> true
   | BindOccursTac       _ -> true
   | BindTuplistTac      _ -> true
   | BadUnifyTac         _ -> true
@@ -686,10 +686,10 @@ and transTactic tacterm =
               | "LETHYPSUBSTSEL"   ->
                       mkBind f patbind "pattern" (fun v->BindSubstInHypTac v) ts
               | "LETLHS"           -> mkBind f patbind  "pattern"  (fun v->BindLHSTac v) ts
-              | "LETLISTMATCH"          -> 
+              | "LETTUPLE"          -> 
                    mkBind3 f patbind patbind valbind "car-pattern" "cdr-pattern" "expr" (fun v -> BindTuplistTac v) ts
-              | "LETMATCH"         -> 
-                   mkBind2 f patbind valbind "pattern" "expr" (fun v -> BindMatchTac v) ts
+              | "LETUNIFY"         -> 
+                   mkBind2 f patbind valbind "pattern" "expr" (fun v -> BindUnifyTac v) ts
               | "LETMULTIARG"      -> mkBind f patbind  "pattern" (fun v->BindMultiArgTac v) ts
               | "LETRHS"           -> mkBind f patbind  "pattern" (fun v->BindRHSTac v) ts
               | "LETOCCURS"        -> 
