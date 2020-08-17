@@ -2471,9 +2471,9 @@ and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
         )
     | _ -> setReason ["UNFOLDHYP with multiple-conclusion sequent"]; None
 
+(* doBIND now works with matching, always -- i.e. binding never changes the proof tree. RB 08/2020 *)
 and doBIND tac display try__ env =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree} as state) ->
-    let matching = try__.matching in
     let rec newenv cxt env newformals =
       nj_fold
         (fun (formal, env) ->
@@ -2483,7 +2483,6 @@ and doBIND tac display try__ env =
     in
     
     let checkmatching cxt cxt' expr =
-      not matching ||
       matchedtarget cxt cxt'
         (nj_fold
            (function
@@ -2508,9 +2507,7 @@ and doBIND tac display try__ env =
                 if checkmatching cxt cxt' expr then
                   bindunify bad badp pes cxt'
                 else
-                  (badmatch := Some pe;
-                   bad [" because the match changed the formula"]
-                  )
+                  (badmatch := Some pe; bad [" because the match changed the formula"])
               with
               | Verifyproviso p -> badproviso := Some (pe, p); badp p
     in
