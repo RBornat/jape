@@ -172,8 +172,6 @@ let rec catelim_string_of_tactic sep t tail =
         "LETCONCFIND " :: termsNtac [term] tactic
     | BindUnifyTac (pterm, vterm, tactic) ->
         "LETUNIFY " :: termsNtac [pterm; vterm] tactic
-    | BindTuplistTac (carterm, cdrterm, tupterm, tactic) ->
-        "LETTUPLE " :: termsNtac [carterm; cdrterm; tupterm] tactic
     | BindOccursTac (pt, vt, st, tactic) ->
         "LETOCCURS " :: termsNtac [pt; vt; st] tactic
     | LayoutTac (tactic, layout) ->
@@ -345,7 +343,6 @@ let remaptactic env t =
        BindOpenSubGoalsTac (_E tm, _T t)
     | BindFindHypTac (tm, t) -> BindFindHypTac (_E tm, _T t)
     | BindFindConcTac (tm, t) -> BindFindConcTac (_E tm, _T t)
-    | BindTuplistTac (carpat, cdrpat, expr, t) -> BindTuplistTac (_E carpat, _E cdrpat, _E expr, _T t)
     | BindUnifyTac (ptm, vtm, t) -> BindUnifyTac (_E ptm, _E vtm, _T t)
     | BindOccursTac (pt, vt, st, t) ->
         BindOccursTac (_E pt, _E vt, _E st, _T t)
@@ -466,7 +463,6 @@ let isguard =
   | BindFindConcTac     _ -> true
   | BindUnifyTac        _ -> true
   | BindOccursTac       _ -> true
-  | BindTuplistTac      _ -> true
   | BadUnifyTac         _ -> true
   | BadMatchTac         _ -> true
   | BadProvisoTac       _ -> true
@@ -579,11 +575,12 @@ and transTactic tacterm =
                           |        ns :: ts -> transLayout con fmt (Some ns) ts
                         in
                         match maybeSTR fmt, stuff with
-                        | Some "HIDEROOT", ts        -> LayoutTac (_SEQTAC ts, HideRootLayout)
-                        | Some "HIDECUT" , ts        -> LayoutTac (_SEQTAC ts, HideCutLayout)
-                        | Some "COMPRESS", fmt :: ts -> lyt (fun v -> CompressedLayout v) fmt ts
-                        | Some "COMPRESS", ts        -> lyt (fun v -> CompressedLayout v) (registerLiteral (String "%s")) ts
-                        | _              , ts        -> lyt (fun v -> NamedLayout v) fmt ts
+                        | Some "HIDEROOT", ts          -> LayoutTac (_SEQTAC ts, HideRootLayout)
+                        | Some "HIDECUT" , ts          -> LayoutTac (_SEQTAC ts, HideCutLayout)
+                        | Some "COMPRESS", fmt :: ts   -> lyt (fun v -> CompressedLayout v) fmt ts
+                        | Some "COMPRESS", ts          -> lyt (fun v -> CompressedLayout v) (registerLiteral (String "%s")) ts
+                        | Some "ASSUMPTION", str :: ts -> consolereport ["ASSUMPTION stuff starts "; string_of_term str]; LayoutTac (_SEQTAC ts, AssumptionLayout str)
+                        | _              , ts          -> lyt (fun v -> NamedLayout v) fmt ts
               in
               let mkFold tac =
                 function
@@ -686,8 +683,6 @@ and transTactic tacterm =
               | "LETHYPSUBSTSEL"   ->
                       mkBind f patbind "pattern" (fun v->BindSubstInHypTac v) ts
               | "LETLHS"           -> mkBind f patbind  "pattern"  (fun v->BindLHSTac v) ts
-              | "LETTUPLE"          -> 
-                   mkBind3 f patbind patbind valbind "car-pattern" "cdr-pattern" "expr" (fun v -> BindTuplistTac v) ts
               | "LETUNIFY"         -> 
                    mkBind2 f patbind valbind "pattern" "expr" (fun v -> BindUnifyTac v) ts
               | "LETMULTIARG"      -> mkBind f patbind  "pattern" (fun v->BindMultiArgTac v) ts
@@ -695,7 +690,7 @@ and transTactic tacterm =
               | "LETOCCURS"        -> 
                    mkBind3 f valbind valbind patbind "subexpr" "expr" "substitution expr" (fun v -> BindOccursTac v) ts
               | "LETOPENSUBGOAL"   ->
-                   mkBind2 f namebind patbind "name" "p attern" (fun v->BindOpenSubGoalTac v) ts
+                   mkBind2 f namebind patbind "name" "pattern" (fun v->BindOpenSubGoalTac v) ts
               | "LETOPENSUBGOALS"  -> mkBind f patbind  "pattern" (fun v->BindOpenSubGoalsTac v) ts
               | "LETSUBSTSEL"      -> mkBind f patbind  "pattern" (fun v->BindSubstTac v) ts
               
