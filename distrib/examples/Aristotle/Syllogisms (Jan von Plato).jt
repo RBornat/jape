@@ -38,7 +38,7 @@ INITIALISE outermostbox false
 INITIALISE innerboxes false
 
 INITIALISE outerassumptionword " assumption"
-INITIALISE innerassumptionword " (contradictory) assumption"
+INITIALISE innerassumptionword " assumption"
 
 INITIALISE multiassumptionlines false
 
@@ -106,8 +106,9 @@ MENU Rules IS
 
   SEPARATOR
   
-  ENTRY IP IS (LAYOUT "IP" ALL IP)
-  
+  ENTRY IP IS WHEN (LETGOAL _A (LAYOUT "IP" ALL IP (LAYOUT ASSUMPTION ("contradicting %t",_A))))
+                   (ALERT "Please select a consequent to be proved by IP")
+                   
   SEPARATOR
   
   ENTRY hyp IS WHEN (LETHYP _A (hyp _A))
