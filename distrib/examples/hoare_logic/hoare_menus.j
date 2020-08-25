@@ -249,30 +249,25 @@ TACTIC "∧ elim*"(P)  IS
 TACTIC obviouslytac IS
   WHEN
     (LETHYPS _A 
-      (LETTUPLE _A1 _B _A /* must work ... */
-        (WHEN   
-          (LETTUPLE _B1 _C _B 
-            (WHEN
-              (LETTUPLE _C1 _D _C 
-                (WHEN 
-                  (LETTUPLE _D1 _E _D 
-                    (WHEN
-                      (LETTUPLE _E1 _F _E 
-                        (ALERT 
-                            ("Unfortunately, Jape is set up to recognise only up to \
-                             \four ‘obvious’ links. You selected too many (%l).\n\n\
-                             \Please moderate your enthusiasm and try again."
-                             (_A, ", ", " and "))
-                             ("OK", STOP)))
-                        (LAYOUT "obviously, from" ALL 
-                            "obviously4" (WITHHYPSEL (hyp _A1)) (WITHHYPSEL (hyp _B1)) (WITHHYPSEL (hyp _C1)) 
-                            (WITHHYPSEL (hyp _D1)))))
-                  (LAYOUT "obviously, from" ALL 
-                      "obviously3" (WITHHYPSEL (hyp _A1)) (WITHHYPSEL (hyp _B1)) (WITHHYPSEL (hyp _C1)))))
-              (LAYOUT "obviously, from" ALL 
-                  "obviously2" (WITHHYPSEL (hyp _A1)) (WITHHYPSEL (hyp _B1)))))
-          (LAYOUT "obviously, from" ALL 
-              "obviously1" (WITHHYPSEL (hyp _A1))))))
+      (WHEN 
+        (LETHYP _A1 /* exactly one */
+           (LAYOUT "obviously, from" ALL "obviously1" (WITHHYPSEL (hyp _A1))))
+        (LETUNIFY (_A1,_B1) _A /* exactly two */
+           (LAYOUT "obviously, from" ALL 
+               "obviously2" (WITHHYPSEL (hyp _A1)) (WITHHYPSEL (hyp _B1))))
+        (LETUNIFY (_A1,_B1,_C1) _A /* exactly three */
+           (LAYOUT "obviously, from" ALL 
+               "obviously3" (WITHHYPSEL (hyp _A1)) (WITHHYPSEL (hyp _B1)) (WITHHYPSEL (hyp _C1))))
+        (LETUNIFY (_A1,_B1,_C1,_D1) _A /* exactly four */
+           (LAYOUT "obviously, from" ALL 
+               "obviously4" (WITHHYPSEL (hyp _A1)) (WITHHYPSEL (hyp _B1)) (WITHHYPSEL (hyp _C1)) 
+                            (WITHHYPSEL (hyp _D1))))
+        (ALERT 
+            ("Unfortunately, Jape is set up to recognise only up to \
+             \four ‘obvious’ links. You selected too many (%l).\n\n\
+             \Please moderate your enthusiasm and try again."
+             (_A, ", ", " and "))
+             ("OK", STOP))))
     (LAYOUT "obviously" ALL "obviously0")
 
 MENU Backward IS
