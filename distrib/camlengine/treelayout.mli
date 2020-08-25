@@ -33,6 +33,7 @@ type treelayout =
   | CompressedLayout of (term * term option)
   | NamedLayout      of (term * term option)
                       (* fmt    list of subtrees to show *)
+  | AssumptionLayout of term
 
 val string_of_treelayout : treelayout -> string
 val debugstring_of_treelayout : treelayout -> string

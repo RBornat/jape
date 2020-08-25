@@ -325,7 +325,7 @@ let rec _AQ env term =
     | App (_, Id (_, v, _), a) -> (if string_of_vid v="QUOTE" then Some (_QU env a) else None)
     | Id _                as v -> (env <@> _The (nameopt_of_term v))
     | Unknown _           as v -> (env <@> _The (nameopt_of_term v))
-    | _ -> None
+    | _                        -> None
   in
   mapterm _A term
 
@@ -333,7 +333,7 @@ and _QU env term =
   let rec _Q =
     function
     | App (_, Id (_, v, _), a) -> (if string_of_vid v="ANTIQUOTE" then Some (_AQ env a) else None)
-    | _ -> None
+    | _                        -> None
   in
   mapterm _Q term
 
@@ -798,6 +798,7 @@ let rec parseints mess eval ints =
                            string_of_term ints; " = "; string_of_term (debracket (eval ints))])
 
 (* With the modern prooftree, LAYOUT is a simple assignment to a tip *)
+(* to a Join, surely. RB 08/2020 *)
 
 let rec doLAYOUT layout eval action t (Proofstate {tree = tree; goal = goal} as state) =
     let parseSTR t =
@@ -832,7 +833,7 @@ let rec doLAYOUT layout eval action t (Proofstate {tree = tree; goal = goal} as 
       | [0x25]                  -> parsetuplefmt [] ts rs
       | c :: cs                 -> parsetuplefmt cs ts (UTF.utf8_of_ucode c :: rs)
     in
-    let rec parsefmt fmt =
+    let parsefmt fmt =
       let fmt' = eval fmt in
       match debracket fmt' with
       | Id (_, v, _)          -> string_of_vid v
@@ -841,11 +842,22 @@ let rec doLAYOUT layout eval action t (Proofstate {tree = tree; goal = goal} as 
       | _                     -> raise (Tacastrophe_ ["format in LAYOUT must be string or non-empty tuple of strings; \
                                                        you gave "; string_of_term fmt'])
     in
+    let parseAssumption t =
+      let s = eval t in
+      match debracket s with
+      | Id (_, v, _)          -> string_of_vid v
+      | Literal (_, String s) -> s
+      | Tup(_, ",", t :: ts)  -> parsetuplefmt (UTF.utf8_explode (parseSTR t)) ts []
+      | _                     -> raise (Tacastrophe_ ["assumption text in LAYOUT must be string; \
+                                                       you gave "; string_of_term s])
+    in
     let rec f l t =
-      let fmt = format_of_layout parsefmt (parseints "selection in LAYOUT" eval) l in
+      let fmt = format_of_layout parsefmt (parseints "selection in LAYOUT" eval) parseAssumption l in
       match t with
       | LayoutTac (t', l') -> let (fmt', tac) = f l' t' in 
-                              treeformatmerge (fmt, fmt'), tac
+                              let fmt'' = treeformatmerge (fmt, fmt') in
+                              consolereport ["merging "; string_of_treeformat fmt; " with "; string_of_treeformat fmt'; " -> "; string_of_treeformat fmt''];
+                              fmt'', tac
       | _                  -> fmt, t
     in
     let (fmt, tac) = f layout t in
@@ -2082,7 +2094,6 @@ let rec dispatchTactic display try__ env contn tactic =
     | BindMultiArgTac _ 
     | BindFindHypTac _ 
     | BindFindConcTac _ 
-    | BindTuplistTac _ 
     | BindUnifyTac _ 
     | BindOccursTac _ 
     | BadUnifyTac _ 
@@ -2483,33 +2494,35 @@ and doBIND tac display try__ env =
     in
     
     let rec actualBindunify bymatch bad badp =
-      let checkmatching cxt cxt' expr =
-        not bymatch ||
-        matchedtarget cxt cxt'
-          (nj_fold
-             (function
-              | Unknown (_, u, _), uvs -> u :: uvs
-              | _                , uvs -> uvs)
-             (termvars expr) [])
+      let unknowns e = nj_fold (function
+                                | Unknown (_, u, _), uvs -> u :: uvs
+                                | _                , uvs -> uvs
+                               )
+                               (termvars e) []
+      in
+      let checkmatching matching cxt cxt' expr =
+        not matching || matchedtarget cxt cxt' (unknowns expr)
       in
       function
-      | []                     -> _Some
-      | (_, expr as pe) :: pes ->
+      | []                       -> _Some
+      | (pat, expr as pe) :: pes ->
         fun cxt ->
           badunify := None;
           badmatch := None;
           badproviso := None;
           match unifyterms pe cxt with
           | None      -> badunify := Some pe; bad []
-          | Some cxt' ->
-              try
-                let _ = (verifyprovisos cxt' : cxt) in
-                if checkmatching cxt cxt' expr then
-                  actualBindunify bymatch bad badp pes cxt'
-                else
-                  (badmatch := Some pe; bad [" because the match changed the formula"])
-              with
-              | Verifyproviso p -> badproviso := Some (pe, p); badp p
+          | Some cxt' -> (try let _ = (verifyprovisos cxt' : cxt) in
+                              if not (checkmatching (bymatch || try__.matching) cxt cxt' expr) then
+                                (badmatch := Some pe; bad [" because the match changed the formula"])
+                              else
+                              if not (checkmatching try__.matching cxt cxt' pat) then
+                                (badmatch := Some pe; bad [" because the match changed the pattern"])
+                              else
+                                actualBindunify bymatch bad badp pes cxt'
+                          with
+                          | Verifyproviso p -> badproviso := Some (pe, p); badp p
+                         )
     in
     
     let actualBind bymatch s cxt env pes =
@@ -2706,7 +2719,7 @@ and doBIND tac display try__ env =
          | Some (_, [Element (_, _, h)]) ->
              checkBIND "LETHYP" (cxt, env, Some h, spec)
          | _ ->
-             setReason ["LETHYP with not exactly one selected hypothesis"];
+             setReason ["LETHYP with zero or several selected hypotheses"];
              None
         )
     | BindHyp2Tac (pat1, pat2, tac) ->
@@ -2736,17 +2749,6 @@ and doBIND tac display try__ env =
                          hs))),
                 spec)
          | _ -> setReason ["LETHYPS with no selected hypothesis/es"]; None
-        )
-    (* and therefore LETTUPLE actually takes tuples apart, amongst endless confusion about
-       brackets, which I don't know how to dispel
-     *)
-    | BindTuplistTac (pat1, pat2, tup, tac) ->
-        (match eval env tup with
-         | Tup(_, ",", t::ts) ->
-             bind "LETTUPLE" cxt env [pat1, t; pat2, registerTup (",", ts)] &~~
-                (fun (cxt', env') -> bindThenDispatch "LETTUPLE" cxt' env' [] tac) 
-         | Tup(_, ",", []) -> setReason ["LETTUPLE given empty tuple"]; None
-         | _ as t          -> setReason ["LETTUPLE can't match non-tuple "; string_of_term t]; None
         )
     | BindArgTac spec ->
         (match getsingleargsel () with

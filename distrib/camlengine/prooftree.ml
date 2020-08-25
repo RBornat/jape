@@ -1270,7 +1270,7 @@ module Tree : Tree with type term = Termtype.term
           | Tip _  -> nohide ()
           | Join j ->
               match j.fmt with
-              | TreeFormat (HideRootFormat, _) ->
+              | TreeFormat (HideRootFormat, _, aopt) ->
                   let r = hr true j in
                   (* cut steps keep their shape, else they don't mean anything *)
                   (* for a moment, I'm going to abolish hideroot above cut, on the left *)
@@ -1283,7 +1283,7 @@ module Tree : Tree with type term = Termtype.term
                                                      j];
                      nohide ())
                   else r
-              | TreeFormat (_, RotatingFilter (i, nfs)) ->
+              | TreeFormat (_, RotatingFilter (i, nfs), aopt) ->
                   if try
                        match fmt, List.nth nfs i with
                        | Some (true, s, _), (true, s', _) -> s = s'
@@ -1301,7 +1301,7 @@ module Tree : Tree with type term = Termtype.term
         if showall then default ()
         else
           match j.fmt with
-          | TreeFormat (_, RotatingFilter (i, nfs)) ->
+          | TreeFormat (_, RotatingFilter (i, nfs), aopt) ->
               (try match Listfuns.guardednth nfs i with
                    | _, _, Some which as fmt ->
                        let inouts =
@@ -1444,7 +1444,7 @@ module Tree : Tree with type term = Termtype.term
            let invisf () =
              interpolate "," ( (* implode (default_reason ()) :: *) invisiblereasons proved showall j)
            in
-           let f (TreeFormat (_, fmt)) =
+           let f (TreeFormat (_, fmt, aopt)) =
              match fmt with
              | RotatingFilter (i, nfs) ->
                  let nohidf () = [!nohidefmt]
@@ -1485,8 +1485,8 @@ module Tree : Tree with type term = Termtype.term
     let rec tranproof proved showall hideuselesscuts t =
       let rec visp =
         function
-        | Tip (seq, rewinf, _) ->
-            [], Tip (seq, rewinf, VisFormat (false, false))
+        | Tip (seq, rewinf, TreeFormat (_,_,aopt)) ->
+            [], Tip (seq, rewinf, VisFormat (false, false, aopt))
         | Join j as it ->
             let (viss, _) = visibles showall j in
             let lpsNsubts' = (visp <.> snd) <* viss in
@@ -1500,8 +1500,8 @@ module Tree : Tree with type term = Termtype.term
                 let newhyps subt = listsub sameresource (hyps (sequent subt)) (hyps (fst j.seq)) in
                 let usedresource r = List.exists (curry2 sameresource r) lps in
                 match j.fmt with
-                | TreeFormat (HideCutFormat, _) -> true
-                | _                             ->
+                | TreeFormat (HideCutFormat, _, aopt) -> true
+                | _                                   ->
                     match j.trs with
                     | [t1; t2], _ ->
                         let hideablecut () = 
@@ -1517,7 +1517,7 @@ module Tree : Tree with type term = Termtype.term
                            by hyp, and need to stay visible.
                          *)
                         (match joinopt (fun j -> j.fmt) t1 with
-                         | Some (TreeFormat (HideRootFormat, _)) -> 
+                         | Some (TreeFormat (HideRootFormat, _, aopt)) -> 
                              (match newhyps t2, concs (fst j.seq) with 
                              | [ch], [c] ->
                                  not (eqelements eqterms (ch, c))
@@ -1525,9 +1525,11 @@ module Tree : Tree with type term = Termtype.term
                          | _ -> hideuselesscuts && hideablecut())
                     | _ -> false
             in
+            let aopt = match j.fmt with TreeFormat (_,_,aopt) -> aopt
+            in
             lps, Join {j with why=_The (visreason proved showall it);
                               cutnav = None;
-                              fmt    = VisFormat (join_multistep j viss, hidecut);
+                              fmt    = VisFormat (join_multistep j viss, hidecut, aopt);
                               hastipval = tshaveTip subts';
                               trs       = (subts', snd j.trs)
                       }

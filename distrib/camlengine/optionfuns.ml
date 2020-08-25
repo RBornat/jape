@@ -112,22 +112,22 @@ let rec findbest f best = function
                             | None    -> Some y1
                             | Some y2 -> Some (best y1 y2)
 
-let rec stripoption =
+let stripoption =
   function
     None   -> None
   | Some x -> x
 
-let rec optordefault =
+let optordefault =
   function
     Some v, _ -> v
   | None  , v -> v
 
-let rec catelim_string_of_option catelim_astring aopt ss =
+let catelim_string_of_option catelim_astring aopt ss =
   match aopt with
     Some a -> "Some (" :: catelim_astring a (")" :: ss)
   | None   -> "None" :: ss
 
-let rec string_of_option astring aopt =
+let string_of_option astring aopt =
   implode (catelim_string_of_option (fun a ss -> astring a :: ss) aopt [])
 
 (* save space when rewriting structures *)

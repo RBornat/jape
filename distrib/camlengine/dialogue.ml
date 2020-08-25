@@ -603,11 +603,11 @@ let defaultfolded = RotatingFilter (0, [foldstuff])
 
 let rotateFormat =
   function
-  | tfk, DefaultFilter -> Some (tfk, defaultfolded)
-  | tfk, RotatingFilter (i, nfs) ->
+  | tfk, DefaultFilter          , aopt -> Some (tfk, defaultfolded, aopt)
+  | tfk, RotatingFilter (i, nfs), aopt ->
       Some
         (tfk,
-         RotatingFilter ((if i >= List.length nfs then 0 else i + 1), nfs))
+         RotatingFilter ((if i >= List.length nfs then 0 else i + 1), nfs), aopt)
 
 let getfmt mess tree path =
   try
@@ -652,15 +652,15 @@ let doLayout command =
     | HideShowCommand ->
         getfmt (fun () -> "can't hide subproofs there") tree path 
         &~~
-        (function tfk, RotatingFilter (i, nfs) ->
+        (function tfk, RotatingFilter (i, nfs), aopt ->
            (findfirst
               (fun (i, nf) -> if nf = foldstuff then Some i else None)
               (numbered nfs) &~~
             (fun i' ->
-               Some (tfk, RotatingFilter ((if i = i' then i + 1 else i'), nfs)))) 
+               Some (tfk, RotatingFilter ((if i = i' then i + 1 else i'), nfs), aopt))) 
            |~~
-           (fun _ -> Some (tfk, RotatingFilter (0, foldstuff :: nfs)))
-         | tfk, DefaultFilter -> Some (tfk, defaultfolded)) 
+           (fun _ -> Some (tfk, RotatingFilter (0, foldstuff :: nfs), aopt))
+         | tfk, DefaultFilter, aopt -> Some (tfk, defaultfolded, aopt)) 
          &~~
          (fun fmt' ->
             Some (false, withtree state (set_prooftree_fmt tree path (TreeFormat fmt'))))
@@ -669,7 +669,7 @@ let doLayout command =
           (fun () -> raise (Catastrophe_ ["getLayout sees EXPAND/CONTRACT on a Tip!!!"]))
           tree path 
         &~~
-        (function  _, DefaultFilter as fmt ->
+        (function  _, DefaultFilter, aopt as fmt ->
            if null (subtrees (followPath tree path)) then
               (showAlert ["no point double-clicking that -- it doesn't have any subproofs"];
                None)
@@ -682,13 +682,13 @@ let doLayout command =
     | HideRootCommand ->
         let hideit () =
           try
-            let (TreeFormat (_, tff)) = get_prooftree_fmt tree path in
+            let (TreeFormat (_, tff, aopt)) = get_prooftree_fmt tree path in
             Some
               (false,
                withtree
                  state
                   (set_prooftree_fmt tree path
-                    (TreeFormat (HideRootFormat, tff))))
+                    (TreeFormat (HideRootFormat, tff, aopt))))
           with
           | FollowPath_ stuff ->
               showAlert ["FollowPath_ in HIDEROOT?? "]; None
@@ -712,13 +712,13 @@ let doLayout command =
              None
          | Some parentpath ->
              match get_prooftree_fmt tree parentpath with
-             | TreeFormat (HideRootFormat, tff) ->
+             | TreeFormat (HideRootFormat, tff, aopt) ->
                  Some
                    (false,
                     withtree
                       state
                        (set_prooftree_fmt tree parentpath
-                         (TreeFormat (SimpleFormat, tff))))
+                         (TreeFormat (SimpleFormat, tff, aopt))))
              | _ -> showAlert ["the parent isn't hidden!"]; None
          )
     | HideCutCommand ->
@@ -728,13 +728,13 @@ let doLayout command =
               ["can't hide that line -- it's not a cut hypothesis"];
             None
         | Some cutpath ->
-            let (TreeFormat (_, tff)) = get_prooftree_fmt tree cutpath in
+            let (TreeFormat (_, tff, aopt)) = get_prooftree_fmt tree cutpath in
             Some
               (false,
                withtree
                  state
                   (set_prooftree_fmt tree cutpath
-                    (TreeFormat (HideCutFormat, tff))))
+                    (TreeFormat (HideCutFormat, tff, aopt))))
 
 let getLayoutPath displaystate c pathkind =
     (findLayoutSelection displaystate pathkind |~~

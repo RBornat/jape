@@ -32,7 +32,7 @@ module type Fmt =
      * a round-robin of formats in RotatingFilter and we have a toggle of Hide/Expose.
      * RB 22/xii/99
      *)
-    type treeformat = TreeFormat of (treeformat_kind * treeformat_filter)
+    type treeformat = TreeFormat of (treeformat_kind * treeformat_filter * string option)
     and treeformat_kind = HideRootFormat | HideCutFormat | SimpleFormat
     and treeformat_filter =
       | DefaultFilter
@@ -49,7 +49,7 @@ module type Fmt =
     val string_of_treeformat : treeformat -> string
     val neutralformat        : treeformat
 
-    val format_of_layout : (term -> string) -> (term -> int list) -> treelayout -> treeformat
+    val format_of_layout : (term -> string) -> (term -> int list) -> (term -> string) -> treelayout -> treeformat
     val layouts_of_format : treeformat -> treelayout list
     (* because of the use of negative numbers in paths to navigate internal cuts, and the 
      * wierd way that the root of an internal cut is addressed (see prooftree.sml), 
@@ -86,7 +86,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
      * RB 22/xii/99
      *)
      
-    type treeformat = TreeFormat of (treeformat_kind * treeformat_filter)
+    type treeformat = TreeFormat of (treeformat_kind * treeformat_filter * string option)
     and treeformat_kind = HideRootFormat | HideCutFormat | SimpleFormat
     and treeformat_filter =
         DefaultFilter
@@ -99,14 +99,13 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
      *       and we show all children without hiderooting
      *)         
 
-    let neutralformat = TreeFormat (SimpleFormat, DefaultFilter)
+    let neutralformat = TreeFormat (SimpleFormat, DefaultFilter, None)
     let string_of_intlist = bracketed_string_of_list string_of_int ","
     let nf_string = string_of_triple string_of_bool enQuote (string_of_option string_of_intlist) ","
     
-    let rec string_of_treeformat =
-      fun (TreeFormat pair) ->
+    let rec string_of_treeformat (TreeFormat triple) =
         "TreeFormat" ^
-          string_of_pair string_of_treeformat_kind string_of_treeformat_filter "," pair
+          string_of_triple string_of_treeformat_kind string_of_treeformat_filter (string_of_option (fun s -> s)) "," triple
     
     and string_of_treeformat_kind =
       function
@@ -124,20 +123,19 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
     
     (* if tf1 is hidden, so is the merge *)
     let rec treeformatmerge =
-      fun (TreeFormat (tfk1, tff1), TreeFormat (tfk2, tff2)) ->
-        let rec tfkmerge =
-          function
-            SimpleFormat, _ -> tfk2
-          | _, _ -> tfk1
+      fun (TreeFormat (tfk1, tff1, aopt1), TreeFormat (tfk2, tff2, aopt2)) ->
+        let tfkmerge = function
+                       | SimpleFormat, _ -> tfk2
+                       | _, _ -> tfk1
         in
-        let rec tffmerge =
+        let tffmerge =
           function
-            DefaultFilter, tff2 -> tff2
+          | DefaultFilter, tff2 -> tff2
           | tff1, DefaultFilter -> tff1
           | RotatingFilter (i1, nfs1), RotatingFilter (i2, nfs2) ->
               let res =
                 match nfs1, nfs2 with
-                  [true, "%s", None], [false, s, isopt] ->
+                | [true, "%s", None], [false, s, isopt] ->
                     i1, [true, s, isopt]
                 | _ ->
                     (* stupid hack to implement Compressed *)
@@ -149,28 +147,35 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
                     (if i1 = List.length nfs1 then i1 + i2' else i1), nfs1 @ nfs2'
               in
               RotatingFilter res
+         in
+         let tfamerge = function
+                        | Some _, _ -> aopt1
+                        | _         -> aopt2
         in
-        TreeFormat (tfkmerge (tfk1, tfk2), tffmerge (tff1, tff2))
+        TreeFormat (tfkmerge (tfk1, tfk2), tffmerge (tff1, tff2), tfamerge(aopt1, aopt2))
     
-    let rec format_of_layout fmtf tnsf l =
+    let rec format_of_layout fmtf tnsf assf l =
       let rec f_of_l compress (fmt, tns) =
         TreeFormat
           (SimpleFormat,
-           RotatingFilter (0, [compress, fmtf fmt, optf tnsf tns]))
+           RotatingFilter (0, [compress, fmtf fmt, optf tnsf tns]),
+           None
+          )
       in
       match l with
-      | HideRootLayout         -> TreeFormat (HideRootFormat, DefaultFilter)
-      | HideCutLayout          -> TreeFormat (HideCutFormat, DefaultFilter)
+      | HideRootLayout         -> TreeFormat (HideRootFormat, DefaultFilter, None)
+      | HideCutLayout          -> TreeFormat (HideCutFormat, DefaultFilter, None)
       | CompressedLayout stuff -> f_of_l true stuff
       | NamedLayout stuff      -> f_of_l false stuff
+      | AssumptionLayout t     -> TreeFormat (SimpleFormat, DefaultFilter, Some (assf t))
     
     let term_of_ints tns = Termstore.registerTup (",", term_of_int <* tns)
     let term_of_string s = Termstore.registerLiteral(Termtype.String s)
 
-    let rec layouts_of_format (TreeFormat (tfk, tff) (* as f *)) =
+    let rec layouts_of_format (TreeFormat (tfk, tff, _) (* as f *)) =
       let rec layout =
         function
-          (true, s, isopt) :: nfs ->
+        | (true, s, isopt) :: nfs ->
             CompressedLayout (ly s isopt) :: layout nfs
         | (false, s, isopt) :: nfs -> NamedLayout (ly s isopt) :: layout nfs
         | [] -> []
@@ -208,8 +213,8 @@ module type VisFmt =
     (* VisPaths, at the present, are still simple lists of non-negative integers ... *)
     type vispath = VisPath of int list
     val string_of_vispath : vispath -> string
-    type visformat = VisFormat of (bool * bool)
-    (* ismultistep, ishiddencut *)
+    type visformat = VisFormat of (bool * bool * string option)
+    (* ismultistep, ishiddencut, assumption text *)
        
     val string_of_visformat : visformat -> string
   end
@@ -219,11 +224,11 @@ module VisFmt : VisFmt =
     open Stringfuns
     open Listfuns
     
-    type visformat = VisFormat of (bool * bool)
-    (* ismultistep, ishiddencut *)
+    type visformat = VisFormat of (bool * bool * string option)
+    (* ismultistep, ishiddencut, assumption text *)
        
     let string_of_visformat  (VisFormat f) =
-      "VisFormat" ^ string_of_pair string_of_bool string_of_bool "," f
+      "VisFormat" ^ string_of_triple string_of_bool string_of_bool (Optionfuns.string_of_option (fun s -> s)) "," f
         
     type vispath = VisPath of int list
 

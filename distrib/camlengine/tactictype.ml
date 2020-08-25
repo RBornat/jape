@@ -72,7 +72,6 @@ type tactic =
   | BindOpenSubGoalsTac of (term * tactic)
   | BindFindHypTac of (term * tactic)
   | BindFindConcTac of (term * tactic)
-  | BindTuplistTac of (term * term * term * tactic)
   | BindUnifyTac of (term * term * tactic)
   | BindOccursTac of (term * term * term * tactic)
   | LayoutTac of (tactic * treelayout)

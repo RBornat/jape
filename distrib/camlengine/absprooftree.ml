@@ -98,10 +98,14 @@ let validconc t el ns = Vistree.validconc t el (VisPath ns)
 let stillopen t = Vistree.stillopen t <.> (fun v->VisPath v)
 
 let ismultistep t =
-  match format t with VisFormat (b, _) -> b
+  match format t with VisFormat (b, _, _) -> b
 
 let ishiddencut t =
-  match format t with VisFormat (_, b) -> b
+  match format t with VisFormat (_, b, _) -> b
+  
+let assumptiontail t =
+  match format t with VisFormat (_, _, None  ) -> ""
+                 |    VisFormat (_, _, Some s) -> " " ^ s
 
 let reason = reason proved  (* VisTree.reason, I think (and hope). Plucks out Some j.why from Join j, None from Tip.
                                'proved' is ignored, because (says VisTree) it's already happened. RB 08/2020

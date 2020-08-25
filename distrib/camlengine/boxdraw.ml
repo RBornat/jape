@@ -301,7 +301,7 @@ type revpath = RevPath of int list          (* no more uncertainty *)
 type normalpt =
   | LinPT of (revpath * bool * element list * string option *
                 (reason * element list * normalpt list) option)
-  | BoxPT of (revpath * bool * (string * string) * element list * normalpt)
+  | BoxPT of (revpath * bool * (string * string) * string * element list * normalpt)
   | CutPT of (revpath * element * normalpt * normalpt * bool * bool)
   | TransitivityPT of (element * normalpt * normalpt)
     (* no revpath needed in transitivity node, because all you ever see is the tips;
@@ -341,7 +341,7 @@ let rec pretransform prefixwithstile t =
     in
     let boxpt lines =
       (* consolereport ["boxpt with newhyps="; bracketed_string_of_list string_of_element ";" newhyps]; *)
-      false, BoxPT (RevPath rp, !innerboxes, innerwords, newhyps, lines)
+      false, BoxPT (RevPath rp, !innerboxes, innerwords, assumptiontail t, newhyps, lines)
     in
     let rec hyps seq = snd_of_3 (Absprooftree.explode seq) in
     let rec concs seq = thrd (Absprooftree.explode seq) in
@@ -409,8 +409,8 @@ let rec pretransform prefixwithstile t =
         )
   in
   match respt (pt [] [] t) with
-  | BoxPT (pi, _, _, hs, ptr) ->
-      BoxPT (pi, !outermostbox, outerwords, hs, ptr)
+  | BoxPT (pi, _, _, _, hs, ptr) ->
+      BoxPT (pi, !outermostbox, outerwords, "", hs, ptr)
   | ptr -> ptr
 
 (******** Step 2: compute class of each element, element texts and sizes, and paths ********)
@@ -589,13 +589,14 @@ let rec dependency tranreason deadf pt =
        | true, Some (_, [lp], []) -> IdDep (lp, dep)
        | _                        -> dep
       )
-  | BoxPT (rp, boxit, (sing, plur), hs, pt') ->
+  | BoxPT (rp, boxit, (sing, plur), asst, hs, pt') ->
       let pi = ordinarypi rp in
       let rec mkplan e =
         e, (textinfo_of_element e, ElementPlan (pi, e, HypPlan))
       in
+      consolereport ["sing is "; sing; " and asst is "; asst];
       BoxDep (boxit,
-              (textinfo_of_string ReasonFont sing, textinfo_of_string ReasonFont plur),
+              (textinfo_of_string ReasonFont (sing ^ asst), textinfo_of_string ReasonFont (plur ^ asst)),
               mkplan <* hs, 
               dependency tranreason ordinary pt'
              )
