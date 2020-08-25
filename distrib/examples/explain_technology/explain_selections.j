@@ -113,23 +113,16 @@ TACTIC ComplainForwardButBackwardPoss (fpat, frule, brule, shape, explainconc) I
             explainconc, brule)
 
 TACTIC ComplainForwardWrongHyp (stepname, shape, Ph) IS
-    ALERT   ("To make a forward step with %s you must select something of the form %s. \
+    ALERT   ("To make a forward step with %s you must select a hypothesis of the form %s. \
             \\nYou selected %s, which isn't of that form.", stepname, shape, Ph)
             ("OK", STOP) 
 
 TACTIC ComplainForwardNoHyp (fpat, stepname, shape, extra) IS
-        (ALERT   ("To make a forward step with %s you must select a formula to work forward from.\
+        (ALERT   ("To make a forward step with %s you must select a single hypothesis to work forward from.\
                   \\nYou didn't.%s", stepname, extra)
                   ("OK", STOP) ("Huh?", SEQ ExplainClicks STOP))
 
 TACTIC ComplainForwardExtraHyps (fpat, stepname, shape, allhyps, testhyps) IS
-   WHEN (LETTUPLE fpat _Hs testhyps
-            (ALERT ("To make a forward step with %s you must select a hypothesis of the form %s. \
-                    \\nYou selected more than that: %l.", frule, shape, (allhyps, ", ", " and "))
-                   ("OK", STOP)))
-        (LETTUPLE _H1 _Hs testhyps
-            (ComplainForwardExtraHyps fpat stepname shape allhyps _Hs))
-        (ALERT ("To make a forward step with %s you must select a hypothesis of the form %s. \
-                    \\nYou selected more than one hypothesis -- %l -- but none of them matched %s.", 
-                    frule, shape, (allhyps, ", ", " and "), shape)
-                   ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords))
+   ALERT ("To make a forward step with %s you must select a single hypothesis of the form %s. \
+           \\nYou selected more than one: %l.", frule, shape, (allhyps, ", ", " and "))
+         ("OK", STOP) ("Huh?", Explainhypothesisandconclusionwords)
