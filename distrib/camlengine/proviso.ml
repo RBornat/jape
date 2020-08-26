@@ -50,7 +50,7 @@ let catelim_invisbracketedstring_of_proviso b p tail =
   | FreshProviso (h, g, r, v) ->
       (if r then "IMP" else "") ::
         (match h, g with
-           true, true -> ""
+         | true, true -> ""
          | true, false -> "HYP"
          | false, true -> "CONC"
          | false, false -> "????") ::
@@ -59,12 +59,12 @@ let catelim_invisbracketedstring_of_proviso b p tail =
       let good =
         List.exists
           (function
-             Segvar _ -> true
+           | Segvar _ -> true
            | _ -> false)
       in
       let easy =
         match t1, t2 with
-          Collection (_, _, e1s), Collection (_, _, s_of_e) ->
+        | Collection (_, _, e1s), Collection (_, _, s_of_e) ->
             good e1s || good s_of_e
         | Collection (_, _, e1s), _ -> good e1s
         | _, Collection (_, _, s_of_e) -> good s_of_e
@@ -115,7 +115,7 @@ let rec provisoselfparent (VisProviso v) =
 
 let rec catelim_invisbracketedstring_of_visproviso b a1 a2 =
   match a1, a2 with
-    VisProviso {visible = true; actual = p}, tail ->
+  | VisProviso {visible = true; actual = p}, tail ->
       catelim_invisbracketedstring_of_proviso b p tail
   | VisProviso {visible = false; actual = p}, tail ->
       "<<" :: catelim_invisbracketedstring_of_proviso b p (">>" :: tail)
@@ -135,7 +135,7 @@ let detailedstring_of_visproviso = stringfn_of_catelim catelim_detailedstring_of
 
 let rec stripElement =
   function
-    Element (_, _, t) -> t
+  | Element (_, _, t) -> t
   | s ->
       raise
         (Catastrophe_
@@ -176,7 +176,7 @@ let rec parseProvisos () =
     in
     let class__ =
       match classopt with
-        Some c -> c
+      | Some c -> c
       | None -> listclass
     in
     NotoneofProviso (vars, pat, registerCollection (class__, els))
@@ -189,14 +189,14 @@ let rec parseProvisos () =
     in
     let terms =
       match class__ with
-        None -> (stripElement <* els)
+      | None -> (stripElement <* els)
       | Some k -> [registerCollection (k, els)]
     in
     ((fun v->NotinProviso v) <* (vars >< terms))
   in
   let rec freshp p h g r v = p (h, g, r, v) in
   match currsymb () with
-    SHYID "FRESH" ->
+  | SHYID "FRESH" ->
       freshp _FreshProviso true true false <* parseNOTINvars "FRESH"
   | SHYID "HYPFRESH" ->
       freshp _FreshProviso true false false <* parseNOTINvars "HYPFRESH"
@@ -217,7 +217,7 @@ let rec parseProvisos () =
         in
         let rec bk =
           function
-            [el] -> string_of_term (mkBag [el])
+          | [el] -> string_of_term (mkBag [el])
           | els -> ("[" ^ string_of_term (mkBag els)) ^ "]"
         in
         let rec collbad s =
@@ -226,7 +226,7 @@ let rec parseProvisos () =
                           " found after collection "; bk els])
         in
         match class__, currsymb () with
-          None, SHYID "NOTIN"    -> parseNOTIN ((stripElement <* els))
+        | None, SHYID "NOTIN"    -> parseNOTIN ((stripElement <* els))
         | None, SHYID "IN"       -> [parseNOTONEOF ((stripElement <* els))]
         | _, SHYID "NOTIN"       -> collbad "NOTIN"
         | _, SHYID "IN"          -> collbad "IN"
@@ -237,7 +237,7 @@ let rec parseProvisos () =
             in
             let (t1, t2) =
               match class', els, els' with
-                Some k, _, _ ->
+              | Some k, _, _ ->
                   registerCollection (k, els),
                   registerCollection (k, els')
               | None, [el], [el'] -> stripElement el, stripElement el'
@@ -318,10 +318,10 @@ let maxprovisoresnum p =
 let expandProvisos ps =
   let ep p ps = 
     match p with
-      DistinctProviso vs -> 
+    | DistinctProviso vs -> 
         let rec dp = 
           function 
-            []    -> ps
+          | []    -> ps
           | v::vs -> foldr (fun v' ps -> DistinctProviso[v;v']::ps) (dp vs) vs
         in dp vs
     | p -> p :: ps
@@ -352,7 +352,7 @@ let compressProvisos ps =
   (* make all supported subsets *)
   let rec subsets =
     function 
-      [] -> [[]]
+    | [] -> [[]]
     | x :: xs -> 
         let xss = subsets xs in
         foldr (fun ys yss -> if all (fun y -> List.mem [x;y] xy2s) ys
@@ -364,7 +364,7 @@ let compressProvisos ps =
   let sets = sort (fun xs ys -> List.length xs>List.length ys) sets in
   let rec comb =
     function 
-      []        -> []
+    | []        -> []
     | xs :: xss -> xs :: comb ((fun xs' -> sorteddiff earliervar xs' xs != []) <| xss)
   in
   let distincts = (function ([x;y] as xy) -> if List.mem (false,xy) xys 
