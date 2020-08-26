@@ -113,13 +113,13 @@ let rec string_of_paragraph p =
   | Theory           (rh, paras) -> Printf.sprintf "Theory (%s,%s)" (string_of_ruleheading rh) (bracketed_string_of_list string_of_paragraph ";" paras)
 
 and string_of_ruleheading = function
-  RuleHeading (n, paraparams, provisos) ->
+| RuleHeading (n, paraparams, provisos) ->
     Printf.sprintf "RuleHeading (%s,%s,%s)" (Name.string_of_name n) 
                                             (bracketed_string_of_list Paraparam.string_of_paraparam ";" paraparams) 
                                             (bracketed_string_of_list Proviso.string_of_proviso ";" provisos)
                                          
 and string_of_tacticheading = function
-  TacticHeading (n, paraparams) ->
+| TacticHeading (n, paraparams) ->
     Printf.sprintf "TacticHeading (%s,%s)" (Name.string_of_name n) 
                                            (bracketed_string_of_list Paraparam.string_of_paraparam ";" paraparams) 
 
@@ -136,7 +136,7 @@ and string_of_menupara = function
 let rec name_of_stringsymbol sy =
   let rec ok v = Some (Name v) in
   match sy with
-    ID       (s, _) -> ok s
+  | ID       (s, _) -> ok s
   | UNKNOWN  (s, _) -> ok (metachar_as_string ^ s)
   | PREFIX        s -> ok s
   | POSTFIX       s -> ok s
@@ -152,13 +152,13 @@ let rec name_of_stringsymbol sy =
 
 let rec stringfromsymbol sy =
   match name_of_stringsymbol sy with
-    Some (Name s) -> Some s
+  | Some (Name s) -> Some s
   | None -> None
 
 let rec name_of_currsymb () =
   let sy = let r = currsymb () in scansymb (); r in
   match name_of_stringsymbol sy with
-    Some s -> s
+  | Some s -> s
   | None   ->
       raise (ParseError_
                ["Identifier or string expected; found "; debugstring_of_symbol sy])
@@ -174,7 +174,7 @@ let _AREWORD = SHYID "ARE"
 
 let rec parseProvisos () =
   match currsymb () with
-    SHYID "WHERE" ->
+  | SHYID "WHERE" ->
       scansymb ();
       List.concat
         (parseList (fun _ -> true) (fun _ -> Proviso.parseProvisos ())
@@ -199,7 +199,7 @@ and parseTacticHeading ignoreable =
 (* we no longer permit WHERE inside a parameter list *)
 and parseformals mustdecl =
   match currsymb () with
-    BRA "(" ->
+  | BRA "(" ->
       scansymb ();
       let _r = parseList (fun sy -> sy <> KET ")") (fun _ -> parseformal mustdecl) commasymbol in
       check (KET ")"); _r
@@ -208,43 +208,43 @@ and parseformals mustdecl =
 and parseformal mustdecl =
   try
     match currsymb () with
-      SHYID "ABSTRACTION" ->
-        begin match scansymb (); currsymb() with
-          ID (s, Some c) -> scansymb (); Abstractionparam (vid_of_string s, c)
-        | _ -> raise (Matchinparseformal "an identifer after ABSTRACTION")
-        end
+    | SHYID "ABSTRACTION" ->
+        (match scansymb (); currsymb() with
+         | ID (s, Some c) -> scansymb (); Abstractionparam (vid_of_string s, c)
+         | _ -> raise (Matchinparseformal "an identifer after ABSTRACTION")
+        )
     | SHYID "OBJECT" ->
-        begin match scansymb(); currsymb() with
-          ID (s, Some c) -> scansymb (); Objectparam (vid_of_string s, c)
-        | _ -> raise (Matchinparseformal "an identifer after OBJECT")
-        end
+        (match scansymb(); currsymb() with
+         | ID (s, Some c) -> scansymb (); Objectparam (vid_of_string s, c)
+         | _ -> raise (Matchinparseformal "an identifer after OBJECT")
+        )
     | ID (s, Some c) -> scansymb (); Ordinaryparam (vid_of_string s, c)
     | ID (s, None) ->
         if mustdecl then
           raise (ParseError_ ["unclassified identifier "; s; " in formal parameter list"])
-        else begin scansymb (); Ordinaryparam (vid_of_string s, NoClass) end
+        else (scansymb (); Ordinaryparam (vid_of_string s, NoClass) )
     | UNKNOWN (s, Some c) -> scansymb (); Unknownparam (vid_of_string s, c)
     | UNKNOWN (s, None) ->
         if mustdecl then
           raise
             (ParseError_
                ["unclassified unknown "; metachar_as_string; s; " in formal parameter list"])
-        else begin scansymb (); Unknownparam (vid_of_string s, NoClass) end
+        else (scansymb (); Unknownparam (vid_of_string s, NoClass) )
     | sy ->
         raise (Matchinparseformal "an identifier in formal parameter list")
   with
-    Matchinparseformal s ->
+  | Matchinparseformal s ->
       raise
         (ParseError_
            ["Expecting "; s; ", found "; debugstring_of_symbol (currsymb ())])
 
 let rec itisaparamlist () =
   match currsymb () with
-    BRA "(" ->
+  | BRA "(" ->
       let rec res ps (v : bool) = List.iter (fun s -> putbacksymb s) ps; v in
       let rec param ps =
         match currsymb () with
-          ID _ -> sep (let r = currsymb () :: ps in scansymb (); r)
+        | ID _ -> sep (let r = currsymb () :: ps in scansymb (); r)
         | UNKNOWN _ -> sep (let r = currsymb () :: ps in scansymb (); r)
         | SHYID "ABSTRACTION" -> res ps true
         | SHYID "OBJECT" -> res ps true
@@ -256,12 +256,11 @@ let rec itisaparamlist () =
         else res ps false
       and ket ps =
         res (KET ")" :: ps)
-          begin
-            scansymb ();
-            member
-              (currsymb (),
-               [SHYID "IS"; SHYID "WHERE"; SHYID "FROM"; SHYID "INFER"])
-          end
+            (scansymb ();
+             member
+               (currsymb (),
+                [SHYID "IS"; SHYID "WHERE"; SHYID "FROM"; SHYID "INFER"])
+            )
       in
       let ps = scansymb (); [BRA "("] in
       if currsymb () = KET ")" then ket ps else param ps
@@ -274,7 +273,7 @@ let rec parsenovelsymb message =
       (ParseError_ [debugstring_of_symbol sy; " shouldn't appear "; message])
   in
   match sy with
-    ID (s, _) -> scansymb (); s
+  | ID (s, _) -> scansymb (); s
   | BRA   "(" -> bang ()
   | BRA   bra -> scansymb (); bra
   | SEP     s -> scansymb (); s
@@ -294,19 +293,19 @@ let rec parseFixitySYMB () = parsenovelsymb "in a Fixity directive"
 
 let rec acceptpreviousnovelsymb ok message =
   let newsy = currnovelsymb () in
-  if ok newsy then begin scansymb (); string_of_symbol newsy end
+  if ok newsy then (scansymb (); string_of_symbol newsy )
   else parsenovelsymb message
 
 let rec parseNUM () =
   match currsymb () with
-    NUM n -> scansymb (); atoi n
+  | NUM n -> scansymb (); atoi n
   | s ->
       raise
         (ParseError_ ["Expecting a number, found "; debugstring_of_symbol s])
 
 let rec parseClassID () =
   match currnovelsymb () with
-    ID (s, _) -> scansymb (); s
+  | ID (s, _) -> scansymb (); s
   | s         -> raise (ParseError_ ["Expecting an identifier, found "; debugstring_of_symbol s])
 
 let rec processKEYBOARD report query =
@@ -320,7 +319,7 @@ let rec processKEYBOARD report query =
 let rec processClassDecl report query class__ =
   let rec doit s =
     match declareIdClass class__ s with
-      Some (s', class') ->(* showInputError report ["warning: ", unparseidclass class, " ", s,
+    | Some (s', class') ->(* showInputError report ["warning: ", unparseidclass class, " ", s,
                                 " may be confused with earlier CLASS ", 
                                 unparseidclass class', " ", s', " directive"]
        *)
@@ -347,7 +346,7 @@ let rec processInfix _SYMBCON =
   let l = parseNUM () in
   let a =
     match currsymb_as_string () with
-      "L" -> LeftAssoc
+    | "L" -> LeftAssoc
     | "R" -> RightAssoc
     | "T" -> TupleAssoc
     | s ->
@@ -374,7 +373,7 @@ let rec processUnifix con =
 
 let processPushSyntax () =
   match currsymb () with
-    STRING s ->  
+  | STRING s ->  
       scansymb ();
       Symbol.pushSyntax s; Termparse.pushSyntax s; Sequent.pushSyntax s
   | s        ->
@@ -408,7 +407,7 @@ let rec processSubstfix report query =
     enter sep None None SUBSTSEP;
     enter ket None None SUBSTKET;
     match idclass t1, idclass t2 with
-      VariableClass, FormulaClass -> substsense := true
+    | VariableClass, FormulaClass -> substsense := true
     | FormulaClass, VariableClass -> substsense := false
     | _ ->
         raise
@@ -419,7 +418,7 @@ let rec processSubstfix report query =
 
 let rec parseUntilSHYID parser__ =
   if match currsymb () with
-       EOF -> true
+     | EOF -> true
      | SHYID _ -> true
      | _ -> false
   then
@@ -439,7 +438,7 @@ let rec processOutRightfix name econ =
   let bra = parseFixitySYMB () in
   let ms = parseUntilSHYID parseFixitySYMB in
   match List.rev ms with
-    [] -> raise (ParseError_ [name; " "; bra; " has no closing bracket"])
+  | [] -> raise (ParseError_ [name; " "; bra; " has no closing bracket"])
   | ket :: ms' ->
       List.iter (fun m -> enter m None None (SEP m)) ms';
       econ bra;
@@ -458,7 +457,7 @@ let rec processBind () =
   in
   let scope =
     match currsymb () with
-      SHYID "SCOPE" ->
+    | SHYID "SCOPE" ->
         scansymb ();
         parseUnsepList canstartidentifier (fun _ -> parseidentifier ())
     | _ -> []
@@ -511,7 +510,7 @@ let rec processPatchAlert () =
     scansymb ();
     (* we know there's a BRA there *)
     match currsymb () with
-      STRING b ->
+    | STRING b ->
         scansymb ();
         (match currsymb () with
 		 | KET ")" -> scansymb (); b, None
@@ -541,14 +540,14 @@ let rec processPatchAlert () =
   
   and parsealertspec _ =
     match currsymb () with
-      STRING m ->
+    | STRING m ->
         scansymb ();
-        begin match parsebuttonspecs () with
-          [] ->
-            raise
-              (ParseError_ ["alert in PATCHALERT has no button specs"])
-        | bs -> Alert.Alert (m, bs, parsedefaultindex ())
-        end
+        (match parsebuttonspecs () with
+         | [] ->
+             raise
+               (ParseError_ ["alert in PATCHALERT has no button specs"])
+         | bs -> Alert.Alert (m, bs, parsedefaultindex ())
+        )
     | s ->
         let rec bang () =
           raise
@@ -558,7 +557,7 @@ let rec processPatchAlert () =
                 string_of_symbol s])
         in
         match stringfromsymbol s with
-          Some "HowToFormulaSelect"     -> scansymb (); Alert.HowToFormulaSelect
+        | Some "HowToFormulaSelect"     -> scansymb (); Alert.HowToFormulaSelect
         | Some "HowToTextSelect"        -> scansymb (); Alert.HowToTextSelect
         | Some "HowToDragFormulae"      -> scansymb (); Alert.HowToDragFormulae
         | Some "HowToDragDisproofStuff" -> scansymb (); Alert.HowToDragDisproofStuff
@@ -567,27 +566,27 @@ let rec processPatchAlert () =
   and parsebuttonspecs () =
     parseUnsepList
       (function
-         BRA "(" -> true
+       | BRA "(" -> true
        | _ -> false)
       parsebuttonspec
   
   and parsedefaultindex () =
     match currsymb () with
-      NUM s -> scansymb (); atoi s
+    | NUM s -> scansymb (); atoi s
     | _ -> 0
   
   in
   match currsymb () with
-    STRING h ->
+  | STRING h ->
       scansymb ();
-      begin match currsymb () with
-        BRA "(" ->
-          (* no replacement message, but there are buttons *)
-          Alert.patchalert
-            (h,
-             Alert.Alert ("", parsebuttonspecs (), parsedefaultindex ()))
-      | _ -> Alert.patchalert (h, parsealertspec ())
-      end
+      (match currsymb () with
+       | BRA "(" ->
+           (* no replacement message, but there are buttons *)
+           Alert.patchalert
+             (h,
+              Alert.Alert ("", parsebuttonspecs (), parsedefaultindex ()))
+       | _ -> Alert.patchalert (h, parsealertspec ())
+      )
   | _ ->
       raise
         (ParseError_
@@ -600,7 +599,7 @@ let rec parseAntecedents starter =
 
 let rec parseButtonDefault f =
   match currsymb () with
-    SHYID "INITIALLY" -> scansymb (); Some (f ())
+  | SHYID "INITIALLY" -> scansymb (); Some (f ())
   | _ -> None
 
 let rec parseCheckBox report query con =
@@ -617,13 +616,13 @@ let rec parseRadioButton report query con =
   in
   ignore _ISWORD;
   match parseList (fun _ -> true) parseentry (SHYID "AND") with
-    [] ->
+  | [] ->
       showInputError report ["null value/label list in RADIOBUTTON directive"];
       raise Use_
   | entries ->
       let defval = parseButtonDefault currsymb_as_string in
       match currsymb () with
-        SHYID "END" -> scansymb (); con (var, entries, defval)
+      | SHYID "END" -> scansymb (); con (var, entries, defval)
       | s           ->
           showInputError report
             ["found symbol "; debugstring_of_symbol s;
@@ -647,14 +646,14 @@ let rec checkvalidruleheading report objkind wherekind =
     let obvs : term list option ref = ref None in
     let rec check vs errorf =
       match !obvs with
-        None ->
+      | None ->
           (match sorteddiff earliervar vs bodyvars with
-             [] -> () (* nothing wrong - the usual case *)
+           | [] -> () (* nothing wrong - the usual case *)
            | _  -> obvs := Some (tmerge bodyvars (fbvs ())); 
                    check vs errorf)
       | Some bvs ->
           (match sorteddiff earliervar vs bvs with
-             []     -> () (* definitely nothing wrong *)
+           | []     -> () (* definitely nothing wrong *)
            | extras -> errorf extras)
     in
     let rec add_an_s s b = if b then s ^ "s" else s in
@@ -662,7 +661,7 @@ let rec checkvalidruleheading report objkind wherekind =
       let place = place() in
       let has = has() in
       (match split (fun v -> member (v, bodyvars)) vs with
-         [], _ ->
+       | [], _ ->
            showInputError report
              [place; " "; objkind; " "; string_of_name name; " "; has; " ";
               add_an_s "variable" (List.length vs > 1); " ";
@@ -697,7 +696,7 @@ let rec parseParagraph report query env =
   let sy = currsymb () in
   let rec more () = parseParagraph report query env in
   match sy with
-    SHYID "AUTOMATCH"       -> scansymb (); Some (parseAutoRule true)
+  | SHYID "AUTOMATCH"       -> scansymb (); Some (parseAutoRule true)
   | SHYID "AUTOUNIFY"       -> scansymb (); Some (parseAutoRule false)
   | SHYID "BIND"            -> scansymb (); processBind (); more ()
   | SHYID "CONCHIT"         -> scansymb (); Some (parseHitDef DClickConc)
@@ -763,7 +762,7 @@ and processSequentSpec () =
     let s2 =
       acceptpreviousnovelsymb
         (function
-           STILE s -> true
+         | STILE s -> true
          | _ -> false)
         "as entailment in SEQUENT specification"
     in
@@ -775,7 +774,7 @@ and processSequentSpec () =
 and processSemanticTurnstileSpec () =
   let syn =
     match currsymb () with
-      STILE s -> scansymb (); s
+    | STILE s -> scansymb (); s
     | sy ->
         raise
           (ParseError_
@@ -786,7 +785,7 @@ and processSemanticTurnstileSpec () =
   let sem =
     acceptpreviousnovelsymb
       (function
-         STILE s -> true
+       | STILE s -> true
        | _ -> false)
       "as semantic turnstile"
   in
@@ -812,9 +811,9 @@ and parseUnnamedRule report nopt axiom =
   let _ = ignore _ISWORD in
   let (antes, conseq) = parseRulebody () in
   let name = Name (match nopt with
-                     Some n -> n
+                   | Some n -> n
                    | None   -> match antes with
-                                 [] -> string_of_thmbody " " [] conseq
+                               | [] -> string_of_thmbody " " [] conseq
                                | _  -> string_of_rulebody " " [] antes conseq)
   in
   let heading = RuleHeading (name, params, provisos) in
@@ -825,7 +824,7 @@ and parseUnnamedRule report nopt axiom =
 
 and parseRulebody () =
   match currsymb () with
-    SHYID "FROM" ->
+  | SHYID "FROM" ->
       scansymb (); 
       let antes = parseAntecedents (fun _ -> true) in
       (antes, parseSeq ())
@@ -833,10 +832,10 @@ and parseRulebody () =
 
 and parseParaList report query env =
   match parseParagraph report query env with
-    Some p -> p :: parseParaList report query env
+  | Some p -> p :: parseParaList report query env
   | None ->
       match currsymb () with
-        SHYID "END" -> scansymb (); []
+      | SHYID "END" -> scansymb (); []
       | EOF -> []
       | sy ->
           raise
@@ -859,13 +858,13 @@ and parseMenu report query env mproof =
     let itemname = name_of_currsymb () in
     let menukey =
       match currsymb () with
-        SHYID "MENUKEY" -> scansymb (); Some (currsymb_as_string ())
+      | SHYID "MENUKEY" -> scansymb (); Some (currsymb_as_string ())
       | _ -> None
     in
     let item =
       prefix ^
         (match currsymb () with
-           SHYID "IS" -> scansymb (); getitem ()
+         | SHYID "IS" -> scansymb (); getitem ()
          | _ ->
              if canstart (currsymb ()) then getitem ()
              else toitem itemname)
@@ -879,7 +878,7 @@ and parseMenu report query env mproof =
   
   and parsemenucommand () = 
       match currsymb () with
-        SHYID "BEFOREENTRY" -> 
+      | SHYID "BEFOREENTRY" -> 
           scansymb(); 
           let beforename = name_of_currsymb() in
           MCbefore (beforename, parsesimpleentry())
@@ -891,7 +890,7 @@ and parseMenu report query env mproof =
   
   and parsesimpleentry () = 
       match currsymb () with
-        SHYID "ENTRY" ->
+      | SHYID "ENTRY" ->
           scansymb ();
           mkentry canstartTerm (fun () -> parseTacticEntry report)
             "apply " parseablestring_of_name
@@ -915,7 +914,7 @@ and parseMenu report query env mproof =
           parseUnsepList (fun s -> member (s, symbs)) (fun _ -> parseentry ()))
   in
   match currsymb () with
-    SHYID "END" -> scansymb (); m
+  | SHYID "END" -> scansymb (); m
   | s ->
       showInputError report
         ((["found symbol "; debugstring_of_symbol s; " in menu description: ";
@@ -926,7 +925,7 @@ and parseMenu report query env mproof =
 
 and parseConjectureEntry report =
   try match name_of_stringsymbol (currsymb()) with
-        Some _ -> argstring_of_tactic (transTactic (asTactic parseTerm EOF))
+      | Some _ -> argstring_of_tactic (transTactic (asTactic parseTerm EOF))
       | None   ->
           raise (ParseError_ ["conjecture name expected in ENTRY; found ";
                               string_of_symbol (currsymb())])
@@ -939,7 +938,7 @@ and parseConjecturePanel report query env =
 
 and parseTacticEntry report =
   try argstring_of_tactic (transTactic (asTactic parseTerm EOF)) with
-    ParseError_ ss -> showInputError report ss; raise Use_
+  | ParseError_ ss -> showInputError report ss; raise Use_
 
 and parseTacticPanel report query env =
   parsePanel report query env TacticPanelkind parseTacticEntry
@@ -961,11 +960,11 @@ and parsePanel report query env panelkind parseEntry entrystarters parastarters 
       Panelpara (_The (parseParagraph report query env))
     else
       match currsymb () with
-        SHYID "ENTRY" ->
+      | SHYID "ENTRY" ->
           let itemname = scansymb (); name_of_currsymb () in
           let item =
             match currsymb () with
-              SHYID "IS" -> scansymb (); parseEntry report
+            | SHYID "IS" -> scansymb (); parseEntry report
             | _ ->
                 if canstartTerm (currsymb ()) then parseEntry report
                 else parseablestring_of_name itemname
@@ -978,7 +977,7 @@ and parsePanel report query env panelkind parseEntry entrystarters parastarters 
           in
           let rec getcmd () =
             match currsymb () with
-              SHYID "LABEL"   -> scansymb (); LabelInsert :: getcmd ()
+            | SHYID "LABEL"   -> scansymb (); LabelInsert :: getcmd ()
             | SHYID "COMMAND" -> scansymb (); CommandInsert :: getcmd ()
             | sy              -> if canstartCommand sy then
                                    let v = StringInsert (parseCommand ()) in v :: getcmd ()
@@ -986,7 +985,7 @@ and parsePanel report query env panelkind parseEntry entrystarters parastarters 
           in
           let itemcmd =
             match getcmd () with
-              [] -> raise
+            | [] -> raise
                       (ParseError_ ["command expected after BUTTON, found "; string_of_symbol (currsymb ())])
             | cs -> cs
           in
@@ -1009,7 +1008,7 @@ and parsePanel report query env panelkind parseEntry entrystarters parastarters 
        panelkind)
   in
   match currsymb () with
-    SHYID "END" -> scansymb (); p
+  | SHYID "END" -> scansymb (); p
   | s ->
       showInputError report
         ((["error in panel description: found "; debugstring_of_symbol s;
@@ -1024,14 +1023,14 @@ and parseCommand () =
   (* always protected by canstartCommand *)
   try
     let f = match currsymb() with
-              STRING s -> enQuote s
+            | STRING s -> enQuote s
             | sy       -> string_of_symbol sy 
     in
     scansymb();
     if canstartCommand (currsymb ()) then f ^ " " ^ parseCommand ()
     else f
   with
-    None_ ->  raise (Catastrophe_ ["name_of_stringsymbol failed in parseCommand, looking at "; 
+  | None_ ->  raise (Catastrophe_ ["name_of_stringsymbol failed in parseCommand, looking at "; 
                                    string_of_symbol(currsymb())])
 
 and parseHitDef sense =
@@ -1047,15 +1046,14 @@ and processInitialise report env =
         report ("can't INITIALISE " :: parseablestring_of_name name :: ss);
         raise Use_
       in
-      begin try Japeenv.termset env name term 
-            with
-            | Japeenv.OutOfRange_ range ->
-                lreport [" to "; string_of_term term; " - variable can only be set to "; range]
-            | Japeenv.NotJapeVar_ ->
-                lreport [" - it isn't a variable in the environment"]
-            | Japeenv.ReadOnly_ ->
-                lreport [" - it can't be altered, given the state of other stored values"]
-      end
+      try Japeenv.termset env name term 
+      with
+      | Japeenv.OutOfRange_ range ->
+          lreport [" to "; string_of_term term; " - variable can only be set to "; range]
+      | Japeenv.NotJapeVar_ ->
+          lreport [" - it isn't a variable in the environment"]
+      | Japeenv.ReadOnly_ ->
+          lreport [" - it can't be altered, given the state of other stored values"]
 
 and parseAutoRule sense =
   AutoRule
@@ -1064,7 +1062,7 @@ and parseAutoRule sense =
 
 and parseUse report query env =
   match currsymb () with
-    STRING s -> File (s, paragraphs_of_file report query env s)
+  | STRING s -> File (s, paragraphs_of_file report query env s)
   | s ->
       raise
         (ParseError_ ["USE expects a string; found: "; debugstring_of_symbol s])
@@ -1080,7 +1078,7 @@ and parseTheorems report =
       (p, parseList (fun _ -> true) (fun _ -> parseThm ()) (SHYID "AND"))
   in
   match currsymb () with
-    SHYID "END" -> scansymb (); t
+  | SHYID "END" -> scansymb (); t
   | s ->
       showInputError report
         ["error in THEOREMS description: found "; debugstring_of_symbol s;
@@ -1107,7 +1105,7 @@ and parseUnnamedTheorem report nopt =
   let s = parseSeq () in
   let n =
     match nopt with
-      Some n -> n
+    | Some n -> n
     | None   -> Name (string_of_seq s)
   in
   let heading = RuleHeading (n, params, provisos) in
@@ -1133,7 +1131,7 @@ and parseProof report stage =
     consolereport ["reading "; word_of_proofstage stage; " "; string_of_name n];
     let fs =
       match currsymb () with
-        SHYID "FORMULAE" ->
+      | SHYID "FORMULAE" ->
           scansymb ();
           let fs =
             parseList
@@ -1157,7 +1155,7 @@ and parseProof report stage =
         (* this argument is slowing down proof reading no end - so I lazified it *)
         (fun _ ->
            match fs with
-             None    -> termvars tacterm
+           | None    -> termvars tacterm
            | Some fs ->
                (* bodyvars from old-style proof *)
                nj_fold (uncurry2 tmerge) (termvars <* fs) (isUnknown <| termvars tacterm))
@@ -1165,7 +1163,7 @@ and parseProof report stage =
     let disproofopt = parsemodel () in
     Proof (n, stage, seq, (givens, params, pros, tac), disproofopt)
   with
-    exn -> readintasarg := None; raise exn
+  | exn -> readintasarg := None; raise exn
 
 and parseRules report axiom =
   let n = ref 0 in
@@ -1183,7 +1181,7 @@ and parseRules report axiom =
       (p, parseList (fun _ -> true) (fun _ -> parseRle ()) (SHYID "AND"))
   in
   match currsymb () with
-    SHYID "END" -> scansymb (); t
+  | SHYID "END" -> scansymb (); t
   | s ->
       showInputError report
         ["error in RULES description: found "; string_of_symbol s; ", expecting AND or END"];
@@ -1191,7 +1189,7 @@ and parseRules report axiom =
 
 and parseDerived report =
   match currsymb () with
-    SHYID "RULE"  -> scansymb (); RuleDef (parseRule report false)
+  | SHYID "RULE"  -> scansymb (); RuleDef (parseRule report false)
   | SHYID "RULES" -> scansymb (); parseRules report false
   | sy            ->
       showInputError report
@@ -1208,7 +1206,7 @@ and parseTheory report query env =
                             (fun _ -> _The (parseParagraph report query env))
   in
   match currsymb () with
-    SHYID "END" -> scansymb (); Theory (heading,body)
+  | SHYID "END" -> scansymb (); Theory (heading,body)
   | s           ->
       showInputError report
         ["error in THEORY description: found "; string_of_symbol s;
@@ -1228,9 +1226,9 @@ and parseStructureRule () =
       (ParseError_ ["rule type expected after STRUCTURERULE, found "; s])
   in
   match currsymb () with
-    SHYID s ->
+  | SHYID s ->
       if member (s, structurerulestrings) then
-        begin scansymb (); StructureRule (s, name_of_currsymb ()) end
+        (scansymb (); StructureRule (s, name_of_currsymb ()) )
       else bang s
   | sy -> bang (string_of_symbol sy)
 
@@ -1263,7 +1261,7 @@ and paragraphs_of_file report query env s =
   consolereport ["[OPENING \""; Usefile.normalizePath s; "\"]"];
   let r = 
     (try parseParaList report query env with
-       ParseError_ m -> showInputError report m; error_cleanup (); raise Use_
+     | ParseError_ m -> showInputError report m; error_cleanup (); raise Use_
      | Catastrophe_ ss ->
          showInputError report ("Catastrophic input error: " :: ss);
          error_cleanup (); raise Use_
@@ -1325,7 +1323,7 @@ and string_of_thmbody linesep provisos seq =
 let rec paragraph_of_string report query env s =
   let rec getpara () =
     match parseParagraph report query env with
-      Some p -> p
+    | Some p -> p
     | None ->
         raise
           (ParseError_
