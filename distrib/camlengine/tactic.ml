@@ -579,7 +579,8 @@ and transTactic tacterm =
                         | Some "HIDECUT" , ts          -> LayoutTac (_SEQTAC ts, HideCutLayout)
                         | Some "COMPRESS", fmt :: ts   -> lyt (fun v -> CompressedLayout v) fmt ts
                         | Some "COMPRESS", ts          -> lyt (fun v -> CompressedLayout v) (registerLiteral (String "%s")) ts
-                        | Some "ASSUMPTION", str :: ts -> consolereport ["ASSUMPTION stuff starts "; string_of_term str]; LayoutTac (_SEQTAC ts, AssumptionLayout str)
+                        | Some "ASSUMPTION", str :: ts -> (* consolereport ["ASSUMPTION stuff starts "; string_of_term str]; *) 
+                                                          LayoutTac (_SEQTAC ts, AssumptionLayout str)
                         | _              , ts          -> lyt (fun v -> NamedLayout v) fmt ts
               in
               let mkFold tac =

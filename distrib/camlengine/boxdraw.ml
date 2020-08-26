@@ -594,7 +594,7 @@ let rec dependency tranreason deadf pt =
       let rec mkplan e =
         e, (textinfo_of_element e, ElementPlan (pi, e, HypPlan))
       in
-      consolereport ["sing is "; sing; " and asst is "; asst];
+      (* consolereport ["sing is "; sing; " and asst is "; asst]; *)
       BoxDep (boxit,
               (textinfo_of_string ReasonFont (sing ^ asst), textinfo_of_string ReasonFont (plur ^ asst)),
               mkplan <* hs, 
