@@ -183,12 +183,15 @@ foldsequents & true, false & true & Fold long sequents (which would make the pro
 %{\raggedright collapsedfmt} & {\raggedright any string} & {\raggedright "[\%s...]"} & {\raggedright the string used to control the way that a justification is displayed for a subtree shown in `collapsed' form --- for example, after using Hide/Show Subproof on an uncollapsed subtree.}\\
 %\hline
 
-givenMenuTactic & any tactic name & "GIVEN" & the tactic that is run when the GUI says applygiven -- i.e. when the user applys one of the entries in a Given panel.\\ \hline
+givenMenuTactic & \raggedright{any tactic name} & "GIVEN" & the tactic that is run when the GUI says applygiven -- i.e. when the user applys one of the entries in a Given panel.\\ \hline
 
-{\raggedright hidecut} & {\raggedright true, false} & {\raggedright true} & {\raggedright hide the application of cut rules (those declared by \textsc{structurerule cut}) in box display.}\\
+hidecut & {\raggedright true, false} & {\raggedright true} & {\raggedright hide the application of cut rules (those declared by \textsc{structurerule cut}) in box display.}\\
 \hline
 
-{\raggedright hidehyp} & {\raggedright true, false} & {\raggedright true} & hide the application of identity rules (those declared by \textsc{structurerule identity}) in box display.\\
+hidehyp & {\raggedright true, false} & {\raggedright true} & hide the application of identity rules (those declared by \textsc{structurerule identity}) in box display.\\
+\hline
+
+hidehypprev & {\raggedright true, false} & {\raggedright false} & hide the application of identity rules (those declared by \textsc{structurerule identity}) which refer to the previous line in box display.\\
 \hline
 
 hidereflexivity & true, false & true & hide the application of reflexivity rules (those declared by \textsc{reflexive}) in box display.\\
@@ -198,6 +201,8 @@ hidetransitivity & true, false & true & hide the application of reflexivity rule
 \hline
 
 hideuselesscuts & true, false & false & hide the result of cut steps that introduce hypotheses that are never used in box display.\\ \hline
+
+hidewhy & true, false & false & hide the name of the rule used in a proofstep. \\ \hline
 
 innerassumptionplural & any string & "assumptions" & justification to use, in box display, on first line of a box if it contains more than one assumption.\\ \hline
 
