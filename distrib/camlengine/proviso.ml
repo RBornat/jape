@@ -88,6 +88,7 @@ let catelim_invisbracketedstring_of_proviso b p tail =
       "DISTINCT " ::
          catelim_string_of_list (catelim_invisbracketedstring_of_term b) ", " vs tail
   
+  
 let invisbracketedstring_of_proviso = stringfn_of_catelim <.> catelim_invisbracketedstring_of_proviso
 
 let catelim_string_of_proviso = catelim_invisbracketedstring_of_proviso false
@@ -192,7 +193,7 @@ let rec parseProvisos () =
       | None -> (stripElement <* els)
       | Some k -> [registerCollection (k, els)]
     in
-    ((fun v->NotinProviso v) <* (vars >< terms))
+    ((fun v -> NotinProviso v) <* (vars >< terms))
   in
   let rec freshp p h g r v = p (h, g, r, v) in
   match currsymb () with
@@ -256,11 +257,11 @@ let rec parseProvisos () =
       else
         raise
           (ParseError_
-             ["Proviso -- FRESH.. or HYPFRESH.. or CONCFRESH.. ";
-              "or formula UNIFIESWITH formula or ids NOTIN terms or ";
-              "DISTINCT ids or ";
-              "var IN pattern NOTONEOF collection -- expected, ";
-              "found "; debugstring_of_symbol sy])
+             ["Proviso -- FRESH.. or HYPFRESH.. or CONCFRESH.. \
+               or formula UNIFIESWITH formula or ids NOTIN terms or \
+               DISTINCT ids or \
+              var IN pattern NOTONEOF collection -- expected, \
+              found "; debugstring_of_symbol sy])
 
 (* function for sorting proviso lists so that they are nice and readable *)
 let earlierproviso p1 p2 =
