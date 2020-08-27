@@ -30,7 +30,7 @@ type vid
 (* terms now contain hash information. RB 26/i/00 *)
 (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
 type term =
-    Id of (int option * vid * idclass)
+  | Id of (int option * vid * idclass)
   | Unknown of (int option * vid * idclass)
   | App of (int option * term * term)
   | Tup of (int option * string * term list)
@@ -43,7 +43,7 @@ type term =
   | Collection of (int option * idclass * element list)
 and litcon = Number of int | String of string
 and element =
-    Segvar of (int option * term list * term)
+  | Segvar of (int option * term list * term)
   | Element of (int option * resnum * term)
 and resnum = Nonum | Resnum of int | ResUnknown of int
 
