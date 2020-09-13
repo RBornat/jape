@@ -23,6 +23,11 @@
 
 *)
 
+(* I tried, for about three weeks, to remake the term datatype (should be the formula datatype, really)
+   so that Id and Unknown on the one part, and Collection on the other, were separated. I retired hurt
+   (but see the remaking_term_datatype branch on github). I did (re)learn a lot about how things work.
+   RB 09/20
+ *)
 type vid = string (* but nobody else knows *) 
  and idclass = Idclass.idclass
 
@@ -43,6 +48,7 @@ type term =
 
 and litcon = Number of int | String of string
 
+(* a Segvar has a list of prefix operators and a variable. RB 09/20 *)
 and element =
   | Segvar of (int option * term list * term)
   | Element of (int option * resnum * term)
