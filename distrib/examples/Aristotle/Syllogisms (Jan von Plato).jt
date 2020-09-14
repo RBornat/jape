@@ -67,6 +67,13 @@ RULES contra ARE
   AND FROM ∑⁻(S,P) INFER ∏⁺(S,P)*
 END
 
+RULES IP(B) ARE
+     WHERE SINGLEDISCHARGE ∏⁺(S,P) FROM ∏⁺(S,P) ⊢ B AND B* INFER ∑⁻(S,P)  
+ AND WHERE SINGLEDISCHARGE ∏⁻(S,P) FROM ∏⁻(S,P) ⊢ B AND B* INFER ∑⁺(S,P)  
+ AND WHERE SINGLEDISCHARGE ∑⁺(S,P) FROM ∑⁺(S,P) ⊢ B AND B* INFER ∏⁻(S,P)  
+ AND WHERE SINGLEDISCHARGE ∑⁻(S,P) FROM ∑⁻(S,P) ⊢ B AND B* INFER ∏⁺(S,P) 
+END
+
 TACTIC "contra-tac" IS LAYOUT HIDEROOT contra
 
 AUTOMATCH "contra-tac"
@@ -80,6 +87,7 @@ TACTIC remstar IS
 TACTIC dogiven(i) IS SEQ remstar (GIVEN i)
 
 INITIALISE givenMenuTactic dogiven
+
 MENU Rules IS
   ENTRY "(vp1, subaltern) ∏⁺(P,S) ⇒ ∑⁺(S,P)"    IS ForwardOrBackward ForwardCut 0 vp1
   ENTRY "(vp2, conversion) ∏⁻(P,S) ⇒ ∏⁻(S,P)"   IS ForwardOrBackward ForwardCut 0 vp2

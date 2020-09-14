@@ -47,13 +47,6 @@ TACTIC ForwardOrBackward (Forward, n, rule) IS
        (WITHSELECTIONS rule)
     
 
-RULES IP(B) ARE /* WHERE the hypothesis is discharged exactly once ... */
-     FROM ∏⁺(S,P) ⊢ B AND B* INFER ∑⁻(S,P)  
- AND FROM ∏⁻(S,P) ⊢ B AND B* INFER ∑⁺(S,P)  
- AND FROM ∑⁺(S,P) ⊢ B AND B* INFER ∏⁻(S,P)  
- AND FROM ∑⁻(S,P) ⊢ B AND B* INFER ∏⁺(S,P) 
-END
-
 MACRO "Syllogism-step" (rule, hpat1, hpat2, mpat) IS
   SEQ (rule mpat) (WITHHYPSEL (hyp (hpat1))) (WITHHYPSEL (hyp (hpat2)))
   
