@@ -543,7 +543,7 @@ let string_of_collection sep = stringfn_of_catelim (catelim_string_of_collection
 let rec catelim_invisbracketedstring_of_termOrCollection b sep t =
   match t with
   | Collection _ -> catelim_invisbracketedstring_of_collection b sep t
-  | _ -> catelim_invisbracketedstring_of_term b t
+  | _            -> catelim_invisbracketedstring_of_term b t
 let rec invisbracketedstring_of_termOrCollection b sep =
   stringfn_of_catelim (catelim_invisbracketedstring_of_collection b sep)
 
