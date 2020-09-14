@@ -137,7 +137,7 @@ let rec parseSeq () =
     | x -> error ["internal error parseSeq parseside "; unparseidclass x]
   in
   match currsymb () with
-    STILE st ->
+  | STILE st ->
       (* we can sometimes start with a stile ... *)
       let (_, hypform, _, concform) = lookupSTILE st in
       if hypform = formulakind then
@@ -147,12 +147,12 @@ let rec parseSeq () =
       else
         let _ = scansymb () in
         Seq (st, conformside ((None, []), hypform), parseside concform)
-  | _ ->
+  | _->
       let first =
         parseElementList canstartTerm parseTerm commasymbol None
       in
       match currsymb (), first, syntacticsequents () with
-        STILE st, _, _ ->
+      | STILE st, _, _ ->
           let (_, hypform, _, concform) = lookupSTILE st in
           let _ = scansymb () in
           Seq (st, conformside (first, hypform), parseside concform)
@@ -171,11 +171,9 @@ let rec parseSeq () =
                    ["badly formed sequent - "; st; " expected after ";
                     string_of_term (Collection (None, hypform, [el]))])
           end
-      | _, (_, els), _ ->
-          raise
-            (ParseError_
-               ["badly formed sequent - some kind of turnstile expected after ";
-                string_of_term (Collection (None, listkind, els))])
+      | sy, (_,[]), _  -> raise (ParseError_ ["sequent expected - saw "; string_of_symbol sy])
+      | _, (_, els), _ -> raise (ParseError_ ["badly formed sequent - some kind of turnstile expected after ";
+                                              string_of_term (Collection (None, listkind, els))])
 
 let canstartSeq = canstartTerm
 
