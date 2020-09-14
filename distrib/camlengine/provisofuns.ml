@@ -187,7 +187,8 @@ let rec _PROVISOq facts p =
       else(* if termoccursin (debracket _P2) _P1 
          orelse termoccursin (debracket _P1) _P2 then No
       else *)  Maybe
-
+  | SingleDischargeProviso rts -> Maybe
+  
 (* I suspect that groundedprovisos identifies provisos that don't have 
    anything to do with 'names'. It appears to give you Some ps iff ps are those
    provisos which are grounded, and the rest must be thrown away. So None means
@@ -222,9 +223,9 @@ let rec groundedprovisos names provisos =
       | FreshProviso (_, _, _, v)     -> ismetav v && isot v
       | NotinProviso (v, t)           -> ismetav v && isot v || isot t
       | DistinctProviso vs            -> not (List.exists (not <.> isot) vs)
-      | NotoneofProviso (vs, pat, _C) ->
-          not (List.exists (not <.> isot) vs) || isot _C
-      | UnifiesProviso (_P1, _P2) -> isot _P1 && isot _P2
+      | NotoneofProviso (vs, pat, _C) -> not (List.exists (not <.> isot) vs) || isot _C
+      | UnifiesProviso (_P1, _P2)     -> isot _P1 && isot _P2
+      | SingleDischargeProviso rts    -> List.for_all (isot <.> snd) rts
     in
     if !provisodebug then
       consolereport
@@ -464,9 +465,9 @@ let rec remapproviso env p =
   | FreshProviso (h, g, r, v)     -> FreshProviso (h, g, r, _T v)
   | NotinProviso (v, t)           -> NotinProviso (_T v, _T t)
   | DistinctProviso vs            -> DistinctProviso (_T <* vs)
-  | NotoneofProviso (vs, pat, _C) ->
-      NotoneofProviso ((_T <* vs), _T pat, _T _C)
-  | UnifiesProviso (_P1, _P2) -> UnifiesProviso (_T _P1, _T _P2)
+  | NotoneofProviso (vs, pat, _C) -> NotoneofProviso ((_T <* vs), _T pat, _T _C)
+  | UnifiesProviso (_P1, _P2)     -> UnifiesProviso (_T _P1, _T _P2)
+  | SingleDischargeProviso rts    -> SingleDischargeProviso (List.map (fun (r, t) -> r, _T t) rts)
 
 (* the drag and drop mapping is a list of (source,target) pairs, derived from
  * UnifiesProvisos thus:
