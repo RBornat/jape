@@ -50,7 +50,7 @@ let consolereport = Miscellaneous.consolereport
 
 let baseseqsides cxt =
   match getexterior cxt with
-    Exterior((_,Seq(_,left,right)),_,fvi) -> 
+  | Exterior((_,Seq(_,left,right)),_,fvi) -> 
       (left,right,
        (match fvi with Some{bhfvs=bhfvs;bcfvs=bcfvs} -> Some(bhfvs,bcfvs)
         | None                                       -> None
@@ -74,7 +74,7 @@ let rec simplifyProviso facts (p, cats) =
     let rec def () = Some (addone (NotinProviso (v, t)) cats) in
     let rec fnp (t, cats) = foldterm (np v) cats t in
     match t with
-      Id _ -> def ()
+    | Id _ -> def ()
     | Unknown _ -> def ()
     | Binding (_, (bs, ss, us), _, _) ->
         let rs = (substeqvarsq facts v <* bs) in
@@ -88,12 +88,12 @@ let rec simplifyProviso facts (p, cats) =
           Some (nj_fold fnp ((snd <* vts)) cats)
         else if not (List.exists qUNSURE rs) then
           match vts with
-            [v', t'] ->
-              begin match varoccursinq facts v t' with
-                Yes -> Some (foldterm (np v') (fnp (_P, cats)) _P)
-              | No -> Some (fnp (_P, cats))
-              | Maybe -> def ()
-              end
+          | [v', t'] ->
+              (match varoccursinq facts v t' with
+               | Yes -> Some (foldterm (np v') (fnp (_P, cats)) _P)
+               | No -> Some (fnp (_P, cats))
+               | Maybe -> def ()
+              )
           | _ ->
               Some
                 (nj_fold fnp
@@ -103,7 +103,7 @@ let rec simplifyProviso facts (p, cats) =
     | Collection (_, c, es) ->
         let rec npe (e, cats) =
           match e with
-            Segvar (_, _, v') ->
+          | Segvar (_, _, v') ->
               addone (NotinProviso (v, registerCollection (c, [e]))) cats
           | Element (_, _, t) -> fnp (t, cats)
         in
@@ -114,25 +114,25 @@ let rec simplifyProviso facts (p, cats) =
     fun (vs, pat, _C as n) ->
       let rec expand env (v, cats) =
         match (env <@> v) with
-          Some v' ->
+        | Some v' ->
             simplifyProviso facts (new__ (NotinProviso (v, v')), cats)
         | None -> raise (Catastrophe_ ["simplifyProviso nop"])
       in
       let rec simp t cats =
         match match3 false pat t (Certain empty) with
-          Some (Certain env) -> Some (nj_fold (expand env) vs cats)
+        | Some (Certain env) -> Some (nj_fold (expand env) vs cats)
         | Some (Uncertain env) -> None
         | None -> Some cats
       in
       match _C with
-        Collection (_, class__, es) ->
+      | Collection (_, class__, es) ->
           let rec doel (e, (defers, cats)) =
             match e with
-              Element (_, _, t) ->
-                begin match simp t cats with
-                  Some cats' -> defers, cats'
-                | None -> e :: defers, cats
-                end
+            | Element (_, _, t) ->
+                (match simp t cats with
+                 | Some cats' -> defers, cats'
+                 | None -> e :: defers, cats
+                )
             | _ -> e :: defers, cats
           in
           let (defers, cats') = nj_fold doel es ([], cats) in
@@ -144,18 +144,18 @@ let rec simplifyProviso facts (p, cats) =
               cats'
       | t ->
           match simp t cats with
-            Some cats' -> cats'
+          | Some cats' -> cats'
           | _ -> new__ (NotoneofProviso n) :: cats
   in
   match provisoactual p with
-    NotinProviso (v, t) -> foldterm (np v) cats t
+  | NotinProviso (v, t) -> foldterm (np v) cats t
   | NotoneofProviso n -> nop n
   | _ -> p :: cats
 
 let rec deferrable cxt (t1, t2) =
   simterms (t1, t2) &&
   (match t1, t2 with
-     Subst _, Subst _ -> true
+   | Subst _, Subst _ -> true
    | Subst (_, _, (Unknown _ as _P1), vts), _ ->
        not (qDEF (varoccursinq cxt _P1 t2)) ||
        specialisesto (idclass _P1, VariableClass) &&
@@ -205,7 +205,7 @@ let rec groundedprovisos names provisos =
     let vs = ismetav <| termvars t in
     let rec diff a1 a2 =
       match a1, a2 with
-        x :: xs, y :: ys ->
+      | x :: xs, y :: ys ->
           earliervar x y && diff xs (y :: ys) ||
           earliervar y x && diff (x :: xs) ys
       | _, _ -> true
@@ -237,7 +237,7 @@ let rec groundedprovisos names provisos =
     else
       (* keep them? throw them away? *) 
       match split (isop <.> provisoactual) provisos with
-        [], _ -> None
+      | [], _ -> None
       | _, [] -> Some [] (* we kept them all *)
       | isos, uses -> (* we threw them all away *)
           match
@@ -247,7 +247,7 @@ let rec groundedprovisos names provisos =
                        names)
               isos
           with
-            Some more -> Some (uses @ more)
+          | Some more -> Some (uses @ more)
           | None      -> None (* we kept some *)
              
   in
@@ -267,7 +267,7 @@ let relevantprovisos seq ps =
 let rec expandFreshProviso b (h, g, r, v) left right ps =
   nj_fold
     (function
-       (true, side), ps -> mkvisproviso (b, NotinProviso (v, side)) :: ps
+     | (true, side), ps -> mkvisproviso (b, NotinProviso (v, side)) :: ps
      | (false, side), ps -> ps)
     [h, left; g, right] ps
 
@@ -277,7 +277,7 @@ exception Verifyproviso of proviso
 
 let rec (--) xs ys =
   match (xs, ys) with
-    x :: xs, y -> if x = y then xs else x :: (xs -- y)
+  | x :: xs, y -> if x = y then xs else x :: (xs -- y)
   | []     , y -> []
 
 (* We find out which provisos from the set ps are independent of the set qs.
@@ -292,7 +292,7 @@ let rec checker cxt (--) ps qs =
                      " "; bracketed_string_of_list string_of_visproviso  " AND " a1; 
                      " "; bracketed_string_of_list string_of_visproviso  " AND " a2];
     match a1, a2 with
-      [], qs -> []
+    | [], qs -> []
     | p :: ps, qs ->
         let pp = provisoactual p in
         let qs' = (qs -- p) in (* check p against the _other_ provisos, 
@@ -308,7 +308,7 @@ let rec checker cxt (--) ps qs =
                            " "; bracketed_string_of_list string_of_visproviso  " AND " qs'; 
                            " => "; string_of_answer verdict];
           match verdict with
-            Yes   -> ch ps qs'
+          | Yes   -> ch ps qs'
           | No    -> raise (Verifyproviso (provisoparent p))
           | Maybe -> p :: ch ps qs (* qs not qs', cos qs is the database you are verifying against *)
   in
@@ -321,7 +321,7 @@ let rec checker cxt (--) ps qs =
 let rec remalldups eq ps =
   let rec rad ps =
     match ps with
-      []      -> None
+    | []      -> None
     | p :: ps -> if List.exists (fun p' -> eq p p') ps then Some(anyway rad ps)
                  else rad ps &~~ (fun ps' -> Some(p::ps'))
   in
@@ -349,10 +349,10 @@ let rec verifyprovisos cxt =
     let (left, right, fvopt) = baseseqsides cxt in
     let rec efp (h, g, r, v as f) =
       match fvopt with
-        Some (bhfvs, bcfvs) ->
+      | Some (bhfvs, bcfvs) ->
           let notins a1 a2 a3 =
             match a1, a2, a3 with
-              true, fvs, ps ->
+            | true, fvs, ps ->
                 nj_fold
                   (fun (fv, ps) ->
                      mkvisproviso (true, NotinProviso (v, fv)) :: ps)
@@ -448,7 +448,7 @@ let rec verifyprovisos cxt =
          ") "; " (unfresh = "; vv unfresh; ") "; " => "; vv ps];
     rewritecxt (withprovisos cxt ps)
   with
-    Verifyproviso p ->
+  | Verifyproviso p ->
       if !provisodebug then
         consolereport
           ["proviso "; string_of_proviso p; " failed in verifyprovisos"];
@@ -456,7 +456,7 @@ let rec verifyprovisos cxt =
 
 let rec checkprovisos cxt =
   try Some (verifyprovisos cxt) with
-    Verifyproviso _ -> None
+  | Verifyproviso _ -> None
 
 (* this is for renaming provisos when a rule/theorem is instantiated *)
 let rec remapproviso env p =
