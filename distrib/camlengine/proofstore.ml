@@ -41,6 +41,8 @@ open Rewrite
 open Sml
 open Thing
 
+type seq = Seqtype.seq
+
 let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     proof_children, addproof, saved, proofnames, provedthings, saveable,
     proved, disproved, provedordisproved, inproofstore, saveproof,

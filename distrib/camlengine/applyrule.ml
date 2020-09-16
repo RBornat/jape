@@ -61,7 +61,7 @@ exception Verifyproviso = Provisofuns.Verifyproviso
       
 type prooftree      = Prooftree.Tree.Fmttree.prooftree
  and prooftree_step = Prooftree.Tree.prooftree_step
- and rewinf         = Prooftree.Tree.rewinf
+ and rewinf         = Rewinf.rewinf
  and name           = Name.name
  and visproviso     = Proviso.visproviso
  and resnum         = Termtype.resnum
