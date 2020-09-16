@@ -23,10 +23,19 @@
 
 *)
 
+type seq     = Seqtype.seq
+ and rewinf  = Rewinf.rewinf
+ and element = Termtype.element
+ and name    = Name.name
+ and cxt     = Cxttype.cxt
+ and thing   = Thing.thing
+ and proviso = Proviso.proviso
+ and term    = Termtype.term
+ and vid     = Termtype.vid
+ 
 module type Access =
   sig
     type fmt and path and prooftree
-     and seq and rewinf and element and name
     val followPath : prooftree -> path -> prooftree
     val onestep : prooftree -> path -> (path * prooftree) option
     val pathPrefix : prooftree -> path -> path -> bool
@@ -50,8 +59,8 @@ module type Access =
     val subtrees : prooftree -> prooftree list
     val sequent : prooftree -> seq
     val rule : prooftree -> name option
-    val params : prooftree -> Termtype.term list option
     val args : prooftree -> Termtype.term list
+    val params : prooftree -> Termtype.term list option
     val stepprovisos : prooftree -> (bool * Proviso.proviso) list option
     val thinned : prooftree -> element list * element list
     val format : prooftree -> fmt
@@ -65,9 +74,7 @@ module type Access =
 
 module type Tree =
   sig
-    type term and seq and vid and element and name
-    and 'a prooftree and treeformat and fmtpath and visformat
-    and vispath and cxt and thing and proviso and rewinf
+    type 'a prooftree and treeformat and fmtpath and visformat and vispath
     
     type prooftree_step =
       | Apply of (name * term list * bool) (* bool is 'isresolution step'. RB 9.iii.2005 *)
@@ -123,15 +130,13 @@ module type Tree =
                       (* showallsteps *)
 
     module Fmttree : Access
-                     with type fmt = treeformat and type seq = seq and type name = name
+                     with type fmt = treeformat 
                       and type prooftree = treeformat prooftree
-                      and type path = fmtpath and type element = element
-                      and type rewinf = rewinf
+                      and type path = fmtpath
     module Vistree : Access
-                     with type fmt = visformat and type seq = seq and type name = name
+                     with type fmt = visformat
                       and type prooftree = visformat prooftree
-                      and type path = vispath and type element = element
-                      and type rewinf = rewinf
+                      and type path = vispath
     
     val foldedfmt     : string ref  (* LAYOUT "" ()    *)
     val filteredfmt   : string ref  (* LAYOUT "" (...) *)
@@ -151,19 +156,10 @@ module type Tree =
     val reasonstyle : string ref
   end
 
-module Tree : Tree with type term = Termtype.term
-                    and type seq = Seqtype.seq
-                    and type vid = Termtype.vid
-                    and type element = Termtype.element
-                    and type name = Name.name
-                    and type treeformat = Treeformat.Fmt.treeformat
+module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                     and type fmtpath = Treeformat.Fmt.fmtpath
                     and type visformat = Treeformat.VisFmt.visformat
                     and type vispath = Treeformat.VisFmt.vispath
-                    and type cxt = Cxttype.cxt
-                    and type thing = Thing.thing
-                    and type proviso = Proviso.proviso
-                    and type rewinf = Rewinf.rewinf
 =
   struct
     open Cxtfuns
@@ -194,18 +190,10 @@ module Tree : Tree with type term = Termtype.term
     open Treeformat.VisFmt
     open Treelayout
 
-    type term = Termtype.term
-     and seq = Seqtype.seq
-     and vid = Termtype.vid
-     and element = Termtype.element
-     and name = Name.name
-     and treeformat = Treeformat.Fmt.treeformat
+    type treeformat = Treeformat.Fmt.treeformat
      and fmtpath = Treeformat.Fmt.fmtpath
      and visformat = Treeformat.VisFmt.visformat
      and vispath = Treeformat.VisFmt.vispath
-     and cxt = Cxttype.cxt
-     and thing = Thing.thing
-     and proviso = Proviso.proviso
      and rewinf = Rewinf.rewinf
       
     let consolereport = Miscellaneous.consolereport
@@ -515,7 +503,8 @@ module Tree : Tree with type term = Termtype.term
                     | _ -> hs = hs') &&
                    (match stepprovisos t with
                     | Some provisos -> unFRESH provisos
-                    | None          -> true)
+                    | None          -> true
+                   )
                 then
                      Some hs, pathto t
                 else None   , f ns
@@ -716,6 +705,7 @@ module Tree : Tree with type term = Termtype.term
          
          This is so successful :-) that it might become a permanent hack.
        *)
+      (* the mystery continues: Given has to be an absolute match ... *)
       let argmap = 
         try ps|||args with Zip_ -> raise (Catastrophe_ ["params and args won't zip in prooftree.step_argmap"])
       in
@@ -750,7 +740,7 @@ module Tree : Tree with type term = Termtype.term
       in
       let rec hashables =
         function
-        | Tip _, hs -> hs
+        | Tip _ , hs -> hs
         | Join j, hs ->
             let rec catalogue =
               function
@@ -764,15 +754,15 @@ module Tree : Tree with type term = Termtype.term
                   match hashterm arg with
                   | Some h -> arg :: hs
                   | None   ->
-                      if existsterm (function | Literal (_, Number _) -> true | _ -> false)
-                                    arg
+                      if existsterm (function | Literal (_, Number _) -> true | _ -> false) arg
                       then raise Can'tHash_
                       else hs
             in
-            nj_fold hashables (join_subtrees j)
-              (match j.how with
-               | Apply (_, ps, _) -> nj_fold catalogue (join_args j) hs
-               | _ -> hs)
+            nj_fold hashables (join_subtrees j) 
+                              (match j.how with
+                               | Apply (_, ps, _) -> nj_fold catalogue (join_args j) hs
+                               | _                -> hs
+                              )
       in
       let rec proof tail =
         try
@@ -977,12 +967,11 @@ module Tree : Tree with type term = Termtype.term
                                             | Some ri -> rewinf_vars ri
                                             | None    -> [])
       in
-      let cxt =
-        match
-          if grounded then groundedprovisos tvars (provisos cxt) else None
-        with
-        | Some ps -> anyway rew_cxt (withprovisos cxt ps)
-        | None    -> anyway rew_cxt cxt
+      let cxt = match
+                  if grounded then groundedprovisos tvars (provisos cxt) else None
+                with
+                | Some ps -> anyway rew_cxt (withprovisos cxt ps)
+                | None    -> anyway rew_cxt cxt
       in
       let cinf = rewinfCxt cxt in
       (* vars only in givens are in the exterior of the proof, but they aren't thereby 'in use' *)
@@ -1031,9 +1020,7 @@ module Tree : Tree with type term = Termtype.term
             trs         = (tops, getrewinfProoftreeList tops);
             ress        = (ress, getrewinfress cxt ress)
            }
-    
     exception AlterProof_ of string list
-    
     let rec applytosubtree_ns path t f =
       let rec ans () =
         let (infchanged, t') = f t in infchanged, pathto t', t'
@@ -1066,10 +1053,8 @@ module Tree : Tree with type term = Termtype.term
             res infchanged ns [tl; subt]
           in
           joinstep go ans skip j path
-    
     let rec get_prooftree_fmt tree =
       fun (FmtPath ns) -> format (followPath_ns tree ns)
-    
     let rec set_prooftree_fmt tree (FmtPath ns) fmt' =
         if !prooftreedebug then
           consolereport ["setting format "; string_of_treeformat fmt'; " at "; string_of_ns ns];
@@ -1079,7 +1064,6 @@ module Tree : Tree with type term = Termtype.term
               | Join j                 -> false, Join {j with fmt=fmt'}
               | Tip (seq, rewinf, fmt) -> false, Tip (seq, rewinf, fmt'))
              )
-    
     let rec get_prooftree_cutnav tree =
       fun (FmtPath ns) ->
         match followPath_ns tree ns with
@@ -1102,7 +1086,6 @@ module Tree : Tree with type term = Termtype.term
                   else
                     raise (AlterProof_ ["cutnav applied to obviously non-cut node"])
               | Tip _ -> raise (AlterProof_ ["cutnav applied to tip"])))
-    
     let rec truncateprooftree cxt =
       fun (FmtPath ns) tree ->
         let (_, ns, tree) =
@@ -1116,7 +1099,6 @@ module Tree : Tree with type term = Termtype.term
              | tip -> false, tip)
         in
         FmtPath ns, tree
-    
     let rec insertprooftree cxt =
       fun (FmtPath ns) tree subtree ->
         let (_, ns, tree) =
@@ -1142,7 +1124,6 @@ module Tree : Tree with type term = Termtype.term
                          (anyway (rew_Seq true cxt) (sequent subtree))]))
         in
         FmtPath ns, tree
-    
     (* the same comment as in mkTip, about contexts and rewriting, applies to replaceTip *)
     (* this looks a bit dangerous ... I guess I've used it carefully *)
     let rec replaceTip cxt =
@@ -1554,24 +1535,12 @@ module Tree : Tree with type term = Termtype.term
     module Fmttree : Access with type fmt = treeformat
                              and type path = fmtpath
                              and type prooftree = treeformat prooftree
-                             and type seq = seq
-                             and type rewinf = rewinf
-                             and type element = element
-                             and type name = name
     =
       struct
         type fmt = treeformat
         and  path = fmtpath
         type temp_prooftree = fmt prooftree
-         and temp_seq = seq
-         and temp_rewinf = rewinf
-         and temp_element = element
-         and temp_name = name
         type prooftree = temp_prooftree
-         and seq = temp_seq
-         and rewinf = temp_rewinf
-         and element = temp_element
-         and name = temp_name
         
         let fFmtPath v = FmtPath v
         let rec dePath = fun (FmtPath ns) -> ns
@@ -1622,24 +1591,12 @@ module Tree : Tree with type term = Termtype.term
     module Vistree : Access  with type fmt = visformat
                              and type path = vispath
                              and type prooftree = visformat prooftree
-                             and type seq = seq
-                             and type rewinf = rewinf
-                             and type element = element
-                             and type name = name
     =
       struct
         type fmt = visformat
         and path = vispath
         type temp_prooftree = fmt prooftree
-         and temp_seq = seq
-         and temp_rewinf = rewinf
-         and temp_element = element
-         and temp_name = name
         type prooftree = temp_prooftree
-         and seq = temp_seq
-         and rewinf = temp_rewinf
-         and element = temp_element
-         and name = temp_name
         
         let fVisPath v = VisPath v
         let rec dePath = fun (VisPath ns) -> ns
