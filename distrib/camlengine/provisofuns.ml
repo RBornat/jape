@@ -189,81 +189,6 @@ let rec _PROVISOq facts p =
       else *)  Maybe
   | SingleDischargeProviso rts -> Maybe
   
-(* I suspect that groundedprovisos identifies provisos that don't have 
-   anything to do with 'names'. It appears to give you Some ps iff ps are those
-   provisos which are grounded, and the rest must be thrown away. So None means
-   don't change anything. It's called from prooftree when rewriting a proof tree.
-   RB 2012
- *)
-
-(* the list of names must be sorted, which it will be if it comes out of termvars *)
-(* because of hidden provisos, this thing now gets a visproviso list *)
-(* iso means isolated, I think; so isot is an isolated term, isop an isolated proviso *)
-
-let rec groundedprovisos names provisos =
-  let rec isot t =
-    let vs = ismetav <| termvars t in
-    let rec diff a1 a2 =
-      match a1, a2 with
-      | x :: xs, y :: ys ->
-          earliervar x y && diff xs (y :: ys) ||
-          earliervar y x && diff (x :: xs) ys
-      | _, _ -> true
-    in
-    let r = diff vs names in
-    if !provisodebug then
-      consolereport
-        ["isot checking "; string_of_term t; " against ";
-         string_of_termlist names; " => "; string_of_bool r];
-    r
-  in
-  let rec isop p =
-    let r =
-      match p with
-      | FreshProviso (_, _, _, v)     -> ismetav v && isot v
-      | NotinProviso (v, t)           -> ismetav v && isot v || isot t
-      | DistinctProviso vs            -> not (List.exists (not <.> isot) vs)
-      | NotoneofProviso (vs, pat, _C) -> not (List.exists (not <.> isot) vs) || isot _C
-      | UnifiesProviso (_P1, _P2)     -> isot _P1 && isot _P2
-      | SingleDischargeProviso rts    -> List.for_all (isot <.> snd) rts
-    in
-    if !provisodebug then
-      consolereport
-        ["isop checking "; string_of_proviso p; " => "; string_of_bool r];
-    r
-  in
-  let r =
-    if null provisos then None
-    else
-      (* keep them? throw them away? *) 
-      match split (isop <.> provisoactual) provisos with
-      | [], _ -> None
-      | _, [] -> Some [] (* we kept them all *)
-      | isos, uses -> (* we threw them all away *)
-          match
-            groundedprovisos
-              (nj_fold (uncurry2 tmerge)
-                       ((provisovars termvars tmerge <.> provisoactual) <* uses)
-                       names)
-              isos
-          with
-          | Some more -> Some (uses @ more)
-          | None      -> None (* we kept some *)
-             
-  in
-  if !provisodebug then
-    consolereport
-      ["groundedprovisos "; string_of_termlist names; " ";
-       bracketed_string_of_list string_of_visproviso " AND " provisos; " => ";
-       string_of_option vv r];
-  r
-
-(* This is useful when fabricating lemmas *)
-
-let relevantprovisos seq ps =
-  let lemmavars = Sequent.seqvars termvars tmerge seq in
-  (fun p -> Listfuns.sorteddiff earliervar (provisovars termvars tmerge p) lemmavars=[]) <| ps
-  
 let rec expandFreshProviso b (h, g, r, v) left right ps =
   nj_fold
     (function
@@ -339,11 +264,11 @@ let rec remalldups eq ps =
  * often have to add extra, strictly necessary, provisos to bolster FRESH.  Using the 
  * restrictive version includes those extra provisos all the time. 
  *
- * So now I use the restrictive version in verifyprovisos.
+ * So now I use the restrictive version in verifycxtprovisos.
  * RB 20/i/00
  *)
 
-let rec verifyprovisos cxt =
+let rec verifycxtprovisos cxt =
   try
     let cxt = rewritecxt cxt in
     let (left, right, fvopt) = baseseqsides cxt in
@@ -454,20 +379,17 @@ let rec verifyprovisos cxt =
           ["proviso "; string_of_proviso p; " failed in verifyprovisos"];
       raise (Verifyproviso p)
 
-let rec checkprovisos cxt =
-  try Some (verifyprovisos cxt) with
+type prooftree = Prooftree.Tree.Fmttree.prooftree
+
+let verifytreeprovisos prooftree cxt = cxt (* for now *)
+
+let checkcxtprovisos cxt  =
+  try Some (verifycxtprovisos cxt) with
   | Verifyproviso _ -> None
 
-(* this is for renaming provisos when a rule/theorem is instantiated *)
-let rec remapproviso env p =
-  let _T = remapterm env in
-  match p with
-  | FreshProviso (h, g, r, v)     -> FreshProviso (h, g, r, _T v)
-  | NotinProviso (v, t)           -> NotinProviso (_T v, _T t)
-  | DistinctProviso vs            -> DistinctProviso (_T <* vs)
-  | NotoneofProviso (vs, pat, _C) -> NotoneofProviso ((_T <* vs), _T pat, _T _C)
-  | UnifiesProviso (_P1, _P2)     -> UnifiesProviso (_T _P1, _T _P2)
-  | SingleDischargeProviso rts    -> SingleDischargeProviso (List.map (fun (r, t) -> r, _T t) rts)
+let checkprovisos prooftree cxt =
+  try checkcxtprovisos cxt &~~ (_Some <.> verifytreeprovisos prooftree) with
+  | Verifyproviso _ -> None
 
 (* the drag and drop mapping is a list of (source,target) pairs, derived from
  * UnifiesProvisos thus:

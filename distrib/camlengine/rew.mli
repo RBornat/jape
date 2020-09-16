@@ -43,9 +43,7 @@ val rew_cxt : cxt -> cxt option
 
 (* and now some useful ones - really special optionfuns *)
 val rew_ : ('a -> 'a option) -> 'a -> ('a -> 'b) -> 'b option
-val rew_2 :
-('a -> 'a option) -> 'a -> ('b -> 'b option) -> 'b -> ('a * 'b -> 'c) ->
-'c option
+val rew_2 : ('a -> 'a option) -> 'a -> ('b -> 'b option) -> 'b -> ('a * 'b -> 'c) -> 'c option
 val rew_Pair : ('a -> 'a option) -> 'a * 'a -> ('a * 'a) option
 val mkrawinf : term list * vid list * int list * int option -> rawinf
 val nullrawinf : rawinf
@@ -54,6 +52,7 @@ val nullrawinf : rawinf
 val rawinfTerm : cxt -> term * rawinf -> rawinf
 val rawinfSeq : cxt -> seq * rawinf -> rawinf
 val rawinfElements : cxt -> element list * rawinf -> rawinf
+
 val raw2rew_ : rawinf -> rewinf
 val rewinfCxt : cxt -> rewinf
 val rew_worthwhile : bool -> cxt -> rewinf -> bool

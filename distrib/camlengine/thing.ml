@@ -35,7 +35,6 @@ open Optionfuns
 open Paraparam
 open Predicate
 open Proviso
-open Provisofuns
 open Rewrite
 open Sequent
 open Seqtype

@@ -176,7 +176,6 @@ module Tree : Tree with type term = Termtype.term
     open Name
     open Optionfuns
     open Proviso
-    open Provisofuns
     open Rewinf
     open Rewrite
     open Rew
@@ -1032,7 +1031,9 @@ module Tree : Tree with type term = Termtype.term
             trs         = (tops, getrewinfProoftreeList tops);
             ress        = (ress, getrewinfress cxt ress)
            }
+    
     exception AlterProof_ of string list
+    
     let rec applytosubtree_ns path t f =
       let rec ans () =
         let (infchanged, t') = f t in infchanged, pathto t', t'
@@ -1065,8 +1066,10 @@ module Tree : Tree with type term = Termtype.term
             res infchanged ns [tl; subt]
           in
           joinstep go ans skip j path
+    
     let rec get_prooftree_fmt tree =
       fun (FmtPath ns) -> format (followPath_ns tree ns)
+    
     let rec set_prooftree_fmt tree (FmtPath ns) fmt' =
         if !prooftreedebug then
           consolereport ["setting format "; string_of_treeformat fmt'; " at "; string_of_ns ns];
@@ -1076,6 +1079,7 @@ module Tree : Tree with type term = Termtype.term
               | Join j                 -> false, Join {j with fmt=fmt'}
               | Tip (seq, rewinf, fmt) -> false, Tip (seq, rewinf, fmt'))
              )
+    
     let rec get_prooftree_cutnav tree =
       fun (FmtPath ns) ->
         match followPath_ns tree ns with
@@ -1098,6 +1102,7 @@ module Tree : Tree with type term = Termtype.term
                   else
                     raise (AlterProof_ ["cutnav applied to obviously non-cut node"])
               | Tip _ -> raise (AlterProof_ ["cutnav applied to tip"])))
+    
     let rec truncateprooftree cxt =
       fun (FmtPath ns) tree ->
         let (_, ns, tree) =
@@ -1111,6 +1116,7 @@ module Tree : Tree with type term = Termtype.term
              | tip -> false, tip)
         in
         FmtPath ns, tree
+    
     let rec insertprooftree cxt =
       fun (FmtPath ns) tree subtree ->
         let (_, ns, tree) =
@@ -1136,6 +1142,7 @@ module Tree : Tree with type term = Termtype.term
                          (anyway (rew_Seq true cxt) (sequent subtree))]))
         in
         FmtPath ns, tree
+    
     (* the same comment as in mkTip, about contexts and rewriting, applies to replaceTip *)
     (* this looks a bit dangerous ... I guess I've used it carefully *)
     let rec replaceTip cxt =

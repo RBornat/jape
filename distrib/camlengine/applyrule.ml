@@ -84,7 +84,7 @@ let string_of_prooftree_step = Prooftree.Tree.string_of_prooftree_step
 let rewinf_uVIDs         = Rewinf.rewinf_uVIDs
 let setReason            = Reason.setReason
 let step_label           = Prooftree.Tree.step_label
-let verifyprovisos       = Provisofuns.verifyprovisos    
+let verifycxtprovisos    = Provisofuns.verifycxtprovisos    
   
 let applydebug = ref 0
 (* debug levels: 0 -- nothing
@@ -538,7 +538,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
              try
                bads,
                (thinnedL, thinnedR,
-                verifyprovisos 
+                verifycxtprovisos 
                   (plusprovisos cxt (impprovisos thinnedL thinnedR))) :: goods
              with
                Verifyproviso p -> p :: bads, goods
@@ -548,16 +548,12 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
                begin match sortunique earlierproviso bads with
                  [p] ->
                    explain
-                     (exp0
-                        ["the goal fits the rule, but the proviso ";
-                         string_of_proviso p; " is violated"])
+                     (exp0 ["the goal fits the rule, but the proviso "; string_of_proviso p; " is violated"])
                      None
                | ps ->
                    explain
-                     (exp0
-                        ["the goal fits the rule, but the provisos (variously ";
-                         string_of_list string_of_proviso " and " ps;
-                         ") are violated"])
+                     (exp0 ["the goal fits the rule, but the provisos (variously ";
+                            string_of_list string_of_proviso " and " ps; ") are violated"])
                      None
                end
            | _, (_ :: _ as goods) -> Some goods)

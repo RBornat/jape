@@ -98,16 +98,16 @@ let prunestate goal =
 let nextusefulgoal skip t path =
   (findRightwardsGoal skip t path |~~ (fun _ -> findAnyGoal t))
 
-let proofstep a1 a2 a3 =
-  match a1, a2, a3 with
-    cxt, subtree,
-    (Proofstate {tree = tree; goal = Some gpath} as state) ->
+let proofstep cxt subtree = function 
+  | Proofstate {tree = tree; goal = Some gpath} as state ->
       let (gpath', tree') = insertprooftree cxt gpath tree subtree in
-      Some
-        (withcxt
-           (withgoal (withtree state tree') (nextusefulgoal false tree' gpath'))
-           cxt)
-  | _, _, _ -> None
+      (try Some (withcxt (withgoal (withtree state tree') (nextusefulgoal false tree' gpath'))
+                         (Provisofuns.verifytreeprovisos tree' cxt)
+                )
+       with
+         | Provisofuns.Verifyproviso _ -> None
+      )
+  | _ -> None
 
 let nextGoal a1 a2 =
   match a1, a2 with

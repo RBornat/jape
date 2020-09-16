@@ -56,8 +56,13 @@ val string_of_visproviso : visproviso -> string
 val detailedstring_of_visproviso : visproviso -> string
 val invisbracketedstring_of_visproviso : bool -> visproviso -> string
 
+val remapproviso : (term, term) Mappingfuns.mapping -> proviso -> proviso
+
 val expandProvisos : proviso list -> proviso list
 val compressProvisos : proviso list -> proviso list
 
 val expandVisProvisos : visproviso list -> visproviso list
 val compressVisProvisos : visproviso list -> visproviso list
+
+val groundedprovisos : term list -> visproviso list -> visproviso list option
+val relevantprovisos : Seqtype.seq -> proviso list -> proviso list
