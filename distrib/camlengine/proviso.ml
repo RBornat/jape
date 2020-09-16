@@ -145,6 +145,17 @@ let rec stripElement =
            ["stripElement (proviso) called on Segvar ";
             string_of_term (mkBag [s])])
 
+(* this is for renaming provisos when a rule/theorem is instantiated *)
+let rec remapproviso env p =
+  let _T = Match.remapterm env in
+  match p with
+  | FreshProviso (h, g, r, v)     -> FreshProviso (h, g, r, _T v)
+  | NotinProviso (v, t)           -> NotinProviso (_T v, _T t)
+  | DistinctProviso vs            -> DistinctProviso (_T <* vs)
+  | NotoneofProviso (vs, pat, _C) -> NotoneofProviso ((_T <* vs), _T pat, _T _C)
+  | UnifiesProviso (_P1, _P2)     -> UnifiesProviso (_T _P1, _T _P2)
+  | SingleDischargeProviso rts    -> SingleDischargeProviso (List.map (fun (r, t) -> r, _T t) rts)
+
 let checkNOTINvars pname vars =
   List.iter
     (fun t ->
@@ -393,3 +404,81 @@ let doVisProvisos f ps =
 
 let compressVisProvisos = doVisProvisos compressProvisos
 let expandVisProvisos = doVisProvisos expandProvisos
+
+(* I suspect that groundedprovisos identifies provisos that don't have 
+   anything to do with 'names'. It appears to give you Some ps iff ps are those
+   provisos which are grounded, and the rest must be thrown away. So None means
+   don't change anything. It's called from prooftree when rewriting a proof tree.
+   RB 2012
+ *)
+
+(* the list of names must be sorted, which it will be if it comes out of termvars *)
+(* because of hidden provisos, this thing now gets a visproviso list *)
+(* iso means isolated, I think; so isot is an isolated term, isop an isolated proviso *)
+
+let vv = bracketed_string_of_list string_of_visproviso " AND "
+
+let rec groundedprovisos names provisos =
+  let rec isot t =
+    let vs = ismetav <| termvars t in
+    let rec diff a1 a2 =
+      match a1, a2 with
+      | x :: xs, y :: ys ->
+          earliervar x y && diff xs (y :: ys) ||
+          earliervar y x && diff (x :: xs) ys
+      | _, _ -> true
+    in
+    let r = diff vs names in
+    if !provisodebug then
+      consolereport
+        ["isot checking "; string_of_term t; " against ";
+         string_of_termlist names; " => "; string_of_bool r];
+    r
+  in
+  let rec isop p =
+    let r =
+      match p with
+      | FreshProviso (_, _, _, v)     -> ismetav v && isot v
+      | NotinProviso (v, t)           -> ismetav v && isot v || isot t
+      | DistinctProviso vs            -> not (List.exists (not <.> isot) vs)
+      | NotoneofProviso (vs, pat, _C) -> not (List.exists (not <.> isot) vs) || isot _C
+      | UnifiesProviso (_P1, _P2)     -> isot _P1 && isot _P2
+      | SingleDischargeProviso rts    -> List.for_all (isot <.> snd) rts
+    in
+    if !provisodebug then
+      consolereport
+        ["isop checking "; string_of_proviso p; " => "; string_of_bool r];
+    r
+  in
+  let r =
+    if null provisos then None
+    else
+      (* keep them? throw them away? *) 
+      match split (isop <.> provisoactual) provisos with
+      | [], _ -> None
+      | _, [] -> Some [] (* we kept them all *)
+      | isos, uses -> (* we threw them all away *)
+          match
+            groundedprovisos
+              (nj_fold (uncurry2 tmerge)
+                       ((provisovars termvars tmerge <.> provisoactual) <* uses)
+                       names)
+              isos
+          with
+          | Some more -> Some (uses @ more)
+          | None      -> None (* we kept some *)
+             
+  in
+  if !provisodebug then
+    consolereport
+      ["groundedprovisos "; string_of_termlist names; " ";
+       bracketed_string_of_list string_of_visproviso " AND " provisos; " => ";
+       Optionfuns.string_of_option vv r];
+  r
+
+(* This is useful when fabricating lemmas *)
+
+let relevantprovisos seq ps =
+  let lemmavars = Sequent.seqvars termvars tmerge seq in
+  (fun p -> Listfuns.sorteddiff earliervar (provisovars termvars tmerge p) lemmavars=[]) <| ps
+  

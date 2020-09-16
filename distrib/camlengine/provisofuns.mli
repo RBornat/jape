@@ -29,15 +29,16 @@ open Proviso
 open Mappingfuns
 open Seqtype
 
-val checkprovisos : cxt -> cxt option
+type prooftree = Prooftree.Tree.Fmttree.prooftree
+
 val deferrable : cxt -> term * term -> bool
 val expandFreshProviso :
   bool -> bool * bool * bool * term -> term -> term -> visproviso list -> visproviso list
-val groundedprovisos : term list -> visproviso list -> visproviso list option
-val relevantprovisos : seq -> proviso list -> proviso list
-val remapproviso : (term, term) mapping -> proviso -> proviso
-val verifyprovisos : cxt -> cxt
-
-val draganddropmapping: proviso list -> (element list * element list) list
 
 exception Verifyproviso of proviso
+val verifycxtprovisos : cxt -> cxt                  (* raises VerifyProviso *)
+val verifytreeprovisos : prooftree -> cxt -> cxt    (* raises VerifyProviso *)
+val checkcxtprovisos : cxt -> cxt option 
+val checkprovisos : prooftree -> cxt -> cxt option 
+
+val draganddropmapping: proviso list -> (element list * element list) list

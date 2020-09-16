@@ -126,7 +126,7 @@ let atoi = Miscellaneous.atoi
 let autoAdditiveLeft = Miscellaneous.autoAdditiveLeft
 let autoAdditiveRight = Miscellaneous.autoAdditiveRight
 let autoselect = Miscellaneous.autoselect
-let checkprovisos = Provisofuns.checkprovisos
+let checkcxtprovisos = Provisofuns.checkcxtprovisos
 let conOperatorClass = Idclass.OperatorClass
 let consolereport = Miscellaneous.consolereport
 let getReason = Reason.getReason
@@ -148,7 +148,7 @@ let term_of_string = Termparse.term_of_string
 let tickmenuitem = Japeserver.tickmenuitem
 let uncurry2 = Miscellaneous.uncurry2
 let unknownprefix = Symbol.metachar_as_string
-let verifyprovisos = Provisofuns.verifyprovisos
+let verifycxtprovisos = Provisofuns.verifycxtprovisos
 let _Oracle = Oracle._Oracle
 
 (*  --------------------------------------------------------------------- *)
@@ -573,6 +573,7 @@ let rec getTip parent goalopt = findTip parent (getGoalPath goalopt)
 
 let rec getSubtree parent goalopt =
   followPath parent (getGoalPath goalopt)
+
 (*  --------------------------------------------------------------------- *)
 
 (*      PROOF
@@ -662,8 +663,7 @@ let (apply, resolve, applyorresolve) =
     let r =
       match resopt with
       | Some (cxt, subtree) -> proofstep cxt subtree state
-      | None ->
-          prefixtoReason [step_label how; " is not applicable: "]; None
+      | None                -> prefixtoReason [step_label how; " is not applicable: "]; None
     in
     if !(Applyrule.applydebug) > 0 then
       consolereport
@@ -1126,7 +1126,7 @@ let rec forceUnify ts (Proofstate {cxt = cxt} as state) =
       badproviso := None;
       (try
          match
-             (unifyterms (t1, t2) &~ (_Some <.> verifyprovisos))
+             (unifyterms (t1, t2) &~ (_Some <.> verifycxtprovisos))
              (plususedVIDs (plususedVIDs cxt (termVIDs t1)) (termVIDs t2))
          with
          | Some cxt' -> forceUnify (t2 :: ts) (withcxt state cxt')
@@ -1148,7 +1148,7 @@ let rec doDropUnify target sources (Proofstate {cxt = cxt} as state) =
     in
     try
       match dropunify (target, sources) cxt &~~ 
-            (_Some <.> verifyprovisos)      &~~ 
+            (_Some <.> verifycxtprovisos)      &~~ 
             simplifydeferred
       with
       | Some cxt' -> Some (withcxt state cxt')
@@ -1399,7 +1399,7 @@ let rec _UnifyWithExplanation message (s, t) cxt =
       (
          (
             (unifyterms (s, t) cxt |~~ (fun _ -> unifyterms (t, s) cxt)) &~~
-          (_Some <.> verifyprovisos)))
+          (_Some <.> verifycxtprovisos)))
   with
   | Verifyproviso p ->
       setReason
@@ -2409,7 +2409,7 @@ and doFOLDHYP name display try__ env contn (tactic, patterns) =
                    findfirst
                      (fun pat ->
                         match
-                          (unifyterms (pat, _Ht) &~ checkprovisos) cxt
+                          (unifyterms (pat, _Ht) &~ checkcxtprovisos) cxt
                         with
                         | None -> None
                         | Some _ ->
@@ -2417,7 +2417,7 @@ and doFOLDHYP name display try__ env contn (tactic, patterns) =
                                (fun subterm ->
                                   match
                                       (unifyterms (subterm, rhs) &~
-                                       checkprovisos)
+                                       checkcxtprovisos)
                                       cxt
                                   with
                                   | Some cxt -> Some (cxt, subterm)
@@ -2453,7 +2453,7 @@ and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
                    findfirst
                      (fun pat ->
                         match
-                          (unifyterms (pat, _Ht) &~ checkprovisos) cxt
+                          (unifyterms (pat, _Ht) &~ checkcxtprovisos) cxt
                         with
                         | None -> None
                         | Some _ ->
@@ -2461,7 +2461,7 @@ and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
                                (fun subterm ->
                                   match
                                       (unifyterms (subterm, lhs) &~
-                                       checkprovisos)
+                                       checkcxtprovisos)
                                       cxt
                                   with
                                   | Some cxt -> Some (cxt, subterm)
@@ -2512,7 +2512,7 @@ and doBIND tac display try__ env =
           badproviso := None;
           match unifyterms pe cxt with
           | None      -> badunify := Some pe; bad []
-          | Some cxt' -> (try let _ = (verifyprovisos cxt' : cxt) in
+          | Some cxt' -> (try let _ = (verifycxtprovisos cxt' : cxt) in
                               if not (checkmatching (bymatch || try__.matching) cxt cxt' expr) then
                                 (badmatch := Some pe; bad [" because the match changed the formula"])
                               else

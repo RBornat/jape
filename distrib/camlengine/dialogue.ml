@@ -142,7 +142,6 @@ let string_of_tactic = Tactic.string_of_tactic
 let string_of_term = Termstring.string_of_term
 let _The = Optionfuns._The
 let tmerge = Termfuns.tmerge
-let verifyprovisos = Provisofuns.verifyprovisos
 
 let thingguard = not <.> thingstodo
 let tparam = Japeenv.guardedjapevar thingguard
@@ -1250,11 +1249,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     let doProve name =
       let doit givens seq provisos kind =
         try
-          let (Proofstate {cxt = cxt} as state) = startstate env provisos givens seq in
+          let (Proofstate {cxt = cxt; tree=tree} as state) = startstate env provisos givens seq in
           (* do this first, cos the cxt needs the proofId information 
            * before we can check the provisos 
            *)
-          let cxt' = verifyprovisos cxt in
+          let cxt' = Provisofuns.verifycxtprovisos cxt in
+          let cxt' = Provisofuns.verifytreeprovisos tree cxt' in
           (* remove menubuttons from the cache so they are set for sure as we want them to be *)
           let rec uncache_mb ((var, _) as pair) =
             mbcache := !mbcache -- [var];
@@ -1651,7 +1651,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                          let vpros = useful_provisos (provisos cxt) in
                          string_of_proviso <*
                                (Proviso.expandProvisos 
-                                  (Provisofuns.relevantprovisos (Sequent.mkSeq (stile, hyps, [conc])) vpros))
+                                  (Proviso.relevantprovisos (Sequent.mkSeq (stile, hyps, [conc])) vpros))
                        in
                        (match Japeserver.askLemma druleString thmString panels provisos with
                         | None                                 -> default
