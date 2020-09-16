@@ -96,7 +96,7 @@ let rec string_of_thmdata heavy t =
 
 let rec string_of_thing =
   function
-    Rule r ->
+  | Rule r ->
       "Rule" ^
         string_of_pair (string_of_ruledata false) string_of_bool
           "," r
@@ -110,7 +110,7 @@ let rec doublestring f = string_of_pair f f ","
 
 let rec string_of_storedthing =
   function
-    Rawthing t -> ("Rawthing(" ^ string_of_thing t) ^ ")"
+  | Rawthing t -> ("Rawthing(" ^ string_of_thing t) ^ ")"
   | CookedRule r ->
       "CookedRule" ^
         string_of_triple (string_of_cooked (string_of_ruledata false))
@@ -121,7 +121,7 @@ let rec string_of_storedthing =
 
 let rec string_of_thingplace =
   function
-    InMenu s -> "InMenu " ^ string_of_name s
+  | InMenu s -> "InMenu " ^ string_of_name s
   | InPanel s -> "InPanel" ^ string_of_name s
   | InLimbo -> "InLimbo"
 
@@ -197,19 +197,19 @@ let rec numberrule (antes, conseq) =
       fun (Seq (st, hs, gs) as seq) ->
         let rec numberel (el, (n, oldenv, newenv, es)) =
           match el with
-            Element (_, _, t) ->
-              begin match (oldenv <@> t) with
-                Some m ->
-                  n, (oldenv -- [t]), newenv,
-                  registerElement (ResUnknown m, t) :: es
-              | None ->
-                  n + 1, oldenv, (newenv ++ (t |-> n)),
-                  registerElement (_R n, t) :: es
-              end
+          | Element (_, _, t) ->
+              (match (oldenv <@> t) with
+               | Some m ->
+                   n, (oldenv -- [t]), newenv,
+                   registerElement (ResUnknown m, t) :: es
+               | None ->
+                   n + 1, oldenv, (newenv ++ (t |-> n)),
+                   registerElement (_R n, t) :: es
+              )
           | _ -> n, oldenv, newenv, el :: es
         in
         match hs, gs with
-          Collection (_, hkind, hes), Collection (_, gkind, ges) ->
+        | Collection (_, hkind, hes), Collection (_, gkind, ges) ->
             let (n, _, newleftenv, hes) =
               fld numberel hes (n, leftenv, empty, [])
             in
@@ -267,7 +267,7 @@ let rec numberforapplication n (antes, conseq) =
       (* that's the adjustment *)
       let rec renumberel (el, (m, rs, els)) =
         match el with
-          Element (_, ResUnknown m', t) ->
+        | Element (_, ResUnknown m', t) ->
             let r' = ResUnknown (new__ m') in
             max m (new__ m'),
             (if member (r', rs) then rs else r' :: rs),
@@ -278,7 +278,7 @@ let rec numberforapplication n (antes, conseq) =
         | _ -> m, rs, el :: els
       in
       match hs, gs with
-        Collection (_, hkind, hes), Collection (_, gkind, ges) ->
+      | Collection (_, hkind, hes), Collection (_, gkind, ges) ->
           let (m, leftrs, hes) = nj_fold renumberel hes (0, [], []) in
           let (m', rightrs, ges) = nj_fold renumberel ges (0, [], []) in
           max m m', (leftrs, rightrs),
@@ -325,12 +325,12 @@ let rec numberforapplication n (antes, conseq) =
 let rec numberforproof (antes, conseq) =
   let rec renumberel el =
     match el with
-      Element (_, ResUnknown r, t) -> registerElement (Resnum r, t)
+    | Element (_, ResUnknown r, t) -> registerElement (Resnum r, t)
     | el -> el
   in
   let conseq' =
     match conseq with
-      Seq (st, Collection (_, hkind, hes), Collection (_, gkind, ges)) ->
+    | Seq (st, Collection (_, hkind, hes), Collection (_, gkind, ges)) ->
         Seq
           (st, registerCollection (hkind, (renumberel <* hes)),
            registerCollection (gkind, (renumberel <* ges)))
@@ -352,12 +352,12 @@ let rec numberforproof (antes, conseq) =
 let rec formulageneralisable params v =
   let rec ok a1 a2 =
     match a1, a2 with
-      vc, Objectparam vc' -> vc <> vc'
+    | vc, Objectparam vc' -> vc <> vc'
     | vc, Abstractionparam vc' -> vc <> vc'
     | _, _ -> true
   in
   match v with
-    Id (_, v, FormulaClass) -> all (ok (v, FormulaClass)) params
+  | Id (_, v, FormulaClass) -> all (ok (v, FormulaClass)) params
   | Unknown (_, v, FormulaClass) -> all (ok (v, FormulaClass)) params
   | _ -> false
 
@@ -372,7 +372,7 @@ let rec findhiddenprovisos (b, ts) ps =
       sort (earlierlist earliervar)
         (foldterm
            (function
-              Subst (_, _, _P, (_ :: _ :: _ as vts)), qs ->
+            | Subst (_, _, _P, (_ :: _ :: _ as vts)), qs ->
                 Some
                   (nj_fold (uncurry2 dmerge)
                      ([sort earliervar ((fst <* vts))] ::
@@ -402,7 +402,7 @@ let rec findhiddenprovisos (b, ts) ps =
     let rec sks (v, bss) =
       let rec skf =
         function
-          [] -> if idclass v = VariableClass then Some [] else None
+        | [] -> if idclass v = VariableClass then Some [] else None
         | b :: bs ->
             if member (v, b) then Some []
             else (skf bs &~~ (fun bs' -> Some (b :: bs')))
@@ -411,7 +411,7 @@ let rec findhiddenprovisos (b, ts) ps =
         nj_fold
           (fun (bs, rs) ->
              match skf bs with
-               None -> rs
+             | None -> rs
              | Some [] -> rs
              | Some bs' -> bs' :: rs)
           bss []
@@ -438,10 +438,10 @@ let rec compilepredicates isabstraction env =
     Seq (st, mapterm f lhs, mapterm f rhs)
 
 let rec checkarg var arg =
-  begin try checkTacticTerm arg with
-    Tacastrophe_ ss ->
-      raise (Fresh_ ("argument " :: string_of_term arg :: " contains " :: ss))
-  end;
+  (try checkTacticTerm arg with
+   | Tacastrophe_ ss ->
+       raise (Fresh_ ("argument " :: string_of_term arg :: " contains " :: ss))
+  );
   if specialisesto (idclass var, idclass arg) then ()
   else
     raise
@@ -473,7 +473,7 @@ let rec freshc defcon cxt env params args =
     _F cxt (extend con vc arg) vs args
   in
   match params, args with
-    [], [] -> cxt, env
+  | [], [] -> cxt, env
   | [], _ :: _ -> raise (Fresh_ ["too many arguments provided"])
   | Ordinaryparam vc :: vs, [] -> newname newVID registerId defcon vc vs
   | Ordinaryparam vc :: vs, arg :: args ->
@@ -533,17 +533,17 @@ let rec newvar con class__ (vid, vars) =
 
 let rec extend a1 a2 =
   match a1, a2 with
-    sv, Collection (_, BagClass FormulaClass, es) ->
+  | sv, Collection (_, BagClass FormulaClass, es) ->
       registerCollection (BagClass FormulaClass, sv :: es)
   | sv, c -> c
 
 let rec extensible c =
   match c with
-    Collection (_, BagClass FormulaClass, es) ->
+  | Collection (_, BagClass FormulaClass, es) ->
       not
         (List.exists
            (function
-              Segvar (_, [], Unknown _) -> true
+            | Segvar (_, [], Unknown _) -> true
             | Segvar (_, [], Id (_, v, _)) -> isextensibleID (string_of_vid v)
             | _ -> false)
            es)
@@ -563,7 +563,7 @@ let rec augment el er (conseq, antes, vars) =
   let rec f extendp getside setside (conseq, antes, vars) =
     if extendp then
       match ehb vars (getside conseq) with
-        Some (vars, sv, side) ->
+      | Some (vars, sv, side) ->
           let antes =
             ((fun s -> let side = getside s in
                        if extensible side then setside s (extend sv side)
@@ -610,7 +610,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
   let abstractions =
     nj_fold
       (function
-         Abstractionparam vc, vcs -> vc :: vcs
+       | Abstractionparam vc, vcs -> vc :: vcs
        | _,                   vcs -> vcs)
       params []
   in
@@ -623,14 +623,14 @@ let rec compileR el er (params, provisos, antes, conseq) =
       discardzeroarities
         (findpredicatebindings isabstraction (conseq, []))
     with
-      Predicate_ ss -> raise (CompileThing_ ss)
+    | Predicate_ ss -> raise (CompileThing_ ss)
   in
   let all_pbs =
     try
       discardzeroarities
         (nj_fold (findpredicatebindings isabstraction) antes conseq_pbs)
     with
-      Predicate_ ss -> raise (CompileThing_ ss)
+    | Predicate_ ss -> raise (CompileThing_ ss)
   in
   let _ =
     if !thingdebug then
@@ -717,7 +717,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
   let objparams =
     Mappingfuns.lfold
       (function
-         (_, (true, bs)), vs -> bs @ vs
+       | (_, (true, bs)), vs -> bs @ vs
        | _, vs -> vs)
       [] env
   in
@@ -740,7 +740,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
     params @
       nj_fold
         (function
-           Id (_, v, c), ps -> Objectparam (v, c) :: ps
+         | Id (_, v, c), ps -> Objectparam (v, c) :: ps
          | _, ps -> ps)
         objparams []
   in
@@ -771,7 +771,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
   
 let rec compilething name thing =
   match thing with
-    Rule (r, ax) ->
+  | Rule (r, ax) ->
       let (r1, r2) =
         try compileR !autoAdditiveLeft !autoAdditiveRight r with
         | CompileThing_ ss ->
@@ -785,18 +785,18 @@ let rec compilething name thing =
       in
       CookedRule (r1, r2, ax)
   | Theorem (params, provisos, bot) ->
-      begin try
-        CookedTheorem (compileR false false (params, provisos, [], bot))
-            (* autoAdditiveLeft/Right doesn't really apply to theorems, because they are
-               applied in what's called a 'resolve' step (see tacticfuns.ml) provided
-               there's a leftweaken and a cut. This is daft, and a hangover from 
-               Bernard's days. But it isn't clear that it can be fixed.
-             *)
-      with
-      | CompileThing_ ss ->
-          raise
-            (CompileThing_ ("Theorem " :: string_of_name name :: ": " :: ss))
-      end
+      (try
+         CookedTheorem (compileR false false (params, provisos, [], bot))
+             (* autoAdditiveLeft/Right doesn't really apply to theorems, because they are
+                applied in what's called a 'resolve' step (see tacticfuns.ml) provided
+                there's a leftweaken and a cut. This is daft, and a hangover from 
+                Bernard's days. But it isn't clear that it can be fixed.
+              *)
+       with
+       | CompileThing_ ss ->
+           raise
+             (CompileThing_ ("Theorem " :: string_of_name name :: ": " :: ss))
+      )
   | _ -> Rawthing thing
 
 let relationpats : term list ref = ref []
@@ -820,7 +820,7 @@ type structurerule =
 
 let rec string_of_structurerule sr =
   match sr with
-    CutRule         -> "CutRule"
+  | CutRule         -> "CutRule"
   | LeftWeakenRule  -> "LeftWeakenRule"
   | RightWeakenRule -> "RightWeakenRule"
   | IdentityRule    -> "IdentityRule"
@@ -911,53 +911,52 @@ let rec addstructurerule ctn_ tn_ kind name =
    *)
   let rec matchrule (mparams, mprovs, mtops, mbottom) =
     match ctn_ name with
-      Some (CookedRule (_, (_, (params, provs, tops, bottom)), _) (* as r *)) ->
+    | Some (CookedRule (_, (_, (params, provs, tops, bottom)), _) (* as r *)) ->
         (* take the 'toapply' version, just in case *)
         if !thingdebug then
-          begin
-            let rec myseqstring =
-              fun (Seq (_, hs, gs)) ->
-                (debugstring_of_term hs ^ " ") ^ debugstring_of_term gs
-            in
-            consolereport
-              ["checking ";
-               string_of_ruledata true (params, provs, tops, bottom);
-               " against ";
-               string_of_quadruple (string_of_option string_of_termlist)
-                 (string_of_option
-                    (bracketed_string_of_list string_of_proviso " AND "))
-                 (bracketed_string_of_list myseqstring " AND ") myseqstring
-                 ", " (mparams, mprovs, mtops, mbottom)]
-          end;
-        begin try
-          match
-            (match mparams with
-                Some mparams ->
-                  option_njfold (uncurry2 (uncurry2 match__))
-                    (mparams ||| ((registerId <.> paramidbits) <* params))
-                    empty
-              | None -> Some empty)
-            &~~
-            option_njfold (uncurry2 (uncurry2 seqmatch)) ((mtops ||| tops))
-            &~~
-            seqmatch mbottom bottom
-          with
-            Some env ->
-              begin match mprovs with
-                Some mprovs ->
-                  eqbags (fun (x, y) -> x = y : proviso * proviso -> bool)
-                    ((remapproviso env <* mprovs),
-                     (snd <* provs))
-              | None -> true
-              end
-          | _ -> false
-        with
-          Zip_ -> false
-        end
+          (let rec myseqstring =
+             fun (Seq (_, hs, gs)) ->
+               (debugstring_of_term hs ^ " ") ^ debugstring_of_term gs
+           in
+           consolereport
+             ["checking ";
+              string_of_ruledata true (params, provs, tops, bottom);
+              " against ";
+              string_of_quadruple (string_of_option string_of_termlist)
+                (string_of_option
+                   (bracketed_string_of_list string_of_proviso " AND "))
+                (bracketed_string_of_list myseqstring " AND ") myseqstring
+                ", " (mparams, mprovs, mtops, mbottom)]
+          );
+        (try
+           match
+             (match mparams with
+               | Some mparams ->
+                   option_njfold (uncurry2 (uncurry2 match__))
+                     (mparams ||| ((registerId <.> paramidbits) <* params))
+                     empty
+               | None -> Some empty)
+             &~~
+             option_njfold (uncurry2 (uncurry2 seqmatch)) ((mtops ||| tops))
+             &~~
+             seqmatch mbottom bottom
+           with
+           | Some env ->
+               (match mprovs with
+                | Some mprovs ->
+                    eqbags (fun (x, y) -> x = y : proviso * proviso -> bool)
+                      ((remapproviso env <* mprovs),
+                       (snd <* provs))
+                | None -> true
+               )
+           | _ -> false
+         with
+         | Zip_ -> false
+        )
     | _ -> false
   in
   (match kind with
-     CutRule ->
+   | CutRule ->
        List.exists matchrule
          [Some [idB], Some [],
           [Seq ("", bag [svX], list [elB]); Seq ("", bag [svX; elB], list [elC])],
@@ -994,29 +993,29 @@ let rec addstructurerule ctn_ tn_ kind name =
           I guess the stiles have to be the same as well.
           RB 21/v/98
         *)
-       begin match tn_ name with
-         Some
-           (Rule
-              ((_, _, [Seq (a1st, a1l, a1r); Seq (st_of_a, l_of_a, r_of_a)],
-                Seq (cst, cl, cr)), _), _) ->
-           (((a1st = st_of_a && st_of_a = cst) && eqterms (a1l, l_of_a)) &&
-            eqterms (l_of_a, cl)) &&
-           (match
-              term_of_collection a1r, term_of_collection r_of_a, term_of_collection cr
-            with
-              Some a1, Some a2, Some ct ->
-                begin match
-                  explodebinapp a1, explodebinapp a2, explodebinapp ct
-                with
-                  Some (a, _, b), Some (c, _, d), Some (e, _, f) ->
-                    ((eqterms (a, e) && eqterms (d, f)) &&
-                     eqterms (b, c)) &&
-                    begin registerRelationpat ct; true end
-                | _ -> false
-                end
-            | _ -> false)
-       | _ -> false
-       end
+       (match tn_ name with
+        | Some
+            (Rule
+               ((_, _, [Seq (a1st, a1l, a1r); Seq (st_of_a, l_of_a, r_of_a)],
+                 Seq (cst, cl, cr)), _), _) ->
+            (((a1st = st_of_a && st_of_a = cst) && eqterms (a1l, l_of_a)) &&
+             eqterms (l_of_a, cl)) &&
+            (match
+               term_of_collection a1r, term_of_collection r_of_a, term_of_collection cr
+             with
+             | Some a1, Some a2, Some ct ->
+                 (match
+                    explodebinapp a1, explodebinapp a2, explodebinapp ct
+                  with
+                  | Some (a, _, b), Some (c, _, d), Some (e, _, f) ->
+                      ((eqterms (a, e) && eqterms (d, f)) &&
+                       eqterms (b, c)) &&
+                      (registerRelationpat ct; true)
+                  | _ -> false
+                 )
+             | _ -> false)
+        | _ -> false
+       )
    | ReflexiveRule ->
        (* we are looking for INFER X |- E * E; as with transitivity we don't care what
         * the lhs is.  I guess the stile should be the same as the transitivity rule, but
@@ -1027,30 +1026,28 @@ let rec addstructurerule ctn_ tn_ kind name =
         * transitivies.  RB 1/vii/98
         *)
        match tn_ name with
-         Some (Rule ((_, _, [], Seq (_, _, cr)), _), _) ->
-           begin match term_of_collection cr with
-             Some c ->
-               begin match explodebinapp c with
-                 Some (x, _, y) -> eqterms (x, y)
-               | _ -> false
-               end
-           | _ -> false
-           end
-       | _ -> false) &&
-  begin
-    erasestructurerule name;
-    structurerules := (kind, name) :: !structurerules;
-    true
-  end
+       | Some (Rule ((_, _, [], Seq (_, _, cr)), _), _) ->
+           (match term_of_collection cr with
+            | Some c ->
+                (match explodebinapp c with
+                 | Some (x, _, y) -> eqterms (x, y)
+                 | _ -> false
+                )
+            | _ -> false
+           )
+       | _ -> false) && (erasestructurerule name;
+                         structurerules := (kind, name) :: !structurerules;
+                         true
+                        )
 
 let rec uniqueCut () =
   match
        (function
-          CutRule, _ -> true
+        | CutRule, _ -> true
         | _ -> false) <|
        !structurerules
   with
-    [_, r] -> Some r
+  | [_, r] -> Some r
   | _ -> None
 (* in an attempt to keep conjectures always in the order they were initially inserted, 
  * even though they may be altered by proofs (see addproof in prooftree.sml),
@@ -1086,13 +1083,13 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
   and compiledthinginfo name =
     let res =
       match lookup name with
-        Some (thing, place) as v ->
-          begin match thing with
-            Rawthing thing ->
-              let info = compilething name thing, place in
-              update name info; Some info
-          | _ -> v
-          end
+      | Some (thing, place) as v ->
+          (match thing with
+           | Rawthing thing ->
+               let info = compilething name thing, place in
+               update name info; Some info
+           | _ -> v
+          )
       | None ->
           if !thingdebug then
             consolereport
@@ -1108,7 +1105,7 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
   
   and getthing trim name =
     match compiledthinginfo name with
-      Some (Rawthing th, place) -> Some (trim th, place)
+    | Some (Rawthing th, place) -> Some (trim th, place)
     | Some (CookedRule ((_, r), _, ax), place) ->
         Some (trim (Rule (r, ax)), place)
     | Some
@@ -1118,7 +1115,7 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
   
   and goodthing =
     function
-      Theorem (params, provisos, seq) ->
+    | Theorem (params, provisos, seq) ->
         Theorem (params, fst <| provisos, seq)
     | Rule ((params, provisos, antes, conseq), ax) ->
         Rule
@@ -1138,7 +1135,7 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
    *)
   let rec addthing (name, thing, place) =
     match findfirst (fun (k,n as pair) -> if n=name then Some pair else None) !structurerules with
-      Some (kind,_) ->
+    | Some (kind,_) ->
         (erasestructurerule name; addthing (name, thing, place);
          if not(addstructurerule compiledthingnamed thingnamed kind name) then 
             Alert.showAlert Alert.Warning 
@@ -1150,11 +1147,11 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
         let newthing = compilething name (goodthing thing) in
         let newplace =
           match lookup name with
-            Some (_, oldplace) ->
-              begin match place with
-                InLimbo -> oldplace
-              | _ -> place
-              end
+          | Some (_, oldplace) ->
+              (match place with
+               | InLimbo -> oldplace
+               | _ -> place
+              )
           | None -> place
         in
         (* here is where we ought to check other stuff that depends 
@@ -1180,7 +1177,7 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
 
 let rec param_of_var =
   function
-    Id (_, v, c) -> Ordinaryparam (v, c)
+  | Id (_, v, c) -> Ordinaryparam (v, c)
   | Unknown (_, v, c) -> Unknownparam (v, c)
   | t ->
       raise
@@ -1270,11 +1267,11 @@ let rec renumberforuse args antes conseq cxt =
   let (n, args) =
     nj_fold
       (function
-         Collection (_, k, es), (n, args) ->
+       | Collection (_, k, es), (n, args) ->
            let (n, es) =
              nj_fold
                (function
-                  Element (_, Nonum, t), (n, es) ->
+                | Element (_, Nonum, t), (n, es) ->
                     n + 1, registerElement (ResUnknown n, t) :: es
                 | e, (n, es) -> n, e :: es)
                es (n, [])
@@ -1288,17 +1285,16 @@ let rec renumberforuse args antes conseq cxt =
 
 let rec freshRuleshow name af cxt args vars rd res =
   if !thingdebug then
-    begin
-      let rec nostring_of_cxt _ = "..cxt.. " in
-      let rnl = bracketed_string_of_list string_of_resnum "," in
-      consolereport
-        [name; " "; nostring_of_cxt cxt; " "; af args; " ";
-         string_of_termlist vars; " "; string_of_ruledata !thingdebugheavy rd;
-         " "; " => ";
-         string_of_quadruple nostring_of_cxt (string_of_mapping string_of_term string_of_term)
-           (string_of_pair rnl rnl ",") (string_of_ruledata !thingdebugheavy) ", "
-           res]
-    end;
+    (let rec nostring_of_cxt _ = "..cxt.. " in
+     let rnl = bracketed_string_of_list string_of_resnum "," in
+     consolereport
+       [name; " "; nostring_of_cxt cxt; " "; af args; " ";
+        string_of_termlist vars; " "; string_of_ruledata !thingdebugheavy rd;
+        " "; " => ";
+        string_of_quadruple nostring_of_cxt (string_of_mapping string_of_term string_of_term)
+          (string_of_pair rnl rnl ",") (string_of_ruledata !thingdebugheavy) ", "
+          res]
+    );
   res
 
 let rec freshRuletoapply cxt args vars (params, provisos, antes, conseq as rd) =
@@ -1327,7 +1323,7 @@ let rec freshRuletosubst
   in
   let _ =
     match listsub (fun (x, y) -> x = y) argvars vars with
-      [] -> ()
+    | [] -> ()
     | [v] -> bad "is" "name" [v]
     | vs -> bad "are" "names" vs
   in
@@ -1378,7 +1374,7 @@ let rec rearrangetoResolve antes =
   fun (Seq (st, lhs, rhs) as conseq) ->
     let rec extractsegv =
       function
-        Collection (_, cc, els) ->
+      | Collection (_, cc, els) ->
           let (segvs, els') = split issegvar els in cc, segvs, els'
       | t ->
           raise
@@ -1389,7 +1385,7 @@ let rec rearrangetoResolve antes =
     let (rcc, rsvs, _) = extractsegv rhs in
     let rec renum el =
       match el with
-        Element (_, ResUnknown m, t) -> registerElement (Resnum m, t)
+      | Element (_, ResUnknown m, t) -> registerElement (Resnum m, t)
       | _ -> el
     in
     let newlhs = registerCollection (lcc, lsvs) in
@@ -1422,12 +1418,12 @@ let rec wehavestructurerule kind stilesopt proved =
   let rec getstile = fun (Seq (st, _, _)) -> st in
   not (null names) &&
   (match stilesopt with
-     None -> true
+   | None -> true
    | Some (cst :: asts) ->
        List.exists
          (fun name ->
             match compiledthingnamed name with
-              Some (CookedRule(_, (_, (params, provs, tops, bottom)), ax)) ->
+            | Some (CookedRule(_, (_, (params, provs, tops, bottom)), ax)) ->
                 (ax || proved name || !applyconjectures="all" || !applyconjectures="rules") && 
                 cst = getstile bottom &&
                 eqlists (fun (x, y) -> x = y) ((getstile <* tops), asts)
@@ -1437,7 +1433,7 @@ let rec wehavestructurerule kind stilesopt proved =
 
 let rec ftaors fR fThm weakenthms name cxt stuff proved =
   match compiledthingnamed name with
-    Some (CookedRule (_, (vars, toapply), ax)) ->
+  | Some (CookedRule (_, (vars, toapply), ax)) ->
       let (cxt, env, resnums, r) = fR cxt stuff vars toapply in
       Some (cxt, env, resnums, Rule (r, ax))
   | Some
@@ -1468,7 +1464,7 @@ let rec compiletoprove (params, pros, antes, conseq) =
 
 let rec freshThingtoprove name =
   match compiledthingnamed name with
-    Some (CookedRule ((vars, toprove), _, ax)) ->
+  | Some (CookedRule ((vars, toprove), _, ax)) ->
       Some (Rule (freshRuletoprove toprove, ax))
   | Some (CookedTheorem ((vars, toprove), _)) ->
       Some (Theorem (freshTheoremtoprove toprove))
@@ -1481,7 +1477,7 @@ let rec freshGiven weaken (Seq (st, lhs, rhs) (* as seq *)) cxt proved =
   (* can't help feeling that extend should be a well-known function ... *)
   let rec extend doit side cxt =
     match doit, side with
-      true, Collection (_, BagClass FormulaClass, es) ->
+    | true, Collection (_, BagClass FormulaClass, es) ->
         let (cxt, vid) =
           freshVID cxt (BagClass FormulaClass) (extraBag_vid ())
         in
@@ -1502,7 +1498,7 @@ let rec freshGiven weaken (Seq (st, lhs, rhs) (* as seq *)) cxt proved =
   in
   let rec unknownres =
     function
-      Collection (_, cc, els) ->
+    | Collection (_, cc, els) ->
         registerCollection
           (cc, ((function Element (_, Resnum r, t) -> registerElement (ResUnknown r, t)
                  |        el                       -> el) <* els))
