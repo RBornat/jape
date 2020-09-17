@@ -37,7 +37,6 @@ open Predicate
 open Proviso
 open Rewrite
 open Sequent
-open Seqtype
 open Sml
 open Stringfuns
 open Symbol
@@ -133,11 +132,11 @@ let resnumbase = 1
 (* This function is about numbering rules, where we want to give resources
  * copied from consequent to antecedent the same number.  E.g. in
  * 
- *                      X |- _P  X |- _P->Q
+ *                      X |- P  X |- P->Q
  *                      ----------------- (->-E)
  *                             X |- Q
  *
- * all the elements (_P, _P->Q, Q) should have distinct numbers, but in
+ * all the elements (P, P->Q, Q) should have distinct numbers, but in
  *
  *                     X |- C  X, C |- B
  *                     ----------------- (cut)
@@ -146,9 +145,9 @@ let resnumbase = 1
  * the B in the top line should share a resource number with the B in the 
  * bottom line, and in
  *
- *                    X, Ax._P, _P[x\c] |- Q
+ *                    X, Ax.P, P[x\c] |- Q
  *                    -------------------- (A|-)
- *                      X, Ax._P |- Q
+ *                      X, Ax.P |- Q
  *
  * the Qs should share a resource number, as should the Ax.Ps.  But 
  * inheritance should only be from bottom to top, so the Cs in the cut don't
@@ -186,70 +185,80 @@ let resnumbase = 1
  * dNd has to be complicated (sigh).
  * RB 14/viii/97
  *)
+(* Now that we have SingleDischargeProvisos, which include resnums, we have
+   to number them as well. 
+ *)
 
 (* we number rules starting from 1, so that seqvars and Nonums can be 
  * described as zeros to the uninitiated
  *)
 
-let rec numberrule (antes, conseq) =
-  let rec numberseq fld =
-    fun _R n leftenv rightenv ->
-      fun (Seq (st, hs, gs) as seq) ->
-        let rec numberel (el, (n, oldenv, newenv, es)) =
-          match el with
-          | Element (_, _, t) ->
-              (match (oldenv <@> t) with
-               | Some m ->
-                   n, (oldenv -- [t]), newenv,
-                   registerElement (ResUnknown m, t) :: es
-               | None ->
-                   n + 1, oldenv, (newenv ++ (t |-> n)),
-                   registerElement (_R n, t) :: es
-              )
-          | _ -> n, oldenv, newenv, el :: es
-        in
-        match hs, gs with
-        | Collection (_, hkind, hes), Collection (_, gkind, ges) ->
-            let (n, _, newleftenv, hes) =
-              fld numberel hes (n, leftenv, empty, [])
-            in
-            let (n, _, newrightenv, ges) =
-              fld numberel ges (n, rightenv, empty, [])
-            in
-            n, newleftenv, newrightenv,
-            Seq
-              (st, registerCollection (hkind, hes),
-               registerCollection (gkind, ges))
-        | _ ->
-            raise
-              (Catastrophe_
-                 ["in numberseq argument "; string_of_seq seq;
-                  " exploded into ("; debugstring_of_term hs; ",";
-                  debugstring_of_term gs; ")"])
+let seq_entrails estr (Seq (st, hs, gs) as seq) = (* utility function *)
+  match hs, gs with
+  | Collection (_, hkind, hes), Collection (_, gkind, ges) -> st, hkind, hes, gkind, ges
+  | _ -> raise (Catastrophe_ ["in "; estr; " "; string_of_seq seq;
+                              " exploded into ("; debugstring_of_term hs; ", ";
+                              st; ", ";  debugstring_of_term gs; ")"])
+
+let rec numberrule (antes, conseq, provisos) =
+  let numberseq fld _R n leftenv rightenv seq =
+    let st, hkind, hes, gkind, ges = seq_entrails "numberseq" seq in
+    let rec numberel (el, (n, oldenv, newenv, es)) =
+      match el with
+      | Element (_, _, t) -> (match (oldenv <@> t) with
+                              | Some m -> n, (oldenv -- [t]), newenv,
+                                          registerElement (ResUnknown m, t) :: es
+                              | None   -> n + 1, oldenv, (newenv ++ (t |-> n)),
+                                          registerElement (_R n, t) :: es
+                             )
+      | _ -> n, oldenv, newenv, el :: es
+    in
+    let (n, _, newleftenv, hes) = fld numberel hes (n, leftenv, empty, []) in
+    let (n, _, newrightenv, ges) = fld numberel ges (n, rightenv, empty, []) in
+    n, newleftenv, newrightenv, Seq (st, registerCollection (hkind, hes), registerCollection (gkind, ges))
   in
-  let (n, leftenv, rightenv, conseq') =
-    numberseq nj_fold (fun v->ResUnknown v) 1 empty empty conseq
+  let numberproviso antes (b,p as bp) ps =
+    match p with
+    | Provisotype.SingleDischargeProviso rts ->
+        (* there won't be many of these, so we can do it the slow way *)
+        let get_hes seq = let st, hkind, hes, gkind, ges = seq_entrails "numberproviso" seq in hes in
+        let all_hes = List.concat (List.map get_hes antes) in
+        let number_rt (r,t) = 
+          let rtel = Element(None, r, t) in
+          let matches = List.filter (fun el -> eqelements eqterms (el,rtel)) all_hes in
+          match matches with
+          | [Element(_,r',_)] -> r',t
+          | []                -> raise (Catastrophe_ ["in Thing.numberproviso "; string_of_proviso p;
+                                                      "; "; string_of_term t; " matches no antecedent hypothesis"
+                                                     ])
+          | _                 -> raise (Catastrophe_ ["in Thing.numberproviso "; string_of_proviso p;
+                                                      "; "; string_of_term t; " matches more than one antecedent hypothesis"
+                                                     ])
+        in
+        (b, Provisotype.SingleDischargeProviso (number_rt <* rts)) :: ps
+    | _ -> bp::ps
+  in
+  let (n, leftenv, rightenv, conseq') = numberseq nj_fold _ResUnknown 1 empty empty conseq
   in
   let rec rvfld f xs z =
-    let (n, old, new__, ys) = nj_revfold f xs z in n, old, new__, List.rev ys
+    let (n, old, rnew, ys) = nj_revfold f xs z in n, old, rnew, List.rev ys
   in
-  let (n, antes') =
-    nj_fold
-      (fun (seq, (n, seqs)) ->
-         let (n, _, _, seq') =
-           numberseq rvfld (fun v->Resnum v) n leftenv rightenv seq
-         in
-         n, seq' :: seqs)
-      antes (n, [])
+  let (n, antes') = nj_fold (fun (seq, (n, seqs)) ->
+                               let (n, _, _, seq') = numberseq rvfld _Resnum n leftenv rightenv seq in
+                               n, seq' :: seqs
+                            )
+                            antes (n, [])
   in
+  let provisos' = List.fold_right (numberproviso antes') provisos [] in
   (* desperation ...
   if !thingdebug then
-    let val p = string_of_pair (string_of_antecedentlist true) (string_of_consequent true) "," in
-        consolereport ["numberrule ", p (antes,conseq), " => ", p (antes',conseq')]
+    let val p = string_of_triple (string_of_antecedentlist true) (string_of_consequent true) string_of_provisolist "," in
+        consolereport ["numberrule ", p (antes,conseq,provisos), " => ", p (antes',conseq',provisos')]
     end
   else (); 
   ... end desperation *)
-  antes', conseq'
+  antes', conseq', provisos'
+
 (* Once a rule has been numbered as above it is a trivial matter to renumber
  * it.  This function is given a number to start from; it returns the 
  * maximum resource number in the new sequent, and a list of all its 
@@ -260,63 +269,65 @@ let rec numberrule (antes, conseq) =
  * to avoid gaps in the number order
  *)
 
-let rec numberforapplication n (antes, conseq) =
-  let rec renumberseq n =
-    fun (Seq (st, hs, gs) as seq) ->
-      let rec new__ m = n + m - 1 in
-      (* that's the adjustment *)
-      let rec renumberel (el, (m, rs, els)) =
+let rec numberforapplication n (antes, conseq, provisos) = 
+  let rnew m = n + m - 1 in (* that's the adjustment *)
+  let renumberseq seq =
+      let renumberel (el, (m, rs, els)) =
         match el with
         | Element (_, ResUnknown m', t) ->
-            let r' = ResUnknown (new__ m') in
-            max m (new__ m'),
-            (if member (r', rs) then rs else r' :: rs),
-            registerElement (r', t) :: els
+            let r' = ResUnknown (rnew m') in
+            max m (rnew m'),
+            (if member (r', rs) then rs else r' :: rs), registerElement (r', t) :: els
         | Element (_, Resnum m', t) ->
-            max m (new__ m'), rs,
-            registerElement (Resnum (new__ m'), t) :: els
+            max m (rnew m'), rs, registerElement (Resnum (rnew m'), t) :: els
         | _ -> m, rs, el :: els
       in
-      match hs, gs with
-      | Collection (_, hkind, hes), Collection (_, gkind, ges) ->
-          let (m, leftrs, hes) = nj_fold renumberel hes (0, [], []) in
-          let (m', rightrs, ges) = nj_fold renumberel ges (0, [], []) in
-          max m m', (leftrs, rightrs),
-          Seq
-            (st, registerCollection (hkind, hes),
-             registerCollection (gkind, ges))
-      | _ ->
-          raise
-            (Catastrophe_
-               ["in renumberseq argument "; string_of_seq seq;
-                " exploded into ("; debugstring_of_term hs; ",";
-                debugstring_of_term gs; ")"])
+      let st, hkind, hes, gkind, ges = seq_entrails "renumberseq" seq in
+      let (m, leftrs, hes) = nj_fold renumberel hes (0, [], []) in
+      let (m', rightrs, ges) = nj_fold renumberel ges (0, [], []) in
+      max m m', (leftrs, rightrs),
+      Seq (st, registerCollection (hkind, hes), registerCollection (gkind, ges))
   in
-  let (m, rs, conseq') = renumberseq n conseq in
-  let (m, antes') =
-    nj_fold
-      (fun (seq, (m, seqs)) ->
-         let (m', _, seq') = renumberseq n seq in
-         max m m', seq' :: seqs)
-      antes (m, [])
+  let (m, rs, conseq') = renumberseq conseq in
+  let (m, antes') = nj_fold (fun (seq, (m, seqs)) ->
+                               let (m', _, seq') = renumberseq seq in
+                               max m m', seq' :: seqs
+                            )
+                            antes (m, [])
   in
-  let res = m + 1, rs, antes', conseq' in(* desperation ... 
+  let renumberproviso (b,p) = 
+    b, match p with
+       | Provisotype.SingleDischargeProviso rts ->
+           Provisotype.SingleDischargeProviso
+             (List.map (function 
+                       | Resnum m', t -> Resnum (rnew m'),t
+                       | rt -> raise (Catastrophe_ ["Thing.renumberproviso sees "; 
+                                                   string_of_pair string_of_resnum string_of_term "," rt])
+                      )
+                      rts
+            )
+       | p -> p
+  in
+  let provisos' = List.map renumberproviso provisos in (* can't change m *)
+  let res = m + 1, rs, antes', conseq', provisos' in
+  (* desperation ... 
   if !thingdebug then
     consolereport ["numberforapplication ", string_of_int n, " ",
-      string_of_pair (string_of_antecedentlist true) (string_of_consequent true) ", "
-                 (antes,conseq),
+      string_of_triple (string_of_antecedentlist true) (string_of_consequent true) string_of_provisolist ", "
+                 (antes,conseq,provisos),
       " => ", 
-      string_of_quadruple 
+      string_of_quintuple 
         string_of_int 
         let val p = bracketed_string_of_list string_of_resnum "," in 
             string_of_pair p p ","
         end
-        (string_of_antecedentlist true) (string_of_consequent true) ", "
+        (string_of_antecedentlist true) (string_of_consequent true)  string_of_provisolist ", "
         res
     ]
   else ();
   ... end desperation *)
    res
+
 (* When we _prove_ a theorem, all the ResUnknowns must become Resnums 
  * For the moment we don't know what to do with the antecedents - so we leave
  * them alone.
@@ -465,8 +476,8 @@ let rec freshc defcon cxt env params args =
     let var = con bits in
     checkarg var arg; (env ++ (var |-> arg))
   in
-  let rec newname new__ con con' (v, c) vs =
-    let (cxt', v') = new__ cxt c v in
+  let rec newname rnew con con' (v, c) vs =
+    let (cxt', v') = rnew cxt c v in
     _F cxt' ((env ++ (con (v, c) |-> con' (v', c)))) vs []
   in
   let rec usearg con vc vs arg args =
@@ -602,7 +613,7 @@ let rec compileR el er (params, provisos, antes, conseq) =
                      string_of_seq
                      ", "
                      (params, provisos, antes, conseq)];
-  let (antes, conseq) = numberrule (antes, conseq) in
+  let (antes, conseq, provisos) = numberrule (antes, conseq, provisos) in
   let bodyvars =
     nj_fold (uncurry2 tmerge) ((seqvars termvars tmerge <* conseq :: antes)) []
   in
@@ -693,10 +704,9 @@ let rec compileR el er (params, provisos, antes, conseq) =
        (fun (x, _P) ->
           match (env <@> _P) with
           | Some (false, vs) -> not (member (x, vs))
-          | Some (true, _) -> true
-          | None ->
-              raise (Catastrophe_ ["bad env in filter predicateps"])) <|
-       proofps
+          | Some (true, _)   -> true
+          | None             -> raise (Catastrophe_ ["bad env in filter predicateps"])
+       ) <| proofps
   in
   (* desperation ... *)
   let _ =
@@ -1258,10 +1268,10 @@ let rec freshRule
          (string_of_ruledata !thingdebugheavy) ", " res];
   res
 
-let rec renumberforuse args antes conseq cxt =
-  (* renumber the sequent *)
-  let (n, interesting_resources, antes, conseq) =
-    numberforapplication (nextresnum cxt) (antes, conseq)
+let rec renumberforuse args antes conseq provisos cxt =
+  (* renumber the sequent and provisos *)
+  let (n, interesting_resources, antes, conseq, provisos) =
+    numberforapplication (nextresnum cxt) (antes, conseq, provisos)
   in
   (* renumber Collection arguments *)
   let (n, args) =
@@ -1281,7 +1291,7 @@ let rec renumberforuse args antes conseq cxt =
       args (n, [])
   in
   let cxt = withresnum cxt n in
-  interesting_resources, args, antes, conseq, cxt
+  interesting_resources, args, antes, conseq, provisos, cxt
 
 let rec freshRuleshow name af cxt args vars rd res =
   if !thingdebug then
@@ -1298,8 +1308,8 @@ let rec freshRuleshow name af cxt args vars rd res =
   res
 
 let rec freshRuletoapply cxt args vars (params, provisos, antes, conseq as rd) =
-  let (interesting_resources, args, antes', conseq', cxt') =
-    renumberforuse args antes conseq cxt
+  let (interesting_resources, args, antes', conseq', provisos', cxt') =
+    renumberforuse args antes conseq provisos cxt
   in
   (* there ought to be a check on the number of arguments provided, just here *)
   let (cxt'', env) =
@@ -1308,7 +1318,7 @@ let rec freshRuletoapply cxt args vars (params, provisos, antes, conseq as rd) =
   in
   freshRuleshow "freshRuletoapply" string_of_termlist cxt args vars rd
     (cxt'', env, interesting_resources,
-     (params, provisos, antes', conseq'))
+     (params, provisos', antes', conseq'))
 
 let rec freshRuletosubst
   cxt argmap vars (params, provisos, antes, conseq as rd) =
@@ -1328,8 +1338,8 @@ let rec freshRuletosubst
     | vs -> bad "are" "names" vs
   in
   let (paramsused, ruleVIDs) = freshparamstouse vars args params in
-  let (interesting_resources, args, antes', conseq', cxt') =
-    renumberforuse args antes conseq cxt
+  let (interesting_resources, args, antes', conseq', provisos', cxt') =
+    renumberforuse args antes conseq provisos cxt
   in
   (* ok, we're ready to roll.  all we have to do is subtract argparams from
    * paramsused, and we are in business
@@ -1343,7 +1353,7 @@ let rec freshRuletosubst
   in
   freshRuleshow "freshRuletosubst" string_of_maplist cxt argmap vars rd
     (cxt'', env, interesting_resources,
-     (params, provisos, antes', conseq'))
+     (params, provisos', antes', conseq'))
 
 let rec fThmaors fR lw rw cxt args vars (params, provisos, _, conseq) =
   let (conseq, _, vars) = augment lw rw (conseq, [], vars) in
@@ -1505,8 +1515,8 @@ let rec freshGiven weaken (Seq (st, lhs, rhs) (* as seq *)) cxt proved =
     | t -> t
   in
   (* can't happen *)
-  let (interesting_resources, _, _, conseq, cxt) =
-    renumberforuse [] [] (Seq (st, unknownres lhs, unknownres rhs)) cxt
+  let (interesting_resources, _, _, conseq, _, cxt) =
+    renumberforuse [] [] (Seq (st, unknownres lhs, unknownres rhs)) [] cxt
   in
   cxt, interesting_resources, conseq
 

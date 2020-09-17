@@ -29,7 +29,7 @@
  *)
 
 type term = Termtype.term
- and seq  = Seqtype.seq
+ and seq  = Sequent.seq
  and name = Nametype.name
  and treelayout = Treelayout.treelayout
  

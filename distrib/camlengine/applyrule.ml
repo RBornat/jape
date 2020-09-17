@@ -45,7 +45,6 @@ open Proviso
 open Rewrite
 open Sml
 open Sequent
-open Seqtype
 open Stringfuns
 open Termfuns
 open Termstore
@@ -67,7 +66,7 @@ type prooftree      = Prooftree.Tree.Fmttree.prooftree
  and resnum         = Termtype.resnum
  and cxt            = Cxttype.cxt
  and element        = Termtype.element
- and seq            = Seqtype.seq
+ and seq            = Sequent.seq
  and term           = Termtype.term
 
 let mkJoin cxt reason how args = 

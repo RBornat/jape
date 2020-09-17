@@ -24,7 +24,7 @@
 *)
 
 open Termtype
-open Seqtype
+open Sequent
 open Cxttype
 open Tactictype
 open Prooftree.Tree.Fmttree

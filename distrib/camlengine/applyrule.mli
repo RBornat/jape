@@ -24,7 +24,7 @@
 *)
 
 type term = Termtype.term
-and seq = Seqtype.seq
+and seq = Sequent.seq
 and rewinf = Rewinf.rewinf
 and element = Termtype.element
 and cxt = Cxttype.cxt

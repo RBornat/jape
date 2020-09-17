@@ -55,9 +55,12 @@ and element =
 
 and resnum = Nonum | Resnum of int | ResUnknown of int
 
-let rec int_of_resnum =
+let _Resnum     i = Resnum i
+let _ResUnknown i = ResUnknown i
+
+let int_of_resnum =
   function
-    Resnum n -> n
+  | Resnum n -> n
   | ResUnknown n -> n
   | Nonum -> 0
 
@@ -66,11 +69,11 @@ let rec int_of_resnum =
  *)
 let rec debracket =
   function
-    Fixapp (_, ["("; ")"], [t]) -> debracket t
+  | Fixapp (_, ["("; ")"], [t]) -> debracket t
   | t -> t
 let rec bracketed =
   function
-    Fixapp (_, ["("; ")"], [t]) -> true
+  | Fixapp (_, ["("; ")"], [t]) -> true
   | t -> false
 
 let vid_of_string s = s
