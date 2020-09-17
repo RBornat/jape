@@ -193,16 +193,9 @@ let resnumbase = 1
  * described as zeros to the uninitiated
  *)
 
-let seq_entrails estr (Seq (st, hs, gs) as seq) = (* utility function *)
-  match hs, gs with
-  | Collection (_, hkind, hes), Collection (_, gkind, ges) -> st, hkind, hes, gkind, ges
-  | _ -> raise (Catastrophe_ ["in "; estr; " "; string_of_seq seq;
-                              " exploded into ("; debugstring_of_term hs; ", ";
-                              st; ", ";  debugstring_of_term gs; ")"])
-
 let rec numberrule (antes, conseq, provisos) =
   let numberseq fld _R n leftenv rightenv seq =
-    let st, hkind, hes, gkind, ges = seq_entrails "numberseq" seq in
+    let st, hkind, hes, gkind, ges = seq_entrails seq in
     let rec numberel (el, (n, oldenv, newenv, es)) =
       match el with
       | Element (_, _, t) -> (match (oldenv <@> t) with
@@ -221,7 +214,7 @@ let rec numberrule (antes, conseq, provisos) =
     match p with
     | Provisotype.SingleDischargeProviso rts ->
         (* there won't be many of these, so we can do it the slow way *)
-        let get_hes seq = let st, hkind, hes, gkind, ges = seq_entrails "numberproviso" seq in hes in
+        let get_hes seq = let st, hkind, hes, gkind, ges = seq_entrails seq in hes in
         let all_hes = List.concat (List.map get_hes antes) in
         let number_rt (r,t) = 
           let rtel = Element(None, r, t) in
@@ -282,7 +275,7 @@ let rec numberforapplication n (antes, conseq, provisos) =
             max m (rnew m'), rs, registerElement (Resnum (rnew m'), t) :: els
         | _ -> m, rs, el :: els
       in
-      let st, hkind, hes, gkind, ges = seq_entrails "renumberseq" seq in
+      let st, hkind, hes, gkind, ges = seq_entrails seq in
       let (m, leftrs, hes) = nj_fold renumberel hes (0, [], []) in
       let (m', rightrs, ges) = nj_fold renumberel ges (0, [], []) in
       max m m', (leftrs, rightrs),
