@@ -25,6 +25,7 @@
 
 open Cxttype
 open Termtype
+open Sequent
 open Mappingfuns
 open Proviso
 open Idclass
@@ -43,7 +44,7 @@ val withresmap : cxt -> (int, (resnum * term)) mapping -> cxt
 val withprovisos : cxt -> visproviso list -> cxt
 val withvisibleprovisos : cxt -> proviso list -> cxt
 val withusedVIDs : cxt -> vid list -> cxt
-val withexterior : cxt -> (Sequent.seq list * Sequent.seq) -> cxt
+val withexterior : cxt -> (seq list * seq) -> cxt
 val withresnum : cxt -> int -> cxt
 (* augmentation functions *)
 val plusvarmap : cxt -> (vid, term) mapping -> cxt

@@ -24,6 +24,7 @@
 *)
 
 open Termtype
+open Sequent
 open Provisotype
 
 type proviso = Provisotype.proviso
@@ -65,4 +66,4 @@ val expandVisProvisos : visproviso list -> visproviso list
 val compressVisProvisos : visproviso list -> visproviso list
 
 val groundedprovisos : term list -> visproviso list -> visproviso list option
-val relevantprovisos : Sequent.seq -> proviso list -> proviso list
+val relevantprovisos : seq -> proviso list -> proviso list

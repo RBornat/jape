@@ -22,10 +22,13 @@
     (or look at http://www.gnu.org).
 
 *)
+open Cxttype
+open Termtype
+open Sequent
 
-val rewrite         : Cxttype.cxt -> Termtype.term -> Termtype.term
-val rewriteseq      : Cxttype.cxt -> Sequent.seq -> Sequent.seq
-val rewritesubstmap : Cxttype.cxt -> (Termtype.term * Termtype.term) list -> (Termtype.term * Termtype.term) list
-val rewritecxt      : Cxttype.cxt -> Cxttype.cxt (* for updating provisos and BaseSeq *)
+val rewrite         : cxt -> term -> term
+val rewriteseq      : cxt -> seq -> seq
+val rewritesubstmap : cxt -> (term * term) list -> (term * term) list
+val rewritecxt      : cxt -> cxt (* for updating provisos and BaseSeq *)
 
 val rewritedebug : bool ref

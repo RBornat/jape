@@ -24,6 +24,7 @@
 *)
 
 open Termtype
+open Sequent
 open Name
 open Paraparam
 open Proviso
@@ -32,8 +33,8 @@ open Cxttype
 open Mappingfuns
 
 type thing =
-  | Rule    of ((paraparam list * (bool * proviso) list * Sequent.seq list * Sequent.seq) * bool)
-  | Theorem of (paraparam list * (bool * proviso) list * Sequent.seq)
+  | Rule    of ((paraparam list * (bool * proviso) list * seq list * seq) * bool)
+  | Theorem of (paraparam list * (bool * proviso) list * seq)
   | Tactic  of (paraparam list * tactic)
   | Macro   of (paraparam list * term)
   
@@ -45,11 +46,11 @@ val freshThingtoapply : bool -> name -> cxt -> term list -> (name -> bool)
 val freshThingtosubst : bool -> name -> cxt -> (term * term) list -> (name -> bool) 
                      -> (cxt * (term, term) mapping * (resnum list * resnum list) * thing) option
 val freshThingtoprove : name -> thing option
-val freshGiven : bool -> Sequent.seq -> cxt -> (name -> bool) -> cxt * (resnum list * resnum list) * Sequent.seq
-val rearrangetoResolve : Sequent.seq list -> Sequent.seq -> Sequent.seq list * Sequent.seq
-val instantiateRule : (term, term) mapping -> (bool * proviso) list -> Sequent.seq list -> Sequent.seq
-                   -> (term * term) list * (bool * proviso) list * Sequent.seq list * Sequent.seq
-val compiletoprove : paraparam list * proviso list * Sequent.seq list * Sequent.seq -> (bool * proviso) list * Sequent.seq list * Sequent.seq
+val freshGiven : bool -> seq -> cxt -> (name -> bool) -> cxt * (resnum list * resnum list) * seq
+val rearrangetoResolve : seq list -> seq -> seq list * seq
+val instantiateRule : (term, term) mapping -> (bool * proviso) list -> seq list -> seq
+                   -> (term * term) list * (bool * proviso) list * seq list * seq
+val compiletoprove : paraparam list * proviso list * seq list * seq -> (bool * proviso) list * seq list * seq
 val formulageneralisable : paraparam list -> term -> bool
 
 val addthing : name * thing * thingplace -> unit
