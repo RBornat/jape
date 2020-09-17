@@ -27,6 +27,7 @@ open Box
 open Displayclass
 open Draw
 open Termtype
+open Sequent
 
 type planclass = ElementClass of (element * displayclass) 
                | PunctClass
@@ -34,7 +35,7 @@ type planclass = ElementClass of (element * displayclass)
 
 val makeelementplan        : (element -> string) -> displayclass -> element -> pos 
                           -> planclass plan
-val makeseqplan            : int -> (element -> string) -> bool -> pos -> Sequent.seq 
+val makeseqplan            : int -> (element -> string) -> bool -> pos -> seq 
                           -> planclass plan list * textbox
 val displayclass_of_planclass : planclass -> displayclass
 val string_of_planclass        : planclass -> string

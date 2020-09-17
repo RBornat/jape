@@ -24,6 +24,7 @@
 *)
 
 open Cxttype
+open Sequent
 open Forcedef
 open Japeenv
 open Name
@@ -35,15 +36,15 @@ open Tactictype
 
 
 val proofsdone : bool ref
-val mkstate : visproviso list -> Sequent.seq list -> prooftree -> proofstate
-val startstate : japeenv -> visproviso list -> Sequent.seq list -> Sequent.seq -> proofstate
+val mkstate : visproviso list -> seq list -> prooftree -> proofstate
+val startstate : japeenv -> visproviso list -> seq list -> seq -> proofstate
 val addproof   : (string list -> unit) ->
                  (string list * string * string * int -> bool) -> 
-                 name -> bool -> proofstate -> bool -> (Sequent.seq * model) option -> 
+                 name -> bool -> proofstate -> bool -> (seq * model) option -> 
                  bool
 val doProof :
   (string list -> unit) ->
     (string list * string * string * int -> bool) -> japeenv -> name ->
-    proofstage -> Sequent.seq -> paraparam list * Sequent.seq list * proviso list * tactic ->
-    (Sequent.seq * model) option ->
-    (name * proofstate * (Sequent.seq * model) option) option
+    proofstage -> seq -> paraparam list * seq list * proviso list * tactic ->
+    (seq * model) option ->
+    (name * proofstate * (seq * model) option) option
