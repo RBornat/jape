@@ -23,7 +23,7 @@
 
 *)
 
-open Seqtype
+open Sequent
 open Termtype
 
 type forcedef = ForceAlways

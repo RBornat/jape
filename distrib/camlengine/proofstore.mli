@@ -30,7 +30,7 @@ open Name
 open Proofstage
 open Prooftree.Tree.Fmttree
 open Proviso
-open Seqtype
+open Sequent
 open Thing
 
 val saveable    : unit -> bool

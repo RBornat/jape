@@ -23,7 +23,7 @@
 
 *)
 
-type seq     = Seqtype.seq
+type seq     = Sequent.seq
  and rewinf  = Rewinf.rewinf
  and element = Termtype.element
  and name    = Name.name
@@ -176,7 +176,6 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     open Rewrite
     open Rew
     open Sequent
-    open Seqtype
     open Sml
     open Stringfuns
     open Tactictype

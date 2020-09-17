@@ -40,7 +40,7 @@ let string_of_symbol  = Symbol.string_of_symbol
 
 type structurerule = Thing.structurerule
  and tree          = Prooftree.Tree.Vistree.prooftree
- and sequent       = Seqtype.seq
+ and sequent       = Sequent.seq
  and reason        = string
  and element       = Termtype.element
  and text          = Text.text

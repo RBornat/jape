@@ -50,7 +50,6 @@ open Proofstore
 open Rewrite
 open Runproof
 open Sequent
-open Seqtype
 open Sml
 open Stringfuns
 open Tacticfuns

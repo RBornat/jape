@@ -31,7 +31,7 @@ open Paraparam
 open Proofstate
 open Proviso
 open Runproof
-open Seqtype
+open Sequent
 open Thing
 
 val interpret :

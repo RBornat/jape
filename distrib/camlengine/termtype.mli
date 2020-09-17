@@ -29,6 +29,10 @@ type vid
 
 (* terms now contain hash information. RB 26/i/00 *)
 (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
+(* I spent a lot of time trying to split Id and Unknown from this datatype. I retired 
+   hurt. Ditto Collection. So don't think about it. RB 08-09/20
+ *)
+
 type term =
   | Id of (int option * vid * idclass)
   | Unknown of (int option * vid * idclass)
@@ -41,11 +45,17 @@ type term =
       (int option * (term list * term list * term list) *
          (term * (int * int)) list * term)
   | Collection of (int option * idclass * element list)
+
 and litcon = Number of int | String of string
+
 and element =
   | Segvar of (int option * term list * term)
   | Element of (int option * resnum * term)
+
 and resnum = Nonum | Resnum of int | ResUnknown of int
+
+val _Resnum     : int -> resnum
+val _ResUnknown : int -> resnum
 
 val bracketed : term -> bool
 val debracket : term -> term

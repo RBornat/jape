@@ -42,7 +42,7 @@ open Treeformat.Fmt
 type prooftree = Prooftree.Tree.Fmttree.prooftree
  and path = Prooftree.Tree.Fmttree.path
  and cxt = Cxttype.cxt
- and seq = Seqtype.seq
+ and seq = Sequent.seq
  
 let provisovars = provisovars termvars tmerge
 

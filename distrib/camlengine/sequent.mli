@@ -23,11 +23,12 @@
 
 *)
 
-open Seqtype
 open Symboltype
 open Mappingfuns
 open Termtype
 open Idclass
+
+type seq = Seq of (string * term * term) (* stile, left, right *)
 
 val describeSeqs : (idclass * string * idclass) list -> unit
 val getsemanticturnstile : string -> string option

@@ -27,7 +27,7 @@ open Cxttype
 open Termtype
 open Proviso
 open Mappingfuns
-open Seqtype
+open Sequent
 
 type prooftree = Prooftree.Tree.Fmttree.prooftree
 

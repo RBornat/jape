@@ -23,7 +23,7 @@
 
 *)
 
-type seq   = Seqtype.seq
+type seq   = Sequent.seq
 and tactic = Tactictype.tactic
 and term   = Termtype.term
 

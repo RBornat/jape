@@ -26,7 +26,7 @@
 type tree          = Prooftree.Tree.Vistree.prooftree
  and structurerule = Thing.structurerule
  and font          = Displayfont.displayfont
- and sequent       = Seqtype.seq
+ and sequent       = Sequent.seq
  and reason
  and text          = Text.text
  and term          = Termtype.term

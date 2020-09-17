@@ -30,7 +30,7 @@ open Hit
 open Cxttype
 open Displaystate
 open Termtype
-open Seqtype
+open Sequent
 
 type command =
     TextCommand of string list

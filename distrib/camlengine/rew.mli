@@ -25,7 +25,6 @@
 
 open Cxttype
 open Termtype
-open Seqtype
 open Rewinf
 open Proviso
 
@@ -33,7 +32,7 @@ type rawinf
 
 (* parameters for rew_... are dosubst, cxt, whatsit *)
 val rew_Term : bool -> cxt -> term -> term option
-val rew_Seq : bool -> cxt -> seq -> seq option
+val rew_Seq : bool -> cxt -> Sequent.seq -> Sequent.seq option
 val rew_resnum : cxt -> resnum -> resnum option
 val rew_elements : bool -> cxt -> element list -> element list option
 val rew_substmap : bool -> cxt -> (term * term) list -> (term * term) list option
@@ -50,7 +49,7 @@ val nullrawinf : rawinf
 
 (* functions for folding *)
 val rawinfTerm : cxt -> term * rawinf -> rawinf
-val rawinfSeq : cxt -> seq * rawinf -> rawinf
+val rawinfSeq : cxt -> Sequent.seq * rawinf -> rawinf
 val rawinfElements : cxt -> element list * rawinf -> rawinf
 
 val raw2rew_ : rawinf -> rewinf

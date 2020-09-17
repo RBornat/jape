@@ -581,7 +581,7 @@ let rec seq_forced forced c s =
 
 (* *********************** interaction states *********************** *)
 
-type seq = Seqtype.seq
+type seq = Sequent.seq
 
 type disproofstaterec =
       { seq          : seq; 

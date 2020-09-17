@@ -24,7 +24,7 @@
 *)
 
 open Termtype
-open Seqtype
+open Sequent
 open Proviso
 open Paraparam
 open Tactictype

@@ -23,8 +23,6 @@
 
 *)
 
-open Seqtype 
-
 open Idclass
 open Idclassfuns
 open Listfuns
@@ -48,6 +46,8 @@ and listkind = ListClass FormulaClass
 and formulakind = FormulaClass
 
 type kind = Syntactic | Semantic
+
+type seq = Seq of (string * term * term) (* stile, left, right *)
 
 (* Because everything in a tree has to have a resource number, single-formula
  * sides of sequents are encoded as lists (not bags because the unification of
@@ -101,6 +101,58 @@ let rec getsemanticturnstile syn = (!semanticturnstiles <@> syn)
 
 let rec resetsyntaxandturnstiles () =
   sequent_descriptions := []; semanticturnstiles := empty
+
+let alwaysshowturnstile = ref false
+
+let rec sqs linesep tf (Seq (st, hs, gs)) ss =
+  let rec default () =
+    let tail =
+      st :: " " :: (if isemptycollection gs then ss else tf gs ss)
+    in
+    if isemptycollection hs then tail else tf hs (linesep :: tail)
+  in
+  let (stkind, hypform, _, concform) = lookupSTILE st in
+  match
+    (!alwaysshowturnstile || stkind <> Syntactic) ||
+    List.length (syntacticsequents ()) <> 1,
+    hypform, concform
+  with
+    false, BagClass FormulaClass, FormulaClass ->
+      if isemptycollection hs then tf gs ss else default ()
+  | false, ListClass FormulaClass, FormulaClass ->
+      if isemptycollection hs then tf gs ss else default ()
+  | _ -> default ()
+
+let catelim_string_of_seq = 
+  sqs " " (catelim_string_of_collection ", ")
+let catelim_invisbracketedstring_of_seq b = 
+  sqs " " (catelim_invisbracketedstring_of_collection b ", ") 
+let catelim_debugstring_of_seq = sqs " " catelim_debugstring_of_term
+let catelim_separatedstring_of_seq linesep =
+  sqs linesep (catelim_string_of_collection (","^linesep))
+
+let catelim_elementstring_of_seq =
+  sqs " " (function
+             Collection (_, _, es) ->
+               catelim_string_of_list (catelim_debugstring_of_element catelim_string_of_term)
+                 ", " es
+           | t -> catelim_string_of_term t)
+     
+let string_of_seq = stringfn_of_catelim catelim_string_of_seq
+let invisbracketedstring_of_seq = stringfn_of_catelim <.> catelim_invisbracketedstring_of_seq
+let debugstring_of_seq = stringfn_of_catelim catelim_debugstring_of_seq
+let elementstring_of_seq = stringfn_of_catelim catelim_elementstring_of_seq
+
+let rec seqexplode = fun (Seq s) -> s
+
+(* this is never going to go wrong, and if it does, I can instrument the calls to pin it down *)
+let seq_entrails (Seq (st, hs, gs) as seq) = 
+  match hs, gs with
+  | Collection (_, hkind, hes), Collection (_, gkind, ges) -> st, hkind, hes, gkind, ges
+  | _ -> raise (Catastrophe_ ["sequent "; string_of_seq seq;
+                              " exploded into ("; debugstring_of_term hs; ", ";
+                              st; ", ";  debugstring_of_term gs; ")"])
+
 
 let rec parseSeq () =
   let rec formside el =
@@ -182,49 +234,6 @@ let rec mkSeq (st, hs, gs) =
   let sh = trueclass hypform in
   let sg = trueclass concform in
   Seq (st, registerCollection (sh, hs), registerCollection (sg, gs))
-
-let alwaysshowturnstile = ref false
-
-let rec sqs linesep tf (Seq (st, hs, gs)) ss =
-  let rec default () =
-    let tail =
-      st :: " " :: (if isemptycollection gs then ss else tf gs ss)
-    in
-    if isemptycollection hs then tail else tf hs (linesep :: tail)
-  in
-  let (stkind, hypform, _, concform) = lookupSTILE st in
-  match
-    (!alwaysshowturnstile || stkind <> Syntactic) ||
-    List.length (syntacticsequents ()) <> 1,
-    hypform, concform
-  with
-    false, BagClass FormulaClass, FormulaClass ->
-      if isemptycollection hs then tf gs ss else default ()
-  | false, ListClass FormulaClass, FormulaClass ->
-      if isemptycollection hs then tf gs ss else default ()
-  | _ -> default ()
-
-let catelim_string_of_seq = 
-  sqs " " (catelim_string_of_collection ", ")
-let catelim_invisbracketedstring_of_seq b = 
-  sqs " " (catelim_invisbracketedstring_of_collection b ", ") 
-let catelim_debugstring_of_seq = sqs " " catelim_debugstring_of_term
-let catelim_separatedstring_of_seq linesep =
-  sqs linesep (catelim_string_of_collection (","^linesep))
-
-let catelim_elementstring_of_seq =
-  sqs " " (function
-             Collection (_, _, es) ->
-               catelim_string_of_list (catelim_debugstring_of_element catelim_string_of_term)
-                 ", " es
-           | t -> catelim_string_of_term t)
-     
-let string_of_seq = stringfn_of_catelim catelim_string_of_seq
-let invisbracketedstring_of_seq = stringfn_of_catelim <.> catelim_invisbracketedstring_of_seq
-let debugstring_of_seq = stringfn_of_catelim catelim_debugstring_of_seq
-let elementstring_of_seq = stringfn_of_catelim catelim_elementstring_of_seq
-
-let rec seqexplode = fun (Seq s) -> s
 
 (* 
 fun parseComponent c () =
