@@ -33,7 +33,6 @@ open Invisibles
 open Proofstate
 open Prooftree.Tree.Fmttree
 open Sequent
-open Seqtype
 open Sml
 open Stringfuns
 open Treeformat.Fmt
