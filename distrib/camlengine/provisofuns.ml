@@ -23,6 +23,8 @@
 
 *)
 
+open Miscellaneous
+open Structurerule
 open Answer
 open Cxttype
 open Cxtexterior
@@ -32,7 +34,6 @@ open Idclass
 open Listfuns
 open Mappingfuns
 open Match
-open Miscellaneous
 open Optionfuns
 open Provisotype (* ok, of course. RB *)
 open Proviso
@@ -45,6 +46,7 @@ open Termfuns
 open Termstore
 open Termstring
 open Termtype
+open Prooftree.Tree
 
 let consolereport = Miscellaneous.consolereport
 
@@ -381,7 +383,71 @@ let rec verifycxtprovisos cxt =
 
 type prooftree = Prooftree.Tree.Fmttree.prooftree
 
-let verifytreeprovisos prooftree cxt = cxt (* for now *)
+let verifytreeprovisos prooftree cxt = 
+  let cxt = rewritecxt cxt in
+  let check_tps p ps =
+    match provisoactual p with
+    | SingleDischargeProviso rts ->
+        let is_there r = List.exists (function Element (_,er,_) -> r=er | _ -> false) in
+        let has_r r tree =
+          let seq = Fmttree.sequent tree in
+          let _, _, hes, _, _ = seq_entrails seq in
+          is_there r hes
+        in
+        let check_rts (r,t as rt) rts =
+          let isdischarge node =
+            let res = match Fmttree.rule node with
+                      | Some rule -> isstructurerule IdentityRule rule &&
+                                     (let hes,_ = Fmttree.thinned node in
+                                      is_there r hes 
+                                     )
+                      | _         -> false
+            in
+            (* consolereport ["isdischarge ("; string_of_resnum r; ") looking at "; 
+                              Fmttree.string_of_proofnode node; " -> "; string_of_bool res];
+             *)
+            res
+          in
+          let count (discharges, tips as z) node =
+            let r = if isdischarge node then discharges+1, tips else
+                    if Fmttree.isTip node then discharges, tips+1 else
+                    z
+            in
+            (* consolereport ["count ("; string_of_pair string_of_int string_of_int "," z;
+                              ") looking at "; Fmttree.string_of_proofnode node; " -> "; 
+                              string_of_pair string_of_int string_of_int "," r];
+             *)
+            r
+          in
+          let bad s =
+            let p = SingleDischargeProviso [rt] in
+            Reason.setReason [string_of_proviso p; " -- "; s]; 
+            raise (Verifyproviso p) 
+          in
+          match Fmttree.find (has_r r) prooftree with
+          | Some node -> 
+              if isdischarge node then bad "trivial discharge"; 
+              (match Fmttree.fold_left count (0,0) node with
+               | 0, 0 -> bad "no possible discharge"     
+               | 1, 0 -> rts                            (* one discharge, finished *)
+               | 1, _                                   (* one discharge, not finished *)
+               | 0, _ -> rt::rts                        (* no discharge, not finished *)
+               | _    -> bad "too many discharges"   
+              )
+          | None      -> 
+              raise (Catastrophe_ ["verifytreeprovisos can't find node for ";
+                                   string_of_proviso (SingleDischargeProviso [rt])
+                                  ])
+        in
+        let rts' = List.fold_right check_rts rts [] in
+        if null rts' then ps else
+        (* ignoring churn ... *)
+        provisoresetactual p (SingleDischargeProviso rts') :: ps
+    | _ -> p::ps
+  in
+  let ps = List.fold_right check_tps (provisos cxt) [] in
+  withprovisos cxt ps
+
 
 let checkcxtprovisos cxt  =
   try Some (verifycxtprovisos cxt) with
