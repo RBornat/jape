@@ -36,8 +36,8 @@ val expandFreshProviso :
   bool -> bool * bool * bool * term -> term -> term -> visproviso list -> visproviso list
 
 exception Verifyproviso of proviso
-val verifycxtprovisos : cxt -> cxt                  (* raises VerifyProviso *)
-val verifytreeprovisos : prooftree -> cxt -> cxt    (* raises VerifyProviso *)
+val verifycxtprovisos : cxt -> cxt                  (* raises Verifyproviso *)
+val verifytreeprovisos : prooftree -> cxt -> cxt    (* raises Verifyproviso *)
 val checkcxtprovisos : cxt -> cxt option 
 val checkprovisos : prooftree -> cxt -> cxt option 
 
