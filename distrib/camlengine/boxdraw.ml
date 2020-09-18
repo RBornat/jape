@@ -351,11 +351,7 @@ let rec pretransform prefixwithstile t =
      * appears at the end of a box, we do the checks about last line later.
      *)
     (* the hidehyp / hidehypprev stuff is now in _L below. RB 07/2020 *)
-    match
-      null newhyps, 
-      (* !hidehyp && *) isStructureRulenode t IdentityRule
-      (* , lprins, gs *)
-    with
+    match null newhyps, isStructureRulenode t IdentityRule  with
     | true , true  -> false, respt (aslines true)
     | false, true  -> boxpt (respt (aslines true))
     | false, false -> boxpt (respt (pt rp hs t))
@@ -373,10 +369,9 @@ let rec pretransform prefixwithstile t =
              (match concs (sequent a1), ttsub (hyps (sequent a2)) hs with
               | [cc], [ch] -> let (_, pt1) = _T hs (0, a1) in
                               let (_, pt2) = _T (ch :: hs) (1, a2) in
-                              false,
-                              CutPT (RevPath rp, ch, pt1, pt2, hasrelevanttip ch a2, ishiddencut t)
+                              false, CutPT (RevPath rp, ch, pt1, pt2, hasrelevanttip ch a2, ishiddencut t)
               | _         -> (* we don't transmit reflexivity yet ... *)
-                 aslines false
+                             aslines false
              )
          | _ ->
              ((* multi-conc cut: useful for resolution but not for this display transform *)
@@ -402,9 +397,8 @@ let rec pretransform prefixwithstile t =
         )
   in
   match respt (pt [] [] t) with
-  | BoxPT (pi, _, _, _, hs, ptr) ->
-      BoxPT (pi, !outermostbox, outerwords, "", hs, ptr)
-  | ptr -> ptr
+  | BoxPT (pi, _, _, _, hs, ptr) -> BoxPT (pi, !outermostbox, outerwords, "", hs, ptr)
+  | ptr                          -> ptr
 
 (******** Step 2: compute class of each element, element texts and sizes, and paths ********)
 
@@ -599,7 +593,7 @@ let rec dependency tranreason deadf pt =
       let rightp = List.rev (1 :: rp) in
       let rec leftdead d con (({path = p} : pathinfo) as pi) el =
         let up = {path = rightp; layoutpath = Some leftp; prunepath = Some leftp},
-          ch, HypPlan
+                 ch, HypPlan
         in
         (* those leftps were ps and before that leftps ... *)
         if d then ElementPlan up else AmbigElementPlan (con pi el, up)
