@@ -74,6 +74,7 @@ let resetallcachesandvariables () =
   Doubleclick.cleardoubleclicks ();
   Japeserver.resetfontnames ();
   Minwaste.resetcache ();
+  Structurerule.clearstructurerules ();
   Proofstore.clearproofs ();
   Proofstate.clearautorules ();
   Sequent.resetsyntaxandturnstiles ();
@@ -83,7 +84,7 @@ let resetallcachesandvariables () =
   Termstore.resettermstore ();
   Termparse.resettermparse ();
   Thing.clearthings ();
-  Thing.clearstructurerules ();
+  Thing.clearrelationpats ();
   Paragraph.clearScopeHyps()
          
 let ( &~~ ) = Optionfuns.( &~~ )

@@ -31,6 +31,7 @@ open Runproof
 open Sml
 open Tactictype
 open Thing
+open Structurerule
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 

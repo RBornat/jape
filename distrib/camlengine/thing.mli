@@ -26,6 +26,7 @@
 open Termtype
 open Sequent
 open Name
+open Structurerule
 open Paraparam
 open Proviso
 open Tactictype 
@@ -61,17 +62,10 @@ val clearthings : unit -> unit
 val thingnames : unit -> name list
 val thingstodo : unit -> bool
 
-type structurerule = CutRule
-                   | LeftWeakenRule
-                   | RightWeakenRule
-                   | IdentityRule
-                   | TransitiveRule
-                   | ReflexiveRule
+val clearrelationpats : unit -> unit
 val addstructurerule : structurerule -> name -> bool
-val clearstructurerules : unit -> unit
-val isstructurerule : structurerule -> name -> bool
 val wehavestructurerule : structurerule -> string list option -> (name -> bool) -> bool
-val string_of_structurerule : structurerule -> string
+
 val uniqueCut : unit -> name option
 
 val isRelation : term -> bool
