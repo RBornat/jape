@@ -1057,121 +1057,110 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
             trs         = (tops, getrewinfProoftreeList tops);
             ress        = (ress, getrewinfress cxt ress)
            }
+    
     exception AlterProof_ of string list
+    
     let rec applytosubtree_ns path t f =
       let rec ans () =
         let (infchanged, t') = f t in infchanged, pathto t', t'
       in
       match t with
-      | Tip _ ->
-          if null path then ans ()
-          else raise (AlterProof_ ["path extends beyond tip"])
-      | Join j ->
-          let rec res infchanged ns subts =
-            let subinf =
-              if infchanged then getrewinfProoftreeList subts
-              else join_subtrees_rewinf j
-            in
-            let t' =
-              Join (withhastipval (withsubtrees j (subts, subinf)) (tshaveTip subts))
-            in
-            let nextinf = infchanged && subinf <> join_subtrees_rewinf j in
-            nextinf, ns, t'
-          in
-          let rec go n subt ns =
-            let (infchanged, ns, subt) = applytosubtree_ns ns subt f in
-            res infchanged (n :: ns)
-              (match decode_cutnav j with
-               | NormalNav sts -> take n sts @ subt :: drop (n + 1) sts
-               | CutNav (l, r, tl, tr) -> [subt; tr])
-          in
-          let rec skip (l, r, tl, tr) ns =
-            let (infchanged, ns, subt) = applytosubtree_ns ns tr f in
-            res infchanged ns [tl; subt]
-          in
-          joinstep go ans skip j path
-    let rec get_prooftree_fmt tree =
-      fun (FmtPath ns) -> format (followPath_ns tree ns)
+      | Tip _   -> if null path then ans ()
+                   else raise (AlterProof_ ["path extends beyond tip"])
+      | Join j -> let rec res infchanged ns subts =
+                    let subinf =
+                      if infchanged then getrewinfProoftreeList subts
+                      else join_subtrees_rewinf j
+                    in
+                    let t' =
+                      Join (withhastipval (withsubtrees j (subts, subinf)) (tshaveTip subts))
+                    in
+                    let nextinf = infchanged && subinf <> join_subtrees_rewinf j in
+                    nextinf, ns, t'
+                  in
+                  let rec go n subt ns =
+                    let (infchanged, ns, subt) = applytosubtree_ns ns subt f in
+                    res infchanged (n :: ns)
+                      (match decode_cutnav j with
+                       | NormalNav sts -> take n sts @ subt :: drop (n + 1) sts
+                       | CutNav (l, r, tl, tr) -> [subt; tr])
+                  in
+                  let rec skip (l, r, tl, tr) ns =
+                    let (infchanged, ns, subt) = applytosubtree_ns ns tr f in
+                    res infchanged ns [tl; subt]
+                  in
+                  joinstep go ans skip j path
+    
+    let rec get_prooftree_fmt tree (FmtPath ns) = format (followPath_ns tree ns)
+    
     let rec set_prooftree_fmt tree (FmtPath ns) fmt' =
-        if !prooftreedebug then
-          consolereport ["setting format "; string_of_treeformat fmt'; " at "; string_of_ns ns];
-        thrd 
-          (applytosubtree_ns ns tree
-             (function
-              | Join j                 -> false, Join {j with fmt=fmt'}
-              | Tip (seq, rewinf, fmt) -> false, Tip (seq, rewinf, fmt'))
-             )
-    let rec get_prooftree_cutnav tree =
-      fun (FmtPath ns) ->
-        match followPath_ns tree ns with
-        | Join j -> j.cutnav
-        | Tip _ -> raise FindTip_
-    (* or should it be FollowPath_ ? *)
+      if !prooftreedebug then
+        consolereport ["setting format "; string_of_treeformat fmt'; " at "; string_of_ns ns];
+      thrd (applytosubtree_ns ns tree
+              (function
+               | Join j                 -> false, Join {j with fmt=fmt'}
+               | Tip (seq, rewinf, fmt) -> false, Tip (seq, rewinf, fmt'))
+              )
+    
+    let rec get_prooftree_cutnav tree (FmtPath ns) =
+      match followPath_ns tree ns with
+      | Join j -> j.cutnav
+      | Tip _ -> raise FindTip_ (* or should it be FollowPath_ ? *)
 
-    let rec set_prooftree_cutnav tree =
-      fun (FmtPath ns) cutnav ->
-        thrd 
-          (applytosubtree_ns ns tree
-             (function
-              | Join j ->
-                  if match cutnav, j.trs with
-                     | None  , _           -> true
-                     | Some _, ([_; _], _) -> true
-                     | _                   -> false
-                  then
-                    false, Join {j with cutnav=cutnav}
-                  else
-                    raise (AlterProof_ ["cutnav applied to obviously non-cut node"])
-              | Tip _ -> raise (AlterProof_ ["cutnav applied to tip"])))
-    let rec truncateprooftree cxt =
-      fun (FmtPath ns) tree ->
-        let (_, ns, tree) =
-          applytosubtree_ns ns tree
-            (function
-             | Join j ->
-                 let t' =
-                   mkTip cxt (rewriteseq cxt (join_seq j)) (j.fmt)
-                 in
-                 true, t'
-             | tip -> false, tip)
-        in
-        FmtPath ns, tree
-    let rec insertprooftree cxt =
-      fun (FmtPath ns) tree subtree ->
-        let (_, ns, tree) =
-          applytosubtree_ns ns tree
-            (fun inspoint ->
-               if eqseqs
-                    (rewriteseq cxt (sequent inspoint),
-                     rewriteseq cxt (sequent subtree))
-               then
-                 let t' =
-                   set_prooftree_fmt subtree (FmtPath (rootPath_ns subtree))
-                     (treeformatmerge (format inspoint, format subtree))
-                 in
-                 true, t'
-               else
-                 raise
-                   (AlterProof_
-                      ["sequents not equal (insertprooftree) -- ";
-                       string_of_seq (sequent tree); " => ";
-                       string_of_seq (anyway (rew_Seq true cxt) (sequent tree));
-                       " -- "; string_of_seq (sequent subtree); " => ";
-                       string_of_seq
-                         (anyway (rew_Seq true cxt) (sequent subtree))]))
-        in
-        FmtPath ns, tree
+    let rec set_prooftree_cutnav tree (FmtPath ns) cutnav =
+      thrd (applytosubtree_ns ns tree
+              (function
+               | Join j -> if match cutnav, j.trs with
+                              | None  , _           -> true
+                              | Some _, ([_; _], _) -> true
+                              | _                   -> false
+                           then
+                             false, Join {j with cutnav=cutnav}
+                           else
+                             raise (AlterProof_ ["cutnav applied to obviously non-cut node"])
+               | Tip _ -> raise (AlterProof_ ["cutnav applied to tip"])))
+    
+    let rec truncateprooftree cxt (FmtPath ns) tree =
+      let (_, ns, tree) =
+        applytosubtree_ns ns tree
+          (function
+           | Join j -> let t' = mkTip cxt (rewriteseq cxt (join_seq j)) (j.fmt) in
+                       true, t'
+           | tip -> false, tip)
+      in
+      FmtPath ns, tree
+    
+    let rec insertprooftree cxt (FmtPath ns) tree subtree =
+      let (_, ns, tree) =
+        applytosubtree_ns ns tree
+          (fun inspoint ->
+             if eqseqs (rewriteseq cxt (sequent inspoint),
+                        rewriteseq cxt (sequent subtree))
+             then
+               let t' = set_prooftree_fmt subtree (FmtPath (rootPath_ns subtree))
+                                                  (treeformatmerge (format inspoint, format subtree))
+               in
+               true, t'
+             else
+               raise (AlterProof_ ["sequents not equal (insertprooftree) -- ";
+                                   string_of_seq (sequent tree); " => ";
+                                   string_of_seq (anyway (rew_Seq true cxt) (sequent tree));
+                                   " -- "; string_of_seq (sequent subtree); " => ";
+                                   string_of_seq
+                                     (anyway (rew_Seq true cxt) (sequent subtree))]))
+      in
+      FmtPath ns, tree
+    
     (* the same comment as in mkTip, about contexts and rewriting, applies to replaceTip *)
     (* this looks a bit dangerous ... I guess I've used it carefully *)
-    let rec replaceTip cxt =
-      fun (FmtPath ns) tree seq ->
-        let (_, ns, tree) =
-          applytosubtree_ns ns tree
-            (function
-             | Tip (_, _, fmt) -> let t = mkTip cxt seq fmt in true, t
-             | _ -> raise (AlterProof_ ["replaceTip applied to Join"]))
-        in
-        tree
+    let rec replaceTip cxt (FmtPath ns) tree seq =
+      let (_, ns, tree) =
+        applytosubtree_ns ns tree
+          (function
+           | Tip (_, _, fmt) -> let t = mkTip cxt seq fmt in true, t
+           | _               -> raise (AlterProof_ ["replaceTip applied to Join"]))
+      in
+      tree
     
     let rec makewhole a1 a2 a3 a4 =
       match a1, a2, a3, a4 with
