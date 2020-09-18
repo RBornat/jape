@@ -70,6 +70,10 @@ module type Access =
     val string_of_fmt : fmt -> string
     val string_of_path : path -> string
     val string_of_prooftree : prooftree -> string
+    val string_of_proofnode : prooftree -> string
+    
+    val find: (prooftree -> bool) -> prooftree -> prooftree option
+    val fold_left: ('a -> prooftree -> 'a) -> 'a -> prooftree -> 'a
   end
 
 module type Tree =
@@ -170,6 +174,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     open Mappingfuns
     open Miscellaneous
     open Name
+    open Structurerule
     open Optionfuns
     open Proviso
     open Rewinf
@@ -242,7 +247,8 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                       when the rule was applied.  This information is 
                       essential for the boxdraw display module; it 
                       isn't possible to get it from the rule and its 
-                      arguments
+                      arguments (and now it's also used by
+                      SingleDischargeProviso RB 17/08/20)
                     *) 
 
 (* some functions to extract things from trees, because otherwise I get confused. RB *)
@@ -318,17 +324,40 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     let rec format = function
       | Tip (_, _, fmt) -> fmt
       | Join j -> j.fmt
-    let rec depends tree =
-      let rec d = function
-        | Tip _, ds -> ds
-        | Join j, ds ->
-            let rest = nj_fold d (join_subtrees j) ds in
-            match j.how with
-            | UnRule (_, ss)  -> ss @ rest
-            | Apply (n, _, _) -> n :: rest
-            | Given _         -> rest
+
+
+    (* -------------------------- generic tree traversal -------------------------- *)
+    
+    (* when I developed Jape, I didn't have much understanding (shame on me!) of 
+       abstract typing in Caml. There are lots of things that could use generic 
+       tree traversal, and perhaps the refactoring me will do more of it. For the moment
+       I need a fold and a find. And yes, I'm going to be brave and call them fold and 
+       find. The fold is of course a fold_left, so I'll call it that.
+       RB 17/09/20
+     *)
+     
+     let rec fold_left f z t =
+       let z' = f z t in
+       match t with
+       | Join j -> List.fold_left (fold_left f) z' (join_subtrees j)
+       | Tip  _ -> z'
+
+    let rec find p t =
+      if p t then Some t else
+      match t with
+      | Tip  _ -> None
+      | Join j -> Optionfuns.findfirst (find p) (join_subtrees j)
+      
+    (* and something using fold_left *)
+    let depends tree =
+      let d ds = function
+        | Tip  _ -> ds
+        | Join j -> match j.how with
+                    | UnRule (_, ss)  -> ss @ ds
+                    | Apply (n, _, _) -> n :: ds
+                    | Given _         -> ds
       in
-      sortunique nameorder (nj_fold d [tree] [])
+      sortunique nameorder (fold_left d [] tree)
     
     (* -------------------------- navigation with int lists -------------------------- *)
         
@@ -535,6 +564,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
       match f t path with
       | Some res -> res
       | None -> raise (FollowPath_ ("parentPath of root", path))
+    
     let rec siblingPath_ns t path left =
       let rec badLeft () =
         raise (FollowPath_ ("left sibling of leftmost", path))
@@ -661,12 +691,13 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
          "}"
         ]
     
+    let string_of_tip tlf t = "Tip" ^ string_of_triple elementstring_of_seq string_of_rewinf tlf ", " t
+    
     let rec string_of_prooftree tlf t =
       let rec pft tlf rp t =
         (string_of_ns (pathto t @ List.rev rp) ^ " = ") ^
           (match t with
-           | Tip t ->
-               "Tip" ^ string_of_triple elementstring_of_seq string_of_rewinf tlf ", " t
+           | Tip t -> string_of_tip tlf t
            | Join j ->
                implode
                  (interpolate "\n"
@@ -680,6 +711,11 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
       in
       pft tlf [] t
     
+    let string_of_proofnode tlf node =
+      match node with
+      | Tip t -> string_of_tip tlf t
+      | Join j -> string_of_Join tlf (fun _ -> "...") j
+      
     exception Can'tHash_
     (* moved outside for OCaml *)
        
@@ -829,6 +865,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     let rec getrewinfProoftreeList ts =
       nj_fold rewinf_merge (List.map rewinfProoftree ts) nullrewinf
     let prooftreerewinfdebug = ref false
+    
     (* if we just rewrite a couple of unknowns in a huge sequent, getrewinfSeq is a very
      * expensive way (it turns out) of assessing the state of the new sequent.  In general
      * the rewinf is much smaller than the sequent.  The same applies elsewhere.
@@ -936,6 +973,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
             let res = if rress then rew_stuff cxt rew_ress j.ress else j.ress in
             Some (Join {j with args=a; seq=s; trs=t; ress=res})
           else None
+    
     let rec rewriteProoftree givens grounded cxt tree =
       let cxt = rewritecxt cxt in
       (* desperation ... *)
@@ -1554,21 +1592,19 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
         let rec getTip t = getTip_ns t <.> dePath
         let rec allTipPaths t = (fFmtPath <* allTipPaths_ns t)
         let rec allTipConcs t = (rePath <* allTipConcs_ns t)
-        let rec validelement b t el =
-          fun (FmtPath ns) -> validelement_ns b t el ns
+        let rec validelement b t el = fun (FmtPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
         let validconc = validelement false
         let rec stillopen t = stillopen_ns t <.> dePath
         let maxtreeresnum = maxtreeresnum
         let isTip = isTip
         let hasTip = hasTip
-        let rootPath = fFmtPath <.> rootPath_ns
-        let parentPath t =
-          fFmtPath <.> parentPath_ns t <.> dePath
-        let siblingPath t path =
-          fFmtPath <.> siblingPath_ns t (dePath path)
-        let subgoalPath t path =
-          fFmtPath <.> subgoalPath_ns t (dePath path)
+        
+        let rootPath           = fFmtPath <.> rootPath_ns
+        let parentPath  t      = fFmtPath <.> parentPath_ns t <.> dePath
+        let siblingPath t path = fFmtPath <.> siblingPath_ns t (dePath path)
+        let subgoalPath t path = fFmtPath <.> subgoalPath_ns t (dePath path)
+        
         let reason proved = visreason proved !showallproofsteps
         let subtrees = subtrees
         let sequent = sequent
@@ -1585,6 +1621,10 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
         let string_of_fmt = string_of_treeformat
         let string_of_path = string_of_fmtpath
         let string_of_prooftree = string_of_prooftree string_of_fmt
+        let string_of_proofnode = string_of_proofnode string_of_fmt
+        
+        let find = find
+        let fold_left = fold_left
       end
     
     module Vistree : Access  with type fmt = visformat
@@ -1642,6 +1682,10 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
         let string_of_fmt = string_of_visformat
         let string_of_path = string_of_vispath
         let string_of_prooftree = string_of_prooftree string_of_fmt
+        let string_of_proofnode = string_of_proofnode string_of_fmt
+
+        let find = find
+        let fold_left = fold_left
       end
   end
 
