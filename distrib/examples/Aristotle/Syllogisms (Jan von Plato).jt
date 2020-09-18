@@ -137,8 +137,8 @@ PATCHALERT "vp4 is unproved"
 
 MENU Edit
   RADIOBUTTON displaystyle
-       "Natural deduction style"  IS tree
-  AND  "Aristotle style"          IS box
+       "sequent style"          IS tree
+  AND  "Aristotle style"        IS box
   INITIALLY box
   END
 END
