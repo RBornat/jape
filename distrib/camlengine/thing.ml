@@ -31,6 +31,7 @@ open Mappingfuns
 open Match
 open Miscellaneous
 open Name
+open Structurerule
 open Optionfuns
 open Paraparam
 open Predicate
@@ -810,35 +811,8 @@ let rec isRelation t =
 let rec registerRelationpat t =
   (* we assume it's the right shape ... *)
   if isRelation t then () else relationpats := t :: !relationpats
-(* this comes before the thingstore because of the call of erasestructurerule in
- * addthing
- *)
-type structurerule =
-  | CutRule
-  | LeftWeakenRule
-  | RightWeakenRule
-  | IdentityRule
-  | TransitiveRule
-  | ReflexiveRule
 
-let rec string_of_structurerule sr =
-  match sr with
-  | CutRule         -> "CutRule"
-  | LeftWeakenRule  -> "LeftWeakenRule"
-  | RightWeakenRule -> "RightWeakenRule"
-  | IdentityRule    -> "IdentityRule"
-  | TransitiveRule  -> "TransitiveRule"
-  | ReflexiveRule   -> "ReflexiveRule"
-
-let structurerules : (structurerule * name) list ref = ref []
-
-let clearstructurerules () = structurerules := []; relationpats := []
-
-let rec erasestructurerule name =
-  structurerules := ((fun (_, n) -> n <> name) <| !structurerules)
-
-let isstructurerule kind name =
-  List.exists (fun (k, n) -> (k, n) = (kind, name)) !structurerules
+let clearrelationpats () = relationpats := []
 
 (* to make addstructurerule and addthing mutually recursive (because of need to 
    preserve structureruleity when proofs are reloaded), it's necessary to add a couple of 
@@ -1039,7 +1013,7 @@ let rec addstructurerule ctn_ tn_ kind name =
             | _ -> false
            )
        | _ -> false) && (erasestructurerule name;
-                         structurerules := (kind, name) :: !structurerules;
+                         Structurerule.addstructurerule kind name;
                          true
                         )
 
@@ -1047,11 +1021,12 @@ let rec uniqueCut () =
   match
        (function
         | CutRule, _ -> true
-        | _ -> false) <|
-       !structurerules
+        | _ -> false
+       ) <| getstructurerules ()
   with
   | [_, r] -> Some r
-  | _ -> None
+  | _      -> None
+
 (* in an attempt to keep conjectures always in the order they were initially inserted, 
  * even though they may be altered by proofs (see addproof in prooftree.sml),
  * the thing store has an additional level of ref(..).
@@ -1137,7 +1112,7 @@ let clearthings, compiledthinginfo, compiledthingnamed, getthing,
    * best if they are compiled when put into place
    *)
   let rec addthing (name, thing, place) =
-    match findfirst (fun (k,n as pair) -> if n=name then Some pair else None) !structurerules with
+    match findfirst (fun (k,n as pair) -> if n=name then Some pair else None) (getstructurerules ()) with
     | Some (kind,_) ->
         (erasestructurerule name; addthing (name, thing, place);
          if not(addstructurerule compiledthingnamed thingnamed kind name) then 
@@ -1417,7 +1392,7 @@ let rec freshTheoremtoprove stuff =
   params, provisos, conseq
 
 let rec wehavestructurerule kind stilesopt proved =
-  let names = (snd <* ((fun (k, _) -> k = kind) <| !structurerules)) in
+  let names = (snd <* ((fun (k, _) -> k = kind) <| (getstructurerules ()))) in
   let rec getstile = fun (Seq (st, _, _)) -> st in
   not (null names) &&
   (match stilesopt with

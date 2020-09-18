@@ -33,12 +33,12 @@ open Sml
 let commasymbol       = Symbol.commasymbol
 let debracket         = Termfuns.debracket
 let explodeCollection = Termfuns.explodeCollection
-let isstructurerule   = Thing.isstructurerule
+let isstructurerule   = Structurerule.isstructurerule
 let proved            = Proofstore.proved
 let seqexplode        = Sequent.seqexplode
 let string_of_symbol  = Symbol.string_of_symbol
 
-type structurerule = Thing.structurerule
+type structurerule = Structurerule.structurerule
  and tree          = Prooftree.Tree.Vistree.prooftree
  and sequent       = Sequent.seq
  and reason        = string
