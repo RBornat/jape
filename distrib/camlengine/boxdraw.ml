@@ -191,18 +191,16 @@ let stileclass = DisplayPunct               (* for now ... *)
     * RB 1/vii/98
     *)
     
-   (* extract a conclusion and its exploded form *)
-
+(* extract a conclusion and its exploded form *)
 let rec explodedconc cs =
   match cs with
-    [c] ->
-      begin match (term_of_element c &~~ explodebinapp) with
-        Some bits -> Some (c, bits)
-      | _ -> None
-      end
+  | [c] -> (match (term_of_element c &~~ explodebinapp) with
+            | Some bits -> Some (c, bits)
+            | _ -> None
+           )
   | _ -> None
-(* show a hit *)
 
+(* show a hit *)
 let my_hitstring = string_of_hit string_of_path
 let my_selstring = string_of_sel string_of_path
 
@@ -372,16 +370,11 @@ let rec pretransform prefixwithstile t =
           *)
          match !hidecut && isStructureRulenode t CutRule, subts with
          | true, [a1; a2] ->
-             (match
-                concs (sequent a1), ttsub (hyps (sequent a2)) hs
-              with
-                [cc], [ch] ->
-                  let (_, pt1) = _T hs (0, a1) in
-                  let (_, pt2) = _T (ch :: hs) (1, a2) in
-                  false,
-                  CutPT
-                    (RevPath rp, ch, pt1, pt2, hasrelevanttip ch a2,
-                     ishiddencut t)
+             (match concs (sequent a1), ttsub (hyps (sequent a2)) hs with
+              | [cc], [ch] -> let (_, pt1) = _T hs (0, a1) in
+                              let (_, pt2) = _T (ch :: hs) (1, a2) in
+                              false,
+                              CutPT (RevPath rp, ch, pt1, pt2, hasrelevanttip ch a2, ishiddencut t)
               | _         -> (* we don't transmit reflexivity yet ... *)
                  aslines false
              )
@@ -566,7 +559,7 @@ let rec dependency tranreason deadf pt =
   (* dealing with subtrees of normal/transformational lines *)
   let rec linsubs pi justopt =
     match justopt with
-      Some (why, lprins, subpts) ->
+    | Some (why, lprins, subpts) ->
         Some
           (pi, tranreason why, lprins,
            (dependency tranreason ordinary <* subpts))
@@ -575,7 +568,7 @@ let rec dependency tranreason deadf pt =
   (* transforming stiles *)
   let rec dostopt stopt =
     match stopt with
-      Some st -> Some (textinfo_of_string TermFont ((" " ^ st) ^ " "))
+    | Some st -> Some (textinfo_of_string TermFont ((" " ^ st) ^ " "))
     | _ -> None
   in
   match pt with
@@ -623,12 +616,12 @@ let rec dependency tranreason deadf pt =
       let rec tfringe pt ts =
         (* ignoring cuttery for the moment, but not for long *)
         match pt with
-          TransitivityPT (_, lpt, rpt) -> tfringe lpt (tfringe rpt ts)
+        | TransitivityPT (_, lpt, rpt) -> tfringe lpt (tfringe rpt ts)
         | LinPT (rp, _, concs, stopt, justopt) ->
             let pi = ordinarypi rp in
             let (c, (e, s, f)) =
               try _The (explodedconc concs) with
-                _The_ ->
+              | _The_ ->
                   raise
                     (Catastrophe_
                        ["transitive line ";
@@ -656,7 +649,7 @@ let rec dependency tranreason deadf pt =
       let rec tprocess ((pi, c, e, s, f, st, subs), (deadf, ts)) =
         let (d, con) =
           match subs with
-            None -> false, mktp Right
+          | None -> false, mktp Right
           | Some _ -> true, mktp Right
         in
         let rec deadabove d' con' pi' c' =
@@ -724,7 +717,7 @@ let rec _IDstring cids =
 
 let rec mapn a1 a2 a3 =
   match a1, a2, a3 with
-    id, [], hn -> empty
+  | id, [], hn -> empty
   | id, (h, _) :: elis, hn ->
       (mapn id elis (hn + 1) ++ (h |-> HypID (id, hn)))
 
@@ -831,22 +824,22 @@ let rec linearise screenwidth procrustean_reasonW dp =
        in
        let rec getelements cs =
          match splitwhile ispunct cs with
-           pre, "N" :: cs' ->
+         | pre, "N" :: cs' ->
              S (pf pre DisplayPunct) :: Num :: getelements cs'
          | pre, "A" :: cs' ->
-             begin match splitwhile ispunct cs' with
-               sep, "R" :: cs'' ->
-                 S (pf pre DisplayPunct) :: AR (pf sep ReasonPunctPlan) ::
-                   getelements cs''
-             | _ -> raise (Catastrophe_ ("A not followed by R in " :: cs))
-             end
+             (match splitwhile ispunct cs' with
+              | sep, "R" :: cs'' ->
+                  S (pf pre DisplayPunct) :: AR (pf sep ReasonPunctPlan) ::
+                    getelements cs''
+              | _ -> raise (Catastrophe_ ("A not followed by R in " :: cs))
+             )
          | pre, "R" :: cs' ->
-             begin match splitwhile ispunct cs' with
-               sep, "A" :: cs'' ->
-                 S (pf pre DisplayPunct) :: RA (pf sep ReasonPunctPlan) ::
-                   getelements cs''
-             | _ -> raise (Catastrophe_ ("R not followed by A in " :: cs))
-             end
+             (match splitwhile ispunct cs' with
+              | sep, "A" :: cs'' ->
+                  S (pf pre DisplayPunct) :: RA (pf sep ReasonPunctPlan) ::
+                    getelements cs''
+              | _ -> raise (Catastrophe_ ("R not followed by A in " :: cs))
+             )
          | post, [] -> [S (pf post DisplayPunct)]
          | _ -> raise (Catastrophe_ ("getelement (boxdraw) can't parse " :: cs))
        in
@@ -855,7 +848,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
        let (ls, rs) =
          takewhile notsep fs,
          (match dropwhile notsep fs with
-            [] -> raise (Catastrophe_ ["no separator in boxlineformat "; !boxlineformat])
+          | [] -> raise (Catastrophe_ ["no separator in boxlineformat "; !boxlineformat])
           | _ :: rs -> rs)
        in
        (* let (ltokens, rtokens) = getelements ls, getelements rs in *)
@@ -876,14 +869,14 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let rec nullf p = [], emptytextbox in
   let rec foldformula a1 a2 =
     match a1, a2 with
-      w, (_, ElementPunctPlan as el) -> el
+    | w, (_, ElementPunctPlan as el) -> el
     | w, ((size, _), epi as el) ->
         if tsW size <= w then
-          begin if !boxfolddebug then consolereport ["too narrow"]; el end
+          (if !boxfolddebug then consolereport ["too narrow"]; el)
         else
           let e =
             match epi with
-              ElementPlan      (_, e, _)      -> e
+            | ElementPlan      (_, e, _)      -> e
             | AmbigElementPlan ((_, e, _), _) -> e
             | ElementPunctPlan                ->
                 raise (Catastrophe_ ["foldformula ElementPunctPlan"])
@@ -1008,7 +1001,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let rec _L wopt hypmap idok dp (Lacc accrec as acc) =
       let rec getIdDep el =
         match mapped sameresource hypmap el with
-          Some cid -> cid, acc
+        | Some cid -> cid, acc
         | None     ->
             raise (Catastrophe_ ["linearise can't find hypothesis "; string_of_element el])
       in
@@ -1023,7 +1016,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             let lcids =
               (fun lp ->
                  try _The (mapped sameresource hypmap lp) with
-                   _The_ -> raise (Catastrophe_
+                 | _The_ -> raise (Catastrophe_
                                      ["linearise can't decode lprin "; string_of_element lp])) 
               <* lprins
             in
@@ -1051,7 +1044,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
       (* info to prefix a line with a turnstile *)
       let rec stprefix stopt restf p =
         match stopt with
-          Some st -> planfollowedby (plan_of_textinfo st ElementPunctPlan p) restf
+        | Some st -> planfollowedby (plan_of_textinfo st ElementPunctPlan p) restf
         | _       -> restf p
       in
       match dp with
@@ -1213,12 +1206,12 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let (cutelid, acc') =
             match tobehidden, ldp with
             | true, LinDep (_, _, Some just) ->
-                begin match just with
-                  _, _, [el], [] -> getIdDep el
-                | _, _, [], [IdDep (el, _)] -> getIdDep el
-                | _, _, [], [] -> NoID, acc
-                | _ -> noway ()
-                end
+                (match just with
+                 | _, _, [el], [] -> getIdDep el
+                 | _, _, [], [IdDep (el, _)] -> getIdDep el
+                 | _, _, [], [] -> NoID, acc
+                 | _ -> noway ()
+                )
             | true, IdDep (el, _) -> getIdDep el
             | true, _ -> noway ()
             | _ -> leftdefault ()
@@ -1271,7 +1264,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let boxW box = sW (bSize box) in
   let reasonspace lines =
     match lines with
-      [FitchBox {boxed = true}] -> reasongap
+    | [FitchBox {boxed = true}] -> reasongap
     | _                         -> 2 * reasongap
   in
   let reasonmargin lines idW reasonW elbox =
@@ -1335,7 +1328,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
     in
     let rec reline f =
       match f with 
-        FitchLine l -> FitchLine (rereason l)
+      | FitchLine l -> FitchLine (rereason l)
       | FitchBox  b -> FitchBox {b with boxlines = List.map reline b.boxlines}
     in
     Layout {a with lines = List.map reline a.lines}
@@ -1393,12 +1386,12 @@ let rec draw goalopt p proof =
     (* unused
        let samepath path =
          function
-           None          -> false
+         | None          -> false
          | Some goalpath -> path = goalpath
        in *)
     let rec _D p line =
       match line with
-        FitchLine {elementsplan = elementsplan; elementsbox = elementsbox; 
+      | FitchLine {elementsplan = elementsplan; elementsbox = elementsbox; 
                    idplan = idplan; reasonplan = reasonplan} ->
           let pdraw = p +->+ tbP elementsbox in
           let rec emp gpath plan =
@@ -1408,7 +1401,7 @@ let rec draw goalopt p proof =
             let rec doconc path = if gpath = path then dohigh () else dogrey () in
             
             match info_of_plan plan with
-              ElementPlan ({path = path}, el, HypPlan) ->
+            | ElementPlan ({path = path}, el, HypPlan) ->
                 if validhyp proof el gpath then () else dogrey ()
             | ElementPlan ({path = path}, el, ConcPlan) ->
                 if elementsin elementsplan = 1 then doconc path
@@ -1463,7 +1456,7 @@ let rec print str goalopt p proof =
     (* unused
        let rec samepath a1 a2 =
          match a1, a2 with
-           path, None -> false
+         | path, None -> false
          | path, Some goalpath -> path = goalpath
        in *)
     let out = output_string str in
@@ -1471,7 +1464,7 @@ let rec print str goalopt p proof =
     let rec outplan p = out "\""; outesc (string_of_plan p); out "\" " in
     let rec _D p line =
       match line with
-        FitchLine
+      | FitchLine
           {idplan = idplan;
            elementsplan = elementsplan;
            reasonplan = reasonplan} ->
@@ -1496,18 +1489,18 @@ let rec print str goalopt p proof =
     revapp (_D (rightby p bodymargin)) lines
 
 let couldbe path = function
-                     Some truepath -> truepath
+                   | Some truepath -> truepath
                    | None          -> path
 
 let answerpath hitkind {path = path; layoutpath = layoutpath; prunepath = prunepath} =
   match hitkind with
-    LayoutPath -> couldbe path layoutpath
+  | LayoutPath -> couldbe path layoutpath
   | PrunePath  -> couldbe path prunepath
   | HitPath    -> path
 
 let cp hitkind (pi, el, kind) =
   match kind with
-    TranPlan side -> answerpath hitkind pi, (el, Some side)
+  | TranPlan side -> answerpath hitkind pi, (el, Some side)
   | _             -> answerpath hitkind pi, (el, None)
 
 let hp hitkind (pi, el, kind) = answerpath hitkind pi, el
@@ -1521,12 +1514,12 @@ let hit_of_pos p (Layout {lines = lines; bodymargin = bodymargin; reasonmargin =
   let hp = hp hitkind in
   let rec _H p =
     function
-      FitchLine {elementsbox = elementsbox; elementsplan = elementsplan; reasonplan = reasonplan} ->
+    | FitchLine {elementsbox = elementsbox; elementsplan = elementsplan; reasonplan = reasonplan} ->
         let rec decodeplan =
           function
-            ElementPlan (pi, el, kind as pl) ->
+          | ElementPlan (pi, el, kind as pl) ->
               (match kind with
-                 HypPlan -> Some (FormulaHit (HypHit (hp pl)))
+               | HypPlan -> Some (FormulaHit (HypHit (hp pl)))
                | _       -> Some (FormulaHit (ConcHit (cp pl))))
           | AmbigElementPlan (up, dn) ->
               Some (FormulaHit (AmbigHit (cp up, hp dn)))
@@ -1540,7 +1533,7 @@ let hit_of_pos p (Layout {lines = lines; bodymargin = bodymargin; reasonmargin =
           findfirst
             (fun reason ->
                match info_of_plan reason with
-                 ReasonPlan pi ->
+               | ReasonPlan pi ->
                    if withintb
                         (p +<-+ pos (reasonmargin - bodymargin) (posY (tbP elementsbox)))
                         (textbox_of_plan reason)
@@ -1558,7 +1551,7 @@ let allFormulaHits pos (Layout {lines = lines; bodymargin = bodymargin}) =
   (* unused
      let targetpath =
        function
-         ElementPlan ({path = path}, _, ConcPlan) -> Some path
+       | ElementPlan ({path = path}, _, ConcPlan) -> Some path
        | _ -> None
      in *)
   let cp = cp HitPath in
@@ -1569,16 +1562,16 @@ let allFormulaHits pos (Layout {lines = lines; bodymargin = bodymargin}) =
     let oneel pos rs (Formulaplan (_, textbox, c)) =
       let tbox = tbOffset textbox pos in
       match c with 
-        ElementPlan (pi, el, kind as pl) ->
+      | ElementPlan (pi, el, kind as pl) ->
          (tbox, match kind with
-                  HypPlan -> HypHit (hp pl)
+                | HypPlan -> HypHit (hp pl)
                 | _       -> ConcHit (cp pl)) :: rs
           | AmbigElementPlan (up, dn) ->
               (tbox, AmbigHit (cp up, hp dn)) :: rs
           | ElementPunctPlan -> rs
     in
     match l with
-      FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
+    | FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
         List.fold_left (oneel (pos +->+ tbP elementsbox)) rs elementsplan
     | FitchBox {boxlines = boxlines} -> allts pos rs boxlines
   in
@@ -1588,9 +1581,9 @@ let rec locateHit pos classopt hitkind (p, proof, layout) =
   hit_of_pos ((pos +<-+ p)) layout hitkind &~~
   (_Some <.> 
    (function
-       FormulaHit (AmbigHit (up, dn)) as h ->
+     | FormulaHit (AmbigHit (up, dn)) as h ->
          (match classopt with
-            Some DisplayConc -> FormulaHit (ConcHit up)
+          | Some DisplayConc -> FormulaHit (ConcHit up)
           | Some DisplayHyp -> FormulaHit (HypHit dn)
           | None -> h
           | _ -> raise (Catastrophe_
@@ -1602,7 +1595,7 @@ let rec locateHit pos classopt hitkind (p, proof, layout) =
 let locateElement locel (p, proof, (Layout {lines = lines; bodymargin = bodymargin})) = 
   let rec locate p ps =
     function 
-      FitchLine {elementsbox = elementsbox; elementsplan = elementsplan} ->
+    | FitchLine {elementsbox = elementsbox; elementsplan = elementsplan} ->
         let locplan ps (Formulaplan (_, textbox, c)) =
           let f (pi, el, pl) ps =
             if sameresource (el, locel) then 
@@ -1610,7 +1603,7 @@ let locateElement locel (p, proof, (Layout {lines = lines; bodymargin = bodymarg
             else ps
           in
           match c with 
-            ElementPlan plan          -> f plan ps
+          | ElementPlan plan          -> f plan ps
           | AmbigElementPlan (up, dn) -> f up (f dn ps)
           | ElementPunctPlan          -> ps
         in
@@ -1652,7 +1645,7 @@ let rec notifyselect
     let rec bg emp =
       let rec reemphasise p line =
         match line with
-          FitchLine
+        | FitchLine
             {elementsbox = elementsbox; elementsplan = elementsplan} ->
             let p' = p +->+ tbP elementsbox in
             List.iter
@@ -1677,7 +1670,7 @@ let rec notifyselect
                                              (pos, class__)])
     in
     let hits = findHit <* (match posclassopt with
-                             None    -> posclasslist
+                           | None    -> posclasslist
                            | Some hc -> hc :: posclasslist)
     in
     let rec bang s =
@@ -1689,7 +1682,7 @@ let rec notifyselect
     let (hyps, concs, reasons) =
       nj_fold
         (function
-           FormulaHit (HypHit (hpath, hel)), (hs, cs, rs) ->
+         | FormulaHit (HypHit (hpath, hel)), (hs, cs, rs) ->
              (hpath, hel) :: hs, cs, rs
          | FormulaHit (ConcHit (cpath, (cel, _))), (hs, cs, rs) ->
              hs, (cpath, cel) :: cs, rs
@@ -1701,7 +1694,7 @@ let rec notifyselect
       not (List.exists (fun (_, hel) -> not (validhyp proof hel path)) hyps)
     in
     match hyps, concs, reasons with
-      [], [], []  -> blackenthelot () (* no selection *)
+    | [], [], []  -> blackenthelot () (* no selection *)
     | [], [], [_] -> blackenthelot () (* single reason selection *)
     | (hpath, hel) :: hs, [], [] -> (* hyps, but no conc *)
         let path = 
@@ -1724,7 +1717,7 @@ let rec notifyselect
             stillopen proof cpath && okhyps hyps cpath 
           in
           match info_of_plan plan with
-            ElementPlan (_, _, HypPlan as inf) -> if blackhyp inf then blacken else greyen
+          | ElementPlan (_, _, HypPlan as inf) -> if blackhyp inf then blacken else greyen
           | ElementPlan inf                    -> if blackconc inf then blacken_desel else greyen
           | AmbigElementPlan (up, down)        -> if blackhyp down then blacken else
                                                   if blackconc up then blacken_desel else 
@@ -1737,7 +1730,7 @@ let rec notifyselect
          * we want to select that hypothesis and deselect the conclusion. Oh dear.
          *)
          if (match posclassopt &~~ (_Some <.> findHit) with
-               Some(FormulaHit(HypHit(hpath,hel))) ->
+             | Some(FormulaHit(HypHit(hpath,hel))) ->
                  validhyp proof hel cpath
              | _ -> true)
          then
@@ -1754,7 +1747,7 @@ let rec notifyselect
                              (* was stillopen proof cpath' && okhyps hyps cpath' *)
               in
               if match info_of_plan plan with
-                   ElementPlan (_, _, HypPlan as inf) -> blackhyp inf
+                 | ElementPlan (_, _, HypPlan as inf) -> blackhyp inf
                  | ElementPlan inf                    -> blackconc inf
                  | AmbigElementPlan (up, down)        -> blackhyp down || blackconc up (* oh this is a can of worms! *)
                  | ElementPunctPlan                   -> true (* can't happen *)
@@ -1769,7 +1762,7 @@ let rec notifyselect
            notifyselect posclassopt
                         ((fun pc ->
                             match findHit pc with
-                              FormulaHit(ConcHit _) -> false 
+                            | FormulaHit(ConcHit _) -> false 
                             | _                     -> true  ) <| posclasslist)
                         stuff
     | _, _ :: _, _ -> bang "more than one ConcHit"
@@ -1799,11 +1792,11 @@ let rec rootpos viewport (Layout {lines = lines}) =
     (* position of last line in proof, first in lines *)
     let rec p =
       function
-        FitchLine {elementsbox = elementsbox} -> Some (tbP elementsbox)
+      | FitchLine {elementsbox = elementsbox} -> Some (tbP elementsbox)
       | FitchBox {boxlines = lines}           -> findfirst p lines
     in
     match findfirst p lines with
-      Some p -> p
+    | Some p -> p
     | _      -> origin
 
 let rec postoinclude screen box 
@@ -1846,11 +1839,11 @@ let rec layout viewport proof = _BoxLayout (sW (bSize viewport)) proof
   
 let targetbox pos target layout =
   match target, layout with
-    None     , _                                               -> None
+  | None     , _                                               -> None
   | Some path, Layout {lines = lines; bodymargin = bodymargin} ->
       let ok =
         function 
-          ElementPlan ({path = epath}, _, ConcPlan) as plankind ->
+        | ElementPlan ({path = epath}, _, ConcPlan) as plankind ->
             if !screenpositiondebug then
               consolereport
                 ["Boxdraw.targetbox.ok "; string_of_path path; "; "; 
@@ -1861,7 +1854,7 @@ let targetbox pos target layout =
       in
       let rec search pos =
         function
-          FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
+        | FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
             if List.exists (ok <.> info_of_plan) elementsplan then
                (if !screenpositiondebug then
                   consolereport
