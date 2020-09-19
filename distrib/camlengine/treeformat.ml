@@ -213,8 +213,8 @@ module type VisFmt =
     (* VisPaths, at the present, are still simple lists of non-negative integers ... *)
     type vispath = VisPath of int list
     val string_of_vispath : vispath -> string
-    type visformat = VisFormat of (bool * bool * string option)
-    (* ismultistep, ishiddencut, assumption text *)
+    type visformat = VisFormat of (bool         * bool       * string option)
+                                  (* ismultistep, ishiddencut, assumption text *)
        
     val string_of_visformat : visformat -> string
   end
