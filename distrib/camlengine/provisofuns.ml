@@ -421,7 +421,8 @@ let verifytreeprovisos prooftree cxt =
           in
           let bad s =
             let p = SingleDischargeProviso [rt] in
-            Reason.setReason [string_of_proviso p; " -- "; s]; 
+            Reason.setReason ["with that step the "; string_of_proviso p; " proviso would fail -- "; s]; 
+            Reason.sayApply := false;
             raise (Verifyproviso p) 
           in
           match Fmttree.find (has_r r) prooftree with
@@ -432,7 +433,7 @@ let verifytreeprovisos prooftree cxt =
                | 1, 0 -> rts                            (* one discharge, finished *)
                | 1, _                                   (* one discharge, not finished *)
                | 0, _ -> rt::rts                        (* no discharge, not finished *)
-               | _    -> bad "too many discharges"   
+               | _    -> bad "more than one discharge"   
               )
           | None      -> 
               raise (Catastrophe_ ["verifytreeprovisos can't find node for ";
