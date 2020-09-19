@@ -31,3 +31,4 @@ let rec setReason ss = reasons := ss
 let rec prefixtoReason ss = reasons := ss @ !reasons
 let rec appendtoReason ss = reasons := !reasons @ ss
 
+let sayApply = ref true (* for Tacticfuns.explain, which resets it after it's had a look *)

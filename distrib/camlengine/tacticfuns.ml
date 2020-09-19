@@ -506,8 +506,10 @@ let interruptTactic () = noticetime := true; triesleft := 0
 let clearReason () = setReason []
 
 let explain r =
-  ((if time'sUp () then ["[Time ran out] "] else []) @ getReason ()) @
-    (if r <> "" then [" [applying "; r; "]"] else [])
+  let s = ((if time'sUp () then ["[Time ran out] "] else []) @ getReason ()) @
+          (if !Reason.sayApply && r <> "" then [" [applying "; r; "]"] else []);
+  in
+  Reason.sayApply := true; s
 
 exception MatchinTermToParam (* perhaps spurious *)
 
