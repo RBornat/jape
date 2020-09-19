@@ -563,14 +563,14 @@ let freshenv_pes pes cxt env =
     
 (*  --------------------------------------------------------------------- *)
 
-let rec getGoalPath =
+let getGoalPath =
   function
   | Some g -> g
   | None -> raise (Catastrophe_ ["Tactic ran out of goals"])
 
-let rec getTip parent goalopt = findTip parent (getGoalPath goalopt)
+let getTip parent goalopt = findTip parent (getGoalPath goalopt)
 
-let rec getSubtree parent goalopt =
+let getSubtree parent goalopt =
   followPath parent (getGoalPath goalopt)
 
 (*  --------------------------------------------------------------------- *)
@@ -951,9 +951,17 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
     let startAtTip = isTip (followPath tree (getGoalPath goal)) in
     let path = deepest_samehyps tree (getGoalPath goal) in
     if !cutindebug then 
-      consolereport ["CUTIN path = "; string_of_fmtpath path; 
-                     " = "; string_of_subtree (Some path) tree];
+      consolereport ["CUTIN path = "; string_of_fmtpath path; " = "; string_of_subtree (Some path) tree];
     let subtree = followPath tree path in
+    (* there's a new subtlety: the new cut node gets neutral format, _except_ that it keeps the
+       assumption-format (asstail) part. 
+     *)
+    let assfmt, restfmt = match format subtree with
+                          TreeFormat(x,y,a) -> TreeFormat (SimpleFormat, DefaultFilter, a), TreeFormat (x,y,None)
+    in
+    let subtree = set_prooftree_fmt subtree (rootPath subtree) restfmt in
+    if !cutindebug then 
+      consolereport ["CUTIN subtree = "; string_of_prooftree subtree];
     let (Proofstate {tree = tree'; goal = goal'} as state') =
       prunestate path state
     in
@@ -964,9 +972,9 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
         apply unifyvarious nofilter takeonlyone [] []
           (expandstuff cutrule info state) (string_of_name cutrule) cxt'
           (withtree state'
-              (set_prooftree_fmt tree' tippath Treeformat.Fmt.neutralformat))
+              (set_prooftree_fmt tree' tippath assfmt))
       with
-      | None -> raise (Catastrophe_ ["cut failed in doCUTIN"])
+      | None     -> raise (Catastrophe_ ["cut failed in doCUTIN"])
       | Some res -> res
     in
     let (Seq (_, hs, cs)) = sequent subtree in
@@ -986,7 +994,7 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
       | [c] -> c
       | _   -> raise (Catastrophe_ ["no cutconcel in doCUTIN"])
     in
-    let (l, r) =
+    let (left, right) =
       let rec bang () =
         raise (Catastrophe_ ["resources ";
                              string_of_pair (debugstring_of_element string_of_term)
@@ -1024,13 +1032,12 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
     let (_, wholeproof) =
       makewhole cxt''' (Some (tree'', rightofcut)) subtree' (rootPath subtree')
     in
-    let wholeproof' = set_prooftree_cutnav wholeproof tippath (Some (- l, - r)) in
+    let wholeproof' = set_prooftree_cutnav wholeproof tippath (Some (-left, -right)) in
     (* tippath is now useless *)
     (* if we were standing at a tip that has been closed, move on: otherwise stay put *)
     optf (fun s -> let s' = withgoal s goal in if startAtTip then nextGoal false s' else s')
          (f (withgoal (withtree (withcxt state'' cxt''') wholeproof')
-                      (Some (subgoalPath wholeproof' (parentPath wholeproof' path) [-l])))) 
-                                                     (* that's minus ell, not minus one *)
+                      (Some (subgoalPath wholeproof' (parentPath wholeproof' path) [-left])))) 
   with
   | FollowPath_ stuff ->
       showAlert ["FollowPath_ in doCUTIN: ";
