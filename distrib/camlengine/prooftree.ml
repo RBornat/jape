@@ -123,7 +123,7 @@ module type Tree =
       treeformat prooftree -> proviso list -> seq list -> string list -> string list
     val visproof :
       (name -> bool) -> bool -> bool -> treeformat prooftree ->
-        visformat prooftree
+        (Termtype.resnum, string) Mappingfuns.mapping * visformat prooftree
     (* showallsteps    proved          hideuselesscuts *)
     val visible_subtrees : bool -> treeformat prooftree -> treeformat prooftree list option
                         (* showallsteps *)
@@ -1267,6 +1267,33 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
       | {cutnav=Some (l, r); trs=([tl; tr], rewinf)} ->  [[l], tl; [], tr]
       | {                    trs=(ts      , rewinf)} ->  (fun (i, t) -> [i], t) <* numbered ts
     
+    (* new complication: when we hide a node, we have to try to preserve its aopt in what we continue to show.
+       Maybe I could solve this with very clever manipulation of the .fmt value, but it makes my head hurt.
+       So now visibles, and the rest of the tranproof mechanism, builds a resnum -> string mapping, just to
+       handle aopt.
+     *)
+    
+    let hsub = listsub sameresource
+    
+    let aopt_mapping tree = 
+      let rec register_aopt jhs aenv t =
+        let lefts = seq_lefts (sequent t) in
+        let aenv = match format t with
+                   | TreeFormat (_,_,Some s) ->
+                       let es = hsub lefts jhs in
+                       let do_e aenv = function
+                                       | Element(_,r,_)       -> (r,s)::aenv 
+                                       | _ (* can't happen *) -> aenv
+                       in
+                       List.fold_left do_e aenv es
+                   | _ -> aenv
+        in
+        match t with
+        | Tip _  -> aenv
+        | Join j -> List.fold_left (register_aopt lefts) aenv (join_subtrees j)
+      in
+      Mappingfuns.fromlist (register_aopt [] [] tree)
+    
     let rec visibles showall j =
       let pts = pathedsubtrees j in
       let default () = pts, [] in
@@ -1497,7 +1524,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
       let rec visp =
         function
         | Tip (seq, rewinf, TreeFormat (_,_,aopt)) ->
-            [], Tip (seq, rewinf, VisFormat (false, false, aopt))
+            [], Tip (seq, rewinf, VisFormat (false, false))
         | Join j as it ->
             let (viss, _) = visibles showall j in
             let lpsNsubts' = (visp <.> snd) <* viss in
@@ -1536,11 +1563,9 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                          | _ -> hideuselesscuts && hideablecut())
                     | _ -> false
             in
-            let aopt = match j.fmt with TreeFormat (_,_,aopt) -> aopt
-            in
             lps, Join {j with why=_The (visreason proved showall it);
                               cutnav = None;
-                              fmt    = VisFormat (join_multistep j viss, hidecut, aopt);
+                              fmt    = VisFormat (join_multistep j viss, hidecut);
                               hastipval = tshaveTip subts';
                               trs       = (subts', snd j.trs)
                       }
@@ -1549,8 +1574,8 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     
     (* ******************************* for export ********************************* *)
     
-    let rec visproof proved showall hideuselesscuts =
-      snd <.> tranproof proved showall hideuselesscuts
+    let rec visproof proved showall hideuselesscuts tree =
+      aopt_mapping tree, snd (tranproof proved showall hideuselesscuts tree)
     
     (* there surely ought to be a way to make these structures into one -- I suppose functors inside functors
      * ain't SML.
