@@ -568,7 +568,7 @@ let freshenv_pes pes cxt env =
 let getGoalPath =
   function
   | Some g -> g
-  | None -> raise (Catastrophe_ ["Tactic ran out of goals"])
+  | None   -> raise (Catastrophe_ ["Tactic ran out of goals"])
 
 let getTip parent goalopt = findTip parent (getGoalPath goalopt)
 
@@ -857,13 +857,18 @@ let rec doLAYOUT layout eval action t (Proofstate {tree = tree; goal = goal} as 
       match t with
       | LayoutTac (t', l') -> let (fmt', tac) = f l' t' in 
                               let fmt'' = treeformatmerge (fmt, fmt') in
-                              consolereport ["merging "; string_of_treeformat fmt; " with "; string_of_treeformat fmt'; " -> "; string_of_treeformat fmt''];
                               fmt'', tac
       | _                  -> fmt, t
     in
     let (fmt, tac) = f layout t in
     try
-      action tac (withtree state (set_prooftree_fmt tree (getGoalPath goal) fmt))
+      let goalpath = getGoalPath goal in
+      let state = withtree state (set_prooftree_fmt tree goalpath (treeformatmerge (fmt, get_prooftree_fmt tree goalpath))) in
+      let r = action tac state in
+      (* consolereport ["fmt is "; string_of_treeformat fmt; "; proofnode is "; string_of_proofnode (followPath tree goalpath);
+                     "; after step it is "; string_of_option (string_of_proofstate true) r
+                    ]; *)
+      r
     with
     | AlterProof_ ss ->
         raise (Catastrophe_ ("AlterProof_ in LAYOUT: " :: ss))
