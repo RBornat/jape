@@ -369,7 +369,8 @@ let rec elementofclass class__ plan =
     ElementClass (_, c) -> class__ = c
   | _ -> false
 
-let rec draw goal pos proof (Treeplan {linethickness = linethickness} as plan) =
+(* aenv is ignored: it's for boxdraw assumptions *)
+let rec draw goal pos _ proof (Treeplan {linethickness = linethickness} as plan) =
   let rgoal = revgoal goal in
   let rec _D (Treeplan
                 {seqplan = seqplan; reasonplan = reasonplan; linespec = linespec;
@@ -472,7 +473,7 @@ let rec defaultpos screen (Treeplan {seqbox=seqbox; linethickness=linethickness}
       +<-+ seqpos),
     screen
 
-let layout = maketreeplan
+let layout _ = maketreeplan (* aenv is ignored *)
 
 let rec postoinclude viewport box =
   fun (Treeplan {proofbox = proofbox} as layout) ->
