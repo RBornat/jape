@@ -41,7 +41,6 @@ val explode : sequent -> string * element list * element list
 val isStructureRulenode : tree -> structurerule -> bool
 val ishiddencut : tree -> bool
 val ismultistep : tree -> bool
-val assumptiontail : tree -> string
 val matched : tree -> element list * element list
 val reason : tree -> reason option
 val reason_of_string : string -> reason
