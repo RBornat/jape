@@ -29,14 +29,16 @@ module type T =
     open Hit
     open Displayclass
     open Box
+    open Termtype
+    open Mappingfuns
 
     type layout
     
-    val layout     : box -> tree -> layout
+    val layout     : box -> (resnum, string) mapping -> tree -> layout
     val defaultpos : box -> layout -> pos
     val rootpos    : box -> layout -> pos
     val postoinclude : box -> box -> layout -> pos (* viewport -> proof box -> layout -> pos *)
-    val draw : int list option -> pos -> tree -> layout -> unit
+    val draw : int list option -> pos -> (resnum, string) mapping -> tree -> layout -> unit
     val print : out_channel -> int list option -> pos -> tree -> layout -> unit
     val locateHit :
       pos -> displayclass option -> hitkind -> pos * tree * layout ->
