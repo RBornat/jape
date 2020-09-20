@@ -119,8 +119,8 @@ MENU Rules IS
                    
   SEPARATOR
   
-  ENTRY hyp IS WHEN (LETHYP _A (hyp _A))
-                    hyp
+  ENTRY hyp IS SEQ remstar (WHEN (LETHYP _A (hyp _A))
+                                 hyp)
 END
 
 PATCHALERT "vp3 is unproved"
