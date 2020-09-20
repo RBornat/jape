@@ -51,6 +51,8 @@ val alwaysshowturnstile : bool ref
 val sequent_of_string : string -> seq
 val seqexplode : seq -> string * term * term
 val seq_entrails: seq -> string * idclass * element list * idclass * element list
+val seq_lefts: seq -> element list
+val seq_rights: seq -> element list
 
 val seqvars : (term -> 'a list) -> ('a list -> 'a list -> 'a list) -> seq -> 'a list
 val seqVIDs : seq -> vid list

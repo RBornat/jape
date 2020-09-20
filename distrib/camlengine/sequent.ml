@@ -153,7 +153,14 @@ let seq_entrails (Seq (st, hs, gs) as seq) =
                               " exploded into ("; debugstring_of_term hs; ", ";
                               st; ", ";  debugstring_of_term gs; ")"])
 
-
+let seq_lefts seq = 
+  let _, _, hes, _, _ = seq_entrails seq in
+  hes
+  
+let seq_rights seq = 
+  let _, _, _, _, ces = seq_entrails seq in
+  ces
+  
 let rec parseSeq () =
   let rec formside el =
     registerCollection (trueclass FormulaClass, [el])
