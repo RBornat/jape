@@ -111,6 +111,7 @@ open Sml
 open Termstring
 open Text
 open Thing
+open Mappingfuns
 
 type box = Box.box
  and displayclass = Displayclass.displayclass
@@ -299,7 +300,7 @@ type revpath = RevPath of int list          (* no more uncertainty *)
 type normalpt =
   | LinPT of (revpath * bool * element list * string option *
                 (reason * element list * normalpt list) option)
-  | BoxPT of (revpath * bool * (string * string) * string * element list * normalpt)
+  | BoxPT of (revpath * bool * (string * string) * element list * normalpt)
   | CutPT of (revpath * element * normalpt * normalpt * bool * bool)
   | TransitivityPT of (element * normalpt * normalpt)
     (* no revpath needed in transitivity node, because all you ever see is the tips;
@@ -339,7 +340,7 @@ let rec pretransform prefixwithstile t =
     in
     let boxpt lines =
       (* consolereport ["boxpt with newhyps="; bracketed_string_of_list string_of_element ";" newhyps]; *)
-      false, BoxPT (RevPath rp, !innerboxes, innerwords, assumptiontail t, newhyps, lines)
+      false, BoxPT (RevPath rp, !innerboxes, innerwords, newhyps, lines)
     in
     let rec hyps seq = snd_of_3 (Absprooftree.explode seq) in
     let rec concs seq = thrd (Absprooftree.explode seq) in
@@ -397,7 +398,7 @@ let rec pretransform prefixwithstile t =
         )
   in
   match respt (pt [] [] t) with
-  | BoxPT (pi, _, _, _, hs, ptr) -> BoxPT (pi, !outermostbox, outerwords, "", hs, ptr)
+  | BoxPT (pi, _, _, hs, ptr) -> BoxPT (pi, !outermostbox, outerwords, hs, ptr)
   | ptr                          -> ptr
 
 (******** Step 2: compute class of each element, element texts and sizes, and paths ********)
@@ -483,7 +484,7 @@ type elinfo = element * elementinfo_of_plan
 type wordp = textinfo * textinfo
 type dependency =
   | LinDep of (elementinfo_of_plan list * textinfo option * reasoninfo)
-  | BoxDep of (bool * (textinfo * textinfo) * elinfo list * dependency)
+  | BoxDep of (bool * (textinfo * textinfo) * textinfo option list * elinfo list * dependency)
   | IdDep of (element * dependency)
   | CutDep of (dependency * element * dependency * bool)
   | TranDep of (textinfo option * elementinfo_of_plan * trandep list)
@@ -512,8 +513,9 @@ and string_of_dependency d =
           (string_of_option string_of_textinfo) string_of_reasoninfo "," l
   | BoxDep d ->
       "BoxDep" ^
-        string_of_quadruple string_of_bool
+        string_of_quintuple string_of_bool
           (string_of_pair string_of_textinfo string_of_textinfo ",")
+          (bracketed_string_of_list (string_of_option string_of_textinfo) ";")
           (bracketed_string_of_list string_of_elinfo ";") string_of_dependency "," d
   | IdDep i -> "IdDep" ^ string_of_pair string_of_element string_of_dependency "," i
   | CutDep c ->
@@ -546,7 +548,7 @@ let rec ordinary _ con pi e = ElementPlan (con pi e)
 let rec mkhypplan pi e = pi, e, HypPlan
 let rec mkconcplan pi e = pi, e, ConcPlan
 
-let rec dependency tranreason deadf pt =
+let rec dependency tranreason deadf aenv pt =
   let rec ordinarypi =
     fun (RevPath rp) -> {path = List.rev rp; layoutpath = None; prunepath = None}
   in
@@ -556,7 +558,7 @@ let rec dependency tranreason deadf pt =
     | Some (why, lprins, subpts) ->
         Some
           (pi, tranreason why, lprins,
-           (dependency tranreason ordinary <* subpts))
+           (dependency tranreason ordinary aenv <* subpts))
     | None -> None
   in
   (* transforming stiles *)
@@ -576,16 +578,27 @@ let rec dependency tranreason deadf pt =
        | true, Some (_, [lp], []) -> IdDep (lp, dep)
        | _                        -> dep
       )
-  | BoxPT (rp, boxit, (sing, plur), asst, hs, pt') ->
+  | BoxPT (rp, boxit, (sing, plur), hs, pt') ->
       let pi = ordinarypi rp in
       let rec mkplan e =
         e, (textinfo_of_element e, ElementPlan (pi, e, HypPlan))
       in
-      (* consolereport ["sing is "; sing; " and asst is "; asst]; *)
+      let a_special e =
+        (match e with
+         | Termtype.Element (_, r, _ ) -> Some r
+         | _                           -> None
+        ) &~~
+        (fun r -> aenv <@> r) &~~
+        (fun s -> Some (textinfo_of_string ReasonFont (sing ^ " " ^ s)))
+      in
+      (* consolereport ["aenv is "; Mappingfuns.string_of_mapping Termstring.string_of_resnum (fun s -> s) aenv;
+                     "; and hs are "; bracketed_string_of_list (Termstring.debugstring_of_element Termstring.string_of_term) "; " hs
+                    ]; *)
       BoxDep (boxit,
-              (textinfo_of_string ReasonFont (sing ^ asst), textinfo_of_string ReasonFont (plur ^ asst)),
+              (textinfo_of_string ReasonFont sing, textinfo_of_string ReasonFont plur),
+              a_special <* hs,
               mkplan <* hs, 
-              dependency tranreason ordinary pt'
+              dependency tranreason ordinary aenv pt'
              )
   | CutPT (RevPath rp, ch, lpt, rpt, chneeded, tobehidden) ->
       let rootp = List.rev rp in
@@ -603,9 +616,8 @@ let rec dependency tranreason deadf pt =
         deadf d con {path = p; layoutpath = l; prunepath = Some rootp}
       in
       CutDep
-        (dependency tranreason (if chneeded then leftdead else ordinary)
-           lpt,
-         ch, dependency tranreason rightdead rpt, tobehidden)
+        (dependency tranreason (if chneeded then leftdead else ordinary) aenv lpt,
+         ch, dependency tranreason rightdead aenv rpt, tobehidden)
   | TransitivityPT (el, lpt, rpt) ->
       let rec tfringe pt ts =
         (* ignoring cuttery for the moment, but not for long *)
@@ -1068,16 +1080,15 @@ let rec linearise screenwidth procrustean_reasonW dp =
             doconcline mkp true (dolinsubs hypmap acc justopt) (List.length concels'>1)
           in
           LineID id', acc'
-      | BoxDep (boxed, hypdescwords, hypelis, dp (* as stuff *)) ->
-          (* 
-             consolereport ["BoxDep "; string_of_quadruple string_of_bool
-                                                           (string_of_pair string_of_textinfo string_of_textinfo ",")
-                                                           (bracketed_string_of_list string_of_elinfo ";")
-                                                           string_of_dependency
-                                                           ", "
-                                                           stuff
-                        ];
-           *)
+      | BoxDep (boxed, hypdescwords, hypassts, hypelis, dp (* as stuff *)) ->
+             (* consolereport ["BoxDep "; string_of_quintuple string_of_bool
+                                                              (string_of_pair string_of_textinfo string_of_textinfo ",")
+                                                              (bracketed_string_of_list (string_of_option string_of_textinfo) ";")
+                                                              (bracketed_string_of_list string_of_elinfo ";")
+                                                              string_of_dependency
+                                                              ", "
+                                                              stuff
+                        ]; *)
           let (topleftpos, hindent, vindent, innerpos) =
             if boxed then
               let topleftpos = nextpos accrec.elbox boxleading accrec.lastmulti false in
@@ -1090,26 +1101,34 @@ let rec linearise screenwidth procrustean_reasonW dp =
               topleftpos, 0, 0, topleftpos
           in
           let isScopeElinfo = bool_of_opt <.> Paragraph.isScopeHyp <.> stripelement <.> fst in
+          let hypelis = hypelis ||| hypassts in
+          let nullass = Some (textinfo_of_string ReasonFont "") in
           let hyplines =
             let single h = [h] in
-            let scopes, norms = List.partition isScopeElinfo hypelis in
+            let partition (h,a as ha) (scopes, norms, specials) =
+              match a, isScopeElinfo h with
+              | Some s, _     -> scopes             , norms    , ha::specials
+              | _     , true  -> (h,nullass)::scopes, norms    , specials
+              | _     , false -> scopes             , ha::norms, specials
+            in
+            let scopes, norms, specials = List.fold_right partition hypelis ([],[],[]) in
             match !multiassumptionlines, wopt with
-            | false, None       -> single <* scopes, single <* norms
+            | false, None       -> single <* scopes, single <* norms, single <* specials
             | true , None       -> 
                (* first pass - just put them all on one line *)
                let foldline hypelis = 
                  if null hypelis then [] else [hypelis]
                in
-               foldline scopes,foldline norms
+               foldline scopes, foldline norms, foldline specials
             | _    , Some bestW -> (* We make a proper 'minimum waste' split of the assumption line *)
                 let rec measureplan (_, ((size, _), _)) = tsW size + commaW (* more or less *) in
                 let mybestW = max (2 * tsW (fst (fst hypdescwords))) (bestW - 2 * posX innerpos) in
-                let doit (e,inf) = e, if !foldformulae then foldformula mybestW inf else inf in
+                let doit ((e,inf),a) = (e, if !foldformulae then foldformula mybestW inf else inf),a in
                 let foldline hypelis =
                   if null hypelis then [] else
                     (let donehyps = doit <* hypelis in
                      if !multiassumptionlines then
-                       (let hs' = minwaste measureplan mybestW donehyps in
+                       (let hs' = minwaste (measureplan <.> fst) mybestW donehyps in
                         assumptionlinesfolded := !assumptionlinesfolded || List.length hs'<>1;
                         hs'
                        )
@@ -1117,22 +1136,21 @@ let rec linearise screenwidth procrustean_reasonW dp =
                        single <* donehyps
                     )
                 in
-                foldline scopes, foldline norms
+                foldline scopes, foldline norms, single <* (doit <* specials)
           in
           let dohypline numbered (hypelis, (hypmap, Lacc haccrec)) =
-            let descword word elinfo =
-              if isScopeElinfo elinfo then textinfo_of_string ReasonFont "" else word
-            in
             let word, hypmap' =
               match hypelis with
-              | [h]         -> descword (fst hypdescwords) h, (hypmap ++ (fst h |-> LineID haccrec.id))
-              | h::_ as hs  -> descword (snd hypdescwords) h, (hypmap ++ mapn haccrec.id hs 1)
-              | []          -> raise (Catastrophe_ ["null hypelis in Boxdraw.dohypline"])
+              | [(h, Some s)]         -> s               , (hypmap ++ (fst h |-> LineID haccrec.id))
+              | [(h, None  )]         -> fst hypdescwords, (hypmap ++ (fst h |-> LineID haccrec.id))
+              | (h,None)::_ as hs     -> snd hypdescwords, (hypmap ++ mapn haccrec.id (fst <* hs) 1)
+              | (h,Some s)::_ as hs   -> s               , (hypmap ++ mapn haccrec.id (fst <* hs) 1)
+              | []                    -> raise (Catastrophe_ ["null hypelis in Boxdraw.dohypline"])
             in
             let (line, linebox, lineidW, linereasonW) =
               mkLine
                 (plans_of_things
-                   (uncurry2 plan_of_textinfo <.> snd) commaf nullf hypelis)
+                   (uncurry2 plan_of_textinfo <.> snd <.> fst) commaf nullf hypelis)
                 (showword word) haccrec.id (nextpos haccrec.elbox textleading false false)
             in
             let lineassW =
@@ -1148,7 +1166,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                  }
           in
           let (hypmap', (Lacc {id = id'} as acc')) =
-            let scopes, norms = hyplines in
+            let scopes, norms, specials = hyplines in
             (*
                consolereport ["here it is: scopes ="; 
                       bracketed_string_of_list (bracketed_string_of_list string_of_elinfo ";") ";" scopes;
@@ -1157,6 +1175,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                      ];
              *)
             let hypmap, lacc = nj_revfold (dohypline false) scopes (hypmap, startLacc accrec.id innerpos) in
+            let hypmap, lacc = nj_revfold (dohypline false) specials (hypmap, startLacc accrec.id innerpos) in
             nj_revfold (dohypline true) norms (hypmap, lacc)
           in
           let (cid, Lacc {id = id''; acclines = innerlines; elbox = innerbox;
@@ -1337,7 +1356,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
      | HypID(id, n) => "HypID("^_IDr id^","^string_of_int n^")"
 ... end desperation *)
 
-let _BoxLayout screenwidth t =
+let _BoxLayout screenwidth aenv t =
   let pt = pretransform (List.length (turnstiles ()) <> 1) t in
   let procrustean_reasonW = max 100 (screenwidth / 6) in
   let tranreason = (* we now truncate reasons later *)
@@ -1345,7 +1364,7 @@ let _BoxLayout screenwidth t =
       procrustean_reason2textinfo procrustean_reasonW
     else *) textinfo_of_reason
   in
-  let dp = dependency tranreason ordinary pt in
+  let dp = dependency tranreason ordinary aenv pt in
   linearise screenwidth procrustean_reasonW dp
 
 (* The emphasis (blacken/greyen) stuff is pretty confused.  
@@ -1371,10 +1390,10 @@ let _BoxLayout screenwidth t =
 let rec elementsin ps =
   List.length ((iselementkind <.> info_of_plan) <| ps)
 
-let rec draw goalopt p proof =
-  fun (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
+let rec draw goalopt p aenv proof
+        (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
                bodymargin = bodymargin; reasonmargin = reasonmargin;
-               bodybox = bodybox; linethickness = linethickness}) ->
+               bodybox = bodybox; linethickness = linethickness}) =
     let idx = posX p + idmargin in
     let reasonx = posX p + reasonmargin in
     (* unused
