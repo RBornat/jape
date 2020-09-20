@@ -123,7 +123,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
     
     (* if tf1 is hidden, so is the merge *)
     let rec treeformatmerge =
-      fun (TreeFormat (tfk1, tff1, aopt1), TreeFormat (tfk2, tff2, aopt2)) ->
+      fun ((TreeFormat (tfk1, tff1, aopt1) (* as fmt1 *)), (TreeFormat (tfk2, tff2, aopt2) (* as fmt2 *))) ->
         let tfkmerge = function
                        | SimpleFormat, _ -> tfk2
                        | _, _ -> tfk1
@@ -152,7 +152,10 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
                         | Some _, _ -> aopt1
                         | _         -> aopt2
         in
-        TreeFormat (tfkmerge (tfk1, tfk2), tffmerge (tff1, tff2), tfamerge(aopt1, aopt2))
+        let r = TreeFormat (tfkmerge (tfk1, tfk2), tffmerge (tff1, tff2), tfamerge(aopt1, aopt2)) in
+        (* Miscellaneous.consolereport ["merging "; string_of_treeformat fmt1; " with "; string_of_treeformat fmt2; 
+                                     " -> "; string_of_treeformat r]; *)
+        r
     
     let rec format_of_layout fmtf tnsf assf l =
       let rec f_of_l compress (fmt, tns) =
@@ -213,8 +216,8 @@ module type VisFmt =
     (* VisPaths, at the present, are still simple lists of non-negative integers ... *)
     type vispath = VisPath of int list
     val string_of_vispath : vispath -> string
-    type visformat = VisFormat of (bool         * bool       * string option)
-                                  (* ismultistep, ishiddencut, assumption text *)
+    type visformat = VisFormat of (bool         * bool         )
+                                  (* ismultistep, ishiddencut *)
        
     val string_of_visformat : visformat -> string
   end
@@ -224,11 +227,11 @@ module VisFmt : VisFmt =
     open Stringfuns
     open Listfuns
     
-    type visformat = VisFormat of (bool * bool * string option)
-    (* ismultistep, ishiddencut, assumption text *)
+    type visformat = VisFormat of (bool         * bool         )
+                                  (* ismultistep, ishiddencut *)
        
     let string_of_visformat  (VisFormat f) =
-      "VisFormat" ^ string_of_triple string_of_bool string_of_bool (Optionfuns.string_of_option (fun s -> s)) "," f
+      "VisFormat" ^ string_of_pair string_of_bool string_of_bool "," f
         
     type vispath = VisPath of int list
 
