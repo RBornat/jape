@@ -1265,7 +1265,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     let pathedsubtrees =
       function
       | {cutnav=Some (l, r); trs=([tl; tr], rewinf)} ->  [[l], tl; [], tr]
-      | {                    trs=(ts, rewinf)      } ->  (fun (i, t) -> [i], t) <* numbered ts
+      | {                    trs=(ts      , rewinf)} ->  (fun (i, t) -> [i], t) <* numbered ts
     
     let rec visibles showall j =
       let pts = pathedsubtrees j in
@@ -1329,17 +1329,14 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                        hideroots (Some fmt) false inouts
                    | fmt -> hideroots (Some fmt) (isCutjoin j) (pts, [])
                with
-               | Listfuns.Bad_nth -> default ())
+               | Listfuns.Bad_nth -> default ()
+              )
           | _ -> hideroots None (isCutjoin j) (pts, [])
       in
       if !prooftreedebug then
-        (let onelevel =
-           bracketed_string_of_list (string_of_seq <.> sequent) ","
-         in
+        (let onelevel = bracketed_string_of_list (string_of_seq <.> sequent) "," in
          let string_of_pt =
-           bracketed_string_of_list
-             (string_of_pair string_of_ns (string_of_seq <.> sequent) ",")
-             ", "
+           bracketed_string_of_list (string_of_pair string_of_ns (string_of_seq <.> sequent) ",") ", "
          in
          consolereport
            ["visibles "; string_of_bool showall; " ";
