@@ -68,32 +68,39 @@ module F
     exception Catastrophe_ = Miscellaneous.Catastrophe_
     
     let rec deVis = fun (VisPath ns) -> ns
-
+    
+    type staterec = {proof: Prooftree.Tree.Fmttree.prooftree;
+                     pos  : Box.pos;
+                     vgoal: Prooftree.Tree.Vistree.path option;
+                     aenv : (Termtype.resnum, string) Mappingfuns.mapping;
+                     vproof: Prooftree.Tree.Vistree.prooftree;
+                     plan  : AAA.Screendraw.layout;
+                     showall: bool;
+                     hideuseless: bool
+                    }
+    
+    type state = staterec option
+    
     let ministate =
-      optf (fun (proof, pos, vgoal, vproof, plan, showall, hideuseless) ->
-              pos, abstracttree vproof, plan)
+      optf (fun staterec -> staterec.pos, abstracttree staterec.vproof, staterec.plan)
     let rec vpath showall proof popt = popt &~~ vispath showall proof
     let rec tranvpath state vpath =
-         state &~~
-         (fun (proof, _, _, _, _, showall, _) -> fmtpath showall proof vpath)
+         state &~~ (fun staterec -> fmtpath staterec.showall staterec.proof vpath)
     let rec tranfpath state fpath =
-         state &~~
-         (fun (proof, _, _, _, _, showall, _) -> vispath showall proof fpath)
+         state &~~ (fun staterec -> vispath staterec.showall staterec.proof fpath)
     let rec fmtpath_of_ints f state =
       let rec tr ns =
         match tranvpath state (VisPath ns) with
-          Some fp -> fp
-        | _ ->
-            raise
-              (Catastrophe_
-                 ["fmtpath_of_ints (displaystyle) can't translate ";
-                  string_of_path (VisPath ns)])
+        | Some fp -> fp
+        | _       -> raise (Catastrophe_
+                              ["fmtpath_of_ints (displaystyle) can't translate ";
+                               string_of_path (VisPath ns)])
       in
       f tr
     let rec ints_of_fmtpath f state =
       let rec tr fp =
         match tranfpath state fp with
-          Some (VisPath ns) -> ns
+        | Some (VisPath ns) -> ns
         | _ ->
             raise
               (Catastrophe_
@@ -104,27 +111,26 @@ module F
     
     let rec locateHit state pos classopt hitkind =
       optf (fmtpath_of_ints tranhitpath state)
-        (ministate state &~~ AAA.Screendraw.locateHit pos classopt hitkind)
+           (ministate state &~~ AAA.Screendraw.locateHit pos classopt hitkind)
     
     let rec notifyselect state selopt sels =
       match ministate state with
-        Some s -> AAA.Screendraw.notifyselect selopt sels s
+      | Some s -> AAA.Screendraw.notifyselect selopt sels s
       | _ -> ()
     
     let rec locateElement state el =
       match ministate state with
-        Some s -> AAA.Screendraw.locateElement el s
+      | Some s -> AAA.Screendraw.locateElement el s
       | _      -> []
     
-    let rec saveanddraw proof pos vgoal vproof plan =
+    let rec saveanddraw proof pos vgoal aenv vproof plan =
       Draw.clearView ();
-      draw (optf deVis vgoal) pos (abstracttree vproof) plan;
+      draw (optf deVis vgoal) pos aenv (abstracttree vproof) plan;
       screendrawstate
-        (Some
-           (proof, pos, vgoal, vproof, plan, !showallproofsteps,
-            !hideuselesscuts))
-    and refresh proof viewport vgoal vproof plan =
-      Draw.clearView (); saveanddraw proof (defaultpos viewport plan) vgoal vproof plan
+        (Some {proof=proof; pos=pos; vgoal=vgoal; aenv=aenv; vproof=vproof; plan=plan; 
+               showall=(!showallproofsteps); hideuseless=(!hideuselesscuts)})
+    and refresh proof viewport vgoal aenv vproof plan =
+      Draw.clearView (); saveanddraw proof (defaultpos viewport plan) vgoal aenv vproof plan
     (* these functions - showProof and showFocussedProof - now get the raw proof and the 
      * raw target/goal.  This is because we may have to interpret them relative both to 
      * a new and an old proof, and this may cause horridness (specifically, the proof
@@ -146,44 +152,44 @@ module F
        * stretched -- we need to know what's visible. In general we need that information
        * anyway.
        *)
-      let vproof = visproof !showallproofsteps !hideuselesscuts proof in
+      let aenv, vproof = visproof !showallproofsteps !hideuselesscuts proof in
       let vgoal = vpath !showallproofsteps proof goal in
-      let plan = layout viewport (abstracttree vproof) in
+      let plan = layout viewport aenv (abstracttree vproof) in
       if !screenpositiondebug then
         consolereport
           ["looking for "; string_of_option Prooftree.Tree.Fmttree.string_of_path goal;
            " (in visible proof that's "; string_of_option string_of_path vgoal;
            ")"; " target="; string_of_option Prooftree.Tree.Fmttree.string_of_path target];
       match oldstate with
-        None ->
+      | None ->
           if !screenpositiondebug then
             consolereport ["showProof calls refresh, no old state"];
-          refresh proof viewport vgoal vproof plan
-      | Some (oldproof, oldpos, _, oldvproof, oldplan, oldshowall, oldhideuseless) ->
+          refresh proof viewport vgoal aenv vproof plan
+      | Some oldrec ->
           let rec doit oldpoint newpoint =
             if !screenpositiondebug then
               consolereport
                 ["gotcha "; string_of_pos oldpoint; "; "; string_of_pos newpoint];
-            saveanddraw proof (oldpos +->+ oldpoint +<-+ newpoint) 
-                        vgoal vproof plan
+            saveanddraw proof (oldrec.pos +->+ oldpoint +<-+ newpoint) 
+                        vgoal aenv vproof plan
           in
           let rec findtarget target =
             if !screenpositiondebug then
               consolereport ["tracking "; 
                 string_of_option Prooftree.Tree.Fmttree.string_of_path target];
             match
-              vpath oldshowall oldproof target,
+              vpath oldrec.showall oldrec.proof target,
               vpath !showallproofsteps proof target
             with
-              (Some _ as oldpath), (Some _ as path) ->
+            | (Some _ as oldpath), (Some _ as path) ->
                 if !screenpositiondebug then
                   consolereport ["found oldpath="; string_of_option Prooftree.Tree.Vistree.string_of_path oldpath;
                     "; path="; string_of_option Prooftree.Tree.Vistree.string_of_path oldpath];
                 (match
-                   targetbox origin (optf deVis oldpath) oldplan,
+                   targetbox origin (optf deVis oldpath) oldrec.plan,
                    targetbox origin (optf deVis path) plan
                  with
-                   Some oldbox, Some box -> 
+                 | Some oldbox, Some box -> 
                      if intersects (box_of_textbox oldbox) viewport (* it was visible *)
                      then doit (tbP oldbox) (tbP box)
                      else handleinvis ()
@@ -192,12 +198,12 @@ module F
                retry target
           and retry =
             function
-              Some targetpath ->
+            | Some targetpath ->
                 begin match
                   try Some (parentPath proof targetpath) with
-                    _ -> None
+                  | _ -> None
                 with
-                  None      -> doit (rootpos viewport oldplan) (rootpos viewport plan)
+                | None      -> doit (rootpos viewport oldrec.plan) (rootpos viewport plan)
                 | newtarget -> findtarget newtarget
                 end
             | None -> default()
@@ -205,18 +211,18 @@ module F
           and handleinvis () =
             let string_of_path = bracketed_string_of_list string_of_int ";" in
             let string_of_hit = string_of_fhit string_of_path in
-            let oldts = allFormulaHits oldpos oldplan in
-            (* consolereport ["Boxdraw.showProof.handleinvis oldpos="; string_of_pos oldpos; "; oldts=";
+            let oldts = allFormulaHits oldrec.pos oldrec.plan in
+            (* consolereport ["Boxdraw.showProof.handleinvis oldpos="; string_of_pos oldrec.pos; "; oldts=";
                        bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
                        "; viewport="; string_of_box viewport]; *)
-            let newts = allFormulaHits oldpos plan in
+            let newts = allFormulaHits oldrec.pos plan in
             let acceptable f ts = (fun (tbox, _) -> f (box_of_textbox tbox) viewport) <| ts in
             (* consolereport ["acceptable intersects oldts="; 
                    bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" 
                                            (acceptable intersects oldts)]; *)
             let bad() =
                consolereport ["We have a problem: Displaystyle.handleinvis can't find a visible path"];
-               consolereport ["oldpos="; string_of_pos oldpos; "; oldts=";
+               consolereport ["oldpos="; string_of_pos oldrec.pos; "; oldts=";
                        bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
                        "; viewport="; string_of_box viewport]; 
                Japeserver.dropdead(); (* doesn't return *)
@@ -234,22 +240,22 @@ module F
                 ts
             in
             match acceptable intersects oldts with
-              [] -> bad()
+            | [] -> bad()
             | grazers -> 
                 match (match acceptable entirelywithin grazers with
-                         []     -> process grazers
+                       | []     -> process grazers
                        | inners -> process inners |~~ (fun _ -> process grazers))
                 with
-                  None              -> bad()
+                | None              -> bad()
                 | Some(oldbox, box) -> doit (tbP oldbox) (tbP box)
           in
           findtarget target
     
     and printProof str proof target goal =
       let viewport = Draw.viewBox() in (* daft, but that's what it used to do *)
-      let vproof = visproof !showallproofsteps !hideuselesscuts proof in
+      let aenv, vproof = visproof !showallproofsteps !hideuselesscuts proof in
       let vgoal = vpath !showallproofsteps proof goal in
-      let plan = layout viewport (abstracttree vproof) in
+      let plan = layout viewport aenv (abstracttree vproof) in
       AAA.Screendraw.print str (optf deVis vgoal) origin (abstracttree vproof)
         plan
     
@@ -257,22 +263,24 @@ module F
       (* for use when we change styles.
          Ensures that the goal sequent is at least on-screen.
        *)
-      let vproof = visproof !showallproofsteps !hideuselesscuts proof in
+      let aenv, vproof = visproof !showallproofsteps !hideuselesscuts proof in
       let vgoal = vpath !showallproofsteps proof goal in
-      let plan = layout viewport (abstracttree vproof) in
+      let plan = layout viewport aenv (abstracttree vproof) in
       match targetbox origin (optf deVis vgoal) plan with (* DANGER: but it used to be origin before *)
         Some box ->
-          saveanddraw proof (postoinclude viewport (box_of_textbox box) plan) vgoal vproof
+          saveanddraw proof (postoinclude viewport (box_of_textbox box) plan) vgoal aenv vproof
             plan
-      | None -> refresh proof viewport vgoal vproof plan
+      | None -> refresh proof viewport vgoal aenv vproof plan
+    
     and refreshProof state () =
       Draw.clearView ();
       match state with
-        None -> ()
-      | Some (proof, pos, vgoal, vproof, plan, showall, hideuseless) ->
-          draw (optf deVis vgoal) pos (abstracttree vproof) plan
+      | None          -> ()
+      | Some staterec -> draw (optf deVis staterec.vgoal) staterec.pos staterec.aenv (abstracttree staterec.vproof) staterec.plan
+    
     and storedProof state () =
-      optf (fun (proof, _, _, _, _, _, _) -> proof) state
+      optf (fun staterec -> staterec.proof) state
+    
     and screendrawstate state =
       DisplayState
         {showProof = showProof state; showFocussedProof = showFocussedProof;
@@ -281,6 +289,7 @@ module F
          notifyselect = notifyselect state;
          refineSelection = AAA.Screendraw.refineSelection;
          storedProof = storedProof state}
+    
     (* and for starters *)
     let style = screendrawstate None
   end
