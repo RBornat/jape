@@ -953,8 +953,7 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
                   | Some r -> r
                   | None   -> nocando "unless there is a unique simple cut rule"
     in
-    if !autoAdditiveLeft then ()
-                         else nocando "unless the logic is stated without left contexts";
+    if not (!autoAdditiveLeft) then nocando "unless the logic is stated without left contexts";
     let startAtTip = isTip (followPath tree (getGoalPath goal)) in
     let path = deepest_samehyps tree (getGoalPath goal) in
     if !cutindebug then 
