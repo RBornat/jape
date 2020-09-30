@@ -361,7 +361,9 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     
     (* -------------------------- navigation with int lists -------------------------- *)
         
-    exception FollowPath_ of (string * int list) exception FindTip_
+    exception FollowPath_ of (string * int list) 
+    exception FindTip_
+    
     (* A new means of addressing the tree, to serve the needs of the CUTIN tactic, which
      * inserts cuts low down in a tree.
      *
@@ -371,7 +373,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
      * LETGOALPATH, and maybe other things as well -- so we can't use that old navigation system.
      *
      * Luckily a cut introduces exactly two unique elements into a proof: the conclusion element
-     * and the hypothesis element. They can be used to label the two new nodes uniquely. If
+     * and the hypothesis element. Their resnums can be used to label the two new nodes uniquely. If
      * we include them in paths, they have to be negative numbers.  I rely on the fact that 
      * resources are never zero, so that addresses of the two new nodes are just negative numbers.
      *
@@ -393,14 +395,16 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     type 'a navkind =
         NormalNav of 'a prooftree list
       | CutNav of (int * int * 'a prooftree * 'a prooftree)
-    let rec decode_cutnav j =
+    
+    let decode_cutnav j =
       match j.cutnav, j.trs with
       | Some (l, r), ([tl; tr], rewinf) -> CutNav (l, r, tl, tr)
       | _          , (ts, rewinf)       -> NormalNav ts
+    
     (* I've tried to make this fast *)
     let rec joinstep go stop skip j path =
       match j.cutnav, j.trs with
-      | Some (l, r), ([tl; tr], rewinf) ->
+      | Some (l, r), ([tl; tr], _) ->
           begin match path with
           | n :: ns ->
               if n = l then go n tl ns
@@ -409,23 +413,27 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
               else skip (l, r, tl, tr) path
           | [] -> skip (l, r, tl, tr) path
           end
-      |_, (ts, rewinf)->
+      |_, (ts, _) ->
           (* this is what makes the tip path work *)
           match path with
           | n :: ns -> go n (try Listfuns.guardednth ts n with
-                                          | Listfuns.Bad_nth -> raise (FollowPath_ ("out of range", path))) ns
-          | [] -> stop ()
-    let rec pathto t =
+                             | Listfuns.Bad_nth -> raise (FollowPath_ ("out of range", path))
+                            ) ns
+          | []      -> stop ()
+    
+    let pathto t =
       match t with
       | Join {cutnav=Some(l,r);} -> [r]
       | _                        -> []
+    
     let rec followPath_ns t ns =
       match t with
       | Tip _ -> if null ns then t else raise (FollowPath_ ("at tip", ns))
       | Join j ->
           joinstep (fun _ -> followPath_ns) (fun _ -> t)
             (fun (l, r, tl, tr) -> followPath_ns tr) j ns
-    let rec onestep_ns t path =
+    
+    let onestep_ns t path =
       match t with
       | Tip _ ->
           if null path then None
@@ -440,8 +448,11 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
       | Join {trs=(ts,_)} ->
           match path with
           | n :: ns -> Some (ns, (try Listfuns.guardednth ts n with
-                                                      | Listfuns.Bad_nth -> raise (FollowPath_ ("onestep out of range", path))))
+                                  | Listfuns.Bad_nth -> raise (FollowPath_ ("onestep out of range", path))
+                                 )
+                            )
           | [] -> None
+    
     let rec fakePath_ns rf t ns =
       match t with
       | Tip _ ->
@@ -449,12 +460,15 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
       | Join j ->
           joinstep (fun n -> fakePath_ns (n :: rf)) (fun _ -> List.rev rf)
             (fun (l, r, tl, tr) -> fakePath_ns (r :: rf) tr) j ns
-    let rec getTip_ns t ns =
+    
+    let getTip_ns t ns =
       match followPath_ns t ns with
       | Tip t -> t
-      | _ -> raise FindTip_
-    let rec findTip_ns t p = (fun (s,_,_)->s) (getTip_ns t p)
-    let rec allTips_ns t =
+      | _     -> raise FindTip_
+    
+    let findTip_ns t p = (fun (s,_,_)->s) (getTip_ns t p)
+    
+    let allTips_ns t =
       let rec moretips a1 a2 a3 =
         match a1, a2, a3 with
         | ns, (Tip _ as t), tips -> (List.rev ns, t) :: tips
@@ -467,8 +481,10 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                 moretips (l :: ns) tl (moretips ns tr tips)
       in
       moretips [] t []
-    let rec allTipPaths_ns t = (fst <* allTips_ns t)
-    let rec allTipConcs_ns t =
+    
+    let allTipPaths_ns t = (fst <* allTips_ns t)
+    
+    let allTipConcs_ns t =
          (function
           | ns, Tip (Seq (_, hs, gs), _, _) -> ns, explodeCollection gs
           | _ ->
@@ -476,7 +492,9 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                 (Catastrophe_ ["allTips gave non-Tip in allTipConcs_ns"])) <*
          allTips_ns t
     (* functions which look for a path *)
-    let rec search opt n = (opt &~~ (fun ns -> Some (n :: ns)))
+    
+    let search opt n = (opt &~~ (fun ns -> Some (n :: ns)))
+    
     let rec _F =
       function
       | [] -> None
@@ -488,7 +506,9 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
           match decode_cutnav j with
           | NormalNav ts -> _F (numbered ts)
           | CutNav (l, r, tl, tr) -> (search (_G tl) l |~~ (fun _ -> _G tr))
+    
     let findAnyGoal_ns = _G
+    
     let rec findRightwardsGoal_ns skip t path =
       match t with
       | Tip _  -> if skip || not (null path) then None else Some []
@@ -693,6 +713,11 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     
     let string_of_tip tlf t = "Tip" ^ string_of_triple elementstring_of_seq string_of_rewinf tlf ", " t
     
+    let string_of_proofnode tlf node =
+      match node with
+      | Tip t -> string_of_tip tlf t
+      | Join j -> string_of_Join tlf (fun _ -> "...") j
+      
     let rec string_of_prooftree tlf t =
       let rec pft tlf rp t =
         (string_of_ns (pathto t @ List.rev rp) ^ " = ") ^
@@ -711,11 +736,6 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
       in
       pft tlf [] t
     
-    let string_of_proofnode tlf node =
-      match node with
-      | Tip t -> string_of_tip tlf t
-      | Join j -> string_of_Join tlf (fun _ -> "...") j
-      
     exception Can'tHash_
     (* moved outside for OCaml *)
        
