@@ -530,40 +530,49 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
      *
      * At least that's what I _think_ it's doing. RB 9.iii.2005
      *)
-    let rec deepest_samehyps tree =
-      fun (FmtPath ks) ->
-        let rec shs t path =
-          let rec topres () =
-            let (Seq (_, hs, _)) = sequent t in Some hs, pathto t
-          in
-          let unFRESH =
-            not <.> List.exists isFreshProviso <.> List.map snd
-          in
-          let rec check a1 a2 =
-            match a1, a2 with
-            | (None   , ns), f -> None, f ns
-            | (Some hs, ns), f ->
-                let (Seq (_, hs', _)) = sequent t in
-                if (match hs, hs' with
-                    | Collection (_, BagClass FormulaClass, es),
-                      Collection (_, BagClass FormulaClass, es') ->
-                        null (listsub sameresource es es')
-                    | _ -> hs = hs') &&
-                   (match stepprovisos t with
-                    | Some provisos -> unFRESH provisos
-                    | None          -> true
-                   )
-                then
-                     Some hs, pathto t
-                else None   , f ns
-          in
-          let rec go n subt ns = check (shs subt ns) (fun ns -> n :: ns) in
-          let rec skip (l, r, tl, tr) ns = check (shs tr ns) idf in
+    (* new subtlety. We don't want to cut back so far as to expose a hidden step. I
+       know this is a sort of temporary thing, and perhaps we need a new mechanism to deal with
+       it, but for now this is what I'm doing. RB 29/09/20
+     *)
+    let rec deepest_samehyps tree (FmtPath ks) =
+      (* a strange recursion. shs goes to the end of path to find hs, and gives an empty path to that subtree.
+         On the way back, if hs are the same, and it isn't a FRESH proviso node, it gives the same hs and an empty path.
+         Otherwise it gives back None, and a path to the previously-chosen node -- and the None stops the search for a node,
+         because lower nodes just add their portion of the path.
+         The new subtlety means that if a node looks good, but is hidden, take the previously-chosen path, but don't
+         stop looking at lower nodes.
+       *)
+      let rec shs t path =
+        let rec topres () =
+          let (Seq (_, hs, _)) = sequent t in Some hs, pathto t
+        in
+        let rec check (hopt, ns) f =
+          match hopt with
+          | None    -> None, f ns
+          | Some hs ->
+              let (Seq (_, hs', _)) = sequent t in
+              if (match hs, hs' with
+                  | Collection (_, BagClass FormulaClass, es),
+                    Collection (_, BagClass FormulaClass, es') ->
+                      null (listsub sameresource es es')
+                  | _ -> hs = hs') &&
+                 (match stepprovisos t with
+                  | Some provisos -> not (List.exists (isFreshProviso <.> snd) provisos)
+                  | None          -> true
+                 )
+              then Some hs, (match format t with
+                             | TreeFormat(HideRootFormat,_,_)
+                             | TreeFormat(HideCutFormat,_,_)   -> f ns      (* we don't want this one -- take previous *)
+                             | _                               -> pathto t  (* this'll do *)
+                            )
+              else None   , f ns
+        in
+        let rec go n subt ns = check (shs subt ns) (fun ns -> n :: ns) in
+        let rec skip (l, r, tl, tr) ns = check (shs tr ns) idf in
           match t with
-          | Tip _ ->
-              if null path then topres ()
-              else raise (FollowPath_ ("overflow in deepest_samehyps", path))
-          | Join j -> joinstep go topres skip j path
+        | Tip _  -> if null path then topres () 
+                    else raise (FollowPath_ ("overflow in deepest_samehyps", path))
+        | Join j -> joinstep go topres skip j path
         in
         FmtPath (snd (shs tree ks))
     
