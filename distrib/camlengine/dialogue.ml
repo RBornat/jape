@@ -175,6 +175,7 @@ let defaultenv =
      "boxlinedressright"    , bj                         true         Boxdraw.boxlinedressright;
      "boxseldebug"          , bj                         false        Boxdraw.boxseldebug;
      "cuthidingdebug"       , bj                         false        Prooftree.Tree.cuthidingdebug;
+     "cutindebug"           , bj                         false        Tacticfuns.cutindebug;
      "debracketapplications", bj                         false        Termstring.debracketapplications;
      "displaystyle"         , jv ["box"; "tree"]         "tree"       (Interaction.setdisplaystyle, 
                                                                        Interaction.getdisplaystyle);
