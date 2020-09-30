@@ -101,15 +101,15 @@ MENU Rules IS
   ENTRY "conversion (∏⁻,∑⁺)" IS WHEN (LETHYP (∏⁻(_P,_S)) (ForwardOrBackward ForwardCut 0 vp2))
                                      (LETHYP (∑⁺(_P,_S)) (ForwardOrBackward ForwardCut 0 vp4))
                                      (LETHYP _A (Fail ("conversion is not applicable to antecedent %t", _A)))
-                                     (LETGOAL (∏⁻(_S,_P)) vp2)
-                                     (LETGOAL (∑⁺(_S,_P)) vp4)
+                                     (LETGOAL (∏⁻(_S,_P)) (furdle vp2))
+                                     (LETGOAL (∑⁺(_S,_P)) (furdle vp4))
                                      (LETGOAL _A (Fail ("conversion is not applicable to consequent %t", _A)))
   
   ENTRY "subaltern (∏⁺⇒∑⁺,∏⁻⇒∑⁻)" IS WHEN (LETHYP (∏⁺(_P,_S)) (ForwardOrBackward ForwardCut 0 vp1))
                                           (LETHYP (∏⁻(_S,_P)) (ForwardOrBackward ForwardCut 0 vp3))
                                           (LETHYP _A (Fail ("subaltern is not applicable to antecedent %t", _A)))
-                                          (LETGOAL (∑⁺(_S,_P)) vp1)
-                                          (LETGOAL (∑⁻(_S,_P)) vp3)
+                                          (LETGOAL (∑⁺(_S,_P)) (furdle vp1))
+                                          (LETGOAL (∑⁻(_S,_P)) (furdle vp3))
                                           (LETGOAL _A (Fail ("subaltern is not applicable to consequent %t", _A)))
 
   SEPARATOR
@@ -126,13 +126,13 @@ END
 PATCHALERT "vp3 is unproved"
            "The subaltern rule ∏⁻(P,S) ⇒ ∑⁻(S,P), which you need for the step \
             \you chose, is unproved. It's vp3 in the Derived Rules panel. Prove it \
-            \before you use it. (It's easier to prove in Natural Deduction style.)"
+            \before you use it. (It's easier to prove in sequent style.)"
             ("OK")
 
 PATCHALERT "vp4 is unproved"
            "The conversion rule ∑⁺(P,S) ⇒ ∑⁺(S,P), which you need for the step \
             \you chose, is unproved. It's vp4 in the Derived Rules panel. Prove it \
-            \before you use it. (It's easier to prove in Natural Deduction style.)"
+            \before you use it. (It's easier to prove in sequent style.)"
             ("OK")
 
 MENU Edit
