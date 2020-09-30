@@ -32,6 +32,16 @@ STRUCTURERULE CUT        cut
 
 TACTIC Fail (x) IS SEQ (ALERT x) STOP
 
+/* single-antecedent rules with a selected conclusion must be applied backwards using
+   CUTIN, so that the list-antecedents-before-conclusion trick of Aristotle still works.
+   That's what furdle is all about
+ */
+
+TACTIC furdle (rule) IS
+  LETGOAL _A
+    (CUTIN (LETGOAL _B (UNIFY _A _B) (WITHHYPSEL rule)))
+    (ANY (MATCH hyp))
+    
 TACTIC ForwardCut (n,rule) /* only applied with single hypothesis selection */
   CUTIN   
     (LETGOALPATH G
@@ -42,9 +52,9 @@ TACTIC ForwardCut (n,rule) /* only applied with single hypothesis selection */
 
 TACTIC ForwardOrBackward (Forward, n, rule) IS 
   WHEN (LETHYP _A 
-          (WHEN (LETCONC _B (WITHSELECTIONS rule) (WITHHYPSEL hyp))
+          (WHEN (LETCONC _B (furdle rule))
                 (Forward n rule)))
-       (WITHSELECTIONS rule)
+       (furdle rule)
     
 
 MACRO "Syllogism-step" (rule, hpat1, hpat2, mpat) IS
@@ -62,10 +72,8 @@ MACRO "Syllogism-tac" (rule, hpat1, hpat2, mpat, cpat) IS
        (LETGOAL cpat
           (WHEN (LETHYP hpat1 (rule mpat) (WITHHYPSEL (hyp (hpat1))))
                 (LETHYP hpat2 (rule mpat) SKIP (WITHHYPSEL (hyp (hpat2))))
-                (LETHYP _A (Fail ("%t is not applicable to the goal %t and hypothesis %t", rule, cpat, _A)))
+                (LETHYP _A (Fail ("%t is not applicable to the conclusion %t and hypothesis %t", rule, cpat, _A)))
                 rule
           )
        )
-       (LETGOAL _A (Fail ("%t does not infer the goal %t", rule, _A)))
-       (Fail "can't happen: Syllogism-tac out of alternatives")
-       
+       (LETGOAL _A (Fail ("%t does not infer the conclusion %t", rule, _A)))       
