@@ -583,19 +583,21 @@ let rec dependency tranreason deadf aenv pt =
       let rec mkplan e =
         e, (textinfo_of_element e, ElementPlan (pi, e, HypPlan))
       in
+      (* extra space if there's no why on ordinary lines, to line up with the numbers *)
+      let space_a word = (if !hidewhy then " " else "") ^ word in
       let a_special e =
         (match e with
          | Termtype.Element (_, r, _ ) -> Some r
          | _                           -> None
         ) &~~
         (fun r -> aenv <@> r) &~~
-        (fun s -> Some (textinfo_of_string ReasonFont (sing ^ " " ^ s)))
+        (fun s -> Some (textinfo_of_string ReasonFont (space_a (sing ^ " " ^ s))))
       in
       (* consolereport ["aenv is "; Mappingfuns.string_of_mapping Termstring.string_of_resnum (fun s -> s) aenv;
                      "; and hs are "; bracketed_string_of_list (Termstring.debugstring_of_element Termstring.string_of_term) "; " hs
                     ]; *)
       BoxDep (boxit,
-              (textinfo_of_string ReasonFont sing, textinfo_of_string ReasonFont plur),
+              (textinfo_of_string ReasonFont (space_a sing), textinfo_of_string ReasonFont (space_a plur)),
               a_special <* hs,
               mkplan <* hs, 
               dependency tranreason ordinary aenv pt'
@@ -1151,7 +1153,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
               mkLine
                 (plans_of_things
                    (uncurry2 plan_of_textinfo <.> snd <.> fst) commaf nullf hypelis)
-                (showword word) haccrec.id (nextpos haccrec.elbox textleading false false)
+                   (showword word) haccrec.id (nextpos haccrec.elbox textleading false false)
             in
             let lineassW =
               match hypelis with
