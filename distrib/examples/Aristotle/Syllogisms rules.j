@@ -24,10 +24,10 @@
 
 INITIALISE seektipselection false       /* yes, we are going to use CUTIN */
 
-RULE hyp IS INFER A ⊢ A
+RULE see IS INFER A ⊢ A
 RULE cut(B) IS FROM B AND B ⊢ C INFER C
 
-STRUCTURERULE IDENTITY   hyp
+STRUCTURERULE IDENTITY   see
 STRUCTURERULE CUT        cut
 
 TACTIC Fail (x) IS SEQ (ALERT x) STOP
@@ -40,14 +40,14 @@ TACTIC Fail (x) IS SEQ (ALERT x) STOP
 TACTIC furdle (rule) IS
   LETGOAL _A
     (CUTIN (LETGOAL _B (UNIFY _A _B) (WITHHYPSEL rule)))
-    (ANY (MATCH hyp))
+    (ANY (MATCH see))
     
 TACTIC ForwardCut (n,rule) /* only applied with single hypothesis selection */
   CUTIN   
     (LETGOALPATH G
       rule
       (GOALPATH (SUBGOAL G n))
-      (WITHHYPSEL hyp)
+      (WITHHYPSEL see)
     )
 
 TACTIC ForwardOrBackward (Forward, n, rule) IS 
@@ -58,7 +58,7 @@ TACTIC ForwardOrBackward (Forward, n, rule) IS
     
 
 MACRO "Syllogism-step" (rule, hpat1, hpat2, mpat) IS
-  SEQ (rule mpat) (WITHHYPSEL (hyp (hpat1))) (WITHHYPSEL (hyp (hpat2)))
+  SEQ (rule mpat) (WITHHYPSEL (see (hpat1))) (WITHHYPSEL (see (hpat2)))
   
 MACRO "Syllogism-tac" (rule, hpat1, hpat2, mpat, cpat) IS
   WHEN (LETHYP2 hpat1 hpat2
@@ -70,8 +70,8 @@ MACRO "Syllogism-tac" (rule, hpat1, hpat2, mpat, cpat) IS
           (Fail ("%t is not applicable to the hypotheses %t and %t", rule, _A, _B))
        )
        (LETGOAL cpat
-          (WHEN (LETHYP hpat1 (rule mpat) (WITHHYPSEL (hyp (hpat1))))
-                (LETHYP hpat2 (rule mpat) SKIP (WITHHYPSEL (hyp (hpat2))))
+          (WHEN (LETHYP hpat1 (rule mpat) (WITHHYPSEL (see (hpat1))))
+                (LETHYP hpat2 (rule mpat) SKIP (WITHHYPSEL (see (hpat2))))
                 (LETHYP _A (Fail ("%t is not applicable to the conclusion %t and hypothesis %t", rule, cpat, _A)))
                 rule
           )
