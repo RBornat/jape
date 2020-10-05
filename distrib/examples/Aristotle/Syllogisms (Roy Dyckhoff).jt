@@ -41,9 +41,9 @@ INITIALISE hidehyp true
 
 INITIALISE multihypsel true
 
-AUTOMATCH hyp
+AUTOMATCH see
 
-RULES conversion ARE
+RULES reversal ARE
       FROM ∑⁺(S,P) INFER ∑⁺(P,S)
   AND FROM ∏⁻(S,P) INFER ∏⁻(P,S)
 END
@@ -64,8 +64,8 @@ MENU Rules IS
 
   ENTRY "(B1, subaltern) ∏⁺(S,P) ⇒ ∑⁺(S,P)"    IS ForwardOrBackward ForwardCut 0 (LAYOUT B1 ALL subaltern'0)
   ENTRY "(B2, subaltern) ∏⁻(S,P) ⇒ ∑⁻(S,P)"    IS ForwardOrBackward ForwardCut 0 (LAYOUT B2 ALL subaltern'1)
-  ENTRY "(B3, conversion) ∑⁺(S,P) ⇒ ∑⁺(P,S)"   IS ForwardOrBackward ForwardCut 0 (LAYOUT B3 ALL conversion'0)
-  ENTRY "(B4, conversion) ∏⁻(P,S) ⇒ ∏⁻(S,P)"   IS ForwardOrBackward ForwardCut 0 (LAYOUT B4 ALL conversion'1)
+  ENTRY "(B3, reversal) ∑⁺(S,P) ⇒ ∑⁺(P,S)"   IS ForwardOrBackward ForwardCut 0 (LAYOUT B3 ALL reversal'0)
+  ENTRY "(B4, reversal) ∏⁻(P,S) ⇒ ∏⁻(S,P)"   IS ForwardOrBackward ForwardCut 0 (LAYOUT B4 ALL reversal'1)
 
   SEPARATOR
   
@@ -85,17 +85,17 @@ MENU Rules IS
                                           (LETGOAL (∑⁻(_S,_P)) (LAYOUT B2 ALL subaltern'1))
                                           (LETGOAL _A (Fail ("subaltern is is not applicable to consequent %t", _A)))
 
-  ENTRY "conversion (∏⁻,∑⁺)" IS WHEN (LETHYP (∑⁺(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT B3 ALL conversion'0)))
-                                     (LETHYP (∏⁻(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT B4 ALL conversion'1)))
-                                     (LETHYP _A (Fail ("conversion is not applicable to antecedent %t", _A)))
-                                     (LETGOAL (∑⁺(_P,_S)) (LAYOUT B3 ALL conversion'0))
-                                     (LETGOAL (∏⁻(_P,_S)) (LAYOUT B4 ALL conversion'1))
-                                     (LETGOAL _A (Fail ("conversion is not applicable to consequent %t", _A)))
+  ENTRY "reversal (∏⁻,∑⁺)" IS WHEN (LETHYP (∑⁺(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT B3 ALL reversal'0)))
+                                     (LETHYP (∏⁻(_S,_P)) (ForwardOrBackward ForwardCut 0 (LAYOUT B4 ALL reversal'1)))
+                                     (LETHYP _A (Fail ("reversal is not applicable to antecedent %t", _A)))
+                                     (LETGOAL (∑⁺(_P,_S)) (LAYOUT B3 ALL reversal'0))
+                                     (LETGOAL (∏⁻(_P,_S)) (LAYOUT B4 ALL reversal'1))
+                                     (LETGOAL _A (Fail ("reversal is not applicable to consequent %t", _A)))
   
   SEPARATOR
   
-  ENTRY hyp IS WHEN (LETHYP _A (hyp _A))
-                    hyp
+  ENTRY same IS WHEN (LETHYP _A (see _A))
+                      see
 END
 
 MENU Edit
