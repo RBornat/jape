@@ -675,8 +675,8 @@ let (apply, resolve, applyorresolve) =
   let rec apply checker filter taker selhyps selconcs stuff reason cxt state =
     let stuff' = apply_of_preparestuff stuff in
     makestep stuff' state
-      (Applyrule.applyrule checker filter taker selhyps selconcs stuff' reason
-         cxt (getconjecture state))
+             (Applyrule.applyrule checker filter taker selhyps selconcs stuff' reason
+                cxt (getconjecture state))
   
   and resolve checker filter taker selhyps selconcs stuff reason cxt state =
     (* We are actually going to do this with some care. 
@@ -687,6 +687,7 @@ let (apply, resolve, applyorresolve) =
      *
      * And at present we can always rearrange the rule.
      *)
+    (* we definitely need a cut, but if we have autoAdditiveLeft then surely it's ok. RB 02/10/20 *)
     let (kind, hiddens, how, env, (lefts, rights), antes, conseq, provisos) = stuff in
     let (Seq (cst, _, _)) = conseq in
     let rec fail ss =
@@ -703,7 +704,7 @@ let (apply, resolve, applyorresolve) =
       match how with
       | Apply (r, params, false) -> Apply (r, params, true)
       | Given (s, i     , false) -> Given (s, i, true)
-      | _ -> raise (Catastrophe_ ["how in resolve is "; string_of_prooftree_step how])
+      | _                        -> raise (Catastrophe_ ["how in resolve is "; string_of_prooftree_step how])
     in
     let (antes', conseq') = rearrangetoResolve antes conseq in
     let rec doit () =
@@ -712,7 +713,9 @@ let (apply, resolve, applyorresolve) =
         reason cxt state
     in
     check CutRule (Some [cst; cst; cst]) "cut"
-      (fun _ -> check LeftWeakenRule (Some [cst; cst]) "left weaken" doit)
+      (fun _ -> if !autoAdditiveLeft then doit ()
+                else check LeftWeakenRule (Some [cst; cst]) "left weaken" doit
+      )
   
   and applyorresolve checker filter taker selhyps selconcs stuff reason cxt state =
     (let good = fun (Seq (_, lhs, rhs)) ->
