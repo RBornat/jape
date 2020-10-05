@@ -1348,23 +1348,20 @@ let rec freshTheoremtosubst lw rw cxt args vars rulestuff =
  * 4. Once you've used it, don't forget to throw away the left-hand principals (first half
  *    of interesting_resources).
  *)
-let rec rearrangetoResolve antes =
-  fun (Seq (st, lhs, rhs) as conseq) ->
+let rec rearrangetoResolve antes (Seq (st, lhs, rhs) as conseq) =
     let rec extractsegv =
       function
       | Collection (_, cc, els) ->
           let (segvs, els') = split issegvar els in cc, segvs, els'
       | t ->
-          raise
-            (Catastrophe_
-               ["can't happen rearrangetoResolve "; debugstring_of_term t])
+          raise (Catastrophe_ ["can't happen rearrangetoResolve "; debugstring_of_term t])
     in
     let (lcc, lsvs, lels) = extractsegv lhs in
     let (rcc, rsvs, _) = extractsegv rhs in
     let rec renum el =
       match el with
       | Element (_, ResUnknown m, t) -> registerElement (Resnum m, t)
-      | _ -> el
+      | _                            -> el
     in
     let newlhs = registerCollection (lcc, lsvs) in
     let rec newrhs el = registerCollection (rcc, el :: rsvs) in
