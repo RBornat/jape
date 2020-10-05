@@ -35,6 +35,7 @@
 (* Mightily adapted to use Collections, July 96. RB *)
 
 open Cxtfuns
+open Cxtstring
 open Idclass
 open Listfuns
 open Mappingfuns
@@ -120,22 +121,23 @@ let
   in
   beforeOfferingDo, beforeOffering, failOfferingDo, failOffering,
   succeedOfferingDo, succeedOffering
+
 (**************************************************************************
 
         Explanation stuff
         
         
-***************************************************************************)
+ ***************************************************************************)
 
 
 let rec failwithreason ss = setReason ss; None
 let rec explain a1 a2 =
   match a1, a2 with
-    why, None -> failwithreason (why ())
-  | why, r -> r
+  | why, None -> failwithreason (why ())
+  | why, r    -> r
 
 (**************************************************************************
-***************************************************************************)
+ ***************************************************************************)
 
     (* This stuff has been reorganised to recognise filters and discriminators.
      * The 'applyrule' and 'resolverule' functions give you back a possmatch, which
@@ -162,26 +164,23 @@ type info = Info of inforec
 
 type possmatch =
   (info * element list * element list * cxt * seq list) list
-(* cxt   subgoals *)
+                                     (* cxt   subgoals *)
 
 let showargs = string_of_termlist
 
 (* our sequents have to be pairs of collections *)
 let rec breakside =
   function
-    Collection cNes -> cNes
+  | Collection cNes -> cNes
   | t ->
       raise
-        (Catastrophe_
-           ["breakside in applyrule given side "; debugstring_of_term t])
+        (Catastrophe_ ["breakside in applyrule given side "; debugstring_of_term t])
 
 (* once we have an answer, give me a proof tree *)
-let rec answer =
-  fun
-    (Info
-       {reason = reason; args = args; conjecture = conjecture; how = how},
-     (thinnedL : element list), (thinnedR : element list), cxt,
-     subgoals) ->
+let rec answer 
+        (Info {reason = reason; args = args; conjecture = conjecture; how = how},
+         (thinnedL : element list), (thinnedR : element list), cxt,
+         subgoals) =
     cxt,
     mkJoin cxt reason how args conjecture
       ((mkTip cxt <.>rewriteseq cxt) <* subgoals)
@@ -196,7 +195,7 @@ let filter = List.filter
 
 let rec nonempty =
   function
-    [] -> None
+  | [] -> None
   | xs -> Some xs
 
 let rec runfilter e g =
@@ -204,18 +203,15 @@ let rec runfilter e g =
 
 let showel = debugstring_of_element string_of_term
 
-let (bymatch : possmatch -> possmatch option) =
+let bymatch : possmatch -> possmatch option =
   runfilter
-    (fun () ->
-       ["The goal unifies with the rule, but doing so changes the goal"])
-    (fun
-       (Info
-          {cxt = cxt;
-           conjecture = conjecture;
-           kind = kind;
-           args = args;
-           conjectureinf = conjectureinf;
-           how = how}, _, _, cxt', _) ->
+    (fun () -> ["The goal unifies with the rule, but doing so changes the goal"])
+    (fun (Info {cxt = cxt;
+                conjecture = conjecture;
+                kind = kind;
+                args = args;
+                conjectureinf = conjectureinf;
+                how = how}, _, _, cxt', _) ->
        let us = rewinf_uVIDs conjectureinf in
        let r = matchedtarget cxt cxt' us in
        if !applydebug > 0 then
@@ -239,17 +235,14 @@ let (bymatch : possmatch -> possmatch option) =
                bracketed_string_of_list Termfuns.string_of_vid ";" us]);
        r)
 
-let (sameprovisos : possmatch -> possmatch option) =
+let sameprovisos : possmatch -> possmatch option =
   runfilter
-    (fun () ->
-       ["The goal fits the rule, but the rule introduced some extra provisos"])
-    (fun
-       (Info
-          {cxt = cxt;
-           conjecture = conjecture;
-           kind = kind;
-           args = args;
-           how = how}, _, _, cxt', _) ->
+    (fun () -> ["The goal fits the rule, but the rule introduced some extra provisos"])
+    (fun (Info {cxt = cxt;
+                conjecture = conjecture;
+                kind = kind;
+                args = args;
+                how = how}, _, _, cxt', _) ->
        let r =
          eqbags (fun (vp', vp) -> provisoactual vp' = provisoactual vp)
            (provisos cxt', provisos cxt)
@@ -283,19 +276,19 @@ let rec remdupposs ps =
        identical (snd_of_3 (breakside cgs)) (thinnedR, thinnedR'))
   and identical a1 a2 =
     match a1, a2 with
-      BagClass _, (rts, rts') -> eqlists sameresource (rts, rts')
+    | BagClass _, (rts, rts') -> eqlists sameresource (rts, rts')
     | _, _ -> false
   in
   nj_fold (fun (p, ps) -> if List.exists (same p) ps then ps else p :: ps) ps []
 
 let rec takefirst =
   function
-    [] -> None
+  | [] -> None
   | p :: ps -> Some (answer p)
 
 let rec takeonlyone ps =
   match remdupposs ps with
-    [p] -> Some (answer p)
+  | [p] -> Some (answer p)
   | _ -> failwithreason ["the rule matched the goal in more than one way"]
 
 let rec offerChoice ps =
@@ -310,7 +303,7 @@ let rec offerChoice ps =
   in
   let rec numwords n =
     match n with
-      1 -> "one"
+    | 1 -> "one"
     | 2 -> "two"
     | 3 -> "three"
     | 4 -> "four"
@@ -322,7 +315,7 @@ let rec offerChoice ps =
     | n -> string_of_int n
   in
   match ps with
-    [] -> None
+  | [] -> None
   | [p] -> Some (answer p)
   | (Info {kind = kind; how = how}, _, _, _, _) :: _ ->
       beforeOffering ();
@@ -338,7 +331,7 @@ let rec offerChoice ps =
                             "Select one from this list: "],
                    shows)
       with
-        None   -> failOffering (); resolvepossible:=false; None
+      | None   -> failOffering (); resolvepossible:=false; None
       | Some n -> if !tryresolution && !resolvepossible && n=List.length posses then 
                     (failOffering (); None)
                   else 
@@ -350,8 +343,7 @@ let rec takethelot ps = (answer <* ps)
 (**************************************************************************
 ***************************************************************************)
 
-let rec fitter checker resnums =
-  fun (_As, _Bs) cxt ->
+let rec fitter checker resnums (_As, _Bs) cxt =
     (* The rule provides the collection _As, the conjecture the collection _Bs. 
         
         Unifying _As with _Bs provides us with a list of contexts, which will include
@@ -368,39 +360,49 @@ let rec fitter checker resnums =
      * RB 27/x/96
      *)
     let cxts = checker (_As, _Bs) cxt in
+    if !applydebug>0 then consolereport ["fitter "; bracketed_string_of_list string_of_resnum ";" resnums;
+                                         " "; string_of_pair string_of_term string_of_term "," (_As, _Bs);
+                                         " "; string_of_cxt cxt;
+                                         "; checker says "; bracketed_string_of_list string_of_cxt "\n" cxts
+                                        ];
     let rec thinned cxt r =
       match r with
-        ResUnknown i ->
-          begin match (resmap cxt <@> i) with
-            Some (r, t) ->
-              begin match thinned cxt r with
-                None -> Some (registerElement (r, t))
-              | some -> some
-              end
-          | None -> None
-          end
+      | ResUnknown i ->
+          (match (resmap cxt <@> i) with
+           | Some (r, t) ->
+               (match thinned cxt r with
+                | None -> Some (registerElement (r, t))
+                | some -> some
+               )
+           | None -> None
+          )
       | _ -> None
     in
-    (fun cxt -> optionfilter (thinned cxt) resnums, cxt) <* cxts
+    let r = (fun cxt -> optionfilter (thinned cxt) resnums, cxt) <* cxts in
+    if !applydebug>0 then 
+      consolereport ["fitter => "; bracketed_string_of_list 
+                                    (string_of_pair (bracketed_string_of_list string_of_element ";") string_of_cxt ",") 
+                                    "\n" 
+                                    r];
+    r
 
 let _BnMfilter = List.filter
+
 (*   Match rule by hypothesis then conclusion
      and generate sets of subgoals from antecedents,
      indexed by the hypothesis match.
 *)
 let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
-  fun
-    (Info
-       {kind = kind;
-        conjecture = Seq (_Cst, _CHs, _CGs) as conjecture;
-        how = how;
-        consequent = Seq (st, _Hs, _Gs) as consequent;
-        antecedents = antecedents;
-        cxt = cxt;
-        provisos = provisos;
-        principals = resnumLs, resnumRs (* as principals *);
-        selhyps = selhyps;
-        selconcs = selconcs} as info) ->
+  fun (Info {kind = kind;
+             conjecture = Seq (_Cst, _CHs, _CGs) as conjecture;
+             how = how;
+             consequent = Seq (st, _Hs, _Gs) as consequent;
+             antecedents = antecedents;
+             cxt = cxt;
+             provisos = provisos;
+             principals = resnumLs, resnumRs (* as principals *);
+             selhyps = selhyps;
+             selconcs = selconcs} as info) ->
     let rec expandfresh b (h, g, r, v as f) left right ps =
       let ps = expandFreshProviso b f left right ps in
       if not r && (h && hiddenleft || g && hiddenright) then
@@ -448,13 +450,13 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
       info, thinnedL, thinnedR, cxt, (rewriteseq cxt <* subgoals)
     in
     (* get rid of alternatives which have the *same* thinners in bag matching 
-    fun remdupposs (BagClass _) ps =
-      let fun same (ms, _) (ms', _) = 
-            eqlists (fn ((_,t1),(_,t2)) => eqterms (t1,t2)) (ms,ms') 
-      in
-          nj_fold (fn (p,ps) => if List.exists (same p) ps then ps else p::ps) ps []
-      end
-    |   remdupposs _            ps = ps
+       fun remdupposs (BagClass _) ps =
+         let fun same (ms, _) (ms', _) = 
+               eqlists (fn ((_,t1),(_,t2)) => eqterms (t1,t2)) (ms,ms') 
+         in
+             nj_fold (fn (p,ps) => if List.exists (same p) ps then ps else p::ps) ps []
+         end
+       |   remdupposs _            ps = ps
     *)
     
     let _Hkind = snd_of_3 (breakside _Hs) in
@@ -471,7 +473,7 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
       let rec exp1 sing plur els () =
         let w =
           match breakside els with
-            _, _, [_] -> sing
+          | _, _, [_] -> sing
           | _ -> plur
         in
         exp0
@@ -483,12 +485,12 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
       let rec unusedprincipal sing plur els () =
         let word =
           match els with
-            [_] -> sing
+          | [_] -> sing
           | _ -> plur
         in
         let ts =
           match els with
-            [e] -> string_of_element e
+          | [e] -> string_of_element e
           | _ -> string_of_list string_of_element " and " els
         in
         ["The goal fits the rule, but the rule didn't make use of the ";
@@ -540,21 +542,21 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
                 verifycxtprovisos 
                   (plusprovisos cxt (impprovisos thinnedL thinnedR))) :: goods
              with
-               Verifyproviso p -> p :: bads, goods
+             | Verifyproviso p -> p :: bads, goods
            in
            match nj_fold doprovisos poss ([], []) with
-             bads, [] ->
-               begin match sortunique earlierproviso bads with
-                 [p] ->
-                   explain
-                     (exp0 ["the goal fits the rule, but the proviso "; string_of_proviso p; " is violated"])
-                     None
-               | ps ->
-                   explain
-                     (exp0 ["the goal fits the rule, but the provisos (variously ";
-                            string_of_list string_of_proviso " and " ps; ") are violated"])
-                     None
-               end
+           | bads, [] ->
+               (match sortunique earlierproviso bads with
+                | [p] ->
+                    explain
+                      (exp0 ["the goal fits the rule, but the proviso "; string_of_proviso p; " is violated"])
+                      None
+                | ps ->
+                    explain
+                      (exp0 ["the goal fits the rule, but the provisos (variously ";
+                             string_of_list string_of_proviso " and " ps; ") are violated"])
+                      None
+               )
            | _, (_ :: _ as goods) -> Some goods)
         &~
         (nonempty <.> List.map (result antecedents))
@@ -565,21 +567,24 @@ let rec subGoalsOfRule checker (hiddenleft, hiddenright) =
         ["The rule "; step_label how; " doesn't match the goal ";
          string_of_seq conjecture; " because the turnstiles are different"]
 
-let rec showstuff stuff =
-  string_of_octuple enQuote
-    (string_of_pair string_of_bool string_of_bool ",")
-    string_of_prooftree_step showargs
-    (string_of_pair (bracketed_string_of_list string_of_resnum ",")
-       (bracketed_string_of_list string_of_resnum ",") ",")
-    (bracketed_string_of_list string_of_seq ",") string_of_seq
-    (bracketed_string_of_list string_of_visproviso " AND ") ", " stuff
+let rec showstuff (kind, hiddencontexts, how, args, principals, antes, conseq, provs) =
+  Printf.sprintf "stuff=(kind=%s, hiddencontexts=%s, how=%s, args=%s, principals=%s, antes=%s, conseq=%s, provs=%s)"
+                 (enQuote kind)
+                 (string_of_pair string_of_bool string_of_bool "," hiddencontexts)
+                 (string_of_prooftree_step how)
+                 (showargs args)
+                 (string_of_pair (bracketed_string_of_list string_of_resnum ",")
+                                 (bracketed_string_of_list string_of_resnum ",") "," principals)
+                 (bracketed_string_of_list string_of_seq "," antes) 
+                 (string_of_seq conseq)
+                 (bracketed_string_of_list string_of_visproviso " AND " provs)
 
 let rec applyrule checker filter taker selhyps selconcs stuff reason cxt (_C, _Cinf) =
     let (kind, hiddencontexts, how, args, principals, antes, conseq, provs) = stuff in
     if !applydebug > 0 then
       consolereport
         ["applyrule "; step_label how; " "; showstuff stuff; " ";
-         enQuote reason; " "; string_of_seq _C; " "; Cxtstring.string_of_cxt cxt];
+         enQuote reason; " "; string_of_seq _C; " "; string_of_cxt cxt];
     let info =
       Info { reason = reason; kind = kind; conjecture = _C; conjectureinf = _Cinf;
              cxt = cxt; args = args; provisos = provs; antecedents = antes;
