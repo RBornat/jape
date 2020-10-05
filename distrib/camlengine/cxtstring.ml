@@ -65,16 +65,13 @@ let pid = Termfuns.string_of_vid
 
 let string_of_cxtvarmap = fun (Context {varmap=varmap}) -> string_of_mapping pid string_of_term varmap
 
-let string_of_cxt =
-  fun
-    (Context
-       {varmap = varmap;
-        resmap = resmap;
-        provisos = ps, inf;
-        provisosig = provisosig;
-        outside = outside;
-        usedVIDs = usedVIDs;
-        nextresnum = nextresnum}) ->
+let string_of_cxt (Context {varmap = varmap;
+                            resmap = resmap;
+                            provisos = ps, inf;
+                            provisosig = provisosig;
+                            outside = outside;
+                            usedVIDs = usedVIDs;
+                            nextresnum = nextresnum}) =
     implode
       ["Context{"; "varmap="; string_of_mapping pid string_of_term varmap; ", ";
        "resmap=";
