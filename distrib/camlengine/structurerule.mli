@@ -25,12 +25,13 @@
 
 open Name
 
-type structurerule = CutRule
-                   | LeftWeakenRule
-                   | RightWeakenRule
-                   | IdentityRule
-                   | TransitiveRule
-                   | ReflexiveRule
+type structurerule =
+  | CutRule
+  | LeftWeakenRule
+  | RightWeakenRule
+  | IdentityRule
+  | TransitiveRule
+  | ReflexiveRule
 
 val string_of_structurerule : structurerule -> string
 
