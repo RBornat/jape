@@ -34,6 +34,8 @@ CONJECTUREPANEL "First figure"
   THEOREM     "Darii: ∏⁺(M,P), ∑⁺(S,M) ⊢ ∑⁺(S,P)" IS ∏⁺(M,P), ∑⁺(S,M) ⊢ ∑⁺(S,P)
   THEOREM     "Ferio: ∏⁻(M,P), ∑⁺(S,M) ⊢ ∑⁻(S,P)" IS ∏⁻(M,P), ∑⁺(S,M) ⊢ ∑⁻(S,P)
   THEOREM   "Barbari: ∏⁺(M,P), ∏⁺(S,M) ⊢ ∑⁺(S,P)" IS ∏⁺(M,P), ∏⁺(S,M) ⊢ ∑⁺(S,P)
+
+  BUTTON Apply IS apply applysyllogism COMMAND
 END
 
 CONJECTUREPANEL "Second figure"
@@ -42,6 +44,8 @@ CONJECTUREPANEL "Second figure"
   THEOREM   "Baroco : ∏⁺(P,M), ∑⁻(S,M) ⊢ ∑⁻(S,P)" IS ∏⁺(P,M), ∑⁻(S,M) ⊢ ∑⁻(S,P)
   THEOREM "Camestres: ∏⁺(P,M), ∏⁻(S,M) ⊢ ∏⁻(S,P)" IS ∏⁺(P,M), ∏⁻(S,M) ⊢ ∏⁻(S,P)
   THEOREM    "Cesaro: ∏⁻(P,M), ∏⁺(S,M) ⊢ ∑⁻(S,P)" IS ∏⁻(P,M), ∏⁺(S,M) ⊢ ∑⁻(S,P)
+
+  BUTTON Apply IS apply applysyllogism COMMAND
 END
 
 CONJECTUREPANEL "Third figure"
@@ -51,6 +55,8 @@ CONJECTUREPANEL "Third figure"
   THEOREM    "Datisi: ∏⁺(M,P), ∑⁺(M,S) ⊢ ∑⁺(S,P)" IS ∏⁺(M,P), ∑⁺(M,S) ⊢ ∑⁺(S,P)
   THEOREM   "Bocardo: ∑⁻(M,P), ∏⁺(M,S) ⊢ ∑⁻(S,P)" IS ∑⁻(M,P), ∏⁺(M,S) ⊢ ∑⁻(S,P)
   THEOREM   "Ferison: ∏⁻(M,P), ∑⁺(M,S) ⊢ ∑⁻(S,P)" IS ∏⁻(M,P), ∑⁺(M,S) ⊢ ∑⁻(S,P)
+
+  BUTTON Apply IS apply applysyllogism COMMAND
 END
 
 CONJECTUREPANEL "Fourth figure"
@@ -62,4 +68,6 @@ CONJECTUREPANEL "Fourth figure"
   THEOREM    "Fesapo: ∏⁻(P,M), ∏⁺(M,S) ⊢ ∑⁻(S,P)" IS ∏⁻(P,M), ∏⁺(M,S) ⊢ ∑⁻(S,P)
   THEOREM "Camestros: ∏⁺(P,M), ∏⁻(S,M) ⊢ ∑⁻(S,P)" IS ∏⁺(P,M), ∏⁻(S,M) ⊢ ∑⁻(S,P)
   THEOREM  "Celaront: ∏⁻(M,P), ∏⁺(S,M) ⊢ ∑⁻(S,P)" IS ∏⁻(M,P), ∏⁺(S,M) ⊢ ∑⁻(S,P)
+
+  BUTTON Apply IS apply applysyllogism COMMAND
 END

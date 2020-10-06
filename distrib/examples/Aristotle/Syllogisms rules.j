@@ -77,3 +77,18 @@ MACRO "Syllogism-tac" (rule, hpat1, hpat2, mpat, cpat) IS
           )
        )
        (LETGOAL _A (Fail ("%t does not infer the conclusion %t", rule, _A)))       
+
+/* for applying syllogisms as theorems. Part-copied from ../forwardstep_technology/forwardstep.j */
+
+MACRO trueforward(tac) IS
+    LETGOAL _A 
+        (CUTIN (LETGOAL _B (UNIFY _A _B) tac)) 
+        (ANY (MATCH see))
+        
+TACTIC fstep IS
+    ALT (ANY (MATCH see)) (trueforward SKIP) /* avoid nasty 'hyp matches two ways', I hope */
+
+TACTIC applysyllogism (s) IS
+    WHEN (LETHYPS _As (CUTIN (WITHHYPSEL s)))
+         (SEQ (RESOLVE s) /* fstep fstep */)
+         

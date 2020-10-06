@@ -47,4 +47,6 @@ CONJECTUREPANEL "Syllogisms"
   THEOREM  "Celaront: ∏⁻(M,P), ∏⁺(S,M) ⊢ ∑⁻(S,P)" IS ∏⁻(M,P), ∏⁺(S,M) ⊢ ∑⁻(S,P)
   THEOREM   "Darapti: ∏⁺(M,P), ∏⁺(M,S) ⊢ ∑⁺(S,P)" IS ∏⁺(M,P), ∏⁺(M,S) ⊢ ∑⁺(S,P)
   THEOREM    "Cesaro: ∏⁻(P,M), ∏⁺(S,M) ⊢ ∑⁻(S,P)" IS ∏⁻(P,M), ∏⁺(S,M) ⊢ ∑⁻(S,P)
+
+  BUTTON Apply IS apply applysyllogism COMMAND
 END
