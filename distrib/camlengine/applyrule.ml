@@ -172,9 +172,7 @@ let showargs = string_of_termlist
 let rec breakside =
   function
   | Collection cNes -> cNes
-  | t ->
-      raise
-        (Catastrophe_ ["breakside in applyrule given side "; debugstring_of_term t])
+  | t -> raise (Catastrophe_ ["breakside in applyrule given side "; debugstring_of_term t])
 
 (* once we have an answer, give me a proof tree *)
 let rec answer 
