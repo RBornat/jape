@@ -678,6 +678,11 @@ let (apply, resolve, applyorresolve) =
              (Applyrule.applyrule checker filter taker selhyps selconcs stuff' reason
                 cxt (getconjecture state))
   
+  (* as far as I can tell, a resolution/resolve step takes a theorem and transforms it
+     into a rule. So the conclusion has to match, but the hypotheses become antecedents.
+     If that's correct, it was probably my misunderstanding, long ago, of what Bernard wanted. 
+     RB 10/2020
+   *)
   and resolve checker filter taker selhyps selconcs stuff reason cxt state =
     (* We are actually going to do this with some care. 
      * Is there a cut tactic? Is there left weaken? Can we rearrange the rule?
@@ -687,7 +692,6 @@ let (apply, resolve, applyorresolve) =
      *
      * And at present we can always rearrange the rule.
      *)
-    (* we definitely need a cut, but if we have autoAdditiveLeft then surely it's ok. RB 02/10/20 *)
     let (kind, hiddens, how, env, (lefts, rights), antes, conseq, provisos) = stuff in
     let (Seq (cst, _, _)) = conseq in
     let rec fail ss =
@@ -713,23 +717,21 @@ let (apply, resolve, applyorresolve) =
         reason cxt state
     in
     check CutRule (Some [cst; cst; cst]) "cut"
-      (fun _ -> if !autoAdditiveLeft then doit ()
-                else check LeftWeakenRule (Some [cst; cst]) "left weaken" doit
-      )
+      (fun _ -> check LeftWeakenRule (Some [cst; cst]) "left weaken" doit)
   
   and applyorresolve checker filter taker selhyps selconcs stuff reason cxt state =
-    (let good = fun (Seq (_, lhs, rhs)) ->
-                  let elhs = explodeCollection lhs in
-                  let erhs = explodeCollection rhs in
-                  let hasstructure = List.exists (not <.> isleafelement) in
-                  (not (null elhs) && not (null erhs)) && (hasstructure elhs || hasstructure erhs)
-     in
-     let (kind, hiddens, how, env, principals, antes, conseq, provisos) = stuff in
-     resolvepossible := null antes && good conseq;
-     apply checker filter taker selhyps selconcs stuff reason cxt state |~~
-       (fun _ -> (if !resolvepossible (* user can cancel this *) then
-                    resolve checker filter taker selhyps selconcs stuff reason cxt state
-                  else None)))
+    let good (Seq (_, lhs, rhs)) =
+      let elhs = explodeCollection lhs in
+      let erhs = explodeCollection rhs in
+      let hasstructure = List.exists (not <.> isleafelement) in
+      (not (null elhs) && not (null erhs)) && (hasstructure elhs || hasstructure erhs)
+    in
+    let (kind, hiddens, how, env, principals, antes, conseq, provisos) = stuff in
+    resolvepossible := null antes && good conseq;
+    apply checker filter taker selhyps selconcs stuff reason cxt state |~~
+      (fun _ -> (if !resolvepossible (* user can cancel this *) then
+                   resolve checker filter taker selhyps selconcs stuff reason cxt state
+                 else None)) 
   in
   apply, resolve, applyorresolve
 
